@@ -7,15 +7,15 @@
  * an .eml message that's attached to another mail.
  */
 
-// make SOLO_TEST=composition/test-forwarded-eml-actions.js mozmill-one
-
 "use strict";
 
-var MODULE_NAME = "test-forwarded-eml-actions";
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-forwarded-eml-actions";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
-                         "compose-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "compose-helpers"];
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
@@ -81,7 +81,7 @@ var setupModule = function(module) {
 
   folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   folder.addMessage(source);
-}
+};
 
 /**
  * Helper to open an attached .eml file, invoke the hotkey and check some
@@ -113,7 +113,7 @@ function setupWindowAndTest(hotkeyToHit, hotkeyModifiers) {
   let subjectText = compWin.e("msgSubject").value;
   if (!subjectText.includes(msgsubject))
     throw new Error("subject text didn't contain the original subject; " +
-                    "msgsubject=" +  msgsubject + ", subjectText=" + subjectText);
+                    "msgsubject=" + msgsubject + ", subjectText=" + subjectText);
 
   close_compose_window(compWin, false);
   close_window(msgWin);

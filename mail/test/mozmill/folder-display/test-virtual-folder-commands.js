@@ -8,23 +8,22 @@
 
 "use strict";
 
-var MODULE_NAME = "test-virtual-folder-commands";
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers'];
+var MODULE_NAME = "test-virtual-folder-commands";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers"];
 
 var msgsPerThread = 5;
 var singleVirtFolder;
 var multiVirtFolder;
 
 function setupModule(module) {
-  let fdh = collector.getModule('folder-display-helpers');
+  let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
 
-  let [folderOne, setOne] = make_folder_with_sets(
-    [{msgsPerThread: msgsPerThread}]);
-  let [folderTwo, setTwo] = make_folder_with_sets(
-    [{msgsPerThread: msgsPerThread}]);
+  let [folderOne] = make_folder_with_sets([{msgsPerThread}]);
+  let [folderTwo] = make_folder_with_sets([{msgsPerThread}]);
 
   singleVirtFolder = make_virtual_folder([folderOne], {});
   multiVirtFolder = make_virtual_folder([folderOne, folderTwo], {});

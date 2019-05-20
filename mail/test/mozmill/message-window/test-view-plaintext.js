@@ -6,12 +6,12 @@
  * Tests that the plain text part of multipart/alternative messages can be correctly viewed.
  */
 
-// mozmake SOLO_TEST=message-window/test-view-plaintext.js mozmill-one
-
 "use strict";
 
-var MODULE_NAME = "test-view-plaintext";
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-view-plaintext";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
@@ -41,9 +41,9 @@ function check_content(aWindow, aExpected, aDontWantToSee) {
                  "Found content that shouldn't be there");
   } else {
     let ind = messageContent.indexOf(aExpected);
-    assert_true (ind >= 0, "Didn't find expected content");
+    assert_true(ind >= 0, "Didn't find expected content");
     if (ind >= 0)
-      assert_false(messageContent.substr(ind+aExpected.length).includes(aExpected),
+      assert_false(messageContent.substr(ind + aExpected.length).includes(aExpected),
                    "Found content a second time");
   }
 }
@@ -84,31 +84,31 @@ function test_view() {
   // 1) multipart/alternative
   // 2) multipart/alternative with embedded multipart/related
   // 3) multipart/alternative with embedded multipart/related embedded in multipart/mixed
-  checkSingleMessage("./test-alt.eml",                     "Plain Text", "HTML Body");
-  checkSingleMessage("./test-alt-rel.eml",                 "Plain Text", "HTML Body");
-  checkSingleMessage("./test-alt-rel-with-attach.eml",     "Plain Text", "HTML Body");
+  checkSingleMessage("./test-alt.eml", "Plain Text", "HTML Body");
+  checkSingleMessage("./test-alt-rel.eml", "Plain Text", "HTML Body");
+  checkSingleMessage("./test-alt-rel-with-attach.eml", "Plain Text", "HTML Body");
 
   // 4) HTML part missing
   // 5) Plain part missing
-  checkSingleMessage("./test-alt-HTML-missing.eml",        "Plain Text", "Plain Text");
-  checkSingleMessage("./test-alt-plain-missing.eml",       "HTML Body",  "HTML Body");
+  checkSingleMessage("./test-alt-HTML-missing.eml", "Plain Text", "Plain Text");
+  checkSingleMessage("./test-alt-plain-missing.eml", "HTML Body", "HTML Body");
 
   // 6) plain and HTML parts reversed in order
   checkSingleMessage("./test-alt-plain-HTML-reversed.eml", "Plain Text", "HTML Body");
 
   // 7) 3 alt. parts with 2 plain and 1 HTML part
-  checkSingleMessage("./test-triple-alt.eml",              "Plain Text", "HTML Body");
+  checkSingleMessage("./test-triple-alt.eml", "Plain Text", "HTML Body");
 
   // 8) 3 alt. parts with 2 plain and 1 multipart/related
-  checkSingleMessage("./test-alt-rel-text.eml",            "Plain Text", "HTML Body");
+  checkSingleMessage("./test-alt-rel-text.eml", "Plain Text", "HTML Body");
 
   // Now some cases that don't work yet.
   // 9) multipart/related with embedded multipart/alternative
-  checkSingleMessage("./test-rel-alt.eml",                 "HTML Body",  "HTML Body");
+  checkSingleMessage("./test-rel-alt.eml", "HTML Body", "HTML Body");
 
   // Bug 1367156: Rogue message which has an image as the last part.
-  checkSingleMessage("./test-alt-rogue.eml",               "Plain Text", "HTML Body");
-  checkSingleMessage("./test-alt-rogue2.eml",              "Plain Text", "HTML Body");
+  checkSingleMessage("./test-alt-rogue.eml", "Plain Text", "HTML Body");
+  checkSingleMessage("./test-alt-rogue2.eml", "Plain Text", "HTML Body");
 }
 
 function teardownModule() {

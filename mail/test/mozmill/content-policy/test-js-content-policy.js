@@ -9,20 +9,20 @@
  * folder of that account to be emptied multiple times.
  */
 
-// make SOLO_TEST=content-policy/test-js-content-policy.js mozmill-one
-
 "use strict";
 
-var MODULE_NAME = 'test-js-content-policy';
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers'];
+var MODULE_NAME = "test-js-content-policy";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var folder = null;
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
 // so we get the right path for the resources.
-var url = collector.addHttpResource('../content-policy/html', 'content');
+var url = collector.addHttpResource("../content-policy/html", "content");
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
@@ -31,17 +31,16 @@ function setupModule(module) {
 
   folder = create_folder("jsContentPolicy");
   Services.prefs.setBoolPref("javascript.enabled", true);
-};
+}
 
 function teardownModule(module) {
   Services.prefs.clearUserPref("javascript.enabled");
 }
 
 function addToFolder(aSubject, aBody, aFolder) {
-
   let msgId = Cc["@mozilla.org/uuid-generator;1"]
                           .getService(Ci.nsIUUIDGenerator)
-                          .generateUUID() +"@mozillamessaging.invalid";
+                          .generateUUID() + "@mozillamessaging.invalid";
 
   let source = "From - Sat Nov  1 12:39:54 2008\n" +
                "X-Mozilla-Status: 0001\n" +
@@ -68,24 +67,24 @@ function addToFolder(aSubject, aBody, aFolder) {
 }
 
 var jsMsgBody = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">\n' +
-'<html>\n' +
-'<head>\n' +
-'\n' +
+"<html>\n" +
+"<head>\n" +
+"\n" +
 '<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">\n' +
-'</head>\n' +
+"</head>\n" +
 '<body bgcolor="#ffffff" text="#000000">\n' +
-'this is a test<big><big><big> stuff\n' +
-'<br><br>\n' +
-'</big></big></big>\n' +
-'<noscript>\n'+
-'hello, this content is noscript!\n' +
-'</noscript>\n' +
-'<script>\n'+
-'var jsIsTurnedOn = true;\n' +
-'</script>\n' +
-'\n' +
-'</body>\n' +
-'</html>\n';
+"this is a test<big><big><big> stuff\n" +
+"<br><br>\n" +
+"</big></big></big>\n" +
+"<noscript>\n" +
+"hello, this content is noscript!\n" +
+"</noscript>\n" +
+"<script>\n" +
+"var jsIsTurnedOn = true;\n" +
+"</script>\n" +
+"\n" +
+"</body>\n" +
+"</html>\n";
 
 var gMsgNo = 0;
 
@@ -102,7 +101,7 @@ function checkJsInMail() {
 
   let mc = mozmill.getMail3PaneController();
   // This works because messagepane is type=content-primary in these tests.
-  if (typeof mc.window.content.wrappedJSObject.jsIsTurnedOn != 'undefined')
+  if (typeof mc.window.content.wrappedJSObject.jsIsTurnedOn != "undefined")
     throw new Error("JS is turned on in mail - it shouldn't be.");
 
   let noscript = mc.window.content.wrappedJSObject.document
@@ -122,7 +121,7 @@ function checkJsInNonMessageContent() {
 
   // load something non-message-like in the message pane
   mc.window.GetMessagePaneFrame().location.href =
-    "data:text/html;charset=utf-8,<script>var jsIsTurnedOn%3Dtrue%3B<%2Fscript>bar"+
+    "data:text/html;charset=utf-8,<script>var jsIsTurnedOn%3Dtrue%3B<%2Fscript>bar" +
                                   "<noscript><p id='noscript-p'>hey this is noscript</p>";
 
   wait_for_message_display_completion();
@@ -246,7 +245,6 @@ function checkJsInRemoteContent() {
 }
 
 function test_jsContentPolicy() {
-  let folderTab = mc.tabmail.currentTabInfo;
   be_in_folder(folder);
 
   assert_nothing_selected();
@@ -263,5 +261,4 @@ function test_jsContentPolicy() {
   checkJsInFeedContent();
   checkJsInRemoteContent();
   checkJsInFeedTab();
-
 }

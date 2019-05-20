@@ -5,9 +5,7 @@
 "use strict";
 
 var MODULE_NAME = "prompt-helpers";
-
 var RELATIVE_ROOT = "../shared-modules";
-// we need this for the main controller
 var MODULE_REQUIRES = ["mock-object-helpers"];
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -20,7 +18,7 @@ var kPromptServiceName = "Prompt Service";
 var gMockAuthPromptReg;
 
 function setupModule() {
-  let moh = collector.getModule('mock-object-helpers');
+  let moh = collector.getModule("mock-object-helpers");
   gMockAuthPromptReg = new moh.MockObjectReplacer("@mozilla.org/prompter;1",
                                                   MockAuthPromptFactoryConstructor);
 }
@@ -40,10 +38,10 @@ function MockAuthPromptFactoryConstructor() {
 
 var gMockAuthPromptFactory = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIPromptFactory]),
-  getPrompt: function(aParent, aIID, aResult) {
+  getPrompt(aParent, aIID, aResult) {
     return gMockAuthPrompt.QueryInterface(aIID);
-  }
-}
+  },
+};
 
 
 var gMockAuthPrompt = {
@@ -51,23 +49,18 @@ var gMockAuthPrompt = {
 
   QueryInterface: ChromeUtils.generateQI([Ci.nsIAuthPrompt]),
 
-  prompt: function MAP_prompt(aTitle, aText, aRealm, aSave,
-                              aDefaultText) {
+  prompt(aTitle, aText, aRealm, aSave, aDefaultText) {
     throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },
 
-  promptUsernameAndPassword: function
-      MAP_promptUsernameAndPassword(aTitle, aText, aRealm, aSave,
-                                    aUser, aPwd) {
+  promptUsernameAndPassword(aTitle, aText, aRealm, aSave, aUser, aPwd) {
     throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },
 
-  promptPassword: function MAP_promptPassword(aTitle, aText,
-                                              aRealm, aSave,
-                                              aPwd) {
+  promptPassword(aTitle, aText, aRealm, aSave, aPwd) {
     aPwd.value = this.password;
     return true;
-  }
+  },
 };
 
 var gMockPromptService = {
@@ -79,7 +72,7 @@ var gMockPromptService = {
   _origFactory: null,
   _promptCb: null,
 
-  confirm: function(aParent, aDialogTitle, aText) {
+  confirm(aParent, aDialogTitle, aText) {
     this._promptState = {
       method: "confirm",
       parent: aParent,
@@ -92,9 +85,8 @@ var gMockPromptService = {
     return this._will_return;
   },
 
-  confirmEx: function(aParent, aDialogTitle, aText, aButtonFlags,
-                      aButton0Title, aButton1Title, aButton2Title,
-                      aCheckMsg, aCheckState) {
+  confirmEx(aParent, aDialogTitle, aText, aButtonFlags, aButton0Title, aButton1Title,
+            aButton2Title, aCheckMsg, aCheckState) {
     this._promptState = {
       method: "confirmEx",
       parent: aParent,
@@ -113,8 +105,7 @@ var gMockPromptService = {
     return this._will_return;
   },
 
-  prompt: function(aParent, aDialogTitle, aText, aValue, aCheckMsg,
-                   aCheckState) {
+  prompt(aParent, aDialogTitle, aText, aValue, aCheckMsg, aCheckState) {
     this._promptState = {
       method: "prompt",
       parent: aParent,
@@ -153,14 +144,14 @@ var gMockPromptService = {
     this._promptCb = aCb;
   },
 
-  fireCb: function() {
+  fireCb() {
     if (typeof(this._promptCb) == "function")
       this._promptCb.call();
   },
 
   /* Wipes out the prompt state and any return values.
    */
-  reset: function() {
+  reset() {
     this._will_return = null;
     this._promptState = null;
     this._promptCb = null;
@@ -216,7 +207,7 @@ var gMockPromptService = {
     }
   },
 
-  _resetServicesPrompt: function() {
+  _resetServicesPrompt() {
     XPCOMUtils.defineLazyServiceGetter(Services, "prompt",
                                        kPromptServiceContractID,
                                        "nsIPromptService");
@@ -224,7 +215,7 @@ var gMockPromptService = {
 };
 
 var gMockPromptServiceFactory = {
-  createInstance: function(aOuter, aIID) {
+  createInstance(aOuter, aIID) {
     if (aOuter != null)
       throw Cr.NS_ERROR_NO_AGGREGATION;
 
@@ -232,5 +223,5 @@ var gMockPromptServiceFactory = {
       throw Cr.NS_ERROR_NO_INTERFACE;
 
     return gMockPromptService;
-  }
+  },
 };

@@ -78,7 +78,6 @@ mail/branding/thunderbird/thunderbird-branding.js
 mail/components/enterprisepolicies/schemas/schema.jsm
 mail/components/im/all-im.js
 mail/locales/en-US/all-l10n.js
-mail/test/mozmill/**
 
 # calendar/ exclusions
 

@@ -7,15 +7,21 @@
  * - that we don't allow opening multiple copies of a draft.
  */
 
-// make SOLO_TEST=composition/test-drafts.js mozmill-one
-
 "use strict";
 
-var MODULE_NAME = "test-drafts";
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-notificationbox-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-drafts";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers",
-                       "window-helpers", "notificationbox-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "compose-helpers",
+  "window-helpers",
+  "notificationbox-helpers",
+];
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
@@ -38,7 +44,7 @@ function setupModule(module) {
 function test_open_draft_again() {
   make_new_sets_in_folder(draftsFolder, [{count: 1}]);
   be_in_folder(draftsFolder);
-  let draftMsg = select_click_row(0);
+  select_click_row(0);
 
   // Wait for the notification with the Edit button.
   wait_for_notification_to_show(mc, kBoxId, "draftMsgContent");
@@ -180,7 +186,7 @@ function test_edit_as_new_in_draft() {
 
   assert_equals(draftsFolder.getTotalMessages(false), 1);
 
-  let draftMsg = select_click_row(0);
+  select_click_row(0);
 
   // Wait for the notification with the Edit button.
   wait_for_notification_to_show(mc, kBoxId, "draftMsgContent");
@@ -254,7 +260,7 @@ function test_remove_space_stuffing_format_flowed() {
 
   be_in_folder(draftsFolder);
 
-  let draftMsg = select_click_row(0);
+  select_click_row(0);
 
   // Wait for the notification with the Edit button.
   wait_for_notification_to_show(mc, kBoxId, "draftMsgContent");

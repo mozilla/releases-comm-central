@@ -6,12 +6,11 @@
  * Test that "watch thread" and "ignore thread" works correctly.
  */
 
-// make SOLO_TEST=folder-display/test-watch-ignore-thread.js mozmill-one
-
 "use strict";
 
-var MODULE_NAME = "test-watch-ignore-thread";
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 
+var MODULE_NAME = "test-watch-ignore-thread";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers"];
 
@@ -42,7 +41,7 @@ function clickViewMessagesItem(aMenuId) {
     [
       {id: "appmenu_View"},
       {id: "appmenu_viewMessagesMenu"},
-      {id: aMenuId}
+      {id: aMenuId},
     ]
   );
 }
@@ -98,7 +97,6 @@ function test_view_threads_ignored_threads() {
  * Test that Watch Thread makes the thread watched.
  */
 function test_watch_thread() {
-  let t2root = thread2.getMsgHdr(0);
   let t2second = select_click_row(1);
   let t3root = thread3.getMsgHdr(0);
   assert_selected_and_displayed(t2second);

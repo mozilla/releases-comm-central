@@ -10,8 +10,9 @@
 
 "use strict";
 
-var MODULE_NAME = "test-unread-folders";
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 
+var MODULE_NAME = "test-unread-folders";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers"];
 

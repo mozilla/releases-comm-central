@@ -8,12 +8,21 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-address-book';
+/* import-globals-from ../shared-modules/test-address-book-helpers.js */
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-prompt-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ["folder-display-helpers", "address-book-helpers",
-                       'compose-helpers', 'window-helpers',
-                       'prompt-helpers'];
+var MODULE_NAME = "test-address-book";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "address-book-helpers",
+  "compose-helpers",
+  "window-helpers",
+  "prompt-helpers",
+];
 
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -23,8 +32,7 @@ var abController = null;
 var addrBook1, addrBook2, addrBook3, addrBook4, ldapBook;
 var mListA, mListB, mListC, mListD, mListE;
 
-function setupModule(module)
-{
+function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
     collector.getModule(lib).installInto(module);
   }
@@ -88,15 +96,13 @@ function setupModule(module)
  * LDAP Book
  * Collected Address Book
  **/
-function test_order_of_address_books()
-{
+function test_order_of_address_books() {
   const EXPECTED_AB_ORDER = ["All Address Books",
                              "Personal Address Book", "AB 1", "AB 2",
                              "AB 3", "AB 4", "LDAP Book",
                              "Collected Addresses"];
 
-  for (let i = 0; i < EXPECTED_AB_ORDER.length; i++)
-  {
+  for (let i = 0; i < EXPECTED_AB_ORDER.length; i++) {
     let abName = get_name_of_address_book_element_at(i);
     assert_equals(abName, EXPECTED_AB_ORDER[i],
                   "The address books are out of order.");
@@ -107,13 +113,12 @@ function test_order_of_address_books()
  * in the tree persist state when closing and re-opening the
  * address book manager
  */
-function test_persist_collapsed_and_expanded_states()
-{
+function test_persist_collapsed_and_expanded_states() {
   // Set the state of address books 1 and 3 to expanded
   set_address_books_expanded([addrBook1, addrBook3]);
 
   // Set address book 2 to be collapsed
-  set_address_book_collapsed(addrBook2);
+  set_address_books_collapsed(addrBook2);
 
   // Now close and re-open the address book
   close_address_book_window(abController);
@@ -126,7 +131,7 @@ function test_persist_collapsed_and_expanded_states()
   // Now set the state of address books 1 and 3 to collapsed
   // and make sure 2 is expanded
   set_address_books_collapsed([addrBook1, addrBook3]);
-  set_address_book_expanded(addrBook2);
+  set_address_books_expanded(addrBook2);
 
   // Now close and re-open the address book
   close_address_book_window(abController);
@@ -140,8 +145,7 @@ function test_persist_collapsed_and_expanded_states()
 /* Test that if we try to delete a contact, that we are given
  * a confirm prompt.
  */
-function test_deleting_contact_causes_confirm_prompt()
-{
+function test_deleting_contact_causes_confirm_prompt() {
   // Register the Mock Prompt Service
   gMockPromptService.register();
 
@@ -150,7 +154,7 @@ function test_deleting_contact_causes_confirm_prompt()
   let toDelete = [contact1];
 
   let bundle = Services.strings
-                       .createBundle("chrome://messenger/locale/addressbook/addressBook.properties")
+                       .createBundle("chrome://messenger/locale/addressbook/addressBook.properties");
   let confirmSingle = bundle.GetStringFromName("confirmDeleteThisContact");
   confirmSingle = confirmSingle.replace("#1", "Sammy Jenkis");
 
@@ -165,7 +169,7 @@ function test_deleting_contact_causes_confirm_prompt()
   gMockPromptService.returnValue = false;
 
   // Now attempt to delete the contact
-  select_contact(toDelete);
+  select_contacts(toDelete);
   abController.keypress(null, "VK_DELETE", {});
 
   let promptState = gMockPromptService.promptState;
@@ -182,7 +186,7 @@ function test_deleting_contact_causes_confirm_prompt()
   // Now we'll return true on confirm so that
   // the contact is deleted.
   gMockPromptService.returnValue = true;
-  select_contact(toDelete);
+  select_contacts(toDelete);
   abController.keypress(null, "VK_DELETE", {});
 
   promptState = gMockPromptService.promptState;
@@ -201,8 +205,7 @@ function test_deleting_contact_causes_confirm_prompt()
 /* Test that if we try to delete multiple contacts, that we are give
  * a confirm prompt.
  */
-function test_deleting_contacts_causes_confirm_prompt()
-{
+function test_deleting_contacts_causes_confirm_prompt() {
   // Register the Mock Prompt Service
   gMockPromptService.register();
 
@@ -214,7 +217,7 @@ function test_deleting_contacts_causes_confirm_prompt()
   let toDelete = [contact2, contact3, contact4];
 
   let bundle = Services.strings
-                       .createBundle("chrome://messenger/locale/addressbook/addressBook.properties")
+                       .createBundle("chrome://messenger/locale/addressbook/addressBook.properties");
   let confirmMultiple = bundle.GetStringFromName("confirmDelete2orMoreContacts");
   confirmMultiple = confirmMultiple.replace(/.*;/, "").replace("#1", "3");
 
@@ -274,7 +277,6 @@ function test_deleting_mailing_lists() {
   // address books
   let newList = create_mailing_list("Delete Me!");
   let addedList = addrBook1.addMailList(newList);
-  let mlURI = addedList.URI;
 
   // Make sure it got added.
   assert_true(addrBook1.hasDirectory(addedList));
@@ -316,23 +318,20 @@ function test_deleting_mailing_lists() {
  * mailing list in the tree, and clicking "Write"
  */
 function test_writing_to_mailing_list() {
-
   // Create a new mailing list, and add it to one of our
   // address books
   let newList = create_mailing_list("Some Mailing List");
   let addedList = addrBook1.addMailList(newList);
-  let mlURI = addedList.URI;
 
   // Create some contacts that we'll try to contact
   let contacts = [create_contact("test2@example.com", "Leonard Shelby", true),
-                  create_contact("test3@example.com", "John Edward Gammell",
-                                 true),
-                  create_contact("test4@example.com", "Natalie", true),];
+                  create_contact("test3@example.com", "John Edward Gammell", true),
+                  create_contact("test4@example.com", "Natalie", true)];
 
   load_contacts_into_mailing_list(addedList, contacts);
 
   // Ensure that addrBook1 is expanded
-  set_address_book_expanded(addrBook1);
+  set_address_books_expanded(addrBook1);
 
   // Now select the mailing list in the tree...
   select_address_book(addedList);

@@ -8,11 +8,13 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-attachment';
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'compose-helpers',
-                       'window-helpers'];
+var MODULE_NAME = "test-attachment";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
 
 var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
 var EventUtils = ChromeUtils.import("chrome://mozmill/content/stdlib/EventUtils.jsm");
@@ -32,12 +34,12 @@ var textAttachment =
 
 var binaryAttachment = textAttachment;
 
-var setupModule = function (module) {
-  let fdh = collector.getModule('folder-display-helpers');
+function setupModule(module) {
+  let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let wh = collector.getModule('window-helpers');
+  let wh = collector.getModule("window-helpers");
   wh.installInto(module);
-  let composeHelper = collector.getModule('compose-helpers');
+  let composeHelper = collector.getModule("compose-helpers");
   composeHelper.installInto(module);
 
   folder = create_folder("AttachmentA");
@@ -45,8 +47,8 @@ var setupModule = function (module) {
   var attachedMessage = msgGen.makeMessage({
     body: { body: "I'm an attached email!" },
     attachments: [{ body: textAttachment,
-                    filename: 'inner attachment.txt',
-                    format: '' }],
+                    filename: "inner attachment.txt",
+                    format: "" }],
   });
 
   // create some messages that have various types of attachments
@@ -55,33 +57,33 @@ var setupModule = function (module) {
     {},
     // text attachment
     { attachments: [{ body: textAttachment,
-                      filename: 'ubik.txt',
-                      format: '' }],
+                      filename: "ubik.txt",
+                      format: "" }],
     },
     // binary attachment; filename has 9 "1"s, which should be just within the
     // limit for showing the original name
     { attachments: [{ body: binaryAttachment,
-                      contentType: 'application/octet-stream',
-                      filename: 'ubik-111111111.xxyyzz',
-                      format: '' }],
+                      contentType: "application/octet-stream",
+                      filename: "ubik-111111111.xxyyzz",
+                      format: "" }],
     },
     // multiple attachments
     { attachments: [{ body: textAttachment,
-                      filename: 'ubik.txt',
-                      format: '' },
+                      filename: "ubik.txt",
+                      format: "" },
                     { body: binaryAttachment,
-                      contentType: 'application/octet-stream',
-                      filename: 'ubik.xxyyzz',
-                      format: '' }],
+                      contentType: "application/octet-stream",
+                      filename: "ubik.xxyyzz",
+                      format: "" }],
     },
     // attachment with a long name; the attachment bar should crop this
     { attachments: [{ body: textAttachment,
-                      filename: 'this-is-a-file-with-an-extremely-long-name-' +
-                                'that-seems-to-go-on-forever-seriously-you-' +
-                                'would-not-believe-how-long-this-name-is-it-' +
-                                'surely-exceeds-the-maximum-filename-length-' +
-                                'for-most-filesystems.txt',
-                      format: '' }],
+                      filename: "this-is-a-file-with-an-extremely-long-name-" +
+                                "that-seems-to-go-on-forever-seriously-you-" +
+                                "would-not-believe-how-long-this-name-is-it-" +
+                                "surely-exceeds-the-maximum-filename-length-" +
+                                "for-most-filesystems.txt",
+                      format: "" }],
     },
     // a message with a text attachment and an email attachment, which in turn
     // has its own text attachment
@@ -89,44 +91,44 @@ var setupModule = function (module) {
       bodyPart: new SyntheticPartMultiMixed([
         new SyntheticPartLeaf("I'm a message!"),
         new SyntheticPartLeaf(textAttachment,
-                              { filename: 'outer attachment.txt',
-                                contentType: 'text/plain',
-                                format: '' }),
+                              { filename: "outer attachment.txt",
+                                contentType: "text/plain",
+                                format: "" }),
         attachedMessage,
       ]),
     },
     // evilly-named attachment; spaces should be collapsed and trimmed on the
     // ends
     { attachments: [{ body: textAttachment,
-                      contentType: 'application/octet-stream',
-                      filename: ' ubik  .txt                            .evil ',
-                      sanitizedFilename: 'ubik .txt .evil',
-                      format: '' }],
+                      contentType: "application/octet-stream",
+                      filename: " ubik  .txt                            .evil ",
+                      sanitizedFilename: "ubik .txt .evil",
+                      format: "" }],
     },
     // another evilly-named attachment; filename has 10 "_"s, which should be
     // just enough to trigger the sanitizer
     { attachments: [{ body: textAttachment,
-                      contentType: 'application/octet-stream',
-                      filename: 'ubik.txt__________.evil',
-                      sanitizedFilename: 'ubik.txt_…_.evil',
-                      format: '' }],
+                      contentType: "application/octet-stream",
+                      filename: "ubik.txt__________.evil",
+                      sanitizedFilename: "ubik.txt_…_.evil",
+                      format: "" }],
     },
   ];
 
   // Add another evilly-named attachment for Windows tests, to ensure that
   // trailing periods are stripped.
-  if ('@mozilla.org/windows-registry-key;1' in Cc) {
+  if ("@mozilla.org/windows-registry-key;1" in Cc) {
     messages.push({ attachments: [{ body: textAttachment,
-                                    contentType: 'application/octet-stream',
-                                    filename: 'ubik.evil. . . . . . . . . ....',
-                                    sanitizedFilename: 'ubik.evil',
-                                    format: '' }],
+                                    contentType: "application/octet-stream",
+                                    filename: "ubik.evil. . . . . . . . . ....",
+                                    sanitizedFilename: "ubik.evil",
+                                    format: "" }],
                   });
   }
 
   for (let i = 0; i < messages.length; i++)
     add_message_to_folder(folder, create_message(messages[i]));
-};
+}
 
 /**
  * Set the pref to ensure that the attachments pane starts out (un)expanded
@@ -156,7 +158,7 @@ function test_attachment_view_expanded() {
     assert_selected_and_displayed(i);
 
     if (mc.e("attachmentView").collapsed)
-      throw new Error("Attachment pane collapsed (on message #"+i+
+      throw new Error("Attachment pane collapsed (on message #" + i +
                       " when it shouldn't be!");
   }
 }
@@ -278,7 +280,7 @@ function test_attachment_right_click_single() {
                                  "attachment-toolbar-context-menu");
 }
 // Re-enable this test once Bug 617311 is fixed.
-test_attachment_right_click_single.EXCLUDED_PLATFORMS = ['linux'];
+test_attachment_right_click_single.EXCLUDED_PLATFORMS = ["linux"];
 
 function test_attachment_right_click_multiple() {
   be_in_folder(folder);
@@ -298,7 +300,7 @@ function test_attachment_right_click_multiple() {
                                  "attachment-toolbar-context-menu");
 }
 // Re-enable this test once Bug 617311 is fixed.
-test_attachment_right_click_multiple.EXCLUDED_PLATFORMS = ['linux'];
+test_attachment_right_click_multiple.EXCLUDED_PLATFORMS = ["linux"];
 
 /**
  * Test that clicking on various elements in the attachment bar toggles the
@@ -312,12 +314,12 @@ function subtest_attachment_list_toggle(elementId) {
 
   mc.click(element);
   assert_true(!attachmentList.collapsed, "Attachment list should be expanded " +
-              "after clicking "+elementId+"!");
+              "after clicking " + elementId + "!");
   assert_attachment_list_focused();
 
   mc.click(element);
   assert_true(attachmentList.collapsed, "Attachment list should be collapsed " +
-              "after clicking "+elementId+" again!");
+              "after clicking " + elementId + " again!");
   assert_message_pane_focused();
 }
 

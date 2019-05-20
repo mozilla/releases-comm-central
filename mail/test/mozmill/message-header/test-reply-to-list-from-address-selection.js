@@ -8,11 +8,13 @@
 
 "use strict";
 
-var MODULE_NAME = "test-reply-to-list-from-address-selection";
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers',
-                       'window-helpers', 'compose-helpers'];
+var MODULE_NAME = "test-reply-to-list-from-address-selection";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "compose-helpers"];
 
 var testFolder = null;
 var msgHdr = null;
@@ -49,10 +51,10 @@ function addMessageToFolder(aFolder) {
                 "List-Post: <list.mozillamessaging.invalid>, \n" +
                 "    <mailto: list@mozillamessaging.invalid>\n" +
                 "To: recipient@mozillamessaging.invalid\n" +
-                "Subject: " + "a subject" + "\n" +
+                "Subject: a subject\n" +
                 "Content-Type: text/html; charset=ISO-8859-1\n" +
                 "Content-Transfer-Encoding: 7bit\n" +
-                 "\n" + "text body" + "\n";
+                "\ntext body\n";
 
   aFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   aFolder.gettingNewMessages = true;
@@ -64,11 +66,11 @@ function addMessageToFolder(aFolder) {
 
 function addIdentitiesAndFolder() {
   let identity2 = MailServices.accounts.createIdentity();
-  //identity.fullName = "Tinderbox_Identity1";
-  identity2.email="tinderbox_identity1@foo.invalid";
+  // identity.fullName = "Tinderbox_Identity1";
+  identity2.email = "tinderbox_identity1@foo.invalid";
 
   let identity = MailServices.accounts.createIdentity();
-  //identity.fullName = "Tinderbox_Identity1";
+  // identity.fullName = "Tinderbox_Identity1";
   identity.email = identityString1;
 
   let server = MailServices.accounts.createIncomingServer("nobody",
@@ -94,8 +96,8 @@ function test_Reply_To_List_From_Address() {
 
   // see if it's the correct identity selected
   if (!identityList.selectedItem.label.includes(identityString1))
-    throw new Error("The From address is not correctly selected! Expected: "+
-                    identityString1 + "; Actual: "  +
+    throw new Error("The From address is not correctly selected! Expected: " +
+                    identityString1 + "; Actual: " +
                     identityList.selectedItem.label);
 }
 

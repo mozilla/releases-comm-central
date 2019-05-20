@@ -4,10 +4,11 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-chat-tab-restore';
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers'];
+var MODULE_NAME = "test-chat-tab-restore";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers"];
 
 /**
  * Create a new chat tab, making that tab the current tab. We block until the
@@ -51,7 +52,7 @@ function wait_for_chat_tab_to_open(aController) {
 }
 
 function setupModule(module) {
-  collector.getModule('folder-display-helpers').installInto(module);
+  collector.getModule("folder-display-helpers").installInto(module);
 }
 
 /*

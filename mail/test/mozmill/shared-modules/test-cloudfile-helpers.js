@@ -5,7 +5,6 @@
 "use strict";
 
 var MODULE_NAME = "cloudfile-helpers";
-
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers"];
 

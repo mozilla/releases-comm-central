@@ -9,22 +9,23 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-toggle-bar';
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-quick-filter-bar-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-
-var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers',
-                       'quick-filter-bar-helper'];
+var MODULE_NAME = "test-toggle-bar";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "quick-filter-bar-helpers"];
 
 var folder;
 var setUnstarred, setStarred;
 
 function setupModule(module) {
-  let fdh = collector.getModule('folder-display-helpers');
+  let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let wh = collector.getModule('window-helpers');
+  let wh = collector.getModule("window-helpers");
   wh.installInto(module);
-  let qfb = collector.getModule('quick-filter-bar-helper');
+  let qfb = collector.getModule("quick-filter-bar-helpers");
   qfb.installInto(module);
 
   folder = create_folder("QuickFilterBarToggleBar");

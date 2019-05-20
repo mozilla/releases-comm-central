@@ -5,7 +5,6 @@
 "use strict";
 
 var MODULE_NAME = "nntp-helpers";
-
 var RELATIVE_ROOT = "../shared-modules";
 var MODULES_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
@@ -13,12 +12,12 @@ var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var kSimpleNewsArticle =
-  "From: John Doe <john.doe@example.com>\n"+
-  "Date: Sat, 24 Mar 1990 10:59:24 -0500\n"+
-  "Newsgroups: test.subscribe.simple\n"+
-  "Subject: H2G2 -- What does it mean?\n"+
-  "Message-ID: <TSS1@nntp.invalid>\n"+
-  "\n"+
+  "From: John Doe <john.doe@example.com>\n" +
+  "Date: Sat, 24 Mar 1990 10:59:24 -0500\n" +
+  "Newsgroups: test.subscribe.simple\n" +
+  "Subject: H2G2 -- What does it mean?\n" +
+  "Message-ID: <TSS1@nntp.invalid>\n" +
+  "\n" +
   "What does the acronym H2G2 stand for? I've seen it before...\n";
 
 // The groups to set up on the fake server.
@@ -28,7 +27,7 @@ var groups = [
   ["test.empty", false],
   ["test.subscribe.empty", true],
   ["test.subscribe.simple", true],
-  ["test.filter", true]
+  ["test.filter", true],
 ];
 
 var folderDisplayHelper;
@@ -38,16 +37,16 @@ var windowHelper;
 var testHelperModule;
 
 function setupModule() {
-  folderDisplayHelper = collector.getModule('folder-display-helpers');
+  folderDisplayHelper = collector.getModule("folder-display-helpers");
   mc = folderDisplayHelper.mc;
-  windowHelper = collector.getModule('window-helpers');
+  windowHelper = collector.getModule("window-helpers");
   testHelperModule = {
-    Cc: Cc,
-    Ci: Ci,
-    Cu: Cu,
+    Cc,
+    Ci,
+    Cu,
     // fake some xpcshell stuff
     _TEST_FILE: ["mozmill"],
-    do_throw: function(aMsg) {
+    do_throw(aMsg) {
       throw new Error(aMsg);
     },
   };
@@ -71,7 +70,7 @@ function installInto(module) {
 function setupNNTPDaemon() {
   var daemon = new testHelperModule.nntpDaemon();
 
-  groups.forEach(function (element) {
+  groups.forEach(function(element) {
     daemon.addGroup(element[0]);
   });
 
@@ -105,14 +104,14 @@ Services.prefs.setBoolPref("mail.strict_threading", true);
 
 // Make sure we don't try to use a protected port. I like adding 1024 to the
 // default port when doing so...
-var NNTP_PORT = 1024+119;
+var NNTP_PORT = 1024 + 119;
 
 var _server = null;
 
 function subscribeServer(incomingServer) {
   // Subscribe to newsgroups
   incomingServer.QueryInterface(Ci.nsINntpIncomingServer);
-  groups.forEach(function (element) {
+  groups.forEach(function(element) {
       if (element[1])
         incomingServer.subscribeToNewsgroup(element[0]);
     });
@@ -134,24 +133,11 @@ function setupLocalServer(port) {
   server.valid = true;
   // hack to cause an account loaded notification now the server is valid
   // (see also Bug 903804)
-  account.incomingServer = account.incomingServer;
+  account.incomingServer = account.incomingServer; // eslint-disable-line no-self-assign
 
   subscribeServer(server);
 
   _server = server;
 
   return server;
-}
-
-var URLCreator = MailServices.nntp.QueryInterface(Ci.nsIProtocolHandler);
-
-function create_post(baseURL, file) {
-  var url = URLCreator.newURI(baseURL);
-  url.QueryInterface(Ci.nsINntpUrl);
-
-  var post = Cc["@mozilla.org/messenger/nntpnewsgrouppost;1"]
-               .createInstance(Ci.nsINNTPNewsgroupPost);
-  post.postMessageFile = do_get_file(file);
-  url.messageToPost = post;
-  return url;
 }

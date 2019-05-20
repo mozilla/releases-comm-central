@@ -11,11 +11,13 @@
 
 "use strict";
 
-var MODULE_NAME = "test-displaying-messages-in-folder-tabs";
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-search-window-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-displaying-messages-in-folder-tabs";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
-                       "search-window-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "search-window-helpers"];
 
 var folderA;
 var folderB;
@@ -392,4 +394,4 @@ function test_display_message_scrolls_to_message() {
  */
 function test_cleanup() {
   remove_from_toolbar(mc.e("mail-bar3"), "mailviews-container");
-};
+}

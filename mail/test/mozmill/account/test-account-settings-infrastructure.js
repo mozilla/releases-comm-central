@@ -12,11 +12,13 @@
 
 "use strict";
 
-var MODULE_NAME = "test-account-settings-infrastructure";
+/* import-globals-from ../shared-modules/test-account-manager-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-account-settings-infrastructure";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
-                         "account-manager-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "account-manager-helpers"];
 
 var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
 
@@ -85,8 +87,7 @@ function test_account_dot_IDs() {
  *
  * @param amc  the account options controller
  */
-function subtest_check_account_dot_IDs(amc)
-{
+function subtest_check_account_dot_IDs(amc) {
   let accountRow = get_account_tree_row(gPopAccount.key, "am-server.xul", amc);
   click_account_tree_row(amc, accountRow);
 
@@ -166,8 +167,7 @@ function test_account_locked_prefs() {
  *
  * @param amc  the account options controller
  */
-function subtest_check_locked_prefs_addressing(amc)
-{
+function subtest_check_locked_prefs_addressing(amc) {
   let accountRow = get_account_tree_row(gPopAccount.key, "am-addressing.xul", amc);
   click_account_tree_row(amc, accountRow);
 
@@ -234,8 +234,7 @@ function subtest_check_locked_prefs_addressing(amc)
  *
  * @param amc  the account options controller
  */
-function subtest_check_locked_prefs_server(amc)
-{
+function subtest_check_locked_prefs_server(amc) {
   let accountRow = get_account_tree_row(gPopAccount.key, "am-server.xul", amc);
   click_account_tree_row(amc, accountRow);
 
@@ -327,8 +326,7 @@ function test_replyTo_leak() {
 /**
  * @param amc  the account options controller
  */
-function subtest_check_replyTo_leak(amc)
-{
+function subtest_check_replyTo_leak(amc) {
   let accountRow = get_account_tree_row(gPopAccount.key, null, amc);
   click_account_tree_row(amc, accountRow);
 
@@ -370,8 +368,7 @@ function test_account_onchange_handler() {
  *
  * @param amc  the account options controller
  */
-function subtest_check_onchange_handler(amc)
-{
+function subtest_check_onchange_handler(amc) {
   let accountRow = get_account_tree_row(gImapAccount.key, "am-offline.xul", amc);
   click_account_tree_row(amc, accountRow);
 

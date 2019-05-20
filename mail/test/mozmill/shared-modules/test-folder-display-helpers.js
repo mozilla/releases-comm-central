@@ -5,9 +5,7 @@
 "use strict";
 
 var MODULE_NAME = "folder-display-helpers";
-
 var RELATIVE_ROOT = "../shared-modules";
-// we need window-helpers for augment_controller
 var MODULE_REQUIRES = ["window-helpers"];
 
 var EventUtils = ChromeUtils.import("chrome://mozmill/content/stdlib/EventUtils.jsm");
@@ -35,7 +33,7 @@ var FILE_LOAD_PATHS = [
 /**
  * Server hostname as set in runtest.py
  */
-var FAKE_SERVER_HOSTNAME = 'tinderbox123';
+var FAKE_SERVER_HOSTNAME = "tinderbox123";
 
 /**
  * List of keys not to export via installInto; values do not matter, we just
@@ -99,17 +97,17 @@ function setupModule() {
   initialized = true;
 
   testHelperModule = {
-    Cc: Cc,
-    Ci: Ci,
-    Cu: Cu,
+    Cc,
+    Ci,
+    Cu,
     // fake some xpcshell stuff
     _TEST_FILE: ["mozmill"],
     _do_not_wrap_xpcshell: true,
-    do_throw: function(aMsg) {
+    do_throw(aMsg) {
       throw new Error(aMsg);
     },
-    do_check_eq: function() {},
-    do_check_neq: function() {},
+    do_check_eq() {},
+    do_check_neq() {},
     gDEPTH: "../../",
   };
 
@@ -117,7 +115,7 @@ function setupModule() {
 
   // The xpcshell test resources assume they are loaded into a single global
   //  namespace, so we need to help them out to maintain their delusion.
-  load_via_src_path('resources/logHelper.js', testHelperModule);
+  load_via_src_path("resources/logHelper.js", testHelperModule);
   mark_action = testHelperModule.mark_action;
   mark_failure = testHelperModule.mark_failure;
 
@@ -150,8 +148,7 @@ function setupModule() {
         bucketAppender.newBucket();
         testHelperModule.mark_test_start(obj.filename);
         curTestFile = obj.filename;
-      }
-      else {
+      } else {
         testHelperModule.mark_test_end(1);
         bucketAppender.newBucket();
       }
@@ -192,8 +189,7 @@ function setupModule() {
           windows: windowHelper.captureWindowStatesForErrorReporting(
                      testHelperModule._normalize_for_json),
         };
-      }
-      catch(ex) {
+      } catch (ex) {
         dump("!!!!!!!!EX: " + ex);
         mark_action("fdh", "fail fail marking!", [ex]);
       }
@@ -201,14 +197,14 @@ function setupModule() {
 
   // -- the rest of the asyncTestUtils framework (but not actually async)
 
-  load_via_src_path('resources/asyncTestUtils.js', testHelperModule);
-  load_via_src_path('resources/messageGenerator.js', testHelperModule);
-  load_via_src_path('resources/messageModifier.js', testHelperModule);
-  load_via_src_path('resources/messageInjection.js', testHelperModule);
-  load_via_src_path('resources/viewWrapperTestUtils.js', testHelperModule);
+  load_via_src_path("resources/asyncTestUtils.js", testHelperModule);
+  load_via_src_path("resources/messageGenerator.js", testHelperModule);
+  load_via_src_path("resources/messageModifier.js", testHelperModule);
+  load_via_src_path("resources/messageInjection.js", testHelperModule);
+  load_via_src_path("resources/viewWrapperTestUtils.js", testHelperModule);
 
   // provide super helpful folder event info (when logHelper cares)
-  load_via_src_path('resources/folderEventLogHelper.js', testHelperModule);
+  load_via_src_path("resources/folderEventLogHelper.js", testHelperModule);
   testHelperModule.registerFolderEventLogHelper();
 
   // messageInjection wants a gMessageGenerator (and so do we)
@@ -230,7 +226,7 @@ function setupModule() {
 
   // use window-helper's augment_controller method to get our extra good stuff
   //  we need.
-  windowHelper = collector.getModule('window-helpers');
+  windowHelper = collector.getModule("window-helpers");
   mc = windowHelper.wait_for_existing_window("mail:3pane");
   windowHelper.augment_controller(mc);
 
@@ -248,8 +244,7 @@ function setupModule() {
   // account wizard is open on an initial startup type test.
   try {
     mc.folderTreeView.toggleOpenState(1);
-  }
-  catch (ex) {
+  } catch (ex) {
   }
 }
 
@@ -270,7 +265,7 @@ function installInto(module) {
   }
 
   // now copy everything into the module they provided to us...
-  let us = collector.getModule('folder-display-helpers');
+  let us = collector.getModule("folder-display-helpers");
   let self = this;
   for (let key in us) {
     let value = us[key];
@@ -279,11 +274,10 @@ function installInto(module) {
       // capture the right key in a local variable.
       let thisKey = key;
       module.__defineGetter__(thisKey, () => self[thisKey]);
-      module.__defineSetter__(thisKey, function (aNewValue) {
+      module.__defineSetter__(thisKey, function(aNewValue) {
                                self[thisKey] = aNewValue;
                              });
-    }
-    else if (!(key in DO_NOT_EXPORT) &&
+    } else if (!(key in DO_NOT_EXPORT) &&
              key[0] != "_") {
       module[key] = value;
     }
@@ -330,12 +324,10 @@ function teardownImporter(customTeardown) {
           "chrome://messenger/content/", "",
           "all,chrome,dialog=no,status,toolbar", null);
       mc = windowHelper.wait_for_new_window("mail:3pane");
-    }
-    else {
+    } else if (!mc || mc.window.closed) {
       // - We might have a window open, but not be assigned to mc -- so if
       //   mc.window.closed is true, look for a window to assign to mc.
-      if (!mc || mc.window.closed)
-        mc = windowHelper.wait_for_existing_window("mail:3pane");
+      mc = windowHelper.wait_for_existing_window("mail:3pane");
     }
 
     // Run through all open windows, closing any that aren't assigned to mc.
@@ -964,7 +956,7 @@ function click_tree_row(aTree, aRowIndex, aController) {
 
   aController.sleep(0);
   EventUtils.synthesizeMouse(aTree.body, coords.x + 4, coords.y + 4,
-                             {}, aTree.ownerDocument.defaultView);
+                             {}, aTree.ownerGlobal);
   aController.sleep(0);
 }
 
@@ -1221,7 +1213,6 @@ function assert_folder_child_in_view(aChild, aParent) {
                     (aParent && aParent.URI) +
                     ", but is actually the child of " +
                     (actualParent && actualParent.URI));
-
 }
 
 /**
@@ -1637,7 +1628,6 @@ function wait_for_message_display_completion(aController, aLoadDemanded) {
   mark_action("fdhb", "wait_for_message_display_completion",
               ["load demanded?", Boolean(aLoadDemanded)]);
   let contentPane = aController.contentPane;
-  let oldHref = null;
 
   // count checks so we can know whether we waited; >1 implies waited
   let checkCount = 0;
@@ -1720,7 +1710,7 @@ function wait_for_blank_content_pane(aController) {
 
 var FolderListener = {
   _inited: false,
-  ensureInited: function() {
+  ensureInited() {
     if (this._inited)
       return;
 
@@ -1835,10 +1825,8 @@ function assert_message_pane_visible(aThreadPaneIllegal) {
     if (mc.e("threadpane-splitter").getAttribute("collapsed") != "true")
       throw new Error("threadpane-splitter should be collapsed because the " +
                       "thread pane is illegal");
-  }
-  else {
-    if (mc.e("threadpane-splitter").getAttribute("collapsed") == "true")
-      throw new Error("threadpane-splitter should not be collapsed");
+  } else if (mc.e("threadpane-splitter").getAttribute("collapsed") == "true") {
+    throw new Error("threadpane-splitter should not be collapsed");
   }
 
   // - the menu item should be checked
@@ -1875,8 +1863,7 @@ function assert_message_pane_hidden(aMessagePaneIllegal) {
                       "message pane is illegal.");
     if (paneMenuItem.getAttribute("disabled") != "true")
       throw new Error("The Message Pane menu item should be disabled.");
-  }
-  else {
+  } else {
     if (mc.e("threadpane-splitter").getAttribute("collapsed"))
       throw new Error("threadpane-splitter should not be collapsed; the " +
                       "message pane is legal.");
@@ -1912,9 +1899,7 @@ function _process_row_message_arguments(...aArgs) {
     // An integer identifying a view index
     if (typeof(arg) == "number") {
       desiredIndices.push(_normalize_view_index(arg));
-    }
-    // A message header
-    else if (arg instanceof Ci.nsIMsgDBHdr) {
+    } else if (arg instanceof Ci.nsIMsgDBHdr) { // A message header
       // do not expand; the thing should already be selected, eg expanded!
       let viewIndex = troller.dbView.findIndexOfMsgHdr(arg, false);
       if (viewIndex == nsMsgViewIndex_None)
@@ -1922,16 +1907,14 @@ function _process_row_message_arguments(...aArgs) {
           "Message not present in view that should be there. " +
             "(" + arg.messageKey + ": " + arg.mime2DecodedSubject + ")");
       desiredIndices.push(viewIndex);
-    }
-    // A list containing two integers, indicating a range of view indices.
-    else if (arg.length == 2 && typeof(arg[0]) == "number") {
+    } else if (arg.length == 2 && typeof(arg[0]) == "number") {
+      // A list containing two integers, indicating a range of view indices.
       let lowIndex = _normalize_view_index(arg[0]);
       let highIndex = _normalize_view_index(arg[1]);
       for (let viewIndex = lowIndex; viewIndex <= highIndex; viewIndex++)
         desiredIndices.push(viewIndex);
-    }
-    // a List of message headers
-    else if (arg.length !== undefined) {
+    } else if (arg.length !== undefined) {
+      // a List of message headers
       for (let iMsg = 0; iMsg < arg.length; iMsg++) {
         let msgHdr = arg[iMsg].QueryInterface(Ci.nsIMsgDBHdr);
         if (!msgHdr)
@@ -1944,9 +1927,7 @@ function _process_row_message_arguments(...aArgs) {
              "(" + msgHdr.messageKey + ": " + msgHdr.mime2DecodedSubject + ")");
         desiredIndices.push(viewIndex);
       }
-    }
-    // SyntheticMessageSet
-    else if (arg.synMessages) {
+    } else if (arg.synMessages) { // SyntheticMessageSet
       for (let msgHdr of arg.msgHdrs()) {
         let viewIndex = troller.dbView.findIndexOfMsgHdr(msgHdr, false);
         if (viewIndex == nsMsgViewIndex_None)
@@ -1955,17 +1936,14 @@ function _process_row_message_arguments(...aArgs) {
              "(" + msgHdr.messageKey + ": " + msgHdr.mime2DecodedSubject + ")");
         desiredIndices.push(viewIndex);
       }
-    }
-    // it's a MozmillController
-    else if (arg.window) {
+    } else if (arg.window) { // it's a MozmillController
       troller = arg;
-    }
-    else {
+    } else {
       throw new Error("Illegal argument: " + arg);
     }
   }
   // sort by integer value
-  desiredIndices.sort(function (a, b) { return a - b;} );
+  desiredIndices.sort(function(a, b) { return a - b; });
 
   return [troller, desiredIndices];
 }
@@ -2039,9 +2017,7 @@ function _internal_assert_displayed(trustSelection, troller, desiredIndices) {
       throw new Error("the content pane should be blank, but is showing: '" +
                       troller.window.content.location.href + "'");
     }
-  }
-  // 1 means the message should be displayed
-  else if (desiredIndices.length == 1) {
+  } else if (desiredIndices.length == 1) { // 1 means the message should be displayed
     // make sure message display thinks we are in single message display mode
     if (!troller.messageDisplay.singleMessageDisplay)
       throw new Error("Message display is not in single message display mode.");
@@ -2078,14 +2054,12 @@ function _internal_assert_displayed(trustSelection, troller, desiredIndices) {
       throw new Error("The content pane is not displaying the right message! " +
                       "Should be: " + msgUrl.spec + " but it's: " +
                       troller.window.content.location.href);
-  }
-  // multiple means some form of multi-message summary
-  else {
+  } else { // multiple means some form of multi-message summary
     // XXX deal with the summarization threshold bail case.
 
     // make sure the message display thinks we are in multi-message mode
     if (troller.messageDisplay.singleMessageDisplay)
-      throw new Error("Message display should not be in single message display"+
+      throw new Error("Message display should not be in single message display" +
                       "mode!  Desired indices: " + desiredIndices);
 
     // verify that the message pane browser is displaying about:blank
@@ -2240,7 +2214,7 @@ function assert_not_shown(aMessages) {
   aMessages.forEach(function(msg) {
     let viewIndex = mc.dbView.findIndexOfMsgHdr(msg, false);
     if (viewIndex !== nsMsgViewIndex_None)
-      throw new Error("Message shows; "+ msg.messageKey + ": " +
+      throw new Error("Message shows; " + msg.messageKey + ": " +
                       msg.mime2DecodedSubject);
   });
 }
@@ -2469,32 +2443,25 @@ function _process_row_folder_arguments(...aArgs) {
       if (!folder)
         throw new Error("Folder index not present in folder view: " + arg);
       desiredFolders.push(folder);
-    }
-    // A folder
-    else if (arg instanceof Ci.nsIMsgFolder) {
+    } else if (arg instanceof Ci.nsIMsgFolder) { // A folder
       desiredFolders.push(arg);
-    }
-    // A list containing two integers, indicating a range of view indices.
-    else if (arg.length == 2 && typeof(arg[0]) == "number") {
+    } else if (arg.length == 2 && typeof(arg[0]) == "number") {
+      // A list containing two integers, indicating a range of view indices.
       let lowIndex = _normalize_folder_view_index(arg[0]);
       let highIndex = _normalize_folder_view_index(arg[1]);
       for (let viewIndex = lowIndex; viewIndex <= highIndex; viewIndex++)
         desiredFolders.push(troller.folderTreeView.getFolderForIndex(viewIndex));
-    }
-    // a List of folders
-    else if (arg.length !== undefined) {
+    } else if (arg.length !== undefined) {
+      // a List of folders
       for (let iFolder = 0; iFolder < arg.length; iFolder++) {
         let folder = arg[iFolder].QueryInterface(Ci.nsIMsgFolder);
         if (!folder)
           throw new Error(arg[iFolder] + " is not a folder!");
         desiredFolders.push(folder);
       }
-    }
-    // it's a MozmillController
-    else if (arg.window) {
+    } else if (arg.window) { // it's a MozmillController
       troller = arg;
-    }
-    else {
+    } else {
       throw new Error("Illegal argument: " + arg);
     }
   }
@@ -2606,7 +2573,7 @@ function assert_folder_tree_view_row_count(aCount) {
  */
 function assert_folder_at_index_as(n, str) {
   let folderN = mc.window.gFolderTreeView.getFTVItemForIndex(n);
-  assert_equals(folderN.text, str)
+  assert_equals(folderN.text, str);
 }
 
 /**
@@ -2804,7 +2771,7 @@ function reset_close_message_on_delete() {
  */
 
 function assert_summary_contains_N_elts(aSelector, aNumElts) {
-  let htmlframe = mc.e('multimessage');
+  let htmlframe = mc.e("multimessage");
   let matches = htmlframe.contentDocument.querySelectorAll(aSelector);
   if (matches.length != aNumElts) {
     throw new Error(
@@ -2920,8 +2887,7 @@ function load_via_src_path(aPath, aModule) {
         let uri = Services.io.newFileURI(file).spec;
         Services.scriptloader.loadSubScript(uri, aModule);
         return;
-      }
-      catch (ex) {
+      } catch (ex) {
         throw new Error("Unable to load file: " + fullPath + " exception: " + ex);
       }
     }
@@ -2931,18 +2897,16 @@ function load_via_src_path(aPath, aModule) {
   throw new Error("Could not find " + aPath + " in available paths");
 }
 
-function assert_equals(a, b, comment)
-{
+function assert_equals(a, b, comment) {
   if (!comment)
     comment = "a != b";
-  assert_true(a == b, comment + ": '"+ a + "' != '" + b + "'.");
+  assert_true(a == b, comment + ": '" + a + "' != '" + b + "'.");
 }
 
-function assert_not_equals(a, b, comment)
-{
+function assert_not_equals(a, b, comment) {
   if (!comment)
     comment = "a == b";
-  assert_true(a != b, comment + ": '"+ a + "' == '" + b + "'.");
+  assert_true(a != b, comment + ": '" + a + "' == '" + b + "'.");
 }
 
 // something less sucky than do_check_true

@@ -4,15 +4,16 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-toolbar-buttons';
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers'];
+var MODULE_NAME = "test-toolbar-buttons";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers"];
 
 var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
 
 function setupModule(module) {
-  collector.getModule('folder-display-helpers').installInto(module);
+  collector.getModule("folder-display-helpers").installInto(module);
 }
 
 /* This test checks that the toolbar buttons of the chat toolbar are

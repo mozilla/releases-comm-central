@@ -10,11 +10,13 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-message-commands';
+/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'content-tab-helpers',
-                       'window-helpers'];
+var MODULE_NAME = "test-message-commands";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "content-tab-helpers", "window-helpers"];
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
@@ -27,17 +29,17 @@ var acctMgr;
 var tagArray;
 
 var setupModule = function(module) {
-  let fdh = collector.getModule('folder-display-helpers');
+  let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let cth = collector.getModule('content-tab-helpers');
+  let cth = collector.getModule("content-tab-helpers");
   cth.installInto(module);
-  let wh = collector.getModule('window-helpers');
+  let wh = collector.getModule("window-helpers");
   wh.installInto(module);
 
-  unreadFolder = create_folder('UnreadFolder');
-  shiftDeleteFolder = create_folder('ShiftDeleteFolder');
-  threadDeleteFolder = create_folder('ThreadDeleteFolder');
-  archiveSrcFolder = create_folder('ArchiveSrc');
+  unreadFolder = create_folder("UnreadFolder");
+  shiftDeleteFolder = create_folder("ShiftDeleteFolder");
+  threadDeleteFolder = create_folder("ThreadDeleteFolder");
+  archiveSrcFolder = create_folder("ArchiveSrc");
 
   make_new_sets_in_folder(unreadFolder, [{count: 2}]);
   make_new_sets_in_folder(shiftDeleteFolder, [{count: 3}]);
@@ -162,7 +164,6 @@ function test_mark_n_read_mixed() {
   curMessages[1].markRead(true);
   mark_read_via_menu(0, true);
   check_read_status(curMessages, true);
-
 }
 
 function test_mark_n_unread_mixed() {
@@ -270,35 +271,35 @@ function test_shift_delete_prompt() {
   let curMessage = select_click_row(0);
 
   // First, try shift-deleting and then cancelling at the prompt.
-  Services.prefs.setBoolPref('mail.warn_on_shift_delete', true);
-  plan_for_modal_dialog('commonDialog', function(controller) {
-    controller.window.document.documentElement.getButton('cancel').doCommand();
+  Services.prefs.setBoolPref("mail.warn_on_shift_delete", true);
+  plan_for_modal_dialog("commonDialog", function(controller) {
+    controller.window.document.documentElement.getButton("cancel").doCommand();
   });
   // We don't use press_delete here because we're not actually deleting this
   // time!
-  mc.keypress(null, 'VK_DELETE', {shiftKey: true});
-  wait_for_modal_dialog('commonDialog');
+  mc.keypress(null, "VK_DELETE", {shiftKey: true});
+  wait_for_modal_dialog("commonDialog");
   // Make sure we didn't actually delete the message.
   assert_equals(curMessage, select_click_row(0));
 
   // Second, try shift-deleting and then accepting the deletion.
-  plan_for_modal_dialog('commonDialog', function(controller) {
-    controller.window.document.documentElement.getButton('accept').doCommand();
+  plan_for_modal_dialog("commonDialog", function(controller) {
+    controller.window.document.documentElement.getButton("accept").doCommand();
   });
   press_delete(mc, {shiftKey: true});
-  wait_for_modal_dialog('commonDialog');
+  wait_for_modal_dialog("commonDialog");
   // Make sure we really did delete the message.
   assert_not_equals(curMessage, select_click_row(0));
 
   // Finally, try shift-deleting when we turned off the prompt.
-  Services.prefs.setBoolPref('mail.warn_on_shift_delete', false);
+  Services.prefs.setBoolPref("mail.warn_on_shift_delete", false);
   curMessage = select_click_row(0);
   press_delete(mc, {shiftKey: true});
-  wait_for_modal_dialog('commonDialog');
+  wait_for_modal_dialog("commonDialog");
   // Make sure we really did delete the message.
   assert_not_equals(curMessage, select_click_row(0));
 
-  Services.prefs.clearUserPref('mail.warn_on_shift_delete');
+  Services.prefs.clearUserPref("mail.warn_on_shift_delete");
 }
 
 function test_thread_delete_prompt() {
@@ -308,35 +309,35 @@ function test_thread_delete_prompt() {
 
   let curMessage = select_click_row(0);
   // First, try deleting and then cancelling at the prompt.
-  Services.prefs.setBoolPref('mail.warn_on_collapsed_thread_operation', true);
-  plan_for_modal_dialog('commonDialog', function(controller) {
-    controller.window.document.documentElement.getButton('cancel').doCommand();
+  Services.prefs.setBoolPref("mail.warn_on_collapsed_thread_operation", true);
+  plan_for_modal_dialog("commonDialog", function(controller) {
+    controller.window.document.documentElement.getButton("cancel").doCommand();
   });
   // We don't use press_delete here because we're not actually deleting this
   // time!
-  mc.keypress(null, 'VK_DELETE', {});
-  wait_for_modal_dialog('commonDialog');
+  mc.keypress(null, "VK_DELETE", {});
+  wait_for_modal_dialog("commonDialog");
   // Make sure we didn't actually delete the message.
   assert_equals(curMessage, select_click_row(0));
 
   // Second, try deleting and then accepting the deletion.
-  plan_for_modal_dialog('commonDialog', function(controller) {
-    controller.window.document.documentElement.getButton('accept').doCommand();
+  plan_for_modal_dialog("commonDialog", function(controller) {
+    controller.window.document.documentElement.getButton("accept").doCommand();
   });
   press_delete(mc);
-  wait_for_modal_dialog('commonDialog');
+  wait_for_modal_dialog("commonDialog");
   // Make sure we really did delete the message.
   assert_not_equals(curMessage, select_click_row(0));
 
   // Finally, try shift-deleting when we turned off the prompt.
-  Services.prefs.setBoolPref('mail.warn_on_collapsed_thread_operation', false);
+  Services.prefs.setBoolPref("mail.warn_on_collapsed_thread_operation", false);
   curMessage = select_click_row(0);
   press_delete(mc);
-  wait_for_modal_dialog('commonDialog');
+  wait_for_modal_dialog("commonDialog");
   // Make sure we really did delete the message.
   assert_not_equals(curMessage, select_click_row(0));
 
-  Services.prefs.clearUserPref('mail.warn_on_collapsed_thread_operation');
+  Services.prefs.clearUserPref("mail.warn_on_collapsed_thread_operation");
 }
 
 function test_yearly_archive() {
@@ -527,11 +528,11 @@ function test_tag_keys_disabled_in_content_tab() {
   be_in_folder(unreadFolder);
   let curMessage = select_click_row(0);
 
-  mc.window.openAddonsMgr('addons://list/theme');
+  mc.window.openAddonsMgr("addons://list/theme");
   mc.sleep(0);
 
   let tab = mc.tabmail.currentTabInfo;
-  wait_for_content_tab_load(tab, 'about:addons', 15000);
+  wait_for_content_tab_load(tab, "about:addons", 15000);
 
   // Make sure pressing the "1" key in a content tab doesn't tag a message
   check_tag_in_message(curMessage, tagArray[0], false);

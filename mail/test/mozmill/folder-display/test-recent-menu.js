@@ -10,14 +10,16 @@
 
 "use strict";
 
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
+
+var MODULE_NAME = "test-recent-menu";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
+
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-
-var MODULE_NAME = 'test-recent-menu';
-
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers'];
 
 var folder1, folder2;
 var gInitRecentMenuCount;
@@ -39,7 +41,7 @@ var setupModule = function(module) {
   folder2 = create_folder("aaafolder2");
 
   make_new_sets_in_folder(folder1, [{count: 3}]);
-}
+};
 
 function test_move_message() {
   be_in_folder(folder1);
@@ -60,13 +62,13 @@ function test_move_message() {
   array.appendElement(msgHdr);
   let copyListener = {
     copyDone: false,
-    OnStartCopy: function() {},
-    OnProgress: function(aProgress, aProgressMax) {},
-    SetMessageKey: function(aKey) { },
-    SetMessageId: function(aMessageId) {},
-    OnStopCopy: function(aStatus) {
+    OnStartCopy() {},
+    OnProgress(aProgress, aProgressMax) {},
+    SetMessageKey(aKey) { },
+    SetMessageId(aMessageId) {},
+    OnStopCopy(aStatus) {
       this.copyDone = true;
-    }
+    },
   };
   MailServices.copy.CopyMessages(folder1, array, folder2, true,
                                  copyListener, mc.window.msgWindow, true);

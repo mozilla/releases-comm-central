@@ -6,15 +6,15 @@
  * Tests that actions such as replying choses the most suitable identity.
  */
 
-// make SOLO_TEST=message-header/test-reply-identity.js mozmill-one
-
 "use strict";
 
-var MODULE_NAME = "test-reply-identity";
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-reply-identity";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers",
-                         "window-helpers", "compose-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "compose-helpers"];
 
 var testFolder = null;
 
@@ -34,7 +34,7 @@ function setupModule(module) {
     subject: "no matching identity, like bcc/list",
     body: {body: "Alcohol is a way of life, alcohol is my way of life, and I aim to keep it."},
     clobberHeaders: {
-    }
+    },
   }));
   // Msg #1
   add_message_to_folder(testFolder, create_message({
@@ -43,8 +43,8 @@ function setupModule(module) {
     subject: "only delivered-to header matching identity",
     body: {body: "Just because I don't care doesn't mean I don't understand."},
     clobberHeaders: {
-      "Delivered-To" : "<" + identity2Email + ">"
-    }
+      "Delivered-To": "<" + identity2Email + ">",
+    },
   }));
   // Msg #2
   add_message_to_folder(testFolder, create_message({
@@ -54,14 +54,14 @@ function setupModule(module) {
     subject: "subpart of cc address matching identity",
     body: {body: "Blame the guy who doesn't speak Engish."},
     clobberHeaders: {
-    }
+    },
   }));
   // Msg #3
   add_message_to_folder(testFolder, create_message({
     from: "Homer <homer@example.com>",
     to: "Lenny <" + identity2Email + ">",
     subject: "normal to:address match, with full name",
-    body: {body: "Remember as far as anyone knows, we're a nice normal family."}
+    body: {body: "Remember as far as anyone knows, we're a nice normal family."},
   }));
   // Msg #4
   add_message_to_folder(testFolder, create_message({
@@ -70,15 +70,15 @@ function setupModule(module) {
     subject: "delivered-to header matching only subpart of identity email",
     body: {body: "Mmmm...Forbidden donut"},
     clobberHeaders: {
-      "Delivered-To" : "<other." + identity2Email + ">"
-    }
+      "Delivered-To": "<other." + identity2Email + ">",
+    },
   }));
   // Msg #5
   add_message_to_folder(testFolder, create_message({
-    from: identity2Email + " <" + identity2Email+ ">",
+    from: identity2Email + " <" + identity2Email + ">",
     to: "Marge <marge@example.com>",
     subject: "from second self",
-    body: {body: "All my life I've had one dream, to achieve my many goals."}
+    body: {body: "All my life I've had one dream, to achieve my many goals."},
   }));
 }
 
@@ -100,11 +100,11 @@ function addIdentitiesAndFolder() {
   account.addIdentity(identity2);
 }
 
-var checkReply = function (replyWin, expectedFromEmail) {
+function checkReply(replyWin, expectedFromEmail) {
   let identityList = replyWin.e("msgIdentity");
   if (!identityList.selectedItem.label.includes(expectedFromEmail))
     throw new Error("The From address is not correctly selected! Expected: " +
-                    expectedFromEmail + "; Actual: "  +
+                    expectedFromEmail + "; Actual: " +
                     identityList.selectedItem.label);
 }
 
@@ -182,5 +182,5 @@ function test_reply_to_self_second_id() {
   let replyWin = open_compose_with_reply();
   // Should have selected the second id, which was in From.
   checkReply(replyWin, identity2Email);
-  close_compose_window(replyWin, false /*no prompt*/);
+  close_compose_window(replyWin, false /* no prompt*/);
 }

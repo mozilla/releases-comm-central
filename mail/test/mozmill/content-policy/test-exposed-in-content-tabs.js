@@ -9,11 +9,13 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-exposed-in-content-tabs';
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'compose-helpers',
-                       'content-tab-helpers'];
+var MODULE_NAME = "test-exposed-in-content-tabs";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "content-tab-helpers"];
 
 var folder = null;
 var composeHelper = null;
@@ -21,35 +23,34 @@ var gMsgNo = 0;
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
 // so we get the right path for the resources.
-var url = collector.addHttpResource('../content-policy/html', 'content');
+var url = collector.addHttpResource("../content-policy/html", "content");
 
 // These two constants are used to build the message body.
 var msgBody = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">\n' +
-'<html>\n' +
-'<head>\n' +
-'\n' +
+"<html>\n" +
+"<head>\n" +
+"\n" +
 '<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">\n' +
-'</head>\n' +
+"</head>\n" +
 '<body bgcolor="#ffffff" text="#000000">\n' +
 '<img id="testelement" src="' + url + 'pass.png"/>\n' +
-'</body>\n</html>\n';
+"</body>\n</html>\n";
 
-var setupModule = function (module) {
-  let fdh = collector.getModule('folder-display-helpers');
+function setupModule(module) {
+  let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  composeHelper = collector.getModule('compose-helpers');
+  composeHelper = collector.getModule("compose-helpers");
   composeHelper.installInto(module);
-  let cth = collector.getModule('content-tab-helpers');
+  let cth = collector.getModule("content-tab-helpers");
   cth.installInto(module);
 
   folder = create_folder("exposedInContent");
-};
+}
 
 function addToFolder(aSubject, aBody, aFolder) {
-
   let msgId = Cc["@mozilla.org/uuid-generator;1"]
                           .getService(Ci.nsIUUIDGenerator)
-                          .generateUUID() +"@mozillamessaging.invalid";
+                          .generateUUID() + "@mozillamessaging.invalid";
 
   let source = "From - Sat Nov  1 12:39:54 2008\n" +
                "X-Mozilla-Status: 0001\n" +
@@ -108,7 +109,7 @@ function checkContentTab(msgURL) {
   // in the data of what we want.
   let preCount = mc.tabmail.tabContainer.childNodes.length;
 
-  let dataurl = 'data:text/html,<html><head><title>test exposed</title>' +
+  let dataurl = "data:text/html,<html><head><title>test exposed</title>" +
     '</head><body><iframe id="msgIframe" src="' + msgURL + '"/></body></html>';
 
   let newTab = open_content_tab_with_url(dataurl);

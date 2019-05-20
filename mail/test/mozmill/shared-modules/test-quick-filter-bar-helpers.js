@@ -4,34 +4,33 @@
 
 "use strict";
 
-var MODULE_NAME = "quick-filter-bar-helper";
-
+var MODULE_NAME = "quick-filter-bar-helpers";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers"];
 
 var fdh, mc;
 
 function setupModule() {
-  fdh = collector.getModule('folder-display-helpers');
+  fdh = collector.getModule("folder-display-helpers");
   mc = fdh.mc;
 }
 
 var EXPORT = [
-  'assert_quick_filter_button_enabled',
-  'assert_quick_filter_bar_visible',
-  'toggle_quick_filter_bar',
-  'assert_constraints_expressed',
-  'toggle_boolean_constraints',
-  'toggle_tag_constraints',
-  'toggle_tag_mode',
-  'assert_tag_constraints_visible',
-  'assert_tag_constraints_checked',
-  'toggle_text_constraints',
-  'assert_text_constraints_checked',
-  'set_filter_text',
-  'assert_filter_text',
-  'assert_results_label_count',
-  'clear_constraints',
+  "assert_quick_filter_button_enabled",
+  "assert_quick_filter_bar_visible",
+  "toggle_quick_filter_bar",
+  "assert_constraints_expressed",
+  "toggle_boolean_constraints",
+  "toggle_tag_constraints",
+  "toggle_tag_mode",
+  "assert_tag_constraints_visible",
+  "assert_tag_constraints_checked",
+  "toggle_text_constraints",
+  "assert_text_constraints_checked",
+  "set_filter_text",
+  "assert_filter_text",
+  "assert_results_label_count",
+  "clear_constraints",
 ];
 
 var backstage = this;
@@ -137,12 +136,10 @@ function toggle_tag_mode() {
   if (qbm.value === "AND") {
     qbm.selectedIndex--; // = move to "OR";
     fdh.assert_equals(qbm.value, "OR", "qfb-boolean-mode has wrong state");
-  }
-  else if (qbm.value === "OR") {
+  } else if (qbm.value === "OR") {
     qbm.selectedIndex++; // = move to "AND";
     fdh.assert_equals(qbm.value, "AND", "qfb-boolean-mode has wrong state");
-  }
-  else {
+  } else {
     throw new Error("qfb-boolean-mode value=" + qbm.value);
   }
   fdh.wait_for_all_messages_to_load(mc);
@@ -166,9 +163,9 @@ function assert_tag_constraints_visible(...aArgs) {
                     " actual " + tagLength);
   for (let iArg = 0; iArg < aArgs.length; iArg++) {
     let nodeId = "qfb-tag-" + aArgs[iArg];
-    if (nodeId != kids[iArg+1].id)
+    if (nodeId != kids[iArg + 1].id)
       throw new Error("Mismatch at tag " + iArg + " expected " + nodeId +
-                      " but got " + kids[iArg+1].id);
+                      " but got " + kids[iArg + 1].id);
   }
 }
 
@@ -255,8 +252,7 @@ function assert_results_label_count(aCount) {
   if (aCount == 0) {
     if (resultsLabel.value != resultsLabel.getAttribute("noresultsstring"))
       throw new Error("results label should be displaying the no messages case");
-  }
-  else {
+  } else {
     let s = resultsLabel.value;
     s = s.substring(0, s.indexOf(" "));
     if (parseInt(s) !== aCount)

@@ -9,15 +9,17 @@
 
 "use strict";
 
-var MODULE_NAME = "test-savedsearch-reload-after-compact";
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers'];
+var MODULE_NAME = "test-savedsearch-reload-after-compact";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 function setupModule(module) {
-  let fdh = collector.getModule('folder-display-helpers');
+  let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let wh = collector.getModule('window-helpers');
+  let wh = collector.getModule("window-helpers");
   wh.installInto(module);
 }
 
@@ -27,7 +29,7 @@ function setupModule(module) {
  */
 function test_setup_virtual_folder_and_compact() {
   let otherFolder = create_folder("otherFolder");
-  let [msgSet] = make_new_sets_in_folder(otherFolder, [{count: 2}]);
+  make_new_sets_in_folder(otherFolder, [{count: 2}]);
 
   /**
    * We delete the first message in the local folder, so compaction of the
@@ -37,22 +39,22 @@ function test_setup_virtual_folder_and_compact() {
    * view still gets rebuilt, such that there is a valid msg hdr at row 0.
    */
   be_in_folder(otherFolder);
-  let curMessage = select_click_row(0);
+  select_click_row(0);
   press_delete();
 
   let folderVirtual = create_virtual_folder([inboxFolder, otherFolder], {},
                                             true, "SavedSearch");
 
   be_in_folder(folderVirtual);
-  curMessage = select_click_row(0);
+  select_click_row(0);
   let urlListener = {
     compactDone: false,
 
-    OnStartRunningUrl: function (aUrl) {
+    OnStartRunningUrl(aUrl) {
     },
-    OnStopRunningUrl: function (aUrl, aExitCode) {
+    OnStopRunningUrl(aUrl, aExitCode) {
       this.compactDone = true;
-    }
+    },
   };
   if (otherFolder.msgStore.supportsCompaction) {
     otherFolder.compactAll(urlListener, null, false);
@@ -63,6 +65,6 @@ function test_setup_virtual_folder_and_compact() {
   // Let the event queue clear.
   mc.sleep(0);
   // Check view is still valid
-  let msgHdr = mc.dbView.getMsgHdrAt(0);
+  mc.dbView.getMsgHdrAt(0);
 }
 

@@ -7,12 +7,13 @@
  * all characters doesn't fit the selected charset.
  */
 
-// make SOLO_TEST=composition/test-charset-upgrade.js mozmill-one
-
 "use strict";
 
-var MODULE_NAME = "test-charset-upgrade";
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-charset-upgrade";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "compose-helpers"];
 
@@ -163,7 +164,7 @@ function test_encoding_upgrade_plaintext_compose() {
 
   let draftMsg2Content = get_msg_source(draftMsg2, "UTF-8");
   if (draftMsg2Content.includes("<html>"))
-    throw new Error("Plaintext draft contained <html>; "+
+    throw new Error("Plaintext draft contained <html>; " +
                     "draftMsg2Content=" + draftMsg2Content);
 
   if (!draftMsg2Content.includes(CHINESE))

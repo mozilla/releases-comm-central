@@ -4,8 +4,10 @@
 
 "use strict";
 
-var MODULE_NAME = "test-commands";
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-commands";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
@@ -24,7 +26,7 @@ var setupModule = function(module) {
   folder1 = create_folder("CopyFromFolder");
   folder2 = create_folder("CopyToFolder");
   make_new_sets_in_folder(folder1, [{count: 1}]);
-}
+};
 
 function test_copy_eml_message() {
   // First, copy an email to a folder and delete it immediately just so it shows

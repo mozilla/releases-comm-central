@@ -5,7 +5,6 @@
 "use strict";
 
 var MODULE_NAME = "mouse-event-helpers";
-
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers"];
 
@@ -14,7 +13,7 @@ var EventUtils = ChromeUtils.import("chrome://mozmill/content/stdlib/EventUtils.
 var fdh;
 
 function setupModule() {
-  fdh = collector.getModule('folder-display-helpers');
+  fdh = collector.getModule("folder-display-helpers");
 }
 
 function installInto(module) {
@@ -48,8 +47,7 @@ function installInto(module) {
  *   the element who's drop target should be captured and returned.
  */
 function drag_n_drop_element(aDragObject, aDragWindow, aDropObject,
-                             aDropWindow, aRelDropX, aRelDropY, aListener)
-{
+                             aDropWindow, aRelDropX, aRelDropY, aListener) {
   let dt = synthesize_drag_start(aDragWindow, aDragObject, aListener);
   fdh.assert_true(dt, "Drag target was undefined");
 
@@ -57,8 +55,8 @@ function drag_n_drop_element(aDragObject, aDragWindow, aDropObject,
 
   let dropRect = aDropObject.getBoundingClientRect();
   synthesize_drop(aDropWindow, aDropObject, dt,
-      { screenX : aDropObject.screenX + (dropRect.width * aRelDropX),
-        screenY : aDropObject.screenY + (dropRect.height * aRelDropY)
+      { screenX: aDropObject.screenX + (dropRect.width * aRelDropX),
+        screenY: aDropObject.screenY + (dropRect.height * aRelDropY),
       });
 }
 
@@ -72,12 +70,10 @@ function drag_n_drop_element(aDragObject, aDragWindow, aDropObject,
  * @return {nsIDataTransfer}
  *   returns the DataTransfer Object of captured by aListener.
  */
-function synthesize_drag_start(aWindow, aDispatcher, aListener)
-{
+function synthesize_drag_start(aWindow, aDispatcher, aListener) {
   let dt;
 
   let trapDrag = function(event) {
-
     if (!event.dataTransfer)
       throw new Error("no DataTransfer");
 
@@ -88,9 +84,9 @@ function synthesize_drag_start(aWindow, aDispatcher, aListener)
 
   aListener.addEventListener("dragstart", trapDrag, true);
 
-  EventUtils.synthesizeMouse(aDispatcher, 5, 5, {type:"mousedown"}, aWindow);
-  EventUtils.synthesizeMouse(aDispatcher, 5, 10, {type:"mousemove"}, aWindow);
-  EventUtils.synthesizeMouse(aDispatcher, 5, 15, {type:"mousemove"}, aWindow);
+  EventUtils.synthesizeMouse(aDispatcher, 5, 5, {type: "mousedown"}, aWindow);
+  EventUtils.synthesizeMouse(aDispatcher, 5, 10, {type: "mousemove"}, aWindow);
+  EventUtils.synthesizeMouse(aDispatcher, 5, 15, {type: "mousemove"}, aWindow);
 
   aListener.removeEventListener("dragstart", trapDrag, true);
 
@@ -107,8 +103,7 @@ function synthesize_drag_start(aWindow, aDispatcher, aListener)
  * @param {} aArgs
  *   arguments passed to the mouse event.
  */
-function synthesize_drag_over(aWindow, aDispatcher, aDt, aArgs)
-{
+function synthesize_drag_over(aWindow, aDispatcher, aDt, aArgs) {
   _synthesizeDragEvent("dragover", aWindow, aDispatcher, aDt, aArgs);
 }
 
@@ -122,14 +117,13 @@ function synthesize_drag_over(aWindow, aDispatcher, aDt, aArgs)
  * @param {} aArgs
  *   arguments passed to the mouse event.
  */
-function synthesize_drag_end(aWindow, aDispatcher, aListener, aDt, aArgs)
-{
+function synthesize_drag_end(aWindow, aDispatcher, aListener, aDt, aArgs) {
   _synthesizeDragEvent("dragend", aWindow, aListener, aDt, aArgs);
 
-  //Ensure drag has ended.
-  EventUtils.synthesizeMouse(aDispatcher, 5, 5, {type:"mousemove"}, aWindow);
-  EventUtils.synthesizeMouse(aDispatcher, 5, 10, {type:"mousemove"}, aWindow);
-  EventUtils.synthesizeMouse(aDispatcher, 5, 5, {type:"mouseup"}, aWindow);
+  // Ensure drag has ended.
+  EventUtils.synthesizeMouse(aDispatcher, 5, 5, {type: "mousemove"}, aWindow);
+  EventUtils.synthesizeMouse(aDispatcher, 5, 10, {type: "mousemove"}, aWindow);
+  EventUtils.synthesizeMouse(aDispatcher, 5, 5, {type: "mouseup"}, aWindow);
 }
 
 /**
@@ -142,14 +136,13 @@ function synthesize_drag_end(aWindow, aDispatcher, aListener, aDt, aArgs)
  * @param {} aArgs
  *   arguments passed to the mouse event.
  */
-function synthesize_drop(aWindow, aDispatcher, aDt, aArgs)
-{
+function synthesize_drop(aWindow, aDispatcher, aDt, aArgs) {
   _synthesizeDragEvent("drop", aWindow, aDispatcher, aDt, aArgs);
 
   // Ensure drag has ended.
-  EventUtils.synthesizeMouse(aDispatcher, 5, 5, {type:"mousemove"}, aWindow);
-  EventUtils.synthesizeMouse(aDispatcher, 5, 10, {type:"mousemove"}, aWindow);
-  EventUtils.synthesizeMouse(aDispatcher, 5, 5, {type:"mouseup"}, aWindow);
+  EventUtils.synthesizeMouse(aDispatcher, 5, 5, {type: "mousemove"}, aWindow);
+  EventUtils.synthesizeMouse(aDispatcher, 5, 10, {type: "mousemove"}, aWindow);
+  EventUtils.synthesizeMouse(aDispatcher, 5, 5, {type: "mouseup"}, aWindow);
 }
 
 /**
@@ -164,8 +157,7 @@ function synthesize_drop(aWindow, aDispatcher, aDt, aArgs)
  * @param {} aArgs
  *   arguments passed to the mouse event.
  */
-function _synthesizeDragEvent(aType, aWindow, aDispatcher, aDt, aArgs)
-{
+function _synthesizeDragEvent(aType, aWindow, aDispatcher, aDt, aArgs) {
   let screenX;
   if (aArgs && ("screenX" in aArgs))
     screenX = aArgs.screenX;

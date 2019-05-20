@@ -6,23 +6,24 @@
  * Tests iteratorUtils with items pulled from content into chrome.
  */
 
-var MODULE_NAME = 'test-iteratorUtils';
+/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers',
-                         'content-tab-helpers',]
+var MODULE_NAME = "test-iteratorUtils";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "content-tab-helpers"];
 
-var iteratorUtils = ChromeUtils.import('resource:///modules/iteratorUtils.jsm');
+var iteratorUtils = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
-var kWhatsNewPref = 'mailnews.start_page.override_url';
+var kWhatsNewPref = "mailnews.start_page.override_url";
 
-var gUrl = collector.addHttpResource('../utils/html', '');
+var gUrl = collector.addHttpResource("../utils/html", "");
 var gCollectionsUrl = gUrl + "collections.html";
 var gOriginalWhatsNew, gTab;
 
 function setupModule(module) {
-  collector.getModule('folder-display-helpers').installInto(module);
-  collector.getModule('content-tab-helpers').installInto(module);
+  collector.getModule("folder-display-helpers").installInto(module);
+  collector.getModule("content-tab-helpers").installInto(module);
 
   gOriginalWhatsNew = Services.prefs.getCharPref(kWhatsNewPref);
   Services.prefs.setCharPref(kWhatsNewPref, gCollectionsUrl);
@@ -59,7 +60,6 @@ function test_toArray_builtin_content_iterator() {
   kExpected.forEach((val, i) => {
     assert_equals(val, iterArray[i]);
   });
-
 }
 
 /**

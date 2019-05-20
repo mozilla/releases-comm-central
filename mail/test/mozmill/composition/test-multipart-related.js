@@ -6,12 +6,13 @@
  * Tests that multipart/related messages are handled properly.
  */
 
-// make SOLO_TEST=composition/test-multipart-related.js mozmill-one
-
 "use strict";
 
-var MODULE_NAME = "test-multipart-related";
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-multipart-related";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "compose-helpers"];
 
@@ -47,11 +48,11 @@ function getMsgHeaders(aMsgHdr) {
     _done: false,
     _data: new Map(),
     _text: new Map(),
-    endMessage: function () { this._done = true; },
-    deliverPartData: function (num, text) {
+    endMessage() { this._done = true; },
+    deliverPartData(num, text) {
       this._text.set(num, this._text.get(num) + text);
     },
-    startPart: function (num, headers) {
+    startPart(num, headers) {
       this._data.set(num, headers);
       this._text.set(num, "");
     },
@@ -84,7 +85,7 @@ function test_basic_multipart_related() {
   let fileURL = fileHandler.getURLSpecFromFile(file);
 
   // Add a simple image to our dialog
-  plan_for_modal_dialog("imageDlg", function (dialog) {
+  plan_for_modal_dialog("imageDlg", function(dialog) {
     // Insert the url of the image.
     dialog.type(null, fileURL);
     dialog.type(dialog.eid("altTextInput"), "Alt text");

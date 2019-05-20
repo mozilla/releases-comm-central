@@ -7,12 +7,13 @@
  * It's easiest to test the forward case.
  */
 
-// mozmake SOLO_TEST=composition/test-forward-rfc822-attach.js mozmill-one
-
 "use strict";
 
-var MODULE_NAME = "test-forward-rfc822-attach";
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-forward-rfc822-attach";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
 

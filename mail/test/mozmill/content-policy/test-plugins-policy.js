@@ -9,11 +9,19 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-plugins-policy';
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers',
-                       'compose-helpers', 'content-tab-helpers'];
+var MODULE_NAME = "test-plugins-policy";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "compose-helpers",
+  "content-tab-helpers",
+];
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
@@ -23,36 +31,36 @@ var gMsgNo = 0;
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
 // so we get the right path for the resources.
-var url = collector.addHttpResource('../content-policy/html', 'content');
+var url = collector.addHttpResource("../content-policy/html", "content");
 
 // These two constants are used to build the message body.
 var msgBody = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">\n' +
-'<html>\n' +
-'<head>\n' +
-'\n' +
+"<html>\n" +
+"<head>\n" +
+"\n" +
 '<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">\n' +
-'</head>\n' +
+"</head>\n" +
 '<body bgcolor="#ffffff" text="#000000">\n' +
 '<embed id="testelement" type="application/x-test" width="400" height="400" border="1"></embed>\n' +
-'</body>\n</html>\n';
+"</body>\n</html>\n";
 
-var setupModule = function (module) {
-  let fdh = collector.getModule('folder-display-helpers');
+function setupModule(module) {
+  let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let wh = collector.getModule('window-helpers');
+  let wh = collector.getModule("window-helpers");
   wh.installInto(module);
-  composeHelper = collector.getModule('compose-helpers');
+  composeHelper = collector.getModule("compose-helpers");
   composeHelper.installInto(module);
-  let cth = collector.getModule('content-tab-helpers');
+  let cth = collector.getModule("content-tab-helpers");
   cth.installInto(module);
 
   folder = create_folder("pluginPolicy");
-};
+}
 
 function addToFolder(aSubject, aBody, aFolder) {
   let msgId = Cc["@mozilla.org/uuid-generator;1"]
                           .getService(Ci.nsIUUIDGenerator)
-                          .generateUUID() +"@mozillamessaging.invalid";
+                          .generateUUID() + "@mozillamessaging.invalid";
 
   let source = "From - Sat Nov  1 12:39:54 2008\n" +
 
@@ -85,8 +93,7 @@ function isPluginLoaded(contentDocument) {
     // if setColor throws, then the plugin isn't running
     element.setColor("FFFF0000");
     return true;
-  }
-  catch (ex) {
+  } catch (ex) {
     // Any errors and we'll just return false below - they may be expected.
   }
   return false;
@@ -169,12 +176,8 @@ function test_3paneWindowDeniedAgain() {
   assert_selected_and_displayed(0);
 
   // Now check that the content hasn't been loaded
-  if (isPluginLoaded(mozmill.getMail3PaneController().window
-                            .content.document) != false)
-    throw new Error(loadAllowed ?
-                    "Plugin has been unexpectedly blocked in message content" :
-                    "Plugin has not been blocked in message as expected");
-
+  if (isPluginLoaded(mozmill.getMail3PaneController().window.content.document))
+    throw new Error("Plugin has not been blocked in message as expected");
 }
 
 function test_checkStandaloneMessageWindowDenied() {

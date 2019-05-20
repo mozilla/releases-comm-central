@@ -10,14 +10,16 @@
 
 "use strict";
 
-var MODULE_NAME = "test-custom-smart-folder";
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-custom-smart-folder";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 // spaces in the name are intentional
-var smartParentNameA="My Smart Folder A";
-var smartParentNameB="My Smart Folder B";
+var smartParentNameA = "My Smart Folder A";
+var smartParentNameB = "My Smart Folder B";
 
 var rootFolder;
 var inboxSubfolder, subfolderA, subfolderB;
@@ -80,12 +82,12 @@ function test_cache_property() {
 }
 
 function _test_smart_folder_type(folder, parentName) {
-  let smartMode = mc.folderTreeView.getFolderTreeMode('smart');
-  let [flag,name,deep,search] = smartMode._getSmartFolderType(folder) ;
+  let smartMode = mc.folderTreeView.getFolderTreeMode("smart");
+  let [flag, name] = smartMode._getSmartFolderType(folder);
   if (flag != 0)
-    throw new Error("custom smart folder definition ["+parentName+"] has a flag")
+    throw new Error("custom smart folder definition [" + parentName + "] has a flag");
   if (name != parentName)
-    throw new Error("custom smart folder ["+folder.name+"] is incorrect ["+name+"] should be ["+parentName+"]")
+    throw new Error("custom smart folder [" + folder.name + "] is incorrect [" + name + "] should be [" + parentName + "]");
 }
 
 function test_smart_folder_type() {
@@ -123,7 +125,7 @@ function test_smart_child_parent_relationship() {
   let folderFTVItem = mc.folderTreeView.getFTVItemForIndex(folderIndex);
   if (!FTVItemHasChild(folderFTVItem, subfolderA, false))
     throw new Error("Folder: " + subfolderA.name + " is not a child of our smart parent folder");
-  assert_folder_mode("smart")
+  assert_folder_mode("smart");
 }
 
 
@@ -141,7 +143,7 @@ function test_real_child_parent_relationship() {
   // be a child of inbox
   if (FTVItemHasChild(folderFTVItem, subfolderA, true))
     throw new Error("Folder: " + subfolderA.name + " should not be a child of an inbox");
-  assert_folder_mode("smart")
+  assert_folder_mode("smart");
 }
 
 

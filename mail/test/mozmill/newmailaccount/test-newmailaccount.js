@@ -8,15 +8,23 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-newmailaccount';
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
+/* import-globals-from ../shared-modules/test-newmailaccount-helpers.js */
+/* import-globals-from ../shared-modules/test-keyboard-helpers.js */
+/* import-globals-from ../shared-modules/test-dom-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers',
-                       'content-tab-helpers',
-                       'window-helpers',
-                       'newmailaccount-helpers',
-                       'keyboard-helpers',
-                       'dom-helpers'];
+var MODULE_NAME = "test-newmailaccount";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "content-tab-helpers",
+  "window-helpers",
+  "newmailaccount-helpers",
+  "keyboard-helpers",
+  "dom-helpers",
+];
 
 var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -25,7 +33,7 @@ var {HttpServer} = ChromeUtils.import("chrome://mozmill/content/stdlib/httpd.jsm
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
 // so we get the right path for the resources.
-var url = collector.addHttpResource('../newmailaccount/html', '');
+var url = collector.addHttpResource("../newmailaccount/html", "");
 var kProvisionerUrl = "chrome://messenger/content/newmailaccount/accountProvisioner.xhtml";
 var kProvisionerEnabledPref = "mail.provider.enabled";
 var kSuggestFromNamePref = "mail.provider.suggestFromName";
@@ -39,10 +47,6 @@ Services.prefs.setCharPref(kSuggestFromNamePref, url + "suggestFromName");
 // Here's a name that we'll type in later on.  It's a global const because
 // we'll be using it in several distinct modal dialog event loops.
 var NAME = "Leonard Shelby";
-
-// Record what the original value of the mail.provider.enabled pref is so
-// that we can put it back once the tests are done.
-var gProvisionerEnabled = Services.prefs.getBoolPref(kProvisionerEnabledPref);
 
 // Record what the original value of the mail.provider.enabled pref is so
 // that we can put it back once the tests are done.
@@ -63,7 +67,7 @@ function setupModule(module) {
   // Add a "bar" search engine that we can switch to be the default.
   Services.search.addEngineWithDetails("bar", null, null, null, "post",
                                        "http://www.example.com/search");
-};
+}
 
 function teardownModule(module) {
   // Put the mail.provider.enabled pref back the way it was.
@@ -106,7 +110,7 @@ function test_get_an_account(aCloseAndRestore) {
   // for a content tab to load for the account order form.
 
   // Make sure the page is loaded.
-  wait_for_content_tab_load(undefined, function (aURL) {
+  wait_for_content_tab_load(undefined, function(aURL) {
     return aURL.host == "localhost";
   });
 
@@ -117,7 +121,7 @@ function test_get_an_account(aCloseAndRestore) {
     mc.tabmail.closeTab(mc.tabmail.currentTabInfo);
     mc.tabmail.undoCloseTab();
     // Wait for the page to be loaded again...
-    wait_for_content_tab_load(undefined, function (aURL) {
+    wait_for_content_tab_load(undefined, function(aURL) {
       return aURL.host == "localhost";
     });
     tab = mc.tabmail.currentTabInfo;
@@ -339,7 +343,7 @@ function subtest_flip_flop_from_provisioner_menuitem(w) {
   // it'll try to refocus when we click on the button to
   // open it.
   wait_for_the_wizard_to_be_closed(w);
-  plan_for_window_close(w)
+  plan_for_window_close(w);
   mc.click(new elib.Elem(w.window.document.querySelector(".existing")));
   wait_for_window_close();
 }
@@ -470,21 +474,21 @@ function subtest_show_tos_privacy_links_for_selected_providers(w) {
   // We should be showing the TOS and Privacy links for the selected
   // providers immediately after the providers have been loaded.
   // Those providers should be "foo" and "bar".
-  assert_links_shown(w, ['http://www.example.com/foo-tos',
-                         'http://www.example.com/foo-privacy',
-                         'http://www.example.com/bar-tos',
-                         'http://www.example.com/bar-privacy',]);
+  assert_links_shown(w, ["http://www.example.com/foo-tos",
+                         "http://www.example.com/foo-privacy",
+                         "http://www.example.com/bar-tos",
+                         "http://www.example.com/bar-privacy"]);
 
-  assert_links_not_shown(w, ['http://www.example.com/French-tos',
-                             'http://www.example.com/French-privacy']);
+  assert_links_not_shown(w, ["http://www.example.com/French-tos",
+                             "http://www.example.com/French-privacy"]);
 
   // Now click off one of those providers - we shouldn't be displaying
   // and links for that one now.
   let input = w.window.document.querySelector('input[type="checkbox"][value="foo"]');
   w.click(new elib.Elem(input));
 
-  assert_links_not_shown(w, ['http://www.example.com/foo-tos',
-                             'http://www.example.com/foo-privacy',]);
+  assert_links_not_shown(w, ["http://www.example.com/foo-tos",
+                             "http://www.example.com/foo-privacy"]);
 
   // Ensure that the "Other languages" div is visible
   wait_for_element_visible(w, "otherLangDesc");
@@ -497,30 +501,29 @@ function subtest_show_tos_privacy_links_for_selected_providers(w) {
   w.click(new elib.Elem(input));
   // We should be showing the French TOS / Privacy links, along
   // with those from the bar provider.
-  assert_links_shown(w, ['http://www.example.com/French-tos',
-                         'http://www.example.com/French-privacy',
-                         'http://www.example.com/bar-tos',
-                         'http://www.example.com/bar-privacy']);
+  assert_links_shown(w, ["http://www.example.com/French-tos",
+                         "http://www.example.com/French-privacy",
+                         "http://www.example.com/bar-tos",
+                         "http://www.example.com/bar-privacy"]);
 
   // The foo provider should still have it's links hidden.
-  assert_links_not_shown(w, ['http://www.example.com/foo-tos',
-                             'http://www.example.com/foo-privacy',]);
+  assert_links_not_shown(w, ["http://www.example.com/foo-tos",
+                             "http://www.example.com/foo-privacy"]);
 
   // Click on the German provider.  It's links should now be
   // shown, along with the French and bar providers.
   input = w.window.document.querySelector('input[type="checkbox"][value="German"]');
   w.click(new elib.Elem(input));
-  assert_links_shown(w, ['http://www.example.com/French-tos',
-                         'http://www.example.com/French-privacy',
-                         'http://www.example.com/bar-tos',
-                         'http://www.example.com/bar-privacy',
-                         'http://www.example.com/German-tos',
-                         'http://www.example.com/German-privacy']);
+  assert_links_shown(w, ["http://www.example.com/French-tos",
+                         "http://www.example.com/French-privacy",
+                         "http://www.example.com/bar-tos",
+                         "http://www.example.com/bar-privacy",
+                         "http://www.example.com/German-tos",
+                         "http://www.example.com/German-privacy"]);
 
   // And the foo links should still be hidden.
-  assert_links_not_shown(w, ['http://www.example.com/foo-tos',
-                             'http://www.example.com/foo-privacy',]);
-
+  assert_links_not_shown(w, ["http://www.example.com/foo-tos",
+                             "http://www.example.com/foo-privacy"]);
 }
 
 /**
@@ -698,8 +701,8 @@ function subtest_search_button_disabled_cases(w) {
   // Empty any strings in the search input.  Select all of the input with
   // Ctrl-A, and then hit backspace.
   searchInput.getNode().focus();
-  w.keypress(null, 'a', {accelKey: true});
-  w.keypress(null, 'VK_BACK_SPACE', {});
+  w.keypress(null, "a", {accelKey: true});
+  w.keypress(null, "VK_BACK_SPACE", {});
 
   // Make sure at least one provider is checked
   let input = w.window.document.querySelector('input[type="checkbox"]:checked');
@@ -740,8 +743,8 @@ function subtest_search_button_disabled_cases(w) {
   // selected.
 
   // Clear out the search input
-  w.keypress(null, 'a', {accelKey: true});
-  w.keypress(null, 'VK_BACK_SPACE', {});
+  w.keypress(null, "a", {accelKey: true});
+  w.keypress(null, "VK_BACK_SPACE", {});
   input = w.window.document.querySelector('input[type="checkbox"]:checked');
   w.click(new elib.Elem(input));
 
@@ -828,7 +831,7 @@ function test_can_pref_off_account_provisioner() {
 }
 
 // We cannot control menus via Mozmill in OSX, so we'll skip this test.
-test_can_pref_off_account_provisioner.EXCLUDED_PLATFORMS = ['darwin'];
+test_can_pref_off_account_provisioner.EXCLUDED_PLATFORMS = ["darwin"];
 
 /**
  * Tests that if we load a provider list that does not include providers in
@@ -874,7 +877,7 @@ function get_to_order_form(aAddress) {
   // for a content tab to load for the account order form.
 
   // Make sure the page is loaded.
-  wait_for_content_tab_load(undefined, function (aURL) {
+  wait_for_content_tab_load(undefined, function(aURL) {
     return aURL.host == "localhost";
   });
 }
@@ -995,7 +998,6 @@ function test_return_to_provisioner_on_error_XML() {
   get_to_order_form("error@error.invalid");
 
   let tab = mc.tabmail.currentTabInfo;
-  let doc = tab.browser.contentWindow.document;
 
   plan_for_modal_dialog("AccountCreation", close_dialog_immediately);
 
@@ -1044,22 +1046,22 @@ function subtest_disabled_fields_when_searching(aController) {
       succeeded: true,
       quote: "b28acb3c0a474d33af22",
       price: 0,
-      provider: "bar"
+      provider: "bar",
     }];
     let timerEvent = {
-      notify: function(aTimer) {
+      notify(aTimer) {
         aResponse.setStatusLine(null, 200, "OK");
         aResponse.setHeader("Content-Type", "application/json");
         aResponse.write(JSON.stringify(result));
         aResponse.finish();
-      }
+      },
     };
     timer.initWithCallback(timerEvent, kSearchMSeconds,
                            Ci.nsITimer.TYPE_ONE_SHOT);
   }
 
   // Set up a mock HTTP server to serve up a super slow search...
-  let server = new HttpServer();;
+  let server = new HttpServer();
   server.registerPathHandler(kSuggestPath, slow_results);
   server.start(kDefaultServerPort);
 
@@ -1182,7 +1184,6 @@ function test_provider_language_wildcard() {
  */
 function subtest_provider_language_wildcard(aController) {
   wait_for_provider_list_loaded(aController);
-  let doc = aController.window.document;
   // Check that the two universal providers are visible.
   wait_for_element_visible(aController, "universal-check");
   wait_for_element_visible(aController, "otherUniversal-check");
@@ -1223,7 +1224,7 @@ function test_search_button_disabled_if_no_query_on_init() {
 function test_get_new_account_focuses_existing_ap_tab() {
   get_to_order_form("green@example.com");
   let apTab = mc.tabmail.getTabInfoForCurrentOrFirstModeInstance(
-    mc.tabmail.tabModes["accountProvisionerTab"]);
+    mc.tabmail.tabModes.accountProvisionerTab);
 
   // Switch back to the inbox tab.
   mc.tabmail.switchToTab(0);
@@ -1282,13 +1283,13 @@ function subtest_per_address_prices(w) {
   let prices = ["$20-$0 a year", "Free", "$20.00 a year"];
 
   // Check that the multi-provider has the default price.
-  let providers = w.window.document.querySelectorAll('.provider');
+  let providers = w.window.document.querySelectorAll(".provider");
   let price;
   let multi;
   for (let provider of providers) {
     if (provider.innerHTML == "multi") {
       multi = provider;
-      price = provider.parentNode.querySelector('.price');
+      price = provider.parentNode.querySelector(".price");
       break;
     }
   }

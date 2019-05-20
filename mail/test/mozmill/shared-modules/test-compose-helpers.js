@@ -5,12 +5,8 @@
 "use strict";
 
 var MODULE_NAME = "compose-helpers";
-
 var RELATIVE_ROOT = "../shared-modules";
-// we need this for the main controller
-var MODULE_REQUIRES = ["folder-display-helpers",
-                         "window-helpers",
-                         "dom-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "dom-helpers"];
 
 var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
 var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
@@ -22,10 +18,10 @@ var mc;
 var windowHelper, domHelper;
 
 function setupModule() {
-  folderDisplayHelper = collector.getModule('folder-display-helpers');
+  folderDisplayHelper = collector.getModule("folder-display-helpers");
   mc = folderDisplayHelper.mc;
-  windowHelper = collector.getModule('window-helpers');
-  domHelper = collector.getModule('dom-helpers');
+  windowHelper = collector.getModule("window-helpers");
+  domHelper = collector.getModule("dom-helpers");
 }
 
 function installInto(module) {
@@ -48,7 +44,6 @@ function installInto(module) {
   module.toggle_recipient_type = toggle_recipient_type;
   module.create_msg_attachment = create_msg_attachment;
   module.add_attachments = add_attachments;
-  module.add_attachment = add_attachments;
   module.add_cloud_attachments = add_cloud_attachments;
   module.delete_attachment = delete_attachment;
   module.get_compose_body = get_compose_body;
@@ -238,8 +233,7 @@ function close_compose_window(aController, aShouldPrompt) {
     // Try to close, we should get a prompt to save.
     aController.window.goDoCommand("cmd_close");
     windowHelper.wait_for_modal_dialog();
-  }
-  else {
+  } else {
     aController.window.goDoCommand("cmd_close");
   }
   windowHelper.wait_for_window_close();
@@ -269,7 +263,7 @@ function wait_for_compose_window(aController) {
         if (aTopic == "obs_documentCreated") {
           this.editorLoaded = true;
         }
-      }
+      },
     };
 
     editor.commandManager.addCommandObserver(editorObserver,
@@ -319,7 +313,7 @@ function setup_msg_contents(aCwc, aAddr, aSubj, aBody) {
 function clear_recipient(aController, aRecipientRow = 1) {
   let recipientElem = aController.window.awGetInputElement(aRecipientRow);
   while (recipientElem.value != "") {
-    aController.keypress(new elib.Elem(recipientElem), 'VK_BACK_SPACE', {});
+    aController.keypress(new elib.Elem(recipientElem), "VK_BACK_SPACE", {});
   }
 }
 
@@ -346,7 +340,7 @@ function create_msg_attachment(aUrl, aSize) {
                      .createInstance(Ci.nsIMsgAttachment);
 
   attachment.url = aUrl;
-  if(aSize)
+  if (aSize)
     attachment.size = aSize;
 
   return attachment;
@@ -431,7 +425,7 @@ function add_cloud_attachments(aController, aProvider, aWaitUploaded = true) {
  * @param aIndex the index of the attachment in the attachment pane
  */
 function delete_attachment(aComposeWindow, aIndex) {
-  let bucket = aComposeWindow.e('attachmentBucket');
+  let bucket = aComposeWindow.e("attachmentBucket");
   let node = bucket.querySelectorAll("richlistitem.attachmentItem")[aIndex];
 
   aComposeWindow.click(new elib.Elem(node));
@@ -486,8 +480,7 @@ function assert_previous_text(aStart, aText) {
       throw new Error("Expected a text node! Node type was: " + textNode.nodeType);
 
     if (textNode.nodeValue != aText[i])
-      throw new Error("Unexpected inequality - " + textNode.nodeValue + " != " +
-                      + aText[i]);
+      throw new Error("Unexpected inequality - " + textNode.nodeValue + " != " + aText[i]);
 
     // We expect a BR preceding each text node automatically, except
     // for the last one that we reach.

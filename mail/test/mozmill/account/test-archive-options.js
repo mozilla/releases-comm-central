@@ -4,11 +4,13 @@
 
 "use strict";
 
-var MODULE_NAME = "test-archive-options";
+/* import-globals-from ../shared-modules/test-account-manager-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-archive-options";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
-                       "account-manager-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "account-manager-helpers"];
 
 var mozmill = ChromeUtils.import("chrome://mozmill/content/modules/mozmill.jsm");
 var controller = ChromeUtils.import("chrome://mozmill/content/modules/controller.jsm");
@@ -173,4 +175,4 @@ function test_disable_archive() {
 }
 // Disable test on Windows since for some yet unknown reason clicking the checkbox
 // doesn't have the desired result. See bug 1461173 for details.
-test_disable_archive.EXCLUDED_PLATFORMS = ['winnt'];
+test_disable_archive.EXCLUDED_PLATFORMS = ["winnt"];

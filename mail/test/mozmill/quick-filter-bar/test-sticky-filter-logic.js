@@ -9,19 +9,20 @@
 
 "use strict";
 
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-quick-filter-bar-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
+
 var MODULE_NAME = "test-sticky-filter-logic";
-
-var RELATIVE_ROOT = '../shared-modules';
-
-var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers',
-                       'quick-filter-bar-helper'];
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "quick-filter-bar-helpers"];
 
 function setupModule(module) {
-  let fdh = collector.getModule('folder-display-helpers');
+  let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let wh = collector.getModule('window-helpers');
+  let wh = collector.getModule("window-helpers");
   wh.installInto(module);
-  let qfb = collector.getModule('quick-filter-bar-helper');
+  let qfb = collector.getModule("quick-filter-bar-helpers");
   qfb.installInto(module);
 }
 
@@ -40,7 +41,7 @@ function test_sticky_basics() {
   readTwo.setRead(true);
 
   // -- setup
-  let tabA = be_in_folder(folderOne);
+  be_in_folder(folderOne);
   toggle_boolean_constraints("sticky", "unread");
   assert_messages_in_view(unreadOne);
 
@@ -73,9 +74,9 @@ function test_sticky_tags() {
   let folderOne = create_folder("QuickFilterBarStickyTags1");
   let folderTwo = create_folder("QuickFilterBarStickyTags2");
   const tagA = "$label1", tagB = "$label2", tagC = "$label3";
-  let [setNoTag1, setTagA1, setTagB1] = make_new_sets_in_folder(
+  let [, setTagA1, setTagB1] = make_new_sets_in_folder(
     folderOne, [{count: 1}, {count: 1}, {count: 1}]);
-  let [setNoTag2, setTagA2, setTagC2] = make_new_sets_in_folder(
+  let [, setTagA2, setTagC2] = make_new_sets_in_folder(
     folderTwo, [{count: 1}, {count: 1}, {count: 1}]);
   setTagA1.addTag(tagA);
   setTagB1.addTag(tagB);

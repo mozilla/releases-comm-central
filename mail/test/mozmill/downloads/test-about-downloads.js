@@ -6,19 +6,25 @@
  * Test about:downloads.
  */
 
-// make SOLO_TEST=downloads/test-about-downloads.js mozmill-one
-
 "use strict";
 
-var MODULE_NAME = "test-about-downloads";
+/* import-globals-from ../shared-modules/test-attachment-helpers.js */
+/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
+/* import-globals-from ../shared-modules/test-dom-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-prompt-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-about-downloads";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [ 'attachment-helpers',
-                        'content-tab-helpers',
-                        'dom-helpers',
-                        'folder-display-helpers',
-                        'prompt-helpers',
-                        'window-helpers' ];
+var MODULE_REQUIRES = [
+  "attachment-helpers",
+  "content-tab-helpers",
+  "dom-helpers",
+  "folder-display-helpers",
+  "prompt-helpers",
+  "window-helpers",
+];
 
 var elementslib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
 var downloads = ChromeUtils.import("resource://gre/modules/Downloads.jsm");
@@ -62,33 +68,33 @@ var downloadsView = {
     let finished = false;
     Promise.all(succeededPromises).then(() => finished = true, Cu.reportError);
     mc.waitFor(() => finished, "Timeout waiting for downloads to complete.");
-  }
+  },
 };
 
 function prepare_messages() {
   let folder = create_folder("about:downloads");
-  let msgSet = make_new_sets_in_folder(folder, [
+  make_new_sets_in_folder(folder, [
     {
       count: 1,
       attachments: [{
         filename: attachmentFileNames[0],
-        body: "Body"
-      }]
+        body: "Body",
+      }],
     },
     {
       count: 1,
       attachments: [{
         filename: attachmentFileNames[1],
-        body: "Body"
-      }]
+        body: "Body",
+      }],
     },
     {
       count: 1,
       attachments: [{
         filename: attachmentFileNames[2],
-        body: "Body"
-      }]
-    }
+        body: "Body",
+      }],
+    },
   ]);
   be_in_folder(folder);
 }
@@ -205,7 +211,7 @@ function test_remove_file() {
   let contextMenu = content_tab_e(downloadsTab, "msgDownloadsContextMenu");
   wait_for_popup_to_open(contextMenu);
   mc.click_menus_in_sequence(contextMenu, [
-                               { command: "msgDownloadsCmd_remove" }
+                               { command: "msgDownloadsCmd_remove" },
                              ]);
   mc.waitFor(() => downloadsView.count == 2,
              "Timeout waiting for removing a saved attachment file.");
@@ -239,7 +245,7 @@ function test_remove_multiple_files() {
   let contextMenu = content_tab_e(downloadsTab, "msgDownloadsContextMenu");
   wait_for_popup_to_open(contextMenu);
   mc.click_menus_in_sequence(contextMenu, [
-                               { command: "msgDownloadsCmd_remove" }
+                               { command: "msgDownloadsCmd_remove" },
                              ]);
   mc.waitFor(() => downloadsView.count == 1,
              "Timeout waiting for removing two saved attachment files.");
@@ -266,7 +272,7 @@ function test_clear_all_files() {
   let contextMenu = content_tab_e(downloadsTab, "msgDownloadsContextMenu");
   wait_for_popup_to_open(contextMenu);
   mc.click_menus_in_sequence(contextMenu, [
-                               { command: "msgDownloadsCmd_clearDownloads" }
+                               { command: "msgDownloadsCmd_clearDownloads" },
                              ]);
   mc.waitFor(() => downloadsView.count == 0,
              "Timeout waiting for clearing all saved attachment files.");
@@ -286,7 +292,7 @@ function teardownTest() {
   mc.waitFor(() => downloadsView.count == 0,
              "Timeout waiting for clearing all saved attachment files.");
   let empty = content_tab_e(downloadsTab, "msgDownloadsListEmptyDescription");
-  mc.waitFor(() => empty.hidden == false,
+  mc.waitFor(() => empty.hidden === false,
              "Timeout waiting for msgDownloadsListEmptyDescription is visible.");
 }
 

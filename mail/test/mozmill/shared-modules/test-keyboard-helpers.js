@@ -6,9 +6,6 @@
 
 var MODULE_NAME = "keyboard-helpers";
 
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [];
-
 function installInto(module) {
   // Now copy helper functions
   module.input_value = input_value;
@@ -37,7 +34,7 @@ function input_value(aController, aStr, aElement) {
  */
 function delete_existing(aController, aElement, aNumber) {
   for (let i = 0; i < aNumber; ++i)
-    aController.keypress(aElement, 'VK_BACK_SPACE', {});
+    aController.keypress(aElement, "VK_BACK_SPACE", {});
 }
 
 /**
@@ -47,6 +44,6 @@ function delete_existing(aController, aElement, aNumber) {
  * @param aElement    The element in which to delete characters
  */
 function delete_all_existing(aController, aElement) {
-  aController.keypress(aElement, 'a', {accelKey: true});
-  aController.keypress(aElement, 'VK_DELETE', {});
+  aController.keypress(aElement, "a", {accelKey: true});
+  aController.keypress(aElement, "VK_DELETE", {});
 }

@@ -5,9 +5,7 @@
 "use strict";
 
 var MODULE_NAME = "junk-helpers";
-
 var RELATIVE_ROOT = "../shared-modules";
-// we need this for the main controller
 var MODULE_REQUIRES = ["folder-display-helpers"];
 
 var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
@@ -20,7 +18,7 @@ var mc;
 var mark_failure;
 
 function setupModule() {
-  folderDisplayHelper = collector.getModule('folder-display-helpers');
+  folderDisplayHelper = collector.getModule("folder-display-helpers");
   mc = folderDisplayHelper.mc;
   mark_failure = folderDisplayHelper.mark_failure;
 }
@@ -140,8 +138,7 @@ function delete_mail_marked_as_junk(aNumDeletesExpected, aController) {
     if (aNumDeletesExpected != numMessagesDeleted)
       mark_failure(["Expected", aNumDeletesExpected, "deletes, but",
                     numMessagesDeleted, "happened"]);
-  }
-  finally {
+  } finally {
     aController.window.deleteJunkInFolder = realDeleteJunkInFolder;
   }
 }

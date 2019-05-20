@@ -5,9 +5,7 @@
 "use strict";
 
 var MODULE_NAME = "dom-helpers";
-
 var RELATIVE_ROOT = "../shared-modules";
-// we need this for the main controller
 var MODULE_REQUIRES = ["folder-display-helpers"];
 
 var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
@@ -23,7 +21,7 @@ var mc;
 var mark_failure;
 
 function setupModule() {
-  folderDisplayHelper = collector.getModule('folder-display-helpers');
+  folderDisplayHelper = collector.getModule("folder-display-helpers");
   mc = folderDisplayHelper.mc;
   mark_failure = folderDisplayHelper.mark_failure;
 }

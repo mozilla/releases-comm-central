@@ -10,15 +10,16 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-message-size';
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers'];
+var MODULE_NAME = "test-message-size";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers"];
 
 var folder;
 
 function setupModule(module) {
-  let fdh = collector.getModule('folder-display-helpers');
+  let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
 
   folder = create_folder("MessageSizeA");
@@ -26,7 +27,7 @@ function setupModule(module) {
   // Create messages with sizes in the byte, KB, and MB ranges.
   let bytemsg = create_message({body: {body: " "}});
 
-  let kbstring = "x ".repeat(1024/2);
+  let kbstring = "x ".repeat(1024 / 2);
   let kbmsg = create_message({body: {body: kbstring}});
 
   let mbstring = kbstring.repeat(1024);
@@ -52,9 +53,9 @@ function _help_test_message_size(index, unit) {
   let abbrSize = parseFloat(sizeStr);
 
   if (isNaN(abbrSize))
-    throw new Error("formatted size is not numeric: '"+sizeStr+"'");
-  if (Math.abs(realSize/Math.pow(1024, unit) - abbrSize) > 0.5)
-    throw new Error("size mismatch: '"+realSize+"' and '"+sizeStr+"'");
+    throw new Error("formatted size is not numeric: '" + sizeStr + "'");
+  if (Math.abs(realSize / Math.pow(1024, unit) - abbrSize) > 0.5)
+    throw new Error("size mismatch: '" + realSize + "' and '" + sizeStr + "'");
 }
 
 function test_byte_message_size() {

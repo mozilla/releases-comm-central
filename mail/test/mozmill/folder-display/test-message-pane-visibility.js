@@ -9,17 +9,19 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-message-pane-visibility';
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers'];
+var MODULE_NAME = "test-message-pane-visibility";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var folder;
 
 function setupModule(module) {
-  let fdh = collector.getModule('folder-display-helpers');
+  let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let wh = collector.getModule('window-helpers');
+  let wh = collector.getModule("window-helpers");
   wh.installInto(module);
 
   folder = create_folder("MessagePaneVisibility");
@@ -67,7 +69,6 @@ function test_toggle_message_pane_on() {
  *  with a collapsed message pane.
  */
 function test_collapsed_message_pane_does_not_break_message_tab() {
-
   be_in_folder(folder);
 
   // - toggle message pane off
@@ -170,8 +171,7 @@ function test_message_pane_persistence_generally_works() {
     for (let [iTab, messagePaneVisible] of aConfig.entries()) {
       if (iTab == 0) {
         curState = messagePaneVisible;
-      }
-      else {
+      } else {
         open_folder_in_new_tab(folder);
         if (curState != messagePaneVisible) {
           toggle_message_pane();
@@ -202,7 +202,7 @@ function test_message_pane_persistence_generally_works() {
     // 1st time: [+ - - + +]
     [1, 0, 0, 1, 1],
     // 2nd time: [- + + - -]
-    [0, 1, 1, 0, 0]
+    [0, 1, 1, 0, 0],
   ];
   for (let config of configs) {
     openTabs(config);
@@ -228,6 +228,5 @@ function test_message_pane_persistence_generally_works() {
     //  restores it to + for when we are done.
     toggle_message_pane();
   }
-
 }
 

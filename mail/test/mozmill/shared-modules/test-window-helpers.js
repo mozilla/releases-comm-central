@@ -318,8 +318,7 @@ var WindowWatcher = {
         try {
           let runner = new frame.Runner(collector);
           runner.wrapper(self.subTestFunc, troller);
-        }
-        finally {
+        } finally {
           self.subTestFunc = null;
         }
 
@@ -376,11 +375,12 @@ var WindowWatcher = {
     if (this.subTestFunc == null)
       return;
     // spin the event loop until we the window has come and gone.
-    utils.waitFor(function () { return (this.waitingForOpen == null &&
-                                        this.monitorizeClose()); },
-                  "Timeout waiting for modal dialog to open.",
-                  aTimeout || WINDOW_OPEN_TIMEOUT_MS,
-                  WINDOW_OPEN_CHECK_INTERVAL_MS, this);
+    utils.waitFor(
+      () => { return this.waitingForOpen == null && this.monitorizeClose(); },
+      "Timeout waiting for modal dialog to open.",
+      aTimeout || WINDOW_OPEN_TIMEOUT_MS,
+      WINDOW_OPEN_CHECK_INTERVAL_MS
+    );
     this.waitingForClose = null;
   },
 
@@ -427,7 +427,7 @@ var WindowWatcher = {
    *
    * @return true if we found what we were |waitingForOpen|, false otherwise.
    */
-  monitorizeOpen: function () {
+  monitorizeOpen() {
     for (let iWin = this.monitoringList.length - 1; iWin >= 0; iWin--) {
       let xulWindow = this.monitoringList[iWin];
       if (this.consider(xulWindow))
@@ -444,7 +444,7 @@ var WindowWatcher = {
    *
    * @return true if it closed.
    */
-  monitorizeClose: function () {
+  monitorizeClose() {
     return this.waitingList.get(this.waitingForClose) == null;
   },
 
@@ -457,7 +457,7 @@ var WindowWatcher = {
    * Monitor the given window's loading process until we can determine whether
    *  it is what we are looking for.
    */
-  monitorWindowLoad: function(aXULWindow) {
+  monitorWindowLoad(aXULWindow) {
     this.monitoringList.push(aXULWindow);
   },
 
@@ -493,7 +493,7 @@ var WindowWatcher = {
    *     relation to whether the window was one in our waitingList or not.
    *     Check the waitingList structure for that.
    */
-  consider: function (aXULWindow) {
+  consider(aXULWindow) {
     let windowType = getWindowTypeForXulWindow(aXULWindow);
     if (windowType == null)
       return false;
@@ -706,13 +706,13 @@ function wait_for_frame_load(aFrame, aURLOrPredicate) {
   let details = {
     // Not sure whether all of these really need to be getters, but this is the
     // safest thing to do.
-    get webProgress () {
+    get webProgress() {
       return aFrame.contentWindow.QueryInterface(Ci.nsIInterfaceRequestor)
              .getInterface(Ci.nsIWebNavigation)
              .QueryInterface(Ci.nsIWebProgress);
     },
-    get currentURI () { return NetUtil.newURI(aFrame.contentDocument.location); },
-    get contentWindow () { return aFrame.contentWindow; },
+    get currentURI() { return NetUtil.newURI(aFrame.contentDocument.location); },
+    get contentWindow() { return aFrame.contentWindow; },
   };
   return _wait_for_generic_load(details, aURLOrPredicate);
 }
@@ -729,8 +729,7 @@ function _wait_for_generic_load(aDetails, aURLOrPredicate) {
   if (typeof aURLOrPredicate == "string") {
     let expectedURL = NetUtil.newURI(aURLOrPredicate);
     predicate = url => expectedURL.equals(url);
-  }
-  else {
+  } else {
     predicate = aURLOrPredicate;
   }
 
@@ -773,10 +772,10 @@ function plan_for_observable_event(aTopic) {
   mark_action("fdh", "plan_for_observable_event", [aTopic]);
   observationSaw[aTopic] = false;
   let waiter = observationWaitFuncs[aTopic] = {
-    observe: function() {
+    observe() {
       mark_action("winhelp", "observed event", [aTopic]);
       observationSaw[aTopic] = true;
-    }
+    },
   };
   Services.obs.addObserver(waiter, aTopic);
 }
@@ -795,8 +794,7 @@ function wait_for_observable_event(aTopic) {
     }
     utils.waitFor(areWeThereYet,
                   "Timed out waiting for notification: " + aTopic);
-  }
-  finally {
+  } finally {
     Services.obs.removeObserver(observationWaitFuncs[aTopic], aTopic);
     delete observationWaitFuncs[aTopic];
     delete observationSaw[aTopic];
@@ -900,11 +898,10 @@ var AugmentEverybodyWith = {
     a: function _get_anon_element_by_id_and_query(aId, aQuery) {
       let realElem = (typeof(aId) == "string") ?
                        this.window.document.getElementById(aId) : aId;
-      if (aQuery["class"]) {
+      if (aQuery.class) {
         return this.window.document.getAnonymousElementByAttribute(
-          realElem, "class", aQuery["class"]);
-      }
-      else if(aQuery.crazyDeck != null) {
+          realElem, "class", aQuery.class);
+      } else if (aQuery.crazyDeck != null) {
         let anonNodes = this.window.document.getAnonymousNodes(realElem);
         let index;
         if (realElem.hasAttribute("selectedIndex"))
@@ -913,18 +910,15 @@ var AugmentEverybodyWith = {
           index = aQuery.crazyDeck;
         let elem = anonNodes[index];
         return elem;
-      }
-      else if(aQuery.tagName) {
+      } else if (aQuery.tagName) {
         let anonNodes = this.window.document.getAnonymousNodes(realElem);
-        let index;
         for (let iNode = 0; iNode < anonNodes.length; iNode++) {
           let node = anonNodes[iNode];
           let named = node.querySelector(aQuery.tagName);
           if (named)
             return named;
         }
-      }
-      else {
+      } else {
         let msg = "Query constraint not implemented, query contained:";
         for (let [key, val] of Object.entries(aQuery)) {
           msg += " '" + key + "': " + val;
@@ -994,7 +988,7 @@ var AugmentEverybodyWith = {
          */
         let findMatch = function(aNode) {
           // Ignore some elements and just use their children instead.
-          if (aNode.localName == "hbox" || aNode.localName == "vbox" ) {
+          if (aNode.localName == "hbox" || aNode.localName == "vbox") {
             for (let i = 0; i < aNode.children.length; i++) {
               let childMatch = findMatch(aNode.children[i]);
               if (childMatch)
@@ -1035,14 +1029,15 @@ var AugmentEverybodyWith = {
           // unless this is the last item being searched for. In that case,
           // click the main item.
           this.click(new elib.Elem(matchingNode.menu));
-        } else
+        } else {
           this.click(new elib.Elem(matchingNode));
+        }
 
         let newPopup = null;
-        if ("menupopup" in matchingNode)
+        if ("menupopup" in matchingNode) {
           newPopup = matchingNode.menupopup;
-        else if ((matchingNode.localName == "splitmenu") &&
-                 ("menupopup" in matchingNode.menu)) {
+        } else if ((matchingNode.localName == "splitmenu") &&
+                   ("menupopup" in matchingNode.menu)) {
           // We should actually fetch matchingNode.menu.menupopup here,
           // but it doesn't seem to work.
           newPopup = matchingNode.querySelector("menupopup");
@@ -1060,9 +1055,8 @@ var AugmentEverybodyWith = {
       if (!aKeepOpen) {
         this.close_popup_sequence(closeStack);
         return [];
-      } else {
-        return closeStack;
       }
+      return closeStack;
     },
 
     /**
@@ -1089,12 +1083,13 @@ var AugmentEverybodyWith = {
      * @param aNode  An element containing a dropmarker:
      * a <toobalbuttton type="menu-button">. (Only usage left due to de-xbl).
      */
-    get_menu_dropmarker: function(aNode) {
+    get_menu_dropmarker(aNode) {
       let children = aNode.ownerDocument.getAnonymousNodes(aNode);
       for (let node of children) {
         if (node.tagName == "xul:dropmarker")
           return node;
       }
+      return null;
     },
 
     /**
@@ -1103,7 +1098,7 @@ var AugmentEverybodyWith = {
      *  state of the window.  For now this will be a variable-length list but
      *  could be changed to a single object in the future.
      */
-    describeFocus: function() {
+    describeFocus() {
       let arr = [
         "in window:",
         getWindowTypeForXulWindow(this.window) + " (" +
@@ -1130,7 +1125,7 @@ var AugmentEverybodyWith = {
     },
   },
   getters: {
-    focusedElement: function() {
+    focusedElement() {
       let ignoredFocusedWindow = {};
       return Services.focus.getFocusedElementForWindow(this.window, true,
                                                        ignoredFocusedWindow);
@@ -1150,7 +1145,7 @@ var MOUSE_OPS_TO_WRAP = [
 
 for (let mouseOp of MOUSE_OPS_TO_WRAP) {
   let thisMouseOp = mouseOp;
-  let wrapperFunc = function (aElem, aLeft, aTop) {
+  let wrapperFunc = function(aElem, aLeft, aTop) {
     let el = aElem.getNode();
     let rect = el.getBoundingClientRect();
     if (aLeft === undefined)
@@ -1210,10 +1205,10 @@ var PerWindowTypeAugmentations = {
      * Custom getters whose |this| is the controller.
      */
     getters: {
-      dbView: function () {
+      dbView() {
         return this.folderDisplay.view.dbView;
       },
-      contentPane: function () {
+      contentPane() {
         return this.tabmail.getBrowserForSelectedTab();
       },
     },
@@ -1222,7 +1217,7 @@ var PerWindowTypeAugmentations = {
      * Invoked when we are augmenting a controller.  This is a great time to
      *  poke into the global namespace as required.
      */
-    onAugment: function(aController) {
+    onAugment(aController) {
       // -- turn off summarization's stabilization logic for now by setting the
       //  timer interval to 0.  We do need to make sure that we drain the event
       //  queue after performing anything that will summarize, but use of
@@ -1247,7 +1242,7 @@ var PerWindowTypeAugmentations = {
       {
         method: "goDoCommand",
         onGlobal: true,
-        doBefore: function(command) {
+        doBefore(command) {
           let controller = this.top.document
                              .commandDispatcher
                              .getControllerForCommand(command);
@@ -1255,18 +1250,18 @@ var PerWindowTypeAugmentations = {
             mark_action("winhelp", "goDoCommand",
                         ["about to ignore command because it's disabled:",
                          command]);
-        }
+        },
       },
       // DefaultController command gobbling notification
       {
         method: "doCommand",
         onObject: "DefaultController",
-        doBefore: function(command) {
+        doBefore(command) {
           if (!this.isCommandEnabled(command))
             mark_action("winhelp", "DC_doCommand",
                         ["about to ignore command because it's disabled:",
                          command]);
-        }
+        },
       },
       // FolderDisplayWidget command invocations
       {
@@ -1283,18 +1278,18 @@ var PerWindowTypeAugmentations = {
       {
         method: "onLoadStarted",
         onConstructor: "MessageDisplayWidget",
-        doBefore: function() {
+        doBefore() {
           mark_action("winhelp", "MD_onLoadStarted",
                       ["singleMessageDisplay?", this.singleMessageDisplay]);
-        }
+        },
       },
       {
         method: "onLoadCompleted",
         onConstructor: "MessageDisplayWidget",
-        doBefore: function() {
+        doBefore() {
           mark_action("winhelp", "MD_onLoadCompleted",
                       ["singleMessageDisplay?", this.singleMessageDisplay]);
-        }
+        },
       },
       // Message summarization annotations
       {
@@ -1331,7 +1326,7 @@ var PerWindowTypeAugmentations = {
       messageDisplay: "gMessageDisplay",
     },
     getters: {
-      dbView: function () {
+      dbView() {
         return this.folderDisplay.view.dbView;
       },
     },
@@ -1351,10 +1346,10 @@ var PerWindowTypeAugmentations = {
       currentFolder: "gCurrentFolder",
     },
     getters: {
-      dbView: function () {
+      dbView() {
         return this.folderDisplay.view.dbView;
-      }
-    }
+      },
+    },
   },
 };
 
@@ -1408,17 +1403,15 @@ function _augment_helper(aController, aAugmentDef) {
       if (traceDef.hasOwnProperty("onGlobal")) {
         baseObj = win;
         useThis = false;
-      }
-      else if (traceDef.hasOwnProperty("onConstructor")) {
+      } else if (traceDef.hasOwnProperty("onConstructor")) {
         baseObj = win[traceDef.onConstructor].prototype;
         useThis = true;
-      }
-      else if (traceDef.hasOwnProperty("onObject")) {
+      } else if (traceDef.hasOwnProperty("onObject")) {
         baseObj = win[traceDef.onObject];
         useThis = false;
-      }
-      else // ignore/bail if unsupported type
+      } else { // ignore/bail if unsupported type
         continue;
+      }
 
       // - compute/set the wrapped attr, bailing if it's already there
       let wrappedName = "__traceWrapped_" + traceDef.method;
@@ -1437,21 +1430,19 @@ function _augment_helper(aController, aAugmentDef) {
         traceFunc = function(...aArgs) {
           beforeFunc.apply(useThis ? this : baseObj, aArgs);
           return origFunc.apply(this, aArgs);
-        }
-      }
-      else {
+        };
+      } else {
         traceFunc = function(...aArgs) {
           mark_action("winhelp", reportAs,
                       showArgs ? aArgs : []);
           try {
             return origFunc.apply(this, aArgs);
-          }
-          catch(ex) {
+          } catch (ex) {
             mark_failure(["exception in", reportAs, "ex:", ex]);
             // re-throw it; someone might care!
             throw ex;
           }
-        }
+        };
       }
       baseObj[traceDef.method] = traceFunc;
     }
@@ -1490,12 +1481,11 @@ function describeEventElementInHierarchy(aNode) {
   // DOM node ?
   if ("ownerDocument" in aNode) {
     arr.push(normalize_for_json(aNode));
-    if (aNode.ownerDocument)
-      win = aNode.ownerDocument.defaultView;
+    if (aNode.ownerGlobal)
+      win = aNode.ownerGlobal;
     else
       win = aNode.defaultView;
-  }
-  else {
+  } else {
     // Otherwise this should be a window.
     win = aNode;
   }
@@ -1513,8 +1503,7 @@ function describeEventElementInHierarchy(aNode) {
     if (win.frameElement) {
       arr.push("frame:");
       arr.push(normalize_for_json(win.frameElement));
-    }
-    else if (parentTreeItem) {
+    } else if (parentTreeItem) {
       let parentWin = parentTreeItem.domWindow;
       let frame = _findFrameElementForWindowInWindow(win, parentWin);
       arr.push("frame:");
@@ -1532,7 +1521,7 @@ function describeEventElementInHierarchy(aNode) {
  *  contentWindow.
  */
 function _findFrameElementForWindowInWindow(win, parentWin) {
-  let elems = parentWin.document.getElementsByTagName("iframe"), i;
+  let elems = parentWin.document.getElementsByTagName("iframe");
   for (let i = 0; i < elems.length; i++) {
     // (Must not use === because XPConnect uses wrapper identicality when
     //  we do that.)
@@ -1559,8 +1548,7 @@ function _findFrameElementForWindowInWindow(win, parentWin) {
 function getWindowDescribeyFromEvent(event) {
   var target = event.target;
   // assume it's a window if there's no ownerDocument attribute
-  var win = ("ownerDocument" in target) ? target.ownerDocument.defaultView
-                                        : target;
+  var win = ("ownerGlobal" in target) ? target.ownerGlobal : target;
   var owningWin = win.docShell.rootTreeItem.domWindow;
   var docElem = owningWin.document.documentElement;
   return (getWindowTypeOrId(docElem) || "mysterious") +
@@ -1594,7 +1582,7 @@ function __peek_click_handler(event) {
   if (event.shiftKey)
     s = "shift-" + s;
   if (event.ctrlKey)
-    s = "ctrl-"; + s
+    s = "ctrl-" + s;
   if (event.altKey)
     s = "alt-" + s;
   if (event.metaKey)
@@ -1622,14 +1610,11 @@ function describeKeyEvent(event) {
     s = event.key;
     if (s.trim() == "")
       s = "'" + event.key + "'";
-  }
-  else if (event.charCode) {
+  } else if (event.charCode) {
     s = "'" + String.fromCharCode(event.charCode) + "'";
-  }
-  else if (event.keyCode) {
+  } else if (event.keyCode) {
     s = event.keyCode;
-  }
-  else {
+  } else {
     s = "no key/keyCode/charCode?";
   }
 
@@ -1773,9 +1758,7 @@ function augment_controller(aController, aWindowType) {
       popup.addEventListener("popuphiding", __popup_hiding, true);
       popup.addEventListener("popuphidden", __popup_hidden, true);
     }
-
-  }
-  catch(ex) {
+  } catch (ex) {
     dump("!!!! failure augmenting controller: " + ex + "\n" + ex.stack);
   }
 
@@ -1870,7 +1853,7 @@ function captureWindowStatesForErrorReporting(normalizeForJsonFunc) {
   let windows = info.windows = [];
 
   let enumerator = Services.wm.getEnumerator(null);
-  let iWin=0;
+  let iWin = 0;
   while (enumerator.hasMoreElements()) {
     let win = enumerator.getNext().QueryInterface(Ci.nsIDOMWindow);
 
@@ -1894,7 +1877,7 @@ function captureWindowStatesForErrorReporting(normalizeForJsonFunc) {
       focusedElem: normalizeForJsonFunc(
         Services.focus.getFocusedElementForWindow(win, true,
                                                   ignoredFocusedWindow)),
-      openPopups: openPopups,
+      openPopups,
     };
 
     windows.push(winfo);

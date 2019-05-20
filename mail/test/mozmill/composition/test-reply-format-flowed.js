@@ -6,12 +6,13 @@
  * Tests that the reply to a format=flowed message is also flowed.
  */
 
-// make SOLO_TEST=composition/test-reply-format-flowed.js mozmill-one
-
 "use strict";
 
-var MODULE_NAME = "test-reply-format-flowed";
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-reply-format-flowed";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
 

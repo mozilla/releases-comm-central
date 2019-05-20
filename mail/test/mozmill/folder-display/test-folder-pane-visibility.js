@@ -9,17 +9,19 @@
 
 "use strict";
 
-var MODULE_NAME = "test-folder-pane-visibility";
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-folder-pane-visibility";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var folder;
 
 function setupModule(module) {
-  let fdh = collector.getModule('folder-display-helpers');
+  let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let wh = collector.getModule('window-helpers');
+  let wh = collector.getModule("window-helpers");
   wh.installInto(module);
 
   folder = create_folder("FolderPaneVisibility");
@@ -75,10 +77,9 @@ function assert_folder_pane_hidden(aFolderPaneIllegal) {
   if (aFolderPaneIllegal) {
     if (mc.e("folderpane_splitter").collapsed === false)
       throw new Error("folderpane_splitter should be collapsed!");
-    //if (paneMenuItem.getAttribute("disabled") != "true")
+    // if (paneMenuItem.getAttribute("disabled") != "true")
     //  throw new Error("The Folder Pane menu item should be disabled.");
-  }
-  else {
+  } else {
     if (mc.e("folderpane_splitter").collapsed === true)
       throw new Error("folderpane_splitter should not be collapsed!");
     if (paneMenuItem.getAttribute("checked") == "true")
@@ -198,8 +199,7 @@ function test_folder_pane_persistence_generally_works() {
     for (let [iTab, folderPaneVisible] of aConfig.entries()) {
       if (iTab == 0) {
         curState = folderPaneVisible;
-      }
-      else {
+      } else {
         open_folder_in_new_tab(folder);
         if (curState != folderPaneVisible) {
           toggle_folder_pane();
@@ -230,7 +230,7 @@ function test_folder_pane_persistence_generally_works() {
     // 1st time: [+ - - + +]
     [1, 0, 0, 1, 1],
     // 2nd time: [- + + - -]
-    [0, 1, 1, 0, 0]
+    [0, 1, 1, 0, 0],
   ];
 
   for (let config of configs) {

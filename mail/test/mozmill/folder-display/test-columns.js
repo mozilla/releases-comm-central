@@ -2,25 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-"use strict";
-
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
-
-// needed to zero inter-folder processing delay
-var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-
 /*
  * Test column default logic and persistence logic.  Persistence comes in both
  *  tab-switching (because of the multiplexed implementation) and
  *  folder-switching forms.
  */
 
-// make mozmill-one SOLO_TEST=folder-display/test-columns.js
+"use strict";
 
-var MODULE_NAME = 'test-columns';
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers'];
+var MODULE_NAME = "test-columns";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
+
+var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+
+// needed to zero inter-folder processing delay
+var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 var folderInbox, folderSent, folderVirtual, folderA, folderB;
 // INBOX_DEFAULTS sans 'dateCol' but gains 'tagsCol'
@@ -40,9 +40,9 @@ var VIRTUAL_DEFAULTS;
 var GLODA_DEFAULTS;
 
 function setupModule(module) {
-  let fdh = collector.getModule('folder-display-helpers');
+  let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let wh = collector.getModule('window-helpers');
+  let wh = collector.getModule("window-helpers");
   wh.installInto(module);
 
   useCorrespondent =
@@ -55,7 +55,7 @@ function setupModule(module) {
     "unreadButtonColHeader",
     useCorrespondent ? "correspondentCol" : "senderCol",
     "junkStatusCol",
-    "dateCol"
+    "dateCol",
   ];
   SENT_DEFAULTS = [
     "threadCol",
@@ -65,7 +65,7 @@ function setupModule(module) {
     "unreadButtonColHeader",
     useCorrespondent ? "correspondentCol" : "recipientCol",
     "junkStatusCol",
-    "dateCol"
+    "dateCol",
   ];
   VIRTUAL_DEFAULTS = [
     "threadCol",
@@ -76,7 +76,7 @@ function setupModule(module) {
     useCorrespondent ? "correspondentCol" : "senderCol",
     "junkStatusCol",
     "dateCol",
-    "locationCol"
+    "locationCol",
   ];
   GLODA_DEFAULTS = [
     "threadCol",
@@ -84,7 +84,7 @@ function setupModule(module) {
     "subjectCol",
     useCorrespondent ? "correspondentCol" : "senderCol",
     "dateCol",
-    "locationCol"
+    "locationCol",
   ];
 
   // create the source
@@ -394,7 +394,7 @@ function test_reset_to_inbox() {
 }
 
 function subtest_say_yes(cwc) {
-  cwc.window.document.documentElement.getButton('accept').doCommand();
+  cwc.window.document.documentElement.getButton("accept").doCommand();
 }
 
 function _apply_to_folder_common(aChildrenToo, folder) {
@@ -496,7 +496,7 @@ function test_apply_to_folder_no_children_swapped() {
   // Hide the columns that were added in other tests, since reset now
   // only resets the order.
   hide_column("tagsCol");
-  hide_column("sizeCol")
+  hide_column("sizeCol");
 
   // permute!
   let conExtra = [...INBOX_DEFAULTS];
@@ -581,7 +581,7 @@ function wait_for_columns_state_updated() {
   const STATE_PREF = "mailnews.database.global.views.global";
   let columns_state_updated = function() {
     gColumnStateUpdated = true;
-  }
+  };
   Services.prefs.addObserver(STATE_PREF, columns_state_updated);
   mc.waitFor(() => gColumnStateUpdated, "Timeout waiting for columns state updated.");
   Services.prefs.removeObserver(STATE_PREF, columns_state_updated);

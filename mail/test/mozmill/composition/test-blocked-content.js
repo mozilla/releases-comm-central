@@ -6,18 +6,20 @@
  * Tests that we do the right thing wrt. blocked resources during composition.
  */
 
-// make mozmill-one SOLO_TEST=composition/test-blocked-content.js
-
 "use strict";
 
-var MODULE_NAME = "test-blocked-content";
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-notificationbox-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-blocked-content";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = [
   "folder-display-helpers",
-   "window-helpers",
-   "compose-helpers",
-   "notificationbox-helpers"
+  "window-helpers",
+  "compose-helpers",
+  "notificationbox-helpers",
 ];
 
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");

@@ -7,21 +7,20 @@
  * are hooked up to the right buttons.
  */
 
-// make SOLO_TEST=quick-filter-bar/test-filter-logic.js mozmill-one
-
 "use strict";
 
-var MODULE_NAME = 'test-filter-logic';
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-quick-filter-bar-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-
-var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers',
-                       'quick-filter-bar-helper'];
+var MODULE_NAME = "test-filter-logic";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "quick-filter-bar-helpers"];
 
 function setupModule(module) {
   collector.getModule("folder-display-helpers").installInto(module);
   collector.getModule("window-helpers").installInto(module);
-  collector.getModule("quick-filter-bar-helper").installInto(module);
+  collector.getModule("quick-filter-bar-helpers").installInto(module);
 }
 
 function test_filter_unread() {
@@ -37,7 +36,7 @@ function test_filter_unread() {
 
 function test_filter_starred() {
   let folder = create_folder("QuickFilterBarFilterStarred");
-  let [unstarred, starred] = make_new_sets_in_folder(folder,
+  let [, starred] = make_new_sets_in_folder(folder,
     [{count: 1}, {count: 1}]);
   starred.setStarred(true);
 
@@ -48,7 +47,7 @@ function test_filter_starred() {
 
 function test_filter_simple_intersection_unread_and_starred() {
   let folder = create_folder("QuickFilterBarFilterUnreadAndStarred");
-  let [unreadUnstarred, readUnstarred, unreadStarred, readStarred] =
+  let [, readUnstarred, unreadStarred, readStarred] =
     make_new_sets_in_folder(folder,
       [{count: 1}, {count: 1}, {count: 1}, {count: 1}]);
   readUnstarred.setRead(true);
@@ -65,10 +64,10 @@ function test_filter_simple_intersection_unread_and_starred() {
 function test_filter_attachments() {
   let attachSetDef = {
     count: 1,
-    attachments: [{filename: 'foo.png',
-                   contentType: 'image/png',
-                   encoding: 'base64', charset: null,
-                   body: 'YWJj\n', format: null}],
+    attachments: [{filename: "foo.png",
+                   contentType: "image/png",
+                   encoding: "base64", charset: null,
+                   body: "YWJj\n", format: null}],
   };
   let noAttachSetDef = {
     count: 1,
@@ -76,7 +75,7 @@ function test_filter_attachments() {
 
 
   let folder = create_folder("QuickFilterBarFilterAttachments");
-  let [setNoAttach, setAttach] = make_new_sets_in_folder(folder,
+  let [, setAttach] = make_new_sets_in_folder(folder,
     [noAttachSetDef, attachSetDef]);
 
   be_in_folder(folder);
@@ -110,12 +109,11 @@ function add_email_to_address_book(aEmailAddr) {
 function test_filter_in_address_book() {
   let bookSetDef = {
     from: ["Qbert Q Qbington", "q@q.invalid"],
-    count: 1
+    count: 1,
   };
   add_email_to_address_book(bookSetDef.from[1]);
   let folder = create_folder("MesssageFilterBarInAddressBook");
-  let [setBook, setNoBook] = make_new_sets_in_folder(folder,
-                               [bookSetDef, {count: 1}]);
+  let [setBook] = make_new_sets_in_folder(folder, [bookSetDef, {count: 1}]);
   be_in_folder(folder);
   toggle_boolean_constraints("addrbook");
   assert_messages_in_view(setBook);
@@ -172,9 +170,9 @@ function test_filter_tags() {
 function test_filter_text_single_word_and_predicates() {
   let folder = create_folder("QuickFilterBarTextSingleWord");
   let whoFoo = ["zabba", "foo@madeup.invalid"];
-  let [setInert, setSenderFoo, setRecipientsFoo, setSubjectFoo, setBodyFoo] =
+  let [, setSenderFoo, setRecipientsFoo, setSubjectFoo, setBodyFoo] =
     make_new_sets_in_folder(folder, [
-      {count: 1}, {count:1, from: whoFoo}, {count: 1, to: [whoFoo]},
+      {count: 1}, {count: 1, from: whoFoo}, {count: 1, to: [whoFoo]},
       {count: 1, subject: "foo"}, {count: 1, body: {body: "foo"}}]);
   be_in_folder(folder);
 
@@ -228,9 +226,9 @@ function test_filter_text_multi_word() {
 
   let whoFoo = ["foo", "zabba@madeup.invalid"];
   let whoBar = ["zabba", "bar@madeup.invalid"];
-  let [setInert, setPeepMatch, setSubjReverse, setSubjectJustFoo] =
+  let [, setPeepMatch, setSubjReverse] =
     make_new_sets_in_folder(folder, [
-      {count: 1}, {count:1, from: whoFoo, to: [whoBar]},
+      {count: 1}, {count: 1, from: whoFoo, to: [whoBar]},
       {count: 1, subject: "bar foo"}, {count: 1, from: whoFoo}]);
   be_in_folder(folder);
 
@@ -251,9 +249,7 @@ function test_filter_or_operator() {
   let whoFoo = ["foo", "zabba@madeup.invalid"];
   let whoBar = ["zabba", "bar@madeup.invalid"];
   let whoTest = ["test", "test@madeup.invalid"];
-  let [setInert, setSenderFoo, setToBar,
-       setSubject1, setSubject2, setSubject3,
-       setMail1, setMail2] =
+  let [setInert, setSenderFoo, setToBar, , , setSubject3, setMail1] =
     make_new_sets_in_folder(folder, [
       {count: 1},
       {count: 1, from: whoFoo},
@@ -298,7 +294,7 @@ function test_filter_text_constraints_propagate() {
   let [setSubjFoo, setWhoFoo] = make_new_sets_in_folder(folderOne,
     [{count: 1, subject: "foo"}, {count: 1, from: whoFoo}]);
   let folderTwo = create_folder("QuickFilterBarTextPropagate2");
-  let [setSubjBar, setWhoBar] = make_new_sets_in_folder(folderTwo,
+  let [, setWhoBar] = make_new_sets_in_folder(folderTwo,
     [{count: 1, subject: "bar"}, {count: 1, from: whoBar}]);
 
   be_in_folder(folderOne);

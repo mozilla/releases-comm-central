@@ -5,7 +5,6 @@
 "use strict";
 
 var MODULE_NAME = "attachment-helpers";
-
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["mock-object-helpers"];
 
@@ -15,7 +14,7 @@ var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var gMockFilePickReg;
 
 function setupModule(module) {
-  let moh = collector.getModule('mock-object-helpers');
+  let moh = collector.getModule("mock-object-helpers");
 
   gMockFilePickReg = new moh.MockObjectReplacer("@mozilla.org/filepicker;1",
                                                   MockFilePickerConstructor);
@@ -36,7 +35,7 @@ function installInto(module) {
 
 function MockFilePickerConstructor() {
   return gMockFilePicker;
-};
+}
 
 var gMockFilePicker = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIFilePicker]),
@@ -65,16 +64,16 @@ var gMockFilePicker = {
     return {
       index: 0,
       QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
-      hasMoreElements: function() {
+      hasMoreElements() {
         return this.index < self.returnFiles.length;
       },
-      getNext: function() {
+      getNext() {
         return self.returnFiles[this.index++];
       },
       [Symbol.iterator]() {
         return self.returnFiles.values();
-      }
-    }
+      },
+    };
   },
 
   init: function gMFP_init(aParent, aTitle, aMode) {
@@ -86,13 +85,13 @@ var gMockFilePicker = {
   appendFilter: function gMFP_appendFilter(aTitle, aFilter) {
   },
 
-  open: function(aFilePickerShownCallback) {
+  open(aFilePickerShownCallback) {
     aFilePickerShownCallback.done(Ci.nsIFilePicker.returnOK);
   },
 
   set defaultString(aVal) {
   },
-}
+};
 
 /**
  * Create a body part with attachments for the message generator
@@ -102,15 +101,14 @@ var gMockFilePicker = {
  * @param boundary an optional string defining the boundary of the parts
  * @return an object suitable for passing as the |bodyPart| for create_message
  */
-function create_body_part(body, attachments, boundary)
-{
+function create_body_part(body, attachments, boundary) {
   if (!boundary)
     boundary = "------------CHOPCHOP";
 
   return {
     contentTypeHeaderValue:
       "multipart/mixed;\r\n boundary=\"" + boundary + "\"",
-    toMessageString: function() {
+    toMessageString() {
       let str = "This is a multi-part message in MIME format.\r\n" +
                 "--" + boundary + "\r\n" +
                 "Content-Type: text/plain; charset=ISO-8859-1; " +
@@ -122,7 +120,7 @@ function create_body_part(body, attachments, boundary)
 
       str += "--" + boundary + "--";
       return str;
-    }
+    },
   };
 }
 

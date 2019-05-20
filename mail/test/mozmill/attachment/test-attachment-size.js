@@ -4,11 +4,13 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-attachment-size';
+/* import-globals-from ../shared-modules/test-attachment-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers',
-                       'attachment-helpers'];
+var MODULE_NAME = "test-attachment-size";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "attachment-helpers"];
 
 var folder;
 var messenger;
@@ -26,70 +28,70 @@ var textAttachment =
 var binaryAttachment = textAttachment;
 
 var imageAttachment =
-  'iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABHNCSVQICAgIfAhkiAAAAAlwS' +
-  'FlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAA' +
-  'A5SURBVCiRY/z//z8DKYCJJNXkaGBgYGD4D8NQ5zUgiTVAxeBqSLaBkVRPM0KtIhrQ3km0jwe' +
-  'SNQAAlmAY+71EgFoAAAAASUVORK5CYII=';
+  "iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABHNCSVQICAgIfAhkiAAAAAlwS" +
+  "FlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAA" +
+  "A5SURBVCiRY/z//z8DKYCJJNXkaGBgYGD4D8NQ5zUgiTVAxeBqSLaBkVRPM0KtIhrQ3km0jwe" +
+  "SNQAAlmAY+71EgFoAAAAASUVORK5CYII=";
 var imageSize = 188;
 
 var vcardAttachment =
-  'YmVnaW46dmNhcmQNCmZuOkppbSBCb2INCm46Qm9iO0ppbQ0KZW1haWw7aW50ZXJuZXQ6Zm9v' +
-  'QGJhci5jb20NCnZlcnNpb246Mi4xDQplbmQ6dmNhcmQNCg0K';
+  "YmVnaW46dmNhcmQNCmZuOkppbSBCb2INCm46Qm9iO0ppbQ0KZW1haWw7aW50ZXJuZXQ6Zm9v" +
+  "QGJhci5jb20NCnZlcnNpb246Mi4xDQplbmQ6dmNhcmQNCg0K";
 
-var detachedName = './attachment.txt';
-var missingName = './nonexistent.txt';
-var deletedName = 'deleted.txt';
+var detachedName = "./attachment.txt";
+var missingName = "./nonexistent.txt";
+var deletedName = "deleted.txt";
 
 // create some messages that have various types of attachments
 var messages = [
-  { name: 'text_attachment',
+  { name: "text_attachment",
     attachments: [{ body: textAttachment,
-                    filename: 'ubik.txt',
-                    format: '' }],
+                    filename: "ubik.txt",
+                    format: "" }],
     attachmentSizes: [textAttachment.length],
     attachmentTotalSize: { size: textAttachment.length, exact: true },
   },
-  { name: 'binary_attachment',
+  { name: "binary_attachment",
     attachments: [{ body: binaryAttachment,
-                    contentType: 'application/x-ubik',
-                    filename: 'ubik',
-                    format: '' }],
+                    contentType: "application/x-ubik",
+                    filename: "ubik",
+                    format: "" }],
     attachmentSizes: [binaryAttachment.length],
     attachmentTotalSize: { size: binaryAttachment.length, exact: true },
   },
-  { name: 'image_attachment',
+  { name: "image_attachment",
     attachments: [{ body: imageAttachment,
-                    contentType: 'image/png',
-                    filename: 'lines.png',
-                    encoding: 'base64',
-                    format: '' }],
+                    contentType: "image/png",
+                    filename: "lines.png",
+                    encoding: "base64",
+                    format: "" }],
     attachmentSizes: [imageSize],
     attachmentTotalSize: { size: imageSize, exact: true },
   },
-  { name: 'detached_attachment',
+  { name: "detached_attachment",
     bodyPart: null,
     // Sizes filled in on message creation.
     attachmentSizes: [null],
     attachmentTotalSize: { size: 0, exact: true },
   },
-  { name: 'detached_attachment_with_missing_file',
+  { name: "detached_attachment_with_missing_file",
     bodyPart: null,
     attachmentSizes: [-1],
     attachmentTotalSize: { size: 0, exact: false },
   },
-  { name: 'deleted_attachment',
+  { name: "deleted_attachment",
     bodyPart: null,
     attachmentSizes: [-1],
     attachmentTotalSize: { size: 0, exact: true },
   },
-  { name: 'multiple_attachments',
+  { name: "multiple_attachments",
     attachments: [{ body: textAttachment,
-                    filename: 'ubik.txt',
-                    format: '' },
+                    filename: "ubik.txt",
+                    format: "" },
                   { body: binaryAttachment,
-                    contentType: 'application/x-ubik',
-                    filename: 'ubik',
-                    format: '' }],
+                    contentType: "application/x-ubik",
+                    filename: "ubik",
+                    format: "" }],
     attachmentSizes: [textAttachment.length, binaryAttachment.length],
     attachmentTotalSize: { size: textAttachment.length +
                                  binaryAttachment.length,
@@ -97,46 +99,46 @@ var messages = [
   },
   // vCards should be ignored in the attachment list; make sure we do so
   // properly.
-  { name: 'multiple_attachments_one_vcard',
+  { name: "multiple_attachments_one_vcard",
     attachments: [{ body: textAttachment,
-                    filename: 'ubik.txt',
-                    format: '' },
+                    filename: "ubik.txt",
+                    format: "" },
                   { body: vcardAttachment,
-                    contentType: 'text/x-vcard',
-                    filename: 'ubik.vcf',
-                    encoding: 'base64',
-                    format: '' }],
+                    contentType: "text/x-vcard",
+                    filename: "ubik.vcf",
+                    encoding: "base64",
+                    format: "" }],
     attachmentSizes: [textAttachment.length],
     attachmentTotalSize: { size: textAttachment.length,
                            exact: true },
   },
-  { name: 'multiple_attachments_one_detached',
+  { name: "multiple_attachments_one_detached",
     bodyPart: null,
     attachments: [{ body: textAttachment,
-                    filename: 'ubik.txt',
-                    format: '' }],
+                    filename: "ubik.txt",
+                    format: "" }],
     attachmentSizes: [null, textAttachment.length],
     attachmentTotalSize: { size: textAttachment.length, exact: true },
   },
-  { name: 'multiple_attachments_one_detached_with_missing_file',
+  { name: "multiple_attachments_one_detached_with_missing_file",
     bodyPart: null,
     attachments: [{ body: textAttachment,
-                    filename: 'ubik.txt',
-                    format: '' }],
+                    filename: "ubik.txt",
+                    format: "" }],
     attachmentSizes: [-1, textAttachment.length],
     attachmentTotalSize: { size: textAttachment.length, exact: false },
   },
-  { name: 'multiple_attachments_one_deleted',
+  { name: "multiple_attachments_one_deleted",
     bodyPart: null,
     attachments: [{ body: textAttachment,
-                    filename: 'ubik.txt',
-                    format: '' }],
+                    filename: "ubik.txt",
+                    format: "" }],
     attachmentSizes: [-1, textAttachment.length],
     attachmentTotalSize: { size: textAttachment.length, exact: true },
   },
   // this is an attached message that itself has an attachment
   {
-    name: 'attached_message_with_attachment',
+    name: "attached_message_with_attachment",
     bodyPart: null,
     attachmentSizes: [-1, textAttachment.length],
     attachmentTotalSize: { size: 0, exact: true },
@@ -148,7 +150,7 @@ function setupModule(module) {
     collector.getModule(lib).installInto(module);
   }
 
-  messenger = Cc['@mozilla.org/messenger;1'].createInstance(Ci.nsIMessenger);
+  messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
   /* Today's gory details (thanks to Jonathan Protzenko): libmime somehow
    * counts the trailing newline for an attachment MIME part. Most of the time,
@@ -157,33 +159,33 @@ function setupModule(module) {
    * holds. However, on Windows, if the attachment is not encoded (that is, is
    * inline text), libmime will return N + 2 bytes.
    */
-  epsilon = ('@mozilla.org/windows-registry-key;1' in Cc) ? 4 : 2;
+  epsilon = ("@mozilla.org/windows-registry-key;1" in Cc) ? 4 : 2;
 
   // set up our detached/deleted attachments
   var thisFilePath = os.getFileForPath(__file__);
 
   var detachedFile = os.getFileForPath(os.abspath(detachedName, thisFilePath));
   var detached = create_body_part(
-    'Here is a file',
-    [create_detached_attachment(detachedFile, 'text/plain')]
+    "Here is a file",
+    [create_detached_attachment(detachedFile, "text/plain")]
   );
 
   var missingFile = os.getFileForPath(os.abspath(missingName, thisFilePath));
   var missing = create_body_part(
-    'Here is a file (but you deleted the external file, you silly oaf!)',
-    [create_detached_attachment(missingFile, 'text/plain')]
+    "Here is a file (but you deleted the external file, you silly oaf!)",
+    [create_detached_attachment(missingFile, "text/plain")]
   );
 
   var deleted = create_body_part(
-    'Here is a file that you deleted',
-    [create_deleted_attachment(deletedName, 'text/plain')]
+    "Here is a file that you deleted",
+    [create_deleted_attachment(deletedName, "text/plain")]
   );
 
   var attachedMessage = msgGen.makeMessage({
     body: { body: textAttachment },
     attachments: [{ body: textAttachment,
-                    filename: 'ubik.txt',
-                    format: '' }],
+                    filename: "ubik.txt",
+                    format: "" }],
   });
 
   /* Much like the above comment, libmime counts bytes differently on Windows,
@@ -197,25 +199,25 @@ function setupModule(module) {
     attachedMessageLength = attachedMessage.toMessageString()
                                            .replace(/\r\n/g, "\n").length;
 
-  folder = create_folder('AttachmentSizeA');
+  folder = create_folder("AttachmentSizeA");
   for (let i = 0; i < messages.length; i++) {
     // First, add any missing info to the message object.
-    switch(messages[i].name) {
-      case 'detached_attachment':
-      case 'multiple_attachments_one_detached':
+    switch (messages[i].name) {
+      case "detached_attachment":
+      case "multiple_attachments_one_detached":
         messages[i].bodyPart = detached;
         messages[i].attachmentSizes[0] = detachedFile.fileSize;
         messages[i].attachmentTotalSize.size += detachedFile.fileSize;
         break;
-      case 'detached_attachment_with_missing_file':
-      case 'multiple_attachments_one_detached_with_missing_file':
+      case "detached_attachment_with_missing_file":
+      case "multiple_attachments_one_detached_with_missing_file":
         messages[i].bodyPart = missing;
         break;
-      case 'deleted_attachment':
-      case 'multiple_attachments_one_deleted':
+      case "deleted_attachment":
+      case "multiple_attachments_one_deleted":
         messages[i].bodyPart = deleted;
         break;
-      case 'attached_message_with_attachment':
+      case "attached_message_with_attachment":
         messages[i].bodyPart = new SyntheticPartMultiMixed([
           new SyntheticPartLeaf("I am text!", { contentType: "text/plain" }),
           attachedMessage,
@@ -235,21 +237,21 @@ function setupModule(module) {
  * @param expectedSize the expected size of the attachment, in bytes
  */
 function check_attachment_size(index, expectedSize) {
-  let list = mc.e('attachmentList');
+  let list = mc.e("attachmentList");
   let node = list.querySelectorAll("richlistitem.attachmentItem")[index];
 
   // First, let's check that the attachment size is correct
   let size = node.attachment.size;
   if (Math.abs(size - expectedSize) > epsilon)
-    throw new Error('Reported attachment size ('+size+') not within epsilon ' +
-                    'of actual attachment size ('+expectedSize+')');
+    throw new Error("Reported attachment size (" + size + ") not within epsilon " +
+                    "of actual attachment size (" + expectedSize + ")");
 
   // Next, make sure that the formatted size in the label is correct
-  let formattedSize = node.getAttribute('size');
+  let formattedSize = node.getAttribute("size");
   let expectedFormattedSize = messenger.formatFileSize(size);
   if (formattedSize != expectedFormattedSize)
-    throw new Error('Formatted attachment size ('+formattedSize+') does not ' +
-                    'match expected value ('+expectedFormattedSize+')');
+    throw new Error("Formatted attachment size (" + formattedSize + ") does not " +
+                    "match expected value (" + expectedFormattedSize + ")");
 }
 
 /**
@@ -257,18 +259,18 @@ function check_attachment_size(index, expectedSize) {
  * @param index the attachment's index, starting at 0
  */
 function check_no_attachment_size(index) {
-  let list = mc.e('attachmentList');
+  let list = mc.e("attachmentList");
   let node = list.querySelectorAll("richlistitem.attachmentItem")[index];
 
   if (node.attachment.size != -1)
-    throw new Error('attachmentSize attribute of deleted attachment should ' +
-                    'be -1!');
+    throw new Error("attachmentSize attribute of deleted attachment should " +
+                    "be -1!");
 
   // If there's no size, the size attribute is the zero-width space.
-  let nodeSize = node.getAttribute('size');
-  mc.window.console.log("check_no_attachment_size: node.size->"+nodeSize+"<-");
-  if (nodeSize != '\u200b' && nodeSize != '')
-    throw new Error('Attachment size should not be displayed!');
+  let nodeSize = node.getAttribute("size");
+  mc.window.console.log("check_no_attachment_size: node.size->" + nodeSize + "<-");
+  if (nodeSize != "\u200b" && nodeSize != "")
+    throw new Error("Attachment size should not be displayed!");
 }
 
 /**
@@ -278,12 +280,12 @@ function check_no_attachment_size(index) {
  * @param exact true if the size of all attachments is known, false otherwise
  */
 function check_total_attachment_size(count, expectedSize, exact) {
-  let list = mc.e('attachmentList');
+  let list = mc.e("attachmentList");
   let nodes = list.querySelectorAll("richlistitem.attachmentItem");
-  let sizeNode = mc.e('attachmentSize');
+  let sizeNode = mc.e("attachmentSize");
 
   if (nodes.length != count)
-    throw new Error('Saw '+nodes.length+' attachments, but expected '+count);
+    throw new Error("Saw " + nodes.length + " attachments, but expected " + count);
 
   let lastPartID;
   let size = 0;
@@ -297,26 +299,26 @@ function check_total_attachment_size(count, expectedSize, exact) {
     }
   }
 
-  if (Math.abs(size - expectedSize) > epsilon*count)
-    throw new Error('Reported attachment size ('+size+') not within epsilon ' +
-                    'of actual attachment size ('+expectedSize+')');
+  if (Math.abs(size - expectedSize) > epsilon * count)
+    throw new Error("Reported attachment size (" + size + ") not within epsilon " +
+                    "of actual attachment size (" + expectedSize + ")");
 
   // Next, make sure that the formatted size in the label is correct
-  let formattedSize = sizeNode.getAttribute('value');
+  let formattedSize = sizeNode.getAttribute("value");
   let expectedFormattedSize = messenger.formatFileSize(size);
-  let messengerBundle = mc.window.document.getElementById('bundle_messenger');
+  let messengerBundle = mc.window.document.getElementById("bundle_messenger");
 
   if (!exact) {
     if (size == 0)
       expectedFormattedSize = messengerBundle.getString(
-        'attachmentSizeUnknown');
+        "attachmentSizeUnknown");
     else
       expectedFormattedSize = messengerBundle.getFormattedString(
-        'attachmentSizeAtLeast', [expectedFormattedSize]);
+        "attachmentSizeAtLeast", [expectedFormattedSize]);
   }
   if (formattedSize != expectedFormattedSize)
-    throw new Error('Formatted attachment size ('+formattedSize+') does not ' +
-                    'match expected value ('+expectedFormattedSize+')');
+    throw new Error("Formatted attachment size (" + formattedSize + ") does not " +
+                    "match expected value (" + expectedFormattedSize + ")");
 }
 
 /**
@@ -326,7 +328,7 @@ function check_total_attachment_size(count, expectedSize, exact) {
  */
 function help_test_attachment_size(index) {
   be_in_folder(folder);
-  let curMessage = select_click_row(index);
+  select_click_row(index);
   let expectedSizes = messages[index].attachmentSizes;
 
   mc.window.toggleAttachmentList(true);

@@ -7,15 +7,21 @@
  * the more button ...
  */
 
-// make SOLO_TEST=message-header/test-message-header.js mozmill-one
-
 "use strict";
 
-var MODULE_NAME = 'test-message-header';
+/* import-globals-from ../shared-modules/test-address-book-helpers.js */
+/* import-globals-from ../shared-modules/test-dom-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers',
-                       'address-book-helpers', 'dom-helpers'];
+var MODULE_NAME = "test-message-header";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "address-book-helpers",
+  "dom-helpers",
+];
 
 var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -45,7 +51,7 @@ function setupModule(module) {
       "Newsgroups": "alt.test",
       "Reply-To": "J. Doe <j.doe@momo.invalid>",
       "Content-Base": "http://example.com/",
-      "Bcc": "Richard Roe <richard.roe@momo.invalid>"
+      "Bcc": "Richard Roe <richard.roe@momo.invalid>",
     }});
 
   add_message_to_folder(folder, gInterestingMessage);
@@ -74,14 +80,14 @@ function setupModule(module) {
 
   // Disable animations on the panel, so that we don't have to deal with
   // async openings.
-  let contactPanel = mc.eid('editContactPanel').getNode();
+  let contactPanel = mc.eid("editContactPanel").getNode();
   contactPanel.setAttribute("animate", false);
 
   test_a11y_attrs.__force_skip__ = true; // disabled for now, see bug 1489748
 }
 
 function teardownModule(module) {
-  let contactPanel = mc.eid('editContactPanel').getNode();
+  let contactPanel = mc.eid("editContactPanel").getNode();
   contactPanel.removeAttribute("animate");
 
   // Now restore the panes we hid in setupModule
@@ -164,101 +170,109 @@ function test_add_tag_with_really_long_label() {
  *                      nsIAccessible.name for the DOM element in question
  * @param expectedRole the expected value for nsIAccessible.role
  */
-let headersToTest = [
-{
+let headersToTest = [{
   headerName: "Subject",
-  headerValueElement: function(mc) {
-                      return mc.e("expandedsubjectBox", {class: "headerValue"}); },
-  expectedName: function(mc, headerValueElement) {
-                return mc.e("expandedsubjectLabel").value + ": " +
-                headerValueElement.textContent; },
-  expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
-},
-{
+  headerValueElement(mc) {
+    return mc.e("expandedsubjectBox", {class: "headerValue"});
+  },
+  expectedName(mc, headerValueElement) {
+    return mc.e("expandedsubjectLabel").value + ": " +
+    headerValueElement.textContent;
+  },
+  expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY,
+}, {
   headerName: "Content-Base",
-  headerValueElement: function(mc) {
-                      return mc.a("expandedcontent-baseBox", {class: "headerValue text-link headerValueUrl"}); },
-  expectedName: function(mc, headerValueElement) {
-                return mc.e("expandedcontent-baseLabel").value + ": " +
-                headerValueElement.textContent; },
-  expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
-},
-{
+  headerValueElement(mc) {
+    return mc.a("expandedcontent-baseBox", {class: "headerValue text-link headerValueUrl"});
+  },
+  expectedName(mc, headerValueElement) {
+    return mc.e("expandedcontent-baseLabel").value + ": " +
+    headerValueElement.textContent;
+  },
+  expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY,
+}, {
   headerName: "From",
-  headerValueElement: function(mc) {
-                      return mc.window.document.getAnonymousElementByAttribute(
-                      mc.e("expandedfromBox", {tagName: "mail-emailaddress"}),
-                      "class", "emailDisplayButton"); },
-  expectedName: function(mc, headerValueElement) {
-                return mc.e("expandedfromLabel").value + ": " +
-                headerValueElement.parentNode.getAttribute("fullAddress"); },
-  expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
-},
-{
+  headerValueElement(mc) {
+    return mc.window.document.getAnonymousElementByAttribute(
+    mc.e("expandedfromBox", {tagName: "mail-emailaddress"}),
+    "class", "emailDisplayButton");
+  },
+  expectedName(mc, headerValueElement) {
+    return mc.e("expandedfromLabel").value + ": " +
+    headerValueElement.parentNode.getAttribute("fullAddress");
+  },
+  expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY,
+}, {
   headerName: "To",
-  headerValueElement: function(mc) {
-                      return mc.window.document.getAnonymousElementByAttribute(
-                      mc.e("expandedtoBox", {tagName: "mail-emailaddress"}),
-                      "class", "emailDisplayButton"); },
-  expectedName: function(mc, headerValueElement) {
-                return mc.e("expandedtoLabel").value + ": " +
-                headerValueElement.parentNode.getAttribute("fullAddress"); },
-  expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
-},
-{
+  headerValueElement(mc) {
+    return mc.window.document.getAnonymousElementByAttribute(
+    mc.e("expandedtoBox", {tagName: "mail-emailaddress"}),
+    "class", "emailDisplayButton");
+  },
+  expectedName(mc, headerValueElement) {
+    return mc.e("expandedtoLabel").value + ": " +
+    headerValueElement.parentNode.getAttribute("fullAddress");
+  },
+  expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY,
+}, {
   headerName: "Cc",
-  headerValueElement: function(mc) {
-                      return mc.window.document.getAnonymousElementByAttribute(
-                      mc.e("expandedccBox", {tagName: "mail-emailaddress"}),
-                      "class", "emailDisplayButton"); },
-  expectedName: function(mc, headerValueElement) {
-                return mc.e("expandedccLabel").value + ": " +
-                headerValueElement.parentNode.getAttribute("fullAddress"); },
-  expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
-},
-{
+  headerValueElement(mc) {
+    return mc.window.document.getAnonymousElementByAttribute(
+    mc.e("expandedccBox", {tagName: "mail-emailaddress"}),
+    "class", "emailDisplayButton");
+  },
+  expectedName(mc, headerValueElement) {
+    return mc.e("expandedccLabel").value + ": " +
+    headerValueElement.parentNode.getAttribute("fullAddress");
+  },
+  expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY,
+}, {
   headerName: "Bcc",
-  headerValueElement: function(mc) {
-                      return mc.window.document.getAnonymousElementByAttribute(
-                      mc.e("expandedbccBox", {tagName: "mail-emailaddress"}),
-                      "class", "emailDisplayButton"); },
-  expectedName: function(mc, headerValueElement) {
-                return mc.e("expandedbccLabel").value + ": " +
-                headerValueElement.parentNode.getAttribute("fullAddress"); },
-  expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
-},
-{
+  headerValueElement(mc) {
+    return mc.window.document.getAnonymousElementByAttribute(
+    mc.e("expandedbccBox", {tagName: "mail-emailaddress"}),
+    "class", "emailDisplayButton");
+  },
+  expectedName(mc, headerValueElement) {
+    return mc.e("expandedbccLabel").value + ": " +
+    headerValueElement.parentNode.getAttribute("fullAddress");
+  },
+  expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY,
+}, {
   headerName: "Reply-To",
-  headerValueElement: function(mc) {
-                      return mc.window.document.getAnonymousElementByAttribute(
-                      mc.e("expandedreply-toBox", {tagName: "mail-emailaddress"}),
-                      "class", "emailDisplayButton"); },
-  expectedName: function(mc, headerValueElement) {
-                return mc.e("expandedreply-toLabel").value + ": " +
-                headerValueElement.parentNode.getAttribute("fullAddress"); },
-  expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
-},
-{
+  headerValueElement(mc) {
+    return mc.window.document.getAnonymousElementByAttribute(
+    mc.e("expandedreply-toBox", {tagName: "mail-emailaddress"}),
+    "class", "emailDisplayButton");
+  },
+  expectedName(mc, headerValueElement) {
+    return mc.e("expandedreply-toLabel").value + ": " +
+    headerValueElement.parentNode.getAttribute("fullAddress");
+  },
+  expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY,
+}, {
   headerName: "Newsgroups",
-  headerValueElement: function(mc) {
-                      return mc.window.document.getAnonymousElementByAttribute(
-                      mc.a("expandednewsgroupsBox", {tagName: "mail-newsgroup"}),
-                      "class", "newsgrouplabel"); },
-  expectedName: function(mc, headerValueElement) {
-                return mc.e("expandednewsgroupsLabel").value + ": " +
-                headerValueElement.parentNode.parentNode.getAttribute("newsgroup"); },
-  expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
-},
-{
+  headerValueElement(mc) {
+    return mc.window.document.getAnonymousElementByAttribute(
+    mc.a("expandednewsgroupsBox", {tagName: "mail-newsgroup"}),
+    "class", "newsgrouplabel");
+  },
+  expectedName(mc, headerValueElement) {
+    return mc.e("expandednewsgroupsLabel").value + ": " +
+    headerValueElement.parentNode.parentNode.getAttribute("newsgroup");
+  },
+  expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY,
+}, {
   headerName: "Tags",
-  headerValueElement: function(mc) {
-                      return mc.a("expandedtagsBox", {class: "tagvalue blc-FF0000"}); },
-  expectedName: function(mc, headerValueElement) {
-                return mc.e("expandedtagsLabel").value + ": " +
-                headerValueElement.getAttribute("value"); },
-  expectedRole: Ci.nsIAccessibleRole.ROLE_LABEL
-}
-];
+  headerValueElement(mc) {
+    return mc.a("expandedtagsBox", {class: "tagvalue blc-FF0000"});
+  },
+  expectedName(mc, headerValueElement) {
+    return mc.e("expandedtagsLabel").value + ": " +
+    headerValueElement.getAttribute("value");
+  },
+  expectedRole: Ci.nsIAccessibleRole.ROLE_LABEL,
+}];
 
 // used to get the accessible object for a DOM node
 let gAccService = Cc["@mozilla.org/accessibilityService;1"].
@@ -322,8 +336,7 @@ function test_a11y_attrs() {
   headersToTest.forEach(verify_header_a11y);
 }
 
-function test_more_button_with_many_recipients()
-{
+function test_more_button_with_many_recipients() {
   // Start on the interesting message.
   let curMessage = select_click_row(0);
 
@@ -342,7 +355,7 @@ function test_more_button_with_many_recipients()
 
   // Check the new mode of the header.
   if (headerBox.node.getAttribute("show_header_mode") != "all")
-    throw new Error("Header Mode didn't change to 'all'!  " + "old=" +
+    throw new Error("Header Mode didn't change to 'all'!  old=" +
                     previousHeaderMode + ", new=" +
                     headerBox.node.getAttribute("show_header_mode"));
 
@@ -364,15 +377,14 @@ function test_more_button_with_many_recipients()
  * Test that we can open up the inline contact editor when we
  * click on the star.
  */
-function test_clicking_star_opens_inline_contact_editor()
-{
+function test_clicking_star_opens_inline_contact_editor() {
   // Make sure we're in the right folder
   be_in_folder(folder);
   // Add a new message
   let msg = create_message();
   add_message_to_folder(folder, msg);
   // Open the latest message
-  let curMessage = select_click_row(-1);
+  select_click_row(-1);
   wait_for_message_display_completion(mc);
   // Make sure the star is clicked, and we add the
   // new contact to our address book
@@ -380,13 +392,13 @@ function test_clicking_star_opens_inline_contact_editor()
 
 
   // Ensure that the inline contact editing panel is not open
-  let contactPanel = mc.eid('editContactPanel').getNode();
+  let contactPanel = mc.eid("editContactPanel").getNode();
   assert_not_equals(contactPanel.state, "open");
   subtest_more_widget_star_click(toDescription);
 
   // Ok, if we're here, then the star has been clicked, and
   // the contact has been added to our AB.
-  let addrs = toDescription.getElementsByTagName('mail-emailaddress');
+  let addrs = toDescription.getElementsByTagName("mail-emailaddress");
   let lastAddr = get_last_visible_address(addrs);
 
   // Click on the star, and ensure that the inline contact
@@ -419,13 +431,13 @@ function test_msg_id_context_menu() {
   // Add a new message
   let msg = create_message({
     clobberHeaders: {
-      "References": "<4880C986@example.com> <4880CAB2@example.com> <4880CC76@example.com>"
+      "References": "<4880C986@example.com> <4880CAB2@example.com> <4880CC76@example.com>",
     }});
   add_message_to_folder(folder, msg);
   be_in_folder(folder);
 
   // Open the latest message.
-  let curMessage = select_click_row(-1);
+  select_click_row(-1);
 
   // Right click to show the context menu.
   mc.rightClick(mc.eid("expandedreferencesBox", {tagName: "mail-messageid"}));
@@ -448,8 +460,7 @@ function test_msg_id_context_menu() {
  * The editor should also show a message to explain why the
  * contact cannot be moved.
  */
-function test_address_book_switch_disabled_on_contact_in_mailing_list()
-{
+function test_address_book_switch_disabled_on_contact_in_mailing_list() {
   const MAILING_LIST_DIRNAME = "Some Mailing List";
   const ADDRESS_BOOK_NAME = "Some Address Book";
   // Add a new message
@@ -460,21 +471,21 @@ function test_address_book_switch_disabled_on_contact_in_mailing_list()
   be_in_folder(folder);
 
   // Open the latest message
-  let curMessage = select_click_row(-1);
+  select_click_row(-1);
 
   // Make sure the star is clicked, and we add the
   // new contact to our address book
   let toDescription = mc.window.document.getElementById("expandedtoBox").emailAddresses;
 
   // Ensure that the inline contact editing panel is not open
-  let contactPanel = mc.eid('editContactPanel').getNode();
+  let contactPanel = mc.eid("editContactPanel").getNode();
   assert_not_equals(contactPanel.state, "open");
 
   subtest_more_widget_star_click(toDescription);
 
   // Ok, if we're here, then the star has been clicked, and
   // the contact has been added to our AB.
-  let addrs = toDescription.getElementsByTagName('mail-emailaddress');
+  let addrs = toDescription.getElementsByTagName("mail-emailaddress");
   let lastAddr = get_last_visible_address(addrs);
 
   // Click on the star, and ensure that the inline contact
@@ -484,8 +495,8 @@ function test_address_book_switch_disabled_on_contact_in_mailing_list()
              () => ("Timeout waiting for contactPanel to open; state=" +
                     contactPanel.state));
 
-  let abDrop = mc.eid('editContactAddressBookList').getNode();
-  let warningMsg = mc.eid('contactMoveDisabledText').getNode();
+  let abDrop = mc.eid("editContactAddressBookList").getNode();
+  let warningMsg = mc.eid("contactMoveDisabledText").getNode();
 
   // Ensure that the address book dropdown is not disabled
   assert_true(!abDrop.disabled);
@@ -498,7 +509,7 @@ function test_address_book_switch_disabled_on_contact_in_mailing_list()
   // For the contact that was added, create a mailing list in the
   // address book it resides in, and then add that contact to the
   // mailing list
-  addrs = toDescription.getElementsByTagName('mail-emailaddress');
+  addrs = toDescription.getElementsByTagName("mail-emailaddress");
   let targetAddr = get_last_visible_address(addrs).getAttribute("emailAddress");
 
   let cards = get_cards_in_all_address_books_for_email(targetAddr);
@@ -619,7 +630,7 @@ function test_that_msg_without_date_clears_previous_headers() {
   // However, since the previously displayed message _did_ have such a header,
   // certain bugs in the display of this header could cause the collapse
   // never to have happened.
-  if (mc.e("expandednewsgroupsRow").collapsed != true) {
+  if (!mc.e("expandednewsgroupsRow").collapsed) {
     throw new Error("Expected <row> element for Newsgroups header to be " +
                     "collapsed, but it wasn't\n!");
   }
@@ -725,7 +736,7 @@ function change_to_all_header_mode() {
  * @return the number of lines
  */
 function help_get_num_lines(node) {
-  let style = mc.window.getComputedStyle(node, null);
+  let style = mc.window.getComputedStyle(node);
   return style.height / style.lineHeight;
 }
 
@@ -742,7 +753,7 @@ function subtest_more_widget_display(toDescription) {
     "mailnews.headers.show_n_lines_before_more");
 
   // allow for a 15% tolerance for any padding that may be applied
-  if (numLines < 0.85*maxLines || numLines > 1.15*maxLines) {
+  if (numLines < 0.85 * maxLines || numLines > 1.15 * maxLines) {
     throw new Error("expected == " + maxLines + "lines; found " + numLines);
   }
 
@@ -808,16 +819,16 @@ function subtest_change_to_all_header_mode(toDescription) {
  * @param toDescription the description node for the "to" field
  */
 function subtest_more_widget_star_click(toDescription) {
-  let addrs = toDescription.getElementsByTagName('mail-emailaddress');
+  let addrs = toDescription.getElementsByTagName("mail-emailaddress");
   let lastAddr = get_last_visible_address(addrs);
   ensure_no_card_exists(lastAddr.getAttribute("emailAddress"));
 
   // scroll to the bottom first so the address is in view
-  let view = mc.e('expandedHeaderView');
+  let view = mc.e("expandedHeaderView");
   view.scrollTop = view.scrollHeight - view.clientHeight;
 
   mc.click(getElement(lastAddr, ".emailStar"));
-  if (lastAddr.getAttribute('hascard') == 'false') {
+  if (lastAddr.getAttribute("hascard") == "false") {
     throw new Error("address not updated after clicking star");
   }
 }
@@ -826,11 +837,9 @@ function subtest_more_widget_star_click(toDescription) {
  * Make sure the (more) widget hidden pref actually works with a
  * non-default value.
  */
-function test_more_widget_with_maxlines_of_3(){
-
+function test_more_widget_with_maxlines_of_3() {
   // set maxLines to 3
-  let maxLines = Services.prefs.setIntPref(
-    "mailnews.headers.show_n_lines_before_more", 3);
+  Services.prefs.setIntPref("mailnews.headers.show_n_lines_before_more", 3);
 
   // call test_more_widget again
   // We need to look at the second last article in the display list.
@@ -841,11 +850,9 @@ function test_more_widget_with_maxlines_of_3(){
  * Make sure the (more) widget hidden pref also works with an
  * "all" (0) non-default value.
  */
-function test_more_widget_with_disabled_more(){
-
+function test_more_widget_with_disabled_more() {
   // set maxLines to 0
-  let maxLines = Services.prefs.setIntPref(
-    "mailnews.headers.show_n_lines_before_more", 0);
+  Services.prefs.setIntPref("mailnews.headers.show_n_lines_before_more", 0);
 
   // generate message with 35 recips (effectively guarantees overflow for n=3)
   be_in_folder(folder);
@@ -886,12 +893,10 @@ function test_more_widget_with_disabled_more(){
 function test_toolbar_collapse_and_expand() {
   be_in_folder(folder);
   // Select and open a message, in this case the last, for no particular reason.
-  let curMessage = select_click_row(-1);
+  select_click_row(-1);
 
   try {
     let expandedHeadersTopBox = mc.e("expandedHeadersTopBox");
-    let toolbar = mc.e("header-view-toolbar");
-    let mode = toolbar.getAttribute("mode");
 
     resize_to(mc, 1200, gDefaultWindowHeight);
     let shortHeight = expandedHeadersTopBox.clientHeight;
@@ -905,9 +910,8 @@ function test_toolbar_collapse_and_expand() {
     // And make our window big to achieve the same effect as the just icons mode.
     resize_to(mc, 1200, gDefaultWindowHeight);
     mc.waitFor(() => expandedHeadersTopBox.clientHeight == shortHeight,
-               "The header box should have returned to its wide size!")
-  }
-  finally {
+               "The header box should have returned to its wide size!");
+  } finally {
     // restore window to nominal dimensions
     restore_default_window_size();
   }
@@ -958,7 +962,7 @@ function subtest_more_button_tooltip(aMsg) {
  */
 function get_number_of_addresses_in_header(aHeaderBox) {
   let headerBoxElement = mc.e(aHeaderBox, {class: "headerValue"});
-  let addrs = headerBoxElement.getElementsByTagName('mail-emailaddress');
+  let addrs = headerBoxElement.getElementsByTagName("mail-emailaddress");
   let addrNum = 0;
   for (let i = 0; i < addrs.length; i++) {
     // check that the address is really visible and not just a cached
@@ -982,7 +986,7 @@ function get_number_of_more_button(aHeaderBox) {
   if (element_visible_recursive(moreIndicator)) {
     let moreText = moreIndicator.getAttribute("value");
     let moreSplit = moreText.split(" ");
-    moreNumber = parseInt(moreSplit[0])
+    moreNumber = parseInt(moreSplit[0]);
   }
   return moreNumber;
 }
@@ -1019,8 +1023,7 @@ function subtest_addresses_in_tooltip_text(aRecipients, aHeaderBox,
 
   if (aHiddenAddrsNum < maxTooltipAddrsNum) {
     assert_equals(aHiddenAddrsNum, addrsNumInTooltip);
-  }
-  else {
+  } else {
     assert_equals(maxTooltipAddrsNum, addrsNumInTooltip);
     // check if ", and X more" shows the correct number
     let moreTooltipSplit = tooltipText.split(", ");

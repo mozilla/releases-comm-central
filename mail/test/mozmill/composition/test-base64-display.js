@@ -6,12 +6,12 @@
  * Tests that messages with "broken" base64 are correctly displayed.
  */
 
-// mozmake SOLO_TEST=composition/test-base64-display.js mozmill-one
-
 "use strict";
 
-var MODULE_NAME = "test-base64-display.js";
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-base64-display.js";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 

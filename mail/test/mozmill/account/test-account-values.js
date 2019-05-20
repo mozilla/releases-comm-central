@@ -9,11 +9,19 @@
 
 "use strict";
 
-var MODULE_NAME = "test-account-values";
+/* import-globals-from ../shared-modules/test-account-manager-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-keyboard-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-account-values";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
-                       "account-manager-helpers", "keyboard-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "account-manager-helpers",
+  "keyboard-helpers",
+];
 
 var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
 
@@ -67,8 +75,7 @@ function test_default_CC_address() {
  *
  * @param amc  the account options controller
  */
-function subtest_check_default_CC_address(amc)
-{
+function subtest_check_default_CC_address(amc) {
   let accountRow = get_account_tree_row(gPopAccount.key, "am-copies.xul", amc);
   click_account_tree_row(amc, accountRow);
 
@@ -184,8 +191,7 @@ function test_account_name() {
  * @param aNewUsername  the username value to set
  * @param amc           the account options controller
  */
-function subtest_check_account_name(aAccount, aNewHostname, aNewUsername, amc)
-{
+function subtest_check_account_name(aAccount, aNewHostname, aNewUsername, amc) {
   let accountRow = get_account_tree_row(aAccount.key, "am-server.xul", amc);
   click_account_tree_row(amc, accountRow);
 
@@ -236,11 +242,7 @@ function test_invalid_junk_target() {
   });
 
   // The pref has no default so its non-existence means it was cleared.
-  try {
-    moveOnSpam = branch.getBoolPref("moveOnSpam");
-  } catch (e) {
-    moveOnSpam = false;
-  }
+  moveOnSpam = branch.getBoolPref("moveOnSpam", false);
   assert_false(moveOnSpam);
   // The targets should point to the same pop account now.
   let targetAccount = branch.getCharPref("spamActionTargetAccount");
@@ -254,8 +256,7 @@ function test_invalid_junk_target() {
  *
  * @param amc  the account options controller
  */
-function subtest_check_invalid_junk_target(amc)
-{
+function subtest_check_invalid_junk_target(amc) {
   let accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xul", amc);
   click_account_tree_row(amc, accountRow);
 
@@ -290,8 +291,7 @@ function test_invalid_hostname() {
  * @param aExitSettings      Attempt to close the Account settings dialog.
  * @param aOriginalHostname  Original hostname of this server.
  */
-function subtest_check_invalid_hostname(amc, aExitSettings, aOriginalHostname)
-{
+function subtest_check_invalid_hostname(amc, aExitSettings, aOriginalHostname) {
   let accountRow = get_account_tree_row(gPopAccount.key, "am-server.xul", amc);
   click_account_tree_row(amc, accountRow);
 
@@ -348,8 +348,7 @@ function test_trailing_spaces() {
  *
  * @param amc  the account options controller
  */
-function subtest_check_trailing_spaces(amc)
-{
+function subtest_check_trailing_spaces(amc) {
   let accountRow = get_account_tree_row(gPopAccount.key, null, amc);
   click_account_tree_row(amc, accountRow);
 

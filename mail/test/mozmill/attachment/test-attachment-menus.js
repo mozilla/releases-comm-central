@@ -4,11 +4,13 @@
 
 "use strict";
 
-var MODULE_NAME = "test-attachment-menus";
+/* import-globals-from ../shared-modules/test-attachment-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-attachment-menus";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
-                       "attachment-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "attachment-helpers"];
 
 var folder;
 var messenger;
@@ -296,25 +298,22 @@ function check_toolbar_menu_states_single(expected) {
   assert_shown("attachmentSaveAllSingle", true);
   assert_shown("attachmentSaveAllMultiple", false);
 
-  if (expected.save == false) {
+  if (expected.save === false) {
     assert_enabled("attachmentSaveAllSingle", false);
-  }
-  else {
+  } else {
     assert_enabled("attachmentSaveAllSingle", true);
     mc.click(mc.aid("attachmentSaveAllSingle",
                     {"class": "toolbarbutton-menubutton-dropmarker"}));
     wait_for_popup_to_open(mc.e("attachmentSaveAllSingleMenu"));
 
     try {
-      assert_enabled("button-openAttachment",   expected.open);
-      assert_enabled("button-saveAttachment",   expected.save);
+      assert_enabled("button-openAttachment", expected.open);
+      assert_enabled("button-saveAttachment", expected.save);
       assert_enabled("button-detachAttachment", expected.detach);
       assert_enabled("button-deleteAttachment", expected.delete_);
-    }
-    catch(e) {
+    } catch (e) {
       throw e;
-    }
-    finally {
+    } finally {
       close_popup(mc, mc.eid("attachmentSaveAllSingleMenu"));
     }
   }
@@ -329,25 +328,22 @@ function check_toolbar_menu_states_multiple(expected) {
   assert_shown("attachmentSaveAllSingle", false);
   assert_shown("attachmentSaveAllMultiple", true);
 
-  if (expected.save == false) {
+  if (expected.save === false) {
     assert_enabled("attachmentSaveAllMultiple", false);
-  }
-  else {
+  } else {
     assert_enabled("attachmentSaveAllMultiple", true);
     mc.click(mc.aid("attachmentSaveAllMultiple",
                     {"class": "toolbarbutton-menubutton-dropmarker"}));
     wait_for_popup_to_open(mc.e("attachmentSaveAllMultipleMenu"));
 
     try {
-      assert_enabled("button-openAllAttachments",   expected.open);
-      assert_enabled("button-saveAllAttachments",   expected.save);
+      assert_enabled("button-openAllAttachments", expected.open);
+      assert_enabled("button-saveAllAttachments", expected.save);
       assert_enabled("button-detachAllAttachments", expected.detach);
       assert_enabled("button-deleteAllAttachments", expected.delete_);
-    }
-    catch(e) {
+    } catch (e) {
       throw e;
-    }
-    finally {
+    } finally {
       close_popup(mc, mc.eid("attachmentSaveAllMultipleMenu"));
     }
   }
@@ -377,21 +373,19 @@ function check_menu_states_single(index, expected) {
   wait_for_popup_to_open(mc.e("attachmentItemContext"));
 
   try {
-    assert_shown("context-openAttachment",   true);
-    assert_shown("context-saveAttachment",   true);
-    assert_shown("context-menu-separator",   true);
+    assert_shown("context-openAttachment", true);
+    assert_shown("context-saveAttachment", true);
+    assert_shown("context-menu-separator", true);
     assert_shown("context-detachAttachment", true);
     assert_shown("context-deleteAttachment", true);
 
-    assert_enabled("context-openAttachment",   expected.open);
-    assert_enabled("context-saveAttachment",   expected.save);
+    assert_enabled("context-openAttachment", expected.open);
+    assert_enabled("context-saveAttachment", expected.save);
     assert_enabled("context-detachAttachment", expected.detach);
     assert_enabled("context-deleteAttachment", expected.delete_);
-  }
-  catch(e) {
+  } catch (e) {
     throw e;
-  }
-  finally {
+  } finally {
     menu.close();
   }
 }
@@ -409,28 +403,26 @@ function check_menu_states_all(expected) {
   wait_for_popup_to_open(mc.e("attachmentListContext"));
 
   try {
-    assert_shown("context-openAllAttachments",   true);
-    assert_shown("context-saveAllAttachments",   true);
-    assert_shown("context-menu-separator-all",   true);
+    assert_shown("context-openAllAttachments", true);
+    assert_shown("context-saveAllAttachments", true);
+    assert_shown("context-menu-separator-all", true);
     assert_shown("context-detachAllAttachments", true);
     assert_shown("context-deleteAllAttachments", true);
 
-    assert_enabled("context-openAllAttachments",   expected.open);
-    assert_enabled("context-saveAllAttachments",   expected.save);
+    assert_enabled("context-openAllAttachments", expected.open);
+    assert_enabled("context-saveAllAttachments", expected.save);
     assert_enabled("context-detachAllAttachments", expected.detach);
     assert_enabled("context-deleteAllAttachments", expected.delete_);
-  }
-  catch(e) {
+  } catch (e) {
     throw e;
-  }
-  finally {
+  } finally {
     close_popup(mc, mc.eid("attachmentListContext"));
   }
 }
 
 function help_test_attachment_menus(index) {
   be_in_folder(folder);
-  let curMessage = select_click_row(index);
+  select_click_row(index);
   let expectedStates = messages[index].menuStates;
 
   mc.window.toggleAttachmentList(true);

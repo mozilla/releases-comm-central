@@ -6,13 +6,13 @@
  * Tests ExtensionSupport.jsm functions.
  */
 
-// make SOLO_TEST=utils/test-extensionSupport.js mozmill-one
+/* import-globals-from ../shared-modules/test-address-book-helpers.js */
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 
 var MODULE_NAME = "test-extensionSupport";
-
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers",
-                       "address-book-helpers" ];
+var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "address-book-helpers"];
 
 var {ExtensionSupport} = ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
 
@@ -34,8 +34,8 @@ function test_windowListeners() {
   let originalListenerCount = ExtensionSupport.registeredWindowListenerCount;
 
   let addonRunCount = [];
-  addonRunCount["load"] = new Map();
-  addonRunCount["unload"] = new Map();
+  addonRunCount.load = new Map();
+  addonRunCount.unload = new Map();
 
   function addonListener(aAddon, aEvent) {
     if (!addonRunCount[aEvent].has(aAddon)) {
@@ -55,8 +55,8 @@ function test_windowListeners() {
   assert_true(ExtensionSupport.registerWindowListener(
     "test-addon1",
     {
-      onLoadWindow: function() { addonListener("test-addon1", "load"); },
-      onUnloadWindow: function() { addonListener("test-addon1", "unload"); }
+      onLoadWindow() { addonListener("test-addon1", "load"); },
+      onUnloadWindow() { addonListener("test-addon1", "unload"); },
     })
   );
 
@@ -67,8 +67,8 @@ function test_windowListeners() {
     "test-addon2",
     {
       chromeURLs: [ "chrome://messenger/content/messengercompose/messengercompose.xul" ],
-      onLoadWindow: function() { addonListener("test-addon2", "load"); },
-      onUnloadWindow: function() { addonListener("test-addon2", "unload"); }
+      onLoadWindow() { addonListener("test-addon2", "load"); },
+      onUnloadWindow() { addonListener("test-addon2", "unload"); },
     })
   );
 
@@ -82,8 +82,10 @@ function test_windowListeners() {
     "test-addon3",
     {
       chromeURLs: [ "chrome://messenger/content/messengercompose/messengercompose.xul" ],
-      onLoadWindow: function() { addonListener("test-addon3", "load");
-                                 ExtensionSupport.unregisterWindowListener("test-addon3"); }
+      onLoadWindow() {
+        addonListener("test-addon3", "load");
+        ExtensionSupport.unregisterWindowListener("test-addon3");
+      },
     })
   );
 
@@ -94,9 +96,11 @@ function test_windowListeners() {
     "test-addon4",
     {
       chromeURLs: [ "chrome://messenger/content/messengercompose/messengercompose.xul" ],
-      onLoadWindow: function() { addonListener("test-addon4", "load"); },
-      onUnloadWindow: function() { addonListener("test-addon4", "unload");
-                                   ExtensionSupport.unregisterWindowListener("test-addon4"); }
+      onLoadWindow() { addonListener("test-addon4", "load"); },
+      onUnloadWindow() {
+        addonListener("test-addon4", "unload");
+        ExtensionSupport.unregisterWindowListener("test-addon4");
+      },
     })
   );
 

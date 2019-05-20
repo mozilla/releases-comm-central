@@ -4,11 +4,19 @@
 
 "use strict";
 
-var MODULE_NAME = "test-retest-config";
+/* import-globals-from ../shared-modules/test-account-manager-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-keyboard-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-retest-config";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
-                       "keyboard-helpers", "account-manager-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "keyboard-helpers",
+  "account-manager-helpers",
+];
 
 var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -16,7 +24,7 @@ var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var user = {
   name: "test",
   email: "test@momo.invalid",
-  altEmail: "test2@momo.invalid"
+  altEmail: "test2@momo.invalid",
 };
 
 function setupModule(module) {
@@ -39,7 +47,7 @@ function test_re_test_config() {
   // Opening multiple windows in the same run seems to require letting the stack
   // unwind before opening the next one, so do that here.
   mc.sleep(0);
-  open_mail_account_setup_wizard(function (awc) {
+  open_mail_account_setup_wizard(function(awc) {
     // Input user's account information
     awc.click(awc.eid("realname"));
     if (awc.e("realname").value) {
@@ -54,7 +62,7 @@ function test_re_test_config() {
     awc.e("next_button").click();
 
     // Wait for 'edit' button to be enabled
-    awc.waitFor(function() { return this.disabled == false && this.hidden == false; },
+    awc.waitFor(function() { return !this.disabled && !this.hidden; },
                 "Timeout waiting for edit button to be enabled",
                 8000, 600, awc.e("create_button"));
 
@@ -63,7 +71,7 @@ function test_re_test_config() {
     // Click "re-test" button
     awc.e("half-manual-test_button").click();
 
-    awc.waitFor(function () { return this.disabled == false; },
+    awc.waitFor(function() { return !this.disabled; },
                 "Timeout waiting for re-test button to be enabled",
                 20000, 600, awc.e("half-manual-test_button"));
 
@@ -76,7 +84,7 @@ function test_re_test_config() {
 
     // Wait for the "continue" button to be back, which means we're back to the
     // original state.
-    awc.waitFor(function() { return this.hidden == false; },
+    awc.waitFor(function() { return !this.hidden; },
                 "Timeout waiting for continue button to be visible",
                 20000, 600, awc.e("next_button"));
 

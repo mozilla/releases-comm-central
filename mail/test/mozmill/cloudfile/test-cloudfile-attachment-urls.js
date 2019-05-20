@@ -8,15 +8,23 @@
 
 "use strict";
 
-var MODULE_NAME = "test-cloudfile-attachment-urls";
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-cloudfile-helpers.js */
+/* import-globals-from ../shared-modules/test-attachment-helpers.js */
+/* import-globals-from ../shared-modules/test-dom-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-cloudfile-attachment-urls";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers",
-                       "compose-helpers",
-                       "cloudfile-helpers",
-                       "attachment-helpers",
-                       "dom-helpers",
-                       "window-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "compose-helpers",
+  "cloudfile-helpers",
+  "attachment-helpers",
+  "dom-helpers",
+  "window-helpers",
+];
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
@@ -244,7 +252,7 @@ function subtest_inserts_linebreak_on_empty_compose() {
   let cw = open_compose_new_mail();
   add_cloud_attachments(cw, provider);
 
-  let [root, list, urls] = wait_for_attachment_urls(cw, kFiles.length);
+  let [root] = wait_for_attachment_urls(cw, kFiles.length);
 
   let br = root.previousSibling;
   assert_equals(br.localName, "br",
@@ -275,7 +283,7 @@ function test_inserts_linebreak_on_empty_compose_with_signature() {
   // wait_for_attachment_urls ensures that the attachment URL containment
   // node is an immediate child of the body of the message, so if this
   // succeeds, then we were not in the signature node.
-  let [root, list, urls] = wait_for_attachment_urls(cw, kFiles.length);
+  let [root] = wait_for_attachment_urls(cw, kFiles.length);
 
   let br = assert_previous_nodes("br", root, 1);
 
@@ -300,7 +308,7 @@ function test_inserts_linebreak_on_empty_compose_with_signature() {
   // Now let's try with plaintext mail.
   cw = open_compose_new_mail();
   add_cloud_attachments(cw, provider);
-  [root, list, urls] = wait_for_attachment_urls(cw, kFiles.length);
+  [root] = wait_for_attachment_urls(cw, kFiles.length);
 
   br = assert_previous_nodes("br", root, 1);
 
@@ -336,7 +344,7 @@ function test_removing_filelinks_removes_root_node() {
  */
 function subtest_removing_filelinks_removes_root_node() {
   let cw = prepare_some_attachments_and_reply([], kFiles);
-  let [root, list, urls] = wait_for_attachment_urls(cw, kFiles.length);
+  let [root] = wait_for_attachment_urls(cw, kFiles.length);
 
   // Now select the attachments in the attachment bucket, and remove them.
   select_attachments(cw, 0, 1);
@@ -375,7 +383,7 @@ function subtest_adding_filelinks_to_written_message() {
   type_in_composer(cw, kLines);
   add_cloud_attachments(cw, provider);
 
-  let [root, list, urls] = wait_for_attachment_urls(cw, kFiles.length);
+  let [root] = wait_for_attachment_urls(cw, kFiles.length);
 
   let br = root.previousSibling;
   assert_equals(br.localName, "br",
@@ -431,7 +439,7 @@ function test_adding_filelinks_to_nonempty_reply_above() {
  */
 function subtest_adding_filelinks_to_reply_above_plaintext(aText, aWithSig) {
   let cw = prepare_some_attachments_and_reply(aText, kFiles);
-  let [root, list, urls] = wait_for_attachment_urls(cw, kFiles.length);
+  let [root] = wait_for_attachment_urls(cw, kFiles.length);
 
   let br;
   if (aText.length)
@@ -472,7 +480,7 @@ function subtest_adding_filelinks_to_reply_above_plaintext(aText, aWithSig) {
  */
 function subtest_adding_filelinks_to_reply_above(aText) {
   let cw = prepare_some_attachments_and_reply(aText, kFiles);
-  let [root, list, urls] = wait_for_attachment_urls(cw, kFiles.length);
+  let [root] = wait_for_attachment_urls(cw, kFiles.length);
 
   // If there's any text written, then there's only a single break between the
   // end of the text and the reply. Otherwise, there are two breaks.
@@ -531,7 +539,7 @@ function test_adding_filelinks_to_nonempty_reply_below() {
  */
 function subtest_adding_filelinks_to_reply_below(aText, aWithSig) {
   let cw = prepare_some_attachments_and_reply(aText, kFiles);
-  let [root, list, urls] = wait_for_attachment_urls(cw, kFiles.length);
+  let [root] = wait_for_attachment_urls(cw, kFiles.length);
   // So, we should have the root, followed by a br
   let br = root.nextSibling;
   assert_equals(br.localName, "br",
@@ -569,7 +577,7 @@ function subtest_adding_filelinks_to_reply_below(aText, aWithSig) {
  */
 function subtest_adding_filelinks_to_plaintext_reply_below(aText, aWithSig) {
   let cw = prepare_some_attachments_and_reply(aText, kFiles);
-  let [root, list, urls] = wait_for_attachment_urls(cw, kFiles.length);
+  let [root] = wait_for_attachment_urls(cw, kFiles.length);
 
   let br, span;
 
@@ -637,7 +645,7 @@ function test_adding_filelinks_to_forward() {
  */
 function subtest_adding_filelinks_to_forward(aText, aWithSig) {
   let cw = prepare_some_attachments_and_forward(aText, kFiles);
-  let [root, list, urls] = wait_for_attachment_urls(cw, kFiles.length);
+  let [root] = wait_for_attachment_urls(cw, kFiles.length);
 
   let br = assert_next_nodes("br", root, 1);
   let forwardDiv = br.nextSibling;
@@ -648,7 +656,7 @@ function subtest_adding_filelinks_to_forward(aText, aWithSig) {
     // If there was text typed in, it should be separated from the root by two
     // br's
     let br = assert_previous_nodes("br", root, 2);
-    let textNode = assert_previous_text(br.previousSibling, aText);
+    assert_previous_text(br.previousSibling, aText);
   } else {
     // Otherwise, there's only 1 br, and that br should be the first element
     // of the message body.
@@ -685,14 +693,14 @@ function subtest_converting_filelink_updates_urls() {
   let cw = open_compose_new_mail();
   add_cloud_attachments(cw, providerA);
 
-  let [root, list, urls] = wait_for_attachment_urls(cw, kFiles.length);
+  let [, , urls] = wait_for_attachment_urls(cw, kFiles.length);
 
   // Convert each Filelink to providerB, ensuring that the URLs are replaced.
   for (let i = 0; i < kFiles.length; ++i) {
     let url = urls[i];
     select_attachments(cw, i);
     cw.window.convertSelectedToCloudAttachment(providerB);
-    [root, list, urls] = wait_for_attachment_urls(cw, kFiles.length);
+    [, , urls] = wait_for_attachment_urls(cw, kFiles.length);
 
     let newUrl = urls[i];
 
@@ -726,7 +734,7 @@ function subtest_converting_filelink_to_normal_removes_url() {
   let cw = open_compose_new_mail();
   add_cloud_attachments(cw, provider);
 
-  let [root, list, urls] = wait_for_attachment_urls(cw, kFiles.length);
+  let [root, list] = wait_for_attachment_urls(cw, kFiles.length);
 
   for (let i = 0; i < kFiles.length; ++i) {
     select_attachments(cw, i);
@@ -767,14 +775,14 @@ function subtest_filelinks_work_after_manual_removal() {
   let cw = open_compose_new_mail();
   add_cloud_attachments(cw, provider);
 
-  let [root, list, urls] = wait_for_attachment_urls(cw, kFiles.length);
+  let [root] = wait_for_attachment_urls(cw, kFiles.length);
 
   // Now remove the root node from the document body
   root.remove();
 
   gMockFilePicker.returnFiles = collectFiles(["./data/testFile3"], __file__);
   add_cloud_attachments(cw, provider);
-  [root, list, urls] = wait_for_attachment_urls(cw, 1);
+  [root] = wait_for_attachment_urls(cw, 1);
 
   close_window(cw);
 }
@@ -810,14 +818,14 @@ function subtest_insertion_restores_caret_point() {
 
   // Attach some Filelinks.
   add_cloud_attachments(cw, provider);
-  let [root, list, urls] = wait_for_attachment_urls(cw, kFiles.length);
+  let [root] = wait_for_attachment_urls(cw, kFiles.length);
 
   // Type some text.
   const kTypedIn = "Test";
   type_in_composer(cw, [kTypedIn]);
 
   // That text should be inserted just above the root attachment URL node.
-  let textNode = assert_previous_text(root.previousSibling, [kTypedIn]);
+  assert_previous_text(root.previousSibling, [kTypedIn]);
 
   close_window(cw);
 }

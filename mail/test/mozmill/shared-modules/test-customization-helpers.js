@@ -5,7 +5,6 @@
 "use strict";
 
 var MODULE_NAME = "customization-helpers";
-
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
@@ -17,8 +16,8 @@ var USE_SHEET_PREF = "toolbar.customization.usesheet";
 var wh, fdh;
 
 function setupModule() {
-  fdh = collector.getModule('folder-display-helpers');
-  wh = collector.getModule('window-helpers');
+  fdh = collector.getModule("folder-display-helpers");
+  wh = collector.getModule("window-helpers");
 }
 
 function installInto(module) {
@@ -61,8 +60,7 @@ CustomizeDialogHelper.prototype = {
     if (!this._openInWindow) {
       ctc = wh.wait_for_frame_load(aController.e("customizeToolbarSheetIFrame"),
         "chrome://messenger/content/customizeToolbar.xul");
-    }
-    else {
+    } else {
       ctc = wh.wait_for_existing_window(this._windowType);
     }
     return ctc;

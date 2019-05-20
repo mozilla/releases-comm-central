@@ -11,12 +11,19 @@
 
 "use strict";
 
+/* import-globals-from ../shared-modules/test-dom-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-quick-filter-bar-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
+
 var MODULE_NAME = "test-display-issues";
-
-var RELATIVE_ROOT = '../shared-modules';
-
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
-                       "quick-filter-bar-helper", "dom-helpers"];
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "quick-filter-bar-helpers",
+  "dom-helpers",
+];
 
 var folder;
 var setUnstarred, setStarred;

@@ -8,15 +8,15 @@
  * mail-reply-to, and reply to self.
  */
 
-// make SOLO_TEST=composition/test-reply-addresses.js mozmill-one
-
 "use strict";
 
-var MODULE_NAME = "test-reply-addresses";
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-reply-addresses";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers",
-                         "window-helpers", "compose-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "compose-helpers"];
 
 var folder;
 var i = 0;
@@ -182,7 +182,7 @@ function testReplyToMungedReplyToList() {
     clobberHeaders: {
       "Reply-To": "Munged List <munged.list@example.com>",
       "List-Post": "<mailto:munged.list@example.com>",
-    }
+    },
   });
   add_message_to_folder(folder, msg0);
 
@@ -203,15 +203,15 @@ function testReplyToMungedReplyToList() {
       "addr_to": [
         "Munged List <munged.list@example.com>",
         "someone.else@example.com",
-        "Tester <test@example.com>"
-       ]
+        "Tester <test@example.com>",
+       ],
     }
   );
 
   checkReply(
     open_compose_with_reply_to_list,
     {
-      "addr_to": ["munged.list@example.com"]
+      "addr_to": ["munged.list@example.com"],
     }
   );
 }
@@ -225,7 +225,7 @@ function testToCcReply() {
     to: "Mr Burns <mrburns@example.com>, workers@example.com, " +
         myEmail,
     cc: "Lisa <lisa@example.com>",
-    subject: "testToCcReply - normal mail with to and cc (me in To)"
+    subject: "testToCcReply - normal mail with to and cc (me in To)",
   });
   add_message_to_folder(folder, msg0);
 
@@ -247,7 +247,7 @@ function testToCcReply() {
     // Cc: identity Cc list, including self.
     {
       "addr_to": ["Homer <homer@example.com>"],
-      "addr_cc": [myEmail, "smithers@example.com"]
+      "addr_cc": [myEmail, "smithers@example.com"],
     }
   );
   stopUsingAutoCc(identity);
@@ -262,7 +262,7 @@ function testToCcReplyAll() {
     to: "Mr Burns <mrburns@example.com>, workers@example.com, " +
         myEmail,
     cc: "Lisa <lisa@example.com>",
-    subject: "testToCcReplyAll - normal mail with to and cc (me in To)"
+    subject: "testToCcReplyAll - normal mail with to and cc (me in To)",
   });
   add_message_to_folder(folder, msg0);
 
@@ -279,7 +279,7 @@ function testToCcReplyAll() {
       "addr_to": ["Homer <homer@example.com>",
                   "Mr Burns <mrburns@example.com>",
                   "workers@example.com"],
-      "addr_cc": ["Lisa <lisa@example.com>"]
+      "addr_cc": ["Lisa <lisa@example.com>"],
     }
   );
 
@@ -294,7 +294,7 @@ function testToCcReplyAll() {
                   "workers@example.com"],
       "addr_cc": ["Lisa <lisa@example.com>",
                   myEmail,
-                  "smithers@example.com"]
+                  "smithers@example.com"],
     }
   );
   stopUsingAutoCc(identity);
@@ -311,11 +311,15 @@ function testToCcReplyAllInternational() {
         "=?KOI8-R?Q?=E9=D7=C1=CE?= <ivan@example.com>, " + myEmail,
     cc: "=?Big5?B?pP2oca1e?= <xiuying@example.com>",
     subject: "testToCcReplyAllInternational - non-ascii people mail with to and cc (me in To)",
-    clobberHeaders: { 'Content-Transfer-Encoding': 'quoted-printable' },
+    clobberHeaders: { "Content-Transfer-Encoding": "quoted-printable" },
     // Content-Transfer-Encoding ^^^ should be set from the body encoding below,
-    //but that doesn't seem to work. (No Content-Transfer-Encoding header is
+    // but that doesn't seem to work. (No Content-Transfer-Encoding header is
     // generated).
-    body: {charset: "windows-1251", encoding: "quoted-printable", body: "=CF=F0=E8=E2=E5=F2 =E8=E7 =CC=EE=F1=EA=E2=FB"}
+    body: {
+      charset: "windows-1251",
+      encoding: "quoted-printable",
+      body: "=CF=F0=E8=E2=E5=F2 =E8=E7 =CC=EE=F1=EA=E2=FB",
+    },
   });
   add_message_to_folder(folder, msg0);
 
@@ -333,7 +337,7 @@ function testToCcReplyAllInternational() {
                   "Mr Burns <mrburns@example.com>",
                   "Åke <ake@example.com>",
                   "Иван <ivan@example.com>"],
-      "addr_cc": ["王秀英 <xiuying@example.com>"]
+      "addr_cc": ["王秀英 <xiuying@example.com>"],
     }
   );
 
@@ -347,7 +351,7 @@ function testToCcReplyAllInternational() {
                   "Mr Burns <mrburns@example.com>",
                   "Åke <ake@example.com>",
                   "Иван <ivan@example.com>"],
-      "addr_cc": ["王秀英 <xiuying@example.com>", "Åsa <asa@example.com>"]
+      "addr_cc": ["王秀英 <xiuying@example.com>", "Åsa <asa@example.com>"],
     }
   );
   stopUsingAutoCc(identity);
@@ -364,8 +368,8 @@ function testToCcReplyWhenReplyToSet() {
     cc: "Lisa <lisa@example.com>, " + myEmail,
     subject: "testToCcReplyWhenReplyToSet - to/cc mail with reply-to set (me in Cc)",
     clobberHeaders: {
-      "Reply-To": "marge@example.com"
-    }
+      "Reply-To": "marge@example.com",
+    },
   });
   add_message_to_folder(folder, msg0);
 
@@ -387,7 +391,7 @@ function testToCcReplyWhenReplyToSet() {
     // Cc: auto-Ccs
     {
       "addr_to": ["marge@example.com"],
-      "addr_cc": [myEmail, "smithers@example.com"]
+      "addr_cc": [myEmail, "smithers@example.com"],
     }
   );
   stopUsingAutoCc(identity);
@@ -404,8 +408,8 @@ function testToCcReplyAllWhenReplyToSet() {
     cc: "Lisa <lisa@example.com>, " + myEmail,
     subject: "testToCcReplyAllWhenReplyToSet - to/cc mail with reply-to set (me in Cc)",
     clobberHeaders: {
-      "Reply-To": "marge@example.com"
-    }
+      "Reply-To": "marge@example.com",
+    },
   });
   add_message_to_folder(folder, msg0);
 
@@ -421,7 +425,7 @@ function testToCcReplyAllWhenReplyToSet() {
     {
       "addr_to": ["marge@example.com",
                   "workers@example.com"],
-      "addr_cc": ["Lisa <lisa@example.com>"]
+      "addr_cc": ["Lisa <lisa@example.com>"],
     }
   );
 
@@ -433,7 +437,7 @@ function testToCcReplyAllWhenReplyToSet() {
     {
       "addr_to": ["marge@example.com",
                   "workers@example.com"],
-      "addr_cc": ["Lisa <lisa@example.com>", myEmail, "smithers@example.com"]
+      "addr_cc": ["Lisa <lisa@example.com>", myEmail, "smithers@example.com"],
     }
   );
   stopUsingAutoCc(identity);
@@ -449,8 +453,8 @@ function testReplyToList() {
     cc: "Lisa <lisa@example.com>, " + myEmail,
     subject: "testReplyToList - mailing list message (me in Cc)",
     clobberHeaders: {
-      "List-Post": "<mailto:workers-list@example.com>"
-    }
+      "List-Post": "<mailto:workers-list@example.com>",
+    },
   });
   add_message_to_folder(folder, msg0);
 
@@ -472,7 +476,7 @@ function testReplyToList() {
     // Cc: auto-Ccs
     {
       "addr_to": ["workers-list@example.com"],
-      "addr_cc": [myEmail, "smithers@example.com"]
+      "addr_cc": [myEmail, "smithers@example.com"],
     }
   );
   stopUsingAutoCc(identity);
@@ -489,8 +493,8 @@ function testReplySenderForListPost() {
     cc: "Lisa <lisa@example.com>, " + myEmail,
     subject: "testReplySenderForListPost - mailing list message (me in Cc)",
     clobberHeaders: {
-      "List-Post": "<mailto:workers-list@example.com>"
-    }
+      "List-Post": "<mailto:workers-list@example.com>",
+    },
   });
   add_message_to_folder(folder, msg0);
 
@@ -512,7 +516,7 @@ function testReplySenderForListPost() {
     // Cc: auto-Ccs
     {
       "addr_to": ["Homer <homer@example.com>"],
-      "addr_cc": [myEmail, "smithers@example.com"]
+      "addr_cc": [myEmail, "smithers@example.com"],
     }
   );
   stopUsingAutoCc(identity);
@@ -528,8 +532,8 @@ function testReplyToAllForListPost() {
     cc: "Lisa <lisa@example.com>, " + myEmail,
     subject: "testReplyToAllForListPost - mailing list message (me in Cc)",
     clobberHeaders: {
-      "List-Post": "<mailto:workers-list@example.com>"
-    }
+      "List-Post": "<mailto:workers-list@example.com>",
+    },
   });
   add_message_to_folder(folder, msg0);
 
@@ -544,7 +548,7 @@ function testReplyToAllForListPost() {
     // Cc: original CC without me
     {
       "addr_to": ["Homer <homer@example.com>", "workers-list@example.com"],
-      "addr_cc": ["Lisa <lisa@example.com>"]
+      "addr_cc": ["Lisa <lisa@example.com>"],
     }
   );
 
@@ -555,7 +559,7 @@ function testReplyToAllForListPost() {
     // Cc: original CC + auto-Ccs (including me!)
     {
     "addr_to": ["Homer <homer@example.com>", "workers-list@example.com"],
-    "addr_cc": ["Lisa <lisa@example.com>", myEmail, "smithers@example.com"]
+    "addr_cc": ["Lisa <lisa@example.com>", myEmail, "smithers@example.com"],
     }
   );
   stopUsingAutoCc(identity);
@@ -573,8 +577,8 @@ function testReplyToListWhenReplyToSet() {
     subject: "testReplyToListWhenReplyToSet - mailing list message w/ cc, reply-to (me in To)",
     clobberHeaders: {
       "Reply-To": "marge@example.com",
-      "List-Post": "<mailto:workers-list@example.com>"
-    }
+      "List-Post": "<mailto:workers-list@example.com>",
+    },
   });
   add_message_to_folder(folder, msg0);
 
@@ -589,7 +593,7 @@ function testReplyToListWhenReplyToSet() {
     // Cc: original Cc
     {
       "addr_to": ["marge@example.com", "workers-list@example.com"],
-      "addr_cc": ["Lisa <lisa@example.com>"]
+      "addr_cc": ["Lisa <lisa@example.com>"],
     }
   );
 
@@ -600,7 +604,7 @@ function testReplyToListWhenReplyToSet() {
     // Cc: original Cc + auto-Ccs
     {
       "addr_to": ["marge@example.com", "workers-list@example.com"],
-      "addr_cc": ["Lisa <lisa@example.com>", myEmail, "smithers@example.com"]
+      "addr_cc": ["Lisa <lisa@example.com>", myEmail, "smithers@example.com"],
     }
   );
   stopUsingAutoCc(identity);
@@ -619,8 +623,8 @@ function testMailReplyTo() {
     subject: "testMailReplyTo - mail with Mail-Reply-To header",
     clobberHeaders: {
       "Reply-To": "workers-list@example.com", // reply-to munging
-      "Mail-Reply-To": "Homer S. <homer@example.com>"
-    }
+      "Mail-Reply-To": "Homer S. <homer@example.com>",
+    },
   });
   add_message_to_folder(folder, msg0);
 
@@ -642,7 +646,7 @@ function testMailReplyTo() {
     // Cc: auto-Ccs
     {
       "addr_to": ["Homer S. <homer@example.com>"],
-      "addr_cc": [myEmail, "smithers@example.com"]
+      "addr_cc": [myEmail, "smithers@example.com"],
     }
   );
   stopUsingAutoCc(identity);
@@ -662,8 +666,8 @@ function testMailFollowupTo() {
     clobberHeaders: {
       // Homer is on the list, and don't want extra copies, so he has
       // set the Mail-Followup-To header so followups go to the list.
-      "Mail-Followup-To": "workers-list@example.com"
-    }
+      "Mail-Followup-To": "workers-list@example.com",
+    },
   });
   add_message_to_folder(folder, msg0);
 
@@ -685,7 +689,7 @@ function testMailFollowupTo() {
     // Cc: auto-Ccs
     {
       "addr_to": ["workers-list@example.com"],
-      "addr_cc": [myEmail, "smithers@example.com"]
+      "addr_cc": [myEmail, "smithers@example.com"],
     }
   );
   stopUsingAutoCc(identity);
@@ -702,8 +706,8 @@ function testReplyToSelfReply() {
     subject: "testReplyToSelfReply - reply to self",
     clobberHeaders: {
       "Bcc": "Moe <moe@example.com>",
-      "Reply-To": "Flanders <flanders@example.com>"
-    }
+      "Reply-To": "Flanders <flanders@example.com>",
+    },
   });
   add_message_to_folder(folder, msg0);
 
@@ -718,7 +722,7 @@ function testReplyToSelfReply() {
     // Reply-To: original Reply-To
     {
       "addr_to": ["Bart <bart@example.com>", "Maggie <maggie@example.com>"],
-      "addr_reply": ["Flanders <flanders@example.com>"]
+      "addr_reply": ["Flanders <flanders@example.com>"],
     }
   );
 
@@ -731,7 +735,7 @@ function testReplyToSelfReply() {
     {
       "addr_to": ["Bart <bart@example.com>", "Maggie <maggie@example.com>"],
       "addr_cc": [myEmail, "smithers@example.com"],
-      "addr_reply": ["Flanders <flanders@example.com>"]
+      "addr_reply": ["Flanders <flanders@example.com>"],
     }
   );
   stopUsingAutoCc(identity);
@@ -749,8 +753,8 @@ function testReplyToSelfReplyAll() {
     subject: "testReplyToSelfReplyAll - reply to self",
     clobberHeaders: {
       "Bcc": "Moe <moe@example.com>",
-      "Reply-To": "Flanders <flanders@example.com>"
-    }
+      "Reply-To": "Flanders <flanders@example.com>",
+    },
   });
   add_message_to_folder(folder, msg0);
 
@@ -770,7 +774,7 @@ function testReplyToSelfReplyAll() {
                   "Maggie <maggie@example.com>"],
       "addr_cc": ["Lisa <lisa@example.com>"],
       "addr_bcc": ["Moe <moe@example.com>"],
-      "addr_reply": ["Flanders <flanders@example.com>"]
+      "addr_reply": ["Flanders <flanders@example.com>"],
     }
   );
 
@@ -787,7 +791,7 @@ function testReplyToSelfReplyAll() {
                   "Maggie <maggie@example.com>"],
       "addr_cc": ["Lisa <lisa@example.com>"],
       "addr_bcc": ["Moe <moe@example.com>"],
-      "addr_reply": ["Flanders <flanders@example.com>"]
+      "addr_reply": ["Flanders <flanders@example.com>"],
     }
   );
   stopUsingAutoCc(identity);
@@ -806,8 +810,8 @@ function testReplyToSelfNotOriginalSourceMsgReplyAll() {
     cc: "Lisa <lisa@example.com>",
     subject: "testReplyToSelfNotOriginalSourceMsgReplyAll - reply to self",
     clobberHeaders: {
-      "Reply-To": "Flanders <flanders@example.com>"
-    }
+      "Reply-To": "Flanders <flanders@example.com>",
+    },
   });
   add_message_to_folder(folder, msg0);
 
@@ -828,7 +832,7 @@ function testReplyToSelfNotOriginalSourceMsgReplyAll() {
                   "Maggie <maggie@example.com>"],
       "addr_cc": ["Lisa <lisa@example.com>"],
       "addr_bcc": [myEmail, "smithers@example.com"],
-      "addr_reply": ["Flanders <flanders@example.com>"]
+      "addr_reply": ["Flanders <flanders@example.com>"],
     }
   );
   stopUsingAutoBcc(identity2);
@@ -846,7 +850,7 @@ function testReplyToSelfNotOriginalSourceMsgReplyAll() {
                   "Maggie <maggie@example.com>"],
       "addr_cc": ["Lisa <lisa@example.com>", myEmail, "smithers@example.com"],
       "addr_bcc": ["moe@example.com"],
-      "addr_reply": ["Flanders <flanders@example.com>"]
+      "addr_reply": ["Flanders <flanders@example.com>"],
     }
   );
   stopUsingAutoCc(identity2);
@@ -864,7 +868,7 @@ function testReplyToSelfNotOriginalSourceMsgReplyAll() {
                   "Maggie <maggie@example.com>"],
       "addr_cc": ["Lisa <lisa@example.com>"],
       "addr_bcc": [myEmail2, "smithers@example.com"],
-      "addr_reply": ["Flanders <flanders@example.com>"]
+      "addr_reply": ["Flanders <flanders@example.com>"],
     }
   );
   stopUsingAutoBcc(identity2);
@@ -881,8 +885,8 @@ function testReplyToOtherIdentity() {
     cc: "Lisa <lisa@example.com>",
     subject: "testReplyToOtherIdentity - reply to other identity",
     clobberHeaders: {
-      "Reply-To": "secretary@example.com"
-    }
+      "Reply-To": "secretary@example.com",
+    },
   });
   add_message_to_folder(folder, msg0);
 
@@ -899,7 +903,7 @@ function testReplyToOtherIdentity() {
     //
     {
       "addr_to": ["secretary@example.com", "barney@example.com"],
-      "addr_cc": ["Lisa <lisa@example.com>"]
+      "addr_cc": ["Lisa <lisa@example.com>"],
     }
   );
 }
@@ -916,8 +920,8 @@ function testReplyToSelfWithBccs() {
     subject: "testReplyToSelfWithBccs - reply to self",
     clobberHeaders: {
       "Bcc": "Moe <moe@example.com>, Barney <barney@example.com>",
-      "Reply-To": myEmail2
-    }
+      "Reply-To": myEmail2,
+    },
   });
   add_message_to_folder(folder, msg0);
 
@@ -936,7 +940,7 @@ function testReplyToSelfWithBccs() {
       "addr_to": [myEmail],
       "addr_cc": [myEmail2, "Lisa <lisa@example.com>"],
       "addr_bcc": ["Moe <moe@example.com>", "Barney <barney@example.com>"],
-      "addr_reply": [myEmail2]
+      "addr_reply": [myEmail2],
     }
   );
 }
@@ -952,8 +956,8 @@ function testReplyToOtherIdentityWithBccs() {
     cc: "Lisa <lisa@example.com>",
     subject: "testReplyToOtherIdentityWithBccs - reply to other identity",
     clobberHeaders: {
-      "Bcc": "Moe <moe@example.com>, Barney <barney@example.com>"
-    }
+      "Bcc": "Moe <moe@example.com>, Barney <barney@example.com>",
+    },
   });
   add_message_to_folder(folder, msg0);
 
@@ -970,7 +974,7 @@ function testReplyToOtherIdentityWithBccs() {
     {
       "addr_to": [myEmail2],
       "addr_cc": ["Lisa <lisa@example.com>"],
-      "addr_bcc": ["Moe <moe@example.com>", "Barney <barney@example.com>"]
+      "addr_bcc": ["Moe <moe@example.com>", "Barney <barney@example.com>"],
     }
   );
 }
@@ -984,8 +988,8 @@ function testNewsgroupsReplyAll() {
     to: "test1-list@example.org",
     subject: "testNewsgroupsReplyAll - sent to two newsgroups and a list",
     clobberHeaders: {
-      "Newsgroups": "example.test1, example.test2"
-    }
+      "Newsgroups": "example.test1, example.test2",
+    },
   });
   add_message_to_folder(folder, msg0);
 
@@ -1000,7 +1004,7 @@ function testNewsgroupsReplyAll() {
     // Newsgroups: original Ccs
     {
       "addr_to": ["Homer <homer@example.com>", "test1-list@example.org"],
-      "addr_newsgroups": ["example.test1", "example.test2"]
+      "addr_newsgroups": ["example.test1", "example.test2"],
     }
   );
 
@@ -1012,7 +1016,7 @@ function testNewsgroupsReplyAll() {
     {
       "addr_to": ["Homer <homer@example.com>", "test1-list@example.org"],
       "addr_cc": [myEmail, "smithers@example.com"],
-      "addr_newsgroups": ["example.test1", "example.test2"]
+      "addr_newsgroups": ["example.test1", "example.test2"],
     }
   );
   stopUsingAutoCc(identity);
@@ -1029,8 +1033,8 @@ function testNewsgroupsReplyAllFollowupTo() {
     subject: "testNewsgroupsReplyAllFollowupTo - Followup-To set",
     clobberHeaders: {
       "Newsgroups": "example.test1, example.test2",
-      "Followup-To": "example.test2"
-    }
+      "Followup-To": "example.test2",
+    },
   });
   add_message_to_folder(folder, msg0);
 
@@ -1045,7 +1049,7 @@ function testNewsgroupsReplyAllFollowupTo() {
     // Newsgroups: <Followup-To>
     {
       "addr_to": ["Homer <homer@example.com>", "test1-list@example.org"],
-      "addr_newsgroups": ["example.test2"]
+      "addr_newsgroups": ["example.test2"],
     }
   );
 
@@ -1058,7 +1062,7 @@ function testNewsgroupsReplyAllFollowupTo() {
     {
       "addr_to": ["Homer <homer@example.com>", "test1-list@example.org"],
       "addr_cc": [myEmail, "smithers@example.com"],
-      "addr_newsgroups": ["example.test2"]
+      "addr_newsgroups": ["example.test2"],
     }
   );
   stopUsingAutoCc(identity);
@@ -1073,7 +1077,7 @@ function testToFromWithReplyTo() {
     from: myEmail,
     to: myEmail,
     subject: "testToFromWithReplyTo - To=From w/ Reply-To set",
-    clobberHeaders: { "Reply-To": "Flanders <flanders@example.com>" }
+    clobberHeaders: { "Reply-To": "Flanders <flanders@example.com>" },
   });
   add_message_to_folder(folder, msg0);
 

@@ -8,10 +8,12 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-right-click-middle-click-messages';
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers'];
+var MODULE_NAME = "test-right-click-middle-click-messages";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
 
@@ -23,9 +25,9 @@ var folder, threadedFolder;
 var NUM_MESSAGES_IN_THREAD = 6;
 
 function setupModule(module) {
-  let fdh = collector.getModule('folder-display-helpers');
+  let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let wh = collector.getModule('window-helpers');
+  let wh = collector.getModule("window-helpers");
   wh.installInto(module);
 
   folder = create_folder("RightClickMiddleClickA");
@@ -175,8 +177,7 @@ function _middle_click_with_nothing_selected_helper(aBackground) {
     assert_selected_tab(folderTab);
     // Now switch to the new tab and check
     switch_tab(tabMessage);
-  }
-  else {
+  } else {
     wait_for_message_display_completion();
   }
 
@@ -204,8 +205,7 @@ function _middle_click_with_one_thing_selected_helper(aBackground) {
     assert_selected_tab(folderTab);
     // Now switch to the new tab and check
     switch_tab(tabMessage);
-  }
-  else {
+  } else {
     wait_for_message_display_completion();
   }
 
@@ -235,8 +235,7 @@ function _middle_click_with_many_things_selected_helper(aBackground) {
     assert_selected_tab(folderTab);
     // Now switch to the new tab and check
     switch_tab(tabMessage);
-  }
-  else {
+  } else {
     wait_for_message_display_completion();
   }
 
@@ -264,8 +263,7 @@ function _middle_click_on_existing_single_selection_helper(aBackground) {
     assert_selected_tab(folderTab);
     // Now switch to the new tab and check
     switch_tab(tabMessage);
-  }
-  else {
+  } else {
     wait_for_message_display_completion();
   }
 
@@ -294,8 +292,7 @@ function _middle_click_on_existing_multi_selection_helper(aBackground) {
     assert_selected_tab(folderTab);
     // Now switch to the new tab and check
     switch_tab(tabMessage);
-  }
-  else {
+  } else {
     wait_for_message_display_completion();
   }
 
@@ -332,7 +329,7 @@ function _middle_click_on_collapsed_thread_root_helper(aBackground) {
 
   // Middle-click on the root of the collapsed thread, which is also the last
   // row
-  let [tabMessage, ] = middle_click_on_row(
+  let [tabMessage] = middle_click_on_row(
                            mc.folderDisplay.view.dbView.rowCount - 1);
 
   if (!aBackground) {
@@ -375,7 +372,7 @@ function _middle_click_on_expanded_thread_root_helper(aBackground) {
 
   // Middle-click on the root of the expanded thread, which is the row with
   // index (number of rows - number of messages in thread).
-  let [tabMessage, ] = middle_click_on_row(
+  let [tabMessage] = middle_click_on_row(
       mc.folderDisplay.view.dbView.rowCount - NUM_MESSAGES_IN_THREAD);
 
   if (!aBackground) {
@@ -421,7 +418,7 @@ _generate_background_foreground_tests([
   "middle_click_on_existing_single_selection",
   "middle_click_on_existing_multi_selection",
   "middle_click_on_collapsed_thread_root",
-  "middle_click_on_expanded_thread_root"
+  "middle_click_on_expanded_thread_root",
 ]);
 
 /**

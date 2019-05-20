@@ -9,8 +9,10 @@
 
 "use strict";
 
-var MODULE_NAME = "test-display-name";
+/* import-globals-from ../shared-modules/test-address-book-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 
+var MODULE_NAME = "test-display-name";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "address-book-helpers"];
 
@@ -180,7 +182,7 @@ function check_display_name(index, columnName, expectedName) {
 
   // Select the nth message
   be_in_folder(folder);
-  let curMessage = select_click_row(index);
+  select_click_row(index);
 
   let tree = mc.folderDisplay.tree;
   let cellText = tree.view.getCellText(index, tree.columns[columnIndex]);

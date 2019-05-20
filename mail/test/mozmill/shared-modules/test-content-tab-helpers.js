@@ -5,12 +5,8 @@
 "use strict";
 
 var MODULE_NAME = "content-tab-helpers";
-
 var RELATIVE_ROOT = "../shared-modules";
-// we need this for the main controller
-var MODULE_REQUIRES = ["folder-display-helpers",
-                         "window-helpers",
-                         "mock-object-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "mock-object-helpers"];
 
 var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
 var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
@@ -32,12 +28,12 @@ var mark_failure;
 var gMockExtProtSvcReg;
 
 function setupModule() {
-  folderDisplayHelper = collector.getModule('folder-display-helpers');
+  folderDisplayHelper = collector.getModule("folder-display-helpers");
   mc = folderDisplayHelper.mc;
   mark_failure = folderDisplayHelper.mark_failure;
 
-  wh = collector.getModule('window-helpers');
-  let moh = collector.getModule('mock-object-helpers');
+  wh = collector.getModule("window-helpers");
+  let moh = collector.getModule("mock-object-helpers");
   gMockExtProtSvcReg = new moh.MockObjectReplacer(EXT_PROTOCOL_SVC_CID,
                                                   MockExtProtConstructor);
 }
@@ -65,7 +61,6 @@ function installInto(module) {
   module.NotificationWatcher = NotificationWatcher;
   module.get_notification_bar_for_tab = get_notification_bar_for_tab;
   module.get_test_plugin = get_test_plugin;
-  module.plugins_run_in_separate_processes = plugins_run_in_separate_processes;
   module.updateBlocklist = updateBlocklist;
   module.setAndUpdateBlocklist = setAndUpdateBlocklist;
   module.resetBlocklist = resetBlocklist;
@@ -81,32 +76,32 @@ var gMockExtProtSvc = {
   _loadedURLs: [],
   QueryInterface: ChromeUtils.generateQI([Ci.nsIExternalProtocolService]),
 
-  externalProtocolHandlerExists: function(aProtocolScheme) {
+  externalProtocolHandlerExists(aProtocolScheme) {
   },
 
-  getApplicationDescription: function(aScheme) {
+  getApplicationDescription(aScheme) {
   },
 
-  getProtocolHandlerInfo: function(aProtocolScheme) {
+  getProtocolHandlerInfo(aProtocolScheme) {
   },
 
-  getProtocolHandlerInfoFromOS: function(aProtocolScheme, aFound) {
+  getProtocolHandlerInfoFromOS(aProtocolScheme, aFound) {
   },
 
-  isExposedProtocol: function(aProtocolScheme) {
+  isExposedProtocol(aProtocolScheme) {
   },
 
-  loadURI: function(aURI, aWindowContext) {
+  loadURI(aURI, aWindowContext) {
     this._loadedURLs.push(aURI.spec);
   },
 
-  setProtocolHandlerDefaults: function(aHandlerInfo, aOSHandlerExists) {
+  setProtocolHandlerDefaults(aHandlerInfo, aOSHandlerExists) {
   },
 
-  urlLoaded: function(aURL) {
+  urlLoaded(aURL) {
     return this._loadedURLs.includes(aURL);
   },
-}
+};
 
 function MockExtProtConstructor() {
   return gMockExtProtSvc;
@@ -120,12 +115,12 @@ function MockExtProtConstructor() {
 var ALERT_TIMEOUT = 10000;
 
 var NotificationWatcher = {
-  planForNotification: function(aController) {
+  planForNotification(aController) {
     this.alerted = false;
     aController.window.document.addEventListener("AlertActive",
                                                  this.alertActive);
   },
-  waitForNotification: function(aController) {
+  waitForNotification(aController) {
     if (!this.alerted) {
       aController.waitFor(() => this.alerted, "Timeout waiting for alert",
                           ALERT_TIMEOUT, 100);
@@ -142,9 +137,9 @@ var NotificationWatcher = {
                                                     this.alertActive);
   },
   alerted: false,
-  alertActive: function() {
+  alertActive() {
     NotificationWatcher.alerted = true;
-  }
+  },
 };
 
 /**
@@ -166,9 +161,11 @@ function open_content_tab_with_url(aURL, aClickHandler, aBackground, aController
     aController = mc;
 
   let preCount = mc.tabmail.tabContainer.childNodes.length;
-  let newTab = mc.tabmail.openTab("contentTab", {contentPage: aURL,
-                                                 background: aBackground,
-                                                 clickHandler: aClickHandler});
+  mc.tabmail.openTab("contentTab", {
+    contentPage: aURL,
+    background: aBackground,
+    clickHandler: aClickHandler,
+  });
   utils.waitFor(() => (
                   aController.tabmail.tabContainer.childNodes.length == preCount + 1),
                 "Timeout waiting for the content tab to open with URL: " + aURL,
@@ -434,35 +431,6 @@ function get_test_plugin() {
       return tags[i];
   }
   return null;
-}
-
-/* Returns true if we're currently set up to run plugins in separate
- * processes, false otherwise.
- */
-function plugins_run_in_separate_processes(aController) {
-  let supportsOOPP = false;
-
-  if (aController.mozmillModule.isMac) {
-    if (Services.appinfo.XPCOMABI.includes("x86-")) {
-      try {
-        supportsOOPP = Services.prefs.getBoolPref("dom.ipc.plugins.enabled.i386.test.plugin");
-      } catch(e) {
-        supportsOOPP = Services.prefs.getBoolPref("dom.ipc.plugins.enabled.i386");
-      }
-    }
-    else if (Services.appinfo.XPCOMABI.includes("x86_64-")) {
-      try {
-        supportsOOPP = Services.prefs.getBoolPref("dom.ipc.plugins.enabled.x86_64.test.plugin");
-      } catch(e) {
-        supportsOOPP = Services.prefs.getBoolPref("dom.ipc.plugins.enabled.x86_64");
-      }
-    }
-  }
-  else {
-    supportsOOPP = Services.prefs.getBoolPref("dom.ipc.plugins.enabled");
-  }
-
-  return supportsOOPP;
 }
 
 function updateBlocklist(aController, aCallback) {

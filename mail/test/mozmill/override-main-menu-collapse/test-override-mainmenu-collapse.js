@@ -10,10 +10,12 @@
 
 "use strict";
 
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
+
 var MODULE_NAME = "test-override-mainmenu-collapse";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers",
-                       "window-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
@@ -27,11 +29,11 @@ function test_main_menu_not_collapsed() {
   // is complete before running this test.
   let done = false;
   let observer = {
-    observe: function(aSubject, aTopic, aData) {
+    observe(aSubject, aTopic, aData) {
       if (aTopic == "mail-startup-done") {
         done = true;
       }
-    }
+    },
   };
   Services.obs.addObserver(observer, "mail-startup-done");
 

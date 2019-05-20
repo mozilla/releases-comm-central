@@ -6,9 +6,6 @@
 
 var MODULE_NAME = "notificationbox-helpers";
 
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [];
-
 function installInto(module) {
   module.check_notification_displayed = check_notification_displayed;
   module.assert_notification_displayed = assert_notification_displayed;
@@ -37,7 +34,7 @@ function check_notification_displayed(aController, aBoxId, aValue, aNotification
     throw new Error("Couldn't find a notification box for id=" + aBoxId);
 
   if (nb.querySelector(".notificationbox-stack")) {
-    let box = nb.querySelector(".notificationbox-stack")._notificationBox
+    let box = nb.querySelector(".notificationbox-stack")._notificationBox;
     let notification = box.getNotificationWithValue(aValue);
     if (aNotification) {
       aNotification.notification = notification;
@@ -84,7 +81,7 @@ function close_notification(aController, aBoxId, aValue) {
   if (!nb)
     throw new Error("Couldn't find a notification box for id=" + aBoxId);
 
-  let box = nb.querySelector(".notificationbox-stack")._notificationBox
+  let box = nb.querySelector(".notificationbox-stack")._notificationBox;
   let notification = box.getNotificationWithValue(aValue);
   if (notification)
     notification.close();
@@ -103,7 +100,7 @@ function wait_for_notification_to_stop(aController, aBoxId, aValue) {
   if (!nb)
     throw new Error("Couldn't find a notification box for id=" + aBoxId);
 
-  let box = nb.querySelector(".notificationbox-stack")._notificationBox
+  let box = nb.querySelector(".notificationbox-stack")._notificationBox;
   aController.waitFor(() => !box.getNotificationWithValue(aValue),
                       "Timed out waiting for notification with value " +
                       aValue + " to stop.");
@@ -125,9 +122,10 @@ function wait_for_notification_to_show(aController, aBoxId, aValue) {
 
   function nbReady() {
     if (nb.querySelector(".notificationbox-stack")) {
-      let box = nb.querySelector(".notificationbox-stack")._notificationBox
+      let box = nb.querySelector(".notificationbox-stack")._notificationBox;
       return (box.getNotificationWithValue(aValue) != null) && !box._animating;
     }
+    return false;
   }
   aController.waitFor(nbReady,
                       "Timed out waiting for notification with value " +
@@ -151,7 +149,7 @@ function get_notification_button(aController, aBoxId, aValue, aMatch) {
   if (!nb)
     throw new Error("Couldn't find a notification box for id=" + aBoxId);
 
-  let box = nb.querySelector(".notificationbox-stack")._notificationBox
+  let box = nb.querySelector(".notificationbox-stack")._notificationBox;
   let notification = box.getNotificationWithValue(aValue);
   let buttons = notification.querySelectorAll("button");
   for (let button of buttons) {

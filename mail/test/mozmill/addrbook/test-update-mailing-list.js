@@ -9,17 +9,18 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-update-mailing-list';
+/* import-globals-from ../shared-modules/test-address-book-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['address-book-helpers',
-                       'folder-display-helpers',];
+var MODULE_NAME = "test-update-mailing-list";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["address-book-helpers", "folder-display-helpers"];
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 function setupModule(module) {
-  collector.getModule('folder-display-helpers').installInto(module);
-  collector.getModule('address-book-helpers').installInto(module);
+  collector.getModule("folder-display-helpers").installInto(module);
+  collector.getModule("address-book-helpers").installInto(module);
 }
 
 function test_contact_in_mailing_list_updated() {
@@ -43,7 +44,7 @@ function test_contact_in_mailing_list_updated() {
   // Open the address book, select our contact...
   let abw = open_address_book_window(mc);
   select_address_book(ab);
-  select_contact(contact);
+  select_contacts(contact);
 
   // Change the primary email address of the contact...
   edit_selected_contact(abw, function(ecw) {

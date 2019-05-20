@@ -4,10 +4,12 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-junk-commands';
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-junk-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'junk-helpers'];
+var MODULE_NAME = "test-junk-commands";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "junk-helpers"];
 
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
@@ -15,9 +17,9 @@ var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 var folder = null;
 
 function setupModule(module) {
-  let fdh = collector.getModule('folder-display-helpers');
+  let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let jh = collector.getModule('junk-helpers');
+  let jh = collector.getModule("junk-helpers");
   jh.installInto(module);
 
   folder = create_folder("JunkCommandsA");

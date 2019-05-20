@@ -10,7 +10,6 @@
 "use strict";
 
 var MODULE_NAME = "pref-window-helpers";
-
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "content-tab-helpers"];
 
@@ -40,7 +39,7 @@ function installInto(module) {
  *     mail/components/preferences/aboutPreferences.xul for valid IDs.)
  */
 function open_pref_tab(aPaneID) {
-  let tab = cth.open_content_tab_with_click(function() { fdh.mc.window.openOptionsDialog(aPaneID) },
+  let tab = cth.open_content_tab_with_click(function() { fdh.mc.window.openOptionsDialog(aPaneID); },
                                             "about:preferences", fdh.mc, "preferencesTab");
   utils.waitFor(() => tab.browser.contentWindow.getCurrentPaneID() == aPaneID,
                 "Timed out waiting for prefpane " + aPaneID + " to load.");

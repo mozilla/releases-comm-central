@@ -6,8 +6,6 @@
  * Tests that the signature updates properly when switching identities.
  */
 
-// make SOLO_TEST=composition/test-signature-updating.js mozmill-one
-
 // mail.identity.id1.htmlSigFormat = false
 // mail.identity.id1.htmlSigText   = "Tinderbox is soo 90ies"
 
@@ -16,15 +14,19 @@
 
 "use strict";
 
-var MODULE_NAME = "test-signature-updating";
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-signature-updating";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
+
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var cwc = null; // compose window controller
 
-var setupModule = function (module) {
+function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
     collector.getModule(lib).installInto(module);
   }
@@ -34,7 +36,7 @@ var setupModule = function (module) {
   let server = MailServices.accounts.FindServer("tinderbox", FAKE_SERVER_HOSTNAME, "pop3");
   let inbox = get_special_folder(Ci.nsMsgFolderFlags.Inbox, false, server);
   be_in_folder(inbox);
-};
+}
 
 function teardownModule(module) {
   Services.prefs.clearUserPref("mail.compose.default_to_paragraph");

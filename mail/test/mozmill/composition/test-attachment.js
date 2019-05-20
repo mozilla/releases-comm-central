@@ -8,13 +8,15 @@
 
 "use strict";
 
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
+
+var MODULE_NAME = "test-attachment";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
+
 var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
-
-var MODULE_NAME = 'test-attachment';
-
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'compose-helpers',
-                       'window-helpers'];
 
 var messenger;
 var folder;
@@ -32,10 +34,10 @@ var rawAttachment =
   "only seconds away. Avoid prolonged use.";
 
 var b64Attachment =
-  'iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABHNCSVQICAgIfAhkiAAAAAlwS' +
-  'FlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAA' +
-  'A5SURBVCiRY/z//z8DKYCJJNXkaGBgYGD4D8NQ5zUgiTVAxeBqSLaBkVRPM0KtIhrQ3km0jwe' +
-  'SNQAAlmAY+71EgFoAAAAASUVORK5CYII=';
+  "iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABHNCSVQICAgIfAhkiAAAAAlwS" +
+  "FlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAA" +
+  "A5SURBVCiRY/z//z8DKYCJJNXkaGBgYGD4D8NQ5zUgiTVAxeBqSLaBkVRPM0KtIhrQ3km0jwe" +
+  "SNQAAlmAY+71EgFoAAAAASUVORK5CYII=";
 var b64Size = 188;
 
 function setupModule(module) {
@@ -43,12 +45,12 @@ function setupModule(module) {
     collector.getModule(lib).installInto(module);
   }
 
-  folder = create_folder('ComposeAttachmentA');
+  folder = create_folder("ComposeAttachmentA");
 
-  messenger = Cc['@mozilla.org/messenger;1']
+  messenger = Cc["@mozilla.org/messenger;1"]
                 .createInstance(Ci.nsIMessenger);
 
-  isWindows = '@mozilla.org/windows-registry-key;1' in Cc;
+  isWindows = "@mozilla.org/windows-registry-key;1" in Cc;
 
   /* Today's gory details (thanks to Jonathan Protzenko): libmime somehow
    * counts the trailing newline for an attachment MIME part. Most of the time,
@@ -59,7 +61,7 @@ function setupModule(module) {
    * forwarded message data here, the bonus byte(s) appear twice.
    */
   epsilon = isWindows ? 4 : 2;
-  filePrefix = isWindows ? 'file:///C:/' : 'file:///';
+  filePrefix = isWindows ? "file:///C:/" : "file:///";
 
   // create some messages that have various types of attachments
   let messages = [
@@ -67,17 +69,17 @@ function setupModule(module) {
     {},
     // raw attachment
     { attachments: [{ body: rawAttachment,
-                      filename: 'ubik.txt',
-                      format: '' }]},
+                      filename: "ubik.txt",
+                      format: "" }]},
     // b64-encoded image attachment
     { attachments: [{ body: b64Attachment,
-                      contentType: 'image/png',
-                      filename: 'lines.png',
-                      encoding: 'base64',
-                      format: '' }]},
+                      contentType: "image/png",
+                      filename: "lines.png",
+                      encoding: "base64",
+                      format: "" }]},
     ];
 
-  for (let i=0; i<messages.length; i++) {
+  for (let i = 0; i < messages.length; i++) {
     add_message_to_folder(folder, create_message(messages[i]));
   }
 }
@@ -89,21 +91,21 @@ function setupModule(module) {
  * @param expectedSize the expected size of the attachment, in bytes
  */
 function check_attachment_size(controller, index, expectedSize) {
-  let bucket = controller.e('attachmentBucket');
+  let bucket = controller.e("attachmentBucket");
   let node = bucket.querySelectorAll("richlistitem.attachmentItem")[index];
 
   // First, let's check that the attachment size is correct
   let size = node.attachment.size;
   if (Math.abs(size - expectedSize) > epsilon)
-    throw new Error('Reported attachment size ('+size+') not within epsilon ' +
-                    'of actual attachment size ('+expectedSize+')');
+    throw new Error("Reported attachment size (" + size + ") not within epsilon " +
+                    "of actual attachment size (" + expectedSize + ")");
 
   // Next, make sure that the formatted size in the label is correct
-  let formattedSize = node.getAttribute('size');
+  let formattedSize = node.getAttribute("size");
   let expectedFormattedSize = messenger.formatFileSize(size);
   if (formattedSize != expectedFormattedSize)
-    throw new Error('Formatted attachment size ('+formattedSize+') does not ' +
-                    'match expected value ('+expectedFormattedSize+')');
+    throw new Error("Formatted attachment size (" + formattedSize + ") does not " +
+                    "match expected value (" + expectedFormattedSize + ")");
 }
 
 /**
@@ -112,15 +114,15 @@ function check_attachment_size(controller, index, expectedSize) {
  * @param index the attachment to examine, as an index into the listbox
  */
 function check_no_attachment_size(controller, index) {
-  let bucket = controller.e('attachmentBucket');
+  let bucket = controller.e("attachmentBucket");
   let node = bucket.querySelectorAll("richlistitem.attachmentItem")[index];
 
   if (node.attachment.size != -1)
-    throw new Error('attachment.size attribute should be -1!');
+    throw new Error("attachment.size attribute should be -1!");
 
   // If there's no size, the size attribute is the zero-width space.
-  if (node.getAttribute('size') != '\u200b')
-    throw new Error('Attachment size should not be displayed!');
+  if (node.getAttribute("size") != "\u200b")
+    throw new Error("Attachment size should not be displayed!");
 }
 
 /**
@@ -134,7 +136,7 @@ function check_total_attachment_size(controller, count) {
   let sizeNode = controller.e("attachmentBucketSize");
 
   if (nodes.length != count)
-    throw new Error("Saw "+nodes.length+" attachments, but expected "+count);
+    throw new Error("Saw " + nodes.length + " attachments, but expected " + count);
 
   let size = 0;
   for (let i = 0; i < nodes.length; i++) {
@@ -147,8 +149,8 @@ function check_total_attachment_size(controller, count) {
   let formattedSize = sizeNode.getAttribute("value");
   let expectedFormattedSize = messenger.formatFileSize(size);
   if (formattedSize != expectedFormattedSize)
-    throw new Error("Formatted attachment size ("+formattedSize+") does not " +
-                    "match expected value ("+expectedFormattedSize+")");
+    throw new Error("Formatted attachment size (" + formattedSize + ") does not " +
+                    "match expected value (" + expectedFormattedSize + ")");
 }
 
 function test_file_attachment() {
@@ -157,7 +159,7 @@ function test_file_attachment() {
   let url = filePrefix + "some/file/here.txt";
   let size = 1234;
 
-  add_attachment(cwc, url, size);
+  add_attachments(cwc, url, size);
   check_attachment_size(cwc, 0, size);
   check_total_attachment_size(cwc, 1);
 
@@ -167,7 +169,7 @@ function test_file_attachment() {
 function test_webpage_attachment() {
   let cwc = open_compose_new_mail();
 
-  add_attachment(cwc, "http://www.mozilla.org/");
+  add_attachments(cwc, "http://www.mozilla.org/");
   check_no_attachment_size(cwc, 0);
   check_total_attachment_size(cwc, 1);
 
@@ -181,7 +183,7 @@ function test_multiple_attachments() {
                {name: "bar.txt", size: 5678},
                {name: "baz.txt", size: 9012}];
   for (let i = 0; i < files.length; i++) {
-    add_attachment(cwc, filePrefix+files[i].name, files[i].size);
+    add_attachments(cwc, filePrefix + files[i].name, files[i].size);
     check_attachment_size(cwc, i, files[i].size);
   }
 
@@ -196,19 +198,19 @@ function test_delete_attachments() {
                {name: "bar.txt", size: 5678},
                {name: "baz.txt", size: 9012}];
   for (let i = 0; i < files.length; i++) {
-    add_attachment(cwc, filePrefix+files[i].name, files[i].size);
+    add_attachments(cwc, filePrefix + files[i].name, files[i].size);
     check_attachment_size(cwc, i, files[i].size);
   }
 
   delete_attachment(cwc, 0);
-  check_total_attachment_size(cwc, files.length-1);
+  check_total_attachment_size(cwc, files.length - 1);
 
   close_compose_window(cwc);
 }
 
 function subtest_rename_attachment(cwc) {
   cwc.e("loginTextbox").value = "renamed.txt";
-  cwc.window.document.documentElement.getButton('accept').doCommand();
+  cwc.window.document.documentElement.getButton("accept").doCommand();
 }
 
 function test_rename_attachment() {
@@ -217,7 +219,7 @@ function test_rename_attachment() {
   let url = filePrefix + "some/file/here.txt";
   let size = 1234;
 
-  add_attachment(cwc, url, size);
+  add_attachments(cwc, url, size);
 
   // Now, rename the attachment.
   let bucket = cwc.e("attachmentBucket");
@@ -250,7 +252,7 @@ function test_open_attachment() {
   let url = fileHandler.getURLSpecFromFile(file);
   let size = file.fileSize;
 
-  add_attachment(cwc, url, size);
+  add_attachments(cwc, url, size);
 
   // Now, open the attachment.
   let bucket = cwc.e("attachmentBucket");
@@ -264,7 +266,7 @@ function test_open_attachment() {
 
 function test_forward_raw_attachment() {
   be_in_folder(folder);
-  let curMessage = select_click_row(1);
+  select_click_row(1);
 
   let cwc = open_compose_with_forward();
   check_attachment_size(cwc, 0, rawAttachment.length);
@@ -275,7 +277,7 @@ function test_forward_raw_attachment() {
 
 function test_forward_b64_attachment() {
   be_in_folder(folder);
-  let curMessage = select_click_row(2);
+  select_click_row(2);
 
   let cwc = open_compose_with_forward();
   check_attachment_size(cwc, 0, b64Size);
@@ -334,7 +336,6 @@ function check_attachment_names(aController, aNames) {
  */
 function subtest_reordering_panel_keyboard(aCwc, aActions) {
   let panel = aCwc.e("reorderAttachmentsPanel");
-  let bucket = aCwc.e("attachmentBucket");
 
   for (let action of aActions) {
     aCwc.keypress(new elib.Elem(action.focusEl),
@@ -375,7 +376,7 @@ function subtest_reordering(aCwc, aInitialAttachmentNames,
   // Create a set of attachments for the test.
   const size = 1234;
   for (let name of aInitialAttachmentNames) {
-    add_attachment(aCwc, filePrefix + name, size);
+    add_attachments(aCwc, filePrefix + name, size);
   }
   aCwc.sleep(0);
   assert_equals(aCwc.window.attachmentsCount(), aInitialAttachmentNames.length);
@@ -426,9 +427,9 @@ function test_attachment_reordering() {
   let editorEl = cwc.window.GetCurrentEditorElement();
   let bucket = cwc.e("attachmentBucket");
   let panel = cwc.e("reorderAttachmentsPanel");
-  const openReorderPanelModifiers =
-    (AppConstants.platform == "macosx") ? { controlKey: true }
-                                        : { altKey: true };
+  // const openReorderPanelModifiers =
+  //   (AppConstants.platform == "macosx") ? { controlKey: true }
+  //                                       : { altKey: true };
 
   // First, some checks if the 'Reorder Attachments' panel
   // opens and closes correctly.
@@ -437,7 +438,7 @@ function test_attachment_reordering() {
   const size = 1234;
   const initialAttachmentNames_0 = ["A1", "A2"];
   for (let name of initialAttachmentNames_0) {
-    add_attachment(cwc, filePrefix + name, size);
+    add_attachments(cwc, filePrefix + name, size);
     cwc.sleep(0);
   }
   assert_equals(cwc.window.attachmentsCount(), initialAttachmentNames_0.length);
@@ -456,14 +457,14 @@ function test_attachment_reordering() {
 
   // Show 'Reorder Attachments' panel via keyboard.
   // key_reorderAttachments, Bug 1427037
-  const openPanelActions = [
-    { focusEl: editorEl,
-      key: "x",
-      key_modifiers: openReorderPanelModifiers },
-    { focusEl: bucket,
-      key: "x",
-      key_modifiers: openReorderPanelModifiers }
-  ];
+  // const openPanelActions = [
+  //   { focusEl: editorEl,
+  //     key: "x",
+  //     key_modifiers: openReorderPanelModifiers },
+  //   { focusEl: bucket,
+  //     key: "x",
+  //     key_modifiers: openReorderPanelModifiers },
+  // ];
 
   // XXX this doesn't work on any platform yet, ESC doesn't close the panel.
   // Execute test of opening 'Reorder Attachments' panel via keyboard.
@@ -497,7 +498,7 @@ function test_attachment_reordering() {
     // Bug 1417856
     { select: [2],
       button: "btn_sortAttachmentsToggle",
-      result: ["a", "b", "B", "bb", "C", "x"] }
+      result: ["a", "b", "B", "bb", "C", "x"] },
   ];
 
   // Check 2: basic and advanced, mouse-only.
@@ -595,7 +596,7 @@ function test_attachment_reordering() {
       result: ["x", "bb", "B", "a", "z", "y2", "y1", "C", "b"] },
     { select: [0, 2, 3, 7],
       button: "btn_moveAttachmentBottom",
-      result: ["bb", "z", "y2", "y1", "b", "x", "B", "a", "C"] }
+      result: ["bb", "z", "y2", "y1", "b", "x", "B", "a", "C"] },
   ];
 
   // Check 3: basic and advanced, keyboard-only.
@@ -733,7 +734,7 @@ function test_attachment_reordering() {
       // key_moveAttachmentTop2 (secondary shortcut on MAC, same as Win primary)
       key:    "VK_HOME",
       key_modifiers: modAlt,
-      result: ["a", "b", "C", "bb", "B", "x", "y1", "y2", "z"] }
+      result: ["a", "b", "C", "bb", "B", "x", "y1", "y2", "z"] },
   ];
 
   // Check 4: Alt+Y keyboard shortcut for sorting (Bug 1425891).
@@ -744,7 +745,7 @@ function test_attachment_reordering() {
       // key_sortAttachmentsToggle
       key:    "y",
       key_modifiers: modAlt,
-      result: ["a", "b", "B", "bb", "C", "x", "y1", "y2", "z"] }
+      result: ["a", "b", "B", "bb", "C", "x", "y1", "y2", "z"] },
   ];
 
   // Execute the tests of reordering actions as defined above.

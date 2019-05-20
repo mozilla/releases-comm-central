@@ -4,11 +4,19 @@
 
 "use strict";
 
-var MODULE_NAME = "test-ab-whitelist";
+/* import-globals-from ../shared-modules/test-account-manager-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-keyboard-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-ab-whitelist";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
-                       "account-manager-helpers", "keyboard-helpers" ];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "account-manager-helpers",
+  "keyboard-helpers",
+];
 
 var mozmill = ChromeUtils.import("chrome://mozmill/content/modules/mozmill.jsm");
 var controller = ChromeUtils.import("chrome://mozmill/content/modules/controller.jsm");
@@ -113,7 +121,7 @@ function subtest_check_whitelist_load_cleared(amc) {
     // out.
     throw Error("The whitelist preference for this server wasn't properly "
                 + "cleared.");
-  } catch(e) {
+  } catch (e) {
   }
 
   for (let i = 0; i < list.getRowCount(); i++) {

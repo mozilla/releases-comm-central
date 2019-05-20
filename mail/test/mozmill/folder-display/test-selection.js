@@ -4,16 +4,17 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-selection';
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers'];
+var MODULE_NAME = "test-selection";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers"];
 
 // let us have 2 folders
 var folder = null, folder2 = null;
 
 var setupModule = function(module) {
-  let fdh = collector.getModule('folder-display-helpers');
+  let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
 
   folder = create_folder("SelectionA");
@@ -98,13 +99,13 @@ function test_selection_persists_through_folder_tab_changes() {
   switch_tab(tab1);
   assert_selected_and_displayed(2);
   select_shift_click_row(4); // 2-4 selected
-  assert_selected_and_displayed([2,4]); // ensures multi-message summary
+  assert_selected_and_displayed([2, 4]); // ensures multi-message summary
 
   switch_tab(tab2);
   assert_selected_and_displayed(3);
 
   close_tab(tab2);
-  assert_selected_and_displayed([2,4]);
+  assert_selected_and_displayed([2, 4]);
 }
 
 // https://bugzilla.mozilla.org/show_bug.cgi?id=474701#c87
@@ -119,7 +120,7 @@ function test_enter_scroll_to_new() {
   // leave the folder so that the messages get marked as read
   enter_folder(folder.rootFolder);
   // add a new message, and make sure it is new
-  let newSet = make_new_sets_in_folder(folder, [{count: 1}]);
+  make_new_sets_in_folder(folder, [{count: 1}]);
   // enter the folder
   enter_folder(folder);
   // make sure it (which must be the last row) is visible

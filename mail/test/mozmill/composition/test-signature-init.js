@@ -9,21 +9,23 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-signature-init';
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['compose-helpers',
-                         'folder-display-helpers'];
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 
-var kHtmlPref = 'mail.identity.default.compose_html';
-var kReplyOnTopPref = 'mail.identity.default.reply_on_top';
+var MODULE_NAME = "test-signature-init";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["compose-helpers", "folder-display-helpers"];
+
+var kHtmlPref = "mail.identity.default.compose_html";
+var kReplyOnTopPref = "mail.identity.default.reply_on_top";
 var kReplyOnTop = 1;
-var kSigBottomPref = 'mail.identity.default.sig_bottom';
+var kSigBottomPref = "mail.identity.default.sig_bottom";
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function setupModule(module) {
-  collector.getModule('folder-display-helpers').installInto(module);
-  collector.getModule('compose-helpers').installInto(module);
+  collector.getModule("folder-display-helpers").installInto(module);
+  collector.getModule("compose-helpers").installInto(module);
 }
 
 /**
@@ -45,8 +47,8 @@ function test_on_reply_above_signature_below_reply() {
   let mailBody = get_compose_body(cw);
 
   let node = mailBody.firstChild;
-  assert_equals(node.localName, 'br',
-                'Expected a BR node to start the compose body.');
+  assert_equals(node.localName, "br",
+                "Expected a BR node to start the compose body.");
 
   Services.prefs.setBoolPref(kHtmlPref, origHtml);
   Services.prefs.setIntPref(kReplyOnTopPref, origReplyOnTop);

@@ -5,7 +5,6 @@
 "use strict";
 
 var MODULE_NAME = "cloudfile-backend-helpers";
-
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["window-helpers"];
 

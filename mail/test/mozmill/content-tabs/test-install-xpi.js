@@ -4,11 +4,13 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-install-xpi';
+/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['window-helpers', 'folder-display-helpers',
-                       'content-tab-helpers'];
+var MODULE_NAME = "test-install-xpi";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["window-helpers", "folder-display-helpers", "content-tab-helpers"];
 
 var controller = ChromeUtils.import("chrome://mozmill/content/modules/controller.jsm");
 var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
@@ -17,23 +19,23 @@ var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
 // so we get the right path for the resources.
-var url = collector.addHttpResource('../content-tabs/html', 'content-tabs');
+var url = collector.addHttpResource("../content-tabs/html", "content-tabs");
 
 var gDocument;
 var gNewTab;
 
-var setupModule = function (module) {
-  let wh = collector.getModule('window-helpers');
+function setupModule(module) {
+  let wh = collector.getModule("window-helpers");
   wh.installInto(module);
-  let fdh = collector.getModule('folder-display-helpers');
+  let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let cth = collector.getModule('content-tab-helpers');
+  let cth = collector.getModule("content-tab-helpers");
   cth.installInto(module);
 
   gDocument = mc.window.document;
   gNewTab = open_content_tab_with_url(url + "installxpi.html",
       "specialTabs.siteClickHandler(event, new RegExp('^" + url + "'));");
-};
+}
 
 var teardownModule = function(module) {
   mc.tabmail.closeTab(gNewTab);

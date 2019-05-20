@@ -19,18 +19,20 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-summarization';
+/* import-globals-from ../shared-modules/test-address-book-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'address-book-helpers'];
+var MODULE_NAME = "test-summarization";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "address-book-helpers"];
 
 var folder;
 var thread1, thread2, msg1, msg2;
 
 var setupModule = function(module) {
-  let fdh = collector.getModule('folder-display-helpers');
+  let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let abh = collector.getModule('address-book-helpers');
+  let abh = collector.getModule("address-book-helpers");
   abh.installInto(module);
 
   folder = create_folder("SummarizationA");
@@ -179,17 +181,17 @@ function test_summarization_thread_detection() {
   toggle_thread_row(0);
   assert_messages_summarized(mc, messages);
   // count the number of messages represented
-  assert_summary_contains_N_elts('#message_list > li', 10);
+  assert_summary_contains_N_elts("#message_list > li", 10);
   select_shift_click_row(1);
   // this should have shifted to the multi-message view
-  assert_summary_contains_N_elts('.item_header > .date', 0);
-  assert_summary_contains_N_elts('.item_header > .subject', 2);
+  assert_summary_contains_N_elts(".item_header > .date", 0);
+  assert_summary_contains_N_elts(".item_header > .subject", 2);
   select_none();
   assert_nothing_selected();
   select_click_row(1); // select a single message
   select_shift_click_row(2); // add a thread
-  assert_summary_contains_N_elts('.item_header > .date', 0);
-  assert_summary_contains_N_elts('.item_header > .subject', 2);
+  assert_summary_contains_N_elts(".item_header > .date", 0);
+  assert_summary_contains_N_elts(".item_header > .subject", 2);
 }
 
 /**
@@ -216,8 +218,7 @@ function test_new_thread_that_was_not_summarized_expands() {
   assert_selected_and_displayed(willNotMoveMsg);
 
   // give it a friend...
-  let [extraNonMoveMsg] = make_new_sets_in_folders(
-    [folder], [{count: 1, inReplyTo: willNotMoveMsg}]);
+  make_new_sets_in_folders([folder], [{count: 1, inReplyTo: willNotMoveMsg}]);
   assert_expanded(willNotMoveMsg);
   assert_selected_and_displayed(willNotMoveMsg);
 
@@ -226,8 +227,7 @@ function test_new_thread_that_was_not_summarized_expands() {
   assert_selected_and_displayed(willMoveMsg);
 
   // give it a friend...
-  let [extraMoveMsg] = make_new_sets_in_folders(
-    [folder], [{count: 1, inReplyTo: willMoveMsg}]);
+  make_new_sets_in_folders([folder], [{count: 1, inReplyTo: willMoveMsg}]);
   assert_expanded(willMoveMsg);
   assert_selected_and_displayed(willMoveMsg);
 }
@@ -267,7 +267,7 @@ function test_summary_when_multiple_identities() {
 
   let folder2 = create_folder("Search2");
   be_in_folder(folder2);
-  make_new_sets_in_folders([folder2], [{count: 1, inReplyTo: thread1}])
+  make_new_sets_in_folders([folder2], [{count: 1, inReplyTo: thread1}]);
 
   let folderVirtual = create_virtual_folder([folder1, folder2], {}, true, "SearchBoth");
 
@@ -294,8 +294,8 @@ function test_summary_when_multiple_identities() {
   select_click_row(0);
   assert_messages_summarized(mc, mc.folderDisplay.selectedMessages);
   // Thread summary shows a date, while multimessage summary shows a subject.
-  assert_summary_contains_N_elts('.item_header > .subject', 0);
-  assert_summary_contains_N_elts('.item_header > .date', 2);
+  assert_summary_contains_N_elts(".item_header > .subject", 0);
+  assert_summary_contains_N_elts(".item_header > .date", 2);
 
   // Second half of the test, makes sure MultiMessageSummary groups messages
   // according to their view thread id
@@ -304,15 +304,14 @@ function test_summary_when_multiple_identities() {
   be_in_folder(folderVirtual);
   select_shift_click_row(1);
 
-  assert_summary_contains_N_elts('.item_header > .subject', 2);
+  assert_summary_contains_N_elts(".item_header > .subject", 2);
 }
 
-function extract_first_address(thread)
-{
+function extract_first_address(thread) {
   let addresses = {};
   let fullNames = {};
   let names = {};
-  let numAddresses = MailServices.headerParser.parseHeadersWithArray(
+  MailServices.headerParser.parseHeadersWithArray(
     thread1.getMsgHdr(0).mime2DecodedAuthor,
     addresses, names, fullNames);
 
@@ -320,15 +319,14 @@ function extract_first_address(thread)
 }
 
 function check_address_name(name) {
-  let htmlframe = mc.e('multimessage');
-  let match = htmlframe.contentDocument.querySelector('.author');
+  let htmlframe = mc.e("multimessage");
+  let match = htmlframe.contentDocument.querySelector(".author");
   if (match.textContent != name)
     throw new Error("Expected to find sender named '" + name + "', found '" +
                     match.textContent + "'");
 }
 
-function test_display_name_no_abook()
-{
+function test_display_name_no_abook() {
   be_in_folder(folder);
 
   let address = extract_first_address(thread1);
@@ -341,8 +339,7 @@ function test_display_name_no_abook()
   check_address_name(address.name + " <" + address.email + ">");
 }
 
-function test_display_name_abook()
-{
+function test_display_name_abook() {
   be_in_folder(folder);
 
   let address = extract_first_address(thread1);
@@ -354,8 +351,7 @@ function test_display_name_abook()
   check_address_name("My Friend");
 }
 
-function test_display_name_abook_no_pdn()
-{
+function test_display_name_abook_no_pdn() {
   be_in_folder(folder);
 
   let address = extract_first_address(thread1);

@@ -12,11 +12,19 @@
 
 "use strict";
 
-var MODULE_NAME = "test-font-chooser";
+/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-pref-window-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-font-chooser";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
-                       "pref-window-helpers", "content-tab-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "pref-window-helpers",
+  "content-tab-helpers",
+];
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
@@ -113,22 +121,21 @@ function _verify_fonts_displayed(aDefaults, aSerif, aSansSerif, aMonospace) {
     assert_fonts_equal("serif", aSerif, fontc.e("serif").value);
     assert_fonts_equal("sans-serif", aSansSerif, fontc.e("sans-serif").value);
     assert_fonts_equal("monospace", aMonospace, fontc.e("monospace").value);
-  } else {
+  } else if (AppConstants.platform == "linux") {
     // When default fonts are displayed in the menulist, there is no value set,
     // only the label, in the form "Default (font name)".
-    if (AppConstants.platform == "linux") {
-      // On Linux the prefs we set contained only the generic font names,
-      // like 'serif', but here a specific font name will be shown, but it is
-      // system-dependent what it will be. So we just check for the 'Default'
-      // prefix.
-      assert_fonts_equal("serif", `Default (`, fontc.e("serif").label, true);
-      assert_fonts_equal("sans-serif", `Default (`, fontc.e("sans-serif").label, true);
-      assert_fonts_equal("monospace", `Default (`, fontc.e("monospace").label, true);
-    } else {
-      assert_fonts_equal("serif", `Default (${aSerif})`, fontc.e("serif").label);
-      assert_fonts_equal("sans-serif", `Default (${aSansSerif})`, fontc.e("sans-serif").label);
-      assert_fonts_equal("monospace", `Default (${aMonospace})`, fontc.e("monospace").label);
-    }
+
+    // On Linux the prefs we set contained only the generic font names,
+    // like 'serif', but here a specific font name will be shown, but it is
+    // system-dependent what it will be. So we just check for the 'Default'
+    // prefix.
+    assert_fonts_equal("serif", `Default (`, fontc.e("serif").label, true);
+    assert_fonts_equal("sans-serif", `Default (`, fontc.e("sans-serif").label, true);
+    assert_fonts_equal("monospace", `Default (`, fontc.e("monospace").label, true);
+  } else {
+    assert_fonts_equal("serif", `Default (${aSerif})`, fontc.e("serif").label);
+    assert_fonts_equal("sans-serif", `Default (${aSansSerif})`, fontc.e("sans-serif").label);
+    assert_fonts_equal("monospace", `Default (${aMonospace})`, fontc.e("monospace").label);
   }
 
   close_pref_tab(prefTab);

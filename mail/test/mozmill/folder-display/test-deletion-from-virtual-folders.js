@@ -8,10 +8,12 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-deletion-from-virtual-folders';
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers'];
+var MODULE_NAME = "test-deletion-from-virtual-folders";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var baseFolder, folder, lastMessageFolder;
 
@@ -25,9 +27,9 @@ var setNormal;
 var msgc;
 
 function setupModule(module) {
-  let fdh = collector.getModule('folder-display-helpers');
+  let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let wh = collector.getModule('window-helpers');
+  let wh = collector.getModule("window-helpers");
   wh.installInto(module);
 
   baseFolder = create_folder("DeletionFromVirtualFoldersA");
@@ -46,13 +48,13 @@ function setupModule(module) {
   mc.assertNode(mc.eid("mailviews-container"));
 }
 
-/// Check whether this message is displayed in the folder tab
+// Check whether this message is displayed in the folder tab
 var VERIFY_FOLDER_TAB = 0x1;
-/// Check whether this message is displayed in the foreground message tab
+// Check whether this message is displayed in the foreground message tab
 var VERIFY_MESSAGE_TAB = 0x2;
-/// Check whether this message is displayed in the background message tab
+// Check whether this message is displayed in the background message tab
 var VERIFY_BACKGROUND_MESSAGE_TAB = 0x4;
-/// Check whether this message is displayed in the message window
+// Check whether this message is displayed in the message window
 var VERIFY_MESSAGE_WINDOW = 0x8;
 var VERIFY_ALL = 0xF;
 

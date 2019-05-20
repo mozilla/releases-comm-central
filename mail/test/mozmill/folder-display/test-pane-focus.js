@@ -8,8 +8,9 @@
 
 "use strict";
 
-var MODULE_NAME = "test-pane-focus";
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 
+var MODULE_NAME = "test-pane-focus";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers"];
 
@@ -38,7 +39,7 @@ function setupModule(module) {
  */
 function get_focused_pane() {
   let panes = [
-    "threadTree", "folderTree", "messagepane", "multimessage"
+    "threadTree", "folderTree", "messagepane", "multimessage",
   ].map(id => mc.e(id));
 
   let currentNode = mc.window.top.document.activeElement;

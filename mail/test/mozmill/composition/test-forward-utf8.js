@@ -6,12 +6,13 @@
  * Tests that UTF-8 messages are correctly forwarded.
  */
 
-// mozmake SOLO_TEST=composition/test-forward-utf8.js mozmill-one
-
 "use strict";
 
-var MODULE_NAME = "test-forward-utf8";
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-forward-utf8";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
 

@@ -8,18 +8,19 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-attachments-pane';
+/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-pref-window-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers',
-                       'pref-window-helpers',
-                       "content-tab-helpers"];
+var MODULE_NAME = "test-attachments-pane";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "pref-window-helpers", "content-tab-helpers"];
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
     collector.getModule(lib).installInto(module);
   }
-};
+}
 
 /**
  * Test that if we come back to the Attachment pane, then

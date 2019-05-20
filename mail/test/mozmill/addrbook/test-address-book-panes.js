@@ -8,8 +8,10 @@
 
 "use strict";
 
-var MODULE_NAME = "test-address-book-panes";
+/* import-globals-from ../shared-modules/test-address-book-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 
+var MODULE_NAME = "test-address-book-panes";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["address-book-helpers", "folder-display-helpers"];
 
@@ -61,7 +63,6 @@ function _help_assert_pane_visibility(paneId, menuitemId, visible) {
   if ((abController.e(menuitemId).getAttribute("checked") == "true") != visible)
     throw new Error(menuitemId + " menuitem should be " +
                     (visible ? "checked" : "unchecked"));
-
 }
 
 /**

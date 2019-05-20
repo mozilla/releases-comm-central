@@ -14,8 +14,9 @@
 
 "use strict";
 
-var MODULE_NAME = "test-display-message-with-folder-modes";
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 
+var MODULE_NAME = "test-display-message-with-folder-modes";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers"];
 

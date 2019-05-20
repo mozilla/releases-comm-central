@@ -8,11 +8,13 @@
 
 "use strict";
 
-var MODULE_NAME = "test-account-tree";
+/* import-globals-from ../shared-modules/test-account-manager-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-account-tree";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
-                         "account-manager-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "account-manager-helpers"];
 
 var gPopAccount, gOriginalAccountCount;
 
@@ -67,8 +69,7 @@ function test_account_open_state() {
  * @param amc           The account options controller.
  * @param aWishedState  The open state in which the account row should be found (bool).
  */
-function subtest_check_account_open_state(amc, aWishedState)
-{
+function subtest_check_account_open_state(amc, aWishedState) {
   let accountRow = get_account_tree_row(gPopAccount.key, null, amc);
   click_account_tree_row(amc, accountRow);
 
@@ -106,8 +107,7 @@ function test_default_account_highlight() {
  *
  * @param amc           The account options controller.
  */
-function subtest_check_default_account_highlight(amc)
-{
+function subtest_check_default_account_highlight(amc) {
   // Select the default account.
   let accountRow = get_account_tree_row(MailServices.accounts.defaultAccount.key, null, amc);
   click_account_tree_row(amc, accountRow);
@@ -151,8 +151,7 @@ function test_selection_after_account_deletion() {
  *
  * @param amc           The account options controller.
  */
-function subtest_check_selection_after_account_deletion(amc)
-{
+function subtest_check_selection_after_account_deletion(amc) {
   let accountList = [];
   let accountTreeNode = amc.e("account-tree-children");
   // Build the list of accounts in the account tree (order is important).

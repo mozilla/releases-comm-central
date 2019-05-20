@@ -6,12 +6,12 @@
  * Test that view-source content can be reloaded to change encoding.
  */
 
-// make SOLO_TEST=content-policy/test-view-source.js mozmill-one
-
 "use strict";
 
-var MODULE_NAME = "test-view-source";
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-view-source";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
@@ -32,7 +32,7 @@ function setupModule(module) {
 function addToFolder(aSubject, aBody, aFolder) {
   let msgId = Cc["@mozilla.org/uuid-generator;1"]
                           .getService(Ci.nsIUUIDGenerator)
-                          .generateUUID() +"@invalid";
+                          .generateUUID() + "@invalid";
 
   let source = "From - Sat Nov  1 12:39:54 2008\n" +
                "X-Mozilla-Status: 0001\n" +

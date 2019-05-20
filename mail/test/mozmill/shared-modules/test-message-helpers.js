@@ -25,19 +25,17 @@ function installInto(module) {
  * for more details.
  */
 function to_mime_message(aMsgHdr, aCallbackThis, aCallback, aAllowDownload, aOptions) {
-  let runner = new frame.Runner(collector);
+  new frame.Runner(collector);
   let called = false;
   let currentTest = frame.events.currentTest;
   MsgHdrToMimeMessage(aMsgHdr, aCallbackThis,
-    function (aRecdMsgHdr, aMimeMsg) {
+    function(aRecdMsgHdr, aMimeMsg) {
       try {
         aCallback(aRecdMsgHdr, aMimeMsg);
-      }
-      catch (ex) {
+      } catch (ex) {
         Cu.reportError(ex);
         frame.events.fail({exception: ex, test: currentTest});
-      }
-      finally {
+      } finally {
         called = true;
       }
     }, aAllowDownload, aOptions);

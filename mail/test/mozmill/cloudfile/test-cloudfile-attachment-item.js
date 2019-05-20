@@ -8,13 +8,19 @@
 
 "use strict";
 
-var MODULE_NAME = "test-cloudfile-attachment-item";
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-cloudfile-helpers.js */
+/* import-globals-from ../shared-modules/test-attachment-helpers.js */
 
+var MODULE_NAME = "test-cloudfile-attachment-item";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers",
-                       "compose-helpers",
-                       "cloudfile-helpers",
-                       "attachment-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "compose-helpers",
+  "cloudfile-helpers",
+  "attachment-helpers",
+];
 
 var kAttachmentItemContextID = "msgComposeAttachmentItemContext";
 
@@ -66,15 +72,12 @@ function test_upload_cancel_repeat() {
   };
 
   const kAttempts = 3;
-  let cmd = cw.e("cmd_cancelUpload");
-  let menu = cw.getMenu("#" + kAttachmentItemContextID);
-
   for (let i = 0; i < kAttempts; i++) {
     promise = null;
     started = false;
 
     // Select the attachment, and choose to convert it to a Filelink
-    let attachmentitem = select_attachments(cw, 0)[0];
+    select_attachments(cw, 0)[0];
     cw.window.convertSelectedToCloudAttachment(provider);
     cw.waitFor(() => started);
 
@@ -145,11 +148,10 @@ function assert_can_cancel_upload(aController, aProvider, aPromise, aTargetFile)
                                                 aTargetFile);
 
   // Select that attachmentitem in the bucket
-  let attachmentitem = select_attachments(aController, index)[0];
+  select_attachments(aController, index)[0];
 
   // Bring up the context menu, and click cancel.
   let cmd = aController.e("cmd_cancelUpload");
-  let menu = aController.getMenu("#" + kAttachmentItemContextID);
   aController.window.updateAttachmentItems();
 
   assert_false(cmd.hidden);

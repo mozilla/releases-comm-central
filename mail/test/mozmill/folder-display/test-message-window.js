@@ -9,18 +9,20 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-message-window';
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers'];
+var MODULE_NAME = "test-message-window";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var folderA, folderB;
 var curMessage;
 
 function setupModule(module) {
-  let fdh = collector.getModule('folder-display-helpers');
+  let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let wh = collector.getModule('window-helpers');
+  let wh = collector.getModule("window-helpers");
   wh.installInto(module);
 
   folderA = create_folder("MessageWindowA");
@@ -95,11 +97,10 @@ function test_del_collapsed_thread() {
   press_delete(msgc);
   if (folderA.getTotalMessages(false) != 4)
     throw new Error("should have only deleted one message");
-
 }
 
 function subtest_say_yes(cwc) {
-  cwc.window.document.documentElement.getButton('accept').doCommand();
+  cwc.window.document.documentElement.getButton("accept").doCommand();
 }
 
 /**

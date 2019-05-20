@@ -8,17 +8,24 @@
  * that we don't prompt if there are no changes.
  */
 
-// make SOLO_TEST=composition/test-save-changes-on-quit.js mozmill-one
-
 "use strict";
 
-var MODULE_NAME = "test-save-changes-on-quit";
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-prompt-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-save-changes-on-quit";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers",
-                         "prompt-helpers", "window-helpers"];
-var SAVE = 0
-var CANCEL = 1
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "compose-helpers",
+  "prompt-helpers",
+  "window-helpers",
+];
+
+var SAVE = 0;
+var CANCEL = 1;
 var DONT_SAVE = 2;
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -172,7 +179,7 @@ function test_window_quit_state_reset_on_aborted_quit() {
 
     if (numOfPrompts > 1)
       gMockPromptService.returnValue = CANCEL;
-  }
+  };
 
   gMockPromptService.returnValue = DONT_SAVE;
 

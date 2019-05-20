@@ -4,16 +4,18 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-right-click-to-open-search-window';
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-search-window-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'search-window-helpers'];
+var MODULE_NAME = "test-right-click-to-open-search-window";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "search-window-helpers"];
 
 var folderA, folderB;
 function setupModule(module) {
-  let fdh = collector.getModule('folder-display-helpers');
+  let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let swh = collector.getModule('search-window-helpers');
+  let swh = collector.getModule("search-window-helpers");
   swh.installInto(module);
 
   folderA = create_folder("RightClickToOpenSearchWindowA");

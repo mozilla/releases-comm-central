@@ -4,11 +4,19 @@
 
 "use strict";
 
-var MODULE_NAME = "test-account-port-setting";
+/* import-globals-from ../shared-modules/test-account-manager-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-keyboard-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-account-port-setting";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
-                       "account-manager-helpers", "keyboard-helpers" ];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "account-manager-helpers",
+  "keyboard-helpers",
+];
 
 var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
 
@@ -17,7 +25,7 @@ var PORT_NUMBERS_TO_TEST =
     "110", // The original port number. We don't input this though.
     "456", // Random port number.
     "995", // The SSL port number.
-    "110"  // Back to the original.
+    "110", // Back to the original.
   ];
 
 var gTestNumber;

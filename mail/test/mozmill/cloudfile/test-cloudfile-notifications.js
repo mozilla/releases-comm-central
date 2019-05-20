@@ -8,15 +8,23 @@
 
 "use strict";
 
-var MODULE_NAME = "test-cloudfile-notifications";
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-cloudfile-helpers.js */
+/* import-globals-from ../shared-modules/test-attachment-helpers.js */
+/* import-globals-from ../shared-modules/test-prompt-helpers.js */
+/* import-globals-from ../shared-modules/test-notificationbox-helpers.js */
 
+var MODULE_NAME = "test-cloudfile-notifications";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers",
-                       "compose-helpers",
-                       "cloudfile-helpers",
-                       "attachment-helpers",
-                       "prompt-helpers",
-                       "notificationbox-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "compose-helpers",
+  "cloudfile-helpers",
+  "attachment-helpers",
+  "prompt-helpers",
+  "notificationbox-helpers",
+];
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm");

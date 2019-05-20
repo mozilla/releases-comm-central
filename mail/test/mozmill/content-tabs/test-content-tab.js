@@ -4,11 +4,19 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-content-tab';
+/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
+/* import-globals-from ../shared-modules/test-dom-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'content-tab-helpers',
-                       'dom-helpers', 'window-helpers'];
+var MODULE_NAME = "test-content-tab";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "content-tab-helpers",
+  "dom-helpers",
+  "window-helpers",
+];
 
 var controller = ChromeUtils.import("chrome://mozmill/content/modules/controller.jsm");
 var mozmill = ChromeUtils.import("chrome://mozmill/content/modules/mozmill.jsm");
@@ -19,7 +27,7 @@ var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 // so we get the right path for the resources.
 // Note: this one adds to '' as we need to make sure that favicon.ico is in the
 // root directory.
-var url = collector.addHttpResource('../content-tabs/html', '');
+var url = collector.addHttpResource("../content-tabs/html", "");
 var whatsUrl = url + "whatsnew.html";
 
 function setupModule(module) {
@@ -148,15 +156,15 @@ function test_content_tab_default_favicon() {
 
 function test_content_tab_onbeforeunload() {
   let count = mc.tabmail.tabContainer.childNodes.length;
-  let tab = mc.tabmail.tabInfo[count-1];
-  tab.browser.contentWindow.addEventListener("beforeunload", function (event) {
+  let tab = mc.tabmail.tabInfo[count - 1];
+  tab.browser.contentWindow.addEventListener("beforeunload", function(event) {
     event.returnValue = "Green llama in your car";
   });
 
   const interactionPref = "dom.require_user_interaction_for_beforeunload";
   Services.prefs.setBoolPref(interactionPref, false);
 
-  plan_for_modal_dialog("commonDialog", function (controller) {
+  plan_for_modal_dialog("commonDialog", function(controller) {
     controller.window.document.documentElement.getButton("accept").doCommand();
   });
   mc.tabmail.closeTab(tab);

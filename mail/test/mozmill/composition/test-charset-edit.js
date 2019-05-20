@@ -7,15 +7,21 @@
  * replying to messages.
  */
 
-// make SOLO_TEST=composition/test-charset-edit.js mozmill-one
-
 "use strict";
 
-var MODULE_NAME = "test-charset-edit";
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-notificationbox-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-charset-edit";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers",
-                       "window-helpers", "notificationbox-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "compose-helpers",
+  "window-helpers",
+  "notificationbox-helpers",
+];
 
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -49,7 +55,7 @@ function setupModule(module) {
  * @param aGetText: if true, return header objects. if false, return body data.
  * @return Map(partnum -> message headers)
  */
-function getMsgHeaders(aMsgHdr, aGetText=false) {
+function getMsgHeaders(aMsgHdr, aGetText = false) {
   let msgFolder = aMsgHdr.folder;
   let msgUri = msgFolder.getUriForMsg(aMsgHdr);
 
@@ -59,11 +65,11 @@ function getMsgHeaders(aMsgHdr, aGetText=false) {
     _done: false,
     _data: new Map(),
     _text: new Map(),
-    endMessage: function () { this._done = true; },
-    deliverPartData: function (num, text) {
+    endMessage() { this._done = true; },
+    deliverPartData(num, text) {
       this._text.set(num, this._text.get(num) + text);
     },
-    startPart: function (num, headers) {
+    startPart(num, headers) {
       this._data.set(num, headers);
       this._text.set(num, "");
     },
@@ -90,7 +96,7 @@ function test_wrong_reply_charset() {
   let folder = gDrafts;
   let msg0 = create_message({
     bodyPart: new SyntheticPartLeaf("Some text",
-      {charset: "invalid-charset"})
+      {charset: "invalid-charset"}),
   });
   add_message_to_folder(folder, msg0);
   be_in_folder(folder);
@@ -131,7 +137,7 @@ function test_no_mojibake() {
   let nonASCII = "ケツァルコアトル";
   let UTF7 = "+MLEwxDChMOswszCiMMgw6w-";
   let msg0 = create_message({
-    bodyPart: new SyntheticPartLeaf(UTF7, {charset: "utf-7"})
+    bodyPart: new SyntheticPartLeaf(UTF7, {charset: "utf-7"}),
   });
   add_message_to_folder(folder, msg0);
   be_in_folder(folder);

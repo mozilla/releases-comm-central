@@ -18,10 +18,12 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-opening-messages';
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers'];
+var MODULE_NAME = "test-opening-messages";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 // One folder's enough
 var folder = null;
@@ -29,15 +31,15 @@ var folder = null;
 // Number of messages to open for multi-message tests
 var NUM_MESSAGES_TO_OPEN = 5;
 
-var setupModule = function (module) {
-  let fdh = collector.getModule('folder-display-helpers');
+function setupModule(module) {
+  let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let wh = collector.getModule('window-helpers');
+  let wh = collector.getModule("window-helpers");
   wh.installInto(module);
 
   folder = create_folder("OpeningMessagesA");
   make_new_sets_in_folder(folder, [{count: 10}]);
-};
+}
 
 /**
  * Test opening a single message in a new tab.
@@ -196,7 +198,7 @@ function check_message_pane_in_window_full_height(aWC) {
     try {
       let childRect = child.getBoundingClientRect();
       childrenHeightsSum += childRect.height;
-      childrenHeightsStr += '"' + child.id + '": ' + childRect.height + ', ';
+      childrenHeightsStr += '"' + child.id + '": ' + childRect.height + ", ";
     } catch (ex) {}
   }
 

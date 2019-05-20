@@ -4,13 +4,22 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-about-support';
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'content-tab-helpers',
-                       'compose-helpers', 'window-helpers'];
+var MODULE_NAME = "test-about-support";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "content-tab-helpers",
+  "compose-helpers",
+  "window-helpers",
+];
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+// eslint-disable-next-line mozilla/reject-importGlobalProperties
 Cu.importGlobalProperties(["DOMParser"]);
 
 var warningText = new Map();
@@ -111,7 +120,7 @@ function find_private_element(aTab) {
                  .querySelector("#accounts-table td.data-private~td.data-private");
   assert_true(elem != null);
   assert_true(elem.textContent.length > 0);
-  assert_equals(get_content_tab_element_display(aTab,elem), "none");
+  assert_equals(get_content_tab_element_display(aTab, elem), "none");
   return elem;
 }
 
@@ -258,8 +267,7 @@ function test_private_data() {
 function check_text_in_body(aDocument, aText) {
   if (typeof(aDocument) == "object")
     return (get_element_by_text(aDocument, aText) != null);
-  else
-    return aDocument.includes(aText);
+  return aDocument.includes(aText);
 }
 
 /**

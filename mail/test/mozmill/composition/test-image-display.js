@@ -6,15 +6,15 @@
  * Tests that we load and display embedded images in messages.
  */
 
-// make SOLO_TEST=composition/test-image-display.js mozmill-one
-
 "use strict";
 
-var MODULE_NAME = "test-image-display";
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-image-display";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [ "folder-display-helpers", "window-helpers",
-                        "compose-helpers" ];
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "compose-helpers"];
 
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");

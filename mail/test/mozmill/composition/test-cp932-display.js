@@ -6,12 +6,12 @@
  * Tests that messages in cp932, Thunderbirds alias for Shift_JIS, are correctly displayed.
  */
 
-// mozmake SOLO_TEST=composition/test-cp932-display.js mozmill-one
-
 "use strict";
 
-var MODULE_NAME = "test-cp932-display.js";
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-cp932-display.js";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 

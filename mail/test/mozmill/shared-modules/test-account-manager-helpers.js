@@ -5,9 +5,7 @@
 "use strict";
 
 var MODULE_NAME = "account-manager-helpers";
-
 var RELATIVE_ROOT = "../shared-modules";
-// we need this for the main controller
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
@@ -16,9 +14,9 @@ var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm"
 var wh, fdh, mc;
 
 function setupModule() {
-  fdh = collector.getModule('folder-display-helpers');
+  fdh = collector.getModule("folder-display-helpers");
   mc = fdh.mc;
-  wh = collector.getModule('window-helpers');
+  wh = collector.getModule("window-helpers");
 }
 
 function installInto(module) {
@@ -134,10 +132,9 @@ function get_account_tree_row(aAccountKey, aPaneId, aController) {
       }
       // If this is not the wanted account, skip all of its settings panes.
       rowIndex += accountHead.querySelectorAll("[PageTag]").length;
-    } else {
+    } else if (aAccountKey == null) {
       // A row without _account should be the SMTP server.
-      if (aAccountKey == null)
-        return rowIndex;
+      return rowIndex;
     }
     rowIndex++;
   }

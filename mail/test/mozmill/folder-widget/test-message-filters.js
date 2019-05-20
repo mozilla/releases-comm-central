@@ -8,18 +8,26 @@
 
 "use strict";
 
-var MODULE_NAME = "test-message-filters";
+/* import-globals-from ../shared-modules/test-address-book-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-nntp-helpers.js */
+/* import-globals-from ../shared-modules/test-prompt-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-message-filters";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
-                       "nntp-helpers", "address-book-helpers",
-                       "prompt-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "nntp-helpers",
+  "address-book-helpers",
+  "prompt-helpers",
+];
 
 var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
 var folderA;
 
-function setupModule(module)
-{
+function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
     collector.getModule(lib).installInto(module);
   }
@@ -31,17 +39,12 @@ function setupModule(module)
   make_new_sets_in_folder(folderA, [{count: 1}]);
 
   setupLocalServer(NNTP_PORT);
-
-  // Note, the uri is for hostname "invalid" which is the original uri. See
-  // setupProtocolTest parameters.
-  var prefix = "news://invalid:"+NNTP_PORT+"/";
 }
 
 /*
  * Test that the message filter list shows newsgroup servers.
  */
-function test_message_filter_shows_newsgroup_server()
-{
+function test_message_filter_shows_newsgroup_server() {
   be_in_folder(folderA);
 
   // Open the "Tools » Message Filters…" window,
@@ -59,15 +62,15 @@ function test_message_filter_shows_newsgroup_server()
   filterc.assertNode(nntp);
   // We need to get the newsgroups to pop up somehow.
   // These all fail.
-  //filterc.click(nntp);
-  //filterc.mouseover(nntp);
-  //filterc.select(popup, popup.node.parentNode.getIndexOfItem(nntp.node));
-  //filterc.select(nntp, popup.node.parentNode.getIndexOfItem(nntp.node));
-  //filterc.select(popup, 2);
-  //let nntpPopup = new elib.Elem(nntp.node.menupopup);
-  //filterc.click(nntpPopup);
-  //filterc.mouseover(nntpPopup);
-  //filterc.select(nntpPopup, 2);
+  // filterc.click(nntp);
+  // filterc.mouseover(nntp);
+  // filterc.select(popup, popup.node.parentNode.getIndexOfItem(nntp.node));
+  // filterc.select(nntp, popup.node.parentNode.getIndexOfItem(nntp.node));
+  // filterc.select(popup, 2);
+  // let nntpPopup = new elib.Elem(nntp.node.menupopup);
+  // filterc.click(nntpPopup);
+  // filterc.mouseover(nntpPopup);
+  // filterc.select(nntpPopup, 2);
 
   // This one initializes the menuitems, but it's kinda hacky.
   nntp.node.menupopup._ensureInitialized();
@@ -80,8 +83,7 @@ function test_message_filter_shows_newsgroup_server()
  * Test that customizing the toolbar doesn't lead to doubled accounts in
  * the Get Mail menu.  (bug 520457)
  */
-function test_customize_toolbar_doesnt_double_get_mail_menu()
-{
+function test_customize_toolbar_doesnt_double_get_mail_menu() {
   be_in_folder(folderA);
 
   /**
@@ -159,8 +161,7 @@ function create_simple_filter() {
 /*
  * Test that the address books can appear in the message filter dropdown
  */
-function test_address_books_appear_in_message_filter_dropdown()
-{
+function test_address_books_appear_in_message_filter_dropdown() {
   // Create a remote address book - we don't want this to appear in the
   // dropdown.
   let ldapAb = create_ldap_address_book("Some LDAP Address Book");

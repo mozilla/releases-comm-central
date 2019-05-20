@@ -6,12 +6,13 @@
  * Tests that actions such as replying to an .eml works properly.
  */
 
-// make SOLO_TEST=composition/test-eml-actions.js mozmill-one
-
 "use strict";
 
-var MODULE_NAME = "test-eml-actions";
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-eml-actions";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "compose-helpers"];
 

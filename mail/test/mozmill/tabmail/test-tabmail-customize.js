@@ -8,25 +8,33 @@
 
 "use strict";
 
+/* import-globals-from ../shared-modules/test-customization-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-mouse-event-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
+
 var MODULE_NAME = "test-tabmail-customize";
-
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ['folder-display-helpers', 'mouse-event-helpers',
-                       'window-helpers', 'customization-helpers'];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "mouse-event-helpers",
+  "window-helpers",
+  "customization-helpers",
+];
 
-var gCDHelper ;
+var gCDHelper;
 
 function setupModule(module) {
-  let fdh = collector.getModule('folder-display-helpers');
+  let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let meh = collector.getModule('mouse-event-helpers');
+  let meh = collector.getModule("mouse-event-helpers");
   meh.installInto(module);
-  let wh = collector.getModule('window-helpers');
+  let wh = collector.getModule("window-helpers");
   wh.installInto(module);
-  let cu = collector.getModule('customization-helpers');
+  let cu = collector.getModule("customization-helpers");
   cu.installInto(module);
-  gCDHelper = new CustomizeDialogHelper('mail-toolbar-menubar2',
-    'CustomizeMailToolbar', "mailnews:customizeToolbar");
+  gCDHelper = new CustomizeDialogHelper("mail-toolbar-menubar2",
+    "CustomizeMailToolbar", "mailnews:customizeToolbar");
 }
 
 function teardownModule(module) {
@@ -40,7 +48,7 @@ function teardownModule(module) {
  */
 function test_open_context_menu() {
   // First, ensure that the context menu is closed.
-  let contextPopup = mc.e('toolbar-context-menu');
+  let contextPopup = mc.e("toolbar-context-menu");
   assert_not_equals(contextPopup.state, "open");
 
   // Right click on the tab bar

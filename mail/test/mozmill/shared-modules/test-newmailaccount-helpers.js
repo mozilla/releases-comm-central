@@ -5,10 +5,8 @@
 "use strict";
 
 var MODULE_NAME = "newmailaccount-helpers";
-
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "keyboard-helpers",
-                       "dom-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers", "keyboard-helpers", "dom-helpers"];
 
 var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -18,9 +16,9 @@ var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var mc, fdh, kbh, dh;
 
 function setupModule(module) {
-  fdh = collector.getModule('folder-display-helpers');
+  fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  kbh = collector.getModule('keyboard-helpers');
+  kbh = collector.getModule("keyboard-helpers");
   dh = collector.getModule("dom-helpers");
   mc = fdh.mc;
 }
@@ -77,9 +75,9 @@ function poll_for_wizard_window(aController) {
 /* Waits until the existing email account setup wizard is closed.
  */
 function wait_for_the_wizard_to_be_closed(aController) {
-  aController.waitFor(function () {
+  aController.waitFor(function() {
     let w = poll_for_wizard_window(aController);
-    return w == null
+    return w == null;
   });
 }
 
@@ -155,8 +153,8 @@ function remove_email_account(aAddress) {
  */
 function type_in_search_name(aController, aName) {
   aController.e("name").focus();
-  aController.keypress(null, 'a', {accelKey: true});
-  aController.keypress(null, 'VK_BACK_SPACE', {});
+  aController.keypress(null, "a", {accelKey: true});
+  aController.keypress(null, "VK_BACK_SPACE", {});
 
   kbh.input_value(aController, aName);
 }
@@ -169,18 +167,18 @@ var gConsoleListener = {
   _msg: null,
   _sawMsg: false,
 
-  observe: function(aMsg) {
+  observe(aMsg) {
     if (!this._msg)
       return;
 
     this._sawMsg |= (aMsg.message.includes(this._msg));
   },
 
-  listenFor: function(aMsg) {
+  listenFor(aMsg) {
     this._msg = aMsg;
   },
 
-  reset: function() {
+  reset() {
     this._msg = null;
     this._sawMsg = false;
   },
@@ -189,11 +187,11 @@ var gConsoleListener = {
     return this._sawMsg;
   },
 
-  wait: function() {
+  wait() {
     let self = this;
     mc.waitFor(function() {
       return self.sawMsg;
     },
     "Timed out waiting for console message: " + this._msg);
   },
-}
+};

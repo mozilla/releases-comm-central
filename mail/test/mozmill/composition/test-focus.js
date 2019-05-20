@@ -8,11 +8,13 @@
 
 "use strict";
 
-var MODULE_NAME = "test-focus";
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-focus";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers",
-                       "window-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
@@ -77,7 +79,7 @@ function test_f6_no_attachment() {
 
 function test_f6_attachment() {
   let cwc = open_compose_new_mail();
-  add_attachment(cwc, "http://www.mozilla.org/");
+  add_attachments(cwc, "http://www.mozilla.org/");
   check_element_cycling(cwc, true, false);
   close_compose_window(cwc);
 }
@@ -90,7 +92,7 @@ function test_ctrl_tab_no_attachment() {
 
 function test_ctrl_tab_attachment() {
   let cwc = open_compose_new_mail();
-  add_attachment(cwc, "http://www.mozilla.org/");
+  add_attachments(cwc, "http://www.mozilla.org/");
   check_element_cycling(cwc, true, true);
   close_compose_window(cwc);
 }

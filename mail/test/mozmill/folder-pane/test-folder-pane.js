@@ -10,16 +10,17 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-folder-pane';
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers'];
+var MODULE_NAME = "test-folder-pane";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers"];
 
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 function setupModule(module) {
-  collector.getModule('folder-display-helpers').installInto(module);
+  collector.getModule("folder-display-helpers").installInto(module);
 }
 
 /**
@@ -60,7 +61,7 @@ function test_all_folders_toggle_folder_open_state() {
   assert_folder_tree_view_row_count(accounts + inbox + trash +
                                     archives);
   // close the tinderbox server.
-  mc.folderTreeView.toggleOpenState(0)
+  mc.folderTreeView.toggleOpenState(0);
   let folderA = create_folder("FolderPaneA");
   be_in_folder(folderA);
 

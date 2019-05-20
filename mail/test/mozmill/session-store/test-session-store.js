@@ -9,8 +9,10 @@
 
 "use strict";
 
-var MODULE_NAME = "test-session-store";
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-session-store";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
@@ -39,8 +41,7 @@ function readFile() {
     let data = IOUtils.loadFileToString(SessionStoreManager.sessionFile);
     if (data)
       return JSON.parse(data);
-  }
-  catch (ex) {
+  } catch (ex) {
     // fall through and return null if the session file cannot be read
     // or is bad
   }
@@ -469,14 +470,14 @@ function test_clean_shutdown_session_persistence_simple() {
 function _move_splitter(aSplitter, aDiffX, aDiffY) {
   // catch the splitter in the middle
   let rect = aSplitter.getBoundingClientRect();
-  let middleX = Math.round(rect.width/2);
-  let middleY = Math.round(rect.height/2);
-  EventUtils.synthesizeMouse(aSplitter, middleX, middleY, {type:"mousedown"},
+  let middleX = Math.round(rect.width / 2);
+  let middleY = Math.round(rect.height / 2);
+  EventUtils.synthesizeMouse(aSplitter, middleX, middleY, {type: "mousedown"},
                              mc.window);
   EventUtils.synthesizeMouse(aSplitter, aDiffX + middleX, aDiffY + middleY,
-                             {type:"mousemove"}, mc.window);
+                             {type: "mousemove"}, mc.window);
   // release the splitter
-  EventUtils.synthesizeMouse(aSplitter, 0, 0, {type:"mouseup"}, mc.window);
+  EventUtils.synthesizeMouse(aSplitter, 0, 0, {type: "mouseup"}, mc.window);
 }
 
 /**
@@ -499,5 +500,5 @@ function assert_equals_fuzzy(aLeft, aRight, aTolerance, aMessage) {
 //               belong here. see test-message-pane-visibility.
 //               when testing restoration in test-message-pane-visibility, also
 //               include test of bad session file.
-//...............maybe we should move all session restoration related tests
-//...............here.
+// ..............maybe we should move all session restoration related tests
+// ..............here.

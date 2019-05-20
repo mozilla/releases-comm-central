@@ -20,12 +20,13 @@
  * and enforcing the charset default.
  */
 
-// make SOLO_TEST=composition/test-reply-multipart-charset.js mozmill-one
-
 "use strict";
 
-var MODULE_NAME = "test-reply-multipart-charset";
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-reply-multipart-charset";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
 

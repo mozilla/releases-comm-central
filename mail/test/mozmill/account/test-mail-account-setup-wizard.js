@@ -4,11 +4,19 @@
 
 "use strict";
 
-var MODULE_NAME = "test-mail-account-setup-wizard";
+/* import-globals-from ../shared-modules/test-account-manager-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-keyboard-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-mail-account-setup-wizard";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
-                       "account-manager-helpers", "keyboard-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "account-manager-helpers",
+  "keyboard-helpers",
+];
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
@@ -58,7 +66,7 @@ function test_mail_account_setup() {
   // Force .com MIME-Type to text/xml
   collector.httpd.registerContentType("com", "text/xml");
 
-  open_mail_account_setup_wizard(function (awc) {
+  open_mail_account_setup_wizard(function(awc) {
     // Input user's account information
     awc.click(awc.eid("realname"));
     if (awc.e("realname").value) {
@@ -99,21 +107,21 @@ function subtest_verify_account(amc) {
 
   let config = {
     "incoming server username": {
-      actual: incoming.username, expected: user.email.split("@")[0]
+      actual: incoming.username, expected: user.email.split("@")[0],
     },
     "outgoing server username": {
-      actual: outgoing.username, expected: user.email
+      actual: outgoing.username, expected: user.email,
     },
     "incoming server hostname": {
       // Note: N in the hostName is uppercase
-      actual: incoming.hostName, expected: user.incomingHost
+      actual: incoming.hostName, expected: user.incomingHost,
     },
     "outgoing server hostname": {
       // And this is lowercase
-      actual: outgoing.hostname, expected: user.outgoingHost
+      actual: outgoing.hostname, expected: user.outgoingHost,
     },
     "user real name": { actual: identity.fullName, expected: user.name },
-    "user email address": { actual: identity.email, expected: user.email }
+    "user email address": { actual: identity.email, expected: user.email },
   };
 
   try {
@@ -144,7 +152,7 @@ function test_bad_password_uses_old_settings() {
   collector.httpd.registerContentType("com", "text/xml");
 
   mc.sleep(0);
-  open_mail_account_setup_wizard(function (awc) {
+  open_mail_account_setup_wizard(function(awc) {
     try {
       // Input user's account information
       awc.click(awc.eid("realname"));
@@ -161,14 +169,12 @@ function test_bad_password_uses_old_settings() {
       // Load the autoconfig file from http://localhost:433**/autoconfig/example.com
       awc.e("next_button").click();
 
-      let config = null;
-
-      awc.waitFor(function() { return this.disabled == false && this.hidden == false; },
+      awc.waitFor(function() { return !this.disabled && !this.hidden; },
                   "Timeout waiting for create button to be visible and active",
                   8000, 600, awc.e("create_button"));
       awc.e("create_button").click();
 
-      awc.waitFor(function() { return this.disabled == false; },
+      awc.waitFor(function() { return !this.disabled; },
                   "Timeout waiting for create button to be visible and active",
                   8000, 600, awc.e("create_button"));
       awc.e("create_button").click();
@@ -206,7 +212,7 @@ function remember_password_test(aPrefValue) {
 
   // without this, it breaks the test, don't know why
   mc.sleep(0);
-  open_mail_account_setup_wizard(function (awc) {
+  open_mail_account_setup_wizard(function(awc) {
     try {
       let password = new elementslib.ID(awc.window.document, "password");
       let rememberPassword =
@@ -219,8 +225,7 @@ function remember_password_test(aPrefValue) {
       awc.assertProperty(rememberPassword, "disabled", !aPrefValue);
       if (aPrefValue) {
         awc.assertChecked(rememberPassword);
-      }
-      else {
+      } else {
         awc.assertNotChecked(rememberPassword);
       }
 

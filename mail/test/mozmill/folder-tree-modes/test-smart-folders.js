@@ -10,10 +10,11 @@
 
 "use strict";
 
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+
 var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
 var MODULE_NAME = "test-smart-folders";
-
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers"];
 
@@ -199,8 +200,7 @@ function test_folder_flag_changes() {
   assert_folder_and_children_not_in_scope(archiveFolder, archiveScope);
 }
 
-function assert_folder_and_children_in_scope(folder, searchScope)
-{
+function assert_folder_and_children_in_scope(folder, searchScope) {
   let folderURI = "|" + folder.URI + "|";
   assert_uri_found(folderURI, searchScope);
   let allDescendants = folder.descendants;
@@ -209,8 +209,7 @@ function assert_folder_and_children_in_scope(folder, searchScope)
   }
 }
 
-function assert_folder_and_children_not_in_scope(folder, searchScope)
-{
+function assert_folder_and_children_not_in_scope(folder, searchScope) {
   let folderURI = "|" + folder.URI + "|";
   assert_uri_not_found(folderURI, searchScope);
   let allDescendants = folder.descendants;
@@ -219,14 +218,12 @@ function assert_folder_and_children_not_in_scope(folder, searchScope)
   }
 }
 
-function assert_uri_found(folderURI, scopeList)
-{
+function assert_uri_found(folderURI, scopeList) {
   if (!scopeList.includes(folderURI))
     throw new Error("scope " + scopeList + "doesn't contain " + folderURI);
 }
 
-function assert_uri_not_found(folderURI, scopeList)
-{
+function assert_uri_not_found(folderURI, scopeList) {
   if (scopeList.includes(folderURI))
     throw new Error("scope " + scopeList + "contains " + folderURI +
                     " but shouldn't");

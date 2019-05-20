@@ -8,15 +8,23 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-attachment-events';
+/* import-globals-from ../shared-modules/test-attachment-helpers.js */
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-observer-helpers.js */
+/* import-globals-from ../shared-modules/test-prompt-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers',
-                       'compose-helpers',
-                       'window-helpers',
-                       'attachment-helpers',
-                       'observer-helpers',
-                       'prompt-helpers'];
+var MODULE_NAME = "test-attachment-events";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "compose-helpers",
+  "window-helpers",
+  "attachment-helpers",
+  "observer-helpers",
+  "prompt-helpers",
+];
 
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
@@ -48,14 +56,14 @@ function test_attachments_added_on_single() {
   let listener = function(event) {
     eventCount++;
     lastEvent = event;
-  }
+  };
 
   // Open up the compose window
   let cw = open_compose_new_mail(mc);
   cw.e("attachmentBucket").addEventListener(kAttachmentsAdded, listener);
 
   // Attach a single file
-  add_attachment(cw, "http://www.example.com/1", 0, false);
+  add_attachments(cw, "http://www.example.com/1", 0, false);
 
   // Make sure we only saw the event once
   assert_equals(1, eventCount);
@@ -68,7 +76,7 @@ function test_attachments_added_on_single() {
 
   // Make sure that we can get that event again if we
   // attach more files.
-  add_attachment(cw, "http://www.example.com/2", 0, false);
+  add_attachments(cw, "http://www.example.com/2", 0, false);
   assert_equals(2, eventCount);
   subjects = lastEvent.detail;
   assert_true(subjects instanceof Ci.nsIMutableArray);
@@ -77,7 +85,7 @@ function test_attachments_added_on_single() {
 
   // And check that we don't receive the event if we try to attach a file
   // that's already attached.
-  add_attachment(cw, "http://www.example.com/2", null, false);
+  add_attachments(cw, "http://www.example.com/2", null, false);
   assert_equals(2, eventCount);
 
   cw.e("attachmentBucket").removeEventListener(kAttachmentsAdded, listener);
@@ -95,7 +103,7 @@ function test_attachments_added_on_multiple() {
   let listener = function(event) {
     eventCount++;
     lastEvent = event;
-  }
+  };
 
   // Prepare the attachments - we store the names in attachmentNames to
   // make sure that we observed the right event subjects later on.
@@ -166,20 +174,19 @@ function test_attachments_removed_on_single() {
   let listener = function(event) {
     eventCount++;
     lastEvent = event;
-  }
+  };
 
 
   // Open up the compose window, attach a file...
   let cw = open_compose_new_mail(mc);
   cw.e("attachmentBucket").addEventListener(kAttachmentsRemoved, listener);
 
-  add_attachment(cw, "http://www.example.com/1");
+  add_attachments(cw, "http://www.example.com/1");
 
   // Now select that attachment and delete it
-  let removedAttachmentItem = select_attachments(cw, 0);
+  select_attachments(cw, 0);
   // We need to hold a reference to removedAttachment here because
   // the delete routine nulls it out from the attachmentitem.
-  let removedAttachment = removedAttachmentItem[0].attachment;
   cw.window.goDoCommand("cmd_delete");
   // Make sure we saw the event
   assert_equals(1, eventCount);
@@ -193,9 +200,8 @@ function test_attachments_removed_on_single() {
 
   // Ok, let's attach it again, and remove it again to ensure that
   // we still see the event.
-  add_attachment(cw, "http://www.example.com/2");
-  removedAttachmentItem = select_attachments(cw, 0);
-  removedAttachment = removedAttachmentItem[0].attachment;
+  add_attachments(cw, "http://www.example.com/2");
+  select_attachments(cw, 0);
   cw.window.goDoCommand("cmd_delete");
 
   assert_equals(2, eventCount);
@@ -220,7 +226,7 @@ function test_attachments_removed_on_multiple() {
   let listener = function(event) {
     eventCount++;
     lastEvent = event;
-  }
+  };
 
   // Open up the compose window and attach some files...
   let cw = open_compose_new_mail(mc);
@@ -271,11 +277,9 @@ function test_attachments_removed_on_multiple() {
 function test_no_attachments_removed_on_none() {
   // Prepare to listen for attachments-removed
   let eventCount = 0;
-  let lastEvent;
   let listener = function(event) {
     eventCount++;
-    lastEvent = event;
-  }
+  };
 
   // Open the compose window and add some attachments.
   let cw = open_compose_new_mail(mc);
@@ -312,7 +316,7 @@ function test_attachment_renamed() {
   let listener = function(event) {
     eventCount++;
     lastEvent = event;
-  }
+  };
 
   // Renaming a file brings up a Prompt, so we'll mock the Prompt Service
   gMockPromptService.reset();
@@ -392,11 +396,9 @@ function test_attachment_renamed() {
 function test_no_attachment_renamed_on_blank() {
   // Prepare to listen for attachment-renamed
   let eventCount = 0;
-  let lastEvent;
   let listener = function(event) {
     eventCount++;
-    lastEvent = event;
-  }
+  };
 
   // Register the Mock Prompt Service to return the empty string when
   // prompted.

@@ -8,8 +8,9 @@
 
 "use strict";
 
-var MODULE_NAME = "test-folder-names-in-recent-mode";
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 
+var MODULE_NAME = "test-folder-names-in-recent-mode";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers"];
 

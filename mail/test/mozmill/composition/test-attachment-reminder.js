@@ -6,18 +6,23 @@
  * Tests that the attachment reminder works properly.
  */
 
-// make SOLO_TEST=composition/test-attachment-reminder.js mozmill-one
-
 "use strict";
 
-var MODULE_NAME = "test-attachment-reminder";
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-keyboard-helpers.js */
+/* import-globals-from ../shared-modules/test-notificationbox-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-attachment-reminder";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers",
-                         "compose-helpers",
-                         "window-helpers",
-                         "notificationbox-helpers",
-                         "keyboard-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "compose-helpers",
+  "window-helpers",
+  "notificationbox-helpers",
+  "keyboard-helpers",
+];
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
@@ -417,8 +422,7 @@ function test_manual_automatic_attachment_reminder_interaction() {
  * @param aValue       True if notification should exist.
  *                     False otherwise.
  */
-function assert_any_notification(aCwc, aValue)
-{
+function assert_any_notification(aCwc, aValue) {
   let notification = aCwc.e(kBoxId).currentNotification;
   if ((notification == null) == aValue)
     throw new Error("Notification in wrong state");
@@ -442,7 +446,7 @@ function test_attachment_vs_filelink_reminder() {
   let maxSize = Services.prefs.getIntPref(kOfferThreshold, 0) * 1024;
   let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
   file.append("panacea.dat");
-  add_attachment(cwc, Services.io.newFileURI(file).spec, maxSize);
+  add_attachments(cwc, Services.io.newFileURI(file).spec, maxSize);
 
   // The filelink attachment proposal should be up but not the attachment
   // reminder and it should also not interfere with the sending of the message.
@@ -694,14 +698,14 @@ function click_send_and_handle_send_error(aController, aAlreadySending) {
  * Click the "Oh, I Did!" button in the attachment reminder dialog.
  */
 function click_oh_i_did(controller) {
-  controller.window.document.documentElement.getButton('extra1').doCommand();
+  controller.window.document.documentElement.getButton("extra1").doCommand();
 }
 
 /**
  * Click the "No, Send Now" button in the attachment reminder dialog.
  */
 function click_no_send_now(controller) {
-  controller.window.document.documentElement.getButton('accept').doCommand();
+  controller.window.document.documentElement.getButton("accept").doCommand();
 }
 
 /**
@@ -711,7 +715,7 @@ function click_ok_on_send_error(controller) {
   if (controller.window.document.title != "Send Message Error")
     throw new Error("Not a send error dialog; title=" +
                     controller.window.document.title);
-  controller.window.document.documentElement.getButton('accept').doCommand();
+  controller.window.document.documentElement.getButton("accept").doCommand();
 }
 
 /**
@@ -721,5 +725,5 @@ function click_save_message(controller) {
   if (controller.window.document.title != "Save Message")
     throw new Error("Not a Save message dialog; title=" +
                     controller.window.document.title);
-  controller.window.document.documentElement.getButton('accept').doCommand();
+  controller.window.document.documentElement.getButton("accept").doCommand();
 }

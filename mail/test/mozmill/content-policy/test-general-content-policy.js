@@ -17,17 +17,25 @@
  * - Feed message
  */
 
-// make SOLO_TEST=content-policy/test-general-content-policy.js mozmill-one
-
 "use strict";
 
-var MODULE_NAME = 'test-general-content-policy';
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-keyboard-helpers.js */
+/* import-globals-from ../shared-modules/test-notificationbox-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers',
-                         'compose-helpers', 'content-tab-helpers',
-                         'keyboard-helpers',
-                         'notificationbox-helpers'];
+var MODULE_NAME = "test-general-content-policy";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "compose-helpers",
+  "content-tab-helpers",
+  "keyboard-helpers",
+  "notificationbox-helpers",
+];
 
 var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
@@ -40,7 +48,7 @@ var gMsgNo = 0;
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
 // so we get the right path for the resources.
-var url = collector.addHttpResource('../content-policy/html', 'content');
+var url = collector.addHttpResource("../content-policy/html", "content");
 
 /**
  * The TESTS array is constructed from objects containing the following:
@@ -65,7 +73,7 @@ var TESTS = [
     checkForAllowed: function img_checkAllowed(element) {
       return element.QueryInterface(Ci.nsIImageLoadingContent)
                     .imageBlockingStatus == Ci.nsIContentPolicy.ACCEPT;
-    }
+    },
   },
   {
     type: "Video",
@@ -74,7 +82,7 @@ var TESTS = [
     webPage: "remotevideo.html",
     checkForAllowed: function video_checkAllowed(element) {
       return element.networkState != element.NETWORK_NO_SOURCE;
-    }
+    },
   },
   {
     type: "Image-Data",
@@ -84,34 +92,33 @@ var TESTS = [
     checkForAllowed: function img_checkAllowed(element) {
       return element.QueryInterface(Ci.nsIImageLoadingContent)
                     .imageBlockingStatus == Ci.nsIContentPolicy.ACCEPT;
-    }
-  }
+    },
+  },
 ];
 
 // These two constants are used to build the message body.
 var msgBodyStart = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">\n' +
-'<html>\n' +
-'<head>\n' +
-'\n' +
+"<html>\n" +
+"<head>\n" +
+"\n" +
 '<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">\n' +
-'</head>\n' +
+"</head>\n" +
 '<body bgcolor="#ffffff" text="#000000">\n';
 
-var msgBodyEnd = '</body>\n</html>\n';
+var msgBodyEnd = "</body>\n</html>\n";
 
-var setupModule = function (module) {
+function setupModule(module) {
   for (let dep of MODULE_REQUIRES) {
     collector.getModule(dep).installInto(module);
   }
 
   folder = create_folder("generalContentPolicy");
-};
+}
 
 function addToFolder(aSubject, aBody, aFolder) {
-
   let msgId = Cc["@mozilla.org/uuid-generator;1"]
                           .getService(Ci.nsIUUIDGenerator)
-                          .generateUUID() +"@mozillamessaging.invalid";
+                          .generateUUID() + "@mozillamessaging.invalid";
 
   let source = "From - Sat Nov  1 12:39:54 2008\n" +
                "X-Mozilla-Status: 0001\n" +
@@ -374,7 +381,6 @@ function checkAllowForHostsWithPerms(test) {
 }
 
 function test_generalContentPolicy() {
-  let folderTab = mc.tabmail.currentTabInfo;
   be_in_folder(folder);
 
   assert_nothing_selected();

@@ -4,10 +4,12 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-archive-messages';
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers'];
+var MODULE_NAME = "test-archive-messages";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var folder;
 
@@ -17,9 +19,9 @@ var folder;
 var NUM_MESSAGES_IN_THREAD = 6;
 
 function setupModule(module) {
-  let fdh = collector.getModule('folder-display-helpers');
+  let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let wh = collector.getModule('window-helpers');
+  let wh = collector.getModule("window-helpers");
   wh.installInto(module);
 
   folder = create_folder("ThreadedMessages");
@@ -93,7 +95,7 @@ function test_batch_archiver() {
   /* Test archiving a partial selection */
   let child2 = select_click_row(1);
   let child3 = select_click_row(2);
-  let child4 = select_click_row(3);
+  select_click_row(3);
 
   select_shift_click_row(2);
   select_shift_click_row(1);

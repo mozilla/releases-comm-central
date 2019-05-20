@@ -6,15 +6,15 @@
  * Tests for attached vcards.
  */
 
-// make SOLO_TEST=message-window/test-vcard-actions.js mozmill-one
-
 "use strict";
 
-var MODULE_NAME = "test-vcard-actions";
+/* import-globals-from ../shared-modules/test-address-book-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-vcard-actions";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
-                       "address-book-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "address-book-helpers"];
 
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 

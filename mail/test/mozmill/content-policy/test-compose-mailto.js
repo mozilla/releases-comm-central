@@ -4,12 +4,21 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-compose-mailto';
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-keyboard-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'compose-helpers',
-                       'window-helpers', 'keyboard-helpers',
-                       'content-tab-helpers'];
+var MODULE_NAME = "test-compose-mailto";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "compose-helpers",
+  "window-helpers",
+  "keyboard-helpers",
+  "content-tab-helpers",
+];
 
 var folder = null;
 var composeHelper = null;
@@ -21,20 +30,20 @@ var gPreCount;
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
 // so we get the right path for the resources.
-var url = collector.addHttpResource('../content-policy/html', 'content');
+var url = collector.addHttpResource("../content-policy/html", "content");
 
-var setupModule = function (module) {
-  let fdh = collector.getModule('folder-display-helpers');
+function setupModule(module) {
+  let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let kh = collector.getModule('keyboard-helpers');
+  let kh = collector.getModule("keyboard-helpers");
   kh.installInto(module);
-  composeHelper = collector.getModule('compose-helpers');
+  composeHelper = collector.getModule("compose-helpers");
   composeHelper.installInto(module);
-  windowHelper = collector.getModule('window-helpers');
+  windowHelper = collector.getModule("window-helpers");
   windowHelper.installInto(module);
   let cth = collector.getModule("content-tab-helpers");
   cth.installInto(module);
-};
+}
 
 function test_openComposeFromMailToLink() {
   // Open a content tab with the mailto link in it.

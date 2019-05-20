@@ -8,11 +8,13 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-folder-pane';
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-nntp-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
-                       "nntp-helpers"];
+var MODULE_NAME = "test-folder-pane";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "nntp-helpers"];
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
@@ -67,7 +69,6 @@ function test_offline_sync_folder_selection_tree() {
                                { id: "appmenu_offline" },
                                { id: "appmenu_synchronizeOffline" } ]);
   wait_for_modal_dialog("mailnews:synchronizeOffline");
-
 }
 
 function subtest_offline_sync(osc) {

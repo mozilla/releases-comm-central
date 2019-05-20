@@ -9,8 +9,10 @@
 
 "use strict";
 
-var MODULE_NAME = "test-display-names";
+/* import-globals-from ../shared-modules/test-address-book-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 
+var MODULE_NAME = "test-display-names";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "address-book-helpers"];
 
@@ -90,13 +92,13 @@ function help_test_display_name(message, field, expectedValue) {
   // looking at in order to update information changed in address book entries.
   be_in_folder(decoyFolder);
   be_in_folder(folder);
-  let curMessage = select_click_row(message);
+  select_click_row(message);
 
-  let value = mc.e("expanded"+field+"Box", {tagName: "mail-emailaddress"})
+  let value = mc.e("expanded" + field + "Box", {tagName: "mail-emailaddress"})
                 .querySelector(".emaillabel").value;
 
   if (value != expectedValue)
-    throw new Error("got '"+value+"' but expected '"+expectedValue+"'");
+    throw new Error("got '" + value + "' but expected '" + expectedValue + "'");
 }
 
 
@@ -124,7 +126,7 @@ function test_single_identity_in_abook_no_pdn() {
 function test_multiple_identities() {
   ensure_no_card_exists(myEmail);
   ensure_multiple_identities();
-  help_test_display_name(0, "to", headertoFieldMe+" <"+myEmail+">");
+  help_test_display_name(0, "to", headertoFieldMe + " <" + myEmail + ">");
 }
 
 function test_multiple_identities_in_abook() {
@@ -136,7 +138,7 @@ function test_multiple_identities_in_abook() {
 function test_multiple_identities_in_abook_no_pdn() {
   ensure_card_exists(myEmail, "President Frankenstein");
   ensure_multiple_identities();
-  help_test_display_name(0, "to", headertoFieldMe+" <"+myEmail+">");
+  help_test_display_name(0, "to", headertoFieldMe + " <" + myEmail + ">");
 }
 
 
@@ -166,7 +168,7 @@ function test_no_header_name_in_abook_no_pdn() {
 function test_header_name() {
   ensure_no_card_exists(friendEmail);
   ensure_single_identity();
-  help_test_display_name(2, "from", friendName+" <"+friendEmail+">");
+  help_test_display_name(2, "from", friendName + " <" + friendEmail + ">");
 }
 
 function test_header_name_in_abook() {

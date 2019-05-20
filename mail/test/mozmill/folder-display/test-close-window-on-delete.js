@@ -8,17 +8,19 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-close-window-on-delete';
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers'];
+var MODULE_NAME = "test-close-window-on-delete";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var folder;
 
 function setupModule(module) {
-  let fdh = collector.getModule('folder-display-helpers');
+  let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let wh = collector.getModule('window-helpers');
+  let wh = collector.getModule("window-helpers");
   wh.installInto(module);
 
   folder = create_folder("CloseWindowOnDeleteA");
@@ -35,11 +37,11 @@ function disabled_test_close_message_window_on_delete_from_message_window() {
   be_in_folder(folder);
 
   // select the first message
-  let firstMessage = select_click_row(0);
+  select_click_row(0);
   // display it
   let msgc = open_selected_message_in_new_window();
 
-  let secondMessage = select_click_row(1);
+  select_click_row(1);
   let msgc2 = open_selected_message_in_new_window();
 
   let preCount = folder.getTotalMessages(false);
@@ -67,12 +69,12 @@ function disabled_test_close_multiple_message_windows_on_delete_from_message_win
   be_in_folder(folder);
 
   // select the first message
-  let firstMessage = select_click_row(0);
+  select_click_row(0);
   // display it
   let msgc = open_selected_message_in_new_window();
   let msgcA = open_selected_message_in_new_window();
 
-  let secondMessage = select_click_row(1);
+  select_click_row(1);
   let msgc2 = open_selected_message_in_new_window();
 
   let preCount = folder.getTotalMessages(false);
@@ -103,12 +105,12 @@ function disabled_test_close_multiple_message_windows_on_delete_from_3pane_windo
   be_in_folder(folder);
 
   // select the first message
-  let firstMessage = select_click_row(0);
+  select_click_row(0);
   // display it
   let msgc = open_selected_message_in_new_window();
   let msgcA = open_selected_message_in_new_window();
 
-  let secondMessage = select_click_row(1);
+  select_click_row(1);
   let msgc2 = open_selected_message_in_new_window();
 
   let preCount = folder.getTotalMessages(false);
@@ -140,11 +142,11 @@ function test_close_message_tab_on_delete_from_message_tab() {
   be_in_folder(folder);
 
   // select the first message
-  let firstMessage = select_click_row(0);
+  select_click_row(0);
   // display it
   let msgc = open_selected_message_in_new_tab(true);
 
-  let secondMessage = select_click_row(1);
+  select_click_row(1);
   let msgc2 = open_selected_message_in_new_tab(true);
 
   let preCount = folder.getTotalMessages(false);
@@ -173,12 +175,12 @@ function disabled_test_close_multiple_message_tabs_on_delete_from_message_tab() 
   be_in_folder(folder);
 
   // select the first message
-  let firstMessage = select_click_row(0);
+  select_click_row(0);
   // display it
   let msgc = open_selected_message_in_new_tab(true);
-  let msgcA = open_selected_message_in_new_tab(true);
+  open_selected_message_in_new_tab(true);
 
-  let secondMessage = select_click_row(1);
+  select_click_row(1);
   let msgc2 = open_selected_message_in_new_tab(true);
 
   let preCount = folder.getTotalMessages(false);
@@ -207,12 +209,12 @@ function disabled_test_close_multiple_message_tabs_on_delete_from_3pane_window()
   be_in_folder(folder);
 
   // select the first message
-  let firstMessage = select_click_row(0);
+  select_click_row(0);
   // display it
-  let msgc = open_selected_message_in_new_tab(true);
-  let msgcA = open_selected_message_in_new_tab(true);
+  open_selected_message_in_new_tab(true);
+  open_selected_message_in_new_tab(true);
 
-  let secondMessage = select_click_row(1);
+  select_click_row(1);
   let msgc2 = open_selected_message_in_new_tab(true);
 
   let preCount = folder.getTotalMessages(false);
@@ -242,12 +244,12 @@ function disabled_test_close_multiple_windows_tabs_on_delete_from_3pane_window()
   be_in_folder(folder);
 
   // select the first message
-  let firstMessage = select_click_row(0);
+  select_click_row(0);
   // display it
-  let msgc = open_selected_message_in_new_tab(true);
+  open_selected_message_in_new_tab(true);
   let msgcA = open_selected_message_in_new_window();
 
-  let secondMessage = select_click_row(1);
+  select_click_row(1);
   let msgc2 = open_selected_message_in_new_tab(true);
   let msgc2A = open_selected_message_in_new_window();
 

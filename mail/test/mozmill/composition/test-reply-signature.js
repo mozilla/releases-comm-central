@@ -6,15 +6,21 @@
  * Tests the mail.strip_sig_on_reply pref.
  */
 
-// make SOLO_TEST=composition/test-reply-signature.js mozmill-one
-
 "use strict";
 
-var MODULE_NAME = "test-reply-signature";
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-message-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-reply-signature";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers",
-                         "message-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "compose-helpers",
+  "window-helpers",
+  "message-helpers",
+];
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
@@ -35,8 +41,8 @@ function setupModule(module) {
         "get with the \n flow! get with the flow!\n-- \n" + sig + "\n",
       contentType: "text/plain",
       charset: "UTF-8",
-      format: "flowed"
-    }
+      format: "flowed",
+    },
   });
   add_message_to_folder(folder, msg);
   let msg2 = create_message({
@@ -46,11 +52,11 @@ function setupModule(module) {
         "not flowed!\n-- \n" + sig + "\n",
       contentType: "text/plain",
       charset: "UTF-8",
-      format: ""
-    }
+      format: "",
+    },
   });
   add_message_to_folder(folder, msg2);
-};
+}
 
 /** Test sig strip true for format flowed. */
 function test_sig_strip_true_ff() {
@@ -95,8 +101,7 @@ function check_sig_strip_works(aRow, aShouldStrip) {
 
   if (aShouldStrip && body.textContent.includes(sig)) {
     throw new Error("signature was not stripped; body=" + body.textContent);
-  }
-  else if (!aShouldStrip && !body.textContent.includes(sig)) {
+  } else if (!aShouldStrip && !body.textContent.includes(sig)) {
     throw new Error("signature stripped; body=" + body.textContent);
   }
   close_compose_window(rwc);

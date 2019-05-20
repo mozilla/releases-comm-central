@@ -11,12 +11,13 @@
 
 "use strict";
 
-var MODULE_NAME = "test-message-commands-on-msgstore";
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-message-commands-on-msgstore";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers",
-                         "compose-helpers",
-                         "window-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
@@ -49,13 +50,13 @@ function setupModule(module) {
   let urlListener = {
     compactDone: false,
 
-    OnStartRunningUrl: function (aUrl) {
+    OnStartRunningUrl(aUrl) {
     },
-    OnStopRunningUrl: function (aUrl, aExitCode) {
+    OnStopRunningUrl(aUrl, aExitCode) {
       assert_equals(aExitCode, 0);
       assert_true(gInbox.msgDatabase.summaryValid);
       this.compactDone = true;
-    }
+    },
   };
 
   // Compaction adds the X-Mozilla-Status rows into the messages
@@ -88,7 +89,7 @@ function check_status(aMsgHdr, aOffset, aStatusOffset, aStatus) {
 
   let expectedStatusString = aStatus.toString(16);
   while (expectedStatusString.length < 4) {
-    expectedStatusString = '0' + expectedStatusString;
+    expectedStatusString = "0" + expectedStatusString;
   }
 
   assert_equals(mboxstring.substr(aOffset + aStatusOffset, statusHeader.length),

@@ -6,15 +6,15 @@
  * Test that phishing notifications behave properly.
  */
 
-// make SOLO_TEST=message-header/test-phishing-bar.js mozmill-one
-
 "use strict";
 
-var MODULE_NAME = "test-phishing-bar";
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-notificationbox-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-phishing-bar";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers",
-                         "window-helpers", "notificationbox-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "notificationbox-helpers"];
 
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
@@ -31,28 +31,28 @@ function setupModule(module) {
   folder = create_folder("PhishingBarA");
   add_message_to_folder(folder, create_message({body: {
     body: '<form action="http://localhost/download-me"><input></form>.',
-    contentType: "text/html"
+    contentType: "text/html",
   }}));
   add_message_to_folder(folder, create_message());
   add_message_to_folder(folder, create_message({body: {
-    body: 'check out http://130.128.4.1. and http://130.128.4.2/.',
-    contentType: "text/plain"
+    body: "check out http://130.128.4.1. and http://130.128.4.2/.",
+    contentType: "text/plain",
   }}));
   add_message_to_folder(folder, create_message({body: {
     body: '<a href="http://subdomain.google.com/">http://www.google.com</a>.',
-    contentType: "text/html"
+    contentType: "text/html",
   }}));
   add_message_to_folder(folder, create_message({body: {
     body: '<a href="http://subdomain.google.com/">http://google.com</a>.',
-    contentType: "text/html"
+    contentType: "text/html",
   }}));
   add_message_to_folder(folder, create_message({body: {
     body: '<a href="http://evilhost">http://localhost</a>.',
-    contentType: "text/html"
+    contentType: "text/html",
   }}));
   add_message_to_folder(folder, create_message({body: {
     body: '<form action="http://localhost/download-me"><input></form>.',
-    contentType: "text/html"
+    contentType: "text/html",
   }}));
 }
 

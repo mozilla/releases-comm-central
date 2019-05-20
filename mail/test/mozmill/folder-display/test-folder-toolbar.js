@@ -9,15 +9,16 @@
 
 "use strict";
 
-var MODULE_NAME = "test-folder-toolbar";
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-folder-toolbar";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var folderA, folderB;
 
-function setupModule(module)
-{
+function setupModule(module) {
   let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
   let wh = collector.getModule("window-helpers");
@@ -29,8 +30,7 @@ function setupModule(module)
   make_new_sets_in_folder(folderB, [{count: 1}]);
 }
 
-function test_add_folder_toolbar()
-{
+function test_add_folder_toolbar() {
   // It should not be present by default
   let folderLoc = mc.eid("locationFolders");
   mc.assertNodeNotExist(folderLoc);
@@ -44,8 +44,7 @@ function test_add_folder_toolbar()
                 "Uninitialized Folder doesn't have a default label.");
 }
 
-function test_folder_toolbar_shows_correct_item()
-{
+function test_folder_toolbar_shows_correct_item() {
   add_to_toolbar(mc.e("mail-bar3"), "folder-location-container");
   let folderLoc = mc.eid("locationFolders");
 
@@ -80,8 +79,7 @@ function test_folder_toolbar_shows_correct_item()
   close_tab(tabFolderB);
 }
 
-function test_folder_toolbar_disappears_on_message_tab()
-{
+function test_folder_toolbar_disappears_on_message_tab() {
   add_to_toolbar(mc.e("mail-bar3"), "folder-location-container");
   be_in_folder(folderB);
   let folderLoc = mc.eid("locationFolders");
@@ -92,7 +90,7 @@ function test_folder_toolbar_disappears_on_message_tab()
                 "The toolbar should be shown.");
 
   // Select one message
-  let msgHdr = select_click_row(0);
+  select_click_row(0);
   // Open it
   let messageTab = open_selected_message_in_new_tab();
 

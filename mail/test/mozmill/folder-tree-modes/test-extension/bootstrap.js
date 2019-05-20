@@ -7,7 +7,7 @@
 
 var {ExtensionSupport} = ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
 
-//const addonID = "testfoldertreemode@mozilla.org";
+// const addonID = "testfoldertreemode@mozilla.org";
 
 function install() {}
 
@@ -18,7 +18,7 @@ function startup(data, reason) {
     data.id,
     {
       chromeURLs: [ "chrome://messenger/content/messenger.xul" ],
-      onLoadWindow: setupFolderMode
+      onLoadWindow: setupFolderMode,
     });
 }
 
@@ -29,7 +29,7 @@ function shutdown(data, reason) {
 function setupFolderMode(aWindow) {
   let testFolderTreeMode = {
     __proto__: aWindow.IFolderTreeMode,
-    generateMap: function(aFTV) {
+    generateMap(aFTV) {
       var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
       // Pick the tinderbox@foo.invalid inbox and use it as the only folder
       let server = MailServices.accounts.FindServer("tinderbox", "tinderbox123", "pop3");

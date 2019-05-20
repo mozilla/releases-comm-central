@@ -4,11 +4,13 @@
 
 "use strict";
 
-var MODULE_NAME = "test-account-actions";
+/* import-globals-from ../shared-modules/test-account-manager-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-account-actions";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
-                         "account-manager-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "account-manager-helpers"];
 
 var imapAccount, nntpAccount, originalAccountCount;
 
@@ -69,8 +71,7 @@ function teardownModule(module) {
  *                                should be enabled, false otherwise
  */
 function subtest_check_account_actions(amc, aAccountKey, aIsSetAsDefaultEnabled,
-                                       aIsRemoveEnabled, aIsAddAccountEnabled)
-{
+                                       aIsRemoveEnabled, aIsAddAccountEnabled) {
   let accountRow = get_account_tree_row(aAccountKey, null, amc);
   click_account_tree_row(amc, accountRow);
 

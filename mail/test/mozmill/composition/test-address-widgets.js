@@ -8,13 +8,15 @@
 
 "use strict";
 
-var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-address-widgets";
-
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers",
-                         "window-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
+
+var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
 var cwc = null; // compose window controller
 var accountPOP3 = null;
@@ -33,7 +35,7 @@ function setupModule(module) {
 
   // There may be pre-existing accounts from other tests.
   originalAccountCount = MailServices.accounts.allServers.length;
-};
+}
 
 function teardownModule(module) {
 }

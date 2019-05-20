@@ -8,24 +8,32 @@
 
 "use strict";
 
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-keyboard-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-image-insertion-dialog";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "compose-helpers",
+  "window-helpers",
+  "keyboard-helpers",
+];
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'compose-helpers',
-                       'window-helpers', 'keyboard-helpers'];
+var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
 
 var fdh, ch, wh, kh;
 
 function setupModule(module) {
-  fdh = collector.getModule('folder-display-helpers');
+  fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
   ch = collector.getModule("compose-helpers");
   ch.installInto(module);
-  wh = collector.getModule('window-helpers');
+  wh = collector.getModule("window-helpers");
   wh.installInto(module);
-  kh = collector.getModule('keyboard-helpers');
+  kh = collector.getModule("keyboard-helpers");
   kh.installInto(module);
 }
 

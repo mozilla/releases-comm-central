@@ -9,17 +9,19 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-right-click-middle-click-folders';
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers'];
+var MODULE_NAME = "test-right-click-middle-click-folders";
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var folderA, folderB, folderC;
 
 function setupModule(module) {
-  let fdh = collector.getModule('folder-display-helpers');
+  let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let wh = collector.getModule('window-helpers');
+  let wh = collector.getModule("window-helpers");
   wh.installInto(module);
 
   folderA = create_folder("RightClickMiddleClickFoldersA");
@@ -126,7 +128,7 @@ function _middle_click_folder_with_nothing_selected_helper(aBackground) {
   assert_no_folders_selected();
 
   let originalTab = mc.tabmail.currentTabInfo;
-  let [newTab, ] = middle_click_on_folder(folderA);
+  let [newTab] = middle_click_on_folder(folderA);
   if (aBackground) {
     // Make sure we haven't switched to the new tab.
     assert_selected_tab(originalTab);
@@ -150,7 +152,7 @@ function _middle_click_folder_with_one_thing_selected_helper(aBackground) {
   assert_folder_selected_and_displayed(folderB);
 
   let originalTab = mc.tabmail.currentTabInfo;
-  let [newTab, ] = middle_click_on_folder(folderA);
+  let [newTab] = middle_click_on_folder(folderA);
   if (aBackground) {
     // Make sure we haven't switched to the new tab.
     assert_selected_tab(originalTab);
@@ -169,7 +171,7 @@ function _middle_click_folder_with_many_things_selected_helper(aBackground) {
   assert_folders_selected_and_displayed(folderB, folderC);
 
   let originalTab = mc.tabmail.currentTabInfo;
-  let [newTab, ] = middle_click_on_folder(folderA);
+  let [newTab] = middle_click_on_folder(folderA);
   if (aBackground) {
     // Make sure we haven't switched to the new tab.
     assert_selected_tab(originalTab);
@@ -192,7 +194,7 @@ function _middle_click_folder_on_existing_single_selection_helper(aBackground) {
   assert_folder_selected_and_displayed(folderC);
 
   let originalTab = mc.tabmail.currentTabInfo;
-  let [newTab, ] = middle_click_on_folder(folderC);
+  let [newTab] = middle_click_on_folder(folderC);
   if (aBackground) {
     // Make sure we haven't switched to the new tab.
     assert_selected_tab(originalTab);
@@ -214,7 +216,7 @@ function _middle_click_on_existing_multi_selection_helper(aBackground) {
   assert_folders_selected_and_displayed(folderA, folderB, folderC);
 
   let originalTab = mc.tabmail.currentTabInfo;
-  let [newTab, ] = middle_click_on_folder(folderB);
+  let [newTab] = middle_click_on_folder(folderB);
   if (aBackground) {
     // Make sure we haven't switched to the new tab.
     assert_selected_tab(originalTab);
@@ -255,5 +257,5 @@ _generate_background_foreground_tests([
   "middle_click_folder_with_nothing_selected",
   "middle_click_folder_with_one_thing_selected",
   "middle_click_folder_with_many_things_selected",
-  "middle_click_folder_on_existing_single_selection"
+  "middle_click_folder_on_existing_single_selection",
 ]);

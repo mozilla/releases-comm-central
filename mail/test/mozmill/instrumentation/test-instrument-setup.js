@@ -4,11 +4,13 @@
 
 "use strict";
 
-var MODULE_NAME = "test-instrument-setup";
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-keyboard-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-instrument-setup";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
-                       "keyboard-helpers" ];
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "keyboard-helpers"];
 
 var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -48,13 +50,10 @@ function test_mail_account_setup() {
   // Load the autoconfig file from http://localhost:433**/autoconfig/example.com
   awc.e("next_button").click();
 
-  let config = null;
-
   // XXX: This should probably use a notification, once we fix bug 561143.
   awc.waitFor(() => awc.window.gEmailConfigWizard._currentConfig != null,
               "Timeout waiting for current config to become non-null",
               8000, 600);
-  config = awc.window.gEmailConfigWizard._currentConfig;
   plan_for_window_close(awc);
   awc.e("create_button").click();
 
@@ -62,9 +61,9 @@ function test_mail_account_setup() {
   wait_for_window_close();
 
   // we expect to have accountAdded and smtpServerAdded events.
-  if (! (events["accountAdded"].data))
+  if (!(events.accountAdded.data))
     throw new Error("failed to add an account");
-  else if (! (events["smtpServerAdded"].data))
+  else if (!(events.smtpServerAdded.data))
     throw new Error("failed to add an smtp server");
 }
 
@@ -72,7 +71,7 @@ function test_mail_account_setup() {
 function tearDownModule(module) {
   let incomingServer = MailServices.accounts.FindServer("roger.sterling", user.incomingHost, "pop3");
   assert_equals(incomingServer.hostName, user.incomingHost);
-  let account = MailServices.accounts.FindAccountForServer(incomingServer)
+  let account = MailServices.accounts.FindAccountForServer(incomingServer);
 
   let identity = account.defaultIdentity;
   MailServices.accounts.removeIncomingServer(incomingServer, true);

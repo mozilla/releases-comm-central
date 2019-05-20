@@ -8,11 +8,19 @@
 
 "use strict";
 
-var MODULE_NAME = "test-send-button";
+/* import-globals-from ../shared-modules/test-address-book-helpers.js */
+/* import-globals-from ../shared-modules/test-compose-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-send-button";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers",
-                         "window-helpers", "address-book-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "compose-helpers",
+  "window-helpers",
+  "address-book-helpers",
+];
 
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
@@ -20,7 +28,7 @@ var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm"
 
 var account = null;
 
-var setupModule = function (module) {
+function setupModule(module) {
   collector.getModule("folder-display-helpers").installInto(module);
   collector.getModule("compose-helpers").installInto(module);
   collector.getModule("window-helpers").installInto(module);
@@ -32,7 +40,7 @@ var setupModule = function (module) {
   account = MailServices.accounts.FindAccountForServer(server);
   let inbox = get_special_folder(Ci.nsMsgFolderFlags.Inbox, false, server);
   be_in_folder(inbox);
-};
+}
 
 /**
  * Check if the send commands are in the wished state.
@@ -59,7 +67,6 @@ function check_send_commands_state(aCwc, aEnabled) {
  * by the user.
  */
 function test_send_enabled_manual_address() {
-  let isMac = AppConstants.platform == "macosx";
   let cwc = open_compose_new_mail(); // compose controller
   // On an empty window, Send must be disabled.
   check_send_commands_state(cwc, false);

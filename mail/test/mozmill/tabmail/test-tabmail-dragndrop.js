@@ -11,12 +11,13 @@ var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
  * Test rearanging tabs via drag'n'drop.
  */
 
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-mouse-event-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
+
 var MODULE_NAME = "test-tabmail-dragndrop";
-
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
-                       'mouse-event-helpers'];
-
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "mouse-event-helpers"];
 
 var folder;
 var msgHdrsInFolder = [];
@@ -29,7 +30,7 @@ function setupModule(module) {
   fdh.installInto(module);
   let wh = collector.getModule("window-helpers");
   wh.installInto(module);
-  let meh = collector.getModule('mouse-event-helpers');
+  let meh = collector.getModule("mouse-event-helpers");
   meh.installInto(module);
 
   folder = create_folder("MessageFolder");
@@ -41,7 +42,6 @@ function setupModule(module) {
  * all global variables.
  */
 function test_tab_reorder_setup_globals() {
-
   be_in_folder(folder);
   // Scroll to the top
   mc.folderDisplay.ensureRowIsVisible(0);
@@ -56,7 +56,7 @@ function test_tab_reorder_setup_globals() {
 
   assert_row_visible(1);
 
-  //Initialize the globals we'll need for all our tests.
+  // Initialize the globals we'll need for all our tests.
 
   // Stash messages into arrays for convenience. We do it this way so that the
   // order of messages in the arrays is the same as in the views.
@@ -74,8 +74,7 @@ function test_tab_reorder_setup_globals() {
  * It opens additional movable and closable tabs. The picks the first
  * movable tab and drops it onto the third movable tab.
  */
-function test_tab_reorder_tabbar(){
-
+function test_tab_reorder_tabbar() {
   // Ensure only one tab is open, otherwise our test most likey fail anyway.
   mc.tabmail.closeOtherTabs(0);
   assert_number_of_tabs_open(1);
@@ -83,7 +82,7 @@ function test_tab_reorder_tabbar(){
   be_in_folder(folder);
 
   // Open four tabs
-  for (let idx=0; idx < 4 ; idx++) {
+  for (let idx = 0; idx < 4; idx++) {
     select_click_row(idx);
     open_selected_message_in_new_tab(true);
   }
@@ -91,13 +90,13 @@ function test_tab_reorder_tabbar(){
   // Check if every thing is correctly initialized
   assert_number_of_tabs_open(5);
 
-  assert_true(mc.tabmail.tabModes["message"].tabs[0] == mc.tabmail.tabInfo[1],
+  assert_true(mc.tabmail.tabModes.message.tabs[0] == mc.tabmail.tabInfo[1],
       " tabMode.tabs and tabInfo out of sync");
 
-  assert_true(mc.tabmail.tabModes["message"].tabs[1] == mc.tabmail.tabInfo[2],
+  assert_true(mc.tabmail.tabModes.message.tabs[1] == mc.tabmail.tabInfo[2],
       " tabMode.tabs and tabInfo out of sync");
 
-  assert_true(mc.tabmail.tabModes["message"].tabs[2] == mc.tabmail.tabInfo[3],
+  assert_true(mc.tabmail.tabModes.message.tabs[2] == mc.tabmail.tabInfo[3],
       " tabMode.tabs and tabInfo out of sync");
 
   // Start dragging the first tab
@@ -130,21 +129,20 @@ function test_tab_reorder_tabbar(){
   // we have one "message" tab and three "folder" tabs, thus tabInfo[1-3] and
   // tabMode["message"].tabs[0-2] have to be same, otherwise something went
   // wrong while moving tabs around
-  assert_true(mc.tabmail.tabModes["message"].tabs[0] == mc.tabmail.tabInfo[1],
+  assert_true(mc.tabmail.tabModes.message.tabs[0] == mc.tabmail.tabInfo[1],
       " tabMode.tabs and tabInfo out of sync");
 
-  assert_true(mc.tabmail.tabModes["message"].tabs[1] == mc.tabmail.tabInfo[2],
+  assert_true(mc.tabmail.tabModes.message.tabs[1] == mc.tabmail.tabInfo[2],
       " tabMode.tabs and tabInfo out of sync");
 
-  assert_true(mc.tabmail.tabModes["message"].tabs[2] == mc.tabmail.tabInfo[3],
+  assert_true(mc.tabmail.tabModes.message.tabs[2] == mc.tabmail.tabInfo[3],
       " tabMode.tabs and tabInfo out of sync");
 }
 
 /**
  * Tests drag'n'drop tab reordering between windows
  */
-function test_tab_reorder_window(){
-
+function test_tab_reorder_window() {
   // Ensure only one tab is open, otherwise our test most likey fail anyway.
   mc.tabmail.closeOtherTabs(0);
   assert_number_of_tabs_open(1);
@@ -173,10 +171,10 @@ function test_tab_reorder_window(){
         "all,chrome,dialog=no,status,toolbar", args);
 
   mc2 = wait_for_new_window("mail:3pane");
-  wait_for_message_display_completion(mc2,true);
+  wait_for_message_display_completion(mc2, true);
 
   // Double check if we are listening to the right window.
-  assert_true(aWnd2 == mc2.window, "Opening Window failed" );
+  assert_true(aWnd2 == mc2.window, "Opening Window failed");
 
   // Start dragging the first tab ...
   let tabA = mc.tabmail.tabContainer.childNodes[1];
@@ -191,20 +189,19 @@ function test_tab_reorder_window(){
 
   wait_for_message_display_completion(mc2);
 
-  assert_true( !! (mc.tabmail.tabContainer.childNodes.length == 1),
+  assert_true(mc.tabmail.tabContainer.childNodes.length == 1,
     "Moving tab to new window failed, tab still in old window");
 
-  assert_true( !! (mc2.tabmail.tabContainer.childNodes.length == 2),
+  assert_true(mc2.tabmail.tabContainer.childNodes.length == 2,
     "Moving tab to new window failed, no new tab in new window");
 
-  assert_selected_and_displayed(mc2,msgHdrsInFolder[1]);
+  assert_selected_and_displayed(mc2, msgHdrsInFolder[1]);
 }
 
 /**
  * Tests detaching tabs into windows via drag'n'drop
  */
-function test_tab_reorder_detach(){
-
+function test_tab_reorder_detach() {
   // Ensure only one tab is open, otherwise our test most likey fail anyway.
   mc.tabmail.closeOtherTabs(0);
   assert_number_of_tabs_open(1);
@@ -236,8 +233,8 @@ function test_tab_reorder_detach(){
   // notify tab1 drag has ended
   let dropRect = dropContent.getBoundingClientRect();
   synthesize_drag_end(mc.window, dropContent, tab1, dt,
-      { screenX : (dropContent.screenX + dropRect.width / 2 ),
-        screenY : (dropContent.screenY + dropRect.height / 2 ) });
+      { screenX: (dropContent.screenX + dropRect.width / 2),
+        screenY: (dropContent.screenY + dropRect.height / 2) });
 
   // ... and wait for the new window
   mc2 = wait_for_new_window("mail:3pane");
@@ -250,7 +247,6 @@ function test_tab_reorder_detach(){
       "Moving tab to new window failed, no new tab in new window");
 
   assert_selected_and_displayed(mc2, msgHdrsInFolder[2]);
-
 }
 
 /**
@@ -294,8 +290,7 @@ function test_tab_undo() {
   assert_selected_and_displayed(mc, msgHdrsInFolder[1]);
 }
 
-function _synthesizeRecentlyClosedMenu()
-{
+function _synthesizeRecentlyClosedMenu() {
   mc.rightClick(new elib.Elem(mc.tabmail.tabContainer.childNodes[1]));
 
   let tabContextMenu = mc.window.document.getElementById("tabContextMenu");
@@ -310,17 +305,15 @@ function _synthesizeRecentlyClosedMenu()
   return recentlyClosedTabs;
 }
 
-function _teardownRecentlyClosedMenu()
-{
+function _teardownRecentlyClosedMenu() {
   let menu = mc.window.document.getElementById("tabContextMenu");
-  close_popup(mc,new elib.Elem(menu));
+  close_popup(mc, new elib.Elem(menu));
 }
 
 /**
  * Tests the recently closed tabs menu.
  */
 function test_tab_recentlyClosed() {
-
   // Ensure only one tab is open, otherwise our test most likey fail anyway.
   mc.tabmail.closeOtherTabs(0, true);
   assert_number_of_tabs_open(1);
@@ -343,7 +336,7 @@ function test_tab_recentlyClosed() {
   assert_selected_and_displayed(msgHdrsInFolder[1]);
 
   // ... and store the tab titles, to ensure they match with the menu items.
-  let tabTitles = []
+  let tabTitles = [];
   for (let idx = 0; idx < 16; idx++)
     tabTitles.unshift(mc.tabmail.tabInfo[idx].title);
 
@@ -358,12 +351,12 @@ function test_tab_recentlyClosed() {
 
   // Check if the context menu was populated correctly...
   assert_true(menu.itemCount == 12, "Failed to populate context menu");
-  for (let idx=0; idx < 10; idx++)
+  for (let idx = 0; idx < 10; idx++)
     assert_true(tabTitles[idx] == menu.getItemAtIndex(idx).label,
                 "Tab Title does not match Menu item");
 
   // Restore the most recently closed tab
-  EventUtils.synthesizeMouse(menu.getItemAtIndex(0),5, 5, {},mc.window);
+  EventUtils.synthesizeMouse(menu.getItemAtIndex(0), 5, 5, {}, mc.window);
   _teardownRecentlyClosedMenu();
 
   wait_for_message_display_completion(mc);
@@ -375,12 +368,12 @@ function test_tab_recentlyClosed() {
 
 
   assert_true(menu.itemCount == 11, "Failed to populate context menu");
-  for (let idx=0; idx < 9; idx++)
-    assert_true(tabTitles[idx+1] == menu.getItemAtIndex(idx).label,
+  for (let idx = 0; idx < 9; idx++)
+    assert_true(tabTitles[idx + 1] == menu.getItemAtIndex(idx).label,
                 "Tab Title does not match Menu item");
 
   // Now we restore an "random" tab.
-  EventUtils.synthesizeMouse(menu.getItemAtIndex(5),5, 5, {},mc.window);
+  EventUtils.synthesizeMouse(menu.getItemAtIndex(5), 5, 5, {}, mc.window);
   _teardownRecentlyClosedMenu();
 
   wait_for_message_display_completion(mc);
@@ -397,7 +390,7 @@ function test_tab_recentlyClosed() {
   assert_true(tabTitles[7] == menu.getItemAtIndex(5).label,
       "Tab Title does not match Menu item");
 
-  EventUtils.synthesizeMouse(menu.getItemAtIndex(menu.itemCount-1),5, 5, {},mc.window);
+  EventUtils.synthesizeMouse(menu.getItemAtIndex(menu.itemCount - 1), 5, 5, {}, mc.window);
   _teardownRecentlyClosedMenu();
 
   wait_for_message_display_completion(mc);
@@ -407,11 +400,8 @@ function test_tab_recentlyClosed() {
   assert_number_of_tabs_open(12);
 }
 
-function teardownTest(test)
-{
-
-  switch(test)
-  {
+function teardownTest(test) {
+  switch (test) {
     case test_tab_reorder_detach :
     case test_tab_reorder_window :
       // Some test cases open new windows, thus we need to ensure all
@@ -419,11 +409,10 @@ function teardownTest(test)
 
       let en = Services.wm.getEnumerator("mail:3pane");
 
-       while(en.hasMoreElements()) {
-
+       while (en.hasMoreElements()) {
          var win = en.getNext();
 
-         if(win != mc.window)
+         if (win != mc.window)
            close_window(new mozmill.controller.MozMillController(win));
        }
 
@@ -438,5 +427,4 @@ function teardownTest(test)
       mc.tabmail.closeOtherTabs(0);
       assert_number_of_tabs_open(1);
   }
-
 }

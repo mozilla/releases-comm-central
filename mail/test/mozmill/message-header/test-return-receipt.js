@@ -6,15 +6,15 @@
  * Test return receipt (MDN) stuff.
  */
 
-// make SOLO_TEST=message-header/test-return-receipt.js mozmill-one
-
 "use strict";
 
-var MODULE_NAME = "test-return-receipt";
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-notificationbox-helpers.js */
+/* import-globals-from ../shared-modules/test-window-helpers.js */
 
+var MODULE_NAME = "test-return-receipt";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
-                        "notificationbox-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "notificationbox-helpers"];
 
 var folder;
 
@@ -31,7 +31,7 @@ function setupModule(module) {
   // Create a message that requests a return receipt.
   let msg0 = create_message(
     {from: ["Ake", "ake@example.com"],
-      clobberHeaders: { "Disposition-Notification-To": "ake@example.com" }
+      clobberHeaders: { "Disposition-Notification-To": "ake@example.com" },
     });
   add_message_to_folder(folder, msg0);
 
@@ -42,21 +42,21 @@ function setupModule(module) {
   // Create a message that requests a return receipt to a different address.
   let msg2 = create_message(
     {from: ["Mimi", "me@example.org"],
-      clobberHeaders: { "Disposition-Notification-To": "other@example.com" }
+      clobberHeaders: { "Disposition-Notification-To": "other@example.com" },
     });
   add_message_to_folder(folder, msg2);
 
   // Create a message that requests a return receipt to different addresses.
   let msg3 = create_message(
     {from: ["Bobby", "bob@example.org"],
-      clobberHeaders: { "Disposition-Notification-To": "ex1@example.com, ex2@example.com" }
+      clobberHeaders: { "Disposition-Notification-To": "ex1@example.com, ex2@example.com" },
     });
   add_message_to_folder(folder, msg3);
 
   // Create a message that requests a return receipt using non-standard header.
   let msg4 = create_message(
     {from: ["Ake", "ake@example.com"],
-     clobberHeaders: { "Return-Receipt-To": "ake@example.com" }
+     clobberHeaders: { "Return-Receipt-To": "ake@example.com" },
     });
   add_message_to_folder(folder, msg4);
 
@@ -64,7 +64,7 @@ function setupModule(module) {
   // using non-standard header.
   let msg5 = create_message(
     {from: ["Mimi", "me@example.org"],
-     clobberHeaders: { "Return-Receipt-To": "other@example.com" }
+     clobberHeaders: { "Return-Receipt-To": "other@example.com" },
     });
   add_message_to_folder(folder, msg5);
 
@@ -72,7 +72,7 @@ function setupModule(module) {
   // using non-standard header.
   let msg6 = create_message(
    {from: ["Bobby", "bob@example.org"],
-     clobberHeaders: { "Return-Receipt-To": "ex1@example.com, ex2@example.com" }
+     clobberHeaders: { "Return-Receipt-To": "ex1@example.com, ex2@example.com" },
    });
   add_message_to_folder(folder, msg6);
 }
@@ -88,7 +88,6 @@ function gotoMsg(row) {
  * Utility to make sure the MDN bar is shown / not shown.
  */
 function assert_mdn_shown(shouldShow) {
-  let msgNotBar = mc.e("mail-notification-top");
   assert_notification_displayed(mc, kBoxId, kNotificationValue, shouldShow);
 }
 

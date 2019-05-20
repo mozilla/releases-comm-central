@@ -6,8 +6,7 @@
 
 var MODULE_NAME = "subscribe-window-helpers";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ['window-helpers', 'folder-display-helpers',
-                         'keyboard-helpers'];
+var MODULE_REQUIRES = ["window-helpers", "folder-display-helpers", "keyboard-helpers"];
 
 var folderDisplayHelper;
 var mc;
@@ -15,10 +14,10 @@ var windowHelper;
 var kh;
 
 function setupModule() {
-  folderDisplayHelper = collector.getModule('folder-display-helpers');
+  folderDisplayHelper = collector.getModule("folder-display-helpers");
   mc = folderDisplayHelper.mc;
-  windowHelper = collector.getModule('window-helpers');
-  kh = collector.getModule('keyboard-helpers');
+  windowHelper = collector.getModule("window-helpers");
+  kh = collector.getModule("keyboard-helpers");
 }
 
 function installInto(module) {
@@ -44,7 +43,7 @@ function open_subscribe_window_from_context_menu(aFolder, aFunction) {
     // When the "stop button" is disabled, the panel is populated.
     controller.waitFor(() => controller.e("stopButton").disabled);
     aFunction(controller);
-  }
+  };
   windowHelper.plan_for_modal_dialog("mailnews:subscribe", callback);
   mc.click(mc.eid("folderPaneContext-subscribe"));
   windowHelper.wait_for_modal_dialog("mailnews:subscribe");
@@ -85,7 +84,7 @@ function check_newsgroup_displayed(swc, name) {
   let treeview = tree.view;
   let nameCol = tree.columns.getColumnFor(swc.eid("nameColumn2").getNode());
   for (let i = 0; i < treeview.rowCount; i++) {
-    if (treeview.getCellText(i,nameCol)==name)
+    if (treeview.getCellText(i, nameCol) == name)
       return true;
   }
   return false;

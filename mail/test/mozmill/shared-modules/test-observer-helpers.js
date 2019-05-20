@@ -135,5 +135,5 @@ ObservationRecorder.prototype = {
       return 0;
 
     return this.saw[aTopic];
-  }
-}
+  },
+};
