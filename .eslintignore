@@ -17,7 +17,7 @@ other-licenses/**
 testing/**
 
 # Temporarily disabled until the XUL parser is fixed.
-calendar/base/content/calendar-calendars-list.xul
+calendar/lightning/content/messenger-overlay-sidebar.xul
 calendar/providers/gdata/content/gdata-calendar-creation.xul
 common/src/viewSource.xul
 
