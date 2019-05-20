@@ -329,7 +329,8 @@ var _byAttrib = function(parent, attributes) {
     for (var a in attributes) {
       requirementLength++;
       try {
-        if (n.getAttribute(a) == attributes[a]) {
+        if (n.getAttribute(a) == attributes[a] ||
+            (a == "class" && n.classList.contains(attributes[a]))) {
           requirementPass++;
         }
       } catch (err) {
