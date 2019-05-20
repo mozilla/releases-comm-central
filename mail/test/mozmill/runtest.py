@@ -220,10 +220,25 @@ class ThunderTestProfile(mozprofile.ThunderbirdProfile):
             dest = os.path.join(PROFILE_DIR, "plugins")
             shutil.copytree(PLUGINS_PATH, dest)
 
-        if wrapper is not None and hasattr(wrapper, "on_profile_created"):
-            # It's a little dangerous to allow on_profile_created access to the
-            # profile object, because it isn't fully initialized yet
-            wrapper.on_profile_created(PROFILE_DIR)
+        if wrapper is not None:
+            if hasattr(wrapper, "on_profile_created"):
+                # It's a little dangerous to allow on_profile_created access to the
+                # profile object, because it isn't fully initialized yet
+                wrapper.on_profile_created(PROFILE_DIR)
+
+            if hasattr(wrapper, "PREFS"):
+                with open(os.path.join(PROFILE_DIR, "user.js"), "w") as user_js:
+                    for key, value in wrapper.PREFS.iteritems():
+                        if value is True:
+                            value = "true"
+                        elif value is False:
+                            value = "false"
+                        elif not isinstance(value, int):
+                            value = "\"%s\"" % value
+                        user_js.write("pref(\"%s\", %s);\n" % (key, value))
+
+                with open(os.path.join(PROFILE_DIR, "user.js")) as user_js:
+                    print user_js.read()
 
         return PROFILE_DIR
 

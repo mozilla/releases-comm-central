@@ -4,26 +4,29 @@
 
 # For test-font-chooser.js we need a few default prefs -- this module does that.
 
-import os
-import shutil
 import sys
 
-_pref_file_names = {
-    "win32": "windows-prefs.js",
-    "darwin": "mac-prefs.js",
-    "linux2": "linux-prefs.js",
-}
+# Default preferences used for test-font-chooser.js. The UUIDs here
+# should be kept in sync with kFakeFonts in test-font-chooser.js.
 
+if sys.platform == "win32":
+    PREFS = {
+        "font.name-list.serif.x-western": "bc7e8c62-0634-467f-a029-fe6abcdf1582, Times New Roman",
+        "font.name-list.sans-serif.x-western": "419129aa-43b7-40c4-b554-83d99b504b89, Arial",
+        "font.name-list.monospace.x-western": "348df6e5-e874-4d21-ad4b-359b530a33b7, Courier New",
+    }
 
-def on_profile_created(profiledir):
-    """
-    On profile creation, this copies *-prefs.js from the current folder to
-    profile_dir as a user.js file. These user prefs is interpreted in addition
-    to the standard prefs.js file.
-    """
-    # The pref file is in the same directory this script is in.
-    # Fallback to Linux prefs for anything not in the dictionary -- we're
-    # assuming that they're other unixes.
-    preffile = os.path.join(os.path.dirname(__file__),
-                            _pref_file_names.get(sys.platform, "linux-prefs.js"))
-    shutil.copy(preffile, os.path.join(profiledir, "user.js"))
+elif sys.platform == "darwin":
+    PREFS = {
+        "font.name-list.serif.x-western": "bc7e8c62-0634-467f-a029-fe6abcdf1582, Times",
+        "font.name-list.sans-serif.x-western": "419129aa-43b7-40c4-b554-83d99b504b89, Helvetica",
+        "font.name-list.monospace.x-western": "348df6e5-e874-4d21-ad4b-359b530a33b7, Courier",
+    }
+
+else:
+    # Fallback to Linux prefs -- we're assuming that they're other unixes.
+    PREFS = {
+        "font.name-list.serif.x-western": "bc7e8c62-0634-467f-a029-fe6abcdf1582, serif",
+        "font.name-list.sans-serif.x-western": "419129aa-43b7-40c4-b554-83d99b504b89, sans-serif",
+        "font.name-list.monospace.x-western": "348df6e5-e874-4d21-ad4b-359b530a33b7, monospace",
+    }

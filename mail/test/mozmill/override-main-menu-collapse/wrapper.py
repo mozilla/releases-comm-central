@@ -14,13 +14,7 @@ NO_ACCOUNTS = True
 # Do not force enable main menu bar, we'll set our own value in prefs.js.
 DEFAULT_MENUBAR = True
 
-
-def on_profile_created(profiledir):
-    """
-    On profile creation, this copies prefs.js from the current folder to
-    profile_dir as a user.js file. These user prefs is interpreted in addition
-    to the standard prefs.js file.
-    """
-    # The pref file is in the same directory this script is in.
-    preffile = os.path.join(os.path.dirname(__file__), "prefs.js")
-    shutil.copy(preffile, os.path.join(profiledir, "user.js"))
+PREFS = {
+    "mail.provider.enabled": False,
+    "mail.main_menu.collapse_by_default": False,
+}
