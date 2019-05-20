@@ -27,15 +27,15 @@ var calendarViewController = {
      * Creates a new event
      * @see calICalendarViewController
      */
-    createNewEvent: function(aCalendar, aStartTime, aEndTime, aForceAllday) {
+    createNewEvent: function(calendar, startTime, endTime, forceAllday) {
         // if we're given both times, skip the dialog
-        if (aStartTime && aEndTime && !aStartTime.isDate && !aEndTime.isDate) {
+        if (startTime && endTime && !startTime.isDate && !endTime.isDate) {
             let item = cal.createEvent();
-            setDefaultItemValues(item, aCalendar, aStartTime, aEndTime);
+            setDefaultItemValues(item, calendar, startTime, endTime);
             item.title = cal.l10n.getCalString("newEvent");
             doTransaction("add", item, item.calendar, null, null);
         } else {
-            createEventWithDialog(aCalendar, aStartTime, null, null, null, aForceAllday);
+            createEventWithDialog(calendar, startTime, null, null, null, forceAllday);
         }
     },
 
@@ -43,14 +43,14 @@ var calendarViewController = {
      * Modifies the given occurrence
      * @see calICalendarViewController
      */
-    modifyOccurrence: function(aOccurrence, aNewStartTime, aNewEndTime, aNewTitle) {
+    modifyOccurrence: function(occurrence, newStartTime, newEndTime, newTitle) {
         // if modifying this item directly (e.g. just dragged to new time),
         // then do so; otherwise pop up the dialog
-        if (aNewStartTime || aNewEndTime || aNewTitle) {
-            let instance = aOccurrence.clone();
+        if (newStartTime || newEndTime || newTitle) {
+            let instance = occurrence.clone();
 
-            if (aNewTitle) {
-                instance.title = aNewTitle;
+            if (newTitle) {
+                instance.title = newTitle;
             }
 
             // When we made the executive decision (in bug 352862) that
@@ -59,28 +59,28 @@ var calendarViewController = {
             // function. If we ever revert that decision, check CVS history
             // here to get that code back.
 
-            if (aNewStartTime || aNewEndTime) {
+            if (newStartTime || newEndTime) {
                 // Yay for variable names that make this next line look silly
                 if (cal.item.isEvent(instance)) {
-                    if (aNewStartTime && instance.startDate) {
-                        instance.startDate = aNewStartTime;
+                    if (newStartTime && instance.startDate) {
+                        instance.startDate = newStartTime;
                     }
-                    if (aNewEndTime && instance.endDate) {
-                        instance.endDate = aNewEndTime;
+                    if (newEndTime && instance.endDate) {
+                        instance.endDate = newEndTime;
                     }
                 } else {
-                    if (aNewStartTime && instance.entryDate) {
-                        instance.entryDate = aNewStartTime;
+                    if (newStartTime && instance.entryDate) {
+                        instance.entryDate = newStartTime;
                     }
-                    if (aNewEndTime && instance.dueDate) {
-                        instance.dueDate = aNewEndTime;
+                    if (newEndTime && instance.dueDate) {
+                        instance.dueDate = newEndTime;
                     }
                 }
             }
 
-            doTransaction("modify", instance, instance.calendar, aOccurrence, null);
+            doTransaction("modify", instance, instance.calendar, occurrence, null);
         } else {
-            modifyEventWithDialog(aOccurrence, null, true);
+            modifyEventWithDialog(occurrence, null, true);
         }
     },
 
@@ -88,23 +88,23 @@ var calendarViewController = {
      * Deletes the given occurrences
      * @see calICalendarViewController
      */
-    deleteOccurrences: function(aCount,
-                                aOccurrences,
-                                aUseParentItems,
-                                aDoNotConfirm,
-                                aExtResponse=null) {
+    deleteOccurrences: function(count,
+                                occurrencesArg,
+                                useParentItems,
+                                doNotConfirm,
+                                extResponseArg=null) {
         startBatchTransaction();
         let recurringItems = {};
-        let extResponse = aExtResponse || { responseMode: Ci.calIItipItem.USER };
+        let extResponse = extResponseArg || { responseMode: Ci.calIItipItem.USER };
 
-        let getSavedItem = function(aItemToDelete) {
+        let getSavedItem = function(itemToDelete) {
             // Get the parent item, saving it in our recurringItems object for
             // later use.
-            let hashVal = aItemToDelete.parentItem.hashId;
+            let hashVal = itemToDelete.parentItem.hashId;
             if (!recurringItems[hashVal]) {
                 recurringItems[hashVal] = {
-                    oldItem: aItemToDelete.parentItem,
-                    newItem: aItemToDelete.parentItem.clone()
+                    oldItem: itemToDelete.parentItem,
+                    newItem: itemToDelete.parentItem.clone()
                 };
             }
             return recurringItems[hashVal];
@@ -116,7 +116,7 @@ var calendarViewController = {
         // it, filter out any items that have readonly calendars, so that
         // checking for one total item below also works out if all but one item
         // are readonly.
-        let occurrences = aOccurrences.filter(item => cal.acl.isCalendarWritable(item.calendar));
+        let occurrences = occurrencesArg.filter(item => cal.acl.isCalendarWritable(item.calendar));
 
         // we check how many occurrences the parent item has
         let parents = new Map();
@@ -126,7 +126,7 @@ var calendarViewController = {
             }
         }
 
-        let promptUser = !aDoNotConfirm;
+        let promptUser = !doNotConfirm;
         let previousResponse = 0;
         for (let itemToDelete of occurrences) {
             if (parents.get(itemToDelete.id) == -1) {
@@ -134,7 +134,7 @@ var calendarViewController = {
                 // loop already
                 continue;
             }
-            if (aUseParentItems ||
+            if (useParentItems ||
                 parents.get(itemToDelete.id) == 1 ||
                 previousResponse == 3) {
                 // Usually happens when ctrl-click is used. In that case we
@@ -198,9 +198,9 @@ var calendarViewController = {
  * This function does the common steps to switch between views. Should be called
  * from app-specific view switching functions
  *
- * @param aViewType     The type of view to select.
+ * @param viewType     The type of view to select.
  */
-function switchToView(aViewType) {
+function switchToView(viewType) {
     let viewDeck = getViewDeck();
     let selectedDay;
     let currentSelection = [];
@@ -211,7 +211,7 @@ function switchToView(aViewType) {
         let view = views[i];
         let commandId = "calendar_" + view.id + "_command";
         let command = document.getElementById(commandId);
-        if (view.id == aViewType + "-view") {
+        if (view.id == viewType + "-view") {
             command.setAttribute("checked", "true");
         } else {
             command.removeAttribute("checked");
@@ -228,8 +228,8 @@ function switchToView(aViewType) {
     function setupViewNode(id, attr) {
         let node = document.getElementById(id);
         if (node) {
-            if (node.hasAttribute(attr + "-" + aViewType)) {
-                node.setAttribute(attr, node.getAttribute(attr + "-" + aViewType));
+            if (node.hasAttribute(attr + "-" + viewType)) {
+                node.setAttribute(attr, node.getAttribute(attr + "-" + viewType));
             } else {
                 node.setAttribute(attr, node.getAttribute(attr + "-all"));
             }
@@ -271,7 +271,7 @@ function switchToView(aViewType) {
     }
 
     // Anyone wanting to plug in a view needs to follow this naming scheme
-    let view = document.getElementById(aViewType + "-view");
+    let view = document.getElementById(viewType + "-view");
     viewDeck.selectedPanel = view;
 
     // Select the corresponding tab
@@ -328,9 +328,9 @@ var gMidnightTimer;
  * Better would be a function that uses the observer service to notify at
  * midnight.
  *
- * @param aRefreshCallback      A callback to be called at midnight.
+ * @param refreshCallback      A callback to be called at midnight.
  */
-function scheduleMidnightUpdate(aRefreshCallback) {
+function scheduleMidnightUpdate(refreshCallback) {
     let jsNow = new Date();
     let tomorrow = new Date(jsNow.getFullYear(), jsNow.getMonth(), jsNow.getDate() + 1);
     let msUntilTomorrow = tomorrow.getTime() - jsNow.getTime();
@@ -340,7 +340,7 @@ function scheduleMidnightUpdate(aRefreshCallback) {
     // stuck in an infinite loop.
     let udCallback = {
         notify: function(timer) {
-            aRefreshCallback();
+            refreshCallback();
         }
     };
 
@@ -349,8 +349,8 @@ function scheduleMidnightUpdate(aRefreshCallback) {
     } else {
         // Observer for wake after sleep/hibernate/standby to create new timers and refresh UI
         let wakeObserver = {
-            observe: function(aSubject, aTopic, aData) {
-                if (aTopic == "wake_notification") {
+            observe(subject, topic, data) {
+                if (topic == "wake_notification") {
                     // postpone refresh for another couple of seconds to get netwerk ready:
                     if (this.mTimer) {
                         this.mTimer.cancel();
@@ -398,33 +398,33 @@ function getViewStyleSheet() {
  * .calendar-color-box and an attribute calendar-id="<id of the calendar>" the
  * background color of the specified calendar.
  *
- * @param aCalendar     The calendar to update the stylesheet for.
+ * @param calendar     The calendar to update the stylesheet for.
  */
-function updateStyleSheetForViews(aCalendar) {
+function updateStyleSheetForViews(calendar) {
     if (!updateStyleSheetForViews.ruleCache) {
         updateStyleSheetForViews.ruleCache = {};
     }
     let ruleCache = updateStyleSheetForViews.ruleCache;
 
-    if (!(aCalendar.id in ruleCache)) {
+    if (!(calendar.id in ruleCache)) {
         // We haven't create a rule for this calendar yet, do so now.
         let sheet = getViewStyleSheet();
-        let ruleString = '.calendar-color-box[calendar-id="' + aCalendar.id + '"] {} ';
+        let ruleString = '.calendar-color-box[calendar-id="' + calendar.id + '"] {} ';
 
         try {
             let ruleIndex = sheet.insertRule(ruleString, sheet.cssRules.length);
-            ruleCache[aCalendar.id] = sheet.cssRules[ruleIndex];
+            ruleCache[calendar.id] = sheet.cssRules[ruleIndex];
         } catch (ex) {
             sheet.ownerNode.addEventListener("load",
-                                             () => updateStyleSheetForViews(aCalendar),
+                                             () => updateStyleSheetForViews(calendar),
                                              { once: true });
             return;
         }
     }
 
-    let color = aCalendar.getProperty("color") || "#A8C2E1";
-    ruleCache[aCalendar.id].style.backgroundColor = color;
-    ruleCache[aCalendar.id].style.color = cal.view.getContrastingTextColor(color);
+    let color = calendar.getProperty("color") || "#A8C2E1";
+    ruleCache[calendar.id].style.backgroundColor = color;
+    ruleCache[calendar.id].style.color = cal.view.getContrastingTextColor(color);
 }
 
 /**
@@ -470,8 +470,8 @@ var categoryManagement = {
         categoryPrefBranch.removeObserver("", categoryManagement);
     },
 
-    observe: function(aSubject, aTopic, aPrefName) {
-        this.updateStyleSheetForCategory(aPrefName);
+    observe: function(subject, topic, prefName) {
+        this.updateStyleSheetForCategory(prefName);
         // TODO Currently, the only way to find out if categories are removed is
         // to initially grab the calendar.categories.names preference and then
         // observe changes to it. it would be better if we had hooks for this,
@@ -481,25 +481,25 @@ var categoryManagement = {
 
     categoryStyleCache: {},
 
-    updateStyleSheetForCategory: function(aCatName) {
-        if (!(aCatName in this.categoryStyleCache)) {
+    updateStyleSheetForCategory: function(catName) {
+        if (!(catName in this.categoryStyleCache)) {
             // We haven't created a rule for this category yet, do so now.
             let sheet = getViewStyleSheet();
-            let ruleString = '.category-color-box[categories~="' + aCatName + '"] {} ';
+            let ruleString = '.category-color-box[categories~="' + catName + '"] {} ';
 
             try {
                 let ruleIndex = sheet.insertRule(ruleString, sheet.cssRules.length);
-                this.categoryStyleCache[aCatName] = sheet.cssRules[ruleIndex];
+                this.categoryStyleCache[catName] = sheet.cssRules[ruleIndex];
             } catch (ex) {
                 sheet.ownerNode.addEventListener("load",
-                                                 () => this.updateStyleSheetForCategory(aCatName),
+                                                 () => this.updateStyleSheetForCategory(catName),
                                                  { once: true });
                 return;
             }
         }
 
-        let color = Services.prefs.getStringPref("calendar.category.color." + aCatName, "");
-        this.categoryStyleCache[aCatName].style.backgroundColor = color;
+        let color = Services.prefs.getStringPref("calendar.category.color." + catName, "");
+        this.categoryStyleCache[catName].style.backgroundColor = color;
     }
 };
 
@@ -629,11 +629,11 @@ function toggleShowCompletedInView() {
 /**
  * Provides a neutral way to go to the current day in the views and minimonth.
  *
- * @param aDate     The date to go.
+ * @param date     The date to go.
  */
-function goToDate(aDate) {
-    getMinimonth().value = cal.dtz.dateTimeToJsDate(aDate);
-    currentView().goToDay(aDate);
+function goToDate(date) {
+    getMinimonth().value = cal.dtz.dateTimeToJsDate(date);
+    currentView().goToDay(date);
 }
 
 /**
@@ -683,11 +683,11 @@ function selectAllEvents() {
     let items = [];
     let listener = {
         QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-        onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
+        onOperationComplete: function(calendar, status, operationType, id, detail) {
             currentView().setSelectedItems(items.length, items, false);
         },
-        onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
-            for (let item of aItems) {
+        onGetResult: function(calendar, status, itemType, detail, count, itemsArg) {
+            for (let item of itemsArg) {
                 items.push(item);
             }
         }
@@ -715,18 +715,18 @@ function selectAllEvents() {
 }
 
 cal.navigationBar = {
-    setDateRange: function(aStartDate, aEndDate) {
+    setDateRange: function(startDate, endDate) {
         let docTitle = "";
-        if (aStartDate) {
+        if (startDate) {
             let intervalLabel = document.getElementById("intervalDescription");
-            let firstWeekNo = cal.getWeekInfoService().getWeekTitle(aStartDate);
+            let firstWeekNo = cal.getWeekInfoService().getWeekTitle(startDate);
             let secondWeekNo = firstWeekNo;
             let weekLabel = document.getElementById("calendarWeek");
-            if (aStartDate.nativeTime == aEndDate.nativeTime) {
-                intervalLabel.value = cal.getDateFormatter().formatDate(aStartDate);
+            if (startDate.nativeTime == endDate.nativeTime) {
+                intervalLabel.value = cal.getDateFormatter().formatDate(startDate);
             } else {
                 intervalLabel.value = currentView().getRangeDescription();
-                secondWeekNo = cal.getWeekInfoService().getWeekTitle(aEndDate);
+                secondWeekNo = cal.getWeekInfoService().getWeekTitle(endDate);
             }
             if (secondWeekNo == firstWeekNo) {
                 weekLabel.value = cal.l10n.getCalString("singleShortCalendarWeek", [firstWeekNo]);
@@ -751,8 +751,10 @@ cal.navigationBar = {
  */
 var timeIndicator = {
     timer: null,
-    start: function(aInterval, aThis) {
-        timeIndicator.timer = setInterval(() => aThis.updateTimeIndicatorPosition(false), aInterval * 1000);
+    start: function(interval, thisArg) {
+        timeIndicator.timer = setInterval(() =>
+            thisArg.updateTimeIndicatorPosition(false), interval * 1000
+        );
     },
     cancel: function() {
         if (timeIndicator.timer) {
