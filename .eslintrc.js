@@ -1,5 +1,27 @@
 "use strict";
 
+const xpcshellTestConfig = require("eslint-plugin-mozilla/lib/configs/xpcshell-test.js");
+const browserTestConfig = require("eslint-plugin-mozilla/lib/configs/browser-test.js");
+
+/**
+ * Some configurations have overrides, which can't be specified within overrides,
+ * so we need to remove them.
+ */
+function removeOverrides(config) {
+  config = {...config};
+  delete config.overrides;
+  return config;
+}
+
+const xpcshellTestPaths = [
+  "**/test*/unit*/",
+  "**/test*/xpcshell/",
+];
+
+const browserTestPaths = [
+  "**/test*/**/browser/",
+];
+
 module.exports = {
   "root": true,
 
@@ -48,5 +70,27 @@ module.exports = {
     "env": {
       "node": true,
     },
+  }, {
+    ...removeOverrides(xpcshellTestConfig),
+    "files": xpcshellTestPaths.map(path => `${path}**`),
+    "rules": {
+      "func-names": "off",
+      "mozilla/import-headjs-globals": "error",
+    },
+  }, {
+    // If it is an xpcshell head file, we turn off global unused variable checks, as it
+    // would require searching the other test files to know if they are used or not.
+    // This would be expensive and slow, and it isn't worth it for head files.
+    // We could get developers to declare as exported, but that doesn't seem worth it.
+    "files": xpcshellTestPaths.map(path => `${path}head*.js`),
+    "rules": {
+      "no-unused-vars": ["error", {
+        "args": "none",
+        "vars": "local",
+      }],
+    },
+  }, {
+    ...browserTestConfig,
+    "files": browserTestPaths.map(path => `${path}**`),
   }],
 };
