@@ -65,11 +65,10 @@
              onpopupshowing="return calendarListTooltipShowing(event)"/>
   </popupset>
 
-  <calendar-list-tree id="calendar-list-tree-widget"
-                      type="full"
-                      writable="true"
-                      allowdrag="true"
-                      onselect="document.commandDispatcher.updateCommands('calendar_commands')"
-                      childtooltip="calendar-list-tooltip"
-                      childcontext="list-calendars-context-menu"/>
+  <tree is="calendar-list-tree-full" id="calendar-list-tree-widget"
+        writable="true"
+        allowdrag="true"
+        onselect="document.commandDispatcher.updateCommands('calendar_commands')"
+        childtooltip="calendar-list-tooltip"
+        childcontext="list-calendars-context-menu"/>
 </overlay>

@@ -20,6 +20,7 @@
         buttonlabelaccept="&providerUninstall.accept.label;"
         buttonaccesskeyaccept="&providerUninstall.accept.accesskey;">
 
+  <script src="chrome://calendar/content/widgets/calendar-list-tree.js"/>
   <script src="chrome://calendar/content/calendar-providerUninstall-dialog.js"/>
   <script src="chrome://calendar/content/calendar-ui-utils.js"/>
 
@@ -28,8 +29,6 @@
   <description id="post-name-description">&providerUninstall.postName.label;</description>
   <description id="reinstall-note-description">&providerUninstall.reinstallNote.label;</description>
 
-  <calendar-list-tree id="calendar-list-tree"
-                      hidecolumnpicker="true"
-                      disabledstate="ignore"
-                      flex="1"/>
+  <tree is="calendar-list-tree" id="calendar-list-tree"
+        disabledstate="ignore"/>
 </dialog>

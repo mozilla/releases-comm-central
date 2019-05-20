@@ -120,6 +120,6 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
     -moz-appearance: textfield;
 }
 
-calendar-list-tree > tree > treecols {
+.calendar-list-tree > treecols {
   padding-inline-start: 18px;
 }

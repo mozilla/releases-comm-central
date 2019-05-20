@@ -51,8 +51,7 @@ var TODAY_BUTTON = `
 `;
 var CALENDARLIST = `
     ${CALENDAR_PANEL}/id("ltnSidebar")/id("calendar-panel")/id("calendar-list-pane")/
-    id("calendar-listtree-pane")/id("calendar-list-tree-widget")/
-    anon({"anonid":"tree"})/anon({"anonid":"treechildren"})
+    id("calendar-listtree-pane")/id("calendar-list-tree-widget")/{"class":"treechildren"}
 `;
 var TODAY_PANE = `
     /id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")

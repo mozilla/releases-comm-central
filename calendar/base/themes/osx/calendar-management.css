@@ -4,42 +4,42 @@
 
 @import url(chrome://calendar-common/skin/calendar-management.css);
 
-calendar-list-tree > tree > treechildren::-moz-tree-image(checkbox-treecol) {
+.calendar-list-tree > treechildren::-moz-tree-image(checkbox-treecol) {
     list-style-image: url(chrome://calendar/skin/checkbox-images.png);
     height: 16px;
     width: 16px;
 }
 
 @media (-moz-mac-graphite-theme) {
-    calendar-list-tree > tree > treechildren::-moz-tree-image(checkbox-treecol) {
+    .calendar-list-tree > treechildren::-moz-tree-image(checkbox-treecol) {
         list-style-image: url(chrome://calendar/skin/checkbox-images-graphite.png);
     }
 }
 
-calendar-list-tree > tree > treechildren::-moz-tree-image(checkbox-treecol) {
+.calendar-list-tree > treechildren::-moz-tree-image(checkbox-treecol) {
     -moz-image-region: rect(0 32px 32px 0);
 }
 
-calendar-list-tree > tree > treechildren::-moz-tree-image(checkbox-treecol, checked) {
+.calendar-list-tree > treechildren::-moz-tree-image(checkbox-treecol, checked) {
     -moz-image-region: rect(0 64px 32px 32px);
 }
 
-calendar-list-tree > tree > treechildren::-moz-tree-image(checkbox-treecol, disabled) {
+.calendar-list-tree > treechildren::-moz-tree-image(checkbox-treecol, disabled) {
     -moz-image-region: rect(0 96px 32px 64px);
 }
 
-calendar-list-tree > tree > treechildren::-moz-tree-image(checkbox-treecol, checked, disabled) {
+.calendar-list-tree > treechildren::-moz-tree-image(checkbox-treecol, checked, disabled) {
     -moz-image-region: rect(0 128px 32px 96px);
 }
 
-calendar-list-tree > tree > treechildren::-moz-tree-cell(checkbox-treecol) {
+.calendar-list-tree > treechildren::-moz-tree-cell(checkbox-treecol) {
     padding: 0;
 }
 
-calendar-list-tree > tree > treechildren::-moz-tree-image(status-treecol, readonly, selected, focus) {
+.calendar-list-tree > treechildren::-moz-tree-image(status-treecol, readonly, selected, focus) {
     list-style-image: url(chrome://calendar/skin/locked-selected-mac.svg);
 }
 
-calendar-list-tree > tree > treechildren::-moz-tree-image(status-treecol, readfailed, selected, focus) {
+.calendar-list-tree > treechildren::-moz-tree-image(status-treecol, readfailed, selected, focus) {
     list-style-image: url(chrome://calendar/skin/warn-selected-mac.svg);
 }

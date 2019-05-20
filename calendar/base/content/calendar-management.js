@@ -207,7 +207,10 @@ function calendarListSetupContextMenu(event) {
         // opening the context menu. The "target" element should then be the
         // selected calendar.
         row.value = treeNode.tree.currentIndex;
-        col.value = treeNode.getColumn("calendarname-treecol");
+
+        col.value = treeNode.tree.columns.getColumnFor(
+            treeNode.querySelector(".calendarname-treecol"));
+
         calendar = treeNode.getCalendar(row.value);
     } else {
         // Using the mouse, the context menu will open on the treechildren

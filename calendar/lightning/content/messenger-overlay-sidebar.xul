@@ -54,6 +54,7 @@
   <script src="chrome://calendar/content/calendar-dnd-listener.js"/>
   <script src="chrome://calendar/content/calendar-statusbar.js"/>
   <script src="chrome://global/content/nsDragAndDrop.js"/>
+  <script src="chrome://calendar/content/widgets/calendar-list-tree.js"/>
 
   <!-- NEEDED FOR TASK VIEW/LIST SUPPORT -->
   <script src="chrome://calendar/content/calendar-task-editing.js"/>
@@ -183,9 +184,10 @@
               <modevbox id="calendar-listtree-pane" flex="1" mode="calendar,task" broadcaster="modeBroadcaster"
                         refcontrol="calendar-list-header">
 
-                <calendar-list-tree id="calendar-list-tree-widget"
-                                    class="task-tree-subpane"
-                                    flex="1"/>
+                <tree is="calendar-list-tree-full" id="calendar-list-tree-widget"
+                      class="calendar-list-tree task-tree-subpane"
+                      childtooltip="calendar-list-tooltip"
+                      childcontext="list-calendars-context-menu"/>
               </modevbox>
           </modevbox>
           </vbox>
