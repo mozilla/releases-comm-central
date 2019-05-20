@@ -660,7 +660,19 @@ var gXPInstallObserver = {
 
     let data = new ExtensionData(addon.getResourceURI());
     await data.loadManifest();
-    return !!data.manifest.legacy;
+
+    if (!data.manifest.legacy) {
+      return false;
+    }
+
+    switch (typeof data.manifest.legacy) {
+      case "boolean":
+        return data.manifest.legacy === "true";
+      case "object":
+        return !(data.manifest.legacy.type && data.manifest.legacy.type == "bootstrap");
+      default:
+        return false;
+    }
   },
 
   async _checkForSideloaded(browser) {

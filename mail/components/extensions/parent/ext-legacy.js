@@ -188,7 +188,7 @@ this.legacy = class extends ExtensionAPI {
     };
     cachedParams.set(this.extension.id, {...params});
 
-    if (["ADDON_UPGRADE", "ADDON_DOWNGRADE"].includes(this.extension.startupReason)) {
+    if (oldParams && ["ADDON_UPGRADE", "ADDON_DOWNGRADE"].includes(this.extension.startupReason)) {
       params.oldVersion = oldParams.version;
     }
 
