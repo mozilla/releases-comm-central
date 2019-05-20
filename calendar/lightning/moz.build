@@ -16,11 +16,26 @@ DIRS += [
 
 TEST_DIRS += ['../test']
 
-if CONFIG['NIGHTLY_BUILD']:
-    DIST_SUBDIR = 'extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}'
+if CONFIG['MOZ_ARTIFACT_BUILDS']:
+    version_parts = CONFIG['MOZ_APP_VERSION'].split('.')
+    major_version = version_parts[0]
+    DEFINES['THUNDERBIRD_MAXVERSION'] = major_version + '.*'
+
+    version_parts[0] = '%.1f' % ((int(major_version) + 2.) / 10.)
+    while version_parts[-1] == '0':
+        version_parts = version_parts[:-1]
+    lightning_version = '.'.join(version_parts)
+    lightning_version = lightning_version.replace('.0a', 'a')
+    DEFINES['LIGHTNING_VERSION'] = lightning_version
+
+    XPI_NAME = 'lightning'
+    export('XPI_NAME')
 else:
-    DIST_SUBDIR = 'distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}'
-export('DIST_SUBDIR')
+    if CONFIG['NIGHTLY_BUILD']:
+        DIST_SUBDIR = 'extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}'
+    else:
+        DIST_SUBDIR = 'distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}'
+    export('DIST_SUBDIR')
 
 FINAL_TARGET_PP_FILES += [
     'app.ini',
