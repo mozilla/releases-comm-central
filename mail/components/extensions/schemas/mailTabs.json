@@ -219,7 +219,13 @@
               },
               "starred": {
                 "type": "boolean",
-                "description": "Shows only starred messages.",
+                "description": "Use <var>flagged</var> instead.",
+                "optional": true,
+                "deprecated": true
+              },
+              "flagged": {
+                "type": "boolean",
+                "description": "Shows only flagged messages.",
                 "optional": true
               },
               "contact": {

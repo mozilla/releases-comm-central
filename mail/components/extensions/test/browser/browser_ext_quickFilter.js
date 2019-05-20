@@ -34,7 +34,14 @@ add_task(async () => {
     browser.mailTabs.setQuickFilter({ starred: true });
     await awaitMessage("checkVisible", 1, 6);
 
-    browser.mailTabs.setQuickFilter({ starred: true, unread: true });
+    browser.mailTabs.setQuickFilter({ flagged: true });
+    await awaitMessage("checkVisible", 1, 6);
+
+    // The starred property was renamed flagged. Flagged should take precedence.
+    browser.mailTabs.setQuickFilter({ starred: false, flagged: true });
+    await awaitMessage("checkVisible", 1, 6);
+
+    browser.mailTabs.setQuickFilter({ flagged: true, unread: true });
     await awaitMessage("checkVisible", 1);
 
     browser.mailTabs.setQuickFilter({ tags: true });
@@ -54,6 +61,18 @@ add_task(async () => {
 
     browser.mailTabs.setQuickFilter({ tags: { mode: "all", tags: { "$label1": true, "$label2": false } } });
     await awaitMessage("checkVisible", 0, 6);
+
+    browser.mailTabs.setQuickFilter({ attachment: true });
+    await awaitMessage("checkVisible", 9);
+
+    browser.mailTabs.setQuickFilter({ attachment: false });
+    await awaitMessage("checkVisible", 0, 1, 2, 3, 4, 5, 6, 7, 8);
+
+    browser.mailTabs.setQuickFilter({ contact: true });
+    await awaitMessage("checkVisible", 7);
+
+    browser.mailTabs.setQuickFilter({ contact: false });
+    await awaitMessage("checkVisible", 0, 1, 2, 3, 4, 5, 6, 8, 9);
 
     browser.test.notifyPass("quickFilter");
   }
@@ -77,6 +96,9 @@ add_task(async () => {
   });
 
   window.gFolderTreeView.selectFolder(subFolders[0]);
+
+  // Modify the messages so the filters can be checked against them.
+
   let messages = [...window.gFolderDisplay.displayedFolder.messages];
   messages[0].markRead(true);
   messages[2].markRead(true);
@@ -93,8 +115,17 @@ add_task(async () => {
   messages[7].setProperty("keywords", "$label2 $label3");
   messages[8].setProperty("keywords", "$label3");
   messages[9].setProperty("keywords", "$label1 $label2 $label3");
+  messages[9].markHasAttachments(true);
 
-  // await new Promise(r => setTimeout(r, 10000));
+  // Add an author to the address book.
+
+  let author = messages[7].author.replace(/["<>]/g, "").split(" ");
+  let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(Ci.nsIAbCard);
+  card.setProperty("FirstName", author[0]);
+  card.setProperty("LastName", author[1]);
+  card.setProperty("DisplayName", `${author[0]} ${author[1]}`);
+  card.setProperty("PrimaryEmail", author[2]);
+  MailServices.ab.directories.getNext().addCard(card);
 
   await extension.startup();
   await extension.awaitFinish("quickFilter");
