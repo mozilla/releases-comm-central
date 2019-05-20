@@ -48,7 +48,7 @@
   <script src="chrome://calendar/content/calendar-item-editing.js"/>
   <script src="chrome://calendar/content/calendar-chrome-startup.js"/>
   <script src="chrome://calendar/content/mouseoverPreviews.js"/>
-  <script src="chrome://calendar/content/calendar-views.js"/>
+  <script src="chrome://calendar/content/calendar-views-utils.js"/>
   <script src="chrome://calendar/content/calendar-ui-utils.js"/>
   <script src="chrome://calendar/content/calendar-creation.js"/>
   <script src="chrome://calendar/content/calendar-dnd-listener.js"/>

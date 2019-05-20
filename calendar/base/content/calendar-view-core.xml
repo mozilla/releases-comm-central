@@ -5,7 +5,7 @@
 
 <!-- import-globals-from ../../resources/content/mouseoverPreviews.js -->
 <!-- import-globals-from calendar-dnd-listener.js -->
-<!-- import-globals-from calendar-views.js -->
+<!-- import-globals-from calendar-views-utils.js -->
 
 <bindings id="calendar-core-view-bindings"
           xmlns="http://www.mozilla.org/xbl"

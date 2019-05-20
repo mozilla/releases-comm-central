@@ -4,7 +4,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <!-- import-globals-from ../calendar-ui-utils.js -->
-<!-- import-globals-from ../calendar-views.js -->
+<!-- import-globals-from ../calendar-views-utils.js -->
 
 <!DOCTYPE dialog [
   <!ENTITY % dtd1 SYSTEM "chrome://global/locale/global.dtd" > %dtd1;

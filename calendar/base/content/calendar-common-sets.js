@@ -11,7 +11,7 @@
 /* import-globals-from calendar-task-tree-utils.js */
 /* import-globals-from calendar-ui-utils.js */
 /* import-globals-from calendar-unifinder.js */
-/* import-globals-from calendar-views.js */
+/* import-globals-from calendar-views-utils.js */
 /* import-globals-from import-export.js */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -855,7 +855,7 @@ function setupContextItemType(aEvent, aItems) {
 /**
  * Shows the given date in the current view, if in calendar mode.
  *
- * XXX This function is misplaced, should go to calendar-views.js or a minimonth
+ * XXX This function is misplaced, should go to calendar-views-utils.js or a minimonth
  * specific js file.
  *
  * @param aNewDate      The new date as a JSDate.

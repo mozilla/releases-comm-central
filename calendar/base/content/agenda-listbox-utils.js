@@ -6,7 +6,7 @@
 /* import-globals-from calendar-item-editing.js */
 /* import-globals-from calendar-management.js */
 /* import-globals-from calendar-ui-utils.js */
-/* import-globals-from calendar-views.js */
+/* import-globals-from calendar-views-utils.js */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 

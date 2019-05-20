@@ -6,7 +6,7 @@
  *          publishEntireCalendar, publishEntireCalendarDialogResponse
  */
 
-/* import-globals-from ../../base/content/calendar-views.js */
+/* import-globals-from ../../base/content/calendar-views-utils.js */
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");

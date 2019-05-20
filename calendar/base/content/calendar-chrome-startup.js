@@ -7,7 +7,7 @@
 /* import-globals-from calendar-management.js */
 /* import-globals-from calendar-unifinder-todo.js */
 /* import-globals-from calendar-ui-utils.js */
-/* import-globals-from calendar-views.js */
+/* import-globals-from calendar-views-utils.js */
 
 var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");

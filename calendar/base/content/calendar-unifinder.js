@@ -10,7 +10,7 @@
 /* import-globals-from ../../resources/content/mouseoverPreviews.js */
 /* import-globals-from ../src/calFilter.js */
 /* import-globals-from calendar-common-sets.js */
-/* import-globals-from calendar-views.js */
+/* import-globals-from calendar-views-utils.js */
 
 /**
  * U N I F I N D E R
