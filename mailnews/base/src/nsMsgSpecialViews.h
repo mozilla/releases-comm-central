@@ -9,64 +9,73 @@
 #include "mozilla/Attributes.h"
 #include "nsMsgThreadedDBView.h"
 
-class nsMsgThreadsWithUnreadDBView : public nsMsgThreadedDBView
-{
-public:
+class nsMsgThreadsWithUnreadDBView : public nsMsgThreadedDBView {
+ public:
   nsMsgThreadsWithUnreadDBView();
   virtual ~nsMsgThreadsWithUnreadDBView();
-  virtual const char * GetViewName(void) override {return "ThreadsWithUnreadView"; }
-  NS_IMETHOD CloneDBView(nsIMessenger *aMessengerInstance, nsIMsgWindow *aMsgWindow, nsIMsgDBViewCommandUpdater *aCommandUpdater, nsIMsgDBView **_retval) override;
+  virtual const char *GetViewName(void) override {
+    return "ThreadsWithUnreadView";
+  }
+  NS_IMETHOD CloneDBView(nsIMessenger *aMessengerInstance,
+                         nsIMsgWindow *aMsgWindow,
+                         nsIMsgDBViewCommandUpdater *aCommandUpdater,
+                         nsIMsgDBView **_retval) override;
   NS_IMETHOD GetViewType(nsMsgViewTypeValue *aViewType) override;
   NS_IMETHOD GetNumMsgsInView(int32_t *aNumMsgs) override;
   virtual bool WantsThisThread(nsIMsgThread *threadHdr) override;
 
-protected:
-  virtual nsresult AddMsgToThreadNotInView(nsIMsgThread *threadHdr, nsIMsgDBHdr *msgHdr, bool ensureListed) override;
+ protected:
+  virtual nsresult AddMsgToThreadNotInView(nsIMsgThread *threadHdr,
+                                           nsIMsgDBHdr *msgHdr,
+                                           bool ensureListed) override;
   uint32_t m_totalUnwantedMessagesInView;
 };
 
-class nsMsgWatchedThreadsWithUnreadDBView : public nsMsgThreadedDBView
-{
-public:
-  nsMsgWatchedThreadsWithUnreadDBView ();
+class nsMsgWatchedThreadsWithUnreadDBView : public nsMsgThreadedDBView {
+ public:
+  nsMsgWatchedThreadsWithUnreadDBView();
   NS_IMETHOD GetViewType(nsMsgViewTypeValue *aViewType) override;
-  NS_IMETHOD CloneDBView(nsIMessenger *aMessengerInstance, nsIMsgWindow *aMsgWindow,
+  NS_IMETHOD CloneDBView(nsIMessenger *aMessengerInstance,
+                         nsIMsgWindow *aMsgWindow,
                          nsIMsgDBViewCommandUpdater *aCommandUpdater,
                          nsIMsgDBView **_retval) override;
   NS_IMETHOD GetNumMsgsInView(int32_t *aNumMsgs) override;
-  virtual const char *GetViewName(void) override { return "WatchedThreadsWithUnreadView"; }
+  virtual const char *GetViewName(void) override {
+    return "WatchedThreadsWithUnreadView";
+  }
   virtual bool WantsThisThread(nsIMsgThread *threadHdr) override;
 
-protected:
-  virtual nsresult AddMsgToThreadNotInView(nsIMsgThread *threadHdr, nsIMsgDBHdr *msgHdr, bool ensureListed) override;
+ protected:
+  virtual nsresult AddMsgToThreadNotInView(nsIMsgThread *threadHdr,
+                                           nsIMsgDBHdr *msgHdr,
+                                           bool ensureListed) override;
   uint32_t m_totalUnwantedMessagesInView;
-
 };
 #ifdef DOING_CACHELESS_VIEW
 // This view will initially be used for cacheless IMAP.
-class nsMsgCachelessView : public nsMsgDBView
-{
-public:
+class nsMsgCachelessView : public nsMsgDBView {
+ public:
   nsMsgCachelessView();
   NS_IMETHOD GetViewType(nsMsgViewTypeValue *aViewType);
   virtual ~nsMsgCachelessView();
-  virtual const char * GetViewName(void) {return "nsMsgCachelessView"; }
-  NS_IMETHOD Open(nsIMsgFolder *folder, nsMsgViewSortTypeValue viewType, int32_t *count);
-  nsresult SetViewSize(int32_t setSize); // Override
-  virtual nsresult AddNewMessages() ;
+  virtual const char *GetViewName(void) { return "nsMsgCachelessView"; }
+  NS_IMETHOD Open(nsIMsgFolder *folder, nsMsgViewSortTypeValue viewType,
+                  int32_t *count);
+  nsresult SetViewSize(int32_t setSize);  // Override
+  virtual nsresult AddNewMessages();
   virtual nsresult AddHdr(nsIMsgDBHdr *msgHdr);
   // for news, xover line, potentially, for IMAP, imap line...
-  virtual nsresult AddHdrFromServerLine(char *line, nsMsgKey *msgId) ;
+  virtual nsresult AddHdrFromServerLine(char *line, nsMsgKey *msgId);
   virtual void SetInitialSortState(void);
   virtual nsresult Init(uint32_t *pCount);
 
-protected:
-  void        ClearPendingIds();
+ protected:
+  void ClearPendingIds();
 
-  nsIMsgFolder   *m_folder;
-  nsMsgViewIndex  m_curStartSeq;
-  nsMsgViewIndex  m_curEndSeq;
-  bool            m_sizeInitialized;
+  nsIMsgFolder *m_folder;
+  nsMsgViewIndex m_curStartSeq;
+  nsMsgViewIndex m_curEndSeq;
+  bool m_sizeInitialized;
 };
 
 #endif /* DOING_CACHELESS_VIEW */

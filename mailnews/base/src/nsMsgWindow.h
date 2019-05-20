@@ -21,11 +21,8 @@
 class nsMsgWindow : public nsIMsgWindow,
                     public nsIURIContentListener,
                     public nsIMsgWindowTest,
-                    public nsSupportsWeakReference
-{
-
-public:
-
+                    public nsSupportsWeakReference {
+ public:
   NS_DECL_THREADSAFE_ISUPPORTS
 
   nsMsgWindow();
@@ -34,7 +31,7 @@ public:
   NS_DECL_NSIURICONTENTLISTENER
   NS_DECL_NSIMSGWINDOWTEST
 
-protected:
+ protected:
   virtual ~nsMsgWindow();
   nsCOMPtr<nsIMsgHeaderSink> mMsgHeaderSink;
   nsCOMPtr<nsIMsgStatusFeedback> mStatusFeedback;
@@ -55,8 +52,8 @@ protected:
   nsWeakPtr mDomWindow;
 
   nsCString mMailCharacterSet;
-  bool      mCharsetOverride;
-  bool      m_stopped;
+  bool mCharsetOverride;
+  bool m_stopped;
 };
 
 #endif

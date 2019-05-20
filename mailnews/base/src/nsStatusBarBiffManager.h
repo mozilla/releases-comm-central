@@ -14,9 +14,8 @@
 #include "nsIObserver.h"
 
 class nsStatusBarBiffManager : public nsIStatusBarBiffManager,
-                               public nsIObserver
-{
-public:
+                               public nsIObserver {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIFOLDERLISTENER
   NS_DECL_NSISTATUSBARBIFFMANAGER
@@ -25,17 +24,14 @@ public:
   nsStatusBarBiffManager();
   nsresult Init();
 
-private:
+ private:
   virtual ~nsStatusBarBiffManager();
 
-  bool     mInitialized;
-  int32_t  mCurrentBiffState;
+  bool mInitialized;
+  int32_t mCurrentBiffState;
   nsCString mServerType;
   nsCOMPtr<nsISound> mSound;
   nsresult PlayBiffSound(const char *aPrefBranch);
 };
 
-
-
-#endif // nsStatusBarBiffManager_h__
-
+#endif  // nsStatusBarBiffManager_h__

@@ -12,41 +12,34 @@
 #include "nsString.h"
 #include "nsTArray.h"
 
-class nsMsgTag final : public nsIMsgTag
-{
-public:
+class nsMsgTag final : public nsIMsgTag {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGTAG
 
-  nsMsgTag(const nsACString &aKey,
-           const nsAString  &aTag,
-           const nsACString &aColor,
-           const nsACString &aOrdinal);
+  nsMsgTag(const nsACString &aKey, const nsAString &aTag,
+           const nsACString &aColor, const nsACString &aOrdinal);
 
-protected:
+ protected:
   ~nsMsgTag();
 
-  nsString  mTag;
+  nsString mTag;
   nsCString mKey, mColor, mOrdinal;
 };
 
-
-class nsMsgTagService final : public nsIMsgTagService
-{
-public:
+class nsMsgTagService final : public nsIMsgTagService {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGTAGSERVICE
 
   nsMsgTagService();
 
-private:
+ private:
   ~nsMsgTagService();
 
-protected:
-  nsresult SetUnicharPref(const char *prefName,
-                          const nsAString &prefValue);
-  nsresult GetUnicharPref(const char *prefName,
-                          nsAString &prefValue);
+ protected:
+  nsresult SetUnicharPref(const char *prefName, const nsAString &prefValue);
+  nsresult GetUnicharPref(const char *prefName, nsAString &prefValue);
   nsresult MigrateLabelsToTags();
   nsresult RefreshKeyCache();
 

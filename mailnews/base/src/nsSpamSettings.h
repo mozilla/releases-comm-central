@@ -17,19 +17,18 @@
 #include "nsIAbDirectory.h"
 #include "nsTArray.h"
 
-class nsSpamSettings : public nsISpamSettings, public nsIUrlListener
-{
-public:
+class nsSpamSettings : public nsISpamSettings, public nsIUrlListener {
+ public:
   nsSpamSettings();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSISPAMSETTINGS
   NS_DECL_NSIURLLISTENER
 
-private:
+ private:
   virtual ~nsSpamSettings();
 
-  nsCOMPtr <nsIOutputStream> mLogStream;
+  nsCOMPtr<nsIOutputStream> mLogStream;
   nsCOMPtr<nsIFile> mLogFile;
 
   int32_t mLevel;
@@ -44,11 +43,12 @@ private:
   nsCString mActionTargetAccount;
   nsCString mActionTargetFolder;
   nsCString mWhiteListAbURI;
-  nsCString mCurrentJunkFolderURI; // used to detect changes to the spam folder in ::initialize
+  // used to detect changes to the spam folder in ::initialize
+  nsCString mCurrentJunkFolderURI;
 
   nsCString mServerFilterName;
   nsCOMPtr<nsIFile> mServerFilterFile;
-  int32_t  mServerFilterTrustFlags;
+  int32_t mServerFilterTrustFlags;
 
   // array of address directories to use in junk whitelisting
   nsCOMArray<nsIAbDirectory> mWhiteListDirArray;
@@ -61,8 +61,8 @@ private:
   // email addresses associated with this server
   nsTArray<nsCString> mEmails;
 
-  // helper routine used by Initialize which unsets the junk flag on the previous junk folder
-  // for this account, and sets it on the new junk folder.
+  // helper routine used by Initialize which unsets the junk flag on the
+  // previous junk folder for this account, and sets it on the new junk folder.
   nsresult UpdateJunkFolderState();
 };
 

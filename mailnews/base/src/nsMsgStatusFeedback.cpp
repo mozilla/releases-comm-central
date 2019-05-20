@@ -26,25 +26,22 @@
 
 #define MSGFEEDBACK_TIMER_INTERVAL 500
 
-nsMsgStatusFeedback::nsMsgStatusFeedback() :
-  m_lastPercent(0),
-  m_lastProgressTime(0)
-{
+nsMsgStatusFeedback::nsMsgStatusFeedback()
+    : m_lastPercent(0), m_lastProgressTime(0) {
   nsCOMPtr<nsIStringBundleService> bundleService =
-    mozilla::services::GetStringBundleService();
+      mozilla::services::GetStringBundleService();
 
   if (bundleService)
-    bundleService->CreateBundle("chrome://messenger/locale/messenger.properties",
-                                getter_AddRefs(mBundle));
+    bundleService->CreateBundle(
+        "chrome://messenger/locale/messenger.properties",
+        getter_AddRefs(mBundle));
 }
 
-nsMsgStatusFeedback::~nsMsgStatusFeedback()
-{
-  mBundle = nullptr;
-}
+nsMsgStatusFeedback::~nsMsgStatusFeedback() { mBundle = nullptr; }
 
 NS_IMPL_ISUPPORTS(nsMsgStatusFeedback, nsIMsgStatusFeedback,
-  nsIProgressEventSink, nsIWebProgressListener, nsISupportsWeakReference)
+                  nsIProgressEventSink, nsIWebProgressListener,
+                  nsISupportsWeakReference)
 
 //////////////////////////////////////////////////////////////////////////////////
 // nsMsgStatusFeedback::nsIWebProgressListener
@@ -56,80 +53,67 @@ nsMsgStatusFeedback::OnProgressChange(nsIWebProgress* aWebProgress,
                                       int32_t aCurSelfProgress,
                                       int32_t aMaxSelfProgress,
                                       int32_t aCurTotalProgress,
-                                      int32_t aMaxTotalProgress)
-{
+                                      int32_t aMaxTotalProgress) {
   int32_t percentage = 0;
-  if (aMaxTotalProgress > 0)
-  {
-    percentage =  (aCurTotalProgress * 100) / aMaxTotalProgress;
-    if (percentage)
-      ShowProgress(percentage);
+  if (aMaxTotalProgress > 0) {
+    percentage = (aCurTotalProgress * 100) / aMaxTotalProgress;
+    if (percentage) ShowProgress(percentage);
   }
 
-   return NS_OK;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsMsgStatusFeedback::OnStateChange(nsIWebProgress* aWebProgress,
                                    nsIRequest* aRequest,
                                    uint32_t aProgressStateFlags,
-                                   nsresult aStatus)
-{
+                                   nsresult aStatus) {
   nsresult rv;
 
   NS_ENSURE_TRUE(mBundle, NS_ERROR_NULL_POINTER);
-  if (aProgressStateFlags & STATE_IS_NETWORK)
-  {
-    if (aProgressStateFlags & STATE_START)
-    {
+  if (aProgressStateFlags & STATE_IS_NETWORK) {
+    if (aProgressStateFlags & STATE_START) {
       m_lastPercent = 0;
       StartMeteors();
       nsString loadingDocument;
       rv = mBundle->GetStringFromName("documentLoading", loadingDocument);
-      if (NS_SUCCEEDED(rv))
-        ShowStatusString(loadingDocument);
-    }
-    else if (aProgressStateFlags & STATE_STOP)
-    {
-      // if we are loading message for display purposes, this STATE_STOP notification is
-      // the only notification we get when layout is actually done rendering the message. We need
-      // to fire the appropriate msgHdrSink notification in this particular case.
+      if (NS_SUCCEEDED(rv)) ShowStatusString(loadingDocument);
+    } else if (aProgressStateFlags & STATE_STOP) {
+      // if we are loading message for display purposes, this STATE_STOP
+      // notification is the only notification we get when layout is actually
+      // done rendering the message. We need to fire the appropriate msgHdrSink
+      // notification in this particular case.
       nsCOMPtr<nsIChannel> channel = do_QueryInterface(aRequest);
-      if (channel)
-      {
+      if (channel) {
         nsCOMPtr<nsIURI> uri;
         channel->GetURI(getter_AddRefs(uri));
-        nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl (do_QueryInterface(uri));
-        if (mailnewsUrl)
-        {
+        nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl(do_QueryInterface(uri));
+        if (mailnewsUrl) {
           // get the url type
           bool messageDisplayUrl;
-          mailnewsUrl->IsUrlType(nsIMsgMailNewsUrl::eDisplay, &messageDisplayUrl);
+          mailnewsUrl->IsUrlType(nsIMsgMailNewsUrl::eDisplay,
+                                 &messageDisplayUrl);
 
-          if (messageDisplayUrl)
-          {
+          if (messageDisplayUrl) {
             // get the header sink
             nsCOMPtr<nsIMsgWindow> msgWindow;
             mailnewsUrl->GetMsgWindow(getter_AddRefs(msgWindow));
-            if (msgWindow)
-            {
+            if (msgWindow) {
               nsCOMPtr<nsIMsgHeaderSink> hdrSink;
               msgWindow->GetMsgHeaderSink(getter_AddRefs(hdrSink));
-              if (hdrSink)
-                hdrSink->OnEndMsgDownload(mailnewsUrl);
+              if (hdrSink) hdrSink->OnEndMsgDownload(mailnewsUrl);
             }
             // get the folder and notify that the msg has been loaded. We're
             // using NotifyPropertyFlagChanged. To be completely consistent,
             // we'd send a similar notification that the old message was
             // unloaded.
-            nsCOMPtr <nsIMsgDBHdr> msgHdr;
-            nsCOMPtr <nsIMsgFolder> msgFolder;
+            nsCOMPtr<nsIMsgDBHdr> msgHdr;
+            nsCOMPtr<nsIMsgFolder> msgFolder;
             mailnewsUrl->GetFolder(getter_AddRefs(msgFolder));
-            nsCOMPtr <nsIMsgMessageUrl> msgUrl = do_QueryInterface(mailnewsUrl);
-            if (msgUrl)
-            {
+            nsCOMPtr<nsIMsgMessageUrl> msgUrl = do_QueryInterface(mailnewsUrl);
+            if (msgUrl) {
               // not sending this notification is not a fatal error...
-              (void) msgUrl->GetMessageHeader(getter_AddRefs(msgHdr));
+              (void)msgUrl->GetMessageHeader(getter_AddRefs(msgHdr));
               if (msgFolder && msgHdr)
                 msgFolder->NotifyPropertyFlagChanged(msgHdr, kMsgLoaded, 0, 1);
             }
@@ -139,70 +123,60 @@ nsMsgStatusFeedback::OnStateChange(nsIWebProgress* aWebProgress,
       StopMeteors();
       nsString documentDone;
       rv = mBundle->GetStringFromName("documentDone", documentDone);
-      if (NS_SUCCEEDED(rv))
-        ShowStatusString(documentDone);
+      if (NS_SUCCEEDED(rv)) ShowStatusString(documentDone);
     }
   }
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgStatusFeedback::OnLocationChange(nsIWebProgress* aWebProgress,
-                                                    nsIRequest* aRequest,
-                                                    nsIURI* aLocation,
-                                                    uint32_t aFlags)
-{
-   return NS_OK;
+NS_IMETHODIMP nsMsgStatusFeedback::OnLocationChange(
+    nsIWebProgress* aWebProgress, nsIRequest* aRequest, nsIURI* aLocation,
+    uint32_t aFlags) {
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsMsgStatusFeedback::OnStatusChange(nsIWebProgress* aWebProgress,
-                                    nsIRequest* aRequest,
-                                    nsresult aStatus,
-                                    const char16_t* aMessage)
-{
-    return NS_OK;
-}
-
-
-NS_IMETHODIMP
-nsMsgStatusFeedback::OnSecurityChange(nsIWebProgress *aWebProgress,
-                                    nsIRequest *aRequest,
-                                    uint32_t state)
-{
-    return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgStatusFeedback::OnContentBlockingEvent(nsIWebProgress *aWebProgress,
-                                            nsIRequest *aRequest, uint32_t aEvent)
-{
+                                    nsIRequest* aRequest, nsresult aStatus,
+                                    const char16_t* aMessage) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgStatusFeedback::ShowStatusString(const nsAString& aStatus)
-{
-  nsCOMPtr<nsIMsgStatusFeedback> jsStatusFeedback(do_QueryReferent(mJSStatusFeedbackWeak));
-  if (jsStatusFeedback)
-    jsStatusFeedback->ShowStatusString(aStatus);
+nsMsgStatusFeedback::OnSecurityChange(nsIWebProgress* aWebProgress,
+                                      nsIRequest* aRequest, uint32_t state) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgStatusFeedback::SetStatusString(const nsAString& aStatus)
-{
-  nsCOMPtr<nsIMsgStatusFeedback> jsStatusFeedback(do_QueryReferent(mJSStatusFeedbackWeak));
-  if (jsStatusFeedback)
-    jsStatusFeedback->SetStatusString(aStatus);
+nsMsgStatusFeedback::OnContentBlockingEvent(nsIWebProgress* aWebProgress,
+                                            nsIRequest* aRequest,
+                                            uint32_t aEvent) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgStatusFeedback::ShowProgress(int32_t aPercentage)
-{
-  // if the percentage hasn't changed...OR if we are going from 0 to 100% in one step
-  // then don't bother....just fall out....
-  if (aPercentage == m_lastPercent || (m_lastPercent == 0 && aPercentage >= 100))
+nsMsgStatusFeedback::ShowStatusString(const nsAString& aStatus) {
+  nsCOMPtr<nsIMsgStatusFeedback> jsStatusFeedback(
+      do_QueryReferent(mJSStatusFeedbackWeak));
+  if (jsStatusFeedback) jsStatusFeedback->ShowStatusString(aStatus);
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMsgStatusFeedback::SetStatusString(const nsAString& aStatus) {
+  nsCOMPtr<nsIMsgStatusFeedback> jsStatusFeedback(
+      do_QueryReferent(mJSStatusFeedbackWeak));
+  if (jsStatusFeedback) jsStatusFeedback->SetStatusString(aStatus);
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMsgStatusFeedback::ShowProgress(int32_t aPercentage) {
+  // if the percentage hasn't changed...OR if we are going from 0 to 100% in one
+  // step then don't bother....just fall out....
+  if (aPercentage == m_lastPercent ||
+      (m_lastPercent == 0 && aPercentage >= 100))
     return NS_OK;
 
   m_lastPercent = aPercentage;
@@ -211,54 +185,54 @@ nsMsgStatusFeedback::ShowProgress(int32_t aPercentage)
   if (aPercentage < 100)  // always need to do 100%
   {
     nowMS = PR_IntervalToMilliseconds(PR_IntervalNow());
-    if (nowMS < m_lastProgressTime + 250)
-      return NS_OK;
+    if (nowMS < m_lastProgressTime + 250) return NS_OK;
   }
 
   m_lastProgressTime = nowMS;
-  nsCOMPtr<nsIMsgStatusFeedback> jsStatusFeedback(do_QueryReferent(mJSStatusFeedbackWeak));
-  if (jsStatusFeedback)
-    jsStatusFeedback->ShowProgress(aPercentage);
+  nsCOMPtr<nsIMsgStatusFeedback> jsStatusFeedback(
+      do_QueryReferent(mJSStatusFeedbackWeak));
+  if (jsStatusFeedback) jsStatusFeedback->ShowProgress(aPercentage);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgStatusFeedback::StartMeteors()
-{
-  nsCOMPtr<nsIMsgStatusFeedback> jsStatusFeedback(do_QueryReferent(mJSStatusFeedbackWeak));
-  if (jsStatusFeedback)
-    jsStatusFeedback->StartMeteors();
+nsMsgStatusFeedback::StartMeteors() {
+  nsCOMPtr<nsIMsgStatusFeedback> jsStatusFeedback(
+      do_QueryReferent(mJSStatusFeedbackWeak));
+  if (jsStatusFeedback) jsStatusFeedback->StartMeteors();
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgStatusFeedback::StopMeteors()
-{
-  nsCOMPtr<nsIMsgStatusFeedback> jsStatusFeedback(do_QueryReferent(mJSStatusFeedbackWeak));
-  if (jsStatusFeedback)
-    jsStatusFeedback->StopMeteors();
+nsMsgStatusFeedback::StopMeteors() {
+  nsCOMPtr<nsIMsgStatusFeedback> jsStatusFeedback(
+      do_QueryReferent(mJSStatusFeedbackWeak));
+  if (jsStatusFeedback) jsStatusFeedback->StopMeteors();
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgStatusFeedback::SetWrappedStatusFeedback(nsIMsgStatusFeedback * aJSStatusFeedback)
-{
+NS_IMETHODIMP nsMsgStatusFeedback::SetWrappedStatusFeedback(
+    nsIMsgStatusFeedback* aJSStatusFeedback) {
   NS_ENSURE_ARG_POINTER(aJSStatusFeedback);
   mJSStatusFeedbackWeak = do_GetWeakReference(aJSStatusFeedback);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgStatusFeedback::OnProgress(nsIRequest *request, nsISupports* ctxt,
-                                              int64_t aProgress, int64_t aProgressMax)
-{
+NS_IMETHODIMP nsMsgStatusFeedback::OnProgress(nsIRequest* request,
+                                              nsISupports* ctxt,
+                                              int64_t aProgress,
+                                              int64_t aProgressMax) {
   // XXX: What should the nsIWebProgress be?
   // XXX: this truncates 64-bit to 32-bit
-  return OnProgressChange(nullptr, request, int32_t(aProgress), int32_t(aProgressMax),
-                          int32_t(aProgress) /* current total progress */, int32_t(aProgressMax) /* max total progress */);
+  return OnProgressChange(nullptr, request, int32_t(aProgress),
+                          int32_t(aProgressMax),
+                          int32_t(aProgress) /* current total progress */,
+                          int32_t(aProgressMax) /* max total progress */);
 }
 
-NS_IMETHODIMP nsMsgStatusFeedback::OnStatus(nsIRequest *request, nsISupports* ctxt,
-                                            nsresult aStatus, const char16_t* aStatusArg)
-{
+NS_IMETHODIMP nsMsgStatusFeedback::OnStatus(nsIRequest* request,
+                                            nsISupports* ctxt, nsresult aStatus,
+                                            const char16_t* aStatusArg) {
   nsresult rv;
   nsCOMPtr<nsIURI> uri;
   nsString accountName;
@@ -267,38 +241,31 @@ NS_IMETHODIMP nsMsgStatusFeedback::OnStatus(nsIRequest *request, nsISupports* ct
   rv = aChannel->GetURI(getter_AddRefs(uri));
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIMsgMailNewsUrl> url(do_QueryInterface(uri));
-  if (url)
-  {
+  if (url) {
     nsCOMPtr<nsIMsgIncomingServer> server;
     url->GetServer(getter_AddRefs(server));
-    if (server)
-      server->GetPrettyName(accountName);
+    if (server) server->GetPrettyName(accountName);
   }
 
   // forming the status message
   nsCOMPtr<nsIStringBundleService> sbs =
-    mozilla::services::GetStringBundleService();
+      mozilla::services::GetStringBundleService();
   NS_ENSURE_TRUE(sbs, NS_ERROR_UNEXPECTED);
   nsString str;
   rv = sbs->FormatStatusMessage(aStatus, aStatusArg, str);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // prefixing the account name to the status message if status message isn't blank
-  // and doesn't already contain the account name.
+  // prefixing the account name to the status message if status message isn't
+  // blank and doesn't already contain the account name.
   nsString statusMessage;
-  if (!str.IsEmpty() && str.Find(accountName) == kNotFound)
-  {
+  if (!str.IsEmpty() && str.Find(accountName) == kNotFound) {
     nsCOMPtr<nsIStringBundle> bundle;
     rv = sbs->CreateBundle(MSGS_URL, getter_AddRefs(bundle));
-    const char16_t *params[] = { accountName.get(),
-                                  str.get() };
-    rv = bundle->FormatStringFromName(
-      "statusMessage",
-      params, 2, statusMessage);
+    const char16_t* params[] = {accountName.get(), str.get()};
+    rv =
+        bundle->FormatStringFromName("statusMessage", params, 2, statusMessage);
     NS_ENSURE_SUCCESS(rv, rv);
-  }
-  else
-  {
+  } else {
     statusMessage.Assign(str);
   }
   return ShowStatusString(statusMessage);

@@ -9,43 +9,60 @@
 #include "mozilla/Attributes.h"
 #include "nsMsgGroupView.h"
 
-class nsMsgThreadedDBView : public nsMsgGroupView
-{
-public:
+class nsMsgThreadedDBView : public nsMsgGroupView {
+ public:
   nsMsgThreadedDBView();
   virtual ~nsMsgThreadedDBView();
 
-  NS_IMETHOD Open(nsIMsgFolder *folder, nsMsgViewSortTypeValue sortType, nsMsgViewSortOrderValue sortOrder, nsMsgViewFlagsTypeValue viewFlags, int32_t *pCount) override;
-  NS_IMETHOD CloneDBView(nsIMessenger *aMessengerInstance, nsIMsgWindow *aMsgWindow, nsIMsgDBViewCommandUpdater *aCommandUpdater, nsIMsgDBView **_retval) override;
+  NS_IMETHOD Open(nsIMsgFolder *folder, nsMsgViewSortTypeValue sortType,
+                  nsMsgViewSortOrderValue sortOrder,
+                  nsMsgViewFlagsTypeValue viewFlags, int32_t *pCount) override;
+  NS_IMETHOD CloneDBView(nsIMessenger *aMessengerInstance,
+                         nsIMsgWindow *aMsgWindow,
+                         nsIMsgDBViewCommandUpdater *aCommandUpdater,
+                         nsIMsgDBView **_retval) override;
   NS_IMETHOD Close() override;
-  int32_t AddKeys(nsMsgKey *pKeys, int32_t *pFlags, const char *pLevels, nsMsgViewSortTypeValue sortType, int32_t numKeysToAdd);
-  NS_IMETHOD Sort(nsMsgViewSortTypeValue sortType, nsMsgViewSortOrderValue sortOrder) override;
+  int32_t AddKeys(nsMsgKey *pKeys, int32_t *pFlags, const char *pLevels,
+                  nsMsgViewSortTypeValue sortType, int32_t numKeysToAdd);
+  NS_IMETHOD Sort(nsMsgViewSortTypeValue sortType,
+                  nsMsgViewSortOrderValue sortOrder) override;
   NS_IMETHOD GetViewType(nsMsgViewTypeValue *aViewType) override;
-  NS_IMETHOD OnParentChanged (nsMsgKey aKeyChanged, nsMsgKey oldParent, nsMsgKey newParent, nsIDBChangeListener *aInstigator) override;
+  NS_IMETHOD OnParentChanged(nsMsgKey aKeyChanged, nsMsgKey oldParent,
+                             nsMsgKey newParent,
+                             nsIDBChangeListener *aInstigator) override;
 
-protected:
+ protected:
   virtual const char *GetViewName(void) override { return "ThreadedDBView"; }
   nsresult InitThreadedView(int32_t *pCount);
-  virtual nsresult OnNewHeader(nsIMsgDBHdr *newHdr, nsMsgKey aParentKey, bool ensureListed) override;
-  virtual nsresult AddMsgToThreadNotInView(nsIMsgThread *threadHdr, nsIMsgDBHdr *msgHdr, bool ensureListed);
-  nsresult ListThreadIds(nsMsgKey *startMsg, bool unreadOnly, nsMsgKey *pOutput, int32_t *pFlags, char *pLevels,
-                        int32_t numToList, int32_t *pNumListed, int32_t *pTotalHeaders);
-  nsresult InitSort(nsMsgViewSortTypeValue sortType, nsMsgViewSortOrderValue sortOrder);
-  virtual nsresult SortThreads(nsMsgViewSortTypeValue sortType, nsMsgViewSortOrderValue sortOrder);
-  virtual void  OnExtraFlagChanged(nsMsgViewIndex index, uint32_t extraFlag) override;
+  virtual nsresult OnNewHeader(nsIMsgDBHdr *newHdr, nsMsgKey aParentKey,
+                               bool ensureListed) override;
+  virtual nsresult AddMsgToThreadNotInView(nsIMsgThread *threadHdr,
+                                           nsIMsgDBHdr *msgHdr,
+                                           bool ensureListed);
+  nsresult ListThreadIds(nsMsgKey *startMsg, bool unreadOnly, nsMsgKey *pOutput,
+                         int32_t *pFlags, char *pLevels, int32_t numToList,
+                         int32_t *pNumListed, int32_t *pTotalHeaders);
+  nsresult InitSort(nsMsgViewSortTypeValue sortType,
+                    nsMsgViewSortOrderValue sortOrder);
+  virtual nsresult SortThreads(nsMsgViewSortTypeValue sortType,
+                               nsMsgViewSortOrderValue sortOrder);
+  virtual void OnExtraFlagChanged(nsMsgViewIndex index,
+                                  uint32_t extraFlag) override;
   virtual void OnHeaderAddedOrDeleted() override;
-  void    ClearPrevIdArray();
+  void ClearPrevIdArray();
   virtual nsresult RemoveByIndex(nsMsgViewIndex index) override;
-  nsMsgViewIndex GetInsertInfoForNewHdr(nsIMsgDBHdr *newHdr, nsMsgViewIndex threadIndex, int32_t targetLevel);
+  nsMsgViewIndex GetInsertInfoForNewHdr(nsIMsgDBHdr *newHdr,
+                                        nsMsgViewIndex threadIndex,
+                                        int32_t targetLevel);
   void MoveThreadAt(nsMsgViewIndex threadIndex);
 
   // these are used to save off the previous view so that bopping back and forth
   // between two views is quick (e.g., threaded and flat sorted by date).
-  bool            m_havePrevView;
-  nsTArray<nsMsgKey> m_prevKeys;   //this is used for caching non-threaded view.
+  bool m_havePrevView;
+  nsTArray<nsMsgKey> m_prevKeys;  // this is used for caching non-threaded view.
   nsTArray<uint32_t> m_prevFlags;
-  nsTArray<uint8_t>  m_prevLevels;
-  nsCOMPtr <nsISimpleEnumerator> m_threadEnumerator;
+  nsTArray<uint8_t> m_prevLevels;
+  nsCOMPtr<nsISimpleEnumerator> m_threadEnumerator;
 };
 
 #endif

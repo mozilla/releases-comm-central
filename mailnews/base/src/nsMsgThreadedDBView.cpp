@@ -12,51 +12,41 @@
 #include "nsMsgMessageFlags.h"
 
 // Allocate this more to avoid reallocation on new mail.
-#define MSGHDR_CACHE_LOOK_AHEAD_SIZE  25
+#define MSGHDR_CACHE_LOOK_AHEAD_SIZE 25
 // Max msghdr cache entries.
-#define MSGHDR_CACHE_MAX_SIZE         8192
-#define MSGHDR_CACHE_DEFAULT_SIZE     100
+#define MSGHDR_CACHE_MAX_SIZE 8192
+#define MSGHDR_CACHE_DEFAULT_SIZE 100
 
-nsMsgThreadedDBView::nsMsgThreadedDBView()
-{
+nsMsgThreadedDBView::nsMsgThreadedDBView() {
   /* member initializers and constructor code */
   m_havePrevView = false;
 }
 
-nsMsgThreadedDBView::~nsMsgThreadedDBView()
-{
-  /* destructor code */
-}
+nsMsgThreadedDBView::~nsMsgThreadedDBView() {} /* destructor code */
 
 NS_IMETHODIMP
-nsMsgThreadedDBView::Open(nsIMsgFolder *folder,
-                          nsMsgViewSortTypeValue sortType,
+nsMsgThreadedDBView::Open(nsIMsgFolder *folder, nsMsgViewSortTypeValue sortType,
                           nsMsgViewSortOrderValue sortOrder,
-                          nsMsgViewFlagsTypeValue viewFlags,
-                          int32_t *pCount)
-{
-  nsresult rv = nsMsgDBView::Open(folder, sortType, sortOrder, viewFlags, pCount);
+                          nsMsgViewFlagsTypeValue viewFlags, int32_t *pCount) {
+  nsresult rv =
+      nsMsgDBView::Open(folder, sortType, sortOrder, viewFlags, pCount);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (!m_db)
-    return NS_ERROR_NULL_POINTER;
+  if (!m_db) return NS_ERROR_NULL_POINTER;
 
   // Preset msg hdr cache size for performance reason.
   int32_t totalMessages, unreadMessages;
-  nsCOMPtr <nsIDBFolderInfo> dbFolderInfo;
+  nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
   PersistFolderInfo(getter_AddRefs(dbFolderInfo));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Save off sort type and order, view type and flags.
   dbFolderInfo->GetNumUnreadMessages(&unreadMessages);
   dbFolderInfo->GetNumMessages(&totalMessages);
-  if (m_viewFlags & nsMsgViewFlagsType::kUnreadOnly)
-  {
+  if (m_viewFlags & nsMsgViewFlagsType::kUnreadOnly) {
     // Set unread msg size + extra entries to avoid reallocation on new mail.
-    totalMessages = (uint32_t)unreadMessages+MSGHDR_CACHE_LOOK_AHEAD_SIZE;
-  }
-  else
-  {
+    totalMessages = (uint32_t)unreadMessages + MSGHDR_CACHE_LOOK_AHEAD_SIZE;
+  } else {
     if (totalMessages > MSGHDR_CACHE_MAX_SIZE)
       // Use max default.
       totalMessages = MSGHDR_CACHE_MAX_SIZE;
@@ -67,11 +57,9 @@ nsMsgThreadedDBView::Open(nsIMsgFolder *folder,
 
   // If total messages is 0, then we probably don't have any idea how many
   // headers are in the db so we have no business setting the cache size.
-  if (totalMessages > 0)
-    m_db->SetMsgHdrCacheSize((uint32_t)totalMessages);
+  if (totalMessages > 0) m_db->SetMsgHdrCacheSize((uint32_t)totalMessages);
 
-  if (pCount)
-    *pCount = 0;
+  if (pCount) *pCount = 0;
 
   rv = InitThreadedView(pCount);
 
@@ -83,16 +71,12 @@ nsMsgThreadedDBView::Open(nsIMsgFolder *folder,
   // going to throw us off...hmm. Unless we just look at the
   // unread counts which is what mostly tweaks people anyway...
   int32_t unreadMsgsInView = 0;
-  if (!(m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay))
-  {
-    for (uint32_t i = m_flags.Length(); i > 0; )
-    {
-      if (!(m_flags[--i] & nsMsgMessageFlags::Read))
-        ++unreadMsgsInView;
+  if (!(m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay)) {
+    for (uint32_t i = m_flags.Length(); i > 0;) {
+      if (!(m_flags[--i] & nsMsgMessageFlags::Read)) ++unreadMsgsInView;
     }
 
-    if (unreadMessages != unreadMsgsInView)
-      m_db->SyncCounts();
+    if (unreadMessages != unreadMsgsInView) m_db->SyncCounts();
   }
 
   m_db->SetMsgHdrCacheSize(MSGHDR_CACHE_DEFAULT_SIZE);
@@ -101,14 +85,9 @@ nsMsgThreadedDBView::Open(nsIMsgFolder *folder,
 }
 
 NS_IMETHODIMP
-nsMsgThreadedDBView::Close()
-{
-  return nsMsgDBView::Close();
-}
+nsMsgThreadedDBView::Close() { return nsMsgDBView::Close(); }
 
-nsresult
-nsMsgThreadedDBView::InitThreadedView(int32_t *pCount)
-{
+nsresult nsMsgThreadedDBView::InitThreadedView(int32_t *pCount) {
   nsresult rv;
 
   m_keys.Clear();
@@ -123,46 +102,35 @@ nsMsgThreadedDBView::InitThreadedView(int32_t *pCount)
 
   // List all the ids into m_keys.
   nsMsgKey startMsg = 0;
-  do
-  {
+  do {
     const int32_t kIdChunkSize = 400;
-    int32_t  numListed = 0;
+    int32_t numListed = 0;
     nsMsgKey idArray[kIdChunkSize];
-    int32_t  flagArray[kIdChunkSize];
-    char     levelArray[kIdChunkSize];
+    int32_t flagArray[kIdChunkSize];
+    char levelArray[kIdChunkSize];
 
-    rv = ListThreadIds(&startMsg,
-                       (m_viewFlags & nsMsgViewFlagsType::kUnreadOnly) != 0,
-                       idArray,
-                       flagArray,
-                       levelArray,
-                       kIdChunkSize,
-                       &numListed,
-                       nullptr);
+    rv = ListThreadIds(
+        &startMsg, (m_viewFlags & nsMsgViewFlagsType::kUnreadOnly) != 0,
+        idArray, flagArray, levelArray, kIdChunkSize, &numListed, nullptr);
 
-    if (NS_SUCCEEDED(rv))
-    {
-      int32_t numAdded = AddKeys(idArray, flagArray, levelArray, m_sortType, numListed);
-      if (pCount)
-        *pCount += numAdded;
+    if (NS_SUCCEEDED(rv)) {
+      int32_t numAdded =
+          AddKeys(idArray, flagArray, levelArray, m_sortType, numListed);
+      if (pCount) *pCount += numAdded;
     }
 
   } while (NS_SUCCEEDED(rv) && startMsg != nsMsgKey_None);
 
-  if (NS_SUCCEEDED(getSortrv))
-  {
+  if (NS_SUCCEEDED(getSortrv)) {
     rv = InitSort(m_sortType, m_sortOrder);
     SaveSortInfo(m_sortType, m_sortOrder);
-
   }
 
   return rv;
 }
 
-nsresult
-nsMsgThreadedDBView::SortThreads(nsMsgViewSortTypeValue sortType,
-                                 nsMsgViewSortOrderValue sortOrder)
-{
+nsresult nsMsgThreadedDBView::SortThreads(nsMsgViewSortTypeValue sortType,
+                                          nsMsgViewSortOrderValue sortOrder) {
   NS_ASSERTION(m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay,
                "trying to sort unthreaded threads");
 
@@ -173,12 +141,9 @@ nsMsgThreadedDBView::SortThreads(nsMsgViewSortTypeValue sortType,
   // Then, we expand the threads in the result array that were expanded in the
   // original view (perhaps by copying from the original view, but more likely
   // just be calling expand).
-  for (uint32_t i = 0; i < m_keys.Length(); i++)
-  {
-    if (m_flags[i] & MSG_VIEW_FLAG_ISTHREAD)
-    {
-      if (numThreads < i)
-      {
+  for (uint32_t i = 0; i < m_keys.Length(); i++) {
+    if (m_flags[i] & MSG_VIEW_FLAG_ISTHREAD) {
+      if (numThreads < i) {
         m_keys[numThreads] = m_keys[i];
         m_flags[numThreads] = m_flags[i];
       }
@@ -191,8 +156,8 @@ nsMsgThreadedDBView::SortThreads(nsMsgViewSortTypeValue sortType,
   m_keys.SetLength(numThreads);
   m_flags.SetLength(numThreads);
   m_levels.SetLength(numThreads);
-  //m_viewFlags &= ~nsMsgViewFlagsType::kThreadedDisplay;
-  m_sortType = nsMsgViewSortType::byNone; // sort from scratch
+  // m_viewFlags &= ~nsMsgViewFlagsType::kThreadedDisplay;
+  m_sortType = nsMsgViewSortType::byNone;  // sort from scratch
   nsMsgDBView::Sort(sortType, sortOrder);
   m_viewFlags |= nsMsgViewFlagsType::kThreadedDisplay;
   SetSuppressChangeNotifications(true);
@@ -202,34 +167,29 @@ nsMsgThreadedDBView::SortThreads(nsMsgViewSortTypeValue sortType,
   // MSG_VIEW_FLAG_HAS_CHILDREN because we may be going from a flat sort,
   // which doesn't maintain that flag, to a threaded sort, which requires
   // that flag.
-  for (uint32_t j = 0; j < m_keys.Length(); j++)
-  {
+  for (uint32_t j = 0; j < m_keys.Length(); j++) {
     uint32_t flags = m_flags[j];
-    if ((flags & (MSG_VIEW_FLAG_HASCHILDREN |
-                  nsMsgMessageFlags::Elided)) == MSG_VIEW_FLAG_HASCHILDREN)
-    {
+    if ((flags & (MSG_VIEW_FLAG_HASCHILDREN | nsMsgMessageFlags::Elided)) ==
+        MSG_VIEW_FLAG_HASCHILDREN) {
       uint32_t numExpanded;
       m_flags[j] = flags | nsMsgMessageFlags::Elided;
       ExpandByIndex(j, &numExpanded);
       j += numExpanded;
       if (numExpanded > 0)
         m_flags[j - numExpanded] = flags | MSG_VIEW_FLAG_HASCHILDREN;
-    }
-    else if (flags & MSG_VIEW_FLAG_ISTHREAD &&
-             !(flags & MSG_VIEW_FLAG_HASCHILDREN))
-    {
-      nsCOMPtr <nsIMsgDBHdr> msgHdr;
-      nsCOMPtr <nsIMsgThread> pThread;
+    } else if (flags & MSG_VIEW_FLAG_ISTHREAD &&
+               !(flags & MSG_VIEW_FLAG_HASCHILDREN)) {
+      nsCOMPtr<nsIMsgDBHdr> msgHdr;
+      nsCOMPtr<nsIMsgThread> pThread;
       m_db->GetMsgHdrForKey(m_keys[j], getter_AddRefs(msgHdr));
-      if (msgHdr)
-      {
+      if (msgHdr) {
         m_db->GetThreadContainingMsgHdr(msgHdr, getter_AddRefs(pThread));
-        if (pThread)
-        {
+        if (pThread) {
           uint32_t numChildren;
           pThread->GetNumChildren(&numChildren);
           if (numChildren > 1)
-            m_flags[j] = flags | MSG_VIEW_FLAG_HASCHILDREN | nsMsgMessageFlags::Elided;
+            m_flags[j] =
+                flags | MSG_VIEW_FLAG_HASCHILDREN | nsMsgMessageFlags::Elided;
         }
       }
     }
@@ -240,42 +200,36 @@ nsMsgThreadedDBView::SortThreads(nsMsgViewSortTypeValue sortType,
   return NS_OK;
 }
 
-int32_t
-nsMsgThreadedDBView::AddKeys(nsMsgKey *pKeys,
-                             int32_t *pFlags,
-                             const char *pLevels,
-                             nsMsgViewSortTypeValue sortType,
-                             int32_t numKeysToAdd)
-{
+int32_t nsMsgThreadedDBView::AddKeys(nsMsgKey *pKeys, int32_t *pFlags,
+                                     const char *pLevels,
+                                     nsMsgViewSortTypeValue sortType,
+                                     int32_t numKeysToAdd) {
   int32_t numAdded = 0;
   // Allocate enough space first to avoid memory allocation/deallocation.
   m_keys.SetCapacity(m_keys.Length() + numKeysToAdd);
   m_flags.SetCapacity(m_flags.Length() + numKeysToAdd);
   m_levels.SetCapacity(m_levels.Length() + numKeysToAdd);
-  for (int32_t i = 0; i < numKeysToAdd; i++)
-  {
+  for (int32_t i = 0; i < numKeysToAdd; i++) {
     int32_t threadFlag = pFlags[i];
     int32_t flag = threadFlag;
 
     // Skip ignored threads.
-    if ((threadFlag & nsMsgMessageFlags::Ignored) && !(m_viewFlags & nsMsgViewFlagsType::kShowIgnored))
+    if ((threadFlag & nsMsgMessageFlags::Ignored) &&
+        !(m_viewFlags & nsMsgViewFlagsType::kShowIgnored))
       continue;
 
     // Skip ignored subthreads
-    nsCOMPtr <nsIMsgDBHdr> msgHdr;
+    nsCOMPtr<nsIMsgDBHdr> msgHdr;
     m_db->GetMsgHdrForKey(pKeys[i], getter_AddRefs(msgHdr));
-    if (!(m_viewFlags & nsMsgViewFlagsType::kShowIgnored))
-    {
+    if (!(m_viewFlags & nsMsgViewFlagsType::kShowIgnored)) {
       bool killed;
       msgHdr->GetIsKilled(&killed);
-      if (killed)
-        continue;
+      if (killed) continue;
     }
 
     // By default, make threads collapsed unless we're only viewing new msgs.
 
-    if (flag & MSG_VIEW_FLAG_HASCHILDREN)
-      flag |= nsMsgMessageFlags::Elided;
+    if (flag & MSG_VIEW_FLAG_HASCHILDREN) flag |= nsMsgMessageFlags::Elided;
 
     // Should this be persistent? Doesn't seem to need to be.
     flag |= MSG_VIEW_FLAG_ISTHREAD;
@@ -288,9 +242,8 @@ nsMsgThreadedDBView::AddKeys(nsMsgKey *pKeys,
     // of the key array, instead of the middle, and is much faster.
     if ((!(m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay) ||
          m_viewFlags & nsMsgViewFlagsType::kExpandAll) &&
-        flag & nsMsgMessageFlags::Elided)
-    {
-       ExpandByIndex(m_keys.Length() - 1, NULL);
+        flag & nsMsgMessageFlags::Elided) {
+      ExpandByIndex(m_keys.Length() - 1, NULL);
     }
   }
 
@@ -299,19 +252,16 @@ nsMsgThreadedDBView::AddKeys(nsMsgKey *pKeys,
 
 NS_IMETHODIMP
 nsMsgThreadedDBView::Sort(nsMsgViewSortTypeValue sortType,
-                          nsMsgViewSortOrderValue sortOrder)
-{
+                          nsMsgViewSortOrderValue sortOrder) {
   nsresult rv;
 
   int32_t rowCountBeforeSort = GetSize();
 
-  if (!rowCountBeforeSort)
-  {
+  if (!rowCountBeforeSort) {
     // Still need to setup our flags even when no articles - bug 98183.
     m_sortType = sortType;
     if (sortType == nsMsgViewSortType::byThread &&
-        !(m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay))
-    {
+        !(m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay)) {
       SetViewFlags(m_viewFlags | nsMsgViewFlagsType::kThreadedDisplay);
     }
 
@@ -329,8 +279,7 @@ nsMsgThreadedDBView::Sort(nsMsgViewSortTypeValue sortType,
   // If sort type is by thread, and we're already threaded, change sort type
   // to byId.
   if (sortType == nsMsgViewSortType::byThread &&
-      (m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay) != 0)
-  {
+      (m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay) != 0) {
     sortType = nsMsgViewSortType::byId;
   }
 
@@ -340,16 +289,13 @@ nsMsgThreadedDBView::Sort(nsMsgViewSortTypeValue sortType,
   // If the client wants us to forget our cached id arrays, they
   // should build a new view. If this isn't good enough, we
   // need a method to do that.
-  if (sortType != m_sortType || !m_sortValid || sortThreads)
-  {
+  if (sortType != m_sortType || !m_sortValid || sortThreads) {
     SaveSortInfo(sortType, sortOrder);
-    if (sortType == nsMsgViewSortType::byThread)
-    {
+    if (sortType == nsMsgViewSortType::byThread) {
       m_sortType = sortType;
       m_viewFlags |= nsMsgViewFlagsType::kThreadedDisplay;
       m_viewFlags &= ~nsMsgViewFlagsType::kGroupBySort;
-      if ( m_havePrevView)
-      {
+      if (m_havePrevView) {
         // Restore saved id array and flags array.
         m_keys = m_prevKeys;
         m_flags = m_prevFlags;
@@ -363,13 +309,10 @@ nsMsgThreadedDBView::Sort(nsMsgViewSortTypeValue sortType,
         rv = AdjustRowCount(rowCountBeforeSort, GetSize());
 
         RestoreSelection(preservedKey, preservedSelection);
-        if (mTree)
-          mTree->Invalidate();
+        if (mTree) mTree->Invalidate();
 
         return NS_OK;
-      }
-      else
-      {
+      } else {
         // Set sort info in anticipation of what Init will do.
         // Build up thread list.
         InitThreadedView(nullptr);
@@ -383,24 +326,18 @@ nsMsgThreadedDBView::Sort(nsMsgViewSortTypeValue sortType,
         rv = AdjustRowCount(rowCountBeforeSort, GetSize());
 
         RestoreSelection(preservedKey, preservedSelection);
-        if (mTree)
-          mTree->Invalidate();
+        if (mTree) mTree->Invalidate();
 
         return NS_OK;
       }
-    }
-    else if (sortType  != nsMsgViewSortType::byThread &&
-             (m_sortType == nsMsgViewSortType::byThread  || sortThreads)
-             /* && !m_havePrevView*/)
-    {
-      if (sortThreads)
-      {
+    } else if (sortType != nsMsgViewSortType::byThread &&
+               (m_sortType == nsMsgViewSortType::byThread || sortThreads)
+               /* && !m_havePrevView*/) {
+      if (sortThreads) {
         SortThreads(sortType, sortOrder);
         // Hack so base class won't do anything.
         sortType = nsMsgViewSortType::byThread;
-      }
-      else
-      {
+      } else {
         // Going from SortByThread to non-thread sort - must build new key,
         // level, and flags arrays.
         m_prevKeys = m_keys;
@@ -408,22 +345,20 @@ nsMsgThreadedDBView::Sort(nsMsgViewSortTypeValue sortType,
         m_prevLevels = m_levels;
         // Do this before we sort, so that we'll use the cheap method
         // of expanding.
-        m_viewFlags &= ~(nsMsgViewFlagsType::kThreadedDisplay | nsMsgViewFlagsType::kGroupBySort);
+        m_viewFlags &= ~(nsMsgViewFlagsType::kThreadedDisplay |
+                         nsMsgViewFlagsType::kGroupBySort);
         ExpandAll();
         // m_idArray.RemoveAll();
         // m_flags.Clear();
         m_havePrevView = true;
       }
     }
-  }
-  else if (m_sortOrder != sortOrder)
-  {
+  } else if (m_sortOrder != sortOrder) {
     // Check for toggling the sort.
     nsMsgDBView::Sort(sortType, sortOrder);
   }
 
-  if (!sortThreads)
-  {
+  if (!sortThreads) {
     // Call the base class in case we're not sorting by thread.
     rv = nsMsgDBView::Sort(sortType, sortOrder);
     SaveSortInfo(sortType, sortOrder);
@@ -436,40 +371,30 @@ nsMsgThreadedDBView::Sort(nsMsgViewSortTypeValue sortType,
   rv = AdjustRowCount(rowCountBeforeSort, GetSize());
 
   RestoreSelection(preservedKey, preservedSelection);
-  if (mTree)
-    mTree->Invalidate();
+  if (mTree) mTree->Invalidate();
 
-  NS_ENSURE_SUCCESS(rv,rv);
+  NS_ENSURE_SUCCESS(rv, rv);
   return NS_OK;
 }
 
 // List the ids of the top-level thread ids starting at id == startMsg.
 // This actually returns the ids of the first message in each thread.
-nsresult
-nsMsgThreadedDBView::ListThreadIds(nsMsgKey *startMsg,
-                                   bool unreadOnly,
-                                   nsMsgKey *pOutput,
-                                   int32_t *pFlags,
-                                   char *pLevels,
-                                   int32_t numToList,
-                                   int32_t *pNumListed,
-                                   int32_t *pTotalHeaders)
-{
+nsresult nsMsgThreadedDBView::ListThreadIds(nsMsgKey *startMsg, bool unreadOnly,
+                                            nsMsgKey *pOutput, int32_t *pFlags,
+                                            char *pLevels, int32_t numToList,
+                                            int32_t *pNumListed,
+                                            int32_t *pTotalHeaders) {
   nsresult rv = NS_OK;
   // N.B..don't ret before assigning numListed to *pNumListed.
   int32_t numListed = 0;
 
-  if (*startMsg > 0)
-  {
+  if (*startMsg > 0) {
     // For now, we'll just have to rely on the caller leaving
     // the iterator in the right place.
     NS_ASSERTION(m_threadEnumerator != nullptr, "where's our iterator?");
-  }
-  else
-  {
+  } else {
     NS_ASSERTION(m_db, "no db");
-    if (!m_db)
-      return NS_ERROR_UNEXPECTED;
+    if (!m_db) return NS_ERROR_UNEXPECTED;
 
     rv = m_db->EnumerateThreads(getter_AddRefs(m_threadEnumerator));
     NS_ENSURE_SUCCESS(rv, rv);
@@ -477,25 +402,22 @@ nsMsgThreadedDBView::ListThreadIds(nsMsgKey *startMsg,
 
   bool hasMore = false;
 
-  nsCOMPtr <nsIMsgThread> threadHdr ;
+  nsCOMPtr<nsIMsgThread> threadHdr;
   int32_t threadsRemoved = 0;
   while (numListed < numToList &&
          NS_SUCCEEDED(rv = m_threadEnumerator->HasMoreElements(&hasMore)) &&
-         hasMore)
-  {
-    nsCOMPtr <nsISupports> supports;
+         hasMore) {
+    nsCOMPtr<nsISupports> supports;
     rv = m_threadEnumerator->GetNext(getter_AddRefs(supports));
-    if (NS_FAILED(rv))
-    {
+    if (NS_FAILED(rv)) {
       threadHdr = nullptr;
       break;
     }
 
     threadHdr = do_QueryInterface(supports);
-    if (!threadHdr)
-      break;
+    if (!threadHdr) break;
 
-    nsCOMPtr <nsIMsgDBHdr> msgHdr;
+    nsCOMPtr<nsIMsgDBHdr> msgHdr;
     uint32_t numChildren;
     if (unreadOnly)
       threadHdr->GetNumUnreadChildren(&numChildren);
@@ -504,20 +426,17 @@ nsMsgThreadedDBView::ListThreadIds(nsMsgKey *startMsg,
 
     uint32_t threadFlags;
     threadHdr->GetFlags(&threadFlags);
-    if (numChildren != 0)
-    {
+    if (numChildren != 0) {
       // Not an empty thread.
       int32_t unusedRootIndex;
-      if (pTotalHeaders)
-        *pTotalHeaders += numChildren;
+      if (pTotalHeaders) *pTotalHeaders += numChildren;
 
       if (unreadOnly)
         rv = threadHdr->GetFirstUnreadChild(getter_AddRefs(msgHdr));
       else
         rv = threadHdr->GetRootHdr(&unusedRootIndex, getter_AddRefs(msgHdr));
 
-      if (NS_SUCCEEDED(rv) && msgHdr != nullptr && WantsThisThread(threadHdr))
-      {
+      if (NS_SUCCEEDED(rv) && msgHdr != nullptr && WantsThisThread(threadHdr)) {
         uint32_t msgFlags;
         uint32_t newMsgFlags;
         nsMsgKey msgKey;
@@ -532,21 +451,16 @@ nsMsgThreadedDBView::ListThreadIds(nsMsgKey *startMsg,
         AdjustReadFlag(msgHdr, &msgFlags);
         // Try adding in MSG_VIEW_FLAG_ISTHREAD flag for unreadonly view.
         pFlags[numListed] = msgFlags | MSG_VIEW_FLAG_ISTHREAD | threadFlags;
-        if (numChildren > 1)
-          pFlags[numListed] |= MSG_VIEW_FLAG_HASCHILDREN;
+        if (numChildren > 1) pFlags[numListed] |= MSG_VIEW_FLAG_HASCHILDREN;
 
         numListed++;
-      }
-      else
-      {
+      } else {
         NS_ASSERTION(NS_SUCCEEDED(rv) && msgHdr,
                      "couldn't get header for some reason");
       }
-    }
-    else if (threadsRemoved < 10 &&
-             !(threadFlags & (nsMsgMessageFlags::Watched |
-                              nsMsgMessageFlags::Ignored)))
-    {
+    } else if (threadsRemoved < 10 &&
+               !(threadFlags &
+                 (nsMsgMessageFlags::Watched | nsMsgMessageFlags::Ignored))) {
       // ### remove thread.
       // Don't want to remove all empty threads first time around as it will
       // choke performance for upgrade.
@@ -557,18 +471,15 @@ nsMsgThreadedDBView::ListThreadIds(nsMsgKey *startMsg,
     }
   }
 
-  if (hasMore && threadHdr)
-  {
+  if (hasMore && threadHdr) {
     threadHdr->GetThreadKey(startMsg);
-  }
-  else
-  {
+  } else {
     *startMsg = nsMsgKey_None;
-    nsCOMPtr <nsIDBChangeListener> dbListener = do_QueryInterface(m_threadEnumerator);
+    nsCOMPtr<nsIDBChangeListener> dbListener =
+        do_QueryInterface(m_threadEnumerator);
     // This is needed to make the thread enumerator release its reference
     // to the db.
-    if (dbListener)
-      dbListener->OnAnnouncerGoingAway(nullptr);
+    if (dbListener) dbListener->OnAnnouncerGoingAway(nullptr);
 
     m_threadEnumerator = nullptr;
   }
@@ -577,18 +488,13 @@ nsMsgThreadedDBView::ListThreadIds(nsMsgKey *startMsg,
   return rv;
 }
 
-void
-nsMsgThreadedDBView::OnExtraFlagChanged(nsMsgViewIndex index,
-                                        uint32_t extraFlag)
-{
-  if (IsValidIndex(index))
-  {
-    if (m_havePrevView)
-    {
+void nsMsgThreadedDBView::OnExtraFlagChanged(nsMsgViewIndex index,
+                                             uint32_t extraFlag) {
+  if (IsValidIndex(index)) {
+    if (m_havePrevView) {
       nsMsgKey keyChanged = m_keys[index];
       nsMsgViewIndex prevViewIndex = m_prevKeys.IndexOf(keyChanged);
-      if (prevViewIndex != nsMsgViewIndex_None)
-      {
+      if (prevViewIndex != nsMsgViewIndex_None) {
         uint32_t prevFlag = m_prevFlags[prevViewIndex];
         // Don't want to change the elided bit, or has children or is thread.
         if (prevFlag & nsMsgMessageFlags::Elided)
@@ -617,37 +523,26 @@ nsMsgThreadedDBView::OnExtraFlagChanged(nsMsgViewIndex index,
   if (m_sortType == nsMsgViewSortType::byStatus ||
       m_sortType == nsMsgViewSortType::byFlagged ||
       m_sortType == nsMsgViewSortType::byUnread ||
-      m_sortType == nsMsgViewSortType::byPriority)
-  {
+      m_sortType == nsMsgViewSortType::byPriority) {
     m_sortValid = false;
   }
 }
 
-void
-nsMsgThreadedDBView::OnHeaderAddedOrDeleted()
-{
-  ClearPrevIdArray();
-}
+void nsMsgThreadedDBView::OnHeaderAddedOrDeleted() { ClearPrevIdArray(); }
 
-void
-nsMsgThreadedDBView::ClearPrevIdArray()
-{
+void nsMsgThreadedDBView::ClearPrevIdArray() {
   m_prevKeys.Clear();
   m_prevLevels.Clear();
   m_prevFlags.Clear();
   m_havePrevView = false;
 }
 
-nsresult
-nsMsgThreadedDBView::InitSort(nsMsgViewSortTypeValue sortType,
-                              nsMsgViewSortOrderValue sortOrder)
-{
+nsresult nsMsgThreadedDBView::InitSort(nsMsgViewSortTypeValue sortType,
+                                       nsMsgViewSortOrderValue sortOrder) {
   // Nothing to do.
-  if (m_viewFlags & nsMsgViewFlagsType::kGroupBySort)
-    return NS_OK;
+  if (m_viewFlags & nsMsgViewFlagsType::kGroupBySort) return NS_OK;
 
-  if (sortType == nsMsgViewSortType::byThread)
-  {
+  if (sortType == nsMsgViewSortType::byThread) {
     // Sort top level threads by id.
     nsMsgDBView::Sort(nsMsgViewSortType::byId, sortOrder);
     m_sortType = nsMsgViewSortType::byThread;
@@ -657,27 +552,23 @@ nsMsgThreadedDBView::InitSort(nsMsgViewSortTypeValue sortType,
     SetViewFlags(m_viewFlags);
     // m_db->SetSortInfo(m_sortType, sortOrder);
   }
-//  else
-//    m_viewFlags &= ~nsMsgViewFlagsType::kThreadedDisplay;
-
+  //  else
+  //    m_viewFlags &= ~nsMsgViewFlagsType::kThreadedDisplay;
 
   // By default, the unread only view should have all threads expanded.
-  if ((m_viewFlags & (nsMsgViewFlagsType::kUnreadOnly |
-                      nsMsgViewFlagsType::kExpandAll)) &&
-      (m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay))
-  {
+  if ((m_viewFlags &
+       (nsMsgViewFlagsType::kUnreadOnly | nsMsgViewFlagsType::kExpandAll)) &&
+      (m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay)) {
     ExpandAll();
   }
 
-  if (!(m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay))
-  {
+  if (!(m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay)) {
     // For now, expand all and do a flat sort.
     ExpandAll();
   }
 
   Sort(sortType, sortOrder);
-  if (sortType != nsMsgViewSortType::byThread)
-  {
+  if (sortType != nsMsgViewSortType::byThread) {
     // Forget prev view, since it has everything expanded.
     ClearPrevIdArray();
   }
@@ -685,11 +576,9 @@ nsMsgThreadedDBView::InitSort(nsMsgViewSortTypeValue sortType,
   return NS_OK;
 }
 
-nsresult
-nsMsgThreadedDBView::OnNewHeader(nsIMsgDBHdr *newHdr,
-                                 nsMsgKey aParentKey,
-                                 bool ensureListed)
-{
+nsresult nsMsgThreadedDBView::OnNewHeader(nsIMsgDBHdr *newHdr,
+                                          nsMsgKey aParentKey,
+                                          bool ensureListed) {
   if (m_viewFlags & nsMsgViewFlagsType::kGroupBySort)
     return nsMsgGroupView::OnNewHeader(newHdr, aParentKey, ensureListed);
 
@@ -703,10 +592,8 @@ nsMsgThreadedDBView::OnNewHeader(nsIMsgDBHdr *newHdr,
   // to insert in order...
   uint32_t msgFlags;
   newHdr->GetFlags(&msgFlags);
-  if (m_viewFlags & nsMsgViewFlagsType::kUnreadOnly &&
-      !ensureListed &&
-      msgFlags & nsMsgMessageFlags::Read)
-  {
+  if (m_viewFlags & nsMsgViewFlagsType::kUnreadOnly && !ensureListed &&
+      msgFlags & nsMsgMessageFlags::Read) {
     return NS_OK;
   }
 
@@ -724,26 +611,23 @@ nsMsgThreadedDBView::OnNewHeader(nsIMsgDBHdr *newHdr,
   int32_t threadCount;
   uint32_t threadFlags;
   bool moveThread = false;
-  nsMsgViewIndex threadIndex = ThreadIndexOfMsg(newKey, nsMsgViewIndex_None,
-                                                &threadCount, &threadFlags);
+  nsMsgViewIndex threadIndex =
+      ThreadIndexOfMsg(newKey, nsMsgViewIndex_None, &threadCount, &threadFlags);
   bool threadRootIsDisplayed = false;
 
-  nsCOMPtr <nsIMsgThread> threadHdr;
+  nsCOMPtr<nsIMsgThread> threadHdr;
   m_db->GetThreadContainingMsgHdr(newHdr, getter_AddRefs(threadHdr));
-  if (threadHdr && m_sortType == nsMsgViewSortType::byDate)
-  {
+  if (threadHdr && m_sortType == nsMsgViewSortType::byDate) {
     uint32_t newestMsgInThread = 0, msgDate = 0;
     threadHdr->GetNewestMsgDate(&newestMsgInThread);
     newHdr->GetDateInSeconds(&msgDate);
     moveThread = (msgDate == newestMsgInThread);
   }
 
-  if (threadIndex != nsMsgViewIndex_None)
-  {
+  if (threadIndex != nsMsgViewIndex_None) {
     threadRootIsDisplayed = (m_currentlyDisplayedViewIndex == threadIndex);
     uint32_t flags = m_flags[threadIndex];
-    if (!(flags & MSG_VIEW_FLAG_HASCHILDREN))
-    {
+    if (!(flags & MSG_VIEW_FLAG_HASCHILDREN)) {
       flags |= MSG_VIEW_FLAG_HASCHILDREN | MSG_VIEW_FLAG_ISTHREAD;
       if (!(m_viewFlags & nsMsgViewFlagsType::kUnreadOnly))
         flags |= nsMsgMessageFlags::Elided;
@@ -751,21 +635,18 @@ nsMsgThreadedDBView::OnNewHeader(nsIMsgDBHdr *newHdr,
       m_flags[threadIndex] = flags;
     }
 
-    if (!(flags & nsMsgMessageFlags::Elided))
-    {
+    if (!(flags & nsMsgMessageFlags::Elided)) {
       // Thread is expanded.
       // Insert child into thread.
       // Levels of other hdrs may have changed!
       uint32_t newFlags = msgFlags;
       int32_t level = 0;
       nsMsgViewIndex insertIndex = threadIndex;
-      if (aParentKey == nsMsgKey_None)
-      {
+      if (aParentKey == nsMsgKey_None) {
         newFlags |= MSG_VIEW_FLAG_ISTHREAD | MSG_VIEW_FLAG_HASCHILDREN;
-      }
-      else
-      {
-        nsMsgViewIndex parentIndex = FindParentInThread(aParentKey, threadIndex);
+      } else {
+        nsMsgViewIndex parentIndex =
+            FindParentInThread(aParentKey, threadIndex);
         level = m_levels[parentIndex] + 1;
         insertIndex = GetInsertInfoForNewHdr(newHdr, parentIndex, level);
       }
@@ -776,8 +657,7 @@ nsMsgThreadedDBView::OnNewHeader(nsIMsgDBHdr *newHdr,
       // GetRowCount().
       NoteChange(insertIndex, 1, nsMsgViewNotificationCode::insertOrDelete);
 
-      if (aParentKey == nsMsgKey_None)
-      {
+      if (aParentKey == nsMsgKey_None) {
         // this header is the new king! try collapsing the existing thread,
         // removing it, installing this header as king, and expanding it.
         CollapseByIndex(threadIndex, nullptr);
@@ -785,9 +665,7 @@ nsMsgThreadedDBView::OnNewHeader(nsIMsgDBHdr *newHdr,
         // nsMsgDBView::RemoveByIndex(threadIndex);
         ExpandByIndex(threadIndex, nullptr);
       }
-    }
-    else if (aParentKey == nsMsgKey_None)
-    {
+    } else if (aParentKey == nsMsgKey_None) {
       // if we have a collapsed thread which just got a new
       // top of thread, change the keys array.
       m_keys[threadIndex] = newKey;
@@ -806,9 +684,7 @@ nsMsgThreadedDBView::OnNewHeader(nsIMsgDBHdr *newHdr,
     else
       // note change, to update the parent thread's unread and total counts
       NoteChange(threadIndex, 1, nsMsgViewNotificationCode::changed);
-  }
-  else if (threadHdr)
-  {
+  } else if (threadHdr) {
     // Adding msg to thread that's not in view.
     AddMsgToThreadNotInView(threadHdr, newHdr, ensureListed);
   }
@@ -817,11 +693,9 @@ nsMsgThreadedDBView::OnNewHeader(nsIMsgDBHdr *newHdr,
 }
 
 NS_IMETHODIMP
-nsMsgThreadedDBView::OnParentChanged (nsMsgKey aKeyChanged,
-                                      nsMsgKey oldParent,
-                                      nsMsgKey newParent,
-                                      nsIDBChangeListener *aInstigator)
-{
+nsMsgThreadedDBView::OnParentChanged(nsMsgKey aKeyChanged, nsMsgKey oldParent,
+                                     nsMsgKey newParent,
+                                     nsIDBChangeListener *aInstigator) {
   // We need to adjust the level of the hdr whose parent changed, and
   // invalidate that row, iff we're in threaded mode.
 #if 0
@@ -863,18 +737,13 @@ nsMsgThreadedDBView::OnParentChanged (nsMsgKey aKeyChanged,
   return NS_OK;
 }
 
-nsMsgViewIndex
-nsMsgThreadedDBView::GetInsertInfoForNewHdr(nsIMsgDBHdr *newHdr,
-                                            nsMsgViewIndex parentIndex,
-                                            int32_t targetLevel)
-{
+nsMsgViewIndex nsMsgThreadedDBView::GetInsertInfoForNewHdr(
+    nsIMsgDBHdr *newHdr, nsMsgViewIndex parentIndex, int32_t targetLevel) {
   uint32_t viewSize = GetSize();
-  while (++parentIndex < viewSize)
-  {
+  while (++parentIndex < viewSize) {
     // Loop until we find a message at a level less than or equal to the
     // parent level
-    if (m_levels[parentIndex] < targetLevel)
-      break;
+    if (m_levels[parentIndex] < targetLevel) break;
   }
 
   return parentIndex;
@@ -883,19 +752,16 @@ nsMsgThreadedDBView::GetInsertInfoForNewHdr(nsIMsgDBHdr *newHdr,
 // This method removes the thread at threadIndex from the view
 // and puts it back in its new position, determined by the sort order.
 // And, if the selection is affected, save and restore the selection.
-void
-nsMsgThreadedDBView::MoveThreadAt(nsMsgViewIndex threadIndex)
-{
+void nsMsgThreadedDBView::MoveThreadAt(nsMsgViewIndex threadIndex) {
   // We need to check if the thread is collapsed or not...
   // We want to turn off tree notifications so that we don't
   // reload the current message.
   // We also need to invalidate the range between where the thread was
   // and where it ended up.
   bool changesDisabled = mSuppressChangeNotification;
-  if (!changesDisabled)
-    SetSuppressChangeNotifications(true);
+  if (!changesDisabled) SetSuppressChangeNotifications(true);
 
-  nsCOMPtr <nsIMsgDBHdr> threadHdr;
+  nsCOMPtr<nsIMsgDBHdr> threadHdr;
 
   GetMsgHdrForViewIndex(threadIndex, getter_AddRefs(threadHdr));
   int32_t childCount = 0;
@@ -904,19 +770,18 @@ nsMsgThreadedDBView::MoveThreadAt(nsMsgViewIndex threadIndex)
   AutoTArray<nsMsgKey, 1> preservedSelection;
   int32_t selectionCount;
   int32_t currentIndex;
-  bool hasSelection = mTree && mTreeSelection &&
-                      ((NS_SUCCEEDED(mTreeSelection->GetCurrentIndex(&currentIndex)) &&
-                        currentIndex >= 0 && (uint32_t)currentIndex < GetSize()) ||
-                       (NS_SUCCEEDED(mTreeSelection->GetRangeCount(&selectionCount)) &&
-                        selectionCount > 0));
-  if (hasSelection)
-    SaveAndClearSelection(&preservedKey, preservedSelection);
+  bool hasSelection =
+      mTree && mTreeSelection &&
+      ((NS_SUCCEEDED(mTreeSelection->GetCurrentIndex(&currentIndex)) &&
+        currentIndex >= 0 && (uint32_t)currentIndex < GetSize()) ||
+       (NS_SUCCEEDED(mTreeSelection->GetRangeCount(&selectionCount)) &&
+        selectionCount > 0));
+  if (hasSelection) SaveAndClearSelection(&preservedKey, preservedSelection);
 
   uint32_t saveFlags = m_flags[threadIndex];
   bool threadIsExpanded = !(saveFlags & nsMsgMessageFlags::Elided);
 
-  if (threadIsExpanded)
-  {
+  if (threadIsExpanded) {
     ExpansionDelta(threadIndex, &childCount);
     childCount = -childCount;
   }
@@ -925,15 +790,12 @@ nsMsgThreadedDBView::MoveThreadAt(nsMsgViewIndex threadIndex)
   nsTArray<uint32_t> threadFlags;
   nsTArray<uint8_t> threadLevels;
 
-  if (threadIsExpanded)
-  {
+  if (threadIsExpanded) {
     threadKeys.SetCapacity(childCount);
     threadFlags.SetCapacity(childCount);
     threadLevels.SetCapacity(childCount);
     for (nsMsgViewIndex index = threadIndex + 1;
-         index < GetSize() && m_levels[index];
-         index++)
-    {
+         index < GetSize() && m_levels[index]; index++) {
       threadKeys.AppendElement(m_keys[index]);
       threadFlags.AppendElement(m_flags[index]);
       threadLevels.AppendElement(m_levels[index]);
@@ -949,29 +811,24 @@ nsMsgThreadedDBView::MoveThreadAt(nsMsgViewIndex threadIndex)
 
   // AddHdr doesn't always set newIndex, and getting it to do so
   // is going to require some refactoring.
-  if (newIndex == nsMsgViewIndex_None)
-    newIndex = FindHdr(threadHdr);
+  if (newIndex == nsMsgViewIndex_None) newIndex = FindHdr(threadHdr);
 
-  if (threadIsExpanded)
-  {
+  if (threadIsExpanded) {
     m_keys.InsertElementsAt(newIndex + 1, threadKeys);
     m_flags.InsertElementsAt(newIndex + 1, threadFlags);
     m_levels.InsertElementsAt(newIndex + 1, threadLevels);
   }
 
-  if (newIndex == nsMsgViewIndex_None)
-  {
-     NS_WARNING("newIndex=-1 in MoveThreadAt");
-     newIndex = 0;
+  if (newIndex == nsMsgViewIndex_None) {
+    NS_WARNING("newIndex=-1 in MoveThreadAt");
+    newIndex = 0;
   }
 
   m_flags[newIndex] = saveFlags;
   // Unfreeze selection.
-  if (hasSelection)
-    RestoreSelection(preservedKey, preservedSelection);
+  if (hasSelection) RestoreSelection(preservedKey, preservedSelection);
 
-  if (!changesDisabled)
-    SetSuppressChangeNotifications(false);
+  if (!changesDisabled) SetSuppressChangeNotifications(false);
 
   nsMsgViewIndex lowIndex = threadIndex < newIndex ? threadIndex : newIndex;
   nsMsgViewIndex highIndex = lowIndex == threadIndex ? newIndex : threadIndex;
@@ -980,20 +837,16 @@ nsMsgThreadedDBView::MoveThreadAt(nsMsgViewIndex threadIndex)
              nsMsgViewNotificationCode::changed);
 }
 
-nsresult
-nsMsgThreadedDBView::AddMsgToThreadNotInView(nsIMsgThread *threadHdr,
-                                             nsIMsgDBHdr *msgHdr,
-                                             bool ensureListed)
-{
+nsresult nsMsgThreadedDBView::AddMsgToThreadNotInView(nsIMsgThread *threadHdr,
+                                                      nsIMsgDBHdr *msgHdr,
+                                                      bool ensureListed) {
   nsresult rv = NS_OK;
   uint32_t threadFlags;
   threadHdr->GetFlags(&threadFlags);
-  if (!(threadFlags & nsMsgMessageFlags::Ignored))
-  {
+  if (!(threadFlags & nsMsgMessageFlags::Ignored)) {
     bool msgKilled;
     msgHdr->GetIsKilled(&msgKilled);
-    if (!msgKilled)
-      rv = nsMsgDBView::AddHdr(msgHdr);
+    if (!msgKilled) rv = nsMsgDBView::AddHdr(msgHdr);
   }
 
   return rv;
@@ -1001,14 +854,11 @@ nsMsgThreadedDBView::AddMsgToThreadNotInView(nsIMsgThread *threadHdr,
 
 // This method just removes the specified line from the view. It does
 // NOT delete it from the database.
-nsresult
-nsMsgThreadedDBView::RemoveByIndex(nsMsgViewIndex index)
-{
+nsresult nsMsgThreadedDBView::RemoveByIndex(nsMsgViewIndex index) {
   nsresult rv = NS_OK;
   int32_t flags;
 
-  if (!IsValidIndex(index))
-    return NS_MSG_INVALID_DBVIEW_INDEX;
+  if (!IsValidIndex(index)) return NS_MSG_INVALID_DBVIEW_INDEX;
 
   OnHeaderAddedOrDeleted();
 
@@ -1022,28 +872,23 @@ nsMsgThreadedDBView::RemoveByIndex(nsMsgViewIndex index)
   NS_ENSURE_SUCCESS(rv, rv);
   uint32_t numThreadChildren = 0;
   // If we can't get a thread, it's already deleted and thus has 0 children.
-  if (threadHdr)
-    threadHdr->GetNumChildren(&numThreadChildren);
+  if (threadHdr) threadHdr->GetNumChildren(&numThreadChildren);
 
   // Check if we're the top level msg in the thread, and we're not collapsed.
   if ((flags & MSG_VIEW_FLAG_ISTHREAD) &&
       !(flags & nsMsgMessageFlags::Elided) &&
-      (flags & MSG_VIEW_FLAG_HASCHILDREN))
-  {
+      (flags & MSG_VIEW_FLAG_HASCHILDREN)) {
     // Fix flags on thread header - newly promoted message should have
     // flags set correctly.
-    if (threadHdr)
-    {
+    if (threadHdr) {
       nsMsgDBView::RemoveByIndex(index);
       nsCOMPtr<nsIMsgThread> nextThreadHdr;
       // Above RemoveByIndex may now make index out of bounds.
-      if (IsValidIndex(index) && numThreadChildren > 0)
-      {
+      if (IsValidIndex(index) && numThreadChildren > 0) {
         // unreadOnly
         nsCOMPtr<nsIMsgDBHdr> msgHdr;
         rv = threadHdr->GetChildHdrAt(0, getter_AddRefs(msgHdr));
-        if (msgHdr != nullptr)
-        {
+        if (msgHdr != nullptr) {
           uint32_t flag = 0;
           msgHdr->GetFlags(&flag);
           if (numThreadChildren > 1)
@@ -1056,29 +901,22 @@ nsMsgThreadedDBView::RemoveByIndex(nsMsgViewIndex index)
     }
 
     return rv;
-  }
-  else if (!(flags & MSG_VIEW_FLAG_ISTHREAD))
-  {
+  } else if (!(flags & MSG_VIEW_FLAG_ISTHREAD)) {
     // We're not deleting the top level msg, but top level msg might be the
     // only msg in thread now.
-    if (threadHdr && numThreadChildren == 1)
-    {
+    if (threadHdr && numThreadChildren == 1) {
       nsMsgKey msgKey;
       rv = threadHdr->GetChildKeyAt(0, &msgKey);
-      if (NS_SUCCEEDED(rv))
-      {
+      if (NS_SUCCEEDED(rv)) {
         nsMsgViewIndex threadIndex = FindViewIndex(msgKey);
-        if (IsValidIndex(threadIndex))
-        {
+        if (IsValidIndex(threadIndex)) {
           uint32_t flags = m_flags[threadIndex];
-          flags &= ~(MSG_VIEW_FLAG_ISTHREAD |
-                     nsMsgMessageFlags::Elided |
+          flags &= ~(MSG_VIEW_FLAG_ISTHREAD | nsMsgMessageFlags::Elided |
                      MSG_VIEW_FLAG_HASCHILDREN);
           m_flags[threadIndex] = flags;
           NoteChange(threadIndex, 1, nsMsgViewNotificationCode::changed);
         }
       }
-
     }
 
     return nsMsgDBView::RemoveByIndex(index);
@@ -1087,47 +925,38 @@ nsMsgThreadedDBView::RemoveByIndex(nsMsgViewIndex index)
   // Deleting collapsed thread header is special case. Child will be promoted,
   // so just tell FE that line changed, not that it was deleted.
   // Header has already been deleted from thread.
-  if (threadHdr && numThreadChildren > 0)
-  {
+  if (threadHdr && numThreadChildren > 0) {
     // Change the id array and flags array to reflect the child header.
     // If we're not deleting the header, we want the second header,
     // Otherwise, the first one (which just got promoted).
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
     rv = threadHdr->GetChildHdrAt(0, getter_AddRefs(msgHdr));
-    if (msgHdr != nullptr)
-    {
+    if (msgHdr != nullptr) {
       msgHdr->GetMessageKey(&m_keys[index]);
       uint32_t flag = 0;
       msgHdr->GetFlags(&flag);
       flag |= MSG_VIEW_FLAG_ISTHREAD;
 
       // If only hdr in thread (with one about to be deleted).
-      if (numThreadChildren == 1)
-      {
+      if (numThreadChildren == 1) {
         // Adjust flags.
-        flag &=  ~MSG_VIEW_FLAG_HASCHILDREN;
+        flag &= ~MSG_VIEW_FLAG_HASCHILDREN;
         flag &= ~nsMsgMessageFlags::Elided;
         // Tell FE that thread header needs to be repainted.
         NoteChange(index, 1, nsMsgViewNotificationCode::changed);
-      }
-      else
-      {
+      } else {
         flag |= MSG_VIEW_FLAG_HASCHILDREN;
         flag |= nsMsgMessageFlags::Elided;
       }
 
       m_flags[index] = flag;
       mIndicesToNoteChange.RemoveElement(index);
-    }
-    else
-    {
+    } else {
       NS_ASSERTION(false, "couldn't find thread child");
     }
 
     NoteChange(index, 1, nsMsgViewNotificationCode::changed);
-  }
-  else
-  {
+  } else {
     // We may have deleted a whole, collapsed thread - if so,
     // ensure that the current index will be noted as changed.
     if (!mIndicesToNoteChange.Contains(index))
@@ -1140,8 +969,7 @@ nsMsgThreadedDBView::RemoveByIndex(nsMsgViewIndex index)
 }
 
 NS_IMETHODIMP
-nsMsgThreadedDBView::GetViewType(nsMsgViewTypeValue *aViewType)
-{
+nsMsgThreadedDBView::GetViewType(nsMsgViewTypeValue *aViewType) {
   NS_ENSURE_ARG_POINTER(aViewType);
   *aViewType = nsMsgViewType::eShowAllThreads;
   return NS_OK;
@@ -1151,15 +979,14 @@ NS_IMETHODIMP
 nsMsgThreadedDBView::CloneDBView(nsIMessenger *aMessengerInstance,
                                  nsIMsgWindow *aMsgWindow,
                                  nsIMsgDBViewCommandUpdater *aCmdUpdater,
-                                 nsIMsgDBView **_retval)
-{
-  nsMsgThreadedDBView* newMsgDBView = new nsMsgThreadedDBView();
+                                 nsIMsgDBView **_retval) {
+  nsMsgThreadedDBView *newMsgDBView = new nsMsgThreadedDBView();
 
-  if (!newMsgDBView)
-    return NS_ERROR_OUT_OF_MEMORY;
+  if (!newMsgDBView) return NS_ERROR_OUT_OF_MEMORY;
 
-  nsresult rv = CopyDBView(newMsgDBView, aMessengerInstance, aMsgWindow, aCmdUpdater);
-  NS_ENSURE_SUCCESS(rv,rv);
+  nsresult rv =
+      CopyDBView(newMsgDBView, aMessengerInstance, aMsgWindow, aCmdUpdater);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   NS_IF_ADDREF(*_retval = newMsgDBView);
   return NS_OK;

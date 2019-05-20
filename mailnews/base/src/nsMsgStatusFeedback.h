@@ -19,9 +19,8 @@
 class nsMsgStatusFeedback : public nsIMsgStatusFeedback,
                             public nsIProgressEventSink,
                             public nsIWebProgressListener,
-                            public nsSupportsWeakReference
-{
-public:
+                            public nsSupportsWeakReference {
+ public:
   nsMsgStatusFeedback();
 
   NS_DECL_THREADSAFE_ISUPPORTS
@@ -29,12 +28,12 @@ public:
   NS_DECL_NSIWEBPROGRESSLISTENER
   NS_DECL_NSIPROGRESSEVENTSINK
 
-protected:
+ protected:
   virtual ~nsMsgStatusFeedback();
 
-  bool             m_meteorsSpinning;
-  int32_t          m_lastPercent;
-  int64_t          m_lastProgressTime;
+  bool m_meteorsSpinning;
+  int32_t m_lastPercent;
+  int64_t m_lastProgressTime;
 
   void BeginObserving();
   void EndObserving();
@@ -46,4 +45,4 @@ protected:
   nsCOMPtr<nsIStringBundle> mBundle;
 };
 
-#endif // _nsMsgStatusFeedback_h
+#endif  // _nsMsgStatusFeedback_h

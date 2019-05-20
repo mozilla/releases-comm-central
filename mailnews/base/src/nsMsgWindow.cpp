@@ -37,57 +37,47 @@
 #include "mozilla/dom/LoadURIOptionsBinding.h"
 #include "mozilla/Components.h"
 
-NS_IMPL_ISUPPORTS(nsMsgWindow,
-                              nsIMsgWindow,
-                              nsIURIContentListener,
-                              nsISupportsWeakReference,
-                              nsIMsgWindowTest)
+NS_IMPL_ISUPPORTS(nsMsgWindow, nsIMsgWindow, nsIURIContentListener,
+                  nsISupportsWeakReference, nsIMsgWindowTest)
 
-nsMsgWindow::nsMsgWindow()
-{
+nsMsgWindow::nsMsgWindow() {
   mCharsetOverride = false;
   m_stopped = false;
 }
 
-nsMsgWindow::~nsMsgWindow()
-{
-  CloseWindow();
-}
+nsMsgWindow::~nsMsgWindow() { CloseWindow(); }
 
-nsresult nsMsgWindow::Init()
-{
+nsresult nsMsgWindow::Init() {
   // register ourselves as a content listener with the uri dispatcher service
   nsresult rv;
   nsCOMPtr<nsIURILoader> dispatcher = mozilla::components::URILoader::Service();
   NS_ENSURE_TRUE(dispatcher, NS_ERROR_UNEXPECTED);
 
   rv = dispatcher->RegisterContentListener(this);
-  if (NS_FAILED(rv))
-    return rv;
+  if (NS_FAILED(rv)) return rv;
 
   // create Undo/Redo Transaction Manager
   mTransactionManager = new mozilla::TransactionManager();
   return mTransactionManager->SetMaxTransactionCount(-1);
 }
 
-NS_IMETHODIMP nsMsgWindow::GetMessageWindowDocShell(nsIDocShell ** aDocShell)
-{
+NS_IMETHODIMP nsMsgWindow::GetMessageWindowDocShell(nsIDocShell **aDocShell) {
   *aDocShell = nullptr;
   nsCOMPtr<nsIDocShell> docShell(do_QueryReferent(mMessageWindowDocShellWeak));
-  if (!docShell)
-  {
-    // if we don't have a docshell, then we need to look up the message pane docshell
+  if (!docShell) {
+    // if we don't have a docshell, then we need to look up the message pane
+    // docshell
     nsCOMPtr<nsIDocShell> rootShell(do_QueryReferent(mRootDocShellWeak));
-    if (rootShell)
-    {
+    if (rootShell) {
       nsCOMPtr<nsIDocShellTreeItem> msgDocShellItem;
-      if(rootShell)
-         rootShell->FindChildWithName(NS_LITERAL_STRING("messagepane"),
-                                      true, false, nullptr, nullptr,
-                                      getter_AddRefs(msgDocShellItem));
+      if (rootShell)
+        rootShell->FindChildWithName(NS_LITERAL_STRING("messagepane"), true,
+                                     false, nullptr, nullptr,
+                                     getter_AddRefs(msgDocShellItem));
       NS_ENSURE_TRUE(msgDocShellItem, NS_ERROR_FAILURE);
       docShell = do_QueryInterface(msgDocShellItem);
-      // we don't own mMessageWindowDocShell so don't try to keep a reference to it!
+      // we don't own mMessageWindowDocShell so don't try to keep a reference to
+      // it!
       mMessageWindowDocShellWeak = do_GetWeakReference(docShell);
     }
   }
@@ -95,10 +85,9 @@ NS_IMETHODIMP nsMsgWindow::GetMessageWindowDocShell(nsIDocShell ** aDocShell)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::CloseWindow()
-{
+NS_IMETHODIMP nsMsgWindow::CloseWindow() {
   nsCOMPtr<nsIURILoader> dispatcher = mozilla::components::URILoader::Service();
-  if (dispatcher) // on shut down it's possible dispatcher will be null.
+  if (dispatcher)  // on shut down it's possible dispatcher will be null.
     dispatcher->UnRegisterContentListener(this);
 
   mMsgWindowCommands = nullptr;
@@ -106,12 +95,12 @@ NS_IMETHODIMP nsMsgWindow::CloseWindow()
 
   StopUrls();
 
-  nsCOMPtr<nsIDocShell> messagePaneDocShell(do_QueryReferent(mMessageWindowDocShellWeak));
-  if (messagePaneDocShell)
-  {
-    nsCOMPtr<nsIURIContentListener> listener(do_GetInterface(messagePaneDocShell));
-    if (listener)
-      listener->SetParentContentListener(nullptr);
+  nsCOMPtr<nsIDocShell> messagePaneDocShell(
+      do_QueryReferent(mMessageWindowDocShellWeak));
+  if (messagePaneDocShell) {
+    nsCOMPtr<nsIURIContentListener> listener(
+        do_GetInterface(messagePaneDocShell));
+    if (listener) listener->SetParentContentListener(nullptr);
     SetRootDocShell(nullptr);
     mMessageWindowDocShellWeak = nullptr;
   }
@@ -121,83 +110,79 @@ NS_IMETHODIMP nsMsgWindow::CloseWindow()
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::GetStatusFeedback(nsIMsgStatusFeedback **aStatusFeedback)
-{
+NS_IMETHODIMP nsMsgWindow::GetStatusFeedback(
+    nsIMsgStatusFeedback **aStatusFeedback) {
   NS_ENSURE_ARG_POINTER(aStatusFeedback);
   NS_IF_ADDREF(*aStatusFeedback = mStatusFeedback);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::SetStatusFeedback(nsIMsgStatusFeedback * aStatusFeedback)
-{
+NS_IMETHODIMP nsMsgWindow::SetStatusFeedback(
+    nsIMsgStatusFeedback *aStatusFeedback) {
   mStatusFeedback = aStatusFeedback;
   nsCOMPtr<nsIDocShell> messageWindowDocShell;
   GetMessageWindowDocShell(getter_AddRefs(messageWindowDocShell));
 
   // register our status feedback object as a web progress listener
   nsCOMPtr<nsIWebProgress> webProgress(do_GetInterface(messageWindowDocShell));
-  if (webProgress && mStatusFeedback && messageWindowDocShell)
-  {
-    nsCOMPtr<nsIWebProgressListener> webProgressListener = do_QueryInterface(mStatusFeedback);
-    webProgress->AddProgressListener(webProgressListener, nsIWebProgress::NOTIFY_ALL);
+  if (webProgress && mStatusFeedback && messageWindowDocShell) {
+    nsCOMPtr<nsIWebProgressListener> webProgressListener =
+        do_QueryInterface(mStatusFeedback);
+    webProgress->AddProgressListener(webProgressListener,
+                                     nsIWebProgress::NOTIFY_ALL);
   }
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::SetWindowCommands(nsIMsgWindowCommands * aMsgWindowCommands)
-{
+NS_IMETHODIMP nsMsgWindow::SetWindowCommands(
+    nsIMsgWindowCommands *aMsgWindowCommands) {
   mMsgWindowCommands = aMsgWindowCommands;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::GetWindowCommands(nsIMsgWindowCommands **aMsgWindowCommands)
-{
+NS_IMETHODIMP nsMsgWindow::GetWindowCommands(
+    nsIMsgWindowCommands **aMsgWindowCommands) {
   NS_ENSURE_ARG_POINTER(aMsgWindowCommands);
   NS_IF_ADDREF(*aMsgWindowCommands = mMsgWindowCommands);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::GetMsgHeaderSink(nsIMsgHeaderSink * *aMsgHdrSink)
-{
+NS_IMETHODIMP nsMsgWindow::GetMsgHeaderSink(nsIMsgHeaderSink **aMsgHdrSink) {
   NS_ENSURE_ARG_POINTER(aMsgHdrSink);
   NS_IF_ADDREF(*aMsgHdrSink = mMsgHeaderSink);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::SetMsgHeaderSink(nsIMsgHeaderSink * aMsgHdrSink)
-{
+NS_IMETHODIMP nsMsgWindow::SetMsgHeaderSink(nsIMsgHeaderSink *aMsgHdrSink) {
   mMsgHeaderSink = aMsgHdrSink;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::GetTransactionManager(nsITransactionManager * *aTransactionManager)
-{
+NS_IMETHODIMP nsMsgWindow::GetTransactionManager(
+    nsITransactionManager **aTransactionManager) {
   NS_ENSURE_ARG_POINTER(aTransactionManager);
   NS_IF_ADDREF(*aTransactionManager = mTransactionManager);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::SetTransactionManager(nsITransactionManager * aTransactionManager)
-{
+NS_IMETHODIMP nsMsgWindow::SetTransactionManager(
+    nsITransactionManager *aTransactionManager) {
   mTransactionManager = aTransactionManager;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::GetOpenFolder(nsIMsgFolder * *aOpenFolder)
-{
+NS_IMETHODIMP nsMsgWindow::GetOpenFolder(nsIMsgFolder **aOpenFolder) {
   NS_ENSURE_ARG_POINTER(aOpenFolder);
   NS_IF_ADDREF(*aOpenFolder = mOpenFolder);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::SetOpenFolder(nsIMsgFolder * aOpenFolder)
-{
+NS_IMETHODIMP nsMsgWindow::SetOpenFolder(nsIMsgFolder *aOpenFolder) {
   mOpenFolder = aOpenFolder;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::GetRootDocShell(nsIDocShell * *aDocShell)
-{
+NS_IMETHODIMP nsMsgWindow::GetRootDocShell(nsIDocShell **aDocShell) {
   if (mRootDocShellWeak)
     CallQueryReferent(mRootDocShellWeak.get(), aDocShell);
   else
@@ -205,22 +190,20 @@ NS_IMETHODIMP nsMsgWindow::GetRootDocShell(nsIDocShell * *aDocShell)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::GetAuthPrompt(nsIAuthPrompt * *aAuthPrompt)
-{
+NS_IMETHODIMP nsMsgWindow::GetAuthPrompt(nsIAuthPrompt **aAuthPrompt) {
   NS_ENSURE_ARG_POINTER(aAuthPrompt);
 
   // testing only
-  if (mAuthPrompt)
-  {
+  if (mAuthPrompt) {
     NS_ADDREF(*aAuthPrompt = mAuthPrompt);
     return NS_OK;
   }
 
-  if (!mRootDocShellWeak)
-    return NS_ERROR_FAILURE;
+  if (!mRootDocShellWeak) return NS_ERROR_FAILURE;
 
   nsresult rv;
-  nsCOMPtr<nsIDocShell> docShell(do_QueryReferent(mRootDocShellWeak.get(), &rv));
+  nsCOMPtr<nsIDocShell> docShell(
+      do_QueryReferent(mRootDocShellWeak.get(), &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIAuthPrompt> prompt = do_GetInterface(docShell, &rv);
@@ -231,17 +214,15 @@ NS_IMETHODIMP nsMsgWindow::GetAuthPrompt(nsIAuthPrompt * *aAuthPrompt)
   return rv;
 }
 
-NS_IMETHODIMP nsMsgWindow::SetAuthPrompt(nsIAuthPrompt* aAuthPrompt)
-{
+NS_IMETHODIMP nsMsgWindow::SetAuthPrompt(nsIAuthPrompt *aAuthPrompt) {
   mAuthPrompt = aAuthPrompt;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::SetRootDocShell(nsIDocShell * aDocShell)
-{
+NS_IMETHODIMP nsMsgWindow::SetRootDocShell(nsIDocShell *aDocShell) {
   nsresult rv;
   nsCOMPtr<nsIWebProgressListener> contentPolicyListener =
-    do_GetService(NS_MSGCONTENTPOLICY_CONTRACTID, &rv);
+      do_GetService(NS_MSGCONTENTPOLICY_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // remove the content policy webProgressListener from the root doc shell
@@ -249,7 +230,7 @@ NS_IMETHODIMP nsMsgWindow::SetRootDocShell(nsIDocShell * aDocShell)
   // we don't care about
   if (mRootDocShellWeak) {
     nsCOMPtr<nsIWebProgress> oldWebProgress =
-      do_QueryReferent(mRootDocShellWeak, &rv);
+        do_QueryReferent(mRootDocShellWeak, &rv);
     if (NS_SUCCEEDED(rv)) {
       rv = oldWebProgress->RemoveProgressListener(contentPolicyListener);
       NS_ASSERTION(NS_SUCCEEDED(rv), "failed to remove old progress listener");
@@ -258,20 +239,19 @@ NS_IMETHODIMP nsMsgWindow::SetRootDocShell(nsIDocShell * aDocShell)
 
   // Query for the doc shell and release it
   mRootDocShellWeak = nullptr;
-  if (aDocShell)
-  {
+  if (aDocShell) {
     mRootDocShellWeak = do_GetWeakReference(aDocShell);
 
     nsCOMPtr<nsIDocShell> messagePaneDocShell;
     GetMessageWindowDocShell(getter_AddRefs(messagePaneDocShell));
-    nsCOMPtr<nsIURIContentListener> listener(do_GetInterface(messagePaneDocShell));
-    if (listener)
-      listener->SetParentContentListener(this);
+    nsCOMPtr<nsIURIContentListener> listener(
+        do_GetInterface(messagePaneDocShell));
+    if (listener) listener->SetParentContentListener(this);
 
     // set the contentPolicy webProgressListener on the root docshell for this
     // window so that it can allow JavaScript for non-message content
     nsCOMPtr<nsIWebProgress> docShellProgress =
-      do_QueryInterface(aDocShell, &rv);
+        do_QueryInterface(aDocShell, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = docShellProgress->AddProgressListener(contentPolicyListener,
@@ -281,42 +261,39 @@ NS_IMETHODIMP nsMsgWindow::SetRootDocShell(nsIDocShell * aDocShell)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::GetMailCharacterSet(nsACString& aMailCharacterSet)
-{
+NS_IMETHODIMP nsMsgWindow::GetMailCharacterSet(nsACString &aMailCharacterSet) {
   aMailCharacterSet = mMailCharacterSet;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::SetMailCharacterSet(const nsACString& aMailCharacterSet)
-{
+NS_IMETHODIMP nsMsgWindow::SetMailCharacterSet(
+    const nsACString &aMailCharacterSet) {
   mMailCharacterSet.Assign(aMailCharacterSet);
 
-  // Convert to a canonical charset name instead of using the charset name from the message header as is.
-  // This is needed for charset menu item to have a check mark correctly.
+  // Convert to a canonical charset name instead of using the charset name from
+  // the message header as is. This is needed for charset menu item to have a
+  // check mark correctly.
   nsresult rv;
-  nsCOMPtr <nsICharsetConverterManager> ccm =
-    do_GetService(NS_CHARSETCONVERTERMANAGER_CONTRACTID, &rv);
+  nsCOMPtr<nsICharsetConverterManager> ccm =
+      do_GetService(NS_CHARSETCONVERTERMANAGER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   return ccm->GetCharsetAlias(PromiseFlatCString(aMailCharacterSet).get(),
                               mMailCharacterSet);
 }
 
-NS_IMETHODIMP nsMsgWindow::GetCharsetOverride(bool *aCharsetOverride)
-{
+NS_IMETHODIMP nsMsgWindow::GetCharsetOverride(bool *aCharsetOverride) {
   NS_ENSURE_ARG_POINTER(aCharsetOverride);
   *aCharsetOverride = mCharsetOverride;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::SetCharsetOverride(bool aCharsetOverride)
-{
+NS_IMETHODIMP nsMsgWindow::SetCharsetOverride(bool aCharsetOverride) {
   mCharsetOverride = aCharsetOverride;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::GetDomWindow(mozIDOMWindowProxy **aWindow)
-{
+NS_IMETHODIMP nsMsgWindow::GetDomWindow(mozIDOMWindowProxy **aWindow) {
   NS_ENSURE_ARG_POINTER(aWindow);
   if (mDomWindow)
     CallQueryReferent(mDomWindow.get(), aWindow);
@@ -325,20 +302,17 @@ NS_IMETHODIMP nsMsgWindow::GetDomWindow(mozIDOMWindowProxy **aWindow)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::SetDomWindow(mozIDOMWindowProxy * aWindow)
-{
+NS_IMETHODIMP nsMsgWindow::SetDomWindow(mozIDOMWindowProxy *aWindow) {
   NS_ENSURE_ARG_POINTER(aWindow);
   mDomWindow = do_GetWeakReference(aWindow);
 
   nsCOMPtr<nsPIDOMWindowOuter> win = nsPIDOMWindowOuter::From(aWindow);
   nsIDocShell *docShell = nullptr;
-  if (win)
-    docShell = win->GetDocShell();
+  if (win) docShell = win->GetDocShell();
 
   nsCOMPtr<nsIDocShellTreeItem> docShellAsItem(docShell);
 
-  if(docShellAsItem)
-  {
+  if (docShellAsItem) {
     nsCOMPtr<nsIDocShellTreeItem> rootAsItem;
     docShellAsItem->GetSameTypeRootTreeItem(getter_AddRefs(rootAsItem));
 
@@ -353,76 +327,74 @@ NS_IMETHODIMP nsMsgWindow::SetDomWindow(mozIDOMWindowProxy * aWindow)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::SetNotificationCallbacks(nsIInterfaceRequestor * aNotificationCallbacks)
-{
+NS_IMETHODIMP nsMsgWindow::SetNotificationCallbacks(
+    nsIInterfaceRequestor *aNotificationCallbacks) {
   mNotificationCallbacks = aNotificationCallbacks;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::GetNotificationCallbacks(nsIInterfaceRequestor **aNotificationCallbacks)
-{
+NS_IMETHODIMP nsMsgWindow::GetNotificationCallbacks(
+    nsIInterfaceRequestor **aNotificationCallbacks) {
   NS_ENSURE_ARG_POINTER(aNotificationCallbacks);
   NS_IF_ADDREF(*aNotificationCallbacks = mNotificationCallbacks);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::StopUrls()
-{
+NS_IMETHODIMP nsMsgWindow::StopUrls() {
   m_stopped = true;
   nsCOMPtr<nsIWebNavigation> webnav(do_QueryReferent(mRootDocShellWeak));
-  return webnav ? webnav->Stop(nsIWebNavigation::STOP_NETWORK) : NS_ERROR_FAILURE;
+  return webnav ? webnav->Stop(nsIWebNavigation::STOP_NETWORK)
+                : NS_ERROR_FAILURE;
 }
 
 // nsIURIContentListener support
-NS_IMETHODIMP nsMsgWindow::OnStartURIOpen(nsIURI* aURI, bool* aAbortOpen)
-{
+NS_IMETHODIMP nsMsgWindow::OnStartURIOpen(nsIURI *aURI, bool *aAbortOpen) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::DoContent(const nsACString& aContentType, bool aIsContentPreferred,
-                                     nsIRequest *request, nsIStreamListener **aContentHandler, bool *aAbortProcess)
-{
-  if (!aContentType.IsEmpty())
-  {
+NS_IMETHODIMP nsMsgWindow::DoContent(const nsACString &aContentType,
+                                     bool aIsContentPreferred,
+                                     nsIRequest *request,
+                                     nsIStreamListener **aContentHandler,
+                                     bool *aAbortProcess) {
+  if (!aContentType.IsEmpty()) {
     // forward the DoContent call to our docshell
     nsCOMPtr<nsIDocShell> messageWindowDocShell;
     GetMessageWindowDocShell(getter_AddRefs(messageWindowDocShell));
-    nsCOMPtr<nsIURIContentListener> ctnListener = do_QueryInterface(messageWindowDocShell);
-    if (ctnListener)
-    {
-        nsCOMPtr<nsIChannel> aChannel = do_QueryInterface(request);
-        if (!aChannel) return NS_ERROR_FAILURE;
+    nsCOMPtr<nsIURIContentListener> ctnListener =
+        do_QueryInterface(messageWindowDocShell);
+    if (ctnListener) {
+      nsCOMPtr<nsIChannel> aChannel = do_QueryInterface(request);
+      if (!aChannel) return NS_ERROR_FAILURE;
 
-      // get the url for the channel...let's hope it is a mailnews url so we can set our msg hdr sink on it..
-      // right now, this is the only way I can think of to force the msg hdr sink into the mime converter so it can
+      // get the url for the channel...let's hope it is a mailnews url so we can
+      // set our msg hdr sink on it.. right now, this is the only way I can
+      // think of to force the msg hdr sink into the mime converter so it can
       // get too it later...
       nsCOMPtr<nsIURI> uri;
       aChannel->GetURI(getter_AddRefs(uri));
-      if (uri)
-      {
+      if (uri) {
         nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl(do_QueryInterface(uri));
-        if (mailnewsUrl)
-          mailnewsUrl->SetMsgWindow(this);
+        if (mailnewsUrl) mailnewsUrl->SetMsgWindow(this);
       }
-      return ctnListener->DoContent(aContentType, aIsContentPreferred, request, aContentHandler, aAbortProcess);
+      return ctnListener->DoContent(aContentType, aIsContentPreferred, request,
+                                    aContentHandler, aAbortProcess);
     }
   }
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgWindow::IsPreferred(const char * aContentType,
-                         char ** aDesiredContentType,
-                         bool * aCanHandleContent)
-{
+nsMsgWindow::IsPreferred(const char *aContentType, char **aDesiredContentType,
+                         bool *aCanHandleContent) {
   *aCanHandleContent = false;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::CanHandleContent(const char * aContentType,
+NS_IMETHODIMP nsMsgWindow::CanHandleContent(const char *aContentType,
                                             bool aIsContentPreferred,
-                                            char ** aDesiredContentType,
-                                            bool * aCanHandleContent)
+                                            char **aDesiredContentType,
+                                            bool *aCanHandleContent)
 
 {
   // the mail window knows nothing about the default content types
@@ -431,54 +403,51 @@ NS_IMETHODIMP nsMsgWindow::CanHandleContent(const char * aContentType,
 
   nsCOMPtr<nsIDocShell> messageWindowDocShell;
   GetMessageWindowDocShell(getter_AddRefs(messageWindowDocShell));
-  nsCOMPtr<nsIURIContentListener> ctnListener (do_GetInterface(messageWindowDocShell));
+  nsCOMPtr<nsIURIContentListener> ctnListener(
+      do_GetInterface(messageWindowDocShell));
   if (ctnListener)
     return ctnListener->CanHandleContent(aContentType, aIsContentPreferred,
-                                         aDesiredContentType, aCanHandleContent);
+                                         aDesiredContentType,
+                                         aCanHandleContent);
   else
     *aCanHandleContent = false;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::GetParentContentListener(nsIURIContentListener** aParent)
-{
+NS_IMETHODIMP nsMsgWindow::GetParentContentListener(
+    nsIURIContentListener **aParent) {
   NS_ENSURE_ARG_POINTER(aParent);
   *aParent = nullptr;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::SetParentContentListener(nsIURIContentListener* aParent)
-{
+NS_IMETHODIMP nsMsgWindow::SetParentContentListener(
+    nsIURIContentListener *aParent) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::GetLoadCookie(nsISupports ** aLoadCookie)
-{
+NS_IMETHODIMP nsMsgWindow::GetLoadCookie(nsISupports **aLoadCookie) {
   NS_ENSURE_ARG_POINTER(aLoadCookie);
   *aLoadCookie = nullptr;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::SetLoadCookie(nsISupports * aLoadCookie)
-{
+NS_IMETHODIMP nsMsgWindow::SetLoadCookie(nsISupports *aLoadCookie) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::GetPromptDialog(nsIPrompt **aPrompt)
-{
+NS_IMETHODIMP nsMsgWindow::GetPromptDialog(nsIPrompt **aPrompt) {
   NS_ENSURE_ARG_POINTER(aPrompt);
 
   // testing only
-  if (mPromptDialog)
-  {
+  if (mPromptDialog) {
     NS_ADDREF(*aPrompt = mPromptDialog);
     return NS_OK;
   }
 
   nsresult rv;
   nsCOMPtr<nsIDocShell> rootShell(do_QueryReferent(mRootDocShellWeak, &rv));
-  if (rootShell)
-  {
+  if (rootShell) {
     nsCOMPtr<nsIPrompt> dialog;
     dialog = do_GetInterface(rootShell, &rv);
     dialog.forget(aPrompt);
@@ -486,19 +455,17 @@ NS_IMETHODIMP nsMsgWindow::GetPromptDialog(nsIPrompt **aPrompt)
   return rv;
 }
 
-NS_IMETHODIMP nsMsgWindow::SetPromptDialog(nsIPrompt* aPromptDialog)
-{
+NS_IMETHODIMP nsMsgWindow::SetPromptDialog(nsIPrompt *aPromptDialog) {
   mPromptDialog = aPromptDialog;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgWindow::DisplayURIInMessagePane(const nsAString& uri, bool clearMsgHdr, nsIPrincipal *principal)
-{
-  if (clearMsgHdr && mMsgWindowCommands)
-    mMsgWindowCommands->ClearMsgPane();
+nsMsgWindow::DisplayURIInMessagePane(const nsAString &uri, bool clearMsgHdr,
+                                     nsIPrincipal *principal) {
+  if (clearMsgHdr && mMsgWindowCommands) mMsgWindowCommands->ClearMsgPane();
 
-  nsCOMPtr <nsIDocShell> docShell;
+  nsCOMPtr<nsIDocShell> docShell;
   GetMessageWindowDocShell(getter_AddRefs(docShell));
   NS_ENSURE_TRUE(docShell, NS_ERROR_FAILURE);
 
@@ -511,16 +478,18 @@ nsMsgWindow::DisplayURIInMessagePane(const nsAString& uri, bool clearMsgHdr, nsI
 }
 
 NS_IMETHODIMP
-nsMsgWindow::DisplayHTMLInMessagePane(const nsAString& title, const nsAString& body, bool clearMsgHdr)
-{
+nsMsgWindow::DisplayHTMLInMessagePane(const nsAString &title,
+                                      const nsAString &body, bool clearMsgHdr) {
   nsString htmlStr;
-  htmlStr.AppendLiteral(u"<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"></head><body>");
+  htmlStr.AppendLiteral(
+      u"<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; "
+      u"charset=UTF-8\"></head><body>");
   htmlStr.Append(body);
   htmlStr.AppendLiteral(u"</body></html>");
 
-  char *encodedHtml = PL_Base64Encode(NS_ConvertUTF16toUTF8(htmlStr).get(), 0, nullptr);
-  if (!encodedHtml)
-    return NS_ERROR_OUT_OF_MEMORY;
+  char *encodedHtml =
+      PL_Base64Encode(NS_ConvertUTF16toUTF8(htmlStr).get(), 0, nullptr);
+  if (!encodedHtml) return NS_ERROR_OUT_OF_MEMORY;
 
   nsCString dataSpec;
   dataSpec = "data:text/html;base64,";
@@ -528,8 +497,8 @@ nsMsgWindow::DisplayHTMLInMessagePane(const nsAString& title, const nsAString& b
 
   PR_FREEIF(encodedHtml);
 
-  return DisplayURIInMessagePane(NS_ConvertASCIItoUTF16(dataSpec),
-                                 clearMsgHdr, nsContentUtils::GetSystemPrincipal());
+  return DisplayURIInMessagePane(NS_ConvertASCIItoUTF16(dataSpec), clearMsgHdr,
+                                 nsContentUtils::GetSystemPrincipal());
 }
 
 NS_IMPL_GETSET(nsMsgWindow, Stopped, bool, m_stopped)
