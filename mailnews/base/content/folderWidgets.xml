@@ -71,6 +71,7 @@
       <destructor><![CDATA[
         // Clean up when being destroyed.
         this._removeListener();
+        this._teardown();
       ]]></destructor>
       <!--
          - Make sure we remove our listener when the window is being destroyed
