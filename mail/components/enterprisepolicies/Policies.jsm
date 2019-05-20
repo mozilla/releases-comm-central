@@ -185,6 +185,14 @@ var Policies = {
     },
   },
 
+  "DisableAppUpdate": {
+    onBeforeAddons(manager, param) {
+      if (param) {
+        manager.disallowFeature("appUpdate");
+      }
+    },
+  },
+
   "DisableMasterPasswordCreation": {
     onBeforeUIStartup(manager, param) {
       if (param) {

@@ -37,6 +37,10 @@
       }
     },
 
+    "DisableAppUpdate": {
+      "type": "boolean"
+    },
+
     "DisableMasterPasswordCreation": {
       "type": "boolean"
     },
