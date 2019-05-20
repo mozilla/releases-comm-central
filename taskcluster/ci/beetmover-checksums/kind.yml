@@ -20,3 +20,7 @@ job-template:
     shipping-phase: promote
     attributes:
         artifact_prefix: public
+        artifact_map:
+            by-release-type:
+                beta|release.*|esr.*: comm/taskcluster/comm_taskgraph/manifests/thunderbird_candidates_checksums.yml
+                default: comm/taskcluster/comm_taskgraph/manifests/thunderbird_nightly_checksums.yml
