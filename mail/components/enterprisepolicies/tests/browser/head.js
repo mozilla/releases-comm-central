@@ -31,19 +31,21 @@ function checkUnlockedPref(prefName, prefValue) {
 
 // Checks that a page was blocked by seeing if it was replaced with about:neterror
 async function checkBlockedPage(url, expectedBlocked) {
-  await BrowserTestUtils.withNewTab({
-    gBrowser,
-    url,
-    waitForLoad: false,
-    waitForStateStop: true,
-  }, async function() {
-    await BrowserTestUtils.waitForCondition(async function() {
-      let blocked = await ContentTask.spawn(gBrowser.selectedBrowser, null, async function() {
-        return content.document.documentURI.startsWith("about:neterror");
-      });
-      return blocked == expectedBlocked;
-    }, `Page ${url} block was correct (expected=${expectedBlocked}).`);
-  });
+  let tabmail = document.getElementById("tabmail");
+  let index = tabmail.tabInfo.length;
+  window.openContentTab("about:blank");
+  let tab = tabmail.tabInfo[index];
+  let browser = tab.browser;
+  browser.contentWindow.location.href = url;
+
+  await BrowserTestUtils.waitForCondition(async function() {
+    let blocked = await ContentTask.spawn(browser, null, async function() {
+      return content.document.documentURI.startsWith("about:neterror");
+    });
+    return blocked == expectedBlocked;
+  }, `Page ${url} block was correct (expected=${expectedBlocked}).`);
+
+  tabmail.closeTab(tab);
 }
 
 add_task(async function policies_headjs_startWithCleanSlate() {

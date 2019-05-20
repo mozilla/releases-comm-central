@@ -6,6 +6,22 @@
       "type": "URL"
     },
 
+    "BlockAboutAddons": {
+      "type": "boolean"
+    },
+
+    "BlockAboutConfig": {
+      "type": "boolean"
+    },
+
+    "BlockAboutProfiles": {
+      "type": "boolean"
+    },
+
+    "BlockAboutSupport": {
+      "type": "boolean"
+    },
+
     "DisableMasterPasswordCreation": {
       "type": "boolean"
     },

@@ -6,6 +6,7 @@
 
 const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   ProxyPolicies: "resource:///modules/policies/ProxyPolicies.jsm",
@@ -56,6 +57,39 @@ var Policies = {
   "AppUpdateURL": {
     onBeforeAddons(manager, param) {
       setDefaultPref("app.update.url", param.href);
+    },
+  },
+
+  "BlockAboutAddons": {
+    onBeforeUIStartup(manager, param) {
+      if (param) {
+        blockAboutPage(manager, "about:addons", true);
+      }
+    },
+  },
+
+  "BlockAboutConfig": {
+    onBeforeUIStartup(manager, param) {
+      if (param) {
+        blockAboutPage(manager, "about:config");
+        setAndLockPref("devtools.chrome.enabled", false);
+      }
+    },
+  },
+
+  "BlockAboutProfiles": {
+    onBeforeUIStartup(manager, param) {
+      if (param) {
+        blockAboutPage(manager, "about:profiles");
+      }
+    },
+  },
+
+  "BlockAboutSupport": {
+    onBeforeUIStartup(manager, param) {
+      if (param) {
+        blockAboutPage(manager, "about:support");
+      }
     },
   },
 
@@ -232,4 +266,54 @@ function runOnce(actionName, callback) {
   }
   Services.prefs.setBoolPref(prefName, true);
   callback();
+}
+
+let gChromeURLSBlocked = false;
+
+// If any about page is blocked, we block the loading of all
+// chrome:// URLs in the browser window.
+function blockAboutPage(manager, feature, neededOnContentProcess = false) {
+  manager.disallowFeature(feature, neededOnContentProcess);
+  if (!gChromeURLSBlocked) {
+    blockAllChromeURLs();
+    gChromeURLSBlocked = true;
+  }
+}
+
+let ChromeURLBlockPolicy = {
+  shouldLoad(contentLocation, loadInfo, mimeTypeGuess) {
+    let contentType = loadInfo.externalContentPolicyType;
+    if (contentLocation.scheme == "chrome" &&
+        contentType == Ci.nsIContentPolicy.TYPE_DOCUMENT &&
+        loadInfo.loadingContext &&
+        loadInfo.loadingContext.baseURI == AppConstants.BROWSER_CHROME_URL &&
+        contentLocation.host != "mochitests" &&
+        contentLocation.host != "devtools") {
+      return Ci.nsIContentPolicy.REJECT_REQUEST;
+    }
+    return Ci.nsIContentPolicy.ACCEPT;
+  },
+  shouldProcess(contentLocation, loadInfo, mimeTypeGuess) {
+    return Ci.nsIContentPolicy.ACCEPT;
+  },
+  classDescription: "Policy Engine Content Policy",
+  contractID: "@mozilla-org/policy-engine-content-policy-service;1",
+  classID: Components.ID("{ba7b9118-cabc-4845-8b26-4215d2a59ed7}"),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIContentPolicy]),
+  createInstance(outer, iid) {
+    return this.QueryInterface(iid);
+  },
+};
+
+
+function blockAllChromeURLs() {
+  let registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
+  registrar.registerFactory(ChromeURLBlockPolicy.classID,
+                            ChromeURLBlockPolicy.classDescription,
+                            ChromeURLBlockPolicy.contractID,
+                            ChromeURLBlockPolicy);
+
+  Services.catMan.addCategoryEntry("content-policy",
+                                   ChromeURLBlockPolicy.contractID,
+                                   ChromeURLBlockPolicy.contractID, false, true);
 }
