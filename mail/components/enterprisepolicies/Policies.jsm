@@ -193,6 +193,20 @@ var Policies = {
     },
   },
 
+  "DisableDeveloperTools": {
+    onBeforeAddons(manager, param) {
+      if (param) {
+        setAndLockPref("devtools.policy.disabled", true);
+        setAndLockPref("devtools.chrome.enabled", false);
+
+        manager.disallowFeature("devtools");
+        blockAboutPage(manager, "about:devtools");
+        blockAboutPage(manager, "about:debugging");
+        blockAboutPage(manager, "about:devtools-toolbox");
+      }
+    },
+  },
+
   "DisableMasterPasswordCreation": {
     onBeforeUIStartup(manager, param) {
       if (param) {

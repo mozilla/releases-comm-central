@@ -487,6 +487,17 @@ function OnLoadMessenger() {
     logException(ex);
   }
 
+  if (!Services.policies.isAllowed("devtools")) {
+    let devtoolsMenu = document.getElementById("devtoolsMenu");
+    if (devtoolsMenu) {
+      devtoolsMenu.hidden = true;
+    }
+    let appmenu_devtoolsMenu = document.getElementById("appmenu_devtoolsMenu");
+    if (appmenu_devtoolsMenu) {
+      appmenu_devtoolsMenu.hidden = true;
+    }
+  }
+
   // - initialize tabmail system
   // Do this before LoadPostAccountWizard since that code selects the first
   //  folder for display, and we want gFolderDisplay setup and ready to handle

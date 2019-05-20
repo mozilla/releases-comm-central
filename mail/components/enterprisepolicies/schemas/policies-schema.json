@@ -41,6 +41,10 @@
       "type": "boolean"
     },
 
+    "DisableDeveloperTools": {
+      "type": "boolean"
+    },
+
     "DisableMasterPasswordCreation": {
       "type": "boolean"
     },

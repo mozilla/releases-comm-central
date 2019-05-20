@@ -7,6 +7,7 @@
 BROWSER_CHROME_MANIFESTS += [
     'browser/browser.ini',
     'browser/disable_app_update/browser.ini',
+    'browser/disable_developer_tools/browser.ini',
 ]
 
 XPCSHELL_TESTS_MANIFESTS += [
