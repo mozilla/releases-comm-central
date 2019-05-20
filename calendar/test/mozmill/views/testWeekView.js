@@ -55,8 +55,8 @@ function testWeekView() {
 
     // Verify date.
     let day = lookup(`
-        ${WEEK_VIEW}/anon({"anonid":"mainbox"})/anon({"anonid":"headerbox"})/
-        anon({"anonid":"headerdaybox"})/{"selected":"true"}
+        ${WEEK_VIEW}/{"class":"mainbox"}/{"class":"headerbox"}/
+        {"class":"headerdaybox"}/{"selected":"true"}
     `);
     controller.waitFor(() => day.getNode().mDate.icalString == "20090101");
 

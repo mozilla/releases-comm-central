@@ -115,8 +115,8 @@ function testWeeklyWithExceptionRecurrence() {
 
     viewForward(controller, 1);
     let tuesPath = `
-        ${DAY_VIEW}/anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/
-        anon({"anonid":"daybox"})/[0]/anon({"anonid":"boxstack"})/
+        ${DAY_VIEW}/{"class":"mainbox"}/{"class":"scrollbox"}/
+        {"class":"daybox"}/[0]/anon({"anonid":"boxstack"})/
         anon({"anonid":"topbox"})/{"flex":"1"}/{"flex":"1"}/[eventIndex]
     `;
 
@@ -155,8 +155,8 @@ function testWeeklyWithExceptionRecurrence() {
     goToDate(controller, 2009, 1, 5);
 
     tuesPath = `
-        ${WEEK_VIEW}/anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/
-        anon({"anonid":"daybox"})/[2]/anon({"anonid":"boxstack"})/
+        ${WEEK_VIEW}/{"class":"mainbox"}/{"class":"scrollbox"}/
+        {"class":"daybox"}/[2]/anon({"anonid":"boxstack"})/
         anon({"anonid":"topbox"})/{"flex":"1"}/{"flex":"1"}/[eventIndex]
     `;
 

@@ -242,13 +242,13 @@ function verify(controller, dates, timezones, times) {
     let { lookup } = helpersForController(controller);
 
     let dayStack = `
-        ${DAY_VIEW}/anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/
-        anon({"anonid":"daybox"})/[0]/anon({"anonid":"boxstack"})/
+        ${DAY_VIEW}/{"class":"mainbox"}/{"class":"scrollbox"}/
+        {"class":"daybox"}/[0]/anon({"anonid":"boxstack"})/
         anon({"anonid":"topbox"})/{"flex":"1"}
     `;
     let timeLine = `
-        ${DAY_VIEW}/anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/
-        anon({"anonid":"timebar"})/anon({"anonid":"topbox"})
+        ${DAY_VIEW}/{"class":"mainbox"}/{"class":"scrollbox"}/
+        {"class":"timebar"}/{"class":"timebarboxstack"}/{"class":"topbox"}
     `;
     let allowedDifference = 3;
 

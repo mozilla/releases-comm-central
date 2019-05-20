@@ -55,8 +55,8 @@ function testMonthView() {
 
     // Verify date.
     let day = lookup(`
-        ${MONTH_VIEW}/anon({"anonid":"mainbox"})/anon({"anonid":"monthgrid"})/
-        anon({"anonid":"monthgridrows"})/[0]/{"selected":"true"}
+        ${MONTH_VIEW}/{"class":"mainbox"}/{"class":"monthgrid"}/
+        {"class":"monthgridrows"}/[0]/{"selected":"true"}
     `);
     controller.waitFor(() => day.getNode().mDate.icalString == "20090101");
 

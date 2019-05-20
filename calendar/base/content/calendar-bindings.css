@@ -4,23 +4,6 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-
-calendar-day-view {
-  -moz-binding: url(chrome://calendar/content/calendar-views.xml#calendar-day-view);
-}
-
-calendar-week-view {
-  -moz-binding: url(chrome://calendar/content/calendar-views.xml#calendar-week-view);
-}
-
-calendar-multiweek-view {
-  -moz-binding: url(chrome://calendar/content/calendar-views.xml#calendar-multiweek-view);
-}
-
-calendar-month-view {
-  -moz-binding: url(chrome://calendar/content/calendar-views.xml#calendar-month-view);
-}
-
 /* Needed until menupopup is fully converted to a custom element (see bug 1531296). */
 menupopup[is="calendar-task-progress-menupopup"],
 menupopup[is="calendar-task-priority-menupopup"] {

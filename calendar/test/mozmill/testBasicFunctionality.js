@@ -59,8 +59,8 @@ function testSmokeTest() {
     someTime.resetTo(someTime.year, someTime.month, someTime.day, 9, 0, 0, someTime.timezone);
     let label = dateFormatter.formatTime(someTime);
     controller.assertNode(lookup(`
-        ${DAY_VIEW}/anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/
-        anon({"anonid":"timebar"})/anon({"anonid":"topbox"})/[9]/
+        ${DAY_VIEW}/{"class":"mainbox"}/{"class":"scrollbox"}/
+        {"class":"timebar"}/{"class":"timebarboxstack"}/{"class":"topbox"}/[9]/
         {"class":"calendar-time-bar-label","value":"${label}"}
     `));
     controller.assertNode(lookup(`

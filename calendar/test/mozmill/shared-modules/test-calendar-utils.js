@@ -32,11 +32,11 @@ var DAY_VIEW = `${VIEWDECK}/id("day-view")`;
 var WEEK_VIEW = `${VIEWDECK}/id("week-view")`;
 // Multiday-view-day-box of day and week view.
 var DAYBOX = `
-    anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"daybox"})
+    {"class":"mainbox"}/{"class":"scrollbox"}/{"class":"daybox"}
 `;
 // Multiday-view-label-day-box of day and week view.
 var LABELDAYBOX = `
-    anon({"anonid":"mainbox"})/anon({"anonid":"labelbox"})/anon({"anonid":"labeldaybox"})
+    {"class":"mainbox"}/{"class":"labelbox"}/{"class":"labeldaybox"}
 `;
 var MULTIWEEK_VIEW = `${VIEWDECK}/id("multiweek-view")`;
 var MONTH_VIEW = `${VIEWDECK}/id("month-view")`;
@@ -334,12 +334,11 @@ function getEventBoxPath(controller, view, option, row, column, hour) {
 
     if ((view == "day" || view == "week") && option == ALLDAY) {
         return path + `
-            /anon({"anonid":"mainbox"})/anon({"anonid":"headerbox"})/
-            anon({"anonid":"headerdaybox"})/[${column - 1}]
+            /{"class":"mainbox"}/{"class":"headerbox"}/{"class":"headerdaybox"}/[${column - 1}]
         `;
     } else if (view == "day" || view == "week") {
         path += `
-            /anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"daybox"})/
+            /{"class":"mainbox"}/{"class":"scrollbox"}/{"class":"daybox"}/
             [${column - 1}]/anon({"anonid":"boxstack"})
         `;
 
@@ -354,8 +353,8 @@ function getEventBoxPath(controller, view, option, row, column, hour) {
         return path;
     } else {
         path += `
-            /anon({"anonid":"mainbox"})/anon({"anonid":"monthgrid"})/
-            anon({"anonid":"monthgridrows"})/[${row - 1}]/[${column - 1}]
+            /{"class":"mainbox"}/{"class":"monthgrid"}/
+            {"class":"monthgridrows"}/[${row - 1}]/[${column - 1}]
         `;
 
         if (option == CANVAS_BOX) {
