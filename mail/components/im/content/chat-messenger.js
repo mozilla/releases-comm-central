@@ -1168,7 +1168,7 @@ var chatHandler = {
     if (newIndex !== -1)
       aList.selectedItem = conversations[newIndex];
   },
-  init() {
+  async init() {
     Notifications.init();
     if (!Services.prefs.getBoolPref("mail.chat.enabled")) {
       ["button-chat", "menu_goChat", "goChatSeparator",

@@ -9,21 +9,7 @@ const {
 } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 const {OTR} = ChromeUtils.import("resource:///modules/OTR.jsm");
 
-XPCOMUtils.defineLazyGetter(this, "_", () =>
-  l10nHelper("chrome://chat/content/otr-auth.properties")
-);
-
 var [mode, uiConv, contactInfo] = window.arguments;
-
-// This window implements the interactive authentication of a buddy's
-// key. At open time, we're given several parameters, and the "mode"
-// parameter tells us, from where we've been called.
-// mode == "pref" means that we have been opened from the preferences,
-// and it means we cannot rely on the other user being online, and
-// we there might be no uiConv active currently, so we fall back.
-
-document.title = _("auth.title",
-  (mode === "pref") ? contactInfo.screenname : uiConv.normalizedName);
 
 function showSection(selected, hideMenu) {
   document.getElementById("how").hidden = !!hideMenu;
@@ -48,14 +34,20 @@ function manualVerification(fingerprint, context) {
   OTR.setTrust(fingerprint, trust, context);
 }
 
-function populateFingers(context, theirs, trust) {
-  let fingers = document.getElementById("fingerprints");
+async function populateFingers(context, theirs, trust) {
   let yours = OTR.privateKeyFingerprint(context.account, context.protocol);
   if (!yours)
     throw new Error("Fingerprint should already be generated.");
-  fingers.value =
-    _("auth.yourFingerprint", context.account, yours) + "\n\n" +
-    _("auth.theirFingerprint", context.username, theirs);
+
+  document.getElementById("yourFPLabel").value =
+    await document.l10n.formatValue("auth-your-fp-value", {own_name: context.account});
+
+  document.getElementById("theirFPLabel").value =
+    await document.l10n.formatValue("auth-their-fp-value", {their_name: context.username});
+
+  document.getElementById("yourFPValue").value = yours;
+  document.getElementById("theirFPValue").value = theirs;
+
   let opts = document.getElementById("verifiedOption");
   let verified = trust ? "yes" : "no";
   for (let item of opts.menupopup.childNodes) {
@@ -67,7 +59,20 @@ function populateFingers(context, theirs, trust) {
 }
 
 var otrAuth = {
-  onload() {
+  async onload() {
+    // This window implements the interactive authentication of a buddy's
+    // key. At open time, we're given several parameters, and the "mode"
+    // parameter tells us from where we've been called.
+    // mode == "pref" means that we have been opened from the preferences,
+    // and it means we cannot rely on the other user being online, and
+    // we there might be no uiConv active currently, so we fall back.
+
+    let nameSource =
+      (mode === "pref") ? contactInfo.screenname : uiConv.normalizedName;
+    let title = await document.l10n.formatValue(
+      "auth-title", {name: nameSource});
+    document.title = title;
+
     document.addEventListener("dialogaccept", () => {
       return this.accept();
     });
@@ -100,9 +105,24 @@ var otrAuth = {
         this.oninput({ value: true });
         break;
       case "ask":
-        document.getElementById("askLabel").textContent = contactInfo.question ?
-          _("auth.question", contactInfo.question)
-          : _("auth.secret");
+        let receivedQuestionLabel =
+          document.getElementById("receivedQuestionLabel");
+        let receivedQuestionDisplay =
+          document.getElementById("receivedQuestion");
+        let responseLabel =
+          document.getElementById("responseLabel");
+        if (contactInfo.question) {
+          receivedQuestionLabel.hidden = false;
+          receivedQuestionDisplay.hidden = false;
+          receivedQuestionDisplay.value = contactInfo.question;
+          responseLabel.value =
+            await document.l10n.formatValue("auth-answer");
+        } else {
+          receivedQuestionLabel.hidden = true;
+          receivedQuestionDisplay.hidden = true;
+          responseLabel.value =
+            await document.l10n.formatValue("auth-secret");
+        }
         showSection("ask", true);
         break;
     }
@@ -116,20 +136,20 @@ var otrAuth = {
     } else if (mode === "start") {
       let how = document.getElementById("howOption");
       switch (how.selectedItem.value) {
-      case "questionAndAnswer":
-        let question = document.getElementById("question").value;
-        let answer = document.getElementById("answer").value;
-        startSMP(context, answer, question);
-        break;
-      case "sharedSecret":
-        let secret = document.getElementById("secret").value;
-        startSMP(context, secret);
-        break;
-      case "manualVerification":
-        manualVerification(context.fingerprint, context);
-        break;
-      default:
-        throw new Error("Unreachable!");
+        case "questionAndAnswer":
+          let question = document.getElementById("question").value;
+          let answer = document.getElementById("answer").value;
+          startSMP(context, answer, question);
+          break;
+        case "sharedSecret":
+          let secret = document.getElementById("secret").value;
+          startSMP(context, secret);
+          break;
+        case "manualVerification":
+          manualVerification(context.fingerprint, context);
+          break;
+        default:
+          throw new Error("Unreachable!");
       }
     } else if (mode === "ask") {
       let response = document.getElementById("response").value;
@@ -168,8 +188,9 @@ var otrAuth = {
     showSection(how);
   },
 
-  help() {
-    Services.prompt.alert(window, _("auth.helpTitle"), _("auth.help"));
+  async help() {
+    let helpTitle = await document.l10n.formatValue("auth-helpTitle");
+    let helpText = await document.l10n.formatValue("auth-help");
+    Services.prompt.alert(window, helpTitle, helpText);
   },
-
 };

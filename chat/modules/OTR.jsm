@@ -2,22 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { LocalizationSync } =
+  ChromeUtils.import("resource://gre/modules/Localization.jsm", {});
 const {BasePromiseWorker} = ChromeUtils.import("resource://gre/modules/PromiseWorker.jsm");
 const {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 const {ctypes} = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
 const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
-const {
-  XPCOMUtils,
-  l10nHelper,
-} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 const {CLib} = ChromeUtils.import("resource:///modules/CLib.jsm");
 const {OTRLib} = ChromeUtils.import("resource:///modules/OTRLib.jsm");
 var workerPath = "chrome://chat/content/otrWorker.js";
 const {OTRHelpers} = ChromeUtils.import("resource:///modules/OTRHelpers.jsm");
 
-XPCOMUtils.defineLazyGetter(this, "_", () =>
-  l10nHelper("chrome://chat/content/otr.properties")
-);
+const syncL10n = new LocalizationSync([
+  "messenger/otr/otr.ftl",
+]);
+
+function _str(id) {
+  return syncL10n.formatValue(id);
+}
+
+function _strArgs(id, args) {
+  return syncL10n.formatValue(id, args);
+}
 
 // some helpers
 
@@ -278,13 +284,13 @@ var OTR = {
   getStatus(level) {
     switch (level) {
     case OTR.trustState.TRUST_NOT_PRIVATE:
-      return _("trust.not_private");
+      return _str("trust-not_private");
     case OTR.trustState.TRUST_UNVERIFIED:
-      return _("trust.unverified");
+      return _str("trust-unverified");
     case OTR.trustState.TRUST_PRIVATE:
-      return _("trust.private");
+      return _str("trust-private");
     case OTR.trustState.TRUST_FINISHED:
-      return _("trust.finished");
+      return _str("trust-finished");
     }
     throw new Error("unknown level");
   },
@@ -329,7 +335,7 @@ var OTR = {
           account: wContext.account,
           protocol: wContext.protocol,
           trust,
-          status: used ? OTR.getStatus(best_level) : _("trust.unused"),
+          status: used ? OTR.getStatus(best_level) : _str("trust-unused"),
           purge: false,
         });
       }
@@ -497,7 +503,7 @@ var OTR = {
     // Use the default msg to format the version.
     // We don't supprt v1 of the protocol so this should be fine.
     let queryMsg = /^\?OTR.*?\?/.exec(query.readString())[0] + "\n";
-    queryMsg += _("query.msg", conv.account.normalizedName);
+    queryMsg += _strArgs("query-msg", {name: conv.account.normalizedName});
     conv.sendMsg(queryMsg);
     OTRLib.otrl_message_free(query);
   },
@@ -598,9 +604,9 @@ var OTR = {
   // A ConnContext has entered a secure state.
   gone_secure_cb(opdata, context) {
     context = new Context(context);
-    let str = "context.gone_secure_" + (context.trust ? "private" : "unverified");
+    let strid = "context-gone_secure_" + (context.trust ? "private" : "unverified");
     this.notifyObservers(context, "otr:msg-state");
-    this.sendAlert(context, _(str, context.username));
+    this.sendAlert(context, _strArgs(strid, {name: context.username}));
     if (this.verifyNudge && !context.trust)
       this.notifyObservers(context, "otr:unverified", "unseen");
   },
@@ -617,7 +623,7 @@ var OTR = {
     if (!is_reply) {
       context = new Context(context);
       this.notifyObservers(context, "otr:msg-state");
-      this.sendAlert(context, _("context.still_secure", context.username));
+      this.sendAlert(context, _strArgs("context-still_secure", {name: context.username}));
     }
   },
 
@@ -665,16 +671,16 @@ var OTR = {
     let msg;
     switch (err_code) {
     case OTRLib.errorCode.OTRL_ERRCODE_ENCRYPTION_ERROR:
-      msg = _("error.enc");
+      msg = _str("error-enc");
       break;
     case OTRLib.errorCode.OTRL_ERRCODE_MSG_NOT_IN_PRIVATE:
-      msg = _("error.not_priv", context.username);
+      msg = _strArgs("error-not_priv", context.username);
       break;
     case OTRLib.errorCode.OTRL_ERRCODE_MSG_UNREADABLE:
-      msg = _("error.unreadable");
+      msg = _str("error-unreadable");
       break;
     case OTRLib.errorCode.OTRL_ERRCODE_MSG_MALFORMED:
-      msg = _("error.malformed");
+      msg = _str("error-malformed");
       break;
     default:
       return null;
@@ -690,7 +696,7 @@ var OTR = {
 
   // Return a string that will be prefixed to any resent message.
   resent_msg_prefix_cb(opdata, context) {
-    return CLib.strdup(_("resent"));
+    return CLib.strdup(_str("resent"));
   },
 
   // Deallocate a string returned by resent_msg_prefix.
@@ -739,50 +745,51 @@ var OTR = {
     case OTRLib.messageEvent.OTRL_MSGEVENT_NONE:
       break;
     case OTRLib.messageEvent.OTRL_MSGEVENT_ENCRYPTION_REQUIRED:
-      this.sendAlert(context, _("msgevent.encryption_required_part1", context.username));
-      this.sendAlert(context, _("msgevent.encryption_required_part2"));
+      this.sendAlert(context, _strArgs("msgevent-encryption_required_part1", {name: context.username}));
+      this.sendAlert(context, _str("msgevent-encryption_required_part2"));
       break;
     case OTRLib.messageEvent.OTRL_MSGEVENT_ENCRYPTION_ERROR:
-      this.sendAlert(context, _("msgevent.encryption_error"));
+      this.sendAlert(context, _str("msgevent-encryption_error"));
       break;
     case OTRLib.messageEvent.OTRL_MSGEVENT_CONNECTION_ENDED:
-      this.sendAlert(context, _("msgevent.connection_ended", context.username));
+      this.sendAlert(context, _strArgs("msgevent-connection_ended", {name: context.username}));
       break;
     case OTRLib.messageEvent.OTRL_MSGEVENT_SETUP_ERROR:
-      this.sendAlert(context, _("msgevent.setup_error", context.username));
+      this.sendAlert(context, _strArgs("msgevent-setup_error", {name: context.username}));
       break;
     case OTRLib.messageEvent.OTRL_MSGEVENT_MSG_REFLECTED:
-      this.sendAlert(context, _("msgevent.msg_reflected"));
+      this.sendAlert(context, _str("msgevent-msg_reflected"));
       break;
     case OTRLib.messageEvent.OTRL_MSGEVENT_MSG_RESENT:
-      this.sendAlert(context, _("msgevent.msg_resent", context.username));
+      this.sendAlert(context, _strArgs("msgevent-msg_resent", {name: context.username}));
       break;
     case OTRLib.messageEvent.OTRL_MSGEVENT_RCVDMSG_NOT_IN_PRIVATE:
-      this.sendAlert(context, _("msgevent.rcvdmsg_not_private", context.username));
+      this.sendAlert(context, _strArgs("msgevent-rcvdmsg_not_private", {name: context.username}));
       break;
     case OTRLib.messageEvent.OTRL_MSGEVENT_RCVDMSG_UNREADABLE:
-      this.sendAlert(context, _("msgevent.rcvdmsg_unreadable", context.username));
+      this.sendAlert(context, _strArgs("msgevent-rcvdmsg_unreadable", {name: context.username}));
       break;
     case OTRLib.messageEvent.OTRL_MSGEVENT_RCVDMSG_MALFORMED:
-      this.sendAlert(context, _("msgevent.rcvdmsg_malformed", context.username));
+      this.sendAlert(context, _strArgs("msgevent-rcvdmsg_malformed", {name: context.username}));
       break;
     case OTRLib.messageEvent.OTRL_MSGEVENT_LOG_HEARTBEAT_RCVD:
-      this.log(_("msgevent.log_heartbeat_rcvd", context.username));
+      this.log(_strArgs("msgevent-log_heartbeat_rcvd", {name: context.username}));
       break;
     case OTRLib.messageEvent.OTRL_MSGEVENT_LOG_HEARTBEAT_SENT:
-      this.log(_("msgevent.log_heartbeat_sent", context.username));
+      this.log(_strArgs("msgevent-log_heartbeat_sent", {name: context.username}));
       break;
     case OTRLib.messageEvent.OTRL_MSGEVENT_RCVDMSG_GENERAL_ERR:
-      this.sendAlert(context, _("msgevent.rcvdmsg_general_err"));
+      this.sendAlert(context, _str("msgevent-rcvdmsg_general_err"));
       break;
     case OTRLib.messageEvent.OTRL_MSGEVENT_RCVDMSG_UNENCRYPTED:
-      this.sendAlert(context, _("msgevent.rcvdmsg_unencrypted", context.username, message.isNull() ? "" : message.readString()));
+      this.sendAlert(context, _strArgs("msgevent-rcvdmsg_unencrypted",
+        {name: context.username, msg: message.isNull() ? "" : message.readString()}));
       break;
     case OTRLib.messageEvent.OTRL_MSGEVENT_RCVDMSG_UNRECOGNIZED:
-      this.sendAlert(context, _("msgevent.rcvdmsg_unrecognized", context.username));
+      this.sendAlert(context, _strArgs("msgevent-rcvdmsg_unrecognized", {name: context.username}));
       break;
     case OTRLib.messageEvent.OTRL_MSGEVENT_RCVDMSG_FOR_OTHER_INSTANCE:
-      this.log(_("msgevent.rcvdmsg_for_other_instance", context.username));
+      this.log(_strArgs("msgevent-rcvdmsg_for_other_instance", {name: context.username}));
       break;
     default:
       this.log("msg event: " + msg_event);
@@ -1041,7 +1048,7 @@ var OTR = {
     if (!tlv.isNull()) {
       let context = this.getContext(conv);
       this.notifyObservers(context, "otr:disconnected");
-      this.sendAlert(context, _("tlv.disconnected", conv.normalizedName));
+      this.sendAlert(context, _strArgs("tlv-disconnected", {name: conv.normalizedName}));
     }
 
     if (err) {

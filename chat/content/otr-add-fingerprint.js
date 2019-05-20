@@ -8,16 +8,13 @@ const {
 } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 const {OTR} = ChromeUtils.import("resource:///modules/OTR.jsm");
 
-XPCOMUtils.defineLazyGetter(this, "_", () =>
-  l10nHelper("chrome://chat/content/otr-add-finger.properties")
-);
-
 var args = window.arguments[0].wrappedJSObject;
 
 var otrAddFinger = {
-  onload() {
-    document.title = _("addfinger.title", args.screenname);
-
+  async onload() {
+    let title = await document.l10n.formatValue(
+      "otr-add-finger-name-title", {name: args.screenname});
+    document.title = title;
     document.addEventListener("dialogaccept", () => {
       return this.add();
     });

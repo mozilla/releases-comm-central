@@ -5,20 +5,22 @@
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css" ?>
 
-<!DOCTYPE dialog [
-  <!ENTITY % chatPrivDTD SYSTEM "chrome://chat/content/otr-generate-key.dtd">
-  %chatPrivDTD;
-]>
+<!DOCTYPE dialog>
 
 <dialog
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
   id="otrPrivDialog"
+  data-l10n-id="otr-generate-key"
+  data-l10n-attrs="buttonlabelaccept"
   windowtype="OTR:Priv"
-  title="&privDialog.title;"
   buttons="accept"
-  buttonlabelaccept="&privDialog.done;"
   onload="otrPriv.onload()"
   buttondisabledaccept="true">
+
+  <linkset>
+    <html:link rel="localization" href="messenger/otr/generate-key.ftl"/>
+  </linkset>
 
   <script type="application/javascript" src="chrome://chat/content/otr-generate-key.js" />
   <description id="priv" style="width: 300px; white-space: pre-wrap;"></description>

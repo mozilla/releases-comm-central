@@ -8,22 +8,24 @@ const {
 } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 const {OTR} = ChromeUtils.import("resource:///modules/OTR.jsm");
 
-XPCOMUtils.defineLazyGetter(this, "_", () =>
-  l10nHelper("chrome://chat/content/otr-generate-key.properties")
-);
-
 var otrPriv = {
 
-  onload() {
+  async onload() {
     let args = window.arguments[0].wrappedJSObject;
     let priv = document.getElementById("priv");
-    priv.textContent = _("priv.account", args.account, OTR.protocolName(args.protocol));
+
+    let text = await document.l10n.formatValue(
+      "otr-genkey-account", {name: args.account, protocol: OTR.protocolName(args.protocol)});
+    priv.textContent = text;
+console.log("genkey: " + text);
+
     OTR.generatePrivateKey(args.account, args.protocol).then(function() {
       document.documentElement.getButton("accept").disabled = false;
       document.documentElement.acceptDialog();
-    }).catch(function(err) {
+    }).catch(async function(err) {
+      priv.textContent = await document.l10n.formatValue(
+          "otr-genkey-failed", {error: String(err)});
       document.documentElement.getButton("accept").disabled = false;
-      priv.textContent = _("priv.failed", String(err));
     });
   },
 };

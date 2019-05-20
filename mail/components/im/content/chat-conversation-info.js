@@ -46,6 +46,10 @@ class MozChatConversationInfo extends MozXULElement {
     this.setAttribute("orient", "vertical");
 
     this.appendChild(MozXULElement.parseXULToFragment(`
+      <linkset>
+        <html:link rel="localization" href="messenger/otr/chat.ftl"/>
+      </linkset>
+
       <hbox class="displayUserAccount" flex="1">
         <stack class="statusImageStack">
           <box class="userIconHolder">
@@ -64,19 +68,19 @@ class MozChatConversationInfo extends MozXULElement {
         </stack>
       </hbox>
       <hbox class="otr-container" align="left" valign="middle" flex="1" hidden="true">
-        <label class="otr-label" crop="end" value="&state.label;" flex="1"/>
+        <label class="otr-label" crop="end" data-l10n-id="state-label" flex="1"/>
         <toolbarbutton id="otrButton"
                        mode="dialog"
                        class="otr-button toolbarbutton-1"
                        type="menu"
                        label="Insecure"
-                       tooltiptext="&start.label;">
+                       data-l10n-id="start-tooltip">
           <menupopup class="otr-menu-popup">
-            <menuitem class="otr-start" label="&start.label;"
+            <menuitem class="otr-start" data-l10n-id="start-label"
                       oncommand='this.closest("chat-conversation-info").onOtrStartClicked();'/>
-            <menuitem class="otr-end" label="&end.label;"
+            <menuitem class="otr-end" data-l10n-id="end-label"
                       oncommand='this.closest("chat-conversation-info").onOtrEndClicked();'/>
-            <menuitem class="otr-auth" label="&auth.label;"
+            <menuitem class="otr-auth" data-l10n-id="auth-label"
                       oncommand='this.closest("chat-conversation-info").onOtrAuthClicked();'/>
           </menupopup>
         </toolbarbutton>
@@ -173,7 +177,7 @@ class MozChatConversationInfo extends MozXULElement {
     let uiConv = convBinding._conv;
     let conv = uiConv.target;
     let context = OTR.getContext(conv);
-    let bundleId = "alert." + (
+    let bundleId = "alert-" + (
       context.msgstate === OTR.getMessageState().OTRL_MSGSTATE_ENCRYPTED ?
         "refresh" : "start");
     OTRUI.sendSystemAlert(uiConv, conv, bundleId);
@@ -185,7 +189,7 @@ class MozChatConversationInfo extends MozXULElement {
     let uiConv = convBinding._conv;
     let conv = uiConv.target;
     OTR.disconnect(conv, false);
-    let bundleId = "alert.gone_insecure";
+    let bundleId = "alert-gone_insecure";
     OTRUI.sendSystemAlert(uiConv, conv, bundleId);
   }
 

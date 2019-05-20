@@ -19,12 +19,3 @@ chat.jar:
 	content/chat/otr-generate-key.js
 	content/chat/otr-generate-key.xul
 	content/chat/otrWorker.js
-	content/chat/otr-auth.dtd
-	content/chat/otr-auth.properties
-	content/chat/otr-add-finger.dtd
-	content/chat/otr-add-finger.properties
-	content/chat/otr.properties
-	content/chat/otr-generate-key.dtd
-	content/chat/otr-generate-key.properties
-	content/chat/otrUI.properties
-	content/chat/otr-chat.dtd

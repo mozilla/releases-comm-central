@@ -4,78 +4,94 @@
 
 this.EXPORTED_SYMBOLS = ["OTRUI"];
 
+const { LocalizationSync } =
+  ChromeUtils.import("resource://gre/modules/Localization.jsm", {});
 const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
-const {
-  XPCOMUtils,
-  l10nHelper,
-} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-
 const {OTR}  = ChromeUtils.import("resource:///modules/OTR.jsm");
+
+const syncL10n = new LocalizationSync([
+  "messenger/otr/otrUI.ftl",
+]);
+
+function _str(id) {
+  return syncL10n.formatValue(id);
+}
+
+function _strArgs(id, args) {
+  return syncL10n.formatValue(id, args);
+}
 
 const privDialog = "chrome://chat/content/otr-generate-key.xul";
 const authDialog = "chrome://chat/content/otr-auth.xul";
 const addFingerDialog = "chrome://chat/content/otr-add-fingerprint.xul";
 
-XPCOMUtils.defineLazyGetter(this, "_", () =>
-  l10nHelper("chrome://chat/content/otrUI.properties")
-);
-
 const authVerify = "otr-auth-unverified";
+var authLabelMap;
+var authTitleMap;
+var trustMap;
 
-var authLabelMap = new Map([
-  ["otr:auth-error", _("auth.error")],
-  ["otr:auth-success", _("auth.success")],
-  ["otr:auth-successThem", _("auth.successThem")],
-  ["otr:auth-fail", _("auth.fail")],
-  ["otr:auth-waiting", _("auth.waiting")],
-]);
+function initStrings() {
+  authLabelMap = new Map([
+    ["otr:auth-error", _str("auth-error")],
+    ["otr:auth-success", _str("auth-success")],
+    ["otr:auth-successThem", _str("auth-successThem")],
+    ["otr:auth-fail", _str("auth-fail")],
+    ["otr:auth-waiting", _str("auth-waiting")],
+  ]);
 
-var authTitleMap = new Map([
-  ["otr:auth-error", "error"],
-  ["otr:auth-success", "success"],
-  ["otr:auth-successThem", "successThem"],
-  ["otr:auth-fail", "fail"],
-  ["otr:auth-waiting", "waiting"],
-]);
+  authTitleMap = new Map([
+    ["otr:auth-error", _str("error-title")],
+    ["otr:auth-success", _str("success-title")],
+    ["otr:auth-successThem", _str("successThem-title")],
+    ["otr:auth-fail", _str("fail-title")],
+    ["otr:auth-waiting", _str("waiting-title")],
+  ]);
 
-var trustMap = new Map([
-  [OTR.trustState.TRUST_NOT_PRIVATE, {
-    startLabel: _("start.label"),
-    authLabel: _("auth.label"),
-    disableStart: false,
-    disableEnd: true,
-    disableAuth: true,
-    class: "not_private",
-  }],
-  [OTR.trustState.TRUST_UNVERIFIED, {
-    startLabel: _("refresh.label"),
-    authLabel: _("auth.label"),
-    disableStart: false,
-    disableEnd: false,
-    disableAuth: false,
-    class: "unverified",
-  }],
-  [OTR.trustState.TRUST_PRIVATE, {
-    startLabel: _("refresh.label"),
-    authLabel: _("reauth.label"),
-    disableStart: false,
-    disableEnd: false,
-    disableAuth: false,
-    class: "private",
-  }],
-  [OTR.trustState.TRUST_FINISHED, {
-    startLabel: _("start.label"),
-    authLabel: _("auth.label"),
-    disableStart: false,
-    disableEnd: false,
-    disableAuth: true,
-    class: "finished",
-  }],
-]);
+  let sl = _str("start-label");
+  let al = _str("auth-label");
+  let rfl = _str("refresh-label");
+  let ral = _str("reauth-label");
+
+  trustMap = new Map([
+    [OTR.trustState.TRUST_NOT_PRIVATE, {
+      startLabel: sl,
+      authLabel: al,
+      disableStart: false,
+      disableEnd: true,
+      disableAuth: true,
+      class: "not_private",
+    }],
+    [OTR.trustState.TRUST_UNVERIFIED, {
+      startLabel: rfl,
+      authLabel: al,
+      disableStart: false,
+      disableEnd: false,
+      disableAuth: false,
+      class: "unverified",
+    }],
+    [OTR.trustState.TRUST_PRIVATE, {
+      startLabel: rfl,
+      authLabel: ral,
+      disableStart: false,
+      disableEnd: false,
+      disableAuth: false,
+      class: "private",
+    }],
+    [OTR.trustState.TRUST_FINISHED, {
+      startLabel: sl,
+      authLabel: al,
+      disableStart: false,
+      disableEnd: false,
+      disableAuth: true,
+      class: "finished",
+    }],
+  ]);
+}
 
 var windowRefs = new Map();
 
 var OTRUI = {
+  stringsLoaded: false,
   globalDoc: null,
   visibleConv: null,
 
@@ -140,7 +156,7 @@ var OTRUI = {
     let sep = doc.createXULElement("menuseparator");
     sep.setAttribute("id", "otrsep");
     let menuitem = doc.createXULElement("menuitem");
-    menuitem.setAttribute("label", _("buddycontextmenu.label"));
+    menuitem.setAttribute("label", _str("buddycontextmenu.label"));
     menuitem.setAttribute("id", "otrcont");
     menuitem.addEventListener("command", () => {
       let target = buddyContextMenu.triggerNode;
@@ -179,7 +195,12 @@ var OTRUI = {
     }
   },
 
-  init() {
+  async init() {
+    if (!OTRUI.stringsLoaded) {
+      initStrings();
+      OTRUI.stringsLoaded = true;
+    }
+
     // console.log("====> OTRUI init\n");
     OTRUI.setPrefs();
     OTR.init({
@@ -277,7 +298,7 @@ var OTRUI = {
   },
 
   sendSystemAlert(uiConv, conv, bundleId) {
-    uiConv.systemMessage(_(bundleId, conv.normalizedName));
+    uiConv.systemMessage(_strArgs(bundleId, {name: conv.normalizedName}));
   },
 
   setNotificationBox(notificationbox) {
@@ -363,7 +384,14 @@ var OTRUI = {
       }
       if (addSystemMessage) {
         let trust = OTRUI.getTrustSettings(context);
-        uiConv.systemMessage(_("state." + trust.class, context.username));
+        let id = "state-" + trust.class;
+        let msg;
+        if (OTR.trust(context) == OTR.trustState.TRUST_NOT_PRIVATE) {
+          msg = syncL10n.formatValue(id);
+        } else {
+          msg = syncL10n.formatValue(id, {name: context.username});
+        }
+        uiConv.systemMessage(msg);
       }
     } catch (e) {
       OTRUI.noOtrPossible(otrContainer, context);
@@ -375,8 +403,10 @@ var OTRUI = {
     let otrEnd = doc.querySelector(".otr-end");
     let otrAuth = doc.querySelector(".otr-auth");
     let trust = OTRUI.getTrustSettings(context);
-    otrButton.setAttribute("tooltiptext", _("state." + trust.class, context.username));
-    otrButton.setAttribute("label", _("state." + trust.class + ".label"));
+    otrButton.setAttribute("tooltiptext",
+      _strArgs("state-" + trust.class, {name: context.username}));
+    otrButton.setAttribute("label",
+      _str("state-" + trust.class + "-label"));
     otrButton.className = "otr-button otr-" + trust.class;
     otrStart.setAttribute("label", trust.startLabel);
     otrStart.setAttribute("disabled", trust.disableStart);
@@ -390,7 +420,8 @@ var OTRUI = {
   alertTrust(context) {
     let uiConv = OTR.getUIConvFromContext(context);
     let trust = OTRUI.getTrustSettings(context);
-    uiConv.systemMessage(_("afterauth." + trust.class, context.username));
+    uiConv.systemMessage(
+      _strArgs("afterauth-" + trust.class, {name: context.username}));
   },
 
   getTrustSettings(context) {
@@ -449,10 +480,10 @@ var OTRUI = {
 
     let window = this.globalDoc.defaultView;
 
-    let msg = _("finger." + seen, context.username);
+    let msg = _strArgs("finger-" + seen, {name: context.username});
     let buttons = [{
-      label: _("finger.verify"),
-      accessKey: _("verify.accessKey"),
+      label: _str("finger-verify"),
+      accessKey: _str("finger-verify-accessKey"),
       callback() {
         let name = uiConv.target.normalizedName;
         OTRUI.openAuth(window, name, "start", uiConv);
@@ -464,10 +495,11 @@ var OTRUI = {
     let priority = this.globalBox.PRIORITY_WARNING_MEDIUM;
     this.globalBox.appendNotification(msg, authVerify, null, priority, buttons, null);
 
-    this.updateNotificationUI(context, "verify", authVerify);
+    let verifyTitle = syncL10n.formatValue("verify-title");
+    this.updateNotificationUI(context, verifyTitle, authVerify);
   },
 
-  updateNotificationUI(context, type, value) {
+  updateNotificationUI(context, typeTitle, value) {
     let notification = this.globalBox.getNotificationWithValue(value);
     notification.setAttribute("user", context.username);
     notification.setAttribute("orient", "vertical");
@@ -478,7 +510,7 @@ var OTRUI = {
     let title = this.globalDoc.createElement("title");
     title.setAttribute("flex", "1");
     title.setAttribute("crop", "end");
-    title.textContent = _(type + ".title");
+    title.textContent = typeTitle;
 
     let close = notification.querySelector("toolbarbutton");
     close.setAttribute("oncommand", "this.parentNode.parentNode.dismiss();");
@@ -524,12 +556,12 @@ var OTRUI = {
     OTRUI.closeVerification(context);
 
     let msg = authLabelMap.get(key);
-    let type = authTitleMap.get(key);
+    let typeTitle = authTitleMap.get(key);
     let buttons = [];
     if (cancelable) {
       buttons = [{
-        label: _("auth.cancel"),
-        accessKey: _("auth.cancelAccessKey"),
+        label: _str("auth-cancel"),
+        accessKey: _str("auth-cancelAccessKey"),
         callback() {
           let context = OTR.getContext(uiConv.target);
           OTR.abortSMP(context);
@@ -542,7 +574,7 @@ var OTRUI = {
     OTRUI.closeUnverified(context);
     this.globalBox.appendNotification(msg, key, null, priority, buttons, null);
 
-    this.updateNotificationUI(context, type, key);
+    this.updateNotificationUI(context, typeTitle, key);
   },
 
   updateAuth(aObj) {
