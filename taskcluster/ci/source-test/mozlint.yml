@@ -1,7 +1,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
+---
 job-defaults:
     always-target: true
     treeherder:
@@ -56,7 +56,11 @@ yaml:
     treeherder:
         symbol: yaml
     run:
-        mach: lint -f treeherder -l yaml -n comm/taskcluster comm/.taskcluster.yml
+        mach: >
+            lint -f treeherder -l yaml -n
+            comm/mail/config
+            comm/taskcluster
+            comm/.*.yml
     when:
         files-changed:
             - 'comm/**/*.yml'
