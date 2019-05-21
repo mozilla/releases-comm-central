@@ -78,4 +78,4 @@ var gAttachmentReminderOptionsDialog = {
   },
 };
 
-document.addEventListener("dialogaccept", gAttachmentReminderOptionsDialog.saveKeywords);
+document.addEventListener("dialogaccept", () => gAttachmentReminderOptionsDialog.saveKeywords());

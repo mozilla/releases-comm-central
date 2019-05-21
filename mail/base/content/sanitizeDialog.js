@@ -231,4 +231,4 @@ var gSanitizePromptDialog = {
   },
 };
 
-document.addEventListener("dialogaccept", gSanitizePromptDialog.sanitize);
+document.addEventListener("dialogaccept", () => gSanitizePromptDialog.sanitize());

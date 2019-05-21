@@ -104,5 +104,5 @@ var gSelectOffline = {
   },
 };
 
-document.addEventListener("dialogaccept", gSelectOffline.onAccept);
-document.addEventListener("dialogcancel", gSelectOffline.onCancel);
+document.addEventListener("dialogaccept", () => gSelectOffline.onAccept());
+document.addEventListener("dialogcancel", () => gSelectOffline.onCancel());

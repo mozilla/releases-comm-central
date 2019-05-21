@@ -15,6 +15,7 @@
         style="&appManager.style;"
         persist="screenX screenY">
 
+  <script src="chrome://global/content/preferencesBindings.js"/>
   <script src="chrome://messenger/content/preferences/applications.js"/>
   <script src="chrome://messenger/content/preferences/applicationManager.js"/>
 

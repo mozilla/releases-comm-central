@@ -7,6 +7,7 @@
 
 /* import-globals-from preferences.js */
 /* import-globals-from subdialogs.js */
+/* import-globals-from ../../../../toolkit/content/preferencesBindings.js */
 
 // applications.inc.xul
 /* globals ICON_URL_APP */
@@ -37,8 +38,9 @@ Preferences.addAll([
   { id: "mail.compose.big_attachments.threshold_kb", type: "int" },
 ]);
 
-document.getElementById("paneApplications")
-        .addEventListener("paneload", function() { gApplicationsTabController.init(); });
+if (document.getElementById("paneApplications"))
+  document.getElementById("paneApplications")
+          .addEventListener("paneload", () => gApplicationsTabController.init());
 
 // ---------
 // Utilities
@@ -480,7 +482,6 @@ var gApplicationsTabController = {
     }
 
     gCloudFileTab.init();
-    this.paneSelectionChanged = this.paneSelectionChanged.bind(this);
     window.addEventListener("paneSelected", this.paneSelectionChanged);
 
     if (!(("arguments" in window) && window.arguments[1])) {

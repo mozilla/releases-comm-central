@@ -129,4 +129,4 @@ var gFontsDialog = {
   },
 };
 
-document.addEventListener("dialogaccept", gFontsDialog.ondialogaccept);
+document.addEventListener("dialogaccept", () => gFontsDialog.ondialogaccept());

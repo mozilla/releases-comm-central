@@ -106,5 +106,5 @@ var gSelectVirtual = {
   },
 };
 
-document.addEventListener("dialogaccept", gSelectVirtual.onAccept);
-document.addEventListener("dialogcancel", gSelectVirtual.onCancel);
+document.addEventListener("dialogaccept", () => gSelectVirtual.onAccept());
+document.addEventListener("dialogcancel", () => gSelectVirtual.onCancel());

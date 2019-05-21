@@ -98,4 +98,4 @@ var gAppManagerDialog = {
   },
 };
 
-document.addEventListener("dialogaccept", gAppManagerDialog.onOK);
+document.addEventListener("dialogaccept", () => gAppManagerDialog.onOK());
