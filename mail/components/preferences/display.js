@@ -56,7 +56,7 @@ var gDisplayPane = {
     var menulist = document.getElementById("defaultFont");
     if (menulist.selectedIndex == -1) {
       // Prepend menuitem with empty name and value.
-      let item = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "menuitem");
+      let item = document.createXULElement("menuitem");
       item.setAttribute("label", "");
       item.setAttribute("value", "");
       menulist.menupopup.insertBefore(item, menulist.menupopup.firstChild);

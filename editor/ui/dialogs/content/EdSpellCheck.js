@@ -141,7 +141,7 @@ function InitLanguageMenu(aCurLang) {
   var defaultItem = null;
 
   for (var i = 0; i < count; i++) {
-    let item = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "menuitem");
+    let item = document.createXULElement("menuitem");
     item.setAttribute("label", sortedList[i].displayName);
     item.setAttribute("value", sortedList[i].localeCode);
     let beforeItem = gDialog.LanguageMenulist.getItemAtIndex(i);

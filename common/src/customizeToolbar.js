@@ -237,8 +237,7 @@ function unwrapToolbarItems() {
  * it from receiving UI events.
  */
 function createWrapper(aId, aDocument) {
-  var wrapper = aDocument.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
-                                         "toolbarpaletteitem");
+  let wrapper = aDocument.createXULElement("toolbarpaletteitem");
 
   wrapper.id = "wrapper-" + aId;
   return wrapper;
@@ -303,21 +302,18 @@ function buildPalette() {
     gPaletteBox.removeChild(gPaletteBox.lastChild);
 
   // Add the toolbar separator item.
-  var templateNode = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
-                                              "toolbarseparator");
+  var templateNode = document.createXULElement("toolbarseparator");
   templateNode.id = "separator";
   wrapPaletteItem(templateNode);
 
   // Add the toolbar spring item.
-  templateNode = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
-                                              "toolbarspring");
+  templateNode = document.createXULElement("toolbarspring");
   templateNode.id = "spring";
   templateNode.flex = 1;
   wrapPaletteItem(templateNode);
 
   // Add the toolbar spacer item.
-  templateNode = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
-                                              "toolbarspacer");
+  templateNode = document.createXULElement("toolbarspacer");
   templateNode.id = "spacer";
   templateNode.flex = 1;
   wrapPaletteItem(templateNode);

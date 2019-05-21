@@ -8,8 +8,6 @@
 /* import-globals-from ../../composer/content/editorUtilities.js */
 /* import-globals-from EdDialogCommon.js */
 
-var XULNS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
-
 document.addEventListener("dialogaccept", onAccept);
 document.addEventListener("dialogcancel", onCancel);
 
@@ -157,18 +155,18 @@ function createCommandPanel(aCommandPanelList) {
     var commands = aCommandPanelList[label];
 
     // Create a <rows> element with some LaTeX commands.
-    var rows = document.createElementNS(XULNS, "rows");
+    var rows = document.createXULElement("rows");
 
     var i = 0, row;
     for (var command of commands) {
       if (i % columnCount == 0) {
         // Create a new row.
-        row = document.createElementNS(XULNS, "row");
+        row = document.createXULElement("row");
         rows.appendChild(row);
       }
 
       // Create a new button to insert the symbol.
-      var button = document.createElementNS(XULNS, "toolbarbutton");
+      var button = document.createXULElement("toolbarbutton");
       button.setAttribute("class", "tabbable");
       button.appendChild(TeXZilla.toMathML(command));
       row.appendChild(button);
@@ -177,20 +175,20 @@ function createCommandPanel(aCommandPanelList) {
     }
 
     // Create a <columns> element with the desired number of columns.
-    var columns = document.createElementNS(XULNS, "columns");
+    var columns = document.createXULElement("columns");
     for (i = 0; i < columnCount; i++) {
-      var column = document.createElementNS(XULNS, "column");
+      var column = document.createXULElement("column");
       column.setAttribute("flex", "1");
       columns.appendChild(column);
     }
 
     // Create the <grid> element with the <rows> and <columns> children.
-    var grid = document.createElementNS(XULNS, "grid");
+    var grid = document.createXULElement("grid");
     grid.appendChild(columns);
     grid.appendChild(rows);
 
     // Create a new <tab> element.
-    var tab = document.createElementNS(XULNS, "tab");
+    var tab = document.createXULElement("tab");
     tab.setAttribute("label", label);
     gDialog.tabbox.tabs.appendChild(tab);
 
@@ -204,12 +202,12 @@ function createSymbolPanels(aSymbolPanelList) {
 
   for (var symbols of aSymbolPanelList) {
     // Create a <rows> element with the symbols of the i-th panel.
-    var rows = document.createElementNS(XULNS, "rows");
+    var rows = document.createXULElement("rows");
     var i = 0, tabLabel = "", row;
     for (var symbol of symbols) {
       if (i % columnCount == 0) {
         // Create a new row.
-        row = document.createElementNS(XULNS, "row");
+        row = document.createXULElement("row");
         rows.appendChild(row);
       }
 
@@ -219,7 +217,7 @@ function createSymbolPanels(aSymbolPanelList) {
       }
 
       // Create a new button to insert the symbol.
-      var button = document.createElementNS(XULNS, "toolbarbutton");
+      var button = document.createXULElement("toolbarbutton");
       button.setAttribute("label", symbol);
       button.setAttribute("class", "tabbable");
       row.appendChild(button);
@@ -228,20 +226,20 @@ function createSymbolPanels(aSymbolPanelList) {
     }
 
     // Create a <columns> element with the desired number of columns.
-    var columns = document.createElementNS(XULNS, "columns");
+    var columns = document.createXULElement("columns");
     for (i = 0; i < columnCount; i++) {
-      var column = document.createElementNS(XULNS, "column");
+      var column = document.createXULElement("column");
       column.setAttribute("flex", "1");
       columns.appendChild(column);
     }
 
     // Create the <grid> element with the <rows> and <columns> children.
-    var grid = document.createElementNS(XULNS, "grid");
+    var grid = document.createXULElement("grid");
     grid.appendChild(columns);
     grid.appendChild(rows);
 
     // Create a new <tab> element with the label determined above.
-    var tab = document.createElementNS(XULNS, "tab");
+    var tab = document.createXULElement("tab");
     tab.setAttribute("label", tabLabel);
     gDialog.tabbox.tabs.appendChild(tab);
 
