@@ -50,32 +50,23 @@ platform_names:
         by-platform:
             linux-shippable: 'linux-i686'
             linux64-shippable: 'linux-x86_64'
-            linux64-asan-reporter-nightly: 'linux-x86_64-asan-reporter'
             macosx64-shippable: 'mac'
             win32-shippable: 'win32'
             win64-shippable: 'win64'
-            win64-aarch64-shippable: 'win64-aarch64'
-            win64-asan-reporter-nightly: 'win64-asan-reporter'
     tools_platform:
         by-platform:
             linux-shippable: 'linux'
             linux64-shippable: 'linux64'
-            linux64-asan-reporter-nightly: 'linux-x86_64-asan-reporter'
             macosx64-shippable: 'macosx64'
             win32-shippable: 'win32'
             win64-shippable: 'win64'
-            win64-aarch64-shippable: 'win64-aarch64'
-            win64-asan-reporter-nightly: 'win64-asan-reporter'
     filename_platform:
         by-platform:
             linux-shippable: 'linux'
             linux64-shippable: 'linux64'
-            linux64-asan-reporter-nightly: 'linux-x86_64-asan-reporter'
             macosx64-shippable: 'macosx64'
             win32-shippable: 'win32'
             win64-shippable: 'win64'
-            win64-aarch64-shippable: 'win64_aarch64'
-            win64-asan-reporter-nightly: 'win64-asan-reporter'
 
 default: &default
     from:
@@ -211,7 +202,6 @@ mapping:
         not_for_platforms:
             - win32-shippable
             - win64-shippable
-            - win64-aarch64-shippable
         destinations:
             - ${version}-candidates/build${build_number}/mar-tools
     mbsdiff:
@@ -224,7 +214,6 @@ mapping:
         not_for_platforms:
             - win32-shippable
             - win64-shippable
-            - win64-aarch64-shippable
         destinations:
             - ${version}-candidates/build${build_number}/mar-tools
     mar.exe:
@@ -237,7 +226,6 @@ mapping:
         only_for_platforms:
             - win32-shippable
             - win64-shippable
-            - win64-aarch64-shippable
         destinations:
             - ${version}-candidates/build${build_number}/mar-tools
     mbsdiff.exe:
@@ -250,7 +238,6 @@ mapping:
         only_for_platforms:
             - win32-shippable
             - win64-shippable
-            - win64-aarch64-shippable
         destinations:
             - ${version}-candidates/build${build_number}/mar-tools
     target.tar.bz2:
@@ -294,7 +281,6 @@ mapping:
         only_for_platforms:
             - win64-shippable
             - win32-shippable
-            - win64-aarch64-shippable
         pretty_name: thunderbird-${version}.zip
         checksums_path: ${path_platform}/${locale}/thunderbird-${version}.zip
     target.installer.exe:
@@ -306,19 +292,8 @@ mapping:
         only_for_platforms:
             - win64-shippable
             - win32-shippable
-            - win64-aarch64-shippable
         pretty_name: thunderbird Setup ${version}.exe
         checksums_path: ${path_platform}/${locale}/thunderbird Setup ${version}.exe
-    target.stub-installer.exe:
-        <<: *default
-        description: "Stub installer for Win32 platforms"
-        all_locales: true
-        from:
-            - repackage-signing
-        only_for_platforms:
-            - win32-shippable
-        pretty_name: thunderbird Installer.exe
-        checksums_path: ${path_platform}/${locale}/thunderbird Installer.exe
     target.installer.msi:
         <<: *default
         description: "Windows installer for MSI platform"
@@ -351,18 +326,5 @@ mapping:
         checksums_path: update/${path_platform}/${locale}/thunderbird-${version}.bz2.complete.mar
         update_balrog_manifest: true
         balrog_format: bz2
-        destinations:
-            - ${version}-candidates/build${build_number}/update/${path_platform}
-    ${partial}:
-        <<: *default
-        description: "Partials MAR files to serve as updates"
-        all_locales: true
-        from:
-            - partials-signing
-        partials_only: true
-        pretty_name: thunderbird-${previous_version}-${version}.partial.mar
-        checksums_path: update/${path_platform}/${locale}/thunderbird-${previous_version}-${version}.partial.mar
-        update_balrog_manifest: true
-        from_buildid: ${from_buildid}
         destinations:
             - ${version}-candidates/build${build_number}/update/${path_platform}

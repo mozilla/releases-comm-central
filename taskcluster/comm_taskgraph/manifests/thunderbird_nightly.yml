@@ -49,22 +49,16 @@ platform_names:
         by-platform:
             linux-shippable: 'linux-i686'
             linux64-shippable: 'linux-x86_64'
-            linux64-asan-reporter-nightly: 'linux-x86_64-asan-reporter'
             macosx64-shippable: 'mac'
             win32-shippable: 'win32'
             win64-shippable: 'win64'
-            win64-aarch64-shippable: 'win64-aarch64'
-            win64-asan-reporter-nightly: 'win64-asan-reporter'
     stage_platform:
         by-platform:
             linux-shippable: 'linux'
-            linux64-asan-reporter-nightly: 'linux64-asan-reporter'
             linux64-shippable: 'linux64'
             macosx64-shippable: 'macosx64'
             win32-shippable: 'win32'
             win64-shippable: 'win64'
-            win64-aarch64-shippable: 'win64-aarch64'
-            win64-asan-reporter-nightly: 'win64-asan-reporter'
 
 default: &default
     from:
@@ -115,9 +109,6 @@ mapping:
         description: "Crashreporter symbols to be consumed by Socorro"
         pretty_name: thunderbird-${version}.${locale}.${filename_platform}.crashreporter-symbols.zip
         checksums_path: thunderbird-${version}.${locale}.${filename_platform}.crashreporter-symbols.zip
-        not_for_platforms:
-            - linux64-asan-reporter-nightly
-            - win64-asan-reporter-nightly
     target.json:
         <<: *default
         description: "Various compile and moz_app flags baked together in a json file"
@@ -183,9 +174,6 @@ mapping:
         description: "Set of shells to allow test snippets of Javascript code without needing to reload the page"
         pretty_name: jsshell-${filename_platform}.zip
         checksums_path: jsshell-${filename_platform}.zip
-        not_for_platforms:
-            - linux64-asan-reporter-nightly
-            - win64-asan-reporter-nightly
     target.langpack.xpi:
         <<: *default
         all_locales: true
@@ -198,10 +186,6 @@ mapping:
             - macosx64-shippable
             - win64-shippable
             - win32-shippable
-            - win64-shippable
-            - win64-aarch64-shippable
-            - win64-asan-reporter-nightly
-            - linux64-asan-reporter-nightly
         pretty_name: thunderbird-${version}.${locale}.langpack.xpi
         checksums_path: thunderbird-${version}.${locale}.langpack.xpi
         destinations:
@@ -221,8 +205,6 @@ mapping:
         not_for_platforms:
             - win32-shippable
             - win64-shippable
-            - win64-aarch64-shippable
-            - win64-asan-reporter-nightly
         destinations:
             - ${year}/${month}/${upload_date}-${branch}/mar-tools/${stage_platform}
             - latest-${branch}/mar-tools/${stage_platform}
@@ -235,8 +217,6 @@ mapping:
         not_for_platforms:
             - win32-shippable
             - win64-shippable
-            - win64-aarch64-shippable
-            - win64-asan-reporter-nightly
         destinations:
             - ${year}/${month}/${upload_date}-${branch}/mar-tools/${stage_platform}
             - latest-${branch}/mar-tools/${stage_platform}
@@ -249,8 +229,6 @@ mapping:
         only_for_platforms:
             - win32-shippable
             - win64-shippable
-            - win64-aarch64-shippable
-            - win64-asan-reporter-nightly
         destinations:
             - ${year}/${month}/${upload_date}-${branch}/mar-tools/${stage_platform}
             - latest-${branch}/mar-tools/${stage_platform}
@@ -263,8 +241,6 @@ mapping:
         only_for_platforms:
             - win32-shippable
             - win64-shippable
-            - win64-aarch64-shippable
-            - win64-asan-reporter-nightly
         destinations:
             - ${year}/${month}/${upload_date}-${branch}/mar-tools/${stage_platform}
             - latest-${branch}/mar-tools/${stage_platform}
@@ -277,7 +253,6 @@ mapping:
         only_for_platforms:
             - linux-shippable
             - linux64-shippable
-            - linux64-asan-reporter-nightly
         pretty_name: thunderbird-${version}.${locale}.${filename_platform}.tar.bz2
         checksums_path: thunderbird-${version}.${locale}.${filename_platform}.tar.bz2
         destinations:
@@ -298,7 +273,6 @@ mapping:
         only_for_platforms:
             - linux-shippable
             - linux64-shippable
-            - linux64-asan-reporter-nightly
         pretty_name: thunderbird-${version}.${locale}.${filename_platform}.tar.bz2.asc
         checksums_path: thunderbird-${version}.${locale}.${filename_platform}.tar.bz2.asc
         destinations:
@@ -338,8 +312,6 @@ mapping:
         only_for_platforms:
             - win64-shippable
             - win32-shippable
-            - win64-aarch64-shippable
-            - win64-asan-reporter-nightly
         pretty_name: thunderbird-${version}.${locale}.${filename_platform}.zip
         checksums_path: thunderbird-${version}.${locale}.${filename_platform}.zip
     target.installer.exe:
@@ -351,29 +323,8 @@ mapping:
         only_for_platforms:
             - win64-shippable
             - win32-shippable
-            - win64-aarch64-shippable
-            - win64-asan-reporter-nightly
         pretty_name: thunderbird-${version}.${locale}.${filename_platform}.installer.exe
         checksums_path: thunderbird-${version}.${locale}.${filename_platform}.installer.exe
-        destinations:
-            by-locale:
-                en-US:
-                    - ${year}/${month}/${upload_date}-${branch}
-                    - latest-${branch}
-                    - latest-${branch}-l10n
-                default:
-                    - ${year}/${month}/${upload_date}-${branch}-l10n
-                    - latest-${branch}-l10n
-    target.stub-installer.exe:
-        <<: *default
-        description: "Stub installer for Win32 platforms"
-        all_locales: true
-        from:
-            - repackage-signing
-        only_for_platforms:
-            - win32-shippable
-        pretty_name: thunderbird Installer.${locale}.exe
-        checksums_path: thunderbird Installer.${locale}.exe
         destinations:
             by-locale:
                 en-US:
@@ -421,20 +372,3 @@ mapping:
                 default:
                     - ${year}/${month}/${upload_date}-${branch}-l10n
                     - latest-${branch}-l10n
-    ${partial}:
-        <<: *default
-        description: "Partials MAR files to serve as updates"
-        all_locales: true
-        from:
-            - partials-signing
-        partials_only: true
-        pretty_name: thunderbird-${branch}-${version}-${filename_platform}-${locale}-${from_buildid}-${buildid}.partial.mar
-        checksums_path: thunderbird-${branch}-${version}-${filename_platform}-${locale}-${from_buildid}-${buildid}.partial.mar
-        update_balrog_manifest: true
-        from_buildid: ${from_buildid}
-        destinations:
-            by-locale:
-                en-US:
-                    - partials/${year}/${month}/${upload_date}-${branch}
-                default:
-                    - partials/${year}/${month}/${upload_date}-${branch}-l10n
