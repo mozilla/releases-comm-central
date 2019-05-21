@@ -1,5 +1,5 @@
 {
-  "version": "2.2018e",
+  "version": "2.2018i",
   "aliases": [
     "AUS Central Standard Time",
     "AUS Eastern Standard Time",
@@ -407,6 +407,7 @@
     "Asia/Pontianak",
     "Asia/Pyongyang",
     "Asia/Qatar",
+    "Asia/Qostanay",
     "Asia/Qyzylorda",
     "Asia/Riyadh",
     "Asia/Sakhalin",
