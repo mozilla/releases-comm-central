@@ -33,7 +33,7 @@
 # `from_buildid`          -- flag needed downstream in beetmover jobs to reckon the balrog manifest
 
 s3_bucket_paths:
-    default: pub/thunderbird/candidates
+    - pub/thunderbird/candidates
 default_locales:
     - en-US
 tasktype_map:

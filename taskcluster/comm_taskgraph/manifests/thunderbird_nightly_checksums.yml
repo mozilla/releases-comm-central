@@ -3,7 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 s3_bucket_paths:
-    default: pub/thunderbird/nightly
+    - pub/thunderbird/nightly
 default_locales:  # if given an empty locale, use these locales
     - en-US
 tasktype_map:  # Map task reference to task type.
