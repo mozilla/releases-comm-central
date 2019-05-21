@@ -12,7 +12,6 @@ transforms:
     - taskgraph.transforms.beetmover_repackage:transforms
     - taskgraph.transforms.task:transforms
     - comm_taskgraph:remove_widevine_and_stub_installer
-    - comm_taskgraph:beetmover_add_langpack
 
 kind-dependencies:
     - build

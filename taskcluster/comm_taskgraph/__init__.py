@@ -96,39 +96,6 @@ def remove_widevine_and_stub_installer(config, jobs):
         yield job
 
 
-def beetmover_add_langpack(config, jobs):
-    """
-    Add langpacks to beetmover jobs.
-
-    Firefox signs addons as part of the release process, so has separate tasks
-    for signing and then publishing. Gettin the mozilla-central code to handle
-    uploading unsigned langpacks is complex, so add them afterwards. This code
-    should become unnesssary after the declarative artifact[1] work is complete.
-
-    [1] https://bugzilla.mozilla.org/show_bug.cgi?id=1466714
-    """
-    for job in jobs:
-        task = job['task']
-        payload = task['payload']
-        locale = job['attributes'].get('locale')
-
-        artifact_prefix = "public/build"
-        if locale:
-            artifact_prefix = '{}/{}'.format(artifact_prefix, locale)
-
-        payload['upstreamArtifacts'].append({
-            "locale": locale or 'en-US',
-            "paths": [
-                "{}/target.langpack.xpi".format(artifact_prefix),
-            ],
-            "taskId": {
-                "task-reference": "<build>"
-            },
-            "taskType": "build"
-        })
-        yield job
-
-
 def tests_drop_1proc(config, jobs):
     """
     Remove the -1proc suffix from Treeherder group symbols.
