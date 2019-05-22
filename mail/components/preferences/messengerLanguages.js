@@ -458,8 +458,7 @@ var gMessengerLanguagesDialog = {
     let addon;
 
     try {
-      addon = await AddonManager.getInstallForURL(
-        url, "application/x-xpinstall", hash);
+      addon = await AddonManager.getInstallForURL(url, {hash});
       await addon.install();
     } catch (e) {
       this.showError();

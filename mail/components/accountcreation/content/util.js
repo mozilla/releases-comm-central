@@ -504,7 +504,7 @@ AddonInstaller.prototype.isInstalled = async function() {
  */
 AddonInstaller.prototype._installDirect = async function() {
   var installer = this._installer = await AddonManager.getInstallForURL(
-    this._url, "application/x-xpinstall", null, this._name);
+    this._url, {name: this._name});
   installer.promptHandler = makeCallback(this, this.prompt);
   await installer.install(); // throws, if failed
 
