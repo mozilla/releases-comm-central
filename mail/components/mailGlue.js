@@ -12,8 +12,9 @@ var {LightweightThemeConsumer} = ChromeUtils.import("resource://gre/modules/Ligh
 var {TBDistCustomizer} = ChromeUtils.import("resource:///modules/TBDistCustomizer.jsm");
 var {MailMigrator} = ChromeUtils.import("resource:///modules/MailMigrator.jsm");
 var {ExtensionSupport} = ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
-var { L10nRegistry, FileSource } = ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm");
+var {L10nRegistry, FileSource} = ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var {RemoteSecuritySettings} = ChromeUtils.import("resource://gre/modules/psm/RemoteSecuritySettings.jsm");
 
 // lazy module getters
 
@@ -182,6 +183,11 @@ MailGlue.prototype = {
 
     const {ExtensionsUI} = ChromeUtils.import("resource:///modules/ExtensionsUI.jsm");
     ExtensionsUI.checkForSideloadedExtensions();
+
+    // Certificates revocation list, etc.
+    Services.tm.idleDispatchToMainThread(() => {
+      RemoteSecuritySettings.init();
+    });
   },
 
   _handleLink(aSubject, aData) {
