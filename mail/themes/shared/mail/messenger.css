@@ -225,6 +225,12 @@ html|ul.addon-installed-list {
   color: inherit !important;
 }
 
+/* Don't show a menupopup in customize mode */
+toolbarpaletteitem menulist,
+toolbarpaletteitem toolbarbutton {
+  pointer-events: none;
+}
+
 /* :::::: throbber :::::::::: */
 
 #throbber-box {
