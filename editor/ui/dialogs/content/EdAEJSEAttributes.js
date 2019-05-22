@@ -33,7 +33,7 @@ function BuildJSEAttributeNameList() {
 
       popup = gDialog.AddJSEAttributeNameList.firstChild;
       if (popup) {
-        sep = document.createElementNS(XUL_NS, "menuseparator");
+        sep = document.createXULElement("menuseparator");
         if (sep)
           popup.appendChild(sep);
       }
@@ -46,7 +46,7 @@ function BuildJSEAttributeNameList() {
       if (!popup)
         popup = gDialog.AddJSEAttributeNameList.firstChild;
 
-      sep = document.createElementNS(XUL_NS, "menuseparator");
+      sep = document.createXULElement("menuseparator");
 
       if (popup && sep)
         popup.appendChild(sep);

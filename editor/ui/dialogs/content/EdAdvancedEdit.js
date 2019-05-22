@@ -277,15 +277,15 @@ function RemoveNameFromAttArray(attName, attArray) {
 // adds a generalised treeitem.
 function AddTreeItem(name, value, treeChildrenId, attArray) {
   attArray[attArray.length] = name;
-  var treeChildren    = document.getElementById(treeChildrenId);
-  var treeitem    = document.createElementNS(XUL_NS, "treeitem");
-  var treerow     = document.createElementNS(XUL_NS, "treerow");
+  var treeChildren = document.getElementById(treeChildrenId);
+  var treeitem = document.createXULElement("treeitem");
+  var treerow = document.createXULElement("treerow");
 
-  var attrCell    = document.createElementNS(XUL_NS, "treecell");
+  var attrCell = document.createXULElement("treecell");
   attrCell.setAttribute("class", "propertylist");
   attrCell.setAttribute("label", name);
 
-  var valueCell    = document.createElementNS(XUL_NS, "treecell");
+  var valueCell = document.createXULElement("treecell");
   valueCell.setAttribute("class", "propertylist");
   valueCell.setAttribute("label", value);
 
@@ -294,8 +294,7 @@ function AddTreeItem(name, value, treeChildrenId, attArray) {
   treeitem.appendChild(treerow);
   treeChildren.appendChild(treeitem);
 
-  // Select item just added,
-  //  but suppress calling the onSelect handler
+  // Select item just added, but suppress calling the onSelect handler.
   gDoOnSelectTree = false;
   try {
     selectTreeItem(treeChildren, treeitem);

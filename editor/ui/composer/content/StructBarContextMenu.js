@@ -109,7 +109,7 @@ function MoveChildNodesAfterElement(editor, element, targetElement, targetOffset
 
 function StructChangeTag()
 {
-  var textbox = document.createElementNS(XUL_NS, "textbox");
+  var textbox = document.createXULElement("textbox");
   textbox.setAttribute("value", gContextMenuNode.getAttribute("value"));
   textbox.setAttribute("width", gContextMenuNode.getBoundingClientRect().width);
   textbox.className = "struct-textbox";

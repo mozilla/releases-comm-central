@@ -161,8 +161,7 @@ function FolderDisplayWidget(aTabInfo, aMessageDisplayWidget) {
   this._notificationsPendingActivation = [];
 
   // Create a DOM node for the fake tree box below.
-  let domNode = document.createElementNS(
-      "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "vbox");
+  let domNode = document.createXULElement("vbox");
 
   // We care about onselect events, so add a listener for that.
   let self = this;

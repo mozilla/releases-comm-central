@@ -166,7 +166,7 @@ function SetItemStatus(url, status)
   }
 
   // We're adding a new item to list
-  listitem = document.createElementNS(XUL_NS, "listitem");
+  listitem = document.createXULElement("listitem");
   if (listitem)
   {
     listitem.setAttribute("class", "listitem-iconic progressitem");

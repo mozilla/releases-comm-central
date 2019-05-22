@@ -30,7 +30,6 @@ var {
 const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 XPCOMUtils.defineLazyGlobalGetters(this, ["InspectorUtils"]);
 
-var XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 var DEFAULT_ICON = "chrome://messenger/content/extension.svg";
 
 this.ToolbarButtonAPI = class extends ExtensionAPI {
@@ -106,7 +105,7 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
    */
   makeButton(window) {
     let {document} = window;
-    let button = document.createElementNS(XUL_NS, "toolbarbutton");
+    let button = document.createXULElement("toolbarbutton");
     button.id = this.id;
     button.classList.add("toolbarbutton-1");
     button.classList.add("webextension-action");

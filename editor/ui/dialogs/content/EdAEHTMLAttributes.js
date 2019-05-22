@@ -37,7 +37,7 @@ function BuildHTMLAttributeNameList() {
         // Signal for separator
         var popup = gDialog.AddHTMLAttributeNameInput.menupopup;
         if (popup) {
-          var sep = document.createElementNS(XUL_NS, "menuseparator");
+          var sep = document.createXULElement("menuseparator");
           if (sep)
             popup.appendChild(sep);
         }
@@ -183,7 +183,7 @@ function onInputHTMLAttributeName() {
             // Signal for separator
             var popup = gDialog.AddHTMLAttributeValueInput.menupopup;
             if (popup) {
-              var sep = document.createElementNS(XUL_NS, "menuseparator");
+              var sep = document.createXULElement("menuseparator");
               if (sep)
                 popup.appendChild(sep);
             }

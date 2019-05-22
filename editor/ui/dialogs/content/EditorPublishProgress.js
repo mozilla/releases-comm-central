@@ -153,7 +153,7 @@ function SetProgressStatus(filename, status)
   // We're adding a new file item to list
   gTotalFileCount++;
 
-  listitem = document.createElementNS(XUL_NS, "listitem");
+  listitem = document.createXULElement("listitem");
   if (listitem)
   {
     listitem.setAttribute("class", "listitem-iconic progressitem");

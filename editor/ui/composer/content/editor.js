@@ -991,7 +991,7 @@ function initLocalFontFaceMenu(menuPopup) {
  * @param aMenuPopup  The menupopup for which this menuitem is created.
  */
 function createFontFaceMenuitem(aFontLabel, aFontName, aMenuPopup) {
-  let itemNode = document.createElementNS(XUL_NS, "menuitem");
+  let itemNode = document.createXULElement("menuitem");
   itemNode.setAttribute("label", aFontLabel);
   itemNode.setAttribute("value", aFontName);
   itemNode.setAttribute("value_parsed", aFontName.toLowerCase().replace(/, /g, ","));
@@ -2751,7 +2751,7 @@ function UpdateStructToolbar() {
   do {
     tag = element.nodeName.toLowerCase();
 
-    button = document.createElementNS(XUL_NS, "toolbarbutton");
+    button = document.createXULElement("toolbarbutton");
     button.setAttribute("label", "<" + tag + ">");
     button.setAttribute("value", tag);
     button.setAttribute("context", "structToolbarContext");

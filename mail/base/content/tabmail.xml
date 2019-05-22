@@ -583,9 +583,7 @@
           if (tab.mode.tabType.perTabPanel) {
             // should we create the element for them, or will they do it?
             if (typeof(tab.mode.tabType.perTabPanel) == "string") {
-              tab.panel = document.createElementNS(
-                "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
-                tab.mode.tabType.perTabPanel);
+              tab.panel = document.createXULElement(tab.mode.tabType.perTabPanel);
             } else {
               tab.panel = tab.mode.tabType.perTabPanel(tab);
             }

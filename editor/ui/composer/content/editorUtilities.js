@@ -7,9 +7,6 @@
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
-/** ** NAMESPACES ****/
-const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
-
 // Each editor window must include this file
 // Variables  shared by all dialogs:
 

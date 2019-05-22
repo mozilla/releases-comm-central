@@ -67,8 +67,7 @@
           <![CDATA[
             if (!this.toolbarset)
               return null;
-            var toolbar = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
-                                                  "toolbar");
+            var toolbar = document.createXULElement("toolbar");
             toolbar.id = "__customToolbar_" + aName.replace(" ", "_");
             toolbar.setAttribute("customizable", "true");
             toolbar.setAttribute("customindex", ++this.customToolbarCount);
@@ -296,16 +295,13 @@
         <parameter name="aId"/>
         <body>
           <![CDATA[
-            const XUL_NS = "http://www.mozilla.org/keymaster/" +
-                           "gatekeeper/there.is.only.xul";
-
             var newItem = null;
             switch (aId) {
               // Handle special cases
               case "separator":
               case "spring":
               case "spacer":
-                newItem = document.createElementNS(XUL_NS, "toolbar" + aId);
+                newItem = document.createXULElement("toolbar" + aId);
                 // Due to timers resolution Date.now() can be the same for
                 // elements created in small timeframes.  So ids are
                 // differentiated through a unique count suffix.

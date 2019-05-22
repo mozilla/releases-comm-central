@@ -135,13 +135,8 @@ var calalarms = {
      * @param aReminders  The set of reminders to add images for.
      */
     addReminderImages: function(aElement, aReminders) {
-        function createOwnedXULNode(elem) {
-            const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
-            return aElement.ownerDocument.createElementNS(XUL_NS, elem);
-        }
-
         function setupActionImage(node, reminder) {
-            let image = node || createOwnedXULNode("image");
+            let image = node || aElement.ownerDocument.createXULElement("image");
             image.setAttribute("class", "reminder-icon");
             image.setAttribute("value", reminder.action);
             return image;
