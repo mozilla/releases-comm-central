@@ -34,9 +34,9 @@ if test -n "$bucket"; then
 	;;
     esac
 
-    export CCACHE="$topsrcdir/sccache2/sccache${suffix}"
+    export CCACHE="$topsrcdir/sccache/sccache${suffix}"
     export SCCACHE_VERBOSE_STATS=1
-    mk_add_options "MOZBUILD_MANAGE_SCCACHE_DAEMON=${topsrcdir}/sccache2/sccache"
+    mk_add_options "MOZBUILD_MANAGE_SCCACHE_DAEMON=${topsrcdir}/sccache/sccache"
     mk_add_options "UPLOAD_EXTRA_FILES+=sccache.log.gz"
 
     case "$platform" in
