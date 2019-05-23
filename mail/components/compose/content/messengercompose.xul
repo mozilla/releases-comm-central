@@ -1780,13 +1780,15 @@
                autoCheck="false" type="checkbox"
                oncommand="toggleAddressPicker();"/>
 
-    <toolbarbutton class="toolbarbutton-1" type="menu-button"
-               id="button-attach" label="&attachButton.label;"
-               tooltiptext="&attachButton.tooltip2;"
-               command="cmd_attachFile"
-               ondragover="nsDragAndDrop.dragOver(event, envelopeDragObserver);"
-               ondrop="nsDragAndDrop.drop(event, envelopeDragObserver);"
-               ondragexit="nsDragAndDrop.dragExit(event, envelopeDragObserver);">
+    <toolbarbutton is="toolbarbutton-menu-button" id="button-attach"
+                   type="menu-button"
+                   class="toolbarbutton-1"
+                   label="&attachButton.label;"
+                   tooltiptext="&attachButton.tooltip2;"
+                   command="cmd_attachFile"
+                   ondragover="nsDragAndDrop.dragOver(event, envelopeDragObserver);"
+                   ondrop="nsDragAndDrop.drop(event, envelopeDragObserver);"
+                   ondragexit="nsDragAndDrop.dragExit(event, envelopeDragObserver);">
       <menupopup id="button-attachPopup" onpopupshowing="updateAttachmentItems();">
         <menuitem id="button-attachPopup_attachFileItem"
                   label="&attachFileCmd.label;"
@@ -1817,7 +1819,7 @@
       </menupopup>
     </toolbarbutton>
 
-    <toolbarbutton id="button-security"
+    <toolbarbutton is="toolbarbutton-menu-button" id="button-security"
                    type="menu-button"
                    class="toolbarbutton-1"
                    label="&securityButton.label;"
@@ -1842,20 +1844,24 @@
       </menupopup>
     </toolbarbutton>
 
-    <toolbarbutton class="toolbarbutton-1" type="menu-button"
-               id="spellingButton" label="&spellingButton.label;"
-               tooltiptext="&spellingButton.tooltip;"
-               command="cmd_spelling">
+    <toolbarbutton is="toolbarbutton-menu-button" id="spellingButton"
+                   type="menu-button"
+                   class="toolbarbutton-1"
+                   label="&spellingButton.label;"
+                   tooltiptext="&spellingButton.tooltip;"
+                   command="cmd_spelling">
       <!-- workaround for the bug that split menu doesn't take popup="popupID" -->
       <menupopup onpopupshowing="event.preventDefault();
                                  showPopupById('languageMenuList',
                                                'spellingButton');"/>
     </toolbarbutton>
 
-    <toolbarbutton class="toolbarbutton-1" type="menu-button"
-               id="button-save" label="&saveButton.label;"
-               tooltiptext="&saveButton.tooltip;"
-               command="cmd_saveDefault">
+    <toolbarbutton is="toolbarbutton-menu-button" id="button-save"
+                   type="menu-button"
+                   class="toolbarbutton-1"
+                   label="&saveButton.label;"
+                   tooltiptext="&saveButton.tooltip;"
+                   command="cmd_saveDefault">
          <menupopup id="button-savePopup" onpopupshowing="InitFileSaveAsMenu();">
            <menuitem id="savePopup_saveAsFile"
                      label="&saveAsFileCmd.label;" accesskey="&saveAsFileCmd.accesskey;"
@@ -1877,12 +1883,12 @@
                    command="cmd_print"
                    tooltiptext="&printButton.tooltip;"/>
 #else
-    <toolbarbutton id="button-print"
+    <toolbarbutton is="toolbarbutton-menu-button"  id="button-print"
+                   type="menu-button"
                    class="toolbarbutton-1"
                    label="&printButton.label;"
                    command="cmd_print"
-                   tooltiptext="&printButton.tooltip;"
-                   type="menu-button">
+                   tooltiptext="&printButton.tooltip;">
       <menupopup id="button-printPopup"
                  onpopupshowing="goUpdateCommand('cmd_printpreview');">
         <menuitem id="button-printMenu"

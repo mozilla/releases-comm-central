@@ -35,28 +35,6 @@
     </menupopup>
   </popupset>
 
-  <!-- The popup id here must match the popup id in the SeaMonkey
-       New Message button. See Bug 506461 -->
-  <toolbarbutton id="button-newmsg"
-                 type="menu-button">
-    <menupopup id="button-newMsgPopup">
-      <menuitem id="newMsgButton-mail-menuitem"
-                label="&newMessageCmd.label;"
-                class="menuitem-iconic"
-                oncommand="event.stopPropagation(); MsgNewMessage(event)"/>
-      <menuitem id="newMsgButton-calendar-menuitem"
-                label="&lightning.toolbar.newevent.label;"
-                class="menuitem-iconic"
-                command="calendar_new_event_command"
-                observes="calendar_new_event_command"/>
-      <menuitem id="newMsgButton-task-menuitem"
-                label="&lightning.toolbar.newtask.label;"
-                class="menuitem-iconic"
-                command="calendar_new_todo_command"
-                observes="calendar_new_todo_command"/>
-    </menupopup>
-  </toolbarbutton>
-
   <toolbarpalette id="MailToolbarPalette">
     <toolbarbutton id="lightning-button-calendar"
                    class="toolbarbutton-1"
@@ -68,9 +46,9 @@
                    label="&lightning.toolbar.task.label;"
                    tooltiptext="&lightning.toolbar.task.tooltip;"
                    command="new_task_tab"/>
-    <toolbarbutton id="extractEventButton"
-                   class="toolbarbutton-1"
+    <toolbarbutton is="toolbarbutton-menu-button" id="extractEventButton"
                    type="menu-button"
+                   class="toolbarbutton-1"
                    label="&calendar.extract.event.button;"
                    tooltiptext="&calendar.extract.event.button.tooltip;"
                    oncommand="calendarExtract.extractFromEmail(true);">
@@ -78,9 +56,9 @@
                  oncommand="calendarExtract.extractWithLocale(event, true);"
                  onpopupshowing="calendarExtract.onShowLocaleMenu(event.target);"/>
     </toolbarbutton>
-    <toolbarbutton id="extractTaskButton"
-                   class="toolbarbutton-1"
+    <toolbarbutton is="toolbarbutton-menu-button" id="extractTaskButton"
                    type="menu-button"
+                   class="toolbarbutton-1"
                    label="&calendar.extract.task.button;"
                    tooltiptext="&calendar.extract.task.button.tooltip;"
                    oncommand="calendarExtract.extractFromEmail(false);">

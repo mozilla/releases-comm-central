@@ -121,7 +121,7 @@
                                 <menuseparator />
                               </menupopup>
                           </toolbarbutton>
-                          <toolbarbutton id="task-actions-markcompleted"
+                          <toolbarbutton is="toolbarbutton-menu-button" id="task-actions-markcompleted"
                                          type="menu-button"
                                          label="&calendar.context.markcompleted.label;"
                                          tooltiptext="&calendar.task.complete.button.tooltip;"

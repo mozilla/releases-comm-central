@@ -14,7 +14,7 @@
          defaultlabelalign="end">
 
   <toolbarpalette id="MailToolbarPalette">
-    <toolbarbutton id="button-getmsg"
+    <toolbarbutton is="toolbarbutton-menu-button" id="button-getmsg"
                    type="menu-button"
                    class="toolbarbutton-1"
                    label="&getMsgButton1.label;"
@@ -57,7 +57,7 @@
                    tooltiptext="&replyListButton.tooltip;"
                    observes="button_replylist"
                    command="cmd_replylist"/>
-    <toolbarbutton id="button-forward"
+    <toolbarbutton is="toolbarbutton-menu-button" id="button-forward"
                    type="menu-button"
                    class="toolbarbutton-1"
                    label="&forwardButton.label;"
@@ -102,9 +102,9 @@
                    tooltiptext="&openConversationButton.tooltip;"
                    observes="button_showconversation"
                    oncommand="gConversationOpener.openConversationForMessages(gFolderDisplay.selectedMessages)"/>
-    <toolbarbutton id="button-goback"
-                   class="toolbarbutton-1"
+    <toolbarbutton is="toolbarbutton-menu-button" id="button-goback"
                    type="menu-button"
+                   class="toolbarbutton-1"
                    label="&backButton1.label;"
                    oncommand="goDoCommand('cmd_goBack')"
                    tooltiptext="&goBackButton.tooltip;"
@@ -114,9 +114,9 @@
         <menuseparator id="button-goBackSeparator"/>
       </menupopup>
     </toolbarbutton>
-    <toolbarbutton id="button-goforward"
-                   class="toolbarbutton-1"
+    <toolbarbutton is="toolbarbutton-menu-button" id="button-goforward"
                    type="menu-button"
+                   class="toolbarbutton-1"
                    label="&goForwardButton1.label;"
                    oncommand="goDoCommand('cmd_goForward')"
                    tooltiptext="&goForwardButton.tooltip;"
@@ -202,13 +202,13 @@
                    oncommand="goDoCommand('cmd_print')"
                    tooltiptext="&printButton.tooltip;"/>
 #else
-    <toolbarbutton id="button-print"
+    <toolbarbutton is="toolbarbutton-menu-button" id="button-print"
+                   type="menu-button"
                    class="toolbarbutton-1"
                    label="&printButton.label;"
                    observes="button_print"
                    oncommand="goDoCommand('cmd_print')"
-                   tooltiptext="&printButton.tooltip;"
-                   type="menu-button">
+                   tooltiptext="&printButton.tooltip;">
       <menupopup id="printMenu" onpopupshowing="goUpdateCommand('cmd_printpreview');">
         <menuitem id="button-printMenu"
                   label="&printCmd.label;"
@@ -222,7 +222,7 @@
       </menupopup>
     </toolbarbutton>
 #endif
-    <toolbarbutton id="button-mark"
+    <toolbarbutton is="toolbarbutton-menu-button" id="button-mark"
                    type="menu-button"
                    class="toolbarbutton-1"
                    label="&markButton.label;"

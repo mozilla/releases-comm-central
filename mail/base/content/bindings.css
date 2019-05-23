@@ -20,10 +20,6 @@ toolbar[type="menubar"][autohide="true"] {
 }
 %endif
 
-toolbarbutton[type="menu-button"] {
-  -moz-binding: url("chrome://messenger/content/toolbar.xml#menu-button");
-}
-
 toolbarpaletteitem {
   -moz-binding: url("chrome://messenger/content/toolbar.xml#toolbarpaletteitem");
 }

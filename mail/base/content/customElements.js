@@ -18,6 +18,7 @@ if (!isDummyDocument) {
     "chrome://messenger/content/statuspanel.js",
     "chrome://messenger/content/foldersummary.js",
     "chrome://messenger/content/addressbook/menulist-addrbooks.js",
+    "chrome://messenger/content/toolbarbutton-menu-button.js",
   ]) {
     Services.scriptloader.loadSubScript(script, window);
   }

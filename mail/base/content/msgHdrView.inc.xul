@@ -44,13 +44,13 @@
                                                      oncommand="MsgReplySender(event); RestoreFocusAfterHdrButton();"
                                                      observes="button_reply"
                                                      class="toolbarbutton-1 msgHeaderView-button hdrReplyButton"/>
-                                      <toolbarbutton id="hdrReplyAllButton"
+                                      <toolbarbutton is="toolbarbutton-menu-button" id="hdrReplyAllButton"
+                                                     type="menu-button"
                                                      label="&hdrReplyAllButton1.label;"
                                                      tooltiptext="&hdrReplyAllButton1.tooltip;"
                                                      oncommand="MsgReplyToAllMessage(event); RestoreFocusAfterHdrButton();"
                                                      observes="button_replyall"
                                                      class="toolbarbutton-1 msgHeaderView-button hdrReplyButton hdrReplyAllButton"
-                                                     type="menu-button"
                                                      hidden="true">
                                         <menupopup id="hdrReplyAllDropdown">
                                           <menuitem id="hdrReplyAll_ReplyAllSubButton"
@@ -66,13 +66,13 @@
                                                                RestoreFocusAfterHdrButton();"/>
                                         </menupopup>
                                       </toolbarbutton>
-                                      <toolbarbutton id="hdrReplyListButton"
+                                      <toolbarbutton is="toolbarbutton-menu-button" id="hdrReplyListButton"
+                                                     type="menu-button"
                                                      label="&hdrReplyListButton1.label;"
                                                      tooltiptext="&hdrReplyListButton1.tooltip;"
                                                      oncommand="MsgReplyToListMessage(event); RestoreFocusAfterHdrButton();"
                                                      observes="button_replylist"
                                                      class="toolbarbutton-1 msgHeaderView-button hdrReplyButton hdrReplyListButton"
-                                                     type="menu-button"
                                                      hidden="true">
                                         <menupopup id="hdrReplyListDropdown">
                                           <menuitem id="hdrReplyList_ReplyListSubButton"
@@ -94,12 +94,12 @@
                                                                RestoreFocusAfterHdrButton();"/>
                                         </menupopup>
                                       </toolbarbutton>
-                                      <toolbarbutton id="hdrFollowupButton" label="&hdrFollowupButton1.label;"
+                                      <toolbarbutton is="toolbarbutton-menu-button" id="hdrFollowupButton" label="&hdrFollowupButton1.label;"
+                                                     type="menu-button"
                                                      tooltiptext="&hdrFollowupButton1.tooltip;"
                                                      oncommand="MsgReplyGroup(event); RestoreFocusAfterHdrButton();"
                                                      observes="button_followup"
-                                                     class="toolbarbutton-1 msgHeaderView-button hdrFollowupButton"
-                                                     type="menu-button">
+                                                     class="toolbarbutton-1 msgHeaderView-button hdrFollowupButton">
                                         <menupopup id="hdrFollowupDropdown">
                                           <menuitem id="hdrFollowup_FollowupSubButton"
                                                     label="&hdrFollowupButton1.label;"

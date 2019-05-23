@@ -32,7 +32,8 @@
                                   context="attachment-toolbar-context-menu">
                               <toolbaritem id="attachmentSaveAll"
                                            title="&saveAllAttachmentsButton1.label;">
-                                <toolbarbutton type="menu-button" id="attachmentSaveAllSingle"
+                                <toolbarbutton is="toolbarbutton-menu-button" id="attachmentSaveAllSingle"
+                                               type="menu-button"
                                                class="toolbarbutton-1 msgHeaderView-button"
                                                label="&saveAttachmentButton1.label;"
                                                tooltiptext="&saveAttachmentButton1.tooltip;"
@@ -60,7 +61,8 @@
                                               accesskey="&deleteAttachmentCmd.accesskey;"/>
                                   </menupopup>
                                 </toolbarbutton>
-                                <toolbarbutton type="menu-button" id="attachmentSaveAllMultiple"
+                                <toolbarbutton is="toolbarbutton-menu-button" id="attachmentSaveAllMultiple"
+                                               type="menu-button"
                                                class="toolbarbutton-1 msgHeaderView-button"
                                                label="&saveAllAttachmentsButton1.label;"
                                                tooltiptext="&saveAllAttachmentsButton1.tooltip;"

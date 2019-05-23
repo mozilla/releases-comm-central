@@ -121,7 +121,7 @@
                              hidden="true"/>
 
               <!-- accept -->
-              <toolbarbutton id="imipAcceptButton"
+              <toolbarbutton is="toolbarbutton-menu-button" id="imipAcceptButton"
                              tooltiptext="&lightning.imipbar.btnAccept2.tooltiptext;"
                              label="&lightning.imipbar.btnAccept.label;"
                              oncommand="if (event.target.id == this.id) { ltnImipBar.executeAction('ACCEPTED', 'AUTO'); }"
@@ -159,7 +159,7 @@
               </toolbarbutton>
 
               <!-- accept recurrences -->
-              <toolbarbutton id="imipAcceptRecurrencesButton"
+              <toolbarbutton is="toolbarbutton-menu-button" id="imipAcceptRecurrencesButton"
                              tooltiptext="&lightning.imipbar.btnAcceptRecurrences2.tooltiptext;"
                              label="&lightning.imipbar.btnAcceptRecurrences.label;"
                              oncommand="if (event.target.id == this.id) { ltnImipBar.executeAction('ACCEPTED', 'AUTO'); }"
@@ -198,7 +198,7 @@
 
               <!-- tentative; should only be used, if no imipMoreButton is used and
                  - imipDeclineButton/imipAcceptButton have no visible menuitems //-->
-              <toolbarbutton id="imipTentativeButton"
+              <toolbarbutton is="toolbarbutton-menu-button" id="imipTentativeButton"
                              label="&lightning.imipbar.btnTentative.label;"
                              tooltiptext="&lightning.imipbar.btnTentative2.tooltiptext;"
                              class="toolbarbutton-1 msgHeaderView-button imipTentativeButton"
@@ -220,7 +220,7 @@
 
               <!-- tentative recurrences; should only be used, if no imipMoreButton is used and
                  - imipDeclineRecurrencesButton/imipAcceptRecurrencesButton have no visible menuitems //-->
-              <toolbarbutton id="imipTentativeRecurrencesButton"
+              <toolbarbutton is="toolbarbutton-menu-button" id="imipTentativeRecurrencesButton"
                              label="&lightning.imipbar.btnTentativeRecurrences.label;"
                              tooltiptext="&lightning.imipbar.btnTentativeRecurrences2.tooltiptext;"
                              class="toolbarbutton-1 msgHeaderView-button imipTentativeRecurrencesButton"
@@ -241,7 +241,7 @@
               </toolbarbutton>
 
               <!-- decline -->
-              <toolbarbutton id="imipDeclineButton"
+              <toolbarbutton is="toolbarbutton-menu-button" id="imipDeclineButton"
                              tooltiptext="&lightning.imipbar.btnDecline2.tooltiptext;"
                              label="&lightning.imipbar.btnDecline.label;"
                              oncommand="if (event.target.id == this.id) { ltnImipBar.executeAction('DECLINED', 'AUTO'); }"
@@ -262,7 +262,7 @@
               </toolbarbutton>
 
               <!-- decline recurrences -->
-              <toolbarbutton id="imipDeclineRecurrencesButton"
+              <toolbarbutton is="toolbarbutton-menu-button" id="imipDeclineRecurrencesButton"
                              tooltiptext="&lightning.imipbar.btnDeclineRecurrences2.tooltiptext;"
                              label="&lightning.imipbar.btnDeclineRecurrences.label;"
                              oncommand="if (event.target.id == this.id) { ltnImipBar.executeAction('DECLINED'); }"

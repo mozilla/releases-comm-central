@@ -43,6 +43,7 @@
   <script src="chrome://calendar/content/calendar-item-editing.js"/>
   <script src="chrome://calendar/content/calApplicationUtils.js"/>
   <script src="chrome://calendar/content/calendar-item-bindings.js"/>
+  <script src="chrome://messenger/content/customElements.js"/>
 
   <toolbox id="summary-toolbox"
            class="mail-toolbox"
@@ -63,12 +64,12 @@
                      label="&summary.dialog.saveclose.label;"
                      oncommand="saveAndClose();"
                      class="cal-event-toolbarbutton toolbarbutton-1 saveandcloseButton"/>
-      <toolbarbutton id="acceptButton"
+      <toolbarbutton is="toolbarbutton-menu-button" id="acceptButton"
+                     type="menu-button"
                      tooltiptext="&summary.dialog.accept.tooltiptext;"
                      label="&summary.dialog.accept.label;"
                      oncommand="if (event.target.id == this.id) { reply('AUTO', 'ACCEPTED'); }"
                      value="ACCEPTED"
-                     type="menu-button"
                      class="cal-event-toolbarbutton toolbarbutton-1 replyButton">
         <menupopup id="acceptDropdown">
           <menuitem id="acceptButton_Send"
@@ -81,12 +82,12 @@
                     oncommand="reply('NONE', 'ACCEPTED');"/>
         </menupopup>
       </toolbarbutton>
-      <toolbarbutton id="tentativeButton"
+      <toolbarbutton is="toolbarbutton-menu-button" id="tentativeButton"
+                     type="menu-button"
                      tooltiptext="&summary.dialog.tentative.tooltiptext;"
                      label="&summary.dialog.tentative.label;"
                      oncommand="if (event.target.id == this.id) { reply('AUTO', 'TENTATIVE'); }"
                      value="TENTATIVE"
-                     type="menu-button"
                      class="cal-event-toolbarbutton toolbarbutton-1 replyButton">
         <menupopup id="tentativeDropdown">
           <menuitem id="tenatativeButton_Send"
@@ -99,11 +100,11 @@
                     oncommand="reply('NONE', 'TENTATIVE');"/>
         </menupopup>
       </toolbarbutton>
-      <toolbarbutton id="declineButton"
+      <toolbarbutton is="toolbarbutton-menu-button" id="declineButton"
+                     type="menu-button"
                      tooltiptext="&summary.dialog.decline.tooltiptext;"
                      label="&summary.dialog.decline.label;"
                      oncommand="if (event.target.id == this.id) { reply('AUTO', 'DECLINED'); }"
-                     type="menu-button"
                      value="DECLINED"
                      class="cal-event-toolbarbutton toolbarbutton-1 replyButton">
         <menupopup id="declineDropdown">
