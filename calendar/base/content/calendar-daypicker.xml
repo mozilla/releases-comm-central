@@ -6,41 +6,4 @@
 <bindings xmlns="http://www.mozilla.org/xbl"
           xmlns:xbl="http://www.mozilla.org/xbl"
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-
-  <!--
-  ########################################################################
-  ## daypicker
-  ########################################################################
-  -->
-
-  <binding id="daypicker"
-           extends="chrome://global/content/bindings/button.xml#button-base">
-    <content>
-      <xul:hbox anonid="daypickerId" class="daypickerclass" align="center" flex="1">
-        <xul:label anonid="daytext"
-                   class="toolbarbutton-text"
-                   flex="1"
-                   xbl:inherits="value=label"/>
-      </xul:hbox>
-    </content>
-    <implementation>
-      <method name="onmodified">
-        <parameter name="aEvent"/>
-        <body><![CDATA[
-            if (aEvent.attrName == "checked") {
-                let event = document.createEvent("Events");
-                event.initEvent("select", true, true);
-                this.calendar.dispatchEvent(event);
-            }
-        ]]></body>
-      </method>
-      <constructor><![CDATA[
-          this.setAttribute("autoCheck", "true");
-          this.setAttribute("type", "checkbox");
-          this.setAttribute("disable-on-readonly", "true");
-          this.setAttribute("disable-on-occurrence", "true");
-          this.addEventListener("DOMAttrModified", this.onmodified);
-      ]]></constructor>
-    </implementation>
-  </binding>
 </bindings>

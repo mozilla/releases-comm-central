@@ -4,15 +4,15 @@
 
 @import url(chrome://calendar-common/skin/calendar-daypicker.css);
 
-daypicker {
+button[is="calendar-daypicker"] {
   border-top: 1px solid #808080;
   border-left: 1px solid #808080;
 }
 
-daypicker[bottom="true"] {
+button[is="calendar-daypicker"][bottom="true"] {
   border-bottom: 1px solid #808080;
 }
 
-daypicker[right="true"] {
+button[is="calendar-daypicker"][right="true"] {
   border-right: 1px solid #808080;
 }
