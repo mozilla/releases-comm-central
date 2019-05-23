@@ -53,7 +53,7 @@
 #include <stdlib.h>
 #define PROFILE_COMMANDLINE_ARG u" -profile "
 
-#define NOTIFICATIONCLASSNAME "MailBiffNotificationMessageWindow"
+#define NOTIFICATIONCLASSNAME L"MailBiffNotificationMessageWindow"
 #define UNREADMAILNODEKEY \
   u"Software\\Microsoft\\Windows\\CurrentVersion\\UnreadMail\\"
 #define DOUBLE_QUOTE '"'
@@ -908,8 +908,8 @@ nsresult nsMessengerWinIntegration::RemoveCurrentFromRegistry() {
       deleteKey.Append(currentUnreadMailCountKey.get());
 
       if (!deleteKey.IsEmpty()) {
-        // delete this key and berak out of the loop
-        RegDeleteKey(HKEY_CURRENT_USER, NS_ConvertUTF16toUTF8(deleteKey).get());
+        // delete this key and break out of the loop
+        RegDeleteKey(HKEY_CURRENT_USER, deleteKey.get());
         break;
       } else {
         index++;
