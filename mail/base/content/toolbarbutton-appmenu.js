@@ -34,8 +34,8 @@
       });
 
       this.addEventListener("keypress", (event) => {
-        this._setupAppmenu(event); }
-      );
+        this._setupAppmenu(event);
+      });
     }
 
     _setupAppmenu(event) {
