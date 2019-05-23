@@ -138,7 +138,7 @@
             const jsTime = new Date();
 
             this.getSections().forEach(([startMinute, duration]) => {
-                const box = document.createElement("div");
+                const box = document.createXULElement("div");
                 box.setAttribute("orient", orient);
 
                 // Calculate duration pixel as the difference between
@@ -160,7 +160,7 @@
                     timeString = timeFormatter.formatTime(dateTime);
                 }
 
-                const label = document.createElement("label");
+                const label = document.createXULElement("label");
                 label.setAttribute("value", timeString);
                 label.setAttribute("class", "calendar-time-bar-label");
                 label.setAttribute("align", "center");
