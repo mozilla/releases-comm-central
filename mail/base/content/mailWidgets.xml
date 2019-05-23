@@ -202,33 +202,4 @@
       ]]></handler>
     </handlers>
   </binding>
-
-  <binding id="appmenu-vertical" extends="chrome://messenger/content/generalBindings.xml#menu-vertical">
-    <implementation>
-      <method name="_setupAppmenu">
-        <parameter name="event"/>
-        <body><![CDATA[
-          if (event.target == this) {
-              let appmenuPopup = document.getElementById("appmenu-popup");
-              if (this.lastChild != appmenuPopup) {
-                this.appendChild(appmenuPopup);
-              }
-          }
-        ]]></body>
-      </method>
-    </implementation>
-    <handlers>
-      <!-- While it would seem we could do this by handling oncommand, we can't
-           because any external oncommand handlers might get called before ours,
-           and then they would see the incorrect value of checked. Additionally
-           a command attribute would redirect the command events anyway.
-           Also, the appmenu-popup needs to be appended to the target 'Hamburger
-           button' dynamically at every button click (as opposed to appended
-           once in the binding's constructor) otherwise only one of the four
-           Hamburger buttons (on the Mail, Calendar, Tasks and Chat tabs) will
-           get the popup menu (namely, Mail). See Bug 890332. -->
-      <handler event="mousedown" button="0" action="this._setupAppmenu(event);"/>
-      <handler event="keypress" key=" " action="this._setupAppmenu(event);"/>
-    </handlers>
-  </binding>
 </bindings>

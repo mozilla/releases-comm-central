@@ -306,10 +306,6 @@ toolbarbutton[type="menu-button"][disabled="true"]:hover:active {
   border-bottom-left-radius: 0;
 }
 
-toolbox[labelalign="end"] toolbarpaletteitem .toolbarbutton-1[type="menu"] {
-  -moz-binding: url("chrome://global/content/bindings/toolbarbutton.xml#toolbarbutton");
-}
-
 .toolbarbutton-1[type="menu-button"] {
   padding: 0;
 }

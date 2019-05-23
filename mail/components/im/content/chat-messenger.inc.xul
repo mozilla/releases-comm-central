@@ -84,7 +84,7 @@
                   </hbox>
                 </textbox>
               </toolbaritem>
-              <toolbarbutton id="button-chat-appmenu"
+              <toolbarbutton is="toolbarbutton-appmenu" id="button-chat-appmenu"
                              type="menu"
                              class="toolbarbutton-1 button-appmenu"
                              label="&appmenuButton.label;"

@@ -128,7 +128,7 @@
                  defaultlabelalign="end">
           <!-- more toolbarpalette items are added with an overlay -->
           <toolbarpalette id="event-toolbarpalette">
-            <toolbarbutton id="calendar-item-appmenu-button"
+            <toolbarbutton is="toolbarbutton-appmenu" id="calendar-item-appmenu-button"
                            type="menu"
                            class="toolbarbutton-1 button-appmenu"
                            label="&lightning.toolbar.appmenuButton.label;"

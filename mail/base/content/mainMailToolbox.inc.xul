@@ -314,7 +314,7 @@
                    label="&stopButton.label;"
                    tooltiptext="&stopButton.tooltip;"
                    command="cmd_stop"/>
-    <toolbarbutton id="button-appmenu"
+    <toolbarbutton is="toolbarbutton-appmenu" id="button-appmenu"
                    type="menu"
                    class="toolbarbutton-1 button-appmenu"
                    label="&appmenuButton.label;"
