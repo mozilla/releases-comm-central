@@ -16,42 +16,6 @@
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
           xmlns:xbl="http://www.mozilla.org/xbl">
 
-  <binding id="doubleimage-toolbarbutton" extends="chrome://global/content/bindings/toolbarbutton.xml#toolbarbutton">
-    <content>
-      <children includes="observes|template|menupopup|tooltip"/>
-      <xul:image class="toolbarbutton-icon-begin" xbl:inherits="validate,src-begin=image,toolbarmode,buttonstyle"/>
-      <xul:label class="toolbarbutton-text" crop="right" flex="1"
-                 xbl:inherits="value=label,accesskey,crop,toolbarmode,buttonstyle"/>
-      <xul:image class="toolbarbutton-icon-end" xbl:inherits="validate,src-end=image,toolbarmode,buttonstyle"/>
-    </content>
-  </binding>
-
-  <binding id="todaypane-toolbarbutton" extends="chrome://calendar/content/widgets/calendar-widgets.xml#doubleimage-toolbarbutton">
-    <content>
-      <children includes="observes|template|menupopup|tooltip"/>
-      <xul:stack pack="center" align="end">
-        <xul:image class="toolbarbutton-icon-begin" xbl:inherits="validate,src-begin=image,toolbarmode,buttonstyle"/>
-        <xul:label anonid="day-label" class="toolbarbutton-day-text"/>
-      </xul:stack>
-      <xul:label class="toolbarbutton-text" crop="right" flex="1"
-                 xbl:inherits="value=label,accesskey,crop,toolbarmode,buttonstyle"/>
-      <xul:image class="toolbarbutton-icon-end" xbl:inherits="validate,src-end=image,toolbarmode,buttonstyle"/>
-    </content>
-
-    <implementation>
-      <constructor><![CDATA[
-          this.setUpTodayDate();
-      ]]></constructor>
-
-      <method name="setUpTodayDate">
-        <body><![CDATA[
-            let dayNumber = cal.l10n.getDateFmtString(`day.${cal.dtz.now().day}.number`);
-            document.getAnonymousElementByAttribute(this, "anonid", "day-label").value = dayNumber;
-        ]]></body>
-      </method>
-    </implementation>
-  </binding>
-
   <!-- this binding directly extends to a xul:box element and enriches this with some functionality: It is designed
       to be displayed only 1) in given application modes (e.g "task" mode, "calendar" mode) and 2) only in relation
       to the "checked" attribute of command or a checkbox control.

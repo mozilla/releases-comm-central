@@ -417,6 +417,8 @@ async function ltnOnLoad(event) {
         MailToolboxCustomizeDone(aEvent, "CustomizeTaskToolbar");
     };
 
+    updateTodayPaneButton();
+
     Services.obs.notifyObservers(window, "lightning-startup-done");
 }
 
@@ -451,13 +453,56 @@ function refreshUIBits() {
         refreshEventTree();
 
         // update today's date on todaypane button
-        document.getElementById("calendar-status-todaypane-button").setUpTodayDate();
+        updateTodayPaneButtonDate();
     } catch (exc) {
         cal.ASSERT(false, exc);
     }
 
     // schedule our next update...
     scheduleMidnightUpdate(refreshUIBits);
+}
+
+/**
+ * Updates button structure to enable a duble image to both sides of the label.
+ */
+function updateTodayPaneButton() {
+    let todaypane = document.getElementById("calendar-status-todaypane-button");
+
+    let iconStack = document.createXULElement("stack");
+    iconStack.setAttribute("pack", "center");
+    iconStack.setAttribute("align", "end");
+
+    let iconBegin = document.createXULElement("image");
+    iconBegin.classList.add("toolbarbutton-icon-begin");
+
+    let iconLabel = document.createXULElement("label");
+    iconLabel.classList.add("toolbarbutton-day-text");
+
+    let dayNumber = cal.l10n.getDateFmtString(`day.${cal.dtz.now().day}.number`);
+    iconLabel.textContent = dayNumber;
+
+    iconStack.appendChild(iconBegin);
+    iconStack.appendChild(iconLabel);
+
+    let iconEnd = document.createXULElement("image");
+    iconEnd.classList.add("toolbarbutton-icon-end");
+
+    let oldImage = todaypane.querySelector(".toolbarbutton-icon");
+    todaypane.replaceChild(iconStack, oldImage);
+    todaypane.appendChild(iconEnd);
+
+    let calSidebar = document.getElementById("ltnSidebar");
+    todaypane.setAttribute("checked", !calSidebar.getAttribute("collapsed"));
+}
+
+/**
+ * Updates the date number in the calendar icon of the todaypane button
+ */
+function updateTodayPaneButtonDate() {
+    let todaypane = document.getElementById("calendar-status-todaypane-button");
+
+    let dayNumber = cal.l10n.getDateFmtString(`day.${cal.dtz.now().day}.number`);
+    todaypane.querySelector(".toolbarbutton-day-text").textContent = dayNumber;
 }
 
 /**

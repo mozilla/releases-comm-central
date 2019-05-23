@@ -353,7 +353,6 @@
           class="statusbarpanel"
           pack="center">
       <toolbarbutton id="calendar-status-todaypane-button"
-                     todaypane="true"
                      type="checkbox"
                      label="&todaypane.statusButton.label;"
                      tooltiptext="&calendar.todaypane.button.tooltip;"
