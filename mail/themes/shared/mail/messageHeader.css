@@ -19,10 +19,6 @@
   fill: currentColor;
 }
 
-.msgHeaderView-button[type="menu"] {
-  -moz-binding: url("chrome://global/content/bindings/toolbarbutton.xml#toolbarbutton");
-}
-
 .msgHeaderView-button[type="menu-button"] > toolbarbutton {
   -moz-box-orient: horizontal;
 }

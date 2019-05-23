@@ -45,17 +45,13 @@ async function test_it(extensionDetails, toolbarId) {
 
     let button = composeDocument.getElementById(buttonId);
     ok(button, "Button created");
-    is(getComputedStyle(button).MozBinding,
-      `url("chrome://global/content/bindings/toolbarbutton.xml#toolbarbutton-badged")`);
     is(toolbar.id, button.parentNode.id, "Button added to toolbar");
     ok(toolbar.currentSet.split(",").includes(buttonId), "Button added to toolbar current set");
 
-    let icon = composeDocument.getAnonymousElementByAttribute(button, "class", "toolbarbutton-icon");
+    let icon = button.querySelector(".toolbarbutton-icon");
     is(getComputedStyle(icon).listStyleImage,
        `url("chrome://messenger/content/extension.svg")`, "Default icon");
-    let label = composeDocument.getAnonymousElementByAttribute(
-      button, "class", "toolbarbutton-text"
-    );
+    let label = button.querySelector(".toolbarbutton-text");
     is(label.value, "This is a test", "Correct label");
 
     EventUtils.synthesizeMouseAtCenter(button, { clickCount: 1 }, composeWindow);
@@ -63,9 +59,8 @@ async function test_it(extensionDetails, toolbarId) {
     await promiseAnimationFrame(composeWindow);
 
     is(composeDocument.getElementById(buttonId), button);
-    label = composeDocument.getAnonymousElementByAttribute(
-      button, "class", "toolbarbutton-text"
-    );
+
+    label = button.querySelector(".toolbarbutton-text");
     is(label.value, "New title", "Correct label");
   } finally {
     await extension.unload();
