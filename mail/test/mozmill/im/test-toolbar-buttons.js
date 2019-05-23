@@ -20,6 +20,7 @@ function setupModule(module) {
  * correctly disabled/enabled, and that the placeholder displayed in
  * the middle of the chat tab is correct.
  */
+test_toolbar_and_placeholder.__force_skip__ = true;
 function test_toolbar_and_placeholder() {
   assert_not_equals(mc.tabmail.selectedTab.mode.type, "chat",
                     "the chat tab shouldn't be selected at startup");
