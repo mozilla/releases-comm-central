@@ -70,6 +70,7 @@ function setupModule(module) {
  * Because the mozmill window sizing is weird and confusing, we force our size
  *  in both cases but do save/restore around our test.
  */
+test_buttons_collapse_and_expand.__force_skip__ = true;
 function test_buttons_collapse_and_expand() {
   assert_quick_filter_bar_visible(true); // precondition
 
