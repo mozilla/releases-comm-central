@@ -70,14 +70,12 @@ function setupModule(module) {
  * Because the mozmill window sizing is weird and confusing, we force our size
  *  in both cases but do save/restore around our test.
  */
-test_buttons_collapse_and_expand.__force_skip__ = true;
 function test_buttons_collapse_and_expand() {
   assert_quick_filter_bar_visible(true); // precondition
 
   let qfbCollapsy = mc.e("quick-filter-bar-collapsible-buttons");
   let qfbExemplarButton = mc.e("qfb-unread"); // (arbitrary labeled button)
-  let qfbExemplarLabel = mc.window
-                           .document.getAnonymousNodes(qfbExemplarButton)[1];
+  let qfbExemplarLabel = qfbExemplarButton.querySelector(".toolbarbutton-text");
 
   function logState(aWhen) {
     mark_action("test", "log_window_state",
