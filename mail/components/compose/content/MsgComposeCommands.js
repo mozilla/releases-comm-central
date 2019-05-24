@@ -6887,7 +6887,7 @@ var gComposeNotificationBar = {
       let text = getComposeBundle().getString("identityWarning").split("%S");
       let label = new DocumentFragment();
       label.appendChild(document.createTextNode(text[0]));
-      label.appendChild(document.createElement("b"));
+      label.appendChild(document.createXULElement("b"));
       label.lastChild.appendChild(document.createTextNode(aIdentityName));
       label.appendChild(document.createTextNode(text[1]));
       gNotification.notificationbox.appendNotification(label, "identityWarning", null,
