@@ -227,7 +227,7 @@ function onLoadLightningItemPanel(aIframeId, aUrl) {
         window.addEventListener("close", windowCloseListener);
     } else {
         // window dialog case
-        iframe = document.createElementNS("http://www.w3.org/1999/xhtml", "iframe");
+        iframe = document.createXULElement("iframe");
         iframeSrc = window.arguments[0].useNewItemUI
             ? "chrome://lightning/content/html-item-editing/lightning-item-iframe.html"
             : "chrome://lightning/content/lightning-item-iframe.xul";
