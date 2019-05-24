@@ -15,14 +15,10 @@ add_task(async () => {
     is(toolbar.id, button.parentNode.id, "Button added to toolbar");
     ok(toolbar.currentSet.split(",").includes(buttonId), "Button added to toolbar current set");
 
-    let icon = document.getAnonymousElementByAttribute(
-      button, "class", "toolbarbutton-icon"
-    );
+    let icon = button.querySelector(".toolbarbutton-icon");
     is(getComputedStyle(icon).listStyleImage,
        `url("chrome://messenger/content/extension.svg")`, "Default icon");
-    let label = document.getAnonymousElementByAttribute(
-      button, "class", "toolbarbutton-text"
-    );
+    let label = button.querySelector(".toolbarbutton-text");
     is(label.value, "This is a test", "Correct label");
 
     EventUtils.synthesizeMouseAtCenter(button, { clickCount: 1 });
@@ -30,9 +26,7 @@ add_task(async () => {
     await promiseAnimationFrame();
 
     is(document.getElementById(buttonId), button);
-    label = document.getAnonymousElementByAttribute(
-      button, "class", "toolbarbutton-text"
-    );
+    label = button.querySelector(".toolbarbutton-text");
     is(label.value, "New title", "Correct label");
 
     await extension.unload();
