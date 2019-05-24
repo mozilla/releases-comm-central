@@ -334,7 +334,6 @@ function check_toolbar_menu_states_multiple(expected) {
     assert_enabled("attachmentSaveAllMultiple", true);
     mc.click(new elementslib.Elem(mc.e("attachmentSaveAllMultiple").
       querySelector(".toolbarbutton-menubutton-dropmarker")));
-    
     wait_for_popup_to_open(mc.e("attachmentSaveAllMultipleMenu"));
 
     try {

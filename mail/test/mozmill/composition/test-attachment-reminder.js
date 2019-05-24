@@ -290,7 +290,9 @@ function test_no_send_now_sends() {
  */
 function click_manual_reminder(aCwc, aExpectedState) {
   wait_for_window_focused(aCwc.window);
-  aCwc.click(new elementslib.Elem(aCwc.get_menu_dropmarker(aCwc.e("button-attach"))));
+  let button = aCwc.window.document.getElementById("button-attach");
+
+  aCwc.click(new elementslib.Elem(button.querySelector(".toolbarbutton-menubutton-dropmarker")));
   aCwc.click_menus_in_sequence(aCwc.e("button-attachPopup"),
                                [ {id: "button-attachPopup_remindLaterItem"} ]);
   wait_for_window_focused(aCwc.window);

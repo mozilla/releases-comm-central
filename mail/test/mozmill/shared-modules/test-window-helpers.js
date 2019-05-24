@@ -1078,21 +1078,6 @@ var AugmentEverybodyWith = {
     },
 
     /**
-     * Get dropmarker arrow element from a toolbarbutton
-     *
-     * @param aNode  An element containing a dropmarker:
-     * a <toobalbuttton type="menu-button">. (Only usage left due to de-xbl).
-     */
-    get_menu_dropmarker(aNode) {
-      let children = aNode.ownerDocument.getAnonymousNodes(aNode);
-      for (let node of children) {
-        if (node.tagName == "xul:dropmarker")
-          return node;
-      }
-      return null;
-    },
-
-    /**
      * mark_action helper method that produces something that can be concat()ed
      *  onto a list being passed to mark_action in order to describe the focus
      *  state of the window.  For now this will be a variable-length list but
