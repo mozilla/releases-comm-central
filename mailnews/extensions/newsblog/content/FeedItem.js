@@ -429,9 +429,15 @@ function FeedEnclosure(aURL, aContentType, aLength, aTitle) {
   // Generate a fileName from the URL.
   if (this.mURL) {
     try {
-      this.mFileName = Services.io.newURI(this.mURL).
-                                   QueryInterface(Ci.nsIURL).
-                                   fileName;
+      let uri = Services.io.newURI(this.mURL).QueryInterface(Ci.nsIURL);
+      this.mFileName = uri.fileName;
+      // Determine mimetype from extension if content-type is not present.
+      if (!aContentType) {
+        let contentType = Cc["@mozilla.org/mime;1"]
+                            .getService(Ci.nsIMIMEService)
+                            .getTypeFromExtension(uri.fileExtension);
+        this.mContentType = contentType;
+      }
     } catch (ex) {
       this.mFileName = this.mURL;
     }
