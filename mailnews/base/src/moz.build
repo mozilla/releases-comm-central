@@ -75,7 +75,7 @@ LOCAL_INCLUDES += [
   '/%s/dom/base' % CONFIG['mozreltopsrcdir'],
 ]
 
-include('/%s/ipc/chromium/chromium-config.mozbuild' % CONFIG['mozreltopsrcdir'])
+include('/ipc/chromium/chromium-config.mozbuild')
 
 FINAL_LIBRARY = 'mail'
 
