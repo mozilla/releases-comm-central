@@ -138,7 +138,7 @@
             const jsTime = new Date();
 
             this.getSections().forEach(([startMinute, duration]) => {
-                const box = document.createXULElement("div");
+                const box = document.createXULElement("box");
                 box.setAttribute("orient", orient);
 
                 // Calculate duration pixel as the difference between
