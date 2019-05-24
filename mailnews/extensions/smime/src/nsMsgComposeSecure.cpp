@@ -28,6 +28,7 @@
 #include "nspr.h"
 #include "mozpkix/Result.h"
 #include "nsNSSCertificate.h"
+#include "nsNSSHelper.h"
 
 using namespace mozilla::mailnews;
 using namespace mozilla;
@@ -803,6 +804,14 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
 
   RefPtr<SharedCertVerifier> certVerifier(GetDefaultCertVerifier());
   NS_ENSURE_TRUE(certVerifier, NS_ERROR_UNEXPECTED);
+
+  // Calling CERT_GetCertNicknames has the desired side effect of
+  // traversing all tokens, and bringing up prompts to unlock them.
+  nsCOMPtr<nsIInterfaceRequestor> ctx = new PipUIContext();
+  CERTCertNicknames *result_unused =
+    CERT_GetCertNicknames(CERT_GetDefaultCertDB(),
+    SEC_CERT_NICKNAMES_USER, ctx);
+  CERT_FreeNicknames(result_unused);
 
   UniqueCERTCertList builtChain;
   if (!mEncryptionCertDBKey.IsEmpty()) {
