@@ -18,10 +18,6 @@
   -moz-binding: url("chrome://messenger/content/tabmail.xml#tabmail-alltabs-popup");
 }
 
-.tab-close-button, .tabs-closebutton {
-  -moz-binding: url("chrome://messenger/content/tabmail.xml#tabmail-close-tab-button");
-}
-
 .tab-label-container {
   overflow: hidden;
 }
