@@ -35,12 +35,9 @@ var textAttachment =
 var binaryAttachment = textAttachment;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  let wh = collector.getModule("window-helpers");
-  wh.installInto(module);
-  let composeHelper = collector.getModule("compose-helpers");
-  composeHelper.installInto(module);
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 
   folder = create_folder("AttachmentA");
 
@@ -340,8 +337,8 @@ function test_attachment_list_expansion() {
 
   // Ensure that clicking the "Save All" button doesn't expand the attachment
   // list.
-  mc.click(mc.aid("attachmentSaveAllSingle",
-                  {class: "toolbarbutton-menubutton-dropmarker"}));
+  mc.click(new elementslib.Elem(mc.e("attachmentSaveAllSingle").
+    querySelector(".toolbarbutton-menubutton-dropmarker")));
   assert_true(mc.e("attachmentList").collapsed, "Attachment list should be " +
               "collapsed after clicking save button!");
 }

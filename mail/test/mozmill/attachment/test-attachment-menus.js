@@ -302,8 +302,8 @@ function check_toolbar_menu_states_single(expected) {
     assert_enabled("attachmentSaveAllSingle", false);
   } else {
     assert_enabled("attachmentSaveAllSingle", true);
-    mc.click(mc.aid("attachmentSaveAllSingle",
-                    {"class": "toolbarbutton-menubutton-dropmarker"}));
+    mc.click(new elementslib.Elem(mc.e("attachmentSaveAllSingle").
+      querySelector(".toolbarbutton-menubutton-dropmarker")));
     wait_for_popup_to_open(mc.e("attachmentSaveAllSingleMenu"));
 
     try {
@@ -332,8 +332,9 @@ function check_toolbar_menu_states_multiple(expected) {
     assert_enabled("attachmentSaveAllMultiple", false);
   } else {
     assert_enabled("attachmentSaveAllMultiple", true);
-    mc.click(mc.aid("attachmentSaveAllMultiple",
-                    {"class": "toolbarbutton-menubutton-dropmarker"}));
+    mc.click(new elementslib.Elem(mc.e("attachmentSaveAllMultiple").
+      querySelector(".toolbarbutton-menubutton-dropmarker")));
+    
     wait_for_popup_to_open(mc.e("attachmentSaveAllMultipleMenu"));
 
     try {
