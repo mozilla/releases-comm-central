@@ -100,6 +100,18 @@
   color: var(--lwt-toolbar-field-highlight-text, HighlightText);
 }
 
+.textbox-search-clear {
+  opacity: 0.8;
+}
+
+.textbox-search-clear:not([disabled]):hover {
+  opacity: 1;
+}
+
+.textbox-search-clear:not([disabled]):hover:active {
+  transform: scale(0.8);
+}
+
 .remote-gloda-search-container {
   padding-top: 1px;
   padding-bottom: 1px;
