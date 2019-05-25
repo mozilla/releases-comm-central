@@ -2348,9 +2348,8 @@ function displayAttachmentsForExpandedViewExternal() {
                                   `MsgStatusFeedback.setOverLink("${displayUrl}")`);
       attachmentitem.setAttribute("onblur",
                                   "MsgStatusFeedback.setOverLink('')");
-
-      let name = attachmentitem.boxObject.firstChild
-                               .getElementsByClassName("attachmentcell-name");
+      let name = document.getAnonymousNodes(attachmentitem)[0]
+        .getElementsByClassName("attachmentcell-name");
       name[0].classList.add("text-link");
 
       if (attachment.isLinkAttachment) {
@@ -2667,7 +2666,7 @@ function addAttachmentToPopup(popup, attachment, attachmentIndex) {
       // The text-link class must be added to the <label> and have a <menu>
       // hover rule. Adding to <menu> makes hover overflow the underline to
       // the popup items.
-      let label = item.boxObject.firstChild.nextSibling;
+      let label = item.children[1];
       label.classList.add("text-link");
     }
   }
