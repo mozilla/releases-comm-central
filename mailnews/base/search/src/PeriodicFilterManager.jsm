@@ -27,6 +27,7 @@ var PeriodicFilterManager = {
   _defaultFilterRateMinutes: Services.prefs.getDefaultBranch("")
                                .getIntPref("mail.server.default.periodicFilterRateMinutes"),
   _initialized: false, // Has this been initialized?
+  _running: false,  // Are we executing filters already?
 
   // Initial call to begin startup.
   setupFiltering() {
@@ -60,9 +61,22 @@ var PeriodicFilterManager = {
     Services.obs.addObserver(this, "quit-application-granted");
   },
 
-  // periodic callback
+  /**
+   * Periodic callback to check if any periodic filters need to be run.
+   *
+   * The periodic filter manager does not guarantee that filters will be run
+   * precisely at the specified interval.
+   * The server may be busy (e.g. downloading messages) or another filter run
+   * is still ongoing, in which cases running periodic filter of any server
+   * may be postponed.
+   */
   notify(timer) {
     log.debug("PeriodicFilterManager timer callback");
+    if (this._running) {
+      log.debug("PeriodicFilterManager Previous filter run still executing");
+      return;
+    }
+    this._running = true;
     let servers = MailServices.accounts.allServers;
     let nowTime = parseInt(Date.now() / 60000);
     for (let server of fixIterator(servers, Ci.nsIMsgIncomingServer)) {
@@ -99,8 +113,15 @@ var PeriodicFilterManager = {
       log.debug("PeriodicFilterManager apply periodic filters to server " + server.prettyName);
       MailServices.filters.applyFiltersToFolders(tempFilterList, foldersToFilter, null);
     }
+    this._running = false;
   },
 
+  /**
+   * Gets the periodic filter interval for the given server.
+   * If the server's interval is not sane, clean it up.
+   *
+   * @param {nsIMsgIncomingServer} server  The server to return interval for.
+   */
   getServerPeriod(server) {
     const minimumPeriodMinutes = 1;
     let serverRateMinutes = server.getIntValue("periodicFilterRateMinutes");
