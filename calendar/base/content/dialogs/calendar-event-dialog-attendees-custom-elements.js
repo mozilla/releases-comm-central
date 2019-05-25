@@ -3155,7 +3155,7 @@ class MozCalendarEventFreebusyGrid extends MozElements.RichListBox {
         if (items.length > 0) {
             let i = 0;
             do {
-                this.mRowHeight = items[i].boxObject.height;
+                this.mRowHeight = items[i].getBoundingClientRect().height;
                 ++i;
             } while (i < items.length && !this.mRowHeight);
             this.mContentHeight = this.mRowHeight * items.length;
@@ -3166,7 +3166,7 @@ class MozCalendarEventFreebusyGrid extends MozElements.RichListBox {
      * Creates or removes dummy rows.
      */
     createOrRemoveDummyRows() {
-        let listboxHeight = this.boxObject.height;
+        let listboxHeight = this.getBoundingClientRect().height;
 
         // Remove rows to remove scrollbar
         let kids = this.childNodes;

@@ -1546,7 +1546,7 @@
         adjustScrollBarSpacers() {
             // Get the width or height of the scrollbox scrollbar, depending on view orientation.
             const widthOrHeight = this.getAttribute("orient") == "vertical" ? "width" : "height";
-            const propertyValue = this.scrollbox.boxObject.firstChild.boxObject[widthOrHeight];
+            const propertyValue = this.scrollbox.firstChild.getBoundingClientRect()[widthOrHeight];
 
             // Check if we need to show the headerScrollbarSpacer at all.
             let headerPropVal = propertyValue;
