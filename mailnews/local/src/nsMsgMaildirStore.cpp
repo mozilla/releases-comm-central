@@ -1225,8 +1225,8 @@ void MaildirStoreParser::TimerCallback(nsITimer *aTimer, void *aClosure) {
     nsCOMPtr<nsIMsgPluggableStore> store;
     parser->m_folder->GetMsgStore(getter_AddRefs(store));
     parser->m_timer->Cancel();
-    parser->m_db->SetSummaryValid(true);
-    //    store->SetSummaryFileValid(parser->m_folder, parser->m_db, true);
+    if (parser->m_db) parser->m_db->SetSummaryValid(true);
+    // store->SetSummaryFileValid(parser->m_folder, parser->m_db, true);
     if (parser->m_listener) {
       nsresult rv;
       nsCOMPtr<nsIMailboxUrl> mailboxurl =
