@@ -36,6 +36,7 @@ function setupModule(module) {
     collector.getModule("content-tab-helpers").setupModule();
 }
 
+testDefaultAlarms.__force_skip__ = true;
 function testDefaultAlarms() {
     let { eid } = helpersForController(controller);
 
