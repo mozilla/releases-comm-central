@@ -87,11 +87,9 @@ var PeriodicFilterManager = {
       if (server.serverBusy)
         continue;
 
+      // Schedule next time this account's filters should be run.
       server.setIntValue("nextFilterTime", nowTime + this.getServerPeriod(server));
       server.setIntValue("lastFilterTime", nowTime);
-      let foldersToFilter = server.rootFolder.getFoldersWithFlags(Ci.nsMsgFolderFlags.Inbox);
-      if (!foldersToFilter.length)
-        continue;
 
       // Build a temporary list of periodic filters.
       // XXX TODO: make applyFiltersToFolders() take a filterType instead (bug 1551043).
@@ -110,6 +108,12 @@ var PeriodicFilterManager = {
           newFilterIndex++;
         }
       }
+      if (newFilterIndex == 0)
+        continue;
+      let foldersToFilter = server.rootFolder.getFoldersWithFlags(Ci.nsMsgFolderFlags.Inbox);
+      if (foldersToFilter.length == 0)
+        continue;
+
       log.debug("PeriodicFilterManager apply periodic filters to server " + server.prettyName);
       MailServices.filters.applyFiltersToFolders(tempFilterList, foldersToFilter, null);
     }
