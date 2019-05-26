@@ -742,7 +742,7 @@ var gCloudFileTab = {
 
     let url = account.managementURL + `?accountId=${account.accountKey}`;
 
-    let iframe = document.createElementNS("http://www.w3.org/1999/xhtml", "iframe");
+    let iframe = document.createXULElement("iframe");
     iframe.setAttribute("flex", "1");
     // allows keeping dialog background color without hoops
     iframe.setAttribute("transparent", "true");
