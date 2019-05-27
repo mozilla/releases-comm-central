@@ -25,7 +25,7 @@ const privDialog = "chrome://chat/content/otr-generate-key.xul";
 const authDialog = "chrome://chat/content/otr-auth.xul";
 const addFingerDialog = "chrome://chat/content/otr-add-fingerprint.xul";
 
-const authVerify = "otr-auth-unverified";
+const AuthVerify = "otr-auth-unverified";
 var authLabelMap;
 var authTitleMap;
 var trustMap;
@@ -442,9 +442,13 @@ var OTRUI = {
     let uiConv = OTR.getUIConvFromContext(context);
     if (!uiConv) return;
 
-    let notification = this.globalBox.getNotificationWithValue(authVerify);
-    if (notification)
-      notification.close();
+    let notifications = this.globalBox.allNotifications;
+    for (let i = notifications.length - 1; i >= 0; i--) {
+      if (context.username == notifications[i].getAttribute("user") &&
+          notifications[i].getAttribute("value") == AuthVerify) {
+        notifications[i].close();
+      }
+    }
   },
 
   hideUserNotifications(context) {
@@ -475,9 +479,6 @@ var OTRUI = {
     let uiConv = OTR.getUIConvFromContext(context);
     if (!uiConv) return;
 
-    if (this.globalBox.getNotificationWithValue(authVerify))
-      return;
-
     let window = this.globalDoc.defaultView;
 
     let msg = _strArgs("finger-" + seen, {name: context.username});
@@ -493,15 +494,16 @@ var OTRUI = {
     }];
 
     let priority = this.globalBox.PRIORITY_WARNING_MEDIUM;
-    this.globalBox.appendNotification(msg, authVerify, null, priority, buttons, null);
+    this.globalBox.appendNotification(msg, context.username, null, priority, buttons, null);
 
     let verifyTitle = syncL10n.formatValue("verify-title");
-    this.updateNotificationUI(context, verifyTitle, authVerify);
+    this.updateNotificationUI(context, verifyTitle, context.username, AuthVerify);
   },
 
-  updateNotificationUI(context, typeTitle, value) {
-    let notification = this.globalBox.getNotificationWithValue(value);
+  updateNotificationUI(context, typeTitle, username, key) {
+    let notification = this.globalBox.getNotificationWithValue(username);
     notification.setAttribute("user", context.username);
+    notification.setAttribute("status", key);
     notification.setAttribute("orient", "vertical");
     notification.messageDetails.setAttribute("orient", "vertical");
     notification.messageDetails.removeAttribute("oncommand");
@@ -540,11 +542,10 @@ var OTRUI = {
     let uiConv = OTR.getUIConvFromContext(context);
     if (!uiConv) return;
 
-    authLabelMap.forEach(function(_, key) {
-      let prevNotification = OTRUI.globalBox.getNotificationWithValue(key);
-      if (prevNotification)
-        prevNotification.close();
-    });
+    let prevNotification = OTRUI.globalBox.getNotificationWithValue(context.username);
+    if (prevNotification) {
+      prevNotification.close();
+    }
   },
 
   notifyVerification(context, key, cancelable) {
@@ -572,9 +573,9 @@ var OTRUI = {
     // higher priority to overlay the current notifyUnverified
     let priority = this.globalBox.PRIORITY_WARNING_HIGH;
     OTRUI.closeUnverified(context);
-    this.globalBox.appendNotification(msg, key, null, priority, buttons, null);
+    this.globalBox.appendNotification(msg, context.username, null, priority, buttons, null);
 
-    this.updateNotificationUI(context, typeTitle, key);
+    this.updateNotificationUI(context, typeTitle, context.username, key);
   },
 
   updateAuth(aObj) {

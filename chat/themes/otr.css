@@ -104,39 +104,39 @@ toolbarbutton.otr-button {
 }
 
 /* waiting */
-#otr-notification-box notification[type="warning"][value="otr:auth-waiting"] >
+#otr-notification-box notification[type="warning"][status="otr:auth-waiting"] >
   hbox > .messageImage {
   list-style-image: url("chrome://global/skin/icons/help.svg") !important;
 }
 
 /* fail */
-#otr-notification-box notification[type="warning"][value="otr:auth-fail"] {
+#otr-notification-box notification[type="warning"][status="otr:auth-fail"] {
   background: #ffc9d5 !important;
 }
 
-#otr-notification-box notification[type="warning"][value="otr:auth-fail"] >
+#otr-notification-box notification[type="warning"][status="otr:auth-fail"] >
   hbox > .messageImage {
   list-style-image: url("chrome://global/skin/icons/error.svg") !important;
   color: #c93434 !important;
 }
 
-#otr-notification-box notification[type="warning"][value="otr:auth-fail"]
+#otr-notification-box notification[type="warning"][status="otr:auth-fail"]
   .otr-notification-header title {
   color: #c93434 !important;
 }
 
 /* success */
-#otr-notification-box notification[type="warning"][value="otr:auth-success"] {
+#otr-notification-box notification[type="warning"][status="otr:auth-success"] {
   background: #D3F4AF !important;
 }
 
-#otr-notification-box notification[type="warning"][value="otr:auth-success"] >
+#otr-notification-box notification[type="warning"][status="otr:auth-success"] >
   hbox > .messageImage {
   list-style-image: url("chrome://global/skin/icons/check.svg") !important;
   color: #407501 !important;
 }
 
-#otr-notification-box notification[type="warning"][value="otr:auth-success"]
+#otr-notification-box notification[type="warning"][status="otr:auth-success"]
   .otr-notification-header title {
   color: #407501 !important;
 }
