@@ -156,7 +156,7 @@ var OTRUI = {
     let sep = doc.createXULElement("menuseparator");
     sep.setAttribute("id", "otrsep");
     let menuitem = doc.createXULElement("menuitem");
-    menuitem.setAttribute("label", _str("buddycontextmenu.label"));
+    menuitem.setAttribute("label", _str("buddycontextmenu-label"));
     menuitem.setAttribute("id", "otrcont");
     menuitem.addEventListener("command", () => {
       let target = buddyContextMenu.triggerNode;
@@ -620,12 +620,21 @@ var OTRUI = {
   },
 
   contactWrapper(contact) {
-    let wrapper = {
+    // If the conversation already started.
+    if (contact.buddy) {
+      return {
+        account: contact.buddy.normalizedName,
+        protocol: contact.buddy.buddy.protocol.normalizedName,
+        screenname: contact.buddy.userName,
+      };
+    }
+
+    // For online and offline contacts without an open conversation.
+    return {
       account: contact.preferredBuddy.preferredAccountBuddy.account.normalizedName,
       protocol: contact.preferredBuddy.protocol.normalizedName,
       screenname: contact.preferredBuddy.preferredAccountBuddy.userName,
     };
-    return wrapper;
   },
 
   onContactAdded(contact) {
