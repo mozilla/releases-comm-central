@@ -55,9 +55,7 @@ var FeedCache = {
  *                                     subscription.
  */
 function Feed(aFeedUrl, aFolder) {
-  this.resource = FeedUtils.rdf
-    .GetResource(aFeedUrl)
-    .QueryInterface(Ci.nsIRDFResource);
+  this.url = aFeedUrl;
   this.server = aFolder.server;
   if (!aFolder.isServer) {
     this.mFolder = aFolder;
@@ -65,6 +63,7 @@ function Feed(aFeedUrl, aFolder) {
 }
 
 Feed.prototype = {
+  url: null,
   description: null,
   author: null,
   request: null,
@@ -348,114 +347,61 @@ Feed.prototype = {
     this.storeNextItem();
   },
 
-  get url() {
-    let ds = FeedUtils.getSubscriptionsDS(this.server);
-    let url = ds.GetTarget(this.resource, FeedUtils.DC_IDENTIFIER, true);
-    if (url) {
-      url = url.QueryInterface(Ci.nsIRDFLiteral).Value;
-    } else {
-      url = this.resource.ValueUTF8;
-    }
-
-    return url;
-  },
-
   get title() {
-    let ds = FeedUtils.getSubscriptionsDS(this.server);
-    let title = ds.GetTarget(this.resource, FeedUtils.DC_TITLE, true);
-    if (title) {
-      title = title.QueryInterface(Ci.nsIRDFLiteral).Value;
-    }
-
-    return title;
+    return FeedUtils.getSubscriptionAttr(this.url, this.server, "title", "");
   },
 
   set title(aNewTitle) {
     if (!aNewTitle) {
       return;
     }
-
-    let ds = FeedUtils.getSubscriptionsDS(this.server);
-    aNewTitle = FeedUtils.rdf.GetLiteral(aNewTitle);
-    let old_title = ds.GetTarget(this.resource, FeedUtils.DC_TITLE, true);
-    if (old_title) {
-      ds.Change(this.resource, FeedUtils.DC_TITLE, old_title, aNewTitle);
-    } else {
-      ds.Assert(this.resource, FeedUtils.DC_TITLE, aNewTitle, true);
-    }
+    FeedUtils.setSubscriptionAttr(this.url, this.server, "title", aNewTitle);
   },
 
   get lastModified() {
-    let ds = FeedUtils.getSubscriptionsDS(this.server);
-    let lastModified = ds.GetTarget(
-      this.resource,
-      FeedUtils.DC_LASTMODIFIED,
-      true
+    return FeedUtils.getSubscriptionAttr(
+      this.url,
+      this.server,
+      "lastModified",
+      ""
     );
-    if (lastModified) {
-      lastModified = lastModified.QueryInterface(Ci.nsIRDFLiteral).Value;
-    }
-
-    return lastModified;
   },
 
   set lastModified(aLastModified) {
-    let ds = FeedUtils.getSubscriptionsDS(this.server);
-    aLastModified = FeedUtils.rdf.GetLiteral(aLastModified);
-    let old_lastmodified = ds.GetTarget(
-      this.resource,
-      FeedUtils.DC_LASTMODIFIED,
-      true
+    FeedUtils.setSubscriptionAttr(
+      this.url,
+      this.server,
+      "lastModified",
+      aLastModified
     );
-    if (old_lastmodified) {
-      ds.Change(
-        this.resource,
-        FeedUtils.DC_LASTMODIFIED,
-        old_lastmodified,
-        aLastModified
-      );
-    } else {
-      ds.Assert(this.resource, FeedUtils.DC_LASTMODIFIED, aLastModified, true);
-    }
   },
 
   get quickMode() {
-    let ds = FeedUtils.getSubscriptionsDS(this.server);
-    let quickMode = ds.GetTarget(this.resource, FeedUtils.FZ_QUICKMODE, true);
-    if (quickMode) {
-      quickMode = quickMode.QueryInterface(Ci.nsIRDFLiteral);
-      quickMode = quickMode.Value == "true";
-    }
-
-    return quickMode;
+    let defaultValue = this.server.getBoolValue("quickMode");
+    return FeedUtils.getSubscriptionAttr(
+      this.url,
+      this.server,
+      "quickMode",
+      defaultValue
+    );
   },
 
   set quickMode(aNewQuickMode) {
-    let ds = FeedUtils.getSubscriptionsDS(this.server);
-    aNewQuickMode = FeedUtils.rdf.GetLiteral(aNewQuickMode);
-    let old_quickMode = ds.GetTarget(
-      this.resource,
-      FeedUtils.FZ_QUICKMODE,
-      true
+    FeedUtils.setSubscriptionAttr(
+      this.url,
+      this.server,
+      "quickMode",
+      aNewQuickMode
     );
-    if (old_quickMode) {
-      ds.Change(
-        this.resource,
-        FeedUtils.FZ_QUICKMODE,
-        old_quickMode,
-        aNewQuickMode
-      );
-    } else {
-      ds.Assert(this.resource, FeedUtils.FZ_QUICKMODE, aNewQuickMode, true);
-    }
   },
 
   get options() {
-    let ds = FeedUtils.getSubscriptionsDS(this.server);
-    let options = ds.GetTarget(this.resource, FeedUtils.FZ_OPTIONS, true);
-    options = options
-      ? JSON.parse(options.QueryInterface(Ci.nsIRDFLiteral).Value)
-      : null;
+    let options = FeedUtils.getSubscriptionAttr(
+      this.url,
+      this.server,
+      "options",
+      null
+    );
     if (options && options.version == FeedUtils._optionsDefault.version) {
       return options;
     }
@@ -467,39 +413,18 @@ Feed.prototype = {
 
   set options(aOptions) {
     let newOptions = aOptions ? aOptions : FeedUtils.optionsTemplate;
-    let ds = FeedUtils.getSubscriptionsDS(this.server);
-    newOptions = FeedUtils.rdf.GetLiteral(JSON.stringify(newOptions));
-    let oldOptions = ds.GetTarget(this.resource, FeedUtils.FZ_OPTIONS, true);
-    if (oldOptions) {
-      ds.Change(this.resource, FeedUtils.FZ_OPTIONS, oldOptions, newOptions);
-    } else {
-      ds.Assert(this.resource, FeedUtils.FZ_OPTIONS, newOptions, true);
-    }
+    FeedUtils.setSubscriptionAttr(this.url, this.server, "options", newOptions);
   },
 
   get link() {
-    let ds = FeedUtils.getSubscriptionsDS(this.server);
-    let link = ds.GetTarget(this.resource, FeedUtils.RSS_LINK, true);
-    if (link) {
-      link = link.QueryInterface(Ci.nsIRDFLiteral).Value;
-    }
-
-    return link;
+    return FeedUtils.getSubscriptionAttr(this.url, this.server, "link", "");
   },
 
   set link(aNewLink) {
     if (!aNewLink) {
       return;
     }
-
-    let ds = FeedUtils.getSubscriptionsDS(this.server);
-    aNewLink = FeedUtils.rdf.GetLiteral(aNewLink);
-    let old_link = ds.GetTarget(this.resource, FeedUtils.RSS_LINK, true);
-    if (old_link) {
-      ds.Change(this.resource, FeedUtils.RSS_LINK, old_link, aNewLink);
-    } else {
-      ds.Assert(this.resource, FeedUtils.RSS_LINK, aNewLink, true);
-    }
+    FeedUtils.setSubscriptionAttr(this.url, this.server, "link", aNewLink);
   },
 
   parse() {
@@ -534,56 +459,44 @@ Feed.prototype = {
     this.storeNextItem();
   },
 
+  /**
+   * Clear the 'valid' field of all feeditems associated with this feed.
+   *
+   * @returns {void}
+   */
   invalidateItems() {
     let ds = FeedUtils.getItemsDS(this.server);
-    FeedUtils.log.debug("Feed.invalidateItems: for url - " + this.url);
-    let items = ds.GetSources(FeedUtils.FZ_FEED, this.resource, true);
-    let item;
-
-    while (items.hasMoreElements()) {
-      item = items.getNext();
-      item = item.QueryInterface(Ci.nsIRDFResource);
-      FeedUtils.log.trace("Feed.invalidateItems: item - " + item.Value);
-      let valid = ds.GetTarget(item, FeedUtils.FZ_VALID, true);
-      if (valid) {
-        ds.Unassert(item, FeedUtils.FZ_VALID, valid, true);
+    for (let id in ds.data) {
+      let item = ds.data[id];
+      if (item.feedURLs.includes(this.url)) {
+        item.valid = false;
+        FeedUtils.log.trace("Feed.invalidateItems: item - " + id);
       }
     }
+    ds.saveSoon();
   },
 
+  /**
+   * Discards invalid items (in the feed item store) associated with the
+   * feed. There's a delay - invalid items are kept around for a set time
+   * before being purged.
+   *
+   * @param {Boolean} aDeleteFeed - is the feed being deleted (bypasses
+   *                                the delay time).
+   * @returns {void}
+   */
   removeInvalidItems(aDeleteFeed) {
     let ds = FeedUtils.getItemsDS(this.server);
     FeedUtils.log.debug("Feed.removeInvalidItems: for url - " + this.url);
-    let items = ds.GetSources(FeedUtils.FZ_FEED, this.resource, true);
-    let item;
-    let currentTime = new Date().getTime();
-    while (items.hasMoreElements()) {
-      item = items.getNext();
-      item = item.QueryInterface(Ci.nsIRDFResource);
 
-      if (
-        ds.HasAssertion(
-          item,
-          FeedUtils.FZ_VALID,
-          FeedUtils.RDF_LITERAL_TRUE,
-          true
-        )
-      ) {
+    let currentTime = new Date().getTime();
+    for (let id in ds.data) {
+      let item = ds.data[id];
+      // skip valid items and ones not part of this feed.
+      if (!item.feedURLs.includes(this.url) || item.valid) {
         continue;
       }
-
-      let lastSeenTime = ds.GetTarget(
-        item,
-        FeedUtils.FZ_LAST_SEEN_TIMESTAMP,
-        true
-      );
-      if (lastSeenTime) {
-        lastSeenTime = parseInt(
-          lastSeenTime.QueryInterface(Ci.nsIRDFLiteral).Value
-        );
-      } else {
-        lastSeenTime = 0;
-      }
+      let lastSeenTime = item.lastSeenTime || 0;
 
       if (
         currentTime - lastSeenTime < FeedUtils.INVALID_ITEM_PURGE_DELAY &&
@@ -593,19 +506,21 @@ Feed.prototype = {
         continue;
       }
 
-      FeedUtils.log.trace("Feed.removeInvalidItems: item - " + item.Value);
-      ds.Unassert(item, FeedUtils.FZ_FEED, this.resource, true);
-      if (ds.hasArcOut(item, FeedUtils.FZ_FEED)) {
+      FeedUtils.log.trace("Feed.removeInvalidItems: item - " + id);
+      // Detach the item from this feed (it could be shared by multiple feeds).
+      item.feedURLs = item.feedURLs.filter(url => url != this.url);
+      if (item.feedURLs.length > 0) {
         FeedUtils.log.debug(
           "Feed.removeInvalidItems: " +
-            item.Value +
+            id +
             " is from more than one feed; only the reference to" +
             " this feed removed"
         );
       } else {
-        FeedUtils.removeAssertions(ds, item);
+        delete ds.data[id];
       }
     }
+    ds.saveSoon();
   },
 
   createFolder() {
@@ -722,7 +637,7 @@ Feed.prototype = {
 
       // Flush any feed item changes to disk.
       let ds = FeedUtils.getItemsDS(aFeed.server);
-      ds.Flush();
+      ds.saveSoon();
       FeedUtils.log.debug(
         "Feed.cleanupParsingState: items stored - " + this.itemsStored
       );

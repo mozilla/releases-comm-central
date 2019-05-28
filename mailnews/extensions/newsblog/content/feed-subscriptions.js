@@ -3,6 +3,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/**
+ * @file
+ * GUI-side code for managing folder subscriptions.
+ */
+
 var { Feed, FeedItem, FeedParser, FeedUtils } = ChromeUtils.import(
   "resource:///modules/FeedUtils.jsm"
 );
@@ -1017,9 +1022,12 @@ var FeedSubscriptions = {
     if (aFeed.folder.isServer) {
       // If passed the root folder, the caller wants to get the feed's folder
       // from the db (for cases of an ancestor folder rename/move).
-      let itemResource = FeedUtils.rdf.GetResource(aFeed.url);
-      let ds = FeedUtils.getSubscriptionsDS(server);
-      folder = ds.GetTarget(itemResource, FeedUtils.FZ_DESTFOLDER, true);
+      let destFolder = FeedUtils.getSubscriptionAttr(
+        aFeed.url,
+        server,
+        "destFolder"
+      );
+      folder = server.rootFolder.getChildWithURI(destFolder, true, false);
     }
 
     if (this.selectFolder(folder, { parentIndex: aParentIndex })) {
@@ -1253,8 +1261,6 @@ var FeedSubscriptions = {
       item.children.forEach(function(feed) {
         feed.quickMode = aChecked;
       });
-      let ds = FeedUtils.getSubscriptionsDS(item.folder.server);
-      ds.Flush();
     }
 
     // Update the folder in the tree map.
@@ -1348,8 +1354,6 @@ var FeedSubscriptions = {
       let feed = new Feed(item.url, item.parentFolder);
       feed.title = item.name;
       feed.options = item.options;
-      let ds = FeedUtils.getSubscriptionsDS(item.parentFolder.server);
-      ds.Flush();
 
       if (aNode.id == "updateEnabled") {
         FeedUtils.setStatus(
@@ -1799,14 +1803,10 @@ var FeedSubscriptions = {
 
     let currentParentIndex = this.mView.getParentIndex(aOldFeedIndex);
     let currentParentItem = this.mView.getItemAtIndex(currentParentIndex);
-    let currentParentResource = FeedUtils.rdf.GetResource(
-      currentParentItem.url
-    );
-    let currentFolder = currentParentResource.QueryInterface(Ci.nsIMsgFolder);
+    let currentFolder = currentParentItem.folder;
 
     let newParentItem = this.mView.getItemAtIndex(aNewParentIndex);
-    let newParentResource = FeedUtils.rdf.GetResource(newParentItem.url);
-    let newFolder = newParentResource.QueryInterface(Ci.nsIMsgFolder);
+    let newFolder = newParentItem.folder;
 
     let accountMoveCopy = false;
     if (currentFolder.rootFolder.URI == newFolder.rootFolder.URI) {
@@ -1817,16 +1817,13 @@ var FeedSubscriptions = {
         return;
       }
 
-      // Unassert the older URI, add an assertion for the new parent URI.
-      let feedResource = FeedUtils.rdf.GetResource(currentItem.url);
-      let ds = FeedUtils.getSubscriptionsDS(currentItem.parentFolder.server);
-      ds.Change(
-        feedResource,
-        FeedUtils.FZ_DESTFOLDER,
-        currentParentResource,
-        newParentResource
+      // Update the destFolder for this feed's subscription.
+      FeedUtils.setSubscriptionAttr(
+        currentItem.url,
+        currentItem.parentFolder.server,
+        "destFolder",
+        newFolder.URI
       );
-      ds.Flush();
 
       // Update folderpane favicons.
       FeedUtils.setFolderPaneProperty(currentFolder, "favicon", null, "row");

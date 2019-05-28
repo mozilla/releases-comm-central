@@ -46,8 +46,10 @@ bool nsMsgLocalStoreUtils::nsShouldIgnoreFile(nsAString &name) {
       StringEndsWith(name, NS_LITERAL_STRING(".toc")))
     return true;
 
-  // ignore RSS data source files
-  if (name.LowerCaseEqualsLiteral("feeds.rdf") ||
+  // ignore RSS data source files (see FeedUtils.jsm)
+  if (name.LowerCaseEqualsLiteral("feeds.json") ||
+      name.LowerCaseEqualsLiteral("feeditems.json") ||
+      name.LowerCaseEqualsLiteral("feeds.rdf") ||
       name.LowerCaseEqualsLiteral("feeditems.rdf") ||
       StringBeginsWith(name, NS_LITERAL_STRING("feeditems_error")))
     return true;

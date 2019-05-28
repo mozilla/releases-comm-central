@@ -11,6 +11,9 @@
 
 var EXPORTED_SYMBOLS = ["MailMigrator"];
 
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.js");
 
@@ -410,6 +413,251 @@ var MailMigrator = {
   /* eslint-enable complexity */
 
   /**
+   * RSS subscriptions and items used to be stored in .rdf files, but now
+   * we've changed to use JSON files instead. This migration routine checks
+   * for the old format files and upgrades them as appropriate.
+   * The feeds and items migration are handled as separate (hopefully atomic)
+   * steps. It is careful to not overwrite new-style .json files.
+   *
+   * @returns {void}
+   */
+  _migrateRSS() {
+    // Find all the RSS IncomingServers.
+    let rssServers = [];
+    let allServers = MailServices.accounts.allServers;
+    for (let i = 0; i < allServers.length; i++) {
+      let server = allServers.queryElementAt(i, Ci.nsIMsgIncomingServer);
+      if (server && server.type == "rss") {
+        rssServers.push(server);
+      }
+    }
+
+    // For each one...
+    for (let server of rssServers) {
+      this._migrateRSSServer(server);
+    }
+  },
+
+  _migrateRSSServer(server) {
+    let rssServer = server.QueryInterface(Ci.nsIRssIncomingServer);
+
+    // Convert feeds.rdf to feeds.json (if needed).
+    let feedsFile = rssServer.subscriptionsPath;
+    let legacyFeedsFile = server.localPath;
+    legacyFeedsFile.append("feeds.rdf");
+    if (!feedsFile.exists() && legacyFeedsFile.exists()) {
+      try {
+        this._migrateRSSSubscriptions(legacyFeedsFile, feedsFile);
+      } catch (err) {
+        Cu.reportError(
+          "Failed to migrate '" +
+            feedsFile.path +
+            "' to '" +
+            legacyFeedsFile.path +
+            "': " +
+            err
+        );
+      }
+    }
+    // Convert feeditems.rdf to feeditems.json (if needed).
+    let itemsFile = rssServer.feedItemsPath;
+    let legacyItemsFile = server.localPath;
+    legacyItemsFile.append("feeditems.rdf");
+    if (!itemsFile.exists() && legacyItemsFile.exists()) {
+      try {
+        this._migrateRSSItems(legacyItemsFile, itemsFile);
+      } catch (err) {
+        Cu.reportError(
+          "Failed to migrate '" +
+            itemsFile.path +
+            "' to '" +
+            legacyItemsFile.path +
+            "': " +
+            err
+        );
+      }
+    }
+  },
+
+  // Assorted namespace strings required for the feed migrations.
+  FZ_NS: "urn:forumzilla:",
+  DC_NS: "http://purl.org/dc/elements/1.1/",
+  RSS_NS: "http://purl.org/rss/1.0/",
+  RDF_SYNTAX_NS: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+  RDF_SYNTAX_TYPE: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+
+  /**
+   * Convert rss subscriptions in a legacy feeds.rdf file into feeds.json.
+   * If the conversion is successful, the legacy file will be removed.
+   *
+   * @param {nsIFile} legacyFile - Location of the rdf file.
+   * @param {nsIFile} jsonFile - Location for the output JSON file.
+   * @returns {void}
+   * @throws Will throw an error if the conversion fails.
+   */
+  _migrateRSSSubscriptions(legacyFile, jsonFile) {
+    // Load .rdf file into an XMLDocument.
+    let rawXMLRDF = IOUtils.loadFileToString(legacyFile);
+    let parser = new DOMParser();
+    let doc = parser.parseFromString(rawXMLRDF, "text/xml");
+
+    let feeds = [];
+    // Skip the fz:root->fz:feeds->etc structure. Just grab fz:feed nodes.
+    let feedNodes = doc.documentElement.getElementsByTagNameNS(
+      this.FZ_NS,
+      "feed"
+    );
+
+    let toBool = function(val) {
+      return val == "true";
+    };
+
+    // Map RDF feed property names to js.
+    let propMap = [
+      { ns: this.DC_NS, name: "title", dest: "title" },
+      { ns: this.DC_NS, name: "lastModified", dest: "lastModified" },
+      { ns: this.DC_NS, name: "identifier", dest: "url" },
+      { ns: this.FZ_NS, name: "quickMode", dest: "quickMode", cook: toBool },
+      { ns: this.FZ_NS, name: "options", dest: "options", cook: JSON.parse },
+      { ns: this.FZ_NS, name: "destFolder", dest: "destFolder" },
+      { ns: this.RSS_NS, name: "link", dest: "link" },
+    ];
+
+    for (let f of feedNodes) {
+      let feed = {};
+      for (let p of propMap) {
+        // The data could be in either an attribute or an element.
+        let val = f.getAttributeNS(p.ns, p.name);
+        if (!val) {
+          let el = f.getElementsByTagNameNS(p.ns, p.name).item(0);
+          if (el) {
+            // Might be a RDF:resource...
+            val = el.getAttributeNS(this.RDF_SYNTAX_NS, "resource");
+            if (!val) {
+              // ...or a literal string.
+              val = el.textContent;
+            }
+          }
+        }
+        if (!val) {
+          // log.warn(`feeds.rdf: ${p.name} missing`);
+          continue;
+        }
+        // Conversion needed?
+        if ("cook" in p) {
+          val = p.cook(val);
+        }
+        feed[p.dest] = val;
+      }
+
+      if (feed.url) {
+        feeds.push(feed);
+      }
+    }
+
+    let data = JSON.stringify(feeds);
+    IOUtils.saveStringToFile(jsonFile, data);
+    legacyFile.remove(false);
+  },
+
+  /**
+   * Convert a legacy feeditems.rdf file into feeditems.json.
+   * If the conversion is successful, the legacy file will be removed.
+   *
+   * @param {nsIFile} legacyFile - Location of the rdf file.
+   * @param {nsIFile} jsonFile - Location for the output JSON file.
+   * @returns {void}
+   * @throws Will throw an error if the conversion fails.
+   */
+  _migrateRSSItems(legacyFile, jsonFile) {
+    // Load .rdf file into an XMLDocument.
+    let rawXMLRDF = IOUtils.loadFileToString(legacyFile);
+    let parser = new DOMParser();
+    let doc = parser.parseFromString(rawXMLRDF, "text/xml");
+
+    let items = {};
+
+    let demangleURL = function(itemURI) {
+      // Reverse the mapping that originally turned links/guids into URIs.
+      let url = itemURI;
+      url = url.replace("urn:feeditem:", "");
+      url = url.replace(/%23/g, "#");
+      url = url.replace(/%2f/g, "/");
+      url = url.replace(/%3f/g, "?");
+      url = url.replace(/%26/g, "&");
+      url = url.replace(/%7e/g, "~");
+      url = decodeURI(url);
+      return url;
+    };
+
+    let toBool = function(s) {
+      return s == "true";
+    };
+
+    let toInt = function(s) {
+      let t = parseInt(s);
+      return Number.isNaN(t) ? 0 : t;
+    };
+
+    let itemNodes = doc.documentElement.getElementsByTagNameNS(
+      this.RDF_SYNTAX_NS,
+      "Description"
+    );
+
+    // Map RDF feed property names to js.
+    let propMap = [
+      { ns: this.FZ_NS, name: "stored", dest: "stored", cook: toBool },
+      { ns: this.FZ_NS, name: "valid", dest: "valid", cook: toBool },
+      {
+        ns: this.FZ_NS,
+        name: "last-seen-timestamp",
+        dest: "lastSeenTime",
+        cook: toInt,
+      },
+    ];
+
+    for (let itemNode of itemNodes) {
+      let item = {};
+      for (let p of propMap) {
+        // The data could be in either an attribute or an element.
+        let val = itemNode.getAttributeNS(p.ns, p.name);
+        if (!val) {
+          let elements = itemNode.getElementsByTagNameNS(p.ns, p.name);
+          if (elements.length > 0) {
+            val = elements.item(0).textContent;
+          }
+        }
+        if (!val) {
+          // log.warn(`feeditems.rdf: ${p.name} missing`);
+          continue;
+        }
+        // Conversion needed?
+        if ("cook" in p) {
+          val = p.cook(val);
+        }
+        item[p.dest] = val;
+      }
+
+      item.feedURLs = [];
+      let feedNodes = itemNode.getElementsByTagNameNS(this.FZ_NS, "feed");
+      for (let feedNode of feedNodes) {
+        let feedURL = feedNode.getAttributeNS(this.RDF_SYNTAX_NS, "resource");
+        item.feedURLs.push(feedURL);
+      }
+
+      let id = itemNode.getAttributeNS(this.RDF_SYNTAX_NS, "about");
+      id = demangleURL(id);
+      if (id) {
+        items[id] = item;
+      }
+    }
+
+    let data = JSON.stringify(items);
+    IOUtils.saveStringToFile(jsonFile, data);
+    legacyFile.remove(false);
+  },
+
+  /**
    * Perform any migration work that needs to occur after the Account Wizard
    * has had a chance to appear.
    */
@@ -451,5 +699,6 @@ var MailMigrator = {
   migrateAtProfileStartup() {
     this._migrateAddressBooks();
     this._migrateUI();
+    this._migrateRSS();
   },
 };

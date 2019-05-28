@@ -147,32 +147,21 @@ var FeedMessageHandler = {
         showSummary = true;
         break;
       case this.kSelectFeedDefault:
-        // Get quickmode per feed folder pref from feeds.rdf. If the feed
+        // Get quickmode per feed folder pref from feed subscriptions. If the feed
         // message is not in a feed account folder (hence the folder is not in
-        // the feeds database), or FZ_QUICKMODE property is not found (possible
-        // in pre renovation urls), err on the side of showing the summary.
+        // the feeds database), err on the side of showing the summary.
         // For the former, toggle or global override is necessary; for the
         // latter, a show summary checkbox toggle in Subscribe dialog will set
         // one on the path to bliss.
-        let folder = aMsgHdr.folder,
-          targetRes;
-        try {
-          targetRes = FeedUtils.getParentTargetForChildResource(
-            folder.URI,
-            FeedUtils.FZ_QUICKMODE,
-            folder.server
-          );
-        } catch (ex) {
-          // Not in a feed account folder or other error.
-          FeedUtils.log.info(
-            "FeedMessageHandler.shouldShowSummary: could not " +
-              "get summary pref for this folder"
-          );
+        let folder = aMsgHdr.folder;
+        showSummary = true;
+        const ds = FeedUtils.getSubscriptionsDS(folder.server);
+        for (let sub of ds.data) {
+          if (sub.destFolder == folder.URI) {
+            showSummary = sub.quickMode;
+            break;
+          }
         }
-
-        showSummary =
-          targetRes &&
-          targetRes.QueryInterface(Ci.nsIRDFLiteral).Value != "false";
         break;
     }
 

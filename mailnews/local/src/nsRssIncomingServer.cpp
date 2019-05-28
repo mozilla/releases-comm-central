@@ -65,14 +65,14 @@ nsresult nsRssIncomingServer::FillInDataSourcePath(
 }
 
 // nsIRSSIncomingServer methods
-NS_IMETHODIMP nsRssIncomingServer::GetSubscriptionsDataSourcePath(
+NS_IMETHODIMP nsRssIncomingServer::GetSubscriptionsPath(
     nsIFile **aLocation) {
-  return FillInDataSourcePath(NS_LITERAL_STRING("feeds.rdf"), aLocation);
+  return FillInDataSourcePath(NS_LITERAL_STRING("feeds.json"), aLocation);
 }
 
-NS_IMETHODIMP nsRssIncomingServer::GetFeedItemsDataSourcePath(
+NS_IMETHODIMP nsRssIncomingServer::GetFeedItemsPath(
     nsIFile **aLocation) {
-  return FillInDataSourcePath(NS_LITERAL_STRING("feeditems.rdf"), aLocation);
+  return FillInDataSourcePath(NS_LITERAL_STRING("feeditems.json"), aLocation);
 }
 
 NS_IMETHODIMP nsRssIncomingServer::CreateDefaultMailboxes() {

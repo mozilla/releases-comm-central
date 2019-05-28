@@ -12,13 +12,11 @@ const { MailServices } = ChromeUtils.import(
 );
 const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 const { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
-const { FileUtils } = ChromeUtils.import(
-  "resource://gre/modules/FileUtils.jsm"
-);
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
+const { JSONFile } = ChromeUtils.import("resource://gre/modules/JSONFile.jsm");
 
 Services.scriptloader.loadSubScript(
   "chrome://messenger-newsblog/content/Feed.js"
@@ -33,39 +31,13 @@ Services.scriptloader.loadSubScript(
 var FeedUtils = {
   MOZ_PARSERERROR_NS: "http://www.mozilla.org/newlayout/xml/parsererror.xml",
 
-  /* eslint-disable no-multi-spaces */
   RDF_SYNTAX_NS: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
   RDF_SYNTAX_TYPE: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-  get RDF_TYPE() {
-    return this.rdf.GetResource(this.RDF_SYNTAX_TYPE);
-  },
-
   RSS_090_NS: "http://my.netscape.com/rdf/simple/0.9/",
 
   RSS_NS: "http://purl.org/rss/1.0/",
-  get RSS_CHANNEL() {
-    return this.rdf.GetResource(this.RSS_NS + "channel");
-  },
-  get RSS_TITLE() {
-    return this.rdf.GetResource(this.RSS_NS + "title");
-  },
-  get RSS_DESCRIPTION() {
-    return this.rdf.GetResource(this.RSS_NS + "description");
-  },
-  get RSS_ITEMS() {
-    return this.rdf.GetResource(this.RSS_NS + "items");
-  },
-  get RSS_ITEM() {
-    return this.rdf.GetResource(this.RSS_NS + "item");
-  },
-  get RSS_LINK() {
-    return this.rdf.GetResource(this.RSS_NS + "link");
-  },
 
   RSS_CONTENT_NS: "http://purl.org/rss/1.0/modules/content/",
-  get RSS_CONTENT_ENCODED() {
-    return this.rdf.GetResource(this.RSS_CONTENT_NS + "encoded");
-  },
 
   RSS_SY_NS: "http://purl.org/rss/1.0/modules/syndication/",
   RSS_SY_UNITS: ["hourly", "daily", "weekly", "monthly", "yearly"],
@@ -73,27 +45,6 @@ var FeedUtils = {
   kBiffUnitsDays: "d",
 
   DC_NS: "http://purl.org/dc/elements/1.1/",
-  get DC_PUBLISHER() {
-    return this.rdf.GetResource(this.DC_NS + "publisher");
-  },
-  get DC_CREATOR() {
-    return this.rdf.GetResource(this.DC_NS + "creator");
-  },
-  get DC_SUBJECT() {
-    return this.rdf.GetResource(this.DC_NS + "subject");
-  },
-  get DC_DATE() {
-    return this.rdf.GetResource(this.DC_NS + "date");
-  },
-  get DC_TITLE() {
-    return this.rdf.GetResource(this.DC_NS + "title");
-  },
-  get DC_LASTMODIFIED() {
-    return this.rdf.GetResource(this.DC_NS + "lastModified");
-  },
-  get DC_IDENTIFIER() {
-    return this.rdf.GetResource(this.DC_NS + "identifier");
-  },
 
   MRSS_NS: "http://search.yahoo.com/mrss/",
   FEEDBURNER_NS: "http://rssnamespace.org/feedburner/ext/1.0",
@@ -101,41 +52,6 @@ var FeedUtils = {
 
   FZ_NS: "urn:forumzilla:",
   FZ_ITEM_NS: "urn:feeditem:",
-  get FZ_ROOT() {
-    return this.rdf.GetResource(this.FZ_NS + "root");
-  },
-  get FZ_FEEDS() {
-    return this.rdf.GetResource(this.FZ_NS + "feeds");
-  },
-  get FZ_FEED() {
-    return this.rdf.GetResource(this.FZ_NS + "feed");
-  },
-  get FZ_QUICKMODE() {
-    return this.rdf.GetResource(this.FZ_NS + "quickMode");
-  },
-  get FZ_DESTFOLDER() {
-    return this.rdf.GetResource(this.FZ_NS + "destFolder");
-  },
-  get FZ_STORED() {
-    return this.rdf.GetResource(this.FZ_NS + "stored");
-  },
-  get FZ_VALID() {
-    return this.rdf.GetResource(this.FZ_NS + "valid");
-  },
-  get FZ_OPTIONS() {
-    return this.rdf.GetResource(this.FZ_NS + "options");
-  },
-  get FZ_LAST_SEEN_TIMESTAMP() {
-    return this.rdf.GetResource(this.FZ_NS + "last-seen-timestamp");
-  },
-
-  get RDF_LITERAL_TRUE() {
-    return this.rdf.GetLiteral("true");
-  },
-  get RDF_LITERAL_FALSE() {
-    return this.rdf.GetLiteral("false");
-  },
-  /* eslint-enable no-multi-spaces */
 
   // Atom constants
   ATOM_03_NS: "http://purl.org/atom/ns#",
@@ -167,7 +83,7 @@ var FeedUtils = {
   },
 
   // The amount of time, specified in milliseconds, to leave an item in the
-  // feeditems.rdf cache after the item has disappeared from the publisher's
+  // feeditems cache after the item has disappeared from the publisher's
   // file. The default delay is one day.
   kInvalidItemPurgeDelayDays: 1,
   get INVALID_ITEM_PURGE_DELAY() {
@@ -301,15 +217,11 @@ var FeedUtils = {
    */
   feedAlreadyExists(aUrl, aServer) {
     let ds = this.getSubscriptionsDS(aServer);
-    let feeds = this.getSubscriptionsList(ds);
-    let resource = this.rdf.GetResource(aUrl);
-    if (feeds.IndexOf(resource) == -1) {
+    let sub = ds.data.find(x => x.url == aUrl);
+    if (sub === undefined) {
       return false;
     }
-
-    let folder = ds
-      .GetTarget(resource, FeedUtils.FZ_DESTFOLDER, true)
-      .QueryInterface(Ci.nsIRDFResource).ValueUTF8;
+    let folder = sub.destFolder;
     this.log.info(
       "FeedUtils.feedAlreadyExists: feed url " +
         aUrl +
@@ -673,12 +585,10 @@ var FeedUtils = {
         win.FeedSubscriptions.selectFeed(feed);
       }
     }
-
-    this.getSubscriptionsDS(aFolder.server).Flush();
   },
 
   /**
-   * Add a feed record to the feeds.rdf database and update the folder's feedUrl
+   * Add a feed record to the feeds database and update the folder's feedUrl
    * property.
    *
    * @param {Feed} aFeed - Our feed object.
@@ -686,52 +596,26 @@ var FeedUtils = {
    * @returns {void}
    */
   addFeed(aFeed) {
+    // Find or create subscription entry.
     let ds = this.getSubscriptionsDS(aFeed.server);
-    let feeds = this.getSubscriptionsList(ds);
-
-    // Generate a unique ID for the feed.
-    let id = aFeed.url;
-    let i = 1;
-    while (feeds.IndexOf(this.rdf.GetResource(id)) != -1 && ++i < 1000) {
-      id = aFeed.url + i;
+    let sub = ds.data.find(x => x.url == aFeed.url);
+    if (sub === undefined) {
+      sub = {};
+      ds.data.push(sub);
     }
-
-    if (i == 1000) {
-      throw new Error(
-        "FeedUtils.addFeed: couldn't generate a unique ID " +
-          "for feed " +
-          aFeed.url
-      );
-    }
-
-    // Add the feed to the list.
-    let feedResource = this.rdf.GetResource(id);
-    feeds.AppendElement(feedResource);
-    ds.Assert(feedResource, this.RDF_TYPE, this.FZ_FEED, true);
-    ds.Assert(
-      feedResource,
-      this.DC_IDENTIFIER,
-      this.rdf.GetLiteral(aFeed.url),
-      true
-    );
+    sub.url = aFeed.url;
+    sub.destFolder = aFeed.folder.URI;
     if (aFeed.title) {
-      ds.Assert(
-        feedResource,
-        this.DC_TITLE,
-        this.rdf.GetLiteral(aFeed.title),
-        true
-      );
+      sub.title = aFeed.title;
     }
-
-    ds.Assert(feedResource, this.FZ_DESTFOLDER, aFeed.folder, true);
-    ds.Flush();
+    ds.saveSoon();
 
     // Update folderpane.
     this.setFolderPaneProperty(aFeed.folder, "favicon", null, "row");
   },
 
   /**
-   * Delete a feed record from the feeds.rdf database and update the folder's
+   * Delete a feed record from the feeds database and update the folder's
    * feedUrl property.
    *
    * @param {Feed} aFeed - Our feed object.
@@ -739,34 +623,21 @@ var FeedUtils = {
    * @returns {void}
    */
   deleteFeed(aFeed) {
-    let ds = this.getSubscriptionsDS(aFeed.server);
-
-    // Remove the feed from the subscriptions ds.
-    let feeds = this.getSubscriptionsList(ds);
-    let index = feeds.IndexOf(aFeed.resource);
-    if (index != -1) {
-      feeds.RemoveElementAt(index, false);
-    }
-
-    // Remove all assertions about the feed from the subscriptions database.
-    this.removeAssertions(ds, aFeed.resource);
-    ds.Flush();
-
-    // Remove all assertions about items in the feed from the items database.
-    let itemds = this.getItemsDS(aFeed.server);
+    // Remove items associated with this feed from the items db.
     aFeed.invalidateItems();
     aFeed.removeInvalidItems(true);
-    itemds.Flush();
+
+    // Remove the entry in the subscriptions db.
+    let ds = this.getSubscriptionsDS(aFeed.server);
+    ds.data = ds.data.filter(x => x.url != aFeed.url);
+    ds.saveSoon();
 
     // Update folderpane.
     this.setFolderPaneProperty(aFeed.folder, "favicon", null, "row");
-    // Remove from cache.
-    delete this[aFeed.server.serverURI][aFeed.url];
   },
 
   /**
-   * Change an existing feed's url, as identified by FZ_FEED resource in the
-   * feeds.rdf subscriptions database.
+   * Change an existing feed's url.
    *
    * @param {Feed} aFeed      - The feed object.
    * @param {String} aNewUrl  - New url.
@@ -794,9 +665,7 @@ var FeedUtils = {
     let options = aFeed.options;
 
     this.deleteFeed(aFeed);
-    aFeed.resource = this.rdf
-      .GetResource(aNewUrl)
-      .QueryInterface(Ci.nsIRDFResource);
+    aFeed.url = aNewUrl;
     aFeed.title = title;
     aFeed.link = link;
     aFeed.quickMode = quickMode;
@@ -812,8 +681,7 @@ var FeedUtils = {
   },
 
   /**
-   * Get the list of feed urls for a folder, as identified by the FZ_DESTFOLDER
-   * tag, directly from the primary feeds.rdf subscriptions database.
+   * Get the list of feed urls for a folder.
    *
    * @param {nsIMsgFolder} aFolder - The folder.
    *
@@ -839,16 +707,15 @@ var FeedUtils = {
     // Get the list from the feeds database.
     try {
       let ds = this.getSubscriptionsDS(aFolder.server);
-      let enumerator = ds.GetSources(this.FZ_DESTFOLDER, aFolder, true);
-      while (enumerator.hasMoreElements()) {
-        let containerArc = enumerator.getNext();
-        let uri = containerArc.QueryInterface(Ci.nsIRDFResource).ValueUTF8;
-        feedUrlArray.push(uri);
+      for (const sub of ds.data) {
+        if (sub.destFolder == aFolder.URI) {
+          feedUrlArray.push(sub.url);
+        }
       }
     } catch (ex) {
-      this.log.error("getFeedUrlsInFolder: feeds.rdf db error - " + ex);
+      this.log.error("getFeedUrlsInFolder: feeds db error - " + ex);
       this.log.error(
-        "getFeedUrlsInFolder: feeds.rdf db error for account - " +
+        "getFeedUrlsInFolder: feeds db error for account - " +
           aFolder.server.serverURI +
           " : " +
           aFolder.server.prettyName
@@ -1168,7 +1035,7 @@ var FeedUtils = {
   },
 
   /**
-   * Update the feeds.rdf database for rename and move/copy folder name changes.
+   * Update the feeds database for rename and move/copy folder name changes.
    *
    * @param {nsIMsgFolder} aFolder      - The folder, new if rename or target of
    *                                      move/copy folder (new parent).
@@ -1186,6 +1053,10 @@ var FeedUtils = {
         aFolder.filePath.path +
         "\norig folder - " +
         aOrigFolder.filePath.path
+    );
+
+    this.log.debug(
+      `updateSubscriptions(${aFolder.name}, ${aOrigFolder.name}, ${aAction})`
     );
 
     if (aFolder.server.type != "rss" || FeedUtils.isInTrash(aOrigFolder)) {
@@ -1225,8 +1096,8 @@ var FeedUtils = {
   },
 
   /**
-   * Update the feeds.rdf database with the new folder's or subfolder's location
-   * for rename and move/copy name changes. The feeds.rdf subscriptions db is
+   * Update the feeds database with the new folder's or subfolder's location
+   * for rename and move/copy name changes. The feeds subscriptions db is
    * also synced on cross account folder copies. Note that if a copied folder's
    * url exists in the new account, its active subscription will be switched to
    * the folder being copied, to enforce the one unique url per account design.
@@ -1262,92 +1133,43 @@ var FeedUtils = {
       aNewAncestorURI && aOrigAncestorURI
         ? folderURI.replace(aNewAncestorURI, aOrigAncestorURI)
         : aOrigFolder.URI;
-    let origFolderRes = this.rdf.GetResource(origURI);
     this.log.debug("updateFolderChangeInFeedsDS: urls origURI  - " + origURI);
-    // Get the original folder's url list from the feeds database.
-    let feedUrlArray = [];
-    let dsSrc = this.getSubscriptionsDS(aOrigFolder.server);
-    try {
-      let enumerator = dsSrc.GetSources(
-        this.FZ_DESTFOLDER,
-        origFolderRes,
-        true
-      );
-      while (enumerator.hasMoreElements()) {
-        let containerArc = enumerator.getNext();
-        let uri = containerArc.QueryInterface(Ci.nsIRDFResource).ValueUTF8;
-        feedUrlArray.push(uri);
-      }
-    } catch (ex) {
-      this.log.error(
-        "updateFolderChangeInFeedsDS: feeds.rdf db error for account - " +
-          aOrigFolder.server.prettyName +
-          " : " +
-          ex
-      );
-    }
 
-    if (!feedUrlArray.length) {
+    // Get affected feed subscriptions - all the ones in the original folder.
+    let origDS = this.getSubscriptionsDS(aOrigFolder.server);
+    let affectedSubs = origDS.data.filter(sub => sub.destFolder == origURI);
+    if (affectedSubs.length == 0) {
       this.log.debug("updateFolderChangeInFeedsDS: no feedUrls in this folder");
       return;
     }
 
-    let ds = this.getSubscriptionsDS(aFolder.server);
-    for (let feedUrl of feedUrlArray) {
-      this.log.debug("updateFolderChangeInFeedsDS: feedUrl - " + feedUrl);
-      let feed = new Feed(feedUrl, aFolder);
-
-      // If move to trash, unsubscribe.
-      if (this.isInTrash(aFolder)) {
-        this.deleteFeed(feed);
-      } else {
-        let folderResource = this.rdf.GetResource(aFolder.URI);
-        // Get the node for the current folder URI.
-        let node = ds.GetTarget(feed.resource, this.FZ_DESTFOLDER, true);
-        if (node) {
-          ds.Change(feed.resource, this.FZ_DESTFOLDER, node, folderResource);
-        } else {
-          // If adding a new feed it's a cross account action; make sure to
-          // preserve all properties from the original datasource where
-          // available. Otherwise use the new folder's name and default server
-          // quickMode; preserve link and options.
-          let feedTitle = dsSrc.GetTarget(feed.resource, this.DC_TITLE, true);
-          feedTitle = feedTitle
-            ? feedTitle.QueryInterface(Ci.nsIRDFLiteral).Value
-            : folderResource.name;
-          let link = dsSrc.GetTarget(feed.resource, FeedUtils.RSS_LINK, true);
-          link = link ? link.QueryInterface(Ci.nsIRDFLiteral).Value : "";
-          let quickMode = dsSrc.GetTarget(
-            feed.resource,
-            this.FZ_QUICKMODE,
-            true
-          );
-          quickMode = quickMode
-            ? quickMode.QueryInterface(Ci.nsIRDFLiteral).Value
-            : null;
-          if (quickMode == "true") {
-            quickMode = true;
-          } else if (quickMode == "false") {
-            quickMode = false;
-          } else {
-            quickMode = feed.server.getBoolValue("quickMode");
-          }
-
-          let options = dsSrc.GetTarget(feed.resource, this.FZ_OPTIONS, true);
-          options = options
-            ? JSON.parse(options.QueryInterface(Ci.nsIRDFLiteral).Value)
-            : this.optionsTemplate;
-          // Update the feedUrl feed properties.
-          feed.title = feedTitle;
-          feed.link = link;
-          feed.quickMode = quickMode;
-          feed.options = options;
-          this.addFeed(feed);
-        }
-      }
+    if (this.isInTrash(aFolder)) {
+      // Moving to trash. Unsubscribe.
+      affectedSubs.forEach(function(sub) {
+        let feed = new Feed(sub.url, aFolder);
+        FeedUtils.deleteFeed(feed);
+      });
+      // note: deleteFeed() calls saveSoon(), so we don't need to.
+    } else if (aFolder.server == aOrigFolder.server) {
+      // Staying in same account - just update destFolder as required
+      affectedSubs.forEach(function(sub) {
+        sub.destFolder = folderURI;
+      });
+      origDS.saveSoon();
+    } else {
+      // Moving between folders.
+      let destDS = this.getSubscriptionsDS(aFolder.server);
+      affectedSubs.forEach(function(sub) {
+        // Move to the new subscription db (replacing any existing entry).
+        origDS.data = origDS.data.filter(x => x.url != sub.url);
+        destDS.data = destDS.data.filter(x => x.url != sub.url);
+        sub.destFolder = folderURI;
+        destDS.push(sub);
+      });
+      this.setFolderPaneProperty(aFolder, "favicon", null, "row");
+      origDS.saveSoon();
+      destDS.saveSoon();
     }
-
-    ds.Flush();
   },
 
   /**
@@ -1582,198 +1404,106 @@ var FeedUtils = {
     },
   },
 
+  /**
+   * Returns a reference to the feed subscriptions store for the given server
+   * (the feeds.json data).
+   *
+   * @param {nsIMsgIncomingServer} aServer - server to fetch item data for.
+   * @returns {JSONFile} - a JSONFile holding the array of feed subscriptions
+   *                       in its data field.
+   */
   getSubscriptionsDS(aServer) {
     if (this[aServer.serverURI] && this[aServer.serverURI].FeedsDS) {
       return this[aServer.serverURI].FeedsDS;
     }
 
-    let file = this.getSubscriptionsFile(aServer);
-    let url = Services.io
-      .getProtocolHandler("file")
-      .QueryInterface(Ci.nsIFileProtocolHandler)
-      .getURLSpecFromFile(file);
-
-    // GetDataSourceBlocking has a cache, so it's cheap to do this again
-    // once we've already done it once.
-    let ds = this.rdf.GetDataSourceBlocking(url);
-
-    if (!ds) {
-      throw new Error(
-        "FeedUtils.getSubscriptionsDS: can't get feed " +
-          "subscriptions data source - " +
-          url
-      );
-    }
+    let rssServer = aServer.QueryInterface(Ci.nsIRssIncomingServer);
+    let feedsFile = rssServer.subscriptionsPath; // Path to feeds.json
+    let exists = feedsFile.exists();
+    let ds = new JSONFile({ path: feedsFile.path });
+    ds.ensureDataReady();
     if (!this[aServer.serverURI]) {
       this[aServer.serverURI] = {};
     }
-
-    return (this[aServer.serverURI].FeedsDS = ds.QueryInterface(
-      Ci.nsIRDFRemoteDataSource
-    ));
-  },
-
-  getSubscriptionsList(aDataSource) {
-    let list = aDataSource.GetTarget(this.FZ_ROOT, this.FZ_FEEDS, true);
-    list = list.QueryInterface(Ci.nsIRDFResource);
-    list = this.rdfContainerUtils.MakeSeq(aDataSource, list);
-    return list;
-  },
-
-  getSubscriptionsFile(aServer) {
-    aServer.QueryInterface(Ci.nsIRssIncomingServer);
-    let file = aServer.subscriptionsDataSourcePath;
-
-    // If the file doesn't exist, create it.
-    if (!file.exists()) {
-      this.createFile(file, this.FEEDS_TEMPLATE);
+    this[aServer.serverURI].FeedsDS = ds;
+    if (!exists) {
+      // No feeds.json, so we need to initalise.
+      ds.data = [];
     }
-
-    return file;
+    return ds;
   },
 
-  FEEDS_TEMPLATE:
-    '<?xml version="1.0"?>\n' +
-    '<RDF:RDF xmlns:dc="http://purl.org/dc/elements/1.1/"\n' +
-    '         xmlns:fz="urn:forumzilla:"\n' +
-    '         xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">\n' +
-    '  <RDF:Description about="urn:forumzilla:root">\n' +
-    "    <fz:feeds>\n" +
-    "      <RDF:Seq>\n" +
-    "      </RDF:Seq>\n" +
-    "    </fz:feeds>\n" +
-    "  </RDF:Description>\n" +
-    "</RDF:RDF>\n",
+  /**
+   * Fetch an attribute for a subscribed feed.
+   *
+   * @param {String} feedURL - URL of the feed.
+   * @param {nsIMsgIncomingServer} server - Server holding the subscription.
+   * @param {String} attrName - Name of attribute to fetch.
+   * @param {undefined} defaultValue - Value to return if not found.
+   *
+   * @returns {undefined} - the fetched value (defaultValue if the
+   *                        subscription or attribute doesn't exist).
+   */
+  getSubscriptionAttr(feedURL, server, attrName, defaultValue) {
+    let ds = this.getSubscriptionsDS(server);
+    let sub = ds.data.find(feed => feed.url == feedURL);
+    if (sub === undefined || sub[attrName] === undefined) {
+      return defaultValue;
+    }
+    return sub[attrName];
+  },
 
+  /**
+   * Set an attribute for a feed in the subscriptions store.
+   * NOTE: If the feed is not already in the store, it will be
+   * added.
+   *
+   * @param {String} feedURL - URL of the feed.
+   * @param {nsIMsgIncomingServer} server - server holding subscription.
+   * @param {String} attrName - Name of attribute to fetch.
+   * @param {undefined} value - Value to store.
+   *
+   * @returns {void}
+   */
+  setSubscriptionAttr(feedURL, server, attrName, value) {
+    let ds = this.getSubscriptionsDS(server);
+    let sub = ds.data.find(feed => feed.url == feedURL);
+    if (sub === undefined) {
+      // Add a new entry.
+      sub = { url: feedURL };
+      ds.data.push(sub);
+    }
+    sub[attrName] = value;
+    ds.saveSoon();
+  },
+
+  /**
+   * Returns a reference to the feeditems store for the given server
+   * (the feeditems.json data).
+   *
+   * @param {nsIMsgIncomingServer} aServer - server to fetch item data for.
+   * @returns {JSONFile} - JSONFile with data field containing a collection
+   *                       of feeditems indexed by item url.
+   */
   getItemsDS(aServer) {
     if (this[aServer.serverURI] && this[aServer.serverURI].FeedItemsDS) {
       return this[aServer.serverURI].FeedItemsDS;
     }
 
-    let file = this.getItemsFile(aServer);
-    let url = Services.io
-      .getProtocolHandler("file")
-      .QueryInterface(Ci.nsIFileProtocolHandler)
-      .getURLSpecFromFile(file);
-
-    // GetDataSourceBlocking has a cache, so it's cheap to do this again
-    // once we've already done it once.
-    let ds = this.rdf.GetDataSourceBlocking(url);
-    if (!ds) {
-      throw new Error(
-        "FeedUtils.getItemsDS: can't get feed items data source - " + url
-      );
-    }
-    // Note that it this point the datasource may not be loaded yet.
-    // You have to QueryInterface it to nsIRDFRemoteDataSource and check
-    // its "loaded" property to be sure.  You can also attach an observer
-    // which will get notified when the load is complete.
+    let rssServer = aServer.QueryInterface(Ci.nsIRssIncomingServer);
+    let itemsFile = rssServer.feedItemsPath; // Path to feeditems.json
+    let exists = itemsFile.exists();
+    let ds = new JSONFile({ path: itemsFile.path });
+    ds.ensureDataReady();
     if (!this[aServer.serverURI]) {
       this[aServer.serverURI] = {};
     }
-
-    return (this[aServer.serverURI].FeedItemsDS = ds.QueryInterface(
-      Ci.nsIRDFRemoteDataSource
-    ));
-  },
-
-  getItemsFile(aServer) {
-    aServer.QueryInterface(Ci.nsIRssIncomingServer);
-    let file = aServer.feedItemsDataSourcePath;
-
-    // If the file doesn't exist, create it.
-    if (!file.exists()) {
-      this.createFile(file, this.FEEDITEMS_TEMPLATE);
-      return file;
+    this[aServer.serverURI].FeedItemsDS = ds;
+    if (!exists) {
+      // No feeditems.json, need to initialise our data.
+      ds.data = {};
     }
-
-    // If feeditems.rdf is not sane, duplicate messages will occur repeatedly
-    // until the file is corrected; check that the file is valid XML. This is
-    // done lazily only once in a session.
-    let fileUrl = Services.io
-      .getProtocolHandler("file")
-      .QueryInterface(Ci.nsIFileProtocolHandler)
-      .getURLSpecFromFile(file);
-    let request = new XMLHttpRequest();
-    request.open("GET", fileUrl, false);
-    request.responseType = "document";
-    request.send();
-    let dom = request.responseXML;
-    if (
-      ChromeUtils.getClassName(dom) === "XMLDocument" &&
-      dom.documentElement.namespaceURI != this.MOZ_PARSERERROR_NS
-    ) {
-      return file;
-    }
-
-    // Error on the file. Rename it and create a new one.
-    this.log.debug("FeedUtils.getItemsFile: error in feeditems.rdf");
-    let errName =
-      "feeditems_error_" + new Date().toISOString().replace(/\D/g, "") + ".rdf";
-    file.moveTo(file.parent, errName);
-    file = aServer.feedItemsDataSourcePath;
-    this.createFile(file, this.FEEDITEMS_TEMPLATE);
-    this.log.error(
-      "FeedUtils.getItemsFile: error in feeditems.rdf in account '" +
-        aServer.prettyName +
-        "'; the file has been moved to " +
-        errName +
-        " and a new file has been created. Recent messages " +
-        "may be duplicated."
-    );
-    return file;
-  },
-
-  FEEDITEMS_TEMPLATE:
-    '<?xml version="1.0"?>\n' +
-    '<RDF:RDF xmlns:dc="http://purl.org/dc/elements/1.1/"\n' +
-    '         xmlns:fz="urn:forumzilla:"\n' +
-    '         xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">\n' +
-    "</RDF:RDF>\n",
-
-  createFile(aFile, aTemplate) {
-    let fos = FileUtils.openSafeFileOutputStream(aFile);
-    fos.write(aTemplate, aTemplate.length);
-    FileUtils.closeSafeFileOutputStream(fos);
-  },
-
-  getParentTargetForChildResource(aChildResource, aParentTarget, aServer) {
-    // Generic get feed property, based on child value. Assumes 1 unique
-    // child value with 1 unique parent, valid for feeds.rdf structure.
-    let ds = this.getSubscriptionsDS(aServer);
-    let childRes = this.rdf.GetResource(aChildResource);
-    let parent = null;
-
-    let arcsIn = ds.ArcLabelsIn(childRes);
-    while (arcsIn.hasMoreElements()) {
-      let arc = arcsIn.getNext();
-      if (arc instanceof Ci.nsIRDFResource) {
-        parent = ds.GetSource(arc, childRes, true);
-        parent = parent.QueryInterface(Ci.nsIRDFResource);
-        break;
-      }
-    }
-
-    if (parent) {
-      let resource = this.rdf.GetResource(parent.Value);
-      return ds.GetTarget(resource, aParentTarget, true);
-    }
-
-    return null;
-  },
-
-  removeAssertions(aDataSource, aResource) {
-    let properties = aDataSource.ArcLabelsOut(aResource);
-    let property;
-    while (properties.hasMoreElements()) {
-      property = properties.getNext();
-      let values = aDataSource.GetTargets(aResource, property, true);
-      let value;
-      while (values.hasMoreElements()) {
-        value = values.getNext();
-        aDataSource.Unassert(aResource, property, value, true);
-      }
-    }
+    return ds;
   },
 
   /**
@@ -2293,10 +2023,6 @@ var FeedUtils = {
       this.mNumPendingFeedDownloads--;
 
       if (this.mNumPendingFeedDownloads == 0) {
-        if (feed.server) {
-          FeedUtils.getSubscriptionsDS(feed.server).Flush();
-        }
-
         this.mFeeds = {};
         this.mSubscribeMode = false;
         FeedUtils.log.debug("downloaded: all pending downloads finished");
@@ -2391,15 +2117,5 @@ XPCOMUtils.defineLazyGetter(FeedUtils, "strings", function() {
 XPCOMUtils.defineLazyGetter(FeedUtils, "stringsPrefs", function() {
   return Services.strings.createBundle(
     "chrome://messenger/locale/prefs.properties"
-  );
-});
-
-XPCOMUtils.defineLazyGetter(FeedUtils, "rdf", function() {
-  return Cc["@mozilla.org/rdf/rdf-service;1"].getService(Ci.nsIRDFService);
-});
-
-XPCOMUtils.defineLazyGetter(FeedUtils, "rdfContainerUtils", function() {
-  return Cc["@mozilla.org/rdf/container-utils;1"].getService(
-    Ci.nsIRDFContainerUtils
   );
 });

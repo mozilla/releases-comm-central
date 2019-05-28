@@ -82,10 +82,6 @@ FeedItem.prototype = {
     return messageID;
   },
 
-  get itemUniqueURI() {
-    return this.createURN(this.id);
-  },
-
   get contentBase() {
     if (this.xmlContentBase) {
       return this.xmlContentBase;
@@ -94,18 +90,30 @@ FeedItem.prototype = {
     return this.mURL;
   },
 
+  /**
+   * Writes the item to the folder as a message and updates the feeditems db.
+   *
+   * @returns {void}
+   */
   store() {
     // this.title and this.content contain HTML.
     // this.mUrl and this.contentBase contain plain text.
 
     let stored = false;
+    let ds = FeedUtils.getItemsDS(this.feed.server);
     let resource = this.findStoredResource();
     if (!this.feed.folder) {
       return stored;
     }
 
     if (resource == null) {
-      resource = FeedUtils.rdf.GetResource(this.itemUniqueURI);
+      resource = {
+        feedURLs: [this.feed.url],
+        lastSeenTime: 0,
+        valid: false,
+        stored: false,
+      };
+      ds.data[this.url] = resource;
       if (!this.content) {
         FeedUtils.log.trace(
           "FeedItem.store: " +
@@ -126,6 +134,7 @@ FeedItem.prototype = {
     }
 
     this.markValid(resource);
+    ds.saveSoon();
     return stored;
   },
 
@@ -152,108 +161,31 @@ FeedItem.prototype = {
     }
 
     let ds = FeedUtils.getItemsDS(server);
-    let itemURI = this.itemUniqueURI;
-    let itemResource = FeedUtils.rdf.GetResource(itemURI);
-
-    let downloaded = ds.GetTarget(itemResource, FeedUtils.FZ_STORED, true);
-
-    if (
-      !downloaded ||
-      downloaded.QueryInterface(Ci.nsIRDFLiteral).Value == "false"
-    ) {
+    let item = ds.data[this.url];
+    if (!item || !item.stored) {
       FeedUtils.log.trace("FeedItem.findStoredResource: not stored");
       return null;
     }
 
     FeedUtils.log.trace("FeedItem.findStoredResource: already stored");
-    return itemResource;
+    return item;
   },
 
   markValid(resource) {
-    let ds = FeedUtils.getItemsDS(this.feed.server);
-
-    let newTimeStamp = FeedUtils.rdf.GetLiteral(new Date().getTime());
-    let currentTimeStamp = ds.GetTarget(
-      resource,
-      FeedUtils.FZ_LAST_SEEN_TIMESTAMP,
-      true
-    );
-    if (currentTimeStamp) {
-      ds.Change(
-        resource,
-        FeedUtils.FZ_LAST_SEEN_TIMESTAMP,
-        currentTimeStamp,
-        newTimeStamp
-      );
-    } else {
-      ds.Assert(resource, FeedUtils.FZ_LAST_SEEN_TIMESTAMP, newTimeStamp, true);
+    resource.lastSeenTime = new Date().getTime();
+    // Items can be in multiple feeds.
+    if (!resource.feedURLs.includes(this.feed.url)) {
+      resource.feedURLs.push(this.feed.url);
     }
-
-    if (
-      !ds.HasAssertion(
-        resource,
-        FeedUtils.FZ_FEED,
-        FeedUtils.rdf.GetResource(this.feed.url),
-        true
-      )
-    ) {
-      ds.Assert(
-        resource,
-        FeedUtils.FZ_FEED,
-        FeedUtils.rdf.GetResource(this.feed.url),
-        true
-      );
-    }
-
-    if (ds.hasArcOut(resource, FeedUtils.FZ_VALID)) {
-      let currentValue = ds.GetTarget(resource, FeedUtils.FZ_VALID, true);
-      ds.Change(
-        resource,
-        FeedUtils.FZ_VALID,
-        currentValue,
-        FeedUtils.RDF_LITERAL_TRUE
-      );
-    } else {
-      ds.Assert(resource, FeedUtils.FZ_VALID, FeedUtils.RDF_LITERAL_TRUE, true);
-    }
+    resource.valid = true;
   },
 
   markStored(resource) {
-    let ds = FeedUtils.getItemsDS(this.feed.server);
-
-    if (
-      !ds.HasAssertion(
-        resource,
-        FeedUtils.FZ_FEED,
-        FeedUtils.rdf.GetResource(this.feed.url),
-        true
-      )
-    ) {
-      ds.Assert(
-        resource,
-        FeedUtils.FZ_FEED,
-        FeedUtils.rdf.GetResource(this.feed.url),
-        true
-      );
+    // Items can be in multiple feeds.
+    if (!resource.feedURLs.includes(this.feed.url)) {
+      resource.feedURLs.push(this.feed.url);
     }
-
-    let currentValue;
-    if (ds.hasArcOut(resource, FeedUtils.FZ_STORED)) {
-      currentValue = ds.GetTarget(resource, FeedUtils.FZ_STORED, true);
-      ds.Change(
-        resource,
-        FeedUtils.FZ_STORED,
-        currentValue,
-        FeedUtils.RDF_LITERAL_TRUE
-      );
-    } else {
-      ds.Assert(
-        resource,
-        FeedUtils.FZ_STORED,
-        FeedUtils.RDF_LITERAL_TRUE,
-        true
-      );
-    }
+    resource.stored = true;
   },
 
   writeToFolder() {
@@ -490,25 +422,6 @@ FeedItem.prototype = {
     s = s.replace(/'/g, "&#39;");
     s = s.replace(/"/g, "&quot;");
     return s;
-  },
-
-  createURN(aName) {
-    // Returns name as a URN in the 'feeditem' namespace. The returned URN is
-    // (or is intended to be) RFC2141 compliant.
-    // The builtin encodeURI provides nearly the exact encoding functionality
-    // required by the RFC.  The exceptions are that NULL characters should not
-    // appear, and that #, /, ?, &, and ~ should be escaped.
-    // NULL characters are removed before encoding.
-
-    let name = aName.replace(/\0/g, "");
-    let encoded = encodeURI(name);
-    encoded = encoded.replace(/\#/g, "%23");
-    encoded = encoded.replace(/\//g, "%2f");
-    encoded = encoded.replace(/\?/g, "%3f");
-    encoded = encoded.replace(/\&/g, "%26");
-    encoded = encoded.replace(/\~/g, "%7e");
-
-    return FeedUtils.FZ_ITEM_NS + encoded;
   },
 };
 
