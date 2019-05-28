@@ -84,10 +84,16 @@
 
           <vbox>
             <label class="header" data-l10n-id="otr-settings-title" />
+            <checkbox id="server.otrAllowMsgLog"
+                      data-l10n-id="otr-log"
+                      crop="end"
+                      wsm_persist="true"
+                      preftype="bool"
+                      genericattr="true"
+                      />
             <checkbox id="server.otrRequireEncryption"
                       data-l10n-id="otr-requireEncryption"
                       crop="end"
-                      oncommand="account.updateRequireEncryption();"
                       wsm_persist="true"
                       preftype="bool"
                       genericattr="true"
@@ -95,7 +101,6 @@
             <checkbox id="server.otrVerifyNudge"
                       data-l10n-id="otr-verifyNudge"
                       crop="end"
-                      oncommand="account.updateVerifyNudge();"
                       wsm_persist="true"
                       preftype="bool"
                       genericattr="true"

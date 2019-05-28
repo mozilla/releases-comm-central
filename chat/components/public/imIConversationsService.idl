@@ -101,4 +101,8 @@ interface imIMessage: prplIMessage {
 
            // What eventually gets shown to the user.
            attribute AUTF8String displayMessage;
+
+           // The related incoming or outgoing message is transmitted
+           // with encryption.
+           attribute boolean encrypted;
 };

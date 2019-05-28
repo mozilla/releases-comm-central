@@ -715,6 +715,10 @@ pref("mail.chat.play_sound.type", 0);
 pref("mail.chat.play_sound.url", "");
 // Enable/Disable support for OTR chat encryption.
 pref("chat.otr.enable", false);
+// Default values for chat account prefs.
+pref("chat.otr.default.requireEncryption", false);
+pref("chat.otr.default.verifyNudge", true);
+pref("chat.otr.default.allowMsgLog", true);
 
 // BigFiles
 pref("mail.cloud_files.enabled", true);

@@ -166,10 +166,13 @@ imIncomingServer.prototype = {
   _defaultOptionValues: null,
   _getDefault(aPrefName) {
     if (aPrefName == "otrVerifyNudge") {
-      return true;
+      return Services.prefs.getBoolPref("chat.otr.default.verifyNudge");
     }
     if (aPrefName == "otrRequireEncryption") {
-      return false;
+      return Services.prefs.getBoolPref("chat.otr.default.requireEncryption");
+    }
+    if (aPrefName == "otrAllowMsgLog") {
+      return Services.prefs.getBoolPref("chat.otr.default.allowMsgLog");
     }
     if (this._defaultOptionValues)
       return this._defaultOptionValues[aPrefName];

@@ -59,6 +59,7 @@ var account = {
 
     if (OTRUI.enabled) {
       document.getElementById("imTabOTR").hidden = false;
+      document.getElementById("server.otrAllowMsgLog").value = this.account.otrAllowMsgLog;
       document.getElementById("server.otrVerifyNudge").value = this.account.otrVerifyNudge;
       document.getElementById("server.otrRequireEncryption").value = this.account.otrRequireEncryption;
 
@@ -128,13 +129,5 @@ var account = {
   viewFingerprintKeys() {
     window.openDialog("chrome://chat/content/otr-finger.xul", "",
                       "chrome,modal,titlebar,centerscreen", this.account);
-  },
-
-  updateRequireEncryption() {
-    console.log("require");
-  },
-
-  updateVerifyNudge() {
-    console.log("verify");
   },
 };

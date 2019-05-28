@@ -53,6 +53,7 @@ imMessage.prototype = {
   cancelled: false,
   color: "",
   _displayMessage: null,
+  encrypted: false,
 
   get displayMessage() {
     // Explicitly test for null so that blank messages don't fall back to

@@ -13,9 +13,12 @@ view-fingerprint-button =
     .label = Manage Fingerprints Of Contacts
     .accesskey = F
 otr-settings-title = OTR Settings
+otr-log =
+    .label = Messages that were transmitted with OTR encryption are included in conversation logs
 otr-requireEncryption =
     .label = Require end-to-end encryption for one-to-one conversations
 otr-verifyNudge =
     .label = Always remind me to verify an unverified contact
 
 otr-notYetAvailable = not yet available
+

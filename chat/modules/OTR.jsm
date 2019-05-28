@@ -508,8 +508,8 @@ var OTR = {
   },
 
   sendQueryMsg(conv) {
-    let req = this.getAccountPref("otrRequireEncryption",
-      conv.account.id, OTR.defaultOtrRequireEncryption());
+    let req = this.getAccountPref("otrRequireEncryption", conv.account.id,
+      Services.prefs.getBoolPref("chat.otr.default.requireEncryption"));
     let query = OTRLib.otrl_proto_default_query_msg(
       conv.account.normalizedName,
       req ?
@@ -557,14 +557,6 @@ var OTR = {
     return level;
   },
 
-  defaultOtrRequireEncryption() {
-    return false;
-  },
-
-  defaultOtrVerifyNudge() {
-    return true;
-  },
-
   getPrefBranchFromWrappedContext(wContext) {
     for (let acc of Services.accounts.getAccounts()) {
       if (wContext.account == acc.normalizedName &&
@@ -587,7 +579,7 @@ var OTR = {
       return new ctypes.unsigned_int(0);
     }
     let prefRequire = pb.getBoolPref("options.otrRequireEncryption",
-      OTR.defaultOtrRequireEncryption());
+      Services.prefs.getBoolPref("chat.otr.default.requireEncryption"));
     return prefRequire ? OTRLib.OTRL_POLICY_ALWAYS
                        : OTRLib.OTRL_POLICY_OPPORTUNISTIC;
   },
@@ -650,11 +642,11 @@ var OTR = {
     }
 
     let wContext = new Context(context);
-    let prefNudge = OTR.defaultOtrVerifyNudge();
+    let defaultNudge = Services.prefs.getBoolPref("chat.otr.default.verifyNudge");
+    let prefNudge = defaultNudge;
     let pb = OTR.getPrefBranchFromWrappedContext(wContext);
     if (pb) {
-      prefNudge = pb.getBoolPref("options.otrVerifyNudge",
-        OTR.defaultOtrVerifyNudge());
+      prefNudge = pb.getBoolPref("options.otrVerifyNudge", defaultNudge);
     }
 
     // Only nudge on new fingerprint, as opposed to always.
@@ -675,11 +667,11 @@ var OTR = {
    */
   gone_secure_cb(opdata, context) {
     let wContext = new Context(context);
-    let prefNudge = OTR.defaultOtrVerifyNudge();
+    let defaultNudge = Services.prefs.getBoolPref("chat.otr.default.verifyNudge");
+    let prefNudge = defaultNudge;
     let pb = OTR.getPrefBranchFromWrappedContext(wContext);
     if (pb) {
-      prefNudge = pb.getBoolPref("options.otrVerifyNudge",
-        OTR.defaultOtrVerifyNudge());
+      prefNudge = pb.getBoolPref("options.otrVerifyNudge", defaultNudge);
     }
     let strid = "context-gone_secure_" + (wContext.trust ? "private" : "unverified");
     this.notifyObservers(wContext, "otr:msg-state");
@@ -1115,6 +1107,14 @@ var OTR = {
     let conv = im.conversation;
     if (conv.isChat)
       return;
+
+    // After outgoing messages have been handled in onSend,
+    // they are again passed back to us, here in onReceive.
+    // This is our chance to prevent both outgoing and incoming OTR
+    // messages from being logged here.
+    if (im.originalMessage.startsWith("?OTR")) {
+      im.encrypted = true;
+    }
 
     if (im.outgoing) {
       this.log("outgoing message to display: " + im.displayMessage);

@@ -903,7 +903,14 @@ Logger.prototype = {
       }, this);
       break;
     case "new-text":
-      if (!aSubject.noLog) {
+      let excludeBecauseEncrypted = false;
+      if (aSubject.encrypted) {
+        excludeBecauseEncrypted = !Services.prefs.getBoolPref(
+          "messenger.account." + aSubject.conversation.account.id +
+          ".options.otrAllowMsgLog",
+          Services.prefs.getBoolPref("chat.otr.default.allowMsgLog"));
+      }
+      if (!aSubject.noLog && !excludeBecauseEncrypted) {
         let log = getLogWriter(aSubject.conversation);
         log.logMessage(aSubject);
       }
