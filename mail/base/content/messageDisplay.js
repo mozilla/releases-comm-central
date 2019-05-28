@@ -505,8 +505,7 @@ MessageTabDisplayWidget.prototype = {
     if (this.folderDisplay.view.dbView.rowCount == 0) {
       if (!this.closing) {
         this.closing = true;
-        document.getElementById("tabmail").closeTab(
-            this.folderDisplay._tabInfo, true);
+        document.getElementById("tabmail").closeTab(this.folderDisplay._tabInfo, true);
       }
       return true;
     }
@@ -527,12 +526,13 @@ MessageTabDisplayWidget.prototype = {
     if (!this.folderDisplay.treeSelection)
       return true;
 
-    if (this.folderDisplay.treeSelection.count == 0 &&
+    if (this.folderDisplay._deleteInProgress &&
         Services.prefs.getBoolPref("mail.close_message_window.on_delete")) {
       document.getElementById("tabmail").closeTab(this.folderDisplay._tabInfo,
                                                   true);
       return true;
     }
+
     return false;
   },
 

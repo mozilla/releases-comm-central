@@ -145,6 +145,10 @@ function FolderDisplayWidget(aTabInfo, aMessageDisplayWidget) {
    *  moving to _nextViewIndexAfterDelete until the mass move completes.
    */
   this._massMoveActive = false;
+  /**
+   * Track when a message is being deleted so we can respond appropriately.
+   */
+  this._deleteInProgress = false;
 
   /**
    * Used by pushNavigation to queue a navigation request for when we enter the
@@ -160,22 +164,15 @@ function FolderDisplayWidget(aTabInfo, aMessageDisplayWidget) {
    */
   this._notificationsPendingActivation = [];
 
-  // Create a DOM node for the fake tree box below.
-  let domNode = document.createXULElement("vbox");
-
-  // We care about onselect events, so add a listener for that.
-  let self = this;
-  domNode.addEventListener("select", function() {
-    self.view.dbView.selectionChanged();
-  });
-
   /**
    * Create a fake tree object for if/when this folder is in the background.
-   * We need to give it a DOM object to send events to, including the onselect
-   * event we care about and for which we added a handler above, and all the
-   * other events we don't care about.
+   * Hide the tree using CSS, because if it's not attached to the document or
+   * is hidden="true", it won't fire select events and stuff will break.
    */
-  this._fakeTree = new FakeTree(domNode);
+  this._fakeTree = document.createXULElement("tree");
+  this._fakeTree.setAttribute("style", "visibility: collapse");
+  this._fakeTree.appendChild(document.createXULElement("treechildren"));
+  document.documentElement.appendChild(this._fakeTree);
 
   /**
    * Create a fake tree selection for cases where we have opened a background
@@ -825,6 +822,7 @@ FolderDisplayWidget.prototype = {
     this.view.close();
     this.messenger.setWindow(null, null);
     this.messenger = null;
+    this._fakeTree.remove();
     this._fakeTree = null;
     this._fakeTreeSelection = null;
   },
@@ -1200,7 +1198,9 @@ FolderDisplayWidget.prototype = {
     FolderDisplayListenerManager._fireListeners("onMessagesRemoved",
                                                 [this]);
 
-    if (this.messageDisplay.onMessagesRemoved())
+    let handled = this.messageDisplay.onMessagesRemoved();
+    this._deleteInProgress = false;
+    if (handled)
       return;
 
     // - we saw this coming
@@ -1416,6 +1416,7 @@ FolderDisplayWidget.prototype = {
    * Our automated complement (that calls us) is updateNextMessageAfterDelete.
    */
   hintAboutToDeleteMessages() {
+    this._deleteInProgress = true;
     // save the value, even if it is nsMsgViewIndex_None.
     this._nextViewIndexAfterDelete = this.view.dbView.msgToSelectAfterDelete;
   },
@@ -1772,8 +1773,8 @@ FolderDisplayWidget.prototype = {
 
     // hook the dbview up to the fake tree box
     this._fakeTree.view = this.view.dbView;
-    // this.view.dbView.setTree(this._fakeTree);  // See bug 1518823.
-    // treeSelection.tree = this._fakeTree;
+    this.view.dbView.setTree(this._fakeTree);
+    treeSelection.tree = this._fakeTree;
   },
 
   /**
@@ -2345,6 +2346,10 @@ FolderDisplayWidget.prototype = {
 
     // Do this here instead of at the beginning to prevent reentrancy issues
     this._aboutToSelectMessage = false;
+
+    let tabmail = document.getElementById("tabmail");
+    if (tabmail)
+      tabmail.setTabTitle(this._tabInfo);
   },
 
   /**
@@ -2564,158 +2569,3 @@ FolderDisplayWidget.prototype = {
   },
   // @}
 };
-
-/**
- * Implement a fake nsITreeBoxObject so that we can keep the view
- *  nsITreeSelection selections 'live' when they are in the background.  We need
- *  to do this because nsTreeSelection changes its behaviour (and gets ornery)
- *  if it does not have a box object.
- * This does not need to exist once we abandon multiplexed tabbing.
- *
- * Sometimes, nsTreeSelection tries to turn us into an nsIBoxObject and then in
- *  turn get the associated element, and then create DOM events on that. The
- *  only event that we care about is onselect, so we get a DOM node here (with
- *  an event listener for onselect already attached), and pass its boxObject in
- *  whenever nsTreeSelection QIs us to nsIBoxObject.
- */
-function FakeTree(aDOMNode) {
-  this.domNode = aDOMNode;
-  this.view = null;
-}
-FakeTree.prototype = {
-  view: null,
-  ensureRowIsVisible() {
-    // NOP
-  },
-  /**
-   * No need to actually invalidate, as when we re-root the view this will
-   *  happen.
-   */
-  invalidate() {
-    // NOP
-  },
-  invalidateRange() {
-    // NOP
-  },
-  invalidateRow() {
-    // NOP
-  },
-  beginUpdateBatch() {
-
-  },
-  endUpdateBatch() {
-
-  },
-  /**
-   * We're going to make an exception to our NOP rule here, as this is rather
-   * important for us to pass on. The db view calls this if a row's been
-   * inserted or deleted. Without this, the selection's going to be out of sync
-   * with the view.
-   *
-   * @param aIndex the index where the rows have been inserted or deleted
-   * @param aCount the number of rows inserted or deleted (negative for
-   *               deleted)
-   */
-  rowCountChanged(aIndex, aCount) {
-    if (aCount == 0 || !this.view)
-      // Nothing to do
-      return;
-
-    let selection = this.view.selection;
-    if (selection)
-      selection.adjustSelection(aIndex, aCount);
-  },
-  get element() { return this.domNode; },
-  get x() { return this.domNode.getBoundingClientRect().x; },
-  get y() { return this.domNode.getBoundingClientRect().y; },
-  get screenX() { return this.domNode.screenX; },
-  get screenY() { return this.domNode.screenY; },
-  get width() { return this.domNode.getBoundingClientRect().width; },
-  get height() { return this.domNode.getBoundingClientRect().height; },
-  get parentBox() { return this.domNode.boxObject.parentBox; },
-  get firstChild() { return this.domNode.boxObject.firstChild; },
-  get lastChild() { return this.domNode.boxObject.lastChild; },
-  get nextSibling() { return this.domNode.boxObject.nextSibling; },
-  get previousSibling() { return this.domNode.boxObject.previousSibling; },
-  getPropertyAsSupports(propertyName) {
-    return this.domNode.boxObject.getPropertyAsSupports(propertyName);
-  },
-  setPropertyAsSupports(propertyName, value) {
-    this.domNode.boxObject.setPropertyAsSupports(propertyName, value);
-  },
-  getProperty(propertyName) {
-    return this.domNode.boxObject.getProperty(propertyName);
-  },
-  setProperty(propertyName, value) {
-    return this.domNode.boxObject.setProperty(propertyName, value);
-  },
-  removeProperty(propertyName) {
-    return this.domNode.boxObject.removeProperty(propertyName);
-  },
-  QueryInterface: ChromeUtils.generateQI(["nsIBoxObject",
-                                          "XULTreeElement"]),
-};
-/*
- * Provide attribute and function implementations that complain very loudly if
- *  they are used.  Now, XPConnect will return an error to callers if we don't
- *  implement part of the interface signature, but this is unlikely to provide
- *  the visibility we desire.  In fact, since it is a simple nsresult error,
- *  it may make things completely crazy.  So this way we can yell via dump,
- *  throw an exception, etc.
- */
-function FTBO_stubOutAttributes(aObj, aAttribNames) {
-  for (let attrName of aAttribNames) {
-    let myAttrName = attrName;
-    aObj.__defineGetter__(attrName,
-      function() {
-        let msg = "Read access to stubbed attribute " + myAttrName;
-        dump(msg + "\n");
-        throw new Error(msg);
-      });
-    aObj.__defineSetter__(attrName,
-      function() {
-        let msg = "Write access to stubbed attribute " + myAttrName;
-        dump(msg + "\n");
-        throw new Error(msg);
-      });
-  }
-}
-function FTBO_stubOutMethods(aObj, aMethodNames) {
-  for (let methodName of aMethodNames) {
-    let myMethodName = methodName;
-    aObj[myMethodName] = function() {
-      let msg = "Call to stubbed method " + myMethodName;
-      dump(msg + "\n");
-      throw new Error(msg);
-    };
-  }
-}
-FTBO_stubOutAttributes(FakeTree.prototype, [
-  "columns",
-  "focused",
-  "treeBody",
-  "rowHeight",
-  "rowWidth",
-  "horizontalPosition",
-  "selectionRegion",
-  ]);
-FTBO_stubOutMethods(FakeTree.prototype, [
-  "getFirstVisibleRow",
-  "getLastVisibleRow",
-  "getPageLength",
-  "ensureCellIsVisible",
-  "scrollToRow",
-  "scrollByLines",
-  "scrollByPages",
-  "scrollToCell",
-  "scrollToColumn",
-  "scrollToHorizontalPosition",
-  "invalidateColumn",
-  "invalidateCell",
-  "invalidateColumnRange",
-  "getRowAt",
-  "getCellAt",
-  "getCoordsForCellItem",
-  "isCellCropped",
-  "clearStyleAndImageCaches",
-  ]);

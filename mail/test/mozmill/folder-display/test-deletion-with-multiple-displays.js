@@ -55,7 +55,6 @@ function setupModule(module) {
   make_new_sets_in_folder(multipleDeletionFolder4, [{count: 10}]);
 }
 
-
 var tabFolder, tabMessage, tabMessageBackground, curMessage, nextMessage;
 
 /**
@@ -150,7 +149,7 @@ function test_open_first_message_in_all_four_display_mechanisms() {
  * Perform a deletion from the folder tab, verify the others update correctly
  *  (advancing to the next message).
  */
-function disabled_test_delete_in_folder_tab() {
+function test_delete_in_folder_tab() {
   // - plan to end up on the guy who is currently at index 1
   curMessage = mc.dbView.getMsgHdrAt(1);
   // while we're at it, figure out who is at 2 for the next step
@@ -166,7 +165,7 @@ function disabled_test_delete_in_folder_tab() {
  * Perform a deletion from the message tab, verify the others update correctly
  *  (advancing to the next message).
  */
-function disabled_test_delete_in_message_tab() {
+function test_delete_in_message_tab() {
   switch_tab(tabMessage);
   // nextMessage is the guy we want to see once the delete completes.
   press_delete();
@@ -185,7 +184,7 @@ function disabled_test_delete_in_message_tab() {
  * Perform a deletion from the message window, verify the others update
  *  correctly (advancing to the next message).
  */
-function disabled_test_delete_in_message_window() {
+function test_delete_in_message_window() {
   // - delete
   press_delete(msgc);
   curMessage = nextMessage;
@@ -197,7 +196,7 @@ function disabled_test_delete_in_message_window() {
  * Delete the last message in that folder, which should close all message
  *  displays.
  */
-function disabled_test_delete_last_message_closes_message_displays() {
+function test_delete_last_message_closes_message_displays() {
   // - since we have both foreground and background message tabs, we don't need
   // to open yet another tab to test
 
@@ -244,7 +243,7 @@ function test_open_last_message_in_all_four_display_mechanisms() {
  * Perform a deletion from the folder tab, verify the others update correctly
  * (advancing to the next message).
  */
-function disabled_test_delete_last_message_in_folder_tab() {
+function test_delete_last_message_in_folder_tab() {
   // - plan to end up on the guy who is currently at index 2
   curMessage = mc.dbView.getMsgHdrAt(2);
   // while we're at it, figure out who is at 1 for the next step
@@ -260,7 +259,7 @@ function disabled_test_delete_last_message_in_folder_tab() {
  * Perform a deletion from the message tab, verify the others update correctly
  * (advancing to the next message).
  */
-function disabled_test_delete_last_message_in_message_tab() {
+function test_delete_last_message_in_message_tab() {
   // (we're still on the message tab, and nextMessage is the guy we want to see
   //  once the delete completes.)
   press_delete();
@@ -279,7 +278,7 @@ function disabled_test_delete_last_message_in_message_tab() {
  * Perform a deletion from the message window, verify the others update
  * correctly (advancing to the next message).
  */
-function disabled_test_delete_last_message_in_message_window() {
+function test_delete_last_message_in_message_window() {
   // Vary this up. Switch to the folder tab instead of staying on the message
   // tab
   switch_tab(tabFolder);
@@ -304,7 +303,7 @@ function disabled_test_delete_last_message_in_message_window() {
 /**
  * Test "one before" deletion in the folder tab.
  */
-function disabled_test_delete_one_before_message_in_folder_tab() {
+function test_delete_one_before_message_in_folder_tab() {
   // Open up message 4 in message tabs and a window (we'll delete message 3).
   _open_message_in_all_four_display_mechanisms_helper(oneBeforeFolder, 4);
 
@@ -327,7 +326,7 @@ function disabled_test_delete_one_before_message_in_folder_tab() {
 /**
  * Test "one before" deletion in the message tab.
  */
-function disabled_test_delete_one_before_message_in_message_tab() {
+function test_delete_one_before_message_in_message_tab() {
   // Open up 3 in a message tab, then select and open up 4 in a background tab
   // and window.
   select_click_row(3);
@@ -355,7 +354,7 @@ function disabled_test_delete_one_before_message_in_message_tab() {
 /**
  * Test "one before" deletion in the message window.
  */
-function disabled_test_delete_one_before_message_in_message_window() {
+function test_delete_one_before_message_in_message_window() {
   // Open up 3 in a message window, then select and open up 4 in a background
   // and a foreground tab.
   select_click_row(3);
@@ -412,7 +411,7 @@ function test_delete_one_after_message_in_folder_tab() {
 /**
  * Test "one after" deletion in the message tab.
  */
-function disabled_test_delete_one_after_message_in_message_tab() {
+function test_delete_one_after_message_in_message_tab() {
   // Open up 5 in a message tab, then select and open up 4 in a background tab
   // and window.
   select_click_row(5);
@@ -476,7 +475,7 @@ function test_delete_one_after_message_in_message_window() {
  * Test deleting multiple messages in a folder tab, with message displays open
  * to the beginning of a selection.
  */
-function disabled_test_delete_multiple_messages_with_first_selected_message_open() {
+function test_delete_multiple_messages_with_first_selected_message_open() {
   // Open up 2 in a message tab, background tab, and message window.
   _open_message_in_all_four_display_mechanisms_helper(multipleDeletionFolder1,
                                                       2);
@@ -507,7 +506,7 @@ function disabled_test_delete_multiple_messages_with_first_selected_message_open
  * Test deleting multiple messages in a folder tab, with message displays open
  * to somewhere in the middle of a selection.
  */
-function disabled_test_delete_multiple_messages_with_nth_selected_message_open() {
+function test_delete_multiple_messages_with_nth_selected_message_open() {
   // Open up 9 in a message tab, background tab, and message window.
   _open_message_in_all_four_display_mechanisms_helper(multipleDeletionFolder1,
                                                       9);
@@ -543,7 +542,7 @@ function disabled_test_delete_multiple_messages_with_nth_selected_message_open()
  * Test deleting multiple messages in a folder tab, with message displays open
  * to the end of a selection.
  */
-function disabled_test_delete_multiple_messages_with_last_selected_message_open() {
+function test_delete_multiple_messages_with_last_selected_message_open() {
   // Open up 10 in a message tab, background tab, and message window.
   _open_message_in_all_four_display_mechanisms_helper(multipleDeletionFolder1,
                                                       9);
@@ -578,7 +577,7 @@ function disabled_test_delete_multiple_messages_with_last_selected_message_open(
  * Test deleting multiple messages in a folder tab (including the last one!),
  * with message displays open to the beginning of a selection.
  */
-function disabled_test_delete_multiple_messages_including_the_last_one_with_first_open() {
+function test_delete_multiple_messages_including_the_last_one_with_first_open() {
   // 10 messages in this folder. Open up message 1 everywhere.
   _open_message_in_all_four_display_mechanisms_helper(multipleDeletionFolder2,
                                                       1);
@@ -608,7 +607,7 @@ function disabled_test_delete_multiple_messages_including_the_last_one_with_firs
  * Test deleting multiple messages in a folder tab (including the last one!),
  * with message displays open to the middle of a selection.
  */
-function disabled_test_delete_multiple_messages_including_the_last_one_with_nth_open() {
+function test_delete_multiple_messages_including_the_last_one_with_nth_open() {
   // 10 messages in this folder. Open up message 7 everywhere.
   _open_message_in_all_four_display_mechanisms_helper(multipleDeletionFolder3,
                                                       7);
@@ -643,7 +642,7 @@ function disabled_test_delete_multiple_messages_including_the_last_one_with_nth_
  * Test deleting multiple messages in a folder tab (including the last one!),
  * with message displays open to the end of a selection.
  */
-function disabled_test_delete_multiple_messages_including_the_last_one_with_last_open() {
+function test_delete_multiple_messages_including_the_last_one_with_last_open() {
   // 10 messages in this folder. Open up message 9 everywhere.
   _open_message_in_all_four_display_mechanisms_helper(multipleDeletionFolder4,
                                                       9);

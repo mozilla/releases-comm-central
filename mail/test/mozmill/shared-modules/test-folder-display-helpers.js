@@ -810,10 +810,10 @@ function assert_tab_titled_from(aTab, aWhat) {
   else if (aWhat instanceof Ci.nsIMsgDBHdr)
     text = aWhat.mime2DecodedSubject;
 
-  if (!aTab.title.includes(text))
-    mark_failure(["Tab title of tab", aTab,
-                  "should include '" + text + "' but does not." +
-                  " (Current title: '" + aTab.title + "')"]);
+  mc.waitFor(
+    () => aTab.title.includes(text),
+    `Tab title should include '${text}' but does not. (Current title: '${aTab.title}')`
+  );
 }
 
 /**
