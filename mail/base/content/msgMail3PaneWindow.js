@@ -833,20 +833,20 @@ function loadExtraTabs() {
  *
  * @param aStartMsgHdr The message header to load at window open
  */
-function loadStartMsgHdr(aStartMsgHdr) {
+async function loadStartMsgHdr(aStartMsgHdr) {
   // We'll just clobber the default tab
-  atStartupRestoreTabs(true);
+  await atStartupRestoreTabs(true);
 
   MsgDisplayMessageInFolderTab(aStartMsgHdr);
 }
 
-function loadStartFolder(initialUri) {
+async function loadStartFolder(initialUri) {
   var defaultServer = null;
   var startFolder;
   var isLoginAtStartUpEnabled = false;
 
   // If a URI was explicitly specified, we'll just clobber the default tab
-  let loadFolder = !atStartupRestoreTabs(!!initialUri);
+  let loadFolder = !(await atStartupRestoreTabs(!!initialUri));
 
   if (initialUri)
     loadFolder = true;
