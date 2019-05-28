@@ -1,3 +1,4 @@
+CERT_GetCertNicknames
 NSS_CMSContentInfo_GetBulkKey
 NSS_CMSContentInfo_GetBulkKeySize
 NSS_CMSContentInfo_GetContentEncAlgTag
