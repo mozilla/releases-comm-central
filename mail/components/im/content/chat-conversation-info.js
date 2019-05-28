@@ -67,7 +67,7 @@ class MozChatConversationInfo extends MozXULElement {
           </description>
         </stack>
       </hbox>
-      <hbox class="otr-container" align="left" valign="middle" flex="1" hidden="true">
+      <hbox class="otr-container" align="left" valign="middle" hidden="true">
         <label class="otr-label" crop="end" data-l10n-id="state-label" flex="1"/>
         <toolbarbutton id="otrButton"
                        mode="dialog"

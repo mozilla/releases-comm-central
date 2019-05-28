@@ -321,6 +321,7 @@ var OTRUI = {
   addButton(aObject) {
     this.globalDoc = aObject.ownerDocument;
     let _conv = aObject._conv;
+    OTRUI.visibleConv = _conv;
     OTRUI.setMsgState(_conv, null, this.globalDoc, true);
   },
 
@@ -498,6 +499,10 @@ var OTRUI = {
 
     let verifyTitle = syncL10n.formatValue("verify-title");
     this.updateNotificationUI(context, verifyTitle, context.username, AuthVerify);
+
+    if (context.username !== this.visibleConv.normalizedName) {
+      this.hideUserNotifications(context);
+    }
   },
 
   updateNotificationUI(context, typeTitle, username, key) {
@@ -509,7 +514,7 @@ var OTRUI = {
     notification.messageDetails.removeAttribute("oncommand");
     notification.messageDetails.removeAttribute("align");
 
-    let title = this.globalDoc.createElement("title");
+    let title = this.globalDoc.createXULElement("title");
     title.setAttribute("flex", "1");
     title.setAttribute("crop", "end");
     title.textContent = typeTitle;
