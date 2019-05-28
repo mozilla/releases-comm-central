@@ -99,7 +99,7 @@
               oncommand="gCookiesWindow.deleteAllCookies();"/>
       <spacer flex="1"/>
 #ifndef XP_MACOSX
-      <button oncommand="close();" icon="close"
+      <button oncommand="window.close();" icon="close"
               label="&button.close.label;" accesskey="&button.close.accesskey;"/>
 #endif
     </hbox>

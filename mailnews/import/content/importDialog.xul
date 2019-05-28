@@ -134,7 +134,7 @@
             oncommand="next();"/>
     <separator orient="vertical"/>
     <button id="cancel" label="&cancel.label;"
-            oncommand="close();"/>
+            oncommand="window.close();"/>
   </hbox>
 
 </window>
