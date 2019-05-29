@@ -21,9 +21,9 @@ class nsPop3Service : public nsIPop3Service,
                       public nsIMsgProtocolInfo {
  public:
   nsPop3Service();
-  nsresult NewURI(const nsACString &aSpec,
-                  const char *aOriginCharset,  // ignored
-                  nsIURI *aBaseURI, nsIURI **_retval);
+  static nsresult NewURI(const nsACString &aSpec,
+                         const char *aOriginCharset,  // ignored
+                         nsIURI *aBaseURI, nsIURI **_retval);
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIPOP3SERVICE
@@ -36,9 +36,10 @@ class nsPop3Service : public nsIPop3Service,
                    nsIUrlListener *aUrlListener, nsIMsgFolder *inbox,
                    nsIPop3IncomingServer *popServer, nsIURI **aURL);
   // convenience function to make constructing of the pop3 url easier...
-  nsresult BuildPop3Url(const char *urlSpec, nsIMsgFolder *inbox,
-                        nsIPop3IncomingServer *, nsIUrlListener *aUrlListener,
-                        nsIURI **aUrl, nsIMsgWindow *aMsgWindow);
+  static nsresult BuildPop3Url(const char *urlSpec, nsIMsgFolder *inbox,
+                               nsIPop3IncomingServer *,
+                               nsIUrlListener *aUrlListener, nsIURI **aUrl,
+                               nsIMsgWindow *aMsgWindow);
 
   nsresult RunPopUrl(nsIMsgIncomingServer *aServer, nsIURI *aUrlToRun);
   void AlertServerBusy(nsIMsgMailNewsUrl *url);

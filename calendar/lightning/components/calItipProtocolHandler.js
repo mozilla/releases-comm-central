@@ -56,13 +56,6 @@ ItipProtocolHandler.prototype = {
     protocolFlags: Ci.nsIProtocolHandler.URI_NORELATIVE | Ci.nsIProtocolHandler.URI_DANGEROUS_TO_LOAD,
     allowPort: () => false,
     isSecure: false,
-    newURI: function(spec, charSet, baseURI) {
-        dump("Creating new URI for " + spec + "\n");
-        return Cc["@mozilla.org/network/standard-url-mutator;1"]
-                 .createInstance(Ci.nsIStandardURLMutator)
-                 .init(Ci.nsIStandardURL.URLTYPE_STANDARD, 0, spec, charSet, baseURI)
-                 .finalize();
-    },
     newChannel: function(URI, aLoadInfo) {
         dump("Creating new ItipChannel for " + URI + "\n");
         return new ItipChannel(URI, aLoadInfo);

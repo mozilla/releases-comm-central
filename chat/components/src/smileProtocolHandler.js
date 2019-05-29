@@ -23,11 +23,6 @@ smileProtocolHandler.prototype = {
                  Ci.nsIProtocolHandler.URI_NOAUTH |
                  Ci.nsIProtocolHandler.URI_IS_UI_RESOURCE |
                  Ci.nsIProtocolHandler.URI_IS_LOCAL_RESOURCE,
-  newURI(aSpec, aOriginCharset, aBaseURI) {
-    let mutator = Cc["@mozilla.org/network/simple-uri-mutator;1"]
-                    .createInstance(Ci.nsIURIMutator);
-    return mutator.setSpec(aSpec).finalize();
-  },
   newChannel(aURI, aLoadInfo) {
     let smile = aURI.spec.replace(kSmileRegexp, "");
     let uri = Services.io.newURI(getSmileRealURI(smile));

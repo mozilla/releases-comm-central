@@ -12,9 +12,9 @@
 class nsCidProtocolHandler : public nsIProtocolHandler {
  public:
   nsCidProtocolHandler();
+  static nsresult NewURI(const nsACString &aSpec, const char *aOriginCharset,
+                         nsIURI *aBaseURI, nsIURI **_retval);
 
-  nsresult NewURI(const nsACString &aSpec, const char *aOriginCharset,
-                  nsIURI *aBaseURI, nsIURI **_retval);
   NS_DECL_ISUPPORTS
   NS_DECL_NSIPROTOCOLHANDLER
 

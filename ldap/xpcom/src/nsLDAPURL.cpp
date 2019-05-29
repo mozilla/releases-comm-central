@@ -13,6 +13,8 @@
 #include "nsIStandardURL.h"
 #include "nsMsgUtils.h"
 #include "mozilla/Encoding.h"
+#include "ldap.h"
+
 
 // The two schemes we support, LDAP and LDAPS
 //

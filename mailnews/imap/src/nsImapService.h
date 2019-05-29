@@ -28,9 +28,9 @@ class nsImapService : public nsIImapService,
                       public nsIContentHandler {
  public:
   nsImapService();
-  nsresult NewURI(const nsACString &aSpec,
-                  const char *aOriginCharset,  // ignored
-                  nsIURI *aBaseURI, nsIURI **aRetVal);
+  static nsresult NewURI(const nsACString &aSpec,
+                         const char *aOriginCharset,  // ignored
+                         nsIURI *aBaseURI, nsIURI **aRetVal);
 
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIMSGPROTOCOLINFO
@@ -64,7 +64,8 @@ class nsImapService : public nsIImapService,
   nsresult GetImapConnectionAndLoadUrl(nsIImapUrl *aImapUrl,
                                        nsISupports *aConsumer, nsIURI **aURL);
 
-  nsresult SetImapUrlSink(nsIMsgFolder *aMsgFolder, nsIImapUrl *aImapUrl);
+  static nsresult SetImapUrlSink(nsIMsgFolder *aMsgFolder,
+                                 nsIImapUrl *aImapUrl);
 
   nsresult FetchMimePart(nsIImapUrl *aImapUrl, nsImapAction aImapAction,
                          nsIMsgFolder *aImapMailFolder,
@@ -96,8 +97,8 @@ class nsImapService : public nsIImapService,
                                  nsIUrlListener *aListener, nsIURI **aURL,
                                  nsISupports *aCopyState);
 
-  nsresult GetServerFromUrl(nsIImapUrl *aImapUrl,
-                            nsIMsgIncomingServer **aServer);
+  static nsresult GetServerFromUrl(nsIImapUrl *aImapUrl,
+                                   nsIMsgIncomingServer **aServer);
 
   // just a little helper method...maybe it should be a macro? which helps break
   // down a imap message uri into the folder and message key equivalents
