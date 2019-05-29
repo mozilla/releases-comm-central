@@ -19,6 +19,7 @@ EXPORTS += [
     'nsMsgReadStateTxn.h',
     'nsMsgTxn.h',
     'nsMsgUtils.h',
+    'nsNewMailnewsURI.h',
 ]
 
 EXPORTS.mozilla.mailnews += [
@@ -43,6 +44,7 @@ SOURCES += [
     'nsMsgReadStateTxn.cpp',
     'nsMsgTxn.cpp',
     'nsMsgUtils.cpp',
+    'nsNewMailnewsURI.cpp',
     'nsStopwatch.cpp',
     'Services.cpp',
 ]
