@@ -109,11 +109,14 @@ class MozFolderSummary extends MozXULElement {
       }
 
       foundNewMsg = true;
+      if (this.children.length >= this.maxMsgHdrsInPopup) {
+        return foundNewMsg;
+      }
 
       for (let i = 0; i < this.maxMsgHdrsInPopup && i < numMsgKeys.value; i++) {
-        let msgPopup = this._folderSummaryMessagePopup();
+        let msgBox = this._createFolderSummaryMessage();
         let msgHdr = msgDatabase.GetMsgHdrForKey(msgKeys.value[i]);
-        msgPopup.addEventListener("click", (event) => {
+        msgBox.addEventListener("click", (event) => {
           if (event.button !== 0) {
             return;
           }
@@ -129,13 +132,13 @@ class MozFolderSummary extends MozXULElement {
           if (msgHdr.flags & kMsgFlagHasRe) {
             msgSubject = (msgSubject) ? "Re: " + msgSubject : "Re: ";
           }
-          msgPopup.querySelector(".folderSummary-subject").textContent = msgSubject;
+          msgBox.querySelector(".folderSummary-subject").textContent = msgSubject;
         }
 
         if (this.showSender) {
           let addrs = MailServices.headerParser.parseEncodedHeader(
             msgHdr.author, msgHdr.effectiveCharset, false);
-          let folderSummarySender = msgPopup.querySelector(".folderSummary-sender");
+          let folderSummarySender = msgBox.querySelector(".folderSummary-sender");
           folderSummarySender.textContent =
             (addrs.length > 0) ? (addrs[0].name || addrs[0].email) : "";
           if (addrs.length > 1) {
@@ -144,18 +147,18 @@ class MozFolderSummary extends MozXULElement {
           }
         }
 
-        if (this.showPreview && msgHdr.getProperty("preview")) {
+        if (this.showPreview) {
           // Get the preview text as a UTF-8 encoded string.
-          msgPopup.querySelector(".folderSummary-previewText").textContent =
-            decodeURIComponent(escape(msgHdr.getStringProperty("preview")));
+          msgBox.querySelector(".folderSummary-previewText").textContent =
+            decodeURIComponent(escape(msgHdr.getStringProperty("preview") || ""));
         }
-        this.appendChild(msgPopup);
+        this.appendChild(msgBox);
       }
     }
     return foundNewMsg;
   }
 
-  _folderSummaryMessagePopup() {
+  _createFolderSummaryMessage() {
     let vbox = document.createXULElement("vbox");
     vbox.setAttribute("class", "folderSummaryMessage");
 
@@ -197,10 +200,23 @@ class MozFolderTooltip extends MozFolderSummary {
     this.showSubject = true;
     this.showSender = true;
     this.showPreview = true;
+
+    this.addEventListener("popupshowing", (event) => {
+      if (!this._folderpopupShowing(event)) {
+        event.preventDefault();
+      }
+    });
+
+    this.addEventListener("popuphiding", (event) => {
+      let node = event.target;
+      while (node.hasChildNodes()) {
+        node.lastChild.remove();
+      }
+    });
   }
 
   /** Handle the popupshowing event. */
-  folderpopupShowing(event) {
+  _folderpopupShowing(event) {
     let msgFolder = gFolderTreeView.getFolderAtCoords(event.clientX,
                                                       event.clientY);
     if (!msgFolder) {
@@ -236,14 +252,6 @@ class MozFolderTooltip extends MozFolderSummary {
     }
 
     return false;
-  }
-
-  /** Handle the popuphiding event. */
-  folderpopupHiding(event) {
-    let node = event.target;
-    while (node.hasChildNodes()) {
-      node.lastChild.remove();
-    }
   }
 
   /** Add location information to the folder name if needed. */

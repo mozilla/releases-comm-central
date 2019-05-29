@@ -11,7 +11,7 @@ var NS_ALERT_HORIZONTAL = 1;
 var NS_ALERT_LEFT = 2;
 var NS_ALERT_TOP = 4;
 
-var gNumNewMsgsToShowInAlert = 4; // the more messages we show in the alert, the larger it will be
+var gNumNewMsgsToShowInAlert = 6;
 var gOpenTime = 4000; // total time the alert should stay up once we are done animating.
 
 var gAlertListener = null;
@@ -52,7 +52,7 @@ function prefillAlertInfo() {
   // find the real folder that has new mail in it...:(
   let allFolders = rootFolder.descendants;
   var folderSummaryInfoEl = document.getElementById("folderSummaryInfo");
-  folderSummaryInfoEl.mMaxMsgHdrsInPopup = gNumNewMsgsToShowInAlert;
+  folderSummaryInfoEl.maxMsgHdrsInPopup = gNumNewMsgsToShowInAlert;
   for (let folder of fixIterator(allFolders, Ci.nsIMsgFolder)) {
     if (folder.hasNewMessages) {
       let notify =
