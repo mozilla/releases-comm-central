@@ -260,11 +260,10 @@ NS_IMETHODIMP nsSmtpService::GetProtocolFlags(uint32_t *result) {
 
 // the smtp service is also the protocol handler for mailto urls....
 
-nsresult nsSmtpService::NewURI(
+nsresult nsSmtpService::NewMailtoURI(
     const nsACString &aSpec,
     const char *aOriginCharset,  // ignored, always UTF-8.
     nsIURI *aBaseURI, nsIURI **_retval) {
-  // get a new smtp url
   nsresult rv;
 
   nsCOMPtr<nsIURI> mailtoUrl;
@@ -275,6 +274,30 @@ nsresult nsSmtpService::NewURI(
 
   mailtoUrl.forget(_retval);
   return NS_OK;
+}
+
+nsresult nsSmtpService::NewSmtpURI(const nsACString &aSpec,
+                                   const char *aOriginCharset, nsIURI *aBaseURI,
+                                   nsIURI **_retval) {
+  NS_ENSURE_ARG_POINTER(_retval);
+  *_retval = 0;
+  nsresult rv;
+  nsCOMPtr<nsIMsgMailNewsUrl> aSmtpUri =
+      do_CreateInstance(NS_SMTPURL_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (aBaseURI) {
+    nsAutoCString newSpec;
+    rv = aBaseURI->Resolve(aSpec, newSpec);
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = aSmtpUri->SetSpecInternal(newSpec);
+    NS_ENSURE_SUCCESS(rv, rv);
+  } else {
+    rv = aSmtpUri->SetSpecInternal(aSpec);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  aSmtpUri.forget(_retval);
+
+  return rv;
 }
 
 NS_IMETHODIMP nsSmtpService::NewChannel(nsIURI *aURI, nsILoadInfo *aLoadInfo,

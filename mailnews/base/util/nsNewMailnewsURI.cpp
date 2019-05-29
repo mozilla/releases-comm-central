@@ -11,7 +11,6 @@
 #include "../../local/src/nsPop3Service.h"
 #include "../../local/src/nsMailboxService.h"
 #include "../../compose/src/nsSmtpService.h"
-#include "../../compose/src/nsSmtpUrl.h"
 #include "../../../ldap/xpcom/src/nsLDAPURL.h"
 #include "../../imap/src/nsImapService.h"
 #include "../../news/src/nsNntpService.h"
@@ -33,20 +32,17 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
   if (scheme.EqualsLiteral("imap") || scheme.EqualsLiteral("imap-message")) {
     return nsImapService::NewURI(aSpec, aCharset, aBaseURI, aURI);
   }
-  if (scheme.EqualsLiteral("smtp")) {
-    rv = NS_MutateURI(new nsSmtpUrl::Mutator()).SetSpec(aSpec).Finalize(aURI);
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsISmtpUrl> url(do_QueryInterface(*aURI));
-    NS_ENSURE_TRUE(url, NS_ERROR_UNEXPECTED);
-    return url->Init(aSpec);
+  if (scheme.EqualsLiteral("smtp") || scheme.EqualsLiteral("smtps")) {
+    return nsSmtpService::NewSmtpURI(aSpec, aCharset, aBaseURI, aURI);
   }
   if (scheme.EqualsLiteral("mailto")) {
-    return nsSmtpService::NewURI(aSpec, aCharset, aBaseURI, aURI);
+    return nsSmtpService::NewMailtoURI(aSpec, aCharset, aBaseURI, aURI);
   }
   if (scheme.EqualsLiteral("pop3")) {
     return nsPop3Service::NewURI(aSpec, aCharset, aBaseURI, aURI);
   }
-  if (scheme.EqualsLiteral("news") || scheme.EqualsLiteral("snews")) {
+  if (scheme.EqualsLiteral("news") || scheme.EqualsLiteral("snews") ||
+      scheme.EqualsLiteral("news-message") || scheme.EqualsLiteral("nntp")) {
     return nsNntpService::NewURI(aSpec, aCharset, aBaseURI, aURI);
   }
   if (scheme.EqualsLiteral("cid")) {

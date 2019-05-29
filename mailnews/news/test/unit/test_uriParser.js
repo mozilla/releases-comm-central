@@ -142,10 +142,9 @@ var invalid_uris = [
 function run_test() {
   // We're not running the server, just setting it up
   localserver = setupLocalServer(119);
-  let nntpService = MailServices.nntp.QueryInterface(Ci.nsIProtocolHandler);
   for (let test of tests) {
     dump("Checking URL " + test.uri + "\n");
-    let url = nntpService.newURI(test.uri);
+    let url = Services.io.newURI(test.uri);
     url.QueryInterface(Ci.nsIMsgMailNewsUrl);
     url.QueryInterface(Ci.nsINntpUrl);
     for (let prop in test) {
@@ -158,7 +157,7 @@ function run_test() {
   for (let fail of invalid_uris) {
     try {
       dump("Checking URL " + fail + " for failure\n");
-      nntpService.newURI(fail);
+      Services.io.newURI(fail);
       Assert.ok(false);
     } catch (e) {
       Assert.equal(e.result, Cr.NS_ERROR_MALFORMED_URI);

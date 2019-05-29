@@ -92,7 +92,7 @@ function testConnectionLimit() {
   var prefix = "news://localhost:" + NNTP_PORT + "/";
 
   // To test make connections limit, we run two URIs simultaneously.
-  var url = URLCreator.newURI(prefix + "*");
+  var url = Services.io.newURI(prefix + "*");
   _server.loadNewsUrl(url, null, null);
   setupProtocolTest(NNTP_PORT, prefix + "TSS1@nntp.invalid");
   server.performTest();
@@ -123,7 +123,7 @@ function testReentrantClose() {
   };
   // Nice multi-step command--we can close while executing this URL if we are
   // careful.
-  var url = URLCreator.newURI("news://localhost:" + NNTP_PORT +
+  var url = Services.io.newURI("news://localhost:" + NNTP_PORT +
     "/test.filter");
   url.QueryInterface(Ci.nsIMsgMailNewsUrl);
   url.RegisterListener(listener);

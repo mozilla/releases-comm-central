@@ -136,15 +136,13 @@ function setupLocalServer(port, host = "localhost") {
   return server;
 }
 
-var URLCreator = MailServices.nntp.QueryInterface(Ci.nsIProtocolHandler);
-
 // Sets up a protocol object and prepares to run the test for the news url
 function setupProtocolTest(port, newsUrl, incomingServer) {
   var url;
   if (newsUrl instanceof Ci.nsIMsgMailNewsUrl) {
     url = newsUrl;
   } else {
-    url = URLCreator.newURI(newsUrl);
+    url = Services.io.newURI(newsUrl);
   }
 
   var newsServer = incomingServer;
@@ -168,7 +166,7 @@ function setupProtocolTest(port, newsUrl, incomingServer) {
 }
 
 function create_post(baseURL, file) {
-  var url = URLCreator.newURI(baseURL);
+  var url = Services.io.newURI(baseURL);
   url.QueryInterface(Ci.nsINntpUrl);
 
   var post = Cc["@mozilla.org/messenger/nntpnewsgrouppost;1"]

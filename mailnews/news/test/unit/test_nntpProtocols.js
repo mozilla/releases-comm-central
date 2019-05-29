@@ -2,6 +2,7 @@
 /*
  * Test suite for getting news urls via the protocol handler.
  */
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var defaultProtocolFlags =
   Ci.nsIProtocolHandler.URI_NORELATIVE |
@@ -41,7 +42,7 @@ function run_test() {
       Assert.ok(pH.allowPort(i, ""));
 
     // Check we get a URI when we ask for one
-    var uri = pH.newURI(protocols[part].urlSpec);
+    var uri = Services.io.newURI(protocols[part].urlSpec);
 
     uri.QueryInterface(Ci.nsINntpUrl);
 

@@ -15,7 +15,6 @@ interface nsIFile;
 
 [scriptable, uuid(da22b8ac-059d-4f82-bf99-f5f3d3c8202d)]
 interface nsISmtpUrl : nsISupports {
-  void init(in AUTF8String aSpec);
   /**
    * SMTP Parse specific getters.
    * These retrieve various parts from the url.

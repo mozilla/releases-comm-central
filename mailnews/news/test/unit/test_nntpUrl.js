@@ -6,13 +6,12 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 function getMessageHeaderFromUrl(aUrl) {
-  let msgUrl = MailServices.nntp
-                .QueryInterface(Ci.nsIProtocolHandler)
-                .newURI(aUrl)
-                .QueryInterface(Ci.nsIMsgMessageUrl);
+  let msgUrl = Services.io.newURI(aUrl)
+                       .QueryInterface(Ci.nsIMsgMessageUrl);
   return msgUrl.messageHeader;
 }
 
