@@ -65,11 +65,13 @@
 # LOCALIZATION NOTE (seamonkey_l10n):
 # insert full bookmark line for localized SeaMonkey page (personal toolbar)
 # e.g. #define seamonkey_l10n <DT><A HREF="https://www.seamonkey.tlh/">SeaMonkey tlhIngan</a>
-#define seamonkey_l10n
+# Do not remove the trailing spaces here or MERGE_FILE in l0n builds will fail!
+#define seamonkey_l10n  
 
 # LOCALIZATION NOTE (seamonkey_l10n_long):
 # insert full bookmark line for localized SeaMonkey page (normal bookmark)
 # e.g. #define seamonkey_l10n_long <DT><A HREF="https://www.seamonkey.tld/">tlhIngan Hol SeaMonkey</a>
-#define seamonkey_l10n_long
+# Do not remove the trailing spaces here or or MERGE_FILE in l0n builds will fail!
+#define seamonkey_l10n_long  
 
 #unfilter emptyLines
