@@ -16,6 +16,9 @@
 class nsAddbookProtocolHandler : public nsIProtocolHandler {
  public:
   nsAddbookProtocolHandler();
+  nsresult NewURI(const nsACString &aSpec,
+                  const char *aOriginCharset,  // ignored
+                  nsIURI *aBaseURI, nsIURI **_retval);
 
   NS_DECL_ISUPPORTS
 

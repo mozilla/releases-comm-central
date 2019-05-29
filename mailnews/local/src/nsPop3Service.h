@@ -21,6 +21,9 @@ class nsPop3Service : public nsIPop3Service,
                       public nsIMsgProtocolInfo {
  public:
   nsPop3Service();
+  nsresult NewURI(const nsACString &aSpec,
+                  const char *aOriginCharset,  // ignored
+                  nsIURI *aBaseURI, nsIURI **_retval);
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIPOP3SERVICE

@@ -502,9 +502,9 @@ NS_IMETHODIMP nsMailboxService::GetProtocolFlags(uint32_t *result) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMailboxService::NewURI(const nsACString &aSpec,
-                                       const char *aOriginCharset,
-                                       nsIURI *aBaseURI, nsIURI **_retval) {
+nsresult nsMailboxService::NewURI(const nsACString &aSpec,
+                                  const char *aOriginCharset, nsIURI *aBaseURI,
+                                  nsIURI **_retval) {
   NS_ENSURE_ARG_POINTER(_retval);
   *_retval = 0;
   nsresult rv;
@@ -543,8 +543,7 @@ NS_IMETHODIMP nsMailboxService::NewChannel(nsIURI *aURI, nsILoadInfo *aLoadInfo,
     if (NS_SUCCEEDED(rv)) {
       nsCOMPtr<nsIURI> pop3Uri;
 
-      rv = handler->NewURI(spec, "" /* ignored */, aURI,
-                           getter_AddRefs(pop3Uri));
+      rv = NewURI(spec, "" /* ignored */, aURI, getter_AddRefs(pop3Uri));
       NS_ENSURE_SUCCESS(rv, rv);
       return handler->NewChannel(pop3Uri, aLoadInfo, _retval);
     }

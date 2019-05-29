@@ -260,7 +260,7 @@ NS_IMETHODIMP nsSmtpService::GetProtocolFlags(uint32_t *result) {
 
 // the smtp service is also the protocol handler for mailto urls....
 
-NS_IMETHODIMP nsSmtpService::NewURI(
+nsresult nsSmtpService::NewURI(
     const nsACString &aSpec,
     const char *aOriginCharset,  // ignored, always UTF-8.
     nsIURI *aBaseURI, nsIURI **_retval) {

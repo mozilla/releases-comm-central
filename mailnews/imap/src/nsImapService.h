@@ -28,6 +28,9 @@ class nsImapService : public nsIImapService,
                       public nsIContentHandler {
  public:
   nsImapService();
+  nsresult NewURI(const nsACString &aSpec,
+                  const char *aOriginCharset,  // ignored
+                  nsIURI *aBaseURI, nsIURI **aRetVal);
 
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIMSGPROTOCOLINFO

@@ -23,7 +23,9 @@
 class nsSmtpService : public nsISmtpService, public nsIProtocolHandler {
  public:
   nsSmtpService();
-
+  nsresult NewURI(const nsACString &aSpec,
+                  const char *aOriginCharset,  // ignored, always UTF-8.
+                  nsIURI *aBaseURI, nsIURI **_retval);
   NS_DECL_ISUPPORTS
 
   ////////////////////////////////////////////////////////////////////////

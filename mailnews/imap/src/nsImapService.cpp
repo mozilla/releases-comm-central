@@ -2371,9 +2371,9 @@ nsresult nsImapService::GetServerFromUrl(nsIImapUrl *aImapUrl,
   return rv;
 }
 
-NS_IMETHODIMP nsImapService::NewURI(const nsACString &aSpec,
-                                    const char *aOriginCharset,  // ignored
-                                    nsIURI *aBaseURI, nsIURI **aRetVal) {
+nsresult nsImapService::NewURI(const nsACString &aSpec,
+                               const char *aOriginCharset,  // ignored
+                               nsIURI *aBaseURI, nsIURI **aRetVal) {
   NS_ENSURE_ARG_POINTER(aRetVal);
 
   nsresult rv;

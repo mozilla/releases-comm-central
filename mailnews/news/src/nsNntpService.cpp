@@ -1151,9 +1151,9 @@ NS_IMETHODIMP nsNntpService::GetProtocolFlags(uint32_t *aUritype) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpService::NewURI(const nsACString &aSpec,
-                                    const char *aCharset,  // ignored
-                                    nsIURI *aBaseURI, nsIURI **_retval) {
+nsresult nsNntpService::NewURI(const nsACString &aSpec,
+                               const char *aCharset,  // ignored
+                               nsIURI *aBaseURI, nsIURI **_retval) {
   nsresult rv;
 
   nsCOMPtr<nsIMsgMailNewsUrl> nntpUri =

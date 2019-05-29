@@ -48,7 +48,7 @@ NS_IMETHODIMP nsAddbookProtocolHandler::GetProtocolFlags(uint32_t *aUritype) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAddbookProtocolHandler::NewURI(
+nsresult nsAddbookProtocolHandler::NewURI(
     const nsACString &aSpec,
     const char *aOriginCharset,  // ignored
     nsIURI *aBaseURI, nsIURI **_retval) {

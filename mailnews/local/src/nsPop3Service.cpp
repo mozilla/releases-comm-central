@@ -275,9 +275,9 @@ NS_IMETHODIMP nsPop3Service::GetProtocolFlags(uint32_t *result) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsPop3Service::NewURI(const nsACString &aSpec,
-                                    const char *aOriginCharset,  // ignored
-                                    nsIURI *aBaseURI, nsIURI **_retval) {
+nsresult nsPop3Service::NewURI(const nsACString &aSpec,
+                               const char *aOriginCharset,  // ignored
+                               nsIURI *aBaseURI, nsIURI **_retval) {
   NS_ENSURE_ARG_POINTER(_retval);
 
   nsAutoCString folderUri(aSpec);

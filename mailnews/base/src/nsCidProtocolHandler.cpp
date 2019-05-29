@@ -29,9 +29,9 @@ NS_IMETHODIMP nsCidProtocolHandler::GetProtocolFlags(uint32_t *aProtocolFlags) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsCidProtocolHandler::NewURI(const nsACString &aSpec,
-                                           const char *aOriginCharset,
-                                           nsIURI *aBaseURI, nsIURI **_retval) {
+nsresult nsCidProtocolHandler::NewURI(const nsACString &aSpec,
+                                      const char *aOriginCharset,
+                                      nsIURI *aBaseURI, nsIURI **_retval) {
   // the right fix is to use the baseSpec (or aBaseUri)
   // and specify the cid, and then fix mime
   // to handle that, like it does with "...&part=1.2"

@@ -42,6 +42,9 @@ class nsNntpService : public nsINntpService,
 
   // nsNntpService
   nsNntpService();
+  nsresult NewURI(const nsACString &aSpec,
+                  const char *aCharset,  // ignored
+                  nsIURI *aBaseURI, nsIURI **_retval);
 
  protected:
   virtual ~nsNntpService();
