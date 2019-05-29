@@ -52,13 +52,14 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
     return nsAddbookProtocolHandler::NewURI(aSpec, aCharset, aBaseURI, aURI);
   }
   if (scheme.EqualsLiteral("ldap") || scheme.EqualsLiteral("ldaps")) {
-    rv = NS_MutateURI(new nsLDAPURL::Mutator()).SetSpec(aSpec).Finalize(aURI);
+    nsCOMPtr<nsILDAPURL> url = do_CreateInstance(NS_LDAPURL_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsILDAPURL> url(do_QueryInterface(*aURI));
-    NS_ENSURE_TRUE(url, NS_ERROR_UNEXPECTED);
-    return url->Init(nsIStandardURL::URLTYPE_STANDARD,
-                     scheme.EqualsLiteral("ldap") ? 389 : 636, aSpec, aCharset,
-                     aBaseURI);
+    rv = url->Init(nsIStandardURL::URLTYPE_STANDARD,
+                   scheme.EqualsLiteral("ldap") ? 389 : 636, aSpec, aCharset,
+                   aBaseURI);
+    NS_ENSURE_SUCCESS(rv, rv);
+    url.forget(aURI);
+    return NS_OK;
   }
   if (scheme.EqualsLiteral("smile")) {
     ;  // Fall through.
