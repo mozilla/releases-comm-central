@@ -359,8 +359,7 @@ NS_IMETHODIMP nsSpamSettings::Initialize(nsIMsgIncomingServer *aServer) {
     NS_ENSURE_SUCCESS(rv, rv);
     uint32_t accountCount = 0;
     // No sense scanning accounts if we've nothing to match.
-    if (account && accounts)
-      accounts->GetLength(&accountCount);
+    if (account && accounts) accounts->GetLength(&accountCount);
 
     for (uint32_t i = 0; i < accountCount; i++) {
       nsCOMPtr<nsIMsgAccount> loopAccount(do_QueryElementAt(accounts, i));
