@@ -71,9 +71,9 @@
 
 @media (-moz-mac-yosemite-theme) {
   #folderTree treechildren::-moz-tree-cell-text {
-    font-family: 'Helvetica Neue';
-    font-size: 9.5pt;
-    font-weight: 300;
+    font-family: -apple-system;
+    font-size: 9pt;
+    font-weight: 400;
   }
 
   #folderTree treechildren::-moz-tree-twisty(selected, focus),

@@ -63,9 +63,9 @@
 
 @media (-moz-mac-yosemite-theme) {
   #dirTree treechildren::-moz-tree-cell-text {
-    font-family: 'Helvetica Neue';
-    font-size: 9.5pt;
-    font-weight: 300;
+    font-family: -apple-system;
+    font-size: 9pt;
+    font-weight: 400;
   }
 
   #dirTree treechildren::-moz-tree-cell-text(selected, focus) {
