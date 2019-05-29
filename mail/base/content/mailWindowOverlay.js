@@ -1744,22 +1744,6 @@ function MsgSaveAsTemplate() {
     SaveAsTemplate(gFolderDisplay.selectedMessageUris[0]);
 }
 
-function CreateToolbarTooltip(document, event) {
-  event.stopPropagation();
-  var tn = document.tooltipNode;
-  if (tn.localName != "tab")
-    return false; // Not a tab, so cancel the tooltip.
-  if ("mOverCloseButton" in tn && tn.mOverCloseButton) {
-     event.target.setAttribute("label", tn.getAttribute("closetabtext"));
-     return true;
-  }
-  if (tn.hasAttribute("label")) {
-    event.target.setAttribute("label", tn.getAttribute("label"));
-    return true;
-  }
-  return false;
-}
-
 function MsgOpenNewWindowForFolder(folderURI, msgKeyToSelect) {
   if (folderURI) {
     window.openDialog("chrome://messenger/content/", "_blank",

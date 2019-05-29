@@ -151,6 +151,7 @@
 <script src="chrome://messenger/content/chat/chat-contact.js"/>
 <script src="chrome://messenger/content/chat/chat-group.js"/>
 <script src="chrome://messenger/content/chat/chat-imconv.js"/>
+<script src="chrome://messenger/content/tabbrowser-tab.js"/>
 #ifdef XP_MACOSX
 <script src="chrome://messenger/content/macMessengerMenu.js"/>
 <script src="chrome://global/content/macWindowMenu.js"/>
@@ -392,7 +393,7 @@
             alltabsbutton="alltabs-button"
             collapsetoolbar="tabs-toolbar"
             tabtoolbar="tabbar-toolbar">
-            <tab selected="true" validate="never" type="folder"
+            <tab is="tabmail-tab" selected="true" validate="never" type="folder"
                  maxwidth="250" width="0" minwidth="100" flex="100"
                  class="tabmail-tab" crop="end" linkedpanel="mailContent"/>
       </tabs>

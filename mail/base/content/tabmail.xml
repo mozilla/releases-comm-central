@@ -323,13 +323,13 @@
         <parameter name="event"/>
         <body><![CDATA[
           event.stopPropagation();
-          var tab = document.tooltipNode;
+          let tab = document.tab;
           if (tab.localName != "tab" || this.tabContainer.draggedTab) {
             event.preventDefault();
             return;
           }
           event.target.setAttribute("label", tab.mOverCloseButton ?
-                                             tab.getAttribute("closetabtext") :
+                                             tab.firstChild.getAttribute("closetabtext") :
                                              tab.getAttribute("label"));
 
           ]]>
@@ -540,9 +540,7 @@
                      thinking: false, beforeTabOpen: true, _ext: {}};
           tabMode.tabs.push(tab);
 
-          var t = document.createElementNS(
-            "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
-            "tab");
+          var t = document.createXULElement("tab", { is: "tabmail-tab" });
           tab.tabNode = t;
           t.maxWidth = this.tabContainer.mTabMaxWidth;
           t.minWidth = this.tabContainer.mTabMinWidth;
@@ -1316,9 +1314,9 @@
         <body>
           <![CDATA[
             // a middle mouse button click on a tab is a short cut for closing a tab
-            if (event.button != 1 || event.target.localName != "tab")
+            if (event.button != 1 || document.tab.localName != "tab")
               return;
-            this.removeTabByNode(event.target);
+            this.removeTabByNode(document.tab);
             event.stopPropagation();
           ]]>
         </body>
@@ -1791,133 +1789,6 @@
     </implementation>
   </binding>
 
-  <binding id="tabmail-tab"
-           extends="chrome://global/content/bindings/tabbox.xml#tab">
-    <content closetabtext="&closeTab.label;" context="tabContextMenu">
-      <xul:stack class="tab-stack" flex="1">
-        <xul:vbox xbl:inherits="pinned,selected,titlechanged"
-                  class="tab-background">
-        <xul:hbox xbl:inherits="selected=visuallyselected"
-                  class="tab-line"/>
-      </xul:vbox>
-        <xul:hbox xbl:inherits="pinned,selected,titlechanged"
-                  class="tab-content" align="center">
-          <xul:image xbl:inherits="fadein,pinned,busy,progress,selected"
-                     class="tab-throbber"
-                     role="presentation"/>
-          <xul:image xbl:inherits="validate,src=image,src,fadein,pinned,selected"
-                     class="tab-icon-image"
-                     role="presentation"/>
-          <xul:hbox class="tab-label-container"
-                    xbl:inherits="pinned,selected=visuallyselected"
-                    onoverflow="this.setAttribute('textoverflow', 'true');"
-                    onunderflow="this.removeAttribute('textoverflow');"
-                    flex="1">
-            <xul:label class="tab-text tab-label"
-                       xbl:inherits="xbl:text=label,accesskey,fadein,pinned,selected"
-                       role="presentation"/>
-          </xul:hbox>
-          <xul:image anonid="close-button"
-                     xbl:inherits="fadein,pinned,selected=visuallyselected"
-                     class="tab-close-button close-icon"/>
-        </xul:hbox>
-      </xul:stack>
-    </content>
-
-    <implementation>
-      <field name="mOverCloseButton">false</field>
-      <field name="mCorrespondingMenuitem">null</field>
-
-      <property name="linkedBrowser">
-        <getter><![CDATA[
-          let tabmail = document.getElementById("tabmail");
-          let tab = tabmail._getTabContextForTabbyThing(this, false)[1];
-          return tabmail.getBrowserForTab(tab);
-        ]]></getter>
-      </property>
-
-      <property name="mode">
-        <getter><![CDATA[
-          let tabmail = document.getElementById("tabmail");
-          let tab = tabmail._getTabContextForTabbyThing(this, false)[1];
-          return tab.mode;
-        ]]></getter>
-      </property>
-    </implementation>
-
-    <handlers>
-      <handler event="mouseover">
-        var anonid = event.originalTarget.getAttribute("anonid");
-        if (anonid == "close-button")
-          this.mOverCloseButton = true;
-      </handler>
-      <handler event="mouseout">
-        var anonid = event.originalTarget.getAttribute("anonid");
-        if (anonid == "close-button")
-          this.mOverCloseButton = false;
-      </handler>
-      <handler event="mousedown" button="0" phase="capturing">
-      <![CDATA[
-        if (this.mOverCloseButton)
-          event.stopPropagation();
-      ]]>
-      </handler>
-      <handler event="click" button="0"><![CDATA[
-        if (event.originalTarget.getAttribute("anonid") != "close-button")
-          return;
-
-        let tabbedBrowser = document.getElementById("tabmail");
-        if (this.localName == "tab") {
-          /* The only sequence in which a second click event (i.e. dblclik)
-           * can be dispatched on an in-tab close button is when it is shown
-           * after the first click (i.e. the first click event was dispatched
-           * on the tab). This happens when we show the close button only on
-           * the active tab. (bug 352021)
-           * The only sequence in which a third click event can be dispatched
-           * on an in-tab close button is when the tab was opened with a
-           * double click on the tabbar. (bug 378344)
-           * In both cases, it is most likely that the close button area has
-           * been accidentally clicked, therefore we do not close the tab.
-           */
-          if (event.detail > 1)
-            return;
-
-          tabbedBrowser.removeTabByNode(this);
-          tabbedBrowser._blockDblClick = true;
-          let tabContainer = tabbedBrowser.tabContainer;
-
-          /* XXXmano hack (see bug 343628):
-           * Since we're removing the event target, if the user
-           * double-clicks this button, the dblclick event will be dispatched
-           * with the tabbar as its event target (and explicit/originalTarget),
-           * which treats that as a mouse gesture for opening a new tab.
-           * In this context, we're manually blocking the dblclick event
-           * (see onTabBarDblClick).
-           */
-          let clickedOnce = false;
-          let enableDblClick = function enableDblClick(event) {
-            let target = event.originalTarget;
-            if (target.className == "tab-close-button")
-              target._ignoredClick = true;
-            if (!clickedOnce) {
-              clickedOnce = true;
-              return;
-            }
-            tabContainer._blockDblClick = false;
-            tabContainer.removeEventListener("click", enableDblClick, true);
-          };
-          tabContainer.addEventListener("click", enableDblClick, true);
-        } else { // "tabs"
-          tabbedBrowser.removeCurrentTab();
-        }
-      ]]></handler>
-      <handler event="dblclick" button="0" phase="capturing">
-        // for the one-close-button case
-        event.stopPropagation();
-      </handler>
-    </handlers>
-  </binding>
-
   <binding id="tabmail-arrowscrollbox" extends="chrome://global/content/bindings/scrollbox.xml#arrowscrollbox">
     <content>
       <xul:toolbarbutton class="scrollbutton-up"
@@ -2341,10 +2212,10 @@
         <parameter name="event"/>
         <body><![CDATA[
 
-          if (event.target.localName != "tab")
+          if (document.dragTab.localName != "tab")
             return null;
 
-          let tab = event.target;
+          let tab = document.dragTab;
 
           if ((event.type != "drop") && (event.type != "dragover"))
             return tab;
@@ -2719,7 +2590,7 @@
 
       ]]></handler>
       <handler event="click" button="0"><![CDATA[
-        if (!event.originalTarget.classList.contains("tabs-closebutton")) {
+        if (!event.originalTarget.classList.contains("tab-close-button")) {
           return;
         }
 
@@ -2754,8 +2625,9 @@
           let clickedOnce = false;
           let enableDblClick = function enableDblClick(event) {
             let target = event.originalTarget;
-            if (target.className == "tab-close-button")
+            if (target.className == "tab-close-button") {
               target._ignoredClick = true;
+            }
             if (!clickedOnce) {
               clickedOnce = true;
               return;
