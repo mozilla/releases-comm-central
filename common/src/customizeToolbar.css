@@ -37,3 +37,7 @@ toolbarpaletteitem > label {
 .toolbarbutton-text {
   display: none;
 }
+
+toolbarbutton > .toolbarbutton-menubutton-dropmarker {
+  display: none;
+}
