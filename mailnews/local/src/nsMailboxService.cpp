@@ -19,6 +19,7 @@
 #include "nsMsgBaseCID.h"
 #include "nsIDocShell.h"
 #include "nsMsgUtils.h"
+#include "nsPop3Service.h"
 #include "nsNativeCharsetUtils.h"
 #include "nsNetUtil.h"
 #include "nsIWebNavigation.h"
@@ -543,7 +544,8 @@ NS_IMETHODIMP nsMailboxService::NewChannel(nsIURI *aURI, nsILoadInfo *aLoadInfo,
     if (NS_SUCCEEDED(rv)) {
       nsCOMPtr<nsIURI> pop3Uri;
 
-      rv = NewURI(spec, "" /* ignored */, aURI, getter_AddRefs(pop3Uri));
+      rv = nsPop3Service::NewURI(spec, "" /* ignored */, aURI,
+                                 getter_AddRefs(pop3Uri));
       NS_ENSURE_SUCCESS(rv, rv);
       return handler->NewChannel(pop3Uri, aLoadInfo, _retval);
     }
