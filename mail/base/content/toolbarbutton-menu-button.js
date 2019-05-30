@@ -21,7 +21,7 @@
     static get inheritedAttributes() {
       return {
         ...super.inheritedAttributes,
-        ".toolbarbutton-menubutton-button": "hidden,disabled",
+        ".toolbarbutton-menubutton-button": "command,hidden,disabled,align,dir,pack,orient,tooltiptext=buttontooltiptext",
         ".toolbarbutton-menubutton-dropmarker": "open,disabled",
       };
     }
