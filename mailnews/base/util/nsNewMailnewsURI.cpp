@@ -38,7 +38,7 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
   if (scheme.EqualsLiteral("mailto")) {
     return nsSmtpService::NewMailtoURI(aSpec, aCharset, aBaseURI, aURI);
   }
-  if (scheme.EqualsLiteral("pop3")) {
+  if (scheme.EqualsLiteral("pop") || scheme.EqualsLiteral("pop3")) {
     return nsPop3Service::NewURI(aSpec, aCharset, aBaseURI, aURI);
   }
   if (scheme.EqualsLiteral("news") || scheme.EqualsLiteral("snews") ||
