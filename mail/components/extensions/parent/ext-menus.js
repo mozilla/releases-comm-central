@@ -894,8 +894,11 @@ const menuTracker = {
   handleEvent(event) {
     const menu = event.target;
     if (menu.id === "tabContextMenu") {
-      const trigger = menu.triggerNode;
-      const tab = trigger.localName === "tab" ? trigger : tabTracker.activeTab;
+      let trigger = menu.triggerNode;
+      while (trigger && trigger.localName != "tab") {
+        trigger = trigger.parentNode;
+      }
+      const tab = trigger || tabTracker.activeTab;
       const pageUrl = tab.linkedBrowser.currentURI.spec;
       gMenuBuilder.build({menu, tab, pageUrl, onTab: true});
     }
