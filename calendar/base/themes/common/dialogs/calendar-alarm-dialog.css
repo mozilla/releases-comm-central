@@ -59,10 +59,6 @@ calendar-alarm-widget[selected="true"] .alarm-calendar-image {
     margin-top: 2px;
 }
 
-.resizer-box {
-    min-height: 15px;
-}
-
 .snooze-popup-button {
     min-width: 0;
     -moz-appearance: toolbarbutton;

@@ -368,8 +368,5 @@
              onclick="openInvitationsDialog()"
              onkeypress="if (event.key == 'Enter') { openInvitationsDialog(); }"/>
     </hbox>
-    <hbox class="statusbarpanel statusbar-resizerpanel">
-      <resizer dir="bottomend"/>
-    </hbox>
   </hbox>
 </overlay>

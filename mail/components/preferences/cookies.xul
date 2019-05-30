@@ -103,6 +103,5 @@
               label="&button.close.label;" accesskey="&button.close.accesskey;"/>
 #endif
     </hbox>
-    <resizer dir="bottomend"/>
   </hbox>
 </window>

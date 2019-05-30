@@ -933,8 +933,5 @@
 
   <statusbar id="status-bar" class="statusbar chromeclass-status">
     <statusbarpanel id="statusText" flex="1" value="&statusText.label;"/>
-    <hbox class="statusbarpanel statusbar-resizerpanel">
-      <resizer dir="bottomend"/>
-    </hbox>
   </statusbar>
 </window>

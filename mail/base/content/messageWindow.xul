@@ -230,8 +230,5 @@
 
   <hbox id="status-bar" class="statusbar chromeclass-status">
 #include mainStatusbar.inc.xul
-    <hbox class="statusbarpanel statusbar-resizerpanel">
-      <resizer dir="bottomend"/>
-    </hbox>
   </hbox>
 </window>

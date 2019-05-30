@@ -768,13 +768,6 @@ statusbarpanel,
   -moz-appearance: none;
 }
 
-.statusbar-resizerpanel {
-  -moz-box-align: end;
-  -moz-box-pack: end;
-  -moz-appearance: resizerpanel;
-  padding: 0;
-}
-
 /* Status panel */
 
 .statusbarpanel-iconic {

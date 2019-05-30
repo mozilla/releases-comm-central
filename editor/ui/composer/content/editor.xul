@@ -371,11 +371,5 @@
         <label id="structSpacer" value="" flex="1"/>
       </hbox>
       <statusbarpanel id="offline-status" class="statusbarpanel-iconic"/>
-      <hbox class="statusbarpanel statusbar-resizerpanel">
-        <resizer dir="bottomend"/>
-      </hbox>
     </hbox>
-
-
-
 </window>

@@ -39,8 +39,5 @@
       <html:progress class="progressmeter-statusbar" id="statusbar-icon" value="0" max="100"/>
     </hbox>
     <statusbarpanel id="security-button" class="statusbarpanel-iconic"/>
-    <hbox class="statusbarpanel statusbar-resizerpanel">
-      <resizer dir="bottomend"/>
-    </hbox>
   </hbox>
 </window>

@@ -651,8 +651,5 @@
              value="&event.freebusy.legend.busy;"
              hidden="true"/>
     </hbox>
-    <hbox class="statusbarpanel statusbar-resizerpanel">
-      <resizer dir="bottomend"/>
-    </hbox>
   </hbox>
 </dialog>

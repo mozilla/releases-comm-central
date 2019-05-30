@@ -47,7 +47,4 @@
             label="&calendar.alarm.dismissall.label;"
             oncommand="onDismissAllAlarms();"/>
   </hbox>
-  <hbox pack="end" class="resizer-box">
-    <resizer dir="bottomright"/>
-  </hbox>
 </window>

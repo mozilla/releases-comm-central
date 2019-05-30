@@ -249,22 +249,6 @@ toolbar[type="menubar"][autohide="true"][inactive="true"]:not([customizing="true
   }
 }
 
-/* Status bar */
-
-%ifdef XP_MACOSX
-.statusbar {
-  padding-right: 14px;
-}
-
-.statusbar-resizerpanel {
-  display: none;
-}
-%else
-window[sizemode="maximized"] .statusbar-resizerpanel {
-  visibility: collapse;
-}
-%endif
-
 /* Status panel */
 
 statuspanel {

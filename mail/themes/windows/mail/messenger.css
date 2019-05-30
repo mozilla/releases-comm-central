@@ -814,14 +814,6 @@ statusbarpanel:-moz-lwtheme,
   border-inline-end-color: var(--tabs-border-color);
 }
 
-.statusbar-resizerpanel {
-  -moz-box-align: end;
-  -moz-box-pack: end;
-  -moz-appearance: resizerpanel;
-  padding: 0;
-  border-inline-end-width: 0;
-}
-
 @media (-moz-os-version: windows-win7) and (-moz-windows-default-theme),
        (-moz-os-version: windows-win8) and (-moz-windows-default-theme) {
   #status-bar:not(:-moz-lwtheme) {
