@@ -57,7 +57,7 @@ function check_image_size(aController, aImage, aSrcStart) {
  * Bug 1352701 and bug 1360443
  * Test that showing an image with cid: URL in a HTML message from file will work.
  */
-function disabled_test_cid_image_load() {
+function test_cid_image_load() {
   let file = os.getFileForPath(os.abspath("./content-utf8-rel-only.eml",
                                os.getFileForPath(__file__)));
 
@@ -88,7 +88,7 @@ function disabled_test_cid_image_load() {
  * Bug 1352701 and bug 1360443
  * Test that showing an image with cid: URL in a HTML message in a folder with work.
  */
-function disabled_test_cid_image_view() {
+function test_cid_image_view() {
   // Preview the message in the folder.
   be_in_folder(gImageFolder);
   let msg = select_click_row(0);
@@ -107,7 +107,7 @@ function disabled_test_cid_image_view() {
  * Test that showing an image with cid: URL in a HTML message will work
  * in a composition.
  */
-function disabled_test_cid_image_compose() {
+function test_cid_image_compose() {
   // Our image should also be in composition when the message is forwarded/replied.
   for (let msgOperation of [open_compose_with_forward, open_compose_with_reply]) {
     let cwc = msgOperation();

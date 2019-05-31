@@ -28,7 +28,7 @@ function setupModule(module) {
  * Bug 1374779
  * Check if clicking attached vcard image opens new card dialog and adds a contact.
  */
-function disabled_test_check_vcard_icon() {
+function test_check_vcard_icon() {
   let file = os.getFileForPath(os.abspath("./test-vcard-icon.eml", os.getFileForPath(__file__)));
   let msgc = open_message_from_file(file);
 

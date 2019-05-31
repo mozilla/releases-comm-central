@@ -45,7 +45,7 @@ function setupModule(module) {
   cth.installInto(module);
 }
 
-function disabled_test_openComposeFromMailToLink() {
+function test_openComposeFromMailToLink() {
   // Open a content tab with the mailto link in it.
     // To open a tab we're going to have to cheat and use tabmail so we can load
   // in the data of what we want.
@@ -54,7 +54,7 @@ function disabled_test_openComposeFromMailToLink() {
   gComposeWin = composeHelper.open_compose_with_element_click("mailtolink");
 }
 
-function disabled_test_checkInsertImage() {
+function test_checkInsertImage() {
   // First focus on the editor element
   gComposeWin.e("content-frame").focus();
 
@@ -93,7 +93,7 @@ function disabled_test_checkInsertImage() {
     throw new Error("Loading of image has been unexpectedly blocked in a mailto compose window");
 }
 
-function disabled_test_closeComposeWindowAndTab() {
+function test_closeComposeWindowAndTab() {
   composeHelper.close_compose_window(gComposeWin);
 
   mc.tabmail.closeTab(gNewTab);
