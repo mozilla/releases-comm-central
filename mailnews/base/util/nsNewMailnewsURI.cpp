@@ -23,7 +23,15 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
                            nsIIOService* aIOService /* = nullptr */) {
   nsAutoCString scheme;
   nsresult rv = net_ExtractURLScheme(aSpec, scheme);
-  NS_ENSURE_SUCCESS(rv, rv);
+  if (NS_FAILED(rv)) {
+    // then aSpec is relative
+    if (!aBaseURI) {
+      return NS_ERROR_MALFORMED_URI;
+    }
+
+    rv = aBaseURI->GetScheme(scheme);
+    if (NS_FAILED(rv)) return rv;
+  }
 
   if (scheme.EqualsLiteral("mailbox") ||
       scheme.EqualsLiteral("mailbox-message")) {
@@ -62,7 +70,9 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
     return NS_OK;
   }
   if (scheme.EqualsLiteral("smile")) {
-    ;  // Fall through.
+    return NS_MutateURI(new mozilla::net::nsSimpleURI::Mutator())
+        .SetSpec(aSpec)
+        .Finalize(aURI);
   }
   if (scheme.EqualsLiteral("moz-cal-handle-itip")) {
     return NS_MutateURI(new mozilla::net::nsStandardURL::Mutator())
@@ -77,8 +87,6 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
 
   // XXX TODO: What about JS Account?
 
-  // None of the above, let's fallback to the M-C fallback.
-  return NS_MutateURI(new mozilla::net::nsSimpleURI::Mutator())
-      .SetSpec(aSpec)
-      .Finalize(aURI);
+  // None of the above, return an error and let M-C handle it.
+  return NS_ERROR_UNKNOWN_PROTOCOL;
 }
