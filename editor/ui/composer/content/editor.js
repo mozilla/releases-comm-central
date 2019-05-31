@@ -1526,8 +1526,10 @@ function GetObjectForProperties() {
     if (node.nodeName) {
       var nodeName = node.nodeName.toLowerCase();
 
-      // Done when we hit the body
-      if (nodeName == "body") break;
+      // Done when we hit the body or #text.
+      if (nodeName == "body" || nodeName == "#text") {
+        break;
+      }
 
       if ((nodeName == "a" && node.href) ||
           nodeName == "ol" || nodeName == "ul" || nodeName == "dl" ||
