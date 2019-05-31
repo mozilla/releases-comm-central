@@ -308,15 +308,14 @@ function UpdateSortIndicators(sortType, sortOrder) {
   else
     subjectCol.removeAttribute("primary");
 
-  // If threading, set the sort direction on the thread column which causes it
-  //  to be able to 'light up' or otherwise indicate threading is active.
-  if (viewWrapper.showThreaded)
-    threadCol.setAttribute("sortDirection", "ascending");
-
   if (sortedColumn)
     sortedColumn.setAttribute("sortDirection",
                               sortOrder == Ci.nsMsgViewSortOrder.ascending ?
                                 "ascending" : "descending");
+
+  // Prevent threadCol from showing the sort direction chevron.
+  if (viewWrapper.showThreaded)
+    threadCol.removeAttribute("sortDirection");
 }
 
 function IsSpecialFolderSelected(flags, checkAncestors) {
