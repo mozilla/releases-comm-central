@@ -63,7 +63,7 @@ tabpanels {
  */
 
 .tabmail-arrowscrollbox > .scrollbutton-up,
-.tabmail-arrowscrollbox > stack > .scrollbutton-down {
+.tabmail-arrowscrollbox > .scrollbutton-down {
   -moz-appearance: none;
   border-style: none !important;
   padding: 0 3px !important;
@@ -72,12 +72,12 @@ tabpanels {
 }
 
 .tabmail-arrowscrollbox > .scrollbutton-up[disabled],
-.tabmail-arrowscrollbox > stack > .scrollbutton-down[disabled] {
+.tabmail-arrowscrollbox > .scrollbutton-down[disabled] {
   --toolbarbutton-icon-fill-opacity: .4;
 }
 
 .tabmail-arrowscrollbox > .scrollbutton-up:-moz-locale-dir(rtl),
-.tabmail-arrowscrollbox > stack > .scrollbutton-down:-moz-locale-dir(ltr) {
+.tabmail-arrowscrollbox > .scrollbutton-down:-moz-locale-dir(ltr) {
   margin-inline-start: 1px !important;
   margin-inline-end: 0 !important;
 }
@@ -87,7 +87,7 @@ tabpanels {
  */
 
 .tabmail-arrowscrollbox > .scrollbutton-up:not([disabled]):hover,
-.tabmail-arrowscrollbox > stack > .scrollbutton-down:not([disabled]):hover {
+.tabmail-arrowscrollbox > .scrollbutton-down:not([disabled]):hover {
   background: var(--toolbarbutton-active-background);
 }
 
@@ -110,7 +110,7 @@ tabpanels {
   #alltabs-button:not(:-moz-lwtheme):not([disabled]):hover,
   .tabmail-arrowscrollbox >
     .scrollbutton-up:not(:-moz-lwtheme):not([disabled]):hover,
-  .tabmail-arrowscrollbox > stack >
+  .tabmail-arrowscrollbox >
     .scrollbutton-down:not(:-moz-lwtheme):not([disabled]):hover {
     background-color: transparent;
     background-image: linear-gradient(rgba(255, 255, 255, 0),
@@ -124,7 +124,7 @@ tabpanels {
 
   #tabs-toolbar[brighttext] .tabmail-arrowscrollbox >
     .scrollbutton-up:not(:-moz-lwtheme):not([disabled]):hover,
-  #tabs-toolbar[brighttext] .tabmail-arrowscrollbox > stack >
+  #tabs-toolbar[brighttext] .tabmail-arrowscrollbox >
     .scrollbutton-down:not(:-moz-lwtheme):not([disabled]):hover {
     background-image: linear-gradient(rgba(255, 255, 255, 0),
                       rgba(255, 255, 255, .5)),

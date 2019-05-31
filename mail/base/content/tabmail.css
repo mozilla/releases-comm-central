@@ -6,10 +6,6 @@
   -moz-binding: url("chrome://messenger/content/tabmail.xml#tabmail-tabs");
 }
 
-.tabmail-arrowscrollbox {
-  -moz-binding: url("chrome://messenger/content/tabmail.xml#tabmail-arrowscrollbox");
-}
-
 .tabs-alltabs-popup {
   -moz-binding: url("chrome://messenger/content/tabmail.xml#tabmail-alltabs-popup");
 }

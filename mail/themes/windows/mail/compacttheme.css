@@ -154,7 +154,7 @@
 
     #tabs-toolbar .toolbarbutton-1,
     .tabmail-arrowscrollbox > .scrollbutton-up,
-    .tabmail-arrowscrollbox > stack > .scrollbutton-down {
+    .tabmail-arrowscrollbox > .scrollbutton-down {
       fill: CaptionText;
     }
   }

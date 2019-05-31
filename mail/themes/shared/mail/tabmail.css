@@ -252,7 +252,7 @@
  */
 
 .tabmail-arrowscrollbox > .scrollbutton-up,
-.tabmail-arrowscrollbox > stack > .scrollbutton-down {
+.tabmail-arrowscrollbox > .scrollbutton-down {
   color: inherit;
   list-style-image: url("chrome://messenger/skin/icons/arrow-left.svg") !important;
   -moz-context-properties: fill, fill-opacity;
@@ -261,7 +261,7 @@
 }
 
 .tabmail-arrowscrollbox > .scrollbutton-up:-moz-locale-dir(rtl),
-.tabmail-arrowscrollbox > stack > .scrollbutton-down:-moz-locale-dir(ltr) {
+.tabmail-arrowscrollbox > .scrollbutton-down:-moz-locale-dir(ltr) {
   transform: scaleX(-1);
 }
 
@@ -271,6 +271,7 @@
   width: 18px;
   background-image: url("chrome://messenger/skin/icons/overflow-indicator.png");
   background-size: 17px 100%;
+  background-repeat: no-repeat;
   border-left: 1px solid;
   border-image: linear-gradient(rgba(255,255,255,.2),
                                 rgba(255,255,255,.2) calc(100% - 1px),

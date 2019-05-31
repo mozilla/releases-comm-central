@@ -70,24 +70,24 @@ tabpanels {
  */
 
 .tabmail-arrowscrollbox > .scrollbutton-up,
-.tabmail-arrowscrollbox > stack > .scrollbutton-down {
+.tabmail-arrowscrollbox > .scrollbutton-down {
   -moz-appearance: none;
   padding: 3px !important;
   border-style: none !important;
 }
 
 .tabmail-arrowscrollbox > .scrollbutton-up > .toolbarbutton-icon,
-.tabmail-arrowscrollbox > stack > .scrollbutton-down > .toolbarbutton-icon {
+.tabmail-arrowscrollbox > .scrollbutton-down > .toolbarbutton-icon {
   -moz-appearance: none;
 }
 
 .tabmail-arrowscrollbox > .scrollbutton-up:not([disabled]):hover,
-.tabmail-arrowscrollbox > stack > .scrollbutton-down:not([disabled]):hover {
+.tabmail-arrowscrollbox > .scrollbutton-down:not([disabled]):hover {
   background: var(--toolbarbutton-active-background);
 }
 
 .tabmail-arrowscrollbox > .scrollbutton-up[disabled],
-.tabmail-arrowscrollbox > stack > .scrollbutton-down[disabled] {
+.tabmail-arrowscrollbox > .scrollbutton-down[disabled] {
   --toolbarbutton-icon-fill-opacity: .4;
 }
 

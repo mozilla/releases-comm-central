@@ -1789,100 +1789,6 @@
     </implementation>
   </binding>
 
-  <binding id="tabmail-arrowscrollbox" extends="chrome://global/content/bindings/scrollbox.xml#arrowscrollbox">
-    <content>
-      <xul:toolbarbutton class="scrollbutton-up"
-                         xbl:inherits="orient,collapsed=notoverflowing,disabled=scrolledtostart"
-                         anonid="scrollbutton-up"
-                         onmousedown="_startScroll(-1);"
-                         onmouseup="_stopScroll();"
-                         onmouseout="_stopScroll();"/>
-      <xul:spacer class="arrowscrollbox-overflow-start-indicator"
-                  xbl:inherits="collapsed=scrolledtostart"/>
-      <xul:scrollbox xbl:inherits="orient,align,pack,dir"
-                     flex="1"
-                     anonid="scrollbox">
-        <children/>
-      </xul:scrollbox>
-      <xul:spacer class="arrowscrollbox-overflow-end-indicator"
-                  xbl:inherits="collapsed=scrolledtoend"/>
-      <xul:stack align="center"
-                 pack="end"
-                 class="scrollbutton-down-stack">
-        <xul:hbox flex="1"
-                  class="scrollbutton-down-box"
-                  collapsed="true"
-                  anonid="down-box"/>
-        <xul:hbox flex="1"
-                  class="scrollbutton-down-box-animate"
-                  collapsed="true"
-                  anonid="down-box-animate"/>
-        <xul:toolbarbutton class="scrollbutton-down"
-                           xbl:inherits="orient,collapsed=notoverflowing,disabled=scrolledtoend"
-                           anonid="scrollbutton-down"
-                           onmousedown="_startScroll(1);"
-                           onmouseup="_stopScroll();"
-                           onmouseout="_stopScroll();"/>
-      </xul:stack>
-    </content>
-    <implementation>
-      <field name="_scrollButtonDownBox">
-        document.getAnonymousElementByAttribute(this, "anonid", "down-box");
-      </field>
-      <field name="_scrollButtonDownBoxAnimate">
-        document.getAnonymousElementByAttribute(this, "anonid", "down-box-animate");
-      </field>
-    </implementation>
-    <handlers>
-      <handler event="underflow"><![CDATA[
-        // filter underflow events which were dispatched on nested scrollboxes
-        if (event.target != this)
-          return;
-
-        // Ignore vertical events.
-        if (event.detail == 0) {
-          return;
-        }
-
-        this.setAttribute("notoverflowing", "true");
-        let alltabsButton = document.getElementById("alltabs-button");
-        alltabsButton.setAttribute("hidden", "true");
-      ]]></handler>
-
-      <handler event="overflow"><![CDATA[
-        // filter underflow events which were dispatched on nested scrollboxes
-        if (event.target != this)
-          return;
-
-        // Ignore vertical events.
-        if (event.detail == 0) {
-          return;
-        }
-
-        this.removeAttribute("notoverflowing");
-        let alltabsButton = document.getElementById("alltabs-button");
-        alltabsButton.removeAttribute("hidden");
-      ]]></handler>
-
-      <handler event="UpdatedScrollButtonsDisabledState"><![CDATA[
-        // filter underflow events which were dispatched on nested scrollboxes
-        if (event.target != this)
-          return;
-
-        // fix for bug #352353
-        // unlike the scrollup button on the tab strip (which is a
-        // simple toolbarbutton) the scrolldown button is
-        // a more complicated stack of boxes and a toolbarbutton
-        // so that we can animate when a tab is opened offscreen.
-        // in order to style the box with the actual background image
-        // we need to manually set the disable state to match the
-        // disable state of the toolbarbutton.
-        this._scrollButtonDownBox
-            .setAttribute("disabled", this._scrollButtonDown.disabled);
-      ]]></handler>
-
-    </handlers>
-  </binding>
   <binding id="tabmail-tabs"
            extends="chrome://global/content/bindings/tabbox.xml#tabs">
     <content context="toolbar-context-menu">
@@ -1897,7 +1803,8 @@
                               anonid="arrowscrollbox"
                               orient="horizontal"
                               flex="1"
-                              style="min-width: 1px;">
+                              style="min-width: 1px;"
+                              clicktoscroll="true">
             <children includes="tab"/>
           </xul:arrowscrollbox>
           <children/>
@@ -1909,6 +1816,18 @@
           </xul:hbox>
         </xul:hbox>
       </xul:vbox>
+      <xul:stack align="center"
+                 pack="end"
+                 class="scrollbutton-down-stack">
+        <xul:hbox flex="1"
+                  class="scrollbutton-down-box"
+                  collapsed="true"
+                  anonid="down-box"/>
+        <xul:hbox flex="1"
+                  class="scrollbutton-down-box-animate"
+                  collapsed="true"
+                  anonid="down-box-animate"/>
+      </xul:stack>
     </content>
 
     <implementation implements="nsITimerCallback">
@@ -1928,6 +1847,7 @@
           this.firstChild.minWidth = this.mTabMinWidth;
           this.firstChild.maxWidth = this.mTabMaxWidth;
           this._updateCloseButtons();
+          this._initializeArrowScrollbox();
 
           Services.prefs.addObserver("mail.tabs.", this._prefObserver);
 
@@ -1976,6 +1896,14 @@
 
       <field name="arrowScrollboxClosebutton">
         document.getAnonymousElementByAttribute(this, "anonid", "tabstrip-closebutton");
+      </field>
+
+      <field name="_scrollButtonDownBox">
+        document.getAnonymousElementByAttribute(this, "anonid", "down-box");
+      </field>
+
+      <field name="_scrollButtonDownBoxAnimate">
+        document.getAnonymousElementByAttribute(this, "anonid", "down-box-animate");
       </field>
 
       <field name="mToolbar">
@@ -2060,6 +1988,58 @@
         ]]>
         </setter>
       </property>
+
+      <method name="_initializeArrowScrollbox">
+        <body><![CDATA[
+          let arrowScrollbox = this.arrowScrollbox;
+          arrowScrollbox.addEventListener("underflow", event => {
+            // filter underflow events which were dispatched on nested scrollboxes
+            if (event.target != arrowScrollbox)
+              return;
+
+            // Ignore vertical events.
+            if (event.detail == 0) {
+              return;
+            }
+
+            arrowScrollbox.setAttribute("notoverflowing", "true");
+            let alltabsButton = document.getElementById("alltabs-button");
+            alltabsButton.setAttribute("hidden", "true");
+          }, true);
+
+          arrowScrollbox.addEventListener("overflow", event => {
+            // filter underflow events which were dispatched on nested scrollboxes
+            if (event.target != arrowScrollbox)
+              return;
+
+            // Ignore vertical events.
+            if (event.detail == 0) {
+              return;
+            }
+
+            arrowScrollbox.removeAttribute("notoverflowing");
+            let alltabsButton = document.getElementById("alltabs-button");
+            alltabsButton.removeAttribute("hidden");
+          });
+
+          arrowScrollbox.addEventListener("UpdatedScrollButtonsDisabledState", event => {
+            // filter underflow events which were dispatched on nested scrollboxes
+            if (event.target != arrowScrollbox)
+              return;
+
+            // fix for bug #352353
+            // unlike the scrollup button on the tab strip (which is a
+            // simple toolbarbutton) the scrolldown button is
+            // a more complicated stack of boxes and a toolbarbutton
+            // so that we can animate when a tab is opened offscreen.
+            // in order to style the box with the actual background image
+            // we need to manually set the disable state to match the
+            // disable state of the toolbarbutton.
+            arrowScrollbox._scrollButtonDownBox
+                .setAttribute("disabled", arrowScrollbox._scrollButtonDown.disabled);
+          });
+        ]]></body>
+      </method>
 
       <method name="_updateCloseButtons">
         <body><![CDATA[
