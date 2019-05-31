@@ -390,6 +390,7 @@ function test_selected_attachments_are_cleared() {
                 "After loading a new message the first item should be selected");
 }
 
+test_select_all_attachments_key.__force_skip__ = true;
 function test_select_all_attachments_key() {
   be_in_folder(folder);
 
@@ -406,6 +407,7 @@ function test_select_all_attachments_key() {
                 "Should have selected all attachments!");
 }
 
+test_delete_attachment_key.__force_skip__ = true;
 function test_delete_attachment_key() {
   be_in_folder(folder);
 
@@ -434,6 +436,7 @@ function test_delete_attachment_key() {
   wait_for_modal_dialog("commonDialog");
 }
 
+test_attachments_compose_menu.__force_skip__ = true;
 function test_attachments_compose_menu() {
   be_in_folder(folder);
 
