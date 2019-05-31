@@ -108,10 +108,6 @@
   opacity: 1;
 }
 
-.textbox-search-clear:not([disabled]):hover:active {
-  transform: scale(0.8);
-}
-
 .remote-gloda-search-container {
   padding-top: 1px;
   padding-bottom: 1px;

@@ -42,10 +42,6 @@ textbox:not([searchbutton]) > .textbox-input-box > .textbox-search-sign {
   opacity: 1;
 }
 
-.textbox-search-clear:not([disabled]):hover:active {
-  transform: scale(0.8);
-}
-
 .remote-gloda-search-container {
   padding-top: 3px;
   padding-bottom: 2px;
