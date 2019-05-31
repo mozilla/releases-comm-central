@@ -148,7 +148,10 @@ Sanitizer.prototype = {
     history: {
       clear() {
         if (this.range)
-          PlacesUtils.history.removeVisitsByTimeframe(this.range[0], this.range[1]);
+          PlacesUtils.history.removeVisitsByFilter({
+            beginDate: new Date(this.range[0]),
+            endDate: new Date(this.range[1]),
+          });
         else
           PlacesUtils.history.clear();
 
