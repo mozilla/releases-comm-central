@@ -354,6 +354,7 @@ function test_attachment_list_starts_expanded() {
               "Attachment list should start out expanded!");
 }
 
+test_selected_attachments_are_cleared.__force_skip__ = true;
 function test_selected_attachments_are_cleared() {
   ensure_starts_expanded(false);
   be_in_folder(folder);
