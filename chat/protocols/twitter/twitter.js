@@ -990,7 +990,7 @@ Account.prototype = {
     // during the same session (bug 954308).
     let cookies = Services.cookies.getCookiesFromHost("twitter.com", {});
     while (cookies.hasMoreElements()) {
-      let cookie = cookies.getNext().QueryInterface(Ci.nsICookie2);
+      let cookie = cookies.getNext().QueryInterface(Ci.nsICookie);
       Services.cookies.remove(cookie.host, cookie.name, cookie.path, false,
                               cookie.originAttributes);
     }

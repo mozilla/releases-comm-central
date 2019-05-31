@@ -7,7 +7,7 @@
 #include "nsIServiceManager.h"
 #include "nsICookieService.h"
 #include "nsICookieManager.h"
-#include "nsICookie2.h"
+#include "nsICookie.h"
 #include <stdio.h>
 #include "plstr.h"
 #include "prprf.h"
@@ -41,21 +41,22 @@ void SetACookieMail(nsICookieService *aCookieService, const char *aSpec1,
   if (aSpec2) NS_NewURI(getter_AddRefs(uri2), aSpec2);
 
   nsresult rv = aCookieService->SetCookieStringFromHttp(
-      uri1, uri2, nullptr, (char *)aCookieString, aServerTime, nullptr);
+      uri1, uri2, nullptr, nsDependentCString(aCookieString),
+      nsDependentCString(aServerTime), nullptr);
   EXPECT_TRUE(NS_SUCCEEDED(rv));
 }
 
 // returns true if cookie(s) for the given host were found; else false.
 // the cookie string is returned via aCookie.
 bool GetACookieMail(nsICookieService *aCookieService, const char *aSpec1,
-                    const char *aSpec2, char **aCookie) {
+                    const char *aSpec2, nsACString &aCookie) {
   nsCOMPtr<nsIURI> uri1, uri2;
   NS_NewURI(getter_AddRefs(uri1), aSpec1);
   if (aSpec2) NS_NewURI(getter_AddRefs(uri2), aSpec2);
 
   Unused << aCookieService->GetCookieStringFromHttp(uri1, uri2, nullptr,
                                                     aCookie);
-  return *aCookie != nullptr;
+  return !aCookie.IsEmpty();
 }
 
 // some #defines for comparison rules
@@ -149,23 +150,18 @@ TEST(TestMailCookie, TestMailCookieMain)
   // this situation...
   SetACookieMail(cookieService, "mailbox://mail.co.uk/", nullptr,
                  "test=mailnews", nullptr);
-  GetACookieMail(cookieService, "mailbox://mail.co.uk/", nullptr,
-                 getter_Copies(cookie));
+  GetACookieMail(cookieService, "mailbox://mail.co.uk/", nullptr, cookie);
   EXPECT_TRUE(CheckResult(cookie.get(), MUST_BE_NULL));
-  GetACookieMail(cookieService, "http://mail.co.uk/", nullptr,
-                 getter_Copies(cookie));
+  GetACookieMail(cookieService, "http://mail.co.uk/", nullptr, cookie);
   EXPECT_TRUE(CheckResult(cookie.get(), MUST_BE_NULL));
   SetACookieMail(cookieService, "http://mail.co.uk/", nullptr, "test=mailnews",
                  nullptr);
-  GetACookieMail(cookieService, "mailbox://mail.co.uk/", nullptr,
-                 getter_Copies(cookie));
+  GetACookieMail(cookieService, "mailbox://mail.co.uk/", nullptr, cookie);
   EXPECT_TRUE(CheckResult(cookie.get(), MUST_BE_NULL));
-  GetACookieMail(cookieService, "http://mail.co.uk/", nullptr,
-                 getter_Copies(cookie));
+  GetACookieMail(cookieService, "http://mail.co.uk/", nullptr, cookie);
   EXPECT_TRUE(CheckResult(cookie.get(), MUST_EQUAL, "test=mailnews"));
   SetACookieMail(cookieService, "http://mail.co.uk/", nullptr,
                  "test=mailnews; max-age=0", nullptr);
-  GetACookieMail(cookieService, "http://mail.co.uk/", nullptr,
-                 getter_Copies(cookie));
+  GetACookieMail(cookieService, "http://mail.co.uk/", nullptr, cookie);
   EXPECT_TRUE(CheckResult(cookie.get(), MUST_BE_NULL));
 }
