@@ -27,7 +27,7 @@
                                enough space. -->
                           <spacer flex="9999"/>
 
-                          <vbox id="attachment-view-toolbox">
+                          <vbox id="attachment-view-toolbox" class="inline-toolbox">
                             <hbox id="attachment-view-toolbar"
                                   context="attachment-toolbar-context-menu">
                               <toolbaritem id="attachmentSaveAll"

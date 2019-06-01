@@ -61,7 +61,7 @@
              -      e.g. "if (event.target.id == this.id) ltnImipBar.executeAction('ACCEPTED');"
              -      and "ltnImipBar.executeAction('ACCEPTED');"
              //-->
-          <vbox id="imip-view-toolbox">
+          <vbox id="imip-view-toolbox" class="inline-toolbox">
             <hbox id="imip-view-toolbar">
 
               <!-- show event/invitation details -->

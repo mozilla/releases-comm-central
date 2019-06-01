@@ -37,15 +37,6 @@
 
 /* ::::: task actions toolbar ::::: */
 
-#task-actions-toolbox {
-    -moz-appearance: none;
-}
-
-#task-actions-toolbar {
-    min-height: 0;
-    padding: 0;
-}
-
 #calendar-add-task-button[disabled="true"] {
     fill-opacity: 0.4;
 }

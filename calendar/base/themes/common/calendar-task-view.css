@@ -130,37 +130,6 @@
 
 /* ::::: task actions toolbar ::::: */
 
-#task-actions-toolbar toolbarpaletteitem toolbarseparator,
-#task-actions-toolbar toolbarseparator {
-    height: 26px;
-}
-
-#task-actions-toolbar toolbarspacer {
-    height: 20px;
-}
-
-window[toolboxId="task-actions-toolbox"] #wrapper-spring {
-    display: none;
-}
-
-window[toolboxId="task-actions-toolbox"] #smallicons,
-window[toolboxId="task-actions-toolbox"] button[icon="add"] {
-    display: none;
-}
-
-window[toolboxId="task-actions-toolbox"] #modelist menuitem:first-child {
-    display: none;
-}
-
-#task-actions-toolbox[doCustomization] {
-    background: grey;
-}
-
-#task-actions-toolbox[doCustomization] #task-actions-toolbar {
-    min-width: 100px;
-    min-height: 24px;
-}
-
 #calendar-add-task-button {
     margin-inline-start: 5px;
     list-style-image: url(chrome://calendar-common/skin/icons/newtask.svg);

@@ -18,7 +18,7 @@
                                    fit alongside each other. -->
                               <hbox id="expandedHeadersTopBox" flex="1">
 
-                                <vbox id="header-view-toolbox">
+                                <vbox id="header-view-toolbox" class="inline-toolbox">
                                   <hbox id="header-view-toolbar">
                                     <!-- XXXdmose need to move these commands to a controller, either
                                          on the header view, the message pane, or the default
