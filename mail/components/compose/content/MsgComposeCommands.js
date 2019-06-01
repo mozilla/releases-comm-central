@@ -5304,8 +5304,8 @@ function attachmentBucketOnClick(aEvent) {
   // - With selected attachments, clear selection first.
   // - Otherwise, e.g. on a plain empty bucket, show 'Attach File(s)' dialog.
   if (attachmentsSelectedCount() == 0) {
-    let boundTarget = document.getBindingParent(aEvent.originalTarget);
-    if (aEvent.button == 0 && boundTarget && boundTarget.localName == "scrollbox")
+    let boundTarget = aEvent.originalTarget;
+    if (aEvent.button == 0 && boundTarget && boundTarget.getAttribute("is") == "attachment-list")
       goDoCommand("cmd_attachFile");
   }
 }

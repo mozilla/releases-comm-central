@@ -31,7 +31,7 @@
     padding: 1px;
   }
 
-  .attachmentlist-wrapper {
+  .attachmentlist[orient="horizontal"] {
     margin-inline-end: 1px;
     margin-bottom: 1px;
   }

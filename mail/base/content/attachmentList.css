@@ -5,14 +5,14 @@
 .attachmentList {
   -moz-appearance: listbox;
   -moz-user-focus: normal;
-  margin: 0;
 }
 
-.attachmentlist-wrapper {
+.attachmentList[orient="horizontal"] {
   display: block;
-  margin: 0;
-  padding: 0;
-  line-height: 0;
+}
+
+.attachmentList[collapsed] {
+  height: 0;
 }
 
 .attachmentItem {

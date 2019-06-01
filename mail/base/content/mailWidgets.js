@@ -1135,10 +1135,7 @@ class MozAttachmentlist extends MozElements.RichListBox {
     super();
 
     this.messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
-    this._setupEventListeners();
-  }
 
-  _setupEventListeners() {
     this.addEventListener("keypress", (event) => {
       // The spacebar should work just like the arrow keys, except that the
       // focused element doesn't change, so use moveByOffset here.
