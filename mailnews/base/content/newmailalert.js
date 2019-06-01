@@ -110,7 +110,7 @@ function onAlertLoad() {
 // If the user initiated the alert, show it right away, otherwise start opening the alert with
 // the fade effect.
 function showAlert() {
-  if (!document.getElementById("folderSummaryInfo").hasMessages) {
+  if (!document.getElementById("folderSummaryInfo").hasMessages()) {
     closeAlert(); // no mail, so don't bother showing the alert...
     return;
   }
