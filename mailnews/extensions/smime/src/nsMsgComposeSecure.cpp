@@ -808,9 +808,8 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
   // Calling CERT_GetCertNicknames has the desired side effect of
   // traversing all tokens, and bringing up prompts to unlock them.
   nsCOMPtr<nsIInterfaceRequestor> ctx = new PipUIContext();
-  CERTCertNicknames *result_unused =
-    CERT_GetCertNicknames(CERT_GetDefaultCertDB(),
-    SEC_CERT_NICKNAMES_USER, ctx);
+  CERTCertNicknames *result_unused = CERT_GetCertNicknames(
+      CERT_GetDefaultCertDB(), SEC_CERT_NICKNAMES_USER, ctx);
   CERT_FreeNicknames(result_unused);
 
   UniqueCERTCertList builtChain;
