@@ -407,8 +407,8 @@ var gAdvancedPane = {
 
   async reportUpdatePrefWriteError(error) {
     let [title, message] = await document.l10n.formatValues([
-      {id: "update-pref-write-failure-title"},
-      {id: "update-pref-write-failure-message", args: {path: error.path}},
+      {id: "update-setting-write-failure-title"},
+      {id: "update-setting-write-failure-message", args: {path: error.path}},
     ]);
 
     // Set up the Ok Button
