@@ -120,14 +120,19 @@ function setEmailDescriptionText() {
 }
 
 function checkForFullName() {
-  // var name = document.getElementById("fullName");
-  // We currently have no way to propose any useful name here.
+  var name = document.getElementById("fullName");
+  if (name.value == "" && "@mozilla.org/userinfo;1" in Cc) {
+    name.value = Cc["@mozilla.org/userinfo;1"].getService(Ci.nsIUserInfo).fullname;
+  }
 }
 
 function checkForEmail() {
-    var email = document.getElementById("email");
-    var pageData = parent.GetPageData();
-    if (pageData && pageData.identity && pageData.identity.email) {
-        email.value = pageData.identity.email.value;
-    }
+  var email = document.getElementById("email");
+  var pageData = parent.GetPageData();
+  if (pageData && pageData.identity && pageData.identity.email) {
+    email.value = pageData.identity.email.value;
+  }
+  if (email.value == "" && "@mozilla.org/userinfo;1" in Cc) {
+    email.value = Cc["@mozilla.org/userinfo;1"].getService(Ci.nsIUserInfo).emailAddress;
+  }
 }

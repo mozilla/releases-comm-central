@@ -284,8 +284,12 @@ var EmailAccountProvisioner = {
 
     // If we have a name stored in local storage from an earlier session,
     // populate the search field with it.
-    nameElement.value = EmailAccountProvisioner.storage.getItem("name") ||
-                        nameElement.value;
+    let name = EmailAccountProvisioner.storage.getItem("name") ||
+               nameElement.value;
+    if (!name && "@mozilla.org/userinfo;1" in Cc) {
+      name = Cc["@mozilla.org/userinfo;1"].getService(Ci.nsIUserInfo).fullname;
+    }
+    nameElement.value = name;
     EmailAccountProvisioner.saveName();
 
     // Pretend like we've typed something into the search input to set the

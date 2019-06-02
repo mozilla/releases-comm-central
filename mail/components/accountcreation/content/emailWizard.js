@@ -168,6 +168,13 @@ EmailConfigWizard.prototype = {
     this._domain = "";
     this._email = "";
     this._realname = "";
+    if ("@mozilla.org/userinfo;1" in Cc) {
+      let userInfo = Cc["@mozilla.org/userinfo;1"].getService(Ci.nsIUserInfo);
+      // Assume that it's a genuine full name if it includes a space.
+      if (userInfo.fullname.includes(" ")) {
+        this._realname = userInfo.fullname;
+      }
+    }
     e("realname").value = this._realname;
     this._password = "";
     this._exchangeUsername = ""; // only for Exchange AutoDiscover and only if needed
