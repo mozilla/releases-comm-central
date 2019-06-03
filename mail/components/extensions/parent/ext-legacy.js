@@ -156,7 +156,11 @@ this.legacy = class extends ExtensionAPI {
     // Add overlays to all existing windows.
     let enumerator = Services.wm.getEnumerator("mail:3pane");
     if (enumerator.hasMoreElements() && enumerator.getNext().document.readyState == "complete") {
-      getAllWindows().forEach(w => Overlays.load(chromeManifest, w));
+      getAllWindows().forEach(w => {
+        if (["interactive", "complete"].includes(w.document.readyState)) {
+          Overlays.load(chromeManifest, w);
+        }
+      });
     }
 
     // Listen for new windows to overlay.
