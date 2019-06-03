@@ -16,7 +16,7 @@ LOCAL_INCLUDES += [
 ]
 
 if CONFIG['OS_ARCH'] == 'WINNT':
-    DEFFILE = SRCDIR + '/libldif.def'
+    DEFFILE = 'libldif.def'
 
 DEFINES['USE_WAITPID'] = True
 DEFINES['NEEDPROTOS'] = True

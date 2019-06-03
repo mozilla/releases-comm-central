@@ -16,7 +16,7 @@ SOURCES += [
 ]
 
 if CONFIG['OS_ARCH'] == 'WINNT':
-    DEFFILE = SRCDIR + '/libprldap.def'
+    DEFFILE = 'libprldap.def'
 
 DEFINES['USE_WAITPID'] = True
 DEFINES['NEEDPROTOS'] = True

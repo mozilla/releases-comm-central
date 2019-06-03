@@ -73,7 +73,7 @@ if CONFIG['OS_TARGET'] == 'WINNT':
         'dllmain.c',
         'mozock.c',
     ]
-    DEFFILE = SRCDIR + '/libldap.def'
+    DEFFILE = 'libldap.def'
 
 if CONFIG['OS_TARGET'] != 'WINNT':
     DEFINES['USE_WAITPID'] = True
