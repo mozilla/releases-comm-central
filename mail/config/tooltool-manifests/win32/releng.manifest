@@ -6,14 +6,6 @@
     "filename": "mozmake.exe"
   },
   {
-    "version": "rustc 1.24.0 (123456789 2018-02-15) repack",
-    "size": 126242752,
-    "digest": "b25cfd1a6961f698f5cc9f1bdfce19c5657e921ca941789f64940a3516e41be1c5c083b109ee5ada1f023e8fd9c154615b2c4c27ef1b55d4a6527e905e07722b",
-    "algorithm": "sha512",
-    "filename": "rustc.tar.bz2",
-    "unpack": true
-  },
-  {
     "version": "Visual Studio 2017 15.8.4 / SDK 10.0.17134.0",
     "digest": "ecf1e03f6f98f86775059a43f9e7dc7e326f6643d7c08962d9f614e4f5a65b1ca63fa1cfeb0f1a3c2474bf0d4318dda960b378beb2a44ecf8a91111207f4ece5",
     "size": 349626009,
@@ -29,13 +21,6 @@
     "unpack": true,
     "digest": "196ac6a567c85559957dfe511c3d8654d23c94d5603259e19ccafe9d71e0e4ccee63ccc9a778f2699654b786cda54266108b7d4db543d01bb0b42545b4e6ec75",
     "size": 297118
-  },
-  {
-    "size": 216733,
-    "digest": "7debd8ce46955eae345ebdf2ee6df3bfc3f3a547af1306f7fb099e38750f5ed9412af7155017574fc796f2bb8f37b5b7c4f91d838fa3dc422a776c230ba2d64b",
-    "algorithm": "sha512",
-    "filename": "xz.tar.bz2",
-    "unpack": true
   },
   {
     "version": "Outlook 2010 Messaging API (repacked w/ updated MAPI.h)",
