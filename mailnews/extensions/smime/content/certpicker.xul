@@ -17,6 +17,8 @@
   buttons="accept,cancel"
   onload="onLoad();">
 
+<script src="chrome://global/content/globalOverlay.js"/>
+<script src="chrome://global/content/editMenuOverlay.js"/>
 <script src="chrome://messenger/content/certpicker.js"/>
 
   <hbox align="center">

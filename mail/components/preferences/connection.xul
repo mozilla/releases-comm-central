@@ -27,6 +27,8 @@
     <html:link rel="localization" href="messenger/preferences/connection.ftl"/>
   </linkset>
 
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://global/content/preferencesBindings.js"/>
   <script src="chrome://messenger/content/preferences/connection.js"/>
 

@@ -5,7 +5,7 @@
 
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 
-<!DOCTYPE dialog 
+<!DOCTYPE dialog
 [
     <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd" > %dtd1;
     <!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar.dtd" > %dtd2;
@@ -22,6 +22,8 @@
         width="500"
         xmlns:html="http://www.w3.org/1999/xhtml">
 
+    <script src="chrome://global/content/globalOverlay.js"/>
+    <script src="chrome://global/content/editMenuOverlay.js"/>
     <script><![CDATA[
         function loadErrorPrompt() {
             var args = window.arguments[0].QueryInterface(Ci.nsIDialogParamBlock);

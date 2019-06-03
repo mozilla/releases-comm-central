@@ -17,6 +17,8 @@
         buttonaccesskeyaccept="&insertButton.accesskey;">
 
   <!-- Methods common to all editor dialogs -->
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://editor/content/editorUtilities.js"/>
   <script src="chrome://editor/content/EdDialogCommon.js"/>
   <script src="chrome://editor/content/EdInsertMath.js"/>

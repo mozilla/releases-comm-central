@@ -28,7 +28,7 @@ function onLoad() {
     let nick = dialogParams.GetString(i);
     menuItemNode.setAttribute("value", i);
     menuItemNode.setAttribute("label", nick); // This is displayed.
-    selectElement.firstChild.appendChild(menuItemNode);
+    selectElement.menupopup.appendChild(menuItemNode);
 
     if (selIndex == i) {
       selectElement.selectedItem = menuItemNode;
