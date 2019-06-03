@@ -1,0 +1,41 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+---
+# These merge with defaults set in kind.yml
+job-defaults:
+    suite: marionette
+    mozharness:
+        script: marionette.py
+        config:
+            by-test-platform:
+                macosx.*:
+                    - marionette/prod_config.py
+                    - marionette/mac_taskcluster_config.py
+                windows.*:
+                    - marionette/windows_taskcluster_config.py
+                default:
+                    - marionette/prod_config.py
+                    - remove_executables.py
+        extra-options:
+            - --application=thunderbird --test-manifest=../../../../../comm/testing/marionette/unit-tests.ini
+    run-on-projects: built-projects
+
+marionette:
+    description: "Marionette unittest run"
+    treeherder-symbol: Mn
+    max-run-time: 5400
+    e10s: false
+    instance-size: default
+    chunks: 1
+
+marionette-headless:
+    description: "Marionette headless unittest run"
+    treeherder-symbol: MnH
+    max-run-time: 5400
+    e10s: false
+    instance-size: default
+    mozharness:
+        extra-options:
+            - --headless
+
