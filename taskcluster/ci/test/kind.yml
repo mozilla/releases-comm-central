@@ -18,3 +18,4 @@ transforms:
 
 jobs-from:
     - tests.yml
+    - marionette.yml
