@@ -69,8 +69,6 @@
 #include "nsICharsetDetector.h"
 #include "nsIStringCharsetDetector.h"
 #include "nsCyrillicDetector.h"
-#include "nsUniversalDetector.h"
-#include "nsUdetXPCOMWrapper.h"
 #include "nsILineInputStream.h"
 #include "nsIParserUtils.h"
 #include "nsICharsetConverterManager.h"
@@ -1840,13 +1838,11 @@ NS_MSG_BASE nsresult MsgDetectCharsetFromFile(nsIFile *aFile,
   nsAutoCString detectorName;
   Preferences::GetLocalizedCString("intl.charset.detector", detectorName);
   if (!detectorName.IsEmpty()) {
-    // We recognize one of the three magic strings for the following languages.
+    // We recognize one of the two magic strings for Russian and Ukranian.
     if (detectorName.EqualsLiteral("ruprob")) {
       detector = new nsRUProbDetector();
     } else if (detectorName.EqualsLiteral("ukprob")) {
       detector = new nsUKProbDetector();
-    } else if (detectorName.EqualsLiteral("ja_parallel_state_machine")) {
-      detector = new nsJAPSMDetector();
     }
   }
 

@@ -71,8 +71,6 @@ EXTRA_JS_MODULES += [
 ]
 
 LOCAL_INCLUDES += [
-  '/%s/extensions/universalchardet/src/base' % CONFIG['mozreltopsrcdir'],
-  '/%s/extensions/universalchardet/src/xpcom' % CONFIG['mozreltopsrcdir'],
   '/%s/intl/chardet' % CONFIG['mozreltopsrcdir'],
   '/%s/netwerk/base' % CONFIG['mozreltopsrcdir']
 ]

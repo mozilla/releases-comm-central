@@ -5,9 +5,8 @@
 
 #include "comi18n.h"
 #include "nsICharsetDetector.h"
+#include "nsICharsetDetectionObserver.h"
 #include "nsCyrillicDetector.h"
-#include "nsUniversalDetector.h"
-#include "nsUdetXPCOMWrapper.h"
 #include "nsMsgUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
@@ -64,13 +63,11 @@ nsresult MIME_detect_charset(const char *aBuf, int32_t aLength,
   Preferences::GetLocalizedCString("intl.charset.detector", detectorName);
 
   if (!detectorName.IsEmpty()) {
-    // We recognize one of the three magic strings for the following languages.
+    // We recognize one of the two magic strings for Russian and Ukranian.
     if (detectorName.EqualsLiteral("ruprob")) {
       detector = new nsRUProbDetector();
     } else if (detectorName.EqualsLiteral("ukprob")) {
       detector = new nsUKProbDetector();
-    } else if (detectorName.EqualsLiteral("ja_parallel_state_machine")) {
-      detector = new nsJAPSMDetector();
     }
   }
 
