@@ -388,9 +388,7 @@ Section "-Application" APP_IDX
   ${EndIf}
 
   ${RemoveDeprecatedKeys}
-  ; The following macro call is disabled until we are ready for the 32bit to
-  ; 64bit migration. See meta bug 634233 and enabling bug 1390850.
-  ; ${Set32to64DidMigrateReg}
+  ${Set32to64DidMigrateReg}
 
   ; The previous installer adds several regsitry values to both HKLM and HKCU.
   ; We now try to add to HKLM and if that fails to HKCU

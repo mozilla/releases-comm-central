@@ -85,9 +85,7 @@
   ${MigrateTaskBarShortcut}
 
   ${RemoveDeprecatedKeys}
-  ; The following macro call is disabled until we are ready for the 32bit to
-  ; 64bit migration. See meta bug 634233 and enabling bug 1390850.
-  ; ${Set32to64DidMigrateReg}
+  ${Set32to64DidMigrateReg}
 
   ${SetAppKeys}
   ${SetUninstallKeys}
