@@ -2338,13 +2338,11 @@ function GetFolderMessages()
   var selectedFolders = GetSelectedMsgFolders();
   var defaultAccountRootFolder = GetDefaultAccountRootFolder();
 
-  // if no default account, get msg isn't going do anything anyways
-  // so bail out
-  if (!defaultAccountRootFolder)
-    return;
-
   // if nothing selected, use the default
   var folder = selectedFolders.length ? selectedFolders[0] : defaultAccountRootFolder;
+
+  if (!folder)
+    return;
 
   var serverType = folder.server.type;
 
@@ -2367,8 +2365,10 @@ function GetFolderMessages()
       folder = defaultAccountRootFolder;
   }
 
-  var folders = new Array(1);
-  folders[0] = folder;
+  if (!folder)
+    return;
+
+  var folders = [folder];
 
   GetNewMessages(folders, folder.server);
 }

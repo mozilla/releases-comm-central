@@ -2286,13 +2286,12 @@ function GetFolderMessages() {
   var selectedFolders = GetSelectedMsgFolders();
   var defaultAccountRootFolder = GetDefaultAccountRootFolder();
 
-  // If no default account, GetNewMsgs isn't going to do anything anyways
-  // so bail out.
-  if (!defaultAccountRootFolder)
-    return;
-
   // if nothing selected, use the default
   var folders = (selectedFolders.length) ? selectedFolders : [defaultAccountRootFolder];
+
+  if (!folders[0])
+    return;
+
   for (var i = 0; i < folders.length; i++) {
     var serverType = folders[i].server.type;
     if (folders[i].isServer && (serverType == "nntp")) {
@@ -2306,10 +2305,13 @@ function GetFolderMessages() {
       // XXX TODO
       // Should shift click get mail for all (authenticated) accounts?
       // see bug #125885.
-      if (!folders[i].server.isDeferredTo)
+      if (!folders[i].server.isDeferredTo) {
+        if (!defaultAccountRootFolder)
+          continue;
         GetNewMsgs(defaultAccountRootFolder.server, defaultAccountRootFolder);
-      else
+      } else {
         GetNewMsgs(folders[i].server, folders[i]);
+      }
     } else {
       GetNewMsgs(folders[i].server, folders[i]);
     }
