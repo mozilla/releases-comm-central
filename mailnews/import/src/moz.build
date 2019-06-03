@@ -14,7 +14,6 @@ SOURCES += [
     'nsImportFieldMap.cpp',
     'nsImportMail.cpp',
     'nsImportMailboxDescriptor.cpp',
-    'nsImportMimeEncode.cpp',
     'nsImportScanFile.cpp',
     'nsImportService.cpp',
     'nsImportStringBundle.cpp',
