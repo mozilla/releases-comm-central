@@ -182,9 +182,24 @@ var OTR = {
     );
     if (err || newkey.isNull())
       return Promise.reject("otrl_privkey_generate_start (" + err + ")");
+
+    let keyPtrSrc = newkey.toSource();
+    let re = new RegExp(
+      "^ctypes\\.voidptr_t\\(ctypes\\.UInt64\\(\"0x([0-9a-fA-F]+)\"\\)\\)$");
+    let address;
+    let match = re.exec(keyPtrSrc);
+    if (match) {
+      address = match[1];
+    }
+
+    if (!address) {
+      OTRLib.otrl_privkey_generate_cancelled(OTR.userstate, newkey);
+      throw new Error("generatePrivateKey failed to parse ptr.toSource(): " + keyPtrSrc);
+    }
+
     let worker = new BasePromiseWorker(workerPath);
     return worker.post("generateKey", [
-      OTRLib.path, OTRLib.otrl_version, newkey.toSource(),
+      OTRLib.path, OTRLib.otrl_version, address,
     ]).then(function() {
       let err = OTRLib.otrl_privkey_generate_finish(
         OTR.userstate, newkey, OTR.privateKeyPath

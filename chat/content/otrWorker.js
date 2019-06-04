@@ -8,9 +8,7 @@ var PromiseWorker = require("resource://gre/modules/workers/PromiseWorker.js");
 var Funcs = {};
 
 // Only what we need from libotr.js
-Funcs.generateKey = function(path, otrl_version, newkeySource) {
-  // eslint-disable-next-line no-eval
-  let newkey = eval(newkeySource);  // jshint ignore:line
+Funcs.generateKey = function(path, otrl_version, address) {
   let libotr = ctypes.open(path);
 
   let abi = ctypes.default_abi;
@@ -31,6 +29,8 @@ Funcs.generateKey = function(path, otrl_version, newkeySource) {
   );
 
   otrl_init.apply(libotr, otrl_version);
+
+  let newkey = ctypes.voidptr_t(ctypes.UInt64("0x" + address));
   let err = otrl_privkey_generate_calculate(newkey);
   libotr.close();
   if (err)
