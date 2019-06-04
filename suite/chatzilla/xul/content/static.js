@@ -4300,6 +4300,64 @@ function this_getFontCSS(format)
     return css;
 }
 
+client.startMsgGroup =
+CIRCNetwork.prototype.startMsgGroup =
+CIRCChannel.prototype.startMsgGroup =
+CIRCUser.prototype.startMsgGroup =
+CIRCDCCChat.prototype.startMsgGroup =
+CIRCDCCFileTransfer.prototype.startMsgGroup =
+function __startMsgGroup(id, groupMsg, msgtype)
+{
+    // The given ID may not be unique, so append a timestamp to ensure it is.
+    var groupId = id + "-" + Date.now();
+
+    // Add the button to the end of the message.
+    var headerMsg = groupMsg + " " + getMsg(MSG_COLLAPSE_BUTTON,
+                                            [MSG_COLLAPSE_HIDE,
+                                             MSG_COLLAPSE_HIDETITLE,
+                                             groupId]);
+
+    // Show the group header message.
+    client.munger.getRule(".inline-buttons").enabled = true;
+    this.displayHere(headerMsg, msgtype);
+    client.munger.getRule(".inline-buttons").enabled = false;
+
+    // Add the group to a list of active message groups.
+    if (!this.msgGroups)
+        this.msgGroups = [];
+    this.msgGroups.push(groupId);
+
+    // Return the actual ID in case the caller wants to use it later.
+    return groupId;
+}
+
+function startMsgGroup(groupId, headerMsg, msgtype)
+{
+    client.currentObject.startMsgGroup(groupId, headerMsg, msgtype);
+}
+
+client.endMsgGroup =
+CIRCNetwork.prototype.endMsgGroup =
+CIRCChannel.prototype.endMsgGroup =
+CIRCUser.prototype.endMsgGroup =
+CIRCDCCChat.prototype.endMsgGroup =
+CIRCDCCFileTransfer.prototype.endMsgGroup =
+function __endMsgGroup(groupId, message)
+{
+    if (!this.msgGroups)
+        return;
+
+    // Remove the group from the list of active message groups.
+    this.msgGroups.pop();
+    if (this.msgGroups.length == 0)
+        delete this.msgGroups;
+}
+
+function endMsgGroup()
+{
+    client.currentObject.endMsgGroup();
+}
+
 client.display =
 client.displayHere =
 CIRCNetwork.prototype.displayHere =
@@ -4436,6 +4494,8 @@ function __display(message, msgtype, sourceObj, destObj, tags)
     // The table row, and it's attributes.
     var msgRow = document.createElementNS(XHTML_NS, "html:tr");
     msgRow.setAttribute("class", "msg");
+    if (this.msgGroups)
+        msgRow.setAttribute("msg-groups", this.msgGroups.join(', '));
     msgRow.setAttribute("msg-type", msgtype);
     msgRow.setAttribute("msg-prefix", msgprefix);
     msgRow.setAttribute("msg-dest", toAttr);
