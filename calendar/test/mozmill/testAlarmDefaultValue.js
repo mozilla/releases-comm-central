@@ -36,10 +36,7 @@ function setupModule(module) {
     collector.getModule("content-tab-helpers").setupModule();
 }
 
-testDefaultAlarms.__force_skip__ = true;
 function testDefaultAlarms() {
-    let { eid } = helpersForController(controller);
-
     let localeUnitString = cal.l10n.getCalString("unitDays");
     let unitString = PluralForm.get(DEFVALUE, localeUnitString).replace("#1", DEFVALUE);
     let alarmString = (...args) => cal.l10n.getString("calendar-alarms", ...args);
@@ -56,8 +53,7 @@ function testDefaultAlarms() {
     openLightningPrefs(handlePrefTab, controller);
 
     // Create New Event.
-    controller.click(eid("newMsgButton-calendar-menuitem"));
-
+    controller.keypress(null, "i", { shiftKey: false, accelKey: true });
     // Set up the event dialog controller.
     invokeEventDialog(controller, null, (event, iframe) => {
         let { xpath: eventpath, eid: eventid } = helpersForController(event);
@@ -76,7 +72,7 @@ function testDefaultAlarms() {
     });
 
     // Create New Task.
-    controller.click(eid("newMsgButton-task-menuitem"));
+    controller.keypress(null, "d", { shiftKey: false, accelKey: true });
     invokeEventDialog(controller, null, (task, iframe) => {
         let { xpath: taskpath, eid: taskid } = helpersForController(task);
 
