@@ -408,7 +408,7 @@ nsresult nsCMSMessage::CommonAsyncVerifySignature(
     uint32_t aDigestDataLen, int16_t aDigestType) {
   RefPtr<CryptoTask> task = new SMimeVerificationTask(
       this, aListener, aDigestData, aDigestDataLen, aDigestType);
-  return task->Dispatch("SMimeVerify");
+  return task->Dispatch();
 }
 
 class nsZeroTerminatedCertArray {
