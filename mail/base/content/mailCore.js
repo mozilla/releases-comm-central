@@ -44,24 +44,26 @@ XPCOMUtils.defineLazyGetter(this, "gViewSourceUtils", function() {
 Services.obs.addObserver({
   observe(win) {
     win.addEventListener("load", function() {
-      if (this.location.href != "chrome://devtools/content/webconsole/browserconsole.xul") {
+      if (this.location.href != "chrome://devtools/content/webconsole/index.html") {
         return;
       }
 
       this.setTimeout(() => {
-        this.gViewSourceUtils.viewSource = async function(aArgs) {
-          // Check if external view source is enabled. If so, try it. If it fails,
-          // fallback to internal view source.
-          if (Services.prefs.getBoolPref("view_source.editor.external")) {
-            try {
-              await this.openInExternalEditor(aArgs);
-              return;
-            } catch (ex) {}
-          }
+        this.gViewSourceUtils = {
+          async viewSource(aArgs) {
+            // Check if external view source is enabled. If so, try it. If it fails,
+            // fallback to internal view source.
+            if (Services.prefs.getBoolPref("view_source.editor.external")) {
+              try {
+                await this.openInExternalEditor(aArgs);
+                return;
+              } catch (ex) {}
+            }
 
-          window.openDialog("chrome://messenger/content/viewSource.xul", "_blank", "all,dialog=no", aArgs);
+            window.openDialog("chrome://messenger/content/viewSource.xul", "_blank", "all,dialog=no", aArgs);
+          },
         };
-      }, 0);
+      });
     }, { capture: false, once: true });
   },
 }, "chrome-document-global-created");
