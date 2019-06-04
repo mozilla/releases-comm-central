@@ -57,12 +57,17 @@ this.legacy = class extends ExtensionAPI {
     if (ExtensionSupport.loadedLegacyExtensions.has(this.extension.id)) {
       state = ExtensionSupport.loadedLegacyExtensions.get(this.extension.id);
       let versionComparison = Services.vc.compare(this.extension.version, state.version);
-      if (versionComparison > 0) {
-        state.pendingOperation = "upgrade";
-        ExtensionSupport.loadedLegacyExtensions.notifyObservers(state);
-      } else if (versionComparison < 0) {
-        state.pendingOperation = "downgrade";
-        ExtensionSupport.loadedLegacyExtensions.notifyObservers(state);
+      if (versionComparison != 0) {
+        if (versionComparison > 0) {
+          state.pendingOperation = "upgrade";
+          ExtensionSupport.loadedLegacyExtensions.notifyObservers(state);
+        } else if (versionComparison < 0) {
+          state.pendingOperation = "downgrade";
+          ExtensionSupport.loadedLegacyExtensions.notifyObservers(state);
+        }
+
+        // Forget any cached files we might've had from another version of this extension.
+        Services.obs.notifyObservers(null, "startupcache-invalidate");
       }
       console.log(`Legacy WebExtension ${this.extension.id} has already been loaded in this run, refusing to do so again. Please restart.`);
       return;
@@ -85,6 +90,9 @@ this.legacy = class extends ExtensionAPI {
         state.pendingOperation = "install";
         console.log(`Legacy WebExtension ${this.extension.id} loading for other reason than startup (${this.extension.startupReason}), refusing to load immediately.`);
         ExtensionSupport.loadedLegacyExtensions.notifyObservers(state);
+
+        // Forget any cached files we might've had if this extension was previously installed.
+        Services.obs.notifyObservers(null, "startupcache-invalidate");
         return;
       }
     }
