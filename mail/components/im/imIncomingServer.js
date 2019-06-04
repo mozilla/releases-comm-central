@@ -165,8 +165,15 @@ imIncomingServer.prototype = {
   },
   _defaultOptionValues: null,
   _getDefault(aPrefName) {
+    if (aPrefName == "otrVerifyNudge") {
+      return true;
+    }
+    if (aPrefName == "otrRequireEncryption") {
+      return false;
+    }
     if (this._defaultOptionValues)
       return this._defaultOptionValues[aPrefName];
+
 
     this._defaultOptionValues = {};
     let options = this.imAccount.protocol.getOptions();

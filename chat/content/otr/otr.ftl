@@ -11,7 +11,7 @@ msgevent-encryption_error = An error occurred when encrypting your message. The 
 
 # Variables:
 #   $name (String) - the screen name of a chat contact person
-msgevent-connection_ended = { $name } has already closed their private connection to you. Your message was not sent. Either end your private conversation, or restart it.
+msgevent-connection_ended = { $name } has already closed their encrypted connection to you. To avoid that you accidentally send a message without encryption, your message was not sent. Please end your encrypted conversation, or restart it.
 
 # Variables:
 #   $name (String) - the screen name of a chat contact person
@@ -47,7 +47,7 @@ msgevent-log_heartbeat_rcvd = Heartbeat received from { $name }.
 msgevent-log_heartbeat_sent = Heartbeat sent to { $name }.
 
 # Do not translate 'OTR' (name of an encryption protocol)
-msgevent-rcvdmsg_general_err = An OTR error occured.
+msgevent-rcvdmsg_general_err = An unexpected error occurred while trying to protect your conversation using OTR.
 
 # Variables:
 #   $name (String) - the screen name of a chat contact person
@@ -69,13 +69,13 @@ context-gone_secure_private = Private conversation with { $name } started.
 
 # Variables:
 #   $name (String) - the screen name of a chat contact person
-context-gone_secure_unverified = Private conversation with { $name } started. However, their identity has not been verified.
+context-gone_secure_unverified = Encrypted, but unverified conversation with { $name } started.
 
 # Variables:
 #   $name (String) - the screen name of a chat contact person
-context-still_secure = Successfully refreshed the private conversation with { $name }.
+context-still_secure = Successfully refreshed the encrypted conversation with { $name }.
 
-error-enc = Error occurred encrypting message.
+error-enc = An error occurred while encrypting the message.
 
 # Variables:
 #   $name (String) - the screen name of a chat contact person
@@ -88,15 +88,9 @@ resent = [resent]
 
 # Variables:
 #   $name (String) - the screen name of a chat contact person
-tlv-disconnected = { $name } has ended their private conversation with you; you should do the same.
+tlv-disconnected = { $name } has ended their encrypted conversation with you; you should do the same.
 
 # Do not translate "Off-the-Record" and "OTR" which is the name of an encryption protocol
 # Variables:
 #   $name (String) - the screen name of a chat contact person
-query-msg = { $name } has requested an Off-the-Record (OTR) private conversation. However, you do not have a plugin to support that. See https://en.wikipedia.org/wiki/Off-the-Record_Messaging for more information.
-
-trust-unused = Unused
-trust-not_private = Not Private
-trust-unverified = Unverified
-trust-private = Private
-trust-finished = Finished
+query-msg = { $name } has requested an Off-the-Record (OTR) encrypted conversation. However, you do not have a plugin to support that. See https://en.wikipedia.org/wiki/Off-the-Record_Messaging for more information.

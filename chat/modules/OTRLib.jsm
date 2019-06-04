@@ -39,29 +39,41 @@ function tryLoadOTR(name, suffix) {
   }
 }
 
-if (!libotr && (systemOS === "winnt" || systemOS === "darwin")) {
-  // otr.5.dll or otr.5.dylib
-  tryLoadOTR("otr.5", "");
+function loadExternalOTRLib() {
+  if (!libotr && (systemOS === "winnt" || systemOS === "darwin")) {
+    // otr.5.dll or otr.5.dylib
+    tryLoadOTR("otr.5", "");
+  }
+
+  if (!libotr && systemOS === "winnt") {
+    // otr-5.dll
+    tryLoadOTR("otr-5", "");
+  }
+
+  if (!libotr && systemOS === "winnt") {
+    // libotr-5.dll
+    tryLoadOTR("libotr-5", "");
+  }
+
+  if (!libotr && !(systemOS === "winnt") && !(systemOS === "darwin")) {
+    // libotr.so.5
+    tryLoadOTR("otr", ".5");
+  }
+
+  if (!libotr) {
+    tryLoadOTR("otr", "");
+  }
 }
 
-if (!libotr && systemOS === "winnt") {
-  // otr-5.dll
-  tryLoadOTR("otr-5", "");
-}
-
-if (!libotr && systemOS === "winnt") {
-  // libotr-5.dll
-  tryLoadOTR("libotr-5", "");
-}
-
-if (!libotr && !(systemOS === "winnt") && !(systemOS === "darwin")) {
-  // libotr.so.5
-  tryLoadOTR("otr", ".5");
-}
-
-if (!libotr) {
-  tryLoadOTR("otr", "");
-}
+var OTRLibLoader = {
+  init() {
+    loadExternalOTRLib();
+    if (libotr) {
+      enableOTRLibJS();
+    }
+    return OTRLib;
+  },
+};
 
 // Helper function to open files with the path properly encoded.
 var callWithFILEp = function() {
@@ -384,7 +396,10 @@ const OTRL_POLICY_WHITESPACE_START_AKE = 0x20;
 
 var OTRLib;
 
-if (libotr) OTRLib = {
+function enableOTRLibJS() {
+  // this must be delayed until after "libotr" is initialized
+
+  OTRLib = {
 
   path: libotrPath,
 
@@ -910,9 +925,9 @@ if (libotr) OTRLib = {
     OtrlTLV.ptr
   ),
 
-};
-
+  };
+}
 
 // exports
 
-this.EXPORTED_SYMBOLS = ["OTRLib"];
+this.EXPORTED_SYMBOLS = ["OTRLibLoader"];

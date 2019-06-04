@@ -9,7 +9,7 @@ const {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 const {ctypes} = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
 const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
 const {CLib} = ChromeUtils.import("resource:///modules/CLib.jsm");
-const {OTRLib} = ChromeUtils.import("resource:///modules/OTRLib.jsm");
+const {OTRLibLoader} = ChromeUtils.import("resource:///modules/OTRLib.jsm");
 var workerPath = "chrome://chat/content/otrWorker.js";
 const {OTRHelpers} = ChromeUtils.import("resource:///modules/OTRHelpers.jsm");
 
@@ -59,21 +59,6 @@ function isOnline(conv) {
   return ret;
 }
 
-// Use the protocol name in user facing strings. See trac #16490
-var names;
-function protocolName(aNormalizedName) {
-  if (!names) {
-    names = new Map();
-    let protocols = Services.core.getProtocols();
-    while (protocols.hasMoreElements()) {
-      let protocol = protocols.getNext();
-      names.set(protocol.normalizedName, protocol.name);
-    }
-  }
-  return names.get(aNormalizedName) || aNormalizedName;
-}
-
-
 // OTRLib context wrapper
 
 function Context(context) {
@@ -93,6 +78,8 @@ Context.prototype = {
 
 // otr module
 
+var OTRLib;
+
 var OTR = {
 
   hasRan: false,
@@ -100,6 +87,10 @@ var OTR = {
   once() {
     this.hasRan = true;
     try {
+      OTRLib = OTRLibLoader.init();
+      if (!OTRLib) {
+        return;
+      }
       if (OTRLib && OTRLib.init()) {
         this.initUiOps();
         OTR.libLoaded = true;
@@ -122,8 +113,6 @@ var OTR = {
     if (!OTR.libLoaded)
       return;
 
-    this.verifyNudge = !!opts.verifyNudge;
-    this.setPolicy(opts.requireEncryption);
     this.userstate = OTRLib.otrl_userstate_create();
 
     // A map of UIConvs, keyed on the target.id
@@ -162,16 +151,6 @@ var OTR = {
 
   log(msg) {
     this.notifyObservers(msg, "otr:log");
-  },
-
-  protocolName,
-
-  setPolicy(requireEncryption) {
-    if (!OTR.libLoaded)
-      return;
-    this.policy = requireEncryption
-      ? OTRLib.OTRL_POLICY_ALWAYS
-      : OTRLib.OTRL_POLICY_OPPORTUNISTIC;
   },
 
   // load stored files from my profile
@@ -243,9 +222,12 @@ var OTR = {
 
   // return a human readable string for a fingerprint
   hashToHuman(fingerprint) {
-    let hash = fingerprint.contents.fingerprint;
-    if (hash.isNull())
-      throw Error("No fingerprint found.");
+    let hash;
+    try {
+      hash = fingerprint.contents.fingerprint;
+    } catch (e) {}
+    if (!hash || hash.isNull())
+      throw new Error("No fingerprint found.");
     let human = new OTRLib.fingerprint_t();
     OTRLib.otrl_privkey_hash_to_human(human, hash);
     return human.readString();
@@ -281,22 +263,9 @@ var OTR = {
     return OTR.trustState.TRUST_NOT_PRIVATE;
   },
 
-  getStatus(level) {
-    switch (level) {
-    case OTR.trustState.TRUST_NOT_PRIVATE:
-      return _str("trust-not_private");
-    case OTR.trustState.TRUST_UNVERIFIED:
-      return _str("trust-unverified");
-    case OTR.trustState.TRUST_PRIVATE:
-      return _str("trust-private");
-    case OTR.trustState.TRUST_FINISHED:
-      return _str("trust-finished");
-    }
-    throw new Error("unknown level");
-  },
-
-  // get list of known fingerprints
-  knownFingerprints() {
+  // Fetch list of known fingerprints, either for the given account,
+  // or for all accounts, if parameter is null.
+  knownFingerprints(forAccount) {
     let fps = [];
     for (
       let context = this.userstate.contents.context_root;
@@ -307,35 +276,25 @@ var OTR = {
       if (!comparePointers(context.contents.m_context, context))
         continue;
       let wContext = new Context(context);
+
+      if (forAccount) {
+        if (forAccount.normalizedName != wContext.account ||
+            forAccount.protocol.normalizedName != wContext.protocol) {
+          continue;
+        }
+      }
+
       for (
         let fingerprint = context.contents.fingerprint_root.next;
         !fingerprint.isNull();
         fingerprint = fingerprint.contents.next
       ) {
         let trust = trustFingerprint(fingerprint);
-        let used = false;
-        let best_level = OTR.trustState.TRUST_NOT_PRIVATE;
-        for (
-          let context_itr = context;
-          !context_itr.isNull() &&
-            comparePointers(context_itr.contents.m_context, context);
-          context_itr = context_itr.contents.next
-        ) {
-          if (comparePointers(
-            context_itr.contents.active_fingerprint, fingerprint
-          )) {
-            used = true;
-            best_level = OTR.getTrustLevel(new Context(context_itr));
-          }
-        }
         fps.push({
           fpointer: fingerprint.contents.address(),
           fingerprint: OTR.hashToHuman(fingerprint),
           screenname: wContext.username,
-          account: wContext.account,
-          protocol: wContext.protocol,
           trust,
-          status: used ? OTR.getStatus(best_level) : _str("trust-unused"),
           purge: false,
         });
       }
@@ -343,16 +302,24 @@ var OTR = {
     return fps;
   },
 
+  /**
+   * Returns true, if all requested fps were removed.
+   * Returns false, if at least one fps couldn't get removed,
+   * because it's currently actively used.
+   */
   forgetFingerprints(fps) {
+    let result = true;
     let write = false;
     fps.forEach(function(obj, i) {
-      if (!obj.purge)
+      if (!obj.purge) {
         return;
+      }
       obj.purge = false;  // reset early
       let fingerprint = obj.fpointer;
-      if (fingerprint.isNull())
+      if (fingerprint.isNull()) {
         return;
-      // don't do anything if fp is active and we're in an encrypted state
+      }
+      // don't remove if fp is active and we're in an encrypted state
       let context = fingerprint.contents.context.contents.m_context;
       for (
         let context_itr = context;
@@ -363,14 +330,19 @@ var OTR = {
         if (
           context_itr.contents.msgstate === OTRLib.messageState.OTRL_MSGSTATE_ENCRYPTED &&
           comparePointers(context_itr.contents.active_fingerprint, fingerprint)
-        ) return;
+        ) {
+          result = false;
+          return;
+        }
       }
       write = true;
       OTRLib.otrl_context_forget_fingerprint(fingerprint, 1);
       fps[i] = null;  // null out removed fps
     });
-    if (write)
+    if (write) {
       OTR.writeFingerprints();
+    }
+    return result;
   },
 
   addFingerprint(context, hex) {
@@ -491,10 +463,19 @@ var OTR = {
       this.notifyObservers(this.getContext(conv), "otr:disconnected");
   },
 
+  getAccountPref(prefName, accountId, defaultVal) {
+    return Services.prefs.getBoolPref(
+      "messenger.account." + accountId + ".options." + prefName,
+      defaultVal);
+  },
+
   sendQueryMsg(conv) {
+    let req = this.getAccountPref("otrRequireEncryption",
+      conv.account.id, OTR.defaultOtrRequireEncryption());
     let query = OTRLib.otrl_proto_default_query_msg(
       conv.account.normalizedName,
-      this.policy
+      req ?
+        OTRLib.OTRL_POLICY_ALWAYS : OTRLib.OTRL_POLICY_OPPORTUNISTIC
     );
     if (query.isNull()) {
       Cu.reportError(new Error("Sending query message failed."));
@@ -534,14 +515,44 @@ var OTR = {
     return level;
   },
 
-  // uiOps callbacks
-
-  // Return the OTR policy for the given context.
-  policy_cb(opdata, context) {
-    return this.policy;
+  defaultOtrRequireEncryption() {
+    return false;
   },
 
-  // Create a private key for the given accountname/protocol if desired.
+  defaultOtrVerifyNudge() {
+    return true;
+  },
+
+  getPrefBranchFromWrappedContext(wContext) {
+    for (let acc of Services.accounts.getAccounts()) {
+      if (wContext.account == acc.normalizedName &&
+          wContext.protocol == acc.protocol.normalizedName) {
+        return acc.prefBranch;
+      }
+    }
+    return null;
+  },
+
+  // uiOps callbacks
+
+  /**
+   * Return the OTR policy for the given context.
+   */
+  policy_cb(opdata, context) {
+    let wContext = new Context(context);
+    let pb = OTR.getPrefBranchFromWrappedContext(wContext);
+    if (!pb) {
+      return new ctypes.unsigned_int(0);
+    }
+    let prefRequire = pb.getBoolPref("options.otrRequireEncryption",
+      OTR.defaultOtrRequireEncryption());
+    return prefRequire ? OTRLib.OTRL_POLICY_ALWAYS
+                       : OTRLib.OTRL_POLICY_OPPORTUNISTIC;
+  },
+
+  /**
+   * Create a private key for the given accountname/protocol if desired.
+   */
   create_privkey_cb(opdata, accountname, protocol) {
     let args = {
       account: accountname.readString(),
@@ -550,8 +561,10 @@ var OTR = {
     this.notifyObservers(args, "otr:generate");
   },
 
-  // Report whether you think the given user is online. Return 1 if you think
-  // they are, 0 if you think they aren't, -1 if you're not sure.
+  /**
+   * Report whether you think the given user is online. Return 1 if you
+   * think they are, 0 if you think they aren't, -1 if you're not sure.
+   */
   is_logged_in_cb(opdata, accountname, protocol, recipient) {
     let conv = this.getUIConvForRecipient(
       accountname.readString(),
@@ -561,8 +574,10 @@ var OTR = {
     return isOnline(conv);
   },
 
-  // Send the given IM to the given recipient from the given
-  // accountname/protocol.
+  /**
+   * Send the given IM to the given recipient from the given
+   * accountname/protocol.
+   */
   inject_message_cb(opdata, accountname, protocol, recipient, message) {
     let aMsg = message.readString();
     this.log("inject_message_cb (msglen:" + aMsg.length + "): " + aMsg);
@@ -573,7 +588,9 @@ var OTR = {
     ).target.sendMsg(aMsg);
   },
 
-  // A new fingerprint for the given user has been received.
+  /**
+   * new fingerprint for the given user has been received.
+   */
   new_fingerprint_cb(opdata, us, accountname, protocol, username, fingerprint) {
     let context = OTRLib.otrl_context_find(
       us, username, accountname, protocol,
@@ -590,34 +607,58 @@ var OTR = {
       fp = fp.contents.next;
     }
 
+    let wContext = new Context(context);
+    let prefNudge = OTR.defaultOtrVerifyNudge();
+    let pb = OTR.getPrefBranchFromWrappedContext(wContext);
+    if (pb) {
+      prefNudge = pb.getBoolPref("options.otrVerifyNudge",
+        OTR.defaultOtrVerifyNudge());
+    }
+
     // Only nudge on new fingerprint, as opposed to always.
-    if (!this.verifyNudge)
-      this.notifyObservers(new Context(context), "otr:unverified",
+    if (!prefNudge)
+      this.notifyObservers(wContext, "otr:unverified",
         (seen ? "seen" : "unseen"));
   },
 
-  // The list of known fingerprints has changed.  Write them to disk.
+  /**
+   * The list of known fingerprints has changed.  Write them to disk.
+   */
   write_fingerprint_cb(opdata) {
     this.writeFingerprints();
   },
 
-  // A ConnContext has entered a secure state.
+  /**
+   * A ConnContext has entered a secure state.
+   */
   gone_secure_cb(opdata, context) {
-    context = new Context(context);
-    let strid = "context-gone_secure_" + (context.trust ? "private" : "unverified");
-    this.notifyObservers(context, "otr:msg-state");
-    this.sendAlert(context, _strArgs(strid, {name: context.username}));
-    if (this.verifyNudge && !context.trust)
-      this.notifyObservers(context, "otr:unverified", "unseen");
+    let wContext = new Context(context);
+    let prefNudge = OTR.defaultOtrVerifyNudge();
+    let pb = OTR.getPrefBranchFromWrappedContext(wContext);
+    if (pb) {
+      prefNudge = pb.getBoolPref("options.otrVerifyNudge",
+        OTR.defaultOtrVerifyNudge());
+    }
+    let strid = "context-gone_secure_" + (wContext.trust ? "private" : "unverified");
+    this.notifyObservers(wContext, "otr:msg-state");
+    this.sendAlert(wContext, _strArgs(strid, {name: wContext.username}));
+    if (prefNudge && !wContext.trust)
+      this.notifyObservers(wContext, "otr:unverified", "unseen");
   },
 
-  // A ConnContext has left a secure state.
+  /**
+   * A ConnContext has left a secure state.
+   */
   gone_insecure_cb(opdata, context) {
     // This isn't used. See: https://bugs.otr.im/lib/libotr/issues/48
   },
 
-  // We have completed an authentication, using the D-H keys we already knew.
-  // is_reply indicates whether we initiated the AKE.
+  /**
+   * We have completed an authentication, using the D-H keys we already
+   * knew.
+   *
+   * @param is_reply    indicates whether we initiated the AKE.
+   */
   still_secure_cb(opdata, context, is_reply) {
     // Indicate the private conversation was refreshed.
     if (!is_reply) {
@@ -627,7 +668,9 @@ var OTR = {
     }
   },
 
-  // Find the maximum message size supported by this protocol.
+  /**
+   * Find the maximum message size supported by this protocol.
+   */
   max_message_size_cb(opdata, context) {
     context = new Context(context);
     // These values are, for the most part, from pidgin-otr's mms_table.
@@ -659,13 +702,17 @@ var OTR = {
     }
   },
 
-  // We received a request from the buddy to use the current "extra" symmetric
-  // key.
+  /**
+   * We received a request from the buddy to use the current "extra"
+   * symmetric key.
+   */
   received_symkey_cb(opdata, context, use, usedata, usedatalen, symkey) {
     // Ignore until we have a use.
   },
 
-  // Return a string according to the error event.
+  /**
+   * Return a string according to the error event.
+   */
   otr_error_message_cb(opdata, context, err_code) {
     context = new Context(context);
     let msg;
@@ -688,24 +735,32 @@ var OTR = {
     return CLib.strdup(msg);
   },
 
-  // Deallocate a string returned by otr_error_message_cb.
+  /**
+   * Deallocate a string returned by otr_error_message_cb.
+   */
   otr_error_message_free_cb(opdata, err_msg) {
     if (!err_msg.isNull())
       CLib.free(err_msg);
   },
 
-  // Return a string that will be prefixed to any resent message.
+  /**
+   * Return a string that will be prefixed to any resent message.
+   */
   resent_msg_prefix_cb(opdata, context) {
     return CLib.strdup(_str("resent"));
   },
 
-  // Deallocate a string returned by resent_msg_prefix.
+  /**
+   * Deallocate a string returned by resent_msg_prefix.
+   */
   resent_msg_prefix_free_cb(opdata, prefix) {
     if (!prefix.isNull())
       CLib.free(prefix);
   },
 
-  // Update the authentication UI with respect to SMP events.
+  /**
+   * Update the authentication UI with respect to SMP events.
+   */
   handle_smp_event_cb(opdata, smp_event, context, progress_percent, question) {
     context = new Context(context);
     switch (smp_event) {
@@ -737,8 +792,10 @@ var OTR = {
     }
   },
 
-  // Handle and send the appropriate message(s) to the sender/recipient
-  // depending on the message events.
+  /**
+   * Handle and send the appropriate message(s) to the sender/recipient
+   * depending on the message events.
+   */
   handle_msg_event_cb(opdata, msg_event, context, message, err) {
     context = new Context(context);
     switch (msg_event) {
@@ -796,14 +853,19 @@ var OTR = {
     }
   },
 
-  // Create an instance tag for the given accountname/protocol if desired.
+  /**
+   * Create an instance tag for the given accountname/protocol if
+   * desired.
+   */
   create_instag_cb(opdata, accountname, protocol) {
     this.generateInstanceTag(accountname.readString(), protocol.readString());
   },
 
-  // When timer_control is called, turn off any existing periodic timer.
-  // Additionally, if interval > 0, set a new periodic timer to go off every
-  // interval seconds.
+  /**
+   * When timer_control is called, turn off any existing periodic timer.
+   * Additionally, if interval > 0, set a new periodic timer to go off
+   * every interval seconds.
+   */
   timer_control_cb(opdata, interval) {
     if (this._poll_timer) {
       clearInterval(this._poll_timer);
@@ -816,7 +878,7 @@ var OTR = {
     }
   },
 
-  // uiOps
+  // end of uiOps
 
   initUiOps() {
     this.uiOps = new OTRLib.OtrlMessageAppOps();

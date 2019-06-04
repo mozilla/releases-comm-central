@@ -21,7 +21,7 @@
     <html:link rel="localization" href="messenger/otr/add-finger.ftl"/>
   </linkset>
 
-  <script type="application/javascript" src="chrome://chat/content/otr-add-fingerprint.js"/>
+  <script src="chrome://chat/content/otr-add-fingerprint.js"/>
   <vbox flex="1">
     <label data-l10n-id="otr-add-finger-tooltip" control="name" flex="1"/>
     <hbox id="fingerBox" align="baseline" flex="1">

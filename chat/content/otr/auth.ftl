@@ -18,7 +18,7 @@ auth-your-fp-value = Fingerprint for you, { $own_name }:
 #   $their_name (String) - the screen name of a chat contact
 auth-their-fp-value = Purported fingerprint for { $their_name }:
 
-auth-help = Verifying a contact's identity helps ensure that the person you are talking to is who they claim to be.
+auth-help = Verifying a contact's identity helps ensure that the conversation is truly private, making it very difficult for a third party to eavesdrop or manipulate the conversation.
 auth-helpTitle = Verification help
 
 auth-questionReceived = This is the question asked by your contact:
@@ -44,16 +44,16 @@ auth-questionAndAnswer-label =
 auth-sharedSecret-label =
     .label = { auth-sharedSecret }
 
-auth-manualInstruction = To verify the fingerprint, contact your conversation partner via some other authenticated channel, such as the telephone or GPG-signed email. Both conversation partners should tell the other person their fingerprint. If the fingerprint matches, you should indicate in the dialog below that you have verified the fingerprint.
+auth-manualInstruction = To verify the fingerprint, contact your intended conversation partner via some other authenticated channel, such as OpenPGP-signed email or over the phone. You should both tell each other your fingerprints. If the fingerprint matches, you should indicate in the dialog below that you have verified the fingerprint.
 
 auth-how = How would you like to verify your contact's identity?
 
 auth-qaInstruction = To verify their identity, pick a question whose answer is known only to you and your contact. Enter this question and answer, then wait for your contact to enter the answer as well. If the answers do not match, then you may be talking to an imposter.
 
-auth-secretInstruction = To verify their identity, pick a secret known only to you and your contact. Enter this secret, then wait for your contact to enter it as well. If the secrets do not match, then you may be talking to an imposter.
+auth-secretInstruction = To verify their identity, pick a secret known only to you and your contact. Don't use the same Internet connection to exchange the secret. Enter this secret, then wait for your contact to enter it as well. If the secrets do not match, then you may be talking to an imposter.
 
-auth-question = Enter question here:
+auth-question = Enter a question:
 
-auth-answer = Enter secret answer here (case sensitive):
+auth-answer = Enter the secret answer (case sensitive):
 
-auth-secret = Enter secret here:
+auth-secret = Enter the secret:

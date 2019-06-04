@@ -2,8 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-start-label = Start private conversation
-refresh-label = Refresh private conversation
+start-label = Start an encrypted conversation
+refresh-label = Refresh the encrypted conversation
 auth-label = Verify your contact's identity
 reauth-label = Reverify your contact's identity
 
@@ -24,33 +24,37 @@ buddycontextmenu-label = Add Contact's OTR Fingerprint
 
 # Variables:
 #   $name (String) - the screen name of a chat contact person
-alert-start = Attempting to start a private conversation with { $name }.
+alert-start = Attempting to start an encrypted conversation with { $name }.
 
 # Variables:
 #   $name (String) - the screen name of a chat contact person
-alert-refresh = Attempting to refresh the private conversation with { $name }.
+alert-refresh = Attempting to refresh the encrypted conversation with { $name }.
 
 # Variables:
 #   $name (String) - the screen name of a chat contact person
-alert-gone_insecure = Private conversation with { $name } ended.
+alert-gone_insecure = The encrypted conversation with { $name } ended.
 
 # Variables:
 #   $name (String) - the screen name of a chat contact person
 finger-unseen = The identity of { $name } has not been verified yet. Casual eavesdropping is not possible, but with some effort someone could be listening in. You should verify this contact's identity.
 
+# Variables:
+#   $name (String) - the screen name of a chat contact person
+finger-seen={ $name } is contacting you from an unrecognized computer. Casual eavesdropping is not possible, but with some effort someone could be listening in. You should verify this contact's identity.
+
 state-not_private = The current conversation is not private.
 
 # Variables:
 #   $name (String) - the screen name of a chat contact person
-state-unverified = The current conversation is private but the identity of { $name } has not been verified.
+state-unverified = The current conversation is encrypted but the identity of { $name } has not been verified.
 
 # Variables:
 #   $name (String) - the screen name of a chat contact person
-state-private = The current conversation is private and the identity of { $name } has been verified.
+state-private = The identity of { $name } has been verified. The current conversation is encrypted and private.
 
 # Variables:
 #   $name (String) - the screen name of a chat contact person
-state-finished = { $name } has ended their private conversation with you; you should do the same.
+state-finished = { $name } has ended their encrypted conversation with you; you should do the same.
 
 state-not_private-label = Insecure
 state-unverified-label = Unverified

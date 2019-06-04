@@ -22,7 +22,7 @@
     <html:link rel="localization" href="messenger/otr/generate-key.ftl"/>
   </linkset>
 
-  <script type="application/javascript" src="chrome://chat/content/otr-generate-key.js" />
+  <script src="chrome://chat/content/otr-generate-key.js" />
   <description id="priv" style="width: 300px; white-space: pre-wrap;"></description>
 
 </dialog>

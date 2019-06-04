@@ -16,6 +16,8 @@ chat.jar:
 	content/chat/otr-add-fingerprint.xul
 	content/chat/otr-auth.js
 	content/chat/otr-auth.xul
+	content/chat/otr-finger.js
+	content/chat/otr-finger.xul
 	content/chat/otr-generate-key.js
 	content/chat/otr-generate-key.xul
 	content/chat/otrWorker.js

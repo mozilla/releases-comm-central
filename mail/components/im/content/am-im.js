@@ -5,7 +5,9 @@
 // chat/content/imAccountOptionsHelper.js
 /* globals accountOptionsHelper */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.defineModuleGetter(this, "OTRUI", "resource:///modules/OTRUI.jsm");
+ChromeUtils.defineModuleGetter(this, "OTR", "resource:///modules/OTR.jsm");
 
 var autoJoinPref = "autoJoin";
 
@@ -14,7 +16,20 @@ function onPreInit(aAccount, aAccountValue) {
 }
 
 var account = {
-  init(aAccount) {
+  async init(aAccount) {
+    let title = document.querySelector(".dialogheader .dialogheader-title");
+    let defaultTitle = title.getAttribute("defaultTitle");
+    let titleValue;
+
+    if (aAccount.name) {
+      titleValue = defaultTitle + " - <" + aAccount.name + ">";
+    } else {
+      titleValue = defaultTitle;
+    }
+
+    title.setAttribute("value", titleValue);
+    document.title = titleValue;
+
     this.account = aAccount;
     this.proto = this.account.protocol;
     document.getElementById("accountName").value = this.account.name;
@@ -42,10 +57,25 @@ var account = {
 
     document.getElementById("server.alias").value = this.account.alias;
 
+    if (OTRUI.enabled) {
+      document.getElementById("imTabOTR").hidden = false;
+      document.getElementById("server.otrVerifyNudge").value = this.account.otrVerifyNudge;
+      document.getElementById("server.otrRequireEncryption").value = this.account.otrRequireEncryption;
+
+      let fpa = this.account.normalizedName;
+      let fpp = this.account.protocol.normalizedName;
+      let fp = OTR.privateKeyFingerprint(fpa, fpp);
+      if (!fp) {
+        OTR.generatePrivateKey(fpa, fpp);
+        fp = await document.l10n.formatValue("otr-notYetAvailable");
+      }
+      document.getElementById("otrFingerprint").value = fp;
+    }
+
     let protoId = this.proto.id;
-    let canAutoJoin =
-      protoId == "prpl-irc" || protoId == "prpl-jabber" || protoId == "prpl-gtalk";
-    document.getElementById("optionalSeparator").hidden = !canAutoJoin;
+    let canAutoJoin = protoId == "prpl-irc" ||
+                      protoId == "prpl-jabber" ||
+                      protoId == "prpl-gtalk";
     document.getElementById("autojoinBox").hidden = !canAutoJoin;
     let autojoin = document.getElementById("server.autojoin");
     if (canAutoJoin)
@@ -94,5 +124,18 @@ var account = {
     } else if (!haveOptions) {
       advanced.hidden = true;
     }
+  },
+
+  viewFingerprintKeys() {
+    window.openDialog("chrome://chat/content/otr-finger.xul", "",
+                      "chrome,modal,titlebar,centerscreen", this.account);
+  },
+
+  updateRequireEncryption() {
+    console.log("require");
+  },
+
+  updateVerifyNudge() {
+    console.log("verify");
   },
 };

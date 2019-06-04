@@ -12,6 +12,8 @@
   # When ready for l10n, move chat/content/otr/*.ftl
   #                        to mail/locales/en-US/messenger/otr/
   # and remove the following otr/ lines.
+  messenger/otr/am-im-otr.ftl                                           (../../chat/content/otr/am-im-otr.ftl)
+  messenger/otr/finger.ftl                                              (../../chat/content/otr/finger.ftl)
   messenger/otr/add-finger.ftl                                          (../../chat/content/otr/add-finger.ftl)
   messenger/otr/auth.ftl                                                (../../chat/content/otr/auth.ftl)
   messenger/otr/chat.ftl                                                (../../chat/content/otr/chat.ftl)

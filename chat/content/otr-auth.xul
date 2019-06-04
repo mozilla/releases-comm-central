@@ -22,7 +22,7 @@
     <html:link rel="localization" href="messenger/otr/auth.ftl"/>
   </linkset>
 
-  <script type="application/javascript" src="chrome://chat/content/otr-auth.js" />
+  <script src="chrome://chat/content/otr-auth.js" />
 
   <groupbox id="how" hidden="true">
     <label><html:h4 data-l10n-id="auth-how"/></label>

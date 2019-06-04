@@ -9,7 +9,7 @@ otr-generate-key =
 # Variables:
 #   $name (String) - the name of the user's own chat account
 #   $protocol (String) - the chat communication protocol used by that account
-otr-genkey-account = Generating private key for { $name }({ $protocol }) …
+otr-genkey-account = Generating private key for { $name } ({ $protocol }) …
 
 # Variables:
 #   $error (String) - contains an error message that describes the cause of the failure

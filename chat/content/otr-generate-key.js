@@ -6,6 +6,7 @@ const {
   XPCOMUtils,
   l10nHelper,
 } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
 const {OTR} = ChromeUtils.import("resource:///modules/OTR.jsm");
 
 var otrPriv = {
@@ -14,10 +15,28 @@ var otrPriv = {
     let args = window.arguments[0].wrappedJSObject;
     let priv = document.getElementById("priv");
 
+    let protocolNameToShow;
+
+    // args.protocol is the normalized protocol name.
+    // However, we don't want to show normalized names like "jabber",
+    // but want to show the terms used in the UI like "XMPP".
+
+    let protocols = Services.core.getProtocols();
+    while (protocols.hasMoreElements()) {
+      let protocol = protocols.getNext();
+      if (protocol.normalizedName === args.protocol) {
+        protocolNameToShow = protocol.name;
+        break;
+      }
+    }
+
+    if (!protocolNameToShow) {
+      protocolNameToShow = args.protocol;
+    }
+
     let text = await document.l10n.formatValue(
-      "otr-genkey-account", {name: args.account, protocol: OTR.protocolName(args.protocol)});
+      "otr-genkey-account", {name: args.account, protocol: protocolNameToShow});
     priv.textContent = text;
-console.log("genkey: " + text);
 
     OTR.generatePrivateKey(args.account, args.protocol).then(function() {
       document.documentElement.getButton("accept").disabled = false;

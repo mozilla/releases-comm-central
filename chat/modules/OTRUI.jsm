@@ -91,29 +91,16 @@ function initStrings() {
 var windowRefs = new Map();
 
 var OTRUI = {
+  enabled: false,
   stringsLoaded: false,
   globalDoc: null,
   visibleConv: null,
 
-  debug: true,
+  debug: false,
   logMsg(msg) {
     if (!OTRUI.debug)
       return;
     Services.console.logStringMessage(msg);
-  },
-
-  prefs: null,
-  setPrefs() {
-    let branch = "chat.otr.";
-    let prefs = {
-      requireEncryption: false,
-      verifyNudge: true,
-    };
-    let defaults = Services.prefs.getDefaultBranch(branch);
-    Object.keys(prefs).forEach(function(key) {
-      defaults.setBoolPref(key, prefs[key]);
-    });
-    OTRUI.prefs = Services.prefs.getBranch(branch);
   },
 
   addMenuObserver() {
@@ -201,15 +188,15 @@ var OTRUI = {
       OTRUI.stringsLoaded = true;
     }
 
-    // console.log("====> OTRUI init\n");
-    OTRUI.setPrefs();
-    OTR.init({
-      requireEncryption: OTRUI.prefs.getBoolPref("requireEncryption"),
-      verifyNudge: OTRUI.prefs.getBoolPref("verifyNudge"),
-    });
+    this.debug = Services.prefs.getBoolPref("chat.otr.trace", false);
+
+    OTR.init({});
     if (!OTR.libLoaded) {
       return;
     }
+
+    this.enabled = true;
+
     OTR.addObserver(OTRUI);
     OTR.loadFiles().then(function() {
       Services.obs.addObserver(OTR, "new-ui-conversation");
@@ -221,7 +208,6 @@ var OTRUI = {
       Services.obs.addObserver(OTRUI, "conversation-closed");
       Services.obs.addObserver(OTRUI, "prpl-quit");
 
-      OTRUI.prefs.addObserver("", OTRUI);
       let conversations = Services.conversations.getConversations();
       while (conversations.hasMoreElements()) {
       let aConv = conversations.getNext();
@@ -248,19 +234,6 @@ var OTRUI = {
       }
     }
     return allGood;
-  },
-
-  changePref(aMsg) {
-    switch (aMsg) {
-    case "requireEncryption":
-      OTR.setPolicy(OTRUI.prefs.getBoolPref("requireEncryption"));
-      break;
-    case "verifyNudge":
-      OTR.verifyNudge = OTRUI.prefs.getBoolPref("verifyNudge");
-      break;
-    default:
-      OTRUI.logMsg(aMsg);
-    }
   },
 
   openAuth(window, name, mode, uiConv, contactInfo) {
@@ -657,66 +630,65 @@ var OTRUI = {
     // console.log(aObject);
 
     switch (aTopic) {
-    case "nsPref:changed":
-      OTRUI.changePref(aMsg);
-      break;
-    case "conversation-loaded":
-      doc = aObject.ownerDocument;
-      let windowtype = doc.documentElement.getAttribute("windowtype");
-      if (windowtype !== "mail:3pane") {
-        return;
-      }
-      OTRUI.addButton(aObject);
-      break;
-    case "conversation-closed":
-      if (aObject.isChat)
-        return;
-      this.globalBox.removeAllNotifications();
-      OTRUI.closeAuth(OTR.getContext(aObject));
-      OTRUI.disconnect(aObject);
-      break;
-    // case "contact-signed-off":
-    //  break;
-    case "prpl-quit":
-      OTRUI.disconnect(null);
-      break;
-    case "domwindowopened":
-      OTRUI.addMenus(aObject);
-      break;
-    case "otr:generate":
-      OTRUI.generate(aObject);
-      break;
-    case "otr:disconnected":
-    case "otr:msg-state":
-      if (aTopic === "otr:disconnected" ||
-          OTR.trust(aObject) !== OTR.trustState.TRUST_UNVERIFIED) {
-        OTRUI.closeAuth(aObject);
-        OTRUI.closeUnverified(aObject);
-        OTRUI.closeVerification(aObject);
-      }
-      OTRUI.setMsgState(null, aObject, this.globalDoc, false);
-      break;
-    case "otr:unverified":
-      OTRUI.notifyUnverified(aObject, aMsg);
-      break;
-    case "otr:trust-state":
-      OTRUI.alertTrust(aObject);
-      break;
-    case "otr:log":
-      OTRUI.logMsg("otr: " + aObject);
-      break;
-    case "account-added":
-      OTRUI.onAccountCreated(aObject);
-      break;
-    case "contact-added":
-      OTRUI.onContactAdded(aObject);
-      break;
-    case "otr:auth-ask":
-      OTRUI.askAuth(aObject);
-      break;
-    case "otr:auth-update":
-      OTRUI.updateAuth(aObject);
-      break;
+      case "nsPref:changed":
+        break;
+      case "conversation-loaded":
+        doc = aObject.ownerDocument;
+        let windowtype = doc.documentElement.getAttribute("windowtype");
+        if (windowtype !== "mail:3pane") {
+          return;
+        }
+        OTRUI.addButton(aObject);
+        break;
+      case "conversation-closed":
+        if (aObject.isChat)
+          return;
+        this.globalBox.removeAllNotifications();
+        OTRUI.closeAuth(OTR.getContext(aObject));
+        OTRUI.disconnect(aObject);
+        break;
+      // case "contact-signed-off":
+      //  break;
+      case "prpl-quit":
+        OTRUI.disconnect(null);
+        break;
+      case "domwindowopened":
+        OTRUI.addMenus(aObject);
+        break;
+      case "otr:generate":
+        OTRUI.generate(aObject);
+        break;
+      case "otr:disconnected":
+      case "otr:msg-state":
+        if (aTopic === "otr:disconnected" ||
+            OTR.trust(aObject) !== OTR.trustState.TRUST_UNVERIFIED) {
+          OTRUI.closeAuth(aObject);
+          OTRUI.closeUnverified(aObject);
+          OTRUI.closeVerification(aObject);
+        }
+        OTRUI.setMsgState(null, aObject, this.globalDoc, false);
+        break;
+      case "otr:unverified":
+        OTRUI.notifyUnverified(aObject, aMsg);
+        break;
+      case "otr:trust-state":
+        OTRUI.alertTrust(aObject);
+        break;
+      case "otr:log":
+        OTRUI.logMsg("otr: " + aObject);
+        break;
+      case "account-added":
+        OTRUI.onAccountCreated(aObject);
+        break;
+      case "contact-added":
+        OTRUI.onContactAdded(aObject);
+        break;
+      case "otr:auth-ask":
+        OTRUI.askAuth(aObject);
+        break;
+      case "otr:auth-update":
+        OTRUI.updateAuth(aObject);
+        break;
     }
   },
 
@@ -749,7 +721,6 @@ var OTRUI = {
     while (conversations.hasMoreElements()) {
       OTRUI.resetConv(conversations.getNext());
     }
-    OTRUI.prefs.removeObserver("", OTRUI);
     OTR.removeObserver(OTRUI);
     OTR.close();
     OTRUI.removeMenuObserver();
