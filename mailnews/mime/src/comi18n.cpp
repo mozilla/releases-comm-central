@@ -13,6 +13,8 @@
 #include "nsMsgMimeCID.h"
 #include "nsIMimeConverter.h"
 #include "mozilla/Preferences.h"
+#include "mozilla/Encoding.h"
+#include "mozilla/JapaneseDetector.h"
 
 using namespace mozilla;
 
@@ -57,8 +59,9 @@ class CharsetDetectionObserver : public nsICharsetDetectionObserver {
 
 nsresult MIME_detect_charset(const char *aBuf, int32_t aLength,
                              nsACString &aCharset) {
-  nsresult rv = NS_ERROR_UNEXPECTED;
+  nsresult rv;
   nsCOMPtr<nsICharsetDetector> detector;
+  mozilla::UniquePtr<mozilla::JapaneseDetector> japaneseDetector;
   nsAutoCString detectorName;
   Preferences::GetLocalizedCString("intl.charset.detector", detectorName);
 
@@ -68,6 +71,8 @@ nsresult MIME_detect_charset(const char *aBuf, int32_t aLength,
       detector = new nsRUProbDetector();
     } else if (detectorName.EqualsLiteral("ukprob")) {
       detector = new nsUKProbDetector();
+    } else if (detectorName.EqualsLiteral("ja_parallel_state_machine")) {
+      japaneseDetector = mozilla::JapaneseDetector::Create(true);
     }
   }
 
@@ -89,13 +94,29 @@ nsresult MIME_detect_charset(const char *aBuf, int32_t aLength,
       if (oConfident == eBestAnswer || oConfident == eSureAnswer) {
         observer->GetDetectedCharset(aCharset);
         return NS_OK;
-      } else {
-        // No luck after all.
-        rv = NS_ERROR_UNEXPECTED;
       }
     }
+  } else if (japaneseDetector) {
+    mozilla::Span<const uint8_t> src =
+        mozilla::AsBytes(mozilla::MakeSpan(aBuf, aLength));
+    auto encoding = japaneseDetector->Feed(src, true);
+    if (encoding) {
+      encoding->Name(aCharset);
+      // If ISO-2022-JP return, since being a 7bit charset, it would be
+      // detected as UTF-8.
+      if (aCharset.EqualsLiteral("ISO-2022-JP")) return NS_OK;
+    }
   }
-  return rv;
+
+  if (IsUTF8(mozilla::MakeSpan(aBuf, aLength))) {
+    aCharset.AssignLiteral("UTF-8");
+    return NS_OK;
+  }
+
+  // No UTF-8 detected, use previous detection result, if any.
+  if (!aCharset.IsEmpty()) return NS_OK;
+
+  return NS_ERROR_UNEXPECTED;
 }
 
 } /* end of extern "C" */

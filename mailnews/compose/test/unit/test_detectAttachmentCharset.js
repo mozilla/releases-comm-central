@@ -65,8 +65,8 @@ var tests = [
   testUTF8,
   testUTF16BE,
   testUTF16LE,
-  // testShiftJIS,
-  // testISO2022JP,
+  testShiftJIS,
+  testISO2022JP,
   testKOI8R,
   testWindows1252,
 ];

@@ -83,6 +83,8 @@
 #include "nsIURIMutator.h"
 #include "mozilla/Unused.h"
 #include "mozilla/Preferences.h"
+#include "mozilla/Encoding.h"
+#include "mozilla/JapaneseDetector.h"
 
 /* for logging to Error Console */
 #include "nsIScriptError.h"
@@ -1835,6 +1837,7 @@ NS_MSG_BASE nsresult MsgDetectCharsetFromFile(nsIFile *aFile,
 
   // Use detector.
   nsCOMPtr<nsICharsetDetector> detector;
+  mozilla::UniquePtr<mozilla::JapaneseDetector> japaneseDetector;
   nsAutoCString detectorName;
   Preferences::GetLocalizedCString("intl.charset.detector", detectorName);
   if (!detectorName.IsEmpty()) {
@@ -1843,6 +1846,8 @@ NS_MSG_BASE nsresult MsgDetectCharsetFromFile(nsIFile *aFile,
       detector = new nsRUProbDetector();
     } else if (detectorName.EqualsLiteral("ukprob")) {
       detector = new nsUKProbDetector();
+    } else if (detectorName.EqualsLiteral("ja_parallel_state_machine")) {
+      japaneseDetector = mozilla::JapaneseDetector::Create(true);
     }
   }
 
@@ -1856,23 +1861,31 @@ NS_MSG_BASE nsresult MsgDetectCharsetFromFile(nsIFile *aFile,
     uint32_t numRead = 0;
     bool dontFeed = false;
     while (NS_SUCCEEDED(inputStream->Read(buffer, sizeof(buffer), &numRead))) {
-      // XXX: We need to break early here to work around a problem in Shift-JIS
-      // detection. If we call `DoIt()` with any empty buffer, Shift-JIS is not
-      // detected, however ISO-2022-JP is detected.
-      if (numRead == 0) break;
       detector->DoIt(buffer, numRead, &dontFeed);
       NS_ENSURE_SUCCESS(rv, rv);
-      if (dontFeed)  // XXX: We should really break here with:
-                     // if (dontFeed || numRead == 0).
-        break;
+      if (dontFeed || numRead == 0) break;
     }
     rv = detector->Done();
     NS_ENSURE_SUCCESS(rv, rv);
 
     observer->GetDetectedCharset(aCharset);
+  } else if (japaneseDetector) {
+    char buffer[1024];
+    uint32_t numRead = 0;
+    while (NS_SUCCEEDED(inputStream->Read(buffer, sizeof(buffer), &numRead))) {
+      mozilla::Span<const uint8_t> src =
+          mozilla::AsBytes(mozilla::MakeSpan(buffer, numRead));
+      auto encoding = japaneseDetector->Feed(src, (numRead == 0));
+      if (encoding) {
+        encoding->Name(aCharset);
+        break;
+      }
+      if (numRead == 0) {
+        break;
+      }
+    }
+    if (aCharset.EqualsLiteral("ISO-2022-JP")) return NS_OK;
   }
-
-  if (aCharset.EqualsLiteral("ISO-2022-JP")) return NS_OK;
 
   // Rewind file again.
   seekStream->Seek(nsISeekableStream::NS_SEEK_SET, 0);
