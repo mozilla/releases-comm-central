@@ -66,7 +66,6 @@ var account = {
       let fpp = this.account.protocol.normalizedName;
       let fp = OTR.privateKeyFingerprint(fpa, fpp);
       if (!fp) {
-        OTR.generatePrivateKey(fpa, fpp);
         fp = await document.l10n.formatValue("otr-notYetAvailable");
       }
       document.getElementById("otrFingerprint").value = fp;

@@ -198,6 +198,29 @@ var OTR = {
     });
   },
 
+  generatePrivateKeySync(account, protocol) {
+    let newkey = new ctypes.void_t.ptr();
+    let err = OTRLib.otrl_privkey_generate_start(
+      OTR.userstate, account, protocol, newkey.address()
+    );
+    if (err || newkey.isNull())
+      return "otrl_privkey_generate_start (" + err + ")";
+
+    err = OTRLib.otrl_privkey_generate_calculate(newkey);
+    if (!err) {
+      err = OTRLib.otrl_privkey_generate_finish(
+        OTR.userstate, newkey, OTR.privateKeyPath);
+    }
+    if (err && !newkey.isNull()) {
+      OTRLib.otrl_privkey_generate_cancelled(OTR.userstate, newkey);
+    }
+
+    if (err) {
+      return "otrl_privkey_generate_calculate (" + err + ")";
+    }
+    return null;
+  },
+
   // write fingerprints to file synchronously
   writeFingerprints() {
     if (OTRLib.otrl_privkey_write_fingerprints(

@@ -21,11 +21,10 @@ function _strArgs(id, args) {
   return syncL10n.formatValue(id, args);
 }
 
-const privDialog = "chrome://chat/content/otr-generate-key.xul";
-const authDialog = "chrome://chat/content/otr-auth.xul";
-const addFingerDialog = "chrome://chat/content/otr-add-fingerprint.xul";
+const OTR_AUTH_DIALOG_URL = "chrome://chat/content/otr-auth.xul";
+const OTR_ADD_FINGER_DIALOG_URL = "chrome://chat/content/otr-add-fingerprint.xul";
 
-const AuthVerify = "otr-auth-unverified";
+const AUTH_STATUS_UNVERIFIED = "otr-auth-unverified";
 var authLabelMap;
 var authTitleMap;
 var trustMap;
@@ -152,7 +151,7 @@ var OTRUI = {
         let args = OTRUI.contactWrapper(contact);
         args.wrappedJSObject = args;
         let features = "chrome,modal,centerscreen,resizable=no,minimizable=no";
-        Services.ww.openWindow(null, addFingerDialog, "", features, args);
+        Services.ww.openWindow(null, OTR_ADD_FINGER_DIALOG_URL, "", features, args);
       }
     });
 
@@ -180,6 +179,46 @@ var OTRUI = {
     if (p) {
       p.remove();
     }
+  },
+
+  loopKeyGenSuccess() {
+    ChromeUtils.idleDispatch(OTRUI.genNextMissingKey);
+  },
+
+  loopKeyGenFailure(param) {
+    ChromeUtils.idleDispatch(OTRUI.genNextMissingKey);
+    OTRUI.reportKeyGenFailure(param);
+  },
+
+  reportKeyGenFailure(param) {
+    throw new Error(_strArgs("otr-genkey-failed", {error: String(param)}));
+  },
+
+  accountsToGenKey: [],
+
+  genNextMissingKey() {
+    if (!OTRUI.accountsToGenKey) {
+      return;
+    }
+
+    let acc = OTRUI.accountsToGenKey.pop();
+    let fp = OTR.privateKeyFingerprint(acc.name, acc.prot);
+    if (!fp) {
+      OTR.generatePrivateKey(acc.name, acc.prot)
+      .then(OTRUI.loopKeyGenSuccess, OTRUI.loopKeyGenFailure);
+    } else {
+      ChromeUtils.idleDispatch(OTRUI.genNextMissingKey);
+    }
+  },
+
+  genMissingKeys() {
+    for (let acc of Services.accounts.getAccounts()) {
+      OTRUI.accountsToGenKey.push({
+        name: acc.normalizedName,
+        prot: acc.protocol.normalizedName,
+      });
+    }
+    ChromeUtils.idleDispatch(OTRUI.genNextMissingKey);
   },
 
   async init() {
@@ -214,6 +253,8 @@ var OTRUI = {
       OTRUI.initConv(aConv);
       }
       OTRUI.addMenuObserver();
+
+      ChromeUtils.idleDispatch(OTRUI.genMissingKeys);
     }).catch(function(err) {
       // console.log("===> " + err + "\n");
       throw err;
@@ -240,7 +281,7 @@ var OTRUI = {
     let otrAuth = this.globalDoc.querySelector(".otr-auth");
     otrAuth.disabled = true;
     let win = window.openDialog(
-      authDialog,
+      OTR_AUTH_DIALOG_URL,
       "auth=" + name,
       "centerscreen,resizable=no,minimizable=no",
       mode,
@@ -419,7 +460,7 @@ var OTRUI = {
     let notifications = this.globalBox.allNotifications;
     for (let i = notifications.length - 1; i >= 0; i--) {
       if (context.username == notifications[i].getAttribute("user") &&
-          notifications[i].getAttribute("value") == AuthVerify) {
+          notifications[i].getAttribute("value") == AUTH_STATUS_UNVERIFIED) {
         notifications[i].close();
       }
     }
@@ -471,7 +512,7 @@ var OTRUI = {
     this.globalBox.appendNotification(msg, context.username, null, priority, buttons, null);
 
     let verifyTitle = syncL10n.formatValue("verify-title");
-    this.updateNotificationUI(context, verifyTitle, context.username, AuthVerify);
+    this.updateNotificationUI(context, verifyTitle, context.username, AUTH_STATUS_UNVERIFIED);
 
     if (context.username !== this.visibleConv.normalizedName) {
       this.hideUserNotifications(context);
@@ -583,18 +624,13 @@ var OTRUI = {
     }
   },
 
-  generate(args) {
-    let features = "chrome,modal,centerscreen,resizable=no,minimizable=no";
-    args.wrappedJSObject = args;
-    Services.ww.openWindow(null, privDialog, "", features, args);
-  },
-
   onAccountCreated(acc) {
     let account = acc.normalizedName;
     let protocol = acc.protocol.normalizedName;
     Promise.resolve();
     if (OTR.privateKeyFingerprint(account, protocol) === null)
-      OTR.generatePrivateKey(account, protocol);
+      OTR.generatePrivateKey(account, protocol)
+      .catch(OTRUI.reportKeyGenFailure);
   },
 
   contactWrapper(contact) {
@@ -621,7 +657,7 @@ var OTRUI = {
       return;
     args.wrappedJSObject = args;
     let features = "chrome,modal,centerscreen,resizable=no,minimizable=no";
-    Services.ww.openWindow(null, addFingerDialog, "", features, args);
+    Services.ww.openWindow(null, OTR_ADD_FINGER_DIALOG_URL, "", features, args);
   },
 
   observe(aObject, aTopic, aMsg) {
@@ -655,9 +691,14 @@ var OTRUI = {
       case "domwindowopened":
         OTRUI.addMenus(aObject);
         break;
-      case "otr:generate":
-        OTRUI.generate(aObject);
+      case "otr:generate": {
+        let result =
+          OTR.generatePrivateKeySync(aObject.account, aObject.protocol);
+        if (result != null) {
+          OTRUI.reportKeyGenFailure(result);
+        }
         break;
+      }
       case "otr:disconnected":
       case "otr:msg-state":
         if (aTopic === "otr:disconnected" ||
