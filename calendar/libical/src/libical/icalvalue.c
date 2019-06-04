@@ -189,83 +189,88 @@ icalvalue* icalvalue_new_clone(const icalvalue* old) {
 
 static char* icalmemory_strdup_and_dequote(const char* str)
 {
-    const char* p;
-    char* out = (char*)malloc(sizeof(char) * strlen(str) +1);
-    char* pout;
+    const char *p;
+    char *out = (char *)malloc(sizeof(char) * strlen(str) + 1);
+    char *pout;
+    int wroteNull = 0;
 
-    if (out == 0){
-	return 0;
+    if (out == 0) {
+        return 0;
     }
 
     pout = out;
 
-    for (p = str; *p!=0; p++){
-	
-	if( *p == '\\')
-	{
-	    p++;
-	    switch(*p){
-		case 0:
-		{
-		    *pout = '\0';
-		    break;
+    /* Stop the loop when encountering a terminator in the source string
+       or if a null has been written to the destination. This prevents
+       reading past the end of the source string if the last character
+       is a backslash. */
+    for (p = str; !wroteNull && *p != 0; p++) {
 
-		}
-		case 'n':
-		case 'N':
-		{
-		    *pout = '\n';
-		    break;
-		}
-		case 't':
-		case 'T':
-		{
-		    *pout = '\t';
-		    break;
-		}
-		case 'r':
-		case 'R':
-		{
-		    *pout = '\r';
-		    break;
-		}
-		case 'b':
-		case 'B':
-		{
-		    *pout = '\b';
-		    break;
-		}
-		case 'f':
-		case 'F':
-		{
-		    *pout = '\f';
-		    break;
-		}
-		case ';':
-		case ',':
-		case '"':
-		case '\\':
-		{
-		    *pout = *p;
-		    break;
-		}
-		default:
-		{
-		    *pout = ' ';
-		}		
-	    }
-	} else {
-	    *pout = *p;
-	}
+        if (*p == '\\') {
+            p++;
+            switch (*p) {
+            case 0:
+                {
+                    wroteNull = 1;      //stops iteration so p isn't incremented past the end of str
+                    *pout = '\0';
+                    break;
+                }
+            case 'n':
+            case 'N':
+                {
+                    *pout = '\n';
+                    break;
+                }
+            case 't':
+            case 'T':
+                {
+                    *pout = '\t';
+                    break;
+                }
+            case 'r':
+            case 'R':
+                {
+                    *pout = '\r';
+                    break;
+                }
+            case 'b':
+            case 'B':
+                {
+                    *pout = '\b';
+                    break;
+                }
+            case 'f':
+            case 'F':
+                {
+                    *pout = '\f';
+                    break;
+                }
+            case ';':
+            case ',':
+            case '"':
+            case '\\':
+                {
+                    *pout = *p;
+                    break;
+                }
+            default:
+                {
+                    *pout = ' ';
+                }
+            }
+        } else {
+            *pout = *p;
+        }
 
-	pout++;
-	
+        pout++;
     }
 
     *pout = '\0';
 
     return out;
 }
+
+
 
  /* 
   * Returns a quoted copy of a string
