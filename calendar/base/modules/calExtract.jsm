@@ -144,10 +144,7 @@ Extractor.prototype = {
             let spellchecker = Cc["@mozilla.org/spellchecker/engine;1"]
                                  .getService(Ci.mozISpellCheckingEngine);
 
-            let arr = {};
-            let cnt = {};
-            spellchecker.getDictionaryList(arr, cnt);
-            let dicts = arr.value;
+            let dicts = spellchecker.getDictionaryList();
 
             if (dicts.length == 0) {
                 cal.LOG("[calExtract] There are no dictionaries installed and " +

@@ -185,16 +185,12 @@ var gComposePane = {
   initLanguageMenu() {
     var languageMenuList = document.getElementById("languageMenuList");
     this.mSpellChecker = Cc["@mozilla.org/spellchecker/engine;1"].getService(Ci.mozISpellCheckingEngine);
-    var o1 = {};
-    var o2 = {};
 
     // Get the list of dictionaries from
     // the spellchecker.
 
-    this.mSpellChecker.getDictionaryList(o1, o2);
-
-    var dictList = o1.value;
-    var count    = o2.value;
+    var dictList = this.mSpellChecker.getDictionaryList();
+    var count    = dictList.length;
 
     // if we don't have any dictionaries installed, disable the menu list
     languageMenuList.disabled = !count;

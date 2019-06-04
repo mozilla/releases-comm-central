@@ -2348,11 +2348,9 @@ function getValidSpellcheckerDictionary(draftLanguage) {
   let prefValue = Services.prefs.getCharPref("spellchecker.dictionary");
   let spellChecker = Cc["@mozilla.org/spellchecker/engine;1"]
                        .getService(Ci.mozISpellCheckingEngine);
-  let o1 = {};
-  let o2 = {};
-  spellChecker.getDictionaryList(o1, o2);
-  let dictList = o1.value;
-  let count    = o2.value;
+
+  let dictList = spellChecker.getDictionaryList();
+  let count    = dictList.length;
 
   if (count == 0) {
     // If there are no dictionaries, we can't check the value, so return it.

@@ -2056,14 +2056,9 @@ function InitLanguageMenu()
 
   var spellChecker = Cc["@mozilla.org/spellchecker/engine;1"]
                        .getService(mozISpellCheckingEngine);
-  var o1 = {};
-  var o2 = {};
-
   // Get the list of dictionaries from the spellchecker.
-  spellChecker.getDictionaryList(o1, o2);
-
-  var dictList = o1.value;
-  var count    = o2.value;
+  var dictList = spellChecker.getDictionaryList();
+  var count    = dictList.length;
 
   // If dictionary count hasn't changed then no need to update the menu.
   if (sDictCount == count)

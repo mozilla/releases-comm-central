@@ -1162,9 +1162,7 @@ SuiteGlue.prototype = {
 
     var spellChecker = Cc["@mozilla.org/spellchecker/engine;1"]
                          .getService(Ci.mozISpellCheckingEngine);
-    var o1 = {};
-    spellChecker.getDictionaryList(o1, {});
-    var dictList = o1.value;
+    var dictList = spellChecker.getDictionaryList();
     // If the preference contains an invalid dictionary, set it to a valid
     // dictionary, any dictionary will do.
     if (dictList.length && dictList.indexOf(prefValue) < 0)
