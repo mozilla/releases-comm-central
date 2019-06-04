@@ -271,8 +271,10 @@ textbox + button {
 }
 
 html|input[type="number"] {
+  margin: 0;
   padding: 0;
   padding-inline-end: 1px;
+  border-width: 0;
 }
 
 html|input[type="number"]::-moz-number-spin-box {

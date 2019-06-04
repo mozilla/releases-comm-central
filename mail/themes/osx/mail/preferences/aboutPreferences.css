@@ -38,10 +38,6 @@ textbox[type="number"]:focus-within {
               0 0 0 4px var(--in-content-border-active-shadow);
 }
 
-html|input[type="number"] {
-  border-width: 0;
-}
-
 html|input[type="number"]:focus {
   box-shadow: none;
 }
