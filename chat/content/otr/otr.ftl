@@ -91,6 +91,7 @@ resent = [resent]
 tlv-disconnected = { $name } has ended their encrypted conversation with you; you should do the same.
 
 # Do not translate "Off-the-Record" and "OTR" which is the name of an encryption protocol
+# Make sure that this string does NOT contain any numbers, e.g. like "3".
 # Variables:
 #   $name (String) - the screen name of a chat contact person
 query-msg = { $name } has requested an Off-the-Record (OTR) encrypted conversation. However, you do not have a plugin to support that. See https://en.wikipedia.org/wiki/Off-the-Record_Messaging for more information.

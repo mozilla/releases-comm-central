@@ -522,7 +522,11 @@ var OTR = {
     // Use the default msg to format the version.
     // We don't supprt v1 of the protocol so this should be fine.
     let queryMsg = /^\?OTR.*?\?/.exec(query.readString())[0] + "\n";
-    queryMsg += _strArgs("query-msg", {name: conv.account.normalizedName});
+    // Avoid sending any numbers in the query message, because receiving
+    // software could misinterpret it as a protocol version.
+    // See https://bugzilla.mozilla.org/show_bug.cgi?id=1536108
+    let noNumbersName = conv.account.normalizedName.replace(/[0-9]/g, "#");
+    queryMsg += _strArgs("query-msg", {name: noNumbersName});
     conv.sendMsg(queryMsg);
     OTRLib.otrl_message_free(query);
   },
