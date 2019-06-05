@@ -106,29 +106,24 @@ function spellCheckStarted() {
 }
 
 function InitLanguageMenu(aCurLang) {
-  var o1 = {};
-  var o2 = {};
-
   // Get the list of dictionaries from
   // the spellchecker.
 
+  var dictList;
   try {
-    gSpellChecker.GetDictionaryList(o1, o2);
+    dictList = gSpellChecker.GetDictionaryList();
   } catch (ex) {
     dump("Failed to get DictionaryList!\n");
     return;
   }
 
-  var dictList = o1.value;
-  var count    = o2.value;
-
   // If we're not just starting up and dictionary count
   // hasn't changed then no need to update the menu.
-  if (gDictCount == count)
+  if (gDictCount == dictList.length)
     return;
 
   // Store current dictionary count.
-  gDictCount = count;
+  gDictCount = dictList.length;
 
   var inlineSpellChecker = new InlineSpellChecker();
   var sortedList = inlineSpellChecker.sortDictionaryList(dictList);
