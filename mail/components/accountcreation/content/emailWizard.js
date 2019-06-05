@@ -1113,10 +1113,11 @@ EmailConfigWizard.prototype = {
       config.outgoing.useGlobalPreferredServer = false;
 
       try {
-        config.outgoing.hostname = sanitize.hostname(
-              outHostnameCombo.inputField.value);
-        outHostnameCombo.inputField.value = config.outgoing.hostname;
-      } catch (e) { gEmailWizardLogger.warn(e); }
+        config.outgoing.hostname = sanitize.hostname(outHostnameCombo.value);
+        outHostnameCombo.value = config.outgoing.hostname;
+      } catch (e) {
+        gEmailWizardLogger.warn(e);
+      }
       try {
         config.outgoing.port = sanitize.integerRange(e("outgoing_port").value,
               kMinPort, kMaxPort);
