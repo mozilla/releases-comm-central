@@ -197,7 +197,7 @@ var OTRUI = {
   accountsToGenKey: [],
 
   genNextMissingKey() {
-    if (!OTRUI.accountsToGenKey) {
+    if (OTRUI.accountsToGenKey.length == 0) {
       return;
     }
 
