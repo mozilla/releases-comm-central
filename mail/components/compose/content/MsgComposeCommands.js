@@ -5822,7 +5822,8 @@ var envelopeDragObserver = {
 
       // Moving possibly non-coherent multiple selections around correctly
       // is much more complex than one might think...
-      if (target.matches("richlistitem.attachmentItem") || target == "afterLastItem") {
+      if ((target.matches && target.matches("richlistitem.attachmentItem")) ||
+          target == "afterLastItem") {
         // Drop before targetItem in the list, or after last item.
         let blockItems = [];
         let targetItem;
@@ -5989,7 +5990,8 @@ var envelopeDragObserver = {
 
       let target = this._adjustDropTarget(aEvent);
 
-      if (target && (target.matches("richlistitem.attachmentItem") || target == "afterLastItem")) {
+      if ((target.matches && target.matches("richlistitem.attachmentItem")) ||
+          target == "afterLastItem") {
         // Adjusted target is an attachment list item; show dropmarker.
         this._showDropMarker(target);
       } else {
