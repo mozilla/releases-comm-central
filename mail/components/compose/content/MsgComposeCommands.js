@@ -4389,22 +4389,23 @@ function AddAttachments(aAttachments, aCallback, aContentChanged = true) {
       } catch (ex) {
         dump(ex);
       }
+
+    // For local file urls, we are better off using the full file url because
+    // moz-icon will actually resolve the file url and get the right icon from
+    // the file url. All other urls, we should try to extract the file name from
+    // them. This fixes issues where an icon wasn't showing up if you dragged a
+    // web url that had a query or reference string after the file name and for
+    // mailnews urls where the filename is hidden in the url as a &filename=
+    // part.
+    } else if (/^mailbox-message:|^imap-message:|^news-message:/i.test(attachment.url)) {
+      // We're attaching a message. Pretend that is comes from a file,
+      // so we get the icon that matches .eml files.
+      item.image = "moz-icon://message.eml";
     } else {
-      // For local file urls, we are better off using the full file url because
-      // moz-icon will actually resolve the file url and get the right icon from
-      // the file url. All other urls, we should try to extract the file name from
-      // them. This fixes issues where an icon wasn't showing up if you dragged a
-      // web url that had a query or reference string after the file name and for
-      // mailnews urls where the filename is hidden in the url as a &filename=
-      // part.
       let url = Services.io.newURI(attachment.url);
       if (url instanceof Ci.nsIURL &&
           url.fileName && !url.schemeIs("file")) {
         item.image = "moz-icon://" + url.fileName;
-      } else if (/^mailbox-message:|^imap-message:|^news-message:/i.test(attachment.url)) {
-        // We're attaching a message, most likely via drag and drop. Pretend that is comes
-        // from a file, so we get the icon that matches .eml files.
-        item.image = "moz-icon://message.eml";
       } else {
         item.image = "moz-icon:" + attachment.url;
       }
