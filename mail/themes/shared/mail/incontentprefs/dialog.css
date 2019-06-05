@@ -21,9 +21,14 @@ prefpane {
   margin: 0;
 }
 
-.contentPane,
-dialog > .dialog-content-box {
+.contentPane {
+  /* This allows the focus ring to display fully when scrolling is enabled.
+    Note: dialog.js CE have a matching style for dialog-content-box */
   padding: 4px;
+}
+
+.contentPane.doScroll {
+  overflow-y: auto;
 }
 
 tabbox {
