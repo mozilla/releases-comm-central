@@ -86,7 +86,7 @@ class MozChatConversationInfo extends MozXULElement {
         </toolbarbutton>
       </hbox>
       <hbox id="otr-notification-box"></hbox>
-    `, ["chrome://chat/content/otr-chat.dtd"]));
+    `));
 
     this.topic.addEventListener("click", this.startEditTopic.bind(this));
 
