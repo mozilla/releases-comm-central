@@ -135,7 +135,7 @@ function InitLanguageMenu(aCurLang) {
 
   var defaultItem = null;
 
-  for (var i = 0; i < count; i++) {
+  for (var i = 0; i < gDictCount; i++) {
     let item = document.createXULElement("menuitem");
     item.setAttribute("label", sortedList[i].displayName);
     item.setAttribute("value", sortedList[i].localeCode);
