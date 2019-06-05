@@ -22,8 +22,6 @@
 common-tests:
     - xpcshell
     - mozmill
-    - marionette
-    - marionette-headless
 
 optimized-tests:
     - mochitest-thunderbird
