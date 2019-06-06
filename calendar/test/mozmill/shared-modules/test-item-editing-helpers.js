@@ -65,7 +65,8 @@ var TIME_INPUT = `
 
 // The following can be used as is.
 var REC_DLG_ACCEPT = `
-    /id("calendar-event-dialog-recurrence")/anon({"anonid":"buttons"})/{"dlgtype":"accept"}
+    /id("calendar-event-dialog-recurrence")/shadow/
+    {"class":"dialog-button-box"}/{"dlgtype":"accept"}
 `;
 var REC_DLG_DAYS = `
     /id("calendar-event-dialog-recurrence")/id("recurrence-pattern-groupbox")/
@@ -491,7 +492,7 @@ function handleAddingAttachment(controller, url) {
         attachment.waitForElement(cdlgid("loginTextbox"));
         cdlgid("loginTextbox").getNode().value = url;
         attachment.click(cdlglookup(`
-            /id("commonDialog")/anon({"anonid":"buttons"})/{"dlgtype":"accept"}
+            /id("commonDialog")/shadow/{"class":"dialog-button-box"}/{"dlgtype":"accept"}
         `));
     });
     controller.click(eid("button-url"));
@@ -532,8 +533,8 @@ function addAttendees(dialog, innerFrame, attendeesString) {
                 );
                 attDialog.type(input, attendee);
                 attDialog.click(attlookup(`
-                    /id("calendar-event-dialog-attendees-v2")/anon({"anonid":"buttons"})/
-                    {"dlgtype":"accept"}
+                    /id("calendar-event-dialog-attendees-v2")/shadow/
+                    {"class":"dialog-button-box"}/{"dlgtype":"accept"}
                 `));
             });
             dialog.click(dlgid("button-attendees"));
@@ -586,8 +587,8 @@ function setTimezone(event, timezone) {
         tzcontroller.waitForElement(item);
         tzcontroller.click(item);
         tzcontroller.click(tzlookup(`
-            /id("calendar-event-dialog-timezone")/anon({"anonid":"buttons"})/
-            {"dlgtype":"accept"}
+            /id("calendar-event-dialog-timezone")/shadow/
+            {"class":"dialog-button-box"}/{"dlgtype":"accept"}
         `));
     };
 

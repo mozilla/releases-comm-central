@@ -415,6 +415,11 @@ Lookup.prototype.getNode = function() {
     // Handle case where only index is provided
     var cases = nCases;
 
+    // Handle custom elements shadow DOM
+    if (exp == "shadow") {
+      return parent.shadowRoot;
+    }
+
     // Handle ending index before any of the expression gets mangled
     if (exp.endsWith("]")) {
       var expIndex = JSON.parse(strings.vslice(exp, "[", "]"));

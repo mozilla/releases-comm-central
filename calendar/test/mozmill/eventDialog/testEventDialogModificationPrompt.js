@@ -162,7 +162,7 @@ function handleSavePrompt(controller) {
 
     // application close is blocked without it
     controller.waitThenClick(cdlglookup(`
-        /id("commonDialog")/anon({"anonid":"buttons"})/{"dlgtype":"extra1"}
+        /id("commonDialog")/shadow/{"class":"dialog-button-box"}/{"dlgtype":"extra1"}
     `));
 }
 
