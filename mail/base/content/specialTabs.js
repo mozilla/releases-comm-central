@@ -890,14 +890,22 @@ var specialTabs = {
   showWhatsNewPage() {
     let um = Cc["@mozilla.org/updates/update-manager;1"]
                .getService(Ci.nsIUpdateManager);
-
-    try {
+    let update;
+    // The active update should be present when this code is called. If for
+    // whatever reason it isn't fallback to the latest update in the update
+    // history.
+    if (um.activeUpdate) {
+      update = um.activeUpdate
+                 .QueryInterface(Ci.nsIWritablePropertyBag);
+    } else {
       // If the updates.xml file is deleted then getUpdateAt will throw.
-      var update = um.getUpdateAt(0)
-                     .QueryInterface(Ci.nsIWritablePropertyBag);
-    } catch (x) {
-      Cu.reportError("Unable to find update: " + x);
-      return;
+      try {
+        update = um.getUpdateAt(0)
+                   .QueryInterface(Ci.nsIPropertyBag);
+      } catch (e) {
+        Cu.reportError("Unable to find update: " + e);
+        return;
+      }
     }
 
     let actions = update.getProperty("actions");
