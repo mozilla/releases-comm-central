@@ -1250,8 +1250,8 @@ var gEditorOutputProgressListener = {
   },
    *************************************************************************/
 
-  select(dlgTitle, text, count, selectList, outSelection) {
-    return Services.prompt.select(window, dlgTitle, text, count, selectList, outSelection);
+  select(dlgTitle, text, selectList, outSelection) {
+    return Services.prompt.select(window, dlgTitle, text, selectList, outSelection);
   },
 
   // nsIAuthPrompt
