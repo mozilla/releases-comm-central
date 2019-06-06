@@ -21,10 +21,9 @@
                    tooltiptext="&getMsgButton.tooltip;"
                    oncommand="MsgGetMessagesForAccount();"
                    observes="button_getNewMessages">
-      <menupopup id="button-getMsgPopup"
+      <menupopup is="folder-menupopup" id="button-getMsgPopup"
                  onpopupshowing="getMsgToolbarMenu_init();"
                  oncommand="MsgGetMessagesForAccount(event.target._folder); event.stopPropagation();"
-                 type="folder"
                  expandFolders="false"
                  mode="getMail">
         <menuitem id="button-getAllNewMsg"
@@ -82,8 +81,7 @@
                    tooltiptext="&fileButton.tooltip;"
                    observes="button_file"
                    oncommand="MsgMoveMessage(event.target._folder)">
-      <menupopup id="button-filePopup"
-                 type="folder"
+      <menupopup is="folder-menupopup" id="button-filePopup"
                  mode="filing"
                  showRecent="true"
                  showFileHereLabel="true"
@@ -369,9 +367,8 @@
                 context="folderPaneContext"
                 maxwidth="300"
                 crop="center">
-        <menupopup id="folderLocationPopup"
+        <menupopup is="folder-menupopup" id="folderLocationPopup"
                    class="menulist-menupopup"
-                   type="folder"
                    flex="1"
                    mode="notDeferred"
                    showFileHereLabel="true"

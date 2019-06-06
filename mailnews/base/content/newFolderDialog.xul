@@ -20,6 +20,7 @@
 
   <stringbundleset id="stringbundleset"/>
   <script src="chrome://messenger/content/newFolderDialog.js"/>
+  <script src="chrome://messenger/content/folder-menupopup.js"/>
 
     <label value="&name.label;" accesskey="&name.accesskey;" control="name"/>
     <textbox id="name" oninput="doEnabling();"/>
@@ -30,7 +31,8 @@
 
     <menulist id="msgNewFolderPicker" class="folderMenuItem"
                  displayformat="verbose">
-      <menupopup id="MsgNewFolderPopup" type="folder" showFileHereLabel="true"
+      <menupopup is="folder-menupopup" id="MsgNewFolderPopup"
+                 showFileHereLabel="true"
                  class="menulist-menupopup"
                  mode="newFolder"
                  oncommand="onFolderSelect(event)"/>

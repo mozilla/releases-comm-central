@@ -86,9 +86,8 @@
                  control="searchableFolders"/>
           <menulist id="searchableFolders" flex="2" class="folderMenuItem"
                     displayformat="verbose">
-            <menupopup class="menulist-menupopup"
-                       type="folder" mode="search"
-                       showAccountsFileHere="true" showFileHereLabel="true"
+            <menupopup is="folder-menupopup" class="menulist-menupopup"
+                       mode="search" showAccountsFileHere="true" showFileHereLabel="true"
                        oncommand="updateSearchFolderPicker(event.target._folder);"/>
           </menulist>
           <spacer flex="10"/>
@@ -195,7 +194,7 @@
         <button id="fileMessageButton" type="menu" label="&moveButton.label;"
                 accesskey="&moveButton.accesskey;"
                 command="file_message_button">
-          <menupopup type="folder" showFileHereLabel="true" mode="filing"/>
+          <menupopup is="folder-menupopup" showFileHereLabel="true" mode="filing"/>
         </button>
 
       <button label="&deleteButton.label;" id="deleteButton" command="button_delete" accesskey="&deleteButton.accesskey;"/>

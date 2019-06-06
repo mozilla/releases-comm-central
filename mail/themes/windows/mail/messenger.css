@@ -525,19 +525,19 @@ treechildren::-moz-tree-indentation {
   background: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
 }
 
-/* Give menupopup[type="folder"] a menu look */
-menupopup[type="folder"] {
+/* Give menupopup[is="folder-menupopup"] a menu look */
+menupopup[is="folder-menupopup"] {
   -moz-appearance: menupopup;
 }
 
-menupopup[type="folder"] menu[_moz-menuactive="true"],
-menupopup[type="folder"] menuitem[_moz-menuactive="true"] {
+menupopup[is="folder-menupopup"] menu[_moz-menuactive="true"],
+menupopup[is="folder-menupopup"] menuitem[_moz-menuactive="true"] {
   color: -moz-MenuHoverText;
   background-color: -moz-MenuHover;
 }
 
-menupopup[type="folder"] > menu,
-menupopup[type="folder"] > menuitem {
+menupopup[is="folder-menupopup"] > menu,
+menupopup[is="folder-menupopup"] > menuitem {
   -moz-appearance: menuitem !important;
   padding-right: 0;
   padding-left: 0;
@@ -750,7 +750,7 @@ toolbar[mode="icons"] .toolbarbutton-1:not([type="menu-button"]) {
   transition: background-color .4s;
 }
 
-menulist > menupopup:not([type="folder"]) > menuseparator {
+menulist > menupopup:not([is="folder-menupopup"]) > menuseparator {
   -moz-appearance: none;
   margin-top: 3px;
   margin-bottom: 3px;

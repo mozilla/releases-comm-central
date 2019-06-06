@@ -379,9 +379,8 @@
             <menu id="appmenu_getNewMsgFor"
                   label="&getNewMsgForCmd.label;"
                   oncommand="MsgGetMessagesForAccount();">
-              <menupopup type="folder"
+              <menupopup is="folder-menupopup" id="appmenu_getAllNewMsgPopup"
                          mode="getMail"
-                         id="appmenu_getAllNewMsgPopup"
                          expandFolders="false"
                          oncommand="MsgGetMessagesForAccount(event.target._folder); event.stopPropagation();">
                 <menuitem id="appmenu_getnewmsgs_all_accounts"
@@ -828,8 +827,7 @@
             <menu id="appmenu_goFolderMenu"
                   label="&folderMenu.label;"
                   command="cmd_goFolder">
-              <menupopup id="appmenu_GoFolderPopup"
-                         type="folder"
+              <menupopup is="folder-menupopup" id="appmenu_GoFolderPopup"
                          showFileHereLabel="true"
                          showRecent="true"
                          recentLabel="&contextMoveCopyMsgRecentMenu.label;"/>
@@ -1009,7 +1007,7 @@
             <menu id="appmenu_moveMenu"
                   label="&moveMsgToMenu.label;"
                   oncommand="MsgMoveMessage(event.target._folder)">
-              <menupopup type="folder"
+              <menupopup is="folder-menupopup"
                          mode="filing"
                          showFileHereLabel="true"
                          showRecent="true"
@@ -1021,7 +1019,7 @@
             <menu id="appmenu_copyMenu"
                   label="&copyMsgToMenu.label;"
                   oncommand="MsgCopyMessage(event.target._folder)">
-              <menupopup type="folder"
+              <menupopup is="folder-menupopup"
                          mode="filing"
                          showFileHereLabel="true"
                          showRecent="true"
@@ -1487,8 +1485,7 @@
           label="&contextMoveMsgMenu.label;"
           accesskey="&contextMoveMsgMenu.accesskey;"
           oncommand="MsgMoveMessage(event.target._folder)">
-      <menupopup id="mailContext-fileHereMenu"
-                 type="folder"
+      <menupopup is="folder-menupopup" id="mailContext-fileHereMenu"
                  mode="filing"
                  showFileHereLabel="true"
                  showRecent="true"
@@ -1502,8 +1499,7 @@
           label="&contextCopyMsgMenu.label;"
           accesskey="&contextCopyMsgMenu.accesskey;"
           oncommand="MsgCopyMessage(event.target._folder)">
-      <menupopup id="mailContext-copyHereMenu"
-                 type="folder"
+      <menupopup is="folder-menupopup" id="mailContext-copyHereMenu"
                  mode="filing"
                  showFileHereLabel="true"
                  showRecent="true"

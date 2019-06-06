@@ -3,6 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
   <vbox flex="1" id="copiesAndFolders">
+    <script src="chrome://messenger/content/folder-menupopup.js"/>
     <stringbundleset id="stringbundleset">
     <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
     </stringbundleset>
@@ -64,7 +65,8 @@
              <menulist id="msgFccAccountPicker"
                        class="folderMenuItem depends-on-do-fcc"
                        aria-labelledby="fcc_selectAccount">
-                <menupopup id="msgFccAccountPopup" type="folder" mode="filing"
+                <menupopup is="folder-menupopup" id="msgFccAccountPopup"
+                           mode="filing"
                            expandFolders="false"
                            oncommand="noteSelectionChange('fcc', 'Account', event)"/>
               </menulist>
@@ -72,7 +74,8 @@
                         class="folderMenuItem depends-on-do-fcc"
                         aria-labelledby="fcc_selectFolder"
                         displayformat="verbose">
-                <menupopup id="msgFccFolderPopup" type="folder" mode="filing"
+                <menupopup is="folder-menupopup" id="msgFccFolderPopup"
+                           mode="filing"
                            class="menulist-menupopup"
                            showFileHereLabel="true"
                            oncommand="noteSelectionChange('fcc', 'Folder', event)"/>
@@ -163,7 +166,8 @@
             <menulist id="msgArchivesAccountPicker"
                       class="folderMenuItem depends-on-archive"
                       aria-labelledby="archive_selectAccount">
-              <menupopup id="msgArchivesAccountPopup" type="folder" mode="filing"
+              <menupopup is="folder-menupopup" id="msgArchivesAccountPopup"
+                         mode="filing"
                          expandFolders="false"
                          oncommand="noteSelectionChange('archive', 'Account', event)"/>
             </menulist>
@@ -171,7 +175,8 @@
                       class="folderMenuItem depends-on-archive"
                       aria-labelledby="archive_selectFolder"
                       displayformat="verbose">
-              <menupopup id="msgArchivesFolderPopup" type="folder" mode="filing"
+              <menupopup is="folder-menupopup" id="msgArchivesFolderPopup"
+                         mode="filing"
                          class="menulist-menupopup"
                          showFileHereLabel="true"
                          oncommand="noteSelectionChange('archive', 'Folder', event)"/>
@@ -208,7 +213,8 @@
             <menulist id="msgDraftsAccountPicker"
                       class="folderMenuItem"
                       aria-labelledby="draft_selectAccount">
-              <menupopup id="msgDraftAccountPopup" type="folder" mode="filing"
+              <menupopup is="folder-menupopup" id="msgDraftAccountPopup"
+                         mode="filing"
                          expandFolders="false"
                          oncommand="noteSelectionChange('draft', 'Account', event)"/>
             </menulist>
@@ -216,7 +222,8 @@
                       class="folderMenuItem"
                       aria-labelledby="draft_selectFolder"
                       displayformat="verbose">
-              <menupopup id="msgDraftFolderPopup" type="folder" mode="filing"
+              <menupopup is="folder-menupopup" id="msgDraftFolderPopup"
+                         mode="filing"
                          class="menulist-menupopup"
                          showFileHereLabel="true"
                          oncommand="noteSelectionChange('draft', 'Folder', event)"/>
@@ -249,7 +256,8 @@
             <menulist id="msgStationeryAccountPicker"
                         class="folderMenuItem"
                         aria-labelledby="tmpl_selectAccount">
-              <menupopup id="msgFccAccountPopup" type="folder" mode="filing"
+              <menupopup is="folder-menupopup" id="msgFccAccountPopup"
+                         mode="filing"
                          expandFolders="false"
                          oncommand="noteSelectionChange('tmpl', 'Account', event)"/>
             </menulist>
@@ -257,7 +265,8 @@
                         class="folderMenuItem"
                         aria-labelledby="tmpl_selectFolder"
                         displayformat="verbose">
-              <menupopup id="msgTemplFolderPopup" type="folder" mode="filing"
+              <menupopup is="folder-menupopup" id="msgTemplFolderPopup"
+                         mode="filing"
                          class="menulist-menupopup"
                          showFileHereLabel="true"
                          oncommand="noteSelectionChange('tmpl', 'Folder', event)"/>

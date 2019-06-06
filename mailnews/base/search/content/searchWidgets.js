@@ -118,7 +118,7 @@ class MozRuleactiontargetFolder extends MozXULElement {
                 folderMenuItem"
                 flex="1"
                 displayformat="verbose">
-        <menupopup type="folder"
+        <menupopup is="folder-menupopup"
                    mode="filing"
                    class="menulist-menupopup"
                    showRecent="true"

@@ -484,10 +484,10 @@ class MozThreadPaneTreeColpicker extends customElements.get("treecolpicker") {
       <menu class="applyTo-menu" label="&columnPicker.applyTo.label;">
         <menupopup>
           <menu class="applyToFolder-menu" label="&columnPicker.applyToFolder.label;">
-            <menupopup class="applyToFolder" type="folder" showFileHereLabel="true" position="start_before"></menupopup>
+            <menupopup is="folder-menupopup" class="applyToFolder" showFileHereLabel="true" position="start_before"></menupopup>
           </menu>
           <menu class="applyToFolderAndChildren-menu" label="&columnPicker.applyToFolderAndChildren.label;">
-            <menupopup class="applyToFolderAndChildren" type="folder" showFileHereLabel="true" showAccountsFileHere="true" position="start_before"></menupopup>
+            <menupopup is="folder-menupopup" class="applyToFolderAndChildren" showFileHereLabel="true" showAccountsFileHere="true" position="start_before"></menupopup>
           </menu>
         </menupopup>
       </menu>

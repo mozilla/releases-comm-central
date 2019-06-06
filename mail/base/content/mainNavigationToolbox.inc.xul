@@ -113,7 +113,7 @@
           <menu label="&getNewMsgForCmd.label;" accesskey="&getNewMsgForCmd.accesskey;"
                 id="menu_getAllNewMsg"
                 oncommand="MsgGetMessagesForAccount();">
-            <menupopup type="folder" mode="getMail" id="menu_getAllNewMsgPopup"
+            <menupopup is="folder-menupopup" id="menu_getAllNewMsgPopup"
                        expandFolders="false"
                        oncommand="MsgGetMessagesForAccount(event.target._folder); event.stopPropagation();">
               <menuitem id="menu_getnewmsgs_all_accounts"
@@ -652,8 +652,7 @@
                 label="&folderMenu.label;"
                 accesskey="&folderMenu.accesskey;"
                 command="cmd_goFolder">
-            <menupopup id="menu_GoFolderPopup"
-                       type="folder"
+            <menupopup is="folder-menupopup" id="menu_GoFolderPopup"
                        showFileHereLabel="true"
                        showRecent="true"
                        recentLabel="&contextMoveCopyMsgRecentMenu.label;"
@@ -874,7 +873,8 @@
                   label="&moveMsgToMenu.label;"
                   accesskey="&moveMsgToMenu.accesskey;"
                   oncommand="MsgMoveMessage(event.target._folder)">
-              <menupopup type="folder" mode="filing"
+              <menupopup is="folder-menupopup"
+                         mode="filing"
                          showFileHereLabel="true"
                          showRecent="true"
                          recentLabel="&moveCopyMsgRecentMenu.label;"
@@ -887,7 +887,8 @@
                   label="&copyMsgToMenu.label;"
                   accesskey="&copyMsgToMenu.accesskey;"
                   oncommand="MsgCopyMessage(event.target._folder)">
-              <menupopup type="folder" mode="filing"
+              <menupopup is="folder-menupopup"
+                         mode="filing"
                          showFileHereLabel="true"
                          showRecent="true"
                          recentLabel="&moveCopyMsgRecentMenu.label;"

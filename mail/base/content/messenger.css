@@ -72,10 +72,6 @@ tabmail {
   -moz-binding: url("chrome://messenger/content/tabmail.xml#tabmail");
 }
 
-menupopup[type="folder"] {
-  -moz-binding: url("chrome://messenger/content/folderWidgets.xml#folder-menupopup");
-}
-
 .chromeclass-toolbar {
   overflow-x: hidden;
 }

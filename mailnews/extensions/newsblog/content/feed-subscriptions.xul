@@ -31,6 +31,7 @@
 
   <script src="chrome://messenger/content/specialTabs.js"/>
   <script src="chrome://messenger-newsblog/content/feed-subscriptions.js"/>
+  <script src="chrome://messenger/content/folder-menupopup.js"/>
 
   <linkset>
     <html:link rel="localization" href="security/certificates/certManager.ftl"/>
@@ -124,9 +125,8 @@
                         flex="1"
                         class="folderMenuItem"
                         hidden="true">
-                <menupopup id="selectFolderPopup"
+                <menupopup is="folder-menupopup" id="selectFolderPopup"
                            class="menulist-menupopup"
-                           type="folder"
                            mode="feeds"
                            showFileHereLabel="true"
                            showAccountsFileHere="true"

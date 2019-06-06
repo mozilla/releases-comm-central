@@ -23,6 +23,7 @@
     <script src="chrome://messenger/content/am-prefs.js"/>
     <script src="chrome://messenger/content/amUtils.js"/>
     <script src="chrome://messenger/content/menulist-charsetpicker.js"/>
+    <script src="chrome://messenger/content/folder-menupopup.js"/>
     <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
 
     <label hidden="true" wsm_persist="true" id="server.type"/>
@@ -280,8 +281,7 @@
                         maxwidth="300" crop="center"
                         aria-labelledby="modelMoveToTrash"
                         displayformat="verbose">
-                <menupopup id="msgTrashFolderPopup"
-                           type="folder"
+                <menupopup is="folder-menupopup" id="msgTrashFolderPopup"
                            mode="filing"
                            showFileHereLabel="true"
                            oncommand="folderPickerChange(event);"/>

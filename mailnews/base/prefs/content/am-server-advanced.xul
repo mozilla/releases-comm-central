@@ -17,6 +17,7 @@
         onload="onLoad();">
 
   <script src="chrome://messenger/content/am-server-advanced.js"/>
+  <script src="chrome://messenger/content/folder-menupopup.js"/>
   <stringbundle id="bundle_prefs"
                 src="chrome://messenger/locale/prefs.properties"/>
 
@@ -110,8 +111,7 @@
               <menulist id="deferredServerFolderPicker"
                         class="folderMenuItem"
                         aria-labelledby="deferToServer">
-                <menupopup id="deferredServerPopup"
-                           type="folder"
+                <menupopup is="folder-menupopup" id="deferredServerPopup"
                            expandFolders="false"
                            mode="deferred"
                            oncommand="this.selectFolder(event.target._folder);"/>

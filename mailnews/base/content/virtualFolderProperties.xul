@@ -60,9 +60,8 @@
       <textbox id="existingName" readonly="true" hidden="true" tabindex="0"/>
       <menulist id="msgNewFolderPicker" class="folderMenuItem" align="center"
                 displayformat="verbose">
-        <menupopup id="msgNewFolderPopup" class="menulist-menupopup"
-                   type="folder" mode="newFolder"
-                   showFileHereLabel="true" oncommand="onFolderPick(event);"/>
+        <menupopup is="folder-menupopup" id="msgNewFolderPopup" class="menulist-menupopup"
+                   mode="newFolder" showFileHereLabel="true" oncommand="onFolderPick(event);"/>
       </menulist>
       <hbox align="center">
         <label id="chosenFoldersCount"/>

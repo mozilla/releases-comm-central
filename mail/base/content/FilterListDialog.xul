@@ -43,7 +43,8 @@
 
     <menulist id="serverMenu"
               class="folderMenuItem">
-      <menupopup id="serverMenuPopup" type="folder" mode="filters"
+      <menupopup is="folder-menupopup" id="serverMenuPopup"
+                 mode="filters"
                  class="menulist-menupopup"
                  expandFolders="nntp"
                  showFileHereLabel="true"
@@ -85,9 +86,8 @@
             <menulist id="runFiltersFolder" disabled="true" flex="1"
                       class="folderMenuItem"
                       displayformat="verbose">
-              <menupopup id="runFiltersPopup"
+              <menupopup is="folder-menupopup" id="runFiltersPopup"
                          class="menulist-menupopup"
-                         type="folder"
                          showFileHereLabel="true"
                          showAccountsFileHere="false"
                          oncommand="setRunFolder(event.target._folder);"/>

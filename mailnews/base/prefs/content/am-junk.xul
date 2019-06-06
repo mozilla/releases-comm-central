@@ -24,6 +24,7 @@
     <script src="chrome://messenger/content/am-junk.js"/>
     <script src="chrome://messenger/content/am-prefs.js"/>
     <script src="chrome://messenger/content/amUtils.js"/>
+    <script src="chrome://messenger/content/folder-menupopup.js"/>
     <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
 
     <hbox class="dialogheader">
@@ -167,8 +168,7 @@
             <menulist id="actionTargetAccount"
                       class="folderMenuItem"
                       aria-labelledby="moveTargetMode0">
-              <menupopup id="actionAccountPopup"
-                         type="folder"
+              <menupopup is="folder-menupopup" id="actionAccountPopup"
                          class="menulist-menupopup"
                          expandFolders="false"
                          mode="filing"
@@ -178,8 +178,7 @@
                       class="folderMenuItem"
                       aria-labelledby="moveTargetMode1"
                       displayformat="verbose">
-              <menupopup id="actionFolderPopup"
-                         type="folder"
+              <menupopup is="folder-menupopup" id="actionFolderPopup"
                          mode="junk"
                          showFileHereLabel="true"
                          oncommand="onActionTargetChange(event, 'server.spamActionTargetFolder');"/>

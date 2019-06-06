@@ -69,7 +69,7 @@ messenger.jar:
     content/messenger/folderProps.xul                                          (base/content/folderProps.xul)
     content/messenger/menulist-charsetpicker.js                                (base/content/menulist-charsetpicker.js)
     content/messenger/folderProps.js                                           (base/content/folderProps.js)
-    content/messenger/folderWidgets.xml                                        (base/content/folderWidgets.xml)
+    content/messenger/folder-menupopup.js                                      (base/content/folder-menupopup.js)
     content/messenger/newFolderDialog.xul                                      (base/content/newFolderDialog.xul)
     content/messenger/newFolderDialog.js                                       (base/content/newFolderDialog.js)
 *   content/messenger/msgAccountCentral.xul                                    (base/content/msgAccountCentral.xul)

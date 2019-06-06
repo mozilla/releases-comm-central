@@ -25,6 +25,7 @@
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://messenger/content/mailWindow.js"/>
   <script src="chrome://messenger/content/subscribe.js"/>
+  <script src="chrome://messenger/content/folder-menupopup.js"/>
 
   <vbox flex="1" style="width: 40em; height: 25em;">
     <hbox>
@@ -43,7 +44,7 @@
       </vbox>
       <vbox flex="1">
         <menulist id="serverMenu" flex="1" class="folderMenuItem">
-          <menupopup type="folder"
+          <menupopup is="folder-menupopup"
                      mode="subscribe"
                      expandFolders="false"
                      oncommand="onServerClick(event.target._folder);"/>
