@@ -3775,7 +3775,7 @@ var spellCheckReadyObserver = {
     // the compose together with the speller, so we need to check if they
     // are still valid.
     if (gMsgCompose && gSpellChecker.enabled) {
-      gSpellChecker.mInlineSpellChecker.ignoreWords(this._ignoreWords, this._ignoreWords.length);
+      gSpellChecker.mInlineSpellChecker.ignoreWords(this._ignoreWords);
     }
     this._clearPendingWords();
   },

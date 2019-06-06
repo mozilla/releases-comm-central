@@ -2037,13 +2037,13 @@ function addRecipientsToIgnoreList(aAddressesToAdd)
         if (subject == gMsgCompose.editor)
         {
           Services.obs.removeObserver(observe, topic);
-          InlineSpellCheckerUI.mInlineSpellChecker.ignoreWords(tokenizedNames, tokenizedNames.length);
+          InlineSpellCheckerUI.mInlineSpellChecker.ignoreWords(tokenizedNames);
         }
       }, "inlineSpellChecker-spellCheck-ended");
     }
     else
     {
-      InlineSpellCheckerUI.mInlineSpellChecker.ignoreWords(tokenizedNames, tokenizedNames.length);
+      InlineSpellCheckerUI.mInlineSpellChecker.ignoreWords(tokenizedNames);
     }
   }
 }
