@@ -539,8 +539,6 @@ menupopup[is="folder-menupopup"] menuitem[_moz-menuactive="true"] {
 menupopup[is="folder-menupopup"] > menu,
 menupopup[is="folder-menupopup"] > menuitem {
   -moz-appearance: menuitem !important;
-  padding-right: 0;
-  padding-left: 0;
 }
 
 menulist.folderMenuItem > .menulist-label-box > .menulist-label {
