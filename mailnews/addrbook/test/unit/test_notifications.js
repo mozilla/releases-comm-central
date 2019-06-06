@@ -25,11 +25,24 @@ var abListener = {
   },
 };
 
+var abObserver = {
+  result: [],
+  maxResults: 1,
+  observe(subject, topic, data) {
+    Assert.ok(this.result.length < this.maxResults);
+    this.result.push([subject, topic, data]);
+  },
+};
+
 function run_test() {
   // XXX Getting all directories ensures we create all ABs because the
   // address collecter can't currently create ABs itself (bug 314448).
   MailServices.ab.directories;
 
+  run_next_test();
+}
+
+add_test(function() {
   // Add a listener
   MailServices.ab.addAddressBookListener(abListener, Ci.nsIAbListener.all);
 
@@ -147,4 +160,59 @@ function run_test() {
   // Remove listener
 
   MailServices.ab.removeAddressBookListener(abListener);
-}
+
+  run_next_test();
+});
+
+add_test(function() {
+  let dirName = MailServices.ab.newAddressBook("TestBook", "", kPABData.dirType);
+  let AB = MailServices.ab.getDirectoryFromId(dirName);
+
+  let mailList = Cc["@mozilla.org/addressbook/directoryproperty;1"]
+                   .createInstance(Ci.nsIAbDirectory);
+  mailList.isMailList = true;
+  mailList.dirName = "TestList";
+  mailList = AB.addMailList(mailList);
+
+  let card1 = Cc["@mozilla.org/addressbook/cardproperty;1"]
+                .createInstance(Ci.nsIAbCard);
+  card1.firstName = "test1";
+  card1.primaryEmail = "test1@foo.invalid";
+  card1 = AB.addCard(card1);
+
+  let card2 = Cc["@mozilla.org/addressbook/cardproperty;1"]
+                .createInstance(Ci.nsIAbCard);
+  card2.firstName = "test2";
+  card2.primaryEmail = "test2@foo.invalid";
+  card2 = AB.addCard(card2);
+  mailList.addCard(card2);
+
+  // Test: remove one card that ISN'T in the mailing list
+
+  Services.obs.addObserver(abObserver, "addrbook-list-member-removed");
+  abObserver.maxResults = 0;
+  abObserver.result = [];
+
+  let cardsToDelete = Cc["@mozilla.org/array;1"]
+                        .createInstance(Ci.nsIMutableArray);
+  cardsToDelete.appendElement(card1);
+  AB.deleteCards(cardsToDelete);
+
+  // Test: remove one card that IS in the mailing list
+
+  abObserver.maxResults = 1;
+  abObserver.result = [];
+
+  cardsToDelete.clear();
+  cardsToDelete.appendElement(card2);
+  AB.deleteCards(cardsToDelete);
+
+  Assert.equal(abObserver.result.length, 1);
+  Assert.equal(abObserver.result[0][0], card2);
+  Assert.equal(abObserver.result[0][1], "addrbook-list-member-removed");
+  Assert.equal(abObserver.result[0][2], mailList.UID);
+
+  Services.obs.removeObserver(abObserver, "addrbook-list-member-removed");
+
+  run_next_test();
+});

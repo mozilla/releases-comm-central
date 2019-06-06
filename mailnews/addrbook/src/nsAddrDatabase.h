@@ -388,8 +388,9 @@ class nsAddrDatabase : public nsIAddrDatabase {
   nsresult CreateCard(nsIMdbRow *cardRow, mdb_id listRowID, nsIAbCard **result);
   nsresult CreateCardFromDeletedCardsTable(nsIMdbRow *cardRow, mdb_id listRowID,
                                            nsIAbCard **result);
-  nsresult DeleteCardFromListRow(nsIMdbRow *pListRow, mdb_id cardRowID);
-  void DeleteCardFromAllMailLists(mdb_id cardRowID);
+  nsresult DeleteCardFromListRow(nsIMdbRow *pListRow, mdb_id cardRowID,
+                                 bool *cardFound);
+  void DeleteCardFromAllMailLists(nsIAbCard *aCard);
   nsresult NotifyListEntryChange(uint32_t abCode, nsIAbDirectory *dir);
 
   nsresult AddLowercaseColumn(nsIMdbRow *row, mdb_token columnToken,

@@ -1436,8 +1436,14 @@ NS_IMETHODIMP nsAddrDatabase::CreateMailListAndAddToDB(
   return NS_ERROR_FAILURE;
 }
 
-void nsAddrDatabase::DeleteCardFromAllMailLists(mdb_id cardRowID) {
+void nsAddrDatabase::DeleteCardFromAllMailLists(nsIAbCard *aCard) {
   if (!m_mdbEnv) return;
+
+  mdb_id cardRowID;
+  nsresult rv = aCard->GetPropertyAsUint32(kRowIDProperty, &cardRowID);
+  if (NS_FAILED(rv)) {
+    return;
+  }
 
   nsCOMPtr<nsIMdbTableRowCursor> rowCursor;
   m_mdbPabTable->GetTableRowCursor(m_mdbEnv, -1, getter_AddRefs(rowCursor));
@@ -1446,15 +1452,28 @@ void nsAddrDatabase::DeleteCardFromAllMailLists(mdb_id cardRowID) {
     nsCOMPtr<nsIMdbRow> pListRow;
     mdb_pos rowPos;
     do {
-      nsresult err =
-          rowCursor->NextRow(m_mdbEnv, getter_AddRefs(pListRow), &rowPos);
+      rv = rowCursor->NextRow(m_mdbEnv, getter_AddRefs(pListRow), &rowPos);
 
-      if (NS_SUCCEEDED(err) && pListRow) {
+      if (NS_SUCCEEDED(rv) && pListRow) {
         mdbOid rowOid;
 
         if (NS_SUCCEEDED(pListRow->GetOid(m_mdbEnv, &rowOid))) {
-          if (IsListRowScopeToken(rowOid.mOid_Scope))
-            DeleteCardFromListRow(pListRow, cardRowID);
+          if (IsListRowScopeToken(rowOid.mOid_Scope)) {
+            bool cardFound = false;
+            DeleteCardFromListRow(pListRow, cardRowID, &cardFound);
+            if (cardFound) {
+              nsCOMPtr<nsIObserverService> observerService =
+                  mozilla::services::GetObserverService();
+              if (observerService) {
+                nsAutoString listUID;
+                GetStringColumn(pListRow, m_UIDColumnToken, listUID);
+                if (!listUID.IsEmpty()) {
+                  observerService->NotifyObservers(
+                      aCard, "addrbook-list-member-removed", listUID.get());
+                }
+              }
+            }
+          }
         }
       }
     } while (pListRow);
@@ -1483,6 +1502,9 @@ NS_IMETHODIMP nsAddrDatabase::DeleteCard(nsIAbCard *aCard, bool aNotify,
   NS_ENSURE_SUCCESS(err, err);
   if (!pCardRow) return NS_OK;
 
+  // Delete the person card from all mailing list.
+  if (!bIsMailList) DeleteCardFromAllMailLists(aCard);
+
   // Reset the directory id
   aCard->SetDirectoryId(EmptyCString());
 
@@ -1505,9 +1527,6 @@ NS_IMETHODIMP nsAddrDatabase::DeleteCard(nsIAbCard *aCard, bool aNotify,
 
   err = DeleteRow(m_mdbPabTable, pCardRow);
 
-  // delete the person card from all mailing list
-  if (!bIsMailList) DeleteCardFromAllMailLists(rowOid.mOid_Id);
-
   if (NS_SUCCEEDED(err)) {
     if (aNotify) NotifyCardEntryChange(AB_NotifyDeleted, aCard, aParent);
   }
@@ -1517,7 +1536,8 @@ NS_IMETHODIMP nsAddrDatabase::DeleteCard(nsIAbCard *aCard, bool aNotify,
 }
 
 nsresult nsAddrDatabase::DeleteCardFromListRow(nsIMdbRow *pListRow,
-                                               mdb_id cardRowID) {
+                                               mdb_id cardRowID,
+                                               bool *cardFound) {
   NS_ENSURE_ARG_POINTER(pListRow);
   if (!m_mdbStore || !m_mdbEnv) return NS_ERROR_NULL_POINTER;
 
@@ -1537,6 +1557,7 @@ nsresult nsAddrDatabase::DeleteCardFromListRow(nsIMdbRow *pListRow,
     err = GetIntColumn(pListRow, listAddressColumnToken, (uint32_t *)&rowID, 0);
 
     if (cardRowID == rowID) {
+      *cardFound = true;
       if (pos == totalAddress)
         err = pListRow->CutColumn(m_mdbEnv, listAddressColumnToken);
       else {
@@ -1594,9 +1615,22 @@ NS_IMETHODIMP nsAddrDatabase::DeleteCardFromMailList(nsIAbDirectory *mailList,
   err = card->GetPropertyAsUint32(kRowIDProperty, &cardRowID);
   if (NS_FAILED(err)) return NS_ERROR_NULL_POINTER;
 
-  err = DeleteCardFromListRow(pListRow, cardRowID);
+  bool cardFound = false;
+  err = DeleteCardFromListRow(pListRow, cardRowID, &cardFound);
   if (NS_SUCCEEDED(err) && aNotify) {
     NotifyCardEntryChange(AB_NotifyDeleted, card, mailList);
+    // Notify the addrbook-list-member-removed observer if the card was found
+    // and removed.
+    if (cardFound) {
+      nsCOMPtr<nsIObserverService> observerService =
+          mozilla::services::GetObserverService();
+      if (observerService) {
+        nsAutoCString listUID;
+        mailList->GetUID(listUID);
+        observerService->NotifyObservers(card, "addrbook-list-member-removed",
+                                         NS_ConvertUTF8toUTF16(listUID).get());
+      }
+    }
   }
   NS_RELEASE(pListRow);
   return NS_OK;
