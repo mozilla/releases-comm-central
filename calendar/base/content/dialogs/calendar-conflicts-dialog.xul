@@ -13,7 +13,7 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
   <script src="chrome://calendar/content/mouseoverPreviews.js"/>
   <script><![CDATA[
-    const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+    var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
     function onLoad() {
         let docEl = document.documentElement;
         let item = window.arguments[0].item;
