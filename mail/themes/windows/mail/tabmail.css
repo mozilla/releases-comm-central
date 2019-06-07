@@ -145,6 +145,8 @@ tabpanels {
 /* Content Tabs */
 .contentTabAddress {
   height: 34px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 @media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {

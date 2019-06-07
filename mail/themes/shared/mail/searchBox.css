@@ -1,0 +1,118 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+:root {
+  --toolbar-field-focus-border-color: Highlight;
+}
+
+.textbox-search-clear {
+  opacity: 0.8;
+}
+
+.textbox-search-clear:not([disabled]):hover {
+  opacity: 1;
+}
+
+.themeableSearchBox[disabled] {
+  border-color: hsla(240,5%,5%,.1) !important;
+}
+
+.searchBox:hover,
+.themeableSearchBox:not([disabled]):hover {
+  border-color: hsla(240,5%,5%,.35);
+  box-shadow: 0 1px 6px rgba(0,0,0,.1);
+}
+
+.searchBox:-moz-lwtheme-brighttext:hover,
+.themeableSearchBox:-moz-lwtheme-brighttext:not([disabled]):hover {
+  box-shadow: 0 1px 3px rgba(255,255,255,.1);
+}
+
+/* special treatment because these boxes are on themable toolbars */
+#searchInput:-moz-lwtheme,
+#IMSearchInput:-moz-lwtheme,
+#peopleSearchInput:-moz-lwtheme,
+.themeableSearchBox:-moz-lwtheme,
+.remote-gloda-search:-moz-lwtheme {
+  background-color: var(--lwt-toolbar-field-background-color, hsla(0,0%,100%,.8));
+  color: var(--lwt-toolbar-field-color, black);
+}
+
+#searchInput:not([focused="true"]):-moz-lwtheme,
+#IMSearchInput:not([focused="true"]):-moz-lwtheme,
+#peopleSearchInput:not([focused="true"]):-moz-lwtheme,
+.themeableSearchBox:not([focused="true"]):-moz-lwtheme,
+.remote-gloda-search:not([focused="true"]):-moz-lwtheme {
+  border-color: var(--lwt-toolbar-field-border-color, hsla(240,5%,5%,.25));
+}
+
+#searchInput:-moz-lwtheme:hover,
+#IMSearchInput:-moz-lwtheme:hover,
+#peopleSearchInput:-moz-lwtheme:hover,
+.themeableSearchBox:-moz-lwtheme:not([disabled]):hover,
+.remote-gloda-search:-moz-lwtheme:hover {
+  background-color: var(--lwt-toolbar-field-background-color, white);
+}
+
+#searchInput:-moz-lwtheme[focused="true"],
+#IMSearchInput:-moz-lwtheme[focused="true"],
+#peopleSearchInput:-moz-lwtheme[focused="true"],
+.themeableSearchBox:-moz-lwtheme[focused="true"],
+.remote-gloda-search:-moz-lwtheme[focused="true"] {
+  background-color: var(--lwt-toolbar-field-focus, var(--lwt-toolbar-field-background-color, white));
+  color: var(--lwt-toolbar-field-focus-color, var(--lwt-toolbar-field-color, black));
+  border-color: var(--toolbar-field-focus-border-color);
+}
+
+:root[lwt-selection] #searchInput .textbox-input:-moz-lwtheme::selection,
+:root[lwt-selection] #IMSearchInput .textbox-input:-moz-lwtheme::selection,
+:root[lwt-selection] #peopleSearchInput .textbox-input:-moz-lwtheme::selection,
+:root[lwt-selection] .themeableSearchBox .textbox-input:-moz-lwtheme::selection,
+:root[lwt-selection] .remote-gloda-search .textbox-input:-moz-lwtheme::selection {
+  background-color: var(--lwt-toolbar-field-highlight, Highlight);
+  color: var(--lwt-toolbar-field-highlight-text, HighlightText);
+}
+
+#PopupGlodaAutocomplete {
+  -moz-appearance: none;
+  margin-top: -1px;
+  background: var(--autocomplete-popup-background);
+  color: var(--autocomplete-popup-color);
+  border-color: var(--autocomplete-popup-border-color);
+}
+
+#PopupGlodaAutocomplete > .autocomplete-richlistbox {
+  padding: 2px 0;
+  color: inherit;
+  background-color: inherit;
+}
+
+#PopupGlodaAutocomplete .ac-url {
+  display: -moz-box;
+  margin-bottom: 2px;
+}
+
+.ac-url:not([selected=true]) > .ac-url-text {
+  color: var(--urlbar-popup-url-color);
+}
+
+.ac-action:not([selected=true]) > .ac-url-text {
+  color: var(--urlbar-popup-action-color);
+}
+
+.autocomplete-richlistitem[type^="gloda-"] {
+  margin-right: 2px;
+  margin-left: 2px;
+  padding-inline-start: 12px;
+  border-radius: 2px;
+}
+
+.autocomplete-richlistitem[type^="gloda-"]:hover {
+  background-color: hsla(0,0%,80%,.3);
+}
+
+.autocomplete-richlistitem[type^="gloda-"][selected] {
+  background: var(--autocomplete-popup-highlight-background);
+  color: var(--autocomplete-popup-highlight-color);
+}

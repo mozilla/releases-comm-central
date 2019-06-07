@@ -159,7 +159,9 @@ tabProgressListener.prototype = {
     }
     if (level) {
       this.mTab.security.setAttribute("level", level);
+      this.mTab.security.hidden = false;
     } else {
+      this.mTab.security.hidden = true;
       this.mTab.security.removeAttribute("level");
     }
   },
@@ -741,7 +743,7 @@ var specialTabs = {
       aTab.toolbar = aTab.panel.querySelector(".contentTabToolbar");
       aTab.security = aTab.panel.querySelector(".contentTabSecurity");
       aTab.urlbar = aTab.panel.querySelector(".contentTabUrlbar");
-      aTab.urlbar.setAttribute("value", aArgs.contentPage);
+      aTab.urlbar.textContent = aArgs.contentPage;
 
       ExtensionParent.apiManager.emit("extension-browser-inserted", aTab.browser);
 

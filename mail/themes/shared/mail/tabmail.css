@@ -355,6 +355,13 @@
   display: none;
 }
 
+/* Both rules are needed to work properly when re-activating the window */
+.contentTabUrlbar:-moz-window-inactive,
+.contentTabUrlbar:-moz-window-inactive::selection {
+  background-color: transparent;
+  color: inherit;
+}
+
 .contentTabSecurity {
   height: 16px;
   width: 16px;

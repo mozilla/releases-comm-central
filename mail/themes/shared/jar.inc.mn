@@ -117,6 +117,7 @@
   skin/classic/messenger/shared/messageHeader.css             (../shared/mail/messageHeader.css)
   skin/classic/messenger/shared/messenger.css                 (../shared/mail/messenger.css)
   skin/classic/messenger/shared/messengercompose.css          (../shared/mail/messengercompose.css)
+  skin/classic/messenger/shared/searchBox.css                 (../shared/mail/searchBox.css)
   skin/classic/messenger/shared/tabmail.css                   (../shared/mail/tabmail.css)
   skin/classic/messenger/tagColors.css                        (../shared/mail/tagColors.css)
   skin/classic/messenger/shared/smime/smime-compose.css       (../shared/mail/smime/smime-compose.css)

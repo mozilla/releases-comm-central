@@ -202,4 +202,6 @@ tabmail > tabbox > tabpanels {
 /* Content Tabs */
 .contentTabAddress {
   height: 31px;
+  padding-left: 10px;
+  padding-right: 10px;
 }

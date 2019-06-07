@@ -732,9 +732,9 @@
         <vbox id="dummycontenttoolbox" class="contentTabToolbox">
           <hbox id="dummycontenttoolbar" class="contentTabToolbar">
             <toolbaritem class="contentTabAddress" align="center" flex="1">
-              <hbox class="themeableSearchBox" align="center" flex="1">
+              <hbox align="center" flex="1">
                 <image class="contentTabSecurity"/>
-                <label class="contentTabUrlbar" crop="end" flex="1"/>
+                <label class="contentTabUrlbar" flex="1"/>
               </hbox>
             </toolbaritem>
           </hbox>
