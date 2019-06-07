@@ -79,18 +79,14 @@ NS_IMETHODIMP nsAbMDBDirectory::Init(const char *aUri) {
                                 getter_AddRefs(prefBranch));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    char **childArray;
-    uint32_t childCount, i;
+    nsTArray<nsCString> childArray;
     int32_t dotOffset;
     nsCString childValue;
-    nsDependentCString child;
 
-    rv = prefBranch->GetChildList("", &childCount, &childArray);
+    rv = prefBranch->GetChildList("", childArray);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    for (i = 0; i < childCount; ++i) {
-      child.Assign(childArray[i]);
-
+    for (auto &child : childArray) {
       if (StringEndsWith(child, NS_LITERAL_CSTRING(".filename"))) {
         if (NS_SUCCEEDED(prefBranch->GetCharPref(child.get(), childValue))) {
           if (childValue == filename) {
@@ -104,7 +100,6 @@ NS_IMETHODIMP nsAbMDBDirectory::Init(const char *aUri) {
         }
       }
     }
-    NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(childCount, childArray);
 
     NS_ASSERTION(!m_DirPrefId.IsEmpty(),
                  "Error, Could not set m_DirPrefId in nsAbMDBDirectory::Init");

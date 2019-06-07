@@ -517,22 +517,22 @@ nsNetscapeProfileMigratorBase::ReadBranch(const char * branchName,
   nsCOMPtr<nsIPrefBranch> branch;
   aPrefService->GetBranch(branchName, getter_AddRefs(branch));
 
-  uint32_t count;
-  char** prefs = nullptr;
+  nsTArray<nsCString> prefs;
 
-  nsresult rv = branch->GetChildList("", &count, &prefs);
+  nsresult rv = branch->GetChildList("", prefs);
   if (NS_FAILED(rv))
     return;
 
-  for (uint32_t i = 0; i < count; ++i) {
+  for (auto& pref : prefs) {
     // Save each pref's value into an array
-    char* currPref = prefs[i];
+    char* currPref = moz_xstrdup(pref.get());
     int32_t type;
     branch->GetPrefType(currPref, &type);
 
     PrefBranchStruct* pref = new PrefBranchStruct;
     if (!pref) {
       NS_WARNING("Could not create new PrefBranchStruct");
+      free(currPref);
       return;
     }
     pref->prefName = currPref;

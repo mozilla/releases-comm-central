@@ -594,31 +594,30 @@ void nsSeamonkeyProfileMigrator::ReadBranch(const char* branchName,
   nsCOMPtr<nsIPrefBranch> branch;
   aPrefService->GetBranch(branchName, getter_AddRefs(branch));
 
-  uint32_t count;
-  char** prefs = nullptr;
-  nsresult rv = branch->GetChildList("", &count, &prefs);
+  nsTArray<nsCString> prefs;
+  nsresult rv = branch->GetChildList("", prefs);
   if (NS_FAILED(rv)) return;
 
-  for (uint32_t i = 0; i < count; ++i) {
+  for (auto& pref : prefs) {
     // Save each pref's value into an array
-    char* currPref = prefs[i];
+    char* currPref = moz_xstrdup(pref.get());
     int32_t type;
     branch->GetPrefType(currPref, &type);
-    PrefBranchStruct* pref = new PrefBranchStruct;
-    pref->prefName = currPref;
-    pref->type = type;
+    PrefBranchStruct* prefBranch = new PrefBranchStruct;
+    prefBranch->prefName = currPref;
+    prefBranch->type = type;
     switch (type) {
       case nsIPrefBranch::PREF_STRING: {
         nsCString str;
         rv = branch->GetCharPref(currPref, str);
-        pref->stringValue = moz_xstrdup(str.get());
+        prefBranch->stringValue = moz_xstrdup(str.get());
         break;
       }
       case nsIPrefBranch::PREF_BOOL:
-        rv = branch->GetBoolPref(currPref, &pref->boolValue);
+        rv = branch->GetBoolPref(currPref, &prefBranch->boolValue);
         break;
       case nsIPrefBranch::PREF_INT:
-        rv = branch->GetIntPref(currPref, &pref->intValue);
+        rv = branch->GetIntPref(currPref, &prefBranch->intValue);
         break;
       default:
         NS_WARNING(
@@ -627,7 +626,7 @@ void nsSeamonkeyProfileMigrator::ReadBranch(const char* branchName,
         break;
     }
 
-    if (NS_SUCCEEDED(rv)) aPrefs.AppendElement(pref);
+    if (NS_SUCCEEDED(rv)) aPrefs.AppendElement(prefBranch);
   }
 }
 

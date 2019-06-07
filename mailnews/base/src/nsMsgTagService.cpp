@@ -29,12 +29,6 @@
 
 static bool gMigratingKeys = false;
 
-// comparison functions for nsQuickSort
-static int CompareMsgTagKeys(const void *aTagPref1, const void *aTagPref2) {
-  return strcmp(*static_cast<const char *const *>(aTagPref1),
-                *static_cast<const char *const *>(aTagPref2));
-}
-
 static int CompareMsgTags(const void *aTagPref1, const void *aTagPref2) {
   // Sort nsMsgTag objects by ascending order, using their ordinal or key.
   // The "smallest" value will be first in the sorted array,
@@ -131,18 +125,19 @@ NS_IMETHODIMP nsMsgTagService::SetTagForKey(const nsACString &key,
 /* void getKeyForTag (in wstring tag); */
 NS_IMETHODIMP nsMsgTagService::GetKeyForTag(const nsAString &aTag,
                                             nsACString &aKey) {
-  uint32_t count;
-  char **prefList;
-  nsresult rv = m_tagPrefBranch->GetChildList("", &count, &prefList);
+  nsTArray<nsCString> prefList;
+  nsresult rv = m_tagPrefBranch->GetChildList("", prefList);
   NS_ENSURE_SUCCESS(rv, rv);
   // traverse the list, and look for a pref with the desired tag value.
-  for (uint32_t i = count; i--;) {
+  // XXXbz is there a good reason to reverse the list here, or did the
+  // old code do it just to be clever and save some characters in the
+  // for loop header?
+  for (auto &prefName : mozilla::Reversed(prefList)) {
     // We are returned the tag prefs in the form "<key>.<tag_data_type>", but
     // since we only want the tags, just check that the string ends with "tag".
-    nsDependentCString prefName(prefList[i]);
     if (StringEndsWith(prefName, NS_LITERAL_CSTRING(TAG_PREF_SUFFIX_TAG))) {
       nsAutoString curTag;
-      GetUnicharPref(prefList[i], curTag);
+      GetUnicharPref(prefName.get(), curTag);
       if (aTag.Equals(curTag)) {
         aKey = Substring(prefName, 0,
                          prefName.Length() - STRLEN(TAG_PREF_SUFFIX_TAG));
@@ -150,7 +145,6 @@ NS_IMETHODIMP nsMsgTagService::GetKeyForTag(const nsAString &aTag,
       }
     }
   }
-  NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(count, prefList);
   ToLowerCase(aKey);
   return NS_OK;
 }
@@ -344,31 +338,29 @@ NS_IMETHODIMP nsMsgTagService::GetAllTags(uint32_t *aCount,
 
   // get the actual tag definitions
   nsresult rv;
-  uint32_t prefCount;
-  char **prefList;
-  rv = m_tagPrefBranch->GetChildList("", &prefCount, &prefList);
+  nsTArray<nsCString> prefList;
+  rv = m_tagPrefBranch->GetChildList("", prefList);
   NS_ENSURE_SUCCESS(rv, rv);
   // sort them by key for ease of processing
-  qsort(prefList, prefCount, sizeof(char *), CompareMsgTagKeys);
+  prefList.Sort();
 
   // build an array of nsIMsgTag elements from the orderered list
   // it's at max the same size as the preflist, but usually only about half
   nsIMsgTag **tagArray =
-      (nsIMsgTag **)moz_xmalloc(sizeof(nsIMsgTag *) * prefCount);
+      (nsIMsgTag **)moz_xmalloc(sizeof(nsIMsgTag *) * prefList.Length());
 
   if (!tagArray) {
-    NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(prefCount, prefList);
     return NS_ERROR_OUT_OF_MEMORY;
   }
   uint32_t currentTagIndex = 0;
   nsMsgTag *newMsgTag;
   nsString tag;
   nsCString lastKey, color, ordinal;
-  for (uint32_t i = prefCount; i--;) {
+  for (auto &pref : mozilla::Reversed(prefList)) {
     // extract just the key from <key>.<info=tag|color|ordinal>
-    char *info = strrchr(prefList[i], '.');
-    if (info) {
-      nsAutoCString key(Substring(prefList[i], info));
+    int32_t dotLoc = pref.RFindChar('.');
+    if (dotLoc != kNotFound) {
+      auto &key = Substring(pref, 0, dotLoc);
       if (key != lastKey) {
         if (!key.IsEmpty()) {
           // .tag MUST exist (but may be empty)
@@ -384,7 +376,6 @@ NS_IMETHODIMP nsMsgTagService::GetAllTags(uint32_t *aCount,
             newMsgTag = new nsMsgTag(key, tag, color, ordinal);
             if (!newMsgTag) {
               NS_FREE_XPCOM_ISUPPORTS_POINTER_ARRAY(currentTagIndex, tagArray);
-              NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(prefCount, prefList);
               return NS_ERROR_OUT_OF_MEMORY;
             }
             NS_ADDREF(tagArray[currentTagIndex++] = newMsgTag);
@@ -394,7 +385,6 @@ NS_IMETHODIMP nsMsgTagService::GetAllTags(uint32_t *aCount,
       }
     }
   }
-  NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(prefCount, prefList);
 
   // sort the non-null entries by ordinal
   qsort(tagArray, currentTagIndex, sizeof(nsMsgTag *), CompareMsgTags);

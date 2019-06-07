@@ -634,20 +634,27 @@ static void DIR_DeleteServerList(nsTArray<DIR_Server *> *wholeList) {
  * Functions for managing JavaScript prefs for the DIR_Servers
  */
 
-static int comparePrefArrayMembers(const void *aElement1, const void *aElement2,
-                                   void *aData) {
-  const char *element1 = *static_cast<const char *const *>(aElement1);
-  const char *element2 = *static_cast<const char *const *>(aElement2);
-  const uint32_t offset = *((const uint32_t *)aData);
+class MOZ_STACK_CLASS PrefArrayMemberComparator {
+ public:
+  explicit PrefArrayMemberComparator(uint32_t aOffset) : mOffset(aOffset) {}
 
-  // begin the comparison at |offset| chars into the string -
+  // begin the comparison at |mOffset| chars into the string -
   // this avoids comparing the "ldap_2.servers." portion of every element,
   // which will always remain the same.
-  return strcmp(element1 + offset, element2 + offset);
-}
+  bool Equals(const nsCString &aFirst, const nsCString &aSecond) const {
+    return Substring(aFirst, mOffset) == Substring(aSecond, mOffset);
+  }
 
-static nsresult dir_GetChildList(const nsCString &aBranch, uint32_t *aCount,
-                                 char ***aChildList) {
+  bool LessThan(const nsCString &aFirst, const nsCString &aSecond) const {
+    return Substring(aFirst, mOffset) < Substring(aSecond, mOffset);
+  }
+
+ private:
+  uint32_t mOffset;
+};
+
+static nsresult dir_GetChildList(const nsCString &aBranch,
+                                 nsTArray<nsCString> &aChildList) {
   uint32_t branchLen = aBranch.Length();
 
   nsCOMPtr<nsIPrefBranch> prefBranch = do_GetService(NS_PREFSERVICE_CONTRACTID);
@@ -655,53 +662,53 @@ static nsresult dir_GetChildList(const nsCString &aBranch, uint32_t *aCount,
     return NS_ERROR_FAILURE;
   }
 
-  nsresult rv = prefBranch->GetChildList(aBranch.get(), aCount, aChildList);
+  nsresult rv = prefBranch->GetChildList(aBranch.get(), aChildList);
   if (NS_FAILED(rv)) {
     return rv;
   }
 
   // traverse the list, and truncate all the descendant strings to just
   // one branch level below the root branch.
-  for (uint32_t i = *aCount; i--;) {
+  for (auto &child : aChildList) {
     // The prefname we passed to GetChildList was of the form
     // "ldap_2.servers." and we are returned the descendants
     // in the form of "ldap_2.servers.servername.foo"
     // But we want the prefbranch of the servername, so
-    // write a NUL character in to terminate the string early.
-    char *endToken = strchr((*aChildList)[i] + branchLen, '.');
-    if (endToken) *endToken = '\0';
+    // terminate the string at the first '.' after our branchname.
+    int32_t dotPos = child.FindChar('.', branchLen);
+    if (dotPos != kNotFound) {
+      child.Truncate(dotPos);
+    }
   }
 
-  if (*aCount > 1) {
+  if (aChildList.Length() < 1) {
     // sort the list, in preparation for duplicate entry removal
-    NS_QuickSort(*aChildList, *aCount, sizeof(char *), comparePrefArrayMembers,
-                 &branchLen);
+    PrefArrayMemberComparator comparator(branchLen);
+    aChildList.Sort(comparator);
 
     // traverse the list and remove duplicate entries.
     // we use two positions in the list; the current entry and the next
-    // entry; and perform a bunch of in-place ptr moves. so |cur| points
+    // entry; and perform a bunch of in-place moves. so |cur| points
     // to the last unique entry, and |next| points to some (possibly much
     // later) entry to test, at any given point. we know we have >= 2
     // elements in the list here, so we just init the two counters sensibly
     // to begin with.
     uint32_t cur = 0;
-    for (uint32_t next = 1; next < *aCount; ++next) {
+    for (uint32_t next = 1; next < aChildList.Length(); ++next) {
       // check if the elements are equal or unique
-      if (!comparePrefArrayMembers(&((*aChildList)[cur]),
-                                   &((*aChildList)[next]), &branchLen)) {
-        // equal - just free & increment the next element ptr
+      if (comparator.Equals(aChildList[cur], aChildList[next])) {
+        // equal - just increment the next element ptr
 
-        free((*aChildList)[next]);
       } else {
         // cur & next are unique, so we need to shift the element.
         // ++cur will point to the next free location in the
         // reduced array (it's okay if that's == next)
-        (*aChildList)[++cur] = (*aChildList)[next];
+        aChildList[++cur] = aChildList[next];
       }
     }
 
     // update the unique element count
-    *aCount = cur + 1;
+    aChildList.SetLength(cur + 1);
   }
 
   return NS_OK;
@@ -954,22 +961,22 @@ static char *dir_CreateServerPrefName(DIR_Server *server) {
 
   if (leafName) {
     int32_t uniqueIDCnt = 0;
-    char **children = nullptr;
+    nsTArray<nsCString> children;
     /* we need to verify that this pref string name is unique */
     prefName = PR_smprintf(PREF_LDAP_SERVER_TREE_NAME ".%s", leafName);
     isUnique = false;
-    uint32_t prefCount;
-    nsresult rv =
-        dir_GetChildList(NS_LITERAL_CSTRING(PREF_LDAP_SERVER_TREE_NAME "."),
-                         &prefCount, &children);
+    nsresult rv = dir_GetChildList(
+        NS_LITERAL_CSTRING(PREF_LDAP_SERVER_TREE_NAME "."), children);
     if (NS_SUCCEEDED(rv)) {
       while (!isUnique && prefName) {
         isUnique = true; /* now flip the logic and assume we are unique until we
                             find a match */
-        for (uint32_t i = 0; i < prefCount && isUnique; ++i) {
-          if (!PL_strcasecmp(children[i],
-                             prefName)) /* are they the same branch? */
+        for (auto &child : children) {
+          if (child.EqualsIgnoreCase(
+                  prefName)) { /* are they the same branch? */
             isUnique = false;
+            break;
+          }
         }
         if (!isUnique) /* then try generating a new pref name and try again */
         {
@@ -978,9 +985,7 @@ static char *dir_CreateServerPrefName(DIR_Server *server) {
                                  ++uniqueIDCnt);
         }
       } /* if we have a list of pref Names */
-
-      NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(prefCount, children);
-    } /* while we don't have a unique name */
+    }   /* while we don't have a unique name */
 
     // fallback to "user_directory_N" form if we failed to verify
     if (!isUnique && prefName) {
@@ -1048,11 +1053,10 @@ static nsresult dir_GetPrefs(nsTArray<DIR_Server *> **list) {
   (*list) = new nsTArray<DIR_Server *>();
   if (!(*list)) return NS_ERROR_OUT_OF_MEMORY;
 
-  char **children;
-  uint32_t prefCount;
+  nsTArray<nsCString> children;
 
   rv = dir_GetChildList(NS_LITERAL_CSTRING(PREF_LDAP_SERVER_TREE_NAME "."),
-                        &prefCount, &children);
+                        children);
   if (NS_FAILED(rv)) return rv;
 
   /* TBD: Temporary code to read broken "ldap" preferences tree.
@@ -1061,13 +1065,13 @@ static nsresult dir_GetPrefs(nsTArray<DIR_Server *> **list) {
   if (dir_UserId == 0)
     pPref->GetIntPref(PREF_LDAP_GLOBAL_TREE_NAME ".user_id", &dir_UserId);
 
-  for (uint32_t i = 0; i < prefCount; ++i) {
+  for (auto &child : children) {
     DIR_Server *server;
 
     server = (DIR_Server *)PR_Calloc(1, sizeof(DIR_Server));
     if (server) {
       DIR_InitServer(server);
-      server->prefName = strdup(children[i]);
+      server->prefName = strdup(child.get());
       DIR_GetPrefsForOneServer(server);
       if (server->description && server->description[0] &&
           ((server->dirType == PABDirectory ||
@@ -1084,8 +1088,6 @@ static nsresult dir_GetPrefs(nsTArray<DIR_Server *> **list) {
       }
     }
   }
-
-  NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(prefCount, children);
 
   return NS_OK;
 }

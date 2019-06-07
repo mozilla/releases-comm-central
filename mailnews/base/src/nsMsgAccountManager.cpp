@@ -255,15 +255,12 @@ void nsMsgAccountManager::getUniqueAccountKey(nsCString &aResult) {
       rv = prefservice->GetBranch("mail.account.",
                                   getter_AddRefs(prefBranchAccount));
       if (NS_SUCCEEDED(rv)) {
-        uint32_t prefCount;
-        char **prefList;
-        rv = prefBranchAccount->GetChildList("", &prefCount, &prefList);
+        nsTArray<nsCString> prefList;
+        rv = prefBranchAccount->GetChildList("", prefList);
         if (NS_SUCCEEDED(rv)) {
           // Pref names are of the format accountX.
           // Find the maximum value of 'X' used so far.
-          for (uint32_t i = 0; i < prefCount; i++) {
-            nsCString prefName;
-            prefName.Assign(prefList[i]);
+          for (auto &prefName : prefList) {
             if (StringBeginsWith(prefName,
                                  NS_LITERAL_CSTRING(ACCOUNT_PREFIX))) {
               int32_t dotPos = prefName.FindChar('.');
@@ -275,7 +272,6 @@ void nsMsgAccountManager::getUniqueAccountKey(nsCString &aResult) {
               }
             }
           }
-          NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(prefCount, prefList);
         }
       }
     }

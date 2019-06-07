@@ -277,8 +277,7 @@ Tokenizer::Tokenizer()
    *   "mailnews.bayesian_spam_filter.maxlengthfortoken"
    */
 
-  char** headers;
-  uint32_t count;
+  nsTArray<nsCString> headers;
 
   // get customized maximum token length
   int32_t maxLengthForToken;
@@ -288,18 +287,18 @@ Tokenizer::Tokenizer()
 
   rv = prefs->GetBranch("mailnews.bayesian_spam_filter.tokenizeheader.",
                         getter_AddRefs(prefBranch));
-  if (NS_SUCCEEDED(rv)) rv = prefBranch->GetChildList("", &count, &headers);
+  if (NS_SUCCEEDED(rv)) rv = prefBranch->GetChildList("", headers);
 
   if (NS_SUCCEEDED(rv)) {
     mCustomHeaderTokenization = true;
-    for (uint32_t i = 0; i < count; i++) {
+    for (auto& header : headers) {
       nsCString value;
-      prefBranch->GetCharPref(headers[i], value);
+      prefBranch->GetCharPref(header.get(), value);
       if (value.EqualsLiteral("false")) {
-        mDisabledHeaders.AppendElement(headers[i]);
+        mDisabledHeaders.AppendElement(header);
         continue;
       }
-      mEnabledHeaders.AppendElement(headers[i]);
+      mEnabledHeaders.AppendElement(header);
       if (value.EqualsLiteral("standard"))
         value.SetIsVoid(true);  // Void means use default delimiter
       else if (value.EqualsLiteral("full"))
@@ -308,7 +307,6 @@ Tokenizer::Tokenizer()
         UnescapeCString(value);
       mEnabledHeadersDelimiters.AppendElement(value);
     }
-    NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(count, headers);
   }
 }
 

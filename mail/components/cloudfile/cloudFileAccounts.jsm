@@ -32,7 +32,7 @@ var cloudFileAccounts = new class extends EventEmitter {
   get _accountKeys() {
     let accountKeySet = new Set();
     let branch = Services.prefs.getBranch(ACCOUNT_ROOT);
-    let children = branch.getChildList("", {});
+    let children = branch.getChildList("");
     for (let child of children) {
       let subbranch = child.substr(0, child.indexOf("."));
       accountKeySet.add(subbranch);

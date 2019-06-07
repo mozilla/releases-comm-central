@@ -113,8 +113,7 @@ nsAbLDAPAttributeMap.prototype = {
     let branch = Services.prefs.getBranch(aPrefBranchName + ".");
 
     // get the list of children
-    var childCount = {};
-    var children = branch.getChildList("", childCount);
+    var children = branch.getChildList("");
 
     // do the actual sets
     for (var child of children) {

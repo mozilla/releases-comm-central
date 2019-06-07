@@ -250,18 +250,17 @@ function GetPublishData_internal(publishBranch, siteName)
   publishData.dirList = [""];
 
   // Get the rest from prefs
-  var dirCount = {value:0};
   var dirPrefs;
   try {
-    dirPrefs = publishBranch.getChildList(prefPrefix+"dir.", dirCount);
+    dirPrefs = publishBranch.getChildList(prefPrefix+"dir.");
   } catch (e) {}
 
-  if (dirPrefs && dirCount.value > 0)
+  if (dirPrefs && dirPrefs.length > 0)
   {
-    if (dirCount.value > 1)
+    if (dirPrefs.length > 1)
       dirPrefs.sort();
 
-    for (var j = 0; j < dirCount.value; j++)
+    for (var j = 0; j < dirPrefs.length; j++)
     {
       var dirName = GetPublishStringPref(publishBranch, dirPrefs[j]);
       if (dirName)
@@ -327,13 +326,12 @@ function SavePublishDataToPrefs(publishData)
   if (!publishData.siteName)
     publishData.siteName = CreateSiteNameFromUrl(publishData.publishUrl, publishData);
 
-  var siteCount = {value:0};
   var siteNamePrefs;
   try {
-    siteNamePrefs = publishBranch.getChildList("site_name.", siteCount);
+    siteNamePrefs = publishBranch.getChildList("site_name.");
   } catch (e) {}
 
-  if (!siteNamePrefs || siteCount.value == 0)
+  if (!siteNamePrefs || siteNamePrefs.length == 0)
   {
     // We currently have no site prefs, so create them
     var siteData = [publishData];
@@ -346,7 +344,7 @@ function SavePublishDataToPrefs(publishData)
 
   // Find site number of existing site or fall through at next available one
   // (Number is arbitrary; needed to construct unique "site_name.x" pref string)
-  for (var i = 0; i < siteCount.value; i++)
+  for (var i = 0; i < siteNamePrefs.length; i++)
   {
     var siteName = GetPublishStringPref(publishBranch, "site_name."+i);
 
@@ -559,13 +557,12 @@ function GetSiteNameList(doSort, defaultFirst)
   if (!publishBranch)
     return null;
 
-  var siteCountObj = {value:0};
   var siteNamePrefs;
   try {
-    siteNamePrefs = publishBranch.getChildList("site_name.", siteCountObj);
+    siteNamePrefs = publishBranch.getChildList("site_name.");
   } catch (e) {}
 
-  if (!siteNamePrefs || siteCountObj.value == 0)
+  if (!siteNamePrefs || siteNamePrefs.length == 0)
     return null;
 
   // Array of site names
@@ -580,7 +577,7 @@ function GetSiteNameList(doSort, defaultFirst)
     index++;
   }
 
-  for (var i = 0; i < siteCountObj.value; i++)
+  for (var i = 0; i < siteNamePrefs.length; i++)
   {
     var siteName = GetPublishStringPref(publishBranch, siteNamePrefs[i]);
     // Skip if siteName pref is empty or is default name
