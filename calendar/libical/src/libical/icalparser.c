@@ -381,10 +381,9 @@ char* parser_get_next_value(char* line, char **end, icalvalue_kind kind)
 	/* If the comma is preceded by a '\', then it is a literal and
 	   not a value separator*/  
       
-	if ( (next!=0 && *(next-1) == '\\') ||
-	     (next!=0 && *(next-3) == '\\')
-	    ) 
-	    /*second clause for '/' is on prev line. HACK may be out of bounds */
+  if ((next!=0 && *(next-1) == '\\') ||
+      (next!=0 && (next-3) >= line && *(next-3) == '\\' && *(next-2) == '\r' && *(next-1) == '\n'))
+      /* second clause for '\' is on prev line */
 	{
 	    p = next+1;
 	} else {
