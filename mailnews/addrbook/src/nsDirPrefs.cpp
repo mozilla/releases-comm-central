@@ -681,7 +681,7 @@ static nsresult dir_GetChildList(const nsCString &aBranch,
     }
   }
 
-  if (aChildList.Length() < 1) {
+  if (aChildList.Length() > 1) {
     // sort the list, in preparation for duplicate entry removal
     PrefArrayMemberComparator comparator(branchLen);
     aChildList.Sort(comparator);
@@ -697,8 +697,7 @@ static nsresult dir_GetChildList(const nsCString &aBranch,
     for (uint32_t next = 1; next < aChildList.Length(); ++next) {
       // check if the elements are equal or unique
       if (comparator.Equals(aChildList[cur], aChildList[next])) {
-        // equal - just increment the next element ptr
-
+        ;  // equal - just increment the next element ptr
       } else {
         // cur & next are unique, so we need to shift the element.
         // ++cur will point to the next free location in the
