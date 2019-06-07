@@ -4,7 +4,9 @@
 
 "use strict";
 
-/* global MozXULElement, cal */
+/* global MozXULElement */
+
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 /**
  * Date info that is displayed on task details and event details.

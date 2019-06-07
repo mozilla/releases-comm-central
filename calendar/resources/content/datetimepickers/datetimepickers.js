@@ -2,11 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals MozElements, MozXULElement, cal */
-
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+/* global MozElements, MozXULElement */
 
 {
+    var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+    var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+
     let probeSucceeded;
     let alphaMonths;
     let yearIndex, monthIndex, dayIndex;

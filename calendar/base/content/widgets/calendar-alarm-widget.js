@@ -4,10 +4,11 @@
 
 "use strict";
 
-/* global cal Cr MozElements MozXULElement PluralForm Services */
+/* global Cr MozElements MozXULElement PluralForm Services */
 
 // Wrap in a block to prevent leaking to window scope.
 {
+    var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
     /**
      * Represents an alarm in the alarms dialog. It appears there when an alarm is fired, and
      * allows the alarm to be snoozed, dismissed, etc.

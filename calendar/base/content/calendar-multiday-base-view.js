@@ -2,13 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals cal CalendarBaseView currentView getOtherOrientation MozElements MozXULElement Services
-   setAttributeToChildren setBooleanAttribute timeIndicator */
+/* global CalendarBaseView, currentView, getOtherOrientation, MozElements, MozXULElement, Services,
+   setAttributeToChildren, setBooleanAttribute, timeIndicator */
 
 "use strict";
 
 // Wrap in a block to prevent leaking to window scope.
 {
+    var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
     /**
      * The time bar that displays time divisions to the side or top of a multiday (day or week) view.
      */

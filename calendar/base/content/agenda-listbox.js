@@ -4,9 +4,10 @@
 
 "use strict";
 
-/* global MozXULElement, MozElements, unitPluralForm, cal, agendaListbox,
+/* global MozXULElement, MozElements, unitPluralForm, agendaListbox,
    invokeEventDragSession, setBooleanAttribute, hideElement, onMouseOverItem */
 {
+    var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
     /**
      * The MozAgendaHeaderRichlistItem widget is typically used to display the
      * Today, Tomorrow, and Upcoming headers of the Today Pane listing.
