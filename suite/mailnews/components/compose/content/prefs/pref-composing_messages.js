@@ -17,8 +17,7 @@ function PopulateFonts() {
   try {
     var enumerator = Cc["@mozilla.org/gfx/fontenumerator;1"]
                        .getService(Ci.nsIFontEnumerator);
-    var localFontCount = { value: 0 }
-    var localFonts = enumerator.EnumerateAllFonts(localFontCount);
+    var localFonts = enumerator.EnumerateAllFonts();
     for (let font of localFonts)
       if (font != "serif" && font != "sans-serif" && font != "monospace")
         fontsList.appendItem(font, font);

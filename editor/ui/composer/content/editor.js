@@ -956,8 +956,7 @@ function initLocalFontFaceMenu(menuPopup) {
     try {
       var enumerator = Cc["@mozilla.org/gfx/fontenumerator;1"]
                          .getService(Ci.nsIFontEnumerator);
-      var localFontCount = { value: 0 };
-      gLocalFonts = enumerator.EnumerateAllFonts(localFontCount);
+      gLocalFonts = enumerator.EnumerateAllFonts();
     } catch (e) {}
   }
 

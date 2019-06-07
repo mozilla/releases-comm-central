@@ -21,20 +21,20 @@ function BuildFontList(aLanguage, aFontType, aMenuList, aPreference)
 {
   var defaultFont = null;
   // Load Font Lists
-  var fonts = GetFontEnumerator().EnumerateFonts(aLanguage, aFontType, {});
+  var fonts = GetFontEnumerator().EnumerateFonts(aLanguage, aFontType);
   if (fonts.length)
   {
     defaultFont = GetFontEnumerator().getDefaultFont(aLanguage, aFontType);
   }
   else
   {
-    fonts = GetFontEnumerator().EnumerateFonts(aLanguage, "", {});
+    fonts = GetFontEnumerator().EnumerateFonts(aLanguage, "");
     if (fonts.length)
       defaultFont = GetFontEnumerator().getDefaultFont(aLanguage, "");
   }
 
   if (!gAllFonts)
-    gAllFonts = GetFontEnumerator().EnumerateAllFonts({});
+    gAllFonts = GetFontEnumerator().EnumerateAllFonts();
 
   // Reset the list
   while (aMenuList.hasChildNodes())

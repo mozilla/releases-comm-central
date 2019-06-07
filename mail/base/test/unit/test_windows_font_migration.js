@@ -42,7 +42,7 @@ function makeVerifier(aFonts) {
     // Get the default.
     var enumerator = Cc["@mozilla.org/gfx/fontenumerator;1"]
                        .createInstance(Ci.nsIFontEnumerator);
-    var fonts = enumerator.EnumerateFonts(aEncoding, aFontType, {});
+    var fonts = enumerator.EnumerateFonts(aEncoding, aFontType);
     var defaultFont = null;
     if (fonts.length > 0)
       defaultFont = enumerator.getDefaultFont(aEncoding, aFontType);

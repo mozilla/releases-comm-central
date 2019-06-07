@@ -220,8 +220,7 @@ var gComposePane = {
     try {
       var enumerator = Cc["@mozilla.org/gfx/fontenumerator;1"]
                          .getService(Ci.nsIFontEnumerator);
-      var localFontCount = { value: 0 };
-      var localFonts = enumerator.EnumerateAllFonts(localFontCount);
+      var localFonts = enumerator.EnumerateAllFonts();
       for (let i = 0; i < localFonts.length; ++i) {
         // Remove Linux system generic fonts that collide with CSS generic fonts.
         if (localFonts[i] != "" && localFonts[i] != "serif" &&
