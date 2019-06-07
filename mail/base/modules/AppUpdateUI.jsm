@@ -295,11 +295,6 @@ const AppUpdateUI_Internal = {
   },
 
   observe(subject, topic, status) {
-    // This can be removed after the old app update UI is removed.
-    if (!Services.prefs.getBoolPref("app.update.doorhanger", false)) {
-      return;
-    }
-
     let update = subject && subject.QueryInterface(Ci.nsIUpdate);
     switch (topic) {
       case "quit-application":

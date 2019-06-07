@@ -45,9 +45,6 @@ pref("app.update.timerFirstInterval", 30000);
 // Enables some extra Application Update Logging (can reduce performance)
 pref("app.update.log", false);
 
-// Whether or not to use the doorhanger application update UI.
-pref("app.update.doorhanger", true);
-
 // If set to true, the Update Service will automatically download updates when
 // user can apply updates. This pref is no longer used on Windows, except as the
 // default value to migrate to the new location that this data is now stored
@@ -57,9 +54,6 @@ pref("app.update.doorhanger", true);
 #ifndef XP_WIN
  pref("app.update.auto", true);
 #endif
-
-// If set to true, the Update Service will present no UI for any event.
-pref("app.update.silent", false);
 
 // If set to true, the Update Service will apply updates in the background
 // when it finishes downloading them.
@@ -76,9 +70,6 @@ pref("app.update.url.manual", "https://www.thunderbird.net");
 pref("app.update.url.details", "https://www.thunderbird.net/%LOCALE%/%APP%/releases/");
 
 // app.update.promptWaitTime is in branding section
-
-// Show the Update Checking/Ready UI when the user was idle for x seconds
-pref("app.update.idletime", 60);
 
 // Whether or not to attempt using the service for updates.
 #ifdef MOZ_MAINTENANCE_SERVICE
