@@ -1459,7 +1459,8 @@ function InitPageMenu(menuPopup, event) {
   if (event.target != menuPopup)
     return;
 
-  PageMenuParent.buildAndAddToPopup(menuPopup.triggerNode, menuPopup);
+  let menuObject = PageMenuParent.maybeBuild(menuPopup.triggerNode);
+  PageMenuParent.addToPopup(menuObject, null, menuPopup);
 
   if (menuPopup.children.length == 0)
     event.preventDefault();
