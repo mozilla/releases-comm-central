@@ -397,6 +397,8 @@
 @RESPATH@/components/cryptoComponents.manifest
 @RESPATH@/components/Push.manifest
 
+@RESPATH@/components/l10n-registry.manifest
+
 ; Remote control protocol
 #ifdef ENABLE_MARIONETTE
 @RESPATH@/chrome/marionette@JAREXT@

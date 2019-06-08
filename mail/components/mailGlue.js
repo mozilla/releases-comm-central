@@ -12,7 +12,6 @@ var {LightweightThemeConsumer} = ChromeUtils.import("resource://gre/modules/Ligh
 var {TBDistCustomizer} = ChromeUtils.import("resource:///modules/TBDistCustomizer.jsm");
 var {MailMigrator} = ChromeUtils.import("resource:///modules/MailMigrator.jsm");
 var {ExtensionSupport} = ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
-var {L10nRegistry, FileSource} = ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 var {RemoteSecuritySettings} = ChromeUtils.import("resource://gre/modules/psm/RemoteSecuritySettings.jsm");
 
@@ -145,10 +144,6 @@ MailGlue.prototype = {
 
   _onProfileStartup() {
     TBDistCustomizer.applyPrefDefaults();
-
-    let locales = Services.locale.packagedLocales;
-    const appSource = new FileSource("app", locales, "resource:///localization/{locale}/");
-    L10nRegistry.registerSource(appSource);
 
     // handle any migration work that has to happen at profile startup
     MailMigrator.migrateAtProfileStartup();
