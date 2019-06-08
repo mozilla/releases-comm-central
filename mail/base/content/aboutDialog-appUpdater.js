@@ -271,10 +271,9 @@ appUpdater.prototype = {
     /**
      * See nsIUpdateService.idl
      */
-    onCheckComplete(aRequest, aUpdates, aUpdateCount) {
+    onCheckComplete(aRequest, aUpdates) {
       gAppUpdater.isChecking = false;
-      gAppUpdater.update = gAppUpdater.aus.
-                           selectUpdate(aUpdates, aUpdates.length);
+      gAppUpdater.update = gAppUpdater.aus.selectUpdate(aUpdates);
       if (!gAppUpdater.update) {
         gAppUpdater.selectPanel("noUpdatesFound");
         return;
