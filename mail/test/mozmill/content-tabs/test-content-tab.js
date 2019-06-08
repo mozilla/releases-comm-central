@@ -110,7 +110,7 @@ function test_content_tab_context_menu() {
                              w);
   wait_for_popup_to_open(mailContext);
   assert_equals(mailContext.firstChild.label, "Click me!");
-  assert_element_visible("page-menu-separator");
+  // See bug 1557979: assert_element_visible("page-menu-separator");
   close_popup(mc, new elementslib.Elem(mailContext));
 
   // Make sure the page's menu items are *not* added on shift-right-click.
