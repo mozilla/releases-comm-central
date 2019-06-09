@@ -38,7 +38,6 @@ function canPaste() {
 
     const flavors = ["text/calendar", "text/unicode"];
     return Services.clipboard.hasDataMatchingFlavors(flavors,
-                                                     flavors.length,
                                                      Ci.nsIClipboard.kGlobalClipboard);
 }
 
