@@ -763,9 +763,6 @@
             <spacer flex="1" />
             <spacer flex="1" />
             <hbox flex="1" class="remote-gloda-search-container">
-              <hbox>
-                <image class="gloda-search-icon" />
-              </hbox>
               <textbox class="remote-gloda-search searchBox"
                        flex="1"
                        type="glodacomplete"

@@ -21,32 +21,22 @@
   padding-top: 1px;
 }
 
-.searchBox > hbox,
-.themeableSearchBox > hbox {
-  -moz-box-ordinal-group: 1;
-}
-
-.searchBox > .textbox-input-box,
-.themeableSearchBox > .textbox-input-box {
-  -moz-box-ordinal-group: 2;
-}
-
-.gloda-search-icon {
-  margin-inline-end: 5px;
-}
-
-.gloda-search-icon,
-textbox:not([searchbutton]) > .textbox-input-box > .textbox-search-sign {
-  margin-inline-start: 2px;
-}
-
-.gloda-search-icon,
-.textbox-search-icon[searchbutton],
-textbox:not([searchbutton]) > .textbox-input-box > .textbox-search-sign {
-  list-style-image: url(chrome://messenger/skin/icons/search-glass.svg);
+.remote-gloda-search,
+#searchInput,
+#IMSearchInput {
+  background-image: url(chrome://messenger/skin/icons/search-glass.svg);
+  background-position: calc( 100% - 4px);
+  background-repeat: no-repeat;
+  padding-inline-end: 24px;
   -moz-context-properties: fill;
   fill: currentColor;
   opacity: 0.54;
+}
+
+.remote-gloda-search:-moz-locale-dir(rtl),
+#searchInput:-moz-locale-dir(rtl),
+#IMSearchInput:-moz-locale-dir(rtl) {
+  background-position: 4px;
 }
 
 .remote-gloda-search-container {
