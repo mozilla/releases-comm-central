@@ -58,6 +58,15 @@
                            align="center"
                            flex="1"
                            class="chromeclass-toolbar-additional">
+                <!-- Mimic the search/clear buttons of the standard search textbox,
+                     but adjust for the reality that clear doesn't make much sense
+                     since gloda results only show in a tab and the idiom for closing
+                     tabs is closing the tab.  Our binding does process escape to
+                     clear the box, if people want to clear it that way...
+                  -->
+                <hbox>
+                  <image class="gloda-search-icon"/>
+                </hbox>
                 <textbox id="IMSearchInput"
                          class="searchBox"
                          flex="1"
@@ -71,18 +80,7 @@
                          placeholder=""
                          emptytextbase="&search.label.base1;"
                          keyLabelNonMac="&search.keyLabel.nonmac;"
-                         keyLabelMac="&search.keyLabel.mac;"
-                         >
-                  <!-- Mimic the search/clear buttons of the standard search textbox,
-                       but adjust for the reality that clear doesn't make much sense
-                       since gloda results only show in a tab and the idiom for closing
-                       tabs is closing the tab.  Our binding does process escape to
-                       clear the box, if people want to clear it that way...
-                    -->
-                  <hbox>
-                    <image class="gloda-search-icon"/>
-                  </hbox>
-                </textbox>
+                         keyLabelMac="&search.keyLabel.mac;"/>
               </toolbaritem>
               <toolbarbutton is="toolbarbutton-appmenu" id="button-chat-appmenu"
                              type="menu"

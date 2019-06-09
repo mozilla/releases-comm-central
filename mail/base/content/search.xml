@@ -78,8 +78,9 @@
           this.collapsed = !this.glodaEnabled;
 
           // make sure we set our emptytext here from the get-go
-        if (this.hasAttribute("placeholder"))
-          this.placeholder = this.getAttribute("placeholder");
+          if (this.hasAttribute("placeholder")) {
+            this.placeholder = this.getAttribute("placeholder");
+          }
         } catch (e) {
           let { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
           logException(e, true);
