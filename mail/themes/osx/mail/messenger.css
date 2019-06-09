@@ -45,6 +45,8 @@
   --toolbarbutton-icon-fill-attention: var(--lwt-toolbarbutton-icon-fill-attention, #0a84ff);
 
   --lwt-header-image: none;
+  --row-grouped-header-bg-color: #d5d5d5;
+  --row-grouped-header-bg-color-selected: #3874d1;
   --panel-separator-color: hsla(210, 4%, 10%, .14);
   --arrowpanel-dimmed: hsla(0, 0%, 80%, .3);
   --arrowpanel-dimmed-further: hsla(0, 0%, 80%, .45);
@@ -72,6 +74,12 @@
 
 :root[lwt-tree] {
   --splitter-color: var(--sidebar-border-color);
+  --row-grouped-header-bg-color: hsla(0,0%,50%,.15);
+  --row-grouped-header-bg-color-selected: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.6));
+}
+
+:root[lwt-tree-brighttext] {
+  --row-grouped-header-bg-color-selected: var(--sidebar-highlight-background-color, rgba(249,249,250,.3));
 }
 
 toolbar[brighttext] {

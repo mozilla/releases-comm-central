@@ -84,20 +84,22 @@
 
 /* ::::: group rows ::::: */
 
-treechildren::-moz-tree-row(dummy)  {
-  background-image: url("chrome://messenger/skin/icons/group-background.gif");
-  background-repeat: repeat-x;
-  background-color: rgb(246, 246, 246);
-  border: 1px solid rgb(197, 199, 202);
-  margin: 0 1px;
+treechildren::-moz-tree-row(dummy) {
+  background-color: var(--row-grouped-header-bg-color) !important;
+  border-color: transparent !important;
+  margin: 1px;
 }
 
-treechildren::-moz-tree-row(dummy, focus, selected)  {
-  background-color: #3874d1;
-  border-color: #3874d1;
-  background-image: none !important;
-  margin: 0px;
-  padding: 0 1px;
+treechildren::-moz-tree-row(dummy, selected, focus) {
+  background-color: var(--row-grouped-header-bg-color-selected) !important;
+}
+
+treechildren::-moz-tree-cell-text(dummy) {
+  font-weight: bold;
+}
+
+:root[lwt-tree] treechildren::-moz-tree-cell-text(dummy, selected) {
+  color: var(--sidebar-highlight-text-color);
 }
 
 /* ..... message pane adjustments ..... */

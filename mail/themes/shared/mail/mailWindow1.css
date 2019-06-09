@@ -4,10 +4,6 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-:root {
-  --row-grouped-header-bg-color: -moz-dialog;
-}
-
 #tabmail:-moz-lwtheme {
   text-shadow: none;
 }
