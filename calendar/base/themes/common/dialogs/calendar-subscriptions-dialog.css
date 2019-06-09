@@ -23,7 +23,7 @@
   flex-direction: column;
 }
 
-calendar-subscriptions-richlistitem[selected="true"] {
+richlistitem[is="calendar-subscriptions-richlistitem"][selected="true"] {
   background-color: Highlight;
   color: HighlightText;
 }

@@ -27,6 +27,7 @@
   <!-- Javascript includes -->
   <script src="chrome://calendar/content/calendar-subscriptions-dialog.js"/>
   <script src="chrome://calendar/content/calendar-ui-utils.js"/>
+  <script src="chrome://calendar/content/calendar-subscriptions-list.js"/>
 
   <vbox flex="1">
     <grid flex="1">
