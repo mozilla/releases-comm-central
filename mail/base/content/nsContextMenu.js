@@ -82,8 +82,7 @@ nsContextMenu.prototype = {
     this.hasPageMenu = false;
     if (!aIsShift) {
       let menuObject = PageMenuParent.maybeBuild(this.target);
-      PageMenuParent.addToPopup(menuObject, null, aPopup);
-      this.hasPageMenu = true;
+      this.hasPageMenu = PageMenuParent.addToPopup(menuObject, null, aPopup);
 
       let subject = {
         menu: aPopup,
