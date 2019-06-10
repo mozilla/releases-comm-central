@@ -2633,6 +2633,81 @@ function my_auth(e)
     e.server.sendAuthResponse(auth);
 }
 
+CIRCNetwork.prototype.onNetsplitBatch =
+function my_netsplit_batch(e)
+{
+    for (var c in this.primServ.channels)
+    {
+        if (e.starting)
+        {
+           this.startMsgGroup(e.reftag, getMsg(MSG_BATCH_NETSPLIT_START,
+                                               [e.params[3],
+                                                e.params[4]]),
+                              e.batchtype);
+        }
+        else
+        {
+            this.display(MSG_BATCH_NETSPLIT_END, e.batchtype);
+            this.endMsgGroup();
+        }
+    }
+}
+
+CIRCNetwork.prototype.onNetjoinBatch =
+function my_netjoin_batch(e)
+{
+    for (var c in this.primServ.channels)
+    {
+        if (e.starting)
+        {
+            this.startMsgGroup(e.reftag, getMsg(MSG_BATCH_NETJOIN_START,
+                                                [e.params[3],
+                                                 e.params[4]]),
+                               e.batchtype);
+        }
+        else
+        {
+            this.display(MSG_BATCH_NETJOIN_END, e.batchtype);
+            this.endMsgGroup();
+        }
+    }
+}
+
+CIRCChannel.prototype.onChathistoryBatch =
+function my_chathistory_batch(e)
+{
+    if (e.starting)
+    {
+        this.startMsgGroup(e.reftag, getMsg(MSG_BATCH_CHATHISTORY_START,
+                                            [e.params[3]]),
+                           e.batchtype);
+    }
+    else
+    {
+        this.display(MSG_BATCH_CHATHISTORY_END, e.batchtype);
+        this.endMsgGroup();
+    }
+}
+
+CIRCNetwork.prototype.onUnknownBatch =
+CIRCChannel.prototype.onUnknownBatch =
+CIRCUser.prototype.onUnknownBatch =
+function my_unknown_batch(e)
+{
+    if (e.starting)
+    {
+        this.startMsgGroup(e.reftag, getMsg(MSG_BATCH_UNKNOWN,
+                                            [e.batchtype,
+                                             e.params.slice(3)]),
+                           "BATCH");
+    }
+    else
+    {
+        this.display(MSG_BATCH_UNKNOWN_END, e.batchtype);
+        this.endMsgGroup();
+    }
+}
+
 /* user away status */
 CIRCNetwork.prototype.onAway =
 function my_away(e)

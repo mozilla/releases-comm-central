@@ -15,7 +15,7 @@ const JSIRCV3_SUPPORTED_CAPS = [
     "account-notify",
     "account-tag",
     "away-notify",
-    //"batch",
+    "batch",
     "cap-notify",
     "chghost",
     "echo-message",
@@ -1302,6 +1302,8 @@ function serv_disconnect(e)
         delete this.isStartTLS;
     }
 
+    delete this.batches;
+
     this.connection = null;
     this.isConnected = false;
 
@@ -1566,6 +1568,17 @@ function serv_onRawData(e)
     if (e.ignored && ((e.code == "PRIVMSG") || (e.code == "NOTICE") ||
                       (e.code == "INVITE") || (e.code == "TAGMSG")))
         return true;
+
+    // If the message is part of a batch, store it for later.
+    if (this.batches && e.tags["batch"] && e.code != "BATCH")
+    {
+        var reftag = e.tags["batch"];
+        // Check if the batch is already open.
+        // If not, ignore the incoming message.
+        if (this.batches[reftag])
+            this.batches[reftag].messages.push(e);
+        return false;
+    }
 
     e.type = "parseddata";
     e.destObject = this;
@@ -2477,6 +2490,135 @@ function my_cap (e)
 
     e.destObject = this.parent;
     e.set = "network";
+}
+
+/* BATCH start or end */
+CIRCServer.prototype.onBatch =
+function serv_batch(e)
+{
+    // We should at least get a ref tag.
+    if (e.params.length < 2)
+        return false;
+
+    e.reftag = e.params[1].substring(1);
+    switch (e.params[1][0])
+    {
+        case "+":
+            e.starting = true;
+            break;
+        case "-":
+            e.starting = false;
+            break;
+        default:
+            // Invalid reference tag.
+            return false;
+    }
+    var isPlayback = (this.batches && this.batches[e.reftag] &&
+                      this.batches[e.reftag].playback);
+
+    if (!isPlayback)
+    {
+        if (e.starting)
+        {
+            // We're starting a batch, so we also need a type.
+            if (e.params.length < 3)
+                return false;
+
+            if (!this.batches)
+                this.batches = new Object();
+            // The batch object holds the messages queued up as part
+            // of this batch, and a boolean value indicating whether
+            // it is being played back.
+            var newBatch = new Object();
+            newBatch.messages = [e];
+            newBatch.type = e.params[2].toUpperCase();
+            if (e.params[3] && (e.params[3] in this.channels))
+            {
+                newBatch.destObject = this.channels[e.params[3]];
+            }
+            else if (e.params[3] && (e.params[3] in this.users))
+            {
+                newBatch.destObject = this.users[e.params[3]];
+            }
+            else
+            {
+                newBatch.destObject = this.parent;
+            }
+            newBatch.playback = false;
+            this.batches[e.reftag] = newBatch;
+        }
+        else
+        {
+            if (!this.batches[e.reftag])
+            {
+                // Got a close tag without an open tag, so ignore it.
+                return false;
+            }
+
+            var batch = this.batches[e.reftag];
+
+            // Closing the batch, prepare for playback.
+            batch.messages.push(e);
+            batch.playback = true;
+            if (e.tags["batch"])
+            {
+                // We are an inner batch. Append the message queue
+                // to the outer batch's message queue.
+                var parentRef = e.tags["batch"];
+                var parentMsgs = this.batches[parentRef].messages;
+                parentMsgs = parentMsgs.concat(batch.messages);
+            }
+            else
+            {
+                // We are an outer batch. Playback!
+                for (var i = 0; i < batch.messages.length; i++)
+                {
+                    var ev = batch.messages[i];
+                    ev.type = "parseddata";
+                    ev.destObject = this;
+                    ev.destMethod = "onParsedData";
+                    this.parent.eventPump.routeEvent(ev);
+                }
+            }
+        }
+        return false;
+    }
+    else
+    {
+        // Batch command is ready for handling.
+        e.batchtype = this.batches[e.reftag].type;
+        e.destObject = this.batches[e.reftag].destObject;
+        if (e.destObject.TYPE == "CIRCChannel")
+        {
+            e.set = "channel";
+        }
+        else
+        {
+            e.set = "network";
+        }
+
+        if (!e.starting)
+        {
+            // If we've reached the end of a batch in playback,
+            // do some cleanup.
+            delete this.batches[e.reftag];
+            if (Object.entries(this.batches).length == 0)
+                delete this.batches;
+        }
+
+        // Massage the batchtype into a method name for handlers:
+        // netsplit            - onNetsplitBatch
+        // some-batch-type     - onSomeBatchTypeBatch
+        // example.com/example - onExampleComExampleBatch
+        var batchCode = e.batchtype.split(/[\.\/-]/).map(function(s)
+        {
+            return s[0].toUpperCase() + s.substr(1).toLowerCase();
+        }).join("");
+        e.destMethod = "on" + batchCode + "Batch";
+
+        if (!e.destObject[e.destMethod])
+            e.destMethod = "onUnknownBatch";
+    }
 }
 
 /* SASL authentication responses */
