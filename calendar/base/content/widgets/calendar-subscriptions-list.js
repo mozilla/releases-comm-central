@@ -92,5 +92,5 @@
     }
 
     customElements.define("calendar-subscriptions-richlistitem", MozCalendarSubscriptionsRichlistitem,
-        { extends: "richlistitem" });
+        { "extends": "richlistitem" });
 }

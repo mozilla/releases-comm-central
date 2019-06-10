@@ -48,6 +48,7 @@ module.exports = {
       },
       ignoreEOLComments: true,
     }],
+    "prettier/prettier": "off",
     "semi-spacing": ["error", {"before": false, "after": true}],
     "space-in-parens": ["error", "never"],
   },
