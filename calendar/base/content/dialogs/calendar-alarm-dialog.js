@@ -312,7 +312,7 @@ function addWidgetFor(aItem, aAlarm) {
         // Since the onselect event causes scrolling,
         // we don't want to process the event when adding widgets.
         alarmRichlist.suppressOnSelect = true;
-        alarmRichlist.selectedIndex = 0;
+        alarmRichlist.selectedItem = alarmRichlist.firstElementChild;
         alarmRichlist.suppressOnSelect = false;
     }
 
