@@ -681,6 +681,9 @@ function ltnSwitch2Calendar() {
 
         // make sure the view is sized correctly
         onCalendarViewResize();
+
+        // Load the unifinder if it isn't already loaded.
+        ensureUnifinderLoaded();
     }
 }
 

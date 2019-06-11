@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* exported gCalendarEventTreeClicked, unifinderDoubleClick, unifinderKeyPress,
- *          focusSearch, toggleUnifinder
+ *          focusSearch, ensureUnifinderLoaded, toggleUnifinder
  */
 
 /* import-globals-from ../../../mail/base/content/utilityOverlay.js */
@@ -40,7 +40,9 @@ var gUnifinderNeedsRefresh = true;
  * @return      Returns true if the unifinder is hidden.
  */
 function isUnifinderHidden() {
-    return document.getElementById("bottom-events-box").hidden;
+    let tabmail = document.getElementById("tabmail");
+    return tabmail.currentTabInfo.mode.type != "calendar" ||
+        document.getElementById("bottom-events-box").hidden;
 }
 
 /**
@@ -183,59 +185,57 @@ var unifinderObserver = {
  * used to add observers, event listeners, etc.
  */
 function prepareCalendarUnifinder() {
-    // Only load once
-    window.removeEventListener("load", prepareCalendarUnifinder);
     let unifinderTree = document.getElementById("unifinder-search-results-tree");
+    // Check that this is not the hidden window, which has no UI elements
+    if (!unifinderTree) {
+        return;
+    }
 
     // Add pref observer
     Services.prefs.addObserver("calendar.date.format", unifinderObserver);
     Services.obs.addObserver(unifinderObserver, "defaultTimezoneChanged");
 
-    // Check if this is not the hidden window, which has no UI elements
-    if (unifinderTree) {
-        // set up our calendar event observer
-        let ccalendar = cal.view.getCompositeCalendar(window);
-        ccalendar.addObserver(unifinderObserver);
+    // set up our calendar event observer
+    let ccalendar = cal.view.getCompositeCalendar(window);
+    ccalendar.addObserver(unifinderObserver);
 
-        // Set up the filter
-        unifinderTreeView.mFilter = new calFilter();
+    // Set up the filter
+    unifinderTreeView.mFilter = new calFilter();
 
-        // Set up the unifinder views.
-        unifinderTreeView.treeElement = unifinderTree;
-        unifinderTree.view = unifinderTreeView;
+    // Set up the unifinder views.
+    unifinderTreeView.treeElement = unifinderTree;
+    unifinderTree.view = unifinderTreeView;
 
-        // Listen for changes in the selected day, so we can update if need be
-        let viewDeck = getViewDeck();
-        viewDeck.addEventListener("dayselect", unifinderDaySelect);
-        viewDeck.addEventListener("itemselect", unifinderItemSelect, true);
+    // Listen for changes in the selected day, so we can update if need be
+    let viewDeck = getViewDeck();
+    viewDeck.addEventListener("dayselect", unifinderDaySelect);
+    viewDeck.addEventListener("itemselect", unifinderItemSelect, true);
 
-        // Set up sortDirection and sortActive, in case it persisted
-        let sorted = unifinderTree.getAttribute("sort-active");
-        let sortDirection = unifinderTree.getAttribute("sort-direction");
-        if (!sortDirection || sortDirection == "undefined") {
-            sortDirection = "ascending";
-        }
-        let tree = document.getElementById("unifinder-search-results-tree");
-        let treecols = tree.getElementsByTagName("treecol");
-        for (let i = 0; i < treecols.length; i++) {
-            let col = treecols[i];
-            let content = col.getAttribute("itemproperty");
-            if (sorted && sorted.length > 0) {
-                if (sorted == content) {
-                    unifinderTreeView.sortDirection = sortDirection;
-                    unifinderTreeView.selectedColumn = col;
-                }
+    // Set up sortDirection and sortActive, in case it persisted
+    let sorted = unifinderTree.getAttribute("sort-active");
+    let sortDirection = unifinderTree.getAttribute("sort-direction");
+    if (!sortDirection || sortDirection == "undefined") {
+        sortDirection = "ascending";
+    }
+    let tree = document.getElementById("unifinder-search-results-tree");
+    let treecols = tree.getElementsByTagName("treecol");
+    for (let col of treecols) {
+        let content = col.getAttribute("itemproperty");
+        if (sorted && sorted.length > 0) {
+            if (sorted == content) {
+                unifinderTreeView.sortDirection = sortDirection;
+                unifinderTreeView.selectedColumn = col;
             }
         }
+    }
 
-        unifinderTreeView.ready = true;
+    unifinderTreeView.ready = true;
 
-        // Display something upon first load. onLoad doesn't work properly for
-        // observers
-        if (!isUnifinderHidden()) {
-            gUnifinderNeedsRefresh = false;
-            refreshEventTree();
-        }
+    // Display something upon first load. onLoad doesn't work properly for
+    // observers
+    if (!isUnifinderHidden()) {
+        gUnifinderNeedsRefresh = false;
+        refreshEventTree();
     }
 }
 
@@ -930,6 +930,22 @@ function focusSearch() {
 }
 
 /**
+ * The unifinder is hidden if the calendar tab is not selected. When the tab
+ * is selected, this function is called so that unifinder setup completes.
+ */
+function ensureUnifinderLoaded() {
+    if (ensureUnifinderLoaded.done) {
+        return;
+    }
+    ensureUnifinderLoaded.done = true;
+
+    if (!isUnifinderHidden() && gUnifinderNeedsRefresh) {
+        gUnifinderNeedsRefresh = false;
+        refreshEventTree();
+    }
+}
+
+/**
  * Toggles the hidden state of the unifinder.
  */
 function toggleUnifinder() {
@@ -953,5 +969,5 @@ function toggleUnifinder() {
     unifinderTreeView.setSelectedItems();
 }
 
-window.addEventListener("load", prepareCalendarUnifinder);
+window.addEventListener("load", prepareCalendarUnifinder, { once: true });
 window.addEventListener("unload", finishCalendarUnifinder);
