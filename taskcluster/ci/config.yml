@@ -118,6 +118,16 @@ workers:
             implementation: scriptworker-signing
             os: linux
             worker-type: tb-signing-v1
+        mac-depsigning:
+            provisioner: scriptworker-prov-v1
+            implementation: scriptworker-iscript
+            os: macosx
+            worker-type: tb-depsigning-mac-v1
+        mac-signing:
+            provisioner: scriptworker-prov-v1
+            implementation: scriptworker-iscript
+            os: macosx
+            worker-type: tb-signing-mac-v1
         t-linux(-large|-xlarge):
             provisioner: aws-provisioner-v1
             implementation: docker-worker
