@@ -63,9 +63,9 @@ scriptworker:
     scope-prefix: 'project:comm:thunderbird:releng'
 
     worker-types:
-        'scriptworker-prov-v1/tb-depsigning':
+        'linux-depsigning':
             - 'project:comm:thunderbird:releng:signing:cert:dep-signing'
-        'scriptworker-prov-v1/tb-signing-v1':
+        'linux-signing':
             - 'project:comm:thunderbird:releng:signing:cert:nightly-signing'
             - 'project:comm:thunderbird:releng:signing:cert:release-signing'
         'scriptworker-prov-v1/tb-beetmover-dev':
@@ -108,6 +108,16 @@ workers:
             implementation: docker-worker
             os: linux
             worker-type: 'gecko-{level}-{alias}'
+        linux-depsigning:
+            provisioner: scriptworker-prov-v1
+            implementation: scriptworker-signing
+            os: linux
+            worker-type: tb-depsigning
+        linux-signing:
+            provisioner: scriptworker-prov-v1
+            implementation: scriptworker-signing
+            os: linux
+            worker-type: tb-signing-v1
         t-linux(-large|-xlarge):
             provisioner: aws-provisioner-v1
             implementation: docker-worker
