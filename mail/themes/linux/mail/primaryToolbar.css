@@ -185,7 +185,6 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 #folderPane-toolbar > .toolbarbutton-1,
 #folderPane-toolbar > toolbaritem > menulist {
   margin: 0;
-  border: none;
 }
 
 /* Force the folder location and mail view items to fit in the available width
