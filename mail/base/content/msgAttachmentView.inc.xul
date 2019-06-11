@@ -96,7 +96,6 @@
                         <richlistbox is="attachment-list" id="attachmentList"
                                      class="attachmentList"
                                      orient="horizontal"
-                                     flex="1"
                                      seltype="multiple"
                                      context="attachmentListContext"
                                      itemcontext="attachmentItemContext"

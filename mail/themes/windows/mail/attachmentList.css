@@ -17,10 +17,6 @@
   padding-top: 1px;
 }
 
-.attachmentcell-size {
-  color: GrayText;
-}
-
 @media (-moz-windows-default-theme) {
   .attachmentItem {
     border: 1px solid transparent;

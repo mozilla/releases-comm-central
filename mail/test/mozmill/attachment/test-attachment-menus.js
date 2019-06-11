@@ -358,18 +358,9 @@ function check_menu_states_single(index, expected) {
   let attachmentList = mc.e("attachmentList");
   let node = attachmentList.getItemAtIndex(index);
 
-  // So this next bit is a little ugly. Attachment items themselves ignore
-  // mouse events, but the attachment name always responds to them, so that's
-  // what we want to interact with.  We drag out the attachment name
-  // by querying for it via getAnonymousElementByAttribute.
-  let clickable = mc.window
-                    .document
-                    .getAnonymousElementByAttribute(node, "class",
-                                                    "attachmentcell-nameselection");
-
   attachmentList.selectItem(node);
   let menu = mc.getMenu("#attachmentItemContext");
-  menu.open(new elib.Elem(clickable));
+  menu.open(new elib.Elem(node));
   wait_for_popup_to_open(mc.e("attachmentItemContext"));
 
   try {

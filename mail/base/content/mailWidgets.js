@@ -1352,9 +1352,48 @@ class MozAttachmentlist extends MozElements.RichListBox {
 
   insertItemAt(index, attachment, name) {
     let item = this.ownerDocument.createXULElement("richlistitem");
-    item.className = "attachmentItem";
+    item.classList.add("attachmentItem");
     item.setAttribute("name", name || attachment.name);
     item.setAttribute("role", "option");
+
+    item.addEventListener("dblclick", (event) => {
+      let evt = document.createEvent("XULCommandEvent");
+      evt.initCommandEvent("command", true, true, window, 0, event.ctrlKey,
+        event.altKey, event.shiftKey, event.metaKey, null);
+      event.originalTarget.dispatchEvent(evt);
+    });
+
+    let iconContainer = this.ownerDocument.createXULElement("hbox");
+    iconContainer.setAttribute("align", "center");
+    let icon = this.ownerDocument.createXULElement("image");
+    icon.classList.add("attachmentcell-icon");
+    iconContainer.appendChild(icon);
+
+    let textContainer = this.ownerDocument.createXULElement("hbox");
+    textContainer.setAttribute("flex", "1");
+    textContainer.classList.add("attachmentcell-text");
+    let textName = this.ownerDocument.createXULElement("hbox");
+    textName.setAttribute("flex", "1");
+    textName.classList.add("attachmentcell-nameselection");
+    let textLabel = this.ownerDocument.createXULElement("label");
+    textLabel.setAttribute("flex", "1");
+    textLabel.setAttribute("crop", "center");
+    textLabel.classList.add("attachmentcell-name");
+    textLabel.setAttribute("value", name || attachment.name);
+    textName.appendChild(textLabel);
+
+    let spacer = this.ownerDocument.createXULElement("spacer");
+    spacer.setAttribute("flex", "99999");
+
+    let sizeLabel = this.ownerDocument.createXULElement("label");
+    sizeLabel.classList.add("attachmentcell-size");
+
+    textContainer.appendChild(textName);
+    textContainer.appendChild(spacer);
+    textContainer.appendChild(sizeLabel);
+
+    item.appendChild(iconContainer);
+    item.appendChild(textContainer);
 
     let size;
     if (attachment.size != null && attachment.size != -1) {
@@ -1364,6 +1403,7 @@ class MozAttachmentlist extends MozElements.RichListBox {
       size = "\u200b";
     }
     item.setAttribute("size", size);
+    sizeLabel.setAttribute("value", size);
 
     // Pick out some nice icons (small and large) for the attachment
     if (attachment.contentType == "text/x-moz-deleted") {
@@ -1377,9 +1417,15 @@ class MozAttachmentlist extends MozElements.RichListBox {
         "?size=32&contentType=" + attachment.contentType);
     }
 
-    item.setAttribute("imagesize", this.sizes[this.getAttribute("view")] || 16);
+    let imageSize = this.sizes[this.getAttribute("view")] || 16;
+    item.setAttribute("imagesize", imageSize);
     item.setAttribute("context", this.getAttribute("itemcontext"));
     item.attachment = attachment;
+
+    let attr = "image" + imageSize;
+    if (item.hasAttribute(attr)) {
+      icon.setAttribute("src", item.getAttribute(attr));
+    }
 
     this.insertBefore(item, this.getItemAtIndex(index));
     return item;

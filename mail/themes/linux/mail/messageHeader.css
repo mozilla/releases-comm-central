@@ -93,6 +93,7 @@
 #attachmentBar {
   background-color: -moz-dialog;
   color: -moz-dialogtext;
+  padding: 3px 0;
 }
 
 /* ::::: msg header captions ::::: */

@@ -2348,9 +2348,8 @@ function displayAttachmentsForExpandedViewExternal() {
                                   `MsgStatusFeedback.setOverLink("${displayUrl}")`);
       attachmentitem.setAttribute("onblur",
                                   "MsgStatusFeedback.setOverLink('')");
-      let name = document.getAnonymousNodes(attachmentitem)[0]
-        .getElementsByClassName("attachmentcell-name");
-      name[0].classList.add("text-link");
+
+      attachmentitem.classList.add("text-link");
 
       if (attachment.isLinkAttachment) {
         if (index == 0) {
@@ -2443,7 +2442,15 @@ function updateAttachmentsDisplay(attachmentInfo, isFetching) {
     // The attachment listitem.
     attachmentItem.classList.remove("busy");
     attachmentItem.removeAttribute("image");
-    attachmentItem._updateImage();
+
+    if (!attachmentItem.hasAttribute("image")) {
+      let icon = attachmentItem.querySelector("image");
+      let attr = "image" + attachmentItem.getAttribute("imagesize");
+      if (icon != null && attachmentItem.hasAttribute(attr)) {
+        icon.setAttribute("src", attachmentItem.getAttribute(attr));
+      }
+    }
+
     if (attachmentInfo.hasFile) {
       attachmentItem.setAttribute("size", sizeStr);
       attachmentItem.removeAttribute("tooltiptext");

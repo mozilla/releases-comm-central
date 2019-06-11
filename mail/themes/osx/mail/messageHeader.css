@@ -89,6 +89,7 @@
 #attachmentBar {
   background-color: #fff;
   color: -moz-dialogtext;
+  padding: 3px 0;
 }
 
 /* ::::: attachment list ::::: */
@@ -96,10 +97,6 @@
 .attachmentcell-name,
 .attachmentcell-size {
   padding-top: 1px;
-}
-
-.attachmentcell-size {
-  color: GrayText;
 }
 
 .attachmentList:focus .attachmentItem[selected="true"][current="true"] {

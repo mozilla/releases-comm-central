@@ -5,6 +5,8 @@
 .attachmentList {
   -moz-appearance: listbox;
   -moz-user-focus: normal;
+  margin: 0;
+  padding: 3px;
 }
 
 .attachmentList[orient="horizontal"] {
@@ -13,10 +15,6 @@
 
 .attachmentList[collapsed] {
   height: 0;
-}
-
-.attachmentItem {
-  -moz-binding: url("chrome://messenger/content/mailWidgets.xml#attachmentitem");
 }
 
 .attachmentcell-content {
@@ -48,6 +46,8 @@
 
 .attachmentList[orient="horizontal"] .attachmentItem {
   min-width: 10em;
+  padding: 1px 3px;
+  border-radius: 2px;
 }
 
 .attachmentList[orient="horizontal"][view="tile"] .attachmentItem {
@@ -64,4 +64,12 @@
 #attachmentMenuList > menu.notfound,
 #appmenu_attachmentMenuList > menu.notfound {
   text-decoration-line: line-through;
+}
+
+.attachmentItem > * {
+  pointer-events: none;
+}
+
+.attachmentcell-size {
+  opacity: 0.6;
 }
