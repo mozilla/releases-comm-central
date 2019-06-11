@@ -412,13 +412,13 @@ Lookup.prototype.getNode = function() {
   var nCases = {"id": _byID, "name": _byName, "attrib": _byAttrib, "index": _byIndex};
   var aCases = {"name": _anonByName, "attrib": _anonByAttrib, "index": _anonByIndex};
   var reduceLookup = function(parent, exp) {
-    // Handle case where only index is provided
-    var cases = nCases;
-
     // Handle custom elements shadow DOM
     if (exp == "shadow") {
       return parent.shadowRoot;
     }
+
+    // Handle case where only index is provided
+    var cases = nCases;
 
     // Handle ending index before any of the expression gets mangled
     if (exp.endsWith("]")) {
