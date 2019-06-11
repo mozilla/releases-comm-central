@@ -262,6 +262,16 @@ mapping:
             - linux64-shippable
         pretty_name: thunderbird-${version}.tar.bz2.asc
         checksums_path: ${path_platform}/${locale}/thunderbird-${version}.tar.bz2.asc
+    target.pkg:
+        <<: *default
+        description: "Main package installer for Mac OS X platforms"
+        all_locales: true
+        from:
+            - signing
+        only_for_platforms:
+            - macosx64-shippable
+        pretty_name: Thunderbird ${version}.pkg
+        checksums_path: ${path_platform}/${locale}/Thunderbird ${version}.pkg
     target.dmg:
         <<: *default
         description: "Main package installer for Mac OS X platforms"
