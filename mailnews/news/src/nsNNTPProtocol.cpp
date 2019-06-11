@@ -953,9 +953,9 @@ nsresult nsNNTPProtocol::LoadUrl(nsIURI *aURL, nsISupports *aConsumer) {
       NS_ENSURE_SUCCESS(rv, rv);
 
       bundleService->CreateBundle(NEWS_MSGS_URL, getter_AddRefs(bundle));
-      const char16_t *formatStrings[1] = {unescapedName.get()};
+      AutoTArray<nsString, 1> formatStrings = {unescapedName};
 
-      rv = bundle->FormatStringFromName("autoSubscribeText", formatStrings, 1,
+      rv = bundle->FormatStringFromName("autoSubscribeText", formatStrings,
                                         confirmText);
       NS_ENSURE_SUCCESS(rv, rv);
 
@@ -2635,11 +2635,11 @@ nsresult nsNNTPProtocol::ReadNewsList(nsIInputStream *inputStream,
 
       nsAutoString numGroupsStr;
       numGroupsStr.AppendInt(mNumGroupsListed);
-      NS_ConvertASCIItoUTF16 rateStr(rate_buf);
 
-      const char16_t *formatStrings[3] = {numGroupsStr.get(), bytesStr.get(),
-                                          rateStr.get()};
-      rv = bundle->FormatStringFromName("bytesReceived", formatStrings, 3,
+      AutoTArray<nsString, 3> formatStrings = {numGroupsStr, bytesStr};
+      CopyASCIItoUTF16(MakeStringSpan(rate_buf),
+                       *formatStrings.AppendElement());
+      rv = bundle->FormatStringFromName("bytesReceived", formatStrings,
                                         statusString);
 
       rv = msgStatusFeedback->ShowStatusString(statusString);

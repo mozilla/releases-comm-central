@@ -273,8 +273,8 @@ void nsMsgMailboxParser::UpdateStatusText(const char *stringName) {
         getter_AddRefs(bundle));
     if (NS_FAILED(rv)) return;
     nsString finalString;
-    const char16_t *stringArray[] = {m_folderName.get()};
-    rv = bundle->FormatStringFromName(stringName, stringArray, 1, finalString);
+    AutoTArray<nsString, 1> stringArray = {m_folderName};
+    rv = bundle->FormatStringFromName(stringName, stringArray, finalString);
     m_statusFeedback->ShowStatusString(finalString);
   }
 }

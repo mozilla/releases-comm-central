@@ -97,7 +97,7 @@ nsMsgMdnGenerator::nsMsgMdnGenerator() {
 nsMsgMdnGenerator::~nsMsgMdnGenerator() {}
 
 nsresult nsMsgMdnGenerator::FormatStringFromName(const char *aName,
-                                                 const char16_t *aString,
+                                                 const nsString &aString,
                                                  nsAString &aResultString) {
   DEBUG_MDN("nsMsgMdnGenerator::FormatStringFromName");
 
@@ -110,8 +110,8 @@ nsresult nsMsgMdnGenerator::FormatStringFromName(const char *aName,
       bundleService->CreateBundle(MDN_STRINGBUNDLE_URL, getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  const char16_t *formatStrings[1] = {aString};
-  rv = bundle->FormatStringFromName(aName, formatStrings, 1, aResultString);
+  AutoTArray<nsString, 1> formatStrings = {aString};
+  rv = bundle->FormatStringFromName(aName, formatStrings, aResultString);
   NS_ENSURE_SUCCESS(rv, rv);
   return rv;
 }
@@ -425,8 +425,8 @@ nsresult nsMsgMdnGenerator::CreateFirstPart() {
 
   parm = PR_smprintf("From: %s" CRLF, convbuf ? convbuf : m_email.get());
 
-  rv = FormatStringFromName("MsgMdnMsgSentTo",
-                            NS_ConvertASCIItoUTF16(m_email).get(), firstPart1);
+  rv = FormatStringFromName("MsgMdnMsgSentTo", NS_ConvertASCIItoUTF16(m_email),
+                            firstPart1);
   if (NS_FAILED(rv)) return rv;
 
   PUSH_N_FREE_STRING(parm);
@@ -978,9 +978,8 @@ NS_IMETHODIMP nsMsgMdnGenerator::OnStopRunningUrl(nsIURI *url,
   rv = smtpService->GetServerByIdentity(m_identity, getter_AddRefs(smtpServer));
   if (NS_SUCCEEDED(rv)) smtpServer->GetHostname(smtpHostName);
 
-  nsAutoString hostStr;
-  CopyASCIItoUTF16(smtpHostName, hostStr);
-  const char16_t *params[] = {hostStr.get()};
+  AutoTArray<nsString, 1> params;
+  CopyASCIItoUTF16(smtpHostName, *params.AppendElement());
 
   nsCOMPtr<nsIStringBundle> bundle;
   nsCOMPtr<nsIStringBundleService> bundleService =
@@ -994,7 +993,7 @@ NS_IMETHODIMP nsMsgMdnGenerator::OnStopRunningUrl(nsIURI *url,
 
   nsString failed_msg, dialogTitle;
 
-  bundle->FormatStringFromName(exitString, params, 1, failed_msg);
+  bundle->FormatStringFromName(exitString, params, failed_msg);
   bundle->GetStringFromName("sendMessageErrorTitle", dialogTitle);
 
   nsCOMPtr<nsIPrompt> dialog;

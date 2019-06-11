@@ -167,13 +167,12 @@ nsresult nsMsgComposeSecure::GetSMIMEBundleString(const char16_t *name,
 }
 
 nsresult nsMsgComposeSecure::SMIMEBundleFormatStringFromName(
-    const char *name, const char16_t **params, uint32_t numParams,
-    nsAString &outString) {
+    const char *name, nsTArray<nsString> &params, nsAString &outString) {
   NS_ENSURE_ARG_POINTER(name);
 
   if (!InitializeSMIMEBundle()) return NS_ERROR_FAILURE;
 
-  return mSMIMEBundle->FormatStringFromName(name, params, numParams, outString);
+  return mSMIMEBundle->FormatStringFromName(name, params, outString);
 }
 
 bool nsMsgComposeSecure::InitializeSMIMEBundle() {
@@ -215,12 +214,9 @@ void nsMsgComposeSecure::SetErrorWithParam(nsIMsgSendReport *sendReport,
 
   nsString errorString;
   nsresult res;
-  const char16_t *params[1];
-
-  NS_ConvertASCIItoUTF16 ucs2(param);
-  params[0] = ucs2.get();
-
-  res = SMIMEBundleFormatStringFromName(bundle_string, params, 1, errorString);
+  AutoTArray<nsString, 1> params;
+  CopyASCIItoUTF16(MakeStringSpan(param), *params.AppendElement());
+  res = SMIMEBundleFormatStringFromName(bundle_string, params, errorString);
 
   if (NS_SUCCEEDED(res) && !errorString.IsEmpty()) {
     sendReport->SetMessage(nsIMsgSendReport::process_Current, errorString.get(),

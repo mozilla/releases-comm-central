@@ -5063,12 +5063,12 @@ void nsImapProtocol::ShowProgress() {
     nsAutoString progressExpectedNumberString;
     progressExpectedNumberString.AppendInt(m_progressExpectedNumber);
 
-    const char16_t *formatStrings[] = {progressCurrentNumberString.get(),
-                                       progressExpectedNumberString.get(),
-                                       unicodeMailboxName.get()};
+    AutoTArray<nsString, 3> formatStrings = {progressCurrentNumberString,
+                                             progressExpectedNumberString,
+                                             unicodeMailboxName};
 
     rv = m_bundle->FormatStringFromName(m_progressStringName.get(),
-                                        formatStrings, 3, progressString);
+                                        formatStrings, progressString);
 
     if (NS_SUCCEEDED(rv) && !progressString.IsEmpty()) {
       PercentProgressUpdateEvent(progressString.get(), progressCurrentNumber,

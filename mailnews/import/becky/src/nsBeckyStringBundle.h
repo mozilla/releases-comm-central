@@ -12,7 +12,7 @@ class nsBeckyStringBundle final {
  public:
   static char16_t *GetStringByName(const char *name);
   static nsresult FormatStringFromName(const char *name,
-                                       const char16_t **params, uint32_t length,
+                                       nsTArray<nsString> &params,
                                        nsAString &_retval);
   static void GetStringBundle(void);
   static void EnsureStringBundle(void);

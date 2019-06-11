@@ -52,7 +52,7 @@ class nsMsgMdnGenerator : public nsIMsgMdnGenerator, public nsIUrlListener {
 
   // string bundle helper methods
   nsresult GetStringFromName(const char *aName, nsAString &aResultString);
-  nsresult FormatStringFromName(const char *aName, const char16_t *aString,
+  nsresult FormatStringFromName(const char *aName, const nsString &aString,
                                 nsAString &aResultString);
 
   // other helper methods

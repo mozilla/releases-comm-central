@@ -548,9 +548,9 @@ nsBeckyMail::ImportMailbox(nsIImportMailboxDescriptor *aSource,
   aSource->GetDisplayName(getter_Copies(name));
 
   nsAutoString successMessage;
-  const char16_t *format = {name.get()};
+  AutoTArray<nsString, 1> format = {name};
   rv = nsBeckyStringBundle::FormatStringFromName("BeckyImportMailboxSuccess",
-                                                 &format, 1, successMessage);
+                                                 format, successMessage);
   successMessage.AppendLiteral("\n");
   *aSuccessLog = ToNewUnicode(successMessage);
 

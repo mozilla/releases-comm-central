@@ -1240,7 +1240,7 @@ NS_IMETHODIMP nsAbView::SwapFirstNameLastName() {
           if (displayNameAutoGeneration && !fn.IsEmpty() && !ln.IsEmpty()) {
             nsString dnLnFn;
             nsString dnFnLn;
-            const char16_t *nameString[2];
+            AutoTArray<nsString, 2> nameString;
             const char *formatString;
 
             // The format should stays the same before/after we swap the names
@@ -1250,15 +1250,13 @@ NS_IMETHODIMP nsAbView::SwapFirstNameLastName() {
             // Generate both ln/fn and fn/ln combination since we need both
             // later to check to see if the current display name was edited note
             // that fn/ln still hold the values before the swap
-            nameString[0] = ln.get();
-            nameString[1] = fn.get();
-            rv = bundle->FormatStringFromName(formatString, nameString, 2,
-                                              dnLnFn);
+            nameString[0] = ln;
+            nameString[1] = fn;
+            rv = bundle->FormatStringFromName(formatString, nameString, dnLnFn);
             NS_ENSURE_SUCCESS(rv, rv);
             nameString[0] = fn.get();
             nameString[1] = ln.get();
-            rv = bundle->FormatStringFromName(formatString, nameString, 2,
-                                              dnFnLn);
+            rv = bundle->FormatStringFromName(formatString, nameString, dnFnLn);
             NS_ENSURE_SUCCESS(rv, rv);
 
             // Get the current display name

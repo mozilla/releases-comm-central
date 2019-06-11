@@ -1419,12 +1419,11 @@ nsNntpIncomingServer::GroupNotFound(nsIMsgWindow *aMsgWindow,
   rv = GetRealHostName(hostname);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  NS_ConvertUTF8toUTF16 hostStr(hostname);
-
   nsString groupName(aName);
-  const char16_t *formatStrings[2] = {groupName.get(), hostStr.get()};
+  AutoTArray<nsString, 2> formatStrings = {groupName};
+  CopyUTF8toUTF16(hostname, *formatStrings.AppendElement());
   nsString confirmText;
-  rv = bundle->FormatStringFromName("autoUnsubscribeText", formatStrings, 2,
+  rv = bundle->FormatStringFromName("autoUnsubscribeText", formatStrings,
                                     confirmText);
   NS_ENSURE_SUCCESS(rv, rv);
 

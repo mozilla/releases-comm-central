@@ -221,7 +221,7 @@ class nsSmtpProtocol : public nsMsgAsyncWriteProtocol,
   nsresult GetPassword(nsString &aPassword);
   nsresult GetUsernamePassword(nsACString &aUsername, nsAString &aPassword);
   nsresult PromptForPassword(nsISmtpServer *aSmtpServer, nsISmtpUrl *aSmtpUrl,
-                             const char16_t **formatStrings,
+                             nsTArray<nsString> &formatStrings,
                              nsAString &aPassword);
 
   void InitPrefAuthMethods(int32_t authMethodPrefValue);

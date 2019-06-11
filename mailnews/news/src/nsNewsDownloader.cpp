@@ -171,10 +171,9 @@ bool nsNewsDownloader::GetNextHdrToRetrieve() {
 
     m_folder->GetPrettyName(prettyName);
 
-    const char16_t *formatStrings[3] = {firstStr.get(), totalStr.get(),
-                                        prettyName.get()};
+    AutoTArray<nsString, 3> formatStrings = {firstStr, totalStr, prettyName};
     rv = bundle->FormatStringFromName("downloadingArticlesForOffline",
-                                      formatStrings, 3, statusString);
+                                      formatStrings, statusString);
     NS_ENSURE_SUCCESS(rv, false);
     ShowProgress(statusString.get(), percent);
     return true;

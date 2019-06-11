@@ -1027,15 +1027,15 @@ nsresult nsMsgAttachmentHandler::UrlExit(nsresult status,
     } else
       params.Assign('?');
 
-    NS_ConvertUTF8toUTF16 UTF16params(params);
-    const char16_t *formatParams[] = {UTF16params.get()};
+    AutoTArray<nsString, 1> formatParams;
+    CopyUTF8toUTF16(params, *formatParams.AppendElement());
     if (mode == nsIMsgSend::nsMsgSaveAsDraft ||
         mode == nsIMsgSend::nsMsgSaveAsTemplate)
       bundle->FormatStringFromName("failureOnObjectEmbeddingWhileSaving",
-                                   formatParams, 1, msg);
+                                   formatParams, msg);
     else
       bundle->FormatStringFromName("failureOnObjectEmbeddingWhileSending",
-                                   formatParams, 1, msg);
+                                   formatParams, msg);
 
     nsCOMPtr<nsIPrompt> aPrompt;
     if (m_mime_delivery_state)

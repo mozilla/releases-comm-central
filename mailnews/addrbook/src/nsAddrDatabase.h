@@ -522,13 +522,12 @@ class nsAddrDatabase : public nsIAddrDatabase {
                            bool aIsCard, nsIMdbRow **aFindRow);
   nsresult OpenInternal(nsIFile *aMabFile, bool aCreate,
                         nsIAddrDatabase **pCardDB);
-  nsresult AlertAboutCorruptMabFile(const char16_t *aOldFileName,
-                                    const char16_t *aNewFileName);
-  nsresult AlertAboutLockedMabFile(const char16_t *aFileName);
+  nsresult AlertAboutCorruptMabFile(const nsString &aOldFileName,
+                                    const nsString &aNewFileName);
+  nsresult AlertAboutLockedMabFile(const nsString &aFileName);
   nsresult DisplayAlert(const char16_t *titleName,
                         const char16_t *alertStringName,
-                        const char16_t **formatStrings,
-                        int32_t numFormatStrings);
+                        nsTArray<nsString> &formatStrings);
 };
 
 #endif

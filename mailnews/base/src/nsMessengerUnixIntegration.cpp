@@ -162,12 +162,12 @@ bool nsMessengerUnixIntegration::BuildNotificationTitle(
   nsAutoString numNewMsgsText;
   numNewMsgsText.AppendInt(numNewMessages);
 
-  const char16_t *formatStrings[] = {accountName.get(), numNewMsgsText.get()};
+  AutoTArray<nsString, 2> formatStrings = {accountName, numNewMsgsText};
 
   aBundle->FormatStringFromName(numNewMessages == 1
                                     ? "newMailNotification_message"
                                     : "newMailNotification_messages",
-                                formatStrings, 2, aTitle);
+                                formatStrings, aTitle);
   return true;
 }
 
@@ -262,9 +262,9 @@ bool nsMessengerUnixIntegration::BuildNotificationBody(nsIMsgDBHdr *aHdr,
 
   if (showSubject && showSender) {
     nsString msgTitle;
-    const char16_t *formatStrings[] = {subject.get(), author.get()};
+    AutoTArray<nsString, 2> formatStrings = {subject, author};
     aBundle->FormatStringFromName("newMailNotification_messagetitle",
-                                  formatStrings, 2, msgTitle);
+                                  formatStrings, msgTitle);
     alertBody.Append(msgTitle);
   } else if (showSubject)
     alertBody.Append(subject);

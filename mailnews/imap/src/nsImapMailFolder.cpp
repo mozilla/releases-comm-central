@@ -1432,10 +1432,10 @@ NS_IMETHODIMP nsImapMailFolder::Rename(const nsAString &newName,
       nsCOMPtr<nsIStringBundle> bundle;
       rv = IMAPGetStringBundle(getter_AddRefs(bundle));
       if (NS_SUCCEEDED(rv) && bundle) {
-        const char16_t delimiter[2] = {(char16_t)m_hierarchyDelimiter, '\0'};
-        const char16_t *formatStrings[] = {delimiter};
+        AutoTArray<nsString, 1> formatStrings;
+        formatStrings.AppendElement()->Append(m_hierarchyDelimiter);
         nsString alertString;
-        rv = bundle->FormatStringFromName("imapSpecialChar2", formatStrings, 1,
+        rv = bundle->FormatStringFromName("imapSpecialChar2", formatStrings,
                                           alertString);
         nsCOMPtr<nsIPrompt> dialog(do_GetInterface(docShell));
         // setting up the dialog title
@@ -1446,9 +1446,9 @@ NS_IMETHODIMP nsImapMailFolder::Rename(const nsAString &newName,
         nsString accountName;
         rv = server->GetPrettyName(accountName);
         NS_ENSURE_SUCCESS(rv, rv);
-        const char16_t *titleParams[] = {accountName.get()};
+        AutoTArray<nsString, 1> titleParams = {accountName};
         rv = bundle->FormatStringFromName("imapAlertDialogTitle", titleParams,
-                                          1, dialogTitle);
+                                          dialogTitle);
 
         if (dialog && !alertString.IsEmpty())
           dialog->Alert(dialogTitle.get(), alertString.get());
@@ -2190,7 +2190,7 @@ nsImapMailFolder::DeleteSubFolders(nsIArray *folders, nsIMsgWindow *msgWindow) {
     nsAutoString folderName;
     rv = curFolder->GetName(folderName);
     NS_ENSURE_SUCCESS(rv, rv);
-    const char16_t *formatStrings[1] = {folderName.get()};
+    AutoTArray<nsString, 1> formatStrings = {folderName};
 
     nsAutoString deleteFolderDialogTitle;
     rv = bundle->GetStringFromName("imapDeleteFolderDialogTitle",
@@ -2205,7 +2205,7 @@ nsImapMailFolder::DeleteSubFolders(nsIArray *folders, nsIMsgWindow *msgWindow) {
     nsAutoString confirmationStr;
     rv = bundle->FormatStringFromName(
         (deleteNoTrash) ? "imapDeleteNoTrash" : "imapMoveFolderToTrash",
-        formatStrings, 1, confirmationStr);
+        formatStrings, confirmationStr);
     NS_ENSURE_SUCCESS(rv, rv);
     if (!msgWindow) return NS_ERROR_NULL_POINTER;
     nsCOMPtr<nsIDocShell> docShell;
@@ -5578,9 +5578,9 @@ nsImapMailFolder::FillInFolderProps(nsIMsgImapFolderProps *aFolderProps) {
       // is this right? It doesn't leak, does it?
       CopyASCIItoUTF16(owner, uniOwner);
     }
-    const char16_t *params[] = {uniOwner.get()};
+    AutoTArray<nsString, 1> params = {uniOwner};
     rv = bundle->FormatStringFromName("imapOtherUsersFolderTypeDescription",
-                                      params, 1, folderTypeDesc);
+                                      params, folderTypeDesc);
   } else if (GetFolderACL()->GetIsFolderShared()) {
     folderTypeStringID = "imapPersonalSharedFolderTypeName";
     folderTypeDescStringID = "imapPersonalSharedFolderTypeDescription";
@@ -7448,14 +7448,14 @@ nsresult nsImapMailFolder::CopyStreamMessage(
       totalMsgString.AppendInt(m_copyState->m_totalCount);
       curMsgString.AppendInt(m_copyState->m_curIndex + 1);
 
-      const char16_t *formatStrings[3] = {
-          curMsgString.get(), totalMsgString.get(), dstFolderName.get()};
+      AutoTArray<nsString, 3> formatStrings = {curMsgString, totalMsgString,
+                                               dstFolderName};
 
       nsCOMPtr<nsIStringBundle> bundle;
       rv = IMAPGetStringBundle(getter_AddRefs(bundle));
       NS_ENSURE_SUCCESS(rv, rv);
       rv = bundle->FormatStringFromName("imapCopyingMessageOf2", formatStrings,
-                                        3, progressText);
+                                        progressText);
       nsCOMPtr<nsIMsgStatusFeedback> statusFeedback;
       if (m_copyState->m_msgWindow)
         m_copyState->m_msgWindow->GetStatusFeedback(

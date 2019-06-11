@@ -2149,16 +2149,13 @@ nsresult nsSmtpProtocol::GetPassword(nsString &aPassword) {
   rv = smtpServer->GetUsername(username);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  NS_ConvertASCIItoUTF16 usernameUTF16(username);
-
   nsCString hostname;
   rv = smtpServer->GetHostname(hostname);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsAutoString hostnameUTF16;
-  CopyASCIItoUTF16(hostname, hostnameUTF16);
-
-  const char16_t *formatStrings[] = {hostnameUTF16.get(), usernameUTF16.get()};
+  AutoTArray<nsString, 2> formatStrings;
+  CopyASCIItoUTF16(hostname, *formatStrings.AppendElement());
+  CopyASCIItoUTF16(username, *formatStrings.AppendElement());
 
   rv = PromptForPassword(smtpServer, smtpUrl, formatStrings, aPassword);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -2171,7 +2168,7 @@ nsresult nsSmtpProtocol::GetPassword(nsString &aPassword) {
  */
 nsresult nsSmtpProtocol::PromptForPassword(nsISmtpServer *aSmtpServer,
                                            nsISmtpUrl *aSmtpUrl,
-                                           const char16_t **formatStrings,
+                                           nsTArray<nsString> &formatStrings,
                                            nsAString &aPassword) {
   nsCOMPtr<nsIStringBundleService> stringService =
       mozilla::services::GetStringBundleService();
@@ -2184,13 +2181,13 @@ nsresult nsSmtpProtocol::PromptForPassword(nsISmtpServer *aSmtpServer,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString passwordPromptString;
-  if (formatStrings[1])
+  if (formatStrings.Length() > 1)
     rv = composeStringBundle->FormatStringFromName(
-        "smtpEnterPasswordPromptWithUsername", formatStrings, 2,
+        "smtpEnterPasswordPromptWithUsername", formatStrings,
         passwordPromptString);
   else
     rv = composeStringBundle->FormatStringFromName(
-        "smtpEnterPasswordPrompt", formatStrings, 1, passwordPromptString);
+        "smtpEnterPasswordPrompt", formatStrings, passwordPromptString);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIAuthPrompt> netPrompt;
@@ -2233,10 +2230,9 @@ nsresult nsSmtpProtocol::GetUsernamePassword(nsACString &aUsername,
   nsCString hostname;
   rv = smtpServer->GetHostname(hostname);
   NS_ENSURE_SUCCESS(rv, rv);
-  nsAutoString hostnameUTF16;
-  CopyASCIItoUTF16(hostname, hostnameUTF16);
 
-  const char16_t *formatStrings[] = {hostnameUTF16.get(), nullptr};
+  AutoTArray<nsString, 1> formatStrings;
+  CopyASCIItoUTF16(hostname, *formatStrings.AppendElement());
 
   rv = PromptForPassword(smtpServer, smtpUrl, formatStrings, aPassword);
   NS_ENSURE_SUCCESS(rv, rv);

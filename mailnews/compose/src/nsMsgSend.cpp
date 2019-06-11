@@ -2221,18 +2221,18 @@ nsresult nsMsgComposeAndSend::HackAttachments(nsIArray *attachments,
       // Display some feedback to user...
       nsString msg;
       nsAutoString attachmentFileName;
-      NS_ConvertUTF8toUTF16 params(m_attachments[i]->m_realName);
-      const char16_t *formatParams[1];
-      if (!params.IsEmpty()) {
-        formatParams[0] = params.get();
+      AutoTArray<nsString, 1> formatParams;
+      if (!(m_attachments[i]->m_realName).IsEmpty()) {
+        CopyUTF8toUTF16(m_attachments[i]->m_realName,
+                        *formatParams.AppendElement());
       } else if (m_attachments[i]->mURL) {
         nsCString asciiSpec;
         m_attachments[i]->mURL->GetAsciiSpec(asciiSpec);
         attachmentFileName.AssignASCII(asciiSpec.get());
-        formatParams[0] = attachmentFileName.get();
+        formatParams[0] = attachmentFileName;
       }
       mComposeBundle->FormatStringFromName("gatheringAttachment", formatParams,
-                                           1, msg);
+                                           msg);
 
       if (!msg.IsEmpty()) {
         SetStatusMessage(msg);
@@ -2249,8 +2249,8 @@ nsresult nsMsgComposeAndSend::HackAttachments(nsIArray *attachments,
         NS_CopyNativeToUnicode(m_attachments[i]->m_realName,
                                attachmentFileName);
         nsCOMPtr<nsIStringBundle> bundle;
-        const char16_t *params[] = {attachmentFileName.get()};
-        mComposeBundle->FormatStringFromName("errorAttachingFile", params, 1,
+        AutoTArray<nsString, 1> params = {attachmentFileName};
+        mComposeBundle->FormatStringFromName("errorAttachingFile", params,
                                              errorMsg);
         mSendReport->SetMessage(nsIMsgSendReport::process_Current,
                                 errorMsg.get(), false);
@@ -2878,8 +2878,8 @@ nsresult nsMsgComposeAndSend::DeliverMessage() {
     nsString msg;
     nsAutoString formattedFileSize;
     FormatFileSize(fileSize, true, formattedFileSize);
-    const char16_t *params[] = {formattedFileSize.get()};
-    mComposeBundle->FormatStringFromName("largeMessageSendWarning", params, 1,
+    AutoTArray<nsString, 1> params = {formattedFileSize};
+    mComposeBundle->FormatStringFromName("largeMessageSendWarning", params,
                                          msg);
 
     if (!msg.IsEmpty()) {
@@ -3144,11 +3144,10 @@ nsresult nsMsgComposeAndSend::FormatStringWithSMTPHostNameByName(
                                         getter_AddRefs(smtpServer));
   if (NS_SUCCEEDED(rv)) smtpServer->GetHostname(smtpHostName);
 
-  nsAutoString hostStr;
-  CopyASCIItoUTF16(smtpHostName, hostStr);
-  const char16_t *params[] = {hostStr.get()};
+  AutoTArray<nsString, 1> params;
+  CopyASCIItoUTF16(smtpHostName, *params.AppendElement());
   if (NS_SUCCEEDED(rv))
-    mComposeBundle->FormatStringFromName(aMsgName, params, 1, aString);
+    mComposeBundle->FormatStringFromName(aMsgName, params, aString);
   return rv;
 }
 
@@ -3473,24 +3472,23 @@ nsMsgComposeAndSend::NotifyListenerOnStopCopy(nsresult aStatus) {
       return NS_ERROR_FAILURE;
     }
 
-    const char16_t *formatStrings[] = {mSavedToFolderName.get(),
-                                       accountName.get(),
-                                       localFoldersAccountName.get()};
+    AutoTArray<nsString, 3> formatStrings = {mSavedToFolderName, accountName,
+                                             localFoldersAccountName};
 
     nsString msg;
     switch (m_deliver_mode) {
       case nsMsgDeliverNow:
       case nsMsgSendUnsent:
         rv = bundle->FormatStringFromName("promptToSaveSentLocally2",
-                                          formatStrings, 3, msg);
+                                          formatStrings, msg);
         break;
       case nsMsgSaveAsDraft:
         rv = bundle->FormatStringFromName("promptToSaveDraftLocally2",
-                                          formatStrings, 3, msg);
+                                          formatStrings, msg);
         break;
       case nsMsgSaveAsTemplate:
         rv = bundle->FormatStringFromName("promptToSaveTemplateLocally2",
-                                          formatStrings, 3, msg);
+                                          formatStrings, msg);
         break;
       default:
         rv = NS_ERROR_UNEXPECTED;

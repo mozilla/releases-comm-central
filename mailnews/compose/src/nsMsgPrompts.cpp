@@ -46,8 +46,8 @@ static nsresult nsMsgBuildMessageByName(const char *aName, nsIFile *aFile,
   nsString path;
   aFile->GetPath(path);
 
-  const char16_t *params[1] = {path.get()};
-  return bundle->FormatStringFromName(aName, params, 1, aResult);
+  AutoTArray<nsString, 1> params = {path};
+  return bundle->FormatStringFromName(aName, params, aResult);
 }
 
 nsresult nsMsgBuildMessageWithFile(nsIFile *aFile, nsString &aResult) {

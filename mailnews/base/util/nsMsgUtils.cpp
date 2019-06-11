@@ -1599,11 +1599,11 @@ NS_MSG_BASE nsresult MsgPromptLoginFailed(nsIMsgWindow *aMsgWindow,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString message;
-  NS_ConvertUTF8toUTF16 hostNameUTF16(aHostname);
-  NS_ConvertUTF8toUTF16 userNameUTF16(aUsername);
-  const char16_t *formatStrings[] = {hostNameUTF16.get(), userNameUTF16.get()};
+  AutoTArray<nsString, 2> formatStrings;
+  CopyUTF8toUTF16(aHostname, *formatStrings.AppendElement());
+  CopyUTF8toUTF16(aUsername, *formatStrings.AppendElement());
 
-  rv = bundle->FormatStringFromName("mailServerLoginFailed2", formatStrings, 2,
+  rv = bundle->FormatStringFromName("mailServerLoginFailed2", formatStrings,
                                     message);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -1612,9 +1612,9 @@ NS_MSG_BASE nsresult MsgPromptLoginFailed(nsIMsgWindow *aMsgWindow,
     // Account name may be empty e.g. on a SMTP server.
     rv = bundle->GetStringFromName("mailServerLoginFailedTitle", title);
   } else {
-    const char16_t *formatStrings[] = {aAccountname.BeginReading()};
+    AutoTArray<nsString, 1> formatStrings = {nsString(aAccountname)};
     rv = bundle->FormatStringFromName("mailServerLoginFailedTitleWithAccount",
-                                      formatStrings, 1, title);
+                                      formatStrings, title);
   }
   NS_ENSURE_SUCCESS(rv, rv);
 

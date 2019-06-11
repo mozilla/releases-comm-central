@@ -1047,28 +1047,24 @@ nsresult nsAbCardProperty::AppendCityStateZip(const AppendItem &aItem,
   nsString formattedString;
 
   if (!cityResult.IsEmpty() && !stateResult.IsEmpty() && !zipResult.IsEmpty()) {
-    const char16_t *formatStrings[] = {cityResult.get(), stateResult.get(),
-                                       zipResult.get()};
+    AutoTArray<nsString, 3> formatStrings = {cityResult, stateResult,
+                                             zipResult};
     rv = aBundle->FormatStringFromName("cityAndStateAndZip", formatStrings,
-                                       ArrayLength(formatStrings),
                                        formattedString);
     NS_ENSURE_SUCCESS(rv, rv);
   } else if (!cityResult.IsEmpty() && !stateResult.IsEmpty() &&
              zipResult.IsEmpty()) {
-    const char16_t *formatStrings[] = {cityResult.get(), stateResult.get()};
+    AutoTArray<nsString, 2> formatStrings = {cityResult, stateResult};
     rv = aBundle->FormatStringFromName("cityAndStateNoZip", formatStrings,
-                                       ArrayLength(formatStrings),
                                        formattedString);
     NS_ENSURE_SUCCESS(rv, rv);
   } else if ((!cityResult.IsEmpty() && stateResult.IsEmpty() &&
               !zipResult.IsEmpty()) ||
              (cityResult.IsEmpty() && !stateResult.IsEmpty() &&
               !zipResult.IsEmpty())) {
-    const char16_t *formatStrings[] = {
-        cityResult.IsEmpty() ? stateResult.get() : cityResult.get(),
-        zipResult.get()};
+    AutoTArray<nsString, 2> formatStrings = {
+        cityResult.IsEmpty() ? stateResult : cityResult, zipResult};
     rv = aBundle->FormatStringFromName("cityOrStateAndZip", formatStrings,
-                                       ArrayLength(formatStrings),
                                        formattedString);
     NS_ENSURE_SUCCESS(rv, rv);
   } else {
@@ -1119,15 +1115,15 @@ NS_IMETHODIMP nsAbCardProperty::GenerateName(int32_t aGenerateFormat,
     nsString result;
 
     if (aGenerateFormat == GENERATE_LAST_FIRST_ORDER) {
-      const char16_t *stringParams[2] = {lastName.get(), firstName.get()};
+      AutoTArray<nsString, 2> stringParams = {lastName, firstName};
 
-      rv = bundle->FormatStringFromName("lastFirstFormat", stringParams, 2,
-                                        result);
+      rv =
+          bundle->FormatStringFromName("lastFirstFormat", stringParams, result);
     } else {
-      const char16_t *stringParams[2] = {firstName.get(), lastName.get()};
+      AutoTArray<nsString, 2> stringParams = {firstName, lastName};
 
-      rv = bundle->FormatStringFromName("firstLastFormat", stringParams, 2,
-                                        result);
+      rv =
+          bundle->FormatStringFromName("firstLastFormat", stringParams, result);
     }
     NS_ENSURE_SUCCESS(rv, rv);
 

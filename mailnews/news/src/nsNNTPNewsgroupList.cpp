@@ -285,7 +285,7 @@ nsresult nsNNTPNewsgroupList::GetRangeOfArtsToDownload(
     rv = bundle->GetStringFromName("noNewMessages", statusString);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    SetProgressStatus(statusString.get());
+    SetProgressStatus(statusString);
   }
 
   if (maxextra <= 0 || last_possible < first_possible || last_possible < 1) {
@@ -804,12 +804,12 @@ nsresult nsNNTPNewsgroupList::FinishXOVERLINE(int status, int *newstatus) {
       rv = bundleService->CreateBundle(NEWS_MSGS_URL, getter_AddRefs(bundle));
       NS_ENSURE_SUCCESS(rv, rv);
 
-      const char16_t *formatStrings[2] = {firstStr.get(), lastStr.get()};
-      rv = bundle->FormatStringFromName("downloadingArticles", formatStrings, 2,
+      AutoTArray<nsString, 2> formatStrings = {firstStr, lastStr};
+      rv = bundle->FormatStringFromName("downloadingArticles", formatStrings,
                                         statusString);
       NS_ENSURE_SUCCESS(rv, rv);
 
-      SetProgressStatus(statusString.get());
+      SetProgressStatus(statusString);
     }
   }
 
@@ -1103,7 +1103,7 @@ void nsNNTPNewsgroupList::SetProgressBarPercent(int32_t percent) {
   }
 }
 
-void nsNNTPNewsgroupList::SetProgressStatus(const char16_t *aMessage) {
+void nsNNTPNewsgroupList::SetProgressStatus(const nsString &aMessage) {
   if (!m_runningURL) return;
 
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_runningURL);
@@ -1125,8 +1125,8 @@ void nsNNTPNewsgroupList::SetProgressStatus(const char16_t *aMessage) {
       nsCOMPtr<nsIStringBundle> bundle;
       rv = sbs->CreateBundle(MSGS_URL, getter_AddRefs(bundle));
       NS_ENSURE_SUCCESS_VOID(rv);
-      const char16_t *params[] = {accountName.get(), aMessage};
-      bundle->FormatStringFromName("statusMessage", params, 2, statusMessage);
+      AutoTArray<nsString, 2> params = {accountName, aMessage};
+      bundle->FormatStringFromName("statusMessage", params, statusMessage);
 
       feedback->ShowStatusString(statusMessage);
     }
@@ -1160,20 +1160,19 @@ void nsNNTPNewsgroupList::UpdateStatus(bool filtering, int32_t numDLed,
 
   if (filtering) {
     NS_ConvertUTF8toUTF16 header(m_filterHeaders[m_currentXHDRIndex]);
-    const char16_t *formatStrings[4] = {header.get(), numDownloadedStr.get(),
-                                        totalToDownloadStr.get(),
-                                        newsgroupName.get()};
+    AutoTArray<nsString, 4> formatStrings = {header, numDownloadedStr,
+                                             totalToDownloadStr, newsgroupName};
     rv = bundle->FormatStringFromName("newNewsgroupFilteringHeaders",
-                                      formatStrings, 4, statusString);
+                                      formatStrings, statusString);
   } else {
-    const char16_t *formatStrings[3] = {
-        numDownloadedStr.get(), totalToDownloadStr.get(), newsgroupName.get()};
-    rv = bundle->FormatStringFromName("newNewsgroupHeaders", formatStrings, 3,
+    AutoTArray<nsString, 3> formatStrings = {numDownloadedStr,
+                                             totalToDownloadStr, newsgroupName};
+    rv = bundle->FormatStringFromName("newNewsgroupHeaders", formatStrings,
                                       statusString);
   }
   if (!NS_SUCCEEDED(rv)) return;
 
-  SetProgressStatus(statusString.get());
+  SetProgressStatus(statusString);
   m_lastStatusUpdate = PR_Now();
 
   // only update the progress meter if it has changed

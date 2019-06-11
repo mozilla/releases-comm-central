@@ -1124,15 +1124,13 @@ nsMsgNewsFolder::GetAuthenticationCredentials(nsIMsgWindow *aMsgWindow,
       bool singleSignon = true;
       nntpServer->GetSingleSignon(&singleSignon);
 
-      const char16_t *params[2];
-      params[0] = mName.get();
-      params[1] = serverName.get();
-      if (singleSignon)
-        bundle->FormatStringFromName("enterUserPassServer", &params[1], 1,
-                                     promptText);
-      else
-        bundle->FormatStringFromName("enterUserPassGroup", params, 2,
-                                     promptText);
+      if (singleSignon) {
+        AutoTArray<nsString, 1> params = {serverName};
+        bundle->FormatStringFromName("enterUserPassServer", params, promptText);
+      } else {
+        AutoTArray<nsString, 2> params = {mName, serverName};
+        bundle->FormatStringFromName("enterUserPassGroup", params, promptText);
+      }
 
       // Fill the signon url for the dialog
       nsString signonURL;

@@ -303,7 +303,7 @@ NS_IMETHODIMP nsAddrDatabase::Open(nsIFile *aMabFile, bool aCreate,
       nsAutoString mabFileName;
       rv = aMabFile->GetLeafName(mabFileName);
       NS_ENSURE_SUCCESS(rv, rv);
-      AlertAboutLockedMabFile(mabFileName.get());
+      AlertAboutLockedMabFile(mabFileName);
 
       // We just overwrote rv, so return the proper value here.
       return NS_ERROR_FILE_ACCESS_DENIED;
@@ -372,8 +372,7 @@ NS_IMETHODIMP nsAddrDatabase::Open(nsIFile *aMabFile, bool aCreate,
 
         // if this fails, we don't care
         (void)AlertAboutCorruptMabFile(
-            originalMabFileName.get(),
-            NS_ConvertASCIItoUTF16(backupMabFileName).get());
+            originalMabFileName, NS_ConvertASCIItoUTF16(backupMabFileName));
       }
     }
   }
@@ -382,8 +381,7 @@ NS_IMETHODIMP nsAddrDatabase::Open(nsIFile *aMabFile, bool aCreate,
 
 nsresult nsAddrDatabase::DisplayAlert(const char16_t *titleName,
                                       const char16_t *alertStringName,
-                                      const char16_t **formatStrings,
-                                      int32_t numFormatStrings) {
+                                      nsTArray<nsString> &formatStrings) {
   nsresult rv;
   nsCOMPtr<nsIStringBundleService> bundleService =
       mozilla::services::GetStringBundleService();
@@ -396,9 +394,9 @@ nsresult nsAddrDatabase::DisplayAlert(const char16_t *titleName,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString alertMessage;
-  rv = bundle->FormatStringFromName(
-      NS_ConvertUTF16toUTF8(alertStringName).get(), formatStrings,
-      numFormatStrings, alertMessage);
+  rv =
+      bundle->FormatStringFromName(NS_ConvertUTF16toUTF8(alertStringName).get(),
+                                   formatStrings, alertMessage);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString alertTitle;
@@ -415,16 +413,17 @@ nsresult nsAddrDatabase::DisplayAlert(const char16_t *titleName,
 }
 
 nsresult nsAddrDatabase::AlertAboutCorruptMabFile(
-    const char16_t *aOldFileName, const char16_t *aNewFileName) {
-  const char16_t *formatStrings[] = {aOldFileName, aOldFileName, aNewFileName};
+    const nsString &aOldFileName, const nsString &aNewFileName) {
+  AutoTArray<nsString, 3> formatStrings = {aOldFileName, aOldFileName,
+                                           aNewFileName};
   return DisplayAlert(u"corruptMabFileTitle", u"corruptMabFileAlert",
-                      formatStrings, 3);
+                      formatStrings);
 }
 
-nsresult nsAddrDatabase::AlertAboutLockedMabFile(const char16_t *aFileName) {
-  const char16_t *formatStrings[] = {aFileName};
+nsresult nsAddrDatabase::AlertAboutLockedMabFile(const nsString &aFileName) {
+  AutoTArray<nsString, 1> formatStrings = {aFileName};
   return DisplayAlert(u"lockedMabFileTitle", u"lockedMabFileAlert",
-                      formatStrings, 1);
+                      formatStrings);
 }
 
 nsresult nsAddrDatabase::OpenInternal(nsIFile *aMabFile, bool aCreate,

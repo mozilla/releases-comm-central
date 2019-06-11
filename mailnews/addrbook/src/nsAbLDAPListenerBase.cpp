@@ -123,15 +123,14 @@ NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection *aConn,
     // bug in egcs 1.1.2 (the version of gcc that comes with Red Hat 6.2),
     // which is the default compiler for Mozilla on linux at the moment.
     //
-    NS_ConvertASCIItoUTF16 hostTemp(host);
-    const char16_t *hostArray[1] = {hostTemp.get()};
+    AutoTArray<nsString, 1> hostArray;
+    CopyASCIItoUTF16(host, *hostArray.AppendElement());
 
     // format the hostname into the authprompt text string
     //
     nsString authPromptText;
-    rv = ldapBundle->FormatStringFromName(
-        "authPromptText", hostArray,
-        sizeof(hostArray) / sizeof(const char16_t *), authPromptText);
+    rv = ldapBundle->FormatStringFromName("authPromptText", hostArray,
+                                          authPromptText);
     if (NS_FAILED(rv)) {
       NS_ERROR(
           "nsAbLDAPListenerBase::OnLDAPInit():"

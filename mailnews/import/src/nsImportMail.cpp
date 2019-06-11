@@ -830,8 +830,8 @@ bool nsImportGenericMail::CreateFolder(nsIMsgFolder **ppFolder) {
   if (NS_FAILED(rv)) return false;
   nsString folderName;
   if (!m_pName.IsEmpty()) {
-    const char16_t *moduleName[] = {m_pName.get()};
-    rv = bundle->FormatStringFromName("ImportModuleFolderName", moduleName, 1,
+    AutoTArray<nsString, 1> moduleName = {m_pName};
+    rv = bundle->FormatStringFromName("ImportModuleFolderName", moduleName,
                                       folderName);
   } else {
     rv = bundle->GetStringFromName("DefaultFolderName", folderName);

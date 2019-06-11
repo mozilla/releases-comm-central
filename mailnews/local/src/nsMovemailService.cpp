@@ -102,8 +102,8 @@ nsMovemailService::CheckForNewMail(nsIUrlListener *aUrlListener,
   return rv;
 }
 
-void nsMovemailService::Error(const char *errorCode, const char16_t **params,
-                              uint32_t length) {
+void nsMovemailService::Error(const char *errorCode,
+                              nsTArray<nsString> &params, ) {
   if (!mMsgWindow) return;
 
   nsCOMPtr<nsIPrompt> dialog;
@@ -121,7 +121,7 @@ void nsMovemailService::Error(const char *errorCode, const char16_t **params,
   nsString errStr;
   // Format the error string if necessary
   if (params)
-    bundle->FormatStringFromName(errorCode, params, length, errStr);
+    bundle->FormatStringFromName(errorCode, params, errStr);
   else
     bundle->GetStringFromName(errorCode, errStr);
 
@@ -140,8 +140,8 @@ SpoolLock::SpoolLock(nsACString *aSpoolName, int aSeconds,
   if (!ObtainSpoolLock(aSeconds)) {
     NS_ConvertUTF8toUTF16 lockFile(mSpoolName);
     lockFile.AppendLiteral(LOCK_SUFFIX);
-    const char16_t *params[] = {lockFile.get()};
-    mOwningService->Error("movemailCantCreateLock", params, 1);
+    AutoTArray<nsString, 1> params = {lockFile};
+    mOwningService->Error("movemailCantCreateLock", params);
     return;
   }
   mServer->SetServerBusy(true);
@@ -152,8 +152,8 @@ SpoolLock::~SpoolLock() {
   if (mLocked && !YieldSpoolLock()) {
     NS_ConvertUTF8toUTF16 lockFile(mSpoolName);
     lockFile.AppendLiteral(LOCK_SUFFIX);
-    const char16_t *params[] = {lockFile.get()};
-    mOwningService->Error("movemailCantDeleteLock", params, 1);
+    AutoTArray<nsString, 1> params = {lockFile};
+    mOwningService->Error("movemailCantDeleteLock", params);
   }
   mServer->SetServerBusy(false);
 }

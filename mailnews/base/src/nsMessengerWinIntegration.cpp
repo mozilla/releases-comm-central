@@ -641,17 +641,15 @@ void nsMessengerWinIntegration::FillToolTipInfo() {
         nsAutoString numNewMsgsText;
         numNewMsgsText.AppendInt(numNewMessages);
 
-        const char16_t *formatStrings[] = {
-            numNewMsgsText.get(),
-        };
+        AutoTArray<nsString, 1> formatStrings = {numNewMsgsText};
 
         nsString finalText;
         if (numNewMessages == 1)
           bundle->FormatStringFromName("biffNotification_message",
-                                       formatStrings, 1, finalText);
+                                       formatStrings, finalText);
         else
           bundle->FormatStringFromName("biffNotification_messages",
-                                       formatStrings, 1, finalText);
+                                       formatStrings, finalText);
 
         // the alert message is special...we actually only want to show the
         // first account with new mail in the alert.

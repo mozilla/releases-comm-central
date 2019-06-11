@@ -504,11 +504,11 @@ NS_IMETHODIMP nsAbManager::ExportAddressBook(mozIDOMWindowProxy *aParentWin,
 
   nsString dirName;
   aDirectory->GetDirName(dirName);
-  const char16_t *formatStrings[] = {dirName.get()};
+  AutoTArray<nsString, 1> formatStrings = {dirName};
 
   nsString title;
   rv = bundle->FormatStringFromName("ExportAddressBookNameTitle", formatStrings,
-                                    ArrayLength(formatStrings), title);
+                                    title);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = filePicker->Init(aParentWin, title, nsIFilePicker::modeSave);

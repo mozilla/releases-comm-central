@@ -334,13 +334,13 @@ nsresult nsMessenger::PromptIfFileExists(nsIFile *file) {
   nsString errorMessage;
 
   file->GetPath(path);
-  const char16_t *pathFormatStrings[] = {path.get()};
+  AutoTArray<nsString, 1> pathFormatStrings = {path};
 
   if (!mStringBundle) {
     rv = InitStringBundle();
     NS_ENSURE_SUCCESS(rv, rv);
   }
-  rv = mStringBundle->FormatStringFromName("fileExists", pathFormatStrings, 1,
+  rv = mStringBundle->FormatStringFromName("fileExists", pathFormatStrings,
                                            errorMessage);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = dialog->Confirm(nullptr, errorMessage.get(), &dialogResult);
@@ -794,8 +794,8 @@ nsresult nsMessenger::SaveOneAttachment(const char *aContentType,
     }
 
     nsString filterName;
-    const char16_t *extensionParam[] = {extension.get()};
-    rv = mStringBundle->FormatStringFromName("saveAsType", extensionParam, 1,
+    AutoTArray<nsString, 1> extensionParam = {extension};
+    rv = mStringBundle->FormatStringFromName("saveAsType", extensionParam,
                                              filterName);
     NS_ENSURE_SUCCESS(rv, rv);
 
@@ -2767,13 +2767,13 @@ nsresult nsMessenger::PromptIfDeleteAttachments(
     attachmentList.Append(displayString);
     attachmentList.Append(char16_t('\n'));
   }
-  const char16_t *formatStrings[] = {attachmentList.get()};
+  AutoTArray<nsString, 1> formatStrings = {attachmentList};
 
   // format the message and display
   nsString promptMessage;
   const char *propertyName =
       aSaveFirst ? "detachAttachments" : "deleteAttachments";
-  rv = mStringBundle->FormatStringFromName(propertyName, formatStrings, 1,
+  rv = mStringBundle->FormatStringFromName(propertyName, formatStrings,
                                            promptMessage);
   NS_ENSURE_SUCCESS(rv, rv);
 

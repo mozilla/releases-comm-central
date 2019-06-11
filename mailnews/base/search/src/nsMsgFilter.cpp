@@ -512,23 +512,22 @@ nsresult nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
       // string.
       tErrmsg.Assign(NS_ConvertUTF8toUTF16(aErrmsg));
     }
-    const char16_t *logErrorFormatStrings[2] = {tErrmsg.get(), tcode16.get()};
+    AutoTArray<nsString, 2> logErrorFormatStrings = {tErrmsg, tcode16};
 
     nsString filterFailureWarningPrefix;
     rv = bundle->FormatStringFromName("filterFailureWarningPrefix",
-                                      logErrorFormatStrings, 2,
+                                      logErrorFormatStrings,
                                       filterFailureWarningPrefix);
     NS_ENSURE_SUCCESS(rv, rv);
     buffer += filterFailureWarningPrefix;
     buffer.AppendLiteral("\n");
   }
 
-  const char16_t *filterLogDetectFormatStrings[4] = {
-      filterName.get(), authorValue.get(), subjectValue.get(), dateValue.get()};
+  AutoTArray<nsString, 4> filterLogDetectFormatStrings = {
+      filterName, authorValue, subjectValue, dateValue};
   nsString filterLogDetectStr;
-  rv = bundle->FormatStringFromName("filterLogDetectStr",
-                                    filterLogDetectFormatStrings, 4,
-                                    filterLogDetectStr);
+  rv = bundle->FormatStringFromName(
+      "filterLogDetectStr", filterLogDetectFormatStrings, filterLogDetectStr);
   NS_ENSURE_SUCCESS(rv, rv);
 
   buffer += filterLogDetectStr;
@@ -538,19 +537,18 @@ nsresult nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
       actionType == nsMsgFilterAction::CopyToFolder) {
     nsCString actionFolderUri;
     aFilterAction->GetTargetFolderUri(actionFolderUri);
-    NS_ConvertASCIItoUTF16 actionFolderUriValue(actionFolderUri);
 
     nsCString msgId;
     aMsgHdr->GetMessageId(getter_Copies(msgId));
-    NS_ConvertASCIItoUTF16 msgIdValue(msgId);
 
-    const char16_t *logMoveFormatStrings[2] = {msgIdValue.get(),
-                                               actionFolderUriValue.get()};
+    AutoTArray<nsString, 2> logMoveFormatStrings;
+    CopyUTF8toUTF16(msgId, *logMoveFormatStrings.AppendElement());
+    CopyUTF8toUTF16(actionFolderUri, *logMoveFormatStrings.AppendElement());
     nsString logMoveStr;
     rv = bundle->FormatStringFromName(
         (actionType == nsMsgFilterAction::MoveToFolder) ? "logMoveStr"
                                                         : "logCopyStr",
-        logMoveFormatStrings, 2, logMoveStr);
+        logMoveFormatStrings, logMoveStr);
     NS_ENSURE_SUCCESS(rv, rv);
 
     buffer += logMoveStr;

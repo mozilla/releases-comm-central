@@ -21,7 +21,7 @@ class nsMovemailService : public nsIMsgProtocolInfo, public nsIMovemailService {
   NS_DECL_NSIMOVEMAILSERVICE
   NS_DECL_NSIMSGPROTOCOLINFO
 
-  void Error(const char* errorCode, const char16_t** params, uint32_t length);
+  void Error(const char* errorCode, nsTArray<nsString>& params);
 
  private:
   virtual ~nsMovemailService();

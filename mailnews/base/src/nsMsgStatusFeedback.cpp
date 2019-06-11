@@ -261,9 +261,8 @@ NS_IMETHODIMP nsMsgStatusFeedback::OnStatus(nsIRequest* request,
   if (!str.IsEmpty() && str.Find(accountName) == kNotFound) {
     nsCOMPtr<nsIStringBundle> bundle;
     rv = sbs->CreateBundle(MSGS_URL, getter_AddRefs(bundle));
-    const char16_t* params[] = {accountName.get(), str.get()};
-    rv =
-        bundle->FormatStringFromName("statusMessage", params, 2, statusMessage);
+    AutoTArray<nsString, 2> params = {accountName, str};
+    rv = bundle->FormatStringFromName("statusMessage", params, statusMessage);
     NS_ENSURE_SUCCESS(rv, rv);
   } else {
     statusMessage.Assign(str);

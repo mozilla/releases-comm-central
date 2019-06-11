@@ -636,11 +636,11 @@ NS_IMETHODIMP nsSpamSettings::LogJunkHit(nsIMsgDBHdr *aMsgHdr,
       "chrome://messenger/locale/filter.properties", getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  const char16_t *junkLogDetectFormatStrings[3] = {
-      authorValue.get(), subjectValue.get(), dateValue.get()};
+  AutoTArray<nsString, 3> junkLogDetectFormatStrings = {
+      authorValue, subjectValue, dateValue};
   nsString junkLogDetectStr;
   rv = bundle->FormatStringFromName(
-      "junkLogDetectStr", junkLogDetectFormatStrings, 3, junkLogDetectStr);
+      "junkLogDetectStr", junkLogDetectFormatStrings, junkLogDetectStr);
   NS_ENSURE_SUCCESS(rv, rv);
 
   buffer += NS_ConvertUTF16toUTF8(junkLogDetectStr);
@@ -654,13 +654,11 @@ NS_IMETHODIMP nsSpamSettings::LogJunkHit(nsIMsgDBHdr *aMsgHdr,
     rv = GetSpamFolderURI(getter_Copies(junkFolderURI));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    NS_ConvertASCIItoUTF16 msgIdValue(msgId);
-    NS_ConvertASCIItoUTF16 junkFolderURIValue(junkFolderURI);
-
-    const char16_t *logMoveFormatStrings[2] = {msgIdValue.get(),
-                                               junkFolderURIValue.get()};
+    AutoTArray<nsString, 2> logMoveFormatStrings;
+    CopyASCIItoUTF16(msgId, *logMoveFormatStrings.AppendElement());
+    CopyASCIItoUTF16(junkFolderURI, *logMoveFormatStrings.AppendElement());
     nsString logMoveStr;
-    rv = bundle->FormatStringFromName("logMoveStr", logMoveFormatStrings, 2,
+    rv = bundle->FormatStringFromName("logMoveStr", logMoveFormatStrings,
                                       logMoveStr);
     NS_ENSURE_SUCCESS(rv, rv);
 

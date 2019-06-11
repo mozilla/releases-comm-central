@@ -694,9 +694,8 @@ nsresult nsPop3Sink::HandleTempDownloadFailed(nsIMsgWindow *msgWindow) {
 
   m_newMailParser->m_newMsgHdr->GetMime2DecodedSubject(subjectStr);
   m_newMailParser->m_newMsgHdr->GetMime2DecodedAuthor(fromStr);
-  const char16_t *params[] = {fromStr.get(), subjectStr.get()};
-  bundle->FormatStringFromName("pop3TmpDownloadError", params, 2,
-                               confirmString);
+  AutoTArray<nsString, 2> params = {fromStr, subjectStr};
+  bundle->FormatStringFromName("pop3TmpDownloadError", params, confirmString);
   nsCOMPtr<mozIDOMWindowProxy> parentWindow;
   nsCOMPtr<nsIPromptService> promptService =
       do_GetService(NS_PROMPTSERVICE_CONTRACTID);

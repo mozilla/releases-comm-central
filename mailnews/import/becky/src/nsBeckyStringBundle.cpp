@@ -45,12 +45,11 @@ char16_t *nsBeckyStringBundle::GetStringByName(const char *aName) {
 }
 
 nsresult nsBeckyStringBundle::FormatStringFromName(const char *name,
-                                                   const char16_t **params,
-                                                   uint32_t length,
+                                                   nsTArray<nsString> &params,
                                                    nsAString &_retval) {
   EnsureStringBundle();
 
-  return mBundle->FormatStringFromName(name, params, length, _retval);
+  return mBundle->FormatStringFromName(name, params, _retval);
 }
 
 void nsBeckyStringBundle::Cleanup(void) { mBundle = nullptr; }

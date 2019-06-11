@@ -700,7 +700,7 @@ nsresult nsMsgLocalMailFolder::ConfirmFolderDeletion(nsIMsgWindow *aMsgWindow,
       nsAutoString folderName;
       rv = aFolder->GetName(folderName);
       NS_ENSURE_SUCCESS(rv, rv);
-      const char16_t *formatStrings[1] = {folderName.get()};
+      AutoTArray<nsString, 1> formatStrings = {folderName};
 
       nsAutoString deleteFolderDialogTitle;
       rv = bundle->GetStringFromName("pop3DeleteFolderDialogTitle",
@@ -714,7 +714,7 @@ nsresult nsMsgLocalMailFolder::ConfirmFolderDeletion(nsIMsgWindow *aMsgWindow,
 
       nsAutoString confirmationStr;
       rv = bundle->FormatStringFromName("pop3MoveFolderToTrash", formatStrings,
-                                        1, confirmationStr);
+                                        confirmationStr);
       NS_ENSURE_SUCCESS(rv, rv);
 
       nsCOMPtr<nsIPrompt> dialog(do_GetInterface(docShell));
@@ -3031,12 +3031,12 @@ nsresult nsMsgLocalMailFolder::DisplayMoveCopyStatusMsg() {
       nsAutoString totalMessagesString;
       totalMessagesString.AppendInt(mCopyState->m_totalMsgCount);
       nsString finalString;
-      const char16_t *stringArray[] = {
-          numMsgSoFarString.get(), totalMessagesString.get(), folderName.get()};
+      AutoTArray<nsString, 3> stringArray = {numMsgSoFarString,
+                                             totalMessagesString, folderName};
       rv = mCopyState->m_stringBundle->FormatStringFromName(
           (mCopyState->m_isMove) ? "movingMessagesStatus"
                                  : "copyingMessagesStatus",
-          stringArray, 3, finalString);
+          stringArray, finalString);
       int64_t nowMS = PR_IntervalToMilliseconds(PR_IntervalNow());
 
       // only update status/progress every half second

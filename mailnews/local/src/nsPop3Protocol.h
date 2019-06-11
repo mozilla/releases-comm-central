@@ -349,8 +349,7 @@ class nsPop3Protocol : public nsMsgProtocol,
   int32_t WaitForStartOfConnectionResponse(nsIInputStream* inputStream,
                                            uint32_t length);
   int32_t WaitForResponse(nsIInputStream* inputStream, uint32_t length);
-  int32_t Error(const char* err_code, const char16_t** params = nullptr,
-                uint32_t length = 0);
+  int32_t Error(const char* err_code, const char16_t* param = nullptr);
   int32_t SendAuth();
   int32_t AuthResponse(nsIInputStream* inputStream, uint32_t length);
   int32_t SendCapa();

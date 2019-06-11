@@ -561,16 +561,12 @@ uint32_t nsPop3Protocol::GetCapFlags() {
 nsresult nsPop3Protocol::FormatCounterString(const nsString &stringName,
                                              uint32_t count1, uint32_t count2,
                                              nsString &resultString) {
-  nsAutoString count1String;
-  count1String.AppendInt(count1);
-
-  nsAutoString count2String;
-  count2String.AppendInt(count2);
-
-  const char16_t *formatStrings[] = {count1String.get(), count2String.get()};
+  AutoTArray<nsString, 2> formatStrings;
+  formatStrings.AppendElement()->AppendInt(count1);
+  formatStrings.AppendElement()->AppendInt(count2);
 
   return mLocalBundle->FormatStringFromName(
-      NS_ConvertUTF16toUTF8(stringName).get(), formatStrings, 2, resultString);
+      NS_ConvertUTF16toUTF8(stringName).get(), formatStrings, resultString);
 }
 
 void nsPop3Protocol::UpdateStatus(const char *aStatusName) {
@@ -705,9 +701,9 @@ NS_IMETHODIMP nsPop3Protocol::OnPromptStart(bool *aResult) {
   server->GetPrettyName(accountName);
 
   nsString passwordPrompt;
-  NS_ConvertUTF8toUTF16 userNameUTF16(userName);
-  NS_ConvertUTF8toUTF16 hostNameUTF16(hostName);
-  const char16_t *passwordParams[] = {userNameUTF16.get(), hostNameUTF16.get()};
+  AutoTArray<nsString, 2> passwordParams;
+  CopyUTF8toUTF16(userName, *passwordParams.AppendElement());
+  CopyUTF8toUTF16(hostName, *passwordParams.AppendElement());
 
   // if the last prompt got us a bad password then show a special dialog
   if (TestFlag(POP3_PASSWORD_FAILED)) {
@@ -790,13 +786,13 @@ NS_IMETHODIMP nsPop3Protocol::OnPromptStart(bool *aResult) {
       }
     }
     mLocalBundle->FormatStringFromName(
-        "pop3PreviouslyEnteredPasswordIsInvalidPrompt", passwordParams, 2,
+        "pop3PreviouslyEnteredPasswordIsInvalidPrompt", passwordParams,
         passwordPrompt);
   } else
     // Otherwise this is the first time we've asked about the server's
     // password so show a first time prompt.
     mLocalBundle->FormatStringFromName("pop3EnterPasswordPrompt",
-                                       passwordParams, 2, passwordPrompt);
+                                       passwordParams, passwordPrompt);
 
   nsString passwordTitle;
   mLocalBundle->GetStringFromName("pop3EnterPasswordPromptTitle",
@@ -1178,8 +1174,7 @@ int32_t nsPop3Protocol::WaitForResponse(nsIInputStream *inputStream,
   return (1); /* everything ok */
 }
 
-int32_t nsPop3Protocol::Error(const char *err_code, const char16_t **params,
-                              uint32_t length) {
+int32_t nsPop3Protocol::Error(const char *err_code, const char16_t *param) {
   MOZ_LOG(POP3LOGMODULE, LogLevel::Info, (POP3LOG("ERROR: %s"), err_code));
   nsresult rv = NS_OK;
 
@@ -1187,8 +1182,9 @@ int32_t nsPop3Protocol::Error(const char *err_code, const char16_t **params,
   // so print out that error message!
   nsAutoString message;
   // Format the alert string if parameter list isn't empty
-  if (params) {
-    mLocalBundle->FormatStringFromName(err_code, params, length, message);
+  if (param) {
+    AutoTArray<nsString, 1> params = {nsDependentString(param)};
+    mLocalBundle->FormatStringFromName(err_code, params, message);
   } else {
     mLocalBundle->GetStringFromName(err_code, message);
   }
@@ -1202,10 +1198,9 @@ int32_t nsPop3Protocol::Error(const char *err_code, const char16_t **params,
       rv = server->GetRealHostName(hostName);
     }
     if (NS_SUCCEEDED(rv)) {
-      nsAutoString hostStr;
-      CopyASCIItoUTF16(hostName, hostStr);
-      const char16_t *params[] = {hostStr.get()};
-      mLocalBundle->FormatStringFromName("pop3ServerSaid", params, 1,
+      AutoTArray<nsString, 1> params;
+      CopyASCIItoUTF16(hostName, *params.AppendElement());
+      mLocalBundle->FormatStringFromName("pop3ServerSaid", params,
                                          serverSaidPrefix);
     }
 
@@ -1223,9 +1218,9 @@ int32_t nsPop3Protocol::Error(const char *err_code, const char16_t **params,
   nsString accountName;
   rv = server->GetPrettyName(accountName);
   NS_ENSURE_SUCCESS(rv, -1);
-  const char16_t *titleParams[] = {accountName.get()};
+  AutoTArray<nsString, 1> titleParams = {accountName};
   nsString dialogTitle;
-  mLocalBundle->FormatStringFromName("pop3ErrorDialogTitle", titleParams, 1,
+  mLocalBundle->FormatStringFromName("pop3ErrorDialogTitle", titleParams,
                                      dialogTitle);
   // we handle "pop3TmpDownloadError" earlier...
   if (strcmp(err_code, "pop3TmpDownloadError") && NS_SUCCEEDED(rv)) {
@@ -1733,10 +1728,9 @@ int32_t nsPop3Protocol::NextAuthStep() {
     nsresult rv = server->GetRealUsername(userName);
     NS_ENSURE_SUCCESS(rv, -1);
     NS_ConvertUTF8toUTF16 userNameUTF16(userName);
-    const char16_t *params[] = {userNameUTF16.get()};
     if (TestFlag(POP3_STOPLOGIN)) {
       if (m_password_already_sent)
-        return Error("pop3PasswordFailed", params, 1);
+        return Error("pop3PasswordFailed", userNameUTF16.get());
 
       return Error("pop3UsernameFailure");
     }
@@ -1746,7 +1740,7 @@ int32_t nsPop3Protocol::NextAuthStep() {
       MOZ_LOG(POP3LOGMODULE, LogLevel::Debug,
               (POP3LOG("auth failure, setting password failed")));
       if (m_password_already_sent)
-        Error("pop3PasswordFailed", params, 1);
+        Error("pop3PasswordFailed", userNameUTF16.get());
       else
         Error("pop3UsernameFailure");
       SetFlag(POP3_PASSWORD_FAILED);
@@ -1782,7 +1776,7 @@ int32_t nsPop3Protocol::NextAuthStep() {
          prompting the user for a password: just fail silently.
       */
       SetFlag(POP3_PASSWORD_FAILED);
-      Error("pop3PasswordFailed", params, 1);
+      Error("pop3PasswordFailed", userNameUTF16.get());
       return 0;
     }
     MOZ_LOG(POP3LOGMODULE, LogLevel::Debug,
@@ -2209,8 +2203,7 @@ int32_t nsPop3Protocol::GetStat() {
         rv = server->GetPrettyName(accountName);
         NS_ENSURE_SUCCESS(rv, -1);
 
-        const char16_t *params[] = {accountName.get()};
-        return Error("pop3ServerBusy", params, 1);
+        return Error("pop3ServerBusy", accountName.get());
       }
 
       return Error("pop3MessageWriteError");
@@ -2358,8 +2351,7 @@ int32_t nsPop3Protocol::HandleNoUidListAvailable() {
   nsresult rv = server->GetRealHostName(hostName);
   NS_ENSURE_SUCCESS(rv, -1);
   NS_ConvertASCIItoUTF16 hostNameUnicode(hostName);
-  const char16_t *params[] = {hostNameUnicode.get()};
-  return Error("pop3ServerDoesNotSupportUidlEtc", params, 1);
+  return Error("pop3ServerDoesNotSupportUidlEtc", hostNameUnicode.get());
 }
 
 /* km

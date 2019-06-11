@@ -95,12 +95,12 @@ static void PgpMimeGetNeedsAddonString(nsCString &aResult) {
   nsCString url;
   if (NS_FAILED(prefs->GetCharPref("mail.pgpmime.addon_url", url))) return;
 
-  NS_ConvertUTF8toUTF16 url16(url);
-  const char16_t *formatStrings[] = {url16.get()};
+  AutoTArray<nsString, 1> formatStrings;
+  CopyUTF8toUTF16(url, *formatStrings.AppendElement());
 
   nsString result;
   rv = stringBundle->FormatStringFromName(PGPMIME_STR_NOT_SUPPORTED_ID,
-                                          formatStrings, 1, result);
+                                          formatStrings, result);
   if (NS_FAILED(rv)) return;
   aResult = NS_ConvertUTF16toUTF8(result);
 }

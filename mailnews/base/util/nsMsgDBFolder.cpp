@@ -1764,12 +1764,12 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow *aWindow) {
           nsString buttonCompactNowText;
           nsAutoString compactSize;
           FormatFileSize(totalExpungedBytes, true, compactSize);
-          const char16_t *params[] = {compactSize.get()};
+          AutoTArray<nsString, 1> params = {compactSize};
           rv = bundle->GetStringFromName("autoCompactAllFoldersTitle",
                                          dialogTitle);
           NS_ENSURE_SUCCESS(rv, rv);
           rv = bundle->FormatStringFromName("autoCompactAllFoldersText", params,
-                                            1, confirmString);
+                                            confirmString);
           NS_ENSURE_SUCCESS(rv, rv);
           rv = bundle->GetStringFromName("autoCompactAlwaysAskCheckbox",
                                          checkboxText);
@@ -3581,12 +3581,11 @@ bool nsMsgDBFolder::ConfirmAutoFolderRename(nsIMsgWindow *msgWindow,
 
   nsString folderName;
   GetName(folderName);
-  const char16_t *formatStrings[] = {aOldName.get(), folderName.get(),
-                                     aNewName.get()};
+  AutoTArray<nsString, 3> formatStrings = {aOldName, folderName, aNewName};
 
   nsString confirmString;
   rv = bundle->FormatStringFromName("confirmDuplicateFolderRename",
-                                    formatStrings, 3, confirmString);
+                                    formatStrings, confirmString);
   if (NS_WARN_IF(NS_FAILED(rv))) {
     return false;
   }
@@ -4815,11 +4814,10 @@ nsMsgDBFolder::GetStringWithFolderNameFromBundle(const char *msgName,
   if (NS_SUCCEEDED(rv) && bundle) {
     nsString folderName;
     GetName(folderName);
-    const char16_t *formatStrings[] = {folderName.get(),
-                                       kLocalizedBrandShortName.get()};
-
+    AutoTArray<nsString, 2> formatStrings = {folderName,
+                                             kLocalizedBrandShortName};
     nsString resultStr;
-    rv = bundle->FormatStringFromName(msgName, formatStrings, 2, resultStr);
+    rv = bundle->FormatStringFromName(msgName, formatStrings, resultStr);
     if (NS_SUCCEEDED(rv)) aResult.Assign(resultStr);
   }
   return rv;

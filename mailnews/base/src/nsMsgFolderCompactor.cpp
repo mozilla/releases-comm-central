@@ -308,9 +308,8 @@ nsresult nsFolderCompactState::ShowStatusMsg(const nsString &aMsg) {
     nsCOMPtr<nsIStringBundle> bundle;
     rv = GetBaseStringBundle(getter_AddRefs(bundle));
     if (NS_FAILED(rv)) break;
-    const char16_t *params[] = {accountName.get(), aMsg.get()};
-    rv =
-        bundle->FormatStringFromName("statusMessage", params, 2, statusMessage);
+    AutoTArray<nsString, 2> params = {accountName, aMsg};
+    rv = bundle->FormatStringFromName("statusMessage", params, statusMessage);
   } while (false);
 
   // If fetching any of the needed info failed, just show the original message.
@@ -629,9 +628,8 @@ void nsFolderCompactState::ShowDoneStatus() {
     NS_ENSURE_SUCCESS_VOID(rv);
     nsAutoString expungedAmount;
     FormatFileSize(m_totalExpungedBytes, true, expungedAmount);
-    const char16_t *params[] = {expungedAmount.get()};
-    rv =
-        bundle->FormatStringFromName("compactingDone", params, 1, statusString);
+    AutoTArray<nsString, 1> params = {expungedAmount};
+    rv = bundle->FormatStringFromName("compactingDone", params, statusString);
 
     if (!statusString.IsEmpty() && NS_SUCCEEDED(rv))
       ShowStatusMsg(statusString);

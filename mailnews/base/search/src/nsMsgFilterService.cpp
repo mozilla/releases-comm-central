@@ -1346,9 +1346,9 @@ bool nsMsgFilterAfterTheFact::ContinueExecutionPrompt() {
   m_curFilter->GetFilterName(filterName);
   nsString formatString;
   nsString confirmText;
-  const char16_t *formatStrings[] = {filterName.get()};
+  AutoTArray<nsString, 1> formatStrings = {filterName};
   nsresult rv = bundle->FormatStringFromName("continueFilterExecution",
-                                             formatStrings, 1, confirmText);
+                                             formatStrings, confirmText);
   if (NS_FAILED(rv)) return false;
   bool returnVal = false;
   (void)DisplayConfirmationPrompt(m_msgWindow, confirmText.get(), &returnVal);

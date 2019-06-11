@@ -584,9 +584,9 @@ void nsAppleMailImportMail::ReportStatus(const char16_t *aErrorName,
                                          nsString &aName, nsAString &aStream) {
   // get (and format, if needed) the error string from the bundle
   nsAutoString outString;
-  const char16_t *fmt = {aName.get()};
+  AutoTArray<nsString, 1> fmt = {aName};
   nsresult rv = mBundle->FormatStringFromName(
-      NS_ConvertUTF16toUTF8(aErrorName).get(), &fmt, 1, outString);
+      NS_ConvertUTF16toUTF8(aErrorName).get(), fmt, outString);
   // write it out the stream
   if (NS_SUCCEEDED(rv)) {
     aStream.Append(outString);

@@ -409,11 +409,11 @@ void nsPop3Service::AlertServerBusy(nsIMsgMailNewsUrl *url) {
   rv = server->GetPrettyName(accountName);
   NS_ENSURE_SUCCESS_VOID(rv);
 
-  const char16_t *params[] = {accountName.get()};
+  AutoTArray<nsString, 1> params = {accountName};
   nsString alertString;
   nsString dialogTitle;
-  bundle->FormatStringFromName("pop3ServerBusy", params, 1, alertString);
-  bundle->FormatStringFromName("pop3ErrorDialogTitle", params, 1, dialogTitle);
+  bundle->FormatStringFromName("pop3ServerBusy", params, alertString);
+  bundle->FormatStringFromName("pop3ErrorDialogTitle", params, dialogTitle);
   if (!alertString.IsEmpty())
     dialog->Alert(dialogTitle.get(), alertString.get());
 }

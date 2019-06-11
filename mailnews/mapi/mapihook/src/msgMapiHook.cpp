@@ -162,9 +162,8 @@ bool nsMapiHook::DisplayLoginDialog(bool aLogin, char16_t **aUsername,
     if (NS_FAILED(rv)) return false;
 
     nsString loginTitle;
-    const char16_t *brandStrings[] = {brandName.get()};
-    rv =
-        bundle->FormatStringFromName("loginTitle", brandStrings, 1, loginTitle);
+    AutoTArray<nsString, 1> brandStrings = {brandName};
+    rv = bundle->FormatStringFromName("loginTitle", brandStrings, loginTitle);
     if (NS_FAILED(rv)) return false;
 
     if (aLogin) {
@@ -179,9 +178,9 @@ bool nsMapiHook::DisplayLoginDialog(bool aLogin, char16_t **aUsername,
     } else {
       // nsString loginString;
       nsString loginText;
-      const char16_t *userNameStrings[] = {*aUsername};
-      rv = bundle->FormatStringFromName("loginText", userNameStrings, 1,
-                                        loginText);
+      AutoTArray<nsString, 1> userNameStrings = {nsDependentString(*aUsername)};
+      rv =
+          bundle->FormatStringFromName("loginText", userNameStrings, loginText);
       if (NS_FAILED(rv)) return false;
 
       bool dummyValue = false;

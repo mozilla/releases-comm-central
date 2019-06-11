@@ -1166,9 +1166,9 @@ NS_IMETHODIMP nsMsgFilterList::LogFilterMessage(const nsAString &message,
     nsString filterName;
     filter->GetFilterName(filterName);
 
-    const char16_t *logFormatStrings[2] = {filterName.get(), tempMessage.get()};
+    AutoTArray<nsString, 2> logFormatStrings = {filterName, tempMessage};
     nsString statusLogMessage;
-    rv = bundle->FormatStringFromName("filterMessage", logFormatStrings, 2,
+    rv = bundle->FormatStringFromName("filterMessage", logFormatStrings,
                                       statusLogMessage);
     if (NS_SUCCEEDED(rv)) tempMessage.Assign(statusLogMessage);
   }
@@ -1186,12 +1186,12 @@ NS_IMETHODIMP nsMsgFilterList::LogFilterMessage(const nsAString &message,
   // HTML tags, especially <script>.
   nsCString escapedBuffer;
   nsAppendEscapedHTML(NS_ConvertUTF16toUTF8(tempMessage), escapedBuffer);
-  NS_ConvertUTF8toUTF16 finalMessage(escapedBuffer);
 
   // Print timestamp and the message.
-  const char16_t *logFormatStrings[2] = {dateValue.get(), finalMessage.get()};
+  AutoTArray<nsString, 2> logFormatStrings = {dateValue};
+  CopyUTF8toUTF16(escapedBuffer, *logFormatStrings.AppendElement());
   nsString filterLogMessage;
-  rv = bundle->FormatStringFromName("filterLogLine", logFormatStrings, 2,
+  rv = bundle->FormatStringFromName("filterLogLine", logFormatStrings,
                                     filterLogMessage);
 
   // Write message into log stream.

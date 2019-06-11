@@ -1459,11 +1459,11 @@ char16_t *FormatStringWithHostNameByName(const char16_t *stringName,
   rv = server->GetRealHostName(hostName);
   NS_ENSURE_SUCCESS(rv, nullptr);
 
-  NS_ConvertASCIItoUTF16 hostStr(hostName);
-  const char16_t *params[] = {hostStr.get()};
+  AutoTArray<nsString, 1> params;
+  CopyASCIItoUTF16(hostName, *params.AppendElement());
   nsAutoString str;
   rv = sBundle->FormatStringFromName(NS_ConvertUTF16toUTF8(stringName).get(),
-                                     params, 1, str);
+                                     params, str);
   NS_ENSURE_SUCCESS(rv, nullptr);
 
   return ToNewUnicode(str);
