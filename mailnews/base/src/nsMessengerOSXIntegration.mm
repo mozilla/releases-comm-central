@@ -294,15 +294,14 @@ void nsMessengerOSXIntegration::FillToolTipInfo(nsIMsgFolder *aFolder, int32_t a
       if (numNotDisplayed > 0) {
         nsAutoString numNotDisplayedText;
         numNotDisplayedText.AppendInt(numNotDisplayed);
-        const char16_t *formatStrings[3] = {numNewMsgsText.get(), authors.get(),
-                                            numNotDisplayedText.get()};
-        bundle->FormatStringFromName("macBiffNotification_messages_extra", formatStrings, 3,
+        AutoTArray<nsString, 3> formatStrings = {numNewMsgsText, authors, numNotDisplayedText};
+        bundle->FormatStringFromName("macBiffNotification_messages_extra", formatStrings,
                                      finalText);
       } else {
-        const char16_t *formatStrings[2] = {numNewMsgsText.get(), authors.get()};
+        AutoTArray<nsString, 2> formatStrings = {numNewMsgsText, authors};
 
         if (aNewCount == 1) {
-          bundle->FormatStringFromName("macBiffNotification_message", formatStrings, 2, finalText);
+          bundle->FormatStringFromName("macBiffNotification_message", formatStrings, finalText);
           // Since there is only 1 message, use the most recent mail's URI instead of the folder's
           nsCOMPtr<nsIMsgDatabase> db;
           rv = aFolder->GetMsgDatabase(getter_AddRefs(db));
@@ -318,7 +317,7 @@ void nsMessengerOSXIntegration::FillToolTipInfo(nsIMsgFolder *aFolder, int32_t a
             free(newMessageKeys);
           }
         } else
-          bundle->FormatStringFromName("macBiffNotification_messages", formatStrings, 2, finalText);
+          bundle->FormatStringFromName("macBiffNotification_messages", formatStrings, finalText);
       }
       ShowAlertMessage(accountName, finalText, uri);
     }  // if we got a bundle

@@ -102,8 +102,7 @@ nsMovemailService::CheckForNewMail(nsIUrlListener *aUrlListener,
   return rv;
 }
 
-void nsMovemailService::Error(const char *errorCode,
-                              nsTArray<nsString> &params, ) {
+void nsMovemailService::Error(const char *errorCode, const char16_t *param) {
   if (!mMsgWindow) return;
 
   nsCOMPtr<nsIPrompt> dialog;
@@ -120,10 +119,12 @@ void nsMovemailService::Error(const char *errorCode,
 
   nsString errStr;
   // Format the error string if necessary
-  if (params)
+  if (param) {
+    AutoTArray<nsString, 1> params = {nsDependentString(param)};
     bundle->FormatStringFromName(errorCode, params, errStr);
-  else
+  } else {
     bundle->GetStringFromName(errorCode, errStr);
+  }
 
   if (!errStr.IsEmpty()) {
     dialog->Alert(nullptr, errStr.get());
@@ -140,8 +141,7 @@ SpoolLock::SpoolLock(nsACString *aSpoolName, int aSeconds,
   if (!ObtainSpoolLock(aSeconds)) {
     NS_ConvertUTF8toUTF16 lockFile(mSpoolName);
     lockFile.AppendLiteral(LOCK_SUFFIX);
-    AutoTArray<nsString, 1> params = {lockFile};
-    mOwningService->Error("movemailCantCreateLock", params);
+    mOwningService->Error("movemailCantCreateLock", lockFile.get());
     return;
   }
   mServer->SetServerBusy(true);
@@ -152,8 +152,7 @@ SpoolLock::~SpoolLock() {
   if (mLocked && !YieldSpoolLock()) {
     NS_ConvertUTF8toUTF16 lockFile(mSpoolName);
     lockFile.AppendLiteral(LOCK_SUFFIX);
-    AutoTArray<nsString, 1> params = {lockFile};
-    mOwningService->Error("movemailCantDeleteLock", params);
+    mOwningService->Error("movemailCantDeleteLock", lockFile.get());
   }
   mServer->SetServerBusy(false);
 }
@@ -383,12 +382,9 @@ nsresult nsMovemailService::GetNewMail(
   rv = in_server->GetCharValue("spoolDir", spoolPath);
   if (NS_FAILED(rv) || spoolPath.IsEmpty()) rv = LocateSpoolFile(spoolPath);
   if (NS_FAILED(rv) || spoolPath.IsEmpty()) {
-    Error("movemailSpoolFileNotFound", nullptr, 0);
+    Error("movemailSpoolFileNotFound");
     return NS_ERROR_FAILURE;
   }
-
-  NS_ConvertUTF8toUTF16 wideSpoolPath(spoolPath);
-  const char16_t *spoolPathString[] = {wideSpoolPath.get()};
 
   // Create an input stream for the spool file
   nsCOMPtr<nsIFile> spoolFile;
@@ -397,7 +393,7 @@ nsresult nsMovemailService::GetNewMail(
   nsCOMPtr<nsIInputStream> spoolInputStream;
   rv = NS_NewLocalFileInputStream(getter_AddRefs(spoolInputStream), spoolFile);
   if (NS_FAILED(rv)) {
-    Error("movemailCantOpenSpoolFile", spoolPathString, 1);
+    Error("movemailCantOpenSpoolFile", NS_ConvertUTF8toUTF16(spoolPath).get());
     return rv;
   }
 
@@ -466,7 +462,7 @@ nsresult nsMovemailService::GetNewMail(
       // If we do not have outputStream here, something bad happened.
       // We probably didn't find the proper message start delimiter "From "
       // and are now reading in the middle of a message. Bail out.
-      Error("movemailCantParseSpool", spoolPathString, 1);
+      Error("movemailCantParseSpool", NS_ConvertUTF8toUTF16(spoolPath).get());
       return NS_ERROR_UNEXPECTED;
     }
 
@@ -501,7 +497,8 @@ nsresult nsMovemailService::GetNewMail(
   // Truncate the spool file as we parsed it successfully.
   rv = spoolFile->SetFileSize(0);
   if (NS_FAILED(rv)) {
-    Error("movemailCantTruncateSpoolFile", spoolPathString, 1);
+    Error("movemailCantTruncateSpoolFile",
+          NS_ConvertUTF8toUTF16(spoolPath).get());
   }
 
   LOG(("GetNewMail returning rv=%" PRIx32, static_cast<uint32_t>(rv)));
