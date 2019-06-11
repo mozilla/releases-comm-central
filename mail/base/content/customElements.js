@@ -20,7 +20,6 @@ if (!isDummyDocument) {
     "chrome://messenger/content/addressbook/menulist-addrbooks.js",
     "chrome://messenger/content/folder-menupopup.js",
     "chrome://messenger/content/toolbarbutton-menu-button.js",
-    "chrome://messenger/content/toolbarbutton-appmenu.js",
   ]) {
     Services.scriptloader.loadSubScript(script, window);
   }

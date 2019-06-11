@@ -29,7 +29,6 @@ messenger.jar:
     content/messenger/mailWidgets.js                (content/mailWidgets.js)
     content/messenger/button-menu-button.js         (content/button-menu-button.js)
     content/messenger/toolbarbutton-menu-button.js  (content/toolbarbutton-menu-button.js)
-    content/messenger/toolbarbutton-appmenu.js      (content/toolbarbutton-appmenu.js)
     content/messenger/customElements.js             (content/customElements.js)
     content/messenger/customizeToolbar.css          (../../common/src/customizeToolbar.css)
     content/messenger/customizeToolbar.js           (../../common/src/customizeToolbar.js)

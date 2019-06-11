@@ -117,7 +117,7 @@
                      label="&showUnifinderCmd.label;"
                      tooltiptext="&showUnifinderCmd.tooltip;"
                      observes="calendar_show_unifinder_command"/>
-      <toolbarbutton is="toolbarbutton-appmenu" id="calendar-appmenu-button"
+      <toolbarbutton id="calendar-appmenu-button"
                      type="menu"
                      class="toolbarbutton-1 button-appmenu"
                      label="&lightning.toolbar.appmenuButton.label;"
@@ -174,7 +174,7 @@
                      label="&lightning.toolbar.print.label;"
                      tooltiptext="&lightning.toolbar.print.tooltip;"
                      observes="cmd_print"/>
-      <toolbarbutton is="toolbarbutton-appmenu" id="task-appmenu-button"
+      <toolbarbutton id="task-appmenu-button"
                      type="menu"
                      class="toolbarbutton-1 button-appmenu"
                      label="&lightning.toolbar.appmenuButton.label;"
