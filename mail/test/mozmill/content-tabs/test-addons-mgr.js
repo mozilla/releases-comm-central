@@ -50,9 +50,7 @@ function test_open_addons_with_url() {
  */
 function test_addon_prefs() {
   // Open Add-on Options.
-  mc.click(mc.eid("button-appmenu"));
-  const subview = mc.click_appmenu_in_sequence(mc.e("appMenu-mainView"),
-    [{id: "appmenu_addons"}]);
+  const subview = mc.click_through_appmenu([{id: "appmenu_addons"}]);
 
   plan_for_modal_dialog("mozmill-prefs", function(controller) {
     // Add |mc.sleep(1000);| here to see the popup dialog.

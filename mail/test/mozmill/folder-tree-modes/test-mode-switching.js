@@ -99,10 +99,8 @@ function assert_mode_selected(aMode) {
     assert_true(modeList_menu.querySelector('[value="' + baseMode + '"]').hasAttribute("checked"));
     mc.close_popup_sequence(popuplist);
   }
-  mc.click(appmenu_button);
-  mc.click_appmenu_in_sequence(appmenu_mainView,
-    [ {id: "appmenu_View"},
-      {id: "appmenu_FolderViews"} ]);
+  mc.click_through_appmenu([{id: "appmenu_View"}, {id: "appmenu_FolderViews"}]);
+
   assert_true(modeList_appmenu.querySelector('[value="' + baseMode + '"]').hasAttribute("checked"));
   // Close the appmenu by clicking the appmenu button again.
   mc.click(appmenu_button);
@@ -114,10 +112,7 @@ function assert_mode_selected(aMode) {
  * @param mode  The base name of the mode to select.
  */
 function select_mode_in_menu(mode) {
-  mc.click(appmenu_button);
-  mc.click_appmenu_in_sequence(appmenu_mainView,
-    [ {id: "appmenu_View"},
-      {id: "appmenu_FolderViews"} ],
+  mc.click_through_appmenu([{id: "appmenu_View"}, {id: "appmenu_FolderViews"}],
     {value: mode});
 }
 

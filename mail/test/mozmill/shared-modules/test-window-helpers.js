@@ -1068,18 +1068,17 @@ var AugmentEverybodyWith = {
     },
 
     /**
-     * Click through the appmenu. Uses a recursive style approach with a
-     * sequence of event listeners handling "ViewShown" events. The `navTargets`
-     * parameter specifies items to click to navigate through the menu. The
-     * optional `nonNavTarget` parameter specifies a final item to click to
-     * perform a command after navigating through the menu. If this argument is
-     * omitted, callers can interact with the last view panel that is returned.
-     * Callers will then need to close the appmenu when they are done with it.
+     * Click through the appmenu. Callers are expected to open the initial
+     * appmenu panelview (e.g. by clicking the appmenu buttton). We wait for it
+     * to open if it is not open yet. Then we use a recursive style approach
+     * with a sequence of event listeners handling "ViewShown" events. The
+     * `navTargets` parameter specifies items to click to navigate through the
+     * menu. The optional `nonNavTarget` parameter specifies a final item to
+     * click to perform a command after navigating through the menu. If this
+     * argument is omitted, callers can interact with the last view panel that
+     * is returned. Callers will then need to close the appmenu when they are
+     * done with it.
      *
-     * @param {Element} mainView  The initial appmenu panelview, namely
-     *     <panelview id="appMenu-mainView">. The caller is expected to open it
-     *     (e.g. by clicking the appmenu button). We wait for it to open if it
-     *     isn't open yet.
      * @param {Object[]} navTargets  Array of objects that contain
      *     attribute->value pairs. We pick the menu item whose DOM node matches
      *     all the attribute->value pairs. We click whatever we find. We throw
@@ -1089,7 +1088,7 @@ var AugmentEverybodyWith = {
      * @return {Element}  The <vbox class="panel-subview-body"> element inside
      *                    the last shown <panelview>.
      */
-    click_appmenu_in_sequence(mainView, navTargets, nonNavTarget) {
+    click_appmenu_in_sequence(navTargets, nonNavTarget) {
       const rootPopup = this.e("appMenu-popup");
       const controller = this;
 
@@ -1141,11 +1140,29 @@ var AugmentEverybodyWith = {
       // code (to match click_menus_in_sequence), we have to call the first
       // viewShownListener manually, using a fake event argument, to start the
       // series of event listener calls.
-      const fakeEvent = {target: mainView};
+      const fakeEvent = {target: this.e("appMenu-mainView")};
       viewShownListener(navTargets, nonNavTarget, allDone, fakeEvent);
 
       utils.waitFor(() => done, "Timed out in click_appmenu_in_sequence.");
       return subviewToReturn;
+    },
+
+    /**
+     * Utility wrapper function that clicks the main appmenu button to open the
+     * appmenu before calling `click_appmenu_in_sequence`. Makes things simple
+     * and concise for the most common case while still allowing for tests that
+     * open the appmenu via keyboard before calling `click_appmenu_in_sequence`.
+     *
+     * @param {Object[]} navTargets  Array of objects that contain
+     *     attribute->value pairs to be used to identify menu items to click.
+     * @param {Object} [nonNavTarget]  Contains attribute->value pairs used
+     *                                 to identify a final menu item to click.
+     * @return {Element}  The <vbox class="panel-subview-body"> element inside
+     *                    the last shown <panelview>.
+     */
+    click_through_appmenu(navTargets, nonNavTarget) {
+      this.click(this.eid("button-appmenu"));
+      return this.click_appmenu_in_sequence(navTargets, nonNavTarget);
     },
 
     /**

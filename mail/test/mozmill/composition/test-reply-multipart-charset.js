@@ -74,10 +74,7 @@ function subtest_replyEditAsNewForward_charset(aAction, aFile, aCharset,
   if (aOverride) {
     // Display the message using the override charset.
     // Use the app menu which is also available on Mac.
-    mc.click(mc.eid("button-appmenu"));
-    mc.click_appmenu_in_sequence(mc.e("appMenu-mainView"),
-      [ {label: "View"},
-        {label: "Text Encoding"} ],
+    mc.click_through_appmenu([{label: "View"}, {label: "Text Encoding"}],
       {label: aOverride});
   }
 

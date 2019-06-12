@@ -1083,8 +1083,9 @@ function InitRecentlyClosedTabsPopup(
     parent.appendChild(document.createXULElement(separatorName));
 
     const item = document.createXULElement(elementName);
-    item.setAttribute("label", document.getElementById("bundle_messenger")
-                                           .getString("restoreAllTabs"));
+    item.setAttribute("label",
+      document.getElementById("bundle_messenger").getString("restoreAllTabs"));
+
     item.setAttribute("oncommand", "goRestoreAllTabs();");
 
     if (classes) {

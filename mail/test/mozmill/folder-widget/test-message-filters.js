@@ -92,10 +92,8 @@ function test_customize_toolbar_doesnt_double_get_mail_menu() {
   function check_getAllNewMsgMenu() {
     wait_for_window_focused(mc.window);
 
-    mc.click(mc.eid("button-appmenu"));
-    const subview = mc.click_appmenu_in_sequence(mc.e("appMenu-mainView"),
-      [ {id: "appmenu_File"},
-        {id: "appmenu_getNewMsgFor"} ]);
+    const subview = mc.click_through_appmenu(
+      [{id: "appmenu_File"}, {id: "appmenu_getNewMsgFor"}]);
 
     assert_equals(subview.children.length, 5,
                   "Incorrect number of items for GetNewMessages before customization");
@@ -122,7 +120,7 @@ function test_customize_toolbar_doesnt_double_get_mail_menu() {
 }
 test_customize_toolbar_doesnt_double_get_mail_menu.EXCLUDED_PLATFORMS = ["darwin"];
 // TODO appmenu - Skipped because it depends on the folder-menupopup code being
-// adapted for use in the appmenu.  Namely the call to click_appmenu_in_sequence
+// adapted for use in the appmenu.  Namely the call to click_through_appmenu
 // won't work because the UI it expects will not be there yet.
 test_customize_toolbar_doesnt_double_get_mail_menu.__force_skip__ = true;
 

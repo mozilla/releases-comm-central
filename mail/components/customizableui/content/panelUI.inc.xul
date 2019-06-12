@@ -698,11 +698,10 @@
         <menu id="appmenu_getNewMsgFor"
               label="&getNewMsgForCmd.label;"
               oncommand="MsgGetMessagesForAccount();">
-          <menupopup is="folder-menupopup"
-                      mode="getMail"
-                      id="appmenu_getAllNewMsgPopup"
-                      expandFolders="false"
-                      oncommand="MsgGetMessagesForAccount(event.target._folder); event.stopPropagation();">
+          <menupopup is="folder-menupopup" id="appmenu_getAllNewMsgPopup"
+                     mode="getMail"
+                     expandFolders="false"
+                     oncommand="MsgGetMessagesForAccount(event.target._folder); event.stopPropagation();">
             <menuitem id="appmenu_getnewmsgs_all_accounts"
                       label="&getAllNewMsgCmdPopupMenu.label;"
                       key="key_getAllNewMessages"

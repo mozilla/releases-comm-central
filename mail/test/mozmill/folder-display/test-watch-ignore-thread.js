@@ -36,10 +36,8 @@ function setupModule(module) {
  * @param {string} menuId  The id of the menu item to click.
  */
 function clickViewMessagesItem(menuId) {
-  mc.click(mc.eid("button-appmenu"));
-  mc.click_appmenu_in_sequence(mc.e("appMenu-mainView"),
-    [ {id: "appmenu_View"},
-      {id: "appmenu_viewMessagesMenu"} ],
+  mc.click_through_appmenu(
+    [{id: "appmenu_View"}, {id: "appmenu_viewMessagesMenu"}],
     {id: menuId});
 }
 
