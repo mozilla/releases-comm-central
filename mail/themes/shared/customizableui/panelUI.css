@@ -984,7 +984,7 @@ panelmultiview[mainViewId="PanelUI-fxa"] #PanelUI-remotetabs-syncnow {
 
 :root[lwt-popup-brighttext] .panel-banner-item:not([disabled]) {
   background-color: rgba(48,230,11,.1);
-  color: @appmenuWarningColorBrightText@ !important;
+  color: var(--appmenu-warning-color-bright-text) !important;
 }
 
 :root[lwt-popup-brighttext] .panel-banner-item:not([disabled]):focus,
@@ -997,29 +997,29 @@ panelmultiview[mainViewId="PanelUI-fxa"] #PanelUI-remotetabs-syncnow {
 }
 
 .panel-banner-item[notificationid="update-unsupported"] {
-  background-color: @appmenuWarningBackgroundColor@;
+  background-color: var(--appmenu-warning-background-color);
 }
 
 .panel-banner-item[notificationid="update-unsupported"]:not([disabled]):focus,
 .panel-banner-item[notificationid="update-unsupported"]:not([disabled]):hover {
-  background-color: @appmenuWarningBackgroundColorHover@;
+  background-color: var(--appmenu-warning-background-color-hover);
 }
 
 .panel-banner-item[notificationid="update-unsupported"]:not([disabled]):hover:active {
-  background-color: @appmenuWarningBackgroundColorActive@;
+  background-color: var(--appmenu-warning-background-color-active);
 }
 
 :root[lwt-popup-brighttext] .panel-banner-item[notificationid="update-unsupported"]:not([disabled]) {
-  background-color: @appmenuWarningBackgroundColorBrightText@;
+  background-color: var(--appmenu-warning-background-color-bright-text);
 }
 
 :root[lwt-popup-brighttext] .panel-banner-item[notificationid="update-unsupported"]:not([disabled]):focus,
 :root[lwt-popup-brighttext] .panel-banner-item[notificationid="update-unsupported"]:not([disabled]):hover {
-  background-color: @appmenuWarningBackgroundColorHoverBrightText@;
+  background-color: var(--appmenu-warning-backgound-color-hover-bright-text);
 }
 
 :root[lwt-popup-brighttext] .panel-banner-item[notificationid="update-unsupported"]:not([disabled]):active {
-  background-color: @appmenuWarningBackgroundColorActiveBrightText@;
+  background-color: var(--appmenu-warning-background-color-active-bright-text);
 }
 
 #customization-palette .toolbarbutton-multiline-text,
