@@ -70,10 +70,6 @@ tooltip[type="im"] {
   -moz-appearance: textfield;
 }
 
-#button-chat {
-  -moz-binding: url('chrome://messenger/content/chat/badgebutton.xml#badgebutton');
-}
-
 toolbar[mode="text"] #button-chat {
   -moz-box-orient: horizontal;
 }

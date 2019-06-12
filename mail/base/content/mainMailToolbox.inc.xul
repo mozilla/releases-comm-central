@@ -297,7 +297,7 @@
                    label="&addressBookButton.label;"
                    oncommand="toAddressBook();"
                    tooltiptext="&addressBookButton.tooltip;"/>
-    <toolbarbutton id="button-chat"
+    <toolbarbutton is="toolbarbutton-badge-button" id="button-chat"
                    class="toolbarbutton-1"
                    label="&chatButton.label;"
                    command="cmd_chat"
