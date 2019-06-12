@@ -1360,6 +1360,11 @@ var PanelView = class extends AssociatedToNode {
           continue;
         }
 
+        // Ignore content inside a <toolbarbutton>
+        if (element.tagName != "toolbarbutton" && element.closest("toolbarbutton")) {
+          continue;
+        }
+
         // Take the label for toolbarbuttons; it only exists on those elements.
         element = element.multilineLabel || element;
 

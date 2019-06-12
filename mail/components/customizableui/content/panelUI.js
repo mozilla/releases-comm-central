@@ -58,11 +58,10 @@ const PanelUI = {
    * Used for the View / Text Encoding view.
    * Not ideal: copied from: mozilla-central/toolkit/modules/CharsetMenu.jsm
    * This set contains encodings that are in the Encoding Standard, except:
-   *  - XSS-dangerous encodings (except ISO-2022-JP which is assumed to be
-   *    too common not to be included).
+   *  - Japanese encodings are represented by one autodetection item
    *  - x-user-defined, which practically never makes sense as an end-user-chosen
    *    override.
-   *  - Encodings that IE11 doesn't have in its correspoding menu.
+   *  - Encodings that IE11 doesn't have in its corresponding menu.
    */
   kEncodings: new Set([
     // Globally relevant
@@ -95,10 +94,8 @@ const PanelUI = {
     // Hebrew
     "windows-1255",
     "ISO-8859-8",
-    // Japanese
-    "Shift_JIS",
-    "EUC-JP",
-    "ISO-2022-JP",
+    // Japanese (NOT AN ENCODING NAME)
+    "Japanese",
     // Korean
     "EUC-KR",
     // Thai
@@ -1219,11 +1216,7 @@ const PanelUI = {
   _getBadgeStatus(notification) { return notification.id; },
 
   _getPanelAnchor(candidate) {
-    let iconAnchor =
-      document.getAnonymousElementByAttribute(candidate, "class",
-                                              "toolbarbutton-badge-stack") ||
-      document.getAnonymousElementByAttribute(candidate, "class",
-                                              "toolbarbutton-icon");
+    let iconAnchor = candidate.badgeStack || candidate.icon;
     return iconAnchor || candidate;
   },
 
