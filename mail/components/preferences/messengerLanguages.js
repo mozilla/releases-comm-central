@@ -428,7 +428,7 @@ var gMessengerLanguagesDialog = {
   },
 
   async availableLanguageSelected(item) {
-    if ((await getAvailableLocales()).has(item.value)) {
+    if ((await getAvailableLocales()).includes(item.value)) {
       await this.requestLocalLanguage(item);
     } else if (this.availableLangpacks.has(item.value)) {
       await this.requestRemoteLanguage(item);
