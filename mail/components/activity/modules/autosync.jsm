@@ -67,7 +67,7 @@ var autosyncModule = {
     try {
       // create an activity process for this folder
       let msg = this.bundle.formatStringFromName("autosyncProcessDisplayText",
-                                                 [folder.prettyName], 1);
+                                                 [folder.prettyName]);
       let process = new nsActProcess(msg, this.autoSyncManager);
       // we want to use default auto-sync icon
       process.iconClass = "syncMail";
@@ -75,7 +75,7 @@ var autosyncModule = {
       // group processes under folder's imap account
       process.contextType = "account";
       process.contextDisplayText = this.bundle.formatStringFromName("autosyncContextDisplayText",
-                                        [folder.server.prettyName], 1);
+                                        [folder.server.prettyName]);
 
 
       process.contextObj = folder.server;
@@ -96,13 +96,13 @@ var autosyncModule = {
       // create an activity event
 
       let msg = this.bundle.formatStringFromName("autosyncEventDisplayText",
-                                                 [folder.server.prettyName], 1);
+                                                 [folder.server.prettyName]);
 
       let statusMsg;
       let numOfMessages = this._syncInfoPerServer.get(folder.server).totalDownloads;
       if (numOfMessages)
         statusMsg = this.bundle.formatStringFromName("autosyncEventStatusText",
-                                                     [numOfMessages], 1);
+                                                     [numOfMessages]);
       else
         statusMsg = this.getString("autosyncEventStatusTextNoMsgs");
 
@@ -114,7 +114,7 @@ var autosyncModule = {
       // setting these values are informational only.
       event.contextType = process.contextType;
       event.contextDisplayText = this.bundle.formatStringFromName("autosyncContextDisplayText",
-                                        [folder.server.prettyName], 1);
+                                        [folder.server.prettyName]);
       event.contextObj = process.contextObj;
       event.iconClass = "syncMail";
 
@@ -272,7 +272,7 @@ var autosyncModule = {
                                                  [syncItem.totalDownloaded,
                                                   syncItem.pendingMsgCount,
                                                   folder.prettyName,
-                                                  folder.server.prettyName], 4);
+                                                  folder.server.prettyName]);
 
           process.setProgress(msg, numOfMessages, totalPending);
 

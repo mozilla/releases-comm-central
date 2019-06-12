@@ -1018,8 +1018,7 @@ var specialTabs = {
       Services.strings.createBundle("chrome://messenger/locale/aboutRights.properties");
 
     var productName = brandBundle.GetStringFromName("brandFullName");
-    var notifyRightsText = rightsBundle.formatStringFromName("notifyRightsText",
-                                                             [productName], 1);
+    var notifyRightsText = rightsBundle.formatStringFromName("notifyRightsText", [productName]);
 
     var buttons = [
       {

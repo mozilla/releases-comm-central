@@ -678,7 +678,7 @@ function guessSystemTimezone() {
                     // Will look for a better matching tz, or fallback to floating.
                     // (Match OS so alarms go off at time indicated by OS clock.)
                     cal.WARN(calProperties.formatStringFromName(
-                             "WarningOSTZNoMatch", [osUserTimeZone, zoneInfoIdFromOSUserTimeZone], 2));
+                             "WarningOSTZNoMatch", [osUserTimeZone, zoneInfoIdFromOSUserTimeZone]));
                     break;
                 case 1: case 2:
                     // inexact match: OS TZ and our ZoneInfo TZ matched imperfectly.
@@ -688,7 +688,7 @@ function guessSystemTimezone() {
                     probableTZId = tzId;
                     probableTZScore = score;
                     probableTZSource = calProperties.formatStringFromName(
-                        "TZFromOS", [osUserTimeZone], 1);
+                        "TZFromOS", [osUserTimeZone]);
 
                     break;
                 case 3:
@@ -699,7 +699,7 @@ function guessSystemTimezone() {
     } catch (ex) {
         // zoneInfo id given was not recognized by our ZoneInfo database
         let errParams = [zoneInfoIdFromOSUserTimeZone || osUserTimeZone];
-        let errMsg = calProperties.formatStringFromName("SkippingOSTimezone", errParams, 1);
+        let errMsg = calProperties.formatStringFromName("SkippingOSTimezone", errParams);
         Cu.reportError(errMsg + " " + ex);
     }
 
@@ -730,7 +730,7 @@ function guessSystemTimezone() {
                 }
             } catch (ex) {
                 let errMsg = calProperties.formatStringFromName(
-                    "SkippingLocaleTimezone", [bareTZId], 1);
+                    "SkippingLocaleTimezone", [bareTZId]);
                 Cu.reportError(errMsg + " " + ex);
             }
         }
@@ -805,7 +805,7 @@ function guessSystemTimezone() {
                 let offsetString = standardTZOffset +
                                      (daylightTZOffset ? "/" + daylightTZOffset : "");
                 let warningMsg = calProperties.formatStringFromName("WarningUsingGuessedTZ",
-                                  [tzId, offsetString, warningDetail, probableTZSource], 4);
+                                  [tzId, offsetString, warningDetail, probableTZSource]);
                 cal.WARN(warningMsg);
                 break;
             }

@@ -2353,7 +2353,7 @@ calDavCalendar.prototype = {
             // Fallback on generic string if no string is defined for the status code
             statusString = props.GetStringFromName("caldavRequestStatusCodeStringGeneric");
         }
-        return props.formatStringFromName("caldavRequestStatusCode", [status], 1) + ", " +
+        return props.formatStringFromName("caldavRequestStatusCode", [status]) + ", " +
                statusString + "\n\n" +
                (extraInfo ? extraInfo : "");
     },

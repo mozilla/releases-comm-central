@@ -111,19 +111,19 @@ function placeAccountName(aServer) {
           "converterDialog.warningForDeferredAccount",
           [aServer.username, deferredToAccountName, deferredToAccountName,
           deferredAccountsString,
-          accountsToConvert, storeContractId, brandShortName], 7);
+          accountsToConvert, storeContractId, brandShortName]);
     } else {
       document.getElementById("warningSpan").textContent =
         bundle.formatStringFromName(
           "converterDialog.warningForDeferredToAccount",
           [deferredToAccountName,
           deferredAccountsString,
-          accountsToConvert, storeContractId, brandShortName], 5);
+          accountsToConvert, storeContractId, brandShortName]);
     }
 
     document.getElementById("messageSpan").textContent =
       bundle.formatStringFromName("converterDialog.messageForDeferredAccount",
-                                  [accountsToConvert, storeContractId], 2);
+                                  [accountsToConvert, storeContractId]);
     gServer = deferredToAccount.incomingServer;
   } else {
     // No account is deferred.
@@ -144,11 +144,10 @@ function placeAccountName(aServer) {
 
     document.getElementById("warningSpan").textContent =
       bundle.formatStringFromName("converterDialog.warning",
-                                  [tempName, storeContractId, brandShortName],
-                                  3);
+                                  [tempName, storeContractId, brandShortName]);
     document.getElementById("messageSpan").textContent =
       bundle.formatStringFromName("converterDialog.message",
-                                  [tempName, storeContractId], 2);
+                                  [tempName, storeContractId]);
     gServer = aServer;
   }
 
@@ -171,7 +170,7 @@ function startContinue(aSelectedStoreType, aResponse) {
   document.getElementById("progress").addEventListener("progress", function(e) {
    document.getElementById("progress").value = e.detail;
    document.getElementById("progressPrcnt").textContent =
-     bundle.formatStringFromName("converterDialog.percentDone", [e.detail], 1);
+     bundle.formatStringFromName("converterDialog.percentDone", [e.detail]);
   });
 
   document.getElementById("warning").setAttribute("hidden", "hidden");

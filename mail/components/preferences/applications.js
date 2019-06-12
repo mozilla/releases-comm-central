@@ -670,7 +670,7 @@ var gCloudFileTab = {
     let button = document.createXULElement("button");
     button.setAttribute("value", provider.type);
     button.setAttribute(
-      "label", this._strings.formatStringFromName("addProvider", [provider.displayName], 1)
+      "label", this._strings.formatStringFromName("addProvider", [provider.displayName])
     );
     button.setAttribute("oncommand", `gCloudFileTab.addCloudFileAccount("${provider.type}")`);
     button.style.listStyleImage = `url("${provider.iconURL}")`;
@@ -794,7 +794,7 @@ var gCloudFileTab = {
     // Does the user really want to remove this account?
     let confirmMessage = this._strings
                              .formatStringFromName("dialog_removeAccount",
-                                                   [accountName], 1);
+                                                   [accountName]);
 
     if (Services.prompt.confirm(null, "", confirmMessage)) {
       this._list.clearSelection();

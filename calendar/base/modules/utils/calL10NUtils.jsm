@@ -32,7 +32,7 @@ function _getString(aComponent, aBundleName, aStringName, aParams=[]) {
         let props = _getString._bundleCache[propName];
 
         if (aParams && aParams.length) {
-            return props.formatStringFromName(aStringName, aParams, aParams.length);
+            return props.formatStringFromName(aStringName, aParams);
         } else {
             return props.GetStringFromName(aStringName);
         }

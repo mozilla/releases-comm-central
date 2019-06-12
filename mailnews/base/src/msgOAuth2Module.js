@@ -77,8 +77,7 @@ OAuth2Module.prototype = {
     // Set the window title to something more useful than "Unnamed"
     this._oauth.requestWindowTitle =
       Services.strings.createBundle("chrome://messenger/locale/messenger.properties")
-                      .formatStringFromName("oauth2WindowTitle",
-                                            [aUsername, aHostname], 2);
+                      .formatStringFromName("oauth2WindowTitle", [aUsername, aHostname]);
 
     // This stores the refresh token in the login manager.
     Object.defineProperty(this._oauth, "refreshToken", {

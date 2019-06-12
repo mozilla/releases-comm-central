@@ -353,7 +353,7 @@ var headerFooterReplacements = {
 function formatAutoResponce(aTxt) {
   return Services.strings
                  .createBundle("chrome://chat/locale/conversations.properties")
-                 .formatStringFromName("autoReply", [aTxt], 1);
+                 .formatStringFromName("autoReply", [aTxt]);
 }
 
 var statusMessageReplacements = {

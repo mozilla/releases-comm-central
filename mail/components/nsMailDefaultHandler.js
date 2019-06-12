@@ -323,11 +323,11 @@ var nsMailDefaultHandler = {
           let title, message;
           if (!file.exists()) {
             title = bundle.GetStringFromName("fileNotFoundTitle");
-            message = bundle.formatStringFromName("fileNotFoundMsg", [file.path], 1);
+            message = bundle.formatStringFromName("fileNotFoundMsg", [file.path]);
           } else {
             // The file is empty
             title = bundle.GetStringFromName("fileEmptyTitle");
-            message = bundle.formatStringFromName("fileEmptyMsg", [file.path], 1);
+            message = bundle.formatStringFromName("fileEmptyMsg", [file.path]);
           }
 
           Services.prompt.alert(null, title, message);

@@ -1933,11 +1933,11 @@ var FeedUtils = {
           break;
         case FeedUtils.kNewsBlogInvalidFeed:
           message = FeedUtils.strings.formatStringFromName(
-                      "newsblog-feedNotValid", [feed.url], 1);
+                      "newsblog-feedNotValid", [feed.url]);
           break;
         case FeedUtils.kNewsBlogRequestFailure:
           message = FeedUtils.strings.formatStringFromName(
-                      "newsblog-networkError", [feed.url], 1);
+                      "newsblog-networkError", [feed.url]);
           break;
         case FeedUtils.kNewsBlogFileError:
           message = FeedUtils.strings.GetStringFromName(
@@ -1946,11 +1946,11 @@ var FeedUtils = {
         case FeedUtils.kNewsBlogBadCertError:
           let host = Services.io.newURI(feed.url).host;
           message = FeedUtils.strings.formatStringFromName(
-                      "newsblog-badCertError", [host], 1);
+                      "newsblog-badCertError", [host]);
           break;
         case FeedUtils.kNewsBlogNoAuthError:
           message = FeedUtils.strings.formatStringFromName(
-                      "newsblog-noAuthError", [feed.url], 1);
+                      "newsblog-noAuthError", [feed.url]);
           break;
       }
 
@@ -2010,7 +2010,7 @@ var FeedUtils = {
         // If we are subscribing to a feed, show feed download progress.
         this.mStatusFeedback.showStatusString(
           FeedUtils.strings.formatStringFromName("subscribe-gettingFeedItems",
-                                                 [aCurrentFeedItems, aMaxFeedItems], 2));
+                                                 [aCurrentFeedItems, aMaxFeedItems]));
         this.onProgress(feed, aCurrentFeedItems, aMaxFeedItems);
       }
     },

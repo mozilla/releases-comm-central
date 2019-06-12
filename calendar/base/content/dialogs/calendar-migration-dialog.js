@@ -31,12 +31,8 @@ var gMigrateWizard = {
         let wizard = document.getElementById("migration-wizard");
         let desc = document.getElementById("wizard-desc");
         // Since we don't translate "Lightning"...
-        wizard.title = props.formatStringFromName("migrationTitle",
-                                                  ["Lightning"],
-                                                  1);
-        desc.textContent = props.formatStringFromName("migrationDescription",
-                                                      ["Lightning"],
-                                                      1);
+        wizard.title = props.formatStringFromName("migrationTitle", ["Lightning"]);
+        desc.textContent = props.formatStringFromName("migrationDescription", ["Lightning"]);
 
         migLOG("migrators: " + window.arguments.length);
         for (let migrator of window.arguments[0]) {
@@ -91,8 +87,7 @@ var gMigrateWizard = {
                 // Increment i to point to the next migrator
                 i++;
                 migLOG("starting migrator: " + mig.title);
-                label.value = props.formatStringFromName("migratingApp",
-                                                         [mig.title], 1);
+                label.value = props.formatStringFromName("migratingApp", [mig.title]);
                 meter.value = (i-1)/migrators.length*100;
                 mig.args.push(getNextMigrator);
 

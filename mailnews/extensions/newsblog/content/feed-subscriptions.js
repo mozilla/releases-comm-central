@@ -1387,7 +1387,7 @@ var FeedSubscriptions = {
       let pTitle = FeedUtils.strings.GetStringFromName(
                      "subscribe-confirmFeedDeletionTitle");
       let pMessage = FeedUtils.strings.formatStringFromName(
-                       "subscribe-confirmFeedDeletion", [itemToRemove.name], 1);
+                       "subscribe-confirmFeedDeletion", [itemToRemove.name]);
       if (Services.prompt.confirmEx(window, pTitle, pMessage,
                                     Ci.nsIPromptService.STD_YES_NO_BUTTONS,
                                     null, null, null, null, { })) {
@@ -1852,7 +1852,7 @@ var FeedSubscriptions = {
         if (aErrorCode == FeedUtils.kNewsBlogBadCertError) {
           let host = Services.io.newURI(feed.url).host;
           message = FeedUtils.strings.formatStringFromName(
-                      "newsblog-badCertError", [host], 1);
+                      "newsblog-badCertError", [host]);
         }
         if (aErrorCode == FeedUtils.kNewsBlogNoAuthError) {
           message = FeedUtils.strings.GetStringFromName(
@@ -1880,7 +1880,7 @@ var FeedSubscriptions = {
       window.focus();
       let message = FeedUtils.strings.formatStringFromName(
                       "subscribe-gettingFeedItems",
-                      [aCurrentFeedItems, aMaxFeedItems], 2);
+                      [aCurrentFeedItems, aMaxFeedItems]);
       FeedSubscriptions.updateStatusItem("statusText", message);
       this.onProgress(feed, aCurrentFeedItems, aMaxFeedItems);
     },
@@ -2220,11 +2220,11 @@ var FeedSubscriptions = {
     let accountName = this.mRSSServer.rootFolder.prettyName;
     let fileName = FeedUtils.strings.formatStringFromName(
                      "subscribe-OPMLExportDefaultFileName",
-                     [this.brandShortName, accountName], 2);
+                     [this.brandShortName, accountName]);
     let title = aList ? FeedUtils.strings.formatStringFromName(
-                          "subscribe-OPMLExportTitleList", [accountName], 1) :
+                          "subscribe-OPMLExportTitleList", [accountName]) :
                         FeedUtils.strings.formatStringFromName(
-                          "subscribe-OPMLExportTitleStruct", [accountName], 1);
+                          "subscribe-OPMLExportTitleStruct", [accountName]);
     let fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
 
     fp.defaultString = fileName;
@@ -2315,7 +2315,7 @@ var FeedSubscriptions = {
       this.generatePPSpace(head, SPACES4);
       let titleText = FeedUtils.strings.formatStringFromName(
                         "subscribe-OPMLExportFileDialogTitle",
-                        [this.brandShortName, rootFolder.prettyName], 2);
+                        [this.brandShortName, rootFolder.prettyName]);
       let title = opmlDoc.createElement("title");
       title.appendChild(opmlDoc.createTextNode(titleText));
       head.appendChild(title);
@@ -2358,7 +2358,7 @@ var FeedSubscriptions = {
       FileUtils.closeSafeFileOutputStream(fos);
 
       let statusReport = FeedUtils.strings.formatStringFromName(
-                           "subscribe-OPMLExportDone", [saveAsFile.path], 1);
+                           "subscribe-OPMLExportDone", [saveAsFile.path]);
       this.updateStatusItem("statusText", statusReport);
       FeedUtils.log.info("exportOPML: " + statusReport);
     }
@@ -2537,7 +2537,7 @@ var FeedSubscriptions = {
                 opmlDom.querySelector("body").childElementCount)) {
             // If the OPML file is invalid or empty.
             statusReport = FeedUtils.strings.formatStringFromName(
-                             "subscribe-OPMLImportInvalidFile", [aFile.leafName], 1);
+                             "subscribe-OPMLImportInvalidFile", [aFile.leafName]);
           }
         }
       })

@@ -145,7 +145,7 @@ gDetailView.updateState = function() {
       let warning = document.getElementById("detail-warning");
       document.getElementById("detail-warning-link").hidden = true;
       warning.textContent = gStrings.mailExt.formatStringFromName(
-        stringName, [this._addon.name, gStrings.brandShortName], 2
+        stringName, [this._addon.name, gStrings.brandShortName]
       );
 
       if (version) {

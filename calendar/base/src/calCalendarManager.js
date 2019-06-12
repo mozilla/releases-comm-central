@@ -906,13 +906,13 @@ calMgrCalendarObserver.prototype = {
         paramBlock.SetNumberStrings(3);
         if (!this.storedReadOnly && this.calendar.readOnly) {
             // Major errors change the calendar to readOnly
-            errMsg = props.formatStringFromName("readOnlyMode", [this.calendar.name], 1);
+            errMsg = props.formatStringFromName("readOnlyMode", [this.calendar.name]);
         } else if (!this.storedReadOnly && !this.calendar.readOnly) {
             // Minor errors don't, but still tell the user something went wrong
-            errMsg = props.formatStringFromName("minorError", [this.calendar.name], 1);
+            errMsg = props.formatStringFromName("minorError", [this.calendar.name]);
         } else {
             // The calendar was already in readOnly mode, but still tell the user
-            errMsg = props.formatStringFromName("stillReadOnlyError", [this.calendar.name], 1);
+            errMsg = props.formatStringFromName("stillReadOnlyError", [this.calendar.name]);
         }
 
         // When possible, change the error number into its name, to

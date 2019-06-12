@@ -120,7 +120,7 @@ class MozCalendarInvitationsRichlistitem extends MozElements.MozRichlistitem {
         let locationLabel = this.querySelector(".calendar-invitations-richlistitem-location");
         let locationProperty = item.getProperty("LOCATION") || this.getString("none");
         let locationString = this.calInvitationsProps.formatStringFromName(
-            "location", [locationProperty], 1
+            "location", [locationProperty]
         );
 
         locationLabel.setAttribute("value", locationString);
@@ -136,7 +136,7 @@ class MozCalendarInvitationsRichlistitem extends MozElements.MozRichlistitem {
             }
         }
         let organizerString = this.calInvitationsProps.formatStringFromName(
-            "organizer", [organizerProperty], 1
+            "organizer", [organizerProperty]
         );
         organizerLabel.setAttribute("value", organizerString);
 
@@ -151,7 +151,7 @@ class MozCalendarInvitationsRichlistitem extends MozElements.MozRichlistitem {
             }
         }
         let attendeeString = this.calInvitationsProps.formatStringFromName(
-            "attendee", [attendeeProperty], 1
+            "attendee", [attendeeProperty]
         );
         attendeeLabel.setAttribute("value", attendeeString);
         Array.from(this.querySelectorAll("button")).map(

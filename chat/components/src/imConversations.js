@@ -161,8 +161,7 @@ UIConversation.prototype = {
       this.notifyObservers(this, "target-prpl-conversation-changed");
       let target = this.target;
       let params = [target.title, target.account.protocol.name];
-      this.systemMessage(bundle.formatStringFromName("targetChanged",
-                                                     params, params.length));
+      this.systemMessage(bundle.formatStringFromName("targetChanged", params));
     }
   },
   // Returns a boolean indicating if the ui-conversation was closed.
@@ -290,7 +289,7 @@ UIConversation.prototype = {
 
     let msg;
     if (statusType == Ci.imIStatusInfo.STATUS_UNKNOWN)
-      msg = bundle.formatStringFromName("statusUnknown", [this.title], 1);
+      msg = bundle.formatStringFromName("statusUnknown", [this.title]);
     else {
       let status = Status.toLabel(statusType);
       let stringId = wasUnknown ? "statusChangedFromUnknown" : "statusChanged";
@@ -300,11 +299,10 @@ UIConversation.prototype = {
       }
       if (statusText) {
         msg = bundle.formatStringFromName(stringId + "WithStatusText",
-                                          [this.title, status, statusText],
-                                          3);
+                                          [this.title, status, statusText]);
       }
       else
-        msg = bundle.formatStringFromName(stringId, [this.title, status], 2);
+        msg = bundle.formatStringFromName(stringId, [this.title, status]);
     }
     this.systemMessage(msg);
   },

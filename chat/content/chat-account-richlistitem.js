@@ -155,7 +155,7 @@
       let bundle = Services.strings.createBundle("chrome://messenger/locale/imAccounts.properties");
       const key = "account.connection.progress";
       let text = this._account.connectionStateMsg;
-      text = text ? bundle.formatStringFromName(key, [text], 1) :
+      text = text ? bundle.formatStringFromName(key, [text]) :
         bundle.GetStringFromName("account.connecting");
 
       let progress = this.querySelector(".connecting");
@@ -174,7 +174,7 @@
       let text;
       let errorReason = account.connectionErrorReason;
       if (errorReason == Ci.imIAccount.ERROR_UNKNOWN_PRPL) {
-        text = bundle.formatStringFromName(key + "UnknownPrpl", [account.protocol.id], 1);
+        text = bundle.formatStringFromName(key + "UnknownPrpl", [account.protocol.id]);
       } else if (errorReason == Ci.imIAccount.ERROR_MISSING_PASSWORD) {
         text = bundle.GetStringFromName(key + "EnteringPasswordRequired");
       } else if (errorReason == Ci.imIAccount.ERROR_CRASHED) {
@@ -184,7 +184,7 @@
       }
 
       if (errorReason != Ci.imIAccount.ERROR_MISSING_PASSWORD) {
-        text = bundle.formatStringFromName(key, [text], 1);
+        text = bundle.formatStringFromName(key, [text]);
       }
 
       this.setAttribute("error", "true");
@@ -203,10 +203,10 @@
           let [val1, unit1, val2, unit2] = DownloadUtils.convertTimeUnits(date);
           if (!val2)
             reconnect = bundle.formatStringFromName("account.reconnectInSingle",
-              [val1, unit1], 2);
+              [val1, unit1]);
           else
             reconnect = bundle.formatStringFromName("account.reconnectInDouble",
-              [val1, unit1, val2, unit2], 4);
+              [val1, unit1, val2, unit2]);
         }
         this.querySelector(".error-reconnect").textContent = reconnect;
         return reconnect;
@@ -226,10 +226,10 @@
         let [val1, unit1, val2, unit2] = DownloadUtils.convertTimeUnits(date);
         if (!val2) {
           value = bundle.formatStringFromName("account.connectedForSingle",
-            [val1, unit1], 2);
+            [val1, unit1]);
         } else {
           value = bundle.formatStringFromName("account.connectedForDouble",
-            [val1, unit1, val2, unit2], 4);
+            [val1, unit1, val2, unit2]);
         }
       } else {
         value = bundle.GetStringFromName("account.connectedForSeconds");

@@ -74,7 +74,7 @@ StringBundle.prototype = {
    */
   get(key, args) {
     if (args)
-      return this.stringBundle.formatStringFromName(key, args, args.length);
+      return this.stringBundle.formatStringFromName(key, args);
     return this.stringBundle.GetStringFromName(key);
   },
 

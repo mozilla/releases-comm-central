@@ -62,7 +62,7 @@ function GetFormattedString(aName, aVal) {
   }
   if (gStringBundle) {
     try {
-      return gStringBundle.formatStringFromName(aName, [aVal], 1);
+      return gStringBundle.formatStringFromName(aName, [aVal]);
     } catch (e) {}
   }
   return null;

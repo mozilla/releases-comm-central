@@ -204,8 +204,7 @@ function l10nHelper(aChromeURL)
       if (arguments.length == 1)
         return bundle.GetStringFromName(aStringId);
       return bundle.formatStringFromName(aStringId,
-                                         Array.prototype.slice.call(arguments, 1),
-                                         arguments.length - 1);
+                                         Array.prototype.slice.call(arguments, 1));
     } catch (e) {
       Cu.reportError(e);
       dump("Failed to get " + aStringId + "\n");

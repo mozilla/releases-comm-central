@@ -70,8 +70,7 @@ var sendLaterModule = {
 
   _displayTextForHeader(aLocaleStringBase, aSubject) {
     return aSubject ?
-           this.bundle.formatStringFromName(aLocaleStringBase + "WithSubject",
-                                            [aSubject], 1) :
+           this.bundle.formatStringFromName(aLocaleStringBase + "WithSubject", [aSubject]) :
            this.bundle.GetStringFromName(aLocaleStringBase);
   },
 
