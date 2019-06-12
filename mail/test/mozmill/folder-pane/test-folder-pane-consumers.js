@@ -33,9 +33,10 @@ function test_virtual_folder_selection_tree() {
   plan_for_modal_dialog("mailnews:virtualFolderProperties",
                         subtest_create_virtual_folder);
   mc.click(mc.eid("button-appmenu"));
-  mc.click_menus_in_sequence(mc.e("appmenu-popup"),
-                             [ { id: "appmenu_newMessage" },
-                               { id: "appmenu_newVirtualFolder" } ]);
+  mc.click_appmenu_in_sequence(mc.e("appMenu-mainView"),
+    [{id: "appmenu_new"}],
+    {id: "appmenu_newVirtualFolder"});
+
   wait_for_modal_dialog("mailnews:virtualFolderProperties");
 }
 
@@ -61,13 +62,14 @@ function subtest_check_virtual_folder_list(listc) {
 }
 
 function test_offline_sync_folder_selection_tree() {
-  plan_for_modal_dialog("mailnews:synchronizeOffline",
-                        subtest_offline_sync);
+  plan_for_modal_dialog("mailnews:synchronizeOffline", subtest_offline_sync);
+
   mc.click(mc.eid("button-appmenu"));
-  mc.click_menus_in_sequence(mc.e("appmenu-popup"),
-                             [ { id: "appmenu_File" },
-                               { id: "appmenu_offline" },
-                               { id: "appmenu_synchronizeOffline" } ]);
+  mc.click_appmenu_in_sequence(mc.e("appMenu-mainView"),
+    [ {id: "appmenu_File"},
+      {id: "appmenu_offline"} ],
+    {id: "appmenu_synchronizeOffline"});
+
   wait_for_modal_dialog("mailnews:synchronizeOffline");
 }
 

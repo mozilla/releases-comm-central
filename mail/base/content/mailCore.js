@@ -292,51 +292,61 @@ function MailToolboxCustomizeDone(aEvent, customizePopupId) {
   }
 }
 
-function onViewToolbarsPopupShowing(aEvent, toolboxIds, aInsertPoint) {
-  if (!Array.isArray(toolboxIds))
+/**
+ * Sets up the menu popup that lets the user hide or display toolbars. For
+ * example, in the appmenu / Preferences view.  Adds toolbar items to the popup
+ * and sets their attributes.
+ *
+ * @param {Event} event                 Event causing the menu popup to appear.
+ * @param {string|string[]} toolboxIds  IDs of toolboxes that contain toolbars.
+ * @param {Element} insertPoint         Where to insert menu items.
+ * @param {string} [elementName]        What kind of menu item element to use.
+ *                                      E.g. "toolbarbutton" for the appmenu.
+ * @param {string} [classes]            Classes to set on menu items.
+ */
+function onViewToolbarsPopupShowing(event, toolboxIds, insertPoint,
+  elementName = "menuitem", classes) {
+  if (!Array.isArray(toolboxIds)) {
     toolboxIds = [toolboxIds];
-
-  let popup = aEvent.target;
-
-  // Empty the menu
-  for (let i = popup.childNodes.length - 1; i >= 0; --i) {
-    let deadItem = popup.childNodes[i];
-
-    // Remove all of the nodes with the iscollapsible
-    // attribute.
-    if (deadItem.hasAttribute("iscollapsible"))
-      deadItem.remove();
   }
 
-  // We'll insert the menuitems before the first item in the list if no insert
-  // point is defined.
-  let firstMenuItem = aInsertPoint || popup.firstChild;
+  const popup = event.target.querySelector(".panel-subview-body") || event.target;
 
-  for (let toolboxId of toolboxIds) {
-    let toolbox = document.getElementById(toolboxId);
+  // Remove all collapsible nodes from the menu.
+  for (let i = popup.childNodes.length - 1; i >= 0; --i) {
+    const deadItem = popup.childNodes[i];
 
-    // We'll consider either childnodes that have a toolbarname attribute,
-    // or externalToolbars.
-    let potentialToolbars = Array.from(
-      toolbox.querySelectorAll("[toolbarname]")
-    );
-    for (let externalToolbar of toolbox.externalToolbars) {
-      if (externalToolbar.getAttribute("prependmenuitem"))
-        potentialToolbars.unshift(externalToolbar);
-      else
-        potentialToolbars.push(externalToolbar);
+    if (deadItem.hasAttribute("iscollapsible")) {
+      deadItem.remove();
+    }
+  }
+
+  // We insert menuitems before the first child if no insert point is given.
+  const firstMenuItem = insertPoint || popup.firstChild;
+
+  for (const toolboxId of toolboxIds) {
+    const toolbox = document.getElementById(toolboxId);
+
+    // We consider child nodes that have a toolbarname attribute,
+    // externalToolbars.
+    const toolbars = Array.from(toolbox.querySelectorAll("[toolbarname]"));
+
+    for (const externalToolbar of toolbox.externalToolbars) {
+      if (externalToolbar.getAttribute("prependmenuitem")) {
+        toolbars.unshift(externalToolbar);
+      } else {
+        toolbars.push(externalToolbar);
+      }
     }
 
-    for (let toolbarElement of potentialToolbars) {
-      // We have to bind to toolbar because Javascript doesn't do fresh
-      // let-bindings per Iteration.
-      let toolbar = toolbarElement;
-
-      let toolbarName = toolbar.getAttribute("toolbarname");
+    for (const toolbar of toolbars) {
+      const toolbarName = toolbar.getAttribute("toolbarname");
       if (toolbarName) {
-        let menuItem = document.createXULElement("menuitem");
-        let hidingAttribute = toolbar.getAttribute("type") == "menubar" ?
-                              "autohide" : "collapsed";
+        const menuItem = document.createXULElement(elementName);
+
+        const hidingAttribute = toolbar.getAttribute("type") == "menubar" ?
+          "autohide" : "collapsed";
+
         menuItem.setAttribute("type", "checkbox");
         // Mark this menuitem with an iscollapsible attribute, so we
         // know we can wipe it out later on.
@@ -346,15 +356,21 @@ function onViewToolbarsPopupShowing(aEvent, toolboxIds, aInsertPoint) {
         menuItem.setAttribute("accesskey", toolbar.getAttribute("accesskey"));
         menuItem.setAttribute("checked",
                               toolbar.getAttribute(hidingAttribute) != "true");
+        if (classes) {
+          menuItem.setAttribute("class", classes);
+        }
         popup.insertBefore(menuItem, firstMenuItem);
 
-        let onMenuItemCommand = function(aEvent) {
-          let hidden = aEvent.originalTarget.getAttribute("checked") != "true";
-          toolbar.setAttribute(hidingAttribute, hidden);
-          Services.xulStore.persist(toolbar, hidingAttribute);
-        };
+        menuItem.addEventListener("command", () => {
+          const hidden = toolbar.getAttribute(hidingAttribute) != "true";
 
-        menuItem.addEventListener("command", onMenuItemCommand);
+          if (hidden) {
+            toolbar.setAttribute(hidingAttribute, "true");
+          } else {
+            toolbar.removeAttribute(hidingAttribute);
+          }
+          Services.xulStore.persist(toolbar, hidingAttribute);
+        });
       }
     }
   }

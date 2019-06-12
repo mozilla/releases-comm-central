@@ -87,6 +87,7 @@ classic.jar:
   skin/classic/messenger/addressbook/icons/secure-remote-addrbook.png     (mail/addrbook/secure-remote-addrbook.png)
   skin/classic/messenger/messengercompose/messengercompose.css (mail/compose/messengercompose.css)
   skin/classic/messenger/downloads/aboutDownloads.css         (mail/downloads/aboutDownloads.css)
+  skin/classic/messenger/customizableui/panelUI.css           (customizableui/panelUI.css)
 % skin messenger-newsblog classic/1.0 %skin/classic/messenger-newsblog/
   skin/classic/messenger-newsblog/feed-subscriptions.css      (mail/newsblog/feed-subscriptions.css)
   skin/classic/messenger-newsblog/rss-feed.png                (mail/newsblog/rss-feed.png)

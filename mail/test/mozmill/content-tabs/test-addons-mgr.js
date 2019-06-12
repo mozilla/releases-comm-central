@@ -51,17 +51,19 @@ function test_open_addons_with_url() {
 function test_addon_prefs() {
   // Open Add-on Options.
   mc.click(mc.eid("button-appmenu"));
-  let popups = mc.click_menus_in_sequence(mc.e("appmenu-popup"), [ { id: "appmenu_addons" } ], true);
+  const subview = mc.click_appmenu_in_sequence(mc.e("appMenu-mainView"),
+    [{id: "appmenu_addons"}]);
 
-  let foundAddon = false;
   plan_for_modal_dialog("mozmill-prefs", function(controller) {
-     // Add |mc.sleep(1000);| here to see the popup dialog.
+    // Add |mc.sleep(1000);| here to see the popup dialog.
     controller.window.close();
   });
 
   // MozMill add-on should be somewhere in the list. When found, click it.
-  for (let item of popups[popups.length - 1].children) {
-    if (item.tagName == "menuitem" && item.getAttribute("collapsed") != "true" &&
+  let foundAddon = false;
+  for (let item of subview.children) {
+    if (item.tagName == "toolbarbutton" &&
+        item.getAttribute("collapsed") != "true" &&
         item.label == "MozMill") {
       foundAddon = true;
       mc.click(new elib.Elem(item));

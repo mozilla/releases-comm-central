@@ -88,8 +88,8 @@ var ViewPickerBinding = {
 
   /**
    * Return the string value representing the current mail view value as
-   *  understood by the view picker widgets.  The value is the index for
-   *  everything but tags.  for tags it's the ":"-prefixed tagname.
+   * understood by the view picker widgets.  The value is the index for
+   * everything but tags.  for tags it's the ":"-prefixed tagname.
    */
   get currentViewValue() {
     if (gFolderDisplay.view.mailViewIndex == kViewItemTags)
@@ -108,7 +108,7 @@ var ViewPickerBinding = {
   /**
    * The effective view has changed, update the widget.
    */
-  updateDisplay(aEvent, aGiveUpIfNotFound) {
+  updateDisplay(event) {
     let viewPicker = document.getElementById("viewPicker");
     if (viewPicker) {
       let value = this.currentViewValue;
@@ -117,7 +117,7 @@ var ViewPickerBinding = {
       let selectedItem =
         viewPickerPopup.querySelector('[value="' + value + '"]');
       if (!selectedItem) {
-        // we may have a new item, so refresh to make it show up
+        // We may have a new item, so refresh to make it show up.
         RefreshAllViewPopups(viewPickerPopup, true);
         selectedItem = viewPickerPopup.querySelector('[value="' + value + '"]');
       }
@@ -133,102 +133,141 @@ function LaunchCustomizeDialog() {
 }
 
 /**
- * All of these Refresh*ViewPopup* methods have to deal with two menu
- *  variations.  They are accessible from the "View... Messages" menu as well as
- *  the view picker menu list in the toolbar.  aIsMenulist will be false in the
- *  former case and true in the latter case.
+ * All of these Refresh*ViewPopup* methods have to deal with several menu
+ * instances. For example, the "View... Messages" menu, the view picker menu
+ * list in the toolbar, in appmenu/View/Messages, etc.
+ *
+ * @param {Element} viewPopup  A menu popup element.
  */
-function RefreshAllViewPopups(aViewPopup) {
-  RefreshViewPopup(aViewPopup);
-  var menupopups = aViewPopup.getElementsByTagName("menupopup");
+function RefreshAllViewPopups(viewPopup) {
+  RefreshViewPopup(viewPopup);
+  let menupopups = viewPopup.getElementsByTagName("menupopup");
   if (menupopups.length > 1) {
-    // when we have menupopups, we assume both tags and custom views are there
+    // When we have menupopups, we assume both tags and custom views are there.
     RefreshTagsPopup(menupopups[0]);
     RefreshCustomViewsPopup(menupopups[1]);
   }
 }
 
-
-function RefreshViewPopup(aViewPopup) {
-  // mark default views if selected
+/**
+ * Refresh the view messages popup menu/panel. For example set checked and
+ * hidden state on menu items. Used for example for appmenu/View/Messages panel.
+ *
+ * @param {Element} viewPopup  A menu popup element.
+ */
+function RefreshViewPopup(viewPopup) {
+  // Mark default views if selected.
   let currentViewValue = ViewPickerBinding.currentViewValue;
 
-  let viewAll = aViewPopup.querySelector('[value="' + kViewItemAll + '"]');
+  let viewAll = viewPopup.querySelector('[value="' + kViewItemAll + '"]');
   viewAll.setAttribute("checked", currentViewValue == kViewItemAll);
-  let viewUnread =
-    aViewPopup.querySelector('[value="' + kViewItemUnread + '"]');
+
+  let viewUnread = viewPopup.querySelector('[value="' + kViewItemUnread + '"]');
   viewUnread.setAttribute("checked", currentViewValue == kViewItemUnread);
 
   let viewNotDeleted =
-    aViewPopup.querySelector('[value="' + kViewItemNotDeleted + '"]');
-  var folderArray = GetSelectedMsgFolders();
-  if (folderArray.length == 0)
-    return;
+    viewPopup.querySelector('[value="' + kViewItemNotDeleted + '"]');
 
-  // only show the "Not Deleted" item for IMAP servers that are using the IMAP
-  // delete model
+  let folderArray = GetSelectedMsgFolders();
+  if (folderArray.length == 0) {
+    return;
+  }
+
+  // Only show the "Not Deleted" item for IMAP servers that are using the IMAP
+  // delete model.
   viewNotDeleted.setAttribute("hidden", true);
   var msgFolder = folderArray[0];
   var server = msgFolder.server;
   if (server.type == "imap") {
-    let imapServer =
-      server.QueryInterface(Ci.nsIImapIncomingServer);
+    let imapServer = server.QueryInterface(Ci.nsIImapIncomingServer);
+
     if (imapServer.deleteModel == Ci.nsMsgImapDeleteModels.IMAPDelete) {
       viewNotDeleted.setAttribute("hidden", false);
       viewNotDeleted.setAttribute("checked",
-                                  currentViewValue == kViewItemNotDeleted);
+        currentViewValue == kViewItemNotDeleted);
     }
   }
 }
 
-
-function RefreshCustomViewsPopup(aMenupopup) {
-  // for each mail view in the msg view list, add an entry in our combo box
-  if (!gMailViewList)
+/**
+ * Refresh the contents of the custom views popup menu/panel.
+ * Used for example for appmenu/View/Messages/CustomViews panel.
+ *
+ * @param {Element} parent        Parent element that will recieve the menu items.
+ * @param {string} [elementName]  Type of menu items to create (e.g. "menuitem", "toolbarbutton").
+ * @param {string} [classes]      Classes to set on the menu items.
+ */
+function RefreshCustomViewsPopup(parent, elementName = "menuitem", classes) {
+  if (!gMailViewList) {
     gMailViewList = Cc["@mozilla.org/messenger/mailviewlist;1"]
                       .getService(Ci.nsIMsgMailViewList);
-  // remove all menuitems
-  while (aMenupopup.hasChildNodes())
-    aMenupopup.lastChild.remove();
+  }
 
-  // now rebuild the list
-  var currentView = ViewPickerBinding.currentViewValue;
-  var numItems = gMailViewList.mailViewCount;
-  for (var i = 0; i < numItems; ++i) {
-    var viewInfo = gMailViewList.getMailViewAt(i);
-    var menuitem = document.createXULElement("menuitem");
-    menuitem.setAttribute("label", viewInfo.prettyName);
-    menuitem.setAttribute("value", kViewItemFirstCustom + i);
-    menuitem.setAttribute("type", "radio");
-    if (kViewItemFirstCustom + i == currentView)
-      menuitem.setAttribute("checked", true);
-    aMenupopup.appendChild(menuitem);
+  // Remove all menu items.
+  while (parent.hasChildNodes()) {
+    parent.lastChild.remove();
+  }
+
+  // Rebuild the list.
+  const currentView = ViewPickerBinding.currentViewValue;
+  const numItems = gMailViewList.mailViewCount;
+
+  for (let i = 0; i < numItems; ++i) {
+    const viewInfo = gMailViewList.getMailViewAt(i);
+    const item = document.createXULElement(elementName);
+
+    item.setAttribute("label", viewInfo.prettyName);
+    item.setAttribute("value", kViewItemFirstCustom + i);
+    item.setAttribute("type", "radio");
+
+    if (classes) {
+      item.setAttribute("class", classes);
+    }
+    if (kViewItemFirstCustom + i == currentView) {
+      item.setAttribute("checked", true);
+    }
+    parent.appendChild(item);
   }
 }
 
-
-function RefreshTagsPopup(aMenupopup) {
-  // remove all menuitems
-  while (aMenupopup.hasChildNodes())
-    aMenupopup.lastChild.remove();
-
-  // create tag menuitems
-  let currentTagKey = gFolderDisplay.view.mailViewIndex == kViewItemTags ?
-                        gFolderDisplay.view.mailViewData : "";
-  let tagArray = MailServices.tags.getAllTags({});
-  for (let i = 0; i < tagArray.length; ++i) {
-    let tagInfo = tagArray[i];
-    let menuitem = document.createXULElement("menuitem");
-    menuitem.setAttribute("label", tagInfo.tag);
-    menuitem.setAttribute("value", kViewTagMarker + tagInfo.key);
-    menuitem.setAttribute("type", "radio");
-    if (tagInfo.key == currentTagKey)
-      menuitem.setAttribute("checked", true);
-    let color = tagInfo.color;
-    if (color)
-      menuitem.setAttribute("style", "color: " + color + ";");
-    aMenupopup.appendChild(menuitem);
+/**
+ * Refresh the contents of the tags popup menu/panel. For example, used for
+ * appmenu/View/Messages/Tags.
+ *
+ * @param {Element} parent        Parent element that will recieve the menu items.
+ * @param {string} [elementName]  Type of menu items to create (e.g. "menuitem", "toolbarbutton").
+ * @param {string} [classes]      Classes to set on the menu items.
+ */
+function RefreshTagsPopup(parent, elementName = "menuitem", classes) {
+  // Remove all pre-existing menu items.
+  while (parent.hasChildNodes()) {
+    parent.lastChild.remove();
   }
+
+  // Create tag menu items.
+  const currentTagKey = gFolderDisplay.view.mailViewIndex == kViewItemTags ?
+    gFolderDisplay.view.mailViewData : "";
+
+  const tagArray = MailServices.tags.getAllTags({});
+
+  tagArray.forEach(tagInfo => {
+    const item = document.createXULElement(elementName);
+
+    item.setAttribute("label", tagInfo.tag);
+    item.setAttribute("value", kViewTagMarker + tagInfo.key);
+    item.setAttribute("type", "radio");
+
+    if (tagInfo.key == currentTagKey) {
+      item.setAttribute("checked", true);
+    }
+    if (tagInfo.color) {
+      item.setAttribute("style", `color: ${tagInfo.color};`);
+    }
+    if (classes) {
+      item.setAttribute("class", classes);
+    }
+    parent.appendChild(item);
+  });
 }
 
 function ViewPickerOnLoad() {

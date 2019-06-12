@@ -821,6 +821,7 @@ var CustomizableUIInternal = {
     }
   },
 
+  // eslint-disable-next-line complexity
   buildArea(aArea, aPlacements, aAreaNode) {
     let document = aAreaNode.ownerDocument;
     let window = document.defaultView;
@@ -4052,6 +4053,7 @@ function WidgetGroupWrapper(aWidget) {
     }
   });
 
+  // eslint-disable-next-line func-names
   this.forWindow = function WidgetGroupWrapper_forWindow(aWindow) {
     let wrapperMap;
     if (!gSingleWrapperCache.has(aWindow)) {
@@ -4162,6 +4164,7 @@ function XULWidgetGroupWrapper(aWidgetId) {
   this.type = "custom";
   this.provider = CustomizableUI.PROVIDER_XUL;
 
+  // eslint-disable-next-line func-names
   this.forWindow = function XULWidgetGroupWrapper_forWindow(aWindow) {
     let wrapperMap;
     if (!gSingleWrapperCache.has(aWindow)) {

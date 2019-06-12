@@ -2,21 +2,37 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* globals AppConstants CanDetachAttachments CharsetMenu
+  currentAttachments CustomizableUI ExtensionParent ExtensionSupport FullScreen
+  getIconForAttachment goUpdateAttachmentCommands initAddonPrefsMenu
+  initAppMenuPopup InitAppmenuViewBodyMenu InitAppMessageMenu
+  InitAppmenuViewMessagesMenu InitAppFolderViewsMenu InitAppViewSortByMenu
+  InitMessageTags InitRecentlyClosedTabsPopup InitViewFolderViewsMenu
+  InitViewHeadersMenu InitViewLayoutStyleMenu MozXULElement msgWindow
+  onViewToolbarsPopupShowing RefreshCustomViewsPopup RefreshTagsPopup
+  RefreshViewPopup SanitizeAttachmentDisplayName Services ShortcutUtils
+  UpdateCharsetMenu updateEditUIVisibility UpdateFullZoomMenu XPCOMUtils */
+
 ChromeUtils.defineModuleGetter(this, "AppMenuNotifications",
                                "resource://gre/modules/AppMenuNotifications.jsm");
-ChromeUtils.defineModuleGetter(this, "NewTabUtils",
-                               "resource://gre/modules/NewTabUtils.jsm");
+
 ChromeUtils.defineModuleGetter(this, "PanelMultiView",
                                "resource:///modules/PanelMultiView.jsm");
+
+// Needed for character encoding subviews.
+XPCOMUtils.defineLazyGetter(this, "gBundle", function() {
+  const kUrl = "chrome://global/locale/charsetMenu.properties";
+  return Services.strings.createBundle(kUrl);
+});
 
 /**
  * Maintains the state and dispatches events for the main menu panel.
  */
-
 const PanelUI = {
   /** Panel events that we listen for. **/
   get kEvents() {
-    return ["popupshowing", "popupshown", "popuphiding", "popuphidden"];
+    return ["popupshowing", "popupshown", "popuphiding", "popuphidden",
+      "ViewShowing"];
   },
   /**
    * Used for lazily getting and memoizing elements from the document. Lazy
@@ -26,18 +42,89 @@ const PanelUI = {
     return {
       mainView: "appMenu-mainView",
       multiView: "appMenu-multiView",
-      helpView: "PanelUI-helpView",
-      libraryView: "appMenu-libraryView",
-      libraryRecentHighlights: "appMenu-library-recentHighlights",
-      menuButton: "PanelUI-menu-button",
+      menuButtonMail: "button-appmenu",
+      menuButtonChat: "button-chat-appmenu",
       panel: "appMenu-popup",
-      notificationPanel: "appMenu-notification-popup",
-      addonNotificationContainer: "appMenu-addon-banners",
+      navbar: "mail-bar3",
+      // TODO appmenu - do we need all of these?
+      // notificationPanel: "appMenu-notification-popup",
+      // addonNotificationContainer: "appMenu-addon-banners",
       overflowFixedList: "widget-overflow-fixed-list",
-      overflowPanel: "widget-overflow",
-      navbar: "nav-bar",
+      // overflowPanel: "widget-overflow",
     };
   },
+
+  /**
+   * Used for the View / Text Encoding view.
+   * Not ideal: copied from: mozilla-central/toolkit/modules/CharsetMenu.jsm
+   * This set contains encodings that are in the Encoding Standard, except:
+   *  - XSS-dangerous encodings (except ISO-2022-JP which is assumed to be
+   *    too common not to be included).
+   *  - x-user-defined, which practically never makes sense as an end-user-chosen
+   *    override.
+   *  - Encodings that IE11 doesn't have in its correspoding menu.
+   */
+  kEncodings: new Set([
+    // Globally relevant
+    "UTF-8",
+    "windows-1252",
+    // Arabic
+    "windows-1256",
+    "ISO-8859-6",
+    // Baltic
+    "windows-1257",
+    "ISO-8859-4",
+    // "ISO-8859-13", // Hidden since not in menu in IE11
+    // Central European
+    "windows-1250",
+    "ISO-8859-2",
+    // Chinese, Simplified
+    "GBK",
+    // Chinese, Traditional
+    "Big5",
+    // Cyrillic
+    "windows-1251",
+    "ISO-8859-5",
+    "KOI8-R",
+    "KOI8-U",
+    "IBM866", // Not in menu in Chromium. Maybe drop this?
+    // "x-mac-cyrillic", // Not in menu in IE11 or Chromium.
+    // Greek
+    "windows-1253",
+    "ISO-8859-7",
+    // Hebrew
+    "windows-1255",
+    "ISO-8859-8",
+    // Japanese
+    "Shift_JIS",
+    "EUC-JP",
+    "ISO-2022-JP",
+    // Korean
+    "EUC-KR",
+    // Thai
+    "windows-874",
+    // Turkish
+    "windows-1254",
+    // Vietnamese
+    "windows-1258",
+    // Hiding rare European encodings that aren't in the menu in IE11 and would
+    // make the menu messy by sorting all over the place
+    // "ISO-8859-3",
+    // "ISO-8859-10",
+    // "ISO-8859-14",
+    // "ISO-8859-15",
+    // "ISO-8859-16",
+    // "macintosh"
+  ]),
+
+  // Used for the View / Text Encoding view.
+  // Not ideal: copied from: mozilla-central/toolkit/modules/CharsetMenu.jsm
+  // Always at the start of the text encodings view, in this order, followed by
+  // a separator.
+  kPinnedEncodings: [
+    "UTF-8",
+    "windows-1252",
+  ],
 
   _initialized: false,
   _notifications: null,
@@ -45,8 +132,15 @@ const PanelUI = {
   init() {
     this._initElements();
 
-    this.menuButton.addEventListener("mousedown", this);
-    this.menuButton.addEventListener("keypress", this);
+    [this.menuButtonMail, this.menuButtonChat].forEach(button => {
+      // There's no chat button in the messageWindow.xul context.
+      if (button) {
+        button.addEventListener("mousedown", this);
+        button.addEventListener("keypress", this);
+      }
+    });
+
+    this.menuButton = this.menuButtonMail;
 
     Services.obs.addObserver(this, "fullscreen-nav-toolbox");
     Services.obs.addObserver(this, "appMenu-notifications");
@@ -78,18 +172,13 @@ const PanelUI = {
       window.addEventListener("MozDOMFullscreen:Exited", this);
     }
 
-    XPCOMUtils.defineLazyPreferenceGetter(this, "libraryRecentHighlightsEnabled",
-      "browser.library.activity-stream.enabled", false, (pref, previousValue, newValue) => {
-        if (!newValue)
-          this.clearLibraryRecentHighlights();
-      });
-
     window.addEventListener("activate", this);
     CustomizableUI.addListener(this);
 
-    for (let event of this.kEvents) {
-      this.notificationPanel.addEventListener(event, this);
-    }
+    // We are not currently using the notificationPanel.
+    // for (let event of this.kEvents) {
+    //   this.notificationPanel.addEventListener(event, this);
+    // }
 
     // We do this sync on init because in order to have the overflow button show up
     // we need to know whether anything is in the permanent panel area.
@@ -111,6 +200,7 @@ const PanelUI = {
       let id = v;
       this.__defineGetter__(getKey, function() {
         delete this[getKey];
+        // eslint-disable-next-line consistent-return
         return this[getKey] = document.getElementById(id);
       });
     }
@@ -127,8 +217,6 @@ const PanelUI = {
     for (let event of this.kEvents) {
       this.panel.addEventListener(event, this);
     }
-
-    this.helpView.addEventListener("ViewShowing", this._onHelpViewShow);
     this._eventListenersAdded = true;
   },
 
@@ -136,15 +224,16 @@ const PanelUI = {
     for (let event of this.kEvents) {
       this.panel.removeEventListener(event, this);
     }
-    this.helpView.removeEventListener("ViewShowing", this._onHelpViewShow);
     this._eventListenersAdded = false;
   },
 
   uninit() {
     this._removeEventListeners();
-    for (let event of this.kEvents) {
-      this.notificationPanel.removeEventListener(event, this);
-    }
+
+    // We are not currently using the notificationPanel.
+    // for (let event of this.kEvents) {
+    //   this.notificationPanel.removeEventListener(event, this);
+    // }
 
     Services.obs.removeObserver(this, "fullscreen-nav-toolbox");
     Services.obs.removeObserver(this, "appMenu-notifications");
@@ -153,29 +242,41 @@ const PanelUI = {
     window.removeEventListener("MozDOMFullscreen:Exited", this);
     window.removeEventListener("fullscreen", this);
     window.removeEventListener("activate", this);
-    this.menuButton.removeEventListener("mousedown", this);
-    this.menuButton.removeEventListener("keypress", this);
+
+    [this.menuButtonMail, this.menuButtonChat].forEach(button => {
+      // There's no chat button in the messageWindow.xul context.
+      if (button) {
+        button.removeEventListener("mousedown", this);
+        button.removeEventListener("keypress", this);
+      }
+    });
+
     CustomizableUI.removeListener(this);
-    this.libraryView.removeEventListener("ViewShowing", this);
   },
 
   /**
-   * Opens the menu panel if it's closed, or closes it if it's
-   * open.
+   * Opens the menu panel if it's closed, or closes it if it's open.
    *
-   * @param aEvent the event that triggers the toggle.
+   * @param event the event that triggers the toggle.
    */
-  toggle(aEvent) {
+  toggle(event) {
     // Don't show the panel if the window is in customization mode,
     // since this button doubles as an exit path for the user in this case.
     if (document.documentElement.hasAttribute("customizing")) {
       return;
     }
+
+    // Since we have several menu buttons, make sure the current one is used.
+    // This works for now, but in the long run, if we're showing badges etc.
+    // then the current menuButton needs to be set when the app's view/tab
+    // changes, not just when the menu is toggled.
+    this.menuButton = event.target;
+
     this._ensureEventListenersAdded();
     if (this.panel.state == "open") {
       this.hide();
     } else if (this.panel.state == "closed") {
-      this.show(aEvent);
+      this.show(event);
     }
   },
 
@@ -237,41 +338,39 @@ const PanelUI = {
     }
   },
 
-  handleEvent(aEvent) {
+  handleEvent(event) {
     // Ignore context menus and menu button menus showing and hiding:
-    if (aEvent.type.startsWith("popup") &&
-        aEvent.target != this.panel) {
+    if (event.type.startsWith("popup") &&
+        event.target != this.panel) {
       return;
     }
-    switch (aEvent.type) {
+    switch (event.type) {
       case "popupshowing":
-        updateEditUIVisibility();
+        initAppMenuPopup();
         // Fall through
       case "popupshown":
-        if (aEvent.type == "popupshown") {
+        if (event.type == "popupshown") {
           CustomizableUI.addPanelCloseListeners(this.panel);
         }
         // Fall through
       case "popuphiding":
-        if (aEvent.type == "popuphiding") {
-          updateEditUIVisibility();
-        }
         // Fall through
       case "popuphidden":
         this._updateNotifications();
-        this._updatePanelButton(aEvent.target);
-        if (aEvent.type == "popuphidden") {
+        this._updatePanelButton(event.target);
+        if (event.type == "popuphidden") {
           CustomizableUI.removePanelCloseListeners(this.panel);
         }
         break;
       case "mousedown":
-        if (aEvent.button == 0)
-          this.toggle(aEvent);
+        if (event.button == 0) {
+          this.toggle(event);
+        }
         break;
       case "keypress":
-        if (aEvent.key == " " || aEvent.key == "Enter") {
-          this.toggle(aEvent);
-          aEvent.stopPropagation();
+        if (event.key == " " || event.key == "Enter") {
+          this.toggle(event);
+          event.stopPropagation();
         }
         break;
       case "MozDOMFullscreen:Entered":
@@ -281,11 +380,108 @@ const PanelUI = {
         this._updateNotifications();
         break;
       case "ViewShowing":
-        if (aEvent.target == this.libraryView) {
-          this.onLibraryViewShowing(aEvent.target).catch(Cu.reportError);
-        }
+        PanelUI._handleViewShowingEvent(event);
         break;
     }
+  },
+
+  /**
+   * When a ViewShowing event happens when a <panelview> element is shown,
+   * do any required set up for that particular view.
+   *
+   * @param {ViewShowingEvent} event  ViewShowing event.
+   */
+  _handleViewShowingEvent(event) {
+    // Typically event.target for "ViewShowing" is a <panelview> element.
+    PanelUI._ensureShortcutsShown(event.target);
+
+    switch (event.target.id) {
+      case "appMenu-attachmentsView":
+        this._onAttachmentsViewShow(event);
+        break;
+      case "appMenu-attachmentView":
+        this._onAttachmentViewShow(event);
+        break;
+      case "appMenu-foldersView":
+        this._onFoldersViewShow(event);
+        break;
+      case "appMenu-addonsView":
+        initAddonPrefsMenu(event.target.querySelector(".panel-subview-body"),
+          "toolbarbutton",
+          "subviewbutton subviewbutton-iconic",
+          "subviewbutton subviewbutton-iconic");
+        break;
+      case "appMenu-preferencesView":
+        onViewToolbarsPopupShowing(event,
+          "mail-toolbox",
+          document.getElementById("appmenu_quickFilterBar"),
+          "toolbarbutton",
+          "subviewbutton subviewbutton-iconic");
+        break;
+      case "appMenu-preferencesLayoutView":
+        PanelUI._onPreferencesLayoutViewShow(event);
+        break;
+      // View
+      case "appMenu-viewSortByView":
+        InitAppViewSortByMenu();
+        break;
+      case "appMenu-viewMessagesView":
+        RefreshViewPopup(event.target);
+        break;
+      case "appMenu-viewMessagesTagsView":
+        PanelUI._refreshDynamicView(event, RefreshTagsPopup);
+        break;
+      case "appMenu-viewMessagesCustomViewsView":
+        PanelUI._refreshDynamicView(event, RefreshCustomViewsPopup);
+        break;
+      case "appMenu-viewThreadsView":
+        InitAppmenuViewMessagesMenu();
+        break;
+      case "appMenu-viewHeadersView":
+        InitViewHeadersMenu();
+        break;
+      case "appMenu-viewMessageBodyAsView":
+        InitAppmenuViewBodyMenu();
+        break;
+      case "appMenu-viewFeedsView":
+        InitAppmenuViewBodyMenu();
+        break;
+      case "appMenu-viewZoomView":
+        UpdateFullZoomMenu();
+        break;
+      case "appMenu-viewTextEncodingView":
+        this._onTextEncodingViewShow(event);
+        break;
+      case "appMenu-viewTextEncodingDetectorsView":
+        this._onTextEncodingDetectorsViewShow(event);
+        break;
+      // Go
+      case "appMenu-goRecentlyClosedTabsView":
+        PanelUI._refreshDynamicView(event, InitRecentlyClosedTabsPopup);
+        break;
+      // Message
+      case "appMenu-messageView":
+        InitAppMessageMenu();
+        break;
+      case "appMenu-messageTagView":
+        PanelUI._refreshDynamicView(event, InitMessageTags);
+        break;
+    }
+  },
+
+  /**
+   * Refreshes some views that are dynamically populated. Typically called by
+   * event listeners responding to a ViewShowing event. It calls a given refresh
+   * function (that populates the view), passing appmenu-specific arguments.
+   *
+   * @param {ViewShowingEvent} event    ViewShowing event.
+   * @param {Function} refreshFunction  Function that refreshes a particular view.
+   */
+  _refreshDynamicView(event, refreshFunction) {
+    refreshFunction(event.target.querySelector(".panel-subview-body"),
+      "toolbarbutton",
+      "subviewbutton subviewbutton-iconic",
+      "toolbarseparator");
   },
 
   get isReady() {
@@ -319,15 +515,6 @@ const PanelUI = {
     this._ensureEventListenersAdded();
     this.panel.hidden = false;
     this._isReady = true;
-  },
-
-  /**
-   * Switch the panel to the help view if it's not already
-   * in that view.
-   */
-  showHelpView(aAnchor) {
-    this._ensureEventListenersAdded();
-    this.multiView.showSubView("PanelUI-helpView", aAnchor);
   },
 
   /**
@@ -368,8 +555,6 @@ const PanelUI = {
       Cu.reportError("Expected an anchor when opening subview with id: " + aViewId);
       return;
     }
-
-    this.ensureLibraryInitialized(viewNode);
 
     let container = aAnchor.closest("panelmultiview");
     if (container) {
@@ -443,135 +628,6 @@ const PanelUI = {
   },
 
   /**
-   * Sets up the event listener for when the Library view is shown.
-   *
-   * @param {panelview} viewNode The library view.
-   */
-  ensureLibraryInitialized(viewNode) {
-    if (viewNode != this.libraryView || viewNode._initialized)
-      return;
-
-    viewNode._initialized = true;
-    viewNode.addEventListener("ViewShowing", this);
-  },
-
-  /**
-   * When the Library view is showing, we can start fetching and populating the
-   * list of Recent Highlights.
-   * This is done asynchronously and may finish when the view is already visible.
-   *
-   * @param {panelview} viewNode The library view.
-   */
-  async onLibraryViewShowing(viewNode) {
-    // Since the library is the first view shown, we don't want to add a blocker
-    // to the event, which would make PanelMultiView wait to show it. Instead,
-    // we keep the space currently reserved for the items, but we hide them.
-    if (this._loadingRecentHighlights || !this.libraryRecentHighlightsEnabled) {
-      return;
-    }
-
-    // Make the elements invisible synchronously, before the view is shown.
-    this.makeLibraryRecentHighlightsInvisible();
-
-    // Perform the rest asynchronously while protecting from re-entrancy.
-    this._loadingRecentHighlights = true;
-    try {
-      await this.fetchAndPopulateLibraryRecentHighlights();
-    } finally {
-      this._loadingRecentHighlights = false;
-    }
-  },
-
-  /**
-   * Fetches the list of Recent Highlights and replaces the items in the Library
-   * view with the results.
-   */
-  async fetchAndPopulateLibraryRecentHighlights() {
-    let highlights = await NewTabUtils.activityStreamLinks.getHighlights({
-      // As per bug 1402023, hard-coded limit, until Activity Stream develops a
-      // richer list.
-      numItems: 6,
-      withFavicons: true,
-      excludePocket: true,
-    }).catch(ex => {
-      // Just hide the section if we can't retrieve the items from the database.
-      Cu.reportError(ex);
-      return [];
-    });
-
-    // Since the call above is asynchronous, the panel may be already hidden
-    // at this point, but we still prepare the items for the next time the
-    // panel is shown, so their space is reserved. The part of this function
-    // that adds the elements is the least expensive anyways.
-    this.clearLibraryRecentHighlights();
-    if (!highlights.length) {
-      return;
-    }
-
-    let container = this.libraryRecentHighlights;
-    container.hidden = container.previousElementSibling.hidden =
-      container.previousElementSibling.previousElementSibling.hidden = false;
-    let fragment = document.createDocumentFragment();
-    for (let highlight of highlights) {
-      let button = document.createXULElement("toolbarbutton");
-      button.classList.add("subviewbutton", "highlight", "subviewbutton-iconic", "bookmark-item");
-      let title = highlight.title || highlight.url;
-      button.setAttribute("label", title);
-      button.setAttribute("tooltiptext", title);
-      button.setAttribute("type", "highlight-" + highlight.type);
-      button.setAttribute("onclick", "PanelUI.onLibraryHighlightClick(event)");
-      if (highlight.favicon) {
-        button.setAttribute("image", highlight.favicon);
-      }
-      button._highlight = highlight;
-      fragment.appendChild(button);
-    }
-    container.appendChild(fragment);
-  },
-
-  /**
-   * Make all nodes from the 'Recent Highlights' section invisible while we
-   * refresh its contents. This is done while the Library view is opening to
-   * avoid showing potentially stale items, but still keep the space reserved.
-   */
-  makeLibraryRecentHighlightsInvisible() {
-    for (let button of this.libraryRecentHighlights.children) {
-      button.style.visibility = "hidden";
-    }
-  },
-
-  /**
-   * Remove all the nodes from the 'Recent Highlights' section and hide it as well.
-   */
-  clearLibraryRecentHighlights() {
-    let container = this.libraryRecentHighlights;
-    while (container.firstChild) {
-      container.firstChild.remove();
-    }
-    container.hidden = container.previousElementSibling.hidden =
-      container.previousElementSibling.previousElementSibling.hidden = true;
-  },
-
-  /**
-   * Event handler; invoked when an item of the Recent Highlights is clicked.
-   *
-   * @param {MouseEvent} event Click event, originating from the Highlight.
-   */
-  onLibraryHighlightClick(event) {
-    let button = event.target;
-    if (event.button > 1 || !button._highlight) {
-      return;
-    }
-    if (event.button == 1) {
-      // Bug 1402849, close library panel on mid mouse click
-      CustomizableUI.hidePanelForNode(button);
-    }
-    window.openUILink(button._highlight.url, event, {
-      triggeringPrincipal: Services.scriptSecurityManager.createNullPrincipal({}),
-    });
-  },
-
-  /**
    * NB: The enable- and disableSingleSubviewPanelAnimations methods only
    * affect the hiding/showing animations of single-subview panels (tempPanel
    * in the showSubView method).
@@ -617,36 +673,333 @@ const PanelUI = {
                            this.panel.state == "showing";
   },
 
-  _onHelpViewShow(aEvent) {
-    // Call global menu setup function
-    buildHelpMenu();
+  /**
+   * Event handler for showing the Preferences/Layout view. Removes "checked"
+   * from all layout menu items and then checks the current layout menu item.
+   *
+   * @param {ViewShowingEvent} event  ViewShowing event.
+   */
+  _onPreferencesLayoutViewShow(event) {
+    event.target.querySelectorAll("[name='viewlayoutgroup']")
+      .forEach(item => item.removeAttribute("checked"));
 
-    let helpMenu = document.getElementById("menu_HelpPopup");
-    let items = this.getElementsByTagName("vbox")[0];
-    let attrs = ["oncommand", "onclick", "label", "key", "disabled"];
+    InitViewLayoutStyleMenu(event, true);
+  },
 
-    // Remove all buttons from the view
-    while (items.firstChild) {
-      items.firstChild.remove();
+  /**
+   * Refreshes and populates the attachments view when it is shown, adding attachment items, etc.
+   * See similar function FillAttachmentListPopup.
+   *
+   * @param {ViewShowingEvent} event  The "ViewShowing" event.
+   */
+  _onAttachmentsViewShow(event) {
+    const viewBody = event.target.querySelector(".panel-subview-body");
+
+    // First clear out the old attachment items. They are above the separator.
+    while (viewBody.firstChild.localName == "toolbarbutton") {
+      viewBody.firstChild.remove();
     }
 
-    // Add the current set of menuitems of the Help menu to this view
-    let menuItems = Array.prototype.slice.call(helpMenu.getElementsByTagName("menuitem"));
-    let fragment = document.createDocumentFragment();
-    for (let node of menuItems) {
-      if (node.hidden)
-        continue;
-      let button = document.createXULElement("toolbarbutton");
-      // Copy specific attributes from a menuitem of the Help menu
-      for (let attrName of attrs) {
-        if (!node.hasAttribute(attrName))
-          continue;
-        button.setAttribute(attrName, node.getAttribute(attrName));
+    for (const [attachmentIndex, attachment] of currentAttachments.entries()) {
+      PanelUI._addAttachmentToAttachmentsView(viewBody, attachment, attachmentIndex + 1);
+    }
+
+    goUpdateAttachmentCommands();
+  },
+
+  /**
+   * Add an attachment button to the attachments view panel.
+   * See the similar function addAttachmentToPopup.
+   *
+   * @param {Element} viewBody         Parent element that will receive the attachment button.
+   * @param {Object} attachment        Attachment data.
+   * @param {Number} attachmentIndex   1-based index of the attachment.
+   */
+  _addAttachmentToAttachmentsView(viewBody, attachment, attachmentIndex) {
+    if (!viewBody) {
+      return;
+    }
+
+    const item = document.createXULElement("toolbarbutton");
+    if (!item) {
+      return;
+    }
+
+    // Insert the item just before the separator.
+    item.setAttribute("class", "subviewbutton subviewbutton-iconic subviewbutton-nav");
+    item.setAttribute("image", getIconForAttachment(attachment));
+    item.setAttribute("closemenu", "none");
+
+    // Find the separator index.
+    let separatorIndex = 0;
+    while (viewBody.childNodes[separatorIndex].localName != "toolbarseparator") {
+      separatorIndex += 1;
+    }
+
+    // The accesskeys for the attachments in the menu start with 1 (not 0).
+    const displayName = SanitizeAttachmentDisplayName(attachment);
+    const label = document.getElementById("bundle_messenger")
+                          .getFormattedString("attachmentDisplayNameFormat",
+                                              [attachmentIndex, displayName]);
+    item.setAttribute("crop", "center");
+    item.setAttribute("label", label);
+    item.setAttribute("accesskey", attachmentIndex % 10);
+
+    // Each attachment gets its own subview with options for opening, saving, deleting, etc.
+    item.setAttribute("oncommand", "PanelUI.showSubView('appMenu-attachmentView', this)");
+
+    // Add the attachment data to the item so that when the item is clicked and the subview is
+    // shown, we can access the attachment data from the ViewShowing event's explicitOriginalTarget.
+    item.attachment = attachment;
+
+    // TODO appmenu - Test that these classes still work as intended.
+    if (attachment.isExternalAttachment) {
+      if (!attachment.hasFile) {
+        item.classList.add("notfound");
+      } else {
+        // TODO appmenu - Is this still needed?  It's from the old menupopup code.
+        //
+        // The text-link class must be added to the <label> and have a <menu> hover rule.
+        // Adding to <menu> makes hover overflow the underline to the popup items.
+        // const label = item.firstChild.nextSibling;
+        // label.classList.add("text-link");
       }
-      button.setAttribute("class", "subviewbutton");
-      fragment.appendChild(button);
     }
-    items.appendChild(fragment);
+
+    if (attachment.isDeleted) {
+      item.classList.add("notfound");
+    }
+
+    if (!attachment.hasFile) {
+      item.setAttribute("disabled", "true");
+    }
+
+    viewBody.insertBefore(item, viewBody.childNodes[separatorIndex]);
+  },
+
+  /**
+   * Refreshes and populates the single attachment view (open, save, etc.) when it is shown.
+   * See similar function addAttachmentToPopup.
+   *
+   * @param {ViewShowingEvent} event  The "ViewShowing" event.
+   */
+  _onAttachmentViewShow(event) {
+    const attachment = event.explicitOriginalTarget.attachment;
+    const bundle = document.getElementById("bundle_messenger");
+
+    const detached = attachment.isExternalAttachment;
+    const deleted  = !attachment.hasFile;
+    const canDetach = CanDetachAttachments() && !deleted && !detached;
+
+    const attachmentView = document.getElementById("appMenu-attachmentView");
+    attachmentView.setAttribute("title", attachment.name);
+
+    const viewBody = attachmentView.querySelector(".panel-subview-body");
+
+    // Clear out old view items.
+    while (viewBody.firstChild) {
+      viewBody.firstChild.remove();
+    }
+
+    // Create the "open" item.
+    const openButton = document.createXULElement("toolbarbutton");
+    openButton.attachment = attachment;
+    openButton.setAttribute("class", "subviewbutton subviewbutton-iconic");
+    openButton.setAttribute("oncommand", "this.attachment.open();");
+    openButton.setAttribute("label", bundle.getString("openLabel"));
+    openButton.setAttribute("accesskey", bundle.getString("openLabelAccesskey"));
+    if (deleted) {
+      openButton.setAttribute("disabled", "true");
+    }
+    viewBody.appendChild(openButton);
+
+    // Create the "save" item.
+    const saveButton = document.createXULElement("toolbarbutton");
+    saveButton.attachment = attachment;
+    saveButton.setAttribute("class", "subviewbutton subviewbutton-iconic");
+    saveButton.setAttribute("oncommand", "this.attachment.save();");
+    saveButton.setAttribute("label", bundle.getString("saveLabel"));
+    saveButton.setAttribute("accesskey", bundle.getString("saveLabelAccesskey"));
+    if (deleted) {
+      saveButton.setAttribute("disabled", "true");
+    }
+    viewBody.appendChild(saveButton);
+
+    // Create the "detach" item.
+    const detachButton = document.createXULElement("toolbarbutton");
+    detachButton.attachment = attachment;
+    detachButton.setAttribute("class", "subviewbutton subviewbutton-iconic");
+    detachButton.setAttribute("oncommand", "this.attachment.detach(true);");
+    detachButton.setAttribute("label", bundle.getString("detachLabel"));
+    detachButton.setAttribute("accesskey", bundle.getString("detachLabelAccesskey"));
+    if (!canDetach) {
+      detachButton.setAttribute("disabled", "true");
+    }
+    viewBody.appendChild(detachButton);
+
+    // Create the "delete" item.
+    const deleteButton = document.createXULElement("toolbarbutton");
+    deleteButton.attachment = attachment;
+    deleteButton.setAttribute("class", "subviewbutton subviewbutton-iconic");
+    deleteButton.setAttribute("oncommand", "this.attachment.detach(false);");
+    deleteButton.setAttribute("label", bundle.getString("deleteLabel"));
+    deleteButton.setAttribute("accesskey", bundle.getString("deleteLabelAccesskey"));
+    if (!canDetach) {
+      deleteButton.setAttribute("disabled", "true");
+    }
+    viewBody.appendChild(deleteButton);
+
+    // Create the "open containing folder" item, for existing detached only.
+    if (attachment.isFileAttachment) {
+      const separator = document.createXULElement("toolbarseparator");
+      viewBody.appendChild(separator);
+      const openFolderButton = document.createXULElement("toolbarbutton");
+      openFolderButton.attachment = attachment;
+      openFolderButton.setAttribute("class", "subviewbutton subviewbutton-iconic");
+      openFolderButton.setAttribute("oncommand", "this.attachment.openFolder();");
+      openFolderButton.setAttribute("label", bundle.getString("openFolderLabel"));
+      openFolderButton.setAttribute("accesskey", bundle.getString("openFolderLabelAccesskey"));
+      if (deleted) {
+        openFolderButton.setAttribute("disabled", "true");
+      }
+      viewBody.appendChild(openFolderButton);
+    }
+  },
+
+  /**
+   * Event listener for showing the Folders view.
+   *
+   * @param {ViewShowingEvent} event  ViewShowing event.
+   */
+  _onFoldersViewShow(event) {
+    event.target.querySelectorAll('[name="viewmessages"]')
+      .forEach(item => item.removeAttribute("checked"));
+
+    InitAppFolderViewsMenu();
+    InitViewFolderViewsMenu(event);
+  },
+
+  /**
+   * Create a toolbarbutton DOM node for a text encoding menu item.
+   * Similar to the CharsetMenu.build function.
+   *
+   * @param {Document} doc     The document where the node will be created.
+   * @param {Object} nodeInfo  Contains attributes to set on the node.
+   * @returns {Element}        The DOM node.
+   */
+  _createTextEncodingNode(doc, nodeInfo) {
+    const node = doc.createXULElement("toolbarbutton");
+    node.setAttribute("type", "radio");
+    node.setAttribute("name", nodeInfo.name + "Group");
+    node.setAttribute(nodeInfo.name, nodeInfo.value);
+    node.setAttribute("label", nodeInfo.label);
+    if (nodeInfo.accesskey) {
+      node.setAttribute("accesskey", nodeInfo.accesskey);
+    }
+    node.setAttribute("class", "subviewbutton subviewbutton-iconic");
+    return node;
+  },
+
+  /**
+   * Event listener for showing the View/Text_Encoding view.
+   * Similar to the CharsetMenu.build function.
+   *
+   * @param {ViewShowingEvent} event  ViewShowing event.
+   */
+  _onTextEncodingViewShow(event) {
+    const panelView = event.target;
+    const doc = panelView.ownerDocument;
+    const parent = panelView.querySelector(".panel-subview-body");
+    const showDetectors = panelView.getAttribute("detectors") != "false";
+
+    // Clear the view before recreating it.
+    while (parent.firstChild) {
+      parent.firstChild.remove();
+    }
+
+    if (showDetectors) {
+      // Add toolbarbutton for detectors subview.
+      const node = doc.createXULElement("toolbarbutton");
+      node.setAttribute("class", "subviewbutton subviewbutton-nav");
+      node.setAttribute("closemenu", "none");
+
+      node.setAttribute("label",
+        gBundle.GetStringFromName("charsetMenuAutodet"));
+
+      node.setAttribute("accesskey",
+        gBundle.GetStringFromName("charsetMenuAutodet.key"));
+
+      node.setAttribute("oncommand",
+        "PanelUI.showSubView('appMenu-viewTextEncodingDetectorsView', this)");
+
+      parent.appendChild(node);
+      parent.appendChild(doc.createXULElement("toolbarseparator"));
+    }
+
+    // Add a toolbarbutton for each character encoding.
+    const pinnedInfoCache = CharsetMenu.getCharsetInfo(
+      PanelUI.kPinnedEncodings, false);
+
+    const charsetInfoCache = CharsetMenu.getCharsetInfo(PanelUI.kEncodings);
+
+    pinnedInfoCache.forEach(charsetInfo => parent.appendChild(
+      PanelUI._createTextEncodingNode(doc, charsetInfo)));
+
+    parent.appendChild(doc.createXULElement("toolbarseparator"));
+
+    charsetInfoCache.forEach(charsetInfo => parent.appendChild(
+      PanelUI._createTextEncodingNode(doc, charsetInfo)));
+
+    UpdateCharsetMenu(msgWindow.mailCharacterSet, parent);
+  },
+
+  /**
+   * Event listener for showing the View/Text_Encoding/Auto-Detect view.
+   * Similar to the CharsetMenu.build function.
+   *
+   * @param {ViewShowingEvent} event  ViewShowing event.
+   */
+  _onTextEncodingDetectorsViewShow(event) {
+    const panelView = event.target;
+    const parent = panelView.querySelector(".panel-subview-body");
+    const doc = parent.ownerDocument;
+
+    // Clear the view before recreating it.
+    while (parent.firstChild) {
+      parent.firstChild.remove();
+    }
+
+    // Populate the view with toolbarbuttons.
+    panelView.setAttribute("title",
+      gBundle.GetStringFromName("charsetMenuAutodet"));
+
+    const detectorInfoCache = CharsetMenu.getDetectorInfo();
+
+    detectorInfoCache.forEach(detectorInfo => parent.appendChild(
+        PanelUI._createTextEncodingNode(doc, detectorInfo)));
+
+    parent.appendChild(doc.createXULElement("toolbarseparator"));
+
+    // Make the current selection checked. (Like UpdateDetectorMenu function.)
+    const detector = Services.prefs.getComplexValue("intl.charset.detector",
+      Ci.nsIPrefLocalizedString);
+
+    const item = parent.getElementsByAttribute("detector", detector).item(0);
+
+    if (item) {
+      item.setAttribute("checked", "true");
+    }
+  },
+
+  /**
+   * Set the text encoding detector preference. Used for the
+   * View / Text Encoding / Auto-Detect view.
+   *
+   * @param {Event} event  The 'oncommand' event.
+   */
+  setTextEncodingDetector(event) {
+    Services.prefs.setStringPref("intl.charset.detector",
+      event.target.getAttribute("detector"));
   },
 
   _updateQuitTooltip() {
@@ -874,7 +1227,9 @@ const PanelUI = {
     return iconAnchor || candidate;
   },
 
-  _addedShortcuts: false,
+  // This is unused:
+  // _addedShortcuts: false,
+
   _ensureShortcutsShown(view = this.mainView) {
     if (view.hasAttribute("added-shortcuts")) {
       return;

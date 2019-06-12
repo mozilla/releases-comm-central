@@ -104,15 +104,18 @@ var EXPORTED_SYMBOLS = [
   "PanelView",
 ];
 
-const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+// TODO appmenu - Usage is commented out below.  Keep eslint happy.
+// const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
 ChromeUtils.defineModuleGetter(this, "CustomizableUI",
   "resource:///modules/CustomizableUI.jsm");
 
-XPCOMUtils.defineLazyGetter(this, "gBundle", function() {
-  return Services.strings.createBundle(
-    "chrome://browser/locale/browser.properties");
-});
+// TODO appmenu - Needs updating for Thunderbird. Usage is commented out below.
+// XPCOMUtils.defineLazyGetter(this, "gBundle", function() {
+//   return Services.strings.createBundle(
+//     "chrome://browser/locale/browser.properties");
+// });
 
 /**
  * Safety timeout after which asynchronous events will be canceled if any of the
@@ -722,9 +725,11 @@ var PanelMultiView = class extends AssociatedToNode {
     if (!prevPanelView.active) {
       return;
     }
+
     prevPanelView.active = false;
 
     prevPanelView.captureKnownSize();
+
     await this._transitionViews(prevPanelView.node, nextPanelView.node, true);
 
     this._closeLatestView();
@@ -977,8 +982,11 @@ var PanelMultiView = class extends AssociatedToNode {
     // kicks of the height animation.
     this._viewContainer.style.height = viewRect.height + "px";
     this._viewContainer.style.width = viewRect.width + "px";
-    this._panel.removeAttribute("width");
+
+    // TODO appmenu - Removing the width here causes a double-wide panel flicker.
+    // this._panel.removeAttribute("width");
     this._panel.removeAttribute("height");
+
     // We're setting the width property to prevent flickering during the
     // sliding animation with smaller views.
     viewNode.style.width = viewRect.width + "px";
@@ -1273,8 +1281,12 @@ var PanelView = class extends AssociatedToNode {
       "subviewbutton subviewbutton-iconic subviewbutton-back";
     backButton.setAttribute("closemenu", "none");
     backButton.setAttribute("tabindex", "0");
-    backButton.setAttribute("aria-label",
-      gBundle.GetStringFromName("panel.back"));
+
+    // TODO appmenu gBundle.GetStringFromName is undefined call
+    // Possible string addition/change.
+    // backButton.setAttribute("aria-label",
+    //   gBundle.GetStringFromName("panel.back"));
+
     backButton.addEventListener("command", () => {
       // The panelmultiview element may change if the view is reused.
       this.node.panelMultiView.goBack();
@@ -1562,6 +1574,7 @@ var PanelView = class extends AssociatedToNode {
    *
    * @param {KeyEvent} event
    */
+  /* eslint-disable-next-line complexity */
   keyNavigation(event) {
     if (!this.active) {
       return;

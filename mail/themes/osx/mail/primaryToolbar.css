@@ -244,43 +244,7 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 
 /* AppMenu styling */
 
-.splitmenu-menuitem {
-  -moz-appearance: menuitem;
-  -moz-box-align: center;
-  color: MenuText;
-  font: -moz-pull-down-menu;
-  list-style-image: none;
-  -moz-image-region: auto;
-  margin-inline-end: 1px;
-  padding-bottom: 2px;
-  padding-inline-start: 10px;
-  padding-inline-end: 0;
-}
-
-.splitmenu-menuitem[_moz-menuactive="true"] {
-  color: -moz-mac-menutextselect;
-  background-color: Highlight;
-}
-
-.splitmenu-menuitem[disabled="true"],
-.splitmenu-menu[_moz-menuactive="true"][disabled="true"],
-.splitmenu-menuitem[_moz-menuactive="true"][disabled="true"] {
-  color: -moz-mac-menutextdisable;
-  background-color: transparent;
-}
-
-.splitmenu-menuitem[iconic="true"] {
-  /* 2px higher than those without icons */
-  padding-top: 1px;
-  padding-bottom: 3px;
-  list-style-image: inherit;
-  -moz-image-region: inherit;
-}
-
-.splitmenu-menuitem[iconic="true"] > .menu-iconic-left > .menu-iconic-icon {
-  margin-inline-start: 0;
-  width: 16px;
-}
+/* TODO appmenu - remove? needed? */
 
 .appmenu-edit-button {
   -moz-appearance: none;
@@ -333,30 +297,10 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 }
 
 #appmenuSecondaryPane > :-moz-any(menu, menuitem):not([_moz-menuactive]),
-#appmenuSecondaryPane > :-moz-any(menu, menuitem)[_moz-menuactive][disabled],
-#appmenuSecondaryPane > splitmenu >
-  :-moz-any(.splitmenu-menu, .splitmenu-menuitem):not([_moz-menuactive]) {
+#appmenuSecondaryPane > :-moz-any(menu, menuitem)[_moz-menuactive][disabled] {
   background-color: transparent;
 }
 
-.splitmenu-menu,
-#appmenu-editmenu {
-  -moz-box-pack: end;
-  padding-inline-start: 5px;
-  padding-inline-end: 15px;
-}
-
-.splitmenu-menu > .menu-accel-container,
-#appmenu-editmenu > .menu-accel-container {
-  margin: 0;
-}
-
-.splitmenu-menu > .menu-right,
-#appmenu-editmenu > .menu-right {
-  margin-inline-start: 5px;
-}
-
-.splitmenu-menuitem > .menu-iconic-left,
 #appmenu-popup
   menuitem:not([type="radio"]):not([type="checkbox"]):not(.folderMenuItem) >
   .menu-iconic-left {

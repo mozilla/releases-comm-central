@@ -28,8 +28,8 @@ var modeList_menu;
 var modeList_appmenu;
 var view_menu;
 var view_menupopup;
-var appmenu;
-var appmenu_popup;
+var appmenu_button;
+var appmenu_mainView;
 var menu_state;
 
 function setupModule(module) {
@@ -53,12 +53,12 @@ function setupModule(module) {
   toggle_appmenu = mc.e("appmenu_compactFolderView");
 
   modeList_menu = mc.e("menu_FolderViewsPopup");
-  modeList_appmenu = mc.e("appmenu_FolderViewsPopup");
+  modeList_appmenu = mc.e("appMenu-foldersView");
 
   view_menu = mc.eid("menu_View");
   view_menupopup = mc.e("menu_View_Popup");
-  appmenu = mc.eid("button-appmenu");
-  appmenu_popup = mc.e("appmenu-popup");
+  appmenu_button = mc.eid("button-appmenu");
+  appmenu_mainView = mc.e("appMenu-mainView");
 
   tree = mc.folderTreeView;
 
@@ -91,30 +91,34 @@ function assert_mode_selected(aMode) {
   assert_equals(tree.mode, aMode);
   let baseMode = tree.baseMode();
   assert_compact_state(baseMode != tree.mode);
-  let popuplist;
   // We need to open the menu because only then the right mode is set in them.
   if (!mc.mozmillModule.isMac) {
     // On OS X the main menu seems not accessible for clicking from mozmill.
     mc.click(view_menu);
-    popuplist = mc.click_menus_in_sequence(view_menupopup, [ { id: modeList_menu.parentNode.id } ], true);
+    let popuplist = mc.click_menus_in_sequence(view_menupopup, [ { id: modeList_menu.parentNode.id } ], true);
     assert_true(modeList_menu.querySelector('[value="' + baseMode + '"]').hasAttribute("checked"));
     mc.close_popup_sequence(popuplist);
   }
-  mc.click(appmenu);
-  popuplist = mc.click_menus_in_sequence(appmenu_popup, [ { id: modeList_appmenu.parentNode.id } ], true);
-  assert_true(modeList_menu.querySelector('[value="' + baseMode + '"]').hasAttribute("checked"));
-  mc.close_popup_sequence(popuplist);
+  mc.click(appmenu_button);
+  mc.click_appmenu_in_sequence(appmenu_mainView,
+    [ {id: "appmenu_View"},
+      {id: "appmenu_FolderViews"} ]);
+  assert_true(modeList_appmenu.querySelector('[value="' + baseMode + '"]').hasAttribute("checked"));
+  // Close the appmenu by clicking the appmenu button again.
+  mc.click(appmenu_button);
 }
 
 /**
  * Toggle the folder mode by clicking in the menu.
  *
- * @param aMode  The base name of the mode to select.
+ * @param mode  The base name of the mode to select.
  */
-function select_mode_in_menu(aMode) {
-  mc.click(appmenu);
-  mc.click_menus_in_sequence(appmenu_popup, [ { id: modeList_appmenu.parentNode.id },
-                                              { value: aMode } ]);
+function select_mode_in_menu(mode) {
+  mc.click(appmenu_button);
+  mc.click_appmenu_in_sequence(appmenu_mainView,
+    [ {id: "appmenu_View"},
+      {id: "appmenu_FolderViews"} ],
+    {value: mode});
 }
 
 /**

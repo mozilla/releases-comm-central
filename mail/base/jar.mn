@@ -26,7 +26,6 @@ messenger.jar:
     content/messenger/hiddenWindow.js               (content/hiddenWindow.js)
     content/messenger/msgHdrView.js                 (content/msgHdrView.js)
     content/messenger/msgViewNavigation.js          (content/msgViewNavigation.js)
-    content/messenger/mailWidgets.xml               (content/mailWidgets.xml)
     content/messenger/mailWidgets.js                (content/mailWidgets.js)
     content/messenger/button-menu-button.js         (content/button-menu-button.js)
     content/messenger/toolbarbutton-menu-button.js  (content/toolbarbutton-menu-button.js)

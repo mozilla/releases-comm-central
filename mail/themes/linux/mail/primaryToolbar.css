@@ -216,25 +216,7 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 
 /* AppMenu styling */
 
-.splitmenu-menuitem {
-  -moz-appearance: menuitem;
-  -moz-box-align: center;
-  max-width: 42em;
-  color: MenuText;
-  font: menu;
-  list-style-image: none;
-  margin-inline-end: 1px;
-  -moz-image-region: auto;
-}
-
-.splitmenu-menuitem[_moz-menuactive="true"] {
-  color: -moz-menuhovertext;
-  background-color: -moz-menuhover;
-}
-
-.splitmenu-menuitem[disabled="true"] {
-  color: GrayText;
-}
+/* TODO appmenu - remove? needed? */
 
 #appmenuSecondaryPane {
   border-inline-start: 1px solid ThreeDShadow;
@@ -294,11 +276,7 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 #appmenu_find {
   list-style-image: url("chrome://messenger/skin/icons/search-glass.svg");
 }
-/*
-#appmenu_find > .splitmenu-menuitem {
-  -moz-binding: url("chrome://global/content/bindings/menu.xml#menuitem-iconic");
-}
-*/
+
 #appmenu_addons {
   list-style-image: url("chrome://mozapps/skin/extensions/extensionGeneric-16.svg");
 }

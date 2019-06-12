@@ -14,6 +14,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/smime/msgHdrViewSMIMEOverlay.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/smime/msgReadSMIMEOverlay.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/searchBox.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/customizableui/panelUI.css" type="text/css"?>
 
 <!DOCTYPE window [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
@@ -112,6 +113,8 @@
   <script src="chrome://communicator/content/utilityOverlay.js"/>
   <script src="chrome://messenger/content/mailCore.js"/>
   <script src="chrome://messenger/content/quickFilterBar.js"/>
+  <!-- panelUI.js is for the appmenus. -->
+  <script src="chrome://messenger/content/customizableui/panelUI.js"/>
 #ifdef XP_MACOSX
   <script src="chrome://global/content/macWindowMenu.js"/>
 #endif
@@ -163,6 +166,10 @@
   <!-- Popup menus provided by mailWindowOverlay.xul -->
   <popupset id="mainPopupSet">
 #include mainPopupSet.inc.xul
+
+<!-- The panelUI is for the appmenu. -->
+#include ../../components/customizableui/content/panelUI.inc.xul
+
 #include msgHdrPopup.inc.xul
   </popupset>
 #include editContactPanel.inc.xul

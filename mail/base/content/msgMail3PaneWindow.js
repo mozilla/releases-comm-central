@@ -19,6 +19,7 @@
 /* import-globals-from searchBar.js */
 /* import-globals-from specialTabs.js */
 /* import-globals-from toolbarIconColor.js */
+/* globals PanelUI */
 
 ChromeUtils.import("resource:///modules/activity/activityModules.jsm");
 var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
@@ -40,6 +41,8 @@ var {PeriodicFilterManager} = ChromeUtils.import("resource:///modules/PeriodicFi
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   LightweightThemeManager: "resource://gre/modules/LightweightThemeManager.jsm",
+  CustomizableUI: "resource:///modules/CustomizableUI.jsm",
+  ShortcutUtils: "resource://gre/modules/ShortcutUtils.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(this, "PopupNotifications", function() {
@@ -533,6 +536,9 @@ function OnLoadMessenger() {
                          document.getElementById("multimessage"));
 
   window.addEventListener("AppCommand", HandleAppCommandEvent, true);
+
+  // Set up the appmenus. (This has to happen after the DOM has loaded.)
+  PanelUI.init();
 
   // Load the periodic filter timer.
   PeriodicFilterManager.setupFiltering();

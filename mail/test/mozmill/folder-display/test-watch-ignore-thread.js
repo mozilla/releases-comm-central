@@ -33,17 +33,14 @@ function setupModule(module) {
 
 /**
  * Click one of the menu items in the appmenu View | Messages menu.
- * @param aMenuId the id of the menu item to click.
+ * @param {string} menuId  The id of the menu item to click.
  */
-function clickViewMessagesItem(aMenuId) {
+function clickViewMessagesItem(menuId) {
   mc.click(mc.eid("button-appmenu"));
-  mc.click_menus_in_sequence(mc.e("appmenu-popup"),
-    [
-      {id: "appmenu_View"},
-      {id: "appmenu_viewMessagesMenu"},
-      {id: aMenuId},
-    ]
-  );
+  mc.click_appmenu_in_sequence(mc.e("appMenu-mainView"),
+    [ {id: "appmenu_View"},
+      {id: "appmenu_viewMessagesMenu"} ],
+    {id: menuId});
 }
 
 /**

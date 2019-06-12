@@ -183,6 +183,7 @@ classic.jar:
   skin/classic/messenger/icons/arrow/arrow-up-dim.png         (mail/icons/arrow/arrow-up-dim.png)
   skin/classic/messenger/icons/arrow/arrow-down-dim.png       (mail/icons/arrow/arrow-down-dim.png)
   skin/classic/messenger/icons/empty-search-results.png       (mail/icons/empty-search-results.png)
+  skin/classic/messenger/customizableui/panelUI.css           (customizableui/panelUI.css)
 % skin messenger-newsblog classic/1.0 %skin/classic/messenger-newsblog/
   skin/classic/messenger-newsblog/feed-subscriptions.css      (mail/newsblog/feed-subscriptions.css)
   skin/classic/messenger-newsblog/rss-feed.png                (mail/newsblog/rss-feed.png)

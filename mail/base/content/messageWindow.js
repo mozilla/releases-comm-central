@@ -22,12 +22,18 @@
 /* import-globals-from nsDragAndDrop.js */
 /* import-globals-from phishingDetector.js */
 /* import-globals-from toolbarIconColor.js */
+/* globals PanelUI */
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var {MsgHdrSyntheticView} = ChromeUtils.import("resource:///modules/MsgHdrSyntheticView.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CustomizableUI: "resource:///modules/CustomizableUI.jsm",
+  ShortcutUtils: "resource://gre/modules/ShortcutUtils.jsm",
+});
 
 // from MailNewsTypes.h
 var nsMsgKey_None = 0xFFFFFFFF;
@@ -254,6 +260,9 @@ StandaloneMessageDisplayWidget.prototype = {
     this.isDummy = aMsgHdr.folder == null;
     if (!this.isDummy)
       this.displayedUri = null;
+
+    // Initialize the appmenu.
+    PanelUI.init();
 
     // We've loaded a message, so this should be set to false
     this.aboutToLoadMessage = false;

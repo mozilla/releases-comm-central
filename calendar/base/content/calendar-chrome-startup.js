@@ -8,6 +8,7 @@
 /* import-globals-from calendar-unifinder-todo.js */
 /* import-globals-from calendar-ui-utils.js */
 /* import-globals-from calendar-views-utils.js */
+/* globals PanelUI */
 
 var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -36,6 +37,9 @@ async function commonInitCalendar() {
 
     // Set up the command controller from calendar-common-sets.js
     injectCalendarCommandController();
+
+    // Set up appmenus.
+    setUpCalendarAppMenus();
 
     // Set up item and day selection listeners
     getViewDeck().addEventListener("dayselect", observeViewDaySelect);
@@ -84,6 +88,9 @@ function commonFinishCalendar() {
 
     // Remove the command controller
     removeCalendarCommandController();
+
+    // Tear down calendar appmenus.
+    tearDownCalendarAppMenus();
 
     document.getElementById("calsidebar_splitter").removeEventListener("command", onCalendarViewResize);
     window.removeEventListener("resize", onCalendarViewResize, true);
@@ -158,6 +165,33 @@ var calendarWindowPrefs = {
         }
     }
 };
+
+/**
+ * Set up calendar appmenus by adding event listeners to the appmenu buttons.
+ * Also used to tear down the appmenus by removing the event listeners.
+ *
+ * @param {boolean} [remove]  Whether to remove event listeners instead of adding them.
+ */
+function setUpCalendarAppMenus(remove) {
+    const addOrRemoveListener = remove ? "removeEventListener" : "addEventListener";
+    [
+        "calendar-appmenu-button",
+        "task-appmenu-button",
+        "calendar-item-appmenu-button"
+    ]
+    .forEach(id => {
+        const button = document.getElementById(id);
+        button[addOrRemoveListener]("mousedown", PanelUI);
+        button[addOrRemoveListener]("keypress", PanelUI);
+    });
+}
+
+/**
+ * Tear down calendar appmenus by removing event listeners from the appmenu button.
+ */
+function tearDownCalendarAppMenus() {
+    setUpCalendarAppMenus(true);
+}
 
 /**
  * Migrate calendar UI. This function is called at each startup and can be used

@@ -30,6 +30,7 @@
   skin/classic/messenger/icons/archive.svg                    (../shared/mail/icons/archive.svg)
   skin/classic/messenger/icons/arrow-dropdown.svg             (../shared/mail/icons/arrow-dropdown.svg)
   skin/classic/messenger/icons/arrow-left.svg                 (../shared/mail/icons/arrow-left.svg)
+  skin/classic/messenger/icons/back-12.svg                    (../shared/mail/icons/back-12.svg)
   skin/classic/messenger/icons/attach.svg                     (../shared/mail/icons/attach.svg)
   skin/classic/messenger/icons/attachment-col.svg             (../shared/mail/icons/attachment-col.svg)
   skin/classic/messenger/icons/blacklist.svg                  (../shared/mail/icons/blacklist.svg)
@@ -121,6 +122,7 @@
   skin/classic/messenger/shared/tabmail.css                   (../shared/mail/tabmail.css)
   skin/classic/messenger/tagColors.css                        (../shared/mail/tagColors.css)
   skin/classic/messenger/shared/smime/smime-compose.css       (../shared/mail/smime/smime-compose.css)
+  skin/classic/messenger/shared/customizableui/panelUI.css    (../shared/customizableui/panelUI.css)
 #ifndef XP_MACOSX
   skin/classic/messenger/icons/anchor.svg                     (../shared/mail/icons/anchor.svg)
   skin/classic/messenger/icons/bold.svg                       (../shared/mail/icons/bold.svg)

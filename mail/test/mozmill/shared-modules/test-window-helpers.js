@@ -954,6 +954,37 @@ var AugmentEverybodyWith = {
     },
 
     /**
+     * Check if a node's attributes match all those given in actionObj.
+     * Nodes that are obvious containers are skipped, and their children
+     * will be used to recursively find a match instead.
+     *
+     * @param {Element} node      The node to check.
+     * @param {Object} actionObj  Contains attribute-value pairs to match.
+     * @return {Element|null}     The matched node or null if no match.
+     */
+    findMatch(node, actionObj) {
+      // Ignore some elements and just use their children instead.
+      if (node.localName == "hbox" || node.localName == "vbox") {
+        for (let i = 0; i < node.children.length; i++) {
+          let childMatch = this.findMatch(node.children[i]);
+          if (childMatch)
+            return childMatch;
+        }
+        return null;
+      }
+
+      let matchedAll = true;
+      for (let name in actionObj) {
+        let value = actionObj[name];
+        if (!node.hasAttribute(name) || node.getAttribute(name) != value) {
+          matchedAll = false;
+          break;
+        }
+      }
+      return matchedAll ? node : null;
+    },
+
+    /**
      * Dynamically-built/XBL-defined menus can be hard to work with, this makes it
      *  easier.
      *
@@ -981,39 +1012,11 @@ var AugmentEverybodyWith = {
 
       let curPopup = aRootPopup;
       for (let [iAction, actionObj] of aActions.entries()) {
-        /**
-         * Check if aNode attributes match all those given in actionObj.
-         * Nodes that are obvious containers are skipped, and their children
-         * will be used to recursively find a match instead.
-         */
-        let findMatch = function(aNode) {
-          // Ignore some elements and just use their children instead.
-          if (aNode.localName == "hbox" || aNode.localName == "vbox") {
-            for (let i = 0; i < aNode.children.length; i++) {
-              let childMatch = findMatch(aNode.children[i]);
-              if (childMatch)
-                return childMatch;
-            }
-            return null;
-          }
-
-          let matchedAll = true;
-          for (let name in actionObj) {
-            let value = actionObj[name];
-            if (!aNode.hasAttribute(name) ||
-                aNode.getAttribute(name) != value) {
-              matchedAll = false;
-              break;
-            }
-          }
-          return (matchedAll) ? aNode : null;
-        };
-
         let matchingNode = null;
         let kids = curPopup.children;
         for (let iKid = 0; iKid < kids.length; iKid++) {
           let node = kids[iKid];
-          matchingNode = findMatch(node);
+          matchingNode = this.findMatch(node, actionObj);
           if (matchingNode)
             break;
         }
@@ -1023,24 +1026,11 @@ var AugmentEverybodyWith = {
                           iAction + ": " + JSON.stringify(actionObj));
         }
 
-        if ((matchingNode.localName == "splitmenu") &&
-            ((iAction < aActions.length - 1) || aKeepOpen)) {
-          // For splitmenus, click the submenu arrow to open its menupopup,
-          // unless this is the last item being searched for. In that case,
-          // click the main item.
-          this.click(new elib.Elem(matchingNode.menu));
-        } else {
-          this.click(new elib.Elem(matchingNode));
-        }
+        this.click(new elib.Elem(matchingNode));
 
         let newPopup = null;
         if ("menupopup" in matchingNode) {
           newPopup = matchingNode.menupopup;
-        } else if ((matchingNode.localName == "splitmenu") &&
-                   ("menupopup" in matchingNode.menu)) {
-          // We should actually fetch matchingNode.menu.menupopup here,
-          // but it doesn't seem to work.
-          newPopup = matchingNode.querySelector("menupopup");
         }
         if (newPopup) {
           curPopup = newPopup;
@@ -1075,6 +1065,87 @@ var AugmentEverybodyWith = {
                       () => ("Popup did not close! id=" + curPopup.id +
                              ", state=" + curPopup.state), 5000, 50);
       }
+    },
+
+    /**
+     * Click through the appmenu. Uses a recursive style approach with a
+     * sequence of event listeners handling "ViewShown" events. The `navTargets`
+     * parameter specifies items to click to navigate through the menu. The
+     * optional `nonNavTarget` parameter specifies a final item to click to
+     * perform a command after navigating through the menu. If this argument is
+     * omitted, callers can interact with the last view panel that is returned.
+     * Callers will then need to close the appmenu when they are done with it.
+     *
+     * @param {Element} mainView  The initial appmenu panelview, namely
+     *     <panelview id="appMenu-mainView">. The caller is expected to open it
+     *     (e.g. by clicking the appmenu button). We wait for it to open if it
+     *     isn't open yet.
+     * @param {Object[]} navTargets  Array of objects that contain
+     *     attribute->value pairs. We pick the menu item whose DOM node matches
+     *     all the attribute->value pairs. We click whatever we find. We throw
+     *     if the element being asked for is not found.
+     * @param {Object} [nonNavTarget]  Contains attribute->value pairs used
+     *                                 to identify a final menu item to click.
+     * @return {Element}  The <vbox class="panel-subview-body"> element inside
+     *                    the last shown <panelview>.
+     */
+    click_appmenu_in_sequence(mainView, navTargets, nonNavTarget) {
+      const rootPopup = this.e("appMenu-popup");
+      const controller = this;
+
+      function viewShownListener(navTargets, nonNavTarget, allDone, event) {
+        // Set up the next listener if there are more navigation targets.
+        if (navTargets.length > 0) {
+          rootPopup.addEventListener("ViewShown",
+            viewShownListener.bind(null, navTargets.slice(1), nonNavTarget, allDone),
+            {once: true});
+        }
+
+        const subview = event.target.querySelector(".panel-subview-body");
+
+        // Click a target if there is a target left to click.
+        const clickTarget = navTargets[0] || nonNavTarget;
+
+        if (clickTarget) {
+          const kids = Array.from(subview.children);
+          const findFunction = node => controller.findMatch(node, clickTarget);
+
+          // Some views are dynamically populated after ViewShown, so we wait.
+          utils.waitFor(
+            () => kids.find(findFunction),
+            () => "Waited but did not find matching menu item for target: " +
+                  JSON.stringify(clickTarget));
+
+          const foundNode = kids.find(findFunction);
+
+          controller.click(new elib.Elem(foundNode));
+        }
+
+        // We are all done when there are no more navigation targets.
+        if (navTargets.length == 0) {
+          allDone(subview);
+        }
+      }
+
+      let done = false;
+      let subviewToReturn;
+      const allDone = (subview) => {
+        subviewToReturn = subview;
+        done = true;
+      };
+
+      utils.waitFor(() => rootPopup.getAttribute("panelopen") == "true",
+        "Waited for the appmenu to open, but it never opened.");
+
+      // Because the appmenu button has already been clicked in the calling
+      // code (to match click_menus_in_sequence), we have to call the first
+      // viewShownListener manually, using a fake event argument, to start the
+      // series of event listener calls.
+      const fakeEvent = {target: mainView};
+      viewShownListener(navTargets, nonNavTarget, allDone, fakeEvent);
+
+      utils.waitFor(() => done, "Timed out in click_appmenu_in_sequence.");
+      return subviewToReturn;
     },
 
     /**

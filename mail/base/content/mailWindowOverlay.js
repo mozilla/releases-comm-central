@@ -71,9 +71,11 @@ var gMarkViewedMessageAsReadTimer = null;
 // change during runtime other than through the MsgBody*() functions below.
 var gDisallow_classes_no_html = 1;
 
-// Disable the new account menu item if the account preference is locked.
-// The other affected areas are the account central, the account manager
-// dialog, and the account provisioner window.
+/**
+ * Disable the new account menu item if the account preference is locked.
+ * The other affected areas are the account central, the account manager
+ * dialog, and the account provisioner window.
+ */
 function menu_new_init() {
   // If the account provisioner is pref'd off, we shouldn't display the menu
   // item.
@@ -162,7 +164,7 @@ function InitAppFolderViewsMenu() {
   goSetAccessKey("cmd_delete", "valueDefaultAccessKey");
   document.commandDispatcher.updateCommands("create-menu-edit");
 
-  // initialize the favorite Folder checkbox in the appmenu menu
+  // Initialize the favorite Folder checkbox in the appmenu menu.
   let favoriteAppFolderMenu = document.getElementById("appmenu_favoriteFolder");
   if (!favoriteAppFolderMenu.hasAttribute("disabled")) {
     let folders = gFolderTreeView.getSelectedFolders();
@@ -293,12 +295,17 @@ function view_init() {
     appmenuCharset.setAttribute("disabled", !gMessageDisplay.displayedMessage);
 }
 
-function InitViewLayoutStyleMenu(event) {
+function InitViewLayoutStyleMenu(event, appmenu) {
   // Prevent submenus from unnecessarily triggering onViewToolbarsPopupShowing
   // via bubbling of events.
   event.stopImmediatePropagation();
-  var paneConfig = Services.prefs.getIntPref("mail.pane_config.dynamic");
-  var layoutStyleMenuitem = event.target.childNodes[paneConfig];
+  let paneConfig = Services.prefs.getIntPref("mail.pane_config.dynamic");
+
+  let parent = appmenu
+    ? event.target.querySelector(".panel-subview-body")
+    : event.target;
+
+  let layoutStyleMenuitem = parent.childNodes[paneConfig];
   if (layoutStyleMenuitem)
     layoutStyleMenuitem.setAttribute("checked", "true");
 }
@@ -568,10 +575,12 @@ function InitAppMessageMenu() {
     document.getElementById("appmenu_openMessageWindowMenuitem").hidden = isFeed;
 
   // Initialize the Open Feed Message handler menu
+  const openFeedView = document.getElementById("appMenu-messageOpenFeedView")
+    .querySelector(".panel-subview-body");
+
+  openFeedView.childNodes.forEach(node => node.removeAttribute("checked"));
   let index = FeedMessageHandler.onOpenPref;
-  document.getElementById("appmenu_openFeedMessagePopup")
-          .childNodes[index]
-          .setAttribute("checked", true);
+  openFeedView.childNodes[index].setAttribute("checked", true);
 
   let openRssMenu = document.getElementById("appmenu_openFeedMessage");
   openRssMenu.hidden = !isFeed;
@@ -729,6 +738,14 @@ function InitAppmenuViewBodyMenu() {
 
   document.getElementById("appmenu_bodyAllParts").hidden =
     !Services.prefs.getBoolPref("mailnews.display.show_all_body_parts_menu");
+
+  // Clear all checkmarks.
+  AllowHTML_menuitem.removeAttribute("checked");
+  Sanitized_menuitem.removeAttribute("checked");
+  AsPlaintext_menuitem.removeAttribute("checked");
+  if (AllBodyParts_menuitem) {
+    AllBodyParts_menuitem.removeAttribute("checked");
+  }
 
   if (!prefer_plaintext && !html_as && !disallow_classes &&
       AllowHTML_menuitem)
@@ -963,79 +980,117 @@ function SetMessageTagLabel(menuitem, index, name) {
   menuitem.setAttribute("label", label);
 }
 
-function InitMessageTags(menuPopup) {
-  let tagArray = MailServices.tags.getAllTags({});
-  var tagCount = tagArray.length;
+/**
+ * Refresh the contents of the tag popup menu/panel.
+ * Used for example for appmenu/Message/Tag panel.
+ *
+ * @param {Element} parent          Parent element that will contain the menu items.
+ * @param {string} [elementName]    Type of menu item, e.g. "menuitem", "toolbarbutton".
+ * @param {string} [classes]        Classes to set on the menu items.
+ */
+function InitMessageTags(parent, elementName = "menuitem", classes) {
+  const tagArray = MailServices.tags.getAllTags({});
+  const elementNameUpperCase = elementName.toUpperCase();
 
-  // Remove any existing non-static entries... (clear tags list before rebuilding it)
-  // "5" is the number of menu items (including separators) on the top of the menu
-  // that should not be cleared.
-  for (let i = menuPopup.childNodes.length; i > 5; --i)
-    menuPopup.lastChild.remove();
-
-  // create label and accesskey for the static remove item
-  var tagRemoveLabel = document.getElementById("bundle_messenger")
-                               .getString("mailnews.tags.remove");
-  SetMessageTagLabel(menuPopup.lastChild.previousSibling, 0, tagRemoveLabel);
-
-  // now rebuild the list
-  var msgHdr = gFolderDisplay.selectedMessage;
-  var curKeys = msgHdr.getStringProperty("keywords");
-  if (msgHdr.label)
-    curKeys += " $label" + msgHdr.label;
-
-  for (var i = 0; i < tagCount; ++i) {
-    var taginfo = tagArray[i];
-    let removeKey = (" " + curKeys + " ").includes(" " + taginfo.key + " ");
-    if (taginfo.ordinal.includes("~AUTOTAG") && !removeKey)
-      continue;
-
-    // TODO we want to either remove or "check" the tags that already exist
-    var newMenuItem = document.createXULElement("menuitem");
-    SetMessageTagLabel(newMenuItem, i + 1, taginfo.tag);
-    newMenuItem.setAttribute("value", taginfo.key);
-    newMenuItem.setAttribute("type", "checkbox");
-    newMenuItem.setAttribute("checked", removeKey);
-    newMenuItem.setAttribute("oncommand", "ToggleMessageTagMenu(event.target);");
-    var color = taginfo.color;
-    if (color)
-      newMenuItem.setAttribute("style", "color: " + color + ";");
-    menuPopup.appendChild(newMenuItem);
+  // Remove any existing non-static items (clear tags list before rebuilding it).
+  // There is a separator element above the dynamically added tag elements, so
+  // remove dynamically added elements below the separator.
+  while (parent.lastChild.tagName.toUpperCase() == elementNameUpperCase) {
+    parent.lastChild.remove();
   }
+
+  // Create label and accesskey for the static "remove all tags" item.
+  const tagRemoveLabel = document.getElementById("bundle_messenger")
+                                 .getString("mailnews.tags.remove");
+  SetMessageTagLabel(parent.lastChild.previousSibling, 0, tagRemoveLabel);
+
+  // Rebuild the list.
+  const msgHdr = gFolderDisplay.selectedMessage;
+  const suffix = msgHdr.label ? (" $label" + msgHdr.label) : "";
+  const curKeys = msgHdr.getStringProperty("keywords") + suffix;
+
+  tagArray.forEach((tagInfo, index) => {
+    const removeKey = (` ${curKeys} `).includes(` ${tagInfo.key} `);
+
+    if (tagInfo.ordinal.includes("~AUTOTAG") && !removeKey) {
+      return;
+    }
+    // TODO We want to either remove or "check" the tags that already exist.
+    let item = document.createXULElement(elementName);
+    SetMessageTagLabel(item, index + 1, tagInfo.tag);
+
+    if (removeKey) {
+      item.setAttribute("checked", "true");
+    }
+    item.setAttribute("value", tagInfo.key);
+    item.setAttribute("type", "checkbox");
+    item.setAttribute("oncommand", "ToggleMessageTagMenu(event.target);");
+
+    if (tagInfo.color) {
+      item.setAttribute("style", `color: ${tagInfo.color};`);
+    }
+    if (classes) {
+      item.setAttribute("class", classes);
+    }
+    parent.appendChild(item);
+  });
 }
 
-function InitRecentlyClosedTabsPopup(menuPopup) {
-  let tabs = document.getElementById("tabmail").recentlyClosedTabs;
+/**
+ * Refresh the contents of the recently closed tags popup menu/panel.
+ * Used for example for appmenu/Go/Recently_Closed_Tabs panel.
+ *
+ * @param {Element} parent          Parent element that will contain the menu items.
+ * @param {string} [elementName]    Type of menu item, e.g. "menuitem", "toolbarbutton".
+ * @param {string} [classes]        Classes to set on the menu items.
+ * @param {string} [separatorName]  Type of separator, e.g. "menuseparator", "toolbarseparator".
+ */
+function InitRecentlyClosedTabsPopup(
+  parent,
+  elementName = "menuitem",
+  classes,
+  separatorName = "menuseparator",
+) {
+  const tabs = document.getElementById("tabmail").recentlyClosedTabs;
 
-  // show Popup only when there are restorable tabs.
-  if (!tabs.length)
+  // Show Popup only when there are restorable tabs.
+  if (!tabs.length) {
     return false;
-
-  // Clear the list before rebuilding it.
-  while (menuPopup.hasChildNodes())
-    menuPopup.lastChild.remove();
-
-  // Rebuild the recently closed tab list
-  for (let i = 0; i < tabs.length; i++) {
-    let menuItem = document.createXULElement("menuitem");
-    menuItem.setAttribute("label", tabs[i].title);
-    menuItem.setAttribute("oncommand", `document.getElementById("tabmail").undoCloseTab(${i});`);
-
-    if (i == 0)
-      menuItem.setAttribute("key", "key_undoCloseTab");
-
-    menuPopup.appendChild(menuItem);
   }
 
-  // "Restore All Tabs" with only one entry does not make sense
-  if (tabs.length > 1) {
-    menuPopup.appendChild(document.createXULElement("menuseparator"));
+  // Clear the list.
+  while (parent.hasChildNodes()) {
+    parent.lastChild.remove();
+  }
 
-    let menuItem = document.createXULElement("menuitem");
-    menuItem.setAttribute("label", document.getElementById("bundle_messenger")
+  // Insert menu items to rebuild the recently closed tab list.
+  tabs.forEach((tab, index) => {
+    const item = document.createXULElement(elementName);
+    item.setAttribute("label", tab.title);
+    item.setAttribute("oncommand", `document.getElementById("tabmail").undoCloseTab(${index});`);
+    if (classes) {
+      item.setAttribute("class", classes);
+    }
+
+    if (index == 0) {
+      item.setAttribute("key", "key_undoCloseTab");
+    }
+    parent.appendChild(item);
+  });
+
+  // Only show "Restore All Tabs" if there is more than one tab to restore.
+  if (tabs.length > 1) {
+    parent.appendChild(document.createXULElement(separatorName));
+
+    const item = document.createXULElement(elementName);
+    item.setAttribute("label", document.getElementById("bundle_messenger")
                                            .getString("restoreAllTabs"));
-    menuItem.setAttribute("oncommand", "goRestoreAllTabs();");
-    menuPopup.appendChild(menuItem);
+    item.setAttribute("oncommand", "goRestoreAllTabs();");
+
+    if (classes) {
+      item.setAttribute("class", classes);
+    }
+    parent.appendChild(item);
   }
 
   return true;
@@ -3181,7 +3236,7 @@ function OpenOrFocusWindow(args, windowType, chromeURL) {
   }
 }
 
-function initAppMenuPopup(aMenuPopup, aEvent) {
+function initAppMenuPopup() {
   file_init();
   view_init();
   InitGoMessagesMenu();
@@ -3189,27 +3244,27 @@ function initAppMenuPopup(aMenuPopup, aEvent) {
   CommandUpdate_UndoRedo();
   InitAppFolderViewsMenu();
   document.commandDispatcher.updateCommands("create-menu-tasks");
-
-  // If the onpopupshowing event's target is on one of the splitmenu
-  // menuitem popups, stash that popup in aMenuPopup (the menupopup one
-  // level up) so that splitmenu knows which popup to close when it opens
-  // up it's popupmenu.
-  if (aEvent.target.parentNode.parentNode.parentNode.parentNode == aMenuPopup)
-    aMenuPopup._currentPopup = aEvent.target;
 }
 
 /**
- *  Generates menu items for opening preferences dialog/tab for each installed addon.
+ * Generate menu items that open a preferences dialog/tab for an installed addon,
+ * and add them to a menu popup. E.g. in the appmenu or Tools menu > addon prefs.
  *
- *  @option aMenupopup  The menupopup element to populate.
+ * @param {Element} parent        The element (e.g. menupopup) to populate.
+ * @param {string} [elementName]  The kind of menu item elements to create (e.g. "toolbarbutton").
+ * @param {string} [classes]      Classes for menu item elements with no icon.
+ * @param {string} [iconClasses]  Classes for menu item elements with an icon.
  */
-async function initAddonPrefsMenu(aMenupopup) {
+async function initAddonPrefsMenu(parent,
+  elementName = "menuitem",
+  classes,
+  iconClasses = "menuitem-iconic") {
   // Starting at the bottom, clear all menu items until we hit
   // "no add-on prefs", which is the only disabled element. Above this element
   // there may be further items that we want to preserve.
-  let noPrefsElem = aMenupopup.querySelector('[disabled="true"]');
-  while (aMenupopup.lastChild != noPrefsElem) {
-    aMenupopup.lastChild.remove();
+  let noPrefsElem = parent.querySelector('[disabled="true"]');
+  while (parent.lastChild != noPrefsElem) {
+    parent.lastChild.remove();
   }
 
   // Enumerate all enabled addons with URL to XUL document with prefs.
@@ -3246,7 +3301,7 @@ async function initAddonPrefsMenu(aMenupopup) {
   if (addonsFound.length > 0) {
     addonsFound.sort((a, b) => a.addon.name.localeCompare(b.addon.name));
     for (let { addon, optionsURL, optionsOpenInTab } of addonsFound) {
-      let newItem = document.createXULElement("menuitem");
+      let newItem = document.createXULElement(elementName);
       newItem.setAttribute("label", addon.name);
       newItem.setAttribute("value", optionsURL);
       if (optionsOpenInTab) {
@@ -3254,10 +3309,12 @@ async function initAddonPrefsMenu(aMenupopup) {
       }
       let iconURL = addon.iconURL || addon.icon64URL;
       if (iconURL) {
-        newItem.setAttribute("class", "menuitem-iconic");
+        newItem.setAttribute("class", iconClasses);
         newItem.setAttribute("image", iconURL);
+      } else if (classes) {
+        newItem.setAttribute("class", classes);
       }
-      aMenupopup.appendChild(newItem);
+      parent.appendChild(newItem);
     }
     noPrefsElem.setAttribute("collapsed", "true");
   } else {

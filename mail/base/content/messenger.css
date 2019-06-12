@@ -17,6 +17,8 @@
   --toolbar-bgcolor: var(--toolbar-non-lwt-bgcolor);
   --toolbar-bgimage: var(--toolbar-non-lwt-bgimage);
   --toolbar-color: var(--toolbar-non-lwt-textcolor);
+
+  --panelui-subview-transition-duration: 150ms;
 }
 
 /* message header widgets */
@@ -42,10 +44,6 @@ mail-tagfield[collapsed="true"] {
 
 search-value {
   display: -moz-deck;
-}
-
-searchterm {
-  -moz-binding: url("chrome://messenger/content/mailWidgets.xml#searchterm");
 }
 
 .ruleaction {
@@ -129,29 +127,6 @@ tabmail {
   background-color: var(--lwt-accent-color);
   background-image: var(--lwt-header-image), var(--lwt-additional-images);
   color: var(--lwt-text-color);
-}
-
-/* AppButton support */
-
-splitmenu {
-  -moz-binding: url("chrome://messenger/content/mailWidgets.xml#splitmenu");
-}
-
-.splitmenu-menuitem {
-/*  -moz-binding: url("chrome://global/content/bindings/menu.xml#menuitem"); */
-  list-style-image: inherit;
-  -moz-image-region: inherit;
-}
-/*
-.splitmenu-menuitem[iconic="true"] {
-  -moz-binding: url("chrome://global/content/bindings/menu.xml#menuitem-iconic");
-}
-*/
-.splitmenu-menu > .menu-text,
-:-moz-any(.splitmenu-menu, .splitmenu-menuitem) > .menu-accel-container,
-#appmenu-editmenu > .menu-text,
-#appmenu-editmenu > .menu-accel-container {
-  display: none;
 }
 
 #titlebar {
