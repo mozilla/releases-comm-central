@@ -16,6 +16,111 @@ XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calU
 
 this.EXPORTED_SYMBOLS = ["calauth"]; /* exported calauth */
 
+/**
+ * The userContextId of nsIHttpChannel is currently implemented as a uint32, so
+ * the ContainerMap defined below must not return Ids greater then the allowed
+ * range of a uint32.
+*/
+const MAX_CONTAINER_ID = Math.pow(2, 32)-1;
+
+/**
+ * A map that handles userContextIds and usernames and provides unique Ids for
+ * different usernames.
+ */
+class ContainerMap extends Map {
+    /**
+     * Create a container map with a given range of userContextIds.
+     *
+     * @param {Number} min        The lower range limit of userContextIds to be
+     *                            used.
+     * @param {Number} max        The upper range limit of userContextIds to be
+     *                            used.
+     * @param {?Object} iterable  Optional parameter which is passed to the
+     *                            constructor of Map. See definition of Map
+     *                            for more details.
+     */
+    constructor(min = 0, max = MAX_CONTAINER_ID, iterable) {
+        super(iterable);
+        this.order = [];
+        this.inverted = {};
+        this.min = min;
+        // The userConextId is a uint32, limit accordingly.
+        this.max = Math.max(max, MAX_CONTAINER_ID);
+        if (this.min > this.max) {
+            throw new RangeError("[ContainerMap] The provided min value " +
+              "(" + this.min + ") must not be greater than the provided " +
+              "max value (" + this.max + ")");
+        }
+    }
+
+    /**
+     * Check if the allowed userContextId range is fully used.
+     */
+    get full() {
+        return this.size > (this.max - this.min);
+    }
+
+    /**
+     * Add a new username to the map.
+     *
+     * @param {String} username - The username to be added.
+     * @return {Number} The userContextId assigned to the given username.
+     */
+    _add(username) {
+        let nextUserContextId;
+        if (this.full) {
+            let oldestUsernameEntry = this.order.shift();
+            nextUserContextId = this.get(oldestUsernameEntry);
+            this.delete(oldestUsernameEntry);
+        } else {
+            nextUserContextId = this.min + this.size;
+        }
+
+        Services.clearData.deleteDataFromOriginAttributesPattern(
+          { userContextId: nextUserContextId },
+        );
+        this.order.push(username);
+        this.set(username, nextUserContextId);
+        this.inverted[nextUserContextId] = username;
+        return nextUserContextId;
+    }
+
+    /**
+     * Look up the userContextId for the given username. Create a new one,
+     * if the username is not yet known.
+     *
+     * @param {String} username        The username for which the userContextId
+     *                                 is to be looked up.
+     * @return {Number}                The userContextId which is assigned to
+     *                                 the provided username.
+     */
+    getUserContextIdForUsername(username) {
+        if (this.has(username)) {
+            return this.get(username);
+        } else {
+            return this._add(username);
+        }
+    }
+
+    /**
+     * Look up the username for the given userContextId. Return empty string
+     * if not found.
+     *
+     * @param {Number} userContextId        The userContextId for which the
+     *                                      username is to be to looked up.
+     * @return {String}                     The username mapped to the given
+     *                                      userContextId.
+     */
+    getUsernameForUserContextId(userContextId) {
+        if (this.inverted.hasOwnProperty(userContextId)) {
+            return this.inverted[userContextId];
+        } else {
+            return "";
+        }
+    }
+}
+
+
 var calauth = {
     /**
      * Calendar Auth prompt implementation. This instance of the auth prompt should
@@ -45,21 +150,26 @@ var calauth = {
          * Retrieve password information from the login manager
          *
          * @param {String} aPasswordRealm       The realm to retrieve password info for
+         * @param {String} aRequestedUser       The username to look up.
          * @return {PasswordInfo}               The retrieved password information
          */
-        getPasswordInfo(aPasswordRealm) {
-            let username;
+        getPasswordInfo(aPasswordRealm, aRequestedUser) {
+            // Prefill aRequestedUser, so it will be used in the prompter.
+            let username = aRequestedUser;
             let password;
             let found = false;
 
             let logins = Services.logins.findLogins(aPasswordRealm.prePath, null, aPasswordRealm.realm);
-            if (logins.length) {
-                username = logins[0].username;
-                password = logins[0].password;
-                found = true;
+            for (let login of logins) {
+                if (!aRequestedUser || aRequestedUser == login.username) {
+                    username = login.username;
+                    password = login.password;
+                    found = true;
+                    break;
+                }
             }
             if (found) {
-                let keyStr = aPasswordRealm.prePath + ":" + aPasswordRealm.realm;
+                let keyStr = aPasswordRealm.prePath + ":" + aPasswordRealm.realm + ":" + aRequestedUser;
                 let now = new Date();
                 // Remove the saved password if it was already returned less
                 // than 60 seconds ago. The reason for the timestamp check is that
@@ -97,7 +207,8 @@ var calauth = {
             }
             hostRealm.passwordRealm = aChannel.URI.host + ":" + port + " (" + aAuthInfo.realm + ")";
 
-            let pwInfo = this.getPasswordInfo(hostRealm);
+            let requestedUser = cal.auth.containerMap.getUsernameForUserContextId(aChannel.loadInfo.originAttributes.userContextId);
+            let pwInfo = this.getPasswordInfo(hostRealm, requestedUser);
             aAuthInfo.username = pwInfo.username;
             if (pwInfo && pwInfo.found) {
                 aAuthInfo.password = pwInfo.password;
@@ -161,7 +272,8 @@ var calauth = {
                 }
             };
 
-            let hostKey = aChannel.URI.prePath + ":" + aAuthInfo.realm;
+            let requestedUser = cal.auth.containerMap.getUsernameForUserContextId(aChannel.loadInfo.originAttributes.userContextId);
+            let hostKey = aChannel.URI.prePath + ":" + aAuthInfo.realm + ":" + requestedUser;
             gAuthCache.planForAuthInfo(hostKey);
 
             let queuePrompt = function() {
@@ -273,11 +385,13 @@ var calauth = {
             let newLoginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"]
                                  .createInstance(Ci.nsILoginInfo);
             newLoginInfo.init(origin, null, aRealm, aUsername, aPassword, "", "");
-            if (logins.length > 0) {
-                Services.logins.modifyLogin(logins[0], newLoginInfo);
-            } else {
-                Services.logins.addLogin(newLoginInfo);
+            for (let login of logins) {
+                if (aUsername == login.username) {
+                    Services.logins.modifyLogin(login, newLoginInfo);
+                    return;
+                }
             }
+            Services.logins.addLogin(newLoginInfo);
         } catch (exc) {
             // Only show the message if its not an abort, which can happen if
             // the user canceled the master password dialog
@@ -342,7 +456,18 @@ var calauth = {
             // If no logins are found, fall through to the return statement below.
         }
         return false;
-    }
+    },
+
+    /**
+     * A map which maps usernames to userContextIds, reserving a range
+     * of 20000 - 29999 for userContextIds to be used within lightning.
+     *
+     * @param {Number} min        The lower range limit of userContextIds to be
+     *                            used.
+     * @param {Number} max        The upper range limit of userContextIds to be
+     *                            used.
+     */
+    containerMap: new ContainerMap(20000, 29999)
 };
 
 // Cache for authentication information since onAuthInformation in the prompt
