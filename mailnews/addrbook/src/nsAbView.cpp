@@ -1254,8 +1254,8 @@ NS_IMETHODIMP nsAbView::SwapFirstNameLastName() {
             nameString[1] = fn;
             rv = bundle->FormatStringFromName(formatString, nameString, dnLnFn);
             NS_ENSURE_SUCCESS(rv, rv);
-            nameString[0] = fn.get();
-            nameString[1] = ln.get();
+            nameString[0] = fn;
+            nameString[1] = ln;
             rv = bundle->FormatStringFromName(formatString, nameString, dnFnLn);
             NS_ENSURE_SUCCESS(rv, rv);
 

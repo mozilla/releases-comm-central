@@ -57,7 +57,7 @@ class nsMsgComposeSecure : public nsIMsgComposeSecure {
                                bool aSign, nsIMsgIdentity *aIdentity);
   bool InitializeSMIMEBundle();
   nsresult SMIMEBundleFormatStringFromName(const char *name,
-                                           nsTArray<nsString> &paramsparams,
+                                           nsTArray<nsString> &params,
                                            nsAString &outString);
   nsresult ExtractEncryptionState(nsIMsgIdentity *aIdentity,
                                   nsIMsgCompFields *aComposeFields,

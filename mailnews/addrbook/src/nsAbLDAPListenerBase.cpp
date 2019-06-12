@@ -119,10 +119,6 @@ NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection *aConn,
       return rv;
     }
 
-    // hostTemp is only necessary to work around a code-generation
-    // bug in egcs 1.1.2 (the version of gcc that comes with Red Hat 6.2),
-    // which is the default compiler for Mozilla on linux at the moment.
-    //
     AutoTArray<nsString, 1> hostArray;
     CopyASCIItoUTF16(host, *hostArray.AppendElement());
 
