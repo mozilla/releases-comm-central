@@ -539,7 +539,7 @@ function handleNewCalendarWizard(wizard, name, data = undefined) {
             data.network.location = fileURI.prePath + fileURI.pathQueryRef;
         }
         wizard.type(wizardlookup(`
-            /id("calendar-wizard")/{"pageid":"locationPage"}/[1]/[1]/{"align":"center"}/
+            /id("calendar-wizard")/{"pageid":"locationPage"}/[1]/[1]/id("calendar-location-row")/
             id("calendar-uri")/{"class":"textbox-input"}
         `), data.network.location);
 
