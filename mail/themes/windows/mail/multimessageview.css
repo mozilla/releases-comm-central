@@ -6,19 +6,6 @@
 
 /* windows-specific overrides for multimessageview.css*/
 
-/* mostly it's about CSS colors not being reliable */
-
-.heading.info {
-  color: ButtonText;
-}
-
-.info,
-.count, .date,
-.message > .header > .snippet,
-.message > .header > .senders {
-  color: GrayText;
-}
-
 #header-view-toolbox {
   font: message-box;
 }
@@ -33,20 +20,22 @@
   background-image: url("chrome://messenger/skin/icons/flag-col.png");
 }
 
-.toolbarbutton-1.msgHeaderView-button {
-  color: -moz-DialogText !important;
-}
-
-@media (-moz-windows-default-theme) {
+@media not all and (prefers-color-scheme: dark) {
   .toolbarbutton-1.msgHeaderView-button {
-    background-image: linear-gradient(-moz-dialog, -moz-dialog);
+    color: -moz-DialogText !important;
   }
 
-  .toolbarbutton-1.msgHeaderView-button:not([disabled=true]):not([checked=true]):not([open]):not(:active):hover {
-    background-image: linear-gradient(rgba(0, 0, 0, .1), rgba(0, 0, 0, .1)), linear-gradient(-moz-dialog, -moz-dialog);
-  }
+  @media (-moz-windows-default-theme) {
+    .toolbarbutton-1.msgHeaderView-button {
+      background-image: linear-gradient(-moz-dialog, -moz-dialog);
+    }
 
-  .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"]):not([disabled="true"]):-moz-any([open="true"],[checked="true"],:hover:active) {
-    background-image: linear-gradient(rgba(0, 0, 0, .15), rgba(0, 0, 0, .15)), linear-gradient(-moz-dialog, -moz-dialog);
+    .toolbarbutton-1.msgHeaderView-button:not([disabled=true]):not([checked=true]):not([open]):not(:active):hover {
+      background-image: linear-gradient(rgba(0, 0, 0, .1), rgba(0, 0, 0, .1)), linear-gradient(-moz-dialog, -moz-dialog);
+    }
+
+    .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"]):not([disabled="true"]):-moz-any([open="true"],[checked="true"],:hover:active) {
+      background-image: linear-gradient(rgba(0, 0, 0, .15), rgba(0, 0, 0, .15)), linear-gradient(-moz-dialog, -moz-dialog);
+    }
   }
 }

@@ -95,7 +95,6 @@
 
 .count {
   white-space: nowrap;
-  color: InactiveCaptionText;
   margin-inline-start: 1ch;
 }
 
@@ -122,4 +121,10 @@
   opacity: .65;
   padding-inline-end: 1.5em;
   padding-bottom: 1ex;
+}
+
+.count, .info, .date,
+.message > .header > .snippet,
+.message > .header > .senders {
+  color: var(--info-text-color);
 }

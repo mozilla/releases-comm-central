@@ -16,23 +16,17 @@
   background-image: url("chrome://messenger/skin/icons/flaggedmail.png");
 }
 
-.info {
-  color: GrayText;
-}
-
-.heading.info {
-  color: GrayText;
-}
-
 #header-view-toolbox {
   font: message-box;
 }
 
-.toolbarbutton-1.msgHeaderView-button {
-  color: -moz-DialogText !important;
-  background-color: white;
-}
+@media not all and (prefers-color-scheme: dark) {
+  .toolbarbutton-1.msgHeaderView-button {
+    color: -moz-DialogText !important;
+    background-color: white;
+  }
 
-.toolbarbutton-1.msgHeaderView-button:hover {
-  background-color: rgb(230, 230, 230) !important;
+  .toolbarbutton-1.msgHeaderView-button:hover {
+    background-color: rgb(230, 230, 230) !important;
+  }
 }
