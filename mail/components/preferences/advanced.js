@@ -743,7 +743,7 @@ var gAdvancedPane = {
       messageContainer.appendChild(description);
 
       let button = document.createXULElement("button");
-      button.addEventListener("command", () => gAdvancedPane.confirmLanguageChange());
+      button.addEventListener("command", gAdvancedPane.confirmLanguageChange);
       button.classList.add("message-bar-button");
       button.setAttribute("locales", locales.join(","));
       button.setAttribute("label", buttonLabels[i]);
