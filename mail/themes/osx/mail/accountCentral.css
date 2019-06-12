@@ -6,143 +6,71 @@
   == Styles for the Messenger Account Central panel.
   ======================================================================= */
 
-@import url("chrome://messenger/skin/");
-
-@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+@import url("chrome://messenger/skin/shared/accountCentral.css");
 
 #acctCentralGrid {
-  background-color: -moz-Field;
-  color: -moz-FieldText;
-}
-
-spacer {
-  display: none;
-}
-
-/* ::::: rows ::::: */
-
-#acctCentralHeaderRow {
-  padding-top: 10px;
-  padding-bottom: 5px;
-  padding-inline-start: 10px;
-  padding-inline-end: 0px;
   font: menu;
-  font-weight: bold;
-  font-size: 150%;
-  margin: 0px;
 }
 
-.acctCentralRow {
-  height: 48px;
-  margin: 0px 20px !important;
-}
-
-.acctCentralRow > hbox {
-  margin: 0px 6px;
-  padding: 8px 7px;
-}
-
-
-.row-iconic-icon {
-  list-style-image: inherit;
-  margin-inline-end: 10px;
-}
-
-.acctCentralRowTitleBox {
-  background-color: -moz-Dialog;
-  border: 1px solid ThreeDDarkShadow;
-  color: -moz-DialogText;
-  margin: 15px 6px 0px;
-  border-top-left-radius: 7px;
-  border-top-right-radius: 7px;
-  padding-top: 4px;
-  padding-bottom: 2px;
-  padding-inline-start: 8px;
-  padding-inline-end: 4px;
-  font-weight: bold;
-  font: menu;
+.acctCentralText {
+  padding-top: 3px;
 }
 
 /* ::::: links ::::: */
 
-.acctCentralText {
-  padding-inline-start: 50px;
-  font-size: 11px;
-  padding-top: 7px;
-  min-height: 32px;
-}
-
-.acctCentralNewAcctText {
-  padding-inline-start: 20px;
-  padding-inline-end: 10px;
-  min-height: 20px;
-}
-
-.acctCentralLinkText {
-  cursor: pointer;
-}
-
-.acctCentralLinkText:hover {
-  color: -moz-nativehyperlinktext;
-  text-decoration: underline;
-}
-
-.acctCentralLinkText:hover,
-.acctCentralLinkText:focus {
-  color: -moz-activehyperlinktext;
-}
-
-#CreateAccounts {
-  height: 30px;
-}
-
-#CreateAccountsList {
-  display: block;
-  padding-inline-start: 50px;
-}
-
 #ReadMessages label {
-  background: url("chrome://messenger/skin/accountcentral/mailbox.png")  no-repeat !important;
+  background: url("chrome://messenger/skin/accountcentral/mailbox.png") no-repeat;
+  background-size: 24px 24px;
 }
 
 #ComposeMessage label {
-  background: url("chrome://messenger/skin/accountcentral/writemail.png")  no-repeat !important;
+  background: url("chrome://messenger/skin/accountcentral/writemail.png") no-repeat;
+  background-size: 24px 24px;
 }
 
 #JunkSettingsMail label {
-  background: url("chrome://messenger/skin/accountcentral/junk.png")  no-repeat !important;
+  background: url("chrome://messenger/skin/accountcentral/junk.png") no-repeat;
+  background-size: 24px 24px;
 }
 
 #SubscribeNewsgroups label {
-  background: url("chrome://messenger/skin/accountcentral/manage-subscriptions.png")  no-repeat !important;
+  background: url("chrome://messenger/skin/accountcentral/manage-subscriptions.png") no-repeat;
+  background-size: 24px 24px;
 }
 
 #AccountSettings label {
-  background: url("chrome://messenger/skin/accountcentral/accountsettings.png")  no-repeat !important;
+  background: url("chrome://messenger/skin/accountcentral/accountsettings.png") no-repeat;
+  background-size: 24px 24px;
 }
 
 #CreateAccount label {
-  background: url("chrome://messenger/skin/accountcentral/newaccount.png")  no-repeat !important;
+  background: url("chrome://messenger/skin/accountcentral/newaccount.png") no-repeat;
+  background-size: 24px 24px;
 }
 
 #SearchMessages label {
-  background: url("chrome://messenger/skin/accountcentral/search-messages.png")  no-repeat !important;
+  background: url("chrome://messenger/skin/accountcentral/search-messages.png") no-repeat;
+  background-size: 24px 24px;
 }
 
 #CreateFilters label {
-  background: url("chrome://messenger/skin/accountcentral/mailbox.png")  no-repeat !important;
+  background: url("chrome://messenger/skin/accountcentral/mailbox.png") no-repeat;
+  background-size: 24px 24px;
 }
 
 #SubscribeImapFolders label {
-  background: url("chrome://messenger/skin/accountcentral/folder.png")  no-repeat !important;
+  background: url("chrome://messenger/skin/accountcentral/folder.png") no-repeat;
+  background-size: 24px 24px;
 }
 
 #SubscribeRSS label {
-  background: url("chrome://messenger/skin/accountcentral/manage-rss.png")  no-repeat !important;
+  background: url("chrome://messenger/skin/accountcentral/manage-rss.png") no-repeat;
+  background-size: 24px 24px;
 }
 
 #OfflineSettings label {
-  background: url("chrome://messenger/skin/accountcentral/offline.png")  no-repeat !important;
+  background: url("chrome://messenger/skin/accountcentral/offline.png") no-repeat;
+  background-size: 24px 24px;
 }
 
 #CreateAccountMail,
@@ -167,62 +95,58 @@ spacer {
 
 @media (min-resolution: 2dppx) {
   #ReadMessages label {
-    background: url("chrome://messenger/skin/accountcentral/mailbox@2x.png")  no-repeat !important;
-    background-size: 32px 32px !important;
+    background: url("chrome://messenger/skin/accountcentral/mailbox@2x.png") no-repeat;
+    background-size: 24px 24px;
   }
 
   #ComposeMessage label {
-    background: url("chrome://messenger/skin/accountcentral/writemail@2x.png")  no-repeat !important;
-    background-size: 32px 32px !important;
+    background: url("chrome://messenger/skin/accountcentral/writemail@2x.png") no-repeat;
+    background-size: 24px 24px;
   }
 
   #JunkSettingsMail label {
-    background: url("chrome://messenger/skin/accountcentral/junk@2x.png")  no-repeat !important;
-    background-size: 32px 32px !important;
+    background: url("chrome://messenger/skin/accountcentral/junk@2x.png") no-repeat;
+    background-size: 24px 24px;
   }
 
   #SubscribeNewsgroups label {
-    background: url("chrome://messenger/skin/accountcentral/manage-subscriptions@2x.png")  no-repeat !important;
-    background-size: 32px 32px !important;
+    background: url("chrome://messenger/skin/accountcentral/manage-subscriptions@2x.png") no-repeat;
+    background-size: 24px 24px;
   }
 
   #AccountSettings label {
-    background: url("chrome://messenger/skin/accountcentral/accountsettings@2x.png")  no-repeat !important;
-    background-size: 32px 32px !important;
+    background: url("chrome://messenger/skin/accountcentral/accountsettings@2x.png") no-repeat;
+    background-size: 24px 24px;
   }
 
   #CreateAccount label {
-    background: url("chrome://messenger/skin/accountcentral/newaccount@2x.png")  no-repeat !important;
-    background-size: 32px 32px !important;
+    background: url("chrome://messenger/skin/accountcentral/newaccount@2x.png") no-repeat;
+    background-size: 24px 24px;
   }
 
   #SearchMessages label {
-    background: url("chrome://messenger/skin/accountcentral/search-messages@2x.png")  no-repeat !important;
-    background-size: 32px 32px !important;
+    background: url("chrome://messenger/skin/accountcentral/search-messages@2x.png") no-repeat;
+    background-size: 24px 24px;
   }
 
   #CreateFilters label {
-    background: url("chrome://messenger/skin/accountcentral/mailbox@2x.png")  no-repeat !important;
-    background-size: 32px 32px !important;
+    background: url("chrome://messenger/skin/accountcentral/mailbox@2x.png") no-repeat;
+    background-size: 24px 24px;
   }
 
   #SubscribeImapFolders label {
-    background: url("chrome://messenger/skin/accountcentral/folder@2x.png")  no-repeat !important;
-    background-size: 32px 32px !important;
+    background: url("chrome://messenger/skin/accountcentral/folder@2x.png") no-repeat;
+    background-size: 24px 24px;
   }
 
   #SubscribeRSS label {
-    background: url("chrome://messenger/skin/accountcentral/manage-rss@2x.png")  no-repeat !important;
-    background-size: 32px 32px !important;
+    background: url("chrome://messenger/skin/accountcentral/manage-rss@2x.png") no-repeat;
+    background-size: 24px 24px;
   }
 
   #OfflineSettings label {
-    background: url("chrome://messenger/skin/accountcentral/offline@2x.png")  no-repeat !important;
-    background-size: 32px 32px !important;
-  }
-
-  .acctCentralNewAcctText {
-    min-height: 32px;
+    background: url("chrome://messenger/skin/accountcentral/offline@2x.png") no-repeat;
+    background-size: 24px 24px;
   }
 
   #CreateAccountMail,

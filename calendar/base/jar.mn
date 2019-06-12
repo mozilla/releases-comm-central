@@ -117,6 +117,7 @@ calendar.jar:
     ../skin/common/icons/alarm.svg                    (themes/common/icons/alarm.svg)
     ../skin/common/icons/alarm-no.svg                 (themes/common/icons/alarm-no.svg)
     ../skin/common/icons/attach.svg                   (themes/common/icons/attach.svg)
+    ../skin/common/icons/cal-icon24.png               (themes/linux/images/cal-icon24.png)
     ../skin/common/icons/calendar-tab.svg             (themes/common/icons/calendar-tab.svg)
     ../skin/common/icons/category.svg                 (themes/common/icons/category.svg)
     ../skin/common/icons/complete.svg                 (themes/common/icons/complete.svg)
@@ -199,7 +200,6 @@ calendar.jar:
     ../skin/common/widgets/minimonth.css              (themes/common/widgets/minimonth.css)
 
 # Linux theme files
-    ../skin/linux/calendar/cal-icon24.png                                 (themes/linux/images/cal-icon24.png)
     ../skin/linux/calendar/calendar-alarm-dialog.css                      (themes/linux/dialogs/calendar-alarm-dialog.css)
     ../skin/linux/calendar/calendar-daypicker.css                         (themes/linux/calendar-daypicker.css)
     ../skin/linux/calendar/calendar-event-dialog.css                      (themes/linux/dialogs/calendar-event-dialog.css)
@@ -213,7 +213,6 @@ calendar.jar:
     ../skin/linux/calendar/widgets/calendar-widgets.css                   (themes/linux/widgets/calendar-widgets.css)
 
 # OS X theme files
-    ../skin/osx/calendar/cal-icon32.png                                 (themes/osx/images/cal-icon32.png)
     ../skin/osx/calendar/calendar-alarm-dialog.css                      (themes/osx/dialogs/calendar-alarm-dialog.css)
     ../skin/osx/calendar/calendar-daypicker.css                         (themes/osx/calendar-daypicker.css)
     ../skin/osx/calendar/calendar-event-dialog.css                      (themes/osx/dialogs/calendar-event-dialog.css)
@@ -231,7 +230,6 @@ calendar.jar:
     ../skin/osx/calendar/warn-selected-mac.svg                          (themes/osx/images/warn-selected-mac.svg)
 
 # Windows theme files
-    ../skin/windows/calendar/cal-icon24.png                                 (themes/windows/images/cal-icon24.png)
     ../skin/windows/calendar/calendar-alarm-dialog.css                      (themes/windows/dialogs/calendar-alarm-dialog.css)
     ../skin/windows/calendar/calendar-daypicker.css                         (themes/windows/calendar-daypicker.css)
     ../skin/windows/calendar/calendar-event-dialog.css                      (themes/windows/dialogs/calendar-event-dialog.css)

@@ -27,7 +27,7 @@ lightning.jar:
 % overlay chrome://calendar/content/calendar-properties-dialog.xul chrome://lightning/content/lightning-calendar-properties.xul
 % overlay chrome://lightning/content/lightning-calendar-creation.xul chrome://lightning/content/caldav-lightning-calendar-creation.xul
 % overlay chrome://lightning/content/lightning-calendar-properties.xul chrome://lightning/content/caldav-lightning-calendar-properties.xul
-% override chrome://lightning/skin/accountCentral.css chrome://lightning-common/skin/suite-accountCentral.css application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
+% override chrome://lightning-common/skin/accountCentral.css chrome://lightning-common/skin/suite-accountCentral.css application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
 % content lightning %content/lightning/
     content/lightning/imip-bar.js                          (content/imip-bar.js)
     content/lightning/imip-bar-overlay.xul                 (content/imip-bar-overlay.xul)
@@ -76,19 +76,16 @@ lightning.jar:
     ../skin/lightning-common/suite-accountCentral.css         (themes/common/suite-accountCentral.css)
 
 # Linux theme files
-    ../skin/linux/lightning/accountCentral.css                (themes/linux/accountCentral.css)
     ../skin/linux/lightning/imip.css                          (themes/linux/imip.css)
     ../skin/linux/lightning/lightning.css                     (themes/linux/lightning.css)
     ../skin/linux/lightning/lightning-toolbar.css             (themes/linux/lightning-toolbar.css)
 
 # OS X theme files
-    ../skin/osx/lightning/accountCentral.css                  (themes/osx/accountCentral.css)
     ../skin/osx/lightning/imip.css                            (themes/osx/imip.css)
     ../skin/osx/lightning/lightning.css                       (themes/osx/lightning.css)
     ../skin/osx/lightning/lightning-toolbar.css               (themes/osx/lightning-toolbar.css)
 
 # Windows theme files
-    ../skin/windows/lightning/accountCentral.css              (themes/windows/accountCentral.css)
     ../skin/windows/lightning/imip.css                        (themes/windows/imip.css)
     ../skin/windows/lightning/lightning.css                   (themes/windows/lightning.css)
     ../skin/windows/lightning/lightning-toolbar.css           (themes/windows/lightning-toolbar.css)
@@ -104,6 +101,7 @@ calendar.jar:
     content/calendar/sound.wav                             (../resources/content/sound.wav)
     ../skin/lightning-common/datetimepickers.css           (../resources/skin/datetimepickers.css)
     ../skin/lightning-common/dialogOverlay.css             (../resources/skin/dialogOverlay.css)
+    ../skin/lightning-common/accountCentral.css            (themes/common/accountCentral.css)
     ../skin/lightning-common/imip.css                      (themes/common/imip.css)
     ../skin/lightning-common/lightning.css                 (themes/common/lightning.css)
     ../skin/lightning-common/lightning-toolbar.css         (themes/common/lightning-toolbar.css)

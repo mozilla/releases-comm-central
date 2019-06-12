@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #lightning-newCalendar-row > hbox > label:-moz-locale-dir(rtl) {
-  background-position: right !important;
+  background-position: right;
 }
 
 #lightning-newCalendar-row > hbox > label {
-  background: url(chrome://calendar/skin/cal-icon24.png) no-repeat !important;
+  background: url(chrome://calendar-common/skin/icons/cal-icon24.png) no-repeat;
 }

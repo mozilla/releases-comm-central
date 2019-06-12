@@ -1,0 +1,130 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://messenger/skin/");
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+:root {
+  --body-background-color: -moz-Field;
+  --body-text-color: -moz-FieldText;
+  --head-background-color: ButtonFace;
+  --head-text-color: -moz-DialogText;
+  --head-border-color: ThreeDDarkShadow;
+  --link-color-hover: -moz-nativehyperlinktext;
+  --link-color-active: -moz-activehyperlinktext;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --body-background-color: #2a2a2e;
+    --body-text-color: rgb(249, 249, 250);
+    --head-background-color: #4a4a4f;
+    --head-text-color: var(--body-text-color);
+    --head-border-color: #737373;
+    --link-color-hover: #0060df;
+    --link-color-active: #003eaa;
+  }
+}
+
+#acctCentralGrid {
+  background-color: var(--body-background-color);
+  color: var(--body-text-color);
+}
+
+spacer {
+  max-height: .4em;
+}
+
+spacer.big {
+  max-height: 3em;
+}
+
+#acctCentralHeaderRow {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-inline-start: 10px;
+  padding-inline-end: 0;
+  font-size: 160%;
+  font-weight: bold;
+}
+
+.acctCentralRowTitleBox {
+  background-color: var(--head-background-color);
+  border: 1px solid var(--head-border-color);
+  margin: 15px 6px 0;
+  border-radius: 3px;
+  color: var(--head-text-color);
+  padding-top: 2px;
+  padding-bottom: 0;
+  padding-inline-start: 8px;
+  padding-inline-end: 4px;
+  font-size: 150%;
+  font-weight: bold;
+}
+
+.acctCentralRow {
+  margin-inline-start: 10px;
+  font-size: 125%;
+}
+
+.acctCentralRow > hbox {
+  margin-inline-start: 6px;
+}
+
+.row-iconic-icon {
+  list-style-image: inherit;
+  margin-inline-end: 10px;
+}
+
+.acctCentralText {
+  padding-inline-start: 45px;
+  margin-top: .5em;
+  margin-bottom: .5em;
+  min-height: 24px; /* icon height */
+}
+
+.acctCentralNewAcctText {
+  padding-inline-start: 20px;
+  padding-inline-end: 10px;
+}
+
+.acctCentralLinkText {
+  cursor: pointer;
+}
+
+.acctCentralLinkText:hover,
+.acctCentralLinkText:focus {
+  color: var(--link-color-hover);
+  text-decoration: underline;
+}
+
+.acctCentralLinkText:active {
+  color: var(--link-color-active);
+}
+
+#CreateAccountsList {
+  display: block;
+  padding-inline-start: 45px;
+  margin-bottom: .6em;
+}
+
+#ReadMessages label:-moz-locale-dir(rtl),
+#ComposeMessage label:-moz-locale-dir(rtl),
+#AccountSettings label:-moz-locale-dir(rtl),
+#CreateAccount label:-moz-locale-dir(rtl),
+#SearchMessages label:-moz-locale-dir(rtl),
+#CreateFilters label:-moz-locale-dir(rtl),
+#OfflineSettings label:-moz-locale-dir(rtl),
+#CreateAccountMail:-moz-locale-dir(rtl),
+#CreateAccountMovemail:-moz-locale-dir(rtl),
+#CreateAccountChat:-moz-locale-dir(rtl),
+#CreateAccountNewsgroups:-moz-locale-dir(rtl),
+#CreateAccountRSS:-moz-locale-dir(rtl),
+#SubscribeImapFolders label:-moz-locale-dir(rtl),
+#SubscribeNewsgroups label:-moz-locale-dir(rtl),
+#SubscribeRSS label:-moz-locale-dir(rtl),
+#JunkSettingsMail label:-moz-locale-dir(rtl) {
+  background-position: right center;
+}
