@@ -10,6 +10,7 @@ def test(mod, path, entity=None):
                  "suite",
                  "editor/ui",
                  "extensions/spellcheck",
+                 "suite/branding/seamonkey",
                  "services/sync"):
     return "ignore"
   # ignore temporary files, hiden files and files from rejects
