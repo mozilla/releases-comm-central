@@ -1088,22 +1088,18 @@ function OutputEmailAddresses(headerEntry, emailAddresses)
 
   if (msgHeaderParser)
   {
-    var addresses = {};
-    var fullNames = {};
-    var names = {};
-    var numAddresses =  0;
+    // The email addresses are still RFC2047 encoded but libmime has already
+    // converted from "raw UTF-8" to "wide" (UTF-16) characters.
+    var addresses = msgHeaderParser.parseEncodedHeaderW(emailAddresses);
 
-    numAddresses = msgHeaderParser.parseHeadersWithArray(emailAddresses, addresses, names, fullNames);
-    var index = 0;
-    while (index < numAddresses)
-    {
+    for (let addr of addresses) {
       // if we want to include short/long toggle views and we have a long view, always add it.
       // if we aren't including a short/long view OR if we are and we haven't parsed enough
       // addresses to reach the cutoff valve yet then add it to the default (short) div.
       var address = {};
-      address.emailAddress = addresses.value[index] || "";
-      address.fullAddress = fullNames.value[index] || "";
-      address.displayName = names.value[index] || "";
+      address.emailAddress = addr.email || "";
+      address.fullAddress = addr.toString() || "";
+      address.displayName = addr.name || "";
       if (headerEntry.useToggle)
         headerEntry.enclosingBox.addAddressView(address);
       else
@@ -1112,8 +1108,6 @@ function OutputEmailAddresses(headerEntry, emailAddresses)
       if (headerEntry.enclosingBox.getAttribute("id") == "expandedfromBox") {
         setFromBuddyIcon(addresses.value[index]);
       }
-
-      index++;
     }
 
     if (headerEntry.useToggle)
