@@ -924,28 +924,34 @@ nsContextMenu.prototype = {
 
   // Reload image
   reloadImage: function() {
-    urlSecurityCheck(this.mediaURL, this.target.nodePrincipal,
-                     Ci.nsIScriptSecurityManager.ALLOW_CHROME);
+    urlSecurityCheck(this.mediaURL,
+                     this.target.nodePrincipal,
+                     Ci.nsIScriptSecurityManager.DISALLOW_SCRIPT);
     if (this.target instanceof Ci.nsIImageLoadingContent)
       this.target.forceReload();
   },
 
   // Change current window to the URL of the image, video, or audio.
-  viewMedia: function(aEvent) {
-    var viewURL;
-    if (this.onCanvas)
-      viewURL = this.target.toDataURL();
-    else {
-      viewURL = this.mediaURL;
-      urlSecurityCheck(viewURL, this.target.nodePrincipal,
-                       Ci.nsIScriptSecurityManager.ALLOW_CHROME);
+  viewMedia(e) {
+    let doc = this.target.ownerDocument;
+    let where = whereToOpenLink(e);
+    if (this.onCanvas) {
+      let blobUrl = URL.createObjectURL(this.target);
+      let systemPrincipal = Services.scriptSecurityManager
+                                    .getSystemPrincipal();
+      openUILinkIn(blobUrl, where,
+                   { referrerURI: doc.documentURIObject,
+                     triggeringPrincipal: systemPrincipal,
+                   });
+    } else {
+      urlSecurityCheck(this.mediaURL,
+                       this.target.nodePrincipal,
+                       Ci.nsIScriptSecurityManager.DISALLOW_SCRIPT);
+      openUILinkIn(this.mediaURL, where,
+                   { referrerURI: doc.documentURIObject,
+                     triggeringPrincipal: this.target.nodePrincipal,
+                   });
     }
-    var doc = this.target.ownerDocument;
-    var where = whereToOpenLink(aEvent);
-    if (where == "current")
-      openTopWin(viewURL, doc.defaultView);
-    else
-      openUILinkIn(viewURL, where, null, null, doc.documentURIObject);
   },
 
   saveVideoFrameAsImage: function () {
@@ -981,15 +987,17 @@ nsContextMenu.prototype = {
   },
 
   // Change current window to the URL of the background image.
-  viewBGImage: function(aEvent) {
-    urlSecurityCheck(this.bgImageURL, this.target.nodePrincipal,
-                     Ci.nsIScriptSecurityManager.ALLOW_CHROME);
-    var doc = this.target.ownerDocument;
-    var where = whereToOpenLink(aEvent);
-    if (where == "current")
-      openTopWin(this.bgImageURL, doc.defaultView);
-    else
-      openUILinkIn(this.bgImageURL, where, null, null, doc.documentURIObject);
+  viewBGImage(e) {
+    urlSecurityCheck(this.bgImageURL,
+                     this.target.nodePrincipal,
+                     Ci.nsIScriptSecurityManager.DISALLOW_SCRIPT);
+
+    let doc = this.target.ownerDocument;
+    let where = whereToOpenLink(e);
+    openUILinkIn(this.bgImageURL, where,
+                 { referrerURI: doc.documentURIObject,
+                   triggeringPrincipal: this.target.nodePrincipal,
+                 });
   },
 
   setDesktopBackground: function() {
