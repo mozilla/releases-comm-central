@@ -125,9 +125,11 @@ nsresult nsMsgProtocol::OpenNetworkSocketWithInfo(
   m_readCount = -1;
 
   nsCOMPtr<nsISocketTransport> strans;
-  rv = socketService->CreateTransport(
-      &connectionType, connectionType != nullptr, nsDependentCString(aHostName),
-      aGetPort, aProxyInfo, getter_AddRefs(strans));
+  AutoTArray<nsCString, 1> connectionTypeArray;
+  if (connectionType) connectionTypeArray.AppendElement(connectionType);
+  rv = socketService->CreateTransport(connectionTypeArray,
+                                      nsDependentCString(aHostName), aGetPort,
+                                      aProxyInfo, getter_AddRefs(strans));
   if (NS_FAILED(rv)) return rv;
 
   strans->SetSecurityCallbacks(callbacks);

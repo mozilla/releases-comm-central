@@ -816,7 +816,7 @@ SocketAppender.prototype = {
     this._nextCheck = now + this._timeout_delay * 1000;
     try {
       this._transport = this._socketService.createTransport(
-        null, 0, // default socket type
+        [], // default socket type
         this._host, this._port,
         null); // no proxy
       this._transport.setTimeout(Ci.nsISocketTransport.TIMEOUT_CONNECT,

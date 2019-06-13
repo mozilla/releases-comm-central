@@ -949,15 +949,16 @@ nsresult nsImapProtocol::SetupWithUrlCallback(nsIProxyInfo *aProxyInfo) {
   if (NS_FAILED(rv)) return rv;
   uri->GetPort(&port);
 
-  rv = socketService->CreateTransport(
-      &connectionType, connectionType != nullptr, m_realHostName, port,
-      aProxyInfo, getter_AddRefs(m_transport));
+  AutoTArray<nsCString, 1> connectionTypeArray;
+  if (connectionType) connectionTypeArray.AppendElement(connectionType);
+  rv = socketService->CreateTransport(connectionTypeArray, m_realHostName, port,
+                                      aProxyInfo, getter_AddRefs(m_transport));
   if (NS_FAILED(rv) && m_socketType == nsMsgSocketType::trySTARTTLS) {
     connectionType = nullptr;
     m_socketType = nsMsgSocketType::plain;
-    rv = socketService->CreateTransport(
-        &connectionType, connectionType != nullptr, m_realHostName, port,
-        aProxyInfo, getter_AddRefs(m_transport));
+    rv = socketService->CreateTransport(connectionTypeArray, m_realHostName,
+                                        port, aProxyInfo,
+                                        getter_AddRefs(m_transport));
   }
 
   // remember so we can know whether we can issue a start tls or not...

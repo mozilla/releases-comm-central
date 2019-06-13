@@ -544,7 +544,7 @@ var Socket = {
     let socketTS = Cc["@mozilla.org/network/socket-transport-service;1"]
                       .getService(Ci.nsIRoutedSocketTransportService);
     this.transport =
-      socketTS.createRoutedTransport(this.security, this.security.length,
+      socketTS.createRoutedTransport(this.security,
                                      this.originHost, this.originPort,
                                      this.host, this.port,
                                      this.proxy);

@@ -986,14 +986,15 @@ function SocketUtil(hostname, port, ssl, commands, timeout, proxy,
                          .getService(Ci.nsISocketTransportService);
 
   // @see NS_NETWORK_SOCKET_CONTRACTID_PREFIX
-  var socketTypeName = null;
+  var socketTypeName;
   if (ssl == SSL) {
-    socketTypeName = "ssl";
+    socketTypeName = ["ssl"];
   } else if (ssl == TLS) {
-    socketTypeName = "starttls";
+    socketTypeName = ["starttls"];
+  } else {
+    socketTypeName = [];
   }
-  var transport = transportService.createTransport([socketTypeName],
-                                                   ssl == NONE ? 0 : 1,
+  var transport = transportService.createTransport(socketTypeName,
                                                    hostname, port, proxy);
 
   transport.setTimeout(Ci.nsISocketTransport.TIMEOUT_CONNECT, timeout);
