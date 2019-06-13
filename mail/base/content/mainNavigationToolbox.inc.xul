@@ -435,16 +435,16 @@
         </menu>
         <menu id="viewMessageViewMenu" label="&msgsMenu.label;" accesskey="&msgsMenu.accesskey;"
               command="mailHideMenus" oncommand="ViewChangeByMenuitem(event.target);">
-            <menupopup id="viewMessagePopup" onpopupshowing="RefreshViewPopup(this, false);">
+            <menupopup id="viewMessagePopup" onpopupshowing="RefreshViewPopup(this);">
               <menuitem id="viewMessageAll"    value="0" type="radio" label="&viewAll.label;" accesskey="&viewAll.accesskey;"/>
               <menuitem id="viewMessageUnread" value="1" type="radio" label="&viewUnread.label;" accesskey="&viewUnread.accesskey;"/>
               <menuitem id="viewMessageNotDeleted" value="3" type="radio" label="&viewNotDeleted.label;" accesskey="&viewNotDeleted.accesskey;"/>
               <menuseparator id="messageViewAfterUnreadSeparator"/>
               <menu id="viewMessageTags" label="&viewTags.label;" accesskey="&viewTags.accesskey;">
-                <menupopup id="viewMessageTagsPopup" onpopupshowing="RefreshTagsPopup(this, false);"/>
+                <menupopup id="viewMessageTagsPopup" onpopupshowing="RefreshTagsPopup(this);"/>
               </menu>
               <menu id="viewMessageCustomViews" label="&viewCustomViews.label;" accesskey="&viewCustomViews.accesskey;">
-                <menupopup id="viewMessageCustomViewsPopup" onpopupshowing="RefreshCustomViewsPopup(this, false);"/>
+                <menupopup id="viewMessageCustomViewsPopup" onpopupshowing="RefreshCustomViewsPopup(this);"/>
               </menu>
               <menuseparator id="messageViewAfterCustomSeparator"/>
               <menuitem id="viewMessageVirtualFolder" value="7" label="&viewVirtualFolder.label;" accesskey="&viewVirtualFolder.accesskey;"/>

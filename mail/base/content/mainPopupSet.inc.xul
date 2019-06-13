@@ -557,7 +557,7 @@
                   command="mailHideMenus"
                   oncommand="ViewChangeByMenuitem(event.target);">
               <menupopup id="appmenu_viewMessagePopup"
-                         onpopupshowing="RefreshViewPopup(this, false);">
+                         onpopupshowing="RefreshViewPopup(this);">
                 <menuitem id="appmenu_viewMessageAll"
                           value="0"
                           type="radio"
@@ -574,12 +574,12 @@
                 <menu id="viewMessageTags"
                       label="&viewTags.label;">
                   <menupopup id="appmenu_viewMessageTagsPopup"
-                             onpopupshowing="RefreshTagsPopup(this, false);"/>
+                             onpopupshowing="RefreshTagsPopup(this);"/>
                 </menu>
                 <menu id="appmenu_viewMessageCustomViews"
                       label="&viewCustomViews.label;">
                   <menupopup id="appmenu_viewMessageCustomViewsPopup"
-                             onpopupshowing="RefreshCustomViewsPopup(this, false);"/>
+                             onpopupshowing="RefreshCustomViewsPopup(this);"/>
                 </menu>
                 <menuseparator id="appmenu_messageViewAfterCustomSeparator"/>
                 <menuitem id="appmenu_viewMessageVirtualFolder"

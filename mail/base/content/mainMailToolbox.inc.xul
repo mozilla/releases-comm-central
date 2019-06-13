@@ -388,12 +388,12 @@
           <menu id="viewPickerTags" label="&viewTags.label;">
             <menupopup id="viewPickerTagsPopup"
                        class="menulist-menupopup"
-                       onpopupshowing="RefreshTagsPopup(this, true);"/>
+                       onpopupshowing="RefreshTagsPopup(this);"/>
           </menu>
           <menu id="viewPickerCustomViews" label="&viewCustomViews.label;">
             <menupopup id="viewPickerCustomViewsPopup"
                        class="menulist-menupopup"
-                       onpopupshowing="RefreshCustomViewsPopup(this, true);"/>
+                       onpopupshowing="RefreshCustomViewsPopup(this);"/>
           </menu>
           <menuseparator id="afterViewPickerCustomViewsSeparator"/>
           <menuitem id="viewPickerVirtualFolder"
