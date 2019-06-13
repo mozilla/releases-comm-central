@@ -1106,7 +1106,7 @@ function OutputEmailAddresses(headerEntry, emailAddresses)
         updateEmailAddressNode(headerEntry.enclosingBox.emailAddressNode, address);
 
       if (headerEntry.enclosingBox.getAttribute("id") == "expandedfromBox") {
-        setFromBuddyIcon(addresses.value[index]);
+        setFromBuddyIcon(addr.email);
       }
     }
 
