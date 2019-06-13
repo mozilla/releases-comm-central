@@ -671,19 +671,6 @@
         </body>
       </method>
 
-      <method name="onTabClick">
-        <parameter name="event"/>
-        <body>
-          <![CDATA[
-            // a middle mouse button click on a tab is a short cut for closing a tab
-            if (event.button != 1 || event.target.localName != "tab")
-              return;
-            this.removeTab(event.target);
-            event.stopPropagation();
-          ]]>
-        </body>
-      </method>
-
       <method name="setTabTitle">
         <parameter name="aTabInfo"/>
         <body>
