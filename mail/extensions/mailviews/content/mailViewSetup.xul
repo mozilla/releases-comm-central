@@ -37,9 +37,9 @@
   <vbox flex="1">
     <separator class="thin"/>
     <vbox>
-       <hbox align="center">
-         <label value="&mailViewHeading.label;" accesskey="&mailViewHeading.accesskey;" control="name"/>
-         <textbox tabindex="0" id="name" oninput="doEnabling();"/>
+      <hbox align="center">
+        <label value="&mailViewHeading.label;" accesskey="&mailViewHeading.accesskey;" control="name"/>
+        <textbox tabindex="0" id="name" oninput="doEnabling();"/>
       </hbox>
     </vbox>
 

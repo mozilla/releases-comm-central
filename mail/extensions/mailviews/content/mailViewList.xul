@@ -32,9 +32,9 @@
                    onselect="onMailViewSelect(event);"/>
 
       <vbox>
-       <button id="newButton" label="&newButton.label;" accesskey="&newButton.accesskey;" oncommand="onNewMailView();"/>
-       <button id="editButton" label="&editButton.label;" accesskey="&editButton.accesskey;" oncommand="onEditMailView();"/>
-       <button id="deleteButton" label="&deleteButton.label;" accesskey="&deleteButton.accesskey;" oncommand="onDeleteMailView();"/>
+        <button id="newButton" label="&newButton.label;" accesskey="&newButton.accesskey;" oncommand="onNewMailView();"/>
+        <button id="editButton" label="&editButton.label;" accesskey="&editButton.accesskey;" oncommand="onEditMailView();"/>
+        <button id="deleteButton" label="&deleteButton.label;" accesskey="&deleteButton.accesskey;" oncommand="onDeleteMailView();"/>
       </vbox>
     </hbox>
   </vbox>
