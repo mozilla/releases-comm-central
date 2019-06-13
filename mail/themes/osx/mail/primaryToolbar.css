@@ -256,6 +256,84 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
   opacity: .3;
 }
 
+.subviewbutton-iconic {
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
+}
+
+#appmenu_new {
+  list-style-image: url("chrome://messenger/skin/icons/new.svg");
+}
+
+#appmenu_msgAttachmentMenu {
+  list-style-image: url("chrome://messenger/skin/icons/attach.svg");
+}
+
+#appmenu-cut,
+#appmenu-editmenu-cut {
+  list-style-image: url("chrome://messenger/skin/icons/cut.svg");
+}
+
+#appmenu-copy,
+#appmenu-editmenu-copy {
+  list-style-image: url("chrome://messenger/skin/icons/copy.svg");
+}
+
+#appmenu-paste,
+#appmenu-editmenu-paste {
+  list-style-image: url("chrome://messenger/skin/icons/paste.svg");
+}
+
+#appmenu_find {
+  list-style-image: url("chrome://messenger/skin/icons/search-glass.svg");
+}
+
+#appmenu_print,
+#appmenu_print_popup {
+  list-style-image: url("chrome://messenger/skin/icons/print.svg");
+}
+
+#appmenu_saveAs {
+  list-style-image: url("chrome://messenger/skin/icons/save-as.svg");
+}
+
+#appmenu_emptyTrash {
+  list-style-image: url("chrome://messenger/skin/icons/delete.svg");
+}
+
+#appmenu_activityManager {
+  list-style-image: url("chrome://global/skin/icons/performance.svg");
+}
+
+#appmenu_filters,
+#appmenu_filtersCmd {
+  list-style-image: url("chrome://messenger/skin/icons/filter.svg");
+}
+
+#appmenu_customize,
+#appmenu_preferences {
+  list-style-image: url("chrome://mozapps/skin/extensions/utilities.svg");
+}
+
+#appmenu-quit {
+  list-style-image: url("chrome://messenger/skin/icons/quit.svg");
+}
+
+#appmenu_addons,
+#appmenu_Add-Ons {
+  list-style-image: url("chrome://mozapps/skin/extensions/extensionGeneric-16.svg");
+}
+
+#appmenu_help,
+#appmenu_openHelp {
+  list-style-image: url(chrome://global/skin/icons/help.svg);
+}
+
+#appmenu_addressBook {
+  list-style-image: url("chrome://messenger/skin/icons/address.svg");
+}
+
 #appmenu-popup * {
   font-size: 12px;
 }

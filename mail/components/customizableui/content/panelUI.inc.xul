@@ -140,12 +140,12 @@
       <vbox class="panel-subview-body">
         <vbox id="appMenu-addon-banners"/>
         <toolbarbutton id="appmenu_new"
-                       class="subviewbutton subviewbutton-nav"
+                       class="subviewbutton subviewbutton-iconic subviewbutton-nav"
                        label="&newMenu.label;"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-newView', this)"/>
         <toolbarbutton id="appmenu_msgAttachmentMenu"
-                       class="subviewbutton subviewbutton-nav"
+                       class="subviewbutton subviewbutton-iconic subviewbutton-nav"
                        label="&openAttachmentListCmd.label;"
                        disabled="true"
                        closemenu="none"
@@ -191,7 +191,7 @@
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-printView', this)"/>
         <toolbarbutton id="appmenu_saveAs"
-                       class="subviewbutton subviewbutton-nav"
+                       class="subviewbutton subviewbutton-nav subviewbutton-iconic"
                        label="&saveAsMenu.label;"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-saveAsView', this)"/>
@@ -205,7 +205,7 @@
                        label="&activitymanager.label;"
                        oncommand="openActivityMgr();"/>
         <toolbarbutton id="appmenu_filters"
-                       class="subviewbutton subviewbutton-nav"
+                       class="subviewbutton subviewbutton-iconic subviewbutton-nav"
                        label="&filtersCmd2.label;"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-filtersView', this)"/>
@@ -215,7 +215,7 @@
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-addonsView', this)"/>
         <toolbarbutton id="appmenu_customize"
-                       class="subviewbutton subviewbutton-nav"
+                       class="subviewbutton subviewbutton-iconic subviewbutton-nav"
 #ifdef XP_WIN
                        label="&preferencesCmd2.label;"
 #else
@@ -250,7 +250,7 @@
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-toolsView', this)"/>
         <toolbarbutton id="appmenu_help"
-                       class="subviewbutton subviewbutton-nav"
+                       class="subviewbutton subviewbutton-iconic subviewbutton-nav"
                        label="&helpMenuWin.label;"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-helpView', this)"/>
@@ -506,7 +506,8 @@
                class="PanelUI-subView"
                oncommand="openAddonPrefs(event.target.getAttribute('value'), event.target.getAttribute('optionsType'));">
       <vbox class="panel-subview-body">
-        <toolbarbutton label="&addons.label;"
+        <toolbarbutton id="appmenu_Add-Ons"
+                       label="&addons.label;"
                        class="subviewbutton subviewbutton-iconic"
                        oncommand="openAddonsMgr(); event.stopPropagation();"/>
         <toolbarseparator class="appmenu-menuseparator"/>
