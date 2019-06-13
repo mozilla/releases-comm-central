@@ -270,8 +270,8 @@ mapping:
             - repackage
         only_for_platforms:
             - macosx64-shippable
-        pretty_name: thunderbird ${version}.dmg
-        checksums_path: ${path_platform}/${locale}/thunderbird ${version}.dmg
+        pretty_name: Thunderbird ${version}.dmg
+        checksums_path: ${path_platform}/${locale}/Thunderbird ${version}.dmg
     target.zip:
         <<: *default
         description: "Main package installer for Windows platforms"
@@ -292,8 +292,8 @@ mapping:
         only_for_platforms:
             - win64-shippable
             - win32-shippable
-        pretty_name: thunderbird Setup ${version}.exe
-        checksums_path: ${path_platform}/${locale}/thunderbird Setup ${version}.exe
+        pretty_name: Thunderbird Setup ${version}.exe
+        checksums_path: ${path_platform}/${locale}/Thunderbird Setup ${version}.exe
     target.installer.msi:
         <<: *default
         description: "Windows installer for MSI platform"
@@ -303,8 +303,8 @@ mapping:
         only_for_platforms:
             - win64-shippable
             - win32-shippable
-        pretty_name: thunderbird Setup ${version}.msi
-        checksums_path: ${path_platform}/${locale}/thunderbird Setup ${version}.msi
+        pretty_name: Thunderbird Setup ${version}.msi
+        checksums_path: ${path_platform}/${locale}/Thunderbird Setup ${version}.msi
     target.complete.mar:
         <<: *default
         description: "Complete MAR to serve as updates"
