@@ -316,15 +316,3 @@ mapping:
         update_balrog_manifest: true
         destinations:
             - ${version}-candidates/build${build_number}/update/${path_platform}
-    target.bz2.complete.mar:
-        <<: *default
-        description: "Complete MAR with bz2 compression and SHA1 signing to serve as updates"
-        all_locales: true
-        from:
-            - mar-signing
-        pretty_name: thunderbird-${version}.bz2.complete.mar
-        checksums_path: update/${path_platform}/${locale}/thunderbird-${version}.bz2.complete.mar
-        update_balrog_manifest: true
-        balrog_format: bz2
-        destinations:
-            - ${version}-candidates/build${build_number}/update/${path_platform}
