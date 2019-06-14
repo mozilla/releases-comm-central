@@ -59,39 +59,27 @@ def reference_loader(kind, path, config, params, loaded_tasks):
         return inputs
 
 
-def remove_widevine_and_stub_installer(config, jobs):
+def remove_widevine(config, jobs):
     """
-    Remove references to widevine signing and to packaging a stub installer.
+    Remove references to widevine signing.
 
-    This is an expedient hack to avoid adding special cases for handling these in
-    mozilla-central code.  This code should become unnesssary after the
-    declarative artifact[1] work is complete.
-
-    [1] https://bugzilla.mozilla.org/show_bug.cgi?id=1466714
+    This is to avoid adding special cases for handling signed artifacts
+    in mozilla-central code. Artifact signature formats are determined in
+    taskgraph.util.signed_artifacts. There's no override mechanism so we
+    remove the autograph_widevine format here.
     """
     for job in jobs:
         task = job['task']
         payload = task['payload']
 
-        for scope in ['project:comm:thunderbird:releng:signing:format:autograph_widevine',
-                      'project:comm:thunderbird:releng:signing:format:sha2signcodestub']:
-            if scope in task['scopes']:
-                task['scopes'].remove(scope)
+        widevine_scope = 'project:comm:thunderbird:releng:signing:format' \
+                         ':autograph_widevine'
+        if widevine_scope in task['scopes']:
+            task['scopes'].remove(widevine_scope)
         if 'upstreamArtifacts' in payload:
             for artifact in payload['upstreamArtifacts']:
                 if 'autograph_widevine' in artifact.get('formats', []):
                     artifact['formats'].remove('autograph_widevine')
-                artifact['paths'] = [path for path in artifact['paths']
-                                     if not path.endswith(('/setup-stub.exe',
-                                                           '/target.stub-installer.exe',))]
-            payload['upstreamArtifacts'] = [artifact for artifact in payload['upstreamArtifacts']
-                                            if artifact.get('formats', []) != ['sha2signcodestub']]
-        if 'artifacts' in payload and isinstance(payload['artifacts'], list):
-            payload['artifacts'] = [artifact for artifact in payload['artifacts']
-                                    if not artifact['name'].endswith('/target.stub-installer.exe')]
-        if 'env' in payload:
-            if 'SIGNED_SETUP_STUB' in payload['env']:
-                del payload['env']['SIGNED_SETUP_STUB']
 
         yield job
 

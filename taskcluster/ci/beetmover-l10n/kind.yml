@@ -9,7 +9,7 @@ transforms:
     - taskgraph.transforms.name_sanity:transforms
     - taskgraph.transforms.beetmover:transforms
     - taskgraph.transforms.task:transforms
-    - comm_taskgraph:remove_widevine_and_stub_installer
+    - comm_taskgraph:remove_widevine
 
 kind-dependencies:
     - nightly-l10n-signing
