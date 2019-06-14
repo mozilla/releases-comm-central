@@ -113,8 +113,6 @@ function onSelectProvider(type) {
         // keep tempCal undefined if the calendar can not be created
     }
 
-    document.getElementById("calendar-username-row").hidden = !(tempCal && tempCal.getProperty("capabilities.username.supported") === true);
-
     if (tempCal && tempCal.getProperty("cache.always")) {
         cache.oldValue = cache.checked;
         cache.checked = true;
@@ -212,10 +210,6 @@ function doCreateCalendar() {
     if (!gCalendar.getProperty("cache.always")) {
         gCalendar.setProperty("cache.enabled", gCalendar.getProperty("cache.supported") === false
                                                ? false : document.getElementById("cache").checked);
-    }
-
-    if (gCalendar.getProperty("capabilities.username.supported") === true) {
-        gCalendar.setProperty("username", document.getElementById("calendar-username").value);
     }
 
     if (!document.getElementById("fire-alarms").checked) {

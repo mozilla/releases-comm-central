@@ -571,8 +571,6 @@ calDavCalendar.prototype = {
                 return this.supportedItemTypes.includes("VEVENT");
             case "capabilities.autoschedule.supported":
                 return this.hasAutoScheduling;
-            case "capabilities.username.supported":
-                return true;
         }
         return this.__proto__.__proto__.getProperty.apply(this, arguments);
     },

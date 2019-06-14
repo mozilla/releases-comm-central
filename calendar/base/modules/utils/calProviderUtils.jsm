@@ -36,29 +36,10 @@ var calprovider = {
      * @return {nsIChannel}                                     The prepared channel
      */
     prepHttpChannel: function(aUri, aUploadData, aContentType, aNotificationCallbacks, aExisting=null) {
-        let originAttributes = {};
-
-        // The current nsIHttpChannel implementation separates connections only
-        // by hosts, which causes issues with cookies and password caching for
-        // two or more simultaneous connections to the same host and different
-        // authenticated users. This can be solved by providing the additional
-        // userContextId, which also separates connections (a.k.a. containers).
-        // Connections for userA @ server1 and userA @ server2 can exist in the
-        // same container, as nsIHttpChannel will separate them. Connections
-        // for userA @ server1 and userB @ server1 however must be placed into
-        // different containers. It is therefore sufficient to add individual
-        // userContextIds per username.
-
-        let calendar = cal.wrapInstance(aNotificationCallbacks, Ci.calICalendar);
-        if (calendar && calendar.getProperty("capabilities.username.supported") === true) {
-            originAttributes.userContextId = cal.auth.containerMap
-                .getUserContextIdForUsername(calendar.getProperty("username"));
-        }
-
         // We cannot use a system principal here since the connection setup will fail if
         // same-site cookie protection is enabled in TB and server-side.
         let principal = aExisting ? null
-                                  : Services.scriptSecurityManager.createCodebasePrincipal(aUri, originAttributes);
+                                  : Services.scriptSecurityManager.createCodebasePrincipal(aUri, {});
         let channel = aExisting || Services.io.newChannelFromURI(aUri,
                                                                  null,
                                                                  principal,

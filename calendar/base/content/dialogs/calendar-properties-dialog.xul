@@ -10,7 +10,6 @@
 [
     <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd" > %dtd1;
     <!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar.dtd" > %dtd2;
-    <!ENTITY % dtd3 SYSTEM "chrome://calendar/locale/calendarCreation.dtd" > %dtd3;
 ]>
 
 <dialog
@@ -60,14 +59,6 @@
                         type="color"
                         disable-with-calendar="true"/>
           </hbox>
-      </row>
-      <row id="calendar-username-row"
-           align="center">
-        <label value="&locationpage.username.label;"
-               disable-with-calendar="true"
-               control="calendar-username"/>
-        <textbox id="calendar-username"
-                 disable-with-calendar="true"/>
       </row>
       <row id="calendar-uri-row" align="center">
         <label value="&calendarproperties.location.label;"

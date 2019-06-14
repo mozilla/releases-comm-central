@@ -28,13 +28,6 @@ function onLoad() {
     document.getElementById("calendar-uri").value = gCalendar.uri.spec;
     document.getElementById("read-only").checked = gCalendar.readOnly;
 
-    if (gCalendar.getProperty("capabilities.username.supported") === true) {
-        document.getElementById("calendar-username").value = gCalendar.getProperty("username");
-        document.getElementById("calendar-username-row").hidden = false;
-    } else {
-        document.getElementById("calendar-username-row").hidden = true;
-    }
-
     // Set up refresh interval
     initRefreshInterval();
 
@@ -86,11 +79,6 @@ function onAcceptDialog() {
 
     // Save calendar color
     gCalendar.setProperty("color", document.getElementById("calendar-color").value);
-
-    // Save calendar user
-    if (gCalendar.getProperty("capabilities.username.supported") === true) {
-        gCalendar.setProperty("username", document.getElementById("calendar-username").value);
-    }
 
     // Save readonly state
     gCalendar.readOnly = document.getElementById("read-only").checked;

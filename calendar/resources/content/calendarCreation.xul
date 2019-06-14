@@ -55,10 +55,6 @@
             <radio id="wcap-radio" value="wcap" label="&calendarproperties.wcap.label;"/>
           </radiogroup>
         </row>
-        <row id="calendar-username-row" align="center">
-          <label value="&locationpage.username.label;" control="calendar-username"/>
-          <textbox id="calendar-username"/>
-        </row>
         <row align="center">
           <label value="&calendarproperties.location.label;" control="calendar-uri"/>
           <textbox is="search-textbox" id="calendar-uri"
