@@ -73,14 +73,14 @@ def remove_widevine_and_stub_installer(config, jobs):
         task = job['task']
         payload = task['payload']
 
-        for scope in ['project:comm:thunderbird:releng:signing:format:widevine',
+        for scope in ['project:comm:thunderbird:releng:signing:format:autograph_widevine',
                       'project:comm:thunderbird:releng:signing:format:sha2signcodestub']:
             if scope in task['scopes']:
                 task['scopes'].remove(scope)
         if 'upstreamArtifacts' in payload:
             for artifact in payload['upstreamArtifacts']:
-                if 'widevine' in artifact.get('formats', []):
-                    artifact['formats'].remove('widevine')
+                if 'autograph_widevine' in artifact.get('formats', []):
+                    artifact['formats'].remove('autograph_widevine')
                 artifact['paths'] = [path for path in artifact['paths']
                                      if not path.endswith(('/setup-stub.exe',
                                                            '/target.stub-installer.exe',))]
