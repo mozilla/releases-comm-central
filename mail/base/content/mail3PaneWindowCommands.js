@@ -111,11 +111,13 @@ function UpdateDeleteLabelsFromFolderCommand(folder, command) {
 
   if (folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
     goSetMenuValue(command, "valueFolder");
+    goSetAccessKey(command, "valueFolderAccessKey");
   } else if (folder.server.type == "nntp") {
     goSetMenuValue(command, "valueNewsgroup");
     goSetAccessKey(command, "valueNewsgroupAccessKey");
   } else {
     goSetMenuValue(command, "valueFolder");
+    goSetAccessKey(command, "valueFolderAccessKey");
   }
 }
 
