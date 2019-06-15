@@ -1393,11 +1393,11 @@ function ComposeStartup(aParams)
       let defaultAccount = MailServices.accounts.defaultAccount;
       if (defaultAccount) {
         identity = defaultAccount.defaultIdentity;
-        if (!identity) {
-          let identities = MailServices.accounts.allIdentities;
-          if (identities.length > 0)
-            identity = identities.queryElementAt(0, Ci.nsIMsgIdentity);
-        }
+      }
+      if (!identity) {
+        // Get the first identity we have in the list.
+        let identitykey = identityList.getItemAtIndex(0).getAttribute("identitykey");
+        identity = MailServices.accounts.getIdentity(identitykey);
       }
       params.identity = identity;
     }
