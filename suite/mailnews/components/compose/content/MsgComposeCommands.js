@@ -1259,9 +1259,13 @@ function ComposeStartup(aParams)
     let defaultAccount = gAccountManager.defaultAccount;
     if (defaultAccount)
       identities = defaultAccount.identities;
-    if (!identities || identities.length == 0)
-      identities = gAccountManager.allIdentities;
-    params.identity = identities.queryElementAt(0, Ci.nsIMsgIdentity);
+    if (identities && identities.length > 0) {
+      params.identity = identities.queryElementAt(0, Ci.nsIMsgIdentity);
+    } else {
+      // Get the first identity we have in the list.
+      let identitykey = identityList.getItemAtIndex(0).getAttribute("identitykey");
+      params.identity = MailServices.accounts.getIdentity(identitykey);
+    }
   }
 
   identityList.selectedItem =
