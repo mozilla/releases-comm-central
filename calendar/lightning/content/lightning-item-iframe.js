@@ -426,6 +426,11 @@ function onLoad() {
     // set up our calendar event observer
     eventDialogCalendarObserver.observe(item.calendar);
 
+    // Check if the systemcolor pref is set.
+    if (Services.prefs.getBoolPref("calendar.view.useSystemColors")) {
+        document.documentElement.setAttribute("systemcolors", "true");
+    }
+
     onLoad.hasLoaded = true;
 }
 // Set a variable to allow or prevent actions before the dialog is done loading.
