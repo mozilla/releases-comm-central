@@ -106,6 +106,18 @@ nsresult nsSmtpServer::getPrefs() {
   return NS_OK;
 }
 
+// This function is intentionally called the same as in nsIMsgIncomingServer.
+nsresult
+nsSmtpServer::OnUserOrHostNameChanged(const nsACString& oldName,
+                                      const nsACString& newName,
+                                      bool hostnameChanged)
+{
+  // Reset password so that users are prompted for new password for the new user/host.
+  (void)ForgetPassword();
+
+  return NS_OK;
+}
+
 NS_IMETHODIMP
 nsSmtpServer::GetHostname(nsACString &aHostname) {
   nsCString result;
@@ -120,12 +132,22 @@ nsSmtpServer::GetHostname(nsACString &aHostname) {
 
 NS_IMETHODIMP
 nsSmtpServer::SetHostname(const nsACString &aHostname) {
+  nsCString oldName;
+  nsresult rv = GetHostname(oldName);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // A few things to take care of if we're changing the hostname.
+  if (!oldName.Equals(aHostname, nsCaseInsensitiveCStringComparator())) {
+    rv = OnUserOrHostNameChanged(oldName, aHostname, true);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
   if (!aHostname.IsEmpty())
     return mPrefBranch->SetCharPref("hostname", aHostname);
 
   // If the pref value is already empty, ClearUserPref will return
   // NS_ERROR_UNEXPECTED, so don't check the rv here.
-  mPrefBranch->ClearUserPref("hostname");
+  (void)mPrefBranch->ClearUserPref("hostname");
   return NS_OK;
 }
 
@@ -245,12 +267,22 @@ nsSmtpServer::GetUsername(nsACString &aUsername) {
 
 NS_IMETHODIMP
 nsSmtpServer::SetUsername(const nsACString &aUsername) {
+  // Need to take care of few things if we're changing the username.
+  nsCString oldName;
+  nsresult rv = GetUsername(oldName);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (!oldName.Equals(aUsername)) {
+    rv = OnUserOrHostNameChanged(oldName, aUsername, false);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
   if (!aUsername.IsEmpty())
     return mPrefBranch->SetCharPref("username", aUsername);
 
   // If the pref value is already empty, ClearUserPref will return
   // NS_ERROR_UNEXPECTED, so don't check the rv here.
-  mPrefBranch->ClearUserPref("username");
+  (void)mPrefBranch->ClearUserPref("username");
   return NS_OK;
 }
 
@@ -522,19 +554,7 @@ nsSmtpServer::ForgetPassword() {
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Get the current server URI without the username
-  nsAutoCString serverUri(NS_LITERAL_CSTRING("smtp://"));
-
-  nsCString hostname;
-  rv = GetHostname(hostname);
-
-  if (NS_SUCCEEDED(rv) && !hostname.IsEmpty()) {
-    nsCString escapedHostname;
-    MsgEscapeString(hostname, nsINetUtil::ESCAPE_URL_PATH, escapedHostname);
-    // not all servers have a hostname
-    serverUri.Append(escapedHostname);
-  }
-
-  NS_ConvertUTF8toUTF16 currServer(serverUri);
+  NS_ConvertASCIItoUTF16 serverUri(GetServerURIInternal(false));
 
   nsCString serverCUsername;
   rv = GetUsername(serverCUsername);
@@ -543,7 +563,7 @@ nsSmtpServer::ForgetPassword() {
   NS_ConvertUTF8toUTF16 serverUsername(serverCUsername);
 
   nsTArray<RefPtr<nsILoginInfo>> logins;
-  rv = loginMgr->FindLogins(currServer, EmptyString(), currServer, logins);
+  rv = loginMgr->FindLogins(serverUri, EmptyString(), serverUri, logins);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // There should only be one-login stored for this url, however just in case

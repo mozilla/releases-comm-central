@@ -53,6 +53,11 @@ var gSmtpServerListWindow = {
       Services.prompt.STD_YES_NO_BUTTONS, null, null, null, null, { });
 
     if (!cancel) {
+      // Remove password information first.
+      try {
+        server.forgetPassword();
+      } catch (e) { /* It is OK if this fails. */ }
+      // Remove the server.
       MailServices.smtp.deleteServer(server);
       parent.replaceWithDefaultSmtpServer(server.key);
       this.refreshServerList("", true);

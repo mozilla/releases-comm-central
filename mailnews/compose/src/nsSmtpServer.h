@@ -34,7 +34,9 @@ class nsSmtpServer : public nsISmtpServer,
                              int32_t defval);
   nsresult GetPasswordWithoutUI();
   nsCString GetServerURIInternal(const bool aIncludeUsername);
-
+  nsresult OnUserOrHostNameChanged(const nsACString& oldName,
+                                   const nsACString& newName,
+                                   bool hostnameChanged);
   nsString m_password;
   bool m_logonFailed;
 };
