@@ -84,6 +84,9 @@ function initPage()
     case "unwantedBlocked":
       error = "unwanted";
       break;
+    case "harmfulBlocked":
+      error = "harmful";
+      break;
     default:
       return;
   }
@@ -104,6 +107,12 @@ function initPage()
     deleteElement("errorTitleText_unwanted");
     deleteElement("errorShortDescText_unwanted");
     deleteElement("errorLongDescText_unwanted");
+  }
+
+  if (error != "harmful") {
+    deleteElement("errorTitleText_harmful");
+    deleteElement("errorShortDescText_harmful");
+    deleteElement("errorLongDescText_harmful");
   }
 
   // Set sitename

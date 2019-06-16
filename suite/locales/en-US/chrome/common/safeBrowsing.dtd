@@ -21,6 +21,11 @@
 <!ENTITY safeb.blocked.phishingPage.shortDesc2 "This web page at <span id='phishing_sitename'/> has been reported as a deceptive site and has been blocked based on your security preferences.">
 <!ENTITY safeb.blocked.phishingPage.longDesc2 "<p>Deceptive sites are designed to trick you into doing something dangerous, like installing software, or revealing your personal information, like passwords, phone numbers or credit cards.</p><p>Entering any information on this web page may result in identity theft or other fraud.</p>">
 
+<!ENTITY safeb.blocked.harmfulPage.title "The site ahead may contain malware">
+<!-- Localization note (safeb.blocked.harmfulPage.shortDesc) - Please don't translate the contents of the <span id="harmful_sitename"/> tag. It will be replaced at runtime with a domain name (e.g. www.badsite.com) -->
+<!ENTITY safeb.blocked.harmfulPage.shortDesc "&brandShortName; blocked the web page at <span id='harmful_sitename'/> because it might try to install dangerous apps that steal or delete your information (for example, photos, passwords, messages and credit cards).">
+<!ENTITY safeb.blocked.harmfulPage.longDesc "">
+
 <!-- Localization note (reportDeceptiveSite, notADeceptiveSite) - The two button strings will never be shown at the same time, so it's okay for them to have the same access key. -->
 <!ENTITY reportDeceptiveSite.label "Report deceptive site…">
 <!ENTITY reportDeceptiveSite.accesskey "d">
