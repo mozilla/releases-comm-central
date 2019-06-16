@@ -45,6 +45,8 @@
                           oncommand="openTopWin('http://itisatrap.org/firefox/its-an-attack.html');"/>
                 <menuitem label="Reported Unwanted Software Page!"
                           oncommand="openTopWin('http://itisatrap.org/firefox/unwanted.html');"/>
+                <menuitem label="Potentially Harmful Site!"
+                          oncommand="openTopWin('https://itisatrap.org/firefox/harmful.html');"/>
               </menupopup>
             </menu>
             <menu label="Permissions">
