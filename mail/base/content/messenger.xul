@@ -134,6 +134,7 @@
 <script src="chrome://messenger/content/chat/chat-messenger.js"/>
 <script src="chrome://messenger/content/chat/imStatusSelector.js"/>
 <script src="chrome://messenger/content/chat/imContextMenu.js"/>
+<script src="chrome://messenger/content/chat/chat-conversation.js"/>
 <script src="chrome://messenger/content/preferences/preferencesTab.js"/>
 <script src="chrome://messenger/content/mailCore.js"/>
 <script src="chrome://messenger/content/mailCommands.js"/>

@@ -4,10 +4,6 @@
 
 @namespace html url(http://www.w3.org/1999/xhtml);
 
-imconversation {
-  -moz-binding: url("chrome://messenger/content/chat/imconversation.xml#conversation");
-}
-
 richlistitem[is="chat-group"] {
   -moz-box-align: center;
 }

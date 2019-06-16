@@ -256,7 +256,7 @@
         this.convView.focus();
 
         let clonedEvent = new KeyboardEvent("keypress", event);
-        this.convView.editor.inputField.dispatchEvent(clonedEvent);
+        this.convView.editor.dispatchEvent(clonedEvent);
         event.preventDefault();
       }
     }

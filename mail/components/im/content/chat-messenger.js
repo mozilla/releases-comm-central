@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global MozElements */
+/* global MozElements MozXULElement */
 /* import-globals-from ../../../../../toolkit/content/globalOverlay.js */
 
 // This file is loaded in messenger.xul.
@@ -321,7 +321,7 @@ var chatTabType = {
       if (document.getElementById("logDisplayDeck").selectedPanel ==
           document.getElementById("logDisplayBrowserBox"))
         return document.getElementById("conv-log-browser");
-    } else if (panel && panel.localName == "imconversation") {
+    } else if (panel && panel.localName == "chat-conversation") {
       return panel.browser;
     }
     return null;
@@ -332,7 +332,7 @@ var chatTabType = {
       if (document.getElementById("logDisplayDeck").selectedPanel ==
           document.getElementById("logDisplayBrowserBox"))
         return document.getElementById("log-findbar");
-    } else if (panel && panel.localName == "imconversation") {
+    } else if (panel && panel.localName == "chat-conversation") {
       return panel.findbar;
     }
     return null;
@@ -453,7 +453,7 @@ var chatHandler = {
   onConvResize() {
     let convDeck = document.getElementById("conversationsDeck");
     let panel = convDeck.selectedPanel;
-    if (panel && panel.localName == "imconversation")
+    if (panel && panel.localName == "chat-conversation")
       panel.onConvResize();
   },
 
@@ -733,7 +733,7 @@ var chatHandler = {
       let convDeck = document.getElementById("conversationsDeck");
       if (!item.convView) {
         // Create new conversation binding.
-        let conv = document.createXULElement("imconversation");
+        let conv = document.createXULElement("chat-conversation");
         convDeck.appendChild(conv);
         conv.conv = item.conv;
         conv.tab = item;
@@ -876,7 +876,7 @@ var chatHandler = {
   },
 
   _colorCache: {},
-  // Duplicated code from imconversation.xml :-(
+  // Duplicated code from chat-conversation.js :-(
   _computeColor(aName) {
     if (Object.prototype.hasOwnProperty.call(this._colorCache, aName))
       return this._colorCache[aName];
