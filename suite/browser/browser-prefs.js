@@ -420,10 +420,12 @@ pref("browser.videoFeeds.handler", "ask");
 pref("browser.audioFeeds.handler", "ask");
 
 // Overriding defaults defined in all.js (no UI yet covering these cases)
-pref("browser.safebrowsing.downloads.remote.block_potentially_unwanted", false);
-pref("browser.safebrowsing.downloads.remote.block_uncommon", false);
+pref("browser.safebrowsing.downloads.enabled", false);
+pref("browser.safebrowsing.downloads.remote.enabled", false);
 
-// Overriding defaults defined in all.js (use full version 2.x, bypassing bug 1077874)
+pref("urlclassifier.phishTable", "googpub-phish-proto,test-phish-simple");
+
+// Overriding defaults defined in all.js (use full version 2.x, bypassing bug 1077874) (Legacy)
 pref("browser.safebrowsing.provider.google.updateURL", "https://safebrowsing.google.com/safebrowsing/downloads?client=SAFEBROWSING_ID&appver=%VERSION%&pver=2.2&key=%GOOGLE_SAFEBROWSING_API_KEY%");
 pref("browser.safebrowsing.provider.google.gethashURL", "https://safebrowsing.google.com/safebrowsing/gethash?client=SAFEBROWSING_ID&appver=%VERSION%&pver=2.2");
 pref("browser.safebrowsing.provider.mozilla.updateURL", "https://shavar.services.mozilla.com/downloads?client=SAFEBROWSING_ID&appver=%VERSION%&pver=2.2");
@@ -440,13 +442,6 @@ pref("browser.safebrowsing.id", "navclient-auto-ffox");
 
 // Those are only used in our utilityOverlay.js (see bug 1270168)
 pref("browser.safebrowsing.warning.infoURL", "https://www.mozilla.org/%LOCALE%/firefox/phishing-protection/");
-pref("browser.safebrowsing.controlledAccess.infoURL", "https://support.mozilla.org/kb/controlledaccess/");
-
-// Enable safebrowsing v4 tables (suffixed by "-proto") update.
-#if defined(NIGHTLY_BUILD)
-pref("urlclassifier.malwareTable", "goog-malware-shavar,goog-unwanted-shavar,goog-malware-proto,goog-unwanted-proto,test-malware-simple,test-unwanted-simple");
-pref("urlclassifier.phishTable", "goog-phish-shavar,goog-phish-proto,test-phish-simple");
-#endif
 
 pref("browser.sessionstore.resume_from_crash", true);
 pref("browser.sessionstore.resume_session_once", false);
