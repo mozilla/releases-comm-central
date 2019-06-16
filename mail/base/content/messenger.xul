@@ -57,6 +57,8 @@
 %msgReadSMIMEDTD;
 <!ENTITY % msgViewPickerDTD SYSTEM "chrome://messenger/locale/msgViewPickerOverlay.dtd" >
 %msgViewPickerDTD;
+<!-- for the chat context menu -->
+<!ENTITY % textcontextDTD SYSTEM "chrome://global/locale/textcontext.dtd">
 ]>
 
 <!--

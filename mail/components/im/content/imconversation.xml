@@ -68,8 +68,10 @@
        this.prefObserver = (subject, topic, data) => {
          if (Services.prefs.getBoolPref("mail.spellcheck.inline")) {
            this.editor.setAttribute("spellcheck", "true");
+           this._spellchecker.enabled = true;
          } else {
            this.editor.removeAttribute("spellcheck");
+           this._spellchecker.enabled = false;
          }
        };
        Services.prefs.addObserver("mail.spellcheck.inline", this.prefObserver);
@@ -411,6 +413,7 @@
         let textbox = this.editor;
 
         const {MessageFormat} = ChromeUtils.import("resource:///modules/imTextboxUtils.jsm");
+        const {InlineSpellChecker} = ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
         MessageFormat.registerTextbox(textbox);
 
         // Init the textbox size
@@ -419,10 +422,13 @@
                                     this._TEXTBOX_VERTICAL_OVERHEAD;
         textbox.style.overflowY = "hidden";
 
+        this._spellchecker = new InlineSpellChecker(textbox.editor);
         if (Services.prefs.getBoolPref("mail.spellcheck.inline")) {
           textbox.setAttribute("spellcheck", "true");
+          this._spellchecker.enabled = true;
         } else {
           textbox.removeAttribute("spellcheck");
+          this._spellchecker.enabled = false;
         }
       ]]>
       </body>
@@ -1681,6 +1687,7 @@
        </getter>
      </property>
 
+     <property name="spellchecker" onget="return this._spellchecker;"/>
      <property name="browser" onget="return this.getElt('browser');"/>
      <property name="contentWindow" onget="return this.browser.contentWindow;"/>
      <property name="findbar" onget="return this.getElt('FindToolbar');"/>

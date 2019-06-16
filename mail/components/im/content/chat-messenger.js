@@ -3,6 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* global MozElements */
+/* import-globals-from ../../../../../toolkit/content/globalOverlay.js */
 
 // This file is loaded in messenger.xul.
 /* globals fixIterator, MailToolboxCustomizeDone, Notifications, openIMAccountMgr,
@@ -11,12 +12,68 @@
 var {Notifications} = ChromeUtils.import("resource:///modules/chatNotifications.jsm");
 var { Services: imServices } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var {InlineSpellChecker} = ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
 
 ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 ChromeUtils.defineModuleGetter(this, "OTRUI", "resource:///modules/OTRUI.jsm");
 
+var gChatSpellChecker;
+var gRangeParent;
+var gRangeOffset;
+
 var gOtrEnabled = false;
 var gBuddyListContextMenu = null;
+
+function openChatContextMenu(popup) {
+  let conv = chatHandler._getActiveConvView();
+  let spellchecker = conv.spellchecker;
+  let textbox = conv.editor;
+
+  // The context menu uses gChatSpellChecker, so set it here for the duration of the menu.
+  gChatSpellChecker = spellchecker;
+
+  spellchecker.init(textbox.editor);
+  spellchecker.initFromEvent(gRangeParent, gRangeOffset);
+  let onMisspelling = spellchecker.overMisspelling;
+  document.getElementById("spellCheckSuggestionsSeparator").hidden = !onMisspelling;
+  document.getElementById("spellCheckAddToDictionary").hidden = !onMisspelling;
+  let separator = document.getElementById("spellCheckAddSep");
+  separator.hidden = !onMisspelling;
+  document.getElementById("spellCheckNoSuggestions").hidden = !onMisspelling ||
+      spellchecker.addSuggestionsToMenu(popup, separator, 5);
+
+  let dictMenu = document.getElementById("spellCheckDictionariesMenu");
+  let dictSep = document.getElementById("spellCheckLanguageSeparator");
+  spellchecker.addDictionaryListToMenu(dictMenu, dictSep);
+
+  document.getElementById("spellCheckEnable")
+          .setAttribute("checked", spellchecker.enabled);
+  document.getElementById("spellCheckDictionaries")
+          .setAttribute("hidden", !spellchecker.enabled);
+
+  goUpdateCommand("cmd_undo");
+  goUpdateCommand("cmd_copy");
+  goUpdateCommand("cmd_cut");
+  goUpdateCommand("cmd_paste");
+  goUpdateCommand("cmd_selectAll");
+}
+
+function clearChatContextMenu(popup) {
+  let conv = chatHandler._getActiveConvView();
+  let spellchecker = conv.spellchecker;
+  spellchecker.clearDictionaryListFromMenu();
+  spellchecker.clearSuggestionsFromMenu();
+}
+
+// This function modifies gChatSpellChecker and updates the UI accordingly. It's
+// called when the user clicks on context menu to toggle the spellcheck feature.
+function enableInlineSpellCheck(aEnableInlineSpellCheck) {
+  gChatSpellChecker.enabled = aEnableInlineSpellCheck;
+  document.getElementById("spellCheckEnable")
+          .setAttribute("checked", aEnableInlineSpellCheck);
+  document.getElementById("spellCheckDictionaries")
+          .setAttribute("hidden", !aEnableInlineSpellCheck);
+}
 
 function buddyListContextMenu(aXulMenu) {
   this.target = aXulMenu.triggerNode;
@@ -685,6 +742,14 @@ var chatHandler = {
         item.convView = conv;
         document.getElementById("contextSplitter").hidden = false;
         document.getElementById("contextPane").hidden = false;
+        conv.addEventListener("contextmenu", (e) => {
+          // Stash away the original event's parent and range for later use.
+          gRangeParent = e.rangeParent;
+          gRangeOffset = e.rangeOffset;
+          let popup = document.getElementById("chatContextMenu");
+          popup.openPopupAtScreen(e.screenX, e.screenY, true);
+          e.preventDefault();
+        });
       } else {
         item.convView.onConvResize();
       }
