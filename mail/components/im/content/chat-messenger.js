@@ -750,6 +750,21 @@ var chatHandler = {
           popup.openPopupAtScreen(e.screenX, e.screenY, true);
           e.preventDefault();
         });
+
+        // Set "mail editor mask" so changing the language doesn't
+        // affect the global preference and multiple chats can have
+        // individual languages.
+        conv.editor.editor.flags |= Ci.nsIPlaintextEditor.eEditorMailMask;
+
+        // Initialise language to the default.
+        conv.editor.setAttribute("lang",
+          Services.prefs.getStringPref("spellchecker.dictionary"));
+
+        // Attach listener so we hear about language changes.
+        document.addEventListener("spellcheck-changed", (e) => {
+          let conv = chatHandler._getActiveConvView();
+          conv.editor.setAttribute("lang", e.detail.dictionary);
+        });
       } else {
         item.convView.onConvResize();
       }
