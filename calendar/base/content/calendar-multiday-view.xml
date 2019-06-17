@@ -1185,8 +1185,7 @@
             // scrollbar.
             let diffStart, diffEnd;
             let orient = event.target.getAttribute("orient");
-            let scrollbox = document.getAnonymousElementByAttribute(
-                           event.target, "anonid", "scrollbox");
+            let scrollbox = currentView().scrollbox;
             let boundingRect = scrollbox.getBoundingClientRect();
             if (orient == "vertical") {
                 diffStart = event.clientY - boundingRect.y;
