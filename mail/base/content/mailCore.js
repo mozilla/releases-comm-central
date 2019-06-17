@@ -494,7 +494,9 @@ function openAddonsMgr(aView) {
  * @option aURL  Chrome URL for the preferences XUL file of the addon.
  */
 function openAddonPrefs(aURL, aOptionsType) {
-  if (aOptionsType == "tab") {
+  if (aOptionsType == "addons") {
+    openAddonsMgr(aURL);
+  } else if (aOptionsType == "tab") {
     switchToTabHavingURI(aURL, true);
   } else {
     let instantApply = Services.prefs

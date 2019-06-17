@@ -3274,12 +3274,20 @@ async function initAddonPrefsMenu(parent,
     if (addon.userDisabled || addon.appDisabled || addon.softDisabled) {
       continue;
     }
-    if (addon.optionsURL && (addon.optionsType === null || addon.optionsType == 3)) {
-      addonsFound.push({
-        addon,
-        optionsURL: addon.optionsURL,
-        optionsOpenInTab: addon.optionsType == 3,
-      });
+    if (addon.optionsURL) {
+      if (addon.optionsType == 5) {
+        addonsFound.push({
+          addon,
+          optionsURL: `addons://detail/${encodeURIComponent(addon.id)}/preferences`,
+          optionsOpenInAddons: true,
+        });
+      } else if (addon.optionsType === null || addon.optionsType == 3) {
+        addonsFound.push({
+          addon,
+          optionsURL: addon.optionsURL,
+          optionsOpenInTab: addon.optionsType == 3,
+        });
+      }
     }
     if (ExtensionSupport.loadedLegacyExtensions.has(addon.id) ||
         ExtensionSupport.loadedBootstrapExtensions.has(addon.id)) {
@@ -3301,12 +3309,14 @@ async function initAddonPrefsMenu(parent,
   // above works on Windows and Linux but doesn't work on Mac, see bug 1419145.
   if (addonsFound.length > 0) {
     addonsFound.sort((a, b) => a.addon.name.localeCompare(b.addon.name));
-    for (let { addon, optionsURL, optionsOpenInTab } of addonsFound) {
+    for (let { addon, optionsURL, optionsOpenInTab, optionsOpenInAddons } of addonsFound) {
       let newItem = document.createXULElement(elementName);
       newItem.setAttribute("label", addon.name);
       newItem.setAttribute("value", optionsURL);
       if (optionsOpenInTab) {
         newItem.setAttribute("optionsType", "tab");
+      } else if (optionsOpenInAddons) {
+        newItem.setAttribute("optionsType", "addons");
       }
       let iconURL = addon.iconURL || addon.icon64URL;
       if (iconURL) {
