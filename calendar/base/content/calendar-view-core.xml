@@ -337,7 +337,6 @@
               this.editingTimer = setTimeout(() => this.startEditing(), 350);
           } else {
               this.select(event);
-              event.stopPropagation();
           }
       ]]></handler>
 
