@@ -113,7 +113,7 @@ class Overlays {
       let styledNodes = doc.evaluate("//*[@style]", doc, null, 7, null);
       for (let i = 0, len = styledNodes.snapshotLength; i < len; ++i) {
         let node = styledNodes.snapshotItem(i);
-        node.style.display = node.style.display;
+        node.style.display = node.style.display;  // eslint-disable-line no-self-assign
       }
 
       // Load css styles from the registry
