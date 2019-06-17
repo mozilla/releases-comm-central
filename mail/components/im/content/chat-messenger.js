@@ -742,7 +742,7 @@ var chatHandler = {
         item.convView = conv;
         document.getElementById("contextSplitter").hidden = false;
         document.getElementById("contextPane").hidden = false;
-        conv.addEventListener("contextmenu", (e) => {
+        conv.editor.addEventListener("contextmenu", (e) => {
           // Stash away the original event's parent and range for later use.
           gRangeParent = e.rangeParent;
           gRangeOffset = e.rangeOffset;
