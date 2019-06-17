@@ -438,7 +438,7 @@ calendar-event-box {
 calendar-month-day-box-item[selected="true"] .calendar-color-box,
 calendar-event-box[selected="true"] .calendar-color-box,
 calendar-editable-item[selected="true"] .calendar-color-box {
-    color: var(--viewColor) !important;
+    color: #000 !important;
     background-color: #FDF5A0 !important;
     box-shadow: 1px 2px 5px rgba(30, 20, 0, 0.6);
 }
