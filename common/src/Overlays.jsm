@@ -108,6 +108,14 @@ class Overlays {
         node.remove();
       }
 
+      // Force a re-evaluation of inline styles to work around an issue
+      // causing inline styles to be initially ignored.
+      let styledNodes = doc.evaluate("//*[@style]", doc, null, 7, null);
+      for (let i = 0, len = styledNodes.snapshotLength; i < len; ++i) {
+        let node = styledNodes.snapshotItem(i);
+        node.style.display = node.style.display;
+      }
+
       // Load css styles from the registry
       for (let sheet of this.overlayProvider.style.get(url, false)) {
         unloadedSheets.push(sheet);
