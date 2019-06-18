@@ -282,18 +282,12 @@ agenda-allday-richlist-item {
 
 .agenda-container-box {
   border-bottom: 1px dotted #C0C0C0;
-  margin-inline-start: 4px;
-  margin-inline-end: 4px;
-  padding-top: 2px;
-  padding-bottom: 2px;
+  padding: 2px 4px;
 }
 
 .agenda-allday-container-box {
   border-bottom: 1px dotted #C0C0C0;
-  margin-inline-start: 4px;
-  margin-inline-end: 4px;
-  padding-top: 4px;
-  padding-bottom: 4px;
+  padding: 4px;
 }
 
 .agenda-container-box[selected="true"],
