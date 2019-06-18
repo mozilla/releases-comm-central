@@ -17,6 +17,9 @@ var kHostnames = new Map([
   ["imap.mail.ru", ["o2.mail.ru", "mail.imap"]],
   ["smtp.mail.ru", ["o2.mail.ru", "mail.imap"]],
 
+  ["imap.yandex.com", ["oauth.yandex.com", "mail:imap_full"]],
+  ["smtp.yandex.com", ["oauth.yandex.com", "mail:smtp"]],
+
   ["imap.mail.yahoo.com", ["login.yahoo.com", "mail-w"]],
   ["smtp.mail.yahoo.com", ["login.yahoo.com", "mail-w"]],
 
@@ -43,6 +46,12 @@ var kIssuers = new Map([
     "I0dCAXrcaNFujaaY",
     "https://o2.mail.ru/login",
     "https://o2.mail.ru/token",
+  ]],
+  ["oauth.yandex.com", [
+    "2a00bba7374047a6ab79666485ffce31",
+    "3ded85b4ec574c2187a55dc49d361280",
+    "https://oauth.yandex.com/authorize",
+    "https://oauth.yandex.com/token",
   ]],
   ["login.yahoo.com", [
     "dj0yJmk9NUtCTWFMNVpTaVJmJmQ9WVdrOVJ6UjVTa2xJTXpRbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD0yYw--",
