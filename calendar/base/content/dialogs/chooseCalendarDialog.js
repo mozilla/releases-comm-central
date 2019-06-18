@@ -54,13 +54,13 @@ function loadCalendars() {
     }
 
     // this button is the default action
-    let accept = document.getAnonymousElementByAttribute(document.documentElement, "dlgtype", "accept");
+    let accept = document.documentElement.getButton("accept");
     if (window.arguments[0].labelOk) {
         accept.setAttribute("label", window.arguments[0].labelOk);
         accept.removeAttribute("hidden");
     }
 
-    let extra1 = document.getAnonymousElementByAttribute(document.documentElement, "dlgtype", "extra1");
+    let extra1 = document.documentElement.getButton("extra1");
     if (window.arguments[0].labelExtra1) {
         extra1.setAttribute("label", window.arguments[0].labelExtra1);
         extra1.removeAttribute("hidden");
