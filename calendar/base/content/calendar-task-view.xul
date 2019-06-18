@@ -102,7 +102,7 @@
                            hidden="true"/>
                     <hbox id="other-actions-box" align="end" flex="1" pack="end">
                       <vbox id="task-actions-toolbox">
-                        <hbox id="task-actions-toolbar">
+                        <hbox id="task-actions-toolbar" class="toolbar">
                           <toolbarbutton id="task-actions-category"
                                          type="menu"
                                          label="&calendar.unifinder.tree.categories.label;"

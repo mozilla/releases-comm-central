@@ -125,7 +125,7 @@
   list-style-image: none; /* overrides the rule from primaryToolbar.css */
 }
 
-.toolbarbutton-1.msgHeaderView-button,
+.toolbarbutton-1.msgHeaderView-button:not([type="menu-button"]),
 .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
 .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker {
   background: var(--toolbarbutton-hover-background);
@@ -136,7 +136,7 @@
 .toolbarbutton-menubutton-button,
 .toolbarbutton-1.msgHeaderView-button:not([disabled=true]):-moz-any(:hover,[open]) >
 .toolbarbutton-menubutton-dropmarker,
-.toolbarbutton-1.msgHeaderView-button:not([disabled=true]):not([checked=true]):not([open]):not(:active):hover,
+.toolbarbutton-1.msgHeaderView-button:not([type="menu-button"]):not([disabled=true]):not([checked=true]):not([open]):not(:active):hover,
 .toolbarbutton-1.msgHeaderView-button:not([buttonover]):not([open]):not(:active):hover >
 .toolbarbutton-menubutton-dropmarker:not([disabled]) {
   background: var(--toolbarbutton-active-background);

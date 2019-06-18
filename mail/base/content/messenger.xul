@@ -479,7 +479,7 @@
               <sidebarheader id="folderPaneHeader" hidden="true" align="center"/>
               <vbox id="folderPane-toolbox">
                 <hbox id="folderPane-toolbar"
-                      class="inline-toolbar"
+                      class="inline-toolbar toolbar"
                       toolboxid="mail-toolbox"
                       toolbarname="&folderPaneBar.label;"
                       accesskey="&folderPaneBar.accesskey;"

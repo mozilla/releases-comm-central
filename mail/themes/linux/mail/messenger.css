@@ -92,6 +92,7 @@ toolbar[brighttext] {
   --toolbarbutton-checkedhover-backgroundcolor: var(--lwt-toolbarbutton-hover-background, rgba(0, 0, 0, .2));
 }
 
+.toolbar[brighttext],
 .contentTabToolbox[brighttext],
 #header-view-toolbar[brighttext],
 #ab-toolbox > toolbar[brighttext],
@@ -99,8 +100,7 @@ toolbar[brighttext] {
 #event-toolbox > toolbar[brighttext],
 #compose-toolbox > toolbar[brighttext],
 #headers-box > toolbar[brighttext],
-#FormatToolbox > toolbar[brighttext],
-:root[lwt-tree-brighttext] #folderPane-toolbar {
+#FormatToolbox > toolbar[brighttext] {
   --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .25));
   --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .5));
   --toolbarbutton-header-bordercolor: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .25));

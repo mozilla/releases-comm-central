@@ -7,7 +7,7 @@
 .lightning-notification-bar {
     background-color: #baeeff;
     padding: 6px 8px;
-    color: -moz-dialogtext;
+    color: #000;
 }
 
 #calendarContent:-moz-lwtheme {

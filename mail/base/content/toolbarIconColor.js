@@ -63,6 +63,7 @@ var ToolbarIconColor = {
     if (AppConstants.platform == "macosx") {
       toolbarSelector += ":not([type=menubar])";
     }
+    toolbarSelector += ", .toolbar";
 
     for (let toolbar of document.querySelectorAll(toolbarSelector)) {
       let [r, g, b] = parseRGB(getComputedStyle(toolbar).color);

@@ -6,7 +6,7 @@
 
 .lightning-notification-bar {
   background-color: #baeeff;
-  color: -moz-dialogtext;
+  color: #000;
   border-bottom: 1px solid ThreeDDarkShadow;
   padding: 3px;
 }
@@ -65,6 +65,10 @@
 
 #calMinimonthBox {
     margin-top: 3px;
+}
+
+#imip-view-toolbar {
+  color: -moz-dialogText;
 }
 
 /* ::: imip button icons ::: */

@@ -6,7 +6,7 @@
 
 .lightning-notification-bar {
     background-color: #baeeff;
-    color: -moz-dialogtext;
+    color: #000;
     border-bottom: 1px solid ThreeDDarkShadow;
     padding: 3px;
 }
@@ -70,6 +70,10 @@
 
 #today-splitter.calendar-sidebar-splitter:-moz-lwtheme {
   background-image: none;
+}
+
+#imip-view-toolbar {
+  color: -moz-dialogText;
 }
 
 @media (-moz-windows-default-theme) {
