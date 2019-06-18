@@ -433,7 +433,7 @@
                        disable-on-readonly="true"
                        hyperlink="true"
                        flex="1"
-                       onclick="updateRepeat()"/>
+                       onclick="if (onLoad.hasLoaded) { updateRepeat(); }"/>
             </vbox>
           </deck>
         </hbox>
