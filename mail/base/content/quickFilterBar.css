@@ -68,9 +68,18 @@
   display: none;
 }
 
-#threadTree[filterActive="nomatches"] > .tree-stack {
-  background: url("chrome://messenger/skin/icons/search-not-found.svg") no-repeat center;
+#threadTree[filterActive] {
+  background-repeat: no-repeat;
+  background-position: center;
   -moz-context-properties: fill, fill-opacity;
   fill: currentColor;
   fill-opacity: .3;
+}
+
+#threadTree[filterActive="nomatches"] {
+  background-image: url("chrome://messenger/skin/icons/search-not-found.svg");
+}
+
+#threadTree[filterActive="searching"] {
+  background-image: url("chrome://messenger/skin/icons/search-spinner.svg");
 }

@@ -1,0 +1,9 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120" width="100px" height="120px">
+  <circle fill="none" stroke="context-fill" stroke-opacity="context-fill-opacity" stroke-width="10" stroke-dasharray="36" cx="50" cy="70" r="45">
+    <animateTransform attributeName="transform" type="rotate" from="0 50 70" to="360 50 70" dur="2s" repeatCount="indefinite"/>
+  </circle>
+</svg>
