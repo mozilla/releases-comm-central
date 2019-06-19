@@ -418,6 +418,9 @@ pref("browser.safebrowsing.reportPhishURL", "https://%LOCALE%.phish-report.mozil
 // prevent status-bar spoofing even if people are foolish enough to turn on JS
 pref("dom.disable_window_status_change",          true);
 
+// Disable client ID checking when creating storage (see bug 1557233).
+pref("dom.storage.client_validation", false);
+
 // If a message is opened using Enter or a double click, what should we do?
 // 0 - open it in a new window
 // 1 - open it in an existing window
