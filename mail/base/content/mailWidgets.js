@@ -666,7 +666,7 @@ customElements.whenDefined("menulist").then(() => {
       // presented on XULComboboxAccessible generated from <menulist>;
       // hide these nodes from the accessibility tree.
       return document.importNode(MozXULElement.parseXULToFragment(`
-        <textbox class="menulist-input" allowevents="true" flex="1" role="none"/>
+        <textbox class="menulist-input" allowevents="true" flex="1"/>
         <hbox class="menulist-label-box" flex="1" role="none">
           <image class="menulist-icon" role="none"/>
           <label class="menulist-label" crop="right" flex="1" role="none"/>

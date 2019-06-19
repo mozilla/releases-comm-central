@@ -779,6 +779,11 @@
 
             this.initializeAttributeInheritance();
 
+            this.addEventListener("keydown", (event) => {
+                if (event.key == "Escape") {
+                    this._popup.hidePopup();
+                }
+            });
             this._menulist.addEventListener("change", (event) => {
                 event.stopPropagation();
 
