@@ -67,7 +67,7 @@
   background-color: -moz-Dialog;
 }
 
-.statusMessage[editing] {
+.statusMessageInput[editing] {
   color: -moz-dialogtext;
   margin: 28px 0 -1px -2px;
 }

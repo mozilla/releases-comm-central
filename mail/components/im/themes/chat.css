@@ -447,12 +447,12 @@ richlistitem[state="disconnected"] .accountStateIcon {
   list-style-image: url('chrome://chat/skin/typed-16.png');
 }
 
-.statusMessage {
+.statusMessage, .statusMessageInput {
   margin: 32px 0 0;
   min-height: 16px;
 }
 
-.statusMessage[noTopic]:not([editing]),
+.statusMessageInput[noTopic]:not([editing]),
 .statusMessageWithDash[noTopic] {
   font-style: italic;
 }

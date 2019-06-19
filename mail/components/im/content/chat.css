@@ -62,11 +62,11 @@ tooltip[type="im"] {
   width: 15em;
 }
 
-#statusMessage:not([statusType="offline"]):not([disabled]), .statusMessage[editable] {
+#statusMessage:not([statusType="offline"]):not([disabled]), .statusMessageInput[editable] {
   cursor: text;
 }
 
-#statusMessage[editing], .statusMessage[editing] {
+#statusMessage[editing], .statusMessageInput[editing] {
   -moz-appearance: textfield;
 }
 

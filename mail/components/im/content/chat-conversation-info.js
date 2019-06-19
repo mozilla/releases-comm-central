@@ -36,6 +36,7 @@ class MozChatConversationInfo extends MozXULElement {
       ".displayName": "value=displayName",
       ".prplIcon": "src=prplIcon",
       ".statusMessage": "value=statusMessage,tooltiptext=statusTooltiptext,editable=topicEditable,editing,noTopic",
+      ".statusMessageInput": "value=statusMessage,tooltiptext=statusTooltiptext,editable=topicEditable,editing,noTopic",
     };
   }
 
@@ -63,8 +64,8 @@ class MozChatConversationInfo extends MozXULElement {
             </description>
             <image class="prplIcon"></image>
           </hbox>
-          <description class="statusMessage" mousethrough="never" crop="end" flex="100000">
-          </description>
+          <description class="statusMessage" mousethrough="never" crop="end" flex="100000"/>
+          <textbox class="statusMessageInput" mousethrough="never" crop="end" flex="100000" collapsed="true"/>
         </stack>
       </hbox>
       <hbox class="otr-container" align="left" valign="middle" hidden="true">
@@ -102,6 +103,10 @@ class MozChatConversationInfo extends MozXULElement {
     return this.querySelector(".statusMessage");
   }
 
+  get topicInput() {
+    return this.querySelector(".statusMessageInput");
+  }
+
   finishEditTopic(save) {
     if (!this.hasAttribute("editing")) {
       return;
@@ -109,17 +114,20 @@ class MozChatConversationInfo extends MozXULElement {
 
     let panel = document.getElementById("conversationsDeck").selectedPanel;
 
-    let elt = this.topic;
+    let topic = this.topic;
+    let topicInput = this.topicInput;
+    topic.setAttribute("collapsed", "false");
+    topicInput.setAttribute("collapsed", "true");
     if (save) {
       // apply the new topic only if it is different from the current one
-      if (elt.value != elt.getAttribute("value")) {
-        panel._conv.topic = elt.value;
+      if (topicInput.value != topicInput.getAttribute("value")) {
+        panel._conv.topic = topicInput.value;
       }
     }
     this.removeAttribute("editing");
-    elt.removeEventListener("keypress", this._topicKeyPress, true);
+    topicInput.removeEventListener("keypress", this._topicKeyPress, true);
     delete this._topicKeyPress;
-    elt.removeEventListener("blur", this._topicBlur);
+    topicInput.removeEventListener("blur", this._topicBlur);
     delete this._topicBlur;
 
     // After removing the "editing" attribute, the focus is on an element
@@ -142,27 +150,32 @@ class MozChatConversationInfo extends MozXULElement {
   }
 
   topicBlur(event) {
-    if (event.originalTarget == this.topic.inputField) {
+    if (event.originalTarget == this.topicInput.inputField) {
       this.finishEditTopic(true);
     }
   }
 
   startEditTopic() {
-    let elt = this.topic;
-    if (!elt.hasAttribute("editable") || this.hasAttribute("editing")) {
+    let topic = this.topic;
+    let topicInput = this.topicInput;
+    if (!topic.hasAttribute("editable") || this.hasAttribute("editing")) {
       return;
     }
 
     this.setAttribute("editing", "true");
+    topicInput.setAttribute("collapsed", "false");
+    topic.setAttribute("collapsed", "true");
     this._topicKeyPress = this.topicKeyPress.bind(this);
-    elt.addEventListener("keypress", this._topicKeyPress);
+    topicInput.addEventListener("keypress", this._topicKeyPress);
     this._topicBlur = this.topicBlur.bind(this);
-    elt.addEventListener("blur", this._topicBlur);
-    elt.getBoundingClientRect();
+    topicInput.addEventListener("blur", this._topicBlur);
+    topicInput.getBoundingClientRect();
     if (this.hasAttribute("noTopic")) {
-      elt.value = "";
+      topicInput.value = "";
+    } else {
+      topicInput.value = topic.value;
     }
-    elt.select();
+    topicInput.inputField.select();
   }
 
   otrButtonClicked(aEvent) {
