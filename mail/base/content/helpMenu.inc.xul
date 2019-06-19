@@ -28,7 +28,7 @@
           <menuitem id="donationsPage"
                     label="&helpDonationsPage.label;"
                     accesskey="&helpDonationsPage.accesskey;"
-                    oncommand="openLinkText(event, 'donationURL');"/>
+                    oncommand="openLinkText(event, 'donateURL');"/>
           <menuitem id="feedbackPage" hidden="true"
                     label="&helpFeedbackPage.label;"
                     accesskey="&helpFeedbackPage.accesskey;"
