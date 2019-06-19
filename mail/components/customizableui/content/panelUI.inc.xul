@@ -1373,8 +1373,10 @@
                class="PanelUI-subView"
                showFileHereLabel="true"
                showRecent="true"
+               showFavorites="true"
                command="cmd_goFolder"
-               recentLabel="&contextMoveCopyMsgRecentMenu.label;"/>
+               recentLabel="&contextMoveCopyMsgRecentMenu.label;"
+               favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"/>
 
     <!-- Go / Recently Closed Tabs -->
     <!-- Dynamically populated when shown. -->
