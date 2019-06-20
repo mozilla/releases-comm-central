@@ -11,22 +11,37 @@
   min-height: 3em;
 }
 
-#palette-box > toolbarpaletteitem {
-  width: 110px;
-  height: 94px;
-  overflow: hidden;
-  display: inline-block;
+toolbarpaletteitem {
+  -moz-window-dragging: no-drag;
+  -moz-box-pack: start;
 }
 
-.toolbarpaletteitem-box {
+toolbarpaletteitem[place="palette"] {
+  -moz-box-orient: vertical;
+  width: 10em;
+  max-width: 10em;
+  /* icon (16) + margin (9 + 12) + 4 lines of text: */
+  height: calc(39px + 4em);
+  margin-bottom: 5px;
+  margin-inline-end: 24px;
+  overflow: visible;
+  display: inline-block;
+  vertical-align: top;
+}
+
+toolbarpaletteitem[place=palette]::after {
+  content: attr(title);
+  display: block;
+  text-align: center;
+}
+
+toolbarpaletteitem > toolbarbutton,
+toolbarpaletteitem > toolbarseparator,
+toolbarpaletteitem > toolbaritem {
+  /* Prevent children from getting events */
+  pointer-events: none;
   -moz-box-pack: center;
   -moz-box-flex: 1;
-  width: 110px !important;
-  max-width: 110px;
-}
-
-toolbarpaletteitem > label {
-  text-align: center;
 }
 
 #main-box > box {

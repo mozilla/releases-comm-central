@@ -181,8 +181,8 @@ menubar > menu[disabled="true"]:-moz-lwtheme {
 
 /* ::::: Toolbar customization ::::: */
 
-.toolbarpaletteitem-box[type="spacer"],
-.toolbarpaletteitem-box[type="spring"] {
+toolbarpaletteitem[type="spacer"] toolbarspacer,
+toolbarpaletteitem[type="spring"] toolbarspring {
   border: 1px solid #808080;
   background-color: #fff !important;
 }
@@ -191,27 +191,25 @@ toolbarpaletteitem[place="toolbar"] > toolbarspacer {
   width: 11px;
 }
 
-.toolbarpaletteitem-box[type="spacer"][place="toolbar"],
-.toolbarpaletteitem-box[type="spring"][place="toolbar"] {
+toolbarpaletteitem[type="spacer"][place="toolbar"] toolbarspacer,
+toolbarpaletteitem[type="spring"][place="toolbar"] toolbarspring {
   margin-top: 2px;
   margin-bottom: 2px;
   margin-inline-start: 0;
   margin-inline-end: 2px;
 }
 
-.toolbarpaletteitem-box[type="separator"][place="palette"] {
+toolbarpaletteitem[type="separator"][place="palette"] toolbarseparator {
   width: 2px;
   height: 50px;
 }
 
-.toolbarpaletteitem-box[type="spacer"][place="palette"],
-.toolbarpaletteitem-box[type="spring"][place="palette"] {
+toolbarpaletteitem[type="spacer"][place="palette"] toolbarspacer,
+toolbarpaletteitem[type="spring"][place="palette"] toolbarspring {
   margin-bottom: 2px;
-  width: 50px;
-  height: 50px;
 }
 
-.toolbarpaletteitem-box[type="spring"][place="palette"] {
+toolbarpaletteitem[type="spring"][place="palette"] toolbarspring {
   background: url("chrome://messenger/skin/icons/spring.png") no-repeat center;
 }
 

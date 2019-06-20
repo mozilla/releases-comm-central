@@ -164,42 +164,36 @@ toolbar[brighttext] {
 
 /* ::::: Toolbar customization ::::: */
 
-.toolbarpaletteitem-box[type="spacer"] {
+toolbarpaletteitem[type="spacer"] toolbarspacer {
   border: 1px solid #a3a3a3;
   background-color: #eee;
-  width: 32px;
-  margin-top: 18px;
 }
 
-.toolbarpaletteitem-box[type="spring"] {
+toolbarpaletteitem[type="spring"] toolbarspring {
   border: 1px solid #a3a3a3;
   background: url("chrome://messenger/skin/icons/spring.png") #fff no-repeat;
-  width: 32px;
-  margin-top: 18px;
 }
 
-.toolbarpaletteitem-box[type="spring"][place="toolbar"] {
+toolbarpaletteitem[type="spring"][place="toolbar"] toolbarspring {
   background: #eee;
 }
 
-.toolbarpaletteitem-box[type="spacer"][place="toolbar"],
-.toolbarpaletteitem-box[type="spring"][place="toolbar"] {
+toolbarpaletteitem[type="spacer"][place="toolbar"] toolbarspacer,
+toolbarpaletteitem[type="spring"][place="toolbar"] toolbarspring {
   margin: 2px;
 }
 
-.toolbarpaletteitem-box[type="separator"][place="palette"] {
+toolbarpaletteitem[type="separator"][place="palette"] toolbarseparator {
   width: 2px;
-  height: 50px;
 }
 
-.toolbarpaletteitem-box[type="spacer"][place="palette"],
-.toolbarpaletteitem-box[type="spring"][place="palette"] {
+toolbarpaletteitem[type="spacer"][place="palette"] toolbarspacer,
+toolbarpaletteitem[type="spring"][place="palette"] toolbarspring {
   margin-top: 0;
   margin-bottom: 2px;
-  height: 32px;
 }
 
-.toolbarpaletteitem-box[type="spring"][place="palette"] {
+toolbarpaletteitem[type="spring"][place="palette"] toolbarspring {
   background-position: center;
   margin-left: 8px;
   margin-right: 8px;
