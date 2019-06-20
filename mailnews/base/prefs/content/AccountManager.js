@@ -716,15 +716,6 @@ function onAddAccount() {
   MsgAccountWizard();
 }
 
-function AddMailAccount() {
-  NewMailAccount(MailServices.mailSession.topmostMsgWindow);
-}
-
-function AddIMAccount() {
-  window.openDialog("chrome://messenger/content/chat/imAccountWizard.xul",
-                    "", "chrome,modal,titlebar,centerscreen");
-}
-
 /**
  * Highlight the default account row in the account tree,
  * optionally un-highlight the previous one.

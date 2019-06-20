@@ -208,6 +208,16 @@ function initAccountWizardTB(args) {
   }
 }
 
+function AddMailAccount() {
+  NewMailAccount(MailServices.mailSession.topmostMsgWindow);
+}
+
+function AddIMAccount() {
+  window.openDialog("chrome://messenger/content/chat/imAccountWizard.xul",
+                    "", "chrome,modal,titlebar,centerscreen");
+}
+
+
 function AddFeedAccount() {
   window.openDialog("chrome://messenger-newsblog/content/feedAccountWizard.xul",
                     "", "chrome,modal,titlebar,centerscreen");

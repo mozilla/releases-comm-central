@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../../mail/base/content/mailCore.js */
-/* import-globals-from ../prefs/content/AccountManager.js */
 /* import-globals-from ../prefs/content/accountUtils.js */
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -278,13 +277,13 @@ function CreateNewAccount() {
 
 function CreateNewAccountTB(type) {
   if (type == "mail") {
-  AddMailAccount();
-  return;
+    AddMailAccount();
+    return;
   }
 
   if (type == "feeds") {
-  AddFeedAccount();
-  return;
+    AddFeedAccount();
+    return;
   }
 
   window.parent.msgOpenAccountWizard(

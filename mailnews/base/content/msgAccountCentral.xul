@@ -23,7 +23,6 @@
                 src="chrome://messenger/locale/messenger.properties"/>
   <stringbundle id="bundle_prefs"
                 src="chrome://messenger/locale/prefs.properties"/>
-  <script src="chrome://messenger/content/AccountManager.js"/>
   <script src="chrome://messenger/content/accountUtils.js"/>
   <script src="chrome://messenger/content/commandglue.js"/>
   <script src="chrome://messenger/content/mailWindowOverlay.js"/>
