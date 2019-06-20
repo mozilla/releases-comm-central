@@ -52,8 +52,6 @@ var okCallback = null;
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-var contentWindow;
-
 var gPageData;
 
 var nsIMsgIdentity = Ci.nsIMsgIdentity;

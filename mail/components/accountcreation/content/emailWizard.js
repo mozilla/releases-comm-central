@@ -1554,16 +1554,7 @@ EmailConfigWizard.prototype = {
     gEmailWizardLogger.info("creating account in backend");
     let newAccount = createAccountInBackend(configFilledIn);
 
-    let existingAccountManager = Services.wm
-        .getMostRecentWindow("mailnews:accountmanager");
-    if (existingAccountManager) {
-      existingAccountManager.focus();
-    } else {
-      window.openDialog("chrome://messenger/content/AccountManager.xul",
-                        "AccountManager", "chrome,centerscreen,modal,titlebar",
-                        { server: newAccount.incomingServer,
-                          selectPage: "am-server.xul" });
-    }
+    MsgAccountManager("am-server.xul", newAccount.incomingServer);
     window.close();
   },
 

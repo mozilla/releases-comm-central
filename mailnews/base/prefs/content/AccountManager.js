@@ -37,12 +37,16 @@ var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {allAccountsSorted} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
 var {cleanUpHostName, isLegalHostNameOrIP} = ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
 
-document.addEventListener("dialogcancel", onNotAccept);
-document.addEventListener("dialogaccept", (event) => {
-  if (!onAccept(true)) {
-    event.preventDefault();
-  }
-});
+var inContent = !!document.getElementById("paneAccount");
+
+if (!inContent) {
+  document.addEventListener("dialogcancel", onNotAccept);
+  document.addEventListener("dialogaccept", (event) => {
+    if (!onAccept(true)) {
+      event.preventDefault();
+    }
+  });
+}
 
 // If Local directory has changed the app needs to restart. Once this is set
 // a restart will be attempted at each attempt to close the Account manager with OK.
@@ -120,9 +124,31 @@ function updateElementWithKeys(account, element, type) {
   }
 }
 
+
+
+
 // called when the whole document loads
 // perform initialization here
 function onLoad() {
+  accountArray = {};
+  gGenericAttributeTypes = {};
+
+  gAccountTree.load();
+
+  if (inContent) {
+    setTimeout(() => {
+      // If we are in a preferences tab, we didn't get arguments via "window",
+      // select the default server first.
+      selectServer(null, null);
+      let accountTree = document.getElementById("account-tree-children");
+      accountTree.dispatchEvent(
+        new CustomEvent("account-tree-loaded", { bubbles: true, cancelable: false })
+      );
+      accountTree.setAttribute("tree-loaded", "true");
+    }, 0);
+    return;
+  }
+
   var selectedServer;
   var selectPage = null;
 
@@ -134,22 +160,33 @@ function onLoad() {
     selectPage = window.arguments[0].selectPage;
   }
 
-  accountArray = {};
-  gGenericAttributeTypes = {};
-
-  gAccountTree.load();
-
-  setTimeout(selectServer, 0, selectedServer, selectPage);
-
   // Make sure the account manager window fits the screen.
   document.getElementById("accountManager").style.maxHeight =
     (window.screen.availHeight - 30) + "px";
+  setTimeout(selectServer, 0, selectedServer, selectPage);
 }
 
 function onUnload() {
   gAccountTree.unload();
 }
 
+/**
+ * Select a specific account in the account tree.
+ *
+ * @param serverKey     The server key of the account to select.
+ * @param selectPageId  The xul file name of a page to select (a subpanel of the account).
+ */
+function selectServerByKey(serverKey, selectPageId) {
+  let server = MailServices.accounts.getIncomingServer(serverKey);
+  selectServer(server, selectPageId);
+}
+
+/**
+ * Select a specific account in the account tree.
+ *
+ * @param server        The nsIMsgServer of the account to select.
+ * @param selectPageId  The xul file name of a page to select (a subpanel of the account).
+ */
 function selectServer(server, selectPageId) {
   let childrenNode = document.getElementById("account-tree-children");
 
@@ -223,31 +260,22 @@ function replaceWithDefaultSmtpServer(deletedSmtpServerKey) {
 }
 
 /**
- * Called when OK is clicked on the dialog.
+ * Called when all the changes should be really saved
+ * (e.g. OK was clicked in the dialog, or the Preferences tab closed).
  *
- * @param aDoChecks  If true, execute checks on data, otherwise hope they
- *                   were already done elsewhere and proceed directly to saving
- *                   the data.
+ * @param abortOnFailure  If true, return without saving if data checks didn't pass.
  */
-function onAccept(aDoChecks) {
-  if (aDoChecks) {
-    // Check if user/host have been modified correctly.
-    if (!checkUserServerChanges(true))
-      return false;
-
-    if (!checkAccountNameIsValid())
-      return false;
-  }
-
+function onAccept(abortOnFailure) {
   // Run checks as if the page was being left.
-  if ("onLeave" in top.frames.contentFrame) {
-    if (!top.frames.contentFrame.onLeave()) {
+  if (currentAccount && ("onLeave" in top.frames.contentFrame)) {
+    if (!top.frames.contentFrame.onLeave(!abortOnFailure)) {
       // Prevent closing Account manager if user declined the changes.
-      return false;
+      if (abortOnFailure)
+        return false;
     }
   }
 
-  if (!onSave())
+  if (!onSave() && abortOnFailure)
     return false;
 
   // hack hack - save the prefs file NOW in case we crash
@@ -256,7 +284,8 @@ function onAccept(aDoChecks) {
   if (gRestartNeeded) {
     gRestartNeeded = !BrowserUtils.restartApplication();
     // returns false so that Account manager is not exited when restart failed
-    return !gRestartNeeded;
+    if (abortOnFailure)
+      return !gRestartNeeded;
   }
 
   return true;
@@ -483,11 +512,10 @@ function checkDirectoryIsUsable(aLocalPath) {
 /**
  * Check if the user and/or host names have been changed and if so check
  * if the new names already exists for an account or are empty.
- * Also check if the Local Directory path was changed.
  *
- * @param showAlert  show and alert if a problem with the host / user name is found
+ * @param restoreValuesOnFailure  show and alert if a problem with the host / user name is found
  */
-function checkUserServerChanges(showAlert) {
+function checkUserServerChanges(restoreValuesOnFailure) {
   const prefBundle = document.getElementById("bundle_prefs");
   const alertTitle = prefBundle.getString("prefPanel-server");
   var alertText = null;
@@ -506,7 +534,9 @@ function checkUserServerChanges(showAlert) {
   var typeElem = getPageFormElement("server.type");
   var hostElem = getPageFormElement("server.realHostName");
   var userElem = getPageFormElement("server.realUsername");
-  if (typeElem && userElem && hostElem) {
+  if (!typeElem || !userElem || !hostElem)
+    return true;
+
   var newType = getFormElementValue(typeElem);
   var oldHost = getAccountValue(currentAccount, accountValues, "server", "realHostName",
                                 null, false);
@@ -521,6 +551,7 @@ function checkUserServerChanges(showAlert) {
     oldUser = newUser = "";
     checkUser = false;
   }
+
   alertText = null;
   // If something is changed then check if the new user/host already exists.
   if ((oldUser != newUser) || (oldHost != newHost)) {
@@ -543,50 +574,61 @@ function checkUserServerChanges(showAlert) {
     }
 
     if (alertText) {
-      if (showAlert)
-        Services.prompt.alert(window, alertTitle, alertText);
-      // Restore the old values before return
-      if (checkUser)
-        setFormElementValue(userElem, oldUser);
-      setFormElementValue(hostElem, oldHost);
-      // If no message is shown to the user, silently revert the values
-      // and consider the check a success.
-      return !showAlert;
+      Services.prompt.alert(window, alertTitle, alertText);
+      if (restoreValuesOnFailure) {
+        // Restore the old values before return
+        if (checkUser)
+          setFormElementValue(userElem, oldUser);
+        setFormElementValue(hostElem, oldHost);
+        // If no message is shown to the user, silently revert the values
+        // and consider the check a success.
+      }
+      return false;
     }
 
     // If username is changed remind users to change Your Name and Email Address.
     // If server name is changed and has defined filters then remind users
     // to edit rules.
-    if (showAlert) {
-      let filterList;
-      if (currentServer && checkUser) {
-        filterList = currentServer.getEditableFilterList(null);
-      }
-      let changeText = "";
-      if ((oldHost != newHost) &&
-          (filterList != undefined) && filterList.filterCount)
-        changeText = prefBundle.getString("serverNameChanged");
-      // In the event that oldHost == newHost or oldUser == newUser,
-      // the \n\n will be trimmed off before the message is shown.
-      if (oldUser != newUser)
-        changeText = changeText + "\n\n" + prefBundle.getString("userNameChanged");
-
-      if (changeText != "")
-        Services.prompt.alert(window, alertTitle, changeText.trim());
+    let filterList;
+    if (currentServer && checkUser) {
+      filterList = currentServer.getEditableFilterList(null);
     }
+    let changeText = "";
+    if ((oldHost != newHost) &&
+        (filterList != undefined) && filterList.filterCount > 0)
+      changeText = prefBundle.getString("serverNameChanged");
+    // In the event that oldHost == newHost or oldUser == newUser,
+    // the \n\n will be trimmed off before the message is shown.
+    if (oldUser != newUser)
+      changeText = changeText + "\n\n" + prefBundle.getString("userNameChanged");
+
+    if (changeText != "")
+      Services.prompt.alert(window, alertTitle, changeText.trim());
   }
-  }
+  return true;
+}
+
+/**
+ * Check if the Local Directory path was changed.
+ */
+function checkLocalPathChanges(restoreValuesOnFailure) {
+  var accountValues = getValueArrayFor(currentAccount);
+  if (!accountValues)
+    return true;
 
   // Check the new value of the server.localPath field for validity.
   var pathElem = getPageFormElement("server.localPath");
   if (!pathElem)
     return true;
 
+  const prefBundle = document.getElementById("bundle_prefs");
+  const alertTitle = prefBundle.getString("prefPanel-server");
+
   if (!checkDirectoryIsUsable(getFormElementValue(pathElem))) {
 //          return false; // Temporarily disable this. Just show warning but do not block. See bug 921371.
-          Cu.reportError("Local directory '" +
-            getFormElementValue(pathElem).path + "' of account " +
-            currentAccount.key + " is not safe to use. Consider changing it.");
+    Cu.reportError("Local directory '" +
+        getFormElementValue(pathElem).path + "' of account " +
+        currentAccount.key + " is not safe to use. Consider changing it.");
   }
 
   // Warn if the Local directory path was changed.
@@ -596,7 +638,7 @@ function checkUserServerChanges(showAlert) {
   let newLocalDir = getFormElementValue(pathElem);
   if (oldLocalDir && newLocalDir && (oldLocalDir.path != newLocalDir.path)) {
     let brandName = document.getElementById("bundle_brand").getString("brandShortName");
-    alertText = prefBundle.getFormattedString("localDirectoryChanged", [brandName]);
+    let alertText = prefBundle.getFormattedString("localDirectoryChanged", [brandName]);
 
     let cancel = Services.prompt.confirmEx(window, alertTitle, alertText,
       (Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING) +
@@ -604,7 +646,7 @@ function checkUserServerChanges(showAlert) {
       prefBundle.getString("localDirectoryRestart"), null, null, null, {});
     if (cancel) {
       setFormElementValue(pathElem, oldLocalDir);
-      return false;
+      return true;
     }
     gRestartNeeded = true;
   }
@@ -615,8 +657,12 @@ function checkUserServerChanges(showAlert) {
 /**
  * If account name is not valid, alert the user.
  */
-function checkAccountNameIsValid() {
+function checkAccountNameIsValid(restoreValuesOnFailure) {
   if (!currentAccount)
+    return true;
+
+  let accountValues = getValueArrayFor(currentAccount);
+  if (!accountValues)
     return true;
 
   const prefBundle = document.getElementById("bundle_prefs");
@@ -625,6 +671,8 @@ function checkAccountNameIsValid() {
   let serverNameElem = getPageFormElement("server.prettyName");
   if (serverNameElem) {
     let accountName = getFormElementValue(serverNameElem);
+    let oldName = getAccountValue(currentAccount, accountValues, "server", "prettyName",
+                                  null, false);
 
     if (!accountName)
       alertText = prefBundle.getString("accountNameEmpty");
@@ -634,6 +682,10 @@ function checkAccountNameIsValid() {
     if (alertText) {
       const alertTitle = prefBundle.getString("accountWizard");
       Services.prompt.alert(window, alertTitle, alertText);
+      if (restoreValuesOnFailure) {
+        // Restore the old values before return.
+        setFormElementValue(serverNameElem, oldName);
+      }
       return false;
     }
   }
@@ -1021,31 +1073,11 @@ function onAccountTreeSelect(pageId, account) {
     account = ("_account" in node) ? node._account : null;
 
     pageId = node.getAttribute("PageTag");
+    changeView = true;
   }
 
   if (pageId == currentPageId && account == currentAccount)
     return true;
-
-  if (document.getElementById("contentFrame").contentDocument.getElementById("server.localPath")) {
-    // Check if user/host names have been changed or the Local Directory is invalid.
-    if (!checkUserServerChanges(false)) {
-      changeView = true;
-      account = currentAccount;
-      pageId = currentPageId;
-    }
-
-    if (gRestartNeeded)
-      onAccept(false);
-  }
-
-  if (document.getElementById("contentFrame").contentDocument.getElementById("server.prettyName")) {
-    // Check if account name is valid.
-    if (!checkAccountNameIsValid()) {
-      changeView = true;
-      account = currentAccount;
-      pageId = currentPageId;
-    }
-  }
 
   if (currentPageId) {
     // Change focus to the account tree first so that any 'onchange' handlers
@@ -1054,17 +1086,25 @@ function onAccountTreeSelect(pageId, account) {
     tree.focus();
   }
 
-  // Provide opportunity to do cleanups or checks when the current page is being left.
-  if ("onLeave" in top.frames.contentFrame)
-    top.frames.contentFrame.onLeave();
+  // Provide opportunity to do cleanups and checks when the current page is being left.
+  if (currentAccount && ("onLeave" in top.frames.contentFrame)) {
+    if (!top.frames.contentFrame.onLeave()) {
+      changeView = false;
+    }
+  }
+
+  if (!changeView) {
+    selectServer(currentAccount.incomingServer, currentPageId);
+    return true;
+  }
 
   // save the previous page
   savePage(currentAccount);
 
-  let changeAccount = (account != currentAccount);
+  if (gRestartNeeded)
+    onAccept(false);
 
-  if (changeView)
-    selectServer(account.incomingServer, pageId);
+  let changeAccount = (account != currentAccount);
 
   if (pageId != currentPageId) {
     // loading a complete different page
@@ -1089,10 +1129,10 @@ function onAccountTreeSelect(pageId, account) {
 // page has loaded
 function onPanelLoaded(pageId) {
   if (pageId != pendingPageId) {
-    // if we're reloading the current page, we'll assume the
+    // If we're reloading the current page, we'll assume the
     // page has asked itself to be completely reloaded from
-    // the prefs. to do this, clear out the the old entry in
-    // the account data, and then restore theh page
+    // the prefs. To do this, clear out the the old entry in
+    // the account data, and then restore the page.
     if (pageId == currentPageId) {
       var serverId = currentAccount ?
                      currentAccount.incomingServer.serverURI :
@@ -1486,6 +1526,7 @@ var gAccountTree = {
 
     let mainTree = document.getElementById("account-tree-children");
     // Clear off all children...
+    mainTree.removeAttribute("tree-built");
     while (mainTree.hasChildNodes())
       mainTree.lastChild.remove();
 
@@ -1618,5 +1659,12 @@ var gAccountTree = {
     treeitem.setAttribute("PageTag", "am-smtp.xul");
     treecell.setAttribute("properties",
                           "folderNameCol isServer-true serverType-smtp");
+
+    mainTree.setAttribute("tree-built", "true");
+    // We need to notify the caller that the account tree is built so that
+    // it can now select a specific account if needed.
+    mainTree.dispatchEvent(
+      new CustomEvent("account-tree-built", { bubbles: true, cancelable: false })
+    );
   },
 };

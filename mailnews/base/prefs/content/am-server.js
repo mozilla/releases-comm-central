@@ -120,6 +120,11 @@ function onPreInit(account, accountValues) {
   }
 }
 
+function onLeave(restoreValuesOnFailure) {
+  return (top.checkUserServerChanges(restoreValuesOnFailure) &&
+          top.checkLocalPathChanges(restoreValuesOnFailure));
+}
+
 function initServerType() {
   var serverType = document.getElementById("server.type").getAttribute("value");
   var propertyName = "serverType-" + serverType;

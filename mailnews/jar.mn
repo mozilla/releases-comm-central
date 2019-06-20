@@ -15,7 +15,9 @@ messenger.jar:
     content/messenger/addressbook/abMailListDialog.js                          (addrbook/content/abMailListDialog.js)
     content/messenger/addressbook/map-list.js                                  (addrbook/content/map-list.js)
     content/messagebody/addressbook/print.css                                  (addrbook/content/print.css)
-*   content/messenger/AccountManager.xul                                       (base/prefs/content/AccountManager.xul)
+#ifdef MOZ_SUITE
+    content/messenger/AccountManager.xul                                       (base/prefs/content/AccountManager.xul)
+#endif
     content/messenger/AccountManager.js                                        (base/prefs/content/AccountManager.js)
     content/messenger/am-main.xul                                              (base/prefs/content/am-main.xul)
     content/messenger/am-main.js                                               (base/prefs/content/am-main.js)

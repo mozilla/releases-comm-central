@@ -45,7 +45,8 @@
   <script src="chrome://messenger/content/accountcreation/exchangeAutoDiscover.js"/>
   <script src="chrome://messenger/content/accountcreation/createInBackend.js"/>
   <script src="chrome://messenger/content/accountcreation/MyBadCertHandler.js"/>
-  <script src="chrome://messenger/content/accountUtils.js" />
+  <script src="chrome://messenger/content/accountUtils.js"/>
+  <script src="chrome://communicator/content/utilityOverlay.js"/>
   <script src="chrome://messenger/content/customElements.js"/>
 
   <keyset id="mailKeys">

@@ -29,6 +29,13 @@ menulist.actionsMenu > .menulist-dropmarker {
   margin-bottom: 11px;
 }
 
+button[type="menu"] > .button-box > .button-menu-dropmarker {
+  margin-inline-end: 4px;
+  list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
 textbox[type="number"] {
   -moz-appearance: none;
   border: 1px solid var(--in-content-box-border-color);

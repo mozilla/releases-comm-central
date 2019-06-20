@@ -73,6 +73,11 @@ function onPreInit(account, accountValues) {
   gAccount = account;
 }
 
+function onLeave(restoreValuesOnFailure) {
+  return (top.checkAccountNameIsValid(restoreValuesOnFailure) &&
+          top.checkLocalPathChanges(restoreValuesOnFailure));
+}
+
 function onSave() {
   let storeContractID = document.getElementById("server.storeTypeMenulist")
                                 .selectedItem

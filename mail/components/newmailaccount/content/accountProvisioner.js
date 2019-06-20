@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// mailnews/base/prefs/content/accountUtils.js
+/* globals MsgAccountManager */
+
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
@@ -192,15 +195,7 @@ var EmailAccountProvisioner = {
     });
 
     document.getElementById("success-signature").addEventListener("click", function() {
-      var existingAccountManager =
-        Services.wm.getMostRecentWindow("mailnews:accountmanager");
-
-      if (existingAccountManager)
-        existingAccountManager.focus();
-      else
-        window.openDialog("chrome://messenger/content/AccountManager.xul",
-                          "AccountManager", "chrome,centerscreen,modal,titlebar",
-                          {server: account.incomingServer});
+      MsgAccountManager(null, account.incomingServer);
     });
 
     document.getElementById("window").style.display = "none";

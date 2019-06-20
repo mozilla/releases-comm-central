@@ -92,7 +92,11 @@ function showPane(paneID) {
 
   selector.value = paneID;
   pane.setAttribute("selected", "true");
-  pane.dispatchEvent(new CustomEvent("paneSelected", { bubbles: true }));
+  pane.dispatchEvent(new CustomEvent("paneSelected",
+    { bubbles: true,
+      detail: { oldPane: (currentlySelected ? currentlySelected.id : null),
+                newPane: paneID },
+    }));
 
   document.documentElement.setAttribute("lastSelected", paneID);
   Services.xulStore.persist(document.documentElement, "lastSelected");
@@ -122,15 +126,26 @@ function selectPaneAndTab(prefWindow, paneID, tabID, otherArgs) {
  * Select the specified tab
  *
  * @param pane         prefpane to operate on
- * @param tabID        ID of tab to select on the prefpane
+ * @param tabID        ID of tab to select on the prefpane (or server for AM)
  * @param subdialogID  ID of button to activate, opening a subdialog
  */
 function showTab(pane, tabID, subdialogID) {
-  pane.querySelector("tabbox").selectedTab = document.getElementById(tabID);
-  if (subdialogID) {
-    setTimeout(function() {
-      document.getElementById(subdialogID).click();
-    });
+  if (pane.id != "paneAccount") {
+    pane.querySelector("tabbox").selectedTab = document.getElementById(tabID);
+    if (subdialogID) {
+      setTimeout(function() {
+        document.getElementById(subdialogID).click();
+      });
+    }
+  } else {
+    // For the accounts pane, tabID is the server key, subdialogID is the settings pane.
+    let accountTree = document.getElementById("account-tree-children");
+    if (!accountTree.hasAttribute("tree-loaded")) {
+      accountTree.addEventListener("account-tree-loaded",
+        () => window.selectServerByKey(tabID, subdialogID), {once: true});
+    } else {
+      window.selectServerByKey(tabID, subdialogID);
+    }
   }
 }
 

@@ -6,6 +6,8 @@
 /* globals FlavourSet, TransferData, MozElements */
 // imStatusSelector.js
 /* globals statusSelector */
+// mailnews/base/prefs/content/accountUtils.js
+/* globals MsgAccountManager */
 
 var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
 var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
@@ -310,16 +312,7 @@ var gAccountManager = {
       }
     }
 
-    let win = Services.wm.getMostRecentWindow("mailnews:accountmanager");
-    if (win) {
-      win.focus();
-      win.selectServer(server);
-    } else {
-      window.openDialog("chrome://messenger/content/AccountManager.xul",
-                        "AccountManager",
-                        "chrome,centerscreen,modal,titlebar,resizable",
-                        { server, selectPage: null });
-    }
+    MsgAccountManager(null, server);
   },
   autologin() {
     var elt = this.accountList.selectedItem;

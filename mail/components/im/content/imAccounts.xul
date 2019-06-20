@@ -27,6 +27,8 @@
         persist="width height screenX screenY">
  <script src="chrome://messenger/content/chat/imAccounts.js"/>
  <script src="chrome://messenger/content/chat/imStatusSelector.js"/>
+ <script src="chrome://messenger/content/accountUtils.js"/>
+ <script src="chrome://communicator/content/utilityOverlay.js"/>
  <script src="chrome://global/content/nsDragAndDrop.js" />
  <script src="chrome://global/content/nsTransferable.js" />
  <script src="chrome://chat/content/chat-account-richlistitem.js" />

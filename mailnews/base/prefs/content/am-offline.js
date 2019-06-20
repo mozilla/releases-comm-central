@@ -204,7 +204,7 @@ function onCancel() {
 /**
  * Prompt to avoid unexpected folder sync changes.
  */
-function onLeave() {
+function onLeave(restoreValuesOnFailure) {
   let changed = false;
   if (gToggleOccurred) {
     let allFolders = gIncomingServer.rootFolder.descendants;
