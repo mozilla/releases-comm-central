@@ -52,5 +52,6 @@ function open_pref_tab(aPaneID) {
  * @param aTab  The content tab to close.
  */
 function close_pref_tab(aTab) {
+  fdh.assert_true(aTab, "No Preferences tab specified for closing");
   fdh.mc.tabmail.closeTab(aTab);
 }

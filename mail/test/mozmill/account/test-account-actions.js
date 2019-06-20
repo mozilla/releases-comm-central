@@ -5,19 +5,27 @@
 "use strict";
 
 /* import-globals-from ../shared-modules/test-account-manager-helpers.js */
+/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-pref-window-helpers.js */
 /* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-account-actions";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "account-manager-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "account-manager-helpers",
+  "content-tab-helpers",
+  "pref-window-helpers",
+];
 
 var imapAccount, nntpAccount, originalAccountCount;
 
 function setupModule(module) {
-  collector.getModule("window-helpers").installInto(module);
-  collector.getModule("folder-display-helpers").installInto(module);
-  collector.getModule("account-manager-helpers").installInto(module);
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 
   // There may be pre-existing accounts from other tests.
   originalAccountCount = MailServices.accounts.allServers.length;
@@ -63,61 +71,56 @@ function teardownModule(module) {
 /**
  * Check that the account actions for the account are enabled or disabled appropriately.
  *
- * @param amc          the account options controller
  * @param aAccountKey  the key of the account to select
  * @param aIsSetAsDefaultEnabled  true if the menuitem should be enabled, false otherwise
  * @param aIsRemoveEnabled        true if the menuitem should be enabled, false otherwise
  * @param aIsAddAccountEnabled    true if the menuitems (Add Mail Account+Add Other Account)
  *                                should be enabled, false otherwise
  */
-function subtest_check_account_actions(amc, aAccountKey, aIsSetAsDefaultEnabled,
+function subtest_check_account_actions(aAccountKey, aIsSetAsDefaultEnabled,
                                        aIsRemoveEnabled, aIsAddAccountEnabled) {
-  let accountRow = get_account_tree_row(aAccountKey, null, amc);
-  click_account_tree_row(amc, accountRow);
+  let tab = open_advanced_settings();
+  let accountRow = get_account_tree_row(aAccountKey, null, tab);
+  click_account_tree_row(tab, accountRow);
 
   // click the Actions Button to bring up the popup with menuitems to test
-  amc.click(amc.eid("accountActionsButton"), 5, 5);
-  wait_for_popup_to_open(amc.e("accountActionsDropdown"));
+  mc.click(content_tab_eid(tab, "accountActionsButton"), 5, 5);
+  wait_for_popup_to_open(content_tab_e(tab, "accountActionsDropdown"));
 
-  let actionAddMailAccount = amc.e("accountActionsAddMailAccount");
+  let actionAddMailAccount = content_tab_e(tab, "accountActionsAddMailAccount");
   assert_not_equals(actionAddMailAccount, undefined);
   assert_equals(!actionAddMailAccount.getAttribute("disabled"), aIsAddAccountEnabled);
 
-  let actionAddOtherAccount = amc.e("accountActionsAddOtherAccount");
+  let actionAddOtherAccount = content_tab_e(tab, "accountActionsAddOtherAccount");
   assert_not_equals(actionAddOtherAccount, undefined);
   assert_equals(!actionAddOtherAccount.getAttribute("disabled"), aIsAddAccountEnabled);
 
-  let actionSetDefault = amc.e("accountActionsDropdownSetDefault");
+  let actionSetDefault = content_tab_e(tab, "accountActionsDropdownSetDefault");
   assert_not_equals(actionSetDefault, undefined);
   assert_equals(!actionSetDefault.getAttribute("disabled"), aIsSetAsDefaultEnabled);
 
-  let actionRemove = amc.e("accountActionsDropdownRemove");
+  let actionRemove = content_tab_e(tab, "accountActionsDropdownRemove");
   assert_not_equals(actionRemove, undefined);
   assert_equals(!actionRemove.getAttribute("disabled"), aIsRemoveEnabled);
 
-  close_popup(amc, amc.eid("accountActionsDropdown"));
+  close_popup(mc, content_tab_eid(tab, "accountActionsDropdown"));
+
+  close_advanced_settings(tab);
 }
 
 function test_account_actions() {
   // IMAP account: can be default, can be removed.
-  open_advanced_settings(function(amc) {
-    subtest_check_account_actions(amc, imapAccount.key, true, true, true);
-  });
+  subtest_check_account_actions(imapAccount.key, true, true, true);
 
   // NNTP (News) account: can't be default, can be removed.
-  open_advanced_settings(function(amc) {
-    subtest_check_account_actions(amc, nntpAccount.key, false, true, true);
-  });
+  subtest_check_account_actions(nntpAccount.key, false, true, true);
 
   // Local Folders account: can't be removed, can't be default.
   var localFoldersAccount = MailServices.accounts.FindAccountForServer(MailServices.accounts.localFoldersServer);
-  open_advanced_settings(function(amc) {
-    subtest_check_account_actions(amc, localFoldersAccount.key, false, false, true);
-  });
+  subtest_check_account_actions(localFoldersAccount.key, false, false, true);
+
   // SMTP server row: can't be removed, can't be default.
-  open_advanced_settings(function(amc) {
-    subtest_check_account_actions(amc, null, false, false, true);
-  });
+  subtest_check_account_actions(null, false, false, true);
 
   // on the IMAP account, disable Delete Account menu item
   let disableItemPref = "mail.disable_button.delete_account";
@@ -126,9 +129,7 @@ function test_account_actions() {
   Services.prefs.getDefaultBranch("").setBoolPref(disableItemPref, true);
   Services.prefs.lockPref(disableItemPref);
 
-  open_advanced_settings(function(amc) {
-    subtest_check_account_actions(amc, imapAccount.key, true, false, true);
-  });
+  subtest_check_account_actions(imapAccount.key, true, false, true);
 
   Services.prefs.unlockPref(disableItemPref);
   Services.prefs.getDefaultBranch("").deleteBranch(disableItemPref);
@@ -139,9 +140,7 @@ function test_account_actions() {
   Services.prefs.getDefaultBranch("").setBoolPref(disableItemPref, true);
   Services.prefs.lockPref(disableItemPref);
 
-  open_advanced_settings(function(amc) {
-    subtest_check_account_actions(amc, imapAccount.key, false, true, true);
-  });
+  subtest_check_account_actions(imapAccount.key, false, true, true);
 
   Services.prefs.unlockPref(disableItemPref);
   Services.prefs.getDefaultBranch("").deleteBranch(disableItemPref);
@@ -152,9 +151,7 @@ function test_account_actions() {
   Services.prefs.getDefaultBranch("").setBoolPref(disableItemPref, true);
   Services.prefs.lockPref(disableItemPref);
 
-  open_advanced_settings(function(amc) {
-    subtest_check_account_actions(amc, imapAccount.key, true, true, false);
-  });
+  subtest_check_account_actions(imapAccount.key, true, true, false);
 
   Services.prefs.unlockPref(disableItemPref);
   Services.prefs.getDefaultBranch("").deleteBranch(disableItemPref);

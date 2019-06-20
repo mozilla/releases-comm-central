@@ -6,17 +6,20 @@
 
 var MODULE_NAME = "account-manager-helpers";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
+                       "pref-window-helpers", "content-tab-helpers"];
 
 var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
 
-var wh, fdh, mc;
+var wh, fdh, pwh, cth, mc;
 
 function setupModule() {
   fdh = collector.getModule("folder-display-helpers");
   mc = fdh.mc;
   wh = collector.getModule("window-helpers");
+  pwh = collector.getModule("pref-window-helpers");
+  cth = collector.getModule("content-tab-helpers");
 }
 
 function installInto(module) {
@@ -26,36 +29,71 @@ function installInto(module) {
   module.open_advanced_settings = open_advanced_settings;
   module.open_advanced_settings_from_account_wizard =
     open_advanced_settings_from_account_wizard;
+  module.close_advanced_settings = close_advanced_settings;
   module.open_mail_account_setup_wizard = open_mail_account_setup_wizard;
   module.click_account_tree_row = click_account_tree_row;
   module.get_account_tree_row = get_account_tree_row;
+  module.wait_for_account_tree_load = wait_for_account_tree_load;
+  module.wait_for_account_tree_selection = wait_for_account_tree_selection;
   module.remove_account = remove_account;
 }
 
 /**
- * Opens the Account Manager.
- *
- * @param callback Callback for the modal dialog that is opened.
+ * Waits until the Account Manager tree fully loads after first open.
  */
-function open_advanced_settings(aCallback, aController) {
-  if (aController === undefined)
-    aController = mc;
+function wait_for_account_tree_load(tab) {
+  mc.waitFor(() => tab.browser.contentWindow.currentAccount != null,
+              "Timeout waiting for currentAccount to become non-null");
+  var tree = cth.content_tab_e(tab, "account-tree-children");
+  mc.waitFor(() => tree.hasAttribute("tree-loaded"),
+              "Timeout waiting for account tree build");
+}
 
-  wh.plan_for_modal_dialog("mailnews:accountmanager", aCallback);
-  aController.click(mc.eid("menu_accountmgr"));
-  return wh.wait_for_modal_dialog("mailnews:accountmanager");
+/**
+ * Ensure the page is fully loaded (e.g. onInit functions).
+ */
+function wait_for_account_tree_selection(tab, index = -1) {
+  utils.waitFor(() => tab.browser.contentWindow.pendingAccount == null,
+                "Timeout waiting for pendingAccount to become null");
+
+  var tree = cth.content_tab_e(tab, "accounttree");
+  if (index < 0)
+    index = tree.view.selection.currentIndex;
+  wh.wait_for_frame_load(cth.content_tab_e(tab, "contentFrame"),
+    tab.browser.contentWindow.pageURL(tree.view.getItemAtIndex(index)
+                             .getAttribute("PageTag")));
+}
+
+/**
+ * Opens the Account Manager pane in pre Preferences tab.
+ */
+function open_advanced_settings() {
+  var tab = pwh.open_pref_tab("paneAccount");
+  wait_for_account_tree_load(tab);
+  return tab;
 }
 
 /**
  * Opens the Account Manager from the mail account setup wizard.
  *
- * @param callback Callback for the modal dialog that is opened.
+ * @param aController Controller of the Account Wizard window.
  */
-function open_advanced_settings_from_account_wizard(aCallback, aController) {
-  wh.plan_for_modal_dialog("mailnews:accountmanager", aCallback);
+function open_advanced_settings_from_account_wizard(aController) {
   aController.e("manual-edit_button").click();
   aController.e("advanced-setup_button").click();
-  return wh.wait_for_modal_dialog("mailnews:accountmanager");
+  var tabmail = mc.e("tabmail");
+  tabmail.selectTabByMode("preferencesTab");
+  var tab;
+  mc.waitFor(
+    () => (tab = tabmail.getTabInfoForCurrentOrFirstModeInstance(
+           tabmail.tabModes.preferencesTab)) != null,
+             "Couldn't find the Preferences tab with the Account manager");
+  wait_for_account_tree_load(tab);
+  return tab;
+}
+
+function close_advanced_settings(tab) {
+  pwh.close_pref_tab(tab);
 }
 
 /**
@@ -73,24 +111,22 @@ function open_mail_account_setup_wizard(aCallback) {
 /**
  * Click a row in the account settings tree
  *
- * @param controller the Mozmill controller for the account settings dialog
- * @param rowIndex the row to click
+ * @param tab       the account settings tab
+ * @param rowIndex  the row to click
+ * @param wait      whether to wait for finishing the load
  */
-function click_account_tree_row(controller, rowIndex) {
-  utils.waitFor(() => controller.window.currentAccount != null,
+function click_account_tree_row(tab, rowIndex, wait = true) {
+  utils.waitFor(() => tab.browser.contentWindow.getCurrentAccount() != null,
                 "Timeout waiting for currentAccount to become non-null");
 
-  let tree = controller.window.document.getElementById("accounttree");
+  let tree = cth.content_tab_e(tab, "accounttree");
 
-  fdh.click_tree_row(tree, rowIndex, controller);
+  fdh.click_tree_row(tree, rowIndex, mc);
 
-  utils.waitFor(() => controller.window.pendingAccount == null,
-                "Timeout waiting for pendingAccount to become null");
+  if (!wait)
+    return;
 
-  // Ensure the page is fully loaded (e.g. onInit functions).
-  wh.wait_for_frame_load(controller.e("contentFrame"),
-    controller.window.pageURL(tree.view.getItemAtIndex(rowIndex)
-                                              .getAttribute("PageTag")));
+  wait_for_account_tree_selection(tab, rowIndex);
 }
 
 /**
@@ -100,15 +136,16 @@ function click_account_tree_row(controller, rowIndex) {
  * @param aAccountKey  The key of the account to return.
  *                     If 'null', the SMTP pane is returned.
  * @param aPaneId      The ID of the account settings pane to select.
+ * @param tab          the account settings tab
  *
  * @return  The row index of the account and pane. If it was not found return -1.
  *          Do not throw as callers may intentionally just check if a row exists.
  *          Just dump into the log so that a subsequent throw in
  *          click_account_tree_row has a useful context.
  */
-function get_account_tree_row(aAccountKey, aPaneId, aController) {
+function get_account_tree_row(aAccountKey, aPaneId, tab) {
   let rowIndex = 0;
-  let accountTreeNode = aController.e("account-tree-children");
+  let accountTreeNode = cth.content_tab_e(tab, "account-tree-children");
 
   for (let i = 0; i < accountTreeNode.childNodes.length; i++) {
     if ("_account" in accountTreeNode.childNodes[i]) {
@@ -148,13 +185,13 @@ function get_account_tree_row(aAccountKey, aPaneId, aController) {
  * Remove an account via the account manager UI.
  *
  * @param aAccount        The account to remove.
- * @param aController     The controller of the account manager window.
+ * @param tab             The account settings tab.
  * @param aRemoveAccount  Remove the account itself.
  * @param aRemoveData     Remove the message data of the account.
  */
-function remove_account(aAccount, aController, aRemoveAccount = true, aRemoveData = false) {
-  let accountRow = get_account_tree_row(aAccount.key, "am-server.xul", aController);
-  click_account_tree_row(aController, accountRow);
+function remove_account(aAccount, tab, aRemoveAccount = true, aRemoveData = false) {
+  let accountRow = get_account_tree_row(aAccount.key, "am-server.xul", tab);
+  click_account_tree_row(tab, accountRow);
 
   wh.plan_for_modal_dialog("removeAccountDialog", function(cdc) {
     // Account removal confirmation dialog. Select what to remove.
@@ -170,10 +207,16 @@ function remove_account(aAccount, aController, aRemoveAccount = true, aRemoveDat
     cdc.window.document.documentElement.acceptDialog();
   });
 
+  let treeBuilt = false;
+  cth.content_tab_e(tab, "account-tree-children")
+     .addEventListener("account-tree-built", () => { treeBuilt = true; },
+                       {once: true});
+
   // Use the Remove item in the Account actions menu.
-  aController.click(aController.eid("accountActionsButton"));
-  aController.click_menus_in_sequence(aController.e("accountActionsDropdown"),
+  mc.click(cth.content_tab_eid(tab, "accountActionsButton"));
+  mc.click_menus_in_sequence(cth.content_tab_e(tab, "accountActionsDropdown"),
                                       [ {id: "accountActionsDropdownRemove"} ]);
   wh.wait_for_modal_dialog("removeAccountDialog");
-  // TODO: For unknown reason this also closes the whole account manager.
+  mc.waitFor(() => treeBuilt, "Timeout waiting for account tree rebuild");
+  wait_for_account_tree_selection(tab);
 }

@@ -38,8 +38,8 @@ function setupModule(module) {
 }
 
 // Remove an account in the Account Manager, but not via the UI.
-function remove_account_internal(amc, aAccount, aOutgoing) {
-  let win = amc.window;
+function remove_account_internal(tab, aAccount, aOutgoing) {
+  let win = tab.browser.contentWindow;
 
   try {
     // Remove the account and incoming server
@@ -90,17 +90,16 @@ function test_mail_account_setup() {
     // Open the advanced settings (Account Manager) to create the account
     // immediately.  We use an invalid email/password so the setup will fail
     // anyway.
-    open_advanced_settings_from_account_wizard(subtest_verify_account, awc);
+    let tab = open_advanced_settings_from_account_wizard(awc);
+    subtest_verify_account(tab);
 
     // Clean up
     Services.prefs.clearUserPref(pref_name);
   });
 }
 
-function subtest_verify_account(amc) {
-  amc.waitFor(() => amc.window.currentAccount != null,
-              "Timeout waiting for currentAccount to become non-null");
-  let account = amc.window.currentAccount;
+function subtest_verify_account(tab) {
+  let account = tab.browser.contentWindow.currentAccount;
   let identity = account.defaultIdentity;
   let incoming = account.incomingServer;
   let outgoing = MailServices.smtp.getServerByKey(identity.smtpServerKey);
@@ -132,7 +131,7 @@ function subtest_verify_account(amc) {
       }
     }
   } finally {
-    remove_account_internal(amc, account, outgoing);
+    remove_account_internal(tab, account, outgoing);
   }
 }
 

@@ -9,19 +9,27 @@
 "use strict";
 
 /* import-globals-from ../shared-modules/test-account-manager-helpers.js */
+/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-pref-window-helpers.js */
 /* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-account-tree";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "account-manager-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "account-manager-helpers",
+  "content-tab-helpers",
+  "pref-window-helpers",
+];
 
 var gPopAccount, gOriginalAccountCount;
 
 function setupModule(module) {
-  collector.getModule("window-helpers").installInto(module);
-  collector.getModule("folder-display-helpers").installInto(module);
-  collector.getModule("account-manager-helpers").installInto(module);
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 
   // There may be pre-existing accounts from other tests.
   gOriginalAccountCount = MailServices.accounts.allServers.length;
@@ -54,27 +62,24 @@ function teardownModule(module) {
  * Check if the account manager dialog remembers the open state of accounts.
  */
 function test_account_open_state() {
-  open_advanced_settings(function(amc) {
-    subtest_check_account_open_state(amc, true);
-  });
-  open_advanced_settings(function(amc) {
-    subtest_check_account_open_state(amc, false);
-  });
+  subtest_check_account_open_state(true);
+
+  subtest_check_account_open_state(false);
   // After this test all the accounts must be "open".
 }
 
 /**
  * Check if the open state of accounts is in the wished state.
  *
- * @param amc           The account options controller.
  * @param aWishedState  The open state in which the account row should be found (bool).
  */
-function subtest_check_account_open_state(amc, aWishedState) {
-  let accountRow = get_account_tree_row(gPopAccount.key, null, amc);
-  click_account_tree_row(amc, accountRow);
+function subtest_check_account_open_state(aWishedState) {
+  let tab = open_advanced_settings();
+  let accountRow = get_account_tree_row(gPopAccount.key, null, tab);
+  click_account_tree_row(tab, accountRow);
 
   // See if the account row is in the wished open state.
-  let accountTree = amc.e("accounttree");
+  let accountTree = content_tab_e(tab, "accounttree");
   assert_equals(accountRow, accountTree.view.selection.currentIndex);
   assert_equals(accountTree.view.isContainerOpen(accountRow), aWishedState);
 
@@ -83,36 +88,27 @@ function subtest_check_account_open_state(amc, aWishedState) {
 
   // Whatever the open state of the account was, selecting one of its subpanes
   // must open it.
-  amc.window.selectServer(gPopAccount.incomingServer, "am-junk.xul");
+  tab.browser.contentWindow.selectServer(gPopAccount.incomingServer, "am-junk.xul");
+  wait_for_account_tree_selection(tab);
   assert_true(accountTree.view.isContainerOpen(accountRow));
 
   // Set the proper state again for continuation of the test.
   accountTree.view.getItemAtIndex(accountRow).setAttribute("open", !aWishedState);
   assert_equals(accountTree.view.isContainerOpen(accountRow), !aWishedState);
+  close_advanced_settings(tab);
 }
 
 /**
  * Bug 740617.
- * Check if the default account is styled in bold.
- *
+ * Check if the default account is styled in bold and another account is not.
  */
 function test_default_account_highlight() {
-  open_advanced_settings(function(amc) {
-    subtest_check_default_account_highlight(amc);
-  });
-}
-
-/**
- * Check if the default account is styled in bold and another account is not.
- *
- * @param amc           The account options controller.
- */
-function subtest_check_default_account_highlight(amc) {
+  let tab = open_advanced_settings();
   // Select the default account.
-  let accountRow = get_account_tree_row(MailServices.accounts.defaultAccount.key, null, amc);
-  click_account_tree_row(amc, accountRow);
+  let accountRow = get_account_tree_row(MailServices.accounts.defaultAccount.key, null, tab);
+  click_account_tree_row(tab, accountRow);
 
-  let accountTree = amc.e("accounttree");
+  let accountTree = content_tab_e(tab, "accounttree");
   assert_equals(accountRow, accountTree.view.selection.currentIndex);
   let cell = accountTree.view.getItemAtIndex(accountRow).firstChild.firstChild;
   assert_equals(cell.tagName, "treecell");
@@ -125,14 +121,16 @@ function subtest_check_default_account_highlight(amc) {
   assert_true(propArray.includes("isDefaultServer-true"));
 
   // Now select another account that is not default.
-  accountRow = get_account_tree_row(gPopAccount.key, null, amc);
-  click_account_tree_row(amc, accountRow);
+  accountRow = get_account_tree_row(gPopAccount.key, null, tab);
+  click_account_tree_row(tab, accountRow);
 
   // There should isDefaultServer-true on its tree cell.
   propArray = accountTree.view
     .getCellProperties(accountRow, accountTree.columns.getColumnAt(0)).split(" ");
   assert_false(propArray.includes("isDefaultServer-true"));
+  close_advanced_settings(tab);
 }
+
 /**
  * Bug 58713.
  * Check if after deleting an account the next one is selected.
@@ -141,19 +139,9 @@ function subtest_check_default_account_highlight(amc) {
  * created gPopAccount.
  */
 function test_selection_after_account_deletion() {
-  open_advanced_settings(function(amc) {
-    subtest_check_selection_after_account_deletion(amc);
-  });
-}
-
-/**
- * Check if after deleting an account the next one is selected.
- *
- * @param amc           The account options controller.
- */
-function subtest_check_selection_after_account_deletion(amc) {
+  let tab = open_advanced_settings();
   let accountList = [];
-  let accountTreeNode = amc.e("account-tree-children");
+  let accountTreeNode = content_tab_e(tab, "account-tree-children");
   // Build the list of accounts in the account tree (order is important).
   for (let i = 0; i < accountTreeNode.childNodes.length; i++) {
     if ("_account" in accountTreeNode.childNodes[i]) {
@@ -167,13 +155,16 @@ function subtest_check_selection_after_account_deletion(amc) {
   let accountIndex = accountList.indexOf(gPopAccount);
 
   // Remove our account.
-  remove_account(gPopAccount, amc);
+  remove_account(gPopAccount, tab);
   // Now there should be only the original accounts left.
   assert_equals(MailServices.accounts.allServers.length, gOriginalAccountCount);
 
   // See if the currently selected account is the one next in the account list.
-  let accountTree = amc.e("accounttree");
+  let accountTree = content_tab_e(tab, "accounttree");
   let accountRow = accountTree.view.selection.currentIndex;
+  wait_for_account_tree_selection(tab, accountRow);
   assert_equals(accountTree.view.getItemAtIndex(accountRow)._account,
                 accountList[accountIndex + 1]);
+
+  close_advanced_settings(tab);
 }

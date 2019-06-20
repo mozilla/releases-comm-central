@@ -13,21 +13,29 @@
 "use strict";
 
 /* import-globals-from ../shared-modules/test-account-manager-helpers.js */
+/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-pref-window-helpers.js */
 /* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-account-settings-infrastructure";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "account-manager-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "account-manager-helpers",
+  "content-tab-helpers",
+  "pref-window-helpers",
+];
 
 var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
 
 var gPopAccount, gImapAccount, gOriginalAccountCount;
 
 function setupModule(module) {
-  collector.getModule("window-helpers").installInto(module);
-  collector.getModule("folder-display-helpers").installInto(module);
-  collector.getModule("account-manager-helpers").installInto(module);
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 
   // There may be pre-existing accounts from other tests.
   gOriginalAccountCount = MailServices.accounts.allServers.length;
@@ -73,105 +81,87 @@ function teardownModule(module) {
  * Bug 525024.
  * Check that the options in the server pane are properly preserved across
  * pane switches.
- */
-function test_account_dot_IDs() {
-  open_advanced_settings(function(amc) {
-    subtest_check_account_dot_IDs(amc);
-  });
-}
-
-/**
+ *
  * Check that the options in the server pane are stored even if the id
  * of the element contains multiple dots (not used in standard TB yet
  * but extensions may want it).
- *
- * @param amc  the account options controller
  */
-function subtest_check_account_dot_IDs(amc) {
-  let accountRow = get_account_tree_row(gPopAccount.key, "am-server.xul", amc);
-  click_account_tree_row(amc, accountRow);
+function test_account_dot_IDs() {
+  let tab = open_advanced_settings();
+  let accountRow = get_account_tree_row(gPopAccount.key, "am-server.xul", tab);
+  click_account_tree_row(tab, accountRow);
 
-  let iframe = amc.e("contentFrame").contentDocument;
+  let iframe = content_tab_e(tab, "contentFrame").contentDocument;
   // Check whether a standard element with "server.loginAtStartUp" stores its
   // value properly.
   let loginCheck = iframe.getElementById("server.loginAtStartUp");
   assert_false(loginCheck.checked);
-  amc.check(new elib.Elem(loginCheck), true);
+  mc.check(new elib.Elem(loginCheck), true);
 
-  accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xul", amc);
-  click_account_tree_row(amc, accountRow);
+  accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xul", tab);
+  click_account_tree_row(tab, accountRow);
 
-  accountRow = get_account_tree_row(gPopAccount.key, "am-server.xul", amc);
-  click_account_tree_row(amc, accountRow);
+  accountRow = get_account_tree_row(gPopAccount.key, "am-server.xul", tab);
+  click_account_tree_row(tab, accountRow);
 
   // Re-assign iframe.contentDocument because it was lost when changing panes
   // (uses loadURI to load a new document).
-  iframe = amc.e("contentFrame").contentDocument;
+  iframe = content_tab_e(tab, "contentFrame").contentDocument;
 
   // Check by element properties.
   loginCheck = iframe.getElementById("server.loginAtStartUp");
   assert_true(loginCheck.checked);
 
   // Check for correct value in the accountValues array, that will be saved into prefs.
-  let rawCheckValue = amc.window.getAccountValue(gPopAccount,
-                                                 amc.window.getValueArrayFor(gPopAccount),
-                                                 "server", "loginAtStartUp",
-                                                 null, false);
+  let rawCheckValue = tab.browser.contentWindow.getAccountValue(gPopAccount,
+                        tab.browser.contentWindow.getValueArrayFor(gPopAccount),
+                        "server", "loginAtStartUp",
+                        null, false);
 
   assert_true(rawCheckValue);
 
   // The "server.login.At.StartUp" value does not exist yet, so the value should be 'null'.
-  rawCheckValue = amc.window.getAccountValue(gPopAccount,
-                                             amc.window.getValueArrayFor(gPopAccount),
-                                             "server", "login.At.StartUp",
-                                             null, false);
+  rawCheckValue = tab.browser.contentWindow.getAccountValue(gPopAccount,
+                    tab.browser.contentWindow.getValueArrayFor(gPopAccount),
+                    "server", "login.At.StartUp",
+                    null, false);
   assert_equals(rawCheckValue, null);
 
   // Change the ID so that "server.login.At.StartUp" exists now.
   loginCheck.id = "server.login.At.StartUp";
 
-  accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xul", amc);
-  click_account_tree_row(amc, accountRow);
+  accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xul", tab);
+  click_account_tree_row(tab, accountRow);
 
-  accountRow = get_account_tree_row(gPopAccount.key, "am-server.xul", amc);
-  click_account_tree_row(amc, accountRow);
+  accountRow = get_account_tree_row(gPopAccount.key, "am-server.xul", tab);
+  click_account_tree_row(tab, accountRow);
 
   // Check for correct value in the accountValues array, that will be saved into prefs.
   // We can't check by element property here, because the am-server.xul pane was
   // reloaded and the element now has the original ID of "server.loginAtStartUp".
-  rawCheckValue = amc.window.getAccountValue(gPopAccount,
-                                             amc.window.getValueArrayFor(gPopAccount),
-                                             "server", "login.At.StartUp",
-                                             null, false);
+  rawCheckValue = tab.browser.contentWindow.getAccountValue(gPopAccount,
+                    tab.browser.contentWindow.getValueArrayFor(gPopAccount),
+                    "server", "login.At.StartUp",
+                    null, false);
 
   assert_true(rawCheckValue);
+
+  close_advanced_settings(tab);
 }
 
 /**
  * Test for bug 807101.
  * Check if form controls are properly disabled when their attached prefs are locked.
- */
-function test_account_locked_prefs() {
-  open_advanced_settings(function(amc) {
-    subtest_check_locked_prefs_addressing(amc);
-  });
-
-  open_advanced_settings(function(amc) {
-    subtest_check_locked_prefs_server(amc);
-  });
-}
-
-/**
+ *
  * Check that the LDAP server selection elements (radio group) are properly
  * disabled when their attached pref (prefstring attribute) is locked.
- *
- * @param amc  the account options controller
  */
-function subtest_check_locked_prefs_addressing(amc) {
-  let accountRow = get_account_tree_row(gPopAccount.key, "am-addressing.xul", amc);
-  click_account_tree_row(amc, accountRow);
+function test_locked_prefs_addressing() {
+  let tab = open_advanced_settings();
+  let accountRow = get_account_tree_row(gPopAccount.key, "am-addressing.xul", tab);
+  click_account_tree_row(tab, accountRow);
 
-  let iframe = amc.e("contentFrame").contentDocument;
+  let iframe = content_tab_e(tab, "contentFrame").contentDocument;
 
   // By default, 'use global LDAP server preferences' is set, not the
   // 'different LDAP server'.
@@ -188,7 +178,7 @@ function subtest_check_locked_prefs_addressing(amc) {
 
   // Now toggle the 'different LDAP server' on. The server selector
   // and edit button should enable.
-  amc.radio(new elib.Elem(useLDAPdirectory));
+  mc.radio(new elib.Elem(useLDAPdirectory));
   assert_false(LDAPdirectory.disabled);
   assert_false(LDAPeditButton.disabled);
 
@@ -199,15 +189,15 @@ function subtest_check_locked_prefs_addressing(amc) {
   Services.prefs.lockPref(controlPref);
 
   // Refresh the pane by switching to another one.
-  accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xul", amc);
-  click_account_tree_row(amc, accountRow);
+  accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xul", tab);
+  click_account_tree_row(tab, accountRow);
 
-  accountRow = get_account_tree_row(gPopAccount.key, "am-addressing.xul", amc);
-  click_account_tree_row(amc, accountRow);
+  accountRow = get_account_tree_row(gPopAccount.key, "am-addressing.xul", tab);
+  click_account_tree_row(tab, accountRow);
 
   // Re-assign iframe.contentDocument because it was lost when changing panes
   // (uses loadURI to load a new document).
-  iframe = amc.e("contentFrame").contentDocument;
+  iframe = content_tab_e(tab, "contentFrame").contentDocument;
 
   // We are now back and the 'different LDAP server' should still be selected
   // (the setting was saved).
@@ -225,20 +215,24 @@ function subtest_check_locked_prefs_addressing(amc) {
   // Unlock the pref to clean up.
   Services.prefs.unlockPref(controlPref);
   Services.prefs.getDefaultBranch("").deleteBranch(controlPref);
+
+  close_advanced_settings(tab);
 }
 
 /**
+ * Test for bug 807101.
+ * Check if form controls are properly disabled when their attached prefs are locked.
+ *
  * Check that the POP3 'keep on server' settings elements (2-level
  * checkboxes + textbox) are properly disabled when their attached pref
  * (prefstring attribute) is locked.
- *
- * @param amc  the account options controller
  */
-function subtest_check_locked_prefs_server(amc) {
-  let accountRow = get_account_tree_row(gPopAccount.key, "am-server.xul", amc);
-  click_account_tree_row(amc, accountRow);
+function test_locked_prefs_server() {
+  let tab = open_advanced_settings();
+  let accountRow = get_account_tree_row(gPopAccount.key, "am-server.xul", tab);
+  click_account_tree_row(tab, accountRow);
 
-  let iframe = amc.e("contentFrame").contentDocument;
+  let iframe = content_tab_e(tab, "contentFrame").contentDocument;
 
   // Top level leaveOnServer checkbox, disabled by default.
   let leaveOnServer = iframe.getElementById("pop3.leaveMessagesOnServer");
@@ -255,13 +249,13 @@ function subtest_check_locked_prefs_server(amc) {
   assert_true(daysToLeave.disabled);
 
   // When leaveOnServer is checked, only deleteByAge will get enabled.
-  amc.check(new elib.Elem(leaveOnServer), true);
+  mc.check(new elib.Elem(leaveOnServer), true);
   assert_true(leaveOnServer.checked);
   assert_false(deleteByAge.disabled);
   assert_true(daysToLeave.disabled);
 
   // When deleteByAge is checked, daysToLeave will get enabled.
-  amc.check(new elib.Elem(deleteByAge), true);
+  mc.check(new elib.Elem(deleteByAge), true);
   assert_true(deleteByAge.checked);
   assert_false(daysToLeave.disabled);
 
@@ -272,15 +266,15 @@ function subtest_check_locked_prefs_server(amc) {
   Services.prefs.lockPref(controlPref);
 
   // Refresh the pane by switching to another one.
-  accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xul", amc);
-  click_account_tree_row(amc, accountRow);
+  accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xul", tab);
+  click_account_tree_row(tab, accountRow);
 
-  accountRow = get_account_tree_row(gPopAccount.key, "am-server.xul", amc);
-  click_account_tree_row(amc, accountRow);
+  accountRow = get_account_tree_row(gPopAccount.key, "am-server.xul", tab);
+  click_account_tree_row(tab, accountRow);
 
   // Re-assign iframe.contentDocument because it was lost when changing panes
   // (uses loadURI to load a new document).
-  iframe = amc.e("contentFrame").contentDocument;
+  iframe = content_tab_e(tab, "contentFrame").contentDocument;
 
   // Now leaveOnServer was preserved as checked.
   leaveOnServer = iframe.getElementById("pop3.leaveMessagesOnServer");
@@ -298,7 +292,7 @@ function subtest_check_locked_prefs_server(amc) {
 
   // When leaveOnserver is unchecked, both of deleteByAge and daysToLeave
   // should get disabled.
-  amc.check(new elib.Elem(leaveOnServer), false);
+  mc.check(new elib.Elem(leaveOnServer), false);
   assert_false(leaveOnServer.disabled);
   assert_false(leaveOnServer.checked);
 
@@ -309,6 +303,8 @@ function subtest_check_locked_prefs_server(amc) {
   // Unlock the pref to clean up.
   Services.prefs.unlockPref(controlPref);
   Services.prefs.getDefaultBranch("").deleteBranch(controlPref);
+
+  close_advanced_settings(tab);
 }
 
 /**
@@ -318,19 +314,11 @@ function subtest_check_locked_prefs_server(amc) {
  * even when empty. This is tested on the Reply-To field.
  */
 function test_replyTo_leak() {
-  open_advanced_settings(function(amc) {
-    subtest_check_replyTo_leak(amc);
-  });
-}
+  let tab = open_advanced_settings();
+  let accountRow = get_account_tree_row(gPopAccount.key, null, tab);
+  click_account_tree_row(tab, accountRow);
 
-/**
- * @param amc  the account options controller
- */
-function subtest_check_replyTo_leak(amc) {
-  let accountRow = get_account_tree_row(gPopAccount.key, null, amc);
-  click_account_tree_row(amc, accountRow);
-
-  let iframe = amc.window.document.getElementById("contentFrame");
+  let iframe = content_tab_e(tab, "contentFrame");
 
   // The Reply-To field should be empty.
   let replyAddress = iframe.contentDocument.getElementById("identity.replyTo");
@@ -345,12 +333,14 @@ function subtest_check_replyTo_leak(amc) {
                                 .FindServer("tinderbox", FAKE_SERVER_HOSTNAME, "pop3");
   let firstAccount = MailServices.accounts.FindAccountForServer(firstServer);
 
-  accountRow = get_account_tree_row(firstAccount.key, null, amc);
-  click_account_tree_row(amc, accountRow);
+  accountRow = get_account_tree_row(firstAccount.key, null, tab);
+  click_account_tree_row(tab, accountRow);
 
   // the Reply-To field should be empty as this account does not have it set.
   replyAddress = iframe.contentDocument.getElementById("identity.replyTo");
   assert_equals(replyAddress.value, "");
+
+  close_advanced_settings(tab);
 }
 
 /**
@@ -358,21 +348,11 @@ function subtest_check_replyTo_leak(amc) {
  * Check if onchange handlers are properly executed when panes are switched.
  */
 function test_account_onchange_handler() {
-  open_advanced_settings(function(amc) {
-    subtest_check_onchange_handler(amc);
-  });
-}
+  let tab = open_advanced_settings();
+  let accountRow = get_account_tree_row(gImapAccount.key, "am-offline.xul", tab);
+  click_account_tree_row(tab, accountRow);
 
-/**
- * Check if onchange handlers are properly executed when panes are switched.
- *
- * @param amc  the account options controller
- */
-function subtest_check_onchange_handler(amc) {
-  let accountRow = get_account_tree_row(gImapAccount.key, "am-offline.xul", amc);
-  click_account_tree_row(amc, accountRow);
-
-  let iframe = amc.e("contentFrame").contentDocument;
+  let iframe = content_tab_e(tab, "contentFrame").contentDocument;
 
   let autoSync = iframe.getElementById("autosyncValue");
   // 30 is the default value so check if we are in clean state.
@@ -383,18 +363,18 @@ function subtest_check_onchange_handler(amc) {
   assert_equals(autoSyncInterval.value, 1);
 
   // Now type in 35 (days).
-  amc.radio(new elib.ID(iframe, "useAutosync.ByAge"));
+  mc.radio(new elib.ID(iframe, "useAutosync.ByAge"));
   autoSync.select();
-  amc.type(new elib.Elem(autoSync), "35");
+  mc.type(new elib.Elem(autoSync), "35");
 
   // Immediately switch to another pane and back.
-  accountRow = get_account_tree_row(gImapAccount.key, "am-junk.xul", amc);
-  click_account_tree_row(amc, accountRow);
+  accountRow = get_account_tree_row(gImapAccount.key, "am-junk.xul", tab);
+  click_account_tree_row(tab, accountRow);
 
-  accountRow = get_account_tree_row(gImapAccount.key, "am-offline.xul", amc);
-  click_account_tree_row(amc, accountRow);
+  accountRow = get_account_tree_row(gImapAccount.key, "am-offline.xul", tab);
+  click_account_tree_row(tab, accountRow);
 
-  iframe = amc.e("contentFrame").contentDocument;
+  iframe = content_tab_e(tab, "contentFrame").contentDocument;
 
   // The pane optimized the entered value a bit. So now we should find 5.
   autoSync = iframe.getElementById("autosyncValue");
@@ -403,4 +383,5 @@ function subtest_check_onchange_handler(amc) {
   // And the unit is 7 days = week.
   autoSyncInterval = iframe.getElementById("autosyncInterval");
   assert_equals(autoSyncInterval.value, 7);
+  close_advanced_settings(tab);
 }

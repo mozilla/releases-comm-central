@@ -9,12 +9,20 @@
 "use strict";
 
 /* import-globals-from ../shared-modules/test-account-manager-helpers.js */
+/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+/* import-globals-from ../shared-modules/test-pref-window-helpers.js */
 /* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-account-deletion";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "account-manager-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "account-manager-helpers",
+  "content-tab-helpers",
+  "pref-window-helpers",
+];
 
 var gPopAccount, gImapAccount, gNntpAccount, gOriginalAccountCount;
 
@@ -58,23 +66,14 @@ function teardownModule(module) {
   assert_equals(MailServices.accounts.allServers.length, gOriginalAccountCount);
 }
 
-function test_account_data_deletion() {
-  open_advanced_settings(function(amc) {
-    subtest_account_data_deletion1(amc);
-  });
-
-  open_advanced_settings(function(amc) {
-    subtest_account_data_deletion2(amc);
-  });
-}
-
 /**
  * Bug 274452
  * Check if files of an account are preserved.
  *
  * @param amc  The account options controller.
  */
-function subtest_account_data_deletion1(amc) {
+function test_account_data_deletion1() {
+  let tab = open_advanced_settings();
   let accountDir = gPopAccount.incomingServer.localPath;
   assert_true(accountDir.isDirectory());
 
@@ -83,8 +82,10 @@ function subtest_account_data_deletion1(amc) {
   inboxFile.append("Inbox.msf");
   assert_true(inboxFile.isFile());
 
-  remove_account(gPopAccount, amc, true, false);
+  remove_account(gPopAccount, tab, true, false);
   assert_true(accountDir.exists());
+
+  close_advanced_settings(tab);
 }
 
 /**
@@ -93,7 +94,8 @@ function subtest_account_data_deletion1(amc) {
  *
  * @param amc  The account options controller.
  */
-function subtest_account_data_deletion2(amc) {
+function test_account_data_deletion2() {
+  let tab = open_advanced_settings();
   let accountDir = gImapAccount.incomingServer.localPath;
   assert_true(accountDir.isDirectory());
 
@@ -102,6 +104,8 @@ function subtest_account_data_deletion2(amc) {
   inboxFile.append("INBOX.msf");
   assert_true(inboxFile.isFile());
 
-  remove_account(gImapAccount, amc, true, true);
+  remove_account(gImapAccount, tab, true, true);
   assert_false(accountDir.exists());
+
+  close_advanced_settings(tab);
 }

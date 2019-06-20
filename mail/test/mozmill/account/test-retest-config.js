@@ -101,4 +101,3 @@ function test_re_test_config() {
     close_window(awc);
   });
 }
-

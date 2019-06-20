@@ -5,8 +5,10 @@
 "use strict";
 
 /* import-globals-from ../shared-modules/test-account-manager-helpers.js */
+/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 /* import-globals-from ../shared-modules/test-keyboard-helpers.js */
+/* import-globals-from ../shared-modules/test-pref-window-helpers.js */
 /* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-account-port-setting";
@@ -16,6 +18,8 @@ var MODULE_REQUIRES = [
   "window-helpers",
   "account-manager-helpers",
   "keyboard-helpers",
+  "content-tab-helpers",
+  "pref-window-helpers",
 ];
 
 var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
@@ -30,17 +34,24 @@ var PORT_NUMBERS_TO_TEST =
 
 var gTestNumber;
 
-function subtest_check_set_port_number(amc, aDontSet) {
+function setupModule(module) {
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
+}
+
+function subtest_check_set_port_number(aDontSet) {
   // This test expects the following POP account to exist by default
   // with port number 110 and no security.
   let server = MailServices.accounts
                            .FindServer("tinderbox", FAKE_SERVER_HOSTNAME, "pop3");
   let account = MailServices.accounts.FindAccountForServer(server);
 
-  let accountRow = get_account_tree_row(account.key, "am-server.xul", amc);
-  click_account_tree_row(amc, accountRow);
+  let tab = open_advanced_settings();
+  let accountRow = get_account_tree_row(account.key, "am-server.xul", tab);
+  click_account_tree_row(tab, accountRow);
 
-  let iframe = amc.window.document.getElementById("contentFrame");
+  let iframe = content_tab_e(tab, "contentFrame");
   let portElem = iframe.contentDocument.getElementById("server.port");
   portElem.focus();
 
@@ -50,29 +61,19 @@ function subtest_check_set_port_number(amc, aDontSet) {
                     " as expected, it is: " + portElem.value);
 
   if (!aDontSet) {
-    delete_all_existing(amc, new elib.Elem(portElem));
-    input_value(amc, PORT_NUMBERS_TO_TEST[gTestNumber]);
+    delete_all_existing(mc, new elib.Elem(portElem));
+    input_value(mc, PORT_NUMBERS_TO_TEST[gTestNumber]);
 
     mc.sleep(0);
   }
 
-  mc.click(new elib.Elem(amc.window.document.getElementById("accountManager").getButton("accept")));
-}
-
-function subtest_check_port_number(amc) {
-  subtest_check_set_port_number(amc, true);
-}
-
-function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
+  close_advanced_settings(tab);
 }
 
 function test_account_port_setting() {
   for (gTestNumber = 1; gTestNumber < PORT_NUMBERS_TO_TEST.length; ++gTestNumber) {
-    open_advanced_settings(subtest_check_set_port_number);
+    subtest_check_set_port_number(false);
   }
 
-  open_advanced_settings(subtest_check_port_number);
+  subtest_check_set_port_number(true);
 }
