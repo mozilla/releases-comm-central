@@ -8,6 +8,7 @@
 /* import-globals-from ../../../mailnews/base/util/mailnewsMigrator.js */
 /* import-globals-from ../../components/newmailaccount/content/accountProvisionerTab.js */
 /* import-globals-from ../../components/preferences/preferencesTab.js */
+/* import-globals-from messenger-customization.js */
 /* import-globals-from commandglue.js */
 /* import-globals-from folderDisplay.js */
 /* import-globals-from folderPane.js */
@@ -430,8 +431,15 @@ function OnLoadMessenger() {
   TagUtils.loadTagsIntoCSS(document);
 
   migrateMailnews();
+
+  // Run menubar initialization first, to avoid TabsInTitlebar code picking
+  // up mutations from it and causing a reflow.
+  if (AppConstants.platform != "macosx") {
+    AutoHideMenubar.init();
+  }
   // Rig up our TabsInTitlebar early so that we can catch any resize events.
   TabsInTitlebar.init();
+
   // update the pane config before we exit onload otherwise the user may see a flicker if we poke the document
   // in delayedOnLoadMessenger...
   UpdateMailPaneConfig(false);
