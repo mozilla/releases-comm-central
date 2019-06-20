@@ -103,7 +103,7 @@ function nAccounts() {
  *                         restore the Account Provisioner tab before filling
  *                         in the form. Defaults to false.
  */
-function disabled_test_get_an_account(aCloseAndRestore) {
+function test_get_an_account(aCloseAndRestore) {
   let originalEngine = Services.search.defaultEngine;
   // Open the provisioner - once opened, let subtest_get_an_account run.
   plan_for_modal_dialog("AccountCreation", subtest_get_an_account);
@@ -213,15 +213,15 @@ function subtest_get_an_account_part_2(w) {
  * Runs test_get_an_account again, but this time, closes and restores the
  * order form tab before submitting it.
  */
-function disabled_test_restored_ap_tab_works() {
-  // test_get_an_account(true);
+function test_restored_ap_tab_works() {
+  test_get_an_account(true);
 }
 
 /**
  * Test that clicking on the "I think I'll configure my account later"
  * button dismisses the Account Provisioner window.
  */
-function disabled_test_can_dismiss_account_provisioner() {
+function test_can_dismiss_account_provisioner() {
   plan_for_modal_dialog("AccountCreation", subtest_can_dismiss_account_provisioner);
   open_provisioner_window();
   wait_for_modal_dialog("AccountCreation");
@@ -246,7 +246,7 @@ function subtest_can_dismiss_account_provisioner(w) {
  * Test that clicking on the "Skip this and use my existing email" button
  * sends us to the existing email account wizard.
  */
-function disabled_test_can_switch_to_existing_email_account_wizard() {
+function test_can_switch_to_existing_email_account_wizard() {
   plan_for_modal_dialog("AccountCreation",
                         subtest_can_switch_to_existing_email_account_wizard);
   open_provisioner_window();
@@ -278,7 +278,7 @@ function subtest_can_switch_to_existing_email_account_wizard(w) {
  * Test that clicking on the "Other languages" div causes account
  * providers with other languages to be displayed.
  */
-function disabled_test_can_display_providers_in_other_languages() {
+function test_can_display_providers_in_other_languages() {
   plan_for_modal_dialog("AccountCreation",
                         subtest_can_display_providers_in_other_languages);
   open_provisioner_window();
@@ -310,7 +310,7 @@ function subtest_can_display_providers_in_other_languages(w) {
  * then flip back and forth between that and the existing email
  * wizard, and then test to see if we can dismiss the provisioner.
  */
-function disabled_test_flip_flop_from_provisioner_menuitem() {
+function test_flip_flop_from_provisioner_menuitem() {
   plan_for_modal_dialog("AccountCreation",
                         subtest_flip_flop_from_provisioner_menuitem);
   plan_for_new_window("mail:autoconfig");
@@ -369,7 +369,7 @@ function subtest_close_provisioner(w) {
  * Test that the name typed into the search field gets persisted after
  * doing a search, or choosing to go to the email setup wizard.
  */
-function disabled_test_persist_name_in_search_field() {
+function test_persist_name_in_search_field() {
   plan_for_modal_dialog("AccountCreation",
                         subtest_persist_name_in_search_field);
   open_provisioner_window();
@@ -416,7 +416,7 @@ function subtest_persist_name_in_search_field_part_2(w) {
  * Test that names with HTML characters are escaped properly when displayed
  * back to the user.
  */
-function disabled_test_html_characters_and_ampersands() {
+function test_html_characters_and_ampersands() {
   plan_for_modal_dialog("AccountCreation",
                         subtest_html_characters_and_ampersands);
   open_provisioner_window();
@@ -460,7 +460,7 @@ function subtest_html_characters_and_ampersands(w) {
  * Test that only the terms of service and privacy links for selected
  * providers are shown in the disclaimer.
  */
-function disabled_test_show_tos_privacy_links_for_selected_providers() {
+function test_show_tos_privacy_links_for_selected_providers() {
   plan_for_modal_dialog("AccountCreation",
                         subtest_show_tos_privacy_links_for_selected_providers);
   open_provisioner_window();
@@ -534,7 +534,7 @@ function subtest_show_tos_privacy_links_for_selected_providers(w) {
  * Test that if the search goes bad on the server-side, that we show an
  * error.
  */
-function disabled_test_shows_error_on_bad_suggest_from_name() {
+function test_shows_error_on_bad_suggest_from_name() {
   let original = Services.prefs.getCharPref(kSuggestFromNamePref);
   Services.prefs.setCharPref(kSuggestFromNamePref, url + "badSuggestFromName");
   plan_for_modal_dialog("AccountCreation",
@@ -565,7 +565,7 @@ function subtest_shows_error_on_bad_suggest_from_name(w) {
  * Test that if we get an empty result from the server after a search, that
  * we show an error message.
  */
-function disabled_test_shows_error_on_empty_suggest_from_name() {
+function test_shows_error_on_empty_suggest_from_name() {
   let original = Services.prefs.getCharPref(kSuggestFromNamePref);
   Services.prefs.setCharPref(kSuggestFromNamePref, url + "emptySuggestFromName");
   plan_for_modal_dialog("AccountCreation",
@@ -597,7 +597,7 @@ function subtest_shows_error_on_empty_suggest_from_name(w) {
  * to the user after account registration, that we log the error
  * in the error console.
  */
-function disabled_test_throws_console_error_on_corrupt_XML() {
+function test_throws_console_error_on_corrupt_XML() {
   // Open the provisioner - once opened, let subtest_get_an_account run.
   get_to_order_form("corrupt@corrupt.invalid");
   let tab = mc.tabmail.currentTabInfo;
@@ -626,7 +626,7 @@ function disabled_test_throws_console_error_on_corrupt_XML() {
  * Test that if the providerList is invalid or broken JSON, that
  * we "go offline" and display an error message.
  */
-function disabled_test_broken_provider_list_goes_offline() {
+function test_broken_provider_list_goes_offline() {
   let original = Services.prefs.getCharPref(kProviderListPref);
   Services.prefs.setCharPref(kProviderListPref, url + "providerListBad");
 
@@ -649,7 +649,7 @@ function subtest_broken_provider_list_goes_offline(w) {
  * Test that if a provider has not included some of the required fields,
  * then they're not included as a potential provider for the user.
  */
-function disabled_test_incomplete_provider_not_displayed() {
+function test_incomplete_provider_not_displayed() {
   let original = Services.prefs.getCharPref(kProviderListPref);
   Services.prefs.setCharPref(kProviderListPref, url + "providerListIncomplete");
 
@@ -683,7 +683,7 @@ function subtest_incomplete_provider_not_displayed(w) {
  * Test that if the search text input is empty, or if no providers are selected,
  * that the search submit button is disabled.
  */
-function disabled_test_search_button_disabled_cases() {
+function test_search_button_disabled_cases() {
   plan_for_modal_dialog("AccountCreation",
                         subtest_search_button_disabled_cases);
   open_provisioner_window();
@@ -764,7 +764,7 @@ function subtest_search_button_disabled_cases(w) {
  * with no accounts, and when preffed off, if the Account Provisioner does
  * spawn (which it shouldn't), the instrumentation Mozmill test should fail.
  */
-function disabled_test_can_pref_off_account_provisioner() {
+function test_can_pref_off_account_provisioner() {
   // First, we'll disable the account provisioner.
   Services.prefs.setBoolPref("mail.provider.enabled", false);
 
@@ -835,14 +835,14 @@ function disabled_test_can_pref_off_account_provisioner() {
 }
 
 // We cannot control menus via Mozmill in OSX, so we'll skip this test.
-// test_can_pref_off_account_provisioner.EXCLUDED_PLATFORMS = ["darwin"];
+test_can_pref_off_account_provisioner.EXCLUDED_PLATFORMS = ["darwin"];
 
 /**
  * Tests that if we load a provider list that does not include providers in
  * other languages, then the "show me providers in other languages" link is
  * hidden.
  */
-function disabled_test_other_lang_link_hides() {
+function test_other_lang_link_hides() {
   let original = Services.prefs.getCharPref(kProviderListPref);
   Services.prefs.setCharPref(kProviderListPref, url + "providerListNoOtherLangs");
 
@@ -929,7 +929,7 @@ function close_dialog_immediately(aController) {
  * Test that clicking on links in the order form open in the same account
  * provisioner tab.
  */
-function disabled_test_internal_link_opening_behaviour() {
+function test_internal_link_opening_behaviour() {
   get_to_order_form();
 
   // Open the provisioner - once opened, let subtest_get_an_account run...
@@ -950,7 +950,7 @@ function disabled_test_internal_link_opening_behaviour() {
 /**
  * Test that window.open in the order form opens in new content tabs.
  */
-function disabled_test_window_open_link_opening_behaviour() {
+function test_window_open_link_opening_behaviour() {
   get_to_order_form();
 
   let tab = mc.tabmail.currentTabInfo;
@@ -972,7 +972,7 @@ function disabled_test_window_open_link_opening_behaviour() {
 /**
  * Test that links with target="_blank" open in the default browser.
  */
-function disabled_test_external_link_opening_behaviour() {
+function test_external_link_opening_behaviour() {
   get_to_order_form();
 
   let tab = mc.tabmail.currentTabInfo;
@@ -996,7 +996,7 @@ function disabled_test_external_link_opening_behaviour() {
  * Test that if the provider returns XML that we can't turn into an account,
  * then we error out and go back to the Account Provisioner dialog.
  */
-function disabled_test_return_to_provisioner_on_error_XML() {
+function test_return_to_provisioner_on_error_XML() {
   const kOriginalTabNum = mc.tabmail.tabContainer.childNodes.length;
 
   get_to_order_form("error@error.invalid");
@@ -1023,7 +1023,7 @@ function disabled_test_return_to_provisioner_on_error_XML() {
  * and all checkboxes should be disabled. The ability to close the window should
  * still be enabled though.
  */
-function disabled_test_disabled_fields_when_searching() {
+function test_disabled_fields_when_searching() {
   plan_for_modal_dialog("AccountCreation",
                         subtest_disabled_fields_when_searching);
   open_provisioner_window();
@@ -1125,7 +1125,7 @@ function subtest_disabled_fields_when_searching(aController) {
  * Tests that the search button is disabled if there is no initially
  * supported language for the user.
  */
-function disabled_test_search_button_disabled_if_no_lang_support() {
+function test_search_button_disabled_if_no_lang_support() {
   // Set the user's supported language to something ridiculous (caching the
   // old one so we can put it back later).
   let originalReqLocales = Services.locale.requestedLocales;
@@ -1166,7 +1166,7 @@ function subtest_search_button_enabled_state_on_init(aController) {
  * including "*", they are always displayed, even if the users locale pref
  * is not set to "*".
  */
-function disabled_test_provider_language_wildcard() {
+function test_provider_language_wildcard() {
   let originalReqLocales = Services.locale.requestedLocales;
   Services.locale.requestedLocales = ["foo-ba"];
 
@@ -1201,7 +1201,7 @@ function subtest_provider_language_wildcard(aController) {
  * Tests that the search button is disabled if we start up the Account
  * Provisioner, and we have no search in the input.
  */
-function disabled_test_search_button_disabled_if_no_query_on_init() {
+function test_search_button_disabled_if_no_query_on_init() {
   // We have to do a little bit of gymnastics to access the local storage
   // for the accountProvisioner dialog...
   let url = "https://accountprovisioner.thunderbird.invalid";
@@ -1225,7 +1225,7 @@ function disabled_test_search_button_disabled_if_no_query_on_init() {
  * Account Provisioner tab is opened, that we focus the tab instead of opening
  * the dialog.
  */
-function disabled_test_get_new_account_focuses_existing_ap_tab() {
+function test_get_new_account_focuses_existing_ap_tab() {
   get_to_order_form("green@example.com");
   let apTab = mc.tabmail.getTabInfoForCurrentOrFirstModeInstance(
     mc.tabmail.tabModes.accountProvisionerTab);
@@ -1260,7 +1260,7 @@ function disabled_test_get_new_account_focuses_existing_ap_tab() {
 /**
  * Test that some prices can be per-address, instead of per-provider.
  */
-function disabled_test_per_address_prices() {
+function test_per_address_prices() {
   plan_for_modal_dialog("AccountCreation", subtest_per_address_prices);
   open_provisioner_window();
   wait_for_modal_dialog("AccountCreation");
