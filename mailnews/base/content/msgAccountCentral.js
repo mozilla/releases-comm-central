@@ -268,7 +268,7 @@ function ComposeAMessage(event) {
  *                    'am-addressing.xul', 'am-smtp.xul'
  */
 function ViewSettings(selectPage) {
-  window.parent.MsgAccountManager(selectPage);
+  window.parent.MsgAccountManager(selectPage, selectedServer);
 }
 
 // Open AccountWizard to create an account
