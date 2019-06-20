@@ -50,10 +50,6 @@ search-value {
   -moz-binding: url("chrome://messenger/content/searchWidgets.xml#ruleaction");
 }
 
-.ruleactiontype {
-  -moz-binding: url("chrome://messenger/content/searchWidgets.xml#ruleactiontype-menulist");
-}
-
 #searchInput {
   -moz-binding: url("chrome://messenger/content/search.xml#glodaSearch");
 }

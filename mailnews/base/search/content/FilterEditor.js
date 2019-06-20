@@ -710,5 +710,5 @@ function setLastActionFocus() {
   if (lastAction >= gFilterActionList.itemCount)
     lastAction = gFilterActionList.itemCount - 1;
 
-  gFilterActionList.getItemAtIndex(lastAction).mRuleActionType.menulist.focus();
+  gFilterActionList.getItemAtIndex(lastAction).mRuleActionType.focus();
 }

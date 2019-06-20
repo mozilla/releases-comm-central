@@ -27,261 +27,6 @@
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
           xmlns:xbl="http://www.mozilla.org/xbl">
 
-  <binding id="ruleactiontype-menulist">
-    <content>
-      <xul:menulist class="ruleaction-type">
-          <xul:menupopup>
-            <xul:menuitem label="&moveMessage.label;" value="movemessage" enablefornews="false"/>
-            <xul:menuitem label="&copyMessage.label;" value="copymessage"/>
-            <xul:menuseparator enablefornews="false"/>
-            <xul:menuitem label="&forwardTo.label;" value="forwardmessage" enablefornews="false"/>
-            <xul:menuitem label="&replyWithTemplate.label;" value="replytomessage" enablefornews="false"/>
-            <xul:menuseparator/>
-            <xul:menuitem label="&markMessageRead.label;" value="markasread"/>
-            <xul:menuitem label="&markMessageUnread.label;" value="markasunread"/>
-            <xul:menuitem label="&markMessageStarred.label;" value="markasflagged"/>
-            <xul:menuitem label="&setPriority.label;"  value="setpriorityto"/>
-            <xul:menuitem label="&addTag.label;"  value="addtagtomessage"/>
-            <xul:menuitem label="&setJunkScore.label;" value="setjunkscore" enablefornews="false"/>
-            <xul:menuseparator enableforpop3="true"/>
-            <xul:menuitem label="&deleteMessage.label;" value="deletemessage"/>
-            <xul:menuitem label="&deleteFromPOP.label;" value="deletefrompopserver" enableforpop3="true"/>
-            <xul:menuitem label="&fetchFromPOP.label;"  value="fetchfrompopserver" enableforpop3="true"/>
-            <xul:menuseparator/>
-            <xul:menuitem label="&ignoreThread.label;" value="ignorethread"/>
-            <xul:menuitem label="&ignoreSubthread.label;" value="ignoresubthread"/>
-            <xul:menuitem label="&watchThread.label;" value="watchthread"/>
-            <xul:menuseparator/>
-            <xul:menuitem label="&stopExecution.label;" value="stopexecution"/>
-          </xul:menupopup>
-      </xul:menulist>
-    </content>
-
-    <implementation>
-      <constructor>
-        <![CDATA[
-          // Force initialization of the menulist custom element first.
-          customElements.upgrade(this.menulist);
-          this.addCustomActions();
-          this.hideInvalidActions();
-          // differentiate between creating a new, next available action,
-          // and creating a row which will be initialized with an action
-          if (!this.parentNode.hasAttribute("initialActionIndex")) {
-            var unavailableActions = this.usedActionsList();
-            // select the first one that's not in the list
-            for (let index = 0; index < this.menuitems.length; index++) {
-              var menu = this.menuitems[index];
-              if (!(menu.value in unavailableActions) && !menu.hidden) {
-                this.menulist.value = menu.value;
-                this.parentNode.setAttribute("value", menu.value);
-                break;
-              }
-            }
-          } else {
-            this.parentNode.mActionTypeInitialized = true;
-            this.parentNode.clearInitialActionIndex();
-          }
-        ]]>
-      </constructor>
-
-      <field name="menulist">document.getAnonymousNodes(this)[0]</field>
-      <field name="menuitems"><![CDATA[
-        this.menulist.getElementsByTagNameNS(this.menulist.namespaceURI, "menuitem")
-      ]]></field>
-
-      <method name="hideInvalidActions">
-        <body>
-          <![CDATA[
-            let menupopup = this.menulist.menupopup;
-            let scope = getScopeFromFilterList(gFilterList);
-
-            // walk through the list of filter actions and hide any actions which aren't valid
-            // for our given scope (news, imap, pop, etc) and context
-            let elements, i;
-
-            // disable / enable all elements in the "filteractionlist"
-            // based on the scope and the "enablefornews" attribute
-            elements = menupopup.getElementsByAttribute("enablefornews", "true");
-            for (i = 0; i < elements.length; i++)
-              elements[i].hidden = scope != Ci.nsMsgSearchScope.newsFilter;
-
-            elements = menupopup.getElementsByAttribute("enablefornews", "false");
-            for (i = 0; i < elements.length; i++)
-              elements[i].hidden = scope == Ci.nsMsgSearchScope.newsFilter;
-
-            elements = menupopup.getElementsByAttribute("enableforpop3", "true");
-            for (i = 0; i < elements.length; i++)
-              elements[i].hidden = !((gFilterList.folder.server.type == "pop3") ||
-                                     (gFilterList.folder.server.type == "none"));
-
-            elements = menupopup.getElementsByAttribute("isCustom", "true");
-            // Note there might be an additional element here as a placeholder
-            // for a missing action, so we iterate over the known actions
-            // instead of the elements.
-            for (i = 0; i < gCustomActions.length; i++)
-              elements[i].hidden = !gCustomActions[i]
-                                     .isValidForType(gFilterType, scope);
-
-            // Disable "Reply with Template" if there are no templates.
-            if (!this.getTemplates(false)) {
-              elements = menupopup.getElementsByAttribute("value", "replytomessage");
-              if (elements.length == 1)
-                elements[0].hidden = true;
-            }
-          ]]>
-        </body>
-      </method>
-
-      <method name="addCustomActions">
-        <body>
-          <![CDATA[
-            var menupopup = this.menulist.menupopup;
-            for (let i = 0; i < gCustomActions.length; i++) {
-              var customAction = gCustomActions[i];
-              var menuitem = document.createElementNS(
-                "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
-                "xul:menuitem");
-              menuitem.setAttribute("label", customAction.name);
-              menuitem.setAttribute("value", customAction.id);
-              menuitem.setAttribute("isCustom", "true");
-              menupopup.appendChild(menuitem);
-            }
-          ]]>
-        </body>
-      </method>
-
-      <!-- returns a hash containing all of the filter actions which are currently being used by other filteractionrows -->
-      <method name="usedActionsList">
-        <body>
-          <![CDATA[
-            var usedActions = {};
-            var currentFilterActionRow = this.parentNode;
-            var listBox = currentFilterActionRow.mListBox; // need to account for the list item
-            // now iterate over each list item in the list box
-            for (let index = 0; index < listBox.getRowCount(); index++) {
-              var filterActionRow = listBox.getItemAtIndex(index);
-              if (filterActionRow != currentFilterActionRow) {
-                let actionValue = filterActionRow.getAttribute("value");
-
-                // let custom actions decide if dups are allowed
-                var isCustom = false;
-                for (let i = 0; i < gCustomActions.length; i++) {
-                  if (gCustomActions[i].id == actionValue) {
-                    isCustom = true;
-                    if (!gCustomActions[i].allowDuplicates)
-                      usedActions[actionValue] = true;
-                    break;
-                  }
-                }
-
-                if (!isCustom) {
-                  // The following actions can appear more than once in a single filter
-                  // so do not set them as already used.
-                  if (actionValue != "addtagtomessage" &&
-                      actionValue != "forwardmessage" &&
-                      actionValue != "copymessage")
-                    usedActions[actionValue] = true;
-                  // If either Delete message or Move message exists, disable the other one.
-                  // It does not make sense to apply both to the same message.
-                  if (actionValue == "deletemessage")
-                    usedActions.movemessage = true;
-                  else if (actionValue == "movemessage")
-                    usedActions.deletemessage = true;
-                  // The same with Mark as read/Mark as Unread.
-                  else if (actionValue == "markasread")
-                    usedActions.markasunread = true;
-                  else if (actionValue == "markasunread")
-                    usedActions.markasread = true;
-                }
-              }
-            }
-            return usedActions;
-          ]]>
-        </body>
-      </method>
-
-      <!--
-        - Check if there exist any templates in this account.
-        -
-        - @param populateTemplateList  If true, create menuitems representing
-        -                              the found templates.
-        - @param templateMenuList      The menulist element to create items in.
-        -
-        - @return  True if at least one template was found, otherwise false.
-      -->
-      <method name="getTemplates">
-        <parameter name="populateTemplateList"/>
-        <parameter name="templateMenuList"/>
-        <body>
-          <![CDATA[
-            ChromeUtils.import("resource:///modules/iteratorUtils.jsm", this);
-            ChromeUtils.import("resource:///modules/MailUtils.jsm", this);
-            let identitiesRaw = MailServices.accounts
-              .getIdentitiesForServer(gFilterList.folder.server);
-            let identities = Array.from(this.fixIterator(identitiesRaw,
-                                                         Ci.nsIMsgIdentity));
-
-            if (identities.length == 0) { // typically if this is Local Folders
-              if (MailServices.accounts.defaultAccount)
-                identities.push(MailServices.accounts.defaultAccount.defaultIdentity);
-            }
-
-            let templateFound = false;
-            let foldersScanned = [];
-
-            for (let identity of identities) {
-              let enumerator = null;
-              let msgFolder = this.MailUtils.getExistingFolder(identity.stationeryFolder);
-              // If we already processed this folder, do not set enumerator
-              // so that we skip this identity.
-              if (msgFolder && !foldersScanned.includes(msgFolder)) {
-                foldersScanned.push(msgFolder);
-                enumerator = msgFolder.msgDatabase.EnumerateMessages();
-              }
-
-              if (!enumerator)
-                continue;
-
-              while (enumerator.hasMoreElements()) {
-                let header = enumerator.getNext();
-                if (header instanceof Ci.nsIMsgDBHdr) {
-                  templateFound = true;
-                  if (!populateTemplateList)
-                    return true;
-                  let msgTemplateUri = msgFolder.URI + "?messageId=" +
-                    header.messageId + "&subject=" + header.mime2DecodedSubject;
-                  templateMenuList.appendItem(header.mime2DecodedSubject, msgTemplateUri);
-                }
-              }
-            }
-
-            return templateFound;
-          ]]>
-        </body>
-      </method>
-
-    </implementation>
-
-    <handlers>
-      <handler event="command">
-        <![CDATA[
-          this.parentNode.setAttribute("value", this.menulist.value);
-          checkActionsReorder();
-        ]]>
-      </handler>
-
-      <handler event="popupshowing">
-        <![CDATA[
-          var unavailableActions = this.usedActionsList();
-          for (let index = 0; index < this.menuitems.length; index++) {
-            var menu = this.menuitems[index];
-            menu.setAttribute("disabled", menu.value in unavailableActions);
-          }
-        ]]>
-      </handler>
-    </handlers>
-  </binding>
-
   <!-- This binding exists to disable the default binding of a richlistitem
        in the search terms. -->
   <binding id="filterlistitem" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
@@ -311,8 +56,32 @@
 
   <binding id="ruleaction" extends="#filterlistitem">
     <content allowevents="true">
-      <xul:hbox class="ruleactiontype"
-                    flex="&filterActionTypeFlexValue;"/>
+      <xul:menulist is="ruleactiontype-menulist" flex="&filterActionTypeFlexValue;">
+        <xul:menupopup>
+          <xul:menuitem label="&moveMessage.label;" value="movemessage" enablefornews="false"/>
+          <xul:menuitem label="&copyMessage.label;" value="copymessage"/>
+          <xul:menuseparator enablefornews="false"/>
+          <xul:menuitem label="&forwardTo.label;" value="forwardmessage" enablefornews="false"/>
+          <xul:menuitem label="&replyWithTemplate.label;" value="replytomessage" enablefornews="false"/>
+          <xul:menuseparator/>
+          <xul:menuitem label="&markMessageRead.label;" value="markasread"/>
+          <xul:menuitem label="&markMessageUnread.label;" value="markasunread"/>
+          <xul:menuitem label="&markMessageStarred.label;" value="markasflagged"/>
+          <xul:menuitem label="&setPriority.label;" value="setpriorityto"/>
+          <xul:menuitem label="&addTag.label;" value="addtagtomessage"/>
+          <xul:menuitem label="&setJunkScore.label;" value="setjunkscore" enablefornews="false"/>
+          <xul:menuseparator enableforpop3="true"/>
+          <xul:menuitem label="&deleteMessage.label;" value="deletemessage"/>
+          <xul:menuitem label="&deleteFromPOP.label;" value="deletefrompopserver" enableforpop3="true"/>
+          <xul:menuitem label="&fetchFromPOP.label;" value="fetchfrompopserver" enableforpop3="true"/>
+          <xul:menuseparator/>
+          <xul:menuitem label="&ignoreThread.label;" value="ignorethread"/>
+          <xul:menuitem label="&ignoreSubthread.label;" value="ignoresubthread"/>
+          <xul:menuitem label="&watchThread.label;" value="watchthread"/>
+          <xul:menuseparator/>
+          <xul:menuitem label="&stopExecution.label;" value="stopexecution"/>
+        </xul:menupopup>
+      </xul:menulist>
       <xul:ruleactiontarget-wrapper xbl:inherits="type=value"
                                     class="ruleactiontarget"
                                     flex="&filterActionTargetFlexValue;"/>
@@ -382,7 +151,7 @@
                       gFilterBundle.getString("filterMissingCustomAction"));
                   menuitem.setAttribute("value", filterActionStr);
                   menuitem.disabled = true;
-                  this.mRuleActionType.menulist.menupopup.appendChild(menuitem);
+                  this.mRuleActionType.menupopup.appendChild(menuitem);
                   var scriptError = Cc["@mozilla.org/scripterror;1"]
                       .createInstance(Ci.nsIScriptError);
                   scriptError.init("Missing custom action " + filterActionStr,
@@ -417,8 +186,7 @@
             }
             if (aFilterAction.type != nsMsgFilterAction.Custom)
               filterActionStr = gFilterActionStrings[aFilterAction.type];
-            document.getAnonymousNodes(this.mRuleActionType)[0]
-                    .value = filterActionStr;
+            this.mRuleActionType.value = filterActionStr;
             this.mRuleActionTargetInitialized = true;
             this.clearInitialActionIndex();
             checkActionsReorder();
@@ -531,7 +299,7 @@
             let actionItemLabel = actionItem && actionItem.childNodes[0].label;
 
             let actionString = {
-              label: document.getAnonymousNodes(this.mRuleActionType)[0].label,
+              label: this.mRuleActionType.label,
               argument: "",
             };
             if (actionItem) {

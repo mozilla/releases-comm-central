@@ -3,13 +3,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global MozXULElement, gFilter, gFilterList, onEnterInSearchTerm, convertDateToString,
-   convertPRTimeToString, convertStringToPRTime, UpdateAfterCustomHeaderChange,
-   initializeTermFromId */
+/* global MozXULElement, gFilter, gFilterList, onEnterInSearchTerm, convertDateToString, initializeTermFromId,
+   convertPRTimeToString, convertStringToPRTime, UpdateAfterCustomHeaderChange, checkActionsReorder,
+   initializeTermFrom, IdcheckActionsReorder, getScopeFromFilterList, gCustomActions, gFilterType */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
 const updateParentNode = (parentNode) => {
   if (parentNode.hasAttribute("initialActionIndex")) {
@@ -90,8 +91,8 @@ class MozRuleactiontargetReplyto extends MozXULElement {
 
     this.appendChild(menulist);
 
-    document.getAnonymousElementByAttribute(this.closest(".ruleaction"), "class", "ruleactiontype")
-            .getTemplates(true, menulist);
+    document.getAnonymousElementByAttribute(this.closest(".ruleaction"), "is", "ruleactiontype-menulist")
+      .getTemplates(true, menulist);
 
     updateParentNode(this.closest(".ruleaction"));
   }
@@ -628,7 +629,7 @@ class MozSearchValue extends MozXULElement {
 
   connectedCallback() {
     if (this.delayConnectedCallback()) {
-        return;
+      return;
     }
 
     // Initialize strings.
@@ -1027,3 +1028,228 @@ class MozSearchValue extends MozXULElement {
   }
 }
 customElements.define("search-value", MozSearchValue);
+
+customElements.whenDefined("menulist").then(() => {
+  /**
+   * The MozRuleactiontypeMenulist is a widget that allows selecting the actions from the given menulist for
+   * the selected folder. It gets displayed in the message filter dialog box.
+   *
+   * @extends {MozMenuList}
+   */
+  class MozRuleactiontypeMenulist extends customElements.get("menulist") {
+    connectedCallback() {
+      super.connectedCallback();
+      if (this.delayConnectedCallback() || this.hasConnected) {
+        return;
+      }
+      this.hasConnected = true;
+
+      this.setAttribute("is", "ruleactiontype-menulist");
+      this.addEventListener("command", (event) => {
+        this.parentNode.setAttribute("value", this.value);
+        checkActionsReorder();
+      });
+
+      this.addEventListener("popupshowing", (event) => {
+        let unavailableActions = this.usedActionsList();
+        for (let index = 0; index < this.menuitems.length; index++) {
+          let menu = this.menuitems[index];
+          menu.setAttribute("disabled", menu.value in unavailableActions);
+        }
+      });
+
+      this.menuitems = this.getElementsByTagNameNS(this.namespaceURI, "menuitem");
+
+      // Force initialization of the menulist custom element first.
+      customElements.upgrade(this);
+      this.addCustomActions();
+      this.hideInvalidActions();
+      // Differentiate between creating a new, next available action,
+      // and creating a row which will be initialized with an action.
+      if (!this.parentNode.hasAttribute("initialActionIndex")) {
+        let unavailableActions = this.usedActionsList();
+        // Select the first one that's not in the list.
+        for (let index = 0; index < this.menuitems.length; index++) {
+          let menu = this.menuitems[index];
+          if (!(menu.value in unavailableActions) && !menu.hidden) {
+            this.value = menu.value;
+            this.parentNode.setAttribute("value", menu.value);
+            break;
+          }
+        }
+      } else {
+        this.parentNode.mActionTypeInitialized = true;
+        this.parentNode.clearInitialActionIndex();
+      }
+    }
+
+    hideInvalidActions() {
+      let menupopup = this.menupopup;
+      let scope = getScopeFromFilterList(gFilterList);
+
+      // Walk through the list of filter actions and hide any actions which aren't valid
+      // for our given scope (news, imap, pop, etc) and context.
+      let elements;
+
+      // Disable / enable all elements in the "filteractionlist"
+      // based on the scope and the "enablefornews" attribute.
+      elements = menupopup.getElementsByAttribute("enablefornews", "true");
+      for (let i = 0; i < elements.length; i++) {
+        elements[i].hidden = scope != Ci.nsMsgSearchScope.newsFilter;
+      }
+
+      elements = menupopup.getElementsByAttribute("enablefornews", "false");
+      for (let i = 0; i < elements.length; i++) {
+        elements[i].hidden = scope == Ci.nsMsgSearchScope.newsFilter;
+      }
+
+      elements = menupopup.getElementsByAttribute("enableforpop3", "true");
+      for (let i = 0; i < elements.length; i++) {
+        elements[i].hidden = !((gFilterList.folder.server.type == "pop3") ||
+          (gFilterList.folder.server.type == "none"));
+      }
+
+      elements = menupopup.getElementsByAttribute("isCustom", "true");
+      // Note there might be an additional element here as a placeholder
+      // for a missing action, so we iterate over the known actions
+      // instead of the elements.
+      for (let i = 0; i < gCustomActions.length; i++) {
+        elements[i].hidden = !gCustomActions[i]
+          .isValidForType(gFilterType, scope);
+      }
+
+      // Disable "Reply with Template" if there are no templates.
+      if (!this.getTemplates(false)) {
+        elements = menupopup.getElementsByAttribute("value", "replytomessage");
+        if (elements.length == 1) {
+          elements[0].hidden = true;
+        }
+      }
+    }
+
+    addCustomActions() {
+      var menupopup = this.menupopup;
+      for (let i = 0; i < gCustomActions.length; i++) {
+        let customAction = gCustomActions[i];
+        let menuitem = document.createXULElement("menuitem");
+        menuitem.setAttribute("label", customAction.name);
+        menuitem.setAttribute("value", customAction.id);
+        menuitem.setAttribute("isCustom", "true");
+        menupopup.appendChild(menuitem);
+      }
+    }
+
+    /**
+     * Returns a hash containing all of the filter actions which are currently
+     * being used by other filteractionrows.
+     *
+     * @return {Object} - a hash containing all of the filter actions which are
+     *                    currently being used by other filteractionrows.
+     */
+    usedActionsList() {
+      let usedActions = {};
+      let currentFilterActionRow = this.parentNode;
+      let listBox = currentFilterActionRow.mListBox; // need to account for the list item.
+      // Now iterate over each list item in the list box.
+      for (let index = 0; index < listBox.getRowCount(); index++) {
+        let filterActionRow = listBox.getItemAtIndex(index);
+        if (filterActionRow != currentFilterActionRow) {
+          let actionValue = filterActionRow.getAttribute("value");
+
+          // Let custom actions decide if dups are allowed.
+          let isCustom = false;
+          for (let i = 0; i < gCustomActions.length; i++) {
+            if (gCustomActions[i].id == actionValue) {
+              isCustom = true;
+              if (!gCustomActions[i].allowDuplicates) {
+                usedActions[actionValue] = true;
+              }
+              break;
+            }
+          }
+
+          if (!isCustom) {
+            // The following actions can appear more than once in a single filter
+            // so do not set them as already used.
+            if (actionValue != "addtagtomessage" &&
+              actionValue != "forwardmessage" &&
+              actionValue != "copymessage") {
+              usedActions[actionValue] = true;
+            }
+            // If either Delete message or Move message exists, disable the other one.
+            // It does not make sense to apply both to the same message.
+            if (actionValue == "deletemessage") {
+              usedActions.movemessage = true;
+            } else if (actionValue == "movemessage") {
+              usedActions.deletemessage = true;
+            } else if (actionValue == "markasread") {
+              // The same with Mark as read/Mark as Unread.
+              usedActions.markasunread = true;
+            } else if (actionValue == "markasunread") {
+              usedActions.markasread = true;
+            }
+          }
+        }
+      }
+      return usedActions;
+    }
+
+    /**
+     * Check if there exist any templates in this account.
+     *
+     * @param populateTemplateList  If true, create menuitems representing
+     *                              the found templates.
+     * @param templateMenuList      The menulist element to create items in.
+     *
+     * @return {boolean}           True if at least one template was found,
+     *                              otherwise false.
+     */
+    getTemplates(populateTemplateList, templateMenuList) {
+      let identitiesRaw = MailServices.accounts
+        .getIdentitiesForServer(gFilterList.folder.server);
+      let identities = Array.from(fixIterator(identitiesRaw,
+        Ci.nsIMsgIdentity));
+      // Typically if this is Local Folders.
+      if (identities.length == 0) {
+        if (MailServices.accounts.defaultAccount) {
+          identities.push(MailServices.accounts.defaultAccount.defaultIdentity);
+        }
+      }
+
+      let templateFound = false;
+      let foldersScanned = [];
+
+      for (let identity of identities) {
+        let enumerator = null;
+        let msgFolder = MailUtils.getExistingFolder(identity.stationeryFolder);
+        // If we already processed this folder, do not set enumerator
+        // so that we skip this identity.
+        if (msgFolder && !foldersScanned.includes(msgFolder)) {
+          foldersScanned.push(msgFolder);
+          enumerator = msgFolder.msgDatabase.EnumerateMessages();
+        }
+
+        if (!enumerator) {
+          continue;
+        }
+
+        while (enumerator.hasMoreElements()) {
+          let header = enumerator.getNext();
+          if (header instanceof Ci.nsIMsgDBHdr) {
+            templateFound = true;
+            if (!populateTemplateList) {
+              return true;
+            }
+            let msgTemplateUri = msgFolder.URI + "?messageId=" +
+              header.messageId + "&subject=" + header.mime2DecodedSubject;
+            templateMenuList.appendItem(header.mime2DecodedSubject, msgTemplateUri);
+          }
+        }
+      }
+      return templateFound;
+    }
+  }
+
+  customElements.define("ruleactiontype-menulist", MozRuleactiontypeMenulist,
+    { extends: "menulist" });
+});
