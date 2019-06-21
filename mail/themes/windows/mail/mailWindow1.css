@@ -255,6 +255,7 @@ treechildren::-moz-tree-cell-text(dummy) {
           --lwt-toolbarbutton-icon-fill: -moz-win-accentcolortext;
           --toolbarbutton-icon-fill-opacity: .7;
         }
+      }
 
       :root[sizemode=normal][tabsintitlebar]:-moz-window-inactive {
         border-top-color: rgba(0,0,0,.3);
