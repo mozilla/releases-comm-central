@@ -65,8 +65,12 @@ function setupModule(module) {
   Services.locale.requestedLocales = ["en-US"];
 
   // Add a "bar" search engine that we can switch to be the default.
-  Services.search.addEngineWithDetails("bar", null, null, null, "post",
-                                       "http://www.example.com/search");
+  let engineAdded = false;
+  Services.search.addEngineWithDetails("bar", {
+    method: "post",
+    template: "http://www.example.com/search?q={searchTerms}",
+  }).then(() => engineAdded = true);
+  mc.waitFor(() => engineAdded);
 }
 
 function teardownModule(module) {
