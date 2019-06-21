@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+ChromeUtils.defineModuleGetter(this, "Gloda", "resource:///modules/gloda/public.js");
 ChromeUtils.defineModuleGetter(this, "MailServices", "resource:///modules/MailServices.jsm");
 ChromeUtils.defineModuleGetter(this, "MessageArchiver", "resource:///modules/MessageArchiver.jsm");
 ChromeUtils.defineModuleGetter(this, "MsgHdrToMimeMessage", "resource:///modules/gloda/mimemsg.js");
@@ -108,6 +109,59 @@ this.messages = class extends ExtensionAPI {
               resolve(convertMessagePart(mimeMsg));
             });
           });
+        },
+        async query(queryInfo) {
+          let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
+
+          if (queryInfo.subject) {
+            query.subjectMatches(queryInfo.subject);
+          }
+          if (queryInfo.fullText) {
+            query.fulltextMatches(queryInfo.fullText);
+          }
+          if (queryInfo.body) {
+            query.bodyMatches(queryInfo.body);
+          }
+          if (queryInfo.author) {
+            query.authorMatches(queryInfo.author);
+          }
+          if (queryInfo.recipients) {
+            query.recipientsMatch(queryInfo.recipients);
+          }
+          if (queryInfo.fromMe) {
+            query.fromMe();
+          }
+          if (queryInfo.toMe) {
+            query.toMe();
+          }
+          if (queryInfo.flagged !== null) {
+            query.starred(queryInfo.flagged);
+          }
+          if (queryInfo.folder) {
+            let folder = MailServices.folderLookup.getFolderForURL(
+              folderPathToURI(queryInfo.folder.accountId, queryInfo.folder.path)
+            );
+            query.folder(folder);
+          }
+          if (queryInfo.fromDate || queryInfo.toDate) {
+              query.dateRange([queryInfo.fromDate, queryInfo.toDate]);
+          }
+
+          let collectionArray = await new Promise((resolve) => {
+            query.getCollection({
+              onItemsAdded(items, collection) {
+              },
+              onItemsModified(items, collection) {
+              },
+              onItemsRemoved(items, collection) {
+              },
+              onQueryCompleted(collection) {
+                resolve(collection.items.map(glodaMsg => glodaMsg.folderMessage));
+              },
+            });
+          });
+
+          return messageListTracker.startList(collectionArray, context.extension);
         },
         async update(messageId, newProperties) {
           let msgHdr = messageTracker.getMessage(messageId);

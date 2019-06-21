@@ -71,6 +71,75 @@
         ]
       },
       {
+        "name": "query",
+        "type": "function",
+        "description": "Gets all messages that have the specified properties, or all messages if no properties are specified.",
+        "async": true,
+        "parameters": [
+          {
+            "type": "object",
+            "name": "queryInfo",
+            "properties": {
+              "subject": {
+                "type": "string",
+                "optional": true,
+                "description": "Returns only messages with this value matching the subject."
+              },
+              "fullText": {
+                "type": "string",
+                "optional": true,
+                "description": "Returns only messages with this value somewhere in the mail (subject, body or author)."
+              },
+              "body": {
+                "type": "string",
+                "optional": true,
+                "description": "Returns only messages with this value in the body of the mail."
+              },
+              "author": {
+                "type": "string",
+                "optional": true,
+                "description": "Returns only messages with this value matching the author."
+              },
+              "recipients": {
+                "type": "string",
+                "optional": true,
+                "description": "Returns only messages with this value matching one or more recipients."
+              },
+              "fromMe": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Returns only messages with the author matching any configured identity."
+              },
+              "toMe": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Returns only messages with one or more recipients matching any configured identity."
+              },
+              "flagged": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Returns only flagged (or unflagged if false) messages."
+              },
+              "folder": {
+                "$ref": "folders.MailFolder",
+                "optional": true,
+                "description": "Returns only messages from the specified folder."
+              },
+              "fromDate": {
+                "$ref": "extensionTypes.Date",
+                "optional": true,
+                "description": "Returns only messages with a date after this value."
+              },
+              "toDate": {
+                "$ref": "extensionTypes.Date",
+                "optional": true,
+                "description": "Returns only messages with a date before this value."
+              }
+            }
+          }
+        ]
+      },
+      {
         "name": "update",
         "type": "function",
         "description": "Marks or unmarks a message as read, flagged, or tagged.",
