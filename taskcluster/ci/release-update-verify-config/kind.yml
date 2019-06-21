@@ -53,12 +53,15 @@ job-defaults:
             by-release-type:
                 beta:
                     by-platform:
-                        win64.*: "60.0b7"
+                        win32.*: "68.0b1"
+                        win64.*: "68.0b1"
                         default: "56.0b3"
                 release:
                     by-platform:
                         win64.*: "60.0"
                         default: "52.0"
+                # For 68.0 release have a watershed on 60.8
+                # release: "60.8"
                 default: "default"
 
 jobs:

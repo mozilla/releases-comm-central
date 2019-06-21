@@ -46,18 +46,9 @@ job-template:
                     - repackage/base.py
                     - repackage/win64_signed.py
     package-formats:
-        by-release-type:
-            release:
-                by-build-platform:
-                    linux-.*: [mar, mar-bz2]
-                    linux64.*: [mar, mar-bz2]
-                    macosx64.*: [mar, mar-bz2, dmg]
-                    win32.*: [mar, mar-bz2, installer]
-                    win64.*: [mar, mar-bz2, installer]
-            default:
-                by-build-platform:
-                    linux-.*: [mar]
-                    linux64.*: [mar]
-                    macosx64.*: [mar, dmg]
-                    win32.*: [mar, installer]
-                    win64.*: [mar, installer]
+        by-build-platform:
+            linux-.*: [mar]
+            linux64.*: [mar]
+            macosx64.*: [mar, dmg]
+            win32.*: [mar, installer]
+            win64.*: [mar, installer]

@@ -44,17 +44,3 @@ jobs:
             symbol: Rel(BS)
             tier: 1
             kind: build
-    thunderbird-bz2:
-        description: Schedule Thunderbird publishing in balrog (bz2)
-        name: release-thunderbird_schedule_publishing_in_balrog-bz2
-        shipping-product: thunderbird
-        run-on-releases: [release]
-        worker:
-            product: thunderbird
-            publish-rules: [516]
-            blob-suffix: -bz2
-        treeherder:
-            platform: thunderbird-release/opt
-            symbol: Rel(BS-bz2)
-            tier: 1
-            kind: build

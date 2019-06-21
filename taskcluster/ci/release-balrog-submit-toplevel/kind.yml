@@ -40,18 +40,6 @@ jobs:
                     beta: ["beta", "beta-localtest", "beta-cdntest"]
                     release: ["release", "release-localtest", "release-cdntest"]
                     default: []
-            publish-rules:
-                by-release-level:
-                    production:
-                        by-release-type:
-                            beta: [43]
-                            release: [820]
-                            default: []
-                    staging:
-                        by-release-type:
-                            beta: [43]
-                            release: [729]
-                            default: []
             rules-to-update:
                 by-release-type:
                     beta: ["thunderbird-beta-cdntest", "thunderbird-beta-localtest"]
@@ -61,28 +49,5 @@ jobs:
         treeherder:
             platform: thunderbird-release/opt
             symbol: Rel(BPTb)
-            tier: 1
-            kind: build
-
-    thunderbird-bz2:
-        name: submit-toplevel-thunderbird-release-to-balrog-bz2
-        description: Submit toplevel Thunderbird release to balrog (bz2)
-        shipping-product: thunderbird
-        run-on-releases: [release]
-        worker:
-            product: thunderbird
-            channel-names: ["release", "release-localtest", "release-cdntest"]
-            publish-rules:
-                by-release-level:
-                    production: [516]
-                    staging: [516]
-            rules-to-update: ["thunderbird-esr52-cdntest", "thunderbird-esr52-localtest"]
-            platforms: ["linux", "linux64", "macosx64", "win32", "win64"]
-            blob-suffix: -bz2
-            complete-mar-filename-pattern: '%s-%s.bz2.complete.mar'
-            complete-mar-bouncer-product-pattern: '%s-%s-complete-bz2'
-        treeherder:
-            platform: thunderbird-release/opt
-            symbol: Rel(BPTb-bz2)
             tier: 1
             kind: build
