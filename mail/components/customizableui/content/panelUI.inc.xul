@@ -678,14 +678,14 @@
     </panelview>
 
     <!-- File / Get New Message For -->
-    <panelview id="appMenu-fileGetNewMsgForView"
+    <panelview is="folder-panelview" id="appMenu-fileGetNewMsgForView"
                title="&getNewMsgForCmd.label;"
-               class="PanelUI-subView">
+               class="PanelUI-subView"
+               mode="getMail"
+               expandFolders="false"
+               oncommand="MsgGetMessagesForAccount(event.target._folder); event.stopPropagation();">
       <vbox class="panel-subview-body">
-        <!-- TODO appmenu dynamically populate account items here
-             Once dynamic folders subviews work, use these commented
-             toolbarbuttons in place of the <menu> below. -->
-        <!-- <toolbarbutton id="appmenu_getnewmsgs_all_accounts"
+        <toolbarbutton id="appmenu_getnewmsgs_all_accounts"
                        class="subviewbutton subviewbutton-iconic"
                        label="&getAllNewMsgCmdPopupMenu.label;"
                        key="key_getAllNewMessages"
@@ -695,25 +695,8 @@
                        label="&getNewMsgCurrentAccountCmdPopupMenu.label;"
                        key="key_getNewMessages"
                        command="cmd_getNewMessages"/>
-        <toolbarseparator/> -->
-        <menu id="appmenu_getNewMsgFor"
-              label="&getNewMsgForCmd.label;"
-              oncommand="MsgGetMessagesForAccount();">
-          <menupopup is="folder-menupopup" id="appmenu_getAllNewMsgPopup"
-                     mode="getMail"
-                     expandFolders="false"
-                     oncommand="MsgGetMessagesForAccount(event.target._folder); event.stopPropagation();">
-            <menuitem id="appmenu_getnewmsgs_all_accounts"
-                      label="&getAllNewMsgCmdPopupMenu.label;"
-                      key="key_getAllNewMessages"
-                      command="cmd_getMsgsForAuthAccounts"/>
-            <menuitem id="appmenu_getnewmsgs_current_account"
-                      label="&getNewMsgCurrentAccountCmdPopupMenu.label;"
-                      key="key_getNewMessages"
-                      command="cmd_getNewMessages"/>
-            <menuseparator/>
-          </menupopup>
-        </menu>
+        <toolbarseparator/>
+        <!-- toolbarbuttons are dynamically added here by folder-panelview custom element. -->
       </vbox>
     </panelview>
 
@@ -1384,21 +1367,14 @@
     </panelview>
 
     <!-- Go / Folder -->
-    <panelview id="appMenu-goFolderView"
+    <!-- toolbarbuttons are dynamically added by folder-panelview custom element. -->
+    <panelview is="folder-panelview" id="appMenu-goFolderView"
                title="&folderMenu.label;"
-               class="PanelUI-subView">
-      <vbox class="panel-subview-body">
-        <!-- TODO appmenu dynamically populate -->
-        <menu id="appmenu_goFolderMenu"
-              label="&folderMenu.label;"
-              command="cmd_goFolder">
-          <menupopup is="folder-menupopup" id="appmenu_GoFolderPopup"
-                     showFileHereLabel="true"
-                     showRecent="true"
-                     recentLabel="&contextMoveCopyMsgRecentMenu.label;"/>
-        </menu>
-      </vbox>
-    </panelview>
+               class="PanelUI-subView"
+               showFileHereLabel="true"
+               showRecent="true"
+               command="cmd_goFolder"
+               recentLabel="&contextMoveCopyMsgRecentMenu.label;"/>
 
     <!-- Go / Recently Closed Tabs -->
     <!-- Dynamically populated when shown. -->
@@ -1678,46 +1654,32 @@
     </panelview>
 
     <!-- Message / Move To -->
-    <panelview id="appMenu-messageMoveToView"
+    <!-- toolbarbuttons are dynamically added by folder-panelview custom element. -->
+    <panelview is="folder-panelview" id="appMenu-messageMoveToView"
                title="&moveMsgToMenu.label;"
-               class="PanelUI-subView">
-      <vbox class="panel-subview-body">
-        <!-- TODO appmenu dynamic population -->
-        <menu id="appmenu_moveMenu"
-              label="&moveMsgToMenu.label;"
-              oncommand="MsgMoveMessage(event.target._folder)">
-          <menupopup is="folder-menupopup"
-                     mode="filing"
-                     showFileHereLabel="true"
-                     showRecent="true"
-                     recentLabel="&moveCopyMsgRecentMenu.label;"
-                     showFavorites="true"
-                     favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
-                     favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"/>
-        </menu>
-      </vbox>
-    </panelview>
+               class="PanelUI-subView"
+               oncommand="MsgMoveMessage(event.target._folder)"
+               mode="filing"
+               showFileHereLabel="true"
+               showRecent="true"
+               recentLabel="&moveCopyMsgRecentMenu.label;"
+               showFavorites="true"
+               favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
+               favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"/>
 
     <!-- Message / Copy To -->
-    <panelview id="appMenu-messageCopyToView"
+    <!-- toolbarbuttons are dynamically added by folder-panelview custom element. -->
+    <panelview is="folder-panelview" id="appMenu-messageCopyToView"
                title="&copyMsgToMenu.label;"
-               class="PanelUI-subView">
-      <vbox class="panel-subview-body">
-        <!-- TODO appmenu dynamic population -->
-        <menu id="appmenu_copyMenu"
-              label="&copyMsgToMenu.label;"
-              oncommand="MsgCopyMessage(event.target._folder)">
-          <menupopup is="folder-menupopup"
-                      mode="filing"
-                      showFileHereLabel="true"
-                      showRecent="true"
-                      recentLabel="&moveCopyMsgRecentMenu.label;"
-                      showFavorites="true"
-                      favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
-                      favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"/>
-        </menu>
-      </vbox>
-    </panelview>
+               class="PanelUI-subView"
+               oncommand="MsgCopyMessage(event.target._folder)"
+               mode="filing"
+               showFileHereLabel="true"
+               showRecent="true"
+               recentLabel="&moveCopyMsgRecentMenu.label;"
+               showFavorites="true"
+               favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
+               favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"/>
 
     <!-- Tools -->
     <panelview id="appMenu-toolsView"

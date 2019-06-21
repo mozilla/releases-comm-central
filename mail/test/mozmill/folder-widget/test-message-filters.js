@@ -98,8 +98,8 @@ function test_customize_toolbar_doesnt_double_get_mail_menu() {
     assert_equals(subview.children.length, 5,
                   "Incorrect number of items for GetNewMessages before customization");
 
-    // TODO appmenu - Now click somewhere that causes the appmenu to close.
-    // (Once this test is no longer skipped, see below.)
+    // Close the appmenu.
+    mc.click(mc.eid("button-appmenu"));
   }
 
   check_getAllNewMsgMenu();
@@ -119,10 +119,6 @@ function test_customize_toolbar_doesnt_double_get_mail_menu() {
   check_getAllNewMsgMenu();
 }
 test_customize_toolbar_doesnt_double_get_mail_menu.EXCLUDED_PLATFORMS = ["darwin"];
-// TODO appmenu - Skipped because it depends on the folder-menupopup code being
-// adapted for use in the appmenu.  Namely the call to click_through_appmenu
-// won't work because the UI it expects will not be there yet.
-test_customize_toolbar_doesnt_double_get_mail_menu.__force_skip__ = true;
 
 /* A helper function that opens up the new filter dialog (assuming that the
  * main filters dialog is already open), creates a simple filter, and then

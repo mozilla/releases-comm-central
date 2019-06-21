@@ -4,7 +4,10 @@
 
 "use strict";
 
-/* globals MozElements */
+/* globals MozElements MozXULElement PanelUI */
+
+// This file implements both `folder-menupopup` custom elements used in
+// traditional menus and `folder-panelview` custom elements used in the appmenu.
 
 // Wrap in a block to prevent leaking to window scope.
 {
@@ -17,27 +20,77 @@
   const { StringBundle } = ChromeUtils.import("resource:///modules/StringBundle.js");
 
   /**
-   * The MozFolderMenupopup widget is used as a menupopup for selecting
-   * a folder from the list of all the folders from every account. It is also
-   * used for selecting the account from the list of all the accounts. The each
-   * menuitem gets displayed with the folder or account name and icon.
+   * Creates an element, sets attributes on it, including always setting the
+   * "generated" attribute to "true", and returns the element. The "generated"
+   * attribute is used to determine which elements to remove when clearing
+   * the menu.
    *
-   * @extends {MozElements.MozMenuPopup}
+   * @param {string} tagName    The tag name of the element to generate.
+   * @param {Object} [attributes]  Optional attributes to set on the element.
+   * @param {Object} [isObject]  The optional "is" object to use when creating
+   *                             the element, typically `{is: "folder-menupopup"}`
+   *                             or `{is: "folder-panelview"}`.
    */
-  class MozFolderMenupopup extends MozElements.MozMenuPopup {
+  function generateElement(tagName, attributes, isObject) {
+    const element = document.createXULElement(tagName, isObject);
+    element.setAttribute("generated", "true");
+
+    if (attributes) {
+      Object.entries(attributes).forEach(([key, value]) => {
+        element.setAttribute(key, value);
+      });
+    }
+    return element;
+  }
+
+  /**
+   * Each time this function is called it generates a unique ID attribute,
+   * e.g. for a `panelview` element. It keeps track of a counter (via a
+   * closure) that increments each time it is called, guaranteeing the IDs it
+   * returns are unique.
+   *
+   * @param {string} prefix  Prefix that is combined with a number to make the ID.
+   * @return {string}        The unique ID.
+   */
+  const getUniquePanelViewId = (() => {
+    let counter = 0;
+    return (prefix) => {
+      counter += 1;
+      return prefix + counter;
+    };
+  })();
+
+  /**
+   * A "mixin" function to add shared code to the classes for the
+   * `folder-menupopup` and `folder-panelview` custom elements. Takes a "Base"
+   * class, and returns a class that extends the "Base" class.
+   *
+   * We use this mixin approach because the `folder-menupopup` class needs to
+   * extend `MozMenuPopup` while the `folder-panelview` class should just extend
+   * `MozXULElement`.
+   *
+   * The shared code in this mixin class works with both `menupopup` and
+   * `panelview` custom elements by using functions and properties from the
+   * "Base" `folder-menupopup` or `folder-panelview` class. Generally the
+   * mixin class determines *what* needs to be built and then defers to the
+   * "Base" custom element class to handle *how* to build it for that menu type.
+   *
+   * Note how this double duty raises some naming challenges. For example,
+   * variables that could be bound to either a `menupopup` or a `panelview`
+   * might be named "submenu". See also `menu`/`menuitem` vs `toolbarbutton`.
+   * (`panelview` and `toolbarbutton` are used in the appmenu.)
+   *
+   * @param {Class} Base  A class to be extended with shared functionality.
+   * @return {Class}      A class that extends the first class.
+   */
+  let FolderMenuMixin = (Base) => class extends Base {
     constructor() {
       super();
 
-      // In order to improve performance, we're not going to build any of the
-      // menu until we're shown.
-      // note: _ensureInitialized can be called repeatedly without issue, so
-      //       don't worry about it here.
-      this.addEventListener("popupshowing", (event) => {
-        this._ensureInitialized();
-      }, true);
-
       window.addEventListener("unload", () => {
+        // Clean up when being destroyed.
         this._removeListener();
+        this._teardown();
       }, { once: true });
 
       // If non-null, the subFolders of this nsIMsgFolder will be used to
@@ -209,16 +262,20 @@
           this._setCssSelectorsForItem(item);
         },
         OnItemPropertyFlagChanged(item, property, old, newItem) { },
+
         OnItemEvent(folder, eventName) {
           if (eventName == "MRMTimeChanged") {
             if (this._menu.getAttribute("showRecent") != "true" ||
                 !this._menu._initializedSpecials.has("recent") ||
-                !this._menu.firstChild || !this._menu.firstChild.firstChild) {
+                !this._menu.childWrapper.firstChild) {
               return;
             }
+
+            const recentMenuItem = this._menu.childWrapper.firstChild;
+            const recentSubMenu = this._menu._getSubMenuForMenuItem(recentMenuItem);
+
             // If this folder is already in the recent menu, return.
-            if (this._getChildForItem(folder,
-                  this._menu.firstChild.firstChild)) {
+            if (!recentSubMenu || this._getChildForItem(folder, recentSubMenu)) {
               return;
             }
           } else if (eventName == "RenameCompleted") {
@@ -243,18 +300,15 @@
          * @returns {Element|null}     The menuitem for that folder, or null if no
          *                             child for that folder exists.
          */
-        _getChildForItem(item, menu) {
-          let _menu = menu || this._menu;
-          if (!_menu || !_menu.hasChildNodes()) {
+        _getChildForItem(item, menu = this._menu) {
+          if (!menu ||
+              !menu.childWrapper.hasChildNodes() ||
+              !(item instanceof Ci.nsIMsgFolder)) {
             return null;
           }
-          if (!(item instanceof Ci.nsIMsgFolder)) {
-            return null;
-          }
-          for (let i = 0; i < _menu.childNodes.length; i++) {
-            let folder = _menu.childNodes[i]._folder;
-            if (folder && folder.URI == item.URI) {
-              return _menu.childNodes[i];
+          for (let child of menu.childWrapper.childNodes) {
+            if (child._folder && child._folder.URI == item.URI) {
+              return child;
             }
           }
           return null;
@@ -277,57 +331,14 @@
       if (this.delayConnectedCallback()) {
         return;
       }
-
-      this.setAttribute("is", "folder-menupopup");
+      // Call the connectedCallback of the "base" class this mixin class is extending.
+      super.connectedCallback();
 
       this._stringBundle = new StringBundle("chrome://messenger/locale/folderWidgets.properties");
 
       // Get the displayformat if set.
       if (this.parentNode && this.parentNode.localName == "menulist") {
         this._displayformat = this.parentNode.getAttribute("displayformat");
-      }
-
-      // Find out if we are in a wrapper (customize toolbars mode is active).
-      let inWrapper = false;
-      let node = this;
-      while (node instanceof XULElement) {
-        if (node.id.startsWith("wrapper-")) {
-          inWrapper = true;
-          break;
-        }
-        node = node.parentNode;
-      }
-
-      if (!inWrapper) {
-        if (this.hasAttribute("original-width")) {
-           // If we were in a wrapper before and have a width stored, restore it now.
-          if (this.getAttribute("original-width") == "none") {
-            this.removeAttribute("width");
-          } else {
-            this.setAttribute("width", this.getAttribute("original-width"));
-          }
-
-          this.removeAttribute("original-width");
-        }
-
-        // If we are a child of a menulist, and we aren't in a wrapper, we
-        // need to build our content right away, otherwise the menulist
-        // won't have proper sizing.
-        if (this.parentNode && this.parentNode.localName == "menulist") {
-          this._ensureInitialized();
-        }
-      } else {
-        // But if we're in a wrapper, remove our children, because we're
-        // getting re-created when the toolbar customization closes.
-        this._teardown();
-
-        // Store our current width and set a safe small width when we show
-        // in a wrapper.
-        if (!this.hasAttribute("original-width")) {
-          this.setAttribute("original-width", this.hasAttribute("width") ?
-            this.getAttribute("width") : "none");
-          this.setAttribute("width", "100");
-        }
       }
     }
 
@@ -467,57 +478,33 @@
       const showFavorites = this.getAttribute("showFavorites") == "true";
 
       if (showRecent) {
-        this.appendChild(this._buildSpecialMenu("recent"));
+        this.childWrapper.appendChild(this._buildSpecialMenu({
+          "special": "recent",
+          "label": this.getAttribute("recentLabel"),
+          "accessKey": this.getAttribute("recentAccessKey"),
+        }));
       }
       if (showFavorites) {
-        this.appendChild(this._buildSpecialMenu("favorites"));
+        this.childWrapper.appendChild(this._buildSpecialMenu({
+          "special": "favorites",
+          "label": this.getAttribute("favoritesLabel"),
+          "accessKey": this.getAttribute("favoritesAccessKey"),
+        }));
       }
       if (showRecent || showFavorites) {
-        // If we added Recent and/or Favorites, separate them from the rest of the items.
-        const sep = document.createXULElement("menuseparator");
-        sep.setAttribute("generated", "true");
-        this.appendChild(sep);
+        this.childWrapper.appendChild(this._buildSeparator());
       }
     }
 
     /**
-     * This only creates the menu item (or toolbarbutton) in the top-level
-     * menulist. The submenu is created once the popup is really shown,
-     * via the _buildSpecialSubmenu method.
+     * Populate a "recent" or "favorites" special submenu with either the
+     * recently used or favorite folders, to allow for easy access.
      *
-     * @param {string} type  Type of special menu (e.g. "recent", "favorites").
-     * @return {Element}     The `menu` or `toolbarbutton` element.
+     * @param {Element} menu  The menu or toolbarbutton element for which one
+     *                        wants to populate the special sub menu.
+     * @param {Element} submenu  The submenu element, typically a menupopup or panelview.
      */
-    _buildSpecialMenu(type) {
-      // Now create the Recent folder menu and its children.
-      let menu = document.createXULElement("menu");
-      menu.setAttribute("special", type);
-
-      menu.setAttribute("label", this.getAttribute((type == "recent") ?
-        "recentLabel" : "favoritesLabel"));
-
-      menu.setAttribute("accesskey", this.getAttribute((type == "recent") ?
-        "recentAccessKey" : "favoritesAccessKey"));
-
-      menu.setAttribute("generated", "true");
-
-      let popup = document.createXULElement("menupopup");
-      popup.setAttribute("class", this.getAttribute("class"));
-      popup.addEventListener("popupshowing", (event) => {
-        this._buildSpecialSubmenu(menu);
-      }, { once: true });
-
-      menu.appendChild(popup);
-      return menu;
-    }
-
-    /**
-     * Builds a submenu with all of the recently used folders in it, to
-     * allow for easy access.
-     *
-     * @param {Element} menu  The menu element for which one wants to build the special sub menu.
-     */
-    _buildSpecialSubmenu(menu) {
+    _populateSpecialSubmenu(menu, submenu) {
       let specialType = menu.getAttribute("special");
       if (this._initializedSpecials.has(specialType)) {
         return;
@@ -583,15 +570,13 @@
 
       // Create entries for each of the recent folders.
       for (let folderItem of specialFoldersMap) {
-        let node = document.createXULElement("menuitem");
+        let attributes = {
+          label: folderItem.label,
+          ...this._getCssSelectorAttributes(folderItem.folder),
+        };
 
-        node.setAttribute("label", folderItem.label);
-        node._folder = folderItem.folder;
-
-        node.setAttribute("class", "folderMenuItem menuitem-iconic");
-        this._setCssSelectors(folderItem.folder, node);
-        node.setAttribute("generated", "true");
-        menu.menupopup.appendChild(node);
+        submenu.childWrapper.appendChild(
+          this._buildMenuItem(attributes, folderItem.folder));
       }
 
       if (specialFoldersMap.length == 0) {
@@ -618,33 +603,29 @@
      * @param {string} mode  The mode attribute.
      */
     _maybeAddParentFolderMenuItem(mode) {
-      let parent = this._parentFolder;
-      if (parent && (this.getAttribute("showFileHereLabel") == "true" || !mode)) {
+      let folder = this._parentFolder;
+      if (folder && (this.getAttribute("showFileHereLabel") == "true" || !mode)) {
         let showAccountsFileHere = this.getAttribute("showAccountsFileHere");
-        if ((!parent.isServer || showAccountsFileHere != "false") &&
-             (!mode || mode == "newFolder" || parent.noSelect ||
-               parent.canFileMessages || showAccountsFileHere == "true")) {
-          let menuitem = document.createXULElement("menuitem");
 
-          menuitem._folder = parent;
-          menuitem.setAttribute("generated", "true");
+        if ((!folder.isServer || showAccountsFileHere != "false") &&
+             (!mode || mode == "newFolder" || folder.noSelect ||
+               folder.canFileMessages || showAccountsFileHere == "true")) {
+          let attributes = {};
+
           if (this.hasAttribute("fileHereLabel")) {
-            menuitem.setAttribute("label", this.getAttribute("fileHereLabel"));
-            menuitem.setAttribute("accesskey", this.getAttribute("fileHereAccessKey"));
+            attributes.label = this.getAttribute("fileHereLabel");
+            attributes.accesskey = this.getAttribute("fileHereAccessKey");
           } else {
-            menuitem.setAttribute("label", parent.prettyName);
-            menuitem.setAttribute("class", "folderMenuItem menuitem-iconic");
-            this._setCssSelectors(parent, menuitem);
-          }
-          this.appendChild(menuitem);
-
-          if (parent.noSelect) {
-            menuitem.setAttribute("disabled", "true");
+            attributes.label = folder.prettyName;
+            Object.assign(attributes, this._getCssSelectorAttributes(folder));
           }
 
-          let sep = document.createXULElement("menuseparator");
-          sep.setAttribute("generated", "true");
-          this.appendChild(sep);
+          if (folder.noSelect) {
+            attributes.disabled = "true";
+          }
+
+          this.childWrapper.appendChild(this._buildMenuItem(attributes, folder));
+          this.childWrapper.appendChild(this._buildSeparator());
         }
       }
     }
@@ -669,68 +650,70 @@
       let [shouldExpand, labels] = this._getShouldExpandAndLabels();
 
       for (let folder of folders) {
-        let node;
         if (!folder.isServer) {
           this._serversOnly = false;
         }
 
-        // If we're going to add subFolders, we need to make menus, not
-        // menuitems.
+        let attributes = {
+          label: this._getFolderLabel(mode, globalInboxFolder, folder),
+          ...this._getCssSelectorAttributes(folder),
+        };
+
+        if (disableServers.includes(folder.server.key)) {
+          attributes.disabled = "true";
+        }
+
         if (!folder.hasSubFolders || !shouldExpand(folder.server.type)) {
-          node = document.createXULElement("menuitem");
-          node.setAttribute("class", "folderMenuItem menuitem-iconic");
-          node.setAttribute("generated", "true");
-          this.appendChild(node);
+          // There are no subfolders, create a simple menu item.
+          this.childWrapper.appendChild(this._buildMenuItem(attributes, folder));
         } else {
-          this._serversOnly = false;
+          // There are subfolders, create a menu item with a submenu.
           // xxx this is slightly problematic in that we haven't confirmed
           //     whether any of the subfolders will pass the filter.
-          node = document.createXULElement("menu");
-          node.setAttribute("class", "folderMenuItem menu-iconic");
-          node.setAttribute("generated", "true");
-          this.appendChild(node);
 
-          // Create the submenu.
-          let popup = document.createXULElement("menupopup", { "is": "folder-menupopup" });
-          popup._parentFolder = folder;
+          this._serversOnly = false;
+
+          let submenuAttributes = {};
 
           ["class", "type", "fileHereLabel", "showFileHereLabel", "oncommand",
             "mode", "disableServers", "position"].forEach(attribute => {
             if (this.hasAttribute(attribute)) {
-              popup.setAttribute(attribute, this.getAttribute(attribute));
+              submenuAttributes[attribute] = this.getAttribute(attribute);
             }
           });
 
-          // If there are labels, add the labels now.
+          const [menuItem, submenu] = this._buildMenuItemWithSubmenu(attributes,
+            true, folder, submenuAttributes);
+
+          // If there are labels, we add an item and separator to the submenu.
           if (labels) {
-            let serverNode = document.createXULElement("menuitem");
-            serverNode.setAttribute("label", labels[folder.server.type]);
-            serverNode._folder = folder;
-            serverNode.setAttribute("generated", "true");
-            popup.appendChild(serverNode);
-            let sep = document.createXULElement("menuseparator");
-            sep.setAttribute("generated", "true");
-            popup.appendChild(sep);
+            const serverAttributes = { label: labels[folder.server.type] };
+
+            submenu.childWrapper.appendChild(
+              this._buildMenuItem(serverAttributes, folder, this));
+
+            submenu.childWrapper.appendChild(this._buildSeparator());
           }
-          popup.setAttribute("generated", "true");
-          node.appendChild(popup);
-        }
 
-        if (disableServers.includes(folder.server.key)) {
-          node.setAttribute("disabled", "true");
+          this.childWrapper.appendChild(menuItem);
         }
-
-        node._folder = folder;
-        let label = "";
-        if (mode == "deferred" && folder.isServer &&
-            folder.server.rootFolder == globalInboxFolder) {
-          label = this._stringBundle.get("globalInbox", [folder.prettyName]);
-        } else {
-          label = folder.prettyName;
-        }
-        node.setAttribute("label", label);
-        this._setCssSelectors(folder, node);
       }
+    }
+
+    /**
+     * Return the label to use for a folder.
+     *
+     * @param {string} mode  The mode, e.g. "deferred".
+     * @param {nsIMsgFolder} globalInboxFolder  The root/global inbox folder.
+     * @param {nsIMsgFolder} folder  The folder for which we are getting a label.
+     * @return {string}  The label to use for the folder.
+     */
+    _getFolderLabel(mode, globalInboxFolder, folder) {
+      if (mode == "deferred" && folder.isServer &&
+          folder.server.rootFolder == globalInboxFolder) {
+        return this._stringBundle.get("globalInbox", [folder.prettyName]);
+      }
+      return folder.prettyName;
     }
 
     /**
@@ -774,29 +757,47 @@
     }
 
     /**
-     * This function adds attributes on menu/menuitems to make it easier for
-     * css to style them.
+     * Set attributes on a menu, menuitem, or toolbarbutton element to allow
+     * for CSS styling.
      *
      * @param {nsIMsgFolder} folder  The folder that corresponds to the menu/menuitem.
      * @param {Element} menuNode     The actual DOM node to set attributes on.
      */
     _setCssSelectors(folder, menuNode) {
-      // First set the SpecialFolder attribute.
-      menuNode.setAttribute("SpecialFolder", getSpecialFolderString(folder));
+        const cssAttributes = this._getCssSelectorAttributes(folder);
 
-      // Now set the biffState.
+        Object.entries(cssAttributes).forEach(([key, value]) =>
+          menuNode.setAttribute(key, value));
+    }
+
+    /**
+     * Returns attributes to be set on a menu, menuitem, or toolbarbutton
+     * element to allow for CSS styling.
+     *
+     * @param {nsIMsgFolder} folder  The folder that corresponds to the menu item.
+     * @return {Object}              Contains the CSS selector attributes.
+     */
+    _getCssSelectorAttributes(folder) {
+      let attributes = {};
+
+      // First the SpecialFolder attribute.
+      attributes.SpecialFolder = getSpecialFolderString(folder);
+
+      // Now the biffState.
       let biffStates = ["NewMail", "NoMail", "UnknownMail"];
       for (let state of biffStates) {
         if (folder.biffState == Ci.nsIMsgFolder["nsMsgBiffState_" + state]) {
-          menuNode.setAttribute("BiffState", state);
+          attributes.BiffState = state;
           break;
         }
       }
 
-      menuNode.setAttribute("IsServer", folder.isServer);
-      menuNode.setAttribute("IsSecure", folder.server.isSecure);
-      menuNode.setAttribute("ServerType", folder.server.type);
-      menuNode.setAttribute("IsFeedFolder", !!FeedUtils.getFeedUrlsInFolder(folder));
+      attributes.IsServer = folder.isServer;
+      attributes.IsSecure = folder.server.isSecure;
+      attributes.ServerType = folder.server.type;
+      attributes.IsFeedFolder = !!FeedUtils.getFeedUrlsInFolder(folder);
+
+      return attributes;
     }
 
     /**
@@ -829,6 +830,8 @@
 
     /**
      * Makes a given folder selected.
+     * TODO: This function does not work yet for the appmenu. However, as of
+     * June 2019, this functionality is not used in the appmenu.
      *
      * @param {nsIMsgFolder} inputFolder  The folder to select (if none, then Choose Folder).
      * @return {boolean}                  Is true if any usable folder was found, otherwise false.
@@ -899,24 +902,31 @@
     }
 
     /**
-     * Removes all menu items for this popup, resets all fields, and
-     * removes the listener. This function is invoked when a change
-     * that affects this menu is detected by our listener.
+     * Removes all menu items from this menu, removes their submenus (needed for
+     * the appmenu where the `panelview` submenus are not children of the
+     * `toolbarbutton` menu items), resets all fields, and removes the listener.
+     * This function is called when a change that affects this menu is detected
+     * by the listener.
      */
     _teardown() {
       if (!this._initialized) {
         return;
       }
-
-      for (let i = this.childNodes.length - 1; i >= 0; i--) {
-        let child = this.childNodes[i];
-        if (child.getAttribute("generated") != "true") {
+      const children = this.childWrapper.childNodes;
+      // We iterate in reverse order because childNodes is live so it changes
+      // as we remove child nodes.
+      for (let i = children.length - 1; i >= 0; i--) {
+        const item = children[i];
+        if (item.getAttribute("generated") != "true") {
           continue;
         }
-        if ("_teardown" in child) {
-          child._teardown();
+        const submenu = this._getSubMenuForMenuItem(item);
+
+        if (submenu && "_teardown" in submenu) {
+          submenu._teardown();
+          submenu.remove();
         }
-        child.remove();
+        item.remove();
       }
 
       this._removeListener();
@@ -924,12 +934,360 @@
       this._initialized = false;
       this._initializedSpecials.clear();
     }
-    disconnectedCallback() {
-      // Clean up when being destroyed.
-      this._removeListener();
-      this._teardown();
-    }
-  }
+  };
 
-  customElements.define("folder-menupopup", MozFolderMenupopup, { extends: "menupopup" });
+  /**
+   * The MozFolderMenupopup widget is used as a menupopup that contains menu
+   * items and submenus for all folders from every account (or some subset of
+   * folders and accounts). It is also used to provide a menu with a menuitem
+   * for each account. Each menu item gets displayed with the folder or
+   * account name and icon. It uses code that is also used by MozFolderPanelView
+   * via the FolderMenuMixin function.
+   *
+   * @extends {MozElements.MozMenuPopup}
+   */
+  let MozFolderMenuPopup = FolderMenuMixin(class extends MozElements.MozMenuPopup {
+    constructor() {
+      super();
+
+      // To improve performance, only build the menu when it is shown.
+      this.addEventListener("popupshowing", (event) => {
+        this._ensureInitialized();
+      }, true);
+
+      // Because the menu items in a panelview go inside a child vbox but are
+      // direct children of a menupopup, we set up a consistent way to append
+      // and access menu items for both cases.
+      this.childWrapper = this;
+    }
+
+    connectedCallback() {
+      if (this.delayConnectedCallback()) {
+        return;
+      }
+
+      this.setAttribute("is", "folder-menupopup");
+
+      // Find out if we are in a wrapper (customize toolbars mode is active).
+      let inWrapper = false;
+      let node = this;
+      while (node instanceof XULElement) {
+        if (node.id.startsWith("wrapper-")) {
+          inWrapper = true;
+          break;
+        }
+        node = node.parentNode;
+      }
+
+      if (!inWrapper) {
+        if (this.hasAttribute("original-width")) {
+          // If we were in a wrapper before and have a width stored, restore it now.
+          if (this.getAttribute("original-width") == "none") {
+            this.removeAttribute("width");
+          } else {
+            this.setAttribute("width", this.getAttribute("original-width"));
+          }
+
+          this.removeAttribute("original-width");
+        }
+
+        // If we are a child of a menulist, and we aren't in a wrapper, we
+        // need to build our content right away, otherwise the menulist
+        // won't have proper sizing.
+        if (this.parentNode && this.parentNode.localName == "menulist") {
+          this._ensureInitialized();
+        }
+      } else {
+        // But if we're in a wrapper, remove our children, because we're
+        // getting re-created when the toolbar customization closes.
+        this._teardown();
+
+        // Store our current width and set a safe small width when we show
+        // in a wrapper.
+        if (!this.hasAttribute("original-width")) {
+          this.setAttribute("original-width", this.hasAttribute("width") ?
+            this.getAttribute("width") : "none");
+          this.setAttribute("width", "100");
+        }
+      }
+    }
+
+    /**
+     * Given a menu item, return the menupopup that it opens.
+     *
+     * @param {Element} menu   The menu item, typically a `menu` element.
+     * @return {Element|null}  The `menupopup` element or null if none found.
+     */
+    _getSubMenuForMenuItem(menu) {
+      return menu.querySelector("menupopup");
+    }
+
+    /**
+     * Returns a `menuseparator` element for use in a `menupopup`.
+     */
+    _buildSeparator() {
+      return generateElement("menuseparator");
+    }
+
+    /**
+     * Builds a menu item (`menuitem`) element that does not open a submenu
+     * (i.e. not a `menu` element).
+     *
+     * @param {Object} [attributes]  Attributes to set on the element.
+     * @param {nsIMsgFolder} folder  The folder associated with the menu item.
+     * @returns {Element}            A `menuitem`.
+     */
+    _buildMenuItem(attributes, folder) {
+        const menuitem = generateElement("menuitem", attributes);
+        menuitem.classList.add("folderMenuItem", "menuitem-iconic");
+        menuitem._folder = folder;
+        return menuitem;
+    }
+
+    /**
+     * Builds a menu item (`menu`) element and an associated submenu
+     * (`menupopup`) element.
+     *
+     * @param {Object} attributes         Attributes to set on the `menu` element.
+     * @param {boolean} folderSubmenu     Whether the submenu is to be a
+     *                                    `folder-menupopup` element.
+     * @param {nsIMsgFolder} [folder]     The folder associated with the menu item.
+     * @param {Object} submenuAttributes  Attributes to set on the `menupopup` element.
+     * @return {Element[]}       Array containing the `menu` and
+     *                                    `menupopup` elements.
+     */
+    _buildMenuItemWithSubmenu(attributes, folderSubmenu, folder, submenuAttributes) {
+      const menu = generateElement("menu", attributes);
+      menu.classList.add("folderMenuItem", "menu-iconic");
+
+      const isObject = folderSubmenu ? { "is": "folder-menupopup" } : null;
+
+      const menupopup = generateElement("menupopup", submenuAttributes, isObject);
+
+      if (folder) {
+        menu._folder = folder;
+        menupopup._parentFolder = folder;
+      }
+
+      if (!menupopup.childWrapper) {
+        menupopup.childWrapper = menupopup;
+      }
+
+      menu.appendChild(menupopup);
+
+      return [menu, menupopup];
+    }
+
+    /**
+     * Build a special menu item (`menu`) and an empty submenu (`menupopup`)
+     * for it. The submenu is populated just before it is shown by
+     * `_populateSpecialSubmenu`.
+     *
+     * The submenu (`menupopup`) is just a standard element, not a custom
+     * element (`folder-menupopup`).
+     *
+     * @param {Object} [attributes]  Attributes to set on the menu item element.
+     * @return {Element}             The menu item (`menu`) element.
+     */
+    _buildSpecialMenu(attributes) {
+      const [menu, menupopup] = this._buildMenuItemWithSubmenu(attributes);
+
+      menupopup.addEventListener("popupshowing", (event) => {
+        this._populateSpecialSubmenu(menu, menupopup);
+      }, { once: true });
+
+      return menu;
+    }
+  });
+
+  customElements.define("folder-menupopup", MozFolderMenuPopup, { extends: "menupopup" });
+
+  /**
+   * Used as a panelview in the appmenu/hamburger menu. It contains
+   * menu items and submenus for all folders from every account (or some subset
+   * of folders and accounts). It is also used to provide a menu with a menuitem
+   * for each account. Each menu item gets displayed with the folder or account
+   * name and icon. It uses code that is also used by MozFolderMenupopup via
+   * the FolderMenuMixin function.
+   *
+   * @extends {MozXULElement}
+   */
+  let MozFolderPanelView = FolderMenuMixin(class extends MozXULElement {
+    constructor() {
+      super();
+
+      // To improve performance, only build the menu when it is shown.
+      this.addEventListener("ViewShowing", (event) => {
+        this._ensureInitialized();
+      }, true);
+   }
+
+    connectedCallback() {
+      // In the appmenu the panelview elements may move around, so we only want
+      // connectedCallback to run once.
+      if (this.delayConnectedCallback() || this.hasConnected) {
+        return;
+      }
+      this.hasConnected = true;
+      this.setAttribute("is", "folder-panelview");
+      this._setUpPanelView(this);
+    }
+
+    /**
+     * Set up a `folder-panelview` or a plain `panelview` element. If the
+     * panelview was statically defined in a XUL file then it may already have
+     * a child <vbox> element, if it was dynamically generated it may not yet.
+     *
+     * @param {Element} panelview  The panelview to set up.
+     */
+    _setUpPanelView(panelview) {
+      let subviewBody = panelview.querySelector(".panel-subview-body");
+
+      if (!subviewBody) {
+        subviewBody = document.createXULElement("vbox");
+        subviewBody.classList.add("panel-subview-body");
+        panelview.appendChild(subviewBody);
+      }
+      // Because the menu items in a panelview go inside a child vbox but are
+      // direct children of a menupopup, we set up a consistent way to append
+      // and access menu items for both cases.
+      panelview.childWrapper = subviewBody;
+      panelview.classList.add("PanelUI-subView");
+
+      // Prevent the back button from firing the command that is set on the
+      // panelview by stopping propagation of the event. The back button does
+      // not exist until the panelview is shown for the first time (when the
+      // header is added to it).
+      panelview.addEventListener("ViewShown", () => {
+        const backButton = panelview.querySelector(".panel-header > .subviewbutton-back");
+        if (backButton) {
+          backButton.addEventListener("command", event => event.stopPropagation());
+        }
+      }, { once: true });
+    }
+
+    /**
+     * Given a menu item, return the submenu that it opens.
+     *
+     * @param {Element} item   The menu item, typically a `toolbarbutton`.
+     * @return {Element|null}  The submenu (or null if none found), typically a
+     *                         `panelview` element.
+     */
+    _getSubMenuForMenuItem(item) {
+      const panelviewId = item.getAttribute("panelviewId");
+      if (panelviewId) {
+        return document.getElementById(panelviewId);
+      }
+      return null;
+    }
+
+    /**
+     * Returns a `toolbarseparator` element for use in a `panelview`.
+     */
+    _buildSeparator() {
+      return generateElement("toolbarseparator");
+    }
+
+    /**
+     * Builds a menu item (`toolbarbutton`) element that does not open a submenu.
+     *
+     * @param {Object} [attributes]  Attributes to set on the element.
+     * @param {nsIMsgFolder} folder  The folder associated with the menu item.
+     * @returns {Element}            A `toolbarbutton`.
+     */
+    _buildMenuItem(attributes, folder) {
+        const button = generateElement("toolbarbutton", attributes);
+        button._folder = folder;
+
+        button.classList.add("folderMenuItem", "subviewbutton",
+          "subviewbutton-iconic");
+        return button;
+    }
+
+    /**
+     * Builds a menu item (`toolbarbutton`) element and an associated submenu
+     * (`panelview`) element.
+     *
+     * @param {Object} attributes         Attributes to set on the
+     *                                    `toolbarbutton` element.
+     * @param {boolean} folderSubmenu     Whether the submenu is to be a
+     *                                    `folder-panelview` element.
+     * @param {nsIMsgFolder} [folder]     The folder associated with the menu item.
+     * @param {Object} submenuAttributes  Attributes to set on the `panelview`
+     *                                    element.
+     * @return {Element[]}                Array containing the `toolbarbutton`
+     *                                    and `panelview` elements.
+     */
+    _buildMenuItemWithSubmenu(attributes, folderSubmenu, folder, submenuAttributes) {
+      const button = generateElement("toolbarbutton", attributes);
+
+      button.classList.add("folderMenuItem", "subviewbutton",
+        "subviewbutton-iconic", "subviewbutton-nav");
+
+      const isObject = folderSubmenu ? { "is": "folder-panelview" } : null;
+
+      const panelview = generateElement("panelview", submenuAttributes, isObject);
+
+      if (!folderSubmenu) {
+        this._setUpPanelView(panelview);
+      }
+
+      if (folder) {
+        panelview._parentFolder = folder;
+        panelview._folder = folder;
+      }
+
+      const panelviewId = getUniquePanelViewId("folderPanelView");
+      panelview.setAttribute("id", panelviewId);
+
+      // Pass these attributes down from panelview to panelview.
+      ["command", "oncommand"].forEach(attribute => {
+        if (this.hasAttribute(attribute)) {
+          panelview.setAttribute(attribute, this.getAttribute(attribute));
+        }
+      });
+
+      if (!submenuAttributes || (submenuAttributes && !submenuAttributes.label)) {
+        panelview.setAttribute("label", attributes.label);
+      }
+
+      button.addEventListener("command", (event) => {
+        // Stop event propagation so the command that is set on the panelview
+        // is not fired when we are just navigating to a submenu.
+        event.stopPropagation();
+        PanelUI.showSubView(panelviewId, panelview);
+      });
+
+      // Save the panelviewId on the menu item so we have a way to access the
+      // panelview from the menu item that opens it.
+      button.setAttribute("panelviewId", panelviewId);
+      button.setAttribute("closemenu", "none");
+      document.querySelector("#appMenu-multiView").appendChild(panelview);
+
+      return [button, panelview];
+    }
+
+    /**
+     * Build a special menu item (`toolbarbutton`) and an empty submenu
+     * (`panelview`) for it. The submenu is populated just before it is shown
+     * by `_populateSpecialSubmenu`.
+     *
+     * The submenu (`panelview`) is just a standard element, not a custom
+     * element (`folder-panelview`).
+     *
+     * @param {Object} [attributes]  Attributes to set on the menu item element.
+     * @return {Element}             The menu item (`toolbarbutton`) element.
+     */
+    _buildSpecialMenu(attributes) {
+      const [button, panelview] = this._buildMenuItemWithSubmenu(attributes);
+
+      panelview.addEventListener("ViewShowing", (event) => {
+        this._populateSpecialSubmenu(button, panelview);
+      }, { once: true });
+
+      return button;
+    }
+  });
+
+  customElements.define("folder-panelview", MozFolderPanelView, { extends: "panelview" });
 }
