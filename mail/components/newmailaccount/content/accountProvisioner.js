@@ -25,20 +25,6 @@ function isAccel(event) {
   return AppConstants.platform == "macosx" ? event.metaKey : event.ctrlKey;
 }
 
-/**
- * Get fixed localstorage.
- *
- * @param {String} page The page to get the localstorage for.
- * @return {nsIDOMStorage} The localstorage for this page.
- */
-function getLocalStorage() {
-  var url = "https://accountprovisioner.thunderbird.invalid";
-
-  var uri = Services.io.newURI(url);
-  var principal = Services.scriptSecurityManager.createCodebasePrincipal(uri, {});
-  return Services.domStorageManager.createStorage(null, principal, principal, url);
-}
-
 var MAX_SMALL_ADDRESSES = 2;
 
 var storedData = {};
@@ -79,7 +65,6 @@ var EmailAccountProvisioner = {
   _loadingProviders: false,
   _loadedProviders: false,
   _loadProviderRetryId: null,
-  _storage: null,
   providers: {},
   _someProvidersChecked: false,
   // These get passed in when creating the Account Provisioner window.
@@ -203,12 +188,12 @@ var EmailAccountProvisioner = {
   },
 
   /**
-   * Save the name inputted in the search field to localstorage, so we can
+   * Save the name entered into the search field to a pref, so we can
    * reconstitute it on respawn later.
    */
   saveName() {
     let name = document.getElementById("name").value.trim();
-    this.storage.setItem("name", name);
+    Services.prefs.setStringPref("mail.provider.realname", name);
   },
 
   onSearchInputOrProvidersChanged(event) {
@@ -277,9 +262,8 @@ var EmailAccountProvisioner = {
     nameElement.addEventListener("keyup",
       EmailAccountProvisioner.onSearchInputOrProvidersChanged);
 
-    // If we have a name stored in local storage from an earlier session,
-    // populate the search field with it.
-    let name = EmailAccountProvisioner.storage.getItem("name") ||
+    // If we have a name stored, populate the search field with it.
+    let name = Services.prefs.getStringPref("mail.provider.realname") ||
                nameElement.value;
     if (!name && "@mozilla.org/userinfo;1" in Cc) {
       name = Cc["@mozilla.org/userinfo;1"].getService(Ci.nsIUserInfo).fullname;
@@ -991,11 +975,6 @@ var EmailAccountProvisioner = {
     gLog.info("Email Account Provisioner is in online mode.");
   },
 };
-
-
-XPCOMUtils.defineLazyGetter(EmailAccountProvisioner, "storage", function() {
-  return getLocalStorage();
-});
 
 window.addEventListener("online",
                         EmailAccountProvisioner.tryToPopulateProviderList);

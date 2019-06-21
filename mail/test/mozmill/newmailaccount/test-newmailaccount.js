@@ -1202,18 +1202,7 @@ function subtest_provider_language_wildcard(aController) {
  * Provisioner, and we have no search in the input.
  */
 function test_search_button_disabled_if_no_query_on_init() {
-  // We have to do a little bit of gymnastics to access the local storage
-  // for the accountProvisioner dialog...
-  let url = "https://accountprovisioner.thunderbird.invalid";
-  let dsm = Services.domStorageManager;
-
-  let uri = Services.io.newURI(url);
-  let principal = Services.scriptSecurityManager.createCodebasePrincipal(uri, {});
-  let storage = dsm.createStorage(null, principal, principal, url);
-
-  // Ok, got it. Now let's blank out the name.
-  storage.setItem("name", "");
-
+  Services.prefs.setStringPref("mail.provider.realname", "");
   plan_for_modal_dialog("AccountCreation",
                         subtest_search_button_enabled_state_on_init);
   open_provisioner_window();
