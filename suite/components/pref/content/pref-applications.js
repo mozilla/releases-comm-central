@@ -5,28 +5,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+const {ShellService} = ChromeUtils.import("resource:///modules/ShellService.jsm");
 
 function Startup()
 {
   gApplicationsPane.init();
 }
 
+XPCOMUtils.defineLazyServiceGetters(this, {
+  gCategoryManager: ["@mozilla.org/categorymanager;1", "nsICategoryManager"],
+  gHandlerService: ["@mozilla.org/uriloader/handler-service;1", "nsIHandlerService"],
+  gMIMEService: ["@mozilla.org/mime;1", "nsIMIMEService"],
+  gWebContentConverterService: ["@mozilla.org/embeddor.implemented/web-content-handler-registrar;1", "nsIWebContentConverterService"],
+});
+
 //****************************************************************************//
 // Constants & Enumeration Values
-
-// global services
-var handlerSvc = Cc["@mozilla.org/uriloader/handler-service;1"]
-                   .getService(Ci.nsIHandlerService);
-var categoryMgr = Cc["@mozilla.org/categorymanager;1"]
-                    .getService(Ci.nsICategoryManager);
-var mimeSvc = Cc["@mozilla.org/mime;1"]
-                .getService(Ci.nsIMIMEService);
-var converterSvc = Cc["@mozilla.org/embeddor.implemented/web-content-handler-registrar;1"]
-                     .getService(Ci.nsIWebContentConverterService);
-var shellSvc = null;
-if ("@mozilla.org/suite/shell-service;1" in Cc)
-  shellSvc = Cc["@mozilla.org/suite/shell-service;1"]
-               .getService(Ci.nsIShellService);
 
 const TYPE_MAYBE_FEED = "application/vnd.mozilla.maybe.feed";
 const TYPE_MAYBE_VIDEO_FEED = "application/vnd.mozilla.maybe.video.feed";
@@ -377,9 +371,9 @@ HandlerInfoWrapper.prototype = {
                                disabledPluginTypes.join(","));
 
     // Update the category manager so existing browser windows update.
-    categoryMgr.deleteCategoryEntry("Gecko-Content-Viewers",
-                                          this.type,
-                                          false);
+    gCategoryManager.deleteCategoryEntry("Gecko-Content-Viewers",
+                                         this.type,
+                                         false);
   },
 
   enablePluginType() {
@@ -392,8 +386,8 @@ HandlerInfoWrapper.prototype = {
                                disabledPluginTypes.join(","));
 
     // Update the category manager so existing browser windows update.
-    categoryMgr.
-      addCategoryEntry("Gecko-Content-Viewers",
+    gCategoryManager.addCategoryEntry(
+                       "Gecko-Content-Viewers",
                        this.type,
                        "@mozilla.org/content/plugin/document-loader-factory;1",
                        false,
@@ -405,7 +399,7 @@ HandlerInfoWrapper.prototype = {
   // Storage
 
   store() {
-    handlerSvc.store(this.wrappedHandlerInfo);
+    gHandlerService.store(this.wrappedHandlerInfo);
   },
 
 
@@ -483,7 +477,7 @@ FeedHandlerInfo.prototype = {
         var uri = document.getElementById(this._prefSelectedWeb).value;
         if (!uri)
           return null;
-        return converterSvc.getWebContentHandlerByURI(this.type, uri);
+        return gWebContentConverterService.getWebContentHandlerByURI(this.type, uri);
 
       case "messenger":
       default:
@@ -508,7 +502,7 @@ FeedHandlerInfo.prototype = {
       // only uses the "auto handler" when the selected reader is a web handler.
       // We also don't have to unregister it when the user turns on "always ask"
       // (i.e. preview in browser), since that also overrides the auto handler.
-      converterSvc.setAutoHandler(this.type, aNewValue);
+      gWebContentConverterService.setAutoHandler(this.type, aNewValue);
     }
   },
 
@@ -568,7 +562,7 @@ FeedHandlerInfo.prototype = {
     }
 
     // Add the registered web handlers.  There can be any number of these.
-    var webHandlers = converterSvc.getContentHandlers(this.type);
+    var webHandlers = gWebContentConverterService.getContentHandlers(this.type);
     for (let webHandler of webHandlers)
       this._possibleApplicationHandlers.appendElement(webHandler);
 
@@ -582,7 +576,7 @@ FeedHandlerInfo.prototype = {
 
     var defaultFeedReader = null;
     try {
-      defaultFeedReader = shellSvc.defaultFeedReader;
+      defaultFeedReader = ShellService.defaultFeedReader;
     }
     catch(ex) {
       // no default reader
@@ -606,7 +600,7 @@ FeedHandlerInfo.prototype = {
 
   get hasDefaultHandler() {
     try {
-      if (shellSvc.defaultFeedReader)
+      if (ShellService.defaultFeedReader)
         return true;
     }
     catch(ex) {
@@ -725,7 +719,8 @@ FeedHandlerInfo.prototype = {
       }
       else {
         app.QueryInterface(Ci.nsIWebContentHandlerInfo);
-        converterSvc.removeContentHandler(app.contentType, app.uri);
+        gWebContentConverterService.removeContentHandler(app.contentType,
+                                                         app.uri);
       }
     }
     this._possibleApplicationHandlers._removed = [];
@@ -1002,7 +997,7 @@ var gApplicationsPane = {
           handlerInfoWrapper = this._handledTypes[type];
         else {
           let wrappedHandlerInfo =
-            mimeSvc.getFromTypeAndExtension(type, null);
+            gMIMEService.getFromTypeAndExtension(type, null);
           handlerInfoWrapper = new HandlerInfoWrapper(type, wrappedHandlerInfo);
           handlerInfoWrapper.handledOnlyByPlugin = true;
           this._handledTypes[type] = handlerInfoWrapper;
@@ -1017,7 +1012,7 @@ var gApplicationsPane = {
    * Load the set of handlers defined by the application datastore.
    */
   _loadApplicationHandlers() {
-    var wrappedHandlerInfos = handlerSvc.enumerate();
+    var wrappedHandlerInfos = gHandlerService.enumerate();
     while (wrappedHandlerInfos.hasMoreElements()) {
       let wrappedHandlerInfo =
         wrappedHandlerInfos.getNext().QueryInterface(Ci.nsIHandlerInfo);
@@ -1420,7 +1415,7 @@ var gApplicationsPane = {
     if (AppConstants.platform == "win") {
       // On Windows, selecting an application to open another application
       // would be meaningless so we special case executables.
-      let executableType = mimeSvc.getTypeFromExtension("exe");
+      let executableType = gMIMEService.getTypeFromExtension("exe");
       canOpenWithOtherApp = handlerInfo.type != executableType;
     }
     if (canOpenWithOtherApp)
@@ -1636,8 +1631,9 @@ var gApplicationsPane = {
 
       if (isFeedType(handlerInfo.type)) {
         // MIME info will be null, create a temp object.
-        params.mimeInfo = mimeSvc.getFromTypeAndExtension(handlerInfo.type,
-                                                   handlerInfo.primaryExtension);
+        params.mimeInfo =
+            gMIMEService.getFromTypeAndExtension(handlerInfo.type,
+                                                 handlerInfo.primaryExtension);
       } else {
         params.mimeInfo = handlerInfo.wrappedHandlerInfo;
       }
