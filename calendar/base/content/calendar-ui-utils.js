@@ -6,6 +6,7 @@
  *          uncollapseElement, collapseElement, disableElementWithLock,
  *          enableElementWithLock, uncheckChildNodes, removeChildren,
  *          appendCalendarItems, setAttributeToChildren, checkRadioControl,
+ *          checkRadioControlAppmenu,
  *          processEnableCheckbox, updateListboxDeleteButton,
  *          updateUnitLabelPlural, updateMenuLabelsPlural, menuListSelectItem,
  *          getOptimalMinimumWidth, getOptimalMinimumHeight,
@@ -373,19 +374,19 @@ function setAttributeToChildren(aParent, aAttribute, aValue, aFilterAttribute, a
 /**
  * Checks a radio control or a radio-menuitem.
  *
- * @param aParent  The parent node of the 'radio controls', either radios
- *                  or menuitems of the type 'radio'.
- * @param avalue   The value of the radio control bound to be checked.
- * @return         True or false depending on if the a 'radio control' with the
- *                  given value could be checked.
+ * @param {Element} parent  The parent node of the 'radio controls', either:
+ *                           - `radio` elements
+ *                           - `menuitem` elements of type 'radio'
+ *                           - `toolbarbutton` elements of type 'radio' (e.g. in appmenu)
+ * @param {string} value    The value of the radio control bound to be checked.
+ * @return {boolean}        Whether the 'radio control' could be checked.
  */
-function checkRadioControl(aParent, aValue) {
-    for (let i = 0; i < aParent.childNodes.length; i++) {
-        let element = aParent.childNodes[i];
+function checkRadioControl(parent, value) {
+    for (const element of parent.childNodes) {
         if (element.hasAttribute("value")) {
             let compValue = element.getAttribute("value");
-            if (compValue == aValue) {
-                if (element.localName == "menuitem") {
+            if (compValue == value) {
+                if (element.localName == "menuitem" || element.localName == "toolbarbutton") {
                     if (element.getAttribute("type") == "radio") {
                         element.setAttribute("checked", "true");
                         return true;
@@ -398,6 +399,23 @@ function checkRadioControl(aParent, aValue) {
         }
     }
     return false;
+}
+
+/**
+ * Checks a `toolbarbutton` of type "radio" in the appmenu. (For some reason we
+ * need to clear all the checked values before checking the new one.)
+ *
+ * @param {Element} parent  The parent node that contains the radio elements.
+ * @param {string} value    The value of the radio element to be checked.
+ * @return {boolean}        Whether the radio element could be checked.
+ */
+function checkRadioControlAppmenu(parent, value) {
+    for (const node of parent.childNodes) {
+        if (node.localName == "toolbarbutton" && node.getAttribute("type") == "radio") {
+            node.removeAttribute("checked");
+        }
+    }
+    return checkRadioControl(parent, value);
 }
 
 /**

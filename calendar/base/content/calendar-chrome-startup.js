@@ -41,6 +41,9 @@ async function commonInitCalendar() {
     // Set up appmenus.
     setUpCalendarAppMenus();
 
+    // Set up calendar menu items in the appmenu.
+    setUpCalendarAppMenuItems();
+
     // Set up item and day selection listeners
     getViewDeck().addEventListener("dayselect", observeViewDaySelect);
     getViewDeck().addEventListener("itemselect", calendarController.onSelectionChanged, true);
@@ -188,6 +191,28 @@ function setUpCalendarAppMenus(remove) {
  */
 function tearDownCalendarAppMenus() {
     setUpCalendarAppMenus(true);
+}
+
+/**
+ * Event listener used to refresh the "Events and Tasks" menu/view in the appmenu.
+ */
+function refreshEventsAndTasksMenu(event) {
+    changeMenuForTask(event);
+    setupDeleteMenuitem("appmenu_ltnDeleteSelectedCalendar");
+}
+
+/**
+ * Set up calendar menu items that are in the appmenu. (Needed because there is no "onpopupshowing"
+ * event for appmenu menus/views.)
+ */
+function setUpCalendarAppMenuItems() {
+    // Refresh the "Events and Tasks" menu when it is shown.
+    document.getElementById("appmenu_Event_Task_View")
+        .addEventListener("ViewShowing", refreshEventsAndTasksMenu);
+
+    // Refresh the "View" / "Calendar" / "Calendar Pane" menu when it is shown.
+    document.getElementById("appmenu_ltnCalendarPaneView")
+        .addEventListener("ViewShowing", InitViewCalendarPaneMenu);
 }
 
 /**

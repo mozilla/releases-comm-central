@@ -137,7 +137,8 @@
     <!-- Main Appmenu View -->
     <panelview id="appMenu-mainView" class="PanelUI-subView"
                descriptionheightworkaround="true">
-      <vbox class="panel-subview-body">
+      <vbox id="appMenu-mainViewItems"
+            class="panel-subview-body">
         <vbox id="appMenu-addon-banners"/>
         <toolbarbutton id="appmenu_new"
                        class="subviewbutton subviewbutton-iconic subviewbutton-nav"
@@ -271,7 +272,8 @@
     <panelview id="appMenu-newView"
                title="&newMenu.label;"
                class="PanelUI-subView">
-      <vbox class="panel-subview-body">
+      <vbox id="appMenu-newViewItems"
+            class="panel-subview-body">
         <toolbarbutton id="appmenu_newNewMsgCmd"
                        class="subviewbutton subviewbutton-iconic"
                        label="&newNewMsgCmd.label;"
@@ -625,7 +627,8 @@
     <panelview id="appMenu-fileView"
                title="&fileMenu.label;"
                class="PanelUI-subView">
-      <vbox class="panel-subview-body">
+      <vbox id="appMenu-fileViewItems"
+            class="panel-subview-body">
         <toolbarbutton id="appmenu_openMessageFileMenuitem"
                        class="subviewbutton subviewbutton-iconic"
                        label="&openMessageFileCmd.label;"
@@ -735,7 +738,8 @@
     <panelview id="appMenu-viewView"
                title="&viewMenu.label;"
                class="PanelUI-subView">
-      <vbox class="panel-subview-body">
+      <vbox id="appMenu-viewViewItems"
+            class="panel-subview-body">
         <toolbarbutton id="appmenu_FolderViews"
                        class="subviewbutton subviewbutton-nav"
                        label="&folderView.label;"
@@ -1268,7 +1272,8 @@
     <panelview id="appMenu-goView"
                title="&goMenu.label;"
                class="PanelUI-subView">
-      <vbox class="panel-subview-body">
+      <vbox id="appMenu-goViewItems"
+            class="panel-subview-body">
         <toolbarbutton id="appmenu_goNextMenu"
                        class="subviewbutton subviewbutton-nav"
                        label="&nextMenu.label;"
@@ -1320,7 +1325,8 @@
     <panelview id="appMenu-goNextView"
                title="&nextMenu.label;"
                class="PanelUI-subView">
-      <vbox class="panel-subview-body">
+      <vbox id="appMenu-goNextViewItems"
+            class="panel-subview-body">
         <toolbarbutton id="appmenu_nextMsg"
                        class="subviewbutton subviewbutton-iconic"
                        label="&nextMsgCmd.label;"
@@ -1348,7 +1354,8 @@
     <panelview id="appMenu-goPreviousView"
                title="&prevMenu.label;"
                class="PanelUI-subView">
-      <vbox class="panel-subview-body">
+      <vbox id="appMenu-goPreviousViewItems"
+            class="panel-subview-body">
         <toolbarbutton id="appmenu_prevMsg"
                        class="subviewbutton subviewbutton-iconic"
                        label="&prevMsgCmd.label;"
