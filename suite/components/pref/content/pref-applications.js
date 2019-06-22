@@ -183,8 +183,8 @@ HandlerInfoWrapper.prototype = {
 
     if (this.primaryExtension) {
       var extension = this.primaryExtension.toUpperCase();
-      return document.getElementById("bundlePrefApplications")
-                     .getFormattedString("fileEnding", [extension]);
+      return gApplicationsPane._prefsBundle.getFormattedString("fileEnding",
+                                                               [extension]);
     }
 
     return this.type;
@@ -207,10 +207,10 @@ HandlerInfoWrapper.prototype = {
   },
 
   addPossibleApplicationHandler(aNewHandler) {
-    try {
-      if (this.possibleApplicationHandlers.indexOf(0, aNewHandler) != -1)
+    var possibleApps = this.possibleApplicationHandlers.enumerate();
+    while (possibleApps.hasMoreElements()) {
+      if (possibleApps.getNext().equals(aNewHandler))
         return;
-    } catch (e) {
     }
     this.possibleApplicationHandlers.appendElement(aNewHandler);
   },
@@ -224,10 +224,13 @@ HandlerInfoWrapper.prototype = {
       this.preferredApplicationHandler = null;
     }
 
-    try {
-      var handlerIdx = this.possibleApplicationHandlers.indexOf(0, aHandler);
-      this.possibleApplicationHandlers.removeElementAt(handlerIdx);
-    } catch (e) {
+    var handlers = this.possibleApplicationHandlers;
+    for (var i = 0; i < handlers.length; ++i) {
+      var handler = handlers.queryElementAt(i, Ci.nsIHandlerApp);
+      if (handler.equals(aHandler)) {
+        handlers.removeElementAt(i);
+        break;
+      }
     }
   },
 
@@ -262,6 +265,14 @@ HandlerInfoWrapper.prototype = {
   },
 
   set preferredAction(aNewValue) {
+    // If the action is to use the plugin,
+    // we must set the preferred action to "save to disk".
+    // But only if it's not currently the preferred action.
+    if ((aNewValue == kActionUsePlugin) &&
+        (this.preferredAction != Ci.nsIHandlerInfo.saveToDisk)) {
+      aNewValue = Ci.nsIHandlerInfo.saveToDisk;
+    }
+
     // We don't modify the preferred action if the new action is to use a plugin
     // because handler info objects don't understand our custom "use plugin"
     // value.  Also, leaving it untouched means that we can automatically revert
@@ -342,7 +353,7 @@ HandlerInfoWrapper.prototype = {
   handledOnlyByPlugin: undefined,
 
   get isDisabledPluginType() {
-    return this._getDisabledPluginTypes().indexOf(this.type) != -1;
+    return this._getDisabledPluginTypes().includes(this.type);
   },
 
   _getDisabledPluginTypes() {
@@ -359,7 +370,7 @@ HandlerInfoWrapper.prototype = {
   disablePluginType() {
     var disabledPluginTypes = this._getDisabledPluginTypes();
 
-    if (disabledPluginTypes.indexOf(this.type) == -1)
+    if (!disabledPluginTypes.includes(this.type))
       disabledPluginTypes.push(this.type);
 
     Services.prefs.setCharPref(PREF_DISABLED_PLUGIN_TYPES,
@@ -456,8 +467,7 @@ FeedHandlerInfo.prototype = {
   // nsIHandlerInfo
 
   get description() {
-    return document.getElementById("bundlePrefApplications")
-                   .getString(this.typeClass);
+    return gApplicationsPane._prefsBundle.getString(this.typeClass);
   },
 
   get preferredApplicationHandler() {
@@ -515,14 +525,7 @@ FeedHandlerInfo.prototype = {
       _inner: [],
       _removed: [],
 
-      QueryInterface: function(aIID) {
-        if (aIID.equals(Ci.nsIMutableArray) ||
-            aIID.equals(Ci.nsIArray) ||
-            aIID.equals(Ci.nsISupports))
-          return this;
-
-        throw Cr.NS_ERROR_NO_INTERFACE;
-      },
+      QueryInterface: XPCOMUtils.generateQI([Ci.nsIMutableArray, Ci.nsIArray]),
 
       get length() {
         return this._inner.length;
@@ -564,12 +567,10 @@ FeedHandlerInfo.prototype = {
         this._possibleApplicationHandlers.appendElement(preferredApp);
     }
 
-    if (converterSvc) {
-      // Add the registered web handlers.  There can be any number of these.
-      var webHandlers = converterSvc.getContentHandlers(this.type, {});
-      for (let webHandler of webHandlers)
-        this._possibleApplicationHandlers.appendElement(webHandler);
-    }
+    // Add the registered web handlers.  There can be any number of these.
+    var webHandlers = converterSvc.getContentHandlers(this.type);
+    for (let webHandler of webHandlers)
+      this._possibleApplicationHandlers.appendElement(webHandler);
 
     return this._possibleApplicationHandlers;
   },
@@ -682,7 +683,7 @@ FeedHandlerInfo.prototype = {
   },
 
   set alwaysAskBeforeHandling(aNewValue) {
-    if (aNewValue == true)
+    if (aNewValue)
       document.getElementById(this._prefSelectedAction).value = "ask";
     else
       document.getElementById(this._prefSelectedAction).value = "reader";
@@ -884,15 +885,8 @@ var gApplicationsPane = {
   //**************************************************************************//
   // nsISupports
 
-  QueryInterface: function(aIID) {
-    if (aIID.equals(Ci.nsIObserver) ||
-        aIID.equals(Ci.nsIDOMEventListener ||
-        aIID.equals(Ci.nsISupports)))
-      return this;
-
-    throw Cr.NS_ERROR_NO_INTERFACE;
-  },
-
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver,
+                                         Ci.nsIDOMEventListener]),
 
   //**************************************************************************//
   // nsIObserver
@@ -1122,8 +1116,8 @@ var gApplicationsPane = {
 
   _matchesFilter(aType) {
     var filterValue = this._filter.value.toLowerCase();
-    return this._describeType(aType).toLowerCase().indexOf(filterValue) != -1 ||
-           this._describePreferredAction(aType).toLowerCase().indexOf(filterValue) != -1;
+    return this._describeType(aType).toLowerCase().includes(filterValue) ||
+      this._describePreferredAction(aType).toLowerCase().includes(filterValue);
   },
 
   /**
@@ -1165,8 +1159,7 @@ var gApplicationsPane = {
       if (isFeedType(aHandlerInfo.type))
         return this._prefsBundle.getFormattedString("previewInApp",
                                                     [this._brandShortName]);
-      else
-        return this._prefsBundle.getString("alwaysAsk");
+      return this._prefsBundle.getString("alwaysAsk");
     }
 
     switch (aHandlerInfo.preferredAction) {
@@ -1423,12 +1416,14 @@ var gApplicationsPane = {
     }
 
     // Create a menu item for selecting a local application.
-#ifdef XP_WIN
-    // On Windows, selecting an application to open another application
-    // would be meaningless so we special case executables.
-    var executableType = mimeSvc.getTypeFromExtension("exe");
-    if (handlerInfo.type != executableType)
-#endif
+    let canOpenWithOtherApp = true;
+    if (AppConstants.platform == "win") {
+      // On Windows, selecting an application to open another application
+      // would be meaningless so we special case executables.
+      let executableType = mimeSvc.getTypeFromExtension("exe");
+      canOpenWithOtherApp = handlerInfo.type != executableType;
+    }
+    if (canOpenWithOtherApp)
     {
       let menuItem = document.createElement("menuitem");
       menuItem.setAttribute("class", "handler-action");
@@ -1497,6 +1492,9 @@ var gApplicationsPane = {
    * Sort the list of visible types by the current sort column/direction.
    */
   _sortVisibleTypes() {
+    if (!this._sortColumn)
+      return;
+
     var t = this;
 
     function sortByType(a, b) {

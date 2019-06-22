@@ -2,11 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// As pref-applications.js is always loaded, we can (and should!) reuse
-// the nsI* constants from there, if needed also any services we need.
-
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var gAppManagerDialog = {
   _removed: [],
 
@@ -30,6 +25,9 @@ var gAppManagerDialog = {
     var apps = this.handlerInfo.possibleApplicationHandlers.enumerate();
     while (apps.hasMoreElements()) {
       let app = apps.getNext();
+      if (!gApplicationsPane.isValidHandlerApp(app))
+        continue;
+
       app.QueryInterface(Ci.nsIHandlerApp);
       var item = list.appendItem(app.name);
       item.className = "listitem-iconic";
