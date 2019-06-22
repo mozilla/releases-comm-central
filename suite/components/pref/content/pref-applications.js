@@ -199,14 +199,14 @@ HandlerInfoWrapper.prototype = {
 
     // Make sure the preferred handler is in the set of possible handlers.
     if (aNewValue)
-      this.addPossibleApplicationHandler(aNewValue)
+      this.addPossibleApplicationHandler(aNewValue);
   },
 
   get possibleApplicationHandlers() {
     return this.wrappedHandlerInfo.possibleApplicationHandlers;
   },
 
-  addPossibleApplicationHandler: function(aNewHandler) {
+  addPossibleApplicationHandler(aNewHandler) {
     try {
       if (this.possibleApplicationHandlers.indexOf(0, aNewHandler) != -1)
         return;
@@ -215,7 +215,7 @@ HandlerInfoWrapper.prototype = {
     this.possibleApplicationHandlers.appendElement(aNewHandler);
   },
 
-  removePossibleApplicationHandler: function(aHandler) {
+  removePossibleApplicationHandler(aHandler) {
     var defaultApp = this.preferredApplicationHandler;
     if (defaultApp && aHandler.equals(defaultApp)) {
       // If the app we remove was the default app, we must make sure
@@ -345,7 +345,7 @@ HandlerInfoWrapper.prototype = {
     return this._getDisabledPluginTypes().indexOf(this.type) != -1;
   },
 
-  _getDisabledPluginTypes: function() {
+  _getDisabledPluginTypes() {
     var types = "";
 
     if (Services.prefs.prefHasUserValue(PREF_DISABLED_PLUGIN_TYPES))
@@ -356,7 +356,7 @@ HandlerInfoWrapper.prototype = {
     return types ? types.split(",") : [];
   },
 
-  disablePluginType: function() {
+  disablePluginType() {
     var disabledPluginTypes = this._getDisabledPluginTypes();
 
     if (disabledPluginTypes.indexOf(this.type) == -1)
@@ -371,7 +371,7 @@ HandlerInfoWrapper.prototype = {
                                           false);
   },
 
-  enablePluginType: function() {
+  enablePluginType() {
     var disabledPluginTypes = this._getDisabledPluginTypes();
 
     var type = this.type;
@@ -393,7 +393,7 @@ HandlerInfoWrapper.prototype = {
   //**************************************************************************//
   // Storage
 
-  store: function() {
+  store() {
     handlerSvc.store(this.wrappedHandlerInfo);
   },
 
@@ -409,7 +409,7 @@ HandlerInfoWrapper.prototype = {
     return this._getIcon(32);
   },
 
-  _getIcon: function(aSize) {
+  _getIcon(aSize) {
     if (this.primaryExtension)
       return "moz-icon://goat." + this.primaryExtension + "?size=" + aSize;
 
@@ -450,6 +450,8 @@ function FeedHandlerInfo(aMIMEType) {
 }
 
 FeedHandlerInfo.prototype = {
+  __proto__: HandlerInfoWrapper.prototype,
+
   //**************************************************************************//
   // nsIHandlerInfo
 
@@ -545,7 +547,7 @@ FeedHandlerInfo.prototype = {
 
       queryElementAt: function(aIndex, aInterface) {
         return this._inner[aIndex].QueryInterface(aInterface);
-      }
+      },
     };
 
     // Add the selected local app if it's different from the OS default handler.
@@ -709,7 +711,7 @@ FeedHandlerInfo.prototype = {
   // so we when the controller calls store() after modifying the handlers,
   // the only thing we need to store is the removal of possible handlers
   // XXX Should we hold off on making the changes until this method gets called?
-  store: function() {
+  store() {
     for (let app of this._possibleApplicationHandlers._removed) {
       if (app instanceof Ci.nsILocalHandlerApp) {
         let pref = document.getElementById(PREF_FEED_SELECTED_APP);
@@ -739,8 +741,6 @@ FeedHandlerInfo.prototype = {
   // The type class is used for setting icons through CSS for types that don't
   // explicitly set their icons.
   typeClass: "webFeed",
-
-  __proto__: HandlerInfoWrapper.prototype
 };
 
 var feedHandlerInfo = {
@@ -749,8 +749,8 @@ var feedHandlerInfo = {
   _prefSelectedWeb: PREF_FEED_SELECTED_WEB,
   _prefSelectedAction: PREF_FEED_SELECTED_ACTION,
   _prefSelectedReader: PREF_FEED_SELECTED_READER,
-  typeClass: "webFeed"
-}
+  typeClass: "webFeed",
+};
 
 var videoFeedHandlerInfo = {
   __proto__: new FeedHandlerInfo(TYPE_MAYBE_VIDEO_FEED),
@@ -758,8 +758,8 @@ var videoFeedHandlerInfo = {
   _prefSelectedWeb: PREF_VIDEO_FEED_SELECTED_WEB,
   _prefSelectedAction: PREF_VIDEO_FEED_SELECTED_ACTION,
   _prefSelectedReader: PREF_VIDEO_FEED_SELECTED_READER,
-  typeClass: "videoPodcastFeed"
-}
+  typeClass: "videoPodcastFeed",
+};
 
 var audioFeedHandlerInfo = {
   __proto__: new FeedHandlerInfo(TYPE_MAYBE_AUDIO_FEED),
@@ -767,8 +767,8 @@ var audioFeedHandlerInfo = {
   _prefSelectedWeb: PREF_AUDIO_FEED_SELECTED_WEB,
   _prefSelectedAction: PREF_AUDIO_FEED_SELECTED_ACTION,
   _prefSelectedReader: PREF_AUDIO_FEED_SELECTED_READER,
-  typeClass: "audioPodcastFeed"
-}
+  typeClass: "audioPodcastFeed",
+};
 
 
 //****************************************************************************//
@@ -808,7 +808,7 @@ var gApplicationsPane = {
   //**************************************************************************//
   // Initialization & Destruction
 
-  init: function() {
+  init() {
     // Initialize shortcuts to some commonly accessed elements & values.
     this._brandShortName =
       document.getElementById("bundleBrand").getString("brandShortName");
@@ -861,7 +861,7 @@ var gApplicationsPane = {
     Services.obs.notifyObservers(window, "app-handler-pane-loaded");
   },
 
-  destroy: function() {
+  destroy() {
     this._list.removeEventListener("command", this);
     this._list.removeEventListener("select", this);
     window.removeEventListener("unload", this);
@@ -897,7 +897,7 @@ var gApplicationsPane = {
   //**************************************************************************//
   // nsIObserver
 
-  observe: function (aSubject, aTopic, aData) {
+  observe(aSubject, aTopic, aData) {
     // Rebuild the list when there are changes to preferences that influence
     // whether or not to show certain entries in the list.
     if (aTopic == "nsPref:changed" && !this._storingAction) {
@@ -919,7 +919,7 @@ var gApplicationsPane = {
   //**************************************************************************//
   // nsIDOMEventListener
 
-  handleEvent: function(aEvent) {
+  handleEvent(aEvent) {
     switch (aEvent.type) {
       case "unload":
         this.destroy();
@@ -961,13 +961,13 @@ var gApplicationsPane = {
   //**************************************************************************//
   // Composed Model Construction
 
-  _loadData: function() {
+  _loadData() {
     this._loadFeedHandler();
     this._loadPluginHandlers();
     this._loadApplicationHandlers();
   },
 
-  _loadFeedHandler: function() {
+  _loadFeedHandler() {
     this._handledTypes[TYPE_MAYBE_FEED] = feedHandlerInfo;
     feedHandlerInfo.handledOnlyByPlugin = false;
 
@@ -998,7 +998,7 @@ var gApplicationsPane = {
    * So even if we could use enabledPlugin to get the plugin that would be used,
    * we'd still need to check the pref ourselves to find out if it's enabled.
    */
-  _loadPluginHandlers: function() {
+  _loadPluginHandlers() {
     let pluginHost = Cc["@mozilla.org/plugin/host;1"]
                        .getService(Ci.nsIPluginHost);
     for (let pluginTag of pluginHost.getPluginTags()) {
@@ -1022,7 +1022,7 @@ var gApplicationsPane = {
   /**
    * Load the set of handlers defined by the application datastore.
    */
-  _loadApplicationHandlers: function() {
+  _loadApplicationHandlers() {
     var wrappedHandlerInfos = handlerSvc.enumerate();
     while (wrappedHandlerInfos.hasMoreElements()) {
       let wrappedHandlerInfo =
@@ -1045,7 +1045,7 @@ var gApplicationsPane = {
   //**************************************************************************//
   // View Construction
 
-  _rebuildVisibleTypes: function() {
+  _rebuildVisibleTypes() {
     // Reset the list of visible types and the visible type description counts.
     this._visibleTypes = [];
     this._visibleTypeDescriptionCount = {};
@@ -1084,7 +1084,7 @@ var gApplicationsPane = {
     }
   },
 
-  _rebuildView: function() {
+  _rebuildView() {
     // Clear the list of entries (the first 2 elements are <listcols> and
     // <listhead>, they should never get removed).
     while (this._list.childNodes.length > 2)
@@ -1120,7 +1120,7 @@ var gApplicationsPane = {
     }
   },
 
-  _matchesFilter: function(aType) {
+  _matchesFilter(aType) {
     var filterValue = this._filter.value.toLowerCase();
     return this._describeType(aType).toLowerCase().indexOf(filterValue) != -1 ||
            this._describePreferredAction(aType).toLowerCase().indexOf(filterValue) != -1;
@@ -1136,7 +1136,7 @@ var gApplicationsPane = {
    * @param aHandlerInfo {nsIHandlerInfo} the type being described
    * @returns {string} a description of the type
    */
-  _describeType: function(aHandlerInfo) {
+  _describeType(aHandlerInfo) {
     if (this._visibleTypeDescriptionCount[aHandlerInfo.description] > 1)
       return this._prefsBundle.getFormattedString("typeDescriptionWithType",
                                                   [aHandlerInfo.description,
@@ -1157,7 +1157,7 @@ var gApplicationsPane = {
    *                                      is being described
    * @returns {string} a description of the action
    */
-  _describePreferredAction: function(aHandlerInfo) {
+  _describePreferredAction(aHandlerInfo) {
     // alwaysAskBeforeHandling overrides the preferred action, so if that flag
     // is set, then describe that behavior instead.  For most types, this is
     // the "alwaysAsk" string, but for the feed type we show something special.
@@ -1218,7 +1218,7 @@ var gApplicationsPane = {
    *
    * @returns {boolean} whether or not it's valid
    */
-  isValidHandlerApp: function(aHandlerApp) {
+  isValidHandlerApp(aHandlerApp) {
     if (!aHandlerApp)
       return false;
 
@@ -1237,7 +1237,7 @@ var gApplicationsPane = {
     return false;
   },
 
-  _isValidHandlerExecutable: function(aExecutable) {
+  _isValidHandlerExecutable(aExecutable) {
     var file = Services.dirsvc.get("XREExeF",
                                    Ci.nsIFile);
     return aExecutable &&
@@ -1252,7 +1252,7 @@ var gApplicationsPane = {
    * Note that this would not work from onselect on the listbox because
    * the XBL needs to be applied _before_ calling this function!
    */
-  rebuildActionsMenu: function() {
+  rebuildActionsMenu() {
     var typeItem = this._list.selectedItem;
     var handlerInfo = this._handledTypes[typeItem.type];
     var cell =
@@ -1473,7 +1473,7 @@ var gApplicationsPane = {
   /**
    * Sort the list when the user clicks on a column header.
    */
-  sort: function (event) {
+  sort(event) {
     var column = event.target;
 
     // If the user clicked on a new sort column, remove the direction indicator
@@ -1496,7 +1496,7 @@ var gApplicationsPane = {
   /**
    * Sort the list of visible types by the current sort column/direction.
    */
-  _sortVisibleTypes: function() {
+  _sortVisibleTypes() {
     var t = this;
 
     function sortByType(a, b) {
@@ -1526,7 +1526,7 @@ var gApplicationsPane = {
   //**************************************************************************//
   // Changes
 
-  onSelectAction: function(aActionItem) {
+  onSelectAction(aActionItem) {
     this._storingAction = true;
 
     try {
@@ -1537,7 +1537,7 @@ var gApplicationsPane = {
     }
   },
 
-  _storeAction: function(aActionItem) {
+  _storeAction(aActionItem) {
     var typeItem = this._list.selectedItem;
     var handlerInfo = this._handledTypes[typeItem.type];
 
@@ -1582,7 +1582,7 @@ var gApplicationsPane = {
     }
   },
 
-  manageApp: function() {
+  manageApp() {
     var typeItem = this._list.selectedItem;
     var handlerInfo = this._handledTypes[typeItem.type];
 
@@ -1605,7 +1605,7 @@ var gApplicationsPane = {
     }
   },
 
-  chooseApp: function() {
+  chooseApp() {
     var handlerApp;
     let onSelectionDone = function() {
       // Rebuild the actions menu whether the user picked an app or canceled.
@@ -1686,7 +1686,7 @@ var gApplicationsPane = {
     }
   },
 
-  _setIconClassForPreferredAction: function(aHandlerInfo, aElement) {
+  _setIconClassForPreferredAction(aHandlerInfo, aElement) {
     // If this returns true, the attribute that CSS sniffs for was set to something
     // so you shouldn't manually set an icon URI.
     // This removes the existing actionIcon attribute if any, even if returning false.
@@ -1717,7 +1717,7 @@ var gApplicationsPane = {
     return false;
   },
 
-  _getIconURLForPreferredAction: function(aHandlerInfo) {
+  _getIconURLForPreferredAction(aHandlerInfo) {
     switch (aHandlerInfo.preferredAction) {
       case Ci.nsIHandlerInfo.useSystemDefault:
         return this._getIconURLForSystemDefault(aHandlerInfo);
@@ -1733,7 +1733,7 @@ var gApplicationsPane = {
     return null;
   },
 
-  _getIconURLForHandlerApp: function(aHandlerApp) {
+  _getIconURLForHandlerApp(aHandlerApp) {
     if (aHandlerApp instanceof Ci.nsILocalHandlerApp)
       return this._getIconURLForFile(aHandlerApp.executable);
 
@@ -1742,14 +1742,14 @@ var gApplicationsPane = {
         return this._getIconURLForWebApp(aHandlerApp.uriTemplate);
 
       if (aHandlerApp instanceof Ci.nsIWebContentHandlerInfo)
-        return this._getIconURLForWebApp(aHandlerApp.uri)
+        return this._getIconURLForWebApp(aHandlerApp.uri);
     }
 
     // We know nothing about other kinds of handler apps.
     return "";
   },
 
-  _getIconURLForFile: function(aFile) {
+  _getIconURLForFile(aFile) {
     var fph = Services.io.getProtocolHandler("file")
                          .QueryInterface(Ci.nsIFileProtocolHandler);
     var urlSpec = fph.getURLSpecFromFile(aFile);
@@ -1757,7 +1757,7 @@ var gApplicationsPane = {
     return "moz-icon://" + urlSpec + "?size=16";
   },
 
-  _getIconURLForWebApp: function(aWebAppURITemplate) {
+  _getIconURLForWebApp(aWebAppURITemplate) {
     var uri = Services.io.newURI(aWebAppURITemplate);
 
     // Unfortunately we need to use favicon.ico here, but we don't know
@@ -1768,7 +1768,7 @@ var gApplicationsPane = {
     return /^https?/.test(uri.scheme) ? uri.resolve("/favicon.ico") : "";
   },
 
-  _getIconURLForSystemDefault: function(aHandlerInfo) {
+  _getIconURLForSystemDefault(aHandlerInfo) {
     // Handler info objects for MIME types on some OSes implement a property bag
     // interface from which we can get an icon for the default app, so if we're
     // dealing with a MIME type on one of those OSes, then try to get the icon.
