@@ -44,9 +44,12 @@
                               status="offline" class="menuitem-iconic"/>
                   </menupopup>
                 </toolbarbutton>
-                <label id="statusMessage" crop="end" flex="1" value=""
-                       class="statusMessageToolbarItem"
-                       onclick="statusSelector.statusMessageClick();"/>
+                <vbox flex="1" orient="horizontal" align="center">
+                  <label id="statusMessage" flex="1" value="" class="statusMessageToolbarItem"
+                         onclick="statusSelector.statusMessageClick();"/>
+                  <textbox id="statusMessageInput" flex="1" value="" class="statusMessageToolbarItem"
+                           collapsed="true" style="margin:0;"/>
+                </vbox>
               </toolbaritem>
               <toolbarbutton id="button-chat-accounts"
                              class="toolbarbutton-1"

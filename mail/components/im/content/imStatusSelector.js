@@ -81,32 +81,39 @@ var statusSelector = {
   },
 
   statusMessageClick() {
-    let elt = document.getElementById("statusMessage");
+    let statusMessage = document.getElementById("statusMessage");
+    let statusMessageInput = document.getElementById("statusMessageInput");
+    statusMessage.setAttribute("collapsed", "true");
+    statusMessageInput.setAttribute("collapsed", "false");
     let statusType =
       document.getElementById("statusTypeIcon").getAttribute("status");
-    if (statusType == "offline" || elt.disabled)
+    if (statusType == "offline" || statusMessage.disabled) {
       return;
+    }
 
-    if (!elt.hasAttribute("editing")) {
-      elt.setAttribute("editing", "true");
-      elt.addEventListener("blur", this.statusMessageBlur);
-      if (elt.hasAttribute("usingDefault")) {
+    if (!statusMessageInput.hasAttribute("editing")) {
+      statusMessageInput.setAttribute("editing", "true");
+      statusMessageInput.addEventListener("blur", this.statusMessageBlur);
+      if (statusMessage.hasAttribute("usingDefault")) {
         if ("_statusTypeBeforeEditing" in this &&
-            this._statusTypeBeforeEditing == "offline")
-          elt.setAttribute("value", Services.core.globalUserStatus.statusText);
-        else
-          elt.removeAttribute("value");
+            this._statusTypeBeforeEditing == "offline") {
+          statusMessageInput.setAttribute("value", Services.core.globalUserStatus.statusText);
+        } else {
+          statusMessageInput.removeAttribute("value");
+        }
+      } else {
+        statusMessageInput.setAttribute("value", statusMessage.getAttribute("value"));
       }
 
       if (Services.prefs.getBoolPref("mail.spellcheck.inline")) {
-        elt.setAttribute("spellcheck", "true");
+        statusMessageInput.setAttribute("spellcheck", "true");
       } else {
-        elt.removeAttribute("spellcheck");
+        statusMessageInput.removeAttribute("spellcheck");
       }
 
       // force binding attachment by forcing layout
-      elt.getBoundingClientRect();
-      elt.select();
+      statusMessageInput.getBoundingClientRect();
+      statusMessageInput.select();
     }
 
     this.statusMessageRefreshTimer();
@@ -121,8 +128,9 @@ var statusSelector = {
   },
 
   statusMessageBlur(aEvent) {
-    if (aEvent.originalTarget == document.getElementById("statusMessage").inputField)
+    if (aEvent.originalTarget == document.getElementById("statusMessageInput").inputField) {
       statusSelector.finishEditStatusMessage(true);
+    }
   },
 
   statusMessageKeyPress(aEvent) {
@@ -151,42 +159,48 @@ var statusSelector = {
   finishEditStatusMessage(aSave) {
     clearTimeout(this._stopEditStatusTimeout);
     delete this._stopEditStatusTimeout;
-    let elt = document.getElementById("statusMessage");
+    let statusMessage = document.getElementById("statusMessage");
+    let statusMessageInput = document.getElementById("statusMessageInput");
+    statusMessage.setAttribute("collapsed", "false");
+    statusMessageInput.setAttribute("collapsed", "true");
     if (aSave) {
       let newStatus = Ci.imIStatusInfo.STATUS_UNKNOWN;
       if ("_statusTypeEditing" in this) {
         let statusType = this._statusTypeEditing;
-        if (statusType == "available")
+        if (statusType == "available") {
           newStatus = Ci.imIStatusInfo.STATUS_AVAILABLE;
-        else if (statusType == "unavailable")
+        } else if (statusType == "unavailable") {
           newStatus = Ci.imIStatusInfo.STATUS_UNAVAILABLE;
-        else if (statusType == "offline")
+        } else if (statusType == "offline") {
           newStatus = Ci.imIStatusInfo.STATUS_OFFLINE;
+        }
         delete this._statusTypeBeforeEditing;
         delete this._statusTypeEditing;
       }
       // apply the new status only if it is different from the current one
       if (newStatus != Ci.imIStatusInfo.STATUS_UNKNOWN ||
-          elt.value != elt.getAttribute("value"))
-        Services.core.globalUserStatus.setStatus(newStatus, elt.value);
+          statusMessageInput.value != statusMessageInput.getAttribute("value")) {
+        Services.core.globalUserStatus.setStatus(newStatus, statusMessageInput.value);
+      }
     } else if ("_statusTypeBeforeEditing" in this) {
       this.displayStatusType(this._statusTypeBeforeEditing);
       delete this._statusTypeBeforeEditing;
       delete this._statusTypeEditing;
     }
 
-    if (elt.hasAttribute("usingDefault"))
-      elt.setAttribute("value", elt.getAttribute("usingDefault"));
+    if (statusMessage.hasAttribute("usingDefault")) {
+      statusMessage.setAttribute("value", statusMessage.getAttribute("usingDefault"));
+    }
 
-    elt.removeAttribute("editing");
-    elt.removeEventListener("blur", this.statusMessageBlur);
+    statusMessageInput.removeAttribute("editing");
+    statusMessageInput.removeEventListener("blur", this.statusMessageBlur);
 
     // We need to put the focus back on the label after the textbox
     // binding has been detached, otherwise the focus gets lost (it's
     // on none of the elements in the document), but before that we
     // need to flush the layout.
-    elt.getBoundingClientRect();
-    elt.focus();
+    statusMessageInput.getBoundingClientRect();
+    statusMessageInput.focus();
   },
 
   userIconClick() {
@@ -206,16 +220,22 @@ var statusSelector = {
   },
 
   displayNameClick() {
-    let elt = document.getElementById("displayName");
-    if (!elt.hasAttribute("editing")) {
-      elt.setAttribute("editing", "true");
-      if (elt.hasAttribute("usingDefault"))
-        elt.removeAttribute("value");
-      elt.addEventListener("keypress", this.displayNameKeyPress);
-      elt.addEventListener("blur", this.displayNameBlur);
+    let displayName = document.getElementById("displayName");
+    let displayNameInput = document.getElementById("displayNameInput");
+    displayName.setAttribute("collapsed", "true");
+    displayNameInput.setAttribute("collapsed", "false");
+    if (!displayNameInput.hasAttribute("editing")) {
+      displayNameInput.setAttribute("editing", "true");
+      if (displayName.hasAttribute("usingDefault")) {
+        displayNameInput.removeAttribute("value");
+      } else {
+        displayNameInput.setAttribute("value", displayName.getAttribute("value"));
+      }
+      displayNameInput.addEventListener("keypress", this.displayNameKeyPress);
+      displayNameInput.addEventListener("blur", this.displayNameBlur);
       // force binding attachmant by forcing layout
-      elt.getBoundingClientRect();
-      elt.select();
+      displayNameInput.getBoundingClientRect();
+      displayNameInput.select();
     }
 
     this.displayNameRefreshTimer();
@@ -230,8 +250,9 @@ var statusSelector = {
   },
 
   displayNameBlur(aEvent) {
-    if (aEvent.originalTarget == document.getElementById("displayName").inputField)
+    if (aEvent.originalTarget == document.getElementById("displayNameInput").inputField) {
       statusSelector.finishEditDisplayName(true);
+    }
   },
 
   displayNameKeyPress(aEvent) {
@@ -251,16 +272,20 @@ var statusSelector = {
 
   finishEditDisplayName(aSave) {
     clearTimeout(this._stopEditDisplayNameTimeout);
-    let elt = document.getElementById("displayName");
+    let displayName = document.getElementById("displayName");
+    let displayNameInput = document.getElementById("displayNameInput");
+    displayName.setAttribute("collapsed", "false");
+    displayNameInput.setAttribute("collapsed", "true");
     // Apply the new display name only if it is different from the current one.
-    if (aSave && elt.value != elt.getAttribute("value"))
-      Services.core.globalUserStatus.displayName = elt.value;
-    else if (elt.hasAttribute("usingDefault"))
-      elt.setAttribute("value", elt.getAttribute("usingDefault"));
+    if (aSave && displayNameInput.value != displayNameInput.getAttribute("value")) {
+      Services.core.globalUserStatus.displayName = displayNameInput.value;
+    } else if (displayName.hasAttribute("usingDefault")) {
+      displayName.setAttribute("value", displayName.getAttribute("usingDefault"));
+    }
 
-    elt.removeAttribute("editing");
-    elt.removeEventListener("keypress", this.displayNameKeyPress);
-    elt.removeEventListener("blur", this.displayNameBlur);
+    displayNameInput.removeAttribute("editing");
+    displayNameInput.removeEventListener("keypress", this.displayNameKeyPress);
+    displayNameInput.removeEventListener("blur", this.displayNameBlur);
   },
 
   init() {
@@ -278,8 +303,11 @@ var statusSelector = {
     }
 
     let statusMessage = document.getElementById("statusMessage");
-    if (statusMessage)
+    let statusMessageInput = document.getElementById("statusMessageInput");
+    if (statusMessage && statusMessageInput) {
       statusMessage.addEventListener("keypress", this.statusMessageKeyPress);
+      statusMessageInput.addEventListener("keypress", this.statusMessageKeyPress);
+    }
 
     for (let event of events)
       Services.obs.addObserver(statusSelector, event);

@@ -126,10 +126,13 @@
      </stack>
      <stack id="displayNameAndstatusMessageStack" flex="1">
        <vbox flex="1" pack="center">
-         <label id="displayName" onclick="statusSelector.displayNameClick();"/>
+         <label id="displayName" onclick="statusSelector.displayNameClick();" align="center" pack="center"/>
        </vbox>
+       <textbox id="displayNameInput" collapsed="true"/>
        <label id="statusMessage" crop="end" value=""
               onclick="statusSelector.statusMessageClick();"/>
+       <textbox id="statusMessageInput" crop="end" value=""
+                collapsed="true"/>
      </stack>
    </toolbar>
  </toolbox>

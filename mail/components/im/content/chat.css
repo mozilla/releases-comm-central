@@ -54,7 +54,7 @@ tooltip[type="im"] {
   cursor: pointer;
 }
 
-#statusMessage {
+#statusMessage, #statusMessageInput {
   width: 15em;
 }
 
@@ -62,7 +62,7 @@ tooltip[type="im"] {
   cursor: text;
 }
 
-#statusMessage[editing], .statusMessageInput[editing] {
+#statusMessageInput[editing], .statusMessageInput[editing] {
   -moz-appearance: textfield;
 }
 

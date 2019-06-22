@@ -11,7 +11,8 @@
   cursor: text;
 }
 
-#displayName[editing],
-#statusMessage[editing] {
+
+#displayNameInput[editing],
+#statusMessageInput[editing] {
   -moz-appearance: textfield;
 }
