@@ -757,7 +757,7 @@ customElements.whenDefined("menulist").then(() => {
   customElements.define("menulist-editable", MozMenulistEditable, { extends: "menulist" });
 });
 /**
- * The mail-multiemail-headerfield widgets shows multiple emails. It collapses long rows and allows
+ * The MozMailMultiEmailheaderfield widget shows multiple emails. It collapses long rows and allows
  * toggling the full view open. This widget is typically used in the message header pane to show
  * addresses for To, Cc, Bcc, and any other addressing type header that can contain more than one
  * mailbox.
