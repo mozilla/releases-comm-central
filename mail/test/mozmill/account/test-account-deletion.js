@@ -24,7 +24,7 @@ var MODULE_REQUIRES = [
   "pref-window-helpers",
 ];
 
-var gPopAccount, gImapAccount, gNntpAccount, gOriginalAccountCount;
+var gPopAccount, gImapAccount, gOriginalAccountCount;
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
@@ -83,6 +83,7 @@ function test_account_data_deletion1() {
   assert_true(inboxFile.isFile());
 
   remove_account(gPopAccount, tab, true, false);
+  gPopAccount = null;
   assert_true(accountDir.exists());
 
   close_advanced_settings(tab);
@@ -105,6 +106,7 @@ function test_account_data_deletion2() {
   assert_true(inboxFile.isFile());
 
   remove_account(gImapAccount, tab, true, true);
+  gImapAccount = null;
   assert_false(accountDir.exists());
 
   close_advanced_settings(tab);
