@@ -34,7 +34,9 @@
   <hbox id="firstHbox" flex="1">
     <vbox id="groupboxVbox">
       <groupbox id="settingsGroup">
-        <label class="header">&calendar.print.settingsGroup.label;</label>
+        <hbox class="groupbox-title">
+          <label class="header">&calendar.print.settingsGroup.label;</label>
+        </hbox>
 
         <grid>
           <columns>
@@ -68,7 +70,9 @@
       </groupbox>
 
       <groupbox id="what-to-print-group">
-        <label class="header">&calendar.print.range.label;</label>
+        <hbox class="groupbox-title">
+          <label class="header">&calendar.print.range.label;</label>
+        </hbox>
         <grid id="grid-events-and-tasks">
           <columns id="columns-for-events-and-tasks">
             <column id="column-event">
@@ -116,7 +120,9 @@
         </radiogroup>
       </groupbox>
       <groupbox id="optionsGroup" label="&calendar.print.optionsGroup.label;">
-        <label class="header">&calendar.print.optionsGroup.label;</label>
+        <hbox class="groupbox-title">
+          <label class="header">&calendar.print.optionsGroup.label;</label>
+        </hbox>
         <checkbox id="tasks-with-no-due-date" label="&calendar.print.taskswithnoduedate.label;" checked="true" oncommand="refreshHtml();"/>
         <checkbox id="completed-tasks" label="&calendar.print.completedtasks.label;" checked="true" oncommand="refreshHtml();"/>
       </groupbox>

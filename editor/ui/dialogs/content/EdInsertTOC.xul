@@ -24,7 +24,10 @@
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
   <spacer id="dummy" style="display:none"/>
   <vbox flex="1">
-    <groupbox><label class="header">&buildToc.label;</label>
+    <groupbox>
+    <hbox class="groupbox-title">
+      <label class="header">&buildToc.label;</label>
+    </hbox>
       <grid>
         <columns><column/><column style="min-width: 6em"/><column/></columns>
         <rows>

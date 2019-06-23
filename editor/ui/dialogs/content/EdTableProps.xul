@@ -39,7 +39,10 @@
 
       <!-- TABLE PANEL -->
       <vbox>
-        <groupbox orient="horizontal"><label class="header">&size.label;</label>
+        <groupbox orient="horizontal">
+          <hbox class="groupbox-title">
+            <label class="header">&size.label;</label>
+          </hbox>
           <grid>
             <columns><column/><column/><column/><column/><column/></columns>
               <rows>
@@ -64,7 +67,10 @@
             <!-- KEEP GRID LAYOUT here since we will be adding back support for table HEIGHT via CSS -->
           </grid>
         </groupbox>
-        <groupbox><label class="header">&tableBorderSpacing.label;</label>
+        <groupbox>
+          <hbox class="groupbox-title">
+            <label class="header">&tableBorderSpacing.label;</label>
+          </hbox>
         <grid>
           <columns><column/><column/><column/></columns>
           <rows>
@@ -142,7 +148,9 @@
       <!-- CELL PANEL -->
       <vbox>
         <groupbox orient="horizontal" align="center">
-          <label class="header">&cellSelection.label;</label>
+          <hbox class="groupbox-title">
+            <label class="header">&cellSelection.label;</label>
+          </hbox>
           <vbox>
             <menulist id="SelectionList" oncommand="ChangeSelection(event.target.value)" flex="1">
               <menupopup>
@@ -179,7 +187,10 @@
         </groupbox>
         <hbox align="center">
           <!-- cell size groupbox -->
-          <groupbox><label class="header">&size.label;</label>
+          <groupbox>
+            <hbox class="groupbox-title">
+              <label class="header">&size.label;</label>
+            </hbox>
             <grid>
               <columns><column/><column/><column flex="1"/></columns>
               <rows>
@@ -200,7 +211,10 @@
             <spacer class="bigspacer"/>
           </groupbox>
           <!-- Alignment -->
-          <groupbox><label class="header">&cellContentAlignment.label;</label>
+          <groupbox>
+            <hbox class="groupbox-title">
+              <label class="header">&cellContentAlignment.label;</label>
+            </hbox>
             <grid>
               <columns><column/><column flex="1"/><column/></columns>
               <rows>

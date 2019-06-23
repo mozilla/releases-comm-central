@@ -40,7 +40,10 @@
 
     <hbox flex="1">
       <deck flex="1" id="SelectDeck" index="0">
-        <groupbox flex="1"><label class="header">&Select.label;</label>
+        <groupbox flex="1">
+          <hbox class="groupbox-title">
+            <label class="header">&Select.label;</label>
+          </hbox>
           <grid flex="1"><columns><column flex="1"/><column/></columns>
             <rows>
               <row align="center">
@@ -71,7 +74,10 @@
           </grid>
         </groupbox>
 
-        <groupbox flex="1"><label class="header">&OptGroup.label;</label>
+        <groupbox flex="1">
+          <hbox class="groupbox-title">
+            <label class="header">&OptGroup.label;</label>
+          </hbox>
           <grid flex="1"><columns><column flex="1"/><column/></columns>
             <rows>
               <row align="center">
@@ -86,7 +92,10 @@
           </grid>
         </groupbox>
 
-        <groupbox flex="1"><label class="header">&Option.label;</label>
+        <groupbox flex="1">
+          <hbox class="groupbox-title">
+            <label class="header">&Option.label;</label>
+          </hbox>
           <grid flex="1"><columns><column flex="1"/><column/></columns>
             <rows>
               <row align="center">

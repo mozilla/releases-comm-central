@@ -903,14 +903,15 @@ findbar {
 groupbox {
   -moz-appearance: groupbox;
   margin: 3px;
-  padding: 3px 3px 6px;
+  margin-top: 1em;
+  padding: 3px 0 6px;
 }
 
-caption {
-  margin: -5px 6px 6px;
-  font-weight: bold;
-}
-
-tabpanels caption {
-  -moz-appearance: tabpanel;
+groupbox > .groupbox-title > .header {
+  font-weight: normal;
+  margin-top: -1em;
+  margin-inline-start: 3px;
+  padding-right: 3px;
+  padding-left: 3px;
+  background-color: -moz-dialog;
 }

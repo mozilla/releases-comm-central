@@ -25,7 +25,10 @@
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
 
-  <groupbox><label class="header" accesskey="&Legend.accesskey;">&Legend.label;</label>
+  <groupbox>
+    <hbox class="groupbox-title">
+      <label class="header" accesskey="&Legend.accesskey;">&Legend.label;</label>
+    </hbox>
     <grid><columns><column/><column/></columns>
       <rows>
         <row align="center">

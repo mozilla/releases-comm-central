@@ -37,7 +37,9 @@
 
   <!-- recurrence pattern -->
   <groupbox id="recurrence-pattern-groupbox">
-    <label id="recurrence-pattern-caption" class="header">&event.recurrence.pattern.label;</label>
+    <hbox class="groupbox-title">
+      <label id="recurrence-pattern-caption" class="header">&event.recurrence.pattern.label;</label>
+    </hbox>
     <grid id="recurrence-pattern-grid">
       <columns id="recurrence-pattern-columns">
         <column id="recurrence-pattern-description-column"/>
@@ -515,7 +517,9 @@
 
   <!-- range of recurrence -->
   <groupbox id="recurrence-range-groupbox">
-    <label id="recurrence-range-caption" class="header">&event.recurrence.range.label;</label>
+    <hbox class="groupbox-title">
+      <label id="recurrence-range-caption" class="header">&event.recurrence.range.label;</label>
+    </hbox>
     <vbox>
       <radiogroup id="recurrence-duration"
                   oncommand="updateRecurrenceControls()">
@@ -567,7 +571,9 @@
 
   <!-- preview -->
   <groupbox id="preview-border" flex="1">
-    <label id="recurrence-preview-label" class="header">&event.recurrence.preview.label;</label>
+    <hbox class="groupbox-title">
+      <label id="recurrence-preview-label" class="header">&event.recurrence.preview.label;</label>
+    </hbox>
     <box id="recurrence-preview" flex="1">
       <grid flex="1">
         <columns>

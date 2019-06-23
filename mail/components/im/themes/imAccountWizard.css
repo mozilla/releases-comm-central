@@ -15,49 +15,6 @@
   overflow: auto;
 }
 
-.collapsable {
-  -moz-user-focus: normal;
-}
-
-%ifdef XP_WIN
-.caption-text {
-  border: 1px solid transparent;
-}
-
-.collapsable:focus .caption-text {
-  border: 1px dotted ThreeDDarkShadow;
-}
-%endif
-
-.collapsable[closed="true"] {
-  border: none;
-  -moz-appearance: none;
-}
-
-.collapsable[closed="true"] > .groupbox-body {
-  display: none;
-}
-
-.caption-icon {
-  width: 8px;
-  height: 8px;
-  background-repeat: no-repeat;
-  background-position: center;
-  margin-inline-start: 1px;
-  margin-inline-end: 3px;
-  background-image: url("chrome://global/skin/icons/twisty-expanded.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
-
-.collapsable[closed="true"] .caption-icon {
-  background-image: url("chrome://global/skin/icons/twisty-collapsed.svg");
-}
-
-.collapsable[closed="true"] .caption-icon:-moz-locale-dir(rtl) {
-  background-image: url("chrome://global/skin/icons/twisty-collapsed-rtl.svg");
-}
-
 #value-column {
   min-width: 15em;
 }

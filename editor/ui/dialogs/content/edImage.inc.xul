@@ -148,7 +148,9 @@
 
       <hbox id="imageAppearance">
         <groupbox>
-          <label id="spacingLabel" class="header">&spacingBox.label;</label>
+          <hbox class="groupbox-title">
+            <label id="spacingLabel" class="header">&spacingBox.label;</label>
+          </hbox>
           <grid>
             <columns><column/><column/><column/></columns>
             <rows>
@@ -202,7 +204,9 @@
 
         <vbox>
           <groupbox align="start">
-            <label id="alignLabel" class="header">&alignment.label;</label>
+            <hbox class="groupbox-title">
+              <label id="alignLabel" class="header">&alignment.label;</label>
+            </hbox>
             <menulist id="alignTypeSelect" class="align-menu">
               <menupopup>
                 <menuitem class="align-menu menuitem-iconic"
@@ -226,7 +230,9 @@
           </groupbox>
 
           <groupbox>
-            <label id="imagemapLabel" class="header">&imagemapBox.label;</label>
+            <hbox class="groupbox-title">
+              <label id="imagemapLabel" class="header">&imagemapBox.label;</label>
+            </hbox>
             <hbox equalsize="always">
             <button id="removeImageMap"
                     oncommand="removeImageMap()"

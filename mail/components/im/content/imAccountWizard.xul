@@ -5,7 +5,7 @@
 
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/content/bindings.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/imAccountWizard.css" type="text/css"?>
 
 <!DOCTYPE wizard [
@@ -64,10 +64,10 @@
               label="&accountAdvancedTitle.label;">
     <description>&accountAdvancedInfo.label;</description>
     <separator class="thin"/>
-    <groupbox id="aliasGroupbox" class="collapsable"
-              onkeypress="accountWizard.onGroupboxKeypress(event)">
-      <caption id="aliasGroupboxCaption" label="&accountAliasGroupbox.caption;"
-               onclick="accountWizard.toggleGroupbox('aliasGroupbox')"/>
+    <groupbox id="aliasGroupbox">
+      <hbox class="groupbox-title">
+        <label id="aliasGroupboxCaption" class="header">&accountAliasGroupbox.caption;</label>
+      </hbox>
       <hbox id="aliasBox" align="baseline">
         <label value="&accountAliasField.label;" control="alias" id="aliasLabel"/>
         <textbox id="alias"/>
@@ -78,10 +78,10 @@
     <checkbox id="newMailNotification"
               label="&accountAdvanced.newMailNotification.label;" hidden="true"/>
 
-    <groupbox id="protoSpecificGroupbox" class="collapsable" closed="true"
-              onkeypress="accountWizard.onGroupboxKeypress(event)">
-      <caption id="protoSpecificCaption"
-               onclick="accountWizard.toggleGroupbox('protoSpecificGroupbox')"/>
+    <groupbox id="protoSpecificGroupbox">
+      <hbox class="groupbox-title">
+        <label id="protoSpecificCaption" class="header"/>
+      </hbox>
       <vbox id="protoSpecific" flex="1"/>
     </groupbox>
   </wizardpage>

@@ -73,7 +73,6 @@
           </vbox>
           <vbox id="advanced">
             <label class="header">&account.advanced;</label>
-            <caption label="&account.advanced;"/>
             <vbox id="protoSpecific" flex="1"/>
           </vbox>
         </tabpanel>

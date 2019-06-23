@@ -24,7 +24,10 @@
   <script src="chrome://editor/content/EdInsertTable.js"/>
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
-  <groupbox><label class="header">&size.label;</label>
+  <groupbox>
+    <hbox class="groupbox-title">
+      <label class="header">&size.label;</label>
+    </hbox>
     <grid>
       <columns>
         <column flex="1"/>

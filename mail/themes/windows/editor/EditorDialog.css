@@ -7,9 +7,16 @@
 
 /* The defaults are WAY to big! */
 groupbox {
-  margin:         2px 5px;
-  padding-top:    2px;
+  margin: 1em 5px 2px;
+  padding-top: 2px;
   padding-bottom: 4px;
+}
+
+groupbox > hbox > .header {
+  margin-top: -1em;
+  padding-right: 5px;
+  padding-left: 5px;
+  background-color: -moz-dialog;
 }
 
 .MinWidth5em {
@@ -307,13 +314,16 @@ tree.list {
 
 groupbox {
   -moz-appearance: groupbox;
-  border: 2px groove ThreeDFace;
-  border-radius: 3px;
   margin: 3px;
-  padding: 3px 3px 6px;
+  margin-top: 1em;
+  padding: 3px 0 6px;
 }
 
-caption {
-  margin: -5px 6px 6px;
-  font-weight: bold;
+groupbox > .groupbox-title > .header {
+  font-weight: normal;
+  margin-top: -1em;
+  margin-inline-start: 3px;
+  padding-right: 3px;
+  padding-left: 3px;
+  background-color: -moz-dialog;
 }

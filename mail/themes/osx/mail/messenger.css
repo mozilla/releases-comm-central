@@ -744,10 +744,14 @@ groupbox {
   -moz-appearance: groupbox;
   padding: 0 8px 5px;
   margin: 6px;
+  margin-top: 1.5em;
 }
 
-caption {
-  padding-bottom: 5px;
-  font: caption;
-  font-weight: bold;
+groupbox > .groupbox-title > .header {
+  font-size: 1.18em;
+  font-weight: normal;
+  margin-top: -1.3em;
+  margin-bottom: 5px;
+  margin-inline-start: -5px;
 }
+

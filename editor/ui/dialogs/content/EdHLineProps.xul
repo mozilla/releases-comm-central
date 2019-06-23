@@ -26,7 +26,10 @@
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
 
-  <groupbox><label class="header">&dimensionsBox.label;</label>
+  <groupbox>
+    <hbox class="groupbox-title">
+      <label class="header">&dimensionsBox.label;</label>
+    </hbox>
     <grid>
       <columns><column/><column/><column /></columns>
       <rows>
@@ -49,7 +52,10 @@
     </grid>
     <checkbox id="3dShading" label="&threeDShading.label;" accesskey="&threeDShading.accessKey;"/>
   </groupbox>
-  <groupbox><label class="header">&alignmentBox.label;</label>
+  <groupbox>
+    <hbox class="groupbox-title">
+      <label class="header">&alignmentBox.label;</label>
+    </hbox>
     <radiogroup id="alignmentGroup" orient="horizontal">
       <spacer class="spacer"/>
       <radio id="leftAlign"   label="&leftRadio.label;"   accesskey="&leftRadio.accessKey;"/>

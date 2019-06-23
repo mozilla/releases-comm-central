@@ -20,13 +20,18 @@
     <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
 
     <groupbox>
+      <hbox class="groupbox-title">
         <label class="header">&documentTitleTitle.label;</label>
+      </hbox>
         <label id="EnterTitleLabel"/>
         <textbox id="TitleInput" oninput="TitleChanged();"/>
         <description id="TitleHelp" class="wrap" style="width:1em" />
     </groupbox>
 
-    <groupbox flex="1"><label class="header">&documentCharsetTitle2.label;</label>
+    <groupbox flex="1">
+      <hbox class="groupbox-title">
+        <label class="header">&documentCharsetTitle2.label;</label>
+      </hbox>
         <label value="&documentCharsetDesc2.label;"/>
         <tree id="CharsetTree" rows="8" hidecolumnpicker="true" onselect="SelectCharset();">
             <treecols>

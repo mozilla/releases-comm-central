@@ -26,7 +26,9 @@
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
 
   <groupbox align="start">
-    <label class="header">&pageColors.label;</label>
+    <hbox class="groupbox-title">
+      <label class="header">&pageColors.label;</label>
+    </hbox>
     <radiogroup id="PageColorGroup">
       <radio id="DefaultColorsRadio" label="&defaultColorsRadio.label;" oncommand="UseDefaultColors()"
         accesskey="&defaultColorsRadio.accessKey;"

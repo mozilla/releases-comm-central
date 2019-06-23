@@ -37,7 +37,9 @@
   </tabbox>
   <spacer class="spacer"/>
   <groupbox>
-    <label class="header">&options.label;</label>
+    <hbox class="groupbox-title">
+      <label class="header">&options.label;</label>
+    </hbox>
     <hbox>
       <radiogroup id="optionMode" oncommand="updateMode();">
         <radio label="&optionInline.label;"

@@ -28,14 +28,20 @@
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
 
   <vbox style="min-width: 20em">
-    <groupbox><label id="linkTextCaption" class="header"/>
+    <groupbox>
+      <hbox class="groupbox-title">
+        <label id="linkTextCaption" class="header"/>
+      </hbox>
       <vbox>
         <label id="linkTextMessage" control="linkTextInput"/>
         <textbox id="linkTextInput"/>
       </vbox>
     </groupbox>
 
-    <groupbox id="LinkURLBox"><label class="header">&LinkURLBox.label;</label>
+    <groupbox id="LinkURLBox">
+      <hbox class="groupbox-title">
+        <label class="header">&LinkURLBox.label;</label>
+      </hbox>
       <vbox id="LinkLocationBox">
         <label control="hrefInput"
                accesskey="&LinkURLEditField2.accessKey;"

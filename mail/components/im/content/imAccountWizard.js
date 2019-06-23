@@ -197,7 +197,7 @@ var accountWizard = {
     document.getElementById("protoSpecificGroupbox").hidden = !haveOptions;
     if (haveOptions) {
       var bundle = document.getElementById("accountsBundle");
-      document.getElementById("protoSpecificCaption").label =
+      document.getElementById("protoSpecificCaption").value =
         bundle.getFormattedString("protoOptions", [this.proto.name]);
     }
   },
@@ -385,30 +385,6 @@ var accountWizard = {
   },
   getProtoUserSplits() {
     return this.getIter(this.proto.getUsernameSplit());
-  },
-
-  onGroupboxKeypress(aEvent) {
-    var target = aEvent.target;
-    var code = aEvent.charCode || aEvent.keyCode;
-    if (code == KeyEvent.DOM_VK_SPACE ||
-        (code == KeyEvent.DOM_VK_LEFT && !target.hasAttribute("closed")) ||
-        (code == KeyEvent.DOM_VK_RIGHT && target.hasAttribute("closed")))
-        this.toggleGroupbox(target.id);
-  },
-
-  toggleGroupbox(id) {
-    var elt = document.getElementById(id);
-    if (elt.hasAttribute("closed")) {
-      elt.removeAttribute("closed");
-      if (elt.flexWhenOpened)
-        elt.flex = elt.flexWhenOpened;
-    } else {
-      elt.setAttribute("closed", "true");
-      if (elt.flex) {
-        elt.flexWhenOpened = elt.flex;
-        elt.flex = 0;
-      }
-    }
   },
 
   /* Check for correctness and set URL for the "Get more protocols..."-link
