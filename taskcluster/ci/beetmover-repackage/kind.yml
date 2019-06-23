@@ -42,5 +42,5 @@ job-template:
     attributes:
         artifact_map:
             by-release-type:
-                beta|release.*|esr.*: comm/taskcluster/comm_taskgraph/manifests/thunderbird_candidates.yml
+                beta|release: comm/taskcluster/comm_taskgraph/manifests/thunderbird_candidates.yml
                 default: comm/taskcluster/comm_taskgraph/manifests/thunderbird_nightly.yml

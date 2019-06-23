@@ -18,7 +18,7 @@ job-defaults:
     shipping-phase: ship
     worker-type:
         by-project:
-            comm-(beta|esr.*): scriptworker-prov-v1/tb-treescript-comm-v1
+            comm-(beta|esr60|esr68): scriptworker-prov-v1/tb-treescript-comm-v1
             default: scriptworker-prov-v1/tb-treescript-comm-dev
     worker:
         implementation: treescript

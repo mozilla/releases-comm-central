@@ -33,7 +33,7 @@ job-defaults:
     notifications:
         emails:
             by-project:
-                comm-(beta|esr.*): ["thunderbird-drivers@mozilla.org"]
+                comm-(beta|esr60|esr68): ["thunderbird-drivers@mozilla.org"]
                 try-comm-central: ["{config[params][owner]}"]
                 default: []
 
