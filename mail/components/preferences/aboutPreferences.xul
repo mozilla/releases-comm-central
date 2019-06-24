@@ -4,11 +4,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+<?xml-stylesheet href="chrome://global/skin/global.css"?>
 <?xml-stylesheet href="chrome://messenger/content/messenger.css"?>
 <?xml-stylesheet href="chrome://messenger/content/preferences/handlers.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/filefield.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/applications.css"?>
-<?xml-stylesheet href="chrome://messenger/skin/accountManage.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 <?xml-stylesheet href="chrome://global/skin/in-content/common.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/aboutPreferences.css"?>
@@ -72,7 +72,6 @@
 #include applications.inc.xul
             <prefpane id="paneLightning" label="&paneLightning.title;"/>
 #include advanced.inc.xul
-#include accounts.inc.xul
           </hbox>
         </hbox>
       </hbox>

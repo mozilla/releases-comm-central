@@ -29,10 +29,6 @@ function onPreInit(account, accountValues) {
   loadSMTPServerList();
 }
 
-function onLeave(restoreValuesOnFailure) {
-  return top.checkAccountNameIsValid(restoreValuesOnFailure);
-}
-
 function manageIdentities() {
   // We want to save the current identity information before bringing up the multiple identities
   // UI. This ensures that the changes are reflected in the identity list dialog
@@ -43,11 +39,7 @@ function manageIdentities() {
 
   var accountName = document.getElementById("server.prettyName").value;
 
-  var args = { account: gAccount,
-               accountName,
-               width: document.documentElement.clientWidth,
-               height: document.documentElement.clientHeight,
-               result: false };
+  var args = { account: gAccount, accountName, result: false };
 
   // save the current identity settings so they show up correctly
   // if the user just changed them in the manage identities dialog

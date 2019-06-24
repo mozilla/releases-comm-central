@@ -2,7 +2,6 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this file,
    - You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url("chrome://messenger/skin/folderPane.css");
 @namespace html "http://www.w3.org/1999/xhtml";
 
 :root {
@@ -50,10 +49,6 @@ html|h3 {
   margin: 4px 0 !important;
 }
 
-.header {
-  margin-bottom: 0;
-}
-
 #preferencesContainer {
   padding: 40px 28px;
   overflow: auto;
@@ -68,12 +63,6 @@ html|h3 {
 
 #MailPreferences prefpane:not([selected]) {
   display: none;
-}
-
-groupbox {
-  -moz-appearance: none;
-  margin: initial;
-  padding: initial;
 }
 
 tabpanel > label,
@@ -324,49 +313,6 @@ tab:-moz-focusring > .tab-middle {
   outline: none;
 }
 
-/* Styles for the Account Actions button */
-button[type="menu"] > menupopup {
-  -moz-appearance: none;
-  border: 1px solid var(--in-content-box-border-color);
-  border-radius: 2px;
-  background-color: var(--in-content-box-background);
-}
-
-button[type="menu"] > menupopup menuitem {
-  -moz-appearance: none;
-  font-size: 1em;
-  color: var(--in-content-text-color);
-  padding-top: 0.2em;
-  padding-bottom: 0.2em;
-  padding-inline-start: 10px;
-  padding-inline-end: 30px;
-}
-
-button[type="menu"] > menupopup > menuitem:not([disabled="true"])[_moz-menuactive="true"] {
-  color: var(--in-content-text-color);
-  background-color: var(--in-content-item-hover);
-}
-
-button[type="menu"] > menupopup > menuitem:not([disabled="true"])[selected="true"] {
-  color: var(--in-content-selected-text);
-  background-color: var(--in-content-item-selected);
-}
-
-button[type="menu"] > menupopup > menuitem[disabled="true"] {
-  color: #999;
-  /* override the [_moz-menuactive="true"] background color from
-     global/menu.css */
-  background-color: transparent;
-}
-
-button[type="menu"] > menupopup menuseparator {
-  -moz-appearance: none;
-  margin: 0;
-  padding: 0;
-  border-top: 1px solid var(--in-content-box-border-color);
-  border-bottom: none;
-}
-
 #defaultWebSearchPopup > menuitem > .menu-iconic-left {
   display: -moz-box;
 }
@@ -570,7 +516,7 @@ richlistbox richlistitem:hover {
 }
 
 richlistbox:focus > richlistitem[selected="true"] {
-  background-color: var(--in-content-item-selected) !important;
+  background-color: var(--in-content-item-selected);
   color: var(--in-content-selected-text) !important;
 }
 
@@ -610,19 +556,6 @@ richlistbox:focus > richlistitem[selected="true"] {
 }
 
 /* Menulist styles */
-
-menulist menupopup[type="folder"] {
-  -moz-appearance: none;
-  border: 1px solid var(--in-content-box-border-color);
-  border-radius: 2px;
-  background-color: var(--in-content-box-background);
-}
-
-menupopup[type="folder"] > .folderMenuItem[_moz-menuactive="true"] {
-  color: var(--in-content-text-color);
-  background-color: var(--in-content-item-hover);
-}
-
 .label-item {
   font-size: .8em;
 }

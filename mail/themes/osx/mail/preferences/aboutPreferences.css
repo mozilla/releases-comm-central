@@ -51,16 +51,6 @@ radio[pane][selected] {
   margin-inline-end: 8px !important;
 }
 
-button[type="menu"] > .button-box > .button-menu-dropmarker {
-  -moz-appearance: none;
-  display: -moz-box;
-  list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
-  width: 12px;
-  height: 12px;
-}
-
 .sidebar-footer-label {
   font-size: 1.224em;
 }

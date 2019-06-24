@@ -41,6 +41,4 @@
 <!ENTITY % aboutDialogDTD SYSTEM "chrome://messenger/locale/aboutDialog.dtd" >
 %aboutDialogDTD;
 #endif
-<!ENTITY % accountDTD SYSTEM "chrome://messenger/locale/AccountManager.dtd">
-%accountDTD;
 ]>

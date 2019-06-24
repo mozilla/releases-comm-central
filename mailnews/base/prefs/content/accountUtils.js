@@ -6,7 +6,6 @@
 /* import-globals-from AccountManager.js */
 /* globals SelectFolder */// From messageWindow.js or msgMail3PaneWindow.js.
 /* globals MsgGetMessage */// From mailWindowOverlay.js.
-/* globals openPreferencesTab */// From utilityOverlay.js.
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
@@ -227,42 +226,35 @@ function AddFeedAccount() {
  * Opens the account settings window on the specified account
  * and page of settings. If the window is already open it is only focused.
  *
- * @param aSelectPage  The xul file name for the viewing page or
- *                     null for the account main page. Other pages are
- *                     'am-server.xul', 'am-copies.xul', 'am-offline.xul',
- *                     'am-addressing.xul', 'am-smtp.xul'
- * @param aServer      The server of the account to select. Optional.
+ * @param selectPage  The xul file name for the viewing page or
+ *                    null for the account main page. Other pages are
+ *                    'am-server.xul', 'am-copies.xul', 'am-offline.xul',
+ *                    'am-addressing.xul', 'am-smtp.xul'
+ * @param  aServer    The server of the account to select. Optional.
  */
-function MsgAccountManager(aSelectPage, aServer) {
-  if (!aServer) {
-    if (typeof window.GetSelectedMsgFolders === "function") {
-      let folders = window.GetSelectedMsgFolders();
-      if (folders.length > 0)
-        aServer = folders[0].server;
-    }
-    if (!aServer && (typeof window.GetDefaultAccountRootFolder === "function")) {
-      let folder = window.GetDefaultAccountRootFolder();
-      if (folder instanceof Ci.nsIMsgFolder)
-        aServer = folder.server;
-    }
-  }
+function MsgAccountManager(selectPage, aServer) {
+  var existingAccountManager = Services.wm.getMostRecentWindow("mailnews:accountmanager");
 
-  if (AppConstants.MOZ_APP_NAME == "thunderbird") {
-    // Load the Account Manager in a tab.
-    openPreferencesTab("paneAccount", aServer ? aServer.key : null, aSelectPage);
+  if (existingAccountManager) {
+    existingAccountManager.focus();
   } else {
-    // If the Account Manager is already running, just focus the right server.
-    let existingAccountManager = Services.wm.getMostRecentWindow("mailnews:accountmanager");
-    if (existingAccountManager) {
-      existingAccountManager.focus();
-      existingAccountManager.selectServer(aServer);
-    } else {
-      // Load the Account Manager in a standalone dialog.
-      window.openDialog("chrome://messenger/content/AccountManager.xul",
-                        "AccountManager",
-                        "chrome,centerscreen,modal,titlebar,resizable",
-                        { server: aServer, selectPage: aSelectPage });
+    if (!aServer) {
+      if (typeof window.GetSelectedMsgFolders === "function") {
+        let folders = window.GetSelectedMsgFolders();
+        if (folders.length > 0)
+          aServer = folders[0].server;
+      }
+      if (!aServer && (typeof window.GetDefaultAccountRootFolder === "function")) {
+        let folder = window.GetDefaultAccountRootFolder();
+        if (folder instanceof Ci.nsIMsgFolder)
+          aServer = folder.server;
+      }
     }
+
+    window.openDialog("chrome://messenger/content/AccountManager.xul",
+                      "AccountManager",
+                      "chrome,centerscreen,modal,titlebar,resizable",
+                      { server: aServer, selectPage });
   }
 }
 

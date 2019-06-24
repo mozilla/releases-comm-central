@@ -902,6 +902,8 @@ findbar {
 
 groupbox {
   -moz-appearance: groupbox;
+  border: 2px groove ThreeDFace;
+  border-radius: 3px;
   margin: 3px;
   margin-top: 1em;
   padding: 3px 0 6px;

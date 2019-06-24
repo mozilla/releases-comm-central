@@ -129,18 +129,10 @@ var preferencesTabType = {
     if (aTab.browser.currentURI.spec == "about:blank")
       return null;
 
-    let currentPane = aTab.browser.contentWindow.getCurrentPaneID();
-    let tabId;
-    if (currentPane == "paneAccount") {
-      let account = aTab.browser.contentWindow.getCurrentAccount();
-      tabId = (account ? account.incomingServer.key : null);
-    } else {
-      tabId = aTab.tabID;
-    }
     return {
       tabURI: aTab.url,
-      paneID: currentPane,
-      tabID: tabId,
+      paneID: aTab.paneID,
+      tabID: aTab.tabID,
       otherArgs: aTab.otherArgs,
     };
   },

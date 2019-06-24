@@ -75,11 +75,7 @@ function refreshIdentityList(aSelectIndex) {
  * @param identity  the identity (if any) to load in the dialog
  */
 function openIdentityEditor(identity) {
-  let args = { identity,
-               account: gAccount,
-               width: window.arguments[0].width,
-               height: window.arguments[0].height,
-               result: false };
+  let args = { identity, account: gAccount, result: false };
 
   let indexToSelect = identity ? gIdentityListBox.selectedIndex :
                                  gIdentityListBox.itemCount;

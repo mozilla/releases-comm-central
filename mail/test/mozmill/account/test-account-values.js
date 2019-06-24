@@ -10,10 +10,8 @@
 "use strict";
 
 /* import-globals-from ../shared-modules/test-account-manager-helpers.js */
-/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 /* import-globals-from ../shared-modules/test-keyboard-helpers.js */
-/* import-globals-from ../shared-modules/test-pref-window-helpers.js */
 /* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-account-values";
@@ -23,8 +21,6 @@ var MODULE_REQUIRES = [
   "window-helpers",
   "account-manager-helpers",
   "keyboard-helpers",
-  "content-tab-helpers",
-  "pref-window-helpers",
 ];
 
 var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
@@ -68,11 +64,22 @@ function teardownModule(module) {
  * prefill the currently default email address.
  */
 function test_default_CC_address() {
-  let tab = open_advanced_settings();
-  let accountRow = get_account_tree_row(gPopAccount.key, "am-copies.xul", tab);
-  click_account_tree_row(tab, accountRow);
+  open_advanced_settings(function(amc) {
+    subtest_check_default_CC_address(amc);
+  });
+}
 
-  let iframe = content_tab_e(tab, "contentFrame");
+/**
+ * Check that if the CC field is empty, enabling CC will automatically
+ * prefill the currently default email address.
+ *
+ * @param amc  the account options controller
+ */
+function subtest_check_default_CC_address(amc) {
+  let accountRow = get_account_tree_row(gPopAccount.key, "am-copies.xul", amc);
+  click_account_tree_row(amc, accountRow);
+
+  let iframe = amc.window.document.getElementById("contentFrame");
 
   let defaultAddress = iframe.contentDocument.getElementById("identity.email").value;
   let ccCheck = iframe.contentDocument.getElementById("identity.doCc");
@@ -81,7 +88,7 @@ function test_default_CC_address() {
   assert_false(ccCheck.checked);
   assert_equals(ccAddress.value, "");
   // After ticking the CC checkbox the default address should be prefilled.
-  mc.check(new elib.Elem(ccCheck), true);
+  amc.check(new elib.Elem(ccCheck), true);
   assert_equals(ccAddress.value, defaultAddress);
 
   let bccCheck = iframe.contentDocument.getElementById("identity.doBcc");
@@ -92,9 +99,8 @@ function test_default_CC_address() {
   let bccUserAddress = "somebody@else.invalid";
   bccAddress.value = bccUserAddress;
   // After ticking the BCC checkbox the current value of the address should not change.
-  mc.check(new elib.Elem(bccCheck), true);
+  amc.check(new elib.Elem(bccCheck), true);
   assert_equals(bccAddress.value, bccUserAddress);
-  close_advanced_settings(tab);
 }
 
 /**
@@ -127,20 +133,26 @@ function test_account_name() {
   let newUser = "somebody";
 
   // On NNTP there is no user name so just set new hostname.
-  subtest_check_account_name(nntpAccount, newHost, null);
+  open_advanced_settings(function(amc) {
+    subtest_check_account_name(nntpAccount, newHost, null, amc);
+  });
 
   // And see if the account name is updated to it.
   assert_equals(nntpAccount.incomingServer.prettyName, newHost);
 
   // On POP3 there is both user name and host name.
   // Set new host name first.
-  subtest_check_account_name(gPopAccount, newHost, null);
+  open_advanced_settings(function(amc) {
+    subtest_check_account_name(gPopAccount, newHost, null, amc);
+  });
 
   // And see if in the account name the host part is updated to it.
   assert_equals(gPopAccount.incomingServer.prettyName, "nobody@" + newHost);
 
   // Set new host name first.
-  subtest_check_account_name(gPopAccount, null, newUser);
+  open_advanced_settings(function(amc) {
+    subtest_check_account_name(gPopAccount, null, newUser, amc);
+  });
 
   // And see if in the account name the user part is updated.
   assert_equals(gPopAccount.incomingServer.prettyName, newUser + "@" + newHost);
@@ -149,7 +161,9 @@ function test_account_name() {
   newUser = "anotherbody";
 
   // Set user name and host name at once.
-  subtest_check_account_name(gPopAccount, newHost, newUser);
+  open_advanced_settings(function(amc) {
+    subtest_check_account_name(gPopAccount, newHost, newUser, amc);
+  });
 
   // And see if in the account name the host part is updated to it.
   assert_equals(gPopAccount.incomingServer.prettyName, newUser + "@" + newHost);
@@ -159,7 +173,9 @@ function test_account_name() {
 
   newHost = "third.host.invalid";
   // Set the host name again.
-  subtest_check_account_name(gPopAccount, newHost, null);
+  open_advanced_settings(function(amc) {
+    subtest_check_account_name(gPopAccount, newHost, null, amc);
+  });
 
   // And the account name should not be touched.
   assert_equals(gPopAccount.incomingServer.prettyName, newUser + "@example.invalid");
@@ -173,13 +189,13 @@ function test_account_name() {
  * @param aAccount      the account to change
  * @param aNewHostname  the hostname value to set
  * @param aNewUsername  the username value to set
+ * @param amc           the account options controller
  */
-function subtest_check_account_name(aAccount, aNewHostname, aNewUsername) {
-  let tab = open_advanced_settings();
-  let accountRow = get_account_tree_row(aAccount.key, "am-server.xul", tab);
-  click_account_tree_row(tab, accountRow);
+function subtest_check_account_name(aAccount, aNewHostname, aNewUsername, amc) {
+  let accountRow = get_account_tree_row(aAccount.key, "am-server.xul", amc);
+  click_account_tree_row(amc, accountRow);
 
-  let iframe = content_tab_e(tab, "contentFrame");
+  let iframe = amc.window.document.getElementById("contentFrame");
 
   if (aNewHostname) {
     let hostname = iframe.contentDocument.getElementById("server.realHostName");
@@ -204,9 +220,8 @@ function subtest_check_account_name(aAccount, aNewHostname, aNewUsername) {
       cdc.window.document.documentElement.acceptDialog();
     });
   }
-  // We really need to save the new values.
-  close_advanced_settings(tab);
-
+  // We really need to save the new values so click OK on the Account settings.
+  amc.window.document.documentElement.acceptDialog();
   if (aNewUsername)
     wait_for_modal_dialog("commonDialog");
 }
@@ -222,7 +237,9 @@ function test_invalid_junk_target() {
   branch.setCharPref("spamActionTargetFolder", "some random non-existent URI");
   let moveOnSpam = true;
   branch.setBoolPref("moveOnSpam", moveOnSpam);
-  subtest_check_invalid_junk_target();
+  open_advanced_settings(function(amc) {
+    subtest_check_invalid_junk_target(amc);
+  });
 
   // The pref has no default so its non-existence means it was cleared.
   moveOnSpam = branch.getBoolPref("moveOnSpam", false);
@@ -236,27 +253,31 @@ function test_invalid_junk_target() {
 
 /**
  * Just show the Junk settings pane and let it fix the values.
+ *
+ * @param amc  the account options controller
  */
-function subtest_check_invalid_junk_target() {
-  let tab = open_advanced_settings();
-  let accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xul", tab);
-  click_account_tree_row(tab, accountRow);
+function subtest_check_invalid_junk_target(amc) {
+  let accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xul", amc);
+  click_account_tree_row(amc, accountRow);
 
-  // We need to save the new fixed values.
-  close_advanced_settings(tab);
+  // We need to save the new fixed values so click OK on the Account settings.
+  amc.window.document.documentElement.acceptDialog();
 }
 
 /**
  * Bug 327812.
  * Checks if invalid server hostnames are not accepted.
  */
-test_invalid_hostname.__force_skip__ = true; // disabled temporarily, bug 1096006
 function test_invalid_hostname() {
   let branch = Services.prefs.getBranch("mail.server." + gPopAccount.incomingServer.key + ".");
   let origHostname = branch.getCharPref("realhostname");
 
-  subtest_check_invalid_hostname(false, origHostname);
-  subtest_check_invalid_hostname(true, origHostname);
+  open_advanced_settings(function(amc) {
+    subtest_check_invalid_hostname(amc, false, origHostname);
+  });
+  open_advanced_settings(function(amc) {
+    subtest_check_invalid_hostname(amc, true, origHostname);
+  });
 
   // The new bad hostname should not have been saved.
   let newHostname = branch.getCharPref("realhostname");
@@ -266,50 +287,42 @@ function test_invalid_hostname() {
 /**
  * Set the hostname to an invalid value and check if it gets fixed.
  *
+ * @param amc                the account options controller
  * @param aExitSettings      Attempt to close the Account settings dialog.
  * @param aOriginalHostname  Original hostname of this server.
  */
-function subtest_check_invalid_hostname(aExitSettings, aOriginalHostname) {
-  let tab = open_advanced_settings();
-  let accountRow = get_account_tree_row(gPopAccount.key, "am-server.xul", tab);
-  click_account_tree_row(tab, accountRow);
+function subtest_check_invalid_hostname(amc, aExitSettings, aOriginalHostname) {
+  let accountRow = get_account_tree_row(gPopAccount.key, "am-server.xul", amc);
+  click_account_tree_row(amc, accountRow);
 
-  let iframe = content_tab_e(tab, "contentFrame");
+  let iframe = amc.window.document.getElementById("contentFrame");
   let hostname = iframe.contentDocument.getElementById("server.realHostName");
   assert_equals(hostname.value, aOriginalHostname);
 
-  delete_all_existing(mc, new elib.Elem(hostname));
-  input_value(mc, "some_invalid+host&domain*in>invalid", new elib.Elem(hostname));
-
-  // As the hostname is bad, we should get a warning dialog.
-  plan_for_modal_dialog("commonDialog", function(cdc) {
-    // Just dismiss it.
-    cdc.window.document.documentElement.acceptDialog();
-  });
+  hostname.value = "some_invalid+host&domain*in>invalid";
 
   if (!aExitSettings) {
-    let newAccountRow = get_account_tree_row(gPopAccount.key, "am-junk.xul", tab);
-    click_account_tree_row(tab, newAccountRow, false);
-    wait_for_modal_dialog("commonDialog");
-    // The load of am-junk was prevented and we are back on the same pane.
-    mc.waitFor(() => tab.browser.contentWindow.pendingAccount == null,
-               "Timeout waiting for pendingAccount to become null");
+    accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xul", amc);
+    click_account_tree_row(amc, accountRow);
 
-    let tree = content_tab_e(tab, "accounttree");
-    wait_for_frame_load(content_tab_e(tab, "contentFrame"),
-      tab.browser.contentWindow.pageURL(tree.view.getItemAtIndex(accountRow)
-                               .getAttribute("PageTag")));
-    assert_equals(tab.browser.contentWindow.currentPageId, "am-server.xul");
-    iframe = content_tab_e(tab, "contentFrame");
-    // Revert the changes to be able to close AM without warning.
+    // The invalid hostname should be set back to previous value at this point...
+    accountRow = get_account_tree_row(gPopAccount.key, "am-server.xul", amc);
+    click_account_tree_row(amc, accountRow);
+
+    // ...let's check that:
+    iframe = amc.window.document.getElementById("contentFrame");
     hostname = iframe.contentDocument.getElementById("server.realHostName");
-    delete_all_existing(mc, new elib.Elem(hostname));
-    input_value(mc, aOriginalHostname, new elib.Elem(hostname));
-    close_advanced_settings(tab);
+    assert_equals(hostname.value, aOriginalHostname);
   } else {
-    // Close the tab to save the changes.
-    // The bad hostname should be automatically reverted.
-    close_advanced_settings(tab);
+    // If the hostname is bad, we should get a warning dialog.
+    plan_for_modal_dialog("commonDialog", function(cdc) {
+      // Just dismiss it.
+      cdc.window.document.documentElement.acceptDialog();
+    });
+
+    // Click OK on the Account settings.
+    amc.window.document.documentElement.acceptDialog();
+
     wait_for_modal_dialog("commonDialog");
   }
 }
@@ -322,7 +335,9 @@ const badName = "trailing  space ";
 const badEmail = " leading_space@example.com";
 
 function test_trailing_spaces() {
-  subtest_check_trailing_spaces();
+  open_advanced_settings(function(amc) {
+    subtest_check_trailing_spaces(amc);
+  });
   assert_equals(gPopAccount.incomingServer.prettyName, badName.trim());
   assert_equals(gPopAccount.defaultIdentity.email, badEmail.trim());
 }
@@ -330,24 +345,25 @@ function test_trailing_spaces() {
 /**
  * Check that the AM will trim user added spaces around text values
  * when storing them into the account.
+ *
+ * @param amc  the account options controller
  */
-function subtest_check_trailing_spaces() {
-  let tab = open_advanced_settings();
-  let accountRow = get_account_tree_row(gPopAccount.key, null, tab);
-  click_account_tree_row(tab, accountRow);
+function subtest_check_trailing_spaces(amc) {
+  let accountRow = get_account_tree_row(gPopAccount.key, null, amc);
+  click_account_tree_row(amc, accountRow);
 
-  let iframe = content_tab_e(tab, "contentFrame");
+  let iframe = amc.window.document.getElementById("contentFrame");
 
   let accountName = iframe.contentDocument.getElementById("server.prettyName");
   let defaultAddress = iframe.contentDocument.getElementById("identity.email");
-  delete_all_existing(mc, new elib.Elem(accountName));
-  delete_all_existing(mc, new elib.Elem(defaultAddress));
-  input_value(mc, badName, new elib.Elem(accountName));
-  input_value(mc, badEmail, new elib.Elem(defaultAddress));
+  delete_all_existing(amc, new elib.Elem(accountName));
+  delete_all_existing(amc, new elib.Elem(defaultAddress));
+  input_value(amc, badName, new elib.Elem(accountName));
+  input_value(amc, badEmail, new elib.Elem(defaultAddress));
 
   assert_equals(accountName.value, badName);
   assert_equals(defaultAddress.value, badEmail);
 
-  // We really need to save the new values.
-  close_advanced_settings(tab);
+  // We really need to save the new values so click OK on the Account settings.
+  amc.window.document.documentElement.acceptDialog();
 }
