@@ -265,7 +265,7 @@
                           preference="mail.prompt_purge_threshhold"
                           oncommand="gAdvancedPane.updateCompactOptions(this.checked);"/>
                 <html:input id="offlineCompactFolderMin" type="number" class="size4"
-                            min="1" max="2048" value="20"
+                            min="1" max="2048" value="200"
                             preference="mail.purge_threshhold_mb"
                             aria-labelledby="offlineCompactFolder offlineCompactFolderMin compactFolderMB"/>
                 <label id="compactFolderMB" value="&offlineCompactFoldersMB.label;"/>

@@ -1875,7 +1875,7 @@ nsresult nsMsgDBFolder::GetPurgeThreshold(int32_t *aThreshold) {
   nsCOMPtr<nsIPrefBranch> prefBranch =
       do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
   if (NS_SUCCEEDED(rv) && prefBranch) {
-    int32_t thresholdMB = 20;
+    int32_t thresholdMB = 200;
     bool thresholdMigrated = false;
     prefBranch->GetIntPref(PREF_MAIL_PURGE_THRESHOLD_MB, &thresholdMB);
     prefBranch->GetBoolPref(PREF_MAIL_PURGE_MIGRATED, &thresholdMigrated);
