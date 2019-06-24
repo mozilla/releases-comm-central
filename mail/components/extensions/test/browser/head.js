@@ -29,6 +29,7 @@ function createAccount() {
 
 function cleanUpAccount(account) {
   info(`Cleaning up account ${account.toString()}`);
+  MailServices.accounts.removeIncomingServer(account.incomingServer, true);
   MailServices.accounts.removeAccount(account, true);
 }
 

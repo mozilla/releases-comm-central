@@ -74,10 +74,11 @@ function tearDownModule(module) {
   let account = MailServices.accounts.FindAccountForServer(incomingServer);
 
   let identity = account.defaultIdentity;
+  MailServices.accounts.removeIncomingServer(incomingServer, true);
   let outgoingServer = MailServices.smtp.getServerByKey(identity.smtpServerKey);
   assert_equals(outgoingServer.hostname, user.outgoingHost);
   MailServices.smtp.deleteServer(outgoingServer);
-  MailServices.accounts.removeAccount(account, true);
+  MailServices.accounts.removeAccount(account);
 
   Services.prefs.clearUserPref("mailnews.auto_config_url");
 }

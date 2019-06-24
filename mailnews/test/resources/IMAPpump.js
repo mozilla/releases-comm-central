@@ -129,7 +129,6 @@ function teardownIMAPPump() {
     IMAPPump.server.resetTest();
     IMAPPump.server.stop();
     MailServices.accounts.removeIncomingServer(IMAPPump.incomingServer, false);
-    IMAPPump.incomingServer = null;
     localAccountUtils.clearAll();
   } catch (ex) { dump(ex); }
 }

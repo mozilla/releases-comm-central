@@ -588,11 +588,10 @@ nsMsgAccountManager::RemoveAccount(nsIMsgAccount *aAccount,
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool accountRemoved = m_accounts.RemoveElement(aAccount);
-  if (!accountRemoved) return NS_ERROR_INVALID_ARG;
 
   rv = OutputAccountsPref();
   // If we couldn't write out the pref, restore the account.
-  if (NS_FAILED(rv)) {
+  if (NS_FAILED(rv) && accountRemoved) {
     m_accounts.AppendElement(aAccount);
     return rv;
   }

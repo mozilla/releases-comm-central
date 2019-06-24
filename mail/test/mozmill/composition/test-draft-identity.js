@@ -222,7 +222,6 @@ function teardownModule(module) {
   // which effectively destroys it.
   MailServices.accounts.getIdentity(gIdentities[0].key).clearAllValues();
   MailServices.accounts.removeAccount(gAccount);
-  gAccount = null;
 
   // Clear our drafts.
   be_in_folder(gDrafts);

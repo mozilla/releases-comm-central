@@ -212,7 +212,6 @@ function remove_account(aAccount, tab, aRemoveAccount = true, aRemoveData = fals
      .addEventListener("account-tree-built", () => { treeBuilt = true; },
                        {once: true});
 
-  aAccount = null;
   // Use the Remove item in the Account actions menu.
   mc.click(cth.content_tab_eid(tab, "accountActionsButton"));
   mc.click_menus_in_sequence(cth.content_tab_e(tab, "accountActionsDropdown"),

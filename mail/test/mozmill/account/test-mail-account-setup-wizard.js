@@ -45,15 +45,13 @@ function remove_account_internal(tab, aAccount, aOutgoing) {
     // Remove the account and incoming server
     let serverId = aAccount.incomingServer.serverURI;
     MailServices.accounts.removeAccount(aAccount);
-    aAccount = null;
     if (serverId in win.accountArray)
       delete win.accountArray[serverId];
     win.selectServer(null, null);
 
     // Remove the outgoing server
-    let smtpKey = aOutgoing.key;
     MailServices.smtp.deleteServer(aOutgoing);
-    win.replaceWithDefaultSmtpServer(smtpKey);
+    win.replaceWithDefaultSmtpServer(aOutgoing.key);
   } catch (ex) {
     throw new Error("failure to remove account: " + ex + "\n");
   }
