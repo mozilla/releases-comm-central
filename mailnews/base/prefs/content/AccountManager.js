@@ -1504,7 +1504,6 @@ var gAccountTree = {
   },
 
   _build() {
-    currentAccount = currentPageId = null;
     var bundle = document.getElementById("bundle_prefs");
     function getString(aString) { return bundle.getString(aString); }
     var panels = [{string: getString("prefPanel-server"), src: "am-server.xul"},

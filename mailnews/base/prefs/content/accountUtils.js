@@ -249,7 +249,7 @@ function MsgAccountManager(aSelectPage, aServer) {
 
   if (AppConstants.MOZ_APP_NAME == "thunderbird") {
     // Load the Account Manager in a tab.
-    openPreferencesTab("paneAccount", aServer ? aServer.key : null, { subdialog: aSelectPage });
+    openPreferencesTab("paneAccount", aServer ? aServer.key : null, aSelectPage);
   } else {
     // If the Account Manager is already running, just focus the right server.
     let existingAccountManager = Services.wm.getMostRecentWindow("mailnews:accountmanager");
