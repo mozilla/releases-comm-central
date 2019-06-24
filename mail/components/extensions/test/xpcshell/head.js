@@ -32,12 +32,23 @@ registerCleanupFunction(() => {
   [...MailServices.accounts.accounts.enumerate()].forEach(cleanUpAccount);
 });
 
+function addIdentity(account, email = "xpcshell@localhost") {
+  let identity = MailServices.accounts.createIdentity();
+  identity.email = email;
+  account.addIdentity(identity);
+  if (!account.defaultIdentity) {
+    account.defaultIdentity = identity;
+  }
+  info(`Created identity ${identity.toString()}`);
+}
+
 function createMessages(folder, count) {
   const {
     MessageGenerator,
   } = ChromeUtils.import("resource://testing-common/mailnews/messageGenerator.js");
-  let messages = new MessageGenerator().makeMessages({ count });
+  let messages = new MessageGenerator().makeMessages({ count, age_incr: { days: 2 } });
   let messageStrings = messages.map(message => message.toMboxString());
   folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   folder.addMessageBatch(messageStrings.length, messageStrings);
+  folder.callFilterPlugins(null);
 }
