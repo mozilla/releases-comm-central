@@ -33,9 +33,29 @@ var smimeHeaderSink = {
     return 1;
   },
 
-  signedStatus(aNestingLevel, aSignatureStatus, aSignerCert) {
+  isStatusForSelectedMessage(aMsgNeckoURL) {
+    if (!gFolderDisplay.selectedMessage.folder) {
+      // The folder should be absent only if the message gets opened
+      // from an external file (.eml), which is opened in its own window.
+      // That window won't get reused for other messages. We conclude
+      // the incoming status is for this window.
+      // This special handling is necessary, because the necko URL for
+      // separate windows that is seen by the MIME code differs from the
+      // one we see here in JS.
+      return true;
+    }
+
+    let neckoURI = neckoURLForMessageURI(gFolderDisplay.selectedMessageUris[0]);
+    return (neckoURI === aMsgNeckoURL);
+  },
+
+  signedStatus(aNestingLevel, aSignatureStatus, aSignerCert,
+               aMsgNeckoURL) {
     if (aNestingLevel > 1) {
       // we are not interested
+      return;
+    }
+    if (!this.isStatusForSelectedMessage(aMsgNeckoURL)) {
       return;
     }
 
@@ -99,9 +119,13 @@ var smimeHeaderSink = {
     UpdateExpandedMessageHeaders();
   },
 
-  encryptionStatus(aNestingLevel, aEncryptionStatus, aRecipientCert) {
+  encryptionStatus(aNestingLevel, aEncryptionStatus, aRecipientCert,
+                   aMsgNeckoURL) {
     if (aNestingLevel > 1) {
       // we are not interested
+      return;
+    }
+    if (!this.isStatusForSelectedMessage(aMsgNeckoURL)) {
       return;
     }
 

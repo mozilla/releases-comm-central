@@ -78,6 +78,7 @@ typedef struct MimeMultCMSdata {
   bool parent_is_encrypted_p;
   bool parent_holds_stamp_p;
   nsCOMPtr<nsIMsgSMIMEHeaderSink> smimeHeaderSink;
+  nsCString url;
 
   MimeMultCMSdata()
       : hash_type(0),
@@ -113,6 +114,7 @@ extern void MimeCMSRequestAsyncSignatureVerification(
     nsICMSMessage *aCMSMsg, const char *aFromAddr, const char *aFromName,
     const char *aSenderAddr, const char *aSenderName,
     nsIMsgSMIMEHeaderSink *aHeaderSink, int32_t aMimeNestingLevel,
+    const nsCString &aMsgNeckoURL,
     unsigned char *item_data, uint32_t item_len, int16_t digest_type);
 extern char *MimeCMS_MakeSAURL(MimeObject *obj);
 extern char *IMAP_CreateReloadAllPartsUrl(const char *url);
@@ -208,8 +210,7 @@ static void *MimeMultCMS_init(MimeObject *obj) {
       nsCOMPtr<nsISupports> securityInfo;
       channel->GetURI(getter_AddRefs(uri));
       if (uri) {
-        nsAutoCString urlSpec;
-        rv = uri->GetSpec(urlSpec);
+        rv = uri->GetSpec(data->url);
 
         // We only want to update the UI if the current mime transaction
         // is intended for display.
@@ -223,10 +224,10 @@ static void *MimeMultCMS_init(MimeObject *obj) {
         // If we do not find header=filter, we assume the result of the
         // processing will be shown in the UI.
 
-        if (!strstr(urlSpec.get(), "?header=filter") &&
-            !strstr(urlSpec.get(), "&header=filter") &&
-            !strstr(urlSpec.get(), "?header=attach") &&
-            !strstr(urlSpec.get(), "&header=attach")) {
+        if (!strstr(data->url.get(), "?header=filter") &&
+            !strstr(data->url.get(), "&header=filter") &&
+            !strstr(data->url.get(), "?header=attach") &&
+            !strstr(data->url.get(), "&header=attach")) {
           msgurl = do_QueryInterface(uri);
           if (msgurl) msgurl->GetMsgWindow(getter_AddRefs(msgWindow));
           if (msgWindow)
@@ -382,10 +383,11 @@ static char *MimeMultCMS_generate(void *crypto_closure) {
     // We were not given all parts of the message.
     // We are therefore unable to verify correctness of the signature.
 
-    if (data->smimeHeaderSink)
+    if (data->smimeHeaderSink) {
       data->smimeHeaderSink->SignedStatus(
           aRelativeNestLevel, nsICMSMessageErrors::VERIFY_NOT_YET_ATTEMPTED,
-          nullptr);
+          nullptr, data->url);
+    }
     return nullptr;
   }
 
@@ -409,7 +411,7 @@ static char *MimeMultCMS_generate(void *crypto_closure) {
   MimeCMSRequestAsyncSignatureVerification(
       data->content_info, from_addr.get(), from_name.get(), sender_addr.get(),
       sender_name.get(), data->smimeHeaderSink, aRelativeNestLevel,
-      data->item_data, data->item_len, data->hash_type);
+      data->url, data->item_data, data->item_len, data->hash_type);
 
   if (data->content_info) {
 #if 0  // XXX Fix this. What do we do here? //

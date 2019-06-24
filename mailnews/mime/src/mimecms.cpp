@@ -71,6 +71,7 @@ typedef struct MimeCMSdata {
   bool parent_is_encrypted_p;
   bool parent_holds_stamp_p;
   nsCOMPtr<nsIMsgSMIMEHeaderSink> smimeHeaderSink;
+  nsCString url;
 
   MimeCMSdata()
       : output_fn(nullptr),
@@ -190,7 +191,8 @@ class nsSMimeVerificationListener : public nsISMimeVerificationListener {
   nsSMimeVerificationListener(const char *aFromAddr, const char *aFromName,
                               const char *aSenderAddr, const char *aSenderName,
                               nsIMsgSMIMEHeaderSink *aHeaderSink,
-                              int32_t aMimeNestingLevel);
+                              int32_t aMimeNestingLevel,
+                              const nsCString &aMsgNeckoURL);
 
  protected:
   virtual ~nsSMimeVerificationListener() {}
@@ -210,6 +212,7 @@ class nsSMimeVerificationListener : public nsISMimeVerificationListener {
   bool mSinkIsNull;
   nsMainThreadPtrHandle<nsIMsgSMIMEHeaderSink> mHeaderSink;
   int32_t mMimeNestingLevel;
+  nsCString mMsgNeckoURL;
 
   nsCString mFromAddr;
   nsCString mFromName;
@@ -222,7 +225,7 @@ class SignedStatusRunnable : public mozilla::Runnable {
   SignedStatusRunnable(
       const nsMainThreadPtrHandle<nsIMsgSMIMEHeaderSink> &aSink,
       int32_t aNestingLevel, int32_t aSignatureStatus,
-      nsIX509Cert *aSignerCert);
+      nsIX509Cert *aSignerCert, const nsCString &aMsgNeckoURL);
   NS_DECL_NSIRUNNABLE
   nsresult mResult;
 
@@ -231,28 +234,33 @@ class SignedStatusRunnable : public mozilla::Runnable {
   int32_t m_nestingLevel;
   int32_t m_signatureStatus;
   nsCOMPtr<nsIX509Cert> m_signerCert;
+  nsCString m_msgNeckoURL;
 };
 
 SignedStatusRunnable::SignedStatusRunnable(
     const nsMainThreadPtrHandle<nsIMsgSMIMEHeaderSink> &aSink,
-    int32_t aNestingLevel, int32_t aSignatureStatus, nsIX509Cert *aSignerCert)
+    int32_t aNestingLevel, int32_t aSignatureStatus, nsIX509Cert *aSignerCert,
+    const nsCString &aMsgNeckoURL)
     : mozilla::Runnable("SignedStatusRunnable"),
       m_sink(aSink),
       m_nestingLevel(aNestingLevel),
       m_signatureStatus(aSignatureStatus),
-      m_signerCert(aSignerCert) {}
+      m_signerCert(aSignerCert),
+      m_msgNeckoURL(aMsgNeckoURL) {}
 
 NS_IMETHODIMP SignedStatusRunnable::Run() {
   mResult =
-      m_sink->SignedStatus(m_nestingLevel, m_signatureStatus, m_signerCert);
+      m_sink->SignedStatus(m_nestingLevel, m_signatureStatus, m_signerCert,
+                           m_msgNeckoURL);
   return NS_OK;
 }
 
 nsresult ProxySignedStatus(
     const nsMainThreadPtrHandle<nsIMsgSMIMEHeaderSink> &aSink,
-    int32_t aNestingLevel, int32_t aSignatureStatus, nsIX509Cert *aSignerCert) {
+    int32_t aNestingLevel, int32_t aSignatureStatus, nsIX509Cert *aSignerCert,
+    const nsCString &aMsgNeckoURL) {
   RefPtr<SignedStatusRunnable> signedStatus = new SignedStatusRunnable(
-      aSink, aNestingLevel, aSignatureStatus, aSignerCert);
+      aSink, aNestingLevel, aSignatureStatus, aSignerCert, aMsgNeckoURL);
   nsresult rv = NS_DispatchToMainThread(signedStatus, NS_DISPATCH_SYNC);
   NS_ENSURE_SUCCESS(rv, rv);
   return signedStatus->mResult;
@@ -263,7 +271,8 @@ NS_IMPL_ISUPPORTS(nsSMimeVerificationListener, nsISMimeVerificationListener)
 nsSMimeVerificationListener::nsSMimeVerificationListener(
     const char *aFromAddr, const char *aFromName, const char *aSenderAddr,
     const char *aSenderName, nsIMsgSMIMEHeaderSink *aHeaderSink,
-    int32_t aMimeNestingLevel) {
+    int32_t aMimeNestingLevel, const nsCString &aMsgNeckoURL)
+    : mMsgNeckoURL(aMsgNeckoURL) {
   mHeaderSink = new nsMainThreadPtrHolder<nsIMsgSMIMEHeaderSink>(
       "nsSMimeVerificationListener::mHeaderSink", aHeaderSink);
   mSinkIsNull = !aHeaderSink;
@@ -310,7 +319,7 @@ NS_IMETHODIMP nsSMimeVerificationListener::Notify(
   }
 
   ProxySignedStatus(mHeaderSink, mMimeNestingLevel, signature_status,
-                    signerCert);
+                    signerCert, mMsgNeckoURL);
 
   return NS_OK;
 }
@@ -441,8 +450,7 @@ static void *MimeCMS_init(MimeObject *obj,
       nsCOMPtr<nsISupports> securityInfo;
       channel->GetURI(getter_AddRefs(uri));
       if (uri) {
-        nsAutoCString urlSpec;
-        rv = uri->GetSpec(urlSpec);
+        rv = uri->GetSpec(data->url);
 
         // We only want to update the UI if the current mime transaction
         // is intended for display.
@@ -456,10 +464,10 @@ static void *MimeCMS_init(MimeObject *obj,
         // If we do not find header=filter, we assume the result of the
         // processing will be shown in the UI.
 
-        if (!strstr(urlSpec.get(), "?header=filter") &&
-            !strstr(urlSpec.get(), "&header=filter") &&
-            !strstr(urlSpec.get(), "?header=attach") &&
-            !strstr(urlSpec.get(), "&header=attach")) {
+        if (!strstr(data->url.get(), "?header=filter") &&
+            !strstr(data->url.get(), "&header=filter") &&
+            !strstr(data->url.get(), "?header=attach") &&
+            !strstr(data->url.get(), "&header=attach")) {
           msgurl = do_QueryInterface(uri);
           if (msgurl) msgurl->GetMsgWindow(getter_AddRefs(msgWindow));
           if (msgWindow)
@@ -524,11 +532,12 @@ void MimeCMSRequestAsyncSignatureVerification(
     nsICMSMessage *aCMSMsg, const char *aFromAddr, const char *aFromName,
     const char *aSenderAddr, const char *aSenderName,
     nsIMsgSMIMEHeaderSink *aHeaderSink, int32_t aMimeNestingLevel,
+    const nsCString &aMsgNeckoURL,
     unsigned char *item_data, uint32_t item_len, int16_t digest_type) {
   RefPtr<nsSMimeVerificationListener> listener =
       new nsSMimeVerificationListener(aFromAddr, aFromName, aSenderAddr,
                                       aSenderName, aHeaderSink,
-                                      aMimeNestingLevel);
+                                      aMimeNestingLevel, aMsgNeckoURL);
   if (item_data)
     aCMSMsg->AsyncVerifyDetachedSignature(listener, item_data, item_len,
                                           digest_type);
@@ -619,13 +628,13 @@ static int MimeCMS_eof(void *crypto_closure, bool abort_p) {
       MimeCMSRequestAsyncSignatureVerification(
           data->content_info, from_addr.get(), from_name.get(),
           sender_addr.get(), sender_name.get(), data->smimeHeaderSink,
-          aRelativeNestLevel, nullptr, 0, 0);
+          aRelativeNestLevel, data->url, nullptr, 0, 0);
     }
   }
 
   if (data->ci_is_encrypted) {
     data->smimeHeaderSink->EncryptionStatus(aRelativeNestLevel, status,
-                                            certOfInterest);
+                                            certOfInterest, data->url);
   }
 
   return 0;
