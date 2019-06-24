@@ -266,9 +266,7 @@
         goToDay(date) {
             this.displayDaysOff = !this.mWorkdaysOnly;
 
-            const dateToShow = date || date.getInTimezone(this.timezone);
-
-            this.showDate(dateToShow);
+            this.showDate(date ? date.getInTimezone(this.timezone) : null);
         }
 
         getRangeDescription() {
