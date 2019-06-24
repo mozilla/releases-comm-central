@@ -56,9 +56,9 @@
               <textbox id="networkProxyHTTP" flex="1" class="uri-element"
                        preference="network.proxy.http" onsyncfrompreference="return gConnectionsDialog.readHTTPProxyServer();"/>
               <label value="&HTTPport.label;" accesskey="&HTTPport.accesskey;" control="networkProxyHTTP_Port"/>
-              <textbox id="networkProxyHTTP_Port" type="number" max="65535" size="5"
-                       preference="network.proxy.http_port"
-                       onsyncfrompreference="return gConnectionsDialog.readHTTPProxyPort();"/>
+              <html:input id="networkProxyHTTP_Port" type="number" class="size5" max="65535"
+                          preference="network.proxy.http_port"
+                          onsyncfrompreference="return gConnectionsDialog.readHTTPProxyPort();"/>
             </hbox>
           </row>
           <row>
@@ -78,9 +78,9 @@
                        preference="network.proxy.ssl"
                        onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('ssl', false);"/>
               <label value="&SSLport.label;" accesskey="&SSLport.accesskey;" control="networkProxySSL_Port"/>
-              <textbox id="networkProxySSL_Port" type="number" max="65535" size="5"
-                       preference="network.proxy.ssl_port"
-                       onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('ssl', true);"/>
+              <html:input id="networkProxySSL_Port" type="number" class="size5" max="65535"
+                          preference="network.proxy.ssl_port"
+                          onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('ssl', true);"/>
             </hbox>
           </row>
           <row align="center">
@@ -92,9 +92,9 @@
                        preference="network.proxy.socks"
                        onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('socks', false);"/>
               <label value="&SOCKSport.label;" accesskey="&SOCKSport.accesskey;" control="networkProxySOCKS_Port"/>
-              <textbox id="networkProxySOCKS_Port" type="number" max="65535" size="5"
-                       preference="network.proxy.socks_port"
-                       onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('socks', true);"/>
+              <html:input id="networkProxySOCKS_Port" type="number" class="size5" max="65535"
+                          preference="network.proxy.socks_port"
+                          onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('socks', true);"/>
             </hbox>
           </row>
           <row>

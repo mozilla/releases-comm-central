@@ -280,14 +280,6 @@ label.label {
 }
 
 /*--------------------------------------------------------------------
- *   Task completion box
- *-------------------------------------------------------------------*/
-
-#percent-complete-textbox {
-    width: 5em;
-}
-
-/*--------------------------------------------------------------------
  *   Recurrence dialog preview border
  *-------------------------------------------------------------------*/
 #preview-border {
@@ -318,10 +310,6 @@ label.label {
 
 #calendar-summary-dialog {
     min-width: 35em;
-}
-
-listbox[disabled="true"] {
-    color: -moz-FieldText;
 }
 
 #daypicker-weekday {

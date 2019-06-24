@@ -66,10 +66,11 @@
                    accesskey="&port.accesskey;" control="server.port"/>
         <xul:label id="fixedServerPort" hidefor="movemail"
                    collapsed="true" use="server.port"/>
-        <xul:textbox id="server.port" wsm_persist="true" size="3"
-                     preftype="int" hidefor="movemail"
-                     prefstring="mail.server.%serverkey%.port"
-                     type="number" min="1" max="65535" increment="1"/>
+        <html:input id="server.port" type="number" class="size3"
+                    min="1" max="65535"
+                    wsm_persist="true"
+                    preftype="int" hidefor="movemail"
+                    prefstring="mail.server.%serverkey%.port"/>
         <xul:label value="&serverPortDefault.label;" hidefor="movemail"/>
         <xul:label id="defaultPort" hidefor="movemail"/>
       </div>
@@ -124,7 +125,7 @@
           </menulist>
           <menulist id="server.authMethod"
                     wsm_persist="true"
-                    preftype="int" type="number"
+                    preftype="int"
                     prefstring="mail.server.%serverkey%.authMethod"
                     hidefor="nntp,movemail">
             <menupopup id="server.authMethodPopup">
@@ -162,15 +163,11 @@
                   oncommand="onCheckItem('server.biffMinutes', [this.id]);"
                   prefattribute="value"
                   prefstring="mail.server.%serverkey%.check_new_mail"/>
-        <textbox wsm_persist="true"
-                 id="server.biffMinutes"
-                 type="number"
-                 size="3"
-                 min="1"
-                 increment="1"
-                 aria-labelledby="server.doBiff server.biffMinutes biffEnd"
-                 preftype="int"
-                 prefstring="mail.server.%serverkey%.check_time"/>
+        <html:input id="server.biffMinutes" type="number" class="size3" min="1"
+                    wsm_persist="true"
+                    aria-labelledby="server.doBiff server.biffMinutes biffEnd"
+                    preftype="int"
+                    prefstring="mail.server.%serverkey%.check_time"/>
         <label id="biffEnd"
                control="server.biffMinutes"
                value="&biffEnd.label;"/>
@@ -213,10 +210,11 @@
                   accesskey="&deleteByAgeFromServer.accesskey;"
                   prefattribute="value"
                   prefstring="mail.server.%serverkey%.delete_by_age_from_server"/>
-        <textbox wsm_persist="true" id="pop3.numDaysToLeaveOnServer" size="3"
-                 aria-labelledby="pop3.deleteByAgeFromServer pop3.numDaysToLeaveOnServer daysEnd"
-                 preftype="int" type="number" min="1" increment="1"
-                 prefstring="mail.server.%serverkey%.num_days_to_leave_on_server"/>
+        <html:input id="pop3.numDaysToLeaveOnServer" type="number" class="size3" min="1"
+                    wsm_persist="true"
+                    aria-labelledby="pop3.deleteByAgeFromServer pop3.numDaysToLeaveOnServer daysEnd"
+                    preftype="int"
+                    prefstring="mail.server.%serverkey%.num_days_to_leave_on_server"/>
         <label id="daysEnd" control="pop3.numDaysToLeaveOnServer" value="&daysEnd.label;"/>
       </hbox>
 
@@ -330,11 +328,10 @@
                 oncommand="onCheckItem('nntp.maxArticles', [this.id]);"
                 prefattribute="value"
                 prefstring="mail.server.%serverkey%.notify.on"/>
-      <textbox wsm_persist="true" id="nntp.maxArticles"
-               type="number" size="4" min="1" increment="10"
-               aria-labelledby="nntp.notifyOn nntp.maxArticles maxMessagesEnd"
-               preftype="int"
-               prefstring="mail.server.%serverkey%.max_articles"/>
+      <html:input id="nntp.maxArticles" type="number" class="size4" min="1"
+                  aria-labelledby="nntp.notifyOn nntp.maxArticles maxMessagesEnd"
+                  preftype="int"
+                  prefstring="mail.server.%serverkey%.max_articles"/>
       <label control="nntp.maxArticles" value="&maxMessagesEnd.label;" id="maxMessagesEnd"/>
     </hbox>
     <checkbox hidefor="pop3,imap,movemail" wsm_persist="true" id="nntp.pushAuth"

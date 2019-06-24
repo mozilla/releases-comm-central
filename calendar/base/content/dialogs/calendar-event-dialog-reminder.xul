@@ -63,11 +63,8 @@
              aria-labeledby="reminder-length reminder-unit reminder-relation reminder-origin"/>
       <vbox id="reminder-relative-box" flex="1">
         <hbox id="reminder-relative-length-unit-relation" flex="1">
-          <textbox id="reminder-length"
-                   type="number"
-                   size="1"
-                   min="0"
-                   onkeyup="updateReminder(event)"/>
+          <html:input id="reminder-length" type="number" min="0"
+                      onkeyup="updateReminder(event)"/>
           <menulist id="reminder-unit" oncommand="updateReminder(event)" flex="1">
             <menupopup id="reminder-unit-menupopup">
               <menuitem id="reminder-minutes-menuitem"

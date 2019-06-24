@@ -36,12 +36,6 @@ button[type="menu"] > .button-box > .button-menu-dropmarker {
   fill: currentColor;
 }
 
-textbox[type="number"] {
-  -moz-appearance: none;
-  border: 1px solid var(--in-content-box-border-color);
-  background-color: var(--in-content-box-background);
-}
-
 html|input[type="number"]::-moz-number-spin-up {
   min-height: 10px;
 }

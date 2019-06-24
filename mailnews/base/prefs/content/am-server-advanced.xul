@@ -49,9 +49,9 @@
           <label control="maximumConnectionsNumber"
                  value="&maximumConnectionsNumber.label;"
                  accesskey="&maximumConnectionsNumber.accesskey;"/>
-          <textbox id="maximumConnectionsNumber" type="number"
-                   size="3" min="1" max="1000"
-                   amsa_persist="true"/>
+          <html:input id="maximumConnectionsNumber" type="number" class="size3"
+                      min="1" max="1000"
+                      amsa_persist="true"/>
         </hbox>
       </row>
 

@@ -68,9 +68,9 @@
                                 accesskey="&portNumber.accesskey;"
                                 control="port"/>
                          <hbox>
-                             <textbox id="port" type="number" size="5" min="1"
-                                       max="65535"
-                                       disableiflocked="true"/>
+                             <html:input id="port" type="number" class="size5"
+                                         min="1" max="65535"
+                                         disableiflocked="true"/>
                          </hbox>
                      </row>
                      <row align="center">
@@ -110,8 +110,8 @@
                         accesskey="&return.accesskey;"
                         control="results"/>
                  <hbox align="center">
-                   <textbox id="results" type="number" size="10" min="1"
-                            max="2147483647" increment="10"/>
+                   <html:input id="results" type="number" class="size5"
+                               min="1" max="2147483647" value="100"/>
                    <label value="&results.label;"/>
                  </hbox>
                </row>

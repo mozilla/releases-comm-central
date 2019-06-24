@@ -24,7 +24,6 @@ var gProgressText;
 var gProgressMeter;
 var gDownloadInProgress = false;
 
-var kDefaultMaxHits = 100;
 var kDefaultLDAPPort = 389;
 var kDefaultSecureLDAPPort = 636;
 var kLDAPDirectory = 0;  // defined in nsDirPrefs.h
@@ -250,7 +249,6 @@ function onSecure() {
 
 function fillDefaultSettings() {
   document.getElementById("port").value = kDefaultLDAPPort;
-  document.getElementById("results").value = kDefaultMaxHits;
   var sub = document.getElementById("sub");
   sub.radioGroup.selectedItem = sub;
 

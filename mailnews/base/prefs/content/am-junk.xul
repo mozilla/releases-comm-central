@@ -196,16 +196,13 @@
                   accesskey="&purge1.accesskey;"
                   oncommand="updateJunkRetention();"
                   label="&purge1.label;"/>
-        <textbox size="3"
-                 type="number"
-                 min="1"
-                 id="server.purgeSpamInterval"
-                 genericattr="true"
-                 pref="true"
-                 wsm_persist="true"
-                 preftype="int"
-                 aria-labelledby="server.purgeSpam server.purgeSpamInterval purgeLabel"
-                 prefstring="mail.server.%serverkey%.purgeSpamInterval"/>
+        <html:input id="server.purgeSpamInterval" type="number" class="size3" min="1"
+                    genericattr="true"
+                    pref="true"
+                    wsm_persist="true"
+                    preftype="int"
+                    aria-labelledby="server.purgeSpam server.purgeSpamInterval purgeLabel"
+                    prefstring="mail.server.%serverkey%.purgeSpamInterval"/>
         <label id="purgeLabel"
                value="&purge2.label;"
                control="server.purgeSpamInterval"/>

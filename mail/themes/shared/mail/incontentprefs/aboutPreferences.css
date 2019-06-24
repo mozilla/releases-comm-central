@@ -82,26 +82,6 @@ tabpanel > hbox > description {
   margin-inline-start: 0;
 }
 
-textbox[type="number"][size="1"] {
-  width: 4em;
-}
-
-textbox[type="number"][size="2"] {
-  width: 4.5em;
-}
-
-textbox[type="number"][size="3"] {
-  width: 5em;
-}
-
-textbox[type="number"][size="4"] {
-  width: 5.5em;
-}
-
-textbox[type="number"][size="5"] {
-  width: 6em;
-}
-
 /* Web search menulist */
 #defaultWebSearch > .menulist-label-box > .menulist-icon[src] {
   margin-inline-start: 5px;
@@ -282,10 +262,21 @@ textbox + button {
 }
 
 html|input[type="number"] {
-  margin: 0;
-  padding: 0;
-  padding-inline-end: 1px;
-  border-width: 0;
+  margin-inline-start: 4px;
+  padding: 1px;
+}
+/* sizes: chars + 8px padding + 1px borders + spin buttons 25+2+10px  */
+html|input[type="number"].size2 {
+  width: calc(2ch + 55px);
+}
+html|input[type="number"].size3 {
+  width: calc(3ch + 55px);
+}
+html|input[type="number"].size4 {
+  width: calc(4ch + 55px);
+}
+html|input[type="number"].size5 {
+  width: calc(5ch + 55px);
 }
 
 html|input[type="number"]::-moz-number-spin-box {

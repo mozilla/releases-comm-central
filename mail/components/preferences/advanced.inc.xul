@@ -250,11 +250,11 @@
             <hbox align="center" class="indent">
               <label id="useCacheBefore" control="cacheSize"
                      accesskey="&useCacheBefore.accesskey;" value="&useCacheBefore.label;"/>
-              <textbox id="cacheSize" type="number" size="4" max="1024"
-                       preference="browser.cache.disk.capacity"
-                       onsyncfrompreference="return gAdvancedPane.readCacheSize();"
-                       onsynctopreference="return gAdvancedPane.writeCacheSize();"
-                       aria-labelledby="useCacheBefore cacheSize useCacheAfter"/>
+              <html:input id="cacheSize" type="number" class="size4" max="1024"
+                          preference="browser.cache.disk.capacity"
+                          onsyncfrompreference="return gAdvancedPane.readCacheSize();"
+                          onsynctopreference="return gAdvancedPane.writeCacheSize();"
+                          aria-labelledby="useCacheBefore cacheSize useCacheAfter"/>
               <label id="useCacheAfter" flex="1">&useCacheAfter.label;</label>
             </hbox>
             <hbox align="center">
@@ -264,10 +264,10 @@
                           aria-labelledby="offlineCompactFolder offlineCompactFolderMin compactFolderMB"
                           preference="mail.prompt_purge_threshhold"
                           oncommand="gAdvancedPane.updateCompactOptions(this.checked);"/>
-                <textbox id="offlineCompactFolderMin" size="4" value="20"
-                         type="number" min="1" max="2048" increment="10"
-                         preference="mail.purge_threshhold_mb"
-                         aria-labelledby="offlineCompactFolder offlineCompactFolderMin compactFolderMB"/>
+                <html:input id="offlineCompactFolderMin" type="number" class="size4"
+                            min="1" max="2048" value="20"
+                            preference="mail.purge_threshhold_mb"
+                            aria-labelledby="offlineCompactFolder offlineCompactFolderMin compactFolderMB"/>
                 <label id="compactFolderMB" value="&offlineCompactFoldersMB.label;"/>
             </hbox>
           </groupbox>

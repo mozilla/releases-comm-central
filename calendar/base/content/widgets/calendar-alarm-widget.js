@@ -267,11 +267,9 @@
                           oncommand="snoozeItem(event)"/>
                 <menuseparator/>
                 <hbox class="snooze-options-box">
-                  <textbox class="snooze-value-textbox"
-                           oninput="updateUIText()"
-                           onselect="updateUIText()"
-                           type="number"
-                           size="3"/>
+                  <html:input type="number" class="size3 snooze-value-textbox"
+                              oninput="updateUIText()"
+                              onselect="updateUIText()"/>
                   <menulist class="snooze-unit-menulist" allowevents="true">
                     <menupopup class="snooze-unit-menupopup menulist-menupopup"
                                position="after_start"

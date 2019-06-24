@@ -358,14 +358,11 @@
                         disable-on-readonly="true"
                         disabled="true"
                         value=""/>
-            <textbox id="percent-complete-textbox"
-                     type="number"
-                     min="0"
-                     max="100"
-                     disable-on-readonly="true"
-                     size="3"
-                     oninput="updateToDoStatus('percent-changed')"
-                     onselect="updateToDoStatus('percent-changed')"/>
+            <html:input id="percent-complete-textbox" type="number" class="size3"
+                        min="0" max="100"
+                        disable-on-readonly="true"
+                        oninput="updateToDoStatus('percent-changed')"
+                        onselect="updateToDoStatus('percent-changed')"/>
             <label id="percent-complete-label"
                    class="todo-only"
                    disable-on-readonly="true"

@@ -680,7 +680,7 @@ class MozSearchValue extends MozXULElement {
             <menuitem value="imapflag" stringTag="junkScoreOriginImapFlag" class="search-value-menuitem"></menuitem>
           </menupopup>
         </menulist>
-        <textbox flex="1" class="search-value-textbox" inherits="disabled" type="number"></textbox>
+        <html:input type="number" class="search-value-textbox" inherits="disabled"/>
         <hbox flex="1" class="search-value-custom" inherits="disabled"></hbox>
       `));
 

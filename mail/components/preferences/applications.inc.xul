@@ -105,11 +105,10 @@
               <checkbox id="enableThreshold"
                         label="&enableCloudFileAccountOffer.label;"
                         preference="mail.compose.big_attachments.notify"/>
-              <textbox id="cloudFileThreshold" type="number" increment="1"
-                       maxlength="4" size="2"
-                       preference="mail.compose.big_attachments.threshold_kb"
-                       onsyncfrompreference="return gCloudFileTab.readThreshold();"
-                       onsynctopreference="return gCloudFileTab.writeThreshold();"/>
+              <html:input id="cloudFileThreshold" type="number" class="size3"
+                          preference="mail.compose.big_attachments.threshold_kb"
+                          onsyncfrompreference="return gCloudFileTab.readThreshold();"
+                          onsynctopreference="return gCloudFileTab.writeThreshold();"/>
               <label control="cloudFileThreshold"
                      value="&enableCloudFileAccountOffer.mb;"/>
             </hbox>

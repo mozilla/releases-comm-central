@@ -55,13 +55,9 @@
                    class="uri-element"
                    prefstring="mail.smtpserver.%serverkey%.hostname"/>
           <hbox align="center">
-              <textbox id="smtp.port"
-                       type="number"
-                       min="0"
-                       max="65535"
-                       size="5"
-                       preftype="int"
-                       prefstring="mail.smtpserver.%serverkey%.port"/>
+              <html:input id="smtp.port" type="number" class="size5" min="0" max="65535"
+                          preftype="int"
+                          prefstring="mail.smtpserver.%serverkey%.port"/>
               <label value="&serverPortDefault.label;"/>
               <label id="smtp.defaultPort"/>
           </hbox>
@@ -107,7 +103,7 @@
           <menulist id="smtp.authMethod"
                     oncommand="authMethodChanged(true);"
                     wsm_persist="true"
-                    preftype="int" type="number"
+                    preftype="int"
                     prefstring="mail.smtpserver.%serverkey%.authMethod">
             <menupopup id="smtp.authMethodPopup">
               <menuitem id="authMethod-no" value="1"/>

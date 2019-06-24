@@ -146,14 +146,10 @@
                     label="&biffStart.label;"
                     accesskey="&biffStart.accesskey;"
                     oncommand="FeedSubscriptions.setPrefs(this);"/>
-          <textbox id="updateValue"
-                   type="number"
-                   size="3"
-                   min="1"
-                   increment="1"
-                   aria-labelledby="updateEnabled updateValue biffMinutes biffDays recommendedUnits recommendedUnitsVal"
-                   oninput="FeedSubscriptions.setPrefs(this);"
-                   onchange="FeedSubscriptions.setPrefs(this);">
+          <html:input id="updateValue" type="number" class="size3" min="1"
+                      aria-labelledby="updateEnabled updateValue biffMinutes biffDays recommendedUnits recommendedUnitsVal"
+                      oninput="FeedSubscriptions.setPrefs(this);"
+                      onchange="FeedSubscriptions.setPrefs(this);">
               <observes element="updateEnabled" attribute="disabled"/>
           </textbox>
           <radiogroup id="biffUnits"

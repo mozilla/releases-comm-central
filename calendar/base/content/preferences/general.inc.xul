@@ -46,14 +46,11 @@
                             value="&pref.default_event_length.label;"
                             accesskey="&pref.default_event_length.accesskey;"
                             control="defaultlength"/>
-                    <textbox id="defaultlength"
-                              preference="calendar.event.defaultlength"
-                              type="number"
-                              min="0"
-                              maxlength="3"
-                              size="3"
-                              onselect="updateUnitLabelPlural('defaultlength', 'defaultlengthunit', 'minutes')"
-                              oninput="updateUnitLabelPlural('defaultlength', 'defaultlengthunit', 'minutes')"/>
+                    <html:input id="defaultlength" type="number" class="size3"
+                                min="0"
+                                preference="calendar.event.defaultlength"
+                                onselect="updateUnitLabelPlural('defaultlength', 'defaultlengthunit', 'minutes')"
+                                oninput="updateUnitLabelPlural('defaultlength', 'defaultlengthunit', 'minutes')"/>
                     <label id="defaultlengthunit"/>
                 </hbox>
                 <label><html:h3>&pref.tasks.label;</html:h3></label>
@@ -94,14 +91,11 @@
                         </html:td>
                         <html:td>
                             <hbox id="default_task_start_offset" align="center">
-                                <textbox id="default_task_start_offset_text"
-                                          preference="calendar.task.defaultstartoffset"
-                                          type="number"
-                                          min="0"
-                                          maxlength="3"
-                                          size="3"
-                                          onselect="updateMenuLabelsPlural('default_task_start_offset_text', 'default_task_start_offset_units')"
-                                          oninput="updateMenuLabelsPlural('default_task_start_offset_text', 'default_task_start_offset_units')"/>
+                                <html:input id="default_task_start_offset_text" type="number" class="size3"
+                                            min="0"
+                                            preference="calendar.task.defaultstartoffset"
+                                            onselect="updateMenuLabelsPlural('default_task_start_offset_text', 'default_task_start_offset_units')"
+                                            oninput="updateMenuLabelsPlural('default_task_start_offset_text', 'default_task_start_offset_units')"/>
                                 <menulist id="default_task_start_offset_units"
                                           crop="none"
                                           preference="calendar.task.defaultstartoffsetunits">
@@ -154,14 +148,11 @@
                         </html:td>
                         <html:td>
                             <hbox id="default_task_due_offset" align="center">
-                                <textbox id="default_task_due_offset_text"
-                                          preference="calendar.task.defaultdueoffset"
-                                          type="number"
-                                          min="0"
-                                          maxlength="3"
-                                          size="3"
-                                          onselect="updateMenuLabelsPlural('default_task_due_offset_text', 'default_task_due_offset_units')"
-                                          oninput="updateMenuLabelsPlural('default_task_due_offset_text', 'default_task_due_offset_units')"/>
+                                <html:input id="default_task_due_offset_text" type="number" class="size3"
+                                            min="0"
+                                            preference="calendar.task.defaultdueoffset"
+                                            onselect="updateMenuLabelsPlural('default_task_due_offset_text', 'default_task_due_offset_units')"
+                                            oninput="updateMenuLabelsPlural('default_task_due_offset_text', 'default_task_due_offset_units')"/>
                                 <menulist id="default_task_due_offset_units"
                                           crop="none"
                                           preference="calendar.task.defaultdueoffsetunits">

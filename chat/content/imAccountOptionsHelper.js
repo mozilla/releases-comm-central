@@ -15,7 +15,11 @@ var accountOptionsHelper = {
     container.appendChild(label);
 
     let hbox = document.createXULElement("hbox");
-    let textbox = document.createXULElement("textbox");
+    let textbox = (aType != "number") ? document.createXULElement("textbox") :
+      document.createElementNS("http://www.w3.org/1999/xhtml", "input");
+    if (aType == "number") {
+      textbox.style.width = "100%";
+    }
     if (aType) {
       textbox.setAttribute("type", aType);
     }

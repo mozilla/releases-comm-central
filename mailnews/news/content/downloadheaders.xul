@@ -28,14 +28,10 @@
                accesskey="&download.accesskey;"
                oncommand="setupDownloadUI(true);"
                aria-labelledby="some number headers"/>
-        <textbox id="number"
-                 size="7"
-                 type="number"
-                 min="1"
-                 increment="10"
-                 aria-labelledby="some number headers"/>
-        <label value="&headers.label;" accesskey="&headers.accesskey;"
-               id="headers" control="number"/>
+        <html:input id="number" type="number" min="1"
+                    aria-labelledby="some number headers"/>
+        <label id="headers" control="number"
+               value="&headers.label;" accesskey="&headers.accesskey;"/>
       </hbox>
     </radiogroup>
 

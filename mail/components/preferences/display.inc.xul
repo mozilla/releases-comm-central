@@ -160,10 +160,10 @@
                   <radio id="markAsReadAfterDelay" value="true"
                          label="&markAsReadDelay.label;"
                          accesskey="&markAsReadDelay.accesskey;"/>
-                  <textbox id="markAsReadDelay" size="2"
-                           type="number" min="1" max="2147483"
-                           preference="mailnews.mark_message_read.delay.interval"
-                           aria-labelledby="markAsReadAfterDelay markAsReadDelay secondsLabel"/>
+                  <html:input id="markAsReadDelay" type="number" class="size3"
+                              min="1" max="2147483"
+                              preference="mailnews.mark_message_read.delay.interval"
+                              aria-labelledby="markAsReadAfterDelay markAsReadDelay secondsLabel"/>
                   <label id="secondsLabel" value="&secondsLabel.label;"/>
                 </hbox>
               </radiogroup>

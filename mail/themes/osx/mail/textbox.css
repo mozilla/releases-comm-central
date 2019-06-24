@@ -5,10 +5,6 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-textbox[type="number"]:focus-within {
-  outline: 2px -moz-mac-focusring solid;
-}
-
 html|input[type="number"] {
   padding-inline-end: 0;
 }

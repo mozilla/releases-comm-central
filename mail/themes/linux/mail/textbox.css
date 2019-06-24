@@ -5,10 +5,6 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-textbox[type="number"] {
-  padding: 0 !important;
-}
-
 html|input[type="number"]::-moz-number-spin-box {
   margin-inline-start: 5px;
 }
