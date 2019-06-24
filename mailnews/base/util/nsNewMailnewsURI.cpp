@@ -7,6 +7,11 @@
 #include "nsURLHelper.h"
 #include "nsSimpleURI.h"
 #include "nsStandardURL.h"
+#include "nsThreadUtils.h"
+#include "MainThreadUtils.h"
+#include "mozilla/SyncRunnable.h"
+#include "nsIMsgProtocolHandler.h"
+#include "nsIComponentRegistrar.h"
 
 #include "../../local/src/nsPop3Service.h"
 #include "../../local/src/nsMailboxService.h"
@@ -85,8 +90,34 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
         .Finalize(aURI);
   }
 
-  // XXX TODO: What about JS Account?
+  rv = NS_ERROR_UNKNOWN_PROTOCOL;  // Let M-C handle it by default.
 
-  // None of the above, return an error and let M-C handle it.
-  return NS_ERROR_UNKNOWN_PROTOCOL;
+  nsCOMPtr<nsIComponentRegistrar> compMgr;
+  NS_GetComponentRegistrar(getter_AddRefs(compMgr));
+  if (compMgr) {
+    nsAutoCString contractID(NS_NETWORK_PROTOCOL_CONTRACTID_PREFIX);
+    contractID += scheme;
+    bool isRegistered = false;
+    compMgr->IsContractIDRegistered(contractID.get(), &isRegistered);
+    if (isRegistered) {
+      auto NewURI =
+          [&aSpec, &aCharset, &aBaseURI, aURI, &contractID, &rv ]() -> auto {
+        nsCOMPtr<nsIMsgProtocolHandler> handler(
+            do_GetService(contractID.get()));
+        if (handler) {
+          // We recognise this URI. Use the protocol handler's result.
+          rv = handler->NewURI(aSpec, aCharset, aBaseURI, aURI);
+        }
+      };
+      if (NS_IsMainThread()) {
+        NewURI();
+      } else {
+        nsCOMPtr<nsIRunnable> task = NS_NewRunnableFunction("NewURI", NewURI);
+        mozilla::SyncRunnable::DispatchToThread(
+            mozilla::GetMainThreadEventTarget(), task);
+      }
+    }
+  }
+
+  return rv;
 }
