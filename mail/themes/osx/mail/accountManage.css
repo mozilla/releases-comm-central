@@ -2,7 +2,47 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url("chrome://messenger/skin/shared/accountManage.css");
+/* ===== accountManage.css ==============================================
+  == Styles for the Mail Account Manager.
+  ======================================================================= */
+
+@import url("chrome://messenger/skin/");
+@import url("chrome://global/skin/in-content/common.css");
+@import url("chrome://messenger/skin/preferences/aboutPreferences.css");
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+page {
+  font-size: 0.95em;
+  margin-inline-start: 4px;
+}
+
+page groupbox {
+  margin-left: 6px;
+  margin-right: 6px;
+}
+
+/* ::::: account manager :::::: */
+
+.specialFolderPickerGrid {
+  margin-inline-start: 20px;
+}
+
+.fccReplyFollowsParent {
+  margin-inline-start: 20px;
+}
+
+.signatureBox {
+  font-family: -moz-fixed;
+}
+
+#am-main-title, .dialogheader {
+  display: none;
+}
+
+.dialog-button[dlgtype="help"] {
+  display: none;
+}
 
 #accountActionsButton {
   margin-left: 0;
@@ -13,8 +53,14 @@
   min-width: 30ch;
 }
 
-description {
-  margin: 4px 4px 8px;
+listitem[default="true"],
+#identitiesList > listitem:first-child,
+treechildren::-moz-tree-cell-text(folderNameCol, isServer-true) {
+  font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(isDefaultServer-true) {
+  text-decoration: underline;
 }
 
 treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-smtp) {
@@ -27,9 +73,54 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-smtp) {
     list-style-image: url("chrome://messenger/skin/icons/server@2x.png");
     -moz-image-region: rect(0 224px 32px 192px);
   }
+}
 
+treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
+  list-style-image: url("chrome://chat/skin/prpl-generic/icon.png");
+}
+
+@media (min-resolution: 2dppx) {
   treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
     list-style-image: url("chrome://chat/skin/prpl-generic/icon32.png");
   }
 }
 
+#accounttree treechildren::-moz-tree-indentation {
+  width: 1ch;
+}
+
+description {
+  margin: 4px 4px 8px;
+}
+
+#smtpList {
+  margin-inline-start: 6px;
+}
+
+#backgroundBox {
+  background-color: var(--in-content-box-background);
+}
+
+#smtpServerInfoBox {
+  background-color: var(--in-content-box-background);
+  margin: 0 6px 5px;
+}
+
+#smtpServerInfoBox label {
+  height: 30px;
+  padding-top: 5px;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* ::::: dialog header ::::: */
+
+.dialogheader-title {
+  margin-top: 0;
+  margin-bottom: 8px;
+  margin-inline-start: 6px;
+  font-size: 1.46em;
+  font-weight: 300;
+  line-height: 1.3em;
+  color: var(--in-content-text-color);
+}
