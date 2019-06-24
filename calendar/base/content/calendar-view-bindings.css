@@ -34,10 +34,6 @@ calendar-editable-item {
   -moz-binding: url(chrome://calendar/content/calendar-view-core.xml#calendar-editable-item);
 }
 
-calendar-category-box {
-  -moz-binding: url(chrome://calendar/content/calendar-view-core.xml#calendar-category-box);
-}
-
  calendar-shadow-box {
    -moz-binding: url(chrome://calendar/content/calendar-view-core.xml#calendar-shadow-box);
  }

@@ -2042,7 +2042,6 @@
                  flex="1">
           <xul:box class="calendar-event-selection" orient="horizontal" flex="1">
             <xul:stack anonid="eventbox"
-                       align="stretch"
                        class="calendar-event-box-container"
                        flex="1"
                        xbl:inherits="context,parentorient=orient,readonly,flashing,alarm,allday,priority,progress,status,calendar,categories">
@@ -2067,8 +2066,14 @@
                 <xul:image anonid="item-classification-box"
                            class="item-classification-box"/>
               </xul:hbox>
-              <xul:stack mousethrough="always">
-                <xul:calendar-category-box anonid="category-box" xbl:inherits="categories" pack="end" />
+              <xul:stack mousethrough="always" class="calendar-category-box-stack">
+                <xul:hbox anonid="category-box"
+                          class="calendar-category-box category-color-box calendar-event-selection"
+                          xbl:inherits="categories"
+                          flex="1"
+                          pack="end">
+                  <xul:image class="calendar-category-box-gradient"/>
+                </xul:hbox>
               </xul:stack>
               <xul:box xbl:inherits="orient">
                 <xul:calendar-event-gripbar anonid="gripbar1"

@@ -41,9 +41,13 @@
                     <xul:spacer flex="1"/>
                   </xul:vbox>
                   <xul:stack>
-                    <xul:calendar-category-box anonid="category-box"
-                                               xbl:inherits="categories"
-                                               pack="end"/>
+                    <xul:hbox anonid="category-box"
+                              class="calendar-category-box category-color-box calendar-event-selection"
+                              xbl:inherits="categories"
+                              flex="1"
+                              pack="end">
+                      <xul:image class="calendar-category-box-gradient"/>
+                    </xul:hbox>
                     <xul:hbox align="center">
                       <xul:hbox anonid="alarm-icons-box"
                                 class="alarm-icons-box"
@@ -380,20 +384,5 @@
           invokeEventDragSession(item, this);
       ]]></handler>
     </handlers>
-  </binding>
-
-  <binding id="calendar-category-box">
-    <!-- calendar-views.css makes this binding hide if the categories attribute
-         is not specified -->
-    <content>
-      <xul:vbox anonid="category-box"
-                class="category-color-box calendar-event-selection"
-                xbl:inherits="categories">
-        <xul:hbox flex="1">
-          <xul:image class="calendar-category-box-gradient" height="1"/>
-        </xul:hbox>
-        <xul:hbox height="1"/>
-      </xul:vbox>
-    </content>
   </binding>
 </bindings>

@@ -89,11 +89,17 @@ window[systemcolors] {
 }
 
 /* Core */
-calendar-category-box:not([categories]) {
+.calendar-category-box:not([categories]) {
     display: none;
 }
 
-calendar-category-box[categories] + hbox,
+.calendar-category-box-stack {
+    display: flex;
+    justify-content: end;
+    margin-inline-end: 2px;
+}
+
+.calendar-category-box[categories] + hbox,
 .multiday-view-main-box .calendar-event-box-container[categories] > .calendar-event-details {
     margin-inline-end: 8px;
 }
