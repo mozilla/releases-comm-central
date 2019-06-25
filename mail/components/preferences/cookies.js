@@ -6,8 +6,6 @@
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 
-var nsICookie = Ci.nsICookie;
-
 var gCookiesWindow = {
   _hosts: {},
   _hostOrder: [],
@@ -173,6 +171,7 @@ var gCookiesWindow = {
   },
 
   _view: {
+    QueryInterface: ChromeUtils.generateQI([Ci.nsITreeView]),
     _filtered: false,
     _filterSet: [],
     _filterValue: "",
