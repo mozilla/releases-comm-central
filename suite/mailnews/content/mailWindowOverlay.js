@@ -611,7 +611,7 @@ function ToggleMessageTagKey(index)
       var curKeys = msgHdr.getStringProperty("keywords");
       if (msgHdr.label)
         curKeys += " $label" + msgHdr.label;
-      var addKey  = (" " + curKeys + " ").indexOf(" " + key + " ") < 0;
+      var addKey  = !(" " + curKeys + " ").includes(" " + key + " ");
       ToggleMessageTag(key, addKey);
       return;
     }
@@ -706,7 +706,7 @@ function InitMessageTags(menuPopup)
   for (var i = 0; i < tagCount; ++i)
   {
     var taginfo = tagArray[i];
-    var removeKey = (" " + curKeys + " ").indexOf(" " + taginfo.key + " ") > -1;
+    var removeKey = (" " + curKeys + " ").includes(" " + taginfo.key + " ");
     if (taginfo.ordinal.includes("~AUTOTAG") && !removeKey)
       continue;
 

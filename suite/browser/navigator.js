@@ -889,7 +889,7 @@ function Startup()
 
     // On X, we're not currently able to account for the size of the window
     // border.  Use 28px as a guess (titlebar + bottom window border)
-    if (navigator.appVersion.indexOf("X11") != -1)
+    if (navigator.appVersion.includes("X11"))
       defaultHeight -= 28;
 
     // On small screens, default to maximized state
@@ -1217,7 +1217,7 @@ function Translate()
   var targetURI = getWebNavigation().currentURI.spec;
 
   // if we're already viewing a translated page, then just reload
-  if (targetURI.indexOf(serviceDomain) >= 0)
+  if (targetURI.includes(serviceDomain))
     BrowserReload();
   else {
     loadURI(encodeURI(service) + encodeURIComponent(targetURI));
@@ -1706,7 +1706,7 @@ var BrowserSearch = {
           var exclude = datasource.GetTarget(aboutValue, excludeProp, true);
 
           if (exclude instanceof Ci.nsIRDFLiteral) {
-            searchPanelExists = (exclude.Value.indexOf("navigator:browser") < 0);
+            searchPanelExists = !exclude.Value.includes("navigator:browser");
           } else {
             // panel exists and no exclude set
             searchPanelExists = true;
@@ -3325,7 +3325,7 @@ function AddKeywordForSearchField() {
       form.enctype == "application/x-www-form-urlencoded") {
     postData = formData.join("&");
   } else { // get
-    spec += spec.indexOf("?") != -1 ? "&" : "?";
+    spec += spec.includes("?") ? "&" : "?";
     spec += formData.join("&");
   }
 

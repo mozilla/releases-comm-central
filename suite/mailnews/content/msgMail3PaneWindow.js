@@ -272,11 +272,11 @@ var folderListener =
               if (msgHdr)
               {
                 var hdrs = hdrParser.headers;
-                if (hdrs && hdrs.indexOf("X-attachment-size:") > 0) {
+                if (hdrs && hdrs.includes("X-attachment-size:")) {
                   msgHdr.OrFlags(Ci.nsMsgMessageFlags
                                    .Attachment);
                 }
-                if (hdrs && hdrs.indexOf("X-image-size:") > 0) {
+                if (hdrs && hdrs.includes("X-image-size:")) {
                   msgHdr.setStringProperty("imageSize", "1");
                 }
               }
@@ -558,7 +558,7 @@ function IsCurrentLoadedFolder(aFolder)
   {
     return currentLoadedFolder.msgDatabase.dBFolderInfo
                               .getCharProperty("searchFolderUri").split("|")
-                              .indexOf(msgFolderUri) != -1;
+                              .includes(msgFolderUri);
   }
 
   // Is aFolder the currently loaded folder?

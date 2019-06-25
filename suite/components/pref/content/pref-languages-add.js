@@ -21,7 +21,7 @@ function OnLoadAddLanguages()
   {
     for (var i = 0; i < gLanguageNames.length; i++)
     {
-      if (gSelectedLanguages.indexOf(gLanguageNames[i][1]) == -1)
+      if (!gSelectedLanguages.includes(gLanguageNames[i][1]))
         gAvailableLanguages.appendItem(gLanguageNames[i][0],
                                        gLanguageNames[i][1]);
     }
@@ -101,8 +101,8 @@ function WriteAddedLanguages(aListbox)
       let languageId = languageIds[i];
       if (IsRFC1766LangTag(languageId))
       {
-        if (addedLang.indexOf(languageId) == -1 &&
-            gSelectedLanguages.indexOf(languageId) == -1)
+        if (!addedLang.includes(languageId) &&
+            !gSelectedLanguages.includes(languageId))
           addedLang.push(languageId);
       }
       else

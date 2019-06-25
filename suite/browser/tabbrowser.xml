@@ -1037,7 +1037,7 @@
             // XXX https://bugzilla.mozilla.org/show_bug.cgi?id=22183#c239
             // (only for schemes that support a host)
             try {
-              if (docElement.getAttribute("chromehidden").indexOf("location") != -1) {
+              if (docElement.getAttribute("chromehidden").includes("location")) {
                 var uri = this.mURIFixup.createExposableURI(aBrowser.currentURI);
                 if (uri.schemeIs("about"))
                   newTitle = uri.spec + sep + newTitle;
@@ -2075,7 +2075,7 @@
             if (!aListener)
               throw Cr.NS_ERROR_INVALID_ARG;
 
-            if (this.mProgressListeners.indexOf(aListener) != -1)
+            if (this.mProgressListeners.includes(aListener))
               throw Cr.NS_ERROR_FAILURE;
 
             // push() does not disturb possibly ongoing iterations.
@@ -2088,7 +2088,7 @@
         <parameter name="aListener"/>
         <body>
           <![CDATA[
-            if (this.mProgressListeners.indexOf(aListener) == -1)
+            if (!this.mProgressListeners.includes(aListener))
               throw Cr.NS_ERROR_FAILURE;
 
             // Create a new array, not to disturb possibly ongoing iterations.
@@ -2109,7 +2109,7 @@
             if (!aListener)
               throw Cr.NS_ERROR_INVALID_ARG;
 
-            if (this.mTabsProgressListeners.indexOf(aListener) != -1)
+            if (this.mTabsProgressListeners.includes(aListener))
               throw Cr.NS_ERROR_FAILURE;
 
             // push() does not disturb possibly ongoing iterations.
@@ -2122,7 +2122,7 @@
         <parameter name="aListener"/>
         <body>
           <![CDATA[
-            if (this.mTabsProgressListeners.indexOf(aListener) == -1)
+            if (!this.mTabsProgressListeners.includes(aListener))
               throw Cr.NS_ERROR_FAILURE;
 
             // Create a new array, not to disturb possibly ongoing iterations.
@@ -2385,7 +2385,7 @@
 
             // Valid urls don't contain spaces ' '; if we have a space
             // it isn't a valid url.
-            if (!url || url.indexOf(" ") != -1)
+            if (!url || url.includes(" "))
               return;
 
             getShortcutOrURIAndPostData(url).then(data => {

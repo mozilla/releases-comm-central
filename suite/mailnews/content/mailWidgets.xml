@@ -879,7 +879,7 @@
 
             // custom attribute to style the unavailable menulist item
             menulist.setAttribute("unavailable",
-              this.valueIds.indexOf(typedValue) < 0);
+              !this.valueIds.includes(typedValue));
 
             // add a hidden menulist item if value is missing
             let menuitem = menulist.getElementsByAttribute("value", this.value).item(0);

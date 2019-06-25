@@ -262,7 +262,7 @@ function loadHelpRDF() {
         var datasources    = getAttribute(helpFileDS, panelDef, NC_DATASOURCES, "");
         var panelPlatforms = getAttribute(helpFileDS, panelDef, NC_PLATFORM, null);
 
-        if (panelPlatforms && panelPlatforms.split(/\s+/).indexOf(platform) == -1)
+        if (panelPlatforms && !panelPlatforms.split(/\s+/).includes(platform))
           continue; // ignore datasources for other platforms
 
         // empty datasources are valid on search panel definitions
@@ -353,7 +353,7 @@ function filterSeqByPlatform(aDatasource, aNode, aCurrentLevel) {
                                      NC_PLATFORM,
                                      platform);
 
-    if (nodePlatforms.split(/\s+/).indexOf(platform) == -1) { // node is for another platform
+    if (!nodePlatforms.split(/\s+/).includes(platform)) { // node is for another platform
       var currentNode = currentTarget.QueryInterface(Ci.nsIRDFNode);
       // "false" because we don't want to renumber elements in the container
       RDFC.RemoveElement(currentNode, false);

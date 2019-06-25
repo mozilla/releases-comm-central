@@ -1427,7 +1427,7 @@
           <![CDATA[
             var pluginNeedsActivation = this.contentWindowUtils
                                             .plugins.some(function(aPlugin) {
-              return aExceptThese.indexOf(aPlugin) < 0 &&
+              return !aExceptThese.includes(aPlugin) &&
                      this.canActivatePlugin(aPlugin);
             }, this);
 

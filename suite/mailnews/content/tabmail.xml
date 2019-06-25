@@ -316,7 +316,7 @@
         <parameter name="aTabMonitor"/>
         <body>
           <![CDATA[
-            if (this.tabMonitors.indexOf(aTabMonitor) == -1)
+            if (!this.tabMonitors.includes(aTabMonitor))
               this.tabMonitors.push(aTabMonitor);
           ]]>
         </body>
@@ -326,8 +326,9 @@
         <parameter name="aTabMonitor"/>
         <body>
           <![CDATA[
-            if (this.tabMonitors.indexOf(aTabMonitor) >= 0)
-              this.tabMonitors.splice(this.tabMonitors.indexOf(aTabMonitor), 1);
+            let index = this.tabMonitors.indexOf(aTabMonitor);
+            if (index >= 0)
+              this.tabMonitors.splice(index, 1);
           ]]>
         </body>
       </method>

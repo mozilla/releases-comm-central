@@ -382,7 +382,7 @@
           let searchStr = aString.toLowerCase();
           let filterStrings = aFilter.split(/\s+/);
           return !filterStrings.some(function (f) {
-            return searchStr.indexOf(f) == -1;
+            return !searchStr.includes(f);
           });
         ]]></body>
       </method>

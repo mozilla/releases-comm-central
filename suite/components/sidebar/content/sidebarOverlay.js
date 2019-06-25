@@ -531,7 +531,7 @@ function sb_panel_is_excluded(node)
 {
   var exclude = node.getAttribute('exclude');
   return ( exclude && exclude != '' &&
-           exclude.indexOf(sidebarObj.component) != -1 );
+           exclude.includes(sidebarObj.component));
 }
 sbPanel.prototype.is_excluded =
 function ()

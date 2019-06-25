@@ -211,7 +211,7 @@ var gDataman = {
     aTree.view.selection.clearSelection();
     // Find out which current rows match a cached selection and add them to the selection.
     for (let row = 0; row < aTree.view.rowCount; row++)
-      if (aCachedIDs.indexOf(aIDFunction(row)) != -1)
+      if (aCachedIDs.includes(aIDFunction(row)))
         aTree.view.selection.toggleSelect(row);
   },
 }
@@ -776,7 +776,7 @@ var gDomains = {
     var sType = aType || this.selectfield.value;
     for (let domain in this.domainObjects) {
       if (this.domainObjects[domain].displayTitle
-              .toLocaleLowerCase().indexOf(lcSearch) != -1 &&
+              .toLocaleLowerCase().includes(lcSearch) &&
           (sType == "all" || this.domainObjects[domain]["has" + sType]))
         this.displayedDomains.push(this.domainObjects[domain]);
     }
@@ -1162,7 +1162,7 @@ var gCookies = {
       var domainList = [];
       for (let cookie of this.cookies) {
         let domain = gDomains.getDomainFromHost(cookie.rawHost);
-        if (domainList.indexOf(domain) == -1)
+        if (!domainList.includes(domain))
           domainList.push(domain);
       }
       gDomains.resetFlagToDomains("hasCookies", domainList);
@@ -2286,7 +2286,7 @@ var gPasswords = {
       let domainList = [];
       for (let lSignon of this.allSignons) {
         let domain = gDomains.getDomainFromHost(lSignon.hostname);
-        if (domainList.indexOf(domain) == -1)
+        if (!domainList.includes(domain))
           domainList.push(domain);
       }
       gDomains.resetFlagToDomains("hasPasswords", domainList);
@@ -2722,7 +2722,7 @@ var gStorage = {
     var domainList = [];
     for (let lStorage of this.storages) {
       let domain = gDomains.getDomainFromHost(lStorage.rawHost);
-      if (domainList.indexOf(domain) == -1)
+      if (!domainList.includes(domain))
         domainList.push(domain);
     }
     gDomains.resetFlagToDomains("hasStorage", domainList);
@@ -3000,8 +3000,8 @@ var gFormdata = {
     var lcSearch = aSearchString.toLocaleLowerCase();
     this.displayedFormdata = this.formdata.filter(
       function(aFd) {
-        return aFd.fieldname.toLocaleLowerCase().indexOf(lcSearch) != -1 ||
-               aFd.value.toLocaleLowerCase().indexOf(lcSearch) != -1;
+        return aFd.fieldname.toLocaleLowerCase().includes(lcSearch) ||
+               aFd.value.toLocaleLowerCase().includes(lcSearch);
       });
     this.sort(null, false, false);
     gDataman.restoreSelectionFromIDs(this.tree, this._getObjID, selectionCache);

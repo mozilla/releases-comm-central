@@ -922,7 +922,7 @@ function suggestUniqueFileName(aBaseName, aExtension, aExistingNames)
   var suffix = 1;
   aBaseName = validateFileName(aBaseName);
   var suggestion = aBaseName + aExtension;
-  while (aExistingNames.indexOf(suggestion) != -1)
+  while (aExistingNames.includes(suggestion))
   {
     suffix++;
     suggestion = aBaseName + "(" + suffix + ")" + aExtension;

@@ -603,9 +603,9 @@ function filterCookies(aFilterValue)
 {
   var filterSet = [];
   for (let cookie of allCookies) {
-    if (cookie.rawHost.indexOf(aFilterValue) != -1 ||
-        cookie.name.indexOf(aFilterValue) != -1 ||
-        cookie.value.indexOf(aFilterValue) != -1)
+    if (cookie.rawHost.includes(aFilterValue) ||
+        cookie.name.includes(aFilterValue) ||
+        cookie.value.includes(aFilterValue))
       filterSet.push(cookie);
   }
   return filterSet;

@@ -1377,7 +1377,7 @@ SessionStoreService.prototype = {
     let normalTabsLen = tabbrowser.tabs.length - tabbrowser._numPinnedTabs;
     for (let i = 0; i < tabbrowser.tabs.length; i++) {
       let tab = tabbrowser.tabs[i];
-      if (homePages.indexOf(tab.linkedBrowser.currentURI.spec) != -1) {
+      if (homePages.includes(tab.linkedBrowser.currentURI.spec)) {
         removableTabs.push(tab);
       }
     }
@@ -2659,7 +2659,7 @@ SessionStoreService.prototype = {
     // make sure to reset the capabilities and attributes, in case this tab gets reused
     var disallow = (tabData.disallow)?tabData.disallow.split(","):[];
     CAPABILITIES.forEach(function(aCapability) {
-      browser.docShell["allow" + aCapability] = disallow.indexOf(aCapability) == -1;
+      browser.docShell["allow" + aCapability] = !disallow.includes(aCapability);
     });
     for (let name in this.xulAttributes)
       tab.removeAttribute(name);
@@ -3128,7 +3128,7 @@ SessionStoreService.prototype = {
         }
         else if (value && typeof value.indexOf == "function" && node.options) {
           Array.from(node.options).forEach(function(aOpt, aIx) {
-            aOpt.selected = value.indexOf(aIx) > -1;
+            aOpt.selected = value.includes(aIx);
 
             // Only fire the event here if this wasn't selected by default
             if (!aOpt.defaultSelected)
@@ -3198,7 +3198,7 @@ SessionStoreService.prototype = {
   restoreWindowFeatures: function sss_restoreWindowFeatures(aWindow, aWinData) {
     var hidden = (aWinData.hidden)?aWinData.hidden.split(","):[];
     WINDOW_HIDEABLE_FEATURES.forEach(function(aItem) {
-      aWindow[aItem].visible = hidden.indexOf(aItem) == -1;
+      aWindow[aItem].visible = !hidden.includes(aItem);
     });
 
     if (aWinData.isPopup)
