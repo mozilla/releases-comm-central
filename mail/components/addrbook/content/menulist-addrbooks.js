@@ -95,7 +95,7 @@ customElements.whenDefined("menulist").then(() => {
       MailServices.ab.removeAddressBookListener(this.addressBookListener);
     }
 
-    _rebuild(aSelectValue) {
+    _rebuild() {
       // Init the address book cache.
       this._directories.length = 0;
       let directories = MailServices.ab.directories;
@@ -168,10 +168,9 @@ customElements.whenDefined("menulist").then(() => {
       }
 
       // Attempt to select the persisted or otherwise first directory.
-      this.value = aSelectValue;
-      if (!this.selectedItem && this.menupopup.hasChildNodes()) {
-        this.selectedIndex = 0;
-      }
+      this.selectedIndex = this._directories.findIndex((d) => {
+        return d && d.URI == this._value;
+      });
     }
 
     _teardown() {
