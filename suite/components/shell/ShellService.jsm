@@ -13,7 +13,7 @@ const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 /**
  * Internal functionality to save and restore the docShell.allow* properties.
  */
-let ShellServiceInternal = {
+var ShellServiceInternal = {
   /**
    * Used to determine whether or not to offer "Set as desktop background"
    * functionality. Even if shell service is available it is not

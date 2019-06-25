@@ -143,7 +143,7 @@ function()
   this.hasItems = false;
 }
 
-const linkToolbarHandler = new LinkToolbarHandler();
+var linkToolbarHandler = new LinkToolbarHandler();
 var gLanguageBundle;
 
 function LinkElementDecorator(element) {

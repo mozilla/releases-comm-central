@@ -140,7 +140,7 @@ function MailTasksGetMessagesForAllServers(aBiff, aMsgWindow, aDefaultServer)
   }
 }
 
-const biffObserver =
+var biffObserver =
 {
   observe: function observe(subject, topic, state)
   {

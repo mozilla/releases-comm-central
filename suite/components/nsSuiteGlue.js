@@ -37,9 +37,9 @@ XPCOMUtils.defineLazyGetter(this, "DebuggerServer", () => {
   return tmp.require("devtools/server/main").DebuggerServer;
 });
 
-const global = this;
+var global = this;
 
-const listeners = {
+var listeners = {
   mm: {
     // PLEASE KEEP THIS LIST IN SYNC WITH THE MOBILE LISTENERS IN nsBrowserGlue.js
     "RemoteLogins:findLogins": ["LoginManagerParent"],
@@ -1474,7 +1474,7 @@ SuiteGlue.prototype = {
  * PermissionUI.jsm for an example of how to provide a new prompt
  * from an add-on.
  */
-const ContentPermissionIntegration = {
+var ContentPermissionIntegration = {
   /**
    * Creates a PermissionPrompt for a given permission type and
    * nsIContentPermissionRequest.

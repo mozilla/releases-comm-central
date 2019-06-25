@@ -21,7 +21,7 @@ function reloadThemes()
   });
 }
 
-const gAddonListener = {
+var gAddonListener = {
   onEnabling: function(val) {},
   onEnabled: function(val) {},
   onDisabling: function(val) {},

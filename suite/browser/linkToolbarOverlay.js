@@ -209,5 +209,5 @@ function()
   }
 }
 
-const linkToolbarUI = new LinkToolbarUI;
+var linkToolbarUI = new LinkToolbarUI;
 

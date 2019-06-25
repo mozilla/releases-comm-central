@@ -20,7 +20,7 @@ var gStringBundle =
  * automatically cleared once the browser stops existing
  * (once there are no other references to the browser object);
  */
-const TemporaryBlockedPermissions = {
+var TemporaryBlockedPermissions = {
   // This is a three level deep map with the following structure:
   //
   // Browser => {
