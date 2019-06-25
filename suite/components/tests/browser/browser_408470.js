@@ -26,7 +26,7 @@ function test() {
         newTab.linkedBrowser.removeEventListener("load", loadListener2, true);
         let states = Array.from(newTab.linkedBrowser.contentDocument.styleSheets,
                                 aSS => !aSS.disabled);
-        let correct = states.indexOf(true) == aIx && states.indexOf(true, aIx + 1) == -1;
+        let correct = states.indexOf(true) == aIx && !states.includes(true, aIx + 1);
 
         if (/^fail_/.test(ssTitle))
           ok(!correct, "didn't restore stylesheet " + ssTitle);

@@ -38,7 +38,7 @@ function test() {
   tabState = JSON.parse(ss.getTabState(tab));
   let disallow = tabState.disallow.split(",");
   permissions.forEach(function(aName) {
-    ok(disallow.indexOf(aName) > -1, "Saved state of allow" + aName);
+    ok(disallow.includes(aName), "Saved state of allow" + aName);
   });
   // IF A TEST FAILS, please add the missing permission's name (without the
   // leading "allow") to nsSessionStore.js's CAPABILITIES array. Thanks.

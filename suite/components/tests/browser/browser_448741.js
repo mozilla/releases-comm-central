@@ -20,7 +20,7 @@ function test() {
   function cleaningObserver(aSubject, aTopic, aData) {
     ok(aTopic == "sessionstore-state-write", "observed correct topic?");
     ok(aSubject instanceof Ci.nsISupportsString, "subject is a string?");
-    ok(aSubject.data.indexOf(uniqueValue) > -1, "data contains our value?");
+    ok(aSubject.data.includes(uniqueValue), "data contains our value?");
 
     // find the data for the newly added tab and delete it
     let state = JSON.parse(aSubject.data);
@@ -43,7 +43,7 @@ function test() {
   function checkingObserver(aSubject, aTopic, aData) {
     ok(valueWasCleaned && aSubject instanceof Ci.nsISupportsString,
        "ready to check the cleaned state?");
-    ok(aSubject.data.indexOf(uniqueValue) == -1, "data no longer contains our value?");
+    ok(!aSubject.data.includes(uniqueValue), "data no longer contains our value?");
 
     // clean up
     getBrowser().removeTab(tab);

@@ -170,7 +170,7 @@ function compareJSON(aNodeJSON_1, aNodeJSON_2) {
     Assert.equal(count(obj1), count(obj2));
     for (let prop in obj1) {
       // Skip everchanging values.
-      if (SKIP_PROPS.indexOf(prop) != -1)
+      if (SKIP_PROPS.includes(prop))
         continue;
       // Skip undefined objects, otherwise we hang on them.
       if (!obj1[prop])

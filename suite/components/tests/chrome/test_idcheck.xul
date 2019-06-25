@@ -79,7 +79,7 @@
           dump("  Tree 1:\n");
           DumpElementTree(idList[i]);
         }
-        if (aIgnorableIDs.indexOf(id) < 0)
+        if (!aIgnorableIDs.includes(id))
         {
           // if the id is not in our ignore list, show its status
           ok(!duplicate, "check id: " + filename + "#" + id);

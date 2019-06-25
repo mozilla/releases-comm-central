@@ -155,7 +155,7 @@ function test() {
     // userTypedValue and userTypedClear set.
     getBrowser().addTabsProgressListener({
       onLocationChange: function (aBrowser) {
-        if (uris.indexOf(aBrowser.currentURI.spec) > -1) {
+        if (uris.includes(aBrowser.currentURI.spec)) {
           getBrowser().removeTabsProgressListener(this);
           firstLocationChange();
         }
