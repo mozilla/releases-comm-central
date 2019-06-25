@@ -120,8 +120,8 @@ function nextTest() {
       incomingServer.closeCachedConnections();
     } while (incomingServer.serverBusy);
     incomingServer.shutdown();
-    incomingServer.clearAllValues();
     deleteIMAPServer(incomingServer);
+    incomingServer = null;
     MailServices.accounts.closeCachedConnections();
     MailServices.accounts.shutdownServers();
     MailServices.accounts.UnloadAccounts();
@@ -138,9 +138,8 @@ function nextTest() {
 function deleteIMAPServer(incomingServer) {
   if (!incomingServer)
     return;
-  MailServices.accounts.removeIncomingServer(incomingServer, false); // TODO cleanup files = true fails
-  // incomingServer = null;
-  MailServices.accounts.removeAccount(MailServices.accounts.defaultAccount);
+  // MailServices.accounts.removeIncomingServer(incomingServer, false);  // TODO cleanup files = true fails
+  MailServices.accounts.removeAccount(MailServices.accounts.defaultAccount, true);
 }
 
 

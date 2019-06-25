@@ -16,7 +16,7 @@ var MODULE_NAME = "test-account-deletion";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "account-manager-helpers"];
 
-var gPopAccount, gImapAccount, gNntpAccount, gOriginalAccountCount;
+var gPopAccount, gImapAccount, gOriginalAccountCount;
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
@@ -84,6 +84,7 @@ function subtest_account_data_deletion1(amc) {
   assert_true(inboxFile.isFile());
 
   remove_account(gPopAccount, amc, true, false);
+  gPopAccount = null;
   assert_true(accountDir.exists());
 }
 
@@ -103,5 +104,6 @@ function subtest_account_data_deletion2(amc) {
   assert_true(inboxFile.isFile());
 
   remove_account(gImapAccount, amc, true, true);
+  gImapAccount = null;
   assert_false(accountDir.exists());
 }

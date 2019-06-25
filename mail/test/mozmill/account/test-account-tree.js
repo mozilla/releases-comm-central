@@ -43,8 +43,11 @@ function setupModule(module) {
 }
 
 function teardownModule(module) {
-  // Remove our test account to leave the profile clean.
-  MailServices.accounts.removeAccount(gPopAccount);
+  if (gPopAccount) {
+    // Remove our test account to leave the profile clean.
+    MailServices.accounts.removeAccount(gPopAccount);
+    gPopAccount = null;
+  }
   // There should be only the original accounts left.
   assert_equals(MailServices.accounts.allServers.length, gOriginalAccountCount);
 }
@@ -168,6 +171,7 @@ function subtest_check_selection_after_account_deletion(amc) {
 
   // Remove our account.
   remove_account(gPopAccount, amc);
+  gPopAccount = null;
   // Now there should be only the original accounts left.
   assert_equals(MailServices.accounts.allServers.length, gOriginalAccountCount);
 

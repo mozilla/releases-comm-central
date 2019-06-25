@@ -170,6 +170,7 @@ function remove_account(aAccount, aController, aRemoveAccount = true, aRemoveDat
     cdc.window.document.documentElement.acceptDialog();
   });
 
+  aAccount = null;
   // Use the Remove item in the Account actions menu.
   aController.click(aController.eid("accountActionsButton"));
   aController.click_menus_in_sequence(aController.e("accountActionsDropdown"),

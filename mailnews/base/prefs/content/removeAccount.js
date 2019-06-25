@@ -107,6 +107,9 @@ function removeAccount() {
       } catch (e) { /* It is OK if this fails. */ }
       // Remove account
       MailServices.accounts.removeAccount(account, removeData);
+      account = null;
+      delete window.arguments[0].account;
+      gServer = null;
       window.arguments[0].result = true;
     } else if (removeData) {
       // Remove files only.
