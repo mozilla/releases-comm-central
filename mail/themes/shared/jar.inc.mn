@@ -104,6 +104,7 @@
   skin/classic/messenger/icons/waiting.svg                    (../shared/mail/icons/waiting.svg)
   skin/classic/messenger/shared/accountCentral.css            (../shared/mail/accountCentral.css)
   skin/classic/messenger/shared/accountCreation.css           (../shared/mail/accountCreation.css)
+  skin/classic/messenger/shared/accountManage.css             (../shared/mail/accountManage.css)
   skin/classic/messenger/shared/accountProvisioner.css        (../shared/mail/accountProvisioner.css)
   skin/classic/messenger/shared/addressbook.css               (../shared/mail/addressbook.css)
   skin/classic/messenger/shared/compacttheme.css              (../shared/mail/compacttheme.css)

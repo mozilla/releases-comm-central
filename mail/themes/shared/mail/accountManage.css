@@ -1,0 +1,89 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* ===== accountManage.css ==============================================
+  == Styles for the Mail Account Manager.
+  ======================================================================= */
+
+@import url("chrome://messenger/skin/");
+@import url("chrome://messenger/content/bindings.css");
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+/* ::::: account manager :::::: */
+
+.specialFolderPickerGrid {
+  margin-inline-start: 20px;
+}
+
+.fccReplyFollowsParent {
+  margin-inline-start: 20px;
+}
+
+.signatureBox {
+  font-family: -moz-fixed;
+}
+
+richlistitem[default="true"],
+#identitiesList > richlistitem:first-child {
+  font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(isDefaultServer-true) {
+  text-decoration: underline;
+}
+
+treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
+  list-style-image: url("chrome://chat/skin/prpl-generic/icon.png");
+}
+
+#accounttree treechildren::-moz-tree-indentation {
+  width: 1ch;
+}
+
+#accountActionsDropdown {
+  min-width: 30ch;
+}
+
+/* ::::: SMTP Server Panel :::::: */
+
+.smtpServerListItem {
+  padding-inline-start: 3px;
+}
+
+#backgroundBox {
+  background-color: #FFFFFF;
+  opacity: 0.5;
+}
+
+#smtpServerInfoBox {
+  border: 1px solid ThreeDShadow;
+  border-right-color: ThreeDHighlight;
+  border-bottom-color: ThreeDHighlight;
+  margin: 0 5px 5px;
+}
+
+#smtpServerInfoBox textbox {
+  background-color: transparent;
+}
+
+#archiveTree > treechildren {
+  background-color: -moz-Field;
+}
+
+/* ::::: dialog header ::::: */
+
+.dialogheader {
+  margin: 0 5px 5px;
+  border: 1px solid ThreeDDarkShadow;
+  padding: 5px 8px;
+  background-color: Highlight;
+  color: HighlightText;
+}
+
+.dialogheader-title {
+  margin: 0 !important;
+  font-size: larger;
+  font-weight: bold;
+}
