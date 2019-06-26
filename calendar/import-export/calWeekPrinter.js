@@ -25,6 +25,8 @@ calWeekPrinter.prototype = {
         // Set page title
         document.getElementById("title").textContent = aTitle;
 
+        cal.view.colorTracker.addColorsToDocument(document);
+
         // Table that maps YYYY-MM-DD to the DOM node container where items are to be added
         let dayTable = {};
         let weekInfoService = cal.getWeekInfoService();

@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
@@ -26,55 +25,6 @@ var calprint = {
      */
     getDateKey: function(date) {
         return date.year + "-" + date.month + "-" + date.day;
-    },
-
-    /**
-     * Add category styles to the document's "sheet" element. This is needed
-     * since the HTML created is serialized, so we can't dynamically set the
-     * styles and can be changed if the print formatter decides to return a
-     * DOM document instead.
-     *
-     * @param document      The document that contains <style id="sheet"/>.
-     * @param categories    Array of categories to insert rules for.
-     */
-    insertCategoryRules: function(document, categories) {
-        let sheet = document.getElementById("sheet");
-        sheet.insertedCategoryRules = sheet.insertedCategoryRules || {};
-
-        for (let category of categories) {
-            let prefName = cal.view.formatStringForCSSRule(category);
-            let color = Services.prefs.getStringPref("calendar.category.color." + prefName, "transparent");
-            if (!(prefName in sheet.insertedCategoryRules)) {
-                sheet.insertedCategoryRules[prefName] = true;
-                let ruleAdd = ' .category-color-box[categories~="' + prefName + '"] { ' +
-                              " border: 2px solid " + color + "; }\n";
-                sheet.textContent += ruleAdd;
-            }
-        }
-    },
-
-    /**
-     * Add calendar styles to the document's "sheet" element. This is needed
-     * since the HTML created is serialized, so we can't dynamically set the
-     * styles and can be changed if the print formatter decides to return a
-     * DOM document instead.
-     *
-     * @param document      The document that contains <style id="sheet"/>.
-     * @param categories    The calendar to insert a rule for.
-     */
-    insertCalendarRules: function(document, calendar) {
-        let sheet = document.getElementById("sheet");
-        let color = calendar.getProperty("color") || "#A8C2E1";
-        sheet.insertedCalendarRules = sheet.insertedCalendarRules || {};
-
-        if (!(calendar.id in sheet.insertedCalendarRules)) {
-            sheet.insertedCalendarRules[calendar.id] = true;
-            let formattedId = cal.view.formatStringForCSSRule(calendar.id);
-            let ruleAdd = ' .calendar-color-box[calendar-id="' + formattedId + '"] { ' +
-                          " background-color: " + color + "; " +
-                          " color: " + cal.view.getContrastingTextColor(color) + "; }\n";
-            sheet.textContent += ruleAdd;
-        }
     },
 
     /**
@@ -107,16 +57,16 @@ var calprint = {
         let categoriesArray = item.getCategories({});
         if (categoriesArray.length > 0) {
             let cssClassesArray = categoriesArray.map(cal.view.formatStringForCSSRule);
-            itemNode.querySelector(".category-color-box")
-                    .setAttribute("categories", cssClassesArray.join(" "));
-
-            cal.print.insertCategoryRules(document, categoriesArray);
+            let categoriesBox = itemNode.querySelector(".category-color-box");
+            categoriesBox.setAttribute("categories", cssClassesArray.join(" "));
+            categoriesBox.style.border = `2px solid var(--category-${cssClassesArray[0]}-color)`;
         }
 
         // Fill in calendar color
-        itemNode.querySelector(".calendar-color-box")
-                .setAttribute("calendar-id", cal.view.formatStringForCSSRule(item.calendar.id));
-        cal.print.insertCalendarRules(document, item.calendar);
+        let cssSafeId = cal.view.formatStringForCSSRule(item.calendar.id);
+        let colorBox = itemNode.querySelector(".calendar-color-box");
+        colorBox.style.color = `var(--calendar-${cssSafeId}-forecolor)`;
+        colorBox.style.backgroundColor = `var(--calendar-${cssSafeId}-backcolor)`;
 
         // Add it to the day container in the right order
         cal.data.binaryInsertNode(dayContainer, itemNode, item, cal.view.compareItems);

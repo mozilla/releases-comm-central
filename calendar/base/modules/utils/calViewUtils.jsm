@@ -302,7 +302,7 @@ calview.colorTracker = {
         Ci.calIObserver
     ]),
 
-    // The only public method. Deregistration is not required.
+    // Deregistration is not required.
     registerWindow(aWindow) {
         if (this.calendars === null) {
             let manager = cal.getCalendarManager();
@@ -316,38 +316,42 @@ calview.colorTracker = {
 
         this.windows.add(aWindow);
         aWindow.addEventListener("unload", () => this.windows.delete(aWindow));
-        for (let calendar of this.calendars) {
-            this._addCalendarToWindow(aWindow, calendar);
-        }
-        this._addAllCategoriesToWindow(aWindow);
+        this.addColorsToDocument(aWindow.document);
     },
-    _addCalendarToWindow(aWindow, aCalendar) {
+    addColorsToDocument(aDocument) {
+        for (let calendar of this.calendars) {
+            this._addCalendarToDocument(aDocument, calendar);
+        }
+        this._addAllCategoriesToDocument(aDocument);
+    },
+
+    _addCalendarToDocument(aDocument, aCalendar) {
         let cssSafeId = calview.formatStringForCSSRule(aCalendar.id);
-        let style = aWindow.document.documentElement.style;
+        let style = aDocument.documentElement.style;
         let backColor = aCalendar.getProperty("color") || "#a8c2e1";
         let foreColor = calview.getContrastingTextColor(backColor);
         style.setProperty(`--calendar-${cssSafeId}-backcolor`, backColor);
         style.setProperty(`--calendar-${cssSafeId}-forecolor`, foreColor);
     },
-    _removeCalendarFromWindow(aWindow, aCalendar) {
+    _removeCalendarFromDocument(aDocument, aCalendar) {
         let cssSafeId = calview.formatStringForCSSRule(aCalendar.id);
-        let style = aWindow.document.documentElement.style;
+        let style = aDocument.documentElement.style;
         style.removeProperty(`--calendar-${cssSafeId}-backcolor`);
         style.removeProperty(`--calendar-${cssSafeId}-forecolor`);
     },
-    _addCategoryToWindow(aWindow, aCategoryName) {
+    _addCategoryToDocument(aDocument, aCategoryName) {
         if (/[^\w-]/.test(aCategoryName)) {
             return;
         }
 
         let cssSafeName = calview.formatStringForCSSRule(aCategoryName);
-        let style = aWindow.document.documentElement.style;
+        let style = aDocument.documentElement.style;
         let color = this.categoryBranch.getStringPref(aCategoryName, "transparent");
         style.setProperty(`--category-${cssSafeName}-color`, color);
     },
-    _addAllCategoriesToWindow(aWindow) {
+    _addAllCategoriesToDocument(aDocument) {
         for (let categoryName of this.categoryBranch.getChildList("")) {
-            this._addCategoryToWindow(aWindow, categoryName);
+            this._addCategoryToDocument(aDocument, categoryName);
         }
     },
 
@@ -355,13 +359,13 @@ calview.colorTracker = {
     onCalendarRegistered(aCalendar) {
         this.calendars.add(aCalendar);
         for (let window of this.windows) {
-            this._addCalendarToWindow(window, aCalendar);
+            this._addCalendarToDocument(window.document, aCalendar);
         }
     },
     onCalendarUnregistering(aCalendar) {
         this.calendars.delete(aCalendar);
         for (let window of this.windows) {
-            this._removeCalendarFromWindow(window, aCalendar);
+            this._removeCalendarFromDocument(window.document, aCalendar);
         }
     },
     onCalendarDeleting(aCalendar) {},
@@ -377,7 +381,7 @@ calview.colorTracker = {
     onPropertyChanged(aCalendar, aName, aValue, aOldValue) {
         if (aName == "color") {
             for (let window of this.windows) {
-                this._addCalendarToWindow(window, aCalendar);
+                this._addCalendarToDocument(window.document, aCalendar);
             }
         }
     },
@@ -387,7 +391,7 @@ calview.colorTracker = {
     observe(aSubject, aTopic, aData) {
         if (aTopic == "nsPref:changed") {
             for (let window of this.windows) {
-                this._addCategoryToWindow(window, aData);
+                this._addCategoryToDocument(window.document, aData);
             }
             // TODO Currently, the only way to find out if categories are removed is
             // to initially grab the calendar.categories.names preference and then
