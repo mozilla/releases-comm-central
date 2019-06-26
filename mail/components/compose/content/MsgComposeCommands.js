@@ -4071,13 +4071,12 @@ function FillIdentityList(menulist) {
 function getCurrentAccountKey() {
   // Get the account's key.
   let identityList = GetMsgIdentityElement();
-  return identityList.selectedItem.getAttribute("accountkey");
+  return identityList.getAttribute("accountkey");
 }
 
 function getCurrentIdentityKey() {
   // Get the identity key.
-  let identityList = GetMsgIdentityElement();
-  return identityList.selectedItem.getAttribute("identitykey");
+  return gCurrentIdentity.key;
 }
 
 function getIdentityForKey(key) {
@@ -5497,12 +5496,15 @@ function LoadIdentity(startup) {
   var prevIdentity = gCurrentIdentity;
 
   if (identityElement) {
-    var idKey = identityElement.selectedItem.getAttribute("identitykey");
-    gCurrentIdentity = MailServices.accounts.getIdentity(idKey);
-
+    let idKey = null;
     let accountKey = null;
-    // Set the account key value on the menu list.
     if (identityElement.selectedItem) {
+      // Set the identity key value on the menu list.
+      idKey = identityElement.selectedItem.getAttribute("identitykey");
+      identityElement.setAttribute("identitykey", idKey);
+      gCurrentIdentity = MailServices.accounts.getIdentity(idKey);
+
+      // Set the account key value on the menu list.
       accountKey = identityElement.selectedItem.getAttribute("accountkey");
       identityElement.setAttribute("accountkey", accountKey);
       hideIrrelevantAddressingOptions(accountKey);
