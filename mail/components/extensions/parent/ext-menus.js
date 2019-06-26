@@ -269,7 +269,7 @@ var gMenuBuilder = {
       });
       element.setAttribute("accesskey", accessKey || "");
 
-      if (contextData.isTextSelected && label.indexOf("%s") > -1) {
+      if (contextData.isTextSelected && label.includes("%s")) {
         let selection = contextData.selectionText.trim();
         // The rendering engine will truncate the title if it's longer than 64 characters.
         // But if it makes sense let's try truncate selection text only, to handle cases like

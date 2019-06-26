@@ -199,11 +199,11 @@ var folderListener = {
             var msgHdr = hdrParser.GetNewMsgHdr();
             if (msgHdr) {
               var hdrs = hdrParser.headers;
-              if (hdrs && hdrs.indexOf("X-attachment-size:") > 0) {
+              if (hdrs && hdrs.includes("X-attachment-size:")) {
                 msgHdr.OrFlags(Ci.nsMsgMessageFlags
                                  .Attachment);
               }
-              if (hdrs && hdrs.indexOf("X-image-size:") > 0) {
+              if (hdrs && hdrs.includes("X-image-size:")) {
                 msgHdr.setStringProperty("imageSize", "1");
               }
             }
