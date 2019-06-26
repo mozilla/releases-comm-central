@@ -710,6 +710,8 @@ calendar-month-day-box-item {
     background-image: linear-gradient(rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.01) 50%, rgba(0, 0, 0, 0.05));
     border: 1px solid transparent;
     border-radius: 2px;
+    background-color: var(--item-backcolor);
+    color: var(--item-forecolor);
 }
 
 calendar-month-day-box calendar-month-day-box-item[allday="true"] .calendar-color-box {

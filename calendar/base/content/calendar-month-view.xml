@@ -19,7 +19,6 @@
         <xul:hbox>
           <xul:box anonid="event-container"
                    class="calendar-color-box"
-                   xbl:inherits="calendar-uri,calendar-id"
                    flex="1">
             <xul:box class="calendar-event-selection" orient="horizontal" flex="1">
               <xul:stack anonid="eventbox"
@@ -238,12 +237,13 @@
                 this.deleteItem(aItem);
             }
 
+            let cssSafeId = cal.view.formatStringForCSSRule(aItem.calendar.id);
             let box = document.createXULElement("calendar-month-day-box-item");
             let context = this.getAttribute("item-context") ||
                           this.getAttribute("context");
             box.setAttribute("context", context);
-            box.setAttribute("calendar-uri", aItem.calendar.uri.spec);
-            box.setAttribute("calendar-id", aItem.calendar.id);
+            box.style.setProperty("--item-backcolor", `var(--calendar-${cssSafeId}-backcolor)`);
+            box.style.setProperty("--item-forecolor", `var(--calendar-${cssSafeId}-forecolor)`);
 
             cal.data.binaryInsertNode(this, box, aItem, cal.view.compareItems, false);
 

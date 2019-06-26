@@ -21,7 +21,6 @@
         <xul:hbox>
           <xul:box anonid="event-container"
                    class="calendar-color-box"
-                   xbl:inherits="calendar-uri,calendar-id"
                    flex="1">
             <xul:box class="calendar-event-selection" orient="horizontal" flex="1">
               <xul:stack anonid="eventbox"
@@ -165,8 +164,9 @@
       <method name="setCSSClasses">
         <body><![CDATA[
             let item = this.mOccurrence;
-            this.setAttribute("calendar-uri", item.calendar.uri.spec);
-            this.setAttribute("calendar-id", item.calendar.id);
+            let cssSafeId = cal.view.formatStringForCSSRule(item.calendar.id);
+            this.style.setProperty("--item-backcolor", `var(--calendar-${cssSafeId}-backcolor)`);
+            this.style.setProperty("--item-forecolor", `var(--calendar-${cssSafeId}-forecolor)`);
             let categoriesArray = item.getCategories({});
             if (categoriesArray.length > 0) {
                 let cssClassesArray = categoriesArray.map(cal.view.formatStringForCSSRule);

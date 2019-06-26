@@ -287,3 +287,78 @@ var calview = {
         return cmp;
     }
 };
+
+/**
+ * Adds CSS variables for each calendar to registered windows for coloring
+ * UI elements. Automatically tracks calendar creation, changes, and deletion.
+ */
+calview.colorTracker = {
+    calendars: null,
+    windows: new Set(),
+    QueryInterface: cal.generateQI([
+        Ci.calICalendarManagerObserver,
+        Ci.calIObserver
+    ]),
+
+    // The only public method. Deregistration is not required.
+    registerWindow(aWindow) {
+        if (this.calendars === null) {
+            let manager = cal.getCalendarManager();
+            this.calendars = new Set(manager.getCalendars({}));
+            manager.addObserver(this);
+            manager.addCalendarObserver(this);
+        }
+
+        this.windows.add(aWindow);
+        aWindow.addEventListener("unload", () => this.windows.delete(aWindow));
+        for (let calendar of this.calendars) {
+            this._addToWindow(aWindow, calendar);
+        }
+    },
+    _addToWindow(aWindow, aCalendar) {
+        let cssSafeId = cal.view.formatStringForCSSRule(aCalendar.id);
+        let style = aWindow.document.documentElement.style;
+        let backColor = aCalendar.getProperty("color") || "#a8c2e1";
+        let foreColor = calview.getContrastingTextColor(backColor);
+        style.setProperty(`--calendar-${cssSafeId}-backcolor`, backColor);
+        style.setProperty(`--calendar-${cssSafeId}-forecolor`, foreColor);
+    },
+    _removeFromWindow(aWindow, aCalendar) {
+        let cssSafeId = cal.view.formatStringForCSSRule(aCalendar.id);
+        let style = aWindow.document.documentElement.style;
+        style.removeProperty(`--calendar-${cssSafeId}-backcolor`);
+        style.removeProperty(`--calendar-${cssSafeId}-forecolor`);
+    },
+
+    // calICalendarManagerObserver methods
+    onCalendarRegistered(aCalendar) {
+        this.calendars.add(aCalendar);
+        for (let window of this.windows) {
+            this._addToWindow(window, aCalendar);
+        }
+    },
+    onCalendarUnregistering(aCalendar) {
+        this.calendars.delete(aCalendar);
+        for (let window of this.windows) {
+            this._removeFromWindow(window, aCalendar);
+        }
+    },
+    onCalendarDeleting(aCalendar) {},
+
+    // calIObserver methods
+    onStartBatch() {},
+    onEndBatch() {},
+    onLoad() {},
+    onAddItem(aItem) {},
+    onModifyItem(aNewItem, aOldItem) {},
+    onDeleteItem(aDeletedItem) {},
+    onError(aCalendar, aErrNo, aMessage) {},
+    onPropertyChanged(aCalendar, aName, aValue, aOldValue) {
+        if (aName == "color") {
+            for (let window of this.windows) {
+                this._addToWindow(window, aCalendar);
+            }
+        }
+    },
+    onPropertyDeleting(aCalendar, aName) {},
+};

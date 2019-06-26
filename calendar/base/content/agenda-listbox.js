@@ -312,12 +312,9 @@
         }
 
         refreshColor() {
-            let calcolor = (this.mOccurrence &&
-                this.mOccurrence.calendar.getProperty("color")) ||
-                "#a8c2e1";
-
             let imagebox = this.querySelector(".agenda-calendar-image");
-            imagebox.setAttribute("style", "background-color: " + calcolor + ";");
+            let cssSafeId = cal.view.formatStringForCSSRule(this.mOccurrence.calendar.id);
+            imagebox.style.backgroundColor = `var(--calendar-${cssSafeId}-backcolor)`;
         }
 
         get occurrence() {

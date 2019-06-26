@@ -53,6 +53,9 @@ async function commonInitCalendar() {
     // Set up the category colors
     categoryManagement.initCategories();
 
+    // Set calendar color CSS on this window
+    cal.view.colorTracker.registerWindow(window);
+
     // Set up window pref observers
     calendarWindowPrefs.init();
 

@@ -217,10 +217,6 @@
                 onPropertyChanged(calendar, name, value, oldValue) {
                     switch (name) {
                         case "color":
-                            // TODO See other TODO in this file about updateStyleSheetForViews
-                            if ("updateStyleSheetForViews" in window) {
-                                updateStyleSheetForViews(calendar);
-                            }
                             this.listTree.updateCalendarColor(calendar);
                             // Fall through, update item in any case
                         case "name":
@@ -470,15 +466,6 @@
             }
 
             this.updateCalendarColor(calendar);
-
-            // TODO This should be done only once outside of this custom element, but to
-            // do that right, we need to have an easy way to register an observer for
-            // all calendar properties. This could be the calendar manager that
-            // holds an observer on every calendar anyway, which would then use the
-            // global observer service which clients can register with.
-            if ("updateStyleSheetForViews" in window) {
-                updateStyleSheetForViews(calendar);
-            }
 
             // Watch the calendar for changes, i.e color.
             calendar.addObserver(this.calObserver);
