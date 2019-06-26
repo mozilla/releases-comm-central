@@ -1547,10 +1547,20 @@
         adjustScrollBarSpacers() {
             // Get the width or height of the scrollbox scrollbar, depending on view orientation.
             const widthOrHeight = this.getAttribute("orient") == "vertical" ? "width" : "height";
-            const propertyValue = this.scrollbox.firstChild.getBoundingClientRect()[widthOrHeight];
+
+            // We cannot access the scrollbar to get its size directly (e.g. via querySelector) so
+            // we subtract the size of the other scrollbox children from the size of the scrollbox
+            // to calculate the size of the scrollbar.
+            let scrollboxChildrenSize = 0;
+            for (const child of this.scrollbox.children) {
+                scrollboxChildrenSize += child.getBoundingClientRect()[widthOrHeight];
+            }
+            const scrollboxSize = this.scrollbox.getBoundingClientRect()[widthOrHeight];
+
+            const scrollbarSize = scrollboxSize - scrollboxChildrenSize;
 
             // Check if we need to show the headerScrollbarSpacer at all.
-            let headerPropVal = propertyValue;
+            let headerPropVal = scrollbarSize;
             const headerDayBox = this.querySelector(".headerdaybox");
             if (headerDayBox) {
                 // Only do this when there are multiple days.
@@ -1568,7 +1578,7 @@
 
             // Set the same width/height for the label and header box spacers.
             this.querySelector(".headerscrollbarspacer").setAttribute(widthOrHeight, headerPropVal);
-            this.querySelector(".labelscrollbarspacer").setAttribute(widthOrHeight, propertyValue);
+            this.querySelector(".labelscrollbarspacer").setAttribute(widthOrHeight, scrollbarSize);
         }
 
         /**
