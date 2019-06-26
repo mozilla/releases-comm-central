@@ -151,7 +151,7 @@
                       oninput="FeedSubscriptions.setPrefs(this);"
                       onchange="FeedSubscriptions.setPrefs(this);">
               <observes element="updateEnabled" attribute="disabled"/>
-          </textbox>
+          </html:input>
           <radiogroup id="biffUnits"
                       orient="horizontal"
                       oncommand="FeedSubscriptions.setPrefs(this);">
