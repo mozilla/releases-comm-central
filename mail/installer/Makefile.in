@@ -15,6 +15,12 @@ ifndef SYSTEM_LIBXUL
 MOZ_PKG_FATAL_WARNINGS = 1
 endif
 
+# When packaging an artifact build not all xpt files expected by the
+# packager will be present.
+ifdef MOZ_ARTIFACT_BUILDS
+MOZ_PKG_FATAL_WARNINGS =
+endif
+
 DEFINES += -DPKG_LOCALE_MANIFEST=$(commtopobjdir)/mail/installer/locale-manifest.in
 MOZ_CHROME_LOCALE_ENTRIES=@RESPATH@/chrome/
 
