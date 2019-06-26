@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
@@ -294,6 +295,7 @@ var calview = {
  */
 calview.colorTracker = {
     calendars: null,
+    categoryBranch: null,
     windows: new Set(),
     QueryInterface: cal.generateQI([
         Ci.calICalendarManagerObserver,
@@ -307,40 +309,59 @@ calview.colorTracker = {
             this.calendars = new Set(manager.getCalendars({}));
             manager.addObserver(this);
             manager.addCalendarObserver(this);
+            this.categoryBranch = Services.prefs.getBranch("calendar.category.color.");
+            this.categoryBranch.addObserver("", this);
+            Services.obs.addObserver(this, "xpcom-shutdown");
         }
 
         this.windows.add(aWindow);
         aWindow.addEventListener("unload", () => this.windows.delete(aWindow));
         for (let calendar of this.calendars) {
-            this._addToWindow(aWindow, calendar);
+            this._addCalendarToWindow(aWindow, calendar);
         }
+        this._addAllCategoriesToWindow(aWindow);
     },
-    _addToWindow(aWindow, aCalendar) {
-        let cssSafeId = cal.view.formatStringForCSSRule(aCalendar.id);
+    _addCalendarToWindow(aWindow, aCalendar) {
+        let cssSafeId = calview.formatStringForCSSRule(aCalendar.id);
         let style = aWindow.document.documentElement.style;
         let backColor = aCalendar.getProperty("color") || "#a8c2e1";
         let foreColor = calview.getContrastingTextColor(backColor);
         style.setProperty(`--calendar-${cssSafeId}-backcolor`, backColor);
         style.setProperty(`--calendar-${cssSafeId}-forecolor`, foreColor);
     },
-    _removeFromWindow(aWindow, aCalendar) {
-        let cssSafeId = cal.view.formatStringForCSSRule(aCalendar.id);
+    _removeCalendarFromWindow(aWindow, aCalendar) {
+        let cssSafeId = calview.formatStringForCSSRule(aCalendar.id);
         let style = aWindow.document.documentElement.style;
         style.removeProperty(`--calendar-${cssSafeId}-backcolor`);
         style.removeProperty(`--calendar-${cssSafeId}-forecolor`);
+    },
+    _addCategoryToWindow(aWindow, aCategoryName) {
+        if (/[^\w-]/.test(aCategoryName)) {
+            return;
+        }
+
+        let cssSafeName = calview.formatStringForCSSRule(aCategoryName);
+        let style = aWindow.document.documentElement.style;
+        let color = this.categoryBranch.getStringPref(aCategoryName, "transparent");
+        style.setProperty(`--category-${cssSafeName}-color`, color);
+    },
+    _addAllCategoriesToWindow(aWindow) {
+        for (let categoryName of this.categoryBranch.getChildList("")) {
+            this._addCategoryToWindow(aWindow, categoryName);
+        }
     },
 
     // calICalendarManagerObserver methods
     onCalendarRegistered(aCalendar) {
         this.calendars.add(aCalendar);
         for (let window of this.windows) {
-            this._addToWindow(window, aCalendar);
+            this._addCalendarToWindow(window, aCalendar);
         }
     },
     onCalendarUnregistering(aCalendar) {
         this.calendars.delete(aCalendar);
         for (let window of this.windows) {
-            this._removeFromWindow(window, aCalendar);
+            this._removeCalendarFromWindow(window, aCalendar);
         }
     },
     onCalendarDeleting(aCalendar) {},
@@ -356,9 +377,24 @@ calview.colorTracker = {
     onPropertyChanged(aCalendar, aName, aValue, aOldValue) {
         if (aName == "color") {
             for (let window of this.windows) {
-                this._addToWindow(window, aCalendar);
+                this._addCalendarToWindow(window, aCalendar);
             }
         }
     },
     onPropertyDeleting(aCalendar, aName) {},
+
+    // nsIObserver method
+    observe(aSubject, aTopic, aData) {
+        if (aTopic == "nsPref:changed") {
+            for (let window of this.windows) {
+                this._addCategoryToWindow(window, aData);
+            }
+            // TODO Currently, the only way to find out if categories are removed is
+            // to initially grab the calendar.categories.names preference and then
+            // observe changes to it. It would be better if we had hooks for this.
+        } else if (aTopic == "xpcom-shutdown") {
+            this.categoryBranch.removeObserver("", this);
+            Services.obs.removeObserver(this, "xpcom-shutdown");
+        }
+    }
 };

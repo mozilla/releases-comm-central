@@ -50,9 +50,6 @@ async function commonInitCalendar() {
     document.getElementById("calsidebar_splitter").addEventListener("command", onCalendarViewResize);
     window.addEventListener("resize", onCalendarViewResize, true);
 
-    // Set up the category colors
-    categoryManagement.initCategories();
-
     // Set calendar color CSS on this window
     cal.view.colorTracker.registerWindow(window);
 
@@ -97,9 +94,6 @@ function commonFinishCalendar() {
 
     document.getElementById("calsidebar_splitter").removeEventListener("command", onCalendarViewResize);
     window.removeEventListener("resize", onCalendarViewResize, true);
-
-    // Clean up the category colors
-    categoryManagement.cleanupCategories();
 
     // Clean up window pref observers
     calendarWindowPrefs.cleanup();
