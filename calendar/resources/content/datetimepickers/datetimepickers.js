@@ -1137,9 +1137,11 @@
     customElements.define("timepicker-minute", MozTimepickerMinute);
     customElements.define("timepicker-hour", MozTimepickerHour);
     customElements.define("timepicker-grids", MozTimepickerGrids);
-    customElements.define("datepicker", CalendarDatePicker);
-    customElements.define("timepicker", CalendarTimePicker);
-    customElements.define("datetimepicker", CalendarDateTimePicker);
+    customElements.whenDefined("menulist-editable").then(() => {
+        customElements.define("datepicker", CalendarDatePicker);
+        customElements.define("timepicker", CalendarTimePicker);
+        customElements.define("datetimepicker", CalendarDateTimePicker);
+    });
 
     /**
      * Parameter aValue may be a date or a date time. Dates are

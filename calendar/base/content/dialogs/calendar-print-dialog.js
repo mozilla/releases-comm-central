@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported loadCalendarPrintDialog, onDatePick */
+/* exported loadCalendarPrintDialog */
 
 /* import-globals-from ../../../../../toolkit/components/printing/content/printUtils.js */
 /* import-globals-from ../calendar-ui-utils.js */
@@ -57,6 +57,9 @@ function loadCalendarPrintDialog() {
     eventsAndTasksOptions("tasks");
 
     refreshHtml();
+
+    document.getElementById("start-date-picker").addEventListener("change", onDatePick);
+    document.getElementById("end-date-picker").addEventListener("change", onDatePick);
 
     self.focus();
 }
@@ -238,8 +241,7 @@ function refreshHtml(finishFunc) {
         if (finishFunc) {
             finishFunc();
         }
-    }
-);
+    });
 }
 
 /**
@@ -289,19 +291,9 @@ document.addEventListener("dialogaccept", (event) => {
  */
 function onDatePick() {
     let radioGroup = document.getElementById("view-field");
-    let items = radioGroup.getElementsByTagName("radio");
-    let index;
-    for (let i in items) {
-        if (items[i].getAttribute("id") == "custom-range") {
-            index = i;
-            break;
-        }
-    }
+    radioGroup.value = "custom";
 
-    if (index && index != 0) {
-        radioGroup.selectedIndex = index;
-        setTimeout(refreshHtml, 0);
-    }
+    setTimeout(refreshHtml);
 }
 
 function eventsAndTasksOptions(targetId) {

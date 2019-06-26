@@ -106,14 +106,12 @@
               <row align="center">
                 <label control="start-date-picker"
                        value="&calendar.print.from.label;"/>
-                <datepicker id="start-date-picker"
-                            onchange="onDatePick();"/>
+                <datepicker id="start-date-picker"/>
               </row>
               <row align="center">
                 <label control="end-date-picker"
                        value="&calendar.print.to.label;"/>
-                <datepicker id="end-date-picker"
-                            onchange="onDatePick();"/>
+                <datepicker id="end-date-picker"/>
               </row>
             </rows>
           </grid>
