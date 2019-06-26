@@ -156,7 +156,14 @@ function initServerType() {
   var propertyName = "serverType-" + serverType;
 
   var messengerBundle = document.getElementById("bundle_messenger");
-  var verboseName = messengerBundle.getString(propertyName);
+  var verboseName;
+  try {
+    verboseName = messengerBundle.getString(propertyName);
+  } catch (e) {
+    // Addon-provided server types do not have a description string,
+    // then display the raw server type.
+    verboseName = serverType;
+  }
   setDivText("servertype.verbose", verboseName);
 
   secureSelect(true);
