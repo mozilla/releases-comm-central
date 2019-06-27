@@ -575,3 +575,14 @@
              value=""/>
     </vbox>
   </tooltip>
+
+  <panel id="DateTimePickerPanel"
+         type="arrow"
+         hidden="true"
+         orient="vertical"
+         noautofocus="true"
+         norolluponanchor="true"
+         consumeoutsideclicks="never"
+         level="parent"
+         tabspecific="true">
+  </panel>

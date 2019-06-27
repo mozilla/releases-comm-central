@@ -708,14 +708,17 @@
                       <!-- The messagepanewrapper hbox exists to allow
                            extensions to add sidebars to the message. -->
                       <hbox id="messagepanewrapper" flex="1">
-                        <browser id="messagepane" context="mailContext"
-                                 autofind="false" minheight="1" flex="1"
-                                 name="messagepane" tooltip="aHTMLTooltip"
-                                 disablehistory="true" type="content"
-                                 primary="true" src="about:blank"
-                                 onresize="return messagePaneOnResize(event);"
-                                 disablesecurity="true"
-                                 onclick="return contentAreaClick(event);"/>
+                        <stack flex="1">
+                          <browser id="messagepane" context="mailContext"
+                                   datetimepicker="DateTimePickerPanel"
+                                   autofind="false" minheight="1" flex="1"
+                                   name="messagepane" tooltip="aHTMLTooltip"
+                                   disablehistory="true" type="content"
+                                   primary="true" src="about:blank"
+                                   onresize="return messagePaneOnResize(event);"
+                                   disablesecurity="true"
+                                   onclick="return contentAreaClick(event);"/>
+                        </stack>
                       </hbox>
                       <splitter id="attachment-splitter" collapse="after"
                                 resizebefore="closest" resizeafter="closest"
@@ -750,9 +753,11 @@
             </toolbaritem>
           </hbox>
         </vbox>
-        <browser id="dummycontentbrowser" type="content" flex="1"
-                 disablehistory="true" autocompletepopup="PopupAutoComplete"
-                 context="mailContext"/>
+        <stack flex="1">
+          <browser id="dummycontentbrowser" type="content" flex="1"
+                   disablehistory="true" autocompletepopup="PopupAutoComplete"
+                   datetimepicker="DateTimePickerPanel" context="mailContext"/>
+        </stack>
       </vbox>
     </vbox>
 
