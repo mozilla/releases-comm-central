@@ -414,13 +414,12 @@ toolbarbutton.formatting-button {
 }
 
 toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-menu-dropmarker,
-toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-menubutton-dropmarker
-  > .dropmarker-icon,
+toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-menubutton-dropmarker::part(icon),
 toolbarbutton.formatting-button:not(:hover):-moz-window-inactive > .toolbarbutton-icon,
 toolbarbutton.formatting-button:not(:hover):-moz-window-inactive
   > .toolbarbutton-menu-dropmarker,
 toolbarbutton.formatting-button:not(:hover):-moz-window-inactive
-  > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
+  > .toolbarbutton-menubutton-dropmarker::part(icon) {
   opacity: .5;
 }
 
@@ -431,8 +430,8 @@ toolbarbutton.formatting-button > .toolbarbutton-menubutton-dropmarker {
   fill: currentColor;
 }
 
-toolbarbutton.toolbarbutton-1 .toolbarbutton-menu-dropmarker > .dropmarker-icon,
-toolbarbutton.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
+toolbarbutton.toolbarbutton-1 .toolbarbutton-menu-dropmarker::part(icon),
+toolbarbutton.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker::part(icon) {
   width: 9px;
   height: 7px;
 }

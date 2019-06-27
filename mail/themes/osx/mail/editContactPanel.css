@@ -62,7 +62,7 @@
   display: -moz-box;
 }
 
-#editContactAddressBookList > .menulist-dropmarker > .dropmarker-icon {
+#editContactAddressBookList > .menulist-dropmarker::part(icon) {
   list-style-image: url(chrome://messenger/skin/icons/toolbarbutton-arrow.svg);
   -moz-context-properties: fill;
   fill: currentColor;

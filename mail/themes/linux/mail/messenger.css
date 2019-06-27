@@ -439,8 +439,8 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu-button"]
   margin-right: 0;
 }
 
-.toolbarbutton-1 .toolbarbutton-menu-dropmarker > .dropmarker-icon,
-.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
+.toolbarbutton-1 .toolbarbutton-menu-dropmarker::part(icon),
+.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker::part(icon) {
   width: 17px;
   height: 7px;
   background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");

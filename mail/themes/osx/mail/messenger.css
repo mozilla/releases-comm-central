@@ -391,13 +391,12 @@ toolbar:not([mode="icons"]) .toolbarbutton-1 > .toolbarbutton-menubutton-button 
 .toolbarbutton-1[type="menu-button"]
   > .toolbarbutton-menubutton-button[disabled="true"] > .toolbarbutton-icon,
 .toolbarbutton-1[disabled="true"] > .toolbarbutton-menu-dropmarker,
-.toolbarbutton-1[disabled="true"] > .toolbarbutton-menubutton-dropmarker
-  > .dropmarker-icon,
+.toolbarbutton-1[disabled="true"] > .toolbarbutton-menubutton-dropmarker::part(icon),
 .toolbarbutton-1:not(:hover):-moz-window-inactive .toolbarbutton-icon,
 .toolbarbutton-1:not(:hover):-moz-window-inactive
   > .toolbarbutton-menu-dropmarker,
 .toolbarbutton-1:not(:hover):-moz-window-inactive
-  > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
+  > .toolbarbutton-menubutton-dropmarker::part(icon) {
   opacity: .5;
 }
 
@@ -412,8 +411,8 @@ toolbar:not([mode="icons"]) .toolbarbutton-1 > .toolbarbutton-menubutton-button 
   list-style-image: url(chrome://messenger/skin/icons/toolbarbutton-arrow.svg);
 }
 
-.toolbarbutton-menu-dropmarker > .dropmarker-icon,
-.toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
+.toolbarbutton-menu-dropmarker::part(icon),
+.toolbarbutton-menubutton-dropmarker::part(icon) {
   width: 7px;
   height: 5px;
 }
@@ -639,7 +638,7 @@ button.notification-button > .button-box > button {
   -moz-appearance: none;
 }
 
-button .dropmarker-icon {
+button dropmarker::part(icon) {
   list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
   -moz-context-properties: fill;
   fill: currentColor;

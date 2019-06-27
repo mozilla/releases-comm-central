@@ -699,7 +699,7 @@ toolbar:not(:-moz-lwtheme) {
     margin-top: 0;
   }
 
-  .menulist-dropmarker > .dropmarker-icon {
+  .menulist-dropmarker::part(icon) {
     width: 9px;
     height: 7px;
   }

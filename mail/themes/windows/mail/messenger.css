@@ -571,7 +571,7 @@ button[type="menu-button"] > .button-box > button {
    padding-inline-start: 5px;
   }
 
-  .button-menubutton-dropmarker > .dropmarker-icon {
+  .button-menubutton-dropmarker::part(icon) {
     list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
     width: 9px;
     height: 7px;
@@ -650,8 +650,8 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1
   list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
 }
 
-.toolbarbutton-1 .toolbarbutton-menu-dropmarker > .dropmarker-icon,
-.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
+.toolbarbutton-1 .toolbarbutton-menu-dropmarker::part(icon),
+.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker::part(icon) {
   width: 9px;
   height: 7px;
 }

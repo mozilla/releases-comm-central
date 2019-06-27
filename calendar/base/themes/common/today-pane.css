@@ -192,7 +192,7 @@
   fill: currentColor;
 }
 
-#miniday-dropdown-button > .toolbarbutton-menu-dropmarker > .dropmarker-icon {
+#miniday-dropdown-button > .toolbarbutton-menu-dropmarker::part(icon) {
   width: 9px;
   height: 7px;
 }

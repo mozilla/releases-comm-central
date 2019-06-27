@@ -47,7 +47,7 @@ toolbarbutton.otr-button {
   width: 9px;
 }
 
-.otr-button .toolbarbutton-menu-dropmarker > .dropmarker-icon {
+.otr-button .toolbarbutton-menu-dropmarker::part(icon) {
   width: 17px;
   height: 7px;
   background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
