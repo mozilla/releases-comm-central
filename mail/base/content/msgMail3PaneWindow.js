@@ -634,6 +634,14 @@ function LoadPostAccountWizard() {
 
   setTimeout(completeStartup, 0);
 
+  let safeMode = document.getElementById("helpSafeMode");
+  let appSafeMode = document.getElementById("appmenu_safeMode");
+  if (Services.appinfo.inSafeMode) {
+    safeMode.label = safeMode.getAttribute("stoplabel");
+    safeMode.accessKey = safeMode.getAttribute("stopaccesskey");
+    appSafeMode.label = appSafeMode.getAttribute("stoplabel");
+  }
+
   // FIX ME - later we will be able to use onload from the overlay
   OnLoadMsgHeaderPane();
 

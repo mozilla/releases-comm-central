@@ -630,6 +630,18 @@ function openAboutSupport() {
  * Prompt the user to restart the browser in safe mode.
  */
 function safeModeRestart() {
+  // Is TB in safe mode?
+  if (Services.appinfo.inSafeMode) {
+    let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].
+                     createInstance(Ci.nsISupportsPRBool);
+    Services.obs.notifyObservers(cancelQuit, "quit-application-requested", "restart");
+
+    if (cancelQuit.data)
+      return;
+
+    Services.startup.quit(Ci.nsIAppStartup.eRestart | Ci.nsIAppStartup.eAttemptQuit);
+    return;
+  }
   // prompt the user to confirm
   let bundle = Services.strings.createBundle(
     "chrome://messenger/locale/messenger.properties");

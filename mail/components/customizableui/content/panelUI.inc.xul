@@ -1840,6 +1840,7 @@
         <toolbarbutton id="appmenu_safeMode"
                        class="subviewbutton subviewbutton-iconic"
                        label="&helpSafeMode.label;"
+                       stoplabel="&helpSafeMode.stop.label;"
                        oncommand="safeModeRestart();"/>
         <toolbarseparator/>
         <toolbarbutton id="appmenu_about"

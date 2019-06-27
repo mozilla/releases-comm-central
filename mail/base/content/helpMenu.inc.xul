@@ -41,6 +41,8 @@
           <menuitem id="helpSafeMode"
                     label="&helpSafeMode.label;"
                     accesskey="&helpSafeMode.accesskey;"
+                    stoplabel="&helpSafeMode.stop.label;"
+                    stopaccesskey="&helpSafeMode.stop.accesskey;"
                     oncommand="safeModeRestart();"/>
 #ifndef XP_MACOSX
           <menuseparator id="aboutSeparator"/>
