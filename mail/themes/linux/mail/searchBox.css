@@ -15,9 +15,9 @@
   background-position: calc( 100% - 4px);
   background-repeat: no-repeat;
   padding-inline-end: 24px;
-  -moz-context-properties: fill;
+  -moz-context-properties: fill, fill-opacity;
   fill: currentColor;
-  opacity: 0.54;
+  fill-opacity: 0.54;
 }
 
 .remote-gloda-search:-moz-locale-dir(rtl),
