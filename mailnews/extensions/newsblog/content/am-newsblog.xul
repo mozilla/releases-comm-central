@@ -67,7 +67,7 @@
                   label="&biffStart.label;"
                   accesskey="&biffStart.accesskey;"
                   oncommand="setPrefs(this)"/>
-        <html:input id="updateValue"type="number" class="size3" min="1"
+        <html:input id="updateValue" type="number" class="size3" min="1"
                     aria-labelledby="updateEnabled updateValue biffMinutes biffDays"
                     onchange="setPrefs(this)"/>
         <radiogroup id="biffUnits"
