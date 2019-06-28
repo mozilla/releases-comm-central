@@ -79,8 +79,6 @@ pref("app.update.service.enabled", true);
 #ifdef XP_WIN
 // This pref prevents BITS from being used by Thunderbird to download updates.
 pref("app.update.BITS.enabled", false);
-// This pref prevents BITS from getting enabled while it is being evaluated.
-pref("app.update.BITS.inTrialGroup", false);
 #endif
 
 // Release notes URL
