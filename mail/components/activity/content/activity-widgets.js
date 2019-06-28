@@ -244,7 +244,7 @@
 
     retry() {
       let processes = activityManager.getProcessesByContext(this.contextType,
-        this.contextObj, {});
+        this.contextObj);
       for (let process of processes) {
         if (process.retryHandler) {
           process.retryHandler.retry(process);

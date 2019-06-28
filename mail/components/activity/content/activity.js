@@ -174,7 +174,7 @@ var activityObject = {
     try {
       this._activitiesView = document.getElementById("activityView");
 
-      let activities = activityManager.getActivities({});
+      let activities = activityManager.getActivities();
       for (let iActivity = Math.max(0, activities.length - ACTIVITY_LIMIT);
            iActivity < activities.length; iActivity++) {
         let activity = activities[iActivity];
@@ -191,7 +191,7 @@ var activityObject = {
   },
 
   rebuild() {
-    let activities = activityManager.getActivities({});
+    let activities = activityManager.getActivities();
     for (let activity of activities) {
       this.addActivityElement(activity.id, activity);
     }

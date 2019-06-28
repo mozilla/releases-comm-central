@@ -28,7 +28,7 @@ nsActivityManager.prototype = {
     return count;
   },
 
-  getProcessesByContext(aContextType, aContextObj, aCount) {
+  getProcessesByContext(aContextType, aContextObj) {
     let list = [];
     for (let activity of this._activities.values()) {
       if (activity instanceof Ci.nsIActivityProcess &&
@@ -37,8 +37,6 @@ nsActivityManager.prototype = {
         list.push(activity);
       }
     }
-
-    aCount.value = list.length;
     return list;
   },
 
@@ -126,11 +124,8 @@ nsActivityManager.prototype = {
     return this._activities.has(aID);
   },
 
-  getActivities(aCount) {
-    let list = [...this._activities.values()];
-
-    aCount.value = list.length;
-    return list;
+  getActivities() {
+    return [...this._activities.values()];
   },
 
   addListener(aListener) {

@@ -59,7 +59,7 @@ var moveCopyModule = {
     // get the folder of the deleted messages
     let folder = aMsgList.queryElementAt(0, Ci.nsIMsgDBHdr).folder;
 
-    let activities = this.activityMgr.getActivities({});
+    let activities = this.activityMgr.getActivities();
     if (activities.length > 0 &&
         activities[activities.length - 1].id == this.lastMessage.id &&
         this.lastMessage.type == "deleteMail" &&
@@ -109,7 +109,7 @@ var moveCopyModule = {
 
       let displayCount = count;
 
-      let activities = this.activityMgr.getActivities({});
+      let activities = this.activityMgr.getActivities();
       if (activities.length > 0 &&
           activities[activities.length - 1].id == this.lastMessage.id &&
           this.lastMessage.type == (aMove ? "moveMail" : "copyMail") &&
@@ -287,7 +287,7 @@ var moveCopyModule = {
 
         let displayCount = 1;
 
-        let activities = this.activityMgr.getActivities({});
+        let activities = this.activityMgr.getActivities();
         if (activities.length > 0 &&
             activities[activities.length - 1].id == this.lastMessage.id &&
             this.lastMessage.type == "moveMail" &&

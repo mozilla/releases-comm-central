@@ -105,18 +105,15 @@ interface nsIActivityManager : nsISupports {
    *
    * @return A read-only list of activities managed by the activity manager.
    */
-  void getActivities(out unsigned long length,
-                  [retval, array, size_is(length)] out nsIActivity aActivities);
+  Array<nsIActivity> getActivities();
   
   /**
    * Retrieves processes with given context type and object.
    *
    * @return A read-only list of processes matching to given criteria.
    */
-  void getProcessesByContext(in AString aContextType,
-                             in nsIVariant aContextObject,
-                             out unsigned long length,
-                             [retval, array, size_is(length)] out nsIActivityProcess aProcesses);
+  Array<nsIActivityProcess> getProcessesByContext(in AString aContextType,
+                                                  in nsIVariant aContextObject);
 
   /**
    *  Call to remove all activities apart from those that are in progress.
