@@ -363,7 +363,7 @@ var accountWizard = {
     var elt = document.getElementById(aId);
     if ("selectedItem" in elt)
       return elt.selectedItem.value;
-    if ("checked" in elt)
+    if ((elt.getAttribute("type") == "checkbox") && ("checked" in elt))
       return elt.checked;
     if ("value" in elt)
       return elt.value;
