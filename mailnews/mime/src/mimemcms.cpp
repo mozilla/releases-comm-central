@@ -114,8 +114,8 @@ extern void MimeCMSRequestAsyncSignatureVerification(
     nsICMSMessage *aCMSMsg, const char *aFromAddr, const char *aFromName,
     const char *aSenderAddr, const char *aSenderName,
     nsIMsgSMIMEHeaderSink *aHeaderSink, int32_t aMimeNestingLevel,
-    const nsCString &aMsgNeckoURL,
-    unsigned char *item_data, uint32_t item_len, int16_t digest_type);
+    const nsCString &aMsgNeckoURL, unsigned char *item_data, uint32_t item_len,
+    int16_t digest_type);
 extern char *MimeCMS_MakeSAURL(MimeObject *obj);
 extern char *IMAP_CreateReloadAllPartsUrl(const char *url);
 extern int MIMEGetRelativeCryptoNestLevel(MimeObject *obj);
@@ -410,8 +410,8 @@ static char *MimeMultCMS_generate(void *crypto_closure) {
 
   MimeCMSRequestAsyncSignatureVerification(
       data->content_info, from_addr.get(), from_name.get(), sender_addr.get(),
-      sender_name.get(), data->smimeHeaderSink, aRelativeNestLevel,
-      data->url, data->item_data, data->item_len, data->hash_type);
+      sender_name.get(), data->smimeHeaderSink, aRelativeNestLevel, data->url,
+      data->item_data, data->item_len, data->hash_type);
 
   if (data->content_info) {
 #if 0  // XXX Fix this. What do we do here? //

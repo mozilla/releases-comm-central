@@ -224,8 +224,8 @@ class SignedStatusRunnable : public mozilla::Runnable {
  public:
   SignedStatusRunnable(
       const nsMainThreadPtrHandle<nsIMsgSMIMEHeaderSink> &aSink,
-      int32_t aNestingLevel, int32_t aSignatureStatus,
-      nsIX509Cert *aSignerCert, const nsCString &aMsgNeckoURL);
+      int32_t aNestingLevel, int32_t aSignatureStatus, nsIX509Cert *aSignerCert,
+      const nsCString &aMsgNeckoURL);
   NS_DECL_NSIRUNNABLE
   nsresult mResult;
 
@@ -249,9 +249,8 @@ SignedStatusRunnable::SignedStatusRunnable(
       m_msgNeckoURL(aMsgNeckoURL) {}
 
 NS_IMETHODIMP SignedStatusRunnable::Run() {
-  mResult =
-      m_sink->SignedStatus(m_nestingLevel, m_signatureStatus, m_signerCert,
-                           m_msgNeckoURL);
+  mResult = m_sink->SignedStatus(m_nestingLevel, m_signatureStatus,
+                                 m_signerCert, m_msgNeckoURL);
   return NS_OK;
 }
 
@@ -532,8 +531,8 @@ void MimeCMSRequestAsyncSignatureVerification(
     nsICMSMessage *aCMSMsg, const char *aFromAddr, const char *aFromName,
     const char *aSenderAddr, const char *aSenderName,
     nsIMsgSMIMEHeaderSink *aHeaderSink, int32_t aMimeNestingLevel,
-    const nsCString &aMsgNeckoURL,
-    unsigned char *item_data, uint32_t item_len, int16_t digest_type) {
+    const nsCString &aMsgNeckoURL, unsigned char *item_data, uint32_t item_len,
+    int16_t digest_type) {
   RefPtr<nsSMimeVerificationListener> listener =
       new nsSMimeVerificationListener(aFromAddr, aFromName, aSenderAddr,
                                       aSenderName, aHeaderSink,
