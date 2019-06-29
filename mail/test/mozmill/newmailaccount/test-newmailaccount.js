@@ -997,7 +997,7 @@ function test_external_link_opening_behaviour() {
  * then we error out and go back to the Account Provisioner dialog.
  */
 function test_return_to_provisioner_on_error_XML() {
-  const kOriginalTabNum = mc.tabmail.tabContainer.childNodes.length;
+  const kOriginalTabNum = mc.tabmail.tabContainer.allTabs.length;
 
   get_to_order_form("error@error.invalid");
 
@@ -1014,7 +1014,7 @@ function test_return_to_provisioner_on_error_XML() {
   // We should be done executing the function defined in plan_for_modal_dialog
   // now, so the Account Provisioner dialog should be closed, and the order
   // form tab should have been closed.
-  assert_equals(kOriginalTabNum, mc.tabmail.tabContainer.childNodes.length,
+  assert_equals(kOriginalTabNum, mc.tabmail.tabContainer.allTabs.length,
                 "Timed out waiting for the order form tab to close.");
 }
 

@@ -107,7 +107,7 @@ function addMsgToFolder(folder) {
 function checkContentTab(msgURL) {
   // To open a tab we're going to have to cheat and use tabmail so we can load
   // in the data of what we want.
-  let preCount = mc.tabmail.tabContainer.childNodes.length;
+  let preCount = mc.tabmail.tabContainer.allTabs.length;
 
   let dataurl = "data:text/html,<html><head><title>test exposed</title>" +
     '</head><body><iframe id="msgIframe" src="' + msgURL + '"/></body></html>';
@@ -120,7 +120,7 @@ function checkContentTab(msgURL) {
 
   mc.tabmail.closeTab(newTab);
 
-  if (mc.tabmail.tabContainer.childNodes.length != preCount)
+  if (mc.tabmail.tabContainer.allTabs.length != preCount)
     throw new Error("The content tab didn't close");
 }
 

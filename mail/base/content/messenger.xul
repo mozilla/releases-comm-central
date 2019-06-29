@@ -157,6 +157,7 @@
 <script src="chrome://messenger/content/chat/chat-group.js"/>
 <script src="chrome://messenger/content/chat/chat-imconv.js"/>
 <script src="chrome://messenger/content/tabbrowser-tab.js"/>
+<script src="chrome://messenger/content/tabmail-tabs.js"/>
 <script src="chrome://messenger/content/chat/toolbarbutton-badge-button.js"/>
 <!-- panelUI.js is for the appmenus. -->
 <script src="chrome://messenger/content/customizableui/panelUI.js"/>
@@ -394,20 +395,30 @@
 #include mainNavigationToolbox.inc.xul
 
     <toolbar id="tabs-toolbar" class="chromeclass-toolbar">
-      <!-- class tabmail-tabs is unused and only maintained for add-ons. -->
-      <tabs flex="1"
-            id="tabmail-tabs"
+      <tabs is="tabmail-tabs" id="tabmail-tabs"
+            flex="1"
             align="end"
             setfocus="false"
             onclick="document.getElementById('tabmail').onTabClick(event);"
-            class="tabmail-tabs"
             tooltip="tabmail-tabs-tooltip"
             alltabsbutton="alltabs-button"
             collapsetoolbar="tabs-toolbar"
-            tabtoolbar="tabbar-toolbar">
-            <tab is="tabmail-tab" selected="true" validate="never" type="folder"
-                 maxwidth="250" width="0" minwidth="100" flex="100"
-                 class="tabmail-tab" crop="end" linkedpanel="mailContent"/>
+            tabtoolbar="tabbar-toolbar"
+            context="toolbar-context-menu">
+        <hbox class="tab-drop-indicator-box">
+          <image class="tab-drop-indicator" hidden="true"/>
+        </hbox>
+        <arrowscrollbox class="tabmail-arrowscrollbox"
+                        orient="horizontal"
+                        flex="1"
+                        style="min-width: 1px;">
+          <tab is="tabmail-tab" selected="true" validate="never" type="folder"
+               maxwidth="250" width="0" minwidth="100" flex="100"
+               class="tabmail-tab" crop="end" linkedpanel="mailContent"/>
+        </arrowscrollbox>
+        <hbox class="tabs-closebutton-box" align="center" pack="end">
+          <image class="close-icon tabs-closebutton"></image>
+        </hbox>
       </tabs>
 
       <!-- Use of this element for extensions is deprecated! Current

@@ -47,7 +47,7 @@ function setupModule(module) {
 function test_open_single_message_in_tab() {
   set_open_message_behavior("NEW_TAB");
   let folderTab = mc.tabmail.currentTabInfo;
-  let preCount = mc.tabmail.tabContainer.childNodes.length;
+  let preCount = mc.tabmail.tabContainer.allTabs.length;
   be_in_folder(folder);
   // Select one message
   let msgHdr = select_click_row(1);
@@ -78,7 +78,7 @@ function test_open_single_message_in_tab() {
 function test_open_multiple_messages_in_tabs() {
   set_open_message_behavior("NEW_TAB");
   let folderTab = mc.tabmail.currentTabInfo;
-  let preCount = mc.tabmail.tabContainer.childNodes.length;
+  let preCount = mc.tabmail.tabContainer.allTabs.length;
   be_in_folder(folder);
 
   // Select a bunch of messages

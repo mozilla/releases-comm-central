@@ -49,7 +49,7 @@ function test_openComposeFromMailToLink() {
   // Open a content tab with the mailto link in it.
     // To open a tab we're going to have to cheat and use tabmail so we can load
   // in the data of what we want.
-  gPreCount = mc.tabmail.tabContainer.childNodes.length;
+  gPreCount = mc.tabmail.tabContainer.allTabs.length;
   gNewTab = open_content_tab_with_url(url + "mailtolink.html");
   gComposeWin = composeHelper.open_compose_with_element_click("mailtolink");
 }
@@ -98,7 +98,7 @@ function test_closeComposeWindowAndTab() {
 
   mc.tabmail.closeTab(gNewTab);
 
-  if (mc.tabmail.tabContainer.childNodes.length != gPreCount)
+  if (mc.tabmail.tabContainer.allTabs.length != gPreCount)
     throw new Error("The content tab didn't close");
 }
 

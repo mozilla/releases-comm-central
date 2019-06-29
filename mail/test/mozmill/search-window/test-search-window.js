@@ -130,7 +130,7 @@ function test_open_single_search_result_in_tab() {
   swc.window.focus();
   set_open_message_behavior("NEW_TAB");
   let folderTab = mc.tabmail.currentTabInfo;
-  let preCount = mc.tabmail.tabContainer.childNodes.length;
+  let preCount = mc.tabmail.tabContainer.allTabs.length;
 
   // Select one message
   swc.e("threadTree").focus();
@@ -159,7 +159,7 @@ function test_open_multiple_search_results_in_new_tabs() {
   swc.window.focus();
   set_open_message_behavior("NEW_TAB");
   let folderTab = mc.tabmail.currentTabInfo;
-  let preCount = mc.tabmail.tabContainer.childNodes.length;
+  let preCount = mc.tabmail.tabContainer.allTabs.length;
 
   // Select a bunch of messages
   swc.e("threadTree").focus();

@@ -42,7 +42,6 @@ tabpanels {
 /* Tab DnD indicator */
 .tab-drop-indicator {
   list-style-image: url(icons/dragIndicator.png);
-  margin-bottom: -11px;
 }
 
 /**

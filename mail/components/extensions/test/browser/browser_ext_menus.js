@@ -140,7 +140,7 @@ add_task(async function test_tab() {
   window.openContentTab("about:mozilla");
   tabmail.openTab("folder", { folder: gFolders[0] });
 
-  let tabs = tabmail.tabbox.tabs.children;
+  let tabs = document.getElementById("tabmail-tabs").allTabs;
   let menu = document.getElementById("tabContextMenu");
 
   await checkTabEvent(0, false, true);

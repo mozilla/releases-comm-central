@@ -46,7 +46,7 @@ function setupModule(module) {
 function test_open_single_message_without_backing_view_in_tab() {
   set_open_message_behavior("NEW_TAB");
   let folderTab = mc.tabmail.currentTabInfo;
-  let preCount = mc.tabmail.tabContainer.childNodes.length;
+  let preCount = mc.tabmail.tabContainer.allTabs.length;
   be_in_folder(folder);
 
   if (!msgHdrsInFolder) {
@@ -84,7 +84,7 @@ function test_open_single_message_without_backing_view_in_tab() {
 function test_open_multiple_messages_without_backing_views_in_tabs() {
   set_open_message_behavior("NEW_TAB");
   let folderTab = mc.tabmail.currentTabInfo;
-  let preCount = mc.tabmail.tabContainer.childNodes.length;
+  let preCount = mc.tabmail.tabContainer.allTabs.length;
   be_in_folder(folder);
 
   // Get a reference to a bunch of headers

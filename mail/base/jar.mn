@@ -73,6 +73,7 @@ messenger.jar:
 *   content/messenger/messenger.css                 (content/messenger.css)
     content/messenger/search.xml                    (content/search.xml)
     content/messenger/tabmail.xml                   (content/tabmail.xml)
+    content/messenger/tabmail-tabs.js               (content/tabmail-tabs.js)
     content/messenger/tabbrowser-tab.js             (content/tabbrowser-tab.js)
     content/messenger/tabmail.css                   (content/tabmail.css)
     content/messenger/statuspanel.js                (content/statuspanel.js)

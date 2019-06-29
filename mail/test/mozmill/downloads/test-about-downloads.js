@@ -124,10 +124,10 @@ function setupTest(test) {
 }
 
 function open_about_downloads() {
-  let preCount = mc.tabmail.tabContainer.childNodes.length;
+  let preCount = mc.tabmail.tabContainer.allTabs.length;
   let newTab = mc.tabmail.openTab("chromeTab", { chromePage: "about:downloads",
                                                  clickHandler: "specialTabs.aboutClickHandler(event);" });
-  mc.waitFor(() => mc.tabmail.tabContainer.childNodes.length == preCount + 1,
+  mc.waitFor(() => mc.tabmail.tabContainer.allTabs.length == preCount + 1,
              "Timeout waiting for about:downloads tab");
 
   wait_for_browser_load(newTab.browser, "about:downloads");

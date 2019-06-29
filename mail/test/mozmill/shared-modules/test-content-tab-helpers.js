@@ -160,14 +160,14 @@ function open_content_tab_with_url(aURL, aClickHandler, aBackground, aController
   if (aController === undefined)
     aController = mc;
 
-  let preCount = mc.tabmail.tabContainer.childNodes.length;
+  let preCount = mc.tabmail.tabContainer.allTabs.length;
   mc.tabmail.openTab("contentTab", {
     contentPage: aURL,
     background: aBackground,
     clickHandler: aClickHandler,
   });
   utils.waitFor(() => (
-                  aController.tabmail.tabContainer.childNodes.length == preCount + 1),
+                aController.tabmail.tabContainer.allTabs.length == preCount + 1),
                 "Timeout waiting for the content tab to open with URL: " + aURL,
                 FAST_TIMEOUT, FAST_INTERVAL);
 
@@ -194,14 +194,14 @@ function open_content_tab_with_click(aElem, aExpectedURL, aController, aTabType 
   if (aController === undefined)
     aController = mc;
 
-  let preCount = aController.tabmail.tabContainer.childNodes.length;
+  let preCount = aController.tabmail.tabContainer.allTabs.length;
   if (typeof(aElem) != "function")
     aController.click(new elib.Elem(aElem));
   else
     aElem();
 
   utils.waitFor(() => (
-                  aController.tabmail.tabContainer.childNodes.length == preCount + 1),
+                aController.tabmail.tabContainer.allTabs.length == preCount + 1),
                 "Timeout waiting for the content tab to open",
                 FAST_TIMEOUT, FAST_INTERVAL);
 

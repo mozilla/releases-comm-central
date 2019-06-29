@@ -16,13 +16,13 @@ var MODULE_REQUIRES = ["folder-display-helpers"];
  */
 function open_chat_tab() {
   // Get the current tab count so we can make sure the tab actually opened.
-  let preCount = mc.tabmail.tabContainer.childNodes.length;
+  let preCount = mc.tabmail.tabContainer.allTabs.length;
 
   mc.tabmail.openTab("chat", {});
   mark_action("imh", "open_chat_tab", []);
   wait_for_chat_tab_to_open(mc);
 
-  if (mc.tabmail.tabContainer.childNodes.length != preCount + 1)
+  if (mc.tabmail.tabContainer.allTabs.length != preCount + 1)
     throw new Error("The tab never actually got opened!");
 
   let newTab = mc.tabmail.tabInfo[preCount];
@@ -72,7 +72,7 @@ function test_chat_tab_restore() {
   closeTabs();
   mc.tabmail.restoreTabs(state);
 
-  if (mc.tabmail.tabContainer.childNodes.length < 2)
+  if (mc.tabmail.tabContainer.allTabs.length < 2)
     throw new Error("The tab is not restored!");
 
   let tabTypes = ["folder", "chat"];

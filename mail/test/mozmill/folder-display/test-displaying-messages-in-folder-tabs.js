@@ -146,7 +146,7 @@ function _verify_display_in_existing_tab(aPreCount, aFolder, aMsgHdr) {
  */
 function test_display_message_in_same_folder() {
   be_in_folder(folderA);
-  let preCount = mc.tabmail.tabContainer.childNodes.length;
+  let preCount = mc.tabmail.tabContainer.allTabs.length;
 
   let msgHdr = msgHdrsInFolderA[indexes.next().value];
 
@@ -160,7 +160,7 @@ function test_display_message_in_same_folder() {
  */
 function test_display_message_in_different_folder() {
   be_in_folder(folderB);
-  let preCount = mc.tabmail.tabContainer.childNodes.length;
+  let preCount = mc.tabmail.tabContainer.allTabs.length;
 
   let msgHdr = msgHdrsInFolderA[indexes.next().value];
 
@@ -179,7 +179,7 @@ function test_display_message_in_same_folder_with_message_tab_active() {
   select_click_row(indexToOpen);
   let messageTab = open_selected_message_in_new_tab(false);
 
-  let preCount = mc.tabmail.tabContainer.childNodes.length;
+  let preCount = mc.tabmail.tabContainer.allTabs.length;
   let msgHdr = msgHdrsInFolderA[indexes.next().value];
   display_message_in_folder_tab(msgHdr);
   // Verify
@@ -200,7 +200,7 @@ function test_display_message_in_different_folder_with_message_tab_active() {
   select_click_row(indexToOpen);
   let messageTab = open_selected_message_in_new_tab(false);
 
-  let preCount = mc.tabmail.tabContainer.childNodes.length;
+  let preCount = mc.tabmail.tabContainer.allTabs.length;
   let msgHdr = msgHdrsInFolderB[indexes.next().value];
   display_message_in_folder_tab(msgHdr);
   // Verify
@@ -219,7 +219,7 @@ function test_display_message_in_same_folder_filtered() {
   // Make sure all the messages have actually disappeared
   assert_messages_not_in_view(msgHdrsInFolderA);
 
-  let preCount = mc.tabmail.tabContainer.childNodes.length;
+  let preCount = mc.tabmail.tabContainer.allTabs.length;
   let msgHdr = msgHdrsInFolderA[indexes.next().value];
   display_message_in_folder_tab(msgHdr);
   // Verify
@@ -243,7 +243,7 @@ function test_display_message_in_different_folder_filtered() {
   set_mail_view(MailViewConstants.kViewItemTags, "$label2");
   assert_messages_not_in_view(msgHdrsInFolderA);
 
-  let preCount = mc.tabmail.tabContainer.childNodes.length;
+  let preCount = mc.tabmail.tabContainer.allTabs.length;
   let msgHdr = msgHdrsInFolderB[indexes.next().value];
   display_message_in_folder_tab(msgHdr);
   // Verify
@@ -275,7 +275,7 @@ function test_display_message_in_same_folder_filtered_with_message_tab_active() 
   assert_messages_not_in_view(msgHdrsInFolderB);
   switch_tab(messageTab);
 
-  let preCount = mc.tabmail.tabContainer.childNodes.length;
+  let preCount = mc.tabmail.tabContainer.allTabs.length;
   let msgHdr = msgHdrsInFolderB[indexes.next().value];
   display_message_in_folder_tab(msgHdr);
   // Verify
@@ -303,7 +303,7 @@ function
   select_click_row(0);
   let messageTab = open_selected_message_in_new_tab(false);
 
-  let preCount = mc.tabmail.tabContainer.childNodes.length;
+  let preCount = mc.tabmail.tabContainer.allTabs.length;
   let msgHdr = msgHdrsInFolderA[indexes.next().value];
   display_message_in_folder_tab(msgHdr);
   // Verify
@@ -330,7 +330,7 @@ function test_display_message_in_same_folder_unread() {
   // Make sure all the messages have actually disappeared
   assert_messages_not_in_view(msgHdrsInFolderB);
 
-  let preCount = mc.tabmail.tabContainer.childNodes.length;
+  let preCount = mc.tabmail.tabContainer.allTabs.length;
   let msgHdr = msgHdrsInFolderB[indexes.next().value];
   display_message_in_folder_tab(msgHdr);
   // Verify
@@ -355,7 +355,7 @@ function test_display_message_in_different_folder_unread() {
   set_show_unread_only(true);
   assert_messages_not_in_view(msgHdrsInFolderB);
 
-  let preCount = mc.tabmail.tabContainer.childNodes.length;
+  let preCount = mc.tabmail.tabContainer.allTabs.length;
   let msgHdr = msgHdrsInFolderA[indexes.next().value];
   display_message_in_folder_tab(msgHdr);
   // Verify
@@ -379,7 +379,7 @@ function test_display_message_scrolls_to_message() {
   // Scroll to the top
   mc.folderDisplay.ensureRowIsVisible(0);
 
-  let preCount = mc.tabmail.tabContainer.childNodes.length;
+  let preCount = mc.tabmail.tabContainer.allTabs.length;
   let msgHdr = mc.dbView.getMsgHdrAt(45);
   display_message_in_folder_tab(msgHdr);
 

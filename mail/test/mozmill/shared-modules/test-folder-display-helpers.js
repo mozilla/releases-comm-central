@@ -582,7 +582,7 @@ var open_selected_message = open_selected_messages;
  */
 function open_selected_message_in_new_tab(aBackground) {
   // get the current tab count so we can make sure the tab actually opened.
-  let preCount = mc.tabmail.tabContainer.childNodes.length;
+  let preCount = mc.tabmail.tabContainer.allTabs.length;
 
   // save the current tab as the 'other' tab
   otherTab = mc.tabmail.currentTabInfo;
@@ -596,12 +596,12 @@ function open_selected_message_in_new_tab(aBackground) {
   wait_for_message_display_completion(mc, !aBackground);
 
   // check that the tab count increased
-  if (mc.tabmail.tabContainer.childNodes.length != preCount + 1)
+  if (mc.tabmail.tabContainer.allTabs.length != preCount + 1)
     throw new Error("The tab never actually got opened!");
 
   // We append new tabs at the end, so return the last tab
   let newTab =
-    mc.tabmail.tabInfo[mc.tabmail.tabContainer.childNodes.length - 1];
+    mc.tabmail.tabInfo[mc.tabmail.tabContainer.allTabs.length - 1];
   mark_action("fdh", "open_selected_message_in_new_tab",
               ["message", mc.folderDisplay.selectedMessage,
                "background?", Boolean(aBackground),
@@ -789,7 +789,7 @@ function assert_tab_mode_name(aTab, aModeName) {
  * @param aNumber The number of tabs that should be open.
  */
 function assert_number_of_tabs_open(aNumber) {
-  let actualNumber = mc.tabmail.tabContainer.childNodes.length;
+  let actualNumber = mc.tabmail.tabContainer.allTabs.length;
   if (actualNumber != aNumber)
     mark_failure(["There should be " + aNumber + " tabs open, but there " +
                   "are actually " + actualNumber + " tabs open. Tabs:",
@@ -840,7 +840,7 @@ function close_tab(aTabToClose) {
     aTabToClose = mc.tabmail.tabInfo[aTabToClose];
 
   // get the current tab count so we can make sure the tab actually opened.
-  let preCount = mc.tabmail.tabContainer.childNodes.length;
+  let preCount = mc.tabmail.tabContainer.allTabs.length;
 
   // If we're closing the current tab, a message or summary might be displayed
   // in the tab we'll select next.
@@ -866,7 +866,7 @@ function close_tab(aTabToClose) {
   }
 
   // check that the tab count decreased
-  if (mc.tabmail.tabContainer.childNodes.length != preCount - 1)
+  if (mc.tabmail.tabContainer.allTabs.length != preCount - 1)
     throw new Error("The tab never actually got closed!");
 }
 
@@ -1169,7 +1169,7 @@ function middle_click_on_row(aViewIndex) {
   _row_click_helper(mc, mc.threadTree, aViewIndex, 1);
   // We append new tabs at the end, so return the last tab
   mark_action("fdh", "/middle_click_on_row", []);
-  return [mc.tabmail.tabInfo[mc.tabmail.tabContainer.childNodes.length - 1],
+  return [mc.tabmail.tabInfo[mc.tabmail.tabContainer.allTabs.length - 1],
           msgHdr];
 }
 
@@ -1382,7 +1382,7 @@ function middle_click_on_folder(aFolder) {
   mark_action("fdh", "middle_click_on_folder", [aFolder]);
   _row_click_helper(mc, mc.folderTree, viewIndex, 1);
   // We append new tabs at the end, so return the last tab
-  return [mc.tabmail.tabInfo[mc.tabmail.tabContainer.childNodes.length - 1],
+  return [mc.tabmail.tabInfo[mc.tabmail.tabContainer.allTabs.length - 1],
           viewIndex];
 }
 

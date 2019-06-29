@@ -125,13 +125,13 @@ function test_content_tab_context_menu() {
 /*
  // We don't have an UI to test openin content tabs twice anymore.
 function test_content_tab_open_same() {
-  let preCount = mc.tabmail.tabContainer.childNodes.length;
+  let preCount = mc.tabmail.tabContainer.allTabs.length;
 
   mc.click(new elementslib.Elem(mc.menus.helpMenu.whatsNew));
 
   controller.sleep(0);
 
-  if (mc.tabmail.tabContainer.childNodes.length != preCount)
+  if (mc.tabmail.tabContainer.allTabs.length != preCount)
     throw new Error("A new content tab was opened when it shouldn't have been");
 
   // Double-check browser is still the same.
@@ -151,7 +151,7 @@ function test_content_tab_default_favicon() {
 }
 
 function test_content_tab_onbeforeunload() {
-  let count = mc.tabmail.tabContainer.childNodes.length;
+  let count = mc.tabmail.tabContainer.allTabs.length;
   let tab = mc.tabmail.tabInfo[count - 1];
   tab.browser.contentWindow.addEventListener("beforeunload", function(event) {
     event.returnValue = "Green llama in your car";

@@ -57,7 +57,6 @@ tabpanels {
 /* Tab drag and drop */
 .tab-drop-indicator {
   list-style-image: url(icons/dragIndicator.png);
-  margin-bottom: -11px;
 }
 
 /* Tabstrip close button */

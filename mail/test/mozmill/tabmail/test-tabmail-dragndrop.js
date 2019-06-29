@@ -103,8 +103,8 @@ function test_tab_reorder_tabbar() {
   switch_tab(1);
   assert_selected_and_displayed(msgHdrsInFolder[0]);
 
-  let tab1 = mc.tabmail.tabContainer.childNodes[1];
-  let tab3 = mc.tabmail.tabContainer.childNodes[3];
+  let tab1 = mc.tabmail.tabContainer.allTabs[1];
+  let tab3 = mc.tabmail.tabContainer.allTabs[3];
 
   drag_n_drop_element(tab1, mc.window, tab3, mc.window, 0.75, 0.0,
                       mc.tabmail.tabContainer);
@@ -115,13 +115,13 @@ function test_tab_reorder_tabbar() {
   assert_number_of_tabs_open(5);
 
   // ... we should find tab1 at the third position...
-  assert_equals(tab1, mc.tabmail.tabContainer.childNodes[3],
+  assert_equals(tab1, mc.tabmail.tabContainer.allTabs[3],
                 "Moving tab1 failed");
   switch_tab(3);
   assert_selected_and_displayed(msgHdrsInFolder[0]);
 
   // ... while tab3 moves one up and gets second.
-  assert_true(tab3 == mc.tabmail.tabContainer.childNodes[2],
+  assert_true(tab3 == mc.tabmail.tabContainer.allTabs[2],
               "Moving tab3 failed");
   switch_tab(2);
   assert_selected_and_displayed(msgHdrsInFolder[2]);
@@ -177,11 +177,11 @@ function test_tab_reorder_window() {
   assert_true(aWnd2 == mc2.window, "Opening Window failed");
 
   // Start dragging the first tab ...
-  let tabA = mc.tabmail.tabContainer.childNodes[1];
+  let tabA = mc.tabmail.tabContainer.allTabs[1];
   assert_true(tabA, "No movable Tab");
 
   // We drop onto the Folder Tab, it is guaranteed to exist.
-  let tabB = mc2.tabmail.tabContainer.childNodes[0];
+  let tabB = mc2.tabmail.tabContainer.allTabs[0];
   assert_true(tabB, "No movable Tab");
 
   drag_n_drop_element(tabA, mc.window, tabB, mc2.window, 0.75, 0.0,
@@ -189,10 +189,10 @@ function test_tab_reorder_window() {
 
   wait_for_message_display_completion(mc2);
 
-  assert_true(mc.tabmail.tabContainer.childNodes.length == 1,
+  assert_true(mc.tabmail.tabContainer.allTabs.length == 1,
     "Moving tab to new window failed, tab still in old window");
 
-  assert_true(mc2.tabmail.tabContainer.childNodes.length == 2,
+  assert_true(mc2.tabmail.tabContainer.allTabs.length == 2,
     "Moving tab to new window failed, no new tab in new window");
 
   assert_selected_and_displayed(mc2, msgHdrsInFolder[1]);
@@ -223,7 +223,7 @@ function test_tab_reorder_detach() {
 
   mc.tabmail.switchToTab(1);
 
-  let tab1 = mc.tabmail.tabContainer.childNodes[1];
+  let tab1 = mc.tabmail.tabContainer.allTabs[1];
   let dropContent = mc.e("tabpanelcontainer");
 
   let dt = synthesize_drag_start(mc.window, tab1, mc.tabmail.tabContainer);
@@ -240,10 +240,10 @@ function test_tab_reorder_detach() {
   mc2 = wait_for_new_window("mail:3pane");
   wait_for_message_display_completion(mc2, true);
 
-  assert_true(mc.tabmail.tabContainer.childNodes.length == 1,
+  assert_true(mc.tabmail.tabContainer.allTabs.length == 1,
       "Moving tab to new window failed, tab still in old window");
 
-  assert_true(mc2.tabmail.tabContainer.childNodes.length == 2,
+  assert_true(mc2.tabmail.tabContainer.allTabs.length == 2,
       "Moving tab to new window failed, no new tab in new window");
 
   assert_selected_and_displayed(mc2, msgHdrsInFolder[2]);
@@ -291,7 +291,7 @@ function test_tab_undo() {
 }
 
 function _synthesizeRecentlyClosedMenu() {
-  mc.rightClick(new elib.Elem(mc.tabmail.tabContainer.childNodes[1]));
+  mc.rightClick(new elib.Elem(mc.tabmail.tabContainer.allTabs[1]));
 
   let tabContextMenu = mc.window.document.getElementById("tabContextMenu");
   wait_for_popup_to_open(tabContextMenu);

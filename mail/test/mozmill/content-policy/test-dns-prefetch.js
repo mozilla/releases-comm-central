@@ -159,7 +159,7 @@ function test_dnsPrefetch_compose() {
 function test_dnsPrefetch_contentTab() {
   // To open a tab we're going to have to cheat and use tabmail so we can load
   // in the data of what we want.
-  let preCount = mc.tabmail.tabContainer.childNodes.length;
+  let preCount = mc.tabmail.tabContainer.allTabs.length;
 
   let dataurl = "data:text/html,<html><head><title>test dns prefetch</title>" +
     "</head><body>test dns prefetch</body></html>";
@@ -171,6 +171,6 @@ function test_dnsPrefetch_contentTab() {
 
   mc.tabmail.closeTab(newTab);
 
-  if (mc.tabmail.tabContainer.childNodes.length != preCount)
+  if (mc.tabmail.tabContainer.allTabs.length != preCount)
     throw new Error("The content tab didn't close");
 }
