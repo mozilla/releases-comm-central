@@ -107,12 +107,11 @@ nsresult nsSmtpServer::getPrefs() {
 }
 
 // This function is intentionally called the same as in nsIMsgIncomingServer.
-nsresult
-nsSmtpServer::OnUserOrHostNameChanged(const nsACString& oldName,
-                                      const nsACString& newName,
-                                      bool hostnameChanged)
-{
-  // Reset password so that users are prompted for new password for the new user/host.
+nsresult nsSmtpServer::OnUserOrHostNameChanged(const nsACString &oldName,
+                                               const nsACString &newName,
+                                               bool hostnameChanged) {
+  // Reset password so that users are prompted for new password for the new
+  // user/host.
   (void)ForgetPassword();
 
   return NS_OK;
