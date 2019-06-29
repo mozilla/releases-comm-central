@@ -40,6 +40,8 @@ function onInit(aPageId, aServerId) {
                   optionsAcct.updates.updateMinutes / (24 * 60);
   gUpdateValue.value = Number(minutes);
   onCheckItem("updateValue", ["updateEnabled"]);
+  onCheckItem("biffMinutes", ["updateEnabled"]);
+  onCheckItem("biffDays", ["updateEnabled"]);
 
   gAutotagEnable.checked = optionsAcct.category.enabled;
   gAutotagUsePrefix.disabled = !gAutotagEnable.checked;
@@ -63,6 +65,8 @@ function setPrefs(aNode) {
     case "biffUnits":
       optionsAcct.updates.enabled = gUpdateEnabled.checked;
       onCheckItem("updateValue", ["updateEnabled"]);
+      onCheckItem("biffMinutes", ["updateEnabled"]);
+      onCheckItem("biffDays", ["updateEnabled"]);
       let minutes = gBiffUnits.value == FeedUtils.kBiffUnitsMinutes ?
                       gUpdateValue.value :
                       gUpdateValue.value * 24 * 60;
