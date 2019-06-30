@@ -42,4 +42,3 @@ job-defaults:
             - comm/.gecko_rev.yml
             - comm/.taskcluster.yml
             - comm/moz.build
-
