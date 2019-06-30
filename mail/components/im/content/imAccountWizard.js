@@ -363,7 +363,8 @@ var accountWizard = {
     var elt = document.getElementById(aId);
     if ("selectedItem" in elt)
       return elt.selectedItem.value;
-    if ((elt.getAttribute("type") == "checkbox") && ("checked" in elt))
+    // Strangely for <input type="number"> "checked" is also set.
+    if ((elt.getAttribute("type") != "number") && ("checked" in elt))
       return elt.checked;
     if ("value" in elt)
       return elt.value;
