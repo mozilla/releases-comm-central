@@ -38,6 +38,7 @@ function setupModule(module) {
     createCalendar(controller, CALENDARNAME);
 }
 
+testTodayPane.__force_skip__ = true;
 function testTodayPane() {
     let createEvent = (hour, name) => {
         let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, hour);
