@@ -92,14 +92,16 @@
               label   = "&actualSizeRadio.label;"
               accesskey = "&actualSizeRadio.accessKey;"
               tooltiptext="&actualSizeRadio.tooltip;"
-              oncommand = "SetActualSize()"/>
+              oncommand = "SetActualSize()"
+              value="actual"/>
             <radio
               id      = "customSizeRadio"
               label   = "&customSizeRadio.label;"
               selected = "true"
               accesskey = "&customSizeRadio.accessKey;"
               tooltiptext="&customSizeRadio.tooltip;"
-              oncommand = "doDimensionEnabling();" />
+              oncommand = "doDimensionEnabling();"
+              value="custom"/>
           </radiogroup>
           <spacer flex="1"/>
           <vbox>
