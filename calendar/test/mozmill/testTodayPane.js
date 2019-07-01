@@ -38,7 +38,6 @@ function setupModule(module) {
     createCalendar(controller, CALENDARNAME);
 }
 
-testTodayPane.__force_skip__ = true;
 function testTodayPane() {
     let createEvent = (hour, name) => {
         let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, hour);
@@ -82,7 +81,7 @@ function testTodayPane() {
 
     // Go to mail tab.
     controller.click(lookup(`
-        /id("messengerWindow")/id("navigation-toolbox")/id("tabs-toolbar")/id("tabmail-tabs")/[0]
+        /id("messengerWindow")/id("navigation-toolbox")/id("tabs-toolbar")/id("tabmail-tabs")/[1]/[0]
     `));
     sleep();
 
