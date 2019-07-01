@@ -92,9 +92,6 @@ function commonFinishCalendar() {
     // Remove the command controller
     removeCalendarCommandController();
 
-    // Tear down calendar appmenu buttons.
-    tearDownCalendarAppMenuButtons();
-
     document.getElementById("calsidebar_splitter").removeEventListener("command", onCalendarViewResize);
     window.removeEventListener("resize", onCalendarViewResize, true);
 
@@ -168,12 +165,8 @@ var calendarWindowPrefs = {
 
 /**
  * Set up calendar appmenu buttons by adding event listeners to the buttons.
- * Also used to tear down the appmenu buttons by removing the event listeners.
- *
- * @param {boolean} [remove]  Whether to remove event listeners instead of adding them.
  */
-function setUpCalendarAppMenuButtons(remove) {
-    const addOrRemoveListener = remove ? "removeEventListener" : "addEventListener";
+function setUpCalendarAppMenuButtons() {
     [
         "calendar-appmenu-button",
         "task-appmenu-button",
@@ -181,16 +174,9 @@ function setUpCalendarAppMenuButtons(remove) {
     ]
     .forEach(id => {
         const button = document.getElementById(id);
-        button[addOrRemoveListener]("mousedown", PanelUI);
-        button[addOrRemoveListener]("keypress", PanelUI);
+        button.addEventListener("mousedown", PanelUI);
+        button.addEventListener("keypress", PanelUI);
     });
-}
-
-/**
- * Tear down calendar appmenu buttons by removing event listeners from them.
- */
-function tearDownCalendarAppMenuButtons() {
-    setUpCalendarAppMenuButtons(true);
 }
 
 /**
