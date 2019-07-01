@@ -60,6 +60,7 @@
   <script src="chrome://calendar/content/calendar-creation.js"/>
   <script src="chrome://calendar/content/calendar-dnd-listener.js"/>
   <script src="chrome://calendar/content/calendar-statusbar.js"/>
+  <script src="chrome://calendar/content/widgets/calendar-minimonth.js"/>
   <script src="chrome://global/content/nsDragAndDrop.js"/>
   <script src="chrome://calendar/content/widgets/calendar-list-tree.js"/>
 
@@ -204,7 +205,7 @@
           <modevbox id="minimonth-pane" mode="calendar,task" broadcaster="modeBroadcaster" refcontrol="calendar_toggle_minimonthpane_command">
             <vbox align="center">
               <hbox id="calMinimonthBox" pack="center">
-                <minimonth id="calMinimonth" onchange="minimonthPick(this.value);" freebusy="true"/>
+                <calendar-minimonth id="calMinimonth" onchange="minimonthPick(this.value);" freebusy="true"/>
               </hbox>
             </vbox>
           </modevbox>

@@ -47,7 +47,8 @@ var MINIMONTH = `
     id("calMinimonthBox")/id("calMinimonth")
 `;
 var TODAY_BUTTON = `
-    ${MINIMONTH}/anon({"anonid":"minimonth-header"})/anon({"anonid":"today-button"})
+    ${MINIMONTH}/{"class":"minimonth-header minimonth-month-box"}/
+    {"class":"today-button minimonth-nav-btns"}
 `;
 var CALENDARLIST = `
     ${CALENDAR_PANEL}/id("ltnSidebar")/id("calendar-panel")/id("calendar-list-pane")/
@@ -226,20 +227,25 @@ function goToDate(controller, year, month, day) {
     let { lookup } = helpersForController(controller);
 
     let activeYear = lookup(`
-        ${MINIMONTH}/anon({"anonid":"minimonth-header"})/anon({"anonid":"yearcell"})
+        ${MINIMONTH}/{"class":"minimonth-header minimonth-month-box"}/
+        {"class":"yearcell minimonth-year-name"}
     `).getNode().getAttribute("value");
 
     let activeMonth = lookup(`
-        ${MINIMONTH}/anon({"anonid":"minimonth-header"})/anon({"anonid":"monthheader"})
+        ${MINIMONTH}/{"class":"minimonth-header minimonth-month-box"}/
+        {"class":"monthheader minimonth-month-name"}
     `).getNode().getAttribute("selectedIndex");
 
     let yearDifference = activeYear - year;
     let monthDifference = activeMonth - (month - 1);
 
     if (yearDifference != 0) {
-        let scrollArrow = (yearDifference > 0) ? "years-back-button" : "years-forward-button";
+        let scrollArrow = (yearDifference > 0)
+            ? "years-back-button minimonth-nav-btns"
+            : "years-forward-button minimonth-nav-btns";
         scrollArrow = lookup(
-            `${MINIMONTH}/anon({"anonid":"minimonth-header"})/anon({"anonid":"${scrollArrow}"})`
+            `${MINIMONTH}/{"class":"minimonth-header minimonth-month-box"}/
+            {"class":"${scrollArrow}"}`
         );
 
         controller.waitForElement(scrollArrow);
@@ -252,9 +258,12 @@ function goToDate(controller, year, month, day) {
     }
 
     if (monthDifference != 0) {
-        let scrollArrow = (monthDifference > 0) ? "months-back-button" : "months-forward-button";
+        let scrollArrow = (monthDifference > 0)
+            ? "months-back-button minimonth-nav-btns"
+            : "months-forward-button minimonth-nav-btns";
         scrollArrow = lookup(
-            `${MINIMONTH}/anon({"anonid":"minimonth-header"})/anon({"anonid":"${scrollArrow}"})`
+            `${MINIMONTH}/{"class":"minimonth-header minimonth-month-box"}/
+            {"class":"${scrollArrow}"}`
         );
 
         controller.waitForElement(scrollArrow);
@@ -267,7 +276,7 @@ function goToDate(controller, year, month, day) {
     }
 
     let lastDayInFirstRow = lookup(`
-        ${MINIMONTH}/anon({"anonid":"minimonth-calendar"})/[3]/[15]
+        ${MINIMONTH}/{"class":"minimonth-calendar minimonth-cal-box"}/[1]/[7]
     `).getNode().innerHTML;
 
     let positionOfFirst = 7 - lastDayInFirstRow;
@@ -276,8 +285,8 @@ function goToDate(controller, year, month, day) {
 
     // Pick day.
     controller.click(lookup(`
-        ${MINIMONTH}/anon({"anonid":"minimonth-calendar"})/[${(dateRow + 1) * 2 + 1}]/
-        [${(dateColumn + 1) * 2 + 1}]
+        ${MINIMONTH}/{"class":"minimonth-calendar minimonth-cal-box"}/
+        [${dateRow + 1}]/[${dateColumn + 1}]
     `));
     ensureViewLoaded(controller);
 }

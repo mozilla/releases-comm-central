@@ -1,0 +1,959 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* globals cal MozXULElement setBooleanAttribute */
+
+"use strict";
+
+// Wrap in a block to prevent leaking to window scope.
+{
+    const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+    /**
+     * MiniMonth Calendar: day-of-month grid component.
+     * Displays month name and year above grid of days of month by week rows.
+     * Arrows move forward or back a month or a year.
+     * Clicking on a day cell selects that day.
+     * At site, can provide id, and code to run when value changed by picker.
+     *   <calendar-minimonth id="my-date-picker" onchange="myDatePick( this );"/>
+     *
+     * May get/set value in javascript with
+     *   document.querySelector("#my-date-picker").value = new Date();
+     *
+     * @implements {calIOperationListener}
+     * @implements {calIObserver}
+     * @implements {calICompositeObserver}
+     * @implements {nsIObserver}
+     */
+    class CalendarMinimonth extends MozXULElement {
+        constructor() {
+            super();
+            // Set up custom interfaces.
+            // calIObserver is not used like the others are, so it is not set up here.
+            this.calICompositeObserver = this.getCustomInterfaceCallback(Ci.calICompositeObserver);
+            this.calIOperationListener = this.getCustomInterfaceCallback(Ci.calIOperationListener);
+            this.nsIObserver = this.getCustomInterfaceCallback(Ci.nsIObserver);
+        }
+
+        static get inheritedAttributes() {
+            return {
+                ".minimonth-header": "readonly,month,year",
+                ".minimonth-month-name": "selectedIndex=month",
+                ".minimonth-year-name": "value=year",
+            };
+        }
+
+        connectedCallback() {
+            if (this.delayConnectedCallback() || this.hasChildNodes()) {
+                return;
+            }
+
+            const minimonthHeader = `
+                <hbox class="minimonth-header minimonth-month-box">
+                  <toolbarbutton class="months-back-button minimonth-nav-btns"
+                                 dir="-1"
+                                 oncommand="this.kMinimonth.advanceMonth(parseInt(this.getAttribute('dir'), 10))"
+                                 tooltiptext="&onemonthbackward.tooltip;"></toolbarbutton>
+                  <deck class="monthheader minimonth-month-name"
+                        tabindex="-1">
+                    <text value="&month.1.name;"></text>
+                    <text value="&month.2.name;"></text>
+                    <text value="&month.3.name;"></text>
+                    <text value="&month.4.name;"></text>
+                    <text value="&month.5.name;"></text>
+                    <text value="&month.6.name;"></text>
+                    <text value="&month.7.name;"></text>
+                    <text value="&month.8.name;"></text>
+                    <text value="&month.9.name;"></text>
+                    <text value="&month.10.name;"></text>
+                    <text value="&month.11.name;"></text>
+                    <text value="&month.12.name;"></text>
+                  </deck>
+                  <toolbarbutton class="months-forward-button minimonth-nav-btns"
+                                 dir="1"
+                                 oncommand="this.kMinimonth.advanceMonth(parseInt(this.getAttribute('dir'), 10))"
+                                 tooltiptext="&onemonthforward.tooltip;"></toolbarbutton>
+                  <toolbarbutton class="years-back-button minimonth-nav-btns"
+                                 dir="-1"
+                                 oncommand="this.kMinimonth.advanceYear(parseInt(this.getAttribute('dir'), 10))"
+                                 tooltiptext="&oneyearbackward.tooltip;"></toolbarbutton>
+                  <text class="yearcell minimonth-year-name"
+                        tabindex="-1"></text>
+                  <toolbarbutton class="years-forward-button minimonth-nav-btns"
+                                 dir="1"
+                                 oncommand="this.kMinimonth.advanceYear(parseInt(this.getAttribute('dir'), 10))"
+                                 tooltiptext="&oneyearforward.tooltip;"></toolbarbutton>
+                  <spacer flex="1"></spacer>
+                  <toolbarbutton class="today-button minimonth-nav-btns"
+                                 dir="0"
+                                 oncommand="this.kMinimonth.value = new Date();"
+                                 tooltiptext="&showToday.tooltip;"></toolbarbutton>
+                </hbox>
+            `;
+
+            const minimonthWeekRow = `
+                <html:tr class="minimonth-row-body">
+                  <html:th class="minimonth-week" scope="row"></html:th>
+                  <html:td class="minimonth-day" tabindex="-1"></html:td>
+                  <html:td class="minimonth-day" tabindex="-1"></html:td>
+                  <html:td class="minimonth-day" tabindex="-1"></html:td>
+                  <html:td class="minimonth-day" tabindex="-1"></html:td>
+                  <html:td class="minimonth-day" tabindex="-1"></html:td>
+                  <html:td class="minimonth-day" tabindex="-1"></html:td>
+                  <html:td class="minimonth-day" tabindex="-1"></html:td>
+                </html:tr>
+            `;
+
+            this.appendChild(MozXULElement.parseXULToFragment(`
+                ${minimonthHeader}
+                <html:div class="minimonth-readonly-header minimonth-month-box"></html:div>
+                <html:table class="minimonth-calendar minimonth-cal-box">
+                  <html:tr class="minimonth-row-head">
+                    <html:th class="minimonth-row-header-week" scope="col"></html:th>
+                    <html:th class="minimonth-row-header" scope="col"></html:th>
+                    <html:th class="minimonth-row-header" scope="col"></html:th>
+                    <html:th class="minimonth-row-header" scope="col"></html:th>
+                    <html:th class="minimonth-row-header" scope="col"></html:th>
+                    <html:th class="minimonth-row-header" scope="col"></html:th>
+                    <html:th class="minimonth-row-header" scope="col"></html:th>
+                    <html:th class="minimonth-row-header" scope="col"></html:th>
+                  </html:tr>
+                  ${minimonthWeekRow}
+                  ${minimonthWeekRow}
+                  ${minimonthWeekRow}
+                  ${minimonthWeekRow}
+                  ${minimonthWeekRow}
+                  ${minimonthWeekRow}
+                </html:table>
+            `,
+                [
+                    "chrome://calendar/locale/global.dtd",
+                    "chrome://global/locale/global.dtd"
+                ]
+            ));
+            this.initializeAttributeInheritance();
+            this.setAttribute("orient", "vertical");
+
+            // Set up header buttons.
+            const kMinimonth = this.closest("calendar-minimonth");
+            this.querySelector(".months-back-button").kMinimonth = kMinimonth;
+            this.querySelector(".months-forward-button").kMinimonth = kMinimonth;
+            this.querySelector(".years-back-button").kMinimonth = kMinimonth;
+            this.querySelector(".years-forward-button").kMinimonth = kMinimonth;
+            this.querySelector(".today-button").kMinimonth = kMinimonth;
+
+            this.mDaymap = null;
+            this.mValue = null;
+            this.mEditorDate = null;
+            this.mExtraDate = null;
+            this.mPixelScrollDelta = 0;
+            this.mObservesComposite = false;
+            this.mShowWeekNumber = true;
+            this.mToday = false;
+            this.mSelected = false;
+            this.mExtra = false;
+            this.mValue = new Date(); // Default to "today".
+            this.mFocused = null;
+
+            this.refreshDisplay();
+            if (this.hasAttribute("freebusy")) {
+                this._setFreeBusy(this.getAttribute("freebusy") == "true");
+            }
+            this.mShowWeekNumber = Services.prefs.getBoolPref("calendar.view-minimonth.showWeekNumber", true);
+
+            // Add pref observer.
+            Services.prefs.getBranch("").addObserver("calendar.", this.nsIObserver);
+
+            // Add event listeners.
+            this.addEventListener("click", (event) => {
+                if (event.button == 0 &&
+                    event.originalTarget.classList.contains("minimonth-day")) {
+                    this.onDayActivate(event);
+                    event.stopPropagation();
+                    event.preventDefault();
+                }
+            });
+
+            this.addEventListener("keypress", (event) => {
+                if (event.originalTarget.classList.contains("minimonth-day")) {
+                    switch (event.keyCode) {
+                        case KeyEvent.DOM_VK_LEFT:
+                            this.moveDateByOffset(0, 0, -1);
+                            break;
+                        case KeyEvent.DOM_VK_RIGHT:
+                            this.moveDateByOffset(0, 0, 1);
+                            break;
+                        case KeyEvent.DOM_VK_UP:
+                            this.moveDateByOffset(0, 0, -7);
+                            break;
+                        case KeyEvent.DOM_VK_DOWN:
+                            this.moveDateByOffset(0, 0, 7);
+                            break;
+                        case KeyEvent.DOM_VK_PAGE_UP:
+                            this.moveDateByOffset(0, -1, 0);
+                            break;
+                        case KeyEvent.DOM_VK_PAGE_DOWN:
+                            this.moveDateByOffset(0, 1, 0);
+                            break;
+                        case KeyEvent.DOM_VK_ESCAPE:
+                            this.focusDate(this.mValue || this.mExtraDate);
+                            break;
+                        case KeyEvent.DOM_VK_HOME: {
+                            const today = new Date();
+                            this.update(today);
+                            this.focusDate(today);
+                            break;
+                        }
+                        case KeyEvent.DOM_VK_RETURN:
+                            this.onDayActivate(event);
+                            break;
+                    }
+                    event.stopPropagation();
+                    event.preventDefault();
+                }
+            });
+
+            this.addEventListener("wheel", (event) => {
+                const pixelThreshold = 150;
+                let deltaView = 0;
+                if (this.getAttribute("readonly") == "true") {
+                    // No scrolling on readonly months.
+                    return;
+                }
+                if (event.deltaMode == event.DOM_DELTA_LINE ||
+                    event.deltaMode == event.DOM_DELTA_PAGE) {
+                    if (event.deltaY != 0) {
+                        deltaView = event.deltaY > 0 ? 1 : -1;
+                    }
+                } else if (event.deltaMode == event.DOM_DELTA_PIXEL) {
+                    this.mPixelScrollDelta += event.deltaY;
+                    if (this.mPixelScrollDelta > pixelThreshold) {
+                        deltaView = 1;
+                        this.mPixelScrollDelta = 0;
+                    } else if (this.mPixelScrollDelta < -pixelThreshold) {
+                        deltaView = -1;
+                        this.mPixelScrollDelta = 0;
+                    }
+                }
+
+                if (deltaView != 0) {
+                    const classList = event.originalTarget.classList;
+
+                    if (classList.contains("years-forward-button") ||
+                        classList.contains("yearcell") ||
+                        classList.contains("years-back-button")) {
+                        this.advanceYear(deltaView);
+                    } else if (!classList.contains("today-button")) {
+                        this.advanceMonth(deltaView);
+                    }
+                }
+
+                event.stopPropagation();
+                event.preventDefault();
+            });
+        }
+
+        set value(val) {
+            this.update(val);
+        }
+
+        get value() {
+            return this.mValue;
+        }
+
+        set extra(val) {
+            this.mExtraDate = val;
+        }
+
+        get extra() {
+            return this.mExtraDate;
+        }
+
+        /**
+         * Returns the first (inclusive) date of the minimonth as a calIDateTime object.
+         */
+        get firstDate() {
+            let date = this._getCalBoxNode(1, 1).date;
+            return cal.dtz.jsDateToDateTime(date);
+        }
+
+        /**
+         * Returns the last (exclusive) date of the minimonth as a calIDateTime object.
+         */
+        get lastDate() {
+            let date = this._getCalBoxNode(6, 7).date;
+            let lastDateTime = cal.dtz.jsDateToDateTime(date);
+            lastDateTime.day = lastDateTime.day + 1;
+            return lastDateTime;
+        }
+
+        get mReadOnlyHeader() {
+            return this.querySelector(".minimonth-readonly-header");
+        }
+
+        // calIOperationListener methods.
+
+        onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {}
+
+        onGetResult(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+            if (Components.isSuccessCode(aStatus)) {
+                aItems.forEach(item => this.setBusyDaysForOccurrence(item, true));
+            }
+        }
+
+        setBusyDaysForItem(aItem, aState) {
+            let items = aItem.recurrenceInfo
+                ? aItem.getOccurrencesBetween(this.firstDate, this.lastDate, {})
+                : [aItem];
+            items.forEach(item => this.setBusyDaysForOccurrence(item, aState));
+        }
+
+        parseBoxBusy(aBox) {
+            let boxBusy = {};
+
+            let busyStr = aBox.getAttribute("busy");
+            if (busyStr && busyStr.length > 0) {
+                let calChunks = busyStr.split("\u001A");
+                for (let chunk of calChunks) {
+                    let expr = chunk.split("=");
+                    boxBusy[expr[0]] = parseInt(expr[1], 10);
+                }
+            }
+
+            return boxBusy;
+        }
+
+        updateBoxBusy(aBox, aBoxBusy) {
+            let calChunks = [];
+
+            for (let calId in aBoxBusy) {
+                if (aBoxBusy[calId]) {
+                    calChunks.push(calId + "=" + aBoxBusy[calId]);
+                }
+            }
+
+            if (calChunks.length > 0) {
+                let busyStr = calChunks.join("\u001A");
+                aBox.setAttribute("busy", busyStr);
+            } else {
+                aBox.removeAttribute("busy");
+            }
+        }
+
+        removeCalendarFromBoxBusy(aBox, aCalendar) {
+            let boxBusy = this.parseBoxBusy(aBox);
+            if (boxBusy[aCalendar.id]) {
+                delete boxBusy[aCalendar.id];
+            }
+            this.updateBoxBusy(aBox, boxBusy);
+        }
+
+        setBusyDaysForOccurrence(aOccurrence, aState) {
+            if (aOccurrence.getProperty("TRANSP") == "TRANSPARENT") {
+                // Skip transparent events.
+                return;
+            }
+            let start = aOccurrence[cal.dtz.startDateProp(aOccurrence)] || aOccurrence.dueDate;
+            let end = aOccurrence[cal.dtz.endDateProp(aOccurrence)] || start;
+            if (!start) {
+                return;
+            }
+
+            if (start.compare(this.firstDate) < 0) {
+                start = this.firstDate.clone();
+            }
+
+            if (end.compare(this.lastDate) > 0) {
+                end = this.lastDate.clone();
+                end.day++;
+            }
+
+            // We need to compare with midnight of the current day, so reset the
+            // time here.
+            let current = start.clone().getInTimezone(cal.dtz.defaultTimezone);
+            current.hour = 0;
+            current.minute = 0;
+            current.second = 0;
+
+            // Cache the result so the compare isn't called in each iteration.
+            let compareResult = (start.compare(end) == 0 ? 1 : 0);
+
+            // Setup the busy days.
+            while (current.compare(end) < compareResult) {
+                let box = this.getBoxForDate(current);
+                if (box) {
+                    let busyCalendars = this.parseBoxBusy(box);
+                    if (!busyCalendars[aOccurrence.calendar.id]) {
+                        busyCalendars[aOccurrence.calendar.id] = 0;
+                    }
+                    busyCalendars[aOccurrence.calendar.id] += (aState ? 1 : -1);
+                    this.updateBoxBusy(box, busyCalendars);
+                }
+                current.day++;
+            }
+        }
+
+        // End of calIOperationListener methods.
+        // calIObserver methods.
+
+        onStartBatch(aCalendar) {}
+
+        onEndBatch(aCalendar) {}
+
+        onLoad(aCalendar) {}
+
+        onAddItem(aItem) {
+            this.setBusyDaysForItem(aItem, true);
+        }
+
+        onDeleteItem(aItem) {
+            this.setBusyDaysForItem(aItem, false);
+        }
+
+        onModifyItem(aNewItem, aOldItem) {
+            this.setBusyDaysForItem(aOldItem, false);
+            this.setBusyDaysForItem(aNewItem, true);
+        }
+
+        onError(aCalendar, aErrNo, aMessage) {}
+
+        onPropertyChanged(aCalendar, aName, aValue, aOldValue) {
+            switch (aName) {
+                case "disabled":
+                    this.resetAttributesForDate();
+                    this.getItems();
+                    break;
+            }
+        }
+
+        onPropertyDeleting(aCalendar, aName) {
+            this.onPropertyChanged(aCalendar, aName, null, null);
+        }
+
+        // End of calIObserver methods.
+        // calICompositeObserver methods.
+
+        onCalendarAdded(aCalendar) {
+            this.getItems(aCalendar);
+        }
+
+        onCalendarRemoved(aCalendar) {
+            for (let day in this.mDayMap) {
+                this.removeCalendarFromBoxBusy(this.mDayMap[day], aCalendar);
+            }
+        }
+
+        onDefaultCalendarChanged(aCalendar) {}
+
+        // End calICompositeObserver methods.
+        // nsIObserver methods.
+
+        observe(aSubject, aTopic, aData) {
+            switch (aData) {
+                case "calendar.week.start":
+                case "calendar.view-minimonth.showWeekNumber":
+                    this.refreshDisplay();
+                    break;
+            }
+        }
+
+        // End nsIObserver methods.
+
+        refreshDisplay() {
+            // Find out which should be the first day of the week.
+            this.weekStart = Services.prefs.getIntPref("calendar.week.start", 0);
+            this.mShowWeekNumber = Services.prefs.getBoolPref("calendar.view-minimonth.showWeekNumber", true);
+            if (!this.mValue) {
+                this.mValue = new Date();
+            }
+            this.setHeader();
+            this.showMonth(this.mValue);
+            this.updateAccessibleLabel();
+        }
+
+        _getCalBoxNode(aRow, aCol) {
+            if (!this.mCalBox) {
+                this.mCalBox = this.querySelector(".minimonth-calendar");
+            }
+            return this.mCalBox.children[aRow].children[aCol];
+        }
+
+        setHeader() {
+            // Reset the headers.
+            let dayList = new Array(7);
+            let longDayList = new Array(7);
+            let tempDate = new Date();
+            let i, j;
+            let useOSFormat;
+            tempDate.setDate(tempDate.getDate() - (tempDate.getDay() - this.weekStart));
+            for (i = 0; i < 7; i++) {
+                // If available, use UILocale days, else operating system format.
+                try {
+                    dayList[i] = cal.l10n.getDateFmtString(`day.${tempDate.getDay() + 1}.short`);
+                } catch (e) {
+                    dayList[i] = tempDate.toLocaleDateString(undefined, { weekday: "short" });
+                    useOSFormat = true;
+                }
+                longDayList[i] = tempDate.toLocaleDateString(undefined, { weekday: "long" });
+                tempDate.setDate(tempDate.getDate() + 1);
+            }
+
+            if (useOSFormat) {
+                // To keep datepicker popup compact, shrink localized weekday
+                // abbreviations down to 1 or 2 chars so each column of week can
+                // be as narrow as 2 digits.
+                //
+                // 1. Compute the minLength of the day name abbreviations.
+                let minLength = dayList
+                    .map(name => name.length)
+                    .reduce((min, len) => Math.min(min, len));
+
+                // 2. If some day name abbrev. is longer than 2 chars (not Catalan),
+                //    and ALL localized day names share same prefix (as in Chinese),
+                //    then trim shared "day-" prefix.
+                if (dayList.some(dayAbbr => dayAbbr.length > 2)) {
+                    for (let endPrefix = 0; endPrefix < minLength; endPrefix++) {
+                        let suffix = dayList[0][endPrefix];
+                        if (dayList.some(dayAbbr => dayAbbr[endPrefix] != suffix)) {
+                            if (endPrefix > 0) {
+                                for (i = 0; i < dayList.length; i++) { // trim prefix chars.
+                                    dayList[i] = dayList[i].substring(endPrefix);
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+                // 3. Trim each day abbreviation to 1 char if unique, else 2 chars.
+                for (i = 0; i < dayList.length; i++) {
+                    let foundMatch = 1;
+                    for (j = 0; j < dayList.length; j++) {
+                        if (i != j) {
+                            if (dayList[i].substring(0, 1) == dayList[j].substring(0, 1)) {
+                                foundMatch = 2;
+                                break;
+                            }
+                        }
+                    }
+                    dayList[i] = dayList[i].substring(0, foundMatch);
+                }
+            }
+
+            setBooleanAttribute(this._getCalBoxNode(0, 0), "hidden", !this.mShowWeekNumber);
+            for (let column = 1; column < 8; column++) {
+                let node = this._getCalBoxNode(0, column);
+                node.textContent = dayList[column - 1];
+                node.setAttribute("aria-label", longDayList[column - 1]);
+            }
+        }
+
+        showMonth(aDate) {
+            // Use mExtraDate if aDate is null.
+            aDate = new Date(aDate || this.mExtraDate);
+
+            aDate.setDate(1);
+            // We set the hour and minute to something highly unlikely to be the
+            // exact change point of DST, so timezones like America/Sao Paulo
+            // don't display some days twice.
+            aDate.setHours(12);
+            aDate.setMinutes(34);
+            aDate.setSeconds(0);
+            aDate.setMilliseconds(0);
+            // Don't fire onmonthchange event upon initialization
+            let monthChanged = this.mEditorDate && (this.mEditorDate.valueOf() != aDate.valueOf());
+            this.mEditorDate = aDate; // Only place mEditorDate is set.
+
+            if (this.mToday) {
+                this.mToday.removeAttribute("today");
+                this.mToday = null;
+            }
+
+            if (this.mSelected) {
+                this.mSelected.removeAttribute("selected");
+                this.mSelected = null;
+            }
+
+            if (this.mExtra) {
+                this.mExtra.removeAttribute("extra");
+                this.mExtra = null;
+            }
+
+            // Update the month and year title.
+            this.setAttribute("month", aDate.getMonth());
+            this.setAttribute("year", aDate.getFullYear());
+
+            let dateString = cal.l10n.getDateFmtString(`month.${aDate.getMonth() + 1}.name`);
+            this.mReadOnlyHeader.textContent = dateString + " " + aDate.getFullYear();
+
+            // Update the calendar.
+            let calbox = this.querySelector(".minimonth-calendar");
+            let date = this._getStartDate(aDate);
+
+            // Get today's date.
+            let today = new Date();
+
+            if (aDate.getFullYear() == (this.mValue || this.mExtraDate).getFullYear()) {
+                calbox.setAttribute("aria-label", dateString);
+            } else {
+                let monthName = cal.l10n.formatMonth(aDate.getMonth() + 1, "calendar", "monthInYear");
+                let label = cal.l10n.getCalString("monthInYear", [monthName, aDate.getFullYear()]);
+                calbox.setAttribute("aria-label", label);
+            }
+
+            this.mDayMap = {};
+            let defaultTz = cal.dtz.defaultTimezone;
+            let dateFormatter = new Services.intl.DateTimeFormat(undefined, { dateStyle: "long" });
+            for (let k = 1; k < 7; k++) {
+                // Set the week number.
+                let firstElement = this._getCalBoxNode(k, 0);
+                setBooleanAttribute(firstElement, "hidden", !this.mShowWeekNumber);
+                if (this.mShowWeekNumber) {
+                    let weekNumber = cal.getWeekInfoService().getWeekTitle(
+                        cal.dtz.jsDateToDateTime(date, defaultTz)
+                    );
+                    let weekTitle = cal.l10n.getCalString("WeekTitle", [weekNumber]);
+                    firstElement.textContent = weekNumber;
+                    firstElement.setAttribute("aria-label", weekTitle);
+                }
+
+                for (let i = 1; i < 8; i++) {
+                    let day = this._getCalBoxNode(k, i);
+                    let ymd = date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate();
+                    this.mDayMap[ymd] = day;
+
+                    if (this.getAttribute("readonly") != "true") {
+                        day.setAttribute("interactive", "true");
+                    }
+
+                    if (aDate.getMonth() == date.getMonth()) {
+                        day.removeAttribute("othermonth");
+                    } else {
+                        day.setAttribute("othermonth", "true");
+                    }
+
+                    // Highlight today.
+                    if (this._sameDay(today, date)) {
+                        this.mToday = day;
+                        day.setAttribute("today", "true");
+                    }
+
+                    // Highlight the current date.
+                    let val = this.value;
+                    if (this._sameDay(val, date)) {
+                        this.mSelected = day;
+                        day.setAttribute("selected", "true");
+                    }
+
+                    // Highlight the extra date.
+                    if (this._sameDay(this.mExtraDate, date)) {
+                        this.mExtra = day;
+                        day.setAttribute("extra", "true");
+                    }
+
+                    if (aDate.getMonth() == date.getMonth() &&
+                        aDate.getFullYear() == date.getFullYear()) {
+                        day.setAttribute("aria-label", date.toLocaleDateString(undefined, { day: "numeric" })
+                        );
+                    } else {
+                        day.setAttribute("aria-label", dateFormatter.format(date));
+                    }
+
+                    day.removeAttribute("busy");
+
+                    day.date = new Date(date);
+                    day.textContent = date.getDate();
+                    date.setDate(date.getDate() + 1);
+
+                    if (monthChanged) {
+                        this.resetAttributesForDate(day.date);
+                    }
+                }
+            }
+
+            if (!this.mFocused) {
+                this.setFocusedDate(this.mValue || this.mExtraDate);
+            }
+
+            if (monthChanged) {
+                this.fireEvent("monthchange");
+            }
+
+            if (this.getAttribute("freebusy") == "true") {
+                this.getItems();
+            }
+        }
+
+        /**
+         * Attention - duplicate!!!!
+         */
+        fireEvent(aEventName) {
+            this.dispatchEvent(new CustomEvent(aEventName, { bubbles: true }));
+        }
+
+        getBoxForDate(aDate) {
+            // aDate is a calIDateTime.
+            let ymd = [aDate.year, aDate.month, aDate.day].join("-");
+            return (ymd in this.mDayMap ? this.mDayMap[ymd] : null);
+        }
+
+        resetAttributesForDate(aDate) {
+            function removeForBox(aBox) {
+                let allowedAttributes = 0;
+                while (aBox.attributes.length > allowedAttributes) {
+                    switch (aBox.attributes[allowedAttributes].nodeName) {
+                        case "selected":
+                        case "othermonth":
+                        case "today":
+                        case "extra":
+                        case "interactive":
+                        case "class":
+                        case "tabindex":
+                        case "role":
+                        case "aria-label":
+                            allowedAttributes++;
+                            break;
+                        default:
+                            aBox.removeAttribute(aBox.attributes[allowedAttributes].nodeName);
+                            break;
+                    }
+                }
+            }
+
+            if (aDate) {
+                let box = this.getBoxForDate(cal.dtz.jsDateToDateTime(aDate, cal.dtz.defaultTimezone));
+                if (box) {
+                    removeForBox(box);
+                }
+            } else {
+                for (let k = 1; k < 7; k++) {
+                    for (let i = 1; i < 8; i++) {
+                        removeForBox(this._getCalBoxNode(k, i));
+                    }
+                }
+            }
+        }
+
+        _setFreeBusy(aFreeBusy) {
+            if (aFreeBusy) {
+                if (!this.mObservesComposite) {
+                    cal.view.getCompositeCalendar(window).addObserver(this.calICompositeObserver);
+                    this.mObservesComposite = true;
+                    this.getItems();
+                }
+            } else if (this.mObservesComposite) {
+                cal.view.getCompositeCalendar(window).removeObserver(this.calICompositeObserver);
+                this.mObservesComposite = false;
+            }
+        }
+
+        removeAttribute(aAttr) {
+            if (aAttr == "freebusy") {
+                this._setFreeBusy(false);
+            }
+            return super.removeAttribute(aAttr);
+        }
+
+        setAttribute(aAttr, aVal) {
+            if (aAttr == "freebusy") {
+                this._setFreeBusy(aVal == "true");
+            }
+            return super.setAttribute(aAttr, aVal);
+        }
+
+        getItems(aCalendar) {
+            // The minimonth automatically clears extra styles on a month change.
+            // Therefore we only need to fill the minimonth with new info.
+
+            let calendar = aCalendar || cal.view.getCompositeCalendar(window);
+            let filter = calendar.ITEM_FILTER_COMPLETED_ALL |
+                calendar.ITEM_FILTER_CLASS_OCCURRENCES |
+                calendar.ITEM_FILTER_ALL_ITEMS;
+
+            // Get new info.
+            calendar.getItems(filter, 0, this.firstDate, this.lastDate, this.calIOperationListener);
+        }
+
+        updateAccessibleLabel() {
+            let label;
+            if (this.mValue) {
+                let dateFormatter = new Services.intl.DateTimeFormat(
+                    undefined,
+                    { dateStyle: "long" }
+                );
+                label = dateFormatter.format(this.mValue);
+            } else {
+                label = cal.l10n.getCalString("minimonthNoSelectedDate");
+            }
+            this.setAttribute("aria-label", label);
+        }
+
+        update(aValue) {
+            let changed = this.mValue && aValue && (
+                this.mValue.getFullYear() != aValue.getFullYear() ||
+                this.mValue.getMonth() != aValue.getMonth() ||
+                this.mValue.getDate() != aValue.getDate());
+
+            this.mValue = aValue;
+            if (changed) {
+                this.fireEvent("change");
+            }
+            this.showMonth(aValue);
+            if (aValue) {
+                this.setFocusedDate(aValue);
+            }
+            this.updateAccessibleLabel();
+        }
+
+        setFocusedDate(aDate, aForceFocus) {
+            let newFocused = this.getBoxForDate(
+                cal.dtz.jsDateToDateTime(aDate, cal.dtz.defaultTimezone)
+            );
+            if (!newFocused) {
+                return;
+            }
+            if (this.mFocused) {
+                this.mFocused.setAttribute("tabindex", "-1");
+            }
+            this.mFocused = newFocused;
+            this.mFocused.setAttribute("tabindex", "0");
+            // Only actually move the focus if it is already in the calendar box.
+            if (!aForceFocus) {
+                let calbox = this.querySelector(".minimonth-calendar");
+                aForceFocus = calbox.contains(document.commandDispatcher.focusedElement);
+            }
+            if (aForceFocus) {
+                this.mFocused.focus();
+            }
+        }
+
+        focusDate(aDate) {
+            this.showMonth(aDate);
+            this.setFocusedDate(aDate);
+        }
+
+        switchMonth(aMonth) {
+            let newMonth = new Date(this.mEditorDate);
+            newMonth.setMonth(aMonth);
+            this.showMonth(newMonth);
+        }
+
+        switchYear(aYear) {
+            let newMonth = new Date(this.mEditorDate);
+            newMonth.setFullYear(aYear);
+            this.showMonth(newMonth);
+        }
+
+        selectDate(aDate, aMainDate) {
+            if (!aMainDate ||
+                aDate < this._getStartDate(aMainDate) ||
+                aDate > this._getEndDate(aMainDate)) {
+                aMainDate = new Date(aDate);
+                aMainDate.setDate(1);
+            }
+            // Note that aMainDate and this.mEditorDate refer to the first day
+            // of the corresponding month.
+            let sameMonth = this._sameDay(aMainDate, this.mEditorDate);
+            let sameDate = this._sameDay(aDate, this.mValue);
+            if (!sameMonth && !sameDate) {
+                // Change month and select day.
+                this.mValue = aDate;
+                this.showMonth(aMainDate);
+            } else if (!sameMonth) {
+                // Change month only.
+                this.showMonth(aMainDate);
+            } else if (!sameDate) {
+                // Select day only.
+                let day = this.getBoxForDate(
+                    cal.dtz.jsDateToDateTime(aDate, cal.dtz.defaultTimezone)
+                );
+                if (this.mSelected) {
+                    this.mSelected.removeAttribute("selected");
+                }
+                this.mSelected = day;
+                day.setAttribute("selected", "true");
+                this.mValue = aDate;
+                this.setFocusedDate(aDate);
+            }
+        }
+
+        _getStartDate(aMainDate) {
+            let date = new Date(aMainDate);
+            let firstWeekday = (7 + aMainDate.getDay() - this.weekStart) % 7;
+            date.setDate(date.getDate() - firstWeekday);
+            return date;
+        }
+
+        _getEndDate(aMainDate) {
+            let date = this._getStartDate(aMainDate);
+            let calbox = this.querySelector(".minimonth-calendar");
+            let days = (calbox.childNodes.length - 1) * 7;
+            date.setDate(date.getDate() + days - 1);
+            return date;
+        }
+
+        _sameDay(aDate1, aDate2) {
+            if (aDate1 && aDate2 &&
+                (aDate1.getDate() == aDate2.getDate()) &&
+                (aDate1.getMonth() == aDate2.getMonth()) &&
+                (aDate1.getFullYear() == aDate2.getFullYear())) {
+                return true;
+            }
+            return false;
+        }
+
+        advanceMonth(aDir) {
+            let advEditorDate = new Date(this.mEditorDate); // At 1st of month.
+            let advMonth = this.mEditorDate.getMonth() + aDir;
+            advEditorDate.setMonth(advMonth);
+            this.showMonth(advEditorDate);
+        }
+
+        advanceYear(aDir) {
+            let advEditorDate = new Date(this.mEditorDate); // At 1st of month.
+            let advYear = this.mEditorDate.getFullYear() + aDir;
+            advEditorDate.setFullYear(advYear);
+            this.showMonth(advEditorDate);
+        }
+
+        moveDateByOffset(aYears, aMonths, aDays) {
+            const date = new Date(
+                this.mFocused.date.getFullYear() + aYears,
+                this.mFocused.date.getMonth() + aMonths,
+                this.mFocused.date.getDate() + aDays
+            );
+            this.focusDate(date);
+        }
+
+        focusCalendar() {
+            this.mFocused.focus();
+        }
+
+        onDayActivate(aEvent) {
+            // The associated date might change when setting this.value if month changes.
+            const date = aEvent.originalTarget.date;
+            if (this.getAttribute("readonly") != "true") {
+                this.value = date;
+                this.fireEvent("select");
+            }
+            this.setFocusedDate(date, true);
+        }
+
+        disconnectedCallback() {
+            if (this.mObservesComposite) {
+                cal.view.getCompositeCalendar(window).removeObserver(this.calICompositeObserver);
+            }
+
+            // Remove pref observer.
+            Services.prefs.getBranch("").removeObserver("calendar.", this.nsIObserver);
+        }
+    }
+
+    MozXULElement.implementCustomInterface(CalendarMinimonth, [
+        // Ci.calIObserver is omitted since it is not used like the others are.
+        Ci.calICompositeObserver,
+        Ci.calIOperationListener,
+        Ci.nsIObserver
+    ]);
+    customElements.define("calendar-minimonth", CalendarMinimonth);
+}

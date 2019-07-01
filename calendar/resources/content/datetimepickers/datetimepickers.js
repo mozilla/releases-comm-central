@@ -747,7 +747,7 @@
             this._menulist = this.querySelector(".datepicker-menulist");
             this._inputField = this._menulist._inputField;
             this._popup = this._menulist.menupopup;
-            this._minimonth = this.querySelector("minimonth");
+            this._minimonth = this.querySelector("calendar-minimonth");
 
             if (this.getAttribute("type") == "forever") {
                 this._valueIsForever = false;
@@ -799,9 +799,7 @@
             });
             this._popup.addEventListener("popupshown", () => {
                 this._minimonth.focusDate(this._minimonthValue);
-                let calendar = document.getAnonymousElementByAttribute(
-                    this._minimonth, "anonid", "minimonth-calendar"
-                );
+                const calendar = this._minimonth.querySelector(".minimonth-calendar");
                 calendar.querySelector("td[selected]").focus();
             });
             this._minimonth.addEventListener("change", (event) => {
@@ -838,7 +836,7 @@
             let frag = document.importNode(MozXULElement.parseXULToFragment(`
                 <menulist is="menulist-editable" class="datepicker-menulist" editable="true" sizetopopup="false">
                     <menupopup ignorekeys="true" popupanchor="bottomright" popupalign="topright">
-                        <minimonth tabindex="0"/>
+                        <calendar-minimonth tabindex="0"/>
                     </menupopup>
                 </menulist>
             `), true);

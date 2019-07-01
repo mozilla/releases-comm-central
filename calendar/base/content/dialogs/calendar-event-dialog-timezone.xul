@@ -25,6 +25,7 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
 
   <!-- Javascript includes -->
+  <script src="chrome://calendar/content/widgets/calendar-minimonth.js"/>
   <script src="chrome://calendar/content/calendar-event-dialog-timezone.js"/>
   <script src="chrome://calendar/content/calendar-dialog-utils.js"/>
   <script src="chrome://calendar/content/calendar-ui-utils.js"/>

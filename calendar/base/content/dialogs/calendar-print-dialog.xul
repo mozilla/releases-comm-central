@@ -29,6 +29,7 @@
   <script src="chrome://calendar/content/calendar-print-dialog.js"/>
   <script src="chrome://calendar/content/calendar-ui-utils.js"/>
   <script src="chrome://global/content/printUtils.js"/>
+  <script src="chrome://calendar/content/widgets/calendar-minimonth.js"/>
   <script src="chrome://calendar/content/datetimepickers/datetimepickers.js"/>
 
   <hbox id="firstHbox" flex="1">

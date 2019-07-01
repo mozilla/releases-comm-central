@@ -98,7 +98,7 @@ function testBiweeklyRecurrence() {
     // Delete event.
     let box = lookupEventBox("month", EVENT_BOX, 4, 7, null, EVENTPATH);
     controller.click(box);
-    handleOccurrencePrompt(controller, eid("month-view"), "delete", true);
+    handleOccurrencePrompt(controller, box, "delete", true);
     controller.waitForElementNotPresent(box);
 }
 

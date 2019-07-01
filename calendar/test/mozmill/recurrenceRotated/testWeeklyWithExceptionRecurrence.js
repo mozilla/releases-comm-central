@@ -196,7 +196,7 @@ function testWeeklyWithExceptionRecurrence() {
     goToDate(controller, 2009, 1, 12);
     path = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
     controller.click(path);
-    handleOccurrencePrompt(controller, eid("day-view"), "delete", true);
+    handleOccurrencePrompt(controller, path, "delete", true);
     controller.waitForElementNotPresent(path);
 }
 

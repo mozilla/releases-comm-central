@@ -48,6 +48,7 @@
   <script src="chrome://global/content/printUtils.js"/>
   <script src="chrome://calendar/content/calendar-statusbar.js"/>
   <script src="chrome://messenger/content/customElements.js"/>
+  <script src="chrome://calendar/content/widgets/calendar-minimonth.js"/>
   <script src="chrome://calendar/content/datetimepickers/datetimepickers.js"/>
 
   <commandset id="">

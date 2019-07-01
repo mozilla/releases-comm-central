@@ -40,7 +40,7 @@ function testSmokeTest() {
     controller.waitForElement(eid("calMinimonth"));
     // Every month has a first.
     controller.assertNode(lookup(`
-        ${MINIMONTH}/anon({"anonid":"minimonth-calendar"})/[3]/{"aria-label":"1"}
+        ${MINIMONTH}/{"class":"minimonth-calendar minimonth-cal-box"}/[1]/{"aria-label":"1"}
     `));
 
     // Check for calendar list.

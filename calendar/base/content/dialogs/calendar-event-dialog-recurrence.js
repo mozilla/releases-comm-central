@@ -57,7 +57,7 @@ const RecurrencePreview = {
      * Updates #recurrence-preview node layout on window resize.
      */
     onResize() {
-        let minimonth = this.node.querySelector("minimonth");
+        let minimonth = this.node.querySelector("calendar-minimonth");
 
         let row = this.node.querySelector("row");
         let rows = row.parentNode;
@@ -147,7 +147,7 @@ const RecurrencePreview = {
      * Updates preview of #recurrence-preview node.
      */
     updatePreview(recurrenceInfo) {
-        let minimonth = this.node.querySelector("minimonth");
+        let minimonth = this.node.querySelector("calendar-minimonth");
         this.node.style.minHeight = minimonth.getBoundingClientRect().height + "px";
 
         this.mRecurrenceInfo = recurrenceInfo;

@@ -32,6 +32,7 @@
   <script src="chrome://calendar/content/calendar-statusbar.js"/>
 
   <script src="chrome://messenger/content/customElements.js"/>
+  <script src="chrome://calendar/content/widgets/calendar-minimonth.js"/>
   <script src="chrome://calendar/content/datetimepickers/datetimepickers.js"/>
   <script src="chrome://calendar/content/calendar-daypicker.js"/>
 
@@ -559,9 +560,9 @@
         </columns>
         <rows>
           <row>
-            <minimonth readonly="true"/>
-            <minimonth readonly="true"/>
-            <minimonth readonly="true"/>
+            <calendar-minimonth readonly="true"/>
+            <calendar-minimonth readonly="true"/>
+            <calendar-minimonth readonly="true"/>
             <spacer/>
           </row>
         </rows>

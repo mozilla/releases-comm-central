@@ -346,7 +346,7 @@ var TodayPane = {
         currentweeklabel.value = cal.l10n.getCalString("shortcalendarweek") + " " + cal.getWeekInfoService().getWeekTitle(this.start);
 
         if (!aDontUpdateMinimonth) {
-            document.getElementById("today-Minimonth").value = cal.dtz.dateTimeToJsDate(this.start);
+            document.getElementById("today-minimonth").value = cal.dtz.dateTimeToJsDate(this.start);
         }
         this.updatePeriod();
         this.setDay.alreadySettingDay = false;
@@ -390,7 +390,7 @@ var TodayPane = {
         document.getElementById("today-minimonth-box").setVisible(aSection == "minimonth");
         document.getElementById("mini-day-box").setVisible(aSection == "miniday");
         document.getElementById("today-none-box").setVisible(aSection == "none");
-        setBooleanAttribute(document.getElementById("today-Minimonth"), "freebusy", aSection == "minimonth");
+        setBooleanAttribute(document.getElementById("today-minimonth"), "freebusy", aSection == "minimonth");
     },
 
     /**

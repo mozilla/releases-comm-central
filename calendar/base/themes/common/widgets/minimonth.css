@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-minimonth {
+calendar-minimonth {
   --mmMainColor: WindowText;
   --mmMainBackground: #fff;
   --mmHighlightColor: HighlightText;
@@ -24,7 +24,7 @@ minimonth {
   --mmDaySelectedTodayBorderColor: #67acd8;
 }
 
-:root[systemcolors] minimonth {
+:root[systemcolors] calendar-minimonth {
   --mmMainBackground: -moz-field;
   --mmBoxBackground: -moz-Dialog;
   --mmBoxBorderColor: ThreeDShadow;
@@ -42,7 +42,7 @@ minimonth {
   --mmDaySelectedTodayBorderColor: ButtonFace;
 }
 
-minimonth {
+calendar-minimonth {
   background-color: var(--mmMainBackground);
   border-width: 0;
   color: var(--mmMainColor);
@@ -50,9 +50,15 @@ minimonth {
   min-width: 175px;
 }
 
-minimonth:not([readonly="true"]) [anonid="minimonth-readonly-header"],
-minimonth[readonly="true"] [anonid="minimonth-header"] {
+calendar-minimonth:not([readonly="true"]) .minimonth-readonly-header,
+calendar-minimonth[readonly="true"] .minimonth-header {
   display: none;
+}
+
+calendar-minimonth[readonly="true"] .minimonth-readonly-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .minimonth-month-box {

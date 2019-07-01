@@ -111,7 +111,7 @@ function testMonthView() {
 
     // Delete event.
     controller.click(eventBox);
-    controller.keypress(eid("month-view"), "VK_DELETE", {});
+    controller.keypress(eventBox, "VK_DELETE", {});
     controller.waitForElementNotPresent(eventBox);
 }
 

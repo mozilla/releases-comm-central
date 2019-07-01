@@ -112,7 +112,7 @@ function testMultiWeekView() {
 
     // Delete event.
     controller.click(eventBox);
-    controller.keypress(eid("multiweek-view"), "VK_DELETE", {});
+    controller.keypress(eventBox, "VK_DELETE", {});
     controller.waitForElementNotPresent(eventBox);
 }
 

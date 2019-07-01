@@ -16,10 +16,11 @@ db/**
 other-licenses/**
 testing/**
 
-# Temporarily disabled until the XUL parser is fixed.
+# Temporarily disabled until the XUL parser is fixed (see bug 1542548).
 calendar/lightning/content/messenger-overlay-sidebar.xul
 calendar/providers/gdata/content/gdata-calendar-creation.xul
 common/src/viewSource.xul
+calendar/base/content/today-pane.xul
 
 # We ignore all these directories by default, until we get them enabled.
 # If you are enabling a directory, please add directory specific exclusions

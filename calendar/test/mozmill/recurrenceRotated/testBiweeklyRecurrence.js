@@ -52,6 +52,7 @@ function testBiweeklyRecurrence() {
     });
 
     // Check day view.
+    switchToView(controller, "day");
     for (let i = 0; i < 4; i++) {
         controller.waitForElement(lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH));
         viewForward(controller, 14);
@@ -101,7 +102,7 @@ function testBiweeklyRecurrence() {
     // Delete event.
     let box = lookupEventBox("month", EVENT_BOX, 4, 7, null, EVENTPATH);
     controller.click(box);
-    handleOccurrencePrompt(controller, eid("month-view"), "delete", true);
+    handleOccurrencePrompt(controller, box, "delete", true);
     controller.waitForElementNotPresent(box);
 }
 

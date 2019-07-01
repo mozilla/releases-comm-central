@@ -109,7 +109,7 @@ function testDailyRecurrence() {
     // Delete 3rd January occurrence.
     let saturday = lookupEventBox("month", EVENT_BOX, 1, 7, null, EVENTPATH);
     controller.click(saturday);
-    handleOccurrencePrompt(controller, eid("month-view"), "delete", false);
+    handleOccurrencePrompt(controller, saturday, "delete", false);
 
     // Verify in all views.
     controller.waitForElementNotPresent(saturday);
@@ -186,7 +186,7 @@ function testDailyRecurrence() {
     // Delete event.
     day = lookupEventBox("month", EVENT_BOX, 1, 5, null, EVENTPATH);
     controller.click(day);
-    handleOccurrencePrompt(controller, eid("month-view"), "delete", true);
+    handleOccurrencePrompt(controller, day, "delete", true);
     controller.waitForElementNotPresent(day);
 }
 

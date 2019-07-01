@@ -44,6 +44,7 @@ function setupModule(module) {
 
     createCalendar(controller, CALENDARNAME);
     // Rotate view.
+    switchToView(controller, "day");
     controller.mainMenu.click("#ltnViewRotated");
     controller.waitFor(() => eid("day-view").getNode().orient == "horizontal");
 }
@@ -113,7 +114,7 @@ function testLastDayOfMonthRecurrence() {
     switchToView(controller, "day");
     let box = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
     controller.waitThenClick(box);
-    handleOccurrencePrompt(controller, eid("day-view"), "delete", true);
+    handleOccurrencePrompt(controller, box, "delete", true);
     controller.waitForElementNotPresent(box);
 }
 

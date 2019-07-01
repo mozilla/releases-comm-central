@@ -13,14 +13,6 @@ modevbox {
   -moz-box-orient: vertical;
 }
 
-minimonth {
-  -moz-binding: url("chrome://calendar/content/widgets/minimonth.xml#minimonth");
-}
-
-minimonth-header {
-  -moz-binding: url("chrome://calendar/content/widgets/minimonth.xml#minimonth-header");
-}
-
 dragndropContainer {
    -moz-binding: url(chrome://calendar/content/widgets/calendar-widgets.xml#dragndropContainer);
 }

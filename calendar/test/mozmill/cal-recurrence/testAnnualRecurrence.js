@@ -71,12 +71,13 @@ function testAnnualRecurrence() {
     }
 
     // Delete event.
-    goToDate(controller, checkYears[0], 1, 1);
     switchToView(controller, "day");
-    let box = getEventBoxPath("day", ALLDAY, null, 1, null) + EVENTPATH;
-    controller.click(lookup(box));
-    handleOccurrencePrompt(controller, eid("day-view"), "delete", true);
-    controller.waitForElementNotPresent(lookup(box));
+    goToDate(controller, checkYears[0], 1, 1);
+    const boxPath = getEventBoxPath("day", ALLDAY, null, 1, null) + EVENTPATH;
+    const box = lookup(boxPath);
+    controller.click(box);
+    handleOccurrencePrompt(controller, box, "delete", true);
+    controller.waitForElementNotPresent(box);
 }
 
 function teardownTest(module) {
