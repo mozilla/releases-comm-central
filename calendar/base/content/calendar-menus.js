@@ -60,8 +60,9 @@
     };
 
     /**
-     * A menu for changing the "progress" (percent complete) status for a task or tasks. It
+     * A menupopup for changing the "progress" (percent complete) status for a task or tasks. It
      * indicates the current status by displaying a checkmark next to the menu item for that status.
+     *
      * @extends MozElements.MozMenuPopup
      */
     class CalendarTaskProgressMenupopup extends MozElements.MozMenuPopup {
@@ -117,8 +118,9 @@
         CalendarTaskProgressMenupopup, { "extends": "menupopup" });
 
     /**
-     * A menu for changing the "priority" status for a task or tasks. It indicates the current
+     * A menupopup for changing the "priority" status for a task or tasks. It indicates the current
      * status by displaying a checkmark next to the menu item for that status.
+     *
      * @extends MozElements.MozMenuPopup
      */
     class CalendarTaskPriorityMenupopup extends MozElements.MozMenuPopup {
@@ -166,4 +168,120 @@
 
     customElements.define("calendar-task-priority-menupopup",
         CalendarTaskPriorityMenupopup, { "extends": "menupopup" });
+
+    /**
+     * A panelview for changing the "progress" (percent complete) status for a task or tasks. It
+     * indicates the current status by displaying a checkmark next to the menu item for that status.
+     * For use in the appmenu.
+     *
+     * @extends MozXULElement
+     */
+    class CalendarTaskProgressPanelview extends MozXULElement {
+        connectedCallback() {
+            if (this.delayConnectedCallback() || this.hasConnected) {
+                return;
+            }
+            this.hasConnected = true;
+
+            this.appendChild(MozXULElement.parseXULToFragment(`
+                <vbox class="panel-subview-body">
+                    <toolbarbutton class="percent-0-menuitem subviewbutton subviewbutton-iconic"
+                                   type="checkbox"
+                                   label="&progress.level.0;"
+                                   accesskey="&progress.level.0.accesskey;"
+                                   observes="calendar_percentComplete-0_command"
+                                   command="calendar_percentComplete-0_command"/>
+                    <toolbarbutton class="percent-25-menuitem subviewbutton subviewbutton-iconic"
+                                   type="checkbox"
+                                   label="&progress.level.25;"
+                                   accesskey="&progress.level.25.accesskey;"
+                                   observes="calendar_percentComplete-25_command"
+                                   command="calendar_percentComplete-25_command"/>
+                    <toolbarbutton class="percent-50-menuitem subviewbutton subviewbutton-iconic"
+                                   type="checkbox"
+                                   label="&progress.level.50;"
+                                   accesskey="&progress.level.50.accesskey;"
+                                   observes="calendar_percentComplete-50_command"
+                                   command="calendar_percentComplete-50_command"/>
+                    <toolbarbutton class="percent-75-menuitem subviewbutton subviewbutton-iconic"
+                                   type="checkbox"
+                                   label="&progress.level.75;"
+                                   accesskey="&progress.level.75.accesskey;"
+                                   observes="calendar_percentComplete-75_command"
+                                   command="calendar_percentComplete-75_command"/>
+                    <toolbarbutton class="percent-100-menuitem subviewbutton subviewbutton-iconic"
+                                   type="checkbox"
+                                   label="&progress.level.100;"
+                                   accesskey="&progress.level.100.accesskey;"
+                                   observes="calendar_percentComplete-100_command"
+                                   command="calendar_percentComplete-100_command"/>
+                </vbox>
+                `,
+                ["chrome://calendar/locale/calendar.dtd"]
+            ));
+
+            const body = this.querySelector(".panel-subview-body");
+
+            this.addEventListener("ViewShowing",
+                updateMenuItemsState.bind(null, body, "percentComplete"), true);
+        }
+    }
+
+    customElements.define("calendar-task-progress-panelview",
+        CalendarTaskProgressPanelview, { "extends": "panelview" });
+
+    /**
+     * A panelview for changing the "priority" status for a task or tasks. It indicates the current
+     * status by displaying a checkmark next to the menu item for that status. For use in the
+     * appmenu.
+     *
+     * @extends MozXULElement
+     */
+    class CalendarTaskPriorityPanelview extends MozXULElement {
+        connectedCallback() {
+            if (this.delayConnectedCallback() || this.hasConnected) {
+                return;
+            }
+            this.hasConnected = true;
+
+            this.appendChild(MozXULElement.parseXULToFragment(`
+                <vbox class="panel-subview-body">
+                    <toolbarbutton class="priority-0-menuitem subviewbutton subviewbutton-iconic"
+                                   type="checkbox"
+                                   label="&priority.level.none;"
+                                   accesskey="&priority.level.none.accesskey;"
+                                   command="calendar_priority-0_command"
+                                   observes="calendar_priority-0_command"/>
+                    <toolbarbutton class="priority-9-menuitem subviewbutton subviewbutton-iconic"
+                                   type="checkbox"
+                                   label="&priority.level.low;"
+                                   accesskey="&priority.level.low.accesskey;"
+                                   command="calendar_priority-9_command"
+                                   observes="calendar_priority-9_command"/>
+                    <toolbarbutton class="priority-5-menuitem subviewbutton subviewbutton-iconic"
+                                   type="checkbox"
+                                   label="&priority.level.normal;"
+                                   accesskey="&priority.level.normal.accesskey;"
+                                   command="calendar_priority-5_command"
+                                   observes="calendar_priority-5_command"/>
+                    <toolbarbutton class="priority-1-menuitem subviewbutton subviewbutton-iconic"
+                                   type="checkbox"
+                                   label="&priority.level.high;"
+                                   accesskey="&priority.level.high.accesskey;"
+                                   command="calendar_priority-1_command"
+                                   observes="calendar_priority-1_command"/>
+                </vbox>
+                `,
+                ["chrome://calendar/locale/calendar.dtd"]
+            ));
+
+            const body = this.querySelector(".panel-subview-body");
+
+            this.addEventListener("ViewShowing",
+                updateMenuItemsState.bind(null, body, "priority"), true);
+        }
+    }
+
+    customElements.define("calendar-task-priority-panelview",
+        CalendarTaskPriorityPanelview, { "extends": "panelview" });
 }

@@ -665,15 +665,11 @@
         <toolbarbutton id="appmenu_ltnTaskActionsPriorityMenuitem"
                        class="subviewbutton subviewbutton-nav"
                        label="&calendar.context.priority.label;"
-                       command="calendar_general-priority_command"
-                       observes="calendar_general-priority_command"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appmenu_ltnTaskPriorityView', this)"/>
         <toolbarbutton id="appmenu_ltnTaskActionsProgressMenuitem"
                        class="subviewbutton subviewbutton-nav"
                        label="&calendar.context.progress.label;"
-                       command="calendar_general-progress_command"
-                       observes="calendar_general-progress_command"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appmenu_ltnTaskProgressView', this)"/>
         <toolbarbutton id="appmenu_ltnTaskActionsPostponeMenuitem"
@@ -700,13 +696,13 @@
       </vbox>
     </panelview>
 
-    <!-- TODO: adapt these two custom elements for the new appmenu -->
-
     <!-- Events and Tasks / Priority -->
-    <!-- <menupopup id="appmenu_ltnTaskPriorityView" is="calendar-task-priority-menupopup"/> -->
+    <panelview is="calendar-task-priority-panelview" id="appmenu_ltnTaskPriorityView"
+               class="PanelUI-subView"/>
 
     <!-- Events and Tasks / Progress -->
-    <!-- <menupopup id="appmenu_ltnTaskProgressView" is="calendar-task-progress-menupopup"/> -->
+    <panelview is="calendar-task-progress-panelview" id="appmenu_ltnTaskProgressView"
+               class="PanelUI-subView"/>
 
     <!-- Events and Tasks / Postpone Task -->
     <panelview id="appmenu_ltnTaskActionsPostponeView"

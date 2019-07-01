@@ -185,6 +185,18 @@ function setUpCalendarAppMenuButtons() {
 function refreshEventsAndTasksMenu(event) {
     changeMenuForTask(event);
     setupDeleteMenuitem("appmenu_ltnDeleteSelectedCalendar");
+
+    // Refresh the "disabled" property of the Progress and Priority menu items. Needed because if
+    // the menu items (toolbarbuttons) are given a "command" or "observes" attribute that is set to
+    // their respective commands, then their "oncommand" attribute is automatically overwritten
+    // (because the commands have an oncommand attribute).  And then the sub-menus will not open.
+    setBooleanAttribute("appmenu_ltnTaskActionsPriorityMenuitem",
+        "disabled",
+        document.getElementById("calendar_general-priority_command").hasAttribute("disabled"));
+
+    setBooleanAttribute("appmenu_ltnTaskActionsProgressMenuitem",
+        "disabled",
+        document.getElementById("calendar_general-progress_command").hasAttribute("disabled"));
 }
 
 /**
