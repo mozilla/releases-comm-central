@@ -243,8 +243,8 @@ function verify(controller, dates, timezones, times) {
 
     let dayStack = `
         ${DAY_VIEW}/{"class":"mainbox"}/{"class":"scrollbox"}/
-        {"class":"daybox"}/[0]/anon({"anonid":"boxstack"})/
-        anon({"anonid":"topbox"})/{"flex":"1"}
+        {"class":"daybox"}/[0]/anon({"class":"multiday-column-box-stack"})/
+        anon({"class":"multiday-column-top-box"})/{"flex":"1"}
     `;
     let timeLine = `
         ${DAY_VIEW}/{"class":"mainbox"}/{"class":"scrollbox"}/

@@ -64,7 +64,7 @@ function testSmokeTest() {
         {"class":"calendar-time-bar-label","value":"${label}"}
     `));
     controller.assertNode(lookup(`
-        ${DAY_VIEW}/${DAYBOX}/[0]/anon({"anonid":"boxstack"})/anon({"anonid":"bgbox"})/[9]
+        ${DAY_VIEW}/${DAYBOX}/[0]/anon({"class":"multiday-column-box-stack"})/anon({"class":"multiday-column-bg-box"})/[9]
     `));
 
     // Open tasks view.

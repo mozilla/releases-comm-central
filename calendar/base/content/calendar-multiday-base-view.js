@@ -1433,8 +1433,7 @@
                 return null;
             }
             for (const col of this.mDateColumns) {
-                const element = document
-                    .getAnonymousElementByAttribute(col.column, "anonid", "boxstack");
+                const element = col.column.querySelector(".multiday-column-box-stack");
 
                 const boundingRect = element.getBoundingClientRect();
                 if (clientX >= element.screenX &&

@@ -1067,6 +1067,23 @@ radio.calview:not([selected=true]):hover {
     display: -moz-box;
 }
 
+.fgdragspacer {
+    display: inherit;
+    overflow: hidden;
+}
+
+.fgdragcontainer {
+    min-width: 1px;
+    min-height: 1px;
+    overflow:hidden;
+}
+
+.multiday-column-box-stack, .multiday-column-bg-box, .multiday-column-top-box, .calendar-empty-space-box,
+.calendar-event-column-linebox, .calendar-xul-column {
+    min-width: 1px;
+    min-height: 1px;
+}
+
 @media (-moz-overlay-scrollbars) {
     .multiday-headerscrollbarspacer,
     .multiday-labelscrollbarspacer {

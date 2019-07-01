@@ -15,6 +15,7 @@ calendar.jar:
     content/calendar/calendar-common-sets.js               (content/calendar-common-sets.js)
     content/calendar/calendar-daypicker.xml                (content/calendar-daypicker.xml)
     content/calendar/calendar-event-gripbar.js             (content/calendar-event-gripbar.js)
+    content/calendar/calendar-event-column.js              (content/calendar-event-column.js)
     content/calendar/calendar-views.js                     (content/calendar-views.js)
     content/calendar/calendar-dnd-listener.js              (content/calendar-dnd-listener.js)
     content/calendar/calendar-extract.js                   (content/calendar-extract.js)

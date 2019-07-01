@@ -339,14 +339,14 @@ function getEventBoxPath(controller, view, option, row, column, hour) {
     } else if (view == "day" || view == "week") {
         path += `
             /{"class":"mainbox"}/{"class":"scrollbox"}/{"class":"daybox"}/
-            [${column - 1}]/anon({"anonid":"boxstack"})
+            [${column - 1}]/anon({"class":"multiday-column-box-stack"})
         `;
 
         if (option == CANVAS_BOX) {
-            path += `/anon({"anonid":"bgbox"})/[${hour}]`;
+            path += `/anon({"class":"multiday-column-bg-box"})/[${hour}]`;
         } else {
             path += `
-                /anon({"anonid":"topbox"})/{"flex":"1"}/{"flex":"1"}/{"flex":"1"}
+                /anon({"class":"multiday-column-top-box"})/{"flex":"1"}/{"flex":"1"}/{"flex":"1"}
             `;
         }
 
