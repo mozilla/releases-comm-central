@@ -54,10 +54,10 @@
                   tabindex="4"/>
               </row>
               <row align="center">
-                <radio id = "altTextRadio"
-                  label   = "&altText.label;"
-                  accesskey = "&altText.accessKey;"
-                  tooltiptext="&altTextEditField.tooltip;"
+                <radio id="altTextRadio" value="usealt-yes"
+                       label="&altText.label;"
+                       accesskey="&altText.accessKey;"
+                       tooltiptext="&altTextEditField.tooltip;"
 #ifndef MOZ_SUITE
             persist="selected"
 #endif
@@ -73,9 +73,9 @@
             </rows>
           </grid>
 
-          <radio id = "noAltTextRadio"
-            label   = "&noAltText.label;"
-            accesskey = "&noAltText.accessKey;"
+          <radio id="noAltTextRadio" value="usealt-no"
+                 label="&noAltText.label;"
+                 accesskey = "&noAltText.accessKey;"
 #ifndef MOZ_SUITE
             persist="selected"
 #endif
