@@ -614,11 +614,34 @@
     }
 
     handleEvent(aEvent) {
+      let alltabsButton = document.getElementById("alltabs-button");
+
       switch (aEvent.type) {
         case "overflow":
           this.arrowScrollbox.ensureElementIsVisible(this.selectedItem);
+
+          // filter overflow events which were dispatched on nested scrollboxes
+          if (aEvent.target != this.arrowScrollbox)
+            return;
+
+          // Ignore vertical events.
+          if (aEvent.detail == 0)
+            return;
+
+          this.arrowScrollbox.removeAttribute("notoverflowing");
+          alltabsButton.removeAttribute("hidden");
           break;
         case "underflow":
+          // filter underflow events which were dispatched on nested scrollboxes
+          if (aEvent.target != this.arrowScrollbox)
+            return;
+
+          // Ignore vertical events.
+          if (aEvent.detail == 0)
+            return;
+
+          this.arrowScrollbox.setAttribute("notoverflowing", "true");
+          alltabsButton.setAttribute("hidden", "true");
           break;
         case "resize":
           let width = this.arrowScrollbox.getBoundingClientRect().width;
