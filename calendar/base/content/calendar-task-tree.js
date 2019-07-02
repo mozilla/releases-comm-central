@@ -272,35 +272,7 @@
             // This refresh call sets up the tree view and observers.
             this.refresh();
 
-            // We want to make several attributes on the column
-            // elements persistent, but unfortunately there's no
-            // reliable way with the 'persist' feature.
-            // That's why we need to store the necessary bits and
-            // pieces on the calendar-task-tree element.
-            let visibleColumns = this.getAttribute("visible-columns").split(" ");
-            let ordinals = this.getAttribute("ordinals").split(" ");
-            let widths = this.getAttribute("widths").split(" ");
-            let sorted = this.getAttribute("sortActive");
-            let sortDirection = this.getAttribute("sortDirection") || "ascending";
-
-            this.querySelectorAll("treecol").forEach((col) => {
-                const itemProperty = col.getAttribute("itemproperty");
-                if (visibleColumns.some(visCol => visCol == itemProperty)) {
-                    col.removeAttribute("hidden");
-                } else {
-                    col.setAttribute("hidden", "true");
-                }
-                if (ordinals && ordinals.length > 0) {
-                    col.ordinal = Number(ordinals.shift());
-                }
-                if (widths && widths.length > 0) {
-                    col.width = Number(widths.shift());
-                }
-                if (sorted && sorted == itemProperty) {
-                    this.mTreeView.sortDirection = sortDirection;
-                    this.mTreeView.selectedColumn = col;
-                }
-            });
+            this.restoreColumnState();
 
             window.addEventListener("unload", this.persistColumnState.bind(this));
 
@@ -386,6 +358,38 @@
                 this.removeAttribute("sort-active");
                 this.removeAttribute("sort-direction");
             }
+        }
+
+        /**
+         * Reads data from several attributes on the calendar-task-tree element and sets it on the
+         * attributes of the columns of the tree. Called on Thunderbird startup to persist the
+         * state of the columns across restarts. Used with `persistTaskTreeColumnState` function.
+         */
+        restoreColumnState() {
+            let visibleColumns = this.getAttribute("visible-columns").split(" ");
+            let ordinals = this.getAttribute("ordinals").split(" ");
+            let widths = this.getAttribute("widths").split(" ");
+            let sorted = this.getAttribute("sortActive");
+            let sortDirection = this.getAttribute("sortDirection") || "ascending";
+
+            this.querySelectorAll("treecol").forEach((col) => {
+                const itemProperty = col.getAttribute("itemproperty");
+                if (visibleColumns.includes(itemProperty)) {
+                    col.removeAttribute("hidden");
+                } else {
+                    col.setAttribute("hidden", "true");
+                }
+                if (ordinals && ordinals.length > 0) {
+                    col.ordinal = Number(ordinals.shift());
+                }
+                if (widths && widths.length > 0) {
+                    col.width = Number(widths.shift());
+                }
+                if (sorted && sorted == itemProperty) {
+                    this.mTreeView.sortDirection = sortDirection;
+                    this.mTreeView.selectedColumn = col;
+                }
+            });
         }
 
         /**
