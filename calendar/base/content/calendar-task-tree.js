@@ -302,6 +302,8 @@
                 }
             });
 
+            window.addEventListener("unload", this.persistColumnState.bind(this));
+
             this.dispatchEvent(new CustomEvent("bindingattached", { bubbles: false }));
         }
 
@@ -351,6 +353,39 @@
 
         get textFilterField() {
             return this.mTextFilterField;
+        }
+
+        /**
+         * We want to make several attributes of the calendar-task-tree column elements persist
+         * across restarts. Unfortunately there's no reliable way by using the XUL 'persist'
+         * attribute on the column elements. So instead we store the data on the calendar-task-tree
+         * element before Thunderbird quits (using `persistColumnState`), and then restore the
+         * attributes on the columns when Thunderbird starts up again (using `restoreColumnState`).
+         *
+         * This function reads data from column attributes and sets it on several attributes on the
+         * task tree element, which are persisted because they are in the "persist" attribute of
+         * the task tree element.
+         * (E.g. `persist="visible-columns ordinals widths sort-active sort-direction"`.)
+         */
+        persistColumnState() {
+            const columns = Array.from(this.querySelectorAll("treecol"));
+            const widths = columns.map(col => col.width || 0);
+            const ordinals = columns.map(col => col.ordinal);
+            const visibleColumns = columns.filter(col => col.getAttribute("hidden") != "true")
+                .map(col => col.getAttribute("itemproperty"));
+
+            this.setAttribute("widths", widths.join(" "));
+            this.setAttribute("ordinals", ordinals.join(" "));
+            this.setAttribute("visible-columns", visibleColumns.join(" "));
+
+            const sorted = this.mTreeView.selectedColumn;
+            if (sorted) {
+                this.setAttribute("sort-active", sorted.getAttribute("itemproperty"));
+                this.setAttribute("sort-direction", this.mTreeView.sortDirection);
+            } else {
+                this.removeAttribute("sort-active");
+                this.removeAttribute("sort-direction");
+            }
         }
 
         /**
@@ -591,38 +626,8 @@
 
         disconnectedCallback() {
             super.disconnectedCallback();
-
+            this.persistColumnState();
             this.mTreeView = null;
-
-            let widths = "";
-            let ordinals = "";
-            let visible = "";
-            let sorted = this.mTreeView.selectedColumn;
-
-            this.querySelectorAll("treecol").forEach((col) => {
-                if (col.getAttribute("hidden") != "true") {
-                    let content = col.getAttribute("itemproperty");
-                    visible += visible.length > 0 ? " " + content : content;
-                }
-                if (ordinals.length > 0) {
-                    ordinals += " ";
-                }
-                ordinals += col.ordinal;
-                if (widths.length > 0) {
-                    widths += " ";
-                }
-                widths += col.width || 0;
-            });
-            this.setAttribute("visible-columns", visible);
-            this.setAttribute("ordinals", ordinals);
-            this.setAttribute("widths", widths);
-            if (sorted) {
-                this.setAttribute("sort-active", sorted.getAttribute("itemproperty"));
-                this.setAttribute("sort-direction", this.mTreeView.sortDirection);
-            } else {
-                this.removeAttribute("sort-active");
-                this.removeAttribute("sort-direction");
-            }
         }
     }
 
