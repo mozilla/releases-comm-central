@@ -107,7 +107,7 @@ function testWeekView() {
 
     // Delete event.
     controller.click(eventBox);
-    controller.keypress(eid("week-view"), "VK_DELETE", {});
+    controller.keypress(eventBox, "VK_DELETE", {});
     controller.waitForElementNotPresent(eventBox);
 }
 
