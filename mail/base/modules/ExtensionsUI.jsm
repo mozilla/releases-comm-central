@@ -667,7 +667,7 @@ var gXPInstallObserver = {
 
     switch (typeof data.manifest.legacy) {
       case "boolean":
-        return data.manifest.legacy === "true";
+        return data.manifest.legacy;
       case "object":
         return !(data.manifest.legacy.type && data.manifest.legacy.type == "bootstrap");
       default:
