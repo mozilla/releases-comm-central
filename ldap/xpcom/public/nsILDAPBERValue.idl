@@ -10,7 +10,7 @@
  * Representation of a BER value as an interface containing an array of
  * bytes.  Someday this should perhaps be obsoleted by a better, more
  * generalized version of nsIByteBuffer, but that's currently not even
- * scriptable (see bug 125596). 
+ * scriptable (see bug 125596).
  */
 [scriptable, uuid(c817c5fe-1dd1-11b2-a10b-ae9885762ea9)]
 interface nsILDAPBERValue : nsISupports

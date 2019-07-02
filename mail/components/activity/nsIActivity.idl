@@ -27,7 +27,7 @@ interface nsISupportsPRTime;
  * behavioral changes on the binding representing the activity, such as showing
  * a cancel button, etc. The following handlers are currently supported;
  */
- 
+
 /**
  * The handler to invoke when the recover button is pressed. Used by a Warning
  * to recover from the situation causing the warning. For instance, recovery
@@ -84,7 +84,7 @@ interface nsIActivityUndoHandler : nsISupports {
  */
 [scriptable, uuid(6CD33E65-B2D8-4634-9B6D-B80BF1273E99)]
 interface nsIActivity : nsISupports {
-  
+
   /**
    * Shows the activity as a standalone item.
    */
@@ -94,7 +94,7 @@ interface nsIActivity : nsISupports {
    * Groups activity by its context.
    */
   const short GROUPING_STYLE_BYCONTEXT = 2;
-  
+
   /**
    * Internal ID given by the activity manager when
    * added into the activity list.  Not readonly so that
@@ -102,15 +102,15 @@ interface nsIActivity : nsISupports {
    * by anyone else.
    */
   attribute unsigned long id;
-  
+
   // Following attributes change the UI characteristics of the activity
-  
+
   /**
    * A brief description of the activity, to be shown by the
    * associated binding (XBL) in the Activity Manager window.
    */
   readonly attribute AString displayText;
-  
+
   /**
    * Changes the default icon associated with the activity. Core activity
    * icons are declared in |mail/themes/<themename>/mail/activity/activity.css|
@@ -120,7 +120,7 @@ interface nsIActivity : nsISupports {
    * this attribute.
    */
   attribute AString iconClass;
-  
+
   /**
    * Textual id of the XBL binding that will be used to represent the
    * activity in the Activity Manager window.
@@ -131,22 +131,22 @@ interface nsIActivity : nsISupports {
    * associations.
    */
   attribute AString bindingName;
-  
+
   /**
    * Defines the grouping style of the activity when being shown in the
    * activity manager window:
    *  GROUPING_STYLE_STANDALONE or GROUPING_STYLE_BYCONTEXT
    */
   attribute short groupingStyle;
-  
+
   /**
    * A text value to associate a facet type with the activity. If empty,
    * the activity will be shown in the 'Misc' section.
    */
   attribute AString facet;
-  
+
   // UI related attributes end.
-  
+
   /**
    * Gets the initiator of the activity. An initiator represents an object
    * that generates and controls the activity. For example, Copy Service can be
@@ -161,7 +161,7 @@ interface nsIActivity : nsISupports {
    * nsIVariant interface.
    */
   readonly attribute nsIVariant initiator;
-  
+
   /**
    * Adds an object to the activity's internal subject list. Subject list
    * provides argument(s) to activity handlers to complete their operation.
@@ -175,7 +175,7 @@ interface nsIActivity : nsISupports {
    * interface.
    */
   void addSubject(in nsIVariant aSubject);
-  
+
   /**
    * Retrieves all subjects associated with this activity.
    *
@@ -183,7 +183,7 @@ interface nsIActivity : nsISupports {
    */
   void getSubjects(out unsigned long length, [retval, array,
                    size_is(length)] out nsIVariant aSubjects);
-  
+
   /*
    * Background:
    *  A context is a generic concept that is used to group the processes and
@@ -199,13 +199,13 @@ interface nsIActivity : nsISupports {
    *  server instance, it allows to group different activities happening on the
    *  the same account server.
    */
-  
+
   /**
    * Sets and gets the context object of the activity. A context object can be
    * any JS object or XPCOM component that supports nsIVariant interface.
    */
   attribute nsIVariant contextObj;
-  
+
   /**
    * Sets and gets the context type of the activity. If this is set, then
    * the contextDisplayText should also be set.
@@ -234,7 +234,7 @@ interface nsIActivity : nsISupports {
  */
 [scriptable, uuid(9DC7CA67-828D-4AFD-A5C6-3ECE091A98B8)]
 interface nsIActivityProcess : nsIActivity {
-  
+
   /**
    * Default state for uninitialized process activity
    * object.
@@ -261,7 +261,7 @@ interface nsIActivityProcess : nsIActivity {
    * Activity was paused by the user.
    */
   const short STATE_PAUSED = 3;
-  
+
   /**
    * Activity waits for the user input's to retry.
    * (i.e. login password)
@@ -272,7 +272,7 @@ interface nsIActivityProcess : nsIActivity {
    * Activity is ready for an automatic or manual retry.
    */
   const short STATE_WAITINGFORRETRY = 5;
-  
+
   /**
    * The state of the activity.
    * See above for possible values.
@@ -280,23 +280,23 @@ interface nsIActivityProcess : nsIActivity {
    *   defined above.
    */
   attribute short state;
-    
+
   /**
    * The percentage of activity completed.
    * If the max value is unknown it'll be -1 here.
    */
   readonly attribute long percentComplete;
-  
+
   /**
    * A brief text about the process' status.
    */
   readonly attribute AString lastStatusText;
-  
+
   /**
    * The amount of work units completed so far.
    */
   readonly attribute unsigned long workUnitComplete;
-  
+
   /**
    * Total amount of work units.
    */
@@ -320,7 +320,7 @@ interface nsIActivityProcess : nsIActivity {
    * be displayed.
    */
   attribute nsIActivityCancelHandler cancelHandler;
-  
+
   /**
    * The handler to invoke when the pause button is pressed. If present
    * (non-null), the activity can be pauseable and a pause button will be
@@ -328,7 +328,7 @@ interface nsIActivityProcess : nsIActivity {
    * be displayed.
    */
   attribute nsIActivityPauseHandler pauseHandler;
-  
+
   /**
    * The handler to invoke when the retry button is pressed. If present
    * (non-null), the activity can be retryable and a retry button will be
@@ -336,7 +336,7 @@ interface nsIActivityProcess : nsIActivity {
    * be displayed.
    */
   attribute nsIActivityRetryHandler retryHandler;
-  
+
   /**
    * Updates the activity progress info.
    *
@@ -354,7 +354,7 @@ interface nsIActivityProcess : nsIActivity {
   void setProgress(in AString aStatusText,
                    in unsigned long aWorkUnitComplete,
                    in unsigned long aTotalWorkUnits);
-  
+
   /**
    * Component initialization method.
    *
@@ -370,13 +370,13 @@ interface nsIActivityProcess : nsIActivity {
  */
 [scriptable, uuid(5B1B0D03-2820-4E37-8BF8-102AFDE4FC45)]
 interface nsIActivityEvent : nsIActivity {
-  
+
   /**
    * Any localized textual information related to this event.
    * It is shown at the bottom of the displayText area.
    */
   readonly attribute AString statusText;
-  
+
   /**
    * The starting time of the event.
    * 64-bit signed integers relative to midnight (00:00:00), January 1, 1970
@@ -387,7 +387,7 @@ interface nsIActivityEvent : nsIActivity {
    * this value.
    */
   readonly attribute long long startTime;
-  
+
   /**
    * The completion time of the event in microseconds.
    * 64-bit signed integers relative to midnight (00:00:00), January 1, 1970
@@ -398,7 +398,7 @@ interface nsIActivityEvent : nsIActivity {
    * this value.
    */
   readonly attribute long long completionTime;
-  
+
   /**
    * The handler to invoke when the undo button is pressed.  If present
    * (non-null), the activity can be undoable and an undo button will be
@@ -406,7 +406,7 @@ interface nsIActivityEvent : nsIActivity {
    * be displayed.
    */
   attribute nsIActivityUndoHandler undoHandler;
-  
+
   /**
    * Component initialization method.
    *
@@ -423,12 +423,12 @@ interface nsIActivityEvent : nsIActivity {
 
 [scriptable, uuid(8265833e-c604-4585-a43c-a76bd8ed3a8c)]
 interface nsIActivityWarning : nsIActivity {
-  
+
   /**
    * Any localized textual information related to this warning.
    */
   readonly attribute AString warningText;
-  
+
   /**
    * The time of the warning.
    * 64-bit signed integers relative to midnight (00:00:00), January 1, 1970
@@ -439,12 +439,12 @@ interface nsIActivityWarning : nsIActivity {
    * this value.
    */
   readonly attribute long long time;
-  
+
   /**
    * Recovery tip of the warning, localized.
    */
   readonly attribute AString recoveryTipText;
-  
+
   /**
    * The handler to invoke when the recover button is pressed.  If present
    * (non-null), the activity can be recoverable and a recover button will be
@@ -452,7 +452,7 @@ interface nsIActivityWarning : nsIActivity {
    * be displayed.
    */
   attribute nsIActivityRecoveryHandler recoveryHandler;
-  
+
   /**
    * Component initialization method.
    *
@@ -472,7 +472,7 @@ interface nsIActivityListener : nsISupports {
    * Triggered after activity state is changed.
    */
   void onStateChanged(in nsIActivity aActivity, in short aOldState);
-  
+
   /**
    * Triggered after the progress of the process activity is changed.
    */
@@ -480,7 +480,7 @@ interface nsIActivityListener : nsISupports {
                          in AString aStatusText,
                          in unsigned long aWorkUnitsCompleted,
                          in unsigned long aTotalWorkUnits);
-  
+
   /**
    * Triggered after one of the activity handler is set.
    *

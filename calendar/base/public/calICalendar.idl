@@ -82,7 +82,7 @@ interface calICalendar : nsISupports
   attribute nsIURI uri;
 
   /**
-   * Is this calendar read-only?  Used by the UI to decide whether or not 
+   * Is this calendar read-only?  Used by the UI to decide whether or not
    * widgetry should allow editing.
    */
   attribute boolean readOnly;
@@ -224,7 +224,7 @@ interface calICalendar : nsISupports
    */
   void deleteProperty(in AUTF8String aName);
 
-  /** 
+  /**
    * In combination with the other parameters to getItems(), these
    * constants provide for a very basic filtering mechanisms for use
    * in getting and observing items.  At some point fairly soon, we're
@@ -240,8 +240,8 @@ interface calICalendar : nsISupports
    * this case) usually _reduces_ the set of items that pass the set of
    * filters, rather than adding to it.
    */
-  const unsigned long ITEM_FILTER_COMPLETED_YES = 1 << 0; 
-  const unsigned long ITEM_FILTER_COMPLETED_NO = 1 << 1; 
+  const unsigned long ITEM_FILTER_COMPLETED_YES = 1 << 0;
+  const unsigned long ITEM_FILTER_COMPLETED_NO = 1 << 1;
   const unsigned long ITEM_FILTER_COMPLETED_ALL = (ITEM_FILTER_COMPLETED_YES |
                                                    ITEM_FILTER_COMPLETED_NO);
 
@@ -254,10 +254,10 @@ interface calICalendar : nsISupports
 
   const unsigned long ITEM_FILTER_ALL_ITEMS = 0xFFFF;
 
-  /** 
+  /**
    * If set, return calIItemBase occurrences for all the appropriate instances,
    * as determined by an item's recurrenceInfo.  All of these occurrences will
-   * have their parentItem set to the recurrence parent.  If not set, will 
+   * have their parentItem set to the recurrence parent.  If not set, will
    * return only calIItemBase parent items.
    */
   const unsigned long ITEM_FILTER_CLASS_OCCURRENCES = 1 << 16;
@@ -387,7 +387,7 @@ interface calICalendar : nsISupports
   /**
    * Get a single event.  The event will be typed as one of the subclasses
    * of calIItemBase (whichever concrete type is most appropriate).
-   * 
+   *
    * @param aId        UID of the event
    * @param aListener  listener to which this event will be called back.
    * @return           optional operation handle to track the operation
@@ -407,7 +407,7 @@ interface calICalendar : nsISupports
   /**
    * XXX As mentioned above, this method isn't suitably general.  It's just
    * placeholder until it gets supplanted by something more SQL or RDF-like.
-   * 
+   *
    *   Ordering: This method is currently guaranteed to return lists ordered
    *   as follows to make for the least amount of pain when
    *   migrating existing frontend code:
@@ -416,7 +416,7 @@ interface calICalendar : nsISupports
    *     if they recur in the future or their last occurrence in the past
    *     otherwise.  Here's a presentation of the sort criteria using the
    *     time axis:
-   *   
+   *
    *     -----(Last occurrence of Event1)---(Last occurrence of Event2)----(Now)----(Next occurrence of Event3)---->
    *
    *     (Note that Event1 and Event2 will not recur in the future.)
@@ -434,7 +434,7 @@ interface calICalendar : nsISupports
    * @param aItemFilter ITEM_FILTER flags, or-ed together
    * @param aCount      Maximum number of items to return, or 0 for
    *                    an unbounded query.
-   * @param aRangeStart Items starting at this time or after should be 
+   * @param aRangeStart Items starting at this time or after should be
    *                    returned.  If invalid, assume "since the beginning
    *                    of time".
    * @param aRangeEndEx Items starting before (not including) aRangeEndEx should be
@@ -466,7 +466,7 @@ interface calICalendar : nsISupports
    * @return            optional operation handle to track the operation
    */
   calIOperation refresh();
-  
+
   /**
    * Turn on batch mode. Observers will get a notification of this.
    * They will still get notified for every individual change, but they are
@@ -484,7 +484,7 @@ interface calICalendar : nsISupports
   void endBatch();
 };
 
-/** 
+/**
  * Used to allow multiple calendars (eg work and home) to be easily queried
  * and displayed as a single unit. All calendars are referenced by ID, i.e.
  * calendars need to have an ID when being added.
@@ -501,7 +501,7 @@ interface calICompositeCalendar : calICalendar
 
   /**
    * Remove a calendar from the composite
-   * 
+   *
    * @param aCalendar the calendar to be removed
    */
   void removeCalendar(in calICalendar aCalendar);
@@ -525,7 +525,7 @@ interface calICompositeCalendar : calICalendar
    * to be added to.
    */
   attribute calICalendar defaultCalendar;
-  
+
   /**
    * If set, the composite will initialize itself from calICalendarManager
    * prefs keyed off of the provided prefPrefix, and update those prefs to
@@ -538,7 +538,7 @@ interface calICompositeCalendar : calICalendar
    * by the statusObserver
    */
   readonly attribute boolean statusDisplayed;
-  
+
   /**
    * Sets a statusobserver for status notifications like startMeteors() and StopMeteors().
    */
@@ -620,7 +620,7 @@ interface calIOperationListener : nsISupports
 
   /**
    * For getItem and getItems.
-   * 
+   *
    * @param aStatus   status code summarizing what happened.
    * @param aItemType type of interface returned in the array (@see
    *                  calICalendar::GetItems).
@@ -630,12 +630,12 @@ interface calIOperationListener : nsISupports
    * @param aCount    size of array returned, in items
    * @param aItems    array of immutable items
    *
-   * Multiple onGetResults might be called 
+   * Multiple onGetResults might be called
    */
   void onGetResult (in calICalendar aCalendar,
                     in nsresult aStatus,
-                    in nsIIDRef aItemType, 
+                    in nsIIDRef aItemType,
                     in nsIVariant aDetail,
-                    in uint32_t aCount, 
+                    in uint32_t aCount,
                     [array, size_is(aCount), iid_is(aItemType)]  in nsQIResult aItems );
 };

@@ -9,10 +9,10 @@ interface nsIDOMWindow;
 [scriptable, uuid(bc873177-ea0c-4714-b26c-f89c071107ce)]
 interface nsIMailGlue : nsISupports
 {
-  /** 
+  /**
    * Deletes privacy sensitive data according to user preferences
    *
-   * @param aParentWindow an optionally null window which is the parent of the 
+   * @param aParentWindow an optionally null window which is the parent of the
    *        sanitization dialog
    *
    */

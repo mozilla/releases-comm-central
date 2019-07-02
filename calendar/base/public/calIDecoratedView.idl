@@ -17,7 +17,7 @@ interface calIItemBase;
  * Because it contains a calICalendarView as an anonymous node, not easily
  * accessible, it must therefore expose several of that interface's methods and
  * attributes, as well as its own.
- * 
+ *
  * @note Implementations of this interface are intended to be the home
  * for view preference handling.  The lower-level views (ie
  * implementers of calICalendarView) are intended to be pure widgetry,
@@ -112,7 +112,7 @@ interface calIDecoratedView : nsISupports
    * around this date.  aDate becomes the selectedDay of the view.  Calling
    * this function with the current selectedDay effectively refreshes the view
    *
-   * @param aDate       the date that must be shown in the view and becomes 
+   * @param aDate       the date that must be shown in the view and becomes
    *                    the selected day
    */
   void goToDay(in calIDateTime aDate);
@@ -122,7 +122,7 @@ interface calIDecoratedView : nsISupports
    * moving the view backwards.  Note that it is up to the view to determine
    * how the selected day ought to move as well.
    *
-   * @param aNumber       the number of pages to move the view 
+   * @param aNumber       the number of pages to move the view
    */
   void moveView(in long aNumber);
 

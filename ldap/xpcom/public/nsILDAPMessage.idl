@@ -62,7 +62,7 @@ interface nsILDAPMessage : nsISupports
     readonly attribute nsILDAPOperation operation;
 
     /**
-     * The result code (aka lderrno) for this message. 
+     * The result code (aka lderrno) for this message.
      *
      * IDL definitions for these constants live in nsILDAPErrors.idl.
      *
@@ -112,7 +112,7 @@ interface nsILDAPMessage : nsISupports
      * The result of an add operation
      */
     const long RES_ADD = 0x69;
-   
+
     /**
      * The result of a delete operation
      */

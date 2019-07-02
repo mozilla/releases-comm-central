@@ -26,7 +26,7 @@ interface nsIActivityMgrListener : nsISupports {
    * the managed list.
    */
   void onAddedActivity(in unsigned long aID, in nsIActivity aActivity);
-  
+
   /**
    * Called _after_ activity manager removes an activity from
    * the managed list.
@@ -59,7 +59,7 @@ interface nsIActivityMgrListener : nsISupports {
  */
 [scriptable, uuid(9BFCC031-50E1-4D30-A35F-23509ABCB8D1)]
 interface nsIActivityManager : nsISupports {
-    
+
   /**
    * Adds the given activity into the managed activities list.
    *
@@ -68,7 +68,7 @@ interface nsIActivityManager : nsISupports {
    * @return Unique activity identifier.
    */
   unsigned long addActivity(in nsIActivity aActivity);
-  
+
   /**
    * Removes the activity with the given id if it's not currently
    * in-progress.
@@ -91,12 +91,12 @@ interface nsIActivityManager : nsISupports {
    * @throws NS_ERROR_NOT_AVAILABLE if the activity is not in the list.
    */
   nsIActivity getActivity(in unsigned long aID);
-  
+
   /**
    * Tests whether the activity in question in the activity list or not.
    */
   boolean containsActivity(in unsigned long aID);
-  
+
   /**
    * Retrieves all activities managed by the activity manager. This can be one
    * that is in progress (process), one that is represented as a warning, or one
@@ -106,7 +106,7 @@ interface nsIActivityManager : nsISupports {
    * @return A read-only list of activities managed by the activity manager.
    */
   Array<nsIActivity> getActivities();
-  
+
   /**
    * Retrieves processes with given context type and object.
    *
@@ -124,7 +124,7 @@ interface nsIActivityManager : nsISupports {
    * The number of processes in the activity list.
    */
   readonly attribute long processCount;
-  
+
   /**
    * Adds a listener.
    */

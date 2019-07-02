@@ -169,7 +169,7 @@ interface nsILDAPService : nsISupports {
      * @param aSuffix    suffix to be appended to the filer
      * @param aAttr      replacement for %a in the pattern
      * @param aValue     replacement for %v in the pattern
-     * 
+     *
      * @exception NS_ERROR_INVALID_ARG      invalid parameter passed in
      * @exception NS_ERROR_OUT_OF_MEMORY    allocation failed
      * @exception NS_ERROR_NOT_AVAILABLE    filter longer than maxsiz chars

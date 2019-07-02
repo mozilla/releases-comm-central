@@ -28,7 +28,7 @@ interface calICalendarManager : nsISupports
    * Gives the number of registered calendars
    */
   readonly attribute uint32_t calendarCount;
-  /* 
+  /*
    * create a new calendar
    * aType is the type ("caldav", "storage", etc)
    */
@@ -89,7 +89,7 @@ interface calICalendarManager : nsISupports
                         in nsIVariant aValue);
   void deleteCalendarPref_(in calICalendar aCalendar,
                            in AUTF8String aName);
-  
+
 };
 
 /**

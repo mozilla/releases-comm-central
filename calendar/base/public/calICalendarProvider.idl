@@ -41,7 +41,7 @@ interface calICalendarProvider : nsISupports
   /**
    * Delete a calendar. Deletes the actual underlying calendar, which
    * could be (for example) a file or a calendar on a server
-   * 
+   *
    * @param aCalendar   the calendar to delete
    * @param aListener   where to call the results back to
    */
@@ -65,7 +65,7 @@ interface calIProviderListener : nsISupports
    *                        result, this will probably be an extended error
    *                        string (eg one returned by a server).
    */
-  void onCreateCalendar(in calICalendar aCalendar, in nsresult aStatus, 
+  void onCreateCalendar(in calICalendar aCalendar, in nsresult aStatus,
                         in nsIVariant aDetail);
 
   /**

@@ -81,7 +81,7 @@ interface nsILDAPBERElement : nsISupports
   const unsigned long TAG_LBER_SET = 0x31;
 
   /**
-   * Write a string to this element. 
+   * Write a string to this element.
    *
    * @param  aString  string to write
    * @param  aTag     tag for this string (if TAG_LBER_DEFAULT is used,

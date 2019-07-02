@@ -24,7 +24,7 @@ interface nsILDAPControl : nsISupports
   /**
    * The data associated with a control, if any.  To specify that no data
    * is to be associated with the control, don't set this at all (which
-   * is equivalent to setting it to null). 
+   * is equivalent to setting it to null).
    *
    * @note Specifying a zero-length value is not currently supported.  At some
    * date, setting this to an nsILDAPBERValue which has not had any of the

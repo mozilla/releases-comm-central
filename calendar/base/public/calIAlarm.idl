@@ -135,7 +135,7 @@ interface calIAlarm : nsISupports
 
     /**
      * The human readable representation of this alarm. Uses locale strings.
-     * 
+     *
      * @param aItem     The item to base the string on. Defaults to an event.
      */
     AUTF8String toString([optional] in calIItemBase aItem);

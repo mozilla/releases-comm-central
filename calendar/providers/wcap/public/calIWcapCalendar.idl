@@ -72,7 +72,7 @@ interface calIWcapCalendar : calICalendar
 
     /* xxx todo: additional filters sensible for calICalendar, too?
                  claiming bits 24-30 for now.
-                 
+
                  Those bits are somehow handled special now:
                  If at least one of the below is set, then
                  that filter bit(s) are active.
@@ -146,7 +146,7 @@ interface calIWcapCalendar : calICalendar
 
     /* xxx todo:
        separate out into another interface and leave only an attribute
-       
+
        readonly attribute calIWcapAccessControl accessControl;
 
        here?
@@ -215,7 +215,7 @@ interface calIWcapCalendar : calICalendar
      *     cal.deleteItem(item, listener);
      *
      * or
-     * 
+     *
      * if (cal.checkAccess(calIWcapCalendar.AC_PROP_WRITE))
      *     cal.name = newName;
      *
@@ -240,7 +240,7 @@ interface calIWcapCalendar : calICalendar
 //      *
 //      * Follow-up definition calls for the same user will overwrite previous
 //      * definitions.
-//      * 
+//      *
 //      * @param userId user that is affected by the access control bits
 //      *               WCAP specific:
 //      *                    - @ stands in for everybody
@@ -266,7 +266,7 @@ interface calIWcapCalendar : calICalendar
 //     calIOperation resetAccessControl(
 //         in string userId,
 //         in calIGenericOperationListener listener);
-    
+
 //     /**
 //      * Gets the set of access control definitions (including "everybody").
 //      * Both out arrays have the same length.

@@ -74,7 +74,7 @@ interface calIDuration : nsISupports
    * Compare with another duration
    *
    * @param    aOther     to be compared with this object
-   * 
+   *
    * @return   -1, 0, 1 if this < aOther, this == aOther, or this > aOther,
    *           respectively.
    */

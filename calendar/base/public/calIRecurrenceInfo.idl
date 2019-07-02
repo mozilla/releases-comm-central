@@ -41,7 +41,7 @@ interface calIRecurrenceInfo : nsISupports
   /**
    * If the base item's UID changes, this implicitly has to change all overridden items' UID, too.
    *
-   * @param id new UID 
+   * @param id new UID
    */
   void onIdChange(in AUTF8String aNewId);
 

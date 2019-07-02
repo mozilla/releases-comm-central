@@ -11,7 +11,7 @@
  *
  * Taken from the Mozilla C SDK's ldap.h include file, these should be
  * the same as those specified in the draft-ietf-ldapext-ldap-c-api-04.txt
- * Internet Draft. 
+ * Internet Draft.
  *
  * The only good documentation I'm aware of for these error codes is
  * at <http://docs.iplanet.com/docs/manuals/directory.html#SDKC>.
@@ -106,7 +106,7 @@ interface nsILDAPErrors : nsISupports
 
     const long BUSY = 0x33;
 
-    const long UNAVAILABLE = 0x34;   
+    const long UNAVAILABLE = 0x34;
 
     const long UNWILLING_TO_PERFORM = 0x35;
 

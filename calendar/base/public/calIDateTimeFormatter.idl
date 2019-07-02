@@ -78,10 +78,10 @@ interface calIDateTimeFormatter : nsISupports
 
     /**
      * Format a time interval that is defined by an item with the default
-     * timezone Internally it calls "formatInterval" after retrieving 
+     * timezone Internally it calls "formatInterval" after retrieving
      * the start/entry and end/due date of the item.
      *
-     * @param aItem 
+     * @param aItem
      *      The item describing the interval
      */
     AUTF8String formatItemInterval(in calIItemBase aItem);

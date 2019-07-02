@@ -35,9 +35,9 @@ interface calIStatusObserver : nsISupports
 
   /**
    * @return    An integer value denoting whether a progress is running or not;
-   *              if it returns DETERMINED_PROGRESS a determined progress 
+   *              if it returns DETERMINED_PROGRESS a determined progress
                   is running;
-   *              if it returns UNDETERMINED_PROGRESS an undetermined progress 
+   *              if it returns UNDETERMINED_PROGRESS an undetermined progress
                   is running;
    *              if it returns NO_PROGRESS no Progress is running.
    */

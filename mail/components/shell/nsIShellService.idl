@@ -17,14 +17,14 @@ interface nsIShellService : nsISupports
   const unsigned short RSS  = 0x0004;
 
   /**
-   * Determines whether or not Thunderbird is the "Default Client" for the 
+   * Determines whether or not Thunderbird is the "Default Client" for the
    * passed in app type.
    *
-   * This is simply whether or not Thunderbid is registered to handle 
+   * This is simply whether or not Thunderbid is registered to handle
    * the url scheme associatd with the app.
-   * 
+   *
    * @param aStartupCheck true if this is the check being performed
-   *                      by the first mail window at startup, 
+   *                      by the first mail window at startup,
    *                      false otherwise.
    * @param aApps the application types being tested (Mail, News, RSS, etc.)
    */
@@ -36,12 +36,12 @@ interface nsIShellService : nsISupports
    *
    * @param aForAllUsers   Whether or not Thunderbird should attempt
    *                       to become the default client for all
-   *                       users on a multi-user system. 
+   *                       users on a multi-user system.
    * @param aApps the application types being tested (Mail, News, RSS, etc.)
    */
   void setDefaultClient(in boolean aForAllUsers, in unsigned short aApps);
 
-  /** 
+  /**
    * Used to determine whether or not to show a "Set Default Client"
    * query dialog. This attribute is true if the application is starting
    * up and "mail.shell.checkDefaultClient" is true, otherwise it

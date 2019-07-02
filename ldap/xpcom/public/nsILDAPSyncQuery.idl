@@ -9,7 +9,7 @@ interface nsILDAPURL;
 
 [scriptable, uuid (0308fb36-1dd2-11b2-b16f-8510e8c5311a)]
 interface nsILDAPSyncQuery : nsISupports {
- 
+
   /**
    * getQueryResults
    *

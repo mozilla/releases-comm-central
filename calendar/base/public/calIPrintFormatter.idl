@@ -18,7 +18,7 @@ interface calIPrintFormatter : nsISupports
    * is localizable, ie uses nsIStringBundle
    */
   readonly attribute AString name;
-  
+
   /**
    * Format the items into the stream, as html code.
    * May assume that all the items are inside the given daterange.

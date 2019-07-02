@@ -9,7 +9,7 @@ interface calIItemBase;
 interface calICalendar;
 interface nsISimpleEnumerator;
 
-/** 
+/**
  * calIItipItem is an interface used to carry information between the mime
  * parser, the imip-bar UI, and the iTIP processor. It encapsulates a list of
  * calIItemBase objects and provides specialized iTIP methods for those items.

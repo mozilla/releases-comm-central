@@ -101,7 +101,7 @@ interface nsILDAPURL : nsIURI {
      * Search just the base object
      */
     const long SCOPE_BASE = 0;
-   
+
     /**
      * Search only the children of the base object
      */

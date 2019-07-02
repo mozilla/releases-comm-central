@@ -159,7 +159,7 @@ interface calICalendarView : nsISupports
 
   /**
    * Get the items currently selected in this view.
-   * 
+   *
    * @param aCount a variable to hold the number of items in this array
    *
    * @return the array of items currently selected in this.

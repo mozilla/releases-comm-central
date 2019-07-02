@@ -27,9 +27,9 @@ interface calITransactionManager : nsISupports
      *                                the calendar that the event should be
      *                                moved to.
      * @param aCalendar     The Calendar to execute the transaction on
-     * @param aItem         The changed item for this transaction. This item 
+     * @param aItem         The changed item for this transaction. This item
      *                      should be immutable
-     * @param aOldItem      The Item in its original form. Only needed for 
+     * @param aOldItem      The Item in its original form. Only needed for
      *                      modify.
      * @param aListener     The listener to call when the transaction has
      *                      completed. This parameter can be null.

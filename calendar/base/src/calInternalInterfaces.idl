@@ -17,7 +17,7 @@ interface calIInternalShallowCopy : nsISupports
    * create a proxy for this item; the returned item
    * proxy will have parentItem set to this instance.
    *
-   * @param aRecurrenceId RECURRENCE-ID of the proxy to be created 
+   * @param aRecurrenceId RECURRENCE-ID of the proxy to be created
    */
   calIItemBase createProxy(in calIDateTime aRecurrenceId);
 

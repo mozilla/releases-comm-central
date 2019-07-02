@@ -66,6 +66,6 @@ interface nsIAbMDBDirectory : nsISupports {
 
   // Empty implementation, called by the data base
   [noscript] void notifyDirItemAdded(in nsISupports item);
-  
+
   [noscript] void clearDatabase();
 };

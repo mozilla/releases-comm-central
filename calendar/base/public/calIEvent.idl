@@ -19,7 +19,7 @@ interface calIEvent : calIItemBase
   // these attributes are marked readonly, as the calIDates are owned
   // by the event; however, the actual calIDate objects are not read
   // only and are intended to be manipulated to adjust dates.
-  
+
   /**
    * The (inclusive) start of the event.
    */

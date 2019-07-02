@@ -14,14 +14,14 @@ interface nsIOutputStream;
 interface calIFileType : nsISupports
 {
   /**
-   * The default extension that should be associated 
+   * The default extension that should be associated
    * with files of this type.
    */
   readonly attribute AString defaultExtension;
 
   /**
    * The extension filter to use in the filepicker's filter list.
-   * Separate multiple extensions with semicolon and space. 
+   * Separate multiple extensions with semicolon and space.
    * For example "*.html; *.htm".
    */
   readonly attribute AString extensionFilter;
@@ -38,7 +38,7 @@ interface calIImporter : nsISupports
   void getFileTypes(out unsigned long aCount,
                     [retval, array, size_is(aCount)] out calIFileType aTypes);
 
-  void importFromStream(in nsIInputStream aStream, 
+  void importFromStream(in nsIInputStream aStream,
                         out unsigned long aCount,
                         [retval, array, size_is(aCount)] out calIItemBase aItems);
 };
@@ -51,7 +51,7 @@ interface calIExporter : nsISupports
 
   /**
    * Export the items into the stream
-   * 
+   *
    * @param aStream  the stream to put the data into
    * @param aCount   the number of items being exported
    * @param aItems   an array of items to be exported

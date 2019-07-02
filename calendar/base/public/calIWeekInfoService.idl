@@ -8,7 +8,7 @@ interface calIDateTime;
 
 /**
  * This interface will calculate a week title from a given datetime. This
- * will depends on the users preferences. 
+ * will depends on the users preferences.
  * Extensions might override the default implementation, in order to
  * generate week titles aimed at special cases (like weeknumbers for a
  * schoolyear)
@@ -31,7 +31,7 @@ interface calIWeekInfoService: nsISupports
     AString getWeekTitle(in calIDateTime dateTime);
 
     /**
-     * Gets the first day of a week of a passed day under consideration 
+     * Gets the first day of a week of a passed day under consideration
      * of the preference setting "calendar.week.start"
      *
      * @param aDate     The dateTime to get get the start of the week for

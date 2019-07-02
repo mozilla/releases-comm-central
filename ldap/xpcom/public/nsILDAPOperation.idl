@@ -259,7 +259,7 @@ interface nsILDAPOperation : nsISupports
                    in AUTF8String aFilter, in ACString aAttributes,
                    in PRIntervalTime aTimeOut, in int32_t aSizeLimit);
 
-    /** 
+    /**
      * Cancels an async operation that is in progress.
      *
      * XXX controls not supported yet
