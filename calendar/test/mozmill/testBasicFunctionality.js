@@ -89,6 +89,6 @@ function testSmokeTest() {
     wait_for_modal_dialog("Calendar:NewCalendarWizard", TIMEOUT_MODAL_DIALOG);
 }
 
-function teardownTest(module) {
+function teardownModule(module) {
     deleteCalendars(controller, CALENDARNAME);
 }

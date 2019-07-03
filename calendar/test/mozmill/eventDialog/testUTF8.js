@@ -73,7 +73,7 @@ function testUTF8() {
 }
 testUTF8.EXCLUDED_PLATFORMS = ["darwin"];
 
-function teardownTest(module) {
+function teardownModule(module) {
     deleteCalendars(controller, UTF8STRING);
     Services.prefs.clearUserPref("calendar.categories.names");
     closeAllEventDialogs();

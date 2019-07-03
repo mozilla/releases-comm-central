@@ -28,7 +28,7 @@ module.exports = {
         "no-unused-vars": [2, {
             vars: "all",
             args: "none",
-            varsIgnorePattern: "(MODULE_NAME|MODULE_REQUIRES|RELATIVE_ROOT|setupModule|installInto|teardownTest|^test[A-Z_].*)"
+            varsIgnorePattern: "(MODULE_NAME|MODULE_REQUIRES|RELATIVE_ROOT|setupModule|installInto|teardownModule|^test[A-Z_].*)"
         }]
     }
 };

@@ -128,7 +128,7 @@ function testTaskDialog() {
     });
 }
 
-function teardownTest(module) {
+function teardownModule(module) {
     deleteCalendars(controller, CALENDARNAME);
     closeAllEventDialogs();
 }

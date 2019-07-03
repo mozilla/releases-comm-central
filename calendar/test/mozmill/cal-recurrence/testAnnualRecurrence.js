@@ -80,7 +80,7 @@ function testAnnualRecurrence() {
     controller.waitForElementNotPresent(box);
 }
 
-function teardownTest(module) {
+function teardownModule(module) {
     deleteCalendars(controller, CALENDARNAME);
     closeAllEventDialogs();
 }

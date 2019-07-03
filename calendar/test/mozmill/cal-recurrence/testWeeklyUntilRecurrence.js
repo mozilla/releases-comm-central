@@ -199,7 +199,7 @@ function checkMultiWeekView(view) {
     );
 }
 
-function teardownTest(module) {
+function teardownModule(module) {
     deleteCalendars(controller, CALENDARNAME);
     closeAllEventDialogs();
 }

@@ -229,7 +229,7 @@ function testTimezones10_checkAdelaide() {
     verify(controller, DATES, TIMEZONES, times);
 }
 
-function teardownTest(module) {
+function teardownModule(module) {
 }
 
 function verify(controller, dates, timezones, times) {

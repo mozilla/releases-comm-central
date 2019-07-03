@@ -93,7 +93,7 @@ function testAlarmDialog() {
     wait_for_modal_dialog("Calendar:AlarmWindow", TIMEOUT_MODAL_DIALOG);
 }
 
-function teardownTest(module) {
+function teardownModule(module) {
     deleteCalendars(controller, CALENDARNAME);
     closeAllEventDialogs();
 }

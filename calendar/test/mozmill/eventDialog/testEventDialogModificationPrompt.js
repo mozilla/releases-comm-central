@@ -144,7 +144,7 @@ function testEventDialogModificationPrompt() {
 }
 testEventDialogModificationPrompt.EXCLUDED_PLATFORMS = ["darwin"];
 
-function teardownTest(module) {
+function teardownModule(module) {
     deleteCalendars(controller, CALENDARNAME);
     if (savePromptAppeared) {
         mark_failure(["Save Prompt unexpectedly appeared on: ", failPoints.first,

@@ -136,7 +136,7 @@ function handleReminderDialog(reminders) {
     reminders.window.close();
 }
 
-function teardownTest(module) {
+function teardownModule(module) {
     Services.prefs.clearUserPref("calendar.alarms.eventalarmlen");
     Services.prefs.clearUserPref("calendar.alarms.eventalarmunit");
     Services.prefs.clearUserPref("calendar.alarms.todoalarmlen");

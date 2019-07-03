@@ -194,7 +194,7 @@ function testDailyRecurrence() {
     controller.waitForElementNotPresent(day);
 }
 
-function teardownTest(module) {
+function teardownModule(module) {
     deleteCalendars(controller, CALENDARNAME);
     // Reset view.
     switchToView(controller, "day");

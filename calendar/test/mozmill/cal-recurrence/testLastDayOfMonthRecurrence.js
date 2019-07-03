@@ -134,7 +134,7 @@ function setRecurrence(recurrence) {
     recurrence.click(reclookup(REC_DLG_ACCEPT));
 }
 
-function teardownTest(module) {
+function teardownModule(module) {
     deleteCalendars(controller, CALENDARNAME);
     closeAllEventDialogs();
 }

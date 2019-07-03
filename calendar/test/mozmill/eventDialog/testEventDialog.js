@@ -249,7 +249,7 @@ function checkTooltip(row, col, startTime, endTime) {
     controller.assert(() => dateTime.getNode().textContent.endsWith(endTime));
 }
 
-function teardownTest(module) {
+function teardownModule(module) {
     deleteCalendars(controller, CALENDARNAME);
     closeAllEventDialogs();
 }

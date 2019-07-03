@@ -188,6 +188,6 @@ function getIsoDate() {
     return `${currDate.getFullYear()}${month}${day}`;
 }
 
-function teardownTest(module) {
+function teardownModule(module) {
     deleteCalendars(controller, "Mozmill");
 }

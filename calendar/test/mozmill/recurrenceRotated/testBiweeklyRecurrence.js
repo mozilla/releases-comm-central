@@ -106,7 +106,7 @@ function testBiweeklyRecurrence() {
     controller.waitForElementNotPresent(box);
 }
 
-function teardownTest(module) {
+function teardownModule(module) {
     deleteCalendars(controller, CALENDARNAME);
     // Reset view.
     switchToView(controller, "day");

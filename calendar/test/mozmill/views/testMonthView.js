@@ -115,7 +115,7 @@ function testMonthView() {
     controller.waitForElementNotPresent(eventBox);
 }
 
-function teardownTest(module) {
+function teardownModule(module) {
     deleteCalendars(controller, CALENDARNAME);
     closeAllEventDialogs();
 }

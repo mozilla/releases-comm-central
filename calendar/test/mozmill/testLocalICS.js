@@ -87,6 +87,6 @@ function testLocalICS() {
     controller.assert(() => str.value.includes("SUMMARY:" + calendarTitle));
 }
 
-function teardownTest(module) {
+function teardownModule(module) {
     deleteCalendars(controller, calendarName);
 }

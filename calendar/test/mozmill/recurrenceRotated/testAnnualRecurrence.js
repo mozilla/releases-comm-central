@@ -83,7 +83,7 @@ function testAnnualRecurrence() {
     controller.waitForElementNotPresent(box);
 }
 
-function teardownTest(module) {
+function teardownModule(module) {
     deleteCalendars(controller, CALENDARNAME);
     // Reset view.
     if (eid("day-view").getNode().orient == "horizontal") {

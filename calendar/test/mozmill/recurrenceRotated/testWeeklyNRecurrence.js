@@ -158,7 +158,7 @@ function checkMultiWeekView(view) {
     controller.assertNodeNotExist(lookupEventBox(view, EVENT_BOX, week, 7, null, EVENTPATH));
 }
 
-function teardownTest(module) {
+function teardownModule(module) {
     deleteCalendars(controller, CALENDARNAME);
     // Reset view.
     switchToView(controller, "day");

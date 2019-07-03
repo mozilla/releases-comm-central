@@ -154,7 +154,7 @@ function testTaskView() {
     controller.waitFor(() => taskTreeNode.mTaskArray.length == 0, "Task did not delete");
 }
 
-function teardownTest(module) {
+function teardownModule(module) {
     deleteCalendars(controller, CALENDARNAME);
     closeAllEventDialogs();
 }

@@ -190,7 +190,7 @@ function testDailyRecurrence() {
     controller.waitForElementNotPresent(day);
 }
 
-function teardownTest(module) {
+function teardownModule(module) {
     deleteCalendars(controller, CALENDARNAME);
     closeAllEventDialogs();
 }

@@ -138,7 +138,7 @@ function setRecurrence(recurrence) {
     recurrence.click(reclookup(REC_DLG_ACCEPT));
 }
 
-function teardownTest(module) {
+function teardownModule(module) {
     deleteCalendars(controller, CALENDARNAME);
     // Reset view.
     if (eid("day-view").getNode().orient == "horizontal") {
