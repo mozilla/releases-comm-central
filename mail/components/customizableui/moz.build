@@ -8,14 +8,6 @@ DIRS += [
     'content',
 ]
 
-# TODO appmenu - Not currently used for Thunderbird.
-# BROWSER_CHROME_MANIFESTS += ['test/browser.ini']
-
-# TODO appmenu - Not currently used for Thunderbird.
-# TESTING_JS_MODULES += [
-#     'test/CustomizableUITestUtils.jsm',
-# ]
-
 EXTRA_JS_MODULES += [
     'CustomizableUI.jsm',
     'CustomizableWidgets.jsm',

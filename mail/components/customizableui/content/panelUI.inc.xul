@@ -1310,6 +1310,7 @@
         <toolbarbutton id="appmenu_goRecentlyClosedTabs"
                        class="subviewbutton subviewbutton-nav"
                        label="&goRecentlyClosedTabs.label;"
+                       observes="cmd_undoCloseTab"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-goRecentlyClosedTabsView', this)"/>
         <toolbarseparator id="appmenu_goRecentlyClosedTabsSeparator"/>
@@ -1387,11 +1388,6 @@
 
     <!-- Go / Recently Closed Tabs -->
     <!-- Dynamically populated when shown. -->
-    <!-- TODO appmenu - what about this 'observes' bit?
-        <menu id="appmenu_goRecentlyClosedTabs"
-                  label="&goRecentlyClosedTabs.label;"
-                  observes="cmd_undoCloseTab">
-    -->
     <panelview id="appMenu-goRecentlyClosedTabsView"
                title="&goRecentlyClosedTabs.label;"
                class="PanelUI-subView">
