@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // applications.js
-/* globals gApplicationsPane */
+/* globals gGeneralPane */
 
 var gAppManagerDialog = {
   _removed: [],
@@ -11,7 +11,7 @@ var gAppManagerDialog = {
   init() {
     this.handlerInfo = window.arguments[0];
     var bundle = document.getElementById("appManagerBundle");
-    gApplicationsPane._prefsBundle = document.getElementById("bundlePreferences");
+    gGeneralPane._prefsBundle = document.getElementById("bundlePreferences");
     var description = this.handlerInfo.typeDescription;
     var key = (this.handlerInfo.wrappedHandlerInfo instanceof Ci.nsIMIMEInfo) ?
                 "handleFile" : "handleProtocol";
@@ -23,7 +23,7 @@ var gAppManagerDialog = {
     var apps = this.handlerInfo.possibleApplicationHandlers.enumerate();
     while (apps.hasMoreElements()) {
       let app = apps.getNext();
-      if (!gApplicationsPane.isValidHandlerApp(app))
+      if (!gGeneralPane.isValidHandlerApp(app))
         continue;
 
       app.QueryInterface(Ci.nsIHandlerApp);
@@ -35,7 +35,7 @@ var gAppManagerDialog = {
       item.app = app;
 
       let image = document.createXULElement("image");
-      image.setAttribute("src", gApplicationsPane._getIconURLForHandlerApp(app));
+      image.setAttribute("src", gGeneralPane._getIconURLForHandlerApp(app));
       item.appendChild(image);
 
       let label = document.createXULElement("label");

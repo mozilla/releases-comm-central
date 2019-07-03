@@ -33,7 +33,6 @@
 <!ENTITY searchIntegration.accesskey   "S">
 <!ENTITY checkDefaultsNow.label        "Check Now…">
 <!ENTITY checkDefaultsNow.accesskey    "N">
-<!ENTITY configEditDesc.label          "Advanced Configuration">
 <!ENTITY configEdit.label              "Config Editor…">
 <!ENTITY configEdit.accesskey          "C">
 <!ENTITY returnReceiptsInfo.label      "Determine how &brandShortName; handles return receipts">

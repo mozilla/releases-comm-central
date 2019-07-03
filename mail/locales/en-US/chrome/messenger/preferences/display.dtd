@@ -48,7 +48,7 @@
 
 <!-- Advanced -->
 <!ENTITY reading.caption                  "Reading">
-<!ENTITY display.caption                  "Display">
+<!ENTITY displayName.label                "Display name:">
 <!ENTITY showCondensedAddresses.label     "Show only display name for people in my address book">
 <!ENTITY showCondensedAddresses.accesskey "S">
 

@@ -21,11 +21,6 @@
   }
 }
 
-/* Attachments Pane */
-#handlersView {
-  -moz-box-flex: 1;
-}
-
 /* Modeless Window Dialogs */
 .windowDialog,
 .windowDialog prefpane {

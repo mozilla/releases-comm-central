@@ -11,7 +11,6 @@ messenger.jar:
     content/messenger/preferences/dockoptions.js
     content/messenger/preferences/dockoptions.xul
 #endif
-    content/messenger/preferences/display.js
     content/messenger/preferences/chat.js
     content/messenger/preferences/messagestyle.js
     content/messenger/preferences/messengerLanguages.js

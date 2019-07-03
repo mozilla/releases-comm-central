@@ -32,6 +32,9 @@
 #endif
 #endif
   <script src="chrome://global/content/preferencesBindings.js"/>
+#ifdef MOZ_UPDATER
+  <script src="chrome://messenger/content/aboutDialog-appUpdater.js"/>
+#endif
 
   <stringbundle id="bundleBrand" src="chrome://branding/locale/brand.properties"/>
   <stringbundle id="bundlePreferences"
@@ -64,7 +67,6 @@
         <hbox class="paneDeckContainer" flex="1">
           <hbox id="paneDeck" flex="1">
 #include general.inc.xul
-#include display.inc.xul
 #include compose.inc.xul
 #include chat.inc.xul
 #include privacy.inc.xul

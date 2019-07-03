@@ -4,6 +4,7 @@
   <prefpane id="paneCompose" label="&paneComposition.title;">
     <script src="chrome://messenger/content/preferences/compose.js"/>
     <script src="chrome://global/content/contentAreaUtils.js"/>
+    <script src="chrome://messenger/content/preferences/downloads.js"/>
     <script src="chrome://communicator/content/utilityOverlay.js"/>
 
     <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>

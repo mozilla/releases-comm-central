@@ -4,10 +4,37 @@
   <prefpane id="paneGeneral" label="&paneGeneral.title;">
     <script src="chrome://communicator/content/utilityOverlay.js"/>
     <script src="chrome://messenger/content/preferences/general.js"/>
+    <script src="chrome://mozapps/content/preferences/fontbuilder.js"/>
+
+    <commandset id="appPaneCommandSet">
+      <command id="cmd_delete"
+               oncommand="gGeneralPane.onDelete();"/>
+    </commandset>
+
+    <keyset id="appPaneKeyset">
+      <key keycode="VK_BACK" modifiers="any" command="cmd_delete"/>
+      <key keycode="VK_DELETE" modifiers="any" command="cmd_delete"/>
+    </keyset>
+
+    <keyset>
+      <key key="&focusSearch1.key;" modifiers="accel"
+           oncommand="gGeneralPane.focusFilterBox();"/>
+      <key key="&focusSearch2.key;" modifiers="accel"
+           oncommand="gGeneralPane.focusFilterBox();"/>
+    </keyset>
 
     <stringbundle id="bundlePreferences" src="chrome://messenger/locale/preferences/preferences.properties"/>
+#ifdef HAVE_SHELL_SERVICE
+    <stringbundle id="bundleBrand" src="chrome://branding/locale/brand.properties"/>
+#endif
 
-    <groupbox>
+    <hbox id="generalCategory"
+          class="subcategory"
+          data-category="paneGeneral">
+      <html:h1 data-l10n-id="pane-general-title"/>
+    </hbox>
+
+    <groupbox data-category="paneGeneral">
       <label><html:h2>&messengerStartPage.label;</html:h2></label>
         <hbox align="start">
           <checkbox id="mailnewsStartPageEnabled" label="&enableStartPage.label;"
@@ -25,7 +52,7 @@
         </hbox>
     </groupbox>
 
-    <groupbox>
+    <groupbox data-category="paneGeneral">
       <label><html:h2 >&defaultSearchEngine.label;</html:h2></label>
       <hbox align="center">
         <menulist id="defaultWebSearch">
@@ -42,7 +69,190 @@
       </hbox>
     </groupbox>
 
-    <groupbox>
+#ifdef HAVE_SHELL_SERVICE
+    <groupbox id="systemDefaultsGroup" data-category="paneGeneral" orient="vertical">
+      <label><html:h2>&systemIntegration.label;</html:h2></label>
+      <hbox id="checkDefaultBox" align="center">
+        <checkbox id="alwaysCheckDefault"
+                  preference="mail.shell.checkDefaultClient"
+                  label="&alwaysCheckDefault.label;"
+                  accesskey="&alwaysCheckDefault.accesskey;"/>
+        <spacer flex="1"/>
+        <button id="checkDefaultButton" label="&checkDefaultsNow.label;"
+                accesskey="&checkDefaultsNow.accesskey;"
+                oncommand="gGeneralPane.checkDefaultNow();"
+                preference="pref.general.disable_button.default_mail"/>
+      </hbox>
+      <hbox id="searchIntegrationContainer">
+        <checkbox id="searchIntegration"
+                  preference="searchintegration.enable"
+                  label="&searchIntegration.label;"
+                  accesskey="&searchIntegration.accesskey;"/>
+      </hbox>
+    </groupbox>
+#endif
+
+    <hbox id="languageAndAppearanceCategory"
+          class="subcategory"
+          data-category="paneGeneral">
+      <html:h1 data-l10n-id="general-language-and-appearance-header"/>
+    </hbox>
+
+    <!-- Fonts and Colors -->
+    <groupbox id="fontsGroup" data-category="paneGeneral">
+      <label><html:h2>&fontsAndColors1.label;</html:h2></label>
+
+      <hbox id="fontSettings" flex="1">
+        <vbox id="fontRow" flex="1">
+          <hbox align="center">
+            <label accesskey="&defaultFont.accesskey;" control="defaultFont">&defaultFont.label;</label>
+            <menulist id="defaultFont" flex="1" sizetopopup="pref" crop="center">
+              <menupopup crop="center"/>
+            </menulist>
+            <label accesskey="&defaultSize.accesskey;" control="defaultFontSize">&defaultSize.label;</label>
+            <menulist id="defaultFontSize" flex="1">
+              <menupopup crop="center">
+                <menuitem value="9" label="9"/>
+                <menuitem value="10" label="10"/>
+                <menuitem value="11" label="11"/>
+                <menuitem value="12" label="12"/>
+                <menuitem value="13" label="13"/>
+                <menuitem value="14" label="14"/>
+                <menuitem value="15" label="15"/>
+                <menuitem value="16" label="16"/>
+                <menuitem value="17" label="17"/>
+                <menuitem value="18" label="18"/>
+                <menuitem value="20" label="20"/>
+                <menuitem value="22" label="22"/>
+                <menuitem value="24" label="24"/>
+                <menuitem value="26" label="26"/>
+                <menuitem value="28" label="28"/>
+                <menuitem value="30" label="30"/>
+                <menuitem value="32" label="32"/>
+                <menuitem value="34" label="34"/>
+                <menuitem value="36" label="36"/>
+                <menuitem value="40" label="40"/>
+                <menuitem value="44" label="44"/>
+                <menuitem value="48" label="48"/>
+                <menuitem value="56" label="56"/>
+                <menuitem value="64" label="64"/>
+                <menuitem value="72" label="72"/>
+              </menupopup>
+            </menulist>
+          </hbox>
+        </vbox>
+        <vbox id="colorsRow">
+          <button id="advancedFonts" flex="1" label="&fontOptions.label;" icon="select-font"
+                  accesskey="&fontOptions.accesskey;" oncommand="gGeneralPane.configureFonts();"/>
+          <button id="colors" flex="1" icon="select-color" label="&colorButton.label;"
+                  accesskey="&colorButton.accesskey;" oncommand="gGeneralPane.configureColors();"/>
+        </vbox>
+      </hbox>
+      <hbox>
+        <label><html:h2>&displayWidth.label;</html:h2></label>
+      </hbox>
+      <hbox>
+        <checkbox id="displayGlyph"
+                  label="&convertEmoticons.label;"
+                  preference="mail.display_glyph"
+                  accesskey="&convertEmoticons.accesskey;"/>
+        <spacer flex="1"/>
+      </hbox>
+
+      <separator class="thin"/>
+
+      <label control="displayText">&displayText.label;</label>
+      <hbox id="displayText" class="indent" align="center" role="group">
+        <label value="&style.label;" accesskey="&style.accesskey;" control="mailQuotedStyle"/>
+        <menulist id="mailQuotedStyle" preference="mail.quoted_style">
+          <menupopup>
+            <menuitem value="0" label="&regularStyle.label;"/>
+            <menuitem value="1" label="&bold.label;"/>
+            <menuitem value="2" label="&italic.label;"/>
+            <menuitem value="3" label="&boldItalic.label;"/>
+          </menupopup>
+        </menulist>
+        <label value="&size.label;" accesskey="&size.accesskey;" control="mailQuotedSize"/>
+        <menulist id="mailQuotedSize" preference="mail.quoted_size">
+          <menupopup>
+            <menuitem value="0" label="&regularSize.label;"/>
+            <menuitem value="1" label="&bigger.label;"/>
+            <menuitem value="2" label="&smaller.label;"/>
+          </menupopup>
+        </menulist>
+        <label value="&quotedTextColor.label;" accesskey="&quotedTextColor.accesskey;" control="citationmenu"/>
+        <html:input type="color" id="citationmenu" preference="mail.citation_color"/>
+      </hbox>
+    </groupbox>
+
+    <!-- Date and time formatting -->
+    <groupbox data-category="paneGeneral">
+      <label><html:h2>&dateTimeFormatting.label;</html:h2></label>
+      <radiogroup id="formatLocale" align="start"
+                  preference="intl.regional_prefs.use_os_locales"
+                  orient="vertical">
+        <radio id="appLocale"
+               value="false"/>
+               <!-- label and accesskey will be set dynamically -->
+        <radio id="rsLocale"
+               value="true"/>
+               <!-- label and accesskey will be set dynamically -->
+      </radiogroup>
+    </groupbox>
+
+    <groupbox id="messengerLanguagesBox" data-category="paneGeneral" hidden="true">
+      <label><html:h2>&languageSelector.label;</html:h2></label>
+        <vbox align="start">
+        <description flex="1"
+                     controls="chooseMessengerLanguage"
+                     data-l10n-id="choose-messenger-language-description"/>
+        <hbox>
+          <menulist id="defaultMessengerLanguage"
+                    oncommand="gGeneralPane.onMessengerLanguageChange(event)">
+            <menupopup/>
+          </menulist>
+          <button id="manageMessengerLanguagesButton"
+                  class="accessory-button"
+                  data-l10n-id="manage-messenger-languages-button"
+                  oncommand="gGeneralPane.showMessengerLanguages({search: false})"/>
+        </hbox>
+      </vbox>
+      <hbox id="confirmMessengerLanguage"
+            class="message-bar"
+            align="center"
+            hidden="true">
+        <image class="message-bar-icon"/>
+        <vbox class="message-bar-content-container" align="stretch" flex="1"/>
+      </hbox>
+    </groupbox>
+
+    <!-- Scrolling -->
+    <groupbox id="scrollingGroup" data-category="paneGeneral">
+      <label><html:h2>&scrolling.label;</html:h2></label>
+      <hbox>
+        <checkbox id="useAutoScroll"
+                  label="&useAutoScroll.label;"
+                  accesskey="&useAutoScroll.accesskey;"
+                  preference="general.autoScroll"/>
+        <spacer flex="1"/>
+      </hbox>
+      <hbox>
+        <checkbox id="useSmoothScrolling"
+                  label="&useSmoothScrolling.label;"
+                  accesskey="&useSmoothScrolling.accesskey;"
+                  preference="general.smoothScroll"/>
+        <spacer flex="1"/>
+      </hbox>
+    </groupbox>
+
+
+    <hbox id="incomingMailCategory"
+          class="subcategory"
+          data-category="paneGeneral">
+      <html:h1 data-l10n-id="general-incoming-mail-header"/>
+    </hbox>
+
+    <groupbox data-category="paneGeneral">
       <label><html:h2>&newMessagesArrive.label;</html:h2></label>
 #ifdef XP_MACOSX
       <hbox align="center">
@@ -125,4 +335,429 @@
         </button>
       </hbox>
     </groupbox>
+
+    <hbox id="filesAttachmentCategory"
+          class="subcategory"
+          data-category="paneGeneral">
+      <html:h1 data-l10n-id="general-files-and-attachment-header"/>
+    </hbox>
+
+    <groupbox data-category="paneGeneral">
+      <hbox>
+        <textbox is="search-textbox" id="filter"
+                 flex="1"
+                 placeholder="&filter.placeholder;"
+                 aria-controls="handlersView"
+                 oncommand="gGeneralPane.rebuildView();"/>
+      </hbox>
+
+      <separator class="thin"/>
+
+      <listheader equalsize="always">
+        <treecol id="typeColumn" label="&typeColumn.label;" value="type"
+                 accesskey="&typeColumn.accesskey;" persist="sortDirection"
+                 flex="1" onclick="gGeneralPane.sort(event);"
+                 sortDirection="ascending" sort="typeDescription"/>
+        <treecol id="actionColumn" label="&actionColumn2.label;" value="action"
+                 accesskey="&actionColumn2.accesskey;" persist="sortDirection"
+                 flex="1" onclick="gGeneralPane.sort(event);"/>
+      </listheader>
+      <richlistbox id="handlersView" height="180px"
+                   preference="pref.downloads.disable_button.edit_actions"/>
+
+      <separator class="thin"/>
+
+      <vbox align="start">
+        <radiogroup id="saveWhere" flex="1"
+                    preference="browser.download.useDownloadDir">
+          <hbox id="saveToRow" align="center">
+            <radio id="saveTo" value="true"
+                   label="&saveTo.label;"
+                   accesskey="&saveTo.accesskey;"
+                   aria-labelledby="saveTo downloadFolder"/>
+            <textbox id="downloadFolder" flex="1"
+                     type="filefield"
+                     readonly="true"
+                     aria-labelledby="saveTo"/>
+            <button id="chooseFolder" oncommand="gDownloadDirSection.chooseFolder();"
+#ifdef XP_MACOSX
+                    accesskey="&chooseFolderMac.accesskey;"
+                    label="&chooseFolderMac.label;"/>
+#else
+                    accesskey="&chooseFolderWin.accesskey;"
+                    label="&chooseFolderWin.label;"/>
+#endif
+          </hbox>
+          <hbox>
+            <radio id="alwaysAsk"
+                   value="false"
+                   label="&alwaysAsk.label;"
+                   accesskey="&alwaysAsk.accesskey;"/>
+          </hbox>
+        </radiogroup>
+      </vbox>
+    </groupbox>
+
+    <hbox id="tagsCategory"
+          class="subcategory"
+          data-category="paneGeneral">
+      <html:h1 data-l10n-id="general-tags-header"/>
+    </hbox>
+
+    <groupbox data-category="paneGeneral">
+      <label control="tagList">&displayTagsText.label;</label>
+      <hbox>
+        <richlistbox id="tagList"
+                     flex="1"
+                     height="180px"
+                     ondblclick="gGeneralPane.editTag();"
+                     onselect="gGeneralPane.onSelectTag();"/>
+        <vbox id="tagButtons">
+          <button label="&newTagButton.label;" accesskey="&newTagButton.accesskey;"
+                  oncommand="gGeneralPane.addTag();"/>
+          <button id="editTagButton" disabled="true"
+                  label="&editTagButton1.label;"
+                  accesskey="&editTagButton1.accesskey;"
+                  oncommand="gGeneralPane.editTag();"/>
+          <button id="removeTagButton" disabled="true"
+                  label="&removeTagButton.label;"
+                  accesskey="&removeTagButton.accesskey;"
+                  oncommand="gGeneralPane.removeTag();"/>
+        </vbox>
+      </hbox>
+    </groupbox>
+
+
+    <hbox id="readingAndDisplayCategory"
+          class="subcategory"
+          data-category="paneGeneral">
+      <html:h1 data-l10n-id="general-reading-and-display-header"/>
+    </hbox>
+
+    <groupbox data-category="paneGeneral">
+      <vbox>
+        <hbox>
+          <checkbox id="automaticallyMarkAsRead"
+                    preference="mailnews.mark_message_read.auto"
+                    label="&autoMarkAsRead.label;"
+                    accesskey="&autoMarkAsRead.accesskey;"/>
+        </hbox>
+
+        <radiogroup id="markAsReadAutoPreferences" orient="vertical"
+                    class="indent"
+                    align="start"
+                    preference="mailnews.mark_message_read.delay">
+          <radio id="mark_read_immediately"
+                 label="&markAsReadNoDelay.label;"
+                 value="false"
+                 accesskey="&markAsReadNoDelay.accesskey;"/>
+          <hbox align="center">
+            <radio id="markAsReadAfterDelay" value="true"
+                   label="&markAsReadDelay.label;"
+                   accesskey="&markAsReadDelay.accesskey;"/>
+            <html:input id="markAsReadDelay" type="number" class="size3"
+                        min="1" max="2147483"
+                        preference="mailnews.mark_message_read.delay.interval"
+                        aria-labelledby="markAsReadAfterDelay markAsReadDelay secondsLabel"/>
+            <label id="secondsLabel" value="&secondsLabel.label;"/>
+          </hbox>
+        </radiogroup>
+      </vbox>
+
+      <separator/>
+
+      <vbox>
+        <hbox>
+          <label value="&openMsgIn.label;"
+                 control="mailOpenMessageBehavior"/>
+        </hbox>
+        <hbox>
+          <radiogroup id="mailOpenMessageBehavior" class="indent"
+                      preference="mail.openMessageBehavior"
+                      orient="horizontal">
+            <radio id="newTab" value="2" label="&openMsgInNewTab.label;"
+                   accesskey="&openMsgInNewTab.accesskey;"/>
+            <radio id="newWindow" value="0" label="&reuseExpRadio0.label;"
+                   accesskey="&reuseExpRadio0.accesskey;"/>
+            <radio id="existingWindow" value="1"
+                   label="&reuseExpRadio1.label;"
+                   accesskey="&reuseExpRadio1.accesskey;"/>
+          </radiogroup>
+        </hbox>
+        <hbox>
+          <checkbox id="closeMsgOnMoveOrDelete"
+                    label="&closeMsgOnMoveOrDelete.label;"
+                    accesskey="&closeMsgOnMoveOrDelete.accesskey;"
+                    preference="mail.close_message_window.on_delete"/>
+        </hbox>
+      </vbox>
+
+      <separator/>
+
+      <hbox>
+        <label value="&displayName.label;"/>
+        </hbox>
+        <hbox>
+        <checkbox id="showCondensedAddresses"
+                  label="&showCondensedAddresses.label;"
+                  accesskey="&showCondensedAddresses.accesskey;"
+                  preference="mail.showCondensedAddresses"/>
+      </hbox>
+
+      <separator class="thin"/>
+
+      <hbox align="center">
+        <description flex="1">&returnReceiptsInfo.label;</description>
+        <button id="showReturnReceipts"
+                label="&showReturnReceipts.label;"
+                accesskey="&showReturnReceipts.accesskey;"
+                oncommand="gGeneralPane.showReturnReceipts();"/>
+      </hbox>
+    </groupbox>
+
+#ifdef MOZ_UPDATER
+    <hbox id="updatesCategory"
+          class="subcategory"
+          data-category="paneGeneral">
+      <html:h1 data-l10n-id="general-updates-header"/>
+    </hbox>
+
+    <!-- Update -->
+    <groupbox id="updateApp" data-category="paneGeneral">
+      <label><html:h2>&updateApp2.label;</html:h2></label>
+      <hbox align="center">
+        <vbox>
+          <description>
+            &updateApp.version.pre;<label id="version"/>&updateApp.version.post;
+            <label is="text-link" id="releasenotes" hidden="true">&releaseNotes.link;</label>
+          </description>
+          <description id="distribution" class="text-blurb" hidden="true"/>
+          <description id="distributionId" class="text-blurb" hidden="true"/>
+        </vbox>
+        <spacer flex="1"/>
+        <vbox>
+          <button id="showUpdateHistory"
+                  label="&updateHistory.label;"
+                  accesskey="&updateHistory.accesskey;"
+                  preference="app.update.disable_button.showUpdateHistory"
+                  oncommand="gGeneralPane.showUpdates();"/>
+        </vbox>
+      </hbox>
+      <vbox id="updateBox">
+        <deck id="updateDeck" orient="vertical">
+          <hbox id="checkForUpdates" align="center">
+            <spacer flex="1"/>
+            <button id="checkForUpdatesButton" align="start"
+                    label="&update.checkForUpdatesButton.label;"
+                    accesskey="&update.checkForUpdatesButton.accesskey;"
+                    oncommand="gAppUpdater.checkForUpdates();"/>
+          </hbox>
+          <hbox id="downloadAndInstall" align="center">
+            <spacer flex="1"/>
+            <button id="downloadAndInstallButton"
+                    oncommand="gAppUpdater.startDownload();"/>
+                    <!-- label and accesskey will be filled by JS -->
+          </hbox>
+          <hbox id="apply" align="center">
+            <spacer flex="1"/>
+            <button id="updateButton"
+                    label="&update.updateButton.label3;"
+                    accesskey="&update.updateButton.accesskey;"
+                    oncommand="gAppUpdater.buttonRestartAfterDownload();"/>
+          </hbox>
+          <hbox id="checkingForUpdates" align="center">
+            <image class="update-throbber"/><label>&update.checkingForUpdates;</label>
+            <spacer flex="1"/>
+            <button label="&update.checkForUpdatesButton.label;"
+                    accesskey="&update.checkForUpdatesButton.accesskey;"
+                    disabled="true"/>
+          </hbox>
+          <hbox id="downloading" align="center">
+            <image class="update-throbber"/><label>&update.downloading.start;</label>
+            <label id="downloadStatus"/><label>&update.downloading.end;</label>
+          </hbox>
+          <hbox id="applying" align="center">
+            <image class="update-throbber"/><label>&update.applying;</label>
+          </hbox>
+         <hbox id="downloadFailed" align="center">
+            <label>&update.failed.start;</label>
+            <label is="text-link" id="failedLink">&update.failed.linkText;</label>
+            <label>&update.failed.end;</label>
+            <spacer flex="1"/>
+            <button label="&update.checkForUpdatesButton.label;"
+                    accesskey="&update.checkForUpdatesButton.accesskey;"
+                    oncommand="gAppUpdater.checkForUpdates();"/>
+          </hbox>
+          <hbox id="policyDisabled" align="center">
+            <label>&update.adminDisabled;</label>
+          </hbox>
+          <hbox id="noUpdatesFound" align="center">
+            <label>&update.noUpdatesFound;</label>
+            <spacer flex="1"/>
+            <button label="&update.checkForUpdatesButton.label;"
+                    accesskey="&update.checkForUpdatesButton.accesskey;"
+                    oncommand="gAppUpdater.checkForUpdates();"/>
+          </hbox>
+          <hbox id="otherInstanceHandlingUpdates" align="center">
+            <label>&update.otherInstanceHandlingUpdates;</label>
+          </hbox>
+          <hbox id="manualUpdate" align="center">
+            <label>&update.manual.start;</label><label is="text-link" id="manualLink">
+              &update.manual.linkText;
+            </label>
+            <label>&update.manual.end;</label>
+            <spacer flex="1"/>
+            <button label="&update.checkForUpdatesButton.label;"
+                    accesskey="&update.checkForUpdatesButton.accesskey;"
+                    disabled="true"/>
+          </hbox>
+          <hbox id="unsupportedSystem" align="center">
+            <label>&update.unsupported.start;</label>
+            <label is="text-link" id="unsupportedLink">&update.unsupported.linkText;</label>
+            <label>&update.unsupported.end;</label>
+          </hbox>
+          <hbox id="restarting" align="center">
+            <image class="update-throbber"/><label>&update.restarting;</label>
+          </hbox>
+        </deck>
+      </vbox>
+      <separator/>
+      <description id="updateAllowDescription">&updateAppAllow.description;</description>
+      <vbox id="updateSettingsContainer">
+        <radiogroup id="updateRadioGroup"
+                    align="start">
+          <radio id="autoDesktop"
+                 value="true"
+                 label="&updateAuto.label;"
+                 accesskey="&updateAuto.accesskey;"/>
+          <radio id="manualDesktop"
+                 value="false"
+                 label="&updateCheck.label;"
+                 accesskey="&updateCheck.accesskey;"/>
+        </radiogroup>
+        <description id="updateSettingCrossUserWarning" hidden="true">
+          &updateCrossUserSettingWarning.description;
+        </description>
+      </vbox>
+
+#ifdef MOZ_MAINTENANCE_SERVICE
+      <separator class="thin"/>
+      <checkbox id="useService"
+                label="&useService.label;"
+                accesskey="&useService.accesskey;"
+                preference="app.update.service.enabled"/>
+#endif
+    </groupbox>
+#endif
+
+    <hbox id="networkAndDiskspaceCategory"
+          class="subcategory"
+          data-category="paneGeneral">
+      <html:h1 data-l10n-id="general-network-and-diskspace-header"/>
+    </hbox>
+
+    <!-- Networking & Disk Space -->
+    <groupbox data-category="paneGeneral">
+      <label><html:h2>&connectionsInfo.caption;</html:h2></label>
+      <hbox align="center">
+        <description flex="1" control="catProxiesButton">&proxiesConfigure.label;</description>
+        <button id="catProxiesButton" icon="network" label="&showSettings.label;"
+                accesskey="&showSettings.accesskey;"
+                oncommand="gGeneralPane.showConnections();"/>
+      </hbox>
+    </groupbox>
+
+    <groupbox data-category="paneGeneral">
+      <label><html:h2>&offlineInfo.caption;</html:h2></label>
+      <hbox align="center">
+        <description flex="1" control="offlineSettingsButton">&offlineInfo.label;</description>
+        <button id="offlineSettingsButton" label="&showOffline.label;"
+                accesskey="&showOffline.accesskey;"
+                oncommand="gGeneralPane.showOffline();"/>
+      </hbox>
+    </groupbox>
+
+    <groupbox data-category="paneGeneral">
+      <label><html:h2>&Diskspace;</html:h2></label>
+      <hbox align="center">
+        <label id="actualDiskCacheSize" flex="1"/>
+        <button id="clearCacheButton" icon="clear"
+                label="&clearCacheNow.label;" accesskey="&clearCacheNow.accesskey;"
+                oncommand="gGeneralPane.clearCache();"/>
+      </hbox>
+      <hbox>
+        <checkbox preference="browser.cache.disk.smart_size.enabled"
+                  id="allowSmartSize"
+                  label="&overrideSmartCacheSize.label;"
+                  accesskey="&overrideSmartCacheSize.accesskey;"/>
+      </hbox>
+      <hbox align="center" class="indent">
+        <label id="useCacheBefore" control="cacheSize"
+               accesskey="&useCacheBefore.accesskey;" value="&useCacheBefore.label;"/>
+        <html:input id="cacheSize" type="number" class="size4" max="1024"
+                    preference="browser.cache.disk.capacity"
+                    aria-labelledby="useCacheBefore cacheSize useCacheAfter"/>
+        <label id="useCacheAfter" flex="1">&useCacheAfter.label;</label>
+      </hbox>
+      <hbox align="center">
+          <checkbox id="offlineCompactFolder"
+                    label="&offlineCompactFolders.label;"
+                    accesskey="&offlineCompactFolders.accesskey;"
+                    aria-labelledby="offlineCompactFolder offlineCompactFolderMin compactFolderMB"
+                    preference="mail.prompt_purge_threshhold"
+                    oncommand="gGeneralPane.updateCompactOptions(this.checked);"/>
+          <html:input id="offlineCompactFolderMin" type="number" class="size4"
+                      min="1" max="2048" value="200"
+                      preference="mail.purge_threshhold_mb"
+                      aria-labelledby="offlineCompactFolder offlineCompactFolderMin compactFolderMB"/>
+          <label id="compactFolderMB" value="&offlineCompactFoldersMB.label;"/>
+      </hbox>
+    </groupbox>
+
+    <groupbox data-category="paneGeneral">
+      <label><html:h2 data-l10n-id="general-indexing-label"/></label>
+      <vbox>
+        <hbox>
+          <checkbox id="enableGloda"
+                    preference="mailnews.database.global.indexer.enabled"
+                    label="&enableGlodaSearch.label;"
+                    accesskey="&enableGlodaSearch.accesskey;"/>
+        </hbox>
+        <hbox align="center">
+          <label value="&storeType.label;"
+                 accesskey="&storeType.accesskey;"
+                 control="storeTypeMenulist"/>
+          <menulist id="storeTypeMenulist"
+                    oncommand="gGeneralPane.updateDefaultStore(this.selectedItem.value)">
+            <menupopup id="storeTypeMenupopup">
+              <menuitem id="mboxStore"
+                        label="&mboxStore2.label;"
+                        value="@mozilla.org/msgstore/berkeleystore;1"/>
+              <menuitem id="maildirStore"
+                        label="&maildirStore.label;"
+                        value="@mozilla.org/msgstore/maildirstore;1"/>
+            </menupopup>
+          </menulist>
+        </hbox>
+        <hbox>
+          <checkbox id="allowHWAccel"
+                    label="&allowHWAccel.label;"
+                    accesskey="&allowHWAccel.accesskey;"
+                    preference="layers.acceleration.disabled"/>
+        </hbox>
+      </vbox>
+      <vbox>
+      </vbox>
+    </groupbox>
+
+    <separator class="thin" data-category="paneGeneral"/>
+
+    <groupbox data-category="paneGeneral">
+      <hbox pack="end">
+        <button id="configEditor" label="&configEdit.label;"
+                accesskey="&configEdit.accesskey;"
+                oncommand="gGeneralPane.showConfigEdit();"/>
+      </hbox>
+    </groupbox>
+
   </prefpane>

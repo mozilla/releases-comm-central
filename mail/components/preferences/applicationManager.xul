@@ -16,7 +16,7 @@
         persist="screenX screenY">
 
   <script src="chrome://global/content/preferencesBindings.js"/>
-  <script src="chrome://messenger/content/preferences/applications.js"/>
+  <script src="chrome://messenger/content/preferences/general.js"/>
   <script src="chrome://messenger/content/preferences/applicationManager.js"/>
 
   <commandset id="appManagerCommandSet">

@@ -29,11 +29,6 @@ menulist > menupopup > menuitem > .menu-iconic-left {
   margin-inline-end: 5px !important;
 }
 
-/* Attachments Pane */
-#handlersView {
-  -moz-box-flex: 1;
-}
-
 /* Modeless Window Dialogs */
 .windowDialog,
 .windowDialog prefpane {

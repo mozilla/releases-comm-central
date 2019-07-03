@@ -22,11 +22,6 @@ menulist > menupopup > menuitem {
   font: -moz-pull-down-menu;
 }
 
-/* Attachments Pane */
-#handlersView {
-  -moz-box-flex: 1;
-}
-
 #browserStartupHomepage {
   padding-top: 2px;
   padding-bottom: 3px;

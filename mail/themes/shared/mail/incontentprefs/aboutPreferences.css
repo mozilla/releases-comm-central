@@ -34,15 +34,44 @@
   width: 240px;
 }
 
+/* Subcategory title */
+
+/**
+ * The first subcategory title for each category should not have margin-top.
+ */
+
+.subcategory:not([hidden]) ~ .subcategory {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--in-content-border-color);
+}
+
+groupbox[data-category] {
+  margin: 0 0 32px;
+}
+
+html|h1 {
+  margin: 0 0 8px;
+  font-size: 1.46em;
+  font-weight: 300;
+  line-height: 1.3em;
+}
+
 html|h2 {
-  font-size: 1.14em;
-  margin: 4px 0 !important;
+  margin: 16px 0 4px;
+  font-size: 1.1em;
 }
 
 html|h3 {
   font-size: 1em;
   font-weight: 600;
   margin: 4px 0 !important;
+}
+
+description,
+label {
+  line-height: 1.8em;
+  margin: 0;
 }
 
 #preferencesContainer {
@@ -242,10 +271,6 @@ textbox[type="filefield"][disabled="true"] {
   color: var(--in-content-text-color);
 }
 
-textbox + button {
-  margin-inline-start: -4px;
-}
-
 html|input[type="number"] {
   margin-inline-start: 4px;
   padding: 1px;
@@ -321,6 +346,7 @@ tab:-moz-focusring > .tab-middle {
 
 #filter {
   margin-inline-start: 0;
+  margin-inline-end: 0;
 }
 
 #handlersView > richlistitem {
@@ -516,12 +542,22 @@ richlistbox:focus > richlistitem[selected="true"] {
   color: var(--in-content-selected-text) !important;
 }
 
+#defaultWebSearch {
+  margin-inline-start: 0;
+  margin-inline-end: 4px;
+}
+
+#defaultFontSize {
+  margin-inline-end: 4px;
+}
+
 #messengerLanguagesDialogPane {
   min-height: 360px;
 }
 
 #defaultMessengerLanguage {
   margin-inline-start: 0;
+  margin-inline-end: 4px;
   min-width: 20em;
 }
 
@@ -549,6 +585,14 @@ richlistbox:focus > richlistitem[selected="true"] {
 
 .action-button {
   margin-inline-end: 0;
+}
+
+#tagList {
+  margin-inline-end: 4px;
+}
+
+#tagButtons > button:first-child {
+  margin-top: 0;
 }
 
 /* Menulist styles */

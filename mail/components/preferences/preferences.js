@@ -38,7 +38,7 @@ var selector = document.getElementById("selector");
     radio.style.listStyleImage = pane.style.listStyleImage;
     selector.appendChild(radio);
 
-    pane.dispatchEvent(new CustomEvent("paneload"));
+    setTimeout(function() { pane.dispatchEvent(new CustomEvent("paneload")); }, 1);
   }
 
   if (prefPanes.length == 1) {
@@ -93,6 +93,7 @@ function showPane(paneID) {
   selector.value = paneID;
   pane.setAttribute("selected", "true");
   pane.dispatchEvent(new CustomEvent("paneSelected", { bubbles: true }));
+  document.getElementById("preferencesContainer").scrollTo(0, 0);
 
   document.documentElement.setAttribute("lastSelected", paneID);
   Services.xulStore.persist(document.documentElement, "lastSelected");
