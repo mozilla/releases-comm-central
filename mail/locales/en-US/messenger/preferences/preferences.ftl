@@ -23,6 +23,16 @@ general-network-and-diskspace-header = Network & Disk Space
 
 general-indexing-label = Indexing
 
+composition-category-header = Composition
+
+composition-attachments-header = Attachments
+
+composition-spelling-title = Spelling
+
+compose-html-style-title = HTML Style
+
+composition-addressing-header = Addressing
+
 choose-messenger-language-description = Choose the languages used to display menus, messages, and notifications from { -brand-short-name }.
 manage-messenger-languages-button =
   .label = Set Alternatives…

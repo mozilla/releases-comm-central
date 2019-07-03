@@ -9,231 +9,285 @@
 
     <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
 
-    <tabbox id="composePrefs" flex="1" onselect="gComposePane.tabSelectionChanged();">
-      <tabs id="composePrefsTabs">
-        <tab id="generalTab" label="&itemGeneral.label;"/>
-        <tab id="addressingTab" label="&itemAutoComplete.label;"/>
-        <tab id="spellingTab" label="&itemSpellCheck.label;"/>
-      </tabs>
+    <hbox id="compositionMainCategory"
+          class="subcategory"
+          data-category="paneCompose">
+      <html:h1 data-l10n-id="composition-category-header"/>
+    </hbox>
 
-      <tabpanels id="composePrefsPanels" flex="1">
-        <tabpanel orient="vertical">
-          <groupbox>
-            <hbox align="center">
-              <label value="&forwardMsg.label;" accesskey="&forwardMsg.accesskey;" control="forwardMessageMode"/>
-              <menulist id="forwardMessageMode" preference="mail.forward_message_mode">
-                <menupopup>
-                  <menuitem value="2" label="&inline.label;"/>
-                  <menuitem value="0" label="&asAttachment.label;"/>
-                </menupopup>
-              </menulist>
-              <separator orient="vertical" class="thin"/>
-              <checkbox id="addExtension" label="&addExtension.label;" preference="mail.forward_add_extension"
-                        accesskey="&addExtension.accesskey;"/>
-            </hbox>
+    <groupbox data-category="paneCompose">
+      <separator class="thin"/>
+      <hbox align="center">
+        <label value="&forwardMsg.label;" accesskey="&forwardMsg.accesskey;" control="forwardMessageMode"/>
+        <menulist id="forwardMessageMode" preference="mail.forward_message_mode">
+          <menupopup>
+            <menuitem value="2" label="&inline.label;"/>
+            <menuitem value="0" label="&asAttachment.label;"/>
+          </menupopup>
+        </menulist>
+        <separator orient="vertical" class="thin"/>
+        <checkbox id="addExtension" label="&addExtension.label;" preference="mail.forward_add_extension"
+                  accesskey="&addExtension.accesskey;"/>
+      </hbox>
 
-            <separator class="thin"/>
+      <separator class="thin"/>
 
-            <hbox align="center" pack="start">
-              <checkbox id="autoSave" label="&autoSave.label;" preference="mail.compose.autosave"
-                        accesskey="&autoSave.accesskey;"/>
-              <html:input id="autoSaveInterval" type="number" class="size2"
-                          min="1" max="35790"
-                          preference="mail.compose.autosaveinterval"
-                          aria-labelledby="autoSave autoSaveInterval autoSaveEnd"/>
-              <label id="autoSaveEnd" value="&autoSaveEnd.label;"/>
-            </hbox>
-            <hbox>
-              <checkbox id="mailWarnOnSendAccelKey"
-                        label="&warnOnSendAccelKey.label;"
-                        preference="mail.warn_on_send_accel_key"
-                        accesskey="&warnOnSendAccelKey.accesskey;"/>
-              <spacer flex="1"/>
-            </hbox>
-            <hbox align="center">
-              <checkbox id="attachment_reminder_label"
-                        label="&attachmentReminder.label;"
-                        accesskey="&attachmentReminder.accesskey;"
-                        preference="mail.compose.attachment_reminder"/>
-              <spacer flex="1"/>
-              <button id="attachment_reminder_button"
-                      label="&attachmentReminderOptions.label;"
-                      accesskey="&attachmentReminderOptions.accesskey;"
-                      oncommand="gComposePane.attachmentReminderOptionsDialog();"/>
-            </hbox>
+      <hbox align="center" pack="start">
+        <checkbox id="autoSave" label="&autoSave.label;" preference="mail.compose.autosave"
+                  accesskey="&autoSave.accesskey;"/>
+        <html:input id="autoSaveInterval" type="number" class="size2"
+                    min="1" max="35790"
+                    preference="mail.compose.autosaveinterval"
+                    aria-labelledby="autoSave autoSaveInterval autoSaveEnd"/>
+        <label id="autoSaveEnd" value="&autoSaveEnd.label;"/>
+      </hbox>
+      <hbox>
+        <checkbox id="mailWarnOnSendAccelKey"
+                  label="&warnOnSendAccelKey.label;"
+                  preference="mail.warn_on_send_accel_key"
+                  accesskey="&warnOnSendAccelKey.accesskey;"/>
+        <spacer flex="1"/>
+      </hbox>
+    </groupbox>
+    <groupbox data-category="paneCompose">
+      <label><html:h2 data-l10n-id="composition-spelling-title"/></label>
+      <hbox>
+        <checkbox id="spellCheckBeforeSend"
+                  label="&spellCheck.label;"
+                  preference="mail.SpellCheckBeforeSend"
+                  accesskey="&spellCheck.accesskey;"/>
+        <spacer flex="1"/>
+      </hbox>
+      <hbox>
+        <checkbox id="inlineSpellCheck"
+                  label="&spellCheckInline.label;"
+                  preference="mail.spellcheck.inline"
+                  accesskey="&spellCheckInline1.accesskey;"/>
+        <spacer flex="1"/>
+      </hbox>
 
-          </groupbox>
+      <separator class="thin"/>
 
-          <groupbox>
-            <label><html:h2>&htmlComposeHeader.label;</html:h2></label>
-            <hbox align="center">
-              <label control="FontSelect" value="&font.label;" accesskey="&font.accesskey;"/>
-              <menulist id="FontSelect" preference="msgcompose.font_face"
-                        sizetopopup="pref" crop="center" flex="1">
-                <menupopup>
-                  <menuitem value="" label="&fontVarWidth.label;"/>
-                  <menuitem value="tt" label="&fontFixedWidth.label;"/>
-                  <menuseparator/>
-                  <menuitem value="Helvetica, Arial, sans-serif" label="&fontHelvetica.label;"/>
-                  <menuitem value="Times New Roman, Times, serif" label="&fontTimes.label;"/>
-                  <menuitem value="Courier New, Courier, monospace" label="&fontCourier.label;"/>
-                  <menuseparator/>
-                </menupopup>
-              </menulist>
-
-              <label control="fontSizeSelect" value="&fontSize.label;" accesskey="&fontSize.accesskey;"/>
-              <menulist id="fontSizeSelect" preference="msgcompose.font_size">
-                <menupopup>
-                  <menuitem value="x-small" label="&size-tinyCmd.label;"/>
-                  <menuitem value="small"   label="&size-smallCmd.label;"/>
-                  <menuitem value="medium"  label="&size-mediumCmd.label;"/>
-                  <menuitem value="large"   label="&size-largeCmd.label;"/>
-                  <menuitem value="x-large" label="&size-extraLargeCmd.label;"/>
-                  <menuitem value="xx-large" label="&size-hugeCmd.label;"/>
-                </menupopup>
-              </menulist>
-            </hbox>
-
-            <separator class="thin"/>
-
-            <hbox align="center">
-              <checkbox id="useReaderDefaults"
-                        label="&useReaderDefaults.label;"
-                        accesskey="&useReaderDefaults.accesskey;"
-                        preference="msgcompose.default_colors"/>
-            </hbox>
-            <hbox align="center" class="indent">
-              <label id="textColorLabel"
-                     control="textColorButton"
-                     value="&fontColor.label;"
-                     accesskey="&fontColor.accesskey;"/>
-              <html:input type="color" id="textColorButton" preference="msgcompose.text_color"/>
-              <separator orient="vertical" class="thin"/>
-              <label id="backgroundColorLabel"
-                     control="backgroundColorButton"
-                     value="&bgColor.label;"
-                     accesskey="&bgColor.accesskey;"/>
-              <html:input type="color" id="backgroundColorButton" preference="msgcompose.background_color"/>
-            </hbox>
-            <hbox align="center">
-              <spacer flex="1"/>
-              <button label="&restoreHTMLDefaults.label;"
-                      accesskey="&restoreHTMLDefaults.accesskey;"
-                      oncommand="gComposePane.restoreHTMLDefaults();"/>
-            </hbox>
-
-            <separator class="thin"/>
-
-            <hbox align="center">
-              <checkbox id="defaultToParagraph"
-                        label="&defaultToParagraph.label;"
-                        accesskey="&defaultToParagraph.accesskey;"
-                        preference="mail.compose.default_to_paragraph"/>
-            </hbox>
-          </groupbox>
-
+      <hbox align="center" pack="start">
+        <label value="&languagePopup.label;" control="languageMenuList" accesskey="&languagePopup.accessKey;"/>
+        <menulist id="languageMenuList" preference="spellchecker.dictionary" flex="1">
+          <menupopup onpopupshowing="gComposePane.initLanguageMenu();">
+            <!-- dynamic content populated by JS -->
+          </menupopup>
+        </menulist>
+        <label id="downloadDictionaries" class="text-link"
+                onclick="if (event.button == 0) { openDictionaryList('tab'); }"
+                value="&downloadDictionaries.label;"/>
+        <spacer flex="1"/>
+      </hbox>
+    </groupbox>
+    <groupbox data-category="paneCompose">
+      <label><html:h2 data-l10n-id="compose-html-style-title"/></label>
+      <hbox>
+        <vbox flex="1">
           <hbox align="center">
-            <description flex="1">&sendOptionsDescription.label;</description>
-            <button label="&sendOptions.label;"
-                    accesskey="&sendOptions.accesskey;"
-                    oncommand="gComposePane.sendOptionsDialog();"/>
-          </hbox>
-        </tabpanel>
-
-        <tabpanel orient="vertical">
-          <groupbox>
-            <!-- Address Autocomplete -->
-            <label><html:h2>&addressingTitle.label;</html:h2></label>
-
-            <description>&autocompleteText.label;</description>
-
-            <hbox align="center">
-              <checkbox id="addressingAutocomplete" label="&addressingEnable.label;"
-                        preference="mail.enable_autocomplete"
-                        accesskey="&addressingEnable.accesskey;"/>
-            </hbox>
-
-            <hbox align="center">
-              <checkbox id="autocompleteLDAP" label="&directories.label;"
-                        preference="ldap_2.autoComplete.useDirectory"
-                        accesskey="&directories.accesskey;"/>
-              <menulist is="menulist-addrbooks" id="directoriesList"
-                        aria-labelledby="autocompleteLDAP"
-                        preference="ldap_2.autoComplete.directoryServer"
-                        none="&directoriesNone.label;"
-                        remoteonly="true"
-                        value="dirPrefId"
-                        flex="1"/>
-              <button id="editButton" label="&editDirectories.label;"
-                      oncommand="gComposePane.editDirectories();"
-                      preference="pref.ldap.disable_button.edit_directories"
-                      accesskey="&editDirectories.accesskey;"/>
-            </hbox>
-          </groupbox>
-
-          <separator class="thin"/>
-
-          <hbox align="center" pack="start">
-            <checkbox id="emailCollectionOutgoing" label="&emailCollectionPicker.label;"
-                      accesskey="&emailCollectionPicker.accesskey;"
-                      preference="mail.collect_email_address_outgoing"/>
-            <menulist is="menulist-addrbooks" id="localDirectoriesList"
-                      aria-labelledby="emailCollectionOutgoing"
-                      preference="mail.collect_addressbook"
-                      localonly="true"
-                      writable="true"
-                      flex="1"/>
-          </hbox>
-
-          <hbox align="center" pack="start">
-            <label value="&showAsDefault.label;" accesskey="&showAsDefault.accesskey;"
-                    control="defaultStartupDirList"/>
-            <menulist is="menulist-addrbooks" id="defaultStartupDirList"
-                      oncommand="gComposePane.setDefaultStartupDir(this.value);"
-                      none="&showAsDefaultLast.label;"
-                      alladdressbooks="true"
-                      mailinglists="true"
-                      flex="1"/>
-          </hbox>
-        </tabpanel>
-
-        <tabpanel orient="vertical">
-          <hbox>
-            <checkbox id="spellCheckBeforeSend"
-                      label="&spellCheck.label;"
-                      preference="mail.SpellCheckBeforeSend"
-                      accesskey="&spellCheck.accesskey;"/>
-            <spacer flex="1"/>
-          </hbox>
-          <hbox>
-            <checkbox id="inlineSpellCheck"
-                      label="&spellCheckInline.label;"
-                      preference="mail.spellcheck.inline"
-                      accesskey="&spellCheckInline1.accesskey;"/>
-            <spacer flex="1"/>
-          </hbox>
-
-          <separator class="thin"/>
-
-          <hbox align="center" pack="start">
-            <label value ="&languagePopup.label;" control="languageMenuList" accesskey="&languagePopup.accessKey;"/>
-            <menulist id="languageMenuList" preference="spellchecker.dictionary" flex="1">
-              <menupopup onpopupshowing="gComposePane.initLanguageMenu();">
-                <!-- dynamic content populated by JS -->
+            <label control="FontSelect" value="&font.label;" accesskey="&font.accesskey;"/>
+            <menulist id="FontSelect" preference="msgcompose.font_face"
+                      sizetopopup="pref" crop="center" flex="1">
+              <menupopup>
+                <menuitem value="" label="&fontVarWidth.label;"/>
+                <menuitem value="tt" label="&fontFixedWidth.label;"/>
+                <menuseparator/>
+                <menuitem value="Helvetica, Arial, sans-serif" label="&fontHelvetica.label;"/>
+                <menuitem value="Times New Roman, Times, serif" label="&fontTimes.label;"/>
+                <menuitem value="Courier New, Courier, monospace" label="&fontCourier.label;"/>
+                <menuseparator/>
               </menupopup>
             </menulist>
-            <spacer flex="1"/>
+
+            <label control="fontSizeSelect" value="&fontSize.label;" accesskey="&fontSize.accesskey;"/>
+            <menulist id="fontSizeSelect" preference="msgcompose.font_size">
+              <menupopup>
+                <menuitem value="x-small" label="&size-tinyCmd.label;"/>
+                <menuitem value="small" label="&size-smallCmd.label;"/>
+                <menuitem value="medium" label="&size-mediumCmd.label;"/>
+                <menuitem value="large" label="&size-largeCmd.label;"/>
+                <menuitem value="x-large" label="&size-extraLargeCmd.label;"/>
+                <menuitem value="xx-large" label="&size-hugeCmd.label;"/>
+              </menupopup>
+            </menulist>
           </hbox>
 
-          <separator/>
-          <hbox>
-            <label id="downloadDictionaries" class="text-link"
-                    onclick="if (event.button == 0) { openDictionaryList('tab'); }"
-                    value="&downloadDictionaries.label;"/>
-            <spacer flex="1"/>
+          <separator class="thin"/>
+
+          <hbox align="center">
+            <checkbox id="useReaderDefaults"
+                      label="&useReaderDefaults.label;"
+                      accesskey="&useReaderDefaults.accesskey;"
+                      preference="msgcompose.default_colors"/>
           </hbox>
-        </tabpanel>
-      </tabpanels>
-    </tabbox>
-    <separator/>
+          <hbox align="center" class="indent">
+            <label id="textColorLabel"
+                   control="textColorButton"
+                   value="&fontColor.label;"
+                   accesskey="&fontColor.accesskey;"/>
+            <html:input type="color" id="textColorButton" preference="msgcompose.text_color"/>
+            <separator orient="vertical" class="thin"/>
+            <label id="backgroundColorLabel"
+                   control="backgroundColorButton"
+                   value="&bgColor.label;"
+                   accesskey="&bgColor.accesskey;"/>
+            <html:input type="color" id="backgroundColorButton" preference="msgcompose.background_color"/>
+          </hbox>
+        </vbox>
+        <vbox>
+          <spacer flex="1"/>
+          <button label="&restoreHTMLDefaults.label;"
+                  accesskey="&restoreHTMLDefaults.accesskey;"
+                  oncommand="gComposePane.restoreHTMLDefaults();"/>
+        </vbox>
+      </hbox>
+
+      <separator class="thin"/>
+
+      <hbox align="center">
+        <checkbox id="defaultToParagraph"
+                  label="&defaultToParagraph.label;"
+                  accesskey="&defaultToParagraph.accesskey;"
+                  preference="mail.compose.default_to_paragraph"/>
+      </hbox>
+
+      <hbox align="center">
+        <description flex="1">&sendOptionsDescription.label;</description>
+        <button label="&sendOptions.label;"
+                accesskey="&sendOptions.accesskey;"
+                oncommand="gComposePane.sendOptionsDialog();"/>
+      </hbox>
+    </groupbox>
+
+    <hbox id="compositionAddressingCategory"
+          class="subcategory"
+          data-category="paneCompose">
+      <html:h1 data-l10n-id="composition-addressing-header"/>
+    </hbox>
+
+    <groupbox data-category="paneCompose">
+      <!-- Address Autocomplete -->
+      <separator class="thin"/>
+
+      <description>&autocompleteText.label;</description>
+
+      <hbox align="center">
+        <checkbox id="addressingAutocomplete" label="&addressingEnable.label;"
+                  preference="mail.enable_autocomplete"
+                  accesskey="&addressingEnable.accesskey;"/>
+      </hbox>
+
+      <hbox align="center">
+        <checkbox id="autocompleteLDAP" label="&directories.label;"
+                  preference="ldap_2.autoComplete.useDirectory"
+                  accesskey="&directories.accesskey;"/>
+        <menulist is="menulist-addrbooks" id="directoriesList"
+                  aria-labelledby="autocompleteLDAP"
+                  preference="ldap_2.autoComplete.directoryServer"
+                  none="&directoriesNone.label;"
+                  remoteonly="true"
+                  value="dirPrefId"
+                  flex="1"/>
+        <button id="editButton" label="&editDirectories.label;"
+                oncommand="gComposePane.editDirectories();"
+                preference="pref.ldap.disable_button.edit_directories"
+                accesskey="&editDirectories.accesskey;"/>
+      </hbox>
+
+      <separator class="thin"/>
+
+      <hbox align="center" pack="start">
+        <checkbox id="emailCollectionOutgoing" label="&emailCollectionPicker.label;"
+                  accesskey="&emailCollectionPicker.accesskey;"
+                  preference="mail.collect_email_address_outgoing"/>
+        <menulist is="menulist-addrbooks" id="localDirectoriesList"
+                  aria-labelledby="emailCollectionOutgoing"
+                  preference="mail.collect_addressbook"
+                  localonly="true"
+                  writable="true"
+                  flex="1"/>
+      </hbox>
+
+      <hbox align="center" pack="start">
+        <label value="&showAsDefault.label;" accesskey="&showAsDefault.accesskey;"
+                control="defaultStartupDirList"/>
+        <menulist is="menulist-addrbooks" id="defaultStartupDirList"
+                  oncommand="gComposePane.setDefaultStartupDir(this.value);"
+                  none="&showAsDefaultLast.label;"
+                  alladdressbooks="true"
+                  mailinglists="true"
+                  flex="1"/>
+      </hbox>
+    </groupbox>
+
+    <hbox id="compositionAttachmentsCategory"
+          class="subcategory"
+          data-category="paneCompose">
+      <html:h1 data-l10n-id="composition-attachments-header"/>
+    </hbox>
+
+    <groupbox data-category="paneCompose">
+      <hbox align="center">
+        <checkbox id="attachment_reminder_label"
+                  label="&attachmentReminder.label;"
+                  accesskey="&attachmentReminder.accesskey;"
+                  preference="mail.compose.attachment_reminder"/>
+        <spacer flex="1"/>
+        <button id="attachment_reminder_button"
+                label="&attachmentReminderOptions.label;"
+                accesskey="&attachmentReminderOptions.accesskey;"
+                oncommand="gComposePane.attachmentReminderOptionsDialog();"/>
+      </hbox>
+      <vbox id="cloudFileBox" flex="1">
+        <hbox id="cloudFileToggleAndThreshold" align="center">
+          <checkbox id="enableThreshold"
+                    label="&enableCloudFileAccountOffer.label;"
+                    preference="mail.compose.big_attachments.notify"/>
+          <html:input id="cloudFileThreshold" type="number" class="size3"
+                      preference="mail.compose.big_attachments.threshold_kb"/>
+          <label control="cloudFileThreshold"
+                 value="&enableCloudFileAccountOffer.mb;"/>
+        </hbox>
+        <hbox flex="1" style="height: 480px;">
+          <vbox id="provider-listing">
+            <richlistbox id="cloudFileView" orient="vertical" flex="1"
+                         seltype="single"
+                         onoverflow="gCloudFile.onListOverflow();"
+                         onselect="gCloudFile.onSelectionChanged(event);">
+            </richlistbox>
+            <vbox id="addCloudFileAccountButtons">
+            </vbox>
+            <menulist id="addCloudFileAccount"
+                      hidden="true"
+                      label="&addCloudFileAccount1.label;"
+                      accesskey="&addCloudFileAccount1.accesskey;"
+                      defaultlabel="&addCloudFileAccount1.label;"
+                      oncommand="gCloudFile.addCloudFileAccount(this.value);">
+              <menupopup id="addCloudFileAccountListItems"/>
+            </menulist>
+            <button id="removeCloudFileAccount"
+                    disabled="true"
+                    label="&removeCloudFileAccount.label;"
+                    accesskey="&removeCloudFileAccount.accesskey;"
+                    oncommand="gCloudFile.removeCloudFileAccount();"/>
+            <label is="text-link"
+                   id="moreProvidersLink"
+                   href="https://addons.thunderbird.net/thunderbird/tag/filelink"
+                   value="&findCloudFileProviders.label;"/>
+          </vbox>
+          <separator class="thin" orient="vertical"/>
+          <vbox flex="1">
+            <deck id="cloudFileSettingsDeck" flex="1">
+              <vbox id="cloudFileDefaultPanel" flex="1">
+                <description>&addCloudFileAccount.description;</description>
+              </vbox>
+              <vbox id="cloudFileSettingsWrapper" flex="1">
+              </vbox>
+            </deck>
+          </vbox>
+        </hbox>
+      </vbox>
+    </groupbox>
+
   </prefpane>

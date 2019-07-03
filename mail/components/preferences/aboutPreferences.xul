@@ -71,7 +71,6 @@
 #include chat.inc.xul
 #include privacy.inc.xul
 #include security.inc.xul
-#include applications.inc.xul
             <prefpane id="paneLightning" label="&paneLightning.title;"/>
 #include advanced.inc.xul
           </hbox>

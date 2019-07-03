@@ -111,7 +111,7 @@ Preferences.get("browser.download.dir").on(
   "change", gDownloadDirSection.readDownloadDirPref.bind(gDownloadDirSection)
 );
 
-document.getElementById("paneApplications")
+document.getElementById("paneCompose")
         .addEventListener("paneload", () => {
           Preferences.addSyncFromPrefListener(document.getElementById("saveWhere"),
             () => gDownloadDirSection.onReadUseDownloadDir());
