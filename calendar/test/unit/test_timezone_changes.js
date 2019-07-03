@@ -49,6 +49,7 @@ function run_test() {
 }); */
 
 // Brazil's rules are complicated. This tests every change in the time range we have data for.
+// Updated for 2019b: Brazil no longer has DST.
 add_test(function testSaoPaulo() {
     let time = cal.createDateTime();
     let zone = cal.getTimezoneService().getTimezone("America/Sao_Paulo");
@@ -75,10 +76,10 @@ add_test(function testSaoPaulo() {
     equal(time.timezoneOffset, UTC_MINUS_3, time.toString());
 
     time.resetTo(2019, NOVEMBER, 3, 0, 0, 0, zone);
-    equal(time.timezoneOffset, UTC_MINUS_2, time.toString());
+    equal(time.timezoneOffset, UTC_MINUS_3, time.toString());
 
     time.resetTo(2020, FEBRUARY, 15, 0, 0, 0, zone);
-    equal(time.timezoneOffset, UTC_MINUS_2, time.toString());
+    equal(time.timezoneOffset, UTC_MINUS_3, time.toString());
 
     time.resetTo(2020, FEBRUARY, 16, 0, 0, 0, zone);
     equal(time.timezoneOffset, UTC_MINUS_3, time.toString());
@@ -87,31 +88,7 @@ add_test(function testSaoPaulo() {
     equal(time.timezoneOffset, UTC_MINUS_3, time.toString());
 
     time.resetTo(2020, NOVEMBER, 1, 0, 0, 0, zone);
-    equal(time.timezoneOffset, UTC_MINUS_2, time.toString());
-
-    time.resetTo(2021, FEBRUARY, 20, 0, 0, 0, zone);
-    equal(time.timezoneOffset, UTC_MINUS_2, time.toString());
-
-    time.resetTo(2021, FEBRUARY, 21, 0, 0, 0, zone);
     equal(time.timezoneOffset, UTC_MINUS_3, time.toString());
-
-    time.resetTo(2021, NOVEMBER, 6, 0, 0, 0, zone);
-    equal(time.timezoneOffset, UTC_MINUS_3, time.toString());
-
-    time.resetTo(2021, NOVEMBER, 7, 0, 0, 0, zone);
-    equal(time.timezoneOffset, UTC_MINUS_2, time.toString());
-
-    time.resetTo(2022, FEBRUARY, 19, 0, 0, 0, zone);
-    equal(time.timezoneOffset, UTC_MINUS_2, time.toString());
-
-    time.resetTo(2022, FEBRUARY, 20, 0, 0, 0, zone);
-    equal(time.timezoneOffset, UTC_MINUS_3, time.toString());
-
-    time.resetTo(2022, NOVEMBER, 5, 0, 0, 0, zone);
-    equal(time.timezoneOffset, UTC_MINUS_3, time.toString());
-
-    time.resetTo(2022, NOVEMBER, 6, 0, 0, 0, zone);
-    equal(time.timezoneOffset, UTC_MINUS_2, time.toString());
 
     run_next_test();
 });
