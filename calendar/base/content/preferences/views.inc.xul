@@ -1,242 +1,266 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
-    <vbox id="calPreferencesBoxViews">
-        <groupbox>
-            <label><html:h2>&pref.calendar.view.allview.caption;</html:h2></label>
-            <hbox>
-                <hbox align="center" flex="1">
-                    <label value="&pref.weekstarts.label;"
-                           accesskey="&pref.weekstarts.accesskey;"
-                           control="weekstarts"/>
-                    <menulist id="weekstarts"
-                              preference="calendar.week.start"
-                              oncommand="gViewsPane.updateViewWorkDayCheckboxes(this.value)">
-                        <menupopup id="weekstartspopup">
-                            <menuitem label="&day.1.name;" value="0"/>
-                            <menuitem label="&day.2.name;" value="1"/>
-                            <menuitem label="&day.3.name;" value="2"/>
-                            <menuitem label="&day.4.name;" value="3"/>
-                            <menuitem label="&day.5.name;" value="4"/>
-                            <menuitem label="&day.6.name;" value="5"/>
-                            <menuitem label="&day.7.name;" value="6"/>
+    <groupbox data-category="paneCalendar">
+        <separator/>
+        <hbox align="center">
+          <label value="&pref.dateformat.label;"
+                 accesskey="&pref.dateformat.accesskey;"
+                 control="dateformat"/>
+          <menulist id="dateformat" crop="none"
+                    preference="calendar.date.format">
+              <menupopup id="dateformatpopup">
+                  <menuitem id="dateformat-long-menuitem"
+                            label="&pref.dateformat.long;"
+                            value="0"/>
+                  <menuitem id="dateformat-short-menuitem"
+                            label="&pref.dateformat.short;"
+                            value="1"/>
+              </menupopup>
+          </menulist>
+        </hbox>
+        <hbox align="center">
+            <label value="&pref.timezones.caption;"
+                   accesskey="&pref.timezones.accesskey;"
+                   control="calendar-timezone-menulist"/>
+            <menulist id="calendar-timezone-menulist"
+                      preference="calendar.timezone.local">
+                <menupopup id="calendar-timezone-menupopup"/>
+            </menulist>
+        </hbox>
+        <hbox>
+            <hbox align="center" flex="1">
+                <label value="&pref.weekstarts.label;"
+                       accesskey="&pref.weekstarts.accesskey;"
+                       control="weekstarts"/>
+                <menulist id="weekstarts"
+                          preference="calendar.week.start"
+                          oncommand="gViewsPane.updateViewWorkDayCheckboxes(this.value)">
+                    <menupopup id="weekstartspopup">
+                        <menuitem label="&day.1.name;" value="0"/>
+                        <menuitem label="&day.2.name;" value="1"/>
+                        <menuitem label="&day.3.name;" value="2"/>
+                        <menuitem label="&day.4.name;" value="3"/>
+                        <menuitem label="&day.5.name;" value="4"/>
+                        <menuitem label="&day.6.name;" value="5"/>
+                        <menuitem label="&day.7.name;" value="6"/>
+                    </menupopup>
+                </menulist>
+            </hbox>
+        </hbox>
+        <hbox align="center" flex="1">
+            <checkbox id="weekNumber"
+                      crop="end"
+                      label="&pref.calendar.view-minimonth.showweeknumber.label;"
+                      accesskey="&pref.calendar.view-minimonth.showweeknumber.accesskey;"
+                      preference="calendar.view-minimonth.showWeekNumber"/>
+        </hbox>
+        <separator/>
+        <hbox>
+            <vbox>
+                <label value="&pref.workweekDays.label;"/>
+            </vbox>
+            <vbox>
+                <hbox>
+                    <checkbox id="dayoff0"
+                              class="dayOffCheckbox"
+                              label="&day.1.Ddd;"
+                              accesskey="&day.1.Ddd.accesskey;"
+                              orient="vertical"
+                              preference="calendar.week.d0sundaysoff"/>
+                    <checkbox id="dayoff1"
+                              class="dayOffCheckbox"
+                              label="&day.2.Ddd;"
+                              accesskey="&day.2.Ddd.accesskey;"
+                              orient="vertical"
+                              preference="calendar.week.d1mondaysoff"/>
+                    <checkbox id="dayoff2"
+                              class="dayOffCheckbox"
+                              label="&day.3.Ddd;"
+                              accesskey="&day.3.Ddd.accesskey;"
+                              orient="vertical"
+                              preference="calendar.week.d2tuesdaysoff"/>
+                    <checkbox id="dayoff3"
+                              class="dayOffCheckbox"
+                              label="&day.4.Ddd;"
+                              accesskey="&day.4.Ddd.accesskey;"
+                              orient="vertical"
+                              preference="calendar.week.d3wednesdaysoff"/>
+                    <checkbox id="dayoff4"
+                              class="dayOffCheckbox"
+                              label="&day.5.Ddd;"
+                              accesskey="&day.5.Ddd.accesskey;"
+                              orient="vertical"
+                              preference="calendar.week.d4thursdaysoff"/>
+                    <checkbox id="dayoff5"
+                              class="dayOffCheckbox"
+                              label="&day.6.Ddd;"
+                              accesskey="&day.6.Ddd.accesskey;"
+                              orient="vertical"
+                              preference="calendar.week.d5fridaysoff"/>
+                    <checkbox id="dayoff6"
+                              class="dayOffCheckbox"
+                              label="&day.7.Ddd;"
+                              accesskey="&day.7.Ddd.accesskey;"
+                              orient="vertical"
+                              preference="calendar.week.d6saturdaysoff"/>
+                </hbox>
+            </vbox>
+        </hbox>
+    </groupbox>
+
+    <groupbox data-category="paneCalendar">
+        <label><html:h2>&pref.calendar.view.dayandweekviews.caption;</html:h2></label>
+        <html:table id="dayAndWeekViewsTable">
+            <html:tr>
+                <html:td>
+                    <label value="&pref.calendar.view.daystart.label;"
+                           accesskey="&pref.calendar.view.daystart.accesskey;"
+                           control="daystarthour"/>
+                </html:td>
+                <html:td>
+                    <menulist id="daystarthour"
+                              oncommand="gViewsPane.updateViewEndMenu(this.value);"
+                              preference="calendar.view.daystarthour">
+                        <menupopup id="daystarthourpopup">
+                            <menuitem id="timeStart0" label="&time.midnight;" value="0"/>
+                            <menuitem id="timeStart1"                         value="1"/>
+                            <menuitem id="timeStart2"                         value="2"/>
+                            <menuitem id="timeStart3"                         value="3"/>
+                            <menuitem id="timeStart4"                         value="4"/>
+                            <menuitem id="timeStart5"                         value="5"/>
+                            <menuitem id="timeStart6"                         value="6"/>
+                            <menuitem id="timeStart7"                         value="7"/>
+                            <menuitem id="timeStart8"                         value="8"/>
+                            <menuitem id="timeStart9"                         value="9"/>
+                            <menuitem id="timeStart10"                        value="10"/>
+                            <menuitem id="timeStart11"                        value="11"/>
+                            <menuitem id="timeStart12" label="&time.noon;"    value="12"/>
+                            <menuitem id="timeStart13"                        value="13"/>
+                            <menuitem id="timeStart14"                        value="14"/>
+                            <menuitem id="timeStart15"                        value="15"/>
+                            <menuitem id="timeStart16"                        value="16"/>
+                            <menuitem id="timeStart17"                        value="17"/>
+                            <menuitem id="timeStart18"                        value="18"/>
+                            <menuitem id="timeStart19"                        value="19"/>
+                            <menuitem id="timeStart20"                        value="20"/>
+                            <menuitem id="timeStart21"                        value="21"/>
+                            <menuitem id="timeStart22"                        value="22"/>
+                            <menuitem id="timeStart23"                        value="23"/>
                         </menupopup>
                     </menulist>
-                </hbox>
-                <hbox align="center" flex="1">
-                    <checkbox id="weekNumber"
-                              crop="end"
-                              label="&pref.calendar.view-minimonth.showweeknumber.label;"
-                              accesskey="&pref.calendar.view-minimonth.showweeknumber.accesskey;"
-                              preference="calendar.view-minimonth.showWeekNumber"/>
-                </hbox>
-            </hbox>
-        </groupbox>
-
-        <groupbox>
-            <label><html:h2>&pref.calendar.view.workweek.caption;</html:h2></label>
-            <label value="&pref.daysoff.label;"/>
-            <hbox>
-                <checkbox id="dayoff0"
-                          class="dayOffCheckbox"
-                          label="&day.1.Ddd;"
-                          accesskey="&day.1.Ddd.accesskey;"
-                          orient="vertical"
-                          preference="calendar.week.d0sundaysoff"/>
-                <checkbox id="dayoff1"
-                          class="dayOffCheckbox"
-                          label="&day.2.Ddd;"
-                          accesskey="&day.2.Ddd.accesskey;"
-                          orient="vertical"
-                          preference="calendar.week.d1mondaysoff"/>
-                <checkbox id="dayoff2"
-                          class="dayOffCheckbox"
-                          label="&day.3.Ddd;"
-                          accesskey="&day.3.Ddd.accesskey;"
-                          orient="vertical"
-                          preference="calendar.week.d2tuesdaysoff"/>
-                <checkbox id="dayoff3"
-                          class="dayOffCheckbox"
-                          label="&day.4.Ddd;"
-                          accesskey="&day.4.Ddd.accesskey;"
-                          orient="vertical"
-                          preference="calendar.week.d3wednesdaysoff"/>
-                <checkbox id="dayoff4"
-                          class="dayOffCheckbox"
-                          label="&day.5.Ddd;"
-                          accesskey="&day.5.Ddd.accesskey;"
-                          orient="vertical"
-                          preference="calendar.week.d4thursdaysoff"/>
-                <checkbox id="dayoff5"
-                          class="dayOffCheckbox"
-                          label="&day.6.Ddd;"
-                          accesskey="&day.6.Ddd.accesskey;"
-                          orient="vertical"
-                          preference="calendar.week.d5fridaysoff"/>
-                <checkbox id="dayoff6"
-                          class="dayOffCheckbox"
-                          label="&day.7.Ddd;"
-                          accesskey="&day.7.Ddd.accesskey;"
-                          orient="vertical"
-                          preference="calendar.week.d6saturdaysoff"/>
-            </hbox>
-        </groupbox>
-
-        <groupbox>
-            <label><html:h2>&pref.calendar.view.dayandweekviews.caption;</html:h2></label>
-            <html:table id="dayAndWeekViewsTable">
-                <html:tr>
-                    <html:td>
-                        <label value="&pref.calendar.view.daystart.label;"
-                               accesskey="&pref.calendar.view.daystart.accesskey;"
-                               control="daystarthour"/>
-                    </html:td>
-                    <html:td>
-                        <menulist id="daystarthour"
-                                  oncommand="gViewsPane.updateViewEndMenu(this.value);"
-                                  preference="calendar.view.daystarthour">
-                            <menupopup id="daystarthourpopup">
-                                <menuitem id="timeStart0" label="&time.midnight;" value="0"/>
-                                <menuitem id="timeStart1"                         value="1"/>
-                                <menuitem id="timeStart2"                         value="2"/>
-                                <menuitem id="timeStart3"                         value="3"/>
-                                <menuitem id="timeStart4"                         value="4"/>
-                                <menuitem id="timeStart5"                         value="5"/>
-                                <menuitem id="timeStart6"                         value="6"/>
-                                <menuitem id="timeStart7"                         value="7"/>
-                                <menuitem id="timeStart8"                         value="8"/>
-                                <menuitem id="timeStart9"                         value="9"/>
-                                <menuitem id="timeStart10"                        value="10"/>
-                                <menuitem id="timeStart11"                        value="11"/>
-                                <menuitem id="timeStart12" label="&time.noon;"    value="12"/>
-                                <menuitem id="timeStart13"                        value="13"/>
-                                <menuitem id="timeStart14"                        value="14"/>
-                                <menuitem id="timeStart15"                        value="15"/>
-                                <menuitem id="timeStart16"                        value="16"/>
-                                <menuitem id="timeStart17"                        value="17"/>
-                                <menuitem id="timeStart18"                        value="18"/>
-                                <menuitem id="timeStart19"                        value="19"/>
-                                <menuitem id="timeStart20"                        value="20"/>
-                                <menuitem id="timeStart21"                        value="21"/>
-                                <menuitem id="timeStart22"                        value="22"/>
-                                <menuitem id="timeStart23"                        value="23"/>
+                    <hbox align="center" pack="center">
+                        <label value="&pref.calendar.view.visiblehours.label;"
+                               accesskey="&pref.calendar.view.visiblehours.accesskey;"
+                               control="visiblehours"/>
+                        <menulist id="visiblehours"
+                                  preference="calendar.view.visiblehours">
+                            <menupopup id="visiblehourspopup">
+                                <menuitem label="1"  value="1"/>
+                                <menuitem label="2"  value="2"/>
+                                <menuitem label="3"  value="3"/>
+                                <menuitem label="4"  value="4"/>
+                                <menuitem label="5"  value="5"/>
+                                <menuitem label="6"  value="6"/>
+                                <menuitem label="7"  value="7"/>
+                                <menuitem label="8"  value="8"/>
+                                <menuitem label="9"  value="9"/>
+                                <menuitem label="10" value="10"/>
+                                <menuitem label="11" value="11"/>
+                                <menuitem label="12" value="12"/>
+                                <menuitem label="13" value="13"/>
+                                <menuitem label="14" value="14"/>
+                                <menuitem label="15" value="15"/>
+                                <menuitem label="16" value="16"/>
+                                <menuitem label="17" value="17"/>
+                                <menuitem label="18" value="18"/>
+                                <menuitem label="19" value="19"/>
+                                <menuitem label="20" value="20"/>
+                                <menuitem label="21" value="21"/>
+                                <menuitem label="22" value="22"/>
+                                <menuitem label="23" value="23"/>
+                                <menuitem label="24" value="24"/>
                             </menupopup>
                         </menulist>
-                    </html:td>
-                    <html:td>
-                        <hbox align="center" pack="center">
-                            <label value="&pref.calendar.view.visiblehours.label;"
-                                   accesskey="&pref.calendar.view.visiblehours.accesskey;"
-                                   control="visiblehours"/>
-                            <menulist id="visiblehours"
-                                      preference="calendar.view.visiblehours">
-                                <menupopup id="visiblehourspopup">
-                                    <menuitem label="1"  value="1"/>
-                                    <menuitem label="2"  value="2"/>
-                                    <menuitem label="3"  value="3"/>
-                                    <menuitem label="4"  value="4"/>
-                                    <menuitem label="5"  value="5"/>
-                                    <menuitem label="6"  value="6"/>
-                                    <menuitem label="7"  value="7"/>
-                                    <menuitem label="8"  value="8"/>
-                                    <menuitem label="9"  value="9"/>
-                                    <menuitem label="10" value="10"/>
-                                    <menuitem label="11" value="11"/>
-                                    <menuitem label="12" value="12"/>
-                                    <menuitem label="13" value="13"/>
-                                    <menuitem label="14" value="14"/>
-                                    <menuitem label="15" value="15"/>
-                                    <menuitem label="16" value="16"/>
-                                    <menuitem label="17" value="17"/>
-                                    <menuitem label="18" value="18"/>
-                                    <menuitem label="19" value="19"/>
-                                    <menuitem label="20" value="20"/>
-                                    <menuitem label="21" value="21"/>
-                                    <menuitem label="22" value="22"/>
-                                    <menuitem label="23" value="23"/>
-                                    <menuitem label="24" value="24"/>
-                                </menupopup>
-                            </menulist>
-                            <label value="&pref.calendar.view.visiblehoursend.label;"/>
-                        </hbox>
-                    </html:td>
-                </html:tr>
-                <html:tr>
-                    <html:td>
-                        <label value="&pref.calendar.view.dayend.label;"
-                               accesskey="&pref.calendar.view.dayend.accesskey;"
-                               control="dayendhour"/>
-                    </html:td>
-                    <html:td>
-                        <menulist id="dayendhour"
-                                  oncommand="gViewsPane.updateViewStartMenu(this.value);"
-                                  preference="calendar.view.dayendhour">
-                            <menupopup id="dayendhourpopup">
-                                <menuitem id="timeEnd1"                          value="1"/>
-                                <menuitem id="timeEnd2"                          value="2"/>
-                                <menuitem id="timeEnd3"                          value="3"/>
-                                <menuitem id="timeEnd4"                          value="4"/>
-                                <menuitem id="timeEnd5"                          value="5"/>
-                                <menuitem id="timeEnd6"                          value="6"/>
-                                <menuitem id="timeEnd7"                          value="7"/>
-                                <menuitem id="timeEnd8"                          value="8"/>
-                                <menuitem id="timeEnd9"                          value="9"/>
-                                <menuitem id="timeEnd10"                         value="10"/>
-                                <menuitem id="timeEnd11"                         value="11"/>
-                                <menuitem id="timeEnd12" label="&time.noon;"     value="12"/>
-                                <menuitem id="timeEnd13"                         value="13"/>
-                                <menuitem id="timeEnd14"                         value="14"/>
-                                <menuitem id="timeEnd15"                         value="15"/>
-                                <menuitem id="timeEnd16"                         value="16"/>
-                                <menuitem id="timeEnd17"                         value="17"/>
-                                <menuitem id="timeEnd18"                         value="18"/>
-                                <menuitem id="timeEnd19"                         value="19"/>
-                                <menuitem id="timeEnd20"                         value="20"/>
-                                <menuitem id="timeEnd21"                         value="21"/>
-                                <menuitem id="timeEnd22"                         value="22"/>
-                                <menuitem id="timeEnd23"                         value="23"/>
-                                <menuitem id="timeEnd24" label="&time.midnight;" value="24"/>
-                            </menupopup>
-                        </menulist>
-                    </html:td>
-                </html:tr>
-            </html:table>
-            <checkbox id="showLocation" pack="end"
-                      label="&pref.showlocation.label;"
-                      preference="calendar.view.showLocation"/>
-            <spacer/>
-        </groupbox>
+                        <label value="&pref.calendar.view.visiblehoursend.label;"/>
+                    </hbox>
+                </html:td>
+            </html:tr>
+            <html:tr>
+                <html:td>
+                    <label value="&pref.calendar.view.dayend.label;"
+                           accesskey="&pref.calendar.view.dayend.accesskey;"
+                           control="dayendhour"/>
+                </html:td>
+                <html:td>
+                    <menulist id="dayendhour"
+                              oncommand="gViewsPane.updateViewStartMenu(this.value);"
+                              preference="calendar.view.dayendhour">
+                        <menupopup id="dayendhourpopup">
+                            <menuitem id="timeEnd1"                          value="1"/>
+                            <menuitem id="timeEnd2"                          value="2"/>
+                            <menuitem id="timeEnd3"                          value="3"/>
+                            <menuitem id="timeEnd4"                          value="4"/>
+                            <menuitem id="timeEnd5"                          value="5"/>
+                            <menuitem id="timeEnd6"                          value="6"/>
+                            <menuitem id="timeEnd7"                          value="7"/>
+                            <menuitem id="timeEnd8"                          value="8"/>
+                            <menuitem id="timeEnd9"                          value="9"/>
+                            <menuitem id="timeEnd10"                         value="10"/>
+                            <menuitem id="timeEnd11"                         value="11"/>
+                            <menuitem id="timeEnd12" label="&time.noon;"     value="12"/>
+                            <menuitem id="timeEnd13"                         value="13"/>
+                            <menuitem id="timeEnd14"                         value="14"/>
+                            <menuitem id="timeEnd15"                         value="15"/>
+                            <menuitem id="timeEnd16"                         value="16"/>
+                            <menuitem id="timeEnd17"                         value="17"/>
+                            <menuitem id="timeEnd18"                         value="18"/>
+                            <menuitem id="timeEnd19"                         value="19"/>
+                            <menuitem id="timeEnd20"                         value="20"/>
+                            <menuitem id="timeEnd21"                         value="21"/>
+                            <menuitem id="timeEnd22"                         value="22"/>
+                            <menuitem id="timeEnd23"                         value="23"/>
+                            <menuitem id="timeEnd24" label="&time.midnight;" value="24"/>
+                        </menupopup>
+                    </menulist>
+                </html:td>
+            </html:tr>
+        </html:table>
+        <checkbox id="showLocation" pack="end"
+                  label="&pref.showlocation.label;"
+                  preference="calendar.view.showLocation"/>
+        <spacer/>
+    </groupbox>
 
-        <groupbox id="viewsMultiweekGroupbox">
-            <label><html:h2>&pref.calendar.view.multiweekview.caption;</html:h2></label>
-            <hbox align="center">
-                <label value="&pref.numberofweeks.label;"
-                       accesskey="&pref.numberofweeks.accesskey;"
-                       control="viewsMultiweekTotalWeeks"/>
-                <menulist id="viewsMultiweekTotalWeeks"
-                          preference="calendar.weeks.inview">
-                    <menupopup>
-                        <menuitem label="&pref.numberofweeks.1;" value="1"/>
-                        <menuitem label="&pref.numberofweeks.2;" value="2"/>
-                        <menuitem label="&pref.numberofweeks.3;" value="3"/>
-                        <menuitem label="&pref.numberofweeks.4;" value="4"/>
-                        <menuitem label="&pref.numberofweeks.5;" value="5"/>
-                        <menuitem label="&pref.numberofweeks.6;" value="6"/>
-                    </menupopup>
-                </menulist>
-            </hbox>
-            <hbox align="center" id="previousWeeksBox">
-                <label value="&pref.numberofpreviousweeks.label;"
-                       accesskey="&pref.numberofpreviousweeks.accesskey;"
-                       control="viewsMultiweekPreviousWeeks"/>
-                <menulist id="viewsMultiweekPreviousWeeks"
-                          preference="calendar.previousweeks.inview">
-                    <menupopup>
-                        <menuitem label="&pref.numberofweeks.0;" value="0"/>
-                        <menuitem label="&pref.numberofweeks.1;" value="1"/>
-                        <menuitem label="&pref.numberofweeks.2;" value="2"/>
-                    </menupopup>
-                </menulist>
-            </hbox>
-        </groupbox>
-    </vbox>
+    <groupbox id="viewsMultiweekGroupbox" data-category="paneCalendar">
+        <label><html:h2>&pref.calendar.view.multiweekview.caption;</html:h2></label>
+        <hbox align="center">
+            <label value="&pref.numberofweeks.label;"
+                   accesskey="&pref.numberofweeks.accesskey;"
+                   control="viewsMultiweekTotalWeeks"/>
+            <menulist id="viewsMultiweekTotalWeeks"
+                      preference="calendar.weeks.inview">
+                <menupopup>
+                    <menuitem label="&pref.numberofweeks.1;" value="1"/>
+                    <menuitem label="&pref.numberofweeks.2;" value="2"/>
+                    <menuitem label="&pref.numberofweeks.3;" value="3"/>
+                    <menuitem label="&pref.numberofweeks.4;" value="4"/>
+                    <menuitem label="&pref.numberofweeks.5;" value="5"/>
+                    <menuitem label="&pref.numberofweeks.6;" value="6"/>
+                </menupopup>
+            </menulist>
+        </hbox>
+        <hbox align="center" id="previousWeeksBox">
+            <label value="&pref.numberofpreviousweeks.label;"
+                   accesskey="&pref.numberofpreviousweeks.accesskey;"
+                   control="viewsMultiweekPreviousWeeks"/>
+            <menulist id="viewsMultiweekPreviousWeeks"
+                      preference="calendar.previousweeks.inview">
+                <menupopup>
+                    <menuitem label="&pref.numberofweeks.0;" value="0"/>
+                    <menuitem label="&pref.numberofweeks.1;" value="1"/>
+                    <menuitem label="&pref.numberofweeks.2;" value="2"/>
+                </menupopup>
+            </menulist>
+        </hbox>
+    </groupbox>

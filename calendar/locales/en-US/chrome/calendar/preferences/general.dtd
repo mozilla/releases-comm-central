@@ -7,7 +7,6 @@
    - your editor isn't using UTF-8 encoding and may munge up the document!
   -->
 
-<!ENTITY pref.mainbox.label "General Settings" >
 <!ENTITY pref.dateformat.label "Date Text Format:" >
 <!ENTITY pref.dateformat.accesskey "D">
 <!ENTITY pref.dateformat.long "Long" >
@@ -21,8 +20,8 @@
 <!ENTITY pref.events.label "Events">
 <!ENTITY pref.tasks.label "Tasks">
 
-<!ENTITY pref.default_event_length.label "Default Length:" >
-<!ENTITY pref.default_event_length.accesskey "E">
+<!ENTITY pref.default_event_task_length.label "Default Event and Task Length">
+<!ENTITY pref.default_event_task_length.accesskey "E">
 
 <!ENTITY pref.default_task_none.label "None">
 <!ENTITY pref.default_task_start_of_day.label "Start of Day">

@@ -1,87 +1,81 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
-    <vbox id="calPreferencesBoxAlarms">
-        <groupbox>
-            <label><html:h2>&pref.alarmgoesoff.label;</html:h2></label>
-            <vbox id="alarm-sound-box">
-                <hbox align="center">
-                    <checkbox id="alarmSoundCheckbox"
-                              preference="calendar.alarms.playsound"
-                              label="&pref.playasound;"
-                              accesskey="&pref.calendar.alarms.playsound.accessKey;"/>
-                    <spacer flex="1"/>
-                    <button id="calendar.prefs.alarm.sound.play"
-                            label="&pref.calendar.alarms.sound.play.label;"
-                            accesskey="&pref.calendar.alarms.sound.play.accessKey;"
-                            oncommand="gAlarmsPane.previewAlarm()"/>
-                </hbox>
-                <radiogroup id="alarmSoundType"
-                            class="indent"
-                            orient="vertical"
-                            preference="calendar.alarms.soundType"
-                            aria-labelledby="alarmSoundCheckbox">
-                    <hbox>
-                        <radio id="alarmSoundSystem"
-                               value="0"
-                               label="&pref.calendar.alarms.sound.useDefault.label;"
-                               accesskey="&pref.calendar.alarms.sound.useDefault.accessKey;"/>
-                    </hbox>
-                    <hbox>
-                        <radio id="alarmSoundCustom"
-                               value="1"
-                               label="&pref.calendar.alarms.sound.useCustom.label;"
-                               accesskey="&pref.calendar.alarms.sound.useCustom.accessKey;"/>
-                    </hbox>
-                </radiogroup>
-                <hbox align="center">
-                    <textbox id="alarmSoundFileField"
-                             type="filefield"
-                             class="indent"
-                             readonly="true"
-                             flex="1"
-                             preference="calendar.alarms.soundURL"
-                             preference-editable="true"/>
-                    <button id="calendar.prefs.alarm.sound.browse"
-                            label="&pref.calendar.alarms.sound.browse.label;"
-                            accesskey="&pref.calendar.alarms.sound.browse.accessKey;"
-                            oncommand="gAlarmsPane.browseAlarm()"/>
-                </hbox>
-            </vbox>
-            <hbox align="center" flex="1">
-                <checkbox id="alarmshow"
-                          preference="calendar.alarms.show"
-                          label="&pref.showalarmbox;"
-                          accesskey="&pref.calendar.alarms.showAlarmBox.accessKey;"/>
+    <groupbox data-category="paneCalendar">
+        <label><html:h2>&pref.alarmgoesoff.label;</html:h2></label>
+        <vbox id="alarm-sound-box">
+            <hbox align="center">
+                <checkbox id="alarmSoundCheckbox"
+                          preference="calendar.alarms.playsound"
+                          label="&pref.playasound;"
+                          accesskey="&pref.calendar.alarms.playsound.accessKey;"/>
+                <spacer flex="1"/>
+                <button id="calendar.prefs.alarm.sound.play"
+                        label="&pref.calendar.alarms.sound.play.label;"
+                        accesskey="&pref.calendar.alarms.sound.play.accessKey;"
+                        oncommand="gAlarmsPane.previewAlarm()"/>
             </hbox>
-            <hbox align="center" flex="1">
-                <checkbox id="missedalarms"
-                          preference="calendar.alarms.showmissed"
-                          label="&pref.missedalarms2;"
-                          accesskey="&pref.calendar.alarms.missedAlarms.accessKey;"/>
+            <radiogroup id="alarmSoundType"
+                        class="indent"
+                        orient="vertical"
+                        preference="calendar.alarms.soundType"
+                        aria-labelledby="alarmSoundCheckbox">
+                <hbox>
+                    <radio id="alarmSoundSystem"
+                           value="0"
+                           label="&pref.calendar.alarms.sound.useDefault.label;"
+                           accesskey="&pref.calendar.alarms.sound.useDefault.accessKey;"/>
+                </hbox>
+                <hbox>
+                    <radio id="alarmSoundCustom"
+                           value="1"
+                           label="&pref.calendar.alarms.sound.useCustom.label;"
+                           accesskey="&pref.calendar.alarms.sound.useCustom.accessKey;"/>
+                </hbox>
+            </radiogroup>
+            <hbox align="center">
+                <textbox id="alarmSoundFileField"
+                         type="filefield"
+                         class="indent"
+                         readonly="true"
+                         flex="1"
+                         preference="calendar.alarms.soundURL"
+                         preference-editable="true"/>
+                <button id="calendar.prefs.alarm.sound.browse"
+                        label="&pref.calendar.alarms.sound.browse.label;"
+                        accesskey="&pref.calendar.alarms.sound.browse.accessKey;"
+                        oncommand="gAlarmsPane.browseAlarm()"/>
             </hbox>
-        </groupbox>
+        </vbox>
+        <hbox align="center" flex="1">
+            <checkbox id="alarmshow"
+                      preference="calendar.alarms.show"
+                      label="&pref.showalarmbox;"
+                      accesskey="&pref.calendar.alarms.showAlarmBox.accessKey;"/>
+        </hbox>
+        <hbox align="center" flex="1">
+            <checkbox id="missedalarms"
+                      preference="calendar.alarms.showmissed"
+                      label="&pref.missedalarms2;"
+                      accesskey="&pref.calendar.alarms.missedAlarms.accessKey;"/>
+        </hbox>
+    </groupbox>
 
-        <groupbox>
-            <label><html:h2>&pref.calendar.alarms.defaults.label;</html:h2></label>
+    <groupbox data-category="paneCalendar">
+        <label><html:h2>&pref.calendar.alarms.defaults.label;</html:h2></label>
+        <hbox align="center">
+            <label value="&pref.defaultsnoozelength.label;"
+                   accesskey="&pref.defaultsnoozelength.accesskey;"
+                   control="defaultsnoozelength"/>
+            <html:input id="defaultsnoozelength" type="number" class="size3"
+                        min="0"
+                        preference="calendar.alarms.defaultsnoozelength"
+                        onselect="updateUnitLabelPlural('defaultsnoozelength', 'defaultsnoozelengthunit', 'minutes')"
+                        oninput="updateUnitLabelPlural('defaultsnoozelength', 'defaultsnoozelengthunit', 'minutes')"/>
+            <label id="defaultsnoozelengthunit"/>
+        </hbox>
+        <hbox>
             <html:table id="alarm-defaults-table">
-                <html:tr>
-                    <html:td>
-                        <label value="&pref.defaultsnoozelength.label;"
-                               accesskey="&pref.defaultsnoozelength.accesskey;"
-                               control="defaultsnoozelength"/>
-                    </html:td>
-                    <html:td width="30%">
-                        <hbox align="center">
-                            <html:input id="defaultsnoozelength" type="number" class="size3"
-                                        min="0"
-                                        preference="calendar.alarms.defaultsnoozelength"
-                                        onselect="updateUnitLabelPlural('defaultsnoozelength', 'defaultsnoozelengthunit', 'minutes')"
-                                        oninput="updateUnitLabelPlural('defaultsnoozelength', 'defaultsnoozelengthunit', 'minutes')"/>
-                            <label id="defaultsnoozelengthunit"/>
-                        </hbox>
-                    </html:td>
-                </html:tr>
                 <html:tr>
                     <html:td>
                         <label value="&pref.defalarm4events.label;"
@@ -189,5 +183,6 @@
                     </html:td>
                 </html:tr>
             </html:table>
-        </groupbox>
-    </vbox>
+            <spacer flex="1"/>
+        </hbox>
+    </groupbox>

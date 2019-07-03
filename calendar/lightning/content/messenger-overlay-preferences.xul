@@ -33,33 +33,26 @@
               flex="1"
               insertbefore="paneAdvanced"
               label="&lightning.preferencesLabel;">
-        <tabbox id="calPreferencesTabbox"
-                flex="1">
-            <tabs>
-                <tab id="calPreferencesTabGeneral"
-                     label="&paneGeneral.title;"/>
-                <tab id="calPreferencesTabAlarms"
-                     label="&paneAlarms.title;"/>
-                <tab id="calPreferencesTabCategories"
-                     label="&paneCategories.title;"/>
-                <tab id="calPreferencesTabViews"
-                     label="&paneViews.title;"/>
-            </tabs>
-            <tabpanels flex="1">
-                <tabpanel orient="vertical">
-#include ../../base/content/preferences/general.inc.xul
-                </tabpanel>
-                <tabpanel orient="vertical">
-#include ../../base/content/preferences/alarms.inc.xul
-                </tabpanel>
-                <tabpanel orient="vertical">
-#include ../../base/content/preferences/categories.inc.xul
-                </tabpanel>
-                <tabpanel orient="vertical">
+
+    <hbox id="calendarPaneCategory"
+          class="subcategory"
+          data-category="paneCalendar">
+      <html:h1>&panelHeader.title;</html:h1>
+    </hbox>
 #include ../../base/content/preferences/views.inc.xul
-                </tabpanel>
-            </tabpanels>
-        </tabbox>
+#include ../../base/content/preferences/general.inc.xul
+    <hbox id="chatPaneCategory"
+          class="subcategory"
+          data-category="paneCalendar">
+      <html:h1>&panelReminder.title;</html:h1>
+    </hbox>
+#include ../../base/content/preferences/alarms.inc.xul
+    <hbox id="chatPaneCategory"
+          class="subcategory"
+          data-category="paneCalendar">
+      <html:h1>&panelCatecory.title;</html:h1>
+    </hbox>
+#include ../../base/content/preferences/categories.inc.xul
     </prefpane>
 
     <script src="chrome://calendar/content/calendar-ui-utils.js"/>

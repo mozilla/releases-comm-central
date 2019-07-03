@@ -21,13 +21,18 @@
   width: calc(100% - 16px);  /* 16px is the sum of the element margins. */
 }
 
+#defaultsnoozelength {
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
 #alarm-sound-table {
   display: inline-table;
 }
 
 #eventdefalarm,
 #tododefalarm {
-  margin-inline-start: 4px;
+  margin-inline-start: 12px;
 }
 
 #eventdefalarm,
@@ -44,6 +49,7 @@
 
 .defaultTimeBox {
   width: 100%;
+  margin-inline-start: 8px;
 }
 
 #eventdefalarmunit,
@@ -52,5 +58,20 @@
 }
 
 .dayOffCheckbox {
-  padding-inline-end: 10px;
+  -moz-box-direction: reverse;
+  margin-top: -5px;
+  margin-inline-end: -5px;
+  padding-inline-start: 6px;
+}
+
+.dayOffCheckbox > .checkbox-check {
+  margin-inline-start: 10px;
+}
+
+#daystarthour {
+  margin-inline-end: 18px;
+}
+
+#categorieslist {
+  height: 210px;
 }
