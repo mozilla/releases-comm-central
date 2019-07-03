@@ -46,7 +46,7 @@
   background-color: var(--lwt-accent-color);
 }
 
-.tabmail-tab[selected="true"] {
+.tabmail-tab[selected="true"]:-moz-lwtheme-darktext {
   -moz-font-smoothing-background-color: var(--toolbar-bgcolor);
 }
 
