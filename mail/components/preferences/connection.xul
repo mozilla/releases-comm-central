@@ -125,6 +125,8 @@
           control="networkProxyNone"/>
   <html:textarea id="networkProxyNone" rows="2" preference="network.proxy.no_proxies_on"/>
   <label value="&noproxyExplain.label;" control="networkProxyNone"/>
+  <label id="networkProxyNoneLocalhost" control="networkProxyNone" value="&noproxyLocalhostDesc.label;"/>
+  <separator class="thin"/>
   <checkbox id="autologinProxy"
             label="&autologinproxy.label;"
             accesskey="&autologinproxy.accesskey;"
