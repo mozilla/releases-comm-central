@@ -49,6 +49,14 @@ privacy-anti-virus-title = Antivirus
 
 privacy-certificates-title = Certificates
 
+chat-pane-header = Chat
+
+chat-status-title = Status
+
+chat-notifications-title = Notifications
+
+chat-pane-styling-header = Styling
+
 choose-messenger-language-description = Choose the languages used to display menus, messages, and notifications from { -brand-short-name }.
 manage-messenger-languages-button =
   .label = Set Alternatives…

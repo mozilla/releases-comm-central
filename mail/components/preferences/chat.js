@@ -9,7 +9,6 @@
 /* globals previewObserver */
 
 Preferences.addAll([
-  { id: "mail.preferences.chat.selectedTabIndex", type: "int" },
   { id: "messenger.startup.action", type: "int" },
   { id: "purple.conversations.im.send_typing", type: "bool" },
   { id: "messenger.status.reportIdle", type: "bool" },
@@ -34,16 +33,11 @@ document.getElementById("paneChat")
         .addEventListener("paneload", function() { gChatPane.init(); });
 
 var gChatPane = {
-  mInitialized: false,
-
   init() {
     this.updateDisabledState();
     this.updateMessageDisabledState();
     this.updatePlaySound();
-
-    let preference = Preferences.get("mail.preferences.chat.selectedTabIndex");
-    this.mTabBox = document.getElementById("chatPrefs");
-    this.mTabBox.selectedIndex = preference.value != null ? preference.value : 0;
+    this.initPreview();
 
     window.addEventListener("paneSelected", this.paneSelectionChanged);
 
@@ -53,21 +47,10 @@ var gChatPane = {
     Preferences.addSyncToPrefListener(element, (element) => element.value * 60);
     Preferences.addSyncFromPrefListener(document.getElementById("chatSoundUrlLocation"),
       () => this.readSoundLocation());
-
-    this.mInitialized = true;
   },
 
   paneSelectionChanged() {
     gChatPane.initPreview(); // Can't use "this", as it's probably not gChatPane.
-  },
-
-  tabSelectionChanged() {
-    if (this.mInitialized) {
-      Preferences.get("mail.preferences.chat.selectedTabIndex")
-                 .valueFromPreferences = this.mTabBox.selectedIndex;
-    }
-
-    this.initPreview();
   },
 
   initPreview() {
@@ -77,9 +60,6 @@ var gChatPane = {
       return;
     }
     if (!("getCurrentPaneID" in window) || getCurrentPaneID() != "paneChat") {
-      return;
-    }
-    if (this.mTabBox.selectedIndex != 1) {
       return;
     }
 

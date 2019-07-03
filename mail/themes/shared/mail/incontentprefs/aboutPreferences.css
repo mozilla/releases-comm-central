@@ -220,24 +220,12 @@ radio[pane=paneGeneral] > .radio-check {
   list-style-image: url("chrome://messenger/skin/shared/in-content/general.svg");
 }
 
-radio[pane=paneDisplay] > .radio-check {
-  list-style-image: url("chrome://messenger/skin/shared/in-content/display.svg");
-}
-
-radio[pane=paneApplications] > .radio-check {
-  list-style-image: url("chrome://messenger/skin/shared/in-content/attachment.svg");
-}
-
 radio[pane=panePrivacy] > .radio-check {
   list-style-image: url("chrome://messenger/skin/shared/in-content/security.svg");
 }
 
 radio[pane=paneCompose] > .radio-check {
-  list-style-image: url("chrome://messenger/skin/shared/in-content/compose.svg");
-}
-
-radio[pane=paneAdvanced] > .radio-check {
-  list-style-image: url("chrome://messenger/skin/shared/in-content/advanced.svg");
+  list-style-image: url("chrome://messenger/skin/icons/newmsg.svg");
 }
 
 radio[pane=paneChat] > .radio-check {
@@ -246,10 +234,6 @@ radio[pane=paneChat] > .radio-check {
 
 radio[pane=paneLightning] > .radio-check {
   list-style-image: url("chrome://messenger/skin/shared/in-content/calendar.svg");
-}
-
-radio[pane=paneAccount] > .radio-check {
-  list-style-image: url("chrome://messenger/skin/shared/in-content/account.svg");
 }
 
 textbox[type="filefield"] {
@@ -427,9 +411,8 @@ description > html|a {
   padding: 4px;
 }
 
-#paneChat {
-  padding-top: 15px;
-  padding-bottom: 15px;
+#previewDeck {
+  height: 220px;
 }
 
 tabs {
@@ -496,9 +479,9 @@ tabs {
  * Font dialog menulist fixes
  */
 
-#selectLangs {
-  font-weight: normal;
-  font-size: .877em;
+#fontsTitle {
+  margin-top: 4px;
+  margin-bottom: 4px;
 }
 
 #defaultFontType,

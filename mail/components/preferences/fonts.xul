@@ -37,7 +37,7 @@
     <groupbox>
       <hbox align="center">
         <label control="selectLangs">
-          <html:h2 accesskey="&language.accesskey;">&language.label;</html:h2>
+          <html:h2 id="fontsTitle" accesskey="&language.accesskey;">&language.label;</html:h2>
         </label>
         <menulist id="selectLangs"
                   preference="font.language.group">
