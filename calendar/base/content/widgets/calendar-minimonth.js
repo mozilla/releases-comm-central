@@ -170,8 +170,6 @@
                 if (event.button == 0 &&
                     event.originalTarget.classList.contains("minimonth-day")) {
                     this.onDayActivate(event);
-                    event.stopPropagation();
-                    event.preventDefault();
                 }
             });
 
@@ -179,38 +177,40 @@
                 if (event.originalTarget.classList.contains("minimonth-day")) {
                     switch (event.keyCode) {
                         case KeyEvent.DOM_VK_LEFT:
-                            this.moveDateByOffset(0, 0, -1);
+                            this.onDayMovement(event, 0, 0, -1);
                             break;
                         case KeyEvent.DOM_VK_RIGHT:
-                            this.moveDateByOffset(0, 0, 1);
+                            this.onDayMovement(event, 0, 0, 1);
                             break;
                         case KeyEvent.DOM_VK_UP:
-                            this.moveDateByOffset(0, 0, -7);
+                            this.onDayMovement(event, 0, 0, -7);
                             break;
                         case KeyEvent.DOM_VK_DOWN:
-                            this.moveDateByOffset(0, 0, 7);
+                            this.onDayMovement(event, 0, 0, 7);
                             break;
                         case KeyEvent.DOM_VK_PAGE_UP:
-                            this.moveDateByOffset(0, -1, 0);
+                            this.onDayMovement(event, 0, -1, 0);
                             break;
                         case KeyEvent.DOM_VK_PAGE_DOWN:
-                            this.moveDateByOffset(0, 1, 0);
+                            this.onDayMovement(event, 0, 1, 0);
                             break;
                         case KeyEvent.DOM_VK_ESCAPE:
                             this.focusDate(this.mValue || this.mExtraDate);
+                            event.stopPropagation();
+                            event.preventDefault();
                             break;
                         case KeyEvent.DOM_VK_HOME: {
                             const today = new Date();
                             this.update(today);
                             this.focusDate(today);
+                            event.stopPropagation();
+                            event.preventDefault();
                             break;
                         }
                         case KeyEvent.DOM_VK_RETURN:
                             this.onDayActivate(event);
                             break;
                     }
-                    event.stopPropagation();
-                    event.preventDefault();
                 }
             });
 
@@ -937,6 +937,14 @@
                 this.fireEvent("select");
             }
             this.setFocusedDate(date, true);
+            aEvent.stopPropagation();
+            aEvent.preventDefault();
+        }
+
+        onDayMovement(event, years, months, days) {
+            this.moveDateByOffset(years, months, days);
+            event.stopPropagation();
+            event.preventDefault();
         }
 
         disconnectedCallback() {
