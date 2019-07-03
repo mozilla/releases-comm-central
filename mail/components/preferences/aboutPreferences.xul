@@ -68,11 +68,9 @@
           <hbox id="paneDeck" flex="1">
 #include general.inc.xul
 #include compose.inc.xul
-#include chat.inc.xul
 #include privacy.inc.xul
-#include security.inc.xul
+#include chat.inc.xul
             <prefpane id="paneLightning" label="&paneLightning.title;"/>
-#include advanced.inc.xul
           </hbox>
         </hbox>
       </hbox>

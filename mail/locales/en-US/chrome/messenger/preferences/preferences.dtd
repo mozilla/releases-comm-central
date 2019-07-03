@@ -18,7 +18,7 @@
 <!ENTITY paneChat.title           "Chat">
 <!ENTITY paneAttachments.title    "Attachments">
 <!ENTITY panePrivacy.title        "Privacy">
-<!ENTITY paneSecurity.title       "Security">
+<!ENTITY panePrivacySecurity.title "Privacy &amp; Security">
 <!ENTITY paneLightning.title      "Calendar">
 <!ENTITY paneAdvanced.title       "Advanced">
 <!ENTITY paneAccount.title        "Accounts">

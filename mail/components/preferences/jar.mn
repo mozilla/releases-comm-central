@@ -21,8 +21,6 @@ messenger.jar:
     content/messenger/preferences/privacy.js
     content/messenger/preferences/sendoptions.xul
     content/messenger/preferences/sendoptions.js
-    content/messenger/preferences/security.js
-    content/messenger/preferences/advanced.js
     content/messenger/preferences/receipts.js
     content/messenger/preferences/receipts.xul
     content/messenger/preferences/connection.js

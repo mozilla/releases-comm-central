@@ -33,6 +33,6 @@
 <!ENTITY showCookies.label "Show Cookies…">
 <!ENTITY showCookies.accesskey "S">
 
-<!ENTITY dntTrackingNotOkay.label2 "Tell sites that I do not want to be tracked">
-<!ENTITY dntTrackingNotOkay.accesskey "n">
-<!ENTITY doNotTrackInfo.label "Learn more about Do Not Track">
+<!ENTITY doNotTrackCheck.label "Send websites a “Do Not Track” signal that you don’t want to be tracked">
+<!ENTITY doNotTrackCheck.accesskey "n">
+<!ENTITY doNotTrackLearnMore.label "Learn more">

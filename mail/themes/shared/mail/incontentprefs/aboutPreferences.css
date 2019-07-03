@@ -229,10 +229,6 @@ radio[pane=paneApplications] > .radio-check {
 }
 
 radio[pane=panePrivacy] > .radio-check {
-  list-style-image: url("chrome://messenger/skin/shared/in-content/privacy.svg");
-}
-
-radio[pane=paneSecurity]> .radio-check {
   list-style-image: url("chrome://messenger/skin/shared/in-content/security.svg");
 }
 
@@ -442,6 +438,10 @@ tabs {
 
 .indent {
   margin-inline-start: 33px;
+}
+
+.tail-with-learn-more {
+  margin-inline-end: 10px;
 }
 
 .update-throbber {

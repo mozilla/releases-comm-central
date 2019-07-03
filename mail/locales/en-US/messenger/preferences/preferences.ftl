@@ -33,6 +33,22 @@ compose-html-style-title = HTML Style
 
 composition-addressing-header = Addressing
 
+privacy-main-header = Privacy
+
+privacy-passwords-header = Passwords
+
+privacy-junk-header = Junk
+
+privacy-data-collection-header = Data Collection and Use
+
+privacy-security-header = Security
+
+privacy-scam-detection-title = Scam Detection
+
+privacy-anti-virus-title = Antivirus
+
+privacy-certificates-title = Certificates
+
 choose-messenger-language-description = Choose the languages used to display menus, messages, and notifications from { -brand-short-name }.
 manage-messenger-languages-button =
   .label = Set Alternatives…
