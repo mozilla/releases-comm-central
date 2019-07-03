@@ -47,7 +47,7 @@ function testCertValidity(cert, date) {
     const certdb = Cc["@mozilla.org/security/x509certdb;1"]
                      .getService(Ci.nsIX509CertDB);
     certdb.asyncVerifyCertAtTime(cert, certificateUsageEmailRecipient, flags,
-                                 "Alice@bogus.com", date, result);
+                                 "Alice@example.com", date, result);
   });
   return prom;
 }
@@ -55,7 +55,7 @@ function testCertValidity(cert, date) {
 add_task(async function verifyTestCertsStillValid() {
   let composeSecure = Cc["@mozilla.org/messengercompose/composesecure;1"]
                       .createInstance(Ci.nsIMsgComposeSecure);
-  let cert = composeSecure.findCertByEmailAddress("Alice@bogus.com", false);
+  let cert = composeSecure.findCertByEmailAddress("Alice@example.com", false);
   Assert.notEqual(cert, null);
 
   let now = Date.now() / 1000;
@@ -247,7 +247,7 @@ add_task(async function check_smime_message() {
     }
     if (msg.sig) {
         Assert.equal(r[sigIndex].type, "signed");
-        Assert.equal(r[sigIndex].certificate.emailAddress, "alice@bogus.com");
+        Assert.equal(r[sigIndex].certificate.emailAddress, "alice@example.com");
         if (msg.sig_good) {
           Assert.equal(r[sigIndex].status, 0);
         } else {
