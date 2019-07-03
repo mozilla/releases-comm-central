@@ -378,9 +378,14 @@
 
             if (absMinutes >= 1440) {
                 // 1 day or more.
+                // Convert weeks to days; duration objects look like this (for 6, 7, and 8 days):
+                // { weeks: 0, days: 6 }
+                // { weeks: 1, days: 0 }
+                // { weeks: 0, days: 8 }
+                const days = dur.days + (dur.weeks * 7);
                 return prefix + PluralForm
-                    .get(dur.days, cal.l10n.getCalString("dueInDays"))
-                    .replace("#1", dur.days);
+                    .get(days, cal.l10n.getCalString("dueInDays"))
+                    .replace("#1", days);
             } else if (absMinutes >= 60) {
                 // 1 hour or more.
                 return prefix + PluralForm
