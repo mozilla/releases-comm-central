@@ -202,6 +202,7 @@
   locale/@AB_CD@/messenger/activity.properties                          (%chrome/messenger/activity.properties)
   locale/@AB_CD@/messenger/downloads/settingsChange.dtd                 (%chrome/overrides/settingsChange.dtd)
   locale/@AB_CD@/messenger/netError.dtd                                 (%chrome/overrides/netError.dtd)
+  locale/@AB_CD@/messenger/profileDowngrade.dtd                         (%chrome/overrides/profileDowngrade.dtd)
   locale/@AB_CD@/messenger/newsError.dtd                                (%chrome/messenger/newsError.dtd)
   locale/@AB_CD@/messenger/chat.dtd                                     (%chrome/messenger/chat.dtd)
   locale/@AB_CD@/messenger/chat.properties                              (%chrome/messenger/chat.properties)

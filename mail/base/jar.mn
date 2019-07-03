@@ -109,11 +109,18 @@ messenger.jar:
     content/messenger/sanitizeDialog.css            (content/sanitizeDialog.css)
     content/messenger/sanitizeDialog.js             (content/sanitizeDialog.js)
     content/messenger/toolbarIconColor.js           (content/toolbarIconColor.js)
+
 # the following files are mail-specific overrides
 *   content/messenger/license.html                  (/@mozreltopsrcdir@/toolkit/content/license.html)
 % override chrome://global/content/license.html chrome://messenger/content/license.html
+    content/messenger/profileDowngrade.js           (content/profileDowngrade.js)
+*   content/messenger/profileDowngrade.xul          (content/profileDowngrade.xul)
+% override chrome://mozapps/content/profile/profileDowngrade.js chrome://messenger/content/profileDowngrade.js
+% override chrome://mozapps/content/profile/profileDowngrade.xul chrome://messenger/content/profileDowngrade.xul
+
 # L10n resources and overrides.
 % override chrome://mozapps/locale/downloads/settingsChange.dtd chrome://messenger/locale/downloads/settingsChange.dtd
+% override chrome://mozapps/locale/profile/profileDowngrade.dtd chrome://messenger/locale/profileDowngrade.dtd
 % override chrome://global/locale/netError.dtd chrome://messenger/locale/netError.dtd
 % resource search-plugins chrome://messenger/locale/searchplugins/
 
