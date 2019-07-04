@@ -362,6 +362,9 @@ function OnLoadMessageWindow() {
     document.documentElement.setAttribute("screenY", screen.availTop);
   }
 
+  // By reassigning this here, we fix the find bar (bug 1562677).
+  document.getElementById("FindToolbar").browser = document.getElementById("messagepane");
+
   ToolbarIconColor.init();
   setTimeout(delayedOnLoadMessageWindow, 0); // when debugging, set this to 5000, so you can see what happens after the window comes up.
 }

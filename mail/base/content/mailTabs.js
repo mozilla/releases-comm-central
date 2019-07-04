@@ -79,6 +79,9 @@ var mailTabType = {
         // persistence and restoreTab wants to know if we are the magic first tab
         aTab.firstTab = true;
         aTab.folderDisplay.makeActive();
+
+        // By reassigning this here, we fix the find bar (bug 1562677).
+        document.getElementById("FindToolbar").browser = document.getElementById("messagepane");
       },
       /**
        * @param aArgs.folder The nsIMsgFolder to display.
