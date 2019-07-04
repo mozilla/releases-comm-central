@@ -327,7 +327,7 @@ class Overlays {
   _insertElement(parent, node) {
     // These elements need their values set before they are added to
     // the document, or bad things happen.
-    for (let element of node.querySelectorAll("menulist, radiogroup")) {
+    for (let element of node.querySelectorAll("menulist")) {
       if (element.id && this.persistedIDs.has(element.id)) {
         element.setAttribute("value", Services.xulStore.getValue(this.location, element.id, "value"));
       }
