@@ -71,5 +71,14 @@
 }
 
 .attachmentcell-size {
+  color: -moz-FieldText;
   opacity: 0.6;
+}
+
+.attachmentItem:not(.notfound).text-link:hover {
+  text-decoration: none !important;
+}
+
+.attachmentItem:not(.notfound).text-link:hover label.attachmentcell-name {
+  text-decoration: underline;
 }

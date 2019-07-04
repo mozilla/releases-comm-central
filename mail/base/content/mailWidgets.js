@@ -1356,6 +1356,10 @@ class MozAttachmentlist extends MozElements.RichListBox {
     item.setAttribute("name", name || attachment.name);
     item.setAttribute("role", "option");
 
+    let itemContainer = this.ownerDocument.createXULElement("hbox");
+    itemContainer.setAttribute("flex", "1");
+    itemContainer.classList.add("attachmentcell-text");
+
     item.addEventListener("dblclick", (event) => {
       let evt = document.createEvent("XULCommandEvent");
       evt.initCommandEvent("command", true, true, window, 0, event.ctrlKey,
@@ -1392,8 +1396,9 @@ class MozAttachmentlist extends MozElements.RichListBox {
     textContainer.appendChild(spacer);
     textContainer.appendChild(sizeLabel);
 
-    item.appendChild(iconContainer);
-    item.appendChild(textContainer);
+    itemContainer.appendChild(iconContainer);
+    itemContainer.appendChild(textContainer);
+    item.appendChild(itemContainer);
 
     let size;
     if (attachment.size != null && attachment.size != -1) {

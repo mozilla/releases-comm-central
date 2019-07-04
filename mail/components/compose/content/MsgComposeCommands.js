@@ -1529,7 +1529,9 @@ async function uploadCloudAttachment(attachment, file, cloudFileAccount) {
   let bucket = document.getElementById("attachmentBucket");
   let attachmentItem = bucket.findItemForAttachment(attachment);
   if (attachmentItem) {
+    let itemIcon = attachmentItem.querySelector(".attachmentcell-icon");
     attachmentItem.image = "chrome://global/skin/icons/loading.png";
+    itemIcon.setAttribute("src", "chrome://global/skin/icons/loading.png");
     attachmentItem.setAttribute("tooltiptext",
       getComposeBundle().getFormattedString("cloudFileUploadingTooltip", [
         cloudFileAccounts.getDisplayName(cloudFileAccount),
@@ -1564,12 +1566,15 @@ async function uploadCloudAttachment(attachment, file, cloudFileAccount) {
 
       // Set the icon for the attachment.
       let iconURL = cloudFileAccount.iconURL;
+      let itemIcon = attachmentItem.querySelector(".attachmentcell-icon");
       if (iconURL) {
         attachmentItem.image = iconURL;
+        itemIcon.setAttribute("src", iconURL);
       } else {
         // Should we use a generic "cloud" icon here? Or an overlay icon?
         // I think the provider should provide an icon, end of story.
         attachmentItem.image = null;
+        itemIcon.setAttribute("src", "");
       }
 
       attachmentItem.dispatchEvent(
@@ -1692,8 +1697,11 @@ function attachToCloudRepeat(upload, account) {
   attachment.cloudFileAccountKey = account.accountKey;
 
   AddAttachments([attachment], function(item) {
+    let itemIcon = item.querySelector(".attachmentcell-icon");
+    let itemLabel = item.querySelector(".attachmentcell-name");
     item.account = account;
     item.setAttribute("name", upload.leafName);
+    itemLabel.setAttribute("value", upload.leafName);
     item.cloudFileUpload = {
       ...upload,
       repeat: true,
@@ -1701,10 +1709,12 @@ function attachToCloudRepeat(upload, account) {
     let iconURL = account.iconURL;
     if (iconURL) {
       item.image = iconURL;
+      itemIcon.setAttribute("src", iconURL);
     } else {
       // Should we use a generic "cloud" icon here? Or an overlay icon?
       // I think the provider should provide an icon, end of story.
       item.image = null;
+      itemIcon.setAttribute("src", "");
     }
     item.dispatchEvent(
       new CustomEvent("attachment-uploaded", { bubbles: true, cancelable: true })
@@ -4779,8 +4789,10 @@ function RenameSelectedAttachment() {
       return; // name was not filled, bail out
 
     let originalName = item.attachment.name;
+    let itemLabel = item.querySelector(".attachmentcell-name");
     item.attachment.name = attachmentName.value;
     item.setAttribute("name", attachmentName.value);
+    itemLabel.setAttribute("value", attachmentName.value);
 
     gContentChanged = true;
 
