@@ -105,7 +105,7 @@ function testWeeklyNRecurrence() {
     checkMultiWeekView("month");
 
     // Delete event.
-    box = lookupEventBox("month", EVENT_BOX, 2, 2, null, EVENTPATH);
+    box = lookupEventBox("month", CANVAS_BOX, 2, 2, null, EVENTPATH);
     controller.click(box);
     handleOccurrencePrompt(controller, box, "delete", true);
     controller.waitForElementNotPresent(box);
@@ -151,11 +151,11 @@ function checkMultiWeekView(view) {
 
     // Monday, Tuesday, Wednesday, Thursday
     for (let i = 2; i < 6; i++) {
-        controller.assertNode(lookupEventBox(view, EVENT_BOX, week, i, null, EVENTPATH));
+        controller.assertNode(lookupEventBox(view, CANVAS_BOX, week, i, null, EVENTPATH));
     }
 
     // Saturday
-    controller.assertNodeNotExist(lookupEventBox(view, EVENT_BOX, week, 7, null, EVENTPATH));
+    controller.assertNodeNotExist(lookupEventBox(view, CANVAS_BOX, week, 7, null, EVENTPATH));
 }
 
 function teardownModule(module) {

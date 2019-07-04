@@ -12,21 +12,14 @@ calendar-day-label {
   display: -moz-box;
 }
 
-calendar-header-container { 
-  -moz-binding: url(chrome://calendar/content/calendar-multiday-view.xml#calendar-header-container);
-}
-
 /* Month View */
-calendar-month-day-box { 
-  -moz-binding: url(chrome://calendar/content/calendar-month-view.xml#calendar-month-day-box);
-}
 
-calendar-month-day-box-item { 
+calendar-month-day-box-item {
   -moz-binding: url(chrome://calendar/content/calendar-month-view.xml#calendar-month-day-box-item);
 }
 
 /* View core */
-calendar-editable-item { 
+calendar-editable-item {
   -moz-binding: url(chrome://calendar/content/calendar-view-core.xml#calendar-editable-item);
 }
 

@@ -95,13 +95,13 @@ function testLastDayOfMonthRecurrence() {
         // multiweek view
         switchToView(controller, "multiweek");
         controller.waitForElement(
-            lookupEventBox("multiweek", EVENT_BOX, 1, column, null, EVENTPATH)
+            lookupEventBox("multiweek", CANVAS_BOX, 1, column, null, EVENTPATH)
         );
 
         // month view
         switchToView(controller, "month");
         controller.waitForElement(
-            lookupEventBox("month", EVENT_BOX, correctRow, column, null, EVENTPATH)
+            lookupEventBox("month", CANVAS_BOX, correctRow, column, null, EVENTPATH)
         );
     }
 

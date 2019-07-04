@@ -6,7 +6,7 @@ var MODULE_NAME = "testAnnualRecurrence";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils"];
 
-var CALENDARNAME, EVENTPATH, ALLDAY;
+var CALENDARNAME, EVENTPATH, CANVAS_BOX, ALLDAY;
 var helpersForController, handleOccurrencePrompt, switchToView, goToDate, invokeEventDialog;
 var closeAllEventDialogs, deleteCalendars, createCalendar, menulistSelect;
 
@@ -18,6 +18,7 @@ function setupModule(module) {
     ({
         CALENDARNAME,
         EVENTPATH,
+        CANVAS_BOX,
         ALLDAY,
         helpersForController,
         handleOccurrencePrompt,
@@ -63,11 +64,11 @@ function testAnnualRecurrence() {
 
         // multiweek view
         switchToView(controller, "multiweek");
-        controller.waitForElement(lookupEventBox("multiweek", ALLDAY, 1, column, null, EVENTPATH));
+        controller.waitForElement(lookupEventBox("multiweek", CANVAS_BOX, 1, column, null, EVENTPATH));
 
         // month view
         switchToView(controller, "month");
-        controller.waitForElement(lookupEventBox("month", ALLDAY, 1, column, null, EVENTPATH));
+        controller.waitForElement(lookupEventBox("month", CANVAS_BOX, 1, column, null, EVENTPATH));
     }
 
     // Delete event.

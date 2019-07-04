@@ -70,10 +70,10 @@ function testBiweeklyRecurrence() {
     // Always two occurrences in view, 1st and 3rd or 2nd and 4th week.
     for (let i = 0; i < 5; i++) {
         controller.waitForElement(
-            lookupEventBox("multiweek", EVENT_BOX, i % 2 + 1, 7, null, EVENTPATH)
+            lookupEventBox("multiweek", CANVAS_BOX, i % 2 + 1, 7, null, EVENTPATH)
         );
         controller.assertNode(
-            lookupEventBox("multiweek", EVENT_BOX, i % 2 + 3, 7, null, EVENTPATH)
+            lookupEventBox("multiweek", CANVAS_BOX, i % 2 + 3, 7, null, EVENTPATH)
         );
         viewForward(controller, 1);
     }
@@ -83,20 +83,20 @@ function testBiweeklyRecurrence() {
     goToDate(controller, 2009, 1, 31);
 
     // January
-    controller.waitForElement(lookupEventBox("month", EVENT_BOX, 5, 7, null, EVENTPATH));
+    controller.waitForElement(lookupEventBox("month", CANVAS_BOX, 5, 7, null, EVENTPATH));
     viewForward(controller, 1);
 
     // February
-    controller.waitForElement(lookupEventBox("month", EVENT_BOX, 2, 7, null, EVENTPATH));
-    controller.assertNode(lookupEventBox("month", EVENT_BOX, 4, 7, null, EVENTPATH));
+    controller.waitForElement(lookupEventBox("month", CANVAS_BOX, 2, 7, null, EVENTPATH));
+    controller.assertNode(lookupEventBox("month", CANVAS_BOX, 4, 7, null, EVENTPATH));
     viewForward(controller, 1);
 
     // March
-    controller.waitForElement(lookupEventBox("month", EVENT_BOX, 2, 7, null, EVENTPATH));
-    controller.assertNode(lookupEventBox("month", EVENT_BOX, 4, 7, null, EVENTPATH));
+    controller.waitForElement(lookupEventBox("month", CANVAS_BOX, 2, 7, null, EVENTPATH));
+    controller.assertNode(lookupEventBox("month", CANVAS_BOX, 4, 7, null, EVENTPATH));
 
     // Delete event.
-    let box = lookupEventBox("month", EVENT_BOX, 4, 7, null, EVENTPATH);
+    let box = lookupEventBox("month", CANVAS_BOX, 4, 7, null, EVENTPATH);
     controller.click(box);
     handleOccurrencePrompt(controller, box, "delete", true);
     controller.waitForElementNotPresent(box);

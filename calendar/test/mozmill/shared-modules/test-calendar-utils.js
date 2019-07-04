@@ -368,7 +368,7 @@ function getEventBoxPath(controller, view, option, row, column, hour) {
 
         if (option == CANVAS_BOX) {
             path += `
-                /anon({"anonid":"day-items"})
+                /{"class":"calendar-day-items"}
             `;
         }
 
@@ -407,7 +407,7 @@ function getEventDetails(view) {
  */
 function checkAlarmIcon(controller, view, row, column) {
     let { lookupEventBox } = helpersForController(controller);
-    controller.assertNode(lookupEventBox(view, EVENT_BOX, row, column, null, `
+    controller.assertNode(lookupEventBox(view, CANVAS_BOX, row, column, null, `
         ${EVENTPATH}/${getEventDetails([view])}/${ALARM_ICON_PATH}
     `));
 }

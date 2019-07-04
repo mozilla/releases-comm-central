@@ -86,13 +86,13 @@ function testDailyRecurrence() {
     goToDate(controller, 2009, 1, 1);
 
     for (let day = 5; day <= 7; day++) {
-        controller.waitForElement(lookupEventBox("multiweek", EVENT_BOX, 1, day, null, EVENTPATH));
+        controller.waitForElement(lookupEventBox("multiweek", CANVAS_BOX, 1, day, null, EVENTPATH));
     }
 
     for (let week = 2; week <= 4; week++) {
         for (let day = 1; day <= 7; day++) {
             controller.waitForElement(
-                lookupEventBox("multiweek", EVENT_BOX, week, day, null, EVENTPATH)
+                lookupEventBox("multiweek", CANVAS_BOX, week, day, null, EVENTPATH)
             );
         }
     }
@@ -101,17 +101,17 @@ function testDailyRecurrence() {
     goToDate(controller, 2009, 1, 1);
 
     for (let day = 5; day <= 7; day++) {
-        controller.waitForElement(lookupEventBox("month", EVENT_BOX, 1, day, null, EVENTPATH));
+        controller.waitForElement(lookupEventBox("month", CANVAS_BOX, 1, day, null, EVENTPATH));
     }
 
     for (let week = 2; week <= 5; week++) {
         for (let day = 1; day <= 7; day++) {
-            controller.assertNode(lookupEventBox("month", EVENT_BOX, week, day, null, EVENTPATH));
+            controller.assertNode(lookupEventBox("month", CANVAS_BOX, week, day, null, EVENTPATH));
         }
     }
 
     // Delete 3rd January occurrence.
-    let saturday = lookupEventBox("month", EVENT_BOX, 1, 7, null, EVENTPATH);
+    let saturday = lookupEventBox("month", CANVAS_BOX, 1, 7, null, EVENTPATH);
     controller.click(saturday);
     handleOccurrencePrompt(controller, saturday, "delete", false);
 
@@ -119,7 +119,7 @@ function testDailyRecurrence() {
     controller.waitForElementNotPresent(saturday);
 
     switchToView(controller, "multiweek");
-    controller.assertNodeNotExist(lookupEventBox("multiweek", EVENT_BOX, 1, 7, null, EVENTPATH));
+    controller.assertNodeNotExist(lookupEventBox("multiweek", CANVAS_BOX, 1, 7, null, EVENTPATH));
 
     switchToView(controller, "week");
     controller.assertNodeNotExist(lookupEventBox("week", EVENT_BOX, null, 7, null, EVENTPATH));
@@ -169,10 +169,10 @@ function testDailyRecurrence() {
 
     for (let i = 1; i <= 4; i++) {
         controller.waitForElementNotPresent(
-            lookupEventBox("multiweek", EVENT_BOX, i, 1, null, EVENTPATH)
+            lookupEventBox("multiweek", CANVAS_BOX, i, 1, null, EVENTPATH)
         );
         controller.assertNodeNotExist(
-            lookupEventBox("multiweek", EVENT_BOX, i, 7, null, EVENTPATH)
+            lookupEventBox("multiweek", CANVAS_BOX, i, 7, null, EVENTPATH)
         );
     }
 
@@ -182,13 +182,13 @@ function testDailyRecurrence() {
 
     for (let i = 1; i <= 5; i++) {
         controller.waitForElementNotPresent(
-            lookupEventBox("month", EVENT_BOX, i, 1, null, EVENTPATH)
+            lookupEventBox("month", CANVAS_BOX, i, 1, null, EVENTPATH)
         );
-        controller.assertNodeNotExist(lookupEventBox("month", EVENT_BOX, i, 7, null, EVENTPATH));
+        controller.assertNodeNotExist(lookupEventBox("month", CANVAS_BOX, i, 7, null, EVENTPATH));
     }
 
     // Delete event.
-    day = lookupEventBox("month", EVENT_BOX, 1, 5, null, EVENTPATH);
+    day = lookupEventBox("month", CANVAS_BOX, 1, 5, null, EVENTPATH);
     controller.click(day);
     handleOccurrencePrompt(controller, day, "delete", true);
     controller.waitForElementNotPresent(day);

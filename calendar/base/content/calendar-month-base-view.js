@@ -491,7 +491,7 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
                     // Set up label with the week number in the first day of the row.
                     if (this.mShowWeekNumber) {
-                        const weekLabel = document.getAnonymousElementByAttribute(daybox, "anonid", "week-label");
+                        const weekLabel = daybox.querySelector("[data-label='week']");
                         if (weekLabelColumnPos < 0) {
                             const isDayOff = this.mDaysOffArray.includes((j + this.mWeekStartOffset) % 7);
                             if (this.mDisplayDaysOff || !isDayOff) {
@@ -573,8 +573,7 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
                 const row = rows[i];
                 for (let j = 0; j < row.childNodes.length; j++) {
                     const daybox = row.childNodes[j];
-                    const weekLabel = document
-                        .getAnonymousElementByAttribute(daybox, "anonid", "week-label");
+                    const weekLabel = daybox.querySelector("[data-label='week']");
                     weekLabel.hidden = true;
                 }
             }

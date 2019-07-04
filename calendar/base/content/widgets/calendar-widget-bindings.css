@@ -12,7 +12,3 @@ modevbox {
 modevbox {
   -moz-box-orient: vertical;
 }
-
-dragndropContainer {
-   -moz-binding: url(chrome://calendar/content/widgets/calendar-widgets.xml#dragndropContainer);
-}

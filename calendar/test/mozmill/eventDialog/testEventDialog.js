@@ -175,7 +175,7 @@ function testEventDialog() {
     // Verify event and alarm icon visible until endDate (3 full rows) and check tooltip.
     for (let row = 1; row <= 3; row++) {
         for (let col = 1; col <= 7; col++) {
-            controller.waitForElement(lookupEventBox("month", EVENT_BOX, row, col, null, EVENTPATH));
+            controller.waitForElement(lookupEventBox("month", CANVAS_BOX, row, col, null, EVENTPATH));
             checkAlarmIcon(controller, "month", row, col);
             checkTooltip(row, col, startTime, endTime);
         }
@@ -183,37 +183,37 @@ function testEventDialog() {
     controller.assertNodeNotExist(lookupEventBox("month", EVENT_BOX, 4, 1, null, EVENTPATH));
 
     // Delete and verify deleted 6th col in row 1.
-    controller.click(lookupEventBox("month", EVENT_BOX, 1, 6, null, EVENTPATH));
+    controller.click(lookupEventBox("month", CANVAS_BOX, 1, 6, null, EVENTPATH));
     let elemToDelete = eid("month-view");
     handleOccurrencePrompt(controller, elemToDelete, "delete", false);
-    controller.waitForElementNotPresent(lookupEventBox("month", EVENT_BOX, 1, 6, null, EVENTPATH));
+    controller.waitForElementNotPresent(lookupEventBox("month", CANVAS_BOX, 1, 6, null, EVENTPATH));
 
     // Verify all others still exist.
     for (let col = 1; col <= 5; col++) {
-        controller.assertNode(lookupEventBox("month", EVENT_BOX, 1, col, null, EVENTPATH));
+        controller.assertNode(lookupEventBox("month", CANVAS_BOX, 1, col, null, EVENTPATH));
     }
-    controller.assertNode(lookupEventBox("month", EVENT_BOX, 1, 7, null, EVENTPATH));
+    controller.assertNode(lookupEventBox("month", CANVAS_BOX, 1, 7, null, EVENTPATH));
 
     for (let row = 2; row <= 3; row++) {
         for (let col = 1; col <= 7; col++) {
-            controller.assertNode(lookupEventBox("month", EVENT_BOX, row, col, null, EVENTPATH));
+            controller.assertNode(lookupEventBox("month", CANVAS_BOX, row, col, null, EVENTPATH));
         }
     }
 
     // Delete series by deleting last item in row 1 and confirming to delete all.
-    controller.click(lookupEventBox("month", EVENT_BOX, 1, 7, null, EVENTPATH));
+    controller.click(lookupEventBox("month", CANVAS_BOX, 1, 7, null, EVENTPATH));
     elemToDelete = eid("month-view");
     handleOccurrencePrompt(controller, elemToDelete, "delete", true);
 
     // Verify all deleted.
     controller.waitForElementNotPresent(lookupEventBox("month", EVENT_BOX, 1, 5, null, EVENTPATH));
-    controller.assertNodeNotExist(lookupEventBox("month", EVENT_BOX, 1, 6, null, EVENTPATH));
-    controller.assertNodeNotExist(lookupEventBox("month", EVENT_BOX, 1, 7, null, EVENTPATH));
+    controller.assertNodeNotExist(lookupEventBox("month", CANVAS_BOX, 1, 6, null, EVENTPATH));
+    controller.assertNodeNotExist(lookupEventBox("month", CANVAS_BOX, 1, 7, null, EVENTPATH));
 
     for (let row = 2; row <= 3; row++) {
         for (let col = 1; col <= 7; col++) {
             controller.assertNodeNotExist(lookupEventBox(
-                "month", EVENT_BOX, row, col, null, EVENTPATH
+                "month", CANVAS_BOX, row, col, null, EVENTPATH
             ));
         }
     }
@@ -221,7 +221,7 @@ function testEventDialog() {
 testEventDialog.EXCLUDED_PLATFORMS = ["darwin"]; // Bug 1513181
 
 function checkTooltip(row, col, startTime, endTime) {
-    let item = lookupEventBox("month", null, row, col, null, EVENTPATH);
+    let item = lookupEventBox("month", CANVAS_BOX, row, col, null, EVENTPATH);
 
     let toolTip = '/id("messengerWindow")/id("calendar-popupset")/id("itemTooltip")';
     let toolTipNode = lookup(toolTip).getNode();

@@ -265,22 +265,22 @@ function checkMultiWeekView(view) {
     // Wait for the first items, then check the ones not to be present.
     // Assert exactly two.
     controller.waitForElement(lookupEventBox(view, EVENT_BOX, startWeek, 3, null, "/[0]"));
-    assertNodeLookup(view, EVENT_BOX, startWeek, 3, null, "/[1]");
+    assertNodeLookup(view, CANVAS_BOX, startWeek, 3, null, "/[1]");
     assertNodeNotExistLookup(view, EVENT_BOX, startWeek, 3, null, "/[2]");
     // Then check no item on the 5th.
     assertNodeNotExistLookup(view, EVENT_BOX, startWeek, 2, null, EVENTPATH);
     assertNodeNotExistLookup(view, EVENT_BOX, startWeek, 3, null, "/[2]");
-    assertNodeLookup(view, EVENT_BOX, startWeek, 4, null, EVENTPATH);
+    assertNodeLookup(view, CANVAS_BOX, startWeek, 4, null, EVENTPATH);
     assertNodeNotExistLookup(view, EVENT_BOX, startWeek, 5, null, EVENTPATH);
-    assertNodeLookup(view, EVENT_BOX, startWeek, 6, null, EVENTPATH);
+    assertNodeLookup(view, CANVAS_BOX, startWeek, 6, null, EVENTPATH);
     assertNodeNotExistLookup(view, EVENT_BOX, startWeek, 7, null, EVENTPATH);
 
     assertNodeNotExistLookup(view, EVENT_BOX, startWeek + 1, 1, null, EVENTPATH);
-    assertNodeLookup(view, EVENT_BOX, startWeek + 1, 2, null, EVENTPATH);
-    assertNodeLookup(view, EVENT_BOX, startWeek + 1, 3, null, EVENTPATH);
-    assertNodeLookup(view, EVENT_BOX, startWeek + 1, 4, null, EVENTPATH);
+    assertNodeLookup(view, CANVAS_BOX, startWeek + 1, 2, null, EVENTPATH);
+    assertNodeLookup(view, CANVAS_BOX, startWeek + 1, 3, null, EVENTPATH);
+    assertNodeLookup(view, CANVAS_BOX, startWeek + 1, 4, null, EVENTPATH);
     assertNodeNotExistLookup(view, EVENT_BOX, startWeek + 1, 5, null, EVENTPATH);
-    assertNodeLookup(view, EVENT_BOX, startWeek + 1, 6, null, EVENTPATH);
+    assertNodeLookup(view, CANVAS_BOX, startWeek + 1, 6, null, EVENTPATH);
     assertNodeNotExistLookup(view, EVENT_BOX, startWeek + 1, 7, null, EVENTPATH);
 }
 
@@ -288,6 +288,7 @@ function teardownModule(module) {
     deleteCalendars(controller, CALENDARNAME);
 
     // Reset view.
+    switchToView(controller, "day");
     if (eid("day-view").getNode().orient == "horizontal") {
         controller.mainMenu.click("#ltnViewRotated");
     }

@@ -908,10 +908,9 @@
         }
 
         removeDropShadows() {
-            const dropbox = document.getAnonymousElementByAttribute(this, "dropbox", "true");
-            if (dropbox) {
-                dropbox.setAttribute("dropbox", "false");
-            }
+            this.querySelectorAll("[dropbox='true']").forEach(dbox => {
+                dbox.setAttribute("dropbox", "false");
+            });
         }
 
         setDateRange(startDate, endDate) {

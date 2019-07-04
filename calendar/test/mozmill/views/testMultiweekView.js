@@ -8,7 +8,7 @@ var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers"];
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
-var CALENDARNAME, EVENT_BOX, CANVAS_BOX, MULTIWEEK_VIEW, EVENTPATH;
+var CALENDARNAME, CANVAS_BOX, MULTIWEEK_VIEW, EVENTPATH;
 var helpersForController, switchToView, invokeEventDialog, getEventDetails, createCalendar;
 var closeAllEventDialogs, deleteCalendars, goToDate, lookupEventBox;
 var helpersForEditUI, setData;
@@ -21,7 +21,6 @@ function setupModule(module) {
     controller = mozmill.getMail3PaneController();
     ({
         CALENDARNAME,
-        EVENT_BOX,
         CANVAS_BOX,
         MULTIWEEK_VIEW,
         EVENTPATH,
@@ -92,7 +91,7 @@ function testMultiWeekView() {
     });
 
     // If it was created successfully, it can be opened.
-    eventBox = lookupEventBox("multiweek", EVENT_BOX, 1, 5, null, EVENTPATH);
+    eventBox = lookupEventBox("multiweek", CANVAS_BOX, 1, 5, null, EVENTPATH);
     invokeEventDialog(controller, eventBox, (event, iframe) => {
         let { eid: eventid } = helpersForController(event);
 
@@ -102,7 +101,7 @@ function testMultiWeekView() {
     });
 
     // Check if name was saved.
-    let eventName = lookupEventBox("multiweek", EVENT_BOX, 1, 5, null,
+    let eventName = lookupEventBox("multiweek", CANVAS_BOX, 1, 5, null,
         `${EVENTPATH}/${getEventDetails("multiweek")}/anon({"flex":"1"})/
         anon({"anonid":"event-name"})`
     );
