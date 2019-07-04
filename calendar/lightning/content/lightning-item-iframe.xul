@@ -424,7 +424,7 @@
                 <datepicker id="repeat-until-datepicker" flex="1"
                             type="forever"
                             disable-on-readonly="true"
-                            onchange="checkUntilDate();"
+                            onchange="if (onLoad.hasLoaded) { checkUntilDate(); }"
                             value=""/>
             </hbox>
             <vbox id="repeat-details" flex="1">
