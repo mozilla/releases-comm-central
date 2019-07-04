@@ -9,7 +9,7 @@ SEAMONKEY_VERSION := $(shell cat $(commtopsrcdir)/suite/config/version.txt)
 ifdef MOZ_SUITE
 LIGHTNING_VERSION := $(shell $(PYTHON) $(commtopsrcdir)/calendar/lightning/build/makeversion.py $(THUNDERBIRD_VERSION))
 else
-LIGHTNING_VERSION := $(shell $(PYTHON) $(commtopsrcdir)/calendar/lightning/build/makeversion.py $(word 1,$(MOZ_PKG_VERSION) $(THUNDERBIRD_VERSION)))
+LIGHTNING_VERSION := $(THUNDERBIRD_VERSION_DISPLAY)
 endif
 
 # For extensions we require a max version that is compatible across security releases.
