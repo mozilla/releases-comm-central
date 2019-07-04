@@ -63,7 +63,7 @@ gStrings.mailExt =
   messageString = messageString.replace("#2", Services.appinfo.version);
   description.textContent = messageString;
 
-  let label = document.createXULElement("label");
+  let label = document.createXULElement("label", {is: "text-link"});
   label.className = "text-link plain";
   label.href = "https://support.mozilla.org/kb/unable-install-add-on-extension-theme-thunderbird";
   label.value = gStrings.mailExt.GetStringFromName("legacyLearnMore");
