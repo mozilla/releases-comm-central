@@ -30,7 +30,7 @@
   <hbox flex="1" align="start">
     <image id="info" role="presentation"/>
     <vbox flex="1">
-      <description id="nosync">&window.nosync;</description>
+      <description id="nosync">&window.nosync2;</description>
       <hbox>
         <label class="text-link" value="&window.moreinfo;"
                onclick="moreInfo(event)"

@@ -9,10 +9,10 @@
  Thunderbird" and "version" is used to mean "the specific revision number of a
  given Thunderbird channel". These terms are not synonymous.
 -->
-<!ENTITY window.title "You’ve launched an older version of &brandProductName;">
+<!ENTITY window.title "You have launched an older version of &brandProductName;">
 <!ENTITY window.style "width: 490px;">
 
-<!ENTITY window.nosync "Using an older version of &brandProductName; can corrupt an existing &brandProductName; profile. To protect your information, create a new profile for this installation of &brandShortName;.">
+<!ENTITY window.nosync2 "A newer version of &brandProductName; may have made changes to your profile which are no longer compatible with this older version. Use this profile only with that newer version, or create a new profile for this installation of &brandShortName;. Creating a new profile requires setting up your accounts, calendars and add-ons again.">
 
 <!ENTITY window.moreinfo "More information…">
 <!ENTITY window.create "Create New Profile">
