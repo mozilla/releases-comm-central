@@ -47,15 +47,7 @@ var gCategoriesPane = {
             parent.backupPrefList = [];
         }
 
-        let categories = Preferences.get("calendar.categories.names").value;
-
-        // If no categories are configured load a default set from properties file
-        if (!categories) {
-            categories = cal.category.setupDefaultCategories();
-            Preferences.get("calendar.categories.names").value = categories;
-        }
-
-        gCategoryList = cal.category.stringToArray(categories);
+        gCategoryList = cal.category.fromPrefs();
 
         this.updateCategoryList();
 

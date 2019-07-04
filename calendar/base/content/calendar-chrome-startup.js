@@ -290,7 +290,7 @@ function setLocaleDefaultPreferences() {
         let startDefault = calendarInfo.firstDayOfWeek - 1;
         if (aName == "calendar.categories.names" &&
             defaultBranch.getStringPref(aName) == "") {
-            defaultBranch.setStringPref(aName, cal.l10n.getString("categories", "categories2"));
+            cal.category.setupDefaultCategories();
         } else if (aName == "calendar.week.start" &&
                    defaultBranch.getIntPref(aName) != startDefault) {
             defaultBranch.setIntPref(aName, startDefault);

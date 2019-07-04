@@ -23,16 +23,18 @@ var calcategory = {
      * @return      The default set of categories as a comma separated string.
      */
     setupDefaultCategories: function() {
+        let defaultBranch = Services.prefs.getDefaultBranch("");
+
         // First, set up the category names
         let categories = cal.l10n.getString("categories", "categories2");
-        Services.prefs.setStringPref("calendar.categories.names", categories);
+        defaultBranch.setStringPref("calendar.categories.names", categories);
 
         // Now, initialize the category default colors
         let categoryArray = calcategory.stringToArray(categories);
         for (let category of categoryArray) {
             let prefName = cal.view.formatStringForCSSRule(category);
-            Services.prefs.setStringPref("calendar.category.color." + prefName,
-                                         cal.view.hashColor(category));
+            defaultBranch.setStringPref("calendar.category.color." + prefName,
+                                        cal.view.hashColor(category));
         }
 
         // Return the list of categories for further processing
