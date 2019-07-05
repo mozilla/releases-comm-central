@@ -20,7 +20,7 @@ finger-verify = Verify
 finger-verify-accessKey = V
 
 # Do not translate 'OTR' (name of an encryption protocol)
-buddycontextmenu-label = Add Contact's OTR Fingerprint
+buddycontextmenu-label = Add OTR Fingerprint
 
 # Variables:
 #   $name (String) - the screen name of a chat contact person

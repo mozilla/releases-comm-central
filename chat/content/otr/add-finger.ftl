@@ -3,14 +3,15 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 otr-add-finger =
-    .title = Add Fingerprint
-    .buttonlabelcancel = Skip
+    .title = Add OTR Key Fingerprint
 
 # Variables:
 #   $name (String) - name of a chat contact person
-otr-add-finger-name-title = Enter the fingerprint of the OTR key used by { $name }
-
-otr-add-finger-fingerprint = Fingerprint
-
 # Do not translate 'OTR' (name of an encryption protocol)
-otr-add-finger-tooltip = If you know the 40 character long HEX fingerprint of your contact's OTR private key, enter it now.
+otr-add-finger-description = Enter the OTR key fingerprint for { $name }.
+
+otr-add-finger-fingerprint = Fingerprint:
+otr-add-finger-tooltip-error = Invalid character entered. Only letters ABCDEF and numbers are allowed
+
+otr-add-finger-input =
+    .placeholder = The 40 character long OTR key fingerprint

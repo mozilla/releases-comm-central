@@ -2,46 +2,77 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {
-  XPCOMUtils,
-  l10nHelper,
-} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-const {OTR} = ChromeUtils.import("resource:///modules/OTR.jsm");
-
-var args = window.arguments[0].wrappedJSObject;
+var {l10nHelper} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var {OTR} = ChromeUtils.import("resource:///modules/OTR.jsm");
 
 var otrAddFinger = {
   async onload() {
-    let title = await document.l10n.formatValue(
-      "otr-add-finger-name-title", {name: args.screenname});
-    document.title = title;
-    document.addEventListener("dialogaccept", () => {
-      return this.add();
+    let args = window.arguments[0].wrappedJSObject;
+
+    this.fingerWarning = document.getElementById("fingerWarning");
+    this.fingerError = document.getElementById("fingerError");
+    this.keyCount = document.getElementById("keyCount");
+
+    let description = await document.l10n.formatValue(
+      "otr-add-finger-description", { name: args.screenname });
+    document.getElementById("otrDescription").textContent = description;
+
+    let warningTooltip =
+      await document.l10n.formatValue("otr-add-finger-tooltip-error");
+    this.fingerWarning.setAttribute("tooltiptext", warningTooltip);
+
+    document.addEventListener("dialogaccept", (event) => {
+      let hex = document.getElementById("fingerprint").value;
+      let context = OTR.getContextFromRecipient(
+        args.account,
+        args.protocol,
+        args.screenname
+      );
+      let finger = OTR.addFingerprint(context, hex);
+      if (finger.isNull()) {
+        event.preventDefault();
+        return;
+      }
+      try {
+        // Ignore the return, this is just a test.
+        OTR.getUIConvFromContext(context);
+      } catch (error) {
+        // We expect that a conversation may not have been started.
+        context = null;
+      }
+      OTR.setTrust(finger, true, context);
     });
+
+    window.sizeToContent();
   },
 
-  oninput(e) {
-    e.value = e.value.replace(/[^0-9a-fA-F]/gi, "");
-    document.documentElement.getButton("accept").disabled = (e.value.length != 40);
+  addBlankSpace(value) {
+    return value.replace(/\s/g, "").trim().replace(/(.{8})/g, "$1 ").trim();
   },
 
-  add(e) {
-    let hex = document.getElementById("finger").value;
-    let context = OTR.getContextFromRecipient(
-      args.account,
-      args.protocol,
-      args.screenname
-    );
-    let finger = OTR.addFingerprint(context, hex);
-    if (finger.isNull())
-      return;
-    try {
-      // Ignore the return, this is just a test.
-      OTR.getUIConvFromContext(context);
-    } catch (error) {
-      // We expect that a conversation may not have been started.
-      context = null;
+  oninput(input) {
+    let hex = input.value.replace(/\s/g, "");
+
+    if ((/[^0-9A-F]/gi).test(hex)) {
+      this.keyCount.hidden = true;
+      this.fingerWarning.hidden = false;
+      this.fingerError.hidden = false;
+    } else {
+      this.keyCount.hidden = false;
+      this.fingerWarning.hidden = true;
+      this.fingerError.hidden = true;
     }
-    OTR.setTrust(finger, true, context);
+
+    document.documentElement.getButton("accept").disabled =
+      input.value && !input.validity.valid;
+
+    this.keyCount.value = `${hex.length}/40`;
+    input.value = this.addBlankSpace(input.value);
+
+    window.sizeToContent();
+  },
+
+  onblur(input) {
+    input.value = this.addBlankSpace(input.value);
   },
 };

@@ -1,0 +1,96 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+:root {
+  --text-color: #36385A;
+  --primary-color: #0a84ff;
+  --warning-color: #FF9400;
+  --error-color: #5A0002;
+}
+
+.dialog-container {
+  width: 36em;
+}
+
+.dialog-button-box {
+  margin-top: 5px;
+}
+
+.header-container {
+  margin: 0px 10px 5px;
+}
+
+.label-title {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: var(--text-color);
+}
+
+.msg-error {
+  color: var(--error-color);
+}
+
+/* Form and input fields */
+
+.form-control {
+  position: relative;
+  margin: 0px 0px 10px;
+}
+
+.input-control {
+  display: flex;
+  align-items: stretch;
+}
+
+.input-field {
+  padding: 5px 30px 5px 6px;
+  flex-grow: 1;
+  margin: 2px 4px;
+}
+
+.input-field:invalid {
+  box-shadow: 0 0 2px 1px var(--warning-color);
+}
+
+.input-helper-container {
+  margin-top: -6px;
+}
+
+.input-helper {
+  font-family: monospace;
+  font-size: 1em;
+  opacity: 0.7;
+}
+
+/* Icons */
+
+.header-icon {
+  -moz-context-properties: fill, stroke-opacity;
+  fill: currentColor;
+  color: var(--primary-color);
+  width: 3.5em;
+  margin: 10px;
+}
+
+.form-icon {
+  cursor: pointer;
+  -moz-context-properties: fill, stroke-opacity;
+  fill: currentColor;
+  margin-left: -26px;
+  margin-right: 10px;
+  color: var(--text-color);
+}
+
+.icon-info {
+  list-style-image: url("chrome://messenger/skin/icons/info.svg");
+}
+
+.icon-warning {
+  list-style-image: url("chrome://global/skin/icons/warning.svg");
+  color: var(--warning-color);
+}
+
+.icon-login {
+  list-style-image: url("chrome://messenger/skin/icons/login.svg");
+}
