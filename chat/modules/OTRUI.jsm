@@ -96,22 +96,25 @@ var OTRUI = {
 
   debug: false,
   logMsg(msg) {
-    if (!OTRUI.debug)
+    if (!OTRUI.debug) {
       return;
+    }
     Services.console.logStringMessage(msg);
   },
 
   addMenuObserver() {
     let iter = Services.ww.getWindowEnumerator();
-    while (iter.hasMoreElements())
+    while (iter.hasMoreElements()) {
       OTRUI.addMenus(iter.getNext());
+    }
     Services.obs.addObserver(OTRUI, "domwindowopened");
   },
 
   removeMenuObserver() {
     let iter = Services.ww.getWindowEnumerator();
-    while (iter.hasMoreElements())
+    while (iter.hasMoreElements()) {
       OTRUI.removeMenus(iter.getNext());
+    }
     Services.obs.removeObserver(OTRUI, "domwindowopened");
   },
 
@@ -261,14 +264,16 @@ var OTRUI = {
   },
 
   disconnect(aConv) {
-    if (aConv)
+    if (aConv) {
       return OTR.disconnect(aConv, true);
+    }
     let allGood = true;
     let conversations = Services.conversations.getConversations();
     while (conversations.hasMoreElements()) {
       let conv = conversations.getNext();
-      if (conv.isChat)
+      if (conv.isChat) {
         continue;
+      }
       if (!OTR.disconnect(conv, true)) {
         allGood = false;
       }
@@ -296,8 +301,9 @@ var OTRUI = {
 
   closeAuth(context) {
     let win = windowRefs.get(context.username);
-    if (win)
+    if (win) {
       win.close();
+    }
   },
 
   noOtrPossible(otrContainer, context) {
@@ -339,20 +345,24 @@ var OTRUI = {
   },
 
   hideOTRButton() {
-    if (!OTR.libLoaded)
+    if (!OTR.libLoaded) {
       return;
-    if (!this.globalDoc)
+    }
+    if (!this.globalDoc) {
       return;
+    }
     OTRUI.visibleConv = null;
     let otrContainer = this.globalDoc.querySelector(".otr-container");
     OTRUI.noOtrPossible(otrContainer);
   },
 
   updateOTRButton(_conv) {
-    if (!OTR.libLoaded)
+    if (!OTR.libLoaded) {
       return;
-    if (!this.globalDoc)
+    }
+    if (!this.globalDoc) {
       return;
+    }
     OTRUI.visibleConv = _conv;
     let convBinding =
       this.globalDoc.getElementById("conversationsDeck").selectedPanel;
@@ -445,7 +455,9 @@ var OTRUI = {
 
   askAuth(aObject) {
     let uiConv = OTR.getUIConvFromContext(aObject.context);
-    if (!uiConv) return;
+    if (!uiConv) {
+      return;
+    }
 
     let window = this.globalDoc.defaultView;
     let name = uiConv.target.normalizedName;
@@ -454,7 +466,9 @@ var OTRUI = {
 
   closeUnverified(context) {
     let uiConv = OTR.getUIConvFromContext(context);
-    if (!uiConv) return;
+    if (!uiConv) {
+      return;
+    }
 
     let notifications = this.globalBox.allNotifications;
     for (let i = notifications.length - 1; i >= 0; i--) {
@@ -484,14 +498,17 @@ var OTRUI = {
   showUserNotifications(context) {
     let notifications = this.globalBox.allNotifications;
     for (let i = notifications.length - 1; i >= 0; i--) {
-      if (context.username == notifications[i].getAttribute("user"))
+      if (context.username == notifications[i].getAttribute("user")) {
         notifications[i].removeAttribute("hidden");
+      }
     }
   },
 
   notifyUnverified(context, seen) {
     let uiConv = OTR.getUIConvFromContext(context);
-    if (!uiConv) return;
+    if (!uiConv) {
+      return;
+    }
 
     let window = this.globalDoc.defaultView;
 
@@ -512,6 +529,10 @@ var OTRUI = {
 
     let verifyTitle = syncL10n.formatValueSync("verify-title");
     this.updateNotificationUI(context, verifyTitle, context.username, AUTH_STATUS_UNVERIFIED);
+
+    if (!this.visibleConv) {
+      return;
+    }
 
     if (context.username !== this.visibleConv.normalizedName) {
       this.hideUserNotifications(context);
@@ -558,7 +579,9 @@ var OTRUI = {
 
   closeVerification(context) {
     let uiConv = OTR.getUIConvFromContext(context);
-    if (!uiConv) return;
+    if (!uiConv) {
+      return;
+    }
 
     let prevNotification = OTRUI.globalBox.getNotificationWithValue(context.username);
     if (prevNotification) {
@@ -568,7 +591,9 @@ var OTRUI = {
 
   notifyVerification(context, key, cancelable) {
     let uiConv = OTR.getUIConvFromContext(context);
-    if (!uiConv) return;
+    if (!uiConv) {
+      return;
+    }
 
     // TODO: maybe update the .label property on the notification instead
     // of closing it ... although, buttons need to be updated too.
@@ -612,8 +637,9 @@ var OTRUI = {
         }
       } else {
         key = "otr:auth-fail";
-        if (!aObj.context.trust)
+        if (!aObj.context.trust) {
           OTR.notifyTrust(aObj.context);
+        }
       }
       OTRUI.notifyVerification(aObj.context, key, false);
     } else {
@@ -627,9 +653,10 @@ var OTRUI = {
     let account = acc.normalizedName;
     let protocol = acc.protocol.normalizedName;
     Promise.resolve();
-    if (OTR.privateKeyFingerprint(account, protocol) === null)
+    if (OTR.privateKeyFingerprint(account, protocol) === null) {
       OTR.generatePrivateKey(account, protocol)
-      .catch(OTRUI.reportKeyGenFailure);
+         .catch(OTRUI.reportKeyGenFailure);
+    }
   },
 
   contactWrapper(contact) {
@@ -652,8 +679,10 @@ var OTRUI = {
 
   onContactAdded(contact) {
     let args = OTRUI.contactWrapper(contact);
-    if (OTR.getFingerprintsForRecipient(args.account, args.protocol, args.screenname).length > 0)
+    if (OTR.getFingerprintsForRecipient(args.account,
+        args.protocol, args.screenname).length > 0) {
       return;
+    }
     args.wrappedJSObject = args;
     let features = "chrome,modal,centerscreen,resizable=no,minimizable=no";
     Services.ww.openWindow(null, OTR_ADD_FINGER_DIALOG_URL, "", features, args);
@@ -676,8 +705,9 @@ var OTRUI = {
         OTRUI.addButton(aObject);
         break;
       case "conversation-closed":
-        if (aObject.isChat)
+        if (aObject.isChat) {
           return;
+        }
         this.globalBox.removeAllNotifications();
         OTRUI.closeAuth(OTR.getContext(aObject));
         OTRUI.disconnect(aObject);
@@ -709,6 +739,15 @@ var OTRUI = {
         OTRUI.setMsgState(null, aObject, this.globalDoc, false);
         break;
       case "otr:unverified":
+        if (!this.globalDoc) {
+          let win = Services.wm.getMostRecentWindow("mail:3pane");
+          if (!win) {
+            return;
+          }
+          win.focus();
+          win.showChatTab();
+          this.globalDoc = win.document;
+        }
         OTRUI.notifyUnverified(aObject, aMsg);
         break;
       case "otr:trust-state":
@@ -740,14 +779,16 @@ var OTRUI = {
   resetConv(binding) {
     OTR.removeConversation(binding._conv);
     let otrButton = this.globalDoc.querySelector(".otr-button");
-    if (!otrButton)
+    if (!otrButton) {
       return;
+    }
     otrButton.remove();
   },
 
   destroy() {
-    if (!OTR.libLoaded)
+    if (!OTR.libLoaded) {
       return;
+    }
     OTRUI.disconnect(null);
     Services.obs.removeObserver(OTR, "new-ui-conversation");
     // Services.obs.removeObserver(OTRUI, "contact-added");
