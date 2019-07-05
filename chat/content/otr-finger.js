@@ -4,12 +4,11 @@
 
 const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
 const {OTR} = ChromeUtils.import("resource:///modules/OTR.jsm");
-const {LocalizationSync} =
-  ChromeUtils.import("resource://gre/modules/Localization.jsm", {});
+const {Localization} = ChromeUtils.import("resource://gre/modules/Localization.jsm");
 
-const syncL10n = new LocalizationSync([
+const syncL10n = new Localization([
   "messenger/otr/finger.ftl",
-]);
+], true);
 
 var [account] = window.arguments;
 
@@ -26,7 +25,7 @@ var fingerTreeView = {
     switch (column.id) {
       case "verified": {
         let id = finger.trust ? "finger-yes" : "finger-no";
-        return syncL10n.formatValue(id);
+        return syncL10n.formatValueSync(id);
       }
       default:
         return finger[column.id] || "";
@@ -83,8 +82,8 @@ var otrFinger = {
   },
 
   removeAll() {
-    let confirmAllTitle = syncL10n.formatValue("finger-remove-all-title");
-    let confirmAllText = syncL10n.formatValue("finger-remove-all-message");
+    let confirmAllTitle = syncL10n.formatValueSync("finger-remove-all-title");
+    let confirmAllText = syncL10n.formatValueSync("finger-remove-all-message");
 
     let buttonPressed =
       Services.prompt.confirmEx(window, confirmAllTitle, confirmAllText,
@@ -118,8 +117,8 @@ var otrFinger = {
     }
     fingerTreeView.selection.selectEventsSuppressed = false;
     if (!removalComplete) {
-      let infoTitle = syncL10n.formatValue("finger-subset-title");
-      let infoText = syncL10n.formatValue("finger-subset-message");
+      let infoTitle = syncL10n.formatValueSync("finger-subset-title");
+      let infoText = syncL10n.formatValueSync("finger-subset-message");
       Services.prompt.alert(window, infoTitle, infoText);
     }
   },

@@ -4,21 +4,20 @@
 
 this.EXPORTED_SYMBOLS = ["OTRUI"];
 
-const { LocalizationSync } =
-  ChromeUtils.import("resource://gre/modules/Localization.jsm", {});
+const {Localization} = ChromeUtils.import("resource://gre/modules/Localization.jsm");
 const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
 const {OTR}  = ChromeUtils.import("resource:///modules/OTR.jsm");
 
-const syncL10n = new LocalizationSync([
+const syncL10n = new Localization([
   "messenger/otr/otrUI.ftl",
-]);
+], true);
 
 function _str(id) {
-  return syncL10n.formatValue(id);
+  return syncL10n.formatValueSync(id);
 }
 
 function _strArgs(id, args) {
-  return syncL10n.formatValue(id, args);
+  return syncL10n.formatValueSync(id, args);
 }
 
 const OTR_AUTH_DIALOG_URL = "chrome://chat/content/otr-auth.xul";
@@ -402,9 +401,9 @@ var OTRUI = {
         let id = "state-" + trust.class;
         let msg;
         if (OTR.trust(context) == OTR.trustState.TRUST_NOT_PRIVATE) {
-          msg = syncL10n.formatValue(id);
+          msg = syncL10n.formatValueSync(id);
         } else {
-          msg = syncL10n.formatValue(id, {name: context.username});
+          msg = syncL10n.formatValueSync(id, {name: context.username});
         }
         uiConv.systemMessage(msg);
       }
@@ -511,7 +510,7 @@ var OTRUI = {
     let priority = this.globalBox.PRIORITY_WARNING_MEDIUM;
     this.globalBox.appendNotification(msg, context.username, null, priority, buttons, null);
 
-    let verifyTitle = syncL10n.formatValue("verify-title");
+    let verifyTitle = syncL10n.formatValueSync("verify-title");
     this.updateNotificationUI(context, verifyTitle, context.username, AUTH_STATUS_UNVERIFIED);
 
     if (context.username !== this.visibleConv.normalizedName) {
