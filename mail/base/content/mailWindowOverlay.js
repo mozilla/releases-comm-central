@@ -184,8 +184,9 @@ function InitGoMessagesMenu() {
 }
 
 /**
- * This is called every time the view menu popup is displayed.  It is
- *  responsible for updating the menu items' state to reflect reality.
+ * This is called every time the view menu popup is displayed (in the main menu
+ * bar or in the appmenu).  It is responsible for updating the menu items'
+ * state to reflect reality.
  */
 function view_init() {
   let isFeed = gFolderDisplay &&
@@ -247,10 +248,13 @@ function view_init() {
   if (appmenuViewMessagesMenu)
     appmenuViewMessagesMenu.disabled = accountCentralDisplayed;
 
-  // Hide the views menu item if the user doesn't have the views toolbar button
-  // visible.
+  // Hide the "View > Messages" menu item if the user doesn't have the "Views"
+  // (aka "Mail Views") toolbar button in the main toolbar. (See bug 1563789.)
   var viewsToolbarButton = document.getElementById("mailviews-container");
   document.getElementById("viewMessageViewMenu").hidden = !viewsToolbarButton;
+  if (appmenuViewMessageView) {
+    appmenuViewMessageView.hidden = !viewsToolbarButton;
+  }
 
   // Initialize the Message Body menuitem
   document.getElementById("viewBodyMenu").hidden = isFeed;

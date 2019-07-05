@@ -1032,7 +1032,6 @@
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-viewMessagesCustomViewsView', this)"/>
         <toolbarseparator id="appmenu_messageViewAfterCustomSeparator"/>
-        <!-- TODO appmenu - broken? broken already? -->
         <toolbarbutton id="appmenu_viewMessageVirtualFolder"
                        class="subviewbutton subviewbutton-iconic"
                        value="7"
