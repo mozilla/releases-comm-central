@@ -178,7 +178,7 @@ function open_compose_with_forward(aController) {
  * Opens the compose window by clicking the specified element and waits for
  * the compose window to load.
  *
- * @param aElement    the name of the element that should be clicked.
+ * @param aElement    the element that should be clicked.
  * @param aController the controller whose window is to be closed.
  *
  * @return The loaded window of type "msgcompose" wrapped in a MozmillController
@@ -189,7 +189,7 @@ function open_compose_with_element_click(aElement, aController) {
     aController = mc;
 
   windowHelper.plan_for_new_window("msgcompose");
-  aController.click(new elib.ID(mc.window.document, aElement));
+  aController.click(aElement);
 
   return wait_for_compose_window();
 }

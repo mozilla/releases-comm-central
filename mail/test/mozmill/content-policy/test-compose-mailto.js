@@ -51,7 +51,8 @@ function test_openComposeFromMailToLink() {
   // in the data of what we want.
   gPreCount = mc.tabmail.tabContainer.allTabs.length;
   gNewTab = open_content_tab_with_url(url + "mailtolink.html");
-  gComposeWin = composeHelper.open_compose_with_element_click("mailtolink");
+  gComposeWin = composeHelper.open_compose_with_element_click(
+    content_tab_eid(gNewTab, "mailtolink"));
 }
 
 function test_checkInsertImage() {
