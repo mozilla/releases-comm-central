@@ -51,92 +51,9 @@
   );
 }
 
-/* TODO appmenu - added, more needed? */
 panelview:not([visible]) {
   visibility: collapse;
 }
-
-/* TODO appmenu - "PanelUI-menu-button" is not used as an id in Thunderbird.
-#PanelUI-menu-button[badge-status] > .toolbarbutton-badge-stack > .toolbarbutton-badge {
-  display: -moz-box;
-  height: 10px;
-  width: 10px;
-  background-size: contain;
-  border: none;
-}
-
-#PanelUI-menu-button[badge-status="extension-new-tab"] > .toolbarbutton-badge-stack > .toolbarbutton-badge,
-#PanelUI-menu-button[badge-status="download-success"] > .toolbarbutton-badge-stack > .toolbarbutton-badge {
-  display: none;
-}
-
-#PanelUI-menu-button[badge-status="update-available"] > .toolbarbutton-badge-stack > .toolbarbutton-badge,
-#PanelUI-menu-button[badge-status="update-manual"] > .toolbarbutton-badge-stack > .toolbarbutton-badge,
-#PanelUI-menu-button[badge-status="update-restart"] > .toolbarbutton-badge-stack > .toolbarbutton-badge,
-#PanelUI-menu-button[badge-status="update-unsupported"] > .toolbarbutton-badge-stack > .toolbarbutton-badge {
-  border-radius: 50%;
-  box-shadow: none;
-  */
-  /* "!important" is necessary to override the rule in toolbarbutton.css */
-  /*
-  margin: -7px 0 0 !important;
-  margin-inline-end: -4px !important;
-  min-width: 12px;
-  min-height: 12px;
-}
-*/
-
-#PanelUI-menu-button[badge-status="update-available"] > .toolbarbutton-badge-stack > .toolbarbutton-badge,
-#PanelUI-menu-button[badge-status="update-manual"] > .toolbarbutton-badge-stack > .toolbarbutton-badge,
-#PanelUI-menu-button[badge-status="update-restart"] > .toolbarbutton-badge-stack > .toolbarbutton-badge {
-  background: #74BF43 url(chrome://browser/skin/update-badge.svg) no-repeat center;
-}
-
-#PanelUI-menu-button[badge-status="update-unsupported"] > .toolbarbutton-badge-stack > .toolbarbutton-badge {
-  background: #FFE900 url(chrome://browser/skin/update-badge.svg) no-repeat center;
-}
-
-.panel-banner-item[notificationid="update-available"]::after,
-.panel-banner-item[notificationid="update-manual"]::after,
-.panel-banner-item[notificationid="update-restart"]::after {
-  background: #74BF43 url(chrome://browser/skin/update-badge.svg) no-repeat center;
-  border-radius: 50%;
-}
-
-.panel-banner-item[notificationid="update-unsupported"]::after {
-  background: #FFE900 url(chrome://browser/skin/update-badge.svg) no-repeat center;
-  border-radius: 50%;
-}
-
-.panel-banner-item[notificationid^=update] {
-  list-style-image: url(chrome://branding/content/icon16.png);
-}
-
-/* TODO appmenu - "PanelUI-menu-button" is not used as an id in Thunderbird.
-/*
-#PanelUI-menu-button[badge-status="addon-alert"] > .toolbarbutton-badge-stack > .toolbarbutton-badge,
-#PanelUI-menu-button[badge-status="fxa-needs-authentication"] > .toolbarbutton-badge-stack > .toolbarbutton-badge {
-  height: 13px;
-  background: url(chrome://browser/skin/warning.svg) center / contain no-repeat transparent;
-  box-shadow: none;
-  border-radius: 0;
-  */
-  /* Use the included fallbacks defined in the SVG file instead of inheriting from .toolbarbutton-1. */
-  /*
-  -moz-context-properties: none;
-}
-
-#PanelUI-menu-button[badge-status] > .toolbarbutton-badge-stack > .toolbarbutton-badge:-moz-window-inactive {
-  filter: grayscale(100%);
-}
-
-#nav-bar[brighttext] #PanelUI-menu-button[badge-status="addon-alert"] > .toolbarbutton-badge-stack > .toolbarbutton-badge,
-#nav-bar[brighttext] #PanelUI-menu-button[badge-status="fxa-needs-authentication"] > .toolbarbutton-badge-stack > .toolbarbutton-badge {
-  -moz-context-properties: fill, stroke;
-  fill: #FFE900;
-  stroke: transparent;
-}
-*/
 
 .cui-widget-panel,
 #widget-overflow {
@@ -462,178 +379,6 @@ toolbarbutton[constrain-size="true"][cui-areatype="menu-panel"] > .toolbarbutton
   display: none;
 }
 
-.addon-banner-item::after,
-.panel-banner-item::after {
-  content: "";
-  width: 16px;
-  height: 16px;
-  margin-inline-start: 10px;
-  margin-inline-end: 12px;
-  display: -moz-box;
-}
-
-.addon-banner-item {
-  background-color: var(--appmenu-warning-background-color);
-  color: var(--appmenu-warning-color);
-  /* Force border to override `.addon-banner-item` selector below */
-  border-top: 1px solid var(--appmenu-warning-border-color) !important;
-  display: flex;
-  flex: 1 1 0%;
-  width: calc(var(--menu-panel-width) + 30px);
-  padding-inline-start: 15px;
-  border-inline-start-style: none;
-  -moz-image-region: rect(0, 16px, 16px, 0);
-}
-
-.addon-banner-item:last-child {
-  border-bottom: 1px solid var(--appmenu-warning-border-color);
-}
-
-.addon-banner-item:focus,
-.addon-banner-item:hover {
-  background-color: var(--appmenu-warning-background-color-hover);
-}
-
-.addon-banner-item:hover:active {
-  background-color: var(--appmenu-warning-background-color-active);
-}
-
-.addon-banner-item > .toolbarbutton-icon {
-  width: 16px;
-  height: 16px;
-}
-
-.addon-banner-item::after {
-  background: url(chrome://browser/skin/warning.svg) no-repeat center;
-}
-
-:root[lwt-popup-brighttext] .addon-banner-item::after {
-  -moz-context-properties: fill, stroke;
-  fill: #FFE900;
-  stroke: transparent;
-}
-
-.addon-banner-item,
-.panel-banner-item {
-  margin: 0;
-  padding: 11px 0;
-  box-sizing: border-box;
-  min-height: 40px;
-  -moz-appearance: none;
-  box-shadow: none;
-  border: none;
-  border-radius: 0;
-  transition: background-color;
-  -moz-box-orient: horizontal;
-}
-
-.panel-banner-item {
-  border-top: 1px solid var(--panel-separator-color);
-  border-bottom: 1px solid var(--panel-separator-color);
-  padding-inline-start: 12px;
-}
-
-#appMenu-addon-banners:not(:empty) + .panel-banner-item {
-  /* Overlap the .addon-banner-item border so there's one border. */
-  margin-top: -1px;
-}
-
-#appMenu-addon-banners > .addon-banner-item {
-  padding-inline-start: 12px;
-}
-
-.panel-banner-item > .toolbarbutton-text {
-  width: 0; /* Fancy cropping solution for flexbox. */
-}
-
-.panel-banner-item > .toolbarbutton-icon {
-  width: 16px;
-}
-
-#appMenu-addon-banners:not(:empty) ~ #appMenu-fxa-container,
-.panel-banner-item:not([hidden]) + #appMenu-fxa-container {
-  margin-top: 6px;
-}
-
-/* FxAccount indicator bits. */
-
-/* Add the .toolbaritem-combined-buttons class to increase the specificity so as
- * to override the end margin for .toolbaritem-combined-buttons items further down. */
-#appMenu-fxa-container.toolbaritem-combined-buttons:not([fxastatus="signedin"]) {
-  margin-inline-end: 0;
-}
-
-#appMenu-fxa-label {
-  -moz-context-properties: fill;
-  fill: currentColor;
-  list-style-image: url(chrome://browser/skin/sync.svg);
-}
-
-#appMenu-fxa-label {
-  -moz-box-flex: 1;
-}
-
-@keyframes syncRotate {
-  from { transform: rotate(0); }
-  to { transform: rotate(360deg); }
-}
-
-#PanelUI-fxa-menu-syncnow-button[syncstatus="active"] > .toolbarbutton-icon,
-#PanelUI-remotetabs-syncnow[syncstatus="active"] > .toolbarbutton-icon {
-  animation: syncRotate 0.8s linear infinite;
-  fill: var(--toolbarbutton-icon-fill-attention);
-}
-
-#appMenu-fxa-status {
-  -moz-box-align: center;
-}
-
-#appMenu-fxa-avatar {
-  pointer-events: none;
-  list-style-image: url(chrome://browser/skin/fxa/default-avatar.svg);
-}
-
-/* Handle different UI states. */
-#appMenu-fxa-container[fxastatus="signedin"] > #appMenu-fxa-status > #appMenu-fxa-label > .toolbarbutton-icon,
-#appMenu-fxa-container:not([fxastatus="signedin"]) > #appMenu-fxa-status > #appMenu-fxa-avatar {
-  display: none;
-}
-
-#appMenu-fxa-container[fxastatus="signedin"] > #appMenu-fxa-status > #appMenu-fxa-label {
-  /* 12px space before the avatar, then 16px for the avatar */
-  padding-inline-start: 28px;
-  margin-inline-start: -28px;
-}
-
-#appMenu-fxa-container[fxastatus="signedin"] > #appMenu-fxa-status > #appMenu-fxa-avatar {
-  margin-inline-start: 12px;
-}
-
-/* Error states */
-#appMenu-fxa-container[fxastatus="unverified"] > #appMenu-fxa-status > #appMenu-fxa-label,
-#appMenu-fxa-container[fxastatus="login-failed"] > #appMenu-fxa-status > #appMenu-fxa-label {
-  list-style-image: url(chrome://browser/skin/warning.svg);
-  -moz-image-region: rect(0, 16px, 16px, 0);
-}
-
-#appMenu-fxa-container[fxastatus="login-failed"],
-#appMenu-fxa-container[fxastatus="unverified"] {
-  background-color: var(--appmenu-warning-background-color);
-  color: var(--appmenu-warning-color);
-  border-top: 1px solid var(--appmenu-warning-border-color);
-  border-bottom: 1px solid var(--appmenu-warning-border-color);
-}
-
-#appMenu-fxa-container[fxastatus="login-failed"] > #appMenu-fxa-status:hover,
-#appMenu-fxa-container[fxastatus="unverified"] > #appMenu-fxa-status:hover {
-  background-color: var(--appmenu-warning-background-color-hover);
-}
-
-#appMenu-fxa-container[fxastatus="login-failed"] > #appMenu-fxa-status:hover:active,
-#appMenu-fxa-container[fxastatus="unverified"] > #appMenu-fxa-status:hover:active {
-  background-color: var(--appmenu-warning-background-color-active);
-}
-
 /* Tracking Protection Button & Toggle */
 
 #appMenu-tp-label {
@@ -657,185 +402,14 @@ toolbarbutton[constrain-size="true"][cui-areatype="menu-panel"] > .toolbarbutton
   margin-inline-end: 0;
 }
 
-.addon-banner-item > .toolbarbutton-text,
-.panel-banner-item > .toolbarbutton-text {
-  margin: 0;
-  padding: 0 6px;
-  text-align: start;
-}
-
-.addon-banner-item > .toolbarbutton-icon,
-.panel-banner-item > .toolbarbutton-icon {
-  margin-inline-end: 0;
-}
-
-.addon-banner-item {
-  flex: 1;
-  padding-inline-start: 15px;
-  border-inline-start-style: none;
-}
-
-:root[lwt-popup-brighttext] .addon-banner-item {
-  color: var(--appmenu-warning-color-bright-text);
-  background: var(--appmenu-warning-background-color-bright-text);
-  /* override `.addon-banner-item` border-top !important defined above */
-  border: 0 !important;
-}
-
-:root[lwt-popup-brighttext] .addon-banner-item:hover,
-:root[lwt-popup-brighttext] .addon-banner-item:focus {
-  background: var(--appmenu-warning-backgound-color-hover-bright-text);
-}
-
-:root[lwt-popup-brighttext] .addon-banner-item:hover:active,
-:root[lwt-popup-brighttext] .addon-banner-item:focus:active {
-  background: var(--appmenu-warning-background-color-active-bright-text);
-}
-
-:root[lwt-popup-brighttext] #appMenu-fxa-container[fxastatus="login-failed"],
-:root[lwt-popup-brighttext] #appMenu-fxa-container[fxastatus="unverified"] {
-  background-color: var(--appmenu-warning-background-color-bright-text);
-  color: var(--appmenu-warning-color-bright-text);
-}
-
-:root[lwt-popup-brighttext] #appMenu-fxa-container[fxastatus="login-failed"] > #appMenu-fxa-status:hover,
-:root[lwt-popup-brighttext] #appMenu-fxa-container[fxastatus="unverified"] > #appMenu-fxa-status:hover {
-  background-color: var(--appmenu-warning-backgound-color-hover-bright-text)
-}
-
-:root[lwt-popup-brighttext] #appMenu-fxa-container[fxastatus="login-failed"] > #appMenu-fxa-status:hover:active,
-:root[lwt-popup-brighttext] #appMenu-fxa-container[fxastatus="unverified"] > #appMenu-fxa-status:hover:active {
-  background-color: var(--appmenu-warning-background-color-active-bright-text);
-}
-
-/* Firefox Account Toolbar Panel */
-
-#fxa-avatar-image {
-  width: 16px;
-  height: 16px;
-}
-
-:root {
-  --avatar-image-url: url(chrome://browser/skin/fxa/avatar.svg);
-}
-
-:root[fxastatus="unverified"] #fxa-avatar-image {
-  list-style-image: url(chrome://browser/skin/fxa/avatar-confirm.svg);
-}
-
-:root[fxastatus="not_configured"] #fxa-avatar-image {
-  list-style-image: url(chrome://browser/skin/fxa/avatar-empty.svg);
-}
-
-:root[fxastatus="not_configured"][fxa_avatar_badged="badged"] #fxa-avatar-image {
-  list-style-image: url(chrome://browser/skin/fxa/avatar-empty-badged.svg);
-}
-
-:root:not([fxatoolbarmenu]) #fxa-toolbar-menu-button {
-  display: none;
-}
-
-:root[fxastatus="signedin"] #fxa-menu-avatar,
-:root[fxastatus="signedin"] #fxa-avatar-image {
-  border-radius: 50%;
-  list-style-image: var(--avatar-image-url);
-}
-
-:root[fxastatus="signedin"] #PanelUI-fxa-signin,
-:root[fxastatus="signedin"] #PanelUI-fxa-unverified,
-:root[fxastatus="unverified"] #PanelUI-fxa-signin,
-:root[fxastatus="unverified"] #PanelUI-fxa-menu,
-:root[fxastatus="not_configured"] #PanelUI-fxa-unverified,
-:root[fxastatus="not_configured"] #PanelUI-fxa-menu {
-  display: none;
-}
-
-:root[fxastatus="not_configured"] #PanelUI-fxa > .panel-subview-body,
-:root[fxastatus="unverified"] #PanelUI-fxa > .panel-subview-body {
-  -moz-box-align: center;
-}
-
-#PanelUI-fxa-signin,
-#PanelUI-fxa-unverified {
-  margin-top: 20px;
-  -moz-box-align: center;
-}
-
-.PanelUI-fxa-signin-instruction-callout {
-  font-size: 1.3em;
-  font-weight: normal;
-  padding: .6em 0 .6em;
-}
-
-.PanelUI-fxa-signin-instruction-label {
-  /* Use 'lighter' font for this to de-emphasize it compared to the title.
-   * We use 300 on Linux because 100 is too light (lacks contrast with
-   * the background) for some fonts in combination with anti-aliasing. */
-
-/* TODO appmenu */
-/* %if defined(XP_MACOSX) || defined(XP_WIN)
-  font-weight: lighter;
-%else */
-  font-weight: 300;
-/* %endif */
-
-}
-
-.fxa-avatar-subpanel {
-  padding-top: 8px;
-  padding-bottom: 4px;
-}
-
-.fxa-avatar-subpanel-description {
-  color: var(--panel-disabled-color);
-}
-
-#fxa-menu-avatar {
-  height: 32px;
-  width: 32px;
-  margin-inline-start: 20px;
-  margin-inline-end: 5px;
-  -moz-context-properties: fill, fill-opacity;
-  fill: var(--arrowpanel-color);
-}
-
-/* From the FxA menu -> remote tabs, we don't need to clutter the view with
-   redundant buttons because these are accessible from the main menu */
-panelmultiview[mainViewId="PanelUI-fxa"] #PanelUI-remotetabs-view-sidebar,
-panelmultiview[mainViewId="PanelUI-fxa"] #PanelUI-remotetabs-syncnow {
-  display: none;
-}
-
 #PanelUI-sendTabToDevice > .panel-subview-body:not([state]) > #PanelUI-sendTabToDevice-syncingDevices {
   display: none;
-}
-
-#PanelUI-fxa-menu-sendtab-button {
-  list-style-image: url("chrome://browser/skin/send-to-device.svg");
-}
-
-#PanelUI-fxa-menu-sendtab-button:-moz-locale-dir(rtl) > .toolbarbutton-icon {
-  transform: scaleX(-1);
-}
-
-.fxaChooseWhatToSyncDevices {
-  height: 102px;
-  width: 201px;
-  list-style-image: url(chrome://browser/skin/fxa/choose-what-to-sync-devices.svg);
-}
-
-.fxaGraphicMail {
-  height: 71px;
-  width: 143px;
-  list-style-image: url(chrome://browser/skin/fxa/graphic-mail.svg);
 }
 
 #PanelUI-remotetabs {
   --panel-ui-sync-illustration-height: 91px;
 }
 
-.PanelUI-fxa-signin-instruction-label,
-.PanelUI-fxa-signin-instruction-callout,
 .PanelUI-remotetabs-instruction-label {
   /* If you change the margin here, the min-height of the synced tabs panel
     (e.g. #PanelUI-remotetabs[mainview] #PanelUI-remotetabs-setupsync, etc) may
@@ -859,7 +433,6 @@ panelmultiview[mainViewId="PanelUI-fxa"] #PanelUI-remotetabs-syncnow {
   padding-bottom: 30px;
 }
 
-.PanelUI-fxa-signin-button,
 .PanelUI-remotetabs-button {
   -moz-appearance: none;
   background-color: #0060df;
@@ -877,16 +450,10 @@ panelmultiview[mainViewId="PanelUI-fxa"] #PanelUI-remotetabs-syncnow {
   min-width: 200px;
 }
 
-.PanelUI-fxa-signin-button {
-  padding: 1em;
-}
-
-.PanelUI-fxa-signin-button:hover,
 .PanelUI-remotetabs-button:hover {
   background-color: #003eaa;
 }
 
-.PanelUI-fxa-signin-button:hover:active,
 .PanelUI-remotetabs-button:hover:active {
   background-color: #002275;
 }
@@ -905,27 +472,6 @@ panelmultiview[mainViewId="PanelUI-fxa"] #PanelUI-remotetabs-syncnow {
   margin-left: 32px;
 }
 
-.fxaSyncIllustration,
-.fxaSyncIllustrationIssue {
-  /* If you change the margin here, the min-height of the synced tabs panel
-    (e.g. #PanelUI-remotetabs[mainview] #PanelUI-remotetabs-setupsync, etc) may
-    need adjusting (see bug 1248506) */
-  width: 104px;
-  height: var(--panel-ui-sync-illustration-height);
-  margin: 38px 0 15px;
-  -moz-context-properties: fill;
-  fill: #cdcdcd;
-}
-
-.fxaSyncIllustration {
-  list-style-image: url(chrome://browser/skin/fxa/sync-illustration.svg);
-}
-
-.fxaSyncIllustrationIssue {
-  list-style-image: url(chrome://browser/skin/fxa/sync-illustration-issue.svg);
-}
-
-.PanelUI-fxa-signin-button > .toolbarbutton-text,
 .PanelUI-remotetabs-button > .toolbarbutton-text {
   /* !important to override ".cui-widget-panel toolbarbutton > .toolbarbutton-text" above. */
   text-align: center !important;
@@ -1076,7 +622,6 @@ panelview .toolbarbutton-1,
   padding-top: 0;
 }
 
-.addon-banner-item > .toolbarbutton-text,
 .subviewbutton-iconic > .toolbarbutton-text,
 .subviewbutton[image] > .toolbarbutton-text,
 .subviewbutton[targetURI] > .toolbarbutton-text,
@@ -1390,8 +935,6 @@ menuitem.panel-subview-footer:not([disabled])[_moz-menuactive]:active,
   fill: currentColor;
 }
 
-#appMenu-fxa-avatar,
-#appMenu-fxa-label > .toolbarbutton-icon,
 #PanelUI-containersItems > .subviewbutton > .toolbarbutton-icon,
 #PanelUI-remotetabs-tabslist > toolbarbutton[itemtype="tab"] > .toolbarbutton-icon,
 #PanelUI-recentlyClosedWindows > toolbarbutton > .toolbarbutton-icon,
@@ -1399,10 +942,6 @@ menuitem.panel-subview-footer:not([disabled])[_moz-menuactive]:active,
 #PanelUI-historyItems > toolbarbutton > .toolbarbutton-icon {
   width: 16px;
   height: 16px;
-}
-
-#appMenu-fxa-avatar {
-  border-radius: 50%;
 }
 
 toolbarpaletteitem[place="palette"] > .toolbarbutton-1 > .toolbarbutton-menu-dropmarker,
@@ -1445,14 +984,11 @@ toolbarpaletteitem[place="menu-panel"] > .toolbaritem-combined-buttons > toolbar
 }
 
 #zoom-controls[cui-areatype="toolbar"] > #zoom-reset-button > .toolbarbutton-text {
-
-/* TODO appmenu */
-/* %ifdef XP_MACOSX
+%ifdef XP_MACOSX
   min-width: 6ch;
-%else */
+%else
   min-width: 7ch;
-/* %endif */
-
+%endif
 }
 
 .toolbaritem-combined-buttons:-moz-any(:not([cui-areatype="toolbar"]), [overflowedItem=true]) > separator {
@@ -1788,12 +1324,11 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   fill: currentColor;
   fill-opacity: 1;
 
-/* TODO appmenu */
-/* %ifdef XP_MACOSX
+%ifdef XP_MACOSX
   list-style-image: url("chrome://browser/skin/search-glass.svg");
-%else */
+%else
   list-style-image: url("chrome://browser/skin/folder.svg");
-/* %endif */
+%endif
 
 /* Measurement to vertically center this button: 1 line of text minus half of 4px top margin. */
   margin: calc(1em - 2px) 0 0;

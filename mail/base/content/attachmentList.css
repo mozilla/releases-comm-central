@@ -63,8 +63,7 @@
 
 #attachmentName.notfound,
 .attachmentItem.notfound,
-#attachmentMenuList > menu.notfound,
-#appmenu_attachmentMenuList > menu.notfound {
+#attachmentMenuList > menu.notfound {
   text-decoration-line: line-through;
 }
 

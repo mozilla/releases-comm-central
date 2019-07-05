@@ -981,7 +981,7 @@ var PanelMultiView = class extends AssociatedToNode {
     this._viewContainer.style.height = viewRect.height + "px";
     this._viewContainer.style.width = viewRect.width + "px";
 
-    // TODO appmenu - Removing the width here causes a double-wide panel flicker.
+    // TODO - Removing the width here causes a double-wide panel flicker.
     // this._panel.removeAttribute("width");
     this._panel.removeAttribute("height");
 

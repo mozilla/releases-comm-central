@@ -180,10 +180,6 @@
   margin-left: 7px;
 }
 
-#appmenu-popup {
-  color: menuText;
-}
-
 #button-chat[unreadMessages="true"] {
   fill: var(--toolbarbutton-icon-fill-attention);
   stroke-opacity: 0.5;
@@ -243,8 +239,6 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 }
 
 /* AppMenu styling */
-
-/* TODO appmenu - remove? needed? */
 
 .appmenu-edit-button {
   -moz-appearance: none;
@@ -334,57 +328,6 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
   list-style-image: url("chrome://messenger/skin/icons/address.svg");
 }
 
-#appmenu-popup * {
-  font-size: 12px;
-}
-
-#appmenu-popup > .popup-internal-box {
-  padding-top: 0;
-  padding-bottom: 0;
-}
-
-#appmenuPrimaryPane {
-  padding: 2px;
-}
-
-#appmenuSecondaryPane {
-  box-shadow: 1px 0 2px rgb(170, 170, 170) inset;
-  padding-top: 2px;
-  padding-bottom: 2px;
-  padding-inline-start: 3px;
-  padding-inline-end: 2px;
-}
-
-#appmenuSecondaryPane:-moz-locale-dir(rtl) {
-  box-shadow: -1px 0 2px rgb(204, 214, 234) inset;
-}
-
-#appmenuPrimaryPane > menu > .menu-right,
-#appmenuSecondaryPane > menu > .menu-right {
-  margin-inline-start: 0;
-}
-
-#appmenuPrimaryPane > :-moz-any(menu, menuitem),
-#appmenuSecondaryPane > :-moz-any(menu, menuitem) {
-  padding-inline-start: 10px;
-  padding-inline-end: 15px;
-}
-
-.appmenuPane-spacer {
-  min-height: 1em;
-}
-
-#appmenuSecondaryPane > :-moz-any(menu, menuitem):not([_moz-menuactive]),
-#appmenuSecondaryPane > :-moz-any(menu, menuitem)[_moz-menuactive][disabled] {
-  background-color: transparent;
-}
-
-#appmenu-popup
-  menuitem:not([type="radio"]):not([type="checkbox"]):not(.folderMenuItem) >
-  .menu-iconic-left {
-  display: none;
-}
-
 .appmenu-edit-button {
   -moz-context-properties: fill, fill-opacity;
   fill: currentColor;
@@ -413,11 +356,4 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 
 #appmenu-paste {
   list-style-image: url("chrome://messenger/skin/icons/paste.svg");
-}
-
-#appmenu-edit-label {
-  background: transparent;
-  font-style: italic;
-  padding-inline-start: 10px;
-  padding-inline-end: 0;
 }

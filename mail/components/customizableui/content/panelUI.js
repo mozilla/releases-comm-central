@@ -46,11 +46,6 @@ const PanelUI = {
       menuButtonChat: "button-chat-appmenu",
       panel: "appMenu-popup",
       navbar: "mail-bar3",
-      // TODO appmenu - do we need all of these?
-      // notificationPanel: "appMenu-notification-popup",
-      // addonNotificationContainer: "appMenu-addon-banners",
-      overflowFixedList: "widget-overflow-fixed-list",
-      // overflowPanel: "widget-overflow",
     };
   },
 
@@ -172,19 +167,6 @@ const PanelUI = {
     window.addEventListener("activate", this);
     CustomizableUI.addListener(this);
 
-    // We are not currently using the notificationPanel.
-    // for (let event of this.kEvents) {
-    //   this.notificationPanel.addEventListener(event, this);
-    // }
-
-    // We do this sync on init because in order to have the overflow button show up
-    // we need to know whether anything is in the permanent panel area.
-    this.overflowFixedList.hidden = false;
-    // Also unhide the separator. We use CSS to hide/show it based on the panel's content.
-    this.overflowFixedList.previousElementSibling.hidden = false;
-    CustomizableUI.registerMenuPanel(this.overflowFixedList, CustomizableUI.AREA_FIXED_OVERFLOW_PANEL);
-    this.updateOverflowStatus();
-
     Services.obs.notifyObservers(null, "appMenu-notifications-request", "refresh");
 
     this._initialized = true;
@@ -226,11 +208,6 @@ const PanelUI = {
 
   uninit() {
     this._removeEventListeners();
-
-    // We are not currently using the notificationPanel.
-    // for (let event of this.kEvents) {
-    //   this.notificationPanel.removeEventListener(event, this);
-    // }
 
     Services.obs.removeObserver(this, "fullscreen-nav-toolbox");
     Services.obs.removeObserver(this, "appMenu-notifications");
@@ -637,30 +614,6 @@ const PanelUI = {
     this._disableAnimations = false;
   },
 
-  updateOverflowStatus() {
-    let hasKids = this.overflowFixedList.hasChildNodes();
-    if (hasKids && !this.navbar.hasAttribute("nonemptyoverflow")) {
-      this.navbar.setAttribute("nonemptyoverflow", "true");
-      this.overflowPanel.setAttribute("hasfixeditems", "true");
-    } else if (!hasKids && this.navbar.hasAttribute("nonemptyoverflow")) {
-      PanelMultiView.hidePopup(this.overflowPanel);
-      this.overflowPanel.removeAttribute("hasfixeditems");
-      this.navbar.removeAttribute("nonemptyoverflow");
-    }
-  },
-
-  onWidgetAfterDOMChange(aNode, aNextNode, aContainer, aWasRemoval) {
-    if (aContainer == this.overflowFixedList) {
-      this.updateOverflowStatus();
-    }
-  },
-
-  onAreaReset(aArea, aContainer) {
-    if (aContainer == this.overflowFixedList) {
-      this.updateOverflowStatus();
-    }
-  },
-
   /**
    * Sets the anchor node into the open or closed state, depending
    * on the state of the panel.
@@ -748,20 +701,6 @@ const PanelUI = {
     // Add the attachment data to the item so that when the item is clicked and the subview is
     // shown, we can access the attachment data from the ViewShowing event's explicitOriginalTarget.
     item.attachment = attachment;
-
-    // TODO appmenu - Test that these classes still work as intended.
-    if (attachment.isExternalAttachment) {
-      if (!attachment.hasFile) {
-        item.classList.add("notfound");
-      } else {
-        // TODO appmenu - Is this still needed?  It's from the old menupopup code.
-        //
-        // The text-link class must be added to the <label> and have a <menu> hover rule.
-        // Adding to <menu> makes hover overflow the underline to the popup items.
-        // const label = item.firstChild.nextSibling;
-        // label.classList.add("text-link");
-      }
-    }
 
     if (attachment.isDeleted) {
       item.classList.add("notfound");

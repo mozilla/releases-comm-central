@@ -210,8 +210,6 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 
 /* AppMenu styling */
 
-/* TODO appmenu - remove? needed? */
-
 .appmenu-edit-button {
   -moz-appearance: none;
   border: 1px solid transparent;
@@ -224,56 +222,13 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
   opacity: .3;
 }
 
-#appmenuPrimaryPane {
-  border-inline-end: 1px solid ThreeDShadow;
-}
-
 @media (-moz-windows-default-theme) {
-  #appmenu-popup {
-    -moz-appearance: none;
-    background: -moz-Field;
-    border: 1px solid ThreeDShadow;
-  }
-  #appmenuPrimaryPane {
-    background-color: rgba(255, 255, 255, .5);
-    padding: 2px;
-    border-inline-end: none;
-  }
-  #appmenuSecondaryPane {
-    background-color: var(--appMenu-bg-color);
-    box-shadow: 1px 0 2px var(--appMenu-bg-box-shadow) inset;
-    padding-inline-start: 3px;
-    padding-inline-end: 2px;
-    padding-top: 2px;
-    padding-bottom: 2px;
-  }
-  #appmenuSecondaryPane:-moz-locale-dir(rtl) {
-    box-shadow: -1px 0 2px var(--appMenu-bg-box-shadow) inset;
-  }
-
-  .appmenu-menuseparator {
-    -moz-appearance: none;
-    margin-top: 3px;
-    margin-bottom: 3px;
-    padding: 0;
-    border-top: 1px solid #d6e5f5;
-    border-bottom: none;
-  }
-
   .appmenu-edit-button:not([disabled]):hover {
     border: 1px solid #b8d6fb;
     box-shadow: inset 0 0 1px white;
     background: linear-gradient(#fafbfd, #ebf3fd);
     transition: .2s ease-in;
   }
-}
-
-.appmenuPane-spacer {
-  min-height: 1em;
-}
-
-#appmenu-editmenu {
-  -moz-box-pack: end;
 }
 
 .subviewbutton-iconic {
@@ -352,12 +307,6 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 
 #appmenu_addressBook {
   list-style-image: url("chrome://messenger/skin/icons/address.svg");
-}
-
-#appmenu-edit-label {
-  -moz-appearance: none;
-  background: transparent;
-  font-style: italic;
 }
 
 .mail-toolbox > toolbar {
@@ -627,16 +576,6 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
 }
 
 @media (-moz-windows-default-theme) {
-  #appmenuSecondaryPane menupopup {
-    -moz-appearance: none;
-    background-color: var(--appMenu-bg-color);
-    border: 1px solid ThreeDShadow;
-    padding: 2px;
-  }
-
-  .appmenu-menuseparator {
-    margin-inline-start: 30px;
-  }
 
   /* Let the Customize window's menulist stay a system menulist */
   #modelist {
@@ -645,128 +584,6 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
     padding: 0 !important;
   }
 
-  #appmenuPrimaryPane menupopup {
-    -moz-appearance: none;
-    background-image: linear-gradient(to right, white 26px, ThreeDLightShadow 26px,
-                                      ThreeDLightShadow 27px, ThreeDHighlight 27px,
-                                      ThreeDHighlight 28px, white 28px);
-    border: 1px solid ThreeDShadow;
-    padding: 2px;
-  }
-
-  #appmenuSecondaryPane menupopup {
-    -moz-appearance: none;
-    background-image: linear-gradient(to right, var(--appMenu-bg-color) 26px,
-                                      ThreeDLightShadow 26px, ThreeDLightShadow 27px,
-                                      ThreeDHighlight 27px, ThreeDHighlight 28px,
-                                      var(--appMenu-bg-color) 28px);
-    border: 1px solid ThreeDShadow;
-    padding: 2px;
-  }
-
-  #appmenuPrimaryPane menupopup:-moz-locale-dir(rtl) {
-    background-image: linear-gradient(to left, white 26px, ThreeDLightShadow 26px,
-                                      ThreeDLightShadow 27px, ThreeDHighlight 27px,
-                                      ThreeDHighlight 28px, white 28px);
-  }
-  #appmenuSecondaryPane menupopup:-moz-locale-dir(rtl) {
-    background-image: linear-gradient(to left, var(--appMenu-bg-color) 26px,
-                                      ThreeDLightShadow 26px, ThreeDLightShadow 27px,
-                                      ThreeDHighlight 27px, ThreeDHighlight 28px,
-                                      var(--appMenu-bg-color) 28px);
-  }
-
-  /* Hi-DPI overrides of the menu backgrounds, to adjust where the gutter line falls */
-  @media (min-resolution: 1.25dppx) {
-    #appmenuPrimaryPane menupopup {
-      background-image: linear-gradient(to right, white 22.4px, ThreeDLightShadow 22.4px,
-                                        ThreeDLightShadow 23.2px, ThreeDHighlight 23.2px,
-                                        ThreeDHighlight 24px, white 24px);
-    }
-    #appmenuSecondaryPane menupopup {
-      background-image: linear-gradient(to right, var(--appMenu-bg-color) 22.4px,
-                                        ThreeDLightShadow 22.4px, ThreeDLightShadow 23.2px,
-                                        ThreeDHighlight 23.2px, ThreeDHighlight 24px,
-                                        var(--appMenu-bg-color) 24px);
-    }
-    #appmenuPrimaryPane menupopup:-moz-locale-dir(rtl) {
-      background-image: linear-gradient(to left, white 22.4px, ThreeDLightShadow 22.4px,
-                                        ThreeDLightShadow 23.2px, ThreeDHighlight 23.2px,
-                                        ThreeDHighlight 24px, white 24px);
-    }
-    #appmenuSecondaryPane menupopup:-moz-locale-dir(rtl) {
-      background-image: linear-gradient(to left, var(--appMenu-bg-color) 22.4px,
-                                        ThreeDLightShadow 22.4px, ThreeDLightShadow 23.2px,
-                                        ThreeDHighlight 23.2px, ThreeDHighlight 24px,
-                                        var(--appMenu-bg-color) 24px);
-    }
-  }
-
-  @media (min-resolution: 1.5dppx) {
-    #appmenuPrimaryPane menupopup {
-      background-image: linear-gradient(to right, white 20.6667px, ThreeDLightShadow 20.6667px,
-                                        ThreeDLightShadow 21.3333px, ThreeDHighlight 21.3333px,
-                                        ThreeDHighlight 22px, white 22px);
-    }
-    #appmenuSecondaryPane menupopup {
-      background-image: linear-gradient(to right, var(--appMenu-bg-color) 20.6667px,
-                                        ThreeDLightShadow 20.6667px, ThreeDLightShadow 21.3333px,
-                                        ThreeDHighlight 21.3333px, ThreeDHighlight 22px,
-                                        var(--appMenu-bg-color) 22px);
-    }
-    #appmenuPrimaryPane menupopup:-moz-locale-dir(rtl) {
-      background-image: linear-gradient(to left, white 20.6667px, ThreeDLightShadow 20.6667px,
-                                        ThreeDLightShadow 21.3333px, ThreeDHighlight 21.3333px,
-                                        ThreeDHighlight 22px, white 22px);
-    }
-    #appmenuSecondaryPane menupopup:-moz-locale-dir(rtl) {
-      background-image: linear-gradient(to left, var(--appMenu-bg-color) 20.6667px,
-                                        ThreeDLightShadow 20.6667px, ThreeDLightShadow 21.3333px,
-                                        ThreeDHighlight 21.3333px, ThreeDHighlight 22px,
-                                        var(--appMenu-bg-color) 22px);
-    }
-  }
-
-  @media (min-resolution: 2dppx) {
-    #appmenuPrimaryPane menupopup {
-      background-image: linear-gradient(to right, white 19.5px, ThreeDLightShadow 19.5px,
-                                        ThreeDLightShadow 20px, ThreeDHighlight 20px,
-                                        ThreeDHighlight 20.5px, white 20.5px);
-    }
-    #appmenuSecondaryPane menupopup {
-      background-image: linear-gradient(to right, var(--appMenu-bg-color) 19.5px,
-                                        ThreeDLightShadow 19.5px, ThreeDLightShadow 20px,
-                                        ThreeDHighlight 20px, ThreeDHighlight 20.5px,
-                                        var(--appMenu-bg-color) 20.5px);
-    }
-    #appmenuPrimaryPane menupopup:-moz-locale-dir(rtl) {
-      background-image: linear-gradient(to left, white 19.5px, ThreeDLightShadow 19.5px,
-                                        ThreeDLightShadow 20px, ThreeDHighlight 20px,
-                                        ThreeDHighlight 20.5px, white 20.5px);
-    }
-    #appmenuSecondaryPane menupopup:-moz-locale-dir(rtl) {
-      background-image: linear-gradient(to left, var(--appMenu-bg-color) 19.5px,
-                                        ThreeDLightShadow 19.5px, ThreeDLightShadow 20px,
-                                        ThreeDHighlight 20px, ThreeDHighlight 20.5px,
-                                        var(--appMenu-bg-color) 20.5px);
-    }
-  }
-
-  @media (min-resolution: 1.25dppx) {
-    .appmenu-menuseparator {
-      margin-inline-start: 25px;
-    }
-  }
-  @media (min-resolution: 1.5dppx) {
-    .appmenu-menuseparator {
-      margin-inline-start: 24px;
-    }
-  }
-  @media (min-resolution: 2dppx) {
-    .appmenu-menuseparator {
-      margin-inline-start: 22px;
-    }
-  }
 }
 
 @media (-moz-windows-default-theme: 0) {
@@ -848,13 +665,6 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
   }
 }
 
-@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
-  #appmenuSecondaryPane {
-    --appMenu-bg-color: #f1f5fb;
-    --appMenu-bg-box-shadow: rgb(204, 214, 234);
-  }
-}
-
 @media (-moz-os-version: windows-win8) {
   @media (-moz-windows-default-theme) {
     #messengerWindow[darkwindowframe="true"]:not(:-moz-lwtheme):not(:-moz-window-inactive) >
@@ -875,10 +685,6 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
 
 @media (-moz-os-version: windows-win8),
        (-moz-os-version: windows-win10) {
-  #appmenuSecondaryPane {
-    --appMenu-bg-color: -moz-dialog;
-    --appMenu-bg-box-shadow: ThreeDShadow;
-  }
 
   .mail-toolbox,
   .contentTabToolbox,

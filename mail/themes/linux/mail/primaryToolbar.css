@@ -216,16 +216,6 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 
 /* AppMenu styling */
 
-/* TODO appmenu - remove? needed? */
-
-#appmenuSecondaryPane {
-  border-inline-start: 1px solid ThreeDShadow;
-}
-
-.appmenuPane-spacer {
-  min-height: 1em;
-}
-
 .appmenu-edit-button {
   -moz-image-region: auto;
 }
