@@ -10,7 +10,6 @@ messenger.jar:
     content/messenger/addressbook/abAddressBookNameDialog.js                   (addrbook/content/abAddressBookNameDialog.js)
     content/messenger/addressbook/abAddressBookNameDialog.xul                  (addrbook/content/abAddressBookNameDialog.xul)
     content/messenger/addressbook/abResultsPane.js                             (addrbook/content/abResultsPane.js)
-    content/messenger/addressbook/addrbookWidgets.xml                          (addrbook/content/addrbookWidgets.xml)
     content/messenger/addressbook/abDragDrop.js                                (addrbook/content/abDragDrop.js)
     content/messenger/addressbook/abMailListDialog.js                          (addrbook/content/abMailListDialog.js)
     content/messenger/addressbook/map-list.js                                  (addrbook/content/map-list.js)
