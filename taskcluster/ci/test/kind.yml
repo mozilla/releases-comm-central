@@ -18,7 +18,6 @@ transforms:
 
 jobs-from:
     - tests.yml
-    - marionette.yml
 
 # These apply to all included test yml files listed in jobs-from
 job-defaults:
