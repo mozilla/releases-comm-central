@@ -275,6 +275,14 @@ nsMsgFilterList::ApplyFiltersToHdr(nsMsgFilterTypeType filterType,
                                    nsIMsgWindow *msgWindow) {
   MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug,
           ("(Auto) nsMsgFilterList::ApplyFiltersToHdr"));
+  if (!msgHdr) {
+    // Sometimes we get here with no header, so let's not crash on that
+    // later on.
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug,
+            ("(Auto) Called with NULL message header, nothing to do"));
+    return NS_ERROR_NULL_POINTER;
+  }
+
   nsCOMPtr<nsIMsgFilter> filter;
   uint32_t filterCount = 0;
   nsresult rv = GetFilterCount(&filterCount);
@@ -324,7 +332,7 @@ nsMsgFilterList::ApplyFiltersToHdr(nsMsgFilterTypeType filterType,
                  NS_ConvertUTF16toUTF8(filterName).get()));
 
         nsresult matchTermStatus = NS_OK;
-        bool result;
+        bool result = false;
 
         filter->SetScope(scope);
         matchTermStatus =
