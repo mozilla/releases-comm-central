@@ -39,6 +39,9 @@ var gAlarmsPane = {
         updateMenuLabelsPlural("eventdefalarmlen", "eventdefalarmunit");
         updateMenuLabelsPlural("tododefalarmlen", "tododefalarmunit");
         updateUnitLabelPlural("defaultsnoozelength", "defaultsnoozelengthunit", "minutes");
+
+        Preferences.addSyncFromPrefListener(document.getElementById("alarmSoundFileField"),
+            () => this.readSoundLocation());
     },
 
     /**

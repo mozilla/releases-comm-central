@@ -39,7 +39,7 @@
         <label control="selectLangs">
           <html:h2 accesskey="&language.accesskey;">&language.label;</html:h2>
         </label>
-        <menulist id="selectLangs" onsyncfrompreference="return gFontsDialog.readFontLanguageGroup();"
+        <menulist id="selectLangs"
                   preference="font.language.group">
           <menupopup>
             <menuitem value="ar"              label="&font.langGroup.arabic;"/>
@@ -102,15 +102,12 @@
             </menupopup>
           </menulist>
           <menulist id="serif"
-                    delayprefsave="true"
-                    onsyncfrompreference="return FontBuilder.readFontSelection(this);"/>
+                    delayprefsave="true"/>
           <menulist id="sans-serif"
-                    delayprefsave="true"
-                    onsyncfrompreference="return FontBuilder.readFontSelection(this);"/>
+                    delayprefsave="true"/>
           <menulist id="monospace"
                     crop="right"
-                    delayprefsave="true"
-                    onsyncfrompreference="return FontBuilder.readFontSelection(this);"/>
+                    delayprefsave="true"/>
         </vbox>
         <vbox>
           <hbox flex="1" align="center" pack="end">
@@ -238,18 +235,14 @@
         <checkbox id="useDocumentFonts"
                   label="&useDocumentFonts.label;"
                   accesskey="&useDocumentFonts.accesskey;"
-                  preference="browser.display.use_document_fonts"
-                  onsyncfrompreference="return gFontsDialog.readUseDocumentFonts();"
-                  onsynctopreference="return gFontsDialog.writeUseDocumentFonts();"/>
+                  preference="browser.display.use_document_fonts"/>
       </hbox>
 
       <hbox>
         <checkbox id="mailFixedWidthMessages"
                   label="&useFixedWidthForPlainText.label;"
                   accesskey="&fixedWidth.accesskey;"
-                  preference="mail.fixed_width_messages"
-                  onsyncfrompreference="return gFontsDialog.readFixedWidthForPlainText();"
-                  onsynctopreference="return gFontsDialog.writeFixedWidthForPlainText();"/>
+                  preference="mail.fixed_width_messages"/>
       </hbox>
     </groupbox>
 

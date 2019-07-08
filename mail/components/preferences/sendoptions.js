@@ -28,6 +28,11 @@ var gSendOptionsDialog = {
                      this.mHTMLListBox);
     this.loadDomains(Preferences.get("mailnews.plaintext_domains").value,
                      this.mPlainTextListBox);
+
+    Preferences.addSyncToPrefListener(document.getElementById("html_domains"),
+      () => this.saveDomainPref(true));
+    Preferences.addSyncToPrefListener(document.getElementById("plaintext_domains"),
+      () => this.saveDomainPref(false));
   },
 
   saveDomainPref(aHTML) {

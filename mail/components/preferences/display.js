@@ -63,6 +63,8 @@ var gDisplayPane = {
       menulist.selectedIndex = 0;
     }
 
+    Preferences.addSyncFromPrefListener(menulist, () => this.readFontSelection());
+
     this.mInitialized = true;
 
     document.getElementById("citationmenu").value =

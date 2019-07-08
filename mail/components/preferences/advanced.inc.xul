@@ -243,7 +243,6 @@
             <hbox>
               <checkbox preference="browser.cache.disk.smart_size.enabled"
                         id="allowSmartSize"
-                        onsyncfrompreference="return gAdvancedPane.readSmartSizeEnabled();"
                         label="&overrideSmartCacheSize.label;"
                         accesskey="&overrideSmartCacheSize.accesskey;"/>
             </hbox>
@@ -252,8 +251,6 @@
                      accesskey="&useCacheBefore.accesskey;" value="&useCacheBefore.label;"/>
               <html:input id="cacheSize" type="number" class="size4" max="1024"
                           preference="browser.cache.disk.capacity"
-                          onsyncfrompreference="return gAdvancedPane.readCacheSize();"
-                          onsynctopreference="return gAdvancedPane.writeCacheSize();"
                           aria-labelledby="useCacheBefore cacheSize useCacheAfter"/>
               <label id="useCacheAfter" flex="1">&useCacheAfter.label;</label>
             </hbox>
@@ -431,8 +428,6 @@
             <checkbox id="enableOCSP"
                       label="&enableOCSP.label;"
                       accesskey="&enableOCSP.accesskey;"
-                      onsyncfrompreference="return gAdvancedPane.readEnableOCSP();"
-                      onsynctopreference="return gAdvancedPane.writeEnableOCSP();"
                       preference="security.OCSP.enabled"/>
             <spacer flex="1"/>
           </hbox>

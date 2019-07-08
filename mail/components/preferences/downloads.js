@@ -110,3 +110,9 @@ var gDownloadDirSection = {
 Preferences.get("browser.download.dir").on(
   "change", gDownloadDirSection.readDownloadDirPref.bind(gDownloadDirSection)
 );
+
+document.getElementById("paneApplications")
+        .addEventListener("paneload", () => {
+          Preferences.addSyncFromPrefListener(document.getElementById("saveWhere"),
+            () => gDownloadDirSection.onReadUseDownloadDir());
+        });

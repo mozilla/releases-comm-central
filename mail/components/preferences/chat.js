@@ -47,6 +47,13 @@ var gChatPane = {
 
     window.addEventListener("paneSelected", this.paneSelectionChanged);
 
+    let element = document.getElementById("timeBeforeAway");
+    Preferences.addSyncFromPrefListener(element,
+      () => Preferences.get("messenger.status.timeBeforeIdle").valueFromPreferences / 60);
+    Preferences.addSyncToPrefListener(element, (element) => element.value * 60);
+    Preferences.addSyncFromPrefListener(document.getElementById("chatSoundUrlLocation"),
+      () => this.readSoundLocation());
+
     this.mInitialized = true;
   },
 

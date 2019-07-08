@@ -35,8 +35,7 @@
   <groupbox>
     <label><html:h2>&proxyTitle.label;</html:h2></label>
 
-    <radiogroup id="networkProxyType" preference="network.proxy.type"
-                onsyncfrompreference="return gConnectionsDialog.readProxyType();">
+    <radiogroup id="networkProxyType" preference="network.proxy.type">
       <radio value="0" label="&noProxyTypeRadio.label;" accesskey="&noProxyTypeRadio.accesskey;"/>
       <radio value="4" label="&WPADTypeRadio.label;" accesskey="&WPADTypeRadio.accesskey;"/>
       <radio value="5" label="&systemTypeRadio.label;" accesskey="&systemTypeRadio.accesskey;"
@@ -54,19 +53,17 @@
             </hbox>
             <hbox align="center">
               <textbox id="networkProxyHTTP" flex="1" class="uri-element"
-                       preference="network.proxy.http" onsyncfrompreference="return gConnectionsDialog.readHTTPProxyServer();"/>
+                       preference="network.proxy.http"/>
               <label value="&HTTPport.label;" accesskey="&HTTPport.accesskey;" control="networkProxyHTTP_Port"/>
               <html:input id="networkProxyHTTP_Port" type="number" class="size5" max="65535"
-                          preference="network.proxy.http_port"
-                          onsyncfrompreference="return gConnectionsDialog.readHTTPProxyPort();"/>
+                          preference="network.proxy.http_port"/>
             </hbox>
           </row>
           <row>
             <hbox/>
             <hbox>
               <checkbox id="shareAllProxies" label="&shareproxy.label;" accesskey="&shareproxy.accesskey;"
-                        preference="network.proxy.share_proxy_settings"
-                        onsyncfrompreference="return gConnectionsDialog.updateProtocolPrefs();"/>
+                        preference="network.proxy.share_proxy_settings"/>
             </hbox>
           </row>
           <row align="center">
@@ -75,12 +72,10 @@
             </hbox>
             <hbox align="center">
               <textbox id="networkProxySSL" flex="1" class="uri-element"
-                       preference="network.proxy.ssl"
-                       onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('ssl', false);"/>
+                       preference="network.proxy.ssl"/>
               <label value="&SSLport.label;" accesskey="&SSLport.accesskey;" control="networkProxySSL_Port"/>
               <html:input id="networkProxySSL_Port" type="number" class="size5" max="65535"
-                          preference="network.proxy.ssl_port"
-                          onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('ssl', true);"/>
+                          preference="network.proxy.ssl_port"/>
             </hbox>
           </row>
           <row align="center">
@@ -89,19 +84,16 @@
             </hbox>
             <hbox align="center">
               <textbox id="networkProxySOCKS" flex="1" class="uri-element"
-                       preference="network.proxy.socks"
-                       onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('socks', false);"/>
+                       preference="network.proxy.socks"/>
               <label value="&SOCKSport.label;" accesskey="&SOCKSport.accesskey;" control="networkProxySOCKS_Port"/>
               <html:input id="networkProxySOCKS_Port" type="number" class="size5" max="65535"
-                          preference="network.proxy.socks_port"
-                          onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('socks', true);"/>
+                          preference="network.proxy.socks_port"/>
             </hbox>
           </row>
           <row>
             <spacer/>
             <radiogroup id="networkProxySOCKSVersion" orient="horizontal"
-                        preference="network.proxy.socks_version"
-                        onsyncfrompreference="return gConnectionsDialog.updateDNSPref();">
+                        preference="network.proxy.socks_version">
               <radio id="networkProxySOCKSVersion4" value="4" label="&socks4.label;" accesskey="&socks4.accesskey;" />
               <radio id="networkProxySOCKSVersion5" value="5" label="&socks5.label;" accesskey="&socks5.accesskey;" />
             </radiogroup>
@@ -140,9 +132,7 @@
   <checkbox id="networkDnsOverHttps"
             label="&dnsOverHttps.label;"
             accesskey="&dnsOverHttps.accesskey;"
-            preference="network.trr.mode"
-            onsyncfrompreference="return gConnectionsDialog.readDnsOverHttpsMode();"
-            onsynctopreference="return gConnectionsDialog.writeDnsOverHttpsMode();"/>
+            preference="network.trr.mode"/>
   <vbox class="indent" flex="1">
     <hbox align="center">
       <hbox>

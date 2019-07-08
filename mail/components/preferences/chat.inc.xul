@@ -38,10 +38,7 @@
                       preference="messenger.status.reportIdle"/>
             <html:input id="timeBeforeAway" type="number" class="size2 idle-reporting-enabled"
                         min="1" max="720"
-                        preference="messenger.status.timeBeforeIdle"
-                        onsyncfrompreference="var elt = Preferences.get(this.getAttribute('preference'));
-                                              return (elt.instantApply ? elt.valueFromPreferences : elt.value) / 60;"
-                        onsynctopreference="return this.value * 60;"/>
+                        preference="messenger.status.timeBeforeIdle"/>
             <label value="&idleTime;" control="timeBeforeAway"/>
           </hbox>
           <vbox class="indent">
@@ -127,7 +124,6 @@
                          readonly="true"
                          preference="mail.chat.play_sound.url"
                          preference-editable="true"
-                         onsyncfrompreference="return gChatPane.readSoundLocation();"
                          aria-labelledby="chatSoundCustom"
                          flex="1"/>
                 <button id="browseForChatSound"

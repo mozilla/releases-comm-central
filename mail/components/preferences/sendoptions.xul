@@ -71,7 +71,6 @@
             <richlistbox id="html_domains" flex="1" seltype="multiple"
                          class="uri-element" height="150"
                          preference="mailnews.html_domains"
-                         onsynctopreference="return gSendOptionsDialog.saveDomainPref(true);"
                          onkeypress="if (event.keyCode == KeyEvent.DOM_VK_BACK_SPACE || event.keyCode == KeyEvent.DOM_VK_DELETE) gSendOptionsDialog.removeDomains(true);"/>
             <vbox>
               <button label="&AddHtmlDomain.label;" oncommand="gSendOptionsDialog.addDomain(true);" accesskey="&AddHtmlDomain.accesskey;"/>
@@ -87,7 +86,6 @@
             <richlistbox id="plaintext_domains" flex="1" seltype="multiple" rows="5"
                          class="uri-element" height="150"
                          preference="mailnews.plaintext_domains"
-                         onsynctopreference="return gSendOptionsDialog.saveDomainPref(false);"
                          onkeypress="if (event.keyCode == KeyEvent.DOM_VK_BACK_SPACE || event.keyCode == KeyEvent.DOM_VK_DELETE) gSendOptionsDialog.removeDomains(false);"/>
             <vbox>
               <button label="&AddPlainText.label;" oncommand="gSendOptionsDialog.addDomain(false);" accesskey="&AddPlainText.accesskey;"/>

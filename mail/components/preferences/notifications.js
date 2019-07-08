@@ -10,3 +10,14 @@ Preferences.addAll([
   { id: "mail.biff.alert.show_sender", type: "bool" },
   { id: "alerts.totalOpenTime", type: "int" },
 ]);
+
+var gNotificationsDialog = {
+  init() {
+    let element = document.getElementById("totalOpenTime");
+    Preferences.addSyncFromPrefListener(element,
+      () => Preferences.get("alerts.totalOpenTime").value / 1000);
+    Preferences.addSyncToPrefListener(element, (element) => element.value * 1000);
+  },
+};
+
+window.addEventListener("load", () => gNotificationsDialog.init());

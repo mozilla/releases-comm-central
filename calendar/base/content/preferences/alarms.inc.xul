@@ -41,8 +41,7 @@
                              readonly="true"
                              flex="1"
                              preference="calendar.alarms.soundURL"
-                             preference-editable="true"
-                             onsyncfrompreference="return gAlarmsPane.readSoundLocation();"/>
+                             preference-editable="true"/>
                     <button id="calendar.prefs.alarm.sound.browse"
                             label="&pref.calendar.alarms.sound.browse.label;"
                             accesskey="&pref.calendar.alarms.sound.browse.accessKey;"

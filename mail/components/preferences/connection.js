@@ -49,7 +49,30 @@ window.addEventListener("DOMContentLoaded", () => {
     gConnectionsDialog.initDnsOverHttpsUI();
   });
 
-  // XXX: We can't init the DNS-over-HTTPs UI until the onsyncfrompreference for network.trr.mode
+  Preferences.addSyncFromPrefListener(document.getElementById("networkProxyType"),
+    () => gConnectionsDialog.readProxyType());
+  Preferences.addSyncFromPrefListener(document.getElementById("networkProxyHTTP"),
+    () => gConnectionsDialog.readHTTPProxyServer());
+  Preferences.addSyncFromPrefListener(document.getElementById("networkProxyHTTP_Port"),
+    () => gConnectionsDialog.readHTTPProxyPort());
+  Preferences.addSyncFromPrefListener(document.getElementById("shareAllProxies"),
+    () => gConnectionsDialog.updateProtocolPrefs());
+  Preferences.addSyncFromPrefListener(document.getElementById("networkProxySSL"),
+    () => gConnectionsDialog.readProxyProtocolPref("ssl", false));
+  Preferences.addSyncFromPrefListener(document.getElementById("networkProxySSL_Port"),
+    () => gConnectionsDialog.readProxyProtocolPref("ssl", true));
+  Preferences.addSyncFromPrefListener(document.getElementById("networkProxySOCKS"),
+    () => gConnectionsDialog.readProxyProtocolPref("socks", false));
+  Preferences.addSyncFromPrefListener(document.getElementById("networkProxySOCKS_Port"),
+    () => gConnectionsDialog.readProxyProtocolPref("socks", true));
+  Preferences.addSyncFromPrefListener(document.getElementById("networkProxySOCKSVersion"),
+    () => gConnectionsDialog.updateDNSPref());
+
+  let element = document.getElementById("networkDnsOverHttps");
+  Preferences.addSyncFromPrefListener(element, () => gConnectionsDialog.readDnsOverHttpsMode());
+  Preferences.addSyncToPrefListener(element, () => gConnectionsDialog.writeDnsOverHttpsMode());
+
+  // XXX: We can't init the DNS-over-HTTPs UI until the syncfrompref for network.trr.mode
   //      has been called. The uiReady promise will be resolved after the first call to
   //      readDnsOverHttpsMode and the subsequent call to initDnsOverHttpsUI has happened.
   gConnectionsDialog.uiReady = new Promise(resolve => {

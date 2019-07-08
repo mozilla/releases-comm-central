@@ -30,9 +30,7 @@
              value="&totalOpenTimeBefore.label;"
              accesskey="&totalOpenTimeBefore.accesskey;"/>
       <html:input id="totalOpenTime" type="number" class="size3" min="1" max="3600"
-                  preference="alerts.totalOpenTime"
-                  onsyncfrompreference="return Preferences.get(this.getAttribute('preference')).value / 1000;"
-                  onsynctopreference="return this.value * 1000;"/>
+                  preference="alerts.totalOpenTime"/>
       <label id="totalOpenTimeEnd" value="&totalOpenTimeEnd.label;"/>
     </hbox>
     <separator/>

@@ -17,9 +17,7 @@
         <hbox align="center">
           <label value="&location.label;" accesskey="&location1.accesskey;" control="mailnewsStartPageUrl"/>
           <textbox id="mailnewsStartPageUrl" flex="1" class="uri-element"
-                   preference="mailnews.start_page.url"
-                   onsyncfrompreference="return gGeneralPane.readStartPageUrl();"
-                   onsynctopreference="return gGeneralPane.writeStartPageUrl();"/>
+                   preference="mailnews.start_page.url"/>
           <button label="&useDefault.label;" accesskey="&useDefault.accesskey;"
                   oncommand="gGeneralPane.restoreDefaultStartPage();">
             <observes element="mailnewsStartPageUrl" attribute="disabled"/>
@@ -117,7 +115,6 @@
                  readonly="true"
                  preference="mail.biff.play_sound.url"
                  preference-editable="true"
-                 onsyncfrompreference="return gGeneralPane.readSoundLocation();"
                  aria-labelledby="custom"
                  flex="1"/>
         <button id="browseForSound"

@@ -560,6 +560,10 @@ var gCloudFileTab = {
     cloudFileAccounts.on("providerRegistered", this._onProviderRegistered);
     cloudFileAccounts.on("providerUnregistered", this._onProviderUnregistered);
 
+    let element = document.getElementById("cloudFileThreshold");
+    Preferences.addSyncFromPrefListener(element, () => this.readThreshold());
+    Preferences.addSyncToPrefListener(element, () => this.writeThreshold());
+
     this._initialized = true;
   },
 

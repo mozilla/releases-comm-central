@@ -242,6 +242,17 @@ var gAdvancedPane = {
       Services.obs.addObserver(this, AUTO_UPDATE_CHANGED_TOPIC);
     }
 
+    Preferences.addSyncFromPrefListener(document.getElementById("allowSmartSize"),
+      () => this.readSmartSizeEnabled());
+
+    let element = document.getElementById("cacheSize");
+    Preferences.addSyncFromPrefListener(element, () => this.readCacheSize());
+    Preferences.addSyncToPrefListener(element, () => this.writeCacheSize());
+
+    element = document.getElementById("enableOCSP");
+    Preferences.addSyncFromPrefListener(element, () => this.readEnableOCSP());
+    Preferences.addSyncToPrefListener(element, () => this.writeEnableOCSP());
+
     this.mInitialized = true;
   },
 

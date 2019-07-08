@@ -68,8 +68,7 @@
 
           <vbox align="start">
             <radiogroup id="saveWhere" flex="1"
-                        preference="browser.download.useDownloadDir"
-                        onsyncfrompreference="return gDownloadDirSection.onReadUseDownloadDir();">
+                        preference="browser.download.useDownloadDir">
             <hbox id="saveToRow" align="center">
               <radio id="saveTo" value="true"
                      label="&saveTo.label;"
@@ -106,9 +105,7 @@
                         label="&enableCloudFileAccountOffer.label;"
                         preference="mail.compose.big_attachments.notify"/>
               <html:input id="cloudFileThreshold" type="number" class="size3"
-                          preference="mail.compose.big_attachments.threshold_kb"
-                          onsyncfrompreference="return gCloudFileTab.readThreshold();"
-                          onsynctopreference="return gCloudFileTab.writeThreshold();"/>
+                          preference="mail.compose.big_attachments.threshold_kb"/>
               <label control="cloudFileThreshold"
                      value="&enableCloudFileAccountOffer.mb;"/>
             </hbox>

@@ -25,6 +25,13 @@ document.getElementById("panePrivacy")
 var gPrivacyPane = {
 
   init() {
+    let element = document.getElementById("acceptCookies");
+    Preferences.addSyncFromPrefListener(element, () => this.readAcceptCookies());
+    Preferences.addSyncToPrefListener(element, () => this.writeAcceptCookies());
+
+    element = document.getElementById("acceptThirdPartyMenu");
+    Preferences.addSyncFromPrefListener(element, () => this.readAcceptThirdPartyCookies());
+    Preferences.addSyncToPrefListener(element, () => this.writeAcceptThirdPartyCookies());
   },
 
   /**

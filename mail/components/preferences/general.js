@@ -44,6 +44,12 @@ var gGeneralPane = {
       this.updateCustomizeAlert();
     }
     this.updateWebSearch();
+
+    let element = document.getElementById("mailnewsStartPageUrl");
+    Preferences.addSyncFromPrefListener(element, () => this.readStartPageUrl());
+    Preferences.addSyncToPrefListener(element, () => this.writeStartPageUrl());
+    Preferences.addSyncFromPrefListener(document.getElementById("soundUrlLocation"),
+      () => this.readSoundLocation());
   },
 
   /**

@@ -33,6 +33,25 @@ Preferences.addAll([
 var gFontsDialog = {
   _selectLanguageGroupPromise: Promise.resolve(),
 
+  init() {
+    Preferences.addSyncFromPrefListener(document.getElementById("selectLangs"),
+      () => gFontsDialog.readFontLanguageGroup());
+    Preferences.addSyncFromPrefListener(document.getElementById("serif"),
+      (element) => FontBuilder.readFontSelection(element));
+    Preferences.addSyncFromPrefListener(document.getElementById("sans-serif"),
+      (element) => FontBuilder.readFontSelection(element));
+    Preferences.addSyncFromPrefListener(document.getElementById("monospace"),
+      (element) => FontBuilder.readFontSelection(element));
+
+    let element = document.getElementById("useDocumentFonts");
+    Preferences.addSyncFromPrefListener(element, () => gFontsDialog.readUseDocumentFonts());
+    Preferences.addSyncToPrefListener(element, () => gFontsDialog.writeUseDocumentFonts());
+
+    element = document.getElementById("mailFixedWidthMessages");
+    Preferences.addSyncFromPrefListener(element, () => gFontsDialog.readFixedWidthForPlainText());
+    Preferences.addSyncToPrefListener(element, () => gFontsDialog.writeFixedWidthForPlainText());
+  },
+
   _selectLanguageGroup(aLanguageGroup) {
    this._selectLanguageGroupPromise = (async () => {
     // Avoid overlapping language group selections by awaiting the resolution
@@ -130,3 +149,4 @@ var gFontsDialog = {
 };
 
 document.addEventListener("dialogaccept", () => gFontsDialog.ondialogaccept());
+window.addEventListener("load", () => gFontsDialog.init());
