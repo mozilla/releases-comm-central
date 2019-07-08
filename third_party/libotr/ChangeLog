@@ -1,0 +1,1026 @@
+2016-03-07
+
+	* tests/regression/client/Makefile.am:
+	* tests/unit/Makefile.am: Add LIBGCRYPT_CFLAGS to the test suite
+
+	* Makefile.am:
+	* configure.ac: Only build the test suite on Linux, since it
+	currently uses Linux-specific features such as epoll
+
+2016-03-06
+
+	* Makefile.am: Add bootstrap to the tarball
+
+2016-03-04
+
+	* README:
+	* configure.ac:
+	* src/version.h: Bump version number to 4.1.1
+
+2016-03-03
+
+	* src/proto.c (otrl_proto_accept_data):
+	* src/proto.c (otrl_proto_fragment_accumulate):
+	* src/proto.c (otrl_proto_fragment_create): Prevent integer
+	overflow on 64-bit architectures when receiving 4GB messages.
+	In several places in proto.c, the sizes of portions of incoming
+	messages were stored in variables of type int or unsigned int
+	instead of size_t.  If a message arrives with very large
+	sizes (for example unsigned int datalen = UINT_MAX), then
+	constructions like malloc(datalen+1) will turn into malloc(0),
+	which on some architectures returns a non-NULL pointer, but
+	UINT_MAX bytes will get written to that pointer.  Ensure all
+	calls to malloc or realloc cannot integer overflow like this.
+	Thanks to Markus Vervier of X41 D-Sec GmbH
+	<markus.vervier@x41-dsec.de> for the report.
+
+	* Protocol-v3.html: Clarify that instance tags and fragment
+	numbers in the OTR fragment format are allowed to have leading
+	0s.  Also fix that how to handle v2 versus v3 messages for the
+	Reveal Signature and Signature messages was missing.  Thanks to
+	Ola Bini <obini@thoughtworks.com> for the report.
+
+2015-12-25
+
+	* src/instag.c (otrl_instag_read_FILEp): Fix memory leak in
+	otrl_instag_read_FILEp if the tag file is malformed.  Thanks to
+	Jean-Philippe Aumasson <jeanphilippe.aumasson@gmail.com> for the
+	report.
+
+2015-08-18
+
+	* src/message.c (otrl_message_receiving):
+	* src/proto.c (otrl_proto_create_data): Set to NULL the sendsmp
+	pointer when handling SMP to avoid a potential free() of an
+	uninitialized pointer.  Also ensure the message pointer is set
+	to NULL in otrl_proto_create_data for extra precaution and to
+	prevent future code paths from having the same error.  Thanks to
+	Nicolas Guigo <nicolas.guigo@nccgroup.trust> and Ben Hawkes
+	<hawkes@inertiawar.com> for the report.
+
+2015-02-08
+
+	* Protocol-v3.html: Typo fixes, thanks to Hannes Mehnert
+	<hannes@mehnert.org> and Nadim Kobeissi <nadim@nadim.computer>
+	for the reports.
+
+	* src/message.c: Be stricter about parsing v3 fragments.  Thanks
+	to Jean-Philippe Aumasson <jeanphilippe.aumasson@gmail.com> for
+	the report.
+
+2014-12-18
+
+	* Protocol-v3.html: Remove "sender_instance, receiver_instance,"
+	from description of v2 fragmentation and clarify that you can't
+	fragment a fragment.  Thanks to Hannes Mehnert
+	<hannes@mehnert.org> for the report.
+
+	* Protocol-v3.html: Remove a stray "DRAFT" from the <title> tag.
+
+	* Protocol-v2.html:
+	* Protocol-v3.html: Clarify the DSA computation in the protocol
+	specs.  Thanks to Adam Langley <agl@imperialviolet.org> and
+	Hannes Mehnert <hannes@mehnert.org> for the report.
+
+2014-11-29
+
+	* README:
+	* Makefile.am:
+	* configure.ac:
+	* tests/*: Brand new testsuite, thanks to
+	David Goulet <dgoulet@ev0ke.net> and
+	Julien Voisin <julien.voisin@dustri.org>.
+	"make check" to run it.
+
+2014-11-11
+
+	* b64.c (otrl_base64_otr_encode): In case some future code path
+	tries to call otrl_base64_otr_encode with a buffer more than
+	3/4 the size of all addressable memory, return NULL rather than
+	causing an integer overflow and a heap overrun.  Thanks to
+	David Remahl <david@remahl.se> for the report.
+	* proto.c (otrl_proto_create_data): Tiny refactor to call
+	otrl_base64_otr_encode instead of duplicating the code here.
+
+2014-10-18
+
+	* README:
+	* configure.ac:
+	* src/version.h: Bump version number to 4.1.0
+
+2014-10-18
+
+	* Protocol-v3.html: Correctly count the number of actions an OTR
+	client must handle.  Thanks to Fred Yontz <fred@ridersite.org>
+	for the report.
+
+2014-10-13
+
+	* src/context.h: Add API functions
+	otrl_context_find_recent_instance and
+	otrl_context_find_recent_secure_instance.
+
+2014-10-13
+
+	* src/context.c (otrl_context_forget): Correct check for
+	children contexts' state being OTRL_MSGSTATE_PLAINTEXT.  Thanks
+	to k007k <k007k@wp.pl> for the report.
+
+2014-10-13
+
+	* src/message.c (otrl_message_receiving): Fix memory leak in
+	fragment reassembly.  Thanks to Matthew D. Green
+	<matthewdgreen@gmail.com> for the report and David Goulet
+	<dgoulet@ev0ke.net> for the patch.
+
+2014-10-13
+
+	* src/message.c (otrl_message_sending): Fix possible memory
+	leak.
+
+2014-07-13
+
+	* src/auth.c (otrl_auth_handle_commit): Add a clarifying
+	comment.
+
+2014-06-12
+
+	* src/message.h: Typo fix.
+
+2014-06-03
+
+	* Makefile.am:
+	* configure.ac: Modernize autoconf build system.  Thanks to
+	David Goulet <dgoulet@ev0ke.net> for the patch.
+
+2014-05-22
+
+	* README:
+	* src/context.c: Typo fixes.
+
+2014-05-04
+
+	* INSTALL:
+	* bootstrap: Add bootstrap script to set up the build system.
+	Thanks to David Goulet <dgoulet@ev0ke.net> for the patch.
+
+2014-05-04
+
+	* src/dh.c:
+	* src/sm.c:
+	* toolkit/sesskeys.c: Use gcrypt secure memory allocation.
+	Thanks to Julien Voisin <julien.voisin@dustri.org> for the
+	patch.
+
+2014-04-21
+
+	* src/mem.c (otrl_mem_differ): Simplify otrl_mem_differ.  Thanks
+	to Julien Voisin <julien.voisin@dustri.org> for the patch.
+
+2014-02-20
+
+	* src/proto.c (otrl_proto_instance): Fix a memory leak when
+	receiving an invalid instance tag.  Thanks to Julien Voisin
+	<julien.voisin@dustri.org> for the patch.
+
+2014-02-15
+
+	* src/proto.c:
+	* src/auth.c:
+	* src/mem.c:
+	* src/mem.h: Use a constant-time memory comparison for safety.
+	Thanks to jvoisin <julien.voisin@dustri.org> for the suggestion.
+
+2013-10-13
+
+	* src/proto.c: Return 0 instead of crashing from
+	otrl_proto_query_bestversion if passed an illegal input.
+	Thanks to Conrad Hoffmann <ch@bitfehler.net> for the report and
+	the patch.
+
+2013-08-21
+
+	* src/proto.c: Fix warning from clang in proto.c. Before, trying
+	to fragment a message into more than 65535 pieces would cause
+	incorrect fragments to be output.  Now, it just returns an error
+	(as that is disallowed by the spec).  Thanks to Teemu Huovila
+	<thuovila@cs.helsinki.fi> for reporting the issue.
+
+2013-08-08
+
+	* Protocol-v3.html: Random exponents in SMP should be 1536 bits.
+	The spec (but not the code) incorrectly said "128 bits" before.
+
+2013-07-28
+
+	* packaging/fedora/libotr.spec: Fedora spec file for 4.x from
+	Paul Wouters <paul@cypherpunks.ca>
+
+2013-07-17
+
+	* toolkit/sesskeys.c: Workaround for a crash bug in libgcrypt
+	affecting otr_sesskeys.  Passing a private key value of 0 to
+	otr_sesskeys would cause libgcrypt to crash in gcry_mpi_powm.
+	We reported this libgcrypt bug and it was then fixed in
+	http://lists.gnupg.org/pipermail/gcrypt-devel/2013-July/002251.html
+	but the workaround is simply to use
+	gcry_mpi_new(DH1536_MOD_LEN_BITS) instead of gcry_mpi_new(0).
+	Note that this only affected the otr_sesskeys toolkit program,
+	and not libotr itself.
+	Thanks to the Mayhem Team at CMU (Alexandre Rebert, Thanassis
+	Avgerinos, Sang Kil Cha, David Brumley, Manuel Egele) for the
+	report.
+
+2013-01-19
+
+	* src/message.c: pass opdata when sending message fragment
+	The inject_message callback was missing the opdata when sending
+	message fragments.  Thanks to David Goulet <dgoulet@ev0ke.net>
+	for the report.
+
+2012-12-18
+
+	* src/message.c: Copy lastmessage to the newly created context.
+	This fixes a case where the first user message gets lost when
+	OTRL_POLICY_REQUIRE_ENCRYPTION policy is set because after
+	establishing the encryption lastmessage remains with the master
+	context and will not be resent.  Thanks to Andreas Schlick
+	<schlick@lavabit.com> for the report.
+
+2012-09-09
+
+	* configure.ac: Make linker hardening [DEP, ALSR] work on
+	Windows builds.  Thanks to Daniel Atallah <datallah@pidgin.im>
+	for noticing that it wasn't working before.
+
+2012-09-04
+
+	* README: Release 4.0.0
+
+2012-08-28
+
+	* UPGRADING:
+	* src/proto.h:
+	* src/proto.c: Don't have otrl_init call exit(1) if the
+	application's requested version number differs from libotr's.
+	Rather, return a non-zero error code, and have the application
+	clean up gracefully.  The OTRL_INIT macro now checks the error
+	code and does an exit(1) as the default behaviour, but the
+	application can do what it likes.
+
+2012-08-27
+
+	* src/auth.h:
+	* src/auth.c:
+	* src/message.c: Record the time the last COMMIT was sent from a
+	master context.  This will be used to clear the committed key
+	from the master context once we don't expect any more instances
+	of our buddy to respond with a DHKEY message.
+
+	* UPGRADING:
+	* src/userstate.h:
+	* src/userstate.c:
+	* src/message.h:
+	* src/message.c: Add a timer_control callback to
+	OtrlMessageAppOps in order to actually clear out the above stale
+	committed keys.
+
+2012-08-26
+
+	* src/context.c:
+	* src/context_priv.c:
+	* src/context_priv.h: libotr was exporting exactly two functions
+	without the otrl_ prefix: context_priv_new and
+	context_priv_force_finished.  Change the names of these
+	functions to start with otrl_.  Thanks to David Goulet
+	<dgoulet@ev0ke.net> for noticing it.
+
+	* Protocol-v3.html: Document the v3 whitespace tag, and better
+	document the extra symmetric key.  Thanks to Kjell Braden
+	<kb@pentabarf.de> for noticing the omission.
+
+2012-08-25
+
+	* src/sm.c:
+	* src/context.c:
+	* src/auth.c:
+	* src/message.c: If OTRL_DEBUGGING is non-zero, then a message
+	containing a special debug string ("?OTR!") will cause debug
+	info to be printed to stderr.  (This #define should *not* be set
+	in release code.)
+
+	* src/auth.c:
+	* src/auth.h:
+	* src/message.c: Correct the logic for handling incoming COMMIT
+	messages when we've recently sent our own COMMIT message.
+
+	* src/message.c: Don't update the recent_sent_child field to
+	point to the master context just becuase we sent a version 3
+	COMMIT message (which has no destination instance).
+
+2012-08-24
+
+	* README:
+	* configure.ac: Prepare for release 4.0.0
+
+2012-08-24
+
+	* src/message.c: Consider copying the master auth context to the
+	child, even if the child is already in ENCRYPTED, because we
+	might be trying to refresh a private conversation.
+
+2012-08-22
+
+	* configure.ac: Use gcc and ld hardening flags, where possible.
+	* configure.ac:
+	* src/auth.c:
+	* src/dh.c:
+	* src/mem.c:
+	* src/privkey.c:
+	* src/proto.c:
+	* src/sm.c:
+	* toolkit/sesskey.c: Build cleanly with -Wall -Wextra
+	-Wformat-security -Wno-unused-parameter
+
+2012-08-17
+
+	* src/message.c: Don't call memchr(foo,'\0',-1) even if it has
+	no ill effects.  Thanks to George Kadianakis
+	<desnacked@riseup.net> for the report.
+
+2012-07-20
+
+	* src/message.c, src/instag.c, toolkit/parse.c, src/sm.c,
+	src/proto.c, src/privkey.c, src/auth.c, src/context.[ch]:
+	Fix some memory leaks, some NULL pointer handling, and
+	compilation warnings.  Thanks to Paul Wouters
+	<pwouters@redhat.com> for the report.
+
+	* src/message.c: Better handling of OTRv3 fragments.
+
+2012-07-19
+
+	* src/b64.[ch], src/proto.c, toolkit/parse.c: Clean up the
+	previous b64 patch and apply it to all places where
+	otrl_base64_decode() is called.
+
+2012-07-17
+
+	* src/b64.c: Use ceil instead of floor to compute the size
+	of the data buffer.  This prevents a one-byte heap buffer
+	overflow.  Thanks to Justin Ferguson <jnferguson@gmail.com>
+	for the report.
+
+2012-06-21
+
+	* src/context.c: A couple bug fixes.
+	* Release 4.0.0-beta2
+
+2012-06-07
+
+	* Release 4.0.0-beta1
+
+2012-05-08:
+
+	* src/instag.c:
+	* src/message.c: Returning proper gcry types to avoid 
+	compile warnings.
+
+2012-05-03:
+
+	* src/instag.c: Fixed otrl_instag_new().
+
+2012-04-30:
+
+	* AUTHORS:
+	* README:
+	* toolkit/otr_parse.c:
+	* toolkit/otr_remac.c:
+	* toolkit/parse.c:
+	* toolkit/parse.h:
+	* src/auth.c:
+	* src/auth.h:
+	* src/context.c:
+	* src/context.h:
+	* src/message.c:
+	* src/message.h:
+	* src/privkey.c:
+	* src/privkey.h:
+	* src/proto.c:
+	* src/proto.h:
+	* src/serial.h:
+	* src/tests.c:
+	* src/userstate.c:
+	* src/userstate.h: More changes for instance tags (Rob Smits).
+
+2009-06-11:
+
+	* src/auth.c:
+	* src/auth.h:
+	* src/context.c:
+	* src/context.h:
+	* src/context_priv.h:
+	* src/message.c:
+	* src/message.h:
+	* src/privkey.c:
+	* src/privkey.h:
+	* src/proto.c:
+	* src/proto.h:
+	* src/serial.h:
+	* src/tests.c:
+	* src/userstate.c:
+	* src/userstate.h: Core instance tag functionality (Lisa Du).
+
+2009-09-30:
+
+	* Protocol-v2.html: Edits from Göran Weinholt
+	<goran@weinholt.se>
+
+2009-04-28:
+
+	* src/auth.c: pubkey_type should be shifted by 8, not 16.  It
+	doesn't matter right now, because it's always 0, but still.
+	(Thanks to Can Tang.)
+
+2008-08-15:
+
+	* src/Makefile.am:
+	* src/context.c:
+	* src/context.h:
+	* src/context_priv.c:
+	* src/context_priv.h:
+	* src/message.c:
+	* src/message.h:
+	* src/proto.c:
+	* src/proto.h: Willy Lew's updates of the libotr API
+
+2008-08-06:
+
+	* src/proto.c: gcc 4.2 with -O2 assumes that integer overflow
+	never occurs when optimizing away tests, including those for
+	integer overflow.  The code was made more specific.
+
+2008-07-09:
+
+	* src/privkey.h:
+	* src/privkey.c: Add otrl_privkey_generate_cancel to handle the
+	case that the background key generation thread is cancelled or
+	fails.
+
+2008-07-06:
+
+	* configure.ac: Update libtool version to match 4.0.0.
+
+	* src/privkey-t.h:
+	* src/privkey.c:
+	* src/privkey.h:
+	* src/userstate.c:
+	* src/userstate.h: Support for generating privkeys in a
+	background thread.
+
+2008-07-02:
+
+	* version.h: Change version number to 4.0.0 (but still far from
+	release).
+
+	* tlv.h:
+	* proto.h:
+	* proto.c:
+	* message.h:
+	* message.c:
+	* dh.h:
+	* dh.c: Support for applications requesting an extra session key
+	that can be used for things like file transfers.
+
+	* message.h:
+	* message.c: Applications now use the handle_smp_event callback
+	to handle SMP events, rather than having to hardcode part of the
+	SMP state machine themselves.
+
+2008-06-15:
+
+	* README: Release version 3.2.0.
+
+2008-06-13:
+
+	* UPGRADING: Clarify what was new in 3.1.0, what was changed
+	in 3.2.0.
+
+2008-05-27:
+
+	* UPGRADING: Update documentation.
+
+	* README:
+	* toolkit/*.[ch]:
+	* src/*.[ch]: Update copyright dates to 2004-2008.
+
+	* src/tlv.h: Add new OTRL_TLV_SMP1Q TLV type to indicate an
+	instance of the first SMP message, with an explicit question.
+
+	* src/sm.h:
+	* src/sm.c: More carefully track the progress of the SMP using a
+	new smp_prog_state field.  Also keep track of whether Bob
+	received an explicit question from Alice using a new
+	received_question field.
+
+	* src/message.c: Handle explicit questions for the SMP.
+
+	* src/message.c: Behave better if an SMP message fails
+	verification.
+
+	* README:
+	* configure.ac:
+	* src/version.h: Update version number to 3.2.0.
+
+2007-07-26
+
+	* src/sm.c:
+	* src/message.c: ISO C cleanups (no mixing declarations with
+	code)
+
+	* src/sm.c: Fixed a 64-bit pointer error
+
+2007-07-25
+
+	* src/message.c: Behave sanely if we receive a totally malformed
+	SMP message.
+
+2007-07-24
+
+	* src/proto.h:
+	* src/proto.c:
+	* src/message.c: Implemented fragmentation of large messages
+
+	* src/message.h: New callback for fragmentation
+
+	* src/privkey.h:
+	* src/privkey.c (otrl_privkey_fingerprint_raw): New function to
+	return a raw hash of an account's public key
+
+	* src/proto.c: Keep track of the API version number passed to
+	otrl_init()
+
+	* src/context.h:
+	* src/context.c:
+	* src/tlv.h:
+	* src/sm.h:
+	* src/sm.c: Implemented the Socialist Millionaires' Protocol for
+	authenticating buddies without using user-visible fingerprints
+
+	* src/b64.h:
+	* src/b64.c (decode, otrl_base64_decode): Corrected char vs.
+	unsigned char
+
+	* README:
+	* configure.ac:
+	* src/version.h: Change version number to 3.1.0
+
+	* Most files: Update copyright information
+
+2007-07-23
+
+	* src/message.h:
+	* src/message.c: Added account_name and account_name_free callbacks
+	to OtrlMessageAppOps to let the application choose how to
+	display the account name in OTR Error Messages.  Based on a
+	patch from Evan Schoenberg <evan.s@dreskin.net>.
+
+2006-07-24
+
+	* src/privkey.h:
+	* src/privkey.c: Add routines to read and write privkey and
+	fingerprint data to FILE*s, instead of to filenames.
+
+2006-05-09
+
+	* Protocol-v2.html: Fix a typo, and correct the documentation
+	regarding when MAC keys are revealed.
+
+2006-04-13
+
+	* src/context.h: Change "struct fingerprint" to "struct
+	s_fingerprint" to appease some C++ compilers.
+
+2006-02-09
+
+	* src/auth.c (otrl_auth_handle_v1_key_exchange): Fix
+	uninitialized variable received_pub.
+
+2005-12-30
+
+	* src/message.c: Fix a typo, thanks to Anton Blanchard
+	<anton@samba.org>.
+
+2005-11-20
+
+	* src/proto.h: Fix typo in policy #defines.
+
+2005-11-02
+
+	* README:
+	* src/version.h: Release version 3.0.0
+
+2005-10-30
+
+	* Protocol-v2.html: Clarified the uniqueness conditions for the
+	counter.
+
+	* src/auth.c (otrl_auth_handle_v1_key_exchange): Clear the auth
+	structure when we receive an unexpected v1 Key Exchange Message.
+
+2005-10-27
+
+	* src/auth.h:
+	* src/auth.c:
+	* src/message.c: Ensure version 2 AKEs are always done with
+	fresh D-H parameters.
+
+	* src/proto.h:
+	* src/proto.c:
+	* src/message.c: Add a "flags" field to the version 2 Data
+	Message, which can indicate that the Data Message should be
+	ignored if unreadable (as opposed to displaying an error).
+
+	* toolkit/parse.h:
+	* toolkit/parse.c:
+	* toolkit/otr_parse.c:
+	* toolkit/otr_remac.c: Deal with the new kind of Data Message.
+
+	* src/message.c: Use the gone_secure callback instead of the
+	still_secure callback if the other side changes its fingerprint.
+
+2005-10-19
+
+	* src/context.h:
+	* src/context.c: Added protocol_version as an explicit field in
+	the ConnContext.
+
+	* src/message.h:
+	* src/message.c: protocol_version no longer needs to be
+	explicitly passed to the gone_secure() and still_secure()
+	callbacks.
+
+	* packaging/fedora/libotr.spec: Patches from Paul
+
+	* src/proto.c (rotate_dh_keys): Avoid potential double
+	gcry_cipher_close().
+
+	* src/tests.c: Regression test for double gcry_cipher_close().
+
+2005-10-16
+
+	* Major overhaul with implementation of version 2 AKE.
+
+2005-08-08
+
+	* toolkit/otr_parse.c (parse): Ignore MACs that are too short,
+	rather than going into an infinite loop.
+
+2005-08-04
+
+	* Protocol: Added section describing fragments.
+
+	* src/proto.h:
+	* src/proto.c (otrl_proto_fragment_accumulate): 
+	* src/context.h:
+	* src/context.c (new_context, otrl_context_force_setup): Keep
+	track of fragments in the ConnContext structure.
+
+	* src/message.c (otrl_message_receiving): Handle fragments in
+	received messages.
+
+	* src/mem.c: Don't do arithmetic on void pointers.
+
+2005-07-29
+
+	* src/message.h:
+	* src/message.c: Move ops to be the first param of
+	new_fingerprint, as it is with all the other callbacks.
+
+	* src/context.h:
+	* src/context.c (otrl_context_set_preshared_secret):
+	* src/dh.h:
+	* src/dh.c (otrl_dh_session, otrl_dh_cmpctr):
+	* src/message.h:
+	* src/message.c (otrl_message_sending, send_or_error, process_kem)
+	(otrl_message_receiving, otrl_message_disconnect):
+	* src/privkey.h:
+	* src/privkey.c (otrl_privkey_hash_to_human):
+	* src/proto.h:
+	* src/proto.c (otrl_proto_create_data):
+	* src/tlv.h:
+	* src/tlv.c (otrl_tlv_new, otrl_tlv_parse, otrl_tlv_seriallen)
+	(otrl_tlv_serialize): Add missing "const"s.  (Closes #1243963)
+
+2005-06-24
+
+	* README:
+	* configure.ac:
+	* packaging/fedora/libotr.spec:
+	* src/version.h: Change version to 3.0.0 (but don't yet release)
+
+	* Protocol: Clarify that, if the user requests to see the secure
+	session id in the middle of the conversation, the value
+	displayed should be the one calculated at the time the private
+	connection was established (the last Key Exchange Message that
+	caused a rekeying), _not_ the DH secure id calculated from DH
+	keys in more recent Data Messages.
+
+	* libotr.m4: Have the version check require an exact match on
+	the major version, since, for example, source that expects
+	libotr 2.0.0 won't work with libotr 3.0.0.
+
+	* libotr.m4: Add #include <stdlib.h> to the version test so that
+	it compiles cleanly with -Wall -Werror.
+
+	* src/proto.c:
+	* src/dh.h:
+	* src/dh.c:
+	* src/context.h:
+	* src/context.c: Save the secure session id so that it can be
+	displayed to the user upon request, instead of only when the
+	private session is initially set up.
+
+	* src/privkey.c:
+	* src/context.h:
+	* src/context.c: Allow the app to set a "trust level" for
+	fingerprints.  This is an arbitrary string, intended to indicate
+	whether (or possibly by what means) the user has verified that
+	this fingerprint is accurate.
+
+	* src/context.h:
+	* src/context.c: Allow the app to set an arbitrary binary
+	"preshared secret" for the ConnContext.  This is currently
+	unused, but in the future it would allow for users to exchange a
+	secret _before_ they generate their fingerprints.  [But the
+	protocol would have to be extended to support this.]
+
+	* src/message.h:
+	* src/message.c: Remove the "confirm_fingerprint" callback
+	which requires the user to acknowledge the new fingerprint
+	before it can be used.  Replace it with a "new_fingerprint"
+	callback which merely informs the user that a new fingerprint
+	has been received.
+
+2005-05-13
+
+	* libotr.m4: Fixed a bug which made configure fail to find the
+	libotr header files if they weren't in the standard place.
+
+2005-05-09
+
+	* src/privkey.c (otrl_privkey_read_fingerprints): Allow fields,
+	particularly accountnames, to contain spaces.  Closes #1198379.
+
+2005-05-03
+
+	* README:
+	* configure.ac:
+	* packaging/fedora/libotr.spec:
+	* src/version.h: Change version to 2.0.2
+
+	* packaging/debian: Remove this directory, as Thibaut VARENE
+	<varenet@debian.org> is now responsible for the debian packages.
+
+2005-02-23
+
+	* src/privkey.c (otrl_privkey_hash_to_human): Avoid writing a
+	NUL one byte past the end of the buffer
+
+2005-02-16
+
+	* README:
+	* configure.ac:
+	* packaging/debian/changelog:
+	* packaging/fedora/libotr.spec:
+	* src/version.h: Change version to 2.0.1
+
+2005-02-15
+
+	* src/message.c (otrl_message_sending, otrl_message_receiving)
+	(otrl_message_disconnect):
+	* src/proto.c (otrl_proto_accept_key_exchange)
+	(otrl_proto_create_data, otrl_proto_accept_data): Don't send
+	encrypted messages to a buddy who has disconnected his private
+	connection with us.
+
+	* src/message.c (otrl_message_sending): Don't show the user the
+	"the last message was resent" notice if the message has never
+	actually been sent before.
+
+2005-02-09
+
+	* src/proto.c (otrl_proto_create_data): Copy the msg before
+	using since, since it may be an alias for context->lastmessage,
+	which we're going to gcry_free().
+
+2005-02-08
+
+	* README:
+	* configure.ac:
+	* packaging/debian/changelog:
+	* packaging/fedora/libotr.spec:
+	* src/version.h: Change version to 2.0.0
+
+2005-02-07
+
+	* src/context.h:
+	* src/context.c (new_context, otrl_context_force_setup):
+	* src/message.c (otrl_message_sending, otrl_message_receiving):
+	* src/proto.c (otrl_proto_accept_key_exchange): Keep track of
+	whether the last message is eligible for retransmission.
+
+2005-02-02
+
+	* README:
+	* configure.ac:
+	* packaging/debian/changelog:
+	* packaging/fedora/libotr.spec:
+	* src/version.h: Change version to 1.99.0
+
+	* packaging/debian/libotr1.dirs:
+	* packaging/debian/libotr1.install:
+	* packaging/debian/rules: Build and install with the correct mandir
+
+	* packaging/debian/rules: Install a shlibs file
+
+	* packaging/debian/control: Add Replaces: to the packages so
+	that dpkg -i will install them.
+
+	* toolkit/Makefile.am: Create the mandir if it's not yet there
+
+	* packaging/debian/libotr1-dev.dirs:
+	* packaging/debian/libotr1-dev.install:
+	* packaging/fedora/libotr.spec: Package the libotr.m4 file
+
+	* Protocol: Added sections on policies and TLVs
+
+2005-02-01
+
+	* Makefile.am:
+	* src/Makefile.am:
+	* toolkit/Makefile.am: Use automake-1.8
+
+2005-01-31
+
+	* tlv.h:
+	* tlv.c:
+	* src/Makefile.am: add new files tlv.c and tlv.h
+
+	* src/message.c (otrl_message_sending): Allow you to specify a
+	TLV chain to attach to a message.
+
+	* src/message.c (otrl_message_receiving): Also return any TLV
+	chain attached to the message, if present.
+
+	* src/README: Document new TLV parameters to message functions.
+
+	* src/message.c (otrl_message_receiving): No longer handle
+	messages starting with "?OTR:" specially; that functionality now
+	goes into TLVs.
+
+	* src/message.c (otrl_message_disconnect): Send the notice of
+	disconnect as a OTRL_TLV_DISCONNECTED TLV.
+
+2005-01-30
+
+	* README: update documentation for 2.0.0 API
+
+	* src/message.c (otrl_message_receiving): Only send heartbeats
+	in response to "real" messages.
+
+	* src/message.c (otrl_message_receiving): If we receive a DATA
+	message whose *plaintext* starts with "?OTR:", display it with
+	display_otr_message if possible.
+
+	* src/message.c (otrl_message_receiving): Display OTR_ERROR
+	messages without the leading '?' using display_otr_message.
+
+	* src/message.h (otrl_message_disconnect):
+	* src/message.c (otrl_message_disconnect): new function
+
+	* src/message.c (otrl_message_receiving): Display the "received
+	unencrypted" warning message if we receive an unencrypted
+	message with policy ALWAYS, even when not CONNECTED.
+
+2005-01-29
+
+	* src/proto.c (otrl_proto_accept_key_exchange):
+	* src/message.c (otrl_message_sending, process_kem): Make the
+	retransmission of an unencrypted message in ALWAYS work.
+
+2005-01-28
+
+	* src/message.h: New callback for checking whether a given user
+	is online.
+
+	* src/message.c (otrl_message_sending): Notify the user if he
+	attempts to send an unencrypted message with policy ALWAYS.
+
+	* src/message.h: New callback for fetching OTR policy
+	* src/message.c (otrl_message_sending): Create a ConnContext if
+	we don't have one already.  Use it to fetch the OTR policy.
+	Just return if the policy is NEVER.  Only append the whitespace
+	tag if the policy is OPPORTUNISTIC or ALWAYS.  Don't send
+	unencrypted messages in ALWAYS, but store them for
+	retransmission later.
+	* src/message.c (otrl_message_receiving): Fetch the OTR policy.
+	Just return if the policy is NEVER.  Only send a Key Exchange
+	Message in response to an unexpected Data or Error Message in
+	OPPORTUNISTIC and ALWAYS.  Only recognize the whitespace tag in
+	OPPORTUNISTIC and ALWAYS.
+
+	* src/message.h:
+	* src/message.c: add accountname/protocol/username parameters to
+	notify callback
+
+	* src/message.h:
+	* src/message.c: add display_otr_message callback for displaying
+	OTR control messages
+
+2005-01-27
+	
+	* src/privkey.h: #include <gcrypt.h> since we use things from
+	libgcrypt in the .h file
+
+	* src/proto.h:
+	* src/proto.c: Make otrl_init take unsigned ints as arguments.
+
+	* src/context.h:
+	* src/context.c:
+	* src/message.c:
+	* src/proto.c: Keep track of the last message sent, and
+	potentially resend it if sending it the first time triggered a
+	rekey (because the other side had lost its OTR state, for
+	example).
+
+2005-01-26
+
+	* packaging/debian/control: Changed debian package names to
+	libotr1 and libotr1-dev.
+
+	* libotr.m4: Added copyright notice, more comments
+
+	* src/userstate.c:
+	* src/userstate.h: New files
+
+	* src/Makefile.am: Added -Wall to default CFLAGS
+	* toolkit/Makefile.am: Added -Wall to default CFLAGS
+
+	* src/context.c (otrl_context_find, otrl_context_forget_all):
+	* src/context.h (otrl_context_find, otrl_context_forget_all):
+	* src/message.c (otrl_message_sending, process_kem)
+	(process_confresp, otrl_message_receiving):
+	* src/message.h (otrl_message_sending, otrl_message_receiving)
+	(OtrlMessageAppOps.confirm_fingerprint):
+	* src/privkey.c (otrl_privkey_fingerprint, otrl_privkey_read)
+	(otrl_privkey_generate, otrl_privkey_read_fingerprints)
+	(otrl_privkey_write_fingerprints, otrl_privkey_find)
+	(otrl_privkey_forget_all):
+	* src/privkey.h (otrl_privkey_fingerprint, otrl_privkey_read)
+	(otrl_privkey_generate, otrl_privkey_read_fingerprints)
+	(otrl_privkey_write_fingerprints, otrl_privkey_find)
+	(otrl_privkey_forget_all):
+	* src/proto.c (otrl_proto_create_key_exchange)
+	(otrl_proto_accept_key_exchange):
+	* src/proto.h (otrl_proto_create_key_exchange)
+	(otrl_proto_accept_key_exchange): Added OtrlUserState parameter
+	to many calls, eliminating global state.
+
+	* src/privkey.c (otrl_privkey_fingerprint): the buffer is now
+	passed in, and not static
+
+2005-01-25
+	
+	* src/version.h: bumped version number to 2.0.0 because API
+	changed incompatibly
+	* configure.ac: bumped version number to 2.0.0 because API
+	changed incompatibly
+
+	* src/message.h: added accountname parameter to
+	confirm_fingerprint callback
+	* src/message.c: passed accountname to confirm_fingerprint
+	callback
+
+	* libotr.m4: new file
+	* Makefile.am: install (and uninstall) new libotr.m4 file
+
+	* tools/Makefile.am: clean up manpage symlinks and add an
+	uninstall rule
+
+2005-01-23
+
+	* src/proto.h: moved numeric version defines into version.h
+	* src/version.h: moved numeric version defines into version.h
+
+	* src/message.c (otrl_message_receiving): Update the context
+	list if we create a new context
+
+2005-01-22
+
+	Released 1.0.4.
+
+	Initial autoconfiscation, thanks to Greg Troxel <gdt@ir.bbn.com>.
+
+	* src/message.c: log, but otherwise ignore, unrecognized OTR
+	messages

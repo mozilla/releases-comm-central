@@ -1,0 +1,4 @@
+alice_xmpp	XMPP	01234567
+alice_irc	IRC	9abcdef0
+alice_inv	IRC WRONG
+alice_icq	ICQ	98765432
