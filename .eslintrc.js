@@ -52,6 +52,107 @@ module.exports = {
     "prettier/prettier": "off",
     "semi-spacing": ["error", {"before": false, "after": true}],
     "space-in-parens": ["error", "never"],
+
+
+    // Require spacing around =>
+    "arrow-spacing": "error",
+
+    // Always require spacing around a single line block
+    "block-spacing": "error",
+
+    // No newline before open brace for a block
+    "brace-style": ["error", "1tbs", { "allowSingleLine": true }],
+
+    // Require trailing commas for easy list extension and consistent style.
+    "comma-dangle": ["error", "always-multiline"],
+
+    // No space before always a space after a comma
+    "comma-spacing": ["error", {"after": true, "before": false}],
+
+    // Commas at the end of the line not the start
+    "comma-style": "error",
+
+    // Don't require spaces around computed properties
+    "computed-property-spacing": ["error", "never"],
+
+    // Note that this rule is likely to be overridden on a per-directory basis
+    // very frequently.
+    "curly": "off",
+
+    // Always require a trailing EOL
+    "eol-last": "error",
+
+    // No spaces between function name and parentheses
+    "func-call-spacing": "error",
+
+    // Require function* name()
+    "generator-star-spacing": ["error", {"after": true, "before": false}],
+
+    // Space after colon not before in property declarations
+    "key-spacing": ["error", {
+      "afterColon": true,
+      "beforeColon": false,
+      "mode": "minimum",
+    }],
+
+    // Require spaces before and after keywords
+    "keyword-spacing": "error",
+
+    // Unix linebreaks
+    "linebreak-style": ["error", "unix"],
+
+    // Disallow tabs.
+    "no-tabs": "error",
+
+    // No trailing whitespace
+    "no-trailing-spaces": "error",
+
+    // Disallow whitespace before properties.
+    "no-whitespace-before-property": "error",
+
+    // Prohibit blank lines at the beginning and end of blocks.
+    "padded-blocks": ["error", "never"],
+
+    // Require double-quotes everywhere, except where quotes are escaped
+    // or template literals are used.
+    "quotes": ["error", "double", {
+      "allowTemplateLiterals": true,
+      "avoidEscape": true,
+    }],
+
+    // No spacing inside rest or spread expressions
+    "rest-spread-spacing": "error",
+
+    // Always require semicolon at end of statement
+    "semi": ["error", "always"],
+
+    // Require space before blocks
+    "space-before-blocks": "error",
+
+    // Never use spaces before function parentheses
+    "space-before-function-paren": ["error", {
+      "anonymous": "never",
+      "asyncArrow": "always",
+      "named": "never",
+    }],
+
+    // No space padding in parentheses
+    // "space-in-parens": ["error", "never"],
+
+    // Require spaces around operators
+    "space-infix-ops": ["error", { "int32Hint": true }],
+
+    // ++ and -- should not need spacing
+    "space-unary-ops": ["error", {
+      "nonwords": false,
+      "overrides": {
+        "typeof": false, // We tend to use typeof as a function call
+      },
+      "words": true,
+    }],
+
+    // Requires or disallows a whitespace (space or tab) beginning a comment
+    "spaced-comment": ["error", "always", { "markers": ["#"] }],
   },
 
   // To avoid bad interactions of the html plugin with the xml preprocessor in
