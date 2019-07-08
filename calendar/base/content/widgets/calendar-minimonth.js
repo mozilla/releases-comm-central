@@ -175,6 +175,9 @@
 
             this.addEventListener("keypress", (event) => {
                 if (event.originalTarget.classList.contains("minimonth-day")) {
+                    if (event.altKey || event.metaKey) {
+                        return;
+                    }
                     switch (event.keyCode) {
                         case KeyEvent.DOM_VK_LEFT:
                             this.onDayMovement(event, 0, 0, -1);
@@ -189,10 +192,18 @@
                             this.onDayMovement(event, 0, 0, 7);
                             break;
                         case KeyEvent.DOM_VK_PAGE_UP:
-                            this.onDayMovement(event, 0, -1, 0);
+                            if (event.shiftKey) {
+                                this.onDayMovement(event, -1, 0, 0);
+                            } else {
+                                this.onDayMovement(event, 0, -1, 0);
+                            }
                             break;
                         case KeyEvent.DOM_VK_PAGE_DOWN:
-                            this.onDayMovement(event, 0, 1, 0);
+                            if (event.shiftKey) {
+                                this.onDayMovement(event, 1, 0, 0);
+                            } else {
+                                this.onDayMovement(event, 0, 1, 0);
+                            }
                             break;
                         case KeyEvent.DOM_VK_ESCAPE:
                             this.focusDate(this.mValue || this.mExtraDate);
