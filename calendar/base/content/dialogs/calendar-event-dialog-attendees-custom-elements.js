@@ -932,7 +932,7 @@ class MozCalendarEventAttendeesList extends MozElements.RichListBox {
             input.removeAttribute("focused");
         }
 
-        let roleStatusIcon = listitem.querySelector(".status-icon");
+        let roleStatusIcon = listitem.querySelector(".status-icon, .role-icon");
         roleStatusIcon.removeAttribute("disabled");
         roleStatusIcon.setAttribute("class", "role-icon");
         roleStatusIcon.setAttribute("role", newAttendee.role);
@@ -949,12 +949,17 @@ class MozCalendarEventAttendeesList extends MozElements.RichListBox {
      */
     resolvePotentialList(input) {
         let fieldValue = input.value;
-        if (input.id.length > 0 && fieldValue.length > 0) {
+        if (fieldValue) {
             let mailingList = this._resolveListByName(fieldValue);
             if (mailingList) {
                 let entries = this._getListEntries(mailingList);
                 if (entries.length > 0) {
-                    let currentIndex = parseInt(input.id.substr(13), 10);
+                    // `mMaxAttendees` holds the count of non-dummy rows, that is, rows
+                    // which have and icon and an email address or are ready to receive
+                    // an email address. By the time we get here, a new non-dummy row has
+                    // already been added, so the mailing list we want to expand is in the
+                    // row before the last row.
+                    let currentIndex = this.mMaxAttendees - 2;
                     let template = this.querySelector(".addressingWidgetItem");
                     let currentNode = template.parentNode.childNodes[currentIndex];
                     this._fillListItemWithEntry(currentNode, entries[0], currentIndex);
@@ -968,7 +973,7 @@ class MozCalendarEventAttendeesList extends MozElements.RichListBox {
                         currentIndex++;
                     }
                     this.mMaxAttendees += entries.length;
-                    for (let i = currentIndex; i <= this.mMaxAttendees; i++) {
+                    for (let i = currentIndex; i < this.mMaxAttendees; i++) {
                         let row = template.parentNode.childNodes[i];
                         let textboxInput = row.querySelector(".textbox-addressingWidget");
                         textboxInput.setAttribute("dirty", "true");

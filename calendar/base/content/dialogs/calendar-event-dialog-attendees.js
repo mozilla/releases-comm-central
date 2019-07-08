@@ -876,8 +876,7 @@ function onAttrModified(event) {
 
     // Synchronize grid and attendee list
     let target = event.originalTarget;
-    if (target.hasAttribute("anonid") &&
-        target.getAttribute("anonid") == "input" &&
+    if (target.classList.contains("textbox-addressingWidget") &&
         event.attrName == "focused") {
         let attendees = document.getElementById("attendees-list");
         if (event.newValue == "true") {
