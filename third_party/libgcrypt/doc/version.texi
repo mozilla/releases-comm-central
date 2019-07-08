@@ -1,0 +1,4 @@
+@set UPDATED 24 October 2018
+@set UPDATED-MONTH October 2018
+@set EDITION 1.8.4
+@set VERSION 1.8.4
