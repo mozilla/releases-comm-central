@@ -14,6 +14,9 @@ DEFINES['MOZ_APP_VERSION'] = CONFIG['MOZ_APP_VERSION']
 DEFINES['MOZ_APP_VERSION_DISPLAY'] = CONFIG['MOZ_APP_VERSION_DISPLAY']
 DEFINES['mozreltopsrcdir'] = CONFIG['mozreltopsrcdir']
 DEFINES['APP_LICENSE_BLOCK'] = '%s/content/overrides/app-license.html' % SRCDIR
+DEFINES['APP_LICENSE_PRODUCT_NAME'] = '%s/content/overrides/app-license-name.html' % SRCDIR
+DEFINES['APP_LICENSE_LIST_BLOCK'] = '%s/content/overrides/app-license-list.html' % SRCDIR
+DEFINES['APP_LICENSE_BODY_BLOCK'] = '%s/content/overrides/app-license-body.html' % SRCDIR
 
 if CONFIG['MOZILLA_OFFICIAL']:
     DEFINES['OFFICIAL_BUILD'] = 1
