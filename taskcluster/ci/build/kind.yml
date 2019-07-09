@@ -56,3 +56,13 @@ job-defaults:
                 beta: beta
                 release.*: release
                 default: null
+        mar-channel-id:
+            by-release-type:
+                release: thunderbird-comm-release
+                beta: thunderbird-comm-beta
+                default: thunderbird-comm-central
+        accepted-mar-channel-ids:
+            by-release-type:
+                release: thunderbird-comm-release
+                beta: thunderbird-comm-beta
+                default: thunderbird-comm-central

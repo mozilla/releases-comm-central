@@ -21,7 +21,10 @@ only-for-build-platforms:
     - win64-shippable/opt
 
 job-template:
+    worker-type: 'b-win2012'
     mozharness:
+        use-magic-mh-args: false
+        use-caches: false
         comm-checkout: true
         config-paths:
             - comm/mozharness
