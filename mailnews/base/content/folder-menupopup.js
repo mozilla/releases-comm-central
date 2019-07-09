@@ -606,7 +606,6 @@
       let folder = this._parentFolder;
       if (folder && (this.getAttribute("showFileHereLabel") == "true" || !mode)) {
         let showAccountsFileHere = this.getAttribute("showAccountsFileHere");
-
         if ((!folder.isServer || showAccountsFileHere != "false") &&
              (!mode || mode == "newFolder" || folder.noSelect ||
                folder.canFileMessages || showAccountsFileHere == "true")) {
@@ -676,7 +675,8 @@
           let submenuAttributes = {};
 
           ["class", "type", "fileHereLabel", "showFileHereLabel", "oncommand",
-            "mode", "disableServers", "position"].forEach(attribute => {
+            "showAccountsFileHere", "mode", "disableServers", "position"]
+            .forEach(attribute => {
             if (this.hasAttribute(attribute)) {
               submenuAttributes[attribute] = this.getAttribute(attribute);
             }

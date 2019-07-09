@@ -74,7 +74,7 @@ function test_message_filter_shows_newsgroup_server() {
 
   // This one initializes the menuitems, but it's kinda hacky.
   nntp.node.menupopup._ensureInitialized();
-  assert_equals(nntp.node.itemCount, 3,
+  assert_equals(nntp.node.itemCount, 5,
                 "Incorrect number of children for the NNTP server");
   close_window(filterc);
 }
