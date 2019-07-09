@@ -594,7 +594,7 @@ var gCloudFileTab = {
   },
 
   _onProviderUnregistered(event, type) {
-    for (let item of this._list.children) {
+    for (let item of [...this._list.children]) {
       // If the provider is unregistered, getAccount returns null.
       if (!cloudFileAccounts.getAccount(item.value)) {
         if (item.hasAttribute("selected")) {
