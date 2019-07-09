@@ -305,7 +305,7 @@
     <browser id="content" type="content" name="content" src="about:blank" flex="1"
              primary="true"
 #ifndef MOZ_SUITE
-             disablehistory="true"
+             disableglobalhistory="true"
 #endif
              context="viewSourceContextMenu" showcaret="true" tooltip="aHTMLTooltip" />
     <findbar id="FindToolbar" browserid="content"/>
