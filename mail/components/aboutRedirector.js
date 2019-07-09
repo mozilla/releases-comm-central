@@ -55,7 +55,7 @@ AboutRedirector.prototype = {
     channel.originalURI = aURI;
 
     if (this._redirMap[name].flags & Ci.nsIAboutModule.URI_SAFE_FOR_UNTRUSTED_CONTENT) {
-      let principal = Services.scriptSecurityManager.createCodebasePrincipal(aURI, {});
+      let principal = Services.scriptSecurityManager.createContentPrincipal(aURI, {});
       channel.owner = principal;
     }
 

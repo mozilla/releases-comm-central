@@ -2664,7 +2664,7 @@ var gMessageNotificationBar = {
     // The popup value is a space separated list of all the blocked origins.
     let popup = document.getElementById("remoteContentOptions");
     let principal = Services.scriptSecurityManager
-                            .createCodebasePrincipal(aContentURI, {});
+                            .createContentPrincipal(aContentURI, {});
     let origins = popup.value ? popup.value.split(" ") : [];
     if (!origins.includes(principal.origin)) {
       origins.push(principal.origin);
@@ -2820,7 +2820,7 @@ function onRemoteContentOptionsShowing(aEvent) {
     let authorEmailAddressURI = Services.io.newURI(
       "chrome://messenger/content/email=" + authorEmailAddress);
     let mailPrincipal = Services.scriptSecurityManager
-      .createCodebasePrincipal(authorEmailAddressURI, {});
+      .createContentPrincipal(authorEmailAddressURI, {});
     origins.push(mailPrincipal.origin);
   }
 

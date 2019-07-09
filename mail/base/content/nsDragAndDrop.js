@@ -538,7 +538,7 @@ var nsDragAndDrop = {
     // Use "file:///" as the default sourceURI so that drops of file:// URIs
     // are always allowed.
     var principal = sourceDoc ? sourceDoc.nodePrincipal
-                              : secMan.createCodebasePrincipal(Services.io.newURI("file:///"), {});
+                              : secMan.createContentPrincipal(Services.io.newURI("file:///"), {});
 
     try {
       secMan.checkLoadURIStrWithPrincipal(principal, aDraggedText,
