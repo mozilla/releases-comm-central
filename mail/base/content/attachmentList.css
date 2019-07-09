@@ -11,9 +11,11 @@
 
 .attachmentList[orient="horizontal"] {
   display: block;
+  overflow-x: hidden;
 }
 
 .attachmentList[collapsed] {
+  display: none;
   height: 0;
 }
 

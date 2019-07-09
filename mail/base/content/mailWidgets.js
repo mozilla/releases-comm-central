@@ -1358,7 +1358,7 @@ class MozAttachmentlist extends MozElements.RichListBox {
 
     let itemContainer = this.ownerDocument.createXULElement("hbox");
     itemContainer.setAttribute("flex", "1");
-    itemContainer.classList.add("attachmentcell-text");
+    itemContainer.classList.add("attachmentcell-content");
 
     item.addEventListener("dblclick", (event) => {
       let evt = document.createEvent("XULCommandEvent");
@@ -1506,19 +1506,18 @@ class MozAttachmentlist extends MozElements.RichListBox {
     }
 
     let width = 0;
-    let border = this._childNodes[0].getBoundingClientRect().width -
-      this._childNodes[0].clientWidth;
 
     // If widths have changed after the initial calculation (updated
     // size string), clear each item's prior hardcoded width so
-    // scrollwidth is natural, then get the width for the widest item
-    // and set it on all the items again.
+    // getBoundingClientRect is natural, then get the width for
+    // the widest item and set it on all the items again.
+    // Use Math.ceil to always round to the next higher integer.
     for (let child of this._childNodes) {
       child.width = "";
-      width = Math.max(width, child.scrollWidth);
+      width = Math.max(width, Math.ceil(child.getBoundingClientRect().width));
     }
     for (let child of this._childNodes) {
-      child.width = width + border;
+      child.width = width;
     }
   }
 }
