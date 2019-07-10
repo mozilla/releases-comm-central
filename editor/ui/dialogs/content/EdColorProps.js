@@ -395,7 +395,7 @@ function onAccept(event) {
       reader.addEventListener("load", function() {
         gBackgroundImage = reader.result;
         gDialog.BackgroundImageInput.value = reader.result;
-        if (onAccept()) {
+        if (onAccept(event)) {
           window.close();
         }
       });
@@ -403,7 +403,7 @@ function onAccept(event) {
         reader.readAsDataURL(file);
       });
       event.preventDefault(); // Don't close just yet...
-      return;
+      return false;
     }
   }
   if (ValidateData()) {
@@ -413,7 +413,8 @@ function onAccept(event) {
     } catch (e) {}
 
     SaveWindowLocation();
-    return; // do close the window
+    return true; // do close the window
   }
   event.preventDefault();
+  return false;
 }
