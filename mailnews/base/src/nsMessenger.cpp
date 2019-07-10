@@ -88,8 +88,6 @@
 #include "nsIMIMEService.h"
 #include "nsITransfer.h"
 
-#include "nsILinkHandler.h"
-
 #define MESSENGER_SAVE_DIR_PREF_NAME "messenger.save.dir"
 #define MIMETYPE_DELETED "text/x-moz-deleted"
 #define ATTACHMENT_PERMISSION 00664
