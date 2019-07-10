@@ -13,6 +13,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="Content-Security-Policy" content="default-src chrome:" />
     <title data-l10n-id="page-title"/>
 
     <link rel="icon" type="image/png" id="favicon"
@@ -69,8 +70,7 @@
       <input type="checkbox"
              id="check-show-private-data"
              class="data-uionly"
-             role="checkbox"
-             onchange="onShowPrivateDataChange(this);"/>
+             role="checkbox"/>
       <label for="check-show-private-data" data-l10n-id="show-private-data-main-text"/>
       <label class="gray-text" data-l10n-id="show-private-data-explanation-text"/>
 <!-- End of TB addition -->

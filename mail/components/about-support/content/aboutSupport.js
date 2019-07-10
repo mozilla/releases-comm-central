@@ -49,6 +49,8 @@ window.addEventListener("load", function onload(event) {
   }
   // added for TB
   populateAccountsSection();
+  document.getElementById("check-show-private-data")
+          .addEventListener("change", () => onShowPrivateDataChange());
 });
 
 // Fluent uses lisp-case IDs so this converts
@@ -170,7 +172,10 @@ var snapshotFormatters = {
     profDirNode.setAttribute("class", CLASS_DATA_PRIVATE);
     let profLinkNode = document.createElement("a");
     profLinkNode.setAttribute("href", Services.io.newFileURI(currProfD).spec);
-    profLinkNode.setAttribute("onclick", "openProfileDirectory(); event.preventDefault();");
+    profLinkNode.addEventListener("click", function(event) {
+      openProfileDirectory();
+      event.preventDefault();
+    });
     let profPathNode = document.createTextNode(currProfD.path);
     profLinkNode.appendChild(profPathNode);
     profDirNode.appendChild(profLinkNode);
@@ -1281,8 +1286,9 @@ function safeModeRestart() {
 }
 
 // Added for TB.
-function onShowPrivateDataChange(aCheckbox) {
-  document.getElementById("about-support-private").disabled = aCheckbox.checked;
+function onShowPrivateDataChange() {
+  document.getElementById("about-support-private").disabled =
+    document.getElementById("check-show-private-data").checked;
 }
 
 /**
