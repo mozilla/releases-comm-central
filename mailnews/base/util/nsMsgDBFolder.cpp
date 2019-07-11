@@ -1764,20 +1764,21 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow *aWindow) {
           nsString buttonCompactNowText;
           nsAutoString compactSize;
           FormatFileSize(totalExpungedBytes, true, compactSize);
-          AutoTArray<nsString, 1> params = {compactSize};
+          AutoTArray<nsString, 2> params = {compactSize,
+                                            kLocalizedBrandShortName};
           rv = bundle->GetStringFromName("autoCompactAllFoldersTitle",
                                          dialogTitle);
           NS_ENSURE_SUCCESS(rv, rv);
-          rv = bundle->FormatStringFromName("autoCompactAllFoldersText", params,
+          rv = bundle->FormatStringFromName("autoCompactAllFoldersMsg", params,
                                             confirmString);
           NS_ENSURE_SUCCESS(rv, rv);
-          rv = bundle->GetStringFromName("autoCompactAlwaysAskCheckbox",
+          rv = bundle->GetStringFromName("autoCompactNeverAskCheckbox",
                                          checkboxText);
           NS_ENSURE_SUCCESS(rv, rv);
-          rv = bundle->GetStringFromName("compactNowButton",
+          rv = bundle->GetStringFromName("proceedButton",
                                          buttonCompactNowText);
           NS_ENSURE_SUCCESS(rv, rv);
-          bool alwaysAsk = true;  // "Always ask..." - checked by default.
+          bool neverAsk = false;  // "Do not ask..." - unchecked by default.
           int32_t buttonPressed = 0;
 
           nsCOMPtr<nsIPrompt> dialog;
@@ -1790,12 +1791,11 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow *aWindow) {
           rv = dialog->ConfirmEx(dialogTitle.get(), confirmString.get(),
                                  buttonFlags, buttonCompactNowText.get(),
                                  nullptr, nullptr, checkboxText.get(),
-                                 &alwaysAsk, &buttonPressed);
+                                 &neverAsk, &buttonPressed);
           NS_ENSURE_SUCCESS(rv, rv);
-          if (!buttonPressed) {
+          if (buttonPressed == 0) {
             okToCompact = true;
-            if (!alwaysAsk)  // [ ] Always ask me before compacting folders
-                             // automatically
+            if (neverAsk)  // [X] Remove deletions automatically and do not ask
               branch->SetBoolPref(PREF_MAIL_PURGE_ASK, false);
           }
         } else
