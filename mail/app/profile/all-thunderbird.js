@@ -783,6 +783,3 @@ pref("intl.multilingual.downloadEnabled", false);
 
 // Dark in-content pages
 pref("browser.in-content.dark-mode", false);
-
-// Disable new about:addons page for now. See bug 1558860.
-pref("extensions.htmlaboutaddons.enabled", false);

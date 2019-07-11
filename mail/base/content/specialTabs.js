@@ -282,10 +282,6 @@ var contentTabBaseType = {
     function(aDocument, aTab) {
       // Switch off the context menu.
       aTab.browser.removeAttribute("context");
-
-      Services.scriptloader.loadSubScript(
-        "chrome://messenger/content/aboutAddonsExtra.js", aDocument.defaultView
-      );
     },
 
     // Let's not mess with about:blank.
