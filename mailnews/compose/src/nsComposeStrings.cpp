@@ -95,10 +95,6 @@ const char* errorStringNameForErrorCode(nsresult aCode) {
       return "smtpAuthMechNotSupported";
     case NS_ERROR_ILLEGAL_LOCALPART:
       return "errorIllegalLocalPart";
-    case NS_ERROR_CLIENTID:
-      return "smtpClientid";
-    case NS_ERROR_CLIENTID_PERMISSION:
-      return "smtpClientidPermission";
     default:
       return "sendFailed";
   }

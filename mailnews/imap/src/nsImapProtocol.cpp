@@ -876,8 +876,6 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI *aURL, nsISupports *aConsumer) {
         m_preferPlainText = preferPlainText;
       }
     }
-    // Retrieve the clientid so that we can use it later.
-    server->GetClientid(m_clientId);
 
     bool proxyCallback = false;
     if (m_runningUrl && !m_transport /* and we don't have a transport yet */) {
@@ -5570,20 +5568,6 @@ nsresult nsImapProtocol::SendDataParseIMAPandCheckForNewMail(
   return rv;
 }
 
-nsresult nsImapProtocol::ClientID() {
-  IncrementCommandTagNumber();
-  nsCString command(GetServerCommandTag());
-  command += " CLIENTID TB-UUID ";
-  command += m_clientId;
-  command += CRLF;
-  nsresult rv = SendDataParseIMAPandCheckForNewMail(command.get(), nullptr);
-  NS_ENSURE_SUCCESS(rv, rv);
-  if (!GetServerStateParser().LastCommandSuccessful()) {
-    return NS_ERROR_FAILURE;
-  }
-  return NS_OK;
-}
-
 nsresult nsImapProtocol::AuthLogin(const char *userName,
                                    const nsString &aPassword,
                                    eIMAPCapabilityFlag flag) {
@@ -8143,24 +8127,6 @@ bool nsImapProtocol::TryToLogon() {
                  "ChooseAuthMethod still fails."));
         return false;
       }
-    }
-  }
-
-  // Before running the ClientID command we check for clientid
-  // support by checking the server capability flags for the
-  // flag kHasClientIDCapability.
-  // We also check that the m_clientId string is not empty,
-  // and we also ensure tls/ssl is running by checking if
-  // m_connectionType contains "starttls" or "ssl".
-  if ((GetServerStateParser().GetCapabilityFlag() & kHasClientIDCapability) &&
-      !m_clientId.IsEmpty() &&
-      (m_connectionType.EqualsLiteral("starttls") ||
-       m_connectionType.EqualsLiteral("ssl"))) {
-    rv = ClientID();
-    if (NS_FAILED(rv)) {
-      MOZ_LOG(IMAP, LogLevel::Error,
-              ("TryToLogon: Could not issue CLIENTID command"));
-      skipLoop = true;
     }
   }
 

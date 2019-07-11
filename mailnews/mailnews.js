@@ -455,9 +455,6 @@ pref("mail.collect_addressbook", "moz-abmdbdirectory://history.mab");
 
 pref("mail.default_sendlater_uri", "mailbox://nobody@Local%20Folders/Unsent%20Messages");
 
-pref("mail.server.default.clientid", "");
-pref("mail.smtpserver.default.clientid", "");
-
 pref("mail.smtpservers", "");
 pref("mail.accountmanager.accounts", "");
 

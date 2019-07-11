@@ -36,10 +36,6 @@ interface nsISmtpServer : nsISupports {
   /// The username to access the server with (if required)
   attribute ACString username;
 
-  /// The CLIENTID to use for this server (if required).
-  /// @see https://tools.ietf.org/html/draft-storey-smtp-client-id-05
-  attribute ACString clientid;
-
   /**
    * The password to access the server with (if required).
    *

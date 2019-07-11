@@ -2024,8 +2024,6 @@ void nsImapServerResponseParser::capability_data() {
       else if (token.Equals("HIGHESTMODSEQ",
                             nsCaseInsensitiveCStringComparator()))
         fCapabilityFlag |= kHasHighestModSeqCapability;
-      else if (token.Equals("CLIENTID", nsCaseInsensitiveCStringComparator()))
-        fCapabilityFlag |= kHasClientIDCapability;
     }
   } while (fNextToken && endToken < 0 && !fAtEndOfLine && ContinueParse());
 

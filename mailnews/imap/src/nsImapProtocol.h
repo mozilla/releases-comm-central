@@ -537,7 +537,6 @@ class nsImapProtocol : public nsIImapProtocol,
   void Language();  // set the language on the server if it supports it
   void Namespace();
   void InsecureLogin(const char *userName, const nsCString &password);
-  nsresult ClientID();
   nsresult AuthLogin(const char *userName, const nsString &password,
                      eIMAPCapabilityFlag flag);
   nsresult SendDataParseIMAPandCheckForNewMail(const char *data,
@@ -683,8 +682,6 @@ class nsImapProtocol : public nsIImapProtocol,
   bool m_fromHeaderSeen;
 
   nsString mAcceptLanguages;
-
-  nsCString m_clientId;
 
   // progress stuff
   void SetProgressString(uint32_t aStringIndex);
