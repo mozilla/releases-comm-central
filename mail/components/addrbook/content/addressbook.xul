@@ -57,13 +57,13 @@
 <script src="chrome://messenger/content/addressbook/abDragDrop.js"/>
 <script src="chrome://global/content/globalOverlay.js"/>
 <script src="chrome://global/content/editMenuOverlay.js"/>
+<script src="chrome://messenger/content/messenger-customization.js"/>
 #ifdef XP_MACOSX
 <script src="chrome://global/content/macWindowMenu.js"/>
 #endif
 <script src="chrome://messenger/content/addressbook/abResultsPane.js"/>
 <script src="chrome://messenger/content/addressbook/abCardView.js"/>
 <script src="chrome://messenger/content/toolbarIconColor.js"/>
-
 <commandset id="addressBook">
   <commandset id="CommandUpdate_AddressBook"
               commandupdater="true"

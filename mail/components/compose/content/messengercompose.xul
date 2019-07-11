@@ -73,6 +73,7 @@
 <script src="chrome://messenger/content/messengercompose/MsgComposeCommands.js"/>
 <script src="chrome://messenger/content/messengercompose/bigFileObserver.js"/>
 <script src="chrome://messenger/content/messengercompose/cloudAttachmentLinkManager.js"/>
+<script src="chrome://messenger/content/messenger-customization.js"/>
 
 <!-- drag and drop -->
 <script src="chrome://messenger/content/addressbook/abDragDrop.js"/>

@@ -222,6 +222,12 @@ function InitMsgWindow() {
     button.removeEventListener("click", function() { retryThis(this); });
     button.addEventListener("click", function() { ReloadMessage(); });
   });
+
+  // Run menubar initialization first, to avoid TabsInTitlebar code picking
+  // up mutations from it and causing a reflow.
+  if (AppConstants.platform != "macosx") {
+    AutoHideMenubar.init();
+  }
 }
 
 // We're going to implement our status feedback for the mail window in JS now.

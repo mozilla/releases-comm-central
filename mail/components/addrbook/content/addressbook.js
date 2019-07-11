@@ -162,6 +162,12 @@ function OnLoadAddressBook() {
 
   ToolbarIconColor.init();
 
+  // Run menubar initialization first, to avoid TabsInTitlebar code picking
+  // up mutations from it and causing a reflow.
+  if (AppConstants.platform != "macosx") {
+    AutoHideMenubar.init();
+  }
+
   if (!chatHandler.ChatCore.initialized)
     chatHandler.ChatCore.init();
 

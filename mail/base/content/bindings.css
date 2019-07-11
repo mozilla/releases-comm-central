@@ -13,9 +13,3 @@ toolbox {
 toolbar {
   -moz-binding: url("chrome://messenger/content/toolbar.xml#toolbar");
 }
-
-%ifndef XP_MACOSX
-toolbar[type="menubar"][autohide="true"] {
-  -moz-binding: url("chrome://messenger/content/toolbar.xml#toolbar-menubar-autohide");
-}
-%endif

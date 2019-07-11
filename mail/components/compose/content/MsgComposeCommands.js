@@ -6761,6 +6761,12 @@ function InitEditor() {
       }
     }
   }
+
+  // Run menubar initialization first, to avoid TabsInTitlebar code picking
+  // up mutations from it and causing a reflow.
+  if (AppConstants.platform != "macosx") {
+    AutoHideMenubar.init();
+  }
 }
 
 // This is used as event listener to spellcheck-changed event to update
