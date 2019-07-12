@@ -507,8 +507,7 @@
 
     calculateTextboxDefaultHeight() {
       let totalSpace = parseInt(window.getComputedStyle(this).getPropertyValue("height"));
-      let textboxStyle = window.getComputedStyle(this.inputBox);
-      let lineHeight = parseInt(textboxStyle.getPropertyValue("line-height"));
+      let lineHeight = 20;
 
       // Compute the overhead size.
       let textboxHeight = this.inputBox.clientHeight;
