@@ -149,6 +149,7 @@ pref("extensions.getAddons.search.browseURL", "https://addons.thunderbird.net/%L
 pref("extensions.getAddons.search.url", "https://services.addons.thunderbird.net/%LOCALE%/%APP%/api/%API_VERSION%/search/%TERMS%/all/%MAX_RESULTS%/%OS%/%VERSION%/%COMPATIBILITY_MODE%?src=thunderbird");
 pref("extensions.webservice.discoverURL", "https://services.addons.thunderbird.net/%LOCALE%/%APP%/discovery/pane/%VERSION%/%OS%");
 pref("extensions.getAddons.siteRegExp", "^https://.*addons\\.thunderbird\\.net");
+pref("extensions.getAddons.langpacks.url", "https://services.addons.thunderbird.net/api/v3/addons/language-tools/?app=thunderbird&type=language&appversion=%VERSION%");
 
 // Blocklist preferences
 pref("extensions.blocklist.url", "https://blocklists.settings.services.mozilla.com/v1/blocklist/3/%APP_ID%/%APP_VERSION%/%PRODUCT%/%BUILD_ID%/%BUILD_TARGET%/%LOCALE%/%CHANNEL%/%OS_VERSION%/%DISTRIBUTION%/%DISTRIBUTION_VERSION%/%PING_COUNT%/%TOTAL_PING_COUNT%/%DAYS_SINCE_LAST_PING%/");
