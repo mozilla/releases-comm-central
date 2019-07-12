@@ -6,10 +6,6 @@ textbox[type="glodacomplete"] {
   -moz-binding: url("chrome://global/content/bindings/autocomplete.xml#autocomplete");
 }
 
-panel[type="glodacomplete-richlistbox"] {
-  -moz-binding: url("chrome://gloda/content/glodacomplete.xml#glodacomplete-rich-result-popup");
-}
-
 .explanation, .gloda-single-identity {
   margin-inline-start: 1em;
   margin-top: 2px;

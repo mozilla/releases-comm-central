@@ -153,6 +153,7 @@
 <script src="chrome://messenger/content/newmailaccount/uriListener.js"/>
 <script src="chrome://messenger/content/chat/chat-conversation-info.js"/>
 <script src="chrome://gloda/content/autocomplete-richlistitem.js"/>
+<script src="chrome://gloda/content/glodacomplete.js"/>
 <script src="chrome://messenger/content/chat/chat-contact.js"/>
 <script src="chrome://messenger/content/chat/chat-group.js"/>
 <script src="chrome://messenger/content/chat/chat-imconv.js"/>
@@ -240,9 +241,9 @@
 #include ../../components/customizableui/content/panelUI.inc.xul
 
 #include msgHdrPopup.inc.xul
-  <panel type="glodacomplete-richlistbox"
+  <panel is="glodacomplete-rich-result-popup"
          id="PopupGlodaAutocomplete"
-         noautofocus="true" />
+         noautofocus="true"/>
   <panel type="autocomplete"
          id="PopupAutoComplete"
          noautofocus="true"/>
