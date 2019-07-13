@@ -41,46 +41,62 @@
       <label class="header">&identityTitle.label;</label>
       <description>&identityDesc.label;</description>
       <separator class="thin"/>
-      <hbox>
-        <vbox>
-          <hbox flex="1" align="center">
+      <html:table>
+        <html:tr>
+          <html:td>
             <label value="&name.label;" control="identity.fullName"
                    accesskey="&name.accesskey;"/>
-          </hbox>
-          <hbox flex="1" align="center">
+          </html:td>
+          <html:td style="width:100%;">
+            <textbox id="identity.fullName" wsm_persist="true" size="30" style="width:100%;"
+                     prefstring="mail.identity.%identitykey%.fullName"/>
+          </html:td>
+        </html:tr>
+        <html:tr>
+          <html:td>
             <label value="&email.label;" control="identity.email"
                    accesskey="&email.accesskey;"/>
-          </hbox>
-          <hbox flex="1" align="center">
+          </html:td>
+          <html:td style="width:100%;">
+            <textbox id="identity.email" wsm_persist="true" style="width:100%;"
+                     prefstring="mail.identity.%identitykey%.useremail" class="uri-element"/>
+          </html:td>
+        </html:tr>
+        <html:tr>
+          <html:td>
             <label value="&replyTo.label;" control="identity.replyTo"
                    accesskey="&replyTo.accesskey;"/>
-          </hbox>
-          <hbox flex="1" align="center">
+          </html:td>
+          <html:td style="width:100%;">
+            <textbox id="identity.replyTo" wsm_persist="true" style="width:100%;"
+                     prefstring="mail.identity.%identitykey%.reply_to" class="uri-element"
+                     placeholder="&replyTo.placeholder;"/>
+          </html:td>
+        </html:tr>
+        <html:tr>
+          <html:td>
             <label value="&organization.label;" control="identity.organization"
                    accesskey="&organization.accesskey;"/>
-          </hbox>
-          <hbox flex="1" align="center">
+          </html:td>
+          <html:td style="width:100%;">
+            <textbox id="identity.organization" wsm_persist="true" style="width:100%;"
+                     prefstring="mail.identity.%identitykey%.organization"/>
+          </html:td>
+        </html:tr>
+        <html:tr>
+          <html:td>
             <label value="&signatureText.label;" control="identity.htmlSigText"
                    accesskey="&signatureText.accesskey;"/>
-          </hbox>
-        </vbox>
-        <vbox flex="1">
-          <textbox id="identity.fullName" wsm_persist="true" size="30"
-                   prefstring="mail.identity.%identitykey%.fullName"/>
-          <textbox id="identity.email" wsm_persist="true"
-                   prefstring="mail.identity.%identitykey%.useremail" class="uri-element"/>
-          <textbox id="identity.replyTo" wsm_persist="true"
-                   prefstring="mail.identity.%identitykey%.reply_to" class="uri-element"
-                   placeholder="&replyTo.placeholder;"/>
-          <textbox id="identity.organization" wsm_persist="true"
-                   prefstring="mail.identity.%identitykey%.organization"/>
-          <hbox align="center">
-            <checkbox id="identity.htmlSigFormat" wsm_persist="true" label="&signatureHtml.label;"
-                      prefattribute="value" accesskey="&signatureHtml.accesskey;"
-                      prefstring="mail.identity.%identitykey%.htmlSigFormat"/>
-          </hbox>
-        </vbox>
-      </hbox>
+          </html:td>
+          <html:td style="width:100%;">
+            <hbox align="center">
+              <checkbox id="identity.htmlSigFormat" wsm_persist="true" label="&signatureHtml.label;"
+                        prefattribute="value" accesskey="&signatureHtml.accesskey;" style="width:100%;"
+                        prefstring="mail.identity.%identitykey%.htmlSigFormat"/>
+            </hbox>
+          </html:td>
+        </html:tr>
+      </html:table>
 
       <hbox class="indent" flex="1" style="min-height: 50px;display: flex;align-items: stretch;">
         <html:textarea id="identity.htmlSigText" wsm_persist="true" rows="4" style="flex-grow: 1;"

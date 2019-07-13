@@ -61,38 +61,55 @@
       <vbox flex="1" name="settings">
         <groupbox>
           <label class="header">&publicData.label;</label>
-          <hbox>
-            <vbox>
-              <hbox flex="1" align="center">
+          <html:table>
+            <html:tr>
+              <html:td>
                 <label value="&name.label;" control="identity.fullName"
                        accesskey="&name.accesskey;"/>
-              </hbox>
-              <hbox flex="1" align="center">
+              </html:td>
+              <html:td style="width:100%;">
+                <textbox id="identity.fullName" size="30" style="width:100%;"/>
+              </html:td>
+            </html:tr>
+            <html:tr>
+              <html:td>
                 <label value="&email.label;" control="identity.email"
                        accesskey="&email.accesskey;"/>
-              </hbox>
-              <hbox flex="1" align="center">
+              </html:td>
+              <html:td style="width:100%;">
+                <textbox id="identity.email" class="uri-element" style="width:100%;"/>
+              </html:td>
+            </html:tr>
+            <html:tr>
+              <html:td>
                 <label value="&replyTo.label;" control="identity.replyTo"
                        accesskey="&replyTo.accesskey;"/>
-              </hbox>
-              <hbox flex="1" align="center">
+              </html:td>
+              <html:td style="width:100%;">
+                <textbox id="identity.replyTo" class="uri-element" placeholder="&replyTo.placeholder;"
+                         style="width:100%;"/>
+              </html:td>
+            </html:tr>
+            <html:tr>
+              <html:td>
                 <label value="&organization.label;" control="identity.organization"
                        accesskey="&organization.accesskey;"/>
-              </hbox>
-              <hbox flex="1" align="center">
+              </html:td>
+              <html:td style="width:100%;">
+                <textbox id="identity.organization" style="width:100%;"/>
+              </html:td>
+            </html:tr>
+            <html:tr>
+              <html:td>
                 <label value="&signatureText.label;" control="identity.htmlSigText"
                        accesskey="&signatureText.accesskey;"/>
-              </hbox>
-            </vbox>
-            <vbox flex="1">
-              <textbox id="identity.fullName" size="30"/>
-              <textbox id="identity.email" class="uri-element"/>
-              <textbox id="identity.replyTo" class="uri-element" placeholder="&replyTo.placeholder;"/>
-              <textbox id="identity.organization"/>
-              <checkbox id="identity.htmlSigFormat" label="&signatureHtml.label;"
-                          accesskey="&signatureHtml.accesskey;"/>
-            </vbox>
-          </hbox>
+              </html:td>
+              <html:td style="width:100%;">
+                <checkbox id="identity.htmlSigFormat" label="&signatureHtml.label;"
+                          accesskey="&signatureHtml.accesskey;" style="width:100%;"/>
+              </html:td>
+            </html:tr>
+          </html:table>
 
           <separator class="thin"/>
 
