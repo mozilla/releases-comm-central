@@ -98,7 +98,7 @@
       // using the root-folders for all accounts.
       this._parentFolder = null;
 
-      this._stringBundle = null;
+      this._stringBundle = new StringBundle("chrome://messenger/locale/folderWidgets.properties");
 
       // Various filtering modes can be used with this menu-binding. To use
       // one of them, append the mode="foo" attribute to the element. When
@@ -333,8 +333,6 @@
       }
       // Call the connectedCallback of the "base" class this mixin class is extending.
       super.connectedCallback();
-
-      this._stringBundle = new StringBundle("chrome://messenger/locale/folderWidgets.properties");
 
       // Get the displayformat if set.
       if (this.parentNode && this.parentNode.localName == "menulist") {
