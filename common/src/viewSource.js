@@ -572,15 +572,19 @@ ViewSourceChrome.prototype = {
     let backCommand = document.getElementById("Browser:Back");
     let forwardCommand = document.getElementById("Browser:Forward");
 
-    if (this.webNav.canGoBack) {
-      backCommand.removeAttribute("disabled");
-    } else {
-      backCommand.setAttribute("disabled", "true");
+    if (backCommand) {
+      if (this.webNav.canGoBack) {
+        backCommand.removeAttribute("disabled");
+      } else {
+        backCommand.setAttribute("disabled", "true");
+      }
     }
-    if (this.webNav.canGoForward) {
-      forwardCommand.removeAttribute("disabled");
-    } else {
-      forwardCommand.setAttribute("disabled", "true");
+    if (forwardCommand) {
+      if (this.webNav.canGoForward) {
+        forwardCommand.removeAttribute("disabled");
+      } else {
+        forwardCommand.setAttribute("disabled", "true");
+      }
     }
   },
 
