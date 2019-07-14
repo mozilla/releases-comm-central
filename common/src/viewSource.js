@@ -435,7 +435,13 @@ ViewSourceChrome.prototype = {
    */
   onSetCharacterSet(event) {
     if (event.target.hasAttribute("charset")) {
-      this.browser.docShell.charset = event.target.getAttribute("charset");
+      let charset = event.target.getAttribute("charset");
+      // Replace generic Japanses with Shift_JIS which will also auto-detect
+      // ISO-2022-JP and EUC-JP.
+      if (charset == "Japanese") {
+        charset = "Shift_JIS";
+      }
+      this.browser.docShell.charset = charset;
       this.browser
           .reloadWithFlags(Ci.nsIWebNavigation.LOAD_FLAGS_CHARSET_CHANGE);
     }
