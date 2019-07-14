@@ -1146,6 +1146,8 @@ var GlodaMsgIndexer = {
             continue;
           }
           msgHdr = result.value;
+        } else {
+          keepIterHeader = false;
         }
       }
 
