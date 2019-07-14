@@ -3097,6 +3097,10 @@ function ComposeUnload() {
 
 function SetDocumentCharacterSet(aCharset) {
   if (gMsgCompose) {
+    // Replace generic Japanese with ISO-2022-JP.
+    if (aCharset == "Japanese") {
+      aCharset = "ISO-2022-JP";
+    }
     gMsgCompose.SetDocumentCharset(aCharset);
     updateEncodingInStatusBar();
   } else {
