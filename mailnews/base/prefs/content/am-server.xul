@@ -13,7 +13,8 @@
 %trashDTD;
 ]>
 
-<page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+<page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
       xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       title="&serverSettings.label;"
       onload="parent.onPanelLoaded('am-server.xul');">
@@ -46,12 +47,11 @@
       <div>
         <xul:label id="servertype.verbose"/>
       </div>
-      <div/>
-      <div>
+      <div style="grid-row: 2;">
         <xul:label value="&serverName.label;" accesskey="&serverName.accesskey;"
                    control="server.realHostName"/>
       </div>
-      <div>
+      <div style="grid-row: 2;">
         <xul:label id="fixedServerName" collapsed="true" use="server.realHostName"/>
         <xul:textbox id="server.realHostName"
                      wsm_persist="true"
@@ -60,25 +60,25 @@
                      prefstring="mail.server.%serverkey%.realhostname"
                      class="uri-element textbox-flex"/>
       </div>
-      <div>
-        <xul:label hidefor="movemail" value="&port.label;"
+      <div hidefor="movemail" style="grid-row: 2;">
+        <xul:label value="&port.label;"
                    accesskey="&port.accesskey;" control="server.port"/>
-        <xul:label id="fixedServerPort" hidefor="movemail"
+        <xul:label id="fixedServerPort"
                    collapsed="true" use="server.port"/>
         <html:input id="server.port" type="number" class="size3"
                     min="1" max="65535"
                     wsm_persist="true"
-                    preftype="int" hidefor="movemail"
+                    preftype="int"
                     prefstring="mail.server.%serverkey%.port"/>
-        <xul:label value="&serverPortDefault.label;" hidefor="movemail"/>
-        <xul:label id="defaultPort" hidefor="movemail"/>
+        <xul:label value="&serverPortDefault.label;"/>
+        <xul:label id="defaultPort"/>
       </div>
-      <div hidefor="nntp">
+      <div hidefor="nntp" style="grid-row: 3;">
         <xul:label value="&userName.label;"
                    accesskey="&userName.accesskey;"
                    control="server.realUsername"/>
       </div>
-      <div hidefor="nntp">
+      <div hidefor="nntp" style="grid-row: 3;">
         <xul:label id="fixedUserName" collapsed="true" use="server.realUsername"/>
         <xul:textbox id="server.realUsername"
                      wsm_persist="true"
@@ -87,7 +87,6 @@
                      class="textbox-flex"
                      prefstring="mail.server.%serverkey%.realusername"/>
       </div>
-      <div/>
     </div>
 
     <separator class="thin"/>
