@@ -107,30 +107,3 @@ treechildren::-moz-tree-image(correspondentCol) {
 #multimessage {
   background-color: -moz-Field;
 }
-
-/* ..... status bar adjustments ..... */
-
-#quotaMeter {
-  min-width: 4em;
-  max-width: 4em;
-  border: 1px solid ThreeDShadow;
-}
-
-#quotaPanel .progress-bar {
-  -moz-appearance: none;
-  background-color: #88AAFF;
-  opacity: .5;
-}
-
-#quotaPanel[alert="warning"] .progress-bar {
-  background-color: orange;
-}
-
-#quotaPanel[alert="critical"] .progress-bar {
-  background-color: red;
-  opacity: .6;
-}
-
-#quotaLabel {
-  text-align: center;
-}

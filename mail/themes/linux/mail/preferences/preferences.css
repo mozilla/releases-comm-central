@@ -61,14 +61,13 @@ menulist > menupopup > menuitem > .menu-iconic-left {
 /* Quota meter in Folder Properties */
 
 #quotaPercentageBar {
-  -moz-appearance: none;
-  border: 1px solid ThreeDShadow;
+  border-color: ThreeDShadow;
 }
 
-#quotaPercentageBar > .progress-bar {
+::-moz-progress-bar {
   -moz-appearance: none;
-  background-color: #88AAFF;
-  opacity: .5;
+  background-color: #45a1ff;
+  opacity: .75;
 }
 
 /* Cookies Manager */

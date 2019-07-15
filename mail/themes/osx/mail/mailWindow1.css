@@ -181,12 +181,6 @@ treechildren::-moz-tree-cell-text(dummy) {
   border-bottom: 4px solid highlight;
 }
 
-/* ..... status bar adjustments ..... */
-
-#quotaMeter {
-  -moz-appearance: none;
-}
-
 .tabmail-tab[type="message"][IsFeedMessage] {
   list-style-image: url("chrome://messenger-newsblog/skin/rss-feed.png");
   -moz-image-region: rect(16px 16px 32px 0);

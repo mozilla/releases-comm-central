@@ -169,10 +169,6 @@ treechildren::-moz-tree-cell-text(dummy) {
 
 /* ..... status bar adjustments ..... */
 
-#quotaMeter {
-  -moz-appearance: none;
-}
-
 #threadTree > treechildren::-moz-tree-row(odd) {
   background-color: transparent;
 }

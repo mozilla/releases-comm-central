@@ -2,9 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
-@namespace html url("http://www.w3.org/1999/xhtml");
-
 :root {
   --autocomplete-popup-background: -moz-field;
   --autocomplete-popup-color: -moz-fieldtext;
@@ -278,6 +275,36 @@ statusbarpanel,
 
 #offline-status[offline="true"] {
   list-style-image: url("chrome://messenger/skin/icons/offline.png");
+}
+
+/* ..... status bar adjustments ..... */
+
+#quotaMeter {
+  min-width: 8em;
+  max-width: 8em;
+  border-color: ThreeDShadow;
+}
+
+#quotaPanel ::-moz-progress-bar {
+  -moz-appearance: none;
+  background-color: #45a1ff;
+  opacity: .75;
+}
+
+#quotaPanel[alert="warning"] ::-moz-progress-bar {
+  background-color: orange;
+}
+
+#quotaPanel[alert="critical"] ::-moz-progress-bar {
+  background-color: red;
+  opacity: .6;
+}
+
+#quotaLabel {
+  text-align: center;
+  margin-top: -1px;
+  margin-bottom: -1px;
+  color: black;
 }
 
 /* ::::: searchTermOverlay ::::: */

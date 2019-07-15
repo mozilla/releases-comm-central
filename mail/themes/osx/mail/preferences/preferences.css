@@ -80,14 +80,13 @@ tabpanels {
 /* Quota meter in Folder Properties */
 
 #quotaPercentageBar {
-  -moz-appearance: none;
-  border: 1px solid #8B8B8B;
+  border-color: #8b8b8b;
 }
 
-#quotaPercentageBar > .progress-bar {
+::-moz-progress-bar {
   -moz-appearance: none;
-  background-color: #88AAFF;
-  opacity: .5;
+  background-color: #45a1ff;
+  opacity: .75;
 }
 
 /* Attachments */
