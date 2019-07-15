@@ -1775,8 +1775,7 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow *aWindow) {
           rv = bundle->GetStringFromName("autoCompactNeverAskCheckbox",
                                          checkboxText);
           NS_ENSURE_SUCCESS(rv, rv);
-          rv = bundle->GetStringFromName("proceedButton",
-                                         buttonCompactNowText);
+          rv = bundle->GetStringFromName("proceedButton", buttonCompactNowText);
           NS_ENSURE_SUCCESS(rv, rv);
           bool neverAsk = false;  // "Do not ask..." - unchecked by default.
           int32_t buttonPressed = 0;
