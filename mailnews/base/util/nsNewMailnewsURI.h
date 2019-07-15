@@ -11,6 +11,5 @@
 
 nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
                            const char* aCharset /* = nullptr */,
-                           nsIURI* aBaseURI /* = nullptr */,
-                           nsIIOService* aIOService /* = nullptr */);
+                           nsIURI* aBaseURI /* = nullptr */);
 #endif
