@@ -104,17 +104,17 @@ function showPane(paneID) {
  *
  * @param prefWindow          the prefwindow element to operate on
  * @param paneID              ID of prefpane to select
- * @param tabID               ID of tab to select on the prefpane
+ * @param scrollPaneTo        ID of the element to scroll into view
  * @param otherArgs.subdialog ID of button to activate, opening a subdialog
  */
-function selectPaneAndTab(prefWindow, paneID, tabID, otherArgs) {
+function selectPrefPane(prefWindow, paneID, scrollPaneTo, otherArgs) {
   if (paneID) {
     let prefPane = document.getElementById(paneID);
     if (getCurrentPaneID() != paneID) {
       showPane(paneID);
     }
-    if (tabID) {
-      showTab(prefPane, tabID, otherArgs ? otherArgs.subdialog : undefined);
+    if (scrollPaneTo) {
+      showTab(prefPane, scrollPaneTo, otherArgs ? otherArgs.subdialog : undefined);
     }
   }
 }
@@ -123,11 +123,11 @@ function selectPaneAndTab(prefWindow, paneID, tabID, otherArgs) {
  * Select the specified tab
  *
  * @param pane         prefpane to operate on
- * @param tabID        ID of tab to select on the prefpane
+ * @param scrollPaneTo ID of the element to scroll into view
  * @param subdialogID  ID of button to activate, opening a subdialog
  */
-function showTab(pane, tabID, subdialogID) {
-  pane.querySelector("tabbox").selectedTab = document.getElementById(tabID);
+function showTab(pane, scrollPaneTo, subdialogID) {
+  document.getElementById(scrollPaneTo).scrollIntoView();
   if (subdialogID) {
     setTimeout(function() {
       document.getElementById(subdialogID).click();

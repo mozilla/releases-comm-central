@@ -953,7 +953,7 @@ function AddTag() {
 }
 
 function ManageTags() {
-  openOptionsDialog("paneDisplay", "tagTab");
+  openOptionsDialog("paneGeneral", "tagsCategory");
 }
 
 function AddTagCallback(name, color) {
@@ -2892,9 +2892,7 @@ function allowRemoteContentForAll(aListNode) {
  * Displays fine-grained, per-site preferences for remote content.
  */
 function editRemoteContentSettings() {
-  openOptionsDialog("panePrivacy");
-  if (!Services.prefs.getBoolPref("browser.preferences.instantApply"))
-    ReloadMessage();
+  openOptionsDialog("panePrivacy", "privacySecurityCategory");
 }
 
 /**
@@ -2909,13 +2907,9 @@ function IgnorePhishingWarning() {
 
 /**
  *  Open the preferences dialog to allow disabling the scam feature.
- *  The dialog window will take care of reloading the message when
- *  invoked in instantApply mode.
  */
 function OpenPhishingSettings() {
-  openOptionsDialog("paneSecurity", "phishingTab");
-  if (!Services.prefs.getBoolPref("browser.preferences.instantApply"))
-    ReloadMessage();
+  openOptionsDialog("panePrivacy", "privacySecurityCategory");
 }
 
 function setMsgHdrPropertyAndReload(aProperty, aValue) {

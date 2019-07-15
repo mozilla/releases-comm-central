@@ -2223,7 +2223,7 @@ function manageAttachmentNotification(aForce = false) {
   let msg = document.createXULElement("hbox");
   msg.setAttribute("flex", "100");
   msg.onclick = function(event) {
-    openOptionsDialog("paneCompose", "generalTab",
+    openOptionsDialog("paneCompose", "compositionAttachmentsCategory",
                       {subdialog: "attachment_reminder_button"});
   };
 

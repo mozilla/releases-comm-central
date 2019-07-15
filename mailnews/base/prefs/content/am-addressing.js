@@ -50,12 +50,12 @@ function quoteEnabling() {
  * Open the Preferences dialog on the tab with Addressing options.
  */
 function showGlobalAddressingPrefs() {
-  openPrefsFromAccountManager("paneCompose", "addressingTab", null, "addressing_pane");
+  openPrefsFromAccountManager("paneCompose", "compositionAddressingCategory", null, "addressing_pane");
 }
 
 /**
  * Open the Preferences dialog on the tab with Composing options.
  */
 function showGlobalComposingPrefs() {
-  openPrefsFromAccountManager("paneCompose", "generalTab", null, "composing_messages_pane");
+  openPrefsFromAccountManager("paneCompose", null, null, "composing_messages_pane");
 }

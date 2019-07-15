@@ -215,7 +215,7 @@ var gBigFileObserver = {
       if (args.ok)
         account = accounts[args.selected];
     } else {
-      openPreferencesTab("paneApplications", "attachmentsOutTab");
+      openPreferencesTab("paneApplications", "compositionAttachmentsCategory");
       return true;
     }
 

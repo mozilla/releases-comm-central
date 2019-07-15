@@ -285,5 +285,5 @@ function buildServerFilterListFromDir(aDir, aExistingEntries) {
  * Open the Preferences dialog on the Junk settings tab.
  */
 function showGlobalJunkPrefs() {
-  openPrefsFromAccountManager("paneSecurity", "junkTab", null, "junk_pane");
+  openPrefsFromAccountManager("panePrivacy", "privacyJunkCategory", null, "junk_pane");
 }

@@ -276,20 +276,20 @@ function openContentTab(url, where, handlerRegExp) {
 /**
  * Open the preferences page for the specified query in a new tab.
  *
- * @param paneID     ID of prefpane to select automatically.
- * @param tabID      ID of tab to select on the prefpane.
- * @param otherArgs  other prefpane specific arguments.
+ * @param paneID       ID of prefpane to select automatically.
+ * @param scrollPaneTo ID of the element to scroll into view.
+ * @param otherArgs    other prefpane specific arguments.
  */
-function openPreferencesTab(paneID, tabID, otherArgs) {
+function openPreferencesTab(paneID, scrollPaneTo, otherArgs) {
   let url = "about:preferences";
   let params = {
     contentPage: url,
     paneID,
-    tabID,
+    scrollPaneTo,
     otherArgs,
     onLoad(aEvent, aBrowser) {
       let prefWindow = aBrowser.contentDocument.getElementById("MailPreferences");
-      aBrowser.contentWindow.selectPaneAndTab(prefWindow, paneID, tabID, otherArgs);
+      aBrowser.contentWindow.selectPrefPane(prefWindow, paneID, scrollPaneTo, otherArgs);
     },
   };
   openTab("preferencesTab", params);

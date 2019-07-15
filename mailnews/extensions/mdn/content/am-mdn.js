@@ -143,6 +143,6 @@ function disableIfLocked(prefstrArray) {
  * the global receipts settings can be found.
  */
 function showGlobalReceipts() {
-  openPrefsFromAccountManager("paneAdvanced", "generalTab",
+  openPrefsFromAccountManager("paneAdvanced", "readingAndDisplayCategory",
                               {subdialog: "showReturnReceipts"}, "receipts_pane");
 }

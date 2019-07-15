@@ -46,7 +46,7 @@ var preferencesTabType = {
       return -1;
     }
     let prefWindow = gPrefTab.browser.contentDocument.getElementById("MailPreferences");
-    gPrefTab.browser.contentWindow.selectPaneAndTab(prefWindow, aArgs.paneID, aArgs.tabID, aArgs.otherArgs);
+    gPrefTab.browser.contentWindow.selectPrefPane(prefWindow, aArgs.paneID, aArgs.tabID, aArgs.otherArgs);
     return document.getElementById("tabmail").tabInfo.indexOf(gPrefTab);
   },
 

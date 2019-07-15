@@ -103,7 +103,7 @@
     <command id="button_delete" oncommand="goDoCommand('button_delete');"/>
     <command id="cmd_selectAll" oncommand="goDoCommand('cmd_selectAll')" disabled="true"/>
     <command id="cmd_preferences"
-             oncommand="openOptionsDialog('paneCompose', 'addressingTab');"/>
+             oncommand="openOptionsDialog('paneCompose', 'compositionAddressingCategory');"/>
 #ifdef XP_MACOSX
     <!-- Mac Window menu -->
     <command id="minimizeWindow" label="&minimizeWindow.label;" oncommand="window.minimize();"/>

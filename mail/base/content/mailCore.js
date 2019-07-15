@@ -460,12 +460,12 @@ function toSanitize() {
 /**
  * Opens the Preferences (Options) dialog.
  *
- * @param aPaneID     ID of prefpane to select automatically.
- * @param aTabID      ID of tab to select on the prefpane.
- * @param aOtherArgs  other prefpane specific arguments
+ * @param aPaneID       ID of prefpane to select automatically.
+ * @param aScrollPaneTo ID of the element to scroll into view.
+ * @param aOtherArgs    other prefpane specific arguments
  */
-function openOptionsDialog(aPaneID, aTabID, aOtherArgs) {
-  openPreferencesTab(aPaneID, aTabID, aOtherArgs);
+function openOptionsDialog(aPaneID, aScrollPaneTo, aOtherArgs) {
+  openPreferencesTab(aPaneID, aScrollPaneTo, aOtherArgs);
 }
 
 function openAddonsMgr(aView) {
