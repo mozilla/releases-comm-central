@@ -700,7 +700,7 @@ var DefaultController = {
           if (!gFolderDisplay.selectedMessageThreadIgnored) {
             ShowIgnoredMessageNotification(gFolderDisplay.selectedMessages, false);
           } else {
-            this.notificationbox.removeTransientNotifications();
+            FolderPaneController.notificationbox.removeTransientNotifications();
           }
         }
         // kill thread kills the thread and then does a next unread
@@ -711,7 +711,7 @@ var DefaultController = {
           if (!gFolderDisplay.selectedMessageSubthreadIgnored) {
             ShowIgnoredMessageNotification(gFolderDisplay.selectedMessages, true);
           } else {
-            this.notificationbox.removeTransientNotifications();
+            FolderPaneController.notificationbox.removeTransientNotifications();
           }
         }
         GoNextMessage(Ci.nsMsgNavigationType.toggleSubthreadKilled, true);
