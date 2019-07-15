@@ -338,14 +338,17 @@
 
     <menuseparator id="paneContext-afterMove"/>
     <menuitem id="mailContext-ignoreThread"
+              type="checkbox"
               label="&contextKillThreadMenu.label;"
               accesskey="&contextKillThreadMenu.accesskey;"
               command="cmd_killThread"/>
     <menuitem id="mailContext-ignoreSubthread"
+              type="checkbox"
               label="&contextKillSubthreadMenu.label;"
               accesskey="&contextKillSubthreadMenu.accesskey;"
               command="cmd_killSubthread"/>
     <menuitem id="mailContext-watchThread"
+              type="checkbox"
               label="&contextWatchThreadMenu.label;"
               accesskey="&contextWatchThreadMenu.accesskey;"
               command="cmd_watchThread"/>
