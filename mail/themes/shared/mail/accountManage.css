@@ -9,8 +9,6 @@
 @import url("chrome://messenger/skin/");
 @import url("chrome://messenger/content/bindings.css");
 
-@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
-
 /* ::::: account manager :::::: */
 
 .specialFolderPickerGrid {
@@ -86,4 +84,20 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
   margin: 0 !important;
   font-size: larger;
   font-weight: bold;
+}
+
+input[type="number"] {
+  margin-inline-start: 4px;
+}
+input[type="number"].size2 {
+  width: calc(2ch + 30px);
+}
+input[type="number"].size3 {
+  width: calc(3ch + 30px);
+}
+input[type="number"].size4 {
+  width: calc(4ch + 30px);
+}
+input[type="number"].size5 {
+  width: calc(5ch + 30px);
 }
