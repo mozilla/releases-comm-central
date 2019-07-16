@@ -92,8 +92,8 @@ function testDefaultAlarms() {
 
 function handlePrefTab(tab) {
     let { replaceText } = helpersForController(controller);
-    // Click on the alarms tab.
-    content_tab_e(tab, "calPreferencesTabAlarms").click();
+    // Scroll to the reminder groupbox
+    content_tab_e(tab, "defaultsnoozelength").scrollIntoView();
 
     // Turn on alarms for events and tasks.
     menulistSelect(content_tab_eid(tab, "eventdefalarm"), "1", controller);

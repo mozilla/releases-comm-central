@@ -92,7 +92,7 @@ function assert_fonts_equal(aDescription, aExpected, aActual, aPrefix = false) {
  */
 function _verify_fonts_displayed(aDefaults, aSerif, aSansSerif, aMonospace) {
   // Bring up the preferences window.
-  let prefTab = open_pref_tab("paneDisplay");
+  let prefTab = open_pref_tab("paneGeneral");
 
   let isSansDefault = (Services.prefs.getCharPref("font.default." + kLanguage) ==
                        "sans-serif");

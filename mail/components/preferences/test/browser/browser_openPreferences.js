@@ -26,42 +26,8 @@ add_task(async () => {
   await closePrefsTab();
 
   // … even with a value in the XULStore.
-  await openNewPrefsTab("paneAdvanced");
-  is(getStoredLastSelected(), "paneAdvanced");
-
-  await closePrefsTab();
-});
-
-add_task(async () => {
-  // Check that openPreferencesTab with no second argument opens the right tab on a tabbed pane.
-  Services.xulStore.removeDocument("about:preferences");
-  Services.prefs.clearUserPref("mail.preferences.display.selectedTabIndex");
-
-  await openNewPrefsTab("paneDisplay");
-  is(getStoredLastSelected(), "paneDisplay");
-  is(Services.prefs.getIntPref("mail.preferences.display.selectedTabIndex", -1), 0);
-
-  await closePrefsTab();
-});
-
-add_task(async () => {
-  // Check that openPreferencesTab with a second argument opens the right tab on a tabbed pane…
-  Services.xulStore.removeDocument("about:preferences");
-  Services.prefs.clearUserPref("mail.preferences.display.selectedTabIndex");
-
-  let prefsDocument;
-  ({ prefsDocument } = await openNewPrefsTab("paneDisplay", "tagTab"));
-  is(getStoredLastSelected(), "paneDisplay");
-  prefsDocument.getElementById("displayPrefs").selectedTab.id = "tagTab";
-  is(Services.prefs.getIntPref("mail.preferences.display.selectedTabIndex", -1), 1);
-
-  await closePrefsTab();
-
-  // … even with a value in the prefs.
-  ({ prefsDocument } = await openNewPrefsTab("paneDisplay", "displayTab"));
-  is(getStoredLastSelected(), "paneDisplay");
-  prefsDocument.getElementById("displayPrefs").selectedTab.id = "displayTab";
-  is(Services.prefs.getIntPref("mail.preferences.display.selectedTabIndex", -1), 2);
+  await openNewPrefsTab("paneCompose");
+  is(getStoredLastSelected(), "paneCompose");
 
   await closePrefsTab();
 });

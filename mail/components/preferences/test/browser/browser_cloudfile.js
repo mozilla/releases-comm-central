@@ -31,7 +31,7 @@ add_task(async () => {
 
   // Load the preferences tab.
 
-  let { prefsDocument, prefsWindow } = await openNewPrefsTab("paneApplications", "attachmentsOutTab");
+  let { prefsDocument, prefsWindow } = await openNewPrefsTab("paneCompose", "compositionAttachmentsCategory");
 
   // Check everything is as it should be.
 
@@ -282,13 +282,15 @@ add_task(async () => {
 
   // Load the preferences tab.
 
-  let { prefsDocument, prefsWindow } = await openNewPrefsTab("paneApplications", "attachmentsOutTab");
+  let { prefsDocument, prefsWindow } = await openNewPrefsTab("paneCompose", "compositionAttachmentsCategory");
 
   let accountList = prefsDocument.getElementById("cloudFileView");
   is(accountList.itemCount, 0);
 
   let buttonList = prefsDocument.getElementById("addCloudFileAccountButtons");
   ok(!buttonList.hidden);
+  is(buttonList.childElementCount, 2);
+  is(buttonList.children[0].getAttribute("value"), "Mochitest");
 
   let menuButton = prefsDocument.getElementById("addCloudFileAccount");
   ok(menuButton.hidden);

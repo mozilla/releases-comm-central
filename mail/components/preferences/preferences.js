@@ -127,7 +127,11 @@ function selectPrefPane(prefWindow, paneID, scrollPaneTo, otherArgs) {
  * @param subdialogID  ID of button to activate, opening a subdialog
  */
 function showTab(pane, scrollPaneTo, subdialogID) {
-  document.getElementById(scrollPaneTo).scrollIntoView();
+  let scrollTarget = document.getElementById(scrollPaneTo);
+  if (scrollTarget.closest("groupbox")) {
+    scrollTarget = scrollTarget.closest("groupbox");
+  }
+  scrollTarget.scrollIntoView();
   if (subdialogID) {
     setTimeout(function() {
       document.getElementById(subdialogID).click();

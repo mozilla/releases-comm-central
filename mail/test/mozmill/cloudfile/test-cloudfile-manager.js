@@ -75,9 +75,7 @@ function destroy_account(aKey) {
  * case-insensitive)
  */
 function test_load_accounts_and_properly_order() {
-  let prefTab = open_pref_tab("paneApplications");
-  let tabbox = content_tab_e(prefTab, "attachmentPrefs");
-  tabbox.selectedIndex = 1;
+  let prefTab = open_pref_tab("paneCompose");
 
   let richList = content_tab_e(prefTab, "cloudFileView");
   assert_equals(4, richList.itemCount,
@@ -108,9 +106,7 @@ test_external_link.__force_skip__ = true;
 function test_external_link() {
   gMockExtProtSvcReg.register();
 
-  let prefTab = open_pref_tab("paneApplications");
-  let tabbox = content_tab_e(prefTab, "attachmentPrefs");
-  tabbox.selectedIndex = 1;
+  let prefTab = open_pref_tab("paneCompose");
   content_tab_e(prefTab, "cloudFileView").selectedIndex = 0;
 
   let iframe = content_tab_e(prefTab, "cloudFileSettingsWrapper").firstElementChild;

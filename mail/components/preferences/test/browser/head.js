@@ -4,7 +4,7 @@
 
 /* import-globals-from ../../../../base/content/utilityOverlay.js */
 
-async function openNewPrefsTab(paneID, tabID, otherArgs) {
+async function openNewPrefsTab(paneID, scrollPaneTo, otherArgs) {
   let tabmail = document.getElementById("tabmail");
   let prefsTabMode = tabmail.tabModes.preferencesTab;
 
@@ -17,7 +17,7 @@ async function openNewPrefsTab(paneID, tabID, otherArgs) {
         resolve(subject);
       }
     }, "chrome-document-loaded");
-    openPreferencesTab(paneID, tabID, otherArgs);
+    openPreferencesTab(paneID, scrollPaneTo, otherArgs);
   });
   ok(prefsDocument.URL == "about:preferences", "Prefs tab is open");
 
@@ -30,15 +30,12 @@ async function openNewPrefsTab(paneID, tabID, otherArgs) {
       });
     }
 
-    await new Promise(resolve => setTimeout(resolve));
+    await new Promise(resolve => prefsWindow.setTimeout(resolve));
     is(prefsWindow.getCurrentPaneID(), paneID, `Selected pane is ${paneID}`);
-    if (tabID) {
-      is(prefsDocument.querySelector(`#${paneID} tab[selected]`).id, tabID, `Selected tab is ${tabID}`);
-    }
   } else {
     // If we don't wait here for other scripts to run, they
     // could be in a bad state if our test closes the tab.
-    await new Promise(resolve => setTimeout(resolve));
+    await new Promise(resolve => prefsWindow.setTimeout(resolve));
   }
 
   registerCleanupOnce();
@@ -46,7 +43,7 @@ async function openNewPrefsTab(paneID, tabID, otherArgs) {
   return { prefsDocument, prefsWindow };
 }
 
-async function openExistingPrefsTab(paneID, tabID, otherArgs) {
+async function openExistingPrefsTab(paneID, scrollPaneTo, otherArgs) {
   let tabmail = document.getElementById("tabmail");
   let prefsTabMode = tabmail.tabModes.preferencesTab;
 
@@ -58,17 +55,14 @@ async function openExistingPrefsTab(paneID, tabID, otherArgs) {
   if (paneID && prefsWindow.getCurrentPaneID() != paneID) {
     await new Promise(resolve => {
       prefsDocument.addEventListener("paneSelected", resolve, { once: true });
-      openPreferencesTab(paneID, tabID, otherArgs);
+      openPreferencesTab(paneID, scrollPaneTo, otherArgs);
     });
   } else {
-    openPreferencesTab(paneID, tabID, otherArgs);
+    openPreferencesTab(paneID, scrollPaneTo, otherArgs);
   }
 
-  await new Promise(resolve => setTimeout(resolve));
+  await new Promise(resolve => prefsWindow.setTimeout(resolve));
   is(prefsWindow.getCurrentPaneID(), paneID, `Selected pane is ${paneID}`);
-  if (tabID) {
-    is(prefsDocument.querySelector(`#${paneID} tab[selected]`).id, tabID, `Selected tab is ${tabID}`);
-  }
 
   registerCleanupOnce();
 
@@ -105,7 +99,7 @@ async function closePrefsTab() {
  *   enabledElements - an array of CSS selectors (optional)
  *   enabledInverted - if the elements should be disabled when the checkbox is checked (optional)
  */
-async function testCheckboxes(paneID, tabID, ...tests) {
+async function testCheckboxes(paneID, scrollPaneTo, ...tests) {
   for (let initiallyChecked of [true, false]) {
     info(`Opening ${paneID} with prefs set to ${initiallyChecked}`);
 
@@ -121,7 +115,7 @@ async function testCheckboxes(paneID, tabID, ...tests) {
       }
     }
 
-    let { prefsDocument, prefsWindow } = await openNewPrefsTab(paneID, tabID);
+    let { prefsDocument, prefsWindow } = await openNewPrefsTab(paneID, scrollPaneTo);
 
     let testUIState = function(test, checked) {
       let wantedValue = checked;
@@ -181,7 +175,7 @@ async function testCheckboxes(paneID, tabID, ...tests) {
  *     enabledElements - an array of CSS selectors to elements that should be enabled when this
  *                       radio button is selected (optional)
  */
-async function testRadioButtons(paneID, tabID, ...tests) {
+async function testRadioButtons(paneID, scrollPaneTo, ...tests) {
   for (let { pref, states } of tests) {
     for (let initialState of states) {
       info(`Opening ${paneID} with ${pref} set to ${initialState.prefValue}`);
@@ -194,7 +188,7 @@ async function testRadioButtons(paneID, tabID, ...tests) {
         Services.prefs.setCharPref(pref, initialState.prefValue);
       }
 
-      let { prefsDocument, prefsWindow } = await openNewPrefsTab(paneID, tabID);
+      let { prefsDocument, prefsWindow } = await openNewPrefsTab(paneID, scrollPaneTo);
 
       let testUIState = function(currentState) {
         info(`Testing with ${pref} set to ${currentState.prefValue}`);

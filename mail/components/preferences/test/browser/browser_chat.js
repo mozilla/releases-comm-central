@@ -3,7 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 add_task(async () => {
-  await testCheckboxes("paneChat", "chatGeneralTab", {
+  await testCheckboxes("paneChat", "chatPaneCategory", {
     checkboxID: "reportIdle",
     pref: "messenger.status.reportIdle",
     enabledElements: ["#autoAway", "#timeBeforeAway"],
@@ -23,14 +23,14 @@ add_task(async () => {
   });
 
   Services.prefs.setBoolPref("messenger.status.reportIdle", true);
-  await testCheckboxes("paneChat", "chatGeneralTab", {
+  await testCheckboxes("paneChat", "chatPaneCategory", {
     checkboxID: "autoAway",
     pref: "messenger.status.awayWhenIdle",
     enabledElements: ["#defaultIdleAwayMessage"],
   });
 
   Services.prefs.setBoolPref("mail.chat.play_sound", true);
-  await testRadioButtons("paneChat", "chatGeneralTab", {
+  await testRadioButtons("paneChat", "chatPaneCategory", {
     pref: "mail.chat.play_sound.type",
     states: [{
       id: "chatSoundSystemSound",
