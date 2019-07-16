@@ -72,7 +72,7 @@
   <hbox flex="1">
     <vbox id="attendees-container" flex="1" width="250" persist="width">
       <box class="attendee-spacer-top"/>
-      <calendar-event-attendees-list flex="1" id="attendees-list" class="listbox-noborder">
+      <calendar-event-attendees-list flex="1" id="attendees-list" class="listbox-noborder" orient="vertical">
         <richlistitem class="addressingWidgetItem" allowevents="true">
           <hbox class="addressingWidgetCell" width="27" align="center" pack="center">
             <image class="status-icon"/>
@@ -121,12 +121,12 @@
               </hbox>
             </richlistitem>
           </calendar-event-freebusy-timebar>
-          <calendar-event-freebusy-grid flex="1"
-                                        id="freebusy-grid"
+          <calendar-event-freebusy-grid id="freebusy-grid"
+                                        flex="1"
+                                        orient="vertical"
                                         range="16"
                                         class="listbox-noborder"
                                         seltype="multiple"
-                                        rows="-1"
                                         disabled="true">
             <richlistitem class="addressingWidgetItem"
                           allowevents="true">

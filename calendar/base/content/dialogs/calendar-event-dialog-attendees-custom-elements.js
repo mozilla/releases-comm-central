@@ -1407,12 +1407,13 @@ class MozCalendarEventFreebusyRow extends MozXULElement {
         this.offset = 0;
         this.mStartDate = null;
         this.mEndDate = null;
-        this.range = 0;
         this.startHour = 0;
         this.endHour = 24;
         this.mForce24Hours = false;
         this.mZoomFactor = 100;
         this.initTimeRange();
+        // XXX: range should not be taken from an element by id.
+        // Move the range attribute to calendar-event-freebusy-row?
         this.range = Number(document.getElementById("freebusy-grid").getAttribute("range"));
         this.onLoad();
     }

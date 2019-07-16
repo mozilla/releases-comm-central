@@ -298,9 +298,6 @@ label.label {
 #freebusy-grid {
     min-width: 1px;
     -moz-user-focus: normal;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
     overflow: hidden;
 }
 
@@ -626,8 +623,6 @@ calendar-event-freebusy-day > box {
 #attendees-list {
     -moz-user-focus: normal;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
 }
 
 #attendees-list > richlistitem {
@@ -649,10 +644,6 @@ calendar-event-freebusy-day > box {
 
 #attendees-list hbox textbox {
     width: 100%;
-}
-
-.attendees-list-listbox > listboxbody {
-    overflow-y: hidden !important;
 }
 
 .selection-bar-left {
