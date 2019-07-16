@@ -4,7 +4,7 @@
 
 #amServerSetting {
   display: inline-grid;
-  grid-template-columns: max-content auto auto;
+  grid-template-columns: auto auto auto;
 }
 
 #amServerSetting div:not([hidden]) {
