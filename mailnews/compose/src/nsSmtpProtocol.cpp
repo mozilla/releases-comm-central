@@ -1092,7 +1092,6 @@ nsresult nsSmtpProtocol::ProcessAuth() {
       return NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS;
     }
   }
-  // (wrong indentation until here)
 
   (void)ChooseAuthMethod();  // advance m_currentAuthMethod
 
