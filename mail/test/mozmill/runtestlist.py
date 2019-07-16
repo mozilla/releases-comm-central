@@ -57,6 +57,10 @@ class RunTestListOptions(optparse.OptionParser):
                         help="The path to the testing modules directory")
         defaults["testingmodules"] = ""
 
+        # We ignore this argument when passed from automation.
+        self.add_option("--setpref",
+                        action="store", type="string")
+
         self.set_defaults(**defaults)
 
         usage = """\
