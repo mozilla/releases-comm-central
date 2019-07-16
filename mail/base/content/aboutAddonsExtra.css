@@ -52,9 +52,17 @@
 }
 
 #preferencesButton {
- margin-bottom: 36px;
+  margin-bottom: 36px;
 }
 
 .sidebar-footer-button.help-button {
+  display: none;
+}
+
+#nav-header {
+  height: 50px;
+}
+
+#category-plugin {
   display: none;
 }

@@ -12,8 +12,6 @@ messenger.jar:
 #endif
     content/messenger/mailWindow.js                 (content/mailWindow.js)
     content/messenger/messageDisplay.js             (content/messageDisplay.js)
-    content/messenger/extensions.xml                (content/extensions.xml)
-    content/messenger/extensionsOverlay.css         (content/extensionsOverlay.css)
     content/messenger/folderDisplay.js              (content/folderDisplay.js)
     content/messenger/foldersummary.js              (content/foldersummary.js)
     content/messenger/mailWindowOverlay.js          (content/mailWindowOverlay.js)
@@ -56,6 +54,7 @@ messenger.jar:
     content/messenger/FilterListDialog.xul          (content/FilterListDialog.xul)
     content/messenger/FilterListDialog.js           (content/FilterListDialog.js)
     content/messenger/specialTabs.js                (content/specialTabs.js)
+    content/messenger/aboutAddonsExtra.css          (content/aboutAddonsExtra.css)
     content/messenger/aboutAddonsExtra.js           (content/aboutAddonsExtra.js)
     content/messenger/aboutDialog-appUpdater.js     (content/aboutDialog-appUpdater.js)
 *   content/messenger/aboutDialog.xul               (content/aboutDialog.xul)

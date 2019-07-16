@@ -11,7 +11,6 @@
   skin/classic/messenger/aboutSupport.css                     (../shared/mail/aboutSupport.css)
   skin/classic/messenger/addressbook/icons/menu.svg           (../shared/mail/icons/menu.svg)
   skin/classic/messenger/downloads/download.svg               (../shared/mail/icons/download.svg)
-  skin/classic/messenger/extensionsOverlay.css                (../shared/mail/extensionsOverlay.css)
   skin/classic/messenger/icons/address.svg                    (../shared/mail/icons/address.svg)
   skin/classic/messenger/icons/addcontact.svg                 (../shared/mail/icons/addcontact.svg)
   skin/classic/messenger/icons/addlist.svg                    (../shared/mail/icons/addlist.svg)

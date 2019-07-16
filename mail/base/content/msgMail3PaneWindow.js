@@ -1830,3 +1830,7 @@ var gDragSpaceObserver = {
     TabsInTitlebar.update();
   },
 };
+
+function promptRemoveExtension(addon) {
+  return { remove: true, report: false };
+}

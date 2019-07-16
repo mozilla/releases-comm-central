@@ -68,6 +68,17 @@ var ExtensionSupport = {
     onUninstalled(ev) {
       this._maybeDelete(ev.id, "uninstall");
     },
+    async listRemoved() {
+      let running = [...legacyExtensions.keys()];
+      let installed = await AddonManager.getAddonsByIDs(running);
+      let runningButNotInstalled = [];
+      for (let i = 0; i < running.length; i++) {
+        if (installed[i] === null) {
+          runningButNotInstalled.push(legacyExtensions.get(running[i]));
+        }
+      }
+      return runningButNotInstalled;
+    },
   },
 
   loadedBootstrapExtensions: bootstrapExtensions,

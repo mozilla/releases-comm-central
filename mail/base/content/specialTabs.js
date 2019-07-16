@@ -282,6 +282,9 @@ var contentTabBaseType = {
     function(aDocument, aTab) {
       // Switch off the context menu.
       aTab.browser.removeAttribute("context");
+      Services.scriptloader.loadSubScript(
+        "chrome://messenger/content/aboutAddonsExtra.js", aDocument.defaultView
+      );
     },
 
     // Let's not mess with about:blank.
@@ -1425,3 +1428,17 @@ var specialTabs = {
     document.getElementById("tabmail").setTabIcon(aTab, aIcon);
   },
 };
+
+let documentObserver = {
+  observe(document) {
+    if (!document.location ||
+        document.location.href != "chrome://mozapps/content/extensions/aboutaddons.html") {
+      return;
+    }
+
+    Services.scriptloader.loadSubScript(
+      "chrome://messenger/content/aboutAddonsExtra.js", document.defaultView
+    );
+  },
+};
+Services.obs.addObserver(documentObserver, "chrome-document-interactive");
