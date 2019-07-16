@@ -431,6 +431,4 @@
            defaultset="button-getmsg,button-newmsg,button-chat,button-address,separator,button-tag,qfb-show-filter-bar,spring,gloda-search,button-appmenu">
 #endif
   </toolbar>
-
-  <toolbarset id="customToolbars" context="toolbar-context-menu"/>
 </toolbox>

@@ -686,7 +686,6 @@
            defaultset="button-newcard,button-newlist,separator,button-editcard,button-newmessage,separator,button-abdelete,spring,search-container">
 #endif
    </toolbar>
-   <toolbarset id="customToolbars" context="toolbar-context-menu"/>
   </toolbox>
 
   <!-- The main address book three pane -->

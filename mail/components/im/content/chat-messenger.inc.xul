@@ -82,7 +82,6 @@
                              label="&appmenuButton.label;"
                              tooltiptext="&appmenuButton1.tooltip;"/>
             </toolbarpalette>
-            <toolbarset id="customChatToolbars" context="chat-toolbar-context-menu"/>
           </toolbox>
 
           <vbox flex="1">

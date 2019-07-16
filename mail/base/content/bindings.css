@@ -6,10 +6,6 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-toolbox {
-  -moz-binding: url("chrome://messenger/content/toolbar.xml#toolbox");
-}
-
 toolbar {
   -moz-binding: url("chrome://messenger/content/toolbar.xml#toolbar");
 }

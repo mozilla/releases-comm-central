@@ -217,9 +217,6 @@ function delayedOnLoadAddressBook() {
   var toolbox = document.getElementById("ab-toolbox");
   toolbox.customizeDone = function(aEvent) { MailToolboxCustomizeDone(aEvent, "CustomizeABToolbar"); };
 
-  var toolbarset = document.getElementById("customToolbars");
-  toolbox.toolbarset = toolbarset;
-
   // Ensure we don't load xul error pages into the main window
   window.docShell.useErrorPages = false;
 

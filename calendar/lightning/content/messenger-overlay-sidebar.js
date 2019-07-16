@@ -771,19 +771,6 @@ function onToolbarsPopupShowingForTabType(aEvent, aInsertPoint) {
     }
     toolboxes.push(toolboxId);
 
-    if (toolboxId == "event-toolbox") {
-        // Clear the event/task tab's toolbox.externalToolbars to prevent
-        // duplicate entries for its toolbar in "Toolbars" menu.
-        // (The cloning and/or moving of this toolbox and toolbar on
-        // openTab causes the toolbar to be added to
-        // toolbox.externalToolbars, in addition to being a child node
-        // of the toolbox, leading to duplicate menu entries.)
-        let eventToolbox = document.getElementById("event-toolbox");
-        if (eventToolbox) {
-            eventToolbox.externalToolbars = [];
-        }
-    }
-
     onViewToolbarsPopupShowing(aEvent, toolboxes, aInsertPoint);
 }
 

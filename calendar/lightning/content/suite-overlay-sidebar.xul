@@ -36,7 +36,4 @@
   <toolbar id="task-actions-toolbar"
            context="toolbar-context-menu"/>
 
-  <toolbarset id="calendarToolbars" context="toolbar-context-menu"/>
-  <toolbarset id="taskToolbars" context="toolbar-context-menu"/>
-
 </overlay>

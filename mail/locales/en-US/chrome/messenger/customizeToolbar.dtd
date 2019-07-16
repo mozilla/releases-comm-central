@@ -12,7 +12,6 @@
 <!ENTITY iconsBesideText.label    "Icons beside Text">
 <!ENTITY useSmallIcons.label      "Use Small Icons">
 <!ENTITY restoreDefaultSet.label  "Restore Default Set">
-<!ENTITY addNewToolbar.label      "Add New Toolbar">
 <!ENTITY showTitlebar.label       "Show Title Bar">
 <!ENTITY extraDragSpace.label     "Add Drag Space">
 <!ENTITY saveChanges.label        "Done">

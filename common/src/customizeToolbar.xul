@@ -90,7 +90,6 @@
 
     <checkbox id="smallicons" oncommand="updateIconSize(this.checked ? 'small' : 'large');" label="&useSmallIcons.label;"/>
 
-    <button id="newtoolbar" label="&addNewToolbar.label;" oncommand="addNewToolbar();" icon="add"/>
     <button id="restoreDefault" label="&restoreDefaultSet.label;" oncommand="restoreDefaultSet();" icon="revert"/>
 #ifndef MOZ_SUITE
     <vbox id="titlebarSettings" hidden="true">

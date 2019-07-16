@@ -70,10 +70,6 @@ function finishToolbarCustomization() {
 }
 
 function initDialog() {
-  if (!gToolbox.toolbarset) {
-    document.getElementById("newtoolbar").hidden = true;
-  }
-
   var mode = gToolbox.getAttribute("mode");
   document.getElementById("modelist").value = mode;
   var smallIconsCheckbox = document.getElementById("smallicons");
@@ -162,36 +158,12 @@ function persistCurrentSets() {
   if (!gToolboxChanged || gToolboxDocument.defaultView.closed)
     return;
 
-  var customCount = 0;
   forEachCustomizableToolbar(function(toolbar) {
     // Calculate currentset and store it in the attribute.
     var currentSet = toolbar.currentSet;
     toolbar.setAttribute("currentset", currentSet);
-
-    var customIndex = toolbar.hasAttribute("customindex");
-    if (customIndex) {
-      if (!toolbar.hasChildNodes()) {
-        // Remove custom toolbars whose contents have been removed.
-        gToolbox.removeChild(toolbar);
-      } else if (gToolbox.toolbarset) {
-        // Persist custom toolbar info on the <toolbarset/>
-        gToolbox.toolbarset.setAttribute("toolbar" + (++customCount),
-                                         toolbar.toolbarName + ":" + currentSet);
-        Services.xulStore.persist(gToolbox.toolbarset, "toolbar" + customCount);
-      }
-    }
-
-    if (!customIndex) {
-      // Persist the currentset attribute directly on hardcoded toolbars.
-      Services.xulStore.persist(toolbar, "currentset");
-    }
+    Services.xulStore.persist(toolbar, "currentset");
   });
-
-  // Remove toolbarX attributes for removed toolbars.
-  while (gToolbox.toolbarset && gToolbox.toolbarset.hasAttribute("toolbar" + (++customCount))) {
-    gToolbox.toolbarset.removeAttribute("toolbar" + customCount);
-    Services.xulStore.persist(gToolbox.toolbarset, "toolbar" + customCount);
-  }
 }
 
 /**
@@ -213,7 +185,13 @@ function wrapToolbarItems() {
 }
 
 function getRootElements() {
-  return [gToolbox].concat(gToolbox.externalToolbars);
+  if (window.frameElement && "externalToolbars" in window.frameElement) {
+    return [gToolbox].concat(window.frameElement.externalToolbars);
+  }
+  if ("arguments" in window && window.arguments[1].length > 0) {
+    return [gToolbox].concat(window.arguments[1]);
+  }
+  return [gToolbox];
 }
 
 /**
@@ -442,59 +420,6 @@ function setDragActive(aItem, aValue) {
   }
 }
 
-function addNewToolbar() {
-  var promptService = Services.prompt;
-  var stringBundle = document.getElementById("stringBundle");
-  var message = stringBundle.getString("enterToolbarName");
-  var title = stringBundle.getString("enterToolbarTitle");
-
-  var name = {};
-
-  // Quitting from the toolbar dialog while the new toolbar prompt is up
-  // can cause things to become unresponsive on the Mac. Until dialog modality
-  // is fixed (395465), disable the "Done" button explicitly.
-  var doneButton = document.getElementById("donebutton");
-  doneButton.disabled = true;
-
-  while (true) {
-    if (!promptService.prompt(window, title, message, name, null, {})) {
-      doneButton.disabled = false;
-      return;
-    }
-
-    if (!name.value) {
-      message = stringBundle.getFormattedString("enterToolbarBlank", [name.value]);
-      continue;
-    }
-
-    var dupeFound = false;
-
-     // Check for an existing toolbar with the same display name
-    for (let i = 0; i < gToolbox.childNodes.length; ++i) {
-      var toolbar = gToolbox.childNodes[i];
-      var toolbarName = toolbar.getAttribute("toolbarname");
-
-      if (toolbarName == name.value &&
-          toolbar.getAttribute("type") != "menubar" &&
-          toolbar.nodeName == "toolbar") {
-        dupeFound = true;
-        break;
-      }
-    }
-
-    if (!dupeFound)
-      break;
-
-    message = stringBundle.getFormattedString("enterToolbarDup", [name.value]);
-  }
-
-  gToolbox.appendCustomToolbar(name.value, "");
-
-  toolboxChanged();
-
-  doneButton.disabled = false;
-}
-
 /**
  * Restore the default set of buttons to fixed toolbars,
  * remove all custom toolbars, and rebuild the palette.
@@ -591,8 +516,13 @@ function updateToolboxProperty(aProp, aValue, aToolkitDefault) {
 }
 
 function forEachCustomizableToolbar(callback) {
+  if (window.frameElement && "externalToolbars" in window.frameElement) {
+    Array.from(window.frameElement.externalToolbars)
+      .filter(isCustomizableToolbar).forEach(callback);
+  } else if ("arguments" in window && window.arguments[1].length > 0) {
+    Array.from(window.arguments[1]).filter(isCustomizableToolbar).forEach(callback);
+  }
   Array.from(gToolbox.childNodes).filter(isCustomizableToolbar).forEach(callback);
-  Array.from(gToolbox.externalToolbars).filter(isCustomizableToolbar).forEach(callback);
 }
 
 function isCustomizableToolbar(aElt) {

@@ -192,12 +192,28 @@ function CustomizeMailToolbar(toolboxId, customizePopupId) {
   var customizeURL = "chrome://messenger/content/customizeToolbar.xul";
   gCustomizeSheet = Services.prefs.getBoolPref("toolbar.customization.usesheet");
 
+  let externalToolbars = [];
+  if (toolbox.getAttribute("id") == "mail-toolbox") {
+    if (document.getElementById("tabbar-toolbar")) {
+      externalToolbars.push(document.getElementById("tabbar-toolbar"));
+    }
+    if (AppConstants.platform != "macosx" && document.getElementById("mail-toolbar-menubar2")) {
+      externalToolbars.push(document.getElementById("mail-toolbar-menubar2"));
+    }
+    if (document.getElementById("folderPane-toolbar")) {
+      externalToolbars.push(document.getElementById("folderPane-toolbar"));
+    }
+  }
+
   if (gCustomizeSheet) {
     var sheetFrame = document.getElementById("customizeToolbarSheetIFrame");
     var panel = document.getElementById("customizeToolbarSheetPopup");
     sheetFrame.hidden = false;
     sheetFrame.toolbox = toolbox;
     sheetFrame.panel = panel;
+    if (externalToolbars.length > 0) {
+      sheetFrame.externalToolbars = externalToolbars;
+    }
 
     // The document might not have been loaded yet, if this is the first time.
     // If it is already loaded, reload it so that the onload initialization code
@@ -220,7 +236,7 @@ function CustomizeMailToolbar(toolboxId, customizePopupId) {
 
     window.openDialog(customizeURL,
                       "CustomizeToolbar" + wintype,
-                      "chrome,all,dependent", toolbox);
+                      "chrome,all,dependent", toolbox, externalToolbars);
   }
 }
 
@@ -327,15 +343,18 @@ function onViewToolbarsPopupShowing(event, toolboxIds, insertPoint,
   for (const toolboxId of toolboxIds) {
     const toolbox = document.getElementById(toolboxId);
 
-    // We consider child nodes that have a toolbarname attribute,
-    // externalToolbars.
+    // We consider child nodes that have a toolbarname attribute.
     const toolbars = Array.from(toolbox.querySelectorAll("[toolbarname]"));
 
-    for (const externalToolbar of toolbox.externalToolbars) {
-      if (externalToolbar.getAttribute("prependmenuitem")) {
-        toolbars.unshift(externalToolbar);
-      } else {
-        toolbars.push(externalToolbar);
+    // Add the folder pane toolbar to the list of toolbars that can be shown and
+    // hidden.
+    if (toolbox.getAttribute("id") === "mail-toolbox") {
+      if (AppConstants.platform != "macosx" &&
+          document.getElementById("mail-toolbar-menubar2")) {
+        toolbars.push(document.getElementById("mail-toolbar-menubar2"));
+      }
+      if (document.getElementById("folderPane-toolbar")) {
+        toolbars.push(document.getElementById("folderPane-toolbar"));
       }
     }
 

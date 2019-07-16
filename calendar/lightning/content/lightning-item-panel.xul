@@ -145,7 +145,6 @@
                    defaultlabelalign="end"
                    context="event-dialog-toolbar-context-menu"
                    defaultset="button-saveandclose,button-attendees,button-privacy,button-url,button-priority,button-status,button-freebusy,button-delete,spring,calendar-item-appmenu-button"/>
-          <toolbarset id="custom-toolbars" context="event-dialog-toolbar-context-menu"/>
         </toolbox>
 
         <iframe id="lightning-item-panel-iframe" flex="1"/>

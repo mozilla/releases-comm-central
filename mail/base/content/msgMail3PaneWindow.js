@@ -304,18 +304,15 @@ function UpdateMailPaneConfig(aMsgWindowInitialized) {
     // new layout by the appendChild() method below.  As described in bug
     // 519956 only elements in the DOM tree are copied to the new place
     // whereas javascript class variables of DOM tree elements get lost.
-    // In this case the ToolboxPalette, Toolbarset first/lastPermanentChild
+    // In this case the ToolboxPalette first/lastPermanentChild
     // are removed which results in the message header pane not being
     // customizable any more.  A workaround for this problem is to clone
     // them first and add them to the DOM tree after the message pane has
     // been moved.
     var cloneToolboxPalette;
-    var cloneToolbarset;
+
     if (hdrToolbox.palette) {
       cloneToolboxPalette = hdrToolbox.palette.cloneNode(true);
-    }
-    if (hdrToolbox.toolbarset) {
-      cloneToolbarset = hdrToolbox.toolbarset.cloneNode(true);
     }
 
     // See Bug 381992. The ctor for the browser element will fire again when we
@@ -333,7 +330,6 @@ function UpdateMailPaneConfig(aMsgWindowInitialized) {
       desiredParent.appendChild(messagePaneBoxWrapper);
     }
     hdrToolbox.palette  = cloneToolboxPalette;
-    hdrToolbox.toolbarset = cloneToolbarset;
     hdrToolbar = document.getElementById("header-view-toolbar");
     hdrToolbar.firstPermanentChild = firstPermanentChild;
     hdrToolbar.lastPermanentChild = lastPermanentChild;
@@ -654,9 +650,6 @@ function LoadPostAccountWizard() {
   // initialize the customizeDone method on the customizeable toolbar
   var toolbox = document.getElementById("mail-toolbox");
   toolbox.customizeDone = function(aEvent) { MailToolboxCustomizeDone(aEvent, "CustomizeMailToolbar"); };
-
-  var toolbarset = document.getElementById("customToolbars");
-  toolbox.toolbarset = toolbarset;
 
   // XXX Do not select the folder until the window displays or the threadpane
   //  will be at minimum size.  We used to have

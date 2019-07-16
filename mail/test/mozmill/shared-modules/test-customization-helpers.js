@@ -107,6 +107,5 @@ CustomizeDialogHelper.prototype = {
     let defaultSet = toolbar.getAttribute("defaultset");
 
     fdh.assert_equals(toolbar.currentSet, defaultSet);
-    fdh.assert_equals(toolbar.getAttribute("currentset"), defaultSet);
   },
 };

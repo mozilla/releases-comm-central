@@ -9,83 +9,6 @@
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
           xmlns:xbl="http://www.mozilla.org/xbl">
 
-  <binding id="toolbox">
-    <implementation>
-      <field name="palette">
-        null
-      </field>
-
-      <field name="toolbarset">
-        null
-      </field>
-
-      <field name="customToolbarCount">
-        0
-      </field>
-
-      <field name="externalToolbars">
-       []
-      </field>
-
-      <!-- Set by customizeToolbar.js -->
-      <property name="customizing">
-        <getter><![CDATA[
-          return this.getAttribute("customizing") == "true";
-        ]]></getter>
-        <setter><![CDATA[
-          if (val)
-            this.setAttribute("customizing", "true");
-          else
-            this.removeAttribute("customizing");
-          return val;
-        ]]></setter>
-      </property>
-
-      <constructor>
-        <![CDATA[
-          // Look to see if there is a toolbarset.
-          this.toolbarset = this.firstChild;
-          while (this.toolbarset && this.toolbarset.localName != "toolbarset")
-            this.toolbarset = this.toolbarset.nextSibling;
-
-          if (this.toolbarset) {
-            // Create each toolbar described by the toolbarset.
-            var index = 0;
-            while (this.toolbarset.hasAttribute("toolbar" + (++index))) {
-              var toolbarInfo = this.toolbarset.getAttribute("toolbar" + index);
-              var infoSplit = toolbarInfo.split(":");
-              this.appendCustomToolbar(infoSplit[0], infoSplit[1]);
-            }
-          }
-        ]]>
-      </constructor>
-
-      <method name="appendCustomToolbar">
-        <parameter name="aName"/>
-        <parameter name="aCurrentSet"/>
-        <body>
-          <![CDATA[
-            if (!this.toolbarset)
-              return null;
-            var toolbar = document.createXULElement("toolbar");
-            toolbar.id = "__customToolbar_" + aName.replace(" ", "_");
-            toolbar.setAttribute("customizable", "true");
-            toolbar.setAttribute("customindex", ++this.customToolbarCount);
-            toolbar.setAttribute("toolbarname", aName);
-            toolbar.setAttribute("currentset", aCurrentSet);
-            toolbar.setAttribute("mode", this.getAttribute("mode"));
-            toolbar.setAttribute("iconsize", this.getAttribute("iconsize"));
-            toolbar.setAttribute("context", this.toolbarset.getAttribute("context"));
-            toolbar.setAttribute("class", "chromeclass-toolbar");
-
-            this.insertBefore(toolbar, this.toolbarset);
-            return toolbar;
-          ]]>
-        </body>
-      </method>
-    </implementation>
-  </binding>
-
   <binding id="toolbar" role="xul:toolbar">
     <implementation>
       <property name="toolbarName"
@@ -109,9 +32,6 @@
                 tbName = "";
               throw new Error(`toolbar ID ${this.id}${tbName}: toolboxid attribute '${toolboxId}' points to a toolbox that doesn't exist`);
             }
-
-            if (!toolbox.externalToolbars.includes(this))
-              toolbox.externalToolbars.push(this);
 
             return this._toolbox = toolbox;
           }

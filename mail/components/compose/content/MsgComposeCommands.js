@@ -3053,9 +3053,6 @@ function ComposeLoad() {
   var toolbox = document.getElementById("compose-toolbox");
   toolbox.customizeDone = function(aEvent) { MailToolboxCustomizeDone(aEvent, "CustomizeComposeToolbar"); };
 
-  var toolbarset = document.getElementById("customToolbars");
-  toolbox.toolbarset = toolbarset;
-
   awInitializeNumberOfRowsShown();
   updateAttachmentPane();
   attachmentBucketMarkEmptyBucket();

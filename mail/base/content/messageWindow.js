@@ -402,9 +402,6 @@ function delayedOnLoadMessageWindow() {
   var toolbox = document.getElementById("mail-toolbox");
   toolbox.customizeDone = function(aEvent) { MailToolboxCustomizeDone(aEvent, "CustomizeMailToolbar"); };
 
-  var toolbarset = document.getElementById("customToolbars");
-  toolbox.toolbarset = toolbarset;
-
   SetupCommandUpdateHandlers();
 
   gMessageDisplay = new StandaloneMessageDisplayWidget();
