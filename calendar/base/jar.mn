@@ -13,7 +13,6 @@ calendar.jar:
     content/calendar/calendar-clipboard.js                 (content/calendar-clipboard.js)
     content/calendar/calendar-common-sets.xul              (content/calendar-common-sets.xul)
     content/calendar/calendar-common-sets.js               (content/calendar-common-sets.js)
-    content/calendar/calendar-daypicker.xml                (content/calendar-daypicker.xml)
     content/calendar/calendar-event-gripbar.js             (content/calendar-event-gripbar.js)
     content/calendar/calendar-event-column.js              (content/calendar-event-column.js)
     content/calendar/calendar-views.js                     (content/calendar-views.js)
