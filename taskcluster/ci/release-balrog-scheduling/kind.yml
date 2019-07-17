@@ -32,12 +32,12 @@ jobs:
                     production:
                         by-release-type:
                             beta: [43]
-                            release: [820]
+                            release: [906]
                             default: []
                     staging:
                         by-release-type:
                             beta: [43]
-                            release: [729]
+                            release: [878]
                             default: []
         treeherder:
             platform: thunderbird-release/opt

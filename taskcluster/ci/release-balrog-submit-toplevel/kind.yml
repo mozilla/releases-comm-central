@@ -43,7 +43,7 @@ jobs:
             rules-to-update:
                 by-release-type:
                     beta: ["thunderbird-beta-cdntest", "thunderbird-beta-localtest"]
-                    release: ["thunderbird-release60-cdntest", "thunderbird-release60-localtest"]
+                    release: ["thunderbird-release68-cdntest", "thunderbird-release68-localtest"]
                     default: []
             platforms: ["linux", "linux64", "macosx64", "win32", "win64"]
         treeherder:
