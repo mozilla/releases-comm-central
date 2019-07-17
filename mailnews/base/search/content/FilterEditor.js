@@ -338,7 +338,7 @@ function initializeDialog(filter) {
   for (let actionIndex = 0; actionIndex < numActions; actionIndex++) {
     let filterAction = filter.getActionAt(actionIndex);
 
-    let newActionRow = document.createXULElement("richlistitem");
+    let newActionRow = document.createXULElement("richlistitem", { "is": "ruleaction-richlistitem" });
     newActionRow.setAttribute("initialActionIndex", actionIndex);
     newActionRow.className = "ruleaction";
     gFilterActionList.appendChild(newActionRow);
@@ -356,7 +356,7 @@ function initializeDialog(filter) {
 function ensureActionRow() {
   // make sure we have at least one action row visible to the user
   if (!gFilterActionList.getRowCount()) {
-    let newActionRow = document.createXULElement("richlistitem");
+    let newActionRow = document.createXULElement("richlistitem", { "is": "ruleaction-richlistitem" });
     newActionRow.className = "ruleaction";
     gFilterActionList.appendChild(newActionRow);
     newActionRow.mRemoveButton.disabled = true;
@@ -535,8 +535,25 @@ function _checkActionsReorder() {
 function showActionsOrder() {
   // Fetch the actions and arguments as a string.
   let actionStrings = [];
-  for (let index = 0; index < gFilterActionList.itemCount; index++)
-    gFilterActionList.getItemAtIndex(index).getActionStrings(actionStrings);
+  for (let i = 0; i < gFilterActionList.itemCount; i++) {
+    let ruleAction = gFilterActionList.getItemAtIndex(i);
+    let actionTarget = ruleAction.childNodes[1];
+    let actionItem = actionTarget.ruleactiontargetElement;
+    let actionItemLabel = actionItem && actionItem.childNodes[0].label;
+
+    let actionString = {
+      label: ruleAction.mRuleActionType.label,
+      argument: "",
+    };
+    if (actionItem) {
+      if (actionItemLabel) {
+        actionString.argument = actionItemLabel;
+      } else {
+        actionString.argument = actionItem.childNodes[0].value;
+      }
+    }
+    actionStrings.push(actionString);
+  }
 
   // Present a nicely formatted list of action names and arguments.
   let actionList = gFilterBundle.getString("filterActionOrderExplanation");

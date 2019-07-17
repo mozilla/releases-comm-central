@@ -3,9 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global MozXULElement, gFilter, gFilterList, onEnterInSearchTerm, convertDateToString, initializeTermFromId,
-   convertPRTimeToString, convertStringToPRTime, UpdateAfterCustomHeaderChange, checkActionsReorder,
-   initializeTermFrom, IdcheckActionsReorder, getScopeFromFilterList, gCustomActions, gFilterType */
+/* global MozXULElement */
+
+/* import-globals-from FilterEditor.js */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
@@ -240,15 +240,17 @@ class MozSearchMenulistAbstract extends MozXULElement {
   }
 
   connectedCallback() {
-    if (!this.hasChildNodes()) {
-      this.menulist = document.createXULElement("menulist");
-      this.menulist.classList.add("search-menulist");
-      this.menulist.addEventListener("command", this.onSelect.bind(this));
-      this.menupopup = document.createXULElement("menupopup");
-      this.menupopup.classList.add("search-menulist-popup");
-      this.menulist.appendChild(this.menupopup);
-      this.appendChild(this.menulist);
+    if (this.delayConnectedCallback() || this.hasChildNodes()) {
+      return;
     }
+
+    this.menulist = document.createXULElement("menulist");
+    this.menulist.classList.add("search-menulist");
+    this.menulist.addEventListener("command", this.onSelect.bind(this));
+    this.menupopup = document.createXULElement("menupopup");
+    this.menupopup.classList.add("search-menulist-popup");
+    this.menulist.appendChild(this.menupopup);
+    this.appendChild(this.menulist);
     this._updateAttributes();
   }
 
@@ -628,7 +630,7 @@ class MozSearchValue extends MozXULElement {
   }
 
   connectedCallback() {
-    if (this.delayConnectedCallback()) {
+    if (this.delayConnectedCallback() || this.hasChildNodes()) {
       return;
     }
 
@@ -1128,7 +1130,7 @@ customElements.whenDefined("menulist").then(() => {
     }
 
     addCustomActions() {
-      var menupopup = this.menupopup;
+      let menupopup = this.menupopup;
       for (let i = 0; i < gCustomActions.length; i++) {
         let customAction = gCustomActions[i];
         let menuitem = document.createXULElement("menuitem");
@@ -1149,7 +1151,7 @@ customElements.whenDefined("menulist").then(() => {
     usedActionsList() {
       let usedActions = {};
       let currentFilterActionRow = this.parentNode;
-      let listBox = currentFilterActionRow.mListBox; // need to account for the list item.
+      let listBox = currentFilterActionRow.parentNode; // need to account for the list item.
       // Now iterate over each list item in the list box.
       for (let index = 0; index < listBox.getRowCount(); index++) {
         let filterActionRow = listBox.getItemAtIndex(index);
@@ -1253,3 +1255,302 @@ customElements.whenDefined("menulist").then(() => {
   customElements.define("ruleactiontype-menulist", MozRuleactiontypeMenulist,
     { extends: "menulist" });
 });
+
+/**
+ * The MozRuleactionRichlistitem is a widget which gives the options to filter
+ * the messages with following elements: ruleactiontype-menulist, ruleactiontarget-wrapper
+ * and button to add or remove the MozRuleactionRichlistitem. It gets added in the
+ * filterActionList richlistbox in the Filter Editor dialog.
+ *
+ * @extends {MozElements.MozRichlistitem}
+ */
+class MozRuleactionRichlistitem extends MozElements.MozRichlistitem {
+  static get inheritedAttributes() {
+    return { ".ruleactiontarget": "type=value" };
+  }
+
+  constructor() {
+    super();
+
+    this.mActionTypeInitialized = false;
+    this.mRuleActionTargetInitialized = false;
+  }
+
+  connectedCallback() {
+    if (this.delayConnectedCallback() || this.hasChildNodes()) {
+      return;
+    }
+    this.setAttribute("is", "ruleaction-richlistitem");
+    this.appendChild(MozXULElement.parseXULToFragment(`
+      <menulist is="ruleactiontype-menulist" flex="&filterActionTypeFlexValue;">
+        <menupopup>
+          <menuitem label="&moveMessage.label;" value="movemessage" enablefornews="false"></menuitem>
+          <menuitem label="&copyMessage.label;" value="copymessage"></menuitem>
+          <menuseparator enablefornews="false"></menuseparator>
+          <menuitem label="&forwardTo.label;" value="forwardmessage" enablefornews="false"></menuitem>
+          <menuitem label="&replyWithTemplate.label;" value="replytomessage" enablefornews="false"></menuitem>
+          <menuseparator></menuseparator>
+          <menuitem label="&markMessageRead.label;" value="markasread"></menuitem>
+          <menuitem label="&markMessageUnread.label;" value="markasunread"></menuitem>
+          <menuitem label="&markMessageStarred.label;" value="markasflagged"></menuitem>
+          <menuitem label="&setPriority.label;" value="setpriorityto"></menuitem>
+          <menuitem label="&addTag.label;" value="addtagtomessage"></menuitem>
+          <menuitem label="&setJunkScore.label;" value="setjunkscore" enablefornews="false"></menuitem>
+          <menuseparator enableforpop3="true"></menuseparator>
+          <menuitem label="&deleteMessage.label;" value="deletemessage"></menuitem>
+          <menuitem label="&deleteFromPOP.label;" value="deletefrompopserver" enableforpop3="true"></menuitem>
+          <menuitem label="&fetchFromPOP.label;" value="fetchfrompopserver" enableforpop3="true"></menuitem>
+          <menuseparator></menuseparator>
+          <menuitem label="&ignoreThread.label;" value="ignorethread"></menuitem>
+          <menuitem label="&ignoreSubthread.label;" value="ignoresubthread"></menuitem>
+          <menuitem label="&watchThread.label;" value="watchthread"></menuitem>
+          <menuseparator></menuseparator>
+          <menuitem label="&stopExecution.label;" value="stopexecution"></menuitem>
+        </menupopup>
+      </menulist>
+      <ruleactiontarget-wrapper class="ruleactiontarget" flex="&filterActionTargetFlexValue;"></ruleactiontarget-wrapper>
+      <hbox>
+        <button class="small-button" label="+" tooltiptext="&addAction.tooltip;" oncommand="this.parentNode.parentNode.addRow();"></button>
+        <button class="small-button remove-small-button" label="−" tooltiptext="&removeAction.tooltip;" oncommand="this.parentNode.parentNode.removeRow();"></button>
+      </hbox>
+    `, [
+        "chrome://messenger/locale/messenger.dtd",
+        "chrome://messenger/locale/FilterEditor.dtd",
+      ]));
+
+    this.mRuleActionType = this.querySelector("menulist");
+    this.mRemoveButton = this.querySelector(".remove-small-button");
+    this.mListBox = this.parentNode;
+    this.initializeAttributeInheritance();
+  }
+
+  set selected(val) {
+    // This provides a dummy selected property that the richlistbox expects to
+    // be able to call. See bug 202036.
+  }
+
+  get selected() {
+    return false;
+  }
+
+  _fireEvent(aName) {
+    // This provides a dummy _fireEvent function that the richlistbox expects to
+    // be able to call. See bug 202036.
+  }
+
+  /**
+   * We should only remove the initialActionIndex after we have been told that
+   * both the rule action type and the rule action target have both been built
+   * since they both need this piece of information. This complication arises
+   * because both of these child elements are getting bound asynchronously
+   * after the search row has been constructed.
+   */
+  clearInitialActionIndex() {
+    if (this.mActionTypeInitialized && this.mRuleActionTargetInitialized) {
+      this.removeAttribute("initialActionIndex");
+    }
+  }
+
+  initWithAction(aFilterAction) {
+    let filterActionStr;
+    let actionTarget = this.childNodes[1];
+    let actionItem = actionTarget.ruleactiontargetElement;
+    let nsMsgFilterAction = Ci.nsMsgFilterAction;
+    switch (aFilterAction.type) {
+      case nsMsgFilterAction.Custom:
+        filterActionStr = aFilterAction.customId;
+        if (actionItem) {
+          actionItem.childNodes[0].value = aFilterAction.strValue;
+        }
+
+        // Make sure the custom action has been added. If not, it
+        // probably was from an extension that has been removed. We'll
+        // show a dummy menuitem to warn the user.
+        let needCustomLabel = true;
+        for (let i = 0; i < gCustomActions.length; i++) {
+          if (gCustomActions[i].id == filterActionStr) {
+            needCustomLabel = false;
+            break;
+          }
+        }
+        if (needCustomLabel) {
+          let menuitem = document.createXULElement("menuitem");
+          menuitem.setAttribute("label",
+            gFilterBundle.getString("filterMissingCustomAction"));
+          menuitem.setAttribute("value", filterActionStr);
+          menuitem.disabled = true;
+          this.mRuleActionType.menupopup.appendChild(menuitem);
+          let scriptError = Cc["@mozilla.org/scripterror;1"]
+            .createInstance(Ci.nsIScriptError);
+          scriptError.init("Missing custom action " + filterActionStr,
+            null, null, 0, 0,
+            Ci.nsIScriptError.errorFlag,
+            "component javascript");
+          Services.console.logMessage(scriptError);
+        }
+        break;
+      case nsMsgFilterAction.MoveToFolder:
+      case nsMsgFilterAction.CopyToFolder:
+        actionItem.childNodes[0].value = aFilterAction.targetFolderUri;
+        break;
+      case nsMsgFilterAction.Reply:
+      case nsMsgFilterAction.Forward:
+        actionItem.childNodes[0].value = aFilterAction.strValue;
+        break;
+      case nsMsgFilterAction.Label:
+        actionItem.childNodes[0].value = aFilterAction.label;
+        break;
+      case nsMsgFilterAction.ChangePriority:
+        actionItem.childNodes[0].value = aFilterAction.priority;
+        break;
+      case nsMsgFilterAction.JunkScore:
+        actionItem.childNodes[0].value = aFilterAction.junkScore;
+        break;
+      case nsMsgFilterAction.AddTag:
+        actionItem.childNodes[0].value = aFilterAction.strValue;
+        break;
+      default:
+        break;
+    }
+    if (aFilterAction.type != nsMsgFilterAction.Custom) {
+      filterActionStr = gFilterActionStrings[aFilterAction.type];
+    }
+    this.mRuleActionType.value = filterActionStr;
+    this.mRuleActionTargetInitialized = true;
+    this.clearInitialActionIndex();
+    checkActionsReorder();
+  }
+
+  /**
+   * Function is used to check if the filter is valid or not. This routine
+   * also prompts the user.
+   *
+   * @return {boolean} - true if this row represents a valid filter action.
+   */
+  validateAction() {
+    let filterActionString = this.getAttribute("value");
+    let actionTarget = this.childNodes[1];
+    let actionTargetLabel = actionTarget.ruleactiontargetElement &&
+      actionTarget.ruleactiontargetElement.childNodes[0].value;
+    let errorString, customError;
+
+    switch (filterActionString) {
+      case "movemessage":
+      case "copymessage":
+        let msgFolder = actionTargetLabel ?
+          MailUtils.getOrCreateFolder(actionTargetLabel) : null;
+        if (!msgFolder || !msgFolder.canFileMessages)
+          errorString = "mustSelectFolder";
+        break;
+      case "forwardmessage":
+        if (actionTargetLabel.length < 3 ||
+          actionTargetLabel.indexOf("@") < 1)
+          errorString = "enterValidEmailAddress";
+        break;
+      case "replytomessage":
+        if (!actionTarget.ruleactiontargetElement.childNodes[0].selectedItem)
+          errorString = "pickTemplateToReplyWith";
+        break;
+      default:
+        // Some custom actions have no action value node.
+        if (!document.getAnonymousNodes(actionTarget))
+          return true;
+        // Locate the correct custom action, and check validity.
+        for (let i = 0; i < gCustomActions.length; i++) {
+          if (gCustomActions[i].id == filterActionString) {
+            customError =
+              gCustomActions[i].validateActionValue(
+                actionTargetLabel,
+                gFilterList.folder, gFilterType);
+            break;
+          }
+        }
+        break;
+    }
+
+    errorString = errorString ?
+      gFilterBundle.getString(errorString) :
+      customError;
+    if (errorString) {
+      Services.prompt.alert(window, null, errorString);
+    }
+
+    return !errorString;
+  }
+
+  /**
+   * Create a new filter action, fill it in, and then append it to the filter.
+   *
+   * @param {Object} aFilter - filter object to save.
+   */
+  saveToFilter(aFilter) {
+    let filterAction = aFilter.createAction();
+    let filterActionString = this.getAttribute("value");
+    filterAction.type = gFilterActionStrings.indexOf(filterActionString);
+    let actionTarget = this.childNodes[1];
+    let actionItem = actionTarget.ruleactiontargetElement;
+    let nsMsgFilterAction = Ci.nsMsgFilterAction;
+    switch (filterAction.type) {
+      case nsMsgFilterAction.Label:
+        filterAction.label = actionItem.childNodes[0].getAttribute("value");
+        break;
+      case nsMsgFilterAction.ChangePriority:
+        filterAction.priority = actionItem.childNodes[0].getAttribute("value");
+        break;
+      case nsMsgFilterAction.MoveToFolder:
+      case nsMsgFilterAction.CopyToFolder:
+        filterAction.targetFolderUri = actionItem.childNodes[0].value;
+        break;
+      case nsMsgFilterAction.JunkScore:
+        filterAction.junkScore = actionItem.childNodes[0].value;
+        break;
+      case nsMsgFilterAction.Custom:
+        filterAction.customId = filterActionString;
+      // Fall through to set the value.
+      default:
+        if (actionItem && actionItem.childNodes.length > 0)
+          filterAction.strValue = actionItem.childNodes[0].value;
+        break;
+    }
+    aFilter.appendAction(filterAction);
+  }
+
+  /**
+   * If we only have one row of actions, then disable the remove button for that row.
+   */
+  updateRemoveButton() {
+    this.mListBox.getItemAtIndex(0).mRemoveButton.disabled = this.mListBox.getRowCount() == 1;
+  }
+
+  addRow() {
+    let listItem = document.createXULElement("richlistitem", { "is": "ruleaction-richlistitem" });
+    listItem.classList.add("ruleaction");
+    listItem.setAttribute("onfocus", "this.storeFocus();");
+    this.mListBox.insertBefore(listItem, this.nextSibling);
+    this.mListBox.ensureElementIsVisible(listItem);
+
+    // Make sure the first remove button is enabled.
+    this.updateRemoveButton();
+    checkActionsReorder();
+  }
+
+  removeRow() {
+    // this.mListBox will fail after the row is removed, so save a reference.
+    let listBox = this.mListBox;
+    if (listBox.getRowCount() > 1) {
+      this.remove();
+    }
+    // Can't use 'this' as it is destroyed now.
+    listBox.getItemAtIndex(0).updateRemoveButton();
+    checkActionsReorder();
+  }
+
+  /**
+   * When this action row is focused, store its index in the parent richlistbox.
+   */
+  storeFocus() {
+    this.mListBox.setAttribute("focusedAction", this.mListBox.getIndexOfItem(this));
+  }
+}
+
+customElements.define("ruleaction-richlistitem", MozRuleactionRichlistitem, { "extends": "richlistitem" });
