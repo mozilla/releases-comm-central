@@ -292,27 +292,25 @@
 
       <separator/>
 
-      <hbox>
+      <hbox align="start">
         <checkbox id="enableOCSP"
                   label="&enableOCSP.label;"
                   accesskey="&enableOCSP.accesskey;"
-                  preference="security.OCSP.enabled"/>
+                  preference="security.OCSP.enabled"
+                  flex="1"/>
         <spacer flex="1"/>
-      </hbox>
-
-      <separator/>
-
-      <hbox>
-        <button id="manageCertificatesButton"
-                label="&manageCertificates.label;"
-                accesskey="&manageCertificates.accesskey;"
-                oncommand="gPrivacyPane.showCertificates();"
-                preference="security.disable_button.openCertManager"/>
-        <button id="viewSecurityDevicesButton"
-                label="&viewSecurityDevices.label;"
-                accesskey="&viewSecurityDevices.accesskey;"
-                oncommand="gPrivacyPane.showSecurityDevices();"
-                preference="security.disable_button.openDeviceManager"/>
+        <vbox>
+          <button id="manageCertificatesButton"
+                  label="&manageCertificates2.label;"
+                  accesskey="&manageCertificates2.accesskey;"
+                  oncommand="gPrivacyPane.showCertificates();"
+                  preference="security.disable_button.openCertManager"/>
+          <button id="viewSecurityDevicesButton"
+                  label="&viewSecurityDevices2.label;"
+                  accesskey="&viewSecurityDevices2.accesskey;"
+                  oncommand="gPrivacyPane.showSecurityDevices();"
+                  preference="security.disable_button.openDeviceManager"/>
+        </vbox>
       </hbox>
     </groupbox>
 
