@@ -785,4 +785,4 @@ pref("intl.multilingual.enabled", false);
 pref("intl.multilingual.downloadEnabled", false);
 
 // Dark in-content pages
-pref("browser.in-content.dark-mode", false);
+pref("browser.in-content.dark-mode", true);
