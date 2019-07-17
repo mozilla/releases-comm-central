@@ -180,6 +180,9 @@ pref("extensions.update.interval", 86400);  // Check for updates to Extensions a
 
 pref("extensions.dss.switchPending", false);    // Non-dynamic switch pending after next
 
+// Don't show recommendations on the extension and theme list views.
+pref("extensions.htmlaboutaddons.recommendations.enabled", false);
+
 pref("lightweightThemes.update.enabled", true);
 
 // Built-in default permissions.
