@@ -362,6 +362,7 @@ suite("headerparser", function() {
       // Collapse extraneous whitespace and make sure unexpected characters aren't there.
       ["Friend \"<friend@huhu.com>\" \t \t  \u00A0\u00A0\u2003 \u00AD \x20\u200B\x20\u200B\x20 \t \u034F \u2028\ \uDB40\uDD01 \t <ws@example.com>",
         [{name: "Friend <friend@huhu.com>", email: "ws@example.com"}]],
+      // Collapse multiple "special" spaces like NBSP (\u00A0), EM space (\u2003), etc.
       ["Foe \u00A0\u00A0\u2003 A <foe@example.com>",
         [{name: "Foe A", email: "foe@example.com"}]],
       // Remove tabs.
