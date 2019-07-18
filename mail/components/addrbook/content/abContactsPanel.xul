@@ -159,25 +159,14 @@
 
     <hbox>
       <spring flex="1"/>
-      <grid>
-        <columns>
-          <column style="min-width: 10em"/>
-        </columns>
-        <rows>
-          <row id="toButtonBox">
-                  <button id="toButton" label="&toButton.label;"
-                          accesskey="&toButton.accesskey;" command="cmd_addrTo"/>
-          </row>
-          <row id="ccButtonBox">
-                  <button id="ccButton" label="&ccButton.label;"
-                          accesskey="&ccButton.accesskey;" command="cmd_addrCc"/>
-          </row>
-          <row id="bccButtonBox">
-                  <button id="bccButton" label="&bccButton.label;"
-                          accesskey="&bccButton.accesskey;" command="cmd_addrBcc"/>
-          </row>
-        </rows>
-      </grid>
+      <vbox>
+        <button id="toButton" label="&toButton.label;"
+                accesskey="&toButton.accesskey;" command="cmd_addrTo"/>
+        <button id="ccButton" label="&ccButton.label;"
+                accesskey="&ccButton.accesskey;" command="cmd_addrCc"/>
+        <button id="bccButton" label="&bccButton.label;"
+                accesskey="&bccButton.accesskey;" command="cmd_addrBcc"/>
+      </vbox>
       <spring flex="1"/>
     </hbox>
 
