@@ -123,11 +123,11 @@
 #endif
             </description>
             <description class="text-blurb" id="communityExperimentalDesc">
-              &community.exp.start;<label is="text-link" href="http://www.mozilla.org/">&community.exp.mozillaLink;</label>&community.exp.middle;<label is="text-link" href="about:credits">&community.exp.creditsLink;</label>&community.exp.end;
+              &community.exp.start;<label is="text-link" href="http://www.mozilla.org/">&community.exp.mozillaLink;</label>&community.exp.middle;<label is="text-link" useoriginprincipal="true" href="about:credits">&community.exp.creditsLink;</label>&community.exp.end;
             </description>
           </vbox>
           <description class="text-blurb" id="communityDesc">
-            &community.start2;<label is="text-link" onclick="openURL('http://www.mozilla.org/');" oncommand="openUILink(this.getAttribute('href'), event);">&community.mozillaLink;</label>&community.middle2;<label is="text-link" onclick="openAboutTab('about:credits');">&community.creditsLink;</label>&community.end3;
+            &community.start2;<label is="text-link" onclick="openURL('http://www.mozilla.org/');" oncommand="openUILink(this.getAttribute('href'), event);">&community.mozillaLink;</label>&community.middle2;<label is="text-link" useoriginprincipal="true" onclick="openAboutTab('about:credits');">&community.creditsLink;</label>&community.end3;
           </description>
           <description class="text-blurb" id="contributeDesc">
             &helpus.start;<label is="text-link" onclick="openUILink(this.getAttribute('href'), event)" href="https://donate.mozilla.org/thunderbird/?utm_source=thunderbird-client&amp;utm_medium=referral&amp;utm_content=about-dialog">&helpus.donateLink;</label>&helpus.middle;<label is="text-link" onclick="openUILink(this.getAttribute('href'), event)" href="https://www.thunderbird.net/get-involved/">&helpus.getInvolvedLink;</label>&helpus.end;
