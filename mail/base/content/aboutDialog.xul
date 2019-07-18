@@ -130,7 +130,7 @@
             &community.start2;<label is="text-link" onclick="openURL('http://www.mozilla.org/');" oncommand="openUILink(this.getAttribute('href'), event);">&community.mozillaLink;</label>&community.middle2;<label is="text-link" onclick="openAboutTab('about:credits');">&community.creditsLink;</label>&community.end3;
           </description>
           <description class="text-blurb" id="contributeDesc">
-            &helpus.start;<label is="text-link" onclick="openUILink(this.getAttribute('href'), event)" href="https://donate.mozilla.org/thunderbird/about/">&helpus.donateLink;</label>&helpus.middle;<label is="text-link" onclick="openUILink(this.getAttribute('href'), event)" href="https://www.thunderbird.net/get-involved/">&helpus.getInvolvedLink;</label>&helpus.end;
+            &helpus.start;<label is="text-link" onclick="openUILink(this.getAttribute('href'), event)" href="https://donate.mozilla.org/thunderbird/?utm_source=thunderbird-client&amp;utm_medium=referral&amp;utm_content=about-dialog">&helpus.donateLink;</label>&helpus.middle;<label is="text-link" onclick="openUILink(this.getAttribute('href'), event)" href="https://www.thunderbird.net/get-involved/">&helpus.getInvolvedLink;</label>&helpus.end;
           </description>
         </vbox>
       </vbox>

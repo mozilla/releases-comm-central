@@ -195,7 +195,7 @@ function openLinkText(event, url) {
       openUILink("https://support.mozilla.org/kb/keyboard-shortcuts/", event);
       break;
     case "donateURL":
-      openUILink("https://donate.mozilla.org/thunderbird/", event);
+      openUILink("https://donate.mozilla.org/thunderbird/?utm_source=thunderbird-client&utm_medium=referral&utm_content=help-menu", event);
       break;
     case "tourURL":
       openUILink("https://www.thunderbird.net/features/", event);
