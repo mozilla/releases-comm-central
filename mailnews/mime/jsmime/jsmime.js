@@ -383,8 +383,50 @@ function getHeaderTokens(value, delimiters, opts) {
   // converted to not be one.
   let tokenList = [];
 
-  // Represents a non-delimiter token
+  // Represents a non-delimiter token.
   function Token(token) {
+    // Replace problematic characters so we don't get unexpected behavior
+    // down the line. These fall into a few categories:
+    // A) "Separator, space" (Zs),
+    // B) "Mark, Nonspacing" (Mn)
+    // C) "Other, Control" (Cc)
+    // D) "Other, Format" (Cf)
+    // Unfortuantely, no support for the needed regexp Unicode property escapes
+    // in our engine. So we need to hand-roll it. Used the regexpu tool for
+    // that: https://mothereff.in/regexpu.
+    // This should be updated regularly, to take into account new additions
+    // to the unicode standard. Last updated July 2019.
+    // For a full list of categories, see http://unicode.org/Public//5.0.0/ucd/UCD.html.
+
+    // -- case A: /\p{Zs}/u
+    // https://www.fileformat.info/info/unicode/category/Zs/list.htm
+    // https://mothereff.in/regexpu#input=/\p{Zs}/u&unicodePropertyEscape=1
+    token = token.replace(/[\xA0\u1680\u2000-\u200A\u202F\u205F\u3000]/g, " ");
+
+    // -- case B: /\p{Mn}/u
+    // https://www.fileformat.info/info/unicode/category/Mn/list.htm
+    // https://mothereff.in/regexpu#input=/\p{Mn}/u&unicodePropertyEscape=1
+    // This is a bit more complicated as some of them could be "real", so we'll
+    // only remove the ones that are known to show as blank.
+    token = token.replace(/[\u034F\u17B4\u17B5\u180B-\u180D\uFE00-\uFE0F]/g, "");
+    // \uE0100-\uE01EF need to be written using their surrogate code point pairs
+    // until extended Unicode escapes are supported in regexps.
+    // https://www.fileformat.info/info/unicode/char/e0100/index.htm says \uDB40\uDD00.
+    // https://www.fileformat.info/info/unicode/char/e01ef/index.htm says \uDB40\uDDEF.
+    token = token.replace(/\uDB40[\uDD00-\uDDEF]/g, "");
+
+    // -- case C: /\p{Cc}/u, except Tab/LF/CR
+    // https://www.fileformat.info/info/unicode/category/Cc/list.htm
+    // https://mothereff.in/regexpu#input=/\p{Cc}/u&unicodePropertyEscape=1
+    // eslint-disable-next-line no-control-regex
+    token = token.replace(/(?![\t\n\r])[\0-\x1F\x7F-\x9F]/g, "");
+
+    // -- case D: /\p{Cf}/u
+    // https://www.fileformat.info/info/unicode/category/Cf/list.htm
+    // https://mothereff.in/regexpu#input=/\p{Cf}/u&unicodePropertyEscape=1
+    // Remove all of these except for \u0600-\u0605.
+    token = token.replace(/(?:[\xAD\u061C\u06DD\u070F\u08E2\u180E\u200B-\u200F\u202A-\u202E\u2060-\u2064\u2066-\u206F\uFEFF\uFFF9-\uFFFB]|\uD804[\uDCBD\uDCCD]|\uD80D[\uDC30-\uDC38]|\uD82F[\uDCA0-\uDCA3]|\uD834[\uDD73-\uDD7A]|\uDB40[\uDC01\uDC20-\uDC7F])/g, "");
+
     // Unescape all quoted pairs. Any trailing \ is deleted.
     this.token = token.replace(/\\(.?)/g, "$1");
   }
@@ -823,8 +865,9 @@ function parseAddressingHeader(header, doRFC2047) {
                  addrSpec.substring(addrSpec.lastIndexOf("@"));
     }
 
-    // Replace consecutive whitespace in the name with a single whitespace.
-    displayName = displayName.replace(/\s\s+/g, " ");
+    // Replace all whitespace characters with a single whitespace,
+    // to avoid consecutive whitespace and also to normalize tabs and newlines.
+    displayName = displayName.replace(/\s+/g, " ").trim();
 
     if (displayName === "" && lastComment !== "") {
       // Take last comment content as the display-name.
@@ -929,7 +972,7 @@ function parseAddressingHeader(header, doRFC2047) {
 
       // Ignore the needs space if we're a "close" delimiter token.
       let spacedToken = token;
-      if (needsSpace && token.toString()[0] != ".")
+      if (needsSpace && (token.toString().length > 0) && token.toString()[0] != ".")
         spacedToken = " " + spacedToken;
 
       // Which field do we add this data to?

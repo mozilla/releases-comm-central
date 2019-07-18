@@ -261,7 +261,6 @@ suite("headerparser", function() {
       ["Undisclosed recipients:;\0:; foo <ghj@veryveryveryverylongveryveryver" +
         "yveryinvalidaddress.invalid>",
         [{name: "Undisclosed recipients", group: []},
-         {name: "\0", group: []},
          {name: "foo", email: "ghj@veryveryveryverylongveryveryveryveryinvali" +
            "daddress.invalid"}]],
       // XXX: test_nsIMsgHeaderParser2 has an empty one here...
@@ -301,7 +300,7 @@ suite("headerparser", function() {
         [{name: "", email: "a@xxx.invalid"},
          {name: "B", email: "b@xxx.invalid"}]],
       ['"A " <a@xxx.invalid>; b@xxx.invalid',
-        [{name: "A ", email: "a@xxx.invalid"},
+        [{name: "A", email: "a@xxx.invalid"},
          {name: "", email: "b@xxx.invalid"}]],
       ["A <a@xxx.invalid>; B <b@xxx.invalid>",
         [{name: "A", email: "a@xxx.invalid"},
@@ -360,9 +359,14 @@ suite("headerparser", function() {
       ["<(c3)a(c4)@(c5)b(c6).(c7)d(c8)> (c9(c10)c11)(c12)",
         [{name: "(c9(c10)c11) (c12)", email: "a@b.d"}]],
       ["(c3)a(c4)@(c5)b(c6).(c7)d(c8)(c9(c10)c11)(c12)", [{name: "c12", email: "a@b.d"}]],
-      // Collapse extraneous whitespace.
-      ["Friend \"<friend@huhu.com>\"                                \t <ws@example.com>",
+      // Collapse extraneous whitespace and make sure unexpected characters aren't there.
+      ["Friend \"<friend@huhu.com>\" \t \t  \u00A0\u00A0\u2003 \u00AD \x20\u200B\x20\u200B\x20 \t \u034F \u2028\ \uDB40\uDD01 \t <ws@example.com>",
         [{name: "Friend <friend@huhu.com>", email: "ws@example.com"}]],
+      ["Foe \u00A0\u00A0\u2003 A <foe@example.com>",
+        [{name: "Foe A", email: "foe@example.com"}]],
+      // Remove tabs.
+      ["Tabby \t \t A\t\tB <tab@example.com>",
+        [{name: "Tabby A B", email: "tab@example.com"}]],
     ];
     header_tests.forEach(function(data) {
       arrayTest(data, function() {

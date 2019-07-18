@@ -64,7 +64,7 @@ var splitRecipientsTests = [
     recipients: '"A " <a@xxx.invalid>; b@xxx.invalid',
     emailAddressOnly: false,
     count: 2,
-    result: [ "A  <a@xxx.invalid>", "b@xxx.invalid" ],
+    result: [ "A <a@xxx.invalid>", "b@xxx.invalid" ],
   }, {
     recipients: "A <a@xxx.invalid>; B <b@xxx.invalid>",
     emailAddressOnly: false,
@@ -116,7 +116,8 @@ function run_test() {
     Assert.equal(splitRecipientsTests[part].count, count.value);
     Assert.equal(splitRecipientsTests[part].count, result.length);
 
-    for (var item = 0; item < count.value; ++item)
+    for (var item = 0; item < count.value; ++item) {
       Assert.equal(splitRecipientsTests[part].result[item], result[item]);
+    }
   }
 }
