@@ -110,12 +110,9 @@ function openAboutTab(url) {
                       tabParams: {contentPage: url, clickHandler: "specialTabs.aboutClickHandler(event);"} });
 }
 
-function openUILink(url, event) {
-  if (!event.button) {
-    let m = ("messenger" in window) ? window.messenger :
-      Cc["@mozilla.org/messenger;1"]
-        .createInstance(Ci.nsIMessenger);
-    m.launchExternalURL(url);
-    event.preventDefault();
-  }
+function openLink(url) {
+  let m = ("messenger" in window) ? window.messenger :
+    Cc["@mozilla.org/messenger;1"]
+      .createInstance(Ci.nsIMessenger);
+  m.launchExternalURL(url);
 }

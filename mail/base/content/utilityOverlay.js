@@ -175,7 +175,7 @@ function togglePaneSplitter(splitterId) {
 // so extensions can use this everywhere to open links.
 // We currently only react to left click in Thunderbird.
 function openUILink(url, event) {
-  if (!event.button) {
+  if (event.button == 0) {
     PlacesUtils.history.insert({
       url,
       visits: [{
@@ -186,8 +186,8 @@ function openUILink(url, event) {
   }
 }
 
-function openLinkText(event, url) {
-  switch (url) {
+function openLinkText(event, what) {
+  switch (what) {
     case "getInvolvedURL":
       openUILink("https://www.thunderbird.net/get-involved/", event);
       break;
