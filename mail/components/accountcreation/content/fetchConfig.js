@@ -8,6 +8,7 @@
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {JXON} = ChromeUtils.import("resource:///modules/JXON.js");
+var {DNS} = ChromeUtils.import("resource:///modules/DNS.jsm");
 
 /**
  * Tries to find a configuration for this ISP on the local harddisk, in the
@@ -128,9 +129,9 @@ function fetchConfigFromDB(domain, successCallback, errorCallback) {
 }
 
 /**
- * Does a lookup of DNS MX, to get the server who is responsible for
+ * Does a lookup of DNS MX, to get the server that is responsible for
  * receiving mail for this domain. Then it takes the domain of that
- * server, and does another lookup (in ISPDB and possible at ISP autoconfig
+ * server, and does another lookup (in ISPDB and possibly at ISP autoconfig
  * server) and if such a config is found, returns that.
  *
  * Disclaimers:
@@ -148,17 +149,17 @@ function fetchConfigFromDB(domain, successCallback, errorCallback) {
  *
  * Params @see fetchConfigFromISP()
  */
-function fetchConfigForMX(domain, successCallback, errorCallback) {
-  domain = sanitize.hostname(domain);
+async function fetchConfigForMX(domain, successCallback, errorCallback) {
+  const sanitizedDomain = sanitize.hostname(domain);
+  const sucAbortable = new SuccessiveAbortable();
+  const time = Date.now();
 
-  var sucAbortable = new SuccessiveAbortable();
-  var time = Date.now();
-  sucAbortable.current = getMX(domain,
+  await getMX(sanitizedDomain,
     function(mxHostname) { // success
       ddump("getmx took " + (Date.now() - time) + "ms");
       let sld = Services.eTLD.getBaseDomainFromHost(mxHostname);
       ddump("base domain " + sld + " for " + mxHostname);
-      if (sld == domain) {
+      if (sld == sanitizedDomain) {
         errorCallback(new Exception("MX lookup would be no different from domain"));
         return;
       }
@@ -170,52 +171,37 @@ function fetchConfigForMX(domain, successCallback, errorCallback) {
 }
 
 /**
- * Queries the DNS MX for the domain
+ * Queries the DNS MX records for a given domain. Calls `successCallback` with
+ * the hostname of the MX server. If there are several entries with different
+ * preference values, only the most preferred (i.e. has the lowest value)
+ * is used. If there are several most preferred servers (i.e. round robin),
+ * only one of them is used.
  *
- * The current implementation goes to a web service to do the
- * DNS resolve for us, because Mozilla unfortunately has no implementation
- * to do it. That's just a workaround. Once bug 545866 is fixed, we make
- * the DNS query directly on the client. The API of this function should not
- * change then.
+ * The promise-based async call to `DNS.mx` (imported from DNS.jsm) is at odds
+ * with the other code here that works with callbacks and `Abortable` objects.
+ * That makes the code less coherent, but otherwise it just means we can't
+ * abort the initial MX query.
  *
- * Returns (in successCallback) the hostname of the MX server.
- * If there are several entries with different preference values,
- * only the most preferred (i.e. those with the lowest value)
- * is returned. If there are several most preferred servers (i.e.
- * round robin), only one of them is returned.
- *
- * @param domain @see fetchConfigFromISP()
- * @param successCallback {function(hostname {String})
+ * @param {string}  sanitizedDomain @see fetchConfigFromISP()
+ * @param {function(hostname {string})}  successCallback
  *   Called when we found an MX for the domain.
  *   For |hostname|, see description above.
- * @param errorCallback @see fetchConfigFromISP()
- * @returns @see fetchConfigFromISP()
+ * @param {function({Exception|string})}  errorCallback @see fetchConfigFromISP()
  */
-function getMX(domain, successCallback, errorCallback) {
-  domain = sanitize.hostname(domain);
+async function getMX(sanitizedDomain, successCallback, errorCallback) {
+  try {
+    const records = await DNS.mx(sanitizedDomain);
+    const filteredRecs = records.filter(record => record.host);
 
-  let url = Services.prefs.getCharPref("mailnews.mx_service_url");
-  if (!url) {
-    errorCallback(new Exception("no URL for MX service configured"));
-    return new Abortable();
+    if (filteredRecs.length > 0) {
+      const sortedRecs = filteredRecs.sort((a, b) => a.prio > b.prio);
+      const firstHost = sortedRecs[0].host;
+      successCallback(firstHost);
+    } else {
+      errorCallback(new Exception(
+        "No hostname found in MX records for sanitizedDomain=" + sanitizedDomain));
+    }
+  } catch (error) {
+    errorCallback(error);
   }
-  url += domain;
-
-  let fetch = new FetchHTTP(url, {},
-    function(result) {
-      // result is plain text, with one line per server.
-      // So just take the first line
-      ddump("MX query result: \n" + result + "(end)");
-      assert(typeof(result) == "string");
-      let first = result.split("\n")[0];
-      first.toLowerCase().replace(/[^a-z0-9\-_\.]*/g, "");
-      if (first.length == 0) {
-        errorCallback(new Exception("no MX found"));
-        return;
-      }
-      successCallback(first);
-    },
-    errorCallback);
-  fetch.start();
-  return fetch;
 }

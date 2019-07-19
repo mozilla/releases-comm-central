@@ -912,8 +912,6 @@ pref("mailnews.emptyTrash.dontAskAgain", false);
 
 // where to fetch auto config information from.
 pref("mailnews.auto_config_url", "https://live.thunderbird.net/autoconfig/v1.1/");
-// Added in bug 551519. Remove when bug 545866 is fixed.
-pref("mailnews.mx_service_url", "https://live.thunderbird.net/dns/mx/");
 // The list of addons which can handle certain account types
 pref("mailnews.auto_config.addons_url", "https://live.thunderbird.net/autoconfig/addons.json");
 // Allow to contact the ISP (email address domain).
