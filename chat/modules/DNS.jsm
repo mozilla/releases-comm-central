@@ -16,6 +16,7 @@ var LOCATION = "resource:///modules/DNS.jsm";
 // These constants are luckily shared, but with different names
 var NS_T_TXT = 16; // DNS_TYPE_TXT
 var NS_T_SRV = 33; // DNS_TYPE_SRV
+var NS_T_MX = 15; // DNS_TYPE_MX
 
 // For Linux and Mac.
 function load_libresolv() {
@@ -98,7 +99,8 @@ load_libresolv.prototype = {
     this.library = null;
   },
 
-  // Maps record to SRVRecord or TXTRecord according to aTypeID and return it.
+  // Maps record to SRVRecord, TXTRecord, or MXRecord according to aTypeID and
+  // returns it.
   _mapAnswer(aTypeID, aAnswer, aIdx, aLength) {
     if (aTypeID == NS_T_SRV) {
       let prio = this.ns_get16(aAnswer.addressOfElement(aIdx));
@@ -110,13 +112,25 @@ load_libresolv.prototype = {
                                    aAnswer.addressOfElement(aLength),
                                    aAnswer.addressOfElement(aIdx + 6),
                                    hostbuf, this.NS_MAXCDNAME);
-      let host = hostlen > -1 ? hostbuf.readString() : null;
+      let host = (hostlen > -1) ? hostbuf.readString() : null;
       return new SRVRecord(prio, weight, host, port);
     }
     else if (aTypeID == NS_T_TXT) {
       // TODO should only read dataLength characters.
       let data = ctypes.unsigned_char.ptr(aAnswer.addressOfElement(aIdx + 1));
       return new TXTRecord(data.readString());
+    }
+    else if (aTypeID == NS_T_MX) {
+      let prio = this.ns_get16(aAnswer.addressOfElement(aIdx));
+
+      let hostbuf = ctypes.char.array(this.NS_MAXCDNAME)();
+      let hostlen = this.dn_expand(aAnswer.addressOfElement(0),
+                                   aAnswer.addressOfElement(aLength),
+                                   aAnswer.addressOfElement(aIdx + 2),
+                                   hostbuf,
+                                   this.NS_MAXCDNAME);
+      let host = (hostlen > -1) ? hostbuf.readString() : null;
+      return new MXRecord(prio, host);
     }
     return {};
   },
@@ -200,6 +214,12 @@ load_dnsapi.prototype = {
       { pStringArray: ctypes.jschar.ptr.array(1) },
     ]);
 
+    this.DNS_MX_DATA = ctypes.StructType("DNS_MX_DATA", [
+      { pNameTarget: ctypes.jschar.ptr },
+      { wPriority: ctypes.unsigned_short },
+      { Pad: ctypes.unsigned_short },
+    ]);
+
     this.DNS_RECORD = ctypes.StructType("_DnsRecord");
     this.DNS_RECORD.define([
       { pNext: this.DNS_RECORD.ptr },
@@ -231,7 +251,8 @@ load_dnsapi.prototype = {
     this.library = null;
   },
 
-  // Maps record to SRVRecord or TXTRecord according to aTypeID and return it.
+  // Maps record to SRVRecord, TXTRecord, or MXRecord according to aTypeID and
+  // returns it.
   _mapAnswer(aTypeID, aData) {
     if (aTypeID == NS_T_SRV) {
       let srvdata = ctypes.cast(aData, this.DNS_SRV_DATA);
@@ -244,11 +265,16 @@ load_dnsapi.prototype = {
       if (txtdata.dwStringCount > 0)
         return new TXTRecord(txtdata.pStringArray[0].readString());
     }
+    else if (aTypeID == NS_T_MX) {
+      let mxdata = ctypes.cast(aData, this.DNS_MX_DATA);
+      return new MXRecord(mxdata.wPriority,
+                          mxdata.pNameTarget.readString());
+    }
     return {};
   },
 
   // Performs a DNS query for aTypeID on a certain address (aName) and returns
-  // array of records of aTypeID (e.g. SRVRecord or TXTRecord).
+  // array of records of aTypeID (e.g. SRVRecord, TXTRecord, or MXRecord).
   lookup(aName, aTypeID) {
     let queryResultsSet = this.PDNS_RECORD();
     let qname = ctypes.jschar.array()(aName);
@@ -290,6 +316,12 @@ function TXTRecord(aData) {
   this.data = aData;
 }
 
+// Used to make results of different libraries consistent for MX queries.
+function MXRecord(aPrio, aHost) {
+  this.prio = aPrio;
+  this.host = aHost;
+}
+
 if (typeof Components === "undefined") {
   /* eslint-env worker */
 
@@ -311,7 +343,7 @@ if (typeof Components === "undefined") {
 
   // eslint-disable-next-line no-unused-vars
   function execute(aOS, aMethod, aArgs) {
-    let DNS = (aOS == "WINNT" ? new load_dnsapi() : new load_libresolv());
+    let DNS = (aOS == "WINNT") ? new load_dnsapi() : new load_libresolv();
     return DNS[aMethod].apply(DNS, aArgs);
   }
 }
@@ -324,6 +356,7 @@ else {
      */
     TXT: NS_T_TXT,
     SRV: NS_T_SRV,
+    MX: NS_T_MX,
 
     /**
      * Do an asynchronous DNS lookup. The returned promise resolves with
@@ -345,6 +378,7 @@ else {
     /** Convenience functions */
     srv(aName) { return this.lookup(aName, NS_T_SRV); },
     txt(aName) { return this.lookup(aName, NS_T_TXT); },
+    mx(aName) { return this.lookup(aName, NS_T_MX); },
   };
   this.DNS = dns_async_front;
   this.EXPORTED_SYMBOLS = ["DNS"];
