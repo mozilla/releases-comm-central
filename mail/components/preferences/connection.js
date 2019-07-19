@@ -346,7 +346,7 @@ var gConnectionsDialog = {
     // lazy-init if appropriate
     if (!this._areTrrPrefsReady) {
       this._areTrrPrefsReady = true;
-      this._handleTrrPrefsReady();
+      gConnectionsDialog._handleTrrPrefsReady();
     } else {
       this.updateDnsOverHttpsUI();
     }
