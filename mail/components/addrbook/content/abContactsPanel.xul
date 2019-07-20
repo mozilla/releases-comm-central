@@ -127,7 +127,6 @@
                flex="1"
                timeout="800"
                placeholder="&SearchNameOrEmail.label;"
-               clickSelectsAll="true"
                oncommand="onEnterInSearchBar();"/>
     </vbox>
 

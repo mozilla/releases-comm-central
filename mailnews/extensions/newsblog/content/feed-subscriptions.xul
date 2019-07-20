@@ -108,7 +108,6 @@
                        flex="1"
                        class="uri-element"
                        placeholder="&feedLocation2.placeholder;"
-                       clickSelectsAll="true"
                        oninput="FeedSubscriptions.setPrefs(this);"
                        onfocus="FeedSubscriptions.onFocusChange();"
                        onblur="FeedSubscriptions.onFocusChange();"/>

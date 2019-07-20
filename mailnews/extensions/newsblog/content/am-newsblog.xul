@@ -101,7 +101,6 @@
                     oncommand="setPrefs(this)"/>
           <textbox id="autotagPrefix"
                    placeholder="&autoTagPrefix.placeholder;"
-                   clickSelectsAll="true"
                    onchange="setPrefs(this)"/>
       </hbox>
     </groupbox>

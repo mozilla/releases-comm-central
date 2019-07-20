@@ -100,7 +100,7 @@
           <label control="acctName" class="box-padded"
                  accesskey="&acctName.accesskey;"
                  value="&acctName.label;"/>
-          <textbox id="acctName" clickSelectsAll="true"/>
+          <textbox id="acctName"/>
         </hbox>
       </vbox>
     </vbox>
