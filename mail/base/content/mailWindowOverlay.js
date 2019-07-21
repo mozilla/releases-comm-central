@@ -35,8 +35,8 @@ var {ExtensionParent} = ChromeUtils.import("resource://gre/modules/ExtensionPare
 var {ExtensionSupport} = ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
 Object.defineProperty(this, "HUDService", {
   get() {
-    let { devtools } = ChromeUtils.import("resource://devtools/shared/Loader.jsm");
-    return devtools.require("devtools/client/webconsole/hudservice").HUDService;
+    let { loader } = ChromeUtils.import("resource://devtools/shared/Loader.jsm");
+    return loader.require("devtools/client/webconsole/hudservice").HUDService;
   },
   configurable: true,
   enumerable: true,
