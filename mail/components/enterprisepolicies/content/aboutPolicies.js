@@ -228,6 +228,7 @@ function generateDocumentation() {
   // map specific policies to a different string ID, to allow updates to
   // existing descriptions
   let string_mapping = {
+    Certificates: "CertificatesDescription",
   };
 
   for (let policyName in schema.properties) {
