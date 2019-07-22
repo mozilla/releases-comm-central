@@ -582,7 +582,7 @@ var gGeneralPane = {
 
     // Filter on XML files only.
     fp.appendFilter(document.getElementById("bundlePreferences")
-                            .getString("searchEngineType"), "*.xml");
+                            .getString("searchEngineType2"), "*.xml");
 
     fp.open(async rv => {
       if (rv != Ci.nsIFilePicker.returnOK || !fp.file) {
