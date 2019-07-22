@@ -9,7 +9,6 @@ EXTRA_JS_MODULES += [
     'ArrayBufferUtils.jsm',
     'BigInteger.jsm',
     'CLib.jsm',
-    'DNS.jsm',
     'hiddenWindow.jsm',
     'imContentSink.jsm',
     'imServices.jsm',

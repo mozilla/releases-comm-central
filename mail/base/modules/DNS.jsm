@@ -114,13 +114,12 @@ load_libresolv.prototype = {
                                    hostbuf, this.NS_MAXCDNAME);
       let host = (hostlen > -1) ? hostbuf.readString() : null;
       return new SRVRecord(prio, weight, host, port);
-    }
-    else if (aTypeID == NS_T_TXT) {
+    } else if (aTypeID == NS_T_TXT) {
       // TODO should only read dataLength characters.
       let data = ctypes.unsigned_char.ptr(aAnswer.addressOfElement(aIdx + 1));
+
       return new TXTRecord(data.readString());
-    }
-    else if (aTypeID == NS_T_MX) {
+    } else if (aTypeID == NS_T_MX) {
       let prio = this.ns_get16(aAnswer.addressOfElement(aIdx));
 
       let hostbuf = ctypes.char.array(this.NS_MAXCDNAME)();
@@ -256,17 +255,18 @@ load_dnsapi.prototype = {
   _mapAnswer(aTypeID, aData) {
     if (aTypeID == NS_T_SRV) {
       let srvdata = ctypes.cast(aData, this.DNS_SRV_DATA);
+
       return new SRVRecord(srvdata.wPriority, srvdata.wWeight,
                            srvdata.pNameTarget.readString(),
                            srvdata.wPort);
-    }
-    else if (aTypeID == NS_T_TXT) {
+    } else if (aTypeID == NS_T_TXT) {
       let txtdata = ctypes.cast(aData, this.DNS_TXT_DATA);
-      if (txtdata.dwStringCount > 0)
+      if (txtdata.dwStringCount > 0) {
         return new TXTRecord(txtdata.pStringArray[0].readString());
-    }
-    else if (aTypeID == NS_T_MX) {
+      }
+    } else if (aTypeID == NS_T_MX) {
       let mxdata = ctypes.cast(aData, this.DNS_MX_DATA);
+
       return new MXRecord(mxdata.wPriority,
                           mxdata.pNameTarget.readString());
     }
@@ -346,8 +346,7 @@ if (typeof Components === "undefined") {
     let DNS = (aOS == "WINNT") ? new load_dnsapi() : new load_libresolv();
     return DNS[aMethod].apply(DNS, aArgs);
   }
-}
-else {
+} else {
   // We are loaded as a JSM, provide the async front that will start the
   // worker.
   var dns_async_front = {
