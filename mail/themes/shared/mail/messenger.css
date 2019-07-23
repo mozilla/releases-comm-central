@@ -176,6 +176,15 @@ html|ul.addon-installed-list {
   color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
 }
 
+:root[lwt-tree] #folderTree >
+  treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail, selected, focus),
+:root[lwt-tree] #folderTree >
+  treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true, selected, focus),
+:root[lwt-tree] #folderTree >
+  treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true, selected, focus) {
+  color: var(--sidebar-highlight-text-color, var(--sidebar-text-color)) !important;
+}
+
 :root[lwt-tree] treechildren::-moz-tree-line {
   border-color: var(--sidebar-text-color);
 }

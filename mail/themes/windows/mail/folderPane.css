@@ -216,6 +216,22 @@ treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessage
   color: -moz-hyperlinktext !important;
 }
 
+@media (-moz-windows-default-theme: 0) {
+  treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail, selected, focus),
+  treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true, selected, focus),
+  treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true, selected, focus) {
+    color: HighlightText !important;
+  }
+}
+
+@media (-moz-windows-default-theme) {
+  treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail, selected, focus),
+  treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true, selected, focus),
+  treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true, selected, focus) {
+    color: -moz-DialogText !important;
+  }
+}
+
 treechildren::-moz-tree-cell-text(hasUnreadMessages-true),
 treechildren::-moz-tree-cell-text(folderNameCol, isServer-true),
 treechildren::-moz-tree-cell-text(closed, subfoldersHaveUnreadMessages-true) {
