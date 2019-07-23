@@ -8,6 +8,9 @@ const BASE_URL =
 
 async function isExtensionLocked(win, addonID) {
   let addonCard = await BrowserTestUtils.waitForCondition(async () => {
+    if (!("getHtmlBrowser" in win)) {
+      return false;
+    }
     let doc = win.getHtmlBrowser().contentDocument;
     await win.htmlBrowserLoaded;
     return doc.querySelector(`addon-card[addon-id="${addonID}"]`);
