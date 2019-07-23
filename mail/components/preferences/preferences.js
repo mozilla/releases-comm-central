@@ -46,8 +46,9 @@ var selector = document.getElementById("selector");
   }
 
   window.addEventListener("DOMContentLoaded", function() {
-    if (document.documentElement.hasAttribute("lastSelected")) {
-      showPane(document.documentElement.getAttribute("lastSelected"));
+    let lastSelected = document.documentElement.getAttribute("lastSelected");
+    if (lastSelected && document.getElementById(lastSelected)) {
+      showPane(lastSelected);
     } else {
       showPane(prefPanes[0].id);
     }
