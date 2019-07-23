@@ -423,7 +423,7 @@ var TodayPane = {
 
             TodayPane.updateDisplay();
             TodayPane.updateSplitterState();
-            todaypane.width = todaypane.getModeAttribute("modewidths", "width");
+            todaypane.width = todaypane.getModeAttribute("modewidths");
             TodayPane.previousMode = document.getElementById("modeBroadcaster").getAttribute("mode");
         }
     },

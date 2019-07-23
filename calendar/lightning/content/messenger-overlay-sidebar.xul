@@ -66,6 +66,7 @@
   <script src="chrome://calendar/content/widgets/calendar-minimonth.js"/>
   <script src="chrome://global/content/nsDragAndDrop.js"/>
   <script src="chrome://calendar/content/widgets/calendar-list-tree.js"/>
+  <script src="chrome://calendar/content/widgets/calendar-modebox.js"/>
 
   <!-- NEEDED FOR TASK VIEW/LIST SUPPORT -->
   <script src="chrome://calendar/content/calendar-task-editing.js"/>
@@ -195,31 +196,45 @@
       <!-- Unfortunately we use the same panel for task and calendar tabs, so
            we need to differ which toolbar is being shown. The actual toolbar
            content will be added via a further overlay -->
-      <modevbox id="calendar-toolbox-container" mode="calendar" broadcaster="modeBroadcaster">
+      <calendar-modevbox id="calendar-toolbox-container"
+                         mode="calendar"
+                         broadcaster="modeBroadcaster">
         <toolbox id="calendar-toolbox"/>
-      </modevbox>
-      <modevbox id="task-toolbox-container" mode="task" broadcaster="modeBroadcaster">
+      </calendar-modevbox>
+      <calendar-modevbox id="task-toolbox-container"
+                         mode="task"
+                         broadcaster="modeBroadcaster">
         <toolbox id="task-toolbox"/>
-      </modevbox>
+      </calendar-modevbox>
       <hbox id="calendarContent" flex="1">
         <vbox id="ltnSidebar"
               width="200"
               persist="collapsed width">
-          <modevbox id="minimonth-pane" mode="calendar,task" broadcaster="modeBroadcaster" refcontrol="calendar_toggle_minimonthpane_command">
+          <calendar-modevbox id="minimonth-pane"
+                             mode="calendar,task"
+                             broadcaster="modeBroadcaster"
+                             refcontrol="calendar_toggle_minimonthpane_command">
             <vbox align="center">
               <hbox id="calMinimonthBox" pack="center">
                 <calendar-minimonth id="calMinimonth" onchange="minimonthPick(this.value);"/>
               </hbox>
             </vbox>
-          </modevbox>
+          </calendar-modevbox>
           <separator id="minimonth-splitter" minwidth="100"/>
           <vbox id="calendar-panel" flex="1">
-            <modevbox id="task-filter-pane" mode="task" broadcaster="modeBroadcaster" refcontrol="calendar_toggle_filter_command">
+            <calendar-modevbox id="task-filter-pane"
+                               mode="task"
+                               broadcaster="modeBroadcaster"
+                               refcontrol="calendar_toggle_filter_command">
               <checkbox id="task-tree-filter-header"
                                checked="true"
                                class="treenode-checkbox"
                                label="&calendar.task.filter.title.label;"/>
-              <modevbox id="task-filtertree-pane" flex="1" mode="task" broadcaster="modeBroadcaster" refcontrol="task-tree-filter-header">
+              <calendar-modevbox id="task-filtertree-pane"
+                                 flex="1"
+                                 mode="task"
+                                 broadcaster="modeBroadcaster"
+                                 refcontrol="task-tree-filter-header">
                 <radiogroup id="task-tree-filtergroup" class="task-tree-subpane"
                             persist="value">
                   <observes element="filterBroadcaster"
@@ -234,10 +249,13 @@
                   <radio id="opt_open_filter" label="&calendar.task.filter.open.label;" value="open" command="calendar_task_filter_command"/>
                   <radio id="opt_all_filter" label="&calendar.task.filter.all.label;" value="all" command="calendar_task_filter_command"/>
                 </radiogroup>
-              </modevbox>
-            </modevbox>
-            <modevbox id="calendar-list-pane" flex="1" mode="calendar,task" broadcaster="modeBroadcaster"
-                      refcontrol="calendar_toggle_calendarlist_command">
+              </calendar-modevbox>
+            </calendar-modevbox>
+            <calendar-modevbox id="calendar-list-pane"
+                               flex="1"
+                               mode="calendar,task"
+                               broadcaster="modeBroadcaster"
+                               refcontrol="calendar_toggle_calendarlist_command">
               <checkbox id="calendar-list-header"
                                checked="true"
                                class="treenode-checkbox"
@@ -245,17 +263,19 @@
                                ondragenter="return document.getElementById('calendar-list-tree-widget').foreignCanDrop(event)"
                                ondragover="return document.getElementById('calendar-list-tree-widget').foreignCanDrop(event)"
                                label="&calendar.list.header.label;"/>
-              <modevbox id="calendar-listtree-pane" flex="1" mode="calendar,task" broadcaster="modeBroadcaster"
-                        refcontrol="calendar-list-header">
-
+              <calendar-modevbox id="calendar-listtree-pane"
+                                 flex="1"
+                                 mode="calendar,task"
+                                 broadcaster="modeBroadcaster"
+                                 refcontrol="calendar-list-header">
                 <tree is="calendar-list-tree-full" id="calendar-list-tree-widget"
                       writable="true"
                       allowdrag="true"
                       onselect="document.commandDispatcher.updateCommands('calendar_commands')"
                       childtooltip="calendar-list-tooltip"
                       childcontext="list-calendars-context-menu"/>
-              </modevbox>
-          </modevbox>
+              </calendar-modevbox>
+            </calendar-modevbox>
           </vbox>
         </vbox>
 
@@ -280,7 +300,7 @@
               class="calendar-sidebar-splitter"
               oncommand="TodayPane.onCommandTodaySplitter();">
     </splitter>
-    <modevbox id="today-pane-panel" />
+    <calendar-modevbox id="today-pane-panel"/>
   </hbox>
 
   <hbox id="status-bar">

@@ -13,7 +13,6 @@
 ]>
 
 <?xml-stylesheet href="chrome://calendar/skin/today-pane.css" type="text/css"?>
-<?xml-stylesheet href="chrome://calendar/content/widgets/calendar-widget-bindings.css" type="text/css"?>
 
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
 
@@ -24,14 +23,18 @@
   <script src="chrome://calendar/content/calendar-dnd-listener.js"/>
   <script src="chrome://calendar/content/calendar-item-editing.js"/>
 
-  <modevbox id="today-pane-panel"
-            mode="mail,calendar,task" modewidths="200,200,200" modesplitterstates="open,open,open"
-            refcontrol="calendar_toggle_todaypane_command"
-            broadcaster="modeBroadcaster" persist="modewidths">
+  <calendar-modevbox id="today-pane-panel"
+                     mode="mail,calendar,task"
+                     modewidths="200,200,200"
+                     modesplitterstates="open,open,open"
+                     refcontrol="calendar_toggle_todaypane_command"
+                     broadcaster="modeBroadcaster"
+                     persist="modewidths">
     <sidebarheader align="center">
       <label id ="today-pane-header"/>
       <spacer flex="1"/>
-      <modebox mode="mail,calendar" broadcaster="modeBroadcaster">
+      <calendar-modebox mode="mail,calendar"
+                        broadcaster="modeBroadcaster">
         <toolbarbutton id="today-pane-cycler-prev"
                        dir="prev"
                        class="today-pane-cycler"
@@ -40,7 +43,7 @@
                        dir="next"
                        class="today-pane-cycler"
                        oncommand="TodayPane.cyclePaneView(1);"/>
-      </modebox>
+      </calendar-modebox>
       <spacer id="buttonspacer"/>
       <toolbarbutton id="today-closer" class="today-closebutton close-icon"
                      oncommand="document.getElementById('today-pane-panel').setVisible(false, true, true);
@@ -48,37 +51,37 @@
                                 TodayPane.updateSplitterState();"/>
     </sidebarheader>
     <vbox flex="1">
-      <modevbox id="agenda-panel"
-                flex="1"
-                mode="mail,calendar,task"
-                collapsedinmodes="calendar"
-                persist="collapsed height collapsedinmodes"
-                broadcaster="modeBroadcaster">
-        <modebox id="today-none-box"
-                 mode="mail,calendar,task"
-                 collapsedinmodes="mail,calendar,task"
-                 broadcaster="modeBroadcaster"
-                 refcontrol="ltnTodayPaneDisplayNone"
-                 persist="collapsedinmodes"/>
-        <modebox id="today-minimonth-box"
-                  pack="center"
-                  class="today-subpane"
-                  mode="mail,calendar,task"
-                  broadcaster="modeBroadcaster"
-                  collapsedinmodes="mail,calendar,task"
-                  refcontrol="ltnTodayPaneDisplayMinimonth"
-                  persist="collapsedinmodes">
+      <calendar-modevbox id="agenda-panel"
+                         flex="1"
+                         mode="mail,calendar,task"
+                         collapsedinmodes="calendar"
+                         persist="collapsed height collapsedinmodes"
+                         broadcaster="modeBroadcaster">
+        <calendar-modebox id="today-none-box"
+                          mode="mail,calendar,task"
+                          collapsedinmodes="mail,calendar,task"
+                          broadcaster="modeBroadcaster"
+                          refcontrol="ltnTodayPaneDisplayNone"
+                          persist="collapsedinmodes"/>
+        <calendar-modebox id="today-minimonth-box"
+                          pack="center"
+                          class="today-subpane"
+                          mode="mail,calendar,task"
+                          broadcaster="modeBroadcaster"
+                          collapsedinmodes="mail,calendar,task"
+                          refcontrol="ltnTodayPaneDisplayMinimonth"
+                          persist="collapsedinmodes">
           <calendar-minimonth id="today-minimonth"
                               onchange="TodayPane.setDaywithjsDate(this.value);"/>
-        </modebox>
-        <modebox id="mini-day-box"
-                 mode="mail,calendar,task"
-                 class="today-subpane"
-                 refcontrol="ltnTodayPaneDisplayMiniday"
-                 broadcaster="modeBroadcaster"
-                 collapsedinmodes=""
-                 persist="collapsedinmodes"
-                 onDOMMouseScroll="TodayPane.advance(event.detail > 0 ? 1 : -1);">
+        </calendar-modebox>
+        <calendar-modebox id="mini-day-box"
+                          mode="mail,calendar,task"
+                          class="today-subpane"
+                          refcontrol="ltnTodayPaneDisplayMiniday"
+                          broadcaster="modeBroadcaster"
+                          collapsedinmodes=""
+                          persist="collapsedinmodes"
+                          onDOMMouseScroll="TodayPane.advance(event.detail > 0 ? 1 : -1);">
           <stack flex="1">
             <image id="mini-day-image" flex="1"/>
             <hbox flex="1">
@@ -144,7 +147,7 @@
               </toolbarbutton>
             </hbox>
           </stack>
-        </modebox>
+        </calendar-modebox>
         <vbox flex="1">
           <hbox id="agenda-toolbar" iconsize="small">
             <toolbarbutton id="todaypane-new-event-button"
@@ -369,17 +372,19 @@
                           persist="checked"/>
           </richlistbox>
         </vbox>
-      </modevbox>
+      </calendar-modevbox>
       <splitter id="today-pane-splitter" persist="hidden"/>
-      <modevbox id="todo-tab-panel" flex="1" mode="mail,calendar"
-                collapsedinmodes="mail,task"
-                broadcaster="modeBroadcaster"
-                persist="height collapsedinmodes"
-                ondragstart="nsDragAndDrop.startDrag(event, calendarTaskButtonDNDObserver);"
-                ondragover="nsDragAndDrop.dragOver(event, calendarTaskButtonDNDObserver);"
-                ondrop="nsDragAndDrop.drop(event, calendarTaskButtonDNDObserver);"/>
+      <calendar-modevbox id="todo-tab-panel"
+                         flex="1"
+                         mode="mail,calendar"
+                         collapsedinmodes="mail,task"
+                         broadcaster="modeBroadcaster"
+                         persist="height collapsedinmodes"
+                         ondragstart="nsDragAndDrop.startDrag(event, calendarTaskButtonDNDObserver);"
+                         ondragover="nsDragAndDrop.dragOver(event, calendarTaskButtonDNDObserver);"
+                         ondrop="nsDragAndDrop.drop(event, calendarTaskButtonDNDObserver);"/>
     </vbox>
-  </modevbox>
+  </calendar-modevbox>
 
   <commandset id="calendar_commands">
     <command id="calendar_toggle_todaypane_command" oncommand="TodayPane.toggleVisibility(event)"/>
