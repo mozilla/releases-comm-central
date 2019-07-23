@@ -7,6 +7,15 @@
 
 "use strict";
 
+const formatYMD = 1;
+const formatYDM = 2;
+const formatMDY = 3;
+const formatMYD = 4;
+const formatDMY = 5;
+const formatDYM = 6;
+const formatMIN = 1;
+const formatMAX = 6;
+
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gSearchDateFormat = 0;
@@ -22,8 +31,10 @@ function initLocaleShortDateFormat() {
   try {
     const dateFormatter = new Services.intl.DateTimeFormat(undefined,
       { dateStyle: "short" });
-    var aDate = new Date(1999, 11, 1);
-    var dateString = dateFormatter.format(aDate).replace(/ /g, "");
+    var aDate = new Date(1999, 11, 2);
+    // Short formats can be space-separated, like 02 Dec 1999.
+    var dateString = dateFormatter.format(aDate).replace(" 2", "2")
+                                                .replace(/ /g, "/");
 
     // find out the separator
     var possibleSeparators = "/-.";
@@ -38,21 +49,22 @@ function initLocaleShortDateFormat() {
 
     // check the format option
     if (arrayOfStrings.length != 3) { // no successful split
-      Cu.reportError("initLocaleShortDateFormat: could not analyze the date format, defaulting to mm/dd/yyyy");
+      Cu.reportError(`initLocaleShortDateFormat: could not analyze date format of ${dateString}, defaulting to yyyy/mm/dd`);
     } else {
       // The date will contain a zero if the system settings include leading zeros.
       gSearchDateLeadingZeros = dateString.includes("0");
 
-      // match 1 as number, since that will match both "1" and "01"
-      if (arrayOfStrings[0] == 1) {
-        // 01.12.1999 or 01.1999.12
-        gSearchDateFormat = arrayOfStrings[1] == "12" ? 5 : 6;
-      } else if (arrayOfStrings[1] == 1) {
-        // 12.01.1999 or 1999.01.12
-        gSearchDateFormat = arrayOfStrings[0] == "12" ? 3 : 2;
-      } else { // implies arrayOfStrings[2] == 1
-        // 12.1999.01 or 1999.12.01
-        gSearchDateFormat = arrayOfStrings[0] == "12" ? 4 : 1;
+      // Match 2 as number, since that will match both "2" and "02".
+      // Let's not look for 12 since it could be Dec instead.
+      if (arrayOfStrings[0] == 2) {
+        // 02.12.1999 or 02.1999.12
+        gSearchDateFormat = arrayOfStrings[1] == "1999" ? formatDYM : formatDMY;
+      } else if (arrayOfStrings[1] == 2) {
+        // 12.02.1999 or 1999.02.12
+        gSearchDateFormat = arrayOfStrings[0] == "1999" ? formatYDM : formatMDY;
+      } else { // implies arrayOfStrings[2] == 2
+        // 12.1999.02 or 1999.12.02
+        gSearchDateFormat = arrayOfStrings[0] == "1999" ? formatYMD : formatMYD;
       }
     }
   } catch (e) {
@@ -78,8 +90,8 @@ function initializeSearchDateFormat() {
       initLocaleShortDateFormat();
     } else {
       // initialize the search date format based on preferences
-      if (gSearchDateFormat < 1 || gSearchDateFormat > 6)
-        gSearchDateFormat = 3;
+      if (gSearchDateFormat < formatMIN || gSearchDateFormat > formatMAX)
+        gSearchDateFormat = formatYMD;
 
       gSearchDateSeparator =
         Services.prefs.getComplexValue("mailnews.search_date_separator",
@@ -96,8 +108,8 @@ function initializeSearchDateFormat() {
   }
 
   if (gSearchDateFormat == 0) {
-    // Set to mm/dd/yyyy in case we couldn't determine in any way.
-    gSearchDateFormat = 3;
+    // Set to yyyy/mm/dd in case we couldn't determine in any way.
+    gSearchDateFormat = formatYMD;
     gSearchDateSeparator = "/";
     gSearchDateLeadingZeros = true;
   }
@@ -127,22 +139,22 @@ function convertDateToString(time) {
   var sep = gSearchDateSeparator;
 
   switch (gSearchDateFormat) {
-    case 1:
+    case formatYMD:
       dateStr = year + sep + month + sep + date;
       break;
-    case 2:
+    case formatYDM:
       dateStr = year + sep + date + sep + month;
       break;
-    case 3:
+    case formatMDY:
      dateStr = month + sep + date + sep + year;
       break;
-    case 4:
+    case formatMYD:
       dateStr = month + sep + year + sep + date;
       break;
-    case 5:
+    case formatDMY:
       dateStr = date + sep + month + sep + year;
       break;
-    case 6:
+    case formatDYM:
       dateStr = date + sep + year + sep + month;
       break;
     default:
@@ -160,32 +172,32 @@ function convertStringToPRTime(str) {
 
   // set year, month, date based on the format option
   switch (gSearchDateFormat) {
-    case 1:
+    case formatYMD:
       year = arrayOfStrings[0];
       month = arrayOfStrings[1];
       date = arrayOfStrings[2];
       break;
-    case 2:
+    case formatYDM:
       year = arrayOfStrings[0];
       month = arrayOfStrings[2];
       date = arrayOfStrings[1];
       break;
-    case 3:
+    case formatMDY:
       year = arrayOfStrings[2];
       month = arrayOfStrings[0];
       date = arrayOfStrings[1];
       break;
-    case 4:
+    case formatMYD:
       year = arrayOfStrings[1];
       month = arrayOfStrings[0];
       date = arrayOfStrings[2];
       break;
-    case 5:
+    case formatDMY:
       year = arrayOfStrings[2];
       month = arrayOfStrings[1];
       date = arrayOfStrings[0];
       break;
-    case 6:
+    case formatDYM:
       year = arrayOfStrings[1];
       month = arrayOfStrings[2];
       date = arrayOfStrings[0];
