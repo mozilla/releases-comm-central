@@ -30,7 +30,7 @@
         constructor() {
             super();
             // Set up custom interfaces.
-            // calIObserver is not used like the others are, so it is not set up here.
+            this.calIObserver = this.getCustomInterfaceCallback(Ci.calIObserver);
             this.calICompositeObserver = this.getCustomInterfaceCallback(Ci.calICompositeObserver);
             this.calIOperationListener = this.getCustomInterfaceCallback(Ci.calIOperationListener);
             this.nsIObserver = this.getCustomInterfaceCallback(Ci.nsIObserver);
@@ -969,7 +969,7 @@
     }
 
     MozXULElement.implementCustomInterface(CalendarMinimonth, [
-        // Ci.calIObserver is omitted since it is not used like the others are.
+        Ci.calIObserver,
         Ci.calICompositeObserver,
         Ci.calIOperationListener,
         Ci.nsIObserver
