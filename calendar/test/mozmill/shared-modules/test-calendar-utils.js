@@ -70,7 +70,8 @@ var ALARM_ICON_PATH = `
     anon({"anonid":"alarm-icons-box"})/anon({"class":"reminder-icon"})
 `;
 
-var plan_for_modal_dialog, wait_for_modal_dialog, close_window, open_pref_tab;
+var plan_for_modal_dialog, wait_for_modal_dialog, close_window;
+var open_pref_tab, close_pref_tab;
 
 function setupModule(controller) {
     ({ plan_for_modal_dialog, wait_for_modal_dialog, close_window } =
@@ -80,7 +81,7 @@ function setupModule(controller) {
     // loading of modules in shared modules does not setup the module correctly.
     collector.getModule("folder-display-helpers").setupModule();
 
-    ({ open_pref_tab } = collector.getModule("pref-window-helpers"));
+    ({ open_pref_tab, close_pref_tab } = collector.getModule("pref-window-helpers"));
     collector.getModule("pref-window-helpers").setupModule();
 
     // For our tests, we assume that Sunday is start of week.
@@ -135,6 +136,7 @@ function installInto(module) {
     module.handleNewCalendarWizard = handleNewCalendarWizard;
     module.findEventsInNode = findEventsInNode;
     module.openLightningPrefs = openLightningPrefs;
+    module.closeLightningPrefs = closeLightningPrefs;
     module.menulistSelect = menulistSelect;
 }
 
@@ -616,6 +618,10 @@ function openLightningPrefs(aCallback, aParentController) {
         "Timed out waiting for prefpane paneLightning to load."
     );
     aCallback(tab);
+}
+
+function closeLightningPrefs(tab) {
+    close_pref_tab(tab);
 }
 
 /**

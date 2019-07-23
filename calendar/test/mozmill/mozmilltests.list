@@ -1,8 +1,8 @@
 cal-recurrence
 eventDialog
 invitations
+preferences
 recurrenceRotated
-testAlarmDefaultValue.js
 testBasicFunctionality.js
 testLocalICS.js
 testTimezones.js

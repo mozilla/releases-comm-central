@@ -7,7 +7,7 @@
  */
 
 var MODULE_NAME = "testAlarmDefaultValue";
-var RELATIVE_ROOT = "./shared-modules";
+var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils", "content-tab-helpers"];
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
@@ -16,9 +16,12 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 const DEFVALUE = 43;
 
-var helpersForController, invokeEventDialog, openLightningPrefs, menulistSelect;
+var helpersForController, invokeEventDialog, openLightningPrefs, closeLightningPrefs;
+var menulistSelect;
 var plan_for_modal_dialog, wait_for_modal_dialog;
 var content_tab_e, content_tab_eid;
+
+var prefTab = null;
 
 function setupModule(module) {
     controller = mozmill.getMail3PaneController();
@@ -26,6 +29,7 @@ function setupModule(module) {
         helpersForController,
         invokeEventDialog,
         openLightningPrefs,
+        closeLightningPrefs,
         menulistSelect
     } = collector.getModule("calendar-utils"));
     collector.getModule("calendar-utils").setupModule(controller);
@@ -91,6 +95,8 @@ function testDefaultAlarms() {
 }
 
 function handlePrefTab(tab) {
+    prefTab = tab;
+
     let { replaceText } = helpersForController(controller);
     // Scroll to the reminder groupbox
     content_tab_e(tab, "defaultsnoozelength").scrollIntoView();
@@ -141,4 +147,8 @@ function teardownModule(module) {
     Services.prefs.clearUserPref("calendar.alarms.eventalarmunit");
     Services.prefs.clearUserPref("calendar.alarms.todoalarmlen");
     Services.prefs.clearUserPref("calendar.alarms.todoalarmunit");
+
+    if (prefTab) {
+        closeLightningPrefs(prefTab);
+    }
 }
