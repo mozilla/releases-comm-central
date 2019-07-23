@@ -11,7 +11,8 @@ html, body {
 body {
   min-height: 300px;
   font: message-box;
-  font-size: 1em;
+  font-size: 17px;
+  color: #0c0c0d;
 }
 
 a,
@@ -47,4 +48,10 @@ a:hover,
 
 #story {
   margin-top: 2ex;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    color: rgb(249, 249, 250);
+  }
 }
