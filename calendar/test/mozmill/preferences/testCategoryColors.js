@@ -31,9 +31,8 @@ function testCategoryColors() {
     openLightningPrefs((tab) => {
         prefTab = tab;
 
-        content_tab_e(tab, "calPreferencesTabCategories").click();
-
         let listBox = content_tab_e(tab, "categorieslist");
+        listBox.scrollIntoView();
         controller.assert(() => listBox.itemChildren.length == 22);
 
         for (let item of listBox.itemChildren) {
