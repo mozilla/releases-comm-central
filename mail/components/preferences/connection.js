@@ -68,10 +68,6 @@ window.addEventListener("DOMContentLoaded", () => {
   Preferences.addSyncFromPrefListener(document.getElementById("networkProxySOCKSVersion"),
     () => gConnectionsDialog.updateDNSPref());
 
-  let element = document.getElementById("networkDnsOverHttps");
-  Preferences.addSyncFromPrefListener(element, () => gConnectionsDialog.readDnsOverHttpsMode());
-  Preferences.addSyncToPrefListener(element, () => gConnectionsDialog.writeDnsOverHttpsMode());
-
   // XXX: We can't init the DNS-over-HTTPs UI until the syncfrompref for network.trr.mode
   //      has been called. The uiReady promise will be resolved after the first call to
   //      readDnsOverHttpsMode and the subsequent call to initDnsOverHttpsUI has happened.
@@ -81,6 +77,10 @@ window.addEventListener("DOMContentLoaded", () => {
   }).then(() => {
     gConnectionsDialog.initDnsOverHttpsUI();
   });
+
+  let element = document.getElementById("networkDnsOverHttps");
+  Preferences.addSyncFromPrefListener(element, () => gConnectionsDialog.readDnsOverHttpsMode());
+  Preferences.addSyncToPrefListener(element, () => gConnectionsDialog.writeDnsOverHttpsMode());
 }, { once: true, capture: true });
 
 var gConnectionsDialog = {
