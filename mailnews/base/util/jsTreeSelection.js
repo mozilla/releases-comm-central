@@ -584,7 +584,6 @@ JSTreeSelection.prototype = {
 
     // We might not have a view if we're in the middle of setting up things
     if (view) {
-      view = view.QueryInterface(Ci.nsITreeView);
       view.selectionChanged();
     }
   },
