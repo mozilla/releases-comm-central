@@ -1705,11 +1705,13 @@ FolderDisplayWidget.prototype = {
     var accountBox = document.getElementById("accountCentralBox");
     document.getElementById("displayDeck").selectedPanel = accountBox;
     var prefName = "mailnews.account_central_page.url";
-    // oh yeah, 'pref' is a global all right.
     var acctCentralPage =
       Services.prefs.getComplexValue(prefName,
                                      Ci.nsIPrefLocalizedString).data;
-    window.frames.accountCentralPane.location.href = acctCentralPage;
+    // Prevent a second load if necessary.
+    if (window.frames.accountCentralPane.location.href != acctCentralPage) {
+      window.frames.accountCentralPane.location.href = acctCentralPage;
+    }
   },
 
   /**
