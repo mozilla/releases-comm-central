@@ -51,19 +51,6 @@
 
 #include "ldap-int.h"
 
-/* This xp_qsort fixes a memory problem (ABR) on Solaris for the client.
- * Server is welcome to use it too, but I wasn't sure if it
- * would be ok to use XP code here.  -slamm
- *
- * We don't want to require use of libxp when linking with libldap, so
- * I'll leave use of xp_qsort as a MOZILLA_CLIENT-only thing for now. --mcs
- */
-#if defined(MOZILLA_CLIENT) && defined(SOLARIS)
-#  include "xp_qsort.h"
-#else
-#  define XP_QSORT qsort
-#endif
-
 typedef struct keycmp {
   void *kc_arg;
   LDAP_KEYCMP_CALLBACK *kc_cmp;
@@ -135,7 +122,7 @@ int LDAP_CALL ldap_keysort_entries(LDAP *ld, LDAPMessage **chain, void *arg,
   }
   last = e;
 
-  XP_QSORT((void *)kt, count, (size_t)sizeof(keything_t *), ldapi_keycmp);
+  qsort((void *)kt, count, (size_t)sizeof(keything_t *), ldapi_keycmp);
 
   ep = chain;
   for (i = 0; i < count; i++) {
@@ -256,7 +243,7 @@ int LDAP_CALL ldap_multisort_entries(LDAP *ld, LDAPMessage **chain,
   last = e;
 
   et_cmp_fn = (LDAP_CHARCMP_CALLBACK *)cmp;
-  XP_QSORT((void *)et, (size_t)count, (size_t)sizeof(struct entrything),
+  qsort((void *)et, (size_t)count, (size_t)sizeof(struct entrything),
            et_cmp);
 
   ep = chain;
@@ -297,7 +284,7 @@ int LDAP_CALL ldap_sort_values(LDAP *ld, char **vals,
   for (nel = 0; vals[nel] != NULL; nel++)
     ; /* NULL */
 
-  XP_QSORT(vals, nel, sizeof(char *), (LDAP_VOIDCMP_CALLBACK *)cmp);
+  qsort(vals, nel, sizeof(char *), (LDAP_VOIDCMP_CALLBACK *)cmp);
 
   return (LDAP_SUCCESS);
 }
