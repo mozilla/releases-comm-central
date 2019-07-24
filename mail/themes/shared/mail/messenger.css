@@ -294,6 +294,10 @@ statusbarpanel,
   border-color: ThreeDShadow;
 }
 
+#quotaPercentageBar {
+  border-color: ThreeDShadow;
+}
+
 #quotaPanel ::-moz-progress-bar {
   -moz-appearance: none;
   background-color: #45a1ff;

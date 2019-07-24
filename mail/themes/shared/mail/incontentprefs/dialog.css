@@ -53,7 +53,7 @@ tree {
 }
 
 .actionButtons {
-  margin: 3px 0 0 !important;
+  margin: 3px 0 0;
 }
 
 caption {
@@ -93,11 +93,6 @@ menulist label {
 #configDeck {
   min-width: 750px;
   min-height: 500px;
-}
-
-#cookieInfoBox {
-  margin-right: 0;
-  margin-left: 0;
 }
 
 /* Create a separate rule to unset these styles on .tree-input instead of

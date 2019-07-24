@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@import url("chrome://messenger/skin/shared/in-content/applications.css");
+
 /**
  * Line up the actions menu with action labels above and below it.
  * Equalize the distance from the left side of the action box to the left side
@@ -15,30 +17,6 @@
   margin-inline-end: 0;
 }
 
-.actionIcon {
-  margin: 0 3px;
-}
-
-richlistitem {
-  min-height: 35px;
-}
-
-richlistitem[appHandlerIcon="ask"],
-menuitem[appHandlerIcon="ask"] {
-  list-style-image: url("chrome://messenger/skin/preferences/alwaysAsk.png");
-}
-
-richlistitem[appHandlerIcon="save"],
-menuitem[appHandlerIcon="save"] {
-  list-style-image: url("moz-icon://stock/gtk-save?size=menu");
-}
-
-.actionsMenu .menulist-icon {
-  margin-inline-end: 1px;
-  height: 16px;
-  width: 16px;
-}
-
 .actionsMenu > menupopup > menuitem > .menu-iconic-left {
   padding-inline-start: 0;
   padding-inline-end: 4px !important;
@@ -48,17 +26,13 @@ menuitem[appHandlerIcon="save"] {
   padding-inline-start: 3px;
 }
 
-/**
- * Used by the outgoing attachment manager
- */
-.cloudfileAccount {
-  padding: 4px;
+.actionContainer {
+  margin-inline-start: 1px;
 }
 
-.cloudfileAccount .typeIcon {
-  height: 16px;
-  width: 16px;
-}
+/**
+ * Used by the cloudFile manager
+ */
 
 .cloudfileAccount > label {
   margin-inline-start: 1px;
@@ -66,17 +40,9 @@ menuitem[appHandlerIcon="save"] {
   margin-bottom: initial;
 }
 
-.cloudfileAccount:not([selected]) > label {
-  pointer-events: none;
-}
-
 .cloudfileAccount > textbox {
   color: -moz-fieldtext !important;
   min-height: unset;
   margin: 0;
   padding-inline-start: 4px;
-}
-
-#cloudFileToggleAndThreshold {
-  margin-bottom: 15px;
 }

@@ -2,225 +2,49 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url("chrome://messenger/content/bindings.css");
+@import url("chrome://messenger/skin/shared/in-content/preferences.css");
+@namespace html "http://www.w3.org/1999/xhtml";
 
-/* Global Styles */
+.dialogBox,
+#MailPreferences prefpane {
+  font-size: 1.11em;
+}
 
-radio[pane] {
+radio[pane] > .radio-label-box {
+  font-size: 1.2em;
+}
+
+.treecol-sortdirection {
+  /* override the Linux only toolkit rule */
   -moz-appearance: none;
-  min-width: 4.5em;
-  margin: 0;
-  padding: 3px;
-  color: -moz-FieldText;
 }
 
-.paneSelector {
-  -moz-appearance: listbox;
-  margin: 8px 8px 0;
-  padding: 0;
+menulist.actionsMenu > .menulist-dropmarker {
+  margin-top: 11px;
+  margin-bottom: 11px;
 }
 
-menulist > .menulist-label-box > .menulist-icon[src] {
-  margin-inline-start: 5px;
-  margin-inline-end: 5px;
+html|input[type="number"]::-moz-number-spin-up {
+  min-height: 10px;
 }
 
-menulist > menupopup > menuitem > .menu-iconic-left {
+html|input[type="number"]::-moz-number-spin-down {
+  min-height: 11px;
+}
+
+.sidebar-footer-label {
+  font-size: 1em;
+}
+
+/**
+ * Dialog
+ */
+
+#dialogTitle {
+  font-size: 1.05em;
+}
+
+#defaultWebSearchPopup > menuitem > .menu-iconic-left {
+  margin-inline-start: 5px !important;
   margin-inline-end: 5px !important;
-}
-
-/* Modeless Window Dialogs */
-.windowDialog,
-.windowDialog prefpane {
-  padding: 0px;
-}
-
-.contentPane {
-  margin: 9px 8px 5px;
-}
-
-.actionButtons {
-  margin: 0px 3px 6px !important;
-}
-
-/* override the color style for tag items when they
-   have selection */
-#tagList listitem[selected="true"] {
-  color: -moz-DialogText !important;
-}
-
-#tagList:focus > listitem[selected="true"] {
-  color: HighlightText !important;
-}
-
-/* Quota meter in Folder Properties */
-
-#quotaPercentageBar {
-  border-color: ThreeDShadow;
-}
-
-::-moz-progress-bar {
-  -moz-appearance: none;
-  background-color: #45a1ff;
-  opacity: .75;
-}
-
-/* Cookies Manager */
-#cookieInfoBox {
-  border: 1px solid ThreeDShadow;
-  border-radius: 0;
-  margin: 4px;
-  padding: 0;
-}
-
-/* Attachments */
-
-body {
-  font: message-box;
-}
-
-a {
-  color: -moz-nativehyperlinktext;
-  text-decoration: underline;
-}
-
-/* Making sure there is some spacing between elements */
-
-#provider-header {
-  border-bottom: 1px solid black;
-  margin-bottom: 20px;
-  height: 50px;
-}
-
-#provider-name {
-  padding: 0;
-  margin: 0;
-  margin-right: 120px;
-}
-
-#provider-name h2 {
-  font: message-box;
-}
-
-#provider-terms {
-  float: right;
-}
-
-#provider-terms a {
-  display: block;
-  margin-bottom: 5px;
-  text-align: right;
-}
-#upgrade a,
-#provider-terms a,
-#provider-account-settings a {
-  color: #0a8dff;
-  text-decoration: none;
-}
-
-#upgrade a:hover,
-#provider-terms a:hover,
-#provider-account-settings a:hover {
-  color: #0060df;
-  text-decoration: underline;
-}
-
-#provider-space {
-  text-align: right;
-  margin-right: 190px;
-  margin-top: 50px;
-  height: 100px;
-}
-
-#cloudFileView {
-  overflow-x: hidden;
-}
-
-#upgrade {
-  margin-top: 1em;
-}
-
-#provider-space-visuals {
-  width: 150px;
-  height: 150px;
-  float: right;
-}
-
-#provider-account-settings {
-  text-align: right;
-  position: absolute;
-  bottom: 8px;
-  right: 10px;
-}
-
-.space-swatch {
-  display: inline-block;
-  width: 1em;
-  height: 1em;
-  border: 1px solid rgba(0,0,0,0.5);
-  border-radius: 2px;
-  margin-inline-start: 0.5ch;
-  box-sizing: border-box;
-}
-
-/* Main pane padding */
-
-#provider-management {
-  margin: 0 10px;
-  font-size: 1.018em;
-}
-
-#provider-name h1 {
-  margin: 0;
-  font-size: 1.5em;
-  font-weight: 600;
-}
-
-#cloudFileDefaultPanel {
-  text-align: center;
-  padding-top: 150px;
-}
-
-/* Flexing */
-#provider-management {
-  display: block;
-  -moz-box-orient: vertical;
-}
-
-#provider-space label {
-  margin-inline-end: 0.5ch;
-  vertical-align: middle;
-}
-
-#provider-space span {
-  vertical-align: middle;
-}
-
-#provider-header {
-  -moz-box-flex: 0;
-}
-
-#provider-spacebox {
-  -moz-box-flex: 1;
-}
-
-#provider-account-settings {
-  -moz-box-flex: 0;
-}
-
-#version {
-  margin-inline-start: 0;
-}
-
-.update-throbber {
-  width: 16px;
-  min-height: 16px;
-  margin-inline-start: 6px;
-  list-style-image: url("chrome://global/skin/icons/loading.png");
-}
-
-@media (min-resolution: 1.1dppx) {
-  .update-throbber {
-    list-style-image: url("chrome://global/skin/icons/loading@2x.png");
-  }
 }

@@ -2,235 +2,75 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url("chrome://messenger/content/bindings.css");
+@import url("chrome://messenger/skin/shared/in-content/preferences.css");
+@namespace html "http://www.w3.org/1999/xhtml";
 
-/* Global Styles */
-
-.windowDialog {
-  padding: 12px;
-  font: -moz-dialog;
+.dialogBox,
+#MailPreferences prefpane {
+  font-size: 1.36em;
 }
 
-#permissionsText {
-  font: small-caption;
-  font-weight: normal;
-  line-height: 1.3em;
-  margin-bottom: 4px !important;
+radio[pane] > .radio-label-box {
+  font-size: 1.46em;
 }
 
-menulist > menupopup > menuitem {
-  font: -moz-pull-down-menu;
+radio[pane][focused="true"] > .radio-check {
+  outline: none;
 }
 
-#browserStartupHomepage {
-  padding-top: 2px;
-  padding-bottom: 3px;
-  padding-inline-start: 4px;
-  padding-inline-end: 2px;
+html|h2 {
+  border-bottom-width: 0;
+  padding-bottom: 2px !important;
+  padding-inline-start: 0;
 }
 
-caption {
-  border-bottom: 1px solid #ECECEC;
-  padding-top: 4px !important;
-  padding-bottom: 0px !important;
-  padding-inline-start: 0px !important;
-  padding-inline-end: 4px !important;
-}
-
-#paneContent {
-  padding-top: 8px;
-}
-
-#paneContent row {
-  padding: 0 4px;
-}
-
-#advancedPrefs {
-  margin: 0 8px;
-}
-
-#securityPrefs {
-  padding: 0 4px;
-}
-
-tabpanels {
-  padding: 18px 10px 10px;
-  margin: 0 6px 6px;
-}
-
-.bold {
-  font-weight: bold;
-}
-
-/* override the color style for tag items when they
-   have selection */
-#tagList listitem[selected="true"] {
-  color: -moz-DialogText !important;
-}
-
-#tagList:focus > listitem[selected="true"] {
-  color: HighlightText !important;
-}
-
-/* Quota meter in Folder Properties */
-
-#quotaPercentageBar {
-  border-color: #8b8b8b;
-}
-
-::-moz-progress-bar {
-  -moz-appearance: none;
-  background-color: #45a1ff;
-  opacity: .75;
-}
-
-/* Attachments */
-
-a {
-  color: -moz-nativehyperlinktext;
-  text-decoration: underline;
-}
-
-#provider-header {
-  border-bottom: 1px solid #b1b1b1;
-  margin-bottom: 20px;
-  height: 50px;
-}
-
-#provider-name {
+groupbox > .groupbox-body {
   padding: 0;
-  margin: 0;
-  margin-right: 120px;
 }
 
-#provider-name h2 {
-  font-size: 1.2em;
+html|input[type="number"]::-moz-number-spin-up,
+html|input[type="number"]::-moz-number-spin-down {
+  min-height: 11px;
 }
 
-#provider-terms {
-  float: right;
+menulist:not([popuponly="true"]) {
+  min-height: 30px;
 }
 
-#provider-terms a {
-  display: block;
-  margin-bottom: 5px;
-  text-align: right;
-}
-#upgrade a,
-#provider-terms a,
-#provider-account-settings a {
-  color: #0a8dff;
-  text-decoration: none;
+radio[pane] {
+  text-shadow: none;
 }
 
-#upgrade a:hover,
-#provider-terms a:hover,
-#provider-account-settings a:hover {
-  color: #0060df;
-  text-decoration: underline;
+radio[pane][selected] {
+  border-image: none;
 }
 
-#provider-space {
-  text-align: right;
-  margin-right: 180px;
-  margin-top: 50px;
-  height: 100px;
+.actionsMenu > .menulist-label-box > .menulist-icon {
+  margin-top: 2px;
 }
 
-#cloudFileView {
-  width: 150px;
-  overflow: hidden;
+.sidebar-footer-label {
+  font-size: 1.224em;
 }
 
-#upgrade {
-  margin-top: 1em;
+tab:-moz-focusring > .tab-middle > .tab-text {
+  outline: none;
 }
 
-#version {
-  margin-inline-start: 0;
+/**
+ * Dialog
+ */
+
+#dialogTitle {
+  font-size: 1.1em;
 }
 
-.update-throbber {
-  width: 16px;
-  min-height: 16px;
-  margin-inline-start: 6px;
-  list-style-image: url("chrome://global/skin/icons/loading.png");
+/* Add to Cookies dialog a bottom padding */
+#CookiesDialog > hbox > .actionButtons {
+  padding-bottom: 10px;
 }
 
-@media (min-resolution: 1.1dppx) {
-  .update-throbber {
-    list-style-image: url("chrome://global/skin/icons/loading@2x.png");
-  }
-}
-
-#provider-space-visuals {
-  width: 150px;
-  height: 150px;
-  float: right;
-}
-
-#provider-account-settings {
-  text-align: right;
-  position: absolute;
-  bottom: 8px;
-  right: 10px;
-}
-
-.space-swatch {
-  display: inline-block;
-  width: 1em;
-  height: 1em;
-  border: 1px solid rgba(0,0,0,0.5);
-  border-radius: 2px;
-  margin-inline-start: 0.5ch;
-  box-sizing: border-box;
-}
-
-/* Main pane padding */
-
-#provider-management {
-  margin: 0 10px;
-  font-size: 1em;
-}
-
-#provider-name h1 {
-  margin: 0;
-  font-size: 1.5em;
-  font-weight: 600;
-}
-
-#cloudFileDefaultPanel {
-  text-align: center;
-  padding-top: 150px;
-}
-
-#provider-settings .indented {
-  margin-left: 75px;
-}
-
-/* Flexing */
-#provider-management {
-  display: block;
-  -moz-box-orient: vertical;
-}
-
-#provider-space label {
-  margin-inline-end: 0.5ch;
-  vertical-align: middle;
-}
-
-#provider-space span {
-  vertical-align: middle;
-}
-
-#provider-header {
-  -moz-box-flex: 0;
-}
-
-#provider-spacebox {
-  -moz-box-flex: 1;
-}
-
-#provider-account-settings {
-  -moz-box-flex: 0;
+#defaultWebSearchPopup > menuitem > .menu-iconic-left {
+  margin-inline-start: 5px;
+  margin-inline-end: 3px;
 }

@@ -84,7 +84,6 @@ classic.jar:
   skin/classic/messenger/addressbook/icons/secure-remote-addrbook.png      (mail/addrbook/secure-remote-addrbook.png)
   skin/classic/messenger/messengercompose/messengercompose.css (mail/compose/messengercompose.css)
   skin/classic/messenger/downloads/aboutDownloads.css         (mail/downloads/aboutDownloads.css)
-  skin/classic/messenger/preferences/aboutPreferences.css     (mail/preferences/aboutPreferences.css)
   skin/classic/messenger/preferences/alwaysAsk.png            (mail/preferences/alwaysAsk.png)
   skin/classic/messenger/preferences/application.png          (mail/preferences/application.png)
   skin/classic/messenger/preferences/applications.css         (mail/preferences/applications.css)

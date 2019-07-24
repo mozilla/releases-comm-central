@@ -7,6 +7,7 @@
 :root {
   --in-content-categories-background: #ebebef;
   --in-content-warning-container: var(--grey-20);
+  --in-content-item-selected-unfocused: var(--grey-20);
 }
 
 @supports -moz-bool-pref("browser.in-content.dark-mode") {
@@ -14,6 +15,7 @@
   :root {
     --in-content-categories-background: rgba(249,249,250,0.1);
     --in-content-warning-container: var(--grey-90-a30);
+    --in-content-item-selected-unfocused: rgba(249,249,250,0.05);
   }
 }
 }
@@ -107,10 +109,6 @@ tabpanel > hbox > description {
 /* Category List */
 
 .paneSelector {
-  -moz-appearance: none;
-  background-color: transparent;
-  background-image: none;
-  border-bottom: none;
   padding: 54px 0 0;
   margin: 0;
 }
@@ -320,59 +318,9 @@ tab:-moz-focusring > .tab-middle {
 
 /* Applications Pane Styles */
 
-#applications-content {
-  padding: 15px;
-}
-
 #filter {
   margin-inline-start: 0;
   margin-inline-end: 0;
-}
-
-#handlersView > richlistitem {
-  min-height: 36px !important;
-  padding: 0;
-}
-
-.shortDetails {
-  text-align: end;
-  opacity: 0.5;
-}
-
-#handlersView richlistitem[selected="true"] .shortDetails {
-  color: inherit;
-}
-
-.typeIcon {
-  margin-inline-start: 10px;
-  margin-inline-end: 9px;
-}
-
-.actionIcon {
-  margin-inline-start: 11px;
-  margin-inline-end: 8px;
-}
-
-.actionsMenu {
-  min-height: 36px;
-}
-
-.actionsMenu > menupopup > menuitem {
-  padding-inline-start: 10px !important;
-}
-
-.actionsMenu > menupopup > menuitem > .menu-iconic-left {
-  margin-inline-end: 8px !important;
-}
-
-listhead > listheader:first-of-type:-moz-locale-dir(ltr),
-listhead > listheader:last-of-type:-moz-locale-dir(rtl) {
-  margin-left: -2px;
-}
-
-listhead > listheader:first-of-type:-moz-locale-dir(rtl),
-listhead > listheader:last-of-type:-moz-locale-dir(ltr) {
-  margin-right: -2px;
 }
 
 /* XXX This style is for bug 740213 and should be removed once that
@@ -380,43 +328,8 @@ listhead > listheader:last-of-type:-moz-locale-dir(ltr) {
 description > html|a {
   cursor: pointer;
 }
-
-#provider-listing {
-  width: 200px;
-}
-
-#addCloudFileAccountButtons button,
-#addCloudFileAccount,
-#removeCloudFileAccount,
-#moreProvidersLink {
-  margin: 4px 0 0;
-  text-align: center;
-}
-
-#addCloudFileAccountButtons button .button-icon {
-  width: 16px;
-  height: 16px;
-  margin-inline-end: 8px;
-}
-
-#addCloudFileAccountListItems {
-  text-align: start;
-}
-
-#addCloudFileAccountListItems > menuitem > .menu-iconic-left {
-  display: -moz-box;
-}
-
-#moreProvidersLink {
-  padding: 4px;
-}
-
 #previewDeck {
   height: 220px;
-}
-
-tabs {
-  margin-inline-end: 4px; /* add the 4px end-margin of other elements */
 }
 
 .indent {
@@ -428,8 +341,17 @@ tabs {
 }
 
 .update-throbber {
-  margin-inline-start: 0;
+  width: 16px;
+  min-height: 16px;
+  margin-inline-start: 6px;
   margin-inline-end: 4px;
+  list-style-image: url("chrome://global/skin/icons/loading.png");
+}
+
+@media (min-resolution: 1.1dppx) {
+  .update-throbber {
+    list-style-image: url("chrome://global/skin/icons/loading@2x.png");
+  }
 }
 
 .updateSettingCrossUserWarningContainer {
@@ -518,6 +440,11 @@ richlistbox richlistitem {
 
 richlistbox richlistitem:hover {
   background-color: var(--in-content-item-hover);
+}
+
+richlistitem[selected="true"] {
+  background-color: var(--in-content-item-selected-unfocused);
+  color: inherit;
 }
 
 richlistbox:focus > richlistitem[selected="true"] {

@@ -43,9 +43,8 @@ SubDialog.prototype = {
   _box: null,
   _openedURL: null,
   _injectedStyleSheets: [
-    "chrome://messenger/skin/preferences/preferences.css",
     "chrome://global/skin/in-content/common.css",
-    "chrome://messenger/skin/preferences/aboutPreferences.css",
+    "chrome://messenger/skin/preferences/preferences.css",
     "chrome://messenger/skin/preferences/dialog.css",
   ],
 

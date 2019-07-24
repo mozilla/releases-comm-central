@@ -9,9 +9,8 @@
 <?xml-stylesheet href="chrome://messenger/content/preferences/handlers.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/filefield.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/applications.css"?>
-<?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 <?xml-stylesheet href="chrome://global/skin/in-content/common.css"?>
-<?xml-stylesheet href="chrome://messenger/skin/preferences/aboutPreferences.css"?>
+<?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 
 #include doctype.inc.xul
 

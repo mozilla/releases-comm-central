@@ -1,0 +1,121 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/**
+ * Line up the actions menu with action labels above and below it.
+ * Equalize the distance from the left side of the action box to the left side
+ * of the icon for both the menu and the non-menu versions of the action box.
+ * Also make sure the labels are the same distance away from the icons.
+ */
+
+#handlersView > richlistitem {
+  min-height: 36px;
+  padding: 0;
+}
+
+richlistitem[appHandlerIcon="ask"],
+menuitem[appHandlerIcon="ask"] {
+  list-style-image: url("chrome://messenger/skin/preferences/alwaysAsk.png");
+}
+
+richlistitem[appHandlerIcon="save"],
+menuitem[appHandlerIcon="save"] {
+  list-style-image: url("chrome://messenger/skin/preferences/saveFile.png");
+}
+
+.shortDetails {
+  text-align: end;
+  opacity: 0.5;
+}
+
+#handlersView richlistitem[selected="true"] .shortDetails {
+  color: inherit;
+}
+
+.typeIcon {
+  margin-inline-start: 10px;
+  margin-inline-end: 9px;
+}
+
+.actionIcon {
+  margin-inline-start: 12px;
+  margin-inline-end: 8px;
+}
+
+.actionsMenu {
+  min-height: 36px;
+}
+
+.actionsMenu > .menulist-label-box > .menulist-icon {
+  margin-inline-start: 5px;
+  margin-inline-end: 5px !important;
+}
+
+.actionsMenu > menupopup > menuitem {
+  padding-inline-start: 12px !important;
+}
+
+.actionsMenu > menupopup > menuitem > .menu-iconic-left {
+  margin-inline-end: 8px !important;
+}
+
+/**
+ * Used by the cloudFile manager
+ */
+
+#provider-listing {
+  width: 200px;
+}
+
+#cloudFileDefaultPanel {
+  text-align: center;
+  padding-top: 150px;
+}
+
+#addCloudFileAccountButtons button,
+#addCloudFileAccount,
+#removeCloudFileAccount,
+#moreProvidersLink {
+  margin: 4px 0 0;
+  text-align: center;
+}
+
+#addCloudFileAccountButtons button .button-icon {
+  width: 16px;
+  height: 16px;
+  margin-inline-end: 8px;
+}
+
+#addCloudFileAccountListItems {
+  text-align: start;
+}
+
+#addCloudFileAccountListItems > menuitem > .menu-iconic-left {
+  display: -moz-box;
+}
+
+#moreProvidersLink {
+  padding: 4px;
+}
+
+#cloudFileView > richlistitem {
+  min-height: 35px;
+}
+
+.cloudfileAccount {
+  padding: 4px;
+}
+
+.cloudfileAccount .typeIcon {
+  height: 16px;
+  width: 16px;
+}
+
+.cloudfileAccount:not([selected]) > label {
+  pointer-events: none;
+}
+
+#cloudFileToggleAndThreshold {
+  padding-bottom: 6px;
+}
