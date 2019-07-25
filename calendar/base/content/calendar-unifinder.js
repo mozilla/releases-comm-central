@@ -217,8 +217,7 @@ function prepareCalendarUnifinder() {
     if (!sortDirection || sortDirection == "undefined") {
         sortDirection = "ascending";
     }
-    let tree = document.getElementById("unifinder-search-results-tree");
-    let treecols = tree.getElementsByTagName("treecol");
+    let treecols = unifinderTree.getElementsByTagName("treecol");
     for (let col of treecols) {
         let content = col.getAttribute("itemproperty");
         if (sorted && sorted.length > 0) {
@@ -442,18 +441,48 @@ var unifinderTreeView = {
      * Add an item to the unifinder tree.
      *
      * @param aItemArray        An array of items to add.
-     * @param aDontSort         If true, the items will only be appended.
      */
-    addItems: function(aItemArray, aDontSort) {
-        this.eventArray = this.eventArray.concat(aItemArray);
-        let newCount = (this.eventArray.length - aItemArray.length - 1);
-        this.tree.rowCountChanged(newCount, aItemArray.length);
+    addItems: function(aItemArray) {
+        this.tree.beginUpdateBatch();
 
-        if (aDontSort) {
-            this.calculateIndexMap();
+        let bulkSort = aItemArray.length > this.eventArray.length;
+        if (bulkSort || !this.selectedColumn) {
+            // If there's more items being added than already exist,
+            // just append them and sort the whole list afterwards.
+            // If there's no selected column, don't sort at all.
+            let index = this.eventArray.length;
+            this.eventArray = this.eventArray.concat(aItemArray);
+            if (bulkSort && this.selectedColumn) {
+                this.sortItems();
+            } else {
+                this.tree.rowCountChanged(index, aItemArray.length);
+            }
         } else {
-            this.sortItems();
+            // Otherwise, for each item to be added, work out its
+            // new position in the list and splice it in there.
+            // This saves a lot of function calls and calculation.
+            let modifier = (this.sortDirection == "descending" ? -1 : 1);
+            let sortKey = unifinderTreeView.selectedColumn.getAttribute("itemproperty");
+            let comparer = cal.unifinder.sortEntryComparer(sortKey);
+
+            let values = this.eventArray.map(item => cal.unifinder.getItemSortKey(item, sortKey));
+            for (let item of aItemArray) {
+                let itemValue = cal.unifinder.getItemSortKey(item, sortKey);
+                let index = values.findIndex(value => comparer(value, itemValue, modifier) >= 0);
+                if (index < 0) {
+                    this.eventArray.push(item);
+                    this.tree.rowCountChanged(values.length, 1);
+                    values.push(itemValue);
+                } else {
+                    this.eventArray.splice(index, 0, item);
+                    this.tree.rowCountChanged(index, 1);
+                    values.splice(index, 0, itemValue);
+                }
+            }
         }
+
+        this.tree.endUpdateBatch();
+        this.calculateIndexMap(true);
     },
 
     /**
@@ -511,16 +540,11 @@ var unifinderTreeView = {
      * Sets the items that should be in the unifinder. This removes all items
      * that were previously in the unifinder.
      */
-    setItems: function(aItemArray, aDontSort) {
+    setItems: function(aItemArray) {
         let oldCount = this.eventArray.length;
         this.eventArray = aItemArray.slice(0);
         this.tree.rowCountChanged(oldCount - 1, this.eventArray.length - oldCount);
-
-        if (aDontSort) {
-            this.calculateIndexMap();
-        } else {
-            this.sortItems();
-        }
+        this.sortItems();
     },
 
     /**
