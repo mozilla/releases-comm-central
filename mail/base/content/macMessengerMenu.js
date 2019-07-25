@@ -39,8 +39,7 @@ function loadListener(event) {
 function PrefWindowObserver() {
   this.observe = function(aSubject, aTopic, aData) {
     if (aTopic == "domwindowopened") {
-      let win = aSubject.QueryInterface(Ci.nsIDOMWindow);
-      win.addEventListener("load", loadListener, {capture: false, once: true});
+      aSubject.addEventListener("load", loadListener, {capture: false, once: true});
     }
     Services.ww.unregisterNotification(this);
   };

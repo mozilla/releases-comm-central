@@ -707,9 +707,9 @@ function wait_for_frame_load(aFrame, aURLOrPredicate) {
     // Not sure whether all of these really need to be getters, but this is the
     // safest thing to do.
     get webProgress() {
-      return aFrame.contentWindow.QueryInterface(Ci.nsIInterfaceRequestor)
-             .getInterface(Ci.nsIWebNavigation)
-             .QueryInterface(Ci.nsIWebProgress);
+      return aFrame.contentWindow
+                   .getInterface(Ci.nsIWebNavigation)
+                   .QueryInterface(Ci.nsIWebProgress);
     },
     get currentURI() { return NetUtil.newURI(aFrame.contentDocument.location); },
     get contentWindow() { return aFrame.contentWindow; },
@@ -1562,8 +1562,7 @@ function describeEventElementInHierarchy(aNode) {
     // Otherwise this should be a window.
     win = aNode;
   }
-  let treeItem = win.QueryInterface(Ci.nsIInterfaceRequestor)
-                    .getInterface(Ci.nsIWebNavigation)
+  let treeItem = win.getInterface(Ci.nsIWebNavigation)
                     .QueryInterface(Ci.nsIDocShellTreeItem);
   while (treeItem) {
     win = treeItem.domWindow;
@@ -1928,7 +1927,7 @@ function captureWindowStatesForErrorReporting(normalizeForJsonFunc) {
   let enumerator = Services.wm.getEnumerator(null);
   let iWin = 0;
   while (enumerator.hasMoreElements()) {
-    let win = enumerator.getNext().QueryInterface(Ci.nsIDOMWindow);
+    let win = enumerator.getNext();
 
     let winId = getWindowTypeOrId(win.document.documentElement) ||
                 ("unnamed:" + iWin);

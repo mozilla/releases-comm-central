@@ -1872,12 +1872,11 @@ async function CloseWindow() {
       SwitchInsertCharToAnotherEditorOrClose();
 
     try {
-      var basewin = window.QueryInterface(Ci.nsIInterfaceRequestor)
-                      .getInterface(Ci.nsIWebNavigation)
-                      .QueryInterface(Ci.nsIDocShellTreeItem)
-                      .treeOwner
-                      .QueryInterface(Ci.nsIInterfaceRequestor)
-                      .getInterface(Ci.nsIBaseWindow);
+      var basewin = window.getInterface(Ci.nsIWebNavigation)
+                          .QueryInterface(Ci.nsIDocShellTreeItem)
+                          .treeOwner
+                          .QueryInterface(Ci.nsIInterfaceRequestor)
+                          .getInterface(Ci.nsIBaseWindow);
       basewin.destroy();
     } catch (e) {}
   }

@@ -281,7 +281,7 @@ var nsMailDefaultHandler = {
       try {
         var wlist = Services.wm.getEnumerator("mail:3pane");
         if (wlist.hasMoreElements()) {
-          var window = wlist.getNext().QueryInterface(Ci.nsIDOMWindow);
+          var window = wlist.getNext();
           window.focus();
           return;
         }

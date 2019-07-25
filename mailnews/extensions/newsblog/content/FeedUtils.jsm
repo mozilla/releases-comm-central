@@ -441,7 +441,7 @@ var FeedUtils = {
     if (!aMsgWindow) {
       let wlist = Services.wm.getEnumerator("mail:3pane");
       if (wlist.hasMoreElements()) {
-        let win = wlist.getNext().QueryInterface(Ci.nsIDOMWindow);
+        let win = wlist.getNext();
         win.focus();
         aMsgWindow = win.msgWindow;
       } else {

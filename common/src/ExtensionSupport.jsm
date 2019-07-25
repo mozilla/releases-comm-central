@@ -225,7 +225,7 @@ var ExtensionSupport = {
       // Get the list of windows already open.
       let windows = Services.wm.getEnumerator(null);
       while (windows.hasMoreElements()) {
-        let domWindow = windows.getNext().QueryInterface(Ci.nsIDOMWindow);
+        let domWindow = windows.getNext();
         if (domWindow.document.location.href === "about:blank") {
           ExtensionSupport._waitForLoad(domWindow, aID);
         } else {

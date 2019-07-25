@@ -162,8 +162,7 @@ var calview = {
             if (typeof aWindow.gCalendarStatusFeedback != "undefined") {
                 // If we are in a window that has calendar status feedback, set
                 // up our status observer.
-                let chromeWindow = aWindow.QueryInterface(Ci.nsIDOMChromeWindow);
-                comp.setStatusObserver(aWindow.gCalendarStatusFeedback, chromeWindow);
+                comp.setStatusObserver(aWindow.gCalendarStatusFeedback, aWindow);
             }
         }
         return aWindow._compositeCalendar;

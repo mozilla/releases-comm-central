@@ -978,8 +978,7 @@ var FacetContext = {
  *  differ.  Anywho, this works for now and is a delightful reference to boot.
  */
 function reachOutAndTouchFrame() {
-  let us = window.QueryInterface(Ci.nsIInterfaceRequestor)
-                 .getInterface(Ci.nsIWebNavigation)
+  let us = window.getInterface(Ci.nsIWebNavigation)
                  .QueryInterface(Ci.nsIDocShellTreeItem);
 
   FacetContext.rootWin = us.rootTreeItem.domWindow;

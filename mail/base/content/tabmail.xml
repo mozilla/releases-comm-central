@@ -1809,8 +1809,7 @@
         // be set after this binding is constructed.
         try {
           this._xulWindow =
-            window.QueryInterface(Ci.nsIInterfaceRequestor)
-                  .getInterface(Ci.nsIWebNavigation)
+            window.getInterface(Ci.nsIWebNavigation)
                   .QueryInterface(Ci.nsIDocShellTreeItem)
                   .treeOwner
                   .QueryInterface(Ci.nsIInterfaceRequestor)

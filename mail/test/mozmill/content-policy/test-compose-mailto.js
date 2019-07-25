@@ -89,8 +89,7 @@ function test_checkInsertImage() {
     throw new Error("Expecting one image in document, actually have " + childImages.length);
 
   // Should be the only image, so just check the first.
-  if (childImages[0].QueryInterface(Ci.nsIImageLoadingContent)
-                    .imageBlockingStatus != Ci.nsIContentPolicy.ACCEPT)
+  if (childImages[0].imageBlockingStatus != Ci.nsIContentPolicy.ACCEPT)
     throw new Error("Loading of image has been unexpectedly blocked in a mailto compose window");
 }
 

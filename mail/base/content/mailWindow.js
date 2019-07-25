@@ -52,8 +52,7 @@ function OnMailWindowUnload() {
   MailServices.mailSession.RemoveMsgWindow(msgWindow);
   // the tabs have the FolderDisplayWidget close their 'messenger' instances for us
 
-  window.QueryInterface(Ci.nsIDOMChromeWindow)
-        .browserDOMWindow = null;
+  window.browserDOMWindow = null;
 
   msgWindow.closeWindow();
 
@@ -169,15 +168,13 @@ function CreateMailWindowGlobals() {
   // set the JS implementation of status feedback before creating the c++ one..
   window.MsgStatusFeedback = new nsMsgStatusFeedback();
   // double register the status feedback object as the xul browser window implementation
-  window.QueryInterface(Ci.nsIInterfaceRequestor)
-        .getInterface(Ci.nsIWebNavigation)
+  window.getInterface(Ci.nsIWebNavigation)
         .QueryInterface(Ci.nsIDocShellTreeItem).treeOwner
         .QueryInterface(Ci.nsIInterfaceRequestor)
         .getInterface(Ci.nsIXULWindow)
         .XULBrowserWindow = window.MsgStatusFeedback;
 
-  window.QueryInterface(Ci.nsIDOMChromeWindow)
-        .browserDOMWindow = new nsBrowserAccess();
+  window.browserDOMWindow = new nsBrowserAccess();
 
   statusFeedback = Cc["@mozilla.org/messenger/statusfeedback;1"]
                      .createInstance(Ci.nsIMsgStatusFeedback);
@@ -725,8 +722,7 @@ nsBrowserAccess.prototype = {
           let location = aOpener.location;
           referrer = Services.io.newURI(location);
         }
-        newWindow.QueryInterface(Ci.nsIInterfaceRequestor)
-                 .getInterface(Ci.nsIWebNavigation)
+        newWindow.getInterface(Ci.nsIWebNavigation)
                  .loadURI(aURI.spec, loadflags, referrer, null, null, aTriggeringPrincipal);
       }
       if (needToFocusWin || (!loadInBackground && isExternal))

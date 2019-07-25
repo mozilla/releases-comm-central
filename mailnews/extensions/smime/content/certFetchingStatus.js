@@ -101,7 +101,7 @@ function getLDAPOperation() {
 function getPassword() {
   // we only need a password if we are using credentials
   if (gLogin) {
-    let authPrompter = Services.ww.getNewAuthPrompter(window.QueryInterface(Ci.nsIDOMWindow));
+    let authPrompter = Services.ww.getNewAuthPrompter(window);
     let strBundle = document.getElementById("bundle_ldap");
     let password = { value: "" };
 

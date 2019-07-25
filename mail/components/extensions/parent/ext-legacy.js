@@ -352,8 +352,7 @@ function getAllWindows() {
 
   let domWindows = [];
   for (let win of Services.ww.getWindowEnumerator()) {
-    let parentDocShell = win.QueryInterface(Ci.nsIInterfaceRequestor)
-                            .getInterface(Ci.nsIWebNavigation)
+    let parentDocShell = win.getInterface(Ci.nsIWebNavigation)
                             .QueryInterface(Ci.nsIDocShell);
     getChildDocShells(parentDocShell);
   }

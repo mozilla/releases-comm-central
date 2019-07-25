@@ -522,8 +522,7 @@ nsContextMenu.prototype = {
         }
       } else if (editFlags & (SpellCheckHelper.CONTENTEDITABLE)) {
         let targetWin = this.target.ownerGlobal;
-        let editingSession = targetWin.QueryInterface(Ci.nsIInterfaceRequestor)
-                                      .getInterface(Ci.nsIWebNavigation)
+        let editingSession = targetWin.getInterface(Ci.nsIWebNavigation)
                                       .QueryInterface(Ci.nsIInterfaceRequestor)
                                       .getInterface(Ci.nsIEditingSession);
         gSpellChecker.init(editingSession.getEditorForWindow(targetWin));
