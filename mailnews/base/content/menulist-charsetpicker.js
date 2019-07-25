@@ -2,7 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-customElements.whenDefined("menulist").then(() => {
+// The menulist CE is defined lazily. Create one now to get menulist defined,
+// allowing us to inherit from it.
+if (!customElements.get("menulist")) {
+  delete document.createXULElement("menulist");
+}
+{
   const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
   /**
@@ -111,7 +116,7 @@ customElements.whenDefined("menulist").then(() => {
   customElements.define("menulist-charsetpicker-viewing",
     MozMenulistCharsetpickerViewing, { extends: "menulist" }
   );
-});
+}
 
 // The menulist CE is defined lazily. Create one now to get menulist defined,
 // allowing us to inherit from it.

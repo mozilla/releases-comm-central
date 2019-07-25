@@ -169,7 +169,7 @@ this.legacy = class extends ExtensionAPI {
     let documentObserver = {
       observe(doc) {
         let win = doc.defaultView;
-        if (ExtensionCommon.instanceOf(doc, "XULDocument") &&
+        if (ExtensionCommon.instanceOf(doc, "HTMLDocument") &&
             !seenWindows.has(win)) {
           seenWindows.add(win);
           Overlays.load(chromeManifest, win);

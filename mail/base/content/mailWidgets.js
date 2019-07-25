@@ -575,7 +575,7 @@ customElements.define("thread-pane-treecolpicker", MozThreadPaneTreeColpicker, {
 if (!customElements.get("menulist")) {
   delete document.createXULElement("menulist");
 }
-customElements.whenDefined("menulist").then(() => {
+{
   /**
    * MozMenulistEditable is a menulist widget that can be made editable by setting editable="true".
    * With an additional type="description" the list also contains an additional label that can hold
@@ -755,7 +755,7 @@ customElements.whenDefined("menulist").then(() => {
   );
 
   customElements.define("menulist-editable", MozMenulistEditable, { extends: "menulist" });
-});
+}
 /**
  * The MozMailMultiEmailheaderfield widget shows multiple emails. It collapses long rows and allows
  * toggling the full view open. This widget is typically used in the message header pane to show

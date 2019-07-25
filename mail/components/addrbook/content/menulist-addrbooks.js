@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
- // The menulist CE is defined lazily. Create one now to get menulist defined,
+// The menulist CE is defined lazily. Create one now to get menulist defined,
 // allowing us to inherit from it.
 if (!customElements.get("menulist")) {
   delete document.createXULElement("menulist");
 }
-
-customElements.whenDefined("menulist").then(() => {
+{
   const { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
   const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
   /**
@@ -285,4 +284,4 @@ customElements.whenDefined("menulist").then(() => {
 
   customElements.define("menulist-addrbooks",
     MozMenulistAddrbooks, { extends: "menulist" });
-});
+}

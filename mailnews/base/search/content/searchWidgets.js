@@ -1031,7 +1031,12 @@ class MozSearchValue extends MozXULElement {
 }
 customElements.define("search-value", MozSearchValue);
 
-customElements.whenDefined("menulist").then(() => {
+// The menulist CE is defined lazily. Create one now to get menulist defined,
+// allowing us to inherit from it.
+if (!customElements.get("menulist")) {
+  delete document.createXULElement("menulist");
+}
+{
   /**
    * The MozRuleactiontypeMenulist is a widget that allows selecting the actions from the given menulist for
    * the selected folder. It gets displayed in the message filter dialog box.
@@ -1254,7 +1259,7 @@ customElements.whenDefined("menulist").then(() => {
 
   customElements.define("ruleactiontype-menulist", MozRuleactiontypeMenulist,
     { extends: "menulist" });
-});
+}
 
 /**
  * The MozRuleactionRichlistitem is a widget which gives the options to filter
