@@ -106,7 +106,7 @@ macosx64-shippable/opt:
     run:
         using: mozharness
         comm-checkout: true
-        actions: [disabled, build]
+        actions: [build]
         config-paths:
             - comm/mozharness
         config:
