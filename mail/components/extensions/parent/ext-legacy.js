@@ -161,25 +161,31 @@ this.legacy = class extends ExtensionAPI {
       }
     }
 
-    // Add overlays to all existing windows.
-    let enumerator = Services.wm.getEnumerator("mail:3pane");
-    if (enumerator.hasMoreElements() && enumerator.getNext().document.readyState == "complete") {
-      getAllWindows().forEach(w => {
-        if (["interactive", "complete"].includes(w.document.readyState)) {
-          Overlays.load(chromeManifest, w);
-        }
-      });
-    }
+    // Overlays.load must only be called once per window per extension.
+    // We use this WeakSet to remember all windows we've already seen.
+    let seenWindows = new WeakSet();
 
     // Listen for new windows to overlay.
     let documentObserver = {
-      observe(document) {
-        if (ExtensionCommon.instanceOf(document, "XULDocument")) {
-          Overlays.load(chromeManifest, document.defaultView);
+      observe(doc) {
+        let win = doc.defaultView;
+        if (ExtensionCommon.instanceOf(doc, "XULDocument") &&
+            !seenWindows.has(win)) {
+          seenWindows.add(win);
+          Overlays.load(chromeManifest, win);
         }
       },
     };
     Services.obs.addObserver(documentObserver, "chrome-document-interactive");
+
+    // Add overlays to all existing windows.
+    getAllWindows().forEach(win => {
+      if (["interactive", "complete"].includes(win.document.readyState) &&
+          !seenWindows.has(win)) {
+        seenWindows.add(win);
+        Overlays.load(chromeManifest, win);
+      }
+    });
 
     this.extension.callOnClose({
       close: () => {
