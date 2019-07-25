@@ -675,6 +675,7 @@ function ltnSwitch2Calendar() {
 
         // show the last displayed type of calendar view
         switchToView(gLastShownCalendarView);
+        document.getElementById("calMinimonth").setAttribute("freebusy", "true");
 
         document.commandDispatcher.updateCommands("calendar_commands");
         window.setCursor("auto");
@@ -699,6 +700,8 @@ function ltnSwitch2Task() {
         // display the task panel on the display deck
         let deck = document.getElementById("calendarDisplayDeck");
         deck.selectedPanel = document.getElementById("calendar-task-box");
+
+        document.getElementById("calMinimonth").setAttribute("freebusy", "true");
 
         document.commandDispatcher.updateCommands("calendar_commands");
         window.setCursor("auto");

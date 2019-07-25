@@ -29,21 +29,13 @@ var agendaListbox = {
 /**
  * Initialize the agenda listbox, used on window load.
  */
-agendaListbox.init = async function() {
+agendaListbox.init = function() {
     this.agendaListboxControl = document.getElementById("agenda-listbox");
     this.agendaListboxControl.removeAttribute("suppressonselect");
     let showTodayHeader = document.getElementById("today-header");
     let showTomorrowHeader = document.getElementById("tomorrow-header");
     let showSoonHeader = document.getElementById("nextweek-header");
-    if (!("getCheckbox" in showTodayHeader)) {
-        await new Promise(resolve => showTodayHeader.addEventListener("bindingattached", resolve, { once: true }));
-    }
-    if (!("getCheckbox" in showTomorrowHeader)) {
-        await new Promise(resolve => showTomorrowHeader.addEventListener("bindingattached", resolve, { once: true }));
-    }
-    if (!("getCheckbox" in showSoonHeader)) {
-        await new Promise(resolve => showSoonHeader.addEventListener("bindingattached", resolve, { once: true }));
-    }
+
     this.today = new Synthetic(showTodayHeader, 1, false);
     this.addPeriodListItem(this.today, "today-header");
     this.tomorrow = new Synthetic(showTomorrowHeader, 1, false);
@@ -55,6 +47,8 @@ agendaListbox.init = async function() {
     for (let header of [showTodayHeader, showTomorrowHeader, showSoonHeader]) {
         header.getCheckbox().addEventListener("CheckboxStateChange", this.onCheckboxChange, true);
     }
+
+    // At this point, we're ready and waiting for refreshPeriodDates to be called by TodayPane.
 
     let prefObserver = {
         observe: function(aSubject, aTopic, aPrefName) {
@@ -695,25 +689,17 @@ agendaListbox.refreshCalendarQuery = function(aStart, aEnd, aCalendar) {
         }
     };
 
+    this.setupCalendar();
     refreshJob.execute();
 };
 
 /**
  * Sets up the calendar for the agenda listbox.
  */
-agendaListbox.setupCalendar = async function() {
-    await this.init();
-
+agendaListbox.setupCalendar = function() {
     if (this.calendar == null) {
         this.calendar = cal.view.getCompositeCalendar(window);
-    }
-    if (this.calendar) {
-        // XXX This always gets called, does that happen on purpose?
-        this.calendar.removeObserver(this.calendarObserver);
-    }
-    this.calendar.addObserver(this.calendarObserver);
-    if (this.mListener) {
-        this.mListener.updatePeriod();
+        this.calendar.addObserver(this.calendarObserver);
     }
 };
 
@@ -752,15 +738,6 @@ agendaListbox.refreshPeriodDates = function(newDate) {
         curPeriod.listItem.setItem(curPeriod, this.showstoday);
     }
     this.refreshCalendarQuery();
-};
-
-/**
- * Adds a listener to this agenda listbox.
- *
- * @param aListener     The listener to add.
- */
-agendaListbox.addListener = function(aListener) {
-    this.mListener = aListener;
 };
 
 /**

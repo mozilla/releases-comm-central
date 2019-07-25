@@ -27,7 +27,6 @@
             this.kCheckbox.classList.add("agenda-checkbox", "treenode-checkbox");
             this.appendChild(this.kCheckbox);
 
-            this.dispatchEvent(new CustomEvent("bindingattached", { bubbles: false }));
             this.initializeAttributeInheritance();
         }
 

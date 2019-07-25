@@ -69,7 +69,6 @@
                   refcontrol="ltnTodayPaneDisplayMinimonth"
                   persist="collapsedinmodes">
           <calendar-minimonth id="today-minimonth"
-                              freebusy="true"
                               onchange="TodayPane.setDaywithjsDate(this.value);"/>
         </modebox>
         <modebox id="mini-day-box"

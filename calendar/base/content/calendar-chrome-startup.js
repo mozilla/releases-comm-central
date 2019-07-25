@@ -77,6 +77,9 @@ async function commonInitCalendar() {
      * checking of the calendar readiness (getProperty("ready") ?).
      */
     calendarUpdateNewItemsCommand();
+
+    // Prepare the Today Pane, and if it is ready, display it.
+    TodayPane.onLoad();
 }
 
 /**

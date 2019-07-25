@@ -30,28 +30,22 @@ var TodayPane = {
      * Load Handler, sets up the today pane controls.
      */
     onLoad: async function() {
-        let panel = document.getElementById("agenda-panel");
-        if (!("isVisible" in panel)) {
-            await new Promise(resolve => panel.addEventListener("bindingattached", resolve, { once: true }));
-        }
+        await agendaListbox.init();
 
         TodayPane.paneViews = [
             cal.l10n.getCalString("eventsandtasks"),
             cal.l10n.getCalString("tasksonly"),
             cal.l10n.getCalString("eventsonly")
         ];
-        await agendaListbox.setupCalendar();
-        agendaListbox.addListener(TodayPane);
+
         TodayPane.setShortWeekdays();
-        TodayPane.setDay(cal.dtz.now());
-
-        document.getElementById("modeBroadcaster").addEventListener("DOMAttrModified", TodayPane.onModeModified);
         TodayPane.setTodayHeader();
-
-        document.getElementById("today-splitter").addEventListener("command", onCalendarViewResize);
         TodayPane.updateSplitterState();
         TodayPane.previousMode = document.getElementById("modeBroadcaster").getAttribute("mode");
         TodayPane.showTodayPaneStatusLabel();
+
+        document.getElementById("modeBroadcaster").addEventListener("DOMAttrModified", TodayPane.onModeModified);
+        document.getElementById("today-splitter").addEventListener("command", onCalendarViewResize);
 
         Services.obs.addObserver(TodayPane, "defaultTimezoneChanged");
     },
@@ -69,7 +63,9 @@ var TodayPane = {
      * React if the default timezone changes.
      */
     observe: function() {
-        this.setDay(cal.dtz.now());
+        if (this.start !== null) {
+            this.setDay(this.start);
+        }
     },
 
     /**
@@ -107,6 +103,15 @@ var TodayPane = {
         let menu = document.getElementById("ltnTodayPaneMenuPopup");
         if (menu) {
             setAttributeToChildren(menu, "disabled", !todayIsVisible || !agendaIsVisible, "name", "minidisplay");
+        }
+
+        if (todayIsVisible && agendaIsVisible) {
+            if (this.start === null) {
+                this.setDay(cal.dtz.now());
+            }
+            if (document.getElementById("today-minimonth-box").isVisible()) {
+                document.getElementById("today-minimonth").setAttribute("freebusy", "true");
+            }
         }
 
         onCalendarViewResize();
@@ -326,6 +331,10 @@ var TodayPane = {
             // If we update the mini-month, this function gets called again.
             return;
         }
+        if (!document.getElementById("agenda-panel").isVisible()) {
+            // If the agenda panel isn't visible, there's no need to set the day.
+            return;
+        }
         this.setDay.alreadySettingDay = true;
         this.start = aNewDate.clone();
 
@@ -412,6 +421,10 @@ var TodayPane = {
         }
     },
 
+    get isVisible() {
+        return document.getElementById("today-pane-panel").isVisible();
+    },
+
     /**
      * Toggle the today-pane and update its visual appearance.
      *
@@ -424,15 +437,15 @@ var TodayPane = {
     },
 
     /**
-     * Update the today-splitter state and today-pane width with saved
-     * mode-dependent values.
+     * Update the today-splitter state.
      */
     updateSplitterState: function() {
         let splitter = document.getElementById("today-splitter");
-        let todaypaneVisible = document.getElementById("today-pane-panel").isVisible();
-        setElementValue(splitter, !todaypaneVisible && "true", "hidden");
-        if (todaypaneVisible) {
+        if (this.isVisible) {
+            splitter.removeAttribute("hidden");
             splitter.setAttribute("state", "open");
+        } else {
+            splitter.setAttribute("hidden", "true");
         }
     },
 
@@ -459,5 +472,4 @@ var TodayPane = {
     }
 };
 
-window.addEventListener("load", TodayPane.onLoad, { capture: false, once: true });
 window.addEventListener("unload", TodayPane.onUnload, { capture: false, once: true });
