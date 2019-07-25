@@ -25,3 +25,7 @@ common-tests:
 
 optimized-tests:
     - mochitest-thunderbird
+
+marionette-tests:
+    - marionette
+    - marionette-headless

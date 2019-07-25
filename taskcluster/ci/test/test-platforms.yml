@@ -22,28 +22,33 @@ linux64/opt:
     test-sets:
         - common-tests
         - optimized-tests
+        - marionette-tests
 
 linux64-shippable/opt:
     build-platform: linux64-shippable/opt
     test-sets:
         - common-tests
         - optimized-tests
+        - marionette-tests
 
 linux64/debug:
     build-platform: linux64/debug
     test-sets:
         - common-tests
+        - marionette-tests
 
 linux32-shippable/opt:
     build-platform: linux-shippable/opt
     test-sets:
         - common-tests
         - optimized-tests
+        - marionette-tests
 
 linux32/debug:
     build-platform: linux/debug
     test-sets:
         - common-tests
+        - marionette-tests
 
 # Windows platforms (matching /windows.*/)
 
@@ -53,17 +58,20 @@ windows7-32/opt:
     test-sets:
         - common-tests
         - optimized-tests
+        - marionette-tests
 
 windows7-32-shippable/opt:
     build-platform: win32-shippable/opt
     test-sets:
         - common-tests
         - optimized-tests
+        - marionette-tests
 
 windows7-32/debug:
     build-platform: win32/debug
     test-sets:
         - common-tests
+        - marionette-tests
 
 # win64
 windows10-64/opt:
@@ -71,17 +79,20 @@ windows10-64/opt:
     test-sets:
         - common-tests
         - optimized-tests
+        - marionette-tests
 
 windows10-64-shippable/opt:
     build-platform: win64-shippable/opt
     test-sets:
         - common-tests
         - optimized-tests
+        - marionette-tests
 
 windows10-64/debug:
     build-platform: win64/debug
     test-sets:
         - common-tests
+        - marionette-tests
 
 # MacOS X platforms (matching /macosx.*/)
 
