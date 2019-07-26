@@ -374,10 +374,10 @@ void morkRow::SeekColumn(morkEnv* ev, mdb_pos inPos, mdb_column* outColumn,
   if (cells && inPos < mRow_Length && inPos >= 0) {
     morkCell* c = cells + inPos;
     if (outColumn) *outColumn = c->GetColumn();
-    if (outYarn) c->mCell_Atom->GetYarn(outYarn);  // nil atom works okay here
+    if (outYarn) morkAtom::GetYarn(c->mCell_Atom, outYarn);
   } else {
     if (outColumn) *outColumn = 0;
-    if (outYarn) ((morkAtom*)0)->GetYarn(outYarn);  // yes this will work
+    if (outYarn) morkAtom::GetYarn((morkAtom*)0, outYarn);
   }
 }
 
@@ -390,8 +390,7 @@ void morkRow::NextColumn(morkEnv* ev, mdb_column* ioColumn, mdbYarn* outYarn) {
     while (cells < end) {
       if (inCol == last)  // found column?
       {
-        if (outYarn)
-          cells->mCell_Atom->GetYarn(outYarn);  // nil atom works okay here
+        if (outYarn) morkAtom::GetYarn(cells->mCell_Atom, outYarn);
         *ioColumn = cells->GetColumn();
         return;  // stop, we are done
       } else {
@@ -401,7 +400,7 @@ void morkRow::NextColumn(morkEnv* ev, mdb_column* ioColumn, mdbYarn* outYarn) {
     }
   }
   *ioColumn = 0;
-  if (outYarn) ((morkAtom*)0)->GetYarn(outYarn);  // yes this will work
+  if (outYarn) morkAtom::GetYarn((morkAtom*)0, outYarn);
 }
 
 morkCell* morkRow::CellAt(morkEnv* ev, mork_pos inPos) const {

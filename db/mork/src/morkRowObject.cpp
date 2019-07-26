@@ -396,8 +396,7 @@ morkRowObject::GetCellYarn(nsIMdbEnv* mev,       // context
   if (ev) {
     if (mRowObject_Store && mRowObject_Row) {
       morkAtom* atom = mRowObject_Row->GetColumnAtom(ev, inColumn);
-      atom->GetYarn(outYarn);
-      // note nil atom works and sets yarn correctly
+      morkAtom::GetYarn(atom, outYarn);
     }
 
     outErr = ev->AsErr();

@@ -83,7 +83,7 @@ class morkAtom {  //
 
  public:  // yarns
   static mork_bool AliasYarn(const morkAtom* atom, mdbYarn* outYarn);
-  mork_bool GetYarn(mdbYarn* outYarn) const;
+  static mork_bool GetYarn(const morkAtom* atom, mdbYarn* outYarn);
 
  private:  // copying is not allowed
   morkAtom(const morkAtom& other);

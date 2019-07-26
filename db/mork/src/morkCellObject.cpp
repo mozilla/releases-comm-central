@@ -272,7 +272,7 @@ NS_IMETHODIMP morkCellObject::GetYarn(nsIMdbEnv* mev, mdbYarn* outYarn) {
       this->CanUseCell(mev, /*inMutable*/ morkBool_kTrue, &outErr, &cell);
   if (ev) {
     morkAtom* atom = cell->GetAtom();
-    atom->GetYarn(outYarn);
+    morkAtom::GetYarn(atom, outYarn);
     outErr = ev->AsErr();
   }
 
