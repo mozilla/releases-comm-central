@@ -220,7 +220,7 @@ nsMsgPrintEngine::SetWindow(mozIDOMWindowProxy *aWin) {
   NS_ENSURE_TRUE(docShellAsItem, NS_ERROR_FAILURE);
 
   nsCOMPtr<nsIDocShellTreeItem> rootAsItem;
-  docShellAsItem->GetSameTypeRootTreeItem(getter_AddRefs(rootAsItem));
+  docShellAsItem->GetInProcessSameTypeRootTreeItem(getter_AddRefs(rootAsItem));
 
   nsCOMPtr<nsIDocShellTreeItem> childItem;
   rootAsItem->FindChildWithName(NS_LITERAL_STRING("content"), true, false,

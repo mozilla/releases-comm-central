@@ -314,7 +314,8 @@ NS_IMETHODIMP nsMsgWindow::SetDomWindow(mozIDOMWindowProxy *aWindow) {
 
   if (docShellAsItem) {
     nsCOMPtr<nsIDocShellTreeItem> rootAsItem;
-    docShellAsItem->GetSameTypeRootTreeItem(getter_AddRefs(rootAsItem));
+    docShellAsItem->GetInProcessSameTypeRootTreeItem(
+        getter_AddRefs(rootAsItem));
 
     nsCOMPtr<nsIDocShell> rootAsShell(do_QueryInterface(rootAsItem));
     SetRootDocShell(rootAsShell);

@@ -735,7 +735,8 @@ already_AddRefed<nsIMsgCompose> nsMsgContentPolicy::GetMsgComposeForContext(
   nsCOMPtr<nsIDocShellTreeItem> docShellTreeItem(shell);
 
   nsCOMPtr<nsIDocShellTreeItem> rootItem;
-  rv = docShellTreeItem->GetSameTypeRootTreeItem(getter_AddRefs(rootItem));
+  rv = docShellTreeItem->GetInProcessSameTypeRootTreeItem(
+      getter_AddRefs(rootItem));
   NS_ENSURE_SUCCESS(rv, nullptr);
 
   nsCOMPtr<nsIDocShell> docShell(do_QueryInterface(rootItem, &rv));
@@ -867,7 +868,8 @@ nsresult nsMsgContentPolicy::GetOriginatingURIForContext(
   nsCOMPtr<nsIDocShellTreeItem> docshellTreeItem(shell);
 
   nsCOMPtr<nsIDocShellTreeItem> rootItem;
-  rv = docshellTreeItem->GetSameTypeRootTreeItem(getter_AddRefs(rootItem));
+  rv = docshellTreeItem->GetInProcessSameTypeRootTreeItem(
+      getter_AddRefs(rootItem));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIWebNavigation> webNavigation(do_QueryInterface(rootItem, &rv));
