@@ -565,23 +565,21 @@ function SwitchPaneFocus(event) {
       searchInput.focus();
     } else if ((focusedElement == gAbResultsTree || focusedElement == searchBox) && !IsDirPaneCollapsed()) {
       dirTree.focus();
-    } else if (focusedElement != cardViewBox && !IsCardViewAndAbResultsPaneSplitterCollapsed()) {
-      if (cardViewBoxEmail1) {
-        cardViewBoxEmail1.focus();
-      } else {
-        cardViewBox.focus();
-      }
+    } else if (focusedElement != cardViewBox &&
+               !IsCardViewAndAbResultsPaneSplitterCollapsed() &&
+               cardViewBoxEmail1 &&
+               cardViewBoxEmail1.getAttribute("collapsed") != "true") {
+      cardViewBoxEmail1.focus();
     } else {
       gAbResultsTree.focus();
     }
   } else if (focusedElement == searchBox) {
     gAbResultsTree.focus();
-  } else if (focusedElement == gAbResultsTree && !IsCardViewAndAbResultsPaneSplitterCollapsed()) {
-    if (cardViewBoxEmail1) {
-      cardViewBoxEmail1.focus();
-    } else {
-      cardViewBox.focus();
-    }
+  } else if (focusedElement == gAbResultsTree &&
+             !IsCardViewAndAbResultsPaneSplitterCollapsed() &&
+             cardViewBoxEmail1 &&
+             cardViewBoxEmail1.getAttribute("collapsed") != "true") {
+    cardViewBoxEmail1.focus();
   } else if (focusedElement != dirTree && !IsDirPaneCollapsed()) {
     dirTree.focus();
   } else if (searchBox && searchInput) {
@@ -640,9 +638,11 @@ function IsDirPaneCollapsed() {
 }
 
 function IsCardViewAndAbResultsPaneSplitterCollapsed() {
-  var cardViewBox = document.getElementById("CardViewOuterBox");
+  var cardViewInnerBox = document.getElementById("CardViewInnerBox");
+  var cardViewOuterBox = document.getElementById("CardViewOuterBox");
   try {
-    return (cardViewBox.getAttribute("collapsed") == "true");
+    return (cardViewInnerBox.getAttribute("collapsed") == "true" ||
+            cardViewOuterBox.getAttribute("collapsed") == "true");
   } catch (ex) {
     return false;
   }
