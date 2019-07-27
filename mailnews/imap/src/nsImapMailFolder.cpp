@@ -3183,8 +3183,9 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter *filter,
   nsMsgKey msgKey;
   msgHdr->GetMessageKey(&msgKey);
   MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
-          ("(Imap) Applying filter actions on message with key %" PRIu32,
-           msgKeyToInt(msgKey)));
+          ("(Imap) Applying %" PRIu32
+           " filter actions on message with key %" PRIu32,
+           numActions, msgKeyToInt(msgKey)));
   MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug,
           ("(Imap) Message ID: %s", msgId.get()));
 
@@ -3194,13 +3195,27 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter *filter,
 
   bool msgIsNew = true;
 
+  rv = GetDatabase();
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsresult finalResult = NS_OK;  // result of all actions
   for (uint32_t actionIndex = 0; actionIndex < numActions; actionIndex++) {
     nsCOMPtr<nsIMsgRuleAction> filterAction =
-        do_QueryElementAt(filterActionList, actionIndex);
-    if (NS_FAILED(rv) || !filterAction) continue;
+        do_QueryElementAt(filterActionList, actionIndex, &rv);
+    if (NS_FAILED(rv) || !filterAction) {
+      MOZ_LOG(FILTERLOGMODULE, LogLevel::Warning,
+              ("(Imap) Filter action at index %" PRIu32 " invalid, skipping",
+               actionIndex));
+      continue;
+    }
 
+    rv = NS_OK;  // result of the current action
     nsMsgRuleActionType actionType;
     if (NS_SUCCEEDED(filterAction->GetType(&actionType))) {
+      MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+              ("(Imap) Running filter action at index %" PRIu32
+               ", action type = %i",
+               actionIndex, actionType));
       if (loggingEnabled) (void)filter->LogRuleHit(filterAction, msgHdr);
 
       nsCString actionTargetFolderUri;
@@ -3208,37 +3223,39 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter *filter,
           actionType == nsMsgFilterAction::CopyToFolder) {
         rv = filterAction->GetTargetFolderUri(actionTargetFolderUri);
         if (NS_FAILED(rv) || actionTargetFolderUri.IsEmpty()) {
+          // clang-format off
+          MOZ_LOG(FILTERLOGMODULE, LogLevel::Warning,
+                  ("(Imap) Target URI for Copy/Move action is empty, skipping"));
+          // clang-format on
           NS_ASSERTION(false, "actionTargetFolderUri is empty");
           continue;
         }
       }
 
       uint32_t msgFlags;
-      nsMsgKey msgKey;
-      nsAutoCString trashNameVal;
-
       msgHdr->GetFlags(&msgFlags);
-      msgHdr->GetMessageKey(&msgKey);
       bool isRead = (msgFlags & nsMsgMessageFlags::Read);
-      nsresult rv = GetDatabase();
-      NS_ENSURE_SUCCESS(rv, rv);
+
       switch (actionType) {
         case nsMsgFilterAction::Delete: {
           if (deleteToTrash) {
             // set value to trash folder
             nsCOMPtr<nsIMsgFolder> mailTrash;
             rv = GetTrashFolder(getter_AddRefs(mailTrash));
-            if (NS_SUCCEEDED(rv) && mailTrash)
+            if (NS_SUCCEEDED(rv) && mailTrash) {
               rv = mailTrash->GetURI(actionTargetFolderUri);
+              if (NS_FAILED(rv)) break;
+            }
             // msgHdr->OrFlags(nsMsgMessageFlags::Read, &newFlags);  // mark
             // read in trash.
           } else {
             mDatabase->MarkHdrRead(msgHdr, true, nullptr);
             mDatabase->MarkImapDeleted(msgKey, true, nullptr);
-            StoreImapFlags(kImapMsgSeenFlag | kImapMsgDeletedFlag, true,
-                           &msgKey, 1, nullptr);
-            m_msgMovedByFilter =
-                true;  // this will prevent us from adding the header to the db.
+            rv = StoreImapFlags(kImapMsgSeenFlag | kImapMsgDeletedFlag, true,
+                                &msgKey, 1, nullptr);
+            if (NS_FAILED(rv)) break;
+            // this will prevent us from adding the header to the db.
+            m_msgMovedByFilter = true;
           }
           msgIsNew = false;
         }
@@ -3248,17 +3265,25 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter *filter,
           // if moving to a different file, do it.
           nsCString uri;
           rv = GetURI(uri);
+          if (NS_FAILED(rv)) break;
 
           if (!actionTargetFolderUri.Equals(uri)) {
             msgHdr->GetFlags(&msgFlags);
-
             if (msgFlags & nsMsgMessageFlags::MDNReportNeeded && !isRead) {
               mDatabase->MarkMDNNeeded(msgKey, false, nullptr);
               mDatabase->MarkMDNSent(msgKey, true, nullptr);
             }
-            nsresult err = MoveIncorporatedMessage(
+            nsresult rv = MoveIncorporatedMessage(
                 msgHdr, mDatabase, actionTargetFolderUri, filter, msgWindow);
-            if (NS_SUCCEEDED(err)) m_msgMovedByFilter = true;
+            if (NS_SUCCEEDED(rv)) {
+              m_msgMovedByFilter = true;
+            } else {
+              if (loggingEnabled) {
+                (void)filter->LogRuleHitFail(
+                    filterAction, msgHdr, rv,
+                    NS_LITERAL_CSTRING("filterFailureMoveFailed"));
+              }
+            }
           }
           // don't apply any more filters, even if it was a move to the same
           // folder
@@ -3267,6 +3292,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter *filter,
         case nsMsgFilterAction::CopyToFolder: {
           nsCString uri;
           rv = GetURI(uri);
+          if (NS_FAILED(rv)) break;
 
           if (!actionTargetFolderUri.Equals(uri)) {
             // XXXshaver I'm not actually 100% what the right semantics are for
@@ -3280,35 +3306,41 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter *filter,
 
             nsCOMPtr<nsIMutableArray> messageArray(
                 do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-            NS_ENSURE_TRUE(messageArray, rv);
+            if (NS_FAILED(rv) || !messageArray) break;
             messageArray->AppendElement(msgHdr);
 
             nsCOMPtr<nsIMsgFolder> dstFolder;
             rv = GetExistingFolder(actionTargetFolderUri,
                                    getter_AddRefs(dstFolder));
-            NS_ENSURE_SUCCESS(rv, rv);
+            if (NS_FAILED(rv)) break;
 
             nsCOMPtr<nsIMsgCopyService> copyService =
                 do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
-            NS_ENSURE_SUCCESS(rv, rv);
+            if (NS_FAILED(rv)) break;
             rv = copyService->CopyMessages(this, messageArray, dstFolder, false,
                                            nullptr, msgWindow, false);
-            NS_ENSURE_SUCCESS(rv, rv);
+            if (NS_FAILED(rv)) {
+              if (loggingEnabled) {
+                (void)filter->LogRuleHitFail(
+                    filterAction, msgHdr, rv,
+                    NS_LITERAL_CSTRING("filterFailureCopyFailed"));
+              }
+            }
           }
         } break;
         case nsMsgFilterAction::MarkRead: {
           mDatabase->MarkHdrRead(msgHdr, true, nullptr);
-          StoreImapFlags(kImapMsgSeenFlag, true, &msgKey, 1, nullptr);
+          rv = StoreImapFlags(kImapMsgSeenFlag, true, &msgKey, 1, nullptr);
           msgIsNew = false;
         } break;
         case nsMsgFilterAction::MarkUnread: {
           mDatabase->MarkHdrRead(msgHdr, false, nullptr);
-          StoreImapFlags(kImapMsgSeenFlag, false, &msgKey, 1, nullptr);
+          rv = StoreImapFlags(kImapMsgSeenFlag, false, &msgKey, 1, nullptr);
           msgIsNew = true;
         } break;
         case nsMsgFilterAction::MarkFlagged: {
           mDatabase->MarkHdrMarked(msgHdr, true, nullptr);
-          StoreImapFlags(kImapMsgFlaggedFlag, true, &msgKey, 1, nullptr);
+          rv = StoreImapFlags(kImapMsgFlaggedFlag, true, &msgKey, 1, nullptr);
         } break;
         case nsMsgFilterAction::KillThread:
         case nsMsgFilterAction::WatchThread: {
@@ -3319,33 +3351,35 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter *filter,
           if (msgThread) {
             msgThread->GetThreadKey(&threadKey);
             if (actionType == nsMsgFilterAction::KillThread)
-              mDatabase->MarkThreadIgnored(msgThread, threadKey, true, nullptr);
+              rv = mDatabase->MarkThreadIgnored(msgThread, threadKey, true,
+                                                nullptr);
             else
-              mDatabase->MarkThreadWatched(msgThread, threadKey, true, nullptr);
+              rv = mDatabase->MarkThreadWatched(msgThread, threadKey, true,
+                                                nullptr);
           } else {
             if (actionType == nsMsgFilterAction::KillThread)
-              msgHdr->SetUint32Property("ProtoThreadFlags",
-                                        nsMsgMessageFlags::Ignored);
+              rv = msgHdr->SetUint32Property("ProtoThreadFlags",
+                                             nsMsgMessageFlags::Ignored);
             else
-              msgHdr->SetUint32Property("ProtoThreadFlags",
-                                        nsMsgMessageFlags::Watched);
+              rv = msgHdr->SetUint32Property("ProtoThreadFlags",
+                                             nsMsgMessageFlags::Watched);
           }
           if (actionType == nsMsgFilterAction::KillThread) {
             mDatabase->MarkHdrRead(msgHdr, true, nullptr);
-            StoreImapFlags(kImapMsgSeenFlag, true, &msgKey, 1, nullptr);
+            rv = StoreImapFlags(kImapMsgSeenFlag, true, &msgKey, 1, nullptr);
             msgIsNew = false;
           }
         } break;
         case nsMsgFilterAction::KillSubthread: {
           mDatabase->MarkHeaderKilled(msgHdr, true, nullptr);
           mDatabase->MarkHdrRead(msgHdr, true, nullptr);
-          StoreImapFlags(kImapMsgSeenFlag, true, &msgKey, 1, nullptr);
+          rv = StoreImapFlags(kImapMsgSeenFlag, true, &msgKey, 1, nullptr);
           msgIsNew = false;
         } break;
         case nsMsgFilterAction::ChangePriority: {
           nsMsgPriorityValue filterPriority;  // a int32_t
           filterAction->GetPriority(&filterPriority);
-          mDatabase->SetUint32PropertyByHdr(
+          rv = mDatabase->SetUint32PropertyByHdr(
               msgHdr, "priority", static_cast<uint32_t>(filterPriority));
         } break;
         case nsMsgFilterAction::Label: {
@@ -3353,24 +3387,24 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter *filter,
           filterAction->GetLabel(&filterLabel);
           mDatabase->SetUint32PropertyByHdr(msgHdr, "label",
                                             static_cast<uint32_t>(filterLabel));
-          StoreImapFlags((filterLabel << 9), true, &msgKey, 1, nullptr);
+          rv = StoreImapFlags((filterLabel << 9), true, &msgKey, 1, nullptr);
         } break;
         case nsMsgFilterAction::AddTag: {
           nsCString keyword;
           filterAction->GetStrValue(keyword);
           nsCOMPtr<nsIMutableArray> messageArray(
               do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-          NS_ENSURE_TRUE(messageArray, rv);
+          if (NS_FAILED(rv) || !messageArray) break;
           messageArray->AppendElement(msgHdr);
-          AddKeywordsToMessages(messageArray, keyword);
-          break;
-        }
+          rv = AddKeywordsToMessages(messageArray, keyword);
+        } break;
         case nsMsgFilterAction::JunkScore: {
           nsAutoCString junkScoreStr;
           int32_t junkScore;
           filterAction->GetJunkScore(&junkScore);
           junkScoreStr.AppendInt(junkScore);
-          mDatabase->SetStringProperty(msgKey, "junkscore", junkScoreStr.get());
+          rv = mDatabase->SetStringProperty(msgKey, "junkscore",
+                                            junkScoreStr.get());
           mDatabase->SetStringProperty(msgKey, "junkscoreorigin", "filter");
 
           // If score is available, set up to store junk status on server.
@@ -3406,11 +3440,11 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter *filter,
           filterAction->GetStrValue(forwardTo);
           nsCOMPtr<nsIMsgIncomingServer> server;
           rv = GetServer(getter_AddRefs(server));
-          NS_ENSURE_SUCCESS(rv, rv);
+          if (NS_FAILED(rv)) break;
           if (!forwardTo.IsEmpty()) {
             nsCOMPtr<nsIMsgComposeService> compService =
                 do_GetService(NS_MSGCOMPOSESERVICE_CONTRACTID, &rv);
-            NS_ENSURE_SUCCESS(rv, rv);
+            if (NS_FAILED(rv)) break;
             rv = compService->ForwardMessage(
                 NS_ConvertASCIItoUTF16(forwardTo), msgHdr, msgWindow, server,
                 nsIMsgComposeService::kForwardAsDefault);
@@ -3421,12 +3455,12 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter *filter,
           nsCString replyTemplateUri;
           filterAction->GetStrValue(replyTemplateUri);
           nsCOMPtr<nsIMsgIncomingServer> server;
-          GetServer(getter_AddRefs(server));
-          NS_ENSURE_SUCCESS(rv, rv);
+          rv = GetServer(getter_AddRefs(server));
+          if (NS_FAILED(rv)) break;
           if (!replyTemplateUri.IsEmpty()) {
             nsCOMPtr<nsIMsgComposeService> compService =
-                do_GetService(NS_MSGCOMPOSESERVICE_CONTRACTID);
-            if (compService) {
+                do_GetService(NS_MSGCOMPOSESERVICE_CONTRACTID, &rv);
+            if (NS_SUCCEEDED(rv) && compService) {
               rv = compService->ReplyWithTemplate(
                   msgHdr, replyTemplateUri.get(), msgWindow, server);
               if (NS_FAILED(rv)) {
@@ -3448,31 +3482,49 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter *filter,
         case nsMsgFilterAction::StopExecution: {
           // don't apply any more filters
           *applyMore = false;
+          rv = NS_OK;
         } break;
 
         case nsMsgFilterAction::Custom: {
           nsCOMPtr<nsIMsgFilterCustomAction> customAction;
           rv = filterAction->GetCustomAction(getter_AddRefs(customAction));
-          NS_ENSURE_SUCCESS(rv, rv);
+          if (NS_FAILED(rv)) break;
 
           nsAutoCString value;
-          filterAction->GetStrValue(value);
+          rv = filterAction->GetStrValue(value);
+          if (NS_FAILED(rv)) break;
 
           nsCOMPtr<nsIMutableArray> messageArray(
               do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
           NS_ENSURE_TRUE(messageArray, rv);
+          if (NS_FAILED(rv) || !messageArray) break;
           messageArray->AppendElement(msgHdr);
 
-          customAction->Apply(messageArray, value, nullptr,
-                              nsMsgFilterType::InboxRule, msgWindow);
+          rv = customAction->Apply(messageArray, value, nullptr,
+                                   nsMsgFilterType::InboxRule, msgWindow);
           // allow custom action to affect new
           msgHdr->GetFlags(&msgFlags);
           if (!(msgFlags & nsMsgMessageFlags::New)) msgIsNew = false;
         } break;
 
         default:
+          NS_ERROR("unexpected filter action");
+          rv = NS_ERROR_UNEXPECTED;
           break;
       }
+    }
+    if (NS_FAILED(rv)) {
+      finalResult = rv;
+      MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,
+              ("(Imap) Action execution failed with error: %" PRIx32,
+               static_cast<uint32_t>(rv)));
+      if (loggingEnabled) {
+        (void)filter->LogRuleHitFail(filterAction, msgHdr, rv,
+                                     NS_LITERAL_CSTRING("filterFailureAction"));
+      }
+    } else {
+      MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+              ("(Imap) Action execution succeeded"));
     }
   }
   if (!msgIsNew) {
@@ -3483,8 +3535,12 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter *filter,
     // SetBiffState(nsMsgBiffState_NoMail), so don't repeat them here.
     if (!m_filterListRequiresBody) SetNumNewMessages(--numNewMessages);
     if (mDatabase) mDatabase->MarkHdrNotNew(msgHdr, nullptr);
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+            ("(Imap) Message will not be marked new"));
   }
-  return NS_OK;
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+          ("(Imap) Finished executing actions"));
+  return finalResult;
 }
 
 NS_IMETHODIMP nsImapMailFolder::SetImapFlags(const char *uids, int32_t flags,

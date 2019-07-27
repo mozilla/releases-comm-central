@@ -595,44 +595,56 @@ NS_IMETHODIMP nsNNTPNewsgroupList::ApplyFilterHit(nsIMsgFilter *aFilter,
   if (NS_SUCCEEDED(rv) && currentFilterList && numActions)
     currentFilterList->GetLoggingEnabled(&loggingEnabled);
 
+  nsresult finalResult = NS_OK;  // result of all actions
   for (uint32_t actionIndex = 0; actionIndex < numActions; actionIndex++) {
     nsCOMPtr<nsIMsgRuleAction> filterAction =
         do_QueryElementAt(filterActionList, actionIndex, &rv);
-    if (NS_FAILED(rv) || !filterAction) continue;
+    if (NS_FAILED(rv) || !filterAction) {
+      MOZ_LOG(FILTERLOGMODULE, LogLevel::Warning,
+              ("(News) Filter action at index %" PRIu32 " invalid, skipping",
+               actionIndex));
+      continue;
+    }
 
     nsMsgRuleActionType actionType;
     if (NS_SUCCEEDED(filterAction->GetType(&actionType))) {
+      MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+              ("(News) Running filter action at index %" PRIu32
+               ", action type = %i",
+               actionIndex, actionType));
       if (loggingEnabled) (void)aFilter->LogRuleHit(filterAction, m_newMsgHdr);
 
+      rv = NS_OK;  // result of the current action
       switch (actionType) {
         case nsMsgFilterAction::Delete:
           m_addHdrToDB = false;
+          rv = NS_OK;
           break;
         case nsMsgFilterAction::MarkRead:
-          m_newsDB->MarkHdrRead(m_newMsgHdr, true, nullptr);
+          rv = m_newsDB->MarkHdrRead(m_newMsgHdr, true, nullptr);
           break;
         case nsMsgFilterAction::MarkUnread:
-          m_newsDB->MarkHdrRead(m_newMsgHdr, false, nullptr);
+          rv = m_newsDB->MarkHdrRead(m_newMsgHdr, false, nullptr);
           break;
         case nsMsgFilterAction::KillThread:
-          m_newMsgHdr->SetUint32Property("ProtoThreadFlags",
-                                         nsMsgMessageFlags::Ignored);
+          rv = m_newMsgHdr->SetUint32Property("ProtoThreadFlags",
+                                              nsMsgMessageFlags::Ignored);
           break;
         case nsMsgFilterAction::KillSubthread: {
           uint32_t newFlags;
-          m_newMsgHdr->OrFlags(nsMsgMessageFlags::Ignored, &newFlags);
+          rv = m_newMsgHdr->OrFlags(nsMsgMessageFlags::Ignored, &newFlags);
         } break;
         case nsMsgFilterAction::WatchThread: {
           uint32_t newFlags;
-          m_newMsgHdr->OrFlags(nsMsgMessageFlags::Watched, &newFlags);
+          rv = m_newMsgHdr->OrFlags(nsMsgMessageFlags::Watched, &newFlags);
         } break;
         case nsMsgFilterAction::MarkFlagged:
-          m_newMsgHdr->MarkFlagged(true);
+          rv = m_newMsgHdr->MarkFlagged(true);
           break;
         case nsMsgFilterAction::ChangePriority: {
           nsMsgPriorityValue filterPriority;
           filterAction->GetPriority(&filterPriority);
-          m_newMsgHdr->SetPriority(filterPriority);
+          rv = m_newMsgHdr->SetPriority(filterPriority);
         } break;
         case nsMsgFilterAction::AddTag: {
           nsCString keyword;
@@ -641,46 +653,68 @@ NS_IMETHODIMP nsNNTPNewsgroupList::ApplyFilterHit(nsIMsgFilter *aFilter,
               do_CreateInstance(NS_ARRAY_CONTRACTID));
           messageArray->AppendElement(m_newMsgHdr);
           nsCOMPtr<nsIMsgFolder> folder = do_QueryInterface(m_newsFolder, &rv);
-          if (folder) folder->AddKeywordsToMessages(messageArray, keyword);
-          break;
-        }
+          if (NS_SUCCEEDED(rv) && folder) {
+            rv = folder->AddKeywordsToMessages(messageArray, keyword);
+          } else {
+            rv = NS_MSG_FOLDER_UNREADABLE;
+            MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,
+                    ("(News) Target folder for AddTag not found, skipping"));
+          }
+        } break;
         case nsMsgFilterAction::Label: {
           nsMsgLabelValue filterLabel;
           filterAction->GetLabel(&filterLabel);
-          nsMsgKey msgKey;
-          m_newMsgHdr->GetMessageKey(&msgKey);
-          m_newsDB->SetLabel(msgKey, filterLabel);
+          rv = m_newsDB->SetLabel(msgKey, filterLabel);
         } break;
 
         case nsMsgFilterAction::StopExecution: {
           // don't apply any more filters
           *aApplyMore = false;
+          rv = NS_OK;
         } break;
 
         case nsMsgFilterAction::Custom: {
           nsCOMPtr<nsIMsgFilterCustomAction> customAction;
           rv = filterAction->GetCustomAction(getter_AddRefs(customAction));
-          NS_ENSURE_SUCCESS(rv, rv);
+          if (NS_FAILED(rv)) break;
 
           nsAutoCString value;
-          filterAction->GetStrValue(value);
+          rv = filterAction->GetStrValue(value);
+          if (NS_FAILED(rv)) break;
 
           nsCOMPtr<nsIMutableArray> messageArray(
               do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-          NS_ENSURE_TRUE(messageArray, rv);
+          if (NS_FAILED(rv) || !messageArray) break;
           messageArray->AppendElement(m_newMsgHdr);
 
-          customAction->Apply(messageArray, value, nullptr,
-                              nsMsgFilterType::NewsRule, aMsgWindow);
+          rv = customAction->Apply(messageArray, value, nullptr,
+                                   nsMsgFilterType::NewsRule, aMsgWindow);
         } break;
 
         default:
-          NS_ERROR("unexpected action");
+          NS_ERROR("unexpected filter action");
+          rv = NS_ERROR_UNEXPECTED;
           break;
       }
     }
+
+    if (NS_FAILED(rv)) {
+      finalResult = rv;
+      MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,
+              ("(News) Action execution failed with error: %" PRIx32,
+               static_cast<uint32_t>(rv)));
+      if (loggingEnabled) {
+        (void)aFilter->LogRuleHitFail(filterAction, m_newMsgHdr, rv,
+                                      NS_LITERAL_CSTRING("filterActionFailed"));
+      }
+    } else {
+      MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+              ("(News) Action execution succeeded"));
+    }
   }
-  return NS_OK;
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+          ("(News) Finished executing actions"));
+  return finalResult;
 }
 
 nsresult nsNNTPNewsgroupList::ProcessXOVERLINE(const char *line,

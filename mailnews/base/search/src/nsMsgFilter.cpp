@@ -573,8 +573,7 @@ nsresult nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
   }
   buffer.AppendLiteral("\n");
 
-  m_filterList->LogFilterMessage(buffer, nullptr);
-  return NS_OK;
+  return m_filterList->LogFilterMessage(buffer, nullptr);
 }
 
 NS_IMETHODIMP nsMsgFilter::LogRuleHit(nsIMsgRuleAction *aFilterAction,

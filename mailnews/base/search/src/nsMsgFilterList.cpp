@@ -315,9 +315,11 @@ nsMsgFilterList::ApplyFiltersToHdr(nsMsgFilterTypeType filterType,
 
       filter->GetEnabled(&isEnabled);
       if (!isEnabled) {
-        MOZ_LOG(
-            FILTERLOGMODULE, LogLevel::Info,
-            ("(Auto) Skipping disabled filter at index %" PRIu32, filterIndex));
+        // clang-format off
+        MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+                ("(Auto) Skipping disabled filter at index %" PRIu32,
+                 filterIndex));
+        // clang-format on
         continue;
       }
 
@@ -349,16 +351,19 @@ nsMsgFilterList::ApplyFiltersToHdr(nsMsgFilterTypeType filterType,
 
           bool applyMore = true;
           rv = listener->ApplyFilterHit(filter, msgWindow, &applyMore);
+          if (NS_FAILED(rv)) {
+            MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,
+                    ("(Auto) Applying filter actions failed"));
+            LogFilterMessage(
+                NS_LITERAL_STRING("Applying filter actions failed"), filter);
+          } else {
+            MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+                    ("(Auto) Applying filter actions succeeded"));
+          }
           if (NS_FAILED(rv) || !applyMore) {
-            if (NS_FAILED(rv)) {
-              MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,
-                      ("(Auto) Applying filter actions failed"));
-              LogFilterMessage(
-                  NS_LITERAL_STRING("Applying filter actions failed"), filter);
-            }
-            MOZ_LOG(
-                FILTERLOGMODULE, LogLevel::Info,
-                ("(Auto) Stopping further filter execution on this message"));
+            MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+                    ("(Auto) Stopping further filter execution"
+                     " on this message"));
             break;
           }
         } else {
@@ -373,17 +378,18 @@ nsMsgFilterList::ApplyFiltersToHdr(nsMsgFilterTypeType filterType,
                     ("(Auto) Filter didn't match"));
         }
       } else {
-        MOZ_LOG(
-            FILTERLOGMODULE, LogLevel::Info,
-            ("(Auto) Skipping filter of non-matching type at index %" PRIu32,
-             filterIndex));
+        MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+                ("(Auto) Skipping filter of non-matching type"
+                 " at index %" PRIu32,
+                 filterIndex));
       }
     }
   }
   if (NS_FAILED(rv)) {
-    MOZ_LOG(
-        FILTERLOGMODULE, LogLevel::Error,
-        ("(Auto) Filter run failed (%" PRIx32 ")", static_cast<uint32_t>(rv)));
+    // clang-format off
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,
+            ("(Auto) Filter run failed (%" PRIx32 ")", static_cast<uint32_t>(rv)));
+    // clang-format on
     LogFilterMessage(NS_LITERAL_STRING("Filter run failed"), nullptr);
   }
   return rv;
@@ -1201,10 +1207,10 @@ NS_IMETHODIMP nsMsgFilterList::LogFilterMessage(const nsAString &message,
   nsString filterLogMessage;
   rv = bundle->FormatStringFromName("filterLogLine", logFormatStrings,
                                     filterLogMessage);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   // Write message into log stream.
   uint32_t writeCount;
-
   rv = logStream->Write(LOG_ENTRY_START_TAG, LOG_ENTRY_START_TAG_LEN,
                         &writeCount);
   NS_ENSURE_SUCCESS(rv, rv);

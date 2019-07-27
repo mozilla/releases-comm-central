@@ -1837,8 +1837,9 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter *filter,
   nsMsgKey msgKey;
   msgHdr->GetMessageKey(&msgKey);
   MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
-          ("(Local) Applying filter actions on message with key %" PRIu32,
-           msgKeyToInt(msgKey)));
+          ("(Local) Applying %" PRIu32
+           " filter actions on message with key %" PRIu32,
+           numActions, msgKeyToInt(msgKey)));
   MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug,
           ("(Local) Message ID: %s", msgId.get()));
 
@@ -1847,14 +1848,24 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter *filter,
     m_filterList->GetLoggingEnabled(&loggingEnabled);
 
   bool msgIsNew = true;
+  nsresult finalResult = NS_OK;  // result of all actions
   for (uint32_t actionIndex = 0; actionIndex < numActions && *applyMore;
        actionIndex++) {
     nsCOMPtr<nsIMsgRuleAction> filterAction =
         do_QueryElementAt(filterActionList, actionIndex, &rv);
-    if (NS_FAILED(rv) || !filterAction) continue;
+    if (NS_FAILED(rv) || !filterAction) {
+      MOZ_LOG(FILTERLOGMODULE, LogLevel::Warning,
+              ("(Local) Filter action at index %" PRIu32 " invalid, skipping",
+               actionIndex));
+      continue;
+    }
 
     nsMsgRuleActionType actionType;
     if (NS_SUCCEEDED(filterAction->GetType(&actionType))) {
+      MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+              ("(Local) Running filter action at index %" PRIu32
+               ", action type = %i",
+               actionIndex, actionType));
       if (loggingEnabled) (void)filter->LogRuleHit(filterAction, msgHdr);
 
       nsCString actionTargetFolderUri;
@@ -1862,34 +1873,47 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter *filter,
           actionType == nsMsgFilterAction::CopyToFolder) {
         rv = filterAction->GetTargetFolderUri(actionTargetFolderUri);
         if (NS_FAILED(rv) || actionTargetFolderUri.IsEmpty()) {
+          // clang-format off
+          MOZ_LOG(FILTERLOGMODULE, LogLevel::Warning,
+                  ("(Local) Target URI for Copy/Move action is empty, skipping"));
+          // clang-format on
           NS_ASSERTION(false, "actionTargetFolderUri is empty");
           continue;
         }
       }
+
+      rv = NS_OK;  // result of the current action
       switch (actionType) {
         case nsMsgFilterAction::Delete: {
           nsCOMPtr<nsIMsgFolder> trash;
           // set value to trash folder
           rv = GetTrashFolder(getter_AddRefs(trash));
-          if (NS_SUCCEEDED(rv) && trash)
+          if (NS_SUCCEEDED(rv) && trash) {
             rv = trash->GetURI(actionTargetFolderUri);
+            if (NS_FAILED(rv)) break;
+          }
 
-          msgHdr->OrFlags(nsMsgMessageFlags::Read,
-                          &newFlags);  // mark read in trash.
+          rv = msgHdr->OrFlags(nsMsgMessageFlags::Read,
+                               &newFlags);  // mark read in trash.
           msgIsNew = false;
         }
-
           // FALLTHROUGH
           MOZ_FALLTHROUGH;
-        case nsMsgFilterAction::MoveToFolder:
+        case nsMsgFilterAction::MoveToFolder: {
           // if moving to a different file, do it.
-          if (actionTargetFolderUri.get() &&
+          if (!actionTargetFolderUri.IsEmpty() &&
               !m_inboxUri.Equals(actionTargetFolderUri,
                                  nsCaseInsensitiveCStringComparator())) {
             nsCOMPtr<nsIMsgFolder> destIFolder;
-            nsresult err = GetOrCreateFolder(actionTargetFolderUri,
-                                             getter_AddRefs(destIFolder));
-            NS_ENSURE_SUCCESS(err, err);
+            // XXX TODO: why do we create the folder here, while we do not in
+            // the Copy action?
+            rv = GetOrCreateFolder(actionTargetFolderUri,
+                                   getter_AddRefs(destIFolder));
+            if (NS_FAILED(rv)) {
+              MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,
+                      ("(Local) Target Folder for Move action does not exist"));
+              break;
+            }
             bool msgMoved = false;
             // If we're moving to an imap folder, or this message has already
             // has a pending copy action, use the imap coalescer so that
@@ -1901,34 +1925,35 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter *filter,
                 m_moveCoalescer =
                     new nsImapMoveCoalescer(m_downloadFolder, m_msgWindow);
               NS_ENSURE_TRUE(m_moveCoalescer, NS_ERROR_OUT_OF_MEMORY);
-              nsMsgKey msgKey;
-              (void)msgHdr->GetMessageKey(&msgKey);
-              m_moveCoalescer->AddMove(destIFolder, msgKey);
-              err = NS_OK;
+              rv = m_moveCoalescer->AddMove(destIFolder, msgKey);
               msgIsNew = false;
+              if (NS_FAILED(rv)) break;
             } else {
               nsCOMPtr<nsIMsgPluggableStore> msgStore;
-              err = m_downloadFolder->GetMsgStore(getter_AddRefs(msgStore));
-              if (NS_SUCCEEDED(err))
-                err = msgStore->MoveNewlyDownloadedMessage(msgHdr, destIFolder,
-                                                           &msgMoved);
-              if (NS_SUCCEEDED(err) && !msgMoved)
-                err = MoveIncorporatedMessage(msgHdr, m_mailDB, destIFolder,
-                                              filter, msgWindow);
-              m_msgMovedByFilter = NS_SUCCEEDED(err);
+              rv = m_downloadFolder->GetMsgStore(getter_AddRefs(msgStore));
+              if (NS_SUCCEEDED(rv))
+                rv = msgStore->MoveNewlyDownloadedMessage(msgHdr, destIFolder,
+                                                          &msgMoved);
+              if (NS_SUCCEEDED(rv) && !msgMoved)
+                rv = MoveIncorporatedMessage(msgHdr, m_mailDB, destIFolder,
+                                             filter, msgWindow);
+              m_msgMovedByFilter = NS_SUCCEEDED(rv);
               if (!m_msgMovedByFilter /* == NS_FAILED(err) */) {
                 // XXX: Invoke MSG_LOG_TO_CONSOLE once bug 1135265 lands.
                 if (loggingEnabled) {
                   (void)filter->LogRuleHitFail(
-                      filterAction, msgHdr, err,
+                      filterAction, msgHdr, rv,
                       NS_LITERAL_CSTRING("filterFailureMoveFailed"));
                 }
               }
             }
+          } else {
+            MOZ_LOG(FILTERLOGMODULE, LogLevel::Warning,
+                    ("(Local) Target folder is the same as source folder"));
+            rv = NS_OK;
           }
           *applyMore = false;
-          break;
-
+        } break;
         case nsMsgFilterAction::CopyToFolder: {
           nsCString uri;
           rv = m_rootFolder->GetURI(uri);
@@ -1936,7 +1961,8 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter *filter,
           if (!actionTargetFolderUri.IsEmpty() &&
               !actionTargetFolderUri.Equals(uri)) {
             nsCOMPtr<nsIMutableArray> messageArray(
-                do_CreateInstance(NS_ARRAY_CONTRACTID));
+                do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
+            if (NS_FAILED(rv) || !messageArray) break;
             messageArray->AppendElement(msgHdr);
 
             nsCOMPtr<nsIMsgFolder> dstFolder;
@@ -1945,8 +1971,10 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter *filter,
                                    getter_AddRefs(dstFolder));
             if (NS_FAILED(rv)) {
               // Let's show a more specific warning.
+              MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,
+                      ("(Local) Target Folder for Copy action does not exist"));
               NS_WARNING("Target Folder does not exist.");
-              return rv;
+              break;
             }
 
             copyService = do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
@@ -1964,70 +1992,74 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter *filter,
               }
             } else
               m_msgCopiedByFilter = true;
+          } else {
+            MOZ_LOG(FILTERLOGMODULE, LogLevel::Warning,
+                    ("(Local) Target folder is the same as source folder"));
+            break;
           }
         } break;
         case nsMsgFilterAction::MarkRead:
           msgIsNew = false;
           MarkFilteredMessageRead(msgHdr);
+          rv = NS_OK;
           break;
         case nsMsgFilterAction::MarkUnread:
           msgIsNew = true;
           MarkFilteredMessageUnread(msgHdr);
+          rv = NS_OK;
           break;
         case nsMsgFilterAction::KillThread:
-          msgHdr->SetUint32Property("ProtoThreadFlags",
-                                    nsMsgMessageFlags::Ignored);
+          rv = msgHdr->SetUint32Property("ProtoThreadFlags",
+                                         nsMsgMessageFlags::Ignored);
           break;
         case nsMsgFilterAction::KillSubthread:
-          msgHdr->OrFlags(nsMsgMessageFlags::Ignored, &newFlags);
+          rv = msgHdr->OrFlags(nsMsgMessageFlags::Ignored, &newFlags);
           break;
         case nsMsgFilterAction::WatchThread:
-          msgHdr->OrFlags(nsMsgMessageFlags::Watched, &newFlags);
+          rv = msgHdr->OrFlags(nsMsgMessageFlags::Watched, &newFlags);
           break;
         case nsMsgFilterAction::MarkFlagged: {
           nsCOMPtr<nsIMutableArray> messageArray(
-              do_CreateInstance(NS_ARRAY_CONTRACTID));
+              do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
+          if (NS_FAILED(rv) || !messageArray) break;
           messageArray->AppendElement(msgHdr);
-          m_downloadFolder->MarkMessagesFlagged(messageArray, true);
+          rv = m_downloadFolder->MarkMessagesFlagged(messageArray, true);
         } break;
-        case nsMsgFilterAction::ChangePriority:
+        case nsMsgFilterAction::ChangePriority: {
           nsMsgPriorityValue filterPriority;
           filterAction->GetPriority(&filterPriority);
-          msgHdr->SetPriority(filterPriority);
-          break;
+          rv = msgHdr->SetPriority(filterPriority);
+        } break;
         case nsMsgFilterAction::AddTag: {
           nsCString keyword;
           filterAction->GetStrValue(keyword);
           nsCOMPtr<nsIMutableArray> messageArray(
-              do_CreateInstance(NS_ARRAY_CONTRACTID));
+              do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
+          if (NS_FAILED(rv) || !messageArray) break;
           messageArray->AppendElement(msgHdr);
-          m_downloadFolder->AddKeywordsToMessages(messageArray, keyword);
+          rv = m_downloadFolder->AddKeywordsToMessages(messageArray, keyword);
           break;
         }
-        case nsMsgFilterAction::Label:
+        case nsMsgFilterAction::Label: {
           nsMsgLabelValue filterLabel;
           filterAction->GetLabel(&filterLabel);
-          nsMsgKey msgKey;
-          msgHdr->GetMessageKey(&msgKey);
-          m_mailDB->SetLabel(msgKey, filterLabel);
-          break;
+          rv = m_mailDB->SetLabel(msgKey, filterLabel);
+        } break;
         case nsMsgFilterAction::JunkScore: {
           nsAutoCString junkScoreStr;
           int32_t junkScore;
           filterAction->GetJunkScore(&junkScore);
           junkScoreStr.AppendInt(junkScore);
           if (junkScore == nsIJunkMailPlugin::IS_SPAM_SCORE) msgIsNew = false;
-          nsMsgKey msgKey;
-          msgHdr->GetMessageKey(&msgKey);
-          msgHdr->SetStringProperty("junkscore", junkScoreStr.get());
+          rv = msgHdr->SetStringProperty("junkscore", junkScoreStr.get());
           msgHdr->SetStringProperty("junkscoreorigin", "filter");
-          break;
-        }
+        } break;
         case nsMsgFilterAction::Forward: {
           nsCString forwardTo;
           filterAction->GetStrValue(forwardTo);
           m_forwardTo.AppendElement(forwardTo);
           m_msgToForwardOrReply = msgHdr;
+          rv = NS_OK;
         } break;
         case nsMsgFilterAction::Reply: {
           nsCString replyTemplateUri;
@@ -2036,43 +2068,52 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter *filter,
           m_msgToForwardOrReply = msgHdr;
           m_ruleAction = filterAction;
           m_filter = filter;
+          rv = NS_OK;
         } break;
         case nsMsgFilterAction::DeleteFromPop3Server: {
-          uint32_t flags = 0;
           nsCOMPtr<nsIMsgFolder> downloadFolder;
           msgHdr->GetFolder(getter_AddRefs(downloadFolder));
           nsCOMPtr<nsIMsgLocalMailFolder> localFolder =
-              do_QueryInterface(downloadFolder);
-          msgHdr->GetFlags(&flags);
-          if (localFolder) {
-            nsCOMPtr<nsIMutableArray> messages =
-                do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
-            NS_ENSURE_SUCCESS(rv, rv);
-            messages->AppendElement(msgHdr);
-            // This action ignores the deleteMailLeftOnServer preference
-            localFolder->MarkMsgsOnPop3Server(messages, POP3_FORCE_DEL);
+              do_QueryInterface(downloadFolder, &rv);
+          if (NS_FAILED(rv) || !localFolder) {
+            MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,
+                    ("(Local) Couldn't find local mail folder"));
+            break;
+          }
+          nsCOMPtr<nsIMutableArray> messages =
+              do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
+          if (NS_FAILED(rv) || !messages) break;
+          messages->AppendElement(msgHdr);
+          // This action ignores the deleteMailLeftOnServer preference
+          rv = localFolder->MarkMsgsOnPop3Server(messages, POP3_FORCE_DEL);
 
-            // If this is just a header, throw it away. It's useless now
-            // that the server copy is being deleted.
-            if (flags & nsMsgMessageFlags::Partial) {
-              m_msgMovedByFilter = true;
-              msgIsNew = false;
-            }
+          // If this is just a header, throw it away. It's useless now
+          // that the server copy is being deleted.
+          uint32_t flags = 0;
+          msgHdr->GetFlags(&flags);
+          if (flags & nsMsgMessageFlags::Partial) {
+            m_msgMovedByFilter = true;
+            msgIsNew = false;
           }
         } break;
         case nsMsgFilterAction::FetchBodyFromPop3Server: {
-          uint32_t flags = 0;
           nsCOMPtr<nsIMsgFolder> downloadFolder;
           msgHdr->GetFolder(getter_AddRefs(downloadFolder));
           nsCOMPtr<nsIMsgLocalMailFolder> localFolder =
-              do_QueryInterface(downloadFolder);
+              do_QueryInterface(downloadFolder, &rv);
+          if (NS_FAILED(rv) || !localFolder) {
+            MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,
+                    ("(Local) Couldn't find local mail folder"));
+            break;
+          }
+          uint32_t flags = 0;
           msgHdr->GetFlags(&flags);
-          if (localFolder && (flags & nsMsgMessageFlags::Partial)) {
+          if (flags & nsMsgMessageFlags::Partial) {
             nsCOMPtr<nsIMutableArray> messages =
                 do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
-            NS_ENSURE_SUCCESS(rv, rv);
+            if (NS_FAILED(rv) || !messages) break;
             messages->AppendElement(msgHdr);
-            localFolder->MarkMsgsOnPop3Server(messages, POP3_FETCH_BODY);
+            rv = localFolder->MarkMsgsOnPop3Server(messages, POP3_FETCH_BODY);
             // Don't add this header to the DB, we're going to replace it
             // with the full message.
             m_msgMovedByFilter = true;
@@ -2086,39 +2127,46 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter *filter,
         case nsMsgFilterAction::StopExecution: {
           // don't apply any more filters
           *applyMore = false;
+          rv = NS_OK;
         } break;
 
         case nsMsgFilterAction::Custom: {
           nsCOMPtr<nsIMsgFilterCustomAction> customAction;
           rv = filterAction->GetCustomAction(getter_AddRefs(customAction));
-          NS_ENSURE_SUCCESS(rv, rv);
+          if (NS_FAILED(rv)) break;
 
           nsAutoCString value;
-          filterAction->GetStrValue(value);
+          rv = filterAction->GetStrValue(value);
+          if (NS_FAILED(rv)) break;
 
           nsCOMPtr<nsIMutableArray> messageArray(
               do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-          NS_ENSURE_TRUE(messageArray, rv);
-          if (NS_SUCCEEDED(rv)) rv = messageArray->AppendElement(msgHdr);
+          if (NS_FAILED(rv) || !messageArray) break;
+          messageArray->AppendElement(msgHdr);
 
-          if (NS_SUCCEEDED(rv))
-            rv = customAction->Apply(messageArray, value, nullptr,
-                                     nsMsgFilterType::InboxRule, msgWindow);
-          if (NS_FAILED(rv)) {
-            // XXX: Invoke MSG_LOG_TO_CONSOLE once bug 1135265 lands.
-            if (loggingEnabled) {
-              (void)filter->LogRuleHitFail(
-                  filterAction, msgHdr, rv,
-                  NS_LITERAL_CSTRING("filterFailureCopyFailed"));
-            }
-          }
+          rv = customAction->Apply(messageArray, value, nullptr,
+                                   nsMsgFilterType::InboxRule, msgWindow);
         } break;
 
         default:
           // XXX should not be reached. Check in debug build.
-          NS_ERROR("This default should not be reached.");
+          NS_ERROR("unexpected filter action");
+          rv = NS_ERROR_UNEXPECTED;
           break;
       }
+    }
+    if (NS_FAILED(rv)) {
+      finalResult = rv;
+      MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,
+              ("(Local) Action execution failed with error: %" PRIx32,
+               static_cast<uint32_t>(rv)));
+      if (loggingEnabled) {
+        (void)filter->LogRuleHitFail(filterAction, msgHdr, rv,
+                                     NS_LITERAL_CSTRING("filterFailureAction"));
+      }
+    } else {
+      MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+              ("(Local) Action execution succeeded"));
     }
   }
   if (!msgIsNew) {
@@ -2127,8 +2175,12 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter *filter,
     if (numNewMessages > 0)
       m_downloadFolder->SetNumNewMessages(numNewMessages - 1);
     m_numNotNewMessages++;
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+            ("(Local) Message will not be marked new"));
   }
-  return rv;
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+          ("(Local) Finished executing actions"));
+  return finalResult;
 }
 
 // this gets run in a second pass, after apply filters to a header.
