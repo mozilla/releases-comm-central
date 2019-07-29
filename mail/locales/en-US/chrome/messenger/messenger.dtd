@@ -585,7 +585,7 @@
 <!ENTITY forwardAsAttachment.tooltip "Forward selected message as an attachment">
 <!ENTITY fileButton.tooltip "File selected message">
 <!ENTITY archiveButton.tooltip "Archive selected messages">
-<!ENTITY openConversationButton.tooltip "Show conversation of selected message">
+<!ENTITY openMsgConversationButton.tooltip "Show conversation of selected message">
 <!ENTITY nextButton.tooltip "Move to the next unread message">
 <!ENTITY nextMsgButton.tooltip "Move to the next message">
 <!ENTITY previousButton.tooltip "Move to the previous unread message">
