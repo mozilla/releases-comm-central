@@ -27,12 +27,12 @@
 <!DOCTYPE window [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
 %brandDTD;
-<!ENTITY % chatDTD SYSTEM "chrome://messenger/locale/chat.dtd">
-%chatDTD;
 <!ENTITY % msgHdrViewOverlayDTD SYSTEM "chrome://messenger/locale/msgHdrViewOverlay.dtd">
 %msgHdrViewOverlayDTD;
 <!ENTITY % messengerDTD SYSTEM "chrome://messenger/locale/messenger.dtd" >
 %messengerDTD;
+<!ENTITY % chatDTD SYSTEM "chrome://messenger/locale/chat.dtd">
+%chatDTD;
 <!ENTITY % customizeToolbarDTD SYSTEM "chrome://messenger/locale/customizeToolbar.dtd">
 %customizeToolbarDTD;
 <!ENTITY % textcontextDTD SYSTEM "chrome://global/locale/textcontext.dtd">
