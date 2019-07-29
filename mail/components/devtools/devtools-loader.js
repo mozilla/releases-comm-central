@@ -33,7 +33,7 @@ DevToolsStartup.prototype = {
   },
 
   initialize() {
-    let { devtools, require, DevToolsLoader } = ChromeUtils.import("resource://devtools/shared/Loader.jsm");
+    let { loader, require, DevToolsLoader } = ChromeUtils.import("resource://devtools/shared/Loader.jsm");
     let { DebuggerServer } = require("devtools/server/main");
     let { gDevTools } = require("devtools/client/framework/devtools");
 
@@ -63,7 +63,7 @@ DevToolsStartup.prototype = {
     // loaded instance. Thunderbird now also provides the Browser Toolbox for
     // chrome debugging, which uses its own separate loader instance.
     DevToolsLoader.prototype.invisibleToDebugger = false;
-    devtools.invisibleToDebugger = false;
+    loader.invisibleToDebugger = false;
     DebuggerServer.allowChromeProcess = true;
 
     // Initialize and load the toolkit/browser actors. This will also call above function to set the
