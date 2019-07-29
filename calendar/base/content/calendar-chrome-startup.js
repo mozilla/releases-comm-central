@@ -29,9 +29,6 @@ async function commonInitCalendar() {
     // Load the Calendar Manager
     await loadCalendarManager();
 
-    // set up the unifinder
-    prepareCalendarToDoUnifinder();
-
     // Make sure we update ourselves if the program stays open over midnight
     scheduleMidnightUpdate(refreshUIBits);
 

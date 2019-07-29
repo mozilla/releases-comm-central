@@ -44,7 +44,7 @@
       <spacer id="buttonspacer"/>
       <toolbarbutton id="today-closer" class="today-closebutton close-icon"
                      oncommand="document.getElementById('today-pane-panel').setVisible(false, true, true);
-                                TodayPane.setTodayHeader();
+                                TodayPane.updateDisplay();
                                 TodayPane.updateSplitterState();"/>
     </sidebarheader>
     <vbox flex="1">

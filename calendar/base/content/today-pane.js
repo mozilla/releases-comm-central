@@ -39,7 +39,7 @@ var TodayPane = {
         ];
 
         TodayPane.setShortWeekdays();
-        TodayPane.setTodayHeader();
+        TodayPane.updateDisplay();
         TodayPane.updateSplitterState();
         TodayPane.previousMode = document.getElementById("modeBroadcaster").getAttribute("mode");
         TodayPane.showTodayPaneStatusLabel();
@@ -72,7 +72,7 @@ var TodayPane = {
      * Sets up the label for the switcher that allows switching between today pane
      * views. (event+task, task only, event only)
      */
-    setTodayHeader: function() {
+    updateDisplay: function() {
         let currentMode = document.getElementById("modeBroadcaster").getAttribute("mode");
         let agendaIsVisible = document.getElementById("agenda-panel").isVisible(currentMode);
         let todoIsVisible = document.getElementById("todo-tab-panel").isVisible(currentMode);
@@ -105,12 +105,17 @@ var TodayPane = {
             setAttributeToChildren(menu, "disabled", !todayIsVisible || !agendaIsVisible, "name", "minidisplay");
         }
 
-        if (todayIsVisible && agendaIsVisible) {
-            if (this.start === null) {
-                this.setDay(cal.dtz.now());
+        if (todayIsVisible) {
+            if (agendaIsVisible) {
+                if (this.start === null) {
+                    this.setDay(cal.dtz.now());
+                }
+                if (document.getElementById("today-minimonth-box").isVisible()) {
+                    document.getElementById("today-minimonth").setAttribute("freebusy", "true");
+                }
             }
-            if (document.getElementById("today-minimonth-box").isVisible()) {
-                document.getElementById("today-minimonth").setAttribute("freebusy", "true");
+            if (todoIsVisible) {
+                prepareCalendarToDoUnifinder();
             }
         }
 
@@ -293,7 +298,7 @@ var TodayPane = {
         let isAgendaPanelVisible = (index != 1 && agendaPanel.isVisibleInMode(currentMode));
         todoPanel.setVisible(isTodoPanelVisible);
         agendaPanel.setVisible(isAgendaPanelVisible);
-        this.setTodayHeader();
+        this.updateDisplay();
     },
 
     /**
@@ -387,7 +392,9 @@ var TodayPane = {
      */
     updatePeriod: function() {
         agendaListbox.refreshPeriodDates(this.start.clone());
-        updateCalendarToDoUnifinder();
+        if (document.getElementById("todo-tab-panel").isVisible()) {
+            updateCalendarToDoUnifinder();
+        }
     },
 
     /**
@@ -414,7 +421,7 @@ var TodayPane = {
             // Store the previous mode panel's width.
             todaypane.setModeAttribute("modewidths", todaypane.width, TodayPane.previousMode);
 
-            TodayPane.setTodayHeader();
+            TodayPane.updateDisplay();
             TodayPane.updateSplitterState();
             todaypane.width = todaypane.getModeAttribute("modewidths", "width");
             TodayPane.previousMode = document.getElementById("modeBroadcaster").getAttribute("mode");
@@ -432,7 +439,7 @@ var TodayPane = {
      */
     toggleVisibility: function(aEvent) {
         document.getElementById("today-pane-panel").togglePane(aEvent);
-        TodayPane.setTodayHeader();
+        TodayPane.updateDisplay();
         TodayPane.updateSplitterState();
     },
 

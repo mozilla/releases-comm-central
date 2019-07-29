@@ -253,7 +253,7 @@
             this.mDateRangeFilter = null;
             this.mTextFilterField = null;
 
-            this.mTreeView = null;
+            this.mTreeView = new CalendarTaskTreeView(this);
             this.mTaskTreeObserver = new TaskTreeObserver(this);
 
             // Observes and responds to changes to calendar preferences.
@@ -269,14 +269,9 @@
             // Set up the tree filter.
             this.mFilter = new calFilter();
 
-            // This refresh call sets up the tree view and observers.
-            this.refresh();
-
             this.restoreColumnState();
 
             window.addEventListener("unload", this.persistColumnState.bind(this));
-
-            this.dispatchEvent(new CustomEvent("bindingattached", { bubbles: false }));
         }
 
         get currentTask() {
@@ -516,11 +511,7 @@
          * Sets up the tree view, calendar event observer, and preference observer.
          */
         refresh() {
-            let tree = this.closest(".calendar-task-tree");
-
-            // Note: attempting to merge this.mTreeView and tree.view did not work.
-            this.mTreeView = new CalendarTaskTreeView(tree);
-            tree.view = this.mTreeView;
+            this.view = this.mTreeView;
 
             cal.view.getCompositeCalendar(window).addObserver(this.mTaskTreeObserver);
 

@@ -21,11 +21,8 @@ function prepareCalendarToDoUnifinder() {
  *
  * @param aFilter        The filter name to set.
  */
-async function updateCalendarToDoUnifinder(aFilter) {
+function updateCalendarToDoUnifinder(aFilter) {
     let tree = document.getElementById("unifinder-todo-tree");
-    if (!("updateFilter" in tree)) {
-        await new Promise(resolve => tree.addEventListener("bindingattached", resolve, { once: true }));
-    }
 
     // Set up hiding completed tasks for the unifinder-todo tree
     let showCompleted = document.getElementById("show-completed-checkbox").checked;
@@ -58,7 +55,8 @@ async function updateCalendarToDoUnifinder(aFilter) {
 }
 
 /**
- * Called when the window is unloaded to clean up the unifinder-todo.
+ * Called when the window is unloaded to clean up the unifinder-todo. Note that
+ * this function could be called even if prepareCalendarToDoUnifinder hasn't.
  */
 function finishCalendarToDoUnifinder() {
     // remove listeners
