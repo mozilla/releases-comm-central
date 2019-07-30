@@ -28,7 +28,8 @@
   }
 }
 
-#acctCentralGrid {
+#acctCentralLayout {
+  overflow: auto;
   background-color: var(--body-background-color);
   color: var(--body-text-color);
 }
@@ -50,6 +51,9 @@ spacer.big {
   font-weight: bold;
 }
 
+.acctCentralTitleRow {
+  padding-left: 10px;
+}
 .acctCentralRowTitleBox {
   background-color: var(--head-background-color);
   border: 1px solid var(--head-border-color);

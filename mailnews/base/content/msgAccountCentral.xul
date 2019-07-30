@@ -31,116 +31,111 @@
   <script src="chrome://messenger/content/msgAccountCentral.js"/>
   <script src="chrome://messenger/content/mailCore.js"/>
 
-  <grid id="acctCentralGrid" flex="1" style="overflow: auto;">
-    <columns id="acctCentralColumns">
-      <column flex="40" id="acctCentralActionsColumn"/>
-      <column flex="60" id="acctCentralHelpDataColumn"/>
-    </columns>
-
-    <rows id="acctCentralRows">
-      <row id="acctCentralHeaderRow">
+  <hbox id="acctCentralLayout" flex="1">
+    <vbox id="acctCentralRows" flex="2">
+      <hbox id="acctCentralHeaderRow">
         <label id="AccountCentralTitle"/>
-      </row>
+      </hbox>
       <spacer id="acctCentralHeader.spacer" flex="2"/>
 
-      <row id="EmailHeader" class="acctCentralTitleRow" collapsed="true">
-        <hbox class="acctCentralRowTitleBox">
+      <hbox id="EmailHeader" class="acctCentralTitleRow" collapsed="true">
+        <hbox class="acctCentralRowTitleBox" flex="1">
           <description>&emailSectionHdr.label;</description>
         </hbox>
-      </row>
+      </hbox>
 
       <spacer id="ReadMessages.spacer" flex="1" collapsed="true"/>
-      <row id="ReadMessages" class="acctCentralRow" collapsed="true">
+      <hbox id="ReadMessages" class="acctCentralRow" collapsed="true">
         <hbox>
           <label class="acctCentralText acctCentralLinkText"
                  value="&readMsgsLink.label;"
                  chromedir="&locale.dir;"
                  onclick="ReadMessages();"/>
         </hbox>
-      </row>
+      </hbox>
 
       <spacer id="ComposeMessage.spacer" flex="1" collapsed="true"/>
-      <row id="ComposeMessage" class="acctCentralRow" collapsed="true">
+      <hbox id="ComposeMessage" class="acctCentralRow" collapsed="true">
         <hbox>
           <label class="acctCentralText acctCentralLinkText"
                  value="&composeMsgLink.label;"
                  chromedir="&locale.dir;"
                  onclick="ComposeAMessage(event);"/>
         </hbox>
-      </row>
+      </hbox>
 
       <spacer id="JunkSettingsMail.spacer" flex="1" collapsed="true"/>
-      <row id="JunkSettingsMail" class="acctCentralRow" collapsed="true">
+      <hbox id="JunkSettingsMail" class="acctCentralRow" collapsed="true">
         <hbox>
           <label class="acctCentralText acctCentralLinkText"
                  value="&junkSettings.label;"
                  onclick="JunkSettings();"/>
         </hbox>
-      </row>
+      </hbox>
 
       <spacer id="NewsHeader.spacer" flex="1" collapsed="true"/>
-      <row id="NewsHeader" class="acctCentralTitleRow" collapsed="true">
-        <hbox class="acctCentralRowTitleBox">
+      <hbox id="NewsHeader" class="acctCentralTitleRow" collapsed="true">
+        <hbox class="acctCentralRowTitleBox" flex="1">
           <description>&newsSectionHdr.label;</description>
         </hbox>
-      </row>
+      </hbox>
 
       <spacer id="SubscribeNewsgroups.spacer" flex="1" collapsed="true"/>
-      <row id="SubscribeNewsgroups" class="acctCentralRow" collapsed="true">
+      <hbox id="SubscribeNewsgroups" class="acctCentralRow" collapsed="true">
         <hbox>
           <label class="acctCentralText acctCentralLinkText"
                  value="&subscribeNewsLink.label;"
                  chromedir="&locale.dir;"
                  onclick="Subscribe();"/>
         </hbox>
-      </row>
+      </hbox>
 
       <spacer id="JunkSettingsNews.spacer" flex="1" collapsed="true"/>
-      <row id="JunkSettingsNews" class="acctCentralRow" collapsed="true">
+      <hbox id="JunkSettingsNews" class="acctCentralRow" collapsed="true">
         <hbox>
           <label class="acctCentralText acctCentralLinkText"
                  value="&junkSettings.label;"
                  onclick="JunkSettings();"/>
         </hbox>
-      </row>
+      </hbox>
 
       <spacer id="rssHeader.spacer" flex="1" collapsed="true"/>
-      <row id="rssHeader" class="acctCentralTitleRow" collapsed="true">
-        <hbox class="acctCentralRowTitleBox">
+      <hbox id="rssHeader" class="acctCentralTitleRow" collapsed="true">
+        <hbox class="acctCentralRowTitleBox" flex="1">
           <description>&feedsSectionHdr.label;</description>
         </hbox>
-      </row>
+      </hbox>
 
       <spacer id="SubscribeRSS.spacer" flex="1" collapsed="true"/>
-      <row id="SubscribeRSS" class="acctCentralRow" collapsed="true">
+      <hbox id="SubscribeRSS" class="acctCentralRow" collapsed="true">
         <hbox>
           <label class="acctCentralText acctCentralLinkText"
                  value="&subscribeFeeds.label;"
                  chromedir="&locale.dir;"
                  onclick="Subscribe();"/>
         </hbox>
-      </row>
+      </hbox>
 
       <spacer id="MessagesSection.spacer" class="big" flex="5" collapsed="true"/>
 
-      <row id="AccountsHeader" class="acctCentralTitleRow" collapsed="true">
-        <hbox class="acctCentralRowTitleBox">
+      <hbox id="AccountsHeader" class="acctCentralTitleRow" collapsed="true">
+        <hbox class="acctCentralRowTitleBox" flex="1">
           <description>&accountsSectionHdr.label;</description>
         </hbox>
-      </row>
+      </hbox>
 
       <spacer id="AccountSettings.spacer" flex="1" collapsed="true"/>
-      <row id="AccountSettings" class="acctCentralRow" collapsed="true">
+      <hbox id="AccountSettings" class="acctCentralRow" collapsed="true">
         <hbox>
           <label class="acctCentralText acctCentralLinkText"
                  value="&settingsLink.label;"
                  chromedir="&locale.dir;"
                  onclick="ViewSettings(null);"/>
         </hbox>
-      </row>
+      </hbox>
 
       <spacer id="CreateAccount.spacer" flex="1" collapsed="true"/>
-      <row id="CreateAccount" class="acctCentralRow" collapsed="true">
+      <hbox id="CreateAccount" class="acctCentralRow" collapsed="true">
         <hbox>
 #ifdef MOZ_THUNDERBIRD
           <label class="acctCentralText"
@@ -153,9 +148,9 @@
                  onclick="CreateNewAccount();"/>
 #endif
         </hbox>
-      </row>
+      </hbox>
 #ifdef MOZ_THUNDERBIRD
-      <row id="CreateAccounts" class="acctCentralRow" collapsed="true">
+      <hbox id="CreateAccounts" class="acctCentralRow" collapsed="true">
         <vbox id="CreateAccountsList">
           <label id="CreateAccountMail"
                  class="acctCentralNewAcctText acctCentralLinkText"
@@ -185,56 +180,57 @@
                  onclick="CreateNewAccountTB('movemail');"/>
 #endif
         </vbox>
-      </row>
+      </hbox>
 #endif
 
       <spacer id="AccountsSection.spacer" class="big" flex="5" collapsed="true"/>
 
-      <row id="AdvancedFeaturesHeader" class="acctCentralTitleRow" collapsed="true">
-        <hbox class="acctCentralRowTitleBox">
+      <hbox id="AdvancedFeaturesHeader" class="acctCentralTitleRow" collapsed="true">
+        <hbox class="acctCentralRowTitleBox" flex="1">
           <description>&advFeaturesSectionHdr.label;</description>
         </hbox>
-      </row>
+      </hbox>
 
       <spacer id="SearchMessages.spacer" flex="1" collapsed="true"/>
-      <row id="SearchMessages" class="acctCentralRow" collapsed="true">
+      <hbox id="SearchMessages" class="acctCentralRow" collapsed="true">
         <hbox>
           <label class="acctCentralText acctCentralLinkText"
                  value="&searchMsgsLink.label;"
                  chromedir="&locale.dir;"
                  onclick="SearchMessages();"/>
         </hbox>
-      </row>
+      </hbox>
 
       <spacer id="CreateFilters.spacer" flex="1" collapsed="true"/>
-      <row id="CreateFilters" class="acctCentralRow" collapsed="true">
+      <hbox id="CreateFilters" class="acctCentralRow" collapsed="true">
         <hbox>
           <label class="acctCentralText acctCentralLinkText"
                  value="&filtersLink.label;"
                  chromedir="&locale.dir;"
                  onclick="CreateMsgFilters();"/>
         </hbox>
-      </row>
+      </hbox>
 
       <spacer id="SubscribeImapFolders.spacer" flex="1" collapsed="true"/>
-      <row id="SubscribeImapFolders" class="acctCentralRow" collapsed="true">
+      <hbox id="SubscribeImapFolders" class="acctCentralRow" collapsed="true">
         <hbox>
           <label class="acctCentralText acctCentralLinkText"
                  value="&subscribeImapFolders.label;"
                  chromedir="&locale.dir;"
                  onclick="Subscribe();"/>
         </hbox>
-      </row>
+      </hbox>
 
       <spacer id="OfflineSettings.spacer" flex="1" collapsed="true"/>
-      <row id="OfflineSettings" class="acctCentralRow" collapsed="true">
+      <hbox id="OfflineSettings" class="acctCentralRow" collapsed="true">
         <hbox>
           <label class="acctCentralText acctCentralLinkText"
                  value="&offlineLink.label;"
                  chromedir="&locale.dir;"
                  onclick="ViewSettings('am-offline.xul');"/>
         </hbox>
-      </row>
-    </rows>
-  </grid>
+      </hbox>
+    </vbox>
+    <vbox flex="3"/>
+  </hbox>
 </page>
