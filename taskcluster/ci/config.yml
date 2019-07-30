@@ -19,7 +19,7 @@ treeherder:
         'Deb7': 'Packages for Debian 7'
         'Deb7-32': 'Packages for Debian 7 32-bits'
         'Deb9': 'Packages for Debian 9'
-        'Fetch-URL': 'Fetch and store content'
+        'Fetch': 'Fetch and store content'
         'L10n': 'Localised Repacks'
         'L10n-Rpk': 'Localized Repackaged Repacks'
         'M': 'Mochitests'
