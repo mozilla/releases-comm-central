@@ -15,6 +15,9 @@ var paneDeck = document.getElementById("paneDeck");
 var prefPanes = [...document.getElementsByTagName("prefpane")];
 var selector = document.getElementById("selector");
 
+ChromeUtils.defineModuleGetter(this, "AddonManager",
+                               "resource://gre/modules/AddonManager.jsm");
+
 (function() {
   for (let pane of prefPanes) {
     if (pane.id == "paneChat" && !Services.prefs.getBoolPref("mail.chat.enabled")) {
