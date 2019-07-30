@@ -47,3 +47,5 @@ jobs:
     - deb7-xz-utils
     - deb9-mercurial
     - deb9-python-zstandard
+    - deb10-mercurial
+    - deb10-python-zstandard

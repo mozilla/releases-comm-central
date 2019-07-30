@@ -19,6 +19,9 @@ jobs:
     - debian9-base
     - debian9-packages
     - debian9-raw
+    - debian10-base
+    - debian10-packages
+    - debian10-raw
     - desktop1604-test
     - fetch
     - index-task
