@@ -39,7 +39,7 @@ function moreInfo(event) {
   }
   event.preventDefault();
 
-  let uri = Services.io.newURI("https://support.mozilla.org/en-US/kb/unable-launch-older-version-on-profile");
+  let uri = Services.io.newURI("https://support.mozilla.org/en-US/kb/unable-launch-older-version-profile");
   Cc["@mozilla.org/uriloader/external-protocol-service;1"]
     .getService(Ci.nsIExternalProtocolService)
     .loadURI(uri);
