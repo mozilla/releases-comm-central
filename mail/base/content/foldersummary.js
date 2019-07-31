@@ -139,11 +139,12 @@ class MozFolderSummary extends MozXULElement {
           let addrs = MailServices.headerParser.parseEncodedHeader(
             msgHdr.author, msgHdr.effectiveCharset, false);
           let folderSummarySender = msgBox.querySelector(".folderSummary-sender");
-          folderSummarySender.textContent =
+          // Set the label value instead of textContent to avoid wrapping.
+          folderSummarySender.value =
             (addrs.length > 0) ? (addrs[0].name || addrs[0].email) : "";
           if (addrs.length > 1) {
             let andOthersStr = this.messengerBundle.GetStringFromName("andOthers");
-            folderSummarySender.textContent += " " + andOthersStr;
+            folderSummarySender.value += " " + andOthersStr;
           }
         }
 
@@ -167,8 +168,6 @@ class MozFolderSummary extends MozXULElement {
 
     let subject = document.createXULElement("label");
     subject.setAttribute("class", "folderSummary-subject");
-    subject.setAttribute("flex", "1");
-    subject.setAttribute("crop", "right");
 
     let sender = document.createXULElement("label");
     sender.setAttribute("class", "folderSummary-sender");
