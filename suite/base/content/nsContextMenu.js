@@ -289,6 +289,8 @@ nsContextMenu.prototype = {
     this.showItem("context-sep-viewbgimage", showView && !this.inSyntheticDoc);
     this.setItemAttr("context-viewbgimage", "disabled", this.hasBGImage ? null : "true");
 
+    this.showItem("context-viewimageinfo", this.onImage);
+
     // Hide Block and Unblock menuitems.
     this.showItem("context-blockimage", false);
     this.showItem("context-unblockimage", false);
@@ -962,6 +964,11 @@ nsContextMenu.prototype = {
 
   viewInfo: function() {
     BrowserPageInfo();
+  },
+
+  viewImageInfo: function() {
+    BrowserPageInfo(this.target.ownerDocument.defaultView.top.document,
+                    "mediaTab", this.target);
   },
 
   viewFrameInfo: function() {

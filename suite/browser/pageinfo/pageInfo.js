@@ -55,6 +55,8 @@ pageInfoTreeView.prototype = {
   {
     this.rows = this.data.push(row);
     this.rowCountChanged(this.rows - 1, 1);
+    if (this.selection.count == 0 && this.rowCount && !gImageElement)
+      this.selection.select(0);
   },
 
   rowCountChanged: function(index, count)
@@ -155,6 +157,7 @@ pageInfoTreeView.prototype = {
 // mmm, yummy. global variables.
 var gWindow = null;
 var gDocument = null;
+var gImageElement = null;
 
 // column number to help using the data array
 const COL_IMAGE_ADDRESS = 0;
@@ -338,6 +341,11 @@ function onLoadPageInfo()
   initView("formpreview", gFieldView);
   initView("linktree", gLinkView);
   initPermission();
+
+  // set gImageElement if present
+  if ("arguments" in window && window.arguments.length >= 1 &&
+      window.arguments[0].imageElement)
+    gImageElement = window.arguments[0].imageElement;
 
   // build the content
   loadPageInfo();
@@ -550,6 +558,7 @@ function processFrames()
     var iterator = doc.createTreeWalker(doc, NodeFilter.SHOW_ELEMENT, grabAll, true);
     gFrameList.shift();
     setTimeout(doGrab, 10, iterator);
+    onFinished.push(selectImage);
   }
   else
     onFinished.forEach(function(func) { func(); });
@@ -621,6 +630,8 @@ function onCacheEntryAvailable(cacheEntryDescriptor) {
   else {
     var i = gImageHash[url][type][alt];
     gImageView.data[i][COL_IMAGE_COUNT]++;
+    if (elem == gImageElement)
+      gImageView.data[i][COL_IMAGE_NODE] = elem;
   }
 };
 
@@ -1395,6 +1406,21 @@ function doSelectAll()
 
   if (elem && "treeBoxObject" in elem)
     elem.view.selection.selectAll();
+}
+
+function selectImage() {
+  if (!gImageElement)
+    return;
+
+  var tree = document.getElementById("imagetree");
+  for (var i = 0; i < tree.view.rowCount; i++) {
+    if (gImageElement == gImageView.data[i][COL_IMAGE_NODE]) {
+      tree.view.selection.select(i);
+      tree.treeBoxObject.ensureRowIsVisible(i);
+      tree.focus();
+      return;
+    }
+  }
 }
 
 function onOpenIn(mode)

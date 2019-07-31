@@ -2454,12 +2454,13 @@ function BrowserViewSource(aBrowser) {
 
 // doc - document to use for source, or null for the current tab
 // initialTab - id of the initial tab to display, or null for the first tab
-function BrowserPageInfo(doc, initialTab)
-{
+// imageElement - image to load in the Media Tab of the Page Info window;
+//                can be null/omitted
+function BrowserPageInfo(doc, initialTab, imageElement) {
   if (!doc)
     doc = window.content.document;
   var relatedUrl = doc.location.toString();
-  var args = {doc: doc, initialTab: initialTab};
+  var args = {doc: doc, initialTab: initialTab, imageElement: imageElement};
 
   var enumerator = Services.wm.getEnumerator("Browser:page-info");
   // Check for windows matching the url
