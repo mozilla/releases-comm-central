@@ -378,7 +378,8 @@ nsContextMenu.prototype = {
     var dictMenu = document.getElementById("spell-dictionaries-menu");
     if (canSpell && dictMenu) {
       var dictSep = document.getElementById("spell-language-separator");
-      InlineSpellCheckerUI.addDictionaryListToMenu(dictMenu, dictSep);
+      let count = InlineSpellCheckerUI.addDictionaryListToMenu(dictMenu, dictSep);
+      this.showItem(dictSep, count > 0);
       this.showItem("spell-add-dictionaries-main", false);
     }
     else if (this.onEditableArea) {
