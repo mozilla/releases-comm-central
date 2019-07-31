@@ -16,20 +16,12 @@
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  SpellCheckHelper: "resource://gre/modules/InlineSpellChecker.jsm",
-});
+var gContextMenuContentData = null;
 
 XPCOMUtils.defineLazyGetter(this, "InlineSpellCheckerUI", () => {
   let { InlineSpellChecker } = ChromeUtils.import(
     "resource://gre/modules/InlineSpellChecker.jsm"
   );
-  return new InlineSpellChecker();
-});
-
-var gContextMenuContentData = null;
-
-XPCOMUtils.defineLazyGetter(this, "InlineSpellCheckerUI", function() {
   return new InlineSpellChecker();
 });
 
@@ -44,6 +36,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   findCssSelector: "resource://gre/modules/css-selector.js",
   NetUtil: "resource://gre/modules/NetUtil.jsm",
   ShellService: "resource:///modules/ShellService.jsm",
+  SpellCheckHelper: "resource://gre/modules/InlineSpellChecker.jsm",
 });
 
 function nsContextMenu(aXulMenu, aIsShift, aEvent) {
