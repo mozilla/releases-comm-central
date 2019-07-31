@@ -351,10 +351,11 @@ nsContextMenu.prototype = {
     var canSpell = InlineSpellCheckerUI.canSpellCheck &&
                    !InlineSpellCheckerUI.initialSpellCheckPending &&
                    this.canSpellCheck;
+    let showDictionaries = canSpell && InlineSpellCheckerUI.enabled;
     var onMisspelling = InlineSpellCheckerUI.overMisspelling;
     var showUndo = canSpell && InlineSpellCheckerUI.canUndo();
     this.showItem("spell-check-enabled", canSpell);
-    this.showItem("spell-separator", canSpell || this.onEditableArea);
+    this.showItem("spell-separator", canSpell);
     if (canSpell)
       this.setItemAttr("spell-check-enabled", "checked", InlineSpellCheckerUI.enabled);
     this.showItem("spell-add-to-dictionary", onMisspelling);
@@ -373,7 +374,7 @@ nsContextMenu.prototype = {
     }
 
     // dictionary list
-    this.showItem("spell-dictionaries", canSpell && InlineSpellCheckerUI.enabled);
+    this.showItem("spell-dictionaries", showDictionaries);
     var dictMenu = document.getElementById("spell-dictionaries-menu");
     if (canSpell && dictMenu) {
       var dictSep = document.getElementById("spell-language-separator");
@@ -384,7 +385,8 @@ nsContextMenu.prototype = {
       // when there is no spellchecker but we might be able to spellcheck
       // add the add to dictionaries item. This will ensure that people
       // with no dictionaries will be able to download them
-      this.showItem("spell-add-dictionaries-main", true);
+      this.showItem("spell-language-separator", showDictionaries);
+      this.showItem("spell-add-dictionaries-main", showDictionaries);
     }
     else
       this.showItem("spell-add-dictionaries-main", false);
