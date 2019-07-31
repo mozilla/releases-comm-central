@@ -78,6 +78,7 @@ folder-summary {
 
 .folderSummary-previewText {
   color: grey;
+  overflow-wrap: anywhere;
 }
 
 .folderSummaryMessage:hover > .folderSummary-message-row {
