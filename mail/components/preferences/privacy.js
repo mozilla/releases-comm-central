@@ -285,7 +285,7 @@ var gPrivacyPane = {
    * login information.
    */
   showPasswords() {
-    gSubDialog.open("chrome://passwordmgr/content/passwordManager.xul");
+    gSubDialog.open("chrome://messenger/content/preferences/passwordManager.xul");
   },
 
   updateDownloadedPhishingListState() {

@@ -42,6 +42,8 @@ messenger.jar:
     content/messenger/preferences/offline.xul
     content/messenger/preferences/cookies.js
 *   content/messenger/preferences/cookies.xul
+    content/messenger/preferences/passwordManager.js
+    content/messenger/preferences/passwordManager.xul
     content/messenger/preferences/permissions.js
     content/messenger/preferences/permissions.xul
     content/messenger/preferences/subdialogs.js
