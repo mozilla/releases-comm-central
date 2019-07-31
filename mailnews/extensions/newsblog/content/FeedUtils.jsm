@@ -1697,7 +1697,7 @@ var FeedUtils = {
    *
    * @returns {Boolean}                     - true if a valid scheme, false if not.
    */
-  _validSchemes: ["http", "https"],
+  _validSchemes: ["http", "https", "file"],
   isValidScheme(aUri) {
     if (!(aUri instanceof Ci.nsIURI)) {
       try {
