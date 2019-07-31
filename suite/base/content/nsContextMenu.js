@@ -16,12 +16,21 @@
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+XPCOMUtils.defineLazyModuleGetters(this, {
+  SpellCheckHelper: "resource://gre/modules/InlineSpellChecker.jsm",
+});
+
+XPCOMUtils.defineLazyGetter(this, "InlineSpellCheckerUI", () => {
+  let { InlineSpellChecker } = ChromeUtils.import(
+    "resource://gre/modules/InlineSpellChecker.jsm"
+  );
+  return new InlineSpellChecker();
+});
+
 var gContextMenuContentData = null;
 
 XPCOMUtils.defineLazyGetter(this, "InlineSpellCheckerUI", function() {
-  let tmp = {};
-  ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm", tmp);
-  return new tmp.InlineSpellChecker();
+  return new InlineSpellChecker();
 });
 
 XPCOMUtils.defineLazyGetter(this, "PageMenuParent", function() {
@@ -572,6 +581,7 @@ nsContextMenu.prototype = {
     // Remember the node that was clicked.
     this.target = aNode;
 
+    let editFlags = SpellCheckHelper.isEditable(this.target, window);
     this.browser = this.target.ownerDocument.defaultView
                               .QueryInterface(Ci.nsIInterfaceRequestor)
                               .getInterface(Ci.nsIWebNavigation)
@@ -618,24 +628,14 @@ nsContextMenu.prototype = {
         this.onAudio = true;
         this.mediaURL = this.target.currentSrc || this.target.src;
       }
-      else if (this.target instanceof HTMLInputElement) {
-        this.onTextInput = this.isTargetATextBox(this.target);
-        // allow spellchecking UI on all writable text boxes except passwords
-        if (this.onTextInput && !this.target.readOnly &&
-            this.target.mozIsTextField(true) && this.target.spellcheck) {
-          this.onEditableArea = true;
+      else if (editFlags & (SpellCheckHelper.INPUT | SpellCheckHelper.TEXTAREA)) {
+        this.onTextInput = (editFlags & SpellCheckHelper.TEXTINPUT) !== 0;
+        this.onEditableArea = (editFlags & SpellCheckHelper.EDITABLE) !== 0;
+        if (this.onEditableArea) {
           InlineSpellCheckerUI.init(this.target.editor);
           InlineSpellCheckerUI.initFromEvent(aRangeParent, aRangeOffset);
         }
-        this.onKeywordField = this.isTargetAKeywordField(this.target);
-      }
-      else if (this.target instanceof HTMLTextAreaElement) {
-        this.onTextInput = this.isTextBoxEnabled(this.target);
-        if (this.onTextInput && !this.target.readOnly && this.target.spellcheck) {
-          this.onEditableArea = true;
-          InlineSpellCheckerUI.init(this.target.editor);
-          InlineSpellCheckerUI.initFromEvent(aRangeParent, aRangeOffset);
-        }
+        this.onKeywordField = (editFlags & SpellCheckHelper.KEYWORD);
       }
       else if ( this.target instanceof HTMLHtmlElement ) {
         // pages with multiple <body>s are lame. we'll teach them a lesson.
@@ -771,28 +771,27 @@ nsContextMenu.prototype = {
 
     // if the document is editable, show context menu like in text inputs
     if (!this.onEditableArea) {
-      var win = this.target.ownerDocument.defaultView;
-      if (win) {
+      if (editFlags & SpellCheckHelper.CONTENTEDITABLE) {
+        // If this.onEditableArea is false but editFlags is CONTENTEDITABLE,
+        // then the document itself must be editable.
+        this.onTextInput       = true;
+        this.onKeywordField    = false;
+        this.onImage           = false;
+        this.onLoadedImage     = false;
+        this.onMathML          = false;
+        this.inFrame           = false;
+        this.hasBGImage        = false;
+        this.onEditableArea    = true;
+        var win = this.target.ownerDocument.defaultView;
         var editingSession = win.QueryInterface(Ci.nsIInterfaceRequestor)
                                 .getInterface(Ci.nsIWebNavigation)
                                 .QueryInterface(Ci.nsIInterfaceRequestor)
                                 .getInterface(Ci.nsIEditingSession);
-        if (editingSession.windowIsEditable(win) &&
-            this.isTargetEditable() && this.target.spellcheck) {
-          this.onTextInput       = true;
-          this.onKeywordField    = false;
-          this.onImage           = false;
-          this.onLoadedImage     = false;
-          this.onMathML          = false;
-          this.inFrame           = false;
-          this.hasBGImage        = false;
-          this.onEditableArea    = true;
-          InlineSpellCheckerUI.init(editingSession.getEditorForWindow(win));
-          InlineSpellCheckerUI.initFromEvent(aRangeParent, aRangeOffset);
-          var canSpell = InlineSpellCheckerUI.canSpellCheck && this.canSpellCheck;
-          this.showItem("spell-check-enabled", canSpell);
-          this.showItem("spell-separator", canSpell);
-        }
+        InlineSpellCheckerUI.init(editingSession.getEditorForWindow(win));
+        InlineSpellCheckerUI.initFromEvent(aRangeParent, aRangeOffset);
+        var canSpell = InlineSpellCheckerUI.canSpellCheck && this.canSpellCheck;
+        this.showItem("spell-check-enabled", canSpell);
+        this.showItem("spell-separator", canSpell);
       }
     }
   },
@@ -1510,18 +1509,6 @@ nsContextMenu.prototype = {
       return aNode.mozIsTextField(false) && this.isTextBoxEnabled(aNode);
 
     return aNode instanceof HTMLTextAreaElement && this.isTextBoxEnabled(aNode);
-  },
-
-  isTargetAKeywordField: function(aNode) {
-    if (!(aNode instanceof HTMLInputElement))
-      return false;
-
-    var form = aNode.form;
-    if (!form || !aNode.mozIsTextField(true))
-      return false;
-
-    return form.method == "get" || (form.method == "post" &&
-           form.enctype == "application/x-www-form-urlencoded");
   },
 
   // Determines whether or not the separator with the specified ID should be
