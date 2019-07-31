@@ -913,9 +913,9 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
   border-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
 }
 
-:root[lwt-tree] .conv-nicklist.theme-listbox > richlistitem[inactive]:not([selected]) > label {
+:root[lwt-tree] #nicklist > richlistitem[inactive]:not([selected]) > label {
   color: var(--sidebar-text-color) !important;
-  opacity: .5;
+  opacity: .55;
 }
 
 :root[lwt-tree] #nicklist > richlistitem[inactive][selected] > label,
