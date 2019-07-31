@@ -721,7 +721,7 @@ nsContextMenu.prototype = {
         // Link?
         if (!this.onLink &&
             ((elem instanceof HTMLAnchorElement && elem.href) ||
-             elem instanceof HTMLAreaElement ||
+             (elem instanceof HTMLAreaElement && elem.href) ||
              elem instanceof HTMLLinkElement ||
              (elem.namespaceURI == NS_MathML && elem.hasAttribute("href")) ||
              elem.getAttributeNS("http://www.w3.org/1999/xlink", "type") == "simple")) {
