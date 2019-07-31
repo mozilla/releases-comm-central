@@ -349,10 +349,10 @@ nsContextMenu.prototype = {
 
   initSpellingItems: function() {
     var canSpell = InlineSpellCheckerUI.canSpellCheck &&
-                   !InlineSpellCheckerUI.initialSpellCheckPending;
+                   !InlineSpellCheckerUI.initialSpellCheckPending &&
+                   this.canSpellCheck;
     var onMisspelling = InlineSpellCheckerUI.overMisspelling;
-    var showUndo = InlineSpellCheckerUI.enabled &&
-                   InlineSpellCheckerUI.canUndo();
+    var showUndo = canSpell && InlineSpellCheckerUI.canUndo();
     this.showItem("spell-check-enabled", canSpell);
     this.showItem("spell-separator", canSpell || this.onEditableArea);
     if (canSpell)
@@ -373,7 +373,7 @@ nsContextMenu.prototype = {
     }
 
     // dictionary list
-    this.showItem("spell-dictionaries", InlineSpellCheckerUI.enabled);
+    this.showItem("spell-dictionaries", canSpell && InlineSpellCheckerUI.enabled);
     var dictMenu = document.getElementById("spell-dictionaries-menu");
     if (canSpell && dictMenu) {
       var dictSep = document.getElementById("spell-language-separator");
@@ -564,6 +564,7 @@ nsContextMenu.prototype = {
     this.isTextSelected        = false;
     this.isContentSelected     = false;
     this.onEditableArea        = false;
+    this.canSpellCheck         = false;
 
     // Remember the node that was clicked.
     this.target = aNode;
@@ -682,6 +683,13 @@ nsContextMenu.prototype = {
           }
         }
       }
+
+      this.canSpellCheck = this._isSpellCheckEnabled(this.target);
+    }
+    else if (this.target.nodeType == Node.TEXT_NODE) {
+      // For text nodes, look at the parent node to determine the spellcheck attribute.
+      this.canSpellCheck = this.target.parentNode &&
+                           this._isSpellCheckEnabled(this.target);
     }
 
     // We have meta data on images.
@@ -778,7 +786,7 @@ nsContextMenu.prototype = {
           this.onEditableArea    = true;
           InlineSpellCheckerUI.init(editingSession.getEditorForWindow(win));
           InlineSpellCheckerUI.initFromEvent(aRangeParent, aRangeOffset);
-          var canSpell = InlineSpellCheckerUI.canSpellCheck;
+          var canSpell = InlineSpellCheckerUI.canSpellCheck && this.canSpellCheck;
           this.showItem("spell-check-enabled", canSpell);
           this.showItem("spell-separator", canSpell);
         }
@@ -811,6 +819,23 @@ nsContextMenu.prototype = {
       }
     } catch(e) {
     }
+  },
+
+  _isSpellCheckEnabled: function(aNode) {
+    // We can always force-enable spellchecking on textboxes
+    if (this.isTargetATextBox(aNode)) {
+      return true;
+    }
+    // We can never spell check something which is not content editable
+    var editable = aNode.isContentEditable;
+    if (!editable && aNode.ownerDocument) {
+      editable = aNode.ownerDocument.designMode == "on";
+    }
+    if (!editable) {
+      return false;
+    }
+    // Otherwise make sure that nothing in the parent chain disables spellchecking
+    return aNode.spellcheck;
   },
 
   // Returns the computed style attribute for the given element.
