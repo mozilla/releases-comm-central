@@ -159,6 +159,7 @@
 <script src="chrome://messenger/content/chat/chat-imconv.js"/>
 <script src="chrome://messenger/content/tabbrowser-tab.js"/>
 <script src="chrome://messenger/content/tabmail-tabs.js"/>
+<script src="chrome://messenger/content/tabmail.js"/>
 <script src="chrome://messenger/content/chat/toolbarbutton-badge-button.js"/>
 <script src="chrome://messenger/content/messenger-customization.js"/>
 <!-- panelUI.js is for the appmenus. -->
@@ -453,8 +454,8 @@
                      type="menu"
                      hidden="true"
                      tooltiptext="&listAllTabs.label;">
-        <menupopup class="tabs-alltabs-popup"
-                   id="alltabs-popup" position="after_end"
+        <menupopup is="tabmail-alltabs-menupopup" id="alltabs-popup"
+                   position="after_end"
                    tabcontainer="tabmail-tabs"/>
       </toolbarbutton>
 
