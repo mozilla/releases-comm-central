@@ -171,11 +171,9 @@ function togglePaneSplitter(splitterId) {
 }
 
 // openUILink handles clicks on UI elements that cause URLs to load.
-// Firefox and SeaMonkey have a function with the same name,
-// so extensions can use this everywhere to open links.
 // We currently only react to left click in Thunderbird.
 function openUILink(url, event) {
-  if (event.button == 0) {
+  if (!event.button) {
     PlacesUtils.history.insert({
       url,
       visits: [{
