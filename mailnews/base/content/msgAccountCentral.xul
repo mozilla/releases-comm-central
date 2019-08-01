@@ -34,18 +34,18 @@
   <hbox id="acctCentralLayout" flex="1">
     <vbox id="acctCentralRows" flex="2">
       <hbox id="acctCentralHeaderRow">
-        <label id="AccountCentralTitle"/>
+        <label id="accountCentralTitle"/>
       </hbox>
-      <spacer id="acctCentralHeader.spacer" flex="2"/>
+      <spacer id="acctCentralHeaderSpacer" flex="2"/>
 
-      <hbox id="EmailHeader" class="acctCentralTitleRow" collapsed="true">
+      <hbox id="emailHeader" class="acctCentralTitleRow" collapsed="true">
         <hbox class="acctCentralRowTitleBox" flex="1">
           <description>&emailSectionHdr.label;</description>
         </hbox>
       </hbox>
 
-      <spacer id="ReadMessages.spacer" flex="1" collapsed="true"/>
-      <hbox id="ReadMessages" class="acctCentralRow" collapsed="true">
+      <spacer id="readMessagesSpacer" flex="1" collapsed="true"/>
+      <hbox id="readMessages" class="acctCentralRow" collapsed="true">
         <hbox>
           <label class="acctCentralText acctCentralLinkText"
                  value="&readMsgsLink.label;"
@@ -54,8 +54,8 @@
         </hbox>
       </hbox>
 
-      <spacer id="ComposeMessage.spacer" flex="1" collapsed="true"/>
-      <hbox id="ComposeMessage" class="acctCentralRow" collapsed="true">
+      <spacer id="composeMessageSpacer" flex="1" collapsed="true"/>
+      <hbox id="composeMessage" class="acctCentralRow" collapsed="true">
         <hbox>
           <label class="acctCentralText acctCentralLinkText"
                  value="&composeMsgLink.label;"
@@ -64,8 +64,8 @@
         </hbox>
       </hbox>
 
-      <spacer id="JunkSettingsMail.spacer" flex="1" collapsed="true"/>
-      <hbox id="JunkSettingsMail" class="acctCentralRow" collapsed="true">
+      <spacer id="junkSettingsMailSpacer" flex="1" collapsed="true"/>
+      <hbox id="junkSettingsMail" class="acctCentralRow" collapsed="true">
         <hbox>
           <label class="acctCentralText acctCentralLinkText"
                  value="&junkSettings.label;"
@@ -73,15 +73,15 @@
         </hbox>
       </hbox>
 
-      <spacer id="NewsHeader.spacer" flex="1" collapsed="true"/>
-      <hbox id="NewsHeader" class="acctCentralTitleRow" collapsed="true">
+      <spacer id="newsHeaderSpacer" flex="1" collapsed="true"/>
+      <hbox id="newsHeader" class="acctCentralTitleRow" collapsed="true">
         <hbox class="acctCentralRowTitleBox" flex="1">
           <description>&newsSectionHdr.label;</description>
         </hbox>
       </hbox>
 
-      <spacer id="SubscribeNewsgroups.spacer" flex="1" collapsed="true"/>
-      <hbox id="SubscribeNewsgroups" class="acctCentralRow" collapsed="true">
+      <spacer id="subscribeNewsgroupsSpacer" flex="1" collapsed="true"/>
+      <hbox id="subscribeNewsgroups" class="acctCentralRow" collapsed="true">
         <hbox>
           <label class="acctCentralText acctCentralLinkText"
                  value="&subscribeNewsLink.label;"
@@ -90,8 +90,8 @@
         </hbox>
       </hbox>
 
-      <spacer id="JunkSettingsNews.spacer" flex="1" collapsed="true"/>
-      <hbox id="JunkSettingsNews" class="acctCentralRow" collapsed="true">
+      <spacer id="junkSettingsNewsSpacer" flex="1" collapsed="true"/>
+      <hbox id="junkSettingsNews" class="acctCentralRow" collapsed="true">
         <hbox>
           <label class="acctCentralText acctCentralLinkText"
                  value="&junkSettings.label;"
@@ -99,15 +99,15 @@
         </hbox>
       </hbox>
 
-      <spacer id="rssHeader.spacer" flex="1" collapsed="true"/>
+      <spacer id="rssHeaderSpacer" flex="1" collapsed="true"/>
       <hbox id="rssHeader" class="acctCentralTitleRow" collapsed="true">
         <hbox class="acctCentralRowTitleBox" flex="1">
           <description>&feedsSectionHdr.label;</description>
         </hbox>
       </hbox>
 
-      <spacer id="SubscribeRSS.spacer" flex="1" collapsed="true"/>
-      <hbox id="SubscribeRSS" class="acctCentralRow" collapsed="true">
+      <spacer id="subscribeRSSSpacer" flex="1" collapsed="true"/>
+      <hbox id="subscribeRSS" class="acctCentralRow" collapsed="true">
         <hbox>
           <label class="acctCentralText acctCentralLinkText"
                  value="&subscribeFeeds.label;"
@@ -116,16 +116,16 @@
         </hbox>
       </hbox>
 
-      <spacer id="MessagesSection.spacer" class="big" flex="5" collapsed="true"/>
+      <spacer id="messagesSectionSpacer" class="big" flex="5" collapsed="true"/>
 
-      <hbox id="AccountsHeader" class="acctCentralTitleRow" collapsed="true">
+      <hbox id="accountsHeader" class="acctCentralTitleRow" collapsed="true">
         <hbox class="acctCentralRowTitleBox" flex="1">
           <description>&accountsSectionHdr.label;</description>
         </hbox>
       </hbox>
 
-      <spacer id="AccountSettings.spacer" flex="1" collapsed="true"/>
-      <hbox id="AccountSettings" class="acctCentralRow" collapsed="true">
+      <spacer id="accountSettingsSpacer" flex="1" collapsed="true"/>
+      <hbox id="accountSettings" class="acctCentralRow" collapsed="true">
         <hbox>
           <label class="acctCentralText acctCentralLinkText"
                  value="&settingsLink.label;"
@@ -134,8 +134,8 @@
         </hbox>
       </hbox>
 
-      <spacer id="CreateAccount.spacer" flex="1" collapsed="true"/>
-      <hbox id="CreateAccount" class="acctCentralRow" collapsed="true">
+      <spacer id="createAccountSpacer" flex="1" collapsed="true"/>
+      <hbox id="createAccount" class="acctCentralRow" collapsed="true">
         <hbox>
 #ifdef MOZ_THUNDERBIRD
           <label class="acctCentralText"
@@ -150,30 +150,30 @@
         </hbox>
       </hbox>
 #ifdef MOZ_THUNDERBIRD
-      <hbox id="CreateAccounts" class="acctCentralRow" collapsed="true">
-        <vbox id="CreateAccountsList">
-          <label id="CreateAccountMail"
+      <hbox id="createAccounts" class="acctCentralRow" collapsed="true">
+        <vbox id="createAccountsList">
+          <label id="createAccountMail"
                  class="acctCentralNewAcctText acctCentralLinkText"
                  value="&emailSectionHdr.label;"
                  chromedir="&locale.dir;"
                  onclick="CreateNewAccountTB('mail');"/>
-          <label id="CreateAccountChat"
+          <label id="createAccountChat"
                  class="acctCentralNewAcctText acctCentralLinkText"
                  value="&chat.label;"
                  chromedir="&locale.dir;"
                  onclick="openIMAccountWizard();"/>
-          <label id="CreateAccountNewsgroups"
+          <label id="createAccountNewsgroups"
                  class="acctCentralNewAcctText acctCentralLinkText"
                  value="&newsSectionHdr.label;"
                  chromedir="&locale.dir;"
                  onclick="CreateNewAccountTB('newsgroups');"/>
-          <label id="CreateAccountRSS"
+          <label id="createAccountRSS"
                  class="acctCentralNewAcctText acctCentralLinkText"
                  value="&feedsSectionHdr.label;"
                  chromedir="&locale.dir;"
                  onclick="CreateNewAccountTB('feeds');"/>
 #ifdef HAVE_MOVEMAIL
-          <label id="CreateAccountMovemail"
+          <label id="createAccountMovemail"
                  class="acctCentralNewAcctText acctCentralLinkText"
                  value="&movemail.label;"
                  chromedir="&locale.dir;"
@@ -183,16 +183,16 @@
       </hbox>
 #endif
 
-      <spacer id="AccountsSection.spacer" class="big" flex="5" collapsed="true"/>
+      <spacer id="accountsSectionSpacer" class="big" flex="5" collapsed="true"/>
 
-      <hbox id="AdvancedFeaturesHeader" class="acctCentralTitleRow" collapsed="true">
+      <hbox id="advancedFeaturesHeader" class="acctCentralTitleRow" collapsed="true">
         <hbox class="acctCentralRowTitleBox" flex="1">
           <description>&advFeaturesSectionHdr.label;</description>
         </hbox>
       </hbox>
 
-      <spacer id="SearchMessages.spacer" flex="1" collapsed="true"/>
-      <hbox id="SearchMessages" class="acctCentralRow" collapsed="true">
+      <spacer id="searchMessagesSpacer" flex="1" collapsed="true"/>
+      <hbox id="searchMessages" class="acctCentralRow" collapsed="true">
         <hbox>
           <label class="acctCentralText acctCentralLinkText"
                  value="&searchMsgsLink.label;"
@@ -201,8 +201,8 @@
         </hbox>
       </hbox>
 
-      <spacer id="CreateFilters.spacer" flex="1" collapsed="true"/>
-      <hbox id="CreateFilters" class="acctCentralRow" collapsed="true">
+      <spacer id="createFiltersSpacer" flex="1" collapsed="true"/>
+      <hbox id="createFilters" class="acctCentralRow" collapsed="true">
         <hbox>
           <label class="acctCentralText acctCentralLinkText"
                  value="&filtersLink.label;"
@@ -211,8 +211,8 @@
         </hbox>
       </hbox>
 
-      <spacer id="SubscribeImapFolders.spacer" flex="1" collapsed="true"/>
-      <hbox id="SubscribeImapFolders" class="acctCentralRow" collapsed="true">
+      <spacer id="subscribeImapFoldersSpacer" flex="1" collapsed="true"/>
+      <hbox id="subscribeImapFolders" class="acctCentralRow" collapsed="true">
         <hbox>
           <label class="acctCentralText acctCentralLinkText"
                  value="&subscribeImapFolders.label;"
@@ -221,8 +221,8 @@
         </hbox>
       </hbox>
 
-      <spacer id="OfflineSettings.spacer" flex="1" collapsed="true"/>
-      <hbox id="OfflineSettings" class="acctCentralRow" collapsed="true">
+      <spacer id="offlineSettingsSpacer" flex="1" collapsed="true"/>
+      <hbox id="offlineSettings" class="acctCentralRow" collapsed="true">
         <hbox>
           <label class="acctCentralText acctCentralLinkText"
                  value="&offlineLink.label;"

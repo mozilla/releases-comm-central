@@ -10,68 +10,68 @@
 
 /* ::::: links ::::: */
 
-#ReadMessages label {
+#readMessages label {
   background: url("chrome://messenger/skin/accountcentral/read-messages.png")  no-repeat;
 }
 
-#ComposeMessage label {
+#composeMessage label {
   background: url("chrome://messenger/skin/accountcentral/write-message.png")  no-repeat;
 }
 
-#AccountSettings label {
+#accountSettings label {
   background: url("chrome://messenger/skin/accountcentral/account-settings.png")  no-repeat;
 }
 
-#CreateAccount label {
+#createAccount label {
   background: url("chrome://messenger/skin/accountcentral/create-account.png")  no-repeat;
   background-position: 0% -2px;
 }
 
-#CreateAccount label:-moz-locale-dir(rtl) {
+#createAccount label:-moz-locale-dir(rtl) {
   background-position: 100% -2px;
 }
 
-#SearchMessages label {
+#searchMessages label {
   background: url("chrome://messenger/skin/accountcentral/search-messages.png")  no-repeat;
 }
 
-#CreateFilters label {
+#createFilters label {
   background: url("chrome://messenger/skin/accountcentral/manage-filters.png")  no-repeat;
 }
 
-#OfflineSettings label {
+#offlineSettings label {
   background: url("chrome://messenger/skin/accountcentral/offline-settings.png")  no-repeat;
 }
 
-#CreateAccountMail,
-#CreateAccountMovemail {
+#createAccountMail,
+#createAccountMovemail {
   background-image: -moz-image-rect(url("chrome://messenger/skin/icons/folder-pane.png"), 16, 16, 32, 0);
   background-repeat: no-repeat;
 }
 
-#CreateAccountChat {
+#createAccountChat {
   background-image: url("chrome://chat/skin/chat-16.png");
   background-repeat: no-repeat;
 }
 
-#CreateAccountNewsgroups {
+#createAccountNewsgroups {
   background-image: -moz-image-rect(url("chrome://messenger/skin/icons/server.png"), 0, 64, 16, 48);
   background-repeat: no-repeat;
 }
 
-#CreateAccountRSS {
+#createAccountRSS {
   background-image: -moz-image-rect(url("chrome://messenger-newsblog/skin/rss-feed.png"), 0, 16, 16, 0);
   background-repeat: no-repeat;
 }
 
-#SubscribeImapFolders label {
+#subscribeImapFolders label {
   background: url("chrome://messenger/skin/accountcentral/manage-imap.png")  no-repeat;
 }
 
-#SubscribeNewsgroups label {
+#subscribeNewsgroups label {
   background: url("chrome://messenger/skin/accountcentral/manage-newsgroups.png")  no-repeat;
 }
 
-#SubscribeRSS label {
+#subscribeRSS label {
   background: url("chrome://messenger/skin/accountcentral/manage-rss.png")  no-repeat;
 }

@@ -108,27 +108,27 @@ spacer.big {
   color: var(--link-color-active);
 }
 
-#CreateAccountsList {
+#createAccountsList {
   display: block;
   padding-inline-start: 45px;
   margin-bottom: .6em;
 }
 
-#ReadMessages label:-moz-locale-dir(rtl),
-#ComposeMessage label:-moz-locale-dir(rtl),
-#AccountSettings label:-moz-locale-dir(rtl),
-#CreateAccount label:-moz-locale-dir(rtl),
-#SearchMessages label:-moz-locale-dir(rtl),
-#CreateFilters label:-moz-locale-dir(rtl),
-#OfflineSettings label:-moz-locale-dir(rtl),
-#CreateAccountMail:-moz-locale-dir(rtl),
-#CreateAccountMovemail:-moz-locale-dir(rtl),
-#CreateAccountChat:-moz-locale-dir(rtl),
-#CreateAccountNewsgroups:-moz-locale-dir(rtl),
-#CreateAccountRSS:-moz-locale-dir(rtl),
-#SubscribeImapFolders label:-moz-locale-dir(rtl),
-#SubscribeNewsgroups label:-moz-locale-dir(rtl),
-#SubscribeRSS label:-moz-locale-dir(rtl),
-#JunkSettingsMail label:-moz-locale-dir(rtl) {
+#readMessages label:-moz-locale-dir(rtl),
+#composeMessage label:-moz-locale-dir(rtl),
+#accountSettings label:-moz-locale-dir(rtl),
+#createAccount label:-moz-locale-dir(rtl),
+#searchMessages label:-moz-locale-dir(rtl),
+#createFilters label:-moz-locale-dir(rtl),
+#offlineSettings label:-moz-locale-dir(rtl),
+#createAccountMail:-moz-locale-dir(rtl),
+#createAccountMovemail:-moz-locale-dir(rtl),
+#createAccountChat:-moz-locale-dir(rtl),
+#createAccountNewsgroups:-moz-locale-dir(rtl),
+#createAccountRSS:-moz-locale-dir(rtl),
+#subscribeImapFolders label:-moz-locale-dir(rtl),
+#subscribeNewsgroups label:-moz-locale-dir(rtl),
+#subscribeRSS label:-moz-locale-dir(rtl),
+#junkSettingsMail label:-moz-locale-dir(rtl) {
   background-position: right center;
 }

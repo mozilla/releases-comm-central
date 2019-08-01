@@ -47,13 +47,13 @@ function OnInit() {
       // If there is no selectedServer, we are in a brand new profile with
       // no accounts - show the create account rows.
       title = brandName;
-      SetItemDisplay("AccountsHeader", true);
-      SetItemDisplay("CreateAccount", true);
-      SetItemDisplay("CreateAccounts", true);
+      SetItemDisplay("accountsHeader", true);
+      SetItemDisplay("createAccount", true);
+      SetItemDisplay("createAccounts", true);
     }
 
     // Set the title for the document
-    document.getElementById("AccountCentralTitle").setAttribute("value", title);
+    document.getElementById("accountCentralTitle").setAttribute("value", title);
   } catch (ex) {
     Cu.reportError("Error getting selected account: " + ex + "\n");
   }
@@ -80,14 +80,14 @@ function ArrangeAccountCentralItems(server, msgFolder) {
   let canGetMessages = false;
   try {
     canGetMessages = protocolInfo && protocolInfo.canGetMessages;
-    SetItemDisplay("ReadMessages", canGetMessages && !displayRssHeader);
+    SetItemDisplay("readMessages", canGetMessages && !displayRssHeader);
   } catch (e) { exceptions.push(e); }
 
   // Compose Messages link
   let showComposeMsgLink = false;
   try {
     showComposeMsgLink = protocolInfo && protocolInfo.showComposeMsgLink;
-    SetItemDisplay("ComposeMessage", showComposeMsgLink);
+    SetItemDisplay("composeMessage", showComposeMsgLink);
   } catch (e) { exceptions.push(e); }
 
   // Junk mail settings (false, until ready for prime time)
@@ -96,13 +96,13 @@ function ArrangeAccountCentralItems(server, msgFolder) {
     canControlJunkEmail = false && protocolInfo &&
                 protocolInfo.canGetIncomingMessages &&
                 protocolInfo.canGetMessages;
-    SetItemDisplay("JunkSettingsMail", canControlJunkEmail);
+    SetItemDisplay("junkSettingsMail", canControlJunkEmail);
   } catch (e) { exceptions.push(e); }
 
   // Display Email header, only if any of the items are displayed
   let displayEmailHeader = !displayRssHeader &&
                            (canGetMessages || showComposeMsgLink || canControlJunkEmail);
-  SetItemDisplay("EmailHeader", displayEmailHeader);
+  SetItemDisplay("emailHeader", displayEmailHeader);
 
   /* Email header and items : End */
 
@@ -113,7 +113,7 @@ function ArrangeAccountCentralItems(server, msgFolder) {
   try {
     canSubscribe = msgFolder && msgFolder.canSubscribe &&
              protocolInfo && !protocolInfo.canGetMessages;
-    SetItemDisplay("SubscribeNewsgroups", canSubscribe);
+    SetItemDisplay("subscribeNewsgroups", canSubscribe);
   } catch (e) { exceptions.push(e); }
 
   // Junk news settings (false, until ready for prime time)
@@ -122,12 +122,12 @@ function ArrangeAccountCentralItems(server, msgFolder) {
     canControlJunkNews = false && protocolInfo &&
                protocolInfo.canGetIncomingMessages &&
                !protocolInfo.canGetMessages;
-    SetItemDisplay("JunkSettingsNews", canControlJunkNews);
+    SetItemDisplay("junkSettingsNews", canControlJunkNews);
   } catch (e) { exceptions.push(e); }
 
   // Display News header, only if any of the items are displayed
   let displayNewsHeader = canSubscribe || canControlJunkNews;
-  SetItemDisplay("NewsHeader", displayNewsHeader);
+  SetItemDisplay("newsHeader", displayNewsHeader);
 
   /* News header and items : End */
 
@@ -137,31 +137,31 @@ function ArrangeAccountCentralItems(server, msgFolder) {
   SetItemDisplay("rssHeader", displayRssHeader);
 
   // Subscribe to RSS Feeds
-  SetItemDisplay("SubscribeRSS", displayRssHeader);
+  SetItemDisplay("subscribeRSS", displayRssHeader);
 
   /* RSS header and items : End */
 
   // If either of above sections exists, show section separators
-  SetItemDisplay("MessagesSection",
+  SetItemDisplay("messagesSection",
                  displayNewsHeader || displayEmailHeader || displayRssHeader);
 
   /* Accounts : Begin */
 
   // Account Settings if a server is found
   let canShowAccountSettings = server != null;
-  SetItemDisplay("AccountSettings", canShowAccountSettings);
+  SetItemDisplay("accountSettings", canShowAccountSettings);
 
   // Show New Mail Account Wizard if not prohibited by pref
   let canShowCreateAccount = false;
   try {
     canShowCreateAccount = !Services.prefs
       .prefIsLocked("mail.disable_new_account_addition");
-    SetItemDisplay("CreateAccount", canShowCreateAccount);
-    SetItemDisplay("CreateAccounts", canShowCreateAccount);
+    SetItemDisplay("createAccount", canShowCreateAccount);
+    SetItemDisplay("createAccounts", canShowCreateAccount);
   } catch (e) { exceptions.push(e); }
 
   // Display Accounts header, only if any of the items are displayed
-  SetItemDisplay("AccountsHeader", canShowCreateAccount);
+  SetItemDisplay("accountsHeader", canShowCreateAccount);
 
   /* Accounts : End */
 
@@ -171,14 +171,14 @@ function ArrangeAccountCentralItems(server, msgFolder) {
   let canSearchMessages = false;
   try {
     canSearchMessages = server && server.canSearchMessages;
-    SetItemDisplay("SearchMessages", canSearchMessages);
+    SetItemDisplay("searchMessages", canSearchMessages);
   } catch (e) { exceptions.push(e); }
 
   // Create Filters
   let canHaveFilters = false;
   try {
     canHaveFilters = server && server.canHaveFilters;
-    SetItemDisplay("CreateFilters", canHaveFilters);
+    SetItemDisplay("createFilters", canHaveFilters);
   } catch (e) { exceptions.push(e); }
 
   // Subscribe to IMAP Folders
@@ -186,25 +186,25 @@ function ArrangeAccountCentralItems(server, msgFolder) {
   try {
     canSubscribeImapFolders = msgFolder && msgFolder.canSubscribe &&
                   protocolInfo && protocolInfo.canGetMessages;
-    SetItemDisplay("SubscribeImapFolders", canSubscribeImapFolders);
+    SetItemDisplay("subscribeImapFolders", canSubscribeImapFolders);
   } catch (e) { exceptions.push(e); }
 
   // Offline Settings
   let supportsOffline = false;
   try {
     supportsOffline = server && server.offlineSupportLevel != 0;
-    SetItemDisplay("OfflineSettings", supportsOffline);
+    SetItemDisplay("offlineSettings", supportsOffline);
   } catch (e) { exceptions.push(e); }
 
   // Display Adv Features header, only if any of the items are displayed
   let displayAdvFeatures = canSearchMessages || canHaveFilters ||
                            canSubscribeImapFolders || supportsOffline;
-  SetItemDisplay("AdvancedFeaturesHeader", displayAdvFeatures);
+  SetItemDisplay("advancedFeaturesHeader", displayAdvFeatures);
 
   /* Advanced Featuers header and items : End */
 
   // If either of above features exist, show section separators
-  SetItemDisplay("AccountsSection", displayAdvFeatures);
+  SetItemDisplay("accountsSection", displayAdvFeatures);
 
   while (exceptions.length) {
     Cu.reportError("Error in setting AccountCentral Items: "
@@ -220,7 +220,7 @@ function SetItemDisplay(elemId, displayThisItem) {
     if (elem)
       elem.setAttribute("collapsed", false);
 
-    let elemSpacer = document.getElementById(elemId + ".spacer");
+    let elemSpacer = document.getElementById(elemId + "Spacer");
     if (elemSpacer)
       elemSpacer.setAttribute("collapsed", false);
   }
