@@ -19,11 +19,13 @@
 # Tests that run just about everywhere; common-tests is the shared core, with
 # a few add-on test sets that are included or omitted on some platforms.
 
-common-tests:
+xpcshell-tests:
     - xpcshell
+
+mozmill-tests:
     - mozmill
 
-optimized-tests:
+mochitest-tests:
     - mochitest-thunderbird
 
 marionette-tests:
