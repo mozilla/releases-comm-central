@@ -160,7 +160,7 @@ class NS_MSG_BASE nsMsgProtocol : public nsIStreamListener,
   nsCOMPtr<nsIURI> m_url;          // the running url
   nsCOMPtr<nsISupports> m_consumer;
   nsCOMPtr<nsIStreamListener> m_channelListener;
-  nsCOMPtr<nsISupports> m_channelContext;
+  bool m_isChannel;
   nsCOMPtr<nsILoadGroup> m_loadGroup;
   nsLoadFlags mLoadFlags;
   nsCOMPtr<nsIProgressEventSink> mProgressEventSink;

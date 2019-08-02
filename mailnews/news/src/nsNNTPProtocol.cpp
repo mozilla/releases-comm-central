@@ -817,9 +817,7 @@ NS_IMETHODIMP nsNNTPProtocol::AsyncOpen(nsIStreamListener *aListener) {
   rv = NS_CheckPortSafety(port, "news");
   if (NS_FAILED(rv)) return rv;
 
-  nsCOMPtr<nsIURI> uri;
-  GetURI(getter_AddRefs(uri));
-  m_channelContext = uri;
+  m_isChannel = true;
   m_channelListener = listener;
   m_runningURL->GetNewsAction(&m_newsAction);
 
@@ -4373,7 +4371,7 @@ nsresult nsNNTPProtocol::CleanupAfterRunningUrl() {
   mProgressEventSink = nullptr;
   SetOwner(nullptr);
 
-  m_channelContext = nullptr;
+  m_isChannel = false;
   m_channelListener = nullptr;
   m_loadGroup = nullptr;
   mCallbacks = nullptr;

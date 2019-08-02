@@ -59,6 +59,7 @@ nsMsgProtocol::nsMsgProtocol(nsIURI *aURL) {
   mLoadFlags = 0;
   m_socketIsOpen = false;
   mContentLength = -1;
+  m_isChannel = false;
 
   GetSpecialDirectoryWithFileName(NS_OS_TEMP_DIR, "tempMessage.eml",
                                   getter_AddRefs(m_tempMsgFile));
@@ -314,7 +315,7 @@ NS_IMETHODIMP nsMsgProtocol::OnStartRequest(nsIRequest *request) {
   // we are starting... so pass in ourself as the channel and not the underlying
   // socket or file channel the protocol happens to be using
   if (!mSuppressListenerNotifications && m_channelListener) {
-    if (!m_channelContext) m_channelContext = uri;
+    m_isChannel = true;
     rv = m_channelListener->OnStartRequest(this);
   }
 
@@ -394,15 +395,14 @@ NS_IMETHODIMP nsMsgProtocol::OnStopRequest(nsIRequest *request,
       m_loadGroup->RemoveRequest(static_cast<nsIRequest *>(this), nullptr,
                                  aStatus);
 
-    // !m_channelContext because if we're set up as a channel, then the remove
+    // !m_isChannel because if we're set up as a channel, then the remove
     // request above will handle alerting the user, so we don't need to.
     //
     // !NS_BINDING_ABORTED because we don't want to see an alert if the user
     // cancelled the operation.  also, we'll get here because we call Cancel()
     // to force removal of the nsSocketTransport.  see CloseSocket()
     // bugs #30775 and #30648 relate to this
-    if (!m_channelContext && NS_FAILED(aStatus) &&
-        (aStatus != NS_BINDING_ABORTED))
+    if (!m_isChannel && NS_FAILED(aStatus) && (aStatus != NS_BINDING_ABORTED))
       ShowAlertMessage(msgUrl, aStatus);
   }  // if we have a mailnews url.
 
@@ -451,7 +451,7 @@ nsresult nsMsgProtocol::LoadUrl(nsIURI *aURL, nsISupports *aConsumer) {
         aConsumer)  // if we don't have a registered listener already
     {
       m_channelListener = do_QueryInterface(aConsumer);
-      if (!m_channelContext) m_channelContext = do_QueryInterface(aURL);
+      m_isChannel = true;
     }
 
     if (!m_socketIsOpen) {
@@ -543,11 +543,7 @@ NS_IMETHODIMP nsMsgProtocol::AsyncOpen(nsIStreamListener *aListener) {
   if (NS_FAILED(rv)) return rv;
 
   // set the stream listener and then load the url
-  m_channelContext = nullptr;
-  nsCOMPtr<nsIChannel> channel;
-  nsCOMPtr<nsIURI> uri;
-  GetURI(getter_AddRefs(uri));
-  m_channelContext = uri;
+  m_isChannel = true;
 
   m_channelListener = listener;
   return LoadUrl(m_url, nullptr);
