@@ -80,6 +80,7 @@
 
   <linkset>
     <html:link rel="localization" href="toolkit/main-window/findbar.ftl"/>
+    <html:link rel="localization" href="messenger/menubar.ftl"/>
   </linkset>
 
   <script src="chrome://global/content/globalOverlay.js"/>
