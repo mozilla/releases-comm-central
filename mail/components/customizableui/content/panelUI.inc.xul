@@ -669,8 +669,7 @@
                        oncommand="PanelUI.showSubView('appMenu-viewZoomView', this)"/>
         <toolbarbutton id="appmenu_charsetMenu"
                        class="subviewbutton subviewbutton-nav"
-                       label="&charsetMenu2.label;"
-                       accesskey="&charsetMenu2.accesskey;"
+                       data-l10n-id="menu-view-charset"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-viewTextEncodingView', this)"/>
         <toolbarseparator id="appmenu_viewAfterCharsetSeparator"/>

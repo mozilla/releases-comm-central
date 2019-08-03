@@ -1666,8 +1666,7 @@
           <menuitem id="dsnMenu" type="checkbox" label="&dsnMenu.label;" accesskey="&dsnMenu.accesskey;" oncommand="ToggleDSN(event.target)"/>
           <menuseparator/>
           <menu id="charsetMenu"
-                label="&charsetMenu2.label;"
-                accesskey="&charsetMenu2.accesskey;"
+                data-l10n-id="menu-view-charset"
                 oncommand="SetDocumentCharacterSet(event.target.getAttribute('charset'));"
                 onpopupshowing="UpdateCharsetMenu(gMsgCompose.compFields.characterSet, this);">
             <menupopup id="charsetPopup" detectors="false"

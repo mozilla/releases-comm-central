@@ -261,8 +261,7 @@
 
           <!-- Charset Menu -->
           <menu id="charsetMenu"
-                label="&charsetMenu2.label;"
-                accesskey="&charsetMenu2.accesskey;"
+                data-l10n-id="menu-view-charset"
                 oncommand="viewSourceChrome.onSetCharacterSet(event);"
                 onpopupshowing="CharsetMenu.build(event.target);
                                 CharsetMenu.update(event.target, content.document.characterSet);">

@@ -20,8 +20,7 @@
   </stringbundleset>
 
   <menu id="charsetMenu"
-        label="&charsetMenu2.label;"
-        accesskey="&charsetMenu2.accesskey;">
+        data-l10n-id="menu-view-charset">
     <menupopup id="charsetPopup"
                onpopupshowing="CharsetMenu.build(this, true, this.getAttribute('detectors') != 'false');"/>
   </menu>

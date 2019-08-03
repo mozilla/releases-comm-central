@@ -568,8 +568,7 @@
             </menupopup>
           </menu>
           <menu id="charsetMenu"
-                label="&charsetMenu2.label;"
-                accesskey="&charsetMenu2.accesskey;"
+                data-l10n-id="menu-view-charset"
                 onpopupshowing="UpdateCharsetMenu(msgWindow.mailCharacterSet, this);"
                 oncommand="MailSetCharacterSet(event)">
             <menupopup id="charsetPopup"
