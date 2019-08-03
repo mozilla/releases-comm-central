@@ -950,6 +950,7 @@ function test_internal_link_opening_behaviour() {
 /**
  * Test that window.open in the order form opens in new content tabs.
  */
+test_window_open_link_opening_behaviour.__force_skip__ = true;  // See bug 1571203.
 function test_window_open_link_opening_behaviour() {
   get_to_order_form();
 
