@@ -61,6 +61,7 @@
 #include "nsServiceManagerUtils.h"
 #include "mozilla/Logging.h"
 #include "mozilla/Services.h"
+#include "mozilla/dom/BrowsingContext.h"
 
 using namespace mozilla;
 
@@ -215,7 +216,7 @@ static nsresult openWindow(nsIMsgWindow *aMsgWindow, const char *chromeURL,
   ifptr->SetData(param);
   ifptr->SetDataIID(&NS_GET_IID(nsINewsDownloadDialogArgs));
 
-  nsCOMPtr<nsPIDOMWindowOuter> dialogWindow;
+  RefPtr<mozilla::dom::BrowsingContext> dialogWindow;
   rv = parentWindow->OpenDialog(
       NS_ConvertASCIItoUTF16(chromeURL), NS_LITERAL_STRING("_blank"),
       NS_LITERAL_STRING("centerscreen,chrome,modal,titlebar"), ifptr,

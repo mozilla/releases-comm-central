@@ -9,6 +9,7 @@
 #include "nsCOMPtr.h"
 #include "nsAutoPtr.h"
 #include "mozilla/NullPrincipal.h"
+#include "mozilla/dom/BrowsingContext.h"
 #include "nsISupportsPrimitives.h"
 #include "plstr.h"
 #include "nsPIDOMWindow.h"
@@ -90,7 +91,7 @@ nsAbContentHandler::HandleContent(const char *aContentType,
         docShell->GetRootTreeItem(getter_AddRefs(root));
         nsCOMPtr<nsPIDOMWindowOuter> window(do_GetInterface(root));
 
-        nsCOMPtr<nsPIDOMWindowOuter> dialogWindow;
+        RefPtr<mozilla::dom::BrowsingContext> dialogWindow;
         rv = window->OpenDialog(
             NS_LITERAL_STRING(
                 "chrome://messenger/content/addressbook/abNewCardDialog.xul"),
@@ -166,7 +167,7 @@ nsAbContentHandler::OnStreamComplete(nsIStreamLoader *aLoader,
       nsCOMPtr<nsPIDOMWindowOuter> parentWindow =
           nsPIDOMWindowOuter::From(domWindow);
 
-      nsCOMPtr<nsPIDOMWindowOuter> dialogWindow;
+      RefPtr<mozilla::dom::BrowsingContext> dialogWindow;
       rv = parentWindow->OpenDialog(
           NS_LITERAL_STRING(
               "chrome://messenger/content/addressbook/abNewCardDialog.xul"),

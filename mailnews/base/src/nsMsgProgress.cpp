@@ -18,6 +18,7 @@
 #include "nsComponentManagerUtils.h"
 #include "nsMsgUtils.h"
 #include "mozilla/Services.h"
+#include "mozilla/dom/BrowsingContext.h"
 
 NS_IMPL_ISUPPORTS(nsMsgProgress, nsIMsgStatusFeedback, nsIMsgProgress,
                   nsIWebProgressListener, nsIProgressEventSink,
@@ -62,7 +63,7 @@ NS_IMETHODIMP nsMsgProgress::OpenProgressDialog(
   array->AppendElement(parameters);
 
   // Open the dialog.
-  nsCOMPtr<nsPIDOMWindowOuter> newWindow;
+  RefPtr<mozilla::dom::BrowsingContext> newWindow;
 
   nsString chromeOptions(NS_LITERAL_STRING("chrome,dependent,centerscreen"));
   if (inDisplayModal) chromeOptions.AppendLiteral(",modal");
