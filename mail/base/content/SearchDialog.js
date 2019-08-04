@@ -235,23 +235,31 @@ function searchOnLoad() {
   gFolderDisplay.messenger = messenger;
   gFolderDisplay.msgWindow = msgWindow;
   gFolderDisplay.tree = document.getElementById("threadTree");
+
+  // The view is initially unsorted; get the persisted sortDirection column
+  // and set up the user's desired sort. This synthetic view is not backed by
+  // a db, so secondary sorts and custom columns are not supported here.
+  let sortCol = gFolderDisplay.tree.querySelector("[sortDirection]");
+  let sortType, sortOrder;
+  if (sortCol) {
+    sortType = Ci.nsMsgViewSortType[gFolderDisplay.COLUMNS_MAP.get(sortCol.id)];
+    sortOrder = sortCol.getAttribute("sortDirection") == "descending" ?
+                  Ci.nsMsgViewSortOrder.descending : Ci.nsMsgViewSortOrder.ascending;
+  }
+
   gFolderDisplay.view.openSearchView();
   gFolderDisplay.makeActive();
 
-  gFolderDisplay.setColumnStates({
-    subjectCol: { visible: true },
-    correspondentCol: { visible: Services.prefs.getBoolPref("mail.threadpane.use_correspondents") },
-    senderCol: { visible: !Services.prefs.getBoolPref("mail.threadpane.use_correspondents") },
-    dateCol: { visible: true },
-    locationCol: { visible: true },
-  });
+  if (sortType) {
+    gFolderDisplay.view.sort(sortType, sortOrder);
+  }
 
   if (window.arguments && window.arguments[0])
     updateSearchFolderPicker(window.arguments[0].folder);
 
-  // trigger searchTerm.js to create the first criterion
+  // Trigger searchTerm.js to create the first criterion.
   onMore(null);
-  // make sure all the buttons are configured
+  // Make sure all the buttons are configured.
   UpdateMailSearch("onload");
 }
 

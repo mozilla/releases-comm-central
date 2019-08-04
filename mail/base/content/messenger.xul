@@ -593,121 +593,16 @@
                     -->
                   <!-- second panel is the threadPane -->
                   <hbox id="threadPaneBox">
-                   <!-- The threadContentArea was specially created to be a place for
-                        things that want to be above/below the thread pane, regardless
-                        of where the message reader ("messagepane") gets off to. -->
-                   <vbox id="threadContentArea" flex="1" persist="width">
+                    <!-- The threadContentArea was specially created to be a place for
+                         things that want to be above/below the thread pane, regardless
+                         of where the message reader ("messagepane") gets off to. -->
+                    <vbox id="threadContentArea" flex="1" persist="width">
                     <!-- Gloda search facets UI for use when dealing with a gloda-backed
                          search view, implemented by glodaFacets XBL in search.xml. -->
                     <box id="glodaSearchFacets"/>
-                    <tree id="threadTree"
-                          persist="lastfoldersent width"
-                          treelines="true"
-                          flex="2"
-                          enableColumnDrag="true"
-                          _selectDelay="250"
-                          class="plain"
-                          lastfoldersent="false"
-                          keepcurrentinview="true"
-                          disableKeyNavigation="true"
-                          context="mailContext"
-                          onkeydown="ThreadPaneKeyDown(event);"
-                          onselect="ThreadPaneSelectionChanged();"
-                          >
-                      <treecols id="threadCols" is="thread-pane-treecols" pickertooltiptext="&columnChooser2.tooltip;">
-                        <treecol is="treecol-image" id="threadCol" fixed="true" cycler="true"
-                                 class="treecol-image threadColumnHeader" currentView="unthreaded"
-                                 closemenu="none"
-                                 label="&threadColumn.label;" tooltiptext="&threadColumn2.tooltip;"/>
-                        <splitter class="tree-splitter"/>
-                        <treecol is="treecol-image" id="flaggedCol" fixed="true" cycler="true"
-                                 class="treecol-image flagColumnHeader"
-                                 closemenu="none"
-                                 label="&starredColumn.label;" tooltiptext="&starredColumn2.tooltip;"/>
-                        <splitter class="tree-splitter"/>
-                        <treecol is="treecol-image" id="attachmentCol" fixed="true"
-                                 class="treecol-image attachmentColumnHeader"
-                                 closemenu="none"
-                                 label="&attachmentColumn.label;" tooltiptext="&attachmentColumn2.tooltip;"/>
-                        <splitter class="tree-splitter"/>
-                        <treecol id="subjectCol" persist="width" flex="7" ignoreincolumnpicker="true"
-                                 closemenu="none"
-                                 label="&subjectColumn.label;" tooltiptext="&subjectColumn2.tooltip;"/>
-                        <splitter class="tree-splitter"/>
-                        <treecol is="treecol-image" id="unreadButtonColHeader" fixed="true" cycler="true"
-                                 class="treecol-image readColumnHeader"
-                                 closemenu="none"
-                                 label="&readColumn.label;" tooltiptext="&readColumn2.tooltip;"/>
-                        <splitter class="tree-splitter"/>
-                        <treecol id="senderCol" persist="width" flex="4"
-                                 hidden="false" swappedhidden="true"
-                                 closemenu="none"
-                                 label="&fromColumn.label;" tooltiptext="&fromColumn2.tooltip;"/>
-                        <splitter class="tree-splitter"/>
-                        <treecol id="recipientCol" persist="width" flex="4"
-                                 hidden="true" swappedhidden="false"
-                                 closemenu="none"
-                                 label="&recipientColumn.label;" tooltiptext="&recipientColumn2.tooltip;"/>
-                        <splitter class="tree-splitter"/>
-                        <treecol id="correspondentCol" persist="width" flex="4" hidden="true"
-                                 closemenu="none"
-                                 label="&correspondentColumn.label;" tooltiptext="&correspondentColumn2.tooltip;"/>
-                        <splitter class="tree-splitter"/>
-                        <treecol is="treecol-image" id="junkStatusCol" persist="width" fixed="true"
-                                 cycler="true" class="treecol-image junkStatusHeader"
-                                 closemenu="none"
-                                 label="&junkStatusColumn.label;" tooltiptext="&junkStatusColumn2.tooltip;"/>
-                        <splitter class="tree-splitter"/>
-                        <treecol id="receivedCol" persist="width temphidden" flex="2" hidden="true"
-                                 closemenu="none"
-                                 label="&receivedColumn.label;" tooltiptext="&receivedColumn2.tooltip;"/>
-                        <splitter class="tree-splitter"/>
-                        <treecol id="dateCol" persist="width" flex="2"
-                                 closemenu="none"
-                                 label="&dateColumn.label;" tooltiptext="&dateColumn2.tooltip;"/>
-                        <splitter class="tree-splitter"/>
-                        <treecol id="statusCol" persist="width" flex="1" hidden="true"
-                                 closemenu="none"
-                                 label="&statusColumn.label;" tooltiptext="&statusColumn2.tooltip;"/>
-                        <splitter class="tree-splitter"/>
-                        <treecol id="sizeCol" persist="width" flex="1" hidden="true"
-                                 closemenu="none"
-                                 label="&sizeColumn.label;" tooltiptext="&sizeColumn2.tooltip;"/>
-                        <splitter class="tree-splitter"/>
-                        <treecol id="tagsCol" persist="width" flex="1" hidden="true"
-                                 closemenu="none"
-                                 label="&tagsColumn.label;" tooltiptext="&tagsColumn2.tooltip;"/>
-                        <splitter class="tree-splitter"/>
-                        <treecol id="accountCol" persist="width" flex="1" hidden="true"
-                                 closemenu="none"
-                                 label="&accountColumn.label;" tooltiptext="&accountColumn2.tooltip;"/>
-                        <splitter class="tree-splitter"/>
-                        <treecol id="priorityCol" persist="width" flex="1" hidden="true"
-                                 closemenu="none"
-                                 label="&priorityColumn.label;" tooltiptext="&priorityColumn2.tooltip;"/>
-                        <splitter class="tree-splitter"/>
-                        <treecol id="unreadCol" persist="width" flex="1" hidden="true"
-                                 closemenu="none"
-                                 label="&unreadColumn.label;" tooltiptext="&unreadColumn2.tooltip;"/>
-                        <splitter class="tree-splitter"/>
-                        <treecol id="totalCol" persist="width" flex="1" hidden="true"
-                                 closemenu="none"
-                                 label="&totalColumn.label;" tooltiptext="&totalColumn2.tooltip;"/>
-                        <splitter class="tree-splitter"/>
-                        <treecol id="locationCol" persist="width" flex="1" hidden="true"
-                                 closemenu="none"
-                                 label="&locationColumn.label;" tooltiptext="&locationColumn2.tooltip;"/>
-                        <splitter class="tree-splitter"/>
-                        <treecol id="idCol" persist="width" flex="1" hidden="true"
-                                 closemenu="none"
-                                 label="&idColumn.label;" tooltiptext="&idColumn2.tooltip;"/>
-                      </treecols>
-                    <treechildren ondragstart="ThreadPaneOnDragStart(event);"
-                                  ondragover="ThreadPaneOnDragOver(event);"
-                                  ondrop="ThreadPaneOnDrop(event);"/>
-                  </tree>
-                 </vbox>
-                </hbox>
+#include threadTree.inc.xul
+                    </vbox>
+                  </hbox>
                 <!-- extensions may overlay in additional panels; don't assume that there are only 2! -->
                 </deck> <!-- displayDeck -->
 

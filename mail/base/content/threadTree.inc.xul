@@ -1,0 +1,199 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+                    <!-- The threadTree is shared with messenger.xul (MAIN_WINDOW)
+                         and SearchDialog.xul (SEARCH_WINDOW). -->
+                    <tree id="threadTree"
+                          class="plain"
+                          persist="lastfoldersent width"
+                          flex="2"
+                          treelines="true"
+                          enableColumnDrag="true"
+                          _selectDelay="250"
+                          lastfoldersent="false"
+                          keepcurrentinview="true"
+                          disableKeyNavigation="true"
+                          context="mailContext"
+                          onkeydown="ThreadPaneKeyDown(event);"
+                          onselect="ThreadPaneSelectionChanged();">
+#ifdef MAIN_WINDOW
+                      <treecols is="thread-pane-treecols" id="threadCols"
+#else
+                      <treecols id="threadCols"
+#endif
+                                pickertooltiptext="&columnChooser2.tooltip;">
+                        <treecol is="treecol-image" id="threadCol"
+                                 class="treecol-image threadColumnHeader"
+                                 persist="hidden ordinal"
+                                 fixed="true"
+                                 cycler="true"
+                                 currentView="unthreaded"
+#ifdef SEARCH_WINDOW
+                                 ignoreincolumnpicker="true"
+                                 hidden="true"
+#endif
+                                 closemenu="none"
+                                 label="&threadColumn.label;"
+                                 tooltiptext="&threadColumn2.tooltip;"/>
+                        <splitter class="tree-splitter"/>
+                        <treecol is="treecol-image" id="flaggedCol"
+                                 class="treecol-image flagColumnHeader"
+                                 persist="hidden ordinal sortDirection"
+                                 fixed="true"
+                                 cycler="true"
+                                 closemenu="none"
+                                 label="&starredColumn.label;"
+                                 tooltiptext="&starredColumn2.tooltip;"/>
+                        <splitter class="tree-splitter"/>
+                        <treecol is="treecol-image" id="attachmentCol"
+                                 class="treecol-image attachmentColumnHeader"
+                                 persist="hidden ordinal sortDirection"
+                                 fixed="true"
+                                 closemenu="none"
+                                 label="&attachmentColumn.label;"
+                                 tooltiptext="&attachmentColumn2.tooltip;"/>
+                        <splitter class="tree-splitter"/>
+                        <treecol id="subjectCol"
+                                 persist="ordinal width sortDirection"
+                                 flex="7"
+                                 ignoreincolumnpicker="true"
+                                 closemenu="none"
+                                 label="&subjectColumn.label;"
+                                 tooltiptext="&subjectColumn2.tooltip;"/>
+                        <splitter class="tree-splitter"/>
+                        <treecol is="treecol-image" id="unreadButtonColHeader"
+                                 class="treecol-image readColumnHeader"
+                                 persist="hidden ordinal sortDirection"
+                                 fixed="true"
+                                 cycler="true"
+                                 closemenu="none"
+                                 label="&readColumn.label;"
+                                 tooltiptext="&readColumn2.tooltip;"/>
+                        <splitter class="tree-splitter"/>
+                        <treecol id="senderCol"
+                                 persist="hidden ordinal sortDirection width"
+                                 flex="4"
+                                 hidden="true"
+                                 closemenu="none"
+                                 label="&fromColumn.label;"
+                                 tooltiptext="&fromColumn2.tooltip;"/>
+                        <splitter class="tree-splitter"/>
+                        <treecol id="recipientCol"
+                                 persist="hidden ordinal sortDirection width"
+                                 flex="4"
+                                 hidden="true"
+                                 closemenu="none"
+                                 label="&recipientColumn.label;"
+                                 tooltiptext="&recipientColumn2.tooltip;"/>
+                        <splitter class="tree-splitter"/>
+                        <treecol id="correspondentCol"
+                                 persist="hidden ordinal sortDirection width"
+                                 flex="4"
+                                 closemenu="none"
+                                 label="&correspondentColumn.label;"
+                                 tooltiptext="&correspondentColumn2.tooltip;"/>
+                        <splitter class="tree-splitter"/>
+                        <treecol is="treecol-image" id="junkStatusCol"
+                                 class="treecol-image junkStatusHeader"
+                                 persist="hidden ordinal sortDirection"
+                                 fixed="true"
+                                 cycler="true"
+                                 closemenu="none"
+                                 label="&junkStatusColumn.label;"
+                                 tooltiptext="&junkStatusColumn2.tooltip;"/>
+                        <splitter class="tree-splitter"/>
+                        <treecol id="receivedCol"
+                                 persist="hidden ordinal sortDirection width"
+                                 flex="2"
+                                 hidden="true"
+                                 closemenu="none"
+                                 label="&receivedColumn.label;"
+                                 tooltiptext="&receivedColumn2.tooltip;"/>
+                        <splitter class="tree-splitter"/>
+                        <treecol id="dateCol"
+                                 persist="hidden ordinal sortDirection width"
+                                 flex="2"
+                                 closemenu="none"
+                                 label="&dateColumn.label;"
+                                 tooltiptext="&dateColumn2.tooltip;"/>
+                        <splitter class="tree-splitter"/>
+                        <treecol id="statusCol"
+                                 persist="hidden ordinal sortDirection width"
+                                 flex="1"
+                                 hidden="true"
+                                 closemenu="none"
+                                 label="&statusColumn.label;"
+                                 tooltiptext="&statusColumn2.tooltip;"/>
+                        <splitter class="tree-splitter"/>
+                        <treecol id="sizeCol"
+                                 persist="hidden ordinal sortDirection width"
+                                 flex="1"
+                                 hidden="true"
+                                 closemenu="none"
+                                 label="&sizeColumn.label;"
+                                 tooltiptext="&sizeColumn2.tooltip;"/>
+                        <splitter class="tree-splitter"/>
+                        <treecol id="tagsCol"
+                                 persist="hidden ordinal sortDirection width"
+                                 flex="1"
+                                 hidden="true"
+                                 closemenu="none"
+                                 label="&tagsColumn.label;"
+                                 tooltiptext="&tagsColumn2.tooltip;"/>
+                        <splitter class="tree-splitter"/>
+                        <treecol id="accountCol"
+                                 persist="hidden ordinal sortDirection width"
+                                 flex="1"
+                                 hidden="true"
+                                 closemenu="none"
+                                 label="&accountColumn.label;"
+                                 tooltiptext="&accountColumn2.tooltip;"/>
+                        <splitter class="tree-splitter"/>
+                        <treecol id="priorityCol"
+                                 persist="hidden ordinal sortDirection width"
+                                 flex="1"
+                                 hidden="true"
+                                 closemenu="none"
+                                 label="&priorityColumn.label;"
+                                 tooltiptext="&priorityColumn2.tooltip;"/>
+                        <splitter class="tree-splitter"/>
+                        <treecol id="unreadCol"
+                                 persist="hidden ordinal sortDirection width"
+                                 flex="1"
+                                 hidden="true"
+                                 closemenu="none"
+                                 label="&unreadColumn.label;"
+                                 tooltiptext="&unreadColumn2.tooltip;"/>
+                        <splitter class="tree-splitter"/>
+                        <treecol id="totalCol"
+                                 persist="hidden ordinal sortDirection width"
+                                 flex="1"
+                                 hidden="true"
+                                 closemenu="none"
+                                 label="&totalColumn.label;"
+                                 tooltiptext="&totalColumn2.tooltip;"/>
+                        <splitter class="tree-splitter"/>
+                        <treecol id="locationCol"
+                                 persist="hidden ordinal sortDirection width"
+                                 flex="1"
+                                 closemenu="none"
+                                 label="&locationColumn.label;"
+                                 tooltiptext="&locationColumn2.tooltip;"/>
+                        <splitter class="tree-splitter"/>
+                        <treecol id="idCol"
+                                 persist="hidden ordinal sortDirection width"
+                                 flex="1"
+                                 hidden="true"
+                                 closemenu="none"
+                                 label="&idColumn.label;"
+                                 tooltiptext="&idColumn2.tooltip;"/>
+                      </treecols>
+#ifdef MAIN_WINDOW
+                    <treechildren ondragstart="ThreadPaneOnDragStart(event);"
+                                  ondragover="ThreadPaneOnDragOver(event);"
+                                  ondrop="ThreadPaneOnDrop(event);"/>
+#else
+                    <treechildren/>
+#endif
+                  </tree>
