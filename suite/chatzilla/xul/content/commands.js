@@ -95,7 +95,7 @@ function initCommands()
          ["input-text-direction", cmdInputTextDirection,                     0],
          ["install-plugin",    cmdInstallPlugin,                   CMD_CONSOLE],
          ["invite",            cmdInvite,           CMD_NEED_SRV | CMD_CONSOLE],
-         ["join",              cmdJoin,                            CMD_CONSOLE],
+         ["join",              cmdJoin,             CMD_NEED_SRV | CMD_CONSOLE],
          ["join-charset",      cmdJoin,             CMD_NEED_SRV | CMD_CONSOLE],
          ["jump-to-anchor",    cmdJumpToAnchor,                   CMD_NEED_NET],
          ["kick",              cmdKick,            CMD_NEED_CHAN | CMD_CONSOLE],
