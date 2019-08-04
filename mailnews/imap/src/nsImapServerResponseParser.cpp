@@ -2666,10 +2666,19 @@ void nsImapServerResponseParser::UseCachedShell(nsIMAPBodyShell *cachedShell) {
 void nsImapServerResponseParser::ResetCapabilityFlag() {}
 
 /*
- literal         ::= "{" number "}" CRLF *CHAR8
-                              ;; Number represents the number of CHAR8 octets
-*/
-// returns true if this is the last chunk and we should close the stream
+   literal ::= "{" number "}" CRLF *CHAR8
+   Number represents the number of CHAR8 octets
+ */
+
+// Processes a message body, header or message part fetch response. Typically
+// the full message, header or part are proccessed in one call (effectively, one
+// chunk), and parameter `chunk` is false and `origin` (offset into the
+// response) is 0. But under some conditions and larger messages, multiple calls
+// will occur to process the message in multiple chunks and parameter `chunk`
+// will be true and parameter `origin` will increase by the chunk size from
+// initially 0 with each call. This function returns true if this is the last or
+// only chunk. This signals the caller that the stream should be closed since
+// the message response has been processed.
 bool nsImapServerResponseParser::msg_fetch_literal(bool chunk, int32_t origin) {
   numberOfCharsInThisChunk = atoi(fNextToken + 1);
   // If we didn't request a specific size, or the server isn't returning exactly
@@ -2677,14 +2686,13 @@ bool nsImapServerResponseParser::msg_fetch_literal(bool chunk, int32_t origin) {
   bool lastChunk = (!chunk || (numberOfCharsInThisChunk !=
                                fServerConnection.GetCurFetchSize()));
 
-#ifdef DEBUG
   if (lastChunk)
     // clang-format off
     MOZ_LOG(IMAP, mozilla::LogLevel::Debug,
-            ("PARSER: fetch_literal chunk = %d, requested %d, receiving %d", chunk,
-             fServerConnection.GetCurFetchSize(), numberOfCharsInThisChunk));
+            ("PARSER: msg_fetch_literal() chunking=%s, requested=%d, receiving=%d",
+             chunk ? "true":"false", fServerConnection.GetCurFetchSize(),
+             numberOfCharsInThisChunk));
     // clang-format on
-#endif
 
   charsReadSoFar = 0;
 
@@ -2790,18 +2798,38 @@ bool nsImapServerResponseParser::msg_fetch_literal(bool chunk, int32_t origin) {
         if (fNextChunkStartsWithNewline) displayEndOfLine[2] = saveit2;
       } else {
         // Not the last line of a chunk.
-        if (!fNextChunkStartsWithNewline) {
-          // Process unmodified fCurrentLine string.
+        bool processTheLine = true;
+        if (fNextChunkStartsWithNewline && origin > 0) {
+          // A split of the \r\n between chunks was detected. Ignore orphan \n
+          // on line by itself which can occur on the first line of a 2nd or
+          // later chunk. Line length should be 1 and the only character should
+          // be \n. Note: If previous message ended with just \r, don't expect
+          // the first chunk of a message (origin == 0) to begin with \n.
+          // (Typically, there is only one chunk required for a message or
+          // header response unless its size exceeds the chunking threshold.)
+          if (strlen(fCurrentLine) > 1 || fCurrentLine[0] != '\n') {
+            // In case expected orphan \n is not really there, go ahead and
+            // process the line. This should theoretically not occur but rarely,
+            // and for yet to be determined reasons, it does. Logging may help.
+            NS_WARNING(
+                "'\\n' is not the only character in this line as expected!");
+            MOZ_LOG(IMAP, mozilla::LogLevel::Debug,
+                    ("PARSER: expecting just '\\n' but line is = |%s|",
+                     fCurrentLine));
+          } else {
+            // Discard the line containing only \n.
+            processTheLine = false;
+            MOZ_LOG(IMAP, mozilla::LogLevel::Debug,
+                    ("PARSER: discarding lone '\\n'"));
+          }
+        }
+        if (processTheLine) {
           fServerConnection.HandleMessageDownLoadLine(
               fCurrentLine,
               !lastChunk && (charsReadSoFar == numberOfCharsInThisChunk),
               fCurrentLine);
-        } else {
-          // Ignore the orphan '\n' on a line by itself.
-          MOZ_ASSERT(strlen(fCurrentLine) == 1 && fCurrentLine[0] == '\n',
-                     "Expect '\\n' as only character in this line");
-          fNextChunkStartsWithNewline = false;
         }
+        fNextChunkStartsWithNewline = false;
       }
     }
   }
@@ -2818,6 +2846,7 @@ bool nsImapServerResponseParser::msg_fetch_literal(bool chunk, int32_t origin) {
       AdvanceToNextToken();
     }
   } else {
+    // Don't typically (maybe never?) see this.
     fNextChunkStartsWithNewline = false;
   }
   return lastChunk;
