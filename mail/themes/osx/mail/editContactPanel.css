@@ -10,11 +10,8 @@
 }
 
 #editContactPanel {
-  margin-inline-start: 0px;
-}
-
-#editContactPanel .panel-arrowcontent {
-  padding: 0;
+  margin-inline-start: 0;
+  --arrowpanel-padding: 0;
 }
 
 #editContactHeader {

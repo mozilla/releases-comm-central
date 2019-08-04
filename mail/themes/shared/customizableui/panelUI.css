@@ -152,15 +152,6 @@ panelview {
   -moz-box-flex: 1;
 }
 
-#appMenu-popup > .panel-arrowcontainer > .panel-arrowcontent,
-panel[photon] > .panel-arrowcontainer > .panel-arrowcontent {
-  overflow: hidden;
-}
-
-.cui-widget-panel > .panel-arrowcontainer > .panel-arrowcontent > .popup-internal-box {
-  padding: 0;
-}
-
 #wrapper-edit-controls:-moz-any([place="palette"],[place="menu-panel"]) > #edit-controls,
 #wrapper-zoom-controls:-moz-any([place="palette"],[place="menu-panel"]) > #zoom-controls {
   margin-inline-start: 0;
@@ -271,10 +262,6 @@ panel[photon] > .panel-arrowcontainer > .panel-arrowcontent {
   opacity: 1;
 }
 
-.cui-widget-panel[viewId^=PanelUI-webext-] > .panel-arrowcontainer > .panel-arrowcontent {
-  padding: 0;
-}
-
 panelview[id^=PanelUI-webext-] {
   overflow: hidden;
 }
@@ -286,13 +273,8 @@ panelview:not([mainview]) .toolbarbutton-text,
   display: -moz-box;
 }
 
-.cui-widget-panel > .panel-arrowcontainer > .panel-arrowcontent {
-  padding: 4px 0;
-}
-
-#appMenu-popup > .panel-arrowcontainer > .panel-arrowcontent,
-panel[photon] > .panel-arrowcontainer > .panel-arrowcontent {
-  padding: 0;
+.cui-widget-panel {
+  --arrowpanel-padding: 4px 0;
 }
 
 #appMenu-popup panelview,
@@ -1005,10 +987,6 @@ toolbarpaletteitem[place="menu-panel"] > .toolbaritem-combined-buttons > toolbar
 
 .toolbaritem-combined-buttons:-moz-any(:not([cui-areatype="toolbar"]), [overflowedItem=true]):hover > separator {
   margin: 0;
-}
-
-#widget-overflow > .panel-arrowcontainer > .panel-arrowcontent {
-  padding: 0;
 }
 
 #widget-overflow-mainView .panel-subview-body {

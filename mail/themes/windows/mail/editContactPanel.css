@@ -11,10 +11,7 @@
 
 #editContactPanel {
   margin-inline-start: 0;
-}
-
-#editContactPanel .panel-arrowcontent {
-  padding: 0;
+  --arrowpanel-padding: 0;
 }
 
 #editContactHeader {

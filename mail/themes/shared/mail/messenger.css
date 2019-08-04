@@ -407,11 +407,6 @@ toolbarpaletteitem toolbarspring {
   font: menu;
 }
 
-.mail-extension-panel > .panel-arrowcontainer > .panel-arrowcontent {
-  padding: 0;
-  overflow: hidden;
-}
-
 /* :::: autocomplete labels :::: */
 
 html|span.ac-emphasize-text {

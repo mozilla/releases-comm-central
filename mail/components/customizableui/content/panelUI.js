@@ -539,7 +539,7 @@ const PanelUI = {
       let tempPanel = document.createXULElement("panel");
       tempPanel.setAttribute("type", "arrow");
       tempPanel.setAttribute("id", "customizationui-widget-panel");
-      tempPanel.setAttribute("class", "cui-widget-panel");
+      tempPanel.setAttribute("class", "cui-widget-panel panel-no-padding");
       tempPanel.setAttribute("viewId", aViewId);
       if (aAnchor.getAttribute("tabspecific")) {
         tempPanel.setAttribute("tabspecific", true);
@@ -548,7 +548,6 @@ const PanelUI = {
         tempPanel.setAttribute("animate", "false");
       }
       tempPanel.setAttribute("context", "");
-      tempPanel.setAttribute("photon", true);
       document.getElementById(CustomizableUI.AREA_NAVBAR).appendChild(tempPanel);
       // If the view has a footer, set a convenience class on the panel.
       tempPanel.classList.toggle("cui-widget-panelWithFooter",

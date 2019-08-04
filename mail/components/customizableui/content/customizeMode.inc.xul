@@ -37,6 +37,7 @@
 </button>
 <button id="customization-lwtheme-button" data-l10n-id="customize-mode-lwthemes" class="customizationmode-button" type="menu">
   <panel type="arrow" id="customization-lwtheme-menu"
+         orient="vertical"
          onpopupshowing="gCustomizeMode.onThemesMenuShowing(event);"
          position="topcenter bottomleft"
          flip="none"

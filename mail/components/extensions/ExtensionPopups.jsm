@@ -294,7 +294,7 @@ class ViewPopup extends BasePopup {
 
     let panel = document.createXULElement("panel");
     panel.setAttribute("id", makeWidgetId(extension.id) + "-panel");
-    panel.setAttribute("class", "mail-extension-panel");
+    panel.setAttribute("class", "mail-extension-panel panel-no-padding");
     panel.setAttribute("type", "arrow");
     panel.setAttribute("role", "group");
     document.getElementById("mainPopupSet").appendChild(panel);
