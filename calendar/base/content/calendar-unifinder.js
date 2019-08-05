@@ -70,20 +70,22 @@ var unifinderObserver = {
 
     // calIObserver:
     onStartBatch: function() {
+        gUnifinderNeedsRefresh = true;
     },
 
     onEndBatch: function() {
-        refreshEventTree();
     },
 
     onLoad: function() {
-        if (isUnifinderHidden() && !gUnifinderNeedsRefresh) {
+        if (isUnifinderHidden()) {
             // If the unifinder is hidden, all further item operations might
             // produce invalid entries in the unifinder. From now on, ignore
             // those operations and refresh as soon as the unifinder is shown
             // again.
             gUnifinderNeedsRefresh = true;
             unifinderTreeView.clearItems();
+        } else {
+            refreshEventTree();
         }
     },
 
@@ -233,7 +235,6 @@ function prepareCalendarUnifinder() {
     // Display something upon first load. onLoad doesn't work properly for
     // observers
     if (!isUnifinderHidden()) {
-        gUnifinderNeedsRefresh = false;
         refreshEventTree();
     }
 }
@@ -863,6 +864,8 @@ function refreshEventTree() {
 
     addItemsFromCalendar(cal.view.getCompositeCalendar(window),
                          addItemsFromCompositeCalendarInternal);
+
+    gUnifinderNeedsRefresh = false;
 }
 
 /**
@@ -964,7 +967,6 @@ function ensureUnifinderLoaded() {
     ensureUnifinderLoaded.done = true;
 
     if (!isUnifinderHidden() && gUnifinderNeedsRefresh) {
-        gUnifinderNeedsRefresh = false;
         refreshEventTree();
     }
 }
@@ -982,7 +984,6 @@ function toggleUnifinder() {
     // When the unifinder is hidden, refreshEventTree is not called. Make sure
     // the event tree is refreshed now.
     if (!isUnifinderHidden() && gUnifinderNeedsRefresh) {
-        gUnifinderNeedsRefresh = false;
         refreshEventTree();
     }
 
