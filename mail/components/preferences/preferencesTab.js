@@ -46,7 +46,8 @@ var preferencesTabType = {
       return -1;
     }
     let prefWindow = gPrefTab.browser.contentDocument.getElementById("MailPreferences");
-    gPrefTab.browser.contentWindow.selectPrefPane(prefWindow, aArgs.paneID, aArgs.tabID, aArgs.otherArgs);
+    gPrefTab.browser.contentWindow.selectPrefPane(prefWindow, aArgs.paneID,
+                                                  aArgs.scrollPaneTo, aArgs.otherArgs);
     return document.getElementById("tabmail").tabInfo.indexOf(gPrefTab);
   },
 
@@ -82,7 +83,7 @@ var preferencesTabType = {
 
     aTab.url = aArgs.contentPage;
     aTab.paneID = aArgs.paneID;
-    aTab.tabID = aArgs.tabID;
+    aTab.scrollPaneTo = aArgs.scrollPaneTo;
     aTab.otherArgs = aArgs.otherArgs;
 
     // Now set up the listeners.
@@ -132,7 +133,7 @@ var preferencesTabType = {
     return {
       tabURI: aTab.url,
       paneID: aTab.paneID,
-      tabID: aTab.tabID,
+      scrollPaneTo: aTab.scrollPaneTo,
       otherArgs: aTab.otherArgs,
     };
   },
@@ -141,7 +142,7 @@ var preferencesTabType = {
     aTabmail.openTab("preferencesTab", {
       contentPage: aPersistedState.tabURI,
       paneID: aPersistedState.paneID,
-      tabID: aPersistedState.tabID,
+      scrollPaneTo: aPersistedState.scrollPaneTo,
       otherArgs: aPersistedState.otherArgs,
     });
   },
