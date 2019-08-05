@@ -130,6 +130,7 @@
   skin/classic/messenger/tagColors.css                        (../shared/mail/tagColors.css)
   skin/classic/messenger/shared/smime/smime-compose.css       (../shared/mail/smime/smime-compose.css)
   skin/classic/messenger/shared/customizableui/panelUI.css    (../shared/customizableui/panelUI.css)
+  skin/classic/messenger/shared/grid-layout.css               (../shared/mail/grid-layout.css)
 #ifndef XP_MACOSX
   skin/classic/messenger/shared/newmailalert.css              (../shared/mail/newmailalert.css)
   skin/classic/messenger/icons/anchor.svg                     (../shared/mail/icons/anchor.svg)

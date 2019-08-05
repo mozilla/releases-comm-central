@@ -4,6 +4,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/shared/grid-layout.css" type="text/css"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://messenger/locale/addressbook/pref-directory-add.dtd">
 
@@ -11,6 +12,7 @@
         style="width: &newDirectoryWidth;"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         onload="Startup();"
         onunload="onUnload();"
         buttons="accept,cancel">
@@ -33,54 +35,56 @@
 
       <tabpanels id="directoryTabPanels" flex="1">
           <vbox>
-             <grid flex="1">
-                 <columns>
-                     <column/>
-                     <column flex="1"/>
-                     <column/>
-                 </columns>
-
-                 <rows>
-                     <row align="center">
-                         <label value="&directoryName.label;" accesskey="&directoryName.accesskey;"
-                                control="description"/>
-                         <textbox id="description" flex="1"/>
-                         <spacer flex="1"/>
-                     </row>
-                     <row align="center">
-                         <label value="&directoryHostname.label;" accesskey="&directoryHostname.accesskey;"
-                                control="hostname"/>
-                         <textbox id="hostname" flex="1" disableiflocked="true" class="uri-element"/>
-                         <spacer flex="1"/>
-                     </row>
-                     <row align="center">
-                         <label value="&directoryBaseDN.label;"
-                                accesskey="&directoryBaseDN.accesskey;"
-                                control="basedn"/>
-                         <vbox>
-                           <textbox id="basedn" disableiflocked="true" class="uri-element"/>
-                         </vbox>
-                         <button label="&findButton.label;"
-                                 accesskey="&findButton.accesskey;" disabled="true"/>
-                     </row>
-                     <row align="center">
-                         <label value="&portNumber.label;"
-                                accesskey="&portNumber.accesskey;"
-                                control="port"/>
-                         <hbox>
-                             <html:input id="port" type="number" class="size5"
-                                         min="1" max="65535"
-                                         disableiflocked="true"/>
-                         </hbox>
-                     </row>
-                     <row align="center">
-                         <label value="&directoryLogin.label;"
-                                accesskey="&directoryLogin.accesskey;"
-                                control="login"/>
-                         <textbox id="login" flex="1" class="uri-element"/>
-                     </row>
-                 </rows>
-             </grid>
+             <div xmlns="http://www.w3.org/1999/xhtml" class="grid-three-column">
+                <div class="flex-items-center">
+                  <xul:label value="&directoryName.label;" accesskey="&directoryName.accesskey;"
+                             control="description"/>
+                </div>
+                <div>
+                  <xul:textbox id="description"/>
+                </div>
+                <div></div>
+                <div class="flex-items-center">
+                  <xul:label value="&directoryHostname.label;" accesskey="&directoryHostname.accesskey;"
+                             control="hostname"/>
+                </div>
+                <div>
+                  <xul:textbox id="hostname" disableiflocked="true" class="uri-element"/>
+                </div>
+                <div></div>
+                <div class="flex-items-center">
+                  <xul:label value="&directoryBaseDN.label;"
+                             accesskey="&directoryBaseDN.accesskey;"
+                             control="basedn"/>
+                </div>
+                <div>
+                  <xul:textbox id="basedn" disableiflocked="true" class="uri-element"/>
+                </div>
+                <div class="flex-items-center flex-content-center">
+                  <xul:button label="&findButton.label;"
+                              accesskey="&findButton.accesskey;" disabled="true"/>
+                </div>
+                <div class="flex-items-center">
+                  <xul:label value="&portNumber.label;"
+                             accesskey="&portNumber.accesskey;"
+                             control="port"/>
+                </div>
+                <div>
+                    <input id="port" type="number" class="size5"
+                           min="1" max="65535"
+                           disableiflocked="true"/>
+                </div>
+                <div></div>
+                <div class="flex-items-center">
+                  <xul:label value="&directoryLogin.label;"
+                             accesskey="&directoryLogin.accesskey;"
+                             control="login"/>
+                </div>
+                <div>
+                  <xul:textbox id="login" class="uri-element"/>
+                </div>
+                <div></div>
+             </div>
              <separator/>
              <checkbox id="secure" label="&directorySecure.label;"
                        accesskey="&directorySecure.accesskey;"
@@ -98,53 +102,54 @@
 
               <html:progress id="replicationProgressMeter" value="0" max="100" hidden="hidden"/>
           </vbox>
-          <grid>
-             <columns>
-               <column/>
-               <column flex="1"/>
-             </columns>
-
-             <rows>
-               <row align="center">
-                 <label value="&return.label;"
-                        accesskey="&return.accesskey;"
-                        control="results"/>
-                 <hbox align="center">
-                   <html:input id="results" type="number" class="size5"
-                               min="1" max="2147483647" value="100"/>
-                   <label value="&results.label;"/>
-                 </hbox>
-               </row>
-               <row align="center">
-                 <label value="&scope.label;" control="scope" accesskey="&scope.accesskey;"/>
-                 <radiogroup id="scope" orient="horizontal">
-                   <radio id="one" value="1" label="&scopeOneLevel.label;"
-                          disableiflocked="true" accesskey="&scopeOneLevel.accesskey;"/>
-                   <radio id="sub" value="2" label="&scopeSubtree.label;"
-                          disableiflocked="true" accesskey="&scopeSubtree.accesskey;"/>
-                 </radiogroup>
-               </row>
-               <row>
-                 <label value="&searchFilter.label;"
-                        accesskey="&searchFilter.accesskey;"
-                        control="search"/>
-                 <html:textarea id="search" flex="1" disableiflocked="true"/>
-              </row>
-              <row align="center">
-                <label value="&saslMechanism.label;" control="saslMechanism" accesskey="&saslMechanism.accesskey;"/>
-                <menulist id="saslMechanism">
-                  <menupopup>
-                    <menuitem id="Simple" value=""
-                              label="&saslOff.label;"
-                              accesskey="&saslOff.accesskey;"/>
-                    <menuitem id="GSSAPI" value="GSSAPI"
-                              label="&saslGSSAPI.label;"
-                              accesskey="&saslGSSAPI.accesskey;"/>
-                  </menupopup>
-                </menulist>
-              </row>
-            </rows>
-          </grid>
+          <vbox>
+            <div xmlns="http://www.w3.org/1999/xhtml" class="grid-two-column">
+              <div class="flex-items-center">
+                <xul:label value="&return.label;" accesskey="&return.accesskey;"
+                           control="results"/>
+              </div>
+              <div>
+                <input id="results" type="number" class="size5"
+                       min="1" max="2147483647" value="100"/>
+                <xul:label value="&results.label;"/>
+              </div>
+              <div class="flex-items-center">
+                <xul:label value="&scope.label;" control="scope"
+                           accesskey="&scope.accesskey;"/>
+              </div>
+              <div>
+                <xul:radiogroup id="scope"
+                                orient="horizontal">
+                  <xul:radio id="one" value="1" label="&scopeOneLevel.label;"
+                             disableiflocked="true" accesskey="&scopeOneLevel.accesskey;"/>
+                  <xul:radio id="sub" value="2" label="&scopeSubtree.label;"
+                             disableiflocked="true" accesskey="&scopeSubtree.accesskey;"/>
+                </xul:radiogroup>
+              </div>
+              <div class="flex-items-center">
+                <xul:label value="&searchFilter.label;"
+                           accesskey="&searchFilter.accesskey;"
+                           control="search"/>
+              </div>
+              <div>
+                <textarea id="search" flex="1" disableiflocked="true"/>
+              </div>
+              <div class="flex-items-center">
+                <xul:label value="&saslMechanism.label;" control="saslMechanism"
+                           accesskey="&saslMechanism.accesskey;"/>
+              </div>
+              <div>
+                <xul:menulist id="saslMechanism">
+                  <xul:menupopup>
+                    <xul:menuitem id="Simple" value="" label="&saslOff.label;"
+                                  accesskey="&saslOff.accesskey;"/>
+                    <xul:menuitem id="GSSAPI" value="GSSAPI" label="&saslGSSAPI.label;"
+                                  accesskey="&saslGSSAPI.accesskey;"/>
+                  </xul:menupopup>
+                </xul:menulist>
+              </div>
+            </div>
+          </vbox>
       </tabpanels>
     </tabbox>
   </vbox>
