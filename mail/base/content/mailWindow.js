@@ -678,7 +678,6 @@ nsBrowserAccess.prototype = {
       return null;
     }
 
-    let newWindow = null;
     let loadflags = isExternal ?
       Ci.nsIWebNavigation.LOAD_FLAGS_FROM_EXTERNAL :
       Ci.nsIWebNavigation.LOAD_FLAGS_NONE;
@@ -714,7 +713,9 @@ nsBrowserAccess.prototype = {
                                                 opener: aOpener,
                                                 clickHandler});
 
-    newWindow = newTab.browser.docShell.domWindow;
+    let docShell = newTab.browser.docShell;
+    let newWindow = docShell.domWindow;
+    let browsingContext = docShell.browsingContext;
     try {
       if (aURI) {
         let referrer = null;
@@ -729,7 +730,7 @@ nsBrowserAccess.prototype = {
         newWindow.focus();
     } catch (e) {
     }
-    return newWindow;
+    return browsingContext;
   },
 
   isTabContentWindow(aWindow) {
