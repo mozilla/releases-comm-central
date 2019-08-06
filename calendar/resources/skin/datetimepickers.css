@@ -89,16 +89,23 @@ grid[anonid="time-picker-hour-grid"] {
 
 /* Box in each cell of the grid for hours */
 
-.time-picker-hour-box-class {
+.time-picker-hour-grid[format12hours="false"] .time-picker-hour-box-class {
+  min-width      : 28px;
+  -moz-box-align : center;
+  border-left    : 1px solid ThreeDShadow;
+}
+
+.time-picker-hour-grid[format12hours="true"] .time-picker-hour-box-class {
   min-width      : 24px;
   -moz-box-align : center;
-  border-left    : 1px solid ThreeDShadow; 
+  border-left    : 1px solid ThreeDShadow;
 }
 
 .timepicker-topRow-hour-class {
   border-bottom  : 1px solid ThreeDShadow;
 }
-grid[anonid="time-picker-hour-grid"][format12hours="true"] .timepicker-topRow-hour-class {
+
+.time-picker-hour-grid[format12hours="true"] .timepicker-topRow-hour-class {
   border-bottom  : 2px solid ThreeDShadow;
 }
 
@@ -153,14 +160,14 @@ grid[anonid="time-picker-hour-grid"][format12hours="true"] .timepicker-topRow-ho
 
 /* box around five minute grid */
 
-vbox[anonid="time-picker-five-minute-grid-box"] {
+.time-picker-five-minute-grid-box {
   min-width   : 195px;
   margin-inline-start : 1px;
 }
 
 /* five minute grid */
 
-grid[anonid="time-picker-five-minute-grid"] {
+.time-picker-five-minute-grid {
   margin-top       : 2px;
   margin-inline-end     : 1px;
   border-top       : 1px solid ThreeDShadow; 
@@ -194,15 +201,14 @@ grid[anonid="time-picker-five-minute-grid"] {
 }
 
 /* box around one minute grid */
-
-vbox[anonid="time-picker-one-minute-grid-box"] {
+.time-picker-one-minute-grid-box {
   min-width   : 195px;
   margin-inline-start : 1px;
 }
 
 /* one minute grid */
 
-grid[anonid="time-picker-one-minute-grid"] {
+.time-picker-one-minute-grid {
   margin-top       : 2px;
   margin-inline-end     : 1px;
   border-top       : 1px solid ThreeDShadow;
