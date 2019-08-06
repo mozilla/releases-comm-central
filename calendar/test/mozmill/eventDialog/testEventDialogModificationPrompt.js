@@ -66,7 +66,7 @@ function testEventDialogModificationPrompt() {
     invokeEventDialog(controller, createbox, (event, iframe) => {
         let { eid: eventid } = helpersForController(event);
 
-        let categories = cal.calGetString("categories", "categories2").split(",");
+        let categories = cal.l10n.getAnyString("calendar", "categories", "categories2").split(",");
         data[0].categories.push(categories[0]);
         data[1].categories.push(categories[1], categories[2]);
 

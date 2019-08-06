@@ -8,7 +8,6 @@ var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
-ChromeUtils.defineModuleGetter(this, "Deprecated", "resource://gre/modules/Deprecated.jsm");
 
 /*
  * Helpers and base class for calendar providers
@@ -112,30 +111,6 @@ var calprovider = {
      */
     createStreamLoader: function() {
         return Cc["@mozilla.org/network/stream-loader;1"].createInstance(Ci.nsIStreamLoader);
-    },
-
-    /**
-     * Convert a byte array to a string
-     *
-     * @param {octet[]} aResult         The bytes to convert
-     * @param {Number} aResultLength    The number of bytes
-     * @param {String} aCharset         The character set of the bytes, defaults to utf-8
-     * @param {Boolean} aThrow          If true, the function will raise an exception on error
-     * @return {?String}                The string result, or null on error
-     */
-    convertByteArray: function(aResult, aResultLength, aCharset="utf-8", aThrow) {
-        Deprecated.warning(
-            "The cal.provider.convertByteArray() function has been superseded by the use of TextDecoder.",
-            "https://bugzilla.mozilla.org/show_bug.cgi?id=1469499"
-        );
-        try {
-            return new TextDecoder(aCharset).decode(Uint8Array.from(aResult));
-        } catch (e) {
-            if (aThrow) {
-                throw e;
-            }
-        }
-        return null;
     },
 
     /**

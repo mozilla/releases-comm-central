@@ -107,7 +107,7 @@ function helpersForEditUI(controller) {
         return sel.trim().replace(/\n(\s*)/g, "");
     }
 
-    let isEvent = cal.isEvent(controller.window.calendarItem);
+    let isEvent = cal.item.isEvent(controller.window.calendarItem);
 
     let obj = {
         iframeLookup: (path) => {
@@ -210,7 +210,7 @@ function setData(dialog, iframe, data) {
     let { eid: iframeid } = helpersForController(iframe);
     let { iframeLookup, getDateTimePicker } = helpersForEditUI(iframe);
 
-    let isEvent = cal.isEvent(iframe.window.calendarItem);
+    let isEvent = cal.item.isEvent(iframe.window.calendarItem);
 
     let startdateInput = getDateTimePicker("STARTDATE");
     let enddateInput = getDateTimePicker("ENDDATE");

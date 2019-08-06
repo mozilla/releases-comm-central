@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Deprecated } = ChromeUtils.import("resource://gre/modules/Deprecated.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calHashedArray.jsm");
@@ -14,7 +13,7 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calHashedArray.jsm
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.item namespace.
 
-this.EXPORTED_SYMBOLS = ["calitem", "itemDiff"]; /* exported calitem, itemDiff */
+this.EXPORTED_SYMBOLS = ["calitem"];
 
 var calitem = {
     ItemDiff: (function() {
@@ -665,13 +664,3 @@ var calitem = {
         return "future";
     }
 };
-
-// Backwards compatibility for bug 905097. Please remove with Thunderbird 61.
-class itemDiff extends calitem.ItemDiff {
-    constructor(...args) {
-        super(...args);
-        Deprecated.warning("calItemUtils' itemDiff has changed to calUtils' cal.item.ItemDiff",
-                           "https://bugzilla.mozilla.org/show_bug.cgi?id=905097",
-                           Components.stack.caller);
-    }
-}

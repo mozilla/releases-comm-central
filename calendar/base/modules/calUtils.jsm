@@ -517,7 +517,3 @@ function makeQI(aInterfaces) {
         throw Cr.NS_ERROR_NO_INTERFACE;
     };
 }
-
-// Backwards compatibility for bug 905097. Please remove with Thunderbird 61.
-var { injectCalUtilsCompat } = ChromeUtils.import("resource://calendar/modules/calUtilsCompat.jsm");
-injectCalUtilsCompat(cal);

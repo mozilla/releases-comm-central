@@ -113,11 +113,11 @@ function testEventDialog() {
         event.assertValue(iframeId("item-calendar"), CALENDARNAME);
 
         // Check standard title.
-        let defTitle = cal.calGetString("calendar", "newEvent");
+        let defTitle = cal.l10n.getAnyString("calendar", "calendar", "newEvent");
         event.assertValue(eventid("item-title"), defTitle);
 
         // Prepare category.
-        let categories = cal.calGetString("categories", "categories2");
+        let categories = cal.l10n.getAnyString("calendar", "categories", "categories2");
         // Pick 4th value in a comma-separated list.
         let category = categories.split(",")[4];
         // Calculate date to repeat until.

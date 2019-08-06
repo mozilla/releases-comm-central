@@ -89,7 +89,7 @@
              oncommand="PrintUtils.showPageSetup()"/>
     <command id="cmd_print"
              disabled="true"
-             oncommand="cal.calPrint(window)"/>
+             oncommand="cal.window.openPrintDialog(window)"/>
 
     <!-- Edit menu -->
     <command id="cmd_undo"

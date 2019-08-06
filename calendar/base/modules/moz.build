@@ -25,23 +25,9 @@ EXTRA_JS_MODULES.utils += [
 ]
 
 EXTRA_JS_MODULES += [
-    'shim/calAlarmUtils.jsm',
-    'shim/calAsyncUtils.jsm',
-    'shim/calAuthUtils.jsm',
-    'shim/calItemUtils.jsm',
-    'shim/calIteratorUtils.jsm',
-    'shim/calItipUtils.jsm',
-    'shim/calPrintUtils.jsm',
-    'shim/calProviderUtils.jsm',
-    'shim/calViewUtils.jsm',
-    'shim/calXMLUtils.jsm',
-]
-
-EXTRA_JS_MODULES += [
     'calExtract.jsm',
     'calHashedArray.jsm',
     'calRecurrenceUtils.jsm',
     'calUtils.jsm',
-    'calUtilsCompat.jsm',
     'ical.js',
 ]
