@@ -94,13 +94,14 @@
                             </hbox>
                           </vbox>
                         </hbox>
-                        <richlistbox is="attachment-list" id="attachmentList"
-                                     class="attachmentList"
-                                     orient="horizontal"
-                                     seltype="multiple"
-                                     flex="1"
-                                     context="attachmentListContext"
-                                     itemcontext="attachmentItemContext"
-                                     role="listbox"
-                                     ondragstart="nsDragAndDrop.startDrag(event, attachmentListDNDObserver);"
-                                     ondragover="nsDragAndDrop.dragOver(event, attachmentListDNDObserver);"/>
+                        <hbox class="attachments-container">
+                          <richlistbox is="attachment-list" id="attachmentList"
+                                       class="attachmentList"
+                                       orient="horizontal"
+                                       seltype="multiple"
+                                       context="attachmentListContext"
+                                       itemcontext="attachmentItemContext"
+                                       role="listbox"
+                                       ondragstart="nsDragAndDrop.startDrag(event, attachmentListDNDObserver);"
+                                       ondragover="nsDragAndDrop.dragOver(event, attachmentListDNDObserver);"/>
+                        </hbox>
