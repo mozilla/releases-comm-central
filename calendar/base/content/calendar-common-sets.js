@@ -792,7 +792,7 @@ var calendarController2 = {
  * controller.
  */
 function injectCalendarCommandController() {
-    calendarController.defaultController = document.getElementById("tabmail");
+    calendarController.defaultController = document.getElementById("tabmail").tabController;
     top.controllers.insertControllerAt(0, calendarController);
     document.commandDispatcher.updateCommands("calendar_commands");
 }

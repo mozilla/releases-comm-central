@@ -54,10 +54,6 @@ search-value {
   min-width: 10em;
 }
 
-tabmail {
-  -moz-binding: url("chrome://messenger/content/tabmail.xml#tabmail");
-}
-
 .chromeclass-toolbar {
   overflow-x: hidden;
 }

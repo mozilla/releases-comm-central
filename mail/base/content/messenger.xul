@@ -473,8 +473,8 @@
        A mechanism for adding sidebar panes will be added in bug 476154. -->
   <hbox id="tabmail-container" flex="1">
     <!-- Beware!  Do NOT use overlays to append nodes directly to tabmail (children
-         of tabmail is OK though).  This will break Ctrl-tab switching because
-         the XBL binding will choke when it finds a child of tabmail that is
+         of tabmail is OK though). This will break Ctrl-tab switching because
+         the Custom Element will choke when it finds a child of tabmail that is
          not a tabpanels node. -->
     <tabmail id="tabmail" flex="1" panelcontainer="tabpanelcontainer" tabcontainer="tabmail-tabs">
      <tabbox id="tabmail-tabbox" flex="1" eventnode="document" tabcontainer="tabmail-tabs">

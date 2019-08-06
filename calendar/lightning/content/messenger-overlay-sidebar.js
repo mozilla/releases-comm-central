@@ -168,8 +168,8 @@ var calendarTabType = {
 
 /**
  * For details about tab info objects and the tabmail interface see:
- * comm-central/mail/base/content/mailTabs.js
- * comm-central/mail/base/content/tabmail.xml
+ * comm/mail/base/content/mailTabs.js
+ * comm/mail/base/content/tabmail.js
  */
 var calendarItemTabType = {
     name: "calendarItem",
