@@ -113,6 +113,19 @@ const ADDONS = {
   },
 };
 
+var startupCacheMonitor = {
+  notificationFired: false,
+  observe() {
+    this.notificationFired = true;
+  },
+  // Checks that the notification has been fired since the last time this was called.
+  check(expected) {
+    equal(this.notificationFired, expected);
+    this.notificationFired = false;
+  },
+};
+Services.obs.addObserver(startupCacheMonitor, "startupcache-invalidate");
+
 var testserver = AddonTestUtils.createHttpServer({hosts: ["example.com"]});
 
 const XPIS = {};
@@ -269,6 +282,8 @@ add_task(async function test_1() {
 
   let dir = do_get_addon_root_uri(profileDir, ID1);
   equal(b1.getResourceURI("bootstrap.js").spec, dir + "bootstrap.js");
+
+  startupCacheMonitor.check(false);
 });
 
 // Tests that disabling doesn't require a restart
@@ -307,6 +322,7 @@ add_task(async function test_2() {
   ok(!newb1.isActive);
 
   await checkBootstrappedPref();
+  startupCacheMonitor.check(false);
 });
 
 // Test that restarting doesn't accidentally re-enable
@@ -336,6 +352,7 @@ add_task(async function test_3() {
   ok(!b1.isActive);
 
   await checkBootstrappedPref();
+  startupCacheMonitor.check(false);
 });
 
 // Tests that enabling doesn't require a restart
@@ -373,6 +390,7 @@ add_task(async function test_4() {
   ok(newb1.isActive);
 
   await checkBootstrappedPref();
+  startupCacheMonitor.check(false);
 });
 
 // Tests that a restart shuts down and restarts the add-on
@@ -402,6 +420,7 @@ add_task(async function test_5() {
   ok(!b1.isSystem);
 
   await checkBootstrappedPref();
+  startupCacheMonitor.check(false);
 });
 
 // Tests that installing an upgrade doesn't require a restart
@@ -434,6 +453,8 @@ add_task(async function test_6() {
       install.install();
     }),
   ]);
+
+  startupCacheMonitor.check(true);
 
   let b1 = await AddonManager.getAddonByID(ID1);
   notEqual(b1, null);
@@ -471,6 +492,7 @@ add_task(async function test_7() {
   await b1.uninstall();
 
   await checkBootstrappedPref();
+  startupCacheMonitor.check(true);
 
   ensure_test_completed();
   BootstrapMonitor.checkAddonNotInstalled(ID1);
@@ -488,6 +510,7 @@ add_task(async function test_7() {
   equal(newb1, null);
 
   await checkBootstrappedPref();
+  startupCacheMonitor.check(false);
 });
 
 // Test that a bootstrapped extension dropped into the profile loads properly
@@ -497,6 +520,7 @@ add_task(async function test_8() {
 
   await manuallyInstall(XPIS.test_bootstrap1_1, profileDir, ID1);
 
+  startupCacheMonitor.check(false);
   await promiseStartupManager();
 
   let b1 = await AddonManager.getAddonByID(ID1);
@@ -529,6 +553,7 @@ add_task(async function test_9() {
   do_check_not_in_crash_annotation(ID1, "1.0");
 
   await checkBootstrappedPref();
+  startupCacheMonitor.check(false);
 });
 
 
@@ -564,6 +589,7 @@ add_task(async function test_10() {
     }),
   ]);
 
+  startupCacheMonitor.check(false);
 
   let b1 = await AddonManager.getAddonByID(ID1);
   notEqual(b1, null);
@@ -607,6 +633,8 @@ add_task(async function test_10() {
     }),
   ]);
 
+  startupCacheMonitor.check(true);
+
   b1 = await AddonManager.getAddonByID(ID1);
   notEqual(b1, null);
   equal(b1.version, "1.0");
@@ -626,6 +654,7 @@ add_task(async function test_10() {
   do_check_not_in_crash_annotation(ID1, "2.0");
 
   await checkBootstrappedPref();
+  startupCacheMonitor.check(false);
 });
 
 // Tests that uninstalling a disabled add-on still calls the uninstall method
@@ -649,6 +678,7 @@ add_task(async function test_11() {
   do_check_not_in_crash_annotation(ID1, "1.0");
 
   await b1.uninstall();
+  startupCacheMonitor.check(true);
 
   ensure_test_completed();
   BootstrapMonitor.checkAddonNotInstalled(ID1);
@@ -681,6 +711,7 @@ add_task(async function test_12() {
   do_check_in_crash_annotation(ID1, "1.0");
 
   await b1.uninstall();
+  startupCacheMonitor.check(true);
 
   await promiseRestartManager();
   await checkBootstrappedPref();
@@ -704,6 +735,7 @@ add_task(async function test_17() {
   ok(!b1.isSystem);
 
   await checkBootstrappedPref();
+  startupCacheMonitor.check(false);
 });
 
 // Check that installing a new bootstrapped extension in the profile replaces
@@ -713,6 +745,7 @@ add_task(async function test_18() {
     BootstrapMonitor.promiseAddonStartup(ID1),
     promiseInstallFile(XPIS.test_bootstrap1_2),
   ]);
+  startupCacheMonitor.check(true);
 
   let b1 = await AddonManager.getAddonByID(ID1);
   // Should have installed and started
@@ -734,6 +767,7 @@ add_task(async function test_18() {
   equal(getStartupOldVersion(), 1);
 
   await checkBootstrappedPref();
+  startupCacheMonitor.check(false);
 });
 
 // Check that uninstalling the profile version reveals the non-profile one
@@ -752,6 +786,8 @@ add_task(async function test_19() {
 
     b1.uninstall();
   });
+
+  startupCacheMonitor.check(true);
 
   b1 = await AddonManager.getAddonByID(ID1);
   // Should have reverted to the older version
@@ -773,4 +809,5 @@ add_task(async function test_19() {
   equal(getStartupOldVersion(), "2.0");
 
   await checkBootstrappedPref();
+  startupCacheMonitor.check(false);
 });

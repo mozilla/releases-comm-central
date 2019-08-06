@@ -306,25 +306,52 @@ this.legacy = class extends ExtensionAPI {
     let shutdown = findMethod("shutdown");
 
     return {
-      install: (...args) => install(...args),
+      install(...args) {
+        try {
+          install(...args);
+        } catch (ex) {
+          logger.warn(
+            `Exception running bootstrap method install on ${extension.id}`,
+            ex
+          );
+        }
+      },
 
       uninstall(...args) {
-        uninstall(...args);
-        // Forget any cached files we might've had from this extension.
-        Services.obs.notifyObservers(null, "startupcache-invalidate");
+        try {
+          uninstall(...args);
+        } catch (ex) {
+          logger.warn(
+            `Exception running bootstrap method uninstall on ${extension.id}`,
+            ex
+          );
+        } finally {
+          // Forget any cached files we might've had from this extension.
+          Services.obs.notifyObservers(null, "startupcache-invalidate");
+        }
       },
 
       startup(...args) {
         logger.debug(`Registering manifest for ${file.path}\n`);
         Components.manager.addBootstrappedManifestLocation(file);
-        return startup(...args);
+        try {
+          startup(...args);
+        } catch (ex) {
+          logger.warn(
+            `Exception running bootstrap method startup on ${extension.id}`,
+            ex
+          );
+        }
       },
 
       shutdown(data, reason) {
         try {
-          return shutdown(data, reason);
-        } catch (err) {
-          throw err;
+          shutdown(data, reason);
+        } catch (ex) {
+          logger.warn(
+            `Exception running bootstrap method shutdown on ${extension.id}`,
+            ex
+          );
         } finally {
           if (reason != BOOTSTRAP_REASONS.APP_SHUTDOWN) {
             logger.debug(`Removing manifest for ${file.path}\n`);
