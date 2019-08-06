@@ -33,10 +33,10 @@ var {BrowserToolboxProcess} = ChromeUtils.import("resource://devtools/client/fra
 var {ScratchpadManager} = ChromeUtils.import("resource://devtools/client/scratchpad/scratchpad-manager.jsm");
 var {ExtensionParent} = ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
 var {ExtensionSupport} = ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
-Object.defineProperty(this, "HUDService", {
+Object.defineProperty(this, "BrowserConsoleManager", {
   get() {
     let { loader } = ChromeUtils.import("resource://devtools/shared/Loader.jsm");
-    return loader.require("devtools/client/webconsole/hudservice").HUDService;
+    return loader.require("devtools/client/webconsole/browser-console-manager").BrowserConsoleManager;
   },
   configurable: true,
   enumerable: true,

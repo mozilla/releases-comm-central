@@ -396,7 +396,7 @@ function onViewToolbarsPopupShowing(event, toolboxIds, insertPoint,
 }
 
 function toJavaScriptConsole() {
-  HUDService.openBrowserConsoleOrFocus();
+  BrowserConsoleManager.openBrowserConsoleOrFocus();
 }
 
 function openAboutDebugging(hash) {
