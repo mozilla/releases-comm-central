@@ -710,7 +710,7 @@ nsresult nsMapiHook::PopulateCompFieldsW(lpnsMapiMessageW aMessage,
             (aMessage->lpRecips[i].lpszAddress)
                 ? aMessage->lpRecips[i].lpszAddress
                 : aMessage->lpRecips[i].lpszName;
-        if (nsDependentString(addressWithoutType, 5).EqualsASCII("SMTP:") == 0)
+        if (_wcsnicmp(addressWithoutType, L"SMTP:", 5) == 0)
           addressWithoutType += 5;
         switch (aMessage->lpRecips[i].ulRecipClass) {
           case MAPI_TO:
