@@ -6,3 +6,8 @@
     font-weight: bold;
     margin-inline-start: 3em;
 }
+
+#calendar-list richlistitem[selected] {
+  color: unset;
+  background-color: unset;
+}

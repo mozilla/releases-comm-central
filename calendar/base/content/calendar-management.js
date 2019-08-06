@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* exported promptDeleteCalendar, loadCalendarManager, unloadCalendarManager,
- *         updateSortOrderPref, calendarListTooltipShowing,
- *         calendarListSetupContextMenu, ensureCalendarVisible, toggleCalendarVisible,
- *         showAllCalendars, showOnlyCalendar, openCalendarSubscriptionsDialog,
+ *         calendarListTooltipShowing, calendarListSetupContextMenu,
+ *         ensureCalendarVisible, toggleCalendarVisible, showAllCalendars,
+ *         showOnlyCalendar, openCalendarSubscriptionsDialog,
  *         calendarOfflineManager
  */
 
@@ -86,14 +86,11 @@ function promptDeleteCalendar(aCalendar) {
 /**
  * Called to initialize the calendar manager for a window.
  */
-async function loadCalendarManager() {
+function loadCalendarManager() {
+    let calendarList = document.getElementById("calendar-list");
+
     // Set up the composite calendar in the calendar list widget.
-    let tree = document.getElementById("calendar-list-tree-widget");
     let compositeCalendar = cal.view.getCompositeCalendar(window);
-    if (!tree.__lookupSetter__("compositeCalendar")) {
-        await new Promise(resolve => tree.addEventListener("bindingattached", resolve, { once: true }));
-    }
-    tree.compositeCalendar = compositeCalendar;
 
     // Initialize our composite observer
     compositeCalendar.addObserver(compositeObserver);
@@ -112,6 +109,273 @@ async function loadCalendarManager() {
     } else {
         initHomeCalendar();
     }
+
+    let calendarManager = cal.getCalendarManager();
+
+    for (let calendar of sortCalendarArray(cal.getCalendarManager().getCalendars({}))) {
+        addCalendarItem(calendar);
+    }
+
+    function addCalendarItem(calendar) {
+        let item = document.createXULElement("richlistitem");
+        item.searchLabel = calendar.name;
+        item.setAttribute("calendar-id", calendar.id);
+        if (calendar.getProperty("disabled")) {
+            item.setAttribute("calendar-disabled", "true");
+        }
+        if (!Components.isSuccessCode(calendar.getProperty("currentStatus"))) {
+            item.setAttribute("calendar-readfailed", "true");
+        }
+        if (calendar.readOnly) {
+            item.setAttribute("calendar-readonly", "true");
+        }
+
+        let checkbox = document.createXULElement("checkbox");
+        checkbox.classList.add("calendar-displayed");
+        checkbox.checked = calendar.getProperty("calendar-main-in-composite");
+        if (calendar.getProperty("disabled")) {
+            checkbox.setAttribute("disabled", "true");
+        }
+        item.appendChild(checkbox);
+
+        let cssSafeId = cal.view.formatStringForCSSRule(calendar.id);
+        let image = document.createXULElement("image");
+        image.classList.add("calendar-color");
+        item.appendChild(image);
+        image.style.backgroundColor = `var(--calendar-${cssSafeId}-backcolor)`;
+
+        let label = document.createXULElement("label");
+        label.classList.add("calendar-name");
+        label.value = calendar.name;
+        item.appendChild(label);
+
+        image = document.createXULElement("image");
+        image.classList.add("calendar-readstatus");
+        image.setAttribute("tooltip", "calendar-list-tooltip");
+        item.appendChild(image);
+
+        calendarList.appendChild(item);
+        if (calendar.getProperty("calendar-main-default")) {
+            calendarList.selectedItem = item;
+        }
+    }
+
+    calendarList.addEventListener("click", (event) => {
+        if (!event.target.matches("checkbox.calendar-displayed")) {
+            return;
+        }
+
+        let item = event.target.closest("richlistitem");
+        let calendarId = item.getAttribute("calendar-id");
+        let calendar = calendarManager.getCalendarById(calendarId);
+
+        if (event.target.checked) {
+            compositeCalendar.addCalendar(calendar);
+        } else {
+            compositeCalendar.removeCalendar(calendar);
+        }
+        calendarList.focus();
+    });
+    calendarList.addEventListener("dblclick", (event) => {
+        if (event.target.matches("checkbox.calendar-displayed")) {
+            return;
+        }
+
+        let item = event.target.closest("richlistitem");
+        if (!item) {
+            // Click on an empty part of the richlistbox.
+            cal.window.openCalendarWizard(window);
+            return;
+        }
+
+        let calendarId = item.getAttribute("calendar-id");
+        let calendar = calendarManager.getCalendarById(calendarId);
+        cal.window.openCalendarProperties(window, calendar);
+    });
+    calendarList.addEventListener("dragstart", (event) => {
+        let item = event.target.closest("richlistitem");
+        if (!item) {
+            return;
+        }
+
+        let calendarId = item.getAttribute("calendar-id");
+        event.dataTransfer.setData("application/x-moz-calendarid", calendarId);
+        event.dataTransfer.effectAllowed = "move";
+    });
+    calendarList.addEventListener("dragenter", (event) => {
+        if (event.target == calendarList &&
+                event.dataTransfer.types.includes("application/x-moz-calendarid")) {
+            event.dataTransfer.dropEffect = "move";
+            event.preventDefault();
+        }
+    });
+    calendarList.addEventListener("dragover", (event) => {
+        event.preventDefault();
+
+        let existing = calendarList.querySelector("[drop-on]");
+        if (existing) {
+            existing.removeAttribute("drop-on");
+        }
+
+        if (event.target == calendarList) {
+            calendarList.lastChild.setAttribute("drop-on", "bottom");
+            return;
+        }
+
+        let item = event.target.closest("richlistitem");
+        if (item) {
+            // If we're dragging/dropping in bottom half of attachmentitem,
+            // adjust target to target.nextSibling (to show dropmarker above that).
+            if ((event.screenY - item.screenY) / item.getBoundingClientRect().height >= 0.5) {
+                item = item.nextElementSibling;
+            }
+            if (item) {
+                item.setAttribute("drop-on", "top");
+            } else {
+                calendarList.lastElementChild.setAttribute("drop-on", "bottom");
+            }
+        }
+    });
+    calendarList.addEventListener("dragexit", (event) => {
+        if (event.target != calendarList) {
+            return;
+        }
+
+        let existing = calendarList.querySelector("[drop-on]");
+        if (existing) {
+            existing.removeAttribute("drop-on");
+        }
+    });
+    calendarList.addEventListener("dragend", (event) => {
+        let existing = calendarList.querySelector("[drop-on]");
+        if (existing) {
+            existing.removeAttribute("drop-on");
+        }
+    });
+    calendarList.addEventListener("drop", (event) => {
+        let existing = calendarList.querySelector("[drop-on]");
+        let position = existing.getAttribute("drop-on");
+        if (!existing) {
+            return;
+        }
+
+        existing.removeAttribute("drop-on");
+
+        let calendarId = event.dataTransfer.getData("application/x-moz-calendarid");
+        if (calendarId == existing.getAttribute("calendar-id")) {
+            return;
+        }
+
+        let item = calendarList.getElementsByAttribute("calendar-id", calendarId)[0];
+        if (position == "bottom") {
+            existing = null;
+        }
+        calendarList.insertBefore(item, existing);
+
+        let order = [...calendarList.children].map(i => i.getAttribute("calendar-id"));
+        Services.prefs.setStringPref("calendar.list.sortOrder", order.join(" "));
+        try {
+            Services.prefs.savePrefFile(null);
+        } catch (ex) {
+            cal.ERROR(ex);
+        }
+    });
+    calendarList.addEventListener("keypress", (event) => {
+        let item = calendarList.selectedItem;
+        let calendarId = item.getAttribute("calendar-id");
+        let calendar = calendarManager.getCalendarById(calendarId);
+
+        switch (event.key) {
+            case "Delete":
+                promptDeleteCalendar(calendar);
+                break;
+            case " ": {
+                if (item.querySelector(".calendar-displayed").checked) {
+                    compositeCalendar.removeCalendar(calendar);
+                } else {
+                    compositeCalendar.addCalendar(calendar);
+                }
+                break;
+            }
+        }
+    });
+    calendarList.addEventListener("select", (event) => {
+        let item = calendarList.selectedItem;
+        let calendarId = item.getAttribute("calendar-id");
+        let calendar = calendarManager.getCalendarById(calendarId);
+
+        compositeCalendar.defaultCalendar = calendar;
+    });
+
+    calendarList._calendarObserver = {
+        QueryInterface: ChromeUtils.generateQI([Ci.calIObserver]),
+
+        onStartBatch() {},
+        onEndBatch() {},
+        onLoad() {},
+        onAddItem(item) {},
+        onModifyItem(newItem, oldItem) {},
+        onDeleteItem(deletedItem) {},
+        onError(calendar, errNo, message) {},
+
+        onPropertyChanged(calendar, name, value, oldValue) {
+            let item = calendarList.getElementsByAttribute("calendar-id", calendar.id)[0];
+            if (!item) {
+                return;
+            }
+
+            switch (name) {
+                case "disabled":
+                    setBooleanAttribute(item, "calendar-disabled", value);
+                    setBooleanAttribute(item.querySelector(".calendar-displayed"), "disabled", value);
+                    break;
+                case "calendar-main-default":
+                    if (value) {
+                        calendarList.selectedItem = item;
+                    }
+                    break;
+                case "calendar-main-in-composite":
+                    setBooleanAttribute(item.querySelector(".calendar-displayed"), "checked", value);
+                    break;
+                case "name":
+                    item.searchLabel = calendar.name;
+                    item.querySelector(".calendar-name").value = value;
+                    break;
+                case "currentStatus":
+                    setBooleanAttribute(item, "calendar-readfailed", !Components.isSuccessCode(value));
+                    break;
+                case "readOnly":
+                    setBooleanAttribute(item, "calendar-readonly", value);
+                    break;
+            }
+        },
+
+        onPropertyDeleting(calendar, name) {
+            // Since the old value is not used directly in onPropertyChanged, but
+            // should not be the same as the value, set it to a different value.
+            this.onPropertyChanged(calendar, name, null, null);
+        }
+    };
+    calendarManager.addCalendarObserver(calendarList._calendarObserver);
+
+    calendarList._calendarManagerObserver = {
+        QueryInterface: ChromeUtils.generateQI([Ci.calICalendarManagerObserver]),
+
+        onCalendarRegistered(calendar) {
+            let inComposite = calendar.getProperty("calendar-main-in-composite");
+            if (inComposite === null) {
+                compositeCalendar.addCalendar(calendar);
+            }
+            addCalendarItem(calendar);
+        },
+        onCalendarUnregistering(calendar) {
+            compositeCalendar.removeCalendar(calendar);
+            let item = calendarList.getElementsByAttribute("calendar-id", calendar.id)[0];
+            item.remove();
+        },
+        onCalendarDeleting(calendar) {},
+    };
+    calendarManager.addObserver(calendarList._calendarManagerObserver);
 }
 
 /**
@@ -147,23 +411,11 @@ function unloadCalendarManager() {
     let compositeCalendar = cal.view.getCompositeCalendar(window);
     compositeCalendar.setStatusObserver(null, null);
     compositeCalendar.removeObserver(compositeObserver);
-}
 
-/**
- * Updates the sort order preference based on the given event. The event is a
- * "SortOrderChanged" event, emitted from the calendar-list-tree binding. You
- * can also pass in an object like { sortOrder: "Space separated calendar ids" }
- *
- * @param event     The SortOrderChanged event described above.
- */
-function updateSortOrderPref(event) {
-    let sortOrderString = event.sortOrder.join(" ");
-    Services.prefs.setStringPref("calendar.list.sortOrder", sortOrderString);
-    try {
-        Services.prefs.savePrefFile(null);
-    } catch (e) {
-        cal.ERROR(e);
-    }
+    let calendarList = document.getElementById("calendar-list");
+    let calendarManager = cal.getCalendarManager();
+    calendarManager.removeCalendarObserver(calendarList._calendarObserver);
+    calendarManager.removeObserver(calendarList._calendarManagerObserver);
 }
 
 /**
@@ -172,19 +424,22 @@ function updateSortOrderPref(event) {
  * @param event     The DOM event provoked by the tooltip showing.
  */
 function calendarListTooltipShowing(event) {
-    let tree = document.getElementById("calendar-list-tree-widget");
-    let calendar = tree.getCalendarFromEvent(event);
-    let tooltipText = false;
-    if (calendar) {
-        let currentStatus = calendar.getProperty("currentStatus");
-        if (!Components.isSuccessCode(currentStatus)) {
-            tooltipText = cal.l10n.getCalString("tooltipCalendarDisabled", [calendar.name]);
-        } else if (calendar.readOnly) {
-            tooltipText = cal.l10n.getCalString("tooltipCalendarReadOnly", [calendar.name]);
-        }
+    let realTarget = document.elementFromPoint(event.clientX, event.clientY);
+    let item = realTarget.closest("richlistitem");
+    if (!item) {
+        return false;
     }
+
+    let calendarName = item.querySelector(".calendar-name").value;
+    let tooltipText;
+    if (item.hasAttribute("calendar-readfailed")) {
+        tooltipText = cal.l10n.getCalString("tooltipCalendarDisabled", [calendarName]);
+    } else if (item.hasAttribute("calendar-readonly")) {
+        tooltipText = cal.l10n.getCalString("tooltipCalendarReadOnly", [calendarName]);
+    }
+
     setElementValue("calendar-list-tooltip", tooltipText, "label");
-    return (tooltipText !== false);
+    return !!tooltipText;
 }
 
 /**
@@ -194,34 +449,17 @@ function calendarListTooltipShowing(event) {
  * @return              Returns true if the context menu should be shown.
  */
 function calendarListSetupContextMenu(event) {
-    let col = {};
-    let row = {};
     let calendar;
-    let calendars = cal.getCalendarManager().getCalendars({});
-    let treeNode = document.getElementById("calendar-list-tree-widget");
     let composite = cal.view.getCompositeCalendar(window);
 
-    if (document.popupNode.localName == "tree") {
-        // Using VK_APPS to open the context menu will target the tree
-        // itself. In that case we won't have a client point even for
-        // opening the context menu. The "target" element should then be the
-        // selected calendar.
-        row.value = treeNode.tree.currentIndex;
-
-        col.value = treeNode.tree.columns.getColumnFor(
-            treeNode.querySelector(".calendarname-treecol"));
-
-        calendar = treeNode.getCalendar(row.value);
-    } else {
-        // Using the mouse, the context menu will open on the treechildren
-        // element. Here we can use client points.
-        calendar = treeNode.getCalendarFromEvent(event, col, row);
+    if (document.popupNode.matches("checkbox.calendar-displayed")) {
+        return;
     }
 
-    if (col.value &&
-        col.value.element.getAttribute("anonid") == "checkbox-treecol") {
-        // Don't show the context menu if the checkbox was clicked.
-        return false;
+    let item = document.popupNode.closest("richlistitem");
+    if (item) {
+        let calendarId = item.getAttribute("calendar-id");
+        calendar = cal.getCalendarManager().getCalendarById(calendarId);
     }
 
     document.getElementById("list-calendars-context-menu").contextCalendar = calendar;
@@ -254,6 +492,7 @@ function calendarListSetupContextMenu(event) {
         setupDeleteMenuitem("list-calendars-context-delete", calendar);
         // Only enable the delete calendars item if there is more than one
         // calendar. We don't want to have the last calendar deleted.
+        let calendars = cal.getCalendarManager().getCalendars({});
         setElementValue("list-calendars-context-delete", calendars.length < 2 && "true", "disabled");
     } else {
         disableElement("list-calendars-context-edit");
@@ -265,7 +504,6 @@ function calendarListSetupContextMenu(event) {
         setElementValue("list-calendars-context-showonly", true, "collapsed");
         setupDeleteMenuitem("list-calendars-context-delete", null);
     }
-    return true;
 }
 
 /**
@@ -302,9 +540,10 @@ function ensureCalendarVisible(aCalendar) {
     // If the main window has been closed this function may still be called,
     // like when an event/task window is still open and the user clicks 'save',
     // thus we have the extra checks.
-    let list = document.getElementById("calendar-list-tree-widget");
-    if (list && list.ensureCalendarVisible) {
-        list.ensureCalendarVisible(aCalendar);
+    let calendarList = document.getElementById("calendar-list");
+    if (calendarList) {
+        let compositeCalendar = cal.view.getCompositeCalendar(window);
+        compositeCalendar.addCalendar(aCalendar);
     }
 }
 

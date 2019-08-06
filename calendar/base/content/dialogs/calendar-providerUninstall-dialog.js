@@ -10,10 +10,32 @@ function onLoad() {
     let extension = window.arguments[0].extension;
     document.getElementById("provider-name-label").value = extension.name;
 
-    let calendars = cal.getCalendarManager().getCalendars({})
-                       .filter(x => x.providerID == extension.id);
+    let calendarList = document.getElementById("calendar-list");
 
-    document.getElementById("calendar-list-tree").calendars = calendars;
+    for (let calendar of cal.getCalendarManager().getCalendars({})) {
+        if (calendar.providerID != extension.id) {
+            continue;
+        }
+
+        let item = document.createXULElement("richlistitem");
+        item.setAttribute("calendar-id", calendar.id);
+
+        let checkbox = document.createXULElement("checkbox");
+        checkbox.classList.add("calendar-selected");
+        item.appendChild(checkbox);
+
+        let image = document.createXULElement("image");
+        image.classList.add("calendar-color");
+        item.appendChild(image);
+        image.style.backgroundColor = calendar.getProperty("color");
+
+        let label = document.createXULElement("label");
+        label.classList.add("calendar-name");
+        label.value = calendar.name;
+        item.appendChild(label);
+
+        calendarList.appendChild(item);
+    }
 }
 
 document.addEventListener("dialogaccept", () => {
@@ -21,11 +43,15 @@ document.addEventListener("dialogaccept", () => {
     let args = window.arguments[0];
     args.shouldUninstall = true;
 
+    let calendarList = document.getElementById("calendar-list");
+
     // Unsubscribe from all selected calendars
-    let calendarList = document.getElementById("calendar-list-tree");
-    let calendars = calendarList.selectedCalendars || [];
     let calMgr = cal.getCalendarManager();
-    calendars.forEach(calMgr.unregisterCalendar, calMgr);
+    for (let item of calendarList.children) {
+        if (item.querySelector(".calendar-selected").checked) {
+            calMgr.unregisterCalendar(calMgr.getCalendarById(item.getAttribute("calendar-id")));
+        }
+    }
 });
 
 document.addEventListener("dialogcancel", () => {

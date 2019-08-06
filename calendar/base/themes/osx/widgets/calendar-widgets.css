@@ -7,3 +7,13 @@
 #task-tree-filtergroup {
   padding-inline-start: 18px;
 }
+
+#calendar-list-pane #calendar-list richlistitem {
+  padding-inline-start: 18px;
+}
+
+#calendar-list .calendar-color {
+  /* Shift the color box closer to the name label */
+  margin-inline-start: 1px;
+  margin-inline-end: -1px;
+}

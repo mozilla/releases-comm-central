@@ -21,7 +21,6 @@
 <?xml-stylesheet href="chrome://calendar/skin/calendar-event-dialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar/content/calendar-event-dialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar-common/skin/dialogs/calendar-event-dialog.css" type="text/css"?>
-<?xml-stylesheet href="chrome://calendar/skin/calendar-management.css" type="text/css"?>
 
 <?xul-overlay href="chrome://calendar/content/calendar-common-sets.xul"?>
 <?xul-overlay href="chrome://calendar/content/calendar-views.xul"?>
@@ -65,7 +64,6 @@
   <script src="chrome://calendar/content/calendar-statusbar.js"/>
   <script src="chrome://calendar/content/widgets/calendar-minimonth.js"/>
   <script src="chrome://global/content/nsDragAndDrop.js"/>
-  <script src="chrome://calendar/content/widgets/calendar-list-tree.js"/>
   <script src="chrome://calendar/content/widgets/calendar-modebox.js"/>
 
   <!-- NEEDED FOR TASK VIEW/LIST SUPPORT -->
@@ -259,21 +257,13 @@
               <checkbox id="calendar-list-header"
                                checked="true"
                                class="treenode-checkbox"
-                               ondrop="return document.getElementById('calendar-list-tree-widget').foreignDrop(event)"
-                               ondragenter="return document.getElementById('calendar-list-tree-widget').foreignCanDrop(event)"
-                               ondragover="return document.getElementById('calendar-list-tree-widget').foreignCanDrop(event)"
                                label="&calendar.list.header.label;"/>
-              <calendar-modevbox id="calendar-listtree-pane"
+              <calendar-modevbox id="calendar-list-inner-pane"
                                  flex="1"
                                  mode="calendar,task"
                                  broadcaster="modeBroadcaster"
                                  refcontrol="calendar-list-header">
-                <tree is="calendar-list-tree-full" id="calendar-list-tree-widget"
-                      writable="true"
-                      allowdrag="true"
-                      onselect="document.commandDispatcher.updateCommands('calendar_commands')"
-                      childtooltip="calendar-list-tooltip"
-                      childcontext="list-calendars-context-menu"/>
+                <richlistbox id="calendar-list" flex="1" context="list-calendars-context-menu"/>
               </calendar-modevbox>
             </calendar-modevbox>
           </vbox>

@@ -38,9 +38,8 @@ class ListenerSet extends Set {
         for (let observer of currentObservers) {
             try {
                 observer[func](...args);
-            } catch (exc) {
-                let stack = exc.stack || (exc.location ? exc.location.formattedStack : null);
-                Cu.reportError(exc + "\nSTACK: " + stack);
+            } catch (ex) {
+                Cu.reportError(ex);
             }
         }
     }

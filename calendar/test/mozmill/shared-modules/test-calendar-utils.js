@@ -52,7 +52,7 @@ var TODAY_BUTTON = `
 `;
 var CALENDARLIST = `
     ${CALENDAR_PANEL}/id("ltnSidebar")/id("calendar-panel")/id("calendar-list-pane")/
-    id("calendar-listtree-pane")/id("calendar-list-tree-widget")/{"class":"treechildren"}
+    id("calendar-list-inner-pane")/id("calendar-list")
 `;
 var TODAY_PANE = `
     /id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")
@@ -491,16 +491,8 @@ function createCalendar(controller, name) {
     calendar.name = name;
     manager.registerCalendar(calendar);
 
-    let calendarTree = lookup(`
-        ${CALENDAR_PANEL}/id("ltnSidebar")/id("calendar-panel")/id("calendar-list-pane")/
-        id("calendar-listtree-pane")/id("calendar-list-tree-widget")
-    `).getNode();
-
-    for (let i = 0; i < calendarTree.mCalendarList.length; i++) {
-        if (calendarTree.mCalendarList[i].id == calendar.id) {
-            calendarTree.tree.view.selection.select(i);
-        }
-    }
+    controller.click(lookup(`${CALENDARLIST}/{"calendar-id":"${calendar.id}"}`));
+    return calendar.id;
 }
 
 /**

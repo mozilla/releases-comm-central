@@ -375,9 +375,6 @@ window.addEventListener("load", (e) => {
     tabmail.registerTabType(calendarTabType);
     tabmail.registerTabType(calendarItemTabType);
     tabmail.registerTabMonitor(calendarTabMonitor);
-
-    document.getElementById("calendar-list-tree-widget")
-        .addEventListener("SortOrderChanged", updateSortOrderPref);
 });
 
 async function ltnOnLoad(event) {

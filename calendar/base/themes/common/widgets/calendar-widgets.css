@@ -120,6 +120,67 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
     -moz-appearance: textfield;
 }
 
-.calendar-list-tree > treecols {
-  padding-inline-start: 18px;
+#calendar-list-pane #calendar-list {
+  -moz-appearance: none;
+  margin: 0;
+  border: none;
+  background-color: transparent;
+  color: inherit;
+}
+
+#calendar-list richlistitem {
+  -moz-box-align: center;
+  border-top: 1px transparent solid;
+}
+
+#calendar-list richlistitem:last-child {
+  border-bottom: 1px transparent solid;
+}
+
+#calendar-list richlistitem[drop-on="top"] {
+  border-top-color: highlight;
+}
+
+#calendar-list richlistitem[drop-on="bottom"] {
+  border-bottom-color: highlight;
+}
+
+#calendar-list checkbox {
+  margin: 0 2px;
+  -moz-user-focus: none;
+}
+
+#calendar-list .checkbox-label-box {
+  display: none;
+}
+
+#calendar-list .calendar-color {
+  width: 14px;
+  height: 14px;
+}
+
+#calendar-list richlistitem[calendar-disabled="true"] .calendar-color {
+  filter: grayscale(1);
+}
+
+#calendar-list .calendar-name {
+  -moz-box-flex: 1;
+}
+
+#calendar-list richlistitem[calendar-disabled="true"]:not([selected="true"]) .calendar-name {
+  color: graytext;
+}
+
+#calendar-list .calendar-readstatus {
+  margin: 0 2px;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+#calendar-list richlistitem[calendar-readonly="true"] .calendar-readstatus {
+  list-style-image: url(chrome://calendar-common/skin/icons/locked.svg);
+}
+
+#calendar-list richlistitem[calendar-readfailed="true"] .calendar-readstatus {
+  list-style-image: url(chrome://calendar-common/skin/icons/warn.svg);
 }

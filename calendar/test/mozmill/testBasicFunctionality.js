@@ -84,8 +84,8 @@ function testSmokeTest() {
         handleNewCalendarWizard(wizard, CALENDARNAME);
     });
     let calendarList = lookup(CALENDARLIST);
-    // Double click on bottom left.
-    controller.doubleClick(calendarList, 0, calendarList.getNode().height);
+    // This double-click must be inside the list but below the list items.
+    controller.doubleClick(calendarList);
     wait_for_modal_dialog("Calendar:NewCalendarWizard", TIMEOUT_MODAL_DIALOG);
 }
 

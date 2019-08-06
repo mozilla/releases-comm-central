@@ -23,30 +23,31 @@ function openLocalCalendar() {
         if (rv != nsIFilePicker.returnOK || !picker.file) {
             return;
         }
+
         let calMgr = cal.getCalendarManager();
         let calendars = calMgr.getCalendars({});
-        let calendar = calendars.find(x => x.uri == picker.fileURL);
-        if (calendar) {
-            // The calendar already exists, select it and return.
-            document.getElementById("calendar-list-tree-widget").selectCalendarById(calendar.id);
-            return;
+        let calendar = calendars.find(x => x.uri.equals(picker.fileURL));
+        if (!calendar) {
+            calendar = calMgr.createCalendar("ics", picker.fileURL);
+
+            // Strip ".ics" from filename for use as calendar name, taken from
+            // calendarCreation.js
+            let fullPathRegex = new RegExp("([^/:]+)[.]ics$");
+            let prettyName = picker.fileURL.spec.match(fullPathRegex);
+            let name;
+
+            if (prettyName) {
+                name = decodeURIComponent(prettyName[1]);
+            } else {
+                name = cal.l10n.getCalString("untitledCalendarName");
+            }
+            calendar.name = name;
+
+            calMgr.registerCalendar(calendar);
         }
 
-        let openCalendar = calMgr.createCalendar("ics", picker.fileURL);
-
-        // Strip ".ics" from filename for use as calendar name, taken from
-        // calendarCreation.js
-        let fullPathRegex = new RegExp("([^/:]+)[.]ics$");
-        let prettyName = picker.fileURL.spec.match(fullPathRegex);
-        let name;
-
-        if (prettyName) {
-            name = decodeURIComponent(prettyName[1]);
-        } else {
-            name = cal.l10n.getCalString("untitledCalendarName");
-        }
-        openCalendar.name = name;
-
-        calMgr.registerCalendar(openCalendar);
+        let newListTree = document.getElementById("calendar-list");
+        let item = newListTree.getElementsByAttribute("calendar-id", calendar.id)[0];
+        newListTree.selectedItem = item;
     });
 }

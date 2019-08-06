@@ -8,6 +8,10 @@
   padding-inline-start: 12px;
 }
 
+#calendar-list-pane #calendar-list richlistitem {
+  padding-inline-start: 14px;
+}
+
 .toolbarbutton-icon-begin {
   margin-inline-end: 5px;
 }

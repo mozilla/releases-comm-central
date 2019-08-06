@@ -6,19 +6,20 @@ var MODULE_NAME = "testTaskView";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils"];
 
-var CALENDARNAME, CALENDAR_PANEL, TASK_VIEW;
+var CALENDARNAME, CALENDARLIST, TASK_VIEW;
 var helpersForController, invokeEventDialog, createCalendar, closeAllEventDialogs, deleteCalendars;
 var setData;
 
 const TITLE = "Task";
 const DESCRIPTION = "1. Do A\n2. Do B";
 const PERCENTCOMPLETE = "50";
+var CALENDARID;
 
 function setupModule(module) {
     controller = mozmill.getMail3PaneController();
     ({
         CALENDARNAME,
-        CALENDAR_PANEL,
+        CALENDARLIST,
         TASK_VIEW,
         helpersForController,
         invokeEventDialog,
@@ -32,7 +33,7 @@ function setupModule(module) {
     ({ setData } = collector.getModule("item-editing-helpers"));
     collector.getModule("item-editing-helpers").setupModule(module);
 
-    createCalendar(controller, CALENDARNAME);
+    CALENDARID = createCalendar(controller, CALENDARNAME);
 }
 
 // Mozmill doesn't support trees yet, therefore completed checkbox and line-through style are not
@@ -49,16 +50,7 @@ function testTaskView() {
     sleep();
 
     // Make sure that testing calendar is selected.
-    let calendarTree = lookup(`
-        ${CALENDAR_PANEL}/id("ltnSidebar")/id("calendar-panel")/id("calendar-list-pane")/
-        id("calendar-listtree-pane")/id("calendar-list-tree-widget")
-    `).getNode();
-
-    for (let i = 0; i < calendarTree.mCalendarList.length; i++) {
-        if (calendarTree.mCalendarList[i].name == CALENDARNAME) {
-            calendarTree.tree.view.selection.select(i);
-        }
-    }
+    controller.click(lookup(`${CALENDARLIST}/{"calendar-id":"${CALENDARID}"}`));
 
     let taskTreeNode = lookup(taskTree).getNode();
     controller.assert(() => taskTreeNode.mTaskArray.length == 0);

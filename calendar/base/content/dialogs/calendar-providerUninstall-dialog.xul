@@ -5,7 +5,7 @@
 
 <?xml-stylesheet type="text/css" href="chrome://global/skin/global.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar-common/skin/calendar-providerUninstall-dialog.css"?>
-<?xml-stylesheet type="text/css" href="chrome://calendar/skin/calendar-management.css"?>
+<?xml-stylesheet type="text/css" href="chrome://calendar-common/skin/widgets/calendar-widgets.css"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://calendar/locale/provider-uninstall.dtd" >
 
@@ -19,7 +19,6 @@
         buttonlabelaccept="&providerUninstall.accept.label;"
         buttonaccesskeyaccept="&providerUninstall.accept.accesskey;">
 
-  <script src="chrome://calendar/content/widgets/calendar-list-tree.js"/>
   <script src="chrome://calendar/content/calendar-providerUninstall-dialog.js"/>
   <script src="chrome://calendar/content/calendar-ui-utils.js"/>
 
@@ -28,6 +27,5 @@
   <description id="post-name-description">&providerUninstall.postName.label;</description>
   <description id="reinstall-note-description">&providerUninstall.reinstallNote.label;</description>
 
-  <tree is="calendar-list-tree" id="calendar-list-tree"
-        disabledstate="ignore"/>
+  <richlistbox id="calendar-list" flex="1"/>
 </dialog>
