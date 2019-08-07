@@ -7,7 +7,7 @@
   "manifest_version": 2,
   "name": "Lightning",
   "description": "Integrated Calendaring & Scheduling for your Email client",
-  "version": "@LIGHTNING_VERSION@",
+  "version": "@THUNDERBIRD_VERSION_DISPLAY@",
   "author": "Mozilla Calendar Project",
   "homepage_url": "https://www.mozilla.org/projects/calendar/",
   "legacy": true,

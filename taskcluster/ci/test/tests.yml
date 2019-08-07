@@ -50,7 +50,7 @@ xpcshell:
                 default: false
     fetches:
         build:
-            - gdata-provider.en-US.xpi
+            - gdata-provider.xpi
 
 mozmill:
     description: "mozmill test run"

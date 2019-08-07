@@ -16,12 +16,11 @@ DIRS += [
 
 TEST_DIRS += ['../test']
 
-if CONFIG['MOZ_ARTIFACT_BUILDS']:
-    version_parts = CONFIG['MOZ_APP_VERSION'].split('.')
-    major_version = version_parts[0]
-    DEFINES['THUNDERBIRD_MAXVERSION'] = major_version + '.*'
-    DEFINES['LIGHTNING_VERSION'] = CONFIG['THUNDERBIRD_VERSION_DISPLAY']
+version_parts = CONFIG['MOZ_APP_VERSION'].split('.')
+major_version = version_parts[0]
+DEFINES['THUNDERBIRD_MAXVERSION'] = major_version + '.*'
 
+if CONFIG['MOZ_ARTIFACT_BUILDS']:
     XPI_NAME = 'lightning'
     export('XPI_NAME')
 else:
@@ -32,7 +31,6 @@ else:
     export('DIST_SUBDIR')
 
 FINAL_TARGET_PP_FILES += [
-    'app.ini',
     'manifest.json',
 ]
 
@@ -52,10 +50,6 @@ JS_PREFERENCE_PP_FILES += [
     'content/lightning.js',
 ]
 
-FINAL_TARGET_FILES += [
-    'install.rdf',
-]
-
 FINAL_TARGET_FILES.timezones += [
     '../timezones/zones.json',
 ]
@@ -65,9 +59,3 @@ with Files('**'):
 
 with Files('content/suite-*'):
     BUG_COMPONENT = ('Calendar', 'Lightning: SeaMonkey Integration')
-
-with Files('build/**'):
-    BUG_COMPONENT = ('Calendar', 'Build Config')
-
-with Files('app.ini'):
-    BUG_COMPONENT = ('Calendar', 'Build Config')
