@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@namespace html url("http://www.w3.org/1999/xhtml");
+
 #calendar-header-name-column,
 #calendar-task-details-attachment-row > hbox {
     padding-inline-start: 0.1em;
@@ -62,11 +64,12 @@
     opacity: 0.5; /* lower contrast */
 }
 
-.item-date-row > calendar-item-date > .selectable-label {
+.item-date-row > .selectable-label {
     margin-top: 1px !important;
     margin-bottom: 2px !important;
     margin-inline-start: 6px !important;
     margin-inline-end: 5px !important;
+    background-color: inherit;
 }
 
 #calendar-task-details-grid > rows > .item-date-row > .headline {
@@ -90,7 +93,7 @@
 
 :root[lwt-tree] .task-details-name,
 :root[lwt-tree] .task-details-value,
-:root[lwt-tree] .item-date-row > calendar-item-date >.selectable-label,
+:root[lwt-tree] .item-date-row > .selectable-label,
 :root[lwt-tree] #calendar-task-details-grid > rows > .item-date-row > .headline {
     color: inherit;
 }

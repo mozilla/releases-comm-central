@@ -4,26 +4,18 @@
 
 "use strict";
 
-/* global MozXULElement */
-
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 /**
  * Date info that is displayed on task details and event details.
  *
- * @extends MozXULElement
+ * @extends HTMLInputElement
  */
-class MozCalendarItemDate extends MozXULElement {
-    static get inheritedAttributes() {
-        return { ".selectable-label": "mode", };
-    }
-
+class MozCalendarItemDate extends HTMLInputElement {
     connectedCallback() {
-        this.appendChild(MozXULElement.parseXULToFragment(`
-            <textbox readonly="true" class="selectable-label plain" flex="1"></textbox>
-        `));
+        this.classList.add("selectable-label", "plain");
+        this.setAttribute("readonly", "readonly");
         this.mItem = null;
-        this.initializeAttributeInheritance();
     }
 
     /**
@@ -47,7 +39,6 @@ class MozCalendarItemDate extends MozXULElement {
      */
     set item(val) {
         this.mItem = val;
-        let itemDateTimeLabel = this.querySelector(".selectable-label");
         let date;
         if (this.mode == "start") {
             date = this.mItem[cal.dtz.startDateProp(this.mItem)];
@@ -61,14 +52,14 @@ class MozCalendarItemDate extends MozXULElement {
             const kDefaultTimezone = cal.dtz.defaultTimezone;
             let localTime = date.getInTimezone(kDefaultTimezone);
             let formatter = cal.getDateFormatter();
-            itemDateTimeLabel.value = formatter.formatDateTime(localTime);
+            this.value = formatter.formatDateTime(localTime);
             if (!date.timezone.isFloating && date.timezone.tzid != kDefaultTimezone.tzid) {
                 // we additionally display the original datetime with timezone
                 let orgTime = cal.l10n.getCalString("datetimeWithTimezone", [
                     formatter.formatDateTime(date),
                     date.timezone.tzid
                 ]);
-                itemDateTimeLabel.value += " (" + orgTime + ")";
+                this.value += " (" + orgTime + ")";
             }
             this.style.visibility = "visible";
         }
@@ -84,4 +75,4 @@ class MozCalendarItemDate extends MozXULElement {
     }
 }
 
-customElements.define("calendar-item-date", MozCalendarItemDate);
+customElements.define("calendar-item-date-input", MozCalendarItemDate, { "extends": "input" });

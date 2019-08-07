@@ -152,15 +152,17 @@
             <label id="item-start-row-label"
                    taskStartLabel="&read.only.task.start.label;"
                    eventStartLabel="&read.only.event.start.label;"
-                   align="center"/>
-            <calendar-item-date id="item-date-row-start-date" mode="start"/>
+                   align="center"
+                   control="item-date-row-start-date"/>
+            <html:input is="calendar-item-date-input" id="item-date-row-start-date" mode="start"/>
           </row>
           <row class="item-date-row">
             <label id="item-due-row-label"
                    taskDueLabel="&read.only.task.due.label;"
                    eventEndLabel="&read.only.event.end.label;"
-                   align="center"/>
-            <calendar-item-date id="item-date-row-end-date" mode="end"/>
+                   align="center"
+                   control="item-date-row-end-date"/>
+            <html:input is="calendar-item-date-input" id="item-date-row-end-date" mode="end"/>
           </row>
           <row id="repeat-row" align="top" hidden="true">
             <label value="&read.only.repeat.label;"/>

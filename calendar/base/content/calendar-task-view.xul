@@ -189,15 +189,17 @@
                   <label id="task-start-row-label"
                          class="headline"
                          value="&calendar.task-details.start.label;"
-                         align="end"/>
-                  <calendar-item-date id="task-start-date" mode="start"/>
+                         align="end"
+                         control="task-start-date"/>
+                  <html:input is="calendar-item-date-input" id="task-start-date" mode="start"/>
                 </row>
                 <row class="item-date-row">
                   <label id="task-due-row-label"
                          class="headline"
                          value="&calendar.task-details.due.label;"
-                         align="end"/>
-                  <calendar-item-date id="task-due-date" mode="end"/>
+                         align="end"
+                         control="task-due-date"/>
+                  <html:input is="calendar-item-date-input" id="task-due-date" mode="end"/>
                 </row>
                 <row id="calendar-task-details-repeat-row"
                      align="top"
