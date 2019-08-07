@@ -17,10 +17,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 * @param fixedLang       whether to use only fallbackLocale for extraction
 */
 function Extractor(fallbackLocale, dayStart, fixedLang) {
-    // url for multi locale AMO build
-    this.bundleUrl = "resource://calendar/chrome/calendar-LOCALE/locale/LOCALE/calendar/calendar-extract.properties";
-    // url for single locale python packaged build
-    this.packagedUrl = "jar:resource://calendar/chrome.jar!/calendar-LOCALE/locale/LOCALE/calendar/calendar-extract.properties";
+    this.bundleUrl = "resource://calendar/chrome/calendar-LOCALE/calendar-extract.properties";
     this.fallbackLocale = fallbackLocale;
     this.email = "";
     this.marker = "--MARK--";
@@ -47,7 +44,6 @@ function Extractor(fallbackLocale, dayStart, fixedLang) {
     }
 
     if (!this.checkBundle(fallbackLocale)) {
-        this.bundleUrl = this.packagedUrl;
         cal.WARN("Your installed Lightning only includes a single locale, extracting event info from other languages is likely inaccurate. You can install Lightning from addons.mozilla.org manually for multiple locale support.");
     }
 }

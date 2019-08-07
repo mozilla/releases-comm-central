@@ -19,6 +19,6 @@
     }
   },
   "icons": {
-    "32": "chrome/skin/common/icons/icon32.svg"
+    "32": "chrome/calendar/skin/common/icons/icon32.svg"
   }
 }
