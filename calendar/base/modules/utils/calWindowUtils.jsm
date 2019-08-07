@@ -42,11 +42,7 @@ var calwindow = {
         let window = aWindow || calwindow.getCalendarWindow();
         window.openDialog("chrome://calendar/content/calendar-properties-dialog.xul",
                           "CalendarPropertiesDialog",
-                          // Workaround for Bug 1151440 - the HTML color picker won't work
-                          // in linux when opened from modal dialog
-                          AppConstants.platform == "linux"
-                              ? "chrome,titlebar,resizable"
-                              : "modal,chrome,titlebar,resizable",
+                          "modal,chrome,titlebar,resizable",
                           { calendar: aCalendar });
     },
 

@@ -5,8 +5,11 @@
 
 DIRS += ['mozmill']
 
+BROWSER_CHROME_MANIFESTS += [
+    'browser/browser.ini',
+]
+
 XPCSHELL_TESTS_MANIFESTS += [
     'unit/xpcshell-icaljs.ini',
     'unit/xpcshell-libical.ini',
 ]
-
