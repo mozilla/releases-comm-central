@@ -94,9 +94,7 @@ etagsHandler.prototype = {
         }
 
         // Now that we are done, check which items need fetching.
-        if (this.calendar.isCached) {
-            this.calendar.superCalendar.startBatch();
-        }
+        this.calendar.superCalendar.startBatch();
 
         let needsRefresh = false;
         try {
@@ -124,9 +122,7 @@ etagsHandler.prototype = {
                 }
             }
         } finally {
-            if (this.calendar.isCached) {
-                this.calendar.superCalendar.endBatch();
-            }
+            this.calendar.superCalendar.endBatch();
         }
 
         // Avoid sending empty multiget requests update views if something has
@@ -439,9 +435,7 @@ webDavSyncHandler.prototype = {
         this.hrefMap = {};
         this.currentResponse = {};
         this.tag = null;
-        if (this.calendar.isCached) {
-            this.calendar.superCalendar.startBatch();
-        }
+        this.calendar.superCalendar.startBatch();
     },
 
     endDocument: function() {
@@ -464,9 +458,7 @@ webDavSyncHandler.prototype = {
                 }
             }
         }
-        if (this.calendar.isCached) {
-            this.calendar.superCalendar.endBatch();
-        }
+        this.calendar.superCalendar.endBatch();
 
         if (this.itemsNeedFetching.length) {
             let multiget = new multigetSyncHandler(this.itemsNeedFetching,
@@ -831,15 +823,11 @@ multigetSyncHandler.prototype = {
         this.currentResponse = {};
         this.tag = null;
         this.logXML = "";
-        if (this.calendar.isCached) {
-            this.calendar.superCalendar.startBatch();
-        }
+        this.calendar.superCalendar.startBatch();
     },
 
     endDocument: function() {
-        if (this.calendar.isCached) {
-            this.calendar.superCalendar.endBatch();
-        }
+        this.calendar.superCalendar.endBatch();
     },
 
     startElement: function(aUri, aLocalName, aQName, aAttributes) {
