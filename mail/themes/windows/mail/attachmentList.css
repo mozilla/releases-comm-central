@@ -20,11 +20,14 @@
 @media (-moz-windows-default-theme) {
   .attachmentItem {
     border: 1px solid transparent;
-    color: -moz-FieldText !important;
     background-color: transparent;
     background-repeat: no-repeat;
     background-size: 100% 100%;
     padding: 1px;
+  }
+
+  #attachmentList:focus > .attachmentItem[selected="true"] {
+    color: -moz-FieldText;
   }
 
   .attachmentlist[orient="horizontal"] {
