@@ -22,7 +22,6 @@ if CONFIG['MOZ_CALENDAR']:
     DIRS += [
         '/%s/calendar/lightning' % CONFIG['commreltopsrcdir'],
         '/%s/calendar/providers/gdata' % CONFIG['commreltopsrcdir'],
-        '/%s/calendar/timezones' % CONFIG['commreltopsrcdir'],
     ]
 
 DIRS += [

@@ -8,7 +8,6 @@ CONFIGURE_SUBST_FILES += ['installer/Makefile']
 if CONFIG['MOZ_CALENDAR']:
     DIRS += [
         'lightning',
-        # 'timezones'
     ]
 
 TEST_DIRS += ['test']
