@@ -325,7 +325,7 @@ mapping:
         update_balrog_manifest: true
         destinations:
             - ${version}-candidates/build${build_number}/update/${path_platform}
-    gdata-provider.${locale}.xpi:
+    gdata-provider.xpi:
         <<: *default
         description: "Google data provider XPI (en-US only)"
         all_locales: false  # Uses default_locale only
@@ -335,5 +335,17 @@ mapping:
             - linux64-shippable
         pretty_name: gdata-provider.${locale}.xpi
         checksums_path: gdata-provider.${locale}.xpi
+        destinations:
+            - ${version}-candidates/build${build_number}
+    lightning.xpi:
+        <<: *default
+        description: "Lightning XPI (en-US only)"
+        all_locales: false  # Uses default_locale only
+        from:
+            - build
+        only_for_platforms:
+            - linux64-shippable
+        pretty_name: lightning.${locale}.xpi
+        checksums_path: lightning.${locale}.xpi
         destinations:
             - ${version}-candidates/build${build_number}
