@@ -21,7 +21,6 @@ DIRS += ['/%s' % CONFIG['MOZ_BRANDING_DIRECTORY']]
 if CONFIG['MOZ_CALENDAR']:
     DIRS += [
         '/comm/calendar/lightning',
-        '/comm/calendar/timezones',
     ]
 
 DIRS += [
