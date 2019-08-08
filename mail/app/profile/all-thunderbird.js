@@ -775,6 +775,11 @@ pref("security.sandbox.content.level", 0);
 pref("security.sandbox.content.mac.earlyinit", false);
 #endif
 
+#ifdef NIGHTLY_BUILD
+// See bug 1572568 for details. Disallow eval() with system principal.
+pref("security.allow_eval_with_system_principal", false);
+#endif
+
 // Enable FIDO U2F
 pref("security.webauth.u2f", true);
 
