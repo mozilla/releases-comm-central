@@ -841,7 +841,7 @@ nsresult nsMsgContentPolicy::GetRootDocShellForContext(
   nsCOMPtr<nsIDocShellTreeItem> docshellTreeItem(shell);
 
   nsCOMPtr<nsIDocShellTreeItem> rootItem;
-  rv = docshellTreeItem->GetRootTreeItem(getter_AddRefs(rootItem));
+  rv = docshellTreeItem->GetInProcessRootTreeItem(getter_AddRefs(rootItem));
   NS_ENSURE_SUCCESS(rv, rv);
 
   return CallQueryInterface(rootItem, aDocShell);

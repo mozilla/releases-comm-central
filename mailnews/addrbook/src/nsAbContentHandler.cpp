@@ -88,7 +88,7 @@ nsAbContentHandler::HandleContent(const char *aContentType,
         // Find a privileged chrome window to open the dialog from.
         nsCOMPtr<nsIDocShell> docShell(parentWindow->GetDocShell());
         nsCOMPtr<nsIDocShellTreeItem> root;
-        docShell->GetRootTreeItem(getter_AddRefs(root));
+        docShell->GetInProcessRootTreeItem(getter_AddRefs(root));
         nsCOMPtr<nsPIDOMWindowOuter> window(do_GetInterface(root));
 
         RefPtr<mozilla::dom::BrowsingContext> dialogWindow;
