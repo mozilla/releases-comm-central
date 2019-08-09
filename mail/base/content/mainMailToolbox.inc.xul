@@ -178,18 +178,18 @@
     </toolbaritem>
     <toolbaritem id="button-delete" title="&deleteItem.title;">
       <deck id="delete-deck" observes="button_delete">
-         <toolbarbutton id="button-mark-deleted"
-                        class="toolbarbutton-1 delete-button"
-                        label="&deleteButton.label;"
-                        tooltiptext="&deleteButton.tooltip;"
-                        observes="button_delete"
-                        oncommand="goDoCommand(event.shiftKey ? 'button_shiftDelete' : 'button_delete')"/>
-         <toolbarbutton id="button-mark-undelete"
-                        class="toolbarbutton-1 delete-button"
-                        label="&undeleteButton.label;"
-                        tooltiptext="&undeleteButton.tooltip;"
-                        observes="button_delete"
-                        oncommand="goDoCommand('button_delete')"/>
+        <toolbarbutton id="button-mark-deleted"
+                       class="toolbarbutton-1 delete-button"
+                       label="&deleteButton.label;"
+                       tooltiptext="&deleteButton.tooltip;"
+                       observes="button_delete"
+                       oncommand="goDoCommand(event.shiftKey ? 'button_shiftDelete' : 'button_delete')"/>
+        <toolbarbutton id="button-mark-undelete"
+                       class="toolbarbutton-1 delete-button"
+                       label="&undeleteButton.label;"
+                       tooltiptext="&undeleteButton.tooltip;"
+                       observes="button_delete"
+                       oncommand="goDoCommand('button_delete')"/>
       </deck>
     </toolbaritem>
 #ifdef XP_MACOSX
@@ -305,7 +305,7 @@
                    tooltiptext="&chatButton.tooltip;"/>
     <toolbaritem id="throbber-box" title="&throbberItem.title;" align="center" pack="center"
                  mousethrough="always">
-       <image/>
+      <image/>
     </toolbaritem>
     <toolbarbutton id="button-stop"
                    class="toolbarbutton-1"
