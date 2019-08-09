@@ -4,7 +4,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-<?xml-stylesheet href="chrome://messenger/content/bindings.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/searchBox.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/addressbook/addressbook.css" type="text/css"?>
 
@@ -64,6 +63,7 @@
 <script src="chrome://messenger/content/addressbook/abResultsPane.js"/>
 <script src="chrome://messenger/content/addressbook/abCardView.js"/>
 <script src="chrome://messenger/content/toolbarIconColor.js"/>
+<script src="chrome://messenger/content/customizable-toolbar.js"/>
 <commandset id="addressBook">
   <commandset id="CommandUpdate_AddressBook"
               commandupdater="true"
@@ -275,7 +275,10 @@
 #endif
          labelalign="end"
          defaultlabelalign="end">
-  <toolbar type="menubar" id="addrbook-toolbar-menubar2" class="chromeclass-menubar" customizable="true"
+  <toolbar is="customizable-toolbar" id="addrbook-toolbar-menubar2"
+           class="chromeclass-menubar"
+           type="menubar"
+           customizable="true"
 #ifdef XP_MACOSX
            defaultset="menubar-items"
 #else
@@ -673,7 +676,7 @@
       </toolbaritem>
   </toolbarpalette>
   <!-- toolbar -->
-  <toolbar id="ab-bar2" class="chromeclass-toolbar"
+  <toolbar is="customizable-toolbar" id="ab-bar2" class="chromeclass-toolbar"
            toolbarname="&showAbToolbarCmd.label;"
            accesskey="&showAbToolbarCmd.accesskey;"
            fullscreentoolbar="true" mode="full"

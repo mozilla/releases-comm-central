@@ -8,7 +8,6 @@
 <?xml-stylesheet href="chrome://messenger/skin/mailWindow1.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/tagColors.css" type="text/css"?>
 <?xml-stylesheet href="chrome://gloda/content/glodacomplete.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/content/bindings.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/content/tabmail.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/tabmail.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/quickFilterBar.css" type="text/css"?>
@@ -163,6 +162,7 @@
 <script src="chrome://messenger/content/tabmail.js"/>
 <script src="chrome://messenger/content/chat/toolbarbutton-badge-button.js"/>
 <script src="chrome://messenger/content/messenger-customization.js"/>
+<script src="chrome://messenger/content/customizable-toolbar.js"/>
 <!-- panelUI.js is for the appmenus. -->
 <script src="chrome://messenger/content/customizableui/panelUI.js"/>
 #ifdef XP_MACOSX
@@ -443,7 +443,7 @@
 #endif
       </box>
 
-      <toolbar id="tabbar-toolbar" toolboxid="mail-toolbox"
+      <toolbar is="customizable-toolbar" id="tabbar-toolbar" toolboxid="mail-toolbox"
                context="toolbar-context-menu"
                customizable="true"
                mode="icons" defaultmode="icons" lockmode="true"

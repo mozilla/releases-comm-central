@@ -417,7 +417,7 @@
        in earlier versions. Bumping the id means users will have to re-customize their toolbar!
   -->
 
-  <toolbar id="mail-bar3"
+  <toolbar is="customizable-toolbar" id="mail-bar3"
            class="inline-toolbar chromeclass-toolbar"
            toolbarname="&showMessengerToolbarCmd.label;"
            accesskey="&showMessengerToolbarCmd.accesskey;"

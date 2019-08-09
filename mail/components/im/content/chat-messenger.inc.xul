@@ -6,8 +6,8 @@
           <toolbox id="chat-view-toolbox" class="mail-toolbox"
                    mode="full" defaultmode="full"
                    labelalign="end" defaultlabelalign="end">
-            <toolbar class="inline-toolbar chromeclass-toolbar"
-                     id="chat-toolbar"
+            <toolbar is="customizable-toolbar" id="chat-toolbar"
+                     class="inline-toolbar chromeclass-toolbar"
                      fullscreentoolbar="true"
                      customizable="true"
                      context="chat-toolbar-context-menu"

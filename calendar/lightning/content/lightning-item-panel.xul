@@ -135,7 +135,7 @@
                            tooltiptext="&lightning.toolbar.appmenuButton1.tooltip;"/>
           </toolbarpalette>
           <!-- toolboxid is set here since we move the toolbar around for tabs -->
-          <toolbar id="event-tab-toolbar"
+          <toolbar is="customizable-toolbar" id="event-tab-toolbar"
                    toolbarname="&event.menu.view.toolbars.event.label;"
                    accesskey="&event.menu.view.toolbars.event.accesskey;"
                    toolboxid="event-toolbox"

@@ -5,7 +5,6 @@
 
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/addressbook/cardDialog.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/content/bindings.css" type="text/css"?>
 
 <!DOCTYPE dialog [
   <!ENTITY % newCardDTD SYSTEM "chrome://messenger/locale/addressbook/abNewCardDialog.dtd">

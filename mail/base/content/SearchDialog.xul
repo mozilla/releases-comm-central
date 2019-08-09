@@ -5,7 +5,6 @@
 
 #filter substitution
 #define SEARCH_WINDOW
-<?xml-stylesheet href="chrome://messenger/content/bindings.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/searchDialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderPane.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/tagColors.css" type="text/css"?>

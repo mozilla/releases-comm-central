@@ -3,7 +3,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-<?xml-stylesheet href="chrome://messenger/content/bindings.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/messengercompose/messengercompose.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/attachmentList.css" type="text/css"?>
@@ -75,6 +74,7 @@
 <script src="chrome://messenger/content/messengercompose/bigFileObserver.js"/>
 <script src="chrome://messenger/content/messengercompose/cloudAttachmentLinkManager.js"/>
 <script src="chrome://messenger/content/messenger-customization.js"/>
+<script src="chrome://messenger/content/customizable-toolbar.js"/>
 
 <!-- drag and drop -->
 <script src="chrome://messenger/content/addressbook/abDragDrop.js"/>
@@ -793,7 +793,10 @@
 
   <!-- Menu -->
   <!-- if you change the id of the menubar, be sure to update mailCore.js::CustomizeMailToolbar and MailToolboxCustomizeDone -->
-  <toolbar type="menubar" id="compose-toolbar-menubar2" class="chromeclass-menubar" customizable="true"
+  <toolbar is="customizable-toolbar" id="compose-toolbar-menubar2"
+           class="chromeclass-menubar"
+           type="menubar"
+           customizable="true"
 #ifdef XP_MACOSX
            defaultset="menubar-items"
 #else
@@ -1957,7 +1960,7 @@
     </toolbaritem>
 
   </toolbarpalette>
-  <toolbar id="composeToolbar2" class="chromeclass-toolbar"
+  <toolbar is="customizable-toolbar" id="composeToolbar2" class="chromeclass-toolbar"
            toolbarname="&showCompositionToolbarCmd.label;"
            accesskey="&showCompositionToolbarCmd.accesskey;"
            fullscreentoolbar="true" mode="full"
@@ -1987,7 +1990,9 @@
 
     <vbox id="headers-parent" flex="1">
     <toolbox id="headers-box" class="toolbox-top" mode="icons">
-    <toolbar id="MsgHeadersToolbar" persist="collapsed" flex="1"
+    <toolbar is="customizable-toolbar" id="MsgHeadersToolbar"
+             persist="collapsed"
+             flex="1"
              customizable="true" nowindowdrag="true"
              ondragover="nsDragAndDrop.dragOver(event, envelopeDragObserver);"
              ondrop="nsDragAndDrop.drop(event, envelopeDragObserver);"
@@ -2121,7 +2126,9 @@
     </toolbar>
 
     <toolbox id="FormatToolbox" mode="icons">
-      <toolbar class="chromeclass-toolbar" id="FormatToolbar" persist="collapsed"
+      <toolbar is="customizable-toolbar" id="FormatToolbar"
+               class="chromeclass-toolbar"
+               persist="collapsed"
                customizable="true" nowindowdrag="true">
 #include editFormatButtons.inc.xul
         <spacer flex="1"/>

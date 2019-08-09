@@ -124,7 +124,8 @@
                      tooltiptext="&lightning.toolbar.appmenuButton1.tooltip;"/>
     </toolbarpalette>
 
-    <toolbar id="calendar-toolbar2" class="inline-toolbar chromeclass-toolbar"
+    <toolbar is="customizable-toolbar" id="calendar-toolbar2"
+             class="inline-toolbar chromeclass-toolbar"
              toolbarname="&lightning.toolbar.calendar.name;"
              accesskey="&lightning.toolbar.calendar.name.accesskey;"
              fullscreentoolbar="true" mode="full"
@@ -180,7 +181,8 @@
                      tooltiptext="&lightning.toolbar.appmenuButton1.tooltip;"/>
     </toolbarpalette>
 
-    <toolbar id="task-toolbar2" class="inline-toolbar chromeclass-toolbar"
+    <toolbar is="customizable-toolbar" id="task-toolbar2"
+             class="inline-toolbar chromeclass-toolbar"
              toolbarname="&lightning.toolbar.task.name;"
              accesskey="&lightning.toolbar.task.name.accesskey;"
              fullscreentoolbar="true" mode="full"

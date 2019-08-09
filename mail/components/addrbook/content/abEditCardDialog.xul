@@ -6,7 +6,6 @@
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/filefield.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/addressbook/cardDialog.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/content/bindings.css" type="text/css"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://messenger/locale/addressbook/abCard.dtd">
 

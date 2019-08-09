@@ -5,7 +5,6 @@
 
 #filter substitution
 
-<?xml-stylesheet href="chrome://messenger/content/bindings.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/messageWindow.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/editContactPanel.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/messageHeader.css" type="text/css"?>
@@ -121,6 +120,7 @@
   <script src="chrome://global/content/macWindowMenu.js"/>
 #endif
   <script src="chrome://messenger/content/newmailaccount/uriListener.js"/>
+  <script src="chrome://messenger/content/customizable-toolbar.js"/>
 
   <commandset id="mailCommands">
 #include mainCommandSet.inc.xul

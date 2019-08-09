@@ -6,7 +6,6 @@
 <!-- XXX some of these css files may not be needed here.
     widget-bindings.css definitely is needed here -->
 <?xml-stylesheet type="text/css" href="chrome://global/skin/global.css"?>
-<?xml-stylesheet type="text/css" href="chrome://messenger/content/bindings.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar-common/skin/calendar-alarms.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar-common/skin/widgets/minimonth.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar-common/skin/calendar-attendees.css"?>

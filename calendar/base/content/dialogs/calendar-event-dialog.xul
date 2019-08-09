@@ -4,7 +4,6 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet type="text/css" href="chrome://global/skin/global.css"?>
-<?xml-stylesheet type="text/css" href="chrome://messenger/content/bindings.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar-common/skin/calendar-alarms.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar-common/skin/widgets/minimonth.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar-common/skin/calendar-attendees.css"?>
@@ -41,6 +40,7 @@
   <script src="chrome://calendar/content/calendar-ui-utils.js"/>
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://messenger/content/toolbarIconColor.js"/>
+  <script src="chrome://messenger/content/customizable-toolbar.js"/>
 
   <stringbundleset id="stringbundleset">
     <stringbundle id="languageBundle"
@@ -568,7 +568,7 @@
     <!-- toolbarpalette items are added with an overlay -->
     <toolbarpalette id="event-toolbarpalette"/>
     <!-- toolboxid is set here since we move the toolbar around in tabs -->
-    <toolbar id="event-toolbar"
+    <toolbar is="customizable-toolbar" id="event-toolbar"
              toolboxid="event-toolbox"
              class="chromeclass-toolbar"
              customizable="true"

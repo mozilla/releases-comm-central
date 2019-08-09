@@ -17,7 +17,10 @@
 -->
 <toolbox id="navigation-toolbox" class="toolbox-top" labelalign="end" defaultlabelalign="end">
   <!-- Menu -->
-  <toolbar type="menubar" id="mail-toolbar-menubar2" class="chromeclass-menubar" customizable="true"
+  <toolbar is="customizable-toolbar" id="mail-toolbar-menubar2"
+           class="chromeclass-menubar"
+           type="menubar"
+           customizable="true"
            toolboxid="mail-toolbox"
 #ifdef XP_MACOSX
            defaultset="menubar-items"
