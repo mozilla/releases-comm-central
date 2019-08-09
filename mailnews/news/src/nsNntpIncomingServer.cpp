@@ -33,6 +33,7 @@
 #include "mozilla/ErrorResult.h"
 #include "mozilla/dom/XULTreeElement.h"
 #include "mozilla/dom/DataTransfer.h"
+#include "mozilla/LoadInfo.h"
 
 #define INVALID_VERSION 0
 #define VALID_VERSION 2
@@ -552,13 +553,26 @@ nsNntpIncomingServer::LoadNewsUrl(nsIURI *aURI, nsIMsgWindow *aMsgWindow,
   nsresult rv = GetNntpConnection(aURI, aMsgWindow, getter_AddRefs(protocol));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (protocol) return protocol->LoadNewsUrl(aURI, aConsumer);
+  nsCOMPtr<nsILoadInfo> loadInfo = new mozilla::net::LoadInfo(
+      nsContentUtils::GetSystemPrincipal(), nullptr, nullptr,
+      nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+      nsIContentPolicy::TYPE_OTHER);
+
+  if (protocol) {
+    nsCOMPtr<nsIChannel> chan = do_QueryInterface(protocol, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = chan->SetLoadInfo(loadInfo);
+    NS_ENSURE_SUCCESS(rv, rv);
+    return protocol->LoadNewsUrl(aURI, aConsumer);
+  }
 
   // No protocol? We need our mock channel.
   nsNntpMockChannel *channel =
       new nsNntpMockChannel(aURI, aMsgWindow, aConsumer);
   if (!channel) return NS_ERROR_OUT_OF_MEMORY;
 
+  rv = channel->SetLoadInfo(loadInfo);
+  NS_ENSURE_SUCCESS(rv, rv);
   m_queuedChannels.AppendElement(channel);
   return NS_OK;
 }

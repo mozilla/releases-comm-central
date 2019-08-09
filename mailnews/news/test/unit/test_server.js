@@ -88,6 +88,8 @@ function testRFC977() {
 function testConnectionLimit() {
   var server = makeServer(NNTP_RFC977_handler, daemon);
   server.start(NNTP_PORT);
+  // 1 is the default, but other tests do change it, so let's be explicit.
+  _server.maximumConnectionsNumber = 1;
 
   var prefix = "news://localhost:" + NNTP_PORT + "/";
 
@@ -98,6 +100,8 @@ function testConnectionLimit() {
   server.performTest();
   // We should have length one... which means this must be a transaction object,
   // containing only us and them
+  // (playTransactions() returns an array of transaction objects if there is
+  // more than one of them, so this assert will fail in that case).
   Assert.ok("us" in server.playTransaction());
   server.stop();
 
