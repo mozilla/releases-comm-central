@@ -119,7 +119,7 @@ function fetchConfigFromDB(domain, successCallback, errorCallback) {
   else
     url = url.replace("{{domain}}", domain);
 
-  let fetch = new FetchHTTP(url, {},
+  let fetch = new FetchHTTP(url, { timeout: 10000 },  // 10 seconds
     function(result) {
       successCallback(readFromXML(result));
     },

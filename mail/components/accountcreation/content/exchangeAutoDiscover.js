@@ -309,7 +309,7 @@ function getAddonsList(config, successCallback, errorCallback) {
     errorCallback(new Exception("no URL for addons list configured"));
     return new Abortable();
   }
-  let fetch = new FetchHTTP(url, { allowCache: true }, function(json) {
+  let fetch = new FetchHTTP(url, { allowCache: true, timeout: 10000 }, function(json) {
     let addons = readAddonsJSON(json);
     addons = addons.filter(addon => {
       // Find types matching the current config.

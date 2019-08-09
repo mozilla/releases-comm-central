@@ -102,6 +102,7 @@ function FetchHTTP(url, args, successCallback, errorCallback) {
   this._args.allowCache = "allowCache" in args ? sanitize.boolean(args.allowCache) : true; // default true
   this._args.allowAuthPrompt = sanitize.boolean(args.allowAuthPrompt || false); // default false
   this._args.requireSecureAuth = sanitize.boolean(args.requireSecureAuth || false); // default false
+  this._args.timeout = sanitize.integer(args.timeout || 5000);  // default 5 seconds
   this._successCallback = successCallback;
   this._errorCallback = errorCallback;
   this._logger = Log4Moz.getConfiguredLogger("mail.setup");
@@ -132,7 +133,7 @@ FetchHTTP.prototype = {
     }
     request.open(this._args.post ? "POST" : "GET", url, true, username, password);
     request.channel.loadGroup = null;
-    request.timeout = 5000; // 5 seconds
+    request.timeout = this._args.timeout;
     // needs bug 407190 patch v4 (or higher) - uncomment if that lands.
     // try {
     //    var channel = request.channel.QueryInterface(Ci.nsIHttpChannel2);
