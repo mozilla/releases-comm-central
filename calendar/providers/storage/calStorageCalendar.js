@@ -258,6 +258,47 @@ calStorageCalendar.prototype = {
     }
   },
 
+  prepareAsyncStatement: function(aStmts, aStmt) {
+    if (!aStmts.has(aStmt)) {
+      aStmts.set(aStmt, aStmt.newBindingParamsArray());
+    }
+    return aStmts.get(aStmt);
+  },
+
+  prepareAsyncParams: function(aArray) {
+    let params = aArray.newBindingParams();
+    params.bindByName("cal_id", this.id);
+    return params;
+  },
+
+  prepareItemStatement: function(aStmts, aStmt, aIdParam, aId) {
+    aStmt.params.cal_id = this.id;
+    aStmt.params[aIdParam] = aId;
+    aStmts.push(aStmt);
+  },
+
+  executeAsync: function(aStmts) {
+    return new Promise((resolve, reject) => {
+      this.mDB.executeAsync(aStmts, {
+        handleResult() {},
+        handleError() {},
+        handleCompletion(aReason) {
+          switch (aReason) {
+            case Ci.mozIStorageStatementCallback.REASON_FINISHED:
+              resolve();
+              break;
+            case Ci.mozIStorageStatementCallback.REASON_CANCELLED:
+              reject(Components.Exception("async statement was cancelled", Cr.NS_ERROR_ABORT));
+              break;
+            default:
+              reject(Components.Exception("error executing async statement", Cr.NS_ERROR_FAILURE));
+              break;
+          }
+        },
+      });
+    });
+  },
+
   refresh: function() {
     // no-op
   },
@@ -269,7 +310,7 @@ calStorageCalendar.prototype = {
   },
 
   // void adoptItem( in calIItemBase aItem, in calIOperationListener aListener );
-  adoptItem: function(aItem, aListener) {
+  adoptItem: async function(aItem, aListener) {
     if (this.readOnly) {
       this.notifyOperationComplete(
         aListener,
@@ -289,7 +330,7 @@ calStorageCalendar.prototype = {
       if (olditem) {
         if (this.relaxedMode) {
           // we possibly want to interact with the user before deleting
-          this.deleteItemById(aItem.id, true);
+          await this.deleteItemById(aItem.id, true);
         } else {
           this.notifyOperationComplete(
             aListener,
@@ -311,7 +352,7 @@ calStorageCalendar.prototype = {
     parentItem.calendar = this.superCalendar;
     parentItem.makeImmutable();
 
-    this.flushItem(parentItem, null);
+    await this.flushItem(parentItem, null);
 
     // notify the listener
     this.notifyOperationComplete(
@@ -342,7 +383,7 @@ calStorageCalendar.prototype = {
     this.getItemOfflineFlag(aOldItem, offlineJournalFlagListener);
   },
 
-  doModifyItem: function(aNewItem, aOldItem, aListener, offlineFlag) {
+  doModifyItem: async function(aNewItem, aOldItem, aListener, offlineFlag) {
     let oldOfflineFlag = offlineFlag;
     if (this.readOnly) {
       this.notifyOperationComplete(
@@ -428,7 +469,7 @@ calStorageCalendar.prototype = {
     }
 
     modifiedItem.makeImmutable();
-    this.flushItem(modifiedItem, aOldItem);
+    await this.flushItem(modifiedItem, aOldItem);
     this.setOfflineJournalFlag(aNewItem, oldOfflineFlag);
 
     this.notifyOperationComplete(
@@ -445,7 +486,7 @@ calStorageCalendar.prototype = {
   },
 
   // void deleteItem( in string id, in calIOperationListener aListener );
-  deleteItem: function(aItem, aListener) {
+  deleteItem: async function(aItem, aListener) {
     if (this.readOnly) {
       this.notifyOperationComplete(
         aListener,
@@ -474,7 +515,7 @@ calStorageCalendar.prototype = {
       return;
     }
 
-    this.deleteItemById(aItem.id);
+    await this.deleteItemById(aItem.id);
 
     this.notifyOperationComplete(
       aListener,
@@ -923,11 +964,11 @@ calStorageCalendar.prototype = {
     let opListener = {
       QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
       onGetResult: function(calendar, status, itemType, detail, count, items) {},
-      onOperationComplete: function(calendar, status, opType, id, oldOfflineJournalFlag) {
+      onOperationComplete: async function(calendar, status, opType, id, oldOfflineJournalFlag) {
         if (oldOfflineJournalFlag) {
           // Delete item if flag is c
           if (oldOfflineJournalFlag == cICL.OFFLINE_FLAG_CREATED_RECORD) {
-            self.deleteItemById(aItem.id);
+            await self.deleteItemById(aItem.id);
           } else if (oldOfflineJournalFlag == cICL.OFFLINE_FLAG_MODIFIED_RECORD) {
             self.setOfflineJournalFlag(aItem, cICL.OFFLINE_FLAG_DELETED_RECORD);
           }
@@ -1215,7 +1256,7 @@ calStorageCalendar.prototype = {
       );
 
       // insert statements
-      this.mInsertEvent = this.mDB.createStatement(
+      this.mInsertEvent = this.mDB.createAsyncStatement(
         "INSERT INTO cal_events " +
           "  (cal_id, id, time_created, last_modified, " +
           "   title, priority, privacy, ical_status, flags, " +
@@ -1227,7 +1268,7 @@ calStorageCalendar.prototype = {
           "        :recurrence_id, :recurrence_id_tz, :alarm_last_ack)"
       );
 
-      this.mInsertTodo = this.mDB.createStatement(
+      this.mInsertTodo = this.mDB.createAsyncStatement(
         "INSERT INTO cal_todos " +
           "  (cal_id, id, time_created, last_modified, " +
           "   title, priority, privacy, ical_status, flags, " +
@@ -1240,28 +1281,28 @@ calStorageCalendar.prototype = {
           "        :todo_completed, :todo_completed_tz, :todo_complete, " +
           "        :recurrence_id, :recurrence_id_tz, :alarm_last_ack)"
       );
-      this.mInsertProperty = this.mDB.createStatement(
+      this.mInsertProperty = this.mDB.createAsyncStatement(
         "INSERT INTO cal_properties (cal_id, item_id, recurrence_id, recurrence_id_tz, key, value) " +
           "VALUES (:cal_id, :item_id, :recurrence_id, :recurrence_id_tz, :key, :value)"
       );
-      this.mInsertAttendee = this.mDB.createStatement(
+      this.mInsertAttendee = this.mDB.createAsyncStatement(
         "INSERT INTO cal_attendees " +
           "  (cal_id, item_id, recurrence_id, recurrence_id_tz, icalString) " +
           "VALUES (:cal_id, :item_id, :recurrence_id, :recurrence_id_tz, :icalString)"
       );
-      this.mInsertRecurrence = this.mDB.createStatement(
+      this.mInsertRecurrence = this.mDB.createAsyncStatement(
         "INSERT INTO cal_recurrence " +
           "  (cal_id, item_id, icalString) " +
           "VALUES (:cal_id, :item_id, :icalString)"
       );
 
-      this.mInsertAttachment = this.mDB.createStatement(
+      this.mInsertAttachment = this.mDB.createAsyncStatement(
         "INSERT INTO cal_attachments " +
           " (cal_id, item_id, icalString, recurrence_id, recurrence_id_tz) " +
           "VALUES (:cal_id, :item_id, :icalString, :recurrence_id, :recurrence_id_tz)"
       );
 
-      this.mInsertRelation = this.mDB.createStatement(
+      this.mInsertRelation = this.mDB.createAsyncStatement(
         "INSERT INTO cal_relations " +
           " (cal_id, item_id, icalString, recurrence_id, recurrence_id_tz) " +
           "VALUES (:cal_id, :item_id, :icalString, :recurrence_id, :recurrence_id_tz)"
@@ -1273,7 +1314,7 @@ calStorageCalendar.prototype = {
           " VALUES (:cal_id, :item_id, :value)"
       );
 
-      this.mInsertAlarm = this.mDB.createStatement(
+      this.mInsertAlarm = this.mDB.createAsyncStatement(
         "INSERT INTO cal_alarms " +
           "  (cal_id, item_id, icalString, recurrence_id, recurrence_id_tz) " +
           "VALUES  (:cal_id, :item_id, :icalString, :recurrence_id, :recurrence_id_tz)  "
@@ -1290,31 +1331,31 @@ calStorageCalendar.prototype = {
       );
 
       // delete statements
-      this.mDeleteEvent = this.mDB.createStatement(
+      this.mDeleteEvent = this.mDB.createAsyncStatement(
         "DELETE FROM cal_events WHERE id = :id AND cal_id = :cal_id"
       );
-      this.mDeleteTodo = this.mDB.createStatement(
+      this.mDeleteTodo = this.mDB.createAsyncStatement(
         "DELETE FROM cal_todos WHERE id = :id AND cal_id = :cal_id"
       );
-      this.mDeleteAttendees = this.mDB.createStatement(
+      this.mDeleteAttendees = this.mDB.createAsyncStatement(
         "DELETE FROM cal_attendees WHERE item_id = :item_id AND cal_id = :cal_id"
       );
-      this.mDeleteProperties = this.mDB.createStatement(
+      this.mDeleteProperties = this.mDB.createAsyncStatement(
         "DELETE FROM cal_properties WHERE item_id = :item_id AND cal_id = :cal_id"
       );
-      this.mDeleteRecurrence = this.mDB.createStatement(
+      this.mDeleteRecurrence = this.mDB.createAsyncStatement(
         "DELETE FROM cal_recurrence WHERE item_id = :item_id AND cal_id = :cal_id"
       );
-      this.mDeleteAttachments = this.mDB.createStatement(
+      this.mDeleteAttachments = this.mDB.createAsyncStatement(
         "DELETE FROM cal_attachments WHERE item_id = :item_id AND cal_id = :cal_id"
       );
-      this.mDeleteRelations = this.mDB.createStatement(
+      this.mDeleteRelations = this.mDB.createAsyncStatement(
         "DELETE FROM cal_relations WHERE item_id = :item_id AND cal_id = :cal_id"
       );
       this.mDeleteMetaData = this.mDB.createStatement(
         "DELETE FROM cal_metadata WHERE item_id = :item_id AND cal_id = :cal_id"
       );
-      this.mDeleteAlarms = this.mDB.createStatement(
+      this.mDeleteAlarms = this.mDB.createAsyncStatement(
         "DELETE FROM cal_alarms WHERE item_id = :item_id AND cal_id = :cal_id"
       );
 
@@ -1716,7 +1757,7 @@ calStorageCalendar.prototype = {
         selectItem = this.mSelectAttendeesForItem;
       } else {
         selectItem = this.mSelectAttendeesForItemWithRecurrenceId;
-        this.setDateParamHelper(selectItem.params, "recurrence_id", item.recurrenceId);
+        this.setDateParamHelper(selectItem, "recurrence_id", item.recurrenceId);
       }
 
       try {
@@ -1756,7 +1797,7 @@ calStorageCalendar.prototype = {
         selectItem = this.mSelectPropertiesForItem;
       } else {
         selectItem = this.mSelectPropertiesForItemWithRecurrenceId;
-        this.setDateParamHelper(selectItem.params, "recurrence_id", item.recurrenceId);
+        this.setDateParamHelper(selectItem, "recurrence_id", item.recurrenceId);
       }
 
       try {
@@ -1868,7 +1909,7 @@ calStorageCalendar.prototype = {
       let selectAttachment = this.mSelectAttachmentsForItem;
       if (item.recurrenceId != null) {
         selectAttachment = this.mSelectAttachmentsForItemWithRecurrenceId;
-        this.setDateParamHelper(selectAttachment.params, "recurrence_id", item.recurrenceId);
+        this.setDateParamHelper(selectAttachment, "recurrence_id", item.recurrenceId);
       }
       try {
         this.prepareStatement(selectAttachment);
@@ -1891,7 +1932,7 @@ calStorageCalendar.prototype = {
       let selectRelation = this.mSelectRelationsForItem;
       if (item.recurrenceId != null) {
         selectRelation = this.mSelectRelationsForItemWithRecurrenceId;
-        this.setDateParamHelper(selectRelation.params, "recurrence_id", item.recurrenceId);
+        this.setDateParamHelper(selectRelation, "recurrence_id", item.recurrenceId);
       }
       try {
         this.prepareStatement(selectRelation);
@@ -1914,7 +1955,7 @@ calStorageCalendar.prototype = {
       let selectAlarm = this.mSelectAlarmsForItem;
       if (item.recurrenceId != null) {
         selectAlarm = this.mSelectAlarmsForItemWithRecurrenceId;
-        this.setDateParamHelper(selectAlarm.params, "recurrence_id", item.recurrenceId);
+        this.setDateParamHelper(selectAlarm, "recurrence_id", item.recurrenceId);
       }
       try {
         selectAlarm.params.item_id = item.id;
@@ -2006,166 +2047,143 @@ calStorageCalendar.prototype = {
 
   setDateParamHelper: function(params, entryname, cdt) {
     if (cdt) {
-      params[entryname] = cdt.nativeTime;
+      params.bindByName(entryname, cdt.nativeTime);
       let timezone = cdt.timezone;
       let ownTz = cal.getTimezoneService().getTimezone(timezone.tzid);
       if (ownTz) {
         // if we know that TZID, we use it
-        params[entryname + "_tz"] = ownTz.tzid;
+        params.bindByName(entryname + "_tz", ownTz.tzid);
       } else if (timezone.icalComponent) {
         // foreign one
-        params[entryname + "_tz"] = timezone.icalComponent.serializeToICS();
+        params.bindByName(entryname + "_tz", timezone.icalComponent.serializeToICS());
       } else {
         // timezone component missing
-        params[entryname + "_tz"] = "floating";
+        params.bindByName(entryname + "_tz", "floating");
       }
     } else {
-      params[entryname] = null;
-      params[entryname + "_tz"] = null;
+      params.bindByName(entryname, null);
+      params.bindByName(entryname + "_tz", null);
     }
   },
 
-  flushItem: function(item, olditem) {
+  flushItem: async function(item, olditem) {
     cal.ASSERT(!item.recurrenceId, "no parent item passed!", true);
 
-    try {
-      this.deleteItemById(olditem ? olditem.id : item.id, true);
-      this.acquireTransaction();
-      this.writeItem(item, olditem);
-    } catch (e) {
-      this.releaseTransaction(e);
-      throw e;
+    await this.deleteItemById(olditem ? olditem.id : item.id, true);
+    // Map {mozIStorageStatement -> mozIStorageBindingParamsArray}
+    let stmts = new Map();
+    this.prepareItem(stmts, item, olditem);
+    for (let [stmt, array] of stmts) {
+      stmt.bindParameters(array);
     }
-    this.releaseTransaction();
+    await this.executeAsync([...stmts.keys()]);
 
     this.cacheItem(item);
   },
 
   //
-  // The write* functions execute the database bits
+  // The prepare* functions prepare the database bits
   // to write the given item type.  They're to return
-  // any bits they want or'd into flags, which will be passed
-  // to writeEvent/writeTodo to actually do the writing.
+  // any bits they want or'd into flags, which will be
+  // prepared for writing by prepareEvent/prepareTodo.
   //
 
-  writeItem: function(item, olditem) {
+  prepareItem: function(stmts, item, olditem) {
     let flags = 0;
 
-    flags |= this.writeAttendees(item, olditem);
-    flags |= this.writeRecurrence(item, olditem);
-    flags |= this.writeProperties(item, olditem);
-    flags |= this.writeAttachments(item, olditem);
-    flags |= this.writeRelations(item, olditem);
-    flags |= this.writeAlarms(item, olditem);
+    flags |= this.prepareAttendees(stmts, item, olditem);
+    flags |= this.prepareRecurrence(stmts, item, olditem);
+    flags |= this.prepareProperties(stmts, item, olditem);
+    flags |= this.prepareAttachments(stmts, item, olditem);
+    flags |= this.prepareRelations(stmts, item, olditem);
+    flags |= this.prepareAlarms(stmts, item, olditem);
 
     if (cal.item.isEvent(item)) {
-      this.writeEvent(item, olditem, flags);
+      this.prepareEvent(stmts, item, olditem, flags);
     } else if (cal.item.isToDo(item)) {
-      this.writeTodo(item, olditem, flags);
+      this.prepareTodo(stmts, item, olditem, flags);
     } else {
       throw Cr.NS_ERROR_UNEXPECTED;
     }
   },
 
-  writeEvent: function(item, olditem, flags) {
-    try {
-      this.prepareStatement(this.mInsertEvent);
-      let params = this.mInsertEvent.params;
-      this.setupItemBaseParams(item, olditem, params);
+  prepareEvent: function(stmts, item, olditem, flags) {
+    let array = this.prepareAsyncStatement(stmts, this.mInsertEvent);
+    let params = this.prepareAsyncParams(array);
 
-      this.setDateParamHelper(params, "event_start", item.startDate);
-      this.setDateParamHelper(params, "event_end", item.endDate);
-      let dtstamp = item.stampTime;
-      if (dtstamp) {
-        params.event_stamp = dtstamp.nativeTime;
-      }
+    this.setupItemBaseParams(item, olditem, params);
 
-      if (item.startDate.isDate) {
-        flags |= CAL_ITEM_FLAG.EVENT_ALLDAY;
-      }
+    this.setDateParamHelper(params, "event_start", item.startDate);
+    this.setDateParamHelper(params, "event_end", item.endDate);
+    let dtstamp = item.stampTime;
+    params.bindByName("event_stamp", dtstamp && dtstamp.nativeTime);
 
-      params.flags = flags;
-
-      this.mInsertEvent.executeStep();
-    } finally {
-      this.mInsertEvent.reset();
+    if (item.startDate.isDate) {
+      flags |= CAL_ITEM_FLAG.EVENT_ALLDAY;
     }
+
+    params.bindByName("flags", flags);
+
+    array.addParams(params);
   },
 
-  writeTodo: function(item, olditem, flags) {
-    try {
-      this.prepareStatement(this.mInsertTodo);
-      let params = this.mInsertTodo.params;
+  prepareTodo: function(stmts, item, olditem, flags) {
+    let array = this.prepareAsyncStatement(stmts, this.mInsertTodo);
+    let params = this.prepareAsyncParams(array);
 
-      this.setupItemBaseParams(item, olditem, params);
+    this.setupItemBaseParams(item, olditem, params);
 
-      this.setDateParamHelper(params, "todo_entry", item.entryDate);
-      this.setDateParamHelper(params, "todo_due", item.dueDate);
-      let dtstamp = item.stampTime;
-      if (dtstamp) {
-        params.todo_stamp = dtstamp.nativeTime;
-      }
-      this.setDateParamHelper(params, "todo_completed", item.getProperty("COMPLETED"));
+    this.setDateParamHelper(params, "todo_entry", item.entryDate);
+    this.setDateParamHelper(params, "todo_due", item.dueDate);
+    let dtstamp = item.stampTime;
+    params.bindByName("todo_stamp", dtstamp && dtstamp.nativeTime);
+    this.setDateParamHelper(params, "todo_completed", item.getProperty("COMPLETED"));
 
-      params.todo_complete = item.getProperty("PERCENT-COMPLETED");
+    params.bindByName("todo_complete", item.getProperty("PERCENT-COMPLETED"));
 
-      let someDate = item.entryDate || item.dueDate;
-      if (someDate && someDate.isDate) {
-        flags |= CAL_ITEM_FLAG.EVENT_ALLDAY;
-      }
-
-      params.flags = flags;
-
-      this.mInsertTodo.executeStep();
-    } finally {
-      this.mInsertTodo.reset();
+    let someDate = item.entryDate || item.dueDate;
+    if (someDate && someDate.isDate) {
+      flags |= CAL_ITEM_FLAG.EVENT_ALLDAY;
     }
+
+    params.bindByName("flags", flags);
+
+    array.addParams(params);
   },
 
   setupItemBaseParams: function(item, olditem, params) {
-    params.id = item.id;
+    params.bindByName("id", item.id);
 
-    if (item.recurrenceId) {
-      this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
-    }
+    this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
 
-    let tmp;
+    let tmp = item.getProperty("CREATED");
+    params.bindByName("time_created", tmp && tmp.nativeTime);
 
-    if ((tmp = item.getProperty("CREATED"))) {
-      params.time_created = tmp.nativeTime;
-    }
-    if ((tmp = item.getProperty("LAST-MODIFIED"))) {
-      params.last_modified = tmp.nativeTime;
-    }
+    tmp = item.getProperty("LAST-MODIFIED");
+    params.bindByName("last_modified", tmp && tmp.nativeTime);
 
-    params.title = item.getProperty("SUMMARY");
-    params.priority = item.getProperty("PRIORITY");
-    params.privacy = item.getProperty("CLASS");
-    params.ical_status = item.getProperty("STATUS");
+    params.bindByName("title", item.getProperty("SUMMARY"));
+    params.bindByName("priority", item.getProperty("PRIORITY"));
+    params.bindByName("privacy", item.getProperty("CLASS"));
+    params.bindByName("ical_status", item.getProperty("STATUS"));
 
-    if (item.alarmLastAck) {
-      params.alarm_last_ack = item.alarmLastAck.nativeTime;
-    }
+    params.bindByName("alarm_last_ack", item.alarmLastAck && item.alarmLastAck.nativeTime);
   },
 
-  writeAttendees: function(item, olditem) {
+  prepareAttendees: function(stmts, item, olditem) {
     let attendees = item.getAttendees({});
     if (item.organizer) {
       attendees = attendees.concat([]);
       attendees.push(item.organizer);
     }
     if (attendees.length > 0) {
+      let array = this.prepareAsyncStatement(stmts, this.mInsertAttendee);
       for (let att of attendees) {
-        let params = this.mInsertAttendee.params;
-        params.item_id = item.id;
-        try {
-          this.prepareStatement(this.mInsertAttendee);
-          this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
-          params.icalString = att.icalString;
-          this.mInsertAttendee.executeStep();
-        } finally {
-          this.mInsertAttendee.reset();
-        }
+        let params = this.prepareAsyncParams(array);
+        params.bindByName("item_id", item.id);
+        this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
+        params.bindByName("icalString", att.icalString);
+        array.addParams(params);
       }
 
       return CAL_ITEM_FLAG.HAS_ATTENDEES;
@@ -2174,70 +2192,63 @@ calStorageCalendar.prototype = {
     return 0;
   },
 
-  writeProperty: function(item, propName, propValue) {
-    try {
-      this.prepareStatement(this.mInsertProperty);
-      let params = this.mInsertProperty.params;
-      params.key = propName;
-      let wPropValue = cal.wrapInstance(propValue, Ci.calIDateTime);
-      if (wPropValue) {
-        params.value = wPropValue.nativeTime;
-      } else {
-        try {
-          params.value = propValue;
-        } catch (e) {
-          // The storage service throws an NS_ERROR_ILLEGAL_VALUE in
-          // case pval is something complex (i.e not a string or
-          // number). Swallow this error, leaving the value empty.
-          if (e.result != Cr.NS_ERROR_ILLEGAL_VALUE) {
-            throw e;
-          }
+  prepareProperty: function(stmts, item, propName, propValue) {
+    let array = this.prepareAsyncStatement(stmts, this.mInsertProperty);
+    let params = this.prepareAsyncParams(array);
+    params.bindByName("key", propName);
+    let wPropValue = cal.wrapInstance(propValue, Ci.calIDateTime);
+    if (wPropValue) {
+      params.bindByName("value", wPropValue.nativeTime);
+    } else {
+      try {
+        params.bindByName("value", propValue);
+      } catch (e) {
+        // The storage service throws an NS_ERROR_ILLEGAL_VALUE in
+        // case pval is something complex (i.e not a string or
+        // number). Swallow this error, leaving the value empty.
+        if (e.result != Cr.NS_ERROR_ILLEGAL_VALUE) {
+          throw e;
         }
+        params.bindByName("value", null);
       }
-      params.item_id = item.id;
-      this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
-      this.mInsertProperty.executeStep();
-    } finally {
-      this.mInsertProperty.reset();
     }
+    params.bindByName("item_id", item.id);
+    this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
+    array.addParams(params);
   },
 
-  writeProperties: function(item, olditem) {
+  prepareProperties: function(stmts, item, olditem) {
     let ret = 0;
     for (let [name, value] of item.properties) {
       ret = CAL_ITEM_FLAG.HAS_PROPERTIES;
       if (item.isPropertyPromoted(name)) {
         continue;
       }
-      this.writeProperty(item, name, value);
+      this.prepareProperty(stmts, item, name, value);
     }
 
     let cats = item.getCategories({});
     if (cats.length > 0) {
       ret = CAL_ITEM_FLAG.HAS_PROPERTIES;
-      this.writeProperty(item, "CATEGORIES", cal.category.arrayToString(cats));
+      this.prepareProperty(stmts, item, "CATEGORIES", cal.category.arrayToString(cats));
     }
 
     return ret;
   },
 
-  writeRecurrence: function(item, olditem) {
+  prepareRecurrence: function(stmts, item, olditem) {
     let flags = 0;
 
     let rec = item.recurrenceInfo;
     if (rec) {
       flags = CAL_ITEM_FLAG.HAS_RECURRENCE;
       let ritems = rec.getRecurrenceItems({});
+      let array = this.prepareAsyncStatement(stmts, this.mInsertRecurrence);
       for (let ritem of ritems) {
-        let params = this.mInsertRecurrence.params;
-        try {
-          this.prepareStatement(this.mInsertRecurrence);
-          params.item_id = item.id;
-          params.icalString = ritem.icalString;
-          this.mInsertRecurrence.executeStep();
-        } finally {
-          this.mInsertRecurrence.reset();
-        }
+        let params = this.prepareAsyncParams(array);
+        params.bindByName("item_id", item.id);
+        params.bindByName("icalString", ritem.icalString);
+        array.addParams(params);
       }
 
       let exceptions = rec.getExceptionIds({});
@@ -2252,7 +2263,7 @@ calStorageCalendar.prototype = {
           if (!ex) {
             throw Cr.NS_ERROR_UNEXPECTED;
           }
-          this.writeItem(ex, null);
+          this.prepareItem(stmts, ex, null);
         }
       }
     } else if (item.recurrenceId && item.recurrenceId.isDate) {
@@ -2262,67 +2273,54 @@ calStorageCalendar.prototype = {
     return flags;
   },
 
-  writeAttachments: function(item, olditem) {
+  prepareAttachments: function(stmts, item, olditem) {
     let attachments = item.getAttachments({});
     if (attachments && attachments.length > 0) {
+      let array = this.prepareAsyncStatement(stmts, this.mInsertAttachment);
       for (let att of attachments) {
-        let params = this.mInsertAttachment.params;
-        try {
-          this.prepareStatement(this.mInsertAttachment);
-          this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
-          params.item_id = item.id;
-          params.icalString = att.icalString;
+        let params = this.prepareAsyncParams(array);
+        this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
+        params.bindByName("item_id", item.id);
+        params.bindByName("icalString", att.icalString);
 
-          this.mInsertAttachment.executeStep();
-        } finally {
-          this.mInsertAttachment.reset();
-        }
+        array.addParams(params);
       }
       return CAL_ITEM_FLAG.HAS_ATTACHMENTS;
     }
     return 0;
   },
 
-  writeRelations: function(item, olditem) {
+  prepareRelations: function(stmts, item, olditem) {
     let relations = item.getRelations({});
     if (relations && relations.length > 0) {
+      let array = this.prepareAsyncStatement(stmts, this.mInsertRelation);
       for (let rel of relations) {
-        let params = this.mInsertRelation.params;
-        try {
-          this.prepareStatement(this.mInsertRelation);
-          this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
-          params.item_id = item.id;
-          params.icalString = rel.icalString;
+        let params = this.prepareAsyncParams(array);
+        this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
+        params.bindByName("item_id", item.id);
+        params.bindByName("icalString", rel.icalString);
 
-          this.mInsertRelation.executeStep();
-        } finally {
-          this.mInsertRelation.reset();
-        }
+        array.addParams(params);
       }
       return CAL_ITEM_FLAG.HAS_RELATIONS;
     }
     return 0;
   },
 
-  writeAlarms: function(item, olditem) {
+  prepareAlarms: function(stmts, item, olditem) {
     let alarms = item.getAlarms({});
     if (alarms.length < 1) {
       return 0;
     }
 
+    let array = this.prepareAsyncStatement(stmts, this.mInsertAlarm);
     for (let alarm of alarms) {
-      let params = this.mInsertAlarm.params;
-      try {
-        this.prepareStatement(this.mInsertAlarm);
-        this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
-        params.item_id = item.id;
-        params.icalString = alarm.icalString;
-        this.mInsertAlarm.executeStep();
-      } catch (e) {
-        this.logError("Error writing alarm for item " + item.title + " (" + item.id + ")", e);
-      } finally {
-        this.mInsertAlarm.reset();
-      }
+      let params = this.prepareAsyncParams(array);
+      this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
+      params.bindByName("item_id", item.id);
+      params.bindByName("icalString", alarm.icalString);
+
+      array.addParams(params);
     }
 
     return CAL_ITEM_FLAG.HAS_ALARMS;
@@ -2334,51 +2332,24 @@ calStorageCalendar.prototype = {
    * @param aID           The id of the item to delete.
    * @param aIsModify     If true, then leave in metadata for the item
    */
-  deleteItemById: function(aID, aIsModify) {
-    this.acquireTransaction();
-    try {
-      this.executeItemStatement(this.mDeleteAttendees, "item_id", aID);
-      this.executeItemStatement(this.mDeleteProperties, "item_id", aID);
-      this.executeItemStatement(this.mDeleteRecurrence, "item_id", aID);
-      this.executeItemStatement(this.mDeleteEvent, "id", aID);
-      this.executeItemStatement(this.mDeleteTodo, "id", aID);
-      this.executeItemStatement(this.mDeleteAttachments, "item_id", aID);
-      this.executeItemStatement(this.mDeleteRelations, "item_id", aID);
-      if (!aIsModify) {
-        this.executeItemStatement(this.mDeleteMetaData, "item_id", aID);
-      }
-      this.executeItemStatement(this.mDeleteAlarms, "item_id", aID);
-    } catch (e) {
-      this.releaseTransaction(e);
-      throw e;
+  deleteItemById: async function(aID, aIsModify) {
+    let stmts = [];
+    this.prepareItemStatement(stmts, this.mDeleteAttendees, "item_id", aID);
+    this.prepareItemStatement(stmts, this.mDeleteProperties, "item_id", aID);
+    this.prepareItemStatement(stmts, this.mDeleteRecurrence, "item_id", aID);
+    this.prepareItemStatement(stmts, this.mDeleteEvent, "id", aID);
+    this.prepareItemStatement(stmts, this.mDeleteTodo, "id", aID);
+    this.prepareItemStatement(stmts, this.mDeleteAttachments, "item_id", aID);
+    this.prepareItemStatement(stmts, this.mDeleteRelations, "item_id", aID);
+    if (!aIsModify) {
+      this.prepareItemStatement(stmts, this.mDeleteMetaData, "item_id", aID);
     }
-    this.releaseTransaction();
+    this.prepareItemStatement(stmts, this.mDeleteAlarms, "item_id", aID);
+    await this.executeAsync(stmts);
 
     delete this.mItemCache[aID];
     delete this.mRecEventCache[aID];
     delete this.mRecTodoCache[aID];
-  },
-
-  /**
-   * Acquire a transaction for this calendar.
-   */
-  acquireTransaction: function() {
-    this.mDB.beginTransaction();
-  },
-
-  /**
-   * Releases one level of transactions for this calendar.
-   *
-   * @param err       (optional) If set, the transaction is set to fail when
-   *                    the count reaches zero.
-   */
-  releaseTransaction: function(err) {
-    if (err) {
-      cal.ERROR("[calStorageCalendar] DB error: " + this.mDB.lastErrorString + "\nexc: " + err);
-      this.mDB.rollbackTransaction();
-    } else {
-      this.mDB.commitTransaction();
-    }
   },
 
   //
