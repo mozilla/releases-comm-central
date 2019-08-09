@@ -934,8 +934,7 @@ var MessageWindowController = {
       case "cmd_createFilterFromPopup":
       case "cmd_createFilterFromMenu":
         loadedFolder = gFolderDisplay.displayedFolder;
-        if (!(loadedFolder && loadedFolder.server.canHaveFilters))
-          return false;
+        return loadedFolder && loadedFolder.server.canHaveFilters;
       case "cmd_delete":
         UpdateDeleteCommand();
         // fall through

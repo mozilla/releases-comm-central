@@ -804,8 +804,8 @@ var GlodaIndexer = {
         case this.kWorkDone:
           this._batch.return();
           this._batch = null;
-          // (intentional fall-through to re-scheduling logic)
         // the batch wants to get re-scheduled, do so.
+        // (intentional fall-through to re-scheduling logic)
         case this.kWorkPause:
           if (this.indexing) {
             this._timer.initWithCallback(this._timerCallbackDriver,

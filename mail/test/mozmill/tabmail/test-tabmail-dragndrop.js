@@ -419,7 +419,6 @@ function teardownTest(test) {
        // fall through!
 
     case test_tab_reorder_tabbar :
-
     case test_tab_recentlyClosed :
     case test_tab_undo :
 

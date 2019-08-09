@@ -132,8 +132,7 @@ var listener = {
         gTest.currentIndex++;
         break;
 
-      case kTrain:
-        // We tested this some in test_junkAsTraits.js, so let's not bother
+      case kTrain:  // We tested this some in test_junkAsTraits.js, so let's not bother
       default:
         break;
     }

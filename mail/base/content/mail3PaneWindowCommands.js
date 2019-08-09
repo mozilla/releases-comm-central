@@ -481,6 +481,7 @@ var DefaultController = {
       case "cmd_selectThread":
         if (gFolderDisplay.selectedCount <= 0)
           return false;
+        // Falls through
       case "cmd_expandAllThreads":
       case "cmd_collapseAllThreads":
         return gFolderDisplay.view.showThreaded ||

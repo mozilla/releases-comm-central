@@ -188,6 +188,7 @@ function onInput() {
   switch (gDialog.inputType.selectedIndex) {
   case 3:
     disabled = disabled || !gDialog.inputValue.value;
+    break;
   case 4:
   case 5:
     break;
@@ -231,6 +232,7 @@ function ValidateData() {
   switch (index) {
     case 1:
       attributes.type = "password";
+      // Falls through
     case 0:
       flags.readonly = gDialog.inputReadOnly.checked;
       attributes.size = gDialog.inputSize.value;

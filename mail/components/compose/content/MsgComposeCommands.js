@@ -342,6 +342,7 @@ var stateListener = {
     switch (gComposeType) {
     case Ci.nsIMsgCompType.MailToUrl:
       gBodyFromArgs = true;
+      // Falls through
     case Ci.nsIMsgCompType.New:
     case Ci.nsIMsgCompType.NewsPost:
     case Ci.nsIMsgCompType.ForwardAsAttachment:
@@ -364,6 +365,7 @@ var stateListener = {
 
     case Ci.nsIMsgCompType.EditTemplate:
       defaultSaveOperation = "template";
+      break;
     case Ci.nsIMsgCompType.Draft:
     case Ci.nsIMsgCompType.Template:
     case Ci.nsIMsgCompType.Redirect:

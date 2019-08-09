@@ -502,7 +502,7 @@ PopupNotifications.prototype = {
           }
           break;
         }
-
+        // Falls through
       case "TabSelect":
         let self = this;
         // This is where we could detect if the panel is dismissed if the page

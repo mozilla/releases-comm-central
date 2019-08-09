@@ -2190,10 +2190,10 @@ class HandlerInfoWrapper {
         if (gGeneralPane.isValidHandlerApp(preferredApp)) {
           return gGeneralPane._getIconURLForHandlerApp(preferredApp);
         }
-      // Explicit fall-through
-
       // This should never happen, but if preferredAction is set to some weird
       // value, then fall back to the generic application icon.
+
+      // Explicit fall-through
       default:
         return ICON_URL_APP;
     }

@@ -83,6 +83,7 @@ var Notifications = {
           let bundledMessage = bundle.getFormattedString("bundledMessagePreview", [messageText], 1);
           messageText = PluralForm.get(aCounter, bundledMessage).replace("#1", aCounter);
         }
+        // Falls through
       case 1:
         // Use the buddy icon if available for the icon of the notification.
         let conv = aMessage.conversation;
@@ -96,6 +97,7 @@ var Notifications = {
         name = aMessage.alias || aMessage.who;
         if (messageText && messageText.startsWith("/me "))
           messageText = messageText.replace(/^\/me/, name);
+        // Falls through
       case 2:
         if (!icon)
           icon = "chrome://messenger/skin/icons/userIcon.svg";

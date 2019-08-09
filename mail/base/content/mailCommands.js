@@ -178,8 +178,8 @@ function ComposeMessage(type, format, folder, messageArray) {
         hdr = messageArray.length > 1 ? null : messenger.msgHdrFromURI(messageArray[0]);
         MailServices.compose.OpenComposeWindow(null, hdr, messageArray.join(","),
                                                type, format, identity, msgWindow);
-        return;
       }
+      return;
     default:
       if (!messageArray)
         return;

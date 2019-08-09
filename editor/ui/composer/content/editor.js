@@ -1902,6 +1902,7 @@ function InitObjectPropertiesMenuitem() {
         break;
       case "th":
         name = "td";
+        // Falls through
       case "td":
         objStr = GetString("TableCell");
         break;
