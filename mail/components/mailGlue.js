@@ -59,14 +59,15 @@ MailGlue.prototype = {
 
     // Inject scripts into some devtools windows.
     function _setupBrowserConsole(domWindow) {
-      domWindow.document.documentElement.setAttribute("title", gMailBundle.GetStringFromName("errorConsoleTitle"));
+      // Browser Console is an XHTML document.
+      domWindow.document.title = gMailBundle.GetStringFromName("errorConsoleTitle");
       Services.scriptloader.loadSubScript("chrome://global/content/viewSourceUtils.js", domWindow);
     }
 
     ExtensionSupport.registerWindowListener(
       "Thunderbird-internal-BrowserConsole",
       {
-        chromeURLs: [ "chrome://devtools/content/webconsole/browserconsole.xul" ],
+        chromeURLs: [ "chrome://devtools/content/webconsole/index.html" ],
         onLoadWindow: _setupBrowserConsole,
       });
 
