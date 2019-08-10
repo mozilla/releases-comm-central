@@ -8216,26 +8216,28 @@ nsImapMailFolder::StoreCustomKeywords(nsIMsgWindow *aMsgWindow,
                                       const nsACString &aFlagsToSubtract,
                                       nsMsgKey *aKeysToStore, uint32_t aNumKeys,
                                       nsIURI **_retval) {
-  nsresult rv;
+  if (aNumKeys == 0) return NS_OK;
+  nsresult rv = NS_OK;
   if (WeAreOffline()) {
     GetDatabase();
-    if (mDatabase) {
-      for (uint32_t keyIndex = 0; keyIndex < aNumKeys; keyIndex++) {
-        nsCOMPtr<nsIMsgOfflineImapOperation> op;
-        rv = mDatabase->GetOfflineOpForKey(aKeysToStore[keyIndex], true,
-                                           getter_AddRefs(op));
-        SetFlag(nsMsgFolderFlags::OfflineEvents);
-        if (NS_SUCCEEDED(rv) && op) {
-          if (!aFlagsToAdd.IsEmpty())
-            op->AddKeywordToAdd(PromiseFlatCString(aFlagsToAdd).get());
-          if (!aFlagsToSubtract.IsEmpty())
-            op->AddKeywordToRemove(PromiseFlatCString(aFlagsToSubtract).get());
-        }
+    if (!mDatabase) return NS_ERROR_UNEXPECTED;
+    for (uint32_t keyIndex = 0; keyIndex < aNumKeys; keyIndex++) {
+      nsCOMPtr<nsIMsgOfflineImapOperation> op;
+      nsresult rv2 = mDatabase->GetOfflineOpForKey(aKeysToStore[keyIndex], true,
+                                                   getter_AddRefs(op));
+      if (NS_FAILED(rv2)) rv = rv2;
+      SetFlag(nsMsgFolderFlags::OfflineEvents);
+      if (NS_SUCCEEDED(rv2) && op) {
+        if (!aFlagsToAdd.IsEmpty())
+          op->AddKeywordToAdd(PromiseFlatCString(aFlagsToAdd).get());
+        if (!aFlagsToSubtract.IsEmpty())
+          op->AddKeywordToRemove(PromiseFlatCString(aFlagsToSubtract).get());
       }
-      mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);  // flush offline ops
-      return rv;
     }
+    mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);  // flush offline ops
+    return rv;
   }
+
   nsCOMPtr<nsIImapService> imapService(
       do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
