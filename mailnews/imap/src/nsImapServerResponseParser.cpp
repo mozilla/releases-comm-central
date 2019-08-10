@@ -2686,13 +2686,13 @@ bool nsImapServerResponseParser::msg_fetch_literal(bool chunk, int32_t origin) {
   bool lastChunk = (!chunk || (numberOfCharsInThisChunk !=
                                fServerConnection.GetCurFetchSize()));
 
+  // clang-format off
   if (lastChunk)
-    // clang-format off
     MOZ_LOG(IMAP, mozilla::LogLevel::Debug,
             ("PARSER: msg_fetch_literal() chunking=%s, requested=%d, receiving=%d",
              chunk ? "true":"false", fServerConnection.GetCurFetchSize(),
              numberOfCharsInThisChunk));
-    // clang-format on
+  // clang-format on
 
   charsReadSoFar = 0;
 
