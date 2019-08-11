@@ -47,27 +47,30 @@ About.prototype = {
   },
 
   newChannel: function(aURI, aLoadInfo) {
-    var module = this.getModule(aURI);
-    var newURI = Services.io.newURI(this[module + "URI"]);
-    var channel = aLoadInfo ?
+    let module = this.getModule(aURI);
+    let newURI = Services.io.newURI(this[module + "URI"]);
+
+    // We want a happy family which is always providing a loadInfo object.
+    if (!aLoadInfo) {
+      // Write out an error so that we have a stack and can fix the caller.
+      Cu.reportError('aLoadInfo was not provided in nsAbout.newChannel!');
+    }
+
+    let channel = aLoadInfo ?
                   Services.io.newChannelFromURIWithLoadInfo(newURI, aLoadInfo) :
                   Services.io.newChannelFromURI(newURI, null,
                                                 Services.scriptSecurityManager.getSystemPrincipal(),
                                                 null,
                                                 Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                                 Ci.nsIContentPolicy.TYPE_OTHER);
+
     channel.originalURI = aURI;
-    if (this[module + "Flags"] & UNTRUSTED)
-      channel.owner = null;
+    if (this[module + "Flags"] & UNTRUSTED) {
+      let principal = Services.scriptSecurityManager.createCodebasePrincipal(aURI, {});
+      channel.owner = principal;
+    }
     return channel;
   },
-
-  getIndexedDBOriginPostfix: function(aURI) {
-    if (this.getURIFlags(aURI) & INDEXEDDB) {
-      return this[this.getModule(aURI) + "Postfix"] || null;
-    }
-    throw Cr.NS_ERROR_ILLEGAL_VALUE;
-  }
 };
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory([About]);
