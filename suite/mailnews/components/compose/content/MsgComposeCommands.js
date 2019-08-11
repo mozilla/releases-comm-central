@@ -1522,13 +1522,17 @@ function ComposeUnload()
 
 function ComposeSetCharacterSet(aEvent)
 {
-  if (gMsgCompose) {
-    gMsgCompose.SetDocumentCharset(aEvent.target.getAttribute("charset"));
-    gCharsetTitle = null;
-    SetComposeWindowTitle();
-  }
+  if (gMsgCompose)
+    SetDocumentCharacterSet(aEvent.target.getAttribute("charset");
   else
     dump("Compose has not been created!\n");
+}
+
+function SetDocumentCharacterSet(aCharset)
+{
+  gMsgCompose.SetDocumentCharset(aCharset);
+  gCharsetTitle = null;
+  SetComposeWindowTitle();
 }
 
 function GetCharsetUIString()
