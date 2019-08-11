@@ -351,6 +351,12 @@ pref("network.protocol-handler.warn-external.nntp", true);
 // bug 1021370 - Rename Seer to Predictor
 pref("network.predictor.enabled", false);
 
+// To allow images to be inserted into a composition with an auth prompt, we
+// need the following two.
+pref("network.auth.subresource-img-cross-origin-http-auth-allow", true);
+// This pref is also needed for showing the caldav auth prompt.
+pref("network.auth.non-web-content-triggered-resources-http-auth-allow", true);
+
 pref("mail.biff.show_new_alert",     true);
 
 pref("mailnews.ui.deleteMarksRead", true);
