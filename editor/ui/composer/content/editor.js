@@ -2646,8 +2646,8 @@ function FindEditorWithInsertCharDialog() {
     while (enumerator.hasMoreElements()) {
       var tempWindow = enumerator.getNext();
 
-      if (tempWindow != window && "InsertCharWindow" in tempWindow &&
-          tempWindow.InsertCharWindow) {
+      if (!tempWindow.closed && tempWindow != window &&
+          "InsertCharWindow" in tempWindow && tempWindow.InsertCharWindow) {
         return tempWindow;
       }
     }
@@ -2685,7 +2685,8 @@ function SwitchInsertCharToAnotherEditorOrClose() {
     // For now, detect just Web Composer and HTML Mail Composer
     while (enumerator.hasMoreElements()) {
       var tempWindow = enumerator.getNext();
-      if (tempWindow != window && tempWindow != window.InsertCharWindow &&
+      if (!tempWindow.closed && tempWindow != window &&
+          tempWindow != window.InsertCharWindow &&
           "GetCurrentEditor" in tempWindow && tempWindow.GetCurrentEditor()) {
         tempWindow.InsertCharWindow = window.InsertCharWindow;
         window.InsertCharWindow = null;

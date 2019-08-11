@@ -172,29 +172,36 @@ function OpenBrowserWindow()
   return null;
 }
 
-function CycleWindow( aType )
-{
-  var topWindowOfType = Services.wm.getMostRecentWindow(aType);
-  var topWindow = Services.wm.getMostRecentWindow(null);
-
-  if ( topWindowOfType == null )
+function CycleWindow(aType) {
+  let topWindowOfType = Services.wm.getMostRecentWindow(aType);
+  if (topWindowOfType == null)
     return null;
 
-  if ( topWindowOfType != topWindow ) {
+  let topWindow = Services.wm.getMostRecentWindow(null);
+  if (topWindowOfType != topWindow) {
     toOpenWindow(topWindowOfType);
     return topWindowOfType;
   }
 
-  var enumerator = Services.wm.getEnumerator(aType);
-  var firstWindow = enumerator.getNext();
-  var iWindow = firstWindow;
-  while (iWindow != topWindow && enumerator.hasMoreElements())
-    iWindow = enumerator.getNext();
+  let foundTop = false;
+  let enumerator = Services.wm.getEnumerator(aType);
+  let iWindow;
+  let firstWindow;
 
-  if (enumerator.hasMoreElements()) {
+  while (enumerator.hasMoreElements()) {
     iWindow = enumerator.getNext();
-    toOpenWindow(iWindow);
-    return iWindow;
+    if (!iWindow.closed) {
+      if (!firstWindow) {
+        firstWindow = iWindow;
+      }
+      if (topFound) {
+        toOpenWindow(iWindow);
+        return iWindow;
+      }
+      if (iWindow == topWindow) {
+        topFound = true;
+      }
+    }
   }
 
   if (firstWindow == topWindow) // Only one window
@@ -219,7 +226,7 @@ function checkFocusedWindow()
   let frag = document.createDocumentFragment();
   while (windows.hasMoreElements()) {
     let win = windows.getNext();
-    if (win.document.documentElement.getAttribute("inwindowmenu") == "false") {
+    if (win.closed || win.document.documentElement.getAttribute("inwindowmenu") == "false") {
       continue;
     }
     let item = document.createElement("menuitem");

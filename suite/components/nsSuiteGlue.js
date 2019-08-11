@@ -720,6 +720,7 @@ SuiteGlue.prototype = {
     var pagecount = 0;
     var browserEnum = Services.wm.getEnumerator("navigator:browser");
     while (browserEnum.hasMoreElements()) {
+      // XXXbz should we skip closed windows here?
       windowcount++;
 
       var browser = browserEnum.getNext();

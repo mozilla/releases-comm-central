@@ -404,6 +404,8 @@
           while (iterator.hasMoreElements())
           {
             aWindow = iterator.getNext();
+            if (aWindow.closed)
+              continue;
             if (aWindow.getHelpFileURI() == helpFileURI)
               topWindow = aWindow;
           }

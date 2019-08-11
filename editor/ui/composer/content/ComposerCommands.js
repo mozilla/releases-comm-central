@@ -1948,7 +1948,8 @@ var nsPreviewCommand = {
         var documentURI = GetDocumentUrl();
         while (enumerator.hasMoreElements()) {
           browser = enumerator.getNext();
-          if (browser && (documentURI == browser.getBrowser().currentURI.spec))
+          if (browser && !browser.closed &&
+              (documentURI == browser.getBrowser().currentURI.spec))
             break;
 
           browser = null;

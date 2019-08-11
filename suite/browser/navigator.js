@@ -2466,6 +2466,9 @@ function BrowserPageInfo(doc, initialTab, imageElement) {
   // Check for windows matching the url
   while (enumerator.hasMoreElements()) {
     let win = enumerator.getNext();
+    if (win.closed) {
+      continue;
+    }
     if (win.document.documentElement
            .getAttribute("relatedUrl") == relatedUrl) {
       win.focus();
@@ -2996,7 +2999,7 @@ function isClosingLastBrowser() {
   var e = Services.wm.getEnumerator("navigator:browser");
   while (e.hasMoreElements()) {
     let win = e.getNext();
-    if (win != window && win.toolbar.visible)
+    if (!win.closed && win != window && win.toolbar.visible)
       return false;
   }
 

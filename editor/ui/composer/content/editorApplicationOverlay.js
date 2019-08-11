@@ -82,7 +82,7 @@ function editPage(url, aFileType)
     while ( enumerator.hasMoreElements() )
     {
       var win = enumerator.getNext();
-      if ( win && win.IsWebComposer())
+      if (win && !win.closed && win.IsWebComposer())
       {
         if (CheckOpenWindowForURIMatch(uri, win))
         {
