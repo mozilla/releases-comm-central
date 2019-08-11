@@ -37,11 +37,11 @@
   </hbox>
   <hbox pack="end">
      <button id="btnBlock" disabled="true" accesskey="&block.accesskey;"
-             label="&block.label;" oncommand="addPermission(nsIPermissionManager.DENY_ACTION);"/>
+             label="&block.label;" oncommand="addPermission(Ci.nsIPermissionManager.DENY_ACTION);"/>
      <button id="btnSession" disabled="true" accesskey="&session.accesskey;"
-             label="&session.label;" oncommand="addPermission(nsICookiePermission.ACCESS_SESSION);"/>
+             label="&session.label;" oncommand="addPermission(Ci.nsICookiePermission.ACCESS_SESSION);"/>
      <button id="btnAllow" disabled="true" accesskey="&allow.accesskey;"
-             label="&allow.label;" oncommand="addPermission(nsIPermissionManager.ALLOW_ACTION);"/>
+             label="&allow.label;" oncommand="addPermission(Ci.nsIPermissionManager.ALLOW_ACTION);"/>
   </hbox>
   <separator class="thin"/>
   <tree id="permissionsTree" flex="1" style="height: 18em;"

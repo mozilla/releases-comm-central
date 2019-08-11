@@ -154,13 +154,13 @@
             <textbox id="cookie-site" flex="1" oninput="buttonEnabling(this);"/>
             <button id="btnBlock" label="&blockSite.label;" disabled="true"
                     accesskey="&blockSite.accesskey;"
-                    oncommand="setCookiePermissions(nsIPermissionManager.DENY_ACTION);"/>
+                    oncommand="setCookiePermissions(Ci.nsIPermissionManager.DENY_ACTION);"/>
             <button id="btnSession" label="&allowSiteSession.label;" disabled="true"
                     accesskey="&allowSiteSession.accesskey;"
-                    oncommand="setCookiePermissions(nsICookiePermission.ACCESS_SESSION);"/>
+                    oncommand="setCookiePermissions(Ci.nsICookiePermission.ACCESS_SESSION);"/>
             <button id="btnAllow" label="&allowSite.label;" disabled="true"
                     accesskey="&allowSite.accesskey;"
-                    oncommand="setCookiePermissions(nsIPermissionManager.ALLOW_ACTION);"/>
+                    oncommand="setCookiePermissions(Ci.nsIPermissionManager.ALLOW_ACTION);"/>
           </hbox>
           <separator class="thin"/>
           <tree id="permissionsTree"

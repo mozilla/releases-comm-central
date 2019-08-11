@@ -2,10 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const nsIPermissionManager = Ci.nsIPermissionManager;
-const nsICookiePermission = Ci.nsICookiePermission;
-
-var permissionManager;
+Cu.import("resource://gre/modules/Services.jsm");
 
 var additions = [];
 var removals = [];
@@ -43,9 +40,6 @@ var permissionsBundle;
 
 function Startup() {
   var introText, windowTitle;
-
-  permissionManager = Cc["@mozilla.org/permissionmanager;1"]
-                        .getService(nsIPermissionManager);
 
   permissionsTree = document.getElementById("permissionsTree");
 
@@ -127,7 +121,7 @@ function btnDisable(aDisabled) {
 }
 
 function loadPermissions() {
-  var enumerator = permissionManager.enumerator;
+  var enumerator = Services.perms.enumerator;
   var count = 0;
   var permission;
 
@@ -155,14 +149,14 @@ function loadPermissions() {
 function capabilityString(aCapability) {
   var capability = null;
   switch (aCapability) {
-    case nsIPermissionManager.ALLOW_ACTION:
+    case Ci.nsIPermissionManager.ALLOW_ACTION:
       capability = "can";
       break;
-    case nsIPermissionManager.DENY_ACTION:
+    case Ci.nsIPermissionManager.DENY_ACTION:
       capability = "cannot";
       break;
     // we should only ever hit this for cookies
-    case nsICookiePermission.ACCESS_SESSION:
+    case Ci.nsICookiePermission.ACCESS_SESSION:
       capability = "canSession";
       break;
     default:
@@ -185,7 +179,7 @@ function permissionColumnSort(aColumn, aUpdateSelection) {
 }
 
 function permissionSelected() {
-  if (permissionManager) {
+  if (Services.perms) {
     var selections = GetTreeSelections(permissionsTree);
     document.getElementById("removePermission").disabled = (selections.length < 1);
   }
@@ -202,14 +196,12 @@ function deleteAllPermissions() {
 }
 
 function finalizeChanges() {
-  var ioService = Cc["@mozilla.org/network/io-service;1"]
-                    .getService(Ci.nsIIOService);
   var i, p;
 
   for (i in removals) {
     p = removals[i];
     try {
-      permissionManager.remove(p.host, p.type);
+      Services.perms.remove(p.host, p.type);
     } catch(ex) {
     }
   }
@@ -217,8 +209,8 @@ function finalizeChanges() {
   for (i in additions) {
     p = additions[i];
     try {
-      var uri = ioService.newURI("http://" + p.host);
-      permissionManager.add(uri, p.type, p.perm);
+      var uri = Services.io.newURI("http://" + p.host);
+      Services.perms.add(uri, p.type, p.perm);
     } catch(ex) {
     }
   }
@@ -235,16 +227,12 @@ function addPermission(aPermission) {
   // trim any leading and trailing spaces and scheme
   var host = trimSpacesAndScheme(textbox.value);
   try {
-    var ioService = Cc["@mozilla.org/network/io-service;1"]
-                      .getService(Ci.nsIIOService);
-    var uri = ioService.newURI("http://" + host);
+    var uri = Services.io.newURI("http://" + host);
     host = uri.host;
   } catch(ex) {
-    var promptService = Cc["@mozilla.org/embedcomp/prompt-service;1"]
-                          .getService(Ci.nsIPromptService);
     var message = permissionsBundle.getFormattedString("alertInvalid", [host]);
     var title = permissionsBundle.getString("alertInvalidTitle");
-    promptService.alert(window, title, message);
+    Services.prompt.alert(window, title, message);
     textbox.value = "";
     textbox.focus();
     handleHostInput(textbox);

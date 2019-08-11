@@ -7,23 +7,12 @@
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
-var kObserverService;
-
-// interface variables
-var cookiemanager         = null;          // cookiemanager interface
-var permissionmanager     = null;          // permissionmanager interface
-var promptservice         = null;          // promptservice interface
-var gDateService = null;
-
 // cookies and permissions list
 var cookies              = [];
 var permissions          = [];
 var allCookies           = [];
 var deletedCookies       = [];
 var deletedPermissions   = [];
-
-const nsIPermissionManager = Ci.nsIPermissionManager;
-const nsICookiePermission = Ci.nsICookiePermission;
 
 var cookieBundle;
 var gUpdatingBatch = "";
@@ -32,14 +21,6 @@ function Startup() {
 
   // arguments passed to this routine:
   //   cookieManager
-
-  // xpconnect to cookiemanager/permissionmanager/promptservice interfaces
-  cookiemanager = Cc["@mozilla.org/cookiemanager;1"]
-                    .getService(Ci.nsICookieManager);
-  permissionmanager = Cc["@mozilla.org/permissionmanager;1"]
-                        .getService(Ci.nsIPermissionManager);
-  promptservice = Cc["@mozilla.org/embedcomp/prompt-service;1"]
-                    .getService(Ci.nsIPromptService);
 
   // intialize string bundle
   cookieBundle = document.getElementById("cookieBundle");
@@ -51,9 +32,8 @@ function Startup() {
   loadPermissions();
 
   // be prepared to reload the display if anything changes
-  kObserverService = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
-  kObserverService.addObserver(cookieReloadDisplay, "cookie-changed");
-  kObserverService.addObserver(cookieReloadDisplay, "perm-changed");
+  Services.obs.addObserver(cookieReloadDisplay, "cookie-changed", false);
+  Services.obs.addObserver(cookieReloadDisplay, "perm-changed", false);
 
   // filter the table if requested by caller
   if (window.arguments &&
@@ -65,8 +45,21 @@ function Startup() {
 }
 
 function Shutdown() {
-  kObserverService.removeObserver(cookieReloadDisplay, "cookie-changed");
-  kObserverService.removeObserver(cookieReloadDisplay, "perm-changed");
+  Services.obs.removeObserver(cookieReloadDisplay, "cookie-changed");
+  Services.obs.removeObserver(cookieReloadDisplay, "perm-changed");
+}
+
+function PromptConfirm(title, msg, yes) {
+  var flags =
+    ((Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0) +
+     (Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1) +
+     Services.prompt.BUTTON_POS_1_DEFAULT)
+  return Services.prompt.confirmEx(window,
+                                   cookieBundle.getString(title),
+                                   cookieBundle.getString(msg),
+                                   flags,
+                                   cookieBundle.getString(yes),
+                                   null, null, null, {value:0});
 }
 
 var cookieReloadDisplay = {
@@ -90,8 +83,6 @@ function doSelectAll() {
 }
 
 /*** =================== COOKIES CODE =================== ***/
-
-const nsICookie = Ci.nsICookie;
 
 var cookiesTreeView = {
   rowCount : 0,
@@ -141,7 +132,7 @@ function Cookie(id, host, name, path, originAttributes, value,
 
 function loadCookies() {
   // load cookies into a table
-  var enumerator = cookiemanager.enumerator;
+  var enumerator = Services.cookies.enumerator;
   var count = 0;
   while (enumerator.hasMoreElements()) {
     var nextCookie = enumerator.getNext();
@@ -239,15 +230,11 @@ function ClearCookieProperties() {
 }
 
 function DeleteCookie() {
-  if (cookiesTreeView.selection.count > 1) {
-    var title = cookieBundle.getString("deleteSelectedCookiesTitle");
-    var msg = cookieBundle.getString("deleteSelectedCookies");
-    var flags = ((promptservice.BUTTON_TITLE_IS_STRING * promptservice.BUTTON_POS_0) +
-                 (promptservice.BUTTON_TITLE_CANCEL * promptservice.BUTTON_POS_1) +
-                 promptservice.BUTTON_POS_1_DEFAULT)
-    var yes = cookieBundle.getString("deleteSelectedCookiesYes");
-    if (promptservice.confirmEx(window, title, msg, flags, yes, null, null, null, {value:0}) == 1)
-      return;
+  if (cookiesTreeView.selection.count > 1 &&
+      PromptConfirm("deleteSelectedCookiesTitle",
+                    "deleteSelectedCookies",
+                    "deleteSelectedCookiesYes") == 1) {
+    return;
   }
   DeleteSelectedItemFromTree(cookiesTree, cookiesTreeView,
                                  cookies, deletedCookies,
@@ -265,14 +252,11 @@ function DeleteCookie() {
 }
 
 function DeleteAllCookies() {
-  var title = cookieBundle.getString("deleteAllCookiesTitle");
-  var msg = cookieBundle.getString("deleteAllCookies");
-  var flags = ((promptservice.BUTTON_TITLE_IS_STRING * promptservice.BUTTON_POS_0) +
-               (promptservice.BUTTON_TITLE_CANCEL * promptservice.BUTTON_POS_1) +
-               promptservice.BUTTON_POS_1_DEFAULT)
-  var yes = cookieBundle.getString("deleteAllCookiesYes");
-  if (promptservice.confirmEx(window, title, msg, flags, yes, null, null, null, {value:0}) == 1)
+  if (PromptConfirm("deleteAllCookiesTitle",
+                    "deleteAllCookies",
+                    "deleteAllCookiesYes") == 1) {
     return;
+  }
 
   ClearCookieProperties();
   DeleteAllFromTree(cookiesTree, cookiesTreeView,
@@ -285,11 +269,11 @@ function DeleteAllCookies() {
 function FinalizeCookieDeletions() {
   gUpdatingBatch = "cookie-changed";
   for (let delCookie of deletedCookies) {
-    cookiemanager.remove(delCookie.host,
-                         delCookie.name,
-                         delCookie.path,
-                         document.getElementById("checkbox").checked,
-                         delCookie.originAttributes);
+    Services.cookies.remove(delCookie.host,
+                            delCookie.name,
+                            delCookie.path,
+                            document.getElementById("checkbox").checked,
+                            delCookie.originAttributes);
   }
   deletedCookies.length = 0;
   gUpdatingBatch = "";
@@ -384,7 +368,7 @@ function Permission(id, principal, type, capability) {
 
 function loadPermissions() {
   // load permissions into a table
-  var enumerator = permissionmanager.enumerator;
+  var enumerator = Services.perms.enumerator;
   var canStr = cookieBundle.getString("can");
   var canSessionStr = cookieBundle.getString("canSession");
   var cannotStr = cookieBundle.getString("cannot");
@@ -408,13 +392,13 @@ function loadPermissions() {
 
       var capability;
       switch (nextPermission.capability) {
-        case nsIPermissionManager.ALLOW_ACTION:
+        case Ci.nsIPermissionManager.ALLOW_ACTION:
           capability = canStr;
           break;
-        case nsIPermissionManager.DENY_ACTION:
+        case Ci.nsIPermissionManager.DENY_ACTION:
           capability = cannotStr;
           break;
-        case nsICookiePermission.ACCESS_SESSION:
+        case Ci.nsICookiePermission.ACCESS_SESSION:
           capability = canSessionStr;
           break;
         default:
@@ -453,15 +437,11 @@ function PermissionSelected() {
 }
 
 function DeletePermission() {
-  if (permissionsTreeView.selection.count > 1) {
-    var title = cookieBundle.getString("deleteSelectedSitesTitle");
-    var msg = cookieBundle.getString("deleteSelectedCookiesSites");
-    var flags = ((promptservice.BUTTON_TITLE_IS_STRING * promptservice.BUTTON_POS_0) +
-                 (promptservice.BUTTON_TITLE_CANCEL * promptservice.BUTTON_POS_1) +
-                 promptservice.BUTTON_POS_1_DEFAULT)
-    var yes = cookieBundle.getString("deleteSelectedSitesYes");
-    if (promptservice.confirmEx(window, title, msg, flags, yes, null, null, null, {value:0}) == 1)
-      return;
+  if (permissionsTreeView.selection.count > 1 &&
+      PromptConfirm("deleteSelectedSitesTitle",
+                    "deleteSelectedCookiesSites",
+                    "deleteSelectedSitesYes") == 1) {
+    return;
   }
   DeleteSelectedItemFromTree(permissionsTree, permissionsTreeView,
                                  permissions, deletedPermissions,
@@ -481,11 +461,8 @@ function setCookiePermissions(action) {
     return;
   }
 
-  var ioService = Cc["@mozilla.org/network/io-service;1"]
-                    .getService(Ci.nsIIOService);
-
   try {
-    var uri = ioService.newURI(url);
+    var uri = Services.io.newURI(url);
   } catch (e) {
     // show an error if URI can not be constructed or adding it failed
     window.alert(cookieBundle.getString("errorAddPermission"));
@@ -500,8 +477,8 @@ function setCookiePermissions(action) {
     return;
   }
 
-  if (permissionmanager.testPermission(uri, "cookie") != action)
-    permissionmanager.add(uri, "cookie", action);
+  if (Services.perms.testPermission(uri, "cookie") != action)
+    Services.perms.add(uri, "cookie", action);
 
   site.focus();
   site.value = "";
@@ -519,14 +496,11 @@ function buttonEnabling(textfield) {
 }
 
 function DeleteAllPermissions() {
-  var title = cookieBundle.getString("deleteAllSitesTitle");
-  var msg = cookieBundle.getString("deleteAllCookiesSites");
-  var flags = ((promptservice.BUTTON_TITLE_IS_STRING * promptservice.BUTTON_POS_0) +
-               (promptservice.BUTTON_TITLE_CANCEL * promptservice.BUTTON_POS_1) +
-               promptservice.BUTTON_POS_1_DEFAULT)
-  var yes = cookieBundle.getString("deleteAllSitesYes");
-  if (promptservice.confirmEx(window, title, msg, flags, yes, null, null, null, {value:0}) == 1)
+  if (PromptConfirm("deleteAllSitesTitle",
+                    "deleteAllCookiesSites",
+                    "deleteAllSitesYes") == 1) {
     return;
+  }
 
   DeleteAllFromTree(permissionsTree, permissionsTreeView,
                         permissions, deletedPermissions,
@@ -540,7 +514,7 @@ function FinalizePermissionDeletions() {
 
   gUpdatingBatch = "perm-changed";
   for (let permission of deletedPermissions)
-    permissionmanager.removeFromPrincipal(permission.principal, permission.type);
+    Services.perms.removeFromPrincipal(permission.principal, permission.type);
   deletedPermissions.length = 0;
   gUpdatingBatch = "";
 }
