@@ -4,7 +4,7 @@
 
 Cu.import("resource://gre/modules/Services.jsm");
 
-var additions = [];
+var permissions = [];
 var removals = [];
 
 var sortColumn;
@@ -18,9 +18,9 @@ var permissionsTreeView = {
     getCellValue: function(row, column) {},
     getCellText: function(row, column) {
       if (column.id == "siteCol")
-        return additions[row].rawHost;
+        return permissions[row].rawHost;
       else if (column.id == "statusCol")
-        return additions[row].capability;
+        return permissions[row].capability;
       return "";
     },
     isSeparator: function(index) { return false; },
@@ -48,17 +48,24 @@ function Startup() {
   sortAscending = (permissionsTree.getAttribute("sortAscending") == "true");
   sortColumn = permissionsTree.getAttribute("sortColumn");
 
+  var params = { blockVisible   : true,
+                 sessionVisible : true,
+                 allowVisible   : true,
+                 manageCapability : true
+               };
+
   if (window.arguments && window.arguments[0]) {
-    var params = window.arguments[0];
-    document.getElementById("btnBlock").hidden = !params.blockVisible;
-    document.getElementById("btnSession").hidden = !params.sessionVisible;
-    document.getElementById("btnAllow").hidden = !params.allowVisible;
+    params = window.arguments[0];
     setHost(params.prefilledHost);
     permissionType = params.permissionType;
     gManageCapability = params.manageCapability;
     introText = params.introText;
     windowTitle = params.windowTitle;
   }
+
+  document.getElementById("btnBlock").hidden = !params.blockVisible;
+  document.getElementById("btnSession").hidden = !params.sessionVisible;
+  document.getElementById("btnAllow").hidden = !params.allowVisible;
 
   document.getElementById("permissionsText").textContent = introText ||
       permissionsBundle.getString(permissionType + "permissionstext");
@@ -82,21 +89,37 @@ function Startup() {
 
 function onAccept() {
   finalizeChanges();
+  reInitialize();
 
-  permissionsTree.setAttribute("sortAscending", !sortAscending);
-  permissionsTree.setAttribute("sortColumn", sortColumn);
-
-  return true;
+  // Don't close the window.
+  return false;
 }
+
+function onCancel() {
+  reInitialize();
+
+  // Don't close the window.
+  return false;
+}
+
+function reInitialize() {
+  permissions = [];
+  removals = [];
+
+  // Reload permissions tree.
+  loadPermissions();
+}
+
 
 function setHost(aHost) {
   document.getElementById("url").value = aHost;
 }
 
-function Permission(id, host, rawHost, type, capability, perm) {
+function Permission(id, principal, host, type, capability, perm) {
   this.id = id;
+  this.principal = principal;
   this.host = host;
-  this.rawHost = rawHost;
+  this.rawHost = host.replace(/^\./, "");
   this.type = type;
   this.capability = capability;
   this.perm = perm;
@@ -129,21 +152,27 @@ function loadPermissions() {
     while (enumerator.hasMoreElements()) {
       permission = enumerator.getNext().QueryInterface(Ci.nsIPermission);
       if (permission.type == permissionType &&
-          (!gManageCapability || permission.capability == gManageCapability))
-        permissionPush(count++, permission.host, permission.type,
-                       capabilityString(permission.capability), permission.capability);
+          (!gManageCapability || permission.capability == gManageCapability)) {
+        permissions.push(new Permission(count++,
+                                        permission.principal,
+                                        permission.principal.URI.host,
+                                        permission.type,
+                                        capabilityString(permission.capability),
+                                        permission.capability));
+      }
     }
   } catch(ex) {
   }
 
-  permissionsTreeView.rowCount = additions.length;
+  permissionsTreeView.rowCount = permissions.length;
 
   // sort and display the table
   permissionsTree.view = permissionsTreeView;
   permissionColumnSort(sortColumn, false);
 
   // disable "remove all" button if there are none
-  document.getElementById("removeAllPermissions").disabled = additions.length == 0;
+  document.getElementById("removeAllPermissions").disabled =
+    permissions.length == 0;
 }
 
 function capabilityString(aCapability) {
@@ -165,15 +194,9 @@ function capabilityString(aCapability) {
   return permissionsBundle.getString(capability);
 }
 
-function permissionPush(aId, aHost, aType, aString, aCapability) {
-  var rawHost = (aHost.charAt(0) == ".") ? aHost.substring(1, aHost.length) : aHost;
-  var p = new Permission(aId, aHost, rawHost, aType, aString, aCapability);
-  additions.push(p);
-}
-
 function permissionColumnSort(aColumn, aUpdateSelection) {
   sortAscending =
-    SortTree(permissionsTree, permissionsTreeView, additions,
+    SortTree(permissionsTree, permissionsTreeView, permissions,
              aColumn, sortColumn, sortAscending, aUpdateSelection);
   sortColumn = aColumn;
 }
@@ -186,31 +209,40 @@ function permissionSelected() {
 }
 
 function deletePermissions() {
-  DeleteSelectedItemFromTree(permissionsTree, permissionsTreeView, additions, removals,
+  DeleteSelectedItemFromTree(permissionsTree, permissionsTreeView,
+                             permissions, removals,
                              "removePermission", "removeAllPermissions");
 }
 
 function deleteAllPermissions() {
-  DeleteAllFromTree(permissionsTree, permissionsTreeView, additions, removals,
-                    "removePermission", "removeAllPermissions");
+  DeleteAllFromTree(permissionsTree, permissionsTreeView, permissions,
+                    removals, "removePermission", "removeAllPermissions");
 }
 
 function finalizeChanges() {
-  var i, p;
+  let p;
 
-  for (i in removals) {
-    p = removals[i];
+  for (let i in permissions) {
+    p = permissions[i];
     try {
-      Services.perms.remove(p.host, p.type);
+      // Principal is null so a permission we just added in this session.
+      if (p.principal == null) {
+        let uri = Services.io.newURI("https://" + p.host);
+        Services.perms.add(uri, p.type, p.perm);
+      }
     } catch(ex) {
     }
   }
 
-  for (i in additions) {
-    p = additions[i];
+  for (let i in removals) {
+    p = removals[i];
     try {
-      var uri = Services.io.newURI("http://" + p.host);
-      Services.perms.add(uri, p.type, p.perm);
+      // Principal is not null so not a permission we just added in this
+      // session.
+      if (p.principal) {
+        Services.perms.removeFromPrincipal(p.principal,
+                                           p.type);
+      }
     } catch(ex) {
     }
   }
@@ -227,7 +259,7 @@ function addPermission(aPermission) {
   // trim any leading and trailing spaces and scheme
   var host = trimSpacesAndScheme(textbox.value);
   try {
-    var uri = Services.io.newURI("http://" + host);
+    let uri = Services.io.newURI("https://" + host);
     host = uri.host;
   } catch(ex) {
     var message = permissionsBundle.getFormattedString("alertInvalid", [host]);
@@ -244,22 +276,24 @@ function addPermission(aPermission) {
 
   // check whether the permission already exists, if not, add it
   var exists = false;
-  for (var i in additions) {
-    if (additions[i].rawHost == host) {
+  for (var i in permissions) {
+    if (permissions[i].rawHost == host) {
       // Avoid calling the permission manager if the capability settings are
       // the same. Otherwise allow the call to the permissions manager to
       // update the listbox for us.
-      exists = additions[i].perm == aPermission;
+      exists = permissions[i].perm == aPermission;
       break;
     }
   }
 
   if (!exists) {
-    permissionPush(additions.length, host, permissionType, stringCapability, aPermission);
+    permissions.push(new Permission(permissions.length, null, host,
+                                    permissionType, stringCapability,
+                                    aPermission));
 
-    permissionsTreeView.rowCount = additions.length;
-    permissionsTree.treeBoxObject.rowCountChanged(additions.length - 1, 1);
-    permissionsTree.treeBoxObject.ensureRowIsVisible(additions.length - 1);
+    permissionsTreeView.rowCount = permissions.length;
+    permissionsTree.treeBoxObject.rowCountChanged(permissions.length - 1, 1);
+    permissionsTree.treeBoxObject.ensureRowIsVisible(permissions.length - 1);
   }
   textbox.value = "";
   textbox.focus();
@@ -268,7 +302,7 @@ function addPermission(aPermission) {
   handleHostInput(textbox);
 
   // enable "remove all" button as needed
-  document.getElementById("removeAllPermissions").disabled = additions.length == 0;
+  document.getElementById("removeAllPermissions").disabled = permissions.length == 0;
 }
 
 function doHelpButton() {
