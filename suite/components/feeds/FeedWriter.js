@@ -5,6 +5,7 @@
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 
 const FEEDWRITER_CID = Components.ID("{49bb6593-3aff-4eb3-a068-2712c28bd58e}");
 const FEEDWRITER_CONTRACTID = "@mozilla.org/browser/feeds/result-writer;1";
@@ -16,7 +17,6 @@ const TYPE_MAYBE_FEED = "application/vnd.mozilla.maybe.feed";
 const TYPE_MAYBE_AUDIO_FEED = "application/vnd.mozilla.maybe.audio.feed";
 const TYPE_MAYBE_VIDEO_FEED = "application/vnd.mozilla.maybe.video.feed";
 const STRING_BUNDLE_URI = "chrome://communicator/locale/feeds/subscribe.properties";
-const FEEDHANDLER_URI = "about:feeds";
 
 const PREF_SELECTED_APP = "browser.feeds.handlers.application";
 const PREF_SELECTED_WEB = "browser.feeds.handlers.webservice";
@@ -973,19 +973,25 @@ FeedWriter.prototype = {
    *        The window of the document invoking the BrowserFeedWriter
    */
   _getOriginalURI: function getOriginalURI(aWindow) {
-    var chan = aWindow.QueryInterface(Ci.nsIInterfaceRequestor)
-                      .getInterface(Ci.nsIWebNavigation)
-                      .QueryInterface(Ci.nsIDocShell)
-                      .currentDocumentChannel;
-    // The following channel is never openend, so it does not matter what
-    // securityFlags we pass; let's follow the principle of least privilege.
-    var ios = Services.io;
-    var channel = ios.newChannel2(FEEDHANDLER_URI, null, null, null,
-                                  this._feedprincipal,
-                                  null,
-                                  Ci.nsILoadInfo.SEC_REQUIRE_SAME_ORIGIN_DATA_IS_BLOCKED,
-                                  Ci.nsIContentPolicy.TYPE_OTHER);
-    var resolvedURI = channel.URI;
+    let docShell = aWindow.QueryInterface(Ci.nsIInterfaceRequestor)
+                          .getInterface(Ci.nsIWebNavigation)
+                          .QueryInterface(Ci.nsIDocShell);
+    let chan = docShell.currentDocumentChannel;
+
+    // We probably need to call Inherit() for this, but right now we can't call
+    // it from JS.
+    let attrs = docShell.getOriginAttributes();
+    let nullPrincipal = Services.scriptSecurityManager
+                                .createNullPrincipal(attrs);
+
+    // This channel is not going to be opened, use a nullPrincipal
+    // and the most restrictive securityFlag.
+    let resolvedURI = NetUtil.newChannel({
+      uri: "about:feeds",
+      loadingPrincipal: nullPrincipal,
+      securityFlags: Ci.nsILoadInfo.SEC_REQUIRE_SAME_ORIGIN_DATA_IS_BLOCKED,
+      contentPolicyType: Ci.nsIContentPolicy.TYPE_OTHER
+    }).URI;
 
     if (resolvedURI.equals(chan.URI))
       return chan.originalURI;
