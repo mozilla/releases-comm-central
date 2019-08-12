@@ -4,14 +4,14 @@
 
 /* exported loadCalendarPublishDialog, closeDialog */
 
-/* globals publishButtonLabel, closeButtonLabel */// From publishDialog.xul
+/* globals publishButtonLabel, closeButtonLabel */ // From publishDialog.xul
 
 var gOnOkFunction;   // function to be called when user clicks OK
 var gPublishObject;
 
 /**
-*   Called when the dialog is loaded.
-*/
+ * Called when the dialog is loaded.
+ */
 function loadCalendarPublishDialog() {
     // Get arguments, see description at top of file
 
@@ -36,8 +36,8 @@ function loadCalendarPublishDialog() {
 }
 
 /**
-*   Called when the OK button is clicked.
-*/
+ * Called when the OK button is clicked.
+ */
 function onOKCommand(event) {
     gPublishObject.remotePath = document.getElementById("publish-remotePath-textbox").value;
 

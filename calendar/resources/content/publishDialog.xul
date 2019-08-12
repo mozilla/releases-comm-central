@@ -4,9 +4,8 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
-
 <!-- CSS File with all styles specific to the dialog -->
-<?xml-stylesheet href="chrome://calendar/skin/dialogOverlay.css" type="text/css"?>
+<?xml-stylesheet href="chrome://lightning-common/skin/dialogOverlay.css" type="text/css"?>
 
 <!-- DTD File with all strings specific to the calendar -->
 <!DOCTYPE dialog [
@@ -21,42 +20,29 @@
         onload="loadCalendarPublishDialog()"
         persist="screenX screenY"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        xmlns:nc="http://home.netscape.com/NC-rdf#">
+        xmlns:html="http://www.w3.org/1999/xhtml">
 
-  <!-- Javascript includes -->
+  <!-- JavaScript includes -->
   <script src="chrome://calendar/content/publishDialog.js"/>
+
+  <!-- Data used in JavaScript from dtd -->
   <script>
     var publishButtonLabel = "&calendar.publish.publish.button;";
     var closeButtonLabel = "&calendar.publish.close.button;";
   </script>
 
-  <!-- Data used in JS from dtd -->
   <keyset id="dialogKeys"/>
 
   <!-- The dialog -->
-
-  <!-- dialog-box: from dialogOverlay.xul -->
-  <vbox id="dialog-box" flex="1">
-    <grid>
-      <columns>
-        <column />
-        <column flex="1"/>
-      </columns>
-      <rows>
-        <!-- Remote Path -->
-        <row align="center">
-          <hbox class="field-label-box-class" pack="end">
-            <label control="publish-remotePath-textbox">&calendar.publish.url.label;</label>
-          </hbox>
-          <textbox flex="1" id="publish-remotePath-textbox" oninput="checkURLField()"/>
-        </row>
-        <row align="center">
-          <hbox class="field-label-box-class" pack="end"/>
-          <description>&calendar.publish.example.url.description;</description>
-        </row>
-      </rows>
-    </grid>
-    <html:progress id="publish-progressmeter" value="0" max="100"/>
-  </vbox><!-- dialog-box -->
+  <vbox id="dialog-box">
+    <hbox>
+      <html:label for="publish-remotePath-textbox">&calendar.publish.url.label;</html:label>
+      <html:input id="publish-remotePath-textbox" type="url" size="64"
+                  placeholder="&calendar.publish.example.url.description;"
+                  oninput="checkURLField()"/>
+    </hbox>
+    <hbox>
+      <html:progress id="publish-progressmeter" value="0" max="100"/>
+    </hbox>
+  </vbox>
 </dialog>
