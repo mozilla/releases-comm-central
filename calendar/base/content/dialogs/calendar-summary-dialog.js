@@ -303,15 +303,16 @@ document.addEventListener("dialogcancel", () => {
 });
 
 /**
- * Updates the user's partstat, sends a notification if requested and closes the
- * dialog
+ * Updates the user's participation status (PARTSTAT from see RFC5545), and
+ * send a notification if requested. Then close the dialog.
  *
- * @param {string}  aResponse  a literal of one of the response modes defined
- *                               in calIItipItem (like 'NONE')
- * @param {string}  aPartStat  (optional) a partstat as per RfC5545
+ * @param {string} aResponseMode - a literal of one of the response modes defined
+ *                                 in calIItipItem (like 'NONE')
+ * @param {string} aPartStat - participation status; a PARTSTAT value
  */
-function reply(aResponse, aPartStat=null) {
-    if (aPartStat && window.attendee) {
+function reply(aResponseMode, aPartStat) {
+    // Set participation status.
+    if (window.attendee) {
         let aclEntry = window.calendarItem.calendar.aclEntry;
         if (aclEntry) {
             let userAddresses = aclEntry.getUserAddresses({});
@@ -323,19 +324,19 @@ function reply(aResponse, aPartStat=null) {
         window.attendee.participationStatus = aPartStat;
         updateToolbar();
     }
-    saveAndClose(aResponse);
+
+    // Send notification and close window.
+    saveAndClose(aResponseMode);
 }
 
 /**
- * Stores the event in the calendar and closes the dialog
- *
- * @param {string}  aResponse  a literal of one of the response modes defined
- *                               in calIItipItem (like 'NONE')
+ * Stores the event in the calendar, sends a notification if requested and
+ * closes the dialog.
+ * @param {string} aResponseMode - a literal of one of the response modes defined
+ *                                 in calIItipItem (like 'NONE')
  */
-function saveAndClose(aResponse="NONE") {
-    // we use NONE as default since we don't want to send out notifications if
-    // the user just updates the reminder settings
-    window.responseMode = aResponse;
+function saveAndClose(aResponseMode) {
+    window.responseMode = aResponseMode;
     document.documentElement.acceptDialog();
 }
 
