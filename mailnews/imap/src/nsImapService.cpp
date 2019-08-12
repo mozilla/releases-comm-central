@@ -363,7 +363,8 @@ NS_IMETHODIMP nsImapService::FetchMimePart(
         do_QueryInterface(folder, &rv));
     if (NS_SUCCEEDED(rv)) {
       nsCOMPtr<nsIImapUrl> imapUrl = do_QueryInterface(aURI);
-      nsCOMPtr<nsIMsgMailNewsUrl> msgurl(do_QueryInterface(aURI));
+      nsCOMPtr<nsIMsgMailNewsUrl> msgurl(do_QueryInterface(aURI, &rv));
+      NS_ENSURE_SUCCESS(rv, rv);
 
       msgurl->SetMsgWindow(aMsgWindow);
       msgurl->RegisterListener(aUrlListener);
