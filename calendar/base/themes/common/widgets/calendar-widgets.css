@@ -103,84 +103,101 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
 }
 
 .selected-text {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .selected-text:not([selected="true"]),
 .unselected-text[selected="true"] {
-    visibility: hidden;
+  visibility: hidden;
 }
 
 .categories-textbox .textbox-search-icon {
-    list-style-image: none;
-    cursor:default;
+  list-style-image: none;
+  cursor:default;
 }
 
 .categories-textbox {
-    -moz-appearance: textfield;
+  -moz-appearance: textfield;
 }
 
-#calendar-list-pane #calendar-list {
+#calendar-list-inner-pane > #calendar-list {
   -moz-appearance: none;
   margin: 0;
-  border: none;
+  border-style: none;
   background-color: transparent;
   color: inherit;
 }
 
-#calendar-list richlistitem {
+#calendar-list > richlistitem {
   -moz-box-align: center;
-  border-top: 1px transparent solid;
+  border: 1px transparent solid;
 }
 
-#calendar-list richlistitem:last-child {
-  border-bottom: 1px transparent solid;
-}
-
-#calendar-list richlistitem[drop-on="top"] {
+#calendar-list > richlistitem[drop-on="top"] {
   border-top-color: highlight;
 }
 
-#calendar-list richlistitem[drop-on="bottom"] {
+#calendar-list > richlistitem[drop-on="bottom"] {
   border-bottom-color: highlight;
 }
 
-#calendar-list checkbox {
+:root[lwt-tree] #calendar-list > richlistitem[selected] {
+  border-color: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.3));
+  background: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.3));
+  color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
+}
+
+:root[lwt-tree] #calendar-list:focus > richlistitem[selected] {
+  border-color: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.6));
+  color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
+}
+
+:root[lwt-tree-brighttext] #calendar-list > richlistitem[selected] {
+  border-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
+  background: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
+}
+
+:root[lwt-tree-brighttext] #calendar-list:focus > richlistitem[selected] {
+  border-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.3));
+  color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
+}
+
+#calendar-list > richlistitem > checkbox {
   margin: 0 2px;
   -moz-user-focus: none;
 }
 
-#calendar-list .checkbox-label-box {
+#calendar-list > richlistitem > checkbox > .checkbox-label-box {
   display: none;
 }
 
-#calendar-list .calendar-color {
+#calendar-list > richlistitem > .calendar-color {
   width: 14px;
   height: 14px;
 }
 
-#calendar-list richlistitem[calendar-disabled="true"] .calendar-color {
+#calendar-list > richlistitem[calendar-disabled="true"] > .calendar-color {
   filter: grayscale(1);
 }
 
-#calendar-list .calendar-name {
+#calendar-list > richlistitem > .calendar-name {
   -moz-box-flex: 1;
 }
 
-#calendar-list richlistitem[calendar-disabled="true"]:not([selected="true"]) .calendar-name {
-  color: graytext;
+#calendar-list > richlistitem[calendar-disabled="true"]:not([selected="true"]) > .calendar-name {
+  color: #808080;
 }
 
-#calendar-list .calendar-readstatus {
+#calendar-list > richlistitem > .calendar-readstatus {
   margin: 0 2px;
   -moz-context-properties: fill;
   fill: currentColor;
 }
 
-#calendar-list richlistitem[calendar-readonly="true"] .calendar-readstatus {
+#calendar-list > richlistitem[calendar-readonly="true"] > .calendar-readstatus {
   list-style-image: url(chrome://calendar-common/skin/icons/locked.svg);
 }
 
-#calendar-list richlistitem[calendar-readfailed="true"] .calendar-readstatus {
+#calendar-list > richlistitem[calendar-readfailed="true"] > .calendar-readstatus {
   list-style-image: url(chrome://calendar-common/skin/icons/warn.svg);
 }
