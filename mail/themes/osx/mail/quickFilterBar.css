@@ -40,6 +40,17 @@
   font-weight: bold;
 }
 
+/* Styles for the default system dark theme */
+
+:root[lwt-default-theme-in-dark-mode] #quick-filter-bar-main-bar:-moz-lwtheme {
+  background: transparent;
+}
+
+:root[lwt-default-theme-in-dark-mode] #quick-filter-bar-expando:-moz-lwtheme {
+  border-bottom-color: var(--chrome-content-separator-color);
+  background: transparent;
+}
+
 /* :::: Filter Buttons :::: */
 
 #quick-filter-bar toolbarbutton {

@@ -29,6 +29,72 @@
   --space-above-tabbar: 8px;
 }
 
+/* Styles for the default system dark theme */
+:root[lwt-default-theme-in-dark-mode] {
+  --sidebar-border-color: #606064 !important;
+  /* Toolbar buttons */
+  --lwt-toolbarbutton-hover-background: rgba(179, 179, 179, 0.4);
+  --lwt-toolbarbutton-active-background: rgba(179, 179, 179, 0.6);
+
+  /* !important to override LightweightThemeManager.addBuiltInTheme in
+     mailGlue.js */
+  --autocomplete-popup-background: #2a2a2e !important;
+  --autocomplete-popup-highlight-background: #0060df;
+
+  /* composer header fields bottom border */
+  --composer-header-border-color: rgb(127, 127, 128);
+}
+
+/* Make the new mail indicator better visible on dark theme */
+:root[lwt-default-theme-in-dark-mode] #folderTree:-moz-lwtheme-brighttext
+  treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail),
+:root[lwt-default-theme-in-dark-mode] #folderTree:-moz-lwtheme-brighttext
+  treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true),
+:root[lwt-default-theme-in-dark-mode] #folderTree:-moz-lwtheme-brighttext
+  treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true) {
+  color: #0aa5ff !important;
+}
+
+/* Quick-Filter-Bar */
+:root[lwt-default-theme-in-dark-mode] #quick-filter-bar:-moz-lwtheme {
+  background-color: var(--lwt-accent-color);
+  color: var(--lwt-text-color);
+}
+
+:root[lwt-default-theme-in-dark-mode] #quick-filter-bar:-moz-lwtheme-brighttext {
+  --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background);
+  --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background);
+
+  --toolbarbutton-checkedhover-backgroundcolor: var(--lwt-toolbarbutton-hover-background);
+
+  --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background);
+  --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background);
+  --toolbarbutton-active-boxshadow: 0 0 0 1px var(--lwt-toolbarbutton-active-background) inset;
+}
+
+:root[lwt-default-theme-in-dark-mode] #qfb-qs-textbox:-moz-lwtheme {
+  background-color: var(--lwt-toolbar-field-background-color, hsla(0,0%,100%,.8));
+  color: var(--lwt-toolbar-field-color, black);
+}
+
+:root[lwt-default-theme-in-dark-mode] #qfb-qs-textbox:not([focused="true"]):-moz-lwtheme {
+  border-color: var(--lwt-toolbar-field-border-color, hsla(240,5%,5%,.25));
+}
+
+:root[lwt-default-theme-in-dark-mode] #qfb-qs-textbox:-moz-lwtheme:hover {
+  background-color: var(--lwt-toolbar-field-background-color, white);
+}
+
+:root[lwt-default-theme-in-dark-mode] #qfb-qs-textbox:-moz-lwtheme-brighttext:hover {
+  box-shadow: 0 1px 3px rgba(255,255,255,.15);
+}
+
+:root[lwt-default-theme-in-dark-mode] #qfb-qs-textbox:-moz-lwtheme[focused="true"] {
+  background-color: var(--lwt-toolbar-field-focus, var(--lwt-toolbar-field-background-color, white));
+  color: var(--lwt-toolbar-field-focus-color, var(--lwt-toolbar-field-color, black));
+  border-color: var(--toolbar-field-focus-border-color);
+}
+
 toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1 .toolbarbutton-text {
   padding-inline-start: 2px;
 }

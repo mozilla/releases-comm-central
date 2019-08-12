@@ -14,6 +14,80 @@
   --toolbar-color: var(--toolbar-non-lwt-textcolor);
 }
 
+/* Styles for the default system dark theme */
+
+:root[lwt-default-theme-in-dark-mode] #headers-box,
+:root[lwt-default-theme-in-dark-mode] #msgHeaderView {
+  background-color: var(--toolbar-bgcolor) !important;
+  background-image: none !important;
+  color: var(--lwt-text-color);
+}
+
+:root[lwt-default-theme-in-dark-mode] #headers-box {
+  --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background);
+  --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background);
+
+  --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background);
+  --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background);
+  --toolbarbutton-active-boxshadow: 0 0 0 1px var(--lwt-toolbarbutton-active-background) inset;
+
+  scrollbar-color: rgba(249,249,250,.4) rgba(20,20,25,.3);
+}
+
+:root[lwt-default-theme-in-dark-mode] #MsgHeadersToolbar,
+:root[lwt-default-theme-in-dark-mode] #addressingWidget,
+:root[lwt-default-theme-in-dark-mode] .aw-menulist {
+  color: inherit;
+}
+
+:root[lwt-default-theme-in-dark-mode] #msgIdentity,
+:root[lwt-default-theme-in-dark-mode] #msgSubject,
+:root[lwt-default-theme-in-dark-mode] textbox.textbox-addressingWidget,
+:root[lwt-default-theme-in-dark-mode] .dummy-row-cell:last-child {
+  border-bottom-color: var(--composer-header-border-color) !important;
+  color: var(--lwt-text-color);
+}
+
+:root[lwt-default-theme-in-dark-mode] #msgIdentity:hover,
+:root[lwt-default-theme-in-dark-mode] #msgIdentity:focus,
+:root[lwt-default-theme-in-dark-mode] #msgIdentity:focus-within,
+:root[lwt-default-theme-in-dark-mode] #msgSubject:hover,
+:root[lwt-default-theme-in-dark-mode] #msgSubject[focused="true"],
+:root[lwt-default-theme-in-dark-mode] textbox.textbox-addressingWidget:hover,
+:root[lwt-default-theme-in-dark-mode] textbox.textbox-addressingWidget[focused="true"] {
+  background-color: var(--lwt-toolbar-field-background-color);
+  color: var(--lwt-toolbar-field-color);
+  border-color: var(--lwt-toolbar-field-border-color) !important;
+}
+
+:root[lwt-default-theme-in-dark-mode] .textbox-addressingWidget >
+  .autocomplete-result-popupset {
+  -moz-appearance: none;
+  margin-top: -1px;
+  background: var(--autocomplete-popup-background);
+  color: var(--autocomplete-popup-color);
+}
+
+:root[lwt-default-theme-in-dark-mode] .textbox-addressingWidget
+  panel[type="autocomplete-richlistbox"] {
+  padding: 2px 0;
+  color: inherit;
+  background-color: inherit;
+  border-color: var(--autocomplete-popup-border-color);
+}
+
+:root[lwt-default-theme-in-dark-mode] .textbox-addressingWidget
+  .autocomplete-richlistbox {
+  color: inherit;
+  background-color: inherit;
+}
+
+:root[lwt-default-theme-in-dark-mode] .textbox-addressingWidget
+  .autocomplete-richlistitem[selected] {
+  background: #0a84ff;
+  color: #fff;
+}
+
 /* Rules to help integrate WebExtension buttons */
 
 .webextension-browser-action > .toolbarbutton-badge-stack > .toolbarbutton-icon {

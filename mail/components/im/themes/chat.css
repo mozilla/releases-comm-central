@@ -481,7 +481,6 @@ richlistitem[state="disconnected"] .accountStateIcon {
 /* corresponds to im/themes/conversation.css @media all and (min-height: 251px) */
 .displayUserAccount {
   padding: 4px;
-  background-color: -moz-OddTreeRow;
 }
 
 .statusImageStack,

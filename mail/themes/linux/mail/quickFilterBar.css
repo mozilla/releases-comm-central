@@ -28,6 +28,12 @@
   padding-inline-end: 4px;
 }
 
+/* Style for the default system dark theme */
+
+:root[lwt-default-theme-in-dark-mode] #quick-filter-bar-expando {
+  border-bottom-color: var(--chrome-content-separator-color);
+}
+
 /* :::: Filter Buttons :::: */
 
 #quick-filter-bar toolbarbutton {

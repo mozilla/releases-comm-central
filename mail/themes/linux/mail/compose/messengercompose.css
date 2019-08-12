@@ -681,3 +681,18 @@ menu[command="cmd_convertCloud"] .menu-iconic-left {
      menus shouldn't have icons. */
   visibility: visible;
 }
+
+/* Styles for the default system dark theme */
+
+:root[lwt-default-theme-in-dark-mode] #MsgHeadersToolbar {
+  background-image: none;
+}
+
+:root[lwt-default-theme-in-dark-mode] #headers-box {
+  -moz-appearance: none;
+}
+
+:root[lwt-default-theme-in-dark-mode] #FormatToolbar {
+  color: inherit;
+  background-image: none;
+}
