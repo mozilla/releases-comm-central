@@ -4,8 +4,6 @@
 . "$topsrcdir/comm/mail/config/mozconfigs/common"
 . "$topsrcdir/comm/mail/config/mozconfigs/win64/common-win64"
 
-ac_add_options --disable-phc
-
 ac_add_options --enable-update-channel="${MOZ_UPDATE_CHANNEL}"
 ac_add_options --enable-profiling
 if test -z "$USE_ARTIFACT"; then
