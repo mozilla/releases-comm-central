@@ -34,4 +34,18 @@ this.composeAction = class extends ToolbarButtonAPI {
     }
     toolbar.insertBefore(button, before.nextElementSibling);
   }
+
+  static onUninstall(extensionId) {
+    let widgetId = makeWidgetId(extensionId);
+    let id = `${widgetId}-composeAction-toolbarbutton`;
+
+    let windowURL = "chrome://messenger/content/messengercompose/messengercompose.xul";
+    let currentSet = Services.xulStore.getValue(windowURL, "composeToolbar2", "currentset");
+    currentSet = currentSet.split(",");
+    let index = currentSet.indexOf(id);
+    if (index >= 0) {
+      currentSet.splice(index, 1);
+      Services.xulStore.setValue(windowURL, "composeToolbar2", "currentset", currentSet.join(","));
+    }
+  }
 };

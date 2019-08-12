@@ -59,6 +59,23 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
     };
     this.globals = Object.create(this.defaults);
 
+    // In tests, startupReason is undefined, because the test suite is naughty.
+    // Assume ADDON_INSTALL.
+    if (!this.extension.startupReason || this.extension.startupReason == "ADDON_INSTALL") {
+      for (let windowURL of this.windowURLs) {
+        let currentSet = Services.xulStore.getValue(windowURL, this.toolbarId, "currentset");
+        if (!currentSet) {
+          continue;
+        }
+        currentSet = currentSet.split(",");
+        if (currentSet.includes(this.id)) {
+          continue;
+        }
+        currentSet.push(this.id);
+        Services.xulStore.setValue(windowURL, this.toolbarId, "currentset", currentSet.join(","));
+      }
+    }
+
     this.browserStyle = options.browser_style;
 
     this.defaults.icon = await StartupCache.get(
@@ -138,18 +155,15 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
     } else {
       toolbar.appendChild(button);
     }
-    let currentSet = toolbar.hasAttribute("currentset") ?
-                     toolbar.getAttribute("currentset") :
-                     toolbar.getAttribute("defaultset");
-    currentSet = currentSet.split(",");
-    if (currentSet.includes(this.id)) {
-      toolbar.currentSet = currentSet.join(",");
+    if (Services.xulStore.hasValue(window.location.href, this.toolbarId, "currentset")) {
+      toolbar.currentSet = Services.xulStore.getValue(window.location.href, this.toolbarId, "currentset");
+      toolbar.setAttribute("currentset", toolbar.currentSet);
     } else {
-      currentSet.push(this.id);
-      toolbar.currentSet = currentSet.join(",");
-
-      let persistAttribute = toolbar.getAttribute("persist");
-      if (persistAttribute && persistAttribute.split(/\s+/).includes("currentset")) {
+      let currentSet = toolbar.getAttribute("defaultset").split(",");
+      if (!currentSet.includes(this.id)) {
+        currentSet.push(this.id);
+        toolbar.currentSet = currentSet.join(",");
+        toolbar.setAttribute("currentset", toolbar.currentSet);
         Services.xulStore.persist(toolbar, "currentset");
       }
     }

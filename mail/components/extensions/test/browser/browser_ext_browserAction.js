@@ -5,15 +5,21 @@
 add_task(async () => {
   async function test_it(extension) {
     await extension.startup();
+    await new Promise(resolve => setTimeout(resolve));
 
     let buttonId = "test1_mochi_test-browserAction-toolbarbutton";
     let toolbar = document.getElementById("mail-bar3");
-    ok(!toolbar.getAttribute("currentset"), "No toolbar current set");
 
     let button = document.getElementById(buttonId);
     ok(button, "Button created");
     is(toolbar.id, button.parentNode.id, "Button added to toolbar");
     ok(toolbar.currentSet.split(",").includes(buttonId), "Button added to toolbar current set");
+    ok(toolbar.getAttribute("currentset").split(",").includes(buttonId),
+       "Button added to toolbar current set attribute");
+    ok(Services.xulStore.getValue(location.href, "mail-bar3", "currentset")
+                        .split(",")
+                        .includes(buttonId),
+       "Button added to toolbar current set persistence");
 
     let icon = button.querySelector(".toolbarbutton-icon");
     is(getComputedStyle(icon).listStyleImage,
@@ -22,7 +28,7 @@ add_task(async () => {
     is(label.value, "This is a test", "Correct label");
 
     EventUtils.synthesizeMouseAtCenter(button, { clickCount: 1 });
-    await extension.awaitFinish("browserAction");
+    await extension.awaitMessage("browserAction");
     await promiseAnimationFrame();
 
     is(document.getElementById(buttonId), button);
@@ -33,13 +39,16 @@ add_task(async () => {
     await promiseAnimationFrame();
 
     ok(!document.getElementById(buttonId), "Button destroyed");
+    ok(!Services.xulStore.getValue(location.href, "mail-bar3", "currentset")
+                         .split(",")
+                         .includes(buttonId),
+       "Button removed from toolbar current set persistence");
   }
 
   async function background_nopopup() {
     browser.browserAction.onClicked.addListener(async () => {
       await browser.browserAction.setTitle({ title: "New title" });
-      await new Promise(setTimeout);
-      browser.test.notifyPass("browserAction");
+      browser.test.sendMessage("browserAction");
     });
   }
 
@@ -47,8 +56,7 @@ add_task(async () => {
     browser.runtime.onMessage.addListener(async (msg) => {
       browser.test.assertEq("popup.html", msg);
       await browser.browserAction.setTitle({ title: "New title" });
-      await new Promise(setTimeout);
-      browser.test.notifyPass("browserAction");
+      browser.test.sendMessage("browserAction");
     });
   }
 
@@ -64,6 +72,8 @@ add_task(async () => {
         </html>`,
       "popup.js": function() {
         window.onload = async () => {
+          // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+          await new Promise(resolve => setTimeout(resolve, 1000));
           await browser.runtime.sendMessage("popup.html");
           window.close();
         };
@@ -79,6 +89,7 @@ add_task(async () => {
         default_title: "This is a test",
       },
     },
+    useAddonManager: "temporary",
   };
   let extension = ExtensionTestUtils.loadExtension(extensionDetails);
   await test_it(extension);
@@ -87,4 +98,6 @@ add_task(async () => {
   extensionDetails.manifest.browser_action.default_popup = "popup.html";
   extension = ExtensionTestUtils.loadExtension(extensionDetails);
   await test_it(extension);
+
+  Services.xulStore.removeDocument("chrome://messenger/content/messenger.xul");
 });

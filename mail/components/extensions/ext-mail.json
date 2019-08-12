@@ -20,6 +20,7 @@
     "schema": "chrome://messenger/content/schemas/browserAction.json",
     "scopes": ["addon_parent"],
     "manifest": ["browser_action"],
+    "events": ["uninstall"],
     "paths": [
       ["browserAction"]
     ]
@@ -63,6 +64,7 @@
     "schema": "chrome://messenger/content/schemas/composeAction.json",
     "scopes": ["addon_parent"],
     "manifest": ["compose_action"],
+    "events": ["uninstall"],
     "paths": [
       ["composeAction"]
     ]

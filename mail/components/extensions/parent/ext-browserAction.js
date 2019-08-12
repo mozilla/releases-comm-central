@@ -21,6 +21,20 @@ this.browserAction = class extends ToolbarButtonAPI {
     browserActionMap.delete(this.extension);
   }
 
+  static onUninstall(extensionId) {
+    let widgetId = makeWidgetId(extensionId);
+    let id = `${widgetId}-browserAction-toolbarbutton`;
+
+    let windowURL = "chrome://messenger/content/messenger.xul";
+    let currentSet = Services.xulStore.getValue(windowURL, "mail-bar3", "currentset");
+    currentSet = currentSet.split(",");
+    let index = currentSet.indexOf(id);
+    if (index >= 0) {
+      currentSet.splice(index, 1);
+      Services.xulStore.setValue(windowURL, "mail-bar3", "currentset", currentSet.join(","));
+    }
+  }
+
   constructor(extension) {
     super(extension);
     this.manifest_name = "browser_action";
