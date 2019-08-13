@@ -119,9 +119,3 @@ if (!customElements.get("menulist")) {
     MozMenulistCharsetpickerViewing, { extends: "menulist" }
   );
 }
-
-// The menulist CE is defined lazily. Create one now to get menulist defined,
-// allowing us to inherit from it.
-if (!customElements.get("menulist")) {
-  delete document.createXULElement("menulist");
-}
