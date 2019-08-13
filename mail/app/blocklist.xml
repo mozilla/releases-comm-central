@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<blocklist xmlns="http://www.mozilla.org/2006/addons-blocklist" lastupdate="1565181472444">
+<blocklist xmlns="http://www.mozilla.org/2006/addons-blocklist" lastupdate="1565344753436">
   <emItems>
     <emItem blockID="i334" id="{0F827075-B026-42F3-885D-98981EE7B1AE}">
       <prefs/>
@@ -3211,6 +3211,10 @@
       <versionRange minVersion="0" maxVersion="*" severity="3"/>
     </emItem>
     <emItem blockID="74e070ac-891b-4f79-ac76-09a170d21a91" id="Shield_My_Searches_ehHQAdRPxE@shieldmysearches.com">
+      <prefs/>
+      <versionRange minVersion="0" maxVersion="*" severity="3"/>
+    </emItem>
+    <emItem blockID="85411892-1225-46fb-8f1b-5aa424bc2c01" id="/^((AKMWWOEASKZXXCCRFA@AXXX)|(RF_WOEKTAMS@BASDFZMD)|(TI_BOAMZKXFFEE@ZCAOKEE)|(BMMAOSIKZX_TI_EE@BOASLL)|(ZN_ASVVZXLEOOO@ABOVVAE)|(MZXVCKMSSD_ZN_EF@GBOAAOS)|(UA_CZVVMSOEEE@DOPEEZXA)|(ZXCLASKDASD_UA_VV@AVLLZAA)|(VS_SOEOKAKXC@BOOCLLAA)|(AIWEKDZSV_VS_ASCZ@SAAAOOBB)|(IF_AZXOOVVVAA@EALXCOAA)|(VVALLEIASD_IF_AZ@OOBAAXXA)|(ZN_BF_AOXZAOKSD@VZXMASLX)|(VMZKMALSKD_BF_ZN@VIAAEOOSL)|(aunastralaa_1@auzn\.ne)|(VXKCVLSO_ON_SOC@KIZIAO)|(ON_OPPOWOAKKS@BLZOAAAASL)|(nostallkka@iofjjakk\.me)|(VZKKAKOOEE_LN_FK@BOOAASSDD)|(LN_VSOAJKXXXZZ@UDPPPADK)|(BNKZKASKDIE_EB_AKK@BLALEEKK)|(EB_AISJIKZLAA@DFKKAKE)|(NLDFKOBASOKCK@KFOLAAAEE)|(BBDMLDSFKER_AF_GG@AYYRR)|(OMVXNSDF_R_F_W@BMAMSEEE)|(EIGKFDAODS_RF_PDNAP_WEN@HUUUHJAA)|(GOEORG_RF_ANA_N@BDOFKOKK)|(BFDISDF_RG_AZXC@BDOFKAQ)|(OKOKDFBDFBDFG_RG_KS_BDK@AAAJAHU)|(ODKFOBKDPFB_PJ_FGK_AKK@AJIIJAA)|(UBXODJ_PA_PJ@XMVCOAKS))$/">
       <prefs/>
       <versionRange minVersion="0" maxVersion="*" severity="3"/>
     </emItem>
