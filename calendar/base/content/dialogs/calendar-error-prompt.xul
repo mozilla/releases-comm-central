@@ -24,44 +24,23 @@
 
     <script src="chrome://global/content/globalOverlay.js"/>
     <script src="chrome://global/content/editMenuOverlay.js"/>
-    <script><![CDATA[
-        function loadErrorPrompt() {
-            var args = window.arguments[0].QueryInterface(Ci.nsIDialogParamBlock);
-            document.getElementById("general-text").value = args.GetString(0);
-            document.getElementById("error-code").value = args.GetString(1);
-            document.getElementById("error-description").value = args.GetString(2);
-            this.sizeToContent();
-        }
-        function toggleDetails() {
-            var grid = document.getElementById("details-grid");
-            if (grid.collapsed)
-                grid.collapsed = false;
-            else
-                grid.collapsed = true;
-            this.sizeToContent();
-        }
-    ]]></script>
+    <script src="chrome://calendar/content/calendar-error-prompt.js"/>
+
     <vbox>
         <html:textarea id="general-text" class="plain" readonly="readonly" rows="3"/>
         <hbox>
             <button id="details-button" label="&calendar.error.detail;" oncommand="toggleDetails()"/>
             <spacer flex="1"/>
         </hbox>
-        <grid id="details-grid" collapsed="true" persist="collapsed">
-            <columns>
-                <column/>
-                <column flex="1"/>
-            </columns>
-            <rows>
-                <row>
-                    <label value="&calendar.error.code;"/>
-                    <label id="error-code" value=""/>
-                </row>
-                <row flex="1">
-                    <label value="&calendar.error.description;" control="error-description"/>
-                    <html:textarea id="error-description" class="plain" readonly="readonly" rows="5"/>
-                </row>
-            </rows>
-        </grid>
+        <vbox id="details-box" collapsed="true" persist="collapsed">
+            <hbox>
+                <label value="&calendar.error.code;"/>
+                <label id="error-code" value=""/>
+            </hbox>
+            <vbox>
+                <label value="&calendar.error.description;" control="error-description"/>
+                <html:textarea id="error-description" class="plain" readonly="readonly" rows="5"/>
+            </vbox>
+        </vbox>
     </vbox>
 </dialog>
