@@ -193,3 +193,12 @@
 #calendar-delete-task-button {
     list-style-image: url(chrome://calendar-common/skin/icons/delete.svg);
 }
+
+.input-container {
+    display: flex;
+    align-items: stretch;
+}
+
+.input-container html|input {
+    flex-grow: 1;
+}

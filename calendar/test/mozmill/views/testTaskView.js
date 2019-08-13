@@ -57,8 +57,7 @@ function testTaskView() {
 
     // Add task.
     let taskInput= lookup(`
-        ${TASK_VIEW}/id("task-addition-box")/[0]/id("view-task-edit-field")/
-        anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
+        ${TASK_VIEW}/id("task-addition-box")/[0]/[1]/id("view-task-edit-field")
     `);
     controller.type(taskInput, TITLE);
     controller.keypress(taskInput, "VK_RETURN", {});

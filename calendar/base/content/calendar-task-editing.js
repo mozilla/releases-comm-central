@@ -57,18 +57,12 @@ var taskEdit = {
     },
 
     /**
-     * Handler function to call when the quick-add textbox gains focus.
+     * Handler function to call when the quick-add input gains focus.
      *
      * @param aEvent    The DOM focus event
      */
     onFocus: function(aEvent) {
         let edit = aEvent.target;
-        if (edit.localName == "input") {
-            // For some reason, we only receive an onfocus event for the textbox
-            // when debugging with venkman.
-            edit = edit.parentNode.parentNode;
-        }
-
         let calendar = getSelectedCalendar();
         edit.showsInstructions = true;
 
@@ -87,19 +81,12 @@ var taskEdit = {
     },
 
     /**
-     * Handler function to call when the quick-add textbox loses focus.
+     * Handler function to call when the quick-add input loses focus.
      *
      * @param aEvent    The DOM blur event
      */
     onBlur: function(aEvent) {
         let edit = aEvent.target;
-        if (edit.localName == "input") {
-            // For some reason, we only receive the blur event for the input
-            // element. There are no targets that point to the textbox. Go up
-            // the parent chain until we reach the textbox.
-            edit = edit.parentNode.parentNode;
-        }
-
         let calendar = getSelectedCalendar();
         if (!calendar) {
             // this must be a first run, we don't have a calendar yet
@@ -126,7 +113,7 @@ var taskEdit = {
     },
 
     /**
-     * Handler function to call on keypress for the quick-add textbox.
+     * Handler function to call on keypress for the quick-add input.
      *
      * @param aEvent    The DOM keypress event
      */
@@ -145,12 +132,11 @@ var taskEdit = {
     },
 
     /**
-     * Window load function to set up all quick-add textboxes. The texbox must
+     * Window load function to set up all quick-add inputs. The input must
      * have the class "task-edit-field".
      */
     onLoad: function(aEvent) {
-        // TODO use getElementsByClassName
-        let taskEditFields = document.getElementsByAttribute("class", "task-edit-field");
+        let taskEditFields = document.getElementsByClassName("task-edit-field");
         for (let i = 0; i < taskEditFields.length; i++) {
             taskEdit.onBlur({ target: taskEditFields[i] });
         }
@@ -194,7 +180,7 @@ var taskEdit = {
             switch (aName) {
                 case "readOnly":
                 case "disabled": {
-                    let taskEditFields = document.getElementsByAttribute("class", "task-edit-field");
+                    let taskEditFields = document.getElementsByClassName("task-edit-field");
                     for (let i = 0; i < taskEditFields.length; i++) {
                         taskEdit.onBlur({ target: taskEditFields[i] });
                     }
@@ -239,7 +225,7 @@ var taskEdit = {
         onCalendarAdded: function(aCalendar) {},
         onCalendarRemoved: function(aCalendar) {},
         onDefaultCalendarChanged: function(aNewDefault) {
-            let taskEditFields = document.getElementsByAttribute("class", "task-edit-field");
+            let taskEditFields = document.getElementsByClassName("task-edit-field");
             for (let i = 0; i < taskEditFields.length; i++) {
                 taskEdit.onBlur({ target: taskEditFields[i] });
             }

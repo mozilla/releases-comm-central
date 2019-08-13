@@ -35,12 +35,13 @@
                          label="&calendar.newtask.button.label;"
                          tooltiptext="&calendar.newtask.button.tooltip;"
                          observes="calendar_new_todo_command"/>
-          <textbox id="view-task-edit-field"
-                   flex="1"
-                   class="task-edit-field themeableSearchBox"
-                   onfocus="taskEdit.onFocus(event)"
-                   onblur="taskEdit.onBlur(event)"
-                   onkeypress="taskEdit.onKeyPress(event)"/>
+          <hbox align="center" flex="1" class="input-container">
+            <html:input id="view-task-edit-field"
+                        class="task-edit-field themeableSearchBox"
+                        onfocus="taskEdit.onFocus(event)"
+                        onblur="taskEdit.onBlur(event)"
+                        onkeypress="taskEdit.onKeyPress(event)"/>
+          </hbox>
         </box>
         <box align="center" flex="1">
           <textbox is="search-textbox" id="task-text-filter-field"
@@ -113,11 +114,11 @@
                               <menupopup id="task-actions-category-popup"
                                          onpopupshowing="taskDetailsView.loadCategories(event);"
                                          onpopuphiding="return taskDetailsView.saveCategories(event);">
-                                <textbox id="task-actions-category-textbox"
-                                         placeholder="&event.categories.textbox.label;"
-                                         onblur="this.parentNode.removeAttribute(&quot;ignorekeys&quot;);"
-                                         onfocus="this.parentNode.setAttribute(&quot;ignorekeys&quot;, &quot;true&quot;);"
-                                         onkeypress="taskDetailsView.categoryTextboxKeypress(event);"/>
+                                <html:input id="task-actions-category-textbox"
+                                            placeholder="&event.categories.textbox.label;"
+                                            onblur="this.parentNode.removeAttribute(&quot;ignorekeys&quot;);"
+                                            onfocus="this.parentNode.setAttribute(&quot;ignorekeys&quot;, &quot;true&quot;);"
+                                            onkeypress="taskDetailsView.categoryTextboxKeypress(event);"/>
                                 <menuseparator />
                               </menupopup>
                           </toolbarbutton>
