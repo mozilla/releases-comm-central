@@ -60,13 +60,13 @@ function testAlarmDialog() {
             reminder: "1day",
         });
 
-        event.click(eventid("button-saveandclose"));
-    });
+        // Prepare to dismiss the alarm.
+        plan_for_modal_dialog("Calendar:AlarmWindow", alarm => {
+            let { eid: alarmid } = helpersForController(alarm);
+            alarm.waitThenClick(alarmid("alarm-dismiss-all-button"));
+        });
 
-    // Dismiss the alarm.
-    plan_for_modal_dialog("Calendar:AlarmWindow", alarm => {
-        let { eid: alarmid } = helpersForController(alarm);
-        alarm.waitThenClick(alarmid("alarm-dismiss-all-button"));
+        event.click(eventid("button-saveandclose"));
     });
     wait_for_modal_dialog("Calendar:AlarmWindow", TIMEOUT_MODAL_DIALOG);
 
@@ -77,18 +77,18 @@ function testAlarmDialog() {
 
         setData(event, iframe, { reminder: "2days" });
 
+        // Prepare to snooze the alarm.
+        plan_for_modal_dialog("Calendar:AlarmWindow", alarm => {
+            let { eid: alarmid } = helpersForController(alarm);
+            let snoozeAllButton = alarmid("alarm-snooze-all-button");
+            let popup = alarmid("alarm-snooze-all-popup").getNode();
+            let menuitems = popup.querySelectorAll(":scope > menuitem");
+
+            alarm.waitThenClick(snoozeAllButton);
+            menuitems[5].click();
+        });
+
         event.click(eventid("button-saveandclose"));
-    });
-
-    // Snooze the alarm.
-    plan_for_modal_dialog("Calendar:AlarmWindow", alarm => {
-        let { eid: alarmid } = helpersForController(alarm);
-        let snoozeAllButton = alarmid("alarm-snooze-all-button");
-        let popup = alarmid("alarm-snooze-all-popup").getNode();
-        let menuitems = popup.querySelectorAll(":scope > menuitem");
-
-        alarm.waitThenClick(snoozeAllButton);
-        menuitems[5].click();
     });
     wait_for_modal_dialog("Calendar:AlarmWindow", TIMEOUT_MODAL_DIALOG);
 }
