@@ -376,12 +376,12 @@ function PriorityOrderAbortable(successCallback, errorCallback) {
   assert(typeof(successCallback) == "function");
   assert(typeof(errorCallback) == "function");
   ParallelAbortable.call(this); // call super constructor
+  this._successfulCall = null;
 
   this.addOneFinishedObserver(finishedCall => {
-    let haveHigherSuccess = false;
     for (let call of this._calls) {
       if (!call.finished) {
-        if (haveHigherSuccess) {
+        if (this._successfulCall) {
           // abort
           if (call.callerAbortable) {
             call.callerAbortable.cancel(NoLongerNeededException("Another higher call succeeded"));
@@ -395,14 +395,14 @@ function PriorityOrderAbortable(successCallback, errorCallback) {
         // it failed. ignore it.
         continue;
       }
-      if (haveHigherSuccess) {
-        // another successful call was higher. ignore it.
+      if (this._successfulCall) {
+        // we already have a winner. ignore it.
         continue;
       }
-      // This is the winner.
       try {
         successCallback(call.result, call);
-        haveHigherSuccess = true;
+        // This is the winner.
+        this._successfulCall = call;
       } catch (e) {
         console.error(e);
         // If the handler failed with this data, treat this call as failed.
@@ -410,7 +410,7 @@ function PriorityOrderAbortable(successCallback, errorCallback) {
         call.succeeded = false;
       }
     }
-    if (!haveHigherSuccess) {
+    if (!this._successfulCall) {
       // all failed
       errorCallback(this._calls[0].e, this._calls.map(call => call.e)); // see docs above
     }
