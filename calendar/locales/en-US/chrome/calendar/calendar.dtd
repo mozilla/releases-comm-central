@@ -9,7 +9,6 @@
 <!ENTITY calendar.newevent.button.tooltip         "Create a new event" >
 <!ENTITY calendar.newtask.button.tooltip          "Create a new task" >
 
-<!ENTITY calendar.unifinder.todoitems.label       "Tasks" >
 <!ENTITY calendar.unifinder.showcompletedtodos.label "Show completed Tasks">
 
 <!ENTITY calendar.today.button.label          "Today">
