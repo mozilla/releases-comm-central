@@ -29,12 +29,16 @@ XPCOMUtils.defineLazyGetter(this, "brandBundle", function() {
   return new StringBundle(BRAND_PROPERTIES);
 });
 
+function getTopWindow() {
+  return Services.wm.getMostRecentWindow("mail:3pane");
+}
+
 function getNotification(id, browser) {
-  return browser.ownerGlobal.PopupNotifications.getNotification(id, browser);
+  return getTopWindow().PopupNotifications.getNotification(id, browser);
 }
 
 function showNotification(browser, id, message, anchorID, mainAction, secondaryActions, options) {
-  let notifications = browser.ownerGlobal.PopupNotifications;
+  let notifications = getTopWindow().PopupNotifications;
   if (options.popupIconURL == "chrome://browser/content/extension.svg") {
     options.popupIconURL = DEFAULT_EXTENSION_ICON;
   }
@@ -73,7 +77,7 @@ var gXPInstallObserver = {
   pendingNotifications: new WeakMap(),
 
   showInstallConfirmation(browser, installInfo, height = undefined) {
-    let document = browser.ownerDocument;
+    let document = getTopWindow().document;
     // If the confirmation notification is already open cache the installInfo
     // and the new confirmation will be shown later
     if (getNotification("addon-install-confirmation", browser)) {
@@ -192,7 +196,7 @@ var gXPInstallObserver = {
   },
 
   async showPermissionsPrompt(browser, strings, icon) {
-    let window = browser.ownerGlobal;
+    let window = getTopWindow();
 
     // Wait for any pending prompts in this window to complete before
     // showing the next one.
@@ -203,7 +207,7 @@ var gXPInstallObserver = {
 
     let promise = new Promise(resolve => {
       function eventCallback(topic) {
-        let doc = this.browser.ownerDocument;
+        let doc = window.document;
         if (topic == "showing") {
           let textEl = doc.getElementById("addon-webext-perm-text");
           textEl.textContent = strings.text;
@@ -270,8 +274,8 @@ var gXPInstallObserver = {
   },
 
   async showInstallNotification(browser, addon) {
-    let document = browser.ownerDocument;
-    let window = browser.ownerGlobal;
+    let window = getTopWindow();
+    let document = window.document;
 
     let brandBundle = document.getElementById("bundle_brand");
     let appName = brandBundle.getString("brandShortName");
@@ -299,7 +303,7 @@ var gXPInstallObserver = {
   },
 
   _showInstallNotification(browser, restartRequired, message, options) {
-    let document = browser.ownerDocument;
+    let document = getTopWindow().document;
 
     let brandBundle = document.getElementById("bundle_brand");
     let appName = brandBundle.getString("brandShortName");
@@ -341,7 +345,7 @@ var gXPInstallObserver = {
   observe(subject, topic, data) {
     let installInfo = subject.wrappedJSObject;
     let browser = installInfo.browser || installInfo.target;
-    let window = browser.ownerGlobal;
+    let window = getTopWindow();
 
     const anchorID = "addons-notification-icon";
     var messageString, action;
@@ -526,8 +530,8 @@ var gXPInstallObserver = {
         let showNotification = () => {
           let height;
           if (window.PopupNotifications.isPanelOpen) {
-            let rect = browser.ownerDocument.getElementById("addon-progress-notification")
-                                            .getBoundingClientRect();
+            let rect = window.document.getElementById("addon-progress-notification")
+                                      .getBoundingClientRect();
             height = rect.height;
           }
 
@@ -708,7 +712,7 @@ var gXPInstallObserver = {
       return;
     }
 
-    let document = browser.ownerDocument;
+    let document = getTopWindow().document;
 
     let brandBundle = document.getElementById("bundle_brand");
     let appName = brandBundle.getString("brandShortName");
