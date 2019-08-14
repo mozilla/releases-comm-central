@@ -80,9 +80,7 @@ function fetchConfigFromExchange(domain, emailAddress, username, password,
   let successive = new SuccessiveAbortable();
   let priority = new PriorityOrderAbortable(
     function(xml, call) { // success
-      readAutoDiscoverResponse(xml, successive, username, password, function(config) {
-        successive.current = getAddonsList(config, successCallback, errorCallback);
-      }, errorCallback);
+      readAutoDiscoverResponse(xml, successive, username, password, successCallback, errorCallback);
     },
     errorCallback); // all failed
 
@@ -304,6 +302,11 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
  * @returns {Abortable}
  */
 function getAddonsList(config, successCallback, errorCallback) {
+  let incoming = [config.incoming, ...config.incomingAlternatives].find(alt => alt.type == "exchange");
+  if (!incoming) {
+    successCallback();
+    return new Abortable();
+  }
   let url = Services.prefs.getCharPref("mailnews.auto_config.addons_url");
   if (!url) {
     errorCallback(new Exception("no URL for addons list configured"));
@@ -316,9 +319,9 @@ function getAddonsList(config, successCallback, errorCallback) {
       // Pick the first in the list as the preferred one and
       // tell the UI to use that one.
       addon.useType = addon.supportedTypes.find(type =>
-        config.incoming.owaURL && type.protocolType == "owa" ||
-        config.incoming.ewsURL && type.protocolType == "ews" ||
-        config.incoming.easURL && type.protocolType == "eas");
+        incoming.owaURL && type.protocolType == "owa" ||
+        incoming.ewsURL && type.protocolType == "ews" ||
+        incoming.easURL && type.protocolType == "eas");
       return !!addon.useType;
     });
     if (addons.length == 0) {

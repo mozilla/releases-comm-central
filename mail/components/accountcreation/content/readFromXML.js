@@ -65,7 +65,7 @@ function readFromXML(clientConfigXML) {
     let iO = d.createNewIncoming(); // output (object)
     try {
       // throws if not supported
-      iO.type = sanitize.enum(iX["@type"], ["pop3", "imap", "nntp"]);
+      iO.type = sanitize.enum(iX["@type"], ["pop3", "imap", "nntp", "exchange"]);
       iO.hostname = sanitize.hostname(iX.hostname);
       iO.port = sanitize.integerRange(iX.port, kMinPort, kMaxPort);
       // We need a username even for Kerberos, need it even internally.
@@ -106,6 +106,27 @@ function readFromXML(clientConfigXML) {
         throw exception ? exception : "need proper <authentication> in XML";
       exception = null;
 
+      if (iO.type == "exchange") {
+        try {
+          if ("owaURL" in iX) {
+            iO.owaURL = sanitize.url(iX.owaURL);
+          }
+        } catch (e) { logException(e); }
+        try {
+          if ("ewsURL" in iX) {
+            iO.ewsURL = sanitize.url(iX.ewsURL);
+          }
+        } catch (e) { logException(e); }
+        try {
+          if ("easURL" in iX) {
+            iO.easURL = sanitize.url(iX.easURL);
+          }
+        } catch (e) { logException(e); }
+        d.oauthSettings = {
+          issuer: iO.hostname,
+          scope: iO.owaURL || iO.ewsURL || iO.easURL,
+        };
+      }
       // defaults are in accountConfig.js
       if (iO.type == "pop3" && "pop3" in iX) {
         try {

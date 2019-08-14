@@ -117,6 +117,8 @@ AccountConfig.prototype = {
       owaURL: null,
       ewsURL: null,
       easURL: null,
+      // for when an addon overrides the account type. Optional.
+      addonAccountType: null,
     };
   },
   /**

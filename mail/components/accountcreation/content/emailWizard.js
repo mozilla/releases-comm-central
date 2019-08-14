@@ -412,6 +412,9 @@ EmailConfigWizard.prototype = {
     replaceVariables(result, this._realname, this._email, this._password);
     result.rememberPassword = e("remember_password").checked &&
                               !!this._password;
+    if (result.incoming.addonAccountType) {
+      result.incoming.type = result.incoming.addonAccountType;
+    }
     return result;
   },
 
@@ -686,7 +689,17 @@ EmailConfigWizard.prototype = {
       return;
     }
 
-    this.displayConfigResult(config);
+    e("status-area").setAttribute("status", "loading");
+    config.addons = [];
+    let successCallback = () => {
+      this._abortable = null;
+      e("status-area").setAttribute("status", "result");
+      this.displayConfigResult(config);
+    };
+    this._abortable = getAddonsList(config, successCallback, e => {
+      successCallback();
+      this.showErrorMsg(e);
+    });
   },
 
   /**
@@ -839,20 +852,18 @@ EmailConfigWizard.prototype = {
 
     // IMAP / POP3 server type radio buttons
     let alternatives = config.incomingAlternatives.filter(alt =>
-        (alt.type == "imap" || alt.type == "pop3" || alt.type == "exchange") &&
-        alt.type != config.incoming.type
-      );
-    let alternative = alternatives[0];
-    if (alternative) {
+        alt.type == "imap" || alt.type == "pop3" || alt.type == "exchange");
+    alternatives.unshift(config.incoming);
+    alternatives = alternatives.unique(alt => alt.type);
+    if (alternatives.length > 1) {
       _show("result_servertype");
       _hide("result_select_imap");
       _hide("result_select_pop3");
       _hide("result_select_exchange");
-      _show("result_select_" + alternative.type);
-      _show("result_select_" + config.incoming.type);
-      e("result_select_" + alternative.type).configIncoming = alternative;
-      e("result_select_" + config.incoming.type).configIncoming =
-          config.incoming;
+      for (let alt of alternatives) {
+        _show("result_select_" + alt.type);
+        e("result_select_" + alt.type).configIncoming = alt;
+      }
       e("result_servertype").value = config.incoming.type;
     } else {
       _hide("result_servertype");
@@ -877,13 +888,10 @@ EmailConfigWizard.prototype = {
         }
         let installedAddon = config.addons.find(addon => addon.isInstalled);
         if (installedAddon) {
+          config.incoming.addonAccountType = installedAddon.useType.addonAccountType;
           _hide("result_addon_intro");
           _hide("result_addon_install");
           _enable("create_button");
-          this.onCreate = () => { // TODO
-            this._currentConfig.incoming.type = installedAddon.useType.addonAccountType;
-            this.validateAndFinish();
-          };
         } else {
           _hide("status-area");
           _show("result_addon_intro");

@@ -101,6 +101,21 @@ function splitLines(content) {
 }
 
 /**
+ * Returns only one element for each result of testFunc.
+ * First element for each result wins.
+ * @param testFunc {Function(arrayElement)}
+ * @returns new array {Array}
+ */
+Array.prototype.unique = function(testFunc) {
+  return this.reduce((found, nextEl) => {
+    if (!found.some(prevEl => testFunc(prevEl) == testFunc(nextEl))) {
+      found.push(nextEl);
+    }
+    return found;
+  }, []);
+};
+
+/**
  * @param bundleURI {String}   chrome URL to properties file
  * @return nsIStringBundle
  */
