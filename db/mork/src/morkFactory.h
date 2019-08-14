@@ -172,12 +172,12 @@ class morkFactory : public morkObject, public nsIMdbFactory {  // nsIMdbObject
   void CloseFactory(morkEnv* ev);  // called by CloseMorkNode();
 
  public:  // morkNode memory management operators
-  void* operator new(size_t inSize) CPP_THROW_NEW {
+  void* operator new(size_t inSize) noexcept(true) {
     return ::operator new(inSize);
   }
 
   void* operator new(size_t inSize, nsIMdbHeap& ioHeap,
-                     morkEnv* ev) CPP_THROW_NEW {
+                     morkEnv* ev) noexcept(true) {
     return morkNode::MakeNew(inSize, ioHeap, ev);
   }
 

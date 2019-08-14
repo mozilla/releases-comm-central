@@ -26,7 +26,6 @@
 
 */
 
-#include "xpcom-config.h"
 #include "nsCOMPtr.h"
 #include "nsIComponentManager.h"
 #include "nsIRDFCompositeDataSource.h"

@@ -85,16 +85,16 @@ class morkHandle : public morkNode {
 
  public:  // morkHandle memory management operators
   void* operator new(size_t inSize, morkPool& ioPool, morkZone& ioZone,
-                     morkEnv* ev) CPP_THROW_NEW {
+                     morkEnv* ev) noexcept(true) {
     return ioPool.NewHandle(ev, inSize, &ioZone);
   }
 
   void* operator new(size_t inSize, morkPool& ioPool,
-                     morkEnv* ev) CPP_THROW_NEW {
+                     morkEnv* ev) noexcept(true) {
     return ioPool.NewHandle(ev, inSize, (morkZone*)0);
   }
 
-  void* operator new(size_t inSize, morkHandleFace* ioFace) CPP_THROW_NEW {
+  void* operator new(size_t inSize, morkHandleFace* ioFace) noexcept(true) {
     MORK_USED_1(inSize);
     return ioFace;
   }

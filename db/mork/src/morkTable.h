@@ -479,7 +479,7 @@ class morkTable : public morkObject, public morkLink, public nsIMdbTable {
 
  public:  // morkNode memory management operators
   void* operator new(size_t inSize, nsIMdbHeap& ioHeap,
-                     morkEnv* ev) CPP_THROW_NEW {
+                     morkEnv* ev) noexcept(true) {
     return morkNode::MakeNew(inSize, ioHeap, ev);
   }
 

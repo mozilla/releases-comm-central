@@ -56,7 +56,7 @@ class morkNext /*d*/ {
 
  public:  // link memory management operators
   void* operator new(size_t inSize, nsIMdbHeap& ioHeap,
-                     morkEnv* ev) CPP_THROW_NEW {
+                     morkEnv* ev) noexcept(true) {
     return morkNext::MakeNewNext(inSize, ioHeap, ev);
   }
 
@@ -153,7 +153,7 @@ class morkLink /*d*/ {
 
  public:  // link memory management operators
   void* operator new(size_t inSize, nsIMdbHeap& ioHeap,
-                     morkEnv* ev) CPP_THROW_NEW {
+                     morkEnv* ev) noexcept(true) {
     return morkLink::MakeNewLink(inSize, ioHeap, ev);
   }
 };
