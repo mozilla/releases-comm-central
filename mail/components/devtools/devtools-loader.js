@@ -34,7 +34,7 @@ DevToolsStartup.prototype = {
 
   initialize() {
     let { loader, require, DevToolsLoader } = ChromeUtils.import("resource://devtools/shared/Loader.jsm");
-    let { DebuggerServer } = require("devtools/server/main");
+    let { DebuggerServer } = require("devtools/server/debugger-server");
     let { gDevTools } = require("devtools/client/framework/devtools");
 
     // Set up the client and server chrome window type, make sure it can't be set
