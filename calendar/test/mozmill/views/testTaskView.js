@@ -97,7 +97,7 @@ function testTaskView() {
         ${TASK_VIEW}/{"flex":"1"}/id("calendar-task-details-container")/{"flex":"1"}/
         id("calendar-task-details-description")
     `), DESCRIPTION);
-    controller.assertValue(eid("calendar-task-details-status"), "Needs Action");
+    controller.assertJSProperty(eid("calendar-task-details-status"), "textContent", "Needs Action");
 
     // This is a hack.
     taskTreeNode.getTaskAtRow(0).calendar.setProperty("capabilities.priority.supported", true);
@@ -107,10 +107,8 @@ function testTaskView() {
     sleep();
     controller.click(lookup(
         `${TASK_VIEW}/{"flex":"1"}/id("calendar-task-details-container")/
-        id("calendar-task-details")/id("calendar-task-details-grid")/
-        id("calendar-task-details-rows")/
-        id("calendar-task-details-priority-row")/{"flex":"1"}/
-        id("other-actions-box")/id("task-actions-toolbox")/id("task-actions-toolbar")/
+        id("calendar-task-details")/id("other-actions-box")/
+        id("task-actions-toolbox")/id("task-actions-toolbar")/
         id("task-actions-priority")/id("task-actions-priority-menupopup")/
         {"class":"popup-internal-box"}/{"class":"priority-1-menuitem"}`));
     sleep();

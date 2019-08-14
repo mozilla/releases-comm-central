@@ -140,6 +140,8 @@ calStorageCalendar.prototype = {
                 return false;
             case "requiresNetwork":
                 return false;
+            case "capabilities.priority.supported":
+                return true;
             case "capabilities.removeModes":
                 return ["delete"];
         }

@@ -4,7 +4,12 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-#calendar-header-name-column,
+#calendar-task-details {
+    display: flex;
+    flex-direction: column;
+    min-height: 6ex;
+}
+
 #calendar-task-details-attachment-row > hbox {
     padding-inline-start: 0.1em;
 }
@@ -14,14 +19,34 @@
     padding-inline-start: 0;
     padding-inline-end: 0;
     padding-bottom: 0.2em;
+    width: 100%;
+}
+
+#calendar-task-details-title {
+    font-weight: bold;
+}
+
+#calendar-task-details-grid > tr > th {
+    display: flex;
+    justify-content: end;
+    font-weight: normal;
+    white-space: nowrap;
+}
+
+#calendar-task-details-grid > tr > td {
+    padding-inline-start: 6px;
+    text-align: left;
+    width: 100%;
+}
+
+#calendar-task-details-grid > tr > td > label {
+    margin-inline-start: 0;
 }
 
 #other-actions-box {
+    display: flex;
+    justify-content: end;
     padding-bottom: 0.3em;
-}
-
-#calendar-task-details {
-    min-height: 6ex;
 }
 
 #task-addition-box {
@@ -64,15 +89,23 @@
     opacity: 0.5; /* lower contrast */
 }
 
-.item-date-row > .selectable-label {
+.item-date-row > td > input[is="calendar-item-date-input"] {
+    width: 100%;
+    background-color: ButtonFace;
+}
+
+#calendar-task-details-container:-moz-window-inactive input[is="calendar-item-date-input"] {
+    background-color: -moz-mac-chrome-inactive;
+}
+
+.item-date-row > td > input[is="calendar-item-date-input"] > .selectable-label {
     margin-top: 1px !important;
     margin-bottom: 2px !important;
-    margin-inline-start: 6px !important;
     margin-inline-end: 5px !important;
     background-color: inherit;
 }
 
-#calendar-task-details-grid > rows > .item-date-row > .headline {
+#calendar-task-details-grid > .item-date-row > .headline {
     font-weight: normal;
     color: windowtext;
     opacity: 0.5; /* lower contrast */
@@ -93,8 +126,8 @@
 
 :root[lwt-tree] .task-details-name,
 :root[lwt-tree] .task-details-value,
-:root[lwt-tree] .item-date-row > .selectable-label,
-:root[lwt-tree] #calendar-task-details-grid > rows > .item-date-row > .headline {
+:root[lwt-tree] .item-date-row > td > input[is="calendar-item-date-input"] > .selectable-label,
+:root[lwt-tree] #calendar-task-details-grid > .item-date-row > .headline {
     color: inherit;
 }
 
@@ -117,10 +150,6 @@
 
 .task-edit-field[readonly="true"] {
     color: GrayText;
-}
-
-#calendar-task-details-title {
-    font-weight: bold;
 }
 
 #unifinder-task-edit-field {

@@ -33,12 +33,13 @@ var taskDetailsView = {
         let item = document.getElementById("calendar-task-tree").currentTask;
         if (displayElement("calendar-task-details-container", item != null) &&
             displayElement("calendar-task-view-splitter", item != null)) {
-            displayElement("calendar-task-details-title-row", true);
+            document.getElementById("calendar-task-details-title-row").toggleAttribute("hidden", false);
             document.getElementById("calendar-task-details-title").textContent =
                 (item.title ? item.title.replace(/\n/g, " ") : "");
 
             let organizer = item.organizer;
-            if (displayElement("calendar-task-details-organizer-row", organizer != null)) {
+            if (!document.getElementById("calendar-task-details-organizer-row")
+                .toggleAttribute("hidden", !organizer)) {
                 let name = organizer.commonName;
                 if (!name || name.length <= 0) {
                     if (organizer.id && organizer.id.length) {
@@ -50,8 +51,9 @@ var taskDetailsView = {
                         }
                     }
                 }
-                if (displayElement("calendar-task-details-organizer-row", name && name.length)) {
-                    document.getElementById("calendar-task-details-organizer").value = name;
+                if (!document.getElementById("calendar-task-details-organizer-row")
+                    .toggleAttribute("hidden", !name)) {
+                    document.getElementById("calendar-task-details-organizer").textContent = name;
                 }
             }
 
@@ -59,17 +61,18 @@ var taskDetailsView = {
             if (item.calendar.getProperty("capabilities.priority.supported")) {
                 priority = parseInt(item.priority, 10);
             }
-            displayElement("calendar-task-details-priority-label", priority > 0);
+            document.getElementById("calendar-task-details-priority-row").toggleAttribute("hidden", priority == 0);
             displayElement("calendar-task-details-priority-low", priority >= 6 && priority <= 9);
             displayElement("calendar-task-details-priority-normal", priority == 5);
             displayElement("calendar-task-details-priority-high", priority >= 1 && priority <= 4);
 
             let status = item.getProperty("STATUS");
-            if (displayElement("calendar-task-details-status-row", status && status.length > 0)) {
+            if (!document.getElementById("calendar-task-details-status-row")
+                .toggleAttribute("hidden", !status)) {
                 let statusDetails = document.getElementById("calendar-task-details-status");
                 switch (status) {
                     case "NEEDS-ACTION": {
-                        statusDetails.value = cal.l10n.getCalString("taskDetailsStatusNeedsAction");
+                        statusDetails.textContent = cal.l10n.getCalString("taskDetailsStatusNeedsAction");
                         break;
                     }
                     case "IN-PROCESS": {
@@ -78,7 +81,7 @@ var taskDetailsView = {
                         if (property != null) {
                             percent = parseInt(property, 10);
                         }
-                        statusDetails.value = cal.l10n.getCalString(
+                        statusDetails.textContent = cal.l10n.getCalString(
                             "taskDetailsStatusInProgress", [percent]
                         );
                         break;
@@ -87,7 +90,7 @@ var taskDetailsView = {
                         if (item.completedDate) {
                             let completedDate = item.completedDate.getInTimezone(
                                                     cal.dtz.defaultTimezone);
-                            statusDetails.value = cal.l10n.getCalString(
+                            statusDetails.textContent = cal.l10n.getCalString(
                                 "taskDetailsStatusCompletedOn",
                                 [dateFormatter.formatDateTime(completedDate)]
                             );
@@ -95,29 +98,29 @@ var taskDetailsView = {
                         break;
                     }
                     case "CANCELLED": {
-                        statusDetails.value = cal.l10n.getCalString("taskDetailsStatusCancelled");
+                        statusDetails.textContent = cal.l10n.getCalString("taskDetailsStatusCancelled");
                         break;
                     }
                     default: {
-                        displayElement("calendar-task-details-status-row", false);
+                        document.getElementById("calendar-task-details-status-row")
+                            .toggleAttribute("hidden", true);
                         break;
                     }
                 }
             }
             let categories = item.getCategories({});
-            if (displayElement("calendar-task-details-category-row", categories.length > 0)) {
-                document.getElementById("calendar-task-details-category").value = categories.join(", ");
+            if (!document.getElementById("calendar-task-details-category-row")
+                .toggleAttribute("hidden", categories.length == 0)) {
+                document.getElementById("calendar-task-details-category").textContent = categories.join(", ");
             }
             document.getElementById("task-start-date").item = item;
             document.getElementById("task-due-date").item = item;
 
-            let taskStartRowLabel = document.getElementById("task-start-row-label");
             let taskStartDate = item[cal.dtz.startDateProp(item)];
-            taskStartRowLabel.style.visibility = taskStartDate ? "visible" : "collapse";
+            document.getElementById("task-start-row").toggleAttribute("hidden", !taskStartDate);
 
-            let taskDueRowLabel = document.getElementById("task-due-row-label");
             let taskDueDate = item[cal.dtz.endDateProp(item)];
-            taskDueRowLabel.style.visibility = taskDueDate ? "visible" : "collapse";
+            document.getElementById("task-due-row").toggleAttribute("hidden", !taskDueDate);
 
             let parentItem = item;
             if (parentItem.parentItem != parentItem) {
@@ -126,14 +129,15 @@ var taskDetailsView = {
             }
             let recurrenceInfo = parentItem.recurrenceInfo;
             let recurStart = parentItem.recurrenceStartDate;
-            if (displayElement("calendar-task-details-repeat-row", recurrenceInfo && recurStart)) {
+            if (!document.getElementById("calendar-task-details-repeat-row")
+                .toggleAttribute("hidden", !recurrenceInfo || !recurStart)) {
                 let kDefaultTimezone = cal.dtz.defaultTimezone;
                 let startDate = recurStart.getInTimezone(kDefaultTimezone);
                 let endDate = item.dueDate ? item.dueDate.getInTimezone(kDefaultTimezone) : null;
                 let detailsString = recurrenceRule2String(recurrenceInfo, startDate, endDate, startDate.isDate);
                 if (detailsString) {
                     let rpv = document.getElementById("calendar-task-details-repeat");
-                    rpv.value = detailsString.split("\n").join(" ");
+                    rpv.textContent = detailsString.split("\n").join(" ");
                 }
             }
             let textbox = document.getElementById("calendar-task-details-description");
