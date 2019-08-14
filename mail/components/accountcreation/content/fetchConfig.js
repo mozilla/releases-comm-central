@@ -149,12 +149,12 @@ function fetchConfigFromDB(domain, successCallback, errorCallback) {
  *
  * Params @see fetchConfigFromISP()
  */
-async function fetchConfigForMX(domain, successCallback, errorCallback) {
+function fetchConfigForMX(domain, successCallback, errorCallback) {
   const sanitizedDomain = sanitize.hostname(domain);
   const sucAbortable = new SuccessiveAbortable();
   const time = Date.now();
 
-  await getMX(sanitizedDomain,
+  sucAbortable.current = getMX(sanitizedDomain,
     function(mxHostname) { // success
       ddump("getmx took " + (Date.now() - time) + "ms");
       let sld = Services.eTLD.getBaseDomainFromHost(mxHostname);
@@ -188,9 +188,8 @@ async function fetchConfigForMX(domain, successCallback, errorCallback) {
  *   For |hostname|, see description above.
  * @param {function({Exception|string})}  errorCallback @see fetchConfigFromISP()
  */
-async function getMX(sanitizedDomain, successCallback, errorCallback) {
-  try {
-    const records = await DNS.mx(sanitizedDomain);
+function getMX(sanitizedDomain, successCallback, errorCallback) {
+  return new PromiseAbortable(DNS.mx(sanitizedDomain), function(records) {
     const filteredRecs = records.filter(record => record.host);
 
     if (filteredRecs.length > 0) {
@@ -201,7 +200,5 @@ async function getMX(sanitizedDomain, successCallback, errorCallback) {
       errorCallback(new Exception(
         "No hostname found in MX records for sanitizedDomain=" + sanitizedDomain));
     }
-  } catch (error) {
-    errorCallback(error);
-  }
+  }, errorCallback);
 }

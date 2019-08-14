@@ -159,6 +159,34 @@ CancelledException.prototype = Object.create(Exception.prototype);
 CancelledException.prototype.constructor = CancelledException;
 
 /**
+ * Utility implementation, for waiting for a promise to resolve,
+ * but allowing its result to be cancelled.
+ */
+function PromiseAbortable(promise, successCallback, errorCallback) {
+  Abortable.call(this); // call super constructor
+  let complete = false;
+  this.cancel = function(e) {
+    if (!complete) {
+      complete = true;
+      errorCallback(e || new CancelledException());
+    }
+  };
+  promise.then(function(result) {
+    if (!complete) {
+      successCallback(result);
+      complete = true;
+    }
+  }).catch(function(e) {
+    if (!complete) {
+      complete = true;
+      errorCallback(e);
+    }
+  });
+}
+PromiseAbortable.prototype = Object.create(Abortable.prototype);
+PromiseAbortable.prototype.constructor = PromiseAbortable;
+
+/**
  * Utility implementation, for allowing to abort a setTimeout.
  * Use like: return new TimeoutAbortable(setTimeout(function(){ ... }, 0));
  * @param setTimeoutID {Integer}  Return value of setTimeout()
@@ -384,7 +412,7 @@ function PriorityOrderAbortable(successCallback, errorCallback) {
         if (this._successfulCall) {
           // abort
           if (call.callerAbortable) {
-            call.callerAbortable.cancel(NoLongerNeededException("Another higher call succeeded"));
+            call.callerAbortable.cancel(new NoLongerNeededException("Another higher call succeeded"));
           }
           continue;
         }

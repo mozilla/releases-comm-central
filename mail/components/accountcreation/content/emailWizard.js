@@ -554,7 +554,7 @@ EmailConfigWizard.prototype = {
    * Try to find an account configuration for this email address.
    * This is the function which runs the autoconfig.
    */
-  async findConfig(domain, emailAddress) {
+  findConfig(domain, emailAddress) {
     gEmailWizardLogger.info("findConfig()");
     if (this._abortable) {
       this.onStop();
@@ -613,7 +613,7 @@ EmailConfigWizard.prototype = {
       this.addStatusLine("looking_up_settings_mx", call);
       // "found_settings_db" is correct. We display the same message for both db and mx cases.
       call.foundMsg = "found_settings_db";
-      fetch = await fetchConfigForMX(domain,
+      fetch = fetchConfigForMX(domain,
         call.successCallback(), call.errorCallback());
       call.setAbortable(fetch);
 
