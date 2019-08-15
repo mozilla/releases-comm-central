@@ -40,6 +40,7 @@
 #include "nsArrayEnumerator.h"
 #include "nsSimpleEnumerator.h"
 #include "nsIMemoryReporter.h"
+#include "nsIWeakReferenceUtils.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/mailnews/Services.h"
 
@@ -904,10 +905,11 @@ namespace mailnews {
 MOZ_DEFINE_MALLOC_SIZE_OF(GetMallocSize)
 
 class MsgDBReporter final : public nsIMemoryReporter {
-  nsMsgDatabase *mDatabase;
+  nsWeakPtr mDatabase;
 
  public:
-  explicit MsgDBReporter(nsMsgDatabase *db) : mDatabase(db) {}
+  explicit MsgDBReporter(nsMsgDatabase *db)
+      : mDatabase(do_GetWeakReference(db)) {}
 
   NS_DECL_ISUPPORTS
   NS_IMETHOD GetName(nsACString &aName) {
@@ -919,17 +921,21 @@ class MsgDBReporter final : public nsIMemoryReporter {
                             bool aAnonymize) override {
     nsCString path;
     GetPath(path, aAnonymize);
+    nsCOMPtr<nsIMsgDatabase> database = do_QueryReferent(mDatabase);
+    nsMsgDatabase *db =
+        database ? static_cast<nsMsgDatabase *>(database.get()) : nullptr;
     return aCb->Callback(
         EmptyCString(), path, nsIMemoryReporter::KIND_HEAP,
         nsIMemoryReporter::UNITS_BYTES,
-        mDatabase->SizeOfIncludingThis(GetMallocSize),
+        db ? db->SizeOfIncludingThis(GetMallocSize) : 0,
         NS_LITERAL_CSTRING("Memory used for the folder database."), aClosure);
   }
 
   void GetPath(nsACString &memoryPath, bool aAnonymize) {
     memoryPath.AssignLiteral("explicit/maildb/database(");
+    nsCOMPtr<nsIMsgDatabase> database = do_QueryReferent(mDatabase);
     nsCOMPtr<nsIMsgFolder> folder;
-    mDatabase->GetFolder(getter_AddRefs(folder));
+    if (database) database->GetFolder(getter_AddRefs(folder));
     if (folder) {
       if (aAnonymize)
         memoryPath.AppendLiteral("<anonymized>");
@@ -1004,6 +1010,7 @@ nsMsgDatabase::nsMsgDatabase()
 
 nsMsgDatabase::~nsMsgDatabase() {
   mozilla::UnregisterWeakMemoryReporter(mMemReporter);
+  mMemReporter = nullptr;
   //  Close(FALSE);  // better have already been closed.
   ClearCachedObjects(true);
   ClearEnumerators();
