@@ -100,7 +100,8 @@ function testWeekView() {
 
     // Check if name was saved.
     let eventName = lookupEventBox("week", EVENT_BOX, null, 5, null,
-        `${EVENTPATH}/${getEventDetails("week")}/anon({"flex":"1"})/anon({"anonid":"event-name"})`
+        `${EVENTPATH}/${getEventDetails("week")}/anon({"flex":"1"})/
+        anon({"class":"calendar-event-details-core event-name-label"})`
     );
     controller.waitForElement(eventName);
     controller.assertJSProperty(eventName, "textContent", TITLE2);

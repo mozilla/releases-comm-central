@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global MozElements, MozXULElement, Services, timeIndicator */
+/* global MozElements, MozXULElement, timeIndicator */
 
 "use strict";
 
@@ -17,6 +17,7 @@
 // Wrap in a block to prevent leaking to window scope.
 {
     var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+    var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
     /**
      * The calendar view for viewing a single day.
      *
@@ -31,7 +32,7 @@
             super.connectedCallback();
         }
 
-        // calICalendarView Methods and Properties
+        // calICalendarView Methods and Properties.
 
         get observerID() {
             return "day-view-observer";
@@ -61,7 +62,7 @@
             }
         }
 
-        // End calICalendarView Methods and Properties
+        // End calICalendarView Methods and Properties.
     }
 
     MozXULElement.implementCustomInterface(CalendarDayView, [Ci.calICalendarView]);
@@ -101,7 +102,7 @@
             }, { once: true });
         }
 
-        // calICalendarView Methods and Properties
+        // calICalendarView Methods and Properties.
 
         get observerID() {
             return "week-view-observer";
@@ -132,7 +133,7 @@
             }
         }
 
-        // End calICalendarView Methods and Properties
+        // End calICalendarView Methods and Properties.
     }
 
     MozXULElement.implementCustomInterface(CalendarWeekView, [Ci.calICalendarView]);
@@ -166,7 +167,7 @@
             return this.mWeeksInView;
         }
 
-        // calICalendarView Methods and Properties
+        // calICalendarView Methods and Properties.
 
         get supportsZoom() {
             return true;
@@ -236,7 +237,7 @@
             }
         }
 
-        // End calICalendarView Methods and Properties
+        // End calICalendarView Methods and Properties.
     }
 
     MozXULElement.implementCustomInterface(CalendarMultiweekView, [Ci.calICalendarView]);
@@ -257,7 +258,7 @@
             super.connectedCallback();
         }
 
-        // calICalendarView Methods and Properties
+        // calICalendarView Methods and Properties.
 
         get observerID() {
             return "month-view-observer";
@@ -312,7 +313,7 @@
             }
         }
 
-        // End calICalendarView Methods and Properties
+        // End calICalendarView Methods and Properties.
     }
 
     MozXULElement.implementCustomInterface(CalendarMonthView, [Ci.calICalendarView]);

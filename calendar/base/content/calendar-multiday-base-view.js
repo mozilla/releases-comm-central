@@ -872,14 +872,15 @@
             for (const item of this.mSelectedItems) {
                 for (const occ of this.getItemOccurrencesInView(item)) {
                     const cols = this.findColumnsForItem(occ);
-                    if (cols.length > 0) {
-                        const start = item.startDate || item.entryDate || item.dueDate;
-                        for (const col of cols) {
-                            if (start.isDate) {
-                                col.header.selectOccurrence(occ);
-                            } else {
-                                col.column.selectOccurrence(occ);
-                            }
+                    if (cols.length == 0) {
+                        continue;
+                    }
+                    const start = item.startDate || item.entryDate || item.dueDate;
+                    for (const col of cols) {
+                        if (start.isDate) {
+                            col.header.selectOccurrence(occ);
+                        } else {
+                            col.column.selectOccurrence(occ);
                         }
                     }
                 }

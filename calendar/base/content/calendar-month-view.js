@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals currentView MozElements MozXULElement */
+/* globals currentView MozElements MozXULElement onMouseOverItem invokeEventDragSession */
 
 /* import-globals-from calendar-ui-utils.js */
 
@@ -256,4 +256,140 @@
         }
     }
     customElements.define("calendar-month-day-box", CalendarMonthDayBox);
+
+    /**
+     * The MozCalendarMonthDayBoxItem widget is used as event item in the
+     * Multiweek and Month views of the calendar. It displays the event name,
+     * alarm icon and the category type color.
+     *
+     * @extends {MozElements.MozCalendarEditableItem}
+     */
+    class MozCalendarMonthDayBoxItem extends MozElements.MozCalendarEditableItem {
+        static get inheritedAttributes() {
+            return {
+                ".calendar-event-box-container": "readonly,flashing,alarm,allday,priority,progress,status,calendar,categories",
+                ".calendar-item-image": "progress,allday,itemType,todoType",
+                ".calendar-month-day-box-item-label": "context",
+                ".event-name-label-container": "context",
+                ".alarm-icons-box": "flashing",
+                ".calendar-category-box": "categories",
+            };
+        }
+        connectedCallback() {
+            if (this.delayConnectedCallback() || this.hasChildNodes()) {
+                return;
+            }
+            this.appendChild(MozXULElement.parseXULToFragment(`
+                <vbox flex="1">
+                    <hbox>
+                        <box class="calendar-color-box"
+                             flex="1">
+                            <box class="calendar-event-selection"
+                                 orient="horizontal"
+                                 flex="1">
+                                <stack class="calendar-event-box-container"
+                                       flex="1">
+                                    <hbox class="calendar-event-details">
+                                        <vbox pack="center">
+                                            <image class="calendar-item-image"></image>
+                                        </vbox>
+                                        <label class="calendar-month-day-box-item-label"></label>
+                                        <vbox class="event-name-label-container"
+                                              align="left" flex="1">
+                                            <label class="event-name-label"
+                                                   crop="end"
+                                                   flex="1"
+                                                   style="margin: 0;">
+                                            </label>
+                                            <textbox class="plain calendar-event-name-textbox title-desc"
+                                                     crop="end"
+                                                     hidden="true"
+                                                     wrap="true">
+                                            </textbox>
+                                            <spacer flex="1"></spacer>
+                                        </vbox>
+                                        <stack class="category-box-stack">
+                                            <hbox class="calendar-category-box category-color-box calendar-event-selection"
+                                                  flex="1"
+                                                  pack="end">
+                                                <image class="calendar-category-box-gradient"></image>
+                                            </hbox>
+                                            <hbox align="center">
+                                                <hbox class="alarm-icons-box"
+                                                      pack="end"
+                                                      align="top">
+                                                </hbox>
+                                                <image class="item-classification-box"
+                                                       pack="end">
+                                                </image>
+                                            </hbox>
+                                        </stack>
+                                    </hbox>
+                                </stack>
+                            </box>
+                        </box>
+                    </hbox>
+                </vbox>
+            `));
+
+            // We have two event listeners for dragstart. This event listener is for the bubbling phase
+            // where we are setting up the document.monthDragEvent which will be used in the event listener
+            // in the capturing phase which is set up in the calendar-editable-item.
+            this.addEventListener("dragstart", (event) => {
+                document.monthDragEvent = this;
+            }, true);
+
+            this.setAttribute("mousethrough", "never");
+            this.setAttribute("tooltip", "itemTooltip");
+            this.addEventNameTextboxListener();
+            this.initializeAttributeInheritance();
+        }
+
+        set occurrence(val) {
+            cal.ASSERT(!this.mOccurrence, "Code changes needed to set the occurrence twice", true);
+            this.mOccurrence = val;
+            if (cal.item.isEvent(val) && !val.startDate.isDate) {
+                let icon = this.querySelector(".calendar-item-image");
+                let label = this.querySelector(".calendar-month-day-box-item-label");
+                let formatter = Cc["@mozilla.org/calendar/datetime-formatter;1"]
+                    .getService(Ci.calIDateTimeFormatter);
+                let timezone = this.calendarView ? this.calendarView.mTimezone
+                    : cal.dtz.defaultTimezone;
+                let parentDate = this.parentBox.date;
+                let parentTime = cal.createDateTime();
+                parentTime.resetTo(parentDate.year, parentDate.month, parentDate.day, 0, 0, 0, timezone);
+                let startTime = val.startDate.getInTimezone(timezone);
+                let endTime = val.endDate.getInTimezone(timezone);
+                let nextDay = parentTime.clone();
+                nextDay.day++;
+                let comp = endTime.compare(nextDay);
+                if (startTime.compare(parentTime) == -1) {
+                    if (comp == 1) {
+                        icon.setAttribute("type", "continue");
+                    } else if (comp == 0) {
+                        icon.setAttribute("type", "start");
+                    } else {
+                        icon.setAttribute("type", "end");
+                        label.value = formatter.formatTime(endTime);
+                    }
+                } else if (comp == 1) {
+                    icon.setAttribute("type", "start");
+                    label.value = formatter.formatTime(startTime);
+                } else {
+                    label.value = formatter.formatTime(startTime);
+                }
+                label.setAttribute("time", "true");
+            }
+
+            this.setEditableLabel();
+            this.setCSSClasses();
+            return val;
+        }
+
+        get occurrence() {
+            return this.mOccurrence;
+        }
+    }
+
+    customElements.define("calendar-month-day-box-item", MozCalendarMonthDayBoxItem);
 }

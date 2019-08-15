@@ -95,7 +95,8 @@ function testDayView() {
 
     // Check if name was saved.
     let eventName = lookupEventBox("day", EVENT_BOX, null, 1, null,
-        `${EVENTPATH}/${getEventDetails("day")}/anon({"flex":"1"})/anon({"anonid":"event-name"})`
+        `${EVENTPATH}/${getEventDetails("day")}/anon({"flex":"1"})/
+        anon({"class":"calendar-event-details-core event-name-label"})`
     );
     controller.waitForElement(eventName);
     controller.assertJSProperty(eventName, "textContent", TITLE2);

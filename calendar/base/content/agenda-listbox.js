@@ -163,10 +163,12 @@
             let multiDayImage = this.querySelector(".agenda-multiDayEvent-image");
             multiDayImage.setAttribute("type", iconType);
             // class wrap causes allday items to wrap its text in today-pane
-            let addWrap = document.getAnonymousElementByAttribute(this.mAllDayItem, "anonid", "eventbox");
-            addWrap.classList.add("wrap");
-            addWrap = document.getAnonymousElementByAttribute(this.mAllDayItem, "anonid", "event-detail-box");
-            addWrap.classList.add("wrap");
+            let eventBoxContainer = this.mAllDayItem.querySelector(".calendar-event-box-container");
+            eventBoxContainer.classList.add("wrap");
+            let eventDetailBox = this.mAllDayItem.querySelector("event-detail-box");
+            if (eventDetailBox) {
+                eventDetailBox.classList.add("wrap");
+            }
             allDayDateLabel.value = date;
         }
         get occurrence() {

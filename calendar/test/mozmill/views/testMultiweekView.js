@@ -103,7 +103,7 @@ function testMultiWeekView() {
     // Check if name was saved.
     let eventName = lookupEventBox("multiweek", CANVAS_BOX, 1, 5, null,
         `${EVENTPATH}/${getEventDetails("multiweek")}/anon({"flex":"1"})/
-        anon({"anonid":"event-name"})`
+        anon({"class":"event-name-label"})`
     );
 
     controller.waitForElement(eventName);

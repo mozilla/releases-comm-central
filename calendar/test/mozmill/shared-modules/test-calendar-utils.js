@@ -66,8 +66,8 @@ var EVENTPATH = `
 `;
 // Used after "${EVENTPATH}/${getEventDetails([view])}/".
 var ALARM_ICON_PATH = `
-    anon({"anonid":"category-box-stack"})/anon({"align":"center"})/
-    anon({"anonid":"alarm-icons-box"})/anon({"class":"reminder-icon"})
+    anon({"class":"category-box-stack"})/anon({"align":"center"})/
+    anon({"class":"alarm-icons-box"})/anon({"class":"reminder-icon"})
 `;
 
 var plan_for_modal_dialog, wait_for_modal_dialog, close_window;
@@ -387,14 +387,14 @@ function getEventBoxPath(controller, view, option, row, column, hour) {
 function getEventDetails(view) {
     if (view == "day" || view == "week") {
         return `
-            anon({"flex":"1"})/anon({"anonid":"event-container"})/
-            {"class":"calendar-event-selection"}/anon({"anonid":"eventbox"})/
+            anon({"flex":"1"})/anon({"class":"calendar-color-box"})/
+            {"class":"calendar-event-selection"}/anon({"class":"calendar-event-box-container"})/
             {"class":"calendar-event-details"}
         `;
     } else {
         return `
-            anon({"flex":"1"})/[0]/anon({"anonid":"event-container"})/
-            {"class":"calendar-event-selection"}/anon({"anonid":"eventbox"})/
+            anon({"flex":"1"})/[0]/anon({"class":"calendar-color-box"})/
+            {"class":"calendar-event-selection"}/anon({"class":"calendar-event-box-container"})/
             {"class":"calendar-event-details"}
         `;
     }

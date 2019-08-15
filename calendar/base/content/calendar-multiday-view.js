@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals currentView MozElements MozXULElement */
+/* globals currentView, MozElements, MozXULElement, onMouseOverItem */
 
 /* import-globals-from calendar-ui-utils.js */
 
@@ -152,4 +152,247 @@
         }
     }
     customElements.define("calendar-header-container", CalendarHeaderContainer);
+
+    /**
+     * The MozCalendarMonthDayBoxItem widget is used as event item in the
+     * Day and Week views of the calendar. It displays the event name,
+     * alarm icon and the category type color. It also displays the gripbar
+     * components on hovering over the event. It is used to change the event
+     * timings.
+     *
+     * @extends {MozElements.MozCalendarEditableItem}
+     */
+    class MozCalendarEventBox extends MozElements.MozCalendarEditableItem {
+        static get inheritedAttributes() {
+            return {
+                ".calendar-color-box": "orient,readonly,flashing,alarm,allday,priority,progress,status,calendar,categories,todoType",
+                ".calendar-event-box": "orient,width,height",
+                ".calendar-event-box-container": "context,parentorient=orient,readonly,flashing,alarm,allday,priority,progress,status,calendar,categories",
+                ".calendar-item-image": "progress,allday,itemType,todoType",
+                ".alarm-icons-box": "flashing",
+                ".category-color-box": "categories",
+                ".calendar-event-box-grippy-top": "parentorient=orient",
+                ".calendar-event-box-grippy-bottom": "parentorient=orient",
+                ".calendar-event-gripbar-container": "orient",
+            };
+        }
+        constructor() {
+            super();
+            this.mParentColumn = null;
+            this.addEventListener("mousedown", (event) => {
+                if (event.button != 0) {
+                    return;
+                }
+
+                event.stopPropagation();
+
+                if (this.mEditing) {
+                    return;
+                }
+
+                this.parentColumn.calendarView.selectedDay = this.parentColumn.mDate;
+                this.mMouseX = event.screenX;
+                this.mMouseY = event.screenY;
+
+                let whichside = event.whichside;
+                if (whichside) {
+                    this.calendarView.setSelectedItems(1, [event.ctrlKey ? this.mOccurrence.parentItem : this.mOccurrence]);
+
+                    let snapIntMin = (event.shiftKey &&
+                        !event.ctrlKey &&
+                        !event.altKey &&
+                        !event.metaKey) ? 1 : 15;
+                    // Start edge resize drag
+                    this.parentColumn.startSweepingToModifyEvent(this, this.mOccurrence, whichside,
+                        event.screenX, event.screenY,
+                        snapIntMin);
+                } else {
+                    // May be click or drag,
+                    // So wait for mousemove (or mouseout if fast) to start item move drag.
+                    this.mInMouseDown = true;
+                }
+            });
+
+            this.addEventListener("mousemove", (event) => {
+                if (!this.mInMouseDown) {
+                    return;
+                }
+
+                let deltaX = Math.abs(event.screenX - this.mMouseX);
+                let deltaY = Math.abs(event.screenY - this.mMouseY);
+                // More than a 3 pixel move?
+                const movedMoreThan3Pixels = (deltaX * deltaX + deltaY * deltaY) > 9;
+                if (movedMoreThan3Pixels && this.parentColumn) {
+                    this.startItemDrag();
+                }
+            });
+
+            this.addEventListener("mouseout", (event) => {
+                if (!this.mEditing && this.mInMouseDown && this.parentColumn) {
+                    this.startItemDrag();
+                }
+            });
+
+            this.addEventListener("mouseup", (event) => {
+                if (!this.mEditing) {
+                    this.mInMouseDown = false;
+                }
+            });
+
+            this.addEventListener("mouseover", (event) => {
+                if (this.calendarView && this.calendarView.controller) {
+                    event.stopPropagation();
+                    onMouseOverItem(event);
+                }
+            });
+
+            // We have two event listeners for dragstart. This event listener is for the bubbling phase
+            // where we are setting up the document.monthDragEvent which will be used in the event listener
+            // in the capturing phase which is set up in the calendar-editable-item.
+            this.addEventListener("dragstart", (event) => {
+                document.monthDragEvent = this;
+            }, true);
+        }
+
+        connectedCallback() {
+            if (this.delayConnectedCallback() || this.hasChildNodes()) {
+                return;
+            }
+
+            this.appendChild(MozXULElement.parseXULToFragment(`
+                <box class="calendar-event-box"
+                     flex="1">
+                    <box class="calendar-color-box"
+                         flex="1">
+                        <box class="calendar-event-selection"
+                             orient="horizontal"
+                             flex="1">
+                            <stack class="calendar-event-box-container"
+                                   flex="1">
+                                <hbox class="calendar-event-details"
+                                      align="start">
+                                    <image class="calendar-item-image">
+                                    </image>
+                                    <vbox flex="1">
+                                        <label class="calendar-event-details-core event-name-label"
+                                               crop="end">
+                                        </label>
+                                        <textbox class="plain calendar-event-details-core calendar-event-name-textbox title-desc"
+                                                 hidden="true"
+                                                 wrap="true">
+                                        </textbox>
+                                        <label class="calendar-event-details-core location-desc"
+                                               crop="end">
+                                        </label>
+                                    </vbox>
+                                    <hbox class="alarm-icons-box"
+                                          align="top">
+                                    </hbox>
+                                    <image class="item-classification-box">
+                                    </image>
+                                </hbox>
+                                <stack mousethrough="always"
+                                       class="calendar-category-box-stack">
+                                    <hbox class="calendar-category-box category-color-box calendar-event-selection"
+                                          flex="1"
+                                          pack="end">
+                                        <image class="calendar-category-box-gradient">
+                                        </image>
+                                    </hbox>
+                                </stack>
+                                <box class="calendar-event-gripbar-container">
+                                    <calendar-event-gripbar class="calendar-event-box-grippy-top"
+                                                            mousethrough="never"
+                                                            whichside="start">
+                                    </calendar-event-gripbar>
+                                    <spacer mousethrough="always"
+                                            flex="1">
+                                    </spacer>
+                                    <calendar-event-gripbar class="calendar-event-box-grippy-bottom"
+                                                            mousethrough="never"
+                                                            whichside="end">
+                                    </calendar-event-gripbar>
+                                </box>
+                            </stack>
+                        </box>
+                    </box>
+                </box>
+            `));
+
+            this.setAttribute("mousethrough", "never");
+            this.setAttribute("tooltip", "itemTooltip");
+
+            this.orient = this.getAttribute("orient");
+            this.addEventNameTextboxListener();
+            this.initializeAttributeInheritance();
+        }
+
+        set parentColumn(val) {
+            this.mParentColumn = val;
+            return val;
+        }
+
+        get parentColumn() {
+            return this.mParentColumn;
+        }
+
+        get startMinute() {
+            if (!this.mOccurrence) {
+                return 0;
+            }
+            let startDate = this.mOccurrence.startDate || this.mOccurrence.entryDate;
+            return startDate.hour * 60 + startDate.minute;
+        }
+
+        get endMinute() {
+            if (!this.mOccurrence) {
+                return 0;
+            }
+            let endDate = this.mOccurrence.endDate || this.mOccurrence.dueDate;
+            return endDate.hour * 60 + endDate.minute;
+        }
+
+        getOptimalMinSize() {
+            if (this.getAttribute("orient") == "vertical") {
+                let minHeight = getOptimalMinimumHeight(this.eventNameLabel) +
+                    getSummarizedStyleValues(this.querySelector(".calendar-event-box-container"), ["margin-bottom", "margin-top"]) +
+                    getSummarizedStyleValues(this, ["border-bottom-width", "border-top-width"]);
+                this.setAttribute("minheight", minHeight);
+                this.setAttribute("minwidth", "1");
+                return minHeight;
+            }
+            this.eventNameLabel.setAttribute("style", "min-width: 2em");
+            let minWidth = getOptimalMinimumWidth(this.eventNameLabel);
+            this.setAttribute("minwidth", minWidth);
+            this.setAttribute("minheight", "1");
+            return minWidth;
+        }
+
+        setEditableLabel() {
+            let label = this.eventNameLabel;
+            let item = this.mOccurrence;
+
+            label.textContent = item.title || cal.l10n.getCalString("eventUntitled");
+
+            let gripbar = this.querySelector(".calendar-event-box-grippy-top").getBoundingClientRect().height;
+            let height = this.querySelector(".calendar-event-box-container").getBoundingClientRect().height;
+            label.setAttribute("style", "max-height: " + Math.max(0, height - gripbar * 2) + "px");
+        }
+
+        startItemDrag() {
+            if (this.editingTimer) {
+                clearTimeout(this.editingTimer);
+                this.editingTimer = null;
+            }
+
+            this.calendarView.setSelectedItems(1, [this.mOccurrence]);
+
+            this.mEditing = false;
+
+            this.parentColumn.startSweepingToModifyEvent(this, this.mOccurrence, "middle", this.mMouseX, this.mMouseY);
+            this.mInMouseDown = false;
+        }
+    }
+
+    customElements.define("calendar-event-box", MozCalendarEventBox);
 }

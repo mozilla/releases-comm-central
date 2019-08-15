@@ -102,7 +102,7 @@ function testMonthView() {
 
     // Check if name was saved.
     let eventName = lookupEventBox("month", CANVAS_BOX, 1, 5, null,
-        `${EVENTPATH}/${getEventDetails("month")}/anon({"flex":"1"})/anon({"anonid":"event-name"})`
+        `${EVENTPATH}/${getEventDetails("month")}/anon({"flex":"1"})/anon({"class":"event-name-label"})`
     );
 
     controller.waitForElement(eventName);

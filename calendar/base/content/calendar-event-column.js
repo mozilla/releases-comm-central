@@ -56,7 +56,7 @@
             });
 
             this.addEventListener("click", (event) => {
-                if (event.button != 0 || event.button != 2) {
+                if (event.button != 0 && event.button != 2) {
                     return;
                 }
 
@@ -622,7 +622,6 @@
                             chunkBox.setAttribute("context",
                                 this.getAttribute("item-context") ||
                                 this.getAttribute("context"));
-                            chunkBox.setAttribute("orient", orient);
 
                             // Set the gripBars visibility in the chunk. Keep it
                             // hidden for tasks with only entry date OR due date.
@@ -642,6 +641,7 @@
                             }
 
                             innerColumn.appendChild(chunkBox);
+                            chunkBox.setAttribute("orient", orient);
                             chunkBox.calendarView = this.calendarView;
                             chunkBox.occurrence = chunk.event;
                             chunkBox.parentColumn = this;
@@ -1208,7 +1208,7 @@
             // rotated), calculate the difference and start accelerating the
             // scrollbar.
             let diffStart, diffEnd;
-            let orient = event.target.getAttribute("orient");
+            let orient = document.calendarEventColumnDragging.getAttribute("orient");
             let scrollbox = currentView().scrollbox;
             let boundingRect = scrollbox.getBoundingClientRect();
             if (orient == "vertical") {
@@ -1262,7 +1262,7 @@
             // If we leave the view, then stop our internal sweeping and start a
             // real drag session. Someday we need to fix the sweep to soely be a
             // drag session, no sweeping.
-            let boundingRect = event.target.getBoundingClientRect();
+            let boundingRect = currentView().scrollbox.getBoundingClientRect();
             if (event.clientX < (boundingRect.x) ||
                 event.clientX > (boundingRect.x + boundingRect.width) ||
                 event.clientY < (boundingRect.y) ||
@@ -1279,7 +1279,7 @@
                 document.calendarEventColumnDragging = null;
                 col.mDragState = null;
 
-                var item = dragState.dragOccurrence;
+                let item = dragState.dragOccurrence;
 
                 // The multiday view currently exhibits a less than optimal strategy
                 // in terms of item selection. items don't get automatically selected
@@ -1455,8 +1455,6 @@
             window.removeEventListener("mousemove", col.onEventSweepMouseMove);
             window.removeEventListener("mouseup", col.onEventSweepMouseUp);
             window.removeEventListener("keypress", col.onEventSweepKeypress);
-
-            document.calendarEventColumnDragging = null;
 
             // If the user didn't sweep out at least a few pixels, ignore
             // unless we're in a different column.

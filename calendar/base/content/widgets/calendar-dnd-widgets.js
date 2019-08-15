@@ -18,7 +18,7 @@
     class CalendarDnDContainer extends MozXULElement {
         constructor() {
             super();
-            this.addEventListener("dragstart", this.onDragStart, true);
+            this.addEventListener("dragstart", this.onDragStart);
             this.addEventListener("dragover", this.onDragOver);
             this.addEventListener("dragenter", this.onDragEnter);
             this.addEventListener("drop", this.onDrop);
@@ -134,8 +134,8 @@
         }
 
         onDragStart(event) {
-            let draggedDOMNode = event.target;
-            if (!draggedDOMNode || (draggedDOMNode.parentNode != this &&
+            let draggedDOMNode = document.monthDragEvent || event.target;
+            if (!draggedDOMNode || !draggedDOMNode.parentNode || (draggedDOMNode.parentNode != this &&
                 !draggedDOMNode.parentNode.classList.contains("calendar-day-items"))) {
                 return;
             }
