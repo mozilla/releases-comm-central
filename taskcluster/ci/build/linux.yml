@@ -25,14 +25,15 @@ linux64/opt:
             - builds/releng_base_linux_64_builds.py
         script: "mozharness/scripts/fx_desktop_build.py"
         need-xvfb: true
-    toolchains:
-        - linux64-binutils
-        - linux64-cbindgen
-        - linux64-clang
-        - linux64-nasm
-        - linux64-node
-        - linux64-rust
-        - linux64-sccache
+    fetches:
+        toolchain:
+            - linux64-binutils
+            - linux64-cbindgen
+            - linux64-clang
+            - linux64-nasm
+            - linux64-node
+            - linux64-rust
+            - linux64-sccache
 
 linux64-shippable/opt:
     description: "Linux64 Shippable"
@@ -64,13 +65,14 @@ linux64-shippable/opt:
             - taskcluster_nightly.py
         script: "mozharness/scripts/fx_desktop_build.py"
         need-xvfb: true
-    toolchains:
-        - linux64-binutils
-        - linux64-cbindgen
-        - linux64-clang
-        - linux64-nasm
-        - linux64-node
-        - linux64-rust
+    fetches:
+        toolchain:
+            - linux64-binutils
+            - linux64-cbindgen
+            - linux64-clang
+            - linux64-nasm
+            - linux64-node
+            - linux64-rust
 
 linux64/debug:
     description: "Linux64 Debug"
@@ -97,14 +99,15 @@ linux64/debug:
         custom-build-variant-cfg: debug
         mozconfig-variant: debug
         need-xvfb: true
-    toolchains:
-        - linux64-binutils
-        - linux64-cbindgen
-        - linux64-clang
-        - linux64-nasm
-        - linux64-node
-        - linux64-rust
-        - linux64-sccache
+    fetches:
+        toolchain:
+            - linux64-binutils
+            - linux64-cbindgen
+            - linux64-clang
+            - linux64-nasm
+            - linux64-node
+            - linux64-rust
+            - linux64-sccache
 
 linux/opt:
     description: "Linux32 Opt"
@@ -129,14 +132,15 @@ linux/opt:
             - builds/releng_base_linux_32_builds.py
         script: "mozharness/scripts/fx_desktop_build.py"
         need-xvfb: true
-    toolchains:
-        - linux64-binutils
-        - linux64-cbindgen
-        - linux64-clang
-        - linux64-nasm
-        - linux64-node
-        - linux64-rust
-        - linux64-sccache
+    fetches:
+        toolchain:
+            - linux64-binutils
+            - linux64-cbindgen
+            - linux64-clang
+            - linux64-nasm
+            - linux64-node
+            - linux64-rust
+            - linux64-sccache
 
 linux-shippable/opt:
     description: "Linux32 Shippable"
@@ -168,13 +172,14 @@ linux-shippable/opt:
             - taskcluster_nightly.py
         script: "mozharness/scripts/fx_desktop_build.py"
         need-xvfb: true
-    toolchains:
-        - linux64-binutils
-        - linux64-cbindgen
-        - linux64-clang
-        - linux64-nasm
-        - linux64-node
-        - linux64-rust
+    fetches:
+        toolchain:
+            - linux64-binutils
+            - linux64-cbindgen
+            - linux64-clang
+            - linux64-nasm
+            - linux64-node
+            - linux64-rust
 
 linux/debug:
     description: "Linux32 Debug"
@@ -201,11 +206,12 @@ linux/debug:
         custom-build-variant-cfg: debug
         mozconfig-variant: debug
         need-xvfb: true
-    toolchains:
-        - linux64-binutils
-        - linux64-cbindgen
-        - linux64-clang
-        - linux64-nasm
-        - linux64-node
-        - linux64-rust
-        - linux64-sccache
+    fetches:
+        toolchain:
+            - linux64-binutils
+            - linux64-cbindgen
+            - linux64-clang
+            - linux64-nasm
+            - linux64-node
+            - linux64-rust
+            - linux64-sccache

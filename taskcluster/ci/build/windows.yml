@@ -34,13 +34,14 @@ win32/opt:
             - builds/taskcluster_base_win32.py
         extra-config:
             stage_platform: win32
-    toolchains:
-        - win64-cbindgen
-        - win64-clang-cl
-        - win64-nasm
-        - win64-node
-        - win64-rust
-        - win64-sccache
+    fetches:
+        toolchain:
+            - win64-cbindgen
+            - win64-clang-cl
+            - win64-nasm
+            - win64-node
+            - win64-rust
+            - win64-sccache
 
 win32-shippable/opt:
     description: "Win32 Opt Shippable"
@@ -73,12 +74,13 @@ win32-shippable/opt:
             - taskcluster_nightly.py
         extra-config:
             stage_platform: win32
-    toolchains:
-        - win64-cbindgen
-        - win64-clang-cl
-        - win64-nasm
-        - win64-node
-        - win64-rust
+    fetches:
+        toolchain:
+            - win64-cbindgen
+            - win64-clang-cl
+            - win64-nasm
+            - win64-node
+            - win64-rust
 
 win32/debug:
     description: "Win32 Debug"
@@ -104,13 +106,14 @@ win32/debug:
             - builds/taskcluster_base_win32.py
             - builds/taskcluster_sub_win32/debug.py
         mozconfig-variant: debug
-    toolchains:
-        - win64-cbindgen
-        - win64-clang-cl
-        - win64-nasm
-        - win64-node
-        - win64-rust
-        - win64-sccache
+    fetches:
+        toolchain:
+            - win64-cbindgen
+            - win64-clang-cl
+            - win64-nasm
+            - win64-node
+            - win64-rust
+            - win64-sccache
 
 win64/opt:
     description: "Win64 Opt"
@@ -136,13 +139,14 @@ win64/opt:
             - builds/taskcluster_base_win64.py
         extra-config:
             stage_platform: win64
-    toolchains:
-        - win64-cbindgen
-        - win64-clang-cl
-        - win64-nasm
-        - win64-node
-        - win64-rust
-        - win64-sccache
+    fetches:
+        toolchain:
+            - win64-cbindgen
+            - win64-clang-cl
+            - win64-nasm
+            - win64-node
+            - win64-rust
+            - win64-sccache
 
 win64-shippable/opt:
     description: "Win64 Opt Shippable"
@@ -175,12 +179,13 @@ win64-shippable/opt:
             - taskcluster_nightly.py
         extra-config:
             stage_platform: win64
-    toolchains:
-        - win64-cbindgen
-        - win64-clang-cl
-        - win64-nasm
-        - win64-node
-        - win64-rust
+    fetches:
+        toolchain:
+            - win64-cbindgen
+            - win64-clang-cl
+            - win64-nasm
+            - win64-node
+            - win64-rust
 
 win64/debug:
     description: "Win64 Debug"
@@ -206,10 +211,11 @@ win64/debug:
             - builds/taskcluster_base_win64.py
             - builds/taskcluster_sub_win64/debug.py
         mozconfig-variant: debug
-    toolchains:
-        - win64-cbindgen
-        - win64-clang-cl
-        - win64-nasm
-        - win64-node
-        - win64-rust
-        - win64-sccache
+    fetches:
+        toolchain:
+            - win64-cbindgen
+            - win64-clang-cl
+            - win64-nasm
+            - win64-node
+            - win64-rust
+            - win64-sccache

@@ -8,7 +8,6 @@ group-by: platform
 
 transforms:
     - taskgraph.transforms.l10n:transforms
-    - taskgraph.transforms.use_toolchains:transforms
     - taskgraph.transforms.job:transforms
     - taskgraph.transforms.task:transforms
 
@@ -42,12 +41,13 @@ job-template:
     run-time: 36000
     secrets: false
     docker-image: null
-    toolchains:
-        by-build-platform:
-            default: []
-            macosx64.*:
-                - linux64-libdmg
-                - linux64-hfsplus
+    fetches:
+        toolchain:
+            by-build-platform:
+                default: []
+                macosx64.*:
+                    - linux64-libdmg
+                    - linux64-hfsplus
     tooltool:
         by-build-platform:
             default: internal

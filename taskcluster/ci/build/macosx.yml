@@ -30,18 +30,19 @@ macosx64/debug:
         custom-build-variant-cfg: cross-debug
         mozconfig-variant: debug
         tooltool-downloads: internal
-    toolchains:
-        - linux64-binutils
-        - linux64-cbindgen
-        - linux64-cctools-port
-        - linux64-clang-macosx-cross
-        - linux64-hfsplus
-        - linux64-libdmg
-        - linux64-llvm-dsymutil
-        - linux64-nasm
-        - linux64-node
-        - linux64-rust-macos
-        - linux64-sccache
+    fetches:
+        toolchain:
+            - linux64-binutils
+            - linux64-cbindgen
+            - linux64-cctools-port
+            - linux64-clang-macosx-cross
+            - linux64-hfsplus
+            - linux64-libdmg
+            - linux64-llvm-dsymutil
+            - linux64-nasm
+            - linux64-node
+            - linux64-rust-macos
+            - linux64-sccache
 
 macosx64/opt:
     description: "MacOS X x64 Cross-compile"
@@ -69,18 +70,19 @@ macosx64/opt:
             - builds/releng_base_mac_64_cross_builds.py
         script: "mozharness/scripts/fx_desktop_build.py"
         tooltool-downloads: internal
-    toolchains:
-        - linux64-binutils
-        - linux64-cbindgen
-        - linux64-cctools-port
-        - linux64-clang-macosx-cross
-        - linux64-hfsplus
-        - linux64-libdmg
-        - linux64-llvm-dsymutil
-        - linux64-nasm
-        - linux64-node
-        - linux64-rust-macos
-        - linux64-sccache
+    fetches:
+        toolchain:
+            - linux64-binutils
+            - linux64-cbindgen
+            - linux64-cctools-port
+            - linux64-clang-macosx-cross
+            - linux64-hfsplus
+            - linux64-libdmg
+            - linux64-llvm-dsymutil
+            - linux64-nasm
+            - linux64-node
+            - linux64-rust-macos
+            - linux64-sccache
 
 macosx64-shippable/opt:
     description: "MacOS X x64 Cross-compile"
@@ -115,14 +117,15 @@ macosx64-shippable/opt:
             - taskcluster_nightly.py
         script: "mozharness/scripts/fx_desktop_build.py"
         tooltool-downloads: internal
-    toolchains:
-        - linux64-binutils
-        - linux64-cbindgen
-        - linux64-cctools-port
-        - linux64-clang-macosx-cross
-        - linux64-hfsplus
-        - linux64-libdmg
-        - linux64-llvm-dsymutil
-        - linux64-nasm
-        - linux64-node
-        - linux64-rust-macos
+    fetches:
+        toolchain:
+            - linux64-binutils
+            - linux64-cbindgen
+            - linux64-cctools-port
+            - linux64-clang-macosx-cross
+            - linux64-hfsplus
+            - linux64-libdmg
+            - linux64-llvm-dsymutil
+            - linux64-nasm
+            - linux64-node
+            - linux64-rust-macos
