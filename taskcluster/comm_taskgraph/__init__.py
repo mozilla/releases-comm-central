@@ -84,6 +84,28 @@ def remove_widevine(config, jobs):
         yield job
 
 
+def no_sign_langpacks(config, jobs):
+    """
+    Remove langpacks from signing jobs after they are automatically added.
+    """
+    for job in jobs:
+        task = job['task']
+        payload = task['payload']
+
+        if 'upstreamArtifacts' in payload:
+            for artifact in payload['upstreamArtifacts']:
+                if 'autograph_langpack' in artifact.get('formats', []):
+                    artifact['formats'].remove('autograph_langpack')
+
+                if not artifact['formats']:  # length zero list is False
+                    for remove_path in artifact['paths']:
+                        job['release-artifacts'].remove(remove_path)
+
+                    payload['upstreamArtifacts'].remove(artifact)
+
+        yield job
+
+
 def tests_drop_1proc(config, jobs):
     """
     Remove the -1proc suffix from Treeherder group symbols.
