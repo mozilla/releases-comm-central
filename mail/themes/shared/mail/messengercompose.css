@@ -374,6 +374,14 @@
 
 /* :::: Format toolbar :::: */
 
+/*
+ * Removed from global.css in bug 1484949. It's needed so the formatting
+ * toolbar is not disabled while a dropdown (paragraph format or font) is active.
+ */
+.toolbar-focustarget {
+  -moz-user-focus: ignore !important;
+}
+
 #FormatToolbar > toolbarbutton > .toolbarbutton-text {
   display: none;
 }
