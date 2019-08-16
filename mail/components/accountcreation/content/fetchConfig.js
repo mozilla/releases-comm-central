@@ -177,11 +177,6 @@ function fetchConfigForMX(domain, successCallback, errorCallback) {
  * is used. If there are several most preferred servers (i.e. round robin),
  * only one of them is used.
  *
- * The promise-based async call to `DNS.mx` (imported from DNS.jsm) is at odds
- * with the other code here that works with callbacks and `Abortable` objects.
- * That makes the code less coherent, but otherwise it just means we can't
- * abort the initial MX query.
- *
  * @param {string}  sanitizedDomain @see fetchConfigFromISP()
  * @param {function(hostname {string})}  successCallback
  *   Called when we found an MX for the domain.
