@@ -168,13 +168,13 @@ function setupModule(module) {
 }
 
 function check_display_name(index, columnName, expectedName) {
-  let columnIndex;
+  let columnId;
   switch (columnName) {
     case "from":
-      columnIndex = 5;
+      columnId = "senderCol";
       break;
     case "recipients":
-      columnIndex = 6;
+      columnId = "recipientCol";
       break;
     default:
       throw new Error("unknown column name: " + columnName);
@@ -185,7 +185,7 @@ function check_display_name(index, columnName, expectedName) {
   select_click_row(index);
 
   let tree = mc.folderDisplay.tree;
-  let cellText = tree.view.getCellText(index, tree.columns[columnIndex]);
+  let cellText = tree.view.getCellText(index, tree.columns[columnId]);
 
   assert_equals(cellText, expectedName, columnName);
 }

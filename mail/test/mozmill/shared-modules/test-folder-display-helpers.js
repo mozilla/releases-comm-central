@@ -995,6 +995,44 @@ function select_click_row(aViewIndex, aController) {
 }
 
 /**
+ * Pretend we are clicking on a row in the select column with our mouse.
+ *
+ * @param aViewIndex   - If >= 0, the view index provided, if < 0, a reference to
+ *     a view index counting from the last row in the tree.  -1 indicates the
+ *     last message in the tree, -2 the second to last, etc.
+ * @param aController  - The controller in whose context to do this, defaults to
+ *     |mc| if omitted.
+ *
+ * @return The message header selected.
+ */
+function select_column_click_row(aViewIndex, aController) {
+  if (aController == null)
+    aController = mc;
+  let hasMessageDisplay = "messageDisplay" in aController;
+  if (hasMessageDisplay)
+    wait_for_message_display_completion(aController);
+  aViewIndex = _normalize_view_index(aViewIndex, aController);
+  mark_action("fdh", "select_column_click_row", [aViewIndex]);
+
+  // A click in the select column will always change the message display. If
+  // clicking on a single selection (deselect), don't wait for a message load.
+  var willDisplayMessage = hasMessageDisplay &&
+    aController.messageDisplay.visible &&
+    !(aController.dbView.selection.count == 1 &&
+      aController.dbView.selection.isSelected(aViewIndex)) &&
+     aController.dbView.selection.currentIndex !== aViewIndex;
+
+  if (willDisplayMessage)
+    plan_for_message_display(aController);
+  _row_click_helper(aController, aController.threadTree, aViewIndex, 0, null, "selectCol");
+  if (hasMessageDisplay)
+    wait_for_message_display_completion(aController, willDisplayMessage);
+
+  mark_action("fdh", "/select_column_click_row", [mc.folderDisplay.selectedMessages]);
+  return aController.dbView.getMsgHdrAt(aViewIndex);
+}
+
+/**
  * Pretend we are toggling the thread specified by a row.
  *
  * @param aViewIndex If >= 0, the view index provided, if < 0, a reference to
@@ -1082,7 +1120,7 @@ function select_shift_click_row(aViewIndex, aController, aDoNotRequireLoad) {
 /**
  * Helper function to click on a row with a given button.
  */
-function _row_click_helper(aController, aTree, aViewIndex, aButton, aExtra) {
+function _row_click_helper(aController, aTree, aViewIndex, aButton, aExtra, aColumnId) {
   // Force-focus the tree
   aTree.focus();
   // very important, gotta be able to see the row
@@ -1100,10 +1138,11 @@ function _row_click_helper(aController, aTree, aViewIndex, aButton, aExtra) {
   // be hidden), and far enough in that we are in no danger of clicking the
   // expand toggler unless that is explicitly requested.
   if (aTree.id == "threadTree") {
-    let subjectCol = aController.e("subjectCol");
-    rowX = subjectCol.getBoundingClientRect().x - tx + 8;
-    // click on the toggle if so requested
-    if (aExtra !== "toggle")
+    let columnId = aColumnId || "subjectCol";
+    let col = aController.e(columnId);
+    rowX = col.getBoundingClientRect().x - tx + 8;
+    // click on the toggle if so requested (for subjectCol)
+    if (columnId == "subjectCol" && aExtra !== "toggle")
       rowX += 32;
   }
   let rowY = aTree.rowHeight * (aViewIndex - aTree.getFirstVisibleRow()) +

@@ -47,6 +47,39 @@ function test_selection_extension() {
   assert_selected_and_displayed(1);
 }
 
+function test_selection_select_column() {
+  be_in_folder(folder);
+  mc.e("selectCol").removeAttribute("hidden");
+  select_none();
+  select_column_click_row(0);
+  assert_selected_and_displayed(0);
+  select_column_click_row(0);
+  assert_nothing_selected();
+  select_column_click_row(2);
+  select_column_click_row(3);
+  select_column_click_row(4);
+  // This only takes a range.
+  assert_selected_and_displayed([2, 4]); // ensures multi-message summary
+  select_column_click_row(2);
+  assert_selected_and_displayed([3, 4]); // ensures multi-message summary
+  select_column_click_row(3);
+  assert_selected_and_displayed(4);
+  select_column_click_row(4);
+  assert_nothing_selected();
+}
+
+function test_selection_select_column_deselection() {
+  be_in_folder(folder);
+  select_none();
+  select_column_click_row(3);
+  select_column_click_row(3);
+  assert_nothing_selected();
+  right_click_on_row(7);
+  delete_via_popup();
+  assert_nothing_selected();
+  mc.e("selectCol").setAttribute("hidden", true);
+}
+
 // https://bugzilla.mozilla.org/show_bug.cgi?id=474701#c87 last bit
 function test_selection_last_message_deleted() {
   be_in_folder(folder);
@@ -54,7 +87,6 @@ function test_selection_last_message_deleted() {
   press_delete();
   assert_selected_and_displayed(-1);
 }
-
 
 function test_selection_persists_through_threading_changes() {
   be_in_folder(folder);
