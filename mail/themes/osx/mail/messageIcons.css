@@ -16,30 +16,27 @@ treechildren::-moz-tree-image(selectCol) {
 
 .selectColumnHeader > .treecol-icon,
 treechildren::-moz-tree-image(selectCol) {
-  width: 16px;
-  height: 16px;
-  -moz-context-properties: fill, stroke, stroke-opacity;
-  fill: transparent;
+  width: 14px;
+  height: 14px;
+  -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
+  fill: currentColor;
   stroke: currentColor;
+  fill-opacity: 0;
   stroke-opacity: 0;
 }
 
 .selectColumnHeader.someselected > .treecol-icon {
-  stroke-opacity: 0.3;
-  fill: currentColor;
+  stroke-opacity: 1;
 }
 
-.selectColumnHeader.allselected > .treecol-icon {
-  fill: currentColor;
+.selectColumnHeader.allselected > .treecol-icon,
+treechildren::-moz-tree-image(selectCol, selected) {
+  fill-opacity: 1;
 }
 
 treechildren::-moz-tree-image(selectCol) {
   width: 12px;
   height: 12px;
-}
-
-treechildren::-moz-tree-image(selectCol, selected) {
-  fill: currentColor;
 }
 
 /* ..... thread column ..... */

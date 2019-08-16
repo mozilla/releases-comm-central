@@ -103,9 +103,6 @@ GlodaSyntheticView.prototype = {
    * The default set of columns to show.
    */
   DEFAULT_COLUMN_STATES: {
-    selectCol: {
-      visible: true,
-    },
     threadCol: {
       visible: true,
     },

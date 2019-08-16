@@ -29,7 +29,7 @@
                                  fixed="true"
                                  cycler="true"
                                  currentView="unthreaded"
-                                 hidden="false"
+                                 hidden="true"
                                  closemenu="none"
                                  label="&selectColumn.label;"
                                  tooltiptext="&selectColumn.tooltip;"/>

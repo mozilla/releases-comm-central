@@ -404,7 +404,6 @@ FolderDisplayWidget.prototype = {
    *  it is actually an appropriate default for the folder type.
    */
   DEFAULT_COLUMNS: [
-    "selectCol",
     "threadCol",
     "attachmentCol",
     "flaggedCol",

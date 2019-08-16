@@ -87,7 +87,7 @@ function HandleColumnClick(columnID) {
     if (!selection) {
       return;
     }
-    if (treeView.rowCount == selection.count) {
+    if (selection.count > 0) {
       selection.clearSelection();
     } else {
       selection.selectAll();
