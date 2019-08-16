@@ -2,6 +2,46 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* ..... select column ..... */
+
+.selectColumnHeader {
+  min-width: 28px;
+}
+
+.selectColumnHeader,
+treechildren::-moz-tree-image(selectCol) {
+  cursor: pointer;
+  list-style-image: url("chrome://messenger/skin/icons/checkbox.svg");
+}
+
+.selectColumnHeader > .treecol-icon,
+treechildren::-moz-tree-image(selectCol) {
+  width: 16px;
+  height: 16px;
+  -moz-context-properties: fill, stroke, stroke-opacity;
+  fill: transparent;
+  stroke: currentColor;
+  stroke-opacity: 0;
+}
+
+.selectColumnHeader.someselected > .treecol-icon {
+  stroke-opacity: 0.3;
+  fill: currentColor;
+}
+
+.selectColumnHeader.allselected > .treecol-icon {
+  fill: currentColor;
+}
+
+treechildren::-moz-tree-image(selectCol) {
+  width: 12px;
+  height: 12px;
+}
+
+treechildren::-moz-tree-image(selectCol, selected) {
+  fill: currentColor;
+}
+
 /* ..... thread column ..... */
 
 .threadColumnHeader {

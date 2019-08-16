@@ -51,8 +51,28 @@ treechildren::-moz-tree-cell-text(container, closed, hasUnread, read) {
   text-decoration: underline;
 }
 
-/* ..... do not show icons on grouped by sort dummy header rows ..... */
+/* ..... grouped by sort header rows ..... */
 
+treechildren::-moz-tree-row(dummy) {
+  background-color: var(--row-grouped-header-bg-color) !important;
+  border-color: transparent !important;
+  padding-inline-start: 2px;
+  margin-bottom: 1px;
+}
+
+treechildren::-moz-tree-row(dummy, selected, focus) {
+  background-color: var(--row-grouped-header-bg-color-selected) !important;
+}
+
+treechildren::-moz-tree-cell-text(dummy) {
+  font-weight: bold;
+}
+
+:root[lwt-tree] treechildren::-moz-tree-cell-text(dummy, selected) {
+  color: var(--sidebar-highlight-text-color);
+}
+
+/* ..... do not show icons ..... */
 treechildren::-moz-tree-image(subjectCol, dummy),
 treechildren::-moz-tree-image(flaggedCol, dummy),
 treechildren::-moz-tree-image(junkStatusCol, dummy) ,

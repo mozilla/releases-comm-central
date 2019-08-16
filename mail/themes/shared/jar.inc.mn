@@ -35,6 +35,7 @@
   skin/classic/messenger/icons/blacklist.svg                  (../shared/mail/icons/blacklist.svg)
   skin/classic/messenger/icons/cert-error.svg                 (../shared/mail/icons/cert-error.svg)
   skin/classic/messenger/icons/chat.svg                       (../shared/mail/icons/chat.svg)
+  skin/classic/messenger/icons/checkbox.svg                   (../shared/mail/icons/checkbox.svg)
   skin/classic/messenger/icons/copy.svg                       (../shared/mail/icons/copy.svg)
   skin/classic/messenger/icons/cut.svg                        (../shared/mail/icons/cut.svg)
   skin/classic/messenger/icons/correspondents.svg             (../shared/mail/icons/correspondents.svg)

@@ -23,42 +23,49 @@ function ThreadPaneOnClick(event) {
   // (scrollbar buttons) and don't want those events to cause a doubleclick.
 
   let t = event.originalTarget;
-
   if (t.localName == "treecol") {
     HandleColumnClick(t.id);
     return;
   }
 
-  if (t.localName != "treechildren")
+  if (t.localName != "treechildren") {
     return;
+  }
 
   let tree = GetThreadTree();
-
   // Figure out what cell the click was in.
   let treeCellInfo = tree.getCellAt(event.clientX, event.clientY);
-  if (treeCellInfo.row == -1)
+  if (treeCellInfo.row == -1) {
    return;
+  }
+
+  if (treeCellInfo.col.id == "selectCol") {
+    HandleSelectColClick(event, treeCellInfo.row);
+    return;
+  }
 
   // Grouped By Sort dummy header row non cycler column doubleclick toggles the
   // thread's open/close state; tree.xml handles it. Cyclers are not currently
   // implemented in group header rows, a click/doubleclick there should
   // select/toggle thread state.
   if (gFolderDisplay.view.isGroupedByHeaderAtIndex(treeCellInfo.row)) {
-    if (!treeCellInfo.col.cycler)
+    if (!treeCellInfo.col.cycler) {
       return;
-
-    if (event.detail == 1)
+    }
+    if (event.detail == 1) {
       gFolderDisplay.selectViewIndex(treeCellInfo.row);
-    if (event.detail == 2)
+    }
+    if (event.detail == 2) {
       gFolderDisplay.view.dbView.toggleOpenState(treeCellInfo.row);
-
+    }
     event.stopPropagation();
     return;
   }
 
   // If the cell is in a cycler column or if the user doubleclicked on the
   // twisty, don't open the message in a new window.
-  if (event.detail == 2 && !treeCellInfo.col.cycler && treeCellInfo.childElt != "twisty") {
+  if (event.detail == 2 && !treeCellInfo.col.cycler &&
+      treeCellInfo.childElt != "twisty") {
     ThreadPaneDoubleClick();
     // Doubleclicking should not toggle the open/close state of the thread.
     // This will happen if we don't prevent the event from bubbling to the
@@ -66,15 +73,31 @@ function ThreadPaneOnClick(event) {
     event.stopPropagation();
   } else if (treeCellInfo.col.id == "junkStatusCol") {
     MsgJunkMailInfo(true);
-  } else if (treeCellInfo.col.id == "threadCol" && !event.shiftKey && (event.ctrlKey || event.metaKey)) {
+  } else if (treeCellInfo.col.id == "threadCol" && !event.shiftKey &&
+             (event.ctrlKey || event.metaKey)) {
     gDBView.ExpandAndSelectThreadByIndex(treeCellInfo.row, true);
     event.stopPropagation();
   }
 }
 
 function HandleColumnClick(columnID) {
-  if (gFolderDisplay.COLUMNS_MAP_NOSORT.has(columnID))
+  if (columnID == "selectCol") {
+    let treeView = gFolderDisplay.tree.view;
+    let selection = treeView.selection;
+    if (!selection) {
+      return;
+    }
+    if (treeView.rowCount == selection.count) {
+      selection.clearSelection();
+    } else {
+      selection.selectAll();
+    }
     return;
+  }
+
+  if (gFolderDisplay.COLUMNS_MAP_NOSORT.has(columnID)) {
+    return;
+  }
 
   let sortType = gFolderDisplay.COLUMNS_MAP.get(columnID);
   let curCustomColumn = gDBView.curCustomColumn;
@@ -124,6 +147,46 @@ function HandleColumnClick(columnID) {
     MsgReverseSortThreadPane();
   } else {
     MsgSortThreadPane(sortType);
+  }
+}
+
+function HandleSelectColClick(event, row) {
+  // User wants to multiselect using the old way.
+  if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+    return;
+  }
+  let tree = gFolderDisplay.tree;
+  let selection = tree.view.selection;
+  if (event.detail == 1) {
+    selection.toggleSelect(row);
+  }
+
+  // In the selectCol, we want a double click on a thread parent to select
+  // and deselect all children, in threaded and grouped views.
+  if (event.detail == 2 &&
+      tree.view.isContainerOpen(row) &&
+      !tree.view.isContainerEmpty(row)) {
+    // On doubleclick of an open thread, select/deselect all the children.
+    let startRow = row + 1;
+    let endRow = startRow;
+    while (endRow < tree.view.rowCount && tree.view.getLevel(endRow) > 0) {
+      endRow++;
+    }
+    endRow--;
+    if (selection.isSelected(row)) {
+      selection.rangedSelect(startRow, endRow, true);
+    } else {
+      selection.clearRange(startRow, endRow);
+      ThreadPaneSelectionChanged();
+    }
+  }
+
+  // There is no longer any selection, clean up for correct state of things.
+  if (selection.count == 0) {
+    if (gFolderDisplay.displayedFolder) {
+      gFolderDisplay.displayedFolder.lastMessageLoaded = nsMsgKey_None;
+    }
+    gFolderDisplay._mostRecentSelectionCounts[1] = 0;
   }
 }
 
@@ -356,6 +419,28 @@ function ThreadPaneOnLoad() {
 function ThreadPaneSelectionChanged() {
   UpdateStatusMessageCounts(gFolderDisplay.displayedFolder);
   GetThreadTree().view.selectionChanged();
+  UpdateSelectCol();
+}
+
+function UpdateSelectCol() {
+  let selectCol = document.getElementById("selectCol");
+  if (!selectCol) {
+    return;
+  }
+  let treeView = gFolderDisplay.tree.view;
+  let selection = treeView.selection;
+  if (selection && selection.count > 0) {
+    if (treeView.rowCount == selection.count) {
+      selectCol.classList.remove("someselected");
+      selectCol.classList.add("allselected");
+    } else {
+      selectCol.classList.remove("allselected");
+      selectCol.classList.add("someselected");
+    }
+  } else {
+    selectCol.classList.remove("allselected");
+    selectCol.classList.remove("someselected");
+  }
 }
 
 addEventListener("load", ThreadPaneOnLoad, true);

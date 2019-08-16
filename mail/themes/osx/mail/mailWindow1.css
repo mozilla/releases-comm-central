@@ -82,24 +82,11 @@
   }
 }
 
+/* ::::: thread decoration ::::: */
+
 /* ::::: group rows ::::: */
-
 treechildren::-moz-tree-row(dummy) {
-  background-color: var(--row-grouped-header-bg-color) !important;
-  border-color: transparent !important;
-  margin: 1px;
-}
-
-treechildren::-moz-tree-row(dummy, selected, focus) {
-  background-color: var(--row-grouped-header-bg-color-selected) !important;
-}
-
-treechildren::-moz-tree-cell-text(dummy) {
-  font-weight: bold;
-}
-
-:root[lwt-tree] treechildren::-moz-tree-cell-text(dummy, selected) {
-  color: var(--sidebar-highlight-text-color);
+  padding-inline-start: 0;
 }
 
 /* ..... message pane adjustments ..... */

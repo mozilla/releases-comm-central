@@ -36,25 +36,11 @@
 
 /* ::::: thread decoration ::::: */
 
-treechildren::-moz-tree-row(dummy) {
-  background-color: var(--row-grouped-header-bg-color) !important;
-  border-color: transparent !important;
-  padding-inline-start: 2px;
-  margin: 1px;
-}
-
+/* ::::: group rows ::::: */
 treechildren::-moz-tree-row(dummy, hover),
 treechildren::-moz-tree-row(dummy, selected, focus) {
   background-color: var(--row-grouped-header-bg-color-selected) !important;
   color: inherit;
-}
-
-treechildren::-moz-tree-cell-text(dummy) {
-  font-weight: bold;
-}
-
-:root[lwt-tree] treechildren::-moz-tree-cell-text(dummy, selected) {
-  color: var(--sidebar-highlight-text-color);
 }
 
 #correspondentCol {

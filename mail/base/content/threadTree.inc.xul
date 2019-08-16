@@ -23,6 +23,17 @@
                       <treecols id="threadCols"
 #endif
                                 pickertooltiptext="&columnChooser2.tooltip;">
+                        <treecol is="treecol-image" id="selectCol"
+                                 class="treecol-image selectColumnHeader"
+                                 persist="hidden ordinal"
+                                 fixed="true"
+                                 cycler="true"
+                                 currentView="unthreaded"
+                                 hidden="false"
+                                 closemenu="none"
+                                 label="&selectColumn.label;"
+                                 tooltiptext="&selectColumn.tooltip;"/>
+                        <splitter class="tree-splitter"/>
                         <treecol is="treecol-image" id="threadCol"
                                  class="treecol-image threadColumnHeader"
                                  persist="hidden ordinal"

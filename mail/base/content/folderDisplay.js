@@ -395,7 +395,7 @@ FolderDisplayWidget.prototype = {
    *  xul <treecol> id.
    */
   COLUMNS_MAP_NOSORT: new Set([
-    "totalCol", "unreadCol",
+    "selectCol", "totalCol", "unreadCol",
   ]),
 
   /**
@@ -404,6 +404,7 @@ FolderDisplayWidget.prototype = {
    *  it is actually an appropriate default for the folder type.
    */
   DEFAULT_COLUMNS: [
+    "selectCol",
     "threadCol",
     "attachmentCol",
     "flaggedCol",
@@ -1487,6 +1488,7 @@ FolderDisplayWidget.prototype = {
         UpdateSortIndicators(this.view.dbView.sortType,
                              this.view.dbView.sortOrder);
         SetNewsFolderColumns();
+        UpdateSelectCol();
       }
     }
   },

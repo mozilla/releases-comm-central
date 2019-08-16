@@ -705,6 +705,7 @@
 <!ENTITY saveAsVirtualFolderMenu.label "Save Search as a Folder…">
 
 <!-- Thread Pane -->
+<!ENTITY selectColumn.label "Select Messages">
 <!ENTITY threadColumn.label "Thread">
 <!ENTITY fromColumn.label "From">
 <!ENTITY recipientColumn.label "Recipient">
@@ -728,6 +729,7 @@
 
 <!-- Thread Pane Tooltips -->
 <!ENTITY columnChooser2.tooltip "Select columns to display">
+<!ENTITY selectColumn.tooltip "Toggle select all messages">
 <!ENTITY threadColumn2.tooltip "Display message threads">
 <!ENTITY fromColumn2.tooltip "Sort by from">
 <!ENTITY recipientColumn2.tooltip "Sort by recipient">
