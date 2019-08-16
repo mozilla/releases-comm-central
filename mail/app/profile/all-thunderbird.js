@@ -359,6 +359,7 @@ pref("security.warn_entering_secure", false);
 pref("security.warn_entering_weak", false);
 pref("security.warn_leaving_secure", false);
 pref("security.warn_viewing_mixed", false);
+pref("security.aboutcertificate.enabled", false);
 
 pref("general.config.obscure_value", 0); // for MCD .cfg files
 
