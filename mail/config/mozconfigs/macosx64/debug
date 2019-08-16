@@ -1,3 +1,4 @@
+. "$topsrcdir/comm/build/mozconfig.comm-sccache"
 . "$topsrcdir/build/macosx/mozconfig.common"
 . "$topsrcdir/build/mozconfig.stylo"
 . "$topsrcdir/comm/mail/config/mozconfigs/common"
@@ -15,5 +16,3 @@ MOZ_REQUIRE_ADDON_SIGNING=0
 
 # Package js shell
 export MOZ_PACKAGE_JSSHELL=1
-
-. "$topsrcdir/comm/build/mozconfig.sccache"

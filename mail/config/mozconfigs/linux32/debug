@@ -1,5 +1,6 @@
 MOZ_AUTOMATION_L10N_CHECK=0
 
+. "$topsrcdir/comm/build/mozconfig.comm-sccache"
 . "$topsrcdir/build/unix/mozconfig.linux32"
 . "$topsrcdir/build/mozconfig.stylo"
 . "$topsrcdir/comm/mail/config/mozconfigs/common"
@@ -17,5 +18,3 @@ MOZ_REQUIRE_ADDON_SIGNING=0
 
 # Package js shell
 export MOZ_PACKAGE_JSSHELL=1
-
-. "$topsrcdir/comm/build/mozconfig.sccache"

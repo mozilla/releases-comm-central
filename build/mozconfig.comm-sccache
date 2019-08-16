@@ -1,0 +1,8 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# Must be included before M-C:build/mozconfig.cache
+if test -z "$aws_prefix" -a -z "$bucket" -a -z "$SCCACHE_DISABLE"; then
+  aws_prefix="comm-central"
+fi

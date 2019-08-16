@@ -1,3 +1,4 @@
+. "$topsrcdir/comm/build/mozconfig.comm-sccache"
 . "$topsrcdir/build/unix/mozconfig.linux"
 . "$topsrcdir/build/mozconfig.stylo"
 . "$topsrcdir/comm/mail/config/mozconfigs/common"
@@ -20,5 +21,3 @@ MOZ_REQUIRE_ADDON_SIGNING=0
 export MOZ_PACKAGE_JSSHELL=1
 
 mk_add_options "export SOCORRO_SYMBOL_UPLOAD_TOKEN_FILE=/builds/crash-stats-api.token"
-
-. "$topsrcdir/comm/build/mozconfig.sccache"

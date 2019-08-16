@@ -1,3 +1,4 @@
+. "$topsrcdir/comm/build/mozconfig.comm-sccache"
 . "$topsrcdir/build/mozconfig.win-common"
 . "$topsrcdir/build/mozconfig.common"
 . "$topsrcdir/build/mozconfig.stylo"
@@ -20,8 +21,6 @@ MOZ_REQUIRE_ADDON_SIGNING=0
 
 # Package js shell
 export MOZ_PACKAGE_JSSHELL=1
-
-. "$topsrcdir/comm/build/mozconfig.sccache"
 
 . $topsrcdir/build/win32/mozconfig.vs-latest
 

@@ -1,3 +1,4 @@
+. "$topsrcdir/comm/build/mozconfig.comm-sccache"
 . "$topsrcdir/build/macosx/mozconfig.common"
 . "$topsrcdir/build/mozconfig.stylo"
 . "$topsrcdir/comm/mail/config/mozconfigs/common"
@@ -19,7 +20,5 @@ export MOZ_PACKAGE_JSSHELL=1
 
 # Disable enforcing that add-ons are signed by the trusted root
 MOZ_REQUIRE_ADDON_SIGNING=0
-
-. "$topsrcdir/comm/build/mozconfig.sccache"
 
 mk_add_options "export SOCORRO_SYMBOL_UPLOAD_TOKEN_FILE=/builds/crash-stats-api.token"
