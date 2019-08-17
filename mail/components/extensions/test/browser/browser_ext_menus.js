@@ -98,8 +98,8 @@ add_task(async function test_thread_pane() {
   await extension.startup();
 
   let threadTree = document.getElementById("threadTree");
-  treeClick(threadTree, 0, 0, {});
-  treeClick(threadTree, 0, 0, {type: "contextmenu"});
+  treeClick(threadTree, 1, 1, {});
+  treeClick(threadTree, 1, 1, {type: "contextmenu"});
 
   let menu = document.getElementById("mailContext");
   await BrowserTestUtils.waitForEvent(menu, "popupshown");
