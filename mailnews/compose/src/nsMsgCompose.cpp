@@ -1372,9 +1372,8 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
       nsresult theError;
       sendReport->DisplayReport(prompt, true, true, &theError);
     } else {
-      /* If we come here it's because we got an error before we could initialize
-         a send report! Let's try our best...
-      */
+      // If we come here it's because we got an error before we could initialize
+      // a send report! Let's try our best...
       switch (deliverMode) {
         case nsIMsgCompDeliverMode::Later:
           nsMsgDisplayMessageByName(prompt, "unableToSendLater");
@@ -1399,7 +1398,6 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
   return rv;
 }
 
-/* attribute boolean deleteDraft */
 NS_IMETHODIMP nsMsgCompose::GetDeleteDraft(bool *aDeleteDraft) {
   NS_ENSURE_ARG_POINTER(aDeleteDraft);
   *aDeleteDraft = mDeleteDraft;
@@ -3676,8 +3674,6 @@ nsresult nsMsgComposeSendListener::GetMessageId(nsACString &messageId) {
   return NS_OK;
 }
 
-/* void onStateChange (in nsIWebProgress aWebProgress, in nsIRequest aRequest,
- * in unsigned long aStateFlags, in nsresult aStatus); */
 NS_IMETHODIMP nsMsgComposeSendListener::OnStateChange(
     nsIWebProgress *aWebProgress, nsIRequest *aRequest, uint32_t aStateFlags,
     nsresult aStatus) {
@@ -3719,9 +3715,6 @@ NS_IMETHODIMP nsMsgComposeSendListener::OnStateChange(
   return NS_OK;
 }
 
-/* void onProgressChange (in nsIWebProgress aWebProgress, in nsIRequest
- * aRequest, in long aCurSelfProgress, in long aMaxSelfProgress, in long
- * aCurTotalProgress, in long aMaxTotalProgress); */
 NS_IMETHODIMP nsMsgComposeSendListener::OnProgressChange(
     nsIWebProgress *aWebProgress, nsIRequest *aRequest,
     int32_t aCurSelfProgress, int32_t aMaxSelfProgress,
@@ -3730,8 +3723,6 @@ NS_IMETHODIMP nsMsgComposeSendListener::OnProgressChange(
   return NS_OK;
 }
 
-/* void onLocationChange (in nsIWebProgress aWebProgress, in nsIRequest
- * aRequest, in nsIURI location, in unsigned long aFlags); */
 NS_IMETHODIMP nsMsgComposeSendListener::OnLocationChange(
     nsIWebProgress *aWebProgress, nsIRequest *aRequest, nsIURI *location,
     uint32_t aFlags) {
@@ -3739,8 +3730,6 @@ NS_IMETHODIMP nsMsgComposeSendListener::OnLocationChange(
   return NS_OK;
 }
 
-/* void onStatusChange (in nsIWebProgress aWebProgress, in nsIRequest aRequest,
- * in nsresult aStatus, in wstring aMessage); */
 NS_IMETHODIMP nsMsgComposeSendListener::OnStatusChange(
     nsIWebProgress *aWebProgress, nsIRequest *aRequest, nsresult aStatus,
     const char16_t *aMessage) {
@@ -3748,8 +3737,6 @@ NS_IMETHODIMP nsMsgComposeSendListener::OnStatusChange(
   return NS_OK;
 }
 
-/* void onSecurityChange (in nsIWebProgress aWebProgress, in nsIRequest
- * aRequest, in unsigned long state); */
 NS_IMETHODIMP nsMsgComposeSendListener::OnSecurityChange(
     nsIWebProgress *aWebProgress, nsIRequest *aRequest, uint32_t state) {
   /* Ignore this call */
@@ -3786,7 +3773,6 @@ nsresult nsMsgCompose::ConvertTextToHTML(nsIFile *aSigFile,
 
   // Ok, once we are here, we need to escape the data to make sure that
   // we don't do HTML stuff with plain text sigs.
-  //
   nsCString escapedUTF8;
   nsAppendEscapedHTML(NS_ConvertUTF16toUTF8(origBuf), escapedUTF8);
   aSigData.Append(NS_ConvertUTF8toUTF16(escapedUTF8));
@@ -4233,8 +4219,8 @@ nsresult nsMsgCompose::BuildBodyMessageAndSignature() {
   nsAutoString body;
   m_compFields->GetBody(body);
 
-  /* Some time we want to add a signature and sometime we won't. Let's figure
-   * that now...*/
+  // Some time we want to add a signature and sometime we won't.
+  // Let's figure that out now...
   bool addSignature;
   bool isQuoted = false;
   switch (mType) {
@@ -5081,13 +5067,13 @@ void nsMsgCompose::TagConvertible(Element *node, int32_t *_retval) {
   } else if (element.LowerCaseEqualsLiteral("div") ||
              element.LowerCaseEqualsLiteral("span") ||
              element.LowerCaseEqualsLiteral("a")) {
-    /* Do some special checks for these tags. They are inside this |else if|
-       for performance reasons */
+    // Do some special checks for these tags. They are inside this |else if|
+    // for performance reasons.
 
     // Maybe, it's an <a> element inserted by another recognizer (e.g. 4.x')
     if (element.LowerCaseEqualsLiteral("a")) {
-      /* Ignore anchor tag, if the URI is the same as the text
-         (as inserted by recognizers) */
+      // Ignore anchor tag, if the URI is the same as the text
+      // (as inserted by recognizers).
       *_retval = nsIMsgCompConvertible::Altering;
 
       nsAutoString hrefValue;
