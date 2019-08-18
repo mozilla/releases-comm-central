@@ -112,6 +112,7 @@ macosx1014-64/debug:
     test-sets:
         - mozmill-tests
         - xpcshell-tests
+        - marionette-tests
 
 macosx1014-64-shippable/opt:
     build-platform: macosx64-shippable/opt
@@ -119,3 +120,4 @@ macosx1014-64-shippable/opt:
         - mozmill-tests
         - xpcshell-tests
         - mochitest-tests
+        - marionette-tests
