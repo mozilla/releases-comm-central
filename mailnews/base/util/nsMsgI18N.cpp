@@ -98,8 +98,7 @@ nsresult nsMsgI18NConvertToUnicode(const nsACString& aCharset,
 
   auto encoding = mozilla::Encoding::ForLabelNoReplacement(newCharset);
   if (!encoding) return NS_ERROR_UCONV_NOCONV;
-  return encoding->DecodeWithoutBOMHandlingAndWithoutReplacement(inString,
-                                                                 outString);
+  return encoding->DecodeWithoutBOMHandling(inString, outString);
 }
 
 // This is used to decode UTF-7. No support for encoding in UTF-7.
