@@ -742,7 +742,7 @@ Logger.prototype = {
       let [logTime] = getDateFromFilename(OS.Path.basename(path));
 
       // If someone placed a 'foreign' file into the logs directory,
-      // pattern matching fails and getDateFromFilename() returns [].     
+      // pattern matching fails and getDateFromFilename() returns [].
       if (logTime && targetDate == logTime.toDateString()) {
         relevantEntries.push({
           path,
