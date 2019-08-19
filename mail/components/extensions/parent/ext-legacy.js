@@ -163,16 +163,15 @@ this.legacy = class extends ExtensionAPI {
 
     // Overlays.load must only be called once per window per extension.
     // We use this WeakSet to remember all windows we've already seen.
-    let seenWindows = new WeakSet();
+    let seenDocuments = new WeakSet();
 
     // Listen for new windows to overlay.
     let documentObserver = {
       observe(doc) {
-        let win = doc.defaultView;
         if (ExtensionCommon.instanceOf(doc, "HTMLDocument") &&
-            !seenWindows.has(win)) {
-          seenWindows.add(win);
-          Overlays.load(chromeManifest, win);
+            !seenDocuments.has(doc)) {
+          seenDocuments.add(doc);
+          Overlays.load(chromeManifest, doc.defaultView);
         }
       },
     };
@@ -181,8 +180,8 @@ this.legacy = class extends ExtensionAPI {
     // Add overlays to all existing windows.
     getAllWindows().forEach(win => {
       if (["interactive", "complete"].includes(win.document.readyState) &&
-          !seenWindows.has(win)) {
-        seenWindows.add(win);
+          !seenDocuments.has(win.document)) {
+        seenDocuments.add(win.document);
         Overlays.load(chromeManifest, win);
       }
     });
