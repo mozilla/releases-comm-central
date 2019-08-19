@@ -48,7 +48,10 @@ function loadCalendarPrintDialog() {
         let contractid = Services.catMan.getCategoryEntry("cal-print-formatters", data);
         let formatter = Cc[contractid].getService(Ci.calIPrintFormatter);
         // Use the contractid as value
-        layoutList.appendItem(formatter.name, contractid);
+        let option = document.createElementNS("http://www.w3.org/1999/xhtml", "option");
+        option.textContent = formatter.name;
+        option.setAttribute("value", contractid);
+        layoutList.appendChild(option);
     }
     layoutList.selectedIndex = 0;
 

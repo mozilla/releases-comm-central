@@ -71,6 +71,7 @@ calendar.jar:
     content/calendar-occurrence-prompt.xul                      (content/dialogs/calendar-occurrence-prompt.xul)
     content/calendar-print-dialog.js                            (content/dialogs/calendar-print-dialog.js)
     content/calendar-print-dialog.xul                           (content/dialogs/calendar-print-dialog.xul)
+    content/calendar-print-dialog.css                           (content/dialogs/calendar-print-dialog.css)
     content/calendar-properties-dialog.js                       (content/dialogs/calendar-properties-dialog.js)
     content/calendar-properties-dialog.xul                      (content/dialogs/calendar-properties-dialog.xul)
     content/calendar-providerUninstall-dialog.js                (content/dialogs/calendar-providerUninstall-dialog.js)

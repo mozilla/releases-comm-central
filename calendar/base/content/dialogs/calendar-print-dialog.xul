@@ -8,6 +8,8 @@
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/messenger.css"?>
 <?xml-stylesheet type="text/css" href="chrome://lightning-common/skin/datetimepickers.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/shared/input-fields.css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/shared/grid-layout.css"?>
+<?xml-stylesheet type="text/css" href="chrome://calendar/content/calendar-print-dialog.css"?>
 
 <!DOCTYPE dialog [
     <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd" > %dtd1;
@@ -41,52 +43,38 @@
           <label class="header">&calendar.print.settingsGroup.label;</label>
         </hbox>
 
-        <grid>
-          <columns>
-            <column/>
-            <column flex="1"/>
-          </columns>
-
-          <rows>
-            <row align="center">
-              <label control="title-field"
-                     value="&calendar.print.title.label;"/>
-              <html:input id="title-field"
-                          class="input-inline"
-                          onchange="refreshHtml();"/>
-            </row>
-            <row align="center">
-              <label control="layout-field"
-                     value="&calendar.print.layout.label;"/>
-              <hbox>
-                <menulist id="layout-field">
-                  <!-- This menupopup will be populated by calendar-print-dialog.js! -->
-                  <menupopup id="layout-menulist-menupopup"
-                             oncommand="refreshHtml();"/>
-                </menulist>
-                <spacer flex="1"/>
-              </hbox>
-            </row>
-          </rows>
-        </grid>
+        <html:div class="grid-two-column">
+          <html:div class="flex-items-center">
+            <html:label for="title-field" class="html-label">
+              &calendar.print.title.label;
+            </html:label>
+          </html:div>
+          <html:div>
+            <html:input id="title-field"
+                        onchange="refreshHtml();"/>
+          </html:div>
+          <html:div class="flex-items-center">
+            <html:label for="layout-field" class="html-label">
+              &calendar.print.layout.label;
+            </html:label>
+          </html:div>
+          <html:div>
+            <html:select id="layout-field" onchange="refreshHtml();">
+            </html:select>
+          </html:div>
+        </html:div>
       </groupbox>
 
       <groupbox id="what-to-print-group">
         <hbox class="groupbox-title">
           <label class="header">&calendar.print.range.label;</label>
         </hbox>
-        <grid id="grid-events-and-tasks">
-          <columns id="columns-for-events-and-tasks">
-            <column id="column-event">
-              <checkbox id="events" label="&calendar.print.events.label;" checked="true"
-                        oncommand="eventsAndTasksOptions(this.id); refreshHtml();" persist="checked" autocheck="false"/>
-            </column>
-            <column id="column-tasks">
-              <checkbox id="tasks" label="&calendar.print.tasks.label;" checked="true"
-                        oncommand="eventsAndTasksOptions(this.id); refreshHtml();" persist="checked" autocheck="false"/>
-            </column>
-          </columns>
-        </grid>
+        <hbox>
+          <checkbox id="events" label="&calendar.print.events.label;" checked="true"
+                    oncommand="eventsAndTasksOptions(this.id); refreshHtml();" persist="checked" autocheck="false"/>
+          <checkbox id="tasks" label="&calendar.print.tasks.label;" checked="true"
+                    oncommand="eventsAndTasksOptions(this.id); refreshHtml();" persist="checked" autocheck="false"/>
+        </hbox>
         <radiogroup id="view-field"
                     oncommand="refreshHtml();">
           <radio id="printCurrentViewRadio"
@@ -98,25 +86,24 @@
           <radio id="custom-range"
                  label="&calendar.print.custom.label;"
                  value="custom"/>
-          <grid>
-            <columns>
-              <column/>
-              <column flex="1"/>
-            </columns>
-
-            <rows>
-              <row align="center">
-                <label control="start-date-picker"
-                       value="&calendar.print.from.label;"/>
-                <datepicker id="start-date-picker"/>
-              </row>
-              <row align="center">
-                <label control="end-date-picker"
-                       value="&calendar.print.to.label;"/>
-                <datepicker id="end-date-picker"/>
-              </row>
-            </rows>
-          </grid>
+          <html:div class="grid-two-column">
+            <html:div class="flex-items-center">
+              <html:label class="html-label">
+                &calendar.print.from.label;
+              </html:label>
+            </html:div>
+            <html:div>
+              <datepicker id="start-date-picker"/>
+            </html:div>
+            <html:div class="flex-items-center">
+              <html:label class="html-label">
+                &calendar.print.to.label;
+              </html:label>
+            </html:div>
+            <html:div>
+              <datepicker id="end-date-picker"/>
+            </html:div>
+          </html:div>
         </radiogroup>
       </groupbox>
       <groupbox id="optionsGroup" label="&calendar.print.optionsGroup.label;">
