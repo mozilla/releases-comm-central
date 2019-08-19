@@ -1026,11 +1026,7 @@ NS_IMETHODIMP nsImapUrl::GetNormalizedSpec(nsACString &aPrincipalSpec) {
   mailnewsURL->GetSpecIgnoringRef(spec);
 
   // Strip any query part beginning with ? or /;
-  int32_t ind = spec.Find("/;");
-  if (ind != kNotFound) spec.SetLength(ind);
-
-  ind = spec.FindChar('?');
-  if (ind != kNotFound) spec.SetLength(ind);
+  MsgRemoveQueryPart(spec);
 
   aPrincipalSpec.Assign(spec);
   return NS_OK;

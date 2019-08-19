@@ -265,11 +265,11 @@ bool nsMsgCompose::IsEmbeddedObjectSafe(const char *originalScheme,
           nsAutoCString path;
           rv = uri->GetPathQueryRef(path);
           if (NS_SUCCEEDED(rv)) {
-            const char *query = strrchr(path.get(), '?');
-            if (query && PL_strncasecmp(path.get(), originalPath,
-                                        query - path.get()) == 0)
-              return true;  // This object is a part of the original message, we
-                            // can send it safely.
+            MsgRemoveQueryPart(path);
+            // If this object is a part of the original message, we can send it
+            // safely.
+            return path.Equals(originalPath,
+                               nsCaseInsensitiveCStringComparator());
           }
         }
       }

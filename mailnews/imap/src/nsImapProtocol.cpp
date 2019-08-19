@@ -8881,10 +8881,7 @@ nsresult nsImapMockChannel::OpenCacheEntry() {
            filenameQuery.get()));
 
   // Truncate path at either /; or ?
-  int32_t ind = path.FindChar('?');
-  if (ind != kNotFound) path.SetLength(ind);
-  ind = path.Find("/;");
-  if (ind != kNotFound) path.SetLength(ind);
+  MsgRemoveQueryPart(path);
 
   nsCOMPtr<nsIURI> newUri;
   if (partQuery.IsEmpty()) {

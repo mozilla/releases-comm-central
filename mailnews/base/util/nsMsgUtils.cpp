@@ -1964,3 +1964,20 @@ nsCString MsgExtractQueryPart(const nsACString &spec,
   }
   return queryPart;
 }
+
+// Helper function to remove query part from URL spec or path.
+void MsgRemoveQueryPart(nsCString &aSpec) {
+  // Sadly the query part can have different forms, these were seen
+  // "in the wild", even with two ?:
+  // /;section=2?part=1.2&filename=A01.JPG
+  // ?section=2?part=1.2&filename=A01.JPG&type=image/jpeg&filename=A01.JPG
+  // ?header=quotebody/;section=2.2?part=1.2.2&filename=lijbmghmkilicioj.png
+  // ?part=1.2&type=image/jpeg&filename=IMG_C0030.jpg
+  // ?header=quotebody&part=1.2&filename=lijbmghmkilicioj.png
+
+  // Truncate path at the first of /; or ?
+  int32_t ind = aSpec.FindChar('?');
+  if (ind != kNotFound) aSpec.SetLength(ind);
+  ind = aSpec.Find("/;");
+  if (ind != kNotFound) aSpec.SetLength(ind);
+}

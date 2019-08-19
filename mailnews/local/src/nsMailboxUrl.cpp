@@ -126,11 +126,7 @@ NS_IMETHODIMP nsMailboxUrl::GetNormalizedSpec(nsACString &aPrincipalSpec) {
   char *messageKey = extractAttributeValue(spec.get(), "number=");
 
   // Strip any query part beginning with ? or /;
-  int32_t ind = spec.Find("/;");
-  if (ind != kNotFound) spec.SetLength(ind);
-
-  ind = spec.FindChar('?');
-  if (ind != kNotFound) spec.SetLength(ind);
+  MsgRemoveQueryPart(spec);
 
   // Check for format lacking absolute path.
   if (spec.Find("///") == kNotFound) {

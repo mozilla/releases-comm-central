@@ -395,6 +395,10 @@ NS_MSG_BASE uint32_t msgKeyToInt(nsMsgKey aMsgKey);
  */
 nsCString MsgExtractQueryPart(const nsACString &spec,
                               const char *queryToExtract);
+/**
+ * Helper function to remove query part from URL spec or path.
+ */
+void MsgRemoveQueryPart(nsCString &aSpec);
 
 /**
  * Helper macro for defining getter/setters. Ported from nsISupportsObsolete.h
