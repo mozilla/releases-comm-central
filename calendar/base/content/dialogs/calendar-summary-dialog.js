@@ -177,15 +177,16 @@ function onLoad() {
     let status = item.getProperty("STATUS");
     if (status && status.length) {
         let statusRow = document.getElementById("status-row");
-        for (let i = 0; i < statusRow.childNodes.length; i++) {
-            if (statusRow.childNodes[i].getAttribute("status") == status) {
+        let statusRowData = document.getElementById("status-row-td");
+        for (let i = 0; i < statusRowData.children.length; i++) {
+            if (statusRowData.children[i].getAttribute("status") == status) {
                 statusRow.removeAttribute("hidden");
                 if (status == "CANCELLED" && cal.item.isToDo(item)) {
                     // There are two labels for CANCELLED, the second one is for
                     // todo items. Increment the counter here.
                     i++;
                 }
-                statusRow.childNodes[i].removeAttribute("hidden");
+                statusRowData.children[i].removeAttribute("hidden");
                 break;
             }
         }

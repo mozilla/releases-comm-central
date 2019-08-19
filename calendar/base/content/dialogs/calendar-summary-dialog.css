@@ -1,0 +1,44 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+th {
+  text-align: right;
+  padding-inline-end: 5px;
+  font-weight: normal;
+}
+
+td {
+  width: 100%;
+  padding-top: 0;
+}
+
+.calendar-summary-box {
+  display: flex;
+}
+
+.calendar-summary-table {
+  width: 100%;
+}
+
+.calendar-summary-table input {
+  width: 100%;
+}
+
+#repeat-row > th {
+  vertical-align: top;
+  padding-top: 2px;
+}
+
+#repeat-details {
+  width: 100%;
+}
+
+.calendar-summary-table > tr > th > label {
+  margin-inline-end: 0;
+}
+
+.calendar-summary-table > tr > td > label {
+  margin-top: 2px;
+  margin-inline-start: 4px;
+}

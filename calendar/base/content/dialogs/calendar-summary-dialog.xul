@@ -13,6 +13,7 @@
 <?xml-stylesheet type="text/css" href="chrome://calendar/content/calendar-bindings.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/primaryToolbar.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/messenger.css"?>
+<?xml-stylesheet type="text/css" href="chrome://calendar/content/calendar-summary-dialog.css"?>
 
 <!DOCTYPE dialog [
   <!ENTITY % globalDTD SYSTEM "chrome://calendar/locale/global.dtd" >
@@ -130,65 +131,89 @@
       <label value="&read.only.general.label;" class="header"/>
       <separator class="groove" flex="1"/>
     </hbox>
-    <box orient="horizontal">
-      <grid flex="1">
-        <columns>
-          <column/>
-          <column flex="1"/>
-        </columns>
-        <rows>
-          <row align="center">
-            <label value="&read.only.title.label;" control="item-title"/>
+    <hbox flex="1" class="calendar-summary-box">
+      <html:table class="calendar-summary-table">
+        <html:tr>
+          <html:th>
+            &read.only.title.label;
+          </html:th>
+          <html:td>
             <html:input id="item-title"
                         class="selectable-label plain input-inline"
                         readonly="readonly"/>
-          </row>
-          <row align="center">
-            <label value="&read.only.calendar.label;" control="item-calendar"/>
+          </html:td>
+        </html:tr>
+        <html:tr>
+          <html:th>
+            &read.only.calendar.label;
+          </html:th>
+          <html:td>
             <html:input id="item-calendar"
                         class="selectable-label plain input-inline"
                         readonly="readonly"/>
-          </row>
-          <row class="item-date-row">
+          </html:td>
+        </html:tr>
+        <html:tr class="item-date-row">
+          <html:th>
             <label id="item-start-row-label"
                    taskStartLabel="&read.only.task.start.label;"
                    eventStartLabel="&read.only.event.start.label;"
-                   align="center"
                    control="item-date-row-start-date"/>
+          </html:th>
+          <html:td>
             <html:input is="calendar-item-date-input" id="item-date-row-start-date"
                         class="selectable-label plain input-inline"
                         readonly="readonly"
                         mode="start"/>
-          </row>
-          <row class="item-date-row">
+          </html:td>
+        </html:tr>
+        <html:tr class="item-date-row">
+          <html:th>
             <label id="item-due-row-label"
                    taskDueLabel="&read.only.task.due.label;"
                    eventEndLabel="&read.only.event.end.label;"
-                   align="center"
                    control="item-date-row-end-date"/>
+          </html:th>
+          <html:td>
             <html:input is="calendar-item-date-input" id="item-date-row-end-date"
                         class="selectable-label plain input-inline"
                         readonly="readonly"
                         mode="end"/>
-          </row>
-          <row id="repeat-row" align="top" hidden="true">
-            <label value="&read.only.repeat.label;"/>
+          </html:td>
+        </html:tr>
+        <html:tr id="repeat-row" hidden="hidden">
+          <html:th>
+            &read.only.repeat.label;
+          </html:th>
+          <html:td>
             <box id="repeat-details" orient="vertical">
               <html:input readonly="readonly" class="selectable-label plain input-inline"/>
             </box>
-          </row>
-          <row id="location-row" align="center" hidden="true">
-            <label value="&read.only.location.label;" control="item-location"/>
+          </html:td>
+        </html:tr>
+        <html:tr id="location-row" hidden="hidden">
+          <html:th for="item-location">
+            &read.only.location.label;
+          </html:th>
+          <html:td>
             <html:input id="item-location"
                         class="selectable-label plain input-inline"
                         readonly="readonly"/>
-          </row>
-          <row id="category-row" align="top" hidden="true">
-            <label value="&read.only.category.label;"/>
-            <label id="item-category" crop="end"/>
-          </row>
-          <row id="organizer-row" align="top" hidden="true" class="item-attendees-row">
-            <label value="&read.only.organizer.label;"/>
+          </html:td>
+        </html:tr>
+        <html:tr id="category-row" hidden="hidden">
+          <html:th>
+            &read.only.category.label;
+          </html:th>
+          <html:td>
+            <label id="item-category"/>
+          </html:td>
+        </html:tr>
+        <html:tr id="organizer-row" class="item-attendees-row" hidden="hidden">
+          <html:th>
+            &read.only.organizer.label;
+          </html:th>
+          <html:td>
             <hbox class="item-organizer-cell">
               <img class="itip-icon"/>
               <label id="item-organizer"
@@ -197,9 +222,13 @@
                      onclick="sendMailToOrganizer()"/>
               <spacer flex="1"/>
             </hbox>
-          </row>
-          <row id="status-row" align="top" hidden="true">
-            <label value="&task.status.label;"/>
+          </html:td>
+        </html:tr>
+        <html:tr id="status-row" hidden="hidden">
+          <html:th>
+            &task.status.label;
+          </html:th>
+          <html:td id="status-row-td">
             <label value="&newevent.status.tentative.label;" hidden="true" status="TENTATIVE"/>
             <label value="&newevent.status.confirmed.label;" hidden="true" status="CONFIRMED"/>
             <label value="&newevent.eventStatus.cancelled.label;" hidden="true" status="CANCELLED"/>
@@ -207,10 +236,14 @@
             <label value="&newevent.status.needsaction.label;" hidden="true" status="NEEDS-ACTION"/>
             <label value="&newevent.status.inprogress.label;" hidden="true" status="IN-PROCESS"/>
             <label value="&newevent.status.completed.label;" hidden="true" status="COMPLETED"/>
-          </row>
-          <separator id="item-main-separator" flex="1" class="groove" hidden="true"/>
-          <row id="reminder-row" hidden="true" align="center">
-            <label value="&read.only.reminder.label;" control="item-alarm"/>
+          </html:td>
+        </html:tr>
+        <separator id="item-main-separator" class="groove" flex="1" hidden="true"/>
+        <html:tr id="reminder-row" hidden="hidden">
+          <html:th for="item-alarm">
+            &read.only.reminder.label;
+          </html:th>
+          <html:td>
             <hbox id="event-grid-alarm-picker-box"
                   align="center">
               <menulist id="item-alarm"
@@ -312,13 +345,13 @@
                        onclick="updateReminder()"/>
               </hbox>
             </hbox>
-          </row>
-          <row id="attachments-row"
-               align="top"
-               hidden="true"
-               class="item-attachments-row">
-            <label value="&read.only.attachments.label;"
-                   control="item-attachment-cell" />
+          </html:td>
+        </html:tr>
+        <html:tr id="attachments-row" class="item-attachments-row" hidden="hidden" >
+          <html:th for="item-attachment-cell">
+            &read.only.attachments.label;
+          </html:th>
+          <html:td>
             <vbox id="item-attachment-cell">
               <!-- attachment box template -->
               <hbox id="attachment-template"
@@ -332,10 +365,10 @@
                        flex="1" />
               </hbox>
             </vbox>
-          </row>
-        </rows>
-      </grid>
-    </box>
+          </html:td>
+        </html:tr>
+      </html:table>
+    </hbox>
   </box>
 
   <!-- attendee box template -->
