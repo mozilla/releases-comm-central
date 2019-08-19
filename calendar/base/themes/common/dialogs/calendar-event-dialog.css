@@ -707,6 +707,7 @@ calendar-event-freebusy-day > box {
     width: 100%;
     box-sizing: border-box;
     min-height: 54px;
+    margin: 2px 4px 0;
 }
 
 #calendar-summary-dialog .selectable-label,

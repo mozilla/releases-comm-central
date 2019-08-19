@@ -7,6 +7,7 @@
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar/content/calendar-subscriptions-dialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar-common/skin/calendar-subscriptions-dialog.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/shared/input-fields.css" type="text/css"?>
 
 <!DOCTYPE dialog
 [
@@ -22,9 +23,12 @@
   onunload="return onUnload();"
   onkeypress="onKeyPress(event);"
   persist="screenX screenY width height"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml">
 
   <!-- Javascript includes -->
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://calendar/content/calendar-subscriptions-dialog.js"/>
   <script src="chrome://calendar/content/calendar-ui-utils.js"/>
   <script src="chrome://calendar/content/calendar-subscriptions-list.js"/>
@@ -41,7 +45,9 @@
                  crop="end"/>
         </row>
         <row>
-          <textbox id="search-textbox" onkeypress="onTextBoxKeyPress(event);"/>
+          <html:input id="search-input"
+                      class="input-inline"
+                      onkeypress="onInputKeyPress(event);"/>
           <button label="&calendar.subscriptions.dialog.search.button.label;"
                   oncommand="onSearch();"/>
         </row>
@@ -64,15 +70,15 @@
       </rows>
     </grid>
     <deck id="status-deck" selectedIndex="0">
-      <hbox class="calendar-subscriptions-status-box">
+      <hbox class="calendar-subscriptions-status-box" align="center">
         <image class="calendar-subscriptions-status-icon"/>
       </hbox>
-      <hbox class="calendar-subscriptions-status-box">
+      <hbox class="calendar-subscriptions-status-box" align="center">
         <image class="calendar-subscriptions-status-icon" busy="true"/>
         <label value="&calendar.subscriptions.dialog.statusmessage.busy.label;"
                crop="end"/>
       </hbox>
-      <hbox class="calendar-subscriptions-status-box">
+      <hbox class="calendar-subscriptions-status-box" align="center">
         <image class="calendar-subscriptions-status-icon"/>
         <label value="&calendar.subscriptions.dialog.statusmessage.nomatches.label;"
                crop="end"/>

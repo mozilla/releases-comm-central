@@ -13,8 +13,6 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
  */
 class MozCalendarItemDate extends HTMLInputElement {
     connectedCallback() {
-        this.classList.add("selectable-label", "plain");
-        this.setAttribute("readonly", "readonly");
         this.mItem = null;
     }
 

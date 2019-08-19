@@ -63,10 +63,6 @@ menulist[disabled="true"] > .menulist-dropmarker {
   margin-top: 4px !important;
 }
 
-textbox.padded html|*.textbox-input::placeholder {
-  font-style: normal;
-}
-
 .textbox-input-box {
   padding-top: 2px;
   padding-bottom: 1px;

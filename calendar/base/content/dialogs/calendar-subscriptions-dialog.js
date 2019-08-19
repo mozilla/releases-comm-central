@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported onLoad, onUnload, onKeyPress, onTextBoxKeyPress, onSubscribe, onUnsubscribe */
+/* exported onLoad, onUnload, onKeyPress, onInputKeyPress, onSubscribe, onUnsubscribe */
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
@@ -49,10 +49,10 @@ function onKeyPress(event) {
 }
 
 /**
- * Handler function to handle keypress events in the textbox.
+ * Handler function to handle keypress events in the input.
  * (Starts the search when hitting enter)
  */
-function onTextBoxKeyPress(event) {
+function onInputKeyPress(event) {
     switch (event.key) {
         case "Enter":
             onSearch();
@@ -121,7 +121,7 @@ function onSearch() {
         }
     };
 
-    let operation = cal.getCalendarSearchService().searchForCalendars(document.getElementById("search-textbox").value,
+    let operation = cal.getCalendarSearchService().searchForCalendars(document.getElementById("search-input").value,
                                                                       0 /* hints */, 50, opListener);
     if (operation && operation.isPending) {
         gCurrentSearchOperation = operation;

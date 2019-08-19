@@ -5,6 +5,7 @@
 
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar-common/skin/calendar-properties-dialog.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/shared/input-fields.css" type="text/css"?>
 
 <!DOCTYPE dialog
 [
@@ -26,6 +27,8 @@
     xmlns:html="http://www.w3.org/1999/xhtml"
     width="500">
 
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://calendar/content/calendar-properties-dialog.js"/>
   <script src="chrome://calendar/content/calendar-ui-utils.js"/>
 
@@ -41,14 +44,13 @@
       <column flex="1"/>
     </columns>
     <rows id="calendar-properties-rows">
-      <row id="calendar-name-row"
-           align="center">
+      <row id="calendar-name-row" align="center">
         <label value="&calendar.server.dialog.name.label;"
                disable-with-calendar="true"
                control="calendar-name"/>
-        <textbox id="calendar-name"
-                 flex="1"
-                 disable-with-calendar="true"/>
+        <html:input id="calendar-name"
+                    class="input-inline"
+                    disable-with-calendar="true"/>
       </row>
       <row id="calendar-color-row"
            align="center">
@@ -58,6 +60,7 @@
           <hbox align="center">
             <html:input id="calendar-color"
                         type="color"
+                        class="input-inline-color"
                         disable-with-calendar="true"/>
           </hbox>
       </row>
@@ -66,15 +69,19 @@
         <label value="&locationpage.username.label;"
                disable-with-calendar="true"
                control="calendar-username"/>
-        <textbox id="calendar-username"
-                 disable-with-calendar="true"/>
+        <html:input id="calendar-username"
+                    class="input-inline"
+                    disable-with-calendar="true"/>
       </row>
       <row id="calendar-uri-row" align="center">
         <label value="&calendarproperties.location.label;"
                disable-with-calendar="true"
                control="calendar-uri"/>
         <!-- XXX Make location field readonly until Bug 315307 is fixed -->
-        <textbox id="calendar-uri" readonly="true" disable-with-calendar="true"/>
+        <html:input id="calendar-uri"
+                    class="input-inline"
+                    readonly="readonly"
+                    disable-with-calendar="true"/>
       </row>
       <row id="calendar-refreshInterval-row" align="center">
         <label value="&calendarproperties.refreshInterval.label;"

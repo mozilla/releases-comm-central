@@ -7,6 +7,7 @@
 <?xml-stylesheet type="text/css" href="chrome://calendar-common/skin/widgets/minimonth.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/messenger.css"?>
 <?xml-stylesheet type="text/css" href="chrome://lightning-common/skin/datetimepickers.css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/shared/input-fields.css"?>
 
 <!DOCTYPE dialog [
     <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd" > %dtd1;
@@ -25,6 +26,8 @@
         persist="screenX screenY width height"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
 
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://calendar/content/calendar-print-dialog.js"/>
   <script src="chrome://calendar/content/calendar-ui-utils.js"/>
   <script src="chrome://global/content/printUtils.js"/>
@@ -48,10 +51,9 @@
             <row align="center">
               <label control="title-field"
                      value="&calendar.print.title.label;"/>
-              <textbox id="title-field"
-                       class="padded"
-                       flex="1"
-                       onchange="refreshHtml();"/>
+              <html:input id="title-field"
+                          class="input-inline"
+                          onchange="refreshHtml();"/>
             </row>
             <row align="center">
               <label control="layout-field"

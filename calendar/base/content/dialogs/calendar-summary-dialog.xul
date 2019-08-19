@@ -7,6 +7,7 @@
 <?xml-stylesheet type="text/css" href="chrome://global/skin/global.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar-common/skin/calendar-alarms.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar-common/skin/calendar-attendees.css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/shared/input-fields.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/calendar-event-dialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar-common/skin/dialogs/calendar-event-dialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/content/calendar-bindings.css"?>
@@ -137,12 +138,16 @@
         </columns>
         <rows>
           <row align="center">
-            <label value="&read.only.title.label;"/>
-            <textbox id="item-title" class="selectable-label plain" readonly="true"/>
+            <label value="&read.only.title.label;" control="item-title"/>
+            <html:input id="item-title"
+                        class="selectable-label plain input-inline"
+                        readonly="readonly"/>
           </row>
           <row align="center">
-            <label value="&read.only.calendar.label;"/>
-            <textbox id="item-calendar" class="selectable-label plain" readonly="true"/>
+            <label value="&read.only.calendar.label;" control="item-calendar"/>
+            <html:input id="item-calendar"
+                        class="selectable-label plain input-inline"
+                        readonly="readonly"/>
           </row>
           <row class="item-date-row">
             <label id="item-start-row-label"
@@ -150,7 +155,10 @@
                    eventStartLabel="&read.only.event.start.label;"
                    align="center"
                    control="item-date-row-start-date"/>
-            <html:input is="calendar-item-date-input" id="item-date-row-start-date" mode="start"/>
+            <html:input is="calendar-item-date-input" id="item-date-row-start-date"
+                        class="selectable-label plain input-inline"
+                        readonly="readonly"
+                        mode="start"/>
           </row>
           <row class="item-date-row">
             <label id="item-due-row-label"
@@ -158,17 +166,22 @@
                    eventEndLabel="&read.only.event.end.label;"
                    align="center"
                    control="item-date-row-end-date"/>
-            <html:input is="calendar-item-date-input" id="item-date-row-end-date" mode="end"/>
+            <html:input is="calendar-item-date-input" id="item-date-row-end-date"
+                        class="selectable-label plain input-inline"
+                        readonly="readonly"
+                        mode="end"/>
           </row>
           <row id="repeat-row" align="top" hidden="true">
             <label value="&read.only.repeat.label;"/>
             <box id="repeat-details" orient="vertical">
-              <textbox readonly="true" class="selectable-label plain"/>
+              <html:input readonly="readonly" class="selectable-label plain input-inline"/>
             </box>
           </row>
           <row id="location-row" align="center" hidden="true">
-            <label value="&read.only.location.label;"/>
-            <textbox id="item-location" class="selectable-label plain" readonly="true"/>
+            <label value="&read.only.location.label;" control="item-location"/>
+            <html:input id="item-location"
+                        class="selectable-label plain input-inline"
+                        readonly="readonly"/>
           </row>
           <row id="category-row" align="top" hidden="true">
             <label value="&read.only.category.label;"/>
