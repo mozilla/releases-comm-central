@@ -409,8 +409,10 @@ function getDateFromFilename(aFilename) {
   const kRegExp = /([\d]{4})-([\d]{2})-([\d]{2}).([\d]{2})([\d]{2})([\d]{2})([+-])([\d]{2})([\d]{2}).*\.([A-Za-z]+)$/;
 
   let r = aFilename.match(kRegExp);
-  if (!r)
+  if (!r) {
+    Cu.reportError("Found log file with name not maching YYYY-MM-DD.HHmmSS+ZZzz.format: " + aFilename);
     return [];
+  }
 
   // We ignore the timezone offset for now (FIXME)
   return [new Date(r[1], r[2] - 1, r[3], r[4], r[5], r[6]), r[10]];
@@ -739,7 +741,9 @@ Logger.prototype = {
       let path = aEntry.path;
       let [logTime] = getDateFromFilename(OS.Path.basename(path));
 
-      if (targetDate == logTime.toDateString()) {
+      // If someone placed a 'foreign' file into the logs directory,
+      // pattern matching fails and getDateFromFilename() returns [].     
+      if (logTime && targetDate == logTime.toDateString()) {
         relevantEntries.push({
           path,
           time: logTime,
