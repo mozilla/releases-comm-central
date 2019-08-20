@@ -265,7 +265,12 @@ bool nsMsgCompose::IsEmbeddedObjectSafe(const char *originalScheme,
           nsAutoCString path;
           rv = uri->GetPathQueryRef(path);
           if (NS_SUCCEEDED(rv)) {
+            // For mailbox: and JS Account URLs, the original path contains
+            // ?number=NN, so let's transfer this over before comparing.
+            nsCString msgNumber = MsgExtractQueryPart(path, "number=");
             MsgRemoveQueryPart(path);
+            if (!msgNumber.IsEmpty())
+              path += NS_LITERAL_CSTRING("?") + msgNumber;
             // If this object is a part of the original message, we can send it
             // safely.
             return path.Equals(originalPath,
