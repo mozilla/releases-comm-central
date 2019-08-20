@@ -105,6 +105,11 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
   text-align: start;
 }
 
+.toolbarbutton-1 .toolbarbutton-icon {
+  width: 18px;
+  height: 18px;
+}
+
 description.error {
   color: #f00;
 }
