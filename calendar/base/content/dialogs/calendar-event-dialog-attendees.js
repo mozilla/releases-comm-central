@@ -5,7 +5,7 @@
 /* exported onLoad, onAccept, onCancel, zoomWithButtons, updateStartTime,
  *          endWidget, updateEndTime, editStartTimezone, editEndTimezone,
  *          changeAllDay, onNextSlot, onPreviousSlot, onFreebusyTimebarInit,
- *          setFreebusyTimebarTime
+ *          setFreebusyTimebarTime, onAttendeesInputKeyPress, onAttendeesInputBlur
  */
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
@@ -1127,4 +1127,16 @@ function onCalendarEventAttendeesListLoad() {
     attendeesList.setFocus(attendeesList.mMaxAttendees);
 
     attendeesList.init();
+}
+
+function onAttendeesInputKeyPress(event, element) {
+    if (event.key == "Enter" && element.value != "") {
+        element.closest("calendar-event-attendees-list").returnHit(element);
+    }
+}
+
+function onAttendeesInputBlur(element) {
+    if (element.localName == "textbox") {
+        element.closest("calendar-event-attendees-list").returnHit(element, true);
+    }
 }

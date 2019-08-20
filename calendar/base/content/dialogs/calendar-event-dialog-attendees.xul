@@ -91,10 +91,10 @@
                      forcecomplete="true"
                      completeselectedindex="true"
                      minresultsforpopup="1"
-                     onblur="if (this.localName == 'textbox') { this.closest(&quot;calendar-event-attendees-list&quot;).returnHit(this, true) }"
+                     onblur="onAttendeesInputBlur(this);"
                      ignoreblurwhilesearching="true"
                      oninput="this.setAttribute('dirty', 'true');"
-                     ontextentered="this.closest(&quot;calendar-event-attendees-list&quot;).returnHit(this);">
+                     onkeypress="onAttendeesInputKeyPress(event, this);">
             </textbox>
           </hbox>
         </richlistitem>

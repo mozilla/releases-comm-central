@@ -774,12 +774,31 @@ function awRecipientOnFocus(inputElement) {
   inputElement.select();
 }
 
-function awRecipientTextCommand(enterEvent, element) {
+/**
+ * Handles keypress events for the email address inputs (that auto-fill)
+ * in the Address Book Mailing List dialogs.
+ *
+ * @param event       The DOM keypress event
+ * @param element     The element that triggered the keypress event
+ */
+function awAbRecipientKeyPress(event, element) {
   // Only add new row when enter was hit (not for tab/autocomplete select).
-  if (enterEvent)
+  if (event.key == "Enter") {
+    // Prevent dialogs from closing.
+    if (element.value != "") {
+      event.preventDefault();
+    }
     awReturnHit(element);
+  }
 }
 
+/**
+ * Handles keypress events for the email address inputs (that auto-fill)
+ * in the Message Compose window.
+ *
+ * @param event       The DOM keypress event
+ * @param element     The element that triggered the keypress event
+ */
 function awRecipientKeyPress(event, element) {
   switch (event.key) {
     case "Enter":
@@ -795,6 +814,8 @@ function awRecipientKeyPress(event, element) {
         // Add the recipient to our spellcheck ignore list.
         // For Enter key, this is done in awReturnHit().
         addRecipientsToIgnoreList(element.value);
+      } else if (event.key == "Enter") {
+        awReturnHit(element);
       }
 
       break;

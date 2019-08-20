@@ -608,7 +608,7 @@ class MozCalendarEventAttendeesList extends MozElements.RichListBox {
                 target.setAttribute("cutype", nextValue);
                 this.updateTooltip(target);
             }
-        } else if (this.mIsReadOnly || this.mIsInvitation || target == null || target.closest("richlistitem")) {
+        } else if (this.mIsReadOnly || this.mIsInvitation || target == null) {
             // These are cases where we don't want to append a new row, keep
             // them here so we can put the rest in the else case.
         } else {
