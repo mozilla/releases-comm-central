@@ -42,10 +42,6 @@ tooltip[type="im"] {
   overflow: hidden;
 }
 
-#contextPane:not([chat]) > vbox > .conv-chat {
-  display: none;
-}
-
 #IMSearchInput {
   -moz-binding: url("chrome://messenger/content/search.xml#glodaSearch");
 }

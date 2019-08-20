@@ -732,7 +732,6 @@ var chatHandler = {
     } else if (item.localName == "richlistitem" && item.getAttribute("is") == "chat-imconv") {
       let convDeck = document.getElementById("conversationsDeck");
       if (!item.convView) {
-        // Create new conversation binding.
         let conv = document.createXULElement("chat-conversation");
         convDeck.appendChild(conv);
         conv.conv = item.conv;
@@ -783,12 +782,12 @@ var chatHandler = {
         this._showLogList(aLogs);
       });
 
-      let contextPane = document.getElementById("contextPane");
+      let contextPaneBox = document.getElementById("contextPaneFlexibleBox");
       if (item.conv.isChat) {
-        contextPane.setAttribute("chat", "true");
+        contextPaneBox.setAttribute("hidden", "true");
         item.convView.showParticipants();
       } else {
-        contextPane.removeAttribute("chat");
+        contextPaneBox.removeAttribute("hidden");
       }
 
       let button = document.getElementById("goToConversation");
@@ -811,7 +810,7 @@ var chatHandler = {
       this.showContactInfo(contact);
       this.observedContact = contact;
 
-      document.getElementById("contextPane").removeAttribute("chat");
+      document.getElementById("contextPaneFlexibleBox").removeAttribute("hidden");
 
       imServices.logs.getLogsForContact(contact, true).then(aLogs => {
         if (contactlistbox.selectedItem != item)

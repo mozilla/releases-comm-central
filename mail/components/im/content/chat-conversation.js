@@ -158,7 +158,6 @@
       this.convTop.classList.add("conv-top");
 
       this.notification = document.createXULElement("hbox");
-      this.notification.setAttribute("inherits", "chat");
       this.notification.setAttribute("flex", "1");
 
       let nbox = document.createXULElement("vbox");
@@ -1518,7 +1517,6 @@
     initConversationUI() {
       if (this._conv.isChat) {
         this.updateTopic();
-        this.setAttribute("chat", "true");
         let cti = document.getElementById("conv-top-info");
         cti.setAttribute("displayName", this._conv.title);
         cti.setAttribute("status", "chat");
