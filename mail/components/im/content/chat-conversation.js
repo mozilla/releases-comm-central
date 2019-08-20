@@ -21,6 +21,12 @@
    * @extends {MozXULElement}
    */
   class MozChatConversation extends MozXULElement {
+    static get inheritedAttributes() {
+      return {
+        "browser": "autoscrollpopup",
+      };
+    }
+
     constructor() {
       super();
 
@@ -167,8 +173,6 @@
         { is: "conversation-browser" });
       this.convBrowser.setAttribute("flex", "1");
       this.convBrowser.setAttribute("type", "content");
-      this.convBrowser.setAttribute("inherits",
-        "tooltip=contenttooltip,contextmenu=contentcontextmenu,autoscrollpopup");
 
       this.progressBar = document.createElementNS("http://www.w3.org/1999/xhtml",
         "progress");

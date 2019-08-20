@@ -322,7 +322,7 @@ var chatTabType = {
           document.getElementById("logDisplayBrowserBox"))
         return document.getElementById("conv-log-browser");
     } else if (panel && panel.localName == "chat-conversation") {
-      return panel.browser;
+      return panel.convBrowser;
     }
     return null;
   },
@@ -736,8 +736,8 @@ var chatHandler = {
         convDeck.appendChild(conv);
         conv.conv = item.conv;
         conv.tab = item;
-        conv.setAttribute("contentcontextmenu", "chatConversationContextMenu");
-        conv.setAttribute("contenttooltip", "imTooltip");
+        conv.setAttribute("contextmenu", "chatConversationContextMenu");
+        conv.setAttribute("tooltip", "imTooltip");
         item.convView = conv;
         document.getElementById("contextSplitter").hidden = false;
         document.getElementById("contextPane").hidden = false;
