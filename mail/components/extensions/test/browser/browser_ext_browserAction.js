@@ -5,6 +5,7 @@
 add_task(async () => {
   async function test_it(extension) {
     await extension.startup();
+    await promiseAnimationFrame();
     await new Promise(resolve => setTimeout(resolve));
 
     let buttonId = "test1_mochi_test-browserAction-toolbarbutton";
@@ -30,6 +31,7 @@ add_task(async () => {
     EventUtils.synthesizeMouseAtCenter(button, { clickCount: 1 });
     await extension.awaitMessage("browserAction");
     await promiseAnimationFrame();
+    await new Promise(resolve => setTimeout(resolve));
 
     is(document.getElementById(buttonId), button);
     label = button.querySelector(".toolbarbutton-text");
@@ -37,6 +39,7 @@ add_task(async () => {
 
     await extension.unload();
     await promiseAnimationFrame();
+    await new Promise(resolve => setTimeout(resolve));
 
     ok(!document.getElementById(buttonId), "Button destroyed");
     ok(!Services.xulStore.getValue(location.href, "mail-bar3", "currentset")

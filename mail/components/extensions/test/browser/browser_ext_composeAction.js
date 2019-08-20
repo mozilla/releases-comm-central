@@ -18,7 +18,9 @@ async function openComposeWindow() {
       observe(subject, topic, data) {
         Services.ww.unregisterNotification(observer);
         subject.addEventListener("load", () => {
-          promiseAnimationFrame().then(resolve);
+          promiseAnimationFrame(subject).then(() => {
+            subject.setTimeout(resolve);
+          });
         }, { once: true });
       },
     };
@@ -65,6 +67,7 @@ async function test_it(extensionDetails, toolbarId) {
     EventUtils.synthesizeMouseAtCenter(button, { clickCount: 1 }, composeWindow);
     await extension.awaitMessage("composeAction");
     await promiseAnimationFrame(composeWindow);
+    await new Promise(resolve => composeWindow.setTimeout(resolve));
 
     is(composeDocument.getElementById(buttonId), button);
 
@@ -73,6 +76,7 @@ async function test_it(extensionDetails, toolbarId) {
   } finally {
     await extension.unload();
     await promiseAnimationFrame(composeWindow);
+    await new Promise(resolve => composeWindow.setTimeout(resolve));
 
     ok(!composeDocument.getElementById(buttonId), "Button destroyed");
     if (toolbarId != "FormatToolbar") {
