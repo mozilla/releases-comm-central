@@ -120,6 +120,17 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   -moz-appearance: textfield;
 }
 
+/*
+ * Note that #calendar-list is used for 3 separate lists that look similar,
+ * but are otherwise independent:
+ *
+ * - calendar-providerUninstall-dialog.xul
+ * - messenger-overlay-sidebar.xul
+ * - gdata-calendar-creation.xul
+ *
+ * Please be careful when changing the following CSS.
+ */
+
 #calendar-list-inner-pane > #calendar-list {
   -moz-appearance: none;
   margin: 0;
