@@ -98,7 +98,6 @@
             <menulist is="menulist-addrbooks" id="identity.directoryServer"
                       none="&directoriesNone.label;"
                       remoteonly="true"
-                      value="dirPrefId"
                       wsm_persist="true"
                       preftype="string"
                       prefstring="mail.identity.%identitykey%.directoryServer"

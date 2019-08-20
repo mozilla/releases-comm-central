@@ -187,7 +187,6 @@
                   preference="ldap_2.autoComplete.directoryServer"
                   none="&directoriesNone.label;"
                   remoteonly="true"
-                  value="dirPrefId"
                   flex="1"/>
         <button id="editButton" label="&editDirectories.label;"
                 oncommand="gComposePane.editDirectories();"
