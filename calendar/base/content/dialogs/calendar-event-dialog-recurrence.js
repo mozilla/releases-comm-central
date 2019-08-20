@@ -59,8 +59,8 @@ const RecurrencePreview = {
     onResize() {
         let minimonth = this.node.querySelector("calendar-minimonth");
 
-        let row = this.node.querySelector("row");
-        let rows = row.parentNode;
+        let hbox = this.node.querySelector("hbox");
+        let vbox = hbox.parentNode;
 
         let minimonthRect = minimonth.getBoundingClientRect();
         let nodeRect = this.node.getBoundingClientRect();
@@ -82,46 +82,35 @@ const RecurrencePreview = {
 
         // Count the number of existing rows
         let numRows = 0;
-        let rowIterator = row;
-        while (rowIterator) {
+        let hboxIterator = hbox;
+        while (hboxIterator) {
             numRows++;
-            rowIterator = rowIterator.nextSibling;
+            hboxIterator = hboxIterator.nextSibling;
         }
 
         // Adjust rows
         while (numRows < numVertical) {
-            let newNode = row.cloneNode(true);
-            rows.appendChild(newNode);
+            let newNode = hbox.cloneNode(true);
+            vbox.appendChild(newNode);
             numRows++;
         }
         while (numRows > numVertical) {
-            rows.firstChild.remove();
+            vbox.firstChild.remove();
             numRows--;
         }
 
-        // Adjust columns in the grid
-        let column = this.node.querySelector(".first-column");
-        let columns = column.parentNode;
-        while ((columns.childNodes.length - 1) < numHorizontal) {
-            let newColumn = column.cloneNode(false);
-            columns.insertBefore(newColumn, column.nextSibling);
-        }
-        while ((columns.childNodes.length - 1) > numHorizontal) {
-            columns.firstChild.remove();
-        }
-
         // Walk all rows and adjust column elements
-        row = this.node.querySelector("row");
-        while (row) {
-            let firstChild = row.firstChild;
-            while ((row.childNodes.length - 1) < numHorizontal) {
+        hbox = this.node.querySelector("hbox");
+        while (hbox) {
+            let firstChild = hbox.firstChild;
+            while ((hbox.childNodes.length - 1) < numHorizontal) {
                 let newNode = firstChild.cloneNode(true);
                 firstChild.parentNode.insertBefore(newNode, firstChild);
             }
-            while ((row.childNodes.length - 1) > numHorizontal) {
-                row.firstChild.remove();
+            while ((hbox.childNodes.length - 1) > numHorizontal) {
+                hbox.firstChild.remove();
             }
-            row = row.nextSibling;
+            hbox = hbox.nextSibling;
         }
 
         this.updateContent();
@@ -132,15 +121,15 @@ const RecurrencePreview = {
      */
     updateContent() {
         let date = cal.dtz.dateTimeToJsDate(this.dateTime);
-        let row = this.node.querySelector("row");
-        while (row) {
-            let numChilds = row.childNodes.length - 1;
+        let hbox = this.node.querySelector("hbox");
+        while (hbox) {
+            let numChilds = hbox.childNodes.length - 1;
             for (let i = 0; i < numChilds; i++) {
-                let minimonth = row.childNodes[i];
+                let minimonth = hbox.childNodes[i];
                 minimonth.showMonth(date);
                 date.setMonth(date.getMonth() + 1);
             }
-            row = row.nextSibling;
+            hbox = hbox.nextSibling;
         }
     },
     /**
@@ -161,15 +150,15 @@ const RecurrencePreview = {
 
         // the 'minimonth' controls are arranged in a
         // grid, sorted by rows first -> iterate the rows that may exist.
-        let row = this.node.querySelector("row");
-        while (row) {
+        let hbox = this.node.querySelector("hbox");
+        while (hbox) {
             // now iterate all the child nodes of this row
             // in order to visit each minimonth in turn.
-            let numChilds = row.childNodes.length - 1;
+            let numChilds = hbox.childNodes.length - 1;
             for (let i = 0; i < numChilds; i++) {
                 // we now have one of the minimonth controls while 'start'
                 // and 'end' are set to the interval this minimonth shows.
-                minimonth = row.childNodes[i];
+                minimonth = hbox.childNodes[i];
                 minimonth.showMonth(cal.dtz.dateTimeToJsDate(start));
                 if (recurrenceInfo) {
                     // retrieve an array of dates that represents all occurrences
@@ -222,7 +211,7 @@ const RecurrencePreview = {
                 start.month++;
                 end.month++;
             }
-            row = row.nextSibling;
+            hbox = hbox.nextSibling;
         }
     }
 };

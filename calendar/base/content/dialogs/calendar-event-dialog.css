@@ -6,6 +6,10 @@
     -moz-user-focus: normal;
 }
 
+.recurrence-pattern-hbox-label {
+    margin-top: 6px;
+}
+
 .daypicker-monthday {
     -moz-user-focus: normal;
 }

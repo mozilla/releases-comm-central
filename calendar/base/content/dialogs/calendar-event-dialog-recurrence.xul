@@ -39,340 +39,331 @@
     <hbox class="groupbox-title">
       <label id="recurrence-pattern-caption" class="header">&event.recurrence.pattern.label;</label>
     </hbox>
-    <grid id="recurrence-pattern-grid">
-      <columns id="recurrence-pattern-columns">
-        <column id="recurrence-pattern-description-column"/>
-        <column id="recurrence-pattern-controls-column"/>
-      </columns>
-      <rows id="recurrence-pattern-rows">
-        <row id="recurrence-pattern-repeat-row" align="center">
-          <label value="&event.recurrence.occurs.label;"
-                 disable-on-readonly="true"
-                 disable-on-occurrence="true"
-                 control="period-list"/>
-          <menulist id="period-list"
+    <hbox flex="1" id="recurrence-pattern-hbox">
+      <vbox>
+        <label value="&event.recurrence.occurs.label;"
+               class="recurrence-pattern-hbox-label"
+               disable-on-readonly="true"
+               disable-on-occurrence="true"
+               control="period-list"/>
+      </vbox>
+      <vbox>
+        <menulist id="period-list"
                     oncommand="updateRecurrenceDeck();"
                     disable-on-readonly="true"
                     disable-on-occurrence="true">
-            <menupopup id="period-list-menupopup">
-              <menuitem id="period-list-day-menuitem"
-                        label="&event.recurrence.day.label;"
-                        value="0"/>
-              <menuitem id="period-list-week-menuitem"
-                        label="&event.recurrence.week.label;"
-                        value="1"/>
-              <menuitem id="period-list-month-menuitem"
-                        label="&event.recurrence.month.label;"
-                        value="2"/>
-              <menuitem id="period-list-year-menuitem"
-                        label="&event.recurrence.year.label;"
-                        value="3"/>
-            </menupopup>
-          </menulist>
-        </row>
-        <row id="recurrence-pattern-period-row" align="top">
-          <spacer/>
-          <deck id="period-deck" oncommand="updateRecurrenceControls();">
-
-            <!-- Daily -->
-            <box id="period-deck-daily-box"
-                 orient="vertical"
-                 align="top">
-              <radiogroup id="daily-group">
-                <box id="daily-period-every-box" orient="horizontal" align="center">
-                  <radio id="daily-group-every-radio"
-                         label="&event.recurrence.pattern.every.label;"
-                         disable-on-readonly="true"
-                         disable-on-occurrence="true"
-                         selected="true"/>
-                  <html:input id="daily-days" type="number" class="size3"
-                              min="1" max="32767" value="1"
-                              onkeyup="updateRecurrenceControls();"
-                              disable-on-readonly="true"
-                              disable-on-occurrence="true"/>
-                  <label id="daily-group-every-units-label"
-                         value="&repeat.units.days.both;"
-                         disable-on-readonly="true"
-                         disable-on-occurrence="true"/>
-                  <spacer id="daily-group-spacer" flex="1"/>
-                </box>
-                <radio id="daily-group-weekday-radio"
-                       label="&event.recurrence.pattern.every.weekday.label;"
-                       disable-on-readonly="true"
-                       disable-on-occurrence="true"/>
-              </radiogroup>
-            </box>
-            <!-- Weekly -->
-            <vbox id="period-deck-weekly-box">
-              <hbox id="weekly-period-every-box" align="center">
-                <label id="weekly-period-every-label"
-                       value="&event.recurrence.pattern.weekly.every.label;"
+          <menupopup id="period-list-menupopup">
+            <menuitem id="period-list-day-menuitem"
+                      label="&event.recurrence.day.label;"
+                      value="0"/>
+            <menuitem id="period-list-week-menuitem"
+                      label="&event.recurrence.week.label;"
+                      value="1"/>
+            <menuitem id="period-list-month-menuitem"
+                      label="&event.recurrence.month.label;"
+                      value="2"/>
+            <menuitem id="period-list-year-menuitem"
+                      label="&event.recurrence.year.label;"
+                      value="3"/>
+          </menupopup>
+        </menulist>
+        <deck id="period-deck" oncommand="updateRecurrenceControls();">
+          <!-- Daily -->
+          <box id="period-deck-daily-box"
+               orient="vertical"
+               align="top">
+            <radiogroup id="daily-group">
+              <box id="daily-period-every-box" orient="horizontal" align="center">
+                <radio id="daily-group-every-radio"
+                       label="&event.recurrence.pattern.every.label;"
                        disable-on-readonly="true"
                        disable-on-occurrence="true"
-                       control="weekly-weeks"/>
-                <html:input id="weekly-weeks" type="number" class="size3"
+                       selected="true"/>
+                <html:input id="daily-days" type="number" class="size3"
                             min="1" max="32767" value="1"
                             onkeyup="updateRecurrenceControls();"
                             disable-on-readonly="true"
                             disable-on-occurrence="true"/>
-                <label id="weekly-period-units-label"
-                       value="&repeat.units.weeks.both;"
+                <label id="daily-group-every-units-label"
+                       value="&repeat.units.days.both;"
                        disable-on-readonly="true"
                        disable-on-occurrence="true"/>
+                <spacer id="daily-group-spacer" flex="1"/>
+              </box>
+              <radio id="daily-group-weekday-radio"
+                     label="&event.recurrence.pattern.every.weekday.label;"
+                     disable-on-readonly="true"
+                     disable-on-occurrence="true"/>
+            </radiogroup>
+          </box>
+          <!-- Weekly -->
+          <vbox id="period-deck-weekly-box">
+            <hbox id="weekly-period-every-box" align="center">
+              <label id="weekly-period-every-label"
+                     value="&event.recurrence.pattern.weekly.every.label;"
+                     disable-on-readonly="true"
+                     disable-on-occurrence="true"
+                     control="weekly-weeks"/>
+              <html:input id="weekly-weeks" type="number" class="size3"
+                          min="1" max="32767" value="1"
+                          onkeyup="updateRecurrenceControls();"
+                          disable-on-readonly="true"
+                          disable-on-occurrence="true"/>
+              <label id="weekly-period-units-label"
+                     value="&repeat.units.weeks.both;"
+                     disable-on-readonly="true"
+                     disable-on-occurrence="true"/>
+            </hbox>
+            <hbox align="center">
+              <label id="weekly-period-on-label"
+                     value="&event.recurrence.on.label;"
+                     disable-on-readonly="true"
+                     disable-on-occurrence="true"
+                     control="daypicker-weekday"/>
+              <hbox id="daypicker-weekday"
+                    flex="1"
+                    disable-on-readonly="true"
+                    disable-on-occurrence="true"
+                    onselect="updateRecurrenceControls();">
+                <button is="calendar-daypicker" bottom="true" mode="daypicker-weekday"/>
+                <button is="calendar-daypicker" bottom="true" mode="daypicker-weekday"/>
+                <button is="calendar-daypicker" bottom="true" mode="daypicker-weekday"/>
+                <button is="calendar-daypicker" bottom="true" mode="daypicker-weekday"/>
+                <button is="calendar-daypicker" bottom="true" mode="daypicker-weekday"/>
+                <button is="calendar-daypicker" bottom="true" mode="daypicker-weekday"/>
+                <button is="calendar-daypicker" bottom="true" mode="daypicker-weekday"
+                        right="true"/>
               </hbox>
-              <hbox align="center">
-                <label id="weekly-period-on-label"
-                       value="&event.recurrence.on.label;"
+            </hbox>
+          </vbox>
+
+          <!-- Monthly -->
+          <vbox id="period-deck-monthly-box">
+            <hbox id="montly-period-every-box" align="center">
+              <label id="monthly-period-every-label"
+                     value="&event.recurrence.pattern.monthly.every.label;"
+                     disable-on-readonly="true"
+                     disable-on-occurrence="true"
+                     control="monthly-interval"/>
+              <html:input id="monthly-interval" type="number" class="size3"
+                          min="1" max="32767" value="1"
+                          onkeyup="updateRecurrenceControls();"
+                          disable-on-readonly="true"
+                          disable-on-occurrence="true"/>
+              <label id="monthly-period-units-label"
+                     value="&repeat.units.months.both;"
+                     disable-on-readonly="true"
+                     disable-on-occurrence="true"/>
+            </hbox>
+            <radiogroup id="monthly-group">
+              <box id="monthly-period-relative-date-box"
+                   orient="horizontal" align="center">
+                <radio id="montly-period-relative-date-radio"
+                       selected="true"
                        disable-on-readonly="true"
-                       disable-on-occurrence="true"
-                       control="daypicker-weekday"/>
-                <hbox id="daypicker-weekday"
-                      flex="1"
-                      disable-on-readonly="true"
-                      disable-on-occurrence="true"
+                       disable-on-occurrence="true"/>
+                <menulist id="monthly-ordinal"
+                          disable-on-readonly="true"
+                          disable-on-occurrence="true">
+                  <menupopup id="montly-ordinal-menupopup">
+                    <menuitem id="monthly-ordinal-every-label"
+                              label="&event.recurrence.monthly.every.label;"
+                              value="0"/>
+                    <menuitem id="monthly-ordinal-first-label"
+                              label="&event.recurrence.monthly.first.label;"
+                              value="1"/>
+                    <menuitem id="monthly-ordinal-second-label"
+                              label="&event.recurrence.monthly.second.label;"
+                              value="2"/>
+                    <menuitem id="monthly-ordinal-third-label"
+                              label="&event.recurrence.monthly.third.label;"
+                              value="3"/>
+                    <menuitem id="monthly-ordinal-fourth-label"
+                              label="&event.recurrence.monthly.fourth.label;"
+                              value="4"/>
+                    <menuitem id="monthly-ordinal-fifth-label"
+                              label="&event.recurrence.monthly.fifth.label;"
+                              value="5"/>
+                    <menuitem id="monthly-ordinal-last-label"
+                              label="&event.recurrence.monthly.last.label;"
+                              value="-1"/>
+                  </menupopup>
+                </menulist>
+                <menulist id="monthly-weekday"
+                          disable-on-readonly="true"
+                          disable-on-occurrence="true">
+                  <menupopup id="monthly-weekday-menupopup">
+                    <menuitem id="monthly-weekday-1"
+                              label="&event.recurrence.pattern.monthly.week.1.label;"
+                              value="1"/>
+                    <menuitem id="monthly-weekday-2"
+                              label="&event.recurrence.pattern.monthly.week.2.label;"
+                              value="2"/>
+                    <menuitem id="monthly-weekday-3"
+                              label="&event.recurrence.pattern.monthly.week.3.label;"
+                              value="3"/>
+                    <menuitem id="monthly-weekday-4"
+                              label="&event.recurrence.pattern.monthly.week.4.label;"
+                              value="4"/>
+                    <menuitem id="monthly-weekday-5"
+                              label="&event.recurrence.pattern.monthly.week.5.label;"
+                              value="5"/>
+                    <menuitem id="monthly-weekday-6"
+                              label="&event.recurrence.pattern.monthly.week.6.label;"
+                              value="6"/>
+                    <menuitem id="monthly-weekday-7"
+                              label="&event.recurrence.pattern.monthly.week.7.label;"
+                              value="7"/>
+                    <menuitem id="monthly-weekday-dayofmonth"
+                              label="&event.recurrence.repeat.dayofmonth.label;"
+                              value="-1"/>
+                  </menupopup>
+                </menulist>
+              </box>
+              <box id="monthly-period-specific-date-box"
+                   orient="horizontal"
+                   align="center">
+                <radio id="montly-period-specific-date-radio"
+                       label="&event.recurrence.repeat.recur.label;"
+                       disable-on-readonly="true"
+                       disable-on-occurrence="true"/>
+                <hbox id="monthly-days"
+                      class="daypicker-monthday"
                       onselect="updateRecurrenceControls();">
-                  <button is="calendar-daypicker" bottom="true" mode="daypicker-weekday"/>
-                  <button is="calendar-daypicker" bottom="true" mode="daypicker-weekday"/>
-                  <button is="calendar-daypicker" bottom="true" mode="daypicker-weekday"/>
-                  <button is="calendar-daypicker" bottom="true" mode="daypicker-weekday"/>
-                  <button is="calendar-daypicker" bottom="true" mode="daypicker-weekday"/>
-                  <button is="calendar-daypicker" bottom="true" mode="daypicker-weekday"/>
-                  <button is="calendar-daypicker" bottom="true" mode="daypicker-weekday"
-                          right="true"/>
+                  <vbox class="daypicker-monthday-mainbox" flex="1">
+                    <hbox class="daypicker-row" flex="1">
+                      <button is="calendar-daypicker" label="1" mode="monthly-days"/>
+                      <button is="calendar-daypicker" label="2" mode="monthly-days"/>
+                      <button is="calendar-daypicker" label="3" mode="monthly-days"/>
+                      <button is="calendar-daypicker" label="4" mode="monthly-days"/>
+                      <button is="calendar-daypicker" label="5" mode="monthly-days"/>
+                      <button is="calendar-daypicker" label="6" mode="monthly-days"/>
+                      <button is="calendar-daypicker" label="7" mode="monthly-days"
+                              right="true"/>
+                    </hbox>
+                    <hbox class="daypicker-row" flex="1">
+                      <button is="calendar-daypicker" label="8" mode="monthly-days"/>
+                      <button is="calendar-daypicker" label="9" mode="monthly-days"/>
+                      <button is="calendar-daypicker" label="10" mode="monthly-days"/>
+                      <button is="calendar-daypicker" label="11" mode="monthly-days"/>
+                      <button is="calendar-daypicker" label="12" mode="monthly-days"/>
+                      <button is="calendar-daypicker" label="13" mode="monthly-days"/>
+                      <button is="calendar-daypicker" label="14" mode="monthly-days"
+                              right="true"/>
+                    </hbox>
+                    <hbox class="daypicker-row" flex="1">
+                      <button is="calendar-daypicker" label="15" mode="monthly-days"/>
+                      <button is="calendar-daypicker" label="16" mode="monthly-days"/>
+                      <button is="calendar-daypicker" label="17" mode="monthly-days"/>
+                      <button is="calendar-daypicker" label="18" mode="monthly-days"/>
+                      <button is="calendar-daypicker" label="19" mode="monthly-days"/>
+                      <button is="calendar-daypicker" label="20" mode="monthly-days"/>
+                      <button is="calendar-daypicker" label="21" mode="monthly-days"
+                              right="true"/>
+                    </hbox>
+                    <hbox class="daypicker-row" flex="1">
+                      <button is="calendar-daypicker" label="22" mode="monthly-days"/>
+                      <button is="calendar-daypicker" label="23" mode="monthly-days"/>
+                      <button is="calendar-daypicker" label="24" mode="monthly-days"/>
+                      <button is="calendar-daypicker" label="25" mode="monthly-days"/>
+                      <button is="calendar-daypicker" label="26" mode="monthly-days"/>
+                      <button is="calendar-daypicker" label="27" mode="monthly-days"/>
+                      <button is="calendar-daypicker" label="28" mode="monthly-days"
+                              right="true"/>
+                    </hbox>
+                    <hbox class="daypicker-row" flex="1">
+                      <button is="calendar-daypicker" label="29" mode="monthly-days" bottom="true"/>
+                      <button is="calendar-daypicker" label="30" mode="monthly-days" bottom="true"/>
+                      <button is="calendar-daypicker" label="31" mode="monthly-days" bottom="true"/>
+                      <button is="calendar-daypicker" label="" mode="monthly-days" bottom="true" right="true" />
+                    </hbox>
+                  </vbox>
                 </hbox>
-              </hbox>
-            </vbox>
+              </box>
+            </radiogroup>
+          </vbox>
 
-            <!-- Monthly -->
-            <vbox id="period-deck-monthly-box">
-              <hbox id="montly-period-every-box" align="center">
-                <label id="monthly-period-every-label"
-                       value="&event.recurrence.pattern.monthly.every.label;"
-                       disable-on-readonly="true"
-                       disable-on-occurrence="true"
-                       control="monthly-interval"/>
-                <html:input id="monthly-interval" type="number" class="size3"
-                            min="1" max="32767" value="1"
-                            onkeyup="updateRecurrenceControls();"
-                            disable-on-readonly="true"
-                            disable-on-occurrence="true"/>
-                <label id="monthly-period-units-label"
-                       value="&repeat.units.months.both;"
-                       disable-on-readonly="true"
-                       disable-on-occurrence="true"/>
-              </hbox>
-              <radiogroup id="monthly-group">
-                <box id="monthly-period-relative-date-box"
-                         orient="horizontal" align="center">
-                  <radio id="montly-period-relative-date-radio"
+            <!-- Yearly -->
+          <box id="period-deck-yearly-box"
+               orient="vertical"
+               align="top">
+            <hbox id="yearly-period-every-box" align="center">
+              <label id="yearly-period-every-label"
+                     value="&event.recurrence.every.label;"
+                     control="yearly-interval"/>
+              <html:input id="yearly-interval" type="number" class="size3"
+                          min="1" max="32767" value="1"
+                          onkeyup="updateRecurrenceControls();"
+                          disable-on-readonly="true"
+                          disable-on-occurrence="true"/>
+              <label id="yearly-period-units-label" value="&repeat.units.years.both;"/>
+            </hbox>
+            <radiogroup id="yearly-group">
+              <vbox>
+                <hbox>
+                  <radio id="yearly-period-absolute-radio"
+                         label="&event.recurrence.pattern.yearly.every.month.label;"
                          selected="true"
                          disable-on-readonly="true"
                          disable-on-occurrence="true"/>
-                  <menulist id="monthly-ordinal"
-                            disable-on-readonly="true"
-                            disable-on-occurrence="true">
-                    <menupopup id="montly-ordinal-menupopup">
-                      <menuitem id="monthly-ordinal-every-label"
-                                label="&event.recurrence.monthly.every.label;"
-                                value="0"/>
-                      <menuitem id="monthly-ordinal-first-label"
-                                label="&event.recurrence.monthly.first.label;"
-                                value="1"/>
-                      <menuitem id="monthly-ordinal-second-label"
-                                label="&event.recurrence.monthly.second.label;"
-                                value="2"/>
-                      <menuitem id="monthly-ordinal-third-label"
-                                label="&event.recurrence.monthly.third.label;"
-                                value="3"/>
-                      <menuitem id="monthly-ordinal-fourth-label"
-                                label="&event.recurrence.monthly.fourth.label;"
-                                value="4"/>
-                      <menuitem id="monthly-ordinal-fifth-label"
-                                label="&event.recurrence.monthly.fifth.label;"
-                                value="5"/>
-                      <menuitem id="monthly-ordinal-last-label"
-                                label="&event.recurrence.monthly.last.label;"
-                                value="-1"/>
-                    </menupopup>
-                  </menulist>
-                  <menulist id="monthly-weekday"
-                            disable-on-readonly="true"
-                            disable-on-occurrence="true">
-                    <menupopup id="monthly-weekday-menupopup">
-                      <menuitem id="monthly-weekday-1"
-                                label="&event.recurrence.pattern.monthly.week.1.label;"
-                                value="1"/>
-                      <menuitem id="monthly-weekday-2"
-                                label="&event.recurrence.pattern.monthly.week.2.label;"
-                                value="2"/>
-                      <menuitem id="monthly-weekday-3"
-                                label="&event.recurrence.pattern.monthly.week.3.label;"
-                                value="3"/>
-                      <menuitem id="monthly-weekday-4"
-                                label="&event.recurrence.pattern.monthly.week.4.label;"
-                                value="4"/>
-                      <menuitem id="monthly-weekday-5"
-                                label="&event.recurrence.pattern.monthly.week.5.label;"
-                                value="5"/>
-                      <menuitem id="monthly-weekday-6"
-                                label="&event.recurrence.pattern.monthly.week.6.label;"
-                                value="6"/>
-                      <menuitem id="monthly-weekday-7"
-                                label="&event.recurrence.pattern.monthly.week.7.label;"
-                                value="7"/>
-                      <menuitem id="monthly-weekday-dayofmonth"
-                                label="&event.recurrence.repeat.dayofmonth.label;"
-                                value="-1"/>
-                    </menupopup>
-                  </menulist>
-                </box>
-                <box id="monthly-period-specific-date-box"
-                     orient="horizontal"
-                     align="center">
-                  <radio id="montly-period-specific-date-radio"
-                         label="&event.recurrence.repeat.recur.label;"
-                         disable-on-readonly="true"
-                         disable-on-occurrence="true"/>
-                  <hbox id="monthly-days"
-                        class="daypicker-monthday"
-                        onselect="updateRecurrenceControls();">
-                    <vbox class="daypicker-monthday-mainbox" flex="1">
-                      <hbox class="daypicker-row" flex="1">
-                        <button is="calendar-daypicker" label="1" mode="monthly-days"/>
-                        <button is="calendar-daypicker" label="2" mode="monthly-days"/>
-                        <button is="calendar-daypicker" label="3" mode="monthly-days"/>
-                        <button is="calendar-daypicker" label="4" mode="monthly-days"/>
-                        <button is="calendar-daypicker" label="5" mode="monthly-days"/>
-                        <button is="calendar-daypicker" label="6" mode="monthly-days"/>
-                        <button is="calendar-daypicker" label="7" mode="monthly-days"
-                                right="true"/>
-                      </hbox>
-                      <hbox class="daypicker-row" flex="1">
-                        <button is="calendar-daypicker" label="8" mode="monthly-days"/>
-                        <button is="calendar-daypicker" label="9" mode="monthly-days"/>
-                        <button is="calendar-daypicker" label="10" mode="monthly-days"/>
-                        <button is="calendar-daypicker" label="11" mode="monthly-days"/>
-                        <button is="calendar-daypicker" label="12" mode="monthly-days"/>
-                        <button is="calendar-daypicker" label="13" mode="monthly-days"/>
-                        <button is="calendar-daypicker" label="14" mode="monthly-days"
-                                right="true"/>
-                      </hbox>
-                      <hbox class="daypicker-row" flex="1">
-                        <button is="calendar-daypicker" label="15" mode="monthly-days"/>
-                        <button is="calendar-daypicker" label="16" mode="monthly-days"/>
-                        <button is="calendar-daypicker" label="17" mode="monthly-days"/>
-                        <button is="calendar-daypicker" label="18" mode="monthly-days"/>
-                        <button is="calendar-daypicker" label="19" mode="monthly-days"/>
-                        <button is="calendar-daypicker" label="20" mode="monthly-days"/>
-                        <button is="calendar-daypicker" label="21" mode="monthly-days"
-                                right="true"/>
-                      </hbox>
-                      <hbox class="daypicker-row" flex="1">
-                        <button is="calendar-daypicker" label="22" mode="monthly-days"/>
-                        <button is="calendar-daypicker" label="23" mode="monthly-days"/>
-                        <button is="calendar-daypicker" label="24" mode="monthly-days"/>
-                        <button is="calendar-daypicker" label="25" mode="monthly-days"/>
-                        <button is="calendar-daypicker" label="26" mode="monthly-days"/>
-                        <button is="calendar-daypicker" label="27" mode="monthly-days"/>
-                        <button is="calendar-daypicker" label="28" mode="monthly-days"
-                                right="true"/>
-                      </hbox>
-                      <hbox class="daypicker-row" flex="1">
-                        <button is="calendar-daypicker" label="29" mode="monthly-days" bottom="true"/>
-                        <button is="calendar-daypicker" label="30" mode="monthly-days" bottom="true"/>
-                        <button is="calendar-daypicker" label="31" mode="monthly-days" bottom="true"/>
-                        <button is="calendar-daypicker" label="" mode="monthly-days" bottom="true" right="true" />
-                      </hbox>
-                    </vbox>
-                  </hbox>
-                </box>
-              </radiogroup>
-            </vbox>
-
-            <!-- Yearly -->
-            <box id="period-deck-yearly-box"
-                 orient="vertical"
-                 align="top">
-              <hbox id="yearly-period-every-box" align="center">
-                <label id="yearly-period-every-label"
-                       value="&event.recurrence.every.label;"
-                       control="yearly-interval"/>
-                <html:input id="yearly-interval" type="number" class="size3"
-                            min="1" max="32767" value="1"
-                            onkeyup="updateRecurrenceControls();"
-                            disable-on-readonly="true"
-                            disable-on-occurrence="true"/>
-                <label id="yearly-period-units-label" value="&repeat.units.years.both;"/>
-              </hbox>
-              <radiogroup id="yearly-group">
-                <grid id="yearly-period-grid">
-                  <columns id="yearly-period-columns">
-                    <column id="yearly-period-radio-column"/>
-                    <column id="yearly-period-controls-column"/>
-                  </columns>
-                  <rows id="yearly-period-rows">
-                    <row id="yearly-period-absolute-row" align="center">
-                      <radio id="yearly-period-absolute-radio"
-                             label="&event.recurrence.pattern.yearly.every.month.label;"
-                             selected="true"
-                             disable-on-readonly="true"
-                             disable-on-occurrence="true"/>
-                      <box id="yearly-period-absolute-controls"
-                           orient="horizontal"
-                           align="center">
-                        <html:input id="yearly-days" type="number" class="size3"
-                                    min="1" value="1"
-                                    onkeyup="updateRecurrenceControls();"
-                                    disable-on-readonly="true"
-                                    disable-on-occurrence="true"/>
-                        <label id="yearly-period-of-month-label"
-                               value="&event.recurrence.pattern.yearly.of.label;"
-                               control="yearly-month-ordinal"/>
-                        <menulist id="yearly-month-ordinal"
-                                  disable-on-readonly="true"
-                                  disable-on-occurrence="true">
-                          <menupopup id="yearly-month-ordinal-menupopup">
-                            <menuitem id="yearly-month-ordinal-1"
-                                      label="&event.recurrence.pattern.yearly.month.1.label;"
-                                      value="1"/>
-                            <menuitem id="yearly-month-ordinal-2"
-                                      label="&event.recurrence.pattern.yearly.month.2.label;"
-                                      value="2"/>
-                            <menuitem id="yearly-month-ordinal-3"
-                                      label="&event.recurrence.pattern.yearly.month.3.label;"
-                                      value="3"/>
-                            <menuitem id="yearly-month-ordinal-4"
-                                      label="&event.recurrence.pattern.yearly.month.4.label;"
-                                      value="4"/>
-                            <menuitem id="yearly-month-ordinal-5"
-                                      label="&event.recurrence.pattern.yearly.month.5.label;"
-                                      value="5"/>
-                            <menuitem id="yearly-month-ordinal-6"
-                                      label="&event.recurrence.pattern.yearly.month.6.label;"
-                                      value="6"/>
-                            <menuitem id="yearly-month-ordinal-7"
-                                      label="&event.recurrence.pattern.yearly.month.7.label;"
-                                      value="7"/>
-                            <menuitem id="yearly-month-ordinal-8"
-                                      label="&event.recurrence.pattern.yearly.month.8.label;"
-                                      value="8"/>
-                            <menuitem id="yearly-month-ordinal-9"
-                                      label="&event.recurrence.pattern.yearly.month.9.label;"
-                                      value="9"/>
-                            <menuitem id="yearly-month-ordinal-10"
-                                      label="&event.recurrence.pattern.yearly.month.10.label;"
-                                      value="10"/>
-                            <menuitem id="yearly-month-ordinal-11"
-                                      label="&event.recurrence.pattern.yearly.month.11.label;"
-                                      value="11"/>
-                            <menuitem id="yearly-month-ordinal-12"
-                                      label="&event.recurrence.pattern.yearly.month.12.label;"
-                                      value="12"/>
-                          </menupopup>
-                        </menulist>
-                      </box>
-                    </row>
-                    <row id="yearly-period-relative-row" align="center">
+                  <box id="yearly-period-absolute-controls"
+                       orient="horizontal"
+                       align="center">
+                    <html:input id="yearly-days" type="number" class="size3"
+                                min="1" value="1"
+                                onkeyup="updateRecurrenceControls();"
+                                disable-on-readonly="true"
+                                disable-on-occurrence="true"/>
+                    <label id="yearly-period-of-month-label"
+                           value="&event.recurrence.pattern.yearly.of.label;"
+                           control="yearly-month-ordinal"/>
+                    <menulist id="yearly-month-ordinal"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true">
+                      <menupopup id="yearly-month-ordinal-menupopup">
+                        <menuitem id="yearly-month-ordinal-1"
+                                  label="&event.recurrence.pattern.yearly.month.1.label;"
+                                  value="1"/>
+                        <menuitem id="yearly-month-ordinal-2"
+                                  label="&event.recurrence.pattern.yearly.month.2.label;"
+                                  value="2"/>
+                        <menuitem id="yearly-month-ordinal-3"
+                                  label="&event.recurrence.pattern.yearly.month.3.label;"
+                                  value="3"/>
+                        <menuitem id="yearly-month-ordinal-4"
+                                  label="&event.recurrence.pattern.yearly.month.4.label;"
+                                  value="4"/>
+                        <menuitem id="yearly-month-ordinal-5"
+                                  label="&event.recurrence.pattern.yearly.month.5.label;"
+                                  value="5"/>
+                        <menuitem id="yearly-month-ordinal-6"
+                                  label="&event.recurrence.pattern.yearly.month.6.label;"
+                                  value="6"/>
+                        <menuitem id="yearly-month-ordinal-7"
+                                  label="&event.recurrence.pattern.yearly.month.7.label;"
+                                  value="7"/>
+                        <menuitem id="yearly-month-ordinal-8"
+                                  label="&event.recurrence.pattern.yearly.month.8.label;"
+                                  value="8"/>
+                        <menuitem id="yearly-month-ordinal-9"
+                                  label="&event.recurrence.pattern.yearly.month.9.label;"
+                                  value="9"/>
+                        <menuitem id="yearly-month-ordinal-10"
+                                  label="&event.recurrence.pattern.yearly.month.10.label;"
+                                  value="10"/>
+                        <menuitem id="yearly-month-ordinal-11"
+                                  label="&event.recurrence.pattern.yearly.month.11.label;"
+                                  value="11"/>
+                        <menuitem id="yearly-month-ordinal-12"
+                                  label="&event.recurrence.pattern.yearly.month.12.label;"
+                                  value="12"/>
+                      </menupopup>
+                    </menulist>
+                  </box>
+                </hbox>
+                <hbox>
+                  <vbox>
+                    <hbox>
                       <radio id="yearly-period-relative-radio"
                              disable-on-readonly="true"
                              disable-on-occurrence="true"/>
@@ -437,9 +428,10 @@
                           </menupopup>
                         </menulist>
                       </box>
-                    </row>
-                    <row id="yearly-period-monthname-row" align="center">
+                    </hbox>
+                    <hbox>
                       <label id="yearly-period-of-label"
+                             class="recurrence-pattern-hbox-label"
                              value="&event.recurrence.of.label;"
                              control="yearly-month-rule"/>
                       <menulist id="yearly-month-rule"
@@ -484,15 +476,15 @@
                                     value="12"/>
                         </menupopup>
                       </menulist>
-                    </row>
-                  </rows>
-                </grid>
-              </radiogroup>
-            </box>
-          </deck>
-        </row>
-      </rows>
-    </grid>
+                    </hbox>
+                  </vbox>
+                </hbox>
+              </vbox>
+            </radiogroup>
+          </box>
+        </deck>
+      </vbox>
+    </hbox>
   </groupbox>
 
   <!-- range of recurrence -->
@@ -551,20 +543,14 @@
       <label id="recurrence-preview-label" class="header">&event.recurrence.preview.label;</label>
     </hbox>
     <box id="recurrence-preview" flex="1">
-      <grid flex="1">
-        <columns>
-          <column class="first-column"/>
-          <column flex="1"/>
-        </columns>
-        <rows>
-          <row>
+      <vbox>
+        <hbox>
             <calendar-minimonth readonly="true"/>
             <calendar-minimonth readonly="true"/>
             <calendar-minimonth readonly="true"/>
             <spacer/>
-          </row>
-        </rows>
-      </grid>
+        </hbox>
+      </vbox>
     </box>
   </groupbox>
 </dialog>
