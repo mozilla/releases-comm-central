@@ -2323,15 +2323,10 @@ nsMsgDBView::GetIndicesForSelection(nsTArray<nsMsgViewIndex> &indices) {
   return NS_OK;
 }
 
+// Array<nsIMsgDBHdr> getSelectedMsgHdrs();
 NS_IMETHODIMP
-nsMsgDBView::GetSelectedMsgHdrs(uint32_t *aLength, nsIMsgDBHdr ***aResult) {
+nsMsgDBView::GetSelectedMsgHdrs(nsTArray<RefPtr<nsIMsgDBHdr>> &aResult) {
   nsresult rv;
-
-  NS_ENSURE_ARG_POINTER(aLength);
-  *aLength = 0;
-
-  NS_ENSURE_ARG_POINTER(aResult);
-  *aResult = nullptr;
 
   nsMsgViewIndexArray selection;
   GetIndicesForSelection(selection);
@@ -2346,18 +2341,13 @@ nsMsgDBView::GetSelectedMsgHdrs(uint32_t *aLength, nsIMsgDBHdr ***aResult) {
   uint32_t numMsgsSelected;
   messages->GetLength(&numMsgsSelected);
 
-  nsIMsgDBHdr **headers = static_cast<nsIMsgDBHdr **>(
-      moz_xmalloc(sizeof(nsIMsgDBHdr *) * numMsgsSelected));
-
+  aResult.Clear();
+  aResult.SetCapacity(numMsgsSelected);
   for (uint32_t i = 0; i < numMsgsSelected; i++) {
     nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryElementAt(messages, i, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
-    // Already AddRefed.
-    msgHdr.forget(&headers[i]);
+    aResult.AppendElement(msgHdr.forget());
   }
-
-  *aLength = numMsgsSelected;
-  *aResult = headers;
   return NS_OK;
 }
 

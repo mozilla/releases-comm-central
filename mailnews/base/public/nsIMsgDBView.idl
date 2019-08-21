@@ -314,9 +314,7 @@ interface nsIMsgDBView : nsISupports
    * @return an array containing the selected message headers.  You are free to
    *     mutate the array; it will not affect the underlying selection.
    */
-  void getSelectedMsgHdrs([optional] out unsigned long count,
-                          [retval, array, size_is(count)]
-                          out nsIMsgDBHdr headers);
+  Array<nsIMsgDBHdr> getSelectedMsgHdrs();
 
   Array<AUTF8String> getURIsForSelection();
   Array<nsMsgViewIndex> getIndicesForSelection();
