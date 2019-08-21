@@ -6,7 +6,7 @@
 
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar/content/calendar-subscriptions-dialog.css" type="text/css"?>
-<?xml-stylesheet href="chrome://calendar-common/skin/calendar-subscriptions-dialog.css" type="text/css"?>
+<?xml-stylesheet href="chrome://calendar/skin/calendar-subscriptions-dialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/shared/input-fields.css" type="text/css"?>
 
 <!DOCTYPE dialog
@@ -34,41 +34,33 @@
   <script src="chrome://calendar/content/calendar-subscriptions-list.js"/>
 
   <vbox flex="1">
-    <grid flex="1">
-      <columns>
-        <column flex="1"/>
-        <column/>
-      </columns>
-      <rows>
-        <row>
-          <label value="&calendar.subscriptions.dialog.search.label.value;"
-                 crop="end"/>
-        </row>
-        <row>
-          <html:input id="search-input"
-                      class="input-inline"
-                      onkeypress="onInputKeyPress(event);"/>
-          <button label="&calendar.subscriptions.dialog.search.button.label;"
-                  oncommand="onSearch();"/>
-        </row>
-        <row>
-          <label class="calendar-subscriptions-select-label"
-                 value="&calendar.subscriptions.dialog.select.label.value;"
-                 crop="end"/>
-        </row>
-        <row flex="1">
-          <richlistbox id="subscriptions-listbox" flex="1"/>
-          <vbox>
-            <button id="subscribe-button"
-                    label="&calendar.subscriptions.dialog.subscribe.button.label;"
-                    oncommand="onSubscribe();"/>
-            <button id="unsubscribe-button"
-                    label="&calendar.subscriptions.dialog.unsubscribe.button.label;"
-                    oncommand="onUnsubscribe();"/>
-          </vbox>
-        </row>
-      </rows>
-    </grid>
+    <hbox flex="1">
+      <vbox flex="1">
+        <label value="&calendar.subscriptions.dialog.search.label.value;"
+               crop="end"/>
+        <html:input id="search-input"
+                    class="input-inline"
+                    onkeypress="onInputKeyPress(event);"/>
+        <label class="calendar-subscriptions-select-label"
+               value="&calendar.subscriptions.dialog.select.label.value;"
+               crop="end"/>
+        <richlistbox id="subscriptions-listbox" flex="1"/>
+      </vbox>
+      <vbox>
+        <label value=""/>
+        <button label="&calendar.subscriptions.dialog.search.button.label;"
+                oncommand="onSearch();"/>
+        <label value="" class="calendar-subscriptions-select-label"/>
+        <vbox>
+          <button id="subscribe-button"
+                  label="&calendar.subscriptions.dialog.subscribe.button.label;"
+                  oncommand="onSubscribe();"/>
+          <button id="unsubscribe-button"
+                  label="&calendar.subscriptions.dialog.unsubscribe.button.label;"
+                  oncommand="onUnsubscribe();"/>
+        </vbox>
+      </vbox>
+    </hbox>
     <deck id="status-deck" selectedIndex="0">
       <hbox class="calendar-subscriptions-status-box" align="center">
         <image class="calendar-subscriptions-status-icon"/>
