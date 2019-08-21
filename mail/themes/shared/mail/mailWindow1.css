@@ -40,7 +40,7 @@ treechildren::-moz-tree-cell-text(unread) {
   font-weight: bold;
 }
 
-:root[lwt-tree-brighttext] treechildren::-moz-tree-cell-text(unread) {
+:root[lwt-tree-brighttext] treechildren::-moz-tree-cell-text(untagged, unread) {
   color: #fff !important;
 }
 
