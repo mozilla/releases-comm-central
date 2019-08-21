@@ -2229,7 +2229,7 @@ nsresult nsMsgComposeAndSend::HackAttachments(nsIArray *attachments,
         nsCString asciiSpec;
         m_attachments[i]->mURL->GetAsciiSpec(asciiSpec);
         attachmentFileName.AssignASCII(asciiSpec.get());
-        formatParams[0] = attachmentFileName;
+        formatParams.AppendElement(attachmentFileName);
       }
       mComposeBundle->FormatStringFromName("gatheringAttachment", formatParams,
                                            msg);

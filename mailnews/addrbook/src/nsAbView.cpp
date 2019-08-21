@@ -1250,8 +1250,8 @@ NS_IMETHODIMP nsAbView::SwapFirstNameLastName() {
             // Generate both ln/fn and fn/ln combination since we need both
             // later to check to see if the current display name was edited note
             // that fn/ln still hold the values before the swap
-            nameString[0] = ln;
-            nameString[1] = fn;
+            nameString.AppendElement(ln);
+            nameString.AppendElement(fn);
             rv = bundle->FormatStringFromName(formatString, nameString, dnLnFn);
             NS_ENSURE_SUCCESS(rv, rv);
             nameString[0] = fn;
