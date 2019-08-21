@@ -2085,7 +2085,7 @@ FolderDisplayWidget.prototype = {
     if (!this.view.dbView)
       return null;
 
-    let messageArray = this.view.dbView.getURIsForSelection({});
+    let messageArray = this.view.dbView.getURIsForSelection();
     return messageArray.length ? messageArray : null;
   },
 

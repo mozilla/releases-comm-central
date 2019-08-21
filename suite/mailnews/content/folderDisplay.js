@@ -66,7 +66,7 @@ var gFolderDisplay =
   {
     if (!gDBView)
       return null;
-    var messageArray = gDBView.getURIsForSelection({});
+    var messageArray = gDBView.getURIsForSelection();
     return messageArray.length ? messageArray : null;
   },
 

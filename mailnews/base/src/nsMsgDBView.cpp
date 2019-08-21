@@ -2376,15 +2376,10 @@ nsMsgDBView::GetSelectedMsgHdrs(uint32_t *aLength, nsIMsgDBHdr ***aResult) {
 }
 
 NS_IMETHODIMP
-nsMsgDBView::GetURIsForSelection(uint32_t *length, char ***uris) {
+nsMsgDBView::GetURIsForSelection(nsTArray<nsCString> &uris) {
   nsresult rv = NS_OK;
 
-  NS_ENSURE_ARG_POINTER(length);
-  *length = 0;
-
-  NS_ENSURE_ARG_POINTER(uris);
-  *uris = nullptr;
-
+  uris.Clear();
   nsMsgViewIndexArray selection;
   GetIndicesForSelection(selection);
   uint32_t numIndices = selection.Length();
@@ -2395,13 +2390,9 @@ nsMsgDBView::GetURIsForSelection(uint32_t *length, char ***uris) {
   NS_ENSURE_SUCCESS(rv, rv);
   rv = GetHeadersFromSelection(selection.Elements(), numIndices, messages);
   NS_ENSURE_SUCCESS(rv, rv);
-  messages->GetLength(length);
-  uint32_t numMsgsSelected = *length;
-
-  char **outArray, **next;
-  next = outArray = (char **)moz_xmalloc(numMsgsSelected * sizeof(char *));
-  if (!outArray) return NS_ERROR_OUT_OF_MEMORY;
-
+  uint32_t numMsgsSelected;
+  messages->GetLength(&numMsgsSelected);
+  uris.SetCapacity(numMsgsSelected);
   for (uint32_t i = 0; i < numMsgsSelected; i++) {
     nsCString tmpUri;
     nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryElementAt(messages, i, &rv);
@@ -2412,13 +2403,9 @@ nsMsgDBView::GetURIsForSelection(uint32_t *length, char ***uris) {
     msgHdr->GetFolder(getter_AddRefs(folder));
     rv = GenerateURIForMsgKey(msgKey, folder, tmpUri);
     NS_ENSURE_SUCCESS(rv, rv);
-    *next = ToNewCString(tmpUri);
-    if (!*next) return NS_ERROR_OUT_OF_MEMORY;
-
-    next++;
+    uris.AppendElement(tmpUri);
   }
 
-  *uris = outArray;
   return NS_OK;
 }
 

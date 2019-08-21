@@ -318,7 +318,7 @@ interface nsIMsgDBView : nsISupports
                           [retval, array, size_is(count)]
                           out nsIMsgDBHdr headers);
 
-  void getURIsForSelection(out unsigned long count, [retval, array, size_is(count)] out string uris);
+  Array<AUTF8String> getURIsForSelection();
   Array<nsMsgViewIndex> getIndicesForSelection();
 
   readonly attribute ACString URIForFirstSelectedMessage;
