@@ -782,12 +782,11 @@ var chatHandler = {
         this._showLogList(aLogs);
       });
 
-      let contextPaneBox = document.getElementById("contextPaneFlexibleBox");
+      document.querySelectorAll("#contextPaneFlexibleBox .conv-chat").forEach((e) => {
+        e.setAttribute("hidden", !item.conv.isChat);
+      });
       if (item.conv.isChat) {
-        contextPaneBox.setAttribute("hidden", "true");
         item.convView.showParticipants();
-      } else {
-        contextPaneBox.removeAttribute("hidden");
       }
 
       let button = document.getElementById("goToConversation");
@@ -810,7 +809,9 @@ var chatHandler = {
       this.showContactInfo(contact);
       this.observedContact = contact;
 
-      document.getElementById("contextPaneFlexibleBox").removeAttribute("hidden");
+      document.querySelectorAll("#contextPaneFlexibleBox .conv-chat").forEach((e) => {
+        e.setAttribute("hidden", "true");
+      });
 
       imServices.logs.getLogsForContact(contact, true).then(aLogs => {
         if (contactlistbox.selectedItem != item)
