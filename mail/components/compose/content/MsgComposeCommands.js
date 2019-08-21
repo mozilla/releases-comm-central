@@ -6722,7 +6722,15 @@ function InitEditor() {
       let originalMsgNeckoURI = {};
       msgSvc.GetUrlForUri(gOriginalMsgURI, originalMsgNeckoURI, null);
       if (src.startsWith(removeQueryPart(originalMsgNeckoURI.value.spec,
-                                         "type=application/x-message-display"))) {
+                                         "type=application/x-message-display"))
+          ||
+          // Special hack for saved messages.
+          (src.includes("?number=0&") &&
+           originalMsgNeckoURI.value.spec.startsWith("file://") &&
+           src.startsWith(
+             removeQueryPart(originalMsgNeckoURI.value.spec,
+                             "type=application/x-message-display")
+             .replace("file://", "mailbox://") + "number=0"))) {
         // Reply/Forward/Edit Draft/Edit as New can contain references to
         // images in the original message. Load those and make them data: URLs
         // now.
