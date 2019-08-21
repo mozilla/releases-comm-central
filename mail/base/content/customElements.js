@@ -13,6 +13,7 @@ const isDummyDocument = document.documentURI == "chrome://extensions/content/dum
 if (!isDummyDocument) {
   for (let script of [
     "chrome://chat/content/conversation-browser.js",
+    "chrome://chat/content/chat-tooltip.js",
     "chrome://messenger/content/mailWidgets.js",
     "chrome://messenger/content/generalBindings.js",
     "chrome://messenger/content/statuspanel.js",

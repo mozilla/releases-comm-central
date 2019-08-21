@@ -9,7 +9,7 @@ chat.jar:
 	content/chat/browserRequest.xul
 	content/chat/imAccountOptionsHelper.js
 	content/chat/chat-account-richlistitem.js
-*	content/chat/imtooltip.xml
+	content/chat/chat-tooltip.js
 	content/chat/conversation-browser.js
 	content/chat/conv.html
 	content/chat/otr-add-fingerprint.js
