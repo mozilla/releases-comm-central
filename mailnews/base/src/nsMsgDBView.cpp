@@ -851,7 +851,7 @@ nsresult nsMsgDBView::SaveAndClearSelection(nsMsgKey *aCurrentMsgKey,
 
   // Third, get an array of view indices for the selection.
   nsMsgViewIndexArray selection;
-  GetSelectedIndices(selection);
+  GetIndicesForSelection(selection);
   int32_t numIndices = selection.Length();
   aMsgKeyArray.SetLength(numIndices);
 
@@ -1091,7 +1091,7 @@ nsMsgDBView::SelectionChangedXPCOM() {
   uint32_t numSelected = 0;
 
   nsMsgViewIndexArray selection;
-  GetSelectedIndices(selection);
+  GetIndicesForSelection(selection);
   nsMsgViewIndex *indices = selection.Elements();
   numSelected = selection.Length();
 
@@ -1193,41 +1193,6 @@ nsMsgDBView::SelectionChangedXPCOM() {
   mGoForwardEnabled = enableGoForward;
   mGoBackEnabled = enableGoBack;
   mNumSelectedRows = numSelected;
-  return NS_OK;
-}
-
-nsresult nsMsgDBView::GetSelectedIndices(nsMsgViewIndexArray &selection) {
-  if (mTreeSelection) {
-    int32_t viewSize = GetSize();
-    int32_t count;
-    mTreeSelection->GetCount(&count);
-    selection.SetLength(count);
-    count = 0;
-    int32_t selectionCount;
-    mTreeSelection->GetRangeCount(&selectionCount);
-    for (int32_t i = 0; i < selectionCount; i++) {
-      int32_t startRange = -1;
-      int32_t endRange = -1;
-      mTreeSelection->GetRangeAt(i, &startRange, &endRange);
-      if (startRange >= 0 && startRange < viewSize) {
-        for (int32_t rangeIndex = startRange;
-             rangeIndex <= endRange && rangeIndex < viewSize; rangeIndex++) {
-          selection[count++] = rangeIndex;
-        }
-      }
-    }
-
-    NS_ASSERTION(selection.Length() == uint32_t(count),
-                 "selection count is wrong");
-    selection.SetLength(count);
-  } else {
-    // If there is no tree selection object then we must be in stand alone
-    // message mode. In that case the selected indices are really just the
-    // current message key.
-    nsMsgViewIndex viewIndex = FindViewIndex(m_currentlyDisplayedMsgKey);
-    if (viewIndex != nsMsgViewIndex_None) selection.AppendElement(viewIndex);
-  }
-
   return NS_OK;
 }
 
@@ -2336,25 +2301,39 @@ int CompareViewIndices(const void *v1, const void *v2, void *) {
   return i1 - i2;
 }
 
+// Array<nsMsgViewIndex> getIndicesForSelection();
 NS_IMETHODIMP
-nsMsgDBView::GetIndicesForSelection(uint32_t *length,
-                                    nsMsgViewIndex **indices) {
-  NS_ENSURE_ARG_POINTER(length);
-  *length = 0;
-  NS_ENSURE_ARG_POINTER(indices);
-  *indices = nullptr;
+nsMsgDBView::GetIndicesForSelection(nsTArray<nsMsgViewIndex> &indices) {
+  indices.Clear();
+  if (mTreeSelection) {
+    int32_t viewSize = GetSize();
+    int32_t count;
+    mTreeSelection->GetCount(&count);
+    indices.SetCapacity(count);
+    int32_t selectionCount;
+    mTreeSelection->GetRangeCount(&selectionCount);
+    for (int32_t i = 0; i < selectionCount; i++) {
+      int32_t startRange = -1;
+      int32_t endRange = -1;
+      mTreeSelection->GetRangeAt(i, &startRange, &endRange);
+      if (startRange >= 0 && startRange < viewSize) {
+        for (int32_t rangeIndex = startRange;
+             rangeIndex <= endRange && rangeIndex < viewSize; rangeIndex++) {
+          indices.AppendElement(rangeIndex);
+        }
+      }
+    }
 
-  nsMsgViewIndexArray selection;
-  GetSelectedIndices(selection);
-  uint32_t numIndices = selection.Length();
-  if (!numIndices) return NS_OK;
+    NS_ASSERTION(indices.Length() == uint32_t(count),
+                 "selection count is wrong");
+  } else {
+    // If there is no tree selection object then we must be in stand alone
+    // message mode. In that case the selected indices are really just the
+    // current message key.
+    nsMsgViewIndex viewIndex = FindViewIndex(m_currentlyDisplayedMsgKey);
+    if (viewIndex != nsMsgViewIndex_None) indices.AppendElement(viewIndex);
+  }
 
-  *length = numIndices;
-  uint32_t datalen = numIndices * sizeof(nsMsgViewIndex);
-  *indices = (nsMsgViewIndex *)moz_xmalloc(datalen);
-  if (!*indices) return NS_ERROR_OUT_OF_MEMORY;
-
-  memcpy(*indices, selection.Elements(), datalen);
   return NS_OK;
 }
 
@@ -2369,7 +2348,7 @@ nsMsgDBView::GetSelectedMsgHdrs(uint32_t *aLength, nsIMsgDBHdr ***aResult) {
   *aResult = nullptr;
 
   nsMsgViewIndexArray selection;
-  GetSelectedIndices(selection);
+  GetIndicesForSelection(selection);
   uint32_t numIndices = selection.Length();
   if (!numIndices) return NS_OK;
 
@@ -2407,7 +2386,7 @@ nsMsgDBView::GetURIsForSelection(uint32_t *length, char ***uris) {
   *uris = nullptr;
 
   nsMsgViewIndexArray selection;
-  GetSelectedIndices(selection);
+  GetIndicesForSelection(selection);
   uint32_t numIndices = selection.Length();
   if (!numIndices) return NS_OK;
 
@@ -2467,7 +2446,7 @@ nsMsgDBView::DoCommandWithFolder(nsMsgViewCommandTypeValue command,
 
   nsMsgViewIndexArray selection;
 
-  GetSelectedIndices(selection);
+  GetIndicesForSelection(selection);
 
   nsMsgViewIndex *indices = selection.Elements();
   int32_t numIndices = selection.Length();
@@ -2494,7 +2473,7 @@ NS_IMETHODIMP
 nsMsgDBView::DoCommand(nsMsgViewCommandTypeValue command) {
   nsMsgViewIndexArray selection;
 
-  GetSelectedIndices(selection);
+  GetIndicesForSelection(selection);
 
   nsMsgViewIndex *indices = selection.Elements();
   int32_t numIndices = selection.Length();
@@ -2612,7 +2591,7 @@ nsMsgDBView::GetCommandStatus(nsMsgViewCommandTypeValue command,
   bool haveSelection;
   int32_t rangeCount;
   nsMsgViewIndexArray selection;
-  GetSelectedIndices(selection);
+  GetIndicesForSelection(selection);
   int32_t numIndices = selection.Length();
   nsMsgViewIndex *indices = selection.Elements();
   // If range count is non-zero, we have at least one item selected, so we
@@ -6545,7 +6524,7 @@ nsresult nsMsgDBView::NavigateFromPos(nsMsgNavigationTypeValue motion,
     case nsMsgNavigationType::toggleThreadKilled: {
       bool resultKilled;
       nsMsgViewIndexArray selection;
-      GetSelectedIndices(selection);
+      GetIndicesForSelection(selection);
       ToggleIgnored(selection.Elements(), selection.Length(), &threadIndex,
                     &resultKilled);
       if (resultKilled) {
@@ -6561,7 +6540,7 @@ nsresult nsMsgDBView::NavigateFromPos(nsMsgNavigationTypeValue motion,
     case nsMsgNavigationType::toggleSubthreadKilled: {
       bool resultKilled;
       nsMsgViewIndexArray selection;
-      GetSelectedIndices(selection);
+      GetIndicesForSelection(selection);
       ToggleMessageKilled(selection.Elements(), selection.Length(),
                           &threadIndex, &resultKilled);
       if (resultKilled) {
@@ -7080,7 +7059,7 @@ nsMsgDBView::GetNumSelected(uint32_t *aNumSelected) {
 
   int32_t numSelectedIncludingCollapsed = *aNumSelected;
   nsMsgViewIndexArray selection;
-  GetSelectedIndices(selection);
+  GetIndicesForSelection(selection);
   int32_t numIndices = selection.Length();
   // Iterate over the selection, counting up the messages in collapsed
   // threads.

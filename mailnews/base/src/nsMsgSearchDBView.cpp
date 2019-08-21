@@ -739,7 +739,7 @@ NS_IMETHODIMP nsMsgSearchDBView::DoCommand(nsMsgViewCommandTypeValue command) {
 
   nsresult rv = NS_OK;
   nsMsgViewIndexArray selection;
-  GetSelectedIndices(selection);
+  GetIndicesForSelection(selection);
 
   nsMsgViewIndex *indices = selection.Elements();
   int32_t numIndices = selection.Length();

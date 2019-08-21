@@ -2050,7 +2050,7 @@ FolderDisplayWidget.prototype = {
     if (!this.view.dbView)
       return [];
 
-    return this.view.dbView.getIndicesForSelection({});
+    return this.view.dbView.getIndicesForSelection();
   },
 
   /**

@@ -182,7 +182,6 @@ class nsMsgDBView : public nsIMsgDBView,
   nsresult AdjustRowCount(int32_t rowCountBeforeSort,
                           int32_t rowCountAfterSort);
 
-  nsresult GetSelectedIndices(nsMsgViewIndexArray &selection);
   nsresult GenerateURIForMsgKey(nsMsgKey aMsgKey, nsIMsgFolder *folder,
                                 nsACString &aURI);
 

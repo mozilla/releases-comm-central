@@ -1319,7 +1319,7 @@ function GetSelectedMsgFolders()
 function GetSelectedIndices(dbView)
 {
   try {
-    return dbView.getIndicesForSelection({});
+    return dbView.getIndicesForSelection();
   }
   catch (ex) {
     dump("ex = " + ex + "\n");

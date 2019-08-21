@@ -319,7 +319,7 @@ interface nsIMsgDBView : nsISupports
                           out nsIMsgDBHdr headers);
 
   void getURIsForSelection(out unsigned long count, [retval, array, size_is(count)] out string uris);
-  void getIndicesForSelection(out unsigned long count, [retval, array, size_is(count)] out nsMsgViewIndex indices);
+  Array<nsMsgViewIndex> getIndicesForSelection();
 
   readonly attribute ACString URIForFirstSelectedMessage;
   readonly attribute nsIMsgDBHdr hdrForFirstSelectedMessage;

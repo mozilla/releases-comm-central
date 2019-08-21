@@ -54,7 +54,7 @@ var gFolderDisplay =
 
   get selectedIndices()
   {
-    return gDBView ? gDBView.getIndicesForSelection({}) : [];
+    return gDBView ? gDBView.getIndicesForSelection() : [];
   },
 
   get selectedMessages()
