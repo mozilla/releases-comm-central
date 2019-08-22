@@ -290,6 +290,7 @@ function onLoadPageInfo()
 {
   gBundle = document.getElementById("pageinfobundle");
   var strNames = ["unknown", "notSet", "mediaImg", "mediaBGImg",
+                  "mediaBorderImg", "mediaListImg", "mediaCursor",
                   "mediaObject", "mediaEmbed", "mediaLink", "mediaInput",
                   "mediaVideo", "mediaAudio",
                   "formTitle", "formUntitled", "formDefaultTarget",
@@ -623,13 +624,35 @@ function addImage(url, type, alt, elem, isBg)
 
 function grabAll(elem)
 {
-  // check for background images, any node may have multiple
+  // Check for images defined in CSS (e.g. background, borders),
+  // any node may have multiple.
   var computedStyle = elem.ownerDocument.defaultView.getComputedStyle(elem, "");
+
   if (computedStyle) {
-    Array.from(computedStyle.getPropertyCSSValue("background-image")).forEach(function (url) {
-      if (url.primitiveType == CSSPrimitiveValue.CSS_URI)
-        addImage(url.getStringValue(), gStrings.mediaBGImg, gStrings.notSet, elem, true);
-    });
+    var addImgFunc = function (label, val) {
+      if (val.primitiveType == CSSPrimitiveValue.CSS_URI) {
+        addImage(val.getStringValue(), label, gStrings.notSet, elem, true);
+      }
+      else if (val.primitiveType == CSSPrimitiveValue.CSS_STRING) {
+        // This is for -moz-image-rect.
+        // TODO: Reimplement once bug 714757 is fixed
+        var strVal = val.getStringValue();
+        if (strVal.search(/^.*url\(\"?/) > -1) {
+          url = strVal.replace(/^.*url\(\"?/,"").replace(/\"?\).*$/,"");
+          addImage(url, label, gStrings.notSet, elem, true);
+        }
+      }
+      else if (val.cssValueType == CSSValue.CSS_VALUE_LIST) {
+        // recursively resolve multiple nested CSS value lists
+        for (var i = 0; i < val.length; i++)
+          addImgFunc(label, val.item(i));
+      }
+    };
+
+    addImgFunc(gStrings.mediaBGImg, computedStyle.getPropertyCSSValue("background-image"));
+    addImgFunc(gStrings.mediaBorderImg, computedStyle.getPropertyCSSValue("border-image-source"));
+    addImgFunc(gStrings.mediaListImg, computedStyle.getPropertyCSSValue("list-style-image"));
+    addImgFunc(gStrings.mediaCursor, computedStyle.getPropertyCSSValue("cursor"));
   }
 
   // one swi^H^H^Hif-else to rule them all
@@ -990,31 +1013,23 @@ function onImageSelect()
 
 function makePreview(row)
 {
-  var [url, type, sizeText, alt, count, item, isBG, pageSize, persistent, cachedType] = gImageView.data[row];
+  var [url, type, sizeText, alt, count, item, isBG, imageSize, persistent, cachedType] = gImageView.data[row];
   var isAudio = false;
 
   setItemValue("imageurltext", url);
 
-  if (item.hasAttribute("title") &&
-      !(item instanceof SVGImageElement))
-    setItemValue("imagetitletext", item.title);
-  else
-    setItemValue("imagetitletext", null);
+  var imageText;
+  if (!isBG &&
+      !(item instanceof SVGImageElement) &&
+      !(gDocument instanceof ImageDocument)) {
+    imageText = item.title || item.alt;
 
-  if (item.hasAttribute("longDesc") &&
-      !(item instanceof SVGImageElement))
-    setItemValue("imagelongdesctext", item.longDesc);
-  else
-    setItemValue("imagelongdesctext", null);
+    if (!imageText && !(item instanceof HTMLImageElement))
+      imageText = getValueText(item);
+  }
+  setItemValue("imagetext", imageText);
 
-  if (item instanceof SVGImageElement)
-    setItemValue("imagealttext", null);
-  else if (item.hasAttribute("alt"))
-    setItemValue("imagealttext", item.alt);
-  else if (item instanceof HTMLImageElement || isBG)
-    setItemValue("imagealttext", null);
-  else
-    setItemValue("imagealttext", getValueText(item));
+  setItemValue("imagelongdesctext", item.longDesc);
 
   // get cache info
   var sourceText;
@@ -1032,37 +1047,39 @@ function makePreview(row)
   setItemValue("imagesourcetext", sourceText);
 
   // find out the file size
-  if (pageSize) {
-    var kbSize = Math.round(pageSize / 1024 * 100) / 100;
+  var sizeText;
+  if (imageSize && imageSize != -1) {
+    var kbSize = Math.round(imageSize / 1024 * 100) / 100;
     sizeText = gBundle.getFormattedString("generalSize",
                                           [formatNumber(kbSize),
-                                           formatNumber(pageSize)]);
+                                           formatNumber(imageSize)]);
   }
+  else
+    sizeText = gBundle.getString("mediaUnknownNotCached");
   setItemValue("imagesizetext", sizeText);
 
   var mimeType;
-  var typeString = "mediaImageType";
-  if (!isBG) {
-    if (item instanceof nsIImageLoadingContent) {
-      var imageRequest = item.getRequest(nsIImageLoadingContent.CURRENT_REQUEST);
-      if (imageRequest) {
-        mimeType = imageRequest.mimeType;
-        if (imageRequest.imageStatus & imageRequest.STATUS_DECODE_COMPLETE &&
-            imageRequest.image.animated)
-          typeString = "mediaAnimatedType";
-      }
+  var numFrames = 1;
+  if (item instanceof HTMLObjectElement ||
+      item instanceof HTMLEmbedElement ||
+      item instanceof HTMLLinkElement)
+    mimeType = item.type;
+
+  if (!mimeType && !isBG && item instanceof nsIImageLoadingContent) {
+    var imageRequest = item.getRequest(nsIImageLoadingContent.CURRENT_REQUEST);
+    if (imageRequest) {
+      mimeType = imageRequest.mimeType;
+      var image = imageRequest.image;
+      if (image)
+        numFrames = image.numFrames;
     }
-    if (!mimeType &&
-        (item instanceof HTMLObjectElement ||
-         item instanceof HTMLEmbedElement ||
-         item instanceof HTMLLinkElement))
-      mimeType = item.type;
   }
+
   if (!mimeType)
     mimeType = cachedType;
 
   // if we have a data url, get the MIME type from the url
-  if (!mimeType) {
+  if (!mimeType && url.startsWith("data:")) {
     var dataMimeType = /^data:(image\/.*?)[;,]/i.exec(url);
     if (dataMimeType)
       mimeType = dataMimeType[1].toLowerCase();
@@ -1071,10 +1088,14 @@ function makePreview(row)
   var imageType;
   if (mimeType) {
     // We found the type, try to display it nicely
-    let imageMimeType = /^image\/(.*)/.exec(mimeType);
+    let imageMimeType = /^image\/(.*)/i.exec(mimeType);
     if (imageMimeType) {
       imageType = imageMimeType[1].toUpperCase();
-      imageType = gBundle.getFormattedString(typeString, [imageType]);
+      if (numFrames > 1)
+        imageType = gBundle.getFormattedString("mediaAnimatedImageType",
+                                               [imageType, numFrames]);
+      else
+        imageType = gBundle.getFormattedString("mediaImageType", [imageType]);
     }
     else {
       // the MIME type doesn't begin with image/, display the raw type
@@ -1083,7 +1104,7 @@ function makePreview(row)
   }
   else {
     // We couldn't find the type, fall back to the value in the treeview
-    imageType = gImageView.data[row][COL_IMAGE_TYPE];
+    imageType = type;
   }
 
   setItemValue("imagetypetext", imageType);
@@ -1164,18 +1185,21 @@ function makePreview(row)
   }
 
   var imageSize = "";
-  if (url && !isAudio)
-    imageSize = gBundle.getFormattedString("mediaSize",
-                                           [formatNumber(width),
-                                            formatNumber(height)]);
-  setItemValue("imageSize", imageSize);
-
-  var physSize = "";
-  if (width != physWidth || height != physHeight)
-    physSize = gBundle.getFormattedString("mediaSize",
-                                          [formatNumber(physWidth),
-                                           formatNumber(physHeight)]);
-  setItemValue("physSize", physSize);
+  if (url && !isAudio) {
+    if (width != physWidth || height != physHeight) {
+      imageSize = gBundle.getFormattedString("mediaDimensionsScaled",
+                                             [formatNumber(physWidth),
+                                              formatNumber(physHeight),
+                                              formatNumber(width),
+                                              formatNumber(height)]);
+    }
+    else {
+      imageSize = gBundle.getFormattedString("mediaDimensions",
+                                             [formatNumber(width),
+                                              formatNumber(height)]);
+    }
+  }
+  setItemValue("imagedimensiontext", imageSize);
 
   makeBlockImage(url);
 
