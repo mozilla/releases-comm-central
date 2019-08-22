@@ -928,7 +928,7 @@ FolderDisplayWidget.prototype = {
     this._notifyWhenActive(this._activeCreatedView);
   },
   _activeCreatedView() {
-    gDBView = this.view.dbView;
+    gDBView = this.view.dbView; // eslint-disable-line no-global-assign
 
     // A change in view may result in changes to sorts, the view menu, etc.
     // Do this before we 'reroot' the dbview.
@@ -970,7 +970,7 @@ FolderDisplayWidget.prototype = {
       } catch (ex) {
         logException(ex);
       }
-      gDBView = null;
+      gDBView = null; // eslint-disable-line no-global-assign
     }
 
     FolderDisplayListenerManager._fireListeners("onDestroyingView",
@@ -1592,10 +1592,10 @@ FolderDisplayWidget.prototype = {
 
     // -- globals
     // update per-tab globals that we own
-    gFolderDisplay = this;
+    gFolderDisplay = this; // eslint-disable-line no-global-assign
     gMessageDisplay = this.messageDisplay;
-    gDBView = this.view.dbView;
-    messenger = this.messenger;
+    gDBView = this.view.dbView; // eslint-disable-line no-global-assign
+    messenger = this.messenger; // eslint-disable-line no-global-assign
 
     // update singleton globals' state
     msgWindow.openFolder = this.view.displayedFolder;

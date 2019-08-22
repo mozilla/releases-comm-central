@@ -53,34 +53,29 @@ function makeNSIURI(uriStr) {
  */
 function readURLasUTF8(uri) {
   assert(uri instanceof Ci.nsIURI, "uri must be an nsIURI");
+  let chan = Services.io.newChannelFromURI(uri,
+                                           null,
+                                           Services.scriptSecurityManager.getSystemPrincipal(),
+                                           null,
+                                           Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                           Ci.nsIContentPolicy.TYPE_OTHER);
+  let is = Cc["@mozilla.org/intl/converter-input-stream;1"]
+           .createInstance(Ci.nsIConverterInputStream);
+  is.init(chan.open(), "UTF-8", 1024,
+          Ci.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
+
+  let content = "";
+  let strOut = {};
   try {
-    let chan = Services.io.newChannelFromURI(uri,
-                                             null,
-                                             Services.scriptSecurityManager.getSystemPrincipal(),
-                                             null,
-                                             Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                             Ci.nsIContentPolicy.TYPE_OTHER);
-    let is = Cc["@mozilla.org/intl/converter-input-stream;1"]
-             .createInstance(Ci.nsIConverterInputStream);
-    is.init(chan.open(), "UTF-8", 1024,
-            Ci.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
-
-    let content = "";
-    let strOut = {};
-    try {
-      while (is.readString(1024, strOut) != 0)
-        content += strOut.value;
-    // catch in outer try/catch
-    } finally {
-      is.close();
-    }
-
-    return content;
-  } catch (e) {
-    // TODO this has a numeric error message. We need to ship translations
-    // into human language.
-    throw e;
+    while (is.readString(1024, strOut) != 0)
+      content += strOut.value;
+  } finally {
+    is.close();
   }
+
+  return content;
+  // TODO this has a numeric error message. We need to ship translations
+  // into human language.
 }
 
 /**

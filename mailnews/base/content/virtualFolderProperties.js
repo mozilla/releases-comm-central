@@ -32,7 +32,7 @@ function onLoad() {
   gMessengerBundle = document.getElementById("bundle_messenger");
 
   // call this when OK is pressed
-  msgWindow = windowArgs.msgWindow;
+  msgWindow = windowArgs.msgWindow; // eslint-disable-line no-global-assign
 
   initializeSearchWidgets();
 

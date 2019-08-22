@@ -167,50 +167,30 @@ var gAutoSyncListener = {
   _waitingForDiscovery: false,
 
   onStateChanged(running) {
-    try {
-      this._runnning = running;
-    } catch (e) {
-      throw (e);
-    }
+    this._runnning = running;
   },
 
   onFolderAddedIntoQ(queue, folder) {
-    try {
-      dump("folder added into Q " + this.qName(queue) + " " + folder.URI + "\n");
-    } catch (e) {
-      throw (e);
-    }
+    dump("folder added into Q " + this.qName(queue) + " " + folder.URI + "\n");
   },
   onFolderRemovedFromQ(queue, folder) {
-    try {
-      dump("folder removed from Q " + this.qName(queue) + " " + folder.URI + "\n");
-    } catch (e) {
-      throw (e);
-    }
+    dump("folder removed from Q " + this.qName(queue) + " " + folder.URI + "\n");
   },
   onDownloadStarted(folder, numOfMessages, totalPending) {
-    try {
-      dump("folder download started" + folder.URI + "\n");
-    } catch (e) {
-      throw (e);
-    }
+    dump("folder download started" + folder.URI + "\n");
   },
 
   onDownloadCompleted(folder) {
-    try {
-      dump("folder download completed" + folder.URI + "\n");
-      if (folder instanceof Ci.nsIMsgFolder) {
-        let index = mailTestUtils.non_strict_index_of(this._waitingForUpdateList, folder);
-        if (index != -1)
-          this._waitingForUpdateList.splice(index, 1);
-        if (this._waitingForUpdate && this._waitingForUpdateList.length == 0) {
-          dump("got last folder update looking for\n");
-          this._waitingForUpdate = false;
-          async_driver();
-        }
+    dump("folder download completed" + folder.URI + "\n");
+    if (folder instanceof Ci.nsIMsgFolder) {
+      let index = mailTestUtils.non_strict_index_of(this._waitingForUpdateList, folder);
+      if (index != -1)
+        this._waitingForUpdateList.splice(index, 1);
+      if (this._waitingForUpdate && this._waitingForUpdateList.length == 0) {
+        dump("got last folder update looking for\n");
+        this._waitingForUpdate = false;
+        async_driver();
       }
-    } catch (e) {
-      throw (e);
     }
   },
 

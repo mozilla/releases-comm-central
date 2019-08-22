@@ -58,7 +58,7 @@ function OnMailWindowUnload() {
 
   msgWindow.msgHeaderSink = null;
   msgWindow.notificationCallbacks = null;
-  gDBView = null;
+  gDBView = null; // eslint-disable-line no-global-assign
   window.MsgStatusFeedback.unload();
   Cc["@mozilla.org/activity-manager;1"]
     .getService(Ci.nsIActivityManager)
@@ -158,6 +158,7 @@ function onCopyOrDragStart(e) {
 
 function CreateMailWindowGlobals() {
   // get the messenger instance
+  // eslint-disable-next-line no-global-assign
   messenger = Cc["@mozilla.org/messenger;1"]
                 .createInstance(Ci.nsIMessenger);
 
@@ -185,6 +186,7 @@ function CreateMailWindowGlobals() {
     .addListener(window.MsgStatusFeedback);
 
   // Create message window object
+  // eslint-disable-next-line no-global-assign
   msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
                 .createInstance(Ci.nsIMsgWindow);
 

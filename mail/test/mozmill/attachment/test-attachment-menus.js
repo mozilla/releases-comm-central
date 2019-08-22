@@ -311,8 +311,6 @@ function check_toolbar_menu_states_single(expected) {
       assert_enabled("button-saveAttachment", expected.save);
       assert_enabled("button-detachAttachment", expected.detach);
       assert_enabled("button-deleteAttachment", expected.delete_);
-    } catch (e) {
-      throw e;
     } finally {
       close_popup(mc, mc.eid("attachmentSaveAllSingleMenu"));
     }
@@ -341,8 +339,6 @@ function check_toolbar_menu_states_multiple(expected) {
       assert_enabled("button-saveAllAttachments", expected.save);
       assert_enabled("button-detachAllAttachments", expected.detach);
       assert_enabled("button-deleteAllAttachments", expected.delete_);
-    } catch (e) {
-      throw e;
     } finally {
       close_popup(mc, mc.eid("attachmentSaveAllMultipleMenu"));
     }
@@ -374,8 +370,6 @@ function check_menu_states_single(index, expected) {
     assert_enabled("context-saveAttachment", expected.save);
     assert_enabled("context-detachAttachment", expected.detach);
     assert_enabled("context-deleteAttachment", expected.delete_);
-  } catch (e) {
-    throw e;
   } finally {
     menu.close();
   }
@@ -404,8 +398,6 @@ function check_menu_states_all(expected) {
     assert_enabled("context-saveAllAttachments", expected.save);
     assert_enabled("context-detachAllAttachments", expected.detach);
     assert_enabled("context-deleteAllAttachments", expected.delete_);
-  } catch (e) {
-    throw e;
   } finally {
     close_popup(mc, mc.eid("attachmentListContext"));
   }

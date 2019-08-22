@@ -261,7 +261,6 @@ function OnLoadEditList() {
   }
 
   if (AppConstants.MOZ_APP_NAME == "seamonkey") {
-    /* global awDocumentKeyPress */
     document.addEventListener("keypress", awDocumentKeyPress, true);
   }
 

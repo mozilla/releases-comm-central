@@ -11,7 +11,7 @@ var common_onLoad = onLoad;
 var common_onAcceptDialog = onAcceptDialog;
 
 onLoad = function() {
-    gCalendar = window.arguments[0].calendar;
+    gCalendar = window.arguments[0].calendar; // eslint-disable-line no-global-assign
     ltnInitMailIdentitiesRow();
     ltnNotifyOnIdentitySelection();
     common_onLoad();

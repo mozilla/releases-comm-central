@@ -13,7 +13,7 @@ var gIncomingServer;
 var gServerType;
 var gImapIncomingServer;
 var gPref = null;
-var gLockedPref = null;
+var gLockedPref = {};
 var gOfflineMap = null; // map of folder URLs to offline flags
 var gOfflineFolders;    // initial state of allFoldersOffline checkbox
 var gToggleOccurred = false;
@@ -273,9 +273,6 @@ function onSave() {
 // Also saves the id/locked state in an array so that other areas of the code can avoid
 // stomping on the disabled state indiscriminately.
 function disableIfLocked(prefstrArray) {
-  if (!gLockedPref)
-    gLockedPref = [];
-
   for (let i = 0; i < prefstrArray.length; i++) {
     var id = prefstrArray[i].id;
     var element = document.getElementById(id);

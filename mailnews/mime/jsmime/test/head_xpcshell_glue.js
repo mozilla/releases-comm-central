@@ -77,6 +77,7 @@ function innerDefine(moduleName, dfn) {
   requireCache.set(moduleName, result);
 }
 
+/* exported define */
 var define = innerDefine.bind(this, "xpcshell-test");
 
 // Mocha TDD UI Bindings
@@ -139,6 +140,7 @@ function runFunction(fn) {
   return completed;
 }
 
+/* exported suite, test, setup, teardown, run_test */
 var currentSuite = new MochaSuite("");
 function suite(name, tests) {
   name = name.toString();

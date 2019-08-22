@@ -6,7 +6,7 @@
 /* import-globals-from ../../../../../toolkit/content/globalOverlay.js */
 
 // This file is loaded in messenger.xul.
-/* globals fixIterator, MailToolboxCustomizeDone, Notifications, openIMAccountMgr,
+/* globals fixIterator, MailToolboxCustomizeDone, openIMAccountMgr,
    PROTO_TREE_VIEW, Services, Status, statusSelector, ZoomManager */
 
 var {Notifications} = ChromeUtils.import("resource:///modules/chatNotifications.jsm");

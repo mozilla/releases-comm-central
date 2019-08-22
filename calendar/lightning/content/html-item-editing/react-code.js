@@ -4,7 +4,7 @@
 
 // This file contains code that uses react.js
 
-/* exported gTopComponent, DatePicker, TopComponent */
+/* exported gTopComponent, DatePicker, ReactDOM, TopComponent */
 
 /* import-globals-from ../lightning-item-iframe.js */
 /* globals React, ReactDOM */

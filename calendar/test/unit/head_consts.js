@@ -10,9 +10,8 @@
 var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
-var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-var { getAppInfo, newAppInfo, updateAppInfo } = ChromeUtils.import("resource://testing-common/AppInfo.jsm");
+var { updateAppInfo } = ChromeUtils.import("resource://testing-common/AppInfo.jsm");
 
 ChromeUtils.defineModuleGetter(this, "NetUtil", "resource://gre/modules/NetUtil.jsm");
 

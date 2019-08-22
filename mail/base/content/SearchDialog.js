@@ -223,6 +223,7 @@ function searchOnLoad() {
   TagUtils.loadTagsIntoCSS(document);
   initializeSearchWidgets();
   initializeSearchWindowWidgets();
+  // eslint-disable-next-line no-global-assign
   messenger = Cc["@mozilla.org/messenger;1"]
                 .createInstance(Ci.nsIMessenger);
 
@@ -276,6 +277,7 @@ function initializeSearchWindowWidgets() {
   gSearchStopButton = document.getElementById("search-button");
   hideMatchAllItem();
 
+  // eslint-disable-next-line no-global-assign
   msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
                 .createInstance(Ci.nsIMsgWindow);
   msgWindow.domWindow = window;

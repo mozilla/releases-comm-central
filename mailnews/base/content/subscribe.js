@@ -145,6 +145,7 @@ function SubscribeOnLoad() {
 
   gSubscribeDeck = document.getElementById("subscribedeck");
 
+  // eslint-disable-next-line no-global-assign
   msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
                 .createInstance(Ci.nsIMsgWindow);
   msgWindow.domWindow = window;

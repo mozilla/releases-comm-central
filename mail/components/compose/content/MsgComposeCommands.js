@@ -137,6 +137,7 @@ function InitializeGlobalVariables() {
   gAttachVCardOptionChanged = false;
   gAttachmentsSize = 0;
   gNumUploadingAttachments = 0;
+  // eslint-disable-next-line no-global-assign
   msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
                 .createInstance(Ci.nsIMsgWindow);
   MailServices.mailSession.AddMsgWindow(msgWindow);
@@ -152,6 +153,7 @@ function ReleaseGlobalVariables() {
   gDisableAttachmentReminder = false;
   _gComposeBundle = null;
   MailServices.mailSession.RemoveMsgWindow(msgWindow);
+  // eslint-disable-next-line no-global-assign
   msgWindow = null;
 }
 

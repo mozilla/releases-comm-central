@@ -8,7 +8,7 @@
 var ltn_onChangeIdentity = onChangeIdentity;
 
 onLoad = function() {
-    gCalendar = window.arguments[0].calendar;
+    gCalendar = window.arguments[0].calendar; // eslint-disable-line no-global-assign
     ltnInitMailIdentitiesRow();
     caldavInitForceEmailScheduling();
     common_onLoad();
