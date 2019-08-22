@@ -304,15 +304,8 @@ function onLoadPageInfo()
              window.arguments.length >= 1 &&
              window.arguments[0];
 
-  if (args && args.doc) {
-    gDocument = args.doc;
-    gWindow = gDocument.defaultView;
-  }
-  else {
-    if ("gBrowser" in window.opener)
-      gWindow = window.opener.gBrowser.contentWindow;
-    else
-      gWindow = window.opener.frames[0];
+  if (!args || !args.doc) {
+    gWindow = window.opener.gBrowser.selectedBrowser.contentWindowAsCPOW;
     gDocument = gWindow.document;
   }
 
@@ -328,17 +321,8 @@ function onLoadPageInfo()
   initView("linktree", gLinkView);
   initPermission();
 
-  // set gImageElement if present
-  if ("arguments" in window && window.arguments.length >= 1 &&
-      window.arguments[0].imageElement)
-    gImageElement = window.arguments[0].imageElement;
-
-  // build the content
-  loadPageInfo();
-
   /* Select the requested tab, if the name is specified */
-  var initialTab = (args && args.initialTab) || "generalTab";
-  showTab(initialTab);
+  loadTab(args);
   Services.obs.notifyObservers(window, "page-info-dialog-loaded");
 }
 
@@ -387,16 +371,9 @@ function resetPageInfo(args)
   /* Call registered overlay reset functions */
   onResetRegistry.forEach(function(func) { func(); });
 
-  if (args && args.doc) {
-    gDocument = args.doc;
-    gWindow = gDocument.defaultView;
-  }
-
   /* Rebuild the data */
-  loadPageInfo();
+  loadTab(args);
 
-  if (args && args.initialTab)
-    showTab(args.initialTab);
   Services.obs.notifyObservers(window, "page-info-dialog-reset");
 }
 
@@ -436,6 +413,24 @@ function showTab(id)
                     document.getElementById("generalTab");
   tabbox.selectedTab = selectedTab;
   selectedTab.focus();
+}
+
+function loadTab(args)
+{
+  if (args && args.doc) {
+    gDocument = args.doc;
+    gWindow = gDocument.defaultView;
+  }
+
+  // set gImageElement if present
+  gImageElement = args && args.imageElement;
+
+  /* Load the page info */
+  loadPageInfo();
+
+  /* Select the requested tab, if the name is specified */
+  var initialTab = (args && args.initialTab) || "generalTab";
+  showTab(initialTab);
 }
 
 function onClickMore()
