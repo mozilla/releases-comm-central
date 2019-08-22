@@ -296,10 +296,8 @@ void nsMsgAttachmentHandler::AnalyzeSnarfedFile(void) {
   }
 }
 
-//
 // Given a content-type and some info about the contents of the document,
 // decide what encoding it should have.
-//
 nsresult nsMsgAttachmentHandler::PickEncoding(const char *charset,
                                               nsIMsgSend *mime_delivery_state) {
   nsCOMPtr<nsIPrefBranch> pPrefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID));
@@ -425,27 +423,25 @@ nsresult nsMsgAttachmentHandler::PickEncoding(const char *charset,
     m_encoder = nullptr;
   }
 
-  /*
-    Do some cleanup for documents with unknown content type.
-    There are two issues: how they look to MIME users, and how they look to
-    non-MIME users.
+  // Do some cleanup for documents with unknown content type.
+  // There are two issues: how they look to MIME users, and how they look to
+  // non-MIME users.
 
-    If the user attaches a "README" file, which has unknown type because it
-    has no extension, we still need to send it with no encoding, so that it
-    is readable to non-MIME users.
+  // If the user attaches a "README" file, which has unknown type because it
+  // has no extension, we still need to send it with no encoding, so that it
+  // is readable to non-MIME users.
 
-    But if the user attaches some random binary file, then base64 encoding
-    will have been chosen for it (above), and in this case, it won't be
-    immediately readable by non-MIME users.  However, if we type it as
-    text/plain instead of application/octet-stream, it will show up inline
-    in a MIME viewer, which will probably be ugly, and may possibly have
-    bad charset things happen as well.
+  // But if the user attaches some random binary file, then base64 encoding
+  // will have been chosen for it (above), and in this case, it won't be
+  // immediately readable by non-MIME users.  However, if we type it as
+  // text/plain instead of application/octet-stream, it will show up inline
+  // in a MIME viewer, which will probably be ugly, and may possibly have
+  // bad charset things happen as well.
 
-    So, the heuristic we use is, if the type is unknown, then the type is
-    set to application/octet-stream for data which needs base64 (binary data)
-    and is set to text/plain for data which didn't need base64 (unencoded or
-    lightly encoded data.)
-  */
+  // So, the heuristic we use is, if the type is unknown, then the type is
+  // set to application/octet-stream for data which needs base64 (binary data)
+  // and is set to text/plain for data which didn't need base64 (unencoded or
+  // lightly encoded data.)
 DONE:
   if (m_type.IsEmpty() || m_type.LowerCaseEqualsLiteral(UNKNOWN_CONTENT_TYPE)) {
     if (m_already_encoded_p)
@@ -682,12 +678,10 @@ nsresult nsMsgAttachmentHandler::SnarfAttachment(nsMsgCompFields *compFields) {
   }
 #endif /* XP_MACOSX */
 
-  //
-  // Ok, here we are, we need to fire the URL off and get the data
-  // in the temp file
-  //
-  // Create a fetcher for the URL attachment...
+  // OK, here we are, we need to fire the URL off and get the data
+  // in the temp file.
 
+  // Create a fetcher for the URL attachment...
   nsCOMPtr<nsIURLFetcher> fetcher =
       do_CreateInstance(NS_URLFETCHER_CONTRACTID, &rv);
   if (NS_FAILED(rv) || !fetcher) {
@@ -796,13 +790,11 @@ nsresult nsMsgAttachmentHandler::ConvertToAppleEncoding(
       return NS_ERROR_OUT_OF_MEMORY;
     }
 
-    //
     // RICHIE_MAC - ok, here's the deal, we have a file that we need
     // to encode in appledouble encoding for the resource fork and put that
     // into the mEncodedWorkingFile location. Then, we need to patch the new
     // file spec into the array and send this as part of the 2 part
     // appledouble/mime encoded mime part.
-    //
     AppleDoubleEncodeObject *obj = new (AppleDoubleEncodeObject);
     if (obj == NULL) {
       mEncodedWorkingFile = nullptr;
@@ -827,9 +819,7 @@ nsresult nsMsgAttachmentHandler::ConvertToAppleEncoding(
     obj->buff = working_buff;
     obj->s_buff = AD_WORKING_BUFF_SIZE;
 
-    //
     //  Setup all the need information on the apple double encoder.
-    //
     ap_encode_init(&(obj->ap_encode_obj), aFilePath.get(), separator);
 
     int32_t count;
@@ -840,10 +830,8 @@ nsresult nsMsgAttachmentHandler::ConvertToAppleEncoding(
       status =
           ap_encode_next(&(obj->ap_encode_obj), obj->buff, obj->s_buff, &count);
       if (status == noErr || status == errDone) {
-        //
         // we got the encode data, so call the next stream to write it to the
         // disk.
-        //
         uint32_t bytesWritten;
         obj->fileStream->Write(obj->buff, count, &bytesWritten);
         if (bytesWritten != (uint32_t)count) status = errFileWrite;
@@ -854,7 +842,7 @@ nsresult nsMsgAttachmentHandler::ConvertToAppleEncoding(
                   (status >= 0));  // if this is true, ok, false abort
     if (obj->fileStream) obj->fileStream->Close();
 
-    PR_FREEIF(obj->buff); /* free the working buff.   */
+    PR_FREEIF(obj->buff);  // free the working buff.
     PR_FREEIF(obj);
 
     nsCOMPtr<nsIURI> fileURI;
@@ -982,7 +970,6 @@ nsresult nsMsgAttachmentHandler::UrlExit(nsresult status,
   // for this part by sniffing the HTML file.
   // This is needed only when the charset is not set already.
   // (e.g. a charset may be specified in HTTP header)
-  //
   if (!m_type.IsEmpty() && m_charset.IsEmpty() &&
       m_type.LowerCaseEqualsLiteral(TEXT_HTML))
     m_charset = nsMsgI18NParseMetaCharset(mTmpFile);
@@ -999,7 +986,6 @@ nsresult nsMsgAttachmentHandler::UrlExit(nsresult status,
       NS_SUCCEEDED(mimeDeliveryStatus)) {
     // At this point, we should probably ask a question to the user
     // if we should continue without this attachment.
-    //
     bool keepOnGoing = true;
     nsCString turl;
     nsString msg;
@@ -1060,18 +1046,14 @@ nsresult nsMsgAttachmentHandler::UrlExit(nsresult status,
 
   m_done = true;
 
-  //
   // Ok, now that we have the file here on disk, we need to see if there was
   // a need to do conversion to plain text...if so, the magic happens here,
   // otherwise, just move on to other attachments...
-  //
   if (NS_SUCCEEDED(status) && !m_type.LowerCaseEqualsLiteral(TEXT_PLAIN) &&
       m_desiredType.LowerCaseEqualsLiteral(TEXT_PLAIN)) {
-    //
     // Conversion to plain text desired.
     // Now use the converter service here to do the right
     // thing and convert this data to plain text for us!
-    //
     nsAutoString conData;
 
     if (NS_SUCCEEDED(LoadDataFromFile(mTmpFile, conData, true))) {
@@ -1125,9 +1107,8 @@ nsresult nsMsgAttachmentHandler::UrlExit(nsresult status,
   m_mime_delivery_state->GetProcessAttachmentsSynchronously(
       &processAttachmentsSynchronously);
   if (NS_SUCCEEDED(status) && processAttachmentsSynchronously) {
-    /* Find the next attachment which has not yet been loaded,
-     if any, and start it going.
-     */
+    // Find the next attachment which has not yet been loaded,
+    // if any, and start it going.
     uint32_t i;
     nsMsgAttachmentHandler *next = 0;
     nsTArray<RefPtr<nsMsgAttachmentHandler>> *attachments;
@@ -1137,12 +1118,10 @@ nsresult nsMsgAttachmentHandler::UrlExit(nsresult status,
     for (i = 0; i < attachments->Length(); i++) {
       if (!(*attachments)[i]->m_done) {
         next = (*attachments)[i];
-        //
         // rhp: We need to get a little more understanding to failed URL
         // requests. So, at this point if most of next is NULL, then we
         // should just mark it fetched and move on! We probably ignored
         // this earlier on in the send process.
-        //
         if ((!next->mURL) && (next->m_uri.IsEmpty())) {
           (*attachments)[i]->m_done = true;
           (*attachments)[i]->SetMimeDeliveryState(nullptr);

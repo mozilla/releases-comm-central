@@ -118,9 +118,8 @@ NS_IMETHODIMP nsMsgAttachment::GetContentType(char **aContentType) {
 
 NS_IMETHODIMP nsMsgAttachment::SetContentType(const char *aContentType) {
   mContentType = aContentType;
-  /* a full content type could also contains parameters but we need to
-     keep only the content type alone. Therefore we need to cleanup it.
-  */
+  // a full content type could also contains parameters but we need to
+  // keep only the content type alone. Therefore we need to cleanup it.
   int32_t offset = mContentType.FindChar(';');
   if (offset >= 0) mContentType.SetLength(offset);
 
