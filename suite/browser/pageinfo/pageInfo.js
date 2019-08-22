@@ -174,10 +174,12 @@ var gLinkView = new pageInfoTreeView("linktree", COPYCOL_LINK_ADDRESS);
 var gImageView = new pageInfoTreeView("imagetree", COPYCOL_IMAGE);
 
 gImageView.getCellProperties = function(row, col) {
+  var data = gImageView.data[row];
+  var item = gImageView.data[row][COL_IMAGE_NODE];
   var properties = col.id == "image-address" ? "ltr" : "";
-
-  if (gImageView.data[row][COL_IMAGE_SIZE] == gStrings.unknown &&
-      !/^https:/.test(gImageView.data[row][COL_IMAGE_ADDRESS]))
+  if (!checkProtocol(data) ||
+      item instanceof HTMLEmbedElement ||
+      (item instanceof HTMLObjectElement && !item.type.startsWith("image/")))
     properties += " broken";
 
   return properties;
@@ -1107,11 +1109,8 @@ function makePreview(row)
   var imageContainer = document.getElementById("theimagecontainer");
   var oldImage = document.getElementById("thepreviewimage");
 
-  const regex = /^(https?|ftp|file|about|chrome|resource):/;
-  var isProtocolAllowed = regex.test(url);
-  var isImageType = /^image\//.test(mimeType);
-  if (/^data:/.test(url) && isImageType)
-    isProtocolAllowed = true;
+  var isProtocolAllowed = checkProtocol(gImageView.data[row]);
+  var isImageType = mimeType && mimeType.startsWith("image/");
 
   var newImage = new Image;
   newImage.id = "thepreviewimage";
@@ -1176,7 +1175,7 @@ function makePreview(row)
     document.getElementById("brokenimagecontainer").collapsed = true;
   }
   else {
-    // fallback image for protocols not allowed (e.g., data: or javascript:)
+    // fallback image for protocols not allowed (e.g., javascript:)
     // or elements not [yet] handled (e.g., object, embed).
     document.getElementById("brokenimagecontainer").collapsed = false;
     document.getElementById("theimagecontainer").collapsed = true;
@@ -1408,6 +1407,13 @@ function selectImage() {
       return;
     }
   }
+}
+
+function checkProtocol(img)
+{
+  var url = img[COL_IMAGE_ADDRESS];
+  return /^data:image\//i.test(url) ||
+    /^(https?|ftp|file|about|chrome|resource):/.test(url);
 }
 
 function onOpenIn(mode)
