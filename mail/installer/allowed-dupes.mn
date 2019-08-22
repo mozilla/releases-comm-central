@@ -62,6 +62,8 @@ extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/linux/cal
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/windows/calendar-event-dialog.css
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/linux/calendar-invitations-dialog.css
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/windows/calendar-invitations-dialog.css
+extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/osx/calendar-subscriptions-dialog.css
+extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/windows/calendar-subscriptions-dialog.css
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/linux/calendar-daypicker.css
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/windows/calendar-daypicker.css
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/linux/calendar-alarm-dialog.css
@@ -93,6 +95,8 @@ distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/s
 distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/windows/calendar-event-dialog.css
 distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/linux/calendar-invitations-dialog.css
 distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/windows/calendar-invitations-dialog.css
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/osx/calendar-subscriptions-dialog.css
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/windows/calendar-subscriptions-dialog.css
 distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/linux/calendar-daypicker.css
 distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/windows/calendar-daypicker.css
 distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/linux/calendar-alarm-dialog.css
