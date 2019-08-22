@@ -479,16 +479,26 @@ function makeGeneralTab()
   var metaNodes = gDocument.getElementsByTagName("meta");
   var length = metaNodes.length;
 
-  var metaTagsCaption = document.getElementById("metaTagsCaption");
-  if (length == 1)
-    metaTagsCaption.label = gBundle.getString("generalMetaTag");
-  else
-    metaTagsCaption.label = gBundle.getFormattedString("generalMetaTags", [length]);
-  var metaTree = document.getElementById("metatree");
-  metaTree.view = gMetaView;
+  var metaGroup = document.getElementById("metaTags");
+  if (!length) {
+    metaGroup.collapsed = true;
+  }
+  else {
+    var metaTagsCaption = document.getElementById("metaTagsCaption");
+    if (length == 1)
+      metaTagsCaption.label = gBundle.getString("generalMetaTag");
+    else
+      metaTagsCaption.label = gBundle.getFormattedString("generalMetaTags", [length]);
+    var metaTree = document.getElementById("metatree");
+    metaTree.view = gMetaView;
 
-  for (var i = 0; i < length; i++)
-    gMetaView.addRow([metaNodes[i].name || metaNodes[i].httpEquiv, metaNodes[i].content]);
+    for (var i = 0; i < length; i++)
+      gMetaView.addRow([metaNodes[i].name || metaNodes[i].httpEquiv ||
+                        metaNodes[i].getAttribute("property"),
+                        metaNodes[i].content]);
+
+    metaGroup.collapsed = false;
+  }
 
   // get the date of last modification
   var modifiedText = formatDate(gDocument.lastModified, gStrings.notSet);
