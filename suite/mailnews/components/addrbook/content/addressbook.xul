@@ -499,7 +499,7 @@
       <button id="navigator-throbber"
               oncommand="goClickThrobber('addressbook.throbber.url', event)"
               onclick="checkForMiddleClick(this, event);"
-              tooltiptext="&throbber.tooltip;"/>
+              tooltiptext="&throbber.tooltip2;"/>
     </toolbaritem>
   </toolbar>
   <toolbarpalette id="AbToolbarPalette"/>

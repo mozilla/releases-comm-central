@@ -413,7 +413,7 @@
         <button id="navigator-throbber"
                 oncommand="goClickThrobber('browser.throbber.url', event)"
                 onclick="checkForMiddleClick(this, event);"
-                tooltiptext="&throbber.tooltip;"/>
+                tooltiptext="&throbber.tooltip2;"/>
       </toolbaritem>
 
       <!-- "Bookmarks" button on Bookmarks Toolbar -->

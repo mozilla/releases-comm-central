@@ -92,7 +92,7 @@
 <!ENTITY newmsgButton.tooltip                           "Send a mail message">
 <!ENTITY newIM.tooltip                                  "Send an instant message or chat">
 <!ENTITY deleteItemButton.tooltip                       "Delete selected item">
-<!ENTITY throbber.tooltip                               "Go to the &vendorShortName; home page">
+<!ENTITY throbber.tooltip2                              "Go to the &brandShortName; home page">
 <!ENTITY advancedButton.tooltip                         "Advanced address search">
 
 <!-- Dir Tree header -->

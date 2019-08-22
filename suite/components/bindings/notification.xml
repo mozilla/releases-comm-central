@@ -1195,7 +1195,7 @@
             var buttonLabel = rightsBundle.GetStringFromName("buttonLabel");
             var buttonAccessKey = rightsBundle.GetStringFromName("buttonAccessKey");
             var productName = this._brandStringBundle.GetStringFromName("brandFullName");
-            var notifyRightsText = rightsBundle.formatStringFromName("notifyRightsText", [productName], 1);
+            var notifyRightsText = rightsBundle.formatStringFromName("notifyRightsText2", [productName], 1);
 
             var buttons = [{
               label: buttonLabel,

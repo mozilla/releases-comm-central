@@ -24,7 +24,6 @@
 <head>
   <title>&rights.pagetitle;</title>
   <link rel="stylesheet" href="chrome://global/skin/about.css" type="text/css"/>
-  <script type="application/javascript" src="chrome://branding/content/aboutRights.js"/>
 </head>
 
 <body id="your-rights" dir="&rights.locale-direction;" class="aboutPageWideContainer">
@@ -35,23 +34,23 @@
 
 <ul>
   <li>&rights.intro-point1a;<a href="http://www.mozilla.org/MPL/">&rights.intro-point1b;</a>&rights.intro-point1c;</li>
-<!-- Point 2 discusses Mozilla trademarks, and isn't needed when the build is unbranded.
-   - Point 2d discusses opt-in feedback mechanisms like the Crash Reporter
-   - Point 3 discusses privacy policy, unbranded builds get a placeholder (for the vendor to replace)
-   - Point 4 discusses web service terms, unbranded builds gets a placeholder (for the vendor to replace) -->
-  <li>&rights.intro-point2a;<a href="https://www.seamonkey-project.org/legal/trademark">&rights.intro-point2b;</a>&rights.intro-point2c;</li>
-  <li>&rights.intro-point2d;</li>
+<!-- Point 2aa discusses SeaMonkey trademarks, and isn't needed when the build is unbranded.
+   - Point 2dd discusses opt-in feedback mechanisms like the Crash Reporter
+   - Point 3a discusses privacy policy, unbranded builds get a placeholder (for the vendor to replace)
+   - Point 4a discusses web service terms, unbranded builds gets a placeholder (for the vendor to replace) -->
+  <li>&rights.intro-point2aa;<a href="https://www.seamonkey-project.org/legal/trademark">&rights.intro-point2b;</a>&rights.intro-point2c;</li>
+  <li>&rights.intro-point2da;</li>
   <li>&rights.intro-point3a;<a href="http://www.seamonkey-project.org/legal/privacy">&rights.intro-point3b;</a>&rights.intro-point3c;</li>
-  <li>&rights2.intro-point4a;<a href="about:rights#webservices" id="link-webservices">&rights.intro-point4b;</a>&rights.intro-point4c;</li>
+  <li>&rights2.intro-point4a;<a href="about:rights#webservices" onclick="showServices();">&rights.intro-point4b;</a>&rights.intro-point4c;</li>
 </ul>
 
-<div id="webservices-container" hidden="true">
+<div id="webservices-container">
   <a name="webservices"/>
   <h3>&rights.webservices-header;</h3>
 
-  <p>&rights3.webservices-a;<a href="about:rights#disabling-webservices" id="link-disabling-webservices">&rights3.webservices-b;</a>&rights3.webservices-c;</p>
+  <p>&rights3.webservices-aa;<a href="about:rights#disabling-webservices" onclick="showDisablingServices();">&rights3.webservices-b;</a>&rights3.webservices-c;</p>
 
-  <div id="disabling-webservices-container" hidden="true" style="margin-left:40px;">
+  <div id="disabling-webservices-container" style="margin-left:40px;">
     <a name="disabling-webservices"/>
     <p><strong>&rights.addons-a;</strong>&rights.addons-b;</p>
     <ul>
@@ -77,15 +76,31 @@
   </div>
 
   <ol>
-    <li>&rights.webservices-term0;</li>
+    <li>&rights.webservices-term0a;</li>
     <li>&rights.webservices-term1;</li>
-    <li>&rights.webservices-term2;</li>
+    <li>&rights.webservices-term2a;</li>
     <li><strong>&rights.webservices-term3;</strong></li>
     <li><strong>&rights.webservices-term4;</strong></li>
     <li>&rights.webservices-term5;</li>
-    <li>&rights.webservices-term6;</li>
+    <li>&rights.webservices-term6a;</li>
   </ol>
 </div>
+
+<script type="application/javascript"><![CDATA[
+  var servicesDiv = document.getElementById("webservices-container");
+  servicesDiv.style.display = "none";
+
+  function showServices() {
+    servicesDiv.style.display = "";
+  }
+
+  var disablingServicesDiv = document.getElementById("disabling-webservices-container");
+  disablingServicesDiv.style.display = "none";
+
+  function showDisablingServices() {
+    disablingServicesDiv.style.display = "";
+  }
+]]></script>
 
 </body>
 </html>

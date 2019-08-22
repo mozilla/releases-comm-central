@@ -58,7 +58,7 @@
 <!ENTITY printButton.label            "Print">
 <!ENTITY printButton.tooltip          "Print this page">
 
-<!ENTITY throbber.tooltip             "Go to the &vendorShortName; home page">
+<!ENTITY throbber.tooltip2            "Go to the &brandShortName; home page">
 
 <!ENTITY locationBar.tooltip          "Enter search term, keyword, or web address">
 <!ENTITY locationBar.accesskey        "d">

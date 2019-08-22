@@ -441,7 +441,7 @@
 <!ENTITY undeleteButton.tooltip "Undelete selected message">
 <!ENTITY markButton.tooltip "Mark messages">
 <!ENTITY stopButton.tooltip "Stop the current transfer">
-<!ENTITY throbber.tooltip "Go to the &vendorShortName; home page">
+<!ENTITY throbber.tooltip2 "Go to the &brandShortName; home page">
 <!ENTITY junkButton.tooltip "Mark the selected messages as junk">
 <!ENTITY notJunkButton.tooltip "Mark the selected messages as not junk">
 

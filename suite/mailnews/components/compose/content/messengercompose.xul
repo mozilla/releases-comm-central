@@ -540,7 +540,7 @@
           <button id="navigator-throbber"
                   oncommand="goClickThrobber('compose.throbber.url', event)"
                   onclick="checkForMiddleClick(this, event);"
-                  tooltiptext="&throbber.tooltip;"/>
+                  tooltiptext="&throbber.tooltip2;"/>
       </toolbaritem>
     </toolbar>
 
