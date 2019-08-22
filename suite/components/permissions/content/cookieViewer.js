@@ -16,6 +16,10 @@ var deletedPermissions   = [];
 
 var cookieBundle;
 var gUpdatingBatch = "";
+var lastCookieSortColumn;
+var lastCookieSortAscending;
+var lastPermissionSortColumn;
+var lastPermissionSortAscending;
 
 function Startup() {
 
@@ -27,7 +31,11 @@ function Startup() {
 
   // load in the cookies and permissions
   cookiesTree = document.getElementById("cookiesTree");
+  lastCookieSortAscending = (cookiesTree.getAttribute("sortAscending") == "true");
+  lastCookieSortColumn = cookiesTree.getAttribute("sortColumn");
   permissionsTree = document.getElementById("permissionsTree");
+  lastPermissionSortAscending = (permissionsTree.getAttribute("sortAscending") == "true");
+  lastPermissionSortColumn = permissionsTree.getAttribute("sortColumn");
   loadCookies();
   loadPermissions();
 
@@ -90,21 +98,7 @@ var cookiesTreeView = {
   getImageSrc : function(row,column) {},
   getProgressMode : function(row,column) {},
   getCellValue : function(row,column) {},
-  getCellText : function(row,column){
-    var rv="";
-    switch (column.id) {
-    case "domainCol":
-      rv = cookies[row].rawHost;
-      break;
-    case "nameCol":
-      rv = cookies[row].name;
-      break;
-    case "expiresCol":
-      rv = cookies[row].expires;
-      break;
-    }
-    return rv;
-  },
+  getCellText : function(row,column){ return cookies[row][column.id]; },
   isSeparator : function(index) {return false;},
   isSorted: function() { return false; },
   isContainer : function(index) {return false;},
@@ -112,7 +106,7 @@ var cookiesTreeView = {
   getRowProperties : function(row) { return ""; },
   getColumnProperties : function(column) { return ""; },
   getCellProperties : function(row, column) { return ""; }
- };
+};
 var cookiesTree;
 
 function Cookie(id, host, name, path, originAttributes, value,
@@ -139,12 +133,12 @@ function loadCookies() {
     if (!nextCookie) break;
     nextCookie = nextCookie.QueryInterface(Ci.nsICookie);
     var host = nextCookie.host;
-    allCookies[count] =
+    allCookies.push(
       new Cookie(count++, host, nextCookie.name,
                  nextCookie.path, nextCookie.originAttributes,
                  nextCookie.value, nextCookie.isDomain,
                  host.charAt(0)=="." ? host.slice(1) : host,
-                 nextCookie.isSecure, nextCookie.expires);
+                 nextCookie.isSecure, nextCookie.expires));
   }
 
   // filter, sort and display the table
@@ -287,41 +281,14 @@ function HandleCookieKeyPress(e) {
   }
 }
 
-var lastCookieSortColumn = "rawHost";
-var lastCookieSortAscending = true;
-
 function CookieColumnSort(column, updateSelection) {
   lastCookieSortAscending =
       SortTree(cookiesTree, cookiesTreeView, cookies,
                column, lastCookieSortColumn, lastCookieSortAscending,
                updateSelection);
   lastCookieSortColumn = column;
-  // set the sortDirection attribute to get the styling going
-  // first we need to get the right element
-  var sortedCol;
-  switch (column) {
-    case "rawHost":
-      sortedCol = document.getElementById("domainCol");
-      break;
-    case "name":
-      sortedCol = document.getElementById("nameCol");
-      break;
-    case "expires":
-      sortedCol = document.getElementById("expiresCol");
-      break;
-  }
-  if (lastCookieSortAscending)
-    sortedCol.setAttribute("sortDirection", "ascending");
-  else
-    sortedCol.setAttribute("sortDirection", "descending");
 
-  // clear out the sortDirection attribute on the rest of the columns
-  var currentCol = sortedCol.parentNode.firstChild;
-  while (currentCol) {
-    if (currentCol != sortedCol && currentCol.localName == "treecol")
-      currentCol.removeAttribute("sortDirection");
-    currentCol = currentCol.nextSibling;
-  }
+  SetSortDirection(cookiesTree, column, lastCookieSortAscending);
 }
 
 /*** =================== PERMISSIONS CODE =================== ***/
@@ -332,21 +299,7 @@ var permissionsTreeView = {
   getImageSrc : function(row,column) {},
   getProgressMode : function(row,column) {},
   getCellValue : function(row,column) {},
-  getCellText : function(row,column) {
-    var rv = "";
-    switch (column.id) {
-      case "siteCol":
-        rv = permissions[row].host;
-        break;
-      case "siteCol2":
-        rv = permissions[row].scheme;
-        break;
-      case "capabilityCol":
-        rv = permissions[row].capability;
-        break;
-    }
-    return rv;
-  },
+  getCellText : function(row,column) { return permissions[row][column.id]; },
   isSeparator : function(index) {return false;},
   isSorted: function() { return false; },
   isContainer : function(index) {return false;},
@@ -354,7 +307,7 @@ var permissionsTreeView = {
   getRowProperties : function(row) { return ""; },
   getColumnProperties : function(column) { return ""; },
   getCellProperties : function(row, column) { return ""; }
- };
+};
 var permissionsTree;
 
 function Permission(id, principal, type, capability) {
@@ -372,26 +325,27 @@ function loadPermissions() {
   var canStr = cookieBundle.getString("can");
   var canSessionStr = cookieBundle.getString("canSession");
   var cannotStr = cookieBundle.getString("cannot");
+  var capability;
+  var count = 0;
+  var permission;
   while (enumerator.hasMoreElements()) {
-    var nextPermission = enumerator.getNext();
-    nextPermission = nextPermission.QueryInterface(Ci.nsIPermission);
+    permission = enumerator.getNext().QueryInterface(Ci.nsIPermission);
     // We are only interested in cookie permissions in this code.
-    if (nextPermission.type == "cookie") {
-      // It is currently possible to add a cookie permission for about:xxx and other internal pages.
-      // They are probably invalid and will be ignored for now.
+    if (permission.type == "cookie") {
+      // It is currently possible to add a cookie permission for about:xxx
+      // and other internal pages. They are probably invalid and will be
+      // ignored for now.
       // Test if the permission has a host.
       try {
-        nextPermission.principal.URI.host;
+        permission.principal.URI.host;
       }
       catch (e) {
         Cu.reportError("Invalid permission found: " +
-                       nextPermission.principal.origin + " " +
-                       nextPermission.type);
+                       permission.principal.origin + " " + permission.type);
         continue;
       }
 
-      var capability;
-      switch (nextPermission.capability) {
+      switch (permission.capability) {
         case Ci.nsIPermissionManager.ALLOW_ACTION:
           capability = canStr;
           break;
@@ -404,9 +358,9 @@ function loadPermissions() {
         default:
           continue;
       }
-      permissions.push(new Permission(permissions.length,
-                                      nextPermission.principal,
-                                      nextPermission.type,
+      permissions.push(new Permission(count++,
+                                      permission.principal,
+                                      permission.type,
                                       capability));
     }
   }
@@ -414,26 +368,13 @@ function loadPermissions() {
 
   // sort and display the table
   permissionsTree.view = permissionsTreeView;
-  permissionsTreeView.selection.select(-1);
+  permissionsTreeView.selection.clearSelection();
   SortTree(permissionsTree, permissionsTreeView, permissions,
            lastPermissionSortColumn, lastPermissionSortColumn,
            !lastPermissionSortAscending);
 
   // disable "remove all" button if there are no cookies
-  if (permissions.length == 0) {
-    document.getElementById("removeAllPermissions").setAttribute("disabled", "true");
-  } else {
-    document.getElementById("removeAllPermissions").removeAttribute("disabled");
-  }
-
-}
-
-function PermissionSelected() {
-  var selections = GetTreeSelections(permissionsTree);
-  if (selections.length)
-    document.getElementById("removePermission").removeAttribute("disabled");
-  else
-    document.getElementById("removePermission").setAttribute("disabled", "true");
+  document.getElementById("removeAllPermissions").disabled = permissions.length == 0;
 }
 
 function DeletePermission() {
@@ -450,7 +391,7 @@ function DeletePermission() {
 }
 
 function setCookiePermissions(action) {
-  var site = document.getElementById('cookie-site');
+  var site = document.getElementById("cookie-site");
 
   // let the backend do the validation
   try {
@@ -470,8 +411,8 @@ function setCookiePermissions(action) {
   }
   // only allow a few schemes here
   // others like file:// would produce an invalid entry in the database
-  if (uri.scheme != 'http'  &&
-      uri.scheme != 'https') {
+  if (uri.scheme != "http"  &&
+      uri.scheme != "https") {
     // show an error if uri uses invalid scheme
     window.alert(uri.scheme + ": " + cookieBundle.getString("allowedURLSchemes"));
     return;
@@ -482,17 +423,6 @@ function setCookiePermissions(action) {
 
   site.focus();
   site.value = "";
-}
-
-function buttonEnabling(textfield) {
-  // trim any leading space
-  var site = textfield.value.replace(/^\s*([-\w]*:\/+)?/, "");
-  var block = document.getElementById("btnBlock");
-  var session = document.getElementById("btnSession");
-  var allow = document.getElementById("btnAllow");
-  block.disabled = !site;
-  session.disabled = !site;
-  allow.disabled = !site;
 }
 
 function DeleteAllPermissions() {
@@ -520,13 +450,12 @@ function FinalizePermissionDeletions() {
 }
 
 function HandlePermissionKeyPress(e) {
-  if (e.keyCode == 46) {
+  if (e.keyCode == KeyEvent.DOM_VK_DELETE ||
+      (AppConstants.platform == "macosx" &&
+       e.keyCode == KeyEvent.DOM_VK_BACK_SPACE)) {
     DeletePermission();
   }
 }
-
-var lastPermissionSortColumn = "host";
-var lastPermissionSortAscending = true;
 
 function PermissionColumnSort(column, updateSelection) {
   lastPermissionSortAscending =
@@ -535,40 +464,16 @@ function PermissionColumnSort(column, updateSelection) {
                  updateSelection);
   lastPermissionSortColumn = column;
 
-  // make sure sortDirection is set
-  var sortedCol;
-  switch (column) {
-    case "host":
-      sortedCol = document.getElementById("siteCol");
-      break;
-    case "scheme":
-      sortedCol = document.getElementById("siteCol2");
-      break;
-    case "capability":
-      sortedCol = document.getElementById("capabilityCol");
-      break;
-  }
-  if (lastPermissionSortAscending)
-    sortedCol.setAttribute("sortDirection", "ascending");
-  else
-    sortedCol.setAttribute("sortDirection", "descending");
-
-  // clear out the sortDirection attribute on the rest of the columns
-  var currentCol = sortedCol.parentNode.firstChild;
-  while (currentCol) {
-    if (currentCol != sortedCol && currentCol.localName == "treecol")
-      currentCol.removeAttribute("sortDirection");
-    currentCol = currentCol.nextSibling;
-  }
+  SetSortDirection(permissionsTree, column, lastPermissionSortAscending);
 }
 
 /*** ============ CODE FOR HELP BUTTON =================== ***/
 
 function doHelpButton()
 {
-  var selTab = document.getElementById('tabbox').selectedTab;
-  var key = selTab.getAttribute('help');
-  openHelp(key, 'chrome://communicator/locale/help/suitehelp.rdf');
+  var selTab = document.getElementById("tabbox").selectedTab;
+  var key = selTab.getAttribute("help");
+  openHelp(key, "chrome://communicator/locale/help/suitehelp.rdf");
 }
 
 /*** =================== FILTER CODE =================== ***/

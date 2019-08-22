@@ -34,7 +34,7 @@
          accesskey="&address.accesskey;"
          control="url"/>
   <hbox align="start">
-    <textbox id="url" flex="1" oninput="handleHostInput(event.target);"/>
+    <textbox id="url" flex="1" oninput="handleHostInput(event.target.value);"/>
   </hbox>
   <hbox pack="end">
      <button id="btnBlock" disabled="true" accesskey="&block.accesskey;"
@@ -48,16 +48,23 @@
   <tree id="permissionsTree" flex="1" style="height: 18em;"
         hidecolumnpicker="true"
         onkeypress="handlePermissionKeyPress(event)"
-        onselect="permissionSelected();"
+        onselect="PermissionSelected(this);"
         sortAscending="false"
         sortColumn="rawHost"
         persist="sortAscending sortColumn">
     <treecols>
-      <treecol id="siteCol" label="&treehead.sitename.label;" flex="3"
-                    onclick="permissionColumnSort('rawHost', true);" persist="width"/>
+      <treecol id="rawHost"
+               label="&treehead.sitename.label;"
+               flex="3"
+               onclick="permissionColumnSort(this.id, true);"
+               sortDirection="descending"
+               persist="width"/>
       <splitter class="tree-splitter"/>
-      <treecol id="statusCol" label="&treehead.status.label;" flex="1"
-                    onclick="permissionColumnSort('capability', true);" persist="width"/>
+      <treecol id="capability"
+               label="&treehead.status.label;"
+               flex="1"
+               onclick="permissionColumnSort(this.id, true);"
+               persist="width"/>
     </treecols>
     <treechildren/>
   </tree>

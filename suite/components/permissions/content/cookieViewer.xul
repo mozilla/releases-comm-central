@@ -59,18 +59,31 @@
           <label value="&div.cookiesonsystem.label;" control="cookiesTree"/>
           <separator class="thin"/>
           <tree id="cookiesTree" flex="1" style="height: 10em;"
-                    onkeypress="HandleCookieKeyPress(event)"
-                    onselect="CookieSelected();">
+                onkeypress="HandleCookieKeyPress(event);"
+                onselect="CookieSelected();"
+                sortAscending="true"
+                sortColumn="rawHost"
+                persist="sortAscending sortColumn">
             <treecols>
-              <treecol id="domainCol" label="&treehead.cookiedomain.label;" flex="5"
-                       onclick="CookieColumnSort('rawHost', true);" persist="width hidden"
-                       sortDirection="ascending"/>
+              <treecol id="rawHost"
+                       label="&treehead.cookiedomain.label;"
+                       flex="5"
+                       onclick="CookieColumnSort(this.id, true);"
+                       sortDirection="ascending"
+                       persist="width hidden"/>
               <splitter class="tree-splitter"/>
-              <treecol id="nameCol" label="&treehead.cookiename.label;" flex="5"
-                       onclick="CookieColumnSort('name', true);" persist="width hidden"/>
+              <treecol id="name"
+                       label="&treehead.cookiename.label;"
+                       flex="5"
+                       onclick="CookieColumnSort(this.id, true);"
+                       persist="width hidden"/>
               <splitter class="tree-splitter"/>
-              <treecol id="expiresCol" label="&treehead.cookieexpires.label;" flex="10"
-                       hidden="true" onclick="CookieColumnSort('expires', true);" persist="width hidden"/>
+              <treecol id="expires"
+                       label="&treehead.cookieexpires.label;"
+                       flex="10"
+                       hidden="true"
+                       onclick="CookieColumnSort(this.id, true);"
+                       persist="width hidden"/>
             </treecols>
             <treechildren/>
           </tree>
@@ -151,7 +164,9 @@
           <description id="permissionsText">&div.bannedservers.label;</description>
           <separator class="thin"/>
           <hbox>
-            <textbox id="cookie-site" flex="1" oninput="buttonEnabling(this);"/>
+            <textbox id="cookie-site"
+                     flex="1"
+                     oninput="handleHostInput(this.value);"/>
             <button id="btnBlock" label="&blockSite.label;" disabled="true"
                     accesskey="&blockSite.accesskey;"
                     oncommand="setCookiePermissions(Ci.nsIPermissionManager.DENY_ACTION);"/>
@@ -167,24 +182,29 @@
                 flex="1"
                 style="height: 10em;"
                 hidecolumnpicker="true"
-                onkeypress="HandlePermissionKeyPress(event)"
-                onselect="PermissionSelected();">
+                onkeypress="HandlePermissionKeyPress(event);"
+                onselect="PermissionSelected(this);"
+                sortAscending="true"
+                sortColumn="host"
+                persist="sortAscending sortColumn">
             <treecols>
-              <treecol id="siteCol"
+              <treecol id="host"
                        label="&treehead.sitename.label;"
                        flex="5"
-                       onclick="PermissionColumnSort('host', true);" persist="width"
-                       sortDirection="ascending"/>
-              <splitter class="tree-splitter"/>
-              <treecol id="siteCol2" label="&treehead.scheme.label;"
-                       flex="5"
-                       onclick="PermissionColumnSort('scheme', true);"
+                       onclick="PermissionColumnSort(this.id, true);"
+                       sortDirection="ascending"
                        persist="width"/>
               <splitter class="tree-splitter"/>
-              <treecol id="capabilityCol"
+              <treecol id="scheme"
+                       label="&treehead.scheme.label;"
+                       flex="5"
+                       onclick="PermissionColumnSort(this.id, true);"
+                       persist="width"/>
+              <splitter class="tree-splitter"/>
+              <treecol id="capability"
                        label="&treehead.status.label;"
                        flex="5"
-                       onclick="PermissionColumnSort('capability', true);"
+                       onclick="PermissionColumnSort(this.id, true);"
                        persist="width"/>
             </treecols>
             <treechildren/>

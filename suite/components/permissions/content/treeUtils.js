@@ -127,7 +127,7 @@ function SortTree(tree, view, table, column, lastSortColumn, lastSortAscending, 
       if (table[s].id == selectedNumber) {
         // update selection
         // note: we need to deselect before reselecting in order to trigger ...Selected()
-        tree.view.selection.select(-1);
+        tree.view.selection.clearSelection();
         tree.view.selection.select(s);
         selectedRow = s;
         break;
@@ -144,3 +144,39 @@ function SortTree(tree, view, table, column, lastSortColumn, lastSortAscending, 
   return ascending;
 }
 
+function handleHostInput(aValue) {
+  // trim any leading and trailing spaces and scheme
+  // and set buttons appropiately
+  btnDisable(!trimSpacesAndScheme(aValue));
+}
+
+function trimSpacesAndScheme(aString) {
+  if (!aString)
+    return "";
+  return aString.trim().replace(/([-\w]*:\/+)?/, "");
+}
+
+function btnDisable(aDisabled) {
+  document.getElementById("btnSession").disabled = aDisabled;
+  document.getElementById("btnBlock").disabled = aDisabled;
+  document.getElementById("btnAllow").disabled = aDisabled;
+}
+
+function PermissionSelected(tree) {
+  var hasSelection = tree.view.selection.count > 0;
+  document.getElementById("removePermission").disabled = !hasSelection;
+}
+
+function SetSortDirection(tree, column, ascending) {
+  // first we need to get the right elements
+  for (let col of tree.getElementsByTagName("treecol")) {
+    if (col.id == column) {
+      // set the sortDirection attribute to get the styling going
+      col.setAttribute("sortDirection", ascending ? "ascending" : "descending");
+    }
+    else {
+      // clear out the sortDirection attribute on the rest of the columns
+      col.removeAttribute("sortDirection");
+    }
+  }
+}

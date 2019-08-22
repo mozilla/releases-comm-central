@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-Cu.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 var permissions = [];
 var removals = [];
@@ -16,13 +17,7 @@ var permissionsTreeView = {
     getImageSrc: function(row, column) {},
     getProgressMode: function(row, column) {},
     getCellValue: function(row, column) {},
-    getCellText: function(row, column) {
-      if (column.id == "siteCol")
-        return permissions[row].rawHost;
-      else if (column.id == "statusCol")
-        return permissions[row].capability;
-      return "";
-    },
+    getCellText: function(row, column) { return permissions[row][column.id]; },
     isSeparator: function(index) { return false; },
     isSorted: function() { return false; },
     isContainer: function(index) { return false; },
@@ -83,7 +78,7 @@ function Startup() {
   document.getElementById("url").hidden = !urlFieldVisible;
   document.getElementById("urlLabel").hidden = !urlFieldVisible;
 
-  handleHostInput(document.getElementById("url"));
+  handleHostInput(document.getElementById("url").value);
   loadPermissions();
 }
 
@@ -106,10 +101,12 @@ function reInitialize() {
   permissions = [];
   removals = [];
 
+  // loadPermissions will reverse the sort direction so flip it now.
+  sortAscending = !sortAscending;
+
   // Reload permissions tree.
   loadPermissions();
 }
-
 
 function setHost(aHost) {
   document.getElementById("url").value = aHost;
@@ -123,24 +120,6 @@ function Permission(id, principal, host, type, capability, perm) {
   this.type = type;
   this.capability = capability;
   this.perm = perm;
-}
-
-function handleHostInput(aSiteField) {
-  // trim any leading and trailing spaces and scheme
-  // and set buttons appropiately
-  btnDisable(!trimSpacesAndScheme(aSiteField.value));
-}
-
-function trimSpacesAndScheme(aString) {
-  if (!aString)
-    return "";
-  return aString.trim().replace(/([-\w]*:\/+)?/, "");
-}
-
-function btnDisable(aDisabled) {
-  document.getElementById("btnSession").disabled = aDisabled;
-  document.getElementById("btnBlock").disabled = aDisabled;
-  document.getElementById("btnAllow").disabled = aDisabled;
 }
 
 function loadPermissions() {
@@ -199,13 +178,8 @@ function permissionColumnSort(aColumn, aUpdateSelection) {
     SortTree(permissionsTree, permissionsTreeView, permissions,
              aColumn, sortColumn, sortAscending, aUpdateSelection);
   sortColumn = aColumn;
-}
 
-function permissionSelected() {
-  if (Services.perms) {
-    var selections = GetTreeSelections(permissionsTree);
-    document.getElementById("removePermission").disabled = (selections.length < 1);
-  }
+  SetSortDirection(permissionsTree, aColumn, sortAscending);
 }
 
 function deletePermissions() {
@@ -249,7 +223,9 @@ function finalizeChanges() {
 }
 
 function handlePermissionKeyPress(e) {
-  if (e.keyCode == 46) {
+  if (e.keyCode == KeyEvent.DOM_VK_DELETE ||
+      (AppConstants.platform == "macosx" &&
+       e.keyCode == KeyEvent.DOM_VK_BACK_SPACE)) {
     deletePermissions();
   }
 }
@@ -267,7 +243,7 @@ function addPermission(aPermission) {
     Services.prompt.alert(window, title, message);
     textbox.value = "";
     textbox.focus();
-    handleHostInput(textbox);
+    handleHostInput("");
     return;
   }
 
@@ -299,7 +275,7 @@ function addPermission(aPermission) {
   textbox.focus();
 
   // covers a case where the site exists already, so the buttons don't disable
-  handleHostInput(textbox);
+  handleHostInput("");
 
   // enable "remove all" button as needed
   document.getElementById("removeAllPermissions").disabled = permissions.length == 0;
