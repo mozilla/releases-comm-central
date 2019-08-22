@@ -12,14 +12,13 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 });
 
 //******** define a js object to implement nsITreeView
-function pageInfoTreeView(copycol)
+function pageInfoTreeView(treeid, copycol)
 {
   /* copycol is the index number for the column that we want to add to
    * the copy-n-paste buffer when the user hits accel-c.
-   * Older pageInfo extensions might call pageInfoTreeView with copycol
-   * as the second argument of two.
    */
-  this.copycol = arguments.length == 2 ? arguments[1] : copycol;
+  this.treeid = treeid;
+  this.copycol = copycol;
   this.rows = 0;
   this.tree = null;
   this.data = [ ];
@@ -71,12 +70,10 @@ pageInfoTreeView.prototype = {
 
   clear: function()
   {
-    var oldrows = this.rows;
+    if (this.tree)
+      this.tree.rowCountChanged(0, -this.rows);
     this.rows = 0;
     this.data = [];
-
-    if (this.tree)
-      this.tree.rowCountChanged(0, -oldrows);
   },
 
   handleCopy: function(row)
@@ -94,40 +91,30 @@ pageInfoTreeView.prototype = {
 
   cycleHeader: function cycleHeader(col)
   {
-    this.doSort(col);
+    this.doSort(col, col.index);
   },
 
-  doSort: function doSort(col, comparator)
+  doSort: function doSort(col, index, comparator)
   {
-    var ascending = col.index != this.sortcol || !this.sortdir;
-    this.sortdir = ascending;
-    this.sortcol = col.index;
+    var tree = document.getElementById(this.treeid);
+    if (!comparator) {
+      comparator = function comparator(a, b) {
+        return (a || "").toLowerCase().localeCompare((b || "").toLowerCase());
+      };
+    }
+
+    this.sortdir = gTreeUtils.sort(tree, this, this.data, index,
+                                   comparator, this.sortcol, this.sortdir);
 
     Array.from(this.tree.columns).forEach(function(treecol) {
       treecol.element.removeAttribute("sortActive");
       treecol.element.removeAttribute("sortDirection");
     });
     col.element.setAttribute("sortActive", true);
-    col.element.setAttribute("sortDirection", ascending ?
+    col.element.setAttribute("sortDirection", this.sortdir ?
                                               "ascending" : "descending");
 
-    var index = col.index;
-    if (!comparator) {
-      comparator = function comparator(a, b) {
-        return a[index].toLowerCase().localeCompare(b[index].toLowerCase());
-      };
-    }
-
-    this.data.sort(comparator);
-    if (!ascending)
-      this.data.reverse();
-
-    this.tree.invalidate();
-    // Note: we need to deselect before reselecting in order to trigger
-    // onselect handlers.
-    this.tree.view.selection.clearSelection();
-    this.tree.view.selection.select(0);
-    this.tree.ensureRowIsVisible(0);
+    this.sortcol = index;
   },
 
   getRowProperties: function(row) { return ""; },
@@ -180,11 +167,11 @@ const COPYCOL_LINK_ADDRESS = 1;
 const COPYCOL_IMAGE = COL_IMAGE_ADDRESS;
 
 // one nsITreeView for each tree in the window
-var gMetaView = new pageInfoTreeView(COPYCOL_META_CONTENT);
-var gFormView = new pageInfoTreeView(COPYCOL_FORM_ACTION);
-var gFieldView = new pageInfoTreeView(COPYCOL_FIELD_VALUE);
-var gLinkView = new pageInfoTreeView(COPYCOL_LINK_ADDRESS);
-var gImageView = new pageInfoTreeView(COPYCOL_IMAGE);
+var gMetaView = new pageInfoTreeView("metatree", COPYCOL_META_CONTENT);
+var gFormView = new pageInfoTreeView("formtree", COPYCOL_FORM_ACTION);
+var gFieldView = new pageInfoTreeView("formpreview", COPYCOL_FIELD_VALUE);
+var gLinkView = new pageInfoTreeView("linktree", COPYCOL_LINK_ADDRESS);
+var gImageView = new pageInfoTreeView("imagetree", COPYCOL_IMAGE);
 
 gImageView.getCellProperties = function(row, col) {
   var properties = col.id == "image-address" ? "ltr" : "";
@@ -212,11 +199,11 @@ gImageView.cycleHeader = function(col)
     case COL_IMAGE_SIZE:
       index = COL_IMAGE_SIZENUM;
     case COL_IMAGE_COUNT:
-      comparator = function numComparator(a, b) { return a[index] - b[index]; };
+      comparator = function numComparator(a, b) { return a - b; };
       break;
   }
 
-  this.doSort(col, comparator);
+  this.doSort(col, index, comparator);
 };
 
 var gImageHash = { };
