@@ -1530,6 +1530,10 @@ function ComposeSetCharacterSet(aEvent)
 
 function SetDocumentCharacterSet(aCharset)
 {
+  // Replace generic Japanese with ISO-2022-JP.
+  if (aCharset == "Japanese") {
+    aCharset = "ISO-2022-JP";
+  }
   gMsgCompose.SetDocumentCharset(aCharset);
   gCharsetTitle = null;
   SetComposeWindowTitle();
