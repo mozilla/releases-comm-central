@@ -219,18 +219,11 @@ const DRAGSERVICE_CONTRACTID    = "@mozilla.org/widget/dragservice;1";
 const TRANSFERABLE_CONTRACTID   = "@mozilla.org/widget/transferable;1";
 const STRING_CONTRACTID         = "@mozilla.org/supports-string;1";
 
-// a number of services I'll need later
-// the cache services
-const OPEN_READONLY = Ci.nsICacheStorage.OPEN_READONLY;
-const ENTRY_WANTED = Ci.nsICacheEntryOpenCallback.ENTRY_WANTED;
-const LoadContextInfo = Cc["@mozilla.org/load-context-info-factory;1"]
-                          .getService(Ci.nsILoadContextInfoFactory);
-var loadContextInfo = opener.gPrivate ? LoadContextInfo.private :
-                                        LoadContextInfo.default;
-const diskCacheStorage =
-    Cc["@mozilla.org/netwerk/cache-storage-service;1"]
-      .getService(Ci.nsICacheStorageService)
-      .diskCacheStorage(loadContextInfo, false);
+var loadContextInfo = Services.loadContextInfo.fromLoadContext(
+  window.QueryInterface(Ci.nsIInterfaceRequestor)
+        .getInterface(Ci.nsIWebNavigation)
+        .QueryInterface(Ci.nsILoadContext), false);
+var diskStorage = Services.cache2.diskCacheStorage(loadContextInfo, false);
 
 const nsICertificateDialogs = Ci.nsICertificateDialogs;
 const CERTIFICATEDIALOGS_CONTRACTID = "@mozilla.org/nsCertificateDialogs;1"
@@ -283,6 +276,9 @@ var onFinished = [ ];
 
 // These functions are called once when the Page Info window is closed.
 var onUnloadRegistry = [ ];
+
+// These functions are called once when an image preview is shown.
+var onImagePreviewShown = [ ];
 
 /* Called when PageInfo window is loaded.  Arguments are:
  *  window.arguments[0] - (optional) an object consisting of
@@ -446,21 +442,20 @@ function onClickMore()
   showTab("securityTab");
 }
 
-var cacheListener = {
-  onCacheEntryAvailable: function onCacheEntryAvailable(descriptor) {
-    if (descriptor) {
-      var pageSize = descriptor.dataSize;
-      var kbSize = Math.round(pageSize / 1024 * 100) / 100;
-      var sizeText = gBundle.getFormattedString("generalSize",
-                                                [formatNumber(kbSize),
-                                                 formatNumber(pageSize)]);
-      setItemValue("sizetext", sizeText);
+function openCacheEntry(key, cb)
+{
+  var checkCacheListener = {
+    onCacheEntryCheck: function(entry, appCache) {
+      return Ci.nsICacheEntryOpenCallback.ENTRY_WANTED;
+    },
+    onCacheEntryAvailable: function(entry, isNew, appCache, status) {
+      cb(entry);
     }
-  },
-  onCacheEntryCheck: function onCacheEntryCheck() {
-    return ENTRY_WANTED;
-  }
-};
+  };
+  diskStorage.asyncOpenURI(Services.io.newURI(key, null, null), "",
+                           Ci.nsICacheStorage.OPEN_READONLY,
+                           checkCacheListener);
+}
 
 function makeGeneralTab()
 {
@@ -504,13 +499,16 @@ function makeGeneralTab()
   document.getElementById("modifiedtext").value = modifiedText;
 
   // get cache info
-  setItemValue("sizetext", null);
   var cacheKey = url.replace(/#.*$/, "");
-  try {
-    diskCacheStorage.asyncOpenURI(Services.io.newURI(cacheKey),
-                                  null, OPEN_READONLY, cacheListener);
-  }
-  catch(ex) { }
+  openCacheEntry(cacheKey, function(cacheEntry) {
+    var sizeText;
+    if (cacheEntry) {
+      var pageSize = cacheEntry.dataSize;
+      var kbSize = formatNumber(Math.round(pageSize / 1024 * 100) / 100);
+      sizeText = gBundle.getFormattedString("generalSize", [kbSize, formatNumber(pageSize)]);
+    }
+    setItemValue("sizetext", sizeText);
+  });
 
   securityOnLoad();
 }
@@ -572,22 +570,10 @@ function ensureSelection(view)
     view.selection.select(0);
 }
 
-function imgCacheListener(url, type, alt, elem, isBg)
+function addImage(url, type, alt, elem, isBg)
 {
-  this.url = url;
-  this.type = type;
-  this.alt = alt;
-  this.elem = elem;
-  this.isBg = isBg;
-}
-
-imgCacheListener.prototype.onCacheEntryAvailable =
-function onCacheEntryAvailable(cacheEntryDescriptor) {
-  var url = this.url;
-  var type = this.type;
-  var alt = this.alt;
-  var elem = this.elem;
-  var isBg = this.isBg;
+  if (!url)
+    return;
 
   if (!gImageHash.hasOwnProperty(url))
     gImageHash[url] = { };
@@ -595,21 +581,32 @@ function onCacheEntryAvailable(cacheEntryDescriptor) {
     gImageHash[url][type] = { };
   if (!gImageHash[url][type].hasOwnProperty(alt)) {
     gImageHash[url][type][alt] = gImageView.data.length;
+    var row = [url, type, gStrings.unknown, alt, 1, elem, isBg, -1, null, null];
+    gImageView.addRow(row);
 
-    var sizeText;
-    var pageSize;
-    var persistent;
-    var mimeType;
-    if (cacheEntryDescriptor) {
-      mimeType = getContentTypeFromHeaders(cacheEntryDescriptor);
-      persistent = cacheEntryDescriptor.persistent;
-      pageSize = cacheEntryDescriptor.dataSize;
-      var kbSize = Math.round(pageSize / 1024 * 100) / 100;
-      sizeText = gBundle.getFormattedString("mediaFileSize", [formatNumber(kbSize)]);
-    }
-    else
-      sizeText = gStrings.unknown;
-    gImageView.addRow([url, type, sizeText, alt, 1, elem, isBg, pageSize, persistent, mimeType]);
+    // Fill in cache data asynchronously
+    openCacheEntry(url, function(cacheEntry) {
+      if (cacheEntry) {
+        // Update the corresponding data entries from the cache.
+        var imageSize = cacheEntry.dataSize;
+        // If it is not -1 then replace with actual value, else keep as unknown.
+        if (imageSize && imageSize != -1) {
+          var kbSize = Math.round(imageSize / 1024 * 100) / 100;
+          row[2] = gBundle.getFormattedString("mediaFileSize",
+                                              [formatNumber(kbSize)]);
+          row[7] = imageSize;
+        }
+        row[8] = cacheEntry.persistent;
+        row[9] = getContentTypeFromHeaders(cacheEntry);
+        // Invalidate the row to trigger a repaint.
+        var currentIndex = gImageView.data.indexOf(row);
+        gImageView.tree.invalidateRow(currentIndex);
+        if (gImageView.selection.count == 1 &&
+            gImageView.selection.currentIndex == currentIndex) {
+          makePreview(currentIndex);
+        }
+      }
+    });
 
     // Add the observer, only once.
     if (gImageView.data.length == 1) {
@@ -622,21 +619,6 @@ function onCacheEntryAvailable(cacheEntryDescriptor) {
     if (elem == gImageElement)
       gImageView.data[i][COL_IMAGE_NODE] = elem;
   }
-};
-
-imgCacheListener.prototype.onCacheEntryCheck =
-function onCacheEntryCheck() {
-  return ENTRY_WANTED;
-};
-
-function addImage(url, type, alt, elem, isBg)
-{
-  if (url) try {
-    var listener = new imgCacheListener(url, type, alt, elem, isBg);
-    diskCacheStorage.asyncOpenURI(Services.io.newURI(url),
-                                  null, OPEN_READONLY, listener);
-  }
-  catch (ex) { }
 }
 
 function grabAll(elem)
@@ -1199,6 +1181,8 @@ function makePreview(row)
 
   oldImage.remove();
   imageContainer.appendChild(newImage);
+
+  onImagePreviewShown.forEach(function(func) { func(); });
 }
 
 function makeBlockImage(url)
