@@ -60,7 +60,7 @@ ifdef MOZ_DEBUG
 DEFINES += -DMOZ_DEBUG=1
 endif
 
-ifeq ($(MOZ_WIDGET_TOOLKIT),gtk3)
+ifeq ($(MOZ_WIDGET_TOOLKIT),gtk)
 DEFINES += -DMOZ_GTK=1
 endif
 

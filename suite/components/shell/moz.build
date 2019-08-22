@@ -12,7 +12,7 @@ if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
     XPIDL_SOURCES += [
         'nsIMacShellService.idl',
     ]
-elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'gtk3':
+elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'gtk':
     XPIDL_SOURCES += [
         'nsIGNOMEShellService.idl',
     ]
@@ -28,7 +28,7 @@ if CONFIG['OS_ARCH'] == 'WINNT':
     ]
 elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
     SOURCES += ['nsMacShellService.cpp']
-elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'gtk3':
+elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'gtk':
     SOURCES += ['nsGNOMEShellService.cpp']
 
 if SOURCES:
