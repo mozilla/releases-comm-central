@@ -21,7 +21,7 @@ DEFINES['APP_LICENSE_BODY_BLOCK'] = '%s/content/overrides/app-license-body.html'
 if CONFIG['MOZILLA_OFFICIAL']:
     DEFINES['OFFICIAL_BUILD'] = 1
 
-if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('windows', 'gtk3', 'cocoa'):
+if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('windows', 'gtk', 'cocoa'):
     DEFINES['HAVE_SHELL_SERVICE'] = 1
 
 if CONFIG['MOZ_UPDATER']:

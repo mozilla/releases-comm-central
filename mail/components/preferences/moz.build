@@ -7,7 +7,7 @@ JAR_MANIFESTS += ['jar.mn']
 
 DEFINES['MOZ_MACBUNDLE_NAME'] = CONFIG['MOZ_MACBUNDLE_NAME']
 
-if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('windows', 'gtk3', 'cocoa'):
+if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('windows', 'gtk', 'cocoa'):
     DEFINES['HAVE_SHELL_SERVICE'] = 1
 
 if CONFIG['MOZ_UPDATER']:
