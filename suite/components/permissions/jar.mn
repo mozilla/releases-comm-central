@@ -7,4 +7,4 @@ comm.jar:
    content/communicator/permissions/cookieViewer.xul                (content/cookieViewer.xul)
    content/communicator/permissions/permissionsManager.js           (content/permissionsManager.js)
    content/communicator/permissions/permissionsManager.xul          (content/permissionsManager.xul)
-   content/communicator/permissions/treeUtils.js                    (content/treeUtils.js)
+   content/communicator/permissions/permissionsUtils.js             (content/permissionsUtils.js)

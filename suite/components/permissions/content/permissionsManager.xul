@@ -21,7 +21,10 @@
         ondialoghelp="return doHelpButton();">
 
   <script type="application/javascript" src="chrome://communicator/content/permissions/permissionsManager.js"/>
-  <script type="application/javascript" src="chrome://communicator/content/permissions/treeUtils.js"/>
+  <script type="application/javascript"
+          src="chrome://communicator/content/permissions/permissionsUtils.js"/>
+  <script type="application/javascript"
+          src="chrome://global/content/treeUtils.js"/>
   <script type="application/javascript" src="chrome://help/content/contextHelp.js"/>
 
   <stringbundle id="permissionsBundle"

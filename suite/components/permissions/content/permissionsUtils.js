@@ -7,17 +7,7 @@
 function DeleteAllFromTree
     (tree, view, table, deletedTable, removeButton, removeAllButton) {
 
-  // remove all items from table and place in deleted table
-  for (var i=0; i<table.length; i++) {
-    deletedTable[deletedTable.length] = table[i];
-  }
-  table.length = 0;
-
-  // redisplay
-  var oldCount = view.rowCount;
-  view.rowCount = 0;
-  tree.treeBoxObject.rowCountChanged(0, -oldCount);
-
+  gTreeUtils.deleteAll(tree, view, table, deletedTable);
 
   // disable buttons
   document.getElementById(removeButton).setAttribute("disabled", "true")
@@ -27,47 +17,13 @@ function DeleteAllFromTree
 function DeleteSelectedItemFromTree
     (tree, view, table, deletedTable, removeButton, removeAllButton) {
 
-  // Turn off tree selection notifications during the deletion
-  tree.view.selection.selectEventsSuppressed = true;
+  gTreeUtils.deleteSelectedItems(tree, view, table, deletedTable);
 
-  // remove selected items from list (by setting them to null) and place in deleted list
-  var selections = GetTreeSelections(tree);
-  for (var s=selections.length-1; s>= 0; s--) {
-    var i = selections[s];
-    deletedTable[deletedTable.length] = table[i];
-    table[i] = null;
-  }
-
-  // collapse list by removing all the null entries
-  for (var j=0; j<table.length; j++) {
-    if (table[j] == null) {
-      var k = j;
-      while ((k < table.length) && (table[k] == null)) {
-        k++;
-      }
-      table.splice(j, k-j);
-      view.rowCount -= k - j;
-      tree.treeBoxObject.rowCountChanged(j, j - k);
-    }
-  }
-
-  // update selection and/or buttons
-  if (table.length) {
-
-    // update selection
-    var nextSelection = (selections[0] < table.length) ? selections[0] : table.length-1;
-    tree.view.selection.select(nextSelection);
-    tree.treeBoxObject.ensureRowIsVisible(nextSelection);
-
-  } else {
-
-    // disable buttons
+  // disable buttons if nothing left in the table
+  if (!table.length) {
     document.getElementById(removeButton).setAttribute("disabled", "true")
     document.getElementById(removeAllButton).setAttribute("disabled","true");
-
   }
-
-  tree.view.selection.selectEventsSuppressed = false;
 }
 
 function GetTreeSelections(tree) {
@@ -95,50 +51,42 @@ function SortTree(tree, view, table, column, lastSortColumn, lastSortAscending, 
   var selections = GetTreeSelections(tree);
   var selectedNumber = selections.length ? table[selections[0]].id : -1;
 
-  // determine if sort is to be ascending or descending
-  var ascending = (column == lastSortColumn) ? !lastSortAscending : true;
-
   // do the sort or re-sort
   // this is a temporary hack for 1.7, we should implement
   // display and sort variables here for trees in general
-  var compareFunc;
+  var sortColumn;
+  var comparator;
   if (column == "expires") {
-    compareFunc = function compare(first, second) {
-      if (first.expiresSortValue > second.expiresSortValue)
-        return 1;
-      else if (first.expiresSortValue < second.expiresSortValue)
-        return -1;
-      else
-        return 0;
-    }
+    sortColumn = "expiresSortValue";
+    comparator = function compare(a, b) { return a - b; };
   } else {
-    compareFunc = function compare(first, second) {
-      return first[column].toLowerCase().localeCompare(second[column].toLowerCase());
-    }
+    sortColumn = column;
+    comparator = function compare(a, b) {
+      return a.toLowerCase().localeCompare(b.toLowerCase());
+    };
   }
-  table.sort(compareFunc);
-  if (!ascending)
-    table.reverse();
+  if (lastSortColumn == "expires") {
+    lastSortColumn = "expiresSortValue";
+  }
+  var ascending = gTreeUtils.sort(tree, view, table, sortColumn, comparator,
+                                  lastSortColumn, lastSortAscending);
 
   // restore the selection
-  var selectedRow = -1;
-  if (selectedNumber>=0 && updateSelection) {
-    for (var s=0; s<table.length; s++) {
+  if (selectedNumber >= 0 && updateSelection) {
+    var selectedRow = -1;
+    for (var s = 0; s < table.length; s++) {
       if (table[s].id == selectedNumber) {
-        // update selection
-        // note: we need to deselect before reselecting in order to trigger ...Selected()
-        tree.view.selection.clearSelection();
-        tree.view.selection.select(s);
         selectedRow = s;
         break;
       }
     }
-  }
 
-  // display the results
-  tree.treeBoxObject.invalidate();
-  if (selectedRow >= 0) {
-    tree.treeBoxObject.ensureRowIsVisible(selectedRow)
+    if (selectedRow > 0) {
+      // update selection and display the results
+      tree.view.selection.select(selectedRow);
+      tree.treeBoxObject.invalidate();
+      tree.treeBoxObject.ensureRowIsVisible(selectedRow);
+    }
   }
 
   return ascending;
