@@ -705,6 +705,8 @@ pref("devtools.debugger.log", false);
 pref("devtools.chrome.enabled", true);
 pref("devtools.debugger.remote-enabled", true);
 pref("devtools.selfxss.count", 5);
+// Disable extensionStorage storage actor by default
+pref("devtools.storage.extensionStorage.enabled", false);
 
 pref("mail.chat.enabled", true);
 // Whether to show chat notifications or not.
