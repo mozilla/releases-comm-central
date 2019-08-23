@@ -4,6 +4,41 @@
 
 // The ext-* files are imported into the same scopes.
 /* import-globals-from ext-mail.js */
+
+/**
+ * An event manager API provider which listens for a DOM event in any browser
+ * window, and calls the given listener function whenever an event is received.
+ * That listener function receives a `fire` object, which it can use to dispatch
+ * events to the extension, and a DOM event object.
+ *
+ * @param {BaseContext} context
+ *        The extension context which the event manager belongs to.
+ * @param {string} name
+ *        The API name of the event manager, e.g.,"runtime.onMessage".
+ * @param {string} event
+ *        The name of the DOM event to listen for.
+ * @param {function} listener
+ *        The listener function to call when a DOM event is received.
+ *
+ * @returns {object} An injectable api for the new event.
+ */
+function WindowEventManager(context, name, event, listener) {
+  let register = fire => {
+    let listener2 = (window, ...args) => {
+      if (context.canAccessWindow(window)) {
+        listener(fire, window, ...args);
+      }
+    };
+
+    windowTracker.addListener(event, listener2);
+    return () => {
+      windowTracker.removeListener(event, listener2);
+    };
+  };
+
+  return new EventManager({ context, name, register }).api();
+}
+
 this.windows = class extends ExtensionAPI {
   getAPI(context) {
     const { extension } = context;
@@ -11,23 +46,23 @@ this.windows = class extends ExtensionAPI {
 
     return {
       windows: {
-        onCreated: new WindowEventManager({
+        onCreated: WindowEventManager(
           context,
-          name: "windows.onCreated",
-          event: "domwindowopened",
-          listener: (fire, window) => {
+          "windows.onCreated",
+          "domwindowopened",
+          (fire, window) => {
             fire.async(windowManager.convert(window));
-          },
-        }).api(),
+          }
+        ),
 
-        onRemoved: new WindowEventManager({
+        onRemoved: WindowEventManager(
           context,
-          name: "windows.onRemoved",
-          event: "domwindowclosed",
-          listener: (fire, window) => {
+          "windows.onRemoved",
+          "domwindowclosed",
+          (fire, window) => {
             fire.async(windowTracker.getId(window));
-          },
-        }).api(),
+          }
+        ),
 
         onFocusChanged: new EventManager({
           context,
@@ -38,10 +73,16 @@ this.windows = class extends ExtensionAPI {
 
             let listener = event => {
               // Wait a tick to avoid firing a superfluous WINDOW_ID_NONE
-              // event when switching focus between two Firefox windows.
+              // event when switching focus between two Thunderbird windows.
               Promise.resolve().then(() => {
+                let windowId = Window.WINDOW_ID_NONE;
                 let window = Services.focus.activeWindow;
-                let windowId = window ? windowTracker.getId(window) : Window.WINDOW_ID_NONE;
+                if (window) {
+                  if (!context.canAccessWindow(window)) {
+                    return;
+                  }
+                  windowId = windowTracker.getId(window);
+                }
                 if (windowId !== lastOnFocusChangedWindowId) {
                   fire.async(windowId);
                   lastOnFocusChangedWindowId = windowId;

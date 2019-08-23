@@ -36,7 +36,6 @@ module.exports = {
     "ExtensionError": true,
     "Tab": true,
     "Window": true,
-    "WindowEventManager": true,
     "convertFolder": true,
     "convertMessage": true,
     "folderPathToURI": true,
