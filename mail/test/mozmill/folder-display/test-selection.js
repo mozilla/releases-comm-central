@@ -87,6 +87,7 @@ function test_selection_last_message_deleted() {
   press_delete();
   assert_selected_and_displayed(-1);
 }
+test_selection_last_message_deleted.EXCLUDED_PLATFORMS = ["darwin", "linux"];
 
 function test_selection_persists_through_threading_changes() {
   be_in_folder(folder);
@@ -158,6 +159,7 @@ function test_enter_scroll_to_new() {
   // make sure it (which must be the last row) is visible
   assert_visible(-1);
 }
+test_enter_scroll_to_new.EXCLUDED_PLATFORMS = ["darwin", "linux"];
 
 /**
  * Test that the last selected message persists through folder changes.
