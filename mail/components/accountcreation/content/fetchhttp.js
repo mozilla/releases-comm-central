@@ -248,7 +248,12 @@ FetchHTTP.prototype = {
         errorCode = this._request.status;
         errorStr = this._request.statusText;
       } catch (e) {
-        // If we can't resolve the hostname in DNS etc., .statusText throws
+        // In case .statusText throws (it's marked as [Throws] in the webidl),
+        // continue with empty errorStr.
+        console.error(e);
+      }
+      if (!errorStr) {
+        // If we can't resolve the hostname in DNS etc., .statusText is empty.
         errorCode = -2;
         errorStr = getStringBundle(
                    "chrome://messenger/locale/accountCreationUtil.properties")
