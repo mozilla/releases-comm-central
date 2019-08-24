@@ -68,6 +68,10 @@
   display: none;
 }
 
+#quick-filter-bar-filter-text-bar > toolbarbutton > .toolbarbutton-icon {
+  display: none;
+}
+
 #threadTree[filterActive] {
   background-repeat: no-repeat;
   background-position: center;
