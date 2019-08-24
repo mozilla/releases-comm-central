@@ -1820,7 +1820,4 @@ PlacesTreeView.prototype = {
   selectionChanged() { },
   cycleCell(aRow, aColumn) { },
   isSelectable(aRow, aColumn) { return false; },
-  performAction(aAction) { },
-  performActionOnRow(aAction, aRow) { },
-  performActionOnCell(aAction, aRow, aColumn) { }
 };

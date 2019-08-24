@@ -415,9 +415,6 @@ var gCookiesWindow = {
     },
     setCellValue(aIndex, aColumn, aValue) {},
     setCellText(aIndex, aColumn, aValue) {},
-    performAction(aAction) {},
-    performActionOnRow(aAction, aIndex) {},
-    performActionOnCell(aAction, aindex, aColumn) {},
   },
 
   _makeStrippedHost(aHost) {

@@ -539,20 +539,6 @@ NS_IMETHODIMP nsAbView::SetCellText(int32_t row, nsTreeColumn *col,
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsAbView::PerformAction(const char16_t *action) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP nsAbView::PerformActionOnRow(const char16_t *action,
-                                           int32_t row) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP nsAbView::PerformActionOnCell(const char16_t *action, int32_t row,
-                                            nsTreeColumn *col) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
 NS_IMETHODIMP nsAbView::GetCardFromRow(int32_t row, nsIAbCard **aCard) {
   *aCard = nullptr;
   NS_ENSURE_TRUE(row >= 0, NS_ERROR_UNEXPECTED);

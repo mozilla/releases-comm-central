@@ -116,9 +116,6 @@ var gFilterTreeView = {
   isSelectable: function isSelectable(row, col) { return false; },
   setCellValue: function setCellValue(row, col, value) {},
   setCellText: function setCellText(row, col, value) { /* XXX Write me */ },
-  performAction: function performAction(action) {},
-  performActionOnRow: function performActionOnRow(action, row) {},
-  performActionOnCell: function performActionOnCell(action, row, col) {}
 }
 
 const nsMsgFilterMotion = Ci.nsMsgFilterMotion;

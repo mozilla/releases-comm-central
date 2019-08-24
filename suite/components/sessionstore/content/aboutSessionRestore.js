@@ -287,7 +287,5 @@ var treeView = {
   cycleHeader: function(column) { },
   cycleCell: function(idx, column) { },
   selectionChanged: function() { },
-  performAction: function(action) { },
-  performActionOnCell: function(action, index, column) { },
   getColumnProperties: function(column) { return ""; }
 };

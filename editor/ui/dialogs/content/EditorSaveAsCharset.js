@@ -42,8 +42,6 @@ var gCharsetView = {
   selectionChanged: function() {},
   cycleCell: function(index, column) {},
   isEditable: function isEditable(index, column) { return false; },
-  performAction: function performAction(action) {},
-  performActionOnCell: function performActionOnCell(action, index, column) {}
 };
 
 function Startup()

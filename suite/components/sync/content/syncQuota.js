@@ -249,8 +249,4 @@ var gUsageTreeView = {
   isSelectable: function (row, col) { return false; },
   setCellValue: function(row, col, value) {},
   setCellText: function(row, col, value) {},
-  performAction: function(action) {},
-  performActionOnRow: function(action, row) {},
-  performActionOnCell: function(action, row, col) {}
-
 };

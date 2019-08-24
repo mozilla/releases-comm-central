@@ -1302,9 +1302,6 @@ var gFolderTreeView = {
   },
 
   // We don't implement any of these at the moment
-  performAction(aAction) {},
-  performActionOnCell(aAction, aRow, aCol) {},
-  performActionOnRow(aAction, aRow) {},
   selectionChanged() {},
   setCellText(aRow, aCol, aValue) {},
   setCellValue(aRow, aCol, aValue) {},

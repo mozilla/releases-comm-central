@@ -901,18 +901,3 @@ NS_IMETHODIMP
 nsSubscribableServer::CycleCell(int32_t aRow, nsTreeColumn *aCol) {
   return NS_OK;
 }
-
-NS_IMETHODIMP
-nsSubscribableServer::PerformAction(const char16_t *aAction) { return NS_OK; }
-
-NS_IMETHODIMP
-nsSubscribableServer::PerformActionOnRow(const char16_t *aAction,
-                                         int32_t aRow) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsSubscribableServer::PerformActionOnCell(const char16_t *aAction, int32_t aRow,
-                                          nsTreeColumn *aCol) {
-  return NS_OK;
-}

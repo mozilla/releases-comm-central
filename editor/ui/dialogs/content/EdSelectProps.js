@@ -497,8 +497,6 @@ function Startup() {
     },
     cycleCell(index, column) { itemArray[index].cycleCell(index); },
     isEditable(index, column) { return false; },
-    performAction(action) { },
-    performActionOnCell(action, index, column) { },
   };
   treeSelection.select(0);
   currentItem = gDialog;

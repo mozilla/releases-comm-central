@@ -137,8 +137,6 @@ pageInfoTreeView.prototype = {
   cycleCell: function(row, column) { },
   isEditable: function(row, column) { return false; },
   isSelectable: function(row, column) { return false; },
-  performAction: function(action) { },
-  performActionOnCell: function(action, row, column) { }
 };
 
 // mmm, yummy. global variables.

@@ -190,9 +190,6 @@ PROTO_TREE_VIEW.prototype = {
   // We don't implement any of these at the moment
   canDrop(aIndex, aOrientation) {},
   drop(aRow, aOrientation) {},
-  performAction(aAction) {},
-  performActionOnCell(aAction, aRow, aCol) {},
-  performActionOnRow(aAction, aRow) {},
   selectionChanged() {},
   setCellText(aRow, aCol, aValue) {},
   setCellValue(aRow, aCol, aValue) {},

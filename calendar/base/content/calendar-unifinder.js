@@ -839,12 +839,6 @@ var unifinderTreeView = {
     setCellValue: function(aRow, aCol, aValue) {},
     setCellText: function(aRow, aCol, aValue) {},
 
-    performAction: function(aAction) {},
-
-    performActionOnRow: function(aAction, aRow) {},
-
-    performActionOnCell: function(aAction, aRow, aCol) {},
-
     outParameter: {} // used to obtain dates during sort
 };
 

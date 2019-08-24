@@ -1797,22 +1797,6 @@ nsNntpIncomingServer::SetCellText(int32_t row, nsTreeColumn *col,
 }
 
 NS_IMETHODIMP
-nsNntpIncomingServer::PerformAction(const char16_t *action) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP
-nsNntpIncomingServer::PerformActionOnRow(const char16_t *action, int32_t row) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP
-nsNntpIncomingServer::PerformActionOnCell(const char16_t *action, int32_t row,
-                                          nsTreeColumn *col) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP
 nsNntpIncomingServer::GetCanFileMessagesOnServer(
     bool *aCanFileMessagesOnServer) {
   NS_ENSURE_ARG_POINTER(aCanFileMessagesOnServer);

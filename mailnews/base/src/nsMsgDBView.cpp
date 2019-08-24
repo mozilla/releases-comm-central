@@ -2075,20 +2075,6 @@ nsMsgDBView::CycleCell(int32_t row, nsTreeColumn *col) {
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsMsgDBView::PerformAction(const char16_t *action) { return NS_OK; }
-
-NS_IMETHODIMP
-nsMsgDBView::PerformActionOnRow(const char16_t *action, int32_t row) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgDBView::PerformActionOnCell(const char16_t *action, int32_t row,
-                                 nsTreeColumn *col) {
-  return NS_OK;
-}
-
 ///////////////////////////////////////////////////////////////////////////
 // end nsITreeView Implementation Methods
 ///////////////////////////////////////////////////////////////////////////

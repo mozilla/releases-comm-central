@@ -242,9 +242,6 @@ DownloadTreeView.prototype = {
   isSelectable: function(aRow, aColumn) { return false; },
   setCellValue: function(aRow, aColumn, aText) { },
   setCellText: function(aRow, aColumn, aText) { },
-  performAction: function(aAction) { },
-  performActionOnRow: function(aAction, aRow) { },
-  performActionOnCell: function(aAction, aRow, aColumn) { },
 
   // ***** local public methods *****
 

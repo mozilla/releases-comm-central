@@ -504,7 +504,4 @@ EngineView.prototype = {
   isEditable: function(index, column) { return column.id == "engineKeyword"; },
   isSelectable: function(index, column) { return false; },
   setCellValue: function(index, column, value) { },
-  performAction: function(action) { },
-  performActionOnRow: function(action, index) { },
-  performActionOnCell: function(action, index, column) { }
 };
