@@ -42,7 +42,7 @@ class nsAbBSDirectory : public nsAbDirProperty {
  protected:
   bool mInitialized;
   nsCOMArray<nsIAbDirectory> mSubDirectories;
-  nsDataHashtable<nsISupportsHashKey, DIR_Server *> mServers;
+  nsDataHashtable<nsCStringHashKey, DIR_Server *> mServers;
 };
 
 #endif

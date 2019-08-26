@@ -66,7 +66,7 @@ nsresult nsAbBSDirectory::CreateDirectoriesFromFactory(const nsACString &aURI,
 
     // Define a relationship between the preference
     // entry and the directory
-    mServers.Put(childDir, aServer);
+    mServers.Put(aURI, aServer);
 
     mSubDirectories.AppendObject(childDir);
 
@@ -181,6 +181,9 @@ NS_IMETHODIMP nsAbBSDirectory::CreateNewDirectory(const nsAString &aDirName,
     // Add the URI property
     URI.AssignLiteral(kMDBDirectoryRoot);
     URI.Append(nsDependentCString(server->fileName));
+  } else if (aType == JSDirectory) {
+    URI.AssignLiteral(kJSDirectoryRoot);
+    URI.Append(nsDependentCString(server->fileName));
   }
 
   aResult.Assign(server->prefName);
@@ -215,22 +218,40 @@ NS_IMETHODIMP nsAbBSDirectory::DeleteDirectory(nsIAbDirectory *directory) {
   nsresult rv = EnsureInitialized();
   NS_ENSURE_SUCCESS(rv, rv);
 
+  nsCString uri;
+  directory->GetURI(uri);
+
   DIR_Server *server = nullptr;
-  mServers.Get(directory, &server);
+  mServers.Get(uri, &server);
 
   if (!server) return NS_ERROR_FAILURE;
 
-  struct GetDirectories {
-    explicit GetDirectories(DIR_Server *aServer) : mServer(aServer) {}
+  nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMArray<nsIAbDirectory> directories;
-    DIR_Server *mServer;
-  };
-  GetDirectories getDirectories(server);
-  for (auto iter = mServers.Iter(); !iter.Done(); iter.Next()) {
-    if (iter.UserData() == getDirectories.mServer) {
-      nsCOMPtr<nsIAbDirectory> abDir = do_QueryInterface(iter.Key());
-      getDirectories.directories.AppendObject(abDir);
+  nsCOMPtr<nsISimpleEnumerator> dirEnumerator;
+  abManager->GetDirectories(getter_AddRefs(dirEnumerator));
+
+  nsCOMArray<nsIAbDirectory> directories;
+  bool hasMore;
+  while (NS_SUCCEEDED(dirEnumerator->HasMoreElements(&hasMore)) && hasMore) {
+    nsCOMPtr<nsISupports> dirSupports;
+    rv = dirEnumerator->GetNext(getter_AddRefs(dirSupports));
+    if (NS_FAILED(rv)) continue;
+
+    nsCOMPtr<nsIAbDirectory> d = do_QueryInterface(dirSupports, &rv);
+    if (NS_FAILED(rv)) continue;
+
+    nsCString u;
+    d->GetURI(u);
+
+    DIR_Server *s;
+    mServers.Get(u, &s);
+
+    if (s && s == server) {
+      if (d) {
+        directories.AppendElement(d);
+      }
     }
   }
 
@@ -240,21 +261,27 @@ NS_IMETHODIMP nsAbBSDirectory::DeleteDirectory(nsIAbDirectory *directory) {
       do_GetService(NS_ABDIRFACTORYSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  uint32_t count = getDirectories.directories.Count();
-
-  nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID);
+  uint32_t count = directories.Count();
 
   for (uint32_t i = 0; i < count; i++) {
-    nsCOMPtr<nsIAbDirectory> d = getDirectories.directories[i];
-
-    mServers.Remove(d);
-    mSubDirectories.RemoveObject(d);
-
-    if (abManager) abManager->NotifyDirectoryDeleted(this, d);
+    nsCOMPtr<nsIAbDirectory> d = directories[i];
 
     nsCString uri;
     rv = d->GetURI(uri);
     NS_ENSURE_SUCCESS(rv, rv);
+
+    mServers.Remove(uri);
+
+    for (uint i = 0; i < mSubDirectories.Length(); ++i) {
+      nsAutoCString u;
+      mSubDirectories[i]->GetURI(u);
+      if (u.Equals(uri)) {
+        mSubDirectories.RemoveObjectsAt(i, 1);
+        break;
+      }
+    }
+
+    if (abManager) abManager->NotifyDirectoryDeleted(this, d);
 
     nsCOMPtr<nsIAbDirFactory> dirFactory;
     rv = dirFactoryService->GetDirFactory(uri, getter_AddRefs(dirFactory));
@@ -272,8 +299,11 @@ NS_IMETHODIMP nsAbBSDirectory::HasDirectory(nsIAbDirectory *dir, bool *hasDir) {
   nsresult rv = EnsureInitialized();
   NS_ENSURE_SUCCESS(rv, rv);
 
+  nsCString uri;
+  dir->GetURI(uri);
+
   DIR_Server *dirServer = nullptr;
-  mServers.Get(dir, &dirServer);
+  mServers.Get(uri, &dirServer);
   return DIR_ContainsServer(dirServer, hasDir);
 }
 

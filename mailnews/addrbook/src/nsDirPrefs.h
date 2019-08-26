@@ -27,6 +27,7 @@ typedef enum {
   HTMLDirectory,
   PABDirectory,
   MAPIDirectory,
+  JSDirectory = 101,
   FixedQueryLDAPDirectory = 777
 } DirectoryType;
 

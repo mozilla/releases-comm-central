@@ -265,6 +265,8 @@ nsresult DIR_AddNewAddressBook(const nsAString &dirName,
       DIR_SetFileName(&server->fileName, kPersonalAddressbook);
     else if (dirType == LDAPDirectory)
       DIR_SetFileName(&server->fileName, kMainLdapAddressBook);
+    else if (dirType == JSDirectory)
+      DIR_SetFileName(&server->fileName, kJSAddressBook);
 
     if (dirType != PABDirectory) {
       if (!uri.IsEmpty()) server->uri = ToNewCString(uri);
@@ -584,7 +586,9 @@ nsresult DIR_DeleteServerFromList(DIR_Server *server) {
     // which can never be deleted.  There was a bug where we would slap in
     // "abook.mab" as the file name for LDAP directories, which would cause a
     // crash on delete of LDAP directories.  this is just extra protection.
-    if (server->fileName && strcmp(server->fileName, kPersonalAddressbook) &&
+    if (server->fileName &&
+        server->dirType != JSDirectory &&
+        strcmp(server->fileName, kPersonalAddressbook) &&
         strcmp(server->fileName, kCollectedAddressbook)) {
       nsCOMPtr<nsIAddrDatabase> database;
 
@@ -1029,17 +1033,24 @@ static void DIR_GetPrefsForOneServer(DIR_Server *server) {
   if (server->fileName && *server->fileName) DIR_ConvertServerFileName(server);
 
   // the string "s" is the default uri ( <scheme> + "://" + <filename> )
-  nsCString s(
-      (server->dirType == PABDirectory || server->dirType == MAPIDirectory)
-          ?
+  nsCString s;
+  switch (server->dirType) {
+    case PABDirectory:
+    case MAPIDirectory:
+      s = kMDBDirectoryRoot;
+      break;
+    case JSDirectory:
+      s = kJSDirectoryRoot;
+      break;
+    default:
 #if defined(MOZ_LDAP_XPCOM)
-          kMDBDirectoryRoot
-          : kLDAPDirectoryRoot);
+      s = kLDAPDirectoryRoot;
 #else
-          // Fallback to the all directory root in the non-ldap enabled case.
-          kMDBDirectoryRoot
-          : kAllDirectoryRoot);
+      // Fallback to the all directory root in the non-ldap enabled case.
+      s = kAllDirectoryRoot;
 #endif
+      break;
+  }
   s.Append(server->fileName);
   server->uri = DIR_GetStringPref(prefstring, "uri", s.get());
 }
@@ -1075,6 +1086,7 @@ static nsresult dir_GetPrefs(nsTArray<DIR_Server *> **list) {
       if (server->description && server->description[0] &&
           ((server->dirType == PABDirectory ||
             server->dirType == MAPIDirectory ||
+            server->dirType == JSDirectory ||
             server->dirType ==
                 FixedQueryLDAPDirectory ||  // this one might go away
             server->dirType == LDAPDirectory))) {
