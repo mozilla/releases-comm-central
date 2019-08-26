@@ -234,11 +234,10 @@ nsresult mime_generate_headers(nsIMsgCompFields *fields,
   int gmtoffset =
       (now.tm_params.tp_gmt_offset + now.tm_params.tp_dst_offset) / 60;
 
-  /* Use PR_FormatTimeUSEnglish() to format the date in US English format,
-     then figure out what our local GMT offset is, and append it (since
-     PR_FormatTimeUSEnglish() can't do that.) Generate four digit years as
-     per RFC 1123 (superseding RFC 822.)
-   */
+  // Use PR_FormatTimeUSEnglish() to format the date in US English format,
+  // then figure out what our local GMT offset is, and append it (since
+  // PR_FormatTimeUSEnglish() can't do that.) Generate four digit years as
+  // per RFC 1123 (superseding RFC 822.)
   char dateString[130];
   PR_FormatTimeUSEnglish(dateString, sizeof(dateString),
                          "%a, %d %b %Y %H:%M:%S ", &now);
@@ -529,16 +528,16 @@ char *mime_generate_attachment_headers(
       charset_label[sizeof(charset_label) - 1] = '\0';
     }
 
-    /* If the characters are all 7bit, arguably it's better to
-    claim the charset to be US-ASCII. However, it causes
-    a major 'interoperability problem' with MS OE, which makes it hard
-    to sell Mozilla/TB to people most of whose correspondents use
-    MS OE. MS OE turns all non-ASCII characters to question marks
-    in replies to messages labeled as US-ASCII if users select 'send as is'
-    with MIME turned on. (with MIME turned off, this happens without
-    any warning.) To avoid this, we use the label 'US-ASCII' only when
-    it's explicitly requested by setting the hidden pref.
-    'mail.label_ascii_only_mail_as_us_ascii'. (bug 247958) */
+    // If the characters are all 7bit, arguably it's better to
+    // claim the charset to be US-ASCII. However, it causes
+    // a major 'interoperability problem' with MS OE, which makes it hard
+    // to sell Mozilla/TB to people most of whose correspondents use
+    // MS OE. MS OE turns all non-ASCII characters to question marks
+    // in replies to messages labeled as US-ASCII if users select 'send as is'
+    // with MIME turned on. (with MIME turned off, this happens without
+    // any warning.) To avoid this, we use the label 'US-ASCII' only when
+    // it's explicitly requested by setting the hidden pref.
+    // 'mail.label_ascii_only_mail_as_us_ascii'. (bug 247958)
     bool labelAsciiAsAscii = false;
     if (prefs)
       prefs->GetBoolPref("mail.label_ascii_only_mail_as_us_ascii",
@@ -668,8 +667,8 @@ char *mime_generate_attachment_headers(
               (period && !PL_strcasecmp(period, ".txt"))))
       buf.AppendLiteral("attachment");
 
-    /* If this document is an anonymous binary file or a vcard,
-    then always show it as an attachment, never inline. */
+    // If this document is an anonymous binary file or a vcard,
+    // then always show it as an attachment, never inline.
     else if (!PL_strcasecmp(type, APPLICATION_OCTET_STREAM) ||
              !PL_strcasecmp(type, TEXT_VCARD) ||
              !PL_strcasecmp(type,
@@ -686,8 +685,8 @@ char *mime_generate_attachment_headers(
     buf.AppendLiteral("Content-Disposition: inline" CRLF);
 
 #ifdef GENERATE_CONTENT_BASE
-  /* If this is an HTML document, and we know the URL it originally
-     came from, write out a Content-Base header. */
+  // If this is an HTML document, and we know the URL it originally
+  // came from, write out a Content-Base header.
   if (type &&
       (!PL_strcasecmp(type, TEXT_HTML) || !PL_strcasecmp(type, TEXT_MDL)) &&
       base_url && *base_url) {
@@ -698,8 +697,8 @@ char *mime_generate_attachment_headers(
 
     if (!colon) goto GIVE_UP_ON_CONTENT_BASE; /* malformed URL? */
 
-    /* Don't emit a content-base that points to (or into) a news or
-       mail message. */
+    // Don't emit a content-base that points to (or into) a news or
+    // mail message.
     if (!PL_strncasecmp(s, "news:", 5) || !PL_strncasecmp(s, "snews:", 6) ||
         !PL_strncasecmp(s, "IMAP:", 5) ||
         !PL_strncasecmp(
@@ -707,9 +706,8 @@ char *mime_generate_attachment_headers(
         !PL_strncasecmp(s, "mailbox:", 8))
       goto GIVE_UP_ON_CONTENT_BASE;
 
-    /* rhp - Put in a pref for using Content-Location instead of Content-Base.
-           This will get tweaked to default to true in 5.0
-    */
+    // rhp - Put in a pref for using Content-Location instead of Content-Base.
+    //       This will get tweaked to default to true in 5.0
     if (prefs)
       prefs->GetBoolPref("mail.use_content_location_on_send",
                          &useContentLocation);
@@ -749,8 +747,7 @@ char *mime_generate_attachment_headers(
     }
     buf.AppendLiteral("\"" CRLF);
 
-    /* rhp: this is to try to get around this fun problem with Content-Location
-     */
+    // rhp: this is to try to get around this fun problem with Content-Location
     if (!useContentLocation) {
       buf.AppendLiteral("Content-Location: \"");
       s = base_url;
@@ -758,8 +755,7 @@ char *mime_generate_attachment_headers(
       useContentLocation = true;
       goto CONTENT_LOC_HACK;
     }
-    /* rhp: this is to try to get around this fun problem with Content-Location
-     */
+    // rhp: this is to try to get around this fun problem with Content-Location
 
   GIVE_UP_ON_CONTENT_BASE:;
   }
@@ -806,8 +802,8 @@ char *msg_generate_message_id(nsIMsgIdentity *identity) {
   }
 
   if (!isValidHost(host))
-    /* If we couldn't find a valid host name to use, we can't generate a
-       valid message ID, so bail, and let NNTP and SMTP generate them. */
+    // If we couldn't find a valid host name to use, we can't generate a
+    // valid message ID, so bail, and let NNTP and SMTP generate them.
     return 0;
 
   // Generate 128-bit UUID for the local part. We use the high-entropy
@@ -961,11 +957,10 @@ bool mime_7bit_data_p(const char *string, uint32_t size) {
   return true;
 }
 
-/* Strips whitespace, and expands newlines into newline-tab for use in
-   mail headers.  Returns a new string or 0 (if it would have been empty.)
-   If addr_p is true, the addresses will be parsed and reemitted as
-   rfc822 mailboxes.
- */
+// Strips whitespace, and expands newlines into newline-tab for use in
+// mail headers.  Returns a new string or 0 (if it would have been empty.)
+// If addr_p is true, the addresses will be parsed and reemitted as
+// rfc822 mailboxes.
 char *mime_fix_header_1(const char *string, bool addr_p, bool news_p) {
   char *new_string;
   const char *in;
@@ -1035,31 +1030,30 @@ char *mime_fix_news_header(const char *string) {
 
 bool mime_type_requires_b64_p(const char *type) {
   if (!type || !PL_strcasecmp(type, UNKNOWN_CONTENT_TYPE))
-    /* Unknown types don't necessarily require encoding.  (Note that
-       "unknown" and "application/octet-stream" aren't the same.) */
+    // Unknown types don't necessarily require encoding.  (Note that
+    // "unknown" and "application/octet-stream" aren't the same.)
     return false;
 
   else if (!PL_strncasecmp(type, "image/", 6) ||
            !PL_strncasecmp(type, "audio/", 6) ||
            !PL_strncasecmp(type, "video/", 6) ||
            !PL_strncasecmp(type, "application/", 12)) {
-    /* The following types are application/ or image/ types that are actually
-     known to contain textual data (meaning line-based, not binary, where
-     CRLF conversion is desired rather than disastrous.)  So, if the type
-     is any of these, it does not *require* base64, and if we do need to
-     encode it for other reasons, we'll probably use quoted-printable.
-     But, if it's not one of these types, then we assume that any subtypes
-     of the non-"text/" types are binary data, where CRLF conversion would
-     corrupt it, so we use base64 right off the bat.
+    // The following types are application/ or image/ types that are actually
+    // known to contain textual data (meaning line-based, not binary, where
+    // CRLF conversion is desired rather than disastrous.)  So, if the type
+    // is any of these, it does not *require* base64, and if we do need to
+    // encode it for other reasons, we'll probably use quoted-printable.
+    // But, if it's not one of these types, then we assume that any subtypes
+    // of the non-"text/" types are binary data, where CRLF conversion would
+    // corrupt it, so we use base64 right off the bat.
 
-     The reason it's desirable to ship these as text instead of just using
-     base64 all the time is mainly to preserve the readability of them for
-     non-MIME users: if I mail a /bin/sh script to someone, it might not
-     need to be encoded at all, so we should leave it readable if we can.
+    // The reason it's desirable to ship these as text instead of just using
+    // base64 all the time is mainly to preserve the readability of them for
+    // non-MIME users: if I mail a /bin/sh script to someone, it might not
+    // need to be encoded at all, so we should leave it readable if we can.
 
-     This list of types was derived from the comp.mail.mime FAQ, section
-     10.2.2, "List of known unregistered MIME types" on 2-Feb-96.
-     */
+    // This list of types was derived from the comp.mail.mime FAQ, section
+    // 10.2.2, "List of known unregistered MIME types" on 2-Feb-96.
     static const char *app_and_image_types_which_are_really_text[] = {
         "application/mac-binhex40", /* APPLICATION_BINHEX */
         "application/pgp",          /* APPLICATION_PGP */
@@ -1131,8 +1125,8 @@ bool mime_type_needs_charset(const char *type) {
     return false;
 }
 
-/* Given a string, convert it to 'qtext' (quoted text) for RFC822 header
- * purposes. */
+// Given a string, convert it to 'qtext' (quoted text) for RFC822 header
+// purposes.
 char *msg_make_filename_qtext(const char *srcText, bool stripCRLFs) {
   /* newString can be at most twice the original string (every char quoted). */
   char *newString = (char *)PR_Malloc(PL_strlen(srcText) * 2 + 1);
@@ -1143,13 +1137,12 @@ char *msg_make_filename_qtext(const char *srcText, bool stripCRLFs) {
   char *d = newString;
 
   while (*s) {
-    /*  Put backslashes in front of existing backslashes, or double quote
-      characters.
-      If stripCRLFs is true, don't write out CRs or LFs. Otherwise,
-      write out a backslash followed by the CR but not
-      linear-white-space.
-      We might already have quoted pair of "\ " or "\\t" skip it.
-      */
+    // Put backslashes in front of existing backslashes, or double quote
+    // characters.
+    // If stripCRLFs is true, don't write out CRs or LFs. Otherwise,
+    // write out a backslash followed by the CR but not
+    // linear-white-space.
+    // We might already have quoted pair of "\ " or "\\t" skip it.
     if (*s == '\\' || *s == '"' ||
         (!stripCRLFs &&
          (*s == '\r' && (s[1] != '\n' ||
@@ -1168,8 +1161,7 @@ char *msg_make_filename_qtext(const char *srcText, bool stripCRLFs) {
   return newString;
 }
 
-/* Rip apart the URL and extract a reasonable value for the `real_name' slot.
- */
+// Rip apart the URL and extract a reasonable value for the `real_name' slot.
 void msg_pick_real_name(nsMsgAttachmentHandler *attachment,
                         const char16_t *proposedName, const char *charset) {
   const char *s, *s2;
@@ -1187,8 +1179,8 @@ void msg_pick_real_name(nsMsgAttachmentHandler *attachment,
     s = url.get();
     s2 = PL_strchr(s, ':');
     if (s2) s = s2 + 1;
-    /* If we know the URL doesn't have a sensible file name in it,
-     don't bother emitting a content-disposition. */
+    // If we know the URL doesn't have a sensible file name in it,
+    // don't bother emitting a content-disposition.
     if (StringBeginsWith(url, NS_LITERAL_CSTRING("news:"),
                          nsCaseInsensitiveCStringComparator()) ||
         StringBeginsWith(url, NS_LITERAL_CSTRING("snews:"),
@@ -1259,32 +1251,30 @@ void msg_pick_real_name(nsMsgAttachmentHandler *attachment,
     attachment->m_realName = unescaped_real_name;
   }
 
-  /* Now a special case for attaching uuencoded files...
+  // Now a special case for attaching uuencoded files...
 
-   If we attach a file "foo.txt.uu", we will send it out with
-   Content-Type: text/plain; Content-Transfer-Encoding: x-uuencode.
-   When saving such a file, a mail reader will generally decode it first
-   (thus removing the uuencoding.)  So, let's make life a little easier by
-   removing the indication of uuencoding from the file name itself.  (This
-   will presumably make the file name in the Content-Disposition header be
-   the same as the file name in the "begin" line of the uuencoded data.)
+  // If we attach a file "foo.txt.uu", we will send it out with
+  // Content-Type: text/plain; Content-Transfer-Encoding: x-uuencode.
+  // When saving such a file, a mail reader will generally decode it first
+  // (thus removing the uuencoding.)  So, let's make life a little easier by
+  // removing the indication of uuencoding from the file name itself.  (This
+  // will presumably make the file name in the Content-Disposition header be
+  // the same as the file name in the "begin" line of the uuencoded data.)
 
-   However, since there are mailers out there (including earlier versions of
-   Mozilla) that will use "foo.txt.uu" as the file name, we still need to
-   cope with that; the code which copes with that is in the MIME parser, in
-   libmime/mimei.c.
-   */
+  // However, since there are mailers out there (including earlier versions of
+  // Mozilla) that will use "foo.txt.uu" as the file name, we still need to
+  // cope with that; the code which copes with that is in the MIME parser, in
+  // libmime/mimei.c.
   if (attachment->m_already_encoded_p && !attachment->m_encoding.IsEmpty()) {
-    /* #### TOTAL KLUDGE.
-     I'd like to ask the mime.types file, "what extensions correspond
-     to obj->encoding (which happens to be "x-uuencode") but doing that
-     in a non-sphagetti way would require brain surgery.  So, since
-     currently uuencode is the only content-transfer-encoding which we
-     understand which traditionally has an extension, we just special-
-     case it here!
+    // #### XXX TOTAL KLUDGE.
+    // I'd like to ask the mime.types file, "what extensions correspond
+    // to obj->encoding (which happens to be "x-uuencode") but doing that
+    // in a non-sphagetti way would require brain surgery.  So, since
+    // currently uuencode is the only content-transfer-encoding which we
+    // understand which traditionally has an extension, we just special-
+    // case it here!
 
-     Note that it's special-cased in a similar way in libmime/mimei.c.
-     */
+    // Note that it's special-cased in a similar way in libmime/mimei.c.
     if (attachment->m_encoding.LowerCaseEqualsLiteral(ENCODING_UUENCODE) ||
         attachment->m_encoding.LowerCaseEqualsLiteral(ENCODING_UUENCODE2) ||
         attachment->m_encoding.LowerCaseEqualsLiteral(ENCODING_UUENCODE3) ||
@@ -1317,11 +1307,9 @@ nsresult nsMsgNewURL(nsIURI **aInstancePtrResult, const nsCString &aSpec) {
 }
 
 bool nsMsgIsLocalFile(const char *url) {
-  /*
-    A url is considered as a local file if it's start with file://
-    But on Window, we need to filter UNC file url because there
-    are not really local file. Those start with file:////
-  */
+  // A url is considered as a local file if it's start with file://
+  // But on Window, we need to filter UNC file url because there
+  // are not really local file. Those start with file:////
   if (PL_strncasecmp(url, "file://", 7) == 0) {
 #ifdef XP_WIN
     if (PL_strncasecmp(url, "file:////", 9) == 0) return false;
