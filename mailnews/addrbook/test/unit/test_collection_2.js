@@ -19,11 +19,7 @@ function run_test() {
   // Set the new pref afterwards to ensure we change correctly
   Services.prefs.setCharPref("mail.collect_addressbook", kCABData.URI);
 
-  // For this test use an address book that isn't the one we're collecting
-  // to.
-  var testAB = do_get_file("data/collect.mab");
-
-  testAB.copyTo(do_get_profile(), kPABData.fileName);
+  loadABFile("data/collect", kPABData.fileName);
 
   // XXX Getting all directories ensures we create all ABs because the
   // address collecter can't currently create ABs itself (bug 314448).

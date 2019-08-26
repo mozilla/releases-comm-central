@@ -136,13 +136,20 @@ add_test(function() {
 
   // Test - Remove a list.
 
+  // With this line, there'll be three notifications below.
+  // Without it, there'll be two. Go figure.
+  [...book.childCards];
+
+  abListener.maxResults = 3;
   AB.deleteDirectory(book);
 
-  Assert.equal(abListener.result.length, 2);
+  Assert.equal(abListener.result.length, 3);
   Assert.equal(abListener.result[0][0], "onItemRemoved");
   Assert.equal(abListener.result[0][1], AB);
   Assert.equal(abListener.result[1][0], "onItemRemoved");
-  Assert.equal(abListener.result[1][1], AB);
+  Assert.equal(abListener.result[1][1].QueryInterface(Ci.nsIAbDirectory).UID, book.UID);
+  Assert.equal(abListener.result[2][0], "onItemRemoved");
+  Assert.equal(abListener.result[2][1], AB);
 
   // Now verify the card and the directory
   card = abListener.result[0][2].QueryInterface(Ci.nsIAbCard);
@@ -151,7 +158,7 @@ add_test(function() {
   Assert.equal(card.getProperty("Notes", "BAD"), "testdescription");
   Assert.equal(card.getProperty("NickName", "BAD"), "test");
 
-  book = abListener.result[1][2].QueryInterface(Ci.nsIAbDirectory);
+  book = abListener.result[2][2].QueryInterface(Ci.nsIAbDirectory);
   Assert.ok(book.isMailList);
   Assert.equal(book.dirName, "TestList");
   Assert.equal(book.listNickName, "test");

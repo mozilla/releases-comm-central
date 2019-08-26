@@ -11,6 +11,11 @@ do_get_profile();
 /* import-globals-from ../../../test/resources/abSetup.js */
 load("../../../resources/abSetup.js");
 
+function loadABFile(source, dest) {
+  let testAB = do_get_file(`${source}.mab`);
+  testAB.copyTo(do_get_profile(), dest);
+}
+
 registerCleanupFunction(function() {
   load("../../../resources/mailShutdown.js");
 });

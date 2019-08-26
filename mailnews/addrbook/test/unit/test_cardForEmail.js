@@ -19,11 +19,7 @@ function check_correct_card(card) {
 }
 
 function run_test() {
-  // Test setup - copy the data file into place
-  var testAB = do_get_file("data/cardForEmail.mab");
-
-  // Copy the file to the profile directory for a PAB
-  testAB.copyTo(do_get_profile(), kPABData.fileName);
+  loadABFile("data/cardForEmail", kPABData.fileName);
 
   // Test - Get the directory
   let AB = MailServices.ab.getDirectory(kPABData.URI);

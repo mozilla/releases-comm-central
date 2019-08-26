@@ -44,10 +44,7 @@ acObserver.prototype = {
 };
 
 function run_test() {
-  // Copy the data files into place
-  let testAB = do_get_file("../../../data/tb2hexpopularity.mab");
-
-  testAB.copyTo(do_get_profile(), kPABData.fileName);
+  loadABFile("../../../data/tb2hexpopularity", kPABData.fileName);
 
   // Test - Create a new search component
 

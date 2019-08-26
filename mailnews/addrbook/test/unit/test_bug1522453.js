@@ -64,8 +64,10 @@ function run_test() {
   book = MailServices.ab.getDirectory(kPABData.URI);
 
   // For some unknown reason this is necessary for book.addressLists to be populated.
-  book.QueryInterface(Ci.nsIAbMDBDirectory).database.getMailingListsFromDB(book);
-  equal(1, book.addressLists.Count());
+  if (kPABData.dirType == 2) {
+    book.QueryInterface(Ci.nsIAbMDBDirectory).database.getMailingListsFromDB(book);
+    equal(1, book.addressLists.Count());
+  }
   list = book.addressLists.GetElementAt(0).QueryInterface(Ci.nsIAbDirectory);
 
   // list.childCards should contain contacts 1 and 3.
