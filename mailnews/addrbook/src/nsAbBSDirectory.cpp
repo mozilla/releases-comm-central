@@ -272,7 +272,7 @@ NS_IMETHODIMP nsAbBSDirectory::DeleteDirectory(nsIAbDirectory *directory) {
 
     mServers.Remove(uri);
 
-    for (uint i = 0; i < mSubDirectories.Length(); ++i) {
+    for (uint32_t i = 0; i < mSubDirectories.Length(); ++i) {
       nsAutoCString u;
       mSubDirectories[i]->GetURI(u);
       if (u.Equals(uri)) {
