@@ -411,7 +411,8 @@ this.addressBook = class extends ExtensionAPI {
           return addressBookCache.convert(addressBookCache.findAddressBookById(id), complete);
         },
         create({ name }) {
-          let dirName = MailServices.ab.newAddressBook(name, "", kPABDirectory);
+          let dirName = MailServices.ab.newAddressBook(name, "",
+            Services.prefs.getIntPref("mail.addr_book.newDirType", kPABDirectory));
           let directory = MailServices.ab.getDirectoryFromId(dirName);
           return directory.UID;
         },

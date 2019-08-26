@@ -80,7 +80,8 @@ function abNameOKButton(event) {
   if (gDirectory)
     gDirectory.dirName = newName;
   else
-    MailServices.ab.newAddressBook(newName, "", kPABDirectory);
+    MailServices.ab.newAddressBook(newName, "",
+      Services.prefs.getIntPref("mail.addr_book.newDirType", kPABDirectory));
 }
 
 function abNameDoOkEnabling() {

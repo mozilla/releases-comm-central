@@ -69,11 +69,17 @@ var abResultsPaneObserver = {
 
     var card = GetSelectedCard();
     if (card && card.displayName) {
-      let vCard = card.translateTo("vcard");
-      aXferData.data.addDataForFlavour("text/vcard", decodeURIComponent(vCard));
-      aXferData.data.addDataForFlavour("application/x-moz-file-promise-dest-filename", card.displayName + ".vcf");
-      aXferData.data.addDataForFlavour("application/x-moz-file-promise-url", "data:text/vcard," + vCard);
-      aXferData.data.addDataForFlavour("application/x-moz-file-promise", abFlavorDataProvider);
+      try {
+        // A card implementation may throw NS_ERROR_NOT_IMPLEMENTED.
+        // Don't break drag-and-drop if that happens.
+        let vCard = card.translateTo("vcard");
+        aXferData.data.addDataForFlavour("text/vcard", decodeURIComponent(vCard));
+        aXferData.data.addDataForFlavour("application/x-moz-file-promise-dest-filename", card.displayName + ".vcf");
+        aXferData.data.addDataForFlavour("application/x-moz-file-promise-url", "data:text/vcard," + vCard);
+        aXferData.data.addDataForFlavour("application/x-moz-file-promise", abFlavorDataProvider);
+      } catch (ex) {
+        Cu.reportError(ex);
+      }
     }
   },
 
