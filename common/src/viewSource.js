@@ -761,7 +761,7 @@ Object.defineProperty(this, "gPageLoader", {
 function ViewSourceSavePage() {
   internalSave(gBrowser.currentURI.spec.replace(/^view-source:/i, ""),
                null, null, null, null, null, "SaveLinkTitle",
-               null, null, gBrowser.contentDocumentAsCPOW, null,
+               null, null, gBrowser.contentDocument, null,
                gPageLoader);
 }
 
