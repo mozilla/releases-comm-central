@@ -202,7 +202,7 @@ function view_init() {
   }
 
   let messagePaneAppMenuItem = document.getElementById("appmenu_showMessage");
-  if (messagePaneAppMenuItem && messagePaneAppMenuItem.hidden) { // Hidden in the standalone msg window.
+  if (messagePaneAppMenuItem && !messagePaneAppMenuItem.hidden) { // Hidden in the standalone msg window.
     messagePaneAppMenuItem.setAttribute("checked",
       accountCentralDisplayed ? false : gMessageDisplay.visible);
     messagePaneAppMenuItem.disabled = accountCentralDisplayed;
