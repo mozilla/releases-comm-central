@@ -23,7 +23,8 @@
         persist="screenX screenY height width"
         orient="vertical"
         style="padding-top: 8px; padding-bottom: 10px; padding-inline-start: 8px; padding-inline-end: 10px;"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <!-- Javascript includes -->
   <script src="chrome://calendar/content/calendar-event-dialog-attendees-custom-elements.js"/>
@@ -142,9 +143,8 @@
                  id="horizontal-scrollbar"
                  maxpos="100"/>
     </vbox>
-    <vbox
-         id="vertical-scrollbar-box"
-         collapsed="true">
+    <vbox id="vertical-scrollbar-box"
+          collapsed="true">
       <box class="attendee-spacer-top"/>
       <scrollbar orient="vertical"
                  flex="1"
@@ -153,98 +153,110 @@
       <box class="attendee-spacer-bottom"/>
     </vbox>
   </hbox>
-  <hbox>
-    <grid flex="1">
-      <columns>
-        <column/>         <!-- role icon -->
-        <column flex="1"/><!-- role description -->
-        <column/>         <!-- status color -->
-        <column flex="1"/><!-- status description -->
-        <column/>         <!-- status color -->
-        <column flex="1"/><!-- status description -->
-      </columns>
-      <rows>
-        <row align="center">
-          <image class="role-icon" role="REQ-PARTICIPANT"/>
-          <label value="&event.attendee.role.required;"/>
-          <image class="usertype-icon" cutype="INDIVIDUAL"/>
-          <label value="&event.attendee.usertype.individual;"/>
-          <box class="legend" status="FREE"/>
-          <label value="&event.freebusy.legend.free;"/>
-        </row>
-        <row align="center">
-          <image class="role-icon" role="OPT-PARTICIPANT"/>
-          <label value="&event.attendee.role.optional;"/>
-          <image class="usertype-icon" cutype="GROUP"/>
-          <label value="&event.attendee.usertype.group;"/>
-          <box class="legend" status="BUSY_TENTATIVE"/>
-          <label value="&event.freebusy.legend.busy_tentative;"/>
-        </row>
-        <row align="center">
-          <image class="role-icon" role="CHAIR"/>
-          <label value="&event.attendee.role.chair;"/>
-          <image class="usertype-icon" cutype="RESOURCE"/>
-          <label value="&event.attendee.usertype.resource;"/>
-          <box class="legend" status="BUSY"/>
-          <label value="&event.freebusy.legend.busy;"/>
-        </row>
-        <row align="center">
-          <image class="role-icon" role="NON-PARTICIPANT"/>
-          <label value="&event.attendee.role.nonparticipant;"/>
-          <image class="usertype-icon" cutype="ROOM"/>
-          <label value="&event.attendee.usertype.room;"/>
-          <box class="legend" status="BUSY_UNAVAILABLE"/>
-          <label value="&event.freebusy.legend.busy_unavailable;"/>
-        </row>
-        <row align="center">
-          <spacer/>
-          <spacer/>
-          <spacer/>
-          <spacer/>
-          <box class="legend" status="UNKNOWN"/>
-          <label value="&event.freebusy.legend.unknown;"/>
-        </row>
-      </rows>
-    </grid>
+  <hbox flex="1">
+    <hbox flex="1">
+      <hbox flex="1">
+        <table xmlns="http://www.w3.org/1999/xhtml">
+          <tr>
+            <td><xul:image class="role-icon" role="REQ-PARTICIPANT"/></td>
+            <td>&event.attendee.role.required;</td>
+          </tr>
+          <tr>
+            <td><xul:image class="role-icon" role="OPT-PARTICIPANT"/></td>
+            <td>&event.attendee.role.optional;</td>
+          </tr>
+          <tr>
+            <td><xul:image class="role-icon" role="CHAIR"/></td>
+            <td>&event.attendee.role.chair;</td>
+          </tr>
+          <tr>
+            <td><xul:image class="role-icon" role="NON-PARTICIPANT"/></td>
+            <td>&event.attendee.role.nonparticipant;</td>
+          </tr>
+        </table>
+      </hbox>
+      <hbox flex="1">
+        <table xmlns="http://www.w3.org/1999/xhtml">
+          <tr>
+            <td><xul:image class="usertype-icon" cutype="INDIVIDUAL"/></td>
+            <td>&event.attendee.usertype.individual;</td>
+          </tr>
+          <tr>
+            <td><xul:image class="usertype-icon" cutype="GROUP"/></td>
+            <td>&event.attendee.usertype.group;</td>
+          </tr>
+          <tr>
+            <td><xul:image class="usertype-icon" cutype="RESOURCE"/></td>
+            <td>&event.attendee.usertype.resource;</td>
+          </tr>
+          <tr>
+            <td><xul:image class="usertype-icon" cutype="ROOM"/></td>
+            <td>&event.attendee.usertype.room;</td>
+          </tr>
+        </table>
+      </hbox>
+      <hbox flex="1">
+        <table xmlns="http://www.w3.org/1999/xhtml">
+          <tr>
+            <td><xul:box class="legend" status="FREE"/></td>
+            <td>&event.freebusy.legend.free;</td>
+          </tr>
+          <tr>
+            <td><xul:box class="legend" status="BUSY_TENTATIVE"/></td>
+            <td>&event.freebusy.legend.busy_tentative;</td>
+          </tr>
+          <tr>
+            <td><xul:box class="legend" status="BUSY"/></td>
+            <td>&event.freebusy.legend.busy;</td>
+          </tr>
+          <tr>
+            <td><xul:box class="legend" status="BUSY_UNAVAILABLE"/></td>
+            <td>&event.freebusy.legend.busy_unavailable;</td>
+          </tr>
+          <tr>
+            <td><xul:box class="legend" status="UNKNOWN"/></td>
+            <td>&event.freebusy.legend.unknown;</td>
+          </tr>
+        </table>
+      </hbox>
+    </hbox>
     <vbox>
-      <grid>
-        <columns>
-          <column/>
-          <column flex="1"/>
-        </columns>
-        <rows>
-          <row align="center">
-            <spacer/>
-            <checkbox id="all-day"
-                      oncommand="changeAllDay();"
-                      label="&event.alldayevent.label;"/>
-          </row>
-          <row align="center">
-            <label value="&newevent.from.label;" control="event-starttime"/>
-            <datetimepicker id="event-starttime"
-                            onchange="updateStartTime();"/>
-            <label id="timezone-starttime"
-                   class="text-link"
-                   crop="right"
-                   flex="1"
-                   collapsed="true"
-                   hyperlink="true"
-                   onclick="editStartTimezone()"/>
-          </row>
-          <row align="center">
-            <label value="&newevent.to.label;" control="event-endtime"/>
-            <datetimepicker id="event-endtime"
-                            onchange="updateEndTime();"/>
-            <label id="timezone-endtime"
-                   class="text-link"
-                   crop="right"
-                   flex="1"
-                   collapsed="true"
-                   hyperlink="true"
-                   onclick="editEndTimezone()"/>
-          </row>
-        </rows>
-      </grid>
+      <table xmlns="http://www.w3.org/1999/xhtml">
+        <tr>
+          <td></td>
+          <td>
+            <xul:checkbox id="all-day"
+                          oncommand="changeAllDay();"
+                          label="&event.alldayevent.label;"/>
+          </td>
+        </tr>
+        <tr>
+          <td>&newevent.from.label;</td>
+          <td>
+            <xul:datetimepicker id="event-starttime"
+                                onchange="updateStartTime();"/>
+          </td>
+          <td id="timezone-starttime"
+              class="text-link"
+              collapsed="true"
+              hyperlink="true"
+              onclick="editStartTimezone()">
+          </td>
+        </tr>
+        <tr>
+          <td>&newevent.to.label;</td>
+          <td>
+            <xul:datetimepicker id="event-endtime"
+                                onchange="updateEndTime();"/>
+          </td>
+          <td id="timezone-endtime"
+              class="text-link"
+              collapsed="true"
+              hyperlink="true"
+              onclick="editEndTimezone()">
+          </td>
+        </tr>
+      </table>
     </vbox>
   </hbox>
   <separator class="groove"/>

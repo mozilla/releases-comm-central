@@ -581,6 +581,7 @@ calendar-event-freebusy-day > box {
 }
 
 .legend {
+    display: flex;
     width: 3em;
     height: 1em;
     border-top: 1px solid #A1A1A1;
