@@ -5,6 +5,8 @@
 
 /* global MozXULElement */
 
+// Wrap in a block to prevent leaking to window scope.
+{
 class MozStatuspanel extends MozXULElement {
   static get observedAttributes() {
     return ["label", "mirror"];
@@ -74,3 +76,4 @@ class MozStatuspanel extends MozXULElement {
 }
 
 customElements.define("statuspanel", MozStatuspanel);
+}

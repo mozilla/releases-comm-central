@@ -6,8 +6,10 @@
 
 /* global MozXULElement */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {
+// Wrap in a block to prevent leaking to window scope.
+{
+  const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+  const {
   initHTMLDocument,
   serializeSelection,
   getCurrentTheme,
@@ -15,8 +17,8 @@ var {
   getHTMLForMessage,
   insertHTMLForMessage,
 } = ChromeUtils.import("resource:///modules/imThemes.jsm");
-var {smileTextNode} = ChromeUtils.import("resource:///modules/imSmileys.jsm");
-var {cleanupImMarkup} = ChromeUtils.import("resource:///modules/imContentSink.jsm");
+  const {smileTextNode} = ChromeUtils.import("resource:///modules/imSmileys.jsm");
+  const {cleanupImMarkup} = ChromeUtils.import("resource:///modules/imContentSink.jsm");
 
 (function() {
   // <browser> is lazily set up through setElementCreationCallback,
@@ -755,3 +757,4 @@ class MozConversationBrowser extends customElements.get("browser") {
   }
 }
 customElements.define("conversation-browser", MozConversationBrowser, { extends: "browser" });
+}

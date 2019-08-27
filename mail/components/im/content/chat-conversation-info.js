@@ -4,13 +4,15 @@
 
 "use strict";
 
-var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+/* globals MozElements MozXULElement */
+
+// Wrap in a block to prevent leaking to window scope.
+{
+  const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
+  const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 ChromeUtils.defineModuleGetter(this, "OTR", "resource:///modules/OTR.jsm");
 ChromeUtils.defineModuleGetter(this, "OTRUI", "resource:///modules/OTRUI.jsm");
-
-/* globals MozElements MozXULElement */
 
 const gNotification = {};
 XPCOMUtils.defineLazyGetter(gNotification, "notificationbox", () => {
@@ -214,3 +216,4 @@ class MozChatConversationInfo extends MozXULElement {
   }
 }
 customElements.define("chat-conversation-info", MozChatConversationInfo);
+}

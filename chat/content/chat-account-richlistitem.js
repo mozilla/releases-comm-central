@@ -6,9 +6,11 @@
 
 /* global MozElements, MozXULElement, gAccountManager */
 
+// Wrap in a block to prevent leaking to window scope.
 {
-  let { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-  let { DownloadUtils } = ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
+  const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+  const { DownloadUtils } = ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
+
   /**
   * The MozChatAccountRichlistitem widget displays the information about the
   * configured account: i.e. icon, state, name, error, checkbox for

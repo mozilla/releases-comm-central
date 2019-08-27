@@ -5,8 +5,10 @@
 /* global HTMLElement, DateFacetVis, FacetContext, glodaFacetStrings, FacetUtils, PluralForm */
 /* global logException, Gloda */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {TagUtils} = ChromeUtils.import("resource:///modules/TagUtils.jsm");
+// Wrap in a block to prevent leaking to window scope.
+{
+  const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+  const {TagUtils} = ChromeUtils.import("resource:///modules/TagUtils.jsm");
 
 class MozFacetDate extends HTMLElement {
   get build() {
@@ -1682,3 +1684,4 @@ class MozFacetResultMessage extends HTMLElement {
 }
 
 customElements.define("facet-result-message", MozFacetResultMessage);
+}

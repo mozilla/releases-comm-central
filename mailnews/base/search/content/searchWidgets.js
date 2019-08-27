@@ -7,10 +7,12 @@
 
 /* import-globals-from FilterEditor.js */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+// Wrap in a block to prevent leaking to window scope.
+{
+  const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+  const { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+  const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+  const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
 const updateParentNode = (parentNode) => {
   if (parentNode.hasAttribute("initialActionIndex")) {
@@ -1559,3 +1561,4 @@ class MozRuleactionRichlistitem extends MozElements.MozRichlistitem {
 }
 
 customElements.define("ruleaction-richlistitem", MozRuleactionRichlistitem, { "extends": "richlistitem" });
+}

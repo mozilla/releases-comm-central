@@ -6,8 +6,7 @@
 
 /* globals MozXULElement */
 
-// This is loaded into all XUL windows. Wrap in a block to prevent
-// leaking to window scope.
+// Wrap in a block to prevent leaking to window scope.
 {
   /**
    * The MozBadgebutton widget is used to display a chat toolbar button in

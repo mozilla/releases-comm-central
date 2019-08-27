@@ -6,6 +6,7 @@
 
 /* global MozElements, MozXULElement, gChatTab, chatHandler */
 
+// Wrap in a block to prevent leaking to window scope.
 {
   const {Status} = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
   const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");

@@ -6,8 +6,9 @@
 
 /* global MozXULElement, MozElements, Status, chatHandler */
 
+// Wrap in a block to prevent leaking to window scope.
 {
-  let { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+  const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
   /**
    * The MozChatContact widget displays contact information about user under

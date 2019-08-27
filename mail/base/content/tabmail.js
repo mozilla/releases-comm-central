@@ -9,6 +9,7 @@
 /* import-globals-from commandglue.js */
 /* import-globals-from mailWindow.js */
 
+// Wrap in a block to prevent leaking to window scope.
 {
   const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 

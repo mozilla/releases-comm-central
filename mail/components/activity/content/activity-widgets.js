@@ -5,6 +5,8 @@
 "use strict";
 
 /* global MozXULElement, MozElements, activityManager */
+
+// Wrap in a block to prevent leaking to window scope.
 {
   const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
   const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");

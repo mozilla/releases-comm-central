@@ -14,11 +14,13 @@
 /* global PluralForm */
 /* global UpdateExtraAddressProcessing */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {DBViewWrapper} = ChromeUtils.import("resource:///modules/DBViewWrapper.jsm");
-var {TagUtils} = ChromeUtils.import("resource:///modules/TagUtils.jsm");
+// Wrap in a block to prevent leaking to window scope.
+{
+  const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+  const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+  const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+  const {DBViewWrapper} = ChromeUtils.import("resource:///modules/DBViewWrapper.jsm");
+  const {TagUtils} = ChromeUtils.import("resource:///modules/TagUtils.jsm");
 
 class MozMailHeaderfield extends MozXULElement {
   connectedCallback() {
@@ -1523,3 +1525,4 @@ class MozAttachmentlist extends MozElements.RichListBox {
 }
 
 customElements.define("attachment-list", MozAttachmentlist, { extends: "richlistbox" });
+}

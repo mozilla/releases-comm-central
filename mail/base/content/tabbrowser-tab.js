@@ -6,6 +6,7 @@
 
 /* global MozElements, MozXULElement */
 
+// Wrap in a block to prevent leaking to window scope.
 {
   /**
     * The MozTabmailTab widget behaves as a tab in the messenger window.

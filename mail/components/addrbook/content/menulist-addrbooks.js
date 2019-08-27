@@ -7,6 +7,8 @@
 if (!customElements.get("menulist")) {
   delete document.createXULElement("menulist");
 }
+
+// Wrap in a block to prevent leaking to window scope.
 {
   const { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
   const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");

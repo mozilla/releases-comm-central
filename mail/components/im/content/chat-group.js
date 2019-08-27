@@ -6,6 +6,8 @@
 
 /* global MozXULElement, MozElements */
 
+// Wrap in a block to prevent leaking to window scope.
+{
 /**
   * The MozChatGroup widget displays chat group name and behave as a
   * expansion twisty for groups such as "Conversations",
@@ -223,3 +225,4 @@ MozXULElement.implementCustomInterface(
 );
 
 customElements.define("chat-group", MozChatGroup, { "extends": "richlistitem" });
+}

@@ -5,10 +5,12 @@
 "use strict";
 
 /* global MozXULElement, MozElements */
+
+// Wrap in a block to prevent leaking to window scope.
 {
-  let {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-  let {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
-  let gGlodaCompleteStrings = new StringBundle("chrome://messenger/locale/glodaComplete.properties");
+  const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+  const {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
+  const gGlodaCompleteStrings = new StringBundle("chrome://messenger/locale/glodaComplete.properties");
 
   /**
    * The MozGlodacompleteBaseRichlistitem widget is the

@@ -6,13 +6,14 @@
 
 /* globals MozElements, MozXULElement, chatHandler */
 
+// Wrap in a block to prevent leaking to window scope.
 {
-  var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
-  var {Status} = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
-  var {MessageFormat} = ChromeUtils.import("resource:///modules/imTextboxUtils.jsm");
-  var {TextboxSize} = ChromeUtils.import("resource:///modules/imTextboxUtils.jsm");
-  var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-  var {InlineSpellChecker} = ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
+  const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
+  const {Status} = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
+  const {MessageFormat} = ChromeUtils.import("resource:///modules/imTextboxUtils.jsm");
+  const {TextboxSize} = ChromeUtils.import("resource:///modules/imTextboxUtils.jsm");
+  const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+  const {InlineSpellChecker} = ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
 
   /**
    * The MozChatConversation widget displays the entire chat conversation
