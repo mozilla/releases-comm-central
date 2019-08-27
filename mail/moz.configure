@@ -81,5 +81,7 @@ with only_when(target_is_linux & compile_environment):
     set_config('MOZ_NO_PIE_COMPAT',
                depends_if('MOZ_NO_PIE_COMPAT')(lambda _: True))
 
+include('../build/moz.configure/gecko_source.configure')
+
 include('../mailnews/moz.configure')
 include('../../toolkit/moz.configure')

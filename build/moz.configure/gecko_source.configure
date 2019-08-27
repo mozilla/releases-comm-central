@@ -1,0 +1,264 @@
+# -*- Mode: python; indent-tabs-mode: nil; tab-width: 40 -*-
+# vim: set filetype=python:
+#  This Source Code Form is subject to the terms of the Mozilla Public
+#  License, v. 2.0. If a copy of the MPL was not distributed with this
+#  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# Attempt to ascertain the Gecko source repository information. This is
+# necessary because MOZ_SOURCE_REPOSITORY and MOZ_SOURCE_CHANGESET both refer
+# to the Thunderbird (comm) repository.
+# We need to have accurate source repository information for MPL compliance.
+
+@template
+def read_sourcestamp(repository):
+    """
+    Last resort, look for the revision data in the sourcestamp file.
+    This file only exists in release tar files created in CI.
+    repository must be one of "GECKO" or "COMM".
+    """
+    log.info('Determining %s source information from sourcestamp.txt...'
+             % repository)
+
+    line2read = {'COMM': 1,
+                 'GECKO': 2}[repository]
+
+    @depends(comm_paths)
+    @imports(_from='os.path', _import='exists')
+    @imports(_from='os.path', _import='join')
+    @imports(_from='__builtin__', _import='open')
+    @imports(_from='mozbuild.util', _import='system_encoding')
+    def get_sourcestamp(paths):
+        sourcestamp_file = join(paths.moztopsrcdir, 'sourcestamp.txt')
+        if exists(sourcestamp_file):
+            try:
+                lines = open(sourcestamp_file).readlines()
+            except:
+                pass
+
+            if len(lines) != 3:
+                log.warn('sourcestamp.txt is corrupt!')
+                return
+
+            if lines and lines[line2read].startswith('http'):
+                repo_line = lines[line2read].decode(system_encoding)
+                repo_url = repo_line.split('/rev/')
+                return namespace(repo_url=repo_url[0], repo_rev=repo_url[1])
+
+    return get_sourcestamp
+
+
+@template
+def read_gecko_rev_yml():
+    def get_value(x):
+        return x.split()[1]
+
+    @depends(comm_paths)
+    @imports(_from='os.path', _import='exists')
+    @imports(_from='os.path', _import='join')
+    @imports(_from='__builtin__', _import='open')
+    @imports(_from='mozbuild.util', _import='system_encoding')
+    def wrapped(paths):
+        log.info("Determining GECKO source information from .gecko_rev.yml")
+        rev_file = join(paths.commtopsrcdir, '.gecko_rev.yml')
+        if not exists(rev_file): return
+
+        repo = rev = ref = None
+
+        for line in open(rev_file).readlines():
+            if line.startswith('GECKO_HEAD_REPOSITORY:'):
+                repo = get_value(line).decode(system_encoding)
+            elif line.startswith('GECKO_HEAD_REV:'):
+                rev = get_value(line).decode(system_encoding)
+            elif line.startswith('GECKO_HEAD_REF:'):
+                ref = get_value(line).decode(system_encoding)
+            else:
+                pass
+
+        return namespace(repo=repo, rev=rev, ref=ref)
+
+    return wrapped
+
+
+@depends(application)
+@imports(_from='os', _import="environ")
+@imports(_from='mozbuild.util', _import='system_encoding')
+def comm_repo_from_environ(app):
+    """
+    Read the Thunderbird source repository information from the environment.
+
+    Taskcluster builds set MOZ_SOURCE_REPO and MOZ_SOURCE_CHANGESET pointing
+    to the comm-* repository.
+    """
+    log.info("Determining COMM source information from environment...")
+    comm_repo = environ.get('MOZ_SOURCE_REPO', None)
+    comm_rev = environ.get('MOZ_SOURCE_CHANGESET', None)
+
+    if all([comm_repo, comm_rev]):
+        comm_repo = comm_repo.decode(system_encoding)
+        comm_rev = comm_rev.decode(system_encoding)
+
+        log.info("{}/rev/{}".format(comm_repo, comm_rev))
+        return namespace(comm_repo=comm_repo, comm_rev=comm_rev)
+
+
+# Read sourcestamp.txt and return the Thunderbird source URL (with changeset).
+# Silent fail if the file cannot be read.
+comm_sourcestamp = read_sourcestamp('COMM')
+
+
+@depends(comm_repo_from_environ, comm_paths, hg, comm_sourcestamp)
+@imports(_from='os', _import="environ")
+def comm_repo_heuristics(comm_environ, paths, hg, sourcestamp):
+    """
+    Determine the Thunderbird Mercurial repository and revision from Mercurial
+    or sourcestamp.txt when MOZ_SOURCE_REPO and MOZ_SOURCE_CHANGESET are unset
+    (local developer builds).
+
+    In that case, MOZ_SOURCE_REPO and MOZ_SOURCE_CHANGESET are set
+    by build/variables.py, but will refer to the mozilla- repository,
+    which is incorrect for Thunderbird builds.
+
+    There's no set_config call for MOZ_SOURCE_REPO or MOZ_SOURCE_CHANGESET
+    here as that will be done when old-configure runs later. Here we just
+    set the environment variables the same as Taskcluster would.
+    """
+    if not comm_environ:
+        comm_repo = comm_rev = None
+        if hg:
+            log.info(
+                "Determining COMM source information from "
+                "Mercurial...")
+            comm_rev = check_cmd_output(hg, '-R', paths.commtopsrcdir,
+                                        'id', '-T', '{p1.node}')
+            comm_repo = check_cmd_output(hg, '-R', paths.commtopsrcdir,
+                                         'path', 'default')
+            if comm_repo:
+                comm_repo = comm_repo.strip()
+                if comm_repo.startswith('ssh://'):
+                    comm_repo = 'https://' + comm_repo[6:]
+                comm_repo = comm_repo.rstrip('/')
+        # TODO: git-cinnabar support?
+
+        if not comm_repo or not comm_rev:
+            try:
+                comm_repo, comm_rev = sourcestamp.repo_url, sourcestamp.repo_rev
+            except:
+                pass
+
+        # If values are found, set MOZ_SOURCE_REPO and MOZ_SOURCE_CHANGESET
+        if comm_repo and comm_rev:
+            environ['MOZ_SOURCE_REPO'] = comm_repo
+            environ['MOZ_SOURCE_CHANGESET'] = comm_rev
+
+        if comm_repo and comm_rev:
+            return namespace(comm_repo=comm_repo, comm_rev=comm_rev)
+
+
+@depends(comm_repo_from_environ, comm_repo_heuristics)
+def comm_source_repo(from_environ, from_config):
+    rv = None
+    if from_environ:
+        rv = from_environ
+    elif from_config:
+        rv = from_config
+    else:
+        die("Unable to determine COMM source repository."
+            "Try setting COMM_HEAD_REPOSITORY and COMM_HEAD_REV"
+            "environment variables or build from a Mercurial checkout.")
+
+    log.info('COMM_SOURCE_REPOSITORY: {}'.format(rv.comm_repo))
+    log.info('COMM_SOURCE_CHANGESET: {}'.format(rv.comm_rev))
+    return rv
+
+
+@depends(application)
+@imports(_from='os', _import="environ")
+@imports(_from='mozbuild.util', _import='system_encoding')
+def gecko_repo_from_environ(app):
+    """
+    Same as above, but this time checking for the mozilla- repository.
+    """
+    log.info("Determining GECKO source information from environment...")
+    gecko_repo = environ.get('GECKO_HEAD_REPOSITORY', None)
+    gecko_rev = environ.get('GECKO_HEAD_REV', None)
+    if all([gecko_repo, gecko_rev]):
+        gecko_repo = gecko_repo.decode(system_encoding)
+        gecko_rev = gecko_rev.decode(system_encoding)
+
+        log.info("{}/rev/{}".format(gecko_repo, gecko_rev))
+        return namespace(gecko_repo=gecko_repo, gecko_rev=gecko_rev)
+
+
+# Read sourcestamp.txt, this time returning the mozilla- data
+gecko_sourcestamp = read_sourcestamp('GECKO')
+# Look in comm/.gecko_rev.yml fpr repository information
+gecko_yml = read_gecko_rev_yml()
+
+
+@depends(gecko_repo_from_environ, comm_paths, hg, gecko_sourcestamp, gecko_yml)
+@imports(_from='os.path', _import='join')
+@imports(_from='os.path', _import='exists')
+def gecko_repo_heuristics(gecko_environ, paths, hg, sourcestamp, gecko_yml):
+    """
+    Look for the source repository and changeset for the mozilla- repository
+    when the Taskcluster environment variables are not set, checking
+    .gecko_rev.yml before falling back to Mercurial and sourcestamp.txt.
+    """
+    if not gecko_environ:
+        gecko_repo = gecko_rev = gecko_ref = None
+
+        try:
+            gecko_repo = gecko_yml.repo
+            gecko_rev = gecko_yml.rev
+            gecko_ref = gecko_yml.ref
+        except:
+            pass
+
+        if gecko_repo:
+            if not gecko_rev and gecko_ref:
+                # gecko_repo is known, but we have a branch ref like
+                # "default" when a revision hash is needed. Try to query
+                # Mercurial first.
+                if hg:
+                    log.info(
+                        "Determining GECKO source information from "
+                        "Mercurial...")
+                    gecko_rev = check_cmd_output(hg, '-R', paths.moztopsrcdir,
+                                                 'id', '-T', '{p1.node}')
+                # TODO: git-cinnabar support?
+
+        if not gecko_repo or not gecko_rev:
+            # See if we have a sourcestamo file. Last ditch effort!
+            try:
+                gecko_repo, gecko_rev = sourcestamp.repo_url, \
+                                        sourcestamp.repo_rev
+            except:
+                pass
+
+        # Check one last time to see if both gecko_repo and gecko_rev
+        # are set
+        if gecko_repo and gecko_rev:
+            return namespace(gecko_repo=gecko_repo, gecko_rev=gecko_rev)
+
+
+@depends(gecko_repo_from_environ, gecko_repo_heuristics)
+def gecko_source_repo(from_environ, from_heuristics):
+    rv = None
+    if from_environ:
+        rv = from_environ
+    elif from_heuristics:
+        rv = from_heuristics
+    else:
+        die("Unable to determine GECKO source repository."
+            "Try setting GECKO_HEAD_REPOSITORY and GECKO_HEAD_REV"
+            "environment variables or build from a Mercurial checkout.")
+
+    log.info('GECKO_SOURCE_REPOSITORY: {}'.format(rv.gecko_repo))
+    log.info('GECKO_SOURCE_CHANGESET: {}'.format(rv.gecko_rev))
+    return rv
+
+
+set_config('MOZ_COMM_SOURCE_REPO', comm_source_repo.comm_repo)
+set_config('MOZ_COMM_SOURCE_CHANGESET', comm_source_repo.comm_rev)
+set_config('MOZ_GECKO_SOURCE_REPO', gecko_source_repo.gecko_repo)
+set_config('MOZ_GECKO_SOURCE_CHANGESET', gecko_source_repo.gecko_rev)
