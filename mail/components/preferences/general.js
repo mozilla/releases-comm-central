@@ -1867,12 +1867,13 @@ var gGeneralPane = {
     if ((aEvent || document.commandDispatcher.focusedElement == this._list) &&
         this._list.selectedIndex != -1) {
       let typeItem = this._list.getItemAtIndex(this._list.selectedIndex);
-      let handlerInfo = this._handledTypes[typeItem.type];
+      let type = typeItem.getAttribute("type");
+      let handlerInfo = this._handledTypes[type];
       let index = this._visibleTypes.indexOf(handlerInfo);
       if (index != -1)
         this._visibleTypes.splice(index, 1);
       handlerInfo.remove();
-      delete this._handledTypes[typeItem.type];
+      delete this._handledTypes[type];
       typeItem.remove();
     }
   },
