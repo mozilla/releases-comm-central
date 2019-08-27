@@ -4,7 +4,9 @@
 
 "use strict";
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+// Wrap in a block to prevent leaking to window scope.
+{
+    const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 /**
  * Date info that is displayed on task details and event details.
@@ -74,3 +76,4 @@ class MozCalendarItemDate extends HTMLInputElement {
 }
 
 customElements.define("calendar-item-date-input", MozCalendarItemDate, { "extends": "input" });
+}

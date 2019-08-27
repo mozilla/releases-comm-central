@@ -6,6 +6,8 @@
 
 /* global MozXULElement, getOtherOrientation */
 
+// Wrap in a block to prevent leaking to window scope.
+{
 /**
  * A simple gripbar that is displayed at the start and end of an
  * event box. Needs to handle being dragged and resizing the
@@ -67,3 +69,4 @@ class MozCalendarEventGripbar extends MozXULElement {
 }
 
 customElements.define("calendar-event-gripbar", MozCalendarEventGripbar);
+}

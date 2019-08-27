@@ -6,8 +6,7 @@
 
 /* global MozXULElement, MozElements */
 
-// This is loaded into all XUL windows. Wrap in a block to prevent
-// leaking to window scope.
+// Wrap in a block to prevent leaking to window scope.
 {
     /**
      * The MozCalendarSubscriptionsRichlistitem widget is used to display the

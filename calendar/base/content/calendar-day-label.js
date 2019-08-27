@@ -4,7 +4,9 @@
 
 /* global MozXULElement, setBooleanAttribute, getSummarizedStyleValues */
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+// Wrap in a block to prevent leaking to window scope.
+{
+    const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 class MozCalendarDayLabel extends MozXULElement {
     static get observedAttributes() {
@@ -123,3 +125,4 @@ class MozCalendarDayLabel extends MozXULElement {
 }
 
 customElements.define("calendar-day-label", MozCalendarDayLabel);
+}

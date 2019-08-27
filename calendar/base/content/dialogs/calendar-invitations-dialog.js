@@ -7,7 +7,10 @@
 /* globals invitationsText, MozXULElement, MozElements */// From calendar-invitations-dialog.xul.
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+// Wrap in a block to prevent leaking to window scope.
+{
+    const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 class MozCalendarInvitationsRichlistitem extends MozElements.MozRichlistitem {
     constructor() {
@@ -193,6 +196,7 @@ customElements.define(
     "calendar-invitations-richlistitem",
     MozCalendarInvitationsRichlistitem, { "extends": "richlistitem" }
 );
+}
 
 /**
  * Sets up the invitations dialog from the window arguments, retrieves the

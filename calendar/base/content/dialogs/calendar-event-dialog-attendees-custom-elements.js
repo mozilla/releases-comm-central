@@ -6,7 +6,9 @@
 /* import-globals-from ../calendar-ui-utils.js */
 /* import-globals-from ./calendar-event-dialog-attendees.js */
 
-var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+// Wrap in a block to prevent leaking to window scope.
+{
+    const { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 /**
  * MozCalendarEventFreebusyTimebar is a widget showing the time slot labels - dates and a number of
@@ -3224,3 +3226,4 @@ class MozCalendarEventFreebusyGrid extends MozElements.RichListBox {
     }
 }
 customElements.define("calendar-event-freebusy-grid", MozCalendarEventFreebusyGrid);
+}

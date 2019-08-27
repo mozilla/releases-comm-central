@@ -4,9 +4,10 @@
 
 /* global MozElements, MozXULElement */
 
+// Wrap in a block to prevent leaking to window scope.
 {
-    var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-    var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+    const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+    const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
     let probeSucceeded;
     let alphaMonths;
