@@ -230,17 +230,14 @@
 ; [Webide Files]
 @RESPATH@/chrome/webide@JAREXT@
 @RESPATH@/chrome/webide.manifest
-@RESPATH@/@PREF_DIR@/webide.js
 
 ; [DevTools Startup Files]
 @RESPATH@/chrome/devtools-startup@JAREXT@
 @RESPATH@/chrome/devtools-startup.manifest
-@RESPATH@/@PREF_DIR@/devtools-startup.js
 
 ; DevTools
 @RESPATH@/chrome/devtools@JAREXT@
 @RESPATH@/chrome/devtools.manifest
-@RESPATH@/@PREF_DIR@/devtools-client.js
 @RESPATH@/@PREF_DIR@/debugger.js
 
 ; classic theme
