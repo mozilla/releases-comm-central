@@ -6,6 +6,8 @@
 # Note that paths in this file are relative to the top directory, which may be
 # m-c or c-c.
 
+GENERATED_FILES['source-repo.h'].script = 'comm/build/source_repos.py:source_repo_header'
+
 include('../mailnews/mailnews.mozbuild')
 
 DIRS += ['/%s/mail/components' % CONFIG['commreltopsrcdir']]
