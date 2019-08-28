@@ -9,6 +9,21 @@ import os
 
 import buildconfig
 
+sourcestamp_tmpl = """{buildid}
+{comm_repo}/rev/{comm_rev}
+{gecko_repo}/rev/{gecko_rev}
+"""
+
+
+def gen_sourcestamp(output):
+    data = dict(buildid=os.environ.get('MOZ_BUILD_DATE', 'unknown'),
+        gecko_repo=buildconfig.substs.get('MOZ_GECKO_SOURCE_REPO', None),
+        gecko_rev=buildconfig.substs.get('MOZ_GECKO_SOURCE_CHANGESET', None),
+        comm_repo=buildconfig.substs.get('MOZ_COMM_SOURCE_REPO', None),
+        comm_rev=buildconfig.substs.get('MOZ_COMM_SOURCE_CHANGESET', None))
+
+    output.write(sourcestamp_tmpl.format(**data))
+
 
 def source_repo_header(output):
     """
