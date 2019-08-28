@@ -673,43 +673,43 @@ MimeObjectClass *mime_find_class(const char *content_type, MimeHeaders *hdrs,
         // cleverly hidden and the decrypted content gets included in
         // replies and forwards.
         clazz = (MimeObjectClass *)&mimeExternalObjectClass;
-        return clazz;
-      }
+      } else {
+        char *ct =
+            hdrs ? MimeHeaders_get(hdrs, HEADER_CONTENT_TYPE, false, false)
+                 : nullptr;
+        char *st =
+            ct ? MimeHeaders_get_parameter(ct, "smime-type", nullptr, nullptr)
+               : nullptr;
 
-      char *ct = hdrs ? MimeHeaders_get(hdrs, HEADER_CONTENT_TYPE, false, false)
-                      : nullptr;
-      char *st =
-          ct ? MimeHeaders_get_parameter(ct, "smime-type", nullptr, nullptr)
-             : nullptr;
+        /* by default, assume that it is an encrypted message */
+        clazz = (MimeObjectClass *)&mimeEncryptedCMSClass;
 
-      /* by default, assume that it is an encrypted message */
-      clazz = (MimeObjectClass *)&mimeEncryptedCMSClass;
+        /* if the smime-type parameter says that it's a certs-only or
+           compressed file, then show it as an attachment, however
+           (MimeEncryptedCMS doesn't handle these correctly) */
+        if (st && (!PL_strcasecmp(st, "certs-only") ||
+                   !PL_strcasecmp(st, "compressed-data")))
+          clazz = (MimeObjectClass *)&mimeExternalObjectClass;
+        else {
+          /* look at the file extension... less reliable, but still covered
+             by the S/MIME specification (RFC 3851, section 3.2.1)  */
+          char *name = (hdrs ? MimeHeaders_get_name(hdrs, opts) : nullptr);
+          if (name) {
+            char *suf = PL_strrchr(name, '.');
+            bool p7mExternal = false;
 
-      /* if the smime-type parameter says that it's a certs-only or
-         compressed file, then show it as an attachment, however
-         (MimeEncryptedCMS doesn't handle these correctly) */
-      if (st && (!PL_strcasecmp(st, "certs-only") ||
-                 !PL_strcasecmp(st, "compressed-data")))
-        clazz = (MimeObjectClass *)&mimeExternalObjectClass;
-      else {
-        /* look at the file extension... less reliable, but still covered
-           by the S/MIME specification (RFC 3851, section 3.2.1)  */
-        char *name = (hdrs ? MimeHeaders_get_name(hdrs, opts) : nullptr);
-        if (name) {
-          char *suf = PL_strrchr(name, '.');
-          bool p7mExternal = false;
-
-          if (prefBranch)
-            prefBranch->GetBoolPref("mailnews.p7m_external", &p7mExternal);
-          if (suf &&
-              ((!PL_strcasecmp(suf, ".p7m") && p7mExternal) ||
-               !PL_strcasecmp(suf, ".p7c") || !PL_strcasecmp(suf, ".p7z")))
-            clazz = (MimeObjectClass *)&mimeExternalObjectClass;
+            if (prefBranch)
+              prefBranch->GetBoolPref("mailnews.p7m_external", &p7mExternal);
+            if (suf &&
+                ((!PL_strcasecmp(suf, ".p7m") && p7mExternal) ||
+                 !PL_strcasecmp(suf, ".p7c") || !PL_strcasecmp(suf, ".p7z")))
+              clazz = (MimeObjectClass *)&mimeExternalObjectClass;
+          }
+          PR_Free(name);
         }
-        PR_Free(name);
+        PR_Free(st);
+        PR_Free(ct);
       }
-      PR_Free(st);
-      PR_Free(ct);
     }
 #endif
     /* A few types which occur in the real world and which we would otherwise

@@ -259,6 +259,8 @@ static int MimeMultipartAlternative_parse_eof(MimeObject *obj, bool abort_p) {
 }
 
 static int MimeMultipartAlternative_create_child(MimeObject *obj) {
+  if (obj->options) obj->options->is_child = true;
+
   MimeMultipart *mult = (MimeMultipart *)obj;
   MimeMultipartAlternative *malt = (MimeMultipartAlternative *)obj;
 
