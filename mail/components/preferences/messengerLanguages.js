@@ -356,13 +356,13 @@ var gMessengerLanguagesDialog = {
     // If the user opened this from the "Search for more languages" option,
     // search AMO for available locales.
     if (search) {
-      return this.loadLocalesFromATN();
+      return this.loadLocalesFromAMO();
     }
 
     return undefined;
   },
 
-  async loadLocalesFromATN() {
+  async loadLocalesFromAMO() {
     if (!this.downloadEnabled) {
       return;
     }
