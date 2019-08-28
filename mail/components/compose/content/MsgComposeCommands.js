@@ -2673,8 +2673,7 @@ function ComposeStartup(aParams) {
         composeFields.subject = args.subject;
       if (args.attachment) {
         let attachmentList = args.attachment.split(",");
-        let commandLine = Cc["@mozilla.org/toolkit/command-line;1"]
-                            .createInstance();
+        let commandLine = Cu.createCommandLine();
         for (let attachmentName of attachmentList) {
           // resolveURI does all the magic around working out what the
           // attachment is, including web pages, and generating the correct uri.
