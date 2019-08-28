@@ -762,7 +762,8 @@ function ViewSourceSavePage() {
   internalSave(gBrowser.currentURI.spec.replace(/^view-source:/i, ""),
                null, null, null, null, null, "SaveLinkTitle",
                null, null, gBrowser.contentDocument, null,
-               gPageLoader);
+               gPageLoader, null,
+               Services.scriptSecurityManager.getSystemPrincipal());
 }
 
 // Below are old deprecated functions and variables left behind for
