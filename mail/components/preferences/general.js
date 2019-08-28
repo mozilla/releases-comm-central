@@ -134,10 +134,10 @@ var gGeneralPane = {
   _brandShortName: null,
   _list: null,
   _filter: null,
+  _prefsBundle: null,
   mPane: null,
   mStartPageUrl: "",
   mShellServiceWorking: false,
-  mBundle: null,
   mTagListBox:  null,
   requestingLocales: null,
 
@@ -148,10 +148,9 @@ var gGeneralPane = {
     }
 
     this.mPane = document.getElementById("paneGeneral");
-    this.mBundle = document.getElementById("bundlePreferences");
+    this._prefsBundle = document.getElementById("bundlePreferences");
     this._brandShortName =
       document.getElementById("bundleBrand").getString("brandShortName");
-    this._prefsBundle = document.getElementById("bundlePreferences");
     this._list = document.getElementById("handlersView");
     this._filter = document.getElementById("filter");
 
@@ -799,14 +798,14 @@ var gGeneralPane = {
     let names = Services.intl.getLocaleDisplayNames(undefined, [appLocale, rsLocale]);
     let appLocaleRadio = document.getElementById("appLocale");
     let rsLocaleRadio = document.getElementById("rsLocale");
-    let appLocaleLabel = this.mBundle.getFormattedString("appLocale.label",
-                                                         [names[0]]);
-    let rsLocaleLabel = this.mBundle.getFormattedString("rsLocale.label",
-                                                        [names[1]]);
+    let appLocaleLabel = this._prefsBundle.getFormattedString("appLocale.label",
+                                                              [names[0]]);
+    let rsLocaleLabel = this._prefsBundle.getFormattedString("rsLocale.label",
+                                                             [names[1]]);
     appLocaleRadio.setAttribute("label", appLocaleLabel);
     rsLocaleRadio.setAttribute("label", rsLocaleLabel);
-    appLocaleRadio.accessKey = this.mBundle.getString("appLocale.accesskey");
-    rsLocaleRadio.accessKey = this.mBundle.getString("rsLocale.accesskey");
+    appLocaleRadio.accessKey = this._prefsBundle.getString("appLocale.accesskey");
+    rsLocaleRadio.accessKey = this._prefsBundle.getString("rsLocale.accesskey");
   },
 
   // Load the preferences string bundle for other locales with fallbacks.
@@ -2103,7 +2102,7 @@ class HandlerInfoWrapper {
    */
   get typeDescription() {
     if (this.disambiguateDescription) {
-      return gGeneralPane.mBundle.getFormattedString(
+      return gGeneralPane._prefsBundle.getFormattedString(
         "typeDetailsWithTypeAndExt", [this.description, this.type]);
     }
 
@@ -2119,12 +2118,12 @@ class HandlerInfoWrapper {
     // is set, then describe that behavior instead.  For most types, this is
     // the "alwaysAsk" string, but for the feed type we show something special.
     if (this.alwaysAskBeforeHandling) {
-      return gGeneralPane.mBundle.getString("alwaysAsk");
+      return gGeneralPane._prefsBundle.getString("alwaysAsk");
     }
 
     switch (this.preferredAction) {
       case Ci.nsIHandlerInfo.saveToDisk:
-        return gGeneralPane.mBundle.getString("saveFile");
+        return gGeneralPane._prefsBundle.getString("saveFile");
 
       case Ci.nsIHandlerInfo.useHelperApp:
         var preferredApp = this.preferredApplicationHandler;
@@ -2133,11 +2132,11 @@ class HandlerInfoWrapper {
           name = getDisplayNameForFile(preferredApp.executable);
         else
           name = preferredApp.name;
-        return gGeneralPane.mBundle.getFormattedString("useApp", [name]);
+        return gGeneralPane._prefsBundle.getFormattedString("useApp", [name]);
 
       case Ci.nsIHandlerInfo.handleInternally:
         if (this instanceof InternalHandlerInfoWrapper) {
-          return gGeneralPane.mBundle.getFormattedString("previewInApp",
+          return gGeneralPane._prefsBundle.getFormattedString("previewInApp",
             [gGeneralPane._brandShortName]);
         }
 
@@ -2155,7 +2154,7 @@ class HandlerInfoWrapper {
       // in the first place?
 
       case Ci.nsIHandlerInfo.useSystemDefault:
-        return gGeneralPane.mBundle.getFormattedString("useDefault",
+        return gGeneralPane._prefsBundle.getFormattedString("useDefault",
           [this.defaultDescription]);
 
       default:
