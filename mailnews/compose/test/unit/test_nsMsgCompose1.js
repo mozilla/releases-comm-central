@@ -43,16 +43,8 @@ function checkPopulate(aTo, aCheckTo) {
 }
 
 function run_test() {
-  // Test setup - copy the data files into place
-  var testAB = do_get_file("../../../data/abLists1.mab");
-
-  // Copy the file to the profile directory for a PAB
-  testAB.copyTo(do_get_profile(), kPABData.fileName);
-
-  testAB = do_get_file("../../../data/abLists2.mab");
-
-  // Copy the file to the profile directory for a CAB
-  testAB.copyTo(do_get_profile(), kCABData.fileName);
+  loadABFile("../../../data/abLists1", kPABData.fileName);
+  loadABFile("../../../data/abLists2", kCABData.fileName);
 
   // Test - Check we can initialize with fewest specified
   // parameters and don't fail/crash like we did in bug 411646.

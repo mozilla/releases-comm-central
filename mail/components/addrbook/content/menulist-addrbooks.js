@@ -278,22 +278,30 @@ if (!customElements.get("menulist")) {
       }
 
       // Personal at the top.
-      const kPersonalAddressbookURI = "moz-abmdbdirectory://abook.mab";
-      if (a.URI == kPersonalAddressbookURI) {
+      // Having two possible options here seems illogical, but there can be
+      // only one of them. Once migration happens we can remove this oddity.
+      const kPersonalAddressbookURIs = [
+        "jsaddrbook://abook.sqlite",
+        "moz-abmdbdirectory://abook.mab",
+      ];
+      if (kPersonalAddressbookURIs.includes(a.URI)) {
         return -1;
       }
 
-      if (b.URI == kPersonalAddressbookURI) {
+      if (kPersonalAddressbookURIs.includes(b.URI)) {
         return 1;
       }
 
       // Collected at the bottom.
-      const kCollectedAddressbookURI = "moz-abmdbdirectory://history.mab";
-      if (a.URI == kCollectedAddressbookURI) {
+      const kCollectedAddressbookURIs = [
+        "jsaddrbook://history.sqlite",
+        "moz-abmdbdirectory://history.mab",
+      ];
+      if (kCollectedAddressbookURIs.includes(a.URI)) {
         return 1;
       }
 
-      if (b.URI == kCollectedAddressbookURI) {
+      if (kCollectedAddressbookURIs.includes(b.URI)) {
         return -1;
       }
 

@@ -322,14 +322,14 @@ pref("ldap_2.autoComplete.directoryServer", "");
 
 pref("ldap_2.servers.pab.position", 1);
 pref("ldap_2.servers.pab.description", "chrome://messenger/locale/addressbook/addressBook.properties");
-pref("ldap_2.servers.pab.dirType", 2);
-pref("ldap_2.servers.pab.filename", "abook.mab");
+pref("ldap_2.servers.pab.dirType", 101);
+pref("ldap_2.servers.pab.filename", "abook.sqlite");
 pref("ldap_2.servers.pab.isOffline", false);
 
 pref("ldap_2.servers.history.position", 2);
 pref("ldap_2.servers.history.description", "chrome://messenger/locale/addressbook/addressBook.properties");
-pref("ldap_2.servers.history.dirType", 2);
-pref("ldap_2.servers.history.filename", "history.mab");
+pref("ldap_2.servers.history.dirType", 101);
+pref("ldap_2.servers.history.filename", "history.sqlite");
 pref("ldap_2.servers.history.isOffline", false);
 
 // default mapping of addressbook properties to ldap attributes
@@ -451,7 +451,7 @@ pref("mail.collect_email_address_newsgroup", false);
 #endif
 pref("mail.collect_email_address_outgoing", true);
 // by default, use the Collected Addressbook for collection
-pref("mail.collect_addressbook", "moz-abmdbdirectory://history.mab");
+pref("mail.collect_addressbook", "jsaddrbook://history.sqlite");
 
 pref("mail.default_sendlater_uri", "mailbox://nobody@Local%20Folders/Unsent%20Messages");
 
@@ -520,7 +520,7 @@ pref("mail.server.default.moveTargetMode", 0); // 0 == "Junk" on server, 1 == sp
 pref("mail.server.default.spamActionTargetAccount", "");
 pref("mail.server.default.spamActionTargetFolder", "");
 pref("mail.server.default.useWhiteList", true);
-pref("mail.server.default.whiteListAbURI", "moz-abmdbdirectory://abook.mab"); // the Personal addressbook.
+pref("mail.server.default.whiteListAbURI", "jsaddrbook://abook.sqlite"); // the Personal addressbook.
 pref("mail.server.default.useServerFilter", false);
 pref("mail.server.default.serverFilterName", "SpamAssassin");
 pref("mail.server.default.serverFilterTrustFlags", 1); // 1 == trust positives, 2 == trust negatives, 3 == trust both

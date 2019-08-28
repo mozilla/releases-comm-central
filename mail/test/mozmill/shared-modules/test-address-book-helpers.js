@@ -13,7 +13,7 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-var ABMDB_PREFIX = "moz-abmdbdirectory://";
+var ABJS_PREFIX = "jsaddrbook://";
 var ABLDAP_PREFIX = "moz-abldapdirectory://";
 
 var collectedAddresses;
@@ -31,7 +31,7 @@ function setupModule() {
   // Ensure all the directories are initialised.
   MailServices.ab.directories;
   collectedAddresses = MailServices.ab.getDirectory(
-    "moz-abmdbdirectory://history.mab"
+    "jsaddrbook://history.sqlite"
   );
 }
 
@@ -43,7 +43,7 @@ function installInto(module) {
   module.ensure_no_card_exists = ensure_no_card_exists;
   module.open_address_book_window = open_address_book_window;
   module.close_address_book_window = close_address_book_window;
-  module.create_mork_address_book = create_mork_address_book;
+  module.create_address_book = create_address_book;
   module.create_ldap_address_book = create_ldap_address_book;
   module.create_contact = create_contact;
   module.create_mailing_list = create_mailing_list;
@@ -150,14 +150,14 @@ function close_address_book_window(abc) {
 }
 
 /**
- * Creates and returns a Mork-backed address book.
+ * Creates and returns a SQLite-backed address book.
  * @param aName the name for the address book
  * @returns the nsIAbDirectory address book
  */
-function create_mork_address_book(aName) {
-  let abPrefString = MailServices.ab.newAddressBook(aName, "", 2);
+function create_address_book(aName) {
+  let abPrefString = MailServices.ab.newAddressBook(aName, "", 101);
   let abURI = Services.prefs.getCharPref(abPrefString + ".filename");
-  return MailServices.ab.getDirectory(ABMDB_PREFIX + abURI);
+  return MailServices.ab.getDirectory(ABJS_PREFIX + abURI);
 }
 
 /**
@@ -233,12 +233,13 @@ function get_mailing_list_from_address_book(aAddressBook, aDirName) {
  *                  [{email: 'test@example.com', displayName: 'Sammy Jenkis'}]
  */
 function load_contacts_into_address_book(aAddressBook, aContacts) {
-  for (let contact of aContacts) {
+  for (let i = 0; i < aContacts.length; i++) {
+    let contact = aContacts[i];
     if (!(contact instanceof Ci.nsIAbCard)) {
       contact = create_contact(contact.email, contact.displayName, true);
     }
 
-    aAddressBook.addCard(contact);
+    aContacts[i] = aAddressBook.addCard(contact);
   }
 }
 
@@ -266,7 +267,7 @@ function load_contacts_into_mailing_list(aMailingList, aContacts) {
 function get_address_book_tree_view_index(aAddrBook) {
   let addrbooks = abController.window.gDirectoryTreeView._rowMap;
   for (let i = 0; i < addrbooks.length; i++) {
-    if (addrbooks[i]._directory == aAddrBook) {
+    if (addrbooks[i]._directory.URI == aAddrBook.URI) {
       return i;
     }
   }
@@ -286,7 +287,7 @@ function get_contact_ab_view_index(aContact) {
   let contacts = abController.window.gAbView;
   for (let i = 0; i < contacts.rowCount; i++) {
     let contact = contacts.getCardFromRow(i);
-    if (contact.localId == aContact.localId && !contact.isMailList) {
+    if (contact.equals(aContact)) {
       return i;
     }
   }

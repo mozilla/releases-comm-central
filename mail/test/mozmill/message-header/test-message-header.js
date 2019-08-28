@@ -641,7 +641,7 @@ function test_address_book_switch_disabled_on_contact_in_mailing_list() {
 
   // Add the card to a new address book, and insert it
   // into a mailing list under that address book
-  let ab = create_mork_address_book(ADDRESS_BOOK_NAME);
+  let ab = create_address_book(ADDRESS_BOOK_NAME);
   ab.dropCard(card, false);
   let ml = create_mailing_list(MAILING_LIST_DIRNAME);
   ab.addMailList(ml);
@@ -650,8 +650,7 @@ function test_address_book_switch_disabled_on_contact_in_mailing_list() {
   // the address book, in order for us to add and
   // delete cards from it.
   ml = get_mailing_list_from_address_book(ab, MAILING_LIST_DIRNAME);
-
-  ml.addressLists.appendElement(card);
+  ml.addCard(card);
 
   // Re-open the inline contact editing panel
   mc.click(getElement(lastAddr, ".emailStar"));

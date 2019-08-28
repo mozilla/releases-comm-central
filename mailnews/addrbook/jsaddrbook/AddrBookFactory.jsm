@@ -61,7 +61,7 @@ AddrBookFactory.prototype = {
   deleteDirectory(directory) {
     let file = FileUtils.getFile("ProfD", [directory.fileName]);
     if (file.exists()) {
-      closeConnectionTo(file.path);
+      closeConnectionTo(file);
       file.remove(false);
     }
   },

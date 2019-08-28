@@ -372,10 +372,9 @@ var addressBookCache = new (class extends EventEmitter {
       }
       case "addrbook-list-updated": {
         subject.QueryInterface(Ci.nsIAbDirectory);
-        this.emit(
-          "mailing-list-updated",
-          this.findMailingListById(subject.UID)
-        );
+        let listNode = this.findMailingListById(subject.UID);
+        listNode.item = subject;
+        this.emit("mailing-list-updated", listNode);
         break;
       }
       case "addrbook-list-member-added": {

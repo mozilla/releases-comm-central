@@ -14,8 +14,14 @@ var gOkButton;
 var gNameInput;
 var gDirectory = null;
 
-var kPersonalAddressbookURI = "moz-abmdbdirectory://abook.mab";
-var kCollectedAddressbookURI = "moz-abmdbdirectory://history.mab";
+var stillUsingMabFiles =
+  Services.prefs.getIntPref("ldap_2.servers.pab.dirType") == 2;
+var kPersonalAddressbookURI = stillUsingMabFiles
+  ? "moz-abmdbdirectory://abook.mab"
+  : "jsaddrbook://abook.sqlite";
+var kCollectedAddressbookURI = stillUsingMabFiles
+  ? "moz-abmdbdirectory://history.mab"
+  : "jsaddrbook://history.sqlite";
 var kAllDirectoryRoot = "moz-abdirectory://";
 var kPABDirectory = 2; // defined in nsDirPrefs.h
 

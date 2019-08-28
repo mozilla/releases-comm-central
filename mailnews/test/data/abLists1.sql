@@ -1,3 +1,4 @@
+-- Address book data for use in various tests.
 PRAGMA user_version = 1;
 
 CREATE TABLE cards (uid TEXT PRIMARY KEY, localId INTEGER);
@@ -58,4 +59,4 @@ INSERT INTO list_cards (list, card) VALUES
   ('98636844-ed9c-4ac1-98ac-de7989a93615', 'ce1bd5ad-17e7-4a1b-a51e-fbce76556ebd'),
   ('98636844-ed9c-4ac1-98ac-de7989a93615', 'caaadb6c-425d-40e3-8f19-72546f6b01d8'),
   ('31c44c28-450f-44d6-ba39-71cae90fac21', '23acb230-f0d9-4348-a7be-1242cd579631'),
-  ('31c44c28-450f-44d6-ba39-71cae90fac21', '02cf43d5-e5b8-48b4-9546-1bb509cd998f');
+  ('46cf4cbf-5945-43e4-a822-30c2f2969db9', '02cf43d5-e5b8-48b4-9546-1bb509cd998f');

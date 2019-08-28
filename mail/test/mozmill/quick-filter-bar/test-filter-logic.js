@@ -113,10 +113,7 @@ function add_email_to_address_book(aEmailAddr) {
   let enumerator = MailServices.ab.directories;
   while (enumerator.hasMoreElements()) {
     let addrbook = enumerator.getNext();
-    if (
-      addrbook instanceof Ci.nsIAbMDBDirectory &&
-      addrbook instanceof Ci.nsIAbDirectory
-    ) {
+    if (addrbook instanceof Ci.nsIAbDirectory) {
       addrbook.addCard(card);
       return;
     }
