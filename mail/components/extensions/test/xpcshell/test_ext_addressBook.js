@@ -4,6 +4,9 @@
 
 "use strict";
 
+var { fixIterator } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
 var { ExtensionTestUtils } = ChromeUtils.import(
   "resource://testing-common/ExtensionXPCShellUtils.jsm"
 );
@@ -597,7 +600,7 @@ add_task(async function test_addressBooks() {
       return null;
     }
     function findMailingList(id) {
-      for (let list of parent.addressLists.enumerate()) {
+      for (let list of fixIterator(parent.addressLists, Ci.nsIAbDirectory)) {
         if (list.UID == id) {
           return list;
         }
@@ -813,4 +816,9 @@ add_task(async function test_quickSearch() {
   await extension.startup();
   await extension.awaitFinish("addressBooks");
   await extension.unload();
+});
+
+registerCleanupFunction(() => {
+  // Make sure any open database is given a chance to close.
+  Services.obs.notifyObservers(null, "quit-application");
 });

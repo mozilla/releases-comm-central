@@ -6,6 +6,11 @@ this.EXPORTED_SYMBOLS = ["AddrBookMailingList"];
 
 ChromeUtils.defineModuleGetter(
   this,
+  "fixIterator",
+  "resource:///modules/iteratorUtils.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
   "MailServices",
   "resource:///modules/MailServices.jsm"
 );
@@ -138,6 +143,9 @@ AddrBookMailingList.prototype = {
         if (!card.primaryEmail) {
           return card;
         }
+        if (!self._parent.hasCard(card)) {
+          self._parent.addCard(card);
+        }
         let insertStatement = self._parent._dbConnection.createStatement(
           "REPLACE INTO list_cards (list, card) VALUES (:list, :card)"
         );
@@ -156,17 +164,19 @@ AddrBookMailingList.prototype = {
         let deleteCardStatement = self._parent._dbConnection.createStatement(
           "DELETE FROM list_cards WHERE list = :list AND card = :card"
         );
-        for (let card of cards.enumerate()) {
+        for (let card of fixIterator(cards, Ci.nsIAbCard)) {
           deleteCardStatement.params.list = self._uid;
           deleteCardStatement.params.card = card.UID;
           deleteCardStatement.execute();
+          if (self._parent._dbConnection.affectedRows) {
+            MailServices.ab.notifyDirectoryItemDeleted(this, card);
+            Services.obs.notifyObservers(
+              card,
+              "addrbook-list-member-removed",
+              self._uid
+            );
+          }
           deleteCardStatement.reset();
-          MailServices.ab.notifyDirectoryItemDeleted(this, card);
-          Services.obs.notifyObservers(
-            card,
-            "addrbook-list-member-removed",
-            self._uid
-          );
         }
         deleteCardStatement.finalize();
       },
@@ -206,6 +216,12 @@ AddrBookMailingList.prototype = {
         return `${self._parent.URI}/MailList${self._localId}`;
       },
 
+      get directoryId() {
+        return self._parent.uuid;
+      },
+      get localId() {
+        return self._localId;
+      },
       get displayName() {
         return self._name;
       },

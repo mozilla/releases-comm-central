@@ -291,9 +291,11 @@ static nsresult GetDisplayNameInAddressBook(const nsACString &emailAddress,
 
   if (cardForAddress) {
     bool preferDisplayName = true;
-    cardForAddress->GetPropertyAsBool("PreferDisplayName", &preferDisplayName);
+    rv = cardForAddress->GetPropertyAsBool("PreferDisplayName",
+                                           &preferDisplayName);
 
-    if (preferDisplayName) rv = cardForAddress->GetDisplayName(displayName);
+    if (NS_FAILED(rv) || preferDisplayName)
+      rv = cardForAddress->GetDisplayName(displayName);
   }
 
   return rv;

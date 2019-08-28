@@ -59,11 +59,7 @@ function checkPopulate(aTo, aCheckTo) {
 }
 
 function run_test() {
-  // Test setup - copy the data files into place
-  let testAB = do_get_file("../../../data/tb2hexpopularity.mab");
-
-  // Copy the file to the profile directory for a PAB
-  testAB.copyTo(do_get_profile(), kPABData.fileName);
+  loadABFile("../../../data/tb2hexpopularity", kPABData.fileName);
 
   // Check the popularity index on a couple of cards.
   let AB = MailServices.ab.getDirectory(kPABData.URI);

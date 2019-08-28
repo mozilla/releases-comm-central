@@ -1,3 +1,4 @@
+-- Collection address book for use in test_collection_2.js.
 PRAGMA user_version = 1;
 
 CREATE TABLE cards (uid TEXT PRIMARY KEY, localId INTEGER);

@@ -78,7 +78,7 @@ function setupModule(module) {
   // Ensure all the directories are initialised.
   MailServices.ab.directories;
   collectedAddresses = MailServices.ab.getDirectory(
-    "moz-abmdbdirectory://history.mab"
+    "jsaddrbook://history.sqlite"
   );
 
   let bundle = Services.strings.createBundle(

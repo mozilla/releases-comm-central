@@ -177,3 +177,8 @@ add_task(async function() {
   await extension.awaitFinish("finished");
   await extension.unload();
 });
+
+registerCleanupFunction(() => {
+  // Make sure any open address book database is given a chance to close.
+  Services.obs.notifyObservers(null, "quit-application");
+});

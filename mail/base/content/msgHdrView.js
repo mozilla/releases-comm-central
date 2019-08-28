@@ -1654,7 +1654,11 @@ function AddContact(emailAddressNode) {
   // leaving something else there).
   emailAddressNode.setAttribute("updatingUI", true);
 
-  const kPersonalAddressbookURI = "moz-abmdbdirectory://abook.mab";
+  let stillUsingMabFiles =
+    Services.prefs.getIntPref("ldap_2.servers.pab.dirType") == 2;
+  let kPersonalAddressbookURI = stillUsingMabFiles
+    ? "moz-abmdbdirectory://abook.mab"
+    : "jsaddrbook://abook.sqlite";
   let addressBook = MailServices.ab.getDirectory(kPersonalAddressbookURI);
 
   let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
