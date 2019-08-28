@@ -28,3 +28,32 @@ if CONFIG['MOZ_UPDATER']:
     DEFINES['MOZ_UPDATER'] = 1
 
 DEFINES['TOOLKIT_DIR'] = "%s/toolkit" % (CONFIG['moztopsrcdir'],)
+
+# For customized buildconfig
+DEFINES['TOPOBJDIR'] = TOPOBJDIR
+
+DEFINES['MOZ_APP_DISPLAYNAME'] = CONFIG['MOZ_APP_DISPLAYNAME']
+DEFINES['THUNDERBIRD_VERSION_DISPLAY'] = CONFIG['THUNDERBIRD_VERSION_DISPLAY']
+DEFINES['THUNDERBIRD_DEVELOPER_WWW'] = "https://developer.thunderbird.net/"
+
+for var in ('CC', 'CC_VERSION', 'CXX', 'RUSTC', 'RUSTC_VERSION'):
+    if CONFIG[var]:
+        DEFINES[var] = CONFIG[var]
+
+for var in ('MOZ_CONFIGURE_OPTIONS',):
+    DEFINES[var] = CONFIG[var]
+
+    DEFINES['target'] = CONFIG['target']
+
+DEFINES['CFLAGS'] = ' '.join(CONFIG['OS_CFLAGS'])
+
+rustflags = CONFIG['RUSTFLAGS']
+if not rustflags:
+    rustflags = []
+DEFINES['RUSTFLAGS'] = ' '.join(rustflags)
+
+cxx_flags = []
+for var in ('OS_CPPFLAGS', 'OS_CXXFLAGS', 'DEBUG', 'OPTIMIZE', 'FRAMEPTR'):
+    cxx_flags += COMPILE_FLAGS[var] or []
+
+DEFINES['CXXFLAGS'] = ' '.join(cxx_flags)
