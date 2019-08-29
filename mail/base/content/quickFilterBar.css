@@ -68,6 +68,7 @@
   display: none;
 }
 
+.qfb-tag-button > .toolbarbutton-icon,
 #quick-filter-bar-filter-text-bar > toolbarbutton > .toolbarbutton-icon {
   display: none;
 }
