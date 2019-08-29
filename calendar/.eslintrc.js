@@ -32,7 +32,8 @@ module.exports = {
         "curly": 2,
 
         // Enforce the spacing around the * in generator functions.
-        "generator-star-spacing": [2, "after"],
+        // Turned off to override comm/.eslintrc.js and let Prettier handle it.
+        "generator-star-spacing": "off",
 
         // Require space before/after arrow function's arrow
         "arrow-spacing": [2, { before: true, after: true }],
@@ -403,9 +404,6 @@ module.exports = {
         // Enforce placing object properties on separate lines
         "object-property-newline": [2, { allowMultiplePropertiesPerLine: true }],
 
-        // Enforce consistent line breaks inside braces
-        "object-curly-newline": [2, { multiline: true }],
-
         // Do Not Require Object Literal Shorthand Syntax
         // (Override the parent eslintrc setting for this.)
         "object-shorthand": "off",
@@ -439,9 +437,6 @@ module.exports = {
         // Suggest using the spread operator instead of .apply()
         "prefer-spread": 2,
 
-        // Quoting style for property names
-        "quote-props": [2, "consistent-as-needed", { keywords: true }],
-
         // Disallow negated conditions
         "no-negated-condition": 2,
 
@@ -471,9 +466,6 @@ module.exports = {
 
         // Disallow lexical declarations in case/default clauses
         "no-case-declarations": 2,
-
-        // Enforce consistent indentation (4-space)
-        "indent-legacy": [2, 4, { SwitchCase: 1, }],
 
         // The following rules will not be enabled currently, but are kept here for
         // easier updates in the future.
