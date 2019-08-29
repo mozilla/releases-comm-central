@@ -731,7 +731,7 @@ calWcapCalendar.prototype.modifyItem = function(newItem, oldItem, listener) {
       if (exdates.value.length > 0) {
         let params = "&uid=";
         // all deletes on the same item:
-        for (let i = exdates.value.length; i--;) {
+        for (let i = exdates.value.length - 1; i >= 0; i--) {
           params += encodeURIComponent(newItem.id);
           if (i > 0) {
             params += ";";
