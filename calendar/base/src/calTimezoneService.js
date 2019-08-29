@@ -338,7 +338,7 @@ function guessSystemTimezone() {
 
   let continent = "Africa|America|Antarctica|Asia|Australia|Europe";
   let ocean = "Arctic|Atlantic|Indian|Pacific";
-  let tzRegex = new RegExp(".*((?:" + continent + "|" + ocean + ")" + "(?:[/][-A-Z_a-z]+)+)");
+  let tzRegex = new RegExp(".*((?:" + continent + "|" + ocean + ")(?:[/][-A-Z_a-z]+)+)");
 
   function getIcalString(component, property) {
     let prop = component && component.getFirstProperty(property);

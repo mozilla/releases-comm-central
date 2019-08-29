@@ -878,6 +878,7 @@ function test_interface() {
 
   // isFinite = false
   let item2 = makeEvent(
+    // eslint-disable-next-line no-useless-concat
     "DTSTART:20020402T114500Z\n" + "DTEND:20020402T124500Z\n" + "RRULE:FREQ=WEEKLY;BYDAY=TU,WE\n"
   );
   ok(!item2.recurrenceInfo.isFinite);
@@ -975,10 +976,12 @@ function test_rrule_interface() {
 
 function test_startdate_change() {
   // Setting a start date if its missing shouldn't throw
+  // eslint-disable-next-line no-useless-concat
   let item = makeEvent("DTEND:20020402T124500Z\r\n" + "RRULE:FREQ=DAILY\r\n");
   item.startDate = cal.createDateTime("20020502T114500Z");
 
   function makeRecEvent(str) {
+    // eslint-disable-next-line no-useless-concat
     return makeEvent("DTSTART:20020402T114500Z\r\n" + "DTEND:20020402T134500Z\r\n" + str);
   }
 

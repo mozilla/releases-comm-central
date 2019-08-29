@@ -191,7 +191,7 @@ calIcalProperty.prototype = {
 
   clearXParameters: function() {
     cal.WARN(
-      "calIICSService::clearXParameters is no longer implemented, " + "please use removeParameter"
+      "calIICSService::clearXParameters is no longer implemented, please use removeParameter"
     );
   },
 

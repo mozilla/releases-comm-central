@@ -504,7 +504,7 @@ function onCommandCancel() {
     // saving is not supported yet for gNewItemUI, return true to
     // allow the tab to close
     console.log(
-      "Saving changes is not yet supported with the HTML " + "UI for editing events and tasks."
+      "Saving changes is not yet supported with the HTML UI for editing events and tasks."
     );
     return true;
   }
@@ -2329,7 +2329,7 @@ function uploadCloudAttachment(attachment, cloudFileAccount, listItem) {
     },
     statusCode => {
       cal.ERROR(
-        "[calendar-event-dialog] Uploading cloud attachment " + "failed. Status code: " + statusCode
+        "[calendar-event-dialog] Uploading cloud attachment failed. Status code: " + statusCode
       );
 
       // Uploading failed. First of all, show an error icon. Also,

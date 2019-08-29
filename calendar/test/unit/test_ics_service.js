@@ -264,6 +264,7 @@ function test_iterator() {
   }
 
   // Property iterator with multiple values
+  // eslint-disable-next-line no-useless-concat
   comp = svc.parseICS("BEGIN:VEVENT\r\n" + "CATEGORIES:a,b,c\r\n" + "END:VEVENT", null);
   let propValues = ["a", "b", "c"];
   for (

@@ -942,7 +942,7 @@ calDavCalendar.prototype = {
     if (eventUri.pathQueryRef == this.calendarUri.pathQueryRef) {
       notifyListener(
         Cr.NS_ERROR_FAILURE,
-        "eventUri and calendarUri paths are the same, " + "will not go on to delete entire calendar"
+        "eventUri and calendarUri paths are the same, will not go on to delete entire calendar"
       );
       return;
     }
@@ -1498,11 +1498,11 @@ calDavCalendar.prototype = {
         self.mProposedCtag = ctag;
         self.getUpdatedItems(self.calendarUri, aChangeLogListener);
         if (self.verboseLogging()) {
-          cal.LOG("CalDAV: ctag mismatch on refresh, fetching data for " + "calendar " + self.name);
+          cal.LOG("CalDAV: ctag mismatch on refresh, fetching data for calendar " + self.name);
         }
       } else {
         if (self.verboseLogging()) {
-          cal.LOG("CalDAV: ctag matches, no need to fetch data for " + "calendar " + self.name);
+          cal.LOG("CalDAV: ctag matches, no need to fetch data for calendar " + self.name);
         }
 
         // Notify the listener, but don't return just yet...
@@ -2671,14 +2671,14 @@ calDavCalendar.prototype = {
         );
         if (!status || status.substr(0, 1) != "2") {
           cal.LOG(
-            "CalDAV: Got status " + status + " in response to " + "freebusy query for " + self.name
+            "CalDAV: Got status " + status + " in response to freebusy query for " + self.name
           );
           aListener.onResult(null, null);
           return;
         }
         if (status.substr(0, 3) != "2.0") {
           cal.LOG(
-            "CalDAV: Got status " + status + " in response to " + "freebusy query for" + self.name
+            "CalDAV: Got status " + status + " in response to freebusy query for" + self.name
           );
         }
 
@@ -2901,7 +2901,7 @@ calDavCalendar.prototype = {
       aItemId,
       aDetail
     ) {
-      cal.LOG("CalDAV: status " + aStatus + " while processing iTIP REPLY " + " for " + self.name);
+      cal.LOG("CalDAV: status " + aStatus + " while processing iTIP REPLY for " + self.name);
       // don't delete the REPLY item from inbox unless modifying the master
       // item was successful
       if (aStatus == 0) {

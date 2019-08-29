@@ -165,7 +165,7 @@ function getVersion(db) {
   try {
     selectSchemaVersion = createStatement(
       db,
-      "SELECT version FROM " + "cal_calendar_schema_version LIMIT 1"
+      "SELECT version FROM cal_calendar_schema_version LIMIT 1"
     );
     if (selectSchemaVersion.executeStep()) {
       version = selectSchemaVersion.row.version;
@@ -878,7 +878,7 @@ upgrade.v3 = function(db, version) {
   function updateSql(tbl, field) {
     executeSimpleSQL(
       db,
-      "UPDATE " + tbl + " SET " + field + "_tz='UTC'" + " WHERE " + field + " IS NOT NULL"
+      "UPDATE " + tbl + " SET " + field + "_tz='UTC' WHERE " + field + " IS NOT NULL"
     );
   }
 
@@ -1221,7 +1221,7 @@ upgrade.v13 = function(db, version) {
       }
     }
 
-    executeSimpleSQL(db, "DROP INDEX IF EXISTS" + " idx_cal_properies_item_id");
+    executeSimpleSQL(db, "DROP INDEX IF EXISTS idx_cal_properies_item_id");
     executeSimpleSQL(
       db,
       "CREATE INDEX IF NOT EXISTS" +
@@ -1351,8 +1351,7 @@ upgrade.v16 = function(db, version) {
     );
 
     let copyDataOver = function(tblName) {
-      const transAlarm =
-        "translateAlarm(alarm_offset, " + "alarm_related, " + "alarm_time, " + "alarm_time_tz)";
+      const transAlarm = "translateAlarm(alarm_offset, alarm_related, alarm_time, alarm_time_tz)";
       executeSimpleSQL(
         db,
         "INSERT INTO cal_alarms (cal_id, item_id," +
@@ -1433,7 +1432,7 @@ upgrade.v17 = function(db, version) {
         // then swallowing the error is ok too since the cols will
         // already be added in v16.
         stmt = db.createStatement(
-          "SELECT recurrence_id_tz," + "       recurrence_id" + "  FROM cal_" + tblName + " LIMIT 1"
+          "SELECT recurrence_id_tz, recurrence_id FROM cal_" + tblName + " LIMIT 1"
         );
         stmt.executeStep();
       } catch (e) {

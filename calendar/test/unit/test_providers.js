@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* eslint no-useless-concat: "off" */
+
 var icalStringArray = [
   // Comments refer to the range defined in testGetItems().
   // 1: one-hour event

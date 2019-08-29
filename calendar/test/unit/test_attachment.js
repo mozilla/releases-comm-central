@@ -37,6 +37,7 @@ function test_uriattach() {
 
   // Attempt to set a property and check its values
   let e = cal.createEvent();
+  // eslint-disable-next-line no-useless-concat
   e.icalString = "BEGIN:VEVENT\r\n" + "ATTACH;FMTTYPE=x-moz/test:http://hello\r\n" + "END:VEVENT";
   let prop = e.icalComponent.getFirstProperty("ATTACH");
   attach.icalProperty = prop;

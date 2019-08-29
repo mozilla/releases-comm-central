@@ -359,7 +359,7 @@ calICSCalendar.prototype = {
           self.mObserver.onError(
             self.superCalendar,
             ex.result,
-            "The calendar could not be saved; there " + "was a failure: 0x" + ex.result.toString(16)
+            "The calendar could not be saved; there was a failure: 0x" + ex.result.toString(16)
           );
           self.mObserver.onError(self.superCalendar, calIErrors.MODIFICATION_FAILED, "");
           self.unlock(calIErrors.MODIFICATION_FAILED);
@@ -1039,8 +1039,7 @@ httpHooks.prototype = {
         );
         aRespFunc();
       };
-      let queryXml =
-        '<D:propfind xmlns:D="DAV:">' + "<D:prop>" + "<D:getetag/>" + "</D:prop>" + "</D:propfind>";
+      let queryXml = '<D:propfind xmlns:D="DAV:"><D:prop><D:getetag/></D:prop></D:propfind>';
 
       let etagChannel = cal.provider.prepHttpChannel(
         aChannel.URI,

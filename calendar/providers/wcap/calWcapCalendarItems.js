@@ -1507,7 +1507,7 @@ calWcapCalendar.prototype.replayChangesOn = function(listener) {
           throw err;
         }
         let params =
-          "&relativealarm=1&compressed=1&recurring=1" + "&emailorcalid=1&fmt-out=text%2Fcalendar";
+          "&relativealarm=1&compressed=1&recurring=1&emailorcalid=1&fmt-out=text%2Fcalendar";
         if (dtFrom) {
           dtFrom = this.session.getServerTime(dtFrom);
         }

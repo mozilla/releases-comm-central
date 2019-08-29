@@ -314,7 +314,7 @@ calItipEmailTransport.prototype = {
       }
       default: {
         // Also of this case should have been taken care at the same place
-        throw new Error("sendXpcomMail: " + "Unknown autoResponse type: " + aItipItem.autoResponse);
+        throw new Error("sendXpcomMail: Unknown autoResponse type: " + aItipItem.autoResponse);
       }
     }
     return false;
