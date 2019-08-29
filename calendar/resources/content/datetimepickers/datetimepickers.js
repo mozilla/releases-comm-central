@@ -1403,9 +1403,9 @@
       "(\\d?\\d)\\s?(\\D)?\\s?(?:(\\d\\d)\\s?(\\D)?\\s?(?:(\\d\\d)\\s?(\\D)?\\s?)?)?";
     // digitsExpr has 6 captures, so index of first ampmExpr is 1, of last is 8.
     let probeTimeRegExp = new RegExp("^\\s*(\\D*)\\s?" + digitsExpr + "\\s?(\\D*)\\s*$");
-    // eslint-disable-next-line no-unused-vars
     const PRE_INDEX = 1,
       HR_INDEX = 2,
+      // eslint-disable-next-line no-unused-vars
       MIN_INDEX = 4,
       SEC_INDEX = 6,
       POST_INDEX = 8;

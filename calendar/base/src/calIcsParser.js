@@ -59,8 +59,8 @@ calIcsParser.prototype = {
       calComp = rootComp.getNextSubcomponent("VCALENDAR");
     }
 
+    // eslint-disable-next-line mozilla/use-returnValue
     state.join(() => {
-      // eslint-disable-line mozilla/use-returnValue
       let fakedParents = {};
       // tag "exceptions", i.e. items with rid:
       for (let item of state.excItems) {
