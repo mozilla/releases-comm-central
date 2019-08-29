@@ -3,44 +3,44 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 function run_test() {
-    let ssvc = Cc["@mozilla.org/calendar/startup-service;1"].getService(Ci.nsIObserver);
+  let ssvc = Cc["@mozilla.org/calendar/startup-service;1"].getService(Ci.nsIObserver);
 
-    let first = {
-        startup: function(aListener) {
-            second.canStart = true;
-            aListener.onResult(null, Cr.NS_OK);
-        },
-        shutdown: function(aListener) {
-            ok(this.canStop);
-            aListener.onResult(null, Cr.NS_OK);
-        }
-    };
+  let first = {
+    startup: function(aListener) {
+      second.canStart = true;
+      aListener.onResult(null, Cr.NS_OK);
+    },
+    shutdown: function(aListener) {
+      ok(this.canStop);
+      aListener.onResult(null, Cr.NS_OK);
+    },
+  };
 
-    let second = {
-        startup: function(aListener) {
-            ok(this.canStart);
-            aListener.onResult(null, Cr.NS_OK);
-        },
-        shutdown: function(aListener) {
-            first.canStop = true;
-            aListener.onResult(null, Cr.NS_OK);
-        }
-    };
+  let second = {
+    startup: function(aListener) {
+      ok(this.canStart);
+      aListener.onResult(null, Cr.NS_OK);
+    },
+    shutdown: function(aListener) {
+      first.canStop = true;
+      aListener.onResult(null, Cr.NS_OK);
+    },
+  };
 
-    // Change the startup order so we can test our services
-    let oldStartupOrder = ssvc.wrappedJSObject.getStartupOrder;
-    ssvc.wrappedJSObject.getStartupOrder = function() {
-        let origOrder = oldStartupOrder.call(this);
+  // Change the startup order so we can test our services
+  let oldStartupOrder = ssvc.wrappedJSObject.getStartupOrder;
+  ssvc.wrappedJSObject.getStartupOrder = function() {
+    let origOrder = oldStartupOrder.call(this);
 
-        let notify = origOrder[origOrder.length - 1];
-        return [first, second, notify];
-    };
+    let notify = origOrder[origOrder.length - 1];
+    return [first, second, notify];
+  };
 
-    // Pretend a startup run
-    ssvc.observe(null, "profile-after-change", null);
-    ok(second.canStart);
+  // Pretend a startup run
+  ssvc.observe(null, "profile-after-change", null);
+  ok(second.canStart);
 
-    // Pretend a stop run
-    ssvc.observe(null, "profile-before-change", null);
-    ok(first.canStop);
+  // Pretend a stop run
+  ssvc.observe(null, "profile-before-change", null);
+  ok(first.canStop);
 }

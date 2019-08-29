@@ -6,64 +6,76 @@
 
 /* globals publishButtonLabel, closeButtonLabel */ // From publishDialog.xul
 
-var gOnOkFunction;   // function to be called when user clicks OK
+var gOnOkFunction; // function to be called when user clicks OK
 var gPublishObject;
 
 /**
  * Called when the dialog is loaded.
  */
 function loadCalendarPublishDialog() {
-    // Get arguments, see description at top of file
+  // Get arguments, see description at top of file
 
-    let args = window.arguments[0];
+  let args = window.arguments[0];
 
-    gOnOkFunction = args.onOk;
+  gOnOkFunction = args.onOk;
 
-    if (args.publishObject) {
-        gPublishObject = args.publishObject;
-        if (args.publishObject.remotePath) {
-            document.getElementById("publish-remotePath-textbox").value = args.publishObject.remotePath;
-        }
-    } else {
-        gPublishObject = {};
+  if (args.publishObject) {
+    gPublishObject = args.publishObject;
+    if (args.publishObject.remotePath) {
+      document.getElementById("publish-remotePath-textbox").value = args.publishObject.remotePath;
     }
-    document.getElementById("calendar-publishwindow").getButton("accept").setAttribute("label", publishButtonLabel);
+  } else {
+    gPublishObject = {};
+  }
+  document
+    .getElementById("calendar-publishwindow")
+    .getButton("accept")
+    .setAttribute("label", publishButtonLabel);
 
-    checkURLField();
+  checkURLField();
 
-    let firstFocus = document.getElementById("publish-remotePath-textbox");
-    firstFocus.focus();
+  let firstFocus = document.getElementById("publish-remotePath-textbox");
+  firstFocus.focus();
 }
 
 /**
  * Called when the OK button is clicked.
  */
 function onOKCommand(event) {
-    gPublishObject.remotePath = document.getElementById("publish-remotePath-textbox").value;
+  gPublishObject.remotePath = document.getElementById("publish-remotePath-textbox").value;
 
-    // call caller's on OK function
-    gOnOkFunction(gPublishObject, progressDialog);
-    document.getElementById("calendar-publishwindow").getButton("accept").setAttribute("label", closeButtonLabel);
-    document.removeEventListener("dialogaccept", onOKCommand);
-    event.preventDefault();
+  // call caller's on OK function
+  gOnOkFunction(gPublishObject, progressDialog);
+  document
+    .getElementById("calendar-publishwindow")
+    .getButton("accept")
+    .setAttribute("label", closeButtonLabel);
+  document.removeEventListener("dialogaccept", onOKCommand);
+  event.preventDefault();
 }
 document.addEventListener("dialogaccept", onOKCommand);
 
 function checkURLField() {
-    if (document.getElementById("publish-remotePath-textbox").value.length == 0) {
-        document.getElementById("calendar-publishwindow").getButton("accept").setAttribute("disabled", "true");
-    } else {
-        document.getElementById("calendar-publishwindow").getButton("accept").removeAttribute("disabled");
-    }
+  if (document.getElementById("publish-remotePath-textbox").value.length == 0) {
+    document
+      .getElementById("calendar-publishwindow")
+      .getButton("accept")
+      .setAttribute("disabled", "true");
+  } else {
+    document
+      .getElementById("calendar-publishwindow")
+      .getButton("accept")
+      .removeAttribute("disabled");
+  }
 }
 
 var progressDialog = {
-    onStartUpload: function() {
-        document.getElementById("publish-progressmeter").removeAttribute("value");
-    },
+  onStartUpload: function() {
+    document.getElementById("publish-progressmeter").removeAttribute("value");
+  },
 
-    onStopUpload: function() {
-        document.getElementById("publish-progressmeter").setAttribute("value", "0");
-    }
+  onStopUpload: function() {
+    document.getElementById("publish-progressmeter").setAttribute("value", "0");
+  },
 };
 progressDialog.wrappedJSObject = progressDialog;

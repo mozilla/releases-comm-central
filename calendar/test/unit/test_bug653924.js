@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 function run_test() {
-    let evt = cal.createEvent();
-    let rel = cal.createRelation();
-    evt.addRelation(rel);
+  let evt = cal.createEvent();
+  let rel = cal.createRelation();
+  evt.addRelation(rel);
 
-    equal(1, evt.icalString.match(/RELATED-TO/g).length);
-    evt.icalString = evt.icalString; // eslint-disable-line no-self-assign
-    equal(1, evt.icalString.match(/RELATED-TO/g).length);
+  equal(1, evt.icalString.match(/RELATED-TO/g).length);
+  evt.icalString = evt.icalString; // eslint-disable-line no-self-assign
+  equal(1, evt.icalString.match(/RELATED-TO/g).length);
 }

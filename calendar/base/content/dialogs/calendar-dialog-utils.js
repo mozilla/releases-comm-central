@@ -24,14 +24,14 @@ var gTabmail = null;
  * Initialize variables for tab vs window.
  */
 function intializeTabOrWindowVariables() {
-    let args = window.arguments[0];
-    gInTab = args.inTab;
-    if (gInTab) {
-        gTabmail = parent.document.getElementById("tabmail");
-        gMainWindow = parent;
-    } else {
-        gMainWindow = parent.opener;
-    }
+  let args = window.arguments[0];
+  gInTab = args.inTab;
+  if (gInTab) {
+    gTabmail = parent.document.getElementById("tabmail");
+    gMainWindow = parent;
+  } else {
+    gMainWindow = parent.opener;
+  }
 }
 
 /**
@@ -39,10 +39,10 @@ function intializeTabOrWindowVariables() {
  * window.arguments[0].job.dispose()
  */
 function dispose() {
-    let args = window.arguments[0];
-    if (args.job && args.job.dispose) {
-        args.job.dispose();
-    }
+  let args = window.arguments[0];
+  if (args.job && args.job.dispose) {
+    args.job.dispose();
+  }
 }
 
 /**
@@ -53,9 +53,9 @@ function dispose() {
  * @param aNewId                The new ID as String.
  */
 function setDialogId(aDialog, aNewId) {
-    aDialog.setAttribute("id", aNewId);
-    aDialog.setAttribute("icon", aNewId);
-    applyPersistedProperties(aDialog);
+  aDialog.setAttribute("id", aNewId);
+  aDialog.setAttribute("icon", aNewId);
+  applyPersistedProperties(aDialog);
 }
 
 /**
@@ -66,34 +66,34 @@ function setDialogId(aDialog, aNewId) {
  * @param aDialog               The Dialog to apply the property values for
  */
 function applyPersistedProperties(aDialog) {
-    let xulStore = Services.xulStore;
-    // first we need to detect which properties are persisted
-    let persistedProps = aDialog.getAttribute("persist") || "";
-    if (persistedProps == "") {
-        return;
+  let xulStore = Services.xulStore;
+  // first we need to detect which properties are persisted
+  let persistedProps = aDialog.getAttribute("persist") || "";
+  if (persistedProps == "") {
+    return;
+  }
+  let propNames = persistedProps.split(" ");
+  let { outerWidth: width, outerHeight: height } = aDialog;
+  let doResize = false;
+  // now let's apply persisted values if applicable
+  for (let propName of propNames) {
+    if (xulStore.hasValue(aDialog.baseURI, aDialog.id, propName)) {
+      let propValue = xulStore.getValue(aDialog.baseURI, aDialog.id, propName);
+      if (propName == "width") {
+        width = propValue;
+        doResize = true;
+      } else if (propName == "height") {
+        height = propValue;
+        doResize = true;
+      } else {
+        aDialog.setAttribute(propName, propValue);
+      }
     }
-    let propNames = persistedProps.split(" ");
-    let { outerWidth: width, outerHeight: height } = aDialog;
-    let doResize = false;
-    // now let's apply persisted values if applicable
-    for (let propName of propNames) {
-        if (xulStore.hasValue(aDialog.baseURI, aDialog.id, propName)) {
-            let propValue = xulStore.getValue(aDialog.baseURI, aDialog.id, propName);
-            if (propName == "width") {
-                width = propValue;
-                doResize = true;
-            } else if (propName == "height") {
-                height = propValue;
-                doResize = true;
-            } else {
-                aDialog.setAttribute(propName, propValue);
-            }
-        }
-    }
+  }
 
-    if (doResize) {
-        aDialog.ownerGlobal.resizeTo(width, height);
-    }
+  if (doResize) {
+    aDialog.ownerGlobal.resizeTo(width, height);
+  }
 }
 
 /**
@@ -104,25 +104,27 @@ function applyPersistedProperties(aDialog) {
  * @return              The calIAlarm with information from the menuitem.
  */
 function createReminderFromMenuitem(aMenuitem) {
-    let reminder = aMenuitem.reminder || cal.createAlarm();
-    // clone immutable reminders if necessary to set default values
-    let isImmutable = !reminder.isMutable;
-    if (isImmutable) {
-        reminder = reminder.clone();
-    }
-    let offset = cal.createDuration();
-    offset[aMenuitem.getAttribute("unit")] = aMenuitem.getAttribute("length");
-    offset.normalize();
-    offset.isNegative = (aMenuitem.getAttribute("origin") == "before");
-    reminder.related = (aMenuitem.getAttribute("relation") == "START" ?
-                        reminder.ALARM_RELATED_START : reminder.ALARM_RELATED_END);
-    reminder.offset = offset;
-    reminder.action = getDefaultAlarmType();
-    // make reminder immutable in case it was before
-    if (isImmutable) {
-        reminder.makeImmutable();
-    }
-    return reminder;
+  let reminder = aMenuitem.reminder || cal.createAlarm();
+  // clone immutable reminders if necessary to set default values
+  let isImmutable = !reminder.isMutable;
+  if (isImmutable) {
+    reminder = reminder.clone();
+  }
+  let offset = cal.createDuration();
+  offset[aMenuitem.getAttribute("unit")] = aMenuitem.getAttribute("length");
+  offset.normalize();
+  offset.isNegative = aMenuitem.getAttribute("origin") == "before";
+  reminder.related =
+    aMenuitem.getAttribute("relation") == "START"
+      ? reminder.ALARM_RELATED_START
+      : reminder.ALARM_RELATED_END;
+  reminder.offset = offset;
+  reminder.action = getDefaultAlarmType();
+  // make reminder immutable in case it was before
+  if (isImmutable) {
+    reminder.makeImmutable();
+  }
+  return reminder;
 }
 
 /**
@@ -132,33 +134,32 @@ function createReminderFromMenuitem(aMenuitem) {
  * custom menuitem and call updateReminder().
  */
 function editReminder() {
-    let customItem = document.getElementById("reminder-custom-menuitem");
-    let args = {};
-    args.reminders = customItem.reminders;
-    args.item = window.calendarItem;
-    args.timezone = window.gStartTimezone ||
-                    window.gEndTimezone ||
-                    cal.dtz.defaultTimezone;
+  let customItem = document.getElementById("reminder-custom-menuitem");
+  let args = {};
+  args.reminders = customItem.reminders;
+  args.item = window.calendarItem;
+  args.timezone = window.gStartTimezone || window.gEndTimezone || cal.dtz.defaultTimezone;
 
-    args.calendar = getCurrentCalendar();
+  args.calendar = getCurrentCalendar();
 
-    // While these are "just" callbacks, the dialog is opened modally, so aside
-    // from what's needed to set up the reminders, nothing else needs to be done.
-    args.onOk = function(reminders) {
-        customItem.reminders = reminders;
-    };
-    args.onCancel = function() {
-        document.getElementById("item-alarm").selectedIndex = gLastAlarmSelection;
-    };
+  // While these are "just" callbacks, the dialog is opened modally, so aside
+  // from what's needed to set up the reminders, nothing else needs to be done.
+  args.onOk = function(reminders) {
+    customItem.reminders = reminders;
+  };
+  args.onCancel = function() {
+    document.getElementById("item-alarm").selectedIndex = gLastAlarmSelection;
+  };
 
-    window.setCursor("wait");
+  window.setCursor("wait");
 
-    // open the dialog modally
-    openDialog(
-        "chrome://calendar/content/calendar-event-dialog-reminder.xul",
-        "_blank",
-        "chrome,titlebar,modal,resizable",
-        args);
+  // open the dialog modally
+  openDialog(
+    "chrome://calendar/content/calendar-event-dialog-reminder.xul",
+    "_blank",
+    "chrome,titlebar,modal,resizable",
+    args
+  );
 }
 
 /**
@@ -167,102 +168,101 @@ function editReminder() {
  * chosen.
  */
 function updateReminderDetails() {
-    // find relevant elements in the document
-    let reminderList = document.getElementById("item-alarm");
-    let reminderMultipleLabel = document.getElementById("reminder-multiple-alarms-label");
-    let iconBox = document.getElementById("reminder-icon-box");
-    let reminderSingleLabel = document.getElementById("reminder-single-alarms-label");
-    let reminders = document.getElementById("reminder-custom-menuitem").reminders || [];
-    let calendar = getCurrentCalendar();
-    let actionValues = calendar.getProperty("capabilities.alarms.actionValues") || ["DISPLAY"];
-    let actionMap = {};
-    for (let action of actionValues) {
-        actionMap[action] = true;
+  // find relevant elements in the document
+  let reminderList = document.getElementById("item-alarm");
+  let reminderMultipleLabel = document.getElementById("reminder-multiple-alarms-label");
+  let iconBox = document.getElementById("reminder-icon-box");
+  let reminderSingleLabel = document.getElementById("reminder-single-alarms-label");
+  let reminders = document.getElementById("reminder-custom-menuitem").reminders || [];
+  let calendar = getCurrentCalendar();
+  let actionValues = calendar.getProperty("capabilities.alarms.actionValues") || ["DISPLAY"];
+  let actionMap = {};
+  for (let action of actionValues) {
+    actionMap[action] = true;
+  }
+
+  // Filter out any unsupported action types.
+  reminders = reminders.filter(x => x.action in actionMap);
+
+  if (reminderList.value == "custom") {
+    // Depending on how many alarms we have, show either the "Multiple Alarms"
+    // label or the single reminder label.
+    setElementValue(reminderMultipleLabel, reminders.length < 2 && "true", "hidden");
+    setElementValue(reminderSingleLabel, reminders.length > 1 && "true", "hidden");
+
+    cal.alarms.addReminderImages(iconBox, reminders);
+
+    // If there is only one reminder, display the reminder string
+    if (reminders.length == 1) {
+      setElementValue(reminderSingleLabel, reminders[0].toString(window.calendarItem));
     }
-
-    // Filter out any unsupported action types.
-    reminders = reminders.filter(x => x.action in actionMap);
-
-    if (reminderList.value == "custom") {
-        // Depending on how many alarms we have, show either the "Multiple Alarms"
-        // label or the single reminder label.
-        setElementValue(reminderMultipleLabel,
-                        reminders.length < 2 && "true",
-                        "hidden");
-        setElementValue(reminderSingleLabel,
-                        reminders.length > 1 && "true",
-                        "hidden");
-
-        cal.alarms.addReminderImages(iconBox, reminders);
-
-        // If there is only one reminder, display the reminder string
-        if (reminders.length == 1) {
-            setElementValue(reminderSingleLabel,
-                            reminders[0].toString(window.calendarItem));
-        }
+  } else {
+    hideElement(reminderMultipleLabel);
+    hideElement(reminderSingleLabel);
+    if (reminderList.value == "none") {
+      // No reminder selected means show no icons.
+      removeChildren(iconBox);
     } else {
-        hideElement(reminderMultipleLabel);
-        hideElement(reminderSingleLabel);
-        if (reminderList.value == "none") {
-            // No reminder selected means show no icons.
-            removeChildren(iconBox);
-        } else {
-            // This is one of the predefined dropdown items. We should show a
-            // single icon in the icons box to tell the user what kind of alarm
-            // this will be.
-            let mockAlarm = cal.createAlarm();
-            mockAlarm.action = getDefaultAlarmType();
-            cal.alarms.addReminderImages(iconBox, [mockAlarm]);
-        }
+      // This is one of the predefined dropdown items. We should show a
+      // single icon in the icons box to tell the user what kind of alarm
+      // this will be.
+      let mockAlarm = cal.createAlarm();
+      mockAlarm.action = getDefaultAlarmType();
+      cal.alarms.addReminderImages(iconBox, [mockAlarm]);
     }
+  }
 }
 
 var gLastAlarmSelection = 0;
 
 function matchCustomReminderToMenuitem(reminder) {
-    let defaultAlarmType = getDefaultAlarmType();
-    let reminderList = document.getElementById("item-alarm");
-    let reminderPopup = reminderList.menupopup;
-    if (reminder.related != Ci.calIAlarm.ALARM_RELATED_ABSOLUTE &&
-        reminder.offset &&
-        reminder.action == defaultAlarmType) {
-        // Exactly one reminder that's not absolute, we may be able to match up
-        // popup items.
-        let relation = (reminder.related == reminder.ALARM_RELATED_START ? "START" : "END");
-        let origin;
+  let defaultAlarmType = getDefaultAlarmType();
+  let reminderList = document.getElementById("item-alarm");
+  let reminderPopup = reminderList.menupopup;
+  if (
+    reminder.related != Ci.calIAlarm.ALARM_RELATED_ABSOLUTE &&
+    reminder.offset &&
+    reminder.action == defaultAlarmType
+  ) {
+    // Exactly one reminder that's not absolute, we may be able to match up
+    // popup items.
+    let relation = reminder.related == reminder.ALARM_RELATED_START ? "START" : "END";
+    let origin;
 
-        // If the time duration for offset is 0, means the reminder is '0 minutes before'
-        if (reminder.offset.inSeconds == 0 || reminder.offset.isNegative) {
-            origin = "before";
-        } else {
-            origin = "after";
-        }
-
-        let unitMap = {
-            days: 86400,
-            hours: 3600,
-            minutes: 60
-        };
-
-        for (let menuitem of reminderPopup.childNodes) {
-            if (menuitem.localName == "menuitem" &&
-                menuitem.hasAttribute("length") &&
-                menuitem.getAttribute("origin") == origin &&
-                menuitem.getAttribute("relation") == relation) {
-                let unitMult = unitMap[menuitem.getAttribute("unit")] || 1;
-                let length = menuitem.getAttribute("length") * unitMult;
-
-                if (Math.abs(reminder.offset.inSeconds) == length) {
-                    menuitem.reminder = reminder.clone();
-                    reminderList.selectedItem = menuitem;
-                    // We've selected an item, so we are done here.
-                    return true;
-                }
-            }
-        }
+    // If the time duration for offset is 0, means the reminder is '0 minutes before'
+    if (reminder.offset.inSeconds == 0 || reminder.offset.isNegative) {
+      origin = "before";
+    } else {
+      origin = "after";
     }
 
-    return false;
+    let unitMap = {
+      days: 86400,
+      hours: 3600,
+      minutes: 60,
+    };
+
+    for (let menuitem of reminderPopup.childNodes) {
+      if (
+        menuitem.localName == "menuitem" &&
+        menuitem.hasAttribute("length") &&
+        menuitem.getAttribute("origin") == origin &&
+        menuitem.getAttribute("relation") == relation
+      ) {
+        let unitMult = unitMap[menuitem.getAttribute("unit")] || 1;
+        let length = menuitem.getAttribute("length") * unitMult;
+
+        if (Math.abs(reminder.offset.inSeconds) == length) {
+          menuitem.reminder = reminder.clone();
+          reminderList.selectedItem = menuitem;
+          // We've selected an item, so we are done here.
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
 }
 /**
  * Load an item's reminders into the dialog
@@ -270,28 +270,27 @@ function matchCustomReminderToMenuitem(reminder) {
  * @param reminders     An array of calIAlarms to load.
  */
 function loadReminders(reminders) {
-    // select 'no reminder' by default
-    let reminderList = document.getElementById("item-alarm");
-    let customItem = document.getElementById("reminder-custom-menuitem");
-    reminderList.selectedIndex = 0;
-    gLastAlarmSelection = 0;
+  // select 'no reminder' by default
+  let reminderList = document.getElementById("item-alarm");
+  let customItem = document.getElementById("reminder-custom-menuitem");
+  reminderList.selectedIndex = 0;
+  gLastAlarmSelection = 0;
 
-    if (!reminders || !reminders.length) {
-        // No reminders selected, we are done
-        return;
-    }
+  if (!reminders || !reminders.length) {
+    // No reminders selected, we are done
+    return;
+  }
 
-    if (reminders.length > 1 ||
-        !matchCustomReminderToMenuitem(reminders[0])) {
-        // If more than one alarm is selected, or we didn't find a matching item
-        // above, then select the "custom" item and attach the item's reminders to
-        // it.
-        reminderList.value = "custom";
-        customItem.reminders = reminders;
-    }
+  if (reminders.length > 1 || !matchCustomReminderToMenuitem(reminders[0])) {
+    // If more than one alarm is selected, or we didn't find a matching item
+    // above, then select the "custom" item and attach the item's reminders to
+    // it.
+    reminderList.value = "custom";
+    customItem.reminders = reminders;
+  }
 
-    // remember the selected index
-    gLastAlarmSelection = reminderList.selectedIndex;
+  // remember the selected index
+  gLastAlarmSelection = reminderList.selectedIndex;
 }
 
 /**
@@ -300,76 +299,74 @@ function loadReminders(reminders) {
  * @param item      The item save the reminder into.
  */
 function saveReminder(item) {
-    // We want to compare the old alarms with the new ones. If these are not
-    // the same, then clear the snooze/dismiss times
-    let oldAlarmMap = {};
-    for (let alarm of item.getAlarms({})) {
-        oldAlarmMap[alarm.icalString] = true;
+  // We want to compare the old alarms with the new ones. If these are not
+  // the same, then clear the snooze/dismiss times
+  let oldAlarmMap = {};
+  for (let alarm of item.getAlarms({})) {
+    oldAlarmMap[alarm.icalString] = true;
+  }
+
+  // Clear the alarms so we can add our new ones.
+  item.clearAlarms();
+
+  let reminderList = document.getElementById("item-alarm");
+  if (reminderList.value != "none") {
+    let menuitem = reminderList.selectedItem;
+    let reminders;
+
+    if (menuitem.reminders) {
+      // Custom reminder entries carry their own reminder object with
+      // them. Make sure to clone in case these are the original item's
+      // reminders.
+
+      // XXX do we need to clone here?
+      reminders = menuitem.reminders.map(x => x.clone());
+    } else {
+      // Pre-defined entries specify the necessary information
+      // as attributes attached to the menuitem elements.
+      reminders = [createReminderFromMenuitem(menuitem)];
     }
 
-    // Clear the alarms so we can add our new ones.
-    item.clearAlarms();
-
-    let reminderList = document.getElementById("item-alarm");
-    if (reminderList.value != "none") {
-        let menuitem = reminderList.selectedItem;
-        let reminders;
-
-        if (menuitem.reminders) {
-            // Custom reminder entries carry their own reminder object with
-            // them. Make sure to clone in case these are the original item's
-            // reminders.
-
-            // XXX do we need to clone here?
-            reminders = menuitem.reminders.map(x => x.clone());
-        } else {
-            // Pre-defined entries specify the necessary information
-            // as attributes attached to the menuitem elements.
-            reminders = [createReminderFromMenuitem(menuitem)];
-        }
-
-        let alarmCaps = item.calendar.getProperty("capabilities.alarms.actionValues") ||
-                        ["DISPLAY"];
-        let alarmActions = {};
-        for (let action of alarmCaps) {
-            alarmActions[action] = true;
-        }
-
-        // Make sure only alarms are saved that work in the given calendar.
-        reminders.filter(x => x.action in alarmActions)
-                 .forEach(item.addAlarm, item);
+    let alarmCaps = item.calendar.getProperty("capabilities.alarms.actionValues") || ["DISPLAY"];
+    let alarmActions = {};
+    for (let action of alarmCaps) {
+      alarmActions[action] = true;
     }
 
-    // Compare alarms to see if something changed.
-    for (let alarm of item.getAlarms({})) {
-        let ics = alarm.icalString;
-        if (ics in oldAlarmMap) {
-            // The new alarm is also in the old set, remember this
-            delete oldAlarmMap[ics];
-        } else {
-            // The new alarm is not in the old set, this means the alarms
-            // differ and we can break out.
-            oldAlarmMap[ics] = true;
-            break;
-        }
+    // Make sure only alarms are saved that work in the given calendar.
+    reminders.filter(x => x.action in alarmActions).forEach(item.addAlarm, item);
+  }
+
+  // Compare alarms to see if something changed.
+  for (let alarm of item.getAlarms({})) {
+    let ics = alarm.icalString;
+    if (ics in oldAlarmMap) {
+      // The new alarm is also in the old set, remember this
+      delete oldAlarmMap[ics];
+    } else {
+      // The new alarm is not in the old set, this means the alarms
+      // differ and we can break out.
+      oldAlarmMap[ics] = true;
+      break;
+    }
+  }
+
+  // If the alarms differ, clear the snooze/dismiss properties
+  if (Object.keys(oldAlarmMap).length > 0) {
+    let cmp = "X-MOZ-SNOOZE-TIME";
+
+    // Recurring item alarms potentially have more snooze props, remove them
+    // all.
+    let propsToDelete = [];
+    for (let [name] of item.properties) {
+      if (name.startsWith(cmp)) {
+        propsToDelete.push(name);
+      }
     }
 
-    // If the alarms differ, clear the snooze/dismiss properties
-    if (Object.keys(oldAlarmMap).length > 0) {
-        let cmp = "X-MOZ-SNOOZE-TIME";
-
-        // Recurring item alarms potentially have more snooze props, remove them
-        // all.
-        let propsToDelete = [];
-        for (let [name] of item.properties) {
-            if (name.startsWith(cmp)) {
-                propsToDelete.push(name);
-            }
-        }
-
-        item.alarmLastAck = null;
-        propsToDelete.forEach(item.deleteProperty, item);
-    }
+    item.alarmLastAck = null;
+    propsToDelete.forEach(item.deleteProperty, item);
+  }
 }
 
 /**
@@ -380,10 +377,9 @@ function saveReminder(item) {
  * @return      The default alarm type.
  */
 function getDefaultAlarmType() {
-    let calendar = getCurrentCalendar();
-    let alarmCaps = calendar.getProperty("capabilities.alarms.actionValues") ||
-                    ["DISPLAY"];
-    return (alarmCaps.includes("DISPLAY") ? "DISPLAY" : alarmCaps[0]);
+  let calendar = getCurrentCalendar();
+  let alarmCaps = calendar.getProperty("capabilities.alarms.actionValues") || ["DISPLAY"];
+  return alarmCaps.includes("DISPLAY") ? "DISPLAY" : alarmCaps[0];
 }
 
 /**
@@ -394,10 +390,10 @@ function getDefaultAlarmType() {
  * @return      The currently selected calendar.
  */
 function getCurrentCalendar() {
-    let calendarNode = document.getElementById("item-calendar");
-    return (calendarNode && calendarNode.selectedItem
-                                ? calendarNode.selectedItem.calendar
-                                : window.calendarItem.calendar);
+  let calendarNode = document.getElementById("item-calendar");
+  return calendarNode && calendarNode.selectedItem
+    ? calendarNode.selectedItem.calendar
+    : window.calendarItem.calendar;
 }
 
 /**
@@ -408,94 +404,94 @@ function getCurrentCalendar() {
  *                               for changes with the dialog
  */
 function commonUpdateReminder(aSuppressDialogs) {
-    // if a custom reminder has been selected, we show the appropriate
-    // dialog in order to allow the user to specify the details.
-    // the result will be placed in the 'reminder-custom-menuitem' tag.
-    let reminderList = document.getElementById("item-alarm");
+  // if a custom reminder has been selected, we show the appropriate
+  // dialog in order to allow the user to specify the details.
+  // the result will be placed in the 'reminder-custom-menuitem' tag.
+  let reminderList = document.getElementById("item-alarm");
+  if (reminderList.value == "custom") {
+    // Clear the reminder icons first, this will make sure that while the
+    // dialog is open the default reminder image is not shown which may
+    // confuse users.
+    removeChildren("reminder-icon-box");
+
+    // show the dialog. This call blocks until the dialog is closed. Don't
+    // pop up the dialog if aSuppressDialogs was specified or if this
+    // happens during initialization of the dialog
+    if (!aSuppressDialogs && reminderList.hasAttribute("last-value")) {
+      editReminder();
+    }
+
     if (reminderList.value == "custom") {
-        // Clear the reminder icons first, this will make sure that while the
-        // dialog is open the default reminder image is not shown which may
-        // confuse users.
-        removeChildren("reminder-icon-box");
+      // Only do this if the 'custom' item is still selected. If the edit
+      // reminder dialog was canceled then the previously selected
+      // menuitem is selected, which may not be the custom menuitem.
 
-        // show the dialog. This call blocks until the dialog is closed. Don't
-        // pop up the dialog if aSuppressDialogs was specified or if this
-        // happens during initialization of the dialog
-        if (!aSuppressDialogs && reminderList.hasAttribute("last-value")) {
-            editReminder();
-        }
-
-        if (reminderList.value == "custom") {
-            // Only do this if the 'custom' item is still selected. If the edit
-            // reminder dialog was canceled then the previously selected
-            // menuitem is selected, which may not be the custom menuitem.
-
-            // If one or no reminders were selected, we have a chance of mapping
-            // them to the existing elements in the dropdown.
-            let customItem = reminderList.selectedItem;
-            if (customItem.reminders.length == 0) {
-                // No reminder was selected
-                reminderList.value = "none";
-            } else if (customItem.reminders.length == 1) {
-                // We might be able to match the custom reminder with one of the
-                // default menu items.
-                matchCustomReminderToMenuitem(customItem.reminders[0]);
-            }
-        }
+      // If one or no reminders were selected, we have a chance of mapping
+      // them to the existing elements in the dropdown.
+      let customItem = reminderList.selectedItem;
+      if (customItem.reminders.length == 0) {
+        // No reminder was selected
+        reminderList.value = "none";
+      } else if (customItem.reminders.length == 1) {
+        // We might be able to match the custom reminder with one of the
+        // default menu items.
+        matchCustomReminderToMenuitem(customItem.reminders[0]);
+      }
     }
+  }
 
-    // remember the current reminder drop down selection index.
-    gLastAlarmSelection = reminderList.selectedIndex;
-    reminderList.setAttribute("last-value", reminderList.value);
+  // remember the current reminder drop down selection index.
+  gLastAlarmSelection = reminderList.selectedIndex;
+  reminderList.setAttribute("last-value", reminderList.value);
 
-    // possibly the selected reminder conflicts with the item.
-    // for example an end-relation combined with a task without duedate
-    // is an invalid state we need to take care of. we take the same
-    // approach as with recurring tasks. in case the reminder is related
-    // to the entry date we check the entry date automatically and disable
-    // the checkbox. the same goes for end related reminder and the due date.
-    if (cal.item.isToDo(window.calendarItem)) {
-        // In general, (re-)enable the due/entry checkboxes. This will be
-        // changed in case the alarms are related to START/END below.
-        enableElementWithLock("todo-has-duedate", "reminder-lock");
-        enableElementWithLock("todo-has-entrydate", "reminder-lock");
+  // possibly the selected reminder conflicts with the item.
+  // for example an end-relation combined with a task without duedate
+  // is an invalid state we need to take care of. we take the same
+  // approach as with recurring tasks. in case the reminder is related
+  // to the entry date we check the entry date automatically and disable
+  // the checkbox. the same goes for end related reminder and the due date.
+  if (cal.item.isToDo(window.calendarItem)) {
+    // In general, (re-)enable the due/entry checkboxes. This will be
+    // changed in case the alarms are related to START/END below.
+    enableElementWithLock("todo-has-duedate", "reminder-lock");
+    enableElementWithLock("todo-has-entrydate", "reminder-lock");
 
-        let menuitem = reminderList.selectedItem;
-        if (menuitem.value != "none") {
-            // In case a reminder is selected, retrieve the array of alarms from
-            // it, or create one from the currently selected menuitem.
-            let reminders = menuitem.reminders || [createReminderFromMenuitem(menuitem)];
+    let menuitem = reminderList.selectedItem;
+    if (menuitem.value != "none") {
+      // In case a reminder is selected, retrieve the array of alarms from
+      // it, or create one from the currently selected menuitem.
+      let reminders = menuitem.reminders || [createReminderFromMenuitem(menuitem)];
 
-            // If a reminder is related to the entry date...
-            if (reminders.some(x => x.related == x.ALARM_RELATED_START)) {
-                // ...automatically check 'has entrydate'.
-                if (!getElementValue("todo-has-entrydate", "checked")) {
-                    setElementValue("todo-has-entrydate", "true", "checked");
+      // If a reminder is related to the entry date...
+      if (reminders.some(x => x.related == x.ALARM_RELATED_START)) {
+        // ...automatically check 'has entrydate'.
+        if (!getElementValue("todo-has-entrydate", "checked")) {
+          setElementValue("todo-has-entrydate", "true", "checked");
 
-                    // Make sure gStartTime is properly initialized
-                    updateEntryDate();
-                }
-
-                // Disable the checkbox to indicate that we need the entry-date.
-                disableElementWithLock("todo-has-entrydate", "reminder-lock");
-            }
-
-            // If a reminder is related to the due date...
-            if (reminders.some(x => x.related == x.ALARM_RELATED_END)) {
-                // ...automatically check 'has duedate'.
-                if (!getElementValue("todo-has-duedate", "checked")) {
-                    setElementValue("todo-has-duedate", "true", "checked");
-
-                    // Make sure gStartTime is properly initialized
-                    updateDueDate();
-                }
-
-                // Disable the checkbox to indicate that we need the entry-date.
-                disableElementWithLock("todo-has-duedate", "reminder-lock");
-            }
+          // Make sure gStartTime is properly initialized
+          updateEntryDate();
         }
+
+        // Disable the checkbox to indicate that we need the entry-date.
+        disableElementWithLock("todo-has-entrydate", "reminder-lock");
+      }
+
+      // If a reminder is related to the due date...
+      if (reminders.some(x => x.related == x.ALARM_RELATED_END)) {
+        // ...automatically check 'has duedate'.
+        if (!getElementValue("todo-has-duedate", "checked")) {
+          setElementValue("todo-has-duedate", "true", "checked");
+
+          // Make sure gStartTime is properly initialized
+          updateDueDate();
+        }
+
+        // Disable the checkbox to indicate that we need the entry-date.
+        disableElementWithLock("todo-has-duedate", "reminder-lock");
+      }
     }
-    updateReminderDetails();
+  }
+  updateReminderDetails();
 }
 
 /**
@@ -503,201 +499,194 @@ function commonUpdateReminder(aSuppressDialogs) {
  * read-only summary dialog.
  */
 function updateLink() {
-    function hideOrShow(aBool) {
-        setElementValue("event-grid-link-row", !aBool && "true", "hidden");
-        let separator = document.getElementById("event-grid-link-separator");
-        if (separator) {
-            // The separator is not there in the summary dialog
-            setElementValue("event-grid-link-separator", !aBool && "true", "hidden");
-        }
+  function hideOrShow(aBool) {
+    setElementValue("event-grid-link-row", !aBool && "true", "hidden");
+    let separator = document.getElementById("event-grid-link-separator");
+    if (separator) {
+      // The separator is not there in the summary dialog
+      setElementValue("event-grid-link-separator", !aBool && "true", "hidden");
+    }
+  }
+
+  let itemUrlString = window.calendarItem.getProperty("URL") || "";
+  let linkCommand = document.getElementById("cmd_toggle_link");
+
+  if (linkCommand) {
+    // Disable if there is no url
+    setElementValue(linkCommand, !itemUrlString.length && "true", "disabled");
+  }
+
+  if ((linkCommand && linkCommand.getAttribute("checked") != "true") || !itemUrlString.length) {
+    // Hide if there is no url, or the menuitem was chosen so that the url
+    // should be hidden
+    hideOrShow(false);
+  } else {
+    let handler, uri;
+    try {
+      uri = Services.io.newURI(itemUrlString);
+      handler = Services.io.getProtocolHandler(uri.scheme);
+    } catch (e) {
+      // No protocol handler for the given protocol, or invalid uri
+      hideOrShow(false);
+      return;
     }
 
-    let itemUrlString = window.calendarItem.getProperty("URL") || "";
-    let linkCommand = document.getElementById("cmd_toggle_link");
+    // Only show if its either an internal protocol handler, or its external
+    // and there is an external app for the scheme
+    handler = cal.wrapInstance(handler, Ci.nsIExternalProtocolHandler);
+    hideOrShow(!handler || handler.externalAppExistsForScheme(uri.scheme));
 
-
-    if (linkCommand) {
-        // Disable if there is no url
-        setElementValue(linkCommand,
-                        !itemUrlString.length && "true",
-                        "disabled");
-    }
-
-    if ((linkCommand && linkCommand.getAttribute("checked") != "true") ||
-        !itemUrlString.length) {
-        // Hide if there is no url, or the menuitem was chosen so that the url
-        // should be hidden
-        hideOrShow(false);
-    } else {
-        let handler, uri;
-        try {
-            uri = Services.io.newURI(itemUrlString);
-            handler = Services.io.getProtocolHandler(uri.scheme);
-        } catch (e) {
-            // No protocol handler for the given protocol, or invalid uri
-            hideOrShow(false);
-            return;
-        }
-
-        // Only show if its either an internal protocol handler, or its external
-        // and there is an external app for the scheme
-        handler = cal.wrapInstance(handler, Ci.nsIExternalProtocolHandler);
-        hideOrShow(!handler || handler.externalAppExistsForScheme(uri.scheme));
-
-        setTimeout(() => {
-            // HACK the url-link doesn't crop when setting the value in onLoad
-            setElementValue("url-link", itemUrlString);
-            setElementValue("url-link", itemUrlString, "href");
-        }, 0);
-    }
+    setTimeout(() => {
+      // HACK the url-link doesn't crop when setting the value in onLoad
+      setElementValue("url-link", itemUrlString);
+      setElementValue("url-link", itemUrlString, "href");
+    }, 0);
+  }
 }
 
 /*
  * setup attendees in event and summary dialog
  */
 function setupAttendees() {
-    let attBox = document.getElementById("item-attendees-box");
-    let attBoxRows = attBox.getElementsByClassName("item-attendees-row");
+  let attBox = document.getElementById("item-attendees-box");
+  let attBoxRows = attBox.getElementsByClassName("item-attendees-row");
 
-    if (window.attendees && window.attendees.length > 0) {
-        // cloning of the template nodes
-        let selector = "#item-attendees-box-template .item-attendees-row";
-        let clonedRow = document.querySelector(selector).cloneNode(false);
-        selector = "#item-attendees-box-template .item-attendees-row box:nth-of-type(1)";
-        let clonedCell = document.querySelector(selector).cloneNode(true);
-        selector = "#item-attendees-box-template .item-attendees-row box:nth-of-type(2)";
-        let clonedSpacer = document.querySelector(selector).cloneNode(false);
+  if (window.attendees && window.attendees.length > 0) {
+    // cloning of the template nodes
+    let selector = "#item-attendees-box-template .item-attendees-row";
+    let clonedRow = document.querySelector(selector).cloneNode(false);
+    selector = "#item-attendees-box-template .item-attendees-row box:nth-of-type(1)";
+    let clonedCell = document.querySelector(selector).cloneNode(true);
+    selector = "#item-attendees-box-template .item-attendees-row box:nth-of-type(2)";
+    let clonedSpacer = document.querySelector(selector).cloneNode(false);
 
-        // determining of attendee box setup
-        let inRow = window.attendeesInRow || -1;
-        if (inRow == -1) {
-            inRow = determineAttendeesInRow();
-            window.attendeesInRow = inRow;
-        } else {
-            while (attBoxRows.length > 0) {
-                attBox.removeChild(attBoxRows[0]);
-            }
-        }
-
-        // set up of the required nodes
-        let maxRows = Math.ceil(window.attendees.length / inRow);
-        let inLastRow = window.attendees.length - ((maxRows - 1) * inRow);
-        let attCount = 0;
-        while (attBox.getElementsByClassName("item-attendees-row").length < maxRows) {
-            let newRow = clonedRow.cloneNode(false);
-            let row = attBox.appendChild(newRow);
-            row.removeAttribute("hidden");
-            let rowCount = attBox.getElementsByClassName("item-attendees-row").length;
-            let reqAtt = rowCount == maxRows ? inLastRow : inRow;
-            // we add as many attendee cells as required
-            while (row.childNodes.length < reqAtt) {
-                let newCell = clonedCell.cloneNode(true);
-                let cell = row.appendChild(newCell);
-                let icon = cell.getElementsByTagName("img")[0];
-                let text = cell.getElementsByTagName("label")[0];
-                let attendee = window.attendees[attCount];
-
-                let label = (attendee.commonName && attendee.commonName.length)
-                            ? attendee.commonName : attendee.toString();
-                let userType = attendee.userType || "INDIVIDUAL";
-                let role = attendee.role || "REQ-PARTICIPANT";
-                let partstat = attendee.participationStatus || "NEEDS-ACTION";
-
-                icon.setAttribute("partstat", partstat);
-                icon.setAttribute("usertype", userType);
-                icon.setAttribute("role", role);
-                cell.setAttribute("attendeeid", attendee.id);
-                cell.removeAttribute("hidden");
-
-                let userTypeString = cal.l10n.getCalString(
-                    "dialog.tooltip.attendeeUserType2." + userType,
-                    [attendee.toString()]
-                );
-                let roleString = cal.l10n.getCalString(
-                    "dialog.tooltip.attendeeRole2." + role,
-                    [userTypeString]
-                );
-                let partstatString = cal.l10n.getCalString(
-                    "dialog.tooltip.attendeePartStat2." + partstat,
-                    [label]
-                );
-                let tooltip = cal.l10n.getCalString(
-                    "dialog.tooltip.attendee.combined",
-                    [roleString, partstatString]
-                );
-
-                let del = cal.itip.resolveDelegation(attendee, window.attendees);
-                if (del.delegators != "") {
-                    del.delegators = cal.l10n.getCalString(
-                        "dialog.attendee.append.delegatedFrom",
-                        [del.delegators]
-                    );
-                    label += " " + del.delegators;
-                    tooltip += " " + del.delegators;
-                }
-                if (del.delegatees != "") {
-                    del.delegatees = cal.l10n.getCalString(
-                        "dialog.attendee.append.delegatedTo",
-                        [del.delegatees]
-                    );
-                    tooltip += " " + del.delegatees;
-                }
-
-                text.setAttribute("value", label);
-                cell.setAttribute("tooltiptext", tooltip);
-                attCount++;
-            }
-            // we fill the row with placeholders if required
-            if (attBox.getElementsByClassName("item-attendees-row").length > 1 && inRow > 1) {
-                while (row.childNodes.length < inRow) {
-                    let newSpacer = clonedSpacer.cloneNode(true);
-                    newSpacer.removeAttribute("hidden");
-                    row.appendChild(newSpacer);
-                }
-            }
-        }
-
-        // determining of the max width of an attendee label - this needs to
-        // be done only once and is obsolete in case of resizing
-        if (!window.maxLabelWidth) {
-            let maxWidth = 0;
-            for (let cell of attBox.getElementsByClassName("item-attendees-cell")) {
-                cell = cell.cloneNode(true);
-                cell.removeAttribute("flex");
-                cell.getElementsByTagName("label")[0].removeAttribute("flex");
-                maxWidth = cell.clientWidth > maxWidth ? cell.clientWidth : maxWidth;
-            }
-            window.maxLabelWidth = maxWidth;
-        }
+    // determining of attendee box setup
+    let inRow = window.attendeesInRow || -1;
+    if (inRow == -1) {
+      inRow = determineAttendeesInRow();
+      window.attendeesInRow = inRow;
     } else {
-        while (attBoxRows.length > 0) {
-            attBox.removeChild(attBoxRows[0]);
-        }
+      while (attBoxRows.length > 0) {
+        attBox.removeChild(attBoxRows[0]);
+      }
     }
+
+    // set up of the required nodes
+    let maxRows = Math.ceil(window.attendees.length / inRow);
+    let inLastRow = window.attendees.length - (maxRows - 1) * inRow;
+    let attCount = 0;
+    while (attBox.getElementsByClassName("item-attendees-row").length < maxRows) {
+      let newRow = clonedRow.cloneNode(false);
+      let row = attBox.appendChild(newRow);
+      row.removeAttribute("hidden");
+      let rowCount = attBox.getElementsByClassName("item-attendees-row").length;
+      let reqAtt = rowCount == maxRows ? inLastRow : inRow;
+      // we add as many attendee cells as required
+      while (row.childNodes.length < reqAtt) {
+        let newCell = clonedCell.cloneNode(true);
+        let cell = row.appendChild(newCell);
+        let icon = cell.getElementsByTagName("img")[0];
+        let text = cell.getElementsByTagName("label")[0];
+        let attendee = window.attendees[attCount];
+
+        let label =
+          attendee.commonName && attendee.commonName.length
+            ? attendee.commonName
+            : attendee.toString();
+        let userType = attendee.userType || "INDIVIDUAL";
+        let role = attendee.role || "REQ-PARTICIPANT";
+        let partstat = attendee.participationStatus || "NEEDS-ACTION";
+
+        icon.setAttribute("partstat", partstat);
+        icon.setAttribute("usertype", userType);
+        icon.setAttribute("role", role);
+        cell.setAttribute("attendeeid", attendee.id);
+        cell.removeAttribute("hidden");
+
+        let userTypeString = cal.l10n.getCalString("dialog.tooltip.attendeeUserType2." + userType, [
+          attendee.toString(),
+        ]);
+        let roleString = cal.l10n.getCalString("dialog.tooltip.attendeeRole2." + role, [
+          userTypeString,
+        ]);
+        let partstatString = cal.l10n.getCalString("dialog.tooltip.attendeePartStat2." + partstat, [
+          label,
+        ]);
+        let tooltip = cal.l10n.getCalString("dialog.tooltip.attendee.combined", [
+          roleString,
+          partstatString,
+        ]);
+
+        let del = cal.itip.resolveDelegation(attendee, window.attendees);
+        if (del.delegators != "") {
+          del.delegators = cal.l10n.getCalString("dialog.attendee.append.delegatedFrom", [
+            del.delegators,
+          ]);
+          label += " " + del.delegators;
+          tooltip += " " + del.delegators;
+        }
+        if (del.delegatees != "") {
+          del.delegatees = cal.l10n.getCalString("dialog.attendee.append.delegatedTo", [
+            del.delegatees,
+          ]);
+          tooltip += " " + del.delegatees;
+        }
+
+        text.setAttribute("value", label);
+        cell.setAttribute("tooltiptext", tooltip);
+        attCount++;
+      }
+      // we fill the row with placeholders if required
+      if (attBox.getElementsByClassName("item-attendees-row").length > 1 && inRow > 1) {
+        while (row.childNodes.length < inRow) {
+          let newSpacer = clonedSpacer.cloneNode(true);
+          newSpacer.removeAttribute("hidden");
+          row.appendChild(newSpacer);
+        }
+      }
+    }
+
+    // determining of the max width of an attendee label - this needs to
+    // be done only once and is obsolete in case of resizing
+    if (!window.maxLabelWidth) {
+      let maxWidth = 0;
+      for (let cell of attBox.getElementsByClassName("item-attendees-cell")) {
+        cell = cell.cloneNode(true);
+        cell.removeAttribute("flex");
+        cell.getElementsByTagName("label")[0].removeAttribute("flex");
+        maxWidth = cell.clientWidth > maxWidth ? cell.clientWidth : maxWidth;
+      }
+      window.maxLabelWidth = maxWidth;
+    }
+  } else {
+    while (attBoxRows.length > 0) {
+      attBox.removeChild(attBoxRows[0]);
+    }
+  }
 }
 
 /**
  * Re-arranges the attendees on dialog resizing in event and summary dialog
  */
 function rearrangeAttendees() {
-    if (window.attendees && window.attendees.length > 0 && window.attendeesInRow) {
-        let inRow = determineAttendeesInRow();
-        if (inRow != window.attendeesInRow) {
-            window.attendeesInRow = inRow;
-            setupAttendees();
-        }
+  if (window.attendees && window.attendees.length > 0 && window.attendeesInRow) {
+    let inRow = determineAttendeesInRow();
+    if (inRow != window.attendeesInRow) {
+      window.attendeesInRow = inRow;
+      setupAttendees();
     }
+  }
 }
 
 /**
  * Calculates the number of columns to distribute attendees for event and summary dialog
  */
 function determineAttendeesInRow() {
-    // as default value a reasonable high value is appropriate
-    // it will be recalculated anyway.
-    let minWidth = window.maxLabelWidth || 200;
-    let inRow = Math.floor(document.documentElement.clientWidth / minWidth);
-    return inRow > 1 ? inRow : 1;
+  // as default value a reasonable high value is appropriate
+  // it will be recalculated anyway.
+  let minWidth = window.maxLabelWidth || 200;
+  let inRow = Math.floor(document.documentElement.clientWidth / minWidth);
+  return inRow > 1 ? inRow : 1;
 }
 
 /**
@@ -707,48 +696,52 @@ function determineAttendeesInRow() {
  * @param {calIEvent|calIToDo} aItem      Item to apply the change on
  */
 function adaptScheduleAgent(aItem) {
-    if (aItem.calendar && aItem.calendar.type == "caldav" &&
-        aItem.calendar.getProperty("capabilities.autoschedule.supported")) {
-        let identity = aItem.calendar.getProperty("imip.identity");
-        let orgEmail = identity &&
-                       identity.QueryInterface(Ci.nsIMsgIdentity).email;
-        let organizerAction = aItem.organizer && orgEmail &&
-                              aItem.organizer.id == "mailto:" + orgEmail;
-        if (aItem.calendar.getProperty("forceEmailScheduling")) {
-            cal.LOG("Enforcing clientside email based scheduling.");
-            // for attendees, we change schedule-agent only in case of an
-            // organizer triggered action
-            if (organizerAction) {
-                aItem.getAttendees({}).forEach((aAttendee) => {
-                    // overwriting must always happen consistently for all
-                    // attendees regarding SERVER or CLIENT but must not override
-                    // e.g. NONE, so we only overwrite if the param is set to
-                    // SERVER or doesn't exist
-                    if (aAttendee.getProperty("SCHEDULE-AGENT") == "SERVER" ||
-                        !aAttendee.getProperty("SCHEDULE-AGENT")) {
-                        aAttendee.setProperty("SCHEDULE-AGENT", "CLIENT");
-                        aAttendee.deleteProperty("SCHEDULE-STATUS");
-                        aAttendee.deleteProperty("SCHEDULE-FORCE-SEND");
-                    }
-                });
-            } else if (aItem.organizer &&
-                       (aItem.organizer.getProperty("SCHEDULE-AGENT") == "SERVER" ||
-                        !aItem.organizer.getProperty("SCHEDULE-AGENT"))) {
-                // for organizer, we change the schedule-agent only in case of
-                // an attendee triggered action
-                aItem.organizer.setProperty("SCHEDULE-AGENT", "CLIENT");
-                aItem.organizer.deleteProperty("SCHEDULE-STATUS");
-                aItem.organizer.deleteProperty("SCHEDULE-FORCE-SEND");
-            }
-        } else if (organizerAction) {
-            aItem.getAttendees({}).forEach((aAttendee) => {
-                if (aAttendee.getProperty("SCHEDULE-AGENT") == "CLIENT") {
-                    aAttendee.deleteProperty("SCHEDULE-AGENT");
-                }
-            });
-        } else if (aItem.organizer &&
-                   aItem.organizer.getProperty("SCHEDULE-AGENT") == "CLIENT") {
-            aItem.organizer.deleteProperty("SCHEDULE-AGENT");
+  if (
+    aItem.calendar &&
+    aItem.calendar.type == "caldav" &&
+    aItem.calendar.getProperty("capabilities.autoschedule.supported")
+  ) {
+    let identity = aItem.calendar.getProperty("imip.identity");
+    let orgEmail = identity && identity.QueryInterface(Ci.nsIMsgIdentity).email;
+    let organizerAction = aItem.organizer && orgEmail && aItem.organizer.id == "mailto:" + orgEmail;
+    if (aItem.calendar.getProperty("forceEmailScheduling")) {
+      cal.LOG("Enforcing clientside email based scheduling.");
+      // for attendees, we change schedule-agent only in case of an
+      // organizer triggered action
+      if (organizerAction) {
+        aItem.getAttendees({}).forEach(aAttendee => {
+          // overwriting must always happen consistently for all
+          // attendees regarding SERVER or CLIENT but must not override
+          // e.g. NONE, so we only overwrite if the param is set to
+          // SERVER or doesn't exist
+          if (
+            aAttendee.getProperty("SCHEDULE-AGENT") == "SERVER" ||
+            !aAttendee.getProperty("SCHEDULE-AGENT")
+          ) {
+            aAttendee.setProperty("SCHEDULE-AGENT", "CLIENT");
+            aAttendee.deleteProperty("SCHEDULE-STATUS");
+            aAttendee.deleteProperty("SCHEDULE-FORCE-SEND");
+          }
+        });
+      } else if (
+        aItem.organizer &&
+        (aItem.organizer.getProperty("SCHEDULE-AGENT") == "SERVER" ||
+          !aItem.organizer.getProperty("SCHEDULE-AGENT"))
+      ) {
+        // for organizer, we change the schedule-agent only in case of
+        // an attendee triggered action
+        aItem.organizer.setProperty("SCHEDULE-AGENT", "CLIENT");
+        aItem.organizer.deleteProperty("SCHEDULE-STATUS");
+        aItem.organizer.deleteProperty("SCHEDULE-FORCE-SEND");
+      }
+    } else if (organizerAction) {
+      aItem.getAttendees({}).forEach(aAttendee => {
+        if (aAttendee.getProperty("SCHEDULE-AGENT") == "CLIENT") {
+          aAttendee.deleteProperty("SCHEDULE-AGENT");
         }
+      });
+    } else if (aItem.organizer && aItem.organizer.getProperty("SCHEDULE-AGENT") == "CLIENT") {
+      aItem.organizer.deleteProperty("SCHEDULE-AGENT");
     }
+  }
 }

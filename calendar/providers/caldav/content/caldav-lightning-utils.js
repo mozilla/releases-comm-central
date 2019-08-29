@@ -16,22 +16,21 @@
  * (shared between calendar creation wizard and properties dialog)
  */
 function caldavInitForceEmailScheduling() {
-    if (gCalendar && gCalendar.type == "caldav") {
-        let checkbox = document.getElementById("force-email-scheduling");
-        let curStatus = checkbox.getAttribute("checked") == "true";
-        let newStatus = gCalendar.getProperty("forceEmailScheduling") ||
-                        curStatus;
-        if (curStatus != newStatus) {
-            if (newStatus) {
-                checkbox.setAttribute("checked", "true");
-            } else {
-                checkbox.removeAttribute("checked");
-            }
-        }
-        caldavUpdateForceEmailSchedulingControl();
-    } else {
-        collapseElement("calendar-force-email-scheduling-row");
+  if (gCalendar && gCalendar.type == "caldav") {
+    let checkbox = document.getElementById("force-email-scheduling");
+    let curStatus = checkbox.getAttribute("checked") == "true";
+    let newStatus = gCalendar.getProperty("forceEmailScheduling") || curStatus;
+    if (curStatus != newStatus) {
+      if (newStatus) {
+        checkbox.setAttribute("checked", "true");
+      } else {
+        checkbox.removeAttribute("checked");
+      }
     }
+    caldavUpdateForceEmailSchedulingControl();
+  } else {
+    collapseElement("calendar-force-email-scheduling-row");
+  }
 }
 
 /**
@@ -39,13 +38,13 @@ function caldavInitForceEmailScheduling() {
  * (shared between calendar creation wizard and properties dialog)
  */
 function caldavSaveForceEmailScheduling() {
-    if (gCalendar && gCalendar.type == "caldav") {
-        let checkbox = document.getElementById("force-email-scheduling");
-        if (checkbox && checkbox.getAttribute("disable-capability") != "true") {
-            let status = checkbox.getAttribute("checked") == "true";
-            gCalendar.setProperty("forceEmailScheduling", status);
-        }
+  if (gCalendar && gCalendar.type == "caldav") {
+    let checkbox = document.getElementById("force-email-scheduling");
+    if (checkbox && checkbox.getAttribute("disable-capability") != "true") {
+      let status = checkbox.getAttribute("checked") == "true";
+      gCalendar.setProperty("forceEmailScheduling", status);
     }
+  }
 }
 
 /**
@@ -54,14 +53,16 @@ function caldavSaveForceEmailScheduling() {
  * (shared between calendar creation wizard and properties dialog)
  */
 function caldavUpdateForceEmailSchedulingControl() {
-    let checkbox = document.getElementById("force-email-scheduling");
-    if (gCalendar &&
-        gCalendar.getProperty("capabilities.autoschedule.supported") &&
-        ltnGetMailIdentitySelection() != "none") {
-        checkbox.removeAttribute("disable-capability");
-        checkbox.removeAttribute("disabled");
-    } else {
-        checkbox.setAttribute("disable-capability", "true");
-        checkbox.setAttribute("disabled", "true");
-    }
+  let checkbox = document.getElementById("force-email-scheduling");
+  if (
+    gCalendar &&
+    gCalendar.getProperty("capabilities.autoschedule.supported") &&
+    ltnGetMailIdentitySelection() != "none"
+  ) {
+    checkbox.removeAttribute("disable-capability");
+    checkbox.removeAttribute("disabled");
+  } else {
+    checkbox.setAttribute("disable-capability", "true");
+    checkbox.setAttribute("disabled", "true");
+  }
 }

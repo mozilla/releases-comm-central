@@ -15,66 +15,68 @@ var setData;
 var UTF8STRING = " 💣 💥  ☣  ";
 
 function setupModule(module) {
-    controller = mozmill.getMail3PaneController();
-    ({
-        EVENT_BOX,
-        CANVAS_BOX,
-        helpersForController,
-        invokeEventDialog,
-        closeAllEventDialogs,
-        createCalendar,
-        deleteCalendars
-    } = collector.getModule("calendar-utils"));
-    collector.getModule("calendar-utils").setupModule(controller);
-    Object.assign(module, helpersForController(controller));
+  controller = mozmill.getMail3PaneController();
+  ({
+    EVENT_BOX,
+    CANVAS_BOX,
+    helpersForController,
+    invokeEventDialog,
+    closeAllEventDialogs,
+    createCalendar,
+    deleteCalendars,
+  } = collector.getModule("calendar-utils"));
+  collector.getModule("calendar-utils").setupModule(controller);
+  Object.assign(module, helpersForController(controller));
 
-    ({ setData } = collector.getModule("item-editing-helpers"));
-    collector.getModule("item-editing-helpers").setupModule(module);
+  ({ setData } = collector.getModule("item-editing-helpers"));
+  collector.getModule("item-editing-helpers").setupModule(module);
 
-    createCalendar(controller, UTF8STRING);
-    Services.prefs.setStringPref("calendar.categories.names", UTF8STRING);
+  createCalendar(controller, UTF8STRING);
+  Services.prefs.setStringPref("calendar.categories.names", UTF8STRING);
 }
 
 function testUTF8() {
-    // Create new event.
-    let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, 8);
-    invokeEventDialog(controller, eventBox, (event, iframe) => {
-        let { eid: eventid } = helpersForController(event);
+  // Create new event.
+  let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, 8);
+  invokeEventDialog(controller, eventBox, (event, iframe) => {
+    let { eid: eventid } = helpersForController(event);
 
-        // Fill in name, location, description.
-        setData(event, iframe, {
-            title: UTF8STRING,
-            location: UTF8STRING,
-            description: UTF8STRING,
-            categories: [UTF8STRING]
-        });
-
-        // save
-        event.click(eventid("button-saveandclose"));
+    // Fill in name, location, description.
+    setData(event, iframe, {
+      title: UTF8STRING,
+      location: UTF8STRING,
+      description: UTF8STRING,
+      categories: [UTF8STRING],
     });
 
-    // open
-    let eventPath = `/{"tooltip":"itemTooltip","calendar":"${UTF8STRING.toLowerCase()}"}`;
-    eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, eventPath);
-    invokeEventDialog(controller, eventBox, (event, iframe) => {
-        let { eid: iframeId } = helpersForController(iframe);
+    // save
+    event.click(eventid("button-saveandclose"));
+  });
 
-        // Check values.
-        event.assertValue(iframeId("item-title"), UTF8STRING);
-        event.assertValue(iframeId("item-location"), UTF8STRING);
-        event.assertValue(iframeId("item-description"), UTF8STRING);
-        event.assert(() => iframeId("item-categories").getNode().querySelector(`
+  // open
+  let eventPath = `/{"tooltip":"itemTooltip","calendar":"${UTF8STRING.toLowerCase()}"}`;
+  eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, eventPath);
+  invokeEventDialog(controller, eventBox, (event, iframe) => {
+    let { eid: iframeId } = helpersForController(iframe);
+
+    // Check values.
+    event.assertValue(iframeId("item-title"), UTF8STRING);
+    event.assertValue(iframeId("item-location"), UTF8STRING);
+    event.assertValue(iframeId("item-description"), UTF8STRING);
+    event.assert(() =>
+      iframeId("item-categories").getNode().querySelector(`
             menuitem[label="${UTF8STRING}"][checked]
-        `));
+        `)
+    );
 
-        // Escape the event window.
-        event.keypress(null, "VK_ESCAPE", {});
-    });
+    // Escape the event window.
+    event.keypress(null, "VK_ESCAPE", {});
+  });
 }
 testUTF8.EXCLUDED_PLATFORMS = ["darwin"];
 
 function teardownModule(module) {
-    deleteCalendars(controller, UTF8STRING);
-    Services.prefs.clearUserPref("calendar.categories.names");
-    closeAllEventDialogs();
+  deleteCalendars(controller, UTF8STRING);
+  Services.prefs.clearUserPref("calendar.categories.names");
+  closeAllEventDialogs();
 }

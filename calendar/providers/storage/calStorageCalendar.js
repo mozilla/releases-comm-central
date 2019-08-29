@@ -7,7 +7,9 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { upgradeDB } = ChromeUtils.import("resource://calendar/modules/calStorageUpgrade.jsm");
-var { CAL_ITEM_FLAG, newDateTime } = ChromeUtils.import("resource://calendar/modules/calStorageHelpers.jsm");
+var { CAL_ITEM_FLAG, newDateTime } = ChromeUtils.import(
+  "resource://calendar/modules/calStorageHelpers.jsm"
+);
 
 var USECS_PER_SECOND = 1000000;
 var kCalICalendar = Ci.calICalendar;
@@ -18,2306 +20,2505 @@ var cICL = Ci.calIChangeLog;
 //
 
 function calStorageCalendar() {
-    this.initProviderBase();
-    this.mItemCache = {};
-    this.mRecEventCache = {};
-    this.mRecTodoCache = {};
+  this.initProviderBase();
+  this.mItemCache = {};
+  this.mRecEventCache = {};
+  this.mRecTodoCache = {};
 }
 var calStorageCalendarClassID = Components.ID("{b3eaa1c4-5dfe-4c0a-b62a-b3a514218461}");
 var calStorageCalendarInterfaces = [
-    Ci.calICalendar,
-    Ci.calICalendarProvider,
-    Ci.calIOfflineStorage,
-    Ci.calISchedulingSupport,
-    Ci.calISyncWriteCalendar,
+  Ci.calICalendar,
+  Ci.calICalendarProvider,
+  Ci.calIOfflineStorage,
+  Ci.calISchedulingSupport,
+  Ci.calISyncWriteCalendar,
 ];
 calStorageCalendar.prototype = {
-    __proto__: cal.provider.BaseClass.prototype,
+  __proto__: cal.provider.BaseClass.prototype,
+  classID: calStorageCalendarClassID,
+  QueryInterface: cal.generateQI(calStorageCalendarInterfaces),
+  classInfo: cal.generateCI({
     classID: calStorageCalendarClassID,
-    QueryInterface: cal.generateQI(calStorageCalendarInterfaces),
-    classInfo: cal.generateCI({
-        classID: calStorageCalendarClassID,
-        contractID: "@mozilla.org/calendar/calendar;1?type=storage",
-        classDescription: "Calendar Storage Provider",
-        interfaces: calStorageCalendarInterfaces
-    }),
+    contractID: "@mozilla.org/calendar/calendar;1?type=storage",
+    classDescription: "Calendar Storage Provider",
+    interfaces: calStorageCalendarInterfaces,
+  }),
 
-    //
-    // private members
-    //
-    mDB: null,
-    mItemCache: null,
-    mRecItemCacheInited: false,
-    mRecEventCache: null,
-    mRecTodoCache: null,
-    mLastStatement: null,
+  //
+  // private members
+  //
+  mDB: null,
+  mItemCache: null,
+  mRecItemCacheInited: false,
+  mRecEventCache: null,
+  mRecTodoCache: null,
+  mLastStatement: null,
 
-    //
-    // calICalendarProvider interface
-    //
-    get prefChromeOverlay() {
-        return null;
-    },
+  //
+  // calICalendarProvider interface
+  //
+  get prefChromeOverlay() {
+    return null;
+  },
 
-    get displayName() {
-        return cal.l10n.getCalString("storageName");
-    },
+  get displayName() {
+    return cal.l10n.getCalString("storageName");
+  },
 
-    createCalendar: function() {
-        throw Cr.NS_ERROR_NOT_IMPLEMENTED;
-    },
+  createCalendar: function() {
+    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+  },
 
-    deleteCalendar: function(aCalendar, listener) {
-        aCalendar = aCalendar.wrappedJSObject;
+  deleteCalendar: function(aCalendar, listener) {
+    aCalendar = aCalendar.wrappedJSObject;
 
-        if (this.mDeleteEventExtras) {
-            for (let stmt of this.mDeleteEventExtras) {
-                try {
-                    this.prepareStatement(stmt);
-                    stmt.executeStep();
-                } finally {
-                    stmt.reset();
-                }
-            }
-        }
-
-        if (this.mDeleteTodoExtras) {
-            for (let stmt of this.mDeleteTodoExtras) {
-                try {
-                    this.prepareStatement(stmt);
-                    stmt.executeStep();
-                } finally {
-                    stmt.reset();
-                }
-            }
-        }
-
+    if (this.mDeleteEventExtras) {
+      for (let stmt of this.mDeleteEventExtras) {
         try {
-            this.prepareStatement(this.mDeleteAllEvents);
-            this.mDeleteAllEvents.executeStep();
+          this.prepareStatement(stmt);
+          stmt.executeStep();
         } finally {
-            this.mDeleteAllEvents.reset();
+          stmt.reset();
         }
+      }
+    }
 
+    if (this.mDeleteTodoExtras) {
+      for (let stmt of this.mDeleteTodoExtras) {
         try {
-            this.prepareStatement(this.mDeleteAllTodos);
-            this.mDeleteAllTodos.executeStep();
+          this.prepareStatement(stmt);
+          stmt.executeStep();
         } finally {
-            this.mDeleteAllTodos.reset();
+          stmt.reset();
         }
+      }
+    }
 
-        try {
-            this.prepareStatement(this.mDeleteAllMetaData);
-            this.mDeleteAllMetaData.executeStep();
-        } finally {
-            this.mDeleteAllMetaData.reset();
-        }
+    try {
+      this.prepareStatement(this.mDeleteAllEvents);
+      this.mDeleteAllEvents.executeStep();
+    } finally {
+      this.mDeleteAllEvents.reset();
+    }
 
-        try {
-            if (listener) {
-                listener.onDeleteCalendar(aCalendar, Cr.NS_OK, null);
-            }
-        } catch (ex) {
-            this.logError("error calling listener.onDeleteCalendar", ex);
-        }
-    },
+    try {
+      this.prepareStatement(this.mDeleteAllTodos);
+      this.mDeleteAllTodos.executeStep();
+    } finally {
+      this.mDeleteAllTodos.reset();
+    }
 
-    mRelaxedMode: undefined,
-    get relaxedMode() {
-        if (this.mRelaxedMode === undefined) {
-            this.mRelaxedMode = this.getProperty("relaxedMode");
-        }
-        return this.mRelaxedMode;
-    },
+    try {
+      this.prepareStatement(this.mDeleteAllMetaData);
+      this.mDeleteAllMetaData.executeStep();
+    } finally {
+      this.mDeleteAllMetaData.reset();
+    }
 
-    //
-    // calICalendar interface
-    //
+    try {
+      if (listener) {
+        listener.onDeleteCalendar(aCalendar, Cr.NS_OK, null);
+      }
+    } catch (ex) {
+      this.logError("error calling listener.onDeleteCalendar", ex);
+    }
+  },
 
-    getProperty: function(aName) {
-        switch (aName) {
-            case "cache.supported":
-                return false;
-            case "requiresNetwork":
-                return false;
-            case "capabilities.priority.supported":
-                return true;
-            case "capabilities.removeModes":
-                return ["delete"];
-        }
-        return this.__proto__.__proto__.getProperty.apply(this, arguments);
-    },
+  mRelaxedMode: undefined,
+  get relaxedMode() {
+    if (this.mRelaxedMode === undefined) {
+      this.mRelaxedMode = this.getProperty("relaxedMode");
+    }
+    return this.mRelaxedMode;
+  },
 
-    // readonly attribute AUTF8String type;
-    get type() { return "storage"; },
+  //
+  // calICalendar interface
+  //
 
-    // attribute AUTF8String id;
-    get id() {
-        return this.__proto__.__proto__.__lookupGetter__("id").call(this);
-    },
-    set id(val) {
-        let id = this.__proto__.__proto__.__lookupSetter__("id").call(this, val);
+  getProperty: function(aName) {
+    switch (aName) {
+      case "cache.supported":
+        return false;
+      case "requiresNetwork":
+        return false;
+      case "capabilities.priority.supported":
+        return true;
+      case "capabilities.removeModes":
+        return ["delete"];
+    }
+    return this.__proto__.__proto__.getProperty.apply(this, arguments);
+  },
 
-        if (!this.mDB && this.uri && this.id) {
-            // Prepare the database as soon as we have an id and an uri.
-            this.prepareInitDB();
-        }
-        return id;
-    },
+  // readonly attribute AUTF8String type;
+  get type() {
+    return "storage";
+  },
 
-    // attribute nsIURI uri;
-    get uri() {
-        return this.__proto__.__proto__.__lookupGetter__("uri").call(this);
-    },
-    set uri(aUri) {
-        // We can only load once
-        if (this.uri) {
-            throw Cr.NS_ERROR_FAILURE;
-        }
+  // attribute AUTF8String id;
+  get id() {
+    return this.__proto__.__proto__.__lookupGetter__("id").call(this);
+  },
+  set id(val) {
+    let id = this.__proto__.__proto__.__lookupSetter__("id").call(this, val);
 
-        let uri = this.__proto__.__proto__.__lookupSetter__("uri").call(this, aUri);
+    if (!this.mDB && this.uri && this.id) {
+      // Prepare the database as soon as we have an id and an uri.
+      this.prepareInitDB();
+    }
+    return id;
+  },
 
-        if (!this.mDB && this.uri && this.id) {
-            // Prepare the database as soon as we have an id and an uri.
-            this.prepareInitDB();
-        }
+  // attribute nsIURI uri;
+  get uri() {
+    return this.__proto__.__proto__.__lookupGetter__("uri").call(this);
+  },
+  set uri(aUri) {
+    // We can only load once
+    if (this.uri) {
+      throw Cr.NS_ERROR_FAILURE;
+    }
 
-        return uri;
-    },
+    let uri = this.__proto__.__proto__.__lookupSetter__("uri").call(this, aUri);
 
-    /**
-     * Initialize the Database. This should only be called from the uri or id
-     * setter and requires those two attributes to be set.
-     */
-    prepareInitDB: function() {
-        if (this.uri.schemeIs("file")) {
-            let fileURL = this.uri.QueryInterface(Ci.nsIFileURL);
-            if (!fileURL) {
-                throw new Components.Exception("Invalid file", Cr.NS_ERROR_NOT_IMPLEMENTED);
-            }
-            // open the database
-            this.mDB = Services.storage.openDatabase(fileURL.file);
-            upgradeDB(this.mDB);
-        } else if (this.uri.schemeIs("moz-storage-calendar")) {
-            // New style uri, no need for migration here
-            let localDB = cal.provider.getCalendarDirectory();
-            localDB.append("local.sqlite");
+    if (!this.mDB && this.uri && this.id) {
+      // Prepare the database as soon as we have an id and an uri.
+      this.prepareInitDB();
+    }
 
-            this.mDB = Services.storage.openDatabase(localDB);
-            upgradeDB(this.mDB);
-        } else {
-            throw new Components.Exception("Invalid Scheme " + this.uri.spec);
-        }
+    return uri;
+  },
 
-        this.initDB();
-        Services.obs.addObserver(this, "profile-before-change");
-    },
+  /**
+   * Initialize the Database. This should only be called from the uri or id
+   * setter and requires those two attributes to be set.
+   */
+  prepareInitDB: function() {
+    if (this.uri.schemeIs("file")) {
+      let fileURL = this.uri.QueryInterface(Ci.nsIFileURL);
+      if (!fileURL) {
+        throw new Components.Exception("Invalid file", Cr.NS_ERROR_NOT_IMPLEMENTED);
+      }
+      // open the database
+      this.mDB = Services.storage.openDatabase(fileURL.file);
+      upgradeDB(this.mDB);
+    } else if (this.uri.schemeIs("moz-storage-calendar")) {
+      // New style uri, no need for migration here
+      let localDB = cal.provider.getCalendarDirectory();
+      localDB.append("local.sqlite");
 
-    observe: function(aSubject, aTopic, aData) {
-        if (aTopic == "profile-before-change") {
-            Services.obs.removeObserver(this, "profile-before-change");
-            this.shutdownDB();
-        }
-    },
+      this.mDB = Services.storage.openDatabase(localDB);
+      upgradeDB(this.mDB);
+    } else {
+      throw new Components.Exception("Invalid Scheme " + this.uri.spec);
+    }
 
-    /**
-     * Takes care of necessary preparations for most of our statements.
-     *
-     * @param aStmt         The statement to prepare.
-     */
-    prepareStatement: function(aStmt) {
-        try {
-            aStmt.params.cal_id = this.id;
-            this.mLastStatement = aStmt;
-        } catch (e) {
-            this.logError("prepareStatement exception", e);
-        }
-    },
+    this.initDB();
+    Services.obs.addObserver(this, "profile-before-change");
+  },
 
-    /**
-     * Executes a statement using an item as a parameter.
-     *
-     * @param aStmt         The statement to execute.
-     * @param aIdParam      The name of the parameter referring to the item id.
-     * @param aId           The id of the item.
-     */
-    executeItemStatement: function(aStmt, aIdParam, aId) {
-        try {
-            aStmt.params.cal_id = this.id;
-            aStmt.params[aIdParam] = aId;
-            aStmt.executeStep();
-        } catch (e) {
-            this.logError("executeItemStatement exception", e);
-            throw e;
-        } finally {
-            aStmt.reset();
-        }
-    },
+  observe: function(aSubject, aTopic, aData) {
+    if (aTopic == "profile-before-change") {
+      Services.obs.removeObserver(this, "profile-before-change");
+      this.shutdownDB();
+    }
+  },
 
-    refresh: function() {
-        // no-op
-    },
+  /**
+   * Takes care of necessary preparations for most of our statements.
+   *
+   * @param aStmt         The statement to prepare.
+   */
+  prepareStatement: function(aStmt) {
+    try {
+      aStmt.params.cal_id = this.id;
+      this.mLastStatement = aStmt;
+    } catch (e) {
+      this.logError("prepareStatement exception", e);
+    }
+  },
 
-    // void addItem( in calIItemBase aItem, in calIOperationListener aListener );
-    addItem: function(aItem, aListener) {
-        let newItem = aItem.clone();
-        return this.adoptItem(newItem, aListener);
-    },
+  /**
+   * Executes a statement using an item as a parameter.
+   *
+   * @param aStmt         The statement to execute.
+   * @param aIdParam      The name of the parameter referring to the item id.
+   * @param aId           The id of the item.
+   */
+  executeItemStatement: function(aStmt, aIdParam, aId) {
+    try {
+      aStmt.params.cal_id = this.id;
+      aStmt.params[aIdParam] = aId;
+      aStmt.executeStep();
+    } catch (e) {
+      this.logError("executeItemStatement exception", e);
+      throw e;
+    } finally {
+      aStmt.reset();
+    }
+  },
 
-    // void adoptItem( in calIItemBase aItem, in calIOperationListener aListener );
-    adoptItem: function(aItem, aListener) {
-        if (this.readOnly) {
-            this.notifyOperationComplete(aListener,
-                                         Ci.calIErrors.CAL_IS_READONLY,
-                                         Ci.calIOperationListener.ADD,
-                                         null,
-                                         "Calendar is readonly");
-            return;
-        }
+  refresh: function() {
+    // no-op
+  },
 
-        if (aItem.id == null) {
-            // is this an error?  Or should we generate an IID?
-            aItem.id = cal.getUUID();
-        } else {
-            let olditem = this.getItemById(aItem.id);
-            if (olditem) {
-                if (this.relaxedMode) {
-                    // we possibly want to interact with the user before deleting
-                    this.deleteItemById(aItem.id, true);
-                } else {
-                    this.notifyOperationComplete(aListener,
-                                                 Ci.calIErrors.DUPLICATE_ID,
-                                                 Ci.calIOperationListener.ADD,
-                                                 aItem.id,
-                                                 "ID already exists for addItem");
-                    return;
-                }
-            }
-        }
+  // void addItem( in calIItemBase aItem, in calIOperationListener aListener );
+  addItem: function(aItem, aListener) {
+    let newItem = aItem.clone();
+    return this.adoptItem(newItem, aListener);
+  },
 
-        let parentItem = aItem.parentItem;
-        if (parentItem != aItem) {
-            parentItem = parentItem.clone();
-            parentItem.recurrenceInfo.modifyException(aItem, true);
-        }
-        parentItem.calendar = this.superCalendar;
-        parentItem.makeImmutable();
+  // void adoptItem( in calIItemBase aItem, in calIOperationListener aListener );
+  adoptItem: function(aItem, aListener) {
+    if (this.readOnly) {
+      this.notifyOperationComplete(
+        aListener,
+        Ci.calIErrors.CAL_IS_READONLY,
+        Ci.calIOperationListener.ADD,
+        null,
+        "Calendar is readonly"
+      );
+      return;
+    }
 
-        this.flushItem(parentItem, null);
-
-        // notify the listener
-        this.notifyOperationComplete(aListener,
-                                     Cr.NS_OK,
-                                     Ci.calIOperationListener.ADD,
-                                     aItem.id,
-                                     aItem);
-
-        // notify observers
-        this.observers.notify("onAddItem", [aItem]);
-    },
-
-    // void modifyItem( in calIItemBase aNewItem, in calIItemBase aOldItem, in calIOperationListener aListener );
-    // Actually uses doModifyItem
-    modifyItem: function(aNewItem, aOldItem, aListener) {
-        let self = this;
-
-        // HACK Just modifying the item would clear the offline flag, we need to
-        // retrieve the flag and pass it to the real modify function.
-        let offlineJournalFlagListener = {
-            onGetResult: function(calendar, status, opType, id, detail) {
-            },
-            onOperationComplete: function(opcalendar, status, opType, id, offlineFlag) {
-                self.doModifyItem(aNewItem, aOldItem, aListener, offlineFlag);
-            }
-        };
-        this.getItemOfflineFlag(aOldItem, offlineJournalFlagListener);
-    },
-
-    doModifyItem: function(aNewItem, aOldItem, aListener, offlineFlag) {
-        let oldOfflineFlag = offlineFlag;
-        if (this.readOnly) {
-            this.notifyOperationComplete(aListener,
-                                         Ci.calIErrors.CAL_IS_READONLY,
-                                         Ci.calIOperationListener.MODIFY,
-                                         null,
-                                         "Calendar is readonly");
-            return null;
-        }
-        if (!aNewItem) {
-            throw Cr.NS_ERROR_INVALID_ARG;
-        }
-
-        let self = this;
-        function reportError(errStr, errId) {
-            self.notifyOperationComplete(aListener,
-                                         errId ? errId : Cr.NS_ERROR_FAILURE,
-                                         Ci.calIOperationListener.MODIFY,
-                                         aNewItem.id,
-                                         errStr);
-            return null;
-        }
-
-        if (aNewItem.id == null) {
-            // this is definitely an error
-            return reportError("ID for modifyItem item is null");
-        }
-
-        let modifiedItem = aNewItem.parentItem.clone();
-        if (this.getProperty("capabilities.propagate-sequence")) {
-            // Ensure the exception, its parent and the other exceptions have the
-            // same sequence number, to make sure we can send our changes to the
-            // server if the event has been updated via the blue bar
-            let newSequence = aNewItem.getProperty("SEQUENCE");
-            this._propagateSequence(modifiedItem, newSequence);
-        }
-
-        // Ensure that we're looking at the base item if we were given an
-        // occurrence.  Later we can optimize this.
-        if (aNewItem.parentItem != aNewItem) {
-            modifiedItem.recurrenceInfo.modifyException(aNewItem, false);
-        }
-
-        // If no old item was passed, then we should overwrite in any case.
-        // Pick up the old item from the database and use this as an old item
-        // later on.
-        if (!aOldItem) {
-            aOldItem = this.getItemById(aNewItem.id);
-        }
-
+    if (aItem.id == null) {
+      // is this an error?  Or should we generate an IID?
+      aItem.id = cal.getUUID();
+    } else {
+      let olditem = this.getItemById(aItem.id);
+      if (olditem) {
         if (this.relaxedMode) {
-            // We've already filled in the old item above, if this doesn't exist
-            // then just take the current item as its old version
-            if (!aOldItem) {
-                aOldItem = aNewItem;
-            }
-            aOldItem = aOldItem.parentItem;
+          // we possibly want to interact with the user before deleting
+          this.deleteItemById(aItem.id, true);
         } else {
-            let storedOldItem = (aOldItem ? this.getItemById(aOldItem.id) : null);
-            if (!aOldItem || !storedOldItem) {
-                // no old item found?  should be using addItem, then.
-                return reportError("ID does not already exist for modifyItem");
-            }
-            aOldItem = aOldItem.parentItem;
-
-            if (aOldItem.generation != storedOldItem.generation) {
-                return reportError("generation too old for for modifyItem");
-            }
-
-            // xxx todo: this only modified master item's generation properties
-            //           I start asking myself why we need a separate X-MOZ-GENERATION.
-            //           Just for the sake of checking inconsistencies of modifyItem calls?
-            if (aOldItem.generation == modifiedItem.generation) { // has been cloned and modified
-                // Only take care of incrementing the generation if relaxed mode is
-                // off. Users of relaxed mode need to take care of this themselves.
-                modifiedItem.generation += 1;
-            }
+          this.notifyOperationComplete(
+            aListener,
+            Ci.calIErrors.DUPLICATE_ID,
+            Ci.calIOperationListener.ADD,
+            aItem.id,
+            "ID already exists for addItem"
+          );
+          return;
         }
+      }
+    }
 
-        modifiedItem.makeImmutable();
-        this.flushItem(modifiedItem, aOldItem);
-        this.setOfflineJournalFlag(aNewItem, oldOfflineFlag);
+    let parentItem = aItem.parentItem;
+    if (parentItem != aItem) {
+      parentItem = parentItem.clone();
+      parentItem.recurrenceInfo.modifyException(aItem, true);
+    }
+    parentItem.calendar = this.superCalendar;
+    parentItem.makeImmutable();
 
-        this.notifyOperationComplete(aListener,
-                                     Cr.NS_OK,
-                                     Ci.calIOperationListener.MODIFY,
-                                     modifiedItem.id,
-                                     modifiedItem);
+    this.flushItem(parentItem, null);
 
-        // notify observers
-        this.observers.notify("onModifyItem", [modifiedItem, aOldItem]);
-        return null;
-    },
+    // notify the listener
+    this.notifyOperationComplete(
+      aListener,
+      Cr.NS_OK,
+      Ci.calIOperationListener.ADD,
+      aItem.id,
+      aItem
+    );
 
-    // void deleteItem( in string id, in calIOperationListener aListener );
-    deleteItem: function(aItem, aListener) {
-        if (this.readOnly) {
-            this.notifyOperationComplete(aListener,
-                                         Ci.calIErrors.CAL_IS_READONLY,
-                                         Ci.calIOperationListener.DELETE,
-                                         null,
-                                         "Calendar is readonly");
-            return;
+    // notify observers
+    this.observers.notify("onAddItem", [aItem]);
+  },
+
+  // void modifyItem( in calIItemBase aNewItem, in calIItemBase aOldItem, in calIOperationListener aListener );
+  // Actually uses doModifyItem
+  modifyItem: function(aNewItem, aOldItem, aListener) {
+    let self = this;
+
+    // HACK Just modifying the item would clear the offline flag, we need to
+    // retrieve the flag and pass it to the real modify function.
+    let offlineJournalFlagListener = {
+      onGetResult: function(calendar, status, opType, id, detail) {},
+      onOperationComplete: function(opcalendar, status, opType, id, offlineFlag) {
+        self.doModifyItem(aNewItem, aOldItem, aListener, offlineFlag);
+      },
+    };
+    this.getItemOfflineFlag(aOldItem, offlineJournalFlagListener);
+  },
+
+  doModifyItem: function(aNewItem, aOldItem, aListener, offlineFlag) {
+    let oldOfflineFlag = offlineFlag;
+    if (this.readOnly) {
+      this.notifyOperationComplete(
+        aListener,
+        Ci.calIErrors.CAL_IS_READONLY,
+        Ci.calIOperationListener.MODIFY,
+        null,
+        "Calendar is readonly"
+      );
+      return null;
+    }
+    if (!aNewItem) {
+      throw Cr.NS_ERROR_INVALID_ARG;
+    }
+
+    let self = this;
+    function reportError(errStr, errId) {
+      self.notifyOperationComplete(
+        aListener,
+        errId ? errId : Cr.NS_ERROR_FAILURE,
+        Ci.calIOperationListener.MODIFY,
+        aNewItem.id,
+        errStr
+      );
+      return null;
+    }
+
+    if (aNewItem.id == null) {
+      // this is definitely an error
+      return reportError("ID for modifyItem item is null");
+    }
+
+    let modifiedItem = aNewItem.parentItem.clone();
+    if (this.getProperty("capabilities.propagate-sequence")) {
+      // Ensure the exception, its parent and the other exceptions have the
+      // same sequence number, to make sure we can send our changes to the
+      // server if the event has been updated via the blue bar
+      let newSequence = aNewItem.getProperty("SEQUENCE");
+      this._propagateSequence(modifiedItem, newSequence);
+    }
+
+    // Ensure that we're looking at the base item if we were given an
+    // occurrence.  Later we can optimize this.
+    if (aNewItem.parentItem != aNewItem) {
+      modifiedItem.recurrenceInfo.modifyException(aNewItem, false);
+    }
+
+    // If no old item was passed, then we should overwrite in any case.
+    // Pick up the old item from the database and use this as an old item
+    // later on.
+    if (!aOldItem) {
+      aOldItem = this.getItemById(aNewItem.id);
+    }
+
+    if (this.relaxedMode) {
+      // We've already filled in the old item above, if this doesn't exist
+      // then just take the current item as its old version
+      if (!aOldItem) {
+        aOldItem = aNewItem;
+      }
+      aOldItem = aOldItem.parentItem;
+    } else {
+      let storedOldItem = aOldItem ? this.getItemById(aOldItem.id) : null;
+      if (!aOldItem || !storedOldItem) {
+        // no old item found?  should be using addItem, then.
+        return reportError("ID does not already exist for modifyItem");
+      }
+      aOldItem = aOldItem.parentItem;
+
+      if (aOldItem.generation != storedOldItem.generation) {
+        return reportError("generation too old for for modifyItem");
+      }
+
+      // xxx todo: this only modified master item's generation properties
+      //           I start asking myself why we need a separate X-MOZ-GENERATION.
+      //           Just for the sake of checking inconsistencies of modifyItem calls?
+      if (aOldItem.generation == modifiedItem.generation) {
+        // has been cloned and modified
+        // Only take care of incrementing the generation if relaxed mode is
+        // off. Users of relaxed mode need to take care of this themselves.
+        modifiedItem.generation += 1;
+      }
+    }
+
+    modifiedItem.makeImmutable();
+    this.flushItem(modifiedItem, aOldItem);
+    this.setOfflineJournalFlag(aNewItem, oldOfflineFlag);
+
+    this.notifyOperationComplete(
+      aListener,
+      Cr.NS_OK,
+      Ci.calIOperationListener.MODIFY,
+      modifiedItem.id,
+      modifiedItem
+    );
+
+    // notify observers
+    this.observers.notify("onModifyItem", [modifiedItem, aOldItem]);
+    return null;
+  },
+
+  // void deleteItem( in string id, in calIOperationListener aListener );
+  deleteItem: function(aItem, aListener) {
+    if (this.readOnly) {
+      this.notifyOperationComplete(
+        aListener,
+        Ci.calIErrors.CAL_IS_READONLY,
+        Ci.calIOperationListener.DELETE,
+        null,
+        "Calendar is readonly"
+      );
+      return;
+    }
+    if (aItem.parentItem != aItem) {
+      aItem.parentItem.recurrenceInfo.removeExceptionFor(aItem.recurrenceId);
+      // xxx todo: would we want to support this case? Removing an occurrence currently results
+      //           in a modifyItem(parent)
+      return;
+    }
+
+    if (aItem.id == null) {
+      this.notifyOperationComplete(
+        aListener,
+        Cr.NS_ERROR_FAILURE,
+        Ci.calIOperationListener.DELETE,
+        null,
+        "ID is null for deleteItem"
+      );
+      return;
+    }
+
+    this.deleteItemById(aItem.id);
+
+    this.notifyOperationComplete(
+      aListener,
+      Cr.NS_OK,
+      Ci.calIOperationListener.DELETE,
+      aItem.id,
+      aItem
+    );
+
+    // notify observers
+    this.observers.notify("onDeleteItem", [aItem]);
+  },
+
+  // void getItem( in string id, in calIOperationListener aListener );
+  getItem: function(aId, aListener) {
+    if (!aListener) {
+      return;
+    }
+
+    let item = this.getItemById(aId);
+    if (!item) {
+      // querying by id is a valid use case, even if no item is returned:
+      this.notifyOperationComplete(aListener, Cr.NS_OK, Ci.calIOperationListener.GET, aId, null);
+      return;
+    }
+
+    let item_iid = null;
+    if (cal.item.isEvent(item)) {
+      item_iid = Ci.calIEvent;
+    } else if (cal.item.isToDo(item)) {
+      item_iid = Ci.calITodo;
+    } else {
+      this.notifyOperationComplete(
+        aListener,
+        Cr.NS_ERROR_FAILURE,
+        Ci.calIOperationListener.GET,
+        aId,
+        "Can't deduce item type based on QI"
+      );
+      return;
+    }
+
+    aListener.onGetResult(this.superCalendar, Cr.NS_OK, item_iid, null, 1, [item]);
+
+    this.notifyOperationComplete(aListener, Cr.NS_OK, Ci.calIOperationListener.GET, aId, null);
+  },
+
+  // void getItems( in unsigned long aItemFilter, in unsigned long aCount,
+  //                in calIDateTime aRangeStart, in calIDateTime aRangeEnd,
+  //                in calIOperationListener aListener );
+  getItems: function(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener) {
+    cal.postPone(() => {
+      this.getItems_(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener);
+    });
+  },
+  getItems_: function(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener) {
+    if (!aListener) {
+      return;
+    }
+
+    let self = this;
+
+    let startTime = -0x7fffffffffffffff;
+    // endTime needs to be the max value a PRTime can be
+    let endTime = 0x7fffffffffffffff;
+    let count = 0;
+    if (aRangeStart) {
+      startTime = aRangeStart.nativeTime;
+    }
+    if (aRangeEnd) {
+      endTime = aRangeEnd.nativeTime;
+    }
+
+    let wantUnrespondedInvitations =
+      (aItemFilter & kCalICalendar.ITEM_FILTER_REQUEST_NEEDS_ACTION) != 0;
+    let superCal;
+    try {
+      superCal = this.superCalendar.QueryInterface(Ci.calISchedulingSupport);
+    } catch (exc) {
+      wantUnrespondedInvitations = false;
+    }
+    function checkUnrespondedInvitation(item) {
+      let att = superCal.getInvitedAttendee(item);
+      return att && att.participationStatus == "NEEDS-ACTION";
+    }
+
+    let wantEvents = (aItemFilter & kCalICalendar.ITEM_FILTER_TYPE_EVENT) != 0;
+    let wantTodos = (aItemFilter & kCalICalendar.ITEM_FILTER_TYPE_TODO) != 0;
+    let asOccurrences = (aItemFilter & kCalICalendar.ITEM_FILTER_CLASS_OCCURRENCES) != 0;
+    let wantOfflineDeletedItems = (aItemFilter & kCalICalendar.ITEM_FILTER_OFFLINE_DELETED) != 0;
+    let wantOfflineCreatedItems = (aItemFilter & kCalICalendar.ITEM_FILTER_OFFLINE_CREATED) != 0;
+    let wantOfflineModifiedItems = (aItemFilter & kCalICalendar.ITEM_FILTER_OFFLINE_MODIFIED) != 0;
+
+    if (!wantEvents && !wantTodos) {
+      // nothing to do
+      this.notifyOperationComplete(aListener, Cr.NS_OK, Ci.calIOperationListener.GET, null, null);
+      return;
+    }
+
+    // HACK because recurring offline events/todos objects don't have offline_journal information
+    // Hence we need to update the mRecEventCacheOfflineFlags and  mRecTodoCacheOfflineFlags hash-tables
+    // It can be an expensive operation but is only used in Online Reconciliation mode
+    if (wantOfflineCreatedItems | wantOfflineDeletedItems | wantOfflineModifiedItems) {
+      this.mRecItemCacheInited = false;
+    }
+
+    this.assureRecurringItemCaches();
+
+    let itemCompletedFilter = (aItemFilter & kCalICalendar.ITEM_FILTER_COMPLETED_YES) != 0;
+    let itemNotCompletedFilter = (aItemFilter & kCalICalendar.ITEM_FILTER_COMPLETED_NO) != 0;
+
+    function checkCompleted(item) {
+      return item.isCompleted ? itemCompletedFilter : itemNotCompletedFilter;
+    }
+
+    // sending items to the listener 1 at a time sucks. instead,
+    // queue them up.
+    // if we ever have more than maxQueueSize items outstanding,
+    // call the listener.  Calling with null theItems forces
+    // a send and a queue clear.
+    let maxQueueSize = 10;
+    let queuedItems = [];
+    let queuedItemsIID;
+    function queueItems(theItems, theIID) {
+      // if we're about to start sending a different IID,
+      // flush the queue
+      if (theIID && queuedItemsIID != theIID) {
+        if (queuedItemsIID) {
+          queueItems(null);
         }
-        if (aItem.parentItem != aItem) {
-            aItem.parentItem.recurrenceInfo.removeExceptionFor(aItem.recurrenceId);
-            // xxx todo: would we want to support this case? Removing an occurrence currently results
-            //           in a modifyItem(parent)
-            return;
+        queuedItemsIID = theIID;
+      }
+
+      if (theItems) {
+        queuedItems = queuedItems.concat(theItems);
+      }
+
+      if (queuedItems.length != 0 && (!theItems || queuedItems.length > maxQueueSize)) {
+        aListener.onGetResult(
+          self.superCalendar,
+          Cr.NS_OK,
+          queuedItemsIID,
+          null,
+          queuedItems.length,
+          queuedItems
+        );
+        queuedItems = [];
+      }
+    }
+
+    // helper function to handle converting a row to an item,
+    // expanding occurrences, and queue the items for the listener
+    function handleResultItem(item, theIID, optionalFilterFunc) {
+      let expandedItems = [];
+      if (item.recurrenceInfo && asOccurrences) {
+        // If the item is recurring, get all occurrences that fall in
+        // the range. If the item doesn't fall into the range at all,
+        // this expands to 0 items.
+        expandedItems = item.recurrenceInfo.getOccurrences(aRangeStart, aRangeEnd, 0, {});
+        if (wantUnrespondedInvitations) {
+          expandedItems = expandedItems.filter(checkUnrespondedInvitation);
         }
+      } else if (
+        (!wantUnrespondedInvitations || checkUnrespondedInvitation(item)) &&
+        cal.item.checkIfInRange(item, aRangeStart, aRangeEnd)
+      ) {
+        // If no occurrences are wanted, check only the parent item.
+        // This will be changed with bug 416975.
+        expandedItems = [item];
+      }
 
-        if (aItem.id == null) {
-            this.notifyOperationComplete(aListener,
-                                         Cr.NS_ERROR_FAILURE,
-                                         Ci.calIOperationListener.DELETE,
-                                         null,
-                                         "ID is null for deleteItem");
-            return;
-        }
+      if (expandedItems.length && optionalFilterFunc) {
+        expandedItems = expandedItems.filter(optionalFilterFunc);
+      }
 
-        this.deleteItemById(aItem.id);
+      queueItems(expandedItems, theIID);
+      return expandedItems.length;
+    }
 
-        this.notifyOperationComplete(aListener,
-                                     Cr.NS_OK,
-                                     Ci.calIOperationListener.DELETE,
-                                     aItem.id,
-                                     aItem);
-
-        // notify observers
-        this.observers.notify("onDeleteItem", [aItem]);
-    },
-
-    // void getItem( in string id, in calIOperationListener aListener );
-    getItem: function(aId, aListener) {
-        if (!aListener) {
-            return;
-        }
-
-        let item = this.getItemById(aId);
-        if (!item) {
-            // querying by id is a valid use case, even if no item is returned:
-            this.notifyOperationComplete(aListener,
-                                         Cr.NS_OK,
-                                         Ci.calIOperationListener.GET,
-                                         aId,
-                                         null);
-            return;
-        }
-
-        let item_iid = null;
-        if (cal.item.isEvent(item)) {
-            item_iid = Ci.calIEvent;
-        } else if (cal.item.isToDo(item)) {
-            item_iid = Ci.calITodo;
-        } else {
-            this.notifyOperationComplete(aListener,
-                                         Cr.NS_ERROR_FAILURE,
-                                         Ci.calIOperationListener.GET,
-                                         aId,
-                                         "Can't deduce item type based on QI");
-            return;
-        }
-
-        aListener.onGetResult(this.superCalendar,
-                              Cr.NS_OK,
-                              item_iid, null,
-                              1, [item]);
-
-        this.notifyOperationComplete(aListener,
-                                     Cr.NS_OK,
-                                     Ci.calIOperationListener.GET,
-                                     aId,
-                                     null);
-    },
-
-    // void getItems( in unsigned long aItemFilter, in unsigned long aCount,
-    //                in calIDateTime aRangeStart, in calIDateTime aRangeEnd,
-    //                in calIOperationListener aListener );
-    getItems: function(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener) {
-        cal.postPone(() => {
-            this.getItems_(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener);
-        });
-    },
-    getItems_: function(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener) {
-        if (!aListener) {
-            return;
-        }
-
-        let self = this;
-
-        let startTime = -0x7fffffffffffffff;
-        // endTime needs to be the max value a PRTime can be
-        let endTime = 0x7fffffffffffffff;
-        let count = 0;
-        if (aRangeStart) {
-            startTime = aRangeStart.nativeTime;
-        }
-        if (aRangeEnd) {
-            endTime = aRangeEnd.nativeTime;
-        }
-
-        let wantUnrespondedInvitations = ((aItemFilter & kCalICalendar.ITEM_FILTER_REQUEST_NEEDS_ACTION) != 0);
-        let superCal;
-        try {
-            superCal = this.superCalendar.QueryInterface(Ci.calISchedulingSupport);
-        } catch (exc) {
-            wantUnrespondedInvitations = false;
-        }
-        function checkUnrespondedInvitation(item) {
-            let att = superCal.getInvitedAttendee(item);
-            return (att && (att.participationStatus == "NEEDS-ACTION"));
-        }
-
-        let wantEvents = ((aItemFilter & kCalICalendar.ITEM_FILTER_TYPE_EVENT) != 0);
-        let wantTodos = ((aItemFilter & kCalICalendar.ITEM_FILTER_TYPE_TODO) != 0);
-        let asOccurrences = ((aItemFilter & kCalICalendar.ITEM_FILTER_CLASS_OCCURRENCES) != 0);
-        let wantOfflineDeletedItems = ((aItemFilter & kCalICalendar.ITEM_FILTER_OFFLINE_DELETED) != 0);
-        let wantOfflineCreatedItems = ((aItemFilter & kCalICalendar.ITEM_FILTER_OFFLINE_CREATED) != 0);
-        let wantOfflineModifiedItems = ((aItemFilter & kCalICalendar.ITEM_FILTER_OFFLINE_MODIFIED) != 0);
-
-        if (!wantEvents && !wantTodos) {
-            // nothing to do
-            this.notifyOperationComplete(aListener,
-                                         Cr.NS_OK,
-                                         Ci.calIOperationListener.GET,
-                                         null,
-                                         null);
-            return;
-        }
-
-        // HACK because recurring offline events/todos objects don't have offline_journal information
-        // Hence we need to update the mRecEventCacheOfflineFlags and  mRecTodoCacheOfflineFlags hash-tables
-        // It can be an expensive operation but is only used in Online Reconciliation mode
-        if (wantOfflineCreatedItems | wantOfflineDeletedItems | wantOfflineModifiedItems) {
-            this.mRecItemCacheInited = false;
-        }
-
-        this.assureRecurringItemCaches();
-
-        let itemCompletedFilter = ((aItemFilter & kCalICalendar.ITEM_FILTER_COMPLETED_YES) != 0);
-        let itemNotCompletedFilter = ((aItemFilter & kCalICalendar.ITEM_FILTER_COMPLETED_NO) != 0);
-
-        function checkCompleted(item) {
-            return (item.isCompleted ? itemCompletedFilter : itemNotCompletedFilter);
-        }
-
-        // sending items to the listener 1 at a time sucks. instead,
-        // queue them up.
-        // if we ever have more than maxQueueSize items outstanding,
-        // call the listener.  Calling with null theItems forces
-        // a send and a queue clear.
-        let maxQueueSize = 10;
-        let queuedItems = [];
-        let queuedItemsIID;
-        function queueItems(theItems, theIID) {
-            // if we're about to start sending a different IID,
-            // flush the queue
-            if (theIID && queuedItemsIID != theIID) {
-                if (queuedItemsIID) {
-                    queueItems(null);
-                }
-                queuedItemsIID = theIID;
-            }
-
-            if (theItems) {
-                queuedItems = queuedItems.concat(theItems);
-            }
-
-            if (queuedItems.length != 0 && (!theItems || queuedItems.length > maxQueueSize)) {
-                aListener.onGetResult(self.superCalendar,
-                                      Cr.NS_OK,
-                                      queuedItemsIID, null,
-                                      queuedItems.length, queuedItems);
-                queuedItems = [];
-            }
-        }
-
-        // helper function to handle converting a row to an item,
-        // expanding occurrences, and queue the items for the listener
-        function handleResultItem(item, theIID, optionalFilterFunc) {
-            let expandedItems = [];
-            if (item.recurrenceInfo && asOccurrences) {
-                // If the item is recurring, get all occurrences that fall in
-                // the range. If the item doesn't fall into the range at all,
-                // this expands to 0 items.
-                expandedItems = item.recurrenceInfo.getOccurrences(aRangeStart, aRangeEnd, 0, {});
-                if (wantUnrespondedInvitations) {
-                    expandedItems = expandedItems.filter(checkUnrespondedInvitation);
-                }
-            } else if ((!wantUnrespondedInvitations || checkUnrespondedInvitation(item)) &&
-                       cal.item.checkIfInRange(item, aRangeStart, aRangeEnd)) {
-                // If no occurrences are wanted, check only the parent item.
-                // This will be changed with bug 416975.
-                expandedItems = [item];
-            }
-
-            if (expandedItems.length && optionalFilterFunc) {
-                expandedItems = expandedItems.filter(optionalFilterFunc);
-            }
-
-            queueItems(expandedItems, theIID);
-            return expandedItems.length;
-        }
-
-        // check the count and send end if count is exceeded
-        function checkCount() {
-            if (aCount && count >= aCount) {
-                // flush queue
-                queueItems(null);
-
-                // send operation complete
-                self.notifyOperationComplete(aListener,
-                                             Cr.NS_OK,
-                                             Ci.calIOperationListener.GET,
-                                             null,
-                                             null);
-
-                // tell caller we're done
-                return true;
-            }
-
-            return false;
-        }
-
-        // First fetch all the events
-        if (wantEvents) {
-            let params;             // stmt params
-            let resultItems = [];
-            let requestedOfflineJournal = null;
-
-            if (wantOfflineDeletedItems) {
-                requestedOfflineJournal = cICL.OFFLINE_FLAG_DELETED_RECORD;
-            } else if (wantOfflineCreatedItems) {
-                requestedOfflineJournal = cICL.OFFLINE_FLAG_CREATED_RECORD;
-            } else if (wantOfflineModifiedItems) {
-                requestedOfflineJournal = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
-            }
-
-            // first get non-recurring events that happen to fall within the range
-            //
-            try {
-                this.prepareStatement(this.mSelectNonRecurringEventsByRange);
-                params = this.mSelectNonRecurringEventsByRange.params;
-                params.range_start = startTime;
-                params.range_end = endTime;
-                params.start_offset = aRangeStart ? aRangeStart.timezoneOffset * USECS_PER_SECOND : 0;
-                params.end_offset = aRangeEnd ? aRangeEnd.timezoneOffset * USECS_PER_SECOND : 0;
-                params.offline_journal = requestedOfflineJournal;
-
-                while (this.mSelectNonRecurringEventsByRange.executeStep()) {
-                    let row = this.mSelectNonRecurringEventsByRange.row;
-                    resultItems.push(this.getEventFromRow(row, {}));
-                }
-            } catch (e) {
-                this.logError("Error selecting non recurring events by range!\n", e);
-            } finally {
-                this.mSelectNonRecurringEventsByRange.reset();
-            }
-
-            // Process the non-recurring events:
-            for (let evitem of resultItems) {
-                count += handleResultItem(evitem, Ci.calIEvent);
-                if (checkCount()) {
-                    return;
-                }
-            }
-
-            // Process the recurring events from the cache
-            for (let id in this.mRecEventCache) {
-                let evitem = this.mRecEventCache[id];
-                let cachedJournalFlag = this.mRecEventCacheOfflineFlags[evitem.id] || null;
-                // No need to return flagged unless asked i.e. requestedOfflineJournal == cachedJournalFlag
-                // Return created and modified offline records if requestedOfflineJournal is null alongwith events that have no flag
-                if ((requestedOfflineJournal == null && cachedJournalFlag != cICL.OFFLINE_FLAG_DELETED_RECORD) ||
-                    (requestedOfflineJournal != null && cachedJournalFlag == requestedOfflineJournal)) {
-                    count += handleResultItem(evitem, Ci.calIEvent);
-                    if (checkCount()) {
-                        return;
-                    }
-                }
-            }
-        }
-
-        // if todos are wanted, do them next
-        if (wantTodos) {
-            let params;             // stmt params
-            let resultItems = [];
-            let requestedOfflineJournal = null;
-
-            if (wantOfflineCreatedItems) {
-                requestedOfflineJournal = cICL.OFFLINE_FLAG_CREATED_RECORD;
-            } else if (wantOfflineDeletedItems) {
-                requestedOfflineJournal = cICL.OFFLINE_FLAG_DELETED_RECORD;
-            } else if (wantOfflineModifiedItems) {
-                requestedOfflineJournal = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
-            }
-
-            // first get non-recurring todos that happen to fall within the range
-            try {
-                this.prepareStatement(this.mSelectNonRecurringTodosByRange);
-                params = this.mSelectNonRecurringTodosByRange.params;
-                params.range_start = startTime;
-                params.range_end = endTime;
-                params.start_offset = aRangeStart ? aRangeStart.timezoneOffset * USECS_PER_SECOND : 0;
-                params.end_offset = aRangeEnd ? aRangeEnd.timezoneOffset * USECS_PER_SECOND : 0;
-                params.offline_journal = requestedOfflineJournal;
-
-                while (this.mSelectNonRecurringTodosByRange.executeStep()) {
-                    let row = this.mSelectNonRecurringTodosByRange.row;
-                    resultItems.push(this.getTodoFromRow(row, {}));
-                }
-            } catch (e) {
-                this.logError("Error selecting non recurring todos by range", e);
-            } finally {
-                this.mSelectNonRecurringTodosByRange.reset();
-            }
-
-            // process the non-recurring todos:
-            for (let todoitem of resultItems) {
-                count += handleResultItem(todoitem, Ci.calITodo, checkCompleted);
-                if (checkCount()) {
-                    return;
-                }
-            }
-
-            // Note: Reading the code, completed *occurrences* seems to be broken, because
-            //       only the parent item has been filtered; I fixed that.
-            //       Moreover item.todo_complete etc seems to be a leftover...
-
-            // process the recurring todos from the cache
-            for (let id in this.mRecTodoCache) {
-                let todoitem = this.mRecTodoCache[id];
-                let cachedJournalFlag = this.mRecTodoCacheOfflineFlags[todoitem.id] || null;
-                if ((requestedOfflineJournal == null &&
-                     (cachedJournalFlag == cICL.OFFLINE_FLAG_MODIFIED_RECORD ||
-                      cachedJournalFlag == cICL.OFFLINE_FLAG_CREATED_RECORD ||
-                      cachedJournalFlag == null)) ||
-                    (requestedOfflineJournal != null &&
-                     (cachedJournalFlag == requestedOfflineJournal))) {
-                    count += handleResultItem(todoitem,
-                                              Ci.calITodo,
-                                              checkCompleted);
-                    if (checkCount()) {
-                        return;
-                    }
-                }
-            }
-        }
-
-        // flush the queue
+    // check the count and send end if count is exceeded
+    function checkCount() {
+      if (aCount && count >= aCount) {
+        // flush queue
         queueItems(null);
 
-        // and finish
-        this.notifyOperationComplete(aListener,
-                                     Cr.NS_OK,
-                                     Ci.calIOperationListener.GET,
-                                     null,
-                                     null);
-    },
+        // send operation complete
+        self.notifyOperationComplete(aListener, Cr.NS_OK, Ci.calIOperationListener.GET, null, null);
 
-    getItemOfflineFlag: function(aItem, aListener) {
-        let flag = null;
-        if (aItem) {
-            let aID = aItem.id;
-            let self = this;
-            let listener = {
-                handleResult: function(aResultSet) {
-                    let row = aResultSet.getNextRow();
-                    flag = row.getResultByName("offline_journal") || null;
-                },
-                handleError: function(aError) {
-                    self.logError("Error getting offline flag", aError);
-                    aListener.onOperationComplete(self, Cr.NS_ERROR_FAILURE,
-                                                  Ci.calIOperationListener.GET, aItem.id, aItem);
-                },
-                handleCompletion: function(aReason) {
-                    aListener.onOperationComplete(self, Cr.NS_OK,
-                                                  Ci.calIOperationListener.GET, aItem.id, flag);
-                }
-            };
-            if (cal.item.isEvent(aItem)) {
-                this.prepareStatement(this.mSelectEvent);
-                this.mSelectEvent.params.id = aID;
-                this.mSelectEvent.executeAsync(listener);
-            } else if (cal.item.isToDo(aItem)) {
-                this.prepareStatement(this.mSelectTodo);
-                this.mSelectTodo.params.id = aID;
-                this.mSelectTodo.executeAsync(listener);
-            }
-        } else {
-            // It is possible that aItem can be null, flag provided should be null in this case
-            aListener.onOperationComplete(this, Cr.NS_OK,
-                                          Ci.calIOperationListener.GET, null, flag);
-        }
-    },
+        // tell caller we're done
+        return true;
+      }
 
-    setOfflineJournalFlag: function(aItem, flag) {
-        let aID = aItem.id;
-        if (cal.item.isEvent(aItem)) {
-            this.prepareStatement(this.mEditEventOfflineFlag);
-            this.mEditEventOfflineFlag.params.id = aID;
-            this.mEditEventOfflineFlag.params.offline_journal = flag || null;
-            try {
-                this.mEditEventOfflineFlag.executeStep();
-            } catch (e) {
-                this.logError("Error setting offline journal flag for " + aItem.title, e);
-            } finally {
-                this.mEditEventOfflineFlag.reset();
-            }
-        } else if (cal.item.isToDo(aItem)) {
-            this.prepareStatement(this.mEditTodoOfflineFlag);
-            this.mEditTodoOfflineFlag.params.id = aID;
-            this.mEditTodoOfflineFlag.params.offline_journal = flag || null;
-            try {
-                this.mEditTodoOfflineFlag.executeStep();
-            } catch (e) {
-                this.logError("Error setting offline journal flag for " + aItem.title, e);
-            } finally {
-                this.mEditTodoOfflineFlag.reset();
-            }
-        }
-    },
-
-    //
-    // calIOfflineStorage interface
-    //
-    addOfflineItem: function(aItem, aListener) {
-        let newOfflineJournalFlag = cICL.OFFLINE_FLAG_CREATED_RECORD;
-        this.setOfflineJournalFlag(aItem, newOfflineJournalFlag);
-        this.notifyOperationComplete(aListener,
-                                     Cr.NS_OK,
-                                     Ci.calIOperationListener.ADD,
-                                     aItem.id,
-                                     aItem);
-    },
-
-    modifyOfflineItem: function(aItem, aListener) {
-        let self = this;
-        let opListener = {
-            QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-            onGetResult: function(calendar, status, itemType, detail, count, items) {
-            },
-            onOperationComplete: function(calendar, status, opType, id, oldOfflineJournalFlag) {
-                let newOfflineJournalFlag = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
-                if (oldOfflineJournalFlag == cICL.OFFLINE_FLAG_CREATED_RECORD || oldOfflineJournalFlag == cICL.OFFLINE_FLAG_DELETED_RECORD) {
-                    // Do nothing since a flag of "created" or "deleted" exists
-                } else {
-                    self.setOfflineJournalFlag(aItem, newOfflineJournalFlag);
-                }
-                self.notifyOperationComplete(aListener,
-                                             Cr.NS_OK,
-                                             Ci.calIOperationListener.MODIFY,
-                                             aItem.id,
-                                             aItem);
-            }
-        };
-        this.getItemOfflineFlag(aItem, opListener);
-    },
-
-    deleteOfflineItem: function(aItem, aListener) {
-        let self = this;
-        let opListener = {
-            QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-            onGetResult: function(calendar, status, itemType, detail, count, items) {
-
-            },
-            onOperationComplete: function(calendar, status, opType, id, oldOfflineJournalFlag) {
-                if (oldOfflineJournalFlag) {
-                    // Delete item if flag is c
-                    if (oldOfflineJournalFlag == cICL.OFFLINE_FLAG_CREATED_RECORD) {
-                        self.deleteItemById(aItem.id);
-                    } else if (oldOfflineJournalFlag == cICL.OFFLINE_FLAG_MODIFIED_RECORD) {
-                        self.setOfflineJournalFlag(aItem, cICL.OFFLINE_FLAG_DELETED_RECORD);
-                    }
-                } else {
-                    self.setOfflineJournalFlag(aItem, cICL.OFFLINE_FLAG_DELETED_RECORD);
-                }
-
-                self.notifyOperationComplete(aListener,
-                                             Cr.NS_OK,
-                                             Ci.calIOperationListener.DELETE,
-                                             aItem.id,
-                                             aItem);
-                // notify observers
-                self.observers.notify("onDeleteItem", [aItem]);
-            }
-        };
-        this.getItemOfflineFlag(aItem, opListener);
-    },
-
-    resetItemOfflineFlag: function(aItem, aListener) {
-        this.setOfflineJournalFlag(aItem, null);
-        this.notifyOperationComplete(aListener,
-                                     Cr.NS_OK,
-                                     Ci.calIOperationListener.MODIFY,
-                                     aItem.id,
-                                     aItem);
-    },
-
-    //
-    // database handling
-    //
-
-    // database initialization
-    // assumes mDB is valid
-
-    initDB: function() {
-        cal.ASSERT(this.mDB, "Database has not been opened!", true);
-
-        try {
-            this.mDB.executeSimpleSQL("PRAGMA journal_mode=WAL");
-
-            this.mSelectEvent = this.mDB.createStatement(
-                "SELECT * FROM cal_events " +
-                "WHERE id = :id AND cal_id = :cal_id " +
-                " AND recurrence_id IS NULL " +
-                "LIMIT 1"
-                );
-
-            this.mSelectTodo = this.mDB.createStatement(
-                "SELECT * FROM cal_todos " +
-                "WHERE id = :id AND cal_id = :cal_id " +
-                " AND recurrence_id IS NULL " +
-                "LIMIT 1"
-                );
-
-            // The more readable version of the next where-clause is:
-            //   WHERE  ((event_end > :range_start OR
-            //           (event_end = :range_start AND
-            //           event_start = :range_start))
-            //          AND event_start < :range_end)
-            //
-            // but that doesn't work with floating start or end times. The logic
-            // is the same though.
-            // For readability, a few helpers:
-            let floatingEventStart = "event_start_tz = 'floating' AND event_start";
-            let nonFloatingEventStart = "event_start_tz != 'floating' AND event_start";
-            let floatingEventEnd = "event_end_tz = 'floating' AND event_end";
-            let nonFloatingEventEnd = "event_end_tz != 'floating' AND event_end";
-            // The query needs to take both floating and non floating into account
-            this.mSelectNonRecurringEventsByRange = this.mDB.createStatement(
-                "SELECT * FROM cal_events " +
-                "WHERE " +
-                " ((" + floatingEventEnd + " > :range_start + :start_offset) OR " +
-                "  (" + nonFloatingEventEnd + " > :range_start) OR " +
-                "  (((" + floatingEventEnd + " = :range_start + :start_offset) OR " +
-                "    (" + nonFloatingEventEnd + " = :range_start)) AND " +
-                "   ((" + floatingEventStart + " = :range_start + :start_offset) OR " +
-                "    (" + nonFloatingEventStart + " = :range_start)))) " +
-                " AND " +
-                "  (("+ floatingEventStart + " < :range_end + :end_offset) OR " +
-                "   ("+ nonFloatingEventStart + " < :range_end)) " +
-                " AND cal_id = :cal_id AND flags & 16 == 0 AND recurrence_id IS NULL" +
-                " AND ((:offline_journal IS NULL " +
-                " AND  (offline_journal IS NULL " +
-                "  OR   offline_journal != " + cICL.OFFLINE_FLAG_DELETED_RECORD + ")) " +
-                "  OR (offline_journal == :offline_journal))"
-                );
-
-            //
-            // WHERE (due > rangeStart  AND  (entry IS NULL  OR  entry < rangeEnd)) OR
-            //       (due = rangeStart  AND  (entry IS NULL  OR  entry = rangeStart)) OR
-            //       (due IS NULL  AND  (entry >= rangeStart  AND  entry < rangeEnd)) OR
-            //       (entry IS NULL  AND  (completed > rangeStart  OR  completed IS NULL))
-            //
-            let floatingTodoEntry = "todo_entry_tz = 'floating' AND todo_entry";
-            let nonFloatingTodoEntry = "todo_entry_tz != 'floating' AND todo_entry";
-            let floatingTodoDue = "todo_due_tz = 'floating' AND todo_due";
-            let nonFloatingTodoDue = "todo_due_tz != 'floating' AND todo_due";
-            let floatingCompleted = "todo_completed_tz = 'floating' AND todo_completed";
-            let nonFloatingCompleted = "todo_completed_tz != 'floating' AND todo_completed";
-
-            this.mSelectNonRecurringTodosByRange = this.mDB.createStatement(
-                "SELECT * FROM cal_todos " +
-                "WHERE " +
-                "(((("+ floatingTodoDue + " > :range_start + :start_offset) OR " +
-                "   ("+ nonFloatingTodoDue + " > :range_start)) AND " +
-                "  ((todo_entry IS NULL) OR " +
-                "   (("+ floatingTodoEntry + " < :range_end + :end_offset) OR " +
-                "    ("+ nonFloatingTodoEntry + " < :range_end)))) OR " +
-                " ((("+ floatingTodoDue + " = :range_start + :start_offset) OR " +
-                "   ("+ nonFloatingTodoDue + " = :range_start)) AND " +
-                "  ((todo_entry IS NULL) OR " +
-                "   (("+ floatingTodoEntry + " = :range_start + :start_offset) OR " +
-                "    ("+ nonFloatingTodoEntry + " = :range_start)))) OR " +
-                " ((todo_due IS NULL) AND " +
-                "  ((("+ floatingTodoEntry +" >= :range_start + :start_offset) OR " +
-                "    ("+ nonFloatingTodoEntry +" >= :range_start)) AND " +
-                "   (("+ floatingTodoEntry +" < :range_end + :end_offset) OR " +
-                "    ("+ nonFloatingTodoEntry +" < :range_end)))) OR " +
-                " ((todo_entry IS NULL) AND " +
-                "  ((("+ floatingCompleted +" > :range_start + :start_offset) OR " +
-                "    ("+ nonFloatingCompleted +" > :range_start)) OR " +
-                "   (todo_completed IS NULL)))) " +
-                " AND cal_id = :cal_id AND flags & 16 == 0 AND recurrence_id IS NULL " +
-                " AND ((:offline_journal IS NULL" +
-                " AND  (offline_journal IS NULL" +
-                "  OR   offline_journal != " + cICL.OFFLINE_FLAG_DELETED_RECORD + ")) " +
-                "  OR (offline_journal == :offline_journal))"
-                );
-
-            this.mSelectEventsWithRecurrence = this.mDB.createStatement(
-                "SELECT * FROM cal_events " +
-                " WHERE flags & 16 == 16 " +
-                "   AND cal_id = :cal_id AND recurrence_id is NULL"
-                );
-
-            this.mSelectTodosWithRecurrence = this.mDB.createStatement(
-                "SELECT * FROM cal_todos " +
-                " WHERE flags & 16 == 16 " +
-                "   AND cal_id = :cal_id AND recurrence_id IS NULL"
-                );
-
-            this.mSelectEventExceptions = this.mDB.createStatement(
-                "SELECT * FROM cal_events " +
-                "WHERE id = :id AND cal_id = :cal_id" +
-                " AND recurrence_id IS NOT NULL"
-                );
-
-            this.mSelectTodoExceptions = this.mDB.createStatement(
-                "SELECT * FROM cal_todos " +
-                "WHERE id = :id AND cal_id = :cal_id" +
-                " AND recurrence_id IS NOT NULL"
-                );
-
-            // For the extra-item data, we used to use mDBTwo, so that
-            // these could be executed while a selectItems was running.
-            // This no longer seems to be needed and actually causes
-            // havoc when transactions are in use.
-            this.mSelectAttendeesForItem = this.mDB.createStatement(
-                "SELECT * FROM cal_attendees " +
-                "WHERE item_id = :item_id AND cal_id = :cal_id" +
-                " AND recurrence_id IS NULL"
-                );
-
-            this.mSelectAttendeesForItemWithRecurrenceId = this.mDB.createStatement(
-                "SELECT * FROM cal_attendees " +
-                "WHERE item_id = :item_id AND cal_id = :cal_id" +
-                " AND recurrence_id = :recurrence_id" +
-                " AND recurrence_id_tz = :recurrence_id_tz"
-                );
-
-            this.mSelectPropertiesForItem = this.mDB.createStatement(
-                "SELECT * FROM cal_properties" +
-                " WHERE item_id = :item_id" +
-                "   AND cal_id = :cal_id" +
-                "   AND recurrence_id IS NULL"
-                );
-
-            this.mSelectPropertiesForItemWithRecurrenceId = this.mDB.createStatement(
-                "SELECT * FROM cal_properties " +
-                "WHERE item_id = :item_id AND cal_id = :cal_id" +
-                "  AND recurrence_id = :recurrence_id" +
-                "  AND recurrence_id_tz = :recurrence_id_tz"
-                );
-
-            this.mSelectRecurrenceForItem = this.mDB.createStatement(
-                "SELECT * FROM cal_recurrence " +
-                "WHERE item_id = :item_id AND cal_id = :cal_id"
-                );
-
-            this.mSelectAttachmentsForItem = this.mDB.createStatement(
-                "SELECT * FROM cal_attachments " +
-                "WHERE item_id = :item_id AND cal_id = :cal_id" +
-                " AND recurrence_id IS NULL"
-                );
-            this.mSelectAttachmentsForItemWithRecurrenceId = this.mDB.createStatement(
-                "SELECT * FROM cal_attachments" +
-                " WHERE item_id = :item_id AND cal_id = :cal_id" +
-                " AND recurrence_id = :recurrence_id" +
-                " AND recurrence_id_tz = :recurrence_id_tz"
-                );
-
-            this.mSelectRelationsForItem = this.mDB.createStatement(
-                "SELECT * FROM cal_relations " +
-                "WHERE item_id = :item_id AND cal_id = :cal_id" +
-                " AND recurrence_id IS NULL"
-                );
-            this.mSelectRelationsForItemWithRecurrenceId = this.mDB.createStatement(
-                "SELECT * FROM cal_relations" +
-                " WHERE item_id = :item_id AND cal_id = :cal_id" +
-                " AND recurrence_id = :recurrence_id" +
-                " AND recurrence_id_tz = :recurrence_id_tz"
-                );
-
-            this.mSelectMetaData = this.mDB.createStatement(
-                "SELECT * FROM cal_metadata" +
-                " WHERE item_id = :item_id AND cal_id = :cal_id");
-
-            this.mSelectAllMetaData = this.mDB.createStatement(
-                "SELECT * FROM cal_metadata" +
-                " WHERE cal_id = :cal_id");
-
-            this.mSelectAlarmsForItem = this.mDB.createStatement(
-                "SELECT icalString FROM cal_alarms" +
-                " WHERE item_id = :item_id AND cal_id = :cal_id" +
-                " AND recurrence_id IS NULL"
-                );
-
-            this.mSelectAlarmsForItemWithRecurrenceId = this.mDB.createStatement(
-                "SELECT icalString FROM cal_alarms" +
-                " WHERE item_id = :item_id AND cal_id = :cal_id" +
-                " AND recurrence_id = :recurrence_id" +
-                " AND recurrence_id_tz = :recurrence_id_tz"
-                );
-
-            // insert statements
-            this.mInsertEvent = this.mDB.createStatement(
-                "INSERT INTO cal_events " +
-                "  (cal_id, id, time_created, last_modified, " +
-                "   title, priority, privacy, ical_status, flags, " +
-                "   event_start, event_start_tz, event_end, event_end_tz, event_stamp, " +
-                "   recurrence_id, recurrence_id_tz, alarm_last_ack) " +
-                "VALUES (:cal_id, :id, :time_created, :last_modified, " +
-                "        :title, :priority, :privacy, :ical_status, :flags, " +
-                "        :event_start, :event_start_tz, :event_end, :event_end_tz, :event_stamp, " +
-                "        :recurrence_id, :recurrence_id_tz, :alarm_last_ack)"
-                );
-
-            this.mInsertTodo = this.mDB.createStatement(
-                "INSERT INTO cal_todos " +
-                "  (cal_id, id, time_created, last_modified, " +
-                "   title, priority, privacy, ical_status, flags, " +
-                "   todo_entry, todo_entry_tz, todo_due, todo_due_tz, todo_stamp, " +
-                "   todo_completed, todo_completed_tz, todo_complete, " +
-                "   recurrence_id, recurrence_id_tz, alarm_last_ack)" +
-                "VALUES (:cal_id, :id, :time_created, :last_modified, " +
-                "        :title, :priority, :privacy, :ical_status, :flags, " +
-                "        :todo_entry, :todo_entry_tz, :todo_due, :todo_due_tz, :todo_stamp, " +
-                "        :todo_completed, :todo_completed_tz, :todo_complete, " +
-                "        :recurrence_id, :recurrence_id_tz, :alarm_last_ack)"
-                );
-            this.mInsertProperty = this.mDB.createStatement(
-                "INSERT INTO cal_properties (cal_id, item_id, recurrence_id, recurrence_id_tz, key, value) " +
-                "VALUES (:cal_id, :item_id, :recurrence_id, :recurrence_id_tz, :key, :value)"
-                );
-            this.mInsertAttendee = this.mDB.createStatement(
-                "INSERT INTO cal_attendees " +
-                "  (cal_id, item_id, recurrence_id, recurrence_id_tz, icalString) " +
-                "VALUES (:cal_id, :item_id, :recurrence_id, :recurrence_id_tz, :icalString)"
-                );
-            this.mInsertRecurrence = this.mDB.createStatement(
-                "INSERT INTO cal_recurrence " +
-                "  (cal_id, item_id, icalString) " +
-                "VALUES (:cal_id, :item_id, :icalString)"
-                );
-
-            this.mInsertAttachment = this.mDB.createStatement(
-                "INSERT INTO cal_attachments " +
-                " (cal_id, item_id, icalString, recurrence_id, recurrence_id_tz) " +
-                "VALUES (:cal_id, :item_id, :icalString, :recurrence_id, :recurrence_id_tz)"
-                );
-
-            this.mInsertRelation = this.mDB.createStatement(
-                "INSERT INTO cal_relations " +
-                " (cal_id, item_id, icalString, recurrence_id, recurrence_id_tz) " +
-                "VALUES (:cal_id, :item_id, :icalString, :recurrence_id, :recurrence_id_tz)"
-                );
-
-            this.mInsertMetaData = this.mDB.createStatement(
-                "INSERT INTO cal_metadata" +
-                " (cal_id, item_id, value)" +
-                " VALUES (:cal_id, :item_id, :value)");
-
-            this.mInsertAlarm = this.mDB.createStatement(
-                "INSERT INTO cal_alarms " +
-                "  (cal_id, item_id, icalString, recurrence_id, recurrence_id_tz) " +
-                "VALUES  (:cal_id, :item_id, :icalString, :recurrence_id, :recurrence_id_tz)  "
-                );
-            // Offline Operations
-            this.mEditEventOfflineFlag = this.mDB.createStatement(
-                "UPDATE cal_events SET offline_journal = :offline_journal" +
-                " WHERE id = :id AND cal_id = :cal_id"
-            );
-
-            this.mEditTodoOfflineFlag = this.mDB.createStatement(
-                "UPDATE cal_todos SET offline_journal = :offline_journal" +
-                " WHERE id = :id AND cal_id = :cal_id"
-            );
-
-            // delete statements
-            this.mDeleteEvent = this.mDB.createStatement(
-                "DELETE FROM cal_events WHERE id = :id AND cal_id = :cal_id"
-                );
-            this.mDeleteTodo = this.mDB.createStatement(
-                "DELETE FROM cal_todos WHERE id = :id AND cal_id = :cal_id"
-                );
-            this.mDeleteAttendees = this.mDB.createStatement(
-                "DELETE FROM cal_attendees WHERE item_id = :item_id AND cal_id = :cal_id"
-                );
-            this.mDeleteProperties = this.mDB.createStatement(
-                "DELETE FROM cal_properties WHERE item_id = :item_id AND cal_id = :cal_id"
-                );
-            this.mDeleteRecurrence = this.mDB.createStatement(
-                "DELETE FROM cal_recurrence WHERE item_id = :item_id AND cal_id = :cal_id"
-                );
-            this.mDeleteAttachments = this.mDB.createStatement(
-                "DELETE FROM cal_attachments WHERE item_id = :item_id AND cal_id = :cal_id"
-                );
-            this.mDeleteRelations = this.mDB.createStatement(
-                "DELETE FROM cal_relations WHERE item_id = :item_id AND cal_id = :cal_id"
-                );
-            this.mDeleteMetaData = this.mDB.createStatement(
-                "DELETE FROM cal_metadata WHERE item_id = :item_id AND cal_id = :cal_id"
-                );
-            this.mDeleteAlarms = this.mDB.createStatement(
-                "DELETE FROM cal_alarms WHERE item_id = :item_id AND cal_id = :cal_id"
-                );
-
-            // These are only used when deleting an entire calendar
-            let extrasTables = [
-                "cal_attendees", "cal_properties", "cal_recurrence",
-                "cal_attachments", "cal_metadata", "cal_relations",
-                "cal_alarms"
-            ];
-
-            this.mDeleteEventExtras = [];
-            this.mDeleteTodoExtras = [];
-
-            for (let table in extrasTables) {
-                this.mDeleteEventExtras[table] = this.mDB.createStatement(
-                    "DELETE FROM " + extrasTables[table] + " WHERE item_id IN" +
-                    "  (SELECT id FROM cal_events WHERE cal_id = :cal_id)" +
-                    " AND cal_id = :cal_id"
-                    );
-                this.mDeleteTodoExtras[table] = this.mDB.createStatement(
-                    "DELETE FROM " + extrasTables[table] + " WHERE item_id IN" +
-                    "  (SELECT id FROM cal_todos WHERE cal_id = :cal_id)" +
-                    " AND cal_id = :cal_id"
-                    );
-            }
-
-            // Note that you must delete the "extras" _first_ using the above two
-            // statements, before you delete the events themselves.
-            this.mDeleteAllEvents = this.mDB.createStatement(
-                "DELETE from cal_events WHERE cal_id = :cal_id"
-                );
-            this.mDeleteAllTodos = this.mDB.createStatement(
-                "DELETE from cal_todos WHERE cal_id = :cal_id"
-                );
-
-            this.mDeleteAllMetaData = this.mDB.createStatement(
-                "DELETE FROM cal_metadata" +
-                " WHERE cal_id = :cal_id"
-                );
-        } catch (e) {
-            this.logError("Error initializing statements.", e);
-        }
-    },
-
-    shutdownDB: function() {
-        try {
-            if (this.mDeleteAlarms) { this.mDeleteAlarms.finalize(); }
-            if (this.mDeleteAllEvents) { this.mDeleteAllEvents.finalize(); }
-            if (this.mDeleteAllMetaData) { this.mDeleteAllMetaData.finalize(); }
-            if (this.mDeleteAllTodos) { this.mDeleteAllTodos.finalize(); }
-            if (this.mDeleteAttachments) { this.mDeleteAttachments.finalize(); }
-            if (this.mDeleteAttendees) { this.mDeleteAttendees.finalize(); }
-            if (this.mDeleteEvent) { this.mDeleteEvent.finalize(); }
-            if (this.mDeleteMetaData) { this.mDeleteMetaData.finalize(); }
-            if (this.mDeleteProperties) { this.mDeleteProperties.finalize(); }
-            if (this.mDeleteRecurrence) { this.mDeleteRecurrence.finalize(); }
-            if (this.mDeleteRelations) { this.mDeleteRelations.finalize(); }
-            if (this.mDeleteTodo) { this.mDeleteTodo.finalize(); }
-            if (this.mEditEventOfflineFlag) { this.mEditEventOfflineFlag.finalize(); }
-            if (this.mEditTodoOfflineFlag) { this.mEditTodoOfflineFlag.finalize(); }
-            if (this.mInsertAlarm) { this.mInsertAlarm.finalize(); }
-            if (this.mInsertAttachment) { this.mInsertAttachment.finalize(); }
-            if (this.mInsertAttendee) { this.mInsertAttendee.finalize(); }
-            if (this.mInsertEvent) { this.mInsertEvent.finalize(); }
-            if (this.mInsertMetaData) { this.mInsertMetaData.finalize(); }
-            if (this.mInsertProperty) { this.mInsertProperty.finalize(); }
-            if (this.mInsertRecurrence) { this.mInsertRecurrence.finalize(); }
-            if (this.mInsertRelation) { this.mInsertRelation.finalize(); }
-            if (this.mInsertTodo) { this.mInsertTodo.finalize(); }
-            if (this.mSelectAlarmsForItem) { this.mSelectAlarmsForItem.finalize(); }
-            if (this.mSelectAlarmsForItemWithRecurrenceId) { this.mSelectAlarmsForItemWithRecurrenceId.finalize(); }
-            if (this.mSelectAllMetaData) { this.mSelectAllMetaData.finalize(); }
-            if (this.mSelectAttachmentsForItem) { this.mSelectAttachmentsForItem.finalize(); }
-            if (this.mSelectAttachmentsForItemWithRecurrenceId) { this.mSelectAttachmentsForItemWithRecurrenceId.finalize(); }
-            if (this.mSelectAttendeesForItem) { this.mSelectAttendeesForItem.finalize(); }
-            if (this.mSelectAttendeesForItemWithRecurrenceId) { this.mSelectAttendeesForItemWithRecurrenceId.finalize(); }
-            if (this.mSelectEvent) { this.mSelectEvent.finalize(); }
-            if (this.mSelectEventExceptions) { this.mSelectEventExceptions.finalize(); }
-            if (this.mSelectEventsWithRecurrence) { this.mSelectEventsWithRecurrence.finalize(); }
-            if (this.mSelectMetaData) { this.mSelectMetaData.finalize(); }
-            if (this.mSelectNonRecurringEventsByRange) { this.mSelectNonRecurringEventsByRange.finalize(); }
-            if (this.mSelectNonRecurringTodosByRange) { this.mSelectNonRecurringTodosByRange.finalize(); }
-            if (this.mSelectPropertiesForItem) { this.mSelectPropertiesForItem.finalize(); }
-            if (this.mSelectPropertiesForItemWithRecurrenceId) { this.mSelectPropertiesForItemWithRecurrenceId.finalize(); }
-            if (this.mSelectRecurrenceForItem) { this.mSelectRecurrenceForItem.finalize(); }
-            if (this.mSelectRelationsForItem) { this.mSelectRelationsForItem.finalize(); }
-            if (this.mSelectRelationsForItemWithRecurrenceId) { this.mSelectRelationsForItemWithRecurrenceId.finalize(); }
-            if (this.mSelectTodo) { this.mSelectTodo.finalize(); }
-            if (this.mSelectTodoExceptions) { this.mSelectTodoExceptions.finalize(); }
-            if (this.mSelectTodosWithRecurrence) { this.mSelectTodosWithRecurrence.finalize(); }
-            if (this.mDeleteEventExtras) {
-                for (let stmt of this.mDeleteEventExtras) { stmt.finalize(); }
-            }
-            if (this.mDeleteTodoExtras) {
-                for (let stmt of this.mDeleteTodoExtras) { stmt.finalize(); }
-            }
-
-            if (this.mDB) {
-                this.mDB.asyncClose(); this.mDB = null;
-            }
-        } catch (e) {
-            cal.ERROR("Error closing storage database: " + e);
-        }
-    },
-
-    //
-    // database reading functions
-    //
-
-    // read in the common ItemBase attributes from aDBRow, and stick
-    // them on item
-    getItemBaseFromRow: function(row, flags, item) {
-        item.calendar = this.superCalendar;
-        item.id = row.id;
-        if (row.title) {
-            item.title = row.title;
-        }
-        if (row.priority) {
-            item.priority = row.priority;
-        }
-        if (row.privacy) {
-            item.privacy = row.privacy;
-        }
-        if (row.ical_status) {
-            item.status = row.ical_status;
-        }
-
-        if (row.alarm_last_ack) {
-            // alarm acks are always in utc
-            item.alarmLastAck = newDateTime(row.alarm_last_ack, "UTC");
-        }
-
-        if (row.recurrence_id) {
-            item.recurrenceId = newDateTime(row.recurrence_id, row.recurrence_id_tz);
-            if ((row.flags & CAL_ITEM_FLAG.RECURRENCE_ID_ALLDAY) != 0) {
-                item.recurrenceId.isDate = true;
-            }
-        }
-
-        if (flags) {
-            flags.value = row.flags;
-        }
-
-        if (row.time_created) {
-            item.setProperty("CREATED", newDateTime(row.time_created, "UTC"));
-        }
-
-        // This must be done last because the setting of any other property
-        // after this would overwrite it again.
-        if (row.last_modified) {
-            item.setProperty("LAST-MODIFIED", newDateTime(row.last_modified, "UTC"));
-        }
-    },
-
-    cacheItem: function(item) {
-        this.mItemCache[item.id] = item;
-        if (item.recurrenceInfo) {
-            if (cal.item.isEvent(item)) {
-                this.mRecEventCache[item.id] = item;
-            } else {
-                this.mRecTodoCache[item.id] = item;
-            }
-        }
-    },
-
-    mRecEventCacheOfflineFlags: {},
-    mRecTodoCacheOfflineFlags: {},
-    assureRecurringItemCaches: function() {
-        if (this.mRecItemCacheInited) {
-            return;
-        }
-        // build up recurring event and todo cache with its offline flags,
-        // because we need that on every query: for recurring items, we need to
-        // query database-wide.. yuck
-
-        try {
-            this.prepareStatement(this.mSelectEventsWithRecurrence);
-            while (this.mSelectEventsWithRecurrence.executeStep()) {
-                let row = this.mSelectEventsWithRecurrence.row;
-                let item = this.getEventFromRow(row, {});
-                this.mRecEventCache[item.id] = item;
-                this.mRecEventCacheOfflineFlags[item.id] = row.offline_journal || null;
-            }
-        } catch (e) {
-            this.logError("Error selecting events with recurrence!", e);
-        } finally {
-            this.mSelectEventsWithRecurrence.reset();
-        }
-
-        try {
-            this.prepareStatement(this.mSelectTodosWithRecurrence);
-            while (this.mSelectTodosWithRecurrence.executeStep()) {
-                let row = this.mSelectTodosWithRecurrence.row;
-                let item = this.getTodoFromRow(row, {});
-                this.mRecTodoCache[item.id] = item;
-                this.mRecTodoCacheOfflineFlags[item.id] = row.offline_journal || null;
-            }
-        } catch (e) {
-            this.logError("Error selecting todos with recurrence!", e);
-        } finally {
-            this.mSelectTodosWithRecurrence.reset();
-        }
-
-        this.mRecItemCacheInited = true;
-    },
-
-    // xxx todo: consider removing flags parameter
-    getEventFromRow: function(row, flags, isException) {
-        let item;
-        if (!isException) { // only parent items are cached
-            item = this.mItemCache[row.id];
-            if (item) {
-                return item;
-            }
-        }
-
-        item = cal.createEvent();
-
-        if (row.event_start) {
-            item.startDate = newDateTime(row.event_start, row.event_start_tz);
-        }
-        if (row.event_end) {
-            item.endDate = newDateTime(row.event_end, row.event_end_tz);
-        }
-        if (row.event_stamp) {
-            item.setProperty("DTSTAMP", newDateTime(row.event_stamp, "UTC"));
-        }
-        if ((row.flags & CAL_ITEM_FLAG.EVENT_ALLDAY) != 0) {
-            item.startDate.isDate = true;
-            item.endDate.isDate = true;
-        }
-
-        // This must be done last to keep the modification time intact.
-        this.getItemBaseFromRow(row, flags, item);
-        this.getAdditionalDataForItem(item, flags.value);
-
-        if (!isException) { // keep exceptions modifiable to set the parentItem
-            item.makeImmutable();
-            this.cacheItem(item);
-        }
-        return item;
-    },
-
-    getTodoFromRow: function(row, flags, isException) {
-        let item;
-        if (!isException) { // only parent items are cached
-            item = this.mItemCache[row.id];
-            if (item) {
-                return item;
-            }
-        }
-
-        item = cal.createTodo();
-
-        if (row.todo_entry) {
-            item.entryDate = newDateTime(row.todo_entry, row.todo_entry_tz);
-        }
-        if (row.todo_due) {
-            item.dueDate = newDateTime(row.todo_due, row.todo_due_tz);
-        }
-        if (row.todo_stamp) {
-            item.setProperty("DTSTAMP", newDateTime(row.todo_stamp, "UTC"));
-        }
-        if (row.todo_completed) {
-            item.completedDate = newDateTime(row.todo_completed, row.todo_completed_tz);
-        }
-        if (row.todo_complete) {
-            item.percentComplete = row.todo_complete;
-        }
-
-        // This must be done last to keep the modification time intact.
-        this.getItemBaseFromRow(row, flags, item);
-        this.getAdditionalDataForItem(item, flags.value);
-
-        if (!isException) { // keep exceptions modifiable to set the parentItem
-            item.makeImmutable();
-            this.cacheItem(item);
-        }
-        return item;
-    },
-
-    // after we get the base item, we need to check if we need to pull in
-    // any extra data from other tables.  We do that here.
-
-    // We used to use mDBTwo for this, so this can be run while a
-    // select is executing but this no longer seems to be required.
-
-    getAdditionalDataForItem: function(item, flags) {
-        // This is needed to keep the modification time intact.
-        let savedLastModifiedTime = item.lastModifiedTime;
-
-        if (flags & CAL_ITEM_FLAG.HAS_ATTENDEES) {
-            let selectItem = null;
-            if (item.recurrenceId == null) {
-                selectItem = this.mSelectAttendeesForItem;
-            } else {
-                selectItem = this.mSelectAttendeesForItemWithRecurrenceId;
-                this.setDateParamHelper(selectItem.params, "recurrence_id", item.recurrenceId);
-            }
-
-            try {
-                this.prepareStatement(selectItem);
-                selectItem.params.item_id = item.id;
-                while (selectItem.executeStep()) {
-                    let attendee = cal.createAttendee(selectItem.row.icalString);
-                    if (attendee && attendee.id) {
-                        if (attendee.isOrganizer) {
-                            item.organizer = attendee;
-                        } else {
-                            item.addAttendee(attendee);
-                        }
-                    } else {
-                        cal.WARN("[calStorageCalendar] Skipping invalid attendee for item '" +
-                                 item.title + "' (" + item.id + ").");
-                    }
-                }
-            } catch (e) {
-                this.logError("Error getting attendees for item '" +
-                              item.title + "' (" + item.id + ")!", e);
-            } finally {
-                selectItem.reset();
-            }
-        }
-
-        if (flags & CAL_ITEM_FLAG.HAS_PROPERTIES) {
-            let selectItem = null;
-            if (item.recurrenceId == null) {
-                selectItem = this.mSelectPropertiesForItem;
-            } else {
-                selectItem = this.mSelectPropertiesForItemWithRecurrenceId;
-                this.setDateParamHelper(selectItem.params, "recurrence_id", item.recurrenceId);
-            }
-
-            try {
-                this.prepareStatement(selectItem);
-                selectItem.params.item_id = item.id;
-                while (selectItem.executeStep()) {
-                    let row = selectItem.row;
-                    let name = row.key;
-                    switch (name) {
-                        case "DURATION":
-                            // for events DTEND/DUE is enforced by calEvent/calTodo, so suppress DURATION:
-                            break;
-                        case "CATEGORIES": {
-                            let cats = cal.category.stringToArray(row.value);
-                            item.setCategories(cats.length, cats);
-                            break;
-                        }
-                        default:
-                            item.setProperty(name, row.value);
-                            break;
-                    }
-                }
-            } catch (e) {
-                this.logError("Error getting extra properties for item '" +
-                              item.title + "' (" + item.id + ")!", e);
-            } finally {
-                selectItem.reset();
-            }
-        }
-
-        if (flags & CAL_ITEM_FLAG.HAS_RECURRENCE) {
-            if (item.recurrenceId) {
-                throw Cr.NS_ERROR_UNEXPECTED;
-            }
-
-            let recInfo = cal.createRecurrenceInfo(item);
-            item.recurrenceInfo = recInfo;
-
-            try {
-                this.prepareStatement(this.mSelectRecurrenceForItem);
-                this.mSelectRecurrenceForItem.params.item_id = item.id;
-                while (this.mSelectRecurrenceForItem.executeStep()) {
-                    let row = this.mSelectRecurrenceForItem.row;
-                    let ritem = this.getRecurrenceItemFromRow(row);
-                    recInfo.appendRecurrenceItem(ritem);
-                }
-            } catch (e) {
-                this.logError("Error getting recurrence for item '" +
-                              item.title + "' (" + item.id + ")!", e);
-            } finally {
-                this.mSelectRecurrenceForItem.reset();
-            }
-        }
-
-        if (flags & CAL_ITEM_FLAG.HAS_EXCEPTIONS) {
-            // it's safe that we don't run into this branch again for exceptions
-            // (getAdditionalDataForItem->get[Event|Todo]FromRow->getAdditionalDataForItem):
-            // every excepton has a recurrenceId and isn't flagged as CAL_ITEM_FLAG.HAS_EXCEPTIONS
-            if (item.recurrenceId) {
-                throw Cr.NS_ERROR_UNEXPECTED;
-            }
-
-            let rec = item.recurrenceInfo;
-
-            if (cal.item.isEvent(item)) {
-                this.mSelectEventExceptions.params.id = item.id;
-                this.prepareStatement(this.mSelectEventExceptions);
-                try {
-                    while (this.mSelectEventExceptions.executeStep()) {
-                        let row = this.mSelectEventExceptions.row;
-                        let exc = this.getEventFromRow(row, {}, true /* isException */);
-                        rec.modifyException(exc, true);
-                    }
-                } catch (e) {
-                    this.logError("Error getting exceptions for event '" +
-                                  item.title + "' (" + item.id + ")!", e);
-                } finally {
-                    this.mSelectEventExceptions.reset();
-                }
-            } else if (cal.item.isToDo(item)) {
-                this.mSelectTodoExceptions.params.id = item.id;
-                this.prepareStatement(this.mSelectTodoExceptions);
-                try {
-                    while (this.mSelectTodoExceptions.executeStep()) {
-                        let row = this.mSelectTodoExceptions.row;
-                        let exc = this.getTodoFromRow(row, {}, true /* isException */);
-                        rec.modifyException(exc, true);
-                    }
-                } catch (e) {
-                    this.logError("Error getting exceptions for task '" +
-                                  item.title + "' (" + item.id + ")!", e);
-                } finally {
-                    this.mSelectTodoExceptions.reset();
-                }
-            } else {
-                throw Cr.NS_ERROR_UNEXPECTED;
-            }
-        }
-
-        if (flags & CAL_ITEM_FLAG.HAS_ATTACHMENTS) {
-            let selectAttachment = this.mSelectAttachmentsForItem;
-            if (item.recurrenceId != null) {
-                selectAttachment = this.mSelectAttachmentsForItemWithRecurrenceId;
-                this.setDateParamHelper(selectAttachment.params, "recurrence_id", item.recurrenceId);
-            }
-            try {
-                this.prepareStatement(selectAttachment);
-                selectAttachment.params.item_id = item.id;
-                while (selectAttachment.executeStep()) {
-                    let row = selectAttachment.row;
-                    item.addAttachment(cal.createAttachment(row.icalString));
-                }
-            } catch (e) {
-                this.logError("Error getting attachments for item '" +
-                              item.title + "' (" + item.id + ")!", e);
-            } finally {
-                selectAttachment.reset();
-            }
-        }
-
-        if (flags & CAL_ITEM_FLAG.HAS_RELATIONS) {
-            let selectRelation = this.mSelectRelationsForItem;
-            if (item.recurrenceId != null) {
-                selectRelation = this.mSelectRelationsForItemWithRecurrenceId;
-                this.setDateParamHelper(selectRelation.params, "recurrence_id", item.recurrenceId);
-            }
-            try {
-                this.prepareStatement(selectRelation);
-                selectRelation.params.item_id = item.id;
-                while (selectRelation.executeStep()) {
-                    let row = selectRelation.row;
-                    item.addRelation(cal.createRelation(row.icalString));
-                }
-            } catch (e) {
-                this.logError("Error getting relations for item '" +
-                              item.title + "' (" + item.id + ")!", e);
-            } finally {
-                selectRelation.reset();
-            }
-        }
-
-        if (flags & CAL_ITEM_FLAG.HAS_ALARMS) {
-            let selectAlarm = this.mSelectAlarmsForItem;
-            if (item.recurrenceId != null) {
-                selectAlarm = this.mSelectAlarmsForItemWithRecurrenceId;
-                this.setDateParamHelper(selectAlarm.params, "recurrence_id", item.recurrenceId);
-            }
-            try {
-                selectAlarm.params.item_id = item.id;
-                this.prepareStatement(selectAlarm);
-                while (selectAlarm.executeStep()) {
-                    let row = selectAlarm.row;
-                    item.addAlarm(cal.createAlarm(row.icalString));
-                }
-            } catch (e) {
-                this.logError("Error getting alarms for item '" +
-                              item.title + "' (" + item.id + ")!", e);
-            } finally {
-                selectAlarm.reset();
-            }
-        }
-
-        // Restore the saved modification time
-        item.setProperty("LAST-MODIFIED", savedLastModifiedTime);
-    },
-
-    getRecurrenceItemFromRow: function(row, item) {
-        let ritem;
-        let prop = cal.getIcsService().createIcalPropertyFromString(row.icalString);
-        switch (prop.propertyName) {
-            case "RDATE":
-            case "EXDATE":
-                ritem = Cc["@mozilla.org/calendar/recurrence-date;1"].createInstance(Ci.calIRecurrenceDate);
-                break;
-            case "RRULE":
-            case "EXRULE":
-                ritem = cal.createRecurrenceRule();
-                break;
-            default:
-                throw new Error("Unknown recurrence item: " + prop.propertyName);
-        }
-
-        ritem.icalProperty = prop;
-        return ritem;
-    },
-
-    //
-    // get item from db or from cache with given iid
-    //
-    getItemById: function(aID) {
-        this.assureRecurringItemCaches();
-
-        // cached?
-        let item = this.mItemCache[aID];
-        if (item) {
-            return item;
-        }
-
-        // not cached; need to read from the db
-        let flags = {};
-
-        try {
-            // try events first
-            this.prepareStatement(this.mSelectEvent);
-            this.mSelectEvent.params.id = aID;
-            if (this.mSelectEvent.executeStep()) {
-                item = this.getEventFromRow(this.mSelectEvent.row, flags);
-            }
-        } catch (e) {
-            this.logError("Error selecting item by id " + aID + "!", e);
-        } finally {
-            this.mSelectEvent.reset();
-        }
-
-        // try todo if event fails
-        if (!item) {
-            try {
-                this.prepareStatement(this.mSelectTodo);
-                this.mSelectTodo.params.id = aID;
-                if (this.mSelectTodo.executeStep()) {
-                    item = this.getTodoFromRow(this.mSelectTodo.row, flags);
-                }
-            } catch (e) {
-                this.logError("Error selecting item by id " + aID + "!", e);
-            } finally {
-                this.mSelectTodo.reset();
-            }
-        }
-
-        return item;
-    },
-
-    //
-    // database writing functions
-    //
-
-    setDateParamHelper: function(params, entryname, cdt) {
-        if (cdt) {
-            params[entryname] = cdt.nativeTime;
-            let timezone = cdt.timezone;
-            let ownTz = cal.getTimezoneService().getTimezone(timezone.tzid);
-            if (ownTz) { // if we know that TZID, we use it
-                params[entryname + "_tz"] = ownTz.tzid;
-            } else if (timezone.icalComponent) { // foreign one
-                params[entryname + "_tz"] = timezone.icalComponent.serializeToICS();
-            } else { // timezone component missing
-                params[entryname + "_tz"] = "floating";
-            }
-        } else {
-            params[entryname] = null;
-            params[entryname + "_tz"] = null;
-        }
-    },
-
-    flushItem: function(item, olditem) {
-        cal.ASSERT(!item.recurrenceId, "no parent item passed!", true);
-
-        try {
-            this.deleteItemById(olditem ? olditem.id : item.id, true);
-            this.acquireTransaction();
-            this.writeItem(item, olditem);
-        } catch (e) {
-            this.releaseTransaction(e);
-            throw e;
-        }
-        this.releaseTransaction();
-
-        this.cacheItem(item);
-    },
-
-    //
-    // The write* functions execute the database bits
-    // to write the given item type.  They're to return
-    // any bits they want or'd into flags, which will be passed
-    // to writeEvent/writeTodo to actually do the writing.
-    //
-
-    writeItem: function(item, olditem) {
-        let flags = 0;
-
-        flags |= this.writeAttendees(item, olditem);
-        flags |= this.writeRecurrence(item, olditem);
-        flags |= this.writeProperties(item, olditem);
-        flags |= this.writeAttachments(item, olditem);
-        flags |= this.writeRelations(item, olditem);
-        flags |= this.writeAlarms(item, olditem);
-
-        if (cal.item.isEvent(item)) {
-            this.writeEvent(item, olditem, flags);
-        } else if (cal.item.isToDo(item)) {
-            this.writeTodo(item, olditem, flags);
-        } else {
-            throw Cr.NS_ERROR_UNEXPECTED;
-        }
-    },
-
-    writeEvent: function(item, olditem, flags) {
-        try {
-            this.prepareStatement(this.mInsertEvent);
-            let params = this.mInsertEvent.params;
-            this.setupItemBaseParams(item, olditem, params);
-
-            this.setDateParamHelper(params, "event_start", item.startDate);
-            this.setDateParamHelper(params, "event_end", item.endDate);
-            let dtstamp = item.stampTime;
-            if (dtstamp) {
-                params.event_stamp = dtstamp.nativeTime;
-            }
-
-            if (item.startDate.isDate) {
-                flags |= CAL_ITEM_FLAG.EVENT_ALLDAY;
-            }
-
-            params.flags = flags;
-
-            this.mInsertEvent.executeStep();
-        } finally {
-            this.mInsertEvent.reset();
-        }
-    },
-
-    writeTodo: function(item, olditem, flags) {
-        try {
-            this.prepareStatement(this.mInsertTodo);
-            let params = this.mInsertTodo.params;
-
-            this.setupItemBaseParams(item, olditem, params);
-
-            this.setDateParamHelper(params, "todo_entry", item.entryDate);
-            this.setDateParamHelper(params, "todo_due", item.dueDate);
-            let dtstamp = item.stampTime;
-            if (dtstamp) {
-                params.todo_stamp = dtstamp.nativeTime;
-            }
-            this.setDateParamHelper(params, "todo_completed", item.getProperty("COMPLETED"));
-
-            params.todo_complete = item.getProperty("PERCENT-COMPLETED");
-
-            let someDate = item.entryDate || item.dueDate;
-            if (someDate && someDate.isDate) {
-                flags |= CAL_ITEM_FLAG.EVENT_ALLDAY;
-            }
-
-            params.flags = flags;
-
-            this.mInsertTodo.executeStep();
-        } finally {
-            this.mInsertTodo.reset();
-        }
-    },
-
-    setupItemBaseParams: function(item, olditem, params) {
-        params.id = item.id;
-
-        if (item.recurrenceId) {
-            this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
-        }
-
-        let tmp;
-
-        if ((tmp = item.getProperty("CREATED"))) {
-            params.time_created = tmp.nativeTime;
-        }
-        if ((tmp = item.getProperty("LAST-MODIFIED"))) {
-            params.last_modified = tmp.nativeTime;
-        }
-
-        params.title = item.getProperty("SUMMARY");
-        params.priority = item.getProperty("PRIORITY");
-        params.privacy = item.getProperty("CLASS");
-        params.ical_status = item.getProperty("STATUS");
-
-        if (item.alarmLastAck) {
-            params.alarm_last_ack = item.alarmLastAck.nativeTime;
-        }
-    },
-
-    writeAttendees: function(item, olditem) {
-        let attendees = item.getAttendees({});
-        if (item.organizer) {
-            attendees = attendees.concat([]);
-            attendees.push(item.organizer);
-        }
-        if (attendees.length > 0) {
-            for (let att of attendees) {
-                let params = this.mInsertAttendee.params;
-                params.item_id = item.id;
-                try {
-                    this.prepareStatement(this.mInsertAttendee);
-                    this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
-                    params.icalString = att.icalString;
-                    this.mInsertAttendee.executeStep();
-                } finally {
-                    this.mInsertAttendee.reset();
-                }
-            }
-
-            return CAL_ITEM_FLAG.HAS_ATTENDEES;
-        }
-
-        return 0;
-    },
-
-    writeProperty: function(item, propName, propValue) {
-        try {
-            this.prepareStatement(this.mInsertProperty);
-            let params = this.mInsertProperty.params;
-            params.key = propName;
-            let wPropValue = cal.wrapInstance(propValue, Ci.calIDateTime);
-            if (wPropValue) {
-                params.value = wPropValue.nativeTime;
-            } else {
-                try {
-                    params.value = propValue;
-                } catch (e) {
-                    // The storage service throws an NS_ERROR_ILLEGAL_VALUE in
-                    // case pval is something complex (i.e not a string or
-                    // number). Swallow this error, leaving the value empty.
-                    if (e.result != Cr.NS_ERROR_ILLEGAL_VALUE) {
-                        throw e;
-                    }
-                }
-            }
-            params.item_id = item.id;
-            this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
-            this.mInsertProperty.executeStep();
-        } finally {
-            this.mInsertProperty.reset();
-        }
-    },
-
-    writeProperties: function(item, olditem) {
-        let ret = 0;
-        for (let [name, value] of item.properties) {
-            ret = CAL_ITEM_FLAG.HAS_PROPERTIES;
-            if (item.isPropertyPromoted(name)) {
-                continue;
-            }
-            this.writeProperty(item, name, value);
-        }
-
-        let cats = item.getCategories({});
-        if (cats.length > 0) {
-            ret = CAL_ITEM_FLAG.HAS_PROPERTIES;
-            this.writeProperty(item, "CATEGORIES", cal.category.arrayToString(cats));
-        }
-
-        return ret;
-    },
-
-    writeRecurrence: function(item, olditem) {
-        let flags = 0;
-
-        let rec = item.recurrenceInfo;
-        if (rec) {
-            flags = CAL_ITEM_FLAG.HAS_RECURRENCE;
-            let ritems = rec.getRecurrenceItems({});
-            for (let ritem of ritems) {
-                let params = this.mInsertRecurrence.params;
-                try {
-                    this.prepareStatement(this.mInsertRecurrence);
-                    params.item_id = item.id;
-                    params.icalString = ritem.icalString;
-                    this.mInsertRecurrence.executeStep();
-                } finally {
-                    this.mInsertRecurrence.reset();
-                }
-            }
-
-            let exceptions = rec.getExceptionIds({});
-            if (exceptions.length > 0) {
-                flags |= CAL_ITEM_FLAG.HAS_EXCEPTIONS;
-
-                // we need to serialize each exid as a separate
-                // event/todo; setupItemBase will handle
-                // writing the recurrenceId for us
-                for (let exid of exceptions) {
-                    let ex = rec.getExceptionFor(exid);
-                    if (!ex) {
-                        throw Cr.NS_ERROR_UNEXPECTED;
-                    }
-                    this.writeItem(ex, null);
-                }
-            }
-        } else if (item.recurrenceId && item.recurrenceId.isDate) {
-            flags |= CAL_ITEM_FLAG.RECURRENCE_ID_ALLDAY;
-        }
-
-        return flags;
-    },
-
-    writeAttachments: function(item, olditem) {
-        let attachments = item.getAttachments({});
-        if (attachments && attachments.length > 0) {
-            for (let att of attachments) {
-                let params = this.mInsertAttachment.params;
-                try {
-                    this.prepareStatement(this.mInsertAttachment);
-                    this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
-                    params.item_id = item.id;
-                    params.icalString = att.icalString;
-
-                    this.mInsertAttachment.executeStep();
-                } finally {
-                    this.mInsertAttachment.reset();
-                }
-            }
-            return CAL_ITEM_FLAG.HAS_ATTACHMENTS;
-        }
-        return 0;
-    },
-
-    writeRelations: function(item, olditem) {
-        let relations = item.getRelations({});
-        if (relations && relations.length > 0) {
-            for (let rel of relations) {
-                let params = this.mInsertRelation.params;
-                try {
-                    this.prepareStatement(this.mInsertRelation);
-                    this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
-                    params.item_id = item.id;
-                    params.icalString = rel.icalString;
-
-                    this.mInsertRelation.executeStep();
-                } finally {
-                    this.mInsertRelation.reset();
-                }
-            }
-            return CAL_ITEM_FLAG.HAS_RELATIONS;
-        }
-        return 0;
-    },
-
-    writeAlarms: function(item, olditem) {
-        let alarms = item.getAlarms({});
-        if (alarms.length < 1) {
-            return 0;
-        }
-
-        for (let alarm of alarms) {
-            let params = this.mInsertAlarm.params;
-            try {
-                this.prepareStatement(this.mInsertAlarm);
-                this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
-                params.item_id = item.id;
-                params.icalString = alarm.icalString;
-                this.mInsertAlarm.executeStep();
-            } catch (e) {
-                this.logError("Error writing alarm for item " + item.title + " (" + item.id + ")", e);
-            } finally {
-                this.mInsertAlarm.reset();
-            }
-        }
-
-        return CAL_ITEM_FLAG.HAS_ALARMS;
-    },
-
-    /**
-     * Deletes the item with the given item id.
-     *
-     * @param aID           The id of the item to delete.
-     * @param aIsModify     If true, then leave in metadata for the item
-     */
-    deleteItemById: function(aID, aIsModify) {
-        this.acquireTransaction();
-        try {
-            this.executeItemStatement(this.mDeleteAttendees, "item_id", aID);
-            this.executeItemStatement(this.mDeleteProperties, "item_id", aID);
-            this.executeItemStatement(this.mDeleteRecurrence, "item_id", aID);
-            this.executeItemStatement(this.mDeleteEvent, "id", aID);
-            this.executeItemStatement(this.mDeleteTodo, "id", aID);
-            this.executeItemStatement(this.mDeleteAttachments, "item_id", aID);
-            this.executeItemStatement(this.mDeleteRelations, "item_id", aID);
-            if (!aIsModify) {
-                this.executeItemStatement(this.mDeleteMetaData, "item_id", aID);
-            }
-            this.executeItemStatement(this.mDeleteAlarms, "item_id", aID);
-        } catch (e) {
-            this.releaseTransaction(e);
-            throw e;
-        }
-        this.releaseTransaction();
-
-        delete this.mItemCache[aID];
-        delete this.mRecEventCache[aID];
-        delete this.mRecTodoCache[aID];
-    },
-
-    /**
-     * Acquire a transaction for this calendar.
-     */
-    acquireTransaction: function() {
-        this.mDB.beginTransaction();
-    },
-
-    /**
-     * Releases one level of transactions for this calendar.
-     *
-     * @param err       (optional) If set, the transaction is set to fail when
-     *                    the count reaches zero.
-     */
-    releaseTransaction: function(err) {
-        if (err) {
-            cal.ERROR("[calStorageCalendar] DB error: " + this.mDB.lastErrorString + "\nexc: " + err);
-            this.mDB.rollbackTransaction();
-        } else {
-            this.mDB.commitTransaction();
-        }
-    },
-
-    //
-    // calISyncWriteCalendar interface
-    //
-
-    setMetaData: function(id, value) {
-        this.executeItemStatement(this.mDeleteMetaData, "item_id", id);
-        try {
-            this.prepareStatement(this.mInsertMetaData);
-            let params = this.mInsertMetaData.params;
-            params.item_id = id;
-            params.value = value;
-            this.mInsertMetaData.executeStep();
-        } catch (e) {
-            if (e.result == Cr.NS_ERROR_ILLEGAL_VALUE) {
-                this.logError("Unknown error!", e);
-            } else {
-                // The storage service throws an NS_ERROR_ILLEGAL_VALUE in
-                // case pval is something complex (i.e not a string or
-                // number). Swallow this error, leaving the value empty.
-                this.logError("Error setting metadata for id " + id + "!", e);
-            }
-        } finally {
-            this.mInsertMetaData.reset();
-        }
-    },
-
-    deleteMetaData: function(id) {
-        this.executeItemStatement(this.mDeleteMetaData, "item_id", id);
-    },
-
-    getMetaData: function(id) {
-        let query = this.mSelectMetaData;
-        let value = null;
-        try {
-            this.prepareStatement(query);
-            query.params.item_id = id;
-
-            if (query.executeStep()) {
-                value = query.row.value;
-            }
-        } catch (e) {
-            this.logError("Error getting metadata for id " + id + "!", e);
-        } finally {
-            query.reset();
-        }
-
-        return value;
-    },
-
-    getAllMetaData: function(out_count, out_ids, out_values) {
-        let query = this.mSelectAllMetaData;
-        try {
-            this.prepareStatement(query);
-            let ids = [];
-            let values = [];
-            while (query.executeStep()) {
-                ids.push(query.row.item_id);
-                values.push(query.row.value);
-            }
-            out_count.value = ids.length;
-            out_ids.value = ids;
-            out_values.value = values;
-        } catch (e) {
-            this.logError("Error getting all metadata!", e);
-        } finally {
-            query.reset();
-        }
-    },
-    /**
-     * Internal logging function that should be called on any database error,
-     * it will log as much info as possible about the database context and
-     * last statement so the problem can be investigated more easily.
-     *
-     * @param message           Error message to log.
-     * @param exception         Exception that caused the error.
-     */
-    logError: function(message, exception) {
-        let logMessage = "Message: " + message;
-        if (this.mDB) {
-            if (this.mDB.connectionReady) {
-                logMessage += "\nConnection Ready: " + this.mDB.connectionReady;
-            }
-            if (this.mDB.lastError) {
-                logMessage += "\nLast DB Error Number: " + this.mDB.lastError;
-            }
-            if (this.mDB.lastErrorString) {
-                logMessage += "\nLast DB Error Message: " + this.mDB.lastErrorString;
-            }
-            if (this.mDB.databaseFile) {
-                logMessage += "\nDatabase File: " + this.mDB.databaseFile.path;
-            }
-            if (this.mDB.lastInsertRowId) {
-                logMessage += "\nLast Insert Row Id: " + this.mDB.lastInsertRowId;
-            }
-            if (this.mDB.transactionInProgress) {
-                logMessage += "\nTransaction In Progress: " + this.mDB.transactionInProgress;
-            }
-        }
-
-        if (this.mLastStatement) {
-            logMessage += "\nLast DB Statement: " + this.mLastStatement;
-            if (this.mLastStatement.params) {
-                for (let param in this.mLastStatement.params) {
-                    logMessage += "\nLast Statement param [" + param + "]: " + this.mLastStatement.params[param];
-                }
-            }
-        }
-
-        if (exception) {
-            logMessage += "\nException: " + exception;
-        }
-        cal.ERROR("[calStorageCalendar] " + logMessage + "\n" + cal.STACK(10));
-    },
-    /**
-     * propagate the given sequence in exceptions. It may be needed by some calendar implementations
-     */
-    _propagateSequence: function(aItem, newSequence) {
-        if (newSequence) {
-            aItem.setProperty("SEQUENCE", newSequence);
-        } else {
-            aItem.deleteProperty("SEQUENCE");
-        }
-        let rec = aItem.recurrenceInfo;
-        if (rec) {
-            let exceptions = rec.getExceptionIds({});
-            if (exceptions.length > 0) {
-                for (let exid of exceptions) {
-                    let ex = rec.getExceptionFor(exid);
-                    if (newSequence) {
-                        ex.setProperty("SEQUENCE", newSequence);
-                    } else {
-                        ex.deleteProperty("SEQUENCE");
-                    }
-                }
-            }
-        }
+      return false;
     }
+
+    // First fetch all the events
+    if (wantEvents) {
+      let params; // stmt params
+      let resultItems = [];
+      let requestedOfflineJournal = null;
+
+      if (wantOfflineDeletedItems) {
+        requestedOfflineJournal = cICL.OFFLINE_FLAG_DELETED_RECORD;
+      } else if (wantOfflineCreatedItems) {
+        requestedOfflineJournal = cICL.OFFLINE_FLAG_CREATED_RECORD;
+      } else if (wantOfflineModifiedItems) {
+        requestedOfflineJournal = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
+      }
+
+      // first get non-recurring events that happen to fall within the range
+      //
+      try {
+        this.prepareStatement(this.mSelectNonRecurringEventsByRange);
+        params = this.mSelectNonRecurringEventsByRange.params;
+        params.range_start = startTime;
+        params.range_end = endTime;
+        params.start_offset = aRangeStart ? aRangeStart.timezoneOffset * USECS_PER_SECOND : 0;
+        params.end_offset = aRangeEnd ? aRangeEnd.timezoneOffset * USECS_PER_SECOND : 0;
+        params.offline_journal = requestedOfflineJournal;
+
+        while (this.mSelectNonRecurringEventsByRange.executeStep()) {
+          let row = this.mSelectNonRecurringEventsByRange.row;
+          resultItems.push(this.getEventFromRow(row, {}));
+        }
+      } catch (e) {
+        this.logError("Error selecting non recurring events by range!\n", e);
+      } finally {
+        this.mSelectNonRecurringEventsByRange.reset();
+      }
+
+      // Process the non-recurring events:
+      for (let evitem of resultItems) {
+        count += handleResultItem(evitem, Ci.calIEvent);
+        if (checkCount()) {
+          return;
+        }
+      }
+
+      // Process the recurring events from the cache
+      for (let id in this.mRecEventCache) {
+        let evitem = this.mRecEventCache[id];
+        let cachedJournalFlag = this.mRecEventCacheOfflineFlags[evitem.id] || null;
+        // No need to return flagged unless asked i.e. requestedOfflineJournal == cachedJournalFlag
+        // Return created and modified offline records if requestedOfflineJournal is null alongwith events that have no flag
+        if (
+          (requestedOfflineJournal == null &&
+            cachedJournalFlag != cICL.OFFLINE_FLAG_DELETED_RECORD) ||
+          (requestedOfflineJournal != null && cachedJournalFlag == requestedOfflineJournal)
+        ) {
+          count += handleResultItem(evitem, Ci.calIEvent);
+          if (checkCount()) {
+            return;
+          }
+        }
+      }
+    }
+
+    // if todos are wanted, do them next
+    if (wantTodos) {
+      let params; // stmt params
+      let resultItems = [];
+      let requestedOfflineJournal = null;
+
+      if (wantOfflineCreatedItems) {
+        requestedOfflineJournal = cICL.OFFLINE_FLAG_CREATED_RECORD;
+      } else if (wantOfflineDeletedItems) {
+        requestedOfflineJournal = cICL.OFFLINE_FLAG_DELETED_RECORD;
+      } else if (wantOfflineModifiedItems) {
+        requestedOfflineJournal = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
+      }
+
+      // first get non-recurring todos that happen to fall within the range
+      try {
+        this.prepareStatement(this.mSelectNonRecurringTodosByRange);
+        params = this.mSelectNonRecurringTodosByRange.params;
+        params.range_start = startTime;
+        params.range_end = endTime;
+        params.start_offset = aRangeStart ? aRangeStart.timezoneOffset * USECS_PER_SECOND : 0;
+        params.end_offset = aRangeEnd ? aRangeEnd.timezoneOffset * USECS_PER_SECOND : 0;
+        params.offline_journal = requestedOfflineJournal;
+
+        while (this.mSelectNonRecurringTodosByRange.executeStep()) {
+          let row = this.mSelectNonRecurringTodosByRange.row;
+          resultItems.push(this.getTodoFromRow(row, {}));
+        }
+      } catch (e) {
+        this.logError("Error selecting non recurring todos by range", e);
+      } finally {
+        this.mSelectNonRecurringTodosByRange.reset();
+      }
+
+      // process the non-recurring todos:
+      for (let todoitem of resultItems) {
+        count += handleResultItem(todoitem, Ci.calITodo, checkCompleted);
+        if (checkCount()) {
+          return;
+        }
+      }
+
+      // Note: Reading the code, completed *occurrences* seems to be broken, because
+      //       only the parent item has been filtered; I fixed that.
+      //       Moreover item.todo_complete etc seems to be a leftover...
+
+      // process the recurring todos from the cache
+      for (let id in this.mRecTodoCache) {
+        let todoitem = this.mRecTodoCache[id];
+        let cachedJournalFlag = this.mRecTodoCacheOfflineFlags[todoitem.id] || null;
+        if (
+          (requestedOfflineJournal == null &&
+            (cachedJournalFlag == cICL.OFFLINE_FLAG_MODIFIED_RECORD ||
+              cachedJournalFlag == cICL.OFFLINE_FLAG_CREATED_RECORD ||
+              cachedJournalFlag == null)) ||
+          (requestedOfflineJournal != null && cachedJournalFlag == requestedOfflineJournal)
+        ) {
+          count += handleResultItem(todoitem, Ci.calITodo, checkCompleted);
+          if (checkCount()) {
+            return;
+          }
+        }
+      }
+    }
+
+    // flush the queue
+    queueItems(null);
+
+    // and finish
+    this.notifyOperationComplete(aListener, Cr.NS_OK, Ci.calIOperationListener.GET, null, null);
+  },
+
+  getItemOfflineFlag: function(aItem, aListener) {
+    let flag = null;
+    if (aItem) {
+      let aID = aItem.id;
+      let self = this;
+      let listener = {
+        handleResult: function(aResultSet) {
+          let row = aResultSet.getNextRow();
+          flag = row.getResultByName("offline_journal") || null;
+        },
+        handleError: function(aError) {
+          self.logError("Error getting offline flag", aError);
+          aListener.onOperationComplete(
+            self,
+            Cr.NS_ERROR_FAILURE,
+            Ci.calIOperationListener.GET,
+            aItem.id,
+            aItem
+          );
+        },
+        handleCompletion: function(aReason) {
+          aListener.onOperationComplete(
+            self,
+            Cr.NS_OK,
+            Ci.calIOperationListener.GET,
+            aItem.id,
+            flag
+          );
+        },
+      };
+      if (cal.item.isEvent(aItem)) {
+        this.prepareStatement(this.mSelectEvent);
+        this.mSelectEvent.params.id = aID;
+        this.mSelectEvent.executeAsync(listener);
+      } else if (cal.item.isToDo(aItem)) {
+        this.prepareStatement(this.mSelectTodo);
+        this.mSelectTodo.params.id = aID;
+        this.mSelectTodo.executeAsync(listener);
+      }
+    } else {
+      // It is possible that aItem can be null, flag provided should be null in this case
+      aListener.onOperationComplete(this, Cr.NS_OK, Ci.calIOperationListener.GET, null, flag);
+    }
+  },
+
+  setOfflineJournalFlag: function(aItem, flag) {
+    let aID = aItem.id;
+    if (cal.item.isEvent(aItem)) {
+      this.prepareStatement(this.mEditEventOfflineFlag);
+      this.mEditEventOfflineFlag.params.id = aID;
+      this.mEditEventOfflineFlag.params.offline_journal = flag || null;
+      try {
+        this.mEditEventOfflineFlag.executeStep();
+      } catch (e) {
+        this.logError("Error setting offline journal flag for " + aItem.title, e);
+      } finally {
+        this.mEditEventOfflineFlag.reset();
+      }
+    } else if (cal.item.isToDo(aItem)) {
+      this.prepareStatement(this.mEditTodoOfflineFlag);
+      this.mEditTodoOfflineFlag.params.id = aID;
+      this.mEditTodoOfflineFlag.params.offline_journal = flag || null;
+      try {
+        this.mEditTodoOfflineFlag.executeStep();
+      } catch (e) {
+        this.logError("Error setting offline journal flag for " + aItem.title, e);
+      } finally {
+        this.mEditTodoOfflineFlag.reset();
+      }
+    }
+  },
+
+  //
+  // calIOfflineStorage interface
+  //
+  addOfflineItem: function(aItem, aListener) {
+    let newOfflineJournalFlag = cICL.OFFLINE_FLAG_CREATED_RECORD;
+    this.setOfflineJournalFlag(aItem, newOfflineJournalFlag);
+    this.notifyOperationComplete(
+      aListener,
+      Cr.NS_OK,
+      Ci.calIOperationListener.ADD,
+      aItem.id,
+      aItem
+    );
+  },
+
+  modifyOfflineItem: function(aItem, aListener) {
+    let self = this;
+    let opListener = {
+      QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+      onGetResult: function(calendar, status, itemType, detail, count, items) {},
+      onOperationComplete: function(calendar, status, opType, id, oldOfflineJournalFlag) {
+        let newOfflineJournalFlag = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
+        if (
+          oldOfflineJournalFlag == cICL.OFFLINE_FLAG_CREATED_RECORD ||
+          oldOfflineJournalFlag == cICL.OFFLINE_FLAG_DELETED_RECORD
+        ) {
+          // Do nothing since a flag of "created" or "deleted" exists
+        } else {
+          self.setOfflineJournalFlag(aItem, newOfflineJournalFlag);
+        }
+        self.notifyOperationComplete(
+          aListener,
+          Cr.NS_OK,
+          Ci.calIOperationListener.MODIFY,
+          aItem.id,
+          aItem
+        );
+      },
+    };
+    this.getItemOfflineFlag(aItem, opListener);
+  },
+
+  deleteOfflineItem: function(aItem, aListener) {
+    let self = this;
+    let opListener = {
+      QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+      onGetResult: function(calendar, status, itemType, detail, count, items) {},
+      onOperationComplete: function(calendar, status, opType, id, oldOfflineJournalFlag) {
+        if (oldOfflineJournalFlag) {
+          // Delete item if flag is c
+          if (oldOfflineJournalFlag == cICL.OFFLINE_FLAG_CREATED_RECORD) {
+            self.deleteItemById(aItem.id);
+          } else if (oldOfflineJournalFlag == cICL.OFFLINE_FLAG_MODIFIED_RECORD) {
+            self.setOfflineJournalFlag(aItem, cICL.OFFLINE_FLAG_DELETED_RECORD);
+          }
+        } else {
+          self.setOfflineJournalFlag(aItem, cICL.OFFLINE_FLAG_DELETED_RECORD);
+        }
+
+        self.notifyOperationComplete(
+          aListener,
+          Cr.NS_OK,
+          Ci.calIOperationListener.DELETE,
+          aItem.id,
+          aItem
+        );
+        // notify observers
+        self.observers.notify("onDeleteItem", [aItem]);
+      },
+    };
+    this.getItemOfflineFlag(aItem, opListener);
+  },
+
+  resetItemOfflineFlag: function(aItem, aListener) {
+    this.setOfflineJournalFlag(aItem, null);
+    this.notifyOperationComplete(
+      aListener,
+      Cr.NS_OK,
+      Ci.calIOperationListener.MODIFY,
+      aItem.id,
+      aItem
+    );
+  },
+
+  //
+  // database handling
+  //
+
+  // database initialization
+  // assumes mDB is valid
+
+  initDB: function() {
+    cal.ASSERT(this.mDB, "Database has not been opened!", true);
+
+    try {
+      this.mDB.executeSimpleSQL("PRAGMA journal_mode=WAL");
+
+      this.mSelectEvent = this.mDB.createStatement(
+        "SELECT * FROM cal_events " +
+          "WHERE id = :id AND cal_id = :cal_id " +
+          " AND recurrence_id IS NULL " +
+          "LIMIT 1"
+      );
+
+      this.mSelectTodo = this.mDB.createStatement(
+        "SELECT * FROM cal_todos " +
+          "WHERE id = :id AND cal_id = :cal_id " +
+          " AND recurrence_id IS NULL " +
+          "LIMIT 1"
+      );
+
+      // The more readable version of the next where-clause is:
+      //   WHERE  ((event_end > :range_start OR
+      //           (event_end = :range_start AND
+      //           event_start = :range_start))
+      //          AND event_start < :range_end)
+      //
+      // but that doesn't work with floating start or end times. The logic
+      // is the same though.
+      // For readability, a few helpers:
+      let floatingEventStart = "event_start_tz = 'floating' AND event_start";
+      let nonFloatingEventStart = "event_start_tz != 'floating' AND event_start";
+      let floatingEventEnd = "event_end_tz = 'floating' AND event_end";
+      let nonFloatingEventEnd = "event_end_tz != 'floating' AND event_end";
+      // The query needs to take both floating and non floating into account
+      this.mSelectNonRecurringEventsByRange = this.mDB.createStatement(
+        "SELECT * FROM cal_events " +
+          "WHERE " +
+          " ((" +
+          floatingEventEnd +
+          " > :range_start + :start_offset) OR " +
+          "  (" +
+          nonFloatingEventEnd +
+          " > :range_start) OR " +
+          "  (((" +
+          floatingEventEnd +
+          " = :range_start + :start_offset) OR " +
+          "    (" +
+          nonFloatingEventEnd +
+          " = :range_start)) AND " +
+          "   ((" +
+          floatingEventStart +
+          " = :range_start + :start_offset) OR " +
+          "    (" +
+          nonFloatingEventStart +
+          " = :range_start)))) " +
+          " AND " +
+          "  ((" +
+          floatingEventStart +
+          " < :range_end + :end_offset) OR " +
+          "   (" +
+          nonFloatingEventStart +
+          " < :range_end)) " +
+          " AND cal_id = :cal_id AND flags & 16 == 0 AND recurrence_id IS NULL" +
+          " AND ((:offline_journal IS NULL " +
+          " AND  (offline_journal IS NULL " +
+          "  OR   offline_journal != " +
+          cICL.OFFLINE_FLAG_DELETED_RECORD +
+          ")) " +
+          "  OR (offline_journal == :offline_journal))"
+      );
+
+      //
+      // WHERE (due > rangeStart  AND  (entry IS NULL  OR  entry < rangeEnd)) OR
+      //       (due = rangeStart  AND  (entry IS NULL  OR  entry = rangeStart)) OR
+      //       (due IS NULL  AND  (entry >= rangeStart  AND  entry < rangeEnd)) OR
+      //       (entry IS NULL  AND  (completed > rangeStart  OR  completed IS NULL))
+      //
+      let floatingTodoEntry = "todo_entry_tz = 'floating' AND todo_entry";
+      let nonFloatingTodoEntry = "todo_entry_tz != 'floating' AND todo_entry";
+      let floatingTodoDue = "todo_due_tz = 'floating' AND todo_due";
+      let nonFloatingTodoDue = "todo_due_tz != 'floating' AND todo_due";
+      let floatingCompleted = "todo_completed_tz = 'floating' AND todo_completed";
+      let nonFloatingCompleted = "todo_completed_tz != 'floating' AND todo_completed";
+
+      this.mSelectNonRecurringTodosByRange = this.mDB.createStatement(
+        "SELECT * FROM cal_todos " +
+          "WHERE " +
+          "((((" +
+          floatingTodoDue +
+          " > :range_start + :start_offset) OR " +
+          "   (" +
+          nonFloatingTodoDue +
+          " > :range_start)) AND " +
+          "  ((todo_entry IS NULL) OR " +
+          "   ((" +
+          floatingTodoEntry +
+          " < :range_end + :end_offset) OR " +
+          "    (" +
+          nonFloatingTodoEntry +
+          " < :range_end)))) OR " +
+          " (((" +
+          floatingTodoDue +
+          " = :range_start + :start_offset) OR " +
+          "   (" +
+          nonFloatingTodoDue +
+          " = :range_start)) AND " +
+          "  ((todo_entry IS NULL) OR " +
+          "   ((" +
+          floatingTodoEntry +
+          " = :range_start + :start_offset) OR " +
+          "    (" +
+          nonFloatingTodoEntry +
+          " = :range_start)))) OR " +
+          " ((todo_due IS NULL) AND " +
+          "  (((" +
+          floatingTodoEntry +
+          " >= :range_start + :start_offset) OR " +
+          "    (" +
+          nonFloatingTodoEntry +
+          " >= :range_start)) AND " +
+          "   ((" +
+          floatingTodoEntry +
+          " < :range_end + :end_offset) OR " +
+          "    (" +
+          nonFloatingTodoEntry +
+          " < :range_end)))) OR " +
+          " ((todo_entry IS NULL) AND " +
+          "  (((" +
+          floatingCompleted +
+          " > :range_start + :start_offset) OR " +
+          "    (" +
+          nonFloatingCompleted +
+          " > :range_start)) OR " +
+          "   (todo_completed IS NULL)))) " +
+          " AND cal_id = :cal_id AND flags & 16 == 0 AND recurrence_id IS NULL " +
+          " AND ((:offline_journal IS NULL" +
+          " AND  (offline_journal IS NULL" +
+          "  OR   offline_journal != " +
+          cICL.OFFLINE_FLAG_DELETED_RECORD +
+          ")) " +
+          "  OR (offline_journal == :offline_journal))"
+      );
+
+      this.mSelectEventsWithRecurrence = this.mDB.createStatement(
+        "SELECT * FROM cal_events " +
+          " WHERE flags & 16 == 16 " +
+          "   AND cal_id = :cal_id AND recurrence_id is NULL"
+      );
+
+      this.mSelectTodosWithRecurrence = this.mDB.createStatement(
+        "SELECT * FROM cal_todos " +
+          " WHERE flags & 16 == 16 " +
+          "   AND cal_id = :cal_id AND recurrence_id IS NULL"
+      );
+
+      this.mSelectEventExceptions = this.mDB.createStatement(
+        "SELECT * FROM cal_events " +
+          "WHERE id = :id AND cal_id = :cal_id" +
+          " AND recurrence_id IS NOT NULL"
+      );
+
+      this.mSelectTodoExceptions = this.mDB.createStatement(
+        "SELECT * FROM cal_todos " +
+          "WHERE id = :id AND cal_id = :cal_id" +
+          " AND recurrence_id IS NOT NULL"
+      );
+
+      // For the extra-item data, we used to use mDBTwo, so that
+      // these could be executed while a selectItems was running.
+      // This no longer seems to be needed and actually causes
+      // havoc when transactions are in use.
+      this.mSelectAttendeesForItem = this.mDB.createStatement(
+        "SELECT * FROM cal_attendees " +
+          "WHERE item_id = :item_id AND cal_id = :cal_id" +
+          " AND recurrence_id IS NULL"
+      );
+
+      this.mSelectAttendeesForItemWithRecurrenceId = this.mDB.createStatement(
+        "SELECT * FROM cal_attendees " +
+          "WHERE item_id = :item_id AND cal_id = :cal_id" +
+          " AND recurrence_id = :recurrence_id" +
+          " AND recurrence_id_tz = :recurrence_id_tz"
+      );
+
+      this.mSelectPropertiesForItem = this.mDB.createStatement(
+        "SELECT * FROM cal_properties" +
+          " WHERE item_id = :item_id" +
+          "   AND cal_id = :cal_id" +
+          "   AND recurrence_id IS NULL"
+      );
+
+      this.mSelectPropertiesForItemWithRecurrenceId = this.mDB.createStatement(
+        "SELECT * FROM cal_properties " +
+          "WHERE item_id = :item_id AND cal_id = :cal_id" +
+          "  AND recurrence_id = :recurrence_id" +
+          "  AND recurrence_id_tz = :recurrence_id_tz"
+      );
+
+      this.mSelectRecurrenceForItem = this.mDB.createStatement(
+        "SELECT * FROM cal_recurrence " + "WHERE item_id = :item_id AND cal_id = :cal_id"
+      );
+
+      this.mSelectAttachmentsForItem = this.mDB.createStatement(
+        "SELECT * FROM cal_attachments " +
+          "WHERE item_id = :item_id AND cal_id = :cal_id" +
+          " AND recurrence_id IS NULL"
+      );
+      this.mSelectAttachmentsForItemWithRecurrenceId = this.mDB.createStatement(
+        "SELECT * FROM cal_attachments" +
+          " WHERE item_id = :item_id AND cal_id = :cal_id" +
+          " AND recurrence_id = :recurrence_id" +
+          " AND recurrence_id_tz = :recurrence_id_tz"
+      );
+
+      this.mSelectRelationsForItem = this.mDB.createStatement(
+        "SELECT * FROM cal_relations " +
+          "WHERE item_id = :item_id AND cal_id = :cal_id" +
+          " AND recurrence_id IS NULL"
+      );
+      this.mSelectRelationsForItemWithRecurrenceId = this.mDB.createStatement(
+        "SELECT * FROM cal_relations" +
+          " WHERE item_id = :item_id AND cal_id = :cal_id" +
+          " AND recurrence_id = :recurrence_id" +
+          " AND recurrence_id_tz = :recurrence_id_tz"
+      );
+
+      this.mSelectMetaData = this.mDB.createStatement(
+        "SELECT * FROM cal_metadata" + " WHERE item_id = :item_id AND cal_id = :cal_id"
+      );
+
+      this.mSelectAllMetaData = this.mDB.createStatement(
+        "SELECT * FROM cal_metadata" + " WHERE cal_id = :cal_id"
+      );
+
+      this.mSelectAlarmsForItem = this.mDB.createStatement(
+        "SELECT icalString FROM cal_alarms" +
+          " WHERE item_id = :item_id AND cal_id = :cal_id" +
+          " AND recurrence_id IS NULL"
+      );
+
+      this.mSelectAlarmsForItemWithRecurrenceId = this.mDB.createStatement(
+        "SELECT icalString FROM cal_alarms" +
+          " WHERE item_id = :item_id AND cal_id = :cal_id" +
+          " AND recurrence_id = :recurrence_id" +
+          " AND recurrence_id_tz = :recurrence_id_tz"
+      );
+
+      // insert statements
+      this.mInsertEvent = this.mDB.createStatement(
+        "INSERT INTO cal_events " +
+          "  (cal_id, id, time_created, last_modified, " +
+          "   title, priority, privacy, ical_status, flags, " +
+          "   event_start, event_start_tz, event_end, event_end_tz, event_stamp, " +
+          "   recurrence_id, recurrence_id_tz, alarm_last_ack) " +
+          "VALUES (:cal_id, :id, :time_created, :last_modified, " +
+          "        :title, :priority, :privacy, :ical_status, :flags, " +
+          "        :event_start, :event_start_tz, :event_end, :event_end_tz, :event_stamp, " +
+          "        :recurrence_id, :recurrence_id_tz, :alarm_last_ack)"
+      );
+
+      this.mInsertTodo = this.mDB.createStatement(
+        "INSERT INTO cal_todos " +
+          "  (cal_id, id, time_created, last_modified, " +
+          "   title, priority, privacy, ical_status, flags, " +
+          "   todo_entry, todo_entry_tz, todo_due, todo_due_tz, todo_stamp, " +
+          "   todo_completed, todo_completed_tz, todo_complete, " +
+          "   recurrence_id, recurrence_id_tz, alarm_last_ack)" +
+          "VALUES (:cal_id, :id, :time_created, :last_modified, " +
+          "        :title, :priority, :privacy, :ical_status, :flags, " +
+          "        :todo_entry, :todo_entry_tz, :todo_due, :todo_due_tz, :todo_stamp, " +
+          "        :todo_completed, :todo_completed_tz, :todo_complete, " +
+          "        :recurrence_id, :recurrence_id_tz, :alarm_last_ack)"
+      );
+      this.mInsertProperty = this.mDB.createStatement(
+        "INSERT INTO cal_properties (cal_id, item_id, recurrence_id, recurrence_id_tz, key, value) " +
+          "VALUES (:cal_id, :item_id, :recurrence_id, :recurrence_id_tz, :key, :value)"
+      );
+      this.mInsertAttendee = this.mDB.createStatement(
+        "INSERT INTO cal_attendees " +
+          "  (cal_id, item_id, recurrence_id, recurrence_id_tz, icalString) " +
+          "VALUES (:cal_id, :item_id, :recurrence_id, :recurrence_id_tz, :icalString)"
+      );
+      this.mInsertRecurrence = this.mDB.createStatement(
+        "INSERT INTO cal_recurrence " +
+          "  (cal_id, item_id, icalString) " +
+          "VALUES (:cal_id, :item_id, :icalString)"
+      );
+
+      this.mInsertAttachment = this.mDB.createStatement(
+        "INSERT INTO cal_attachments " +
+          " (cal_id, item_id, icalString, recurrence_id, recurrence_id_tz) " +
+          "VALUES (:cal_id, :item_id, :icalString, :recurrence_id, :recurrence_id_tz)"
+      );
+
+      this.mInsertRelation = this.mDB.createStatement(
+        "INSERT INTO cal_relations " +
+          " (cal_id, item_id, icalString, recurrence_id, recurrence_id_tz) " +
+          "VALUES (:cal_id, :item_id, :icalString, :recurrence_id, :recurrence_id_tz)"
+      );
+
+      this.mInsertMetaData = this.mDB.createStatement(
+        "INSERT INTO cal_metadata" +
+          " (cal_id, item_id, value)" +
+          " VALUES (:cal_id, :item_id, :value)"
+      );
+
+      this.mInsertAlarm = this.mDB.createStatement(
+        "INSERT INTO cal_alarms " +
+          "  (cal_id, item_id, icalString, recurrence_id, recurrence_id_tz) " +
+          "VALUES  (:cal_id, :item_id, :icalString, :recurrence_id, :recurrence_id_tz)  "
+      );
+      // Offline Operations
+      this.mEditEventOfflineFlag = this.mDB.createStatement(
+        "UPDATE cal_events SET offline_journal = :offline_journal" +
+          " WHERE id = :id AND cal_id = :cal_id"
+      );
+
+      this.mEditTodoOfflineFlag = this.mDB.createStatement(
+        "UPDATE cal_todos SET offline_journal = :offline_journal" +
+          " WHERE id = :id AND cal_id = :cal_id"
+      );
+
+      // delete statements
+      this.mDeleteEvent = this.mDB.createStatement(
+        "DELETE FROM cal_events WHERE id = :id AND cal_id = :cal_id"
+      );
+      this.mDeleteTodo = this.mDB.createStatement(
+        "DELETE FROM cal_todos WHERE id = :id AND cal_id = :cal_id"
+      );
+      this.mDeleteAttendees = this.mDB.createStatement(
+        "DELETE FROM cal_attendees WHERE item_id = :item_id AND cal_id = :cal_id"
+      );
+      this.mDeleteProperties = this.mDB.createStatement(
+        "DELETE FROM cal_properties WHERE item_id = :item_id AND cal_id = :cal_id"
+      );
+      this.mDeleteRecurrence = this.mDB.createStatement(
+        "DELETE FROM cal_recurrence WHERE item_id = :item_id AND cal_id = :cal_id"
+      );
+      this.mDeleteAttachments = this.mDB.createStatement(
+        "DELETE FROM cal_attachments WHERE item_id = :item_id AND cal_id = :cal_id"
+      );
+      this.mDeleteRelations = this.mDB.createStatement(
+        "DELETE FROM cal_relations WHERE item_id = :item_id AND cal_id = :cal_id"
+      );
+      this.mDeleteMetaData = this.mDB.createStatement(
+        "DELETE FROM cal_metadata WHERE item_id = :item_id AND cal_id = :cal_id"
+      );
+      this.mDeleteAlarms = this.mDB.createStatement(
+        "DELETE FROM cal_alarms WHERE item_id = :item_id AND cal_id = :cal_id"
+      );
+
+      // These are only used when deleting an entire calendar
+      let extrasTables = [
+        "cal_attendees",
+        "cal_properties",
+        "cal_recurrence",
+        "cal_attachments",
+        "cal_metadata",
+        "cal_relations",
+        "cal_alarms",
+      ];
+
+      this.mDeleteEventExtras = [];
+      this.mDeleteTodoExtras = [];
+
+      for (let table in extrasTables) {
+        this.mDeleteEventExtras[table] = this.mDB.createStatement(
+          "DELETE FROM " +
+            extrasTables[table] +
+            " WHERE item_id IN" +
+            "  (SELECT id FROM cal_events WHERE cal_id = :cal_id)" +
+            " AND cal_id = :cal_id"
+        );
+        this.mDeleteTodoExtras[table] = this.mDB.createStatement(
+          "DELETE FROM " +
+            extrasTables[table] +
+            " WHERE item_id IN" +
+            "  (SELECT id FROM cal_todos WHERE cal_id = :cal_id)" +
+            " AND cal_id = :cal_id"
+        );
+      }
+
+      // Note that you must delete the "extras" _first_ using the above two
+      // statements, before you delete the events themselves.
+      this.mDeleteAllEvents = this.mDB.createStatement(
+        "DELETE from cal_events WHERE cal_id = :cal_id"
+      );
+      this.mDeleteAllTodos = this.mDB.createStatement(
+        "DELETE from cal_todos WHERE cal_id = :cal_id"
+      );
+
+      this.mDeleteAllMetaData = this.mDB.createStatement(
+        "DELETE FROM cal_metadata" + " WHERE cal_id = :cal_id"
+      );
+    } catch (e) {
+      this.logError("Error initializing statements.", e);
+    }
+  },
+
+  shutdownDB: function() {
+    try {
+      if (this.mDeleteAlarms) {
+        this.mDeleteAlarms.finalize();
+      }
+      if (this.mDeleteAllEvents) {
+        this.mDeleteAllEvents.finalize();
+      }
+      if (this.mDeleteAllMetaData) {
+        this.mDeleteAllMetaData.finalize();
+      }
+      if (this.mDeleteAllTodos) {
+        this.mDeleteAllTodos.finalize();
+      }
+      if (this.mDeleteAttachments) {
+        this.mDeleteAttachments.finalize();
+      }
+      if (this.mDeleteAttendees) {
+        this.mDeleteAttendees.finalize();
+      }
+      if (this.mDeleteEvent) {
+        this.mDeleteEvent.finalize();
+      }
+      if (this.mDeleteMetaData) {
+        this.mDeleteMetaData.finalize();
+      }
+      if (this.mDeleteProperties) {
+        this.mDeleteProperties.finalize();
+      }
+      if (this.mDeleteRecurrence) {
+        this.mDeleteRecurrence.finalize();
+      }
+      if (this.mDeleteRelations) {
+        this.mDeleteRelations.finalize();
+      }
+      if (this.mDeleteTodo) {
+        this.mDeleteTodo.finalize();
+      }
+      if (this.mEditEventOfflineFlag) {
+        this.mEditEventOfflineFlag.finalize();
+      }
+      if (this.mEditTodoOfflineFlag) {
+        this.mEditTodoOfflineFlag.finalize();
+      }
+      if (this.mInsertAlarm) {
+        this.mInsertAlarm.finalize();
+      }
+      if (this.mInsertAttachment) {
+        this.mInsertAttachment.finalize();
+      }
+      if (this.mInsertAttendee) {
+        this.mInsertAttendee.finalize();
+      }
+      if (this.mInsertEvent) {
+        this.mInsertEvent.finalize();
+      }
+      if (this.mInsertMetaData) {
+        this.mInsertMetaData.finalize();
+      }
+      if (this.mInsertProperty) {
+        this.mInsertProperty.finalize();
+      }
+      if (this.mInsertRecurrence) {
+        this.mInsertRecurrence.finalize();
+      }
+      if (this.mInsertRelation) {
+        this.mInsertRelation.finalize();
+      }
+      if (this.mInsertTodo) {
+        this.mInsertTodo.finalize();
+      }
+      if (this.mSelectAlarmsForItem) {
+        this.mSelectAlarmsForItem.finalize();
+      }
+      if (this.mSelectAlarmsForItemWithRecurrenceId) {
+        this.mSelectAlarmsForItemWithRecurrenceId.finalize();
+      }
+      if (this.mSelectAllMetaData) {
+        this.mSelectAllMetaData.finalize();
+      }
+      if (this.mSelectAttachmentsForItem) {
+        this.mSelectAttachmentsForItem.finalize();
+      }
+      if (this.mSelectAttachmentsForItemWithRecurrenceId) {
+        this.mSelectAttachmentsForItemWithRecurrenceId.finalize();
+      }
+      if (this.mSelectAttendeesForItem) {
+        this.mSelectAttendeesForItem.finalize();
+      }
+      if (this.mSelectAttendeesForItemWithRecurrenceId) {
+        this.mSelectAttendeesForItemWithRecurrenceId.finalize();
+      }
+      if (this.mSelectEvent) {
+        this.mSelectEvent.finalize();
+      }
+      if (this.mSelectEventExceptions) {
+        this.mSelectEventExceptions.finalize();
+      }
+      if (this.mSelectEventsWithRecurrence) {
+        this.mSelectEventsWithRecurrence.finalize();
+      }
+      if (this.mSelectMetaData) {
+        this.mSelectMetaData.finalize();
+      }
+      if (this.mSelectNonRecurringEventsByRange) {
+        this.mSelectNonRecurringEventsByRange.finalize();
+      }
+      if (this.mSelectNonRecurringTodosByRange) {
+        this.mSelectNonRecurringTodosByRange.finalize();
+      }
+      if (this.mSelectPropertiesForItem) {
+        this.mSelectPropertiesForItem.finalize();
+      }
+      if (this.mSelectPropertiesForItemWithRecurrenceId) {
+        this.mSelectPropertiesForItemWithRecurrenceId.finalize();
+      }
+      if (this.mSelectRecurrenceForItem) {
+        this.mSelectRecurrenceForItem.finalize();
+      }
+      if (this.mSelectRelationsForItem) {
+        this.mSelectRelationsForItem.finalize();
+      }
+      if (this.mSelectRelationsForItemWithRecurrenceId) {
+        this.mSelectRelationsForItemWithRecurrenceId.finalize();
+      }
+      if (this.mSelectTodo) {
+        this.mSelectTodo.finalize();
+      }
+      if (this.mSelectTodoExceptions) {
+        this.mSelectTodoExceptions.finalize();
+      }
+      if (this.mSelectTodosWithRecurrence) {
+        this.mSelectTodosWithRecurrence.finalize();
+      }
+      if (this.mDeleteEventExtras) {
+        for (let stmt of this.mDeleteEventExtras) {
+          stmt.finalize();
+        }
+      }
+      if (this.mDeleteTodoExtras) {
+        for (let stmt of this.mDeleteTodoExtras) {
+          stmt.finalize();
+        }
+      }
+
+      if (this.mDB) {
+        this.mDB.asyncClose();
+        this.mDB = null;
+      }
+    } catch (e) {
+      cal.ERROR("Error closing storage database: " + e);
+    }
+  },
+
+  //
+  // database reading functions
+  //
+
+  // read in the common ItemBase attributes from aDBRow, and stick
+  // them on item
+  getItemBaseFromRow: function(row, flags, item) {
+    item.calendar = this.superCalendar;
+    item.id = row.id;
+    if (row.title) {
+      item.title = row.title;
+    }
+    if (row.priority) {
+      item.priority = row.priority;
+    }
+    if (row.privacy) {
+      item.privacy = row.privacy;
+    }
+    if (row.ical_status) {
+      item.status = row.ical_status;
+    }
+
+    if (row.alarm_last_ack) {
+      // alarm acks are always in utc
+      item.alarmLastAck = newDateTime(row.alarm_last_ack, "UTC");
+    }
+
+    if (row.recurrence_id) {
+      item.recurrenceId = newDateTime(row.recurrence_id, row.recurrence_id_tz);
+      if ((row.flags & CAL_ITEM_FLAG.RECURRENCE_ID_ALLDAY) != 0) {
+        item.recurrenceId.isDate = true;
+      }
+    }
+
+    if (flags) {
+      flags.value = row.flags;
+    }
+
+    if (row.time_created) {
+      item.setProperty("CREATED", newDateTime(row.time_created, "UTC"));
+    }
+
+    // This must be done last because the setting of any other property
+    // after this would overwrite it again.
+    if (row.last_modified) {
+      item.setProperty("LAST-MODIFIED", newDateTime(row.last_modified, "UTC"));
+    }
+  },
+
+  cacheItem: function(item) {
+    this.mItemCache[item.id] = item;
+    if (item.recurrenceInfo) {
+      if (cal.item.isEvent(item)) {
+        this.mRecEventCache[item.id] = item;
+      } else {
+        this.mRecTodoCache[item.id] = item;
+      }
+    }
+  },
+
+  mRecEventCacheOfflineFlags: {},
+  mRecTodoCacheOfflineFlags: {},
+  assureRecurringItemCaches: function() {
+    if (this.mRecItemCacheInited) {
+      return;
+    }
+    // build up recurring event and todo cache with its offline flags,
+    // because we need that on every query: for recurring items, we need to
+    // query database-wide.. yuck
+
+    try {
+      this.prepareStatement(this.mSelectEventsWithRecurrence);
+      while (this.mSelectEventsWithRecurrence.executeStep()) {
+        let row = this.mSelectEventsWithRecurrence.row;
+        let item = this.getEventFromRow(row, {});
+        this.mRecEventCache[item.id] = item;
+        this.mRecEventCacheOfflineFlags[item.id] = row.offline_journal || null;
+      }
+    } catch (e) {
+      this.logError("Error selecting events with recurrence!", e);
+    } finally {
+      this.mSelectEventsWithRecurrence.reset();
+    }
+
+    try {
+      this.prepareStatement(this.mSelectTodosWithRecurrence);
+      while (this.mSelectTodosWithRecurrence.executeStep()) {
+        let row = this.mSelectTodosWithRecurrence.row;
+        let item = this.getTodoFromRow(row, {});
+        this.mRecTodoCache[item.id] = item;
+        this.mRecTodoCacheOfflineFlags[item.id] = row.offline_journal || null;
+      }
+    } catch (e) {
+      this.logError("Error selecting todos with recurrence!", e);
+    } finally {
+      this.mSelectTodosWithRecurrence.reset();
+    }
+
+    this.mRecItemCacheInited = true;
+  },
+
+  // xxx todo: consider removing flags parameter
+  getEventFromRow: function(row, flags, isException) {
+    let item;
+    if (!isException) {
+      // only parent items are cached
+      item = this.mItemCache[row.id];
+      if (item) {
+        return item;
+      }
+    }
+
+    item = cal.createEvent();
+
+    if (row.event_start) {
+      item.startDate = newDateTime(row.event_start, row.event_start_tz);
+    }
+    if (row.event_end) {
+      item.endDate = newDateTime(row.event_end, row.event_end_tz);
+    }
+    if (row.event_stamp) {
+      item.setProperty("DTSTAMP", newDateTime(row.event_stamp, "UTC"));
+    }
+    if ((row.flags & CAL_ITEM_FLAG.EVENT_ALLDAY) != 0) {
+      item.startDate.isDate = true;
+      item.endDate.isDate = true;
+    }
+
+    // This must be done last to keep the modification time intact.
+    this.getItemBaseFromRow(row, flags, item);
+    this.getAdditionalDataForItem(item, flags.value);
+
+    if (!isException) {
+      // keep exceptions modifiable to set the parentItem
+      item.makeImmutable();
+      this.cacheItem(item);
+    }
+    return item;
+  },
+
+  getTodoFromRow: function(row, flags, isException) {
+    let item;
+    if (!isException) {
+      // only parent items are cached
+      item = this.mItemCache[row.id];
+      if (item) {
+        return item;
+      }
+    }
+
+    item = cal.createTodo();
+
+    if (row.todo_entry) {
+      item.entryDate = newDateTime(row.todo_entry, row.todo_entry_tz);
+    }
+    if (row.todo_due) {
+      item.dueDate = newDateTime(row.todo_due, row.todo_due_tz);
+    }
+    if (row.todo_stamp) {
+      item.setProperty("DTSTAMP", newDateTime(row.todo_stamp, "UTC"));
+    }
+    if (row.todo_completed) {
+      item.completedDate = newDateTime(row.todo_completed, row.todo_completed_tz);
+    }
+    if (row.todo_complete) {
+      item.percentComplete = row.todo_complete;
+    }
+
+    // This must be done last to keep the modification time intact.
+    this.getItemBaseFromRow(row, flags, item);
+    this.getAdditionalDataForItem(item, flags.value);
+
+    if (!isException) {
+      // keep exceptions modifiable to set the parentItem
+      item.makeImmutable();
+      this.cacheItem(item);
+    }
+    return item;
+  },
+
+  // after we get the base item, we need to check if we need to pull in
+  // any extra data from other tables.  We do that here.
+
+  // We used to use mDBTwo for this, so this can be run while a
+  // select is executing but this no longer seems to be required.
+
+  getAdditionalDataForItem: function(item, flags) {
+    // This is needed to keep the modification time intact.
+    let savedLastModifiedTime = item.lastModifiedTime;
+
+    if (flags & CAL_ITEM_FLAG.HAS_ATTENDEES) {
+      let selectItem = null;
+      if (item.recurrenceId == null) {
+        selectItem = this.mSelectAttendeesForItem;
+      } else {
+        selectItem = this.mSelectAttendeesForItemWithRecurrenceId;
+        this.setDateParamHelper(selectItem.params, "recurrence_id", item.recurrenceId);
+      }
+
+      try {
+        this.prepareStatement(selectItem);
+        selectItem.params.item_id = item.id;
+        while (selectItem.executeStep()) {
+          let attendee = cal.createAttendee(selectItem.row.icalString);
+          if (attendee && attendee.id) {
+            if (attendee.isOrganizer) {
+              item.organizer = attendee;
+            } else {
+              item.addAttendee(attendee);
+            }
+          } else {
+            cal.WARN(
+              "[calStorageCalendar] Skipping invalid attendee for item '" +
+                item.title +
+                "' (" +
+                item.id +
+                ")."
+            );
+          }
+        }
+      } catch (e) {
+        this.logError(
+          "Error getting attendees for item '" + item.title + "' (" + item.id + ")!",
+          e
+        );
+      } finally {
+        selectItem.reset();
+      }
+    }
+
+    if (flags & CAL_ITEM_FLAG.HAS_PROPERTIES) {
+      let selectItem = null;
+      if (item.recurrenceId == null) {
+        selectItem = this.mSelectPropertiesForItem;
+      } else {
+        selectItem = this.mSelectPropertiesForItemWithRecurrenceId;
+        this.setDateParamHelper(selectItem.params, "recurrence_id", item.recurrenceId);
+      }
+
+      try {
+        this.prepareStatement(selectItem);
+        selectItem.params.item_id = item.id;
+        while (selectItem.executeStep()) {
+          let row = selectItem.row;
+          let name = row.key;
+          switch (name) {
+            case "DURATION":
+              // for events DTEND/DUE is enforced by calEvent/calTodo, so suppress DURATION:
+              break;
+            case "CATEGORIES": {
+              let cats = cal.category.stringToArray(row.value);
+              item.setCategories(cats.length, cats);
+              break;
+            }
+            default:
+              item.setProperty(name, row.value);
+              break;
+          }
+        }
+      } catch (e) {
+        this.logError(
+          "Error getting extra properties for item '" + item.title + "' (" + item.id + ")!",
+          e
+        );
+      } finally {
+        selectItem.reset();
+      }
+    }
+
+    if (flags & CAL_ITEM_FLAG.HAS_RECURRENCE) {
+      if (item.recurrenceId) {
+        throw Cr.NS_ERROR_UNEXPECTED;
+      }
+
+      let recInfo = cal.createRecurrenceInfo(item);
+      item.recurrenceInfo = recInfo;
+
+      try {
+        this.prepareStatement(this.mSelectRecurrenceForItem);
+        this.mSelectRecurrenceForItem.params.item_id = item.id;
+        while (this.mSelectRecurrenceForItem.executeStep()) {
+          let row = this.mSelectRecurrenceForItem.row;
+          let ritem = this.getRecurrenceItemFromRow(row);
+          recInfo.appendRecurrenceItem(ritem);
+        }
+      } catch (e) {
+        this.logError(
+          "Error getting recurrence for item '" + item.title + "' (" + item.id + ")!",
+          e
+        );
+      } finally {
+        this.mSelectRecurrenceForItem.reset();
+      }
+    }
+
+    if (flags & CAL_ITEM_FLAG.HAS_EXCEPTIONS) {
+      // it's safe that we don't run into this branch again for exceptions
+      // (getAdditionalDataForItem->get[Event|Todo]FromRow->getAdditionalDataForItem):
+      // every excepton has a recurrenceId and isn't flagged as CAL_ITEM_FLAG.HAS_EXCEPTIONS
+      if (item.recurrenceId) {
+        throw Cr.NS_ERROR_UNEXPECTED;
+      }
+
+      let rec = item.recurrenceInfo;
+
+      if (cal.item.isEvent(item)) {
+        this.mSelectEventExceptions.params.id = item.id;
+        this.prepareStatement(this.mSelectEventExceptions);
+        try {
+          while (this.mSelectEventExceptions.executeStep()) {
+            let row = this.mSelectEventExceptions.row;
+            let exc = this.getEventFromRow(row, {}, true /* isException */);
+            rec.modifyException(exc, true);
+          }
+        } catch (e) {
+          this.logError(
+            "Error getting exceptions for event '" + item.title + "' (" + item.id + ")!",
+            e
+          );
+        } finally {
+          this.mSelectEventExceptions.reset();
+        }
+      } else if (cal.item.isToDo(item)) {
+        this.mSelectTodoExceptions.params.id = item.id;
+        this.prepareStatement(this.mSelectTodoExceptions);
+        try {
+          while (this.mSelectTodoExceptions.executeStep()) {
+            let row = this.mSelectTodoExceptions.row;
+            let exc = this.getTodoFromRow(row, {}, true /* isException */);
+            rec.modifyException(exc, true);
+          }
+        } catch (e) {
+          this.logError(
+            "Error getting exceptions for task '" + item.title + "' (" + item.id + ")!",
+            e
+          );
+        } finally {
+          this.mSelectTodoExceptions.reset();
+        }
+      } else {
+        throw Cr.NS_ERROR_UNEXPECTED;
+      }
+    }
+
+    if (flags & CAL_ITEM_FLAG.HAS_ATTACHMENTS) {
+      let selectAttachment = this.mSelectAttachmentsForItem;
+      if (item.recurrenceId != null) {
+        selectAttachment = this.mSelectAttachmentsForItemWithRecurrenceId;
+        this.setDateParamHelper(selectAttachment.params, "recurrence_id", item.recurrenceId);
+      }
+      try {
+        this.prepareStatement(selectAttachment);
+        selectAttachment.params.item_id = item.id;
+        while (selectAttachment.executeStep()) {
+          let row = selectAttachment.row;
+          item.addAttachment(cal.createAttachment(row.icalString));
+        }
+      } catch (e) {
+        this.logError(
+          "Error getting attachments for item '" + item.title + "' (" + item.id + ")!",
+          e
+        );
+      } finally {
+        selectAttachment.reset();
+      }
+    }
+
+    if (flags & CAL_ITEM_FLAG.HAS_RELATIONS) {
+      let selectRelation = this.mSelectRelationsForItem;
+      if (item.recurrenceId != null) {
+        selectRelation = this.mSelectRelationsForItemWithRecurrenceId;
+        this.setDateParamHelper(selectRelation.params, "recurrence_id", item.recurrenceId);
+      }
+      try {
+        this.prepareStatement(selectRelation);
+        selectRelation.params.item_id = item.id;
+        while (selectRelation.executeStep()) {
+          let row = selectRelation.row;
+          item.addRelation(cal.createRelation(row.icalString));
+        }
+      } catch (e) {
+        this.logError(
+          "Error getting relations for item '" + item.title + "' (" + item.id + ")!",
+          e
+        );
+      } finally {
+        selectRelation.reset();
+      }
+    }
+
+    if (flags & CAL_ITEM_FLAG.HAS_ALARMS) {
+      let selectAlarm = this.mSelectAlarmsForItem;
+      if (item.recurrenceId != null) {
+        selectAlarm = this.mSelectAlarmsForItemWithRecurrenceId;
+        this.setDateParamHelper(selectAlarm.params, "recurrence_id", item.recurrenceId);
+      }
+      try {
+        selectAlarm.params.item_id = item.id;
+        this.prepareStatement(selectAlarm);
+        while (selectAlarm.executeStep()) {
+          let row = selectAlarm.row;
+          item.addAlarm(cal.createAlarm(row.icalString));
+        }
+      } catch (e) {
+        this.logError("Error getting alarms for item '" + item.title + "' (" + item.id + ")!", e);
+      } finally {
+        selectAlarm.reset();
+      }
+    }
+
+    // Restore the saved modification time
+    item.setProperty("LAST-MODIFIED", savedLastModifiedTime);
+  },
+
+  getRecurrenceItemFromRow: function(row, item) {
+    let ritem;
+    let prop = cal.getIcsService().createIcalPropertyFromString(row.icalString);
+    switch (prop.propertyName) {
+      case "RDATE":
+      case "EXDATE":
+        ritem = Cc["@mozilla.org/calendar/recurrence-date;1"].createInstance(Ci.calIRecurrenceDate);
+        break;
+      case "RRULE":
+      case "EXRULE":
+        ritem = cal.createRecurrenceRule();
+        break;
+      default:
+        throw new Error("Unknown recurrence item: " + prop.propertyName);
+    }
+
+    ritem.icalProperty = prop;
+    return ritem;
+  },
+
+  //
+  // get item from db or from cache with given iid
+  //
+  getItemById: function(aID) {
+    this.assureRecurringItemCaches();
+
+    // cached?
+    let item = this.mItemCache[aID];
+    if (item) {
+      return item;
+    }
+
+    // not cached; need to read from the db
+    let flags = {};
+
+    try {
+      // try events first
+      this.prepareStatement(this.mSelectEvent);
+      this.mSelectEvent.params.id = aID;
+      if (this.mSelectEvent.executeStep()) {
+        item = this.getEventFromRow(this.mSelectEvent.row, flags);
+      }
+    } catch (e) {
+      this.logError("Error selecting item by id " + aID + "!", e);
+    } finally {
+      this.mSelectEvent.reset();
+    }
+
+    // try todo if event fails
+    if (!item) {
+      try {
+        this.prepareStatement(this.mSelectTodo);
+        this.mSelectTodo.params.id = aID;
+        if (this.mSelectTodo.executeStep()) {
+          item = this.getTodoFromRow(this.mSelectTodo.row, flags);
+        }
+      } catch (e) {
+        this.logError("Error selecting item by id " + aID + "!", e);
+      } finally {
+        this.mSelectTodo.reset();
+      }
+    }
+
+    return item;
+  },
+
+  //
+  // database writing functions
+  //
+
+  setDateParamHelper: function(params, entryname, cdt) {
+    if (cdt) {
+      params[entryname] = cdt.nativeTime;
+      let timezone = cdt.timezone;
+      let ownTz = cal.getTimezoneService().getTimezone(timezone.tzid);
+      if (ownTz) {
+        // if we know that TZID, we use it
+        params[entryname + "_tz"] = ownTz.tzid;
+      } else if (timezone.icalComponent) {
+        // foreign one
+        params[entryname + "_tz"] = timezone.icalComponent.serializeToICS();
+      } else {
+        // timezone component missing
+        params[entryname + "_tz"] = "floating";
+      }
+    } else {
+      params[entryname] = null;
+      params[entryname + "_tz"] = null;
+    }
+  },
+
+  flushItem: function(item, olditem) {
+    cal.ASSERT(!item.recurrenceId, "no parent item passed!", true);
+
+    try {
+      this.deleteItemById(olditem ? olditem.id : item.id, true);
+      this.acquireTransaction();
+      this.writeItem(item, olditem);
+    } catch (e) {
+      this.releaseTransaction(e);
+      throw e;
+    }
+    this.releaseTransaction();
+
+    this.cacheItem(item);
+  },
+
+  //
+  // The write* functions execute the database bits
+  // to write the given item type.  They're to return
+  // any bits they want or'd into flags, which will be passed
+  // to writeEvent/writeTodo to actually do the writing.
+  //
+
+  writeItem: function(item, olditem) {
+    let flags = 0;
+
+    flags |= this.writeAttendees(item, olditem);
+    flags |= this.writeRecurrence(item, olditem);
+    flags |= this.writeProperties(item, olditem);
+    flags |= this.writeAttachments(item, olditem);
+    flags |= this.writeRelations(item, olditem);
+    flags |= this.writeAlarms(item, olditem);
+
+    if (cal.item.isEvent(item)) {
+      this.writeEvent(item, olditem, flags);
+    } else if (cal.item.isToDo(item)) {
+      this.writeTodo(item, olditem, flags);
+    } else {
+      throw Cr.NS_ERROR_UNEXPECTED;
+    }
+  },
+
+  writeEvent: function(item, olditem, flags) {
+    try {
+      this.prepareStatement(this.mInsertEvent);
+      let params = this.mInsertEvent.params;
+      this.setupItemBaseParams(item, olditem, params);
+
+      this.setDateParamHelper(params, "event_start", item.startDate);
+      this.setDateParamHelper(params, "event_end", item.endDate);
+      let dtstamp = item.stampTime;
+      if (dtstamp) {
+        params.event_stamp = dtstamp.nativeTime;
+      }
+
+      if (item.startDate.isDate) {
+        flags |= CAL_ITEM_FLAG.EVENT_ALLDAY;
+      }
+
+      params.flags = flags;
+
+      this.mInsertEvent.executeStep();
+    } finally {
+      this.mInsertEvent.reset();
+    }
+  },
+
+  writeTodo: function(item, olditem, flags) {
+    try {
+      this.prepareStatement(this.mInsertTodo);
+      let params = this.mInsertTodo.params;
+
+      this.setupItemBaseParams(item, olditem, params);
+
+      this.setDateParamHelper(params, "todo_entry", item.entryDate);
+      this.setDateParamHelper(params, "todo_due", item.dueDate);
+      let dtstamp = item.stampTime;
+      if (dtstamp) {
+        params.todo_stamp = dtstamp.nativeTime;
+      }
+      this.setDateParamHelper(params, "todo_completed", item.getProperty("COMPLETED"));
+
+      params.todo_complete = item.getProperty("PERCENT-COMPLETED");
+
+      let someDate = item.entryDate || item.dueDate;
+      if (someDate && someDate.isDate) {
+        flags |= CAL_ITEM_FLAG.EVENT_ALLDAY;
+      }
+
+      params.flags = flags;
+
+      this.mInsertTodo.executeStep();
+    } finally {
+      this.mInsertTodo.reset();
+    }
+  },
+
+  setupItemBaseParams: function(item, olditem, params) {
+    params.id = item.id;
+
+    if (item.recurrenceId) {
+      this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
+    }
+
+    let tmp;
+
+    if ((tmp = item.getProperty("CREATED"))) {
+      params.time_created = tmp.nativeTime;
+    }
+    if ((tmp = item.getProperty("LAST-MODIFIED"))) {
+      params.last_modified = tmp.nativeTime;
+    }
+
+    params.title = item.getProperty("SUMMARY");
+    params.priority = item.getProperty("PRIORITY");
+    params.privacy = item.getProperty("CLASS");
+    params.ical_status = item.getProperty("STATUS");
+
+    if (item.alarmLastAck) {
+      params.alarm_last_ack = item.alarmLastAck.nativeTime;
+    }
+  },
+
+  writeAttendees: function(item, olditem) {
+    let attendees = item.getAttendees({});
+    if (item.organizer) {
+      attendees = attendees.concat([]);
+      attendees.push(item.organizer);
+    }
+    if (attendees.length > 0) {
+      for (let att of attendees) {
+        let params = this.mInsertAttendee.params;
+        params.item_id = item.id;
+        try {
+          this.prepareStatement(this.mInsertAttendee);
+          this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
+          params.icalString = att.icalString;
+          this.mInsertAttendee.executeStep();
+        } finally {
+          this.mInsertAttendee.reset();
+        }
+      }
+
+      return CAL_ITEM_FLAG.HAS_ATTENDEES;
+    }
+
+    return 0;
+  },
+
+  writeProperty: function(item, propName, propValue) {
+    try {
+      this.prepareStatement(this.mInsertProperty);
+      let params = this.mInsertProperty.params;
+      params.key = propName;
+      let wPropValue = cal.wrapInstance(propValue, Ci.calIDateTime);
+      if (wPropValue) {
+        params.value = wPropValue.nativeTime;
+      } else {
+        try {
+          params.value = propValue;
+        } catch (e) {
+          // The storage service throws an NS_ERROR_ILLEGAL_VALUE in
+          // case pval is something complex (i.e not a string or
+          // number). Swallow this error, leaving the value empty.
+          if (e.result != Cr.NS_ERROR_ILLEGAL_VALUE) {
+            throw e;
+          }
+        }
+      }
+      params.item_id = item.id;
+      this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
+      this.mInsertProperty.executeStep();
+    } finally {
+      this.mInsertProperty.reset();
+    }
+  },
+
+  writeProperties: function(item, olditem) {
+    let ret = 0;
+    for (let [name, value] of item.properties) {
+      ret = CAL_ITEM_FLAG.HAS_PROPERTIES;
+      if (item.isPropertyPromoted(name)) {
+        continue;
+      }
+      this.writeProperty(item, name, value);
+    }
+
+    let cats = item.getCategories({});
+    if (cats.length > 0) {
+      ret = CAL_ITEM_FLAG.HAS_PROPERTIES;
+      this.writeProperty(item, "CATEGORIES", cal.category.arrayToString(cats));
+    }
+
+    return ret;
+  },
+
+  writeRecurrence: function(item, olditem) {
+    let flags = 0;
+
+    let rec = item.recurrenceInfo;
+    if (rec) {
+      flags = CAL_ITEM_FLAG.HAS_RECURRENCE;
+      let ritems = rec.getRecurrenceItems({});
+      for (let ritem of ritems) {
+        let params = this.mInsertRecurrence.params;
+        try {
+          this.prepareStatement(this.mInsertRecurrence);
+          params.item_id = item.id;
+          params.icalString = ritem.icalString;
+          this.mInsertRecurrence.executeStep();
+        } finally {
+          this.mInsertRecurrence.reset();
+        }
+      }
+
+      let exceptions = rec.getExceptionIds({});
+      if (exceptions.length > 0) {
+        flags |= CAL_ITEM_FLAG.HAS_EXCEPTIONS;
+
+        // we need to serialize each exid as a separate
+        // event/todo; setupItemBase will handle
+        // writing the recurrenceId for us
+        for (let exid of exceptions) {
+          let ex = rec.getExceptionFor(exid);
+          if (!ex) {
+            throw Cr.NS_ERROR_UNEXPECTED;
+          }
+          this.writeItem(ex, null);
+        }
+      }
+    } else if (item.recurrenceId && item.recurrenceId.isDate) {
+      flags |= CAL_ITEM_FLAG.RECURRENCE_ID_ALLDAY;
+    }
+
+    return flags;
+  },
+
+  writeAttachments: function(item, olditem) {
+    let attachments = item.getAttachments({});
+    if (attachments && attachments.length > 0) {
+      for (let att of attachments) {
+        let params = this.mInsertAttachment.params;
+        try {
+          this.prepareStatement(this.mInsertAttachment);
+          this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
+          params.item_id = item.id;
+          params.icalString = att.icalString;
+
+          this.mInsertAttachment.executeStep();
+        } finally {
+          this.mInsertAttachment.reset();
+        }
+      }
+      return CAL_ITEM_FLAG.HAS_ATTACHMENTS;
+    }
+    return 0;
+  },
+
+  writeRelations: function(item, olditem) {
+    let relations = item.getRelations({});
+    if (relations && relations.length > 0) {
+      for (let rel of relations) {
+        let params = this.mInsertRelation.params;
+        try {
+          this.prepareStatement(this.mInsertRelation);
+          this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
+          params.item_id = item.id;
+          params.icalString = rel.icalString;
+
+          this.mInsertRelation.executeStep();
+        } finally {
+          this.mInsertRelation.reset();
+        }
+      }
+      return CAL_ITEM_FLAG.HAS_RELATIONS;
+    }
+    return 0;
+  },
+
+  writeAlarms: function(item, olditem) {
+    let alarms = item.getAlarms({});
+    if (alarms.length < 1) {
+      return 0;
+    }
+
+    for (let alarm of alarms) {
+      let params = this.mInsertAlarm.params;
+      try {
+        this.prepareStatement(this.mInsertAlarm);
+        this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
+        params.item_id = item.id;
+        params.icalString = alarm.icalString;
+        this.mInsertAlarm.executeStep();
+      } catch (e) {
+        this.logError("Error writing alarm for item " + item.title + " (" + item.id + ")", e);
+      } finally {
+        this.mInsertAlarm.reset();
+      }
+    }
+
+    return CAL_ITEM_FLAG.HAS_ALARMS;
+  },
+
+  /**
+   * Deletes the item with the given item id.
+   *
+   * @param aID           The id of the item to delete.
+   * @param aIsModify     If true, then leave in metadata for the item
+   */
+  deleteItemById: function(aID, aIsModify) {
+    this.acquireTransaction();
+    try {
+      this.executeItemStatement(this.mDeleteAttendees, "item_id", aID);
+      this.executeItemStatement(this.mDeleteProperties, "item_id", aID);
+      this.executeItemStatement(this.mDeleteRecurrence, "item_id", aID);
+      this.executeItemStatement(this.mDeleteEvent, "id", aID);
+      this.executeItemStatement(this.mDeleteTodo, "id", aID);
+      this.executeItemStatement(this.mDeleteAttachments, "item_id", aID);
+      this.executeItemStatement(this.mDeleteRelations, "item_id", aID);
+      if (!aIsModify) {
+        this.executeItemStatement(this.mDeleteMetaData, "item_id", aID);
+      }
+      this.executeItemStatement(this.mDeleteAlarms, "item_id", aID);
+    } catch (e) {
+      this.releaseTransaction(e);
+      throw e;
+    }
+    this.releaseTransaction();
+
+    delete this.mItemCache[aID];
+    delete this.mRecEventCache[aID];
+    delete this.mRecTodoCache[aID];
+  },
+
+  /**
+   * Acquire a transaction for this calendar.
+   */
+  acquireTransaction: function() {
+    this.mDB.beginTransaction();
+  },
+
+  /**
+   * Releases one level of transactions for this calendar.
+   *
+   * @param err       (optional) If set, the transaction is set to fail when
+   *                    the count reaches zero.
+   */
+  releaseTransaction: function(err) {
+    if (err) {
+      cal.ERROR("[calStorageCalendar] DB error: " + this.mDB.lastErrorString + "\nexc: " + err);
+      this.mDB.rollbackTransaction();
+    } else {
+      this.mDB.commitTransaction();
+    }
+  },
+
+  //
+  // calISyncWriteCalendar interface
+  //
+
+  setMetaData: function(id, value) {
+    this.executeItemStatement(this.mDeleteMetaData, "item_id", id);
+    try {
+      this.prepareStatement(this.mInsertMetaData);
+      let params = this.mInsertMetaData.params;
+      params.item_id = id;
+      params.value = value;
+      this.mInsertMetaData.executeStep();
+    } catch (e) {
+      if (e.result == Cr.NS_ERROR_ILLEGAL_VALUE) {
+        this.logError("Unknown error!", e);
+      } else {
+        // The storage service throws an NS_ERROR_ILLEGAL_VALUE in
+        // case pval is something complex (i.e not a string or
+        // number). Swallow this error, leaving the value empty.
+        this.logError("Error setting metadata for id " + id + "!", e);
+      }
+    } finally {
+      this.mInsertMetaData.reset();
+    }
+  },
+
+  deleteMetaData: function(id) {
+    this.executeItemStatement(this.mDeleteMetaData, "item_id", id);
+  },
+
+  getMetaData: function(id) {
+    let query = this.mSelectMetaData;
+    let value = null;
+    try {
+      this.prepareStatement(query);
+      query.params.item_id = id;
+
+      if (query.executeStep()) {
+        value = query.row.value;
+      }
+    } catch (e) {
+      this.logError("Error getting metadata for id " + id + "!", e);
+    } finally {
+      query.reset();
+    }
+
+    return value;
+  },
+
+  getAllMetaData: function(out_count, out_ids, out_values) {
+    let query = this.mSelectAllMetaData;
+    try {
+      this.prepareStatement(query);
+      let ids = [];
+      let values = [];
+      while (query.executeStep()) {
+        ids.push(query.row.item_id);
+        values.push(query.row.value);
+      }
+      out_count.value = ids.length;
+      out_ids.value = ids;
+      out_values.value = values;
+    } catch (e) {
+      this.logError("Error getting all metadata!", e);
+    } finally {
+      query.reset();
+    }
+  },
+  /**
+   * Internal logging function that should be called on any database error,
+   * it will log as much info as possible about the database context and
+   * last statement so the problem can be investigated more easily.
+   *
+   * @param message           Error message to log.
+   * @param exception         Exception that caused the error.
+   */
+  logError: function(message, exception) {
+    let logMessage = "Message: " + message;
+    if (this.mDB) {
+      if (this.mDB.connectionReady) {
+        logMessage += "\nConnection Ready: " + this.mDB.connectionReady;
+      }
+      if (this.mDB.lastError) {
+        logMessage += "\nLast DB Error Number: " + this.mDB.lastError;
+      }
+      if (this.mDB.lastErrorString) {
+        logMessage += "\nLast DB Error Message: " + this.mDB.lastErrorString;
+      }
+      if (this.mDB.databaseFile) {
+        logMessage += "\nDatabase File: " + this.mDB.databaseFile.path;
+      }
+      if (this.mDB.lastInsertRowId) {
+        logMessage += "\nLast Insert Row Id: " + this.mDB.lastInsertRowId;
+      }
+      if (this.mDB.transactionInProgress) {
+        logMessage += "\nTransaction In Progress: " + this.mDB.transactionInProgress;
+      }
+    }
+
+    if (this.mLastStatement) {
+      logMessage += "\nLast DB Statement: " + this.mLastStatement;
+      if (this.mLastStatement.params) {
+        for (let param in this.mLastStatement.params) {
+          logMessage +=
+            "\nLast Statement param [" + param + "]: " + this.mLastStatement.params[param];
+        }
+      }
+    }
+
+    if (exception) {
+      logMessage += "\nException: " + exception;
+    }
+    cal.ERROR("[calStorageCalendar] " + logMessage + "\n" + cal.STACK(10));
+  },
+  /**
+   * propagate the given sequence in exceptions. It may be needed by some calendar implementations
+   */
+  _propagateSequence: function(aItem, newSequence) {
+    if (newSequence) {
+      aItem.setProperty("SEQUENCE", newSequence);
+    } else {
+      aItem.deleteProperty("SEQUENCE");
+    }
+    let rec = aItem.recurrenceInfo;
+    if (rec) {
+      let exceptions = rec.getExceptionIds({});
+      if (exceptions.length > 0) {
+        for (let exid of exceptions) {
+          let ex = rec.getExceptionFor(exid);
+          if (newSequence) {
+            ex.setProperty("SEQUENCE", newSequence);
+          } else {
+            ex.deleteProperty("SEQUENCE");
+          }
+        }
+      }
+    }
+  },
 };
 
 this.NSGetFactory = XPCOMUtils.generateNSGetFactory([calStorageCalendar]);

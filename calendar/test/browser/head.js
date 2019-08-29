@@ -6,77 +6,77 @@
 /* import-globals-from ../../base/content/calendar-views-utils.js */
 
 async function openCalendarTab() {
-    let tabmail = document.getElementById("tabmail");
-    let calendarMode = tabmail.tabModes.calendar;
+  let tabmail = document.getElementById("tabmail");
+  let calendarMode = tabmail.tabModes.calendar;
 
-    if (calendarMode.tabs.length == 1) {
-        tabmail.selectedTab = calendarMode.tabs[0];
-    } else {
-        let calendarTabButton = document.getElementById("calendar-tab-button");
-        EventUtils.synthesizeMouseAtCenter(calendarTabButton, { clickCount: 1 });
-    }
+  if (calendarMode.tabs.length == 1) {
+    tabmail.selectedTab = calendarMode.tabs[0];
+  } else {
+    let calendarTabButton = document.getElementById("calendar-tab-button");
+    EventUtils.synthesizeMouseAtCenter(calendarTabButton, { clickCount: 1 });
+  }
 
-    is(calendarMode.tabs.length, 1, "calendar tab is open");
-    is(tabmail.selectedTab, calendarMode.tabs[0], "calendar tab is selected");
+  is(calendarMode.tabs.length, 1, "calendar tab is open");
+  is(tabmail.selectedTab, calendarMode.tabs[0], "calendar tab is selected");
 
-    await new Promise(resolve => setTimeout(resolve));
+  await new Promise(resolve => setTimeout(resolve));
 }
 
 async function setCalendarView(viewName) {
-    await openCalendarTab();
+  await openCalendarTab();
 
-    let viewTabButton = document.getElementById(`calendar-${viewName}-view-button`);
-    EventUtils.synthesizeMouseAtCenter(viewTabButton, { clickCount: 1 });
+  let viewTabButton = document.getElementById(`calendar-${viewName}-view-button`);
+  EventUtils.synthesizeMouseAtCenter(viewTabButton, { clickCount: 1 });
 
-    is(currentView().id, `${viewName}-view`);
+  is(currentView().id, `${viewName}-view`);
 
-    await new Promise(resolve => setTimeout(resolve));
+  await new Promise(resolve => setTimeout(resolve));
 }
 
 async function closeCalendarTab() {
-    let tabmail = document.getElementById("tabmail");
-    let calendarMode = tabmail.tabModes.calendar;
+  let tabmail = document.getElementById("tabmail");
+  let calendarMode = tabmail.tabModes.calendar;
 
-    if (calendarMode.tabs.length == 1) {
-        tabmail.closeTab(calendarMode.tabs[0]);
-    }
+  if (calendarMode.tabs.length == 1) {
+    tabmail.closeTab(calendarMode.tabs[0]);
+  }
 
-    is(calendarMode.tabs.length, 0, "calendar tab is not open");
+  is(calendarMode.tabs.length, 0, "calendar tab is not open");
 
-    await new Promise(resolve => setTimeout(resolve));
+  await new Promise(resolve => setTimeout(resolve));
 }
 
 async function openTasksTab() {
-    let tabmail = document.getElementById("tabmail");
-    let tasksMode = tabmail.tabModes.tasks;
+  let tabmail = document.getElementById("tabmail");
+  let tasksMode = tabmail.tabModes.tasks;
 
-    if (tasksMode.tabs.length == 1) {
-        tabmail.selectedTab = tasksMode.tabs[0];
-    } else {
-        let tasksTabButton = document.getElementById("task-tab-button");
-        EventUtils.synthesizeMouseAtCenter(tasksTabButton, { clickCount: 1 });
-    }
+  if (tasksMode.tabs.length == 1) {
+    tabmail.selectedTab = tasksMode.tabs[0];
+  } else {
+    let tasksTabButton = document.getElementById("task-tab-button");
+    EventUtils.synthesizeMouseAtCenter(tasksTabButton, { clickCount: 1 });
+  }
 
-    is(tasksMode.tabs.length, 1, "tasks tab is open");
-    is(tabmail.selectedTab, tasksMode.tabs[0], "tasks tab is selected");
+  is(tasksMode.tabs.length, 1, "tasks tab is open");
+  is(tabmail.selectedTab, tasksMode.tabs[0], "tasks tab is selected");
 
-    await new Promise(resolve => setTimeout(resolve));
+  await new Promise(resolve => setTimeout(resolve));
 }
 
 async function closeTasksTab() {
-    let tabmail = document.getElementById("tabmail");
-    let tasksMode = tabmail.tabModes.tasks;
+  let tabmail = document.getElementById("tabmail");
+  let tasksMode = tabmail.tabModes.tasks;
 
-    if (tasksMode.tabs.length == 1) {
-        tabmail.closeTab(tasksMode.tabs[0]);
-    }
+  if (tasksMode.tabs.length == 1) {
+    tabmail.closeTab(tasksMode.tabs[0]);
+  }
 
-    is(tasksMode.tabs.length, 0, "tasks tab is not open");
+  is(tasksMode.tabs.length, 0, "tasks tab is not open");
 
-    await new Promise(resolve => setTimeout(resolve));
+  await new Promise(resolve => setTimeout(resolve));
 }
 
 registerCleanupFunction(async () => {
-    await closeCalendarTab();
-    await closeTasksTab();
+  await closeCalendarTab();
+  await closeTasksTab();
 });

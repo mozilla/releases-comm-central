@@ -5,9 +5,9 @@
 var { cal } = ChromeUtils.import("resource://calendar/modules/calHashedArray.jsm");
 
 function run_test() {
-    test_array_base();
-    test_array_sorted();
-    test_hashAccessor();
+  test_array_base();
+  test_array_sorted();
+  test_hashAccessor();
 }
 
 /**
@@ -18,11 +18,11 @@ function run_test() {
  * @return          The created item.
  */
 function hashedCreateItem(ident) {
-    let item = cal.createEvent();
-    item.calendar = { id: "test" };
-    item.id = cal.getUUID();
-    item.title = ident;
-    return item;
+  let item = cal.createEvent();
+  item.calendar = { id: "test" };
+  item.id = cal.getUUID();
+  item.title = ident;
+  return item;
 }
 
 /**
@@ -33,13 +33,13 @@ function hashedCreateItem(ident) {
  * @return          0, -1, or 1 (usual comptor meanings)
  */
 function titleComptor(a, b) {
-    if (a.title > b.title) {
-        return 1;
-    } else if (a.title < b.title) {
-        return -1;
-    } else {
-        return 0;
-    }
+  if (a.title > b.title) {
+    return 1;
+  } else if (a.title < b.title) {
+    return -1;
+  } else {
+    return 0;
+  }
 }
 
 /**
@@ -52,15 +52,17 @@ function titleComptor(a, b) {
  * @throws Exception    If the arrays are not the same.
  */
 function checkConsistancy(har, testItems, itemAccessor) {
-    itemAccessor = itemAccessor || function(item) { return item; };
-    for (let idx in testItems) {
-        let testItem = itemAccessor(testItems[idx]);
-        equal(itemAccessor(har.itemByIndex(idx)).title,
-                    testItem.title);
-        equal(itemAccessor(har.itemById(testItem.hashId)).title,
-                    testItem.title);
-        equal(har.indexOf(testItems[idx]), idx);
-    }
+  itemAccessor =
+    itemAccessor ||
+    function(item) {
+      return item;
+    };
+  for (let idx in testItems) {
+    let testItem = itemAccessor(testItems[idx]);
+    equal(itemAccessor(har.itemByIndex(idx)).title, testItem.title);
+    equal(itemAccessor(har.itemById(testItem.hashId)).title, testItem.title);
+    equal(har.indexOf(testItems[idx]), idx);
+  }
 }
 
 /**
@@ -78,119 +80,127 @@ function checkConsistancy(har, testItems, itemAccessor) {
  *                            array.
  */
 function testRemoveModify(har, testItems, postprocessFunc, itemAccessor, itemCreator) {
-    postprocessFunc = postprocessFunc || function(a, b) { return [a, b]; };
-    itemCreator = itemCreator || (title => hashedCreateItem(title));
-    itemAccessor = itemAccessor || function(item) { return item; };
+  postprocessFunc =
+    postprocessFunc ||
+    function(a, b) {
+      return [a, b];
+    };
+  itemCreator = itemCreator || (title => hashedCreateItem(title));
+  itemAccessor =
+    itemAccessor ||
+    function(item) {
+      return item;
+    };
 
-    // Now, delete the second item and check again
-    har.removeById(itemAccessor(testItems[1]).hashId);
-    testItems.splice(1, 1);
-    [har, testItems] = postprocessFunc(har, testItems);
+  // Now, delete the second item and check again
+  har.removeById(itemAccessor(testItems[1]).hashId);
+  testItems.splice(1, 1);
+  [har, testItems] = postprocessFunc(har, testItems);
 
-    checkConsistancy(har, testItems, itemAccessor);
+  checkConsistancy(har, testItems, itemAccessor);
 
-    // Try the same by index
-    har.removeByIndex(2);
-    testItems.splice(2, 1);
-    [har, testItems] = postprocessFunc(har, testItems);
-    checkConsistancy(har, testItems, itemAccessor);
+  // Try the same by index
+  har.removeByIndex(2);
+  testItems.splice(2, 1);
+  [har, testItems] = postprocessFunc(har, testItems);
+  checkConsistancy(har, testItems, itemAccessor);
 
-    // Try modifying an item
-    let newInstance = itemCreator("z-changed");
-    itemAccessor(newInstance).id = itemAccessor(testItems[0]).id;
-    testItems[0] = newInstance;
-    har.modifyItem(newInstance);
-    [har, testItems] = postprocessFunc(har, testItems);
-    checkConsistancy(har, testItems, itemAccessor);
+  // Try modifying an item
+  let newInstance = itemCreator("z-changed");
+  itemAccessor(newInstance).id = itemAccessor(testItems[0]).id;
+  testItems[0] = newInstance;
+  har.modifyItem(newInstance);
+  [har, testItems] = postprocessFunc(har, testItems);
+  checkConsistancy(har, testItems, itemAccessor);
 }
 
 /**
  * Tests the basic cal.HashedArray
  */
 function test_array_base() {
-    let har, testItems;
+  let har, testItems;
 
-    // Test normal additions
-    har = new cal.HashedArray();
-    testItems = ["a", "b", "c", "d"].map(hashedCreateItem);
+  // Test normal additions
+  har = new cal.HashedArray();
+  testItems = ["a", "b", "c", "d"].map(hashedCreateItem);
 
-    testItems.forEach(har.addItem, har);
-    checkConsistancy(har, testItems);
-    testRemoveModify(har, testItems);
+  testItems.forEach(har.addItem, har);
+  checkConsistancy(har, testItems);
+  testRemoveModify(har, testItems);
 
-    // Test adding in batch mode
-    har = new cal.HashedArray();
-    testItems = ["e", "f", "g", "h"].map(hashedCreateItem);
-    har.startBatch();
-    testItems.forEach(har.addItem, har);
-    har.endBatch();
-    checkConsistancy(har, testItems);
-    testRemoveModify(har, testItems);
+  // Test adding in batch mode
+  har = new cal.HashedArray();
+  testItems = ["e", "f", "g", "h"].map(hashedCreateItem);
+  har.startBatch();
+  testItems.forEach(har.addItem, har);
+  har.endBatch();
+  checkConsistancy(har, testItems);
+  testRemoveModify(har, testItems);
 }
 
 /**
  * Tests the sorted cal.SortedHashedArray
  */
 function test_array_sorted() {
-    let har, testItems, testItemsSorted;
+  let har, testItems, testItemsSorted;
 
-    function sortedPostProcess(harParam, tiParam) {
-        tiParam = tiParam.sort(titleComptor);
-        return [harParam, tiParam];
-    }
+  function sortedPostProcess(harParam, tiParam) {
+    tiParam = tiParam.sort(titleComptor);
+    return [harParam, tiParam];
+  }
 
-    // Test normal additions
-    har = new cal.SortedHashedArray(titleComptor);
-    testItems = ["d", "c", "a", "b"].map(hashedCreateItem);
-    testItemsSorted = testItems.sort(titleComptor);
+  // Test normal additions
+  har = new cal.SortedHashedArray(titleComptor);
+  testItems = ["d", "c", "a", "b"].map(hashedCreateItem);
+  testItemsSorted = testItems.sort(titleComptor);
 
-    testItems.forEach(har.addItem, har);
-    checkConsistancy(har, testItemsSorted);
-    testRemoveModify(har, testItemsSorted, sortedPostProcess);
+  testItems.forEach(har.addItem, har);
+  checkConsistancy(har, testItemsSorted);
+  testRemoveModify(har, testItemsSorted, sortedPostProcess);
 
-    // Test adding in batch mode
-    har = new cal.SortedHashedArray(titleComptor);
-    testItems = ["e", "f", "g", "h"].map(hashedCreateItem);
-    testItemsSorted = testItems.sort(titleComptor);
-    har.startBatch();
-    testItems.forEach(har.addItem, har);
-    har.endBatch();
-    checkConsistancy(har, testItemsSorted);
-    testRemoveModify(har, testItemsSorted, sortedPostProcess);
+  // Test adding in batch mode
+  har = new cal.SortedHashedArray(titleComptor);
+  testItems = ["e", "f", "g", "h"].map(hashedCreateItem);
+  testItemsSorted = testItems.sort(titleComptor);
+  har.startBatch();
+  testItems.forEach(har.addItem, har);
+  har.endBatch();
+  checkConsistancy(har, testItemsSorted);
+  testRemoveModify(har, testItemsSorted, sortedPostProcess);
 }
 
 /**
  * Tests cal.SortedHashedArray with a custom hashAccessor.
  */
 function test_hashAccessor() {
-    let har, testItems, testItemsSorted;
-    let comptor = (a, b) => titleComptor(a.item, b.item);
+  let har, testItems, testItemsSorted;
+  let comptor = (a, b) => titleComptor(a.item, b.item);
 
-    har = new cal.SortedHashedArray(comptor);
-    har.hashAccessor = function(obj) {
-        return obj.item.hashId;
-    };
+  har = new cal.SortedHashedArray(comptor);
+  har.hashAccessor = function(obj) {
+    return obj.item.hashId;
+  };
 
-    function itemAccessor(obj) {
-        if (!obj) {
-            do_throw("WTF?");
-        }
-        return obj.item;
+  function itemAccessor(obj) {
+    if (!obj) {
+      do_throw("WTF?");
     }
+    return obj.item;
+  }
 
-    function itemCreator(title) {
-        return { item: hashedCreateItem(title) };
-    }
+  function itemCreator(title) {
+    return { item: hashedCreateItem(title) };
+  }
 
-    function sortedPostProcess(harParam, tiParam) {
-        tiParam = tiParam.sort(comptor);
-        return [harParam, tiParam];
-    }
+  function sortedPostProcess(harParam, tiParam) {
+    tiParam = tiParam.sort(comptor);
+    return [harParam, tiParam];
+  }
 
-    testItems = ["d", "c", "a", "b"].map(itemCreator);
+  testItems = ["d", "c", "a", "b"].map(itemCreator);
 
-    testItemsSorted = testItems.sort(comptor);
-    testItems.forEach(har.addItem, har);
-    checkConsistancy(har, testItemsSorted, itemAccessor);
-    testRemoveModify(har, testItemsSorted, sortedPostProcess, itemAccessor, itemCreator);
+  testItemsSorted = testItems.sort(comptor);
+  testItems.forEach(har.addItem, har);
+  checkConsistancy(har, testItemsSorted, itemAccessor);
+  testRemoveModify(har, testItemsSorted, sortedPostProcess, itemAccessor, itemCreator);
 }

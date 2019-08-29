@@ -5,163 +5,174 @@
 var freebusy = Cc["@mozilla.org/calendar/freebusy-service;1"].getService(Ci.calIFreeBusyService);
 
 function run_test() {
-    do_calendar_startup(really_run_test);
+  do_calendar_startup(really_run_test);
 }
 
 function really_run_test() {
-    test_found();
-    test_failure();
-    test_cancel();
+  test_found();
+  test_failure();
+  test_cancel();
 }
 
 function test_found() {
-    _clearProviders();
+  _clearProviders();
 
-    equal(_countProviders(), 0);
+  equal(_countProviders(), 0);
 
-    let provider1 = {
-        id: 1,
-        getFreeBusyIntervals: function() {
-            aListener.onResult(null, []);
-        }
-    };
+  let provider1 = {
+    id: 1,
+    getFreeBusyIntervals: function() {
+      aListener.onResult(null, []);
+    },
+  };
 
-    let provider2 = {
-        id: 2,
-        called: false,
-        getFreeBusyIntervals: function(aCalId, aStart, aEnd, aTypes, aListener) {
-            ok(!this.called);
-            this.called = true;
+  let provider2 = {
+    id: 2,
+    called: false,
+    getFreeBusyIntervals: function(aCalId, aStart, aEnd, aTypes, aListener) {
+      ok(!this.called);
+      this.called = true;
 
-            let interval = new cal.provider.FreeBusyInterval(aCalId, Ci.calIFreeBusyInterval.BUSY, aStart, aEnd);
-            aListener.onResult(null, [interval]);
-        }
-    };
-    provider2.wrappedJSObject = provider2;
+      let interval = new cal.provider.FreeBusyInterval(
+        aCalId,
+        Ci.calIFreeBusyInterval.BUSY,
+        aStart,
+        aEnd
+      );
+      aListener.onResult(null, [interval]);
+    },
+  };
+  provider2.wrappedJSObject = provider2;
 
-    freebusy.addProvider(provider1);
-    equal(_countProviders(), 1);
-    freebusy.addProvider(provider2);
-    equal(_countProviders(), 2);
-    freebusy.removeProvider(provider1);
-    equal(_countProviders(), 1);
-    equal(_getFirstProvider().id, 2);
+  freebusy.addProvider(provider1);
+  equal(_countProviders(), 1);
+  freebusy.addProvider(provider2);
+  equal(_countProviders(), 2);
+  freebusy.removeProvider(provider1);
+  equal(_countProviders(), 1);
+  equal(_getFirstProvider().id, 2);
 
-    let listener = {
-        called: false,
-        onResult: function(request, result) {
-            equal(result.length, 1);
-            equal(result[0].interval.start.icalString, "20120101T010101");
-            equal(result[0].interval.end.icalString, "20120102T010101");
-            equal(result[0].freeBusyType, Ci.calIFreeBusyInterval.BUSY);
+  let listener = {
+    called: false,
+    onResult: function(request, result) {
+      equal(result.length, 1);
+      equal(result[0].interval.start.icalString, "20120101T010101");
+      equal(result[0].interval.end.icalString, "20120102T010101");
+      equal(result[0].freeBusyType, Ci.calIFreeBusyInterval.BUSY);
 
-            equal(result.length, 1);
-            ok(provider2.called);
-            do_test_finished();
-        }
-    };
+      equal(result.length, 1);
+      ok(provider2.called);
+      do_test_finished();
+    },
+  };
 
-    do_test_pending();
-    freebusy.getFreeBusyIntervals("email",
-                                  cal.createDateTime("20120101T010101"),
-                                  cal.createDateTime("20120102T010101"),
-                                  Ci.calIFreeBusyInterval.BUSY_ALL,
-                                  listener);
+  do_test_pending();
+  freebusy.getFreeBusyIntervals(
+    "email",
+    cal.createDateTime("20120101T010101"),
+    cal.createDateTime("20120102T010101"),
+    Ci.calIFreeBusyInterval.BUSY_ALL,
+    listener
+  );
 }
 
 function test_failure() {
-    _clearProviders();
+  _clearProviders();
 
-    let provider = {
-        called: false,
-        getFreeBusyIntervals: function(aCalId, aStart, aEnd, aTypes, aListener) {
-            ok(!this.called);
-            this.called = true;
-            aListener.onResult({ status: Cr.NS_ERROR_FAILURE }, "notFound");
-        }
-    };
+  let provider = {
+    called: false,
+    getFreeBusyIntervals: function(aCalId, aStart, aEnd, aTypes, aListener) {
+      ok(!this.called);
+      this.called = true;
+      aListener.onResult({ status: Cr.NS_ERROR_FAILURE }, "notFound");
+    },
+  };
 
-    let listener = {
-        onResult: function(request, result) {
-            ok(!this.called);
-            equal(result.length, 0);
-            equal(request.status, 0);
-            ok(provider.called);
-            do_test_finished();
-        }
-    };
+  let listener = {
+    onResult: function(request, result) {
+      ok(!this.called);
+      equal(result.length, 0);
+      equal(request.status, 0);
+      ok(provider.called);
+      do_test_finished();
+    },
+  };
 
-    freebusy.addProvider(provider);
+  freebusy.addProvider(provider);
 
-    do_test_pending();
-    freebusy.getFreeBusyIntervals("email",
-                                  cal.createDateTime("20120101T010101"),
-                                  cal.createDateTime("20120102T010101"),
-                                  Ci.calIFreeBusyInterval.BUSY_ALL,
-                                  listener);
+  do_test_pending();
+  freebusy.getFreeBusyIntervals(
+    "email",
+    cal.createDateTime("20120101T010101"),
+    cal.createDateTime("20120102T010101"),
+    Ci.calIFreeBusyInterval.BUSY_ALL,
+    listener
+  );
 }
 
 function test_cancel() {
-    _clearProviders();
+  _clearProviders();
 
-    let provider = {
-        QueryInterface: cal.generateQI([
-            Ci.calIFreeBusyProvider,
-            Ci.calIOperation
-        ]),
-        getFreeBusyIntervals: function(aCalId, aStart, aEnd, aTypes, aListener) {
-            Services.tm.currentThread.dispatch({
-                run: function() {
-                    dump("Cancelling freebusy query...");
-                    operation.cancel();
-                }
-            }, Ci.nsIEventTarget.DISPATCH_NORMAL);
-
-            // No listener call, we emulate a long running search
-            // Do return the operation though
-            return this;
+  let provider = {
+    QueryInterface: cal.generateQI([Ci.calIFreeBusyProvider, Ci.calIOperation]),
+    getFreeBusyIntervals: function(aCalId, aStart, aEnd, aTypes, aListener) {
+      Services.tm.currentThread.dispatch(
+        {
+          run: function() {
+            dump("Cancelling freebusy query...");
+            operation.cancel();
+          },
         },
+        Ci.nsIEventTarget.DISPATCH_NORMAL
+      );
 
-        isPending: true,
-        cancelCalled: false,
-        status: Cr.NS_OK,
-        cancel: function() {
-            this.cancelCalled = true;
-        },
-    };
+      // No listener call, we emulate a long running search
+      // Do return the operation though
+      return this;
+    },
 
-    let listener = {
-        called: false,
-        onResult: function(request, result) {
-            equal(result, null);
+    isPending: true,
+    cancelCalled: false,
+    status: Cr.NS_OK,
+    cancel: function() {
+      this.cancelCalled = true;
+    },
+  };
 
-            // If an exception occurs, the operation is not added to the opgroup
-            ok(!provider.cancelCalled);
-            do_test_finished();
-        }
-    };
+  let listener = {
+    called: false,
+    onResult: function(request, result) {
+      equal(result, null);
 
-    freebusy.addProvider(provider);
+      // If an exception occurs, the operation is not added to the opgroup
+      ok(!provider.cancelCalled);
+      do_test_finished();
+    },
+  };
 
-    do_test_pending();
-    let operation = freebusy.getFreeBusyIntervals("email",
-                                                  cal.createDateTime("20120101T010101"),
-                                                  cal.createDateTime("20120102T010101"),
-                                                  Ci.calIFreeBusyInterval.BUSY_ALL,
-                                                  listener);
+  freebusy.addProvider(provider);
+
+  do_test_pending();
+  let operation = freebusy.getFreeBusyIntervals(
+    "email",
+    cal.createDateTime("20120101T010101"),
+    cal.createDateTime("20120102T010101"),
+    Ci.calIFreeBusyInterval.BUSY_ALL,
+    listener
+  );
 }
 
 // The following functions are not in the interface description and probably
 // don't need to be. Make assumptions about the implementation instead.
 
 function _clearProviders() {
-    freebusy.wrappedJSObject.mProviders = new Set();
+  freebusy.wrappedJSObject.mProviders = new Set();
 }
 
 function _countProviders() {
-    return freebusy.wrappedJSObject.mProviders.size;
+  return freebusy.wrappedJSObject.mProviders.size;
 }
 
 function _getFirstProvider() {
-    return [...freebusy.wrappedJSObject.mProviders][0].wrappedJSObject;
+  return [...freebusy.wrappedJSObject.mProviders][0].wrappedJSObject;
 }

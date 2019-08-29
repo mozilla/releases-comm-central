@@ -7,118 +7,115 @@
 /* import-globals-from ../../../lightning/content/messenger-overlay-preferences.js */
 
 Preferences.addAll([
-    { id: "calendar.week.start", type: "int" },
-    { id: "calendar.view-minimonth.showWeekNumber", type: "bool" },
-    { id: "calendar.week.d0sundaysoff", type: "bool", inverted: "true" },
-    { id: "calendar.week.d1mondaysoff", type: "bool", inverted: "true" },
-    { id: "calendar.week.d2tuesdaysoff", type: "bool", inverted: "true" },
-    { id: "calendar.week.d3wednesdaysoff", type: "bool", inverted: "true" },
-    { id: "calendar.week.d4thursdaysoff", type: "bool", inverted: "true" },
-    { id: "calendar.week.d5fridaysoff", type: "bool", inverted: "true" },
-    { id: "calendar.week.d6saturdaysoff", type: "bool", inverted: "true" },
-    { id: "calendar.view.daystarthour", type: "int" },
-    { id: "calendar.view.dayendhour", type: "int" },
-    { id: "calendar.view.visiblehours", type: "int" },
-    { id: "calendar.weeks.inview", type: "int" },
-    { id: "calendar.previousweeks.inview", type: "int" },
-    { id: "calendar.view.showLocation", type: "bool" },
+  { id: "calendar.week.start", type: "int" },
+  { id: "calendar.view-minimonth.showWeekNumber", type: "bool" },
+  { id: "calendar.week.d0sundaysoff", type: "bool", inverted: "true" },
+  { id: "calendar.week.d1mondaysoff", type: "bool", inverted: "true" },
+  { id: "calendar.week.d2tuesdaysoff", type: "bool", inverted: "true" },
+  { id: "calendar.week.d3wednesdaysoff", type: "bool", inverted: "true" },
+  { id: "calendar.week.d4thursdaysoff", type: "bool", inverted: "true" },
+  { id: "calendar.week.d5fridaysoff", type: "bool", inverted: "true" },
+  { id: "calendar.week.d6saturdaysoff", type: "bool", inverted: "true" },
+  { id: "calendar.view.daystarthour", type: "int" },
+  { id: "calendar.view.dayendhour", type: "int" },
+  { id: "calendar.view.visiblehours", type: "int" },
+  { id: "calendar.weeks.inview", type: "int" },
+  { id: "calendar.previousweeks.inview", type: "int" },
+  { id: "calendar.view.showLocation", type: "bool" },
 ]);
 
 /**
  * Global Object to hold methods for the views pref pane
  */
 var gViewsPane = {
-    /**
-     * Initialize the views pref pane. Sets up dialog controls to match the
-     * values set in prefs.
-     */
-    init: function() {
-        this.updateViewEndMenu(Preferences.get("calendar.view.daystarthour").value);
-        this.updateViewStartMenu(Preferences.get("calendar.view.dayendhour").value);
-        this.updateViewWorkDayCheckboxes(Preferences.get("calendar.week.start").value);
-        this.initializeViewStartEndMenus();
-    },
+  /**
+   * Initialize the views pref pane. Sets up dialog controls to match the
+   * values set in prefs.
+   */
+  init: function() {
+    this.updateViewEndMenu(Preferences.get("calendar.view.daystarthour").value);
+    this.updateViewStartMenu(Preferences.get("calendar.view.dayendhour").value);
+    this.updateViewWorkDayCheckboxes(Preferences.get("calendar.week.start").value);
+    this.initializeViewStartEndMenus();
+  },
 
-    /**
-     * Initialize the strings for the  "day starts at" and "day ends at"
-     * menulists. This is needed to respect locales that use AM/PM.
-     */
-    initializeViewStartEndMenus: function() {
-        const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-        let labelIdStart;
-        let labelIdEnd;
+  /**
+   * Initialize the strings for the  "day starts at" and "day ends at"
+   * menulists. This is needed to respect locales that use AM/PM.
+   */
+  initializeViewStartEndMenus: function() {
+    const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+    let labelIdStart;
+    let labelIdEnd;
 
-        let calTime = cal.createDateTime();
-        calTime.minute = 0;
+    let calTime = cal.createDateTime();
+    calTime.minute = 0;
 
-        let timeFormatter = cal.getDateFormatter();
+    let timeFormatter = cal.getDateFormatter();
 
-        // 1 to 23 instead of 0 to 24 to keep midnight & noon as the localized strings
-        for (let theHour = 1; theHour <= 23; theHour++) {
-            calTime.hour = theHour;
-            let time = timeFormatter.formatTime(calTime);
+    // 1 to 23 instead of 0 to 24 to keep midnight & noon as the localized strings
+    for (let theHour = 1; theHour <= 23; theHour++) {
+      calTime.hour = theHour;
+      let time = timeFormatter.formatTime(calTime);
 
-            labelIdStart = "timeStart" + theHour;
-            labelIdEnd = "timeEnd" + theHour;
-            // This if block to keep Noon as the localized string, instead of as a number.
-            if (theHour != 12) {
-                document.getElementById(labelIdStart).setAttribute("label", time);
-                document.getElementById(labelIdEnd).setAttribute("label", time);
-            }
-        }
-        // Deselect and reselect to update visible item title
-        updateSelectedLabel("daystarthour");
-        updateSelectedLabel("dayendhour");
-    },
-
-
-    /**
-     * Updates the view end menu to only display hours after the selected view
-     * start.
-     *
-     * @param aStartValue       The value selected for view start.
-     */
-    updateViewEndMenu: function(aStartValue) {
-        let endMenuKids = document.getElementById("dayendhourpopup")
-                                  .childNodes;
-        for (let i = 0; i < endMenuKids.length; i++) {
-            if (Number(endMenuKids[i].value) <= Number(aStartValue)) {
-                endMenuKids[i].setAttribute("hidden", true);
-            } else {
-                endMenuKids[i].removeAttribute("hidden");
-            }
-        }
-    },
-
-    /**
-     * Updates the view start menu to only display hours before the selected view
-     * end.
-     *
-     * @param aEndValue         The value selected for view end.
-     */
-    updateViewStartMenu: function(aEndValue) {
-        let startMenuKids = document.getElementById("daystarthourpopup")
-                                  .childNodes;
-        for (let i = 0; i < startMenuKids.length; i++) {
-            if (Number(startMenuKids[i].value) >= Number(aEndValue)) {
-                startMenuKids[i].setAttribute("hidden", true);
-            } else {
-                startMenuKids[i].removeAttribute("hidden");
-            }
-        }
-    },
-
-    /**
-     * Update the workday checkboxes based on the start of the week.
-     *
-     * @Param weekStart         The (0-based) index of the weekday the week
-     *                            should start at.
-     */
-    updateViewWorkDayCheckboxes: function(weekStart) {
-        weekStart = Number(weekStart);
-        for (let i = weekStart; i < weekStart + 7; i++) {
-            let checkbox = document.getElementById("dayoff" + (i % 7));
-            checkbox.parentNode.appendChild(checkbox);
-        }
+      labelIdStart = "timeStart" + theHour;
+      labelIdEnd = "timeEnd" + theHour;
+      // This if block to keep Noon as the localized string, instead of as a number.
+      if (theHour != 12) {
+        document.getElementById(labelIdStart).setAttribute("label", time);
+        document.getElementById(labelIdEnd).setAttribute("label", time);
+      }
     }
+    // Deselect and reselect to update visible item title
+    updateSelectedLabel("daystarthour");
+    updateSelectedLabel("dayendhour");
+  },
+
+  /**
+   * Updates the view end menu to only display hours after the selected view
+   * start.
+   *
+   * @param aStartValue       The value selected for view start.
+   */
+  updateViewEndMenu: function(aStartValue) {
+    let endMenuKids = document.getElementById("dayendhourpopup").childNodes;
+    for (let i = 0; i < endMenuKids.length; i++) {
+      if (Number(endMenuKids[i].value) <= Number(aStartValue)) {
+        endMenuKids[i].setAttribute("hidden", true);
+      } else {
+        endMenuKids[i].removeAttribute("hidden");
+      }
+    }
+  },
+
+  /**
+   * Updates the view start menu to only display hours before the selected view
+   * end.
+   *
+   * @param aEndValue         The value selected for view end.
+   */
+  updateViewStartMenu: function(aEndValue) {
+    let startMenuKids = document.getElementById("daystarthourpopup").childNodes;
+    for (let i = 0; i < startMenuKids.length; i++) {
+      if (Number(startMenuKids[i].value) >= Number(aEndValue)) {
+        startMenuKids[i].setAttribute("hidden", true);
+      } else {
+        startMenuKids[i].removeAttribute("hidden");
+      }
+    }
+  },
+
+  /**
+   * Update the workday checkboxes based on the start of the week.
+   *
+   * @Param weekStart         The (0-based) index of the weekday the week
+   *                            should start at.
+   */
+  updateViewWorkDayCheckboxes: function(weekStart) {
+    weekStart = Number(weekStart);
+    for (let i = weekStart; i < weekStart + 7; i++) {
+      let checkbox = document.getElementById("dayoff" + (i % 7));
+      checkbox.parentNode.appendChild(checkbox);
+    }
+  },
 };

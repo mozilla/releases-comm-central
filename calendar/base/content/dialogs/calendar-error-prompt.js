@@ -5,18 +5,18 @@
 /* exported loadErrorPrompt, toggleDetails */
 
 function loadErrorPrompt() {
-    let args = window.arguments[0].QueryInterface(Ci.nsIDialogParamBlock);
-    document.getElementById("general-text").value = args.GetString(0);
-    document.getElementById("error-code").value = args.GetString(1);
-    document.getElementById("error-description").value = args.GetString(2);
-    window.sizeToContent();
+  let args = window.arguments[0].QueryInterface(Ci.nsIDialogParamBlock);
+  document.getElementById("general-text").value = args.GetString(0);
+  document.getElementById("error-code").value = args.GetString(1);
+  document.getElementById("error-description").value = args.GetString(2);
+  window.sizeToContent();
 }
 function toggleDetails() {
-    let options = document.getElementById("details-box");
-    if (options.collapsed) {
-        options.collapsed = false;
-    } else {
-        options.collapsed = true;
-    }
-    window.sizeToContent();
+  let options = document.getElementById("details-box");
+  if (options.collapsed) {
+    options.collapsed = false;
+  } else {
+    options.collapsed = true;
+  }
+  window.sizeToContent();
 }

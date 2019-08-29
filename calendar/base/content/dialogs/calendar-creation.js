@@ -11,43 +11,43 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
  * provider.
  */
 function openLocalCalendar() {
-    const nsIFilePicker = Ci.nsIFilePicker;
-    let picker = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-    picker.init(window, cal.l10n.getCalString("Open"), nsIFilePicker.modeOpen);
-    let wildmat = "*.ics";
-    let description = cal.l10n.getCalString("filterIcs", [wildmat]);
-    picker.appendFilter(description, wildmat);
-    picker.appendFilters(nsIFilePicker.filterAll);
+  const nsIFilePicker = Ci.nsIFilePicker;
+  let picker = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+  picker.init(window, cal.l10n.getCalString("Open"), nsIFilePicker.modeOpen);
+  let wildmat = "*.ics";
+  let description = cal.l10n.getCalString("filterIcs", [wildmat]);
+  picker.appendFilter(description, wildmat);
+  picker.appendFilters(nsIFilePicker.filterAll);
 
-    picker.open(rv => {
-        if (rv != nsIFilePicker.returnOK || !picker.file) {
-            return;
-        }
+  picker.open(rv => {
+    if (rv != nsIFilePicker.returnOK || !picker.file) {
+      return;
+    }
 
-        let calMgr = cal.getCalendarManager();
-        let calendars = calMgr.getCalendars({});
-        let calendar = calendars.find(x => x.uri.equals(picker.fileURL));
-        if (!calendar) {
-            calendar = calMgr.createCalendar("ics", picker.fileURL);
+    let calMgr = cal.getCalendarManager();
+    let calendars = calMgr.getCalendars({});
+    let calendar = calendars.find(x => x.uri.equals(picker.fileURL));
+    if (!calendar) {
+      calendar = calMgr.createCalendar("ics", picker.fileURL);
 
-            // Strip ".ics" from filename for use as calendar name, taken from
-            // calendarCreation.js
-            let fullPathRegex = new RegExp("([^/:]+)[.]ics$");
-            let prettyName = picker.fileURL.spec.match(fullPathRegex);
-            let name;
+      // Strip ".ics" from filename for use as calendar name, taken from
+      // calendarCreation.js
+      let fullPathRegex = new RegExp("([^/:]+)[.]ics$");
+      let prettyName = picker.fileURL.spec.match(fullPathRegex);
+      let name;
 
-            if (prettyName) {
-                name = decodeURIComponent(prettyName[1]);
-            } else {
-                name = cal.l10n.getCalString("untitledCalendarName");
-            }
-            calendar.name = name;
+      if (prettyName) {
+        name = decodeURIComponent(prettyName[1]);
+      } else {
+        name = cal.l10n.getCalString("untitledCalendarName");
+      }
+      calendar.name = name;
 
-            calMgr.registerCalendar(calendar);
-        }
+      calMgr.registerCalendar(calendar);
+    }
 
-        let newListTree = document.getElementById("calendar-list");
-        let item = newListTree.getElementsByAttribute("calendar-id", calendar.id)[0];
-        newListTree.selectedItem = item;
-    });
+    let newListTree = document.getElementById("calendar-list");
+    let item = newListTree.getElementsByAttribute("calendar-id", calendar.id)[0];
+    newListTree.selectedItem = item;
+  });
 }

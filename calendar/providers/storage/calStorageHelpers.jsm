@@ -9,29 +9,29 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
  */
 
 this.EXPORTED_SYMBOLS = [
-    "CAL_ITEM_FLAG",
-    "getInUtcOrKeepFloating",
-    "dateToText",
-    "textToDate",
-    "calStorageTimezone",
-    "getTimezone",
-    "newDateTime"
+  "CAL_ITEM_FLAG",
+  "getInUtcOrKeepFloating",
+  "dateToText",
+  "textToDate",
+  "calStorageTimezone",
+  "getTimezone",
+  "newDateTime",
 ];
 
 // Storage flags. These are used in the Database |flags| column to give
 // information about the item's features. For example, if the item has
 // attachments, the HAS_ATTACHMENTS flag is added to the flags column.
 var CAL_ITEM_FLAG = {
-    PRIVATE: 1,
-    HAS_ATTENDEES: 2,
-    HAS_PROPERTIES: 4,
-    EVENT_ALLDAY: 8,
-    HAS_RECURRENCE: 16,
-    HAS_EXCEPTIONS: 32,
-    HAS_ATTACHMENTS: 64,
-    HAS_RELATIONS: 128,
-    HAS_ALARMS: 256,
-    RECURRENCE_ID_ALLDAY: 512
+  PRIVATE: 1,
+  HAS_ATTENDEES: 2,
+  HAS_PROPERTIES: 4,
+  EVENT_ALLDAY: 8,
+  HAS_RECURRENCE: 16,
+  HAS_EXCEPTIONS: 32,
+  HAS_ATTACHMENTS: 64,
+  HAS_RELATIONS: 128,
+  HAS_ALARMS: 256,
+  RECURRENCE_ID_ALLDAY: 512,
 };
 
 // The cache of foreign timezones
@@ -45,12 +45,12 @@ var gForeignTimezonesCache = {};
  * @return          The possibly converted calIDateTime.
  */
 function getInUtcOrKeepFloating(date) {
-    let timezone = date.timezone;
-    if (timezone.isFloating || timezone.isUTC) {
-        return date;
-    } else {
-        return date.getInTimezone(cal.dtz.UTC);
-    }
+  let timezone = date.timezone;
+  if (timezone.isFloating || timezone.isUTC) {
+    return date;
+  } else {
+    return date.getInTimezone(cal.dtz.UTC);
+  }
 }
 
 /**
@@ -60,20 +60,20 @@ function getInUtcOrKeepFloating(date) {
  * @return      The string representation of the date object.
  */
 function dateToText(date) {
-    let zonestr;
-    if (date.timezone.isFloating) {
-        zonestr = "L";
-    } else if (date.timezone.isUTC) {
-        zonestr = "U";
-    } else {
-        zonestr = "Z";
-    }
+  let zonestr;
+  if (date.timezone.isFloating) {
+    zonestr = "L";
+  } else if (date.timezone.isUTC) {
+    zonestr = "U";
+  } else {
+    zonestr = "Z";
+  }
 
-    let datestr = zonestr + (date.isDate ? "D" : "T") + date.nativeTime;
-    if (!date.timezone.isFloating && !date.timezone.isUTC) {
-        datestr += ":" + date.timezone.tzid.replace(/%/g, "%%").replace(/:/g, "%:");
-    }
-    return datestr;
+  let datestr = zonestr + (date.isDate ? "D" : "T") + date.nativeTime;
+  if (!date.timezone.isFloating && !date.timezone.isUTC) {
+    datestr += ":" + date.timezone.tzid.replace(/%/g, "%%").replace(/:/g, "%:");
+  }
+  return datestr;
 }
 
 /**
@@ -84,29 +84,29 @@ function dateToText(date) {
  * @return      The resulting calIDateTime.
  */
 function textToDate(text) {
-    let textval;
-    let timezone = "UTC";
+  let textval;
+  let timezone = "UTC";
 
-    if (text[0] == "Z") {
-        let strs = text.substr(2).split(":");
-        textval = parseInt(strs[0], 10);
-        timezone = strs[1].replace(/%:/g, ":").replace(/%%/g, "%");
-    } else {
-        textval = parseInt(text.substr(2), 10);
-    }
+  if (text[0] == "Z") {
+    let strs = text.substr(2).split(":");
+    textval = parseInt(strs[0], 10);
+    timezone = strs[1].replace(/%:/g, ":").replace(/%%/g, "%");
+  } else {
+    textval = parseInt(text.substr(2), 10);
+  }
 
-    let date;
-    if (text[0] == "U" || text[0] == "Z") {
-        date = newDateTime(textval, timezone);
-    } else if (text[0] == "L") {
-        // is local time
-        date = newDateTime(textval, "floating");
-    }
+  let date;
+  if (text[0] == "U" || text[0] == "Z") {
+    date = newDateTime(textval, timezone);
+  } else if (text[0] == "L") {
+    // is local time
+    date = newDateTime(textval, "floating");
+  }
 
-    if (text[1] == "D") {
-        date.isDate = true;
-    }
-    return date;
+  if (text[1] == "D") {
+    date.isDate = true;
+  }
+  return date;
 }
 
 //
@@ -117,20 +117,20 @@ function textToDate(text) {
  * Prototype definition for foreign timezone.
  */
 function calStorageTimezone(comp) {
-    this.wrappedJSObject = this;
-    this.provider = null;
-    this.icalComponent = comp;
-    this.tzid = comp.getFirstProperty("TZID").value;
-    this.displayName = null;
-    this.isUTC = false;
-    this.isFloating = false;
-    this.latitude = null;
-    this.longitude = null;
+  this.wrappedJSObject = this;
+  this.provider = null;
+  this.icalComponent = comp;
+  this.tzid = comp.getFirstProperty("TZID").value;
+  this.displayName = null;
+  this.isUTC = false;
+  this.isFloating = false;
+  this.latitude = null;
+  this.longitude = null;
 }
 calStorageTimezone.prototype = {
-    toString: function() {
-        return this.icalComponent.toString();
-    }
+  toString: function() {
+    return this.icalComponent.toString();
+  },
 };
 
 /**
@@ -140,23 +140,25 @@ calStorageTimezone.prototype = {
  * @return              The calITimezone object
  */
 function getTimezone(aTimezone) {
-    let timezone = null;
-    if (aTimezone.startsWith("BEGIN:VTIMEZONE")) {
-        timezone = gForeignTimezonesCache[aTimezone]; // using full definition as key
-        if (!timezone) {
-            try {
-                // cannot cope without parent VCALENDAR:
-                let comp = cal.getIcsService().parseICS("BEGIN:VCALENDAR\n" + aTimezone + "\nEND:VCALENDAR", null);
-                timezone = new calStorageTimezone(comp.getFirstSubcomponent("VTIMEZONE"));
-                gForeignTimezonesCache[aTimezone] = timezone;
-            } catch (e) {
-                cal.ASSERT(false, e);
-            }
-        }
-    } else {
-        timezone = cal.getTimezoneService().getTimezone(aTimezone);
+  let timezone = null;
+  if (aTimezone.startsWith("BEGIN:VTIMEZONE")) {
+    timezone = gForeignTimezonesCache[aTimezone]; // using full definition as key
+    if (!timezone) {
+      try {
+        // cannot cope without parent VCALENDAR:
+        let comp = cal
+          .getIcsService()
+          .parseICS("BEGIN:VCALENDAR\n" + aTimezone + "\nEND:VCALENDAR", null);
+        timezone = new calStorageTimezone(comp.getFirstSubcomponent("VTIMEZONE"));
+        gForeignTimezonesCache[aTimezone] = timezone;
+      } catch (e) {
+        cal.ASSERT(false, e);
+      }
     }
-    return timezone;
+  } else {
+    timezone = cal.getTimezoneService().getTimezone(aTimezone);
+  }
+  return timezone;
 }
 
 /**
@@ -169,27 +171,27 @@ function getTimezone(aTimezone) {
  * @param aTimezone         The timezone identifier or definition.
  */
 function newDateTime(aNativeTime, aTimezone) {
-    let date = cal.createDateTime();
+  let date = cal.createDateTime();
 
-    // Bug 751821 - Dates before 1970 were incorrectly stored with an unsigned nativeTime value, we need to
-    // convert back to a negative value
-    if (aNativeTime > 0x7fffffffffffffff) {
-        cal.WARN("[calStorageCalendar] Converting invalid native time value: " + aNativeTime);
-        aNativeTime = -0x7fffffffffffffff + (aNativeTime - 0x7fffffffffffffff);
-        // Round to nearest second to fix microsecond rounding errors
-        aNativeTime = Math.round(aNativeTime / 1000000) * 1000000;
-    }
+  // Bug 751821 - Dates before 1970 were incorrectly stored with an unsigned nativeTime value, we need to
+  // convert back to a negative value
+  if (aNativeTime > 0x7fffffffffffffff) {
+    cal.WARN("[calStorageCalendar] Converting invalid native time value: " + aNativeTime);
+    aNativeTime = -0x7fffffffffffffff + (aNativeTime - 0x7fffffffffffffff);
+    // Round to nearest second to fix microsecond rounding errors
+    aNativeTime = Math.round(aNativeTime / 1000000) * 1000000;
+  }
 
-    date.nativeTime = aNativeTime;
-    if (aTimezone) {
-        let timezone = getTimezone(aTimezone);
-        if (timezone) {
-            date = date.getInTimezone(timezone);
-        } else {
-            cal.ASSERT(false, "Timezone not available: " + aTimezone);
-        }
+  date.nativeTime = aNativeTime;
+  if (aTimezone) {
+    let timezone = getTimezone(aTimezone);
+    if (timezone) {
+      date = date.getInTimezone(timezone);
     } else {
-        date.timezone = cal.dtz.floating;
+      cal.ASSERT(false, "Timezone not available: " + aTimezone);
     }
-    return date;
+  } else {
+    date.timezone = cal.dtz.floating;
+  }
+  return date;
 }

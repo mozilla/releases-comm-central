@@ -10,17 +10,17 @@ var ltn_doCreateCalendar = doCreateCalendar;
 var ltn_onChangeIdentity = onChangeIdentity;
 
 initCustomizePage = function() {
-    ltn_initCustomizePage();
-    caldavInitForceEmailScheduling();
+  ltn_initCustomizePage();
+  caldavInitForceEmailScheduling();
 };
 
 doCreateCalendar = function() {
-    ltn_doCreateCalendar();
-    caldavSaveForceEmailScheduling();
-    return true;
+  ltn_doCreateCalendar();
+  caldavSaveForceEmailScheduling();
+  return true;
 };
 
 onChangeIdentity = function(aEvent) {
-    ltn_onChangeIdentity();
-    caldavUpdateForceEmailSchedulingControl();
+  ltn_onChangeIdentity();
+  caldavUpdateForceEmailSchedulingControl();
 };

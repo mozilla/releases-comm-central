@@ -58,40 +58,43 @@ var CACHE_LAST_RESULTS_INVALIDATE = 120;
 var LOG_LEVEL = 0;
 
 function initWcapProvider() {
-    try {
-        initLogging();
+  try {
+    initLogging();
 
-        // some string resources:
-        g_privateItemTitle = getWcapString("privateItem.title.text");
-        g_confidentialItemTitle = getWcapString("confidentialItem.title.text");
-        g_busyItemTitle = getWcapString("busyItem.title.text");
-        g_busyPhantomItemUuidPrefix = "PHANTOM_uuid_" + cal.getUUID();
+    // some string resources:
+    g_privateItemTitle = getWcapString("privateItem.title.text");
+    g_confidentialItemTitle = getWcapString("confidentialItem.title.text");
+    g_busyItemTitle = getWcapString("busyItem.title.text");
+    g_busyPhantomItemUuidPrefix = "PHANTOM_uuid_" + cal.getUUID();
 
-        CACHE_LAST_RESULTS = Services.prefs.getIntPref("calendar.wcap.cache_last_results", 4);
-        CACHE_LAST_RESULTS_INVALIDATE = Services.prefs.getIntPref("calendar.wcap.cache_last_results_invalidate", 120);
-    } catch (exc) {
-        logError(exc, "error in init sequence");
-    }
+    CACHE_LAST_RESULTS = Services.prefs.getIntPref("calendar.wcap.cache_last_results", 4);
+    CACHE_LAST_RESULTS_INVALIDATE = Services.prefs.getIntPref(
+      "calendar.wcap.cache_last_results_invalidate",
+      120
+    );
+  } catch (exc) {
+    logError(exc, "error in init sequence");
+  }
 }
 
 /** Module Registration */
-this.NSGetFactory = (cid) => {
-    let scriptLoadOrder = [
-        "resource://calendar/calendar-js/calWcapUtils.js",
-        "resource://calendar/calendar-js/calWcapErrors.js",
-        "resource://calendar/calendar-js/calWcapRequest.js",
-        "resource://calendar/calendar-js/calWcapSession.js",
-        "resource://calendar/calendar-js/calWcapCalendar.js",
-        "resource://calendar/calendar-js/calWcapCalendarItems.js"
-    ];
+this.NSGetFactory = cid => {
+  let scriptLoadOrder = [
+    "resource://calendar/calendar-js/calWcapUtils.js",
+    "resource://calendar/calendar-js/calWcapErrors.js",
+    "resource://calendar/calendar-js/calWcapRequest.js",
+    "resource://calendar/calendar-js/calWcapSession.js",
+    "resource://calendar/calendar-js/calWcapCalendar.js",
+    "resource://calendar/calendar-js/calWcapCalendarItems.js",
+  ];
 
-    for (let script of scriptLoadOrder) {
-        Services.scriptloader.loadSubScript(script, this);
-    }
+  for (let script of scriptLoadOrder) {
+    Services.scriptloader.loadSubScript(script, this);
+  }
 
-    initWcapProvider();
+  initWcapProvider();
 
-    let components = [calWcapCalendar, calWcapNetworkRequest, calWcapSession];
-    this.NSGetFactory = XPCOMUtils.generateNSGetFactory(components);
-    return this.NSGetFactory(cid);
+  let components = [calWcapCalendar, calWcapNetworkRequest, calWcapSession];
+  this.NSGetFactory = XPCOMUtils.generateNSGetFactory(components);
+  return this.NSGetFactory(cid);
 };

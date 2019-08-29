@@ -12,25 +12,30 @@
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-this.NSGetFactory = (cid) => {
-    let scriptLoadOrder = [
-        "resource://calendar/calendar-js/calTimezone.js",
-        "resource://calendar/calendar-js/calDateTime.js",
-        "resource://calendar/calendar-js/calDuration.js",
-        "resource://calendar/calendar-js/calICSService.js",
-        "resource://calendar/calendar-js/calPeriod.js",
-        "resource://calendar/calendar-js/calRecurrenceRule.js",
-    ];
+this.NSGetFactory = cid => {
+  let scriptLoadOrder = [
+    "resource://calendar/calendar-js/calTimezone.js",
+    "resource://calendar/calendar-js/calDateTime.js",
+    "resource://calendar/calendar-js/calDuration.js",
+    "resource://calendar/calendar-js/calICSService.js",
+    "resource://calendar/calendar-js/calPeriod.js",
+    "resource://calendar/calendar-js/calRecurrenceRule.js",
+  ];
 
-    for (let script of scriptLoadOrder) {
-        Services.scriptloader.loadSubScript(script, this);
-    }
+  for (let script of scriptLoadOrder) {
+    Services.scriptloader.loadSubScript(script, this);
+  }
 
-    let components = [
-        calDateTime, calDuration, calIcalComponent, calIcalProperty, calICSService, calPeriod,
-        calRecurrenceRule
-    ];
+  let components = [
+    calDateTime,
+    calDuration,
+    calIcalComponent,
+    calIcalProperty,
+    calICSService,
+    calPeriod,
+    calRecurrenceRule,
+  ];
 
-    this.NSGetFactory = XPCOMUtils.generateNSGetFactory(components);
-    return this.NSGetFactory(cid);
+  this.NSGetFactory = XPCOMUtils.generateNSGetFactory(components);
+  return this.NSGetFactory(cid);
 };

@@ -11,17 +11,17 @@ var common_initCustomizePage = initCustomizePage;
 var common_doCreateCalendar = doCreateCalendar;
 
 initCustomizePage = function() {
-    common_initCustomizePage();
-    ltnInitMailIdentitiesRow();
-    ltnNotifyOnIdentitySelection();
+  common_initCustomizePage();
+  ltnInitMailIdentitiesRow();
+  ltnNotifyOnIdentitySelection();
 };
 
 doCreateCalendar = function() {
-    common_doCreateCalendar();
-    ltnSaveMailIdentitySelection();
-    return true;
+  common_doCreateCalendar();
+  ltnSaveMailIdentitySelection();
+  return true;
 };
 
 function onChangeIdentity(aEvent) {
-    ltnNotifyOnIdentitySelection();
+  ltnNotifyOnIdentitySelection();
 }

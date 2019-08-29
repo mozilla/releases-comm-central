@@ -8,19 +8,19 @@
 var ltn_onChangeIdentity = onChangeIdentity;
 
 onLoad = function() {
-    gCalendar = window.arguments[0].calendar; // eslint-disable-line no-global-assign
-    ltnInitMailIdentitiesRow();
-    caldavInitForceEmailScheduling();
-    common_onLoad();
+  gCalendar = window.arguments[0].calendar; // eslint-disable-line no-global-assign
+  ltnInitMailIdentitiesRow();
+  caldavInitForceEmailScheduling();
+  common_onLoad();
 };
 
 onAcceptDialog = function() {
-    ltnSaveMailIdentitySelection();
-    caldavSaveForceEmailScheduling();
-    return common_onAcceptDialog();
+  ltnSaveMailIdentitySelection();
+  caldavSaveForceEmailScheduling();
+  return common_onAcceptDialog();
 };
 
 onChangeIdentity = function(aEvent) {
-    ltn_onChangeIdentity();
-    caldavUpdateForceEmailSchedulingControl();
+  ltn_onChangeIdentity();
+  caldavUpdateForceEmailSchedulingControl();
 };

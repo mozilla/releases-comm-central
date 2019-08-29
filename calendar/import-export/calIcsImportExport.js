@@ -10,49 +10,51 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 // Shared functions
 function getIcsFileTypes(aCount) {
-    aCount.value = 1;
-    return [{
-        QueryInterface: ChromeUtils.generateQI([Ci.calIFileType]),
-        defaultExtension: "ics",
-        extensionFilter: "*.ics",
-        description: cal.l10n.getCalString("filterIcs", ["*.ics"])
-    }];
+  aCount.value = 1;
+  return [
+    {
+      QueryInterface: ChromeUtils.generateQI([Ci.calIFileType]),
+      defaultExtension: "ics",
+      extensionFilter: "*.ics",
+      description: cal.l10n.getCalString("filterIcs", ["*.ics"]),
+    },
+  ];
 }
 
 // Importer
 function calIcsImporter() {
-    this.wrappedJSObject = this;
+  this.wrappedJSObject = this;
 }
 
 calIcsImporter.prototype = {
-    QueryInterface: ChromeUtils.generateQI([Ci.calIImporter]),
-    classID: Components.ID("{1e3e33dc-445a-49de-b2b6-15b2a050bb9d}"),
+  QueryInterface: ChromeUtils.generateQI([Ci.calIImporter]),
+  classID: Components.ID("{1e3e33dc-445a-49de-b2b6-15b2a050bb9d}"),
 
-    getFileTypes: getIcsFileTypes,
+  getFileTypes: getIcsFileTypes,
 
-    importFromStream: function(aStream, aCount) {
-        let parser = Cc["@mozilla.org/calendar/ics-parser;1"]
-                       .createInstance(Ci.calIIcsParser);
-        parser.parseFromStream(aStream, null);
-        return parser.getItems(aCount);
-    }
+  importFromStream: function(aStream, aCount) {
+    let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
+    parser.parseFromStream(aStream, null);
+    return parser.getItems(aCount);
+  },
 };
 
 // Exporter
 function calIcsExporter() {
-    this.wrappedJSObject = this;
+  this.wrappedJSObject = this;
 }
 
 calIcsExporter.prototype = {
-    QueryInterface: ChromeUtils.generateQI([Ci.calIExporter]),
-    classID: Components.ID("{a6a524ce-adff-4a0f-bb7d-d1aaad4adc60}"),
+  QueryInterface: ChromeUtils.generateQI([Ci.calIExporter]),
+  classID: Components.ID("{a6a524ce-adff-4a0f-bb7d-d1aaad4adc60}"),
 
-    getFileTypes: getIcsFileTypes,
+  getFileTypes: getIcsFileTypes,
 
-    exportToStream: function(aStream, aCount, aItems) {
-        let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"]
-                           .createInstance(Ci.calIIcsSerializer);
-        serializer.addItems(aItems, aItems.length);
-        serializer.serializeToStream(aStream);
-    }
+  exportToStream: function(aStream, aCount, aItems) {
+    let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
+      Ci.calIIcsSerializer
+    );
+    serializer.addItems(aItems, aItems.length);
+    serializer.serializeToStream(aStream);
+  },
 };

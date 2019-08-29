@@ -18,27 +18,27 @@ var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 /* globals open_message_from_file, close_window */
 
 function setupModule(module) {
-    for (let dep of MODULE_REQUIRES) {
-        collector.getModule(dep).installInto(module);
-    }
+  for (let dep of MODULE_REQUIRES) {
+    collector.getModule(dep).installInto(module);
+  }
 }
 
 /**
  * Test that when opening a message containing an event, the IMIP bar shows.
  */
 function test_event_from_eml() {
-    let thisFilePath = os.getFileForPath(__file__);
-    let file = os.getFileForPath(os.abspath("./message-containing-event.eml", thisFilePath));
+  let thisFilePath = os.getFileForPath(__file__);
+  let file = os.getFileForPath(os.abspath("./message-containing-event.eml", thisFilePath));
 
-    let msgc = open_message_from_file(file);
+  let msgc = open_message_from_file(file);
 
-    msgc.waitFor(() => {
-        let bar = msgc.window.document.getElementById("imip-bar");
-        if (!bar) {
-            throw new Error("Couldn't find imip-bar in DOM.");
-        }
-        return (bar.collapsed === false);
-    }, "Timed out waiting for IMIP bar to show");
+  msgc.waitFor(() => {
+    let bar = msgc.window.document.getElementById("imip-bar");
+    if (!bar) {
+      throw new Error("Couldn't find imip-bar in DOM.");
+    }
+    return bar.collapsed === false;
+  }, "Timed out waiting for IMIP bar to show");
 
-    close_window(msgc);
+  close_window(msgc);
 }

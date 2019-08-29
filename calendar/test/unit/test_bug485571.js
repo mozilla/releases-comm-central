@@ -3,77 +3,91 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 function run_test() {
-    // Check that the RELATED property is correctly set
-    // after parsing the given VALARM component
+  // Check that the RELATED property is correctly set
+  // after parsing the given VALARM component
 
-    // trigger set 15 minutes prior to the start of the event
-    check_relative("BEGIN:VALARM\n" +
-                   "ACTION:DISPLAY\n" +
-                   "TRIGGER:-PT15M\n" +
-                   "DESCRIPTION:TEST\n" +
-                   "END:VALARM",
-                   Ci.calIAlarm.ALARM_RELATED_START);
+  // trigger set 15 minutes prior to the start of the event
+  check_relative(
+    "BEGIN:VALARM\n" +
+      "ACTION:DISPLAY\n" +
+      "TRIGGER:-PT15M\n" +
+      "DESCRIPTION:TEST\n" +
+      "END:VALARM",
+    Ci.calIAlarm.ALARM_RELATED_START
+  );
 
-    // trigger set 15 minutes prior to the start of the event
-    check_relative("BEGIN:VALARM\n" +
-                   "ACTION:DISPLAY\n" +
-                   "TRIGGER;VALUE=DURATION:-PT15M\n" +
-                   "DESCRIPTION:TEST\n" +
-                   "END:VALARM",
-                   Ci.calIAlarm.ALARM_RELATED_START);
+  // trigger set 15 minutes prior to the start of the event
+  check_relative(
+    "BEGIN:VALARM\n" +
+      "ACTION:DISPLAY\n" +
+      "TRIGGER;VALUE=DURATION:-PT15M\n" +
+      "DESCRIPTION:TEST\n" +
+      "END:VALARM",
+    Ci.calIAlarm.ALARM_RELATED_START
+  );
 
-    // trigger set 15 minutes prior to the start of the event
-    check_relative("BEGIN:VALARM\n" +
-                   "ACTION:DISPLAY\n" +
-                   "TRIGGER;RELATED=START:-PT15M\n" +
-                   "DESCRIPTION:TEST\n" +
-                   "END:VALARM",
-                   Ci.calIAlarm.ALARM_RELATED_START);
+  // trigger set 15 minutes prior to the start of the event
+  check_relative(
+    "BEGIN:VALARM\n" +
+      "ACTION:DISPLAY\n" +
+      "TRIGGER;RELATED=START:-PT15M\n" +
+      "DESCRIPTION:TEST\n" +
+      "END:VALARM",
+    Ci.calIAlarm.ALARM_RELATED_START
+  );
 
-    // trigger set 15 minutes prior to the start of the event
-    check_relative("BEGIN:VALARM\n" +
-                   "ACTION:DISPLAY\n" +
-                   "TRIGGER;VALUE=DURATION;RELATED=START:-PT15M\n" +
-                   "DESCRIPTION:TEST\n" +
-                   "END:VALARM",
-                   Ci.calIAlarm.ALARM_RELATED_START);
+  // trigger set 15 minutes prior to the start of the event
+  check_relative(
+    "BEGIN:VALARM\n" +
+      "ACTION:DISPLAY\n" +
+      "TRIGGER;VALUE=DURATION;RELATED=START:-PT15M\n" +
+      "DESCRIPTION:TEST\n" +
+      "END:VALARM",
+    Ci.calIAlarm.ALARM_RELATED_START
+  );
 
-    // trigger set 5 minutes after the end of an event
-    check_relative("BEGIN:VALARM\n" +
-                   "ACTION:DISPLAY\n" +
-                   "TRIGGER;RELATED=END:PT5M\n" +
-                   "DESCRIPTION:TEST\n" +
-                   "END:VALARM",
-                   Ci.calIAlarm.ALARM_RELATED_END);
+  // trigger set 5 minutes after the end of an event
+  check_relative(
+    "BEGIN:VALARM\n" +
+      "ACTION:DISPLAY\n" +
+      "TRIGGER;RELATED=END:PT5M\n" +
+      "DESCRIPTION:TEST\n" +
+      "END:VALARM",
+    Ci.calIAlarm.ALARM_RELATED_END
+  );
 
-    // trigger set 5 minutes after the end of an event
-    check_relative("BEGIN:VALARM\n" +
-                   "ACTION:DISPLAY\n" +
-                   "TRIGGER;VALUE=DURATION;RELATED=END:PT5M\n" +
-                   "DESCRIPTION:TEST\n" +
-                   "END:VALARM",
-                   Ci.calIAlarm.ALARM_RELATED_END);
+  // trigger set 5 minutes after the end of an event
+  check_relative(
+    "BEGIN:VALARM\n" +
+      "ACTION:DISPLAY\n" +
+      "TRIGGER;VALUE=DURATION;RELATED=END:PT5M\n" +
+      "DESCRIPTION:TEST\n" +
+      "END:VALARM",
+    Ci.calIAlarm.ALARM_RELATED_END
+  );
 
-    // trigger set to an absolute date/time
-    check_absolute("BEGIN:VALARM\n" +
-                   "ACTION:DISPLAY\n" +
-                   "TRIGGER;VALUE=DATE-TIME:20090430T080000Z\n" +
-                   "DESCRIPTION:TEST\n" +
-                   "END:VALARM");
+  // trigger set to an absolute date/time
+  check_absolute(
+    "BEGIN:VALARM\n" +
+      "ACTION:DISPLAY\n" +
+      "TRIGGER;VALUE=DATE-TIME:20090430T080000Z\n" +
+      "DESCRIPTION:TEST\n" +
+      "END:VALARM"
+  );
 }
 
 function check_relative(aIcalString, aRelated) {
-    let alarm = cal.createAlarm();
-    alarm.icalString = aIcalString;
-    equal(alarm.related, aRelated);
-    equal(alarm.alarmDate, null);
-    notEqual(alarm.offset, null);
+  let alarm = cal.createAlarm();
+  alarm.icalString = aIcalString;
+  equal(alarm.related, aRelated);
+  equal(alarm.alarmDate, null);
+  notEqual(alarm.offset, null);
 }
 
 function check_absolute(aIcalString) {
-    let alarm = cal.createAlarm();
-    alarm.icalString = aIcalString;
-    equal(alarm.related, Ci.calIAlarm.ALARM_RELATED_ABSOLUTE);
-    notEqual(alarm.alarmDate, null);
-    equal(alarm.offset, null);
+  let alarm = cal.createAlarm();
+  alarm.icalString = aIcalString;
+  equal(alarm.related, Ci.calIAlarm.ALARM_RELATED_ABSOLUTE);
+  notEqual(alarm.alarmDate, null);
+  equal(alarm.offset, null);
 }

@@ -13,78 +13,77 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 function Synthetic(aHeader, aDuration, aMultiday) {
-    this.open = aHeader.getAttribute("checked") == "true";
-    this.duration = aDuration;
-    this.multiday = aMultiday;
+  this.open = aHeader.getAttribute("checked") == "true";
+  this.duration = aDuration;
+  this.multiday = aMultiday;
 }
 
 var agendaListbox = {
-    agendaListboxControl: null,
-    mPendingRefreshJobs: null,
-    kDefaultTimezone: null,
-    showsToday: false,
-    soonDays: 5
+  agendaListboxControl: null,
+  mPendingRefreshJobs: null,
+  kDefaultTimezone: null,
+  showsToday: false,
+  soonDays: 5,
 };
 
 /**
  * Initialize the agenda listbox, used on window load.
  */
 agendaListbox.init = function() {
-    this.agendaListboxControl = document.getElementById("agenda-listbox");
-    this.agendaListboxControl.removeAttribute("suppressonselect");
-    let showTodayHeader = document.getElementById("today-header");
-    let showTomorrowHeader = document.getElementById("tomorrow-header");
-    let showSoonHeader = document.getElementById("nextweek-header");
+  this.agendaListboxControl = document.getElementById("agenda-listbox");
+  this.agendaListboxControl.removeAttribute("suppressonselect");
+  let showTodayHeader = document.getElementById("today-header");
+  let showTomorrowHeader = document.getElementById("tomorrow-header");
+  let showSoonHeader = document.getElementById("nextweek-header");
 
-    this.today = new Synthetic(showTodayHeader, 1, false);
-    this.addPeriodListItem(this.today, "today-header");
-    this.tomorrow = new Synthetic(showTomorrowHeader, 1, false);
-    this.soonDays = getSoondaysPreference();
-    this.soon = new Synthetic(showSoonHeader, this.soonDays, true);
-    this.periods = [this.today, this.tomorrow, this.soon];
-    this.mPendingRefreshJobs = new Map();
+  this.today = new Synthetic(showTodayHeader, 1, false);
+  this.addPeriodListItem(this.today, "today-header");
+  this.tomorrow = new Synthetic(showTomorrowHeader, 1, false);
+  this.soonDays = getSoondaysPreference();
+  this.soon = new Synthetic(showSoonHeader, this.soonDays, true);
+  this.periods = [this.today, this.tomorrow, this.soon];
+  this.mPendingRefreshJobs = new Map();
 
-    for (let header of [showTodayHeader, showTomorrowHeader, showSoonHeader]) {
-        header.getCheckbox().addEventListener("CheckboxStateChange", this.onCheckboxChange, true);
-    }
+  for (let header of [showTodayHeader, showTomorrowHeader, showSoonHeader]) {
+    header.getCheckbox().addEventListener("CheckboxStateChange", this.onCheckboxChange, true);
+  }
 
-    // At this point, we're ready and waiting for refreshPeriodDates to be called by TodayPane.
+  // At this point, we're ready and waiting for refreshPeriodDates to be called by TodayPane.
 
-    let prefObserver = {
-        observe: function(aSubject, aTopic, aPrefName) {
-            switch (aPrefName) {
-                case "calendar.agendaListbox.soondays":
-                    agendaListbox.soonDays = getSoondaysPreference();
-                    agendaListbox.updateSoonSection();
-                    break;
-            }
-        }
-    };
-    Services.prefs.addObserver("calendar.agendaListbox", prefObserver);
+  let prefObserver = {
+    observe: function(aSubject, aTopic, aPrefName) {
+      switch (aPrefName) {
+        case "calendar.agendaListbox.soondays":
+          agendaListbox.soonDays = getSoondaysPreference();
+          agendaListbox.updateSoonSection();
+          break;
+      }
+    },
+  };
+  Services.prefs.addObserver("calendar.agendaListbox", prefObserver);
 
-    // Make sure the agenda listbox is unloaded
-    window.addEventListener("unload", () => {
-        Services.prefs.removeObserver("calendar.agendaListbox", prefObserver);
-        this.uninit();
-    });
+  // Make sure the agenda listbox is unloaded
+  window.addEventListener("unload", () => {
+    Services.prefs.removeObserver("calendar.agendaListbox", prefObserver);
+    this.uninit();
+  });
 };
 
 /**
  * Clean up the agenda listbox, used on window unload.
  */
 agendaListbox.uninit = function() {
-    if (this.calendar) {
-        this.calendar.removeObserver(this.calendarObserver);
-    }
+  if (this.calendar) {
+    this.calendar.removeObserver(this.calendarObserver);
+  }
 
-    for (let period of this.periods) {
-        if (period.listItem) {
-            period.listItem.getCheckbox()
-                  .removeEventListener("CheckboxStateChange",
-                                       this.onCheckboxChange,
-                                       true);
-        }
+  for (let period of this.periods) {
+    if (period.listItem) {
+      period.listItem
+        .getCheckbox()
+        .removeEventListener("CheckboxStateChange", this.onCheckboxChange, true);
     }
+  }
 };
 
 /**
@@ -96,9 +95,9 @@ agendaListbox.uninit = function() {
  * @param aItemId       The id of an <agenda-header-richlist-item> to add to.
  */
 agendaListbox.addPeriodListItem = function(aPeriod, aItemId) {
-    aPeriod.listItem = document.getElementById(aItemId);
-    aPeriod.listItem.hidden = false;
-    aPeriod.listItem.getCheckbox().checked = aPeriod.open;
+  aPeriod.listItem = document.getElementById(aItemId);
+  aPeriod.listItem.hidden = false;
+  aPeriod.listItem.getCheckbox().checked = aPeriod.open;
 };
 
 /**
@@ -106,13 +105,15 @@ agendaListbox.addPeriodListItem = function(aPeriod, aItemId) {
  * @see agendaListbox::addPeriodListItem
  */
 agendaListbox.removePeriodListItem = function(aPeriod) {
+  if (aPeriod.listItem) {
+    aPeriod.listItem
+      .getCheckbox()
+      .removeEventListener("CheckboxStateChange", this.onCheckboxChange, true);
     if (aPeriod.listItem) {
-        aPeriod.listItem.getCheckbox().removeEventListener("CheckboxStateChange", this.onCheckboxChange, true);
-        if (aPeriod.listItem) {
-            aPeriod.listItem.hidden = true;
-            aPeriod.listItem = null;
-        }
+      aPeriod.listItem.hidden = true;
+      aPeriod.listItem = null;
     }
+  }
 };
 
 /**
@@ -121,37 +122,38 @@ agendaListbox.removePeriodListItem = function(aPeriod) {
  * @param event     The DOM event that triggered the checkbox state change.
  */
 agendaListbox.onCheckboxChange = function(event) {
-    let periodCheckbox = event.target;
-    let lopen = (periodCheckbox.getAttribute("checked") == "true");
-    let listItem = cal.view.getParentNodeOrThis(periodCheckbox, "richlistitem");
-    let period = listItem.getItem();
-    if (!period) {
-        return;
-    }
+  let periodCheckbox = event.target;
+  let lopen = periodCheckbox.getAttribute("checked") == "true";
+  let listItem = cal.view.getParentNodeOrThis(periodCheckbox, "richlistitem");
+  let period = listItem.getItem();
+  if (!period) {
+    return;
+  }
 
-    period.open = lopen;
-    // as the agenda-checkboxes are only transient we have to set the "checked"
-    // attribute at their hidden origins to make that attribute persistent.
-    document.getElementById(listItem.id).setAttribute("checked",
-                            periodCheckbox.getAttribute("checked"));
-    if (lopen) {
-        agendaListbox.refreshCalendarQuery(period.start, period.end);
-    } else {
-        listItem = listItem.nextSibling;
-        let leaveloop;
-        do {
-            leaveloop = (listItem == null);
-            if (!leaveloop) {
-                let nextItemSibling = listItem.nextSibling;
-                leaveloop = !agendaListbox.isEventListItem(listItem);
-                if (!leaveloop) {
-                    listItem.remove();
-                    listItem = nextItemSibling;
-                }
-            }
-        } while (!leaveloop);
-    }
-    calendarController.onSelectionChanged({ detail: [] });
+  period.open = lopen;
+  // as the agenda-checkboxes are only transient we have to set the "checked"
+  // attribute at their hidden origins to make that attribute persistent.
+  document
+    .getElementById(listItem.id)
+    .setAttribute("checked", periodCheckbox.getAttribute("checked"));
+  if (lopen) {
+    agendaListbox.refreshCalendarQuery(period.start, period.end);
+  } else {
+    listItem = listItem.nextSibling;
+    let leaveloop;
+    do {
+      leaveloop = listItem == null;
+      if (!leaveloop) {
+        let nextItemSibling = listItem.nextSibling;
+        leaveloop = !agendaListbox.isEventListItem(listItem);
+        if (!leaveloop) {
+          listItem.remove();
+          listItem = nextItemSibling;
+        }
+      }
+    } while (!leaveloop);
+  }
+  calendarController.onSelectionChanged({ detail: [] });
 };
 
 /**
@@ -160,67 +162,66 @@ agendaListbox.onCheckboxChange = function(event) {
  * @param aListItem     The agenda-base-richlist-item that was selected.
  */
 agendaListbox.onSelect = function(aListItem) {
-    let listbox = document.getElementById("agenda-listbox");
-    let item = aListItem || listbox.selectedItem;
-    if (aListItem) {
-        listbox.selectedItem = item;
-    }
-    calendarController.onSelectionChanged({ detail: agendaListbox.getSelectedItems() });
+  let listbox = document.getElementById("agenda-listbox");
+  let item = aListItem || listbox.selectedItem;
+  if (aListItem) {
+    listbox.selectedItem = item;
+  }
+  calendarController.onSelectionChanged({ detail: agendaListbox.getSelectedItems() });
 };
 
 /**
  * Handler function called when the agenda listbox becomes focused
  */
 agendaListbox.onFocus = function() {
-    calendarController.onSelectionChanged({ detail: agendaListbox.getSelectedItems() });
+  calendarController.onSelectionChanged({ detail: agendaListbox.getSelectedItems() });
 };
 
 /**
  * Handler function called when the agenda listbox loses focus.
  */
 agendaListbox.onBlur = function() {
-    calendarController.onSelectionChanged({ detail: [] });
+  calendarController.onSelectionChanged({ detail: [] });
 };
-
 
 /**
  * Handler function called when a key was pressed on the agenda listbox
  */
 agendaListbox.onKeyPress = function(aEvent) {
-    let listItem = aEvent.target;
-    if (listItem.localName == "richlistbox") {
-        listItem = listItem.selectedItem;
-    }
-    switch (aEvent.key) {
-        case "Enter":
-            document.getElementById("agenda_edit_event_command").doCommand();
-            break;
-        case "Delete":
-            document.getElementById("agenda_delete_event_command").doCommand();
-            aEvent.stopPropagation();
-            aEvent.preventDefault();
-            break;
-        case "ArrowLeft":
-            if (!this.isEventListItem(listItem)) {
-                listItem.getCheckbox().checked = false;
-            }
-            break;
-        case "ArrowRight":
-            if (!this.isEventListItem(listItem)) {
-                listItem.getCheckbox().checked = true;
-            }
-            break;
-    }
+  let listItem = aEvent.target;
+  if (listItem.localName == "richlistbox") {
+    listItem = listItem.selectedItem;
+  }
+  switch (aEvent.key) {
+    case "Enter":
+      document.getElementById("agenda_edit_event_command").doCommand();
+      break;
+    case "Delete":
+      document.getElementById("agenda_delete_event_command").doCommand();
+      aEvent.stopPropagation();
+      aEvent.preventDefault();
+      break;
+    case "ArrowLeft":
+      if (!this.isEventListItem(listItem)) {
+        listItem.getCheckbox().checked = false;
+      }
+      break;
+    case "ArrowRight":
+      if (!this.isEventListItem(listItem)) {
+        listItem.getCheckbox().checked = true;
+      }
+      break;
+  }
 };
 
 /**
  * Calls the event dialog to edit the currently selected item
  */
 agendaListbox.editSelectedItem = function() {
-    let listItem = document.getElementById("agenda-listbox").selectedItem;
-    if (listItem) {
-        modifyEventWithDialog(listItem.occurrence, null, true);
-    }
+  let listItem = document.getElementById("agenda-listbox").selectedItem;
+  if (listItem) {
+    modifyEventWithDialog(listItem.occurrence, null, true);
+  }
 };
 
 /**
@@ -230,43 +231,43 @@ agendaListbox.editSelectedItem = function() {
  * @param aItem     The item to find the period for.
  */
 agendaListbox.findPeriodsForItem = function(aItem) {
-    let retPeriods = [];
-    for (let i = 0; i < this.periods.length; i++) {
-        if (this.periods[i].open) {
-            if (cal.item.checkIfInRange(aItem, this.periods[i].start, this.periods[i].end)) {
-                retPeriods.push(this.periods[i]);
-            }
-        }
+  let retPeriods = [];
+  for (let i = 0; i < this.periods.length; i++) {
+    if (this.periods[i].open) {
+      if (cal.item.checkIfInRange(aItem, this.periods[i].start, this.periods[i].end)) {
+        retPeriods.push(this.periods[i]);
+      }
     }
-    return retPeriods;
+  }
+  return retPeriods;
 };
 
 /**
  * Gets the start of the earliest period shown in the agenda listbox
  */
 agendaListbox.getStart = function() {
-    let retStart = null;
-    for (let i = 0; i < this.periods.length; i++) {
-        if (this.periods[i].open) {
-            retStart = this.periods[i].start;
-            break;
-        }
+  let retStart = null;
+  for (let i = 0; i < this.periods.length; i++) {
+    if (this.periods[i].open) {
+      retStart = this.periods[i].start;
+      break;
     }
-    return retStart;
+  }
+  return retStart;
 };
 
 /**
  * Gets the end of the latest period shown in the agenda listbox
  */
 agendaListbox.getEnd = function() {
-    let retEnd = null;
-    for (let i = this.periods.length - 1; i >= 0; i--) {
-        if (this.periods[i].open) {
-            retEnd = this.periods[i].end;
-            break;
-        }
+  let retEnd = null;
+  for (let i = this.periods.length - 1; i >= 0; i--) {
+    if (this.periods[i].open) {
+      retEnd = this.periods[i].end;
+      break;
     }
-    return retEnd;
+  }
+  return retEnd;
 };
 
 /**
@@ -279,23 +280,23 @@ agendaListbox.getEnd = function() {
  * @return              The newly created XUL element.
  */
 agendaListbox.addItemBefore = function(aNewItem, aAgendaItem, aPeriod, visible) {
-    let newelement = null;
-    if (aNewItem.startDate.isDate) {
-        newelement = document.createXULElement("richlistitem", { is: "agenda-allday-richlist-item" });
-    } else {
-        newelement = document.createXULElement("richlistitem", { is: "agenda-richlist-item" });
-    }
-    // set the item at the richlistItem. When the duration of the period
-    // is bigger than 1 (day) the starttime of the item has to include
-    // information about the day of the item
-    if (aAgendaItem == null) {
-        this.agendaListboxControl.appendChild(newelement);
-    } else {
-        this.agendaListboxControl.insertBefore(newelement, aAgendaItem);
-    }
-    newelement.setOccurrence(aNewItem, aPeriod);
-    newelement.removeAttribute("selected");
-    return newelement;
+  let newelement = null;
+  if (aNewItem.startDate.isDate) {
+    newelement = document.createXULElement("richlistitem", { is: "agenda-allday-richlist-item" });
+  } else {
+    newelement = document.createXULElement("richlistitem", { is: "agenda-richlist-item" });
+  }
+  // set the item at the richlistItem. When the duration of the period
+  // is bigger than 1 (day) the starttime of the item has to include
+  // information about the day of the item
+  if (aAgendaItem == null) {
+    this.agendaListboxControl.appendChild(newelement);
+  } else {
+    this.agendaListboxControl.insertBefore(newelement, aAgendaItem);
+  }
+  newelement.setOccurrence(aNewItem, aPeriod);
+  newelement.removeAttribute("selected");
+  return newelement;
 };
 
 /**
@@ -306,50 +307,50 @@ agendaListbox.addItemBefore = function(aNewItem, aAgendaItem, aPeriod, visible) 
  * @return              The newly created XUL element.
  */
 agendaListbox.addItem = function(aItem) {
-    if (!cal.item.isEvent(aItem)) {
-        return null;
-    }
-    aItem.QueryInterface(Ci.calIEvent);
-    let periods = this.findPeriodsForItem(aItem);
-    if (periods.length == 0) {
-        return null;
-    }
-    let newlistItem = null;
-    for (let i = 0; i < periods.length; i++) {
-        let period = periods[i];
-        let complistItem = period.listItem;
-        let visible = complistItem.getCheckbox().checked;
-        if (aItem.startDate.isDate && period.duration == 1 && aItem.duration.days == 1) {
-            if (this.getListItems(aItem, period).length == 0) {
-                this.addItemBefore(aItem, period.listItem.nextSibling, period, visible);
+  if (!cal.item.isEvent(aItem)) {
+    return null;
+  }
+  aItem.QueryInterface(Ci.calIEvent);
+  let periods = this.findPeriodsForItem(aItem);
+  if (periods.length == 0) {
+    return null;
+  }
+  let newlistItem = null;
+  for (let i = 0; i < periods.length; i++) {
+    let period = periods[i];
+    let complistItem = period.listItem;
+    let visible = complistItem.getCheckbox().checked;
+    if (aItem.startDate.isDate && period.duration == 1 && aItem.duration.days == 1) {
+      if (this.getListItems(aItem, period).length == 0) {
+        this.addItemBefore(aItem, period.listItem.nextSibling, period, visible);
+      }
+    } else {
+      do {
+        complistItem = complistItem.nextSibling;
+        if (this.isEventListItem(complistItem)) {
+          let compitem = complistItem.occurrence;
+          if (this.isSameEvent(aItem, compitem)) {
+            // The same event occurs on several calendars but we only
+            // display the first one.
+            // TODO: find a way to display this special circumstance
+            break;
+          } else if (this.isBefore(aItem, compitem, period)) {
+            if (this.isSameEvent(aItem, compitem)) {
+              newlistItem = this.addItemBefore(aItem, complistItem, period, visible);
+              break;
+            } else {
+              newlistItem = this.addItemBefore(aItem, complistItem, period, visible);
+              break;
             }
+          }
         } else {
-            do {
-                complistItem = complistItem.nextSibling;
-                if (this.isEventListItem(complistItem)) {
-                    let compitem = complistItem.occurrence;
-                    if (this.isSameEvent(aItem, compitem)) {
-                        // The same event occurs on several calendars but we only
-                        // display the first one.
-                        // TODO: find a way to display this special circumstance
-                        break;
-                    } else if (this.isBefore(aItem, compitem, period)) {
-                        if (this.isSameEvent(aItem, compitem)) {
-                            newlistItem = this.addItemBefore(aItem, complistItem, period, visible);
-                            break;
-                        } else {
-                            newlistItem = this.addItemBefore(aItem, complistItem, period, visible);
-                            break;
-                        }
-                    }
-                } else {
-                    newlistItem = this.addItemBefore(aItem, complistItem, period, visible);
-                    break;
-                }
-            } while (complistItem);
+          newlistItem = this.addItemBefore(aItem, complistItem, period, visible);
+          break;
         }
+      } while (complistItem);
     }
-    return newlistItem;
+  }
+  return newlistItem;
 };
 
 /**
@@ -361,47 +362,48 @@ agendaListbox.addItem = function(aItem) {
  * @return              True, if the aItem happens before aCompItem.
  */
 agendaListbox.isBefore = function(aItem, aCompItem, aPeriod) {
-    let itemDate = this.comparisonDate(aItem, aPeriod);
-    let compItemDate = this.comparisonDate(aCompItem, aPeriod);
-    let itemDateEndDate = itemDate.clone();
-    itemDateEndDate.day++;
+  let itemDate = this.comparisonDate(aItem, aPeriod);
+  let compItemDate = this.comparisonDate(aCompItem, aPeriod);
+  let itemDateEndDate = itemDate.clone();
+  itemDateEndDate.day++;
 
-    if (compItemDate.day == itemDate.day) {
-        // In the same day the order is:
-        // - all-day events (single day);
-        // - all-day events spanning multiple days: start, end, intermediate;
-        // - events and events spanning multiple days: start, end, (sorted by
-        //   time) and intermediate.
-        if (itemDate.isDate && aItem.duration.days == 1) {
-            // all-day events with duration one day
-            return true;
-        } else if (itemDate.isDate) {
-            if (aItem.startDate.compare(itemDate) == 0) {
-                // starting day of an all-day events spannig multiple days
-                return !compItemDate.isDate || aCompItem.duration.days != 1;
-            } else if (aItem.endDate.compare(itemDateEndDate) == 0) {
-                // ending day of an all-day events spannig multiple days
-                return !compItemDate.isDate ||
-                       (aCompItem.duration.days != 1 &&
-                        aCompItem.startDate.compare(compItemDate) != 0);
-            } else {
-                // intermediate day of an all-day events spannig multiple days
-                return !compItemDate.isDate;
-            }
-        } else if (aCompItem.startDate.isDate) {
-            return false;
-        }
+  if (compItemDate.day == itemDate.day) {
+    // In the same day the order is:
+    // - all-day events (single day);
+    // - all-day events spanning multiple days: start, end, intermediate;
+    // - events and events spanning multiple days: start, end, (sorted by
+    //   time) and intermediate.
+    if (itemDate.isDate && aItem.duration.days == 1) {
+      // all-day events with duration one day
+      return true;
+    } else if (itemDate.isDate) {
+      if (aItem.startDate.compare(itemDate) == 0) {
+        // starting day of an all-day events spannig multiple days
+        return !compItemDate.isDate || aCompItem.duration.days != 1;
+      } else if (aItem.endDate.compare(itemDateEndDate) == 0) {
+        // ending day of an all-day events spannig multiple days
+        return (
+          !compItemDate.isDate ||
+          (aCompItem.duration.days != 1 && aCompItem.startDate.compare(compItemDate) != 0)
+        );
+      } else {
+        // intermediate day of an all-day events spannig multiple days
+        return !compItemDate.isDate;
+      }
+    } else if (aCompItem.startDate.isDate) {
+      return false;
     }
-    // Non all-day event sorted by date-time. When equal, sorted by start
-    // date-time then by end date-time.
-    let comp = itemDate.compare(compItemDate);
+  }
+  // Non all-day event sorted by date-time. When equal, sorted by start
+  // date-time then by end date-time.
+  let comp = itemDate.compare(compItemDate);
+  if (comp == 0) {
+    comp = aItem.startDate.compare(aCompItem.startDate);
     if (comp == 0) {
-        comp = aItem.startDate.compare(aCompItem.startDate);
-        if (comp == 0) {
-            comp = aItem.endDate.compare(aCompItem.endDate);
-        }
+      comp = aItem.endDate.compare(aCompItem.endDate);
     }
-    return (comp <= 0);
+  }
+  return comp <= 0;
 };
 
 /**
@@ -413,34 +415,33 @@ agendaListbox.isBefore = function(aItem, aCompItem, aPeriod) {
  * @return              The start or end date of the item showed in the agenda.
  */
 agendaListbox.comparisonDate = function(aItem, aPeriod) {
-    let periodStartDate = aPeriod.start.clone();
-    periodStartDate.isDate = true;
-    let periodEndDate = aPeriod.end.clone();
-    periodEndDate.day--;
-    let startDate = aItem.startDate.clone();
-    startDate.isDate = true;
-    let endDate = aItem.endDate.clone();
+  let periodStartDate = aPeriod.start.clone();
+  periodStartDate.isDate = true;
+  let periodEndDate = aPeriod.end.clone();
+  periodEndDate.day--;
+  let startDate = aItem.startDate.clone();
+  startDate.isDate = true;
+  let endDate = aItem.endDate.clone();
 
-    let endDateToReturn = aItem.endDate.clone();
-    if (aItem.startDate.isDate && aPeriod.duration == 1) {
-        endDateToReturn = periodEndDate.clone();
-    } else if (endDate.isDate) {
-        endDateToReturn.day--;
-    } else if (endDate.hour == 0 && endDate.minute == 0) {
-        // End at midnight -> end date in the day where midnight occurs
-        endDateToReturn.day--;
-        endDateToReturn.hour = 23;
-        endDateToReturn.minute = 59;
-        endDateToReturn.second = 59;
-    }
-    endDate.isDate = true;
-    if (startDate.compare(endDate) != 0 &&
-         startDate.compare(periodStartDate) < 0) {
-        // returns a end date when the item is a multiday event AND
-        // it starts before the given period
-        return endDateToReturn;
-    }
-    return aItem.startDate.clone();
+  let endDateToReturn = aItem.endDate.clone();
+  if (aItem.startDate.isDate && aPeriod.duration == 1) {
+    endDateToReturn = periodEndDate.clone();
+  } else if (endDate.isDate) {
+    endDateToReturn.day--;
+  } else if (endDate.hour == 0 && endDate.minute == 0) {
+    // End at midnight -> end date in the day where midnight occurs
+    endDateToReturn.day--;
+    endDateToReturn.hour = 23;
+    endDateToReturn.minute = 59;
+    endDateToReturn.second = 59;
+  }
+  endDate.isDate = true;
+  if (startDate.compare(endDate) != 0 && startDate.compare(periodStartDate) < 0) {
+    // returns a end date when the item is a multiday event AND
+    // it starts before the given period
+    return endDateToReturn;
+  }
+  return aItem.startDate.clone();
 };
 
 /**
@@ -451,29 +452,29 @@ agendaListbox.comparisonDate = function(aItem, aPeriod) {
  * @return              An array of list items for the given item.
  */
 agendaListbox.getListItems = function(aItem, aPeriod) {
-    let retlistItems = [];
-    let periods = [aPeriod];
-    if (!aPeriod) {
-        periods = this.findPeriodsForItem(aItem);
-    }
-    if (periods.length > 0) {
-        for (let i = 0; i < periods.length; i++) {
-            let period = periods[i];
-            let complistItem = period.listItem;
-            let leaveloop;
-            do {
-                complistItem = complistItem.nextSibling;
-                leaveloop = !this.isEventListItem(complistItem);
-                if (!leaveloop) {
-                    if (this.isSameEvent(aItem, complistItem.occurrence)) {
-                        retlistItems.push(complistItem);
-                        break;
-                    }
-                }
-            } while (!leaveloop);
+  let retlistItems = [];
+  let periods = [aPeriod];
+  if (!aPeriod) {
+    periods = this.findPeriodsForItem(aItem);
+  }
+  if (periods.length > 0) {
+    for (let i = 0; i < periods.length; i++) {
+      let period = periods[i];
+      let complistItem = period.listItem;
+      let leaveloop;
+      do {
+        complistItem = complistItem.nextSibling;
+        leaveloop = !this.isEventListItem(complistItem);
+        if (!leaveloop) {
+          if (this.isSameEvent(aItem, complistItem.occurrence)) {
+            retlistItems.push(complistItem);
+            break;
+          }
         }
+      } while (!leaveloop);
     }
-    return retlistItems;
+  }
+  return retlistItems;
 };
 
 /**
@@ -485,22 +486,22 @@ agendaListbox.getListItems = function(aItem, aPeriod) {
  * @return                  Returns true if the removed item was selected.
  */
 agendaListbox.deleteItem = function(aItem, aMoveSelection) {
-    let isSelected = false;
-    let listItems = this.getListItems(aItem);
-    if (listItems.length > 0) {
-        for (let i = listItems.length - 1; i >= 0; i--) {
-            let listItem = listItems[i];
-            let isSelected2 = listItem.selected;
-            if (isSelected2 && !isSelected) {
-                isSelected = true;
-                if (aMoveSelection) {
-                    this.moveSelection();
-                }
-            }
-            listItem.remove();
+  let isSelected = false;
+  let listItems = this.getListItems(aItem);
+  if (listItems.length > 0) {
+    for (let i = listItems.length - 1; i >= 0; i--) {
+      let listItem = listItems[i];
+      let isSelected2 = listItem.selected;
+      if (isSelected2 && !isSelected) {
+        isSelected = true;
+        if (aMoveSelection) {
+          this.moveSelection();
         }
+      }
+      listItem.remove();
     }
-    return isSelected;
+  }
+  return isSelected;
 };
 
 /**
@@ -509,13 +510,12 @@ agendaListbox.deleteItem = function(aItem, aMoveSelection) {
  * @param aCalendar         The item to compare.
  */
 agendaListbox.deleteItemsFromCalendar = function(aCalendar) {
-    let childNodes = Array.from(this.agendaListboxControl.childNodes);
-    for (let childNode of childNodes) {
-        if (childNode && childNode.occurrence &&
-            childNode.occurrence.calendar.id == aCalendar.id) {
-            childNode.remove();
-        }
+  let childNodes = Array.from(this.agendaListboxControl.childNodes);
+  for (let childNode of childNodes) {
+    if (childNode && childNode.occurrence && childNode.occurrence.calendar.id == aCalendar.id) {
+      childNode.remove();
     }
+  }
 };
 
 /**
@@ -527,8 +527,10 @@ agendaListbox.deleteItemsFromCalendar = function(aCalendar) {
  * @return              True, if the items match with the above noted criteria.
  */
 agendaListbox.isSameEvent = function(aItem, aCompItem) {
-    return aItem.id == aCompItem.id &&
-           aItem[cal.dtz.startDateProp(aItem)].compare(aCompItem[cal.dtz.startDateProp(aCompItem)]) == 0;
+  return (
+    aItem.id == aCompItem.id &&
+    aItem[cal.dtz.startDateProp(aItem)].compare(aCompItem[cal.dtz.startDateProp(aCompItem)]) == 0
+  );
 };
 
 /**
@@ -538,11 +540,11 @@ agendaListbox.isSameEvent = function(aItem, aCompItem) {
  * @return              True, if the node is not a period item.
  */
 agendaListbox.isEventSelected = function() {
-    let listItem = this.agendaListboxControl.selectedItem;
-    if (listItem) {
-        return this.isEventListItem(listItem);
-    }
-    return false;
+  let listItem = this.agendaListboxControl.selectedItem;
+  if (listItem) {
+    return this.isEventListItem(listItem);
+  }
+  return false;
 };
 
 /**
@@ -551,14 +553,16 @@ agendaListbox.isEventSelected = function() {
  * @param aDoNotConfirm     If true, the user will not be prompted.
  */
 agendaListbox.deleteSelectedItem = function(aDoNotConfirm) {
-    let listItem = this.agendaListboxControl.selectedItem;
-    if (this.isEventListItem(listItem)) {
-        let selectedItems = [listItem.occurrence];
-        calendarViewController.deleteOccurrences(selectedItems.length,
-                                                 selectedItems,
-                                                 false,
-                                                 aDoNotConfirm);
-    }
+  let listItem = this.agendaListboxControl.selectedItem;
+  if (this.isEventListItem(listItem)) {
+    let selectedItems = [listItem.occurrence];
+    calendarViewController.deleteOccurrences(
+      selectedItems.length,
+      selectedItems,
+      false,
+      aDoNotConfirm
+    );
+  }
 };
 
 /**
@@ -568,15 +572,15 @@ agendaListbox.deleteSelectedItem = function(aDoNotConfirm) {
  * @param aEvent            The DOM event that targets the period.
  */
 agendaListbox.createNewEvent = function(aEvent) {
-    if (!this.isEventListItem(aEvent.target)) {
-        // Create new event for the date currently displayed in the agenda. Setting
-        // isDate = true automatically makes the start time be the next full hour.
-        let eventStart = agendaListbox.today.start.clone();
-        eventStart.isDate = true;
-        if (calendarController.isCommandEnabled("calendar_new_event_command")) {
-            createEventWithDialog(getSelectedCalendar(), eventStart);
-        }
+  if (!this.isEventListItem(aEvent.target)) {
+    // Create new event for the date currently displayed in the agenda. Setting
+    // isDate = true automatically makes the start time be the next full hour.
+    let eventStart = agendaListbox.today.start.clone();
+    eventStart.isDate = true;
+    if (calendarController.isCommandEnabled("calendar_new_event_command")) {
+      createEventWithDialog(getSelectedCalendar(), eventStart);
     }
+  }
 };
 
 /**
@@ -585,17 +589,16 @@ agendaListbox.createNewEvent = function(aEvent) {
  * @param popup         The <menupopup> element to set up.
  */
 agendaListbox.setupContextMenu = function(popup) {
-    let listItem = this.agendaListboxControl.selectedItem;
-    let enabled = this.isEventListItem(listItem);
-    let menuitems = popup.childNodes;
-    for (let i = 0; i < menuitems.length; i++) {
-        setBooleanAttribute(menuitems[i], "disabled", !enabled);
-    }
+  let listItem = this.agendaListboxControl.selectedItem;
+  let enabled = this.isEventListItem(listItem);
+  let menuitems = popup.childNodes;
+  for (let i = 0; i < menuitems.length; i++) {
+    setBooleanAttribute(menuitems[i], "disabled", !enabled);
+  }
 
-    let menu = document.getElementById("calendar-today-pane-menu-attendance-menu");
-    setupAttendanceMenu(menu, agendaListbox.getSelectedItems({}));
+  let menu = document.getElementById("calendar-today-pane-menu-attendance-menu");
+  setupAttendanceMenu(menu, agendaListbox.getSelectedItems({}));
 };
-
 
 /**
  * Refreshes the agenda listbox. If aStart or aEnd is not passed, the agenda
@@ -607,100 +610,100 @@ agendaListbox.setupContextMenu = function(popup) {
  *                                   which the refresh will occur.
  */
 agendaListbox.refreshCalendarQuery = function(aStart, aEnd, aCalendar) {
-    let refreshJob = {
-        QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-        agendaListbox: this,
-        calendar: null,
-        calId: null,
-        operation: null,
-        cancelled: false,
+  let refreshJob = {
+    QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+    agendaListbox: this,
+    calendar: null,
+    calId: null,
+    operation: null,
+    cancelled: false,
 
-        onOperationComplete: function(aOpCalendar, aStatus, aOperationType, aId, aDateTime) {
-            if (this.agendaListbox.mPendingRefreshJobs.has(this.calId)) {
-                this.agendaListbox.mPendingRefreshJobs.delete(this.calId);
-            }
+    onOperationComplete: function(aOpCalendar, aStatus, aOperationType, aId, aDateTime) {
+      if (this.agendaListbox.mPendingRefreshJobs.has(this.calId)) {
+        this.agendaListbox.mPendingRefreshJobs.delete(this.calId);
+      }
 
-            if (!this.cancelled) {
-                setCurrentEvent();
-            }
-        },
+      if (!this.cancelled) {
+        setCurrentEvent();
+      }
+    },
 
-        onGetResult: function(aOpCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
-            if (this.cancelled || !Components.isSuccessCode(aStatus)) {
-                return;
-            }
-            for (let item of aItems) {
-                this.agendaListbox.addItem(item);
-            }
-        },
+    onGetResult: function(aOpCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+      if (this.cancelled || !Components.isSuccessCode(aStatus)) {
+        return;
+      }
+      for (let item of aItems) {
+        this.agendaListbox.addItem(item);
+      }
+    },
 
-        cancel: function() {
-            this.cancelled = true;
-            let operation = cal.wrapInstance(this.operation, Ci.calIOperation);
-            if (operation && operation.isPending) {
-                operation.cancel();
-                this.operation = null;
-            }
-        },
+    cancel: function() {
+      this.cancelled = true;
+      let operation = cal.wrapInstance(this.operation, Ci.calIOperation);
+      if (operation && operation.isPending) {
+        operation.cancel();
+        this.operation = null;
+      }
+    },
 
-        execute: function() {
-            if (!(aStart || aEnd || aCalendar)) {
-                this.agendaListbox.removeListItems();
-            }
+    execute: function() {
+      if (!(aStart || aEnd || aCalendar)) {
+        this.agendaListbox.removeListItems();
+      }
 
-            if (!aCalendar) {
-                aCalendar = this.agendaListbox.calendar;
-            }
-            if (!aStart) {
-                aStart = this.agendaListbox.getStart();
-            }
-            if (!aEnd) {
-                aEnd = this.agendaListbox.getEnd();
-            }
-            if (!(aStart || aEnd || aCalendar)) {
-                return;
-            }
+      if (!aCalendar) {
+        aCalendar = this.agendaListbox.calendar;
+      }
+      if (!aStart) {
+        aStart = this.agendaListbox.getStart();
+      }
+      if (!aEnd) {
+        aEnd = this.agendaListbox.getEnd();
+      }
+      if (!(aStart || aEnd || aCalendar)) {
+        return;
+      }
 
-            if (aCalendar.type == "composite") {
-                // we're refreshing from the composite calendar, so we can cancel
-                // all other pending refresh jobs.
-                this.calId = "composite";
-                for (let job of this.agendaListbox.mPendingRefreshJobs.values()) {
-                    job.cancel();
-                }
-                this.agendaListbox.mPendingRefreshJobs.clear();
-            } else {
-                this.calId = aCalendar.id;
-                if (this.agendaListbox.mPendingRefreshJobs.has(this.calId)) {
-                    this.agendaListbox.mPendingRefreshJobs.get(this.calId).cancel();
-                    this.agendaListbox.mPendingRefreshJobs.delete(this.calId);
-                }
-            }
-            this.calendar = aCalendar;
-
-            let filter = this.calendar.ITEM_FILTER_CLASS_OCCURRENCES |
-                         this.calendar.ITEM_FILTER_TYPE_EVENT;
-            let operation = this.calendar.getItems(filter, 0, aStart, aEnd, this);
-            operation = cal.wrapInstance(operation, Ci.calIOperation);
-            if (operation && operation.isPending) {
-                this.operation = operation;
-                this.agendaListbox.mPendingRefreshJobs.set(this.calId, this);
-            }
+      if (aCalendar.type == "composite") {
+        // we're refreshing from the composite calendar, so we can cancel
+        // all other pending refresh jobs.
+        this.calId = "composite";
+        for (let job of this.agendaListbox.mPendingRefreshJobs.values()) {
+          job.cancel();
         }
-    };
+        this.agendaListbox.mPendingRefreshJobs.clear();
+      } else {
+        this.calId = aCalendar.id;
+        if (this.agendaListbox.mPendingRefreshJobs.has(this.calId)) {
+          this.agendaListbox.mPendingRefreshJobs.get(this.calId).cancel();
+          this.agendaListbox.mPendingRefreshJobs.delete(this.calId);
+        }
+      }
+      this.calendar = aCalendar;
 
-    this.setupCalendar();
-    refreshJob.execute();
+      let filter =
+        this.calendar.ITEM_FILTER_CLASS_OCCURRENCES | this.calendar.ITEM_FILTER_TYPE_EVENT;
+      let operation = this.calendar.getItems(filter, 0, aStart, aEnd, this);
+      operation = cal.wrapInstance(operation, Ci.calIOperation);
+      if (operation && operation.isPending) {
+        this.operation = operation;
+        this.agendaListbox.mPendingRefreshJobs.set(this.calId, this);
+      }
+    },
+  };
+
+  this.setupCalendar();
+  refreshJob.execute();
 };
 
 /**
  * Sets up the calendar for the agenda listbox.
  */
 agendaListbox.setupCalendar = function() {
-    if (this.calendar == null) {
-        this.calendar = cal.view.getCompositeCalendar(window);
-        this.calendar.addObserver(this.calendarObserver);
-    }
+  if (this.calendar == null) {
+    this.calendar = cal.view.getCompositeCalendar(window);
+    this.calendar.addObserver(this.calendarObserver);
+  }
 };
 
 /**
@@ -713,31 +716,31 @@ agendaListbox.setupCalendar = function() {
  *                        today.
  */
 agendaListbox.refreshPeriodDates = function(newDate) {
-    this.kDefaultTimezone = cal.dtz.defaultTimezone;
-    // Today: now until midnight of tonight
-    let oldshowstoday = this.showstoday;
-    this.showstoday = this.showsToday(newDate);
-    if ((this.showstoday) && (!oldshowstoday)) {
-        this.addPeriodListItem(this.tomorrow, "tomorrow-header");
-        this.addPeriodListItem(this.soon, "nextweek-header");
-    } else if (!this.showstoday) {
-        this.removePeriodListItem(this.tomorrow);
-        this.removePeriodListItem(this.soon);
+  this.kDefaultTimezone = cal.dtz.defaultTimezone;
+  // Today: now until midnight of tonight
+  let oldshowstoday = this.showstoday;
+  this.showstoday = this.showsToday(newDate);
+  if (this.showstoday && !oldshowstoday) {
+    this.addPeriodListItem(this.tomorrow, "tomorrow-header");
+    this.addPeriodListItem(this.soon, "nextweek-header");
+  } else if (!this.showstoday) {
+    this.removePeriodListItem(this.tomorrow);
+    this.removePeriodListItem(this.soon);
+  }
+  newDate.isDate = true;
+  for (let i = 0; i < this.periods.length; i++) {
+    let curPeriod = this.periods[i];
+    newDate.hour = newDate.minute = newDate.second = 0;
+    if (i == 0 && this.showstoday) {
+      curPeriod.start = cal.dtz.now();
+    } else {
+      curPeriod.start = newDate.clone();
     }
-    newDate.isDate = true;
-    for (let i = 0; i < this.periods.length; i++) {
-        let curPeriod = this.periods[i];
-        newDate.hour = newDate.minute = newDate.second = 0;
-        if (i == 0 && this.showstoday) {
-            curPeriod.start = cal.dtz.now();
-        } else {
-            curPeriod.start = newDate.clone();
-        }
-        newDate.day += curPeriod.duration;
-        curPeriod.end = newDate.clone();
-        curPeriod.listItem.setItem(curPeriod, this.showstoday);
-    }
-    this.refreshCalendarQuery();
+    newDate.day += curPeriod.duration;
+    curPeriod.end = newDate.clone();
+    curPeriod.listItem.setItem(curPeriod, this.showstoday);
+  }
+  this.refreshCalendarQuery();
 };
 
 /**
@@ -748,17 +751,17 @@ agendaListbox.refreshPeriodDates = function(newDate) {
  * @return              Returns true if today is shown.
  */
 agendaListbox.showsToday = function(aStartDate) {
-    let lstart = aStartDate;
-    if (!lstart) {
-        lstart = this.today.start;
-    }
-    let lshowsToday = cal.dtz.sameDay(cal.dtz.now(), lstart);
-    if (lshowsToday) {
-        this.periods = [this.today, this.tomorrow, this.soon];
-    } else {
-        this.periods = [this.today];
-    }
-    return lshowsToday;
+  let lstart = aStartDate;
+  if (!lstart) {
+    lstart = this.today.start;
+  }
+  let lshowsToday = cal.dtz.sameDay(cal.dtz.now(), lstart);
+  if (lshowsToday) {
+    this.periods = [this.today, this.tomorrow, this.soon];
+  } else {
+    this.periods = [this.today];
+  }
+  return lshowsToday;
 };
 
 /**
@@ -766,11 +769,11 @@ agendaListbox.showsToday = function(aStartDate) {
  * which case the selection moves up.
  */
 agendaListbox.moveSelection = function() {
-    if (this.isEventListItem(this.agendaListboxControl.selectedItem.nextSibling)) {
-        this.agendaListboxControl.moveByOffset(-1);
-    } else {
-        this.agendaListboxControl.moveByOffset(1);
-    }
+  if (this.isEventListItem(this.agendaListboxControl.selectedItem.nextSibling)) {
+    this.agendaListboxControl.moveByOffset(-1);
+  } else {
+    this.agendaListboxControl.moveByOffset(1);
+  }
 };
 
 /**
@@ -780,13 +783,13 @@ agendaListbox.moveSelection = function() {
  * @return      An array with all selected items.
  */
 agendaListbox.getSelectedItems = function() {
-    let items = [];
-    if (this.isEventListItem(this.agendaListboxControl.selectedItem)) {
-        // If at some point we support selecting multiple items, this array can
-        // be expanded.
-        items = [this.agendaListboxControl.selectedItem.occurrence];
-    }
-    return items;
+  let items = [];
+  if (this.isEventListItem(this.agendaListboxControl.selectedItem)) {
+    // If at some point we support selecting multiple items, this array can
+    // be expanded.
+    items = [this.agendaListboxControl.selectedItem.occurrence];
+  }
+  return items;
 };
 
 /**
@@ -797,39 +800,38 @@ agendaListbox.getSelectedItems = function() {
  * @return              True, if the node is not a period item.
  */
 agendaListbox.isEventListItem = function(aListItem) {
-    let isListItem = (aListItem != null);
-    if (isListItem) {
-        let localName = aListItem.getAttribute("is");
-        isListItem = (localName == "agenda-richlist-item" ||
-                      localName == "agenda-allday-richlist-item");
-    }
-    return isListItem;
+  let isListItem = aListItem != null;
+  if (isListItem) {
+    let localName = aListItem.getAttribute("is");
+    isListItem = localName == "agenda-richlist-item" || localName == "agenda-allday-richlist-item";
+  }
+  return isListItem;
 };
 
 /**
  * Removes all Event items, keeping the period items intact.
  */
 agendaListbox.removeListItems = function() {
-    let listItem = this.agendaListboxControl.lastChild;
-    if (listItem) {
-        let leaveloop = false;
-        do {
-            let newlistItem = null;
-            if (listItem) {
-                newlistItem = listItem.previousSibling;
-            } else {
-                leaveloop = true;
-            }
-            if (this.isEventListItem(listItem)) {
-                if (listItem == this.agendaListboxControl.firstChild) {
-                    leaveloop = true;
-                } else {
-                    listItem.remove();
-                }
-            }
-            listItem = newlistItem;
-        } while (!leaveloop);
-    }
+  let listItem = this.agendaListboxControl.lastChild;
+  if (listItem) {
+    let leaveloop = false;
+    do {
+      let newlistItem = null;
+      if (listItem) {
+        newlistItem = listItem.previousSibling;
+      } else {
+        leaveloop = true;
+      }
+      if (this.isEventListItem(listItem)) {
+        if (listItem == this.agendaListboxControl.firstChild) {
+          leaveloop = true;
+        } else {
+          listItem.remove();
+        }
+      }
+      listItem = newlistItem;
+    } while (!leaveloop);
+  }
 };
 
 /**
@@ -838,18 +840,18 @@ agendaListbox.removeListItems = function() {
  * @return The XUL node if successful, otherwise null.
  */
 agendaListbox.getListItemByHashId = function(ahashId) {
-    let listItem = this.agendaListboxControl.firstChild;
-    let leaveloop = false;
-    do {
-        if (this.isEventListItem(listItem)) {
-            if (listItem.occurrence.hashId == ahashId) {
-                return listItem;
-            }
-        }
-        listItem = listItem.nextSibling;
-        leaveloop = (listItem == null);
-    } while (!leaveloop);
-    return null;
+  let listItem = this.agendaListboxControl.firstChild;
+  let leaveloop = false;
+  do {
+    if (this.isEventListItem(listItem)) {
+      if (listItem.occurrence.hashId == ahashId) {
+        return listItem;
+      }
+    }
+    listItem = listItem.nextSibling;
+    leaveloop = listItem == null;
+  } while (!leaveloop);
+  return null;
 };
 
 /**
@@ -866,131 +868,129 @@ agendaListbox.calendarOpListener = { agendaListbox: agendaListbox };
 agendaListbox.calendarObserver = { agendaListbox: agendaListbox };
 
 agendaListbox.calendarObserver.QueryInterface = cal.generateQI([
-    Ci.calIObserver,
-    Ci.calICompositeObserver
+  Ci.calIObserver,
+  Ci.calICompositeObserver,
 ]);
 
 // calIObserver:
-agendaListbox.calendarObserver.onStartBatch = function() {
-};
+agendaListbox.calendarObserver.onStartBatch = function() {};
 
-agendaListbox.calendarObserver.onEndBatch = function() {
-};
+agendaListbox.calendarObserver.onEndBatch = function() {};
 
 agendaListbox.calendarObserver.onLoad = function() {
-    this.agendaListbox.refreshCalendarQuery();
+  this.agendaListbox.refreshCalendarQuery();
 };
 
 agendaListbox.calendarObserver.onAddItem = function(item) {
-    if (!cal.item.isEvent(item)) {
-        return;
-    }
-    // get all sub items if it is a recurring item
-    let occs = this.getOccurrencesBetween(item);
-    occs.forEach(this.agendaListbox.addItem, this.agendaListbox);
-    setCurrentEvent();
+  if (!cal.item.isEvent(item)) {
+    return;
+  }
+  // get all sub items if it is a recurring item
+  let occs = this.getOccurrencesBetween(item);
+  occs.forEach(this.agendaListbox.addItem, this.agendaListbox);
+  setCurrentEvent();
 };
 
 agendaListbox.calendarObserver.getOccurrencesBetween = function(aItem) {
-    let occs = [];
-    let start = this.agendaListbox.getStart();
-    let end = this.agendaListbox.getEnd();
-    if (start && end) {
-        occs = aItem.getOccurrencesBetween(start, end, {});
-    }
-    return occs;
+  let occs = [];
+  let start = this.agendaListbox.getStart();
+  let end = this.agendaListbox.getEnd();
+  if (start && end) {
+    occs = aItem.getOccurrencesBetween(start, end, {});
+  }
+  return occs;
 };
 
 agendaListbox.calendarObserver.onDeleteItem = function(item, rebuildFlag) {
-    this.onLocalDeleteItem(item, true);
+  this.onLocalDeleteItem(item, true);
 };
 
 agendaListbox.calendarObserver.onLocalDeleteItem = function(item, moveSelection) {
-    if (!cal.item.isEvent(item)) {
-        return false;
+  if (!cal.item.isEvent(item)) {
+    return false;
+  }
+  let selectedItemHashId = -1;
+  // get all sub items if it is a recurring item
+  let occs = this.getOccurrencesBetween(item);
+  for (let i = 0; i < occs.length; i++) {
+    let isSelected = this.agendaListbox.deleteItem(occs[i], moveSelection);
+    if (isSelected) {
+      selectedItemHashId = occs[i].hashId;
     }
-    let selectedItemHashId = -1;
-    // get all sub items if it is a recurring item
-    let occs = this.getOccurrencesBetween(item);
-    for (let i = 0; i < occs.length; i++) {
-        let isSelected = this.agendaListbox.deleteItem(occs[i], moveSelection);
-        if (isSelected) {
-            selectedItemHashId = occs[i].hashId;
-        }
-    }
-    return selectedItemHashId;
+  }
+  return selectedItemHashId;
 };
 
 agendaListbox.calendarObserver.onModifyItem = function(newItem, oldItem) {
-    let selectedItemHashId = this.onLocalDeleteItem(oldItem, false);
-    if (!cal.item.isEvent(newItem)) {
-        return;
+  let selectedItemHashId = this.onLocalDeleteItem(oldItem, false);
+  if (!cal.item.isEvent(newItem)) {
+    return;
+  }
+  this.onAddItem(newItem);
+  if (selectedItemHashId != -1) {
+    let listItem = agendaListbox.getListItemByHashId(selectedItemHashId);
+    if (listItem) {
+      agendaListbox.agendaListboxControl.clearSelection();
+      agendaListbox.agendaListboxControl.ensureElementIsVisible(listItem);
+      agendaListbox.agendaListboxControl.selectedItem = listItem;
     }
-    this.onAddItem(newItem);
-    if (selectedItemHashId != -1) {
-        let listItem = agendaListbox.getListItemByHashId(selectedItemHashId);
-        if (listItem) {
-            agendaListbox.agendaListboxControl.clearSelection();
-            agendaListbox.agendaListboxControl.ensureElementIsVisible(listItem);
-            agendaListbox.agendaListboxControl.selectedItem = listItem;
-        }
-    }
-    setCurrentEvent();
+  }
+  setCurrentEvent();
 };
 
 agendaListbox.calendarObserver.onError = function(_cal, errno, msg) {};
 
 agendaListbox.calendarObserver.onPropertyChanged = function(aCalendar, aName, aValue, aOldValue) {
-    switch (aName) {
-        case "disabled":
-            this.agendaListbox.refreshCalendarQuery();
-            break;
-        case "color":
-            for (let node = agendaListbox.agendaListboxControl.firstChild;
-                 node;
-                 node = node.nextSibling) {
-                // Change color on all nodes that don't do so themselves, which
-                // is currently only he agenda-richlist-item
-                if (node.localName != "agenda-richlist-item") {
-                    continue;
-                }
-                node.refreshColor();
-            }
-            break;
-    }
+  switch (aName) {
+    case "disabled":
+      this.agendaListbox.refreshCalendarQuery();
+      break;
+    case "color":
+      for (
+        let node = agendaListbox.agendaListboxControl.firstChild;
+        node;
+        node = node.nextSibling
+      ) {
+        // Change color on all nodes that don't do so themselves, which
+        // is currently only he agenda-richlist-item
+        if (node.localName != "agenda-richlist-item") {
+          continue;
+        }
+        node.refreshColor();
+      }
+      break;
+  }
 };
 
 agendaListbox.calendarObserver.onPropertyDeleting = function(aCalendar, aName) {
-    this.onPropertyChanged(aCalendar, aName, null, null);
+  this.onPropertyChanged(aCalendar, aName, null, null);
 };
 
-
 agendaListbox.calendarObserver.onCalendarRemoved = function(aCalendar) {
-    if (!aCalendar.getProperty("disabled")) {
-        this.agendaListbox.deleteItemsFromCalendar(aCalendar);
-    }
+  if (!aCalendar.getProperty("disabled")) {
+    this.agendaListbox.deleteItemsFromCalendar(aCalendar);
+  }
 };
 
 agendaListbox.calendarObserver.onCalendarAdded = function(aCalendar) {
-    if (!aCalendar.getProperty("disabled")) {
-        this.agendaListbox.refreshCalendarQuery(null, null, aCalendar);
-    }
+  if (!aCalendar.getProperty("disabled")) {
+    this.agendaListbox.refreshCalendarQuery(null, null, aCalendar);
+  }
 };
 
-agendaListbox.calendarObserver.onDefaultCalendarChanged = function(aCalendar) {
-};
+agendaListbox.calendarObserver.onDefaultCalendarChanged = function(aCalendar) {};
 
 /**
  * Updates the "Upcoming" section of today pane when preference soondays changes
  **/
 agendaListbox.updateSoonSection = function() {
-    this.soon.duration = this.soonDays;
-    this.soon.open = true;
-    let soonHeader = document.getElementById("nextweek-header");
-    if (soonHeader) {
-        soonHeader.setItem(this.soon, true);
-        agendaListbox.refreshPeriodDates(cal.dtz.now());
-    }
+  this.soon.duration = this.soonDays;
+  this.soon.open = true;
+  let soonHeader = document.getElementById("nextweek-header");
+  if (soonHeader) {
+    soonHeader.setItem(this.soon, true);
+    agendaListbox.refreshPeriodDates(cal.dtz.now());
+  }
 };
 
 /**
@@ -1001,60 +1001,60 @@ agendaListbox.updateSoonSection = function() {
  * @see scheduleNextCurrentEventUpdate
  */
 function setCurrentEvent() {
-    if (!agendaListbox.showsToday() || !agendaListbox.today.open) {
-        return;
-    }
+  if (!agendaListbox.showsToday() || !agendaListbox.today.open) {
+    return;
+  }
 
-    let msScheduleTime = -1;
-    let complistItem = agendaListbox.tomorrow.listItem.previousSibling;
-    let removelist = [];
-    let anow = cal.dtz.now();
-    let msuntillend = 0;
-    let msuntillstart = 0;
-    let leaveloop;
-    do {
-        leaveloop = !agendaListbox.isEventListItem(complistItem);
-        if (!leaveloop) {
-            msuntillstart = complistItem.occurrence.startDate
-                                        .getInTimezone(agendaListbox.kDefaultTimezone)
-                                        .subtractDate(anow).inSeconds;
-            if (msuntillstart <= 0) {
-                msuntillend = complistItem.occurrence.endDate
-                                          .getInTimezone(agendaListbox.kDefaultTimezone)
-                                          .subtractDate(anow).inSeconds;
-                if (msuntillend > 0) {
-                    complistItem.setAttribute("current", "true");
-                    if (msuntillend < msScheduleTime || msScheduleTime == -1) {
-                        msScheduleTime = msuntillend;
-                    }
-                } else {
-                    removelist.push(complistItem);
-                }
-            } else {
-                complistItem.removeAttribute("current");
-            }
-            if (msScheduleTime == -1 || msuntillstart < msScheduleTime) {
-                if (msuntillstart > 0) {
-                    msScheduleTime = msuntillstart;
-                }
-            }
+  let msScheduleTime = -1;
+  let complistItem = agendaListbox.tomorrow.listItem.previousSibling;
+  let removelist = [];
+  let anow = cal.dtz.now();
+  let msuntillend = 0;
+  let msuntillstart = 0;
+  let leaveloop;
+  do {
+    leaveloop = !agendaListbox.isEventListItem(complistItem);
+    if (!leaveloop) {
+      msuntillstart = complistItem.occurrence.startDate
+        .getInTimezone(agendaListbox.kDefaultTimezone)
+        .subtractDate(anow).inSeconds;
+      if (msuntillstart <= 0) {
+        msuntillend = complistItem.occurrence.endDate
+          .getInTimezone(agendaListbox.kDefaultTimezone)
+          .subtractDate(anow).inSeconds;
+        if (msuntillend > 0) {
+          complistItem.setAttribute("current", "true");
+          if (msuntillend < msScheduleTime || msScheduleTime == -1) {
+            msScheduleTime = msuntillend;
+          }
+        } else {
+          removelist.push(complistItem);
         }
-        if (!leaveloop) {
-            complistItem = complistItem.previousSibling;
+      } else {
+        complistItem.removeAttribute("current");
+      }
+      if (msScheduleTime == -1 || msuntillstart < msScheduleTime) {
+        if (msuntillstart > 0) {
+          msScheduleTime = msuntillstart;
         }
-    } while (!leaveloop);
-
-    if (msScheduleTime > -1) {
-        scheduleNextCurrentEventUpdate(setCurrentEvent, msScheduleTime * 1000);
+      }
     }
-
-    if (removelist) {
-        if (removelist.length > 0) {
-            for (let i = 0; i < removelist.length; i++) {
-                removelist[i].remove();
-            }
-        }
+    if (!leaveloop) {
+      complistItem = complistItem.previousSibling;
     }
+  } while (!leaveloop);
+
+  if (msScheduleTime > -1) {
+    scheduleNextCurrentEventUpdate(setCurrentEvent, msScheduleTime * 1000);
+  }
+
+  if (removelist) {
+    if (removelist.length > 0) {
+      for (let i = 0; i < removelist.length; i++) {
+        removelist[i].remove();
+      }
+    }
+  }
 }
 
 var gEventTimer;
@@ -1069,37 +1069,37 @@ var gEventTimer;
  *                                is current.
  */
 function scheduleNextCurrentEventUpdate(aRefreshCallback, aMsUntil) {
-    // Is an nsITimer/callback extreme overkill here? Yes, but it's necessary to
-    // workaround bug 291386.  If we don't, we stand a decent chance of getting
-    // stuck in an infinite loop.
-    let udCallback = {
-        notify: function(timer) {
-            aRefreshCallback();
+  // Is an nsITimer/callback extreme overkill here? Yes, but it's necessary to
+  // workaround bug 291386.  If we don't, we stand a decent chance of getting
+  // stuck in an infinite loop.
+  let udCallback = {
+    notify: function(timer) {
+      aRefreshCallback();
+    },
+  };
+
+  if (gEventTimer) {
+    gEventTimer.cancel();
+  } else {
+    // Observer for wake after sleep/hibernate/standby to create new timers and refresh UI
+    let wakeObserver = {
+      observe: function(aSubject, aTopic, aData) {
+        if (aTopic == "wake_notification") {
+          aRefreshCallback();
         }
+      },
     };
+    // Add observer
+    Services.obs.addObserver(wakeObserver, "wake_notification");
 
-    if (gEventTimer) {
-        gEventTimer.cancel();
-    } else {
-        // Observer for wake after sleep/hibernate/standby to create new timers and refresh UI
-        let wakeObserver = {
-            observe: function(aSubject, aTopic, aData) {
-                if (aTopic == "wake_notification") {
-                    aRefreshCallback();
-                }
-            }
-        };
-        // Add observer
-        Services.obs.addObserver(wakeObserver, "wake_notification");
+    // Remove observer on unload
+    window.addEventListener("unload", () => {
+      Services.obs.removeObserver(wakeObserver, "wake_notification");
+    });
 
-        // Remove observer on unload
-        window.addEventListener("unload", () => {
-            Services.obs.removeObserver(wakeObserver, "wake_notification");
-        });
-
-        gEventTimer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
-    }
-    gEventTimer.initWithCallback(udCallback, aMsUntil, gEventTimer.TYPE_ONE_SHOT);
+    gEventTimer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
+  }
+  gEventTimer.initWithCallback(udCallback, aMsUntil, gEventTimer.TYPE_ONE_SHOT);
 }
 
 /**
@@ -1107,18 +1107,18 @@ function scheduleNextCurrentEventUpdate(aRefreshCallback, aMsUntil) {
  * erroneous values edited in the lightning.js preference file
  **/
 function getSoondaysPreference() {
-    let prefName = "calendar.agendaListbox.soondays";
-    let soonpref = Services.prefs.getIntPref(prefName, 5);
+  let prefName = "calendar.agendaListbox.soondays";
+  let soonpref = Services.prefs.getIntPref(prefName, 5);
 
-    if (soonpref > 0 && soonpref <= 28) {
-        if (soonpref % 7 != 0) {
-            let intSoonpref = Math.floor(soonpref / 7) * 7;
-            soonpref = (intSoonpref == 0 ? soonpref : intSoonpref);
-            Services.prefs.setIntPref(prefName, soonpref);
-        }
-    } else {
-        soonpref = soonpref > 28 ? 28 : 1;
-        Services.prefs.setIntPref(prefName, soonpref);
+  if (soonpref > 0 && soonpref <= 28) {
+    if (soonpref % 7 != 0) {
+      let intSoonpref = Math.floor(soonpref / 7) * 7;
+      soonpref = intSoonpref == 0 ? soonpref : intSoonpref;
+      Services.prefs.setIntPref(prefName, soonpref);
     }
-    return soonpref;
+  } else {
+    soonpref = soonpref > 28 ? 28 : 1;
+    Services.prefs.setIntPref(prefName, soonpref);
+  }
+  return soonpref;
 }

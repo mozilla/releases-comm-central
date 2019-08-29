@@ -11,98 +11,100 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
  * NOTE: The naming "Meteors" is historical.
  */
 var gCalendarStatusFeedback = {
-    mCalendarStep: 0,
-    mCalendarCount: 0,
-    mWindow: null,
-    mStatusText: null,
-    mStatusBar: null,
-    mStatusProgressPanel: null,
-    mThrobber: null,
-    mProgressMode: Ci.calIStatusObserver.NO_PROGRESS,
-    mCurIndex: 0,
-    mInitialized: false,
-    mCalendars: {},
+  mCalendarStep: 0,
+  mCalendarCount: 0,
+  mWindow: null,
+  mStatusText: null,
+  mStatusBar: null,
+  mStatusProgressPanel: null,
+  mThrobber: null,
+  mProgressMode: Ci.calIStatusObserver.NO_PROGRESS,
+  mCurIndex: 0,
+  mInitialized: false,
+  mCalendars: {},
 
-    QueryInterface: ChromeUtils.generateQI([Ci.calIStatusObserver]),
+  QueryInterface: ChromeUtils.generateQI([Ci.calIStatusObserver]),
 
-    initialize: function(aWindow) {
-        if (!this.mInitialized) {
-            this.mWindow = aWindow;
-            this.mStatusText = this.mWindow.document.getElementById("statusText");
-            this.mStatusBar = this.mWindow.document.getElementById("statusbar-icon");
-            this.mStatusProgressPanel = this.mWindow.document.getElementById("statusbar-progresspanel");
-            this.mThrobber = this.mWindow.document.getElementById("navigator-throbber");
-            this.mInitialized = true;
-        }
-    },
-
-    showStatusString: function(status) {
-        this.mStatusText.setAttribute("label", status);
-    },
-
-    get spinning() {
-        return this.mProgressMode;
-    },
-
-    startMeteors: function(aProgressMode, aCalendarCount) {
-        if (aProgressMode != Ci.calIStatusObserver.NO_PROGRESS) {
-            if (!this.mInitialized) {
-                Cu.reportError("StatusObserver has not been initialized!");
-                return;
-            }
-            this.mCalendars = {};
-            this.mCurIndex = 0;
-            if (aCalendarCount) {
-                this.mCalendarCount = this.mCalendarCount + aCalendarCount;
-                this.mCalendarStep = Math.trunc(100 / this.mCalendarCount);
-            }
-            this.mProgressMode = aProgressMode;
-            this.mStatusProgressPanel.removeAttribute("collapsed");
-            if (this.mProgressMode == Ci.calIStatusObserver.DETERMINED_PROGRESS) {
-                this.mStatusBar.value = 0;
-                let commonStatus = cal.l10n.getCalString("gettingCalendarInfoCommon");
-                this.showStatusString(commonStatus);
-            }
-            if (this.mThrobber) {
-                this.mThrobber.setAttribute("busy", true);
-            }
-        }
-    },
-
-    stopMeteors: function() {
-        if (!this.mInitialized) {
-            return;
-        }
-        if (this.spinning != Ci.calIStatusObserver.NO_PROGRESS) {
-            this.mProgressMode = Ci.calIStatusObserver.NO_PROGRESS;
-            this.mStatusProgressPanel.collapsed = true;
-            this.mStatusBar.value = 0;
-            this.mCalendarCount = 0;
-            this.showStatusString("");
-            if (this.mThrobber) {
-                this.mThrobber.setAttribute("busy", false);
-            }
-        }
-    },
-
-    calendarCompleted: function(aCalendar) {
-        if (!this.mInitialized) {
-            return;
-        }
-        if (this.spinning != Ci.calIStatusObserver.NO_PROGRESS) {
-            if (this.spinning == Ci.calIStatusObserver.DETERMINED_PROGRESS) {
-                if (!this.mCalendars[aCalendar.id] || this.mCalendars[aCalendar.id] === undefined) {
-                    this.mCalendars[aCalendar.id] = true;
-                    this.mStatusBar.value = parseInt(this.mStatusBar.value, 10) + this.mCalendarStep;
-                    this.mCurIndex++;
-                    let curStatus = cal.l10n.getCalString("gettingCalendarInfoDetail",
-                                                               [this.mCurIndex, this.mCalendarCount]);
-                    this.showStatusString(curStatus);
-                }
-            }
-            if (this.mThrobber) {
-                this.mThrobber.setAttribute("busy", true);
-            }
-        }
+  initialize: function(aWindow) {
+    if (!this.mInitialized) {
+      this.mWindow = aWindow;
+      this.mStatusText = this.mWindow.document.getElementById("statusText");
+      this.mStatusBar = this.mWindow.document.getElementById("statusbar-icon");
+      this.mStatusProgressPanel = this.mWindow.document.getElementById("statusbar-progresspanel");
+      this.mThrobber = this.mWindow.document.getElementById("navigator-throbber");
+      this.mInitialized = true;
     }
+  },
+
+  showStatusString: function(status) {
+    this.mStatusText.setAttribute("label", status);
+  },
+
+  get spinning() {
+    return this.mProgressMode;
+  },
+
+  startMeteors: function(aProgressMode, aCalendarCount) {
+    if (aProgressMode != Ci.calIStatusObserver.NO_PROGRESS) {
+      if (!this.mInitialized) {
+        Cu.reportError("StatusObserver has not been initialized!");
+        return;
+      }
+      this.mCalendars = {};
+      this.mCurIndex = 0;
+      if (aCalendarCount) {
+        this.mCalendarCount = this.mCalendarCount + aCalendarCount;
+        this.mCalendarStep = Math.trunc(100 / this.mCalendarCount);
+      }
+      this.mProgressMode = aProgressMode;
+      this.mStatusProgressPanel.removeAttribute("collapsed");
+      if (this.mProgressMode == Ci.calIStatusObserver.DETERMINED_PROGRESS) {
+        this.mStatusBar.value = 0;
+        let commonStatus = cal.l10n.getCalString("gettingCalendarInfoCommon");
+        this.showStatusString(commonStatus);
+      }
+      if (this.mThrobber) {
+        this.mThrobber.setAttribute("busy", true);
+      }
+    }
+  },
+
+  stopMeteors: function() {
+    if (!this.mInitialized) {
+      return;
+    }
+    if (this.spinning != Ci.calIStatusObserver.NO_PROGRESS) {
+      this.mProgressMode = Ci.calIStatusObserver.NO_PROGRESS;
+      this.mStatusProgressPanel.collapsed = true;
+      this.mStatusBar.value = 0;
+      this.mCalendarCount = 0;
+      this.showStatusString("");
+      if (this.mThrobber) {
+        this.mThrobber.setAttribute("busy", false);
+      }
+    }
+  },
+
+  calendarCompleted: function(aCalendar) {
+    if (!this.mInitialized) {
+      return;
+    }
+    if (this.spinning != Ci.calIStatusObserver.NO_PROGRESS) {
+      if (this.spinning == Ci.calIStatusObserver.DETERMINED_PROGRESS) {
+        if (!this.mCalendars[aCalendar.id] || this.mCalendars[aCalendar.id] === undefined) {
+          this.mCalendars[aCalendar.id] = true;
+          this.mStatusBar.value = parseInt(this.mStatusBar.value, 10) + this.mCalendarStep;
+          this.mCurIndex++;
+          let curStatus = cal.l10n.getCalString("gettingCalendarInfoDetail", [
+            this.mCurIndex,
+            this.mCalendarCount,
+          ]);
+          this.showStatusString(curStatus);
+        }
+      }
+      if (this.mThrobber) {
+        this.mThrobber.setAttribute("busy", true);
+      }
+    }
+  },
 };

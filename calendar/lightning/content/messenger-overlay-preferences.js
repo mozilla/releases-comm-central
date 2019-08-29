@@ -15,12 +15,12 @@
 Preferences.add({ id: "calendar.preferences.lightning.selectedTabIndex", type: "int" });
 
 var gLightningPane = {
-    init: function() {
-        let elements = document.querySelectorAll("#paneLightning preference");
-        for (let element of elements) {
-            element.updateElements();
-        }
-    },
+  init: function() {
+    let elements = document.querySelectorAll("#paneLightning preference");
+    for (let element of elements) {
+      element.updateElements();
+    }
+  },
 };
 
 gCalendarGeneralPane.init();

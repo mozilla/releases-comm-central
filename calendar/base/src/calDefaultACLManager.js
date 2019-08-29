@@ -7,101 +7,96 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 /* calDefaultACLManager */
 function calDefaultACLManager() {
-    this.mCalendarEntries = {};
+  this.mCalendarEntries = {};
 }
 
 calDefaultACLManager.prototype = {
-    QueryInterface: ChromeUtils.generateQI([Ci.calICalendarACLManager]),
-    classID: Components.ID("{7463258c-6ef3-40a2-89a9-bb349596e927}"),
+  QueryInterface: ChromeUtils.generateQI([Ci.calICalendarACLManager]),
+  classID: Components.ID("{7463258c-6ef3-40a2-89a9-bb349596e927}"),
 
-    mCalendarEntries: null,
+  mCalendarEntries: null,
 
-    /* calICalendarACLManager */
-    _getCalendarEntryCached: function(aCalendar) {
-        let calUri = aCalendar.uri.spec;
-        if (!(calUri in this.mCalendarEntries)) {
-            this.mCalendarEntries[calUri] = new calDefaultCalendarACLEntry(this, aCalendar);
-        }
+  /* calICalendarACLManager */
+  _getCalendarEntryCached: function(aCalendar) {
+    let calUri = aCalendar.uri.spec;
+    if (!(calUri in this.mCalendarEntries)) {
+      this.mCalendarEntries[calUri] = new calDefaultCalendarACLEntry(this, aCalendar);
+    }
 
-        return this.mCalendarEntries[calUri];
-    },
-    getCalendarEntry: function(aCalendar, aListener) {
-        let entry = this._getCalendarEntryCached(aCalendar);
-        aListener.onOperationComplete(aCalendar, Cr.NS_OK,
-                                      Ci.calIOperationListener.GET,
-                                      null,
-                                      entry);
-    },
-    getItemEntry: function(aItem) {
-        let calEntry = this._getCalendarEntryCached(aItem.calendar);
-        return new calDefaultItemACLEntry(calEntry);
-    },
-
+    return this.mCalendarEntries[calUri];
+  },
+  getCalendarEntry: function(aCalendar, aListener) {
+    let entry = this._getCalendarEntryCached(aCalendar);
+    aListener.onOperationComplete(aCalendar, Cr.NS_OK, Ci.calIOperationListener.GET, null, entry);
+  },
+  getItemEntry: function(aItem) {
+    let calEntry = this._getCalendarEntryCached(aItem.calendar);
+    return new calDefaultItemACLEntry(calEntry);
+  },
 };
 
 function calDefaultCalendarACLEntry(aMgr, aCalendar) {
-    this.mACLManager = aMgr;
-    this.mCalendar = aCalendar;
+  this.mACLManager = aMgr;
+  this.mCalendar = aCalendar;
 }
 
 calDefaultCalendarACLEntry.prototype = {
-    QueryInterface: ChromeUtils.generateQI([Ci.calICalendarACLEntry]),
+  QueryInterface: ChromeUtils.generateQI([Ci.calICalendarACLEntry]),
 
-    mACLManager: null,
+  mACLManager: null,
 
-    /* calICalendarACLCalendarEntry */
-    get aclManager() {
-        return this.mACLManager;
-    },
+  /* calICalendarACLCalendarEntry */
+  get aclManager() {
+    return this.mACLManager;
+  },
 
-    hasAccessControl: false,
-    userIsOwner: true,
-    userCanAddItems: true,
-    userCanDeleteItems: true,
+  hasAccessControl: false,
+  userIsOwner: true,
+  userCanAddItems: true,
+  userCanDeleteItems: true,
 
-    _getIdentities: function(aCount) {
-        let identities = [];
-        cal.email.iterateIdentities(id => identities.push(id));
-        aCount.value = identities.length;
-        return identities;
-    },
+  _getIdentities: function(aCount) {
+    let identities = [];
+    cal.email.iterateIdentities(id => identities.push(id));
+    aCount.value = identities.length;
+    return identities;
+  },
 
-    getUserAddresses: function(aCount) {
-        let identities = this.getUserIdentities(aCount);
-        let addresses = identities.map(id => id.email);
-        return addresses;
-    },
+  getUserAddresses: function(aCount) {
+    let identities = this.getUserIdentities(aCount);
+    let addresses = identities.map(id => id.email);
+    return addresses;
+  },
 
-    getUserIdentities: function(aCount) {
-        let identity = cal.provider.getEmailIdentityOfCalendar(this.mCalendar);
-        if (identity) {
-            aCount.value = 1;
-            return [identity];
-        } else {
-            return this._getIdentities(aCount);
-        }
-    },
-    getOwnerIdentities: function(aCount) {
-        return this._getIdentities(aCount);
-    },
-
-    refresh: function() {
+  getUserIdentities: function(aCount) {
+    let identity = cal.provider.getEmailIdentityOfCalendar(this.mCalendar);
+    if (identity) {
+      aCount.value = 1;
+      return [identity];
+    } else {
+      return this._getIdentities(aCount);
     }
+  },
+  getOwnerIdentities: function(aCount) {
+    return this._getIdentities(aCount);
+  },
+
+  refresh: function() {},
 };
 
 function calDefaultItemACLEntry(aCalendarEntry) {
-    this.calendarEntry = aCalendarEntry;
+  this.calendarEntry = aCalendarEntry;
 }
 
 calDefaultItemACLEntry.prototype = {
-    QueryInterface: ChromeUtils.generateQI([Ci.calIItemACLEntry]),
+  QueryInterface: ChromeUtils.generateQI([Ci.calIItemACLEntry]),
 
-    /* calIItemACLEntry */
-    calendarEntry: null,
-    userCanModify: true,
-    userCanRespond: true,
-    userCanViewAll: true,
-    userCanViewDateAndTime: true,
+  /* calIItemACLEntry */
+  calendarEntry: null,
+  userCanModify: true,
+  userCanRespond: true,
+  userCanViewAll: true,
+  userCanViewDateAndTime: true,
 };
 
 /** Module Registration */

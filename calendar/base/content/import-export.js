@@ -22,101 +22,106 @@ var MODE_TRUNCATE = 0x20;
  *                              into the calendar
  */
 function loadEventsFromFile(aCalendar) {
-    let picker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
-    picker.init(window,
-                cal.l10n.getCalString("filepickerTitleImport"),
-                Ci.nsIFilePicker.modeOpen);
-    picker.defaultExtension = "ics";
+  let picker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
+  picker.init(window, cal.l10n.getCalString("filepickerTitleImport"), Ci.nsIFilePicker.modeOpen);
+  picker.defaultExtension = "ics";
 
-    // Get a list of importers
-    let contractids = [];
-    let currentListLength = 0;
-    let defaultCIDIndex = 0;
-    for (let { data } of Services.catMan.enumerateCategory("cal-importers")) {
-        let contractid = Services.catMan.getCategoryEntry("cal-importers", data);
-        let importer;
-        try {
-            importer = Cc[contractid].getService(Ci.calIImporter);
-        } catch (e) {
-            cal.WARN("Could not initialize importer: " + contractid + "\nError: " + e);
-            continue;
-        }
-        let types = importer.getFileTypes({});
-        for (let type of types) {
-            picker.appendFilter(type.description, type.extensionFilter);
-            if (type.extensionFilter == "*." + picker.defaultExtension) {
-                picker.filterIndex = currentListLength;
-                defaultCIDIndex = currentListLength;
-            }
-            contractids.push(contractid);
-            currentListLength++;
-        }
+  // Get a list of importers
+  let contractids = [];
+  let currentListLength = 0;
+  let defaultCIDIndex = 0;
+  for (let { data } of Services.catMan.enumerateCategory("cal-importers")) {
+    let contractid = Services.catMan.getCategoryEntry("cal-importers", data);
+    let importer;
+    try {
+      importer = Cc[contractid].getService(Ci.calIImporter);
+    } catch (e) {
+      cal.WARN("Could not initialize importer: " + contractid + "\nError: " + e);
+      continue;
+    }
+    let types = importer.getFileTypes({});
+    for (let type of types) {
+      picker.appendFilter(type.description, type.extensionFilter);
+      if (type.extensionFilter == "*." + picker.defaultExtension) {
+        picker.filterIndex = currentListLength;
+        defaultCIDIndex = currentListLength;
+      }
+      contractids.push(contractid);
+      currentListLength++;
+    }
+  }
+
+  picker.open(rv => {
+    if (rv != Ci.nsIFilePicker.returnOK || !picker.file || !picker.file.path) {
+      return;
     }
 
-    picker.open(rv => {
-        if (rv != Ci.nsIFilePicker.returnOK || !picker.file || !picker.file.path) {
-            return;
-        }
+    let filterIndex = picker.filterIndex;
+    if (picker.filterIndex < 0 || picker.filterIndex > contractids.length) {
+      // For some reason the wrong filter was selected, assume default extension
+      filterIndex = defaultCIDIndex;
+    }
 
-        let filterIndex = picker.filterIndex;
-        if (picker.filterIndex < 0 || picker.filterIndex > contractids.length) {
-            // For some reason the wrong filter was selected, assume default extension
-            filterIndex = defaultCIDIndex;
-        }
+    let filePath = picker.file.path;
+    let importer = Cc[contractids[filterIndex]].getService(Ci.calIImporter);
 
-        let filePath = picker.file.path;
-        let importer = Cc[contractids[filterIndex]].getService(Ci.calIImporter);
+    let inputStream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
+      Ci.nsIFileInputStream
+    );
+    let items = [];
+    let exception;
 
-        let inputStream = Cc["@mozilla.org/network/file-input-stream;1"]
-                            .createInstance(Ci.nsIFileInputStream);
-        let items = [];
-        let exception;
+    try {
+      inputStream.init(picker.file, MODE_RDONLY, parseInt("0444", 8), {});
+      items = importer.importFromStream(inputStream, {});
+    } catch (ex) {
+      exception = ex;
+      switch (ex.result) {
+        case Ci.calIErrors.INVALID_TIMEZONE:
+          cal.showError(cal.l10n.getCalString("timezoneError", [filePath]), window);
+          break;
+        default:
+          cal.showError(cal.l10n.getCalString("unableToRead") + filePath + "\n" + ex, window);
+      }
+    } finally {
+      inputStream.close();
+    }
 
-        try {
-            inputStream.init(picker.file, MODE_RDONLY, parseInt("0444", 8), {});
-            items = importer.importFromStream(inputStream, {});
-        } catch (ex) {
-            exception = ex;
-            switch (ex.result) {
-                case Ci.calIErrors.INVALID_TIMEZONE:
-                    cal.showError(cal.l10n.getCalString("timezoneError", [filePath]), window);
-                    break;
-                default:
-                    cal.showError(cal.l10n.getCalString("unableToRead") + filePath + "\n" + ex, window);
-            }
-        } finally {
-            inputStream.close();
-        }
+    if (!items.length && !exception) {
+      // the ics did not contain any events, so there's no need to proceed. But we should
+      // notify the user about it, if we haven't before.
+      cal.showError(cal.l10n.getCalString("noItemsInCalendarFile", [filePath]), window);
+      return;
+    }
 
-        if (!items.length && !exception) {
-            // the ics did not contain any events, so there's no need to proceed. But we should
-            // notify the user about it, if we haven't before.
-            cal.showError(cal.l10n.getCalString("noItemsInCalendarFile", [filePath]), window);
-            return;
-        }
+    if (aCalendar) {
+      putItemsIntoCal(aCalendar, items);
+      return;
+    }
 
-        if (aCalendar) {
-            putItemsIntoCal(aCalendar, items);
-            return;
-        }
+    let calendars = cal.getCalendarManager().getCalendars({});
+    calendars = calendars.filter(cal.acl.isCalendarWritable);
 
-        let calendars = cal.getCalendarManager().getCalendars({});
-        calendars = calendars.filter(cal.acl.isCalendarWritable);
-
-        if (calendars.length == 1) {
-            // There's only one calendar, so it's silly to ask what calendar
-            // the user wants to import into.
-            putItemsIntoCal(calendars[0], items, filePath);
-        } else if (calendars.length > 1) {
-            // Ask what calendar to import into
-            let args = {};
-            args.onOk = (aCal) => { putItemsIntoCal(aCal, items, filePath); };
-            args.calendars = calendars;
-            args.promptText = cal.l10n.getCalString("importPrompt");
-            openDialog("chrome://calendar/content/chooseCalendarDialog.xul",
-                       "_blank", "chrome,titlebar,modal,resizable", args);
-        }
-    });
+    if (calendars.length == 1) {
+      // There's only one calendar, so it's silly to ask what calendar
+      // the user wants to import into.
+      putItemsIntoCal(calendars[0], items, filePath);
+    } else if (calendars.length > 1) {
+      // Ask what calendar to import into
+      let args = {};
+      args.onOk = aCal => {
+        putItemsIntoCal(aCal, items, filePath);
+      };
+      args.calendars = calendars;
+      args.promptText = cal.l10n.getCalString("importPrompt");
+      openDialog(
+        "chrome://calendar/content/chooseCalendarDialog.xul",
+        "_blank",
+        "chrome,titlebar,modal,resizable",
+        args
+      );
+    }
+  });
 }
 
 /**
@@ -128,73 +133,72 @@ function loadEventsFromFile(aCalendar) {
  * @param aFilePath     The original file path, for error messages.
  */
 function putItemsIntoCal(destCal, aItems, aFilePath) {
-    // Set batch for the undo/redo transaction manager
-    startBatchTransaction();
+  // Set batch for the undo/redo transaction manager
+  startBatchTransaction();
 
-    // And set batch mode on the calendar, to tell the views to not
-    // redraw until all items are imported
-    destCal.startBatch();
+  // And set batch mode on the calendar, to tell the views to not
+  // redraw until all items are imported
+  destCal.startBatch();
 
-    // This listener is needed to find out when the last addItem really
-    // finished. Using a counter to find the last item (which might not
-    // be the last item added)
-    let count = 0;
-    let failedCount = 0;
-    let duplicateCount = 0;
-    // Used to store the last error. Only the last error, because we don't
-    // want to bomb the user with thousands of error messages in case
-    // something went really wrong.
-    // (example of something very wrong: importing the same file twice.
-    //  quite easy to trigger, so we really should do this)
-    let lastError;
-    let listener = {
-        QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-        onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
-            count++;
-            if (!Components.isSuccessCode(aStatus)) {
-                if (aStatus == Ci.calIErrors.DUPLICATE_ID) {
-                    duplicateCount++;
-                } else {
-                    failedCount++;
-                    lastError = aStatus;
-                }
-            }
-            // See if it is time to end the calendar's batch.
-            if (count == aItems.length) {
-                destCal.endBatch();
-                if (!failedCount && duplicateCount) {
-                    cal.showError(
-                        cal.l10n.getCalString("duplicateError", [duplicateCount, aFilePath]),
-                        window
-                    );
-                } else if (failedCount) {
-                    cal.showError(
-                        cal.l10n.getCalString("importItemsFailed",
-                                              [failedCount, lastError.toString()]),
-                        window
-                    );
-                }
-            }
+  // This listener is needed to find out when the last addItem really
+  // finished. Using a counter to find the last item (which might not
+  // be the last item added)
+  let count = 0;
+  let failedCount = 0;
+  let duplicateCount = 0;
+  // Used to store the last error. Only the last error, because we don't
+  // want to bomb the user with thousands of error messages in case
+  // something went really wrong.
+  // (example of something very wrong: importing the same file twice.
+  //  quite easy to trigger, so we really should do this)
+  let lastError;
+  let listener = {
+    QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+    onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
+      count++;
+      if (!Components.isSuccessCode(aStatus)) {
+        if (aStatus == Ci.calIErrors.DUPLICATE_ID) {
+          duplicateCount++;
+        } else {
+          failedCount++;
+          lastError = aStatus;
         }
-    };
-
-    for (let item of aItems) {
-        // XXX prompt when finding a duplicate.
-        try {
-            destCal.addItem(item, listener);
-        } catch (e) {
-            failedCount++;
-            lastError = e;
-            // Call the listener's operationComplete, to increase the
-            // counter and not miss failed items. Otherwise, endBatch might
-            // never be called.
-            listener.onOperationComplete(null, null, null, null, null);
-            Cu.reportError("Import error: " + e);
+      }
+      // See if it is time to end the calendar's batch.
+      if (count == aItems.length) {
+        destCal.endBatch();
+        if (!failedCount && duplicateCount) {
+          cal.showError(
+            cal.l10n.getCalString("duplicateError", [duplicateCount, aFilePath]),
+            window
+          );
+        } else if (failedCount) {
+          cal.showError(
+            cal.l10n.getCalString("importItemsFailed", [failedCount, lastError.toString()]),
+            window
+          );
         }
+      }
+    },
+  };
+
+  for (let item of aItems) {
+    // XXX prompt when finding a duplicate.
+    try {
+      destCal.addItem(item, listener);
+    } catch (e) {
+      failedCount++;
+      lastError = e;
+      // Call the listener's operationComplete, to increase the
+      // counter and not miss failed items. Otherwise, endBatch might
+      // never be called.
+      listener.onOperationComplete(null, null, null, null, null);
+      Cu.reportError("Import error: " + e);
     }
+  }
 
-    // End transmgr batch
-    endBatchTransaction();
+  // End transmgr batch
+  endBatchTransaction();
 }
 
 /**
@@ -205,97 +209,95 @@ function putItemsIntoCal(destCal, aItems, aFilePath) {
  * @param aDefaultFileName   (optional) Initial filename shown in SaveAs dialog.
  */
 function saveEventsToFile(calendarEventArray, aDefaultFileName) {
-    if (!calendarEventArray || !calendarEventArray.length) {
-        return;
+  if (!calendarEventArray || !calendarEventArray.length) {
+    return;
+  }
+
+  // Show the 'Save As' dialog and ask for a filename to save to
+  let picker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
+
+  picker.init(window, cal.l10n.getCalString("filepickerTitleExport"), Ci.nsIFilePicker.modeSave);
+
+  if (aDefaultFileName && aDefaultFileName.length && aDefaultFileName.length > 0) {
+    picker.defaultString = aDefaultFileName;
+  } else if (calendarEventArray.length == 1 && calendarEventArray[0].title) {
+    picker.defaultString = calendarEventArray[0].title;
+  } else {
+    picker.defaultString = cal.l10n.getCalString("defaultFileName");
+  }
+
+  picker.defaultExtension = "ics";
+
+  // Get a list of exporters
+  let contractids = [];
+  let currentListLength = 0;
+  let defaultCIDIndex = 0;
+  for (let { data } of Services.catMan.enumerateCategory("cal-exporters")) {
+    let contractid = Services.catMan.getCategoryEntry("cal-exporters", data);
+    let exporter;
+    try {
+      exporter = Cc[contractid].getService(Ci.calIExporter);
+    } catch (e) {
+      cal.WARN("Could not initialize exporter: " + contractid + "\nError: " + e);
+      continue;
+    }
+    let types = exporter.getFileTypes({});
+    for (let type of types) {
+      picker.appendFilter(type.description, type.extensionFilter);
+      if (type.extensionFilter == "*." + picker.defaultExtension) {
+        picker.filterIndex = currentListLength;
+        defaultCIDIndex = currentListLength;
+      }
+      contractids.push(contractid);
+      currentListLength++;
+    }
+  }
+
+  // Now find out as what to save, convert the events and save to file.
+  picker.open(rv => {
+    if (rv == Ci.nsIFilePicker.returnCancel || !picker.file || !picker.file.path) {
+      return;
     }
 
-    // Show the 'Save As' dialog and ask for a filename to save to
-    let picker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
-
-    picker.init(window,
-                cal.l10n.getCalString("filepickerTitleExport"),
-                Ci.nsIFilePicker.modeSave);
-
-    if (aDefaultFileName && aDefaultFileName.length && aDefaultFileName.length > 0) {
-        picker.defaultString = aDefaultFileName;
-    } else if (calendarEventArray.length == 1 && calendarEventArray[0].title) {
-        picker.defaultString = calendarEventArray[0].title;
-    } else {
-        picker.defaultString = cal.l10n.getCalString("defaultFileName");
+    let filterIndex = picker.filterIndex;
+    if (picker.filterIndex < 0 || picker.filterIndex > contractids.length) {
+      // For some reason the wrong filter was selected, assume default extension
+      filterIndex = defaultCIDIndex;
     }
 
-    picker.defaultExtension = "ics";
+    let exporter = Cc[contractids[filterIndex]].getService(Ci.calIExporter);
 
-    // Get a list of exporters
-    let contractids = [];
-    let currentListLength = 0;
-    let defaultCIDIndex = 0;
-    for (let { data } of Services.catMan.enumerateCategory("cal-exporters")) {
-        let contractid = Services.catMan.getCategoryEntry("cal-exporters", data);
-        let exporter;
-        try {
-            exporter = Cc[contractid].getService(Ci.calIExporter);
-        } catch (e) {
-            cal.WARN("Could not initialize exporter: " + contractid + "\nError: " + e);
-            continue;
-        }
-        let types = exporter.getFileTypes({});
-        for (let type of types) {
-            picker.appendFilter(type.description, type.extensionFilter);
-            if (type.extensionFilter == "*." + picker.defaultExtension) {
-                picker.filterIndex = currentListLength;
-                defaultCIDIndex = currentListLength;
-            }
-            contractids.push(contractid);
-            currentListLength++;
-        }
+    let filePath = picker.file.path;
+    if (!filePath.includes(".")) {
+      filePath += "." + exporter.getFileTypes({})[0].defaultExtension;
     }
 
-    // Now find out as what to save, convert the events and save to file.
-    picker.open(rv => {
-        if (rv == Ci.nsIFilePicker.returnCancel || !picker.file || !picker.file.path) {
-            return;
-        }
+    const nsIFile = Ci.nsIFile;
+    const nsIFileOutputStream = Ci.nsIFileOutputStream;
 
-        let filterIndex = picker.filterIndex;
-        if (picker.filterIndex < 0 || picker.filterIndex > contractids.length) {
-            // For some reason the wrong filter was selected, assume default extension
-            filterIndex = defaultCIDIndex;
-        }
+    let outputStream;
+    let localFileInstance = Cc["@mozilla.org/file/local;1"].createInstance(nsIFile);
+    localFileInstance.initWithPath(filePath);
 
-        let exporter = Cc[contractids[filterIndex]].getService(Ci.calIExporter);
+    outputStream = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(
+      nsIFileOutputStream
+    );
+    try {
+      outputStream.init(
+        localFileInstance,
+        MODE_WRONLY | MODE_CREATE | MODE_TRUNCATE,
+        parseInt("0664", 8),
+        0
+      );
 
-        let filePath = picker.file.path;
-        if (!filePath.includes(".")) {
-            filePath += "." + exporter.getFileTypes({})[0].defaultExtension;
-        }
-
-        const nsIFile = Ci.nsIFile;
-        const nsIFileOutputStream = Ci.nsIFileOutputStream;
-
-        let outputStream;
-        let localFileInstance = Cc["@mozilla.org/file/local;1"].createInstance(nsIFile);
-        localFileInstance.initWithPath(filePath);
-
-        outputStream = Cc["@mozilla.org/network/file-output-stream;1"]
-                         .createInstance(nsIFileOutputStream);
-        try {
-            outputStream.init(localFileInstance,
-                              MODE_WRONLY | MODE_CREATE | MODE_TRUNCATE,
-                              parseInt("0664", 8),
-                              0);
-
-            // XXX Do the right thing with unicode and stuff. Or, again, should the
-            //     exporter handle that?
-            exporter.exportToStream(outputStream,
-                                    calendarEventArray.length,
-                                    calendarEventArray,
-                                    null);
-            outputStream.close();
-        } catch (ex) {
-            cal.showError(cal.l10n.getCalString("unableToWrite") + filePath, window);
-        }
-    });
+      // XXX Do the right thing with unicode and stuff. Or, again, should the
+      //     exporter handle that?
+      exporter.exportToStream(outputStream, calendarEventArray.length, calendarEventArray, null);
+      outputStream.close();
+    } catch (ex) {
+      cal.showError(cal.l10n.getCalString("unableToWrite") + filePath, window);
+    }
+  });
 }
 
 /**
@@ -305,41 +307,44 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
  * @param aCalendar     (optional) A specific calendar to export
  */
 function exportEntireCalendar(aCalendar) {
-    let itemArray = [];
-    let getListener = {
-        QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-        onOperationComplete: function(aOpCalendar, aStatus, aOperationType, aId, aDetail) {
-            saveEventsToFile(itemArray, aOpCalendar.name);
-        },
-        onGetResult: function(aOpCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
-            for (let item of aItems) {
-                itemArray.push(item);
-            }
-        }
-    };
+  let itemArray = [];
+  let getListener = {
+    QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+    onOperationComplete: function(aOpCalendar, aStatus, aOperationType, aId, aDetail) {
+      saveEventsToFile(itemArray, aOpCalendar.name);
+    },
+    onGetResult: function(aOpCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+      for (let item of aItems) {
+        itemArray.push(item);
+      }
+    },
+  };
 
-    let getItemsFromCal = function(aCal) {
-        aCal.getItems(Ci.calICalendar.ITEM_FILTER_ALL_ITEMS,
-                      0, null, null, getListener);
-    };
+  let getItemsFromCal = function(aCal) {
+    aCal.getItems(Ci.calICalendar.ITEM_FILTER_ALL_ITEMS, 0, null, null, getListener);
+  };
 
-    if (aCalendar) {
-        getItemsFromCal(aCalendar);
+  if (aCalendar) {
+    getItemsFromCal(aCalendar);
+  } else {
+    let count = {};
+    let calendars = cal.getCalendarManager().getCalendars(count);
+
+    if (count.value == 1) {
+      // There's only one calendar, so it's silly to ask what calendar
+      // the user wants to import into.
+      getItemsFromCal(calendars[0]);
     } else {
-        let count = {};
-        let calendars = cal.getCalendarManager().getCalendars(count);
-
-        if (count.value == 1) {
-            // There's only one calendar, so it's silly to ask what calendar
-            // the user wants to import into.
-            getItemsFromCal(calendars[0]);
-        } else {
-            // Ask what calendar to import into
-            let args = {};
-            args.onOk = getItemsFromCal;
-            args.promptText = cal.l10n.getCalString("exportPrompt");
-            openDialog("chrome://calendar/content/chooseCalendarDialog.xul",
-                       "_blank", "chrome,titlebar,modal,resizable", args);
-        }
+      // Ask what calendar to import into
+      let args = {};
+      args.onOk = getItemsFromCal;
+      args.promptText = cal.l10n.getCalString("exportPrompt");
+      openDialog(
+        "chrome://calendar/content/chooseCalendarDialog.xul",
+        "_blank",
+        "chrome,titlebar,modal,resizable",
+        args
+      );
     }
+  }
 }
