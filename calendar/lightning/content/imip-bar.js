@@ -18,11 +18,15 @@ const imipBar = {
     get bar() {
         return document.querySelector(".lightning-notification-bar");
     },
-    // eslint-disable-next-line accessor-pairs
+    get label() {
+        return this.bar.querySelector(".msgNotificationBarText").textContent;
+    },
     set label(val) {
         this.bar.querySelector(".msgNotificationBarText").textContent = val;
     },
-    // eslint-disable-next-line accessor-pairs
+    get collapsed() {
+        return this.bar.collapsed;
+    },
     set collapsed(val) {
         this.bar.collapsed = val;
     }
