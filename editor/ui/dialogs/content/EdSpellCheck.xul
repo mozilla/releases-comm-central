@@ -57,7 +57,7 @@
         <richlistbox id="SuggestedList"
                      class="theme-listbox"
                      onselect="SelectSuggestedWord()"
-                     ondblclick="if (gAllowSelectWord) Replace(event.target.value);"/>
+                     ondblclick="if (gAllowSelectWord) { Replace(event.target.value); }"/>
         <vbox>
           <grid>
             <columns><column class="spell-check" flex="1"/><column class="spell-check" flex="1"/></columns>

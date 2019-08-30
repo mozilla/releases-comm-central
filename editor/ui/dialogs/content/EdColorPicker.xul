@@ -29,7 +29,7 @@
   <label value="&chooseColor1.label;"/>
   <html:input type="color" id="ColorPicker"
     onclick="SetDefaultToOk();"
-    ondblclick="if (onAccept()) window.close();"
+    ondblclick="if (onAccept()) { window.close(); }"
     onkeypress="SelectColorByKeypress(event);"
     onchange="SelectColor();"/>
 

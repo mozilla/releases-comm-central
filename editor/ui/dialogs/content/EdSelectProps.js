@@ -30,7 +30,8 @@ function getParentIndex(index) {
     case 1:
       return 0;
   }
-  while (itemArray[--index].level > 1) {}
+  // eslint-disable-next-line curly
+  while (itemArray[--index].level > 1);
   return index;
 }
 
@@ -276,7 +277,8 @@ optgroupObject.prototype.moveUp = function() {
   // Find the index of the previous and next elements at the same level
   var index = treeSelection.currentIndex;
   var i = index;
-  while (itemArray[--index].level > 1) {}
+  // eslint-disable-next-line curly
+  while (itemArray[--index].level > 1);
   var j = gDialog.nextChild(i);
   // Cut out the element, cut the array in two, then join together
   var movedItems = itemArray.splice(i, j - i);
@@ -433,13 +435,15 @@ function Startup() {
     // helper methods
     // Find the index of the next immediate child of the select
     nextChild(index) {
-      while (++index < itemArray.length && itemArray[index].level > 1) {}
+      // eslint-disable-next-line curly
+      while (++index < itemArray.length && itemArray[index].level > 1);
       return index;
     },
     // Find the index of the last immediate child of the select
     lastChild() {
       var index = itemArray.length;
-      while (itemArray[--index].level > 1) {}
+      // eslint-disable-next-line curly
+      while (itemArray[--index].level > 1);
       return index;
     },
   };
@@ -748,11 +752,12 @@ function onSelectMultipleClick() {
     selectedOptionCount == 1 &&
     !selectedOption
   ) {
+    // eslint-disable-next-line curly
     for (
       var i = 1;
       !(selectedOption = itemArray[i].element).hasAttribute("selected");
       i++
-    ) {}
+    );
   }
 }
 
