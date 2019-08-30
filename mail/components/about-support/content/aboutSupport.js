@@ -1063,8 +1063,8 @@ var snapshotFormatters = {
 
 var $ = document.getElementById.bind(document);
 
+// eslint-disable-next-line func-names
 $.new = function $_new(tag, textContentOrChildren, className, attributes) {
-  // eslint-disable-line func-names
   let elt = document.createElement(tag);
   if (className) {
     elt.className = className;
@@ -1093,8 +1093,8 @@ $.new = function $_new(tag, textContentOrChildren, className, attributes) {
   return elt;
 };
 
+// eslint-disable-next-line func-names
 $.append = function $_append(parent, children) {
-  // eslint-disable-line func-names
   children.forEach(c => parent.appendChild(c));
 };
 

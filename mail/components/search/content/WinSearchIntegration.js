@@ -66,8 +66,8 @@ var gRegKeys = [
 /**
  * @namespace Windows Search-specific desktop search integration functionality
  */
+// eslint-disable-next-line no-global-assign
 SearchIntegration = {
-  // eslint-disable-line no-global-assign
   __proto__: SearchSupport,
 
   // The property of the header and (sometimes) folders that's used to check

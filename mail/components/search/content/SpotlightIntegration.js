@@ -12,8 +12,8 @@ var MSG_DB_LARGE_COMMIT = 1;
 var gFileHeader =
   '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.\ncom/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0">\n<dict>';
 
+// eslint-disable-next-line no-global-assign
 SearchIntegration = {
-  // eslint-disable-line no-global-assign
   __proto__: SearchSupport,
 
   // The property of the header and (sometimes) folders that's used to check
