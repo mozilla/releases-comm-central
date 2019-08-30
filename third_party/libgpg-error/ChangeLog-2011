@@ -742,7 +742,7 @@
 2004-03-09  Marcus Brinkmann  <marcus@g10code.de>
 
 	* libgpg-error.spec.in (%files): Add gpg-error.  Submitted by
-	Albrecht Dreﬂ <albrecht.dress@arcor.de>.
+	Albrecht Dre√ü <albrecht.dress@arcor.de>.
 
 	* src/mkerrcodes.c (main): Fix type of argv.  Return something.
 

@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
 "POT-Creation-Date: 2019-03-19 09:58+0100\n"
 "PO-Revision-Date: 2018-03-21 19:03+0100\n"
-"Last-Translator: Paulo TomÈ <paulo.jorge.tome@gmail.com>\n"
+"Last-Translator: Paulo Tom√© <paulo.jorge.tome@gmail.com>\n"
 "Language-Team: Portuguese <traduz@debian.pt.org>\n"
 "Language: pt\n"
 "MIME-Version: 1.0\n"
@@ -20,7 +20,7 @@ msgstr ""
 
 #: src/err-sources.h:28
 msgid "Unspecified source"
-msgstr "Fonte n„o especificada"
+msgstr "Fonte n√£o especificada"
 
 #: src/err-sources.h:29
 msgid "gcrypt"
@@ -108,7 +108,7 @@ msgstr "Fonte definida pelo utilizador 4"
 
 #: src/err-sources.h:50
 msgid "Unknown source"
-msgstr "Fonte n„o conhecida"
+msgstr "Fonte n√£o conhecida"
 
 #: src/err-codes.h:28
 msgid "Success"
@@ -116,7 +116,7 @@ msgstr "Sucesso"
 
 #: src/err-codes.h:29
 msgid "General error"
-msgstr "Erro genÈrico"
+msgstr "Erro gen√©rico"
 
 #: src/err-codes.h:30
 msgid "Unknown packet"
@@ -124,19 +124,19 @@ msgstr "Pacote desconhecido"
 
 #: src/err-codes.h:31
 msgid "Unknown version in packet"
-msgstr "Vers„o desconhecida no pacote"
+msgstr "Vers√£o desconhecida no pacote"
 
 #: src/err-codes.h:32
 msgid "Invalid public key algorithm"
-msgstr "Algoritmo de chave p˙blica inv·lido"
+msgstr "Algoritmo de chave p√∫blica inv√°lido"
 
 #: src/err-codes.h:33
 msgid "Invalid digest algorithm"
-msgstr "Algoritmo de resumo inv·lido"
+msgstr "Algoritmo de resumo inv√°lido"
 
 #: src/err-codes.h:34
 msgid "Bad public key"
-msgstr "Chave p˙blica errada"
+msgstr "Chave p√∫blica errada"
 
 #: src/err-codes.h:35
 msgid "Bad secret key"
@@ -148,11 +148,11 @@ msgstr "Assinatura errada"
 
 #: src/err-codes.h:37
 msgid "No public key"
-msgstr "Sem chave p˙blica"
+msgstr "Sem chave p√∫blica"
 
 #: src/err-codes.h:38
 msgid "Checksum error"
-msgstr "Soma de verificaÁ„o errada"
+msgstr "Soma de verifica√ß√£o errada"
 
 #: src/err-codes.h:39
 msgid "Bad passphrase"
@@ -160,7 +160,7 @@ msgstr "Senha errada"
 
 #: src/err-codes.h:40
 msgid "Invalid cipher algorithm"
-msgstr "Algoritmo de cifra inv·lido"
+msgstr "Algoritmo de cifra inv√°lido"
 
 #: src/err-codes.h:41
 msgid "Cannot open keyring"
@@ -168,11 +168,11 @@ msgstr "Chaveiro aberto"
 
 #: src/err-codes.h:42
 msgid "Invalid packet"
-msgstr "Pacote inv·lido"
+msgstr "Pacote inv√°lido"
 
 #: src/err-codes.h:43
 msgid "Invalid armor"
-msgstr "Armadura inv·lida"
+msgstr "Armadura inv√°lida"
 
 #: src/err-codes.h:44
 msgid "No user ID"
@@ -188,31 +188,31 @@ msgstr "Utilizada chave secreta errada"
 
 #: src/err-codes.h:47
 msgid "Bad session key"
-msgstr "Chave de sess„o errada"
+msgstr "Chave de sess√£o errada"
 
 #: src/err-codes.h:48
 msgid "Unknown compression algorithm"
-msgstr "Algoritmo de compress„o desconhecido"
+msgstr "Algoritmo de compress√£o desconhecido"
 
 #: src/err-codes.h:49
 msgid "Number is not prime"
-msgstr "O n˙mero n„o È primo"
+msgstr "O n√∫mero n√£o √© primo"
 
 #: src/err-codes.h:50
 msgid "Invalid encoding method"
-msgstr "MÈtodo de codificaÁ„o errado"
+msgstr "M√©todo de codifica√ß√£o errado"
 
 #: src/err-codes.h:51
 msgid "Invalid encryption scheme"
-msgstr "Esquema de encriptaÁ„o errado"
+msgstr "Esquema de encripta√ß√£o errado"
 
 #: src/err-codes.h:52
 msgid "Invalid signature scheme"
-msgstr "Esquema de assinatura inv·lido"
+msgstr "Esquema de assinatura inv√°lido"
 
 #: src/err-codes.h:53
 msgid "Invalid attribute"
-msgstr "Atributo inv·lido"
+msgstr "Atributo inv√°lido"
 
 #: src/err-codes.h:54
 msgid "No value"
@@ -220,11 +220,11 @@ msgstr "Sem valor"
 
 #: src/err-codes.h:55
 msgid "Not found"
-msgstr "N„o encontrado"
+msgstr "N√£o encontrado"
 
 #: src/err-codes.h:56
 msgid "Value not found"
-msgstr "Valor n„o encontrado"
+msgstr "Valor n√£o encontrado"
 
 #: src/err-codes.h:57
 msgid "Syntax error"
@@ -236,11 +236,11 @@ msgstr "Valor de MPI errado"
 
 #: src/err-codes.h:59
 msgid "Invalid passphrase"
-msgstr "Senha inv·lida"
+msgstr "Senha inv√°lida"
 
 #: src/err-codes.h:60
 msgid "Invalid signature class"
-msgstr "Classe de assinatura inv·lida"
+msgstr "Classe de assinatura inv√°lida"
 
 #: src/err-codes.h:61
 msgid "Resources exhausted"
@@ -248,11 +248,11 @@ msgstr "Recursos esgotados"
 
 #: src/err-codes.h:62
 msgid "Invalid keyring"
-msgstr "Chaveiro inv·lido"
+msgstr "Chaveiro inv√°lido"
 
 #: src/err-codes.h:63
 msgid "Trust DB error"
-msgstr "Erro na Base de Dados de confianÁa"
+msgstr "Erro na Base de Dados de confian√ßa"
 
 #: src/err-codes.h:64
 msgid "Bad certificate"
@@ -276,7 +276,7 @@ msgstr "Erro no servidor de chaves"
 
 #: src/err-codes.h:69
 msgid "Wrong public key algorithm"
-msgstr "Algoritmo da chave p˙blica errado"
+msgstr "Algoritmo da chave p√∫blica errado"
 
 #: src/err-codes.h:70
 msgid "Tribute to D. A."
@@ -284,15 +284,15 @@ msgstr "Tributo a D. A."
 
 #: src/err-codes.h:71
 msgid "Weak encryption key"
-msgstr "Chave de encriptaÁ„o fraca"
+msgstr "Chave de encripta√ß√£o fraca"
 
 #: src/err-codes.h:72
 msgid "Invalid key length"
-msgstr "Comprimento da chave inv·lido"
+msgstr "Comprimento da chave inv√°lido"
 
 #: src/err-codes.h:73
 msgid "Invalid argument"
-msgstr "Argumento inv·lido"
+msgstr "Argumento inv√°lido"
 
 #: src/err-codes.h:74
 msgid "Syntax error in URI"
@@ -300,7 +300,7 @@ msgstr "Erro de sintaxe no URI"
 
 #: src/err-codes.h:75
 msgid "Invalid URI"
-msgstr "URI inv·lido"
+msgstr "URI inv√°lido"
 
 #: src/err-codes.h:76
 msgid "Network error"
@@ -308,7 +308,7 @@ msgstr "Erro de rede"
 
 #: src/err-codes.h:77
 msgid "Unknown host"
-msgstr "Anfitri„o desconhecido"
+msgstr "Anfitri√£o desconhecido"
 
 #: src/err-codes.h:78
 msgid "Selftest failed"
@@ -316,23 +316,23 @@ msgstr "Auto teste falhou"
 
 #: src/err-codes.h:79
 msgid "Data not encrypted"
-msgstr "Dados n„o encriptados"
+msgstr "Dados n√£o encriptados"
 
 #: src/err-codes.h:80
 msgid "Data not processed"
-msgstr "Dados n„o processados"
+msgstr "Dados n√£o processados"
 
 #: src/err-codes.h:81
 msgid "Unusable public key"
-msgstr "Chave p˙blica inutiliz·vel"
+msgstr "Chave p√∫blica inutiliz√°vel"
 
 #: src/err-codes.h:82
 msgid "Unusable secret key"
-msgstr "Chave secreta inutiliz·vel"
+msgstr "Chave secreta inutiliz√°vel"
 
 #: src/err-codes.h:83
 msgid "Invalid value"
-msgstr "Valor inv·lido"
+msgstr "Valor inv√°lido"
 
 #: src/err-codes.h:84
 msgid "Bad certificate chain"
@@ -344,7 +344,7 @@ msgstr "Certificado em falta"
 
 #: src/err-codes.h:86
 msgid "No data"
-msgstr "N„o existem dados"
+msgstr "N√£o existem dados"
 
 #: src/err-codes.h:87
 msgid "Bug"
@@ -352,11 +352,11 @@ msgstr "Erro"
 
 #: src/err-codes.h:88
 msgid "Not supported"
-msgstr "N„o suportado"
+msgstr "N√£o suportado"
 
 #: src/err-codes.h:89
 msgid "Invalid operation code"
-msgstr "CÛdigo de operaÁ„o inv·lido"
+msgstr "C√≥digo de opera√ß√£o inv√°lido"
 
 #: src/err-codes.h:90
 msgid "Timeout"
@@ -372,15 +372,15 @@ msgstr "EOF (gcrypt)"
 
 #: src/err-codes.h:93
 msgid "Invalid object"
-msgstr "Objecto inv·lido"
+msgstr "Objecto inv√°lido"
 
 #: src/err-codes.h:94
 msgid "Provided object is too short"
-msgstr "O objecto fornecido È demasiado curto"
+msgstr "O objecto fornecido √© demasiado curto"
 
 #: src/err-codes.h:95
 msgid "Provided object is too large"
-msgstr "O objecto fornecido È demasiado grande"
+msgstr "O objecto fornecido √© demasiado grande"
 
 #: src/err-codes.h:96
 msgid "Missing item in object"
@@ -388,23 +388,23 @@ msgstr "Item em falta no objecto"
 
 #: src/err-codes.h:97
 msgid "Not implemented"
-msgstr "N„o implementado"
+msgstr "N√£o implementado"
 
 #: src/err-codes.h:98
 msgid "Conflicting use"
-msgstr "UtilizaÁ„o em conflito"
+msgstr "Utiliza√ß√£o em conflito"
 
 #: src/err-codes.h:99
 msgid "Invalid cipher mode"
-msgstr "Modo de cifra inv·lido"
+msgstr "Modo de cifra inv√°lido"
 
 #: src/err-codes.h:100
 msgid "Invalid flag"
-msgstr "Flag inv·lido"
+msgstr "Flag inv√°lido"
 
 #: src/err-codes.h:101
 msgid "Invalid handle"
-msgstr "Identificador inv·lido"
+msgstr "Identificador inv√°lido"
 
 #: src/err-codes.h:102
 msgid "Result truncated"
@@ -416,11 +416,11 @@ msgstr "Linha incompleta"
 
 #: src/err-codes.h:104
 msgid "Invalid response"
-msgstr "Resposta inv·lida"
+msgstr "Resposta inv√°lida"
 
 #: src/err-codes.h:105
 msgid "No agent running"
-msgstr "Nenhum agente em execuÁ„o"
+msgstr "Nenhum agente em execu√ß√£o"
 
 #: src/err-codes.h:106
 msgid "Agent error"
@@ -428,27 +428,27 @@ msgstr "Erro no agente"
 
 #: src/err-codes.h:107
 msgid "Invalid data"
-msgstr "Dados inv·lidos"
+msgstr "Dados inv√°lidos"
 
 #: src/err-codes.h:108
 msgid "Unspecific Assuan server fault"
-msgstr "Falha n„o especificada no servidor Assuan"
+msgstr "Falha n√£o especificada no servidor Assuan"
 
 #: src/err-codes.h:109
 msgid "General Assuan error"
-msgstr "Erro Assuan genÈrico"
+msgstr "Erro Assuan gen√©rico"
 
 #: src/err-codes.h:110
 msgid "Invalid session key"
-msgstr "Chave de sess„o inv·lida"
+msgstr "Chave de sess√£o inv√°lida"
 
 #: src/err-codes.h:111
 msgid "Invalid S-expression"
-msgstr "Express„o simbÛlica inv·lida"
+msgstr "Express√£o simb√≥lica inv√°lida"
 
 #: src/err-codes.h:112
 msgid "Unsupported algorithm"
-msgstr "Algoritmo n„o suportado"
+msgstr "Algoritmo n√£o suportado"
 
 #: src/err-codes.h:113
 msgid "No pinentry"
@@ -464,7 +464,7 @@ msgstr "PIN errado"
 
 #: src/err-codes.h:116
 msgid "Invalid name"
-msgstr "Nome inv·lido"
+msgstr "Nome inv√°lido"
 
 #: src/err-codes.h:117
 msgid "Bad data"
@@ -472,11 +472,11 @@ msgstr "Dados errados"
 
 #: src/err-codes.h:118
 msgid "Invalid parameter"
-msgstr "Par‚metro inv·lido"
+msgstr "Par√¢metro inv√°lido"
 
 #: src/err-codes.h:119
 msgid "Wrong card"
-msgstr "Cart„o errado"
+msgstr "Cart√£o errado"
 
 #: src/err-codes.h:120
 msgid "No dirmngr"
@@ -504,11 +504,11 @@ msgstr "Linha demasiado longa"
 
 #: src/err-codes.h:126
 msgid "Not trusted"
-msgstr "N„o È de confianÁa"
+msgstr "N√£o √© de confian√ßa"
 
 #: src/err-codes.h:127
 msgid "Operation cancelled"
-msgstr "OperaÁ„o cancelada"
+msgstr "Opera√ß√£o cancelada"
 
 #: src/err-codes.h:128
 msgid "Bad CA certificate"
@@ -524,95 +524,95 @@ msgstr "Certificado demasiado novo"
 
 #: src/err-codes.h:131
 msgid "Unsupported certificate"
-msgstr "Certificado n„o suportado"
+msgstr "Certificado n√£o suportado"
 
 #: src/err-codes.h:132
 msgid "Unknown S-expression"
-msgstr "Express„o simbÛlica desconhecida"
+msgstr "Express√£o simb√≥lica desconhecida"
 
 #: src/err-codes.h:133
 msgid "Unsupported protection"
-msgstr "ProtecÁ„o n„o suportada"
+msgstr "Protec√ß√£o n√£o suportada"
 
 #: src/err-codes.h:134
 msgid "Corrupted protection"
-msgstr "ProtecÁ„o corrompida"
+msgstr "Protec√ß√£o corrompida"
 
 #: src/err-codes.h:135
 msgid "Ambiguous name"
-msgstr "Nome ambÌguo"
+msgstr "Nome amb√≠guo"
 
 #: src/err-codes.h:136
 msgid "Card error"
-msgstr "Erro de cart„o"
+msgstr "Erro de cart√£o"
 
 #: src/err-codes.h:137
 msgid "Card reset required"
-msgstr "ReinicializaÁ„o de cart„o necess·ria"
+msgstr "Reinicializa√ß√£o de cart√£o necess√°ria"
 
 #: src/err-codes.h:138
 msgid "Card removed"
-msgstr "Cart„o removido"
+msgstr "Cart√£o removido"
 
 #: src/err-codes.h:139
 msgid "Invalid card"
-msgstr "Cart„o inv·lido"
+msgstr "Cart√£o inv√°lido"
 
 #: src/err-codes.h:140
 msgid "Card not present"
-msgstr "Cart„o n„o presente"
+msgstr "Cart√£o n√£o presente"
 
 #: src/err-codes.h:141
 msgid "No PKCS15 application"
-msgstr "Sem aplicaÁ„o PKCS15"
+msgstr "Sem aplica√ß√£o PKCS15"
 
 #: src/err-codes.h:142
 msgid "Not confirmed"
-msgstr "N„o confirmado"
+msgstr "N√£o confirmado"
 
 #: src/err-codes.h:143
 msgid "Configuration error"
-msgstr "Erro de configuraÁ„o"
+msgstr "Erro de configura√ß√£o"
 
 #: src/err-codes.h:144
 msgid "No policy match"
-msgstr "Sem correspondÍncia de polÌtica"
+msgstr "Sem correspond√™ncia de pol√≠tica"
 
 #: src/err-codes.h:145
 msgid "Invalid index"
-msgstr "Õndice inv·lido"
+msgstr "√çndice inv√°lido"
 
 #: src/err-codes.h:146
 msgid "Invalid ID"
-msgstr "Identificador inv·lido"
+msgstr "Identificador inv√°lido"
 
 #: src/err-codes.h:147
 msgid "No SmartCard daemon"
-msgstr "Sem demÛnio de SmartCard"
+msgstr "Sem dem√≥nio de SmartCard"
 
 #: src/err-codes.h:148
 msgid "SmartCard daemon error"
-msgstr "Erro no demÛnio de SmartCard"
+msgstr "Erro no dem√≥nio de SmartCard"
 
 #: src/err-codes.h:149
 msgid "Unsupported protocol"
-msgstr "Protocolo n„o suportado"
+msgstr "Protocolo n√£o suportado"
 
 #: src/err-codes.h:150
 msgid "Bad PIN method"
-msgstr "MÈtodo de PIN errado"
+msgstr "M√©todo de PIN errado"
 
 #: src/err-codes.h:151
 msgid "Card not initialized"
-msgstr "Cart„o n„o inicializado"
+msgstr "Cart√£o n√£o inicializado"
 
 #: src/err-codes.h:152
 msgid "Unsupported operation"
-msgstr "OperaÁ„o n„o suportada"
+msgstr "Opera√ß√£o n√£o suportada"
 
 #: src/err-codes.h:153
 msgid "Wrong key usage"
-msgstr "UtilizaÁ„o de chave errada"
+msgstr "Utiliza√ß√£o de chave errada"
 
 #: src/err-codes.h:154
 msgid "Nothing found"
@@ -636,15 +636,15 @@ msgstr "PIN bloqueado"
 
 #: src/err-codes.h:159
 msgid "Conditions of use not satisfied"
-msgstr "CondiÁıes de utilizaÁ„o n„o satisfeitas"
+msgstr "Condi√ß√µes de utiliza√ß√£o n√£o satisfeitas"
 
 #: src/err-codes.h:160
 msgid "PINs are not synced"
-msgstr "PINs n„o est„o sincronizados"
+msgstr "PINs n√£o est√£o sincronizados"
 
 #: src/err-codes.h:161
 msgid "Invalid CRL"
-msgstr "CRL inv·lido"
+msgstr "CRL inv√°lido"
 
 #: src/err-codes.h:162
 msgid "BER error"
@@ -652,27 +652,27 @@ msgstr "Erro de BER"
 
 #: src/err-codes.h:163
 msgid "Invalid BER"
-msgstr "BER inv·lido"
+msgstr "BER inv√°lido"
 
 #: src/err-codes.h:164
 msgid "Element not found"
-msgstr "Elemento n„o encontrado"
+msgstr "Elemento n√£o encontrado"
 
 #: src/err-codes.h:165
 msgid "Identifier not found"
-msgstr "Identificador n„o encontrado"
+msgstr "Identificador n√£o encontrado"
 
 #: src/err-codes.h:166
 msgid "Invalid tag"
-msgstr "Etiqueta inv·lida"
+msgstr "Etiqueta inv√°lida"
 
 #: src/err-codes.h:167
 msgid "Invalid length"
-msgstr "Comprimento inv·lido"
+msgstr "Comprimento inv√°lido"
 
 #: src/err-codes.h:168
 msgid "Invalid key info"
-msgstr "InformaÁ„o de chave errada"
+msgstr "Informa√ß√£o de chave errada"
 
 #: src/err-codes.h:169
 msgid "Unexpected tag"
@@ -680,7 +680,7 @@ msgstr "Etiqueta inesperada"
 
 #: src/err-codes.h:170
 msgid "Not DER encoded"
-msgstr "N„o codificado atravÈs de DER"
+msgstr "N√£o codificado atrav√©s de DER"
 
 #: src/err-codes.h:171
 msgid "No CMS object"
@@ -688,7 +688,7 @@ msgstr "Sem objecto CMS"
 
 #: src/err-codes.h:172
 msgid "Invalid CMS object"
-msgstr "Objecto CMS inv·lido"
+msgstr "Objecto CMS inv√°lido"
 
 #: src/err-codes.h:173
 msgid "Unknown CMS object"
@@ -696,15 +696,15 @@ msgstr "Objecto CMS desconhecido"
 
 #: src/err-codes.h:174
 msgid "Unsupported CMS object"
-msgstr "Objecto CMS n„o suportado"
+msgstr "Objecto CMS n√£o suportado"
 
 #: src/err-codes.h:175
 msgid "Unsupported encoding"
-msgstr "CodificaÁ„o n„o suportada"
+msgstr "Codifica√ß√£o n√£o suportada"
 
 #: src/err-codes.h:176
 msgid "Unsupported CMS version"
-msgstr "Vers„o de CMS n„o suportada"
+msgstr "Vers√£o de CMS n√£o suportada"
 
 #: src/err-codes.h:177
 msgid "Unknown algorithm"
@@ -712,15 +712,15 @@ msgstr "Algoritmo desconhecido"
 
 #: src/err-codes.h:178
 msgid "Invalid crypto engine"
-msgstr "Motor de encriptaÁ„o inv·lido"
+msgstr "Motor de encripta√ß√£o inv√°lido"
 
 #: src/err-codes.h:179
 msgid "Public key not trusted"
-msgstr "Chave p˙blica n„o È de confianÁa"
+msgstr "Chave p√∫blica n√£o √© de confian√ßa"
 
 #: src/err-codes.h:180
 msgid "Decryption failed"
-msgstr "DesencriptaÁ„o falhada"
+msgstr "Desencripta√ß√£o falhada"
 
 #: src/err-codes.h:181
 msgid "Key expired"
@@ -732,11 +732,11 @@ msgstr "Assinatura expirada"
 
 #: src/err-codes.h:183
 msgid "Encoding problem"
-msgstr "Problema de codificaÁ„o"
+msgstr "Problema de codifica√ß√£o"
 
 #: src/err-codes.h:184
 msgid "Invalid state"
-msgstr "Estado inv·lido"
+msgstr "Estado inv√°lido"
 
 #: src/err-codes.h:185
 msgid "Duplicated value"
@@ -744,31 +744,31 @@ msgstr "Valor duplicado"
 
 #: src/err-codes.h:186
 msgid "Missing action"
-msgstr "AcÁ„o em falta"
+msgstr "Ac√ß√£o em falta"
 
 #: src/err-codes.h:187
 msgid "ASN.1 module not found"
-msgstr "MÛdulo ASN.1 n„o encontrado"
+msgstr "M√≥dulo ASN.1 n√£o encontrado"
 
 #: src/err-codes.h:188
 msgid "Invalid OID string"
-msgstr "SequÍncia OID inv·lida"
+msgstr "Sequ√™ncia OID inv√°lida"
 
 #: src/err-codes.h:189
 msgid "Invalid time"
-msgstr "Tempo inv·lido"
+msgstr "Tempo inv√°lido"
 
 #: src/err-codes.h:190
 msgid "Invalid CRL object"
-msgstr "Objecto CRL inv·lido"
+msgstr "Objecto CRL inv√°lido"
 
 #: src/err-codes.h:191
 msgid "Unsupported CRL version"
-msgstr "Vers„o CRL n„o suportada"
+msgstr "Vers√£o CRL n√£o suportada"
 
 #: src/err-codes.h:192
 msgid "Invalid certificate object"
-msgstr "Objecto de certificado inv·lido"
+msgstr "Objecto de certificado inv√°lido"
 
 #: src/err-codes.h:193
 msgid "Unknown name"
@@ -776,31 +776,31 @@ msgstr "Nome desconhecido"
 
 #: src/err-codes.h:194
 msgid "A locale function failed"
-msgstr "Uma funÁ„o de localizaÁ„o falhou"
+msgstr "Uma fun√ß√£o de localiza√ß√£o falhou"
 
 #: src/err-codes.h:195
 msgid "Not locked"
-msgstr "N„o trancado"
+msgstr "N√£o trancado"
 
 #: src/err-codes.h:196
 msgid "Protocol violation"
-msgstr "ViolaÁ„o de protocolo"
+msgstr "Viola√ß√£o de protocolo"
 
 #: src/err-codes.h:197
 msgid "Invalid MAC"
-msgstr "MAC inv·lido"
+msgstr "MAC inv√°lido"
 
 #: src/err-codes.h:198
 msgid "Invalid request"
-msgstr "Pedido inv·lido"
+msgstr "Pedido inv√°lido"
 
 #: src/err-codes.h:199
 msgid "Unknown extension"
-msgstr "Extens„o desconhecida"
+msgstr "Extens√£o desconhecida"
 
 #: src/err-codes.h:200
 msgid "Unknown critical extension"
-msgstr "Extens„o crÌtica desconhecida"
+msgstr "Extens√£o cr√≠tica desconhecida"
 
 #: src/err-codes.h:201
 msgid "Locked"
@@ -808,7 +808,7 @@ msgstr "Trancado"
 
 #: src/err-codes.h:202
 msgid "Unknown option"
-msgstr "OpÁ„o desconhecida"
+msgstr "Op√ß√£o desconhecida"
 
 #: src/err-codes.h:203
 msgid "Unknown command"
@@ -816,7 +816,7 @@ msgstr "Comando desconhecido"
 
 #: src/err-codes.h:204
 msgid "Not operational"
-msgstr "N„o operacional"
+msgstr "N√£o operacional"
 
 #: src/err-codes.h:205
 msgid "No passphrase given"
@@ -828,11 +828,11 @@ msgstr "Sem PIN dado"
 
 #: src/err-codes.h:207
 msgid "Not enabled"
-msgstr "N„o habilitado"
+msgstr "N√£o habilitado"
 
 #: src/err-codes.h:208
 msgid "No crypto engine"
-msgstr "Sem motor de encriptaÁ„o"
+msgstr "Sem motor de encripta√ß√£o"
 
 #: src/err-codes.h:209
 msgid "Missing key"
@@ -848,7 +848,7 @@ msgstr "Limite atingido"
 
 #: src/err-codes.h:212
 msgid "Not initialized"
-msgstr "N„o inicializado"
+msgstr "N√£o inicializado"
 
 #: src/err-codes.h:213
 msgid "Missing issuer certificate"
@@ -856,15 +856,15 @@ msgstr "Certificado do emissor em falta"
 
 #: src/err-codes.h:214
 msgid "No keyserver available"
-msgstr "Sem servidor de chaves disponÌvel"
+msgstr "Sem servidor de chaves dispon√≠vel"
 
 #: src/err-codes.h:215
 msgid "Invalid elliptic curve"
-msgstr "Curva elÌptica inv·lida"
+msgstr "Curva el√≠ptica inv√°lida"
 
 #: src/err-codes.h:216
 msgid "Unknown elliptic curve"
-msgstr "Curva elÌptica desconhecida"
+msgstr "Curva el√≠ptica desconhecida"
 
 #: src/err-codes.h:217
 msgid "Duplicated key"
@@ -872,27 +872,27 @@ msgstr "Chave duplicada"
 
 #: src/err-codes.h:218
 msgid "Ambiguous result"
-msgstr "Resultado ambÌguo"
+msgstr "Resultado amb√≠guo"
 
 #: src/err-codes.h:219
 msgid "No crypto context"
-msgstr "Sem contexto de encriptaÁ„o"
+msgstr "Sem contexto de encripta√ß√£o"
 
 #: src/err-codes.h:220
 msgid "Wrong crypto context"
-msgstr "Contexto de encriptaÁ„o errado"
+msgstr "Contexto de encripta√ß√£o errado"
 
 #: src/err-codes.h:221
 msgid "Bad crypto context"
-msgstr "Contexto de encriptaÁ„o inv·lido"
+msgstr "Contexto de encripta√ß√£o inv√°lido"
 
 #: src/err-codes.h:222
 msgid "Conflict in the crypto context"
-msgstr "Conflito no contexto de encriptaÁ„o"
+msgstr "Conflito no contexto de encripta√ß√£o"
 
 #: src/err-codes.h:223
 msgid "Broken public key"
-msgstr "Chave p˙blica quebrada"
+msgstr "Chave p√∫blica quebrada"
 
 #: src/err-codes.h:224
 msgid "Broken secret key"
@@ -900,15 +900,15 @@ msgstr "Chave secreta quebrada"
 
 #: src/err-codes.h:225
 msgid "Invalid MAC algorithm"
-msgstr "Algoritmo MAC inv·lido"
+msgstr "Algoritmo MAC inv√°lido"
 
 #: src/err-codes.h:226
 msgid "Operation fully cancelled"
-msgstr "OperaÁ„o totalmente cancelada"
+msgstr "Opera√ß√£o totalmente cancelada"
 
 #: src/err-codes.h:227
 msgid "Operation not yet finished"
-msgstr "OperaÁ„o ainda n„o completada"
+msgstr "Opera√ß√£o ainda n√£o completada"
 
 #: src/err-codes.h:228
 msgid "Buffer too short"
@@ -916,55 +916,55 @@ msgstr "Buffer demasiado curto"
 
 #: src/err-codes.h:229
 msgid "Invalid length specifier in S-expression"
-msgstr "Especificador de comprimento inv·lido na express„o simbÛlica"
+msgstr "Especificador de comprimento inv√°lido na express√£o simb√≥lica"
 
 #: src/err-codes.h:230
 msgid "String too long in S-expression"
-msgstr "SequÍncia de caracteres demasiado longa na express„o simbÛlica"
+msgstr "Sequ√™ncia de caracteres demasiado longa na express√£o simb√≥lica"
 
 #: src/err-codes.h:231
 msgid "Unmatched parentheses in S-expression"
-msgstr "ParÍnteses n„o correspondidos na express„o simbÛlica"
+msgstr "Par√™nteses n√£o correspondidos na express√£o simb√≥lica"
 
 #: src/err-codes.h:232
 msgid "S-expression not canonical"
-msgstr "Express„o simbÛlica n„o canÛnica"
+msgstr "Express√£o simb√≥lica n√£o can√≥nica"
 
 #: src/err-codes.h:233
 msgid "Bad character in S-expression"
-msgstr "Car·cter errado na express„o simbÛlica"
+msgstr "Car√°cter errado na express√£o simb√≥lica"
 
 #: src/err-codes.h:234
 msgid "Bad quotation in S-expression"
-msgstr "Plicas erradas na express„o simbÛlica"
+msgstr "Plicas erradas na express√£o simb√≥lica"
 
 #: src/err-codes.h:235
 msgid "Zero prefix in S-expression"
-msgstr "Prefixo zero na express„o simbÛlica"
+msgstr "Prefixo zero na express√£o simb√≥lica"
 
 #: src/err-codes.h:236
 msgid "Nested display hints in S-expression"
-msgstr "Dicas de exibiÁ„o aninhadas na express„o simbÛlica"
+msgstr "Dicas de exibi√ß√£o aninhadas na express√£o simb√≥lica"
 
 #: src/err-codes.h:237
 msgid "Unmatched display hints"
-msgstr "Dicas de exibiÁ„o n„o correspondidas"
+msgstr "Dicas de exibi√ß√£o n√£o correspondidas"
 
 #: src/err-codes.h:238
 msgid "Unexpected reserved punctuation in S-expression"
-msgstr "PontuaÁ„o reservada n„o esperada na express„o simbÛlica"
+msgstr "Pontua√ß√£o reservada n√£o esperada na express√£o simb√≥lica"
 
 #: src/err-codes.h:239
 msgid "Bad hexadecimal character in S-expression"
-msgstr "Car·cter hexadecimal errado na express„o simbÛlica"
+msgstr "Car√°cter hexadecimal errado na express√£o simb√≥lica"
 
 #: src/err-codes.h:240
 msgid "Odd hexadecimal numbers in S-expression"
-msgstr "N˙meros hexadecimais Ìmpares na express„o simbÛlica"
+msgstr "N√∫meros hexadecimais √≠mpares na express√£o simb√≥lica"
 
 #: src/err-codes.h:241
 msgid "Bad octal character in S-expression"
-msgstr "Car·cter octal errado na express„o simbÛlica"
+msgstr "Car√°cter octal errado na express√£o simb√≥lica"
 
 #: src/err-codes.h:242
 msgid "All subkeys are expired or revoked"
@@ -974,7 +974,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Data not encrypted"
 msgid "Database is corrupted"
-msgstr "Dados n„o encriptados"
+msgstr "Dados n√£o encriptados"
 
 #: src/err-codes.h:244
 msgid "Server indicated a failure"
@@ -990,7 +990,7 @@ msgstr "Nome desconhecido"
 #, fuzzy
 #| msgid "No public key"
 msgid "No key"
-msgstr "Sem chave p˙blica"
+msgstr "Sem chave p√∫blica"
 
 #: src/err-codes.h:247
 msgid "Legacy key"
@@ -1018,15 +1018,15 @@ msgstr "Sem cadeia de certificados"
 
 #: src/err-codes.h:252
 msgid "Certificate is too large"
-msgstr "Certificado È demasiado grande"
+msgstr "Certificado √© demasiado grande"
 
 #: src/err-codes.h:253
 msgid "Invalid record"
-msgstr "Registo inv·lido"
+msgstr "Registo inv√°lido"
 
 #: src/err-codes.h:254
 msgid "The MAC does not verify"
-msgstr "O MAC n„o se verifica"
+msgstr "O MAC n√£o se verifica"
 
 #: src/err-codes.h:255
 msgid "Unexpected message"
@@ -1034,7 +1034,7 @@ msgstr "Mensagem inesperada"
 
 #: src/err-codes.h:256
 msgid "Compression or decompression failed"
-msgstr "Compress„o ou descompress„o falhada"
+msgstr "Compress√£o ou descompress√£o falhada"
 
 #: src/err-codes.h:257
 msgid "A counter would wrap"
@@ -1054,7 +1054,7 @@ msgstr "Certificado cliente em falta"
 
 #: src/err-codes.h:261
 msgid "Close notification received"
-msgstr "NotificaÁ„o de encerramento recebida"
+msgstr "Notifica√ß√£o de encerramento recebida"
 
 #: src/err-codes.h:262
 msgid "Ticket expired"
@@ -1078,11 +1078,11 @@ msgstr "Mensagem de pedido de certificado errada no handshake"
 
 #: src/err-codes.h:267
 msgid "Bad certificate verify message in handshake"
-msgstr "Mensagem de verificaÁ„o de certificado errada no handshake"
+msgstr "Mensagem de verifica√ß√£o de certificado errada no handshake"
 
 #: src/err-codes.h:268
 msgid "Bad change cipher message in handshake"
-msgstr "Mensagem de alteraÁ„o de certificado errada no handshake"
+msgstr "Mensagem de altera√ß√£o de certificado errada no handshake"
 
 #: src/err-codes.h:269
 msgid "Bad client hello message in handshake"
@@ -1098,7 +1098,7 @@ msgstr "Mensagem de hello done do servidor errada no handshake"
 
 #: src/err-codes.h:272
 msgid "Bad finished message in handshake"
-msgstr "Mensagem de conclus„o errada no handshake"
+msgstr "Mensagem de conclus√£o errada no handshake"
 
 #: src/err-codes.h:273
 msgid "Bad server key exchange message in handshake"
@@ -1110,7 +1110,7 @@ msgstr "Mensagem de troca de chaves do cliente errada no handshake"
 
 #: src/err-codes.h:275
 msgid "Bogus string"
-msgstr "SequÍncia de caracteres adulterada"
+msgstr "Sequ√™ncia de caracteres adulterada"
 
 #: src/err-codes.h:276
 msgid "Forbidden"
@@ -1122,11 +1122,11 @@ msgstr "Chave desabilitada"
 
 #: src/err-codes.h:278
 msgid "Not possible with a card based key"
-msgstr "N„o possÌvel com uma chave baseada num cart„o"
+msgstr "N√£o poss√≠vel com uma chave baseada num cart√£o"
 
 #: src/err-codes.h:279
 msgid "Invalid lock object"
-msgstr "Objecto de tranca inv·lido"
+msgstr "Objecto de tranca inv√°lido"
 
 #: src/err-codes.h:280
 msgid "True"
@@ -1138,27 +1138,27 @@ msgstr ""
 
 #: src/err-codes.h:282
 msgid "General IPC error"
-msgstr "Erro genÈrico de IPC"
+msgstr "Erro gen√©rico de IPC"
 
 #: src/err-codes.h:283
 msgid "IPC accept call failed"
-msgstr "Chamada de aceitaÁ„o de IPC falhada"
+msgstr "Chamada de aceita√ß√£o de IPC falhada"
 
 #: src/err-codes.h:284
 msgid "IPC connect call failed"
-msgstr "Chamada de conex„o de IPC falhada"
+msgstr "Chamada de conex√£o de IPC falhada"
 
 #: src/err-codes.h:285
 msgid "Invalid IPC response"
-msgstr "Resposta de IPC inv·lida"
+msgstr "Resposta de IPC inv√°lida"
 
 #: src/err-codes.h:286
 msgid "Invalid value passed to IPC"
-msgstr "Valor inv·lido passado ao IPC"
+msgstr "Valor inv√°lido passado ao IPC"
 
 #: src/err-codes.h:287
 msgid "Incomplete line passed to IPC"
-msgstr "Linha inv·lida passada ao IPC"
+msgstr "Linha inv√°lida passada ao IPC"
 
 #: src/err-codes.h:288
 msgid "Line passed to IPC too long"
@@ -1174,19 +1174,19 @@ msgstr "Sem retorno de chamada de dados no IPC"
 
 #: src/err-codes.h:291
 msgid "No inquire callback in IPC"
-msgstr "Sem retorno de chamada de inquiriÁ„o no IPC"
+msgstr "Sem retorno de chamada de inquiri√ß√£o no IPC"
 
 #: src/err-codes.h:292
 msgid "Not an IPC server"
-msgstr "N„o È um servidor IPC"
+msgstr "N√£o √© um servidor IPC"
 
 #: src/err-codes.h:293
 msgid "Not an IPC client"
-msgstr "N„o È um cliente IPC"
+msgstr "N√£o √© um cliente IPC"
 
 #: src/err-codes.h:294
 msgid "Problem starting IPC server"
-msgstr "Problema na iniciaÁ„o do servidor IPC"
+msgstr "Problema na inicia√ß√£o do servidor IPC"
 
 #: src/err-codes.h:295
 msgid "IPC read error"
@@ -1222,21 +1222,21 @@ msgstr "Sem fonte de entrada para o IPC"
 
 #: src/err-codes.h:303
 msgid "No output source for IPC"
-msgstr "Nenhuma fonte de saÌda para IPC"
+msgstr "Nenhuma fonte de sa√≠da para IPC"
 
 #: src/err-codes.h:304
 msgid "IPC parameter error"
-msgstr "Erro de par‚metro IPC"
+msgstr "Erro de par√¢metro IPC"
 
 #: src/err-codes.h:305
 msgid "Unknown IPC inquire"
-msgstr "InquiriÁ„o IPC desconhecida"
+msgstr "Inquiri√ß√£o IPC desconhecida"
 
 #: src/err-codes.h:306
 #, fuzzy
 #| msgid "No crypto engine"
 msgid "Crypto engine too old"
-msgstr "Sem motor de encriptaÁ„o"
+msgstr "Sem motor de encripta√ß√£o"
 
 #: src/err-codes.h:307
 msgid "Screen or window too small"
@@ -1274,7 +1274,7 @@ msgstr "Certificado demasiado novo"
 #, fuzzy
 #| msgid "Provided object is too short"
 msgid "Object is too old"
-msgstr "O objecto fornecido È demasiado curto"
+msgstr "O objecto fornecido √© demasiado curto"
 
 #: src/err-codes.h:315
 #, fuzzy
@@ -1286,7 +1286,7 @@ msgstr "Nome desconhecido"
 #, fuzzy
 #| msgid "Invalid operation code"
 msgid "Invalid execution order"
-msgstr "CÛdigo de operaÁ„o inv·lido"
+msgstr "C√≥digo de opera√ß√£o inv√°lido"
 
 #: src/err-codes.h:317
 msgid "Already fetched"
@@ -1306,13 +1306,13 @@ msgstr "Nome desconhecido"
 #, fuzzy
 #| msgid "Not enabled"
 msgid "Not authenticated"
-msgstr "N„o habilitado"
+msgstr "N√£o habilitado"
 
 #: src/err-codes.h:321
 #, fuzzy
 #| msgid "Unsupported protection"
 msgid "Bad authentication"
-msgstr "ProtecÁ„o n„o suportada"
+msgstr "Protec√ß√£o n√£o suportada"
 
 #: src/err-codes.h:322
 msgid "System bug detected"
@@ -1328,13 +1328,13 @@ msgstr "Erro de sistema desconhecido"
 #, fuzzy
 #| msgid "Invalid OID string"
 msgid "Invalid DNS section"
-msgstr "SequÍncia OID inv·lida"
+msgstr "Sequ√™ncia OID inv√°lida"
 
 #: src/err-codes.h:325
 #, fuzzy
 #| msgid "Invalid S-expression"
 msgid "Invalid textual address form"
-msgstr "Express„o simbÛlica inv·lida"
+msgstr "Express√£o simb√≥lica inv√°lida"
 
 #: src/err-codes.h:326
 #, fuzzy
@@ -1354,7 +1354,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Decryption failed"
 msgid "Verification failed in DNS"
-msgstr "DesencriptaÁ„o falhada"
+msgstr "Desencripta√ß√£o falhada"
 
 #: src/err-codes.h:330
 #, fuzzy
@@ -1366,37 +1366,37 @@ msgstr "Tempo limite"
 #, fuzzy
 #| msgid "General IPC error"
 msgid "General LDAP error"
-msgstr "Erro genÈrico de IPC"
+msgstr "Erro gen√©rico de IPC"
 
 #: src/err-codes.h:332
 #, fuzzy
 #| msgid "General error"
 msgid "General LDAP attribute error"
-msgstr "Erro genÈrico"
+msgstr "Erro gen√©rico"
 
 #: src/err-codes.h:333
 #, fuzzy
 #| msgid "General error"
 msgid "General LDAP name error"
-msgstr "Erro genÈrico"
+msgstr "Erro gen√©rico"
 
 #: src/err-codes.h:334
 #, fuzzy
 #| msgid "General Assuan error"
 msgid "General LDAP security error"
-msgstr "Erro Assuan genÈrico"
+msgstr "Erro Assuan gen√©rico"
 
 #: src/err-codes.h:335
 #, fuzzy
 #| msgid "General error"
 msgid "General LDAP service error"
-msgstr "Erro genÈrico"
+msgstr "Erro gen√©rico"
 
 #: src/err-codes.h:336
 #, fuzzy
 #| msgid "General Assuan error"
 msgid "General LDAP update error"
-msgstr "Erro Assuan genÈrico"
+msgstr "Erro Assuan gen√©rico"
 
 #: src/err-codes.h:337
 msgid "Experimental LDAP error code"
@@ -1412,19 +1412,19 @@ msgstr "Erro de escrita de IPC"
 #, fuzzy
 #| msgid "General IPC error"
 msgid "Other general LDAP error"
-msgstr "Erro genÈrico de IPC"
+msgstr "Erro gen√©rico de IPC"
 
 #: src/err-codes.h:340
 #, fuzzy
 #| msgid "IPC connect call failed"
 msgid "LDAP connecting failed (X)"
-msgstr "Chamada de conex„o de IPC falhada"
+msgstr "Chamada de conex√£o de IPC falhada"
 
 #: src/err-codes.h:341
 #, fuzzy
 #| msgid "General error"
 msgid "LDAP referral limit exceeded"
-msgstr "Erro genÈrico"
+msgstr "Erro gen√©rico"
 
 #: src/err-codes.h:342
 msgid "LDAP client loop"
@@ -1434,19 +1434,19 @@ msgstr ""
 #, fuzzy
 #| msgid "Card reset required"
 msgid "No LDAP results returned"
-msgstr "ReinicializaÁ„o de cart„o necess·ria"
+msgstr "Reinicializa√ß√£o de cart√£o necess√°ria"
 
 #: src/err-codes.h:344
 #, fuzzy
 #| msgid "Element not found"
 msgid "LDAP control not found"
-msgstr "Elemento n„o encontrado"
+msgstr "Elemento n√£o encontrado"
 
 #: src/err-codes.h:345
 #, fuzzy
 #| msgid "Not supported"
 msgid "Not supported by LDAP"
-msgstr "N„o suportado"
+msgstr "N√£o suportado"
 
 #: src/err-codes.h:346
 #, fuzzy
@@ -1466,7 +1466,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Unsupported operation"
 msgid "User cancelled LDAP operation"
-msgstr "OperaÁ„o n„o suportada"
+msgstr "Opera√ß√£o n√£o suportada"
 
 #: src/err-codes.h:350
 #, fuzzy
@@ -1478,7 +1478,7 @@ msgstr "Certificado errado"
 #, fuzzy
 #| msgid "Unknown extension"
 msgid "Unknown LDAP authentication method"
-msgstr "Extens„o desconhecida"
+msgstr "Extens√£o desconhecida"
 
 #: src/err-codes.h:352
 #, fuzzy
@@ -1508,7 +1508,7 @@ msgstr "Erro de leitura de IPC"
 #, fuzzy
 #| msgid "Not an IPC server"
 msgid "Cannot contact LDAP server"
-msgstr "N„o È um servidor IPC"
+msgstr "N√£o √© um servidor IPC"
 
 #: src/err-codes.h:357
 #, fuzzy
@@ -1520,13 +1520,13 @@ msgstr "Sucesso"
 #, fuzzy
 #| msgid "Configuration error"
 msgid "LDAP operations error"
-msgstr "Erro de configuraÁ„o"
+msgstr "Erro de configura√ß√£o"
 
 #: src/err-codes.h:359
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "LDAP protocol error"
-msgstr "ViolaÁ„o de protocolo"
+msgstr "Viola√ß√£o de protocolo"
 
 #: src/err-codes.h:360
 msgid "Time limit exceeded in LDAP"
@@ -1548,7 +1548,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Unknown extension"
 msgid "LDAP authentication method not supported"
-msgstr "Extens„o desconhecida"
+msgstr "Extens√£o desconhecida"
 
 #: src/err-codes.h:365
 msgid "Strong(er) LDAP authentication required"
@@ -1564,7 +1564,7 @@ msgstr "Mensagem de alerta fatal recebida"
 #, fuzzy
 #| msgid "General error"
 msgid "LDAP referral"
-msgstr "Erro genÈrico"
+msgstr "Erro gen√©rico"
 
 #: src/err-codes.h:368
 msgid "Administrative LDAP limit exceeded"
@@ -1578,7 +1578,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Card reset required"
 msgid "Confidentiality required by LDAP"
-msgstr "ReinicializaÁ„o de cart„o necess·ria"
+msgstr "Reinicializa√ß√£o de cart√£o necess√°ria"
 
 #: src/err-codes.h:371
 msgid "LDAP SASL bind in progress"
@@ -1592,19 +1592,19 @@ msgstr ""
 #, fuzzy
 #| msgid "Invalid attribute"
 msgid "Undefined LDAP attribute type"
-msgstr "Atributo inv·lido"
+msgstr "Atributo inv√°lido"
 
 #: src/err-codes.h:374
 #, fuzzy
 #| msgid "Unsupported protection"
 msgid "Inappropriate matching in LDAP"
-msgstr "ProtecÁ„o n„o suportada"
+msgstr "Protec√ß√£o n√£o suportada"
 
 #: src/err-codes.h:375
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "Constraint violation in LDAP"
-msgstr "ViolaÁ„o de protocolo"
+msgstr "Viola√ß√£o de protocolo"
 
 #: src/err-codes.h:376
 msgid "LDAP type or value exists"
@@ -1614,7 +1614,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Invalid state"
 msgid "Invalid syntax in LDAP"
-msgstr "Estado inv·lido"
+msgstr "Estado inv√°lido"
 
 #: src/err-codes.h:378
 #, fuzzy
@@ -1632,7 +1632,7 @@ msgstr "Problema de hardware"
 #, fuzzy
 #| msgid "Invalid state"
 msgid "Invalid DN syntax in LDAP"
-msgstr "Estado inv·lido"
+msgstr "Estado inv√°lido"
 
 #: src/err-codes.h:381
 msgid "LDAP entry is a leaf"
@@ -1642,7 +1642,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Encoding problem"
 msgid "LDAP alias dereferencing problem"
-msgstr "Problema de codificaÁ„o"
+msgstr "Problema de codifica√ß√£o"
 
 #: src/err-codes.h:383
 msgid "LDAP proxy authorization failure (X)"
@@ -1652,13 +1652,13 @@ msgstr ""
 #, fuzzy
 #| msgid "Unsupported protection"
 msgid "Inappropriate LDAP authentication"
-msgstr "ProtecÁ„o n„o suportada"
+msgstr "Protec√ß√£o n√£o suportada"
 
 #: src/err-codes.h:385
 #, fuzzy
 #| msgid "Invalid card"
 msgid "Invalid LDAP credentials"
-msgstr "Cart„o inv·lido"
+msgstr "Cart√£o inv√°lido"
 
 #: src/err-codes.h:386
 msgid "Insufficient access for LDAP"
@@ -1672,7 +1672,7 @@ msgstr ""
 #, fuzzy
 #| msgid "No keyserver available"
 msgid "LDAP server is unavailable"
-msgstr "Sem servidor de chaves disponÌvel"
+msgstr "Sem servidor de chaves dispon√≠vel"
 
 #: src/err-codes.h:389
 msgid "LDAP server is unwilling to perform"
@@ -1686,25 +1686,25 @@ msgstr ""
 #, fuzzy
 #| msgid "Missing action"
 msgid "LDAP naming violation"
-msgstr "AcÁ„o em falta"
+msgstr "Ac√ß√£o em falta"
 
 #: src/err-codes.h:392
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "LDAP object class violation"
-msgstr "ViolaÁ„o de protocolo"
+msgstr "Viola√ß√£o de protocolo"
 
 #: src/err-codes.h:393
 #, fuzzy
 #| msgid "Operation not yet finished"
 msgid "LDAP operation not allowed on non-leaf"
-msgstr "OperaÁ„o ainda n„o completada"
+msgstr "Opera√ß√£o ainda n√£o completada"
 
 #: src/err-codes.h:394
 #, fuzzy
 #| msgid "Operation cancelled"
 msgid "LDAP operation not allowed on RDN"
-msgstr "OperaÁ„o cancelada"
+msgstr "Opera√ß√£o cancelada"
 
 #: src/err-codes.h:395
 msgid "Already exists (LDAP)"
@@ -1724,7 +1724,7 @@ msgstr "Linha demasiado longa"
 #, fuzzy
 #| msgid "Operation cancelled"
 msgid "LDAP operation affects multiple DSAs"
-msgstr "OperaÁ„o cancelada"
+msgstr "Opera√ß√£o cancelada"
 
 #: src/err-codes.h:399
 msgid "Virtual LDAP list view error"
@@ -1734,7 +1734,7 @@ msgstr ""
 #, fuzzy
 #| msgid "General IPC error"
 msgid "Other LDAP error"
-msgstr "Erro genÈrico de IPC"
+msgstr "Erro gen√©rico de IPC"
 
 #: src/err-codes.h:401
 #, fuzzy
@@ -1746,25 +1746,25 @@ msgstr "Recursos esgotados"
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "Security violation in LCUP"
-msgstr "ViolaÁ„o de protocolo"
+msgstr "Viola√ß√£o de protocolo"
 
 #: src/err-codes.h:403
 #, fuzzy
 #| msgid "Invalid state"
 msgid "Invalid data in LCUP"
-msgstr "Estado inv·lido"
+msgstr "Estado inv√°lido"
 
 #: src/err-codes.h:404
 #, fuzzy
 #| msgid "Unsupported certificate"
 msgid "Unsupported scheme in LCUP"
-msgstr "Certificado n„o suportado"
+msgstr "Certificado n√£o suportado"
 
 #: src/err-codes.h:405
 #, fuzzy
 #| msgid "Card reset required"
 msgid "Reload required in LCUP"
-msgstr "ReinicializaÁ„o de cart„o necess·ria"
+msgstr "Reinicializa√ß√£o de cart√£o necess√°ria"
 
 #: src/err-codes.h:406
 #, fuzzy
@@ -1776,25 +1776,25 @@ msgstr "Sucesso"
 #, fuzzy
 #| msgid "Not operational"
 msgid "No LDAP operation to cancel"
-msgstr "N„o operacional"
+msgstr "N√£o operacional"
 
 #: src/err-codes.h:408
 #, fuzzy
 #| msgid "Not operational"
 msgid "Too late to cancel LDAP"
-msgstr "N„o operacional"
+msgstr "N√£o operacional"
 
 #: src/err-codes.h:409
 #, fuzzy
 #| msgid "Not an IPC server"
 msgid "Cannot cancel LDAP"
-msgstr "N„o È um servidor IPC"
+msgstr "N√£o √© um servidor IPC"
 
 #: src/err-codes.h:410
 #, fuzzy
 #| msgid "Decryption failed"
 msgid "LDAP assertion failed"
-msgstr "DesencriptaÁ„o falhada"
+msgstr "Desencripta√ß√£o falhada"
 
 #: src/err-codes.h:411
 msgid "Proxied authorization denied by LDAP"
@@ -1802,67 +1802,67 @@ msgstr ""
 
 #: src/err-codes.h:412
 msgid "User defined error code 1"
-msgstr "CÛdigo de erro definido pelo utilizador 1"
+msgstr "C√≥digo de erro definido pelo utilizador 1"
 
 #: src/err-codes.h:413
 msgid "User defined error code 2"
-msgstr "CÛdigo de erro definido pelo utilizador 2"
+msgstr "C√≥digo de erro definido pelo utilizador 2"
 
 #: src/err-codes.h:414
 msgid "User defined error code 3"
-msgstr "CÛdigo de erro definido pelo utilizador 3"
+msgstr "C√≥digo de erro definido pelo utilizador 3"
 
 #: src/err-codes.h:415
 msgid "User defined error code 4"
-msgstr "CÛdigo de erro definido pelo utilizador 4"
+msgstr "C√≥digo de erro definido pelo utilizador 4"
 
 #: src/err-codes.h:416
 msgid "User defined error code 5"
-msgstr "CÛdigo de erro definido pelo utilizador 5"
+msgstr "C√≥digo de erro definido pelo utilizador 5"
 
 #: src/err-codes.h:417
 msgid "User defined error code 6"
-msgstr "CÛdigo de erro definido pelo utilizador 6"
+msgstr "C√≥digo de erro definido pelo utilizador 6"
 
 #: src/err-codes.h:418
 msgid "User defined error code 7"
-msgstr "CÛdigo de erro definido pelo utilizador 7"
+msgstr "C√≥digo de erro definido pelo utilizador 7"
 
 #: src/err-codes.h:419
 msgid "User defined error code 8"
-msgstr "CÛdigo de erro definido pelo utilizador 8"
+msgstr "C√≥digo de erro definido pelo utilizador 8"
 
 #: src/err-codes.h:420
 msgid "User defined error code 9"
-msgstr "CÛdigo de erro definido pelo utilizador 9"
+msgstr "C√≥digo de erro definido pelo utilizador 9"
 
 #: src/err-codes.h:421
 msgid "User defined error code 10"
-msgstr "CÛdigo de erro definido pelo utilizador 10"
+msgstr "C√≥digo de erro definido pelo utilizador 10"
 
 #: src/err-codes.h:422
 msgid "User defined error code 11"
-msgstr "CÛdigo de erro definido pelo utilizador 11"
+msgstr "C√≥digo de erro definido pelo utilizador 11"
 
 #: src/err-codes.h:423
 msgid "User defined error code 12"
-msgstr "CÛdigo de erro definido pelo utilizador 12"
+msgstr "C√≥digo de erro definido pelo utilizador 12"
 
 #: src/err-codes.h:424
 msgid "User defined error code 13"
-msgstr "CÛdigo de erro definido pelo utilizador 13"
+msgstr "C√≥digo de erro definido pelo utilizador 13"
 
 #: src/err-codes.h:425
 msgid "User defined error code 14"
-msgstr "CÛdigo de erro definido pelo utilizador 14"
+msgstr "C√≥digo de erro definido pelo utilizador 14"
 
 #: src/err-codes.h:426
 msgid "User defined error code 15"
-msgstr "CÛdigo de erro definido pelo utilizador 15"
+msgstr "C√≥digo de erro definido pelo utilizador 15"
 
 #: src/err-codes.h:427
 msgid "User defined error code 16"
-msgstr "CÛdigo de erro definido pelo utilizador 16"
+msgstr "C√≥digo de erro definido pelo utilizador 16"
 
 #: src/err-codes.h:428
 msgid "System error w/o errno"
@@ -1878,7 +1878,7 @@ msgstr "Fim do ficheiro"
 
 #: src/err-codes.h:431
 msgid "Unknown error code"
-msgstr "CÛdigo de erro desconhecido"
+msgstr "C√≥digo de erro desconhecido"
 
 #: src/argparse.c:318
 #, fuzzy
@@ -1898,13 +1898,13 @@ msgstr "frase secreta demasiado longa\n"
 #: src/argparse.c:324
 #, fuzzy
 msgid "missing argument"
-msgstr "argumento inv·lido"
+msgstr "argumento inv√°lido"
 
 #: src/argparse.c:326
 #, fuzzy
 #| msgid "invalid armor"
 msgid "invalid argument"
-msgstr "armadura inv·lida"
+msgstr "armadura inv√°lida"
 
 #: src/argparse.c:328
 #, fuzzy
@@ -1914,17 +1914,17 @@ msgstr "comandos em conflito\n"
 #: src/argparse.c:330
 #, fuzzy
 msgid "invalid alias definition"
-msgstr "opÁıes de importaÁ„o inv·lidas\n"
+msgstr "op√ß√µes de importa√ß√£o inv√°lidas\n"
 
 #: src/argparse.c:332
 #, fuzzy
 msgid "out of core"
-msgstr "n„o processado"
+msgstr "n√£o processado"
 
 #: src/argparse.c:334
 #, fuzzy
 msgid "invalid option"
-msgstr "opÁıes de importaÁ„o inv·lidas\n"
+msgstr "op√ß√µes de importa√ß√£o inv√°lidas\n"
 
 #: src/argparse.c:343
 #, c-format
@@ -1934,7 +1934,7 @@ msgstr ""
 #: src/argparse.c:345
 #, fuzzy, c-format
 msgid "invalid argument for option \"%.50s\"\n"
-msgstr "opÁıes de importaÁ„o inv·lidas\n"
+msgstr "op√ß√µes de importa√ß√£o inv√°lidas\n"
 
 #: src/argparse.c:347
 #, c-format
@@ -1944,7 +1944,7 @@ msgstr ""
 #: src/argparse.c:350
 #, fuzzy, c-format
 msgid "invalid command \"%.50s\"\n"
-msgstr "Comando inv·lido (tente \"help\")\n"
+msgstr "Comando inv√°lido (tente \"help\")\n"
 
 #: src/argparse.c:352
 #, c-format
@@ -1959,12 +1959,12 @@ msgstr ""
 #: src/argparse.c:356
 #, fuzzy
 msgid "out of core\n"
-msgstr "n„o processado"
+msgstr "n√£o processado"
 
 #: src/argparse.c:358
 #, fuzzy, c-format
 msgid "invalid option \"%.50s\"\n"
-msgstr "opÁıes de importaÁ„o inv·lidas\n"
+msgstr "op√ß√µes de importa√ß√£o inv√°lidas\n"
 
 #: src/gpg-error.c:458
 msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
@@ -1973,10 +1973,10 @@ msgstr ""
 #: src/gpg-error.c:658
 #, c-format
 msgid "warning: could not recognize %s\n"
-msgstr "aviso: n„o consegui reconhecer %s\n"
+msgstr "aviso: n√£o consegui reconhecer %s\n"
 
 #~ msgid "Usage: %s GPG-ERROR [...]\n"
-#~ msgstr "UtilizaÁ„o: %s GPG-ERROR [...]\n"
+#~ msgstr "Utiliza√ß√£o: %s GPG-ERROR [...]\n"
 
 #, fuzzy
 #~| msgid "Resources exhausted"
@@ -1986,12 +1986,12 @@ msgstr "aviso: n„o consegui reconhecer %s\n"
 #, fuzzy
 #~| msgid "Invalid data"
 #~ msgid "LCUP Invalid data"
-#~ msgstr "Dados inv·lidos"
+#~ msgstr "Dados inv√°lidos"
 
 #, fuzzy
 #~| msgid "General error"
 #~ msgid "LDAP Other general error"
-#~ msgstr "Erro genÈrico"
+#~ msgstr "Erro gen√©rico"
 
 #, fuzzy
 #~| msgid "dirmngr error"

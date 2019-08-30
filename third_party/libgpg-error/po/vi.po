@@ -1,5 +1,5 @@
 # Vietnamese translation for Lib. GPG Error.
-# Copyright � 2009 Free Software Foundation, Inc.
+# Copyright © 2009 Free Software Foundation, Inc.
 # This file is distributed under the same license as the libgpg-error package.
 # Clytie Siddall <clytie@riverland.net.au>, 2006-2009.
 #
@@ -20,7 +20,7 @@ msgstr ""
 
 #: src/err-sources.h:28
 msgid "Unspecified source"
-msgstr "Ngu?n ch?a ghi r�"
+msgstr "Nguồn chưa ghi rõ"
 
 #: src/err-sources.h:29
 msgid "gcrypt"
@@ -36,7 +36,7 @@ msgstr "GpgSM"
 
 #: src/err-sources.h:32
 msgid "GPG Agent"
-msgstr "T�c nh�n GPG"
+msgstr "Tác nhân GPG"
 
 #: src/err-sources.h:33
 msgid "Pinentry"
@@ -88,377 +88,377 @@ msgstr ""
 
 #: src/err-sources.h:45
 msgid "Any source"
-msgstr "B?t c? ngu?n n�o"
+msgstr "Bất cứ nguồn nào"
 
 #: src/err-sources.h:46
 msgid "User defined source 1"
-msgstr "Ngu?n t? x�c ??nh 1"
+msgstr "Nguồn tự xác định 1"
 
 #: src/err-sources.h:47
 msgid "User defined source 2"
-msgstr "Ngu?n t? x�c ??nh 2"
+msgstr "Nguồn tự xác định 2"
 
 #: src/err-sources.h:48
 msgid "User defined source 3"
-msgstr "Ngu?n t? x�c ??nh 3"
+msgstr "Nguồn tự xác định 3"
 
 #: src/err-sources.h:49
 msgid "User defined source 4"
-msgstr "Ngu?n t? x�c ??nh 4"
+msgstr "Nguồn tự xác định 4"
 
 #: src/err-sources.h:50
 msgid "Unknown source"
-msgstr "Ngu?n kh�ng r�"
+msgstr "Nguồn không rõ"
 
 #: src/err-codes.h:28
 msgid "Success"
-msgstr "Th�nh c�ng"
+msgstr "Thành công"
 
 #: src/err-codes.h:29
 msgid "General error"
-msgstr "L?i chung"
+msgstr "Lỗi chung"
 
 #: src/err-codes.h:30
 msgid "Unknown packet"
-msgstr "G�i tin kh�ng r�"
+msgstr "Gói tin không rõ"
 
 #: src/err-codes.h:31
 msgid "Unknown version in packet"
-msgstr "G?p phi�n b?n kh�ng r� trong g�i tin"
+msgstr "Gặp phiên bản không rõ trong gói tin"
 
 #: src/err-codes.h:32
 msgid "Invalid public key algorithm"
-msgstr "Thu?t to�n kho� c�ng kh�ng h?p l?"
+msgstr "Thuật toán khoá công không hợp lệ"
 
 #: src/err-codes.h:33
 msgid "Invalid digest algorithm"
-msgstr "Thu?t to�n b? t�m t?t (digest) kh�ng h?p l?"
+msgstr "Thuật toán bộ tóm tắt (digest) không hợp lệ"
 
 #: src/err-codes.h:34
 msgid "Bad public key"
-msgstr "Kho� c�ng sai"
+msgstr "Khoá công sai"
 
 #: src/err-codes.h:35
 msgid "Bad secret key"
-msgstr "Kho� b� m?t sai"
+msgstr "Khoá bí mật sai"
 
 #: src/err-codes.h:36
 msgid "Bad signature"
-msgstr "Ch? k� sai"
+msgstr "Chữ ký sai"
 
 #: src/err-codes.h:37
 msgid "No public key"
-msgstr "Kh�ng c� kho� c�ng"
+msgstr "Không có khoá công"
 
 #: src/err-codes.h:38
 msgid "Checksum error"
-msgstr "L?i t?ng ki?m tra"
+msgstr "Lỗi tổng kiểm tra"
 
 #: src/err-codes.h:39
 msgid "Bad passphrase"
-msgstr "C?m t? m?t kh?u sai"
+msgstr "Cụm từ mật khẩu sai"
 
 #: src/err-codes.h:40
 msgid "Invalid cipher algorithm"
-msgstr "Thu?t to�n m?t m� kh�ng h?p l?"
+msgstr "Thuật toán mật mã không hợp lệ"
 
 #: src/err-codes.h:41
 msgid "Cannot open keyring"
-msgstr "V�ng kho� ?� m?"
+msgstr "Vòng khoá đã mở"
 
 #: src/err-codes.h:42
 msgid "Invalid packet"
-msgstr "G�i tin kh�ng h?p l?"
+msgstr "Gói tin không hợp lệ"
 
 #: src/err-codes.h:43
 msgid "Invalid armor"
-msgstr "B?c s?t kh�ng h?p l?"
+msgstr "Bọc sắt không hợp lệ"
 
 #: src/err-codes.h:44
 msgid "No user ID"
-msgstr "Kh�ng c� m� s? ng??i d�ng"
+msgstr "Không có mã số người dùng"
 
 #: src/err-codes.h:45
 msgid "No secret key"
-msgstr "Kh�ng c� kho� b� m?t"
+msgstr "Không có khoá bí mật"
 
 #: src/err-codes.h:46
 msgid "Wrong secret key used"
-msgstr "?� d�ng kho� b� m?t kh�ng ?�ng"
+msgstr "Đã dùng khoá bí mật không đúng"
 
 #: src/err-codes.h:47
 msgid "Bad session key"
-msgstr "Kho� bu?i h?p sai"
+msgstr "Khoá buổi hợp sai"
 
 #: src/err-codes.h:48
 msgid "Unknown compression algorithm"
-msgstr "Thu?t to�n n�n kh�ng r�"
+msgstr "Thuật toán nén không rõ"
 
 #: src/err-codes.h:49
 msgid "Number is not prime"
-msgstr "S? kh�ng ph?i nguy�n t?"
+msgstr "Số không phải nguyên tố"
 
 #: src/err-codes.h:50
 msgid "Invalid encoding method"
-msgstr "Ph??ng ph�p m� ho� kh�ng h?p l?"
+msgstr "Phương pháp mã hoá không hợp lệ"
 
 #: src/err-codes.h:51
 msgid "Invalid encryption scheme"
-msgstr "L??c ?? m?t m� ho� kh�ng h?p l?"
+msgstr "Lược đồ mật mã hoá không hợp lệ"
 
 #: src/err-codes.h:52
 msgid "Invalid signature scheme"
-msgstr "L??c ?? ch? k� kh�ng h?p l?"
+msgstr "Lược đồ chữ ký không hợp lệ"
 
 #: src/err-codes.h:53
 msgid "Invalid attribute"
-msgstr "Thu?c t�nh kh�ng h?p l?"
+msgstr "Thuộc tính không hợp lệ"
 
 #: src/err-codes.h:54
 msgid "No value"
-msgstr "Kh�ng c� gi� tr?"
+msgstr "Không có giá trị"
 
 #: src/err-codes.h:55
 msgid "Not found"
-msgstr "Kh�ng t�m th?y"
+msgstr "Không tìm thấy"
 
 #: src/err-codes.h:56
 msgid "Value not found"
-msgstr "Kh�ng t�m th?y gi� tr?"
+msgstr "Không tìm thấy giá trị"
 
 #: src/err-codes.h:57
 msgid "Syntax error"
-msgstr "L?i c� ph�p"
+msgstr "Lỗi cú pháp"
 
 #: src/err-codes.h:58
 msgid "Bad MPI value"
-msgstr "Gi� tr? MPI sai"
+msgstr "Giá trị MPI sai"
 
 #: src/err-codes.h:59
 msgid "Invalid passphrase"
-msgstr "C?m t? m?t kh?u kh�ng h?p l?"
+msgstr "Cụm từ mật khẩu không hợp lệ"
 
 #: src/err-codes.h:60
 msgid "Invalid signature class"
-msgstr "H?ng ch? k� kh�ng h?p l?"
+msgstr "Hạng chữ ký không hợp lệ"
 
 #: src/err-codes.h:61
 msgid "Resources exhausted"
-msgstr "C?n t�i nguy�n"
+msgstr "Cạn tài nguyên"
 
 #: src/err-codes.h:62
 msgid "Invalid keyring"
-msgstr "V�ng kho� kh�ng h?p l?"
+msgstr "Vòng khoá không hợp lệ"
 
 #: src/err-codes.h:63
 msgid "Trust DB error"
-msgstr "L?i CSDL tin c?y"
+msgstr "Lỗi CSDL tin cậy"
 
 #: src/err-codes.h:64
 msgid "Bad certificate"
-msgstr "Ch?ng nh?n sai"
+msgstr "Chứng nhận sai"
 
 #: src/err-codes.h:65
 msgid "Invalid user ID"
-msgstr "M� s? ng??i d�ng kh�ng h?p l?"
+msgstr "Mã số người dùng không hợp lệ"
 
 #: src/err-codes.h:66
 msgid "Unexpected error"
-msgstr "G?p l?i b?t th??ng"
+msgstr "Gặp lỗi bất thường"
 
 #: src/err-codes.h:67
 msgid "Time conflict"
-msgstr "Gi? xung ??t"
+msgstr "Giờ xung đột"
 
 #: src/err-codes.h:68
 msgid "Keyserver error"
-msgstr "L?i m�y ph?c v? kho�"
+msgstr "Lỗi máy phục vụ khoá"
 
 #: src/err-codes.h:69
 msgid "Wrong public key algorithm"
-msgstr "Thu?t to�n kho� c�ng kh�ng ?�ng"
+msgstr "Thuật toán khoá công không đúng"
 
 #: src/err-codes.h:70
 msgid "Tribute to D. A."
-msgstr "C?ng cho D. A."
+msgstr "Cống cho D. A."
 
 #: src/err-codes.h:71
 msgid "Weak encryption key"
-msgstr "Kho� m?t m� y?u"
+msgstr "Khoá mật mã yếu"
 
 #: src/err-codes.h:72
 msgid "Invalid key length"
-msgstr "Chi?u d�i kho� kh�ng h?p l?"
+msgstr "Chiều dài khoá không hợp lệ"
 
 #: src/err-codes.h:73
 msgid "Invalid argument"
-msgstr "??i s? kh�ng h?p l?"
+msgstr "Đối số không hợp lệ"
 
 #: src/err-codes.h:74
 msgid "Syntax error in URI"
-msgstr "L?i c� ph�p trong URI"
+msgstr "Lỗi cú pháp trong URI"
 
 #: src/err-codes.h:75
 msgid "Invalid URI"
-msgstr "URI kh�ng h?p l?"
+msgstr "URI không hợp lệ"
 
 #: src/err-codes.h:76
 msgid "Network error"
-msgstr "L?i ch?y m?ng"
+msgstr "Lỗi chạy mạng"
 
 #: src/err-codes.h:77
 msgid "Unknown host"
-msgstr "Kh�ng nh?n ra m�y ch?"
+msgstr "Không nhận ra máy chủ"
 
 #: src/err-codes.h:78
 msgid "Selftest failed"
-msgstr "L?i t? th?"
+msgstr "Lỗi tự thử"
 
 #: src/err-codes.h:79
 msgid "Data not encrypted"
-msgstr "Ch?a m?t m� d? li?u"
+msgstr "Chưa mật mã dữ liệu"
 
 #: src/err-codes.h:80
 msgid "Data not processed"
-msgstr "Ch?a x? l� d? li?u"
+msgstr "Chưa xử lý dữ liệu"
 
 #: src/err-codes.h:81
 msgid "Unusable public key"
-msgstr "Kho� c�ng v� �ch"
+msgstr "Khoá công vô ích"
 
 #: src/err-codes.h:82
 msgid "Unusable secret key"
-msgstr "Kho� b� m?t v� �ch"
+msgstr "Khoá bí mật vô ích"
 
 #: src/err-codes.h:83
 msgid "Invalid value"
-msgstr "Gi� tr? kh�ng h?p l?"
+msgstr "Giá trị không hợp lệ"
 
 #: src/err-codes.h:84
 msgid "Bad certificate chain"
-msgstr "D�y ch?ng nh?n sai"
+msgstr "Dây chứng nhận sai"
 
 #: src/err-codes.h:85
 msgid "Missing certificate"
-msgstr "Ch?ng nh?n c�n thi?u"
+msgstr "Chứng nhận còn thiếu"
 
 #: src/err-codes.h:86
 msgid "No data"
-msgstr "Kh�ng c� d? li?u"
+msgstr "Không có dữ liệu"
 
 #: src/err-codes.h:87
 msgid "Bug"
-msgstr "L?i"
+msgstr "Lỗi"
 
 #: src/err-codes.h:88
 msgid "Not supported"
-msgstr "Kh�ng ???c h? tr?"
+msgstr "Không được hỗ trợ"
 
 #: src/err-codes.h:89
 msgid "Invalid operation code"
-msgstr "M� thao t�c kh�ng h?p l?"
+msgstr "Mã thao tác không hợp lệ"
 
 #: src/err-codes.h:90
 msgid "Timeout"
-msgstr "Qu� gi?"
+msgstr "Quá giờ"
 
 #: src/err-codes.h:91
 msgid "Internal error"
-msgstr "L?i n?i b?"
+msgstr "Lỗi nội bộ"
 
 #: src/err-codes.h:92
 msgid "EOF (gcrypt)"
-msgstr "K?t th�c t?p tin (gcrypt)"
+msgstr "Kết thúc tập tin (gcrypt)"
 
 #: src/err-codes.h:93
 msgid "Invalid object"
-msgstr "??i t??ng kh�ng h?p l?"
+msgstr "Đối tượng không hợp lệ"
 
 #: src/err-codes.h:94
 msgid "Provided object is too short"
-msgstr "?� cung c?p m?t ??i t??ng qu� ng?n"
+msgstr "Đã cung cấp một đối tượng quá ngắn"
 
 #: src/err-codes.h:95
 msgid "Provided object is too large"
-msgstr "?� cung c?p m?t ??i t??ng qu� l?n"
+msgstr "Đã cung cấp một đối tượng quá lớn"
 
 #: src/err-codes.h:96
 msgid "Missing item in object"
-msgstr "Thi?u m?c trong ??i t??ng"
+msgstr "Thiếu mục trong đối tượng"
 
 #: src/err-codes.h:97
 msgid "Not implemented"
-msgstr "Kh�ng ???c th?c hi?n"
+msgstr "Không được thực hiện"
 
 #: src/err-codes.h:98
 msgid "Conflicting use"
-msgstr "C�ch s? d?ng xung ??t"
+msgstr "Cách sử dụng xung đột"
 
 #: src/err-codes.h:99
 msgid "Invalid cipher mode"
-msgstr "Ch? ?? m?t m� kh�ng h?p l?"
+msgstr "Chế độ mật mã không hợp lệ"
 
 #: src/err-codes.h:100
 msgid "Invalid flag"
-msgstr "C? kh�ng h?p l?"
+msgstr "Cờ không hợp lệ"
 
 #: src/err-codes.h:101
 msgid "Invalid handle"
-msgstr "B? qu?n l� kh�ng h?p l?"
+msgstr "Bộ quản lý không hợp lệ"
 
 #: src/err-codes.h:102
 msgid "Result truncated"
-msgstr "K?t qu? b? c?t ng?n"
+msgstr "Kết quả bị cắt ngắn"
 
 #: src/err-codes.h:103
 msgid "Incomplete line"
-msgstr "D�ng kh�ng ho�n to�n"
+msgstr "Dòng không hoàn toàn"
 
 #: src/err-codes.h:104
 msgid "Invalid response"
-msgstr "?�p ?ng kh�ng h?p l?"
+msgstr "Đáp ứng không hợp lệ"
 
 #: src/err-codes.h:105
 msgid "No agent running"
-msgstr "Kh�ng c� t�c nh�n ?ang ch?y"
+msgstr "Không có tác nhân đang chạy"
 
 #: src/err-codes.h:106
 #, fuzzy
 #| msgid "agent error"
 msgid "Agent error"
-msgstr "l?i t�c nh�n"
+msgstr "lỗi tác nhân"
 
 #: src/err-codes.h:107
 msgid "Invalid data"
-msgstr "D? li?u kh�ng h?p l?"
+msgstr "Dữ liệu không hợp lệ"
 
 #: src/err-codes.h:108
 msgid "Unspecific Assuan server fault"
-msgstr "L?i m�y ph?c v? Assuan chung"
+msgstr "Lỗi máy phục vụ Assuan chung"
 
 #: src/err-codes.h:109
 msgid "General Assuan error"
-msgstr "L?i Assuan chung"
+msgstr "Lỗi Assuan chung"
 
 #: src/err-codes.h:110
 msgid "Invalid session key"
-msgstr "Kho� bu?i h?p kh�ng h?p l?"
+msgstr "Khoá buổi hợp không hợp lệ"
 
 #: src/err-codes.h:111
 msgid "Invalid S-expression"
-msgstr "Bi?u th?c S kh�ng h?p l?"
+msgstr "Biểu thức S không hợp lệ"
 
 #: src/err-codes.h:112
 msgid "Unsupported algorithm"
-msgstr "Thu?t to�n kh�ng ???c h? tr?"
+msgstr "Thuật toán không được hỗ trợ"
 
 #: src/err-codes.h:113
 msgid "No pinentry"
-msgstr "Kh�ng c� pinentry"
+msgstr "Không có pinentry"
 
 #: src/err-codes.h:114
 msgid "pinentry error"
-msgstr "L?i pinentry"
+msgstr "Lỗi pinentry"
 
 #: src/err-codes.h:115
 msgid "Bad PIN"
@@ -466,387 +466,387 @@ msgstr "PIN sai"
 
 #: src/err-codes.h:116
 msgid "Invalid name"
-msgstr "T�n kh�ng h?p l?"
+msgstr "Tên không hợp lệ"
 
 #: src/err-codes.h:117
 msgid "Bad data"
-msgstr "D? li?u sai"
+msgstr "Dữ liệu sai"
 
 #: src/err-codes.h:118
 msgid "Invalid parameter"
-msgstr "Tham s? kh�ng h?p l?"
+msgstr "Tham số không hợp lệ"
 
 #: src/err-codes.h:119
 msgid "Wrong card"
-msgstr "Th? kh�ng ?�ng"
+msgstr "Thẻ không đúng"
 
 #: src/err-codes.h:120
 msgid "No dirmngr"
-msgstr "Kh�ng c� dirmngr"
+msgstr "Không có dirmngr"
 
 #: src/err-codes.h:121
 msgid "dirmngr error"
-msgstr "L?i dirmngr"
+msgstr "Lỗi dirmngr"
 
 #: src/err-codes.h:122
 msgid "Certificate revoked"
-msgstr "Ch?ng nh?n b? thu h?i"
+msgstr "Chứng nhận bị thu hồi"
 
 #: src/err-codes.h:123
 msgid "No CRL known"
-msgstr "Kh�ng co CRL ?� bi?t"
+msgstr "Không co CRL đã biết"
 
 #: src/err-codes.h:124
 msgid "CRL too old"
-msgstr "CRL qu� c?"
+msgstr "CRL quá cũ"
 
 #: src/err-codes.h:125
 msgid "Line too long"
-msgstr "D�ng qu� d�i"
+msgstr "Dòng quá dài"
 
 #: src/err-codes.h:126
 msgid "Not trusted"
-msgstr "Kh�ng tin c?y"
+msgstr "Không tin cậy"
 
 #: src/err-codes.h:127
 msgid "Operation cancelled"
-msgstr "Thao t�c b? h?y b?"
+msgstr "Thao tác bị hủy bỏ"
 
 #: src/err-codes.h:128
 msgid "Bad CA certificate"
-msgstr "Ch?ng nh?n CA (nh� c?m quy?n ch?ng nh?n) sai"
+msgstr "Chứng nhận CA (nhà cầm quyền chứng nhận) sai"
 
 #: src/err-codes.h:129
 msgid "Certificate expired"
-msgstr "Ch?ng nh?n ?� h?t h?n"
+msgstr "Chứng nhận đã hết hạn"
 
 #: src/err-codes.h:130
 msgid "Certificate too young"
-msgstr "Ch?ng nh?n qu� m?i"
+msgstr "Chứng nhận quá mới"
 
 #: src/err-codes.h:131
 msgid "Unsupported certificate"
-msgstr "Ch?ng nh?n kh�ng ???c h? tr?"
+msgstr "Chứng nhận không được hỗ trợ"
 
 #: src/err-codes.h:132
 msgid "Unknown S-expression"
-msgstr "Bi?u th?c S kh�ng r�"
+msgstr "Biểu thức S không rõ"
 
 #: src/err-codes.h:133
 msgid "Unsupported protection"
-msgstr "S? b?o v? kh�ng ???c h? tr?"
+msgstr "Sự bảo vệ không được hỗ trợ"
 
 #: src/err-codes.h:134
 msgid "Corrupted protection"
-msgstr "S? b?o v? b? h?ng"
+msgstr "Sự bảo vệ bị hỏng"
 
 #: src/err-codes.h:135
 msgid "Ambiguous name"
-msgstr "T�n m? h?"
+msgstr "Tên mờ hồ"
 
 #: src/err-codes.h:136
 msgid "Card error"
-msgstr "L?i th?"
+msgstr "Lỗi thẻ"
 
 #: src/err-codes.h:137
 msgid "Card reset required"
-msgstr "C?n thi?t l?p l?i th?"
+msgstr "Cần thiết lập lại thẻ"
 
 #: src/err-codes.h:138
 msgid "Card removed"
-msgstr "Th? b? g? b?"
+msgstr "Thẻ bị gỡ bỏ"
 
 #: src/err-codes.h:139
 msgid "Invalid card"
-msgstr "Th? kh�ng h?p l?"
+msgstr "Thẻ không hợp lệ"
 
 #: src/err-codes.h:140
 msgid "Card not present"
-msgstr "Kh�ng c� th?"
+msgstr "Không có thẻ"
 
 #: src/err-codes.h:141
 msgid "No PKCS15 application"
-msgstr "Kh�ng c� ?ng d?ng PKCS15"
+msgstr "Không có ứng dụng PKCS15"
 
 #: src/err-codes.h:142
 msgid "Not confirmed"
-msgstr "Ch?a x�c nh?n"
+msgstr "Chưa xác nhận"
 
 #: src/err-codes.h:143
 msgid "Configuration error"
-msgstr "L?i c?u h�nh"
+msgstr "Lỗi cấu hình"
 
 #: src/err-codes.h:144
 msgid "No policy match"
-msgstr "Kh�ng c� ch�nh s�ch t??ng ?ng"
+msgstr "Không có chính sách tương ứng"
 
 #: src/err-codes.h:145
 msgid "Invalid index"
-msgstr "Ch? m?c kh�ng h?p l?"
+msgstr "Chỉ mục không hợp lệ"
 
 #: src/err-codes.h:146
 msgid "Invalid ID"
-msgstr "M� s? kh�ng h?p l?"
+msgstr "Mã số không hợp lệ"
 
 #: src/err-codes.h:147
 msgid "No SmartCard daemon"
-msgstr "Kh�ng c� tr�nh n?n Th? Kh�o"
+msgstr "Không có trình nền Thẻ Khéo"
 
 #: src/err-codes.h:148
 msgid "SmartCard daemon error"
-msgstr "L?i tr�nh n?n Th? Kh�o"
+msgstr "Lỗi trình nền Thẻ Khéo"
 
 #: src/err-codes.h:149
 msgid "Unsupported protocol"
-msgstr "Giao th?c kh�ng ???c h? tr?"
+msgstr "Giao thức không được hỗ trợ"
 
 #: src/err-codes.h:150
 msgid "Bad PIN method"
-msgstr "Ph??ng ph�p PIN sai"
+msgstr "Phương pháp PIN sai"
 
 #: src/err-codes.h:151
 msgid "Card not initialized"
-msgstr "Ch?a s? kh?i th?"
+msgstr "Chưa sơ khởi thẻ"
 
 #: src/err-codes.h:152
 msgid "Unsupported operation"
-msgstr "Thao t�c kh�ng ???c h? tr?"
+msgstr "Thao tác không được hỗ trợ"
 
 #: src/err-codes.h:153
 msgid "Wrong key usage"
-msgstr "Sai d�ng kho�"
+msgstr "Sai dùng khoá"
 
 #: src/err-codes.h:154
 msgid "Nothing found"
-msgstr "Kh�ng t�m th?y"
+msgstr "Không tìm thấy"
 
 #: src/err-codes.h:155
 msgid "Wrong blob type"
-msgstr "Sai ki?u blob"
+msgstr "Sai kiểu blob"
 
 #: src/err-codes.h:156
 msgid "Missing value"
-msgstr "Thi?u gi� tr?"
+msgstr "Thiếu giá trị"
 
 #: src/err-codes.h:157
 msgid "Hardware problem"
-msgstr "L?i ph?n c?ng"
+msgstr "Lỗi phần cứng"
 
 #: src/err-codes.h:158
 msgid "PIN blocked"
-msgstr "PIN b? ch?n"
+msgstr "PIN bị chặn"
 
 #: src/err-codes.h:159
 msgid "Conditions of use not satisfied"
-msgstr "Ch?a th?a m�n c�c ?i?u ki?n d�ng"
+msgstr "Chưa thỏa mãn các điều kiện dùng"
 
 #: src/err-codes.h:160
 msgid "PINs are not synced"
-msgstr "C�c PIN ch?a ??ng b?"
+msgstr "Các PIN chưa đồng bộ"
 
 #: src/err-codes.h:161
 msgid "Invalid CRL"
-msgstr "CRL kh�ng h?p l?"
+msgstr "CRL không hợp lệ"
 
 #: src/err-codes.h:162
 msgid "BER error"
-msgstr "L?i BER"
+msgstr "Lỗi BER"
 
 #: src/err-codes.h:163
 msgid "Invalid BER"
-msgstr "BER kh�ng h?p l?"
+msgstr "BER không hợp lệ"
 
 #: src/err-codes.h:164
 msgid "Element not found"
-msgstr "Kh�ng t�m th?y ph?n t?"
+msgstr "Không tìm thấy phần tử"
 
 #: src/err-codes.h:165
 msgid "Identifier not found"
-msgstr "Kh�ng t�m th?y b? nh?n di?n"
+msgstr "Không tìm thấy bộ nhận diện"
 
 #: src/err-codes.h:166
 msgid "Invalid tag"
-msgstr "Th? (tag) kh�ng h?p l?"
+msgstr "Thẻ (tag) không hợp lệ"
 
 #: src/err-codes.h:167
 msgid "Invalid length"
-msgstr "Chi?u d�i kh�ng h?p l?"
+msgstr "Chiều dài không hợp lệ"
 
 #: src/err-codes.h:168
 msgid "Invalid key info"
-msgstr "Th�ng tin kho� kh�ng h?p l?"
+msgstr "Thông tin khoá không hợp lệ"
 
 #: src/err-codes.h:169
 msgid "Unexpected tag"
-msgstr "Th? (tag) b?t th??ng"
+msgstr "Thẻ (tag) bất thường"
 
 #: src/err-codes.h:170
 msgid "Not DER encoded"
-msgstr "Kh�ng ph?i m� ho� DER"
+msgstr "Không phải mã hoá DER"
 
 #: src/err-codes.h:171
 msgid "No CMS object"
-msgstr "Kh�ng c� ??i t??ng CMS"
+msgstr "Không có đối tượng CMS"
 
 #: src/err-codes.h:172
 msgid "Invalid CMS object"
-msgstr "??i t??ng CMS kh�ng h?p l?"
+msgstr "Đối tượng CMS không hợp lệ"
 
 #: src/err-codes.h:173
 msgid "Unknown CMS object"
-msgstr "??i t??ng CMS kh�ng r�"
+msgstr "Đối tượng CMS không rõ"
 
 #: src/err-codes.h:174
 msgid "Unsupported CMS object"
-msgstr "??i t??ng CMS kh�ng ???c h? tr?"
+msgstr "Đối tượng CMS không được hỗ trợ"
 
 #: src/err-codes.h:175
 msgid "Unsupported encoding"
-msgstr "B?ng m� kh�ng ???c h? tr?"
+msgstr "Bảng mã không được hỗ trợ"
 
 #: src/err-codes.h:176
 msgid "Unsupported CMS version"
-msgstr "Phi�n b?n CMS kh�ng ???c h? tr?"
+msgstr "Phiên bản CMS không được hỗ trợ"
 
 #: src/err-codes.h:177
 msgid "Unknown algorithm"
-msgstr "Thu?t to�n kh�ng r�"
+msgstr "Thuật toán không rõ"
 
 #: src/err-codes.h:178
 msgid "Invalid crypto engine"
-msgstr "C? ch? m?t m� kh�ng h?p l?"
+msgstr "Cơ chế mật mã không hợp lệ"
 
 #: src/err-codes.h:179
 msgid "Public key not trusted"
-msgstr "Kho� c�ng kh�ng tin c?y"
+msgstr "Khoá công không tin cậy"
 
 #: src/err-codes.h:180
 msgid "Decryption failed"
-msgstr "L?i gi?i m?t m�"
+msgstr "Lỗi giải mật mã"
 
 #: src/err-codes.h:181
 msgid "Key expired"
-msgstr "Kho� h?t h?n"
+msgstr "Khoá hết hạn"
 
 #: src/err-codes.h:182
 msgid "Signature expired"
-msgstr "Ch? k� h?t h?n"
+msgstr "Chữ ký hết hạn"
 
 #: src/err-codes.h:183
 msgid "Encoding problem"
-msgstr "L?i m� ho�"
+msgstr "Lỗi mã hoá"
 
 #: src/err-codes.h:184
 msgid "Invalid state"
-msgstr "T�nh tr?ng kh�ng h?p l?"
+msgstr "Tình trạng không hợp lệ"
 
 #: src/err-codes.h:185
 msgid "Duplicated value"
-msgstr "Gi� tr? tr�ng"
+msgstr "Giá trị trùng"
 
 #: src/err-codes.h:186
 msgid "Missing action"
-msgstr "Thi?u h�nh ??ng"
+msgstr "Thiếu hành động"
 
 #: src/err-codes.h:187
 msgid "ASN.1 module not found"
-msgstr "Kh�ng t�m th?y m�-?un ASN.1"
+msgstr "Không tìm thấy mô-đun ASN.1"
 
 #: src/err-codes.h:188
 msgid "Invalid OID string"
-msgstr "Chu?i OID kh�ng h?p l?"
+msgstr "Chuỗi OID không hợp lệ"
 
 #: src/err-codes.h:189
 msgid "Invalid time"
-msgstr "Th?i gian kh�ng h?p l?"
+msgstr "Thời gian không hợp lệ"
 
 #: src/err-codes.h:190
 msgid "Invalid CRL object"
-msgstr "??i t??ng CRL kh�ng h?p l?"
+msgstr "Đối tượng CRL không hợp lệ"
 
 #: src/err-codes.h:191
 msgid "Unsupported CRL version"
-msgstr "Phi�n b?n CRL kh�ng ???c h? tr?"
+msgstr "Phiên bản CRL không được hỗ trợ"
 
 #: src/err-codes.h:192
 msgid "Invalid certificate object"
-msgstr "??i t??ng ch?ng nh?n kh�ng h?p l?"
+msgstr "Đối tượng chứng nhận không hợp lệ"
 
 #: src/err-codes.h:193
 msgid "Unknown name"
-msgstr "T�n kh�ng r�"
+msgstr "Tên không rõ"
 
 #: src/err-codes.h:194
 msgid "A locale function failed"
-msgstr "M?t h�m mi?n ??a ph??ng b? l?i"
+msgstr "Một hàm miền địa phương bị lỗi"
 
 #: src/err-codes.h:195
 msgid "Not locked"
-msgstr "Kh�ng ph?i b? kho�"
+msgstr "Không phải bị khoá"
 
 #: src/err-codes.h:196
 msgid "Protocol violation"
-msgstr "Vi ph?m giao th?c"
+msgstr "Vi phạm giao thức"
 
 #: src/err-codes.h:197
 msgid "Invalid MAC"
-msgstr "MAC kh�ng h?p l?"
+msgstr "MAC không hợp lệ"
 
 #: src/err-codes.h:198
 msgid "Invalid request"
-msgstr "Y�u c?u kh�ng h?p l?"
+msgstr "Yêu cầu không hợp lệ"
 
 #: src/err-codes.h:199
 msgid "Unknown extension"
-msgstr "Ph?n m? r?ng kh�ng r�"
+msgstr "Phần mở rộng không rõ"
 
 #: src/err-codes.h:200
 msgid "Unknown critical extension"
-msgstr "Ph?n m? r?ng nghi�m tr?ng kh�ng r�"
+msgstr "Phần mở rộng nghiêm trọng không rõ"
 
 #: src/err-codes.h:201
 msgid "Locked"
-msgstr "B? kho�"
+msgstr "Bị khoá"
 
 #: src/err-codes.h:202
 msgid "Unknown option"
-msgstr "T�y ch?n kh�ng r�"
+msgstr "Tùy chọn không rõ"
 
 #: src/err-codes.h:203
 msgid "Unknown command"
-msgstr "L?nh kh�ng r�"
+msgstr "Lệnh không rõ"
 
 #: src/err-codes.h:204
 msgid "Not operational"
-msgstr "Kh�ng ho?t ??ng ???c"
+msgstr "Không hoạt động được"
 
 #: src/err-codes.h:205
 msgid "No passphrase given"
-msgstr "Ch?a ??a ra c?m t? m?t kh?u"
+msgstr "Chưa đưa ra cụm từ mật khẩu"
 
 #: src/err-codes.h:206
 msgid "No PIN given"
-msgstr "Ch?a ??a ra s? c� nh�n PIN"
+msgstr "Chưa đưa ra số cá nhân PIN"
 
 #: src/err-codes.h:207
 #, fuzzy
 msgid "Not enabled"
-msgstr "Kh�ng ph?i b? kho�"
+msgstr "Không phải bị khoá"
 
 #: src/err-codes.h:208
 #, fuzzy
 msgid "No crypto engine"
-msgstr "C? ch? m?t m� kh�ng h?p l?"
+msgstr "Cơ chế mật mã không hợp lệ"
 
 #: src/err-codes.h:209
 #, fuzzy
 msgid "Missing key"
-msgstr "Thi?u gi� tr?"
+msgstr "Thiếu giá trị"
 
 #: src/err-codes.h:210
 #, fuzzy
 msgid "Too many objects"
-msgstr "Kh�ng c� ??i t??ng CMS"
+msgstr "Không có đối tượng CMS"
 
 #: src/err-codes.h:211
 msgid "Limit reached"
@@ -855,12 +855,12 @@ msgstr ""
 #: src/err-codes.h:212
 #, fuzzy
 msgid "Not initialized"
-msgstr "Ch?a s? kh?i th?"
+msgstr "Chưa sơ khởi thẻ"
 
 #: src/err-codes.h:213
 #, fuzzy
 msgid "Missing issuer certificate"
-msgstr "Ch?ng nh?n c�n thi?u"
+msgstr "Chứng nhận còn thiếu"
 
 #: src/err-codes.h:214
 msgid "No keyserver available"
@@ -869,40 +869,40 @@ msgstr ""
 #: src/err-codes.h:215
 #, fuzzy
 msgid "Invalid elliptic curve"
-msgstr "Th?i gian kh�ng h?p l?"
+msgstr "Thời gian không hợp lệ"
 
 #: src/err-codes.h:216
 #, fuzzy
 msgid "Unknown elliptic curve"
-msgstr "Ngu?n kh�ng r�"
+msgstr "Nguồn không rõ"
 
 #: src/err-codes.h:217
 #, fuzzy
 #| msgid "Duplicated value"
 msgid "Duplicated key"
-msgstr "Gi� tr? tr�ng"
+msgstr "Giá trị trùng"
 
 #: src/err-codes.h:218
 #, fuzzy
 #| msgid "Ambiguous name"
 msgid "Ambiguous result"
-msgstr "T�n m? h?"
+msgstr "Tên mờ hồ"
 
 #: src/err-codes.h:219
 #, fuzzy
 msgid "No crypto context"
-msgstr "C? ch? m?t m� kh�ng h?p l?"
+msgstr "Cơ chế mật mã không hợp lệ"
 
 #: src/err-codes.h:220
 #, fuzzy
 msgid "Wrong crypto context"
-msgstr "C? ch? m?t m� kh�ng h?p l?"
+msgstr "Cơ chế mật mã không hợp lệ"
 
 #: src/err-codes.h:221
 #, fuzzy
 #| msgid "Invalid crypto engine"
 msgid "Bad crypto context"
-msgstr "C? ch? m?t m� kh�ng h?p l?"
+msgstr "Cơ chế mật mã không hợp lệ"
 
 #: src/err-codes.h:222
 msgid "Conflict in the crypto context"
@@ -912,85 +912,85 @@ msgstr ""
 #, fuzzy
 #| msgid "No public key"
 msgid "Broken public key"
-msgstr "Kh�ng c� kho� c�ng"
+msgstr "Không có khoá công"
 
 #: src/err-codes.h:224
 #, fuzzy
 #| msgid "No secret key"
 msgid "Broken secret key"
-msgstr "Kh�ng c� kho� b� m?t"
+msgstr "Không có khoá bí mật"
 
 #: src/err-codes.h:225
 #, fuzzy
 #| msgid "Invalid digest algorithm"
 msgid "Invalid MAC algorithm"
-msgstr "Thu?t to�n b? t�m t?t (digest) kh�ng h?p l?"
+msgstr "Thuật toán bộ tóm tắt (digest) không hợp lệ"
 
 #: src/err-codes.h:226
 #, fuzzy
 msgid "Operation fully cancelled"
-msgstr "Thao t�c b? h?y b?"
+msgstr "Thao tác bị hủy bỏ"
 
 #: src/err-codes.h:227
 msgid "Operation not yet finished"
-msgstr "Thao t�c ch?a k?t th�c"
+msgstr "Thao tác chưa kết thúc"
 
 #: src/err-codes.h:228
 msgid "Buffer too short"
-msgstr "V�ng ??m qu� ng?n"
+msgstr "Vùng đệm quá ngắn"
 
 #: src/err-codes.h:229
 msgid "Invalid length specifier in S-expression"
-msgstr "Ch? th? chi?u d�i kh�ng h?p l? trong bi?u th?c S"
+msgstr "Chỉ thị chiều dài không hợp lệ trong biểu thức S"
 
 #: src/err-codes.h:230
 msgid "String too long in S-expression"
-msgstr "Chu?i qu� d�i trong bi?u th?c S"
+msgstr "Chuỗi quá dài trong biểu thức S"
 
 #: src/err-codes.h:231
 msgid "Unmatched parentheses in S-expression"
-msgstr "C� d?u ngo?c ch?a kh?p trong bi?u th?c S"
+msgstr "Có dấu ngoặc chưa khớp trong biểu thức S"
 
 #: src/err-codes.h:232
 msgid "S-expression not canonical"
-msgstr "Bi?u th?c S kh�ng ph?i chu?n t?c"
+msgstr "Biểu thức S không phải chuẩn tắc"
 
 #: src/err-codes.h:233
 msgid "Bad character in S-expression"
-msgstr "K� t? sai trong bi?u th?c S"
+msgstr "Ký tự sai trong biểu thức S"
 
 #: src/err-codes.h:234
 msgid "Bad quotation in S-expression"
-msgstr "?o?n tr�ch d?n sai trong bi?u th?c S"
+msgstr "Đoạn trích dẫn sai trong biểu thức S"
 
 #: src/err-codes.h:235
 msgid "Zero prefix in S-expression"
-msgstr "Ti?n t? s? kh�ng trong bi?u th?c S"
+msgstr "Tiền tố số không trong biểu thức S"
 
 #: src/err-codes.h:236
 msgid "Nested display hints in S-expression"
-msgstr "C� m?o tr�nh b�y l?ng nhau trong bi?u th?c S"
+msgstr "Có mẹo trình bày lồng nhau trong biểu thức S"
 
 #: src/err-codes.h:237
 msgid "Unmatched display hints"
-msgstr "C� m?o tr�nh b�y ch?a kh?p"
+msgstr "Có mẹo trình bày chưa khớp"
 
 #: src/err-codes.h:238
 msgid "Unexpected reserved punctuation in S-expression"
-msgstr "C� d?u ch?m c�u d�nh ri�ng b?t th??ng trong bi?u th?c S"
+msgstr "Có dấu chấm câu dành riêng bất thường trong biểu thức S"
 
 #: src/err-codes.h:239
 msgid "Bad hexadecimal character in S-expression"
-msgstr "K� t? th?p l?c sai trong bi?u th?c S"
+msgstr "Ký tự thập lục sai trong biểu thức S"
 
 #: src/err-codes.h:240
 msgid "Odd hexadecimal numbers in S-expression"
-msgstr "C� s? th?p l?c l? trong bi?u th?c S"
+msgstr "Có số thập lục lẻ trong biểu thức S"
 
 #: src/err-codes.h:241
 #, fuzzy
 msgid "Bad octal character in S-expression"
-msgstr "K� t? b�t ph�n sai trong bi?u th?c S"
+msgstr "Ký tự bát phân sai trong biểu thức S"
 
 #: src/err-codes.h:242
 msgid "All subkeys are expired or revoked"
@@ -1000,7 +1000,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Data not encrypted"
 msgid "Database is corrupted"
-msgstr "Ch?a m?t m� d? li?u"
+msgstr "Chưa mật mã dữ liệu"
 
 #: src/err-codes.h:244
 msgid "Server indicated a failure"
@@ -1010,13 +1010,13 @@ msgstr ""
 #, fuzzy
 #| msgid "Unknown name"
 msgid "No name"
-msgstr "T�n kh�ng r�"
+msgstr "Tên không rõ"
 
 #: src/err-codes.h:246
 #, fuzzy
 #| msgid "No public key"
 msgid "No key"
-msgstr "Kh�ng c� kho� c�ng"
+msgstr "Không có khoá công"
 
 #: src/err-codes.h:247
 msgid "Legacy key"
@@ -1026,13 +1026,13 @@ msgstr ""
 #, fuzzy
 #| msgid "Buffer too short"
 msgid "Request too short"
-msgstr "V�ng ??m qu� ng?n"
+msgstr "Vùng đệm quá ngắn"
 
 #: src/err-codes.h:249
 #, fuzzy
 #| msgid "Line too long"
 msgid "Request too long"
-msgstr "D�ng qu� d�i"
+msgstr "Dòng quá dài"
 
 #: src/err-codes.h:250
 msgid "Object is in termination state"
@@ -1042,19 +1042,19 @@ msgstr ""
 #, fuzzy
 #| msgid "Bad certificate chain"
 msgid "No certificate chain"
-msgstr "D�y ch?ng nh?n sai"
+msgstr "Dây chứng nhận sai"
 
 #: src/err-codes.h:252
 #, fuzzy
 #| msgid "Certificate too young"
 msgid "Certificate is too large"
-msgstr "Ch?ng nh?n qu� m?i"
+msgstr "Chứng nhận quá mới"
 
 #: src/err-codes.h:253
 #, fuzzy
 #| msgid "Invalid card"
 msgid "Invalid record"
-msgstr "Th? kh�ng h?p l?"
+msgstr "Thẻ không hợp lệ"
 
 #: src/err-codes.h:254
 msgid "The MAC does not verify"
@@ -1064,7 +1064,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Unexpected tag"
 msgid "Unexpected message"
-msgstr "Th? (tag) b?t th??ng"
+msgstr "Thẻ (tag) bất thường"
 
 #: src/err-codes.h:256
 msgid "Compression or decompression failed"
@@ -1082,42 +1082,42 @@ msgstr ""
 #, fuzzy
 #| msgid "Invalid cipher algorithm"
 msgid "No cipher algorithm"
-msgstr "Thu?t to�n m?t m� kh�ng h?p l?"
+msgstr "Thuật toán mật mã không hợp lệ"
 
 #: src/err-codes.h:260
 #, fuzzy
 msgid "Missing client certificate"
-msgstr "Ch?ng nh?n c�n thi?u"
+msgstr "Chứng nhận còn thiếu"
 
 #: src/err-codes.h:261
 #, fuzzy
 #| msgid "Certificate revoked"
 msgid "Close notification received"
-msgstr "Ch?ng nh?n b? thu h?i"
+msgstr "Chứng nhận bị thu hồi"
 
 #: src/err-codes.h:262
 #, fuzzy
 #| msgid "Key expired"
 msgid "Ticket expired"
-msgstr "Kho� h?t h?n"
+msgstr "Khoá hết hạn"
 
 #: src/err-codes.h:263
 #, fuzzy
 #| msgid "Bad public key"
 msgid "Bad ticket"
-msgstr "Kho� c�ng sai"
+msgstr "Khoá công sai"
 
 #: src/err-codes.h:264
 #, fuzzy
 #| msgid "Unknown packet"
 msgid "Unknown identity"
-msgstr "G�i tin kh�ng r�"
+msgstr "Gói tin không rõ"
 
 #: src/err-codes.h:265
 #, fuzzy
 #| msgid "Bad certificate chain"
 msgid "Bad certificate message in handshake"
-msgstr "D�y ch?ng nh?n sai"
+msgstr "Dây chứng nhận sai"
 
 #: src/err-codes.h:266
 msgid "Bad certificate request message in handshake"
@@ -1167,7 +1167,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Key expired"
 msgid "Key disabled"
-msgstr "Kho� h?t h?n"
+msgstr "Khoá hết hạn"
 
 #: src/err-codes.h:278
 msgid "Not possible with a card based key"
@@ -1177,7 +1177,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Invalid object"
 msgid "Invalid lock object"
-msgstr "??i t??ng kh�ng h?p l?"
+msgstr "Đối tượng không hợp lệ"
 
 #: src/err-codes.h:280
 msgid "True"
@@ -1189,104 +1189,104 @@ msgstr ""
 
 #: src/err-codes.h:282
 msgid "General IPC error"
-msgstr "L?i IPC chung"
+msgstr "Lỗi IPC chung"
 
 #: src/err-codes.h:283
 msgid "IPC accept call failed"
-msgstr "L?i g?i ch?p nh?n IPC b? l?i"
+msgstr "Lời gọi chấp nhận IPC bị lỗi"
 
 #: src/err-codes.h:284
 msgid "IPC connect call failed"
-msgstr "L?i g?i k?t n?i IPC b? l?i"
+msgstr "Lời gọi kết nối IPC bị lỗi"
 
 #: src/err-codes.h:285
 msgid "Invalid IPC response"
-msgstr "?�p ?ng IPC kh�ng h?p l?"
+msgstr "Đáp ứng IPC không hợp lệ"
 
 #: src/err-codes.h:286
 msgid "Invalid value passed to IPC"
-msgstr "Gi� tr? kh�ng h?p l? ???c g?i cho IPC"
+msgstr "Giá trị không hợp lệ được gửi cho IPC"
 
 #: src/err-codes.h:287
 msgid "Incomplete line passed to IPC"
-msgstr "D�ng kh�ng ho�n to�n ???c g?i cho IPC"
+msgstr "Dòng không hoàn toàn được gửi cho IPC"
 
 #: src/err-codes.h:288
 msgid "Line passed to IPC too long"
-msgstr "D�ng qu� d�i ???c g?i cho IPC"
+msgstr "Dòng quá dài được gửi cho IPC"
 
 #: src/err-codes.h:289
 msgid "Nested IPC commands"
-msgstr "C�c c�u l?nh IPC l?ng nhau"
+msgstr "Các câu lệnh IPC lồng nhau"
 
 #: src/err-codes.h:290
 msgid "No data callback in IPC"
-msgstr "Kh�ng c� l?i g?i ng??c l?i d? li?u trong IPC"
+msgstr "Không có lời gọi ngược lại dữ liệu trong IPC"
 
 #: src/err-codes.h:291
 msgid "No inquire callback in IPC"
-msgstr "Kh�ng c� l?i g?i ng??c l?i y�u c?u trong IPC"
+msgstr "Không có lời gọi ngược lại yêu cầu trong IPC"
 
 #: src/err-codes.h:292
 msgid "Not an IPC server"
-msgstr "Kh�ng ph?i tr�nh ph?c v? IPC"
+msgstr "Không phải trình phục vụ IPC"
 
 #: src/err-codes.h:293
 msgid "Not an IPC client"
-msgstr "Kh�ng ph?i ?ng d?ng kh�ch IPC"
+msgstr "Không phải ứng dụng khách IPC"
 
 #: src/err-codes.h:294
 msgid "Problem starting IPC server"
-msgstr "G?p kh� kh?n trong vi?c kh?i ch?y tr�nh ph?c v? IPC"
+msgstr "Gặp khó khăn trong việc khởi chạy trình phục vụ IPC"
 
 #: src/err-codes.h:295
 msgid "IPC read error"
-msgstr "L?i ??c IPC"
+msgstr "Lỗi đọc IPC"
 
 #: src/err-codes.h:296
 msgid "IPC write error"
-msgstr "L?i ghi IPC"
+msgstr "Lỗi ghi IPC"
 
 #: src/err-codes.h:297
 msgid "Too much data for IPC layer"
-msgstr "Qu� nhi?u d? li?u cho l?p IPC"
+msgstr "Quá nhiều dữ liệu cho lớp IPC"
 
 #: src/err-codes.h:298
 msgid "Unexpected IPC command"
-msgstr "C�u l?nh IPC b?t th??ng"
+msgstr "Câu lệnh IPC bất thường"
 
 #: src/err-codes.h:299
 msgid "Unknown IPC command"
-msgstr "C�u l?nh IPC kh�ng r�"
+msgstr "Câu lệnh IPC không rõ"
 
 #: src/err-codes.h:300
 msgid "IPC syntax error"
-msgstr "L?i c� ph�p IPC"
+msgstr "Lỗi cú pháp IPC"
 
 #: src/err-codes.h:301
 msgid "IPC call has been cancelled"
-msgstr "L?i g?i IPC b? th�i"
+msgstr "Lời gọi IPC bị thôi"
 
 #: src/err-codes.h:302
 msgid "No input source for IPC"
-msgstr "Kh�ng c� ngu?n nh?p v�o cho IPC"
+msgstr "Không có nguồn nhập vào cho IPC"
 
 #: src/err-codes.h:303
 msgid "No output source for IPC"
-msgstr "Kh�ng c� ngu?n k?t xu?t cho IPC"
+msgstr "Không có nguồn kết xuất cho IPC"
 
 #: src/err-codes.h:304
 msgid "IPC parameter error"
-msgstr "L?i tham s? IPC"
+msgstr "Lỗi tham số IPC"
 
 #: src/err-codes.h:305
 msgid "Unknown IPC inquire"
-msgstr "Y�u c?u IPC kh�ng r�"
+msgstr "Yêu cầu IPC không rõ"
 
 #: src/err-codes.h:306
 #, fuzzy
 msgid "Crypto engine too old"
-msgstr "C? ch? m?t m� kh�ng h?p l?"
+msgstr "Cơ chế mật mã không hợp lệ"
 
 #: src/err-codes.h:307
 msgid "Screen or window too small"
@@ -1312,31 +1312,31 @@ msgstr ""
 #, fuzzy
 #| msgid "Duplicated value"
 msgid "Duplicated name"
-msgstr "Gi� tr? tr�ng"
+msgstr "Giá trị trùng"
 
 #: src/err-codes.h:313
 #, fuzzy
 #| msgid "Certificate too young"
 msgid "Object is too young"
-msgstr "Ch?ng nh?n qu� m?i"
+msgstr "Chứng nhận quá mới"
 
 #: src/err-codes.h:314
 #, fuzzy
 #| msgid "Provided object is too short"
 msgid "Object is too old"
-msgstr "?� cung c?p m?t ??i t??ng qu� ng?n"
+msgstr "Đã cung cấp một đối tượng quá ngắn"
 
 #: src/err-codes.h:315
 #, fuzzy
 #| msgid "Unknown name"
 msgid "Unknown flag"
-msgstr "T�n kh�ng r�"
+msgstr "Tên không rõ"
 
 #: src/err-codes.h:316
 #, fuzzy
 #| msgid "Invalid operation code"
 msgid "Invalid execution order"
-msgstr "M� thao t�c kh�ng h?p l?"
+msgstr "Mã thao tác không hợp lệ"
 
 #: src/err-codes.h:317
 msgid "Already fetched"
@@ -1350,18 +1350,18 @@ msgstr ""
 #, fuzzy
 #| msgid "Unknown name"
 msgid "Wrong name"
-msgstr "T�n kh�ng r�"
+msgstr "Tên không rõ"
 
 #: src/err-codes.h:320
 #, fuzzy
 msgid "Not authenticated"
-msgstr "Kh�ng ph?i b? kho�"
+msgstr "Không phải bị khoá"
 
 #: src/err-codes.h:321
 #, fuzzy
 #| msgid "Unsupported protection"
 msgid "Bad authentication"
-msgstr "S? b?o v? kh�ng ???c h? tr?"
+msgstr "Sự bảo vệ không được hỗ trợ"
 
 #: src/err-codes.h:322
 msgid "System bug detected"
@@ -1371,24 +1371,24 @@ msgstr ""
 #, fuzzy
 #| msgid "Unknown system error"
 msgid "Unknown DNS error"
-msgstr "G?p l?i h? th?ng kh�ng r�"
+msgstr "Gặp lỗi hệ thống không rõ"
 
 #: src/err-codes.h:324
 #, fuzzy
 #| msgid "Invalid OID string"
 msgid "Invalid DNS section"
-msgstr "Chu?i OID kh�ng h?p l?"
+msgstr "Chuỗi OID không hợp lệ"
 
 #: src/err-codes.h:325
 #, fuzzy
 #| msgid "Invalid S-expression"
 msgid "Invalid textual address form"
-msgstr "Bi?u th?c S kh�ng h?p l?"
+msgstr "Biểu thức S không hợp lệ"
 
 #: src/err-codes.h:326
 #, fuzzy
 msgid "Missing DNS query packet"
-msgstr "Ch?ng nh?n c�n thi?u"
+msgstr "Chứng nhận còn thiếu"
 
 #: src/err-codes.h:327
 msgid "Missing DNS answer packet"
@@ -1402,49 +1402,49 @@ msgstr ""
 #, fuzzy
 #| msgid "Decryption failed"
 msgid "Verification failed in DNS"
-msgstr "L?i gi?i m?t m�"
+msgstr "Lỗi giải mật mã"
 
 #: src/err-codes.h:330
 #, fuzzy
 #| msgid "Timeout"
 msgid "DNS Timeout"
-msgstr "Qu� gi?"
+msgstr "Quá giờ"
 
 #: src/err-codes.h:331
 #, fuzzy
 #| msgid "General IPC error"
 msgid "General LDAP error"
-msgstr "L?i IPC chung"
+msgstr "Lỗi IPC chung"
 
 #: src/err-codes.h:332
 #, fuzzy
 #| msgid "General error"
 msgid "General LDAP attribute error"
-msgstr "L?i chung"
+msgstr "Lỗi chung"
 
 #: src/err-codes.h:333
 #, fuzzy
 #| msgid "General error"
 msgid "General LDAP name error"
-msgstr "L?i chung"
+msgstr "Lỗi chung"
 
 #: src/err-codes.h:334
 #, fuzzy
 #| msgid "General Assuan error"
 msgid "General LDAP security error"
-msgstr "L?i Assuan chung"
+msgstr "Lỗi Assuan chung"
 
 #: src/err-codes.h:335
 #, fuzzy
 #| msgid "General error"
 msgid "General LDAP service error"
-msgstr "L?i chung"
+msgstr "Lỗi chung"
 
 #: src/err-codes.h:336
 #, fuzzy
 #| msgid "General Assuan error"
 msgid "General LDAP update error"
-msgstr "L?i Assuan chung"
+msgstr "Lỗi Assuan chung"
 
 #: src/err-codes.h:337
 msgid "Experimental LDAP error code"
@@ -1454,25 +1454,25 @@ msgstr ""
 #, fuzzy
 #| msgid "IPC write error"
 msgid "Private LDAP error code"
-msgstr "L?i ghi IPC"
+msgstr "Lỗi ghi IPC"
 
 #: src/err-codes.h:339
 #, fuzzy
 #| msgid "General IPC error"
 msgid "Other general LDAP error"
-msgstr "L?i IPC chung"
+msgstr "Lỗi IPC chung"
 
 #: src/err-codes.h:340
 #, fuzzy
 #| msgid "IPC connect call failed"
 msgid "LDAP connecting failed (X)"
-msgstr "L?i g?i k?t n?i IPC b? l?i"
+msgstr "Lời gọi kết nối IPC bị lỗi"
 
 #: src/err-codes.h:341
 #, fuzzy
 #| msgid "General error"
 msgid "LDAP referral limit exceeded"
-msgstr "L?i chung"
+msgstr "Lỗi chung"
 
 #: src/err-codes.h:342
 msgid "LDAP client loop"
@@ -1482,25 +1482,25 @@ msgstr ""
 #, fuzzy
 #| msgid "Card reset required"
 msgid "No LDAP results returned"
-msgstr "C?n thi?t l?p l?i th?"
+msgstr "Cần thiết lập lại thẻ"
 
 #: src/err-codes.h:344
 #, fuzzy
 #| msgid "Element not found"
 msgid "LDAP control not found"
-msgstr "Kh�ng t�m th?y ph?n t?"
+msgstr "Không tìm thấy phần tử"
 
 #: src/err-codes.h:345
 #, fuzzy
 #| msgid "Not supported"
 msgid "Not supported by LDAP"
-msgstr "Kh�ng ???c h? tr?"
+msgstr "Không được hỗ trợ"
 
 #: src/err-codes.h:346
 #, fuzzy
 #| msgid "Unexpected error"
 msgid "LDAP connect error"
-msgstr "G?p l?i b?t th??ng"
+msgstr "Gặp lỗi bất thường"
 
 #: src/err-codes.h:347
 msgid "Out of memory in LDAP"
@@ -1514,67 +1514,67 @@ msgstr ""
 #, fuzzy
 #| msgid "Unsupported operation"
 msgid "User cancelled LDAP operation"
-msgstr "Thao t�c kh�ng ???c h? tr?"
+msgstr "Thao tác không được hỗ trợ"
 
 #: src/err-codes.h:350
 #, fuzzy
 #| msgid "Bad certificate"
 msgid "Bad LDAP search filter"
-msgstr "Ch?ng nh?n sai"
+msgstr "Chứng nhận sai"
 
 #: src/err-codes.h:351
 #, fuzzy
 #| msgid "Unknown extension"
 msgid "Unknown LDAP authentication method"
-msgstr "Ph?n m? r?ng kh�ng r�"
+msgstr "Phần mở rộng không rõ"
 
 #: src/err-codes.h:352
 #, fuzzy
 #| msgid "Timeout"
 msgid "Timeout in LDAP"
-msgstr "Qu� gi?"
+msgstr "Quá giờ"
 
 #: src/err-codes.h:353
 #, fuzzy
 #| msgid "dirmngr error"
 msgid "LDAP decoding error"
-msgstr "L?i dirmngr"
+msgstr "Lỗi dirmngr"
 
 #: src/err-codes.h:354
 #, fuzzy
 #| msgid "dirmngr error"
 msgid "LDAP encoding error"
-msgstr "L?i dirmngr"
+msgstr "Lỗi dirmngr"
 
 #: src/err-codes.h:355
 #, fuzzy
 #| msgid "IPC read error"
 msgid "LDAP local error"
-msgstr "L?i ??c IPC"
+msgstr "Lỗi đọc IPC"
 
 #: src/err-codes.h:356
 #, fuzzy
 #| msgid "Not an IPC server"
 msgid "Cannot contact LDAP server"
-msgstr "Kh�ng ph?i tr�nh ph?c v? IPC"
+msgstr "Không phải trình phục vụ IPC"
 
 #: src/err-codes.h:357
 #, fuzzy
 #| msgid "Success"
 msgid "LDAP success"
-msgstr "Th�nh c�ng"
+msgstr "Thành công"
 
 #: src/err-codes.h:358
 #, fuzzy
 #| msgid "Configuration error"
 msgid "LDAP operations error"
-msgstr "L?i c?u h�nh"
+msgstr "Lỗi cấu hình"
 
 #: src/err-codes.h:359
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "LDAP protocol error"
-msgstr "Vi ph?m giao th?c"
+msgstr "Vi phạm giao thức"
 
 #: src/err-codes.h:360
 msgid "Time limit exceeded in LDAP"
@@ -1596,7 +1596,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Unknown extension"
 msgid "LDAP authentication method not supported"
-msgstr "Ph?n m? r?ng kh�ng r�"
+msgstr "Phần mở rộng không rõ"
 
 #: src/err-codes.h:365
 msgid "Strong(er) LDAP authentication required"
@@ -1610,7 +1610,7 @@ msgstr ""
 #, fuzzy
 #| msgid "General error"
 msgid "LDAP referral"
-msgstr "L?i chung"
+msgstr "Lỗi chung"
 
 #: src/err-codes.h:368
 msgid "Administrative LDAP limit exceeded"
@@ -1624,7 +1624,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Card reset required"
 msgid "Confidentiality required by LDAP"
-msgstr "C?n thi?t l?p l?i th?"
+msgstr "Cần thiết lập lại thẻ"
 
 #: src/err-codes.h:371
 msgid "LDAP SASL bind in progress"
@@ -1638,19 +1638,19 @@ msgstr ""
 #, fuzzy
 #| msgid "Invalid attribute"
 msgid "Undefined LDAP attribute type"
-msgstr "Thu?c t�nh kh�ng h?p l?"
+msgstr "Thuộc tính không hợp lệ"
 
 #: src/err-codes.h:374
 #, fuzzy
 #| msgid "Unsupported protection"
 msgid "Inappropriate matching in LDAP"
-msgstr "S? b?o v? kh�ng ???c h? tr?"
+msgstr "Sự bảo vệ không được hỗ trợ"
 
 #: src/err-codes.h:375
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "Constraint violation in LDAP"
-msgstr "Vi ph?m giao th?c"
+msgstr "Vi phạm giao thức"
 
 #: src/err-codes.h:376
 msgid "LDAP type or value exists"
@@ -1660,25 +1660,25 @@ msgstr ""
 #, fuzzy
 #| msgid "Invalid state"
 msgid "Invalid syntax in LDAP"
-msgstr "T�nh tr?ng kh�ng h?p l?"
+msgstr "Tình trạng không hợp lệ"
 
 #: src/err-codes.h:378
 #, fuzzy
 #| msgid "No CMS object"
 msgid "No such LDAP object"
-msgstr "Kh�ng c� ??i t??ng CMS"
+msgstr "Không có đối tượng CMS"
 
 #: src/err-codes.h:379
 #, fuzzy
 #| msgid "Hardware problem"
 msgid "LDAP alias problem"
-msgstr "L?i ph?n c?ng"
+msgstr "Lỗi phần cứng"
 
 #: src/err-codes.h:380
 #, fuzzy
 #| msgid "Invalid state"
 msgid "Invalid DN syntax in LDAP"
-msgstr "T�nh tr?ng kh�ng h?p l?"
+msgstr "Tình trạng không hợp lệ"
 
 #: src/err-codes.h:381
 msgid "LDAP entry is a leaf"
@@ -1688,7 +1688,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Encoding problem"
 msgid "LDAP alias dereferencing problem"
-msgstr "L?i m� ho�"
+msgstr "Lỗi mã hoá"
 
 #: src/err-codes.h:383
 msgid "LDAP proxy authorization failure (X)"
@@ -1698,13 +1698,13 @@ msgstr ""
 #, fuzzy
 #| msgid "Unsupported protection"
 msgid "Inappropriate LDAP authentication"
-msgstr "S? b?o v? kh�ng ???c h? tr?"
+msgstr "Sự bảo vệ không được hỗ trợ"
 
 #: src/err-codes.h:385
 #, fuzzy
 #| msgid "Invalid card"
 msgid "Invalid LDAP credentials"
-msgstr "Th? kh�ng h?p l?"
+msgstr "Thẻ không hợp lệ"
 
 #: src/err-codes.h:386
 msgid "Insufficient access for LDAP"
@@ -1730,25 +1730,25 @@ msgstr ""
 #, fuzzy
 #| msgid "Missing action"
 msgid "LDAP naming violation"
-msgstr "Thi?u h�nh ??ng"
+msgstr "Thiếu hành động"
 
 #: src/err-codes.h:392
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "LDAP object class violation"
-msgstr "Vi ph?m giao th?c"
+msgstr "Vi phạm giao thức"
 
 #: src/err-codes.h:393
 #, fuzzy
 #| msgid "Operation not yet finished"
 msgid "LDAP operation not allowed on non-leaf"
-msgstr "Thao t�c ch?a k?t th�c"
+msgstr "Thao tác chưa kết thúc"
 
 #: src/err-codes.h:394
 #, fuzzy
 #| msgid "Operation cancelled"
 msgid "LDAP operation not allowed on RDN"
-msgstr "Thao t�c b? h?y b?"
+msgstr "Thao tác bị hủy bỏ"
 
 #: src/err-codes.h:395
 msgid "Already exists (LDAP)"
@@ -1762,13 +1762,13 @@ msgstr ""
 #, fuzzy
 #| msgid "Line too long"
 msgid "LDAP results too large"
-msgstr "D�ng qu� d�i"
+msgstr "Dòng quá dài"
 
 #: src/err-codes.h:398
 #, fuzzy
 #| msgid "Operation cancelled"
 msgid "LDAP operation affects multiple DSAs"
-msgstr "Thao t�c b? h?y b?"
+msgstr "Thao tác bị hủy bỏ"
 
 #: src/err-codes.h:399
 msgid "Virtual LDAP list view error"
@@ -1778,67 +1778,67 @@ msgstr ""
 #, fuzzy
 #| msgid "General IPC error"
 msgid "Other LDAP error"
-msgstr "L?i IPC chung"
+msgstr "Lỗi IPC chung"
 
 #: src/err-codes.h:401
 #, fuzzy
 #| msgid "Resources exhausted"
 msgid "Resources exhausted in LCUP"
-msgstr "C?n t�i nguy�n"
+msgstr "Cạn tài nguyên"
 
 #: src/err-codes.h:402
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "Security violation in LCUP"
-msgstr "Vi ph?m giao th?c"
+msgstr "Vi phạm giao thức"
 
 #: src/err-codes.h:403
 #, fuzzy
 #| msgid "Invalid state"
 msgid "Invalid data in LCUP"
-msgstr "T�nh tr?ng kh�ng h?p l?"
+msgstr "Tình trạng không hợp lệ"
 
 #: src/err-codes.h:404
 #, fuzzy
 #| msgid "Unsupported certificate"
 msgid "Unsupported scheme in LCUP"
-msgstr "Ch?ng nh?n kh�ng ???c h? tr?"
+msgstr "Chứng nhận không được hỗ trợ"
 
 #: src/err-codes.h:405
 #, fuzzy
 #| msgid "Card reset required"
 msgid "Reload required in LCUP"
-msgstr "C?n thi?t l?p l?i th?"
+msgstr "Cần thiết lập lại thẻ"
 
 #: src/err-codes.h:406
 #, fuzzy
 #| msgid "Success"
 msgid "LDAP cancelled"
-msgstr "Th�nh c�ng"
+msgstr "Thành công"
 
 #: src/err-codes.h:407
 #, fuzzy
 #| msgid "Not operational"
 msgid "No LDAP operation to cancel"
-msgstr "Kh�ng ho?t ??ng ???c"
+msgstr "Không hoạt động được"
 
 #: src/err-codes.h:408
 #, fuzzy
 #| msgid "Not operational"
 msgid "Too late to cancel LDAP"
-msgstr "Kh�ng ho?t ??ng ???c"
+msgstr "Không hoạt động được"
 
 #: src/err-codes.h:409
 #, fuzzy
 #| msgid "Not an IPC server"
 msgid "Cannot cancel LDAP"
-msgstr "Kh�ng ph?i tr�nh ph?c v? IPC"
+msgstr "Không phải trình phục vụ IPC"
 
 #: src/err-codes.h:410
 #, fuzzy
 #| msgid "Decryption failed"
 msgid "LDAP assertion failed"
-msgstr "L?i gi?i m?t m�"
+msgstr "Lỗi giải mật mã"
 
 #: src/err-codes.h:411
 msgid "Proxied authorization denied by LDAP"
@@ -1846,125 +1846,125 @@ msgstr ""
 
 #: src/err-codes.h:412
 msgid "User defined error code 1"
-msgstr "M� l?i t? x�c ??nh 1"
+msgstr "Mã lỗi tự xác định 1"
 
 #: src/err-codes.h:413
 msgid "User defined error code 2"
-msgstr "M� l?i t? x�c ??nh 2"
+msgstr "Mã lỗi tự xác định 2"
 
 #: src/err-codes.h:414
 msgid "User defined error code 3"
-msgstr "M� l?i t? x�c ??nh 3"
+msgstr "Mã lỗi tự xác định 3"
 
 #: src/err-codes.h:415
 msgid "User defined error code 4"
-msgstr "M� l?i t? x�c ??nh 4"
+msgstr "Mã lỗi tự xác định 4"
 
 #: src/err-codes.h:416
 msgid "User defined error code 5"
-msgstr "M� l?i t? x�c ??nh 5"
+msgstr "Mã lỗi tự xác định 5"
 
 #: src/err-codes.h:417
 msgid "User defined error code 6"
-msgstr "M� l?i t? x�c ??nh 6"
+msgstr "Mã lỗi tự xác định 6"
 
 #: src/err-codes.h:418
 msgid "User defined error code 7"
-msgstr "M� l?i t? x�c ??nh 7"
+msgstr "Mã lỗi tự xác định 7"
 
 #: src/err-codes.h:419
 msgid "User defined error code 8"
-msgstr "M� l?i t? x�c ??nh 8"
+msgstr "Mã lỗi tự xác định 8"
 
 #: src/err-codes.h:420
 msgid "User defined error code 9"
-msgstr "M� l?i t? x�c ??nh 9"
+msgstr "Mã lỗi tự xác định 9"
 
 #: src/err-codes.h:421
 msgid "User defined error code 10"
-msgstr "M� l?i t? x�c ??nh 10"
+msgstr "Mã lỗi tự xác định 10"
 
 #: src/err-codes.h:422
 msgid "User defined error code 11"
-msgstr "M� l?i t? x�c ??nh 11"
+msgstr "Mã lỗi tự xác định 11"
 
 #: src/err-codes.h:423
 msgid "User defined error code 12"
-msgstr "M� l?i t? x�c ??nh 12"
+msgstr "Mã lỗi tự xác định 12"
 
 #: src/err-codes.h:424
 msgid "User defined error code 13"
-msgstr "M� l?i t? x�c ??nh 13"
+msgstr "Mã lỗi tự xác định 13"
 
 #: src/err-codes.h:425
 msgid "User defined error code 14"
-msgstr "M� l?i t? x�c ??nh 14"
+msgstr "Mã lỗi tự xác định 14"
 
 #: src/err-codes.h:426
 msgid "User defined error code 15"
-msgstr "M� l?i t? x�c ??nh 15"
+msgstr "Mã lỗi tự xác định 15"
 
 #: src/err-codes.h:427
 msgid "User defined error code 16"
-msgstr "M� l?i t? x�c ??nh 16"
+msgstr "Mã lỗi tự xác định 16"
 
 #: src/err-codes.h:428
 msgid "System error w/o errno"
-msgstr "L?i h? th?ng kh�ng c� s? th? t? l?i"
+msgstr "Lỗi hệ thống không có số thứ tự lỗi"
 
 #: src/err-codes.h:429
 msgid "Unknown system error"
-msgstr "G?p l?i h? th?ng kh�ng r�"
+msgstr "Gặp lỗi hệ thống không rõ"
 
 #: src/err-codes.h:430
 msgid "End of file"
-msgstr "K?t th�c t?p tin"
+msgstr "Kết thúc tập tin"
 
 #: src/err-codes.h:431
 msgid "Unknown error code"
-msgstr "M� l?i kh�ng r�"
+msgstr "Mã lỗi không rõ"
 
 #: src/argparse.c:318
 #, fuzzy
 #| msgid "Data not encrypted"
 msgid "argument not expected"
-msgstr "Ch?a m?t m� d? li?u"
+msgstr "Chưa mật mã dữ liệu"
 
 #: src/argparse.c:320
 #, fuzzy
 #| msgid "IPC read error"
 msgid "read error"
-msgstr "L?i ??c IPC"
+msgstr "Lỗi đọc IPC"
 
 #: src/argparse.c:322
 #, fuzzy
 #| msgid "Line too long"
 msgid "keyword too long"
-msgstr "D�ng qu� d�i"
+msgstr "Dòng quá dài"
 
 #: src/argparse.c:324
 #, fuzzy
 #| msgid "Missing value"
 msgid "missing argument"
-msgstr "Thi?u gi� tr?"
+msgstr "Thiếu giá trị"
 
 #: src/argparse.c:326
 #, fuzzy
 #| msgid "Invalid argument"
 msgid "invalid argument"
-msgstr "??i s? kh�ng h?p l?"
+msgstr "Đối số không hợp lệ"
 
 #: src/argparse.c:328
 #, fuzzy
 #| msgid "Invalid card"
 msgid "invalid command"
-msgstr "Th? kh�ng h?p l?"
+msgstr "Thẻ không hợp lệ"
 
 #: src/argparse.c:330
 #, fuzzy
 #| msgid "Invalid OID string"
 msgid "invalid alias definition"
-msgstr "Chu?i OID kh�ng h?p l?"
+msgstr "Chuỗi OID không hợp lệ"
 
 #: src/argparse.c:332
 msgid "out of core"
@@ -1974,7 +1974,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Invalid operation code"
 msgid "invalid option"
-msgstr "M� thao t�c kh�ng h?p l?"
+msgstr "Mã thao tác không hợp lệ"
 
 #: src/argparse.c:343
 #, c-format
@@ -2014,7 +2014,7 @@ msgstr ""
 #, fuzzy, c-format
 #| msgid "Invalid operation code"
 msgid "invalid option \"%.50s\"\n"
-msgstr "M� thao t�c kh�ng h?p l?"
+msgstr "Mã thao tác không hợp lệ"
 
 #: src/gpg-error.c:458
 msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
@@ -2023,27 +2023,27 @@ msgstr ""
 #: src/gpg-error.c:658
 #, c-format
 msgid "warning: could not recognize %s\n"
-msgstr "c?nh b�o : kh�ng th? nh?n ra %s\n"
+msgstr "cảnh báo : không thể nhận ra %s\n"
 
 #~ msgid "Usage: %s GPG-ERROR [...]\n"
-#~ msgstr "S? d?ng: %s GPG-ERROR [...]\n"
+#~ msgstr "Sử dụng: %s GPG-ERROR [...]\n"
 
 #, fuzzy
 #~| msgid "Resources exhausted"
 #~ msgid "LCUP Resources exhausted"
-#~ msgstr "C?n t�i nguy�n"
+#~ msgstr "Cạn tài nguyên"
 
 #, fuzzy
 #~| msgid "Invalid data"
 #~ msgid "LCUP Invalid data"
-#~ msgstr "D? li?u kh�ng h?p l?"
+#~ msgstr "Dữ liệu không hợp lệ"
 
 #, fuzzy
 #~| msgid "General error"
 #~ msgid "LDAP Other general error"
-#~ msgstr "L?i chung"
+#~ msgstr "Lỗi chung"
 
 #, fuzzy
 #~| msgid "dirmngr error"
 #~ msgid "Encoding error"
-#~ msgstr "L?i dirmngr"
+#~ msgstr "Lỗi dirmngr"

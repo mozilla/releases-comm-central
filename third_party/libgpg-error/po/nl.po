@@ -388,7 +388,7 @@ msgstr "Ontbrekend item in object"
 
 #: src/err-codes.h:97
 msgid "Not implemented"
-msgstr "Niet geïmplementeerd"
+msgstr "Niet geÃ¯mplementeerd"
 
 #: src/err-codes.h:98
 msgid "Conflicting use"
@@ -604,7 +604,7 @@ msgstr "Verkeerde PIN-methode"
 
 #: src/err-codes.h:151
 msgid "Card not initialized"
-msgstr "Kaart niet geïnitialiseerd"
+msgstr "Kaart niet geÃ¯nitialiseerd"
 
 #: src/err-codes.h:152
 msgid "Unsupported operation"
@@ -848,7 +848,7 @@ msgstr "Limiet bereikt"
 
 #: src/err-codes.h:212
 msgid "Not initialized"
-msgstr "Niet geïnitialiseerd"
+msgstr "Niet geÃ¯nitialiseerd"
 
 #: src/err-codes.h:213
 msgid "Missing issuer certificate"
@@ -908,7 +908,7 @@ msgstr "Bewerking volledig geannuleerd"
 
 #: src/err-codes.h:227
 msgid "Operation not yet finished"
-msgstr "Bewerking is nog niet beëindigd"
+msgstr "Bewerking is nog niet beÃ«indigd"
 
 #: src/err-codes.h:228
 msgid "Buffer too short"
@@ -1098,7 +1098,7 @@ msgstr "Slecht hello-gedaan-bericht van server in uitwisseling"
 
 #: src/err-codes.h:272
 msgid "Bad finished message in handshake"
-msgstr "Slecht bericht over beëindiging in uitwisseling"
+msgstr "Slecht bericht over beÃ«indiging in uitwisseling"
 
 #: src/err-codes.h:273
 msgid "Bad server key exchange message in handshake"
@@ -1698,7 +1698,7 @@ msgstr "In strijd met protocol"
 #, fuzzy
 #| msgid "Operation not yet finished"
 msgid "LDAP operation not allowed on non-leaf"
-msgstr "Bewerking is nog niet beëindigd"
+msgstr "Bewerking is nog niet beÃ«indigd"
 
 #: src/err-codes.h:394
 #, fuzzy

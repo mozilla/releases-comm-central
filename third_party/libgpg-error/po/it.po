@@ -183,7 +183,7 @@ msgstr "Nessuna chiave segreta"
 
 #: src/err-codes.h:46
 msgid "Wrong secret key used"
-msgstr "» stata usata una chiave segreta errata"
+msgstr "√à stata usata una chiave segreta errata"
 
 #: src/err-codes.h:47
 msgid "Bad session key"
@@ -195,7 +195,7 @@ msgstr "Algoritmo di compressione sconosciuto"
 
 #: src/err-codes.h:49
 msgid "Number is not prime"
-msgstr "Non Ë un numero primo"
+msgstr "Non √® un numero primo"
 
 #: src/err-codes.h:50
 msgid "Invalid encoding method"
@@ -375,11 +375,11 @@ msgstr "Oggetto non valido"
 
 #: src/err-codes.h:94
 msgid "Provided object is too short"
-msgstr "L'oggetto fornito Ë troppo piccolo"
+msgstr "L'oggetto fornito √® troppo piccolo"
 
 #: src/err-codes.h:95
 msgid "Provided object is too large"
-msgstr "L'oggetto fornito Ë troppo grande"
+msgstr "L'oggetto fornito √® troppo grande"
 
 #: src/err-codes.h:96
 msgid "Missing item in object"
@@ -451,7 +451,7 @@ msgstr "Algoritmo non supportato"
 
 #: src/err-codes.h:113
 msgid "No pinentry"
-msgstr "pinentry non Ë installato"
+msgstr "pinentry non √® installato"
 
 #: src/err-codes.h:114
 msgid "pinentry error"
@@ -479,7 +479,7 @@ msgstr "Scheda errata"
 
 #: src/err-codes.h:120
 msgid "No dirmngr"
-msgstr "dirmngr non Ë installato"
+msgstr "dirmngr non √® installato"
 
 #: src/err-codes.h:121
 msgid "dirmngr error"
@@ -547,7 +547,7 @@ msgstr "Errore della scheda"
 
 #: src/err-codes.h:137
 msgid "Card reset required"
-msgstr "» richiesto il riavvio della scheda"
+msgstr "√à richiesto il riavvio della scheda"
 
 #: src/err-codes.h:138
 msgid "Card removed"
@@ -603,7 +603,7 @@ msgstr "Sistema personale di identificazione non valido"
 
 #: src/err-codes.h:151
 msgid "Card not initialized"
-msgstr "La scheda non Ë stata inizializzata"
+msgstr "La scheda non √® stata inizializzata"
 
 #: src/err-codes.h:152
 msgid "Unsupported operation"
@@ -615,7 +615,7 @@ msgstr "Uso errato della chiave"
 
 #: src/err-codes.h:154
 msgid "Nothing found"
-msgstr "Non Ë stato trovato nulla"
+msgstr "Non √® stato trovato nulla"
 
 #: src/err-codes.h:155
 msgid "Wrong blob type"
@@ -679,7 +679,7 @@ msgstr "Etichetta inaspettata"
 
 #: src/err-codes.h:170
 msgid "Not DER encoded"
-msgstr "Non Ë un codificato DER"
+msgstr "Non √® un codificato DER"
 
 #: src/err-codes.h:171
 msgid "No CMS object"
@@ -815,7 +815,7 @@ msgstr "Comando sconosciuto"
 
 #: src/err-codes.h:204
 msgid "Not operational"
-msgstr "Non Ë in funzione"
+msgstr "Non √® in funzione"
 
 #: src/err-codes.h:205
 msgid "No passphrase given"
@@ -1017,7 +1017,7 @@ msgstr "Nessuna catena di certificazione"
 
 #: src/err-codes.h:252
 msgid "Certificate is too large"
-msgstr "Il certificato Ë troppo grande"
+msgstr "Il certificato √® troppo grande"
 
 #: src/err-codes.h:253
 msgid "Invalid record"
@@ -1065,7 +1065,7 @@ msgstr "Ticket errato"
 
 #: src/err-codes.h:264
 msgid "Unknown identity"
-msgstr "Identit‡ sconosciuta"
+msgstr "Identit√† sconosciuta"
 
 #: src/err-codes.h:265
 msgid "Bad certificate message in handshake"
@@ -1177,11 +1177,11 @@ msgstr "Nessun callback \"inquire\" in IPC"
 
 #: src/err-codes.h:292
 msgid "Not an IPC server"
-msgstr "Non Ë un server IPC"
+msgstr "Non √® un server IPC"
 
 #: src/err-codes.h:293
 msgid "Not an IPC client"
-msgstr "Non Ë un client IPC"
+msgstr "Non √® un client IPC"
 
 #: src/err-codes.h:294
 msgid "Problem starting IPC server"
@@ -1213,7 +1213,7 @@ msgstr "Errore di sintassi IPC"
 
 #: src/err-codes.h:301
 msgid "IPC call has been cancelled"
-msgstr "La chiamata IPC Ë stata annullata"
+msgstr "La chiamata IPC √® stata annullata"
 
 #: src/err-codes.h:302
 msgid "No input source for IPC"
@@ -1273,7 +1273,7 @@ msgstr "Certificato troppo nuovo"
 #, fuzzy
 #| msgid "Provided object is too short"
 msgid "Object is too old"
-msgstr "L'oggetto fornito Ë troppo piccolo"
+msgstr "L'oggetto fornito √® troppo piccolo"
 
 #: src/err-codes.h:315
 #, fuzzy
@@ -1433,7 +1433,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Card reset required"
 msgid "No LDAP results returned"
-msgstr "» richiesto il riavvio della scheda"
+msgstr "√à richiesto il riavvio della scheda"
 
 #: src/err-codes.h:344
 #, fuzzy
@@ -1507,7 +1507,7 @@ msgstr "Errore di lettura IPC"
 #, fuzzy
 #| msgid "Not an IPC server"
 msgid "Cannot contact LDAP server"
-msgstr "Non Ë un server IPC"
+msgstr "Non √® un server IPC"
 
 #: src/err-codes.h:357
 #, fuzzy
@@ -1577,7 +1577,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Card reset required"
 msgid "Confidentiality required by LDAP"
-msgstr "» richiesto il riavvio della scheda"
+msgstr "√à richiesto il riavvio della scheda"
 
 #: src/err-codes.h:371
 msgid "LDAP SASL bind in progress"
@@ -1763,7 +1763,7 @@ msgstr "Certificato non supportato"
 #, fuzzy
 #| msgid "Card reset required"
 msgid "Reload required in LCUP"
-msgstr "» richiesto il riavvio della scheda"
+msgstr "√à richiesto il riavvio della scheda"
 
 #: src/err-codes.h:406
 #, fuzzy
@@ -1775,19 +1775,19 @@ msgstr "Eseguito"
 #, fuzzy
 #| msgid "Not operational"
 msgid "No LDAP operation to cancel"
-msgstr "Non Ë in funzione"
+msgstr "Non √® in funzione"
 
 #: src/err-codes.h:408
 #, fuzzy
 #| msgid "Not operational"
 msgid "Too late to cancel LDAP"
-msgstr "Non Ë in funzione"
+msgstr "Non √® in funzione"
 
 #: src/err-codes.h:409
 #, fuzzy
 #| msgid "Not an IPC server"
 msgid "Cannot cancel LDAP"
-msgstr "Non Ë un server IPC"
+msgstr "Non √® un server IPC"
 
 #: src/err-codes.h:410
 #, fuzzy

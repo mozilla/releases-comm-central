@@ -3859,7 +3859,7 @@
 	+ commit 149fe98e1279b065edb06958d9a73a0c013c2db9
 
 
-2014-11-26  ???????? ???????  <miroslavnikolic@rocketmail.com>
+2014-11-26  Мирослав Николић  <miroslavnikolic@rocketmail.com>
 
 	po: Add Serbian translation.
 	+ commit 210126d38096e764dd3a82da45f8b5f66309ecd5
@@ -4576,7 +4576,7 @@
 	* po/da.po: New.
 	* po/LINGUAS: Add da.po.
 
-2012-08-09  David Pr�vot  <taffit@debian.org>
+2012-08-09  David Prévot  <taffit@debian.org>
 
 	Update French translation.
 	+ commit 42471f9cbd59d427c9e1a8bf0267835f1395c6b4
@@ -4597,7 +4597,7 @@
 	+ commit 2ed3e70f0aeec41ece79d96a8ea6d114addf954d
 	* po/de.po: Update.
 
-2012-06-20  Rafa�l Carr�  <funman@videolan.org>
+2012-06-20  Rafaël Carré  <funman@videolan.org>
 
 	Use CPPFLAGS when generating mkerrcodes.h.
 	+ commit c35dbfdaa2e30e08185e4a468278a29e2c48b500

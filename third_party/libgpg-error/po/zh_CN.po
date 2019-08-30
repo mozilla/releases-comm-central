@@ -20,7 +20,7 @@ msgstr ""
 
 #: src/err-sources.h:28
 msgid "Unspecified source"
-msgstr "????"
+msgstr "未指定源"
 
 #: src/err-sources.h:29
 msgid "gcrypt"
@@ -36,7 +36,7 @@ msgstr "GpgSM"
 
 #: src/err-sources.h:32
 msgid "GPG Agent"
-msgstr "GPG ??"
+msgstr "GPG 代理"
 
 #: src/err-sources.h:33
 msgid "Pinentry"
@@ -88,79 +88,79 @@ msgstr ""
 
 #: src/err-sources.h:45
 msgid "Any source"
-msgstr "????"
+msgstr "任何来源"
 
 #: src/err-sources.h:46
 msgid "User defined source 1"
-msgstr "???????1"
+msgstr "用户定义的来源1"
 
 #: src/err-sources.h:47
 msgid "User defined source 2"
-msgstr "???????2"
+msgstr "用户定义的来源2"
 
 #: src/err-sources.h:48
 msgid "User defined source 3"
-msgstr "???????3"
+msgstr "用户定义的来源3"
 
 #: src/err-sources.h:49
 msgid "User defined source 4"
-msgstr "???????4"
+msgstr "用户定义的来源4"
 
 #: src/err-sources.h:50
 msgid "Unknown source"
-msgstr "????"
+msgstr "来源不明"
 
 #: src/err-codes.h:28
 msgid "Success"
-msgstr "??"
+msgstr "成功"
 
 #: src/err-codes.h:29
 msgid "General error"
-msgstr "????"
+msgstr "一般错误"
 
 #: src/err-codes.h:30
 msgid "Unknown packet"
-msgstr "????"
+msgstr "未知的包"
 
 #: src/err-codes.h:31
 msgid "Unknown version in packet"
-msgstr "???????"
+msgstr "包中未知的版本"
 
 #: src/err-codes.h:32
 msgid "Invalid public key algorithm"
-msgstr "???????"
+msgstr "无效的公钥算法"
 
 #: src/err-codes.h:33
 msgid "Invalid digest algorithm"
-msgstr "???????"
+msgstr "无效的摘要算法"
 
 #: src/err-codes.h:34
 msgid "Bad public key"
-msgstr "?????"
+msgstr "损坏的公钥"
 
 #: src/err-codes.h:35
 msgid "Bad secret key"
-msgstr "?????"
+msgstr "损坏的密钥"
 
 #: src/err-codes.h:36
 msgid "Bad signature"
-msgstr "?????"
+msgstr "损坏的签名"
 
 #: src/err-codes.h:37
 msgid "No public key"
-msgstr "????"
+msgstr "没有公钥"
 
 #: src/err-codes.h:38
 msgid "Checksum error"
-msgstr "????"
+msgstr "校验错误"
 
 #: src/err-codes.h:39
 msgid "Bad passphrase"
-msgstr "?????"
+msgstr "损坏的密码"
 
 #: src/err-codes.h:40
 msgid "Invalid cipher algorithm"
-msgstr "???????"
+msgstr "无效的密码算法"
 
 #: src/err-codes.h:41
 msgid "Cannot open keyring"
@@ -168,7 +168,7 @@ msgstr ""
 
 #: src/err-codes.h:42
 msgid "Invalid packet"
-msgstr "??????"
+msgstr "无效的数据包"
 
 #: src/err-codes.h:43
 msgid "Invalid armor"
@@ -176,67 +176,67 @@ msgstr ""
 
 #: src/err-codes.h:44
 msgid "No user ID"
-msgstr "????ID"
+msgstr "没有用户ID"
 
 #: src/err-codes.h:45
 msgid "No secret key"
-msgstr "????"
+msgstr "没有秘匙"
 
 #: src/err-codes.h:46
 msgid "Wrong secret key used"
-msgstr "????????"
+msgstr "使用了错误的密钥"
 
 #: src/err-codes.h:47
 msgid "Bad session key"
-msgstr "???????"
+msgstr "损坏的会话密钥"
 
 #: src/err-codes.h:48
 msgid "Unknown compression algorithm"
-msgstr "???????"
+msgstr "未知的压缩算法"
 
 #: src/err-codes.h:49
 msgid "Number is not prime"
-msgstr "????"
+msgstr "不是素数"
 
 #: src/err-codes.h:50
 msgid "Invalid encoding method"
-msgstr "???????"
+msgstr "无效的编码方法"
 
 #: src/err-codes.h:51
 msgid "Invalid encryption scheme"
-msgstr "???????"
+msgstr "无效的加密方案"
 
 #: src/err-codes.h:52
 msgid "Invalid signature scheme"
-msgstr "???????"
+msgstr "无效的签名方案"
 
 #: src/err-codes.h:53
 msgid "Invalid attribute"
-msgstr "?????"
+msgstr "无效的属性"
 
 #: src/err-codes.h:54
 msgid "No value"
-msgstr "???"
+msgstr "没有值"
 
 #: src/err-codes.h:55
 msgid "Not found"
-msgstr "???"
+msgstr "未找到"
 
 #: src/err-codes.h:56
 msgid "Value not found"
-msgstr "?????"
+msgstr "没有发现值"
 
 #: src/err-codes.h:57
 msgid "Syntax error"
-msgstr "????"
+msgstr "语法错误"
 
 #: src/err-codes.h:58
 msgid "Bad MPI value"
-msgstr "???MPI ?"
+msgstr "损坏的MPI 值"
 
 #: src/err-codes.h:59
 msgid "Invalid passphrase"
-msgstr "?????"
+msgstr "无效的密码"
 
 #: src/err-codes.h:60
 msgid "Invalid signature class"
@@ -244,39 +244,39 @@ msgstr ""
 
 #: src/err-codes.h:61
 msgid "Resources exhausted"
-msgstr "????"
+msgstr "内存耗尽"
 
 #: src/err-codes.h:62
 msgid "Invalid keyring"
-msgstr "??????"
+msgstr "无效的密钥环"
 
 #: src/err-codes.h:63
 msgid "Trust DB error"
-msgstr "???????"
+msgstr "信任数据库错误"
 
 #: src/err-codes.h:64
 msgid "Bad certificate"
-msgstr "?????"
+msgstr "损坏的证书"
 
 #: src/err-codes.h:65
 msgid "Invalid user ID"
-msgstr "?????ID"
+msgstr "无效的用户ID"
 
 #: src/err-codes.h:66
 msgid "Unexpected error"
-msgstr "????"
+msgstr "意外错误"
 
 #: src/err-codes.h:67
 msgid "Time conflict"
-msgstr "????"
+msgstr "时间冲突"
 
 #: src/err-codes.h:68
 msgid "Keyserver error"
-msgstr "???????"
+msgstr "密钥服务器错误"
 
 #: src/err-codes.h:69
 msgid "Wrong public key algorithm"
-msgstr "?????????"
+msgstr "错误的公开密钥算法"
 
 #: src/err-codes.h:70
 msgid "Tribute to D. A."
@@ -284,87 +284,87 @@ msgstr ""
 
 #: src/err-codes.h:71
 msgid "Weak encryption key"
-msgstr "?????"
+msgstr "弱加密密钥"
 
 #: src/err-codes.h:72
 msgid "Invalid key length"
-msgstr "???????"
+msgstr "无效的密钥长度"
 
 #: src/err-codes.h:73
 msgid "Invalid argument"
-msgstr "?????"
+msgstr "无效的参数"
 
 #: src/err-codes.h:74
 msgid "Syntax error in URI"
-msgstr "??URI ?????"
+msgstr "以下URI 中语法错误"
 
 #: src/err-codes.h:75
 msgid "Invalid URI"
-msgstr "???URI"
+msgstr "无效的URI"
 
 #: src/err-codes.h:76
 msgid "Network error"
-msgstr "????"
+msgstr "网络错误"
 
 #: src/err-codes.h:77
 msgid "Unknown host"
-msgstr "?????"
+msgstr "未知的主机"
 
 #: src/err-codes.h:78
 msgid "Selftest failed"
-msgstr "????"
+msgstr "自测失败"
 
 #: src/err-codes.h:79
 msgid "Data not encrypted"
-msgstr "?????"
+msgstr "数据未加密"
 
 #: src/err-codes.h:80
 msgid "Data not processed"
-msgstr "?????"
+msgstr "数据未处理"
 
 #: src/err-codes.h:81
 msgid "Unusable public key"
-msgstr "?????"
+msgstr "不可用公钥"
 
 #: src/err-codes.h:82
 msgid "Unusable secret key"
-msgstr "?????"
+msgstr "不可用密钥"
 
 #: src/err-codes.h:83
 msgid "Invalid value"
-msgstr "???"
+msgstr "无效值"
 
 #: src/err-codes.h:84
 msgid "Bad certificate chain"
-msgstr "??????"
+msgstr "损坏的证书链"
 
 #: src/err-codes.h:85
 msgid "Missing certificate"
-msgstr "????"
+msgstr "缺失证书"
 
 #: src/err-codes.h:86
 msgid "No data"
-msgstr "???"
+msgstr "无数据"
 
 #: src/err-codes.h:87
 msgid "Bug"
-msgstr "??"
+msgstr "错误"
 
 #: src/err-codes.h:88
 msgid "Not supported"
-msgstr "???"
+msgstr "不支持"
 
 #: src/err-codes.h:89
 msgid "Invalid operation code"
-msgstr "??????"
+msgstr "无效的操作码"
 
 #: src/err-codes.h:90
 msgid "Timeout"
-msgstr "??"
+msgstr "超时"
 
 #: src/err-codes.h:91
 msgid "Internal error"
-msgstr "????"
+msgstr "内部错误"
 
 #: src/err-codes.h:92
 msgid "EOF (gcrypt)"
@@ -372,23 +372,23 @@ msgstr "EOF (gcrypt)"
 
 #: src/err-codes.h:93
 msgid "Invalid object"
-msgstr "?????"
+msgstr "无效的对象"
 
 #: src/err-codes.h:94
 msgid "Provided object is too short"
-msgstr "??????"
+msgstr "提供对象太短"
 
 #: src/err-codes.h:95
 msgid "Provided object is too large"
-msgstr "??????"
+msgstr "提供对象太大"
 
 #: src/err-codes.h:96
 msgid "Missing item in object"
-msgstr "???????"
+msgstr "对象中缺少项目"
 
 #: src/err-codes.h:97
 msgid "Not implemented"
-msgstr "???"
+msgstr "未实现"
 
 #: src/err-codes.h:98
 msgid "Conflicting use"
@@ -396,7 +396,7 @@ msgstr ""
 
 #: src/err-codes.h:99
 msgid "Invalid cipher mode"
-msgstr "???????"
+msgstr "无效的加密模式"
 
 #: src/err-codes.h:100
 msgid "Invalid flag"
@@ -408,29 +408,29 @@ msgstr ""
 
 #: src/err-codes.h:102
 msgid "Result truncated"
-msgstr "?????"
+msgstr "结果已截断"
 
 #: src/err-codes.h:103
 msgid "Incomplete line"
-msgstr "????"
+msgstr "不完整行"
 
 #: src/err-codes.h:104
 msgid "Invalid response"
-msgstr "?????"
+msgstr "无效的响应"
 
 #: src/err-codes.h:105
 msgid "No agent running"
-msgstr "?????"
+msgstr "未运行代理"
 
 #: src/err-codes.h:106
 #, fuzzy
 #| msgid "agent error"
 msgid "Agent error"
-msgstr "????"
+msgstr "代理错误"
 
 #: src/err-codes.h:107
 msgid "Invalid data"
-msgstr "?????"
+msgstr "无效的数据"
 
 #: src/err-codes.h:108
 msgid "Unspecific Assuan server fault"
@@ -438,11 +438,11 @@ msgstr ""
 
 #: src/err-codes.h:109
 msgid "General Assuan error"
-msgstr "??Assuan ??"
+msgstr "一般Assuan 错误"
 
 #: src/err-codes.h:110
 msgid "Invalid session key"
-msgstr "???????"
+msgstr "无效的会话密钥"
 
 #: src/err-codes.h:111
 msgid "Invalid S-expression"
@@ -450,7 +450,7 @@ msgstr ""
 
 #: src/err-codes.h:112
 msgid "Unsupported algorithm"
-msgstr "??????"
+msgstr "不支持的算法"
 
 #: src/err-codes.h:113
 msgid "No pinentry"
@@ -462,23 +462,23 @@ msgstr ""
 
 #: src/err-codes.h:115
 msgid "Bad PIN"
-msgstr "???PIN"
+msgstr "损坏的PIN"
 
 #: src/err-codes.h:116
 msgid "Invalid name"
-msgstr "?????"
+msgstr "无效的名称"
 
 #: src/err-codes.h:117
 msgid "Bad data"
-msgstr "????"
+msgstr "不良数据"
 
 #: src/err-codes.h:118
 msgid "Invalid parameter"
-msgstr "?????"
+msgstr "无效的参数"
 
 #: src/err-codes.h:119
 msgid "Wrong card"
-msgstr "??"
+msgstr "错卡"
 
 #: src/err-codes.h:120
 msgid "No dirmngr"
@@ -490,7 +490,7 @@ msgstr ""
 
 #: src/err-codes.h:122
 msgid "Certificate revoked"
-msgstr "?????"
+msgstr "证书已吊销"
 
 #: src/err-codes.h:123
 msgid "No CRL known"
@@ -502,31 +502,31 @@ msgstr ""
 
 #: src/err-codes.h:125
 msgid "Line too long"
-msgstr "???"
+msgstr "线太长"
 
 #: src/err-codes.h:126
 msgid "Not trusted"
-msgstr "???"
+msgstr "不信任"
 
 #: src/err-codes.h:127
 msgid "Operation cancelled"
-msgstr "?????"
+msgstr "操作已取消"
 
 #: src/err-codes.h:128
 msgid "Bad CA certificate"
-msgstr "???CA ??"
+msgstr "损坏的CA 证书"
 
 #: src/err-codes.h:129
 msgid "Certificate expired"
-msgstr "?????"
+msgstr "证书已过期"
 
 #: src/err-codes.h:130
 msgid "Certificate too young"
-msgstr "????"
+msgstr "证书太新"
 
 #: src/err-codes.h:131
 msgid "Unsupported certificate"
-msgstr "??????"
+msgstr "不支持的凭证"
 
 #: src/err-codes.h:132
 msgid "Unknown S-expression"
@@ -534,11 +534,11 @@ msgstr ""
 
 #: src/err-codes.h:133
 msgid "Unsupported protection"
-msgstr "???????"
+msgstr "不受支持的保护"
 
 #: src/err-codes.h:134
 msgid "Corrupted protection"
-msgstr "?????"
+msgstr "损坏的保护"
 
 #: src/err-codes.h:135
 msgid "Ambiguous name"
@@ -546,19 +546,19 @@ msgstr ""
 
 #: src/err-codes.h:136
 msgid "Card error"
-msgstr "???"
+msgstr "卡错误"
 
 #: src/err-codes.h:137
 msgid "Card reset required"
-msgstr "?????"
+msgstr "要求重置卡"
 
 #: src/err-codes.h:138
 msgid "Card removed"
-msgstr "????"
+msgstr "卡已删除"
 
 #: src/err-codes.h:139
 msgid "Invalid card"
-msgstr "????"
+msgstr "无效的卡"
 
 #: src/err-codes.h:140
 msgid "Card not present"
@@ -566,39 +566,39 @@ msgstr ""
 
 #: src/err-codes.h:141
 msgid "No PKCS15 application"
-msgstr "??PKCS15 ????"
+msgstr "没有PKCS15 应用程序"
 
 #: src/err-codes.h:142
 msgid "Not confirmed"
-msgstr "???"
+msgstr "未确认"
 
 #: src/err-codes.h:143
 msgid "Configuration error"
-msgstr "????"
+msgstr "配置错误"
 
 #: src/err-codes.h:144
 msgid "No policy match"
-msgstr "???????"
+msgstr "没有匹配的规则"
 
 #: src/err-codes.h:145
 msgid "Invalid index"
-msgstr "?????"
+msgstr "无效的索引"
 
 #: src/err-codes.h:146
 msgid "Invalid ID"
-msgstr "??? ID"
+msgstr "无效的 ID"
 
 #: src/err-codes.h:147
 msgid "No SmartCard daemon"
-msgstr "?????????"
+msgstr "没有智能卡守护进程"
 
 #: src/err-codes.h:148
 msgid "SmartCard daemon error"
-msgstr "?????????"
+msgstr "智能卡守护程序错误"
 
 #: src/err-codes.h:149
 msgid "Unsupported protocol"
-msgstr "??????"
+msgstr "不支持的协议"
 
 #: src/err-codes.h:150
 msgid "Bad PIN method"
@@ -606,19 +606,19 @@ msgstr ""
 
 #: src/err-codes.h:151
 msgid "Card not initialized"
-msgstr "?????"
+msgstr "卡未初始化"
 
 #: src/err-codes.h:152
 msgid "Unsupported operation"
-msgstr "??????"
+msgstr "不支持的操作"
 
 #: src/err-codes.h:153
 msgid "Wrong key usage"
-msgstr "???????"
+msgstr "错误的密钥用法"
 
 #: src/err-codes.h:154
 msgid "Nothing found"
-msgstr "???"
+msgstr "未发现"
 
 #: src/err-codes.h:155
 msgid "Wrong blob type"
@@ -626,55 +626,55 @@ msgstr ""
 
 #: src/err-codes.h:156
 msgid "Missing value"
-msgstr "???"
+msgstr "缺失值"
 
 #: src/err-codes.h:157
 msgid "Hardware problem"
-msgstr "????"
+msgstr "硬件问题"
 
 #: src/err-codes.h:158
 msgid "PIN blocked"
-msgstr "PIN ???"
+msgstr "PIN 已屏蔽"
 
 #: src/err-codes.h:159
 msgid "Conditions of use not satisfied"
-msgstr "???????"
+msgstr "使用条件不满足"
 
 #: src/err-codes.h:160
 msgid "PINs are not synced"
-msgstr "PINs ???"
+msgstr "PINs 不同步"
 
 #: src/err-codes.h:161
 msgid "Invalid CRL"
-msgstr "??? CRL"
+msgstr "无效的 CRL"
 
 #: src/err-codes.h:162
 msgid "BER error"
-msgstr "BER ??"
+msgstr "BER 错误"
 
 #: src/err-codes.h:163
 msgid "Invalid BER"
-msgstr "???BER"
+msgstr "无效的BER"
 
 #: src/err-codes.h:164
 msgid "Element not found"
-msgstr "?????"
+msgstr "未找到元素"
 
 #: src/err-codes.h:165
 msgid "Identifier not found"
-msgstr "??????"
+msgstr "未找到标识符"
 
 #: src/err-codes.h:166
 msgid "Invalid tag"
-msgstr "?????"
+msgstr "无效的标签"
 
 #: src/err-codes.h:167
 msgid "Invalid length"
-msgstr "?????"
+msgstr "无效的长度"
 
 #: src/err-codes.h:168
 msgid "Invalid key info"
-msgstr "???????"
+msgstr "无效的密钥信息"
 
 #: src/err-codes.h:169
 msgid "Unexpected tag"
@@ -686,63 +686,63 @@ msgstr ""
 
 #: src/err-codes.h:171
 msgid "No CMS object"
-msgstr "??CMS ??"
+msgstr "没有CMS 对象"
 
 #: src/err-codes.h:172
 msgid "Invalid CMS object"
-msgstr "???CMS ??"
+msgstr "无效的CMS 对象"
 
 #: src/err-codes.h:173
 msgid "Unknown CMS object"
-msgstr "???CMS ??"
+msgstr "未知的CMS 对象"
 
 #: src/err-codes.h:174
 msgid "Unsupported CMS object"
-msgstr "????CMS ??"
+msgstr "不支持的CMS 对象"
 
 #: src/err-codes.h:175
 msgid "Unsupported encoding"
-msgstr "??????"
+msgstr "不支持的编码"
 
 #: src/err-codes.h:176
 msgid "Unsupported CMS version"
-msgstr "????CMS ??"
+msgstr "不支持的CMS 版本"
 
 #: src/err-codes.h:177
 msgid "Unknown algorithm"
-msgstr "?????"
+msgstr "未知的算法"
 
 #: src/err-codes.h:178
 msgid "Invalid crypto engine"
-msgstr "???????"
+msgstr "无效的加密引擎"
 
 #: src/err-codes.h:179
 msgid "Public key not trusted"
-msgstr "??????"
+msgstr "公钥不被信任"
 
 #: src/err-codes.h:180
 msgid "Decryption failed"
-msgstr "????"
+msgstr "解密失败"
 
 #: src/err-codes.h:181
 msgid "Key expired"
-msgstr "?????"
+msgstr "密钥已过期"
 
 #: src/err-codes.h:182
 msgid "Signature expired"
-msgstr "????"
+msgstr "签名过期"
 
 #: src/err-codes.h:183
 msgid "Encoding problem"
-msgstr "????"
+msgstr "编码问题"
 
 #: src/err-codes.h:184
 msgid "Invalid state"
-msgstr "????"
+msgstr "无效的州"
 
 #: src/err-codes.h:185
 msgid "Duplicated value"
-msgstr "???"
+msgstr "重复值"
 
 #: src/err-codes.h:186
 msgid "Missing action"
@@ -750,55 +750,55 @@ msgstr ""
 
 #: src/err-codes.h:187
 msgid "ASN.1 module not found"
-msgstr "ASN.1 ?????"
+msgstr "ASN.1 模块未找到"
 
 #: src/err-codes.h:188
 msgid "Invalid OID string"
-msgstr "???OID ???"
+msgstr "无效的OID 字符串"
 
 #: src/err-codes.h:189
 msgid "Invalid time"
-msgstr "?????"
+msgstr "无效的时间"
 
 #: src/err-codes.h:190
 msgid "Invalid CRL object"
-msgstr "???CRL ??"
+msgstr "无效的CRL 对象"
 
 #: src/err-codes.h:191
 msgid "Unsupported CRL version"
-msgstr "????CRL ??"
+msgstr "不支持的CRL 版本"
 
 #: src/err-codes.h:192
 msgid "Invalid certificate object"
-msgstr "???????"
+msgstr "无效的证书对象"
 
 #: src/err-codes.h:193
 msgid "Unknown name"
-msgstr "????"
+msgstr "未知名称"
 
 #: src/err-codes.h:194
 msgid "A locale function failed"
-msgstr "????????"
+msgstr "区域设置功能失败"
 
 #: src/err-codes.h:195
 msgid "Not locked"
-msgstr "???"
+msgstr "未锁定"
 
 #: src/err-codes.h:196
 msgid "Protocol violation"
-msgstr "????"
+msgstr "违反协议"
 
 #: src/err-codes.h:197
 msgid "Invalid MAC"
-msgstr "???MAC"
+msgstr "无效的MAC"
 
 #: src/err-codes.h:198
 msgid "Invalid request"
-msgstr "?????"
+msgstr "无效的请求"
 
 #: src/err-codes.h:199
 msgid "Unknown extension"
-msgstr "??????"
+msgstr "未知的扩展名"
 
 #: src/err-codes.h:200
 msgid "Unknown critical extension"
@@ -806,15 +806,15 @@ msgstr ""
 
 #: src/err-codes.h:201
 msgid "Locked"
-msgstr "???"
+msgstr "已锁定"
 
 #: src/err-codes.h:202
 msgid "Unknown option"
-msgstr "?????"
+msgstr "未知的选项"
 
 #: src/err-codes.h:203
 msgid "Unknown command"
-msgstr "????"
+msgstr "未知命令"
 
 #: src/err-codes.h:204
 msgid "Not operational"
@@ -822,31 +822,31 @@ msgstr ""
 
 #: src/err-codes.h:205
 msgid "No passphrase given"
-msgstr "??????"
+msgstr "没有给出密码"
 
 #: src/err-codes.h:206
 msgid "No PIN given"
-msgstr "????PIN"
+msgstr "没有给出PIN"
 
 #: src/err-codes.h:207
 #, fuzzy
 msgid "Not enabled"
-msgstr "???"
+msgstr "未锁定"
 
 #: src/err-codes.h:208
 #, fuzzy
 msgid "No crypto engine"
-msgstr "???????"
+msgstr "无效的加密引擎"
 
 #: src/err-codes.h:209
 #, fuzzy
 msgid "Missing key"
-msgstr "???"
+msgstr "缺失值"
 
 #: src/err-codes.h:210
 #, fuzzy
 msgid "Too many objects"
-msgstr "??CMS ??"
+msgstr "没有CMS 对象"
 
 #: src/err-codes.h:211
 msgid "Limit reached"
@@ -855,12 +855,12 @@ msgstr ""
 #: src/err-codes.h:212
 #, fuzzy
 msgid "Not initialized"
-msgstr "?????"
+msgstr "卡未初始化"
 
 #: src/err-codes.h:213
 #, fuzzy
 msgid "Missing issuer certificate"
-msgstr "????"
+msgstr "缺失证书"
 
 #: src/err-codes.h:214
 msgid "No keyserver available"
@@ -869,18 +869,18 @@ msgstr ""
 #: src/err-codes.h:215
 #, fuzzy
 msgid "Invalid elliptic curve"
-msgstr "?????"
+msgstr "无效的时间"
 
 #: src/err-codes.h:216
 #, fuzzy
 msgid "Unknown elliptic curve"
-msgstr "????"
+msgstr "来源不明"
 
 #: src/err-codes.h:217
 #, fuzzy
 #| msgid "Duplicated value"
 msgid "Duplicated key"
-msgstr "???"
+msgstr "重复值"
 
 #: src/err-codes.h:218
 msgid "Ambiguous result"
@@ -889,18 +889,18 @@ msgstr ""
 #: src/err-codes.h:219
 #, fuzzy
 msgid "No crypto context"
-msgstr "???????"
+msgstr "无效的加密引擎"
 
 #: src/err-codes.h:220
 #, fuzzy
 msgid "Wrong crypto context"
-msgstr "???????"
+msgstr "无效的加密引擎"
 
 #: src/err-codes.h:221
 #, fuzzy
 #| msgid "Invalid crypto engine"
 msgid "Bad crypto context"
-msgstr "???????"
+msgstr "无效的加密引擎"
 
 #: src/err-codes.h:222
 msgid "Conflict in the crypto context"
@@ -910,32 +910,32 @@ msgstr ""
 #, fuzzy
 #| msgid "No public key"
 msgid "Broken public key"
-msgstr "????"
+msgstr "没有公钥"
 
 #: src/err-codes.h:224
 #, fuzzy
 #| msgid "No secret key"
 msgid "Broken secret key"
-msgstr "????"
+msgstr "没有秘匙"
 
 #: src/err-codes.h:225
 #, fuzzy
 #| msgid "Invalid digest algorithm"
 msgid "Invalid MAC algorithm"
-msgstr "???????"
+msgstr "无效的摘要算法"
 
 #: src/err-codes.h:226
 #, fuzzy
 msgid "Operation fully cancelled"
-msgstr "?????"
+msgstr "操作已取消"
 
 #: src/err-codes.h:227
 msgid "Operation not yet finished"
-msgstr "??????"
+msgstr "操作尚未完成"
 
 #: src/err-codes.h:228
 msgid "Buffer too short"
-msgstr "?????"
+msgstr "缓冲区太短"
 
 #: src/err-codes.h:229
 msgid "Invalid length specifier in S-expression"
@@ -997,7 +997,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Data not encrypted"
 msgid "Database is corrupted"
-msgstr "?????"
+msgstr "数据未加密"
 
 #: src/err-codes.h:244
 msgid "Server indicated a failure"
@@ -1007,13 +1007,13 @@ msgstr ""
 #, fuzzy
 #| msgid "Unknown name"
 msgid "No name"
-msgstr "????"
+msgstr "未知名称"
 
 #: src/err-codes.h:246
 #, fuzzy
 #| msgid "No public key"
 msgid "No key"
-msgstr "????"
+msgstr "没有公钥"
 
 #: src/err-codes.h:247
 msgid "Legacy key"
@@ -1023,13 +1023,13 @@ msgstr ""
 #, fuzzy
 #| msgid "Buffer too short"
 msgid "Request too short"
-msgstr "?????"
+msgstr "缓冲区太短"
 
 #: src/err-codes.h:249
 #, fuzzy
 #| msgid "Line too long"
 msgid "Request too long"
-msgstr "???"
+msgstr "线太长"
 
 #: src/err-codes.h:250
 msgid "Object is in termination state"
@@ -1039,19 +1039,19 @@ msgstr ""
 #, fuzzy
 #| msgid "Bad certificate chain"
 msgid "No certificate chain"
-msgstr "??????"
+msgstr "损坏的证书链"
 
 #: src/err-codes.h:252
 #, fuzzy
 #| msgid "Certificate too young"
 msgid "Certificate is too large"
-msgstr "????"
+msgstr "证书太新"
 
 #: src/err-codes.h:253
 #, fuzzy
 #| msgid "Invalid card"
 msgid "Invalid record"
-msgstr "????"
+msgstr "无效的卡"
 
 #: src/err-codes.h:254
 msgid "The MAC does not verify"
@@ -1061,7 +1061,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Unexpected error"
 msgid "Unexpected message"
-msgstr "????"
+msgstr "意外错误"
 
 #: src/err-codes.h:256
 msgid "Compression or decompression failed"
@@ -1079,42 +1079,42 @@ msgstr ""
 #, fuzzy
 #| msgid "Invalid cipher algorithm"
 msgid "No cipher algorithm"
-msgstr "???????"
+msgstr "无效的密码算法"
 
 #: src/err-codes.h:260
 #, fuzzy
 msgid "Missing client certificate"
-msgstr "????"
+msgstr "缺失证书"
 
 #: src/err-codes.h:261
 #, fuzzy
 #| msgid "Certificate revoked"
 msgid "Close notification received"
-msgstr "?????"
+msgstr "证书已吊销"
 
 #: src/err-codes.h:262
 #, fuzzy
 #| msgid "Key expired"
 msgid "Ticket expired"
-msgstr "?????"
+msgstr "密钥已过期"
 
 #: src/err-codes.h:263
 #, fuzzy
 #| msgid "Bad public key"
 msgid "Bad ticket"
-msgstr "?????"
+msgstr "损坏的公钥"
 
 #: src/err-codes.h:264
 #, fuzzy
 #| msgid "Unknown packet"
 msgid "Unknown identity"
-msgstr "????"
+msgstr "未知的包"
 
 #: src/err-codes.h:265
 #, fuzzy
 #| msgid "Bad certificate chain"
 msgid "Bad certificate message in handshake"
-msgstr "??????"
+msgstr "损坏的证书链"
 
 #: src/err-codes.h:266
 msgid "Bad certificate request message in handshake"
@@ -1164,7 +1164,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Key expired"
 msgid "Key disabled"
-msgstr "?????"
+msgstr "密钥已过期"
 
 #: src/err-codes.h:278
 msgid "Not possible with a card based key"
@@ -1174,7 +1174,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Invalid object"
 msgid "Invalid lock object"
-msgstr "?????"
+msgstr "无效的对象"
 
 #: src/err-codes.h:280
 msgid "True"
@@ -1186,7 +1186,7 @@ msgstr ""
 
 #: src/err-codes.h:282
 msgid "General IPC error"
-msgstr "??IPC ??"
+msgstr "一般IPC 错误"
 
 #: src/err-codes.h:283
 msgid "IPC accept call failed"
@@ -1226,11 +1226,11 @@ msgstr ""
 
 #: src/err-codes.h:292
 msgid "Not an IPC server"
-msgstr "??IPC ???"
+msgstr "不是IPC 服务器"
 
 #: src/err-codes.h:293
 msgid "Not an IPC client"
-msgstr "??IPC ???"
+msgstr "不是IPC 客户端"
 
 #: src/err-codes.h:294
 msgid "Problem starting IPC server"
@@ -1238,11 +1238,11 @@ msgstr ""
 
 #: src/err-codes.h:295
 msgid "IPC read error"
-msgstr "IPC ????"
+msgstr "IPC 读取错误"
 
 #: src/err-codes.h:296
 msgid "IPC write error"
-msgstr "IPC?? ??"
+msgstr "IPC写入 错误"
 
 #: src/err-codes.h:297
 msgid "Too much data for IPC layer"
@@ -1254,11 +1254,11 @@ msgstr ""
 
 #: src/err-codes.h:299
 msgid "Unknown IPC command"
-msgstr "??IPC ??"
+msgstr "未知IPC 命令"
 
 #: src/err-codes.h:300
 msgid "IPC syntax error"
-msgstr "IPC ????"
+msgstr "IPC 语法错误"
 
 #: src/err-codes.h:301
 msgid "IPC call has been cancelled"
@@ -1274,7 +1274,7 @@ msgstr ""
 
 #: src/err-codes.h:304
 msgid "IPC parameter error"
-msgstr "IPC ????"
+msgstr "IPC 参数错误"
 
 #: src/err-codes.h:305
 msgid "Unknown IPC inquire"
@@ -1283,7 +1283,7 @@ msgstr ""
 #: src/err-codes.h:306
 #, fuzzy
 msgid "Crypto engine too old"
-msgstr "???????"
+msgstr "无效的加密引擎"
 
 #: src/err-codes.h:307
 msgid "Screen or window too small"
@@ -1309,31 +1309,31 @@ msgstr ""
 #, fuzzy
 #| msgid "Duplicated value"
 msgid "Duplicated name"
-msgstr "???"
+msgstr "重复值"
 
 #: src/err-codes.h:313
 #, fuzzy
 #| msgid "Certificate too young"
 msgid "Object is too young"
-msgstr "????"
+msgstr "证书太新"
 
 #: src/err-codes.h:314
 #, fuzzy
 #| msgid "Provided object is too short"
 msgid "Object is too old"
-msgstr "??????"
+msgstr "提供对象太短"
 
 #: src/err-codes.h:315
 #, fuzzy
 #| msgid "Unknown name"
 msgid "Unknown flag"
-msgstr "????"
+msgstr "未知名称"
 
 #: src/err-codes.h:316
 #, fuzzy
 #| msgid "Invalid operation code"
 msgid "Invalid execution order"
-msgstr "??????"
+msgstr "无效的操作码"
 
 #: src/err-codes.h:317
 msgid "Already fetched"
@@ -1347,18 +1347,18 @@ msgstr ""
 #, fuzzy
 #| msgid "Unknown name"
 msgid "Wrong name"
-msgstr "????"
+msgstr "未知名称"
 
 #: src/err-codes.h:320
 #, fuzzy
 msgid "Not authenticated"
-msgstr "???"
+msgstr "未锁定"
 
 #: src/err-codes.h:321
 #, fuzzy
 #| msgid "Unsupported protection"
 msgid "Bad authentication"
-msgstr "???????"
+msgstr "不受支持的保护"
 
 #: src/err-codes.h:322
 msgid "System bug detected"
@@ -1368,13 +1368,13 @@ msgstr ""
 #, fuzzy
 #| msgid "Unknown system error"
 msgid "Unknown DNS error"
-msgstr "???????"
+msgstr "未知的系统错误"
 
 #: src/err-codes.h:324
 #, fuzzy
 #| msgid "Invalid OID string"
 msgid "Invalid DNS section"
-msgstr "???OID ???"
+msgstr "无效的OID 字符串"
 
 #: src/err-codes.h:325
 msgid "Invalid textual address form"
@@ -1383,7 +1383,7 @@ msgstr ""
 #: src/err-codes.h:326
 #, fuzzy
 msgid "Missing DNS query packet"
-msgstr "????"
+msgstr "缺失证书"
 
 #: src/err-codes.h:327
 msgid "Missing DNS answer packet"
@@ -1397,49 +1397,49 @@ msgstr ""
 #, fuzzy
 #| msgid "Decryption failed"
 msgid "Verification failed in DNS"
-msgstr "????"
+msgstr "解密失败"
 
 #: src/err-codes.h:330
 #, fuzzy
 #| msgid "Timeout"
 msgid "DNS Timeout"
-msgstr "??"
+msgstr "超时"
 
 #: src/err-codes.h:331
 #, fuzzy
 #| msgid "General IPC error"
 msgid "General LDAP error"
-msgstr "??IPC ??"
+msgstr "一般IPC 错误"
 
 #: src/err-codes.h:332
 #, fuzzy
 #| msgid "General error"
 msgid "General LDAP attribute error"
-msgstr "????"
+msgstr "一般错误"
 
 #: src/err-codes.h:333
 #, fuzzy
 #| msgid "General error"
 msgid "General LDAP name error"
-msgstr "????"
+msgstr "一般错误"
 
 #: src/err-codes.h:334
 #, fuzzy
 #| msgid "General Assuan error"
 msgid "General LDAP security error"
-msgstr "??Assuan ??"
+msgstr "一般Assuan 错误"
 
 #: src/err-codes.h:335
 #, fuzzy
 #| msgid "General error"
 msgid "General LDAP service error"
-msgstr "????"
+msgstr "一般错误"
 
 #: src/err-codes.h:336
 #, fuzzy
 #| msgid "General Assuan error"
 msgid "General LDAP update error"
-msgstr "??Assuan ??"
+msgstr "一般Assuan 错误"
 
 #: src/err-codes.h:337
 msgid "Experimental LDAP error code"
@@ -1449,25 +1449,25 @@ msgstr ""
 #, fuzzy
 #| msgid "IPC write error"
 msgid "Private LDAP error code"
-msgstr "IPC?? ??"
+msgstr "IPC写入 错误"
 
 #: src/err-codes.h:339
 #, fuzzy
 #| msgid "General IPC error"
 msgid "Other general LDAP error"
-msgstr "??IPC ??"
+msgstr "一般IPC 错误"
 
 #: src/err-codes.h:340
 #, fuzzy
 #| msgid "Decryption failed"
 msgid "LDAP connecting failed (X)"
-msgstr "????"
+msgstr "解密失败"
 
 #: src/err-codes.h:341
 #, fuzzy
 #| msgid "General error"
 msgid "LDAP referral limit exceeded"
-msgstr "????"
+msgstr "一般错误"
 
 #: src/err-codes.h:342
 msgid "LDAP client loop"
@@ -1477,25 +1477,25 @@ msgstr ""
 #, fuzzy
 #| msgid "Card reset required"
 msgid "No LDAP results returned"
-msgstr "?????"
+msgstr "要求重置卡"
 
 #: src/err-codes.h:344
 #, fuzzy
 #| msgid "Element not found"
 msgid "LDAP control not found"
-msgstr "?????"
+msgstr "未找到元素"
 
 #: src/err-codes.h:345
 #, fuzzy
 #| msgid "Not supported"
 msgid "Not supported by LDAP"
-msgstr "???"
+msgstr "不支持"
 
 #: src/err-codes.h:346
 #, fuzzy
 #| msgid "Unexpected error"
 msgid "LDAP connect error"
-msgstr "????"
+msgstr "意外错误"
 
 #: src/err-codes.h:347
 msgid "Out of memory in LDAP"
@@ -1509,67 +1509,67 @@ msgstr ""
 #, fuzzy
 #| msgid "Unsupported operation"
 msgid "User cancelled LDAP operation"
-msgstr "??????"
+msgstr "不支持的操作"
 
 #: src/err-codes.h:350
 #, fuzzy
 #| msgid "Bad certificate"
 msgid "Bad LDAP search filter"
-msgstr "?????"
+msgstr "损坏的证书"
 
 #: src/err-codes.h:351
 #, fuzzy
 #| msgid "Unknown extension"
 msgid "Unknown LDAP authentication method"
-msgstr "??????"
+msgstr "未知的扩展名"
 
 #: src/err-codes.h:352
 #, fuzzy
 #| msgid "Timeout"
 msgid "Timeout in LDAP"
-msgstr "??"
+msgstr "超时"
 
 #: src/err-codes.h:353
 #, fuzzy
 #| msgid "agent error"
 msgid "LDAP decoding error"
-msgstr "????"
+msgstr "代理错误"
 
 #: src/err-codes.h:354
 #, fuzzy
 #| msgid "agent error"
 msgid "LDAP encoding error"
-msgstr "????"
+msgstr "代理错误"
 
 #: src/err-codes.h:355
 #, fuzzy
 #| msgid "IPC read error"
 msgid "LDAP local error"
-msgstr "IPC ????"
+msgstr "IPC 读取错误"
 
 #: src/err-codes.h:356
 #, fuzzy
 #| msgid "Not an IPC server"
 msgid "Cannot contact LDAP server"
-msgstr "??IPC ???"
+msgstr "不是IPC 服务器"
 
 #: src/err-codes.h:357
 #, fuzzy
 #| msgid "Success"
 msgid "LDAP success"
-msgstr "??"
+msgstr "成功"
 
 #: src/err-codes.h:358
 #, fuzzy
 #| msgid "Configuration error"
 msgid "LDAP operations error"
-msgstr "????"
+msgstr "配置错误"
 
 #: src/err-codes.h:359
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "LDAP protocol error"
-msgstr "????"
+msgstr "违反协议"
 
 #: src/err-codes.h:360
 msgid "Time limit exceeded in LDAP"
@@ -1591,7 +1591,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Unknown extension"
 msgid "LDAP authentication method not supported"
-msgstr "??????"
+msgstr "未知的扩展名"
 
 #: src/err-codes.h:365
 msgid "Strong(er) LDAP authentication required"
@@ -1605,7 +1605,7 @@ msgstr ""
 #, fuzzy
 #| msgid "General error"
 msgid "LDAP referral"
-msgstr "????"
+msgstr "一般错误"
 
 #: src/err-codes.h:368
 msgid "Administrative LDAP limit exceeded"
@@ -1619,7 +1619,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Card reset required"
 msgid "Confidentiality required by LDAP"
-msgstr "?????"
+msgstr "要求重置卡"
 
 #: src/err-codes.h:371
 msgid "LDAP SASL bind in progress"
@@ -1633,19 +1633,19 @@ msgstr ""
 #, fuzzy
 #| msgid "Invalid attribute"
 msgid "Undefined LDAP attribute type"
-msgstr "?????"
+msgstr "无效的属性"
 
 #: src/err-codes.h:374
 #, fuzzy
 #| msgid "Unsupported protection"
 msgid "Inappropriate matching in LDAP"
-msgstr "???????"
+msgstr "不受支持的保护"
 
 #: src/err-codes.h:375
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "Constraint violation in LDAP"
-msgstr "????"
+msgstr "违反协议"
 
 #: src/err-codes.h:376
 msgid "LDAP type or value exists"
@@ -1655,25 +1655,25 @@ msgstr ""
 #, fuzzy
 #| msgid "Invalid state"
 msgid "Invalid syntax in LDAP"
-msgstr "????"
+msgstr "无效的州"
 
 #: src/err-codes.h:378
 #, fuzzy
 #| msgid "No CMS object"
 msgid "No such LDAP object"
-msgstr "??CMS ??"
+msgstr "没有CMS 对象"
 
 #: src/err-codes.h:379
 #, fuzzy
 #| msgid "Hardware problem"
 msgid "LDAP alias problem"
-msgstr "????"
+msgstr "硬件问题"
 
 #: src/err-codes.h:380
 #, fuzzy
 #| msgid "Invalid state"
 msgid "Invalid DN syntax in LDAP"
-msgstr "????"
+msgstr "无效的州"
 
 #: src/err-codes.h:381
 msgid "LDAP entry is a leaf"
@@ -1683,7 +1683,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Encoding problem"
 msgid "LDAP alias dereferencing problem"
-msgstr "????"
+msgstr "编码问题"
 
 #: src/err-codes.h:383
 msgid "LDAP proxy authorization failure (X)"
@@ -1693,13 +1693,13 @@ msgstr ""
 #, fuzzy
 #| msgid "Unsupported protection"
 msgid "Inappropriate LDAP authentication"
-msgstr "???????"
+msgstr "不受支持的保护"
 
 #: src/err-codes.h:385
 #, fuzzy
 #| msgid "Invalid card"
 msgid "Invalid LDAP credentials"
-msgstr "????"
+msgstr "无效的卡"
 
 #: src/err-codes.h:386
 msgid "Insufficient access for LDAP"
@@ -1725,25 +1725,25 @@ msgstr ""
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "LDAP naming violation"
-msgstr "????"
+msgstr "违反协议"
 
 #: src/err-codes.h:392
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "LDAP object class violation"
-msgstr "????"
+msgstr "违反协议"
 
 #: src/err-codes.h:393
 #, fuzzy
 #| msgid "Operation not yet finished"
 msgid "LDAP operation not allowed on non-leaf"
-msgstr "??????"
+msgstr "操作尚未完成"
 
 #: src/err-codes.h:394
 #, fuzzy
 #| msgid "Operation cancelled"
 msgid "LDAP operation not allowed on RDN"
-msgstr "?????"
+msgstr "操作已取消"
 
 #: src/err-codes.h:395
 msgid "Already exists (LDAP)"
@@ -1757,13 +1757,13 @@ msgstr ""
 #, fuzzy
 #| msgid "Line too long"
 msgid "LDAP results too large"
-msgstr "???"
+msgstr "线太长"
 
 #: src/err-codes.h:398
 #, fuzzy
 #| msgid "Operation cancelled"
 msgid "LDAP operation affects multiple DSAs"
-msgstr "?????"
+msgstr "操作已取消"
 
 #: src/err-codes.h:399
 msgid "Virtual LDAP list view error"
@@ -1773,67 +1773,67 @@ msgstr ""
 #, fuzzy
 #| msgid "General IPC error"
 msgid "Other LDAP error"
-msgstr "??IPC ??"
+msgstr "一般IPC 错误"
 
 #: src/err-codes.h:401
 #, fuzzy
 #| msgid "Resources exhausted"
 msgid "Resources exhausted in LCUP"
-msgstr "????"
+msgstr "内存耗尽"
 
 #: src/err-codes.h:402
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "Security violation in LCUP"
-msgstr "????"
+msgstr "违反协议"
 
 #: src/err-codes.h:403
 #, fuzzy
 #| msgid "Invalid state"
 msgid "Invalid data in LCUP"
-msgstr "????"
+msgstr "无效的州"
 
 #: src/err-codes.h:404
 #, fuzzy
 #| msgid "Unsupported certificate"
 msgid "Unsupported scheme in LCUP"
-msgstr "??????"
+msgstr "不支持的凭证"
 
 #: src/err-codes.h:405
 #, fuzzy
 #| msgid "Card reset required"
 msgid "Reload required in LCUP"
-msgstr "?????"
+msgstr "要求重置卡"
 
 #: src/err-codes.h:406
 #, fuzzy
 #| msgid "Success"
 msgid "LDAP cancelled"
-msgstr "??"
+msgstr "成功"
 
 #: src/err-codes.h:407
 #, fuzzy
 #| msgid "Operation cancelled"
 msgid "No LDAP operation to cancel"
-msgstr "?????"
+msgstr "操作已取消"
 
 #: src/err-codes.h:408
 #, fuzzy
 #| msgid "Operation cancelled"
 msgid "Too late to cancel LDAP"
-msgstr "?????"
+msgstr "操作已取消"
 
 #: src/err-codes.h:409
 #, fuzzy
 #| msgid "Not an IPC server"
 msgid "Cannot cancel LDAP"
-msgstr "??IPC ???"
+msgstr "不是IPC 服务器"
 
 #: src/err-codes.h:410
 #, fuzzy
 #| msgid "Decryption failed"
 msgid "LDAP assertion failed"
-msgstr "????"
+msgstr "解密失败"
 
 #: src/err-codes.h:411
 msgid "Proxied authorization denied by LDAP"
@@ -1841,67 +1841,67 @@ msgstr ""
 
 #: src/err-codes.h:412
 msgid "User defined error code 1"
-msgstr "?????????1"
+msgstr "用户定义的错误代码1"
 
 #: src/err-codes.h:413
 msgid "User defined error code 2"
-msgstr "?????????2"
+msgstr "用户定义的错误代码2"
 
 #: src/err-codes.h:414
 msgid "User defined error code 3"
-msgstr "?????????3"
+msgstr "用户定义的错误代码3"
 
 #: src/err-codes.h:415
 msgid "User defined error code 4"
-msgstr "?????????4"
+msgstr "用户定义的错误代码4"
 
 #: src/err-codes.h:416
 msgid "User defined error code 5"
-msgstr "?????????5"
+msgstr "用户定义的错误代码5"
 
 #: src/err-codes.h:417
 msgid "User defined error code 6"
-msgstr "?????????6"
+msgstr "用户定义的错误代码6"
 
 #: src/err-codes.h:418
 msgid "User defined error code 7"
-msgstr "?????????7"
+msgstr "用户定义的错误代码7"
 
 #: src/err-codes.h:419
 msgid "User defined error code 8"
-msgstr "?????????8"
+msgstr "用户定义的错误代码8"
 
 #: src/err-codes.h:420
 msgid "User defined error code 9"
-msgstr "????????9"
+msgstr "用户定义的错误码9"
 
 #: src/err-codes.h:421
 msgid "User defined error code 10"
-msgstr "?????????10"
+msgstr "用户定义的错误代码10"
 
 #: src/err-codes.h:422
 msgid "User defined error code 11"
-msgstr "?????????11"
+msgstr "用户定义的错误代码11"
 
 #: src/err-codes.h:423
 msgid "User defined error code 12"
-msgstr "?????????12"
+msgstr "用户定义的错误代码12"
 
 #: src/err-codes.h:424
 msgid "User defined error code 13"
-msgstr "?????????13"
+msgstr "用户定义的错误代码13"
 
 #: src/err-codes.h:425
 msgid "User defined error code 14"
-msgstr "?????????14"
+msgstr "用户定义的错误代码14"
 
 #: src/err-codes.h:426
 msgid "User defined error code 15"
-msgstr "?????????15"
+msgstr "用户定义的错误代码15"
 
 #: src/err-codes.h:427
 msgid "User defined error code 16"
-msgstr "?????????16"
+msgstr "用户定义的错误代码16"
 
 #: src/err-codes.h:428
 msgid "System error w/o errno"
@@ -1909,61 +1909,61 @@ msgstr ""
 
 #: src/err-codes.h:429
 msgid "Unknown system error"
-msgstr "???????"
+msgstr "未知的系统错误"
 
 #: src/err-codes.h:430
 msgid "End of file"
-msgstr "????"
+msgstr "文件结尾"
 
 #: src/err-codes.h:431
 msgid "Unknown error code"
-msgstr "???????"
+msgstr "未知的错误代码"
 
 #: src/argparse.c:318
 #, fuzzy
 msgid "argument not expected"
-msgstr "??????????\n"
+msgstr "不允许使用管理员命令\n"
 
 #: src/argparse.c:320
 #, fuzzy
 msgid "read error"
-msgstr "??????"
+msgstr "文件读取错误"
 
 #: src/argparse.c:322
 #, fuzzy
 msgid "keyword too long"
-msgstr "???"
+msgstr "列太长"
 
 #: src/argparse.c:324
 #, fuzzy
 msgid "missing argument"
-msgstr "?????"
+msgstr "无效的参数"
 
 #: src/argparse.c:326
 #, fuzzy
 #| msgid "invalid armor"
 msgid "invalid argument"
-msgstr "??? ASCII ????"
+msgstr "无效的 ASCII 封装格式"
 
 #: src/argparse.c:328
 #, fuzzy
 msgid "invalid command"
-msgstr "??????????\n"
+msgstr "仅供管理员使用的命令\n"
 
 #: src/argparse.c:330
 #, fuzzy
 msgid "invalid alias definition"
-msgstr "???????\n"
+msgstr "无效的列表选项\n"
 
 #: src/argparse.c:332
 #, fuzzy
 msgid "out of core"
-msgstr "??"
+msgstr "可选"
 
 #: src/argparse.c:334
 #, fuzzy
 msgid "invalid option"
-msgstr "???????\n"
+msgstr "无效的列表选项\n"
 
 #: src/argparse.c:343
 #, c-format
@@ -1973,7 +1973,7 @@ msgstr ""
 #: src/argparse.c:345
 #, fuzzy, c-format
 msgid "invalid argument for option \"%.50s\"\n"
-msgstr "???????\n"
+msgstr "无效的列表选项\n"
 
 #: src/argparse.c:347
 #, c-format
@@ -1983,7 +1983,7 @@ msgstr ""
 #: src/argparse.c:350
 #, fuzzy, c-format
 msgid "invalid command \"%.50s\"\n"
-msgstr "?????(??�help�)\n"
+msgstr "无效的指令(尝试“help”)\n"
 
 #: src/argparse.c:352
 #, c-format
@@ -1998,12 +1998,12 @@ msgstr ""
 #: src/argparse.c:356
 #, fuzzy
 msgid "out of core\n"
-msgstr "??"
+msgstr "可选"
 
 #: src/argparse.c:358
 #, fuzzy, c-format
 msgid "invalid option \"%.50s\"\n"
-msgstr "???????\n"
+msgstr "无效的列表选项\n"
 
 #: src/gpg-error.c:458
 msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
@@ -2012,24 +2012,24 @@ msgstr ""
 #: src/gpg-error.c:658
 #, c-format
 msgid "warning: could not recognize %s\n"
-msgstr "??????? %s\n"
+msgstr "警告：无法识别 %s\n"
 
 #, fuzzy
 #~| msgid "Resources exhausted"
 #~ msgid "LCUP Resources exhausted"
-#~ msgstr "????"
+#~ msgstr "内存耗尽"
 
 #, fuzzy
 #~| msgid "Invalid data"
 #~ msgid "LCUP Invalid data"
-#~ msgstr "?????"
+#~ msgstr "无效的数据"
 
 #, fuzzy
 #~| msgid "General error"
 #~ msgid "LDAP Other general error"
-#~ msgstr "????"
+#~ msgstr "一般错误"
 
 #, fuzzy
 #~| msgid "Encoding problem"
 #~ msgid "Encoding error"
-#~ msgstr "????"
+#~ msgstr "编码问题"

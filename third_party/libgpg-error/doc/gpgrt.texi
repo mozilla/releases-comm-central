@@ -118,7 +118,7 @@ RunTime).
 
 @menu
 * Getting Started::             How to use this manual.
-* Features::                    A glance at Libgpg-error’s features.
+* Features::                    A glance at Libgpg-errorâ€™s features.
 * Overview::                    Overview about the library.
 @end menu
 
@@ -223,7 +223,7 @@ gcc -c foo.c $(gpgrt-config --cflags)
 @end example
 
 Adding the output of @samp{gpgrt-config --cflags} to the
-compiler’s command line will ensure that the compiler can find the
+compilerâ€™s command line will ensure that the compiler can find the
 Libgpg-error header file.
 
 A similar problem occurs when linking the program with the library.

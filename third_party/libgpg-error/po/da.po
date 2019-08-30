@@ -1,10 +1,10 @@
 # Danish translation libgpg-error.
-# Copyright (C) 2014 g10 Code GmbH og nedenstående oversættere.
+# Copyright (C) 2014 g10 Code GmbH og nedenstÃ¥ende oversÃ¦ttere.
 # This file is distributed under the same license as the libgpg-error package.
 # Joe Hansen <joedalton2@yahoo.dk>, 2012, 2014.
 #
 # invalid -> ugyldig
-# bad -> ødelagt
+# bad -> Ã¸delagt
 #
 msgid ""
 msgstr ""
@@ -130,7 +130,7 @@ msgstr "Ukendt version i pakke"
 
 #: src/err-codes.h:32
 msgid "Invalid public key algorithm"
-msgstr "Ugyldig offentlig nøglealgoritme"
+msgstr "Ugyldig offentlig nÃ¸glealgoritme"
 
 #: src/err-codes.h:33
 msgid "Invalid digest algorithm"
@@ -138,19 +138,19 @@ msgstr "Ugyldig sammendragsalgoritme"
 
 #: src/err-codes.h:34
 msgid "Bad public key"
-msgstr "Ødelagt offentlig nøgle"
+msgstr "Ã˜delagt offentlig nÃ¸gle"
 
 #: src/err-codes.h:35
 msgid "Bad secret key"
-msgstr "Ødelagt hemmelig nøgle"
+msgstr "Ã˜delagt hemmelig nÃ¸gle"
 
 #: src/err-codes.h:36
 msgid "Bad signature"
-msgstr "Ødelagt underskrift"
+msgstr "Ã˜delagt underskrift"
 
 #: src/err-codes.h:37
 msgid "No public key"
-msgstr "Ingen offentlig nøgle"
+msgstr "Ingen offentlig nÃ¸gle"
 
 #: src/err-codes.h:38
 msgid "Checksum error"
@@ -158,7 +158,7 @@ msgstr "Kontrolsumsfejl"
 
 #: src/err-codes.h:39
 msgid "Bad passphrase"
-msgstr "Ødelagt adgangsfrase"
+msgstr "Ã˜delagt adgangsfrase"
 
 #: src/err-codes.h:40
 msgid "Invalid cipher algorithm"
@@ -166,7 +166,7 @@ msgstr "Ugyldig chifferalgoritme"
 
 #: src/err-codes.h:41
 msgid "Cannot open keyring"
-msgstr "Nøglering åben"
+msgstr "NÃ¸glering Ã¥ben"
 
 #: src/err-codes.h:42
 msgid "Invalid packet"
@@ -183,15 +183,15 @@ msgstr "Ingen bruger-id"
 
 #: src/err-codes.h:45
 msgid "No secret key"
-msgstr "Ingen hemmelig nøgle"
+msgstr "Ingen hemmelig nÃ¸gle"
 
 #: src/err-codes.h:46
 msgid "Wrong secret key used"
-msgstr "Der blev brugt forkert hemmelig nøgle"
+msgstr "Der blev brugt forkert hemmelig nÃ¸gle"
 
 #: src/err-codes.h:47
 msgid "Bad session key"
-msgstr "Ødelagt sessionnøgle"
+msgstr "Ã˜delagt sessionnÃ¸gle"
 
 #: src/err-codes.h:48
 msgid "Unknown compression algorithm"
@@ -219,7 +219,7 @@ msgstr "Ugyldig attribut"
 
 #: src/err-codes.h:54
 msgid "No value"
-msgstr "Ingen værdi"
+msgstr "Ingen vÃ¦rdi"
 
 #: src/err-codes.h:55
 msgid "Not found"
@@ -227,7 +227,7 @@ msgstr "Ikke fundet"
 
 #: src/err-codes.h:56
 msgid "Value not found"
-msgstr "Værdi blev ikke fundet"
+msgstr "VÃ¦rdi blev ikke fundet"
 
 #: src/err-codes.h:57
 msgid "Syntax error"
@@ -235,7 +235,7 @@ msgstr "Syntaksfejl"
 
 #: src/err-codes.h:58
 msgid "Bad MPI value"
-msgstr "Ugyldig MPI-værdi"
+msgstr "Ugyldig MPI-vÃ¦rdi"
 
 #: src/err-codes.h:59
 msgid "Invalid passphrase"
@@ -251,7 +251,7 @@ msgstr "Ressourcer opbrugt"
 
 #: src/err-codes.h:62
 msgid "Invalid keyring"
-msgstr "Ugyldig nøglering"
+msgstr "Ugyldig nÃ¸glering"
 
 #: src/err-codes.h:63
 msgid "Trust DB error"
@@ -259,7 +259,7 @@ msgstr "Trust DB-fejl"
 
 #: src/err-codes.h:64
 msgid "Bad certificate"
-msgstr "Ødelagt certifikat"
+msgstr "Ã˜delagt certifikat"
 
 #: src/err-codes.h:65
 msgid "Invalid user ID"
@@ -275,11 +275,11 @@ msgstr "Tidskonflikt"
 
 #: src/err-codes.h:68
 msgid "Keyserver error"
-msgstr "Nøgleserverfejl"
+msgstr "NÃ¸gleserverfejl"
 
 #: src/err-codes.h:69
 msgid "Wrong public key algorithm"
-msgstr "Forkert offentlig nøglealgoritme"
+msgstr "Forkert offentlig nÃ¸glealgoritme"
 
 #: src/err-codes.h:70
 msgid "Tribute to D. A."
@@ -287,11 +287,11 @@ msgstr "Tribut til D. A."
 
 #: src/err-codes.h:71
 msgid "Weak encryption key"
-msgstr "Svag krypteringsnøgle"
+msgstr "Svag krypteringsnÃ¸gle"
 
 #: src/err-codes.h:72
 msgid "Invalid key length"
-msgstr "Ugyldig nøglelængde"
+msgstr "Ugyldig nÃ¸glelÃ¦ngde"
 
 #: src/err-codes.h:73
 msgid "Invalid argument"
@@ -307,11 +307,11 @@ msgstr "Ugyldig URI"
 
 #: src/err-codes.h:76
 msgid "Network error"
-msgstr "Netværksfejl"
+msgstr "NetvÃ¦rksfejl"
 
 #: src/err-codes.h:77
 msgid "Unknown host"
-msgstr "Ukendt vært"
+msgstr "Ukendt vÃ¦rt"
 
 #: src/err-codes.h:78
 msgid "Selftest failed"
@@ -327,19 +327,19 @@ msgstr "Data er ikke behandlet"
 
 #: src/err-codes.h:81
 msgid "Unusable public key"
-msgstr "Ubrugelig offentlig nøgle"
+msgstr "Ubrugelig offentlig nÃ¸gle"
 
 #: src/err-codes.h:82
 msgid "Unusable secret key"
-msgstr "Ubrugelig hemmelig nøgle"
+msgstr "Ubrugelig hemmelig nÃ¸gle"
 
 #: src/err-codes.h:83
 msgid "Invalid value"
-msgstr "Ugyldig værdi"
+msgstr "Ugyldig vÃ¦rdi"
 
 #: src/err-codes.h:84
 msgid "Bad certificate chain"
-msgstr "Ødelagt certifikatkæde"
+msgstr "Ã˜delagt certifikatkÃ¦de"
 
 #: src/err-codes.h:85
 msgid "Missing certificate"
@@ -355,7 +355,7 @@ msgstr "Fejl"
 
 #: src/err-codes.h:88
 msgid "Not supported"
-msgstr "Ikke understøttet"
+msgstr "Ikke understÃ¸ttet"
 
 #: src/err-codes.h:89
 msgid "Invalid operation code"
@@ -363,7 +363,7 @@ msgstr "Ugyldig handlingskode"
 
 #: src/err-codes.h:90
 msgid "Timeout"
-msgstr "Tidsudløb"
+msgstr "TidsudlÃ¸b"
 
 #: src/err-codes.h:91
 msgid "Internal error"
@@ -407,7 +407,7 @@ msgstr "Ugyldigt flag"
 
 #: src/err-codes.h:101
 msgid "Invalid handle"
-msgstr "Ugyldigt håndtag"
+msgstr "Ugyldigt hÃ¥ndtag"
 
 #: src/err-codes.h:102
 msgid "Result truncated"
@@ -415,7 +415,7 @@ msgstr "Resultat afkortet"
 
 #: src/err-codes.h:103
 msgid "Incomplete line"
-msgstr "Ufuldstændig linje"
+msgstr "UfuldstÃ¦ndig linje"
 
 #: src/err-codes.h:104
 msgid "Invalid response"
@@ -423,7 +423,7 @@ msgstr "Ugyldigt svar"
 
 #: src/err-codes.h:105
 msgid "No agent running"
-msgstr "Ingen agent kører"
+msgstr "Ingen agent kÃ¸rer"
 
 #: src/err-codes.h:106
 msgid "Agent error"
@@ -443,7 +443,7 @@ msgstr "Generel Assuanfejl"
 
 #: src/err-codes.h:110
 msgid "Invalid session key"
-msgstr "Ugyldig sessionsnøgle"
+msgstr "Ugyldig sessionsnÃ¸gle"
 
 #: src/err-codes.h:111
 msgid "Invalid S-expression"
@@ -451,7 +451,7 @@ msgstr "Ugyldigt S-udtryk"
 
 #: src/err-codes.h:112
 msgid "Unsupported algorithm"
-msgstr "Ej understøttet algoritme"
+msgstr "Ej understÃ¸ttet algoritme"
 
 #: src/err-codes.h:113
 msgid "No pinentry"
@@ -463,7 +463,7 @@ msgstr "pinentry-fejl"
 
 #: src/err-codes.h:115
 msgid "Bad PIN"
-msgstr "Ødelagt PIN"
+msgstr "Ã˜delagt PIN"
 
 #: src/err-codes.h:116
 msgid "Invalid name"
@@ -471,7 +471,7 @@ msgstr "Ugyldigt navn"
 
 #: src/err-codes.h:117
 msgid "Bad data"
-msgstr "Ødelagte data"
+msgstr "Ã˜delagte data"
 
 #: src/err-codes.h:118
 msgid "Invalid parameter"
@@ -507,7 +507,7 @@ msgstr "Linje er for lang"
 
 #: src/err-codes.h:126
 msgid "Not trusted"
-msgstr "Ikke troværdig"
+msgstr "Ikke trovÃ¦rdig"
 
 #: src/err-codes.h:127
 msgid "Operation cancelled"
@@ -515,11 +515,11 @@ msgstr "Handling afbrudt"
 
 #: src/err-codes.h:128
 msgid "Bad CA certificate"
-msgstr "Ødelagt CA-certifikat"
+msgstr "Ã˜delagt CA-certifikat"
 
 #: src/err-codes.h:129
 msgid "Certificate expired"
-msgstr "Certifikat udløbet"
+msgstr "Certifikat udlÃ¸bet"
 
 #: src/err-codes.h:130
 msgid "Certificate too young"
@@ -527,7 +527,7 @@ msgstr "Certifikat for ungt"
 
 #: src/err-codes.h:131
 msgid "Unsupported certificate"
-msgstr "Ej understøttet certifikat"
+msgstr "Ej understÃ¸ttet certifikat"
 
 #: src/err-codes.h:132
 msgid "Unknown S-expression"
@@ -535,11 +535,11 @@ msgstr "Ukendt S-udtryk"
 
 #: src/err-codes.h:133
 msgid "Unsupported protection"
-msgstr "Ej understøttet beskyttelse"
+msgstr "Ej understÃ¸ttet beskyttelse"
 
 #: src/err-codes.h:134
 msgid "Corrupted protection"
-msgstr "Ødelagt beskyttelse"
+msgstr "Ã˜delagt beskyttelse"
 
 #: src/err-codes.h:135
 msgid "Ambiguous name"
@@ -551,7 +551,7 @@ msgstr "Kortfejl"
 
 #: src/err-codes.h:137
 msgid "Card reset required"
-msgstr "Kortnulstilling krævet"
+msgstr "Kortnulstilling krÃ¦vet"
 
 #: src/err-codes.h:138
 msgid "Card removed"
@@ -571,7 +571,7 @@ msgstr "Intet PKCS15-program"
 
 #: src/err-codes.h:142
 msgid "Not confirmed"
-msgstr "Ikke bekræftet"
+msgstr "Ikke bekrÃ¦ftet"
 
 #: src/err-codes.h:143
 msgid "Configuration error"
@@ -591,19 +591,19 @@ msgstr "Ugyldigt id"
 
 #: src/err-codes.h:147
 msgid "No SmartCard daemon"
-msgstr "Ingen SmartCard-dæmon"
+msgstr "Ingen SmartCard-dÃ¦mon"
 
 #: src/err-codes.h:148
 msgid "SmartCard daemon error"
-msgstr "SmartCard-dæmonfejl"
+msgstr "SmartCard-dÃ¦monfejl"
 
 #: src/err-codes.h:149
 msgid "Unsupported protocol"
-msgstr "Ej understøttet protokol"
+msgstr "Ej understÃ¸ttet protokol"
 
 #: src/err-codes.h:150
 msgid "Bad PIN method"
-msgstr "Ødelagt PIN-metode"
+msgstr "Ã˜delagt PIN-metode"
 
 #: src/err-codes.h:151
 msgid "Card not initialized"
@@ -611,11 +611,11 @@ msgstr "Kort er ikke initialiseret"
 
 #: src/err-codes.h:152
 msgid "Unsupported operation"
-msgstr "Ej understøttet handling"
+msgstr "Ej understÃ¸ttet handling"
 
 #: src/err-codes.h:153
 msgid "Wrong key usage"
-msgstr "Forkert nøglebrug"
+msgstr "Forkert nÃ¸glebrug"
 
 #: src/err-codes.h:154
 msgid "Nothing found"
@@ -627,7 +627,7 @@ msgstr "Forkert blobtype"
 
 #: src/err-codes.h:156
 msgid "Missing value"
-msgstr "Manglende værdi"
+msgstr "Manglende vÃ¦rdi"
 
 #: src/err-codes.h:157
 msgid "Hardware problem"
@@ -667,19 +667,19 @@ msgstr "Identifikator er ikke fundet"
 
 #: src/err-codes.h:166
 msgid "Invalid tag"
-msgstr "Ugyldigt mærke"
+msgstr "Ugyldigt mÃ¦rke"
 
 #: src/err-codes.h:167
 msgid "Invalid length"
-msgstr "Ugyldig længde"
+msgstr "Ugyldig lÃ¦ngde"
 
 #: src/err-codes.h:168
 msgid "Invalid key info"
-msgstr "Ugyldig nøgleinformation"
+msgstr "Ugyldig nÃ¸gleinformation"
 
 #: src/err-codes.h:169
 msgid "Unexpected tag"
-msgstr "Uventet mærke"
+msgstr "Uventet mÃ¦rke"
 
 #: src/err-codes.h:170
 msgid "Not DER encoded"
@@ -699,15 +699,15 @@ msgstr "Ukendt CMS-objekt"
 
 #: src/err-codes.h:174
 msgid "Unsupported CMS object"
-msgstr "Ej understøttet CMS-objekt"
+msgstr "Ej understÃ¸ttet CMS-objekt"
 
 #: src/err-codes.h:175
 msgid "Unsupported encoding"
-msgstr "Ej understøttet kodning"
+msgstr "Ej understÃ¸ttet kodning"
 
 #: src/err-codes.h:176
 msgid "Unsupported CMS version"
-msgstr "Ej understøttet CMS-version"
+msgstr "Ej understÃ¸ttet CMS-version"
 
 #: src/err-codes.h:177
 msgid "Unknown algorithm"
@@ -719,7 +719,7 @@ msgstr "Ugyldig cryptomotor"
 
 #: src/err-codes.h:179
 msgid "Public key not trusted"
-msgstr "Offentlig nøgle er ikke troværdig"
+msgstr "Offentlig nÃ¸gle er ikke trovÃ¦rdig"
 
 #: src/err-codes.h:180
 msgid "Decryption failed"
@@ -727,11 +727,11 @@ msgstr "Afkryptering mislykkedes"
 
 #: src/err-codes.h:181
 msgid "Key expired"
-msgstr "Nøgle udløbet"
+msgstr "NÃ¸gle udlÃ¸bet"
 
 #: src/err-codes.h:182
 msgid "Signature expired"
-msgstr "Underskrift udløbet"
+msgstr "Underskrift udlÃ¸bet"
 
 #: src/err-codes.h:183
 msgid "Encoding problem"
@@ -743,7 +743,7 @@ msgstr "Ugyldig tilstand"
 
 #: src/err-codes.h:185
 msgid "Duplicated value"
-msgstr "Duplikeret værdi"
+msgstr "Duplikeret vÃ¦rdi"
 
 #: src/err-codes.h:186
 msgid "Missing action"
@@ -767,7 +767,7 @@ msgstr "Ugyldigt CRL-objekt"
 
 #: src/err-codes.h:191
 msgid "Unsupported CRL version"
-msgstr "Ej understøttet CRL-version"
+msgstr "Ej understÃ¸ttet CRL-version"
 
 #: src/err-codes.h:192
 msgid "Invalid certificate object"
@@ -783,11 +783,11 @@ msgstr "En lokal funktion mislykkedes"
 
 #: src/err-codes.h:195
 msgid "Not locked"
-msgstr "Ikke låst"
+msgstr "Ikke lÃ¥st"
 
 #: src/err-codes.h:196
 msgid "Protocol violation"
-msgstr "Protokolovertrædelse"
+msgstr "ProtokolovertrÃ¦delse"
 
 #: src/err-codes.h:197
 msgid "Invalid MAC"
@@ -795,7 +795,7 @@ msgstr "Ugyldig MAC"
 
 #: src/err-codes.h:198
 msgid "Invalid request"
-msgstr "Ugyldig forespørgsel"
+msgstr "Ugyldig forespÃ¸rgsel"
 
 #: src/err-codes.h:199
 msgid "Unknown extension"
@@ -807,7 +807,7 @@ msgstr "Ukendt kritisk udvidelse"
 
 #: src/err-codes.h:201
 msgid "Locked"
-msgstr "Låst"
+msgstr "LÃ¥st"
 
 #: src/err-codes.h:202
 msgid "Unknown option"
@@ -839,7 +839,7 @@ msgstr "Ingen cryptomotor"
 
 #: src/err-codes.h:209
 msgid "Missing key"
-msgstr "Manglende nøgle"
+msgstr "Manglende nÃ¸gle"
 
 #: src/err-codes.h:210
 msgid "Too many objects"
@@ -847,7 +847,7 @@ msgstr "For mange objekter"
 
 #: src/err-codes.h:211
 msgid "Limit reached"
-msgstr "Begrænsning nået"
+msgstr "BegrÃ¦nsning nÃ¥et"
 
 #: src/err-codes.h:212
 msgid "Not initialized"
@@ -859,7 +859,7 @@ msgstr "Manglende udstedercertfikat"
 
 #: src/err-codes.h:214
 msgid "No keyserver available"
-msgstr "Ingen nøgleserver tilgængelig"
+msgstr "Ingen nÃ¸gleserver tilgÃ¦ngelig"
 
 #: src/err-codes.h:215
 msgid "Invalid elliptic curve"
@@ -871,7 +871,7 @@ msgstr "Ukendt elliptisk kurve"
 
 #: src/err-codes.h:217
 msgid "Duplicated key"
-msgstr "Duplikeret nøgle"
+msgstr "Duplikeret nÃ¸gle"
 
 #: src/err-codes.h:218
 msgid "Ambiguous result"
@@ -895,11 +895,11 @@ msgstr "Konflikt i cryptokonteksten"
 
 #: src/err-codes.h:223
 msgid "Broken public key"
-msgstr "Ødelagt offentlig nøgle"
+msgstr "Ã˜delagt offentlig nÃ¸gle"
 
 #: src/err-codes.h:224
 msgid "Broken secret key"
-msgstr "Ødelagt hemmelig nøgle"
+msgstr "Ã˜delagt hemmelig nÃ¸gle"
 
 #: src/err-codes.h:225
 msgid "Invalid MAC algorithm"
@@ -911,7 +911,7 @@ msgstr "Handling fuldt afbrudt"
 
 #: src/err-codes.h:227
 msgid "Operation not yet finished"
-msgstr "Handling ikke færdig endnu"
+msgstr "Handling ikke fÃ¦rdig endnu"
 
 #: src/err-codes.h:228
 msgid "Buffer too short"
@@ -919,7 +919,7 @@ msgstr "Buffer for kort"
 
 #: src/err-codes.h:229
 msgid "Invalid length specifier in S-expression"
-msgstr "Ugyldig længdeangiver i S-udtryk"
+msgstr "Ugyldig lÃ¦ngdeangiver i S-udtryk"
 
 #: src/err-codes.h:230
 msgid "String too long in S-expression"
@@ -935,15 +935,15 @@ msgstr "S-udtryk er ikke kanonisk"
 
 #: src/err-codes.h:233
 msgid "Bad character in S-expression"
-msgstr "Ødelagt tegn i S-udtryk"
+msgstr "Ã˜delagt tegn i S-udtryk"
 
 #: src/err-codes.h:234
 msgid "Bad quotation in S-expression"
-msgstr "Ødelagt citation i S-udtryk"
+msgstr "Ã˜delagt citation i S-udtryk"
 
 #: src/err-codes.h:235
 msgid "Zero prefix in S-expression"
-msgstr "Nulpræfiks i S-udtryk"
+msgstr "NulprÃ¦fiks i S-udtryk"
 
 #: src/err-codes.h:236
 msgid "Nested display hints in S-expression"
@@ -959,7 +959,7 @@ msgstr "Uventet reserveret punktum i S-udtryk"
 
 #: src/err-codes.h:239
 msgid "Bad hexadecimal character in S-expression"
-msgstr "Ødelagt hexadecimalt tegn i S-udtryk"
+msgstr "Ã˜delagt hexadecimalt tegn i S-udtryk"
 
 #: src/err-codes.h:240
 msgid "Odd hexadecimal numbers in S-expression"
@@ -967,7 +967,7 @@ msgstr "Ulige hexadecimalt tal i S-udtryk"
 
 #: src/err-codes.h:241
 msgid "Bad octal character in S-expression"
-msgstr "Ødelagt oktalt tegn i S-udtryk"
+msgstr "Ã˜delagt oktalt tegn i S-udtryk"
 
 #: src/err-codes.h:242
 msgid "All subkeys are expired or revoked"
@@ -993,7 +993,7 @@ msgstr "Ukendt navn"
 #, fuzzy
 #| msgid "No public key"
 msgid "No key"
-msgstr "Ingen offentlig nøgle"
+msgstr "Ingen offentlig nÃ¸gle"
 
 #: src/err-codes.h:247
 msgid "Legacy key"
@@ -1017,7 +1017,7 @@ msgstr ""
 
 #: src/err-codes.h:251
 msgid "No certificate chain"
-msgstr "Ingen certifikatkæde"
+msgstr "Ingen certifikatkÃ¦de"
 
 #: src/err-codes.h:252
 msgid "Certificate is too large"
@@ -1041,11 +1041,11 @@ msgstr "Pakning eller udpakning mislykkedes"
 
 #: src/err-codes.h:257
 msgid "A counter would wrap"
-msgstr "En tæller ville pakke ind"
+msgstr "En tÃ¦ller ville pakke ind"
 
 #: src/err-codes.h:258
 msgid "Fatal alert message received"
-msgstr "Modtog »fatal alarm«-besked"
+msgstr "Modtog Â»fatal alarmÂ«-besked"
 
 #: src/err-codes.h:259
 msgid "No cipher algorithm"
@@ -1057,15 +1057,15 @@ msgstr "Manglende klientcertfikat"
 
 #: src/err-codes.h:261
 msgid "Close notification received"
-msgstr "Luk modtaget påmindelse"
+msgstr "Luk modtaget pÃ¥mindelse"
 
 #: src/err-codes.h:262
 msgid "Ticket expired"
-msgstr "Billetten udløbet"
+msgstr "Billetten udlÃ¸bet"
 
 #: src/err-codes.h:263
 msgid "Bad ticket"
-msgstr "Ødelagt billet"
+msgstr "Ã˜delagt billet"
 
 #: src/err-codes.h:264
 msgid "Unknown identity"
@@ -1073,48 +1073,48 @@ msgstr "Ukendt identitet"
 
 #: src/err-codes.h:265
 msgid "Bad certificate message in handshake"
-msgstr "Besked om ødelagt certifikat i håndtrykket"
+msgstr "Besked om Ã¸delagt certifikat i hÃ¥ndtrykket"
 
 #: src/err-codes.h:266
 msgid "Bad certificate request message in handshake"
-msgstr "Besked om ødelagt certifikatforespørgsel i håndtrykket"
+msgstr "Besked om Ã¸delagt certifikatforespÃ¸rgsel i hÃ¥ndtrykket"
 
 #: src/err-codes.h:267
 msgid "Bad certificate verify message in handshake"
-msgstr "Besked om ødelagt certifikatforespørgsel i håndtrykket"
+msgstr "Besked om Ã¸delagt certifikatforespÃ¸rgsel i hÃ¥ndtrykket"
 
 #: src/err-codes.h:268
 msgid "Bad change cipher message in handshake"
-msgstr "Ødelagt »ændr chiffer«-besked i håndtrykket"
+msgstr "Ã˜delagt Â»Ã¦ndr chifferÂ«-besked i hÃ¥ndtrykket"
 
 #: src/err-codes.h:269
 msgid "Bad client hello message in handshake"
-msgstr "Besked om ødelagt klienthilsen i håndtrykket"
+msgstr "Besked om Ã¸delagt klienthilsen i hÃ¥ndtrykket"
 
 #: src/err-codes.h:270
 msgid "Bad server hello message in handshake"
-msgstr "Besked om ødelagt serverhilsen i håndtrykket"
+msgstr "Besked om Ã¸delagt serverhilsen i hÃ¥ndtrykket"
 
 # engelsk fejl
 #: src/err-codes.h:271
 msgid "Bad server hello done message in handshake"
-msgstr "Ødelagt »afsluttet serverhilsen«-besked i håndtrykket"
+msgstr "Ã˜delagt Â»afsluttet serverhilsenÂ«-besked i hÃ¥ndtrykket"
 
 #: src/err-codes.h:272
 msgid "Bad finished message in handshake"
-msgstr "Ødelagt »afsluttet«-besked i håndtrykket"
+msgstr "Ã˜delagt Â»afsluttetÂ«-besked i hÃ¥ndtrykket"
 
 #: src/err-codes.h:273
 msgid "Bad server key exchange message in handshake"
-msgstr "Besked om ødelagt udveksling af servernøgle i håndtrykket"
+msgstr "Besked om Ã¸delagt udveksling af servernÃ¸gle i hÃ¥ndtrykket"
 
 #: src/err-codes.h:274
 msgid "Bad client key exchange message in handshake"
-msgstr "Besked om ødelagt udveksling af klientnøgle i håndtrykket"
+msgstr "Besked om Ã¸delagt udveksling af klientnÃ¸gle i hÃ¥ndtrykket"
 
 #: src/err-codes.h:275
 msgid "Bogus string"
-msgstr "Fejlbehæftet streng"
+msgstr "FejlbehÃ¦ftet streng"
 
 #: src/err-codes.h:276
 msgid "Forbidden"
@@ -1122,15 +1122,15 @@ msgstr ""
 
 #: src/err-codes.h:277
 msgid "Key disabled"
-msgstr "Nøglen er deaktiveret"
+msgstr "NÃ¸glen er deaktiveret"
 
 #: src/err-codes.h:278
 msgid "Not possible with a card based key"
-msgstr "Ikke muligt med en kortbaseret nøgle"
+msgstr "Ikke muligt med en kortbaseret nÃ¸gle"
 
 #: src/err-codes.h:279
 msgid "Invalid lock object"
-msgstr "Ugyldigt låseobjekt"
+msgstr "Ugyldigt lÃ¥seobjekt"
 
 #: src/err-codes.h:280
 msgid "True"
@@ -1158,11 +1158,11 @@ msgstr "Ugyldigt IPC-svar"
 
 #: src/err-codes.h:286
 msgid "Invalid value passed to IPC"
-msgstr "Ugyldig værdi sendt til IPC"
+msgstr "Ugyldig vÃ¦rdi sendt til IPC"
 
 #: src/err-codes.h:287
 msgid "Incomplete line passed to IPC"
-msgstr "Ufuldstændig linje sendt til IPC"
+msgstr "UfuldstÃ¦ndig linje sendt til IPC"
 
 #: src/err-codes.h:288
 msgid "Line passed to IPC too long"
@@ -1194,7 +1194,7 @@ msgstr "Problem med at starte IPC-server"
 
 #: src/err-codes.h:295
 msgid "IPC read error"
-msgstr "IPC-læsefejl"
+msgstr "IPC-lÃ¦sefejl"
 
 #: src/err-codes.h:296
 msgid "IPC write error"
@@ -1266,7 +1266,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Duplicated value"
 msgid "Duplicated name"
-msgstr "Duplikeret værdi"
+msgstr "Duplikeret vÃ¦rdi"
 
 #: src/err-codes.h:313
 #, fuzzy
@@ -1316,7 +1316,7 @@ msgstr "Ikke aktiveret"
 #, fuzzy
 #| msgid "Unsupported protection"
 msgid "Bad authentication"
-msgstr "Ej understøttet beskyttelse"
+msgstr "Ej understÃ¸ttet beskyttelse"
 
 #: src/err-codes.h:322
 msgid "System bug detected"
@@ -1364,7 +1364,7 @@ msgstr "Afkryptering mislykkedes"
 #, fuzzy
 #| msgid "Timeout"
 msgid "DNS Timeout"
-msgstr "Tidsudløb"
+msgstr "TidsudlÃ¸b"
 
 #: src/err-codes.h:331
 #, fuzzy
@@ -1438,7 +1438,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Card reset required"
 msgid "No LDAP results returned"
-msgstr "Kortnulstilling krævet"
+msgstr "Kortnulstilling krÃ¦vet"
 
 #: src/err-codes.h:344
 #, fuzzy
@@ -1450,7 +1450,7 @@ msgstr "Element er ikke fundet"
 #, fuzzy
 #| msgid "Not supported"
 msgid "Not supported by LDAP"
-msgstr "Ikke understøttet"
+msgstr "Ikke understÃ¸ttet"
 
 #: src/err-codes.h:346
 #, fuzzy
@@ -1470,13 +1470,13 @@ msgstr ""
 #, fuzzy
 #| msgid "Unsupported operation"
 msgid "User cancelled LDAP operation"
-msgstr "Ej understøttet handling"
+msgstr "Ej understÃ¸ttet handling"
 
 #: src/err-codes.h:350
 #, fuzzy
 #| msgid "Bad certificate"
 msgid "Bad LDAP search filter"
-msgstr "Ødelagt certifikat"
+msgstr "Ã˜delagt certifikat"
 
 #: src/err-codes.h:351
 #, fuzzy
@@ -1488,7 +1488,7 @@ msgstr "Ukendt udvidelse"
 #, fuzzy
 #| msgid "Timeout"
 msgid "Timeout in LDAP"
-msgstr "Tidsudløb"
+msgstr "TidsudlÃ¸b"
 
 #: src/err-codes.h:353
 #, fuzzy
@@ -1506,7 +1506,7 @@ msgstr "dirmngr-fejl"
 #, fuzzy
 #| msgid "IPC read error"
 msgid "LDAP local error"
-msgstr "IPC-læsefejl"
+msgstr "IPC-lÃ¦sefejl"
 
 #: src/err-codes.h:356
 #, fuzzy
@@ -1530,7 +1530,7 @@ msgstr "Konfigurationsfejl"
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "LDAP protocol error"
-msgstr "Protokolovertrædelse"
+msgstr "ProtokolovertrÃ¦delse"
 
 #: src/err-codes.h:360
 msgid "Time limit exceeded in LDAP"
@@ -1562,7 +1562,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Fatal alert message received"
 msgid "Partial LDAP results+referral received"
-msgstr "Modtog »fatal alarm«-besked"
+msgstr "Modtog Â»fatal alarmÂ«-besked"
 
 #: src/err-codes.h:367
 #, fuzzy
@@ -1582,7 +1582,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Card reset required"
 msgid "Confidentiality required by LDAP"
-msgstr "Kortnulstilling krævet"
+msgstr "Kortnulstilling krÃ¦vet"
 
 #: src/err-codes.h:371
 msgid "LDAP SASL bind in progress"
@@ -1602,13 +1602,13 @@ msgstr "Ugyldig attribut"
 #, fuzzy
 #| msgid "Unsupported protection"
 msgid "Inappropriate matching in LDAP"
-msgstr "Ej understøttet beskyttelse"
+msgstr "Ej understÃ¸ttet beskyttelse"
 
 #: src/err-codes.h:375
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "Constraint violation in LDAP"
-msgstr "Protokolovertrædelse"
+msgstr "ProtokolovertrÃ¦delse"
 
 #: src/err-codes.h:376
 msgid "LDAP type or value exists"
@@ -1656,7 +1656,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Unsupported protection"
 msgid "Inappropriate LDAP authentication"
-msgstr "Ej understøttet beskyttelse"
+msgstr "Ej understÃ¸ttet beskyttelse"
 
 #: src/err-codes.h:385
 #, fuzzy
@@ -1676,7 +1676,7 @@ msgstr ""
 #, fuzzy
 #| msgid "No keyserver available"
 msgid "LDAP server is unavailable"
-msgstr "Ingen nøgleserver tilgængelig"
+msgstr "Ingen nÃ¸gleserver tilgÃ¦ngelig"
 
 #: src/err-codes.h:389
 msgid "LDAP server is unwilling to perform"
@@ -1696,13 +1696,13 @@ msgstr "Manglende handling"
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "LDAP object class violation"
-msgstr "Protokolovertrædelse"
+msgstr "ProtokolovertrÃ¦delse"
 
 #: src/err-codes.h:393
 #, fuzzy
 #| msgid "Operation not yet finished"
 msgid "LDAP operation not allowed on non-leaf"
-msgstr "Handling ikke færdig endnu"
+msgstr "Handling ikke fÃ¦rdig endnu"
 
 #: src/err-codes.h:394
 #, fuzzy
@@ -1750,7 +1750,7 @@ msgstr "Ressourcer opbrugt"
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "Security violation in LCUP"
-msgstr "Protokolovertrædelse"
+msgstr "ProtokolovertrÃ¦delse"
 
 #: src/err-codes.h:403
 #, fuzzy
@@ -1762,13 +1762,13 @@ msgstr "Ugyldig tilstand"
 #, fuzzy
 #| msgid "Unsupported certificate"
 msgid "Unsupported scheme in LCUP"
-msgstr "Ej understøttet certifikat"
+msgstr "Ej understÃ¸ttet certifikat"
 
 #: src/err-codes.h:405
 #, fuzzy
 #| msgid "Card reset required"
 msgid "Reload required in LCUP"
-msgstr "Kortnulstilling krævet"
+msgstr "Kortnulstilling krÃ¦vet"
 
 #: src/err-codes.h:406
 #, fuzzy
@@ -1878,7 +1878,7 @@ msgstr "Ukendt systemfejl"
 
 #: src/err-codes.h:430
 msgid "End of file"
-msgstr "Slutning på fil"
+msgstr "Slutning pÃ¥ fil"
 
 #: src/err-codes.h:431
 msgid "Unknown error code"
@@ -1890,11 +1890,11 @@ msgstr "parameter var ikke forventet"
 
 #: src/argparse.c:320
 msgid "read error"
-msgstr "læsefejl"
+msgstr "lÃ¦sefejl"
 
 #: src/argparse.c:322
 msgid "keyword too long"
-msgstr "nøgleord er for langt"
+msgstr "nÃ¸gleord er for langt"
 
 #: src/argparse.c:324
 msgid "missing argument"
@@ -1904,7 +1904,7 @@ msgstr "manglende parameter"
 #, fuzzy
 #| msgid "invalid value\n"
 msgid "invalid argument"
-msgstr "ugyldig værdi\n"
+msgstr "ugyldig vÃ¦rdi\n"
 
 #: src/argparse.c:328
 msgid "invalid command"
@@ -1925,33 +1925,33 @@ msgstr "ugyldig indstilling"
 #: src/argparse.c:343
 #, c-format
 msgid "missing argument for option \"%.50s\"\n"
-msgstr "manglende parameter for indstilling »%.50s«\n"
+msgstr "manglende parameter for indstilling Â»%.50sÂ«\n"
 
 #: src/argparse.c:345
 #, fuzzy, c-format
 #| msgid "missing argument for option \"%.50s\"\n"
 msgid "invalid argument for option \"%.50s\"\n"
-msgstr "manglende parameter for indstilling »%.50s«\n"
+msgstr "manglende parameter for indstilling Â»%.50sÂ«\n"
 
 #: src/argparse.c:347
 #, c-format
 msgid "option \"%.50s\" does not expect an argument\n"
-msgstr "tilvalg »%.50s« forventer ikke et argument\n"
+msgstr "tilvalg Â»%.50sÂ« forventer ikke et argument\n"
 
 #: src/argparse.c:350
 #, c-format
 msgid "invalid command \"%.50s\"\n"
-msgstr "ugyldig kommando »%.50s«\n"
+msgstr "ugyldig kommando Â»%.50sÂ«\n"
 
 #: src/argparse.c:352
 #, c-format
 msgid "option \"%.50s\" is ambiguous\n"
-msgstr "tilvalg »%.50s« er tvetydigt\n"
+msgstr "tilvalg Â»%.50sÂ« er tvetydigt\n"
 
 #: src/argparse.c:354
 #, c-format
 msgid "command \"%.50s\" is ambiguous\n"
-msgstr "kommando »%.50s« er tvetydig\n"
+msgstr "kommando Â»%.50sÂ« er tvetydig\n"
 
 #: src/argparse.c:356
 msgid "out of core\n"
@@ -1960,7 +1960,7 @@ msgstr "uden for kerne\n"
 #: src/argparse.c:358
 #, c-format
 msgid "invalid option \"%.50s\"\n"
-msgstr "ugyldigt tilvalg »%.50s«\n"
+msgstr "ugyldigt tilvalg Â»%.50sÂ«\n"
 
 #: src/gpg-error.c:458
 msgid "Please report bugs to <https://bugs.gnupg.org>.\n"

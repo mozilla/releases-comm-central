@@ -114,7 +114,7 @@ msgstr "Sukceso"
 
 #: src/err-codes.h:29
 msgid "General error"
-msgstr "?enerala eraro"
+msgstr "Ĝenerala eraro"
 
 #: src/err-codes.h:30
 msgid "Unknown packet"
@@ -126,7 +126,7 @@ msgstr "Nekonata versio en paketo"
 
 #: src/err-codes.h:32
 msgid "Invalid public key algorithm"
-msgstr "Malvalida publika ?losila algoritmo"
+msgstr "Malvalida publika ŝlosila algoritmo"
 
 #: src/err-codes.h:33
 msgid "Invalid digest algorithm"
@@ -134,19 +134,19 @@ msgstr "Malvalida resuma algoritmo"
 
 #: src/err-codes.h:34
 msgid "Bad public key"
-msgstr "Mal?usta publika ?losilo"
+msgstr "Malĝusta publika ŝlosilo"
 
 #: src/err-codes.h:35
 msgid "Bad secret key"
-msgstr "Mal?usta sekreta ?losilo"
+msgstr "Malĝusta sekreta ŝlosilo"
 
 #: src/err-codes.h:36
 msgid "Bad signature"
-msgstr "mal?usta subskribo"
+msgstr "malĝusta subskribo"
 
 #: src/err-codes.h:37
 msgid "No public key"
-msgstr "Neniu publika ?losilo"
+msgstr "Neniu publika ŝlosilo"
 
 #: src/err-codes.h:38
 msgid "Checksum error"
@@ -154,15 +154,15 @@ msgstr "Eraro en kontrolsumo"
 
 #: src/err-codes.h:39
 msgid "Bad passphrase"
-msgstr "Mal?usta pasfrazo"
+msgstr "Malĝusta pasfrazo"
 
 #: src/err-codes.h:40
 msgid "Invalid cipher algorithm"
-msgstr "Malvalida ?ifra algoritmo"
+msgstr "Malvalida ĉifra algoritmo"
 
 #: src/err-codes.h:41
 msgid "Cannot open keyring"
-msgstr "Malfermo de ?losilringo"
+msgstr "Malfermo de ŝlosilringo"
 
 #: src/err-codes.h:42
 msgid "Invalid packet"
@@ -178,15 +178,15 @@ msgstr "Neniu ID de uzanto"
 
 #: src/err-codes.h:45
 msgid "No secret key"
-msgstr "Neniu sekreta ?losilo"
+msgstr "Neniu sekreta ŝlosilo"
 
 #: src/err-codes.h:46
 msgid "Wrong secret key used"
-msgstr "Mal?usta sekreta ?losilo uzata"
+msgstr "Malĝusta sekreta ŝlosilo uzata"
 
 #: src/err-codes.h:47
 msgid "Bad session key"
-msgstr "Mal?usta seanca ?losilo"
+msgstr "Malĝusta seanca ŝlosilo"
 
 #: src/err-codes.h:48
 msgid "Unknown compression algorithm"
@@ -202,7 +202,7 @@ msgstr "Malvalida enkodiga metodo"
 
 #: src/err-codes.h:51
 msgid "Invalid encryption scheme"
-msgstr "Malvalida ?ifriga skemo"
+msgstr "Malvalida ĉifriga skemo"
 
 #: src/err-codes.h:52
 msgid "Invalid signature scheme"
@@ -230,7 +230,7 @@ msgstr "Sintaks-eraro"
 
 #: src/err-codes.h:58
 msgid "Bad MPI value"
-msgstr "Mal?usta valoro MPI"
+msgstr "Malĝusta valoro MPI"
 
 #: src/err-codes.h:59
 msgid "Invalid passphrase"
@@ -246,7 +246,7 @@ msgstr "Rimedoj estas plenuzitaj"
 
 #: src/err-codes.h:62
 msgid "Invalid keyring"
-msgstr "Malvalida ?losilringo"
+msgstr "Malvalida ŝlosilringo"
 
 #: src/err-codes.h:63
 msgid "Trust DB error"
@@ -254,7 +254,7 @@ msgstr "Eraro de fidinda DB"
 
 #: src/err-codes.h:64
 msgid "Bad certificate"
-msgstr "Mal?usta atestilo"
+msgstr "Malĝusta atestilo"
 
 #: src/err-codes.h:65
 msgid "Invalid user ID"
@@ -270,23 +270,23 @@ msgstr "Konflikto de tempo"
 
 #: src/err-codes.h:68
 msgid "Keyserver error"
-msgstr "?losilservila eraro"
+msgstr "Ŝlosilservila eraro"
 
 #: src/err-codes.h:69
 msgid "Wrong public key algorithm"
-msgstr "Malkorekta publika ?losila algoritmo"
+msgstr "Malkorekta publika ŝlosila algoritmo"
 
 #: src/err-codes.h:70
 msgid "Tribute to D. A."
-msgstr "Oma?o al D. A."
+msgstr "Omaĝo al D. A."
 
 #: src/err-codes.h:71
 msgid "Weak encryption key"
-msgstr "Malforta ?ifra ?losilo"
+msgstr "Malforta ĉifra ŝlosilo"
 
 #: src/err-codes.h:72
 msgid "Invalid key length"
-msgstr "Malvalida ?losila longo"
+msgstr "Malvalida ŝlosila longo"
 
 #: src/err-codes.h:73
 msgid "Invalid argument"
@@ -314,7 +314,7 @@ msgstr "Memtesto fiaskis"
 
 #: src/err-codes.h:79
 msgid "Data not encrypted"
-msgstr "Datumaro ne ?ifrita"
+msgstr "Datumaro ne ĉifrita"
 
 #: src/err-codes.h:80
 msgid "Data not processed"
@@ -322,11 +322,11 @@ msgstr "Datumaro ne procezita"
 
 #: src/err-codes.h:81
 msgid "Unusable public key"
-msgstr "Neuzebla publika ?losilo"
+msgstr "Neuzebla publika ŝlosilo"
 
 #: src/err-codes.h:82
 msgid "Unusable secret key"
-msgstr "Neuzebla sekreta ?losilo"
+msgstr "Neuzebla sekreta ŝlosilo"
 
 #: src/err-codes.h:83
 msgid "Invalid value"
@@ -334,7 +334,7 @@ msgstr "Malvalida valoro"
 
 #: src/err-codes.h:84
 msgid "Bad certificate chain"
-msgstr "Mal?usta atestila ?eno"
+msgstr "Malĝusta atestila ĉeno"
 
 #: src/err-codes.h:85
 msgid "Missing certificate"
@@ -378,7 +378,7 @@ msgstr "Provizita objekto tro mallongas"
 
 #: src/err-codes.h:95
 msgid "Provided object is too large"
-msgstr "Provizita objekto tro lar?as"
+msgstr "Provizita objekto tro larĝas"
 
 #: src/err-codes.h:96
 msgid "Missing item in object"
@@ -394,7 +394,7 @@ msgstr "Konflikta uzo"
 
 #: src/err-codes.h:99
 msgid "Invalid cipher mode"
-msgstr "Malvalida ?ifra re?imo"
+msgstr "Malvalida ĉifra reĝimo"
 
 #: src/err-codes.h:100
 msgid "Invalid flag"
@@ -406,7 +406,7 @@ msgstr "Malvalida traktilo"
 
 #: src/err-codes.h:102
 msgid "Result truncated"
-msgstr "Rezulto estas tran?ita"
+msgstr "Rezulto estas tranĉita"
 
 #: src/err-codes.h:103
 msgid "Incomplete line"
@@ -436,11 +436,11 @@ msgstr "Nespecifa paneo de servilo Assuan"
 
 #: src/err-codes.h:109
 msgid "General Assuan error"
-msgstr "?enerala eraro de Assuan"
+msgstr "Ĝenerala eraro de Assuan"
 
 #: src/err-codes.h:110
 msgid "Invalid session key"
-msgstr "Malvalida seanca ?losilo"
+msgstr "Malvalida seanca ŝlosilo"
 
 #: src/err-codes.h:111
 msgid "Invalid S-expression"
@@ -460,7 +460,7 @@ msgstr "Eraro de pinentry"
 
 #: src/err-codes.h:115
 msgid "Bad PIN"
-msgstr "Mal?usta PIN"
+msgstr "Malĝusta PIN"
 
 #: src/err-codes.h:116
 msgid "Invalid name"
@@ -468,7 +468,7 @@ msgstr "Malvalida nomo"
 
 #: src/err-codes.h:117
 msgid "Bad data"
-msgstr "Mal?usta datumaro"
+msgstr "Malĝusta datumaro"
 
 #: src/err-codes.h:118
 msgid "Invalid parameter"
@@ -512,11 +512,11 @@ msgstr "Operacio estas nuligita"
 
 #: src/err-codes.h:128
 msgid "Bad CA certificate"
-msgstr "Mal?usta atestilo CA"
+msgstr "Malĝusta atestilo CA"
 
 #: src/err-codes.h:129
 msgid "Certificate expired"
-msgstr "Atestilo malvalidi?is"
+msgstr "Atestilo malvalidiĝis"
 
 #: src/err-codes.h:130
 msgid "Certificate too young"
@@ -560,11 +560,11 @@ msgstr "Malvalida karto"
 
 #: src/err-codes.h:140
 msgid "Card not present"
-msgstr "Karto ne ?eestas"
+msgstr "Karto ne ĉeestas"
 
 #: src/err-codes.h:141
 msgid "No PKCS15 application"
-msgstr "Neniu aplika?o PKCS15"
+msgstr "Neniu aplikaĵo PKCS15"
 
 #: src/err-codes.h:142
 msgid "Not confirmed"
@@ -600,7 +600,7 @@ msgstr "Nesubtenata protokolo"
 
 #: src/err-codes.h:150
 msgid "Bad PIN method"
-msgstr "Mal?usta PIN-metodo"
+msgstr "Malĝusta PIN-metodo"
 
 #: src/err-codes.h:151
 msgid "Card not initialized"
@@ -612,7 +612,7 @@ msgstr "Nesubtenata operacio"
 
 #: src/err-codes.h:153
 msgid "Wrong key usage"
-msgstr "Malkorekta uzmaniero de ?losilo"
+msgstr "Malkorekta uzmaniero de ŝlosilo"
 
 #: src/err-codes.h:154
 msgid "Nothing found"
@@ -636,7 +636,7 @@ msgstr "PIN estas blokita"
 
 #: src/err-codes.h:159
 msgid "Conditions of use not satisfied"
-msgstr "Uzkondi?oj ne estas kontentigitaj"
+msgstr "Uzkondiĉoj ne estas kontentigitaj"
 
 #: src/err-codes.h:160
 msgid "PINs are not synced"
@@ -672,7 +672,7 @@ msgstr "Malvalida longo"
 
 #: src/err-codes.h:168
 msgid "Invalid key info"
-msgstr "Malvalida ?losil-informo"
+msgstr "Malvalida ŝlosil-informo"
 
 #: src/err-codes.h:169
 msgid "Unexpected tag"
@@ -712,23 +712,23 @@ msgstr "Nekonata algoritmo"
 
 #: src/err-codes.h:178
 msgid "Invalid crypto engine"
-msgstr "Malvalida ?ifra ma?ino"
+msgstr "Malvalida ĉifra maŝino"
 
 #: src/err-codes.h:179
 msgid "Public key not trusted"
-msgstr "Publika ?losilo ne estas fidinda"
+msgstr "Publika ŝlosilo ne estas fidinda"
 
 #: src/err-codes.h:180
 msgid "Decryption failed"
-msgstr "Mal?ifro fiaskis"
+msgstr "Malĉifro fiaskis"
 
 #: src/err-codes.h:181
 msgid "Key expired"
-msgstr "?losilo malvalidi?is"
+msgstr "Ŝlosilo malvalidiĝis"
 
 #: src/err-codes.h:182
 msgid "Signature expired"
-msgstr "Subskribo malvalidi?is"
+msgstr "Subskribo malvalidiĝis"
 
 #: src/err-codes.h:183
 msgid "Encoding problem"
@@ -752,7 +752,7 @@ msgstr "Modulo ASN.1 ne estas trovita"
 
 #: src/err-codes.h:188
 msgid "Invalid OID string"
-msgstr "Malvalida ?eno OID"
+msgstr "Malvalida ĉeno OID"
 
 #: src/err-codes.h:189
 msgid "Invalid time"
@@ -776,11 +776,11 @@ msgstr "Nekonata nomo"
 
 #: src/err-codes.h:194
 msgid "A locale function failed"
-msgstr "Loka?ara funkcio fiaskis"
+msgstr "Lokaĵara funkcio fiaskis"
 
 #: src/err-codes.h:195
 msgid "Not locked"
-msgstr "Ne ?losita"
+msgstr "Ne ŝlosita"
 
 #: src/err-codes.h:196
 msgid "Protocol violation"
@@ -804,7 +804,7 @@ msgstr "Nekonata grava aldono"
 
 #: src/err-codes.h:201
 msgid "Locked"
-msgstr "?losita"
+msgstr "Ŝlosita"
 
 #: src/err-codes.h:202
 msgid "Unknown option"
@@ -830,13 +830,13 @@ msgstr "Neniu PIN estis donata"
 #, fuzzy
 #| msgid "Not locked"
 msgid "Not enabled"
-msgstr "Ne ?losita"
+msgstr "Ne ŝlosita"
 
 #: src/err-codes.h:208
 #, fuzzy
 #| msgid "Invalid crypto engine"
 msgid "No crypto engine"
-msgstr "Malvalida ?ifra ma?ino"
+msgstr "Malvalida ĉifra maŝino"
 
 #: src/err-codes.h:209
 #, fuzzy
@@ -898,19 +898,19 @@ msgstr "Plursenca nomo"
 #, fuzzy
 #| msgid "Invalid crypto engine"
 msgid "No crypto context"
-msgstr "Malvalida ?ifra ma?ino"
+msgstr "Malvalida ĉifra maŝino"
 
 #: src/err-codes.h:220
 #, fuzzy
 #| msgid "Invalid crypto engine"
 msgid "Wrong crypto context"
-msgstr "Malvalida ?ifra ma?ino"
+msgstr "Malvalida ĉifra maŝino"
 
 #: src/err-codes.h:221
 #, fuzzy
 #| msgid "Invalid crypto engine"
 msgid "Bad crypto context"
-msgstr "Malvalida ?ifra ma?ino"
+msgstr "Malvalida ĉifra maŝino"
 
 #: src/err-codes.h:222
 msgid "Conflict in the crypto context"
@@ -920,13 +920,13 @@ msgstr ""
 #, fuzzy
 #| msgid "No public key"
 msgid "Broken public key"
-msgstr "Neniu publika ?losilo"
+msgstr "Neniu publika ŝlosilo"
 
 #: src/err-codes.h:224
 #, fuzzy
 #| msgid "No secret key"
 msgid "Broken secret key"
-msgstr "Neniu sekreta ?losilo"
+msgstr "Neniu sekreta ŝlosilo"
 
 #: src/err-codes.h:225
 #, fuzzy
@@ -942,7 +942,7 @@ msgstr "Operacio estas nuligita"
 
 #: src/err-codes.h:227
 msgid "Operation not yet finished"
-msgstr "La operacio ankora? ne fini?is"
+msgstr "La operacio ankoraŭ ne finiĝis"
 
 #: src/err-codes.h:228
 msgid "Buffer too short"
@@ -954,7 +954,7 @@ msgstr "Malvalida long-indikilo en S-esprimo"
 
 #: src/err-codes.h:230
 msgid "String too long in S-expression"
-msgstr "?eno tro longa en S-esprimo"
+msgstr "Ĉeno tro longa en S-esprimo"
 
 #: src/err-codes.h:231
 msgid "Unmatched parentheses in S-expression"
@@ -966,11 +966,11 @@ msgstr "S-esprimo ne estas kanona"
 
 #: src/err-codes.h:233
 msgid "Bad character in S-expression"
-msgstr "Mal?usta signo en S-esprimo"
+msgstr "Malĝusta signo en S-esprimo"
 
 #: src/err-codes.h:234
 msgid "Bad quotation in S-expression"
-msgstr "Mal?usta citigo en S-esprimo"
+msgstr "Malĝusta citigo en S-esprimo"
 
 #: src/err-codes.h:235
 msgid "Zero prefix in S-expression"
@@ -990,7 +990,7 @@ msgstr "Neatendita rezervita interpunkcio en S-esprimo"
 
 #: src/err-codes.h:239
 msgid "Bad hexadecimal character in S-expression"
-msgstr "Mal?usta deksesuma signo en S-esprimo"
+msgstr "Malĝusta deksesuma signo en S-esprimo"
 
 #: src/err-codes.h:240
 msgid "Odd hexadecimal numbers in S-expression"
@@ -1000,7 +1000,7 @@ msgstr "Malparaj deksesumaj numeroj en S-esprimo"
 #, fuzzy
 #| msgid "Bad octadecimal character in S-expression"
 msgid "Bad octal character in S-expression"
-msgstr "Mal?usta okuma signo en S-esprimo"
+msgstr "Malĝusta okuma signo en S-esprimo"
 
 #: src/err-codes.h:242
 msgid "All subkeys are expired or revoked"
@@ -1010,7 +1010,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Data not encrypted"
 msgid "Database is corrupted"
-msgstr "Datumaro ne ?ifrita"
+msgstr "Datumaro ne ĉifrita"
 
 #: src/err-codes.h:244
 msgid "Server indicated a failure"
@@ -1026,7 +1026,7 @@ msgstr "Nekonata nomo"
 #, fuzzy
 #| msgid "No public key"
 msgid "No key"
-msgstr "Neniu publika ?losilo"
+msgstr "Neniu publika ŝlosilo"
 
 #: src/err-codes.h:247
 msgid "Legacy key"
@@ -1052,7 +1052,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Bad certificate chain"
 msgid "No certificate chain"
-msgstr "Mal?usta atestila ?eno"
+msgstr "Malĝusta atestila ĉeno"
 
 #: src/err-codes.h:252
 #, fuzzy
@@ -1092,7 +1092,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Invalid cipher algorithm"
 msgid "No cipher algorithm"
-msgstr "Malvalida ?ifra algoritmo"
+msgstr "Malvalida ĉifra algoritmo"
 
 #: src/err-codes.h:260
 #, fuzzy
@@ -1110,13 +1110,13 @@ msgstr "Atestilo estas senvalidita"
 #, fuzzy
 #| msgid "Key expired"
 msgid "Ticket expired"
-msgstr "?losilo malvalidi?is"
+msgstr "Ŝlosilo malvalidiĝis"
 
 #: src/err-codes.h:263
 #, fuzzy
 #| msgid "Bad public key"
 msgid "Bad ticket"
-msgstr "Mal?usta publika ?losilo"
+msgstr "Malĝusta publika ŝlosilo"
 
 #: src/err-codes.h:264
 #, fuzzy
@@ -1128,7 +1128,7 @@ msgstr "Nekonata paketo"
 #, fuzzy
 #| msgid "Bad certificate chain"
 msgid "Bad certificate message in handshake"
-msgstr "Mal?usta atestila ?eno"
+msgstr "Malĝusta atestila ĉeno"
 
 #: src/err-codes.h:266
 msgid "Bad certificate request message in handshake"
@@ -1178,7 +1178,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Key expired"
 msgid "Key disabled"
-msgstr "?losilo malvalidi?is"
+msgstr "Ŝlosilo malvalidiĝis"
 
 #: src/err-codes.h:278
 msgid "Not possible with a card based key"
@@ -1200,7 +1200,7 @@ msgstr ""
 
 #: src/err-codes.h:282
 msgid "General IPC error"
-msgstr "?enerala eraro de IPC"
+msgstr "Ĝenerala eraro de IPC"
 
 #: src/err-codes.h:283
 msgid "IPC accept call failed"
@@ -1298,7 +1298,7 @@ msgstr "Nekonata enketo de IPC"
 #, fuzzy
 #| msgid "Invalid crypto engine"
 msgid "Crypto engine too old"
-msgstr "Malvalida ?ifra ma?ino"
+msgstr "Malvalida ĉifra maŝino"
 
 #: src/err-codes.h:307
 msgid "Screen or window too small"
@@ -1368,7 +1368,7 @@ msgstr "Nekonata nomo"
 #, fuzzy
 #| msgid "Not locked"
 msgid "Not authenticated"
-msgstr "Ne ?losita"
+msgstr "Ne ŝlosita"
 
 #: src/err-codes.h:321
 #, fuzzy
@@ -1390,7 +1390,7 @@ msgstr "Nekonata sistem-eraro"
 #, fuzzy
 #| msgid "Invalid OID string"
 msgid "Invalid DNS section"
-msgstr "Malvalida ?eno OID"
+msgstr "Malvalida ĉeno OID"
 
 #: src/err-codes.h:325
 #, fuzzy
@@ -1416,7 +1416,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Decryption failed"
 msgid "Verification failed in DNS"
-msgstr "Mal?ifro fiaskis"
+msgstr "Malĉifro fiaskis"
 
 #: src/err-codes.h:330
 #, fuzzy
@@ -1428,37 +1428,37 @@ msgstr "Tempofino"
 #, fuzzy
 #| msgid "General IPC error"
 msgid "General LDAP error"
-msgstr "?enerala eraro de IPC"
+msgstr "Ĝenerala eraro de IPC"
 
 #: src/err-codes.h:332
 #, fuzzy
 #| msgid "General error"
 msgid "General LDAP attribute error"
-msgstr "?enerala eraro"
+msgstr "Ĝenerala eraro"
 
 #: src/err-codes.h:333
 #, fuzzy
 #| msgid "General error"
 msgid "General LDAP name error"
-msgstr "?enerala eraro"
+msgstr "Ĝenerala eraro"
 
 #: src/err-codes.h:334
 #, fuzzy
 #| msgid "General Assuan error"
 msgid "General LDAP security error"
-msgstr "?enerala eraro de Assuan"
+msgstr "Ĝenerala eraro de Assuan"
 
 #: src/err-codes.h:335
 #, fuzzy
 #| msgid "General error"
 msgid "General LDAP service error"
-msgstr "?enerala eraro"
+msgstr "Ĝenerala eraro"
 
 #: src/err-codes.h:336
 #, fuzzy
 #| msgid "General Assuan error"
 msgid "General LDAP update error"
-msgstr "?enerala eraro de Assuan"
+msgstr "Ĝenerala eraro de Assuan"
 
 #: src/err-codes.h:337
 msgid "Experimental LDAP error code"
@@ -1474,7 +1474,7 @@ msgstr "Skrib-eraro de IPC"
 #, fuzzy
 #| msgid "General IPC error"
 msgid "Other general LDAP error"
-msgstr "?enerala eraro de IPC"
+msgstr "Ĝenerala eraro de IPC"
 
 #: src/err-codes.h:340
 #, fuzzy
@@ -1486,7 +1486,7 @@ msgstr "Konekta voko de IPC fiaskis"
 #, fuzzy
 #| msgid "General error"
 msgid "LDAP referral limit exceeded"
-msgstr "?enerala eraro"
+msgstr "Ĝenerala eraro"
 
 #: src/err-codes.h:342
 msgid "LDAP client loop"
@@ -1534,7 +1534,7 @@ msgstr "Nesubtenata operacio"
 #, fuzzy
 #| msgid "Bad certificate"
 msgid "Bad LDAP search filter"
-msgstr "Mal?usta atestilo"
+msgstr "Malĝusta atestilo"
 
 #: src/err-codes.h:351
 #, fuzzy
@@ -1624,7 +1624,7 @@ msgstr ""
 #, fuzzy
 #| msgid "General error"
 msgid "LDAP referral"
-msgstr "?enerala eraro"
+msgstr "Ĝenerala eraro"
 
 #: src/err-codes.h:368
 msgid "Administrative LDAP limit exceeded"
@@ -1756,7 +1756,7 @@ msgstr "Perforto de protokolo"
 #, fuzzy
 #| msgid "Operation not yet finished"
 msgid "LDAP operation not allowed on non-leaf"
-msgstr "La operacio ankora? ne fini?is"
+msgstr "La operacio ankoraŭ ne finiĝis"
 
 #: src/err-codes.h:394
 #, fuzzy
@@ -1792,7 +1792,7 @@ msgstr ""
 #, fuzzy
 #| msgid "General IPC error"
 msgid "Other LDAP error"
-msgstr "?enerala eraro de IPC"
+msgstr "Ĝenerala eraro de IPC"
 
 #: src/err-codes.h:401
 #, fuzzy
@@ -1852,7 +1852,7 @@ msgstr "Ne estas servilo IPC"
 #, fuzzy
 #| msgid "Decryption failed"
 msgid "LDAP assertion failed"
-msgstr "Mal?ifro fiaskis"
+msgstr "Malĉifro fiaskis"
 
 #: src/err-codes.h:411
 msgid "Proxied authorization denied by LDAP"
@@ -1941,12 +1941,12 @@ msgstr "Nekonata erar-kodo"
 #: src/argparse.c:318
 #, fuzzy
 msgid "argument not expected"
-msgstr "skribas sekretan ?losilon al '%s'\n"
+msgstr "skribas sekretan ŝlosilon al '%s'\n"
 
 #: src/argparse.c:320
 #, fuzzy
 msgid "read error"
-msgstr "legeraro ?e dosiero"
+msgstr "legeraro ĉe dosiero"
 
 #: src/argparse.c:322
 #, fuzzy
@@ -2049,7 +2049,7 @@ msgstr "averto: ne eblis rekoni %s\n"
 #, fuzzy
 #~| msgid "General error"
 #~ msgid "LDAP Other general error"
-#~ msgstr "?enerala eraro"
+#~ msgstr "Ĝenerala eraro"
 
 #, fuzzy
 #~| msgid "dirmngr error"

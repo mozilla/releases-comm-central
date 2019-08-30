@@ -2,14 +2,14 @@
 # Copyright (C) 2015 Free Software Foundation, Inc.
 # This file is distributed under the same license as the libgpg-error package.
 #
-# Bal·zs ⁄r <urbalazs@gmail.com>, 2015.
+# Bal√°zs √ör <urbalazs@gmail.com>, 2015.
 msgid ""
 msgstr ""
 "Project-Id-Version: libgpg-error-1.7\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
 "POT-Creation-Date: 2019-03-19 09:58+0100\n"
 "PO-Revision-Date: 2018-03-21 19:01+0100\n"
-"Last-Translator: Bal·zs ⁄r <urbalazs@gmail.com>\n"
+"Last-Translator: Bal√°zs √ör <urbalazs@gmail.com>\n"
 "Language-Team: Hungarian <translation-team-hu@lists.sourceforge.net>\n"
 "Language: hu\n"
 "MIME-Version: 1.0\n"
@@ -20,7 +20,7 @@ msgstr ""
 
 #: src/err-sources.h:28
 msgid "Unspecified source"
-msgstr "Meghat·rozatlan forr·s"
+msgstr "Meghat√°rozatlan forr√°s"
 
 #: src/err-sources.h:29
 msgid "gcrypt"
@@ -36,7 +36,7 @@ msgstr "GpgSM"
 
 #: src/err-sources.h:32
 msgid "GPG Agent"
-msgstr "GPG ¸gynˆk"
+msgstr "GPG √ºgyn√∂k"
 
 #: src/err-sources.h:33
 msgid "Pinentry"
@@ -88,27 +88,27 @@ msgstr ""
 
 #: src/err-sources.h:45
 msgid "Any source"
-msgstr "B·rmilyen forr·s"
+msgstr "B√°rmilyen forr√°s"
 
 #: src/err-sources.h:46
 msgid "User defined source 1"
-msgstr "1. felhaszn·lÛ ·ltal megadott forr·s"
+msgstr "1. felhaszn√°l√≥ √°ltal megadott forr√°s"
 
 #: src/err-sources.h:47
 msgid "User defined source 2"
-msgstr "2. felhaszn·lÛ ·ltal megadott forr·s"
+msgstr "2. felhaszn√°l√≥ √°ltal megadott forr√°s"
 
 #: src/err-sources.h:48
 msgid "User defined source 3"
-msgstr "3. felhaszn·lÛ ·ltal megadott forr·s"
+msgstr "3. felhaszn√°l√≥ √°ltal megadott forr√°s"
 
 #: src/err-sources.h:49
 msgid "User defined source 4"
-msgstr "4. felhaszn·lÛ ·ltal megadott forr·s"
+msgstr "4. felhaszn√°l√≥ √°ltal megadott forr√°s"
 
 #: src/err-sources.h:50
 msgid "Unknown source"
-msgstr "Ismeretlen forr·s"
+msgstr "Ismeretlen forr√°s"
 
 #: src/err-codes.h:28
 msgid "Success"
@@ -116,7 +116,7 @@ msgstr "Sikeres"
 
 #: src/err-codes.h:29
 msgid "General error"
-msgstr "¡ltal·nos hiba"
+msgstr "√Åltal√°nos hiba"
 
 #: src/err-codes.h:30
 msgid "Unknown packet"
@@ -124,19 +124,19 @@ msgstr "Ismeretlen csomag"
 
 #: src/err-codes.h:31
 msgid "Unknown version in packet"
-msgstr "Ismeretlen verziÛ a csomagban"
+msgstr "Ismeretlen verzi√≥ a csomagban"
 
 #: src/err-codes.h:32
 msgid "Invalid public key algorithm"
-msgstr "…rvÈnytelen nyilv·nos kulcs algoritmus"
+msgstr "√ârv√©nytelen nyilv√°nos kulcs algoritmus"
 
 #: src/err-codes.h:33
 msgid "Invalid digest algorithm"
-msgstr "…rvÈnytelen kivonat algoritmus"
+msgstr "√ârv√©nytelen kivonat algoritmus"
 
 #: src/err-codes.h:34
 msgid "Bad public key"
-msgstr "Rossz nyilv·nos kulcs"
+msgstr "Rossz nyilv√°nos kulcs"
 
 #: src/err-codes.h:35
 msgid "Bad secret key"
@@ -144,15 +144,15 @@ msgstr "Rossz titkos kulcs"
 
 #: src/err-codes.h:36
 msgid "Bad signature"
-msgstr "Rossz al·Ìr·s"
+msgstr "Rossz al√°√≠r√°s"
 
 #: src/err-codes.h:37
 msgid "No public key"
-msgstr "Nincs nyilv·nos kulcs"
+msgstr "Nincs nyilv√°nos kulcs"
 
 #: src/err-codes.h:38
 msgid "Checksum error"
-msgstr "Ellen?rz?ˆsszeg hiba"
+msgstr "Ellen≈ërz≈ë√∂sszeg hiba"
 
 #: src/err-codes.h:39
 msgid "Bad passphrase"
@@ -160,23 +160,23 @@ msgstr "Rossz jelmondat"
 
 #: src/err-codes.h:40
 msgid "Invalid cipher algorithm"
-msgstr "…rvÈnytelen titkosÌtÛ algoritmus"
+msgstr "√ârv√©nytelen titkos√≠t√≥ algoritmus"
 
 #: src/err-codes.h:41
 msgid "Cannot open keyring"
-msgstr "KulcstartÛ nyitva"
+msgstr "Kulcstart√≥ nyitva"
 
 #: src/err-codes.h:42
 msgid "Invalid packet"
-msgstr "…rvÈnytelen csomag"
+msgstr "√ârv√©nytelen csomag"
 
 #: src/err-codes.h:43
 msgid "Invalid armor"
-msgstr "…rvÈnytelen p·ncÈl"
+msgstr "√ârv√©nytelen p√°nc√©l"
 
 #: src/err-codes.h:44
 msgid "No user ID"
-msgstr "Nincs felhaszn·lÛazonosÌtÛ"
+msgstr "Nincs felhaszn√°l√≥azonos√≠t√≥"
 
 #: src/err-codes.h:45
 msgid "No secret key"
@@ -184,7 +184,7 @@ msgstr "Nincs titkos kulcs"
 
 #: src/err-codes.h:46
 msgid "Wrong secret key used"
-msgstr "Hib·s titkos kulcs lett haszn·lva"
+msgstr "Hib√°s titkos kulcs lett haszn√°lva"
 
 #: src/err-codes.h:47
 msgid "Bad session key"
@@ -192,39 +192,39 @@ msgstr "Rossz munkamenet kulcs"
 
 #: src/err-codes.h:48
 msgid "Unknown compression algorithm"
-msgstr "Ismeretlen tˆmˆrÌt? algoritmus"
+msgstr "Ismeretlen t√∂m√∂r√≠t≈ë algoritmus"
 
 #: src/err-codes.h:49
 msgid "Number is not prime"
-msgstr "A sz·m nem prÌm"
+msgstr "A sz√°m nem pr√≠m"
 
 #: src/err-codes.h:50
 msgid "Invalid encoding method"
-msgstr "…rvÈnytelen kÛdol·si mÛdszer"
+msgstr "√ârv√©nytelen k√≥dol√°si m√≥dszer"
 
 #: src/err-codes.h:51
 msgid "Invalid encryption scheme"
-msgstr "…rvÈnytelen titkosÌt·s sÈma"
+msgstr "√ârv√©nytelen titkos√≠t√°s s√©ma"
 
 #: src/err-codes.h:52
 msgid "Invalid signature scheme"
-msgstr "…rvÈnytelen al·Ìr·s sÈma"
+msgstr "√ârv√©nytelen al√°√≠r√°s s√©ma"
 
 #: src/err-codes.h:53
 msgid "Invalid attribute"
-msgstr "…rvÈnytelen attrib˙tum"
+msgstr "√ârv√©nytelen attrib√∫tum"
 
 #: src/err-codes.h:54
 msgid "No value"
-msgstr "Nincs ÈrtÈk"
+msgstr "Nincs √©rt√©k"
 
 #: src/err-codes.h:55
 msgid "Not found"
-msgstr "Nem tal·lhatÛ"
+msgstr "Nem tal√°lhat√≥"
 
 #: src/err-codes.h:56
 msgid "Value not found"
-msgstr "Nem tal·lhatÛ ÈrtÈk"
+msgstr "Nem tal√°lhat√≥ √©rt√©k"
 
 #: src/err-codes.h:57
 msgid "Syntax error"
@@ -232,67 +232,67 @@ msgstr "Szintaktikai hiba"
 
 #: src/err-codes.h:58
 msgid "Bad MPI value"
-msgstr "Rossz MPI ÈrtÈk"
+msgstr "Rossz MPI √©rt√©k"
 
 #: src/err-codes.h:59
 msgid "Invalid passphrase"
-msgstr "…rvÈnytelen jelmondat"
+msgstr "√ârv√©nytelen jelmondat"
 
 #: src/err-codes.h:60
 msgid "Invalid signature class"
-msgstr "…rvÈnytelen al·Ìr·s oszt·ly"
+msgstr "√ârv√©nytelen al√°√≠r√°s oszt√°ly"
 
 #: src/err-codes.h:61
 msgid "Resources exhausted"
-msgstr "Az er?forr·sok kimer¸ltek"
+msgstr "Az er≈ëforr√°sok kimer√ºltek"
 
 #: src/err-codes.h:62
 msgid "Invalid keyring"
-msgstr "…rvÈnytelen kulcstartÛ"
+msgstr "√ârv√©nytelen kulcstart√≥"
 
 #: src/err-codes.h:63
 msgid "Trust DB error"
-msgstr "MegbÌzhatÛs·gi adatb·zis hiba"
+msgstr "Megb√≠zhat√≥s√°gi adatb√°zis hiba"
 
 #: src/err-codes.h:64
 msgid "Bad certificate"
-msgstr "Rossz tan˙sÌtv·ny"
+msgstr "Rossz tan√∫s√≠tv√°ny"
 
 #: src/err-codes.h:65
 msgid "Invalid user ID"
-msgstr "…rvÈnytelen felhaszn·lÛazonosÌtÛ"
+msgstr "√ârv√©nytelen felhaszn√°l√≥azonos√≠t√≥"
 
 #: src/err-codes.h:66
 msgid "Unexpected error"
-msgstr "V·ratlan hiba"
+msgstr "V√°ratlan hiba"
 
 #: src/err-codes.h:67
 msgid "Time conflict"
-msgstr "Id?¸tkˆzÈs"
+msgstr "Id≈ë√ºtk√∂z√©s"
 
 #: src/err-codes.h:68
 msgid "Keyserver error"
-msgstr "Kulcskiszolg·lÛ hiba"
+msgstr "Kulcskiszolg√°l√≥ hiba"
 
 #: src/err-codes.h:69
 msgid "Wrong public key algorithm"
-msgstr "Hib·s nyilv·nos kulcs algoritmus"
+msgstr "Hib√°s nyilv√°nos kulcs algoritmus"
 
 #: src/err-codes.h:70
 msgid "Tribute to D. A."
-msgstr "Sarc a D. A. rÈszÈre"
+msgstr "Sarc a D. A. r√©sz√©re"
 
 #: src/err-codes.h:71
 msgid "Weak encryption key"
-msgstr "Gyenge titkosÌt·si kulcs"
+msgstr "Gyenge titkos√≠t√°si kulcs"
 
 #: src/err-codes.h:72
 msgid "Invalid key length"
-msgstr "…rvÈnytelen kulcshossz"
+msgstr "√ârv√©nytelen kulcshossz"
 
 #: src/err-codes.h:73
 msgid "Invalid argument"
-msgstr "…rvÈnytelen argumentum"
+msgstr "√ârv√©nytelen argumentum"
 
 #: src/err-codes.h:74
 msgid "Syntax error in URI"
@@ -300,23 +300,23 @@ msgstr "Szintaktikai hiba az URI-ban"
 
 #: src/err-codes.h:75
 msgid "Invalid URI"
-msgstr "…rvÈnytelen URI"
+msgstr "√ârv√©nytelen URI"
 
 #: src/err-codes.h:76
 msgid "Network error"
-msgstr "H·lÛzati hiba"
+msgstr "H√°l√≥zati hiba"
 
 #: src/err-codes.h:77
 msgid "Unknown host"
-msgstr "Ismeretlen gÈp"
+msgstr "Ismeretlen g√©p"
 
 #: src/err-codes.h:78
 msgid "Selftest failed"
-msgstr "÷nellen?rzÈs sikertelen"
+msgstr "√ñnellen≈ërz√©s sikertelen"
 
 #: src/err-codes.h:79
 msgid "Data not encrypted"
-msgstr "Az adatok nincsenek titkosÌtva"
+msgstr "Az adatok nincsenek titkos√≠tva"
 
 #: src/err-codes.h:80
 msgid "Data not processed"
@@ -324,23 +324,23 @@ msgstr "Az adatok nincsenek feldolgozva"
 
 #: src/err-codes.h:81
 msgid "Unusable public key"
-msgstr "Haszn·lhatatlan nyilv·nos kulcs"
+msgstr "Haszn√°lhatatlan nyilv√°nos kulcs"
 
 #: src/err-codes.h:82
 msgid "Unusable secret key"
-msgstr "Haszn·lhatatlan titkos kulcs"
+msgstr "Haszn√°lhatatlan titkos kulcs"
 
 #: src/err-codes.h:83
 msgid "Invalid value"
-msgstr "…rvÈnytelen ÈrtÈk"
+msgstr "√ârv√©nytelen √©rt√©k"
 
 #: src/err-codes.h:84
 msgid "Bad certificate chain"
-msgstr "Rossz tan˙sÌtv·nyl·nc"
+msgstr "Rossz tan√∫s√≠tv√°nyl√°nc"
 
 #: src/err-codes.h:85
 msgid "Missing certificate"
-msgstr "Hi·nyzÛ tan˙sÌtv·ny"
+msgstr "Hi√°nyz√≥ tan√∫s√≠tv√°ny"
 
 #: src/err-codes.h:86
 msgid "No data"
@@ -352,19 +352,19 @@ msgstr "Hiba"
 
 #: src/err-codes.h:88
 msgid "Not supported"
-msgstr "Nem t·mogatott"
+msgstr "Nem t√°mogatott"
 
 #: src/err-codes.h:89
 msgid "Invalid operation code"
-msgstr "…rvÈnytelen m?veletkÛd"
+msgstr "√ârv√©nytelen m≈±veletk√≥d"
 
 #: src/err-codes.h:90
 msgid "Timeout"
-msgstr "Id?t˙llÈpÈs"
+msgstr "Id≈ët√∫ll√©p√©s"
 
 #: src/err-codes.h:91
 msgid "Internal error"
-msgstr "Bels? hiba"
+msgstr "Bels≈ë hiba"
 
 #: src/err-codes.h:92
 msgid "EOF (gcrypt)"
@@ -372,43 +372,43 @@ msgstr "EOF (gcrypt)"
 
 #: src/err-codes.h:93
 msgid "Invalid object"
-msgstr "…rvÈnytelen objektum"
+msgstr "√ârv√©nytelen objektum"
 
 #: src/err-codes.h:94
 msgid "Provided object is too short"
-msgstr "A megadott objektum t˙l kicsi"
+msgstr "A megadott objektum t√∫l kicsi"
 
 #: src/err-codes.h:95
 msgid "Provided object is too large"
-msgstr "A megadott objektum t˙l nagy"
+msgstr "A megadott objektum t√∫l nagy"
 
 #: src/err-codes.h:96
 msgid "Missing item in object"
-msgstr "Hi·nyzÛ elem az objektumban"
+msgstr "Hi√°nyz√≥ elem az objektumban"
 
 #: src/err-codes.h:97
 msgid "Not implemented"
-msgstr "Nincs megvalÛsÌtva"
+msgstr "Nincs megval√≥s√≠tva"
 
 #: src/err-codes.h:98
 msgid "Conflicting use"
-msgstr "‹tkˆz? haszn·lat"
+msgstr "√útk√∂z≈ë haszn√°lat"
 
 #: src/err-codes.h:99
 msgid "Invalid cipher mode"
-msgstr "…rvÈnytelen titkosÌtÛ mÛd"
+msgstr "√ârv√©nytelen titkos√≠t√≥ m√≥d"
 
 #: src/err-codes.h:100
 msgid "Invalid flag"
-msgstr "…rvÈnytelen jelz?"
+msgstr "√ârv√©nytelen jelz≈ë"
 
 #: src/err-codes.h:101
 msgid "Invalid handle"
-msgstr "…rvÈnytelen leÌrÛ"
+msgstr "√ârv√©nytelen le√≠r√≥"
 
 #: src/err-codes.h:102
 msgid "Result truncated"
-msgstr "Az eredmÈny csonkÌtott"
+msgstr "Az eredm√©ny csonk√≠tott"
 
 #: src/err-codes.h:103
 msgid "Incomplete line"
@@ -416,41 +416,41 @@ msgstr "Befejezetlen sor"
 
 #: src/err-codes.h:104
 msgid "Invalid response"
-msgstr "…rvÈnytelen v·lasz"
+msgstr "√ârv√©nytelen v√°lasz"
 
 #: src/err-codes.h:105
 msgid "No agent running"
-msgstr "Nincs futÛ ¸gynˆk"
+msgstr "Nincs fut√≥ √ºgyn√∂k"
 
 #: src/err-codes.h:106
 #, fuzzy
 #| msgid "agent error"
 msgid "Agent error"
-msgstr "¸gynˆkhiba"
+msgstr "√ºgyn√∂khiba"
 
 #: src/err-codes.h:107
 msgid "Invalid data"
-msgstr "…rvÈnytelen adatok"
+msgstr "√ârv√©nytelen adatok"
 
 #: src/err-codes.h:108
 msgid "Unspecific Assuan server fault"
-msgstr "Nem specifikus Assuan kiszolg·lÛ hiba"
+msgstr "Nem specifikus Assuan kiszolg√°l√≥ hiba"
 
 #: src/err-codes.h:109
 msgid "General Assuan error"
-msgstr "¡ltal·nos Assuan hiba"
+msgstr "√Åltal√°nos Assuan hiba"
 
 #: src/err-codes.h:110
 msgid "Invalid session key"
-msgstr "…rvÈnytelen munkamenet kulcs"
+msgstr "√ârv√©nytelen munkamenet kulcs"
 
 #: src/err-codes.h:111
 msgid "Invalid S-expression"
-msgstr "…rvÈnytelen S-kifejezÈs"
+msgstr "√ârv√©nytelen S-kifejez√©s"
 
 #: src/err-codes.h:112
 msgid "Unsupported algorithm"
-msgstr "Nem t·mogatott algoritmus "
+msgstr "Nem t√°mogatott algoritmus "
 
 #: src/err-codes.h:113
 msgid "No pinentry"
@@ -462,11 +462,11 @@ msgstr "pinentry hiba"
 
 #: src/err-codes.h:115
 msgid "Bad PIN"
-msgstr "Rossz PIN-kÛd"
+msgstr "Rossz PIN-k√≥d"
 
 #: src/err-codes.h:116
 msgid "Invalid name"
-msgstr "…rvÈnytelen nÈv"
+msgstr "√ârv√©nytelen n√©v"
 
 #: src/err-codes.h:117
 msgid "Bad data"
@@ -474,11 +474,11 @@ msgstr "Rossz adatok"
 
 #: src/err-codes.h:118
 msgid "Invalid parameter"
-msgstr "…rvÈnytelen paramÈter"
+msgstr "√ârv√©nytelen param√©ter"
 
 #: src/err-codes.h:119
 msgid "Wrong card"
-msgstr "Hib·s k·rtya"
+msgstr "Hib√°s k√°rtya"
 
 #: src/err-codes.h:120
 msgid "No dirmngr"
@@ -490,7 +490,7 @@ msgstr "dirmngr hiba"
 
 #: src/err-codes.h:122
 msgid "Certificate revoked"
-msgstr "Tan˙sÌtv·ny visszavonva"
+msgstr "Tan√∫s√≠tv√°ny visszavonva"
 
 #: src/err-codes.h:123
 msgid "No CRL known"
@@ -498,155 +498,155 @@ msgstr "Nincs ismert CRL"
 
 #: src/err-codes.h:124
 msgid "CRL too old"
-msgstr "T˙l rÈgi CRL"
+msgstr "T√∫l r√©gi CRL"
 
 #: src/err-codes.h:125
 msgid "Line too long"
-msgstr "T˙l hossz˙ sor"
+msgstr "T√∫l hossz√∫ sor"
 
 #: src/err-codes.h:126
 msgid "Not trusted"
-msgstr "Nem megbÌzhatÛ"
+msgstr "Nem megb√≠zhat√≥"
 
 #: src/err-codes.h:127
 msgid "Operation cancelled"
-msgstr "A m?velet megszakÌtva"
+msgstr "A m≈±velet megszak√≠tva"
 
 #: src/err-codes.h:128
 msgid "Bad CA certificate"
-msgstr "Rossz CA tan˙sÌtv·ny"
+msgstr "Rossz CA tan√∫s√≠tv√°ny"
 
 #: src/err-codes.h:129
 msgid "Certificate expired"
-msgstr "A tan˙sÌtv·ny lej·rt"
+msgstr "A tan√∫s√≠tv√°ny lej√°rt"
 
 #: src/err-codes.h:130
 msgid "Certificate too young"
-msgstr "T˙l fiatal tan˙sÌtv·ny"
+msgstr "T√∫l fiatal tan√∫s√≠tv√°ny"
 
 #: src/err-codes.h:131
 msgid "Unsupported certificate"
-msgstr "Nem t·mogatott tan˙sÌtv·ny"
+msgstr "Nem t√°mogatott tan√∫s√≠tv√°ny"
 
 #: src/err-codes.h:132
 msgid "Unknown S-expression"
-msgstr "Ismeretlen S-kifejezÈs"
+msgstr "Ismeretlen S-kifejez√©s"
 
 #: src/err-codes.h:133
 msgid "Unsupported protection"
-msgstr "Nem t·mogatott vÈdelem"
+msgstr "Nem t√°mogatott v√©delem"
 
 #: src/err-codes.h:134
 msgid "Corrupted protection"
-msgstr "SÈr¸lt vÈdelem"
+msgstr "S√©r√ºlt v√©delem"
 
 #: src/err-codes.h:135
 msgid "Ambiguous name"
-msgstr "Nem egyÈrtelm? nÈv"
+msgstr "Nem egy√©rtelm≈± n√©v"
 
 #: src/err-codes.h:136
 msgid "Card error"
-msgstr "K·rtyahiba"
+msgstr "K√°rtyahiba"
 
 #: src/err-codes.h:137
 msgid "Card reset required"
-msgstr "K·rtya vissza·llÌt·s sz¸ksÈges"
+msgstr "K√°rtya vissza√°ll√≠t√°s sz√ºks√©ges"
 
 #: src/err-codes.h:138
 msgid "Card removed"
-msgstr "K·rtya elt·volÌtva"
+msgstr "K√°rtya elt√°vol√≠tva"
 
 #: src/err-codes.h:139
 msgid "Invalid card"
-msgstr "…rvÈnytelen k·rtya"
+msgstr "√ârv√©nytelen k√°rtya"
 
 #: src/err-codes.h:140
 msgid "Card not present"
-msgstr "A k·rtya nincs jelen"
+msgstr "A k√°rtya nincs jelen"
 
 #: src/err-codes.h:141
 msgid "No PKCS15 application"
-msgstr "Nincs PKCS15 alkalmaz·s"
+msgstr "Nincs PKCS15 alkalmaz√°s"
 
 #: src/err-codes.h:142
 msgid "Not confirmed"
-msgstr "Nem meger?sÌtett"
+msgstr "Nem meger≈ës√≠tett"
 
 #: src/err-codes.h:143
 msgid "Configuration error"
-msgstr "Be·llÌt·si hiba"
+msgstr "Be√°ll√≠t√°si hiba"
 
 #: src/err-codes.h:144
 msgid "No policy match"
-msgstr "Nincs egyez? h·zirend"
+msgstr "Nincs egyez≈ë h√°zirend"
 
 #: src/err-codes.h:145
 msgid "Invalid index"
-msgstr "…rvÈnytelen index"
+msgstr "√ârv√©nytelen index"
 
 #: src/err-codes.h:146
 msgid "Invalid ID"
-msgstr "…rvÈnytelen azonosÌtÛ"
+msgstr "√ârv√©nytelen azonos√≠t√≥"
 
 #: src/err-codes.h:147
 msgid "No SmartCard daemon"
-msgstr "Nincs SmartCard dÈmon"
+msgstr "Nincs SmartCard d√©mon"
 
 #: src/err-codes.h:148
 msgid "SmartCard daemon error"
-msgstr "SmartCard dÈmon hiba"
+msgstr "SmartCard d√©mon hiba"
 
 #: src/err-codes.h:149
 msgid "Unsupported protocol"
-msgstr "Nem t·mogatott protokoll"
+msgstr "Nem t√°mogatott protokoll"
 
 #: src/err-codes.h:150
 msgid "Bad PIN method"
-msgstr "Rossz PIN-kÛd mÛdszer"
+msgstr "Rossz PIN-k√≥d m√≥dszer"
 
 #: src/err-codes.h:151
 msgid "Card not initialized"
-msgstr "A k·rtya nincs el?kÈszÌtve"
+msgstr "A k√°rtya nincs el≈ëk√©sz√≠tve"
 
 #: src/err-codes.h:152
 msgid "Unsupported operation"
-msgstr "Nem t·mogatott m?velet"
+msgstr "Nem t√°mogatott m≈±velet"
 
 #: src/err-codes.h:153
 msgid "Wrong key usage"
-msgstr "Hib·s kulcshaszn·lat"
+msgstr "Hib√°s kulcshaszn√°lat"
 
 #: src/err-codes.h:154
 msgid "Nothing found"
-msgstr "Semmi sem tal·lhatÛ"
+msgstr "Semmi sem tal√°lhat√≥"
 
 #: src/err-codes.h:155
 msgid "Wrong blob type"
-msgstr "Hib·s blob tÌpus"
+msgstr "Hib√°s blob t√≠pus"
 
 #: src/err-codes.h:156
 msgid "Missing value"
-msgstr "Hi·nyzÛ ÈrtÈk"
+msgstr "Hi√°nyz√≥ √©rt√©k"
 
 #: src/err-codes.h:157
 msgid "Hardware problem"
-msgstr "HardverproblÈma"
+msgstr "Hardverprobl√©ma"
 
 #: src/err-codes.h:158
 msgid "PIN blocked"
-msgstr "PIN-kÛd blokkolva"
+msgstr "PIN-k√≥d blokkolva"
 
 #: src/err-codes.h:159
 msgid "Conditions of use not satisfied"
-msgstr "A haszn·lati feltÈtelek nem teljes¸lnek"
+msgstr "A haszn√°lati felt√©telek nem teljes√ºlnek"
 
 #: src/err-codes.h:160
 msgid "PINs are not synced"
-msgstr "A PIN-kÛdok nincsenek szinkroniz·lva"
+msgstr "A PIN-k√≥dok nincsenek szinkroniz√°lva"
 
 #: src/err-codes.h:161
 msgid "Invalid CRL"
-msgstr "…rvÈnytelen CRL"
+msgstr "√ârv√©nytelen CRL"
 
 #: src/err-codes.h:162
 msgid "BER error"
@@ -654,35 +654,35 @@ msgstr "BER hiba"
 
 #: src/err-codes.h:163
 msgid "Invalid BER"
-msgstr "…rvÈnytelen BER"
+msgstr "√ârv√©nytelen BER"
 
 #: src/err-codes.h:164
 msgid "Element not found"
-msgstr "Az elem nem tal·lhatÛ"
+msgstr "Az elem nem tal√°lhat√≥"
 
 #: src/err-codes.h:165
 msgid "Identifier not found"
-msgstr "Az azonosÌtÛ nem tal·lhatÛ"
+msgstr "Az azonos√≠t√≥ nem tal√°lhat√≥"
 
 #: src/err-codes.h:166
 msgid "Invalid tag"
-msgstr "…rvÈnytelen cÌmke"
+msgstr "√ârv√©nytelen c√≠mke"
 
 #: src/err-codes.h:167
 msgid "Invalid length"
-msgstr "…rvÈnytelen hossz"
+msgstr "√ârv√©nytelen hossz"
 
 #: src/err-codes.h:168
 msgid "Invalid key info"
-msgstr "…rvÈnytelen kulcsinform·ciÛk"
+msgstr "√ârv√©nytelen kulcsinform√°ci√≥k"
 
 #: src/err-codes.h:169
 msgid "Unexpected tag"
-msgstr "V·ratlan cÌmke"
+msgstr "V√°ratlan c√≠mke"
 
 #: src/err-codes.h:170
 msgid "Not DER encoded"
-msgstr "Nem DER kÛdol·s˙"
+msgstr "Nem DER k√≥dol√°s√∫"
 
 #: src/err-codes.h:171
 msgid "No CMS object"
@@ -690,7 +690,7 @@ msgstr "Nincs CMS objektum"
 
 #: src/err-codes.h:172
 msgid "Invalid CMS object"
-msgstr "…rvÈnytelen CMS objektum"
+msgstr "√ârv√©nytelen CMS objektum"
 
 #: src/err-codes.h:173
 msgid "Unknown CMS object"
@@ -698,15 +698,15 @@ msgstr "Ismeretlen CMS objektum"
 
 #: src/err-codes.h:174
 msgid "Unsupported CMS object"
-msgstr "Nem t·mogatott CMS objektum"
+msgstr "Nem t√°mogatott CMS objektum"
 
 #: src/err-codes.h:175
 msgid "Unsupported encoding"
-msgstr "Nem t·mogatott kÛdol·s"
+msgstr "Nem t√°mogatott k√≥dol√°s"
 
 #: src/err-codes.h:176
 msgid "Unsupported CMS version"
-msgstr "Nem t·mogatott CMS verziÛ"
+msgstr "Nem t√°mogatott CMS verzi√≥"
 
 #: src/err-codes.h:177
 msgid "Unknown algorithm"
@@ -714,103 +714,103 @@ msgstr "Ismeretlen algoritmus"
 
 #: src/err-codes.h:178
 msgid "Invalid crypto engine"
-msgstr "…rvÈnytelen titkosÌt·si motor"
+msgstr "√ârv√©nytelen titkos√≠t√°si motor"
 
 #: src/err-codes.h:179
 msgid "Public key not trusted"
-msgstr "A nyilv·nos kulcs nem megbÌzhatÛ"
+msgstr "A nyilv√°nos kulcs nem megb√≠zhat√≥"
 
 #: src/err-codes.h:180
 msgid "Decryption failed"
-msgstr "VisszafejtÈs sikertelen"
+msgstr "Visszafejt√©s sikertelen"
 
 #: src/err-codes.h:181
 msgid "Key expired"
-msgstr "A kulcs lej·rt"
+msgstr "A kulcs lej√°rt"
 
 #: src/err-codes.h:182
 msgid "Signature expired"
-msgstr "Az al·Ìr·s lej·rt"
+msgstr "Az al√°√≠r√°s lej√°rt"
 
 #: src/err-codes.h:183
 msgid "Encoding problem"
-msgstr "KÛdol·si problÈma"
+msgstr "K√≥dol√°si probl√©ma"
 
 #: src/err-codes.h:184
 msgid "Invalid state"
-msgstr "…rvÈnytelen ·llapot"
+msgstr "√ârv√©nytelen √°llapot"
 
 #: src/err-codes.h:185
 msgid "Duplicated value"
-msgstr "Kett?zˆtt ÈrtÈk"
+msgstr "Kett≈ëz√∂tt √©rt√©k"
 
 #: src/err-codes.h:186
 msgid "Missing action"
-msgstr "Hi·nyzÛ m?velet"
+msgstr "Hi√°nyz√≥ m≈±velet"
 
 #: src/err-codes.h:187
 msgid "ASN.1 module not found"
-msgstr "Nem tal·lhatÛ ASN.1 modul"
+msgstr "Nem tal√°lhat√≥ ASN.1 modul"
 
 #: src/err-codes.h:188
 msgid "Invalid OID string"
-msgstr "…rvÈnytelen OID karakterl·nc"
+msgstr "√ârv√©nytelen OID karakterl√°nc"
 
 #: src/err-codes.h:189
 msgid "Invalid time"
-msgstr "…rvÈnytelen id?pont"
+msgstr "√ârv√©nytelen id≈ëpont"
 
 #: src/err-codes.h:190
 msgid "Invalid CRL object"
-msgstr "…rvÈnytelen CRL objektum"
+msgstr "√ârv√©nytelen CRL objektum"
 
 #: src/err-codes.h:191
 msgid "Unsupported CRL version"
-msgstr "Nem t·mogatott CRL verziÛ"
+msgstr "Nem t√°mogatott CRL verzi√≥"
 
 #: src/err-codes.h:192
 msgid "Invalid certificate object"
-msgstr "…rvÈnytelen tan˙sÌtv·nyobjektum"
+msgstr "√ârv√©nytelen tan√∫s√≠tv√°nyobjektum"
 
 #: src/err-codes.h:193
 msgid "Unknown name"
-msgstr "Ismeretlen nÈv"
+msgstr "Ismeretlen n√©v"
 
 #: src/err-codes.h:194
 msgid "A locale function failed"
-msgstr "Egy ter¸leti be·llÌt·s f¸ggvÈny meghi˙sult"
+msgstr "Egy ter√ºleti be√°ll√≠t√°s f√ºggv√©ny meghi√∫sult"
 
 #: src/err-codes.h:195
 msgid "Not locked"
-msgstr "Nincs z·rolva"
+msgstr "Nincs z√°rolva"
 
 #: src/err-codes.h:196
 msgid "Protocol violation"
-msgstr "ProtokollsÈrtÈs"
+msgstr "Protokolls√©rt√©s"
 
 #: src/err-codes.h:197
 msgid "Invalid MAC"
-msgstr "…rvÈnytelen MAC"
+msgstr "√ârv√©nytelen MAC"
 
 #: src/err-codes.h:198
 msgid "Invalid request"
-msgstr "…rvÈnytelen kÈrÈs"
+msgstr "√ârv√©nytelen k√©r√©s"
 
 #: src/err-codes.h:199
 msgid "Unknown extension"
-msgstr "Ismeretlen kiterjesztÈs"
+msgstr "Ismeretlen kiterjeszt√©s"
 
 #: src/err-codes.h:200
 msgid "Unknown critical extension"
-msgstr "Ismeretlen kritikus kiterjesztÈs"
+msgstr "Ismeretlen kritikus kiterjeszt√©s"
 
 #: src/err-codes.h:201
 msgid "Locked"
-msgstr "Z·rolva"
+msgstr "Z√°rolva"
 
 #: src/err-codes.h:202
 msgid "Unknown option"
-msgstr "Ismeretlen kapcsolÛ"
+msgstr "Ismeretlen kapcsol√≥"
 
 #: src/err-codes.h:203
 msgid "Unknown command"
@@ -818,7 +818,7 @@ msgstr "Ismeretlen parancs"
 
 #: src/err-codes.h:204
 msgid "Not operational"
-msgstr "Nem m?kˆdik"
+msgstr "Nem m≈±k√∂dik"
 
 #: src/err-codes.h:205
 msgid "No passphrase given"
@@ -826,25 +826,25 @@ msgstr "Nincs jelmondat megadva"
 
 #: src/err-codes.h:206
 msgid "No PIN given"
-msgstr "Nincs PIN-kÛd megadva"
+msgstr "Nincs PIN-k√≥d megadva"
 
 #: src/err-codes.h:207
 #, fuzzy
 #| msgid "Not locked"
 msgid "Not enabled"
-msgstr "Nincs z·rolva"
+msgstr "Nincs z√°rolva"
 
 #: src/err-codes.h:208
 #, fuzzy
 #| msgid "Invalid crypto engine"
 msgid "No crypto engine"
-msgstr "…rvÈnytelen titkosÌt·si motor"
+msgstr "√ârv√©nytelen titkos√≠t√°si motor"
 
 #: src/err-codes.h:209
 #, fuzzy
 #| msgid "Missing value"
 msgid "Missing key"
-msgstr "Hi·nyzÛ ÈrtÈk"
+msgstr "Hi√°nyz√≥ √©rt√©k"
 
 #: src/err-codes.h:210
 #, fuzzy
@@ -860,13 +860,13 @@ msgstr ""
 #, fuzzy
 #| msgid "Card not initialized"
 msgid "Not initialized"
-msgstr "A k·rtya nincs el?kÈszÌtve"
+msgstr "A k√°rtya nincs el≈ëk√©sz√≠tve"
 
 #: src/err-codes.h:213
 #, fuzzy
 #| msgid "Missing certificate"
 msgid "Missing issuer certificate"
-msgstr "Hi·nyzÛ tan˙sÌtv·ny"
+msgstr "Hi√°nyz√≥ tan√∫s√≠tv√°ny"
 
 #: src/err-codes.h:214
 msgid "No keyserver available"
@@ -876,25 +876,25 @@ msgstr ""
 #, fuzzy
 #| msgid "Invalid time"
 msgid "Invalid elliptic curve"
-msgstr "…rvÈnytelen id?pont"
+msgstr "√ârv√©nytelen id≈ëpont"
 
 #: src/err-codes.h:216
 #, fuzzy
 #| msgid "Unknown source"
 msgid "Unknown elliptic curve"
-msgstr "Ismeretlen forr·s"
+msgstr "Ismeretlen forr√°s"
 
 #: src/err-codes.h:217
 #, fuzzy
 #| msgid "Duplicated value"
 msgid "Duplicated key"
-msgstr "Kett?zˆtt ÈrtÈk"
+msgstr "Kett≈ëz√∂tt √©rt√©k"
 
 #: src/err-codes.h:218
 #, fuzzy
 #| msgid "Ambiguous name"
 msgid "Ambiguous result"
-msgstr "Nem egyÈrtelm? nÈv"
+msgstr "Nem egy√©rtelm≈± n√©v"
 
 #: src/err-codes.h:219
 msgid "No crypto context"
@@ -908,7 +908,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Invalid crypto engine"
 msgid "Bad crypto context"
-msgstr "…rvÈnytelen titkosÌt·si motor"
+msgstr "√ârv√©nytelen titkos√≠t√°si motor"
 
 #: src/err-codes.h:222
 msgid "Conflict in the crypto context"
@@ -918,7 +918,7 @@ msgstr ""
 #, fuzzy
 #| msgid "No public key"
 msgid "Broken public key"
-msgstr "Nincs nyilv·nos kulcs"
+msgstr "Nincs nyilv√°nos kulcs"
 
 #: src/err-codes.h:224
 #, fuzzy
@@ -930,75 +930,75 @@ msgstr "Nincs titkos kulcs"
 #, fuzzy
 #| msgid "Invalid digest algorithm"
 msgid "Invalid MAC algorithm"
-msgstr "…rvÈnytelen kivonat algoritmus"
+msgstr "√ârv√©nytelen kivonat algoritmus"
 
 #: src/err-codes.h:226
 #, fuzzy
 #| msgid "Operation cancelled"
 msgid "Operation fully cancelled"
-msgstr "A m?velet megszakÌtva"
+msgstr "A m≈±velet megszak√≠tva"
 
 #: src/err-codes.h:227
 msgid "Operation not yet finished"
-msgstr "A m?velet mÈg nem fejez?dˆtt be"
+msgstr "A m≈±velet m√©g nem fejez≈ëd√∂tt be"
 
 #: src/err-codes.h:228
 msgid "Buffer too short"
-msgstr "T˙l rˆvid puffer"
+msgstr "T√∫l r√∂vid puffer"
 
 #: src/err-codes.h:229
 msgid "Invalid length specifier in S-expression"
-msgstr "…rvÈnytelen hosszmegadÛ az S-kifejezÈsben"
+msgstr "√ârv√©nytelen hosszmegad√≥ az S-kifejez√©sben"
 
 #: src/err-codes.h:230
 msgid "String too long in S-expression"
-msgstr "T˙l hossz˙ karakterl·nc az S-kifejezÈsben"
+msgstr "T√∫l hossz√∫ karakterl√°nc az S-kifejez√©sben"
 
 #: src/err-codes.h:231
 msgid "Unmatched parentheses in S-expression"
-msgstr "Lez·ratlan z·rÛjelek az S-kifejezÈsben"
+msgstr "Lez√°ratlan z√°r√≥jelek az S-kifejez√©sben"
 
 #: src/err-codes.h:232
 msgid "S-expression not canonical"
-msgstr "Az S-kifejezÈs nem hitelesnek elismert"
+msgstr "Az S-kifejez√©s nem hitelesnek elismert"
 
 #: src/err-codes.h:233
 msgid "Bad character in S-expression"
-msgstr "Rossz karakter az S-kifejezÈsben"
+msgstr "Rossz karakter az S-kifejez√©sben"
 
 #: src/err-codes.h:234
 msgid "Bad quotation in S-expression"
-msgstr "Rossz idÈzÈs az S-kifejezÈsben"
+msgstr "Rossz id√©z√©s az S-kifejez√©sben"
 
 #: src/err-codes.h:235
 msgid "Zero prefix in S-expression"
-msgstr "Nulla el?tag az S-kifejezÈsben"
+msgstr "Nulla el≈ëtag az S-kifejez√©sben"
 
 #: src/err-codes.h:236
 msgid "Nested display hints in S-expression"
-msgstr "Be·gyazott megjelenÌtÈsi tippek az S-kifejezÈsben"
+msgstr "Be√°gyazott megjelen√≠t√©si tippek az S-kifejez√©sben"
 
 #: src/err-codes.h:237
 msgid "Unmatched display hints"
-msgstr "Nem egyez? megjelenÌtÈsi tippek"
+msgstr "Nem egyez≈ë megjelen√≠t√©si tippek"
 
 #: src/err-codes.h:238
 msgid "Unexpected reserved punctuation in S-expression"
-msgstr "V·ratlan fenntartott kˆzpontoz·s az S-kifejezÈsben"
+msgstr "V√°ratlan fenntartott k√∂zpontoz√°s az S-kifejez√©sben"
 
 #: src/err-codes.h:239
 msgid "Bad hexadecimal character in S-expression"
-msgstr "Rossz hexadecim·lis karakter az S-kifejezÈsben"
+msgstr "Rossz hexadecim√°lis karakter az S-kifejez√©sben"
 
 #: src/err-codes.h:240
 msgid "Odd hexadecimal numbers in S-expression"
-msgstr "P·ratlan hexadecim·lis sz·mok az S-kifejezÈsben"
+msgstr "P√°ratlan hexadecim√°lis sz√°mok az S-kifejez√©sben"
 
 #: src/err-codes.h:241
 #, fuzzy
 #| msgid "Bad octadecimal character in S-expression"
 msgid "Bad octal character in S-expression"
-msgstr "Rossz oktadecim·lis karakter az S-kifejezÈsben"
+msgstr "Rossz oktadecim√°lis karakter az S-kifejez√©sben"
 
 #: src/err-codes.h:242
 msgid "All subkeys are expired or revoked"
@@ -1008,7 +1008,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Data not encrypted"
 msgid "Database is corrupted"
-msgstr "Az adatok nincsenek titkosÌtva"
+msgstr "Az adatok nincsenek titkos√≠tva"
 
 #: src/err-codes.h:244
 msgid "Server indicated a failure"
@@ -1018,13 +1018,13 @@ msgstr ""
 #, fuzzy
 #| msgid "Unknown name"
 msgid "No name"
-msgstr "Ismeretlen nÈv"
+msgstr "Ismeretlen n√©v"
 
 #: src/err-codes.h:246
 #, fuzzy
 #| msgid "No public key"
 msgid "No key"
-msgstr "Nincs nyilv·nos kulcs"
+msgstr "Nincs nyilv√°nos kulcs"
 
 #: src/err-codes.h:247
 msgid "Legacy key"
@@ -1034,13 +1034,13 @@ msgstr ""
 #, fuzzy
 #| msgid "Buffer too short"
 msgid "Request too short"
-msgstr "T˙l rˆvid puffer"
+msgstr "T√∫l r√∂vid puffer"
 
 #: src/err-codes.h:249
 #, fuzzy
 #| msgid "Line too long"
 msgid "Request too long"
-msgstr "T˙l hossz˙ sor"
+msgstr "T√∫l hossz√∫ sor"
 
 #: src/err-codes.h:250
 msgid "Object is in termination state"
@@ -1050,19 +1050,19 @@ msgstr ""
 #, fuzzy
 #| msgid "Bad certificate chain"
 msgid "No certificate chain"
-msgstr "Rossz tan˙sÌtv·nyl·nc"
+msgstr "Rossz tan√∫s√≠tv√°nyl√°nc"
 
 #: src/err-codes.h:252
 #, fuzzy
 #| msgid "Certificate too young"
 msgid "Certificate is too large"
-msgstr "T˙l fiatal tan˙sÌtv·ny"
+msgstr "T√∫l fiatal tan√∫s√≠tv√°ny"
 
 #: src/err-codes.h:253
 #, fuzzy
 #| msgid "Invalid card"
 msgid "Invalid record"
-msgstr "…rvÈnytelen k·rtya"
+msgstr "√ârv√©nytelen k√°rtya"
 
 #: src/err-codes.h:254
 msgid "The MAC does not verify"
@@ -1072,7 +1072,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Unexpected tag"
 msgid "Unexpected message"
-msgstr "V·ratlan cÌmke"
+msgstr "V√°ratlan c√≠mke"
 
 #: src/err-codes.h:256
 msgid "Compression or decompression failed"
@@ -1090,31 +1090,31 @@ msgstr ""
 #, fuzzy
 #| msgid "Invalid cipher algorithm"
 msgid "No cipher algorithm"
-msgstr "…rvÈnytelen titkosÌtÛ algoritmus"
+msgstr "√ârv√©nytelen titkos√≠t√≥ algoritmus"
 
 #: src/err-codes.h:260
 #, fuzzy
 #| msgid "Missing certificate"
 msgid "Missing client certificate"
-msgstr "Hi·nyzÛ tan˙sÌtv·ny"
+msgstr "Hi√°nyz√≥ tan√∫s√≠tv√°ny"
 
 #: src/err-codes.h:261
 #, fuzzy
 #| msgid "Certificate revoked"
 msgid "Close notification received"
-msgstr "Tan˙sÌtv·ny visszavonva"
+msgstr "Tan√∫s√≠tv√°ny visszavonva"
 
 #: src/err-codes.h:262
 #, fuzzy
 #| msgid "Key expired"
 msgid "Ticket expired"
-msgstr "A kulcs lej·rt"
+msgstr "A kulcs lej√°rt"
 
 #: src/err-codes.h:263
 #, fuzzy
 #| msgid "Bad public key"
 msgid "Bad ticket"
-msgstr "Rossz nyilv·nos kulcs"
+msgstr "Rossz nyilv√°nos kulcs"
 
 #: src/err-codes.h:264
 #, fuzzy
@@ -1126,7 +1126,7 @@ msgstr "Ismeretlen csomag"
 #, fuzzy
 #| msgid "Bad certificate chain"
 msgid "Bad certificate message in handshake"
-msgstr "Rossz tan˙sÌtv·nyl·nc"
+msgstr "Rossz tan√∫s√≠tv√°nyl√°nc"
 
 #: src/err-codes.h:266
 msgid "Bad certificate request message in handshake"
@@ -1176,7 +1176,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Key expired"
 msgid "Key disabled"
-msgstr "A kulcs lej·rt"
+msgstr "A kulcs lej√°rt"
 
 #: src/err-codes.h:278
 msgid "Not possible with a card based key"
@@ -1186,7 +1186,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Invalid object"
 msgid "Invalid lock object"
-msgstr "…rvÈnytelen objektum"
+msgstr "√ârv√©nytelen objektum"
 
 #: src/err-codes.h:280
 msgid "True"
@@ -1198,47 +1198,47 @@ msgstr ""
 
 #: src/err-codes.h:282
 msgid "General IPC error"
-msgstr "¡ltal·nos IPC hiba"
+msgstr "√Åltal√°nos IPC hiba"
 
 #: src/err-codes.h:283
 msgid "IPC accept call failed"
-msgstr "Az IPC elfogad·si hÌv·s meghi˙sult"
+msgstr "Az IPC elfogad√°si h√≠v√°s meghi√∫sult"
 
 #: src/err-codes.h:284
 msgid "IPC connect call failed"
-msgstr "Az IPC kapcsolÛd·si hÌv·s meghi˙sult"
+msgstr "Az IPC kapcsol√≥d√°si h√≠v√°s meghi√∫sult"
 
 #: src/err-codes.h:285
 msgid "Invalid IPC response"
-msgstr "…rvÈnytelen IPC v·lasz"
+msgstr "√ârv√©nytelen IPC v√°lasz"
 
 #: src/err-codes.h:286
 msgid "Invalid value passed to IPC"
-msgstr "…rvÈnytelen ÈrtÈk ker¸lt ·tad·sra az IPC-nek"
+msgstr "√ârv√©nytelen √©rt√©k ker√ºlt √°tad√°sra az IPC-nek"
 
 #: src/err-codes.h:287
 msgid "Incomplete line passed to IPC"
-msgstr "Befejezetlen sor ker¸lt ·tad·sra az IPC-nek"
+msgstr "Befejezetlen sor ker√ºlt √°tad√°sra az IPC-nek"
 
 #: src/err-codes.h:288
 msgid "Line passed to IPC too long"
-msgstr "Az IPC-nek ·tadott sor t˙l hossz˙"
+msgstr "Az IPC-nek √°tadott sor t√∫l hossz√∫"
 
 #: src/err-codes.h:289
 msgid "Nested IPC commands"
-msgstr "Be·gyazott IPC parancsok"
+msgstr "Be√°gyazott IPC parancsok"
 
 #: src/err-codes.h:290
 msgid "No data callback in IPC"
-msgstr "Nincs adatvisszahÌv·s az IPC-ben"
+msgstr "Nincs adatvisszah√≠v√°s az IPC-ben"
 
 #: src/err-codes.h:291
 msgid "No inquire callback in IPC"
-msgstr "Nincs Èrdekl?dÈs visszahÌv·s az IPC-ben"
+msgstr "Nincs √©rdekl≈ëd√©s visszah√≠v√°s az IPC-ben"
 
 #: src/err-codes.h:292
 msgid "Not an IPC server"
-msgstr "Nem IPC kiszolg·lÛ"
+msgstr "Nem IPC kiszolg√°l√≥"
 
 #: src/err-codes.h:293
 msgid "Not an IPC client"
@@ -1246,23 +1246,23 @@ msgstr "Nem IPC kliens"
 
 #: src/err-codes.h:294
 msgid "Problem starting IPC server"
-msgstr "ProblÈma adÛdott az IPC kiszolg·lÛ indÌt·sakor"
+msgstr "Probl√©ma ad√≥dott az IPC kiszolg√°l√≥ ind√≠t√°sakor"
 
 #: src/err-codes.h:295
 msgid "IPC read error"
-msgstr "IPC olvas·si hiba"
+msgstr "IPC olvas√°si hiba"
 
 #: src/err-codes.h:296
 msgid "IPC write error"
-msgstr "IPC Ìr·si hiba"
+msgstr "IPC √≠r√°si hiba"
 
 #: src/err-codes.h:297
 msgid "Too much data for IPC layer"
-msgstr "T˙l sok adat az IPC rÈteghez"
+msgstr "T√∫l sok adat az IPC r√©teghez"
 
 #: src/err-codes.h:298
 msgid "Unexpected IPC command"
-msgstr "V·ratlan IPC parancs"
+msgstr "V√°ratlan IPC parancs"
 
 #: src/err-codes.h:299
 msgid "Unknown IPC command"
@@ -1274,29 +1274,29 @@ msgstr "IPC szintaktikai hiba"
 
 #: src/err-codes.h:301
 msgid "IPC call has been cancelled"
-msgstr "Az IPC hÌv·s megszakÌt·sra ker¸lt"
+msgstr "Az IPC h√≠v√°s megszak√≠t√°sra ker√ºlt"
 
 #: src/err-codes.h:302
 msgid "No input source for IPC"
-msgstr "Nincs bemeneti forr·s az IPC-hez"
+msgstr "Nincs bemeneti forr√°s az IPC-hez"
 
 #: src/err-codes.h:303
 msgid "No output source for IPC"
-msgstr "Nincs kimeneti forr·s az IPC-hez"
+msgstr "Nincs kimeneti forr√°s az IPC-hez"
 
 #: src/err-codes.h:304
 msgid "IPC parameter error"
-msgstr "IPC paramÈterhiba"
+msgstr "IPC param√©terhiba"
 
 #: src/err-codes.h:305
 msgid "Unknown IPC inquire"
-msgstr "Ismeretlen IPC Èrdekl?dÈs"
+msgstr "Ismeretlen IPC √©rdekl≈ëd√©s"
 
 #: src/err-codes.h:306
 #, fuzzy
 #| msgid "Invalid crypto engine"
 msgid "Crypto engine too old"
-msgstr "…rvÈnytelen titkosÌt·si motor"
+msgstr "√ârv√©nytelen titkos√≠t√°si motor"
 
 #: src/err-codes.h:307
 msgid "Screen or window too small"
@@ -1322,31 +1322,31 @@ msgstr ""
 #, fuzzy
 #| msgid "Duplicated value"
 msgid "Duplicated name"
-msgstr "Kett?zˆtt ÈrtÈk"
+msgstr "Kett≈ëz√∂tt √©rt√©k"
 
 #: src/err-codes.h:313
 #, fuzzy
 #| msgid "Certificate too young"
 msgid "Object is too young"
-msgstr "T˙l fiatal tan˙sÌtv·ny"
+msgstr "T√∫l fiatal tan√∫s√≠tv√°ny"
 
 #: src/err-codes.h:314
 #, fuzzy
 #| msgid "Provided object is too short"
 msgid "Object is too old"
-msgstr "A megadott objektum t˙l kicsi"
+msgstr "A megadott objektum t√∫l kicsi"
 
 #: src/err-codes.h:315
 #, fuzzy
 #| msgid "Unknown name"
 msgid "Unknown flag"
-msgstr "Ismeretlen nÈv"
+msgstr "Ismeretlen n√©v"
 
 #: src/err-codes.h:316
 #, fuzzy
 #| msgid "Invalid operation code"
 msgid "Invalid execution order"
-msgstr "…rvÈnytelen m?veletkÛd"
+msgstr "√ârv√©nytelen m≈±veletk√≥d"
 
 #: src/err-codes.h:317
 msgid "Already fetched"
@@ -1360,19 +1360,19 @@ msgstr ""
 #, fuzzy
 #| msgid "Unknown name"
 msgid "Wrong name"
-msgstr "Ismeretlen nÈv"
+msgstr "Ismeretlen n√©v"
 
 #: src/err-codes.h:320
 #, fuzzy
 #| msgid "Not locked"
 msgid "Not authenticated"
-msgstr "Nincs z·rolva"
+msgstr "Nincs z√°rolva"
 
 #: src/err-codes.h:321
 #, fuzzy
 #| msgid "Unsupported protection"
 msgid "Bad authentication"
-msgstr "Nem t·mogatott vÈdelem"
+msgstr "Nem t√°mogatott v√©delem"
 
 #: src/err-codes.h:322
 msgid "System bug detected"
@@ -1388,19 +1388,19 @@ msgstr "Ismeretlen rendszerhiba"
 #, fuzzy
 #| msgid "Invalid OID string"
 msgid "Invalid DNS section"
-msgstr "…rvÈnytelen OID karakterl·nc"
+msgstr "√ârv√©nytelen OID karakterl√°nc"
 
 #: src/err-codes.h:325
 #, fuzzy
 #| msgid "Invalid S-expression"
 msgid "Invalid textual address form"
-msgstr "…rvÈnytelen S-kifejezÈs"
+msgstr "√ârv√©nytelen S-kifejez√©s"
 
 #: src/err-codes.h:326
 #, fuzzy
 #| msgid "Missing certificate"
 msgid "Missing DNS query packet"
-msgstr "Hi·nyzÛ tan˙sÌtv·ny"
+msgstr "Hi√°nyz√≥ tan√∫s√≠tv√°ny"
 
 #: src/err-codes.h:327
 msgid "Missing DNS answer packet"
@@ -1414,49 +1414,49 @@ msgstr ""
 #, fuzzy
 #| msgid "Decryption failed"
 msgid "Verification failed in DNS"
-msgstr "VisszafejtÈs sikertelen"
+msgstr "Visszafejt√©s sikertelen"
 
 #: src/err-codes.h:330
 #, fuzzy
 #| msgid "Timeout"
 msgid "DNS Timeout"
-msgstr "Id?t˙llÈpÈs"
+msgstr "Id≈ët√∫ll√©p√©s"
 
 #: src/err-codes.h:331
 #, fuzzy
 #| msgid "General IPC error"
 msgid "General LDAP error"
-msgstr "¡ltal·nos IPC hiba"
+msgstr "√Åltal√°nos IPC hiba"
 
 #: src/err-codes.h:332
 #, fuzzy
 #| msgid "General error"
 msgid "General LDAP attribute error"
-msgstr "¡ltal·nos hiba"
+msgstr "√Åltal√°nos hiba"
 
 #: src/err-codes.h:333
 #, fuzzy
 #| msgid "General error"
 msgid "General LDAP name error"
-msgstr "¡ltal·nos hiba"
+msgstr "√Åltal√°nos hiba"
 
 #: src/err-codes.h:334
 #, fuzzy
 #| msgid "General Assuan error"
 msgid "General LDAP security error"
-msgstr "¡ltal·nos Assuan hiba"
+msgstr "√Åltal√°nos Assuan hiba"
 
 #: src/err-codes.h:335
 #, fuzzy
 #| msgid "General error"
 msgid "General LDAP service error"
-msgstr "¡ltal·nos hiba"
+msgstr "√Åltal√°nos hiba"
 
 #: src/err-codes.h:336
 #, fuzzy
 #| msgid "General Assuan error"
 msgid "General LDAP update error"
-msgstr "¡ltal·nos Assuan hiba"
+msgstr "√Åltal√°nos Assuan hiba"
 
 #: src/err-codes.h:337
 msgid "Experimental LDAP error code"
@@ -1466,25 +1466,25 @@ msgstr ""
 #, fuzzy
 #| msgid "IPC write error"
 msgid "Private LDAP error code"
-msgstr "IPC Ìr·si hiba"
+msgstr "IPC √≠r√°si hiba"
 
 #: src/err-codes.h:339
 #, fuzzy
 #| msgid "General IPC error"
 msgid "Other general LDAP error"
-msgstr "¡ltal·nos IPC hiba"
+msgstr "√Åltal√°nos IPC hiba"
 
 #: src/err-codes.h:340
 #, fuzzy
 #| msgid "IPC connect call failed"
 msgid "LDAP connecting failed (X)"
-msgstr "Az IPC kapcsolÛd·si hÌv·s meghi˙sult"
+msgstr "Az IPC kapcsol√≥d√°si h√≠v√°s meghi√∫sult"
 
 #: src/err-codes.h:341
 #, fuzzy
 #| msgid "General error"
 msgid "LDAP referral limit exceeded"
-msgstr "¡ltal·nos hiba"
+msgstr "√Åltal√°nos hiba"
 
 #: src/err-codes.h:342
 msgid "LDAP client loop"
@@ -1494,25 +1494,25 @@ msgstr ""
 #, fuzzy
 #| msgid "Card reset required"
 msgid "No LDAP results returned"
-msgstr "K·rtya vissza·llÌt·s sz¸ksÈges"
+msgstr "K√°rtya vissza√°ll√≠t√°s sz√ºks√©ges"
 
 #: src/err-codes.h:344
 #, fuzzy
 #| msgid "Element not found"
 msgid "LDAP control not found"
-msgstr "Az elem nem tal·lhatÛ"
+msgstr "Az elem nem tal√°lhat√≥"
 
 #: src/err-codes.h:345
 #, fuzzy
 #| msgid "Not supported"
 msgid "Not supported by LDAP"
-msgstr "Nem t·mogatott"
+msgstr "Nem t√°mogatott"
 
 #: src/err-codes.h:346
 #, fuzzy
 #| msgid "Unexpected error"
 msgid "LDAP connect error"
-msgstr "V·ratlan hiba"
+msgstr "V√°ratlan hiba"
 
 #: src/err-codes.h:347
 msgid "Out of memory in LDAP"
@@ -1526,25 +1526,25 @@ msgstr ""
 #, fuzzy
 #| msgid "Unsupported operation"
 msgid "User cancelled LDAP operation"
-msgstr "Nem t·mogatott m?velet"
+msgstr "Nem t√°mogatott m≈±velet"
 
 #: src/err-codes.h:350
 #, fuzzy
 #| msgid "Bad certificate"
 msgid "Bad LDAP search filter"
-msgstr "Rossz tan˙sÌtv·ny"
+msgstr "Rossz tan√∫s√≠tv√°ny"
 
 #: src/err-codes.h:351
 #, fuzzy
 #| msgid "Unknown extension"
 msgid "Unknown LDAP authentication method"
-msgstr "Ismeretlen kiterjesztÈs"
+msgstr "Ismeretlen kiterjeszt√©s"
 
 #: src/err-codes.h:352
 #, fuzzy
 #| msgid "Timeout"
 msgid "Timeout in LDAP"
-msgstr "Id?t˙llÈpÈs"
+msgstr "Id≈ët√∫ll√©p√©s"
 
 #: src/err-codes.h:353
 #, fuzzy
@@ -1562,13 +1562,13 @@ msgstr "dirmngr hiba"
 #, fuzzy
 #| msgid "IPC read error"
 msgid "LDAP local error"
-msgstr "IPC olvas·si hiba"
+msgstr "IPC olvas√°si hiba"
 
 #: src/err-codes.h:356
 #, fuzzy
 #| msgid "Not an IPC server"
 msgid "Cannot contact LDAP server"
-msgstr "Nem IPC kiszolg·lÛ"
+msgstr "Nem IPC kiszolg√°l√≥"
 
 #: src/err-codes.h:357
 #, fuzzy
@@ -1580,13 +1580,13 @@ msgstr "Sikeres"
 #, fuzzy
 #| msgid "Configuration error"
 msgid "LDAP operations error"
-msgstr "Be·llÌt·si hiba"
+msgstr "Be√°ll√≠t√°si hiba"
 
 #: src/err-codes.h:359
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "LDAP protocol error"
-msgstr "ProtokollsÈrtÈs"
+msgstr "Protokolls√©rt√©s"
 
 #: src/err-codes.h:360
 msgid "Time limit exceeded in LDAP"
@@ -1608,7 +1608,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Unknown extension"
 msgid "LDAP authentication method not supported"
-msgstr "Ismeretlen kiterjesztÈs"
+msgstr "Ismeretlen kiterjeszt√©s"
 
 #: src/err-codes.h:365
 msgid "Strong(er) LDAP authentication required"
@@ -1622,7 +1622,7 @@ msgstr ""
 #, fuzzy
 #| msgid "General error"
 msgid "LDAP referral"
-msgstr "¡ltal·nos hiba"
+msgstr "√Åltal√°nos hiba"
 
 #: src/err-codes.h:368
 msgid "Administrative LDAP limit exceeded"
@@ -1636,7 +1636,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Card reset required"
 msgid "Confidentiality required by LDAP"
-msgstr "K·rtya vissza·llÌt·s sz¸ksÈges"
+msgstr "K√°rtya vissza√°ll√≠t√°s sz√ºks√©ges"
 
 #: src/err-codes.h:371
 msgid "LDAP SASL bind in progress"
@@ -1650,19 +1650,19 @@ msgstr ""
 #, fuzzy
 #| msgid "Invalid attribute"
 msgid "Undefined LDAP attribute type"
-msgstr "…rvÈnytelen attrib˙tum"
+msgstr "√ârv√©nytelen attrib√∫tum"
 
 #: src/err-codes.h:374
 #, fuzzy
 #| msgid "Unsupported protection"
 msgid "Inappropriate matching in LDAP"
-msgstr "Nem t·mogatott vÈdelem"
+msgstr "Nem t√°mogatott v√©delem"
 
 #: src/err-codes.h:375
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "Constraint violation in LDAP"
-msgstr "ProtokollsÈrtÈs"
+msgstr "Protokolls√©rt√©s"
 
 #: src/err-codes.h:376
 msgid "LDAP type or value exists"
@@ -1672,7 +1672,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Invalid state"
 msgid "Invalid syntax in LDAP"
-msgstr "…rvÈnytelen ·llapot"
+msgstr "√ârv√©nytelen √°llapot"
 
 #: src/err-codes.h:378
 #, fuzzy
@@ -1684,13 +1684,13 @@ msgstr "Nincs CMS objektum"
 #, fuzzy
 #| msgid "Hardware problem"
 msgid "LDAP alias problem"
-msgstr "HardverproblÈma"
+msgstr "Hardverprobl√©ma"
 
 #: src/err-codes.h:380
 #, fuzzy
 #| msgid "Invalid state"
 msgid "Invalid DN syntax in LDAP"
-msgstr "…rvÈnytelen ·llapot"
+msgstr "√ârv√©nytelen √°llapot"
 
 #: src/err-codes.h:381
 msgid "LDAP entry is a leaf"
@@ -1700,7 +1700,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Encoding problem"
 msgid "LDAP alias dereferencing problem"
-msgstr "KÛdol·si problÈma"
+msgstr "K√≥dol√°si probl√©ma"
 
 #: src/err-codes.h:383
 msgid "LDAP proxy authorization failure (X)"
@@ -1710,13 +1710,13 @@ msgstr ""
 #, fuzzy
 #| msgid "Unsupported protection"
 msgid "Inappropriate LDAP authentication"
-msgstr "Nem t·mogatott vÈdelem"
+msgstr "Nem t√°mogatott v√©delem"
 
 #: src/err-codes.h:385
 #, fuzzy
 #| msgid "Invalid card"
 msgid "Invalid LDAP credentials"
-msgstr "…rvÈnytelen k·rtya"
+msgstr "√ârv√©nytelen k√°rtya"
 
 #: src/err-codes.h:386
 msgid "Insufficient access for LDAP"
@@ -1742,25 +1742,25 @@ msgstr ""
 #, fuzzy
 #| msgid "Missing action"
 msgid "LDAP naming violation"
-msgstr "Hi·nyzÛ m?velet"
+msgstr "Hi√°nyz√≥ m≈±velet"
 
 #: src/err-codes.h:392
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "LDAP object class violation"
-msgstr "ProtokollsÈrtÈs"
+msgstr "Protokolls√©rt√©s"
 
 #: src/err-codes.h:393
 #, fuzzy
 #| msgid "Operation not yet finished"
 msgid "LDAP operation not allowed on non-leaf"
-msgstr "A m?velet mÈg nem fejez?dˆtt be"
+msgstr "A m≈±velet m√©g nem fejez≈ëd√∂tt be"
 
 #: src/err-codes.h:394
 #, fuzzy
 #| msgid "Operation cancelled"
 msgid "LDAP operation not allowed on RDN"
-msgstr "A m?velet megszakÌtva"
+msgstr "A m≈±velet megszak√≠tva"
 
 #: src/err-codes.h:395
 msgid "Already exists (LDAP)"
@@ -1774,13 +1774,13 @@ msgstr ""
 #, fuzzy
 #| msgid "Line too long"
 msgid "LDAP results too large"
-msgstr "T˙l hossz˙ sor"
+msgstr "T√∫l hossz√∫ sor"
 
 #: src/err-codes.h:398
 #, fuzzy
 #| msgid "Operation cancelled"
 msgid "LDAP operation affects multiple DSAs"
-msgstr "A m?velet megszakÌtva"
+msgstr "A m≈±velet megszak√≠tva"
 
 #: src/err-codes.h:399
 msgid "Virtual LDAP list view error"
@@ -1790,37 +1790,37 @@ msgstr ""
 #, fuzzy
 #| msgid "General IPC error"
 msgid "Other LDAP error"
-msgstr "¡ltal·nos IPC hiba"
+msgstr "√Åltal√°nos IPC hiba"
 
 #: src/err-codes.h:401
 #, fuzzy
 #| msgid "Resources exhausted"
 msgid "Resources exhausted in LCUP"
-msgstr "Az er?forr·sok kimer¸ltek"
+msgstr "Az er≈ëforr√°sok kimer√ºltek"
 
 #: src/err-codes.h:402
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "Security violation in LCUP"
-msgstr "ProtokollsÈrtÈs"
+msgstr "Protokolls√©rt√©s"
 
 #: src/err-codes.h:403
 #, fuzzy
 #| msgid "Invalid state"
 msgid "Invalid data in LCUP"
-msgstr "…rvÈnytelen ·llapot"
+msgstr "√ârv√©nytelen √°llapot"
 
 #: src/err-codes.h:404
 #, fuzzy
 #| msgid "Unsupported certificate"
 msgid "Unsupported scheme in LCUP"
-msgstr "Nem t·mogatott tan˙sÌtv·ny"
+msgstr "Nem t√°mogatott tan√∫s√≠tv√°ny"
 
 #: src/err-codes.h:405
 #, fuzzy
 #| msgid "Card reset required"
 msgid "Reload required in LCUP"
-msgstr "K·rtya vissza·llÌt·s sz¸ksÈges"
+msgstr "K√°rtya vissza√°ll√≠t√°s sz√ºks√©ges"
 
 #: src/err-codes.h:406
 #, fuzzy
@@ -1832,25 +1832,25 @@ msgstr "Sikeres"
 #, fuzzy
 #| msgid "Not operational"
 msgid "No LDAP operation to cancel"
-msgstr "Nem m?kˆdik"
+msgstr "Nem m≈±k√∂dik"
 
 #: src/err-codes.h:408
 #, fuzzy
 #| msgid "Not operational"
 msgid "Too late to cancel LDAP"
-msgstr "Nem m?kˆdik"
+msgstr "Nem m≈±k√∂dik"
 
 #: src/err-codes.h:409
 #, fuzzy
 #| msgid "Not an IPC server"
 msgid "Cannot cancel LDAP"
-msgstr "Nem IPC kiszolg·lÛ"
+msgstr "Nem IPC kiszolg√°l√≥"
 
 #: src/err-codes.h:410
 #, fuzzy
 #| msgid "Decryption failed"
 msgid "LDAP assertion failed"
-msgstr "VisszafejtÈs sikertelen"
+msgstr "Visszafejt√©s sikertelen"
 
 #: src/err-codes.h:411
 msgid "Proxied authorization denied by LDAP"
@@ -1858,71 +1858,71 @@ msgstr ""
 
 #: src/err-codes.h:412
 msgid "User defined error code 1"
-msgstr "1. felhaszn·lÛ ·ltal megadott hibakÛd"
+msgstr "1. felhaszn√°l√≥ √°ltal megadott hibak√≥d"
 
 #: src/err-codes.h:413
 msgid "User defined error code 2"
-msgstr "2. felhaszn·lÛ ·ltal megadott hibakÛd"
+msgstr "2. felhaszn√°l√≥ √°ltal megadott hibak√≥d"
 
 #: src/err-codes.h:414
 msgid "User defined error code 3"
-msgstr "3. felhaszn·lÛ ·ltal megadott hibakÛd"
+msgstr "3. felhaszn√°l√≥ √°ltal megadott hibak√≥d"
 
 #: src/err-codes.h:415
 msgid "User defined error code 4"
-msgstr "4. felhaszn·lÛ ·ltal megadott hibakÛd"
+msgstr "4. felhaszn√°l√≥ √°ltal megadott hibak√≥d"
 
 #: src/err-codes.h:416
 msgid "User defined error code 5"
-msgstr "5. felhaszn·lÛ ·ltal megadott hibakÛd"
+msgstr "5. felhaszn√°l√≥ √°ltal megadott hibak√≥d"
 
 #: src/err-codes.h:417
 msgid "User defined error code 6"
-msgstr "6. felhaszn·lÛ ·ltal megadott hibakÛd"
+msgstr "6. felhaszn√°l√≥ √°ltal megadott hibak√≥d"
 
 #: src/err-codes.h:418
 msgid "User defined error code 7"
-msgstr "7. felhaszn·lÛ ·ltal megadott hibakÛd"
+msgstr "7. felhaszn√°l√≥ √°ltal megadott hibak√≥d"
 
 #: src/err-codes.h:419
 msgid "User defined error code 8"
-msgstr "8. felhaszn·lÛ ·ltal megadott hibakÛd"
+msgstr "8. felhaszn√°l√≥ √°ltal megadott hibak√≥d"
 
 #: src/err-codes.h:420
 msgid "User defined error code 9"
-msgstr "9. felhaszn·lÛ ·ltal megadott hibakÛd"
+msgstr "9. felhaszn√°l√≥ √°ltal megadott hibak√≥d"
 
 #: src/err-codes.h:421
 msgid "User defined error code 10"
-msgstr "10. felhaszn·lÛ ·ltal megadott hibakÛd"
+msgstr "10. felhaszn√°l√≥ √°ltal megadott hibak√≥d"
 
 #: src/err-codes.h:422
 msgid "User defined error code 11"
-msgstr "11. felhaszn·lÛ ·ltal megadott hibakÛd"
+msgstr "11. felhaszn√°l√≥ √°ltal megadott hibak√≥d"
 
 #: src/err-codes.h:423
 msgid "User defined error code 12"
-msgstr "12. felhaszn·lÛ ·ltal megadott hibakÛd"
+msgstr "12. felhaszn√°l√≥ √°ltal megadott hibak√≥d"
 
 #: src/err-codes.h:424
 msgid "User defined error code 13"
-msgstr "13. felhaszn·lÛ ·ltal megadott hibakÛd"
+msgstr "13. felhaszn√°l√≥ √°ltal megadott hibak√≥d"
 
 #: src/err-codes.h:425
 msgid "User defined error code 14"
-msgstr "14. felhaszn·lÛ ·ltal megadott hibakÛd"
+msgstr "14. felhaszn√°l√≥ √°ltal megadott hibak√≥d"
 
 #: src/err-codes.h:426
 msgid "User defined error code 15"
-msgstr "15. felhaszn·lÛ ·ltal megadott hibakÛd"
+msgstr "15. felhaszn√°l√≥ √°ltal megadott hibak√≥d"
 
 #: src/err-codes.h:427
 msgid "User defined error code 16"
-msgstr "16. felhaszn·lÛ ·ltal megadott hibakÛd"
+msgstr "16. felhaszn√°l√≥ √°ltal megadott hibak√≥d"
 
 #: src/err-codes.h:428
 msgid "System error w/o errno"
-msgstr "Rendszerhiba w/o hibasz·m"
+msgstr "Rendszerhiba w/o hibasz√°m"
 
 #: src/err-codes.h:429
 msgid "Unknown system error"
@@ -1930,47 +1930,47 @@ msgstr "Ismeretlen rendszerhiba"
 
 #: src/err-codes.h:430
 msgid "End of file"
-msgstr "F·jl vÈge"
+msgstr "F√°jl v√©ge"
 
 #: src/err-codes.h:431
 msgid "Unknown error code"
-msgstr "Ismeretlen hibakÛd"
+msgstr "Ismeretlen hibak√≥d"
 
 #: src/argparse.c:318
 #, fuzzy
 msgid "argument not expected"
-msgstr "Õrom a titkos kulcsot a %s ·llom·nyba.\n"
+msgstr "√çrom a titkos kulcsot a %s √°llom√°nyba.\n"
 
 #: src/argparse.c:320
 #, fuzzy
 msgid "read error"
-msgstr "·llom·nyolvas·si hiba"
+msgstr "√°llom√°nyolvas√°si hiba"
 
 #: src/argparse.c:322
 #, fuzzy
 msgid "keyword too long"
-msgstr "A sor t˙l hossz˙!\n"
+msgstr "A sor t√∫l hossz√∫!\n"
 
 #: src/argparse.c:324
 #, fuzzy
 msgid "missing argument"
-msgstr "ÈrvÈnytelen argumentum"
+msgstr "√©rv√©nytelen argumentum"
 
 #: src/argparse.c:326
 #, fuzzy
 #| msgid "invalid armor"
 msgid "invalid argument"
-msgstr "ÈrvÈnytelen p·ncÈl"
+msgstr "√©rv√©nytelen p√°nc√©l"
 
 #: src/argparse.c:328
 #, fuzzy
 msgid "invalid command"
-msgstr "Egym·snak ellentmondÛ parancsok!\n"
+msgstr "Egym√°snak ellentmond√≥ parancsok!\n"
 
 #: src/argparse.c:330
 #, fuzzy
 msgid "invalid alias definition"
-msgstr "…rvÈnytelen import opciÛk!\n"
+msgstr "√ârv√©nytelen import opci√≥k!\n"
 
 #: src/argparse.c:332
 #, fuzzy
@@ -1980,7 +1980,7 @@ msgstr "nem feldolgozott"
 #: src/argparse.c:334
 #, fuzzy
 msgid "invalid option"
-msgstr "…rvÈnytelen import opciÛk!\n"
+msgstr "√ârv√©nytelen import opci√≥k!\n"
 
 #: src/argparse.c:343
 #, c-format
@@ -1990,7 +1990,7 @@ msgstr ""
 #: src/argparse.c:345
 #, fuzzy, c-format
 msgid "invalid argument for option \"%.50s\"\n"
-msgstr "…rvÈnytelen import opciÛk!\n"
+msgstr "√ârv√©nytelen import opci√≥k!\n"
 
 #: src/argparse.c:347
 #, c-format
@@ -2000,7 +2000,7 @@ msgstr ""
 #: src/argparse.c:350
 #, fuzzy, c-format
 msgid "invalid command \"%.50s\"\n"
-msgstr "…rvÈnytelen parancs! (PrÛb·lja a s˙gÛt: \"help\".)\n"
+msgstr "√ârv√©nytelen parancs! (Pr√≥b√°lja a s√∫g√≥t: \"help\".)\n"
 
 #: src/argparse.c:352
 #, c-format
@@ -2020,7 +2020,7 @@ msgstr "nem feldolgozott"
 #: src/argparse.c:358
 #, fuzzy, c-format
 msgid "invalid option \"%.50s\"\n"
-msgstr "…rvÈnytelen import opciÛk!\n"
+msgstr "√ârv√©nytelen import opci√≥k!\n"
 
 #: src/gpg-error.c:458
 msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
@@ -2029,25 +2029,25 @@ msgstr ""
 #: src/gpg-error.c:658
 #, c-format
 msgid "warning: could not recognize %s\n"
-msgstr "figyelmeztetÈs: nem siker¸lt felismerni: %s\n"
+msgstr "figyelmeztet√©s: nem siker√ºlt felismerni: %s\n"
 
 #~ msgid "Usage: %s GPG-ERROR [...]\n"
-#~ msgstr "Haszn·lat: %s GPG-ERROR [Ö]\n"
+#~ msgstr "Haszn√°lat: %s GPG-ERROR [‚Ä¶]\n"
 
 #, fuzzy
 #~| msgid "Resources exhausted"
 #~ msgid "LCUP Resources exhausted"
-#~ msgstr "Az er?forr·sok kimer¸ltek"
+#~ msgstr "Az er≈ëforr√°sok kimer√ºltek"
 
 #, fuzzy
 #~| msgid "Invalid data"
 #~ msgid "LCUP Invalid data"
-#~ msgstr "…rvÈnytelen adatok"
+#~ msgstr "√ârv√©nytelen adatok"
 
 #, fuzzy
 #~| msgid "General error"
 #~ msgid "LDAP Other general error"
-#~ msgstr "¡ltal·nos hiba"
+#~ msgstr "√Åltal√°nos hiba"
 
 #, fuzzy
 #~| msgid "dirmngr error"

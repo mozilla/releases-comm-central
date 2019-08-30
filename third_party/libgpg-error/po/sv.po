@@ -18,7 +18,7 @@ msgstr ""
 
 #: src/err-sources.h:28
 msgid "Unspecified source"
-msgstr "Ospecificerad k‰lla"
+msgstr "Ospecificerad k√§lla"
 
 #: src/err-sources.h:29
 msgid "gcrypt"
@@ -50,7 +50,7 @@ msgstr "GPGME"
 
 #: src/err-sources.h:36
 msgid "Keybox"
-msgstr "NyckellÂda"
+msgstr "Nyckell√•da"
 
 #: src/err-sources.h:37
 msgid "KSBA"
@@ -86,27 +86,27 @@ msgstr ""
 
 #: src/err-sources.h:45
 msgid "Any source"
-msgstr "Alla k‰llor"
+msgstr "Alla k√§llor"
 
 #: src/err-sources.h:46
 msgid "User defined source 1"
-msgstr "Anv‰ndardefinierad k‰lla 1"
+msgstr "Anv√§ndardefinierad k√§lla 1"
 
 #: src/err-sources.h:47
 msgid "User defined source 2"
-msgstr "Anv‰ndardefinierad k‰lla 2"
+msgstr "Anv√§ndardefinierad k√§lla 2"
 
 #: src/err-sources.h:48
 msgid "User defined source 3"
-msgstr "Anv‰ndardefinierad k‰lla 3"
+msgstr "Anv√§ndardefinierad k√§lla 3"
 
 #: src/err-sources.h:49
 msgid "User defined source 4"
-msgstr "Anv‰ndardefinierad k‰lla 4"
+msgstr "Anv√§ndardefinierad k√§lla 4"
 
 #: src/err-sources.h:50
 msgid "Unknown source"
-msgstr "Ok‰nd k‰lla"
+msgstr "Ok√§nd k√§lla"
 
 #: src/err-codes.h:28
 msgid "Success"
@@ -114,15 +114,15 @@ msgstr "Lyckades"
 
 #: src/err-codes.h:29
 msgid "General error"
-msgstr "Allm‰nt fel"
+msgstr "Allm√§nt fel"
 
 #: src/err-codes.h:30
 msgid "Unknown packet"
-msgstr "Ok‰nt paket"
+msgstr "Ok√§nt paket"
 
 #: src/err-codes.h:31
 msgid "Unknown version in packet"
-msgstr "Ok‰nd version i paket"
+msgstr "Ok√§nd version i paket"
 
 #: src/err-codes.h:32
 msgid "Invalid public key algorithm"
@@ -154,7 +154,7 @@ msgstr "Kontrollsummefel"
 
 #: src/err-codes.h:39
 msgid "Bad passphrase"
-msgstr "Felaktig lˆsenfras"
+msgstr "Felaktig l√∂senfras"
 
 #: src/err-codes.h:40
 msgid "Invalid cipher algorithm"
@@ -162,7 +162,7 @@ msgstr "Ogiltig chifferalgoritm"
 
 #: src/err-codes.h:41
 msgid "Cannot open keyring"
-msgstr "Nyckelring ‰r ˆppnad"
+msgstr "Nyckelring √§r √∂ppnad"
 
 #: src/err-codes.h:42
 msgid "Invalid packet"
@@ -174,7 +174,7 @@ msgstr "Ogiltigt ASCII-skal"
 
 #: src/err-codes.h:44
 msgid "No user ID"
-msgstr "Inget anv‰ndar-id"
+msgstr "Inget anv√§ndar-id"
 
 #: src/err-codes.h:45
 msgid "No secret key"
@@ -182,7 +182,7 @@ msgstr "Ingen hemlig nyckel"
 
 #: src/err-codes.h:46
 msgid "Wrong secret key used"
-msgstr "Fel hemlig nyckel anv‰nd"
+msgstr "Fel hemlig nyckel anv√§nd"
 
 #: src/err-codes.h:47
 msgid "Bad session key"
@@ -190,11 +190,11 @@ msgstr "Felaktig sessionsnyckel"
 
 #: src/err-codes.h:48
 msgid "Unknown compression algorithm"
-msgstr "Ok‰nd komprimeringsalgoritm"
+msgstr "Ok√§nd komprimeringsalgoritm"
 
 #: src/err-codes.h:49
 msgid "Number is not prime"
-msgstr "Tal ‰r inte ett primtal"
+msgstr "Tal √§r inte ett primtal"
 
 #: src/err-codes.h:50
 msgid "Invalid encoding method"
@@ -214,7 +214,7 @@ msgstr "Ogiltigt attribut"
 
 #: src/err-codes.h:54
 msgid "No value"
-msgstr "Inget v‰rde"
+msgstr "Inget v√§rde"
 
 #: src/err-codes.h:55
 msgid "Not found"
@@ -222,7 +222,7 @@ msgstr "Hittades inte"
 
 #: src/err-codes.h:56
 msgid "Value not found"
-msgstr "V‰rdet hittades inte"
+msgstr "V√§rdet hittades inte"
 
 #: src/err-codes.h:57
 msgid "Syntax error"
@@ -230,11 +230,11 @@ msgstr "Syntaxfel"
 
 #: src/err-codes.h:58
 msgid "Bad MPI value"
-msgstr "Felaktigt MPI-v‰rde"
+msgstr "Felaktigt MPI-v√§rde"
 
 #: src/err-codes.h:59
 msgid "Invalid passphrase"
-msgstr "Ogiltig lˆsenfras"
+msgstr "Ogiltig l√∂senfras"
 
 #: src/err-codes.h:60
 msgid "Invalid signature class"
@@ -242,7 +242,7 @@ msgstr "Ogiltig signaturklass"
 
 #: src/err-codes.h:61
 msgid "Resources exhausted"
-msgstr "Resurser ˆveranstr‰ngda"
+msgstr "Resurser √∂veranstr√§ngda"
 
 #: src/err-codes.h:62
 msgid "Invalid keyring"
@@ -258,11 +258,11 @@ msgstr "Felaktigt certifikat"
 
 #: src/err-codes.h:65
 msgid "Invalid user ID"
-msgstr "Ogiltig anv‰ndaridentitet"
+msgstr "Ogiltig anv√§ndaridentitet"
 
 #: src/err-codes.h:66
 msgid "Unexpected error"
-msgstr "Ov‰ntat fel"
+msgstr "Ov√§ntat fel"
 
 #: src/err-codes.h:67
 msgid "Time conflict"
@@ -286,7 +286,7 @@ msgstr "Svag krypteringsnyckel"
 
 #: src/err-codes.h:72
 msgid "Invalid key length"
-msgstr "Ogiltig nyckell‰ngd"
+msgstr "Ogiltig nyckell√§ngd"
 
 #: src/err-codes.h:73
 msgid "Invalid argument"
@@ -302,19 +302,19 @@ msgstr "Ogiltig uri"
 
 #: src/err-codes.h:76
 msgid "Network error"
-msgstr "N‰tverksfel"
+msgstr "N√§tverksfel"
 
 #: src/err-codes.h:77
 msgid "Unknown host"
-msgstr "Ok‰nd v‰rd"
+msgstr "Ok√§nd v√§rd"
 
 #: src/err-codes.h:78
 msgid "Selftest failed"
-msgstr "Sj‰lvtestning misslyckades"
+msgstr "Sj√§lvtestning misslyckades"
 
 #: src/err-codes.h:79
 msgid "Data not encrypted"
-msgstr "Data ‰r inte krypterat"
+msgstr "Data √§r inte krypterat"
 
 #: src/err-codes.h:80
 msgid "Data not processed"
@@ -322,15 +322,15 @@ msgstr "Data inte behandlat"
 
 #: src/err-codes.h:81
 msgid "Unusable public key"
-msgstr "Oanv‰ndbar publik nyckel"
+msgstr "Oanv√§ndbar publik nyckel"
 
 #: src/err-codes.h:82
 msgid "Unusable secret key"
-msgstr "Oanv‰ndbar hemlig nyckel"
+msgstr "Oanv√§ndbar hemlig nyckel"
 
 #: src/err-codes.h:83
 msgid "Invalid value"
-msgstr "Ogiltigt v‰rde"
+msgstr "Ogiltigt v√§rde"
 
 #: src/err-codes.h:84
 msgid "Bad certificate chain"
@@ -350,15 +350,15 @@ msgstr "Fel"
 
 #: src/err-codes.h:88
 msgid "Not supported"
-msgstr "Stˆds inte"
+msgstr "St√∂ds inte"
 
 #: src/err-codes.h:89
 msgid "Invalid operation code"
-msgstr "Ogiltig Âtg‰rdskod"
+msgstr "Ogiltig √•tg√§rdskod"
 
 #: src/err-codes.h:90
 msgid "Timeout"
-msgstr "Tidsgr‰ns"
+msgstr "Tidsgr√§ns"
 
 #: src/err-codes.h:91
 msgid "Internal error"
@@ -366,7 +366,7 @@ msgstr "Internt fel"
 
 #: src/err-codes.h:92
 msgid "EOF (gcrypt)"
-msgstr "Slut pÂ filen (gcrypt)"
+msgstr "Slut p√• filen (gcrypt)"
 
 #: src/err-codes.h:93
 msgid "Invalid object"
@@ -374,11 +374,11 @@ msgstr "Ogiltigt objekt"
 
 #: src/err-codes.h:94
 msgid "Provided object is too short"
-msgstr "TillhandahÂllet objekt ‰r fˆr kort"
+msgstr "Tillhandah√•llet objekt √§r f√∂r kort"
 
 #: src/err-codes.h:95
 msgid "Provided object is too large"
-msgstr "TillhandahÂllet objekt ‰r fˆr stort"
+msgstr "Tillhandah√•llet objekt √§r f√∂r stort"
 
 #: src/err-codes.h:96
 msgid "Missing item in object"
@@ -390,11 +390,11 @@ msgstr "Inte implementerad"
 
 #: src/err-codes.h:98
 msgid "Conflicting use"
-msgstr "Konflikt i anv‰ndningen"
+msgstr "Konflikt i anv√§ndningen"
 
 #: src/err-codes.h:99
 msgid "Invalid cipher mode"
-msgstr "Ogiltigt chifferl‰ge"
+msgstr "Ogiltigt chifferl√§ge"
 
 #: src/err-codes.h:100
 msgid "Invalid flag"
@@ -410,7 +410,7 @@ msgstr "Resultat nerskalat"
 
 #: src/err-codes.h:103
 msgid "Incomplete line"
-msgstr "Ofullst‰ndig rad"
+msgstr "Ofullst√§ndig rad"
 
 #: src/err-codes.h:104
 msgid "Invalid response"
@@ -418,7 +418,7 @@ msgstr "Ogiltigt svar"
 
 #: src/err-codes.h:105
 msgid "No agent running"
-msgstr "Ingen agent kˆr"
+msgstr "Ingen agent k√∂r"
 
 #: src/err-codes.h:106
 #, fuzzy
@@ -436,7 +436,7 @@ msgstr "Ospecificerat Assuan-serverfel"
 
 #: src/err-codes.h:109
 msgid "General Assuan error"
-msgstr "Allm‰nt Assuan-fel"
+msgstr "Allm√§nt Assuan-fel"
 
 #: src/err-codes.h:110
 msgid "Invalid session key"
@@ -448,7 +448,7 @@ msgstr "Ogiltigt S-uttryck"
 
 #: src/err-codes.h:112
 msgid "Unsupported algorithm"
-msgstr "Algoritmen stˆds inte"
+msgstr "Algoritmen st√∂ds inte"
 
 #: src/err-codes.h:113
 msgid "No pinentry"
@@ -488,19 +488,19 @@ msgstr "dirmngr-fel"
 
 #: src/err-codes.h:122
 msgid "Certificate revoked"
-msgstr "Certifikatet ‰r sp‰rrat"
+msgstr "Certifikatet √§r sp√§rrat"
 
 #: src/err-codes.h:123
 msgid "No CRL known"
-msgstr "Ingen k‰nd CRL"
+msgstr "Ingen k√§nd CRL"
 
 #: src/err-codes.h:124
 msgid "CRL too old"
-msgstr "CRL fˆr gammal"
+msgstr "CRL f√∂r gammal"
 
 #: src/err-codes.h:125
 msgid "Line too long"
-msgstr "Raden ‰r fˆr lÂng"
+msgstr "Raden √§r f√∂r l√•ng"
 
 #: src/err-codes.h:126
 msgid "Not trusted"
@@ -508,7 +508,7 @@ msgstr "Inte betrodd"
 
 #: src/err-codes.h:127
 msgid "Operation cancelled"
-msgstr "≈tg‰rden avbrˆts"
+msgstr "√Ötg√§rden avbr√∂ts"
 
 #: src/err-codes.h:128
 msgid "Bad CA certificate"
@@ -516,23 +516,23 @@ msgstr "Felaktigt CA-certifikat"
 
 #: src/err-codes.h:129
 msgid "Certificate expired"
-msgstr "Certifikatet har gÂtt ut"
+msgstr "Certifikatet har g√•tt ut"
 
 #: src/err-codes.h:130
 msgid "Certificate too young"
-msgstr "Certifikatet ‰r fˆr ungt"
+msgstr "Certifikatet √§r f√∂r ungt"
 
 #: src/err-codes.h:131
 msgid "Unsupported certificate"
-msgstr "Certifikatet stˆds inte"
+msgstr "Certifikatet st√∂ds inte"
 
 #: src/err-codes.h:132
 msgid "Unknown S-expression"
-msgstr "Ok‰nt S-uttryck"
+msgstr "Ok√§nt S-uttryck"
 
 #: src/err-codes.h:133
 msgid "Unsupported protection"
-msgstr "Skyddet stˆds inte"
+msgstr "Skyddet st√∂ds inte"
 
 #: src/err-codes.h:134
 msgid "Corrupted protection"
@@ -548,7 +548,7 @@ msgstr "Kortfel"
 
 #: src/err-codes.h:137
 msgid "Card reset required"
-msgstr "Nollst‰llning av kort kr‰vs"
+msgstr "Nollst√§llning av kort kr√§vs"
 
 #: src/err-codes.h:138
 msgid "Card removed"
@@ -568,7 +568,7 @@ msgstr "Inget PKCS15-program"
 
 #: src/err-codes.h:142
 msgid "Not confirmed"
-msgstr "Inte bekr‰ftad"
+msgstr "Inte bekr√§ftad"
 
 #: src/err-codes.h:143
 msgid "Configuration error"
@@ -576,7 +576,7 @@ msgstr "Konfigurationsfel"
 
 #: src/err-codes.h:144
 msgid "No policy match"
-msgstr "Ingen policytr‰ff"
+msgstr "Ingen policytr√§ff"
 
 #: src/err-codes.h:145
 msgid "Invalid index"
@@ -596,7 +596,7 @@ msgstr "Fel i SmartCard-demon"
 
 #: src/err-codes.h:149
 msgid "Unsupported protocol"
-msgstr "Protokollet stˆds inte"
+msgstr "Protokollet st√∂ds inte"
 
 #: src/err-codes.h:150
 msgid "Bad PIN method"
@@ -604,15 +604,15 @@ msgstr "Felaktig PIN-metod"
 
 #: src/err-codes.h:151
 msgid "Card not initialized"
-msgstr "Kortet ‰r inte initierat"
+msgstr "Kortet √§r inte initierat"
 
 #: src/err-codes.h:152
 msgid "Unsupported operation"
-msgstr "≈tg‰rden stˆds inte"
+msgstr "√Ötg√§rden st√∂ds inte"
 
 #: src/err-codes.h:153
 msgid "Wrong key usage"
-msgstr "Fel nyckelanv‰ndning"
+msgstr "Fel nyckelanv√§ndning"
 
 #: src/err-codes.h:154
 msgid "Nothing found"
@@ -624,11 +624,11 @@ msgstr "Felaktig blob-typ"
 
 #: src/err-codes.h:156
 msgid "Missing value"
-msgstr "Saknar v‰rde"
+msgstr "Saknar v√§rde"
 
 #: src/err-codes.h:157
 msgid "Hardware problem"
-msgstr "HÂrdvaruproblem"
+msgstr "H√•rdvaruproblem"
 
 #: src/err-codes.h:158
 msgid "PIN blocked"
@@ -636,11 +636,11 @@ msgstr "PIN-kod blockerad"
 
 #: src/err-codes.h:159
 msgid "Conditions of use not satisfied"
-msgstr "Anv‰ndningsvillkoren tillfredsst‰lls inte"
+msgstr "Anv√§ndningsvillkoren tillfredsst√§lls inte"
 
 #: src/err-codes.h:160
 msgid "PINs are not synced"
-msgstr "PIN-koderna ‰r inte synkroniserade"
+msgstr "PIN-koderna √§r inte synkroniserade"
 
 #: src/err-codes.h:161
 msgid "Invalid CRL"
@@ -668,7 +668,7 @@ msgstr "Ogiltig tagg"
 
 #: src/err-codes.h:167
 msgid "Invalid length"
-msgstr "Ogiltig l‰ngd"
+msgstr "Ogiltig l√§ngd"
 
 #: src/err-codes.h:168
 msgid "Invalid key info"
@@ -676,7 +676,7 @@ msgstr "Ogiltig nyckelinformation"
 
 #: src/err-codes.h:169
 msgid "Unexpected tag"
-msgstr "Ov‰ntad tagg"
+msgstr "Ov√§ntad tagg"
 
 #: src/err-codes.h:170
 msgid "Not DER encoded"
@@ -692,23 +692,23 @@ msgstr "Ogiltigt CMS-objekt"
 
 #: src/err-codes.h:173
 msgid "Unknown CMS object"
-msgstr "Ok‰nt CMS-objekt"
+msgstr "Ok√§nt CMS-objekt"
 
 #: src/err-codes.h:174
 msgid "Unsupported CMS object"
-msgstr "CMS-objektet stˆds inte"
+msgstr "CMS-objektet st√∂ds inte"
 
 #: src/err-codes.h:175
 msgid "Unsupported encoding"
-msgstr "Kodningen stˆds inte"
+msgstr "Kodningen st√∂ds inte"
 
 #: src/err-codes.h:176
 msgid "Unsupported CMS version"
-msgstr "CMS-versionen stˆds inte"
+msgstr "CMS-versionen st√∂ds inte"
 
 #: src/err-codes.h:177
 msgid "Unknown algorithm"
-msgstr "Ok‰nd algoritm"
+msgstr "Ok√§nd algoritm"
 
 #: src/err-codes.h:178
 msgid "Invalid crypto engine"
@@ -724,11 +724,11 @@ msgstr "Dekryptering misslyckades"
 
 #: src/err-codes.h:181
 msgid "Key expired"
-msgstr "Nyckeln har gÂtt ut"
+msgstr "Nyckeln har g√•tt ut"
 
 #: src/err-codes.h:182
 msgid "Signature expired"
-msgstr "Signaturen har gÂtt ut"
+msgstr "Signaturen har g√•tt ut"
 
 #: src/err-codes.h:183
 msgid "Encoding problem"
@@ -736,15 +736,15 @@ msgstr "Kodningsproblem"
 
 #: src/err-codes.h:184
 msgid "Invalid state"
-msgstr "Ogiltigt tillstÂnd"
+msgstr "Ogiltigt tillst√•nd"
 
 #: src/err-codes.h:185
 msgid "Duplicated value"
-msgstr "Dubblettv‰rde"
+msgstr "Dubblettv√§rde"
 
 #: src/err-codes.h:186
 msgid "Missing action"
-msgstr "Saknar Âtg‰rd"
+msgstr "Saknar √•tg√§rd"
 
 #: src/err-codes.h:187
 msgid "ASN.1 module not found"
@@ -752,7 +752,7 @@ msgstr "ASN.1-modulen hittades inte"
 
 #: src/err-codes.h:188
 msgid "Invalid OID string"
-msgstr "Ogiltig OID-str‰ng"
+msgstr "Ogiltig OID-str√§ng"
 
 #: src/err-codes.h:189
 msgid "Invalid time"
@@ -764,7 +764,7 @@ msgstr "Ogiltigt CRL-objekt"
 
 #: src/err-codes.h:191
 msgid "Unsupported CRL version"
-msgstr "CRL-versionen stˆds inte"
+msgstr "CRL-versionen st√∂ds inte"
 
 #: src/err-codes.h:192
 msgid "Invalid certificate object"
@@ -772,7 +772,7 @@ msgstr "Ogiltigt certifikatobjekt"
 
 #: src/err-codes.h:193
 msgid "Unknown name"
-msgstr "Ok‰nt namn"
+msgstr "Ok√§nt namn"
 
 #: src/err-codes.h:194
 msgid "A locale function failed"
@@ -780,11 +780,11 @@ msgstr "En lokalfunktion misslyckades"
 
 #: src/err-codes.h:195
 msgid "Not locked"
-msgstr "Inte lÂst"
+msgstr "Inte l√•st"
 
 #: src/err-codes.h:196
 msgid "Protocol violation"
-msgstr "Protokollˆvertr‰delse"
+msgstr "Protokoll√∂vertr√§delse"
 
 #: src/err-codes.h:197
 msgid "Invalid MAC"
@@ -792,27 +792,27 @@ msgstr "Ogiltig MAC"
 
 #: src/err-codes.h:198
 msgid "Invalid request"
-msgstr "Ogiltig beg‰ran"
+msgstr "Ogiltig beg√§ran"
 
 #: src/err-codes.h:199
 msgid "Unknown extension"
-msgstr "Ok‰nd utˆkning"
+msgstr "Ok√§nd ut√∂kning"
 
 #: src/err-codes.h:200
 msgid "Unknown critical extension"
-msgstr "Ok‰nd kritiskt till‰gg"
+msgstr "Ok√§nd kritiskt till√§gg"
 
 #: src/err-codes.h:201
 msgid "Locked"
-msgstr "LÂst"
+msgstr "L√•st"
 
 #: src/err-codes.h:202
 msgid "Unknown option"
-msgstr "Ok‰nd flagga"
+msgstr "Ok√§nd flagga"
 
 #: src/err-codes.h:203
 msgid "Unknown command"
-msgstr "Ok‰nt kommando"
+msgstr "Ok√§nt kommando"
 
 #: src/err-codes.h:204
 msgid "Not operational"
@@ -820,7 +820,7 @@ msgstr "Fungerar inte"
 
 #: src/err-codes.h:205
 msgid "No passphrase given"
-msgstr "Ingen lˆsenfras angiven"
+msgstr "Ingen l√∂senfras angiven"
 
 #: src/err-codes.h:206
 msgid "No PIN given"
@@ -829,7 +829,7 @@ msgstr "Ingen pinkod angiven"
 #: src/err-codes.h:207
 #, fuzzy
 msgid "Not enabled"
-msgstr "Inte lÂst"
+msgstr "Inte l√•st"
 
 #: src/err-codes.h:208
 #, fuzzy
@@ -839,7 +839,7 @@ msgstr "Ogiltig krypteringsmotor"
 #: src/err-codes.h:209
 #, fuzzy
 msgid "Missing key"
-msgstr "Saknar v‰rde"
+msgstr "Saknar v√§rde"
 
 #: src/err-codes.h:210
 #, fuzzy
@@ -853,7 +853,7 @@ msgstr ""
 #: src/err-codes.h:212
 #, fuzzy
 msgid "Not initialized"
-msgstr "Kortet ‰r inte initierat"
+msgstr "Kortet √§r inte initierat"
 
 #: src/err-codes.h:213
 #, fuzzy
@@ -872,13 +872,13 @@ msgstr "Ogiltig tid"
 #: src/err-codes.h:216
 #, fuzzy
 msgid "Unknown elliptic curve"
-msgstr "Ok‰nd k‰lla"
+msgstr "Ok√§nd k√§lla"
 
 #: src/err-codes.h:217
 #, fuzzy
 #| msgid "Duplicated value"
 msgid "Duplicated key"
-msgstr "Dubblettv‰rde"
+msgstr "Dubblettv√§rde"
 
 #: src/err-codes.h:218
 #, fuzzy
@@ -927,23 +927,23 @@ msgstr "Ogiltig sammandragsalgoritm"
 #: src/err-codes.h:226
 #, fuzzy
 msgid "Operation fully cancelled"
-msgstr "≈tg‰rden avbrˆts"
+msgstr "√Ötg√§rden avbr√∂ts"
 
 #: src/err-codes.h:227
 msgid "Operation not yet finished"
-msgstr "≈tg‰rden ‰r ‰nnu inte f‰rdig"
+msgstr "√Ötg√§rden √§r √§nnu inte f√§rdig"
 
 #: src/err-codes.h:228
 msgid "Buffer too short"
-msgstr "Buffert fˆr liten"
+msgstr "Buffert f√∂r liten"
 
 #: src/err-codes.h:229
 msgid "Invalid length specifier in S-expression"
-msgstr "Ogiltig l‰ngdangivare i S-uttryck"
+msgstr "Ogiltig l√§ngdangivare i S-uttryck"
 
 #: src/err-codes.h:230
 msgid "String too long in S-expression"
-msgstr "Str‰ng fˆr lÂng i S-uttryck"
+msgstr "Str√§ng f√∂r l√•ng i S-uttryck"
 
 #: src/err-codes.h:231
 msgid "Unmatched parentheses in S-expression"
@@ -967,7 +967,7 @@ msgstr "Nollprefix i S-uttryck"
 
 #: src/err-codes.h:236
 msgid "Nested display hints in S-expression"
-msgstr "N‰stlade visningstips i S-uttryck"
+msgstr "N√§stlade visningstips i S-uttryck"
 
 #: src/err-codes.h:237
 msgid "Unmatched display hints"
@@ -975,7 +975,7 @@ msgstr "Omatchade visningstips"
 
 #: src/err-codes.h:238
 msgid "Unexpected reserved punctuation in S-expression"
-msgstr "Ov‰ntat reserverat skiljetecken i S-uttryck"
+msgstr "Ov√§ntat reserverat skiljetecken i S-uttryck"
 
 #: src/err-codes.h:239
 msgid "Bad hexadecimal character in S-expression"
@@ -998,7 +998,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Data not encrypted"
 msgid "Database is corrupted"
-msgstr "Data ‰r inte krypterat"
+msgstr "Data √§r inte krypterat"
 
 #: src/err-codes.h:244
 msgid "Server indicated a failure"
@@ -1008,7 +1008,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Unknown name"
 msgid "No name"
-msgstr "Ok‰nt namn"
+msgstr "Ok√§nt namn"
 
 #: src/err-codes.h:246
 #, fuzzy
@@ -1024,13 +1024,13 @@ msgstr ""
 #, fuzzy
 #| msgid "Buffer too short"
 msgid "Request too short"
-msgstr "Buffert fˆr liten"
+msgstr "Buffert f√∂r liten"
 
 #: src/err-codes.h:249
 #, fuzzy
 #| msgid "Line too long"
 msgid "Request too long"
-msgstr "Raden ‰r fˆr lÂng"
+msgstr "Raden √§r f√∂r l√•ng"
 
 #: src/err-codes.h:250
 msgid "Object is in termination state"
@@ -1046,7 +1046,7 @@ msgstr "Felaktig certifikatkedja"
 #, fuzzy
 #| msgid "Certificate too young"
 msgid "Certificate is too large"
-msgstr "Certifikatet ‰r fˆr ungt"
+msgstr "Certifikatet √§r f√∂r ungt"
 
 #: src/err-codes.h:253
 #, fuzzy
@@ -1062,7 +1062,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Unexpected tag"
 msgid "Unexpected message"
-msgstr "Ov‰ntad tagg"
+msgstr "Ov√§ntad tagg"
 
 #: src/err-codes.h:256
 msgid "Compression or decompression failed"
@@ -1091,13 +1091,13 @@ msgstr "Saknar certifikat"
 #, fuzzy
 #| msgid "Certificate revoked"
 msgid "Close notification received"
-msgstr "Certifikatet ‰r sp‰rrat"
+msgstr "Certifikatet √§r sp√§rrat"
 
 #: src/err-codes.h:262
 #, fuzzy
 #| msgid "Key expired"
 msgid "Ticket expired"
-msgstr "Nyckeln har gÂtt ut"
+msgstr "Nyckeln har g√•tt ut"
 
 #: src/err-codes.h:263
 #, fuzzy
@@ -1109,7 +1109,7 @@ msgstr "Felaktig publik nyckel"
 #, fuzzy
 #| msgid "Unknown packet"
 msgid "Unknown identity"
-msgstr "Ok‰nt paket"
+msgstr "Ok√§nt paket"
 
 #: src/err-codes.h:265
 #, fuzzy
@@ -1165,7 +1165,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Key expired"
 msgid "Key disabled"
-msgstr "Nyckeln har gÂtt ut"
+msgstr "Nyckeln har g√•tt ut"
 
 #: src/err-codes.h:278
 msgid "Not possible with a card based key"
@@ -1187,7 +1187,7 @@ msgstr ""
 
 #: src/err-codes.h:282
 msgid "General IPC error"
-msgstr "Allm‰nt IPC-fel"
+msgstr "Allm√§nt IPC-fel"
 
 #: src/err-codes.h:283
 msgid "IPC accept call failed"
@@ -1203,19 +1203,19 @@ msgstr "Ogiltigt IPC-svar"
 
 #: src/err-codes.h:286
 msgid "Invalid value passed to IPC"
-msgstr "Ogiltigt v‰rde skickat till IPC"
+msgstr "Ogiltigt v√§rde skickat till IPC"
 
 #: src/err-codes.h:287
 msgid "Incomplete line passed to IPC"
-msgstr "Ofullst‰ndig rad skickad till IPC"
+msgstr "Ofullst√§ndig rad skickad till IPC"
 
 #: src/err-codes.h:288
 msgid "Line passed to IPC too long"
-msgstr "Raden skickad till IPC ‰r fˆr lÂng"
+msgstr "Raden skickad till IPC √§r f√∂r l√•ng"
 
 #: src/err-codes.h:289
 msgid "Nested IPC commands"
-msgstr "N‰stlade IPC-kommandon"
+msgstr "N√§stlade IPC-kommandon"
 
 #: src/err-codes.h:290
 msgid "No data callback in IPC"
@@ -1223,7 +1223,7 @@ msgstr "Inget datasvarsanrop i IPC"
 
 #: src/err-codes.h:291
 msgid "No inquire callback in IPC"
-msgstr "Inget datafrÂgeanrop i IPC"
+msgstr "Inget datafr√•geanrop i IPC"
 
 #: src/err-codes.h:292
 msgid "Not an IPC server"
@@ -1239,7 +1239,7 @@ msgstr "Problem med att starta IPC-server"
 
 #: src/err-codes.h:295
 msgid "IPC read error"
-msgstr "IPC-l‰sfel"
+msgstr "IPC-l√§sfel"
 
 #: src/err-codes.h:296
 msgid "IPC write error"
@@ -1247,15 +1247,15 @@ msgstr "IPC-skrivfel"
 
 #: src/err-codes.h:297
 msgid "Too much data for IPC layer"
-msgstr "Fˆr mycket data fˆr IPC-lager"
+msgstr "F√∂r mycket data f√∂r IPC-lager"
 
 #: src/err-codes.h:298
 msgid "Unexpected IPC command"
-msgstr "Ov‰ntat IPC-kommando"
+msgstr "Ov√§ntat IPC-kommando"
 
 #: src/err-codes.h:299
 msgid "Unknown IPC command"
-msgstr "Ok‰nt IPC-kommando"
+msgstr "Ok√§nt IPC-kommando"
 
 #: src/err-codes.h:300
 msgid "IPC syntax error"
@@ -1267,11 +1267,11 @@ msgstr "IPC-anropet har avbrutits"
 
 #: src/err-codes.h:302
 msgid "No input source for IPC"
-msgstr "Ingen inmatningsk‰lla fˆr IPC"
+msgstr "Ingen inmatningsk√§lla f√∂r IPC"
 
 #: src/err-codes.h:303
 msgid "No output source for IPC"
-msgstr "Ingen utmatningsk‰lla fˆr IPC"
+msgstr "Ingen utmatningsk√§lla f√∂r IPC"
 
 #: src/err-codes.h:304
 msgid "IPC parameter error"
@@ -1279,7 +1279,7 @@ msgstr "IPC-parameterfel"
 
 #: src/err-codes.h:305
 msgid "Unknown IPC inquire"
-msgstr "Ok‰nd IPC-frÂga"
+msgstr "Ok√§nd IPC-fr√•ga"
 
 #: src/err-codes.h:306
 #, fuzzy
@@ -1310,31 +1310,31 @@ msgstr ""
 #, fuzzy
 #| msgid "Duplicated value"
 msgid "Duplicated name"
-msgstr "Dubblettv‰rde"
+msgstr "Dubblettv√§rde"
 
 #: src/err-codes.h:313
 #, fuzzy
 #| msgid "Certificate too young"
 msgid "Object is too young"
-msgstr "Certifikatet ‰r fˆr ungt"
+msgstr "Certifikatet √§r f√∂r ungt"
 
 #: src/err-codes.h:314
 #, fuzzy
 #| msgid "Provided object is too short"
 msgid "Object is too old"
-msgstr "TillhandahÂllet objekt ‰r fˆr kort"
+msgstr "Tillhandah√•llet objekt √§r f√∂r kort"
 
 #: src/err-codes.h:315
 #, fuzzy
 #| msgid "Unknown name"
 msgid "Unknown flag"
-msgstr "Ok‰nt namn"
+msgstr "Ok√§nt namn"
 
 #: src/err-codes.h:316
 #, fuzzy
 #| msgid "Invalid operation code"
 msgid "Invalid execution order"
-msgstr "Ogiltig Âtg‰rdskod"
+msgstr "Ogiltig √•tg√§rdskod"
 
 #: src/err-codes.h:317
 msgid "Already fetched"
@@ -1348,18 +1348,18 @@ msgstr ""
 #, fuzzy
 #| msgid "Unknown name"
 msgid "Wrong name"
-msgstr "Ok‰nt namn"
+msgstr "Ok√§nt namn"
 
 #: src/err-codes.h:320
 #, fuzzy
 msgid "Not authenticated"
-msgstr "Inte lÂst"
+msgstr "Inte l√•st"
 
 #: src/err-codes.h:321
 #, fuzzy
 #| msgid "Unsupported protection"
 msgid "Bad authentication"
-msgstr "Skyddet stˆds inte"
+msgstr "Skyddet st√∂ds inte"
 
 #: src/err-codes.h:322
 msgid "System bug detected"
@@ -1369,13 +1369,13 @@ msgstr ""
 #, fuzzy
 #| msgid "Unknown system error"
 msgid "Unknown DNS error"
-msgstr "Ok‰nt systemfel"
+msgstr "Ok√§nt systemfel"
 
 #: src/err-codes.h:324
 #, fuzzy
 #| msgid "Invalid OID string"
 msgid "Invalid DNS section"
-msgstr "Ogiltig OID-str‰ng"
+msgstr "Ogiltig OID-str√§ng"
 
 #: src/err-codes.h:325
 #, fuzzy
@@ -1406,43 +1406,43 @@ msgstr "Dekryptering misslyckades"
 #, fuzzy
 #| msgid "Timeout"
 msgid "DNS Timeout"
-msgstr "Tidsgr‰ns"
+msgstr "Tidsgr√§ns"
 
 #: src/err-codes.h:331
 #, fuzzy
 #| msgid "General IPC error"
 msgid "General LDAP error"
-msgstr "Allm‰nt IPC-fel"
+msgstr "Allm√§nt IPC-fel"
 
 #: src/err-codes.h:332
 #, fuzzy
 #| msgid "General error"
 msgid "General LDAP attribute error"
-msgstr "Allm‰nt fel"
+msgstr "Allm√§nt fel"
 
 #: src/err-codes.h:333
 #, fuzzy
 #| msgid "General error"
 msgid "General LDAP name error"
-msgstr "Allm‰nt fel"
+msgstr "Allm√§nt fel"
 
 #: src/err-codes.h:334
 #, fuzzy
 #| msgid "General Assuan error"
 msgid "General LDAP security error"
-msgstr "Allm‰nt Assuan-fel"
+msgstr "Allm√§nt Assuan-fel"
 
 #: src/err-codes.h:335
 #, fuzzy
 #| msgid "General error"
 msgid "General LDAP service error"
-msgstr "Allm‰nt fel"
+msgstr "Allm√§nt fel"
 
 #: src/err-codes.h:336
 #, fuzzy
 #| msgid "General Assuan error"
 msgid "General LDAP update error"
-msgstr "Allm‰nt Assuan-fel"
+msgstr "Allm√§nt Assuan-fel"
 
 #: src/err-codes.h:337
 msgid "Experimental LDAP error code"
@@ -1458,7 +1458,7 @@ msgstr "IPC-skrivfel"
 #, fuzzy
 #| msgid "General IPC error"
 msgid "Other general LDAP error"
-msgstr "Allm‰nt IPC-fel"
+msgstr "Allm√§nt IPC-fel"
 
 #: src/err-codes.h:340
 #, fuzzy
@@ -1470,7 +1470,7 @@ msgstr "IPC-anslutningsanrop misslyckades"
 #, fuzzy
 #| msgid "General error"
 msgid "LDAP referral limit exceeded"
-msgstr "Allm‰nt fel"
+msgstr "Allm√§nt fel"
 
 #: src/err-codes.h:342
 msgid "LDAP client loop"
@@ -1480,7 +1480,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Card reset required"
 msgid "No LDAP results returned"
-msgstr "Nollst‰llning av kort kr‰vs"
+msgstr "Nollst√§llning av kort kr√§vs"
 
 #: src/err-codes.h:344
 #, fuzzy
@@ -1492,13 +1492,13 @@ msgstr "Elementet hittades inte"
 #, fuzzy
 #| msgid "Not supported"
 msgid "Not supported by LDAP"
-msgstr "Stˆds inte"
+msgstr "St√∂ds inte"
 
 #: src/err-codes.h:346
 #, fuzzy
 #| msgid "Unexpected error"
 msgid "LDAP connect error"
-msgstr "Ov‰ntat fel"
+msgstr "Ov√§ntat fel"
 
 #: src/err-codes.h:347
 msgid "Out of memory in LDAP"
@@ -1512,7 +1512,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Unsupported operation"
 msgid "User cancelled LDAP operation"
-msgstr "≈tg‰rden stˆds inte"
+msgstr "√Ötg√§rden st√∂ds inte"
 
 #: src/err-codes.h:350
 #, fuzzy
@@ -1524,13 +1524,13 @@ msgstr "Felaktigt certifikat"
 #, fuzzy
 #| msgid "Unknown extension"
 msgid "Unknown LDAP authentication method"
-msgstr "Ok‰nd utˆkning"
+msgstr "Ok√§nd ut√∂kning"
 
 #: src/err-codes.h:352
 #, fuzzy
 #| msgid "Timeout"
 msgid "Timeout in LDAP"
-msgstr "Tidsgr‰ns"
+msgstr "Tidsgr√§ns"
 
 #: src/err-codes.h:353
 #, fuzzy
@@ -1548,7 +1548,7 @@ msgstr "dirmngr-fel"
 #, fuzzy
 #| msgid "IPC read error"
 msgid "LDAP local error"
-msgstr "IPC-l‰sfel"
+msgstr "IPC-l√§sfel"
 
 #: src/err-codes.h:356
 #, fuzzy
@@ -1572,7 +1572,7 @@ msgstr "Konfigurationsfel"
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "LDAP protocol error"
-msgstr "Protokollˆvertr‰delse"
+msgstr "Protokoll√∂vertr√§delse"
 
 #: src/err-codes.h:360
 msgid "Time limit exceeded in LDAP"
@@ -1594,7 +1594,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Unknown extension"
 msgid "LDAP authentication method not supported"
-msgstr "Ok‰nd utˆkning"
+msgstr "Ok√§nd ut√∂kning"
 
 #: src/err-codes.h:365
 msgid "Strong(er) LDAP authentication required"
@@ -1608,7 +1608,7 @@ msgstr ""
 #, fuzzy
 #| msgid "General error"
 msgid "LDAP referral"
-msgstr "Allm‰nt fel"
+msgstr "Allm√§nt fel"
 
 #: src/err-codes.h:368
 msgid "Administrative LDAP limit exceeded"
@@ -1622,7 +1622,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Card reset required"
 msgid "Confidentiality required by LDAP"
-msgstr "Nollst‰llning av kort kr‰vs"
+msgstr "Nollst√§llning av kort kr√§vs"
 
 #: src/err-codes.h:371
 msgid "LDAP SASL bind in progress"
@@ -1642,13 +1642,13 @@ msgstr "Ogiltigt attribut"
 #, fuzzy
 #| msgid "Unsupported protection"
 msgid "Inappropriate matching in LDAP"
-msgstr "Skyddet stˆds inte"
+msgstr "Skyddet st√∂ds inte"
 
 #: src/err-codes.h:375
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "Constraint violation in LDAP"
-msgstr "Protokollˆvertr‰delse"
+msgstr "Protokoll√∂vertr√§delse"
 
 #: src/err-codes.h:376
 msgid "LDAP type or value exists"
@@ -1658,7 +1658,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Invalid state"
 msgid "Invalid syntax in LDAP"
-msgstr "Ogiltigt tillstÂnd"
+msgstr "Ogiltigt tillst√•nd"
 
 #: src/err-codes.h:378
 #, fuzzy
@@ -1670,13 +1670,13 @@ msgstr "Inget CMS-objekt"
 #, fuzzy
 #| msgid "Hardware problem"
 msgid "LDAP alias problem"
-msgstr "HÂrdvaruproblem"
+msgstr "H√•rdvaruproblem"
 
 #: src/err-codes.h:380
 #, fuzzy
 #| msgid "Invalid state"
 msgid "Invalid DN syntax in LDAP"
-msgstr "Ogiltigt tillstÂnd"
+msgstr "Ogiltigt tillst√•nd"
 
 #: src/err-codes.h:381
 msgid "LDAP entry is a leaf"
@@ -1696,7 +1696,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Unsupported protection"
 msgid "Inappropriate LDAP authentication"
-msgstr "Skyddet stˆds inte"
+msgstr "Skyddet st√∂ds inte"
 
 #: src/err-codes.h:385
 #, fuzzy
@@ -1728,25 +1728,25 @@ msgstr ""
 #, fuzzy
 #| msgid "Missing action"
 msgid "LDAP naming violation"
-msgstr "Saknar Âtg‰rd"
+msgstr "Saknar √•tg√§rd"
 
 #: src/err-codes.h:392
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "LDAP object class violation"
-msgstr "Protokollˆvertr‰delse"
+msgstr "Protokoll√∂vertr√§delse"
 
 #: src/err-codes.h:393
 #, fuzzy
 #| msgid "Operation not yet finished"
 msgid "LDAP operation not allowed on non-leaf"
-msgstr "≈tg‰rden ‰r ‰nnu inte f‰rdig"
+msgstr "√Ötg√§rden √§r √§nnu inte f√§rdig"
 
 #: src/err-codes.h:394
 #, fuzzy
 #| msgid "Operation cancelled"
 msgid "LDAP operation not allowed on RDN"
-msgstr "≈tg‰rden avbrˆts"
+msgstr "√Ötg√§rden avbr√∂ts"
 
 #: src/err-codes.h:395
 msgid "Already exists (LDAP)"
@@ -1760,13 +1760,13 @@ msgstr ""
 #, fuzzy
 #| msgid "Line too long"
 msgid "LDAP results too large"
-msgstr "Raden ‰r fˆr lÂng"
+msgstr "Raden √§r f√∂r l√•ng"
 
 #: src/err-codes.h:398
 #, fuzzy
 #| msgid "Operation cancelled"
 msgid "LDAP operation affects multiple DSAs"
-msgstr "≈tg‰rden avbrˆts"
+msgstr "√Ötg√§rden avbr√∂ts"
 
 #: src/err-codes.h:399
 msgid "Virtual LDAP list view error"
@@ -1776,37 +1776,37 @@ msgstr ""
 #, fuzzy
 #| msgid "General IPC error"
 msgid "Other LDAP error"
-msgstr "Allm‰nt IPC-fel"
+msgstr "Allm√§nt IPC-fel"
 
 #: src/err-codes.h:401
 #, fuzzy
 #| msgid "Resources exhausted"
 msgid "Resources exhausted in LCUP"
-msgstr "Resurser ˆveranstr‰ngda"
+msgstr "Resurser √∂veranstr√§ngda"
 
 #: src/err-codes.h:402
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "Security violation in LCUP"
-msgstr "Protokollˆvertr‰delse"
+msgstr "Protokoll√∂vertr√§delse"
 
 #: src/err-codes.h:403
 #, fuzzy
 #| msgid "Invalid state"
 msgid "Invalid data in LCUP"
-msgstr "Ogiltigt tillstÂnd"
+msgstr "Ogiltigt tillst√•nd"
 
 #: src/err-codes.h:404
 #, fuzzy
 #| msgid "Unsupported certificate"
 msgid "Unsupported scheme in LCUP"
-msgstr "Certifikatet stˆds inte"
+msgstr "Certifikatet st√∂ds inte"
 
 #: src/err-codes.h:405
 #, fuzzy
 #| msgid "Card reset required"
 msgid "Reload required in LCUP"
-msgstr "Nollst‰llning av kort kr‰vs"
+msgstr "Nollst√§llning av kort kr√§vs"
 
 #: src/err-codes.h:406
 #, fuzzy
@@ -1844,67 +1844,67 @@ msgstr ""
 
 #: src/err-codes.h:412
 msgid "User defined error code 1"
-msgstr "Anv‰ndardefinierad felkod 1"
+msgstr "Anv√§ndardefinierad felkod 1"
 
 #: src/err-codes.h:413
 msgid "User defined error code 2"
-msgstr "Anv‰ndardefinierad felkod 2"
+msgstr "Anv√§ndardefinierad felkod 2"
 
 #: src/err-codes.h:414
 msgid "User defined error code 3"
-msgstr "Anv‰ndardefinierad felkod 3"
+msgstr "Anv√§ndardefinierad felkod 3"
 
 #: src/err-codes.h:415
 msgid "User defined error code 4"
-msgstr "Anv‰ndardefinierad felkod 4"
+msgstr "Anv√§ndardefinierad felkod 4"
 
 #: src/err-codes.h:416
 msgid "User defined error code 5"
-msgstr "Anv‰ndardefinierad felkod 5"
+msgstr "Anv√§ndardefinierad felkod 5"
 
 #: src/err-codes.h:417
 msgid "User defined error code 6"
-msgstr "Anv‰ndardefinierad felkod 6"
+msgstr "Anv√§ndardefinierad felkod 6"
 
 #: src/err-codes.h:418
 msgid "User defined error code 7"
-msgstr "Anv‰ndardefinierad felkod 7"
+msgstr "Anv√§ndardefinierad felkod 7"
 
 #: src/err-codes.h:419
 msgid "User defined error code 8"
-msgstr "Anv‰ndardefinierad felkod 8"
+msgstr "Anv√§ndardefinierad felkod 8"
 
 #: src/err-codes.h:420
 msgid "User defined error code 9"
-msgstr "Anv‰ndardefinierad felkod 9"
+msgstr "Anv√§ndardefinierad felkod 9"
 
 #: src/err-codes.h:421
 msgid "User defined error code 10"
-msgstr "Anv‰ndardefinierad felkod 10"
+msgstr "Anv√§ndardefinierad felkod 10"
 
 #: src/err-codes.h:422
 msgid "User defined error code 11"
-msgstr "Anv‰ndardefinierad felkod 11"
+msgstr "Anv√§ndardefinierad felkod 11"
 
 #: src/err-codes.h:423
 msgid "User defined error code 12"
-msgstr "Anv‰ndardefinierad felkod 12"
+msgstr "Anv√§ndardefinierad felkod 12"
 
 #: src/err-codes.h:424
 msgid "User defined error code 13"
-msgstr "Anv‰ndardefinierad felkod 13"
+msgstr "Anv√§ndardefinierad felkod 13"
 
 #: src/err-codes.h:425
 msgid "User defined error code 14"
-msgstr "Anv‰ndardefinierad felkod 14"
+msgstr "Anv√§ndardefinierad felkod 14"
 
 #: src/err-codes.h:426
 msgid "User defined error code 15"
-msgstr "Anv‰ndardefinierad felkod 15"
+msgstr "Anv√§ndardefinierad felkod 15"
 
 #: src/err-codes.h:427
 msgid "User defined error code 16"
-msgstr "Anv‰ndardefinierad felkod 16"
+msgstr "Anv√§ndardefinierad felkod 16"
 
 #: src/err-codes.h:428
 msgid "System error w/o errno"
@@ -1912,27 +1912,27 @@ msgstr "Systemfel utan felnummer"
 
 #: src/err-codes.h:429
 msgid "Unknown system error"
-msgstr "Ok‰nt systemfel"
+msgstr "Ok√§nt systemfel"
 
 #: src/err-codes.h:430
 msgid "End of file"
-msgstr "Slut pÂ fil"
+msgstr "Slut p√• fil"
 
 #: src/err-codes.h:431
 msgid "Unknown error code"
-msgstr "Ok‰nd felkod"
+msgstr "Ok√§nd felkod"
 
 #: src/argparse.c:318
 msgid "argument not expected"
-msgstr "argument fˆrv‰ntades inte"
+msgstr "argument f√∂rv√§ntades inte"
 
 #: src/argparse.c:320
 msgid "read error"
-msgstr "l‰sfel"
+msgstr "l√§sfel"
 
 #: src/argparse.c:322
 msgid "keyword too long"
-msgstr "nyckelordet ‰r fˆr lÂngt"
+msgstr "nyckelordet √§r f√∂r l√•ngt"
 
 #: src/argparse.c:324
 msgid "missing argument"
@@ -1942,7 +1942,7 @@ msgstr "argument saknas"
 #, fuzzy
 #| msgid "invalid value\n"
 msgid "invalid argument"
-msgstr "ogiltigt v‰rde\n"
+msgstr "ogiltigt v√§rde\n"
 
 #: src/argparse.c:328
 msgid "invalid command"
@@ -1954,7 +1954,7 @@ msgstr "ogiltig aliasdefinition"
 
 #: src/argparse.c:332
 msgid "out of core"
-msgstr "slut pÂ minne"
+msgstr "slut p√• minne"
 
 #: src/argparse.c:334
 msgid "invalid option"
@@ -1963,18 +1963,18 @@ msgstr "ogiltig flagga"
 #: src/argparse.c:343
 #, c-format
 msgid "missing argument for option \"%.50s\"\n"
-msgstr "argument fˆr flaggan \"%.50s\" saknas\n"
+msgstr "argument f√∂r flaggan \"%.50s\" saknas\n"
 
 #: src/argparse.c:345
 #, fuzzy, c-format
 #| msgid "missing argument for option \"%.50s\"\n"
 msgid "invalid argument for option \"%.50s\"\n"
-msgstr "argument fˆr flaggan \"%.50s\" saknas\n"
+msgstr "argument f√∂r flaggan \"%.50s\" saknas\n"
 
 #: src/argparse.c:347
 #, c-format
 msgid "option \"%.50s\" does not expect an argument\n"
-msgstr "flaggan \"%.50s\" fˆrv‰ntar sig inte ett argument\n"
+msgstr "flaggan \"%.50s\" f√∂rv√§ntar sig inte ett argument\n"
 
 #: src/argparse.c:350
 #, c-format
@@ -1984,16 +1984,16 @@ msgstr "ogiltigt kommando \"%.50s\"\n"
 #: src/argparse.c:352
 #, c-format
 msgid "option \"%.50s\" is ambiguous\n"
-msgstr "flagga \"%.50s\" ‰r tvetydig\n"
+msgstr "flagga \"%.50s\" √§r tvetydig\n"
 
 #: src/argparse.c:354
 #, c-format
 msgid "command \"%.50s\" is ambiguous\n"
-msgstr "kommandot \"%.50s\" ‰r tvetydigt\n"
+msgstr "kommandot \"%.50s\" √§r tvetydigt\n"
 
 #: src/argparse.c:356
 msgid "out of core\n"
-msgstr "slut pÂ minne\n"
+msgstr "slut p√• minne\n"
 
 #: src/argparse.c:358
 #, c-format
@@ -2007,15 +2007,15 @@ msgstr ""
 #: src/gpg-error.c:658
 #, c-format
 msgid "warning: could not recognize %s\n"
-msgstr "varning: k‰nde inte igen %s\n"
+msgstr "varning: k√§nde inte igen %s\n"
 
 #~ msgid "Usage: %s GPG-ERROR [...]\n"
-#~ msgstr "Anv‰ndning: %s GPG-ERROR [...]\n"
+#~ msgstr "Anv√§ndning: %s GPG-ERROR [...]\n"
 
 #, fuzzy
 #~| msgid "Resources exhausted"
 #~ msgid "LCUP Resources exhausted"
-#~ msgstr "Resurser ˆveranstr‰ngda"
+#~ msgstr "Resurser √∂veranstr√§ngda"
 
 #, fuzzy
 #~| msgid "Invalid data"
@@ -2025,7 +2025,7 @@ msgstr "varning: k‰nde inte igen %s\n"
 #, fuzzy
 #~| msgid "General error"
 #~ msgid "LDAP Other general error"
-#~ msgstr "Allm‰nt fel"
+#~ msgstr "Allm√§nt fel"
 
 #, fuzzy
 #~| msgid "dirmngr error"

@@ -70,8 +70,8 @@ main (int argc, char **argv)
     ARGPARSE_s_n('d', "debug", "Debug\nfalls mal etwas\nschief geht"),
     ARGPARSE_s_s('o', "output", 0 ),
     ARGPARSE_o_s('c', "cross-ref", "cross-reference erzeugen\n" ),
-    /* Note that on a non-utf8 terminal the ﬂ might garble the output. */
-    ARGPARSE_s_n('s', "street","|Straﬂe|set the name of the street to Straﬂe"),
+    /* Note that on a non-utf8 terminal the √ü might garble the output. */
+    ARGPARSE_s_n('s', "street","|Stra√üe|set the name of the street to Stra√üe"),
     ARGPARSE_o_i('m', "my-option", 0),
     ARGPARSE_s_n(500, "a-long-option", 0 ),
     ARGPARSE_end()

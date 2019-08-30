@@ -3,12 +3,12 @@
 # This file is distributed under the same license as the libgpg-error package.
 # Petr Pisar <petr.pisar@atlas.cz>, 2009, 2012, 2014.
 #
-# certificate chain ? ?et?zec (posloupnost) certifikát?
-# keybox ? schránka (na klí?e)
-# keyring ? klí?enka (jen na PGP klí?e)
-# armor ? ASCII (podoba)
-# encoding ? kódování
-# encryption ? šifrování
+# certificate chain â†’ Å™etÄ›zec (posloupnost) certifikÃ¡tÅ¯
+# keybox â†’ schrÃ¡nka (na klÃ­Äe)
+# keyring â†’ klÃ­Äenka (jen na PGP klÃ­Äe)
+# armor â†’ ASCII (podoba)
+# encoding â†’ kÃ³dovÃ¡nÃ­
+# encryption â†’ Å¡ifrovÃ¡nÃ­
 #
 msgid ""
 msgstr ""
@@ -25,7 +25,7 @@ msgstr ""
 
 #: src/err-sources.h:28
 msgid "Unspecified source"
-msgstr "Zdroj nezadán"
+msgstr "Zdroj nezadÃ¡n"
 
 #: src/err-sources.h:29
 msgid "gcrypt"
@@ -55,10 +55,10 @@ msgstr "SCD"
 msgid "GPGME"
 msgstr "GPGME"
 
-# XXX: Konzistentní s gnupg2
+# XXX: KonzistentnÃ­ sÂ gnupg2
 #: src/err-sources.h:36
 msgid "Keybox"
-msgstr "Schránka"
+msgstr "SchrÃ¡nka"
 
 #: src/err-sources.h:37
 msgid "KSBA"
@@ -94,135 +94,135 @@ msgstr "TLS"
 
 #: src/err-sources.h:45
 msgid "Any source"
-msgstr "Nespecifikovanı zdroj"
+msgstr "NespecifikovanÃ½ zdroj"
 
 #: src/err-sources.h:46
 msgid "User defined source 1"
-msgstr "Uivatelem definovanı zdroj 1"
+msgstr "UÅ¾ivatelem definovanÃ½ zdroj 1"
 
 #: src/err-sources.h:47
 msgid "User defined source 2"
-msgstr "Uivatelem definovanı zdroj 2"
+msgstr "UÅ¾ivatelem definovanÃ½ zdroj 2"
 
 #: src/err-sources.h:48
 msgid "User defined source 3"
-msgstr "Uivatelem definovanı zdroj 3"
+msgstr "UÅ¾ivatelem definovanÃ½ zdroj 3"
 
 #: src/err-sources.h:49
 msgid "User defined source 4"
-msgstr "Uivatelem definovanı zdroj 4"
+msgstr "UÅ¾ivatelem definovanÃ½ zdroj 4"
 
 #: src/err-sources.h:50
 msgid "Unknown source"
-msgstr "Neznámı zdroj"
+msgstr "NeznÃ¡mÃ½ zdroj"
 
 #: src/err-codes.h:28
 msgid "Success"
-msgstr "Úsp?ch"
+msgstr "ÃšspÄ›ch"
 
 #: src/err-codes.h:29
 msgid "General error"
-msgstr "Obecná chyba"
+msgstr "ObecnÃ¡ chyba"
 
 #: src/err-codes.h:30
 msgid "Unknown packet"
-msgstr "Neznámı packet"
+msgstr "NeznÃ¡mÃ½ packet"
 
 #: src/err-codes.h:31
 msgid "Unknown version in packet"
-msgstr "Neznámá verze v packetu"
+msgstr "NeznÃ¡mÃ¡ verze vÂ packetu"
 
 #: src/err-codes.h:32
 msgid "Invalid public key algorithm"
-msgstr "Neplatnı algoritmus ve?ejného klí?e"
+msgstr "NeplatnÃ½ algoritmus veÅ™ejnÃ©ho klÃ­Äe"
 
 #: src/err-codes.h:33
 msgid "Invalid digest algorithm"
-msgstr "Neplatnı hashovací algoritmus"
+msgstr "NeplatnÃ½ hashovacÃ­ algoritmus"
 
 #: src/err-codes.h:34
 msgid "Bad public key"
-msgstr "Chybnı ve?ejnı klí?"
+msgstr "ChybnÃ½ veÅ™ejnÃ½ klÃ­Ä"
 
 #: src/err-codes.h:35
 msgid "Bad secret key"
-msgstr "Chybnı tajnı klí?"
+msgstr "ChybnÃ½ tajnÃ½ klÃ­Ä"
 
 #: src/err-codes.h:36
 msgid "Bad signature"
-msgstr "Chybnı podpis"
+msgstr "ChybnÃ½ podpis"
 
 #: src/err-codes.h:37
 msgid "No public key"
-msgstr "ádnı ve?ejnı klí?"
+msgstr "Å½Ã¡dnÃ½ veÅ™ejnÃ½ klÃ­Ä"
 
 #: src/err-codes.h:38
 msgid "Checksum error"
-msgstr "Chyba kontrolního sou?tu"
+msgstr "Chyba kontrolnÃ­ho souÄtu"
 
 #: src/err-codes.h:39
 msgid "Bad passphrase"
-msgstr "Chybné heslo"
+msgstr "ChybnÃ© heslo"
 
 #: src/err-codes.h:40
 msgid "Invalid cipher algorithm"
-msgstr "Neplatnı šifrovací algoritmus"
+msgstr "NeplatnÃ½ Å¡ifrovacÃ­ algoritmus"
 
 #: src/err-codes.h:41
 msgid "Cannot open keyring"
-msgstr "Klí?enka otev?ena"
+msgstr "KlÃ­Äenka otevÅ™ena"
 
 #: src/err-codes.h:42
 msgid "Invalid packet"
-msgstr "Neplatnı packet"
+msgstr "NeplatnÃ½ packet"
 
 #: src/err-codes.h:43
 msgid "Invalid armor"
-msgstr "Neplatnı ASCII zápis"
+msgstr "NeplatnÃ½ ASCII zÃ¡pis"
 
 #: src/err-codes.h:44
 msgid "No user ID"
-msgstr "ádnı identifikátor uivatele"
+msgstr "Å½Ã¡dnÃ½ identifikÃ¡tor uÅ¾ivatele"
 
 #: src/err-codes.h:45
 msgid "No secret key"
-msgstr "ádnı tajnı klí?"
+msgstr "Å½Ã¡dnÃ½ tajnÃ½ klÃ­Ä"
 
 #: src/err-codes.h:46
 msgid "Wrong secret key used"
-msgstr "Pouit špatnı tajnı klí?"
+msgstr "PouÅ¾it Å¡patnÃ½ tajnÃ½ klÃ­Ä"
 
 #: src/err-codes.h:47
 msgid "Bad session key"
-msgstr "Chybnı klí? relace"
+msgstr "ChybnÃ½ klÃ­Ä relace"
 
 #: src/err-codes.h:48
 msgid "Unknown compression algorithm"
-msgstr "Neznámı kompresní algoritmus"
+msgstr "NeznÃ¡mÃ½ kompresnÃ­ algoritmus"
 
 #: src/err-codes.h:49
 msgid "Number is not prime"
-msgstr "?íslo není prvo?íslo"
+msgstr "ÄŒÃ­slo nenÃ­ prvoÄÃ­slo"
 
 #: src/err-codes.h:50
 msgid "Invalid encoding method"
-msgstr "Neplatná kódovací metoda"
+msgstr "NeplatnÃ¡ kÃ³dovacÃ­ metoda"
 
 #: src/err-codes.h:51
 msgid "Invalid encryption scheme"
-msgstr "Neplatné šifrovací schéma"
+msgstr "NeplatnÃ© Å¡ifrovacÃ­ schÃ©ma"
 
 #: src/err-codes.h:52
 msgid "Invalid signature scheme"
-msgstr "Neplatné podpisové schéma"
+msgstr "NeplatnÃ© podpisovÃ© schÃ©ma"
 
 #: src/err-codes.h:53
 msgid "Invalid attribute"
-msgstr "Neplatnı atribut"
+msgstr "NeplatnÃ½ atribut"
 
 #: src/err-codes.h:54
 msgid "No value"
-msgstr "ádná hodnota"
+msgstr "Å½Ã¡dnÃ¡ hodnota"
 
 #: src/err-codes.h:55
 msgid "Not found"
@@ -238,120 +238,120 @@ msgstr "Chyba syntaxe"
 
 #: src/err-codes.h:58
 msgid "Bad MPI value"
-msgstr "Chybná hodnota MPI"
+msgstr "ChybnÃ¡ hodnota MPI"
 
 #: src/err-codes.h:59
 msgid "Invalid passphrase"
-msgstr "Neplatné heslo"
+msgstr "NeplatnÃ© heslo"
 
 #: src/err-codes.h:60
 msgid "Invalid signature class"
-msgstr "Neplatní podpisová t?ída"
+msgstr "NeplatnÃ­ podpisovÃ¡ tÅ™Ã­da"
 
 #: src/err-codes.h:61
 msgid "Resources exhausted"
-msgstr "Zdroje vy?erpány"
+msgstr "Zdroje vyÄerpÃ¡ny"
 
 #: src/err-codes.h:62
 msgid "Invalid keyring"
-msgstr "Neplatná klí?enka"
+msgstr "NeplatnÃ¡ klÃ­Äenka"
 
 #: src/err-codes.h:63
 msgid "Trust DB error"
-msgstr "Chyba databáze d?v?ry"
+msgstr "Chyba databÃ¡ze dÅ¯vÄ›ry"
 
 #: src/err-codes.h:64
 msgid "Bad certificate"
-msgstr "Chybnı certifikát"
+msgstr "ChybnÃ½ certifikÃ¡t"
 
 #: src/err-codes.h:65
 msgid "Invalid user ID"
-msgstr "Neplatné ID uivatele"
+msgstr "NeplatnÃ© ID uÅ¾ivatele"
 
 #: src/err-codes.h:66
 msgid "Unexpected error"
-msgstr "Neo?ekávaná chyba"
+msgstr "NeoÄekÃ¡vanÃ¡ chyba"
 
 #: src/err-codes.h:67
 msgid "Time conflict"
-msgstr "Rozpor v ?asu"
+msgstr "Rozpor vÂ Äasu"
 
 #: src/err-codes.h:68
 msgid "Keyserver error"
-msgstr "Chyba serveru s klí?i"
+msgstr "Chyba serveru sÂ klÃ­Äi"
 
 #: src/err-codes.h:69
 msgid "Wrong public key algorithm"
-msgstr "Špatnı algoritmus ve?ejného klí?e"
+msgstr "Å patnÃ½ algoritmus veÅ™ejnÃ©ho klÃ­Äe"
 
 # This is errror nuber 42 :)
 #: src/err-codes.h:70
 msgid "Tribute to D. A."
-msgstr "Pocta D.?A."
+msgstr "Pocta D.â€¯A."
 
 #: src/err-codes.h:71
 msgid "Weak encryption key"
-msgstr "Slabı šifrovací klí?"
+msgstr "SlabÃ½ Å¡ifrovacÃ­ klÃ­Ä"
 
 #: src/err-codes.h:72
 msgid "Invalid key length"
-msgstr "Neplatná délka klí?e"
+msgstr "NeplatnÃ¡ dÃ©lka klÃ­Äe"
 
 #: src/err-codes.h:73
 msgid "Invalid argument"
-msgstr "Neplatnı argument"
+msgstr "NeplatnÃ½ argument"
 
 #: src/err-codes.h:74
 msgid "Syntax error in URI"
-msgstr "Chyba syntaxe v URI"
+msgstr "Chyba syntaxe vÂ URI"
 
 #: src/err-codes.h:75
 msgid "Invalid URI"
-msgstr "Neplatné URI"
+msgstr "NeplatnÃ© URI"
 
 #: src/err-codes.h:76
 msgid "Network error"
-msgstr "Chyba sít?"
+msgstr "Chyba sÃ­tÄ›"
 
 #: src/err-codes.h:77
 msgid "Unknown host"
-msgstr "Neznámı stroj"
+msgstr "NeznÃ¡mÃ½ stroj"
 
 #: src/err-codes.h:78
 msgid "Selftest failed"
-msgstr "Sebetestování selhalo"
+msgstr "SebetestovÃ¡nÃ­ selhalo"
 
 #: src/err-codes.h:79
 msgid "Data not encrypted"
-msgstr "Data nešifrována"
+msgstr "Data neÅ¡ifrovÃ¡na"
 
 #: src/err-codes.h:80
 msgid "Data not processed"
-msgstr "Data nezpracována"
+msgstr "Data nezpracovÃ¡na"
 
 #: src/err-codes.h:81
 msgid "Unusable public key"
-msgstr "Nepouitelnı ve?ejnı klí?"
+msgstr "NepouÅ¾itelnÃ½ veÅ™ejnÃ½ klÃ­Ä"
 
 #: src/err-codes.h:82
 msgid "Unusable secret key"
-msgstr "Nepouitelnı tajnı klí?"
+msgstr "NepouÅ¾itelnÃ½ tajnÃ½ klÃ­Ä"
 
 #: src/err-codes.h:83
 msgid "Invalid value"
-msgstr "Neplatná hodnota"
+msgstr "NeplatnÃ¡ hodnota"
 
 #: src/err-codes.h:84
 msgid "Bad certificate chain"
-msgstr "Chybnı ?et?zec certifikát?"
+msgstr "ChybnÃ½ Å™etÄ›zec certifikÃ¡tÅ¯"
 
 #: src/err-codes.h:85
 msgid "Missing certificate"
-msgstr "Chybí certifikát"
+msgstr "ChybÃ­ certifikÃ¡t"
 
 #: src/err-codes.h:86
 msgid "No data"
-msgstr "ádná data"
+msgstr "Å½Ã¡dnÃ¡ data"
 
 #: src/err-codes.h:87
 msgid "Bug"
@@ -359,19 +359,19 @@ msgstr "Chyba"
 
 #: src/err-codes.h:88
 msgid "Not supported"
-msgstr "Nepodporováno"
+msgstr "NepodporovÃ¡no"
 
 #: src/err-codes.h:89
 msgid "Invalid operation code"
-msgstr "Neplatnı kód operace"
+msgstr "NeplatnÃ½ kÃ³d operace"
 
 #: src/err-codes.h:90
 msgid "Timeout"
-msgstr "?as vypršel"
+msgstr "ÄŒas vyprÅ¡el"
 
 #: src/err-codes.h:91
 msgid "Internal error"
-msgstr "Vnit?ní chyba"
+msgstr "VnitÅ™nÃ­ chyba"
 
 #: src/err-codes.h:92
 msgid "EOF (gcrypt)"
@@ -379,55 +379,55 @@ msgstr "EOF (gcrypt)"
 
 #: src/err-codes.h:93
 msgid "Invalid object"
-msgstr "Neplatnı objekt"
+msgstr "NeplatnÃ½ objekt"
 
 #: src/err-codes.h:94
 msgid "Provided object is too short"
-msgstr "Dodanı objekt je p?íliš krátkı"
+msgstr "DodanÃ½ objekt je pÅ™Ã­liÅ¡ krÃ¡tkÃ½"
 
 #: src/err-codes.h:95
 msgid "Provided object is too large"
-msgstr "Dodanı objekt je p?íliš dlouhı"
+msgstr "DodanÃ½ objekt je pÅ™Ã­liÅ¡ dlouhÃ½"
 
 #: src/err-codes.h:96
 msgid "Missing item in object"
-msgstr "V objektu chybí poloka"
+msgstr "VÂ objektu chybÃ­ poloÅ¾ka"
 
 #: src/err-codes.h:97
 msgid "Not implemented"
-msgstr "Neimplementováno"
+msgstr "NeimplementovÃ¡no"
 
 #: src/err-codes.h:98
 msgid "Conflicting use"
-msgstr "Neslu?itelné pouití"
+msgstr "NesluÄitelnÃ© pouÅ¾itÃ­"
 
 #: src/err-codes.h:99
 msgid "Invalid cipher mode"
-msgstr "Neplatnı reim šifry"
+msgstr "NeplatnÃ½ reÅ¾im Å¡ifry"
 
 #: src/err-codes.h:100
 msgid "Invalid flag"
-msgstr "Neplatnı p?íznak"
+msgstr "NeplatnÃ½ pÅ™Ã­znak"
 
 #: src/err-codes.h:101
 msgid "Invalid handle"
-msgstr "Neplatnı deskriptor"
+msgstr "NeplatnÃ½ deskriptor"
 
 #: src/err-codes.h:102
 msgid "Result truncated"
-msgstr "Vısledek zkrácen"
+msgstr "VÃ½sledek zkrÃ¡cen"
 
 #: src/err-codes.h:103
 msgid "Incomplete line"
-msgstr "Neúplnı ?ádek"
+msgstr "NeÃºplnÃ½ Å™Ã¡dek"
 
 #: src/err-codes.h:104
 msgid "Invalid response"
-msgstr "Neplatná odpov??"
+msgstr "NeplatnÃ¡ odpovÄ›Ä"
 
 #: src/err-codes.h:105
 msgid "No agent running"
-msgstr "Agent neb?í"
+msgstr "Agent nebÄ›Å¾Ã­"
 
 #: src/err-codes.h:106
 msgid "Agent error"
@@ -435,31 +435,31 @@ msgstr "Chyba agenta"
 
 #: src/err-codes.h:107
 msgid "Invalid data"
-msgstr "Neplatná data"
+msgstr "NeplatnÃ¡ data"
 
 #: src/err-codes.h:108
 msgid "Unspecific Assuan server fault"
-msgstr "Neur?ená porucha serveru Assuan"
+msgstr "NeurÄenÃ¡ porucha serveru Assuan"
 
 #: src/err-codes.h:109
 msgid "General Assuan error"
-msgstr "Obecná chyba Assuanu"
+msgstr "ObecnÃ¡ chyba Assuanu"
 
 #: src/err-codes.h:110
 msgid "Invalid session key"
-msgstr "Neplatnı klí? relace"
+msgstr "NeplatnÃ½ klÃ­Ä relace"
 
 #: src/err-codes.h:111
 msgid "Invalid S-expression"
-msgstr "Neplatnı S-vıraz"
+msgstr "NeplatnÃ½ S-vÃ½raz"
 
 #: src/err-codes.h:112
 msgid "Unsupported algorithm"
-msgstr "Nepodporovanı algoritmus"
+msgstr "NepodporovanÃ½ algoritmus"
 
 #: src/err-codes.h:113
 msgid "No pinentry"
-msgstr "ádnı pinentry"
+msgstr "Å½Ã¡dnÃ½ pinentry"
 
 #: src/err-codes.h:114
 msgid "pinentry error"
@@ -467,27 +467,27 @@ msgstr "chyba pinentry"
 
 #: src/err-codes.h:115
 msgid "Bad PIN"
-msgstr "Špatnı PIN"
+msgstr "Å patnÃ½ PIN"
 
 #: src/err-codes.h:116
 msgid "Invalid name"
-msgstr "Neplatné jméno"
+msgstr "NeplatnÃ© jmÃ©no"
 
 #: src/err-codes.h:117
 msgid "Bad data"
-msgstr "Chybná data"
+msgstr "ChybnÃ¡ data"
 
 #: src/err-codes.h:118
 msgid "Invalid parameter"
-msgstr "Neplatnı parametr"
+msgstr "NeplatnÃ½ parametr"
 
 #: src/err-codes.h:119
 msgid "Wrong card"
-msgstr "Špatná karta"
+msgstr "Å patnÃ¡ karta"
 
 #: src/err-codes.h:120
 msgid "No dirmngr"
-msgstr "ádnı dirmngr"
+msgstr "Å½Ã¡dnÃ½ dirmngr"
 
 #: src/err-codes.h:121
 msgid "dirmngr error"
@@ -495,59 +495,59 @@ msgstr "chyba dirmngr"
 
 #: src/err-codes.h:122
 msgid "Certificate revoked"
-msgstr "Certifikát odvolán"
+msgstr "CertifikÃ¡t odvolÃ¡n"
 
 #: src/err-codes.h:123
 msgid "No CRL known"
-msgstr "Není znám ádnı CRL"
+msgstr "NenÃ­ znÃ¡m Å¾Ã¡dnÃ½ CRL"
 
 #: src/err-codes.h:124
 msgid "CRL too old"
-msgstr "P?íliš starı CRL"
+msgstr "PÅ™Ã­liÅ¡ starÃ½ CRL"
 
 #: src/err-codes.h:125
 msgid "Line too long"
-msgstr "P?íliš dlouhı ?ádek"
+msgstr "PÅ™Ã­liÅ¡ dlouhÃ½ Å™Ã¡dek"
 
 #: src/err-codes.h:126
 msgid "Not trusted"
-msgstr "Ned?v??uje se"
+msgstr "NedÅ¯vÄ›Å™uje se"
 
 #: src/err-codes.h:127
 msgid "Operation cancelled"
-msgstr "Operace zrušena"
+msgstr "Operace zruÅ¡ena"
 
 #: src/err-codes.h:128
 msgid "Bad CA certificate"
-msgstr "Chybnı certifikát autority"
+msgstr "ChybnÃ½ certifikÃ¡t autority"
 
 #: src/err-codes.h:129
 msgid "Certificate expired"
-msgstr "Certifikátu vypršela platnost"
+msgstr "CertifikÃ¡tu vyprÅ¡ela platnost"
 
 #: src/err-codes.h:130
 msgid "Certificate too young"
-msgstr "Certifikát je p?íliš mladı"
+msgstr "CertifikÃ¡t je pÅ™Ã­liÅ¡ mladÃ½"
 
 #: src/err-codes.h:131
 msgid "Unsupported certificate"
-msgstr "Nepodporovanı certifikát"
+msgstr "NepodporovanÃ½ certifikÃ¡t"
 
 #: src/err-codes.h:132
 msgid "Unknown S-expression"
-msgstr "Neznámı S-vıraz"
+msgstr "NeznÃ¡mÃ½ S-vÃ½raz"
 
 #: src/err-codes.h:133
 msgid "Unsupported protection"
-msgstr "Nepodporovaná ochrana"
+msgstr "NepodporovanÃ¡ ochrana"
 
 #: src/err-codes.h:134
 msgid "Corrupted protection"
-msgstr "Poškozená ochrana"
+msgstr "PoÅ¡kozenÃ¡ ochrana"
 
 #: src/err-codes.h:135
 msgid "Ambiguous name"
-msgstr "Nejednozna?né jméno"
+msgstr "NejednoznaÄnÃ© jmÃ©no"
 
 #: src/err-codes.h:136
 msgid "Card error"
@@ -555,29 +555,29 @@ msgstr "Chyba karty"
 
 #: src/err-codes.h:137
 msgid "Card reset required"
-msgstr "Vyadován reset karty"
+msgstr "VyÅ¾adovÃ¡n reset karty"
 
 #: src/err-codes.h:138
 msgid "Card removed"
-msgstr "Karta odstran?na"
+msgstr "Karta odstranÄ›na"
 
 #: src/err-codes.h:139
 msgid "Invalid card"
-msgstr "Neplatná karta"
+msgstr "NeplatnÃ¡ karta"
 
 #: src/err-codes.h:140
 msgid "Card not present"
-msgstr "Karta není p?ítomna"
+msgstr "Karta nenÃ­ pÅ™Ã­tomna"
 
 #: src/err-codes.h:141
 msgid "No PKCS15 application"
-msgstr "ádná aplikace PKCS15"
+msgstr "Å½Ã¡dnÃ¡ aplikace PKCS15"
 
 #: src/err-codes.h:142
 msgid "Not confirmed"
 msgstr "Nepotvrzeno"
 
-# Nastavení nebo nastavování?
+# NastavenÃ­ nebo nastavovÃ¡nÃ­?
 #: src/err-codes.h:143
 msgid "Configuration error"
 msgstr "Chyba konfigurace"
@@ -588,39 +588,39 @@ msgstr "Politika se neshoduje"
 
 #: src/err-codes.h:145
 msgid "Invalid index"
-msgstr "Neplatnı index"
+msgstr "NeplatnÃ½ index"
 
 #: src/err-codes.h:146
 msgid "Invalid ID"
-msgstr "Neplatné ID"
+msgstr "NeplatnÃ© ID"
 
 #: src/err-codes.h:147
 msgid "No SmartCard daemon"
-msgstr "ádnı démon pro ?ipové karty"
+msgstr "Å½Ã¡dnÃ½ dÃ©mon pro ÄipovÃ© karty"
 
 #: src/err-codes.h:148
 msgid "SmartCard daemon error"
-msgstr "Chyba démona pro ?ipové karty"
+msgstr "Chyba dÃ©mona pro ÄipovÃ© karty"
 
 #: src/err-codes.h:149
 msgid "Unsupported protocol"
-msgstr "Nepodporovanı protokol"
+msgstr "NepodporovanÃ½ protokol"
 
 #: src/err-codes.h:150
 msgid "Bad PIN method"
-msgstr "Chybná metoda PINu"
+msgstr "ChybnÃ¡ metoda PINu"
 
 #: src/err-codes.h:151
 msgid "Card not initialized"
-msgstr "Karta neinicializovaná"
+msgstr "Karta neinicializovanÃ¡"
 
 #: src/err-codes.h:152
 msgid "Unsupported operation"
-msgstr "Nepodporovaná operace"
+msgstr "NepodporovanÃ¡ operace"
 
 #: src/err-codes.h:153
 msgid "Wrong key usage"
-msgstr "Špatné pouití karty"
+msgstr "Å patnÃ© pouÅ¾itÃ­ karty"
 
 #: src/err-codes.h:154
 msgid "Nothing found"
@@ -628,31 +628,31 @@ msgstr "Nic nenalezeno"
 
 #: src/err-codes.h:155
 msgid "Wrong blob type"
-msgstr "Špatnı typ blobu"
+msgstr "Å patnÃ½ typ blobu"
 
 #: src/err-codes.h:156
 msgid "Missing value"
-msgstr "Chybí hodnota"
+msgstr "ChybÃ­ hodnota"
 
 #: src/err-codes.h:157
 msgid "Hardware problem"
-msgstr "Hardwarovı problém"
+msgstr "HardwarovÃ½ problÃ©m"
 
 #: src/err-codes.h:158
 msgid "PIN blocked"
-msgstr "PIN?blokován"
+msgstr "PINâ€¯blokovÃ¡n"
 
 #: src/err-codes.h:159
 msgid "Conditions of use not satisfied"
-msgstr "Podmínky pouití nespln?ny"
+msgstr "PodmÃ­nky pouÅ¾itÃ­ nesplnÄ›ny"
 
 #: src/err-codes.h:160
 msgid "PINs are not synced"
-msgstr "PINy nejsou synchronizovány"
+msgstr "PINy nejsou synchronizovÃ¡ny"
 
 #: src/err-codes.h:161
 msgid "Invalid CRL"
-msgstr "Neplatnı CRL"
+msgstr "NeplatnÃ½ CRL"
 
 #: src/err-codes.h:162
 msgid "BER error"
@@ -660,7 +660,7 @@ msgstr "Chyba BER"
 
 #: src/err-codes.h:163
 msgid "Invalid BER"
-msgstr "Neplatné BER"
+msgstr "NeplatnÃ© BER"
 
 #: src/err-codes.h:164
 msgid "Element not found"
@@ -668,91 +668,91 @@ msgstr "Prvek nenalezen"
 
 #: src/err-codes.h:165
 msgid "Identifier not found"
-msgstr "Identifikátor nenalezen"
+msgstr "IdentifikÃ¡tor nenalezen"
 
 #: src/err-codes.h:166
 msgid "Invalid tag"
-msgstr "Neplatná zna?ka"
+msgstr "NeplatnÃ¡ znaÄka"
 
 #: src/err-codes.h:167
 msgid "Invalid length"
-msgstr "Neplatná délka"
+msgstr "NeplatnÃ¡ dÃ©lka"
 
 #: src/err-codes.h:168
 msgid "Invalid key info"
-msgstr "Neplatné informace o klí?i"
+msgstr "NeplatnÃ© informace oÂ klÃ­Äi"
 
 #: src/err-codes.h:169
 msgid "Unexpected tag"
-msgstr "Neo?ekávaná zna?ka"
+msgstr "NeoÄekÃ¡vanÃ¡ znaÄka"
 
 #: src/err-codes.h:170
 msgid "Not DER encoded"
-msgstr "Nekódováno v DER"
+msgstr "NekÃ³dovÃ¡no vÂ DER"
 
 #: src/err-codes.h:171
 msgid "No CMS object"
-msgstr "ádnı objekt CMS"
+msgstr "Å½Ã¡dnÃ½ objekt CMS"
 
 #: src/err-codes.h:172
 msgid "Invalid CMS object"
-msgstr "Neplatnı objekt CMS"
+msgstr "NeplatnÃ½ objekt CMS"
 
 #: src/err-codes.h:173
 msgid "Unknown CMS object"
-msgstr "Neznámı objekt CMS"
+msgstr "NeznÃ¡mÃ½ objekt CMS"
 
 #: src/err-codes.h:174
 msgid "Unsupported CMS object"
-msgstr "Nepodporovanı objekty?CMS"
+msgstr "NepodporovanÃ½ objektyâ€¯CMS"
 
 #: src/err-codes.h:175
 msgid "Unsupported encoding"
-msgstr "Nepodporované kódování"
+msgstr "NepodporovanÃ© kÃ³dovÃ¡nÃ­"
 
 #: src/err-codes.h:176
 msgid "Unsupported CMS version"
-msgstr "Nepodporovaná verze CMS"
+msgstr "NepodporovanÃ¡ verze CMS"
 
 #: src/err-codes.h:177
 msgid "Unknown algorithm"
-msgstr "Neznámı algoritmus"
+msgstr "NeznÃ¡mÃ½ algoritmus"
 
 #: src/err-codes.h:178
 msgid "Invalid crypto engine"
-msgstr "Neplatná kryptografická jednotka"
+msgstr "NeplatnÃ¡ kryptografickÃ¡ jednotka"
 
 #: src/err-codes.h:179
 msgid "Public key not trusted"
-msgstr "Ve?ejnému klí?i se ned?v??uje"
+msgstr "VeÅ™ejnÃ©mu klÃ­Äi se nedÅ¯vÄ›Å™uje"
 
 #: src/err-codes.h:180
 msgid "Decryption failed"
-msgstr "Dešifrování selhalo"
+msgstr "DeÅ¡ifrovÃ¡nÃ­ selhalo"
 
 #: src/err-codes.h:181
 msgid "Key expired"
-msgstr "Klí?i vypršela platnost"
+msgstr "KlÃ­Äi vyprÅ¡ela platnost"
 
 #: src/err-codes.h:182
 msgid "Signature expired"
-msgstr "Podpisu vypršela platnost"
+msgstr "Podpisu vyprÅ¡ela platnost"
 
 #: src/err-codes.h:183
 msgid "Encoding problem"
-msgstr "Chyba kódování"
+msgstr "Chyba kÃ³dovÃ¡nÃ­"
 
 #: src/err-codes.h:184
 msgid "Invalid state"
-msgstr "Neplatná stav"
+msgstr "NeplatnÃ¡ stav"
 
 #: src/err-codes.h:185
 msgid "Duplicated value"
-msgstr "Zdvojená hodnota"
+msgstr "ZdvojenÃ¡ hodnota"
 
 #: src/err-codes.h:186
 msgid "Missing action"
-msgstr "Chybí akce"
+msgstr "ChybÃ­ akce"
 
 #: src/err-codes.h:187
 msgid "ASN.1 module not found"
@@ -760,27 +760,27 @@ msgstr "Modul ASN.1 nenalezen"
 
 #: src/err-codes.h:188
 msgid "Invalid OID string"
-msgstr "Neplatnı ?et?zec OID"
+msgstr "NeplatnÃ½ Å™etÄ›zec OID"
 
 #: src/err-codes.h:189
 msgid "Invalid time"
-msgstr "Neplatnı ?as"
+msgstr "NeplatnÃ½ Äas"
 
 #: src/err-codes.h:190
 msgid "Invalid CRL object"
-msgstr "Neplatnı objekt CRL"
+msgstr "NeplatnÃ½ objekt CRL"
 
 #: src/err-codes.h:191
 msgid "Unsupported CRL version"
-msgstr "Nepodporovaná verze CRL"
+msgstr "NepodporovanÃ¡ verze CRL"
 
 #: src/err-codes.h:192
 msgid "Invalid certificate object"
-msgstr "Neplatnı objekt certifikátu"
+msgstr "NeplatnÃ½ objekt certifikÃ¡tu"
 
 #: src/err-codes.h:193
 msgid "Unknown name"
-msgstr "Neznámé jméno"
+msgstr "NeznÃ¡mÃ© jmÃ©no"
 
 #: src/err-codes.h:194
 msgid "A locale function failed"
@@ -788,51 +788,51 @@ msgstr "Funkce locale selhala"
 
 #: src/err-codes.h:195
 msgid "Not locked"
-msgstr "Neuzam?eno"
+msgstr "NeuzamÄeno"
 
 #: src/err-codes.h:196
 msgid "Protocol violation"
-msgstr "Narušení protokolu"
+msgstr "NaruÅ¡enÃ­ protokolu"
 
 #: src/err-codes.h:197
 msgid "Invalid MAC"
-msgstr "Neplatnı MAC"
+msgstr "NeplatnÃ½ MAC"
 
 #: src/err-codes.h:198
 msgid "Invalid request"
-msgstr "Neplatnı poadavek"
+msgstr "NeplatnÃ½ poÅ¾adavek"
 
 #: src/err-codes.h:199
 msgid "Unknown extension"
-msgstr "Neznámé rozší?ení"
+msgstr "NeznÃ¡mÃ© rozÅ¡Ã­Å™enÃ­"
 
 #: src/err-codes.h:200
 msgid "Unknown critical extension"
-msgstr "Neznámé kritické rozší?ení"
+msgstr "NeznÃ¡mÃ© kritickÃ© rozÅ¡Ã­Å™enÃ­"
 
 #: src/err-codes.h:201
 msgid "Locked"
-msgstr "Zam?eno"
+msgstr "ZamÄeno"
 
 #: src/err-codes.h:202
 msgid "Unknown option"
-msgstr "Neznámı parametr"
+msgstr "NeznÃ¡mÃ½ parametr"
 
 #: src/err-codes.h:203
 msgid "Unknown command"
-msgstr "Neznámı p?íkaz"
+msgstr "NeznÃ¡mÃ½ pÅ™Ã­kaz"
 
 #: src/err-codes.h:204
 msgid "Not operational"
-msgstr "Nefunk?ní"
+msgstr "NefunkÄnÃ­"
 
 #: src/err-codes.h:205
 msgid "No passphrase given"
-msgstr "Heslo nezadáno"
+msgstr "Heslo nezadÃ¡no"
 
 #: src/err-codes.h:206
 msgid "No PIN given"
-msgstr "PIN nezadán"
+msgstr "PIN nezadÃ¡n"
 
 #: src/err-codes.h:207
 msgid "Not enabled"
@@ -840,139 +840,139 @@ msgstr "Nezapnuto"
 
 #: src/err-codes.h:208
 msgid "No crypto engine"
-msgstr "Chybí kryptografická jednotka"
+msgstr "ChybÃ­ kryptografickÃ¡ jednotka"
 
 #: src/err-codes.h:209
 msgid "Missing key"
-msgstr "Chybí klí?"
+msgstr "ChybÃ­ klÃ­Ä"
 
 #: src/err-codes.h:210
 msgid "Too many objects"
-msgstr "P?íliš mnoho objekt?"
+msgstr "PÅ™Ã­liÅ¡ mnoho objektÅ¯"
 
 #: src/err-codes.h:211
 msgid "Limit reached"
-msgstr "Dosaen limit"
+msgstr "DosaÅ¾en limit"
 
 #: src/err-codes.h:212
 msgid "Not initialized"
-msgstr "Neinicializováno"
+msgstr "NeinicializovÃ¡no"
 
 #: src/err-codes.h:213
 msgid "Missing issuer certificate"
-msgstr "Chybí certifikát vydavatele"
+msgstr "ChybÃ­ certifikÃ¡t vydavatele"
 
 #: src/err-codes.h:214
 msgid "No keyserver available"
-msgstr "Není dostupnı ádnı server klí??"
+msgstr "NenÃ­ dostupnÃ½ Å¾Ã¡dnÃ½ server klÃ­ÄÅ¯"
 
 #: src/err-codes.h:215
 msgid "Invalid elliptic curve"
-msgstr "Neplatná eliptická k?ivka"
+msgstr "NeplatnÃ¡ eliptickÃ¡ kÅ™ivka"
 
 #: src/err-codes.h:216
 msgid "Unknown elliptic curve"
-msgstr "Neznámá eliptická k?ivka"
+msgstr "NeznÃ¡mÃ¡ eliptickÃ¡ kÅ™ivka"
 
 #: src/err-codes.h:217
 msgid "Duplicated key"
-msgstr "Zdvojenı klí?"
+msgstr "ZdvojenÃ½ klÃ­Ä"
 
 #: src/err-codes.h:218
 msgid "Ambiguous result"
-msgstr "Nejednozna?nı vısledek"
+msgstr "NejednoznaÄnÃ½ vÃ½sledek"
 
 #: src/err-codes.h:219
 msgid "No crypto context"
-msgstr "Chybí kryptografickı kontext"
+msgstr "ChybÃ­ kryptografickÃ½ kontext"
 
 #: src/err-codes.h:220
 msgid "Wrong crypto context"
-msgstr "Chybnı kryptografickı kontext"
+msgstr "ChybnÃ½ kryptografickÃ½ kontext"
 
 #: src/err-codes.h:221
 msgid "Bad crypto context"
-msgstr "Špatnı kryptografickı kontext"
+msgstr "Å patnÃ½ kryptografickÃ½ kontext"
 
 #: src/err-codes.h:222
 msgid "Conflict in the crypto context"
-msgstr "Rozpor v kryptografickém kontextu"
+msgstr "Rozpor vÂ kryptografickÃ©m kontextu"
 
 #: src/err-codes.h:223
 msgid "Broken public key"
-msgstr "Rozbitı ve?ejnı klí?"
+msgstr "RozbitÃ½ veÅ™ejnÃ½ klÃ­Ä"
 
 #: src/err-codes.h:224
 msgid "Broken secret key"
-msgstr "Rozbitı tajnı klí?"
+msgstr "RozbitÃ½ tajnÃ½ klÃ­Ä"
 
 #: src/err-codes.h:225
 msgid "Invalid MAC algorithm"
-msgstr "Neplatnı algoritmus MAC"
+msgstr "NeplatnÃ½ algoritmus MAC"
 
 #: src/err-codes.h:226
 msgid "Operation fully cancelled"
-msgstr "Operace zcela zrušena"
+msgstr "Operace zcela zruÅ¡ena"
 
 #: src/err-codes.h:227
 msgid "Operation not yet finished"
-msgstr "Operace ješt? neskon?ila"
+msgstr "Operace jeÅ¡tÄ› neskonÄila"
 
 #: src/err-codes.h:228
 msgid "Buffer too short"
-msgstr "Vyrovnávací pam?? je p?íliš malá"
+msgstr "VyrovnÃ¡vacÃ­ pamÄ›Å¥ je pÅ™Ã­liÅ¡ malÃ¡"
 
 #: src/err-codes.h:229
 msgid "Invalid length specifier in S-expression"
-msgstr "Neplatné ur?ení délky v S-vırazu"
+msgstr "NeplatnÃ© urÄenÃ­ dÃ©lky vÂ S-vÃ½razu"
 
 #: src/err-codes.h:230
 msgid "String too long in S-expression"
-msgstr "?et?zec v S-vırazu je p?íliš dlouhı"
+msgstr "Å˜etÄ›zec vÂ S-vÃ½razu je pÅ™Ã­liÅ¡ dlouhÃ½"
 
 #: src/err-codes.h:231
 msgid "Unmatched parentheses in S-expression"
-msgstr "Nepárové závorky v S-vırazu"
+msgstr "NepÃ¡rovÃ© zÃ¡vorky vÂ S-vÃ½razu"
 
 #: src/err-codes.h:232
 msgid "S-expression not canonical"
-msgstr "S-vıraz není kanonickı"
+msgstr "S-vÃ½raz nenÃ­ kanonickÃ½"
 
 #: src/err-codes.h:233
 msgid "Bad character in S-expression"
-msgstr "Chybnı znak v S-vırazu"
+msgstr "ChybnÃ½ znak vÂ S-vÃ½razu"
 
 #: src/err-codes.h:234
 msgid "Bad quotation in S-expression"
-msgstr "Chybné uzav?ení do uvozovek v S-vırazu"
+msgstr "ChybnÃ© uzavÅ™enÃ­ doÂ uvozovek vÂ S-vÃ½razu"
 
 #: src/err-codes.h:235
 msgid "Zero prefix in S-expression"
-msgstr "Nulová p?edpona v S-vırazu"
+msgstr "NulovÃ¡ pÅ™edpona vÂ S-vÃ½razu"
 
 #: src/err-codes.h:236
 msgid "Nested display hints in S-expression"
-msgstr "Vno?ené pokyny pro zobrazení v S-vırazu"
+msgstr "VnoÅ™enÃ© pokyny pro zobrazenÃ­ vÂ S-vÃ½razu"
 
 #: src/err-codes.h:237
 msgid "Unmatched display hints"
-msgstr "Neodpovídající pokyny pro zobrazení"
+msgstr "NeodpovÃ­dajÃ­cÃ­ pokyny pro zobrazenÃ­"
 
 #: src/err-codes.h:238
 msgid "Unexpected reserved punctuation in S-expression"
-msgstr "Neo?ekávaná vyhrazená interpunkce v S-vırazu"
+msgstr "NeoÄekÃ¡vanÃ¡ vyhrazenÃ¡ interpunkce vÂ S-vÃ½razu"
 
 #: src/err-codes.h:239
 msgid "Bad hexadecimal character in S-expression"
-msgstr "Chybnı šestnáctkovı znak v S-vırazu"
+msgstr "ChybnÃ½ Å¡estnÃ¡ctkovÃ½ znak vÂ S-vÃ½razu"
 
 #: src/err-codes.h:240
 msgid "Odd hexadecimal numbers in S-expression"
-msgstr "Lichá šestnáctková ?ísla v S-vırazu"
+msgstr "LichÃ¡ Å¡estnÃ¡ctkovÃ¡ ÄÃ­sla v S-vÃ½razu"
 
 #: src/err-codes.h:241
 msgid "Bad octal character in S-expression"
-msgstr "Chybnı osmi?kovı znak v S-vırazu"
+msgstr "ChybnÃ½ osmiÄkovÃ½ znak vÂ S-vÃ½razu"
 
 #: src/err-codes.h:242
 msgid "All subkeys are expired or revoked"
@@ -982,7 +982,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Data not encrypted"
 msgid "Database is corrupted"
-msgstr "Data nešifrována"
+msgstr "Data neÅ¡ifrovÃ¡na"
 
 #: src/err-codes.h:244
 msgid "Server indicated a failure"
@@ -992,13 +992,13 @@ msgstr ""
 #, fuzzy
 #| msgid "Unknown name"
 msgid "No name"
-msgstr "Neznámé jméno"
+msgstr "NeznÃ¡mÃ© jmÃ©no"
 
 #: src/err-codes.h:246
 #, fuzzy
 #| msgid "No public key"
 msgid "No key"
-msgstr "ádnı ve?ejnı klí?"
+msgstr "Å½Ã¡dnÃ½ veÅ™ejnÃ½ klÃ­Ä"
 
 #: src/err-codes.h:247
 msgid "Legacy key"
@@ -1008,13 +1008,13 @@ msgstr ""
 #, fuzzy
 #| msgid "Buffer too short"
 msgid "Request too short"
-msgstr "Vyrovnávací pam?? je p?íliš malá"
+msgstr "VyrovnÃ¡vacÃ­ pamÄ›Å¥ je pÅ™Ã­liÅ¡ malÃ¡"
 
 #: src/err-codes.h:249
 #, fuzzy
 #| msgid "Line too long"
 msgid "Request too long"
-msgstr "P?íliš dlouhı ?ádek"
+msgstr "PÅ™Ã­liÅ¡ dlouhÃ½ Å™Ã¡dek"
 
 #: src/err-codes.h:250
 msgid "Object is in termination state"
@@ -1022,23 +1022,23 @@ msgstr ""
 
 #: src/err-codes.h:251
 msgid "No certificate chain"
-msgstr "Chybí ?et?zec certifikát?"
+msgstr "ChybÃ­ Å™etÄ›zec certifikÃ¡tÅ¯"
 
 #: src/err-codes.h:252
 msgid "Certificate is too large"
-msgstr "Certifikát je p?íliš velkı"
+msgstr "CertifikÃ¡t je pÅ™Ã­liÅ¡ velkÃ½"
 
 #: src/err-codes.h:253
 msgid "Invalid record"
-msgstr "Neplatnı záznam"
+msgstr "NeplatnÃ½ zÃ¡znam"
 
 #: src/err-codes.h:254
 msgid "The MAC does not verify"
-msgstr "Ov??ení MAC selhalo"
+msgstr "OvÄ›Å™enÃ­ MAC selhalo"
 
 #: src/err-codes.h:255
 msgid "Unexpected message"
-msgstr "Neo?ekávaná zpráva"
+msgstr "NeoÄekÃ¡vanÃ¡ zprÃ¡va"
 
 #: src/err-codes.h:256
 msgid "Compression or decompression failed"
@@ -1046,79 +1046,79 @@ msgstr "Komprese nebo dekomprese selhala"
 
 #: src/err-codes.h:257
 msgid "A counter would wrap"
-msgstr "Po?ítadlo by p?eteklo"
+msgstr "PoÄÃ­tadlo by pÅ™eteklo"
 
 #: src/err-codes.h:258
 msgid "Fatal alert message received"
-msgstr "P?ijata nep?ekonatelná chybová zpráva"
+msgstr "PÅ™ijata nepÅ™ekonatelnÃ¡ chybovÃ¡ zprÃ¡va"
 
 #: src/err-codes.h:259
 msgid "No cipher algorithm"
-msgstr "ádnı šifrovací algoritmus"
+msgstr "Å½Ã¡dnÃ½ Å¡ifrovacÃ­ algoritmus"
 
 #: src/err-codes.h:260
 msgid "Missing client certificate"
-msgstr "Chybí certifikát klienta"
+msgstr "ChybÃ­ certifikÃ¡t klienta"
 
 #: src/err-codes.h:261
 msgid "Close notification received"
-msgstr "P?ijato oznámení o uzav?ení"
+msgstr "PÅ™ijato oznÃ¡menÃ­ oÂ uzavÅ™enÃ­"
 
 #: src/err-codes.h:262
 msgid "Ticket expired"
-msgstr "Lístku vypršela platnost"
+msgstr "LÃ­stku vyprÅ¡ela platnost"
 
 #: src/err-codes.h:263
 msgid "Bad ticket"
-msgstr "Chybnı lístek"
+msgstr "ChybnÃ½ lÃ­stek"
 
 #: src/err-codes.h:264
 msgid "Unknown identity"
-msgstr "Neznámá totonost"
+msgstr "NeznÃ¡mÃ¡ totoÅ¾nost"
 
 #: src/err-codes.h:265
 msgid "Bad certificate message in handshake"
-msgstr "Chybná zpráva s certifikátem v zahájení"
+msgstr "ChybnÃ¡ zprÃ¡va sÂ certifikÃ¡tem vÂ zahÃ¡jenÃ­"
 
 #: src/err-codes.h:266
 msgid "Bad certificate request message in handshake"
-msgstr "Chybná zpráva s poadavkem na certifikát v zahájení"
+msgstr "ChybnÃ¡ zprÃ¡va sÂ poÅ¾adavkem na certifikÃ¡t vÂ zahÃ¡jenÃ­"
 
 #: src/err-codes.h:267
 msgid "Bad certificate verify message in handshake"
-msgstr "Chybná zpráva o ov??ení certifikátu v zahájení"
+msgstr "ChybnÃ¡ zprÃ¡va oÂ ovÄ›Å™enÃ­ certifikÃ¡tu vÂ zahÃ¡jenÃ­"
 
 #: src/err-codes.h:268
 msgid "Bad change cipher message in handshake"
-msgstr "Chybná zpráva se zm?nou šifry v zahájení"
+msgstr "ChybnÃ¡ zprÃ¡va se zmÄ›nou Å¡ifry vÂ zahÃ¡jenÃ­"
 
 #: src/err-codes.h:269
 msgid "Bad client hello message in handshake"
-msgstr "Chybná zpráva s pozdravem klienta v zahájení"
+msgstr "ChybnÃ¡ zprÃ¡va sÂ pozdravem klienta vÂ zahÃ¡jenÃ­"
 
 #: src/err-codes.h:270
 msgid "Bad server hello message in handshake"
-msgstr "Chybná zpráva s pozdravem serveru v zahájení"
+msgstr "ChybnÃ¡ zprÃ¡va sÂ pozdravem serveru vÂ zahÃ¡jenÃ­"
 
 #: src/err-codes.h:271
 msgid "Bad server hello done message in handshake"
-msgstr "Chybná zpráva o dokon?ení pozdravu serveru v zahájení"
+msgstr "ChybnÃ¡ zprÃ¡va oÂ dokonÄenÃ­ pozdravu serveru vÂ zahÃ¡jenÃ­"
 
 #: src/err-codes.h:272
 msgid "Bad finished message in handshake"
-msgstr "Chybná zpráva o dokon?ení v zahájení"
+msgstr "ChybnÃ¡ zprÃ¡va oÂ dokonÄenÃ­ vÂ zahÃ¡jenÃ­"
 
 #: src/err-codes.h:273
 msgid "Bad server key exchange message in handshake"
-msgstr "Chybná zpráva o vım?n? klí?e serveru v zahájení"
+msgstr "ChybnÃ¡ zprÃ¡va oÂ vÃ½mÄ›nÄ› klÃ­Äe serveru vÂ zahÃ¡jenÃ­"
 
 #: src/err-codes.h:274
 msgid "Bad client key exchange message in handshake"
-msgstr "Chybná zpráva o vım?n? klí?e klienta v zahájení"
+msgstr "ChybnÃ¡ zprÃ¡va oÂ vÃ½mÄ›nÄ› klÃ­Äe klienta vÂ zahÃ¡jenÃ­"
 
 #: src/err-codes.h:275
 msgid "Bogus string"
-msgstr "Chybnı ?et?zec"
+msgstr "ChybnÃ½ Å™etÄ›zec"
 
 #: src/err-codes.h:276
 msgid "Forbidden"
@@ -1126,15 +1126,15 @@ msgstr ""
 
 #: src/err-codes.h:277
 msgid "Key disabled"
-msgstr "Klí? zakázán"
+msgstr "KlÃ­Ä zakÃ¡zÃ¡n"
 
 #: src/err-codes.h:278
 msgid "Not possible with a card based key"
-msgstr "Nelze provést s klí?em na kart?"
+msgstr "Nelze provÃ©st sÂ klÃ­Äem na kartÄ›"
 
 #: src/err-codes.h:279
 msgid "Invalid lock object"
-msgstr "Neplatnı objekt"
+msgstr "NeplatnÃ½ objekt"
 
 #: src/err-codes.h:280
 msgid "True"
@@ -1146,75 +1146,75 @@ msgstr ""
 
 #: src/err-codes.h:282
 msgid "General IPC error"
-msgstr "Obecná chyba IPC"
+msgstr "ObecnÃ¡ chyba IPC"
 
 #: src/err-codes.h:283
 msgid "IPC accept call failed"
-msgstr "IPC volání accept (p?ijmout) selhalo"
+msgstr "IPC volÃ¡nÃ­ accept (pÅ™ijmout) selhalo"
 
 #: src/err-codes.h:284
 msgid "IPC connect call failed"
-msgstr "IPC volání connect (p?ipojit) selhalo"
+msgstr "IPC volÃ¡nÃ­ connect (pÅ™ipojit) selhalo"
 
 #: src/err-codes.h:285
 msgid "Invalid IPC response"
-msgstr "Neplatná odpov?? IPC"
+msgstr "NeplatnÃ¡ odpovÄ›Ä IPC"
 
 #: src/err-codes.h:286
 msgid "Invalid value passed to IPC"
-msgstr "Neplatná hodnota p?edaná do IPC"
+msgstr "NeplatnÃ¡ hodnota pÅ™edanÃ¡ do IPC"
 
 #: src/err-codes.h:287
 msgid "Incomplete line passed to IPC"
-msgstr "Neúplnı ?ádek p?edán do IPC"
+msgstr "NeÃºplnÃ½ Å™Ã¡dek pÅ™edÃ¡n do IPC"
 
 #: src/err-codes.h:288
 msgid "Line passed to IPC too long"
-msgstr "?ádek p?edanı do IPC je p?íliš dlouhı"
+msgstr "Å˜Ã¡dek pÅ™edanÃ½ do IPC je pÅ™Ã­liÅ¡ dlouhÃ½"
 
 #: src/err-codes.h:289
 msgid "Nested IPC commands"
-msgstr "Vno?ené p?íkazy IPC"
+msgstr "VnoÅ™enÃ© pÅ™Ã­kazy IPC"
 
 #: src/err-codes.h:290
 msgid "No data callback in IPC"
-msgstr "ádná data zp?tného volání v IPC"
+msgstr "Å½Ã¡dnÃ¡ data zpÄ›tnÃ©ho volÃ¡nÃ­ vÂ IPC"
 
 #: src/err-codes.h:291
 msgid "No inquire callback in IPC"
-msgstr "ádné dotazovací zp?tné volání v IPC"
+msgstr "Å½Ã¡dnÃ© dotazovacÃ­ zpÄ›tnÃ© volÃ¡nÃ­ vÂ IPC"
 
 #: src/err-codes.h:292
 msgid "Not an IPC server"
-msgstr "Není serverem IPC"
+msgstr "NenÃ­ serverem IPC"
 
 #: src/err-codes.h:293
 msgid "Not an IPC client"
-msgstr "Není klientem IPC"
+msgstr "NenÃ­ klientem IPC"
 
 #: src/err-codes.h:294
 msgid "Problem starting IPC server"
-msgstr "Problém se spušt?ním serveru IPC"
+msgstr "ProblÃ©m se spuÅ¡tÄ›nÃ­m serveru IPC"
 
 #: src/err-codes.h:295
 msgid "IPC read error"
-msgstr "Chyba ?tení IPC"
+msgstr "Chyba ÄtenÃ­ IPC"
 
 #: src/err-codes.h:296
 msgid "IPC write error"
-msgstr "Chyba zápisu IPC"
+msgstr "Chyba zÃ¡pisu IPC"
 
 #: src/err-codes.h:297
 msgid "Too much data for IPC layer"
-msgstr "P?íliš mnoho data pro vrstvu IPC"
+msgstr "PÅ™Ã­liÅ¡ mnoho data pro vrstvu IPC"
 
 #: src/err-codes.h:298
 msgid "Unexpected IPC command"
-msgstr "Neo?ekávanı p?íkaz IPC"
+msgstr "NeoÄekÃ¡vanÃ½ pÅ™Ã­kaz IPC"
 
 #: src/err-codes.h:299
 msgid "Unknown IPC command"
-msgstr "Neznámı p?íkaz IPC"
+msgstr "NeznÃ¡mÃ½ pÅ™Ã­kaz IPC"
 
 #: src/err-codes.h:300
 msgid "IPC syntax error"
@@ -1222,15 +1222,15 @@ msgstr "Chyba syntaxe IPC"
 
 #: src/err-codes.h:301
 msgid "IPC call has been cancelled"
-msgstr "Volání IPC bylo zrušeno"
+msgstr "VolÃ¡nÃ­ IPC bylo zruÅ¡eno"
 
 #: src/err-codes.h:302
 msgid "No input source for IPC"
-msgstr "ádnı zdroj vstupu pro IPC"
+msgstr "Å½Ã¡dnÃ½ zdroj vstupu pro IPC"
 
 #: src/err-codes.h:303
 msgid "No output source for IPC"
-msgstr "ádnı zdroj vıstupu pro IPC"
+msgstr "Å½Ã¡dnÃ½ zdroj vÃ½stupu pro IPC"
 
 #: src/err-codes.h:304
 msgid "IPC parameter error"
@@ -1238,13 +1238,13 @@ msgstr "Chyba parametru IPC"
 
 #: src/err-codes.h:305
 msgid "Unknown IPC inquire"
-msgstr "Neznámı dotaz IPC"
+msgstr "NeznÃ¡mÃ½ dotaz IPC"
 
 #: src/err-codes.h:306
 #, fuzzy
 #| msgid "No crypto engine"
 msgid "Crypto engine too old"
-msgstr "Chybí kryptografická jednotka"
+msgstr "ChybÃ­ kryptografickÃ¡ jednotka"
 
 #: src/err-codes.h:307
 msgid "Screen or window too small"
@@ -1270,31 +1270,31 @@ msgstr ""
 #, fuzzy
 #| msgid "Duplicated value"
 msgid "Duplicated name"
-msgstr "Zdvojená hodnota"
+msgstr "ZdvojenÃ¡ hodnota"
 
 #: src/err-codes.h:313
 #, fuzzy
 #| msgid "Certificate too young"
 msgid "Object is too young"
-msgstr "Certifikát je p?íliš mladı"
+msgstr "CertifikÃ¡t je pÅ™Ã­liÅ¡ mladÃ½"
 
 #: src/err-codes.h:314
 #, fuzzy
 #| msgid "Provided object is too short"
 msgid "Object is too old"
-msgstr "Dodanı objekt je p?íliš krátkı"
+msgstr "DodanÃ½ objekt je pÅ™Ã­liÅ¡ krÃ¡tkÃ½"
 
 #: src/err-codes.h:315
 #, fuzzy
 #| msgid "Unknown name"
 msgid "Unknown flag"
-msgstr "Neznámé jméno"
+msgstr "NeznÃ¡mÃ© jmÃ©no"
 
 #: src/err-codes.h:316
 #, fuzzy
 #| msgid "Invalid operation code"
 msgid "Invalid execution order"
-msgstr "Neplatnı kód operace"
+msgstr "NeplatnÃ½ kÃ³d operace"
 
 #: src/err-codes.h:317
 msgid "Already fetched"
@@ -1308,7 +1308,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Unknown name"
 msgid "Wrong name"
-msgstr "Neznámé jméno"
+msgstr "NeznÃ¡mÃ© jmÃ©no"
 
 #: src/err-codes.h:320
 #, fuzzy
@@ -1320,7 +1320,7 @@ msgstr "Nezapnuto"
 #, fuzzy
 #| msgid "Unsupported protection"
 msgid "Bad authentication"
-msgstr "Nepodporovaná ochrana"
+msgstr "NepodporovanÃ¡ ochrana"
 
 #: src/err-codes.h:322
 msgid "System bug detected"
@@ -1330,25 +1330,25 @@ msgstr ""
 #, fuzzy
 #| msgid "Unknown system error"
 msgid "Unknown DNS error"
-msgstr "Neznámá chyba systému"
+msgstr "NeznÃ¡mÃ¡ chyba systÃ©mu"
 
 #: src/err-codes.h:324
 #, fuzzy
 #| msgid "Invalid OID string"
 msgid "Invalid DNS section"
-msgstr "Neplatnı ?et?zec OID"
+msgstr "NeplatnÃ½ Å™etÄ›zec OID"
 
 #: src/err-codes.h:325
 #, fuzzy
 #| msgid "Invalid S-expression"
 msgid "Invalid textual address form"
-msgstr "Neplatnı S-vıraz"
+msgstr "NeplatnÃ½ S-vÃ½raz"
 
 #: src/err-codes.h:326
 #, fuzzy
 #| msgid "Missing issuer certificate"
 msgid "Missing DNS query packet"
-msgstr "Chybí certifikát vydavatele"
+msgstr "ChybÃ­ certifikÃ¡t vydavatele"
 
 #: src/err-codes.h:327
 msgid "Missing DNS answer packet"
@@ -1362,49 +1362,49 @@ msgstr ""
 #, fuzzy
 #| msgid "Decryption failed"
 msgid "Verification failed in DNS"
-msgstr "Dešifrování selhalo"
+msgstr "DeÅ¡ifrovÃ¡nÃ­ selhalo"
 
 #: src/err-codes.h:330
 #, fuzzy
 #| msgid "Timeout"
 msgid "DNS Timeout"
-msgstr "?as vypršel"
+msgstr "ÄŒas vyprÅ¡el"
 
 #: src/err-codes.h:331
 #, fuzzy
 #| msgid "General IPC error"
 msgid "General LDAP error"
-msgstr "Obecná chyba IPC"
+msgstr "ObecnÃ¡ chyba IPC"
 
 #: src/err-codes.h:332
 #, fuzzy
 #| msgid "General error"
 msgid "General LDAP attribute error"
-msgstr "Obecná chyba"
+msgstr "ObecnÃ¡ chyba"
 
 #: src/err-codes.h:333
 #, fuzzy
 #| msgid "General error"
 msgid "General LDAP name error"
-msgstr "Obecná chyba"
+msgstr "ObecnÃ¡ chyba"
 
 #: src/err-codes.h:334
 #, fuzzy
 #| msgid "General Assuan error"
 msgid "General LDAP security error"
-msgstr "Obecná chyba Assuanu"
+msgstr "ObecnÃ¡ chyba Assuanu"
 
 #: src/err-codes.h:335
 #, fuzzy
 #| msgid "General error"
 msgid "General LDAP service error"
-msgstr "Obecná chyba"
+msgstr "ObecnÃ¡ chyba"
 
 #: src/err-codes.h:336
 #, fuzzy
 #| msgid "General Assuan error"
 msgid "General LDAP update error"
-msgstr "Obecná chyba Assuanu"
+msgstr "ObecnÃ¡ chyba Assuanu"
 
 #: src/err-codes.h:337
 msgid "Experimental LDAP error code"
@@ -1414,25 +1414,25 @@ msgstr ""
 #, fuzzy
 #| msgid "IPC write error"
 msgid "Private LDAP error code"
-msgstr "Chyba zápisu IPC"
+msgstr "Chyba zÃ¡pisu IPC"
 
 #: src/err-codes.h:339
 #, fuzzy
 #| msgid "General IPC error"
 msgid "Other general LDAP error"
-msgstr "Obecná chyba IPC"
+msgstr "ObecnÃ¡ chyba IPC"
 
 #: src/err-codes.h:340
 #, fuzzy
 #| msgid "IPC connect call failed"
 msgid "LDAP connecting failed (X)"
-msgstr "IPC volání connect (p?ipojit) selhalo"
+msgstr "IPC volÃ¡nÃ­ connect (pÅ™ipojit) selhalo"
 
 #: src/err-codes.h:341
 #, fuzzy
 #| msgid "General error"
 msgid "LDAP referral limit exceeded"
-msgstr "Obecná chyba"
+msgstr "ObecnÃ¡ chyba"
 
 #: src/err-codes.h:342
 msgid "LDAP client loop"
@@ -1442,7 +1442,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Card reset required"
 msgid "No LDAP results returned"
-msgstr "Vyadován reset karty"
+msgstr "VyÅ¾adovÃ¡n reset karty"
 
 #: src/err-codes.h:344
 #, fuzzy
@@ -1454,13 +1454,13 @@ msgstr "Prvek nenalezen"
 #, fuzzy
 #| msgid "Not supported"
 msgid "Not supported by LDAP"
-msgstr "Nepodporováno"
+msgstr "NepodporovÃ¡no"
 
 #: src/err-codes.h:346
 #, fuzzy
 #| msgid "Unexpected error"
 msgid "LDAP connect error"
-msgstr "Neo?ekávaná chyba"
+msgstr "NeoÄekÃ¡vanÃ¡ chyba"
 
 #: src/err-codes.h:347
 msgid "Out of memory in LDAP"
@@ -1474,25 +1474,25 @@ msgstr ""
 #, fuzzy
 #| msgid "Unsupported operation"
 msgid "User cancelled LDAP operation"
-msgstr "Nepodporovaná operace"
+msgstr "NepodporovanÃ¡ operace"
 
 #: src/err-codes.h:350
 #, fuzzy
 #| msgid "Bad certificate"
 msgid "Bad LDAP search filter"
-msgstr "Chybnı certifikát"
+msgstr "ChybnÃ½ certifikÃ¡t"
 
 #: src/err-codes.h:351
 #, fuzzy
 #| msgid "Unknown extension"
 msgid "Unknown LDAP authentication method"
-msgstr "Neznámé rozší?ení"
+msgstr "NeznÃ¡mÃ© rozÅ¡Ã­Å™enÃ­"
 
 #: src/err-codes.h:352
 #, fuzzy
 #| msgid "Timeout"
 msgid "Timeout in LDAP"
-msgstr "?as vypršel"
+msgstr "ÄŒas vyprÅ¡el"
 
 #: src/err-codes.h:353
 #, fuzzy
@@ -1510,21 +1510,21 @@ msgstr "chyba dirmngr"
 #, fuzzy
 #| msgid "IPC read error"
 msgid "LDAP local error"
-msgstr "Chyba ?tení IPC"
+msgstr "Chyba ÄtenÃ­ IPC"
 
 #: src/err-codes.h:356
 #, fuzzy
 #| msgid "Not an IPC server"
 msgid "Cannot contact LDAP server"
-msgstr "Není serverem IPC"
+msgstr "NenÃ­ serverem IPC"
 
 #: src/err-codes.h:357
 #, fuzzy
 #| msgid "Success"
 msgid "LDAP success"
-msgstr "Úsp?ch"
+msgstr "ÃšspÄ›ch"
 
-# Nastavení nebo nastavování?
+# NastavenÃ­ nebo nastavovÃ¡nÃ­?
 #: src/err-codes.h:358
 #, fuzzy
 #| msgid "Configuration error"
@@ -1535,7 +1535,7 @@ msgstr "Chyba konfigurace"
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "LDAP protocol error"
-msgstr "Narušení protokolu"
+msgstr "NaruÅ¡enÃ­ protokolu"
 
 #: src/err-codes.h:360
 msgid "Time limit exceeded in LDAP"
@@ -1557,7 +1557,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Unknown extension"
 msgid "LDAP authentication method not supported"
-msgstr "Neznámé rozší?ení"
+msgstr "NeznÃ¡mÃ© rozÅ¡Ã­Å™enÃ­"
 
 #: src/err-codes.h:365
 msgid "Strong(er) LDAP authentication required"
@@ -1567,13 +1567,13 @@ msgstr ""
 #, fuzzy
 #| msgid "Fatal alert message received"
 msgid "Partial LDAP results+referral received"
-msgstr "P?ijata nep?ekonatelná chybová zpráva"
+msgstr "PÅ™ijata nepÅ™ekonatelnÃ¡ chybovÃ¡ zprÃ¡va"
 
 #: src/err-codes.h:367
 #, fuzzy
 #| msgid "General error"
 msgid "LDAP referral"
-msgstr "Obecná chyba"
+msgstr "ObecnÃ¡ chyba"
 
 #: src/err-codes.h:368
 msgid "Administrative LDAP limit exceeded"
@@ -1587,7 +1587,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Card reset required"
 msgid "Confidentiality required by LDAP"
-msgstr "Vyadován reset karty"
+msgstr "VyÅ¾adovÃ¡n reset karty"
 
 #: src/err-codes.h:371
 msgid "LDAP SASL bind in progress"
@@ -1601,19 +1601,19 @@ msgstr ""
 #, fuzzy
 #| msgid "Invalid attribute"
 msgid "Undefined LDAP attribute type"
-msgstr "Neplatnı atribut"
+msgstr "NeplatnÃ½ atribut"
 
 #: src/err-codes.h:374
 #, fuzzy
 #| msgid "Unsupported protection"
 msgid "Inappropriate matching in LDAP"
-msgstr "Nepodporovaná ochrana"
+msgstr "NepodporovanÃ¡ ochrana"
 
 #: src/err-codes.h:375
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "Constraint violation in LDAP"
-msgstr "Narušení protokolu"
+msgstr "NaruÅ¡enÃ­ protokolu"
 
 #: src/err-codes.h:376
 msgid "LDAP type or value exists"
@@ -1623,25 +1623,25 @@ msgstr ""
 #, fuzzy
 #| msgid "Invalid state"
 msgid "Invalid syntax in LDAP"
-msgstr "Neplatná stav"
+msgstr "NeplatnÃ¡ stav"
 
 #: src/err-codes.h:378
 #, fuzzy
 #| msgid "No CMS object"
 msgid "No such LDAP object"
-msgstr "ádnı objekt CMS"
+msgstr "Å½Ã¡dnÃ½ objekt CMS"
 
 #: src/err-codes.h:379
 #, fuzzy
 #| msgid "Hardware problem"
 msgid "LDAP alias problem"
-msgstr "Hardwarovı problém"
+msgstr "HardwarovÃ½ problÃ©m"
 
 #: src/err-codes.h:380
 #, fuzzy
 #| msgid "Invalid state"
 msgid "Invalid DN syntax in LDAP"
-msgstr "Neplatná stav"
+msgstr "NeplatnÃ¡ stav"
 
 #: src/err-codes.h:381
 msgid "LDAP entry is a leaf"
@@ -1651,7 +1651,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Encoding problem"
 msgid "LDAP alias dereferencing problem"
-msgstr "Chyba kódování"
+msgstr "Chyba kÃ³dovÃ¡nÃ­"
 
 #: src/err-codes.h:383
 msgid "LDAP proxy authorization failure (X)"
@@ -1661,13 +1661,13 @@ msgstr ""
 #, fuzzy
 #| msgid "Unsupported protection"
 msgid "Inappropriate LDAP authentication"
-msgstr "Nepodporovaná ochrana"
+msgstr "NepodporovanÃ¡ ochrana"
 
 #: src/err-codes.h:385
 #, fuzzy
 #| msgid "Invalid card"
 msgid "Invalid LDAP credentials"
-msgstr "Neplatná karta"
+msgstr "NeplatnÃ¡ karta"
 
 #: src/err-codes.h:386
 msgid "Insufficient access for LDAP"
@@ -1681,7 +1681,7 @@ msgstr ""
 #, fuzzy
 #| msgid "No keyserver available"
 msgid "LDAP server is unavailable"
-msgstr "Není dostupnı ádnı server klí??"
+msgstr "NenÃ­ dostupnÃ½ Å¾Ã¡dnÃ½ server klÃ­ÄÅ¯"
 
 #: src/err-codes.h:389
 msgid "LDAP server is unwilling to perform"
@@ -1695,25 +1695,25 @@ msgstr ""
 #, fuzzy
 #| msgid "Missing action"
 msgid "LDAP naming violation"
-msgstr "Chybí akce"
+msgstr "ChybÃ­ akce"
 
 #: src/err-codes.h:392
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "LDAP object class violation"
-msgstr "Narušení protokolu"
+msgstr "NaruÅ¡enÃ­ protokolu"
 
 #: src/err-codes.h:393
 #, fuzzy
 #| msgid "Operation not yet finished"
 msgid "LDAP operation not allowed on non-leaf"
-msgstr "Operace ješt? neskon?ila"
+msgstr "Operace jeÅ¡tÄ› neskonÄila"
 
 #: src/err-codes.h:394
 #, fuzzy
 #| msgid "Operation cancelled"
 msgid "LDAP operation not allowed on RDN"
-msgstr "Operace zrušena"
+msgstr "Operace zruÅ¡ena"
 
 #: src/err-codes.h:395
 msgid "Already exists (LDAP)"
@@ -1727,13 +1727,13 @@ msgstr ""
 #, fuzzy
 #| msgid "Line too long"
 msgid "LDAP results too large"
-msgstr "P?íliš dlouhı ?ádek"
+msgstr "PÅ™Ã­liÅ¡ dlouhÃ½ Å™Ã¡dek"
 
 #: src/err-codes.h:398
 #, fuzzy
 #| msgid "Operation cancelled"
 msgid "LDAP operation affects multiple DSAs"
-msgstr "Operace zrušena"
+msgstr "Operace zruÅ¡ena"
 
 #: src/err-codes.h:399
 msgid "Virtual LDAP list view error"
@@ -1743,67 +1743,67 @@ msgstr ""
 #, fuzzy
 #| msgid "General IPC error"
 msgid "Other LDAP error"
-msgstr "Obecná chyba IPC"
+msgstr "ObecnÃ¡ chyba IPC"
 
 #: src/err-codes.h:401
 #, fuzzy
 #| msgid "Resources exhausted"
 msgid "Resources exhausted in LCUP"
-msgstr "Zdroje vy?erpány"
+msgstr "Zdroje vyÄerpÃ¡ny"
 
 #: src/err-codes.h:402
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "Security violation in LCUP"
-msgstr "Narušení protokolu"
+msgstr "NaruÅ¡enÃ­ protokolu"
 
 #: src/err-codes.h:403
 #, fuzzy
 #| msgid "Invalid state"
 msgid "Invalid data in LCUP"
-msgstr "Neplatná stav"
+msgstr "NeplatnÃ¡ stav"
 
 #: src/err-codes.h:404
 #, fuzzy
 #| msgid "Unsupported certificate"
 msgid "Unsupported scheme in LCUP"
-msgstr "Nepodporovanı certifikát"
+msgstr "NepodporovanÃ½ certifikÃ¡t"
 
 #: src/err-codes.h:405
 #, fuzzy
 #| msgid "Card reset required"
 msgid "Reload required in LCUP"
-msgstr "Vyadován reset karty"
+msgstr "VyÅ¾adovÃ¡n reset karty"
 
 #: src/err-codes.h:406
 #, fuzzy
 #| msgid "Success"
 msgid "LDAP cancelled"
-msgstr "Úsp?ch"
+msgstr "ÃšspÄ›ch"
 
 #: src/err-codes.h:407
 #, fuzzy
 #| msgid "Not operational"
 msgid "No LDAP operation to cancel"
-msgstr "Nefunk?ní"
+msgstr "NefunkÄnÃ­"
 
 #: src/err-codes.h:408
 #, fuzzy
 #| msgid "Not operational"
 msgid "Too late to cancel LDAP"
-msgstr "Nefunk?ní"
+msgstr "NefunkÄnÃ­"
 
 #: src/err-codes.h:409
 #, fuzzy
 #| msgid "Not an IPC server"
 msgid "Cannot cancel LDAP"
-msgstr "Není serverem IPC"
+msgstr "NenÃ­ serverem IPC"
 
 #: src/err-codes.h:410
 #, fuzzy
 #| msgid "Decryption failed"
 msgid "LDAP assertion failed"
-msgstr "Dešifrování selhalo"
+msgstr "DeÅ¡ifrovÃ¡nÃ­ selhalo"
 
 #: src/err-codes.h:411
 msgid "Proxied authorization denied by LDAP"
@@ -1811,75 +1811,75 @@ msgstr ""
 
 #: src/err-codes.h:412
 msgid "User defined error code 1"
-msgstr "Uivatelem definovanı chybovı kód 1"
+msgstr "UÅ¾ivatelem definovanÃ½ chybovÃ½ kÃ³d 1"
 
 #: src/err-codes.h:413
 msgid "User defined error code 2"
-msgstr "Uivatelem definovanı chybovı kód 2"
+msgstr "UÅ¾ivatelem definovanÃ½ chybovÃ½ kÃ³d 2"
 
 #: src/err-codes.h:414
 msgid "User defined error code 3"
-msgstr "Uivatelem definovanı chybovı kód 3"
+msgstr "UÅ¾ivatelem definovanÃ½ chybovÃ½ kÃ³d 3"
 
 #: src/err-codes.h:415
 msgid "User defined error code 4"
-msgstr "Uivatelem definovanı chybovı kód 4"
+msgstr "UÅ¾ivatelem definovanÃ½ chybovÃ½ kÃ³d 4"
 
 #: src/err-codes.h:416
 msgid "User defined error code 5"
-msgstr "Uivatelem definovanı chybovı kód 5"
+msgstr "UÅ¾ivatelem definovanÃ½ chybovÃ½ kÃ³d 5"
 
 #: src/err-codes.h:417
 msgid "User defined error code 6"
-msgstr "Uivatelem definovanı chybovı kód 6"
+msgstr "UÅ¾ivatelem definovanÃ½ chybovÃ½ kÃ³d 6"
 
 #: src/err-codes.h:418
 msgid "User defined error code 7"
-msgstr "Uivatelem definovanı chybovı kód 7"
+msgstr "UÅ¾ivatelem definovanÃ½ chybovÃ½ kÃ³d 7"
 
 #: src/err-codes.h:419
 msgid "User defined error code 8"
-msgstr "Uivatelem definovanı chybovı kód 8"
+msgstr "UÅ¾ivatelem definovanÃ½ chybovÃ½ kÃ³d 8"
 
 #: src/err-codes.h:420
 msgid "User defined error code 9"
-msgstr "Uivatelem definovanı chybovı kód 9"
+msgstr "UÅ¾ivatelem definovanÃ½ chybovÃ½ kÃ³d 9"
 
 #: src/err-codes.h:421
 msgid "User defined error code 10"
-msgstr "Uivatelem definovanı chybovı kód 10"
+msgstr "UÅ¾ivatelem definovanÃ½ chybovÃ½ kÃ³d 10"
 
 #: src/err-codes.h:422
 msgid "User defined error code 11"
-msgstr "Uivatelem definovanı chybovı kód 11"
+msgstr "UÅ¾ivatelem definovanÃ½ chybovÃ½ kÃ³d 11"
 
 #: src/err-codes.h:423
 msgid "User defined error code 12"
-msgstr "Uivatelem definovanı chybovı kód 12"
+msgstr "UÅ¾ivatelem definovanÃ½ chybovÃ½ kÃ³d 12"
 
 #: src/err-codes.h:424
 msgid "User defined error code 13"
-msgstr "Uivatelem definovanı chybovı kód 13"
+msgstr "UÅ¾ivatelem definovanÃ½ chybovÃ½ kÃ³d 13"
 
 #: src/err-codes.h:425
 msgid "User defined error code 14"
-msgstr "Uivatelem definovanı chybovı kód 14"
+msgstr "UÅ¾ivatelem definovanÃ½ chybovÃ½ kÃ³d 14"
 
 #: src/err-codes.h:426
 msgid "User defined error code 15"
-msgstr "Uivatelem definovanı chybovı kód 15"
+msgstr "UÅ¾ivatelem definovanÃ½ chybovÃ½ kÃ³d 15"
 
 #: src/err-codes.h:427
 msgid "User defined error code 16"
-msgstr "Uivatelem definovanı chybovı kód 16"
+msgstr "UÅ¾ivatelem definovanÃ½ chybovÃ½ kÃ³d 16"
 
 #: src/err-codes.h:428
 msgid "System error w/o errno"
-msgstr "Chyba systému bez ?ísla chyby (errno)"
+msgstr "Chyba systÃ©mu bez ÄÃ­sla chyby (errno)"
 
 #: src/err-codes.h:429
 msgid "Unknown system error"
-msgstr "Neznámá chyba systému"
+msgstr "NeznÃ¡mÃ¡ chyba systÃ©mu"
 
 #: src/err-codes.h:430
 msgid "End of file"
@@ -1887,83 +1887,83 @@ msgstr "Konec souboru"
 
 #: src/err-codes.h:431
 msgid "Unknown error code"
-msgstr "Neznámı kód chyby"
+msgstr "NeznÃ¡mÃ½ kÃ³d chyby"
 
 #: src/argparse.c:318
 msgid "argument not expected"
-msgstr "argument nebyl o?ekáván"
+msgstr "argument nebyl oÄekÃ¡vÃ¡n"
 
 #: src/argparse.c:320
 msgid "read error"
-msgstr "chyba p?i ?tení"
+msgstr "chyba pÅ™i ÄtenÃ­"
 
 #: src/argparse.c:322
 msgid "keyword too long"
-msgstr "klí?ové slovo je p?íliš dlouhé"
+msgstr "klÃ­ÄovÃ© slovo je pÅ™Ã­liÅ¡ dlouhÃ©"
 
 #: src/argparse.c:324
 msgid "missing argument"
-msgstr "postrádám argument"
+msgstr "postrÃ¡dÃ¡m argument"
 
 #: src/argparse.c:326
 msgid "invalid argument"
-msgstr "neplatnı argument"
+msgstr "neplatnÃ½ argument"
 
 #: src/argparse.c:328
 msgid "invalid command"
-msgstr "neplatnı p?íkaz"
+msgstr "neplatnÃ½ pÅ™Ã­kaz"
 
 #: src/argparse.c:330
 msgid "invalid alias definition"
-msgstr "neplatnı definice aliasu"
+msgstr "neplatnÃ½ definice aliasu"
 
 #: src/argparse.c:332
 msgid "out of core"
-msgstr "nedostatek pam?ti"
+msgstr "nedostatek pamÄ›ti"
 
 #: src/argparse.c:334
 msgid "invalid option"
-msgstr "neplatnı parametr"
+msgstr "neplatnÃ½ parametr"
 
 #: src/argparse.c:343
 #, c-format
 msgid "missing argument for option \"%.50s\"\n"
-msgstr "postrádám argument u volby „%.50s“\n"
+msgstr "postrÃ¡dÃ¡m argument uÂ volby â€%.50sâ€œ\n"
 
 #: src/argparse.c:345
 #, c-format
 msgid "invalid argument for option \"%.50s\"\n"
-msgstr "neplatnı argument u volby „%.50s“\n"
+msgstr "neplatnÃ½ argument uÂ volby â€%.50sâ€œ\n"
 
 #: src/argparse.c:347
 #, c-format
 msgid "option \"%.50s\" does not expect an argument\n"
-msgstr "volba „%.50s“ ne?eká argument\n"
+msgstr "volba â€%.50sâ€œ neÄekÃ¡ argument\n"
 
 #: src/argparse.c:350
 #, c-format
 msgid "invalid command \"%.50s\"\n"
-msgstr "neplatnı p?íkaz „%.50s“\n"
+msgstr "neplatnÃ½ pÅ™Ã­kaz â€%.50sâ€œ\n"
 
 #: src/argparse.c:352
 #, c-format
 msgid "option \"%.50s\" is ambiguous\n"
-msgstr "volba „%.50s“ není jednozna?ná\n"
+msgstr "volba â€%.50sâ€œ nenÃ­ jednoznaÄnÃ¡\n"
 
 #: src/argparse.c:354
 #, c-format
 msgid "command \"%.50s\" is ambiguous\n"
-msgstr "p?íkaz „%.50s“ není jednozna?nı\n"
+msgstr "pÅ™Ã­kaz â€%.50sâ€œ nenÃ­ jednoznaÄnÃ½\n"
 
 # Yet another expression for `not enough memory' :)
 #: src/argparse.c:356
 msgid "out of core\n"
-msgstr "nedostatek pam?ti\n"
+msgstr "nedostatek pamÄ›ti\n"
 
 #: src/argparse.c:358
 #, c-format
 msgid "invalid option \"%.50s\"\n"
-msgstr "neplatnı parametr „%.50s“\n"
+msgstr "neplatnÃ½ parametr â€%.50sâ€œ\n"
 
 #: src/gpg-error.c:458
 msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
@@ -1972,25 +1972,25 @@ msgstr ""
 #: src/gpg-error.c:658
 #, c-format
 msgid "warning: could not recognize %s\n"
-msgstr "pozor: %s nebylo moné rozpoznat\n"
+msgstr "pozor: %s nebylo moÅ¾nÃ© rozpoznat\n"
 
 #~ msgid "Usage: %s GPG-ERROR [...]\n"
-#~ msgstr "Pouití: %s CHYBA_GPG […]\n"
+#~ msgstr "PouÅ¾itÃ­: %s CHYBA_GPG [â€¦]\n"
 
 #, fuzzy
 #~| msgid "Resources exhausted"
 #~ msgid "LCUP Resources exhausted"
-#~ msgstr "Zdroje vy?erpány"
+#~ msgstr "Zdroje vyÄerpÃ¡ny"
 
 #, fuzzy
 #~| msgid "Invalid data"
 #~ msgid "LCUP Invalid data"
-#~ msgstr "Neplatná data"
+#~ msgstr "NeplatnÃ¡ data"
 
 #, fuzzy
 #~| msgid "General error"
 #~ msgid "LDAP Other general error"
-#~ msgstr "Obecná chyba"
+#~ msgstr "ObecnÃ¡ chyba"
 
 #, fuzzy
 #~| msgid "dirmngr error"
