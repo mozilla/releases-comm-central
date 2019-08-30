@@ -132,7 +132,7 @@
 
 	(cherry picked from commit 0de2a22fcf6607d0aecb550feefa414cee3731b2)
 
-2018-04-17  Martin Storsjö  <martin@martin.st>
+2018-04-17  Martin StorsjÃ¶  <martin@martin.st>
 
 	random: Don't assume that _WIN64 implies x86_64.
 	+ commit e1695a8f6ca1135d777450cf9ce64628b0778ccb
@@ -422,7 +422,7 @@
 	(JENT_USES_GETTIME): New.
 	(JENT_USES_READ_REAL_TIME): New.
 	(jent_get_nstime): Support clock_gettime and AIX specific
-	function.  Taken from Stephan Müller's code.
+	function.  Taken from Stephan MÃ¼ller's code.
 	(is_rng_available): New.
 	(_gcry_rndjent_dump_stats): Use that function.
 	(_gcry_rndjent_poll): Use that fucntion.  Allow an ADD of NULL for an
@@ -1559,7 +1559,7 @@
 	+ commit b766ea14ad1c27d6160531b200cc70aaa479c6dc
 	* mpi/longlong.h: Use __sparcv8 as alias for __sparc_v8__.
 
-2016-06-08  Jérémie Courrèges-Anglas  <jca@wxcvbn.org>
+2016-06-08  JÃ©rÃ©mie CourrÃ¨ges-Anglas  <jca@wxcvbn.org>
 
 	Check for compiler SSE4.1 support in PCLMUL CRC code.
 	+ commit dc76313308c184c92eb78452b503405b90fc7ebd
@@ -1601,7 +1601,7 @@
 	+ commit 4121f15122501d8946f1589b303d1f7949c15e30
 	* mpi/longlong.h: Use __sparcv8 as alias for __sparc_v8__.
 
-2016-05-28  Jérémie Courrèges-Anglas  <jca@wxcvbn.org>
+2016-05-28  JÃ©rÃ©mie CourrÃ¨ges-Anglas  <jca@wxcvbn.org>
 
 	Check for compiler SSE4.1 support in PCLMUL CRC code.
 	+ commit 3e8074ecd3a534e8bd7f11cf17f0b22d252584c8
@@ -1865,7 +1865,7 @@
 	(check_ecc_keys): Check that key generation fails for Ed25519 keys in
 	FIPS mode.
 
-2016-03-22  Tomáš Mráz  <tmraz@redhat.com>
+2016-03-22  TomÃ¡Å¡ MrÃ¡z  <tmraz@redhat.com>
 
 	rsa: Add FIPS 186-4 compliant RSA probable prime key generator.
 	+ commit 5f9b3c2e220ca6d0eaff32324a973ef67933a844
@@ -2782,7 +2782,7 @@
 
 2015-08-12  Jussi Kivilinna  <jussi.kivilinna@iki.fi>
 
-	Keccak: Fix array indexes in ? step.
+	Keccak: Fix array indexes in Î¸ step.
 	+ commit 48822ae0b436bcea0fe92dbf0d88475ba3179320
 	* cipher/keccak.c (keccak_f1600_state_permute): Fix indexes for D[5].
 
@@ -3257,7 +3257,7 @@
 	(ELF): New macro to mask lines with ELF specific commands.
 	* cipher/camellia-glue.c (USE_AESNI_AVX, USE_AESNI_AVX2): Enable when
 	HAVE_COMPATIBLE_GCC_WIN64_PLATFORM_AS defined.
-	[USE_AESNI_AVX || USE_AESNI_AVX2] (ASM_FUNC_ABI, ASM_EXTRA_STACK): New.
+	[USE_AESNI_AVX ||Â USE_AESNI_AVX2] (ASM_FUNC_ABI, ASM_EXTRA_STACK): New.
 	(_gcry_camellia_aesni_avx_ctr_enc, _gcry_camellia_aesni_avx_cbc_dec)
 	(_gcry_camellia_aesni_avx_cfb_dec, _gcry_camellia_aesni_avx_keygen)
 	(_gcry_camellia_aesni_avx2_ctr_enc, _gcry_camellia_aesni_avx2_cbc_dec)
@@ -3380,7 +3380,7 @@
 	* cipher/sha512-ssse3-amd64.S: Ditto.
 	* cipher/sha512.c (USE_SSSE3, USE_AVX, USE_AVX2): Enable when
 	HAVE_COMPATIBLE_GCC_WIN64_PLATFORM_AS defined.
-	[USE_SSSE3 || USE_AVX || USE_AVX2] (ASM_FUNC_ABI)
+	[USE_SSSE3 ||Â USE_AVX ||Â USE_AVX2] (ASM_FUNC_ABI)
 	(ASM_EXTRA_STACK): New.
 	(_gcry_sha512_transform_amd64_ssse3, _gcry_sha512_transform_amd64_avx)
 	(_gcry_sha512_transform_amd64_avx_bmi2): Add ASM_FUNC_ABI to
@@ -3396,7 +3396,7 @@
 	* cipher/sha256-ssse3-amd64.S: Ditto.
 	* cipher/sha256.c (USE_SSSE3, USE_AVX, USE_AVX2): Enable when
 	HAVE_COMPATIBLE_GCC_WIN64_PLATFORM_AS defined.
-	[USE_SSSE3 || USE_AVX || USE_AVX2] (ASM_FUNC_ABI)
+	[USE_SSSE3 ||Â USE_AVX ||Â USE_AVX2] (ASM_FUNC_ABI)
 	(ASM_EXTRA_STACK): New.
 	(_gcry_sha256_transform_amd64_ssse3, _gcry_sha256_transform_amd64_avx)
 	(_gcry_sha256_transform_amd64_avx2): Add ASM_FUNC_ABI to prototypes.
@@ -3411,7 +3411,7 @@
 	* cipher/sha1-ssse3-amd64.S: Ditto.
 	* cipher/sha1.c (USE_SSSE3, USE_AVX, USE_BMI2): Enable
 	when HAVE_COMPATIBLE_GCC_WIN64_PLATFORM_AS defined.
-	[USE_SSSE3 || USE_AVX || USE_BMI2] (ASM_FUNC_ABI)
+	[USE_SSSE3 ||Â USE_AVX ||Â USE_BMI2] (ASM_FUNC_ABI)
 	(ASM_EXTRA_STACK): New.
 	(_gcry_sha1_transform_amd64_ssse3, _gcry_sha1_transform_amd64_avx)
 	(_gcry_sha1_transform_amd64_avx_bmi2): Add ASM_FUNC_ABI to
@@ -5625,7 +5625,7 @@
 	(gcry_mpi_get_flag, _gcry_mpi_free): Implement them.
 	(gcry_mpi_set_opaque): Keep user flags.
 
-2013-11-29  Vladimir '?-coder/phcoder' Serbinenko  <phcoder@gmail.com>
+2013-11-29  Vladimir 'Ï†-coder/phcoder' Serbinenko  <phcoder@gmail.com>
 
 	Fix armv3 compile error.
 	+ commit 3b1cc9e6c357574f54160298d731c18f3d717b6c
@@ -5998,7 +5998,7 @@
 	+ commit c8ad83fb605fdbf6dc0b0dbcc8aedfbd477640da
 	* cipher/rijndael.c (RIJNDAEL_context): Make 'decryption_prepared',
 	'use_padlock' and 'use_aesni' 1-bit members in bitfield.
-	(do_setkey): Move 'hwfeatures' inside [USE_AESNI || USE_PADLOCK].
+	(do_setkey): Move 'hwfeatures' inside [USE_AESNI ||Â USE_PADLOCK].
 	(do_aesni_enc_aligned): Rename to...
 	(do_aesni_enc): ...this, as function does not require aligned input.
 	(do_aesni_dec_aligned): Rename to...
@@ -7862,7 +7862,7 @@
 	* cipher/Makefile.am: Add 'sha512-armv7-neon.S'.
 	* cipher/sha512-armv7-neon.S: New file.
 	* cipher/sha512.c (USE_ARM_NEON_ASM): New macro.
-	(SHA512_CONTEXT) [USE_ARM_NEON_ASM]: Add 'use_neon'.
+	(SHA512_CONTEXT)Â [USE_ARM_NEON_ASM]: Add 'use_neon'.
 	(sha512_init, sha384_init) [USE_ARM_NEON_ASM]: Enable 'use_neon' if
 	CPU support NEON instructions.
 	(k): Round constant array moved outside of 'transform' function.
@@ -9471,7 +9471,7 @@
 	* src/hwfeatures.c (_gcry_detect_hw_features): Make cpp def chain
 	better readable.
 
-2012-06-21  Rafaël Carré  <funman@videolan.org>
+2012-06-21  RafaÃ«l CarrÃ©  <funman@videolan.org>
 
 	Enable VIA Padlock on x86_64 platforms.
 	+ commit baf0dc7e9c26167ab43ba2adebcf2f1abc9d9b3b
@@ -9504,7 +9504,7 @@
 	* src/gcrypt.h.in: Add the GCRYCTL_SET_ENFORCED_FIPS_FLAG.
 	* src/global.c (_gcry_vcontrol): Handle the new command.
 
-2012-02-17  Ulrich Müller  <ulm@gentoo.org>
+2012-02-17  Ulrich MÃ¼ller  <ulm@gentoo.org>
 
 	Rework selftest in idea.c.
 	+ commit 70cca617ed75ea292e1fed769114dda5cc1d76f1
@@ -9519,7 +9519,7 @@
 	+ commit 46035d28c9b413851d43a4008fdc8e4cdf5d686b
 	* src/g10lib.h (_gcry_secmem_module_init): Make it a real prototype.
 
-2012-02-16  Ulrich Müller  <ulm@gentoo.org>
+2012-02-16  Ulrich MÃ¼ller  <ulm@gentoo.org>
 
 	Add support for the IDEA cipher.
 	+ commit 318fd85f377c060908d371f792d41e599b3b7483

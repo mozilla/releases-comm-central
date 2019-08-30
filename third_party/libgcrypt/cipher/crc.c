@@ -735,7 +735,7 @@ static const u32 crc24_table[1024] =
 static inline
 u32 crc24_init (void)
 {
-  /* Transformed to 32-bit CRC by multiplied by x? and then byte swapped. */
+  /* Transformed to 32-bit CRC by multiplied by x⁸ and then byte swapped. */
   return 0xce04b7; /* _gcry_bswap(0xb704ce << 8) */
 }
 

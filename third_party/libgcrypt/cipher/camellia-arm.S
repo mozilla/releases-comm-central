@@ -222,7 +222,7 @@
 	roundsm(XL, XR, ((n) + 3) * 2 + 0, ((n) + 3) * 2 + 1, YL, YR); \
 	roundsm(YL, YR, ((n) + 2) * 2 + 0, ((n) + 2) * 2 + 1, XL, XR);
 
-/* perform FL and FL?� */
+/* perform FL and FL⁻¹ */
 #define fls(ll, lr, rl, rr, kll, klr, krl, krr) \
 	ldr RT0, [CTX, #(key_table + ((kll) * 4))]; \
 	ldr RT2, [CTX, #(key_table + ((krr) * 4))]; \

@@ -198,7 +198,7 @@ Noteworthy changes in version 1.7.3 (2016-08-17)  [C21/A1/R3]
    - Fix critical security bug in the RNG [CVE-2016-6313].  An
      attacker who obtains 580 bytes from the standard RNG can
      trivially predict the next 20 bytes of output.  Problem
-     detected by Felix Dörre and Vladimir Klebanov, KIT.
+     detected by Felix DÃ¶rre and Vladimir Klebanov, KIT.
 
    - Fix building of some asm modules with older compilers and CPUs.
 

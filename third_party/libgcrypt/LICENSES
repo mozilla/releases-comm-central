@@ -153,7 +153,7 @@ with any binary distributions derived from the GNU C Library.
   http://web.cs.ucdavis.edu/~rogaway/ocb/license1.pdf for the full
   license document; it basically says:
 
-    License 1 ó License for Open-Source Software Implementations of OCB
+    License 1 ‚Äî License for Open-Source Software Implementations of OCB
                 (Jan 9, 2013)
 
     Under this license, you are authorized to make, use, and
@@ -169,11 +169,11 @@ with any binary distributions derived from the GNU C Library.
 
  1 Definitions
 
- 1.1 ìLicensorî means Phillip Rogaway.
+ 1.1 ‚ÄúLicensor‚Äù means Phillip Rogaway.
 
- 1.2 ìLicensed Patentsî means any patent that claims priority to United
- States Patent Application No. 09/918,615 entitled ìMethod and Apparatus
- for Facilitating Efficient Authenticated Encryption,î and any utility,
+ 1.2 ‚ÄúLicensed Patents‚Äù means any patent that claims priority to United
+ States Patent Application No. 09/918,615 entitled ‚ÄúMethod and Apparatus
+ for Facilitating Efficient Authenticated Encryption,‚Äù and any utility,
  divisional, provisional, continuation, continuations-in-part, reexamination,
  reissue, or foreign counterpart patents that may issue with respect to the
  aforesaid patent application. This includes, but is not limited to, United
@@ -181,16 +181,16 @@ with any binary distributions derived from the GNU C Library.
  States Patent No. 7,949,129; United States Patent No. 8,321,675 ; and any
  patent that issues out of United States Patent Application No. 13/669,114.
 
- 1.3 ìUseî means any practice of any invention claimed in the Licensed Patents.
+ 1.3 ‚ÄúUse‚Äù means any practice of any invention claimed in the Licensed Patents.
 
- 1.4 ìSoftware Implementationî means any practice of any invention
+ 1.4 ‚ÄúSoftware Implementation‚Äù means any practice of any invention
  claimed in the Licensed Patents that takes the form of software executing on
  a user-programmable, general-purpose computer or that takes the form of a
  computer-readable medium storing such software. Software Implementation does
  not include, for example, application-specific integrated circuits (ASICs),
  field-programmable gate arrays (FPGAs), embedded systems, or IP cores.
 
- 1.5 ìOpen Source Softwareî means software whose source code is published
+ 1.5 ‚ÄúOpen Source Software‚Äù means software whose source code is published
  and made available for inspection and use by anyone because either (a) the
  source code is subject to a license that permits recipients to copy, modify,
  and distribute the source code without payment of fees or royalties, or
@@ -201,7 +201,7 @@ with any binary distributions derived from the GNU C Library.
  2013, including the Public License Fallback of the CC0 waiver, satisfy these
  requirements for the purposes of this license.
 
- 1.6 ìOpen Source Software Implementationî means a Software
+ 1.6 ‚ÄúOpen Source Software Implementation‚Äù means a Software
  Implementation in which the software implicating the Licensed Patents is
  Open Source Software. Open Source Software Implementation does not include
  any Software Implementation in which the software implicating the Licensed

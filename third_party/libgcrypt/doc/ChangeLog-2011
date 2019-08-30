@@ -36,7 +36,7 @@
 2009-02-22  Werner Koch  <wk@g10code.com>
 
 	* gcrypt.texi (Memory allocation): Fix describion of gcry-calloc.
-	Reported by Sergi Blanch i Torné.
+	Reported by Sergi Blanch i TornÃ©.
 
 2008-12-10  Werner Koch  <wk@g10code.com>
 

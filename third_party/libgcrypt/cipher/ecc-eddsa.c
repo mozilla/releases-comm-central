@@ -816,7 +816,7 @@ _gcry_ecc_eddsa_verify (gcry_mpi_t input, ECC_public_key *pkey,
   _gcry_mpi_set_buffer (h, digest, 64, 0);
 
   /* According to the paper the best way for verification is:
-         encodepoint(sG - h·Q) = encodepoint(r)
+         encodepoint(sG - hÂ·Q) = encodepoint(r)
      because we don't need to decode R. */
   {
     void *sbuf;

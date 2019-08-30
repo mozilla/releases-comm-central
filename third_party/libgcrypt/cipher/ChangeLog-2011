@@ -1155,7 +1155,7 @@
 2006-11-03  Werner Koch  <wk@g10code.com>
 
 	* random.c [HAVE_GETTIMEOFDAY]: Included sys/time.h and not
-	sys/times.h.  Reported by Rafaël Carré.
+	sys/times.h.  Reported by RafaÃ«l CarrÃ©.
 
 2006-11-05  Moritz Schulte  <moritz@g10code.com>
 
@@ -3264,7 +3264,7 @@
 2002-02-20  Werner Koch  <wk@gnupg.org>
 
 	* sha1.c: Removed a left over comment note.  The code has been
-	rewritten from scratch in 1998.  Thanks to Niels Möller for
+	rewritten from scratch in 1998.  Thanks to Niels MÃ¶ller for
 	reporting this misleading comment.
 
 2002-02-18  Werner Koch  <wk@gnupg.org>

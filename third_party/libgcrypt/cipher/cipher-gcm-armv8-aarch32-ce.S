@@ -120,8 +120,8 @@ gcry_gcm_reduction_constant:
 
 /* GHASH macros */
 
-/* See "Gouvêa, C. P. L. & López, J. Implementing GCM on ARMv8. Topics in
- * Cryptology — CT-RSA 2015" for details.
+/* See "GouvÃªa, C. P. L. & LÃ³pez, J. Implementing GCM on ARMv8. Topics in
+ * Cryptology â€” CT-RSA 2015" for details.
  */
 
 /* Input: 'a' and 'b', Output: 'r0:r1' (low 128-bits in r0, high in r1)
@@ -245,8 +245,8 @@ _gcry_ghash_armv8_ce_pmull:
   blo .Lend_4
 
 .Loop_4:
-  /* (in0 ^ hash) * H? => rr2:rr3 */
-  /* (in1) * H³ => rr0:rr1 */
+  /* (in0 ^ hash) * Hâ´ => rr2:rr3 */
+  /* (in1) * HÂ³ => rr0:rr1 */
   PMUL_128x128_2(rr0, rr1, rbuf1, rh3, rr2, rr3, rhash, rh4, rt1, rt0, __)
 
   vld1.64 {rbuf-rbuf1}, [r2]!
@@ -254,8 +254,8 @@ _gcry_ghash_armv8_ce_pmull:
   veor rr0, rr0, rr2
   veor rr1, rr1, rr3
 
-  /* (in2) * H² => rr2:rr3 */
-  /* (in3) * H¹ => rhash:rbuf3 */
+  /* (in2) * HÂ² => rr2:rr3 */
+  /* (in3) * HÂ¹ => rhash:rbuf3 */
   PMUL_128x128_2(rr2, rr3, rbuf2, rh2, rhash, rbuf3, rbuf3, rh1, rt0, rt1,
                  _(vrev64.8 rbuf, rbuf))
 
@@ -285,12 +285,12 @@ _gcry_ghash_armv8_ce_pmull:
   bhs .Loop_4
 
 .Lend_4:
-  /* (in0 ^ hash) * H? => rr2:rr3 */
-  /* (in1) * H³ => rr0:rr1 */
+  /* (in0 ^ hash) * Hâ´ => rr2:rr3 */
+  /* (in1) * HÂ³ => rr0:rr1 */
   PMUL_128x128_2(rr0, rr1, rbuf1, rh3, rr2, rr3, rhash, rh4, rt1, rt0, __)
 
-  /* (in2) * H² => rhash:rbuf */
-  /* (in3) * H¹ => rbuf1:rbuf2 */
+  /* (in2) * HÂ² => rhash:rbuf */
+  /* (in3) * HÂ¹ => rbuf1:rbuf2 */
   PMUL_128x128_2(rhash, rbuf, rbuf2, rh2, rbuf1, rbuf2, rbuf3, rh1, rt0, rt1,
                  _(veor rr0, rr0, rr2;
                    veor rr1, rr1, rr3))
@@ -396,24 +396,24 @@ _gcry_ghash_setup_armv8_ce_pmull:
   vmov rbuf1, rhash
   GCM_LSH_1(r0, rhash_l, rhash_h, rrconst_h, rh1_l, rh1_h, rt1_l) /* H<<<1 */
 
-  /* H² */
+  /* HÂ² */
   PMUL_128x128(rr0, rr1, rbuf1, rh1, rt0, __)
   REDUCTION(rh2, rr0, rr1, rrconst_h, rt0, __)
   vmov rhash, rh2
-  GCM_LSH_1(r1, rh2_l, rh2_h, rrconst_h, rbuf1_l, rbuf1_h, rt1_l) /* H²<<<1 */
+  GCM_LSH_1(r1, rh2_l, rh2_h, rrconst_h, rbuf1_l, rbuf1_h, rt1_l) /* HÂ²<<<1 */
   add r1, r1, #16
 
-  /* H³ */
+  /* HÂ³ */
   PMUL_128x128(rr0, rr1, rhash, rh1, rt1, __)
   REDUCTION(rh3, rr0, rr1, rrconst_h, rt1, __)
 
-  /* H? */
+  /* Hâ´ */
   PMUL_128x128(rr0, rr1, rhash, rbuf1, rt0, __)
   REDUCTION(rh4, rr0, rr1, rrconst_h, rt0, __)
 
-  GCM_LSH_1(r1, rh3_l, rh3_h, rrconst_h, rt0_l, rt0_h, rt1_l) /* H³<<<1 */
+  GCM_LSH_1(r1, rh3_l, rh3_h, rrconst_h, rt0_l, rt0_h, rt1_l) /* HÂ³<<<1 */
   add r1, r1, #16
-  GCM_LSH_1(r1, rh4_l, rh4_h, rrconst_h, rt0_l, rt0_h, rt1_l) /* H?<<<1 */
+  GCM_LSH_1(r1, rh4_l, rh4_h, rrconst_h, rt0_l, rt0_h, rt1_l) /* Hâ´<<<1 */
 
   CLEAR_REG(rt0)
   CLEAR_REG(rt1)

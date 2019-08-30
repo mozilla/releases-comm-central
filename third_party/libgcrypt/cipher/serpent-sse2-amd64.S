@@ -123,8 +123,8 @@
 /*
  * These are the S-Boxes of Serpent from following research paper.
  *
- *  D. A. Osvik, “Speeding up Serpent,” in Third AES Candidate Conference,
- *   (New York, New York, USA), p. 317–329, National Institute of Standards and
+ *  D. A. Osvik, â€œSpeeding up Serpent,â€ in Third AES Candidate Conference,
+ *   (New York, New York, USA), p. 317â€“329, National Institute of Standards and
  *   Technology, 2000.
  *
  * Paper is also available at: http://www.ii.uib.no/~osvik/pub/aes3.pdf

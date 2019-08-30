@@ -176,7 +176,7 @@ get_time_nsec_diff (struct nsec_time *start, struct nsec_time *end)
   double nsecs;
 
   nsecs = end->tv.tv_sec - start->tv.tv_sec;
-  nsecs *= 1000000;		/* sec => µsec */
+  nsecs *= 1000000;		/* sec => Âµsec */
 
   /* This way we don't have to care if tv_usec unsigned or signed. */
   if (end->tv.tv_usec >= start->tv.tv_usec)
@@ -184,7 +184,7 @@ get_time_nsec_diff (struct nsec_time *start, struct nsec_time *end)
   else
     nsecs -= start->tv.tv_usec - end->tv.tv_usec;
 
-  nsecs *= 1000;		/* µsec => nsec */
+  nsecs *= 1000;		/* Âµsec => nsec */
 
   return nsecs;
 }

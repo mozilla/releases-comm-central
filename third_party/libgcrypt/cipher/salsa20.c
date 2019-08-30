@@ -1,5 +1,5 @@
 /* salsa20.c  -  Bernstein's Salsa20 cipher
- * Copyright (C) 2012 Simon Josefsson, Niels Möller
+ * Copyright (C) 2012 Simon Josefsson, Niels MÃ¶ller
  * Copyright (C) 2013 g10 Code GmbH
  *
  * This file is part of Libgcrypt.

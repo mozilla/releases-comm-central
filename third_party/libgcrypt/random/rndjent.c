@@ -1,6 +1,6 @@
 /* rndjent.c  - Driver for the jitterentropy module.
  * Copyright (C) 2017 g10 Code GmbH
- * Copyright (C) 2017 Bundesamt für Sicherheit in der Informationstechnik
+ * Copyright (C) 2017 Bundesamt fÃ¼r Sicherheit in der Informationstechnik
  * Copyright (C) 2013 Stephan Mueller <smueller@chronox.de>
  *
  * Redistribution and use in source and binary forms, with or without

@@ -871,16 +871,16 @@ dup_point_edwards (mpi_point_t result, mpi_point_t point, mpi_ec_t ctx)
   ec_mul2 (J, H, ctx);
   ec_subm (J, F, J, ctx);
 
-  /* X_3 = (B - C - D) · J */
+  /* X_3 = (B - C - D) Â· J */
   ec_subm (X3, B, C, ctx);
   ec_subm (X3, X3, D, ctx);
   ec_mulm (X3, X3, J, ctx);
 
-  /* Y_3 = F · (E - D) */
+  /* Y_3 = F Â· (E - D) */
   ec_subm (Y3, E, D, ctx);
   ec_mulm (Y3, Y3, F, ctx);
 
-  /* Z_3 = F · J */
+  /* Z_3 = F Â· J */
   ec_mulm (Z3, F, J, ctx);
 
 #undef X1
@@ -1101,19 +1101,19 @@ add_points_edwards (mpi_point_t result,
 
   /* Compute: (X_3 : Y_3 : Z_3) = (X_1 : Y_1 : Z_1) + (X_2 : Y_2 : Z_3)  */
 
-  /* A = Z1 · Z2 */
+  /* A = Z1 Â· Z2 */
   ec_mulm (A, Z1, Z2, ctx);
 
   /* B = A^2 */
   ec_pow2 (B, A, ctx);
 
-  /* C = X1 · X2 */
+  /* C = X1 Â· X2 */
   ec_mulm (C, X1, X2, ctx);
 
-  /* D = Y1 · Y2 */
+  /* D = Y1 Â· Y2 */
   ec_mulm (D, Y1, Y2, ctx);
 
-  /* E = d · C · D */
+  /* E = d Â· C Â· D */
   ec_mulm (E, ctx->b, C, ctx);
   ec_mulm (E, E, D, ctx);
 
@@ -1123,7 +1123,7 @@ add_points_edwards (mpi_point_t result,
   /* G = B + E */
   ec_addm (G, B, E, ctx);
 
-  /* X_3 = A · F · ((X_1 + Y_1) · (X_2 + Y_2) - C - D) */
+  /* X_3 = A Â· F Â· ((X_1 + Y_1) Â· (X_2 + Y_2) - C - D) */
   ec_addm (tmp, X1, Y1, ctx);
   ec_addm (X3, X2, Y2, ctx);
   ec_mulm (X3, X3, tmp, ctx);
@@ -1132,7 +1132,7 @@ add_points_edwards (mpi_point_t result,
   ec_mulm (X3, X3, F, ctx);
   ec_mulm (X3, X3, A, ctx);
 
-  /* Y_3 = A · G · (D - aC) */
+  /* Y_3 = A Â· G Â· (D - aC) */
   if (ctx->dialect == ECC_DIALECT_ED25519)
     {
       ec_addm (Y3, D, C, ctx);
@@ -1145,7 +1145,7 @@ add_points_edwards (mpi_point_t result,
   ec_mulm (Y3, Y3, G, ctx);
   ec_mulm (Y3, Y3, A, ctx);
 
-  /* Z_3 = F · G */
+  /* Z_3 = F Â· G */
   ec_mulm (Z3, F, G, ctx);
 
 
@@ -1538,7 +1538,7 @@ _gcry_mpi_ec_curve_point (gcry_mpi_point_t point, mpi_ec_t ctx)
 
         xxx = mpi_new (0);
 
-        /* y^2 == x^3 + a·x + b */
+        /* y^2 == x^3 + aÂ·x + b */
         ec_pow2 (y, y, ctx);
 
         ec_pow3 (xxx, x, ctx);
@@ -1559,7 +1559,7 @@ _gcry_mpi_ec_curve_point (gcry_mpi_point_t point, mpi_ec_t ctx)
         if (_gcry_mpi_ec_get_affine (x, NULL, point, ctx))
           goto leave;
 
-        /* The equation is: b * y^2 == x^3 + a · x^2 + x */
+        /* The equation is: b * y^2 == x^3 + a Â· x^2 + x */
         /* We check if right hand is quadratic residue or not by
            Euler's criterion.  */
         /* CTX->A has (a-2)/4 and CTX->B has b^-1 */
@@ -1587,7 +1587,7 @@ _gcry_mpi_ec_curve_point (gcry_mpi_point_t point, mpi_ec_t ctx)
         if (_gcry_mpi_ec_get_affine (x, y, point, ctx))
           goto leave;
 
-        /* a · x^2 + y^2 - 1 - b · x^2 · y^2 == 0 */
+        /* a Â· x^2 + y^2 - 1 - b Â· x^2 Â· y^2 == 0 */
         ec_pow2 (x, x, ctx);
         ec_pow2 (y, y, ctx);
         if (ctx->dialect == ECC_DIALECT_ED25519)

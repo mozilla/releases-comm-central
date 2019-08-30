@@ -269,7 +269,7 @@ gcc -c foo.c `libgcrypt-config --cflags`
 @end example
 
 Adding the output of @samp{libgcrypt-config --cflags} to the
-compiler’s command line will ensure that the compiler can find the
+compilerâ€™s command line will ensure that the compiler can find the
 Libgcrypt header file.
 
 A similar problem occurs when linking the program with the library.
@@ -2283,7 +2283,7 @@ general only support uncompressed points, thus the first byte needs to
 be @code{0x04}.  However ``EdDSA'' describes its own compression
 scheme which is used by default; the non-standard first byte
 @code{0x40} may optionally be used to explicit flag the use of the
-algorithm’s native compression method.
+algorithmâ€™s native compression method.
 
 The public key is similar with "private-key" replaced by "public-key"
 and no @var{d-mpi}.
@@ -5798,7 +5798,7 @@ The generation of random prime numbers is based on the Lim and Lee
 algorithm to create practically save primes.@footnote{Chae Hoon Lim
 and Pil Joong Lee. A key recovery attack on discrete log-based schemes
 using a prime order subgroup. In Burton S. Kaliski Jr., editor,
-Advances in Cryptology: Crypto '97, pages 249­-263, Berlin /
+Advances in Cryptology: Crypto '97, pages 249Â­-263, Berlin /
 Heidelberg / New York, 1997. Springer-Verlag.  Described on page 260.}
 This algorithm creates a pool of smaller primes, select a few of them
 to create candidate primes of the form @math{2 * p_0 * p_1 * ... * p_n

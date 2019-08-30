@@ -1524,8 +1524,8 @@ _gcry_aes_ocb_auth_armv8_ce:
 .globl _gcry_aes_sbox4_armv8_ce
 .type  _gcry_aes_sbox4_armv8_ce,%function;
 _gcry_aes_sbox4_armv8_ce:
-  /* See "Gouvêa, C. P. L. & López, J. Implementing GCM on ARMv8. Topics in
-   * Cryptology — CT-RSA 2015" for details.
+  /* See "GouvÃªa, C. P. L. & LÃ³pez, J. Implementing GCM on ARMv8. Topics in
+   * Cryptology â€” CT-RSA 2015" for details.
    */
   vmov.i8 q0, #0x52
   vmov.i8 q1, #0

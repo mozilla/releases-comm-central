@@ -660,7 +660,7 @@
  *       )
  *   )
  *
- * (note: '? 0xc5' inside camellia_f())
+ * (note: '⊕ 0xc5' inside camellia_f())
  */
 .Lpre_tf_lo_s1:
 	.byte 0x45, 0xe8, 0x40, 0xed, 0x2e, 0x83, 0x2b, 0x86
@@ -681,7 +681,7 @@
  *       )
  *   )
  *
- * (note: '? 0xc5' inside camellia_f())
+ * (note: '⊕ 0xc5' inside camellia_f())
  */
 .Lpre_tf_lo_s4:
 	.byte 0x45, 0x40, 0x2e, 0x2b, 0x4b, 0x4e, 0x20, 0x25
@@ -704,7 +704,7 @@
  *      )
  *  )
  *
- * (note: '? 0x6e' inside camellia_h())
+ * (note: '⊕ 0x6e' inside camellia_h())
  */
 .Lpost_tf_lo_s1:
 	.byte 0x3c, 0xcc, 0xcf, 0x3f, 0x32, 0xc2, 0xc1, 0x31
@@ -727,7 +727,7 @@
  *      )
  *  ) <<< 1
  *
- * (note: '? 0x6e' inside camellia_h())
+ * (note: '⊕ 0x6e' inside camellia_h())
  */
 .Lpost_tf_lo_s2:
 	.byte 0x78, 0x99, 0x9f, 0x7e, 0x64, 0x85, 0x83, 0x62
@@ -750,7 +750,7 @@
  *      )
  *  ) >>> 1
  *
- * (note: '? 0x6e' inside camellia_h())
+ * (note: '⊕ 0x6e' inside camellia_h())
  */
 .Lpost_tf_lo_s3:
 	.byte 0x1e, 0x66, 0xe7, 0x9f, 0x19, 0x61, 0xe0, 0x98

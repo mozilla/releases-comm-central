@@ -74,7 +74,7 @@ static const struct crc32_consts_s crc32_consts ALIGNED_16 =
   }
 };
 
-/* CLMUL constants for CRC24RFC2440 (polynomial multiplied with x?). */
+/* CLMUL constants for CRC24RFC2440 (polynomial multiplied with x⁸). */
 static const struct crc32_consts_s crc24rfc2440_consts ALIGNED_16 =
 {
   { /* k[6] = x^(32*y) mod P(x) << 32*/

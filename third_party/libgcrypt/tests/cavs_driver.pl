@@ -3,7 +3,7 @@
 # $Id: cavs_driver.pl 1497 2009-01-22 14:01:29Z smueller $
 #
 # CAVS test driver (based on the OpenSSL driver)
-# Written by: Stephan Müller <sm@atsec.com>
+# Written by: Stephan MÃ¼ller <sm@atsec.com>
 # Copyright (c) atsec information security corporation
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy

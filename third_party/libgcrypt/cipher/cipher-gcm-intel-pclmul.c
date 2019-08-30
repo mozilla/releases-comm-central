@@ -41,7 +41,7 @@
 
 /*
  Intel PCLMUL ghash based on white paper:
-  "IntelÆ Carry-Less Multiplication Instruction and its Usage for Computing the
+  "Intel¬Æ Carry-Less Multiplication Instruction and its Usage for Computing the
    GCM Mode - Rev 2.01"; Shay Gueron, Michael E. Kounavis.
  */
 static inline void gfmul_pclmul(void)
@@ -123,10 +123,10 @@ static inline void gfmul_pclmul(void)
 static inline void gfmul_pclmul_aggr4(void)
 {
   /* Input:
-      Hπ: XMM0          X_i            : XMM6
-      H≤: XMM8          X_(i-1)        : XMM3
-      H≥: XMM9          X_(i-2)        : XMM2
-      H?: XMM10         X_(i-3)?Y_(i-4): XMM1
+      H¬π: XMM0          X_i            : XMM6
+      H¬≤: XMM8          X_(i-1)        : XMM3
+      H¬≥: XMM9          X_(i-2)        : XMM2
+      H‚Å¥: XMM10         X_(i-3)‚äïY_(i-4): XMM1
      Output:
       Y_i: XMM1
      Inputs XMM0 stays unmodified.
@@ -272,7 +272,7 @@ _gcry_ghash_setup_intel_pclmul (gcry_cipher_hd_t c)
                 :
                 : [h_1] "m" (*tmp));
 
-  gfmul_pclmul (); /* HïH => H≤ */
+  gfmul_pclmul (); /* H‚Ä¢H => H¬≤ */
 
   asm volatile ("movdqu %%xmm1, 0*16(%[h_234])\n\t"
                 "movdqa %%xmm1, %%xmm8\n\t"
@@ -280,7 +280,7 @@ _gcry_ghash_setup_intel_pclmul (gcry_cipher_hd_t c)
                 : [h_234] "r" (c->u_mode.gcm.gcm_table)
                 : "memory");
 
-  gfmul_pclmul (); /* HïH≤ => H≥ */
+  gfmul_pclmul (); /* H‚Ä¢H¬≤ => H¬≥ */
 
   asm volatile ("movdqa %%xmm8, %%xmm0\n\t"
                 "movdqu %%xmm1, 1*16(%[h_234])\n\t"
@@ -289,7 +289,7 @@ _gcry_ghash_setup_intel_pclmul (gcry_cipher_hd_t c)
                 : [h_234] "r" (c->u_mode.gcm.gcm_table)
                 : "memory");
 
-  gfmul_pclmul (); /* H≤ïH≤ => H? */
+  gfmul_pclmul (); /* H¬≤‚Ä¢H¬≤ => H‚Å¥ */
 
   asm volatile ("movdqu %%xmm1, 2*16(%[h_234])\n\t"
                 :

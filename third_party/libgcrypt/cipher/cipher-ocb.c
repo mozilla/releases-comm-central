@@ -23,7 +23,7 @@
  * http://web.cs.ucdavis.edu/~rogaway/ocb/license1.pdf for the full
  * license document; it basically says:
  *
- *   License 1 — License for Open-Source Software Implementations of OCB
+ *   License 1 â€” License for Open-Source Software Implementations of OCB
  *               (Jan 9, 2013)
  *
  *   Under this license, you are authorized to make, use, and

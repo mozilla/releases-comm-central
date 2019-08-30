@@ -157,7 +157,7 @@ check_openpgp (void)
        0 aes    md5 1024 abcdefghijklmnop
        0 aes    md5 1024 abcdefghijklmnopq
        0 aes    md5 1024 Long_sentence_used_as_passphrase
-       0 aes    md5 1024 With_utf8_umlauts:äüÖß
+       0 aes    md5 1024 With_utf8_umlauts:Ã¤Ã¼Ã–ÃŸ
        0 aes    sha1 1024 a
        0 aes    sha1 1024 ab
        0 aes    sha1 1024 abc
@@ -176,7 +176,7 @@ check_openpgp (void)
        0 aes    sha1 1024 abcdefghijklmnopqrstu
        0 aes    sha1 1024 Long_sentence_used_as_passphrase
        0 aes256 sha1 1024 Long_sentence_used_as_passphrase
-       0 aes    sha1 1024 With_utf8_umlauts:äüÖß
+       0 aes    sha1 1024 With_utf8_umlauts:Ã¤Ã¼Ã–ÃŸ
        3 aes    sha1 1024 a
        3 aes    sha1 1024 ab
        3 aes    sha1 1024 abc
@@ -193,7 +193,7 @@ check_openpgp (void)
        3 aes    sha1 1024 abcdefghijklmnopqrs
        3 aes    sha1 1024 abcdefghijklmnopqrst
        3 aes    sha1 1024 abcdefghijklmnopqrstu
-       3 aes    sha1 1024 With_utf8_umlauts:äüÖß
+       3 aes    sha1 1024 With_utf8_umlauts:Ã¤Ã¼Ã–ÃŸ
        3 aes    sha1 1024 Long_sentence_used_as_passphrase
        3 aes    sha1 10240 Long_sentence_used_as_passphrase
        3 aes    sha1 102400 Long_sentence_used_as_passphrase

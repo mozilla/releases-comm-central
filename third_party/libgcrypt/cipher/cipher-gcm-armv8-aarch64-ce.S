@@ -77,8 +77,8 @@ gcry_gcm_reduction_constant:
 
 /* GHASH macros */
 
-/* See "GouvÍa, C. P. L. & LÛpez, J. Implementing GCM on ARMv8. Topics in
- * Cryptology ó CT-RSA 2015" for details.
+/* See "Gouv√™a, C. P. L. & L√≥pez, J. Implementing GCM on ARMv8. Topics in
+ * Cryptology ‚Äî CT-RSA 2015" for details.
  */
 
 /* Input: 'a' and 'b', Output: 'r0:r1' (low 128-bits in r0, high in r1) */
@@ -221,9 +221,9 @@ _gcry_ghash_armv8_ce_pmull:
 
 .Loop_6:
 
-  /* (in1) * H? => rr0:rr1 */
-  /* (in2) * H? => rr2:rr3 */
-  /* (in0 ^ hash) * H? => rr4:rr5 */
+  /* (in1) * H‚Åµ => rr0:rr1 */
+  /* (in2) * H‚Å¥ => rr2:rr3 */
+  /* (in0 ^ hash) * H‚Å∂ => rr4:rr5 */
   PMUL_128x128_3(rr0, rr1, rbuf1, rh5, t0, t1,
                  rr2, rr3, rbuf2, rh4, t2, t3,
                  rr4, rr5, rhash, rh6, t4, t5,
@@ -235,9 +235,9 @@ _gcry_ghash_armv8_ce_pmull:
   eor rr0.16b, rr0.16b, rr2.16b
   eor rr1.16b, rr1.16b, rr3.16b
 
-  /* (in3) * H≥ => rr2:rr3 */
-  /* (in4) * H≤ => rr6:rr7 */
-  /* (in5) * Hπ => rr8:rr9 */
+  /* (in3) * H¬≥ => rr2:rr3 */
+  /* (in4) * H¬≤ => rr6:rr7 */
+  /* (in5) * H¬π => rr8:rr9 */
   PMUL_128x128_3(rr2, rr3, rbuf3, rh3, t0, t1,
                  rr6, rr7, rbuf4, rh2, t2, t3,
                  rr8, rr9, rbuf5, rh1, t4, t5,
@@ -266,9 +266,9 @@ _gcry_ghash_armv8_ce_pmull:
 
 .Lend_6:
 
-  /* (in1) * H? => rr0:rr1 */
-  /* (in0 ^ hash) * H? => rr2:rr3 */
-  /* (in2) * H? => rr4:rr5 */
+  /* (in1) * H‚Åµ => rr0:rr1 */
+  /* (in0 ^ hash) * H‚Å∂ => rr2:rr3 */
+  /* (in2) * H‚Å¥ => rr4:rr5 */
   PMUL_128x128_3(rr0, rr1, rbuf1, rh5, t0, t1,
                  rr2, rr3, rhash, rh6, t2, t3,
                  rr4, rr5, rbuf2, rh4, t4, t5,
@@ -278,9 +278,9 @@ _gcry_ghash_armv8_ce_pmull:
   eor rr0.16b, rr0.16b, rr4.16b
   eor rr1.16b, rr1.16b, rr5.16b
 
-  /* (in3) * H≥ => rhash:rbuf */
-  /* (in4) * H≤ => rr6:rr7 */
-  /* (in5) * Hπ => rr8:rr9 */
+  /* (in3) * H¬≥ => rhash:rbuf */
+  /* (in4) * H¬≤ => rr6:rr7 */
+  /* (in5) * H¬π => rr8:rr9 */
   PMUL_128x128_3(rhash, rbuf, rbuf3, rh3, t0, t1,
                  rr6, rr7, rbuf4, rh2, t2, t3,
                  rr8, rr9, rbuf5, rh1, t4, t5,
@@ -377,30 +377,30 @@ _gcry_ghash_setup_armv8_ce_pmull:
 
   GET_DATA_POINTER(x2, .Lrconst)
 
-  /* Hπ */
+  /* H¬π */
   ld1 {rh1.16b}, [x0]
   rbit rh1.16b, rh1.16b
   st1 {rh1.16b}, [x0]
 
   ld1r {rrconst.2d}, [x2]
 
-  /* H≤ */
+  /* H¬≤ */
   PMUL_128x128(rr0, rr1, rh1, rh1, t0, t1, __)
   REDUCTION(rh2, rr0, rr1, rrconst, t0, t1, __, __, __)
 
-  /* H≥ */
+  /* H¬≥ */
   PMUL_128x128(rr0, rr1, rh2, rh1, t0, t1, __)
   REDUCTION(rh3, rr0, rr1, rrconst, t0, t1, __, __, __)
 
-  /* H? */
+  /* H‚Å¥ */
   PMUL_128x128(rr0, rr1, rh2, rh2, t0, t1, __)
   REDUCTION(rh4, rr0, rr1, rrconst, t0, t1, __, __, __)
 
-  /* H? */
+  /* H‚Åµ */
   PMUL_128x128(rr0, rr1, rh2, rh3, t0, t1, __)
   REDUCTION(rh5, rr0, rr1, rrconst, t0, t1, __, __, __)
 
-  /* H? */
+  /* H‚Å∂ */
   PMUL_128x128(rr0, rr1, rh3, rh3, t0, t1, __)
   REDUCTION(rh6, rr0, rr1, rrconst, t0, t1, __, __, __)
 
