@@ -6,22 +6,42 @@
 /* globals accountOptionsHelper */
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var PREF_EXTENSIONS_GETMOREPROTOCOLSURL = "extensions.getMoreProtocolsURL";
 
 var accountWizard = {
   onload() {
-    document.documentElement.addEventListener("wizardfinish", this.createAccount.bind(this));
+    document.documentElement.addEventListener(
+      "wizardfinish",
+      this.createAccount.bind(this)
+    );
     let accountProtocolPage = document.getElementById("accountprotocol");
-    accountProtocolPage.addEventListener("pageadvanced", this.selectProtocol.bind(this));
+    accountProtocolPage.addEventListener(
+      "pageadvanced",
+      this.selectProtocol.bind(this)
+    );
     let accountUsernamePage = document.getElementById("accountusername");
-    accountUsernamePage.addEventListener("pageshow", this.showUsernamePage.bind(this));
-    accountUsernamePage.addEventListener("pagehide", this.hideUsernamePage.bind(this));
+    accountUsernamePage.addEventListener(
+      "pageshow",
+      this.showUsernamePage.bind(this)
+    );
+    accountUsernamePage.addEventListener(
+      "pagehide",
+      this.hideUsernamePage.bind(this)
+    );
     let accountAdvancedPage = document.getElementById("accountadvanced");
-    accountAdvancedPage.addEventListener("pageshow", this.showAdvanced.bind(this));
+    accountAdvancedPage.addEventListener(
+      "pageshow",
+      this.showAdvanced.bind(this)
+    );
     let accountSummaryPage = document.getElementById("accountsummary");
-    accountSummaryPage.addEventListener("pageshow", this.showSummary.bind(this));
+    accountSummaryPage.addEventListener(
+      "pageshow",
+      this.showSummary.bind(this)
+    );
 
     // Ensure the im core is initialized before we get a list of protocols.
     Services.core.init();
@@ -30,11 +50,13 @@ var accountWizard = {
 
     var protoList = document.getElementById("protolist");
     var protos = [];
-    for (let proto of this.getProtocols())
+    for (let proto of this.getProtocols()) {
       protos.push(proto);
+    }
     protos.sort((a, b) => {
-      if (a.name < b.name)
+      if (a.name < b.name) {
         return -1;
+      }
       return a.name > b.name ? 1 : 0;
     });
     protos.forEach(function(proto) {
@@ -73,8 +95,9 @@ var accountWizard = {
   getUsername() {
     // If the first username textbox is empty, make sure we return an empty
     // string so that it blocks the 'next' button of the wizard.
-    if (!this.userNameBoxes[0].value)
+    if (!this.userNameBoxes[0].value) {
       return "";
+    }
 
     return this.userNameBoxes.reduce((prev, elt) => prev + elt.value, "");
   },
@@ -100,7 +123,6 @@ var accountWizard = {
     this.proto = Services.core.getProtocolById(id);
   },
 
-
   insertUsernameField(aName, aLabel, aParent, aDefaultValue) {
     var hbox = document.createXULElement("hbox");
     hbox.setAttribute("id", aName + "-hbox");
@@ -116,8 +138,9 @@ var accountWizard = {
     var textbox = document.createXULElement("textbox");
     textbox.setAttribute("id", aName);
     textbox.setAttribute("flex", 1);
-    if (aDefaultValue)
+    if (aDefaultValue) {
       textbox.setAttribute("value", aDefaultValue);
+    }
     textbox.addEventListener("input", accountWizard.checkUsername);
     hbox.appendChild(textbox);
 
@@ -136,35 +159,39 @@ var accountWizard = {
     var usernameInfo;
     var emptyText = this.proto.usernameEmptyText;
     if (emptyText) {
-      usernameInfo =
-        bundle.getFormattedString("accountUsernameInfoWithDescription",
-                                  [emptyText, this.proto.name]);
+      usernameInfo = bundle.getFormattedString(
+        "accountUsernameInfoWithDescription",
+        [emptyText, this.proto.name]
+      );
     } else {
-      usernameInfo =
-        bundle.getFormattedString("accountUsernameInfo", [this.proto.name]);
+      usernameInfo = bundle.getFormattedString("accountUsernameInfo", [
+        this.proto.name,
+      ]);
     }
     document.getElementById("usernameInfo").textContent = usernameInfo;
 
     var vbox = document.getElementById("userNameBox");
     // remove anything that may be there for another protocol
-    while (vbox.hasChildNodes())
+    while (vbox.hasChildNodes()) {
       vbox.lastChild.remove();
+    }
 
     var splits = [];
-    for (let split of this.getProtoUserSplits())
+    for (let split of this.getProtoUserSplits()) {
       splits.push(split);
+    }
 
     var label = bundle.getString("accountUsername");
     this.userNameBoxes = [this.insertUsernameField("name", label, vbox)];
     this.userNameBoxes[0].emptyText = emptyText;
 
     for (let i = 0; i < splits.length; ++i) {
-      this.userNameBoxes.push({value: splits[i].separator});
+      this.userNameBoxes.push({ value: splits[i].separator });
       label = bundle.getFormattedString("accountColon", [splits[i].label]);
       let defaultVal = splits[i].defaultValue;
-      this.userNameBoxes.push(this.insertUsernameField("username-split-" + i,
-                                                       label, vbox,
-                                                       defaultVal));
+      this.userNameBoxes.push(
+        this.insertUsernameField("username-split-" + i, label, vbox, defaultVal)
+      );
     }
     this.userNameBoxes[0].focus();
     this.userNameProto = proto;
@@ -173,16 +200,16 @@ var accountWizard = {
 
   hideUsernamePage() {
     document.getElementById("accountWizard").canAdvance = true;
-    var next = "account" +
-      (this.proto.noPassword ? "advanced" : "password");
+    var next = "account" + (this.proto.noPassword ? "advanced" : "password");
     document.getElementById("accountusername").next = next;
   },
 
   showAdvanced() {
     // ensure we don't destroy user data if it's not necessary
     var id = this.proto.id;
-    if ("protoSpecOptId" in this && this.protoSpecOptId == id)
+    if ("protoSpecOptId" in this && this.protoSpecOptId == id) {
       return;
+    }
     this.protoSpecOptId = id;
 
     this.populateProtoSpecificBox();
@@ -192,13 +219,16 @@ var accountWizard = {
   },
 
   populateProtoSpecificBox() {
-    let haveOptions =
-      accountOptionsHelper.addOptions(this.proto.id + "-", this.getProtoOptions());
+    let haveOptions = accountOptionsHelper.addOptions(
+      this.proto.id + "-",
+      this.getProtoOptions()
+    );
     document.getElementById("protoSpecificGroupbox").hidden = !haveOptions;
     if (haveOptions) {
       var bundle = document.getElementById("accountsBundle");
-      document.getElementById("protoSpecificCaption").value =
-        bundle.getFormattedString("protoOptions", [this.proto.name]);
+      document.getElementById(
+        "protoSpecificCaption"
+      ).value = bundle.getFormattedString("protoOptions", [this.proto.name]);
     }
   },
 
@@ -231,8 +261,9 @@ var accountWizard = {
   showSummary() {
     var rows = document.getElementById("summaryRows");
     var bundle = document.getElementById("accountsBundle");
-    while (rows.hasChildNodes())
+    while (rows.hasChildNodes()) {
       rows.lastChild.remove();
+    }
 
     var label = document.getElementById("protoLabel").value;
     rows.appendChild(this.createSummaryRow(label, this.proto.name));
@@ -244,8 +275,9 @@ var accountWizard = {
       if (this.password) {
         label = document.getElementById("passwordLabel").value;
         var pass = "";
-        for (let i = 0; i < this.password.length; ++i)
+        for (let i = 0; i < this.password.length; ++i) {
           pass += "*";
+        }
         rows.appendChild(this.createSummaryRow(label, pass));
       }
     }
@@ -262,33 +294,38 @@ var accountWizard = {
     */
 
     var id = this.proto.id;
-    this.prefs = [ ];
+    this.prefs = [];
     for (let opt of this.getProtoOptions()) {
       let name = opt.name;
       let eltName = id + "-" + name;
       let val = this.getValue(eltName);
       // The value will be undefined if the proto specific groupbox has never been opened
-      if (val === undefined)
+      if (val === undefined) {
         continue;
+      }
       switch (opt.type) {
-      case opt.typeBool:
-        if (val != opt.getBool())
-          this.prefs.push({opt, name, value: !!val});
-        break;
-      case opt.typeInt:
-        if (val != opt.getInt())
-          this.prefs.push({opt, name, value: val});
-        break;
-      case opt.typeString:
-        if (val != opt.getString())
-          this.prefs.push({opt, name, value: val});
-        break;
-      case opt.typeList:
-        if (val != opt.getListDefault())
-          this.prefs.push({opt, name, value: val});
-        break;
-      default:
-        throw new Error("unknown preference type " + opt.type);
+        case opt.typeBool:
+          if (val != opt.getBool()) {
+            this.prefs.push({ opt, name, value: !!val });
+          }
+          break;
+        case opt.typeInt:
+          if (val != opt.getInt()) {
+            this.prefs.push({ opt, name, value: val });
+          }
+          break;
+        case opt.typeString:
+          if (val != opt.getString()) {
+            this.prefs.push({ opt, name, value: val });
+          }
+          break;
+        case opt.typeList:
+          if (val != opt.getListDefault()) {
+            this.prefs.push({ opt, name, value: val });
+          }
+          break;
+        default:
+          throw new Error("unknown preference type " + opt.type);
       }
     }
 
@@ -301,27 +338,29 @@ var accountWizard = {
 
   createAccount() {
     var acc = Services.accounts.createAccount(this.username, this.proto.id);
-    if (!this.proto.noPassword && this.password)
+    if (!this.proto.noPassword && this.password) {
       acc.password = this.password;
-    if (this.alias)
+    }
+    if (this.alias) {
       acc.alias = this.alias;
+    }
 
     for (let i = 0; i < this.prefs.length; ++i) {
       let option = this.prefs[i];
       let opt = option.opt;
       switch (opt.type) {
-      case opt.typeBool:
-        acc.setBool(option.name, option.value);
-        break;
-      case opt.typeInt:
-        acc.setInt(option.name, option.value);
-        break;
-      case opt.typeString:
-      case opt.typeList:
-        acc.setString(option.name, option.value);
-        break;
-      default:
-        throw new Error("unknown type");
+        case opt.typeBool:
+          acc.setBool(option.name, option.value);
+          break;
+        case opt.typeInt:
+          acc.setInt(option.name, option.value);
+          break;
+        case opt.typeString:
+        case opt.typeList:
+          acc.setString(option.name, option.value);
+          break;
+        default:
+          throw new Error("unknown type");
       }
     }
     var autologin = this.getValue("connectNow");
@@ -330,8 +369,9 @@ var accountWizard = {
     acc.save();
 
     try {
-      if (autologin)
+      if (autologin) {
         acc.connect();
+      }
     } catch (e) {
       // If the connection fails (for example if we are currently in
       // offline mode), we still want to close the account wizard
@@ -339,14 +379,16 @@ var accountWizard = {
 
     if (window.opener) {
       var am = window.opener.gAccountManager;
-      if (am)
+      if (am) {
         am.selectAccount(acc.id);
+      }
     }
 
-    var inServer =
-      MailServices.accounts.createIncomingServer(this.username,
-                                                 this.proto.id, // hostname
-                                                 "im");
+    var inServer = MailServices.accounts.createIncomingServer(
+      this.username,
+      this.proto.id, // hostname
+      "im"
+    );
     inServer.wrappedJSObject.imAccount = acc;
 
     var account = MailServices.accounts.createAccount();
@@ -361,22 +403,26 @@ var accountWizard = {
 
   getValue(aId) {
     var elt = document.getElementById(aId);
-    if ("selectedItem" in elt)
+    if ("selectedItem" in elt) {
       return elt.selectedItem.value;
+    }
     // Strangely for <input type="number"> "checked" is also set.
-    if ((elt.getAttribute("type") != "number") && ("checked" in elt))
+    if (elt.getAttribute("type") != "number" && "checked" in elt) {
       return elt.checked;
-    if ("value" in elt)
+    }
+    if ("value" in elt) {
       return elt.value;
+    }
     // If the groupbox has never been opened, the binding isn't attached
     // so the attributes don't exist. The calling code in showSummary
     // has a special handling of the undefined value for this case.
     return undefined;
   },
 
-  * getIter(aEnumerator) {
-    while (aEnumerator.hasMoreElements())
+  *getIter(aEnumerator) {
+    while (aEnumerator.hasMoreElements()) {
       yield aEnumerator.getNext();
+    }
   },
   getProtocols() {
     return this.getIter(Services.core.getProtocols());

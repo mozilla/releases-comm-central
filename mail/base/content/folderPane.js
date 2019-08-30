@@ -17,18 +17,22 @@ var {
   getMostRecentFolders,
   folderNameCompare,
 } = ChromeUtils.import("resource:///modules/folderUtils.jsm");
-var {
-  fixIterator,
-  toXPCOMArray,
-} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
-var {FeedUtils} = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { fixIterator, toXPCOMArray } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.js");
+var { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-if (typeof FeedMessageHandler != "object")
-  Services.scriptloader.loadSubScript("chrome://messenger-newsblog/content/newsblogOverlay.js");
+if (typeof FeedMessageHandler != "object") {
+  Services.scriptloader.loadSubScript(
+    "chrome://messenger-newsblog/content/newsblogOverlay.js"
+  );
+}
 
 var kDefaultMode = "all";
 
@@ -148,10 +152,12 @@ var gFolderTreeView = {
     this.messengerBundle = document.getElementById("bundle_messenger");
 
     // the folder pane can be used for other trees which may not have these elements.
-    if (document.getElementById("folderpane_splitter"))
+    if (document.getElementById("folderpane_splitter")) {
       document.getElementById("folderpane_splitter").collapsed = false;
-    if (document.getElementById("folderPaneBox"))
+    }
+    if (document.getElementById("folderPaneBox")) {
       document.getElementById("folderPaneBox").collapsed = false;
+    }
 
     try {
       // Normally our tree takes care of keeping the last selected by itself.
@@ -172,8 +178,11 @@ var gFolderTreeView = {
           this._persistOpenMap = JSON.parse(data);
         } catch (x) {
           Cu.reportError(
-            gFolderTreeView.messengerBundle
-                           .getFormattedString("failedToReadFile", [aJSONFile, x]));
+            gFolderTreeView.messengerBundle.getFormattedString(
+              "failedToReadFile",
+              [aJSONFile, x]
+            )
+          );
         }
       }
     }
@@ -230,8 +239,9 @@ var gFolderTreeView = {
     this._modeNames.splice(this._modeNames.indexOf(aCommonName), 1);
     delete this._modes[aCommonName];
     delete this._modeDisplayNames[aCommonName];
-    if (this._mode == aCommonName)
+    if (this._mode == aCommonName) {
       this.mode = kDefaultMode;
+    }
   },
 
   /**
@@ -262,15 +272,23 @@ var gFolderTreeView = {
    * @param event  the double-click event
    */
   onDoubleClick(aEvent) {
-    if (aEvent.button != 0 || aEvent.originalTarget.localName == "twisty" ||
-        aEvent.originalTarget.localName == "slider" ||
-        aEvent.originalTarget.localName == "scrollbarbutton")
+    if (
+      aEvent.button != 0 ||
+      aEvent.originalTarget.localName == "twisty" ||
+      aEvent.originalTarget.localName == "slider" ||
+      aEvent.originalTarget.localName == "scrollbarbutton"
+    ) {
       return;
+    }
 
-    let row = gFolderTreeView._treeElement.getRowAt(aEvent.clientX, aEvent.clientY);
+    let row = gFolderTreeView._treeElement.getRowAt(
+      aEvent.clientX,
+      aEvent.clientY
+    );
     let folderItem = gFolderTreeView._rowMap[row];
-    if (folderItem)
+    if (folderItem) {
       folderItem.command();
+    }
 
     // Don't let the double-click toggle the open state of the folder here
     aEvent.stopPropagation();
@@ -278,8 +296,9 @@ var gFolderTreeView = {
 
   getFolderAtCoords(aX, aY) {
     let row = gFolderTreeView._treeElement.getRowAt(aX, aY);
-    if (row in gFolderTreeView._rowMap)
+    if (row in gFolderTreeView._rowMap) {
       return gFolderTreeView._rowMap[row]._folder;
+    }
     return null;
   },
 
@@ -289,17 +308,24 @@ var gFolderTreeView = {
    *                to the pref, not toggle them.
    */
   toggleCols(aSetup = false) {
-    if (this._treeElement.getAttribute("simplelist") == "true")
+    if (this._treeElement.getAttribute("simplelist") == "true") {
       return;
+    }
     let hide = Services.prefs.getBoolPref("mail.folderpane.showColumns");
-    if (aSetup)
+    if (aSetup) {
       hide = !hide;
+    }
     this._treeElement.setAttribute("hidecolumnpicker", hide ? "true" : "false");
-    for (let columnName of ["folderNameCol", "folderUnreadCol",
-                            "folderTotalCol", "folderSizeCol"]) {
+    for (let columnName of [
+      "folderNameCol",
+      "folderUnreadCol",
+      "folderTotalCol",
+      "folderSizeCol",
+    ]) {
       let column = document.getElementById(columnName);
-      if (!column)
+      if (!column) {
         continue;
+      }
       if (hide) {
         column.setAttribute("hideheader", "true");
         column.removeAttribute("label");
@@ -331,8 +357,9 @@ var gFolderTreeView = {
       }
     }
 
-    if (!aSetup)
+    if (!aSetup) {
       Services.prefs.setBoolPref("mail.folderpane.showColumns", !hide);
+    }
   },
 
   /**
@@ -354,17 +381,22 @@ var gFolderTreeView = {
   toggleMode(aMode) {
     // Take the base name and add compact variant according to the state of the
     // "Compact" checkbox in the UI.
-    let userMode = this.fullMode(aMode,
-        document.getElementById("appmenu_compactFolderView").hasAttribute("checked"));
+    let userMode = this.fullMode(
+      aMode,
+      document
+        .getElementById("appmenu_compactFolderView")
+        .hasAttribute("checked")
+    );
 
     // Some combinations of user selection and "Compact view" checkbox are not supported.
     // In that case fall back to a version of this mode that exists.
     if (!(userMode in this._modes)) {
       let baseMode = this.baseMode(aMode);
-      if (baseMode in this._modes)
+      if (baseMode in this._modes) {
         userMode = baseMode;
-      else
+      } else {
         userMode = this.fullMode(baseMode, true);
+      }
     }
 
     this.mode = userMode;
@@ -382,23 +414,29 @@ var gFolderTreeView = {
     let menuitem = document.getElementById("menu_compactFolderView");
     let appmenuitem = document.getElementById("appmenu_compactFolderView");
     if (checked) {
-      if (menuitem)
-       menuitem.setAttribute("checked", "true");
-      if (appmenuitem)
+      if (menuitem) {
+        menuitem.setAttribute("checked", "true");
+      }
+      if (appmenuitem) {
         appmenuitem.setAttribute("checked", "true");
+      }
     } else {
-      if (menuitem)
+      if (menuitem) {
         menuitem.removeAttribute("checked");
-      if (appmenuitem)
+      }
+      if (appmenuitem) {
         appmenuitem.removeAttribute("checked");
+      }
     }
     let baseMode = this.baseMode(aMode);
-    let compactToggleable = (baseMode in this._modes) &&
-                            (this.fullMode(baseMode, true) in this._modes);
-    if (menuitem)
+    let compactToggleable =
+      baseMode in this._modes && this.fullMode(baseMode, true) in this._modes;
+    if (menuitem) {
       menuitem.disabled = !compactToggleable;
-    if (appmenuitem)
+    }
+    if (appmenuitem) {
       appmenuitem.disabled = !compactToggleable;
+    }
   },
 
   /**
@@ -410,8 +448,9 @@ var gFolderTreeView = {
     if (!this._mode) {
       this._mode = this._treeElement.getAttribute("mode");
       // this can happen when an extension is removed
-      if (!(this._mode in this._modes))
+      if (!(this._mode in this._modes)) {
         this._mode = kDefaultMode;
+      }
     }
     return this._mode;
   },
@@ -421,8 +460,9 @@ var gFolderTreeView = {
    */
   set mode(aMode) {
     // Ignore unknown modes.
-    if (!(aMode in this._modes))
+    if (!(aMode in this._modes)) {
       return;
+    }
 
     this._mode = aMode;
     this._updateCompactState(this._mode);
@@ -441,8 +481,9 @@ var gFolderTreeView = {
    *               of the currently active one.
    */
   baseMode(aMode) {
-    if (!aMode)
+    if (!aMode) {
       aMode = this.mode;
+    }
 
     return aMode.replace(/_compact$/, "");
   },
@@ -455,10 +496,12 @@ var gFolderTreeView = {
    * @param aCOmpact  Bool value whether to force adding the suffix or not.
    */
   fullMode(aMode, aCompact) {
-    if (!aMode)
+    if (!aMode) {
       aMode = this.mode;
-    if (aCompact == undefined)
+    }
+    if (aCompact == undefined) {
       aCompact = aMode.endsWith("_compact");
+    }
 
     return this.baseMode(aMode) + (aCompact ? "_compact" : "");
   },
@@ -472,10 +515,12 @@ var gFolderTreeView = {
       array.push(mode);
     }
 
-    let modeSelector = document.getElementById("folderpane-mode-selector").firstChild;
+    let modeSelector = document.getElementById("folderpane-mode-selector")
+      .firstChild;
     // Can't use modeSelector.removeAllItems() here as it would remove the menupopup too, with its attributes.
-    while (modeSelector.menupopup.hasChildNodes())
+    while (modeSelector.menupopup.hasChildNodes()) {
       modeSelector.menupopup.lastChild.remove();
+    }
 
     let currentMode = this.mode;
     let parent = this;
@@ -490,28 +535,35 @@ var gFolderTreeView = {
       }
       let item = modeSelector.appendItem(name, aMode);
       item.setAttribute("type", "radio");
-      if (aMode == currentMode)
+      if (aMode == currentMode) {
         item.setAttribute("checked", "true");
-      else
+      } else {
         item.setAttribute("checked", "false");
+      }
     }
 
-    for (let mode of fullModes)
+    for (let mode of fullModes) {
       appendMode(mode);
+    }
 
-    if ((fullModes.length > 0) && (compactModes.length > 0))
-      modeSelector.menupopup.appendChild(document.createXULElement("menuseparator"));
+    if (fullModes.length > 0 && compactModes.length > 0) {
+      modeSelector.menupopup.appendChild(
+        document.createXULElement("menuseparator")
+      );
+    }
 
-    for (let mode of compactModes)
+    for (let mode of compactModes) {
       appendMode(mode);
+    }
   },
 
   _selectModeInSelector(aMode) {
     // Show the mode in the mode selector, if it is on a toolbar.
     let modeSelector = document.getElementById("folderpane-mode-selector");
     if (modeSelector) {
-      if (!modeSelector.querySelector('[value="' + aMode + '"]'))
+      if (!modeSelector.querySelector('[value="' + aMode + '"]')) {
         this._initFolderModeSelector();
+      }
       modeSelector.firstChild.value = aMode;
     }
   },
@@ -536,8 +588,9 @@ var gFolderTreeView = {
     function openIfNot(aFolderToOpen) {
       let index = tree.getIndexOfFolder(aFolderToOpen);
       if (index != null) {
-        if (!tree._rowMap[index].open)
+        if (!tree._rowMap[index].open) {
           tree._toggleRow(index, false);
+        }
         return true;
       }
 
@@ -556,8 +609,9 @@ var gFolderTreeView = {
       return false;
     }
     let parent = folderTreeMode.getParentOfFolder(aFolder);
-    if (parent)
+    if (parent) {
       openIfNot(parent);
+    }
 
     let folderIndex = tree.getIndexOfFolder(aFolder);
     if (folderIndex == null) {
@@ -587,8 +641,9 @@ var gFolderTreeView = {
    */
   getIndexOfFolder(aFolder) {
     for (let [iRow, row] of this._rowMap.entries()) {
-      if (row.id == aFolder.URI)
+      if (row.id == aFolder.URI) {
         return iRow;
+      }
     }
     return null;
   },
@@ -600,8 +655,9 @@ var gFolderTreeView = {
    * @note If the index is out of bounds, this function returns null.
    */
   getFolderForIndex(aIndex) {
-    if (aIndex < 0 || aIndex >= this._rowMap.length)
+    if (aIndex < 0 || aIndex >= this._rowMap.length) {
       return null;
+    }
     return this._rowMap[aIndex]._folder;
   },
 
@@ -647,8 +703,9 @@ var gFolderTreeView = {
    */
   getSelectedFolders() {
     let selection = this.selection;
-    if (!selection)
+    if (!selection) {
       return [];
+    }
 
     let folderArray = [];
     let rangeCount = selection.getRangeCount();
@@ -657,8 +714,9 @@ var gFolderTreeView = {
       let endIndex = {};
       selection.getRangeAt(i, startIndex, endIndex);
       for (let j = startIndex.value; j <= endIndex.value; j++) {
-        if (j < this._rowMap.length)
+        if (j < this._rowMap.length) {
           folderArray.push(this._rowMap[j]._folder);
+        }
       }
     }
     return folderArray;
@@ -689,99 +747,133 @@ var gFolderTreeView = {
   /* eslint-disable complexity */
   canDrop(aRow, aOrientation) {
     let targetFolder = gFolderTreeView._rowMap[aRow]._folder;
-    if (!targetFolder)
+    if (!targetFolder) {
       return false;
+    }
     let dt = this._currentTransfer;
     let types = Array.from(dt.mozTypesAt(0));
     if (types.includes("text/x-moz-message")) {
-      if (aOrientation != Ci.nsITreeView.DROP_ON)
+      if (aOrientation != Ci.nsITreeView.DROP_ON) {
         return false;
+      }
       // Don't allow drop onto server itself.
-      if (targetFolder.isServer)
+      if (targetFolder.isServer) {
         return false;
+      }
       // Don't allow drop into a folder that cannot take messages.
-      if (!targetFolder.canFileMessages)
+      if (!targetFolder.canFileMessages) {
         return false;
-      let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+      }
+      let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+        Ci.nsIMessenger
+      );
       for (let i = 0; i < dt.mozItemCount; i++) {
-        let msgHdr = messenger.msgHdrFromURI(dt.mozGetDataAt("text/x-moz-message", i));
+        let msgHdr = messenger.msgHdrFromURI(
+          dt.mozGetDataAt("text/x-moz-message", i)
+        );
         // Don't allow drop onto original folder.
-        if (msgHdr.folder == targetFolder)
+        if (msgHdr.folder == targetFolder) {
           return false;
+        }
       }
       return true;
     } else if (types.includes("text/x-moz-folder")) {
-      if (aOrientation != Ci.nsITreeView.DROP_ON)
+      if (aOrientation != Ci.nsITreeView.DROP_ON) {
         return false;
+      }
       // If cannot create subfolders then don't allow drop here.
-      if (!targetFolder.canCreateSubfolders)
+      if (!targetFolder.canCreateSubfolders) {
         return false;
+      }
       for (let i = 0; i < dt.mozItemCount; i++) {
-        let folder = dt.mozGetDataAt("text/x-moz-folder", i)
-                       .QueryInterface(Ci.nsIMsgFolder);
+        let folder = dt
+          .mozGetDataAt("text/x-moz-folder", i)
+          .QueryInterface(Ci.nsIMsgFolder);
         // Don't allow to drop on itself.
-        if (targetFolder == folder)
+        if (targetFolder == folder) {
           return false;
+        }
         // Don't copy within same server.
-        if ((folder.server == targetFolder.server) &&
-             (dt.dropEffect == "copy"))
+        if (folder.server == targetFolder.server && dt.dropEffect == "copy") {
           return false;
+        }
         // Don't allow immediate child to be dropped onto its parent.
-        if (targetFolder == folder.parent)
+        if (targetFolder == folder.parent) {
           return false;
+        }
         // Don't allow dragging of virtual folders across accounts.
-        if ((folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) &&
-            folder.server != targetFolder.server)
+        if (
+          folder.getFlag(Ci.nsMsgFolderFlags.Virtual) &&
+          folder.server != targetFolder.server
+        ) {
           return false;
+        }
         // Don't allow parent to be dropped on its ancestors.
-        if (folder.isAncestorOf(targetFolder))
+        if (folder.isAncestorOf(targetFolder)) {
           return false;
+        }
         // If there is a folder that can't be renamed, don't allow it to be
         // dropped if it is not to "Local Folders" or is to the same account.
-        if (!folder.canRename && (targetFolder.server.type != "none" ||
-                                  folder.server == targetFolder.server))
+        if (
+          !folder.canRename &&
+          (targetFolder.server.type != "none" ||
+            folder.server == targetFolder.server)
+        ) {
           return false;
+        }
       }
       return true;
     } else if (types.includes("text/x-moz-newsfolder")) {
       // Don't allow dragging onto element.
-      if (aOrientation == Ci.nsITreeView.DROP_ON)
+      if (aOrientation == Ci.nsITreeView.DROP_ON) {
         return false;
+      }
       // Don't allow drop onto server itself.
-      if (targetFolder.isServer)
+      if (targetFolder.isServer) {
         return false;
+      }
       for (let i = 0; i < dt.mozItemCount; i++) {
-        let folder = dt.mozGetDataAt("text/x-moz-newsfolder", i)
-                       .QueryInterface(Ci.nsIMsgFolder);
+        let folder = dt
+          .mozGetDataAt("text/x-moz-newsfolder", i)
+          .QueryInterface(Ci.nsIMsgFolder);
         // Don't allow dragging newsgroup to other account.
-        if (targetFolder.rootFolder != folder.rootFolder)
+        if (targetFolder.rootFolder != folder.rootFolder) {
           return false;
+        }
         // Don't allow dragging newsgroup to before/after itself.
-        if (targetFolder == folder)
+        if (targetFolder == folder) {
           return false;
+        }
         // Don't allow dragging newsgroup to before item after or
         // after item before.
         let row = aRow + aOrientation;
-        if (row in gFolderTreeView._rowMap &&
-            (gFolderTreeView._rowMap[row]._folder == folder))
+        if (
+          row in gFolderTreeView._rowMap &&
+          gFolderTreeView._rowMap[row]._folder == folder
+        ) {
           return false;
+        }
       }
       return true;
     } else if (targetFolder.server.type == "rss" && dt.mozItemCount == 1) {
       // Allow subscribing to feeds by dragging an url to a feed account.
       return !!FeedUtils.getFeedUriFromDataTransfer(dt);
     } else if (types.includes("application/x-moz-file")) {
-      if (aOrientation != Ci.nsITreeView.DROP_ON)
+      if (aOrientation != Ci.nsITreeView.DROP_ON) {
         return false;
+      }
       // Don't allow drop onto server itself.
-      if (targetFolder.isServer)
+      if (targetFolder.isServer) {
         return false;
+      }
       // Don't allow drop into a folder that cannot take messages.
-      if (!targetFolder.canFileMessages)
+      if (!targetFolder.canFileMessages) {
         return false;
+      }
       for (let i = 0; i < dt.mozItemCount; i++) {
-        let extFile = dt.mozGetDataAt("application/x-moz-file", i)
-                        .QueryInterface(Ci.nsIFile);
+        let extFile = dt
+          .mozGetDataAt("application/x-moz-file", i)
+          .QueryInterface(Ci.nsIFile);
         return extFile.isFile();
       }
     }
@@ -797,34 +889,45 @@ var gFolderTreeView = {
 
     // This is a potential rss feed.  A link image as well as link text url
     // should be handled; try to extract a url from non moz apps as well.
-    let feedUri = targetFolder.server.type == "rss" && count == 1 ?
-                    FeedUtils.getFeedUriFromDataTransfer(dt) : null;
+    let feedUri =
+      targetFolder.server.type == "rss" && count == 1
+        ? FeedUtils.getFeedUriFromDataTransfer(dt)
+        : null;
 
     // we only support drag of a single flavor at a time.
     let types = Array.from(dt.mozTypesAt(0));
     if (types.includes("text/x-moz-folder")) {
       for (let i = 0; i < count; i++) {
         let folders = [];
-        folders.push(dt.mozGetDataAt("text/x-moz-folder", i)
-                       .QueryInterface(Ci.nsIMsgFolder));
+        folders.push(
+          dt
+            .mozGetDataAt("text/x-moz-folder", i)
+            .QueryInterface(Ci.nsIMsgFolder)
+        );
         let array = toXPCOMArray(folders, Ci.nsIMutableArray);
-        cs.CopyFolders(array, targetFolder,
-                      (folders[0].server == targetFolder.server), null,
-                       msgWindow);
+        cs.CopyFolders(
+          array,
+          targetFolder,
+          folders[0].server == targetFolder.server,
+          null,
+          msgWindow
+        );
       }
     } else if (types.includes("text/x-moz-newsfolder")) {
       // Start by getting folders into order.
       let folders = [];
       for (let i = 0; i < count; i++) {
-        let folder = dt.mozGetDataAt("text/x-moz-newsfolder", i)
-                       .QueryInterface(Ci.nsIMsgFolder);
+        let folder = dt
+          .mozGetDataAt("text/x-moz-newsfolder", i)
+          .QueryInterface(Ci.nsIMsgFolder);
         folders[this.getIndexOfFolder(folder)] = folder;
       }
-      let newsFolder = targetFolder.rootFolder
-                                   .QueryInterface(Ci.nsIMsgNewsFolder);
+      let newsFolder = targetFolder.rootFolder.QueryInterface(
+        Ci.nsIMsgNewsFolder
+      );
       // When moving down, want to insert first one last.
       // When moving up, want to insert first one first.
-      let i = (aOrientation == 1) ? folders.length - 1 : 0;
+      let i = aOrientation == 1 ? folders.length - 1 : 0;
       while (i >= 0 && i < folders.length) {
         let folder = folders[i];
         if (folder) {
@@ -834,41 +937,66 @@ var gFolderTreeView = {
         i -= aOrientation;
       }
     } else if (types.includes("text/x-moz-message")) {
-      let array = Cc["@mozilla.org/array;1"]
-                    .createInstance(Ci.nsIMutableArray);
+      let array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
       let sourceFolder;
-      let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+      let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+        Ci.nsIMessenger
+      );
       for (let i = 0; i < count; i++) {
-        let msgHdr = messenger.msgHdrFromURI(dt.mozGetDataAt("text/x-moz-message", i));
-        if (!i)
+        let msgHdr = messenger.msgHdrFromURI(
+          dt.mozGetDataAt("text/x-moz-message", i)
+        );
+        if (!i) {
           sourceFolder = msgHdr.folder;
+        }
         array.appendElement(msgHdr);
       }
       let prefBranch = Services.prefs.getBranch("mail.");
-      let isMove = Cc["@mozilla.org/widget/dragservice;1"]
-                      .getService(Ci.nsIDragService).getCurrentSession()
-                      .dragAction == Ci.nsIDragService.DRAGDROP_ACTION_MOVE;
-      if (!sourceFolder.canDeleteMessages)
+      let isMove =
+        Cc["@mozilla.org/widget/dragservice;1"]
+          .getService(Ci.nsIDragService)
+          .getCurrentSession().dragAction ==
+        Ci.nsIDragService.DRAGDROP_ACTION_MOVE;
+      if (!sourceFolder.canDeleteMessages) {
         isMove = false;
+      }
 
       prefBranch.setCharPref("last_msg_movecopy_target_uri", targetFolder.URI);
       prefBranch.setBoolPref("last_msg_movecopy_was_move", isMove);
       // ### ugh, so this won't work with cross-folder views. We would
       // really need to partition the messages by folder.
-      cs.CopyMessages(sourceFolder, array, targetFolder, isMove, null,
-                        msgWindow, true);
+      cs.CopyMessages(
+        sourceFolder,
+        array,
+        targetFolder,
+        isMove,
+        null,
+        msgWindow,
+        true
+      );
     } else if (feedUri) {
       Cc["@mozilla.org/newsblog-feed-downloader;1"]
-         .getService(Ci.nsINewsBlogFeedDownloader)
-         .subscribeToFeed(feedUri.spec, targetFolder, msgWindow);
+        .getService(Ci.nsINewsBlogFeedDownloader)
+        .subscribeToFeed(feedUri.spec, targetFolder, msgWindow);
     } else if (types.includes("application/x-moz-file")) {
       for (let i = 0; i < count; i++) {
-        let extFile = dt.mozGetDataAt("application/x-moz-file", i)
-                        .QueryInterface(Ci.nsIFile);
+        let extFile = dt
+          .mozGetDataAt("application/x-moz-file", i)
+          .QueryInterface(Ci.nsIFile);
         if (extFile.isFile()) {
           let len = extFile.leafName.length;
-          if (len > 4 && extFile.leafName.toLowerCase().endsWith(".eml"))
-            cs.CopyFileMessage(extFile, targetFolder, null, false, 1, "", null, msgWindow);
+          if (len > 4 && extFile.leafName.toLowerCase().endsWith(".eml")) {
+            cs.CopyFileMessage(
+              extFile,
+              targetFolder,
+              null,
+              false,
+              1,
+              "",
+              null,
+              msgWindow
+            );
+          }
         }
       }
     }
@@ -878,14 +1006,19 @@ var gFolderTreeView = {
     // Ugh, this is ugly but necessary
     let view = gFolderTreeView;
 
-    if (aEvent.originalTarget.localName != "treechildren")
+    if (aEvent.originalTarget.localName != "treechildren") {
       return;
+    }
 
     let folders = view.getSelectedFolders();
-    folders = folders.filter(function(f) { return !f.isServer; });
+    folders = folders.filter(function(f) {
+      return !f.isServer;
+    });
     for (let i in folders) {
-      let flavor = folders[i].server.type == "nntp" ? "text/x-moz-newsfolder" :
-                                                      "text/x-moz-folder";
+      let flavor =
+        folders[i].server.type == "nntp"
+          ? "text/x-moz-newsfolder"
+          : "text/x-moz-folder";
       aEvent.dataTransfer.mozSetDataAt(flavor, folders[i], i);
     }
     aEvent.dataTransfer.effectAllowed = "copyMove";
@@ -912,11 +1045,14 @@ var gFolderTreeView = {
    * The actual text to display in the tree
    */
   getCellText(aRow, aCol) {
-    if ((aCol.id == "folderNameCol") ||
-        (aCol.id == "folderUnreadCol") ||
-        (aCol.id == "folderTotalCol") ||
-        (aCol.id == "folderSizeCol"))
+    if (
+      aCol.id == "folderNameCol" ||
+      aCol.id == "folderUnreadCol" ||
+      aCol.id == "folderTotalCol" ||
+      aCol.id == "folderSizeCol"
+    ) {
       return this._rowMap[aRow].getText(aCol.id);
+    }
     return "";
   },
 
@@ -925,34 +1061,38 @@ var gFolderTreeView = {
    * let css set the image per nsITreeView requirements.
    */
   getImageSrc(aRow, aCol) {
-    if (aCol.id != "folderNameCol")
+    if (aCol.id != "folderNameCol") {
       return "";
+    }
 
     let rowItem = gFolderTreeView._rowMap[aRow];
     let folder = rowItem._folder;
-    if (folder.server.type != "rss" || folder.isServer)
+    if (folder.server.type != "rss" || folder.isServer) {
       return "";
+    }
 
     let properties = this.getFolderCacheProperty(folder, "properties");
-    if (properties.includes("hasError") || properties.includes("isBusy"))
+    if (properties.includes("hasError") || properties.includes("isBusy")) {
       return "";
+    }
 
     let favicon = this.getFolderCacheProperty(folder, "favicon");
-    if (favicon != null)
+    if (favicon != null) {
       return favicon;
+    }
 
-    let callback = (iconUrl => {
+    let callback = iconUrl => {
       this.setFolderCacheProperty(folder, "favicon", iconUrl);
       this._tree.invalidateRow(aRow);
-    });
+    };
 
     // Cache empty string initially to return default while getting favicon,
     // so as to never return here. Alternatively, a blank image could be cached.
     this.setFolderCacheProperty(folder, "favicon", "");
 
-
-    if (this._treeElement.getAttribute("simplelist") == "true")
+    if (this._treeElement.getAttribute("simplelist") == "true") {
       return "";
+    }
 
     // On startup, allow the ui to paint first before spawning potentially
     // many requests for favicons, even though they are async.
@@ -1000,10 +1140,12 @@ var gFolderTreeView = {
   hasNextSibling(aIndex, aNextIndex) {
     var currentLevel = this._rowMap[aIndex].level;
     for (var i = aNextIndex + 1; i < this._rowMap.length; i++) {
-      if (this._rowMap[i].level == currentLevel)
+      if (this._rowMap[i].level == currentLevel) {
         return true;
-      if (this._rowMap[i].level < currentLevel)
+      }
+      if (this._rowMap[i].level < currentLevel) {
         return false;
+      }
     }
     return false;
   },
@@ -1059,7 +1201,9 @@ var gFolderTreeView = {
     // for the next add item at our own level.
     let count = 0;
     if (aChild.children.length && aChild.open) {
-      for (let [i, child] of Array.from(this._rowMap[aNewIndex].children).entries()) {
+      for (let [i, child] of Array.from(
+        this._rowMap[aNewIndex].children
+      ).entries()) {
         count++;
         let index = Number(aNewIndex) + Number(i) + 1;
         this._rowMap.splice(index, 0, child);
@@ -1096,7 +1240,7 @@ var gFolderTreeView = {
 
       // Notify the tree of changes
       if (this._tree) {
-        this._tree.rowCountChanged(aIndex + 1, (-1) * count);
+        this._tree.rowCountChanged(aIndex + 1, -1 * count);
         this._tree.invalidateRow(aIndex);
       }
     } else {
@@ -1116,16 +1260,18 @@ var gFolderTreeView = {
         this._tree.invalidateRow(aIndex);
       }
 
-      if (this._treeElement.getAttribute("simplelist") == "true")
+      if (this._treeElement.getAttribute("simplelist") == "true") {
         return;
+      }
 
       // if this was a server that was expanded, let it update its counts
       let folder = this._rowMap[aIndex]._folder;
       if (aExpandServer) {
-        if (folder.isServer)
+        if (folder.isServer) {
           folder.server.performExpand(msgWindow);
-        else if (folder instanceof Ci.nsIMsgImapMailFolder)
+        } else if (folder instanceof Ci.nsIMsgImapMailFolder) {
           folder.performExpand(msgWindow);
+        }
       }
     }
   },
@@ -1136,8 +1282,9 @@ var gFolderTreeView = {
       if (aFolderName == getSmartFolderName(child)) {
         folders.push(child);
         // Add sub-folders if requested.
-        if (deep)
+        if (deep) {
           this.addSubFolders(child, folders);
+        }
       } else {
         // if this folder doesn't have a property set, check Its children
         this._subFoldersWithStringProperty(child, folders, aFolderName, deep);
@@ -1157,14 +1304,23 @@ var gFolderTreeView = {
   _allFoldersWithFlag(accounts, aFolderFlag, deep) {
     let folders = [];
     for (let acct of accounts) {
-      let foldersWithFlag = acct.incomingServer.rootFolder.getFoldersWithFlags(aFolderFlag);
+      let foldersWithFlag = acct.incomingServer.rootFolder.getFoldersWithFlags(
+        aFolderFlag
+      );
       if (foldersWithFlag.length > 0) {
-        for (let folderWithFlag of fixIterator(foldersWithFlag,
-                                               Ci.nsIMsgFolder)) {
+        for (let folderWithFlag of fixIterator(
+          foldersWithFlag,
+          Ci.nsIMsgFolder
+        )) {
           folders.push(folderWithFlag);
           // Add sub-folders of Sent and Archive to the result.
-          if (deep && (aFolderFlag & (Ci.nsMsgFolderFlags.SentMail | Ci.nsMsgFolderFlags.Archive)))
+          if (
+            deep &&
+            aFolderFlag &
+              (Ci.nsMsgFolderFlags.SentMail | Ci.nsMsgFolderFlags.Archive)
+          ) {
             this.addSubFolders(folderWithFlag, folders);
+          }
         }
       }
     }
@@ -1175,9 +1331,13 @@ var gFolderTreeView = {
    * get folders by flag or property based on the value of flag
    */
   _allSmartFolders(accounts, flag, folderName, deep) {
-    return flag ?
-      gFolderTreeView._allFoldersWithFlag(accounts, flag, deep) :
-      gFolderTreeView._allFoldersWithStringProperty(accounts, folderName, deep);
+    return flag
+      ? gFolderTreeView._allFoldersWithFlag(accounts, flag, deep)
+      : gFolderTreeView._allFoldersWithStringProperty(
+          accounts,
+          folderName,
+          deep
+        );
   },
 
   /**
@@ -1193,18 +1353,32 @@ var gFolderTreeView = {
    *                 folder item will be appended at the end of map.
    * @returns The smart folder's ftvItem if one was added, null otherwise.
    */
-  _addSmartFoldersForFlag(map, accounts, smartRootFolder, flag, folderName, position) {
+  _addSmartFoldersForFlag(
+    map,
+    accounts,
+    smartRootFolder,
+    flag,
+    folderName,
+    position
+  ) {
     // If there's only one subFolder, just put it at the root.
-    let subFolders = gFolderTreeView._allSmartFolders(accounts, flag, folderName, false);
+    let subFolders = gFolderTreeView._allSmartFolders(
+      accounts,
+      flag,
+      folderName,
+      false
+    );
     if (flag && subFolders.length == 1) {
       let folderItem = new ftvItem(subFolders[0]);
       folderItem._level = 0;
-      if (flag & Ci.nsMsgFolderFlags.Inbox)
+      if (flag & Ci.nsMsgFolderFlags.Inbox) {
         folderItem.__defineGetter__("children", () => []);
-      if (position == undefined)
+      }
+      if (position == undefined) {
         map.push(folderItem);
-      else
+      } else {
         map[position] = folderItem;
+      }
       // No smart folder was added
       return null;
     }
@@ -1214,28 +1388,40 @@ var gFolderTreeView = {
       let folderUri = smartRootFolder.URI + "/" + encodeURI(folderName);
       smartFolder = smartRootFolder.getChildWithURI(folderUri, false, true);
     } catch (ex) {
-        smartFolder = null;
+      smartFolder = null;
     }
     if (!smartFolder) {
-      let searchFolders = gFolderTreeView._allSmartFolders(accounts, flag, folderName, true);
+      let searchFolders = gFolderTreeView._allSmartFolders(
+        accounts,
+        flag,
+        folderName,
+        true
+      );
       let searchFolderURIs = "";
       for (let searchFolder of searchFolders) {
-        if (searchFolderURIs.length)
+        if (searchFolderURIs.length) {
           searchFolderURIs += "|";
-        searchFolderURIs +=  searchFolder.URI;
+        }
+        searchFolderURIs += searchFolder.URI;
       }
-      if (!searchFolderURIs.length)
+      if (!searchFolderURIs.length) {
         return null;
-      smartFolder = gFolderTreeView._createVFFolder(folderName, smartRootFolder,
-                                                    searchFolderURIs, flag);
+      }
+      smartFolder = gFolderTreeView._createVFFolder(
+        folderName,
+        smartRootFolder,
+        searchFolderURIs,
+        flag
+      );
     }
 
     let smartFolderItem = new ftvItem(smartFolder);
     smartFolderItem._level = 0;
-    if (position == undefined)
+    if (position == undefined) {
       map.push(smartFolderItem);
-    else
+    } else {
       map[position] = smartFolderItem;
+    }
     // Add the actual special folders as sub-folders of the saved search.
     // By setting _children directly, we bypass the normal calculation
     // of subfolders.
@@ -1253,7 +1439,7 @@ var gFolderTreeView = {
       }
       // If we have consecutive children with the same server, then both
       // should display as folder - server.
-      if (prevChild && (child._folder.server == prevChild._folder.server)) {
+      if (prevChild && child._folder.server == prevChild._folder.server) {
         child.addServerName = true;
         prevChild.addServerName = true;
         prevChild.useServerNameOnly = false;
@@ -1265,22 +1451,25 @@ var gFolderTreeView = {
       prevChild = child;
     }
     // new custom folders from addons may contain lots of children, sort them
-    if (flag == 0)
+    if (flag == 0) {
       sortFolderItems(smartFolderItem._children);
+    }
     return smartFolderItem;
   },
   _createVFFolder(newName, parentFolder, searchFolderURIs, folderFlag) {
     let newFolder;
     try {
-      if (parentFolder instanceof Ci.nsIMsgLocalMailFolder)
+      if (parentFolder instanceof Ci.nsIMsgLocalMailFolder) {
         newFolder = parentFolder.createLocalSubfolder(newName);
-      else
+      } else {
         newFolder = parentFolder.addSubfolder(newName);
+      }
       newFolder.setFlag(Ci.nsMsgFolderFlags.Virtual);
       // provide a way to make the top level folder just a container, not
       // a search folder
       let type = this._modes.smart.getSmartFolderTypeByName(newName);
-      if (type[3]) { // isSearch
+      if (type[3]) {
+        // isSearch
         let vfdb = newFolder.msgDatabase;
         let dbFolderInfo = vfdb.dBFolderInfo;
         // set the view string as a property of the db folder info
@@ -1306,7 +1495,9 @@ var gFolderTreeView = {
   setCellText(aRow, aCol, aValue) {},
   setCellValue(aRow, aCol, aValue) {},
   getCellValue(aRow, aCol) {},
-  getColumnProperties(aCol) { return ""; },
+  getColumnProperties(aCol) {
+    return "";
+  },
   getProgressMode(aRow, aCol) {},
   cycleCell(aRow, aCol) {},
   cycleHeader(aCol) {},
@@ -1327,7 +1518,15 @@ var gFolderTreeView = {
    * and "_compact" suffix if compact view is selected. See bug 978592.
    *
    */
-  _modeNames: ["all", "unread", "unread_compact", "favorite", "favorite_compact", "recent_compact", "smart"],
+  _modeNames: [
+    "all",
+    "unread",
+    "unread_compact",
+    "favorite",
+    "favorite_compact",
+    "recent_compact",
+    "smart",
+  ],
   _modeDisplayNames: {},
 
   /**
@@ -1335,7 +1534,13 @@ var gFolderTreeView = {
    * persist their state over-time.  It is designed to be used as a JSON object.
    */
   _persistOpenMap: {},
-  _notPersistedModes: ["unread", "unread_compact", "favorite", "favorite_compact", "recent_compact"],
+  _notPersistedModes: [
+    "unread",
+    "unread_compact",
+    "favorite",
+    "favorite_compact",
+    "recent_compact",
+  ],
 
   /**
    * Iterate over the persistent list and open the items (folders) stored in it.
@@ -1358,8 +1563,9 @@ var gFolderTreeView = {
       // doesn't care when you add things at the end.
       for (let i = tree._rowMap.length - 1; i >= 0; i--) {
         let row = tree._rowMap[i];
-        if (row.level != curLevel)
+        if (row.level != curLevel) {
           continue;
+        }
 
         // The initial state of all rows is closed, so toggle those we want open.
         if (!map || map.includes(row.id)) {
@@ -1370,8 +1576,9 @@ var gFolderTreeView = {
 
       // If we opened up any new kids, we need to check their level as well.
       curLevel++;
-      if (goOn)
+      if (goOn) {
         openLevel();
+      }
     }
     openLevel();
   },
@@ -1384,17 +1591,20 @@ var gFolderTreeView = {
    */
   _persistItemClosed(aItemId) {
     let mode = this.mode;
-    if (this._notPersistedModes.includes(mode))
+    if (this._notPersistedModes.includes(mode)) {
       return;
+    }
 
     // If the whole mode is not in the map yet,
     // we can silently ignore the folder removal.
-    if (!this._persistOpenMap[mode])
+    if (!this._persistOpenMap[mode]) {
       return;
+    }
 
     let persistMapIndex = this._persistOpenMap[mode].indexOf(aItemId);
-    if (persistMapIndex != -1)
+    if (persistMapIndex != -1) {
       this._persistOpenMap[mode].splice(persistMapIndex, 1);
+    }
   },
 
   /**
@@ -1405,14 +1615,17 @@ var gFolderTreeView = {
    */
   _persistItemOpen(aItemId) {
     let mode = this.mode;
-    if (this._notPersistedModes.includes(mode))
+    if (this._notPersistedModes.includes(mode)) {
       return;
+    }
 
-    if (!this._persistOpenMap[mode])
+    if (!this._persistOpenMap[mode]) {
       this._persistOpenMap[mode] = [];
+    }
 
-    if (!this._persistOpenMap[mode].includes(aItemId))
+    if (!this._persistOpenMap[mode].includes(aItemId)) {
       this._persistOpenMap[mode].push(aItemId);
+    }
   },
 
   _tree: null,
@@ -1431,24 +1644,32 @@ var gFolderTreeView = {
     try {
       newRowMap = this._modes[this.mode].generateMap(this);
     } catch (ex) {
-      Services.console.logStringMessage("generator " + this.mode + " failed with exception: " + ex);
+      Services.console.logStringMessage(
+        "generator " + this.mode + " failed with exception: " + ex
+      );
       this.mode = kDefaultMode;
       newRowMap = this._modes[this.mode].generateMap(this);
     }
     let selectedFolders = this.getSelectedFolders();
-    if (this.selection)
+    if (this.selection) {
       this.selection.clearSelection();
+    }
     // There's a chance the call to the map generator altered this._rowMap, so
     // evaluate oldCount after calling it rather than before
     let oldCount = this._rowMap ? this._rowMap.length : null;
     this._rowMap = newRowMap;
 
-    this._treeElement.dispatchEvent(new Event("mapRebuild",  // Introduced in bug 474822 for add-ons.
-      { bubbles: true, cancelable: false }));
+    this._treeElement.dispatchEvent(
+      new Event(
+        "mapRebuild", // Introduced in bug 474822 for add-ons.
+        { bubbles: true, cancelable: false }
+      )
+    );
 
     if (this._tree) {
-      if (oldCount !== null)
-          this._tree.rowCountChanged(0, this._rowMap.length - oldCount);
+      if (oldCount !== null) {
+        this._tree.rowCountChanged(0, this._rowMap.length - oldCount);
+      }
       this._tree.invalidate();
     }
     this._restoreOpenStates();
@@ -1456,8 +1677,9 @@ var gFolderTreeView = {
     for (let folder of selectedFolders) {
       if (folder) {
         let index = this.getIndexOfFolder(folder);
-        if (index != null)
+        if (index != null) {
           this.selection.toggleSelect(index);
+        }
       }
     }
   },
@@ -1468,8 +1690,9 @@ var gFolderTreeView = {
     // Don't show deferred pop accounts.
     accounts = accounts.filter(function(a) {
       let server = a.incomingServer;
-      return !(server instanceof Ci.nsIPop3IncomingServer &&
-               server.deferredToAccount);
+      return !(
+        server instanceof Ci.nsIPop3IncomingServer && server.deferredToAccount
+      );
     });
 
     return accounts;
@@ -1490,11 +1713,13 @@ var gFolderTreeView = {
    * @param  aValue                 - string or object value.
    */
   setFolderCacheProperty(aFolder, aProperty, aValue) {
-    if (!aFolder || !aProperty)
+    if (!aFolder || !aProperty) {
       return;
+    }
 
-    if (!this._cache[aFolder.URI])
+    if (!this._cache[aFolder.URI]) {
       this._cache[aFolder.URI] = {};
+    }
 
     this._cache[aFolder.URI][aProperty] = aValue;
   },
@@ -1507,12 +1732,16 @@ var gFolderTreeView = {
    * @return value or null          - null indicates uninitialized.
    */
   getFolderCacheProperty(aFolder, aProperty) {
-    if (!aFolder || !aProperty)
+    if (!aFolder || !aProperty) {
       return null;
+    }
 
-    if (!(aFolder.URI in this._cache) ||
-        !(aProperty in this._cache[aFolder.URI]))
+    if (
+      !(aFolder.URI in this._cache) ||
+      !(aProperty in this._cache[aFolder.URI])
+    ) {
       return null;
+    }
 
     return this._cache[aFolder.URI][aProperty];
   },
@@ -1534,7 +1763,9 @@ var gFolderTreeView = {
         // force each root folder to do its local subfolder discovery.
         MailUtils.discoverFolders();
 
-        return accounts.map(acct => new ftvItem(acct.incomingServer.rootFolder));
+        return accounts.map(
+          acct => new ftvItem(acct.incomingServer.rootFolder)
+        );
       },
     },
 
@@ -1551,8 +1782,7 @@ var gFolderTreeView = {
       generateMap(ftv) {
         let filterUnread = function(aFolder) {
           let currentFolder = gFolderTreeView.getSelectedFolders()[0];
-          return ((aFolder.getNumUnread(true) > 0) ||
-                  (aFolder == currentFolder));
+          return aFolder.getNumUnread(true) > 0 || aFolder == currentFolder;
         };
 
         let accounts = gFolderTreeView._sortedAccounts();
@@ -1563,8 +1793,9 @@ var gFolderTreeView = {
         for (let acct of accounts) {
           let rootFolder = acct.incomingServer.rootFolder;
           // Add rootFolders of accounts that contain at least one Favorite folder.
-          if (rootFolder.getNumUnread(true) > 0)
+          if (rootFolder.getNumUnread(true) > 0) {
             unreadRootFolders.push(new ftvItem(rootFolder, filterUnread));
+          }
         }
 
         return unreadRootFolders;
@@ -1573,8 +1804,12 @@ var gFolderTreeView = {
       handleChangedIntProperty(aItem, aProperty, aOld, aNew) {
         // We want to rebuild only if we have a newly unread folder
         // and we didn't already have the folder.
-        if (aProperty == "TotalUnreadMessages" && aOld == 0 && aNew > 0 &&
-            gFolderTreeView.getIndexOfFolder(aItem) == null) {
+        if (
+          aProperty == "TotalUnreadMessages" &&
+          aOld == 0 &&
+          aNew > 0 &&
+          gFolderTreeView.getIndexOfFolder(aItem) == null
+        ) {
           gFolderTreeView._rebuild();
           return true;
         }
@@ -1593,9 +1828,12 @@ var gFolderTreeView = {
         let map = [];
         let currentFolder = gFolderTreeView.getSelectedFolders()[0];
         for (let folder of ftv._enumerateFolders) {
-          if ((!folder.isServer && folder.getNumUnread(false) > 0) ||
-              (folder == currentFolder))
+          if (
+            (!folder.isServer && folder.getNumUnread(false) > 0) ||
+            folder == currentFolder
+          ) {
             map.push(new ftvItem(folder));
+          }
         }
 
         // There are no children in this view!
@@ -1615,8 +1853,12 @@ var gFolderTreeView = {
       handleChangedIntProperty(aItem, aProperty, aOld, aNew) {
         // We want to rebuild only if we have a newly unread folder
         // and we didn't already have the folder.
-        if (aProperty == "TotalUnreadMessages" && aOld == 0 && aNew > 0 &&
-            gFolderTreeView.getIndexOfFolder(aItem) == null) {
+        if (
+          aProperty == "TotalUnreadMessages" &&
+          aOld == 0 &&
+          aNew > 0 &&
+          gFolderTreeView.getIndexOfFolder(aItem) == null
+        ) {
           gFolderTreeView._rebuild();
           return true;
         }
@@ -1640,13 +1882,16 @@ var gFolderTreeView = {
 
         let favRootFolders = [];
         let filterFavorite = function(aFolder) {
-          return aFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Favorite) != null;
+          return (
+            aFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Favorite) != null
+          );
         };
         for (let acct of accounts) {
           let rootFolder = acct.incomingServer.rootFolder;
           // Add rootFolders of accounts that contain at least one Favorite folder.
-          if (filterFavorite(rootFolder))
+          if (filterFavorite(rootFolder)) {
             favRootFolders.push(new ftvItem(rootFolder, filterFavorite));
+          }
         }
 
         return favRootFolders;
@@ -1654,9 +1899,11 @@ var gFolderTreeView = {
 
       handleChangedIntProperty(aItem, aProperty, aOld, aNew) {
         // We want to rebuild if the favorite status of a folder changed.
-        if (aProperty == "FolderFlag" &&
-            ((aOld & Ci.nsMsgFolderFlags.Favorite) !=
-            (aNew & Ci.nsMsgFolderFlags.Favorite))) {
+        if (
+          aProperty == "FolderFlag" &&
+          (aOld & Ci.nsMsgFolderFlags.Favorite) !=
+            (aNew & Ci.nsMsgFolderFlags.Favorite)
+        ) {
           gFolderTreeView._rebuild();
           return true;
         }
@@ -1674,8 +1921,9 @@ var gFolderTreeView = {
       generateMap(ftv) {
         let faves = [];
         for (let folder of ftv._enumerateFolders) {
-          if (folder.getFlag(Ci.nsMsgFolderFlags.Favorite))
+          if (folder.getFlag(Ci.nsMsgFolderFlags.Favorite)) {
             faves.push(new ftvItem(folder));
+          }
         }
 
         // We want to display the account name alongside folders that have
@@ -1685,8 +1933,9 @@ var gFolderTreeView = {
         for (let item of faves) {
           let name = item._folder.abbreviatedName.toLocaleLowerCase();
           if (uniqueNames.has(name)) {
-            if (!dupeNames.has(name))
+            if (!dupeNames.has(name)) {
               dupeNames.add(name);
+            }
           } else {
             uniqueNames.add(name);
           }
@@ -1709,9 +1958,11 @@ var gFolderTreeView = {
 
       handleChangedIntProperty(aItem, aProperty, aOld, aNew) {
         // We want to rebuild if the favorite status of a folder changed.
-        if (aProperty == "FolderFlag" &&
-            ((aOld & Ci.nsMsgFolderFlags.Favorite) !=
-            (aNew & Ci.nsMsgFolderFlags.Favorite))) {
+        if (
+          aProperty == "FolderFlag" &&
+          (aOld & Ci.nsMsgFolderFlags.Favorite) !=
+            (aNew & Ci.nsMsgFolderFlags.Favorite)
+        ) {
           gFolderTreeView._rebuild();
           return true;
         }
@@ -1726,10 +1977,12 @@ var gFolderTreeView = {
         const MAXRECENT = 15;
 
         // Get 15 (MAXRECENT) most recently accessed folders.
-        let recentFolders = getMostRecentFolders(ftv._enumerateFolders,
-                                                 MAXRECENT,
-                                                 "MRUTime",
-                                                 null);
+        let recentFolders = getMostRecentFolders(
+          ftv._enumerateFolders,
+          MAXRECENT,
+          "MRUTime",
+          null
+        );
 
         // Sort the folder names alphabetically.
         recentFolders.sort(function(a, b) {
@@ -1774,9 +2027,17 @@ var gFolderTreeView = {
       get _smartServer() {
         let smartServer;
         try {
-          smartServer = MailServices.accounts.FindServer("nobody", "smart mailboxes", "none");
+          smartServer = MailServices.accounts.FindServer(
+            "nobody",
+            "smart mailboxes",
+            "none"
+          );
         } catch (ex) {
-          smartServer = MailServices.accounts.createIncomingServer("nobody", "smart mailboxes", "none");
+          smartServer = MailServices.accounts.createIncomingServer(
+            "nobody",
+            "smart mailboxes",
+            "none"
+          );
           // We don't want the "smart" server/account leaking out into the ui in
           // other places, so set it as hidden.
           smartServer.hidden = true;
@@ -1784,7 +2045,7 @@ var gFolderTreeView = {
           account.incomingServer = smartServer;
         }
         delete this._smartServer;
-        return this._smartServer = smartServer;
+        return (this._smartServer = smartServer);
       },
 
       /**
@@ -1822,8 +2083,9 @@ var gFolderTreeView = {
        */
       getSmartFolderTypeByName(aName) {
         for (let type of this._flagNameList) {
-          if (type[1] == aName)
+          if (type[1] == aName) {
             return type;
+          }
         }
         return null;
       },
@@ -1831,14 +2093,17 @@ var gFolderTreeView = {
        * check to see if a folder is a smart folder
        */
       isSmartFolder(aFolder) {
-        if (aFolder.flags & this._allSmartFlags)
-            return true;
+        if (aFolder.flags & this._allSmartFlags) {
+          return true;
+        }
         // Also check the folder name itself, as containers do not
         // have the smartFolderName property.  We check all folders here, since
         // a "real" folder might be marked as a child of a smart folder.
         let smartFolderName = getSmartFolderName(aFolder);
-        return smartFolderName && this.getSmartFolderTypeByName(smartFolderName) ||
-            this.getSmartFolderTypeByName(aFolder.name);
+        return (
+          (smartFolderName && this.getSmartFolderTypeByName(smartFolderName)) ||
+          this.getSmartFolderTypeByName(aFolder.name)
+        );
       },
 
       /**
@@ -1846,8 +2111,10 @@ var gFolderTreeView = {
        */
       get _allSmartFlags() {
         delete this._allSmartFlags;
-        return this._allSmartFlags = this._flagNameList.reduce(
-          (res, [flag,, isDeep]) => res | flag, 0);
+        return (this._allSmartFlags = this._flagNameList.reduce(
+          (res, [flag, , isDeep]) => res | flag,
+          0
+        ));
       },
 
       /**
@@ -1855,8 +2122,10 @@ var gFolderTreeView = {
        */
       get _allShallowFlags() {
         delete this._allShallowFlags;
-        return this._allShallowFlags = this._flagNameList.reduce(
-          (res, [flag,, isDeep]) => isDeep ? res : (res | flag), 0);
+        return (this._allShallowFlags = this._flagNameList.reduce(
+          (res, [flag, , isDeep]) => (isDeep ? res : res | flag),
+          0
+        ));
       },
 
       /**
@@ -1867,12 +2136,14 @@ var gFolderTreeView = {
         let smartFolderName = getSmartFolderName(aFolder);
         for (let type of this._flagNameList) {
           if (smartFolderName) {
-            if (type[1] == smartFolderName)
+            if (type[1] == smartFolderName) {
               return type;
+            }
             continue;
           }
-          if (aFolder.flags & type[0])
+          if (aFolder.flags & type[0]) {
             return type;
+          }
         }
         return null;
       },
@@ -1882,33 +2153,44 @@ var gFolderTreeView = {
        */
       _getSmartFolderNamed(aName) {
         let smartRoot = this._smartServer.rootFolder;
-        return smartRoot.getChildWithURI(smartRoot.URI + "/" + encodeURI(aName), false,
-                                         true);
+        return smartRoot.getChildWithURI(
+          smartRoot.URI + "/" + encodeURI(aName),
+          false,
+          true
+        );
       },
 
       generateMap(ftv) {
         let map = [];
         let accounts = gFolderTreeView._sortedAccounts();
         let smartServer = this._smartServer;
-        smartServer.prettyName = gFolderTreeView.messengerBundle
-                                                .getString("unifiedAccountName");
+        smartServer.prettyName = gFolderTreeView.messengerBundle.getString(
+          "unifiedAccountName"
+        );
         smartServer.canHaveFilters = false;
 
         let smartRoot = smartServer.rootFolder;
         let smartChildren = [];
         for (let [flag, name] of this._flagNameList) {
-          gFolderTreeView._addSmartFoldersForFlag(smartChildren, accounts,
-                                                  smartRoot, flag, name);
+          gFolderTreeView._addSmartFoldersForFlag(
+            smartChildren,
+            accounts,
+            smartRoot,
+            flag,
+            name
+          );
         }
 
         sortFolderItems(smartChildren);
-        for (let smartChild of smartChildren)
+        for (let smartChild of smartChildren) {
           map.push(smartChild);
+        }
 
         MailUtils.discoverFolders();
 
-        for (let acct of accounts)
+        for (let acct of accounts) {
           map.push(new ftv_SmartItem(acct.incomingServer.rootFolder));
+        }
 
         return map;
       },
@@ -1927,17 +2209,21 @@ var gFolderTreeView = {
        */
       getParentOfFolder(aFolder) {
         let smartServer = this._smartServer;
-        if (aFolder.server == smartServer)
+        if (aFolder.server == smartServer) {
           // This is a smart mailbox
           return null;
+        }
 
         let smartType = this._getSmartFolderType(aFolder);
         if (smartType) {
           // This is a special folder
           let smartFolder = this._getSmartFolderNamed(smartType[1]);
-          if (smartFolder &&
-              gFolderTreeView.getIndexOfFolder(smartFolder) != null)
+          if (
+            smartFolder &&
+            gFolderTreeView.getIndexOfFolder(smartFolder) != null
+          ) {
             return smartFolder;
+          }
 
           return null;
         }
@@ -1962,9 +2248,12 @@ var gFolderTreeView = {
         let smartType = this._getSmartFolderType(folder);
         if (smartType) {
           let smartFolder = this._getSmartFolderNamed(smartType[1]);
-          if (smartFolder &&
-              gFolderTreeView.getIndexOfFolder(smartFolder) != null)
+          if (
+            smartFolder &&
+            gFolderTreeView.getIndexOfFolder(smartFolder) != null
+          ) {
             return smartFolder;
+          }
         }
         return folder;
       },
@@ -1986,16 +2275,24 @@ var gFolderTreeView = {
           // In theory, a folder can have multiple flags set, so we need to
           // check each flag separately.
           for (let [flag, name] of this._flagNameList) {
-            if (aFolder.flags & flag)
-              gFolderTreeView._addSmartSubFolder(aFolder, smartRoot, name, flag);
+            if (aFolder.flags & flag) {
+              gFolderTreeView._addSmartSubFolder(
+                aFolder,
+                smartRoot,
+                name,
+                flag
+              );
+            }
           }
         } else if (aParent.isSpecialFolder(this._allShallowFlags, false)) {
           // add as a child of the account
           let rootIndex = gFolderTreeView.getIndexOfFolder(
-            aFolder.server.rootFolder);
+            aFolder.server.rootFolder
+          );
           let root = gFolderTreeView._rowMap[rootIndex];
-          if (!root)
+          if (!root) {
             return;
+          }
 
           let newChild = new ftv_SmartItem(aFolder);
           root.children.push(newChild);
@@ -2018,11 +2315,17 @@ var gFolderTreeView = {
   get _enumerateFolders() {
     let folders = [];
 
-    for (let server of fixIterator(MailServices.accounts.allServers, Ci.nsIMsgIncomingServer)) {
+    for (let server of fixIterator(
+      MailServices.accounts.allServers,
+      Ci.nsIMsgIncomingServer
+    )) {
       // Skip deferred accounts
-      if (server instanceof Ci.nsIPop3IncomingServer &&
-          server.deferredToAccount)
+      if (
+        server instanceof Ci.nsIPop3IncomingServer &&
+        server.deferredToAccount
+      ) {
         continue;
+      }
 
       let rootFolder = server.rootFolder;
       folders.push(rootFolder);
@@ -2057,15 +2360,20 @@ var gFolderTreeView = {
         newChildIndex = Number(aParentIndex) + 1;
       } else if (newChildNum < aParent._children.length - 1) {
         // if we're not the last child, insert ourselves before the next child.
-        newChildIndex = this.getIndexOfFolder(aParent._children[Number(newChildNum) + 1]._folder);
+        newChildIndex = this.getIndexOfFolder(
+          aParent._children[Number(newChildNum) + 1]._folder
+        );
       } else {
         // otherwise, go after the last child
         let lastChild = aParent._children[newChildNum - 1];
         let lastChildIndex = this.getIndexOfFolder(lastChild._folder);
         newChildIndex = Number(lastChildIndex) + 1;
-        while (newChildIndex < this.rowCount &&
-               this._rowMap[newChildIndex].level > this._rowMap[lastChildIndex].level)
+        while (
+          newChildIndex < this.rowCount &&
+          this._rowMap[newChildIndex].level > this._rowMap[lastChildIndex].level
+        ) {
           newChildIndex++;
+        }
       }
       this._rowMap.splice(newChildIndex, 0, aNewChild);
       this._tree.rowCountChanged(newChildIndex, 1);
@@ -2074,8 +2382,11 @@ var gFolderTreeView = {
     }
   },
   _addSmartSubFolder(aItem, aSmartRoot, aName, aFlag) {
-    let smartFolder = aSmartRoot.getChildWithURI(aSmartRoot.URI + "/" + encodeURI(aName),
-                                                 false, true);
+    let smartFolder = aSmartRoot.getChildWithURI(
+      aSmartRoot.URI + "/" + encodeURI(aName),
+      false,
+      true
+    );
     let parent = null;
     let parentIndex = -1;
     let newChild;
@@ -2087,19 +2398,27 @@ var gFolderTreeView = {
         if (this._rowMap[newChildIndex]._folder.getFlag(aFlag)) {
           // This type of folder seems to already exist, so replace the row
           // with a smartFolder.
-          this._addSmartFoldersForFlag(this._rowMap, this._sortedAccounts(),
-                                       aSmartRoot, aFlag, aName, newChildIndex);
+          this._addSmartFoldersForFlag(
+            this._rowMap,
+            this._sortedAccounts(),
+            aSmartRoot,
+            aFlag,
+            aName,
+            newChildIndex
+          );
           return;
         }
-        if (this._rowMap[newChildIndex]._folder.isServer)
+        if (this._rowMap[newChildIndex]._folder.isServer) {
           break;
+        }
         newChildIndex++;
       }
     } else {
       parentIndex = this.getIndexOfFolder(smartFolder);
       parent = this._rowMap[parentIndex];
-      if (!parent)
-         return;
+      if (!parent) {
+        return;
+      }
 
       newChild = new ftv_SmartItem(aItem);
       parent.children.push(newChild);
@@ -2123,18 +2442,25 @@ var gFolderTreeView = {
    */
   OnItemAdded(aParentItem, aItem) {
     // Ignore this item if it's not a folder, or we knew about it.
-    if (!(aItem instanceof Ci.nsIMsgFolder) ||
-        this.getIndexOfFolder(aItem) != null)
+    if (
+      !(aItem instanceof Ci.nsIMsgFolder) ||
+      this.getIndexOfFolder(aItem) != null
+    ) {
       return;
+    }
 
     // if no parent, this is an account, so let's rebuild.
     if (!aParentItem) {
-      if (!aItem.server.hidden) // ignore hidden server items
+      if (!aItem.server.hidden) {
+        // ignore hidden server items
         this._rebuild();
+      }
       return;
     }
     this._modes[this._mode].onFolderAdded(
-      aParentItem.QueryInterface(Ci.nsIMsgFolder), aItem);
+      aParentItem.QueryInterface(Ci.nsIMsgFolder),
+      aItem
+    );
   },
   addFolder(aParentItem, aItem) {
     // This intentionally adds any new folder even if it would not pass the
@@ -2144,8 +2470,9 @@ var gFolderTreeView = {
     // The folders will be hidden properly next time the view is rebuilt.
     let parentIndex = this.getIndexOfFolder(aParentItem);
     let parent = this._rowMap[parentIndex];
-    if (!parent)
-       return;
+    if (!parent) {
+      return;
+    }
 
     // Getting these children might have triggered our parent to build its
     // array just now, in which case the added item will already exist
@@ -2182,21 +2509,26 @@ var gFolderTreeView = {
   },
 
   OnItemRemoved(aRDFParentItem, aItem) {
-    if (!(aItem instanceof Ci.nsIMsgFolder))
+    if (!(aItem instanceof Ci.nsIMsgFolder)) {
       return;
+    }
 
     this._persistItemClosed(aItem.URI);
 
     let index = this.getIndexOfFolder(aItem);
-    if (index == null)
+    if (index == null) {
       return;
+    }
     // forget our parent's children; they'll get rebuilt
-    if (aRDFParentItem && this._rowMap[index]._parent)
+    if (aRDFParentItem && this._rowMap[index]._parent) {
       this._rowMap[index]._parent._children = null;
+    }
     let kidCount = 1;
     let walker = Number(index) + 1;
-    while (walker < this.rowCount &&
-           this._rowMap[walker].level > this._rowMap[index].level) {
+    while (
+      walker < this.rowCount &&
+      this._rowMap[walker].level > this._rowMap[index].level
+    ) {
       walker++;
       kidCount++;
     }
@@ -2208,8 +2540,16 @@ var gFolderTreeView = {
   OnItemPropertyChanged(aItem, aProperty, aOld, aNew) {},
   OnItemIntPropertyChanged(aItem, aProperty, aOld, aNew) {
     // First try mode specific handling of the changed property.
-    if (this._modes[this.mode].handleChangedIntProperty(aItem, aProperty, aOld, aNew))
+    if (
+      this._modes[this.mode].handleChangedIntProperty(
+        aItem,
+        aProperty,
+        aOld,
+        aNew
+      )
+    ) {
       return;
+    }
 
     if (aItem instanceof Ci.nsIMsgFolder) {
       let index = this.getIndexOfFolder(aItem);
@@ -2218,32 +2558,37 @@ var gFolderTreeView = {
       // look for first visible ancestor
       while (index == null) {
         folder = folderTreeMode.getParentOfFolder(folder);
-        if (!folder)
+        if (!folder) {
           break;
+        }
         index = this.getIndexOfFolder(folder);
       }
-      if (index != null)
+      if (index != null) {
         this._tree.invalidateRow(index);
+      }
     }
   },
 
   OnItemBoolPropertyChanged(aItem, aProperty, aOld, aNew) {
     let index = this.getIndexOfFolder(aItem);
-    if (index != null)
+    if (index != null) {
       this._tree.invalidateRow(index);
+    }
   },
 
   OnItemUnicharPropertyChanged(aItem, aProperty, aOld, aNew) {
     let index = this.getIndexOfFolder(aItem);
-    if (index != null)
+    if (index != null) {
       this._tree.invalidateRow(index);
+    }
   },
 
   OnItemPropertyFlagChanged(aItem, aProperty, aOld, aNew) {},
   OnItemEvent(aFolder, aEvent) {
     let index = this.getIndexOfFolder(aFolder);
-    if (index != null)
+    if (index != null) {
       this._tree.invalidateRow(index);
+    }
   },
 };
 
@@ -2297,9 +2642,11 @@ ftvItem.prototype = {
   getText(aColName) {
     // Only show counts / total size of subtree if the pref is set,
     // we are in "All folders" mode and this folder row is not expanded.
-    gFolderStatsHelpers.sumSubfolders = gFolderStatsHelpers.sumSubfoldersPref &&
-                          (gFolderTreeView.mode == kDefaultMode) &&
-                          this._folder.hasSubFolders && !this.open;
+    gFolderStatsHelpers.sumSubfolders =
+      gFolderStatsHelpers.sumSubfoldersPref &&
+      gFolderTreeView.mode == kDefaultMode &&
+      this._folder.hasSubFolders &&
+      !this.open;
 
     this._summarizedCounts.delete(aColName);
     switch (aColName) {
@@ -2311,70 +2658,110 @@ ftvItem.prototype = {
           text = this._folder.abbreviatedName;
           if (this.addServerName) {
             text = gFolderTreeView.messengerBundle.getFormattedString(
-              "folderWithAccount", [text, this._folder.server.prettyName]);
+              "folderWithAccount",
+              [text, this._folder.server.prettyName]
+            );
           }
         }
 
         // In a simple list tree we don't care for attributes other than folder name.
-        if (gFolderTreeView._treeElement.getAttribute("simplelist") == "true")
+        if (gFolderTreeView._treeElement.getAttribute("simplelist") == "true") {
           return text;
+        }
 
         // If the unread column is shown, we don't need to add the count
         // to the name.
-        if (!document.getElementById("folderUnreadCol").hidden)
+        if (!document.getElementById("folderUnreadCol").hidden) {
           return text;
+        }
 
         let unread = this._folder.getNumUnread(false);
-        let totalUnread = gFolderStatsHelpers.sumSubfolders ?
-                          this._folder.getNumUnread(true) : unread;
+        let totalUnread = gFolderStatsHelpers.sumSubfolders
+          ? this._folder.getNumUnread(true)
+          : unread;
         this._summarizedCounts.set(aColName, [unread, totalUnread - unread]);
         if (totalUnread > 0) {
-          text = gFolderTreeView.messengerBundle
-            .getFormattedString("folderWithUnreadMsgs",
-                                [text, gFolderStatsHelpers.addSummarizedPrefix(totalUnread,
-                                       unread != totalUnread)]);
+          text = gFolderTreeView.messengerBundle.getFormattedString(
+            "folderWithUnreadMsgs",
+            [
+              text,
+              gFolderStatsHelpers.addSummarizedPrefix(
+                totalUnread,
+                unread != totalUnread
+              ),
+            ]
+          );
         }
         return text;
 
       case "folderUnreadCol":
         let folderUnread = this._folder.getNumUnread(false);
-        let subfoldersUnread = gFolderStatsHelpers.sumSubfolders ?
-                               this._folder.getNumUnread(true) : folderUnread;
-        this._summarizedCounts.set(aColName, [folderUnread,
-                                              subfoldersUnread - folderUnread]);
-        return gFolderStatsHelpers
-                 .fixNum(subfoldersUnread, folderUnread != subfoldersUnread);
+        let subfoldersUnread = gFolderStatsHelpers.sumSubfolders
+          ? this._folder.getNumUnread(true)
+          : folderUnread;
+        this._summarizedCounts.set(aColName, [
+          folderUnread,
+          subfoldersUnread - folderUnread,
+        ]);
+        return gFolderStatsHelpers.fixNum(
+          subfoldersUnread,
+          folderUnread != subfoldersUnread
+        );
 
       case "folderTotalCol":
         let folderTotal = this._folder.getTotalMessages(false);
-        let subfoldersTotal = gFolderStatsHelpers.sumSubfolders ?
-                              this._folder.getTotalMessages(true) : folderTotal;
-        this._summarizedCounts.set(aColName, [folderTotal,
-                                              subfoldersTotal - folderTotal]);
-        return gFolderStatsHelpers
-                 .fixNum(subfoldersTotal, folderTotal != subfoldersTotal);
+        let subfoldersTotal = gFolderStatsHelpers.sumSubfolders
+          ? this._folder.getTotalMessages(true)
+          : folderTotal;
+        this._summarizedCounts.set(aColName, [
+          folderTotal,
+          subfoldersTotal - folderTotal,
+        ]);
+        return gFolderStatsHelpers.fixNum(
+          subfoldersTotal,
+          folderTotal != subfoldersTotal
+        );
 
       case "folderSizeCol":
         let thisFolderSize = gFolderStatsHelpers.getFolderSize(this._folder);
-        let subfoldersSize = gFolderStatsHelpers.sumSubfolders ?
-                             gFolderStatsHelpers.getSubfoldersSize(this._folder) : 0;
+        let subfoldersSize = gFolderStatsHelpers.sumSubfolders
+          ? gFolderStatsHelpers.getSubfoldersSize(this._folder)
+          : 0;
 
-        if (subfoldersSize == gFolderStatsHelpers.kUnknownSize ||
-            thisFolderSize == gFolderStatsHelpers.kUnknownSize)
+        if (
+          subfoldersSize == gFolderStatsHelpers.kUnknownSize ||
+          thisFolderSize == gFolderStatsHelpers.kUnknownSize
+        ) {
           return gFolderStatsHelpers.kUnknownSize;
+        }
 
         let totalSize = thisFolderSize + subfoldersSize;
-        if (totalSize == 0)
+        if (totalSize == 0) {
           return "";
+        }
 
-        let [totalText, folderUnit] = gFolderStatsHelpers.formatFolderSize(totalSize);
-        let folderText = (subfoldersSize == 0) ? totalText :
-                         gFolderStatsHelpers.formatFolderSize(thisFolderSize, folderUnit)[0];
-        let subfoldersText = (subfoldersSize == 0) ? "" :
-                             gFolderStatsHelpers.formatFolderSize(subfoldersSize, folderUnit)[0];
+        let [totalText, folderUnit] = gFolderStatsHelpers.formatFolderSize(
+          totalSize
+        );
+        let folderText =
+          subfoldersSize == 0
+            ? totalText
+            : gFolderStatsHelpers.formatFolderSize(
+                thisFolderSize,
+                folderUnit
+              )[0];
+        let subfoldersText =
+          subfoldersSize == 0
+            ? ""
+            : gFolderStatsHelpers.formatFolderSize(
+                subfoldersSize,
+                folderUnit
+              )[0];
         this._summarizedCounts.set(aColName, [folderText, subfoldersText]);
-        return gFolderStatsHelpers
-                 .addSummarizedPrefix(totalText, totalSize != thisFolderSize);
+        return gFolderStatsHelpers.addSummarizedPrefix(
+          totalText,
+          totalSize != thisFolderSize
+        );
 
       default:
         return "";
@@ -2386,8 +2773,9 @@ ftvItem.prototype = {
   },
 
   getProperties(aColumn) {
-    if (aColumn && aColumn.id != "folderNameCol")
+    if (aColumn && aColumn.id != "folderNameCol") {
       return "";
+    }
 
     // From folderUtils.jsm
     let properties = getFolderProperties(this._folder, this.open);
@@ -2404,15 +2792,20 @@ ftvItem.prototype = {
 
     if (FeedMessageHandler.isFeedFolder(this._folder)) {
       properties += FeedUtils.getFolderProperties(this._folder, null);
-      gFolderTreeView.setFolderCacheProperty(this._folder, "properties", properties);
+      gFolderTreeView.setFolderCacheProperty(
+        this._folder,
+        "properties",
+        properties
+      );
     }
 
     return properties;
   },
 
   command() {
-    if (!Services.prefs.getBoolPref("mailnews.reuse_thread_window2"))
+    if (!Services.prefs.getBoolPref("mailnews.reuse_thread_window2")) {
       MsgOpenNewWindowForFolder(this._folder.URI, -1 /* key */);
+    }
   },
 
   _children: null,
@@ -2423,8 +2816,12 @@ ftvItem.prototype = {
       try {
         iter = fixIterator(this._folder.subFolders, Ci.nsIMsgFolder);
       } catch (ex) {
-        Services.console.logStringMessage("Discovering children for " + this._folder.URI +
-                                          " failed with exception: " + ex);
+        Services.console.logStringMessage(
+          "Discovering children for " +
+            this._folder.URI +
+            " failed with exception: " +
+            ex
+        );
         iter = [];
       }
       this._children = [];
@@ -2464,33 +2861,39 @@ var gFolderTreeController = {
     if (!folder.canCreateSubfolders) {
       // Check if we can create them at the root
       let rootMsgFolder = folder.server.rootMsgFolder;
-      if (rootMsgFolder.canCreateSubfolders)
+      if (rootMsgFolder.canCreateSubfolders) {
         folder = rootMsgFolder;
-      else // just use the default account
+      } // just use the default account
+      else {
         folder = GetDefaultAccountRootFolder();
+      }
     }
 
-    if (!folder)
+    if (!folder) {
       return;
+    }
 
     let dualUseFolders = true;
-    if (folder.server instanceof Ci.nsIImapIncomingServer)
+    if (folder.server instanceof Ci.nsIImapIncomingServer) {
       dualUseFolders = folder.server.dualUseFolders;
+    }
 
     function newFolderCallback(aName, aFolder) {
       // createSubfolder can throw an exception, causing the newFolder dialog
       // to not close and wait for another input.
       // TODO: Rewrite this logic and also move the opening of alert dialogs from
       // nsMsgLocalMailFolder::CreateSubfolderInternal to here (bug 831190#c16).
-      if (aName)
+      if (aName) {
         aFolder.createSubfolder(aName, msgWindow);
+      }
     }
 
-    window.openDialog("chrome://messenger/content/newFolderDialog.xul",
-                      "",
-                      "chrome,modal,resizable=no,centerscreen",
-                      {folder, dualUseFolders,
-                       okCallback: newFolderCallback});
+    window.openDialog(
+      "chrome://messenger/content/newFolderDialog.xul",
+      "",
+      "chrome,modal,resizable=no,centerscreen",
+      { folder, dualUseFolders, okCallback: newFolderCallback }
+    );
   },
 
   /**
@@ -2512,13 +2915,13 @@ var gFolderTreeController = {
       this.editVirtualFolder(folder);
       return;
     }
-    let title = gFolderTreeView.messengerBundle
-                               .getString("folderProperties");
+    let title = gFolderTreeView.messengerBundle.getString("folderProperties");
 
     // xxx useless param
     function editFolderCallback(aNewName, aOldName, aUri) {
-      if (aNewName != aOldName)
+      if (aNewName != aOldName) {
         folder.rename(aNewName, msgWindow);
+      }
     }
 
     // xxx useless param
@@ -2534,14 +2937,19 @@ var gFolderTreeController = {
         let offlineStore = folder.filePath;
         // XXX todo: figure out how to delete a maildir directory async. This
         // delete causes main thread lockup for large maildir folders.
-        if (offlineStore.exists())
+        if (offlineStore.exists()) {
           offlineStore.remove(true);
+        }
       }
       gFolderDisplay.view.close();
 
       // Send a notification that we are triggering a database rebuild.
-      MailServices.mfn.notifyItemEvent(folder, "FolderReindexTriggered", null,
-                                       null);
+      MailServices.mfn.notifyItemEvent(
+        folder,
+        "FolderReindexTriggered",
+        null,
+        null
+      );
 
       folder.msgDatabase.summaryValid = false;
 
@@ -2557,14 +2965,21 @@ var gFolderTreeController = {
       gFolderDisplay.show(folder);
     }
 
-    window.openDialog("chrome://messenger/content/folderProps.xul",
-                      "",
-                      "chrome,modal,centerscreen",
-                      {folder, serverType: folder.server.type,
-                       msgWindow, title,
-                       okCallback: editFolderCallback,
-                       tabID: aTabID, name: folder.prettyName,
-                       rebuildSummaryCallback: rebuildSummary});
+    window.openDialog(
+      "chrome://messenger/content/folderProps.xul",
+      "",
+      "chrome,modal,centerscreen",
+      {
+        folder,
+        serverType: folder.server.type,
+        msgWindow,
+        title,
+        okCallback: editFolderCallback,
+        tabID: aTabID,
+        name: folder.prettyName,
+        rebuildSummaryCallback: rebuildSummary,
+      }
+    );
   },
 
   /**
@@ -2580,19 +2995,25 @@ var gFolderTreeController = {
     // xxx no need for uri now
     let controller = this;
     function renameCallback(aName, aUri) {
-      if (aUri != folder.URI)
+      if (aUri != folder.URI) {
         Cu.reportError("got back a different folder to rename!");
+      }
 
       controller._tree.view.selection.clearSelection();
 
       // Actually do the rename
       folder.rename(aName, msgWindow);
     }
-    window.openDialog("chrome://messenger/content/renameFolderDialog.xul",
-                      "",
-                      "chrome,modal,centerscreen",
-                      {preselectedURI: folder.URI,
-                       okCallback: renameCallback, name: folder.prettyName});
+    window.openDialog(
+      "chrome://messenger/content/renameFolderDialog.xul",
+      "",
+      "chrome,modal,centerscreen",
+      {
+        preselectedURI: folder.URI,
+        okCallback: renameCallback,
+        name: folder.prettyName,
+      }
+    );
   },
 
   /**
@@ -2606,27 +3027,46 @@ var gFolderTreeController = {
     let folder = folders[0];
 
     // For newsgroups, "delete" means "unsubscribe".
-    if (folder.server.type == "nntp" && !folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
+    if (
+      folder.server.type == "nntp" &&
+      !folder.getFlag(Ci.nsMsgFolderFlags.Virtual)
+    ) {
       MsgUnsubscribe(folders);
       return;
     }
 
-    var canDelete = (folder.isSpecialFolder(Ci.nsMsgFolderFlags.Junk, false)) ?
-      CanRenameDeleteJunkMail(folder.URI) : folder.deletable;
+    var canDelete = folder.isSpecialFolder(Ci.nsMsgFolderFlags.Junk, false)
+      ? CanRenameDeleteJunkMail(folder.URI)
+      : folder.deletable;
 
-    if (!canDelete)
+    if (!canDelete) {
       throw new Error("Can't delete folder: " + folder.name);
+    }
 
     if (folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
-      let confirmation = gFolderTreeView.messengerBundle
-                                        .getString("confirmSavedSearchDeleteMessage");
-      let title = gFolderTreeView.messengerBundle
-                                 .getString("confirmSavedSearchTitle");
-      if (Services.prompt
-            .confirmEx(window, title, confirmation,
-                       Services.prompt.STD_YES_NO_BUTTONS + Services.prompt.BUTTON_POS_1_DEFAULT,
-                       "", "", "", "", {}) != 0) /* the yes button is in position 0 */
+      let confirmation = gFolderTreeView.messengerBundle.getString(
+        "confirmSavedSearchDeleteMessage"
+      );
+      let title = gFolderTreeView.messengerBundle.getString(
+        "confirmSavedSearchTitle"
+      );
+      if (
+        Services.prompt.confirmEx(
+          window,
+          title,
+          confirmation,
+          Services.prompt.STD_YES_NO_BUTTONS +
+            Services.prompt.BUTTON_POS_1_DEFAULT,
+          "",
+          "",
+          "",
+          "",
+          {}
+        ) != 0
+      ) {
+        /* the yes button is in position 0 */
         return;
+      }
     }
 
     let array = toXPCOMArray([folder], Ci.nsIMutableArray);
@@ -2643,26 +3083,31 @@ var gFolderTreeController = {
    */
   emptyTrash(aFolder) {
     let folder = aFolder || gFolderTreeView.getSelectedFolders()[0];
-    if (!folder.getFlag(Ci.nsMsgFolderFlags.Trash))
+    if (!folder.getFlag(Ci.nsMsgFolderFlags.Trash)) {
       folder = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
-    if (!folder)
+    }
+    if (!folder) {
       return;
+    }
 
-    if (!this._checkConfirmationPrompt("emptyTrash", folder))
+    if (!this._checkConfirmationPrompt("emptyTrash", folder)) {
       return;
+    }
 
-      // Check if this is a top-level smart folder. If so, we're going
-      // to empty all the trash folders.
-      if (folder.server.hostName == "smart mailboxes" &&
-          folder.parent.isServer) {
-        let subFolders = gFolderTreeView
-                           ._allFoldersWithFlag(gFolderTreeView._sortedAccounts(),
-                            Ci.nsMsgFolderFlags.Trash, false);
-        for (let trash of subFolders)
-          trash.emptyTrash(msgWindow, null);
-      } else {
-        folder.emptyTrash(msgWindow, null);
+    // Check if this is a top-level smart folder. If so, we're going
+    // to empty all the trash folders.
+    if (folder.server.hostName == "smart mailboxes" && folder.parent.isServer) {
+      let subFolders = gFolderTreeView._allFoldersWithFlag(
+        gFolderTreeView._sortedAccounts(),
+        Ci.nsMsgFolderFlags.Trash,
+        false
+      );
+      for (let trash of subFolders) {
+        trash.emptyTrash(msgWindow, null);
       }
+    } else {
+      folder.emptyTrash(msgWindow, null);
+    }
   },
 
   /**
@@ -2675,16 +3120,19 @@ var gFolderTreeController = {
   emptyJunk(aFolder) {
     let folder = aFolder || gFolderTreeView.getSelectedFolders()[0];
 
-    if (!folder || !folder.getFlag(Ci.nsMsgFolderFlags.Junk))
+    if (!folder || !folder.getFlag(Ci.nsMsgFolderFlags.Junk)) {
       return;
+    }
 
-    if (!this._checkConfirmationPrompt("emptyJunk", folder))
+    if (!this._checkConfirmationPrompt("emptyJunk", folder)) {
       return;
+    }
 
     // Delete any subfolders this folder might have
     let iter = folder.subFolders;
-    while (iter.hasMoreElements())
+    while (iter.hasMoreElements()) {
       folder.propagateDelete(iter.getNext(), true, msgWindow);
+    }
 
     // Now delete the messages
     let messages = Array.from(fixIterator(folder.messages));
@@ -2702,8 +3150,9 @@ var gFolderTreeController = {
     let folders = aFolders || gFolderTreeView.getSelectedFolders();
     for (let i = 0; i < folders.length; i++) {
       // Can't compact folders that have just been compacted.
-      if (folders[i].server.type != "imap" && !folders[i].expungedBytes)
+      if (folders[i].server.type != "imap" && !folders[i].expungedBytes) {
         continue;
+      }
 
       folders[i].compact(null, msgWindow);
     }
@@ -2720,8 +3169,11 @@ var gFolderTreeController = {
   compactAllFoldersForAccount(aFolders) {
     let folders = aFolders || gFolderTreeView.getSelectedFolders();
     for (let i = 0; i < folders.length; i++) {
-      folders[i].compactAll(null, msgWindow, folders[i].server.type == "imap" ||
-                                             folders[i].server.type == "nntp");
+      folders[i].compactAll(
+        null,
+        msgWindow,
+        folders[i].server.type == "imap" || folders[i].server.type == "nntp"
+      );
     }
   },
 
@@ -2733,20 +3185,25 @@ var gFolderTreeController = {
    * @param aParent - the folder to run the search terms on
    */
   newVirtualFolder(aName, aSearchTerms, aParent) {
-    let folder = aParent || gFolderTreeView.getSelectedFolders()[0] ||
-                 GetDefaultAccountRootFolder();
-    if (!folder)
+    let folder =
+      aParent ||
+      gFolderTreeView.getSelectedFolders()[0] ||
+      GetDefaultAccountRootFolder();
+    if (!folder) {
       return;
+    }
 
     let name = folder.prettyName;
-    if (aName)
+    if (aName) {
       name += "-" + aName;
+    }
 
-    window.openDialog("chrome://messenger/content/virtualFolderProperties.xul",
-                      "",
-                      "chrome,modal,centerscreen",
-                      {folder, searchTerms: aSearchTerms,
-                       newFolderName: name});
+    window.openDialog(
+      "chrome://messenger/content/virtualFolderProperties.xul",
+      "",
+      "chrome,modal,centerscreen",
+      { folder, searchTerms: aSearchTerms, newFolderName: name }
+    );
   },
 
   editVirtualFolder(aFolder) {
@@ -2755,16 +3212,24 @@ var gFolderTreeController = {
     // xxx should pass the folder object
     function editVirtualCallback(aURI) {
       // we need to reload the folder if it is the currently loaded folder...
-      if (gFolderDisplay.displayedFolder &&
-          aURI == gFolderDisplay.displayedFolder.URI)
+      if (
+        gFolderDisplay.displayedFolder &&
+        aURI == gFolderDisplay.displayedFolder.URI
+      ) {
         FolderPaneSelectionChange();
+      }
     }
-    window.openDialog("chrome://messenger/content/virtualFolderProperties.xul",
-                      "",
-                      "chrome,modal,centerscreen",
-                      {folder, editExistingFolder: true,
-                       onOKCallback: editVirtualCallback,
-                       msgWindow});
+    window.openDialog(
+      "chrome://messenger/content/virtualFolderProperties.xul",
+      "",
+      "chrome,modal,centerscreen",
+      {
+        folder,
+        editExistingFolder: true,
+        onOKCallback: editVirtualCallback,
+        msgWindow,
+      }
+    );
   },
 
   /**
@@ -2787,29 +3252,45 @@ var gFolderTreeController = {
    */
   _checkConfirmationPrompt(aCommand, aFolder) {
     // If no folder was specified, reject the operation.
-    if (!aFolder)
+    if (!aFolder) {
       return false;
+    }
 
-    let showPrompt = !Services.prefs
-                       .getBoolPref("mailnews." + aCommand + ".dontAskAgain", false);
+    let showPrompt = !Services.prefs.getBoolPref(
+      "mailnews." + aCommand + ".dontAskAgain",
+      false
+    );
 
     if (showPrompt) {
-      let checkbox = {value: false};
-      let title = gFolderTreeView.messengerBundle
-        .getFormattedString(aCommand + "FolderTitle", [aFolder.prettyName]);
-      let msg = gFolderTreeView.messengerBundle.getString(aCommand + "FolderMessage");
-      let ok = Services.prompt.confirmEx(window,
-                                         title,
-                                         msg,
-                                         Services.prompt.STD_YES_NO_BUTTONS,
-                                         null, null, null,
-                                         gFolderTreeView.messengerBundle
-                                                        .getString(aCommand + "DontAsk"),
-                                         checkbox) == 0;
-      if (checkbox.value)
-        Services.prefs.setBoolPref("mailnews." + aCommand + ".dontAskAgain", true);
-      if (!ok)
+      let checkbox = { value: false };
+      let title = gFolderTreeView.messengerBundle.getFormattedString(
+        aCommand + "FolderTitle",
+        [aFolder.prettyName]
+      );
+      let msg = gFolderTreeView.messengerBundle.getString(
+        aCommand + "FolderMessage"
+      );
+      let ok =
+        Services.prompt.confirmEx(
+          window,
+          title,
+          msg,
+          Services.prompt.STD_YES_NO_BUTTONS,
+          null,
+          null,
+          null,
+          gFolderTreeView.messengerBundle.getString(aCommand + "DontAsk"),
+          checkbox
+        ) == 0;
+      if (checkbox.value) {
+        Services.prefs.setBoolPref(
+          "mailnews." + aCommand + ".dontAskAgain",
+          true
+        );
+      }
+      if (!ok) {
         return false;
+      }
     }
     return true;
   },
@@ -2817,7 +3298,7 @@ var gFolderTreeController = {
   get _tree() {
     let tree = document.getElementById("folderTree");
     delete this._tree;
-    return this._tree = tree;
+    return (this._tree = tree);
   },
 };
 
@@ -2845,8 +3326,9 @@ ftv_SmartItem.prototype = {
         } else if (folder.getFlag(Ci.nsMsgFolderFlags.Inbox)) {
           let subIter = fixIterator(folder.subFolders, Ci.nsIMsgFolder);
           for (let subfolder of subIter) {
-            if (!smartMode.isSmartFolder(subfolder))
+            if (!smartMode.isSmartFolder(subfolder)) {
               this._children.push(new ftv_SmartItem(subfolder));
+            }
           }
         }
       }
@@ -2908,10 +3390,16 @@ var gFolderStatsHelpers = {
   init() {
     // We cache these values because the cells in the folder pane columns
     // using these helpers can be redrawn often.
-    this.sumSubfoldersPref = Services.prefs.getBoolPref("mail.folderpane.sumSubfolders");
+    this.sumSubfoldersPref = Services.prefs.getBoolPref(
+      "mail.folderpane.sumSubfolders"
+    );
     this.sizeUnits = Services.prefs.getCharPref("mail.folderpane.sizeUnits");
-    this.kiloUnit = gFolderTreeView.messengerBundle.getString("kiloByteAbbreviation2");
-    this.megaUnit = gFolderTreeView.messengerBundle.getString("megaByteAbbreviation2");
+    this.kiloUnit = gFolderTreeView.messengerBundle.getString(
+      "kiloByteAbbreviation2"
+    );
+    this.megaUnit = gFolderTreeView.messengerBundle.getString(
+      "megaByteAbbreviation2"
+    );
   },
 
   /**
@@ -2926,14 +3414,18 @@ var gFolderStatsHelpers = {
    *                                contributed to the accumulated total value.
    */
   addSummarizedPrefix(aValue, aSubfoldersContributed) {
-    if (!this.sumSubfolders)
+    if (!this.sumSubfolders) {
       return aValue;
+    }
 
-    if (!aSubfoldersContributed)
+    if (!aSubfoldersContributed) {
       return aValue;
+    }
 
-    return gFolderTreeView.messengerBundle
-      .getFormattedString("folderSummarizedSymbolValue", [aValue]);
+    return gFolderTreeView.messengerBundle.getFormattedString(
+      "folderSummarizedSymbolValue",
+      [aValue]
+    );
   },
 
   /**
@@ -2946,11 +3438,13 @@ var gFolderStatsHelpers = {
    *                                contributed to the accumulated total value.
    */
   fixNum(aNumber, aSubfoldersContributed) {
-    if (aNumber < 0)
+    if (aNumber < 0) {
       return this.kUnknownSize;
+    }
 
-    return (aNumber == 0 ? "" : this.addSummarizedPrefix(aNumber,
-                                                         aSubfoldersContributed));
+    return aNumber == 0
+      ? ""
+      : this.addSummarizedPrefix(aNumber, aSubfoldersContributed);
   },
 
   /**
@@ -2962,8 +3456,9 @@ var gFolderStatsHelpers = {
     let folderSize = 0;
     try {
       folderSize = aFolder.sizeOnDisk;
-      if (folderSize < 0)
+      if (folderSize < 0) {
         return this.kUnknownSize;
+      }
     } catch (ex) {
       return this.kUnknownSize;
     }
@@ -2980,12 +3475,12 @@ var gFolderStatsHelpers = {
     if (aFolder.hasSubFolders) {
       let subFolders = aFolder.subFolders;
       while (subFolders.hasMoreElements()) {
-        let subFolder = subFolders.getNext()
-          .QueryInterface(Ci.nsIMsgFolder);
+        let subFolder = subFolders.getNext().QueryInterface(Ci.nsIMsgFolder);
         let subSize = this.getFolderSize(subFolder);
         let subSubSize = this.getSubfoldersSize(subFolder);
-        if (subSize == this.kUnknownSize || subSubSize == this.kUnknownSize)
+        if (subSize == this.kUnknownSize || subSubSize == this.kUnknownSize) {
           return subSize;
+        }
 
         folderSize += subSize + subSubSize;
       }

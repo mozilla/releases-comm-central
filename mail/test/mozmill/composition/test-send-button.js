@@ -22,9 +22,13 @@ var MODULE_REQUIRES = [
   "address-book-helpers",
 ];
 
-var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 
 var account = null;
 
@@ -36,7 +40,11 @@ function setupModule(module) {
 
   // Ensure we're in the tinderbox account as that has the right identities set
   // up for this test.
-  let server = MailServices.accounts.FindServer("tinderbox", FAKE_SERVER_HOSTNAME, "pop3");
+  let server = MailServices.accounts.FindServer(
+    "tinderbox",
+    FAKE_SERVER_HOSTNAME,
+    "pop3"
+  );
   account = MailServices.accounts.FindAccountForServer(server);
   let inbox = get_special_folder(Ci.nsMsgFolderFlags.Inbox, false, server);
   be_in_folder(inbox);
@@ -51,14 +59,23 @@ function setupModule(module) {
 function check_send_commands_state(aCwc, aEnabled) {
   assert_equals(aCwc.e("cmd_sendButton").hasAttribute("disabled"), !aEnabled);
   assert_equals(aCwc.e("cmd_sendNow").hasAttribute("disabled"), !aEnabled);
-  assert_equals(aCwc.e("cmd_sendWithCheck").hasAttribute("disabled"), !aEnabled);
+  assert_equals(
+    aCwc.e("cmd_sendWithCheck").hasAttribute("disabled"),
+    !aEnabled
+  );
   assert_equals(aCwc.e("cmd_sendLater").hasAttribute("disabled"), !aEnabled);
 
   // The toolbar buttons and menuitems should be linked to these commands
   // thus inheriting the enabled state. Check that on the Send button
   // and Send Now menuitem.
-  assert_equals(aCwc.e("button-send").getAttribute("command"), "cmd_sendButton");
-  assert_equals(aCwc.e("menu-item-send-now").getAttribute("command"), "cmd_sendNow");
+  assert_equals(
+    aCwc.e("button-send").getAttribute("command"),
+    "cmd_sendButton"
+  );
+  assert_equals(
+    aCwc.e("menu-item-send-now").getAttribute("command"),
+    "cmd_sendNow"
+  );
 }
 
 /**
@@ -118,7 +135,9 @@ function test_send_enabled_manual_address() {
 
   // - a mailinglist in addressbook
   // Button is enabled without checking whether it contains valid addresses.
-  let defaultAB = MailServices.ab.getDirectory("moz-abmdbdirectory://abook.mab");
+  let defaultAB = MailServices.ab.getDirectory(
+    "moz-abmdbdirectory://abook.mab"
+  );
   let ml = create_mailing_list("emptyList");
   defaultAB.addMailList(ml);
 
@@ -188,17 +207,22 @@ function test_send_enabled_prefilled_address_from_identity() {
 
   // Switch to the second identity that has no CC. Send should be disabled.
   assert_true(account.identities.length >= 2);
-  let identityWithoutCC = account.identities.queryElementAt(1, Ci.nsIMsgIdentity);
+  let identityWithoutCC = account.identities.queryElementAt(
+    1,
+    Ci.nsIMsgIdentity
+  );
   assert_false(identityWithoutCC.doCc);
   cwc.click(cwc.eid("msgIdentity"));
-  cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"),
-                              [ { identitykey: identityWithoutCC.key } ]);
+  cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
+    { identitykey: identityWithoutCC.key },
+  ]);
   check_send_commands_state(cwc, false);
 
   // Check the first identity again.
   cwc.click(cwc.eid("msgIdentity"));
-  cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"),
-                              [ { identitykey: identityWithCC.key } ]);
+  cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
+    { identitykey: identityWithCC.key },
+  ]);
   check_send_commands_state(cwc, true);
 
   close_compose_window(cwc);
@@ -213,7 +237,9 @@ function test_send_enabled_prefilled_address_from_identity() {
  */
 function test_send_enabled_address_contacts_sidebar() {
   // Create some contact address book card in the Personal addressbook.
-  let defaultAB = MailServices.ab.getDirectory("moz-abmdbdirectory://abook.mab");
+  let defaultAB = MailServices.ab.getDirectory(
+    "moz-abmdbdirectory://abook.mab"
+  );
   let contact = create_contact("test@example.com", "Sammy Jenkis", true);
   load_contacts_into_address_book(defaultAB, [contact]);
 
@@ -225,12 +251,17 @@ function test_send_enabled_address_contacts_sidebar() {
   cwc.window.toggleAddressPicker();
 
   let sidebar = cwc.e("sidebar");
-  wait_for_frame_load(sidebar,
-    "chrome://messenger/content/addressbook/abContactsPanel.xul?focus");
+  wait_for_frame_load(
+    sidebar,
+    "chrome://messenger/content/addressbook/abContactsPanel.xul?focus"
+  );
 
   let abTree = sidebar.contentDocument.getElementById("abResultsTree");
   // The results are loaded async so wait for the population of the tree.
-  utils.waitFor(() => abTree.view.rowCount > 0, "Addressbook cards didn't load");
+  utils.waitFor(
+    () => abTree.view.rowCount > 0,
+    "Addressbook cards didn't load"
+  );
   click_tree_row(abTree, 0, cwc);
 
   sidebar.contentDocument.getElementById("ccButton").click();

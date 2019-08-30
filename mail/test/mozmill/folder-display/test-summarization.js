@@ -129,8 +129,7 @@ function test_selection_stabilization_logic() {
   // make sure all summarization has run to completion.
   mc.sleep(0);
   // make it inconceivable that the timeout happens.
-  mc.window.MessageDisplayWidget.prototype
-    .SUMMARIZATION_SELECTION_STABILITY_INTERVAL_MS = 10000;
+  mc.window.MessageDisplayWidget.prototype.SUMMARIZATION_SELECTION_STABILITY_INTERVAL_MS = 10000;
   // does not summarize anything, does not affect timer
   select_click_row(0);
   // does summarize things.  timer will be tick tick ticking!
@@ -155,8 +154,7 @@ function test_selection_stabilization_logic() {
   // Culture!
   // ...
   // I'm already embarrassed I wrote that.
-  mc.window.MessageDisplayWidget.prototype
-    .SUMMARIZATION_SELECTION_STABILITY_INTERVAL_MS = 0;
+  mc.window.MessageDisplayWidget.prototype.SUMMARIZATION_SELECTION_STABILITY_INTERVAL_MS = 0;
   // (we did that because the stability logic is going to schedule another guard
   //  timer when we manually trigger it, and we want that to clear immediately.)
 
@@ -169,7 +167,6 @@ function test_selection_stabilization_logic() {
   // - the summary should now be up-to-date
   assert_selected_and_displayed([0, 2]);
 }
-
 
 function test_summarization_thread_detection() {
   select_none();
@@ -209,7 +206,9 @@ function test_new_thread_that_was_not_summarized_expands() {
 
   // - create the base messages
   let [willMoveMsg, willNotMoveMsg] = make_new_sets_in_folders(
-    [folder], [{count: 1}, {count: 1}]);
+    [folder],
+    [{ count: 1 }, { count: 1 }]
+  );
 
   // - do the non-move case
   // XXX actually, this still gets treated as a move. I don't know why...
@@ -218,7 +217,7 @@ function test_new_thread_that_was_not_summarized_expands() {
   assert_selected_and_displayed(willNotMoveMsg);
 
   // give it a friend...
-  make_new_sets_in_folders([folder], [{count: 1, inReplyTo: willNotMoveMsg}]);
+  make_new_sets_in_folders([folder], [{ count: 1, inReplyTo: willNotMoveMsg }]);
   assert_expanded(willNotMoveMsg);
   assert_selected_and_displayed(willNotMoveMsg);
 
@@ -227,7 +226,7 @@ function test_new_thread_that_was_not_summarized_expands() {
   assert_selected_and_displayed(willMoveMsg);
 
   // give it a friend...
-  make_new_sets_in_folders([folder], [{count: 1, inReplyTo: willMoveMsg}]);
+  make_new_sets_in_folders([folder], [{ count: 1, inReplyTo: willMoveMsg }]);
   assert_expanded(willMoveMsg);
   assert_selected_and_displayed(willMoveMsg);
 }
@@ -251,7 +250,9 @@ function test_summary_updates_when_new_message_added_to_collapsed_thread() {
 
   // - add a new message, make sure it's in the summary now.
   let [thread1Extra] = make_new_sets_in_folders(
-                         [folder], [{count: 1, inReplyTo: thread1}]);
+    [folder],
+    [{ count: 1, inReplyTo: thread1 }]
+  );
   let thread1All = thread1.union(thread1Extra);
   assert_selected(thread1Root);
   assert_messages_summarized(mc, thread1All);
@@ -267,22 +268,31 @@ function test_summary_when_multiple_identities() {
 
   let folder2 = create_folder("Search2");
   be_in_folder(folder2);
-  make_new_sets_in_folders([folder2], [{count: 1, inReplyTo: thread1}]);
+  make_new_sets_in_folders([folder2], [{ count: 1, inReplyTo: thread1 }]);
 
-  let folderVirtual = create_virtual_folder([folder1, folder2], {}, true, "SearchBoth");
+  let folderVirtual = create_virtual_folder(
+    [folder1, folder2],
+    {},
+    true,
+    "SearchBoth"
+  );
 
   // Do the needed tricks
   be_in_folder(folder1);
   select_click_row(0);
-  plan_to_wait_for_folder_events("DeleteOrMoveMsgCompleted",
-                                 "DeleteOrMoveMsgFailed");
+  plan_to_wait_for_folder_events(
+    "DeleteOrMoveMsgCompleted",
+    "DeleteOrMoveMsgFailed"
+  );
   mc.window.MsgMoveMessage(folder2);
   wait_for_folder_events();
 
   be_in_folder(folder2);
   select_click_row(1);
-  plan_to_wait_for_folder_events("DeleteOrMoveMsgCompleted",
-                                 "DeleteOrMoveMsgFailed");
+  plan_to_wait_for_folder_events(
+    "DeleteOrMoveMsgCompleted",
+    "DeleteOrMoveMsgFailed"
+  );
   mc.window.MsgMoveMessage(folder1);
   wait_for_folder_events();
 
@@ -313,17 +323,26 @@ function extract_first_address(thread) {
   let names = {};
   MailServices.headerParser.parseHeadersWithArray(
     thread1.getMsgHdr(0).mime2DecodedAuthor,
-    addresses, names, fullNames);
+    addresses,
+    names,
+    fullNames
+  );
 
-  return {email: addresses.value[0], name: names.value[0]};
+  return { email: addresses.value[0], name: names.value[0] };
 }
 
 function check_address_name(name) {
   let htmlframe = mc.e("multimessage");
   let match = htmlframe.contentDocument.querySelector(".author");
-  if (match.textContent != name)
-    throw new Error("Expected to find sender named '" + name + "', found '" +
-                    match.textContent + "'");
+  if (match.textContent != name) {
+    throw new Error(
+      "Expected to find sender named '" +
+        name +
+        "', found '" +
+        match.textContent +
+        "'"
+    );
+  }
 }
 
 function test_display_name_no_abook() {

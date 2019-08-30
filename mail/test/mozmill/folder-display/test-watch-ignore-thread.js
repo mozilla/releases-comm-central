@@ -37,8 +37,9 @@ function setupModule(module) {
  */
 function clickViewMessagesItem(menuId) {
   mc.click_through_appmenu(
-    [{id: "appmenu_View"}, {id: "appmenu_viewMessagesMenu"}],
-    {id: menuId});
+    [{ id: "appmenu_View" }, { id: "appmenu_viewMessagesMenu" }],
+    { id: menuId }
+  );
 }
 
 /**
@@ -51,7 +52,7 @@ function test_ignore_thread() {
   assert_selected_and_displayed(t1second);
 
   // Ignore this thread.
-  mc.keypress(null, "K", {shiftKey: false, accelKey: false});
+  mc.keypress(null, "K", { shiftKey: false, accelKey: false });
 
   // The first msg in the next thread should now be selected.
   let t2root = thread2.getMsgHdr(0);
@@ -97,7 +98,7 @@ function test_watch_thread() {
   assert_selected_and_displayed(t2second);
 
   // Watch this thread.
-  mc.keypress(null, "W", {shiftKey: false, accelKey: false});
+  mc.keypress(null, "W", { shiftKey: false, accelKey: false });
 
   // Choose "Watched Threads with Unread".
   clickViewMessagesItem("appmenu_viewWatchedThreadsWithUnreadMenuItem");
@@ -112,7 +113,3 @@ function test_watch_thread() {
   select_click_row(thread2.msgHdrList.length);
   assert_selected_and_displayed(t3root);
 }
-
-
-
-

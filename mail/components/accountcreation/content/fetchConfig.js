@@ -5,10 +5,12 @@
 
 /* import-globals-from emailWizard.js */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {JXON} = ChromeUtils.import("resource:///modules/JXON.js");
-var {DNS} = ChromeUtils.import("resource:///modules/DNS.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { JXON } = ChromeUtils.import("resource:///modules/JXON.js");
+var { DNS } = ChromeUtils.import("resource:///modules/DNS.jsm");
 
 /**
  * Tries to find a configuration for this ISP on the local harddisk, in the
@@ -16,24 +18,30 @@ var {DNS} = ChromeUtils.import("resource:///modules/DNS.jsm");
  * Params @see fetchConfigFromISP()
  */
 function fetchConfigFromDisk(domain, successCallback, errorCallback) {
-  return new TimeoutAbortable(runAsync(function() {
-    try {
-      // <TB installdir>/isp/example.com.xml
-      var configLocation = Services.dirsvc.get("CurProcD", Ci.nsIFile);
-      configLocation.append("isp");
-      configLocation.append(sanitize.hostname(domain) + ".xml");
+  return new TimeoutAbortable(
+    runAsync(function() {
+      try {
+        // <TB installdir>/isp/example.com.xml
+        var configLocation = Services.dirsvc.get("CurProcD", Ci.nsIFile);
+        configLocation.append("isp");
+        configLocation.append(sanitize.hostname(domain) + ".xml");
 
-      if (!configLocation.exists() || !configLocation.isReadable()) {
-        errorCallback(new Exception("local file not found"));
-        return;
+        if (!configLocation.exists() || !configLocation.isReadable()) {
+          errorCallback(new Exception("local file not found"));
+          return;
+        }
+        var contents = readURLasUTF8(Services.io.newFileURI(configLocation));
+        let domParser = new DOMParser();
+        successCallback(
+          readFromXML(
+            JXON.build(domParser.parseFromString(contents, "text/xml"))
+          )
+        );
+      } catch (e) {
+        errorCallback(e);
       }
-      var contents =
-        readURLasUTF8(Services.io.newFileURI(configLocation));
-      let domParser = new DOMParser();
-      successCallback(readFromXML(JXON.build(
-        domParser.parseFromString(contents, "text/xml"))));
-    } catch (e) { errorCallback(e); }
-  }));
+    })
+  );
 }
 
 /**
@@ -56,22 +64,29 @@ function fetchConfigFromDisk(domain, successCallback, errorCallback) {
  *         so do not unconditionally show this to the user.
  *         The first parameter will be an exception object or error string.
  */
-function fetchConfigFromISP(domain, emailAddress, successCallback,
-                            errorCallback) {
-  if (!Services.prefs.getBoolPref(
-      "mailnews.auto_config.fetchFromISP.enabled")) {
+function fetchConfigFromISP(
+  domain,
+  emailAddress,
+  successCallback,
+  errorCallback
+) {
+  if (
+    !Services.prefs.getBoolPref("mailnews.auto_config.fetchFromISP.enabled")
+  ) {
     errorCallback(new Exception("ISP fetch disabled per user preference"));
     return new Abortable();
   }
 
-  let conf1 = "autoconfig." + sanitize.hostname(domain) +
-              "/mail/config-v1.1.xml";
+  let conf1 =
+    "autoconfig." + sanitize.hostname(domain) + "/mail/config-v1.1.xml";
   // .well-known/ <http://tools.ietf.org/html/draft-nottingham-site-meta-04>
-  let conf2 = sanitize.hostname(domain) +
-              "/.well-known/autoconfig/mail/config-v1.1.xml";
+  let conf2 =
+    sanitize.hostname(domain) + "/.well-known/autoconfig/mail/config-v1.1.xml";
   // This list is sorted by decreasing priority
   var urls = ["https://" + conf1, "https://" + conf2];
-  if (!Services.prefs.getBoolPref("mailnews.auto_config.fetchFromISP.sslOnly")) {
+  if (
+    !Services.prefs.getBoolPref("mailnews.auto_config.fetchFromISP.sslOnly")
+  ) {
     urls.push("http://" + conf1, "http://" + conf2);
   }
   let callArgs = {
@@ -79,20 +94,28 @@ function fetchConfigFromISP(domain, emailAddress, successCallback,
       emailaddress: emailAddress,
     },
   };
-  if (!Services.prefs.getBoolPref(
-      "mailnews.auto_config.fetchFromISP.sendEmailAddress")) {
+  if (
+    !Services.prefs.getBoolPref(
+      "mailnews.auto_config.fetchFromISP.sendEmailAddress"
+    )
+  ) {
     delete callArgs.urlArgs.emailaddress;
   }
   let call;
   let fetch;
 
   let priority = new PriorityOrderAbortable(
-      xml => successCallback(readFromXML(xml)),
-      errorCallback);
+    xml => successCallback(readFromXML(xml)),
+    errorCallback
+  );
   for (let url of urls) {
     call = priority.addCall();
-    fetch = new FetchHTTP(url, callArgs,
-        call.successCallback(), call.errorCallback());
+    fetch = new FetchHTTP(
+      url,
+      callArgs,
+      call.successCallback(),
+      call.errorCallback()
+    );
     call.setAbortable(fetch);
     fetch.start();
   }
@@ -114,16 +137,20 @@ function fetchConfigFromDB(domain, successCallback, errorCallback) {
   domain = sanitize.hostname(domain);
 
   // If we don't specify a place to put the domain, put it at the end.
-  if (!url.includes("{{domain}}"))
+  if (!url.includes("{{domain}}")) {
     url = url + domain;
-  else
+  } else {
     url = url.replace("{{domain}}", domain);
+  }
 
-  let fetch = new FetchHTTP(url, { timeout: 10000 },  // 10 seconds
+  let fetch = new FetchHTTP(
+    url,
+    { timeout: 10000 }, // 10 seconds
     function(result) {
       successCallback(readFromXML(result));
     },
-    errorCallback);
+    errorCallback
+  );
   fetch.start();
   return fetch;
 }
@@ -154,19 +181,27 @@ function fetchConfigForMX(domain, successCallback, errorCallback) {
   const sucAbortable = new SuccessiveAbortable();
   const time = Date.now();
 
-  sucAbortable.current = getMX(sanitizedDomain,
-    function(mxHostname) { // success
+  sucAbortable.current = getMX(
+    sanitizedDomain,
+    function(mxHostname) {
+      // success
       ddump("getmx took " + (Date.now() - time) + "ms");
       let sld = Services.eTLD.getBaseDomainFromHost(mxHostname);
       ddump("base domain " + sld + " for " + mxHostname);
       if (sld == sanitizedDomain) {
-        errorCallback(new Exception("MX lookup would be no different from domain"));
+        errorCallback(
+          new Exception("MX lookup would be no different from domain")
+        );
         return;
       }
-      sucAbortable.current = fetchConfigFromDB(sld, successCallback,
-                                               errorCallback);
+      sucAbortable.current = fetchConfigFromDB(
+        sld,
+        successCallback,
+        errorCallback
+      );
     },
-    errorCallback);
+    errorCallback
+  );
   return sucAbortable;
 }
 
@@ -184,16 +219,24 @@ function fetchConfigForMX(domain, successCallback, errorCallback) {
  * @param {function({Exception|string})}  errorCallback @see fetchConfigFromISP()
  */
 function getMX(sanitizedDomain, successCallback, errorCallback) {
-  return new PromiseAbortable(DNS.mx(sanitizedDomain), function(records) {
-    const filteredRecs = records.filter(record => record.host);
+  return new PromiseAbortable(
+    DNS.mx(sanitizedDomain),
+    function(records) {
+      const filteredRecs = records.filter(record => record.host);
 
-    if (filteredRecs.length > 0) {
-      const sortedRecs = filteredRecs.sort((a, b) => a.prio > b.prio);
-      const firstHost = sortedRecs[0].host;
-      successCallback(firstHost);
-    } else {
-      errorCallback(new Exception(
-        "No hostname found in MX records for sanitizedDomain=" + sanitizedDomain));
-    }
-  }, errorCallback);
+      if (filteredRecs.length > 0) {
+        const sortedRecs = filteredRecs.sort((a, b) => a.prio > b.prio);
+        const firstHost = sortedRecs[0].host;
+        successCallback(firstHost);
+      } else {
+        errorCallback(
+          new Exception(
+            "No hostname found in MX records for sanitizedDomain=" +
+              sanitizedDomain
+          )
+        );
+      }
+    },
+    errorCallback
+  );
 }

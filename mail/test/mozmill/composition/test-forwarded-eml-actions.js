@@ -15,10 +15,18 @@
 
 var MODULE_NAME = "test-forwarded-eml-actions";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "compose-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "compose-helpers",
+];
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 
 var folder;
 
@@ -40,26 +48,29 @@ var setupModule = function(module) {
     "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:14.0) Gecko/20120331 Thunderbird/14.0a1\n" +
     "MIME-Version: 1.0\n" +
     "To: example@invalid\n" +
-    "Subject: Fwd: " + msgsubject + "\n" +
+    "Subject: Fwd: " +
+    msgsubject +
+    "\n" +
     "References: <4F8C78F5.4000704@invalid>\n" +
     "In-Reply-To: <4F8C78F5.4000704@invalid>\n" +
     "X-Forwarded-Message-Id: <4F8C78F5.4000704@invalid>\n" +
     "Content-Type: multipart/mixed;\n" +
-    " boundary=\"------------080806020206040800000503\"\n" +
+    ' boundary="------------080806020206040800000503"\n' +
     "\n" +
     "This is a multi-part message in MIME format.\n" +
     "--------------080806020206040800000503\n" +
     "Content-Type: text/plain; charset=ISO-8859-1; format=flowed\n" +
     "Content-Transfer-Encoding: 7bit\n" +
     "\n" +
-    msgbodyB + "\n" +
+    msgbodyB +
+    "\n" +
     "\n" +
     "--------------080806020206040800000503\n" +
     "Content-Type: message/rfc822;\n" +
-    " name=\"mail client suggestions.eml\"\n" +
+    ' name="mail client suggestions.eml"\n' +
     "Content-Transfer-Encoding: 7bit\n" +
     "Content-Disposition: attachment;\n" +
-    " filename=\"mail client suggestions.eml\"\n" +
+    ' filename="mail client suggestions.eml"\n' +
     "\n" +
     "Return-Path: <example@invalid>\n" +
     "Received: from xxx (smtpu [10.0.0.51])\n" +
@@ -75,7 +86,8 @@ var setupModule = function(module) {
     "Content-Type: text/plain; charset=ISO-8859-1; format=flowed\n" +
     "Content-Transfer-Encoding: 7bit\n" +
     "\n" +
-    msgbodyA + "\n" +
+    msgbodyA +
+    "\n" +
     "\n" +
     "--------------080806020206040800000503--\n";
 
@@ -103,17 +115,29 @@ function setupWindowAndTest(hotkeyToHit, hotkeyModifiers) {
   let compWin = wait_for_compose_window(msgWin);
 
   let bodyText = get_compose_body(compWin).textContent;
-  if (bodyText.includes("html"))
+  if (bodyText.includes("html")) {
     throw new Error("body text contains raw html; bodyText=" + bodyText);
+  }
 
-  if (!bodyText.includes(msgbodyA))
-    throw new Error("body text didn't contain the body text; msgbodyA=" +
-                    msgbodyB + ", bodyText=" + bodyText);
+  if (!bodyText.includes(msgbodyA)) {
+    throw new Error(
+      "body text didn't contain the body text; msgbodyA=" +
+        msgbodyB +
+        ", bodyText=" +
+        bodyText
+    );
+  }
 
   let subjectText = compWin.e("msgSubject").value;
-  if (!subjectText.includes(msgsubject))
-    throw new Error("subject text didn't contain the original subject; " +
-                    "msgsubject=" + msgsubject + ", subjectText=" + subjectText);
+  if (!subjectText.includes(msgsubject)) {
+    throw new Error(
+      "subject text didn't contain the original subject; " +
+        "msgsubject=" +
+        msgsubject +
+        ", subjectText=" +
+        subjectText
+    );
+  }
 
   close_compose_window(compWin, false);
   close_window(msgWin);
@@ -123,13 +147,12 @@ function setupWindowAndTest(hotkeyToHit, hotkeyModifiers) {
  * Test that replying to an attached .eml contains the expected texts.
  */
 function test_reply_to_attached_eml() {
-  setupWindowAndTest("R", {shiftKey: false, accelKey: true});
+  setupWindowAndTest("R", { shiftKey: false, accelKey: true });
 }
 
 /**
  * Test that forwarding an attached .eml contains the expected texts.
  */
 function test_forward_attached_eml() {
-  setupWindowAndTest("L", {shiftKey: false, accelKey: true});
+  setupWindowAndTest("L", { shiftKey: false, accelKey: true });
 }
-

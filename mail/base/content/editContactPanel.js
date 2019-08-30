@@ -3,9 +3,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { fixIterator } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
 
 var editContactInlineUI = {
   _overlayLoaded: false,
@@ -18,8 +22,9 @@ var editContactInlineUI = {
     for (var i = 0; i < this._blockedCommands; ++i) {
       var elt = document.getElementById(this._blockedCommands[i]);
       // make sure not to permanetly disable this item
-      if (elt.hasAttribute("wasDisabled"))
+      if (elt.hasAttribute("wasDisabled")) {
         continue;
+      }
 
       if (elt.getAttribute("disabled") == "true") {
         elt.setAttribute("wasDisabled", "true");
@@ -33,8 +38,9 @@ var editContactInlineUI = {
   _restoreCommandsState() {
     for (var i = 0; i < this._blockedCommands; ++i) {
       var elt = document.getElementById(this._blockedCommands[i]);
-      if (elt.getAttribute("wasDisabled") != "true")
+      if (elt.getAttribute("wasDisabled") != "true") {
         elt.removeAttribute("disabled");
+      }
       elt.removeAttribute("wasDisabled");
     }
     document.getElementById("editContactAddressBookList").disabled = false;
@@ -42,13 +48,15 @@ var editContactInlineUI = {
   },
 
   onPopupHidden(aEvent) {
-    if (aEvent.target == this.panel)
+    if (aEvent.target == this.panel) {
       this._restoreCommandsState();
+    }
   },
 
   onPopupShown(aEvent) {
-    if (aEvent.target == this.panel)
+    if (aEvent.target == this.panel) {
       document.getElementById("editContactName").focus();
+    }
   },
 
   onKeyPress(aEvent, aHandleOnlyReadOnly) {
@@ -60,20 +68,22 @@ var editContactInlineUI = {
 
     // Return does the default button (done)
     if (aEvent.keyCode == KeyEvent.DOM_VK_RETURN) {
-      if (!aEvent.target.hasAttribute("oncommand"))
+      if (!aEvent.target.hasAttribute("oncommand")) {
         this.saveChanges();
+      }
       return;
     }
 
     // Only handle the read-only cases here.
-    if (aHandleOnlyReadOnly &&
-        (this._writeable && !aEvent.target.readOnly))
+    if (aHandleOnlyReadOnly && (this._writeable && !aEvent.target.readOnly)) {
       return;
+    }
 
     // Any other character and we prevent the default, this stops us doing
     // things in the main message window.
-    if (aEvent.charCode)
+    if (aEvent.charCode) {
       aEvent.preventDefault();
+    }
   },
 
   get panel() {
@@ -82,7 +92,7 @@ var editContactInlineUI = {
     // initially the panel is hidden to avoid impacting startup / new window
     // performance
     element.hidden = false;
-    return this.panel = element;
+    return (this.panel = element);
   },
 
   showEditContactPanel(aCardDetails, aAnchorElement) {
@@ -100,16 +110,20 @@ var editContactInlineUI = {
     var type = this._writeable ? "edit" : "view";
 
     // Update the labels accordingly.
-    document.getElementById("editContactPanelTitle").value =
-      bundle.getString(type + "Title");
-    document.getElementById("editContactPanelEditDetailsButton").label =
-      bundle.getString(type + "DetailsLabel");
-    document.getElementById("editContactPanelEditDetailsButton").accessKey =
-      bundle.getString(type + "DetailsAccessKey");
+    document.getElementById("editContactPanelTitle").value = bundle.getString(
+      type + "Title"
+    );
+    document.getElementById(
+      "editContactPanelEditDetailsButton"
+    ).label = bundle.getString(type + "DetailsLabel");
+    document.getElementById(
+      "editContactPanelEditDetailsButton"
+    ).accessKey = bundle.getString(type + "DetailsAccessKey");
 
     // We don't need a delete button for a read only card.
-    document.getElementById("editContactPanelDeleteContactButton").hidden =
-      !this._writeable;
+    document.getElementById(
+      "editContactPanelDeleteContactButton"
+    ).hidden = !this._writeable;
 
     var nameElement = document.getElementById("editContactName");
 
@@ -124,11 +138,13 @@ var editContactInlineUI = {
 
     // Fill in the card details
     nameElement.value = this._cardDetails.card.displayName;
-    document.getElementById("editContactEmail").value =
-      aAnchorElement.getAttribute("emailAddress");
+    document.getElementById(
+      "editContactEmail"
+    ).value = aAnchorElement.getAttribute("emailAddress");
 
-    document.getElementById("editContactAddressBookList").value =
-      this._cardDetails.book.URI;
+    document.getElementById(
+      "editContactAddressBookList"
+    ).value = this._cardDetails.book.URI;
 
     // Is this card contained within mailing lists?
     let inMailList = false;
@@ -138,13 +154,15 @@ var editContactInlineUI = {
       let mailingLists = this._cardDetails.book.childNodes;
       while (mailingLists.hasMoreElements() && !inMailList) {
         let list = mailingLists.getNext();
-        if (!(list instanceof Ci.nsIAbDirectory) ||
-            !list.isMailList)
+        if (!(list instanceof Ci.nsIAbDirectory) || !list.isMailList) {
           continue;
+        }
 
         for (let card of fixIterator(list.addressLists)) {
-          if (card instanceof Ci.nsIAbCard &&
-              card.primaryEmail == this._cardDetails.card.primaryEmail) {
+          if (
+            card instanceof Ci.nsIAbCard &&
+            card.primaryEmail == this._cardDetails.card.primaryEmail
+          ) {
             inMailList = true;
             break;
           }
@@ -152,11 +170,13 @@ var editContactInlineUI = {
       }
     }
 
-    if (!this._writeable || inMailList)
+    if (!this._writeable || inMailList) {
       document.getElementById("editContactAddressBookList").disabled = true;
+    }
 
-    if (inMailList)
+    if (inMailList) {
       document.getElementById("contactMoveDisabledText").collapsed = false;
+    }
 
     this.panel.openPopup(aAnchorElement, aPosition, -1, -1);
   },
@@ -164,31 +184,41 @@ var editContactInlineUI = {
   editDetails() {
     this.saveChanges();
 
-    window.openDialog("chrome://messenger/content/addressbook/abEditCardDialog.xul",
-                      "",
-                      "chrome,modal,resizable=no,centerscreen",
-                      { abURI: this._cardDetails.book.URI,
-                        card: this._cardDetails.card });
+    window.openDialog(
+      "chrome://messenger/content/addressbook/abEditCardDialog.xul",
+      "",
+      "chrome,modal,resizable=no,centerscreen",
+      { abURI: this._cardDetails.book.URI, card: this._cardDetails.card }
+    );
   },
 
   deleteContact() {
-    if (this._cardDetails.book.readOnly)
-      return; /* double check we can delete this */
+    if (this._cardDetails.book.readOnly) {
+      return;
+    } /* double check we can delete this */
 
     /* hide before the dialog or the panel takes the first click */
     this.panel.hidePopup();
 
     var bundle = document.getElementById("bundle_editContact");
-    if (!Services.prompt.confirm(window,
-                                 bundle.getString("deleteContactTitle"),
-                                 bundle.getString("deleteContactMessage")))
-      return;  /* XXX would be nice to bring the popup back up here */
+    if (
+      !Services.prompt.confirm(
+        window,
+        bundle.getString("deleteContactTitle"),
+        bundle.getString("deleteContactMessage")
+      )
+    ) {
+      return;
+    } /* XXX would be nice to bring the popup back up here */
 
-    let cardArray = Cc["@mozilla.org/array;1"]
-                      .createInstance(Ci.nsIMutableArray);
+    let cardArray = Cc["@mozilla.org/array;1"].createInstance(
+      Ci.nsIMutableArray
+    );
     cardArray.appendElement(this._cardDetails.card);
 
-    MailServices.ab.getDirectory(this._cardDetails.book.URI).deleteCards(cardArray);
+    MailServices.ab
+      .getDirectory(this._cardDetails.book.URI)
+      .deleteCards(cardArray);
   },
 
   saveChanges() {
@@ -223,8 +253,9 @@ var editContactInlineUI = {
       this._cardDetails.book.addCard(this._cardDetails.card);
 
       // ...and delete it from the old place.
-      let cardArray = Cc["@mozilla.org/array;1"]
-                              .createInstance(Ci.nsIMutableArray);
+      let cardArray = Cc["@mozilla.org/array;1"].createInstance(
+        Ci.nsIMutableArray
+      );
       cardArray.appendElement(this._cardDetails.card);
       originalBook.deleteCards(cardArray);
     }

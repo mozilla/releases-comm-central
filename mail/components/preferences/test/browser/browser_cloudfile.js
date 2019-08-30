@@ -15,7 +15,9 @@ add_task(async () => {
     QueryInterface: ChromeUtils.generateQI([Ci.nsIPromptService]),
   };
 
-  let { MockRegistrar } = ChromeUtils.import("resource://testing-common/MockRegistrar.jsm");
+  let { MockRegistrar } = ChromeUtils.import(
+    "resource://testing-common/MockRegistrar.jsm"
+  );
   let mockPromptServiceCID = MockRegistrar.register(
     "@mozilla.org/embedcomp/prompt-service;1",
     mockPromptService
@@ -25,13 +27,18 @@ add_task(async () => {
     MockRegistrar.unregister(mockPromptServiceCID);
   });
 
-  let { cloudFileAccounts } = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm");
+  let { cloudFileAccounts } = ChromeUtils.import(
+    "resource:///modules/cloudFileAccounts.jsm"
+  );
   is(cloudFileAccounts.providers.length, 1);
   is(cloudFileAccounts.accounts.length, 0);
 
   // Load the preferences tab.
 
-  let { prefsDocument, prefsWindow } = await openNewPrefsTab("paneCompose", "compositionAttachmentsCategory");
+  let { prefsDocument, prefsWindow } = await openNewPrefsTab(
+    "paneCompose",
+    "compositionAttachmentsCategory"
+  );
 
   // Check everything is as it should be.
 
@@ -41,12 +48,18 @@ add_task(async () => {
   let buttonList = prefsDocument.getElementById("addCloudFileAccountButtons");
   ok(!buttonList.hidden);
   is(buttonList.childElementCount, 1);
-  is(buttonList.children[0].getAttribute("value"), "ext-wetransfer@extensions.thunderbird.net");
+  is(
+    buttonList.children[0].getAttribute("value"),
+    "ext-wetransfer@extensions.thunderbird.net"
+  );
 
   let menuButton = prefsDocument.getElementById("addCloudFileAccount");
   ok(menuButton.hidden);
   is(menuButton.itemCount, 1);
-  is(menuButton.getItemAtIndex(0).getAttribute("value"), "ext-wetransfer@extensions.thunderbird.net");
+  is(
+    menuButton.getItemAtIndex(0).getAttribute("value"),
+    "ext-wetransfer@extensions.thunderbird.net"
+  );
 
   let removeButton = prefsDocument.getElementById("removeCloudFileAccount");
   ok(removeButton.disabled);
@@ -90,18 +103,28 @@ add_task(async () => {
   await new Promise(resolve => prefsWindow.requestAnimationFrame(resolve));
 
   is(buttonList.childElementCount, 2);
-  is(buttonList.children[0].getAttribute("value"), "ext-wetransfer@extensions.thunderbird.net");
+  is(
+    buttonList.children[0].getAttribute("value"),
+    "ext-wetransfer@extensions.thunderbird.net"
+  );
   is(buttonList.children[1].getAttribute("value"), "Mochitest");
   is(buttonList.children[1].style.listStyleImage, `url("${ICON_URL}")`);
 
   is(menuButton.itemCount, 2);
-  is(menuButton.getItemAtIndex(0).getAttribute("value"), "ext-wetransfer@extensions.thunderbird.net");
+  is(
+    menuButton.getItemAtIndex(0).getAttribute("value"),
+    "ext-wetransfer@extensions.thunderbird.net"
+  );
   is(menuButton.getItemAtIndex(1).getAttribute("value"), "Mochitest");
   is(menuButton.getItemAtIndex(1).getAttribute("image"), ICON_URL);
 
   // Create a new account.
 
-  EventUtils.synthesizeMouseAtCenter(buttonList.children[1], { clickCount: 1 }, prefsWindow);
+  EventUtils.synthesizeMouseAtCenter(
+    buttonList.children[1],
+    { clickCount: 1 },
+    prefsWindow
+  );
   is(cloudFileAccounts.accounts.length, 1);
   is(cloudFileAccounts.configuredAccounts.length, 0);
 
@@ -111,8 +134,16 @@ add_task(async () => {
 
   // Check prefs were updated.
 
-  is(Services.prefs.getCharPref(`mail.cloud_files.accounts.${accountKey}.displayName`), "Mochitest Account");
-  is(Services.prefs.getCharPref(`mail.cloud_files.accounts.${accountKey}.type`), "Mochitest");
+  is(
+    Services.prefs.getCharPref(
+      `mail.cloud_files.accounts.${accountKey}.displayName`
+    ),
+    "Mochitest Account"
+  );
+  is(
+    Services.prefs.getCharPref(`mail.cloud_files.accounts.${accountKey}.type`),
+    "Mochitest"
+  );
 
   // Check UI was updated.
 
@@ -134,11 +165,18 @@ add_task(async () => {
 
   // Rename the account.
 
-  EventUtils.synthesizeMouseAtCenter(accountListItem, { clickCount: 1 }, prefsWindow);
+  EventUtils.synthesizeMouseAtCenter(
+    accountListItem,
+    { clickCount: 1 },
+    prefsWindow
+  );
 
   await new Promise(resolve => prefsWindow.requestAnimationFrame(resolve));
 
-  is(prefsDocument.activeElement.closest("textbox"), accountListItem.querySelector("textbox"));
+  is(
+    prefsDocument.activeElement.closest("textbox"),
+    accountListItem.querySelector("textbox")
+  );
   ok(accountListItem.querySelector("label").hidden);
   ok(!accountListItem.querySelector("textbox").hidden);
   is(accountListItem.querySelector("textbox").value, "Mochitest Account");
@@ -152,15 +190,27 @@ add_task(async () => {
   ok(!accountListItem.querySelector("label").hidden);
   is(accountListItem.querySelector("label").value, "Mochitest Account!");
   ok(accountListItem.querySelector("textbox").hidden);
-  is(Services.prefs.getCharPref(`mail.cloud_files.accounts.${accountKey}.displayName`), "Mochitest Account!");
+  is(
+    Services.prefs.getCharPref(
+      `mail.cloud_files.accounts.${accountKey}.displayName`
+    ),
+    "Mochitest Account!"
+  );
 
   // Start to rename the account, but bail out.
 
-  EventUtils.synthesizeMouseAtCenter(accountListItem, { clickCount: 1 }, prefsWindow);
+  EventUtils.synthesizeMouseAtCenter(
+    accountListItem,
+    { clickCount: 1 },
+    prefsWindow
+  );
 
   await new Promise(resolve => prefsWindow.requestAnimationFrame(resolve));
 
-  is(prefsDocument.activeElement.closest("textbox"), accountListItem.querySelector("textbox"));
+  is(
+    prefsDocument.activeElement.closest("textbox"),
+    accountListItem.querySelector("textbox")
+  );
   EventUtils.synthesizeKey("O", undefined, prefsWindow);
   EventUtils.synthesizeKey("o", undefined, prefsWindow);
   EventUtils.synthesizeKey("p", undefined, prefsWindow);
@@ -173,7 +223,12 @@ add_task(async () => {
   ok(!accountListItem.querySelector("label").hidden);
   is(accountListItem.querySelector("label").value, "Mochitest Account!");
   ok(accountListItem.querySelector("textbox").hidden);
-  is(Services.prefs.getCharPref(`mail.cloud_files.accounts.${accountKey}.displayName`), "Mochitest Account!");
+  is(
+    Services.prefs.getCharPref(
+      `mail.cloud_files.accounts.${accountKey}.displayName`
+    ),
+    "Mochitest Account!"
+  );
 
   // Configure the account.
 
@@ -196,9 +251,15 @@ add_task(async () => {
   await new Promise(resolve => prefsWindow.requestAnimationFrame(resolve));
 
   is(buttonList.childElementCount, 1);
-  is(buttonList.children[0].getAttribute("value"), "ext-wetransfer@extensions.thunderbird.net");
+  is(
+    buttonList.children[0].getAttribute("value"),
+    "ext-wetransfer@extensions.thunderbird.net"
+  );
   is(menuButton.itemCount, 1);
-  is(menuButton.getItemAtIndex(0).getAttribute("value"), "ext-wetransfer@extensions.thunderbird.net");
+  is(
+    menuButton.getItemAtIndex(0).getAttribute("value"),
+    "ext-wetransfer@extensions.thunderbird.net"
+  );
   is(accountList.itemCount, 0);
   is(settingsDeck.selectedPanel.id, "cloudFileDefaultPanel");
   is(iframeWrapper.childElementCount, 0);
@@ -213,11 +274,17 @@ add_task(async () => {
   await new Promise(resolve => prefsWindow.requestAnimationFrame(resolve));
 
   is(buttonList.childElementCount, 2);
-  is(buttonList.children[0].getAttribute("value"), "ext-wetransfer@extensions.thunderbird.net");
+  is(
+    buttonList.children[0].getAttribute("value"),
+    "ext-wetransfer@extensions.thunderbird.net"
+  );
   is(buttonList.children[1].getAttribute("value"), "Mochitest");
 
   is(menuButton.itemCount, 2);
-  is(menuButton.getItemAtIndex(0).getAttribute("value"), "ext-wetransfer@extensions.thunderbird.net");
+  is(
+    menuButton.getItemAtIndex(0).getAttribute("value"),
+    "ext-wetransfer@extensions.thunderbird.net"
+  );
   is(menuButton.getItemAtIndex(1).getAttribute("value"), "Mochitest");
 
   is(accountList.itemCount, 1);
@@ -225,15 +292,36 @@ add_task(async () => {
   ok(removeButton.disabled);
 
   accountListItem = accountList.getItemAtIndex(0);
-  is(Services.prefs.getCharPref(`mail.cloud_files.accounts.${accountKey}.displayName`), "Mochitest Account!");
+  is(
+    Services.prefs.getCharPref(
+      `mail.cloud_files.accounts.${accountKey}.displayName`
+    ),
+    "Mochitest Account!"
+  );
 
-  EventUtils.synthesizeMouseAtCenter(accountList.getItemAtIndex(0), { clickCount: 1 }, prefsWindow);
+  EventUtils.synthesizeMouseAtCenter(
+    accountList.getItemAtIndex(0),
+    { clickCount: 1 },
+    prefsWindow
+  );
   ok(!removeButton.disabled);
-  EventUtils.synthesizeMouseAtCenter(removeButton, { clickCount: 1 }, prefsWindow);
+  EventUtils.synthesizeMouseAtCenter(
+    removeButton,
+    { clickCount: 1 },
+    prefsWindow
+  );
   is(mockPromptService.confirmCount, 1);
 
-  ok(!Services.prefs.prefHasUserValue(`mail.cloud_files.accounts.${accountKey}.displayName`));
-  ok(!Services.prefs.prefHasUserValue(`mail.cloud_files.accounts.${accountKey}.type`));
+  ok(
+    !Services.prefs.prefHasUserValue(
+      `mail.cloud_files.accounts.${accountKey}.displayName`
+    )
+  );
+  ok(
+    !Services.prefs.prefHasUserValue(
+      `mail.cloud_files.accounts.${accountKey}.type`
+    )
+  );
 
   is(cloudFileAccounts.providers.length, 2);
   is(cloudFileAccounts.accounts.length, 0);
@@ -248,7 +336,9 @@ add_task(async () => {
 });
 
 add_task(async () => {
-  let { cloudFileAccounts } = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm");
+  let { cloudFileAccounts } = ChromeUtils.import(
+    "resource:///modules/cloudFileAccounts.jsm"
+  );
 
   // Register our test provider.
 
@@ -282,7 +372,10 @@ add_task(async () => {
 
   // Load the preferences tab.
 
-  let { prefsDocument, prefsWindow } = await openNewPrefsTab("paneCompose", "compositionAttachmentsCategory");
+  let { prefsDocument, prefsWindow } = await openNewPrefsTab(
+    "paneCompose",
+    "compositionAttachmentsCategory"
+  );
 
   let accountList = prefsDocument.getElementById("cloudFileView");
   is(accountList.itemCount, 0);
@@ -300,7 +393,11 @@ add_task(async () => {
 
   let count = 0;
   do {
-    EventUtils.synthesizeMouseAtCenter(buttonList.children[0], { clickCount: 1 }, prefsWindow);
+    EventUtils.synthesizeMouseAtCenter(
+      buttonList.children[0],
+      { clickCount: 1 },
+      prefsWindow
+    );
     await new Promise(resolve => setTimeout(resolve));
     if (buttonList.hidden) {
       break;
@@ -315,8 +412,16 @@ add_task(async () => {
 
   let removeButton = prefsDocument.getElementById("removeCloudFileAccount");
   do {
-    EventUtils.synthesizeMouseAtCenter(accountList.getItemAtIndex(0), { clickCount: 1 }, prefsWindow);
-    EventUtils.synthesizeMouseAtCenter(removeButton, { clickCount: 1 }, prefsWindow);
+    EventUtils.synthesizeMouseAtCenter(
+      accountList.getItemAtIndex(0),
+      { clickCount: 1 },
+      prefsWindow
+    );
+    EventUtils.synthesizeMouseAtCenter(
+      removeButton,
+      { clickCount: 1 },
+      prefsWindow
+    );
     await new Promise(resolve => setTimeout(resolve));
   } while (--count > 0);
 

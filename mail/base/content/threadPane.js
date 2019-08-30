@@ -36,7 +36,7 @@ function ThreadPaneOnClick(event) {
   // Figure out what cell the click was in.
   let treeCellInfo = tree.getCellAt(event.clientX, event.clientY);
   if (treeCellInfo.row == -1) {
-   return;
+    return;
   }
 
   if (treeCellInfo.col.id == "selectCol") {
@@ -64,8 +64,11 @@ function ThreadPaneOnClick(event) {
 
   // If the cell is in a cycler column or if the user doubleclicked on the
   // twisty, don't open the message in a new window.
-  if (event.detail == 2 && !treeCellInfo.col.cycler &&
-      treeCellInfo.childElt != "twisty") {
+  if (
+    event.detail == 2 &&
+    !treeCellInfo.col.cycler &&
+    treeCellInfo.childElt != "twisty"
+  ) {
     ThreadPaneDoubleClick();
     // Doubleclicking should not toggle the open/close state of the thread.
     // This will happen if we don't prevent the event from bubbling to the
@@ -73,8 +76,11 @@ function ThreadPaneOnClick(event) {
     event.stopPropagation();
   } else if (treeCellInfo.col.id == "junkStatusCol") {
     MsgJunkMailInfo(true);
-  } else if (treeCellInfo.col.id == "threadCol" && !event.shiftKey &&
-             (event.ctrlKey || event.metaKey)) {
+  } else if (
+    treeCellInfo.col.id == "threadCol" &&
+    !event.shiftKey &&
+    (event.ctrlKey || event.metaKey)
+  ) {
     gDBView.ExpandAndSelectThreadByIndex(treeCellInfo.row, true);
     event.stopPropagation();
   }
@@ -111,8 +117,14 @@ function HandleColumnClick(columnID) {
       gDBView.curCustomColumn = columnID;
       sortType = "byCustom";
     } catch (ex) {
-      dump("HandleColumnClick: No custom column handler registered for " +
-           "columnID: " + columnID + " - " + ex + "\n");
+      dump(
+        "HandleColumnClick: No custom column handler registered for " +
+          "columnID: " +
+          columnID +
+          " - " +
+          ex +
+          "\n"
+      );
       return;
     }
   }
@@ -120,17 +132,19 @@ function HandleColumnClick(columnID) {
   let viewWrapper = gFolderDisplay.view;
   let simpleColumns = false;
   try {
-    simpleColumns = !Services.prefs.getBoolPref("mailnews.thread_pane_column_unthreads");
-  } catch (ex) {
-  }
+    simpleColumns = !Services.prefs.getBoolPref(
+      "mailnews.thread_pane_column_unthreads"
+    );
+  } catch (ex) {}
 
   if (sortType == "byThread") {
-    if (simpleColumns)
+    if (simpleColumns) {
       MsgToggleThreaded();
-    else if (viewWrapper.showThreaded)
+    } else if (viewWrapper.showThreaded) {
       MsgReverseSortThreadPane();
-    else
+    } else {
       MsgSortByThread();
+    }
 
     return;
   }
@@ -141,9 +155,11 @@ function HandleColumnClick(columnID) {
     return;
   }
 
-  if (viewWrapper.primarySortType == Ci.nsMsgViewSortType[sortType] &&
-      (viewWrapper.primarySortType != Ci.nsMsgViewSortType.byCustom ||
-       curCustomColumn == columnID)) {
+  if (
+    viewWrapper.primarySortType == Ci.nsMsgViewSortType[sortType] &&
+    (viewWrapper.primarySortType != Ci.nsMsgViewSortType.byCustom ||
+      curCustomColumn == columnID)
+  ) {
     MsgReverseSortThreadPane();
   } else {
     MsgSortThreadPane(sortType);
@@ -163,9 +179,11 @@ function HandleSelectColClick(event, row) {
 
   // In the selectCol, we want a double click on a thread parent to select
   // and deselect all children, in threaded and grouped views.
-  if (event.detail == 2 &&
-      tree.view.isContainerOpen(row) &&
-      !tree.view.isContainerEmpty(row)) {
+  if (
+    event.detail == 2 &&
+    tree.view.isContainerOpen(row) &&
+    !tree.view.isContainerEmpty(row)
+  ) {
     // On doubleclick of an open thread, select/deselect all the children.
     let startRow = row + 1;
     let endRow = startRow;
@@ -194,24 +212,32 @@ function ThreadPaneDoubleClick() {
   if (IsSpecialFolderSelected(Ci.nsMsgFolderFlags.Drafts, true)) {
     MsgComposeDraftMessage();
   } else if (IsSpecialFolderSelected(Ci.nsMsgFolderFlags.Templates, true)) {
-    ComposeMessage(Ci.nsIMsgCompType.Template,
-                   Ci.nsIMsgCompFormat.Default,
-                   gFolderDisplay.displayedFolder,
-                   gFolderDisplay.selectedMessageUris);
+    ComposeMessage(
+      Ci.nsIMsgCompType.Template,
+      Ci.nsIMsgCompFormat.Default,
+      gFolderDisplay.displayedFolder,
+      gFolderDisplay.selectedMessageUris
+    );
   } else {
     MsgOpenSelectedMessages();
   }
 }
 
 function ThreadPaneKeyDown(event) {
-  if (event.keyCode != KeyEvent.DOM_VK_RETURN)
+  if (event.keyCode != KeyEvent.DOM_VK_RETURN) {
     return;
+  }
 
   // Grouped By Sort dummy header row <enter> toggles the thread's open/close
   // state. Let tree.xml handle it.
-  if (gFolderDisplay.view.showGroupedBySort &&
-      gFolderDisplay.treeSelection && gFolderDisplay.treeSelection.count == 1 &&
-      gFolderDisplay.view.isGroupedByHeaderAtIndex(gFolderDisplay.treeSelection.currentIndex)) {
+  if (
+    gFolderDisplay.view.showGroupedBySort &&
+    gFolderDisplay.treeSelection &&
+    gFolderDisplay.treeSelection.count == 1 &&
+    gFolderDisplay.view.isGroupedByHeaderAtIndex(
+      gFolderDisplay.treeSelection.currentIndex
+    )
+  ) {
     return;
   }
 
@@ -230,8 +256,9 @@ function MsgSortByThread() {
 function MsgSortThreadPane(sortName) {
   let sortType = Ci.nsMsgViewSortType[sortName];
   let grouped = gFolderDisplay.view.showGroupedBySort;
-  gFolderDisplay.view._threadExpandAll =
-    Boolean(gFolderDisplay.view._viewFlags & Ci.nsMsgViewFlagsType.kExpandAll);
+  gFolderDisplay.view._threadExpandAll = Boolean(
+    gFolderDisplay.view._viewFlags & Ci.nsMsgViewFlagsType.kExpandAll
+  );
 
   if (!grouped) {
     gFolderDisplay.view.sort(sortType, Ci.nsMsgViewSortOrder.ascending);
@@ -260,38 +287,45 @@ function MsgSortThreadPane(sortName) {
   // Virtual folders don't persist viewFlags well in the back end,
   // due to a virtual folder being either 'real' or synthetic, so make
   // sure it's done here.
-  if (gFolderDisplay.view.isVirtual)
+  if (gFolderDisplay.view.isVirtual) {
     gFolderDisplay.view.dbView.viewFlags = gFolderDisplay.view.viewFlags;
+  }
 }
 
 function MsgReverseSortThreadPane() {
   let grouped = gFolderDisplay.view.showGroupedBySort;
-  gFolderDisplay.view._threadExpandAll =
-    Boolean(gFolderDisplay.view._viewFlags & Ci.nsMsgViewFlagsType.kExpandAll);
+  gFolderDisplay.view._threadExpandAll = Boolean(
+    gFolderDisplay.view._viewFlags & Ci.nsMsgViewFlagsType.kExpandAll
+  );
 
   // Grouped By view is special for column click sort direction changes.
   if (grouped) {
-    if (gDBView.selection.count)
+    if (gDBView.selection.count) {
       gFolderDisplay._saveSelection();
+    }
 
     if (gFolderDisplay.view.isSingleFolder) {
-      if (gFolderDisplay.view.isVirtual)
+      if (gFolderDisplay.view.isVirtual) {
         gFolderDisplay.view.showGroupedBySort = false;
-      else
-       // Must ensure rows are collapsed and kExpandAll is unset.
-       gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.collapseAll);
+      }
+      // Must ensure rows are collapsed and kExpandAll is unset.
+      else {
+        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.collapseAll);
+      }
     }
   }
 
-  if (gFolderDisplay.view.isSortedAscending)
+  if (gFolderDisplay.view.isSortedAscending) {
     gFolderDisplay.view.sortDescending();
-  else
+  } else {
     gFolderDisplay.view.sortAscending();
+  }
 
   // Restore Grouped By state post sort direction change.
   if (grouped) {
-    if (gFolderDisplay.view.isVirtual && gFolderDisplay.view.isSingleFolder)
+    if (gFolderDisplay.view.isVirtual && gFolderDisplay.view.isSingleFolder) {
       MsgGroupBySort();
+    }
 
     // Restore Grouped By selection post sort direction change.
     gFolderDisplay._restoreSelection();
@@ -303,10 +337,11 @@ function MsgReverseSortThreadPane() {
 }
 
 function MsgToggleThreaded() {
-  if (gFolderDisplay.view.showThreaded)
+  if (gFolderDisplay.view.showThreaded) {
     gFolderDisplay.view.showUnthreaded = true;
-  else
+  } else {
     gFolderDisplay.view.showThreaded = true;
+  }
 }
 
 function MsgSortThreaded() {
@@ -322,9 +357,13 @@ function MsgSortUnthreaded() {
 }
 
 function MsgSortAscending() {
-  if (gFolderDisplay.view.showGroupedBySort && gFolderDisplay.view.isSingleFolder) {
-    if (gFolderDisplay.view.isSortedDescending)
-       MsgReverseSortThreadPane();
+  if (
+    gFolderDisplay.view.showGroupedBySort &&
+    gFolderDisplay.view.isSingleFolder
+  ) {
+    if (gFolderDisplay.view.isSortedDescending) {
+      MsgReverseSortThreadPane();
+    }
 
     return;
   }
@@ -333,9 +372,13 @@ function MsgSortAscending() {
 }
 
 function MsgSortDescending() {
-  if (gFolderDisplay.view.showGroupedBySort && gFolderDisplay.view.isSingleFolder) {
-    if (gFolderDisplay.view.isSortedAscending)
-       MsgReverseSortThreadPane();
+  if (
+    gFolderDisplay.view.showGroupedBySort &&
+    gFolderDisplay.view.isSingleFolder
+  ) {
+    if (gFolderDisplay.view.isSortedAscending) {
+      MsgReverseSortThreadPane();
+    }
 
     return;
   }
@@ -348,8 +391,9 @@ function MsgSortDescending() {
 function UpdateSortIndicators(sortType, sortOrder) {
   // Remove the sort indicator from all the columns
   var treeColumns = document.getElementById("threadCols").childNodes;
-  for (var i = 0; i < treeColumns.length; i++)
+  for (var i = 0; i < treeColumns.length; i++) {
     treeColumns[i].removeAttribute("sortDirection");
+  }
 
   // show the twisties if the view is threaded
   var threadCol = document.getElementById("threadCol");
@@ -357,28 +401,34 @@ function UpdateSortIndicators(sortType, sortOrder) {
   var sortedColumn;
   // set the sort indicator on the column we are sorted by
   var colID = ConvertSortTypeToColumnID(sortType);
-  if (colID)
+  if (colID) {
     sortedColumn = document.getElementById(colID);
+  }
 
   var viewWrapper = gFolderDisplay.view;
 
   // the thread column is not visible when we are grouped by sort
-  document.getElementById("threadCol").collapsed = viewWrapper.showGroupedBySort;
+  document.getElementById("threadCol").collapsed =
+    viewWrapper.showGroupedBySort;
 
   // show twisties only when grouping or threading
-  if (viewWrapper.showGroupedBySort || viewWrapper.showThreaded)
+  if (viewWrapper.showGroupedBySort || viewWrapper.showThreaded) {
     subjectCol.setAttribute("primary", "true");
-  else
+  } else {
     subjectCol.removeAttribute("primary");
+  }
 
-  if (sortedColumn)
-    sortedColumn.setAttribute("sortDirection",
-                              sortOrder == Ci.nsMsgViewSortOrder.ascending ?
-                                "ascending" : "descending");
+  if (sortedColumn) {
+    sortedColumn.setAttribute(
+      "sortDirection",
+      sortOrder == Ci.nsMsgViewSortOrder.ascending ? "ascending" : "descending"
+    );
+  }
 
   // Prevent threadCol from showing the sort direction chevron.
-  if (viewWrapper.showThreaded)
+  if (viewWrapper.showThreaded) {
     threadCol.removeAttribute("sortDirection");
+  }
 }
 
 function IsSpecialFolderSelected(flags, checkAncestors) {
@@ -401,15 +451,17 @@ function GetThreadPaneFolder() {
 function ThreadPaneOnLoad() {
   var tree = GetThreadTree();
   // We won't have the tree if we're in a message window, so exit silently
-  if (!tree)
+  if (!tree) {
     return;
+  }
 
   tree.addEventListener("click", ThreadPaneOnClick, true);
 
   // The mousedown event listener below should only be added in the thread
   // pane of the mailnews 3pane window, not in the advanced search window.
-  if (tree.parentNode.id == "searchResultListBox")
+  if (tree.parentNode.id == "searchResultListBox") {
     return;
+  }
 
   tree.addEventListener("mousedown", TreeOnMouseDown, true);
   let delay = Services.prefs.getIntPref("mailnews.threadpane_select_delay");

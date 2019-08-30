@@ -5,7 +5,7 @@
 
 this.EXPORTED_SYMBOLS = ["appIdleManager"];
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // This module provides a mechanism to turn window focus and blur events
 // into app idle notifications. If we get a blur notification that is not
@@ -20,7 +20,9 @@ var appIdleManager = {
   _timerInterval: 5000, // 5 seconds ought to be plenty
   get _timer() {
     delete this._timer;
-    return this._timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
+    return (this._timer = Cc["@mozilla.org/timer;1"].createInstance(
+      Ci.nsITimer
+    ));
   },
 
   _timerCallback() {
@@ -29,10 +31,12 @@ var appIdleManager = {
   },
 
   onBlur() {
-    appIdleManager._timer.initWithCallback(appIdleManager._timerCallback,
-                                 appIdleManager._timerInterval,
-                                 Ci.nsITimer.TYPE_ONE_SHOT);
-   },
+    appIdleManager._timer.initWithCallback(
+      appIdleManager._timerCallback,
+      appIdleManager._timerInterval,
+      Ci.nsITimer.TYPE_ONE_SHOT
+    );
+  },
 
   onFocus() {
     appIdleManager._timer.cancel();
@@ -42,4 +46,3 @@ var appIdleManager = {
     }
   },
 };
-

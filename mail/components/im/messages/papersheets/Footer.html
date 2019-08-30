@@ -21,9 +21,9 @@ function setColors(target) {
     if (parsed) {
       var senderHue = parsed[1];
       if (target.classList.contains("context"))
-        target.setAttribute("style", bg_context_gradient.replace(/#/g, senderHue));
+        {target.setAttribute("style", bg_context_gradient.replace(/#/g, senderHue));}
       else
-        target.setAttribute("style", bg_gradient.replace(/#/g, senderHue));
+        {target.setAttribute("style", bg_gradient.replace(/#/g, senderHue));}
     }
   }
 
@@ -66,9 +66,9 @@ function checkNewText(target) {
 
 new MutationObserver(function(aMutations) {
   for (let mutation of aMutations)
-    for (let node of mutation.addedNodes)
-      if (node instanceof HTMLElement)
-        checkNewText(node);
+    {for (let node of mutation.addedNodes)
+      {if (node instanceof HTMLElement)
+        {checkNewText(node);}}}
 }).observe(document.getElementById("ibcontent"),
            {childList: true, subtree: true});
 </script>

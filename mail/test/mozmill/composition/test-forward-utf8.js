@@ -14,11 +14,19 @@
 
 var MODULE_NAME = "test-forward-utf8";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "compose-helpers",
+  "window-helpers",
+];
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
 var folderToSendFrom;
@@ -57,8 +65,9 @@ function check_content(window) {
 }
 
 function forwardDirect(aFilePath) {
-  let file = os.getFileForPath(os.abspath(aFilePath,
-                               os.getFileForPath(__file__)));
+  let file = os.getFileForPath(
+    os.abspath(aFilePath, os.getFileForPath(__file__))
+  );
   let msgc = open_message_from_file(file);
 
   let cwc = open_compose_with_forward(msgc);
@@ -72,17 +81,18 @@ function forwardDirect(aFilePath) {
 function forwardViaFolder(aFilePath) {
   be_in_folder(folderToSendFrom);
 
-  let file = os.getFileForPath(os.abspath(aFilePath,
-                               os.getFileForPath(__file__)));
+  let file = os.getFileForPath(
+    os.abspath(aFilePath, os.getFileForPath(__file__))
+  );
   let msgc = open_message_from_file(file);
 
   // Copy the message to a folder.
   let documentChild = msgc.e("messagepane").contentDocument.firstChild;
   msgc.rightClick(new elib.Elem(documentChild));
   msgc.click_menus_in_sequence(msgc.e("mailContext"), [
-    {id: "mailContext-copyMenu"},
-    {label: "Local Folders"},
-    {label: "FolderWithUTF8"},
+    { id: "mailContext-copyMenu" },
+    { label: "Local Folders" },
+    { label: "FolderWithUTF8" },
   ]);
   close_window(msgc);
 
@@ -106,15 +116,15 @@ function test_utf8_forwarding_from_opened_file() {
 
 function test_utf8_forwarding_from_via_folder() {
   forwardViaFolder("./content-utf8-rel-only.eml");
-  forwardViaFolder("./content-utf8-rel-alt.eml");   // Also tests HTML part without <html> tag.
-  forwardViaFolder("./content-utf8-alt-rel.eml");   // Also tests <html attr>.
-  forwardViaFolder("./content-utf8-alt-rel2.eml");  // Also tests content before <html>.
+  forwardViaFolder("./content-utf8-rel-alt.eml"); // Also tests HTML part without <html> tag.
+  forwardViaFolder("./content-utf8-alt-rel.eml"); // Also tests <html attr>.
+  forwardViaFolder("./content-utf8-alt-rel2.eml"); // Also tests content before <html>.
 
   // Repeat the last three in simple HTML view.
   Services.prefs.setIntPref("mailnews.display.html_as", 3);
-  forwardViaFolder("./content-utf8-rel-alt.eml");   // Also tests HTML part without <html> tag.
-  forwardViaFolder("./content-utf8-alt-rel.eml");   // Also tests <html attr>.
-  forwardViaFolder("./content-utf8-alt-rel2.eml");  // Also tests content before <html>.
+  forwardViaFolder("./content-utf8-rel-alt.eml"); // Also tests HTML part without <html> tag.
+  forwardViaFolder("./content-utf8-alt-rel.eml"); // Also tests <html attr>.
+  forwardViaFolder("./content-utf8-alt-rel2.eml"); // Also tests content before <html>.
 }
 
 function teardownModule() {

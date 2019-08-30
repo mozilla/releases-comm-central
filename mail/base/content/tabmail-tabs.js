@@ -1,6 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
-  * License, v. 2.0. If a copy of the MPL was not distributed with this
-  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 "use strict";
 
@@ -8,7 +8,9 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+  const { Services } = ChromeUtils.import(
+    "resource://gre/modules/Services.jsm"
+  );
 
   /**
    * The MozTabs widget holds all the tabs for the main tab UI.
@@ -18,16 +20,18 @@
     constructor() {
       super();
 
-      this.addEventListener("dragstart", (event) => {
+      this.addEventListener("dragstart", event => {
         let draggedTab = this._getDragTargetTab(event);
 
-        if (!draggedTab)
+        if (!draggedTab) {
           return;
+        }
 
         let tab = this.tabmail.selectedTab;
 
-        if (!tab || !tab.canClose)
+        if (!tab || !tab.canClose) {
           return;
+        }
 
         let dt = event.dataTransfer;
 
@@ -43,8 +47,9 @@
         // If a tab does not support session restore it returns null. We can't
         // moved such tabs to a new window. However moving them within the same
         // window works perfectly fine.
-        if (uri)
+        if (uri) {
           uri = JSON.stringify(uri);
+        }
 
         dt.mozSetDataAt("application/x-moz-tabmail-json", uri, 0);
 
@@ -53,24 +58,28 @@
         // Create Drag Image.
         let panel = document.getElementById("tabpanelcontainer");
 
-        let thumbnail = document.createElementNS("http://www.w3.org/1999/xhtml",
-                                                 "canvas");
+        let thumbnail = document.createElementNS(
+          "http://www.w3.org/1999/xhtml",
+          "canvas"
+        );
         thumbnail.width = Math.ceil(screen.availWidth / 5.75);
         thumbnail.height = Math.round(thumbnail.width * 0.5625);
 
-        let snippetWidth = panel.getBoundingClientRect().width * .6;
+        let snippetWidth = panel.getBoundingClientRect().width * 0.6;
         let scale = thumbnail.width / snippetWidth;
 
         let ctx = thumbnail.getContext("2d");
 
         ctx.scale(scale, scale);
 
-        ctx.drawWindow(window,
+        ctx.drawWindow(
+          window,
           panel.screenX - window.mozInnerScreenX,
           panel.screenY - window.mozInnerScreenY,
           snippetWidth,
           snippetWidth * 0.5625,
-          "rgb(255,255,255)");
+          "rgb(255,255,255)"
+        );
 
         dt = event.dataTransfer;
         dt.setDragImage(thumbnail, 0, 0);
@@ -78,22 +87,39 @@
         event.stopPropagation();
       });
 
-      this.addEventListener("dragover", (event) => {
+      this.addEventListener("dragover", event => {
         let dt = event.dataTransfer;
 
-        if (dt.mozItemCount == 0)
+        if (dt.mozItemCount == 0) {
           return;
+        }
 
-        if (dt.mozGetDataAt("text/toolbarwrapper-id/messengerWindow", 0) !=
-            null) {
+        if (
+          dt.mozGetDataAt("text/toolbarwrapper-id/messengerWindow", 0) != null
+        ) {
           event.preventDefault();
           event.stopPropagation();
 
           // Dispatch event to the toolbar
           let evt = document.createEvent("DragEvent");
-          evt.initDragEvent("dragover", true, true, window, 0, 0, 0, 0, 0,
-            false, false, false, false, 0, null,
-            event.dataTransfer);
+          evt.initDragEvent(
+            "dragover",
+            true,
+            true,
+            window,
+            0,
+            0,
+            0,
+            0,
+            0,
+            false,
+            false,
+            false,
+            false,
+            0,
+            null,
+            event.dataTransfer
+          );
 
           if (this.mToolbar.firstChild) {
             this.mToolbar.firstChild.dispatchEvent(evt);
@@ -107,12 +133,15 @@
         // Bug 516247:
         // in case the user is dragging something else than a tab, and
         // keeps hovering over a tab, we assume he wants to switch to this tab.
-        if ((dt.mozTypesAt(0)[0] != "application/x-moz-tabmail-tab") &&
-            (dt.mozTypesAt(0)[1] != "application/x-moz-tabmail-json")) {
+        if (
+          dt.mozTypesAt(0)[0] != "application/x-moz-tabmail-tab" &&
+          dt.mozTypesAt(0)[1] != "application/x-moz-tabmail-json"
+        ) {
           let tab = this._getDragTargetTab(event);
 
-          if (!tab)
+          if (!tab) {
             return;
+          }
 
           event.preventDefault();
           event.stopPropagation();
@@ -122,11 +151,13 @@
             return;
           }
 
-          if (Date.now() <= this._dragTime + this._dragOverDelay)
+          if (Date.now() <= this._dragTime + this._dragOverDelay) {
             return;
+          }
 
-          if (this.tabmail.tabContainer.selectedItem == tab)
+          if (this.tabmail.tabContainer.selectedItem == tab) {
             return;
+          }
 
           this.tabmail.tabContainer.selectedItem = tab;
 
@@ -139,11 +170,13 @@
         if (!dt.mozGetDataAt("application/x-moz-tabmail-json", 0)) {
           let draggedTab = dt.mozGetDataAt("application/x-moz-tabmail-tab", 0);
 
-          if (!draggedTab)
+          if (!draggedTab) {
             return;
+          }
 
-          if (this.tabmail.tabContainer.getIndexOfItem(draggedTab) == -1)
+          if (this.tabmail.tabContainer.getIndexOfItem(draggedTab) == -1) {
             return;
+          }
         }
 
         dt.effectAllowed = "copyMove";
@@ -151,7 +184,7 @@
         event.preventDefault();
         event.stopPropagation();
 
-        let ltr = (window.getComputedStyle(this).direction == "ltr");
+        let ltr = window.getComputedStyle(this).direction == "ltr";
         let ind = this._tabDropIndicator;
 
         // Let's scroll
@@ -160,14 +193,17 @@
 
           let pixelsToScroll = 0;
 
-          if (target == "scrollbutton-up")
+          if (target == "scrollbutton-up") {
             pixelsToScroll = this.arrowScrollbox.scrollIncrement;
+          }
 
-          if (target == "scrollbutton-down")
+          if (target == "scrollbutton-down") {
             pixelsToScroll = this.arrowScrollbox.scrollIncrement * -1;
+          }
 
-          if (ltr)
+          if (ltr) {
             pixelsToScroll = pixelsToScroll * -1;
+          }
 
           if (pixelsToScroll) {
             // Hide Indicator while Scrolling
@@ -182,17 +218,24 @@
         // Fix the DropIndex in case it points to tab that can't be closed.
         let tabInfo = this.tabmail.tabInfo;
 
-        while ((newIndex < tabInfo.length) && !(tabInfo[newIndex].canClose)) {
+        while (newIndex < tabInfo.length && !tabInfo[newIndex].canClose) {
           newIndex++;
         }
 
         let scrollRect = this.arrowScrollbox.scrollClientRect;
         let rect = this.getBoundingClientRect();
         let minMargin = scrollRect.left - rect.left;
-        let maxMargin = Math.min(minMargin + scrollRect.width, scrollRect.right);
+        let maxMargin = Math.min(
+          minMargin + scrollRect.width,
+          scrollRect.right
+        );
 
-        if (!ltr)
-          [minMargin, maxMargin] = [this.clientWidth - maxMargin, this.clientWidth - minMargin];
+        if (!ltr) {
+          [minMargin, maxMargin] = [
+            this.clientWidth - maxMargin,
+            this.clientWidth - minMargin,
+          ];
+        }
 
         let newMargin;
         let tabs = this.allTabs;
@@ -200,47 +243,69 @@
         if (newIndex == tabs.length) {
           let tabRect = tabs[newIndex - 1].getBoundingClientRect();
 
-          if (ltr)
+          if (ltr) {
             newMargin = tabRect.right - rect.left;
-          else
+          } else {
             newMargin = rect.right - tabRect.left;
+          }
         } else {
           let tabRect = tabs[newIndex].getBoundingClientRect();
 
-          if (ltr)
+          if (ltr) {
             newMargin = tabRect.left - rect.left;
-          else
+          } else {
             newMargin = rect.right - tabRect.right;
+          }
         }
 
         ind.setAttribute("hidden", "false");
 
         newMargin += ind.clientWidth / 2;
-        if (!ltr)
+        if (!ltr) {
           newMargin *= -1;
+        }
 
         ind.style.transform = "translate(" + Math.round(newMargin) + "px)";
-        ind.style.marginInlineStart = (-ind.clientWidth) + "px";
+        ind.style.marginInlineStart = -ind.clientWidth + "px";
       });
 
-      this.addEventListener("drop", (event) => {
+      this.addEventListener("drop", event => {
         let dt = event.dataTransfer;
 
-        if (dt.mozItemCount != 1)
+        if (dt.mozItemCount != 1) {
           return;
+        }
 
         // If we're dragging a toolbar button, let's prepend the tabs toolbar
         // with that button, and then bail out.
-        let buttonId = dt.mozGetDataAt("text/toolbarwrapper-id/messengerWindow", 0);
+        let buttonId = dt.mozGetDataAt(
+          "text/toolbarwrapper-id/messengerWindow",
+          0
+        );
 
         if (buttonId != null) {
           event.preventDefault();
           event.stopPropagation();
 
           let evt = document.createEvent("DragEvent");
-          evt.initDragEvent("drop", true, true, window, 0, 0, 0, 0, 0,
-            false, false, false, false, 0, null,
-            event.dataTransfer);
+          evt.initDragEvent(
+            "drop",
+            true,
+            true,
+            window,
+            0,
+            0,
+            0,
+            0,
+            0,
+            false,
+            false,
+            false,
+            false,
+            0,
+            null,
+            event.dataTransfer
+          );
 
           if (this.mToolbar.firstChild) {
             this.mToolbar.firstChild.dispatchEvent(evt);
@@ -253,8 +318,9 @@
 
         let draggedTab = dt.mozGetDataAt("application/x-moz-tabmail-tab", 0);
 
-        if (!draggedTab)
+        if (!draggedTab) {
           return;
+        }
 
         event.stopPropagation();
         this._tabDropIndicator.setAttribute("hidden", "true");
@@ -265,12 +331,17 @@
           // restore to get our tab
 
           let tabmail2 = draggedTab.ownerDocument.getElementById("tabmail");
-          if (!tabmail2)
+          if (!tabmail2) {
             return;
+          }
 
-          let draggedJson = dt.mozGetDataAt("application/x-moz-tabmail-json", 0);
-          if (!draggedJson)
+          let draggedJson = dt.mozGetDataAt(
+            "application/x-moz-tabmail-json",
+            0
+          );
+          if (!draggedJson) {
             return;
+          }
 
           draggedJson = JSON.parse(draggedJson);
 
@@ -279,18 +350,20 @@
 
           tabmail2.closeTab(draggedTab, true);
 
-          if (!this.tabmail.restoreTab(draggedJson))
+          if (!this.tabmail.restoreTab(draggedJson)) {
             return;
+          }
 
           draggedTab = this.tabmail.tabContainer.allTabs[
-            this.tabmail.tabContainer.allTabs.length - 1];
+            this.tabmail.tabContainer.allTabs.length - 1
+          ];
         }
 
         let idx = this._getDropIndex(event);
 
         // Fix the DropIndex in case it points to tab that can't be closed
         let tabInfo = this.tabmail.tabInfo;
-        while ((idx < tabInfo.length) && !(tabInfo[idx].canClose)) {
+        while (idx < tabInfo.length && !tabInfo[idx].canClose) {
           idx++;
         }
 
@@ -300,52 +373,56 @@
         this.tabmail.updateCurrentTab();
       });
 
-      this.addEventListener("dragend", (event) => {
+      this.addEventListener("dragend", event => {
         // Note: while this case is correctly handled here, this event
         // isn't dispatched when the tab is moved within the tabstrip,
         // see bug 460801.
 
         // The user pressed ESC to cancel the drag, or the drag succeeded.
         let dt = event.dataTransfer;
-        if ((dt.mozUserCancelled) || (dt.dropEffect != "none"))
+        if (dt.mozUserCancelled || dt.dropEffect != "none") {
           return;
+        }
 
         // Disable detach within the browser toolbox.
         let eX = event.screenX;
         let wX = window.screenX;
 
         // Check if the drop point is horizontally within the window.
-        if (eX > wX && eX < (wX + window.outerWidth)) {
+        if (eX > wX && eX < wX + window.outerWidth) {
           let bo = this.arrowScrollbox;
           // Also avoid detaching if the the tab was dropped too close to
           // the tabbar (half a tab).
           let endScreenY = bo.screenY + 1.5 * bo.getBoundingClientRect().height;
           let eY = event.screenY;
 
-          if (eY < endScreenY && eY > window.screenY)
+          if (eY < endScreenY && eY > window.screenY) {
             return;
+          }
         }
 
         // User wants to deatach tab from window...
-        if (dt.mozItemCount != 1)
+        if (dt.mozItemCount != 1) {
           return;
+        }
 
         let draggedTab = dt.mozGetDataAt("application/x-moz-tabmail-tab", 0);
 
-        if (!draggedTab)
+        if (!draggedTab) {
           return;
+        }
 
         this.tabmail.replaceTabWithWindow(draggedTab);
       });
 
-      this.addEventListener("dragexit", (event) => {
+      this.addEventListener("dragexit", event => {
         this._dragTime = 0;
 
         this._tabDropIndicator.setAttribute("hidden", "true");
         event.stopPropagation();
       });
 
-      this.addEventListener("click", (event) => {
+      this.addEventListener("click", event => {
         if (event.button != 0) {
           return;
         }
@@ -366,8 +443,9 @@
           // double click on the tabbar. (bug 378344)
           // In both cases, it is most likely that the close button area has
           // been accidentally clicked, therefore we do not close the tab.
-          if (event.detail > 1)
+          if (event.detail > 1) {
             return;
+          }
 
           tabbedBrowser.removeTabByNode(this);
           tabbedBrowser._blockDblClick = true;
@@ -383,8 +461,9 @@
           let clickedOnce = false;
           let enableDblClick = function enableDblClick(event) {
             let target = event.originalTarget;
-            if (target.className == "tab-close-button")
+            if (target.className == "tab-close-button") {
               target._ignoredClick = true;
+            }
             if (!clickedOnce) {
               clickedOnce = true;
               return;
@@ -393,19 +472,24 @@
             tabContainer.removeEventListener("click", enableDblClick, true);
           };
           tabContainer.addEventListener("click", enableDblClick, true);
-        } else { // "tabs"
+        } else {
+          // "tabs"
           tabbedBrowser.removeCurrentTab();
         }
       });
 
-      this.addEventListener("dblclick", (event) => {
-        if (event.button != 0) {
-          return;
-        }
+      this.addEventListener(
+        "dblclick",
+        event => {
+          if (event.button != 0) {
+            return;
+          }
 
-        // for the one-close-button case
-        event.stopPropagation();
-      }, true);
+          // for the one-close-button case
+          event.stopPropagation();
+        },
+        true
+      );
     }
 
     connectedCallback() {
@@ -420,11 +504,15 @@
 
       this.arrowScrollbox = this.querySelector("arrowscrollbox");
 
-      this.arrowScrollboxClosebutton = this.querySelector(".tabs-closebutton-box");
+      this.arrowScrollboxClosebutton = this.querySelector(
+        ".tabs-closebutton-box"
+      );
 
       this.mToolbar = document.getElementById(this.getAttribute("tabtoolbar"));
 
-      this.mCollapseToolbar = document.getElementById(this.getAttribute("collapsetoolbar"));
+      this.mCollapseToolbar = document.getElementById(
+        this.getAttribute("collapsetoolbar")
+      );
 
       // @implements {nsIObserver}
       this._prefObserver = (subject, topic, data) => {
@@ -458,7 +546,9 @@
 
       this._mAutoHide = false;
 
-      this.mAllTabsButton = document.getElementById(this.getAttribute("alltabsbutton"));
+      this.mAllTabsButton = document.getElementById(
+        this.getAttribute("alltabsbutton")
+      );
       this.mAllTabsPopup = this.mAllTabsButton.menu;
 
       // this.mAllTabsBoxAnimate = document.getAnonymousElementByAttribute(this,
@@ -474,12 +564,67 @@
 
       this._animateDelay = 25;
 
-      this._animatePercents = [1.00, 0.85, 0.80, 0.75, 0.71, 0.68, 0.65, 0.62, 0.59, 0.57,
-        0.54, 0.52, 0.50, 0.47, 0.45, 0.44, 0.42, 0.40, 0.38, 0.37,
-        0.35, 0.34, 0.32, 0.31, 0.30, 0.29, 0.28, 0.27, 0.26, 0.25,
-        0.24, 0.23, 0.23, 0.22, 0.22, 0.21, 0.21, 0.21, 0.20, 0.20,
-        0.20, 0.20, 0.20, 0.20, 0.20, 0.20, 0.19, 0.19, 0.19, 0.18,
-        0.18, 0.17, 0.17, 0.16, 0.15, 0.14, 0.13, 0.11, 0.09, 0.06,
+      this._animatePercents = [
+        1.0,
+        0.85,
+        0.8,
+        0.75,
+        0.71,
+        0.68,
+        0.65,
+        0.62,
+        0.59,
+        0.57,
+        0.54,
+        0.52,
+        0.5,
+        0.47,
+        0.45,
+        0.44,
+        0.42,
+        0.4,
+        0.38,
+        0.37,
+        0.35,
+        0.34,
+        0.32,
+        0.31,
+        0.3,
+        0.29,
+        0.28,
+        0.27,
+        0.26,
+        0.25,
+        0.24,
+        0.23,
+        0.23,
+        0.22,
+        0.22,
+        0.21,
+        0.21,
+        0.21,
+        0.2,
+        0.2,
+        0.2,
+        0.2,
+        0.2,
+        0.2,
+        0.2,
+        0.2,
+        0.19,
+        0.19,
+        0.19,
+        0.18,
+        0.18,
+        0.17,
+        0.17,
+        0.16,
+        0.15,
+        0.14,
+        0.13,
+        0.11,
+        0.09,
+        0.06,
       ];
 
       this.mTabMinWidth = Services.prefs.getIntPref("mail.tabs.tabMinWidth");
@@ -488,8 +633,9 @@
       this.mCloseButtons = Services.prefs.getIntPref("mail.tabs.closeButtons");
       this.mAutoHide = Services.prefs.getBoolPref("mail.tabs.autoHide");
 
-      if (this.mAutoHide)
+      if (this.mAutoHide) {
         this.mCollapseToolbar.collapsed = true;
+      }
 
       this.arrowScrollbox.firstChild.minWidth = this.mTabMinWidth;
       this.arrowScrollbox.firstChild.maxWidth = this.mTabMaxWidth;
@@ -507,17 +653,22 @@
       this.arrowScrollbox.addEventListener("overflow", this);
       this.arrowScrollbox.addEventListener("underflow", this);
 
-      this.addEventListener("select", (event) => {
+      this.addEventListener("select", event => {
         this._handleTabSelect();
 
-        if (!("updateCurrentTab" in this.tabmail) ||
-          event.target.localName != "tabs")
+        if (
+          !("updateCurrentTab" in this.tabmail) ||
+          event.target.localName != "tabs"
+        ) {
           return;
+        }
 
         this.tabmail.updateCurrentTab();
       });
 
-      this.addEventListener("TabSelect", (event) => { this._handleTabSelect(); });
+      this.addEventListener("TabSelect", event => {
+        this._handleTabSelect();
+      });
     }
 
     get tabbox() {
@@ -552,8 +703,9 @@
 
     set mAutoHide(val) {
       if (val != this._mAutoHide) {
-        if (this.allTabs.length == 1)
+        if (this.allTabs.length == 1) {
           this.mCollapseToolbar.collapsed = val;
+        }
         this._mAutoHide = val;
       }
       return val;
@@ -567,7 +719,9 @@
       let tab = this.getItemAtIndex(val);
       let alreadySelected = tab && tab.selected;
 
-      this.__proto__.__proto__.__lookupSetter__("selectedIndex").call(this, val);
+      this.__proto__.__proto__
+        .__lookupSetter__("selectedIndex")
+        .call(this, val);
 
       if (!alreadySelected) {
         // Fire an onselect event for the tabs element.
@@ -580,7 +734,9 @@
     }
 
     get selectedIndex() {
-      return this.__proto__.__proto__.__lookupGetter__("selectedIndex").call(this);
+      return this.__proto__.__proto__
+        .__lookupGetter__("selectedIndex")
+        .call(this);
     }
 
     _updateCloseButtons() {
@@ -594,13 +750,15 @@
           this.setAttribute("closebuttons", "activetab");
           break;
         case 1:
-          let width = this.arrowScrollbox.firstChild.getBoundingClientRect().width;
+          let width = this.arrowScrollbox.firstChild.getBoundingClientRect()
+            .width;
           // 0 width is an invalid value and indicates
           // an item without display, so ignore.
-          if (width > this.mTabClipWidth || width == 0)
+          if (width > this.mTabClipWidth || width == 0) {
             this.setAttribute("closebuttons", "alltabs");
-          else
+          } else {
             this.setAttribute("closebuttons", "activetab");
+          }
           break;
         case 2:
         case 3:
@@ -622,24 +780,28 @@
           this.arrowScrollbox.ensureElementIsVisible(this.selectedItem);
 
           // filter overflow events which were dispatched on nested scrollboxes
-          if (aEvent.target != this.arrowScrollbox)
+          if (aEvent.target != this.arrowScrollbox) {
             return;
+          }
 
           // Ignore vertical events.
-          if (aEvent.detail == 0)
+          if (aEvent.detail == 0) {
             return;
+          }
 
           this.arrowScrollbox.removeAttribute("notoverflowing");
           alltabsButton.removeAttribute("hidden");
           break;
         case "underflow":
           // filter underflow events which were dispatched on nested scrollboxes
-          if (aEvent.target != this.arrowScrollbox)
+          if (aEvent.target != this.arrowScrollbox) {
             return;
+          }
 
           // Ignore vertical events.
-          if (aEvent.detail == 0)
+          if (aEvent.detail == 0) {
             return;
+          }
 
           this.arrowScrollbox.setAttribute("notoverflowing", "true");
           alltabsButton.setAttribute("hidden", "true");
@@ -659,8 +821,9 @@
 
     _stopAnimation() {
       if (this._animateStep != -1) {
-        if (this._animateTimer)
+        if (this._animateTimer) {
           this._animateTimer.cancel();
+        }
 
         this._animateStep = -1;
         this.mAllTabsBoxAnimate.style.opacity = 0.0;
@@ -681,31 +844,36 @@
       if (tsboStart > ctboStart || ctboEnd > tsboEnd) {
         this._animateStep = 0;
 
-        if (!this._animateTimer)
-          this._animateTimer =
-          Cc["@mozilla.org/timer;1"]
-          .createInstance(Ci.nsITimer);
-        else
+        if (!this._animateTimer) {
+          this._animateTimer = Cc["@mozilla.org/timer;1"].createInstance(
+            Ci.nsITimer
+          );
+        } else {
           this._animateTimer.cancel();
+        }
 
-        this._animateTimer.initWithCallback(this,
+        this._animateTimer.initWithCallback(
+          this,
           this._animateDelay,
-          Ci.nsITimer.TYPE_REPEATING_SLACK);
+          Ci.nsITimer.TYPE_REPEATING_SLACK
+        );
       }
     }
 
     notify(aTimer) {
-      if (!document)
+      if (!document) {
         aTimer.cancel();
+      }
 
       let percent = this._animatePercents[this._animateStep];
       this.mAllTabsBoxAnimate.style.opacity = percent;
       this.mDownBoxAnimate.style.opacity = percent;
 
-      if (this._animateStep < (this._animatePercents.length - 1))
+      if (this._animateStep < this._animatePercents.length - 1) {
         this._animateStep++;
-      else
+      } else {
         this._stopAnimation();
+      }
     }
 
     _getDragTargetTab(event) {
@@ -714,18 +882,22 @@
         tab = tab.parentNode;
       }
 
-      if (!tab)
+      if (!tab) {
         return null;
+      }
 
-      if ((event.type != "drop") && (event.type != "dragover"))
+      if (event.type != "drop" && event.type != "dragover") {
         return tab;
+      }
 
       let tabRect = tab.getBoundingClientRect();
-      if (event.screenX < tab.screenX + tabRect.width * .25)
+      if (event.screenX < tab.screenX + tabRect.width * 0.25) {
         return null;
+      }
 
-      if (event.screenX > tab.screenX + tabRect.width * .75)
+      if (event.screenX > tab.screenX + tabRect.width * 0.75) {
         return null;
+      }
 
       return tab;
     }
@@ -734,13 +906,23 @@
       let tabs = this.allTabs;
 
       if (window.getComputedStyle(this).direction == "ltr") {
-        for (let i = 0; i < tabs.length; i++)
-          if (event.screenX < (tabs[i].screenX + (tabs[i].getBoundingClientRect().width / 2)))
+        for (let i = 0; i < tabs.length; i++) {
+          if (
+            event.screenX <
+            tabs[i].screenX + tabs[i].getBoundingClientRect().width / 2
+          ) {
             return i;
+          }
+        }
       } else {
-        for (let i = 0; i < tabs.length; i++)
-          if (event.screenX > (tabs[i].screenX + (tabs[i].getBoundingClientRect().width / 2)))
+        for (let i = 0; i < tabs.length; i++) {
+          if (
+            event.screenX >
+            tabs[i].screenX + tabs[i].getBoundingClientRect().width / 2
+          ) {
             return i;
+          }
+        }
       }
 
       return tabs.length;

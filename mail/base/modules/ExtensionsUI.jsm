@@ -7,11 +7,16 @@ this.EXPORTED_SYMBOLS = ["ExtensionsUI"];
 
 const ADDONS_PROPERTIES = "chrome://messenger/locale/addons.properties";
 const BRAND_PROPERTIES = "chrome://branding/locale/brand.properties";
-const DEFAULT_EXTENSION_ICON = "chrome://mozapps/skin/extensions/extensionGeneric.svg";
+const DEFAULT_EXTENSION_ICON =
+  "chrome://mozapps/skin/extensions/extensionGeneric.svg";
 const HTML_NS = "http://www.w3.org/1999/xhtml";
 
-const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-const {BrowserUtils} = ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+const { BrowserUtils } = ChromeUtils.import(
+  "resource://gre/modules/BrowserUtils.jsm"
+);
 XPCOMUtils.defineLazyModuleGetters(this, {
   AddonManager: "resource://gre/modules/AddonManager.jsm",
   AddonManagerPrivate: "resource://gre/modules/AddonManager.jsm",
@@ -37,12 +42,28 @@ function getNotification(id, browser) {
   return getTopWindow().PopupNotifications.getNotification(id, browser);
 }
 
-function showNotification(browser, id, message, anchorID, mainAction, secondaryActions, options) {
+function showNotification(
+  browser,
+  id,
+  message,
+  anchorID,
+  mainAction,
+  secondaryActions,
+  options
+) {
   let notifications = getTopWindow().PopupNotifications;
   if (options.popupIconURL == "chrome://browser/content/extension.svg") {
     options.popupIconURL = DEFAULT_EXTENSION_ICON;
   }
-  return notifications.show(browser, id, message, anchorID, mainAction, secondaryActions, options);
+  return notifications.show(
+    browser,
+    id,
+    message,
+    anchorID,
+    mainAction,
+    secondaryActions,
+    options
+  );
 }
 
 // Removes a doorhanger notification if all of the installs it was notifying
@@ -99,7 +120,9 @@ var gXPInstallObserver = {
 
     // If all installs have already been cancelled in some way then just show
     // the next confirmation.
-    if (installInfo.installs.every(i => i.state != AddonManager.STATE_DOWNLOADED)) {
+    if (
+      installInfo.installs.every(i => i.state != AddonManager.STATE_DOWNLOADED)
+    ) {
       showNextConfirmation();
       return;
     }
@@ -141,7 +164,9 @@ var gXPInstallObserver = {
           cancelInstallation();
           break;
         case "shown":
-          let addonList = document.getElementById("addon-install-confirmation-content");
+          let addonList = document.getElementById(
+            "addon-install-confirmation-content"
+          );
           while (addonList.firstChild) {
             addonList.firstChild.remove();
           }
@@ -160,10 +185,14 @@ var gXPInstallObserver = {
       }
     };
 
-    options.learnMoreURL = Services.urlFormatter.formatURLPref("app.support.baseURL");
+    options.learnMoreURL = Services.urlFormatter.formatURLPref(
+      "app.support.baseURL"
+    );
 
     let messageString;
-    let notification = document.getElementById("addon-install-confirmation-notification");
+    let notification = document.getElementById(
+      "addon-install-confirmation-notification"
+    );
     messageString = addonsBundle.getString("addonConfirmInstall.message");
     notification.removeAttribute("warning");
     options.learnMoreURL += "find-and-install-add-ons";
@@ -190,8 +219,15 @@ var gXPInstallObserver = {
       notification.style.minHeight = height + "px";
     }
 
-    let popup = showNotification(browser, "addon-install-confirmation", messageString, anchorID,
-                                 action, [secondaryAction], options);
+    let popup = showNotification(
+      browser,
+      "addon-install-confirmation",
+      messageString,
+      anchorID,
+      action,
+      [secondaryAction],
+      options
+    );
     removeNotificationOnEnd(popup, installInfo.installs);
   },
 
@@ -215,7 +251,7 @@ var gXPInstallObserver = {
 
           let listIntroEl = doc.getElementById("addon-webext-perm-intro");
           listIntroEl.textContent = strings.listIntro;
-          listIntroEl.hidden = (strings.msgs.length == 0);
+          listIntroEl.hidden = strings.msgs.length == 0;
 
           let list = doc.getElementById("addon-webext-perm-list");
           while (list.firstChild) {
@@ -264,8 +300,15 @@ var gXPInstallObserver = {
         },
       ];
 
-      showNotification(browser, "addon-webext-permissions", strings.header,
-                       "addons-notification-icon", action, secondaryActions, popupOptions);
+      showNotification(
+        browser,
+        "addon-webext-permissions",
+        strings.header,
+        "addons-notification-icon",
+        action,
+        secondaryActions,
+        popupOptions
+      );
     });
 
     this.pendingNotifications.set(window, promise);
@@ -280,8 +323,10 @@ var gXPInstallObserver = {
     let brandBundle = document.getElementById("bundle_brand");
     let appName = brandBundle.getString("brandShortName");
 
-    let message = addonsBundle.getFormattedString("addonPostInstall.message1",
-                                                  ["<>", appName]);
+    let message = addonsBundle.getFormattedString("addonPostInstall.message1", [
+      "<>",
+      appName,
+    ]);
 
     let restartRequired = await this._installRequiresRestart(addon);
     let icon = DEFAULT_EXTENSION_ICON;
@@ -319,13 +364,18 @@ var gXPInstallObserver = {
           BrowserUtils.restartApplication();
         },
       };
-      secondaryActions = [{
-        label: addonsBundle.getString("addonPostInstall.noRestart.label"),
-        accessKey: addonsBundle.getString("addonPostInstall.noRestart.accesskey"),
-        callback: () => {},
-      }];
+      secondaryActions = [
+        {
+          label: addonsBundle.getString("addonPostInstall.noRestart.label"),
+          accessKey: addonsBundle.getString(
+            "addonPostInstall.noRestart.accesskey"
+          ),
+          callback: () => {},
+        },
+      ];
       textEl.textContent = addonsBundle.getFormattedString(
-        "addonPostInstall.restartRequired.message", [appName]
+        "addonPostInstall.restartRequired.message",
+        [appName]
       );
       textEl.hidden = false;
     } else {
@@ -337,8 +387,15 @@ var gXPInstallObserver = {
       textEl.hidden = true;
     }
 
-    showNotification(browser, "addon-installed", message, "addons-notification-icon",
-                     action, secondaryActions, options);
+    showNotification(
+      browser,
+      "addon-installed",
+      message,
+      "addons-notification-icon",
+      action,
+      secondaryActions,
+      options
+    );
   },
 
   /* eslint-disable complexity */
@@ -366,53 +423,85 @@ var gXPInstallObserver = {
         let secondaryActions = null;
 
         if (Services.prefs.prefIsLocked("xpinstall.enabled")) {
-          messageString = addonsBundle.getString("xpinstallDisabledMessageLocked");
+          messageString = addonsBundle.getString(
+            "xpinstallDisabledMessageLocked"
+          );
         } else {
           messageString = addonsBundle.getString("xpinstallDisabledMessage");
 
           action = {
             label: addonsBundle.getString("xpinstallDisabledButton"),
-            accessKey: addonsBundle.getString("xpinstallDisabledButton.accesskey"),
+            accessKey: addonsBundle.getString(
+              "xpinstallDisabledButton.accesskey"
+            ),
             callback: () => {
               Services.prefs.setBoolPref("xpinstall.enabled", true);
             },
           };
 
-          secondaryActions = [{
-            label: addonsBundle.getString("addonInstall.cancelButton.label"),
-            accessKey: addonsBundle.getString("addonInstall.cancelButton.accesskey"),
-            callback: () => {},
-          }];
+          secondaryActions = [
+            {
+              label: addonsBundle.getString("addonInstall.cancelButton.label"),
+              accessKey: addonsBundle.getString(
+                "addonInstall.cancelButton.accesskey"
+              ),
+              callback: () => {},
+            },
+          ];
         }
 
-        showNotification(browser, notificationID, messageString, anchorID,
-                         action, secondaryActions, options);
+        showNotification(
+          browser,
+          notificationID,
+          messageString,
+          anchorID,
+          action,
+          secondaryActions,
+          options
+        );
         break;
       }
       case "addon-install-origin-blocked": {
-        messageString = addonsBundle.getFormattedString("xpinstallPromptMessage", [brandShortName]);
+        messageString = addonsBundle.getFormattedString(
+          "xpinstallPromptMessage",
+          [brandShortName]
+        );
 
         options.removeOnDismissal = true;
         options.persistent = false;
 
-        let popup = showNotification(browser, notificationID, messageString, anchorID,
-                                     null, null, options);
+        let popup = showNotification(
+          browser,
+          notificationID,
+          messageString,
+          anchorID,
+          null,
+          null,
+          options
+        );
         removeNotificationOnEnd(popup, installInfo.installs);
         break;
       }
       case "addon-install-blocked": {
-        messageString = addonsBundle.getFormattedString("xpinstallPromptMessage", [brandShortName]);
+        messageString = addonsBundle.getFormattedString(
+          "xpinstallPromptMessage",
+          [brandShortName]
+        );
 
         action = {
           label: addonsBundle.getString("xpinstallPromptAllowButton"),
-          accessKey: addonsBundle.getString("xpinstallPromptAllowButton.accesskey"),
+          accessKey: addonsBundle.getString(
+            "xpinstallPromptAllowButton.accesskey"
+          ),
           callback() {
             installInfo.install();
           },
         };
         let secondaryAction = {
           label: addonsBundle.getString("xpinstallPromptMessage.dontAllow"),
-          accessKey: addonsBundle.getString("xpinstallPromptMessage.dontAllow.accesskey"),
+          accessKey: addonsBundle.getString(
+            "xpinstallPromptMessage.dontAllow.accesskey"
+          ),
           callback: () => {
             for (let install of installInfo.installs) {
               if (install.state != AddonManager.STATE_CANCELLED) {
@@ -422,8 +511,15 @@ var gXPInstallObserver = {
           },
         };
 
-        let popup = showNotification(browser, notificationID, messageString, anchorID,
-                                     action, [secondaryAction], options);
+        let popup = showNotification(
+          browser,
+          notificationID,
+          messageString,
+          anchorID,
+          action,
+          [secondaryAction],
+          options
+        );
         removeNotificationOnEnd(popup, installInfo.installs);
         break;
       }
@@ -438,16 +534,23 @@ var gXPInstallObserver = {
         }
         notificationID = "addon-progress";
         messageString = addonsBundle.getString("addonDownloadingAndVerifying");
-        messageString = PluralForm.get(installInfo.installs.length, messageString);
-        messageString = messageString.replace("#1", installInfo.installs.length);
+        messageString = PluralForm.get(
+          installInfo.installs.length,
+          messageString
+        );
+        messageString = messageString.replace(
+          "#1",
+          installInfo.installs.length
+        );
         options.installs = installInfo.installs;
         options.contentWindow = browser.contentWindow;
         options.sourceURI = browser.currentURI;
         options.eventCallback = function(event) {
           switch (event) {
             case "shown":
-              let notificationElement = [...this.owner.panel.children]
-                                        .find(n => n.notification == this);
+              let notificationElement = [...this.owner.panel.children].find(
+                n => n.notification == this
+              );
               if (notificationElement) {
                 notificationElement.setAttribute("mainactiondisabled", "true");
               }
@@ -460,12 +563,16 @@ var gXPInstallObserver = {
         };
         action = {
           label: addonsBundle.getString("addonInstall.acceptButton2.label"),
-          accessKey: addonsBundle.getString("addonInstall.acceptButton2.accesskey"),
+          accessKey: addonsBundle.getString(
+            "addonInstall.acceptButton2.accesskey"
+          ),
           callback: () => {},
         };
         let secondaryAction = {
           label: addonsBundle.getString("addonInstall.cancelButton.label"),
-          accessKey: addonsBundle.getString("addonInstall.cancelButton.accesskey"),
+          accessKey: addonsBundle.getString(
+            "addonInstall.cancelButton.accesskey"
+          ),
           callback: () => {
             for (let install of installInfo.installs) {
               if (install.state != AddonManager.STATE_CANCELLED) {
@@ -474,8 +581,15 @@ var gXPInstallObserver = {
             }
           },
         };
-        let notification = showNotification(browser, notificationID, messageString, anchorID,
-                                            action, [secondaryAction], options);
+        let notification = showNotification(
+          browser,
+          notificationID,
+          messageString,
+          anchorID,
+          action,
+          [secondaryAction],
+          options
+        );
         notification._startTime = Date.now();
         break;
       }
@@ -487,17 +601,21 @@ var gXPInstallObserver = {
         for (let install of installInfo.installs) {
           let host;
           try {
-            host  = options.displayURI.host;
+            host = options.displayURI.host;
           } catch (e) {
             // displayURI might be missing or 'host' might throw for non-nsStandardURL nsIURIs.
           }
 
           if (!host) {
-            host = (install.sourceURI instanceof Ci.nsIStandardURL) &&
-                   install.sourceURI.host;
+            host =
+              install.sourceURI instanceof Ci.nsIStandardURL &&
+              install.sourceURI.host;
           }
 
-          let error = (host || install.error == 0) ? "addonInstallError" : "addonLocalInstallError";
+          let error =
+            host || install.error == 0
+              ? "addonInstallError"
+              : "addonLocalInstallError";
           let args;
 
           // Temporarily replace the usual warning message with this more-likely one.
@@ -507,7 +625,9 @@ var gXPInstallObserver = {
           } else if (install.error != 0) {
             error += install.error;
             args = [brandShortName, install.name];
-          } else if (install.addon.blocklistState == Ci.nsIBlocklistService.STATE_BLOCKED) {
+          } else if (
+            install.addon.blocklistState == Ci.nsIBlocklistService.STATE_BLOCKED
+          ) {
             error += "Blocklisted";
             args = [install.name];
           } else {
@@ -517,8 +637,15 @@ var gXPInstallObserver = {
 
           messageString = addonsBundle.getFormattedString(error, args);
 
-          showNotification(browser, notificationID, messageString, anchorID,
-                           action, null, options);
+          showNotification(
+            browser,
+            notificationID,
+            messageString,
+            anchorID,
+            action,
+            null,
+            options
+          );
 
           // Can't have multiple notifications with the same ID, so stop here.
           break;
@@ -530,8 +657,9 @@ var gXPInstallObserver = {
         let showNotification = () => {
           let height;
           if (window.PopupNotifications.isPanelOpen) {
-            let rect = window.document.getElementById("addon-progress-notification")
-                                      .getBoundingClientRect();
+            let rect = window.document
+              .getElementById("addon-progress-notification")
+              .getBoundingClientRect();
             height = rect.height;
           }
 
@@ -542,7 +670,9 @@ var gXPInstallObserver = {
         let progressNotification = getNotification("addon-progress", browser);
         if (progressNotification) {
           let downloadDuration = Date.now() - progressNotification._startTime;
-          let securityDelay = Services.prefs.getIntPref("security.dialog_enable_delay");
+          let securityDelay = Services.prefs.getIntPref(
+            "security.dialog_enable_delay"
+          );
           if (securityDelay > downloadDuration) {
             setTimeout(() => {
               // The download may have been cancelled during the security delay
@@ -583,7 +713,9 @@ var gXPInstallObserver = {
           return;
         }
 
-        let icon = info.unsigned ? "chrome://global/skin/icons/warning.svg" : info.icon;
+        let icon = info.unsigned
+          ? "chrome://global/skin/icons/warning.svg"
+          : info.icon;
 
         this.showPermissionsPrompt(browser, strings, icon).then(answer => {
           if (answer) {
@@ -604,13 +736,15 @@ var gXPInstallObserver = {
           info.resolve();
         }
 
-        this.showPermissionsPrompt(browser, strings, info.addon.iconURL).then(answer => {
-          if (answer) {
-            info.resolve();
-          } else {
-            info.reject();
+        this.showPermissionsPrompt(browser, strings, info.addon.iconURL).then(
+          answer => {
+            if (answer) {
+              info.resolve();
+            } else {
+              info.reject();
+            }
           }
-        });
+        );
         break;
       }
       case "webextension-install-notify": {
@@ -673,7 +807,9 @@ var gXPInstallObserver = {
       case "boolean":
         return data.manifest.legacy;
       case "object":
-        return !(data.manifest.legacy.type && data.manifest.legacy.type == "bootstrap");
+        return !(
+          data.manifest.legacy.type && data.manifest.legacy.type == "bootstrap"
+        );
       default:
         return false;
     }
@@ -694,7 +830,11 @@ var gXPInstallObserver = {
         permissions: addon.userPermissions,
         type: "sideload",
       });
-      let answer = await this.showPermissionsPrompt(browser, strings, addon.iconURL);
+      let answer = await this.showPermissionsPrompt(
+        browser,
+        strings,
+        addon.iconURL
+      );
       if (answer) {
         await addon.enable();
         enabled.push(addon);
@@ -718,7 +858,8 @@ var gXPInstallObserver = {
     let appName = brandBundle.getString("brandShortName");
 
     let message = addonsBundle.getFormattedString(
-      "addonPostInstall.multiple.message", [appName]
+      "addonPostInstall.multiple.message",
+      [appName]
     );
 
     let list = document.getElementById("addon-installed-list");
@@ -728,7 +869,8 @@ var gXPInstallObserver = {
     }
     let textEl = document.getElementById("addon-installed-restart-text");
     textEl.textContent = addonsBundle.getFormattedString(
-      "addonPostInstall.restartRequired.message", [appName]
+      "addonPostInstall.restartRequired.message",
+      [appName]
     );
     textEl.hidden = false;
 
@@ -737,7 +879,8 @@ var gXPInstallObserver = {
       let item = document.createElementNS(HTML_NS, "li");
       item.textContent = addon.name;
       list.appendChild(item);
-      restartRequired = restartRequired || await this._installRequiresRestart(addon);
+      restartRequired =
+        restartRequired || (await this._installRequiresRestart(addon));
     }
 
     let options = {
@@ -760,7 +903,10 @@ Services.obs.addObserver(gXPInstallObserver, "addon-install-complete");
 Services.obs.addObserver(gXPInstallObserver, "webextension-permission-prompt");
 Services.obs.addObserver(gXPInstallObserver, "webextension-update-permissions");
 Services.obs.addObserver(gXPInstallObserver, "webextension-install-notify");
-Services.obs.addObserver(gXPInstallObserver, "webextension-optional-permission-prompt");
+Services.obs.addObserver(
+  gXPInstallObserver,
+  "webextension-optional-permission-prompt"
+);
 
 var ExtensionsUI = {
   checkForSideloadedExtensions() {

@@ -19,7 +19,7 @@ Preferences.addAll([
  * sending of return receipts is enabled.
  */
 function enableDisableAllowedReceipts() {
-  let enable = (document.getElementById("receiptSend").value === "true");
+  let enable = document.getElementById("receiptSend").value === "true";
   enableElement(document.getElementById("notInToCcLabel"), enable);
   enableElement(document.getElementById("notInToCcPref"), enable);
   enableElement(document.getElementById("outsideDomainLabel"), enable);

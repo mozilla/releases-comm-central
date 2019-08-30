@@ -28,10 +28,16 @@ function installInto(module) {
  *
  * @return  True/false depending on the state of the notification.
  */
-function check_notification_displayed(aController, aBoxId, aValue, aNotification) {
+function check_notification_displayed(
+  aController,
+  aBoxId,
+  aValue,
+  aNotification
+) {
   let nb = aController.window.document.getElementById(aBoxId);
-  if (!nb)
+  if (!nb) {
     throw new Error("Couldn't find a notification box for id=" + aBoxId);
+  }
 
   if (nb.querySelector(".notificationbox-stack")) {
     let box = nb.querySelector(".notificationbox-stack")._notificationBox;
@@ -39,7 +45,7 @@ function check_notification_displayed(aController, aBoxId, aValue, aNotification
     if (aNotification) {
       aNotification.notification = notification;
     }
-    return (notification != null);
+    return notification != null;
   }
 
   return false;
@@ -58,12 +64,27 @@ function check_notification_displayed(aController, aBoxId, aValue, aNotification
  * @return  the notification if we're asserting that the notification is
  *          displayed, and it actually shows up. Throws otherwise.
  */
-function assert_notification_displayed(aController, aBoxId, aValue, aDisplayed) {
+function assert_notification_displayed(
+  aController,
+  aBoxId,
+  aValue,
+  aDisplayed
+) {
   let notification = {};
-  let hasNotification = check_notification_displayed(aController, aBoxId, aValue, notification);
-  if (hasNotification != aDisplayed)
-    throw new Error("Expected the notification with value " + aValue +
-                    " to be " + (aDisplayed ? "shown" : "not shown"));
+  let hasNotification = check_notification_displayed(
+    aController,
+    aBoxId,
+    aValue,
+    notification
+  );
+  if (hasNotification != aDisplayed) {
+    throw new Error(
+      "Expected the notification with value " +
+        aValue +
+        " to be " +
+        (aDisplayed ? "shown" : "not shown")
+    );
+  }
 
   return notification.notification;
 }
@@ -78,13 +99,15 @@ function assert_notification_displayed(aController, aBoxId, aValue, aDisplayed) 
  */
 function close_notification(aController, aBoxId, aValue) {
   let nb = aController.window.document.getElementById(aBoxId);
-  if (!nb)
+  if (!nb) {
     throw new Error("Couldn't find a notification box for id=" + aBoxId);
+  }
 
   let box = nb.querySelector(".notificationbox-stack")._notificationBox;
   let notification = box.getNotificationWithValue(aValue);
-  if (notification)
+  if (notification) {
     notification.close();
+  }
 }
 
 /**
@@ -97,13 +120,15 @@ function close_notification(aController, aBoxId, aValue) {
  */
 function wait_for_notification_to_stop(aController, aBoxId, aValue) {
   let nb = aController.window.document.getElementById(aBoxId);
-  if (!nb)
+  if (!nb) {
     throw new Error("Couldn't find a notification box for id=" + aBoxId);
+  }
 
   let box = nb.querySelector(".notificationbox-stack")._notificationBox;
-  aController.waitFor(() => !box.getNotificationWithValue(aValue),
-                      "Timed out waiting for notification with value " +
-                      aValue + " to stop.");
+  aController.waitFor(
+    () => !box.getNotificationWithValue(aValue),
+    "Timed out waiting for notification with value " + aValue + " to stop."
+  );
 }
 
 /**
@@ -117,21 +142,22 @@ function wait_for_notification_to_stop(aController, aBoxId, aValue) {
  */
 function wait_for_notification_to_show(aController, aBoxId, aValue) {
   let nb = aController.window.document.getElementById(aBoxId);
-  if (!nb)
+  if (!nb) {
     throw new Error("Couldn't find a notification box for id=" + aBoxId);
+  }
 
   function nbReady() {
     if (nb.querySelector(".notificationbox-stack")) {
       let box = nb.querySelector(".notificationbox-stack")._notificationBox;
-      return (box.getNotificationWithValue(aValue) != null) && !box._animating;
+      return box.getNotificationWithValue(aValue) != null && !box._animating;
     }
     return false;
   }
-  aController.waitFor(nbReady,
-                      "Timed out waiting for notification with value " +
-                      aValue + " to show.");
+  aController.waitFor(
+    nbReady,
+    "Timed out waiting for notification with value " + aValue + " to show."
+  );
 }
-
 
 /**
  * Gets a button in a notification, as those do not have IDs.
@@ -146,8 +172,9 @@ function wait_for_notification_to_show(aController, aBoxId, aValue) {
  */
 function get_notification_button(aController, aBoxId, aValue, aMatch) {
   let nb = aController.window.document.getElementById(aBoxId);
-  if (!nb)
+  if (!nb) {
     throw new Error("Couldn't find a notification box for id=" + aBoxId);
+  }
 
   let box = nb.querySelector(".notificationbox-stack")._notificationBox;
   let notification = box.getNotificationWithValue(aValue);
@@ -158,16 +185,21 @@ function get_notification_button(aController, aBoxId, aValue, aMatch) {
       let value = aMatch[name];
       let matched = false;
       if (name == "popup") {
-        if (button.getAttribute("type") == "menu-button" ||
-            button.getAttribute("type") == "menu") {
+        if (
+          button.getAttribute("type") == "menu-button" ||
+          button.getAttribute("type") == "menu"
+        ) {
           // The button contains a menupopup as the first child.
           matched = button.querySelector("menupopup#" + value);
         } else {
           // The "popup" attribute is not on the button itself but in its
           // buttonInfo member.
-          matched = (("buttonInfo" in button) && (button.buttonInfo.popup == value));
+          matched = "buttonInfo" in button && button.buttonInfo.popup == value;
         }
-      } else if (button.hasAttribute(name) && button.getAttribute(name) == value) {
+      } else if (
+        button.hasAttribute(name) &&
+        button.getAttribute(name) == value
+      ) {
         matched = true;
       }
       if (!matched) {
@@ -175,8 +207,9 @@ function get_notification_button(aController, aBoxId, aValue, aMatch) {
         break;
       }
     }
-    if (matchedAll)
+    if (matchedAll) {
       return button;
+    }
   }
 
   throw new Error("Couldn't find the requested button on a notification");

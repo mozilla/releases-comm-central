@@ -17,7 +17,7 @@ var MODULE_NAME = "test-opening-messages-without-a-backing-view";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
-var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 // One folder's enough
 var folder = null;
@@ -35,7 +35,7 @@ function setupModule(module) {
   wh.installInto(module);
 
   folder = create_folder("OpeningMessagesNoBackingViewA");
-  make_new_sets_in_folder(folder, [{count: 10}]);
+  make_new_sets_in_folder(folder, [{ count: 10 }]);
   // We don't obey mail view persistence unless the view picker is there
   add_to_toolbar(mc.e("mail-bar3"), "mailviews-container");
 }
@@ -52,8 +52,9 @@ function test_open_single_message_without_backing_view_in_tab() {
   if (!msgHdrsInFolder) {
     msgHdrsInFolder = [];
     // Make a list of all the message headers in this folder
-    for (let i = 0; i < 10; i++)
+    for (let i = 0; i < 10; i++) {
       msgHdrsInFolder.push(mc.dbView.getMsgHdrAt(i));
+    }
   }
   // Get a reference to a header
   let msgHdr = msgHdrsInFolder[4];
@@ -104,8 +105,9 @@ function test_open_multiple_messages_without_backing_views_in_tabs() {
 
   // Now check whether each of the NUM_MESSAGES_TO_OPEN tabs has the correct
   // title
-  for (let i = 0; i < NUM_MESSAGES_TO_OPEN; i++)
+  for (let i = 0; i < NUM_MESSAGES_TO_OPEN; i++) {
     assert_tab_titled_from(mc.tabmail.tabInfo[preCount + i], msgHdrs[i]);
+  }
 
   // Check whether each tab has the correct message and whether the message pane
   // is focused in each case, then close it to load the previous tab.

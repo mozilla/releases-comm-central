@@ -24,9 +24,13 @@ var MODULE_REQUIRES = [
   "prompt-helpers",
 ];
 
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var abController = null;
 var addrBook1, addrBook2, addrBook3, addrBook4, ldapBook;
@@ -67,7 +71,9 @@ function setupModule(module) {
   abController.waitFor(
     () => abController.window.gDirectoryTreeView.rowCount == 8,
     "Timeout waiting for all 8 rows in address books list to show up in the tree view",
-    1000, 10);
+    1000,
+    10
+  );
 }
 
 /* Test that the address book manager automatically sorts
@@ -97,15 +103,24 @@ function setupModule(module) {
  * Collected Address Book
  **/
 function test_order_of_address_books() {
-  const EXPECTED_AB_ORDER = ["All Address Books",
-                             "Personal Address Book", "AB 1", "AB 2",
-                             "AB 3", "AB 4", "LDAP Book",
-                             "Collected Addresses"];
+  const EXPECTED_AB_ORDER = [
+    "All Address Books",
+    "Personal Address Book",
+    "AB 1",
+    "AB 2",
+    "AB 3",
+    "AB 4",
+    "LDAP Book",
+    "Collected Addresses",
+  ];
 
   for (let i = 0; i < EXPECTED_AB_ORDER.length; i++) {
     let abName = get_name_of_address_book_element_at(i);
-    assert_equals(abName, EXPECTED_AB_ORDER[i],
-                  "The address books are out of order.");
+    assert_equals(
+      abName,
+      EXPECTED_AB_ORDER[i],
+      "The address books are out of order."
+    );
   }
 }
 
@@ -153,8 +168,9 @@ function test_deleting_contact_causes_confirm_prompt() {
   let contact1 = create_contact("test@example.com", "Sammy Jenkis", true);
   let toDelete = [contact1];
 
-  let bundle = Services.strings
-                       .createBundle("chrome://messenger/locale/addressbook/addressBook.properties");
+  let bundle = Services.strings.createBundle(
+    "chrome://messenger/locale/addressbook/addressBook.properties"
+  );
   let confirmSingle = bundle.GetStringFromName("confirmDeleteThisContact");
   confirmSingle = confirmSingle.replace("#1", "Sammy Jenkis");
 
@@ -196,8 +212,10 @@ function test_deleting_contact_causes_confirm_prompt() {
   // Was the right message displayed?
   assert_equals(confirmSingle, promptState.text);
   // The contact should have been deleted.
-  assert_equals(abController.window.gAbView.rowCount,
-                totalEntries - toDelete.length);
+  assert_equals(
+    abController.window.gAbView.rowCount,
+    totalEntries - toDelete.length
+  );
 
   gMockPromptService.unregister();
 }
@@ -211,14 +229,21 @@ function test_deleting_contacts_causes_confirm_prompt() {
 
   // Create some contacts that we'll try to delete.
   let contact2 = create_contact("test2@example.com", "Leonard Shelby", true);
-  let contact3 = create_contact("test3@example.com", "John Edward Gammell", true);
+  let contact3 = create_contact(
+    "test3@example.com",
+    "John Edward Gammell",
+    true
+  );
   let contact4 = create_contact("test4@example.com", "Natalie", true);
 
   let toDelete = [contact2, contact3, contact4];
 
-  let bundle = Services.strings
-                       .createBundle("chrome://messenger/locale/addressbook/addressBook.properties");
-  let confirmMultiple = bundle.GetStringFromName("confirmDelete2orMoreContacts");
+  let bundle = Services.strings.createBundle(
+    "chrome://messenger/locale/addressbook/addressBook.properties"
+  );
+  let confirmMultiple = bundle.GetStringFromName(
+    "confirmDelete2orMoreContacts"
+  );
   confirmMultiple = confirmMultiple.replace(/.*;/, "").replace("#1", "3");
 
   // Add some contacts to the address book
@@ -259,8 +284,10 @@ function test_deleting_contacts_causes_confirm_prompt() {
   // Was the right message displayed?
   assert_equals(confirmMultiple, promptState.text);
   // The contact should have been deleted.
-  assert_equals(abController.window.gAbView.rowCount,
-                totalEntries - toDelete.length);
+  assert_equals(
+    abController.window.gAbView.rowCount,
+    totalEntries - toDelete.length
+  );
 
   gMockPromptService.unregister();
 }
@@ -313,7 +340,6 @@ function test_deleting_mailing_lists() {
   gMockPromptService.unregister();
 }
 
-
 /* Tests that we can send mail to a mailing list by selecting the
  * mailing list in the tree, and clicking "Write"
  */
@@ -324,9 +350,11 @@ function test_writing_to_mailing_list() {
   let addedList = addrBook1.addMailList(newList);
 
   // Create some contacts that we'll try to contact
-  let contacts = [create_contact("test2@example.com", "Leonard Shelby", true),
-                  create_contact("test3@example.com", "John Edward Gammell", true),
-                  create_contact("test4@example.com", "Natalie", true)];
+  let contacts = [
+    create_contact("test2@example.com", "Leonard Shelby", true),
+    create_contact("test3@example.com", "John Edward Gammell", true),
+    create_contact("test4@example.com", "Natalie", true),
+  ];
 
   load_contacts_into_mailing_list(addedList, contacts);
 

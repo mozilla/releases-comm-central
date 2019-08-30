@@ -18,10 +18,16 @@ var MODULE_REQUIRES = [
   "window-helpers",
 ];
 
-var controller = ChromeUtils.import("chrome://mozmill/content/modules/controller.jsm");
-var mozmill = ChromeUtils.import("chrome://mozmill/content/modules/mozmill.jsm");
-var elementslib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var controller = ChromeUtils.import(
+  "chrome://mozmill/content/modules/controller.jsm"
+);
+var mozmill = ChromeUtils.import(
+  "chrome://mozmill/content/modules/mozmill.jsm"
+);
+var elementslib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
 // so we get the right path for the resources.
@@ -46,8 +52,11 @@ function test_content_tab_open() {
 
   // Check that window.content is set up correctly wrt content-primary and
   // content-targetable.
-  if (mc.window.content.location != whatsUrl)
-    throw new Error("window.content is not set to the url loaded, incorrect type=\"...\"?");
+  if (mc.window.content.location != whatsUrl) {
+    throw new Error(
+      'window.content is not set to the url loaded, incorrect type="..."?'
+    );
+  }
 }
 
 /**
@@ -82,17 +91,32 @@ function test_spellcheck_in_content_tabs() {
   close_popup(mc, eidMailContext);
 
   // Right-click on "zombocom" and add to dictionary
-  EventUtils.synthesizeMouse(textarea, 5, 5,
-                             {type: "contextmenu", button: 2}, w);
+  EventUtils.synthesizeMouse(
+    textarea,
+    5,
+    5,
+    { type: "contextmenu", button: 2 },
+    w
+  );
   wait_for_popup_to_open(eidMailContext.getNode());
-  let suggestions = mc.window.document.getElementsByClassName("spell-suggestion");
-  assert_true(suggestions.length > 0, "What, is zombocom a registered word now?");
+  let suggestions = mc.window.document.getElementsByClassName(
+    "spell-suggestion"
+  );
+  assert_true(
+    suggestions.length > 0,
+    "What, is zombocom a registered word now?"
+  );
   mc.click(mc.eid("mailContext-spell-add-to-dictionary"));
   close_popup(mc, eidMailContext);
 
   // Now check we don't have any suggestionss
-  EventUtils.synthesizeMouse(textarea, 5, 5,
-                             {type: "contextmenu", button: 2}, w);
+  EventUtils.synthesizeMouse(
+    textarea,
+    5,
+    5,
+    { type: "contextmenu", button: 2 },
+    w
+  );
   wait_for_popup_to_open(eidMailContext.getNode());
   suggestions = mc.window.document.getElementsByClassName("spell-suggestion");
   assert_true(suggestions.length == 0, "But I just taught you this word!");
@@ -106,16 +130,26 @@ function test_content_tab_context_menu() {
   let mailContext = mc.e("mailContext");
 
   // Make sure the page's menu items are added on right-click.
-  EventUtils.synthesizeMouse(heading, 5, 5, { type: "contextmenu", button: 2 },
-                             w);
+  EventUtils.synthesizeMouse(
+    heading,
+    5,
+    5,
+    { type: "contextmenu", button: 2 },
+    w
+  );
   wait_for_popup_to_open(mailContext);
   assert_equals(mailContext.firstChild.label, "Click me!");
   assert_element_visible("page-menu-separator");
   close_popup(mc, new elementslib.Elem(mailContext));
 
   // Make sure the page's menu items are *not* added on shift-right-click.
-  EventUtils.synthesizeMouse(heading, 5, 5, { type: "contextmenu", button: 2,
-                                              shiftKey: true }, w);
+  EventUtils.synthesizeMouse(
+    heading,
+    5,
+    5,
+    { type: "contextmenu", button: 2, shiftKey: true },
+    w
+  );
   wait_for_popup_to_open(mailContext);
   assert_not_equals(mailContext.firstChild.label, "Click me!");
   assert_element_not_visible("page-menu-separator");

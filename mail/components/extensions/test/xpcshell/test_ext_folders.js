@@ -4,7 +4,9 @@
 
 "use strict";
 
-var {ExtensionTestUtils} = ChromeUtils.import("resource://testing-common/ExtensionXPCShellUtils.jsm");
+var { ExtensionTestUtils } = ChromeUtils.import(
+  "resource://testing-common/ExtensionXPCShellUtils.jsm"
+);
 ExtensionTestUtils.init(this);
 
 add_task(async function test_folders() {
@@ -20,7 +22,10 @@ add_task(async function test_folders() {
       let account = await browser.accounts.get(accountId);
       browser.test.assertEq(2, account.folders.length);
 
-      let folder1 = await browser.folders.create({ accountId, path: "/" }, "folder1");
+      let folder1 = await browser.folders.create(
+        { accountId, path: "/" },
+        "folder1"
+      );
       browser.test.assertEq(accountId, folder1.accountId);
       browser.test.assertEq("folder1", folder1.name);
       browser.test.assertEq("/folder1", folder1.path);
@@ -29,7 +34,10 @@ add_task(async function test_folders() {
       browser.test.assertEq(3, account.folders.length);
       browser.test.assertEq("/folder1", account.folders[2].path);
 
-      let folder2 = await browser.folders.create({ accountId, path: "/folder1" }, "folder2");
+      let folder2 = await browser.folders.create(
+        { accountId, path: "/folder1" },
+        "folder2"
+      );
       browser.test.assertEq(accountId, folder2.accountId);
       browser.test.assertEq("folder2", folder2.name);
       browser.test.assertEq("/folder1/folder2", folder2.path);
@@ -38,7 +46,10 @@ add_task(async function test_folders() {
       browser.test.assertEq(4, account.folders.length);
       browser.test.assertEq("/folder1/folder2", account.folders[3].path);
 
-      let folder3 = await browser.folders.rename({ accountId, path: "/folder1/folder2" }, "folder3");
+      let folder3 = await browser.folders.rename(
+        { accountId, path: "/folder1/folder2" },
+        "folder3"
+      );
       browser.test.assertEq(accountId, folder3.accountId);
       browser.test.assertEq("folder3", folder3.name);
       browser.test.assertEq("/folder1/folder3", folder3.path);

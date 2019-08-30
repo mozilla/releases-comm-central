@@ -6,9 +6,11 @@
 // loading system DNS libraries on Linux, Mac and Windows.
 
 if (typeof Components !== "undefined") {
-  var {ctypes} = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
-  var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-  var {BasePromiseWorker} = ChromeUtils.import("resource://gre/modules/PromiseWorker.jsm");
+  var { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
+  var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+  var { BasePromiseWorker } = ChromeUtils.import(
+    "resource://gre/modules/PromiseWorker.jsm"
+  );
 }
 
 var LOCATION = "resource:///modules/DNS.jsm";
@@ -30,8 +32,10 @@ load_libresolv.prototype = {
   _open() {
     function findLibrary() {
       let lastException = null;
-      let libnames =
-        [ctypes.libraryName("resolv.9"), ctypes.libraryName("resolv")];
+      let libnames = [
+        ctypes.libraryName("resolv.9"),
+        ctypes.libraryName("resolv"),
+      ];
       for (let libname of libnames) {
         try {
           return ctypes.open(libname);
@@ -39,15 +43,21 @@ load_libresolv.prototype = {
           lastException = ex;
         }
       }
-      throw new Error("Could not find libresolv in any of " + libnames +
-                      " Exception: " + lastException + "\n");
+      throw new Error(
+        "Could not find libresolv in any of " +
+          libnames +
+          " Exception: " +
+          lastException +
+          "\n"
+      );
     }
 
     // Declaring functions to be able to call them.
     function declare(aSymbolNames, ...aArgs) {
       let lastException = null;
-      if (!Array.isArray(aSymbolNames))
+      if (!Array.isArray(aSymbolNames)) {
         aSymbolNames = [aSymbolNames];
+      }
 
       for (let name of aSymbolNames) {
         try {
@@ -57,34 +67,65 @@ load_libresolv.prototype = {
         }
       }
       library.close();
-      throw new Error("Failed to declare " + aSymbolNames + " Exception: " +
-                      lastException + "\n");
+      throw new Error(
+        "Failed to declare " +
+          aSymbolNames +
+          " Exception: " +
+          lastException +
+          "\n"
+      );
     }
 
-    let library = this.library = findLibrary();
-    this.res_search =
-      declare(["res_9_search", "res_search", "__res_search"],
-              ctypes.default_abi, ctypes.int, ctypes.char.ptr, ctypes.int,
-              ctypes.int, ctypes.unsigned_char.ptr, ctypes.int);
-    this.res_query =
-      declare(["res_9_query", "res_query", "__res_query"],
-              ctypes.default_abi, ctypes.int, ctypes.char.ptr, ctypes.int,
-              ctypes.int, ctypes.unsigned_char.ptr, ctypes.int);
-    this.dn_expand =
-      declare(["res_9_dn_expand", "dn_expand", "__dn_expand"],
-              ctypes.default_abi, ctypes.int, ctypes.unsigned_char.ptr,
-              ctypes.unsigned_char.ptr, ctypes.unsigned_char.ptr,
-              ctypes.char.ptr, ctypes.int);
-    this.dn_skipname =
-      declare(["res_9_dn_skipname", "dn_skipname", "__dn_skipname"],
-              ctypes.default_abi, ctypes.int, ctypes.unsigned_char.ptr,
-              ctypes.unsigned_char.ptr);
-    this.ns_get16 =
-      declare(["res_9_ns_get16", "ns_get16"], ctypes.default_abi,
-              ctypes.unsigned_int, ctypes.unsigned_char.ptr);
-    this.ns_get32 =
-      declare(["res_9_ns_get32", "ns_get32"], ctypes.default_abi,
-              ctypes.unsigned_long, ctypes.unsigned_char.ptr);
+    let library = (this.library = findLibrary());
+    this.res_search = declare(
+      ["res_9_search", "res_search", "__res_search"],
+      ctypes.default_abi,
+      ctypes.int,
+      ctypes.char.ptr,
+      ctypes.int,
+      ctypes.int,
+      ctypes.unsigned_char.ptr,
+      ctypes.int
+    );
+    this.res_query = declare(
+      ["res_9_query", "res_query", "__res_query"],
+      ctypes.default_abi,
+      ctypes.int,
+      ctypes.char.ptr,
+      ctypes.int,
+      ctypes.int,
+      ctypes.unsigned_char.ptr,
+      ctypes.int
+    );
+    this.dn_expand = declare(
+      ["res_9_dn_expand", "dn_expand", "__dn_expand"],
+      ctypes.default_abi,
+      ctypes.int,
+      ctypes.unsigned_char.ptr,
+      ctypes.unsigned_char.ptr,
+      ctypes.unsigned_char.ptr,
+      ctypes.char.ptr,
+      ctypes.int
+    );
+    this.dn_skipname = declare(
+      ["res_9_dn_skipname", "dn_skipname", "__dn_skipname"],
+      ctypes.default_abi,
+      ctypes.int,
+      ctypes.unsigned_char.ptr,
+      ctypes.unsigned_char.ptr
+    );
+    this.ns_get16 = declare(
+      ["res_9_ns_get16", "ns_get16"],
+      ctypes.default_abi,
+      ctypes.unsigned_int,
+      ctypes.unsigned_char.ptr
+    );
+    this.ns_get32 = declare(
+      ["res_9_ns_get32", "ns_get32"],
+      ctypes.default_abi,
+      ctypes.unsigned_long,
+      ctypes.unsigned_char.ptr
+    );
 
     this.QUERYBUF_SIZE = 1024;
     this.NS_MAXCDNAME = 255;
@@ -108,11 +149,14 @@ load_libresolv.prototype = {
       let port = this.ns_get16(aAnswer.addressOfElement(aIdx + 4));
 
       let hostbuf = ctypes.char.array(this.NS_MAXCDNAME)();
-      let hostlen = this.dn_expand(aAnswer.addressOfElement(0),
-                                   aAnswer.addressOfElement(aLength),
-                                   aAnswer.addressOfElement(aIdx + 6),
-                                   hostbuf, this.NS_MAXCDNAME);
-      let host = (hostlen > -1) ? hostbuf.readString() : null;
+      let hostlen = this.dn_expand(
+        aAnswer.addressOfElement(0),
+        aAnswer.addressOfElement(aLength),
+        aAnswer.addressOfElement(aIdx + 6),
+        hostbuf,
+        this.NS_MAXCDNAME
+      );
+      let host = hostlen > -1 ? hostbuf.readString() : null;
       return new SRVRecord(prio, weight, host, port);
     } else if (aTypeID == NS_T_TXT) {
       // TODO should only read dataLength characters.
@@ -123,12 +167,14 @@ load_libresolv.prototype = {
       let prio = this.ns_get16(aAnswer.addressOfElement(aIdx));
 
       let hostbuf = ctypes.char.array(this.NS_MAXCDNAME)();
-      let hostlen = this.dn_expand(aAnswer.addressOfElement(0),
-                                   aAnswer.addressOfElement(aLength),
-                                   aAnswer.addressOfElement(aIdx + 2),
-                                   hostbuf,
-                                   this.NS_MAXCDNAME);
-      let host = (hostlen > -1) ? hostbuf.readString() : null;
+      let hostlen = this.dn_expand(
+        aAnswer.addressOfElement(0),
+        aAnswer.addressOfElement(aLength),
+        aAnswer.addressOfElement(aIdx + 2),
+        hostbuf,
+        this.NS_MAXCDNAME
+      );
+      let host = hostlen > -1 ? hostbuf.readString() : null;
       return new MXRecord(prio, host);
     }
     return {};
@@ -139,12 +185,18 @@ load_libresolv.prototype = {
   lookup(aName, aTypeID) {
     let qname = ctypes.char.array()(aName);
     let answer = ctypes.unsigned_char.array(this.QUERYBUF_SIZE)();
-    let length =
-      this.res_search(qname, this.NS_C_IN, aTypeID, answer, this.QUERYBUF_SIZE);
+    let length = this.res_search(
+      qname,
+      this.NS_C_IN,
+      aTypeID,
+      answer,
+      this.QUERYBUF_SIZE
+    );
 
     // There is an error.
-    if (length < 0)
+    if (length < 0) {
       return -1;
+    }
 
     let results = [];
     let idx = this.NS_HFIXEDSZ;
@@ -153,13 +205,19 @@ load_libresolv.prototype = {
     let ancount = this.ns_get16(answer.addressOfElement(6));
 
     for (let qdidx = 0; qdidx < qdcount && idx < length; qdidx++) {
-      idx += this.NS_QFIXEDSZ + this.dn_skipname(answer.addressOfElement(idx),
-                                                 answer.addressOfElement(length));
+      idx +=
+        this.NS_QFIXEDSZ +
+        this.dn_skipname(
+          answer.addressOfElement(idx),
+          answer.addressOfElement(length)
+        );
     }
 
     for (let anidx = 0; anidx < ancount && idx < length; anidx++) {
-      idx += this.dn_skipname(answer.addressOfElement(idx),
-                              answer.addressOfElement(length));
+      idx += this.dn_skipname(
+        answer.addressOfElement(idx),
+        answer.addressOfElement(length)
+      );
       let rridx = idx;
       let type = this.ns_get16(answer.addressOfElement(rridx));
       let dataLength = this.ns_get16(answer.addressOfElement(rridx + 8));
@@ -170,7 +228,7 @@ load_libresolv.prototype = {
         let resource = this._mapAnswer(aTypeID, answer, idx, length);
         resource.type = type;
         resource.nsclass = this.ns_get16(answer.addressOfElement(rridx + 2));
-        resource.ttl = this.ns_get32(answer.addressOfElement(rridx + 4))|0;
+        resource.ttl = this.ns_get32(answer.addressOfElement(rridx + 4)) | 0;
         results.push(resource);
       }
       idx += dataLength;
@@ -193,12 +251,13 @@ load_dnsapi.prototype = {
       try {
         return library.declare(aSymbolName, ...aArgs);
       } catch (ex) {
-        throw new Error("Failed to declare " + aSymbolName + " Exception: " +
-                        ex + "\n");
+        throw new Error(
+          "Failed to declare " + aSymbolName + " Exception: " + ex + "\n"
+        );
       }
     }
 
-    let library = this.library = ctypes.open(ctypes.libraryName("DnsAPI"));
+    let library = (this.library = ctypes.open(ctypes.libraryName("DnsAPI")));
 
     this.DNS_SRV_DATA = ctypes.StructType("DNS_SRV_DATA", [
       { pNameTarget: ctypes.jschar.ptr },
@@ -232,13 +291,24 @@ load_dnsapi.prototype = {
     ]);
 
     this.PDNS_RECORD = ctypes.PointerType(this.DNS_RECORD);
-    this.DnsQuery_W =
-      declare("DnsQuery_W", ctypes.winapi_abi, ctypes.long, ctypes.jschar.ptr,
-              ctypes.unsigned_short, ctypes.unsigned_long, ctypes.voidptr_t,
-              this.PDNS_RECORD.ptr, ctypes.voidptr_t.ptr);
-    this.DnsRecordListFree =
-      declare("DnsRecordListFree", ctypes.winapi_abi, ctypes.void_t,
-              this.PDNS_RECORD, ctypes.int);
+    this.DnsQuery_W = declare(
+      "DnsQuery_W",
+      ctypes.winapi_abi,
+      ctypes.long,
+      ctypes.jschar.ptr,
+      ctypes.unsigned_short,
+      ctypes.unsigned_long,
+      ctypes.voidptr_t,
+      this.PDNS_RECORD.ptr,
+      ctypes.voidptr_t.ptr
+    );
+    this.DnsRecordListFree = declare(
+      "DnsRecordListFree",
+      ctypes.winapi_abi,
+      ctypes.void_t,
+      this.PDNS_RECORD,
+      ctypes.int
+    );
 
     this.ERROR_SUCCESS = ctypes.Int64(0);
     this.DNS_QUERY_STANDARD = 0;
@@ -256,9 +326,12 @@ load_dnsapi.prototype = {
     if (aTypeID == NS_T_SRV) {
       let srvdata = ctypes.cast(aData, this.DNS_SRV_DATA);
 
-      return new SRVRecord(srvdata.wPriority, srvdata.wWeight,
-                           srvdata.pNameTarget.readString(),
-                           srvdata.wPort);
+      return new SRVRecord(
+        srvdata.wPriority,
+        srvdata.wWeight,
+        srvdata.pNameTarget.readString(),
+        srvdata.wPort
+      );
     } else if (aTypeID == NS_T_TXT) {
       let txtdata = ctypes.cast(aData, this.DNS_TXT_DATA);
       if (txtdata.dwStringCount > 0) {
@@ -267,8 +340,7 @@ load_dnsapi.prototype = {
     } else if (aTypeID == NS_T_MX) {
       let mxdata = ctypes.cast(aData, this.DNS_MX_DATA);
 
-      return new MXRecord(mxdata.wPriority,
-                          mxdata.pNameTarget.readString());
+      return new MXRecord(mxdata.wPriority, mxdata.pNameTarget.readString());
     }
     return {};
   },
@@ -278,16 +350,26 @@ load_dnsapi.prototype = {
   lookup(aName, aTypeID) {
     let queryResultsSet = this.PDNS_RECORD();
     let qname = ctypes.jschar.array()(aName);
-    let dnsStatus = this.DnsQuery_W(qname, aTypeID, this.DNS_QUERY_STANDARD,
-                                    null, queryResultsSet.address(), null);
+    let dnsStatus = this.DnsQuery_W(
+      qname,
+      aTypeID,
+      this.DNS_QUERY_STANDARD,
+      null,
+      queryResultsSet.address(),
+      null
+    );
 
     // There is an error.
-    if (ctypes.Int64.compare(dnsStatus, this.ERROR_SUCCESS) != 0)
+    if (ctypes.Int64.compare(dnsStatus, this.ERROR_SUCCESS) != 0) {
       return -1;
+    }
 
     let results = [];
-    for (let presult = queryResultsSet; presult && !presult.isNull();
-         presult = presult.contents.pNext) {
+    for (
+      let presult = queryResultsSet;
+      presult && !presult.isNull();
+      presult = presult.contents.pNext
+    ) {
       let result = presult.contents;
       if (result.wType == aTypeID) {
         let resource = this._mapAnswer(aTypeID, result.Data);
@@ -343,7 +425,7 @@ if (typeof Components === "undefined") {
 
   // eslint-disable-next-line no-unused-vars
   function execute(aOS, aMethod, aArgs) {
-    let DNS = (aOS == "WINNT") ? new load_dnsapi() : new load_libresolv();
+    let DNS = aOS == "WINNT" ? new load_dnsapi() : new load_libresolv();
     return DNS[aMethod].apply(DNS, aArgs);
   }
 } else {
@@ -370,14 +452,23 @@ if (typeof Components === "undefined") {
      */
     lookup(aName, aTypeID) {
       let worker = new BasePromiseWorker(LOCATION);
-      return worker.post("execute",
-                         [Services.appinfo.OS, "lookup", [...arguments]]);
+      return worker.post("execute", [
+        Services.appinfo.OS,
+        "lookup",
+        [...arguments],
+      ]);
     },
 
     /** Convenience functions */
-    srv(aName) { return this.lookup(aName, NS_T_SRV); },
-    txt(aName) { return this.lookup(aName, NS_T_TXT); },
-    mx(aName) { return this.lookup(aName, NS_T_MX); },
+    srv(aName) {
+      return this.lookup(aName, NS_T_SRV);
+    },
+    txt(aName) {
+      return this.lookup(aName, NS_T_TXT);
+    },
+    mx(aName) {
+      return this.lookup(aName, NS_T_MX);
+    },
   };
   this.DNS = dns_async_front;
   this.EXPORTED_SYMBOLS = ["DNS"];

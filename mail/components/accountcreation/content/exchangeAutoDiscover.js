@@ -5,8 +5,12 @@
 
 /* import-globals-from emailWizard.js */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.defineModuleGetter(this, "AddonManager", "resource://gre/modules/AddonManager.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "AddonManager",
+  "resource://gre/modules/AddonManager.jsm"
+);
 var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
 
 /**
@@ -33,26 +37,39 @@ var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
  *         so do not unconditionally show this to the user.
  *         The first parameter will be an exception object or error string.
  */
-function fetchConfigFromExchange(domain, emailAddress, username, password,
-                                 successCallback, errorCallback) {
-  assert(typeof(successCallback) == "function");
-  assert(typeof(errorCallback) == "function");
-  if (!Services.prefs.getBoolPref(
-      "mailnews.auto_config.fetchFromExchange.enabled", true)) {
+function fetchConfigFromExchange(
+  domain,
+  emailAddress,
+  username,
+  password,
+  successCallback,
+  errorCallback
+) {
+  assert(typeof successCallback == "function");
+  assert(typeof errorCallback == "function");
+  if (
+    !Services.prefs.getBoolPref(
+      "mailnews.auto_config.fetchFromExchange.enabled",
+      true
+    )
+  ) {
     errorCallback("Exchange AutoDiscover disabled per user preference");
     return new Abortable();
   }
 
   // <https://technet.microsoft.com/en-us/library/bb124251(v=exchg.160).aspx#Autodiscover%20services%20in%20Outlook>
   // <https://docs.microsoft.com/en-us/previous-versions/office/developer/exchange-server-interoperability-guidance/hh352638(v%3Dexchg.140)>, search for "The Autodiscover service uses one of these four methods"
-  let url1 = "https://autodiscover." + sanitize.hostname(domain) +
-             "/autodiscover/autodiscover.xml";
-  let url2 = "https://" + sanitize.hostname(domain) +
-             "/autodiscover/autodiscover.xml";
-  let url3 = "http://autodiscover." + sanitize.hostname(domain) +
-             "/autodiscover/autodiscover.xml";
-  let body =
-    `<?xml version="1.0" encoding="utf-8"?>
+  let url1 =
+    "https://autodiscover." +
+    sanitize.hostname(domain) +
+    "/autodiscover/autodiscover.xml";
+  let url2 =
+    "https://" + sanitize.hostname(domain) + "/autodiscover/autodiscover.xml";
+  let url3 =
+    "http://autodiscover." +
+    sanitize.hostname(domain) +
+    "/autodiscover/autodiscover.xml";
+  let body = `<?xml version="1.0" encoding="utf-8"?>
     <Autodiscover xmlns="http://schemas.microsoft.com/exchange/autodiscover/outlook/requestschema/2006">
       <Request>
         <EMailAddress>${emailAddress}</EMailAddress>
@@ -78,27 +95,45 @@ function fetchConfigFromExchange(domain, emailAddress, username, password,
   let fetch3;
 
   let successive = new SuccessiveAbortable();
-  let priority = new PriorityOrderAbortable(
-    function(xml, call) { // success
-      readAutoDiscoverResponse(xml, successive, username, password, successCallback, errorCallback);
-    },
-    errorCallback); // all failed
+  let priority = new PriorityOrderAbortable(function(xml, call) {
+    // success
+    readAutoDiscoverResponse(
+      xml,
+      successive,
+      username,
+      password,
+      successCallback,
+      errorCallback
+    );
+  }, errorCallback); // all failed
 
   call = priority.addCall();
-  fetch = new FetchHTTP(url1, callArgs,
-    call.successCallback(), call.errorCallback());
+  fetch = new FetchHTTP(
+    url1,
+    callArgs,
+    call.successCallback(),
+    call.errorCallback()
+  );
   fetch.start();
   call.setAbortable(fetch);
 
   call = priority.addCall();
-  fetch = new FetchHTTP(url2, callArgs,
-    call.successCallback(), call.errorCallback());
+  fetch = new FetchHTTP(
+    url2,
+    callArgs,
+    call.successCallback(),
+    call.errorCallback()
+  );
   fetch.start();
   call.setAbortable(fetch);
 
   call = priority.addCall();
-  fetch3 = new FetchHTTP(url3, callArgs,
-    call.successCallback(), call.errorCallback());
+  fetch3 = new FetchHTTP(
+    url3,
+    callArgs,
+    call.successCallback(),
+    call.errorCallback()
+  );
   fetch3.start();
   call.setAbortable(fetch3);
 
@@ -119,25 +154,39 @@ var gLoopCounter = 0;
  * @param {JXON} xml - The Exchange server AutoDiscover response
  * @param {Function(config {AccountConfig})} successCallback - @see accountConfig.js
  */
-function readAutoDiscoverResponse(autoDiscoverXML,
-  successive, username, password, successCallback, errorCallback) {
+function readAutoDiscoverResponse(
+  autoDiscoverXML,
+  successive,
+  username,
+  password,
+  successCallback,
+  errorCallback
+) {
   assert(successive instanceof SuccessiveAbortable);
-  assert(typeof(successCallback) == "function");
-  assert(typeof(errorCallback) == "function");
+  assert(typeof successCallback == "function");
+  assert(typeof errorCallback == "function");
 
   // redirect to other email address
-  if ("Action" in autoDiscoverXML.Autodiscover.Response &&
-      "Redirect" in autoDiscoverXML.Autodiscover.Response.Action) {
+  if (
+    "Action" in autoDiscoverXML.Autodiscover.Response &&
+    "Redirect" in autoDiscoverXML.Autodiscover.Response.Action
+  ) {
     // <https://docs.microsoft.com/en-us/previous-versions/office/developer/exchange-server-interoperability-guidance/hh352638(v%3Dexchg.140)>
     let redirectEmailAddress = sanitize.emailAddress(
-        autoDiscoverXML.Autodiscover.Response.Action.Redirect);
+      autoDiscoverXML.Autodiscover.Response.Action.Redirect
+    );
     let domain = redirectEmailAddress.split("@").pop();
     if (++gLoopCounter > 2) {
       throw new Exception("Too many redirects in XML response");
     }
-    successive.current = fetchConfigFromExchange(domain,
-      redirectEmailAddress, username, password,
-      successCallback, errorCallback);
+    successive.current = fetchConfigFromExchange(
+      domain,
+      redirectEmailAddress,
+      username,
+      password,
+      successCallback,
+      errorCallback
+    );
   }
 
   let config = readAutoDiscoverXML(autoDiscoverXML, username);
@@ -159,14 +208,19 @@ function readAutoDiscoverResponse(autoDiscoverXML,
  * @see <https://www.msxfaq.de/exchange/autodiscover/autodiscover_xml.htm>
  */
 function readAutoDiscoverXML(autoDiscoverXML, username) {
-  if (typeof(autoDiscoverXML) != "object" ||
-      !("Autodiscover" in autoDiscoverXML) ||
-      !("Response" in autoDiscoverXML.Autodiscover) ||
-      !("Account" in autoDiscoverXML.Autodiscover.Response) ||
-      !("Protocol" in autoDiscoverXML.Autodiscover.Response.Account)) {
+  if (
+    typeof autoDiscoverXML != "object" ||
+    !("Autodiscover" in autoDiscoverXML) ||
+    !("Response" in autoDiscoverXML.Autodiscover) ||
+    !("Account" in autoDiscoverXML.Autodiscover.Response) ||
+    !("Protocol" in autoDiscoverXML.Autodiscover.Response.Account)
+  ) {
     let stringBundle = getStringBundle(
-      "chrome://messenger/locale/accountCreationModel.properties");
-    throw new Exception(stringBundle.GetStringFromName("no_autodiscover.error"));
+      "chrome://messenger/locale/accountCreationModel.properties"
+    );
+    throw new Exception(
+      stringBundle.GetStringFromName("no_autodiscover.error")
+    );
   }
   var xml = autoDiscoverXML.Autodiscover.Response.Account;
 
@@ -180,16 +234,18 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
   config.incoming.socketType = 2; // only https supported
   config.incoming.port = 443;
   config.incoming.auth = Ci.nsMsgAuthMethod.passwordCleartext;
-  config.incoming.authAlternatives = [ Ci.nsMsgAuthMethod.OAuth2 ];
+  config.incoming.authAlternatives = [Ci.nsMsgAuthMethod.OAuth2];
   config.oauthSettings = {};
   config.outgoing.addThisServer = false;
   config.outgoing.useGlobalPreferredServer = true;
 
   for (let protocolX of array_or_undef(xml.$Protocol)) {
     try {
-      let type = sanitize.enum(protocolX.Type,
-                               ["WEB", "EXHTTP", "EXCH", "EXPR", "POP3", "IMAP", "SMTP"],
-                               "unknown");
+      let type = sanitize.enum(
+        protocolX.Type,
+        ["WEB", "EXHTTP", "EXCH", "EXPR", "POP3", "IMAP", "SMTP"],
+        "unknown"
+      );
       if (type == "WEB") {
         let urlsX;
         if ("External" in protocolX) {
@@ -199,16 +255,18 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
         }
         if (urlsX) {
           config.incoming.owaURL = sanitize.url(urlsX.OWAUrl.value);
-          if (!config.incoming.ewsURL &&
-              "Protocol" in urlsX &&
-              "ASUrl" in urlsX.Protocol) {
+          if (
+            !config.incoming.ewsURL &&
+            "Protocol" in urlsX &&
+            "ASUrl" in urlsX.Protocol
+          ) {
             config.incoming.ewsURL = sanitize.url(urlsX.Protocol.ASUrl);
           }
           config.incoming.type = "exchange";
           let parsedURL = new URL(config.incoming.owaURL);
           config.incoming.hostname = sanitize.hostname(parsedURL.hostname);
           if (parsedURL.port) {
-            config.incoming.port =  sanitize.integer(parsedURL.port);
+            config.incoming.port = sanitize.integer(parsedURL.port);
           }
         }
       } else if (type == "EXHTTP" || type == "EXCH") {
@@ -220,7 +278,7 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
         let parsedURL = new URL(config.incoming.ewsURL);
         config.incoming.hostname = sanitize.hostname(parsedURL.hostname);
         if (parsedURL.port) {
-          config.incoming.port =  sanitize.integer(parsedURL.port);
+          config.incoming.port = sanitize.integer(parsedURL.port);
         }
       } else if (type == "POP3" || type == "IMAP" || type == "SMTP") {
         let server;
@@ -230,31 +288,40 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
           server = config.createNewIncoming();
         }
 
-        server.type = sanitize.translate(type, { POP3: "pop3", IMAP: "imap", SMTP: "smtp" });
+        server.type = sanitize.translate(type, {
+          POP3: "pop3",
+          IMAP: "imap",
+          SMTP: "smtp",
+        });
         server.hostname = sanitize.hostname(protocolX.Server);
         server.port = sanitize.integer(protocolX.Port);
         server.socketType = 1; // plain
-        if ("SSL" in protocolX &&
-            sanitize.enum(protocolX.SSL, ["on", "off"]) == "on") {
+        if (
+          "SSL" in protocolX &&
+          sanitize.enum(protocolX.SSL, ["on", "off"]) == "on"
+        ) {
           // SSL is too unspecific. Do they mean STARTTLS or normal TLS?
           // For now, assume normal TLS, unless it's a standard plain port.
           switch (server.port) {
             case 143: // IMAP standard
             case 110: // POP3 standard
-            case 25:  // SMTP standard
+            case 25: // SMTP standard
             case 587: // SMTP standard
               server.socketType = 3; // STARTTLS
               break;
             case 993: // IMAP SSL
             case 995: // POP3 SSL
             case 465: // SMTP SSL
-            default: // if non-standard port, assume normal TLS, not STARTTLS
+            default:
+              // if non-standard port, assume normal TLS, not STARTTLS
               server.socketType = 2; // normal TLS
               break;
           }
         }
-        if ("SPA" in protocolX &&
-            sanitize.enum(protocolX.SPA, ["on", "off"]) == "on") {
+        if (
+          "SPA" in protocolX &&
+          sanitize.enum(protocolX.SPA, ["on", "off"]) == "on"
+        ) {
           // Secure Password Authentication = NTLM or GSSAPI/Kerberos
           server.auth = 8; // secure (not really, but this is MS...)
         }
@@ -270,17 +337,18 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
           } else {
             config.outgoingAlternatives.push(server);
           }
+        } else if (!config.incoming.hostname) {
+          // eslint-disable-line no-lonely-if
+          config.incoming = server;
         } else {
-          if (!config.incoming.hostname) { // eslint-disable-line no-lonely-if
-            config.incoming = server;
-          } else {
-            config.incomingAlternatives.push(server);
-          }
+          config.incomingAlternatives.push(server);
         }
       }
 
       // else unknown or unsupported protocol
-    } catch (e) { logException(e); }
+    } catch (e) {
+      logException(e);
+    }
   }
 
   // OAuth2 settings, so that createInBackend() doesn't bail out
@@ -302,7 +370,9 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
  * @returns {Abortable}
  */
 function getAddonsList(config, successCallback, errorCallback) {
-  let incoming = [config.incoming, ...config.incomingAlternatives].find(alt => alt.type == "exchange");
+  let incoming = [config.incoming, ...config.incomingAlternatives].find(
+    alt => alt.type == "exchange"
+  );
   if (!incoming) {
     successCallback();
     return new Abortable();
@@ -312,25 +382,36 @@ function getAddonsList(config, successCallback, errorCallback) {
     errorCallback(new Exception("no URL for addons list configured"));
     return new Abortable();
   }
-  let fetch = new FetchHTTP(url, { allowCache: true, timeout: 10000 }, function(json) {
-    let addons = readAddonsJSON(json);
-    addons = addons.filter(addon => {
-      // Find types matching the current config.
-      // Pick the first in the list as the preferred one and
-      // tell the UI to use that one.
-      addon.useType = addon.supportedTypes.find(type =>
-        incoming.owaURL && type.protocolType == "owa" ||
-        incoming.ewsURL && type.protocolType == "ews" ||
-        incoming.easURL && type.protocolType == "eas");
-      return !!addon.useType;
-    });
-    if (addons.length == 0) {
-      errorCallback(new Exception("Config found, but no addons known to handle the config"));
-      return;
-    }
-    config.addons = addons;
-    successCallback(config);
-  }, errorCallback);
+  let fetch = new FetchHTTP(
+    url,
+    { allowCache: true, timeout: 10000 },
+    function(json) {
+      let addons = readAddonsJSON(json);
+      addons = addons.filter(addon => {
+        // Find types matching the current config.
+        // Pick the first in the list as the preferred one and
+        // tell the UI to use that one.
+        addon.useType = addon.supportedTypes.find(
+          type =>
+            (incoming.owaURL && type.protocolType == "owa") ||
+            (incoming.ewsURL && type.protocolType == "ews") ||
+            (incoming.easURL && type.protocolType == "eas")
+        );
+        return !!addon.useType;
+      });
+      if (addons.length == 0) {
+        errorCallback(
+          new Exception(
+            "Config found, but no addons known to handle the config"
+          )
+        );
+        return;
+      }
+      config.addons = addons;
+      successCallback(config);
+    },
+    errorCallback
+  );
   fetch.start();
   return fetch;
 }
@@ -395,11 +476,16 @@ function readAddonsJSON(json) {
         icon32: addonJSON.icon32 ? sanitize.url(addonJSON.icon32) : null,
         supportedTypes: [],
       };
-      assert(new URL(addon.xpiURL).protocol == "https:", "XPI download URL needs to be https");
-      addon.name = (locale in addonJSON.name) ?
-        addonJSON.name[locale] : addonJSON.name[0];
-      addon.description = (locale in addonJSON.description) ?
-        addonJSON.description[locale] : addonJSON.description[0];
+      assert(
+        new URL(addon.xpiURL).protocol == "https:",
+        "XPI download URL needs to be https"
+      );
+      addon.name =
+        locale in addonJSON.name ? addonJSON.name[locale] : addonJSON.name[0];
+      addon.description =
+        locale in addonJSON.description
+          ? addonJSON.description[locale]
+          : addonJSON.description[0];
       for (let typeJSON of ensureArray(addonJSON.accountTypes)) {
         try {
           addon.supportedTypes.push({

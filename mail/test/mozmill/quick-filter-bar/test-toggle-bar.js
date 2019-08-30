@@ -15,7 +15,11 @@
 
 var MODULE_NAME = "test-toggle-bar";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "quick-filter-bar-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "quick-filter-bar-helpers",
+];
 
 var folder;
 var setUnstarred, setStarred;
@@ -30,7 +34,9 @@ function setupModule(module) {
 
   folder = create_folder("QuickFilterBarToggleBar");
   [setUnstarred, setStarred] = make_new_sets_in_folder(folder, [
-                                 {count: 1}, {count: 1}]);
+    { count: 1 },
+    { count: 1 },
+  ]);
   setStarred.setStarred(true);
 }
 
@@ -63,7 +69,7 @@ function test_control_shift_k_triggers_display() {
   mc.e("threadTree").focus();
 
   // hit control-shift-k
-  mc.keypress(null, "k", {accelKey: true, shiftKey: true});
+  mc.keypress(null, "k", { accelKey: true, shiftKey: true });
 
   // now we should be visible again!
   assert_quick_filter_bar_visible(true);
@@ -72,7 +78,7 @@ function test_control_shift_k_triggers_display() {
 function test_constraints_disappear_when_collapsed() {
   // set some constraints
   toggle_boolean_constraints("starred");
-  assert_constraints_expressed({starred: true});
+  assert_constraints_expressed({ starred: true });
   assert_messages_in_view(setStarred);
 
   // collapse, now we should see them all again!

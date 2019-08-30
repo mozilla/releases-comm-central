@@ -37,8 +37,19 @@
 // ***** END LICENSE BLOCK *****
 
 var EXPORTED_SYMBOLS = [
-  "Elem", "ID", "Link", "XPath", "Selector", "Name", "Anon", "AnonXPath",
-  "Lookup", "_byID", "_byName", "_byAttrib", "_byAnonAttrib",
+  "Elem",
+  "ID",
+  "Link",
+  "XPath",
+  "Selector",
+  "Name",
+  "Anon",
+  "AnonXPath",
+  "Lookup",
+  "_byID",
+  "_byName",
+  "_byAttrib",
+  "_byAnonAttrib",
 ];
 
 var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
@@ -89,7 +100,6 @@ var smartSplit = function(str) {
   return split;
 };
 
-
 var ElemBase = function() {
   this.isElement = true;
 };
@@ -102,15 +112,16 @@ ElemBase.prototype.nodeSearch = function(doc, func, string) {
   var element = null;
   // inline function to recursively find the element in the DOM, cross frame.
   var search = function(win, func, string) {
-    if (win == null)
+    if (win == null) {
       return;
+    }
 
     // do the lookup in the current window
     try {
       element = func.call(win, string);
     } catch (err) {}
 
-    if (!element || (element.length == 0)) {
+    if (!element || element.length == 0) {
       var frames = win.frames;
       for (var i = 0; i < frames.length; i++) {
         search(frames[i], func, string);
@@ -137,7 +148,6 @@ Elem.prototype.getInfo = function() {
   return "Elem instance.";
 };
 
-
 var Selector = function(_document, selector) {
   if (_document == undefined || selector == undefined) {
     throw new Error("Selector constructor did not receive enough arguments.");
@@ -154,10 +164,13 @@ Selector.prototype.getNodeForDocument = function(s) {
   return this.document.querySelectorAll(s);
 };
 Selector.prototype.getNode = function(index) {
-  var nodes = this.nodeSearch(this._view.document, this.getNodeForDocument, this.selector);
+  var nodes = this.nodeSearch(
+    this._view.document,
+    this.getNodeForDocument,
+    this.selector
+  );
   return nodes ? nodes[index || 0] : null;
 };
-
 
 var ID = function(_document, nodeID) {
   if (_document == undefined || nodeID == undefined) {
@@ -175,7 +188,11 @@ ID.prototype.getNodeForDocument = function(s) {
   return this.document.getElementById(s);
 };
 ID.prototype.getNode = function() {
-  return this.nodeSearch(this._view.document, this.getNodeForDocument, this.nodeID);
+  return this.nodeSearch(
+    this._view.document,
+    this.getNodeForDocument,
+    this.nodeID
+  );
 };
 
 var Link = function(_document, linkName) {
@@ -194,7 +211,8 @@ Link.prototype.getNodeForDocument = function(linkName) {
   // sometimes the windows won't have this function
   try {
     var links = this.document.getElementsByTagName("a");
-  } catch (err) { // ADD LOG LINE mresults.write('Error: '+ err, 'lightred');
+  } catch (err) {
+    // ADD LOG LINE mresults.write('Error: '+ err, 'lightred');
   }
   for (var i = 0; i < links.length; i++) {
     var el = links[i];
@@ -206,7 +224,11 @@ Link.prototype.getNodeForDocument = function(linkName) {
 };
 
 Link.prototype.getNode = function() {
-  return this.nodeSearch(this._view.document, this.getNodeForDocument, this.linkName);
+  return this.nodeSearch(
+    this._view.document,
+    this.getNodeForDocument,
+    this.linkName
+  );
 };
 
 var XPath = function(_document, expr) {
@@ -231,8 +253,11 @@ XPath.prototype.getNodeForDocument = function(s) {
   } else {
     xpe = new this.document.defaultView.XPathEvaluator();
   }
-  var nsResolver = xpe.createNSResolver(aNode.ownerDocument == null ?
-    aNode.documentElement : aNode.ownerDocument.documentElement);
+  var nsResolver = xpe.createNSResolver(
+    aNode.ownerDocument == null
+      ? aNode.documentElement
+      : aNode.ownerDocument.documentElement
+  );
   var result = xpe.evaluate(aExpr, aNode, nsResolver, 0, null);
   var found = [];
   var res = result.iterateNext();
@@ -244,7 +269,11 @@ XPath.prototype.getNodeForDocument = function(s) {
 };
 
 XPath.prototype.getNode = function() {
-  return this.nodeSearch(this._view.document, this.getNodeForDocument, this.expr);
+  return this.nodeSearch(
+    this._view.document,
+    this.getNodeForDocument,
+    this.expr
+  );
 };
 
 var Name = function(_document, nName) {
@@ -270,9 +299,12 @@ Name.prototype.getNodeForDocument = function(s) {
 };
 
 Name.prototype.getNode = function() {
-  return this.nodeSearch(this._view.document, this.getNodeForDocument, this.nName);
+  return this.nodeSearch(
+    this._view.document,
+    this.getNodeForDocument,
+    this.nName
+  );
 };
-
 
 function Lookup(_document, expression) {
   if (_document == undefined || expression == undefined) {
@@ -303,7 +335,9 @@ var _forChildren = function(element, name, value) {
 };
 var _forAnonChildren = function(_document, element, name, value) {
   var results = [];
-  var nodes = Array.from(_document.getAnonymousNodes(element) || []).filter(e => e);
+  var nodes = Array.from(_document.getAnonymousNodes(element) || []).filter(
+    e => e
+  );
   for (var i in nodes) {
     var n = nodes[i];
     if (n[name] == value) {
@@ -329,8 +363,10 @@ var _byAttrib = function(parent, attributes) {
     for (var a in attributes) {
       requirementLength++;
       try {
-        if (n.getAttribute(a) == attributes[a] ||
-            (a == "class" && n.classList.contains(attributes[a]))) {
+        if (
+          n.getAttribute(a) == attributes[a] ||
+          (a == "class" && n.classList.contains(attributes[a]))
+        ) {
           requirementPass++;
         }
       } catch (err) {
@@ -348,14 +384,17 @@ var _byAnonAttrib = function(_document, parent, attributes) {
 
   if (Object.keys(attributes).length == 1) {
     for (var i in attributes) {
-      var k = i; var v = attributes[i];
+      var k = i;
+      var v = attributes[i];
     }
     var result = _document.getAnonymousElementByAttribute(parent, k, v);
     if (result) {
       return result;
     }
   }
-  var nodes = Array.from(_document.getAnonymousNodes(parent) || []).filter(n => n.getAttribute);
+  var nodes = Array.from(_document.getAnonymousNodes(parent) || []).filter(
+    n => n.getAttribute
+  );
   function resultsForNodes(nodes) {
     for (var i in nodes) {
       var n = nodes[i];
@@ -374,7 +413,11 @@ var _byAnonAttrib = function(_document, parent, attributes) {
   }
   resultsForNodes(nodes);
   if (results.length == 0) {
-    resultsForNodes(Array.from(parent.childNodes).filter(n => n != undefined && n.getAttribute));
+    resultsForNodes(
+      Array.from(parent.childNodes).filter(
+        n => n != undefined && n.getAttribute
+      )
+    );
   }
   return _returnResult(results);
 };
@@ -409,8 +452,12 @@ Lookup.prototype.getNode = function() {
   var expSplit = smartSplit(this.expression).filter(e => e != "");
   expSplit.unshift(this._view.document);
   var _document = this._view.document;
-  var nCases = {"id": _byID, "name": _byName, "attrib": _byAttrib, "index": _byIndex};
-  var aCases = {"name": _anonByName, "attrib": _anonByAttrib, "index": _anonByIndex};
+  var nCases = { id: _byID, name: _byName, attrib: _byAttrib, index: _byIndex };
+  var aCases = {
+    name: _anonByName,
+    attrib: _anonByAttrib,
+    index: _anonByIndex,
+  };
   var reduceLookup = function(parent, exp) {
     // Handle custom elements shadow DOM
     if (exp == "shadow") {
@@ -434,11 +481,21 @@ Lookup.prototype.getNode = function() {
       try {
         obj = JSON.parse(strings.vslice(exp, "[", "]"));
       } catch (err) {
-        throw new Error(err + ". String to be parsed was || " + strings.vslice(exp, "[", "]") + " ||");
+        throw new Error(
+          err +
+            ". String to be parsed was || " +
+            strings.vslice(exp, "[", "]") +
+            " ||"
+        );
       }
       var r = cases.index(_document, parent, obj);
       if (r == null) {
-        throw new Error('Expression "' + exp + '" returned null. Anonymous == ' + (cases == aCases));
+        throw new Error(
+          'Expression "' +
+            exp +
+            '" returned null. Anonymous == ' +
+            (cases == aCases)
+        );
       }
       return r;
     }
@@ -449,7 +506,12 @@ Lookup.prototype.getNode = function() {
         try {
           obj = JSON.parse(strings.vslice(exp, "(", ")"));
         } catch (err) {
-          throw new Error(err + ". String to be parsed was || " + strings.vslice(exp, "(", ")") + "  ||");
+          throw new Error(
+            err +
+              ". String to be parsed was || " +
+              strings.vslice(exp, "(", ")") +
+              "  ||"
+          );
         }
         var result = cases[c](_document, parent, obj);
       }
@@ -471,7 +533,12 @@ Lookup.prototype.getNode = function() {
         }
       }
       if (!result) {
-        throw new Error('Expression "' + exp + '" returned null. Anonymous == ' + (cases == aCases));
+        throw new Error(
+          'Expression "' +
+            exp +
+            '" returned null. Anonymous == ' +
+            (cases == aCases)
+        );
       }
     }
 

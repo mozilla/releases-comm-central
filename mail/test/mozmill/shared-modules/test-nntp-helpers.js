@@ -8,8 +8,10 @@ var MODULE_NAME = "nntp-helpers";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULES_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var kSimpleNewsArticle =
   "From: John Doe <john.doe@example.com>\n" +
@@ -50,8 +52,14 @@ function setupModule() {
       throw new Error(aMsg);
     },
   };
-  folderDisplayHelper.load_via_src_path("fakeserver/nntpd.js", testHelperModule);
-  folderDisplayHelper.load_via_src_path("fakeserver/maild.js", testHelperModule);
+  folderDisplayHelper.load_via_src_path(
+    "fakeserver/nntpd.js",
+    testHelperModule
+  );
+  folderDisplayHelper.load_via_src_path(
+    "fakeserver/maild.js",
+    testHelperModule
+  );
 }
 
 function installInto(module) {
@@ -64,7 +72,6 @@ function installInto(module) {
   module.startupNNTPServer = startupNNTPServer;
   module.shutdownNNTPServer = shutdownNNTPServer;
 }
-
 
 // Sets up the NNTP daemon object for use in fake server
 function setupNNTPDaemon() {
@@ -101,7 +108,6 @@ function shutdownNNTPServer(server) {
 // Enable strict threading
 Services.prefs.setBoolPref("mail.strict_threading", true);
 
-
 // Make sure we don't try to use a protected port. I like adding 1024 to the
 // default port when doing so...
 var NNTP_PORT = 1024 + 119;
@@ -112,19 +118,25 @@ function subscribeServer(incomingServer) {
   // Subscribe to newsgroups
   incomingServer.QueryInterface(Ci.nsINntpIncomingServer);
   groups.forEach(function(element) {
-      if (element[1])
-        incomingServer.subscribeToNewsgroup(element[0]);
-    });
+    if (element[1]) {
+      incomingServer.subscribeToNewsgroup(element[0]);
+    }
+  });
   // Only allow one connection
   incomingServer.maximumConnectionsNumber = 1;
 }
 
 // Sets up the client-side portion of fakeserver
 function setupLocalServer(port) {
-  if (_server != null)
+  if (_server != null) {
     return _server;
+  }
 
-  var server = MailServices.accounts.createIncomingServer(null, "localhost", "nntp");
+  var server = MailServices.accounts.createIncomingServer(
+    null,
+    "localhost",
+    "nntp"
+  );
   server.port = port;
   server.valid = false;
 

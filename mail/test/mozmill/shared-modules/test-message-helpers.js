@@ -13,7 +13,9 @@ var MODULE_NAME = "message-helpers";
 var frame = ChromeUtils.import("chrome://mozmill/content/modules/frame.jsm");
 var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 
-var {MsgHdrToMimeMessage} = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
+var { MsgHdrToMimeMessage } = ChromeUtils.import(
+  "resource:///modules/gloda/mimemsg.js"
+);
 
 function installInto(module) {
   module.to_mime_message = to_mime_message;
@@ -24,20 +26,31 @@ function installInto(module) {
  * the test will be marked failed. See the documentation for MsgHdrToMimeMessage
  * for more details.
  */
-function to_mime_message(aMsgHdr, aCallbackThis, aCallback, aAllowDownload, aOptions) {
+function to_mime_message(
+  aMsgHdr,
+  aCallbackThis,
+  aCallback,
+  aAllowDownload,
+  aOptions
+) {
   new frame.Runner(collector);
   let called = false;
   let currentTest = frame.events.currentTest;
-  MsgHdrToMimeMessage(aMsgHdr, aCallbackThis,
+  MsgHdrToMimeMessage(
+    aMsgHdr,
+    aCallbackThis,
     function(aRecdMsgHdr, aMimeMsg) {
       try {
         aCallback(aRecdMsgHdr, aMimeMsg);
       } catch (ex) {
         Cu.reportError(ex);
-        frame.events.fail({exception: ex, test: currentTest});
+        frame.events.fail({ exception: ex, test: currentTest });
       } finally {
         called = true;
       }
-    }, aAllowDownload, aOptions);
+    },
+    aAllowDownload,
+    aOptions
+  );
   utils.waitFor(() => called, "Timeout waiting for message to be parsed");
 }

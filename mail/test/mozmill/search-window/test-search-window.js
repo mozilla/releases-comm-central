@@ -15,9 +15,15 @@
 
 var MODULE_NAME = "test-search-window";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "search-window-helpers", "window-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "search-window-helpers",
+  "window-helpers",
+];
 
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 
 function setupModule(module) {
   let fdh = collector.getModule("folder-display-helpers");
@@ -38,9 +44,11 @@ var NUM_MESSAGES_TO_OPEN = 5;
  */
 function test_create_messages() {
   folder = create_folder("SearchWindowA");
-  [setFoo, setBar, setFooBar] =
-    make_new_sets_in_folder(folder, [{subject: "foo"}, {subject: "bar"},
-                                     {subject: "foo bar"}]);
+  [setFoo, setBar, setFooBar] = make_new_sets_in_folder(folder, [
+    { subject: "foo" },
+    { subject: "bar" },
+    { subject: "foo bar" },
+  ]);
 }
 
 /**
@@ -86,7 +94,7 @@ function test_enter_some_stuff() {
   searchVal0.value = "foo";
 
   // - add another subject box
-  let plusButton = swc.eid("searchRow0", {tagName: "button", label: "+"});
+  let plusButton = swc.eid("searchRow0", { tagName: "button", label: "+" });
   swc.click(plusButton);
 
   // - put "bar" in it
@@ -117,8 +125,10 @@ function test_go_search() {
   // This will create a virtual folder properties dialog...
   // (label: "New Saved Search Folder", source: virtualFolderProperties.xul
   //  no windowtype, id: "virtualFolderPropertiesDialog")
-  plan_for_modal_dialog("mailnews:virtualFolderProperties",
-                        subtest_save_search);
+  plan_for_modal_dialog(
+    "mailnews:virtualFolderProperties",
+    subtest_save_search
+  );
   swc.click(swc.eid("saveAsVFButton"));
   wait_for_modal_dialog("mailnews:virtualFolderProperties");
 }
@@ -177,9 +187,12 @@ function test_open_multiple_search_results_in_new_tabs() {
 
   // Now check whether each of the NUM_MESSAGES_TO_OPEN tabs has the correct
   // title
-  for (let i = 0; i < NUM_MESSAGES_TO_OPEN; i++)
-    assert_tab_titled_from(mc.tabmail.tabInfo[preCount + i],
-                           selectedMessages[i]);
+  for (let i = 0; i < NUM_MESSAGES_TO_OPEN; i++) {
+    assert_tab_titled_from(
+      mc.tabmail.tabInfo[preCount + i],
+      selectedMessages[i]
+    );
+  }
 
   // Check whether each tab has the correct message, then close it to load the
   // previous tab.
@@ -297,8 +310,9 @@ function test_close_search_window() {
  */
 function test_verify_saved_search() {
   let savedFolder = folder.getChildNamed("SearchSaved");
-  if (savedFolder == null)
+  if (savedFolder == null) {
     throw new Error("Saved folder did not show up.");
+  }
 
   be_in_folder(savedFolder);
   assert_messages_in_view(setFooBar);

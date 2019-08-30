@@ -18,9 +18,15 @@
 
 var MODULE_NAME = "test-account-settings-infrastructure";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "account-manager-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "account-manager-helpers",
+];
 
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 
 var gPopAccount, gImapAccount, gOriginalAccountCount;
 
@@ -57,7 +63,10 @@ function setupModule(module) {
   gImapAccount.addIdentity(identity);
 
   // Now there should be one more account.
-  assert_equals(MailServices.accounts.allServers.length, gOriginalAccountCount + 2);
+  assert_equals(
+    MailServices.accounts.allServers.length,
+    gOriginalAccountCount + 2
+  );
 }
 
 function teardownModule(module) {
@@ -113,18 +122,26 @@ function subtest_check_account_dot_IDs(amc) {
   assert_true(loginCheck.checked);
 
   // Check for correct value in the accountValues array, that will be saved into prefs.
-  let rawCheckValue = amc.window.getAccountValue(gPopAccount,
-                                                 amc.window.getValueArrayFor(gPopAccount),
-                                                 "server", "loginAtStartUp",
-                                                 null, false);
+  let rawCheckValue = amc.window.getAccountValue(
+    gPopAccount,
+    amc.window.getValueArrayFor(gPopAccount),
+    "server",
+    "loginAtStartUp",
+    null,
+    false
+  );
 
   assert_true(rawCheckValue);
 
   // The "server.login.At.StartUp" value does not exist yet, so the value should be 'null'.
-  rawCheckValue = amc.window.getAccountValue(gPopAccount,
-                                             amc.window.getValueArrayFor(gPopAccount),
-                                             "server", "login.At.StartUp",
-                                             null, false);
+  rawCheckValue = amc.window.getAccountValue(
+    gPopAccount,
+    amc.window.getValueArrayFor(gPopAccount),
+    "server",
+    "login.At.StartUp",
+    null,
+    false
+  );
   assert_equals(rawCheckValue, null);
 
   // Change the ID so that "server.login.At.StartUp" exists now.
@@ -139,10 +156,14 @@ function subtest_check_account_dot_IDs(amc) {
   // Check for correct value in the accountValues array, that will be saved into prefs.
   // We can't check by element property here, because the am-server.xul pane was
   // reloaded and the element now has the original ID of "server.loginAtStartUp".
-  rawCheckValue = amc.window.getAccountValue(gPopAccount,
-                                             amc.window.getValueArrayFor(gPopAccount),
-                                             "server", "login.At.StartUp",
-                                             null, false);
+  rawCheckValue = amc.window.getAccountValue(
+    gPopAccount,
+    amc.window.getValueArrayFor(gPopAccount),
+    "server",
+    "login.At.StartUp",
+    null,
+    false
+  );
 
   assert_true(rawCheckValue);
 }
@@ -168,7 +189,11 @@ function test_account_locked_prefs() {
  * @param amc  the account options controller
  */
 function subtest_check_locked_prefs_addressing(amc) {
-  let accountRow = get_account_tree_row(gPopAccount.key, "am-addressing.xul", amc);
+  let accountRow = get_account_tree_row(
+    gPopAccount.key,
+    "am-addressing.xul",
+    amc
+  );
   click_account_tree_row(amc, accountRow);
 
   let iframe = amc.e("contentFrame").contentDocument;
@@ -194,7 +219,10 @@ function subtest_check_locked_prefs_addressing(amc) {
 
   // Lock the pref for the server selector.
   let prefstring = LDAPdirectory.getAttribute("prefstring");
-  let controlPref = prefstring.replace("%identitykey%", gPopAccount.defaultIdentity.key);
+  let controlPref = prefstring.replace(
+    "%identitykey%",
+    gPopAccount.defaultIdentity.key
+  );
   Services.prefs.getDefaultBranch("").setBoolPref(controlPref, "xxx");
   Services.prefs.lockPref(controlPref);
 
@@ -267,7 +295,10 @@ function subtest_check_locked_prefs_server(amc) {
 
   // Lock the pref deleteByAge checkbox (middle of the element hierarchy).
   let prefstring = deleteByAge.getAttribute("prefstring");
-  let controlPref = prefstring.replace("%serverkey%", gPopAccount.incomingServer.key);
+  let controlPref = prefstring.replace(
+    "%serverkey%",
+    gPopAccount.incomingServer.key
+  );
   Services.prefs.getDefaultBranch("").setBoolPref(controlPref, true);
   Services.prefs.lockPref(controlPref);
 
@@ -341,8 +372,11 @@ function subtest_check_replyTo_leak(amc) {
 
   // This test expects the following POP account to exist by default
   // in the test profile with port number 110 and no security.
-  let firstServer = MailServices.accounts
-                                .FindServer("tinderbox", FAKE_SERVER_HOSTNAME, "pop3");
+  let firstServer = MailServices.accounts.FindServer(
+    "tinderbox",
+    FAKE_SERVER_HOSTNAME,
+    "pop3"
+  );
   let firstAccount = MailServices.accounts.FindAccountForServer(firstServer);
 
   accountRow = get_account_tree_row(firstAccount.key, null, amc);
@@ -369,7 +403,11 @@ function test_account_onchange_handler() {
  * @param amc  the account options controller
  */
 function subtest_check_onchange_handler(amc) {
-  let accountRow = get_account_tree_row(gImapAccount.key, "am-offline.xul", amc);
+  let accountRow = get_account_tree_row(
+    gImapAccount.key,
+    "am-offline.xul",
+    amc
+  );
   click_account_tree_row(amc, accountRow);
 
   let iframe = amc.e("contentFrame").contentDocument;

@@ -5,24 +5,21 @@
 /* import-globals-from mailWindowOverlay.js */
 /* import-globals-from utilityOverlay.js */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {
-  isLegalIPAddress,
-  isLegalLocalIPAddress,
-} = ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { isLegalIPAddress, isLegalLocalIPAddress } = ChromeUtils.import(
+  "resource:///modules/hostnameUtils.jsm"
+);
 
 var kPhishingNotSuspicious = 0;
 var kPhishingWithIPAddress = 1;
 var kPhishingWithMismatchedHosts = 2;
-
 
 var gPhishingDetector = {
   mCheckForIPAddresses: true,
   mCheckForMismatchedHosts: true,
   mDisallowFormActions: true,
 
-  shutdown() {
-  },
+  shutdown() {},
 
   /**
    * Initialize the phishing warden.
@@ -30,9 +27,15 @@ var gPhishingDetector = {
    * Update the local tables if necessary.
    */
   init() {
-    this.mCheckForIPAddresses = Services.prefs.getBoolPref("mail.phishing.detection.ipaddresses");
-    this.mCheckForMismatchedHosts = Services.prefs.getBoolPref("mail.phishing.detection.mismatched_hosts");
-    this.mDisallowFormActions = Services.prefs.getBoolPref("mail.phishing.detection.disallow_form_actions");
+    this.mCheckForIPAddresses = Services.prefs.getBoolPref(
+      "mail.phishing.detection.ipaddresses"
+    );
+    this.mCheckForMismatchedHosts = Services.prefs.getBoolPref(
+      "mail.phishing.detection.mismatched_hosts"
+    );
+    this.mDisallowFormActions = Services.prefs.getBoolPref(
+      "mail.phishing.detection.disallow_form_actions"
+    );
   },
 
   /**
@@ -48,8 +51,12 @@ var gPhishingDetector = {
    *         message is identified as a scam.
    */
   analyzeMsgForPhishingURLs(aUrl) {
-    if (!aUrl || !Services.prefs.getBoolPref("mail.phishing.detection.enabled"))
+    if (
+      !aUrl ||
+      !Services.prefs.getBoolPref("mail.phishing.detection.enabled")
+    ) {
       return;
+    }
 
     try {
       // nsIMsgMailNewsUrl.folder can throw an NS_ERROR_FAILURE, especially if
@@ -57,21 +64,29 @@ var gPhishingDetector = {
       var folder = aUrl.folder;
 
       // Ignore nntp and RSS messages.
-      if (folder.server.type == "nntp" || folder.server.type == "rss")
+      if (folder.server.type == "nntp" || folder.server.type == "rss") {
         return;
+      }
 
       // Also ignore messages in Sent/Drafts/Templates/Outbox.
-      let outgoingFlags = Ci.nsMsgFolderFlags.SentMail | Ci.nsMsgFolderFlags.Drafts |
-                          Ci.nsMsgFolderFlags.Templates | Ci.nsMsgFolderFlags.Queue;
-      if (folder.isSpecialFolder(outgoingFlags, true))
+      let outgoingFlags =
+        Ci.nsMsgFolderFlags.SentMail |
+        Ci.nsMsgFolderFlags.Drafts |
+        Ci.nsMsgFolderFlags.Templates |
+        Ci.nsMsgFolderFlags.Queue;
+      if (folder.isSpecialFolder(outgoingFlags, true)) {
         return;
+      }
     } catch (ex) {
-        if (ex.result != Cr.NS_ERROR_FAILURE)
-          throw ex;
+      if (ex.result != Cr.NS_ERROR_FAILURE) {
+        throw ex;
+      }
     }
 
     // If the message contains forms with action attributes, warn the user.
-    let formNodes = document.getElementById("messagepane").contentDocument.querySelectorAll("form[action]");
+    let formNodes = document
+      .getElementById("messagepane")
+      .contentDocument.querySelectorAll("form[action]");
 
     if (this.mDisallowFormActions && formNodes.length > 0) {
       gMessageNotificationBar.setPhishingMsg();
@@ -87,8 +102,9 @@ var gPhishingDetector = {
    * @return true if link node contains phishing URL. false otherwise.
    */
   analyzeUrl(aUrl, aLinkText) {
-    if (!aUrl)
+    if (!aUrl) {
       return false;
+    }
 
     let hrefURL;
     // make sure relative link urls don't make us bail out
@@ -104,23 +120,28 @@ var gPhishingDetector = {
       // The link is not suspicious if the visible text is the same as the URL,
       // even if the URL is an IP address. URLs are commonly surrounded by
       // < > or "" (RFC2396E) - so strip those from the link text before comparing.
-      if (aLinkText)
+      if (aLinkText) {
         aLinkText = aLinkText.replace(/^<(.+)>$|^"(.+)"$/, "$1$2");
+      }
 
       var failsStaticTests = false;
       // If the link text and url differs by something other than a trailing
       // slash, do some further checks.
-      if (aLinkText && aLinkText != aUrl &&
-          aLinkText.replace(/\/+$/, "") != aUrl.replace(/\/+$/, "")) {
+      if (
+        aLinkText &&
+        aLinkText != aUrl &&
+        aLinkText.replace(/\/+$/, "") != aUrl.replace(/\/+$/, "")
+      ) {
         if (this.mCheckForIPAddresses) {
           let unobscuredHostNameValue = isLegalIPAddress(hrefURL.host, true);
-          if (unobscuredHostNameValue)
+          if (unobscuredHostNameValue) {
             failsStaticTests = !isLegalLocalIPAddress(unobscuredHostNameValue);
+          }
         }
 
         if (!failsStaticTests && this.mCheckForMismatchedHosts) {
-          failsStaticTests = (aLinkText &&
-            this.misMatchedHostWithLinkText(hrefURL, aLinkText));
+          failsStaticTests =
+            aLinkText && this.misMatchedHostWithLinkText(hrefURL, aLinkText);
         }
       }
       // We don't use dynamic checks anymore. The old implementation was removed
@@ -141,16 +162,18 @@ var gPhishingDetector = {
    * as a phish.
    * @param aPhishingURL the url we want to report back as a phishing attack
    */
-   reportPhishingURL(aPhishingURL) {
-     let reportUrl = Services.urlFormatter.formatURLPref(
-       "browser.safebrowsing.reportPhishURL");
-     reportUrl += "&url=" + encodeURIComponent(aPhishingURL);
+  reportPhishingURL(aPhishingURL) {
+    let reportUrl = Services.urlFormatter.formatURLPref(
+      "browser.safebrowsing.reportPhishURL"
+    );
+    reportUrl += "&url=" + encodeURIComponent(aPhishingURL);
 
-     let uri = Services.io.newURI(reportUrl);
-     let protocolSvc = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-                       .getService(Ci.nsIExternalProtocolService);
-     protocolSvc.loadURI(uri);
-   },
+    let uri = Services.io.newURI(reportUrl);
+    let protocolSvc = Cc[
+      "@mozilla.org/uriloader/external-protocol-service;1"
+    ].getService(Ci.nsIExternalProtocolService);
+    protocolSvc.loadURI(uri);
+  },
 
   /**
    * Private helper method to determine if the link node contains a user visible
@@ -171,8 +194,10 @@ var gPhishingDetector = {
 
       // Compare the base domain of the href and the link text.
       try {
-        return Services.eTLD.getBaseDomain(aHrefURL) !=
-               Services.eTLD.getBaseDomain(linkTextURI);
+        return (
+          Services.eTLD.getBaseDomain(aHrefURL) !=
+          Services.eTLD.getBaseDomain(linkTextURI)
+        );
       } catch (e) {
         // If we throw above, one of the URIs probably has no TLD (e.g.
         // http://localhost), so just check the entire host.
@@ -212,22 +237,44 @@ var gPhishingDetector = {
       }
 
       let titleMsg = bundle.getString("linkMismatchTitle");
-      let dialogMsg = bundle.getFormattedString("confirmPhishingUrlAlternate",
-        [displayedURI.host, actualURI.host], 2);
-      let warningButtons = (Ci.nsIPromptService.BUTTON_POS_0) * (Ci.nsIPromptService.BUTTON_TITLE_IS_STRING) +
-       (Ci.nsIPromptService.BUTTON_POS_1) * (Ci.nsIPromptService.BUTTON_TITLE_CANCEL) +
-       (Ci.nsIPromptService.BUTTON_POS_2) * (Ci.nsIPromptService.BUTTON_TITLE_IS_STRING);
-      let button0Text = bundle.getFormattedString("confirmPhishingGoDirect",
-        [displayedURI.host], 1);
-      let button2Text = bundle.getFormattedString("confirmPhishingGoAhead",
-        [actualURI.host], 1);
-      return Services.prompt.confirmEx(window, titleMsg, dialogMsg,
-                                       warningButtons,
-                                       button0Text, "", button2Text, "", {});
+      let dialogMsg = bundle.getFormattedString(
+        "confirmPhishingUrlAlternate",
+        [displayedURI.host, actualURI.host],
+        2
+      );
+      let warningButtons =
+        Ci.nsIPromptService.BUTTON_POS_0 *
+          Ci.nsIPromptService.BUTTON_TITLE_IS_STRING +
+        Ci.nsIPromptService.BUTTON_POS_1 *
+          Ci.nsIPromptService.BUTTON_TITLE_CANCEL +
+        Ci.nsIPromptService.BUTTON_POS_2 *
+          Ci.nsIPromptService.BUTTON_TITLE_IS_STRING;
+      let button0Text = bundle.getFormattedString(
+        "confirmPhishingGoDirect",
+        [displayedURI.host],
+        1
+      );
+      let button2Text = bundle.getFormattedString(
+        "confirmPhishingGoAhead",
+        [actualURI.host],
+        1
+      );
+      return Services.prompt.confirmEx(
+        window,
+        titleMsg,
+        dialogMsg,
+        warningButtons,
+        button0Text,
+        "",
+        button2Text,
+        "",
+        {}
+      );
     }
 
     let hrefURL;
-    try { // make sure relative link urls don't make us bail out
+    try {
+      // make sure relative link urls don't make us bail out
       hrefURL = Services.io.newURI(aUrl);
     } catch (e) {
       return 1; // block the load
@@ -236,16 +283,32 @@ var gPhishingDetector = {
     // only prompt for http and https urls
     if (hrefURL.schemeIs("http") || hrefURL.schemeIs("https")) {
       // unobscure the host name in case it's an encoded ip address..
-      let unobscuredHostNameValue = isLegalIPAddress(hrefURL.host, true) || hrefURL.host;
+      let unobscuredHostNameValue =
+        isLegalIPAddress(hrefURL.host, true) || hrefURL.host;
 
-      let brandShortName = document.getElementById("bundle_brand")
-                                   .getString("brandShortName");
+      let brandShortName = document
+        .getElementById("bundle_brand")
+        .getString("brandShortName");
       let titleMsg = bundle.getString("confirmPhishingTitle");
-      let dialogMsg = bundle.getFormattedString("confirmPhishingUrl",
-        [brandShortName, unobscuredHostNameValue], 2);
-      let warningButtons = Ci.nsIPromptService.STD_YES_NO_BUTTONS + Ci.nsIPromptService.BUTTON_POS_1_DEFAULT;
-      return Services.prompt.confirmEx(window, titleMsg, dialogMsg,
-                                       warningButtons, "", "", "", "", {});
+      let dialogMsg = bundle.getFormattedString(
+        "confirmPhishingUrl",
+        [brandShortName, unobscuredHostNameValue],
+        2
+      );
+      let warningButtons =
+        Ci.nsIPromptService.STD_YES_NO_BUTTONS +
+        Ci.nsIPromptService.BUTTON_POS_1_DEFAULT;
+      return Services.prompt.confirmEx(
+        window,
+        titleMsg,
+        dialogMsg,
+        warningButtons,
+        "",
+        "",
+        "",
+        "",
+        {}
+      );
     }
     return 2; // allow the link to load
   },

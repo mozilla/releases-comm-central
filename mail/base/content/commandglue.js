@@ -11,15 +11,20 @@
 /* import-globals-from mailWindow.js */
 /* import-globals-from msgMail3PaneWindow.js */
 
-var { MailViewConstants } = ChromeUtils.import("resource:///modules/MailViewManager.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailViewConstants } = ChromeUtils.import(
+  "resource:///modules/MailViewManager.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function UpdateMailToolbar(caller) {
   // If we have a transient selection, we shouldn't update the toolbar. We'll
   // update it once we've restored the original selection.
-  if ("gRightMouseButtonSavedSelection" in window &&
-      window.gRightMouseButtonSavedSelection)
+  if (
+    "gRightMouseButtonSavedSelection" in window &&
+    window.gRightMouseButtonSavedSelection
+  ) {
     return;
+  }
 
   // dump("XXX update mail-toolbar " + caller + "\n");
   document.commandDispatcher.updateCommands("mail-toolbar");
@@ -39,8 +44,9 @@ function SwitchView(command) {
   // when switching thread views, we might be coming out of quick search
   // or a message view.
   // first set view picker to all
-  if (gFolderDisplay.view.mailViewIndex != MailViewConstants.kViewItemAll)
+  if (gFolderDisplay.view.mailViewIndex != MailViewConstants.kViewItemAll) {
     gFolderDisplay.view.setMailView(MailViewConstants.kViewItemAll);
+  }
 
   switch (command) {
     // "All" threads and "Unread" threads don't change threading state
@@ -71,12 +77,16 @@ function SetNewsFolderColumns() {
 
   if (gDBView.usingLines) {
     sizeColumn.setAttribute("label", bundle.getString("linesColumnHeader"));
-    sizeColumn.setAttribute("tooltiptext",
-                            bundle.getString("linesColumnTooltip2"));
+    sizeColumn.setAttribute(
+      "tooltiptext",
+      bundle.getString("linesColumnTooltip2")
+    );
   } else {
     sizeColumn.setAttribute("label", bundle.getString("sizeColumnHeader"));
-    sizeColumn.setAttribute("tooltiptext",
-                            bundle.getString("sizeColumnTooltip2"));
+    sizeColumn.setAttribute(
+      "tooltiptext",
+      bundle.getString("sizeColumnTooltip2")
+    );
   }
 }
 
@@ -102,11 +112,15 @@ function UpdateStatusMessageCounts(folder) {
     var numSelected = gFolderDisplay.selectedCount;
     var bundle = document.getElementById("bundle_messenger");
 
-    var numUnread = (numSelected > 1) ?
-      bundle.getFormattedString("selectedMsgStatus", [numSelected]) :
-      bundle.getFormattedString("unreadMsgStatus", [folder.getNumUnread(false)]);
-    var numTotal = bundle.getFormattedString("totalMsgStatus",
-                                             [folder.getTotalMessages(false)]);
+    var numUnread =
+      numSelected > 1
+        ? bundle.getFormattedString("selectedMsgStatus", [numSelected])
+        : bundle.getFormattedString("unreadMsgStatus", [
+            folder.getNumUnread(false),
+          ]);
+    var numTotal = bundle.getFormattedString("totalMsgStatus", [
+      folder.getTotalMessages(false),
+    ]);
 
     unreadElement.setAttribute("value", numUnread);
     totalElement.setAttribute("value", numTotal);
@@ -117,29 +131,37 @@ function UpdateStatusMessageCounts(folder) {
 
 var gQuotaUICache;
 function UpdateStatusQuota(folder) {
-  if (!(folder && // no folder selected
-        folder instanceof Ci.nsIMsgImapMailFolder)) { // POP etc.
-    if (typeof(gQuotaUICache) == "object") // ever shown quota
+  if (
+    !(folder && folder instanceof Ci.nsIMsgImapMailFolder) // no folder selected
+  ) {
+    // POP etc.
+    if (typeof gQuotaUICache == "object") {
+      // ever shown quota
       gQuotaUICache.panel.hidden = true;
+    }
     return;
   }
   folder = folder.QueryInterface(Ci.nsIMsgImapMailFolder);
 
   // get element references and prefs
-  if (typeof(gQuotaUICache) != "object") {
+  if (typeof gQuotaUICache != "object") {
     gQuotaUICache = {};
     gQuotaUICache.meter = document.getElementById("quotaMeter");
     gQuotaUICache.panel = document.getElementById("quotaPanel");
     gQuotaUICache.label = document.getElementById("quotaLabel");
     const kBranch = "mail.quota.mainwindow_threshold.";
     gQuotaUICache.showTreshold = Services.prefs.getIntPref(kBranch + "show");
-    gQuotaUICache.warningTreshold = Services.prefs.getIntPref(kBranch + "warning");
-    gQuotaUICache.criticalTreshold = Services.prefs.getIntPref(kBranch + "critical");
+    gQuotaUICache.warningTreshold = Services.prefs.getIntPref(
+      kBranch + "warning"
+    );
+    gQuotaUICache.criticalTreshold = Services.prefs.getIntPref(
+      kBranch + "critical"
+    );
   }
 
-  var valid = {value: null};
-  var used = {value: null};
-  var max = {value: null};
+  var valid = { value: null };
+  var used = { value: null };
+  var max = { value: null };
   try {
     // get data from backend
     folder.getQuota(valid, used, max);
@@ -147,7 +169,7 @@ function UpdateStatusQuota(folder) {
     dump(e + "\n");
   }
   if (valid.value && max.value > 0) {
-    var percent = Math.round(used.value / max.value * 100);
+    var percent = Math.round((used.value / max.value) * 100);
 
     // show in UI
     if (percent < gQuotaUICache.showTreshold) {
@@ -155,20 +177,23 @@ function UpdateStatusQuota(folder) {
     } else {
       gQuotaUICache.panel.hidden = false;
       gQuotaUICache.meter.setAttribute("value", percent);
-           // do not use value property, because that is imprecise (3%)
-           // for optimization that we don't need here
+      // do not use value property, because that is imprecise (3%)
+      // for optimization that we don't need here
       var bundle = document.getElementById("bundle_messenger");
       var label = bundle.getFormattedString("percent", [percent]);
-      var tooltip = bundle.getFormattedString("quotaTooltip",
-                                              [used.value, max.value]);
+      var tooltip = bundle.getFormattedString("quotaTooltip", [
+        used.value,
+        max.value,
+      ]);
       gQuotaUICache.label.value = label;
       gQuotaUICache.label.tooltipText = tooltip;
-      if (percent < gQuotaUICache.warningTreshold)
+      if (percent < gQuotaUICache.warningTreshold) {
         gQuotaUICache.panel.removeAttribute("alert");
-      else if (percent < gQuotaUICache.criticalTreshold)
+      } else if (percent < gQuotaUICache.criticalTreshold) {
         gQuotaUICache.panel.setAttribute("alert", "warning");
-      else
+      } else {
         gQuotaUICache.panel.setAttribute("alert", "critical");
+      }
     }
   } else {
     gQuotaUICache.panel.hidden = true;
@@ -239,12 +264,17 @@ function ConvertSortTypeToColumnID(sortKey) {
       columnID = "attachmentCol";
       break;
     case Ci.nsMsgViewSortType.byCustom:
-
       // TODO: either change try() catch to if (property exists) or restore the getColumnHandler() check
-      try { // getColumnHandler throws an error when the ID is not handled
+      try {
+        // getColumnHandler throws an error when the ID is not handled
         columnID = gDBView.curCustomColumn;
-      } catch (err) { // error - means no handler
-        dump("ConvertSortTypeToColumnID: custom sort key but no handler for column '" + columnID + "'\n");
+      } catch (err) {
+        // error - means no handler
+        dump(
+          "ConvertSortTypeToColumnID: custom sort key but no handler for column '" +
+            columnID +
+            "'\n"
+        );
         columnID = "dateCol";
       }
 
@@ -269,8 +299,9 @@ function ChangeMessagePaneVisibility(now_hidden) {
   // It will be enabled when loading a message with attachments
   // (see messageHeaderSink.handleAttachment).
   var node = document.getElementById("msgAttachmentMenu");
-  if (node && now_hidden)
+  if (node && now_hidden) {
     node.setAttribute("disabled", "true");
+  }
 
   gMessageDisplay.visible = !now_hidden;
 
@@ -304,8 +335,9 @@ function FolderPaneSelectionChange() {
     let locationItem = document.getElementById("locationFolders");
     if (locationItem) {
       locationItem.setAttribute("label", msgFolder.prettyName);
-      document.getElementById("folderLocationPopup")
-              ._setCssSelectors(msgFolder, locationItem);
+      document
+        .getElementById("folderLocationPopup")
+        ._setCssSelectors(msgFolder, locationItem);
     }
   }
 
@@ -322,8 +354,9 @@ function FolderPaneSelectionChange() {
   // of a row will be different from the value of currentIndex, thus if
   // the currentIndex is not selected, it means the user right-clicked
   // and we don't want to load the contents of the folder.
-  if (!folderSelection.isSelected(folderSelection.currentIndex))
+  if (!folderSelection.isSelected(folderSelection.currentIndex)) {
     return;
+  }
 
   gFolderDisplay.show(folders.length ? folders[0] : null);
   SetGetMsgButtonTooltip();

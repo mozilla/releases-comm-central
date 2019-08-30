@@ -18,7 +18,7 @@
 
 // Globals
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /* import-globals-from ../../accountcreation/content/util.js */
 /* import-globals-from ../../accountcreation/content/accountConfig.js */
@@ -26,25 +26,37 @@ var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 /* import-globals-from ../../accountcreation/content/fetchhttp.js */
 /* import-globals-from ../../accountcreation/content/guessConfig.js */
 
-Services.scriptloader.loadSubScript("chrome://messenger/content/accountcreation/util.js");
-Services.scriptloader.loadSubScript("chrome://messenger/content/accountcreation/accountConfig.js");
-Services.scriptloader.loadSubScript("chrome://messenger/content/accountcreation/sanitizeDatatypes.js");
-Services.scriptloader.loadSubScript("chrome://messenger/content/accountcreation/fetchhttp.js");
-Services.scriptloader.loadSubScript("chrome://messenger/content/accountcreation/guessConfig.js");
+Services.scriptloader.loadSubScript(
+  "chrome://messenger/content/accountcreation/util.js"
+);
+Services.scriptloader.loadSubScript(
+  "chrome://messenger/content/accountcreation/accountConfig.js"
+);
+Services.scriptloader.loadSubScript(
+  "chrome://messenger/content/accountcreation/sanitizeDatatypes.js"
+);
+Services.scriptloader.loadSubScript(
+  "chrome://messenger/content/accountcreation/fetchhttp.js"
+);
+Services.scriptloader.loadSubScript(
+  "chrome://messenger/content/accountcreation/guessConfig.js"
+);
 
 /*
  * UTILITIES
  */
 
 function assert(aBeTrue, aWhy) {
-  if (!aBeTrue)
+  if (!aBeTrue) {
     do_throw(aWhy);
+  }
   Assert.ok(aBeTrue);
 }
 
 function assert_equal(aA, aB, aWhy) {
-  if (aA != aB)
+  if (aA != aB) {
     do_throw(aWhy);
+  }
   Assert.equal(aA, aB);
 }
 
@@ -78,47 +90,45 @@ function checkPop(host, protocol) {
   // SSL configs are separated until bug 1520283 is fixed.
 
   // port == UNKNOWN
-    // [POP, TLS, 110], [POP, SSL, 995], [POP, NONE, 110]
+  // [POP, TLS, 110], [POP, SSL, 995], [POP, NONE, 110]
   // port != UNKNOWN
-    // ssl == UNKNOWN
-      // [POP, TLS, port], [POP, SSL, port], [POP, NONE, port]
-    // ssl != UNKNOWN
-      // [POP, ssl, port]
+  // ssl == UNKNOWN
+  // [POP, TLS, port], [POP, SSL, port], [POP, NONE, port]
+  // ssl != UNKNOWN
+  // [POP, ssl, port]
   let ssl = UNKNOWN;
   let port = UNKNOWN;
   let tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
-  assert_equal_try_orders(tryOrder,
-                          [[POP, TLS, 110],
-                        // [POP, SSL, 995],
-                           [POP, NONE, 110]]);
+  assert_equal_try_orders(tryOrder, [
+    [POP, TLS, 110],
+    // [POP, SSL, 995],
+    [POP, NONE, 110],
+  ]);
 
   ssl = TLS;
   tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
-  assert_equal_try_orders(tryOrder,
-                          [[POP, ssl, 110]]);
+  assert_equal_try_orders(tryOrder, [[POP, ssl, 110]]);
 
   ssl = SSL;
   tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
-  assert_equal_try_orders(tryOrder,
-                          [[POP, ssl, 995]]);
+  assert_equal_try_orders(tryOrder, [[POP, ssl, 995]]);
 
   ssl = NONE;
   tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
-  assert_equal_try_orders(tryOrder,
-                          [[POP, ssl, 110]]);
+  assert_equal_try_orders(tryOrder, [[POP, ssl, 110]]);
 
   ssl = UNKNOWN;
   port = 31337;
   tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
-  assert_equal_try_orders(tryOrder,
-                          [[POP, TLS, port],
-                        // [POP, SSL, port],
-                           [POP, NONE, port]]);
+  assert_equal_try_orders(tryOrder, [
+    [POP, TLS, port],
+    // [POP, SSL, port],
+    [POP, NONE, port],
+  ]);
 
   for (ssl in [TLS, SSL, NONE]) {
     tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
-    assert_equal_try_orders(tryOrder,
-                            [[POP, ssl, port]]);
+    assert_equal_try_orders(tryOrder, [[POP, ssl, port]]);
   }
 }
 
@@ -132,48 +142,46 @@ function checkImap(host, protocol) {
   // SSL configs are separated until bug 1520283 is fixed.
 
   // port == UNKNOWN
-    // [IMAP, TLS, 143], [IMAP, SSL, 993], [IMAP, NONE, 143]
+  // [IMAP, TLS, 143], [IMAP, SSL, 993], [IMAP, NONE, 143]
   // port != UNKNOWN
-    // ssl == UNKNOWN
-      // [IMAP, TLS, port], [IMAP, SSL, port], [IMAP, NONE, port]
-    // ssl != UNKNOWN
-     // [IMAP, ssl, port];
+  // ssl == UNKNOWN
+  // [IMAP, TLS, port], [IMAP, SSL, port], [IMAP, NONE, port]
+  // ssl != UNKNOWN
+  // [IMAP, ssl, port];
 
   let ssl = UNKNOWN;
   let port = UNKNOWN;
   let tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
-  assert_equal_try_orders(tryOrder,
-                          [[IMAP, TLS, 143],
-                        // [IMAP, SSL, 993],
-                           [IMAP, NONE, 143]]);
+  assert_equal_try_orders(tryOrder, [
+    [IMAP, TLS, 143],
+    // [IMAP, SSL, 993],
+    [IMAP, NONE, 143],
+  ]);
 
   ssl = TLS;
   tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
-  assert_equal_try_orders(tryOrder,
-                          [[IMAP, ssl, 143]]);
+  assert_equal_try_orders(tryOrder, [[IMAP, ssl, 143]]);
 
   ssl = SSL;
   tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
-  assert_equal_try_orders(tryOrder,
-                          [[IMAP, ssl, 993]]);
+  assert_equal_try_orders(tryOrder, [[IMAP, ssl, 993]]);
 
   ssl = NONE;
   tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
-  assert_equal_try_orders(tryOrder,
-                          [[IMAP, ssl, 143]]);
+  assert_equal_try_orders(tryOrder, [[IMAP, ssl, 143]]);
 
   ssl = UNKNOWN;
   port = 31337;
   tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
-  assert_equal_try_orders(tryOrder,
-                          [[IMAP, TLS, port],
-                        // [IMAP, SSL, port],
-                           [IMAP, NONE, port]]);
+  assert_equal_try_orders(tryOrder, [
+    [IMAP, TLS, port],
+    // [IMAP, SSL, port],
+    [IMAP, NONE, port],
+  ]);
 
   for (ssl in [TLS, SSL, NONE]) {
     tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
-    assert_equal_try_orders(tryOrder,
-                            [[IMAP, ssl, port]]);
+    assert_equal_try_orders(tryOrder, [[IMAP, ssl, port]]);
   }
 }
 
@@ -189,28 +197,27 @@ function checkImap(host, protocol) {
  */
 function test_getHostEntry() {
   // IMAP port numbers.
-  assert_equal_host_entries(getHostEntry(IMAP, TLS, UNKNOWN),
-                            [IMAP, TLS, 143]);
-  assert_equal_host_entries(getHostEntry(IMAP, SSL, UNKNOWN),
-                            [IMAP, SSL, 993]);
-  assert_equal_host_entries(getHostEntry(IMAP, NONE, UNKNOWN),
-                            [IMAP, NONE, 143]);
+  assert_equal_host_entries(getHostEntry(IMAP, TLS, UNKNOWN), [IMAP, TLS, 143]);
+  assert_equal_host_entries(getHostEntry(IMAP, SSL, UNKNOWN), [IMAP, SSL, 993]);
+  assert_equal_host_entries(getHostEntry(IMAP, NONE, UNKNOWN), [
+    IMAP,
+    NONE,
+    143,
+  ]);
 
   // POP port numbers.
-  assert_equal_host_entries(getHostEntry(POP, TLS, UNKNOWN),
-                            [POP, TLS, 110]);
-  assert_equal_host_entries(getHostEntry(POP, SSL, UNKNOWN),
-                            [POP, SSL, 995]);
-  assert_equal_host_entries(getHostEntry(POP, NONE, UNKNOWN),
-                            [POP, NONE, 110]);
+  assert_equal_host_entries(getHostEntry(POP, TLS, UNKNOWN), [POP, TLS, 110]);
+  assert_equal_host_entries(getHostEntry(POP, SSL, UNKNOWN), [POP, SSL, 995]);
+  assert_equal_host_entries(getHostEntry(POP, NONE, UNKNOWN), [POP, NONE, 110]);
 
   // SMTP port numbers.
-  assert_equal_host_entries(getHostEntry(SMTP, TLS, UNKNOWN),
-                            [SMTP, TLS, 587]);
-  assert_equal_host_entries(getHostEntry(SMTP, SSL, UNKNOWN),
-                            [SMTP, SSL, 465]);
-  assert_equal_host_entries(getHostEntry(SMTP, NONE, UNKNOWN),
-                            [SMTP, NONE, 587]);
+  assert_equal_host_entries(getHostEntry(SMTP, TLS, UNKNOWN), [SMTP, TLS, 587]);
+  assert_equal_host_entries(getHostEntry(SMTP, SSL, UNKNOWN), [SMTP, SSL, 465]);
+  assert_equal_host_entries(getHostEntry(SMTP, NONE, UNKNOWN), [
+    SMTP,
+    NONE,
+    587,
+  ]);
 }
 
 /**
@@ -237,36 +244,34 @@ function test_getIncomingTryOrder() {
   let ssl = UNKNOWN;
   let port = UNKNOWN;
   let tryOrder = getIncomingTryOrder(domain, protocol, ssl, port);
-  assert_equal_try_orders(tryOrder,
-                          [[IMAP, TLS, 143],
-                        // [IMAP, SSL, 993],
-                           [POP, TLS, 110],
-                        // [POP, SSL, 995],
-                           [IMAP, NONE, 143],
-                           [POP, NONE, 110]]);
+  assert_equal_try_orders(tryOrder, [
+    [IMAP, TLS, 143],
+    // [IMAP, SSL, 993],
+    [POP, TLS, 110],
+    // [POP, SSL, 995],
+    [IMAP, NONE, 143],
+    [POP, NONE, 110],
+  ]);
 
   ssl = SSL;
   tryOrder = getIncomingTryOrder(domain, protocol, ssl, port);
-  assert_equal_try_orders(tryOrder,
-                          [[IMAP, SSL, 993],
-                           [POP, SSL, 995]]);
+  assert_equal_try_orders(tryOrder, [[IMAP, SSL, 993], [POP, SSL, 995]]);
 
   ssl = UNKNOWN;
   port = 31337;
   tryOrder = getIncomingTryOrder(domain, protocol, ssl, port);
-  assert_equal_try_orders(tryOrder,
-                          [[IMAP, TLS, port],
-                        // [IMAP, SSL, port],
-                           [POP, TLS, port],
-                        // [POP, SSL, port],
-                           [IMAP, NONE, port],
-                           [POP, NONE, port]]);
+  assert_equal_try_orders(tryOrder, [
+    [IMAP, TLS, port],
+    // [IMAP, SSL, port],
+    [POP, TLS, port],
+    // [POP, SSL, port],
+    [IMAP, NONE, port],
+    [POP, NONE, port],
+  ]);
 
   ssl = SSL;
   tryOrder = getIncomingTryOrder(domain, protocol, ssl, port);
-  assert_equal_try_orders(tryOrder,
-                          [[IMAP, SSL, port],
-                           [POP, SSL, port]]);
+  assert_equal_try_orders(tryOrder, [[IMAP, SSL, port], [POP, SSL, port]]);
 }
 
 /**
@@ -281,32 +286,31 @@ function test_getOutgoingTryOrder() {
   let ssl = UNKNOWN;
   let port = UNKNOWN;
   let tryOrder = getOutgoingTryOrder(domain, protocol, ssl, port);
-  assert_equal_try_orders(tryOrder,
-                          [[SMTP, TLS, 587],
-                           [SMTP, TLS, 25],
-                        // [SMTP, SSL, 465],
-                           [SMTP, NONE, 587],
-                           [SMTP, NONE, 25]]);
+  assert_equal_try_orders(tryOrder, [
+    [SMTP, TLS, 587],
+    [SMTP, TLS, 25],
+    // [SMTP, SSL, 465],
+    [SMTP, NONE, 587],
+    [SMTP, NONE, 25],
+  ]);
 
   ssl = SSL;
   tryOrder = getOutgoingTryOrder(domain, protocol, ssl, port);
-  assert_equal_try_orders(tryOrder,
-                          [[SMTP, SSL, 465]]);
+  assert_equal_try_orders(tryOrder, [[SMTP, SSL, 465]]);
 
   ssl = UNKNOWN;
   port = 31337;
   tryOrder = getOutgoingTryOrder(domain, protocol, ssl, port);
-  assert_equal_try_orders(tryOrder,
-                          [[SMTP, TLS, port],
-                        // [SMTP, SSL, port],
-                           [SMTP, NONE, port]]);
+  assert_equal_try_orders(tryOrder, [
+    [SMTP, TLS, port],
+    // [SMTP, SSL, port],
+    [SMTP, NONE, port],
+  ]);
 
   ssl = SSL;
   tryOrder = getOutgoingTryOrder(domain, protocol, ssl, port);
-  assert_equal_try_orders(tryOrder,
-                          [[SMTP, SSL, port]]);
+  assert_equal_try_orders(tryOrder, [[SMTP, SSL, port]]);
 }
-
 
 function run_test() {
   test_getHostEntry();

@@ -29,7 +29,7 @@ function setupModule(module) {
  */
 function test_setup_virtual_folder_and_compact() {
   let otherFolder = create_folder("otherFolder");
-  make_new_sets_in_folder(otherFolder, [{count: 2}]);
+  make_new_sets_in_folder(otherFolder, [{ count: 2 }]);
 
   /**
    * We delete the first message in the local folder, so compaction of the
@@ -42,16 +42,19 @@ function test_setup_virtual_folder_and_compact() {
   select_click_row(0);
   press_delete();
 
-  let folderVirtual = create_virtual_folder([inboxFolder, otherFolder], {},
-                                            true, "SavedSearch");
+  let folderVirtual = create_virtual_folder(
+    [inboxFolder, otherFolder],
+    {},
+    true,
+    "SavedSearch"
+  );
 
   be_in_folder(folderVirtual);
   select_click_row(0);
   let urlListener = {
     compactDone: false,
 
-    OnStartRunningUrl(aUrl) {
-    },
+    OnStartRunningUrl(aUrl) {},
     OnStopRunningUrl(aUrl, aExitCode) {
       this.compactDone = true;
     },
@@ -59,12 +62,15 @@ function test_setup_virtual_folder_and_compact() {
   if (otherFolder.msgStore.supportsCompaction) {
     otherFolder.compactAll(urlListener, null, false);
 
-    mc.waitFor(() => urlListener.compactDone,
-               "Timeout waiting for compact to complete", 10000, 100);
+    mc.waitFor(
+      () => urlListener.compactDone,
+      "Timeout waiting for compact to complete",
+      10000,
+      100
+    );
   }
   // Let the event queue clear.
   mc.sleep(0);
   // Check view is still valid
   mc.dbView.getMsgHdrAt(0);
 }
-

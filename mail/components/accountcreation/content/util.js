@@ -9,15 +9,17 @@
 /* import-globals-from emailWizard.js */
 
 var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // --------------------------
 // Low level, basic functions
 
 function assert(test, errorMsg) {
-  if (!test)
-    throw new NotReached(errorMsg ? errorMsg :
-          "Programming bug. Assertion failed, see log.");
+  if (!test) {
+    throw new NotReached(
+      errorMsg ? errorMsg : "Programming bug. Assertion failed, see log."
+    );
+  }
 }
 
 function makeCallback(obj, func) {
@@ -53,22 +55,30 @@ function makeNSIURI(uriStr) {
  */
 function readURLasUTF8(uri) {
   assert(uri instanceof Ci.nsIURI, "uri must be an nsIURI");
-  let chan = Services.io.newChannelFromURI(uri,
-                                           null,
-                                           Services.scriptSecurityManager.getSystemPrincipal(),
-                                           null,
-                                           Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                           Ci.nsIContentPolicy.TYPE_OTHER);
-  let is = Cc["@mozilla.org/intl/converter-input-stream;1"]
-           .createInstance(Ci.nsIConverterInputStream);
-  is.init(chan.open(), "UTF-8", 1024,
-          Ci.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
+  let chan = Services.io.newChannelFromURI(
+    uri,
+    null,
+    Services.scriptSecurityManager.getSystemPrincipal(),
+    null,
+    Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+    Ci.nsIContentPolicy.TYPE_OTHER
+  );
+  let is = Cc["@mozilla.org/intl/converter-input-stream;1"].createInstance(
+    Ci.nsIConverterInputStream
+  );
+  is.init(
+    chan.open(),
+    "UTF-8",
+    1024,
+    Ci.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER
+  );
 
   let content = "";
   let strOut = {};
   try {
-    while (is.readString(1024, strOut) != 0)
+    while (is.readString(1024, strOut) != 0) {
       content += strOut.value;
+    }
   } finally {
     is.close();
   }
@@ -118,8 +128,9 @@ function getStringBundle(bundleURI) {
   try {
     return Services.strings.createBundle(bundleURI);
   } catch (e) {
-    throw new Exception("Failed to get stringbundle URI <" + bundleURI +
-                        ">. Error: " + e);
+    throw new Exception(
+      "Failed to get stringbundle URI <" + bundleURI + ">. Error: " + e
+    );
   }
 }
 
@@ -155,11 +166,9 @@ NotReached.prototype.constructor = NotReached;
  * The async function will return an object of this type (a subtype)
  * and you can call cancel() when you feel like killing the function.
  */
-function Abortable() {
-}
+function Abortable() {}
 Abortable.prototype = {
-  cancel(e) {
-  },
+  cancel(e) {},
 };
 
 function CancelledException(msg) {
@@ -181,17 +190,19 @@ function PromiseAbortable(promise, successCallback, errorCallback) {
       errorCallback(e || new CancelledException());
     }
   };
-  promise.then(function(result) {
-    if (!complete) {
-      successCallback(result);
-      complete = true;
-    }
-  }).catch(function(e) {
-    if (!complete) {
-      complete = true;
-      errorCallback(e);
-    }
-  });
+  promise
+    .then(function(result) {
+      if (!complete) {
+        successCallback(result);
+        complete = true;
+      }
+    })
+    .catch(function(e) {
+      if (!complete) {
+        complete = true;
+        errorCallback(e);
+      }
+    });
 }
 PromiseAbortable.prototype = Object.create(Abortable.prototype);
 PromiseAbortable.prototype.constructor = PromiseAbortable;
@@ -207,7 +218,9 @@ function TimeoutAbortable(setTimeoutID) {
 }
 TimeoutAbortable.prototype = Object.create(Abortable.prototype);
 TimeoutAbortable.prototype.constructor = TimeoutAbortable;
-TimeoutAbortable.prototype.cancel = function() { clearTimeout(this._id); };
+TimeoutAbortable.prototype.cancel = function() {
+  clearTimeout(this._id);
+};
 
 /**
  * Utility implementation, for allowing to abort a setTimeout.
@@ -220,7 +233,9 @@ function IntervalAbortable(setIntervalID) {
 }
 IntervalAbortable.prototype = Object.create(Abortable.prototype);
 IntervalAbortable.prototype.constructor = IntervalAbortable;
-IntervalAbortable.prototype.cancel = function() { clearInterval(this._id); };
+IntervalAbortable.prototype.cancel = function() {
+  clearInterval(this._id);
+};
 
 /**
  * Allows you to make several network calls,
@@ -236,8 +251,10 @@ SuccessiveAbortable.prototype = {
     return this._current;
   },
   set current(abortable) {
-    assert(abortable instanceof Abortable || abortable == null,
-        "need an Abortable object (or null)");
+    assert(
+      abortable instanceof Abortable || abortable == null,
+      "need an Abortable object (or null)"
+    );
     this._current = abortable;
   },
   cancel(e) {
@@ -280,7 +297,7 @@ ParallelAbortable.prototype = {
    * @param {Function({ParallelCall} call)} func
    */
   addOneFinishedObserver(func) {
-    assert(typeof(func) == "function");
+    assert(typeof func == "function");
     this._finishedObservers.push(func);
   },
   /**
@@ -293,7 +310,7 @@ ParallelAbortable.prototype = {
    *   )} func
    */
   addAllFinishedObserver(func) {
-    assert(typeof(func) == "function");
+    assert(typeof func == "function");
     this.addOneFinishedObserver(() => {
       if (this._calls.some(call => !call.finished)) {
         return;
@@ -353,8 +370,16 @@ ParallelCall.prototype = {
    */
   successCallback() {
     return result => {
-      ddump("call " + this.position + " took " + (Date.now() - this._time) + "ms and succeeded" +
-          (this.callerAbortable && this.callerAbortable._url ? " at <" + this.callerAbortable._url + ">" : ""));
+      ddump(
+        "call " +
+          this.position +
+          " took " +
+          (Date.now() - this._time) +
+          "ms and succeeded" +
+          (this.callerAbortable && this.callerAbortable._url
+            ? " at <" + this.callerAbortable._url + ">"
+            : "")
+      );
       this.result = result;
       this.finished = true;
       this.succeeded = true;
@@ -368,10 +393,20 @@ ParallelCall.prototype = {
    */
   errorCallback() {
     return e => {
-      ddump("call " + this.position + " took " + (Date.now() - this._time) +
-          "ms and failed with " + (typeof(e.code) == "number" ? e.code + " " : "") +
-          (e.toString() ? e.toString() : "unknown error, probably no host connection") +
-          (this.callerAbortable && this.callerAbortable._url ? " at <" + this.callerAbortable._url + ">" : ""));
+      ddump(
+        "call " +
+          this.position +
+          " took " +
+          (Date.now() - this._time) +
+          "ms and failed with " +
+          (typeof e.code == "number" ? e.code + " " : "") +
+          (e.toString()
+            ? e.toString()
+            : "unknown error, probably no host connection") +
+          (this.callerAbortable && this.callerAbortable._url
+            ? " at <" + this.callerAbortable._url + ">"
+            : "")
+      );
       this.e = e;
       this.finished = true;
       this.succeeded = false;
@@ -411,8 +446,8 @@ ParallelCall.prototype = {
  *     {Array of Exception} allErrors - The exceptions from all calls.
  */
 function PriorityOrderAbortable(successCallback, errorCallback) {
-  assert(typeof(successCallback) == "function");
-  assert(typeof(errorCallback) == "function");
+  assert(typeof successCallback == "function");
+  assert(typeof errorCallback == "function");
   ParallelAbortable.call(this); // call super constructor
   this._successfulCall = null;
 
@@ -422,7 +457,9 @@ function PriorityOrderAbortable(successCallback, errorCallback) {
         if (this._successfulCall) {
           // abort
           if (call.callerAbortable) {
-            call.callerAbortable.cancel(new NoLongerNeededException("Another higher call succeeded"));
+            call.callerAbortable.cancel(
+              new NoLongerNeededException("Another higher call succeeded")
+            );
           }
           continue;
         }
@@ -508,8 +545,12 @@ AddonInstaller.prototype.constructor = AddonInstaller;
  * @returns {Boolean} is OK
  */
 AddonInstaller.prototype.matches = function(addon) {
-  return !this._id || (this._id == addon.id &&
-    (!this._minVersion || Services.vc.compare(addon.version, this._minVersion) >= 0));
+  return (
+    !this._id ||
+    (this._id == addon.id &&
+      (!this._minVersion ||
+        Services.vc.compare(addon.version, this._minVersion) >= 0))
+  );
 };
 
 /**
@@ -541,8 +582,10 @@ AddonInstaller.prototype.isInstalled = async function() {
  * The downloaded XPI will be checked using prompt().
  */
 AddonInstaller.prototype._installDirect = async function() {
-  var installer = this._installer = await AddonManager.getInstallForURL(
-    this._url, {name: this._name});
+  var installer = (this._installer = await AddonManager.getInstallForURL(
+    this._url,
+    { name: this._name }
+  ));
   installer.promptHandler = makeCallback(this, this.prompt);
   await installer.install(); // throws, if failed
 
@@ -565,7 +608,9 @@ AddonInstaller.prototype._installDirect = async function() {
 AddonInstaller.prototype.prompt = async function(info) {
   if (!this.matches(info.addon)) {
     // happens only when we got the wrong XPI
-    throw new Exception("The downloaded addon XPI does not match the minimum requirements");
+    throw new Exception(
+      "The downloaded addon XPI does not match the minimum requirements"
+    );
   }
 };
 
@@ -573,7 +618,8 @@ AddonInstaller.prototype.cancel = function() {
   if (this._installer) {
     try {
       this._installer.cancel();
-    } catch (e) { // if install failed
+    } catch (e) {
+      // if install failed
       ddump(e);
     }
   }
@@ -583,36 +629,47 @@ AddonInstaller.prototype.cancel = function() {
 // Debug output
 
 function deepCopy(org) {
-  if (typeof(org) == "undefined")
+  if (typeof org == "undefined") {
     return undefined;
-  if (org == null)
+  }
+  if (org == null) {
     return null;
-  if (typeof(org) == "string")
+  }
+  if (typeof org == "string") {
     return org;
-  if (typeof(org) == "number")
+  }
+  if (typeof org == "number") {
     return org;
-  if (typeof(org) == "boolean")
+  }
+  if (typeof org == "boolean") {
     return org;
-  if (typeof(org) == "function")
+  }
+  if (typeof org == "function") {
     return org;
-  if (typeof(org) != "object")
-    throw new Error("can't copy objects of type " + typeof(org) + " yet");
+  }
+  if (typeof org != "object") {
+    throw new Error("can't copy objects of type " + typeof org + " yet");
+  }
 
   // TODO still instanceof org != instanceof copy
   // var result = new org.constructor();
   var result = {};
-  if (typeof(org.length) != "undefined")
+  if (typeof org.length != "undefined") {
     result = [];
-  for (var prop in org)
+  }
+  for (var prop in org) {
     result[prop] = deepCopy(org[prop]);
+  }
   return result;
 }
 
 if (typeof gEmailWizardLogger == "undefined") {
-  var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+  var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
   var gEmailWizardLogger = Log4Moz.getConfiguredLogger("mail.setup");
   gEmailWizardLogger.level = Log4Moz.Level.Info;
-  gEmailWizardLogger.addAppender(new Log4Moz.ConsoleAppender(new Log4Moz.BasicFormatter())); // browser console
+  gEmailWizardLogger.addAppender(
+    new Log4Moz.ConsoleAppender(new Log4Moz.BasicFormatter())
+  ); // browser console
 }
 
 function ddump(text) {
@@ -620,25 +677,37 @@ function ddump(text) {
 }
 
 function debugObject(obj, name, maxDepth, curDepth) {
-  if (curDepth == undefined)
+  if (curDepth == undefined) {
     curDepth = 0;
-  if (maxDepth != undefined && curDepth > maxDepth)
+  }
+  if (maxDepth != undefined && curDepth > maxDepth) {
     return "";
+  }
 
   var result = "";
   var i = 0;
   for (let prop in obj) {
     i++;
     try {
-      if (typeof(obj[prop]) == "object") {
-        if (obj[prop] && obj[prop].length != undefined)
-          result += name + "." + prop + "=[probably array, length " +
-                obj[prop].length + "]\n";
-        else
-          result += name + "." + prop + "=[" + typeof(obj[prop]) + "]\n";
-        result += debugObject(obj[prop], name + "." + prop,
-                              maxDepth, curDepth + 1);
-      } else if (typeof(obj[prop]) == "function") {
+      if (typeof obj[prop] == "object") {
+        if (obj[prop] && obj[prop].length != undefined) {
+          result +=
+            name +
+            "." +
+            prop +
+            "=[probably array, length " +
+            obj[prop].length +
+            "]\n";
+        } else {
+          result += name + "." + prop + "=[" + typeof obj[prop] + "]\n";
+        }
+        result += debugObject(
+          obj[prop],
+          name + "." + prop,
+          maxDepth,
+          curDepth + 1
+        );
+      } else if (typeof obj[prop] == "function") {
         result += name + "." + prop + "=[function]\n";
       } else {
         result += name + "." + prop + "=" + obj[prop] + "\n";
@@ -647,8 +716,9 @@ function debugObject(obj, name, maxDepth, curDepth) {
       result += name + "." + prop + "-> Exception(" + e + ")\n";
     }
   }
-  if (!i)
+  if (!i) {
     result += name + " is empty\n";
+  }
   return result;
 }
 

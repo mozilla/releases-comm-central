@@ -36,11 +36,13 @@ function setupModule(module) {
   // For setTagged, we want exactly as many messages as we plan to delete, so
   // that we can test that the message window and tabs close when they run out
   // of things to display.
-  let [, setTagged] = make_new_sets_in_folder(baseFolder, [{count: 4},
-                                                           {count: 4}]);
+  let [, setTagged] = make_new_sets_in_folder(baseFolder, [
+    { count: 4 },
+    { count: 4 },
+  ]);
   setTagged.addTag("$label1"); // Important, by default
   // We depend on the count for this, too
-  [setNormal] = make_new_sets_in_folder(inboxFolder, [{count: 4}]);
+  [setNormal] = make_new_sets_in_folder(inboxFolder, [{ count: 4 }]);
 
   // Add the view picker to the toolbar
   let toolbar = mc.e("mail-bar3");
@@ -56,7 +58,7 @@ var VERIFY_MESSAGE_TAB = 0x2;
 var VERIFY_BACKGROUND_MESSAGE_TAB = 0x4;
 // Check whether this message is displayed in the message window
 var VERIFY_MESSAGE_WINDOW = 0x8;
-var VERIFY_ALL = 0xF;
+var VERIFY_ALL = 0xf;
 
 /**
  * Verify that the message is displayed in the given tabs. The index is
@@ -66,8 +68,9 @@ function _verify_message_is_displayed_in(aFlags, aMessage, aIndex) {
   if (aFlags & VERIFY_FOLDER_TAB) {
     switch_tab(tabFolder);
     assert_selected_and_displayed(aMessage);
-    if (aIndex !== undefined)
+    if (aIndex !== undefined) {
       assert_selected_and_displayed(aIndex);
+    }
   }
   if (aFlags & VERIFY_MESSAGE_TAB) {
     // Verify the title first
@@ -76,8 +79,9 @@ function _verify_message_is_displayed_in(aFlags, aMessage, aIndex) {
     // Verify the title again, just in case
     assert_tab_titled_from(tabMessage, aMessage);
     assert_selected_and_displayed(aMessage);
-    if (aIndex !== undefined)
+    if (aIndex !== undefined) {
       assert_selected_and_displayed(aIndex);
+    }
   }
   if (aFlags & VERIFY_BACKGROUND_MESSAGE_TAB) {
     // Only verify the title
@@ -85,8 +89,9 @@ function _verify_message_is_displayed_in(aFlags, aMessage, aIndex) {
   }
   if (aFlags & VERIFY_MESSAGE_WINDOW) {
     assert_selected_and_displayed(msgc, aMessage);
-    if (aIndex !== undefined)
+    if (aIndex !== undefined) {
       assert_selected_and_displayed(msgc, aIndex);
+    }
   }
 }
 
@@ -99,8 +104,10 @@ function test_create_virtual_folders() {
   wait_for_all_messages_to_load();
 
   // - save it
-  plan_for_modal_dialog("mailnews:virtualFolderProperties",
-                        subtest_save_mail_view);
+  plan_for_modal_dialog(
+    "mailnews:virtualFolderProperties",
+    subtest_save_mail_view
+  );
   // we have to use value here because the option mechanism is not sophisticated
   //  enough.
   mc.window.ViewChange(MailViewConstants.kViewItemVirtual);
@@ -134,11 +141,11 @@ function _open_first_message() {
   assert_selected_and_displayed(msgc, curMessage);
 }
 
-
 function test_open_first_message_in_virtual_folder() {
   folder = baseFolder.getChildNamed(baseFolder.prettyName + "-Important");
-  if (!folder)
+  if (!folder) {
     throw new Error("DeletionFromVirtualFoldersA-Important was not created!");
+  }
 
   _open_first_message();
 }
@@ -174,8 +181,9 @@ function test_delete_from_virtual_folder_in_message_tab() {
 
   // figure out the next guy...
   nextMessage = mc.dbView.getMsgHdrAt(1);
-  if (!nextMessage)
+  if (!nextMessage) {
     throw new Error("We ran out of messages early?");
+  }
 }
 
 /**
@@ -212,11 +220,13 @@ function test_delete_last_message_from_virtual_folder_closes_message_displays() 
   msgc = null;
 
   // - and we should now be on the folder tab and there should be no other tabs
-  if (mc.tabmail.tabInfo.length != 1)
+  if (mc.tabmail.tabInfo.length != 1) {
     throw new Error("There should only be one tab left!");
+  }
   // the below check is implied by the previous check if things are sane-ish
-  if (mc.tabmail.currentTabInfo != tabFolder)
+  if (mc.tabmail.currentTabInfo != tabFolder) {
     throw new Error("We should be on the folder tab!");
+  }
 }
 
 /**
@@ -264,8 +274,9 @@ function test_delete_from_smart_inbox_in_message_tab() {
 
   // figure out the next guy...
   nextMessage = mc.dbView.getMsgHdrAt(1);
-  if (!nextMessage)
+  if (!nextMessage) {
     throw new Error("We ran out of messages early?");
+  }
 }
 
 /**
@@ -302,11 +313,13 @@ function test_delete_last_message_from_smart_inbox_closes_message_displays() {
   msgc = null;
 
   // - and we should now be on the folder tab and there should be no other tabs
-  if (mc.tabmail.tabInfo.length != 1)
+  if (mc.tabmail.tabInfo.length != 1) {
     throw new Error("There should only be one tab left!");
+  }
   // the below check is implied by the previous check if things are sane-ish
-  if (mc.tabmail.currentTabInfo != tabFolder)
+  if (mc.tabmail.currentTabInfo != tabFolder) {
     throw new Error("We should be on the folder tab!");
+  }
 }
 
 /**

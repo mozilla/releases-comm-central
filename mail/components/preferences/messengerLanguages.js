@@ -2,15 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // This is exported by preferences.js but we can't import that in a subdialog.
-let {getAvailableLocales} = window.top;
+let { getAvailableLocales } = window.top;
 
-ChromeUtils.defineModuleGetter(this, "AddonManager",
-                               "resource://gre/modules/AddonManager.jsm");
-ChromeUtils.defineModuleGetter(this, "AddonRepository",
-                               "resource://gre/modules/addons/AddonRepository.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "AddonManager",
+  "resource://gre/modules/AddonManager.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "AddonRepository",
+  "resource://gre/modules/addons/AddonRepository.jsm"
+);
 
 /* This dialog provides an interface for managing what language the browser is
  * displayed in.
@@ -25,7 +31,7 @@ ChromeUtils.defineModuleGetter(this, "AddonRepository",
  */
 
 class OrderedListBox {
-  constructor({richlistbox, upButton, downButton, removeButton, onRemove}) {
+  constructor({ richlistbox, upButton, downButton, removeButton, onRemove }) {
     this.richlistbox = richlistbox;
     this.upButton = upButton;
     this.downButton = downButton;
@@ -45,19 +51,19 @@ class OrderedListBox {
   }
 
   setButtonState() {
-    let {upButton, downButton, removeButton} = this;
-    let {selectedIndex, itemCount} = this.richlistbox;
+    let { upButton, downButton, removeButton } = this;
+    let { selectedIndex, itemCount } = this.richlistbox;
     upButton.disabled = selectedIndex <= 0;
     downButton.disabled = selectedIndex == itemCount - 1;
     removeButton.disabled = itemCount <= 1 || !this.selectedItem.canRemove;
   }
 
   moveUp() {
-    let {selectedIndex} = this.richlistbox;
+    let { selectedIndex } = this.richlistbox;
     if (selectedIndex == 0) {
       return;
     }
-    let {items} = this;
+    let { items } = this;
     let selectedItem = items[selectedIndex];
     let prevItem = items[selectedIndex - 1];
     items[selectedIndex - 1] = items[selectedIndex];
@@ -70,11 +76,11 @@ class OrderedListBox {
   }
 
   moveDown() {
-    let {selectedIndex} = this.richlistbox;
+    let { selectedIndex } = this.richlistbox;
     if (selectedIndex == this.items.length - 1) {
       return;
     }
-    let {items} = this;
+    let { items } = this;
     let selectedItem = items[selectedIndex];
     let nextItem = items[selectedIndex + 1];
     items[selectedIndex + 1] = items[selectedIndex];
@@ -87,7 +93,7 @@ class OrderedListBox {
   }
 
   removeItem() {
-    let {selectedIndex} = this.richlistbox;
+    let { selectedIndex } = this.richlistbox;
 
     if (selectedIndex == -1) {
       return;
@@ -96,7 +102,9 @@ class OrderedListBox {
     let [item] = this.items.splice(selectedIndex, 1);
     this.richlistbox.selectedItem.remove();
     this.richlistbox.selectedIndex = Math.min(
-      selectedIndex, this.richlistbox.itemCount - 1);
+      selectedIndex,
+      this.richlistbox.itemCount - 1
+    );
     this.richlistbox.ensureElementIsVisible(this.richlistbox.selectedItem);
     this.onRemove(item);
   }
@@ -116,7 +124,8 @@ class OrderedListBox {
     this.items.unshift(item);
     this.richlistbox.insertBefore(
       this.createItem(item),
-      this.richlistbox.firstElementChild);
+      this.richlistbox.firstElementChild
+    );
     this.richlistbox.selectedIndex = 0;
     this.richlistbox.ensureElementIsVisible(this.richlistbox.selectedItem);
   }
@@ -134,7 +143,7 @@ class OrderedListBox {
     this.richlistbox.ensureElementIsVisible(this.richlistbox.selectedItem);
   }
 
-  createItem({id, label, value}) {
+  createItem({ id, label, value }) {
     let listitem = document.createXULElement("richlistitem");
     listitem.id = id;
     listitem.setAttribute("value", value);
@@ -148,7 +157,7 @@ class OrderedListBox {
 }
 
 class SortedItemSelectList {
-  constructor({menulist, button, onSelect, onChange, compareFn}) {
+  constructor({ menulist, button, onSelect, onChange, compareFn }) {
     this.menulist = menulist;
     this.popup = menulist.menupopup;
     this.button = button;
@@ -162,7 +171,9 @@ class SortedItemSelectList {
       }
     });
     button.addEventListener("command", () => {
-      if (!menulist.selectedItem) return;
+      if (!menulist.selectedItem) {
+        return;
+      }
 
       let [item] = this.items.splice(menulist.selectedIndex, 1);
       menulist.selectedItem.remove();
@@ -181,7 +192,7 @@ class SortedItemSelectList {
   }
 
   populate() {
-    let {button, items, menulist, popup} = this;
+    let { button, items, menulist, popup } = this;
     popup.textContent = "";
 
     let frag = document.createDocumentFragment();
@@ -202,7 +213,7 @@ class SortedItemSelectList {
    * @param {object} item The item to insert.
    */
   addItem(item) {
-    let {compareFn, items, menulist, popup} = this;
+    let { compareFn, items, menulist, popup } = this;
 
     // Find the index of the item to insert before.
     let i = items.findIndex(el => compareFn(el, item) >= 0);
@@ -211,15 +222,18 @@ class SortedItemSelectList {
     menulist.disabled = menulist.itemCount == 0;
   }
 
-  createItem({label, value, className, disabled}) {
+  createItem({ label, value, className, disabled }) {
     let item = document.createXULElement("menuitem");
     item.setAttribute("label", label);
-    if (value)
+    if (value) {
       item.value = value;
-    if (className)
+    }
+    if (className) {
       item.classList.add(className);
-    if (disabled)
+    }
+    if (disabled) {
       item.setAttribute("disabled", "true");
+    }
     return item;
   }
 
@@ -229,7 +243,10 @@ class SortedItemSelectList {
    */
   disableWithMessageId(messageId) {
     this.menulist.setAttribute("data-l10n-id", messageId);
-    this.menulist.setAttribute("image", "chrome://global/skin/icons/loading.png");
+    this.menulist.setAttribute(
+      "image",
+      "chrome://global/skin/icons/loading.png"
+    );
     this.menulist.disabled = true;
     this.button.disabled = true;
   }
@@ -266,17 +283,17 @@ function compareItems(a, b) {
   if (a.installed != b.installed) {
     return a.installed ? -1 : 1;
 
-  // The search label is always last.
+    // The search label is always last.
   } else if (a.value == "search") {
     return 1;
   } else if (b.value == "search") {
     return -1;
 
-  // If both items are locales, sort by label.
+    // If both items are locales, sort by label.
   } else if (a.value && b.value) {
     return a.label.localeCompare(b.label);
 
-  // One of them is a label, put it first.
+    // One of them is a label, put it first.
   } else if (a.value) {
     return 1;
   }
@@ -300,21 +317,24 @@ var gMessengerLanguagesDialog = {
 
   async onLoad() {
     // Maintain the previously selected locales even if we cancel out.
-    let {selected, search} = window.arguments[0] || {};
+    let { selected, search } = window.arguments[0] || {};
     this.selectedLocales = selected;
 
     // This is a list of available locales that the user selected. It's more
     // restricted than the Intl notion of `requested` as it only contains
     // locale codes for which we have matching locales available.
     // The first time this dialog is opened, populate with appLocalesAsBCP47.
-    let selectedLocales = this.selectedLocales || Services.locale.appLocalesAsBCP47;
+    let selectedLocales =
+      this.selectedLocales || Services.locale.appLocalesAsBCP47;
     let selectedLocaleSet = new Set(selectedLocales);
     let available = await getAvailableLocales();
     let availableSet = new Set(available);
 
     // Filter selectedLocales since the user may select a locale when it is
     // available and then disable it.
-    selectedLocales = selectedLocales.filter(locale => availableSet.has(locale));
+    selectedLocales = selectedLocales.filter(locale =>
+      availableSet.has(locale)
+    );
     // Nothing in available should be in selectedSet.
     available = available.filter(locale => !selectedLocaleSet.has(locale));
 
@@ -330,7 +350,7 @@ var gMessengerLanguagesDialog = {
       upButton: document.getElementById("up"),
       downButton: document.getElementById("down"),
       removeButton: document.getElementById("remove"),
-      onRemove: (item) => this.selectedLocaleRemoved(item),
+      onRemove: item => this.selectedLocaleRemoved(item),
     });
     this._selectedLocales.setItems(await getLocaleDisplayInfo(selectedLocales));
   },
@@ -340,8 +360,8 @@ var gMessengerLanguagesDialog = {
       menulist: document.getElementById("availableLocales"),
       button: document.getElementById("add"),
       compareFn: compareItems,
-      onSelect: (item) => this.availableLanguageSelected(item),
-      onChange: (item) => {
+      onSelect: item => this.availableLanguageSelected(item),
+      onChange: item => {
         this.hideError();
         if (item.value == "search") {
           this.loadLocalesFromAMO();
@@ -368,7 +388,9 @@ var gMessengerLanguagesDialog = {
     }
 
     // Disable the dropdown while we hit the network.
-    this._availableLocales.disableWithMessageId("messenger-languages-searching");
+    this._availableLocales.disableWithMessageId(
+      "messenger-languages-searching"
+    );
 
     // Fetch the available langpacks from AMO.
     let availableLangpacks;
@@ -381,20 +403,22 @@ var gMessengerLanguagesDialog = {
 
     // Store the available langpack info for later use.
     this.availableLangpacks = new Map();
-    for (let {target_locale, url, hash} of availableLangpacks) {
-      this.availableLangpacks.set(target_locale, {url, hash});
+    for (let { target_locale, url, hash } of availableLangpacks) {
+      this.availableLangpacks.set(target_locale, { url, hash });
     }
 
     // Remove the installed locales from the available ones.
     let installedLocales = new Set(await getAvailableLocales());
     let notInstalledLocales = availableLangpacks
-      .filter(({target_locale}) => !installedLocales.has(target_locale))
+      .filter(({ target_locale }) => !installedLocales.has(target_locale))
       .map(lang => lang.target_locale);
 
     // Create the rows for the remote locales.
     let availableItems = await getLocaleDisplayInfo(notInstalledLocales);
     availableItems.push({
-      label: await document.l10n.formatValue("messenger-languages-available-label"),
+      label: await document.l10n.formatValue(
+        "messenger-languages-available-label"
+      ),
       className: "label-item",
       disabled: true,
       installed: false,
@@ -407,7 +431,9 @@ var gMessengerLanguagesDialog = {
 
     // Update the dropdown and enable it again.
     this._availableLocales.setItems(items);
-    this._availableLocales.enableWithMessageId("messenger-languages-select-language");
+    this._availableLocales.enableWithMessageId(
+      "messenger-languages-select-language"
+    );
   },
 
   async loadLocalesFromInstalled(available) {
@@ -448,17 +474,21 @@ var gMessengerLanguagesDialog = {
     }
 
     // The label isn't always reset when the selected item is removed, so set it again.
-    this._availableLocales.enableWithMessageId("messenger-languages-select-language");
+    this._availableLocales.enableWithMessageId(
+      "messenger-languages-select-language"
+    );
   },
 
   async requestRemoteLanguage(item) {
-    this._availableLocales.disableWithMessageId("messenger-languages-downloading");
+    this._availableLocales.disableWithMessageId(
+      "messenger-languages-downloading"
+    );
 
-    let {url, hash} = this.availableLangpacks.get(item.value);
+    let { url, hash } = this.availableLangpacks.get(item.value);
     let addon;
 
     try {
-      addon = await AddonManager.getInstallForURL(url, {hash});
+      addon = await AddonManager.getInstallForURL(url, { hash });
       await addon.install();
     } catch (e) {
       this.showError();
@@ -472,12 +502,16 @@ var gMessengerLanguagesDialog = {
 
     item.installed = true;
     this._selectedLocales.addItem(item);
-    this._availableLocales.enableWithMessageId("messenger-languages-select-language");
+    this._availableLocales.enableWithMessageId(
+      "messenger-languages-select-language"
+    );
   },
 
   showError() {
     document.getElementById("warning-message").hidden = false;
-    this._availableLocales.enableWithMessageId("messenger-languages-select-language");
+    this._availableLocales.enableWithMessageId(
+      "messenger-languages-select-language"
+    );
 
     // The height has likely changed, find our SubDialog and tell it to resize.
     requestAnimationFrame(() => {
@@ -508,7 +542,9 @@ var gMessengerLanguagesDialog = {
 
   async createInstalledLabel() {
     return {
-      label: await document.l10n.formatValue("messenger-languages-installed-label"),
+      label: await document.l10n.formatValue(
+        "messenger-languages-installed-label"
+      ),
       className: "label-item",
       disabled: true,
       installed: true,

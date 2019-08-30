@@ -4,7 +4,9 @@
 
 "use strict";
 
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
 function DevToolsStartup() {}
 
@@ -24,7 +26,9 @@ DevToolsStartup.prototype = {
   },
 
   handleDevToolsFlag(cmdLine) {
-    const {BrowserToolboxProcess} = ChromeUtils.import("resource://devtools/client/framework/ToolboxProcess.jsm");
+    const { BrowserToolboxProcess } = ChromeUtils.import(
+      "resource://devtools/client/framework/ToolboxProcess.jsm"
+    );
     BrowserToolboxProcess.init();
 
     if (cmdLine.state == Ci.nsICommandLine.STATE_REMOTE_AUTO) {
@@ -33,7 +37,9 @@ DevToolsStartup.prototype = {
   },
 
   initialize() {
-    let { loader, require, DevToolsLoader } = ChromeUtils.import("resource://devtools/shared/Loader.jsm");
+    let { loader, require, DevToolsLoader } = ChromeUtils.import(
+      "resource://devtools/shared/Loader.jsm"
+    );
     let { DebuggerServer } = require("devtools/server/debugger-server");
     let { gDevTools } = require("devtools/client/framework/devtools");
 
@@ -50,11 +56,15 @@ DevToolsStartup.prototype = {
     });
 
     // Make sure our root actor is always registered, no matter how devtools are called.
-    let devtoolsRegisterActors = DebuggerServer.registerActors.bind(DebuggerServer);
+    let devtoolsRegisterActors = DebuggerServer.registerActors.bind(
+      DebuggerServer
+    );
     DebuggerServer.registerActors = function(options) {
       devtoolsRegisterActors(options);
       if (options.root) {
-        const { createRootActor } = require("resource:///modules/tb-root-actor.js");
+        const {
+          createRootActor,
+        } = require("resource:///modules/tb-root-actor.js");
         DebuggerServer.setRootActor(createRootActor);
       }
     };

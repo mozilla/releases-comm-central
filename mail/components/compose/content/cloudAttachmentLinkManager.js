@@ -18,8 +18,9 @@ var gCloudAttachmentLinkManager = {
     // cloud, and if so, add them to our list.
     for (let i = 0; i < bucket.getRowCount(); ++i) {
       let attachment = bucket.getItemAtIndex(i).attachment;
-      if (attachment && attachment.sendViaCloud)
+      if (attachment && attachment.sendViaCloud) {
         this.cloudAttachments.push(attachment);
+      }
     }
 
     gMsgCompose.RegisterStateListener(this);
@@ -34,39 +35,47 @@ var gCloudAttachmentLinkManager = {
     let mailDoc = document.getElementById("content-frame").contentDocument;
 
     if (event.type == "attachment-uploaded") {
-      if (this.cloudAttachments.length == 0)
+      if (this.cloudAttachments.length == 0) {
         this._insertHeader(mailDoc);
+      }
 
       let attachment = event.target.attachment;
       let account = event.target.cloudFileAccount;
       this.cloudAttachments.push(attachment);
       this._insertItem(mailDoc, attachment, account);
-    } else if (event.type == "attachments-removed" ||
-               event.type == "attachments-converted") {
+    } else if (
+      event.type == "attachments-removed" ||
+      event.type == "attachments-converted"
+    ) {
       let items = [];
       let list = mailDoc.getElementById("cloudAttachmentList");
-      if (list)
+      if (list) {
         items = list.getElementsByClassName("cloudAttachmentItem");
+      }
 
-      for (let attachment of fixIterator(
-           event.detail, Ci.nsIMsgAttachment)) {
+      for (let attachment of fixIterator(event.detail, Ci.nsIMsgAttachment)) {
         // Remove the attachment from the message body.
-        if (list)
-          for (let i = 0; i < items.length; i++)
-            if (items[i].contentLocation == attachment.contentLocation)
+        if (list) {
+          for (let i = 0; i < items.length; i++) {
+            if (items[i].contentLocation == attachment.contentLocation) {
               items[i].remove();
+            }
+          }
+        }
 
         // Now, remove the attachment from our internal list.
         let index = this.cloudAttachments.indexOf(attachment);
-        if (index != -1)
+        if (index != -1) {
           this.cloudAttachments.splice(index, 1);
+        }
       }
 
       this._updateAttachmentCount(mailDoc);
 
       if (items.length == 0) {
-        if (list)
+        if (list) {
           list.remove();
+        }
         this._removeRoot(mailDoc);
       }
     }
@@ -79,8 +88,9 @@ var gCloudAttachmentLinkManager = {
    */
   _removeRoot(aDocument) {
     let header = aDocument.getElementById("cloudAttachmentListRoot");
-    if (header)
+    if (header) {
       header.remove();
+    }
   },
 
   /**
@@ -131,12 +141,16 @@ var gCloudAttachmentLinkManager = {
     }
 
     if (childIndex != -1) {
-      selection.collapse(childToInsertAfter,
-                         childToInsertAfter.nodeValue ?
-                         childToInsertAfter.nodeValue.length : 0);
-      if (childToInsertAfter.nodeValue &&
-          childToInsertAfter.nodeValue.length > 0)
+      selection.collapse(
+        childToInsertAfter,
+        childToInsertAfter.nodeValue ? childToInsertAfter.nodeValue.length : 0
+      );
+      if (
+        childToInsertAfter.nodeValue &&
+        childToInsertAfter.nodeValue.length > 0
+      ) {
         editor.insertLineBreak();
+      }
       editor.insertLineBreak();
       return;
     }
@@ -152,21 +166,25 @@ var gCloudAttachmentLinkManager = {
         // the signature.  If there's no signature, we'll just use the
         // last node.
         if (signature && signature.previousSibling) {
-          selection.collapse(mailBody,
-                             Array.from(childNodes)
-                                  .indexOf(signature.previousSibling));
+          selection.collapse(
+            mailBody,
+            Array.from(childNodes).indexOf(signature.previousSibling)
+          );
         } else {
           selection.collapse(mailBody, childNodes.length - 1);
           editor.insertLineBreak();
 
-          if (!gMsgCompose.composeHTML)
+          if (!gMsgCompose.composeHTML) {
             editor.insertLineBreak();
+          }
 
           selection.collapse(mailBody, childNodes.length - 2);
         }
       } else if (replyCitation.previousSibling) {
         // Replying above quote
-        let nodeIndex = Array.from(childNodes).indexOf(replyCitation.previousSibling);
+        let nodeIndex = Array.from(childNodes).indexOf(
+          replyCitation.previousSibling
+        );
         if (nodeIndex <= 0) {
           editor.insertLineBreak();
           nodeIndex = 1;
@@ -183,8 +201,9 @@ var gCloudAttachmentLinkManager = {
     let forwardBody = mailBody.querySelector(".moz-forward-container");
     if (forwardBody) {
       if (forwardBody.previousSibling) {
-        let nodeIndex = Array.from(childNodes)
-                             .indexOf(forwardBody.previousSibling);
+        let nodeIndex = Array.from(childNodes).indexOf(
+          forwardBody.previousSibling
+        );
         if (nodeIndex <= 0) {
           editor.insertLineBreak();
           nodeIndex = 1;
@@ -233,8 +252,9 @@ var gCloudAttachmentLinkManager = {
   _resetNodeIDs(aDocument, aIDs) {
     for (let id of aIDs) {
       let node = aDocument.getElementById(id);
-      if (node)
+      if (node) {
         node.id = "";
+      }
     }
   },
 
@@ -248,11 +268,15 @@ var gCloudAttachmentLinkManager = {
     // If there already exists a cloudAttachmentListRoot,
     // cloudAttachmentListHeader or cloudAttachmentList in the document,
     // strip them of their IDs so that we don't conflict with them.
-    this._resetNodeIDs(aDocument, ["cloudAttachmentListRoot",
-                                    "cloudAttachmentListHeader",
-                                    "cloudAttachmentList"]);
+    this._resetNodeIDs(aDocument, [
+      "cloudAttachmentListRoot",
+      "cloudAttachmentListHeader",
+      "cloudAttachmentList",
+    ]);
 
-    let brandBundle = Services.strings.createBundle("chrome://branding/locale/brand.properties");
+    let brandBundle = Services.strings.createBundle(
+      "chrome://branding/locale/brand.properties"
+    );
     let editor = GetCurrentEditor();
     let selection = editor.selection;
     let originalAnchor = selection.anchorNode;
@@ -260,8 +284,9 @@ var gCloudAttachmentLinkManager = {
 
     // Save off the selection ranges so we can restore them later.
     let ranges = [];
-    for (let i = 0; i < selection.rangeCount; i++)
+    for (let i = 0; i < selection.rangeCount; i++) {
       ranges.push(selection.getRangeAt(i));
+    }
 
     this._findInsertionPoint(aDocument);
 
@@ -290,14 +315,21 @@ var gCloudAttachmentLinkManager = {
       root.appendChild(list);
 
       let footer = editor.createElementWithDefaults("div");
-      let appLinkUrl = Services.prefs
-                               .getCharPref("mail.cloud_files.inserted_urls.footer.link");
-      let appname = this._generateLink(aDocument,
-                                       brandBundle.GetStringFromName("brandFullName"),
-                                       appLinkUrl);
+      let appLinkUrl = Services.prefs.getCharPref(
+        "mail.cloud_files.inserted_urls.footer.link"
+      );
+      let appname = this._generateLink(
+        aDocument,
+        brandBundle.GetStringFromName("brandFullName"),
+        appLinkUrl
+      );
 
       let applink = this._getHTMLRepresentation(aDocument, appname);
-      let footerMessage = getComposeBundle().getFormattedString("cloudAttachmentListFooter", [applink], 1);
+      let footerMessage = getComposeBundle().getFormattedString(
+        "cloudAttachmentListFooter",
+        [applink],
+        1
+      );
 
       footer.innerHTML = footerMessage; // eslint-disable-line no-unsanitized/property
       footer.style.color = "#444444";
@@ -325,8 +357,9 @@ var gCloudAttachmentLinkManager = {
     selection.collapse(originalAnchor, originalOffset);
 
     // Restore the selection ranges.
-    for (let range of ranges)
+    for (let range of ranges) {
       selection.addRange(range);
+    }
   },
 
   /**
@@ -337,11 +370,14 @@ var gCloudAttachmentLinkManager = {
    */
   _updateAttachmentCount(aDocument) {
     let header = aDocument.getElementById("cloudAttachmentListHeader");
-    if (!header)
+    if (!header) {
       return;
+    }
 
-    let count = PluralForm.get(this.cloudAttachments.length,
-                               getComposeBundle().getString("cloudAttachmentCountHeader"));
+    let count = PluralForm.get(
+      this.cloudAttachments.length,
+      getComposeBundle().getString("cloudAttachmentCountHeader")
+    );
 
     header.textContent = count.replace("#1", this.cloudAttachments.length);
   },
@@ -379,17 +415,21 @@ var gCloudAttachmentLinkManager = {
       paperclip.style.cssFloat = "left";
       paperclip.style.width = "24px";
       paperclip.style.height = "24px";
-      paperclip.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABVUlEQVR42mNgGChgbGzMqm9slqFnbHZLz8TsPwoGioHkQGrItgBsOLrBaFjfxCydbAvgLjc2zQNymZCkmPRMzfOhllwj3wKoK9EMB4PQ0FBmJHmgWtM1eqZmS8m1gEHXxGyLnon5WlzyyGyyLMBmwKgFoxYMPgv+gdjq1ta8YL6elRhU/i+1LDgAYuuamidC+Q1geVOzzVSxQN/EPAnKvwLM0cFA+hOYb2TmRIkFH0CaDExNDbS1HXgwim1o2QMKNvIsMDafCtW4DOwLMzM1YJl0ChxUxqaNQCFGsDqgRRB1ppdIssDQ3FwLqPE7ermvY2ysDK8zEEH3RdfYWIPkIlvX1DQaasAvfVPTGBQ5E3MvoPhXiAPMYympFxoQ4W7eA/IBKIhASRRiuOkUiutnoGuzYQYi4b/AOCmjWiMAGFz2QEO3gwwGunoXiE+T1oa5uTkfKeoBW+cLhPF1+Q8AAAAASUVORK5CYII=";
+      paperclip.src =
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABVUlEQVR42mNgGChgbGzMqm9slqFnbHZLz8TsPwoGioHkQGrItgBsOLrBaFjfxCydbAvgLjc2zQNymZCkmPRMzfOhllwj3wKoK9EMB4PQ0FBmJHmgWtM1eqZmS8m1gEHXxGyLnon5WlzyyGyyLMBmwKgFoxYMPgv+gdjq1ta8YL6elRhU/i+1LDgAYuuamidC+Q1geVOzzVSxQN/EPAnKvwLM0cFA+hOYb2TmRIkFH0CaDExNDbS1HXgwim1o2QMKNvIsMDafCtW4DOwLMzM1YJl0ChxUxqaNQCFGsDqgRRB1ppdIssDQ3FwLqPE7ermvY2ysDK8zEEH3RdfYWIPkIlvX1DQaasAvfVPTGBQ5E3MvoPhXiAPMYympFxoQ4W7eA/IBKIhASRRiuOkUiutnoGuzYQYi4b/AOCmjWiMAGFz2QEO3gwwGunoXiE+T1oa5uTkfKeoBW+cLhPF1+Q8AAAAASUVORK5CYII=";
       node.appendChild(paperclip);
 
-      let link = this._generateLink(aDocument, aAttachment.name,
-                                    aAttachment.contentLocation);
+      let link = this._generateLink(
+        aDocument,
+        aAttachment.name,
+        aAttachment.contentLocation
+      );
       link.setAttribute("moz-do-not-send", "true");
       node.appendChild(link);
 
       let size = aDocument.createElement("span");
-      size.textContent = "(" + gMessenger.formatFileSize(aAttachment.size)
-                         + ")";
+      size.textContent =
+        "(" + gMessenger.formatFileSize(aAttachment.size) + ")";
       size.style.marginLeft = "5px";
       size.style.fontSize = "small";
       size.style.color = "grey";
@@ -421,8 +461,11 @@ var gCloudAttachmentLinkManager = {
       }
 
       if (provider.serviceURL) {
-        let providerLink = this._generateLink(aDocument, provider.displayName,
-                                              provider.serviceURL);
+        let providerLink = this._generateLink(
+          aDocument,
+          provider.displayName,
+          provider.serviceURL
+        );
         providerLink.style.verticalAlign = "middle";
         providerIdentity.appendChild(providerLink);
       } else {
@@ -434,9 +477,11 @@ var gCloudAttachmentLinkManager = {
 
       node.appendChild(providerIdentity);
 
-      let downloadUrl = this._generateLink(aDocument,
-                                           aAttachment.contentLocation,
-                                           aAttachment.contentLocation);
+      let downloadUrl = this._generateLink(
+        aDocument,
+        aAttachment.contentLocation,
+        aAttachment.contentLocation
+      );
       downloadUrl.style.fontSize = "small";
       downloadUrl.style.display = "block";
 
@@ -444,9 +489,13 @@ var gCloudAttachmentLinkManager = {
     } else {
       node.textContent = getComposeBundle().getFormattedString(
         "cloudAttachmentListItem",
-        [aAttachment.name, gMessenger.formatFileSize(aAttachment.size),
-         provider.displayName,
-         aAttachment.contentLocation]);
+        [
+          aAttachment.name,
+          gMessenger.formatFileSize(aAttachment.size),
+          provider.displayName,
+          aAttachment.contentLocation,
+        ]
+      );
     }
 
     this._updateAttachmentCount(aDocument);
@@ -462,23 +511,35 @@ var gCloudAttachmentLinkManager = {
   send(aEvent) {
     let msgType = parseInt(aEvent.target.getAttribute("msgtype"));
 
-    if (msgType == Ci.nsIMsgCompDeliverMode.Now ||
-        msgType == Ci.nsIMsgCompDeliverMode.Later ||
-        msgType == Ci.nsIMsgCompDeliverMode.Background) {
-      const kIDs = ["cloudAttachmentList", "cloudAttachmentListRoot",
-                    "cloudAttachmentListHeader"];
+    if (
+      msgType == Ci.nsIMsgCompDeliverMode.Now ||
+      msgType == Ci.nsIMsgCompDeliverMode.Later ||
+      msgType == Ci.nsIMsgCompDeliverMode.Background
+    ) {
+      const kIDs = [
+        "cloudAttachmentList",
+        "cloudAttachmentListRoot",
+        "cloudAttachmentListHeader",
+      ];
       let mailDoc = document.getElementById("content-frame").contentDocument;
 
       for (let id of kIDs) {
         let element = mailDoc.getElementById(id);
-        if (element)
+        if (element) {
           element.removeAttribute("id");
+        }
       }
     }
   },
 };
 
-window.addEventListener("compose-window-init",
-  gCloudAttachmentLinkManager.init.bind(gCloudAttachmentLinkManager), true);
-window.addEventListener("compose-send-message",
-  gCloudAttachmentLinkManager.send.bind(gCloudAttachmentLinkManager), true);
+window.addEventListener(
+  "compose-window-init",
+  gCloudAttachmentLinkManager.init.bind(gCloudAttachmentLinkManager),
+  true
+);
+window.addEventListener(
+  "compose-send-message",
+  gCloudAttachmentLinkManager.send.bind(gCloudAttachmentLinkManager),
+  true
+);

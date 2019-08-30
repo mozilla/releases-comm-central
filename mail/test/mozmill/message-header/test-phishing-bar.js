@@ -14,7 +14,11 @@
 
 var MODULE_NAME = "test-phishing-bar";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "notificationbox-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "notificationbox-helpers",
+];
 
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
@@ -29,31 +33,62 @@ function setupModule(module) {
   }
 
   folder = create_folder("PhishingBarA");
-  add_message_to_folder(folder, create_message({body: {
-    body: '<form action="http://localhost/download-me"><input></form>.',
-    contentType: "text/html",
-  }}));
+  add_message_to_folder(
+    folder,
+    create_message({
+      body: {
+        body: '<form action="http://localhost/download-me"><input></form>.',
+        contentType: "text/html",
+      },
+    })
+  );
   add_message_to_folder(folder, create_message());
-  add_message_to_folder(folder, create_message({body: {
-    body: "check out http://130.128.4.1. and http://130.128.4.2/.",
-    contentType: "text/plain",
-  }}));
-  add_message_to_folder(folder, create_message({body: {
-    body: '<a href="http://subdomain.google.com/">http://www.google.com</a>.',
-    contentType: "text/html",
-  }}));
-  add_message_to_folder(folder, create_message({body: {
-    body: '<a href="http://subdomain.google.com/">http://google.com</a>.',
-    contentType: "text/html",
-  }}));
-  add_message_to_folder(folder, create_message({body: {
-    body: '<a href="http://evilhost">http://localhost</a>.',
-    contentType: "text/html",
-  }}));
-  add_message_to_folder(folder, create_message({body: {
-    body: '<form action="http://localhost/download-me"><input></form>.',
-    contentType: "text/html",
-  }}));
+  add_message_to_folder(
+    folder,
+    create_message({
+      body: {
+        body: "check out http://130.128.4.1. and http://130.128.4.2/.",
+        contentType: "text/plain",
+      },
+    })
+  );
+  add_message_to_folder(
+    folder,
+    create_message({
+      body: {
+        body:
+          '<a href="http://subdomain.google.com/">http://www.google.com</a>.',
+        contentType: "text/html",
+      },
+    })
+  );
+  add_message_to_folder(
+    folder,
+    create_message({
+      body: {
+        body: '<a href="http://subdomain.google.com/">http://google.com</a>.',
+        contentType: "text/html",
+      },
+    })
+  );
+  add_message_to_folder(
+    folder,
+    create_message({
+      body: {
+        body: '<a href="http://evilhost">http://localhost</a>.',
+        contentType: "text/html",
+      },
+    })
+  );
+  add_message_to_folder(
+    folder,
+    create_message({
+      body: {
+        body: '<form action="http://localhost/download-me"><input></form>.',
+        contentType: "text/html",
+      },
+    })
+  );
 }
 
 /**
@@ -62,11 +97,16 @@ function setupModule(module) {
  */
 function assert_ignore_works(aController) {
   wait_for_notification_to_show(aController, kBoxId, kNotificationValue);
-  let prefButton = get_notification_button(aController, kBoxId, kNotificationValue,
-                                           { popup: "phishingOptions" });
+  let prefButton = get_notification_button(
+    aController,
+    kBoxId,
+    kNotificationValue,
+    { popup: "phishingOptions" }
+  );
   aController.click(new elementslib.Elem(prefButton));
-  aController.click_menus_in_sequence(aController.e("phishingOptions"),
-                                      [{id: "phishingOptionIgnore"}]);
+  aController.click_menus_in_sequence(aController.e("phishingOptions"), [
+    { id: "phishingOptionIgnore" },
+  ]);
   wait_for_notification_to_stop(aController, kBoxId, kNotificationValue);
 }
 
@@ -125,7 +165,10 @@ function test_ignore_phishing_warning_from_eml_attachment() {
 
   // Open the attached message.
   plan_for_new_window("mail:messageWindow");
-  msgc.e("attachmentList").getItemAtIndex(0).attachment.open();
+  msgc
+    .e("attachmentList")
+    .getItemAtIndex(0)
+    .attachment.open();
   let msgc2 = wait_for_new_window("mail:messageWindow");
   wait_for_message_display_completion(msgc2, true);
 

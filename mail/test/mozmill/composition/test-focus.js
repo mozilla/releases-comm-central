@@ -14,7 +14,11 @@
 
 var MODULE_NAME = "test-focus";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "compose-helpers",
+  "window-helpers",
+];
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
@@ -33,40 +37,40 @@ function setupModule(module) {
  */
 function check_element_cycling(controller, attachmentsExpanded, ctrlTab) {
   let addressingElement = controller.e("addressingWidget");
-  let subjectElement    = controller.e("msgSubject");
+  let subjectElement = controller.e("msgSubject");
   let attachmentElement = controller.e("attachmentBucket");
-  let contentElement    = controller.window.content;
-  let identityElement   = controller.e("msgIdentity");
+  let contentElement = controller.window.content;
+  let identityElement = controller.e("msgIdentity");
 
   let key = ctrlTab ? "VK_TAB" : "VK_F6";
 
   // We start on the addressing widget and go from there.
 
-  controller.keypress(null, key, {ctrlKey: ctrlTab});
+  controller.keypress(null, key, { ctrlKey: ctrlTab });
   assert_equals(subjectElement, controller.window.WhichElementHasFocus());
   if (attachmentsExpanded) {
-    controller.keypress(null, key, {ctrlKey: ctrlTab});
+    controller.keypress(null, key, { ctrlKey: ctrlTab });
     assert_equals(attachmentElement, controller.window.WhichElementHasFocus());
   }
-  controller.keypress(null, key, {ctrlKey: ctrlTab});
+  controller.keypress(null, key, { ctrlKey: ctrlTab });
   assert_equals(contentElement, controller.window.WhichElementHasFocus());
-  controller.keypress(null, key, {ctrlKey: ctrlTab});
+  controller.keypress(null, key, { ctrlKey: ctrlTab });
   assert_equals(identityElement, controller.window.WhichElementHasFocus());
-  controller.keypress(null, key, {ctrlKey: ctrlTab});
+  controller.keypress(null, key, { ctrlKey: ctrlTab });
   mc.sleep(0); // Focusing the addressing element happens in a timeout...
   assert_equals(addressingElement, controller.window.WhichElementHasFocus());
 
-  controller.keypress(null, key, {ctrlKey: ctrlTab, shiftKey: true});
+  controller.keypress(null, key, { ctrlKey: ctrlTab, shiftKey: true });
   assert_equals(identityElement, controller.window.WhichElementHasFocus());
-  controller.keypress(null, key, {ctrlKey: ctrlTab, shiftKey: true});
+  controller.keypress(null, key, { ctrlKey: ctrlTab, shiftKey: true });
   assert_equals(contentElement, controller.window.WhichElementHasFocus());
   if (attachmentsExpanded) {
-    controller.keypress(null, key, {ctrlKey: ctrlTab, shiftKey: true});
+    controller.keypress(null, key, { ctrlKey: ctrlTab, shiftKey: true });
     assert_equals(attachmentElement, controller.window.WhichElementHasFocus());
   }
-  controller.keypress(null, key, {ctrlKey: ctrlTab, shiftKey: true});
+  controller.keypress(null, key, { ctrlKey: ctrlTab, shiftKey: true });
   assert_equals(subjectElement, controller.window.WhichElementHasFocus());
-  controller.keypress(null, key, {ctrlKey: ctrlTab, shiftKey: true});
+  controller.keypress(null, key, { ctrlKey: ctrlTab, shiftKey: true });
   mc.sleep(0); // Focusing the addressing element happens in a timeout...
   assert_equals(addressingElement, controller.window.WhichElementHasFocus());
 }

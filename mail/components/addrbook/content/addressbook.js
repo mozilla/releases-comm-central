@@ -12,14 +12,16 @@
 
 // Ensure the activity modules are loaded for this window.
 ChromeUtils.import("resource:///modules/activity/activityModules.jsm");
-var {
-  getSearchTokens,
-  getModelQuery,
-  generateQueryURI,
-} = ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { getSearchTokens, getModelQuery, generateQueryURI } = ChromeUtils.import(
+  "resource:///modules/ABQueryUtils.jsm"
+);
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { PluralForm } = ChromeUtils.import(
+  "resource://gre/modules/PluralForm.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var nsIAbListener = Ci.nsIAbListener;
 var kPrefMailAddrBookLastNameFirst = "mail.addr_book.lastnamefirst";
@@ -32,8 +34,9 @@ var gCardViewBox;
 var gCardViewBoxEmail1;
 var gPreviousDirTreeIndex = -1;
 
-var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
-                  .createInstance(Ci.nsIMsgWindow);
+var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
+  Ci.nsIMsgWindow
+);
 
 var chatHandler = {};
 ChromeUtils.import("resource:///modules/chatHandler.jsm", chatHandler);
@@ -44,7 +47,7 @@ var kDisplayName = 0;
 var kLastNameFirst = 1;
 var kFirstNameFirst = 2;
 var kLDAPDirectory = 0; // defined in nsDirPrefs.h
-var kPABDirectory  = 2; // defined in nsDirPrefs.h
+var kPABDirectory = 2; // defined in nsDirPrefs.h
 
 // These chat properties are the ones that our IM component supports. If a
 // contact has a value for one of these properties, we can communicate with
@@ -78,26 +81,28 @@ var gAddressBookAbListener = {
         //
         // For simple address books we don't need to move up the list, as
         // we want to select the next one upon removal.
-        if (directory.isMailList && gPreviousDirTreeIndex > 0)
+        if (directory.isMailList && gPreviousDirTreeIndex > 0) {
           --gPreviousDirTreeIndex;
+        }
 
         // Now get the parent of the row.
         var newRow = gDirTree.view.getParentIndex(gPreviousDirTreeIndex);
 
         // if we have no parent (i.e. we are an address book), use the
         // previous index.
-        if (newRow == -1)
+        if (newRow == -1) {
           newRow = gPreviousDirTreeIndex;
+        }
 
         // Fall back to the first address book if we're not in a valid range
-        if (newRow >= gDirTree.view.rowCount)
+        if (newRow >= gDirTree.view.rowCount) {
           newRow = 0;
+        }
 
         // Now select the new item.
         gDirTree.view.selection.select(newRow);
       }
-    } catch (ex) {
-    }
+    } catch (ex) {}
   },
   onItemPropertyChanged(item, property, oldValue, newValue) {
     // will not be called
@@ -106,10 +111,15 @@ var gAddressBookAbListener = {
 
 function OnUnloadAddressBook() {
   // If there's no default startupURI, save the last used URI as new startupURI.
-  let saveLastURIasStartupURI = !Services.prefs.getBoolPref("mail.addr_book.view.startupURIisDefault");
+  let saveLastURIasStartupURI = !Services.prefs.getBoolPref(
+    "mail.addr_book.view.startupURIisDefault"
+  );
   if (saveLastURIasStartupURI) {
     let selectedDirURI = getSelectedDirectoryURI();
-    Services.prefs.setCharPref("mail.addr_book.view.startupURI", selectedDirURI);
+    Services.prefs.setCharPref(
+      "mail.addr_book.view.startupURI",
+      selectedDirURI
+    );
   }
 
   MailServices.ab.removeAddressBookListener(gAddressBookAbListener);
@@ -147,11 +157,12 @@ function OnLoadAddressBook() {
   if (!document.documentElement.hasAttribute("width")) {
     // Prefer 860xfull height.
     let defaultHeight = screen.availHeight;
-    let defaultWidth = (screen.availWidth >= 860) ? 860 : screen.availWidth;
+    let defaultWidth = screen.availWidth >= 860 ? 860 : screen.availWidth;
 
     // On small screens, default to maximized state.
-    if (defaultHeight <= 600)
+    if (defaultHeight <= 600) {
       document.documentElement.setAttribute("sizemode", "maximized");
+    }
 
     document.documentElement.setAttribute("width", defaultWidth);
     document.documentElement.setAttribute("height", defaultHeight);
@@ -168,8 +179,9 @@ function OnLoadAddressBook() {
     AutoHideMenubar.init();
   }
 
-  if (!chatHandler.ChatCore.initialized)
+  if (!chatHandler.ChatCore.initialized) {
     chatHandler.ChatCore.init();
+  }
 
   setTimeout(delayedOnLoadAddressBook, 0); // when debugging, set this to 5000, so you can see what happens after the window comes up.
 }
@@ -183,29 +195,30 @@ function delayedOnLoadAddressBook() {
   OnLoadCardView();
 
   // Initialize the Address Book tree view
-  gDirectoryTreeView.init(gDirTree,
-                          kPersistCollapseMapStorage);
+  gDirectoryTreeView.init(gDirTree, kPersistCollapseMapStorage);
 
   selectStartupViewDirectory();
   gAbResultsTree.focus();
 
   // if the pref is locked disable the menuitem New->LDAP directory
-  if (Services.prefs.prefIsLocked("ldap_2.disable_button_add"))
+  if (Services.prefs.prefIsLocked("ldap_2.disable_button_add")) {
     document.getElementById("addLDAP").setAttribute("disabled", "true");
+  }
 
-  document.getElementById("cmd_newMessage")
-          .setAttribute("disabled", (MailServices.accounts.allIdentities.length == 0));
+  document
+    .getElementById("cmd_newMessage")
+    .setAttribute("disabled", MailServices.accounts.allIdentities.length == 0);
 
   // Add a listener, so we can switch directories if the current directory is
   // deleted. This listener cares when a directory (= address book), or a
   // directory item is/are removed. In the case of directory items, we are
   // only really interested in mailing list changes and not cards but we have
   // to have both.
-  MailServices.ab.addAddressBookListener(gAddressBookAbListener,
-                                   nsIAbListener.directoryRemoved |
-                                   nsIAbListener.directoryItemRemoved);
+  MailServices.ab.addAddressBookListener(
+    gAddressBookAbListener,
+    nsIAbListener.directoryRemoved | nsIAbListener.directoryItemRemoved
+  );
   MailServices.ab.addAddressBookListener(gDirectoryTreeView, nsIAbListener.all);
-
 
   gDirTree.controllers.appendController(DirPaneController);
   gAbResultsTree.controllers.appendController(abResultsController);
@@ -215,7 +228,9 @@ function delayedOnLoadAddressBook() {
 
   // initialize the customizeDone method on the customizeable toolbar
   var toolbox = document.getElementById("ab-toolbox");
-  toolbox.customizeDone = function(aEvent) { MailToolboxCustomizeDone(aEvent, "CustomizeABToolbar"); };
+  toolbox.customizeDone = function(aEvent) {
+    MailToolboxCustomizeDone(aEvent, "CustomizeABToolbar");
+  };
 
   // Ensure we don't load xul error pages into the main window
   window.docShell.useErrorPages = false;
@@ -227,7 +242,6 @@ function delayedOnLoadAddressBook() {
   // Bug 1143812: This is disabled for now to keep the New Contact command enabled.
   // QuickSearchFocus();
 }
-
 
 function GetCurrentPrefs() {
   // check "Show Name As" menu item based on pref
@@ -246,17 +260,21 @@ function GetCurrentPrefs() {
   }
 
   var menuitem = top.document.getElementById(menuitemID);
-  if (menuitem)
+  if (menuitem) {
     menuitem.setAttribute("checked", "true");
+  }
 
   // initialize phonetic
-  var showPhoneticFields =
-    Services.prefs.getComplexValue("mail.addr_book.show_phonetic_fields",
-      Ci.nsIPrefLocalizedString).data;
+  var showPhoneticFields = Services.prefs.getComplexValue(
+    "mail.addr_book.show_phonetic_fields",
+    Ci.nsIPrefLocalizedString
+  ).data;
   // show phonetic fields if indicated by the pref
-  if (showPhoneticFields == "true")
-    document.getElementById("cmd_SortBy_PhoneticName")
-            .setAttribute("hidden", "false");
+  if (showPhoneticFields == "true") {
+    document
+      .getElementById("cmd_SortBy_PhoneticName")
+      .setAttribute("hidden", "false");
+  }
 }
 
 function SetNameColumn(cmd) {
@@ -278,8 +296,9 @@ function SetNameColumn(cmd) {
 }
 
 function onOSXFileMenuInit() {
-  document.getElementById("menu_osxAddressBook")
-          .setAttribute("checked", AbOSXAddressBookExists());
+  document
+    .getElementById("menu_osxAddressBook")
+    .setAttribute("checked", AbOSXAddressBookExists());
 }
 
 function CommandUpdate_AddressBook() {
@@ -310,17 +329,19 @@ function UpdateCardView() {
   // either no cards, or more than one card is selected, clear the pane.
   // We do not need to check cards[0] any more since GetSelectedAbCards() only
   // push non-null entity to the list.
-  if (cards.length == 1)
+  if (cards.length == 1) {
     OnClickedCard(cards[0]);
-  else
+  } else {
     ClearCardViewPane();
+  }
 }
 
 function OnClickedCard(card) {
-  if (card)
+  if (card) {
     DisplayCardViewPane(card);
-  else
+  } else {
     ClearCardViewPane();
+  }
 }
 
 function AbClose() {
@@ -331,11 +352,14 @@ function AbPrintCardInternal(doPrintPreview, msgType) {
   var selectedItems = GetSelectedAbCards();
   var numSelected = selectedItems.length;
 
-  if (!numSelected)
+  if (!numSelected) {
     return;
+  }
 
   let statusFeedback;
-  statusFeedback = Cc["@mozilla.org/messenger/statusfeedback;1"].createInstance();
+  statusFeedback = Cc[
+    "@mozilla.org/messenger/statusfeedback;1"
+  ].createInstance();
   statusFeedback = statusFeedback.QueryInterface(Ci.nsIMsgStatusFeedback);
 
   let selectionArray = [];
@@ -348,11 +372,16 @@ function AbPrintCardInternal(doPrintPreview, msgType) {
     }
   }
 
-  window.openDialog("chrome://messenger/content/msgPrintEngine.xul",
-                    "",
-                    "chrome,dialog=no,all",
-                    selectionArray.length, selectionArray,
-                    statusFeedback, doPrintPreview, msgType);
+  window.openDialog(
+    "chrome://messenger/content/msgPrintEngine.xul",
+    "",
+    "chrome,dialog=no,all",
+    selectionArray.length,
+    selectionArray,
+    statusFeedback,
+    doPrintPreview,
+    msgType
+  );
 }
 
 function AbPrintCard() {
@@ -369,11 +398,14 @@ function CreatePrintCardUrl(card) {
 
 function AbPrintAddressBookInternal(doPrintPreview, msgType) {
   let uri = getSelectedDirectoryURI();
-  if (!uri)
+  if (!uri) {
     return;
+  }
 
   var statusFeedback;
-  statusFeedback = Cc["@mozilla.org/messenger/statusfeedback;1"].createInstance();
+  statusFeedback = Cc[
+    "@mozilla.org/messenger/statusfeedback;1"
+  ].createInstance();
   statusFeedback = statusFeedback.QueryInterface(Ci.nsIMsgStatusFeedback);
 
   /*
@@ -382,12 +414,19 @@ function AbPrintAddressBookInternal(doPrintPreview, msgType) {
    */
 
   var abURIArr = uri.split("://");
-  var printUrl = "addbook://" + abURIArr[0] + "/" + abURIArr[1] + "?action=print";
+  var printUrl =
+    "addbook://" + abURIArr[0] + "/" + abURIArr[1] + "?action=print";
 
-  window.openDialog("chrome://messenger/content/msgPrintEngine.xul",
-                    "",
-                    "chrome,dialog=no,all",
-                    1, [printUrl], statusFeedback, doPrintPreview, msgType);
+  window.openDialog(
+    "chrome://messenger/content/msgPrintEngine.xul",
+    "",
+    "chrome,dialog=no,all",
+    1,
+    [printUrl],
+    statusFeedback,
+    doPrintPreview,
+    msgType
+  );
 }
 
 function AbPrintAddressBook() {
@@ -395,7 +434,10 @@ function AbPrintAddressBook() {
 }
 
 function AbPrintPreviewAddressBook() {
-  AbPrintAddressBookInternal(true, Ci.nsIMsgPrintEngine.MNAB_PRINTPREVIEW_ADDRBOOK);
+  AbPrintAddressBookInternal(
+    true,
+    Ci.nsIMsgPrintEngine.MNAB_PRINTPREVIEW_ADDRBOOK
+  );
 }
 
 /**
@@ -403,10 +445,11 @@ function AbPrintPreviewAddressBook() {
  */
 function AbExportSelection() {
   let selectedDirURI = getSelectedDirectoryURI();
-  if (!selectedDirURI)
+  if (!selectedDirURI) {
     return;
+  }
 
-  if (selectedDirURI == (kAllDirectoryRoot + "?")) {
+  if (selectedDirURI == kAllDirectoryRoot + "?") {
     AbExportAll();
     return;
   }
@@ -423,8 +466,9 @@ function AbExportAll() {
   while (directories.hasMoreElements()) {
     let directory = directories.getNext();
     // Do not export LDAP ABs.
-    if (!directory.URI.startsWith(kLdapUrlPrefix))
+    if (!directory.URI.startsWith(kLdapUrlPrefix)) {
       AbExport(directory.URI);
+    }
   }
 }
 
@@ -434,8 +478,9 @@ function AbExportAll() {
  * @param aSelectedDirURI  The URI of the addressbook to export.
  */
 function AbExport(aSelectedDirURI) {
-  if (!aSelectedDirURI)
+  if (!aSelectedDirURI) {
     return;
+  }
 
   try {
     let directory = GetDirectoryFromURI(aSelectedDirURI);
@@ -444,25 +489,32 @@ function AbExport(aSelectedDirURI) {
     let message;
     switch (ex.result) {
       case Cr.NS_ERROR_FILE_ACCESS_DENIED:
-        message = gAddressBookBundle.getString("failedToExportMessageFileAccessDenied");
+        message = gAddressBookBundle.getString(
+          "failedToExportMessageFileAccessDenied"
+        );
         break;
       case Cr.NS_ERROR_FILE_NO_DEVICE_SPACE:
-        message = gAddressBookBundle.getString("failedToExportMessageNoDeviceSpace");
+        message = gAddressBookBundle.getString(
+          "failedToExportMessageNoDeviceSpace"
+        );
         break;
       default:
         message = ex.message;
         break;
     }
 
-    Services.prompt.alert(window,
+    Services.prompt.alert(
+      window,
       gAddressBookBundle.getString("failedToExportTitle"),
-      message);
+      message
+    );
   }
 }
 
 function SetStatusText(total) {
-  if (!gStatusText)
+  if (!gStatusText) {
     gStatusText = document.getElementById("statusText");
+  }
 
   try {
     let statusText;
@@ -472,15 +524,16 @@ function SetStatusText(total) {
       if (total == 0) {
         statusText = gAddressBookBundle.getString("noMatchFound");
       } else {
-        statusText = PluralForm
-          .get(total, gAddressBookBundle.getString("matchesFound1"))
-          .replace("#1", total);
+        statusText = PluralForm.get(
+          total,
+          gAddressBookBundle.getString("matchesFound1")
+        ).replace("#1", total);
       }
     } else {
-      statusText =
-        gAddressBookBundle.getFormattedString(
-          "totalContactStatus",
-          [getSelectedDirectory().dirName, total]);
+      statusText = gAddressBookBundle.getFormattedString("totalContactStatus", [
+        getSelectedDirectory().dirName,
+        total,
+      ]);
     }
 
     gStatusText.setAttribute("value", statusText);
@@ -490,8 +543,9 @@ function SetStatusText(total) {
 }
 
 function AbResultsPaneKeyPress(event) {
-  if (event.keyCode == 13)
+  if (event.keyCode == 13) {
     AbEditSelectedCard();
+  }
 }
 
 function AbResultsPaneDoubleClick(card) {
@@ -500,16 +554,23 @@ function AbResultsPaneDoubleClick(card) {
 
 function onAdvancedAbSearch() {
   let selectedDirURI = getSelectedDirectoryURI();
-  if (!selectedDirURI)
+  if (!selectedDirURI) {
     return;
+  }
 
-  let existingSearchWindow = Services.wm.getMostRecentWindow("mailnews:absearch");
-  if (existingSearchWindow)
+  let existingSearchWindow = Services.wm.getMostRecentWindow(
+    "mailnews:absearch"
+  );
+  if (existingSearchWindow) {
     existingSearchWindow.focus();
-  else
-    window.openDialog("chrome://messenger/content/ABSearchDialog.xul", "",
-                      "chrome,resizable,status,centerscreen,dialog=no",
-                      {directory: selectedDirURI});
+  } else {
+    window.openDialog(
+      "chrome://messenger/content/ABSearchDialog.xul",
+      "",
+      "chrome,resizable,status,centerscreen,dialog=no",
+      { directory: selectedDirURI }
+    );
+  }
 }
 
 function onEnterInSearchBar() {
@@ -521,7 +582,9 @@ function onEnterInSearchBar() {
   }
 
   let searchURI = getSelectedDirectoryURI();
-  if (!searchURI) return;
+  if (!searchURI) {
+    return;
+  }
 
   /*
    XXX todo, handle the case where the LDAP url
@@ -536,13 +599,16 @@ function onEnterInSearchBar() {
     searchURI += generateQueryURI(gQueryURIFormat, searchWords);
   }
 
-  if (searchURI == kAllDirectoryRoot)
+  if (searchURI == kAllDirectoryRoot) {
     searchURI += "?";
+  }
 
-  document.getElementById("localResultsOnlyMessage")
-            .setAttribute("hidden",
-                          !gDirectoryTreeView.hasRemoteAB ||
-                          searchURI != kAllDirectoryRoot + "?");
+  document
+    .getElementById("localResultsOnlyMessage")
+    .setAttribute(
+      "hidden",
+      !gDirectoryTreeView.hasRemoteAB || searchURI != kAllDirectoryRoot + "?"
+    );
 
   SetAbView(searchURI);
 
@@ -553,32 +619,39 @@ function onEnterInSearchBar() {
 }
 
 function SwitchPaneFocus(event) {
-  var focusedElement    = WhichPaneHasFocus();
-  var cardViewBox       = GetCardViewBox();
+  var focusedElement = WhichPaneHasFocus();
+  var cardViewBox = GetCardViewBox();
   var cardViewBoxEmail1 = GetCardViewBoxEmail1();
-  var searchBox         = document.getElementById("search-container");
-  var dirTree           = GetDirTree();
-  var searchInput       = document.getElementById("peopleSearchInput");
+  var searchBox = document.getElementById("search-container");
+  var dirTree = GetDirTree();
+  var searchInput = document.getElementById("peopleSearchInput");
 
   if (event && event.shiftKey) {
     if (focusedElement == gAbResultsTree && searchBox) {
       searchInput.focus();
-    } else if ((focusedElement == gAbResultsTree || focusedElement == searchBox) && !IsDirPaneCollapsed()) {
+    } else if (
+      (focusedElement == gAbResultsTree || focusedElement == searchBox) &&
+      !IsDirPaneCollapsed()
+    ) {
       dirTree.focus();
-    } else if (focusedElement != cardViewBox &&
-               !IsCardViewAndAbResultsPaneSplitterCollapsed() &&
-               cardViewBoxEmail1 &&
-               cardViewBoxEmail1.getAttribute("collapsed") != "true") {
+    } else if (
+      focusedElement != cardViewBox &&
+      !IsCardViewAndAbResultsPaneSplitterCollapsed() &&
+      cardViewBoxEmail1 &&
+      cardViewBoxEmail1.getAttribute("collapsed") != "true"
+    ) {
       cardViewBoxEmail1.focus();
     } else {
       gAbResultsTree.focus();
     }
   } else if (focusedElement == searchBox) {
     gAbResultsTree.focus();
-  } else if (focusedElement == gAbResultsTree &&
-             !IsCardViewAndAbResultsPaneSplitterCollapsed() &&
-             cardViewBoxEmail1 &&
-             cardViewBoxEmail1.getAttribute("collapsed") != "true") {
+  } else if (
+    focusedElement == gAbResultsTree &&
+    !IsCardViewAndAbResultsPaneSplitterCollapsed() &&
+    cardViewBoxEmail1 &&
+    cardViewBoxEmail1.getAttribute("collapsed") != "true"
+  ) {
     cardViewBoxEmail1.focus();
   } else if (focusedElement != dirTree && !IsDirPaneCollapsed()) {
     dirTree.focus();
@@ -590,17 +663,20 @@ function SwitchPaneFocus(event) {
 }
 
 function WhichPaneHasFocus() {
-  var cardViewBox       = GetCardViewBox();
-  var searchBox         = document.getElementById("search-container");
-  var dirTree           = GetDirTree();
+  var cardViewBox = GetCardViewBox();
+  var searchBox = document.getElementById("search-container");
+  var dirTree = GetDirTree();
 
   var currentNode = top.document.commandDispatcher.focusedElement;
   while (currentNode) {
-    if (currentNode == gAbResultsTree ||
-        currentNode == cardViewBox ||
-        currentNode == searchBox ||
-        currentNode == dirTree)
+    if (
+      currentNode == gAbResultsTree ||
+      currentNode == cardViewBox ||
+      currentNode == searchBox ||
+      currentNode == dirTree
+    ) {
       return currentNode;
+    }
 
     currentNode = currentNode.parentNode;
   }
@@ -609,14 +685,16 @@ function WhichPaneHasFocus() {
 }
 
 function GetDirTree() {
-  if (!gDirTree)
+  if (!gDirTree) {
     gDirTree = document.getElementById("dirTree");
+  }
   return gDirTree;
 }
 
 function GetCardViewBox() {
-  if (!gCardViewBox)
+  if (!gCardViewBox) {
     gCardViewBox = document.getElementById("CardViewBox");
+  }
   return gCardViewBox;
 }
 
@@ -633,16 +711,20 @@ function GetCardViewBoxEmail1() {
 
 function IsDirPaneCollapsed() {
   var dirPaneBox = GetDirTree().parentNode;
-  return dirPaneBox.getAttribute("collapsed") == "true" ||
-         dirPaneBox.getAttribute("hidden") == "true";
+  return (
+    dirPaneBox.getAttribute("collapsed") == "true" ||
+    dirPaneBox.getAttribute("hidden") == "true"
+  );
 }
 
 function IsCardViewAndAbResultsPaneSplitterCollapsed() {
   var cardViewInnerBox = document.getElementById("CardViewInnerBox");
   var cardViewOuterBox = document.getElementById("CardViewOuterBox");
   try {
-    return (cardViewInnerBox.getAttribute("collapsed") == "true" ||
-            cardViewOuterBox.getAttribute("collapsed") == "true");
+    return (
+      cardViewInnerBox.getAttribute("collapsed") == "true" ||
+      cardViewOuterBox.getAttribute("collapsed") == "true"
+    );
   } catch (ex) {
     return false;
   }
@@ -664,16 +746,21 @@ function AbIMSelected() {
   }
 
   if (cards.length != 1) {
-    Cu.reportError("AbIMSelected should only be called when 1" +
-                   " card is selected. There are " +
-                   cards.length + " cards selected.");
+    Cu.reportError(
+      "AbIMSelected should only be called when 1" +
+        " card is selected. There are " +
+        cards.length +
+        " cards selected."
+    );
     return;
   }
 
   let card = cards[0];
 
   if (!card) {
-    Cu.reportError("AbIMSelected: one card was selected, but its only member was null.");
+    Cu.reportError(
+      "AbIMSelected: one card was selected, but its only member was null."
+    );
     return;
   }
   // We want to open a conversation with the first online username that we can
@@ -690,23 +777,26 @@ function AbIMSelected() {
   for (let chatProperty of kChatProperties) {
     let chatID = card.getProperty(chatProperty, "");
 
-    if (chatID && (chatID in chatHandler.allContacts)) {
+    if (chatID && chatID in chatHandler.allContacts) {
       let chatContact = chatHandler.allContacts[chatID];
-      if (chatContact.online)
+      if (chatContact.online) {
         online.push(chatContact);
-      else if (chatContact.canSendMessage)
+      } else if (chatContact.canSendMessage) {
         offline.push(chatContact);
+      }
     }
   }
 
   let selectedContact;
 
   // If we have any contacts in the online group, we'll take the first one.
-  if (online.length)
+  if (online.length) {
     selectedContact = online[0];
+  }
   // If not, we'll take the first contact in the offline group.
-  else if (offline.length)
+  else if (offline.length) {
     selectedContact = offline[0];
+  }
 
   // If we found a contact we can chat with, open / focus the chat tab with
   // a conversation opened with that contact.
@@ -720,10 +810,13 @@ function AbIMSelected() {
       win.showChatTab();
       win.chatHandler.focusConversation(uiConv);
     } else {
-      window.openDialog("chrome://messenger/content/", "_blank",
-                        "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar",
-                        null, {tabType: "chat",
-                               tabParams: {convType: "focus", conv: uiConv}});
+      window.openDialog(
+        "chrome://messenger/content/",
+        "_blank",
+        "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar",
+        null,
+        { tabType: "chat", tabParams: { convType: "focus", conv: uiConv } }
+      );
     }
 
     return;
@@ -755,7 +848,9 @@ function AbOSXAddressBookExists() {
   // I can't think of a better way though.
 
   // See if the pref exists, if so, then we need to delete the address book
-  var uriPresent = Services.prefs.getStringPref(kOSXPrefBase + ".uri", null) == kOSXDirectoryURI;
+  var uriPresent =
+    Services.prefs.getStringPref(kOSXPrefBase + ".uri", null) ==
+    kOSXDirectoryURI;
   var position = Services.prefs.getIntPref(kOSXPrefBase + ".position", 1);
 
   // Address book exists if the uri is correct and the position is not zero.
@@ -768,7 +863,10 @@ function AbShowHideOSXAddressBook() {
   } else {
     MailServices.ab.newAddressBook(
       gAddressBookBundle.getString(kOSXPrefBase + ".description"),
-      kOSXDirectoryURI, 3, kOSXPrefBase);
+      kOSXDirectoryURI,
+      3,
+      kOSXPrefBase
+    );
   }
 }
 
@@ -778,21 +876,26 @@ var abResultsController = {
       isEnabled() {
         let selected = GetSelectedAbCards();
 
-        if (selected.length != 1)
+        if (selected.length != 1) {
           return false;
+        }
 
         let selectedCard = selected[0];
-        if (!selectedCard)
+        if (!selectedCard) {
           return false;
+        }
 
         let isIMContact = kChatProperties.some(function(aProperty) {
           let contactName = selectedCard.getProperty(aProperty, "");
 
-          if (!contactName)
+          if (!contactName) {
             return false;
+          }
 
-          return (contactName in chatHandler.allContacts
-                  && chatHandler.allContacts[contactName].canSendMessage);
+          return (
+            contactName in chatHandler.allContacts &&
+            chatHandler.allContacts[contactName].canSendMessage
+          );
         });
 
         let hasAIM = selectedCard.getProperty("_AimScreenName", "");
@@ -807,22 +910,25 @@ var abResultsController = {
   },
 
   supportsCommand(aCommand) {
-    return (aCommand in this.commands);
+    return aCommand in this.commands;
   },
 
   isCommandEnabled(aCommand) {
-    if (!this.supportsCommand(aCommand))
+    if (!this.supportsCommand(aCommand)) {
       return false;
+    }
 
     return this.commands[aCommand].isEnabled();
   },
 
   doCommand(aCommand) {
-    if (!this.supportsCommand(aCommand))
+    if (!this.supportsCommand(aCommand)) {
       return;
+    }
     let cmd = this.commands[aCommand];
-    if (!cmd.isEnabled())
+    if (!cmd.isEnabled()) {
       return;
+    }
     cmd.doCommand();
   },
 

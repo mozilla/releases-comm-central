@@ -6,7 +6,7 @@
 // SearchIntegration.jsm
 /* globals SearchIntegration, SearchSupport, Services */
 
-var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 var MSG_DB_LARGE_COMMIT = 1;
 var CRLF = "\r\n";
@@ -29,7 +29,8 @@ var gRegKeys = [
   // This is the property handler
   {
     root: Ci.nsIWindowsRegKey.ROOT_KEY_LOCAL_MACHINE,
-    key: "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\PropertySystem\\PropertyHandlers\\.wdseml",
+    key:
+      "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\PropertySystem\\PropertyHandlers\\.wdseml",
     name: "",
     value: "{5FA29220-36A1-40f9-89C6-F4B384B7642E}",
   },
@@ -65,7 +66,8 @@ var gRegKeys = [
 /**
  * @namespace Windows Search-specific desktop search integration functionality
  */
-SearchIntegration = { // eslint-disable-line no-global-assign
+SearchIntegration = {
+  // eslint-disable-line no-global-assign
   __proto__: SearchSupport,
 
   // The property of the header and (sometimes) folders that's used to check
@@ -81,9 +83,11 @@ SearchIntegration = { // eslint-disable-line no-global-assign
   // Helper (native) component
   __winSearchHelper: null,
   get _winSearchHelper() {
-    if (!this.__winSearchHelper)
-      this.__winSearchHelper = Cc[WINSEARCHHELPER_CONTRACTID]
-                                 .getService(Ci.nsIMailWinSearchHelper);
+    if (!this.__winSearchHelper) {
+      this.__winSearchHelper = Cc[WINSEARCHHELPER_CONTRACTID].getService(
+        Ci.nsIMailWinSearchHelper
+      );
+    }
     return this.__winSearchHelper;
   },
 
@@ -101,20 +105,25 @@ SearchIntegration = { // eslint-disable-line no-global-assign
   get _regKeysPresent() {
     if (!this.__regKeysPresent) {
       for (let i = 0; i < gRegKeys.length; i++) {
-        let regKey = Cc["@mozilla.org/windows-registry-key;1"]
-                       .createInstance(Ci.nsIWindowsRegKey);
+        let regKey = Cc["@mozilla.org/windows-registry-key;1"].createInstance(
+          Ci.nsIWindowsRegKey
+        );
         try {
-          regKey.open(gRegKeys[i].root, gRegKeys[i].key, regKey.ACCESS_READ |
-                                                         ACCESS_WOW64_64KEY);
+          regKey.open(
+            gRegKeys[i].root,
+            gRegKeys[i].key,
+            regKey.ACCESS_READ | ACCESS_WOW64_64KEY
+          );
         } catch (e) {
           return false;
         }
-        let valuePresent = regKey.hasValue(gRegKeys[i].name) &&
-                           (regKey.readStringValue(gRegKeys[i].name) ==
-                            gRegKeys[i].value);
+        let valuePresent =
+          regKey.hasValue(gRegKeys[i].name) &&
+          regKey.readStringValue(gRegKeys[i].name) == gRegKeys[i].value;
         regKey.close();
-        if (!valuePresent)
+        if (!valuePresent) {
           return false;
+        }
       }
       this.__regKeysPresent = true;
     }
@@ -163,8 +172,9 @@ SearchIntegration = { // eslint-disable-line no-global-assign
 
     let enabled = this.prefEnabled;
 
-    if (enabled)
+    if (enabled) {
       this._log.info("Initializing Windows Search integration");
+    }
     this._initSupport(enabled);
   },
 
@@ -224,11 +234,13 @@ SearchIntegration = { // eslint-disable-line no-global-assign
 
     onStartRequest(request) {
       try {
-        let outputFileStream =  Cc["@mozilla.org/network/file-output-stream;1"]
-                                  .createInstance(Ci.nsIFileOutputStream);
+        let outputFileStream = Cc[
+          "@mozilla.org/network/file-output-stream;1"
+        ].createInstance(Ci.nsIFileOutputStream);
         outputFileStream.init(this._outputFile, -1, -1, 0);
-        this._outputStream = Cc["@mozilla.org/intl/converter-output-stream;1"]
-                               .createInstance(Ci.nsIConverterOutputStream);
+        this._outputStream = Cc[
+          "@mozilla.org/intl/converter-output-stream;1"
+        ].createInstance(Ci.nsIConverterOutputStream);
         this._outputStream.init(outputFileStream, "UTF-8");
       } catch (ex) {
         this._onDoneStreaming(false);
@@ -240,47 +252,62 @@ SearchIntegration = { // eslint-disable-line no-global-assign
         // XXX Once the JS emitter gets checked in, this code should probably be
         // switched over to use that
         // Decode using getMsgTextFromStream
-        let stringStream = Cc["@mozilla.org/io/string-input-stream;1"]
-                             .createInstance(Ci.nsIStringInputStream);
+        let stringStream = Cc[
+          "@mozilla.org/io/string-input-stream;1"
+        ].createInstance(Ci.nsIStringInputStream);
         stringStream.setData(this._message, this._message.length);
         let contentType = {};
         let folder = this._msgHdr.folder;
-        let text = folder.getMsgTextFromStream(stringStream,
-                                               this._msgHdr.Charset, 65536,
-                                               50000, false, false,
-                                               contentType);
+        let text = folder.getMsgTextFromStream(
+          stringStream,
+          this._msgHdr.Charset,
+          65536,
+          50000,
+          false,
+          false,
+          contentType
+        );
 
         // To get the Received header, we need to parse the message headers.
         // We only need the first header, which contains the latest received
         // date
         let headers = this._message.split(/\r\n\r\n|\r\r|\n\n/, 1)[0];
-        let mimeHeaders = Cc["@mozilla.org/messenger/mimeheaders;1"]
-                            .createInstance(Ci.nsIMimeHeaders);
+        let mimeHeaders = Cc[
+          "@mozilla.org/messenger/mimeheaders;1"
+        ].createInstance(Ci.nsIMimeHeaders);
         mimeHeaders.initialize(headers);
         let receivedHeader = mimeHeaders.extractHeader("Received", false);
 
         this._outputStream.writeString("From: " + this._msgHdr.author + CRLF);
         // If we're a newsgroup, then add the name of the folder as the
         // newsgroups header
-        if (folder instanceof Ci.nsIMsgNewsFolder)
+        if (folder instanceof Ci.nsIMsgNewsFolder) {
           this._outputStream.writeString("Newsgroups: " + folder.name + CRLF);
-        else
-          this._outputStream.writeString("To: " + this._msgHdr.recipients +
-                                         CRLF);
+        } else {
+          this._outputStream.writeString(
+            "To: " + this._msgHdr.recipients + CRLF
+          );
+        }
         this._outputStream.writeString("CC: " + this._msgHdr.ccList + CRLF);
-        this._outputStream.writeString("Subject: " + this._msgHdr.subject +
-                                       CRLF);
-        if (receivedHeader)
-          this._outputStream.writeString("Received: " + receivedHeader + CRLF);
         this._outputStream.writeString(
-          "Date: " + new Date(this._msgHdr.date / 1000).toUTCString() + CRLF);
-        this._outputStream.writeString("Content-Type: " + contentType.value +
-                                       "; charset=utf-8" + CRLF + CRLF);
+          "Subject: " + this._msgHdr.subject + CRLF
+        );
+        if (receivedHeader) {
+          this._outputStream.writeString("Received: " + receivedHeader + CRLF);
+        }
+        this._outputStream.writeString(
+          "Date: " + new Date(this._msgHdr.date / 1000).toUTCString() + CRLF
+        );
+        this._outputStream.writeString(
+          "Content-Type: " + contentType.value + "; charset=utf-8" + CRLF + CRLF
+        );
 
         this._outputStream.writeString(text + CRLF + CRLF);
 
-        this._msgHdr.setUint32Property(SearchIntegration._hdrIndexedProperty,
-                                       this._reindexTime);
+        this._msgHdr.setUint32Property(
+          SearchIntegration._hdrIndexedProperty,
+          this._reindexTime
+        );
         folder.msgDatabase.Commit(MSG_DB_LARGE_COMMIT);
 
         this._message = "";
@@ -295,16 +322,18 @@ SearchIntegration = { // eslint-disable-line no-global-assign
 
     onDataAvailable(request, inputStream, offset, count) {
       try {
-        let inStream = Cc["@mozilla.org/scriptableinputstream;1"]
-                         .createInstance(Ci.nsIScriptableInputStream);
+        let inStream = Cc[
+          "@mozilla.org/scriptableinputstream;1"
+        ].createInstance(Ci.nsIScriptableInputStream);
         inStream.init(inputStream);
 
         // It is necessary to read in data from the input stream
         let inData = inStream.read(count);
 
         // Ignore stuff after the first 50K or so
-        if (this._message && this._message.length > 50000)
+        if (this._message && this._message.length > 50000) {
           return;
+        }
 
         this._message += inData;
       } catch (ex) {

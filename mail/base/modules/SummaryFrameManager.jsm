@@ -16,8 +16,11 @@ this.EXPORTED_SYMBOLS = ["SummaryFrameManager"];
  */
 function SummaryFrameManager(aFrame) {
   this.iframe = aFrame;
-  this.iframe.addEventListener("DOMContentLoaded", this._onLoad.bind(this),
-                               true);
+  this.iframe.addEventListener(
+    "DOMContentLoaded",
+    this._onLoad.bind(this),
+    true
+  );
   this.pendingCallback = null;
   this.pendingOrLoadedUrl = this.iframe.docShell
     ? this.iframe.contentDocument.location.href
@@ -71,18 +74,25 @@ SummaryFrameManager.prototype = {
     try {
       // Make sure we're responding to the summary frame being loaded, and not
       // some subnode.
-      if (event.originalTarget != this.iframe.contentDocument ||
-          this.pendingOrLoadedUrl == "about:blank")
+      if (
+        event.originalTarget != this.iframe.contentDocument ||
+        this.pendingOrLoadedUrl == "about:blank"
+      ) {
         return;
+      }
 
       this.callback = this.pendingCallback;
       this.pendingCallback = null;
-      if (this.pendingOrLoadedUrl != this.iframe.contentDocument.location.href)
+      if (
+        this.pendingOrLoadedUrl != this.iframe.contentDocument.location.href
+      ) {
         Cu.reportError(
           "Please do not load stuff in the multimessage browser directly, " +
-          "use the SummaryFrameManager instead.");
-      else if (this.callback)
+            "use the SummaryFrameManager instead."
+        );
+      } else if (this.callback) {
         this.callback(true);
+      }
     } catch (e) {
       Cu.reportError(e);
     }

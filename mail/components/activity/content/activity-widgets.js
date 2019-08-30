@@ -1,6 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
-  * License, v. 2.0. If a copy of the MPL was not distributed with this
-  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 "use strict";
 
@@ -8,9 +8,15 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-  const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
-  const { makeFriendlyDateAgo } = ChromeUtils.import("resource:///modules/templateUtils.js");
+  const { Services } = ChromeUtils.import(
+    "resource://gre/modules/Services.jsm"
+  );
+  const { Log4Moz } = ChromeUtils.import(
+    "resource:///modules/gloda/log4moz.js"
+  );
+  const { makeFriendlyDateAgo } = ChromeUtils.import(
+    "resource:///modules/templateUtils.js"
+  );
   /**
    * The MozActivityBase widget is the base class for all the
    * activity item. It initializes activity details: i.e. id, status,
@@ -39,23 +45,26 @@
       };
 
       // convert strings to those in the string bundle
-      let sb = Services.strings.createBundle("chrome://messenger/locale/activity.properties");
+      let sb = Services.strings.createBundle(
+        "chrome://messenger/locale/activity.properties"
+      );
       let getStr = string => sb.GetStringFromName(string);
       for (let [name, value] of Object.entries(this.text)) {
-        this.text[name] = typeof value == "string" ? getStr(value) : value.map(getStr);
+        this.text[name] =
+          typeof value == "string" ? getStr(value) : value.map(getStr);
       }
     }
 
     get isProcess() {
-      return this._activity && (this._activity instanceof Ci.nsIActivityProcess);
+      return this._activity && this._activity instanceof Ci.nsIActivityProcess;
     }
 
     get isEvent() {
-      return this._activity && (this._activity instanceof Ci.nsIActivityEvent);
+      return this._activity && this._activity instanceof Ci.nsIActivityEvent;
     }
 
     get isWarning() {
-      return this._activity && (this._activity instanceof Ci.nsIActivityWarning);
+      return this._activity && this._activity instanceof Ci.nsIActivityWarning;
     }
 
     get isGroup() {
@@ -92,11 +101,13 @@
     }
   }
 
-  MozXULElement.implementCustomInterface(
-    MozActivityBase, [Ci.nsIDOMXULSelectControlItemElement]
-  );
+  MozXULElement.implementCustomInterface(MozActivityBase, [
+    Ci.nsIDOMXULSelectControlItemElement,
+  ]);
 
-  customElements.define("activity-base", MozActivityBase, { extends: "richlistitem" });
+  customElements.define("activity-base", MozActivityBase, {
+    extends: "richlistitem",
+  });
 
   /**
    * The MozActivityEvent widget displays information about events (like
@@ -122,7 +133,7 @@
       }
 
       this.activityListener = {
-        onHandlerChanged: (activity) => {
+        onHandlerChanged: activity => {
           // update handler button's visibility
           this.setVisibility(".undo", this.canUndo);
         },
@@ -130,7 +141,9 @@
       };
 
       this._activity.addListener(this.activityListener);
-      this.appendChild(MozXULElement.parseXULToFragment(`
+      this.appendChild(
+        MozXULElement.parseXULToFragment(
+          `
         <hbox flex="1">
           <vbox pack="center" class="eventIconBox">
             <image></image>
@@ -150,7 +163,10 @@
             </hbox>
           </vbox>
         </hbox>
-      `, ["chrome://messenger/locale/activity.dtd"]));
+      `,
+          ["chrome://messenger/locale/activity.dtd"]
+        )
+      );
 
       this.setAttribute("class", "activityitem");
 
@@ -181,8 +197,10 @@
     }
 
     set completionTime(val) {
-      this.setAttribute("completionTime",
-        makeFriendlyDateAgo(new Date(parseInt(val))));
+      this.setAttribute(
+        "completionTime",
+        makeFriendlyDateAgo(new Date(parseInt(val)))
+      );
       this.setAttribute("completionTimeTip", this.formatTimeTip(val));
     }
 
@@ -191,11 +209,13 @@
     }
 
     get canUndo() {
-      return (this._activity.undoHandler != null);
+      return this._activity.undoHandler != null;
     }
   }
 
-  customElements.define("activity-event", MozActivityEvent, { extends: "richlistitem" });
+  customElements.define("activity-event", MozActivityEvent, {
+    extends: "richlistitem",
+  });
 
   /**
    * The MozActivityGroup widget displays information about the activities of
@@ -208,13 +228,15 @@
   class MozActivityGroup extends MozElements.MozRichlistitem {
     static get inheritedAttributes() {
       return {
-        ".contextDisplayText": "value=contextDisplayText,tooltiptext=contextDisplayTextTip",
+        ".contextDisplayText":
+          "value=contextDisplayText,tooltiptext=contextDisplayTextTip",
       };
     }
     constructor() {
       super();
 
-      this.appendChild(MozXULElement.parseXULToFragment(`
+      this.appendChild(
+        MozXULElement.parseXULToFragment(`
         <vbox flex="1">
           <hbox>
             <vbox pack="start">
@@ -225,7 +247,8 @@
             <richlistbox class="activitygroupbox activityview" seltype="multiple" flex="1"></richlistbox>
           </vbox>
         </vbox>
-      `));
+      `)
+      );
 
       this.contextType = "";
 
@@ -245,8 +268,10 @@
     }
 
     retry() {
-      let processes = activityManager.getProcessesByContext(this.contextType,
-        this.contextObj);
+      let processes = activityManager.getProcessesByContext(
+        this.contextType,
+        this.contextObj
+      );
       for (let process of processes) {
         if (process.retryHandler) {
           process.retryHandler.retry(process);
@@ -255,11 +280,13 @@
     }
   }
 
-  MozXULElement.implementCustomInterface(
-    MozActivityGroup, [Ci.nsIDOMXULSelectControlItemElement]
-  );
+  MozXULElement.implementCustomInterface(MozActivityGroup, [
+    Ci.nsIDOMXULSelectControlItemElement,
+  ]);
 
-  customElements.define("activity-group", MozActivityGroup, { extends: "richlistitem" });
+  customElements.define("activity-group", MozActivityGroup, {
+    extends: "richlistitem",
+  });
 
   /**
    * The MozActivityProcess widget displays information about the internal
@@ -284,7 +311,9 @@
         return;
       }
 
-      this.appendChild(MozXULElement.parseXULToFragment(`
+      this.appendChild(
+        MozXULElement.parseXULToFragment(
+          `
         <hbox flex="1" class="activityContentBox">
           <vbox pack="center" class="processIconBox">
             <image></image>
@@ -316,7 +345,10 @@
             <spacer flex="1"></spacer>
           </vbox>
         </hbox>
-    `, ["chrome://messenger/locale/activity.dtd"]));
+    `,
+          ["chrome://messenger/locale/activity.dtd"]
+        )
+      );
 
       this._activity.QueryInterface(Ci.nsIActivityProcess);
 
@@ -387,22 +419,28 @@
           this.displayText = displayText;
           this.statusText = statusText;
         },
-        onProgressChanged: (activity, statusText, workUnitsComplete, totalWorkUnits) => {
+        onProgressChanged: (
+          activity,
+          statusText,
+          workUnitsComplete,
+          totalWorkUnits
+        ) => {
           let element = document.querySelector(".progressmeter");
           if (totalWorkUnits == 0) {
             element.removeAttribute("value");
           } else {
-            let _percentComplete = 100.0 * workUnitsComplete / totalWorkUnits;
+            let _percentComplete = (100.0 * workUnitsComplete) / totalWorkUnits;
             element.value = _percentComplete;
           }
           this.statusText = statusText;
         },
-        onHandlerChanged: (activity) => {
+        onHandlerChanged: activity => {
           // update handler buttons' visibilities
           let hideCancelBut = !this.canCancel;
           let hidePauseBut = !this.canPause;
           let hideRetryBut = !this.canRetry;
-          let hideResumeBut = !this.canPause ||
+          let hideResumeBut =
+            !this.canPause ||
             this._activity.state == Ci.nsIActivityProcess.STATE_PAUSED;
 
           this.setVisibility(".cancel", !hideCancelBut);
@@ -424,12 +462,16 @@
 
       this.displayText = this._activity.displayText;
       // make sure that custom element reflects the latest state of the process
-      this.activityListener.onStateChanged(this._activity.state,
-        Ci.nsIActivityProcess.STATE_NOTSTARTED);
-      this.activityListener.onProgressChanged(this._activity,
+      this.activityListener.onStateChanged(
+        this._activity.state,
+        Ci.nsIActivityProcess.STATE_NOTSTARTED
+      );
+      this.activityListener.onProgressChanged(
+        this._activity,
         this._activity.lastStatusText,
         this._activity.workUnitComplete,
-        this._activity.totalWorkUnits);
+        this._activity.totalWorkUnits
+      );
 
       this.initializeAttributeInheritance();
     }
@@ -451,43 +493,53 @@
     }
 
     get inProgress() {
-      return (this._activity.state == Ci.nsIActivityProcess.STATE_INPROGRESS);
+      return this._activity.state == Ci.nsIActivityProcess.STATE_INPROGRESS;
     }
 
     get isRemovable() {
-      return this._activity.state == Ci.nsIActivityProcess.STATE_COMPLETED ||
-        this._activity.state == Ci.nsIActivityProcess.STATE_CANCELED;
+      return (
+        this._activity.state == Ci.nsIActivityProcess.STATE_COMPLETED ||
+        this._activity.state == Ci.nsIActivityProcess.STATE_CANCELED
+      );
     }
 
     get canCancel() {
-      return (this._activity.cancelHandler != null);
+      return this._activity.cancelHandler != null;
     }
 
     get canPause() {
-      return (this._activity.pauseHandler != null);
+      return this._activity.pauseHandler != null;
     }
 
     get canRetry() {
-      return (this._activity.retryHandler != null);
+      return this._activity.retryHandler != null;
     }
 
     get paused() {
-      return parseInt(this.getAttribute("state")) ==
-        Ci.nsIActivityProcess.STATE_PAUSED;
+      return (
+        parseInt(this.getAttribute("state")) ==
+        Ci.nsIActivityProcess.STATE_PAUSED
+      );
     }
 
     get waitingforinput() {
-      return parseInt(this.getAttribute("state")) ==
-        Ci.nsIActivityProcess.STATE_WAITINGFORINPUT;
+      return (
+        parseInt(this.getAttribute("state")) ==
+        Ci.nsIActivityProcess.STATE_WAITINGFORINPUT
+      );
     }
 
     get waitingforretry() {
-      return parseInt(this.getAttribute("state")) ==
-        Ci.nsIActivityProcess.STATE_WAITINGFORRETRY;
+      return (
+        parseInt(this.getAttribute("state")) ==
+        Ci.nsIActivityProcess.STATE_WAITINGFORRETRY
+      );
     }
   }
 
-  customElements.define("activity-process", MozActivityProcess, { extends: "richlistitem" });
+  customElements.define("activity-process", MozActivityProcess, {
+    extends: "richlistitem",
+  });
 
   /**
    * The MozActivityWarning widget displays information about
@@ -512,7 +564,7 @@
       }
 
       this.activityListener = {
-        onHandlerChanged: (activity) => {
+        onHandlerChanged: activity => {
           // update handler button's visibility
           this.setVisibility(".recover", this.canRecover);
         },
@@ -521,7 +573,9 @@
 
       this._activity.addListener(this.activityListener);
 
-      this.appendChild(MozXULElement.parseXULToFragment(`
+      this.appendChild(
+        MozXULElement.parseXULToFragment(
+          `
         <hbox flex="1">
           <vbox pack="center" class="warningIconBox">
             <image></image>
@@ -540,7 +594,10 @@
             </hbox>
           </vbox>
         </hbox>
-      `, ["chrome://messenger/locale/activity.dtd"]));
+      `,
+          ["chrome://messenger/locale/activity.dtd"]
+        )
+      );
 
       this.setAttribute("class", "activityitem");
 
@@ -571,7 +628,10 @@
     }
 
     set dateTime(val) {
-      this.setAttribute("dateTime", makeFriendlyDateAgo(new Date(parseInt(val))));
+      this.setAttribute(
+        "dateTime",
+        makeFriendlyDateAgo(new Date(parseInt(val)))
+      );
     }
 
     get dateTime() {
@@ -579,9 +639,11 @@
     }
 
     get canRecover() {
-      return (this._activity.recoveryHandler != null);
+      return this._activity.recoveryHandler != null;
     }
   }
 
-  customElements.define("activity-warning", MozActivityWarning, { extends: "richlistitem" });
+  customElements.define("activity-warning", MozActivityWarning, {
+    extends: "richlistitem",
+  });
 }

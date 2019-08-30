@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 // Base class for nsActivityProcess and nsActivityEvent objects
@@ -84,44 +86,64 @@ nsActivityProcess.prototype = {
   },
 
   set state(val) {
-    if (val == this._state)
+    if (val == this._state) {
       return;
+    }
 
     // test validity of the new state
     //
-    if (this._state == Ci.nsIActivityProcess.STATE_INPROGRESS &&
-        !(val == Ci.nsIActivityProcess.STATE_COMPLETED ||
-          val == Ci.nsIActivityProcess.STATE_CANCELED ||
-          val == Ci.nsIActivityProcess.STATE_WAITINGFORRETRY ||
-          val == Ci.nsIActivityProcess.STATE_WAITINGFORINPUT ||
-          val == Ci.nsIActivityProcess.STATE_PAUSED)) {
+    if (
+      this._state == Ci.nsIActivityProcess.STATE_INPROGRESS &&
+      !(
+        val == Ci.nsIActivityProcess.STATE_COMPLETED ||
+        val == Ci.nsIActivityProcess.STATE_CANCELED ||
+        val == Ci.nsIActivityProcess.STATE_WAITINGFORRETRY ||
+        val == Ci.nsIActivityProcess.STATE_WAITINGFORINPUT ||
+        val == Ci.nsIActivityProcess.STATE_PAUSED
+      )
+    ) {
       throw Cr.NS_ERROR_ILLEGAL_VALUE;
     }
 
     // we cannot change the state after the activity is completed,
     // or it is canceled.
-    if (this._state == Ci.nsIActivityProcess.STATE_COMPLETED ||
-        this._state == Ci.nsIActivityProcess.STATE_CANCELED)
-      throw Cr.NS_ERROR_ILLEGAL_VALUE;
-
-    if (this._state == Ci.nsIActivityProcess.STATE_PAUSED &&
-       !(val == Ci.nsIActivityProcess.STATE_COMPLETED ||
-         val == Ci.nsIActivityProcess.STATE_INPROGRESS ||
-         val == Ci.nsIActivityProcess.STATE_WAITINGFORRETRY ||
-         val == Ci.nsIActivityProcess.STATE_WAITINGFORINPUT ||
-         val == Ci.nsIActivityProcess.STATE_CANCELED)) {
+    if (
+      this._state == Ci.nsIActivityProcess.STATE_COMPLETED ||
+      this._state == Ci.nsIActivityProcess.STATE_CANCELED
+    ) {
       throw Cr.NS_ERROR_ILLEGAL_VALUE;
     }
 
-    if (this._state == Ci.nsIActivityProcess.STATE_WAITINGFORINPUT &&
-       !(val == Ci.nsIActivityProcess.STATE_INPROGRESS ||
-         val == Ci.nsIActivityProcess.STATE_CANCELED)) {
+    if (
+      this._state == Ci.nsIActivityProcess.STATE_PAUSED &&
+      !(
+        val == Ci.nsIActivityProcess.STATE_COMPLETED ||
+        val == Ci.nsIActivityProcess.STATE_INPROGRESS ||
+        val == Ci.nsIActivityProcess.STATE_WAITINGFORRETRY ||
+        val == Ci.nsIActivityProcess.STATE_WAITINGFORINPUT ||
+        val == Ci.nsIActivityProcess.STATE_CANCELED
+      )
+    ) {
       throw Cr.NS_ERROR_ILLEGAL_VALUE;
     }
 
-    if (this._state == Ci.nsIActivityProcess.STATE_WAITINGFORRETRY &&
-       !(val == Ci.nsIActivityProcess.STATE_INPROGRESS ||
-         val == Ci.nsIActivityProcess.STATE_CANCELED)) {
+    if (
+      this._state == Ci.nsIActivityProcess.STATE_WAITINGFORINPUT &&
+      !(
+        val == Ci.nsIActivityProcess.STATE_INPROGRESS ||
+        val == Ci.nsIActivityProcess.STATE_CANCELED
+      )
+    ) {
+      throw Cr.NS_ERROR_ILLEGAL_VALUE;
+    }
+
+    if (
+      this._state == Ci.nsIActivityProcess.STATE_WAITINGFORRETRY &&
+      !(
+        val == Ci.nsIActivityProcess.STATE_INPROGRESS ||
+        val == Ci.nsIActivityProcess.STATE_CANCELED
+      )
+    ) {
       throw Cr.NS_ERROR_ILLEGAL_VALUE;
     }
 
@@ -145,7 +167,9 @@ nsActivityProcess.prototype = {
       this.workUnitComplete = 0;
       this.totalWorkUnits = 0;
     } else {
-      this.percentComplete = parseInt(100.0 * aWorkUnitsComplete / aTotalWorkUnits);
+      this.percentComplete = parseInt(
+        (100.0 * aWorkUnitsComplete) / aTotalWorkUnits
+      );
       this.workUnitComplete = aWorkUnitsComplete;
       this.totalWorkUnits = aTotalWorkUnits;
     }
@@ -154,8 +178,12 @@ nsActivityProcess.prototype = {
     // notify listeners
     for (let value of this._listeners) {
       try {
-        value.onProgressChanged(this, aStatusText, aWorkUnitsComplete,
-                                aTotalWorkUnits);
+        value.onProgressChanged(
+          this,
+          aStatusText,
+          aWorkUnitsComplete,
+          aTotalWorkUnits
+        );
       } catch (e) {
         this.log.error("Exception thrown by onProgressChanged listener: " + e);
       }
@@ -208,7 +236,10 @@ nsActivityProcess.prototype = {
     }
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIActivityProcess, Ci.nsIActivity]),
+  QueryInterface: ChromeUtils.generateQI([
+    Ci.nsIActivityProcess,
+    Ci.nsIActivity,
+  ]),
 };
 
 function nsActivityEvent() {
@@ -230,10 +261,11 @@ nsActivityEvent.prototype = {
     this.displayText = aDisplayText;
     this.statusText = aStatusText;
     this.startTime = aStartTime;
-    if (aCompletionTime)
+    if (aCompletionTime) {
       this.completionTime = aCompletionTime;
-    else
+    } else {
       this.completionTime = Date.now();
+    }
     this.initiator = aInitiator;
     this._completionTime = aCompletionTime;
   },
@@ -294,7 +326,10 @@ nsActivityWarning.prototype = {
     return this._time;
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIActivityWarning, Ci.nsIActivity]),
+  QueryInterface: ChromeUtils.generateQI([
+    Ci.nsIActivityWarning,
+    Ci.nsIActivity,
+  ]),
 };
 
 var components = [nsActivityProcess, nsActivityEvent, nsActivityWarning];

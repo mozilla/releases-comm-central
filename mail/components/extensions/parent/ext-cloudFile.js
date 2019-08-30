@@ -4,8 +4,12 @@
 
 "use strict";
 
-var {ExtensionParent} = ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
-var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm");
+var { ExtensionParent } = ChromeUtils.import(
+  "resource://gre/modules/ExtensionParent.jsm"
+);
+var { cloudFileAccounts } = ChromeUtils.import(
+  "resource:///modules/cloudFileAccounts.jsm"
+);
 
 // eslint-disable-next-line mozilla/reject-importGlobalProperties
 Cu.importGlobalProperties(["File", "FileReader"]);
@@ -54,7 +58,9 @@ class CloudFileAccount {
   get iconURL() {
     if (this.extension.manifest.icons) {
       let { icon } = ExtensionParent.IconDetails.getPreferredIcon(
-        this.extension.manifest.icons, this.extension, 32
+        this.extension.manifest.icons,
+        this.extension,
+        32
       );
       return this.extension.baseURI.resolve(icon);
     }
@@ -103,7 +109,8 @@ class CloudFileAccount {
       });
     } catch (ex) {
       this._uploads.delete(id);
-      if (ex.result == 0x80530014) { // NS_ERROR_DOM_ABORT_ERR
+      if (ex.result == 0x80530014) {
+        // NS_ERROR_DOM_ABORT_ERR
         throw cloudFileAccounts.constants.uploadCancelled;
       } else {
         console.error(ex);
@@ -118,10 +125,12 @@ class CloudFileAccount {
       }
 
       upload.url = results[0].url;
-      return {...upload};
+      return { ...upload };
     }
 
-    console.error(`Missing cloudFile.onFileUpload listener for ${this.extension.id}`);
+    console.error(
+      `Missing cloudFile.onFileUpload listener for ${this.extension.id}`
+    );
     this._uploads.delete(id);
     throw cloudFileAccounts.constants.uploadErr;
   }
@@ -145,14 +154,18 @@ class CloudFileAccount {
   }
 
   getPreviousUploads() {
-    return [...this._uploads.values()].map(u => { return {...u}; });
+    return [...this._uploads.values()].map(u => {
+      return { ...u };
+    });
   }
 
   async deleteFile(uploadId) {
     let results;
     try {
       if (this._uploads.has(uploadId)) {
-        results = await this.extension.emit("deleteFile", this, { id: uploadId });
+        results = await this.extension.emit("deleteFile", this, {
+          id: uploadId,
+        });
       }
       this._uploads.delete(uploadId);
     } catch (ex) {
@@ -160,7 +173,9 @@ class CloudFileAccount {
     }
 
     if (!results || results.length == 0) {
-      console.error(`Missing cloudFile.onFileDeleted listener for ${this.extension.id}`);
+      console.error(
+        `Missing cloudFile.onFileDeleted listener for ${this.extension.id}`
+      );
       throw Cr.NS_ERROR_FAILURE;
     }
   }
@@ -186,14 +201,16 @@ this.cloudFile = class extends ExtensionAPI {
 
   onManifestEntry(entryName) {
     if (entryName == "cloud_file") {
-      let {extension} = this;
+      let { extension } = this;
       cloudFileAccounts.registerProvider(this.providerType, {
         type: this.providerType,
         displayName: extension.manifest.cloud_file.name,
         get iconURL() {
           if (extension.manifest.icons) {
             let { icon } = ExtensionParent.IconDetails.getPreferredIcon(
-              extension.manifest.icons, extension, 32
+              extension.manifest.icons,
+              extension,
+              32
             );
             return extension.baseURI.resolve(icon);
           }
@@ -317,7 +334,9 @@ this.cloudFile = class extends ExtensionAPI {
         },
 
         async getAllAccounts() {
-          return cloudFileAccounts.getAccountsForType(self.providerType).map(convertCloudFileAccount);
+          return cloudFileAccounts
+            .getAccountsForType(self.providerType)
+            .map(convertCloudFileAccount);
         },
 
         async updateAccount(accountId, updateProperties) {

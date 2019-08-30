@@ -25,13 +25,13 @@ function setupModule(module) {
   folder = create_folder("MessageSizeA");
 
   // Create messages with sizes in the byte, KB, and MB ranges.
-  let bytemsg = create_message({body: {body: " "}});
+  let bytemsg = create_message({ body: { body: " " } });
 
   let kbstring = "x ".repeat(1024 / 2);
-  let kbmsg = create_message({body: {body: kbstring}});
+  let kbmsg = create_message({ body: { body: kbstring } });
 
   let mbstring = kbstring.repeat(1024);
-  let mbmsg = create_message({body: {body: mbstring}});
+  let mbmsg = create_message({ body: { body: mbstring } });
 
   add_message_to_folder(folder, bytemsg);
   add_message_to_folder(folder, kbmsg);
@@ -52,10 +52,12 @@ function _help_test_message_size(index, unit) {
   let realSize = curMessage.messageSize;
   let abbrSize = parseFloat(sizeStr);
 
-  if (isNaN(abbrSize))
+  if (isNaN(abbrSize)) {
     throw new Error("formatted size is not numeric: '" + sizeStr + "'");
-  if (Math.abs(realSize / Math.pow(1024, unit) - abbrSize) > 0.5)
+  }
+  if (Math.abs(realSize / Math.pow(1024, unit) - abbrSize) > 0.5) {
     throw new Error("size mismatch: '" + realSize + "' and '" + sizeStr + "'");
+  }
 }
 
 function test_byte_message_size() {

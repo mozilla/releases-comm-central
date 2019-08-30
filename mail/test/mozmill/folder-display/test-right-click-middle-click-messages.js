@@ -15,7 +15,9 @@ var MODULE_NAME = "test-right-click-middle-click-messages";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 
 var folder, threadedFolder;
 
@@ -35,11 +37,11 @@ function setupModule(module) {
   // we want exactly as many messages as we plan to delete, so that we can test
   //  that the message window and tabs close when they run out of things to
   //  to display.
-  make_new_sets_in_folder(folder, [{count: 20}]);
+  make_new_sets_in_folder(folder, [{ count: 20 }]);
   // Create a few messages and one thread (the order is important here, as it
   // determines where the thread is placed. We want it placed right at the
   // end.)
-  make_new_sets_in_folder(threadedFolder, [{count: 50}]);
+  make_new_sets_in_folder(threadedFolder, [{ count: 50 }]);
   let thread = create_thread(NUM_MESSAGES_IN_THREAD);
   add_sets_to_folders([threadedFolder], [thread]);
 }
@@ -330,7 +332,8 @@ function _middle_click_on_collapsed_thread_root_helper(aBackground) {
   // Middle-click on the root of the collapsed thread, which is also the last
   // row
   let [tabMessage] = middle_click_on_row(
-                           mc.folderDisplay.view.dbView.rowCount - 1);
+    mc.folderDisplay.view.dbView.rowCount - 1
+  );
 
   if (!aBackground) {
     wait_for_message_display_completion();
@@ -339,9 +342,15 @@ function _middle_click_on_collapsed_thread_root_helper(aBackground) {
   }
 
   // Make sure the first visible row is still the same
-  if (tree.getFirstVisibleRow() != preFirstRow)
-    throw new Error("The first visible row should have been " + preFirstRow +
-        ", but is actually " + tree.getFirstVisibleRow() + ".");
+  if (tree.getFirstVisibleRow() != preFirstRow) {
+    throw new Error(
+      "The first visible row should have been " +
+        preFirstRow +
+        ", but is actually " +
+        tree.getFirstVisibleRow() +
+        "."
+    );
+  }
 
   close_tab(tabMessage);
 }
@@ -360,8 +369,11 @@ function _middle_click_on_expanded_thread_root_helper(aBackground) {
   let tree = mc.threadTree;
   // Scroll to the top, then to near (but not exactly) the bottom
   tree.ensureRowIsVisible(0);
-  tree.scrollToRow(mc.folderDisplay.view.dbView.rowCount -
-      tree.getPageLength() - (NUM_MESSAGES_IN_THREAD / 2));
+  tree.scrollToRow(
+    mc.folderDisplay.view.dbView.rowCount -
+      tree.getPageLength() -
+      NUM_MESSAGES_IN_THREAD / 2
+  );
   // Note the first visible row
   let preFirstRow = tree.getFirstVisibleRow();
 
@@ -373,7 +385,8 @@ function _middle_click_on_expanded_thread_root_helper(aBackground) {
   // Middle-click on the root of the expanded thread, which is the row with
   // index (number of rows - number of messages in thread).
   let [tabMessage] = middle_click_on_row(
-      mc.folderDisplay.view.dbView.rowCount - NUM_MESSAGES_IN_THREAD);
+    mc.folderDisplay.view.dbView.rowCount - NUM_MESSAGES_IN_THREAD
+  );
 
   if (!aBackground) {
     wait_for_message_display_completion();
@@ -382,9 +395,15 @@ function _middle_click_on_expanded_thread_root_helper(aBackground) {
   }
 
   // Make sure the first visible row is still the same
-  if (tree.getFirstVisibleRow() != preFirstRow)
-    throw new Error("The first visible row should have been " + preFirstRow +
-        ", but is actually " + tree.getFirstVisibleRow() + ".");
+  if (tree.getFirstVisibleRow() != preFirstRow) {
+    throw new Error(
+      "The first visible row should have been " +
+        preFirstRow +
+        ", but is actually " +
+        tree.getFirstVisibleRow() +
+        "."
+    );
+  }
 
   close_tab(tabMessage);
 }
@@ -478,8 +497,9 @@ function test_right_click_deletion_of_one_selected_thing() {
   delete_via_popup();
   assert_message_not_in_view(curMessage);
 
-  if (!mc.folderDisplay.selectedCount)
+  if (!mc.folderDisplay.selectedCount) {
     throw new Error("We should have tried to select something!");
+  }
 }
 
 function test_right_click_deletion_of_many_selected_things() {
@@ -492,6 +512,7 @@ function test_right_click_deletion_of_many_selected_things() {
   delete_via_popup();
   assert_messages_not_in_view(messages);
 
-  if (!mc.folderDisplay.selectedCount)
+  if (!mc.folderDisplay.selectedCount) {
     throw new Error("We should have tried to select something!");
+  }
 }

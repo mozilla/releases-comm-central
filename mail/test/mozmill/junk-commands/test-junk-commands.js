@@ -23,7 +23,7 @@ function setupModule(module) {
   jh.installInto(module);
 
   folder = create_folder("JunkCommandsA");
-  make_new_sets_in_folder(folder, [{count: 30}]);
+  make_new_sets_in_folder(folder, [{ count: 30 }]);
 }
 
 /**
@@ -39,10 +39,17 @@ var NUM_MESSAGES_TO_JUNK = 8;
  */
 function _assert_folder_total_messages(aFolder, aNumMessages) {
   let curMessages = aFolder.getTotalMessages(false);
-  if (curMessages != aNumMessages)
-    throw new Error("The folder " + aFolder.prettyName + " should have " +
-        aNumMessages + " messages, but actually has " + curMessages +
-        " messages.");
+  if (curMessages != aNumMessages) {
+    throw new Error(
+      "The folder " +
+        aFolder.prettyName +
+        " should have " +
+        aNumMessages +
+        " messages, but actually has " +
+        curMessages +
+        " messages."
+    );
+  }
 }
 
 /**
@@ -70,14 +77,18 @@ function test_delete_junk_messages() {
   // Now delete junk mail
   delete_mail_marked_as_junk(NUM_MESSAGES_TO_JUNK);
   // Check that we have the right number of messages left
-  _assert_folder_total_messages(folder,
-                                initialNumMessages - NUM_MESSAGES_TO_JUNK);
+  _assert_folder_total_messages(
+    folder,
+    initialNumMessages - NUM_MESSAGES_TO_JUNK
+  );
   // Check that none of the message keys exist any more
   let db = folder.getDBFolderInfoAndDB({});
   for (let msgHdr of selectedMessages) {
     let key = msgHdr.messageKey;
-    if (db.ContainsKey(key))
-      throw new Error("The database shouldn't contain key " + key +
-                      ", but does.");
+    if (db.ContainsKey(key)) {
+      throw new Error(
+        "The database shouldn't contain key " + key + ", but does."
+      );
+    }
   }
 }

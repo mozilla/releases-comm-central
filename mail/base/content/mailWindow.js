@@ -17,11 +17,17 @@
 // From netError.js
 /* globals retryThis */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {appIdleManager} = ChromeUtils.import("resource:///modules/appIdleManager.js");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { appIdleManager } = ChromeUtils.import(
+  "resource:///modules/appIdleManager.js"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 var { Gloda } = ChromeUtils.import("resource:///modules/gloda/public.js");
 
@@ -33,7 +39,12 @@ var msgWindow;
 var accountManager;
 
 var gContextMenu;
-var gMailWindowLog = Log4Moz.getConfiguredLogger("mailWindow", Log4Moz.Level.Debug, Log4Moz.Level.Debug, Log4Moz.Level.Debug);
+var gMailWindowLog = Log4Moz.getConfiguredLogger(
+  "mailWindow",
+  Log4Moz.Level.Debug,
+  Log4Moz.Level.Debug,
+  Log4Moz.Level.Debug
+);
 
 /**
  * Called by messageWindow.xul:onunload,  the 'single message display window'.
@@ -65,7 +76,6 @@ function OnMailWindowUnload() {
     .removeListener(window.MsgStatusFeedback);
 }
 
-
 /**
  * When copying/dragging, convert imap/mailbox URLs of images into data URLs so
  * that the images can be accessed in a paste elsewhere.
@@ -94,7 +104,8 @@ function onCopyOrDragStart(e) {
       continue;
     }
 
-    if (img.naturalWidth == 0) { // Broken/inaccessible image then...
+    if (img.naturalWidth == 0) {
+      // Broken/inaccessible image then...
       continue;
     }
 
@@ -128,8 +139,9 @@ function onCopyOrDragStart(e) {
     return;
   }
 
-  let clonedSelection = draggedImg ? draggedImg.cloneNode(false) :
-    selection.getRangeAt(0).cloneContents();
+  let clonedSelection = draggedImg
+    ? draggedImg.cloneNode(false)
+    : selection.getRangeAt(0).cloneContents();
   let div = sourceDoc.createElement("div");
   div.appendChild(clonedSelection);
 
@@ -142,15 +154,21 @@ function onCopyOrDragStart(e) {
   }
 
   let html = div.innerHTML;
-  let parserUtils = Cc["@mozilla.org/parserutils;1"]
-                      .getService(Ci.nsIParserUtils);
-  let plain = parserUtils.convertToPlainText(html,
-    Ci.nsIDocumentEncoder.OutputForPlainTextClipboardCopy, 0);
-  if ("clipboardData" in e) { // copy
+  let parserUtils = Cc["@mozilla.org/parserutils;1"].getService(
+    Ci.nsIParserUtils
+  );
+  let plain = parserUtils.convertToPlainText(
+    html,
+    Ci.nsIDocumentEncoder.OutputForPlainTextClipboardCopy,
+    0
+  );
+  if ("clipboardData" in e) {
+    // copy
     e.clipboardData.setData("text/html", html);
     e.clipboardData.setData("text/plain", plain);
     e.preventDefault();
-  } else if ("dataTransfer" in e) { // drag
+  } else if ("dataTransfer" in e) {
+    // drag
     e.dataTransfer.setData("text/html", html);
     e.dataTransfer.setData("text/plain", plain);
   }
@@ -159,8 +177,7 @@ function onCopyOrDragStart(e) {
 function CreateMailWindowGlobals() {
   // get the messenger instance
   // eslint-disable-next-line no-global-assign
-  messenger = Cc["@mozilla.org/messenger;1"]
-                .createInstance(Ci.nsIMessenger);
+  messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
   window.addEventListener("blur", appIdleManager.onBlur);
   window.addEventListener("focus", appIdleManager.onFocus);
@@ -169,16 +186,17 @@ function CreateMailWindowGlobals() {
   // set the JS implementation of status feedback before creating the c++ one..
   window.MsgStatusFeedback = new nsMsgStatusFeedback();
   // double register the status feedback object as the xul browser window implementation
-  window.getInterface(Ci.nsIWebNavigation)
-        .QueryInterface(Ci.nsIDocShellTreeItem).treeOwner
-        .QueryInterface(Ci.nsIInterfaceRequestor)
-        .getInterface(Ci.nsIXULWindow)
-        .XULBrowserWindow = window.MsgStatusFeedback;
+  window
+    .getInterface(Ci.nsIWebNavigation)
+    .QueryInterface(Ci.nsIDocShellTreeItem)
+    .treeOwner.QueryInterface(Ci.nsIInterfaceRequestor)
+    .getInterface(Ci.nsIXULWindow).XULBrowserWindow = window.MsgStatusFeedback;
 
   window.browserDOMWindow = new nsBrowserAccess();
 
-  statusFeedback = Cc["@mozilla.org/messenger/statusfeedback;1"]
-                     .createInstance(Ci.nsIMsgStatusFeedback);
+  statusFeedback = Cc["@mozilla.org/messenger/statusfeedback;1"].createInstance(
+    Ci.nsIMsgStatusFeedback
+  );
   statusFeedback.setWrappedStatusFeedback(window.MsgStatusFeedback);
 
   Cc["@mozilla.org/activity-manager;1"]
@@ -187,8 +205,9 @@ function CreateMailWindowGlobals() {
 
   // Create message window object
   // eslint-disable-next-line no-global-assign
-  msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
-                .createInstance(Ci.nsIMsgWindow);
+  msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
+    Ci.nsIMsgWindow
+  );
 
   accountManager = MailServices.accounts;
 
@@ -213,13 +232,17 @@ function InitMsgWindow() {
   document.addEventListener("copy", onCopyOrDragStart, true);
   document.addEventListener("dragstart", onCopyOrDragStart, true);
   // Override Retry button to prevent unwanted url loads, see bug 1411748.
-  messagepane.addEventListener("DOMContentLoaded", (event) => {
+  messagepane.addEventListener("DOMContentLoaded", event => {
     if (!event.target.documentURI.startsWith("about:neterror?")) {
       return;
     }
     let button = event.target.getElementById("errorTryAgain");
-    button.removeEventListener("click", function() { retryThis(this); });
-    button.addEventListener("click", function() { ReloadMessage(); });
+    button.removeEventListener("click", function() {
+      retryThis(this);
+    });
+    button.addEventListener("click", function() {
+      ReloadMessage();
+    });
   });
 
   // Run menubar initialization first, to avoid TabsInTitlebar code picking
@@ -236,7 +259,9 @@ function nsMsgStatusFeedback() {
   this._statusText = document.getElementById("statusText");
   this._statusPanel = document.getElementById("statusbar-display");
   this._progressBar = document.getElementById("statusbar-icon");
-  this._progressBarContainer = document.getElementById("statusbar-progresspanel");
+  this._progressBarContainer = document.getElementById(
+    "statusbar-progresspanel"
+  );
   this._throbber = document.getElementById("throbber-box");
   this._activeProcesses = [];
 
@@ -267,14 +292,15 @@ nsMsgStatusFeedback.prototype = {
   unload() {
     // Remove listeners for any active processes we have hooked ourselves into.
     this._activeProcesses.forEach(function(element) {
-        element.removeListener(this);
-      }, this);
+      element.removeListener(this);
+    }, this);
   },
 
   // nsIXULBrowserWindow implementation.
   setJSStatus(status) {
-    if (status.length > 0)
+    if (status.length > 0) {
       this.showStatusString(status);
+    }
   },
 
   /*
@@ -289,8 +315,10 @@ nsMsgStatusFeedback.prototype = {
 
       // Encode bidirectional formatting characters.
       // (RFC 3987 sections 3.2 and 4.1 paragraph 6)
-      url = url.replace(/[\u200e\u200f\u202a\u202b\u202c\u202d\u202e]/g,
-                        encodeURIComponent);
+      url = url.replace(
+        /[\u200e\u200f\u202a\u202b\u202c\u202d\u202e]/g,
+        encodeURIComponent
+      );
     }
 
     if (!document.getElementById("status-bar").hidden) {
@@ -307,18 +335,21 @@ nsMsgStatusFeedback.prototype = {
     return originalTarget;
   },
 
-  QueryInterface: ChromeUtils.generateQI(["nsIMsgStatusFeedback",
-                                          "nsIXULBrowserWindow",
-                                          "nsIActivityMgrListener",
-                                          "nsIActivityListener",
-                                          "nsISupportsWeakReference"]),
+  QueryInterface: ChromeUtils.generateQI([
+    "nsIMsgStatusFeedback",
+    "nsIXULBrowserWindow",
+    "nsIActivityMgrListener",
+    "nsIActivityListener",
+    "nsISupportsWeakReference",
+  ]),
 
   // nsIMsgStatusFeedback implementation.
   showStatusString(statusText) {
-    if (!statusText)
+    if (!statusText) {
       statusText = this._defaultStatusText;
-    else
+    } else {
       this._defaultStatusText = "";
+    }
     this._statusText.value = statusText;
   },
 
@@ -337,8 +368,9 @@ nsMsgStatusFeedback.prototype = {
     this.updateProgress();
 
     // Start the throbber.
-    if (this._throbber)
+    if (this._throbber) {
       this._throbber.setAttribute("busy", true);
+    }
 
     // Update the stop button
     goUpdateCommand("cmd_stop");
@@ -348,10 +380,16 @@ nsMsgStatusFeedback.prototype = {
     this._startRequests++;
     // If we don't already have a start meteor timeout pending
     // and the meteors aren't spinning, then kick off a start.
-    if (!this._startTimeoutID && !this._meteorsSpinning &&
-        "MsgStatusFeedback" in window)
-      this._startTimeoutID =
-        setTimeout(() => window.MsgStatusFeedback._startMeteors(), 500);
+    if (
+      !this._startTimeoutID &&
+      !this._meteorsSpinning &&
+      "MsgStatusFeedback" in window
+    ) {
+      this._startTimeoutID = setTimeout(
+        () => window.MsgStatusFeedback._startMeteors(),
+        500
+      );
+    }
 
     // Since we are going to start up the throbber no sense in processing
     // a stop timeout...
@@ -365,8 +403,9 @@ nsMsgStatusFeedback.prototype = {
     this.showStatusString(this._defaultStatusText);
 
     // stop the throbber
-    if (this._throbber)
+    if (this._throbber) {
       this._throbber.setAttribute("busy", false);
+    }
 
     this._meteorsSpinning = false;
     this._stopTimeoutID = null;
@@ -380,8 +419,9 @@ nsMsgStatusFeedback.prototype = {
   },
 
   stopMeteors() {
-    if (this._startRequests > 0)
+    if (this._startRequests > 0) {
       this._startRequests--;
+    }
 
     // If we are going to be starting the meteors, cancel the start.
     if (this._startRequests == 0 && this._startTimeoutID) {
@@ -392,10 +432,16 @@ nsMsgStatusFeedback.prototype = {
     // If we have no more pending starts and we don't have a stop timeout
     // already in progress AND the meteors are currently running then fire a
     // stop timeout to shut them down.
-    if (this._startRequests == 0 && !this._stopTimeoutID &&
-        this._meteorsSpinning && "MsgStatusFeedback" in window) {
-      this._stopTimeoutID =
-        setTimeout(() => window.MsgStatusFeedback._stopMeteors(), 500);
+    if (
+      this._startRequests == 0 &&
+      !this._stopTimeoutID &&
+      this._meteorsSpinning &&
+      "MsgStatusFeedback" in window
+    ) {
+      this._stopTimeoutID = setTimeout(
+        () => window.MsgStatusFeedback._stopMeteors(),
+        500
+      );
     }
   },
 
@@ -415,13 +461,14 @@ nsMsgStatusFeedback.prototype = {
       // For each activity that is in progress, get its status.
 
       this._activeProcesses.forEach(function(element) {
-          if (element.state ==
-              Ci.nsIActivityProcess.STATE_INPROGRESS &&
-              element.percentComplete != -1) {
-            currentProgress += element.percentComplete;
-            ++progressCount;
-          }
-        });
+        if (
+          element.state == Ci.nsIActivityProcess.STATE_INPROGRESS &&
+          element.percentComplete != -1
+        ) {
+          currentProgress += element.percentComplete;
+          ++progressCount;
+        }
+      });
 
       // Add the generic progress that's fed to the status feedback object if
       // we've got one.
@@ -460,8 +507,9 @@ nsMsgStatusFeedback.prototype = {
   // nsIActivityMgrListener
   onAddedActivity(aID, aActivity) {
     // ignore Gloda activity for status bar purposes
-    if (aActivity.initiator == Gloda)
+    if (aActivity.initiator == Gloda) {
       return;
+    }
     if (aActivity instanceof Ci.nsIActivityEvent) {
       this.showStatusString(aActivity.displayText);
     } else if (aActivity instanceof Ci.nsIActivityProcess) {
@@ -472,49 +520,54 @@ nsMsgStatusFeedback.prototype = {
   },
 
   onRemovedActivity(aID) {
-    this._activeProcesses =
-      this._activeProcesses.filter(function(element) {
-        if (element.id == aID) {
-          element.removeListener(this);
-          this.stopMeteors();
-          return false;
-        }
-        return true;
-      }, this);
+    this._activeProcesses = this._activeProcesses.filter(function(element) {
+      if (element.id == aID) {
+        element.removeListener(this);
+        this.stopMeteors();
+        return false;
+      }
+      return true;
+    }, this);
   },
 
   // nsIActivityListener
-  onStateChanged(aActivity, aOldState) {
-  },
+  onStateChanged(aActivity, aOldState) {},
 
-  onProgressChanged(aActivity, aStatusText, aWorkUnitsCompleted, aTotalWorkUnits) {
+  onProgressChanged(
+    aActivity,
+    aStatusText,
+    aWorkUnitsCompleted,
+    aTotalWorkUnits
+  ) {
     let index = this._activeProcesses.indexOf(aActivity);
 
     // Iterate through the list trying to find the first active process, but
     // only go as far as our process.
     for (var i = 0; i < index; ++i) {
-      if (this._activeProcesses[i].status ==
-          Ci.nsIActivityProcess.STATE_INPROGRESS)
+      if (
+        this._activeProcesses[i].status ==
+        Ci.nsIActivityProcess.STATE_INPROGRESS
+      ) {
         break;
+      }
     }
 
     // If the found activity was the same as our activity, update the status
     // text.
-    if (i == index)
+    if (i == index) {
       // Use the display text if we haven't got any status text. I'm assuming
       // that the status text will be generally what we want to see on the
       // status bar.
       this.showStatusString(aStatusText ? aStatusText : aActivity.displayText);
+    }
 
     this.updateProgress();
   },
 
-  onHandlerChanged(aActivity) {
-  },
+  onHandlerChanged(aActivity) {},
 };
 
-function nsMsgWindowCommands() {
-}
+function nsMsgWindowCommands() {}
 
 nsMsgWindowCommands.prototype = {
   QueryInterface: ChromeUtils.generateQI(["nsIMsgWindowCommands"]),
@@ -542,11 +595,14 @@ nsMsgWindowCommands.prototype = {
  */
 function loadStartPage(aForce) {
   // If the preference isn't enabled, then don't load anything.
-  if (!aForce && !Services.prefs.getBoolPref("mailnews.start_page.enabled"))
+  if (!aForce && !Services.prefs.getBoolPref("mailnews.start_page.enabled")) {
     return;
+  }
 
   gMessageNotificationBar.clearMsgNotifications();
-  let startpage = Services.urlFormatter.formatURLPref("mailnews.start_page.url");
+  let startpage = Services.urlFormatter.formatURLPref(
+    "mailnews.start_page.url"
+  );
   if (startpage) {
     try {
       let uri = Services.uriFixup.createFixupURI(startpage, 0);
@@ -585,12 +641,17 @@ function getNotificationBox(aWindow) {
   var tabInfo = tabmail.tabInfo;
 
   for (var i = 0; i < tabInfo.length; ++i) {
-    var browserFunc = tabInfo[i].mode.getBrowser ||
-                      tabInfo[i].mode.tabType.getBrowser;
+    var browserFunc =
+      tabInfo[i].mode.getBrowser || tabInfo[i].mode.tabType.getBrowser;
     if (browserFunc) {
       var possBrowser = browserFunc.call(tabInfo[i].mode.tabType, tabInfo[i]);
-      if (possBrowser && possBrowser.contentWindow == aWindow && possBrowser.parentNode.tagName == "notificationbox")
+      if (
+        possBrowser &&
+        possBrowser.contentWindow == aWindow &&
+        possBrowser.parentNode.tagName == "notificationbox"
+      ) {
         return possBrowser.parentNode;
+      }
     }
   }
   return null;
@@ -603,8 +664,9 @@ function OpenInboxForServer(server) {
   gFolderTreeView.selectFolder(MailUtils.getInboxFolder(server));
 
   if (MailOfflineMgr.isOnline() || MailOfflineMgr.getNewMail()) {
-    if (server.type != "imap")
+    if (server.type != "imap") {
       GetMessagesForInboxOnServer(server);
+    }
   }
 }
 
@@ -620,8 +682,7 @@ function UpdateFullZoomMenu() {
  * cert override dialog, though we'd like to give the user more detailed
  * information in the future.
  */
-function BadCertHandler() {
-}
+function BadCertHandler() {}
 
 BadCertHandler.prototype = {
   // Suppress any certificate errors
@@ -636,8 +697,10 @@ BadCertHandler.prototype = {
   },
 
   // nsISupports
-  QueryInterface: ChromeUtils.generateQI(["nsIBadCertListener2",
-                                          "nsIInterfaceRequestor"]),
+  QueryInterface: ChromeUtils.generateQI([
+    "nsIBadCertListener2",
+    "nsIInterfaceRequestor",
+  ]),
 };
 
 function InformUserOfCertError(socketInfo, secInfo, targetSite) {
@@ -647,8 +710,12 @@ function InformUserOfCertError(socketInfo, secInfo, targetSite) {
     prefetchCert: true,
     location: targetSite,
   };
-  window.openDialog("chrome://pippki/content/exceptionDialog.xul",
-                    "", "chrome,centerscreen,modal", params);
+  window.openDialog(
+    "chrome://pippki/content/exceptionDialog.xul",
+    "",
+    "chrome,centerscreen,modal",
+    params
+  );
 }
 
 function nsBrowserAccess() {}
@@ -658,9 +725,20 @@ nsBrowserAccess.prototype = {
 
   // The following function may be called during account creation, it is called by
   // the Mozmill test test-newmailaccount.js::test_window_open_link_opening_behaviour.
-  createContentWindow(aURI, aOpener, aWhere, aFlags, aTriggeringPrincipal = null) {
-    return this.getContentWindowOrOpenURI(null, aOpener, aWhere, aFlags,
-                                          aTriggeringPrincipal);
+  createContentWindow(
+    aURI,
+    aOpener,
+    aWhere,
+    aFlags,
+    aTriggeringPrincipal = null
+  ) {
+    return this.getContentWindowOrOpenURI(
+      null,
+      aOpener,
+      aWhere,
+      aFlags,
+      aTriggeringPrincipal
+    );
   },
 
   openURI(aURI, aOpener, aWhere, aFlags, aTriggeringPrincipal = null) {
@@ -668,24 +746,40 @@ nsBrowserAccess.prototype = {
       Cu.reportError("openURI should only be called with a valid URI");
       throw Cr.NS_ERROR_FAILURE;
     }
-    return this.getContentWindowOrOpenURI(aURI, aOpener, aWhere, aFlags,
-                                          aTriggeringPrincipal);
+    return this.getContentWindowOrOpenURI(
+      aURI,
+      aOpener,
+      aWhere,
+      aFlags,
+      aTriggeringPrincipal
+    );
   },
 
-  getContentWindowOrOpenURI(aURI, aOpener, aWhere, aFlags, aTriggeringPrincipal) {
+  getContentWindowOrOpenURI(
+    aURI,
+    aOpener,
+    aWhere,
+    aFlags,
+    aTriggeringPrincipal
+  ) {
     const nsIBrowserDOMWindow = Ci.nsIBrowserDOMWindow;
     let isExternal = !!(aFlags & nsIBrowserDOMWindow.OPEN_EXTERNAL);
     if (isExternal && aURI && aURI.schemeIs("chrome")) {
-      Services.console.logStringMessage("use -chrome command-line option to load external chrome urls\n");
+      Services.console.logStringMessage(
+        "use -chrome command-line option to load external chrome urls\n"
+      );
       return null;
     }
 
-    let loadflags = isExternal ?
-      Ci.nsIWebNavigation.LOAD_FLAGS_FROM_EXTERNAL :
-      Ci.nsIWebNavigation.LOAD_FLAGS_NONE;
+    let loadflags = isExternal
+      ? Ci.nsIWebNavigation.LOAD_FLAGS_FROM_EXTERNAL
+      : Ci.nsIWebNavigation.LOAD_FLAGS_NONE;
 
-    if (aWhere != nsIBrowserDOMWindow.OPEN_NEWTAB)
-      Services.console.logStringMessage("Opening a URI in something other than a new tab is not supported, opening in new tab instead");
+    if (aWhere != nsIBrowserDOMWindow.OPEN_NEWTAB) {
+      Services.console.logStringMessage(
+        "Opening a URI in something other than a new tab is not supported, opening in new tab instead"
+      );
+    }
 
     let win, needToFocusWin;
 
@@ -698,22 +792,27 @@ nsBrowserAccess.prototype = {
       needToFocusWin = true;
     }
 
-    if (!win)
+    if (!win) {
       throw new Error("Couldn't get a suitable window for openURI");
+    }
 
-    let loadInBackground =
-      Services.prefs.getBoolPref("browser.tabs.loadDivertedInBackground");
+    let loadInBackground = Services.prefs.getBoolPref(
+      "browser.tabs.loadDivertedInBackground"
+    );
 
     let tabmail = win.document.getElementById("tabmail");
     let clickHandler = null;
     let browser = tabmail.getBrowserForDocument(window.content);
-    if (browser)
+    if (browser) {
       clickHandler = browser.clickHandler;
+    }
 
-    let newTab = tabmail.openTab("contentTab", {contentPage: "about:blank",
-                                                background: loadInBackground,
-                                                opener: aOpener,
-                                                clickHandler});
+    let newTab = tabmail.openTab("contentTab", {
+      contentPage: "about:blank",
+      background: loadInBackground,
+      opener: aOpener,
+      clickHandler,
+    });
 
     let docShell = newTab.browser.docShell;
     let newWindow = docShell.domWindow;
@@ -725,13 +824,21 @@ nsBrowserAccess.prototype = {
           let location = aOpener.location;
           referrer = Services.io.newURI(location);
         }
-        newWindow.getInterface(Ci.nsIWebNavigation)
-                 .loadURI(aURI.spec, loadflags, referrer, null, null, aTriggeringPrincipal);
+        newWindow
+          .getInterface(Ci.nsIWebNavigation)
+          .loadURI(
+            aURI.spec,
+            loadflags,
+            referrer,
+            null,
+            null,
+            aTriggeringPrincipal
+          );
       }
-      if (needToFocusWin || (!loadInBackground && isExternal))
+      if (needToFocusWin || (!loadInBackground && isExternal)) {
         newWindow.focus();
-    } catch (e) {
-    }
+      }
+    } catch (e) {}
     return browsingContext;
   },
 
@@ -745,8 +852,9 @@ function MailSetCharacterSet(aEvent) {
     msgWindow.mailCharacterSet = aEvent.target.getAttribute("charset");
     msgWindow.charsetOverride = true;
     gMessageDisplay.keyForCharsetOverride =
-      ("messageKey" in gMessageDisplay.displayedMessage ?
-       gMessageDisplay.displayedMessage.messageKey : null);
+      "messageKey" in gMessageDisplay.displayedMessage
+        ? gMessageDisplay.displayedMessage.messageKey
+        : null;
   }
   messenger.setDocumentCharset(msgWindow.mailCharacterSet);
 }
@@ -771,10 +879,14 @@ function switchToTabHavingURI(aURI, aOpenNew, aOpenParams) {
     // Check if we already have the same URL open in a content tab.
     for (let tabIndex = 0; tabIndex < tabInfo.length; tabIndex++) {
       if (tabInfo[tabIndex].mode.name == "contentTab") {
-        let browserFunc = tabInfo[tabIndex].mode.getBrowser ||
-                          tabInfo[tabIndex].mode.tabType.getBrowser;
+        let browserFunc =
+          tabInfo[tabIndex].mode.getBrowser ||
+          tabInfo[tabIndex].mode.tabType.getBrowser;
         if (browserFunc) {
-          let browser = browserFunc.call(tabInfo[tabIndex].mode.tabType, tabInfo[tabIndex]);
+          let browser = browserFunc.call(
+            tabInfo[tabIndex].mode.tabType,
+            tabInfo[tabIndex]
+          );
           if (browser.currentURI.equals(openURI)) {
             matchingIndex = tabIndex;
             break;
@@ -792,7 +904,7 @@ function switchToTabHavingURI(aURI, aOpenNew, aOpenParams) {
 
   if (aOpenNew) {
     // Open a new tab, keeping links from the new tab in Thunderbird if the regexp is set.
-    if (aOpenParams && ("handlerRegExp" in aOpenParams)) {
+    if (aOpenParams && "handlerRegExp" in aOpenParams) {
       openContentTab(aURI, "tab", aOpenParams.handlerRegExp);
     } else {
       openContentTab(aURI, "tab");

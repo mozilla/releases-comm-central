@@ -1,5 +1,7 @@
-var {TBDistCustomizer} = ChromeUtils.import("resource:///modules/TBDistCustomizer.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { TBDistCustomizer } = ChromeUtils.import(
+  "resource:///modules/TBDistCustomizer.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function run_test() {
   do_test_pending();
@@ -19,13 +21,16 @@ function run_test() {
   iniFile.append("distribution.ini");
   // It's a bug if distribution.ini already exists
   if (iniFile.exists()) {
-    do_throw("distribution.ini already exists in objdir/mozilla/dist/bin/distribution.");
+    do_throw(
+      "distribution.ini already exists in objdir/mozilla/dist/bin/distribution."
+    );
   }
 
   registerCleanupFunction(function() {
     // Remove the distribution.ini file
-    if (iniFile.exists())
+    if (iniFile.exists()) {
       iniFile.remove(true);
+    }
   });
 
   let testDir = Services.dirsvc.get("CurWorkD", Ci.nsIFile);
@@ -41,8 +46,8 @@ function run_test() {
   TBDistCustomizer.applyPrefDefaults();
 
   let testIni = Cc["@mozilla.org/xpcom/ini-parser-factory;1"]
-                  .getService(Ci.nsIINIParserFactory)
-                  .createINIParser(testDistributionFile);
+    .getService(Ci.nsIINIParserFactory)
+    .createINIParser(testDistributionFile);
 
   // Now check that prefs were set - test the Global prefs against the
   // Global section in the ini file
@@ -61,8 +66,9 @@ function run_test() {
     Cu.reportError(e);
   }
 
-  if (aboutLocale == undefined)
+  if (aboutLocale == undefined) {
     aboutLocale = testIni.getString("Global", "about");
+  }
 
   pref = Services.prefs.getCharPref("distribution.about");
   Assert.equal(aboutLocale, pref);
@@ -74,17 +80,19 @@ function run_test() {
     let key = keys.getNext();
     let value = TBDistCustomizer.parseValue(testIni.getString(s, key));
     switch (typeof value) {
-    case "boolean":
+      case "boolean":
         Assert.equal(value, Services.prefs.getBoolPref(key));
         break;
-    case "number":
+      case "number":
         Assert.equal(value, Services.prefs.getIntPref(key));
         break;
-    case "string":
+      case "string":
         Assert.equal(value, Services.prefs.getCharPref(key));
         break;
-    default:
-        do_throw("The preference " + key + " is of unknown type: " + typeof value);
+      default:
+        do_throw(
+          "The preference " + key + " is of unknown type: " + typeof value
+        );
     }
   }
 
@@ -110,7 +118,7 @@ function run_test() {
     let key = keys.getNext();
     if (!overrides.includes(key)) {
       let value = TBDistCustomizer.parseValue(testIni.getString(s, key));
-      value =  value.replace(/%LOCALE%/g, "en-US");
+      value = value.replace(/%LOCALE%/g, "en-US");
       value = "data:text/plain," + key + "=" + value;
       Assert.equal(value, Services.prefs.getCharPref(key));
     }

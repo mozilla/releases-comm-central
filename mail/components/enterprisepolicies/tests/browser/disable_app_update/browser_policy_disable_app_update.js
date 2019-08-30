@@ -2,15 +2,22 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 "use strict";
-var updateService = Cc["@mozilla.org/updates/update-service;1"]
-                      .getService(Ci.nsIApplicationUpdateService);
+var updateService = Cc["@mozilla.org/updates/update-service;1"].getService(
+  Ci.nsIApplicationUpdateService
+);
 
 add_task(async function test_updates_post_policy() {
-  is(Services.policies.isAllowed("appUpdate"), false,
-     "appUpdate should be disabled by policy.");
+  is(
+    Services.policies.isAllowed("appUpdate"),
+    false,
+    "appUpdate should be disabled by policy."
+  );
 
-  is(updateService.canCheckForUpdates, false,
-     "Should not be able to check for updates with DisableAppUpdate enabled.");
+  is(
+    updateService.canCheckForUpdates,
+    false,
+    "Should not be able to check for updates with DisableAppUpdate enabled."
+  );
 });
 
 add_task(async function test_update_preferences_ui() {
@@ -37,8 +44,11 @@ add_task(async function test_update_preferences_ui() {
   await new Promise(resolve => setTimeout(resolve));
 
   let updateRadioGroup = prefsDocument.getElementById("updateRadioGroup");
-  is(updateRadioGroup.hidden, true,
-     "Update choices should be diabled when app update is locked by policy");
+  is(
+    updateRadioGroup.hidden,
+    true,
+    "Update choices should be diabled when app update is locked by policy"
+  );
 
   tabmail.closeTab(prefsTabMode.tabs[0]);
 });
@@ -47,12 +57,18 @@ add_task(async function test_update_about_ui() {
   let aboutDialog = await waitForAboutDialog();
   let panelId = "policyDisabled";
 
-  await BrowserTestUtils.waitForCondition(() =>
-    (aboutDialog.document.getElementById("updateDeck").selectedPanel &&
-     aboutDialog.document.getElementById("updateDeck").selectedPanel.id == panelId),
-    "Waiting for expected panel ID - expected \"" + panelId + "\"");
-  is(aboutDialog.document.getElementById("updateDeck").selectedPanel.id, panelId,
-     "The About Dialog panel Id should equal " + panelId);
+  await BrowserTestUtils.waitForCondition(
+    () =>
+      aboutDialog.document.getElementById("updateDeck").selectedPanel &&
+      aboutDialog.document.getElementById("updateDeck").selectedPanel.id ==
+        panelId,
+    'Waiting for expected panel ID - expected "' + panelId + '"'
+  );
+  is(
+    aboutDialog.document.getElementById("updateDeck").selectedPanel.id,
+    panelId,
+    "The About Dialog panel Id should equal " + panelId
+  );
 
   aboutDialog.close();
 });
@@ -69,10 +85,14 @@ function waitForAboutDialog() {
       onOpenWindow: aXULWindow => {
         Services.wm.removeListener(listener);
 
-         async function aboutDialogOnLoad() {
+        async function aboutDialogOnLoad() {
           domwindow.removeEventListener("load", aboutDialogOnLoad, true);
           let chromeURI = "chrome://messenger/content/aboutDialog.xul";
-          is(domwindow.document.location.href, chromeURI, "About dialog appeared");
+          is(
+            domwindow.document.location.href,
+            chromeURI,
+            "About dialog appeared"
+          );
           resolve(domwindow);
         }
 

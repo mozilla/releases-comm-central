@@ -33,8 +33,11 @@ function setupModule(module) {
   wh.installInto(module);
   let cu = collector.getModule("customization-helpers");
   cu.installInto(module);
-  gCDHelper = new CustomizeDialogHelper("mail-toolbar-menubar2",
-    "CustomizeMailToolbar", "mailnews:customizeToolbar");
+  gCDHelper = new CustomizeDialogHelper(
+    "mail-toolbar-menubar2",
+    "CustomizeMailToolbar",
+    "mailnews:customizeToolbar"
+  );
 }
 
 function teardownModule(module) {
@@ -76,37 +79,58 @@ function test_redirects_toolbarbutton_drops() {
 
   // Let's grab some items from the customize window, and try dropping
   // them on the tab bar
-  ["wrapper-button-replyall",
-   "wrapper-button-replylist",
-   "wrapper-button-forward",
-   "wrapper-button-archive",
+  [
+    "wrapper-button-replyall",
+    "wrapper-button-replylist",
+    "wrapper-button-forward",
+    "wrapper-button-archive",
   ].forEach(function(aButtonId) {
     let button = ctw.e(aButtonId);
 
-    drag_n_drop_element(button, ctw.window, tabbar, mc.window, 0.5, 0.5, ctw.window);
+    drag_n_drop_element(
+      button,
+      ctw.window,
+      tabbar,
+      mc.window,
+      0.5,
+      0.5,
+      ctw.window
+    );
 
     // Now let's check to make sure that this button is now the first
     // item in the tab bar toolbar.
-    assert_equals(toolbar.firstChild.id, aButtonId,
-                  "Button was not added as first child!");
+    assert_equals(
+      toolbar.firstChild.id,
+      aButtonId,
+      "Button was not added as first child!"
+    );
   });
 
   // Ok, now let's try to grab some toolbar buttons from mail-bar3, and
   // make sure we can drop those on the tab bar too.
-  ["button-getmsg",
-   "button-newmsg",
-   "button-address",
-   "button-tag",
-  ].forEach(function(aButtonId) {
-    let button = mc.e(aButtonId);
+  ["button-getmsg", "button-newmsg", "button-address", "button-tag"].forEach(
+    function(aButtonId) {
+      let button = mc.e(aButtonId);
 
-    drag_n_drop_element(button, mc.window, tabbar, mc.window, 0.5, 0.5, mc.window);
+      drag_n_drop_element(
+        button,
+        mc.window,
+        tabbar,
+        mc.window,
+        0.5,
+        0.5,
+        mc.window
+      );
 
-    // Now let's check to make sure that this button is now the first
-    // item in the tab bar toolbar.
-    assert_equals(toolbar.firstChild.id, "wrapper-" + aButtonId,
-                  "Button was not added as first child!");
-  });
+      // Now let's check to make sure that this button is now the first
+      // item in the tab bar toolbar.
+      assert_equals(
+        toolbar.firstChild.id,
+        "wrapper-" + aButtonId,
+        "Button was not added as first child!"
+      );
+    }
+  );
 
   gCDHelper.close(ctw);
   Services.prefs.clearUserPref("toolkit.customization.unsafe_drag_events");

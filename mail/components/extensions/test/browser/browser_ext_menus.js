@@ -9,8 +9,8 @@ function treeClick(tree, row, column, event) {
   let treeChildren = tree.lastElementChild;
   EventUtils.synthesizeMouse(
     treeChildren,
-    coords.x + (coords.width / 2),
-    coords.y + (coords.height / 2),
+    coords.x + coords.width / 2,
+    coords.y + coords.height / 2,
     event,
     window
   );
@@ -47,7 +47,11 @@ function createExtension() {
         "message_list",
         "folder_pane",
       ]) {
-        browser.menus.create({ id: context, title: context, contexts: [context] });
+        browser.menus.create({
+          id: context,
+          title: context,
+          contexts: [context],
+        });
       }
 
       browser.menus.onShown.addListener((...args) => {
@@ -77,14 +81,18 @@ add_task(async function test_folder_pane() {
 
   let folderTree = document.getElementById("folderTree");
   treeClick(folderTree, 1, 0, {});
-  treeClick(folderTree, 1, 0, {type: "contextmenu"});
+  treeClick(folderTree, 1, 0, { type: "contextmenu" });
 
   let menu = document.getElementById("folderPaneContext");
   await BrowserTestUtils.waitForEvent(menu, "popupshown");
   ok(menu.querySelector("#test1_mochi_test-menuitem-_folder_pane"));
   menu.hidePopup();
 
-  let [event] = await checkEvent(extension, ["folder_pane"], ["folder_pane", "all"]);
+  let [event] = await checkEvent(
+    extension,
+    ["folder_pane"],
+    ["folder_pane", "all"]
+  );
   is(event.selectedFolder.accountId, gAccount.key);
   is(event.selectedFolder.path, "/Trash");
   ok(!event.displayedFolder);
@@ -99,14 +107,18 @@ add_task(async function test_thread_pane() {
 
   let threadTree = document.getElementById("threadTree");
   treeClick(threadTree, 1, 1, {});
-  treeClick(threadTree, 1, 1, {type: "contextmenu"});
+  treeClick(threadTree, 1, 1, { type: "contextmenu" });
 
   let menu = document.getElementById("mailContext");
   await BrowserTestUtils.waitForEvent(menu, "popupshown");
   ok(menu.querySelector("#test1_mochi_test-menuitem-_message_list"));
   menu.hidePopup();
 
-  let [event] = await checkEvent(extension, ["message_list"], ["message_list", "all"]);
+  let [event] = await checkEvent(
+    extension,
+    ["message_list"],
+    ["message_list", "all"]
+  );
   is(event.displayedFolder.accountId, gAccount.key);
   is(event.displayedFolder.path, "/Trash");
   is(event.selectedMessages.cursor, null);
@@ -117,7 +129,11 @@ add_task(async function test_thread_pane() {
 
 add_task(async function test_tab() {
   async function checkTabEvent(index, active, mailTab) {
-    EventUtils.synthesizeMouseAtCenter(tabs[index], {type: "contextmenu"}, window);
+    EventUtils.synthesizeMouseAtCenter(
+      tabs[index],
+      { type: "contextmenu" },
+      window
+    );
 
     await BrowserTestUtils.waitForEvent(menu, "popupshown");
     ok(menu.querySelector("#test1_mochi_test-menuitem-_tab"));

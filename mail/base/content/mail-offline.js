@@ -5,7 +5,7 @@
 
 /* import-globals-from mailWindow.js */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var MailOfflineMgr = {
   offlineManager: null,
@@ -14,8 +14,9 @@ var MailOfflineMgr = {
   init() {
     Services.obs.addObserver(this, "network:offline-status-changed");
 
-    this.offlineManager = Cc["@mozilla.org/messenger/offline-manager;1"]
-                        .getService(Ci.nsIMsgOfflineManager);
+    this.offlineManager = Cc[
+      "@mozilla.org/messenger/offline-manager;1"
+    ].getService(Ci.nsIMsgOfflineManager);
     this.offlineBundle = document.getElementById("bundle_offlinePrompts");
 
     // initialize our offline state UI
@@ -29,9 +30,9 @@ var MailOfflineMgr = {
   /**
    * @return true if we are online
    */
-   isOnline() {
-     return (!Services.io.offline);
-   },
+  isOnline() {
+    return !Services.io.offline;
+  },
 
   /**
    * Toggles the online / offline state, initiated by the user. Depending on user settings
@@ -45,22 +46,36 @@ var MailOfflineMgr = {
       // We do the go online stuff in our listener for the online state change.
       Services.io.offline = false;
       // resume managing offline status now that we are going back online.
-      Services.io.manageOfflineStatus = Services.prefs.getBoolPref("offline.autoDetect");
-    } else { // going offline
+      Services.io.manageOfflineStatus = Services.prefs.getBoolPref(
+        "offline.autoDetect"
+      );
+    } else {
+      // going offline
       // Stop automatic management of the offline status since the user has
       // decided to go offline.
       Services.io.manageOfflineStatus = false;
-      var prefDownloadMessages = Services.prefs.getIntPref("offline.download.download_messages");
+      var prefDownloadMessages = Services.prefs.getIntPref(
+        "offline.download.download_messages"
+      );
       // 0 == Ask, 1 == Always Download, 2 == Never Download
-      var downloadForOfflineUse = (prefDownloadMessages == 0 && this.confirmDownloadMessagesForOfflineUse())
-                                  || prefDownloadMessages == 1;
-      this.offlineManager.synchronizeForOffline(downloadForOfflineUse, downloadForOfflineUse, false, true, msgWindow);
+      var downloadForOfflineUse =
+        (prefDownloadMessages == 0 &&
+          this.confirmDownloadMessagesForOfflineUse()) ||
+        prefDownloadMessages == 1;
+      this.offlineManager.synchronizeForOffline(
+        downloadForOfflineUse,
+        downloadForOfflineUse,
+        false,
+        true,
+        msgWindow
+      );
     }
   },
 
   observe(aSubject, aTopic, aState) {
-    if (aTopic == "network:offline-status-changed")
+    if (aTopic == "network:offline-status-changed") {
       this.mailOfflineStateChanged(aState == "offline");
+    }
   },
 
   /**
@@ -68,8 +83,8 @@ var MailOfflineMgr = {
    */
   haveUnsentMessages() {
     return Cc["@mozilla.org/messengercompose/sendlater;1"]
-             .getService(Ci.nsIMsgSendLater)
-             .hasUnsentMessages();
+      .getService(Ci.nsIMsgSendLater)
+      .hasUnsentMessages();
   },
 
   /**
@@ -87,12 +102,19 @@ var MailOfflineMgr = {
    * @param aMsgWindow the msg window to be used when going online
    */
   goOnlineToSendMessages(aMsgWindow) {
-    let goOnlineToSendMsgs = Services.prompt.confirm(window,
+    let goOnlineToSendMsgs = Services.prompt.confirm(
+      window,
       this.offlineBundle.getString("sendMessagesOfflineWindowTitle1"),
-      this.offlineBundle.getString("sendMessagesOfflineLabel1"));
+      this.offlineBundle.getString("sendMessagesOfflineLabel1")
+    );
 
-    if (goOnlineToSendMsgs)
-      this.offlineManager.goOnline(true /* send unsent messages*/, false, aMsgWindow);
+    if (goOnlineToSendMsgs) {
+      this.offlineManager.goOnline(
+        true /* send unsent messages*/,
+        false,
+        aMsgWindow
+      );
+    }
   },
 
   /**
@@ -102,21 +124,28 @@ var MailOfflineMgr = {
    * @return true if the user wants to send unsent messages
    */
   confirmSendUnsentMessages() {
-    let alwaysAsk = {value: true};
-    let sendUnsentMessages = Services.prompt.confirmEx(window,
-      this.offlineBundle.getString("sendMessagesWindowTitle1"),
-      this.offlineBundle.getString("sendMessagesLabel2"),
-      (Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0) +
-      (Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_1),
-      this.offlineBundle.getString("sendMessagesNow2"),
-      this.offlineBundle.getString("processMessagesLater2"),
-      null,
-      this.offlineBundle.getString("sendMessagesCheckboxLabel1"),
-      alwaysAsk) == 0;
+    let alwaysAsk = { value: true };
+    let sendUnsentMessages =
+      Services.prompt.confirmEx(
+        window,
+        this.offlineBundle.getString("sendMessagesWindowTitle1"),
+        this.offlineBundle.getString("sendMessagesLabel2"),
+        Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0 +
+          Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_1,
+        this.offlineBundle.getString("sendMessagesNow2"),
+        this.offlineBundle.getString("processMessagesLater2"),
+        null,
+        this.offlineBundle.getString("sendMessagesCheckboxLabel1"),
+        alwaysAsk
+      ) == 0;
 
     // if the user changed the ask me setting then update the global pref based on their yes / no answer
-    if (!alwaysAsk.value)
-      Services.prefs.setIntPref("offline.send.unsent_messages", sendUnsentMessages ? 1 : 2);
+    if (!alwaysAsk.value) {
+      Services.prefs.setIntPref(
+        "offline.send.unsent_messages",
+        sendUnsentMessages ? 1 : 2
+      );
+    }
 
     return sendUnsentMessages;
   },
@@ -127,14 +156,21 @@ var MailOfflineMgr = {
    * @return true if we should send unsent messages
    */
   shouldSendUnsentMessages() {
-    var sendUnsentWhenGoingOnlinePref = Services.prefs.getIntPref("offline.send.unsent_messages");
-    if (sendUnsentWhenGoingOnlinePref == 2) { // never send
+    var sendUnsentWhenGoingOnlinePref = Services.prefs.getIntPref(
+      "offline.send.unsent_messages"
+    );
+    if (sendUnsentWhenGoingOnlinePref == 2) {
+      // never send
       return false;
     } else if (this.haveUnsentMessages()) {
       // if we we have unsent messages, then honor the offline.send.unsent_messages pref.
-      if ((sendUnsentWhenGoingOnlinePref == 0 && this.confirmSendUnsentMessages())
-           || sendUnsentWhenGoingOnlinePref == 1)
+      if (
+        (sendUnsentWhenGoingOnlinePref == 0 &&
+          this.confirmSendUnsentMessages()) ||
+        sendUnsentWhenGoingOnlinePref == 1
+      ) {
         return true;
+      }
     }
     return false;
   },
@@ -146,21 +182,28 @@ var MailOfflineMgr = {
    * @return true if the user wants to download messages for offline use.
    */
   confirmDownloadMessagesForOfflineUse() {
-    let alwaysAsk = {value: true};
-    let downloadMessages = Services.prompt.confirmEx(window,
-      this.offlineBundle.getString("downloadMessagesWindowTitle1"),
-      this.offlineBundle.getString("downloadMessagesLabel1"),
-      (Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0) +
-      (Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_1),
-      this.offlineBundle.getString("downloadMessagesNow2"),
-      this.offlineBundle.getString("processMessagesLater2"),
-      null,
-      this.offlineBundle.getString("downloadMessagesCheckboxLabel1"),
-      alwaysAsk) == 0;
+    let alwaysAsk = { value: true };
+    let downloadMessages =
+      Services.prompt.confirmEx(
+        window,
+        this.offlineBundle.getString("downloadMessagesWindowTitle1"),
+        this.offlineBundle.getString("downloadMessagesLabel1"),
+        Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0 +
+          Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_1,
+        this.offlineBundle.getString("downloadMessagesNow2"),
+        this.offlineBundle.getString("processMessagesLater2"),
+        null,
+        this.offlineBundle.getString("downloadMessagesCheckboxLabel1"),
+        alwaysAsk
+      ) == 0;
 
     // if the user changed the ask me setting then update the global pref based on their yes / no answer
-    if (!alwaysAsk.value)
-      Services.prefs.setIntPref("offline.download.download_messages", downloadMessages ? 1 : 2);
+    if (!alwaysAsk.value) {
+      Services.prefs.setIntPref(
+        "offline.download.download_messages",
+        downloadMessages ? 1 : 2
+      );
+    }
     return downloadMessages;
   },
 
@@ -172,13 +215,19 @@ var MailOfflineMgr = {
    * @return true if the user confirms going online.
    */
   getNewMail() {
-    let goOnline = Services.prompt.confirm(window,
+    let goOnline = Services.prompt.confirm(
+      window,
       this.offlineBundle.getString("getMessagesOfflineWindowTitle1"),
-      this.offlineBundle.getString("getMessagesOfflineLabel1"));
+      this.offlineBundle.getString("getMessagesOfflineLabel1")
+    );
 
-    if (goOnline)
-      this.offlineManager.goOnline(this.shouldSendUnsentMessages(),
-                                   false /* playbackOfflineImapOperations */, msgWindow);
+    if (goOnline) {
+      this.offlineManager.goOnline(
+        this.shouldSendUnsentMessages(),
+        false /* playbackOfflineImapOperations */,
+        msgWindow
+      );
+    }
     return goOnline;
   },
 
@@ -187,16 +236,27 @@ var MailOfflineMgr = {
    * and the offline status bar indicator
    */
   updateOfflineUI(aIsOffline) {
-    document.getElementById("goOfflineMenuItem").setAttribute("checked", aIsOffline);
-    if (document.getElementById("appmenu_goOffline"))
-      document.getElementById("appmenu_goOffline").setAttribute("checked", aIsOffline);
+    document
+      .getElementById("goOfflineMenuItem")
+      .setAttribute("checked", aIsOffline);
+    if (document.getElementById("appmenu_goOffline")) {
+      document
+        .getElementById("appmenu_goOffline")
+        .setAttribute("checked", aIsOffline);
+    }
     var statusBarPanel = document.getElementById("offline-status");
     if (aIsOffline) {
       statusBarPanel.setAttribute("offline", "true");
-      statusBarPanel.setAttribute("tooltiptext", this.offlineBundle.getString("offlineTooltip"));
+      statusBarPanel.setAttribute(
+        "tooltiptext",
+        this.offlineBundle.getString("offlineTooltip")
+      );
     } else {
       statusBarPanel.removeAttribute("offline");
-      statusBarPanel.setAttribute("tooltiptext", this.offlineBundle.getString("onlineTooltip"));
+      statusBarPanel.setAttribute(
+        "tooltiptext",
+        this.offlineBundle.getString("onlineTooltip")
+      );
     }
   },
 
@@ -206,12 +266,15 @@ var MailOfflineMgr = {
   mailOfflineStateChanged(aGoingOffline) {
     this.updateOfflineUI(aGoingOffline);
     if (!aGoingOffline) {
-      let prefSendUnsentMessages = Services.prefs.getIntPref("offline.send.unsent_messages");
+      let prefSendUnsentMessages = Services.prefs.getIntPref(
+        "offline.send.unsent_messages"
+      );
       // 0 == Ask, 1 == Always Send, 2 == Never Send
-      let sendUnsentMessages = (prefSendUnsentMessages == 0 &&
-                                this.haveUnsentMessages() &&
-                                this.confirmSendUnsentMessages()) ||
-                               prefSendUnsentMessages == 1;
+      let sendUnsentMessages =
+        (prefSendUnsentMessages == 0 &&
+          this.haveUnsentMessages() &&
+          this.confirmSendUnsentMessages()) ||
+        prefSendUnsentMessages == 1;
       this.offlineManager.goOnline(sendUnsentMessages, true, msgWindow);
     }
   },

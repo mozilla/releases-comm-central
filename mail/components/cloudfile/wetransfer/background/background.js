@@ -88,13 +88,19 @@ class WeTransferSession {
     });
 
     let file = transfer.files[0];
-    for (let partNumber = 1; partNumber <= file.multipart.part_numbers; partNumber++) {
+    for (
+      let partNumber = 1;
+      partNumber <= file.multipart.part_numbers;
+      partNumber++
+    ) {
       let uploadURL = await this._request(
-        `/v2/transfers/${transfer.id}/files/${file.id}/upload-url/${partNumber}`,
+        `/v2/transfers/${transfer.id}/files/${
+          file.id
+        }/upload-url/${partNumber}`,
         {
           method: "GET",
           signal,
-        },
+        }
       );
 
       await fetch(uploadURL.url, {
@@ -110,33 +116,37 @@ class WeTransferSession {
         method: "PUT",
         body: JSON.stringify({ part_numbers: file.multipart.part_numbers }),
         signal,
-      },
-    );
-
-    return this._request(
-      `/v2/transfers/${transfer.id}/finalize`,
-      {
-        method: "PUT",
-        signal,
       }
     );
+
+    return this._request(`/v2/transfers/${transfer.id}/finalize`, {
+      method: "PUT",
+      signal,
+    });
   }
 }
 
 var abortControllers = new Map();
 
-browser.cloudFile.onFileUpload.addListener(async (account, { id, name, data }) => {
-  let session = new WeTransferSession();
-  let controller = new AbortController();
-  abortControllers.set(id, controller);
+browser.cloudFile.onFileUpload.addListener(
+  async (account, { id, name, data }) => {
+    let session = new WeTransferSession();
+    let controller = new AbortController();
+    abortControllers.set(id, controller);
 
-  try {
-    let transfer = await session.createTransfer(name, data, "", controller.signal);
-    return { url: transfer.url };
-  } finally {
-    abortControllers.delete(id);
+    try {
+      let transfer = await session.createTransfer(
+        name,
+        data,
+        "",
+        controller.signal
+      );
+      return { url: transfer.url };
+    } finally {
+      abortControllers.delete(id);
+    }
   }
-});
+);
 
 browser.cloudFile.onFileUploadAbort.addListener((account, id) => {
   let controller = abortControllers.get(id);
@@ -145,7 +155,7 @@ browser.cloudFile.onFileUploadAbort.addListener((account, id) => {
   }
 });
 
-browser.cloudFile.getAllAccounts().then(async (accounts) => {
+browser.cloudFile.getAllAccounts().then(async accounts => {
   for (let account of accounts) {
     await browser.cloudFile.updateAccount(account.id, {
       configured: true,
@@ -154,7 +164,7 @@ browser.cloudFile.getAllAccounts().then(async (accounts) => {
   }
 });
 
-browser.cloudFile.onAccountAdded.addListener(async (account) => {
+browser.cloudFile.onAccountAdded.addListener(async account => {
   await browser.cloudFile.updateAccount(account.id, {
     configured: true,
     uploadSizeLimit: TWO_GB,

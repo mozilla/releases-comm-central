@@ -4,30 +4,40 @@
 
 this.EXPORTED_SYMBOLS = ["ToolbarButtonAPI"];
 
-ChromeUtils.defineModuleGetter(this, "Services", "resource://gre/modules/Services.jsm");
-ChromeUtils.defineModuleGetter(this, "ViewPopup", "resource:///modules/ExtensionPopups.jsm");
-ChromeUtils.defineModuleGetter(this, "ExtensionSupport", "resource:///modules/ExtensionSupport.jsm");
-const {ExtensionCommon} = ChromeUtils.import("resource://gre/modules/ExtensionCommon.jsm");
-const {ExtensionUtils} = ChromeUtils.import("resource://gre/modules/ExtensionUtils.jsm");
-const {ExtensionParent} = ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "Services",
+  "resource://gre/modules/Services.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "ViewPopup",
+  "resource:///modules/ExtensionPopups.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "ExtensionSupport",
+  "resource:///modules/ExtensionSupport.jsm"
+);
+const { ExtensionCommon } = ChromeUtils.import(
+  "resource://gre/modules/ExtensionCommon.jsm"
+);
+const { ExtensionUtils } = ChromeUtils.import(
+  "resource://gre/modules/ExtensionUtils.jsm"
+);
+const { ExtensionParent } = ChromeUtils.import(
+  "resource://gre/modules/ExtensionParent.jsm"
+);
 
-var {
-  EventManager,
-  ExtensionAPI,
-  makeWidgetId,
-} = ExtensionCommon;
+var { EventManager, ExtensionAPI, makeWidgetId } = ExtensionCommon;
 
-var {
-  IconDetails,
-  StartupCache,
-} = ExtensionParent;
+var { IconDetails, StartupCache } = ExtensionParent;
 
-var {
-  DefaultWeakMap,
-  ExtensionError,
-} = ExtensionUtils;
+var { DefaultWeakMap, ExtensionError } = ExtensionUtils;
 
-const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 XPCOMUtils.defineLazyGlobalGetters(this, ["InspectorUtils"]);
 
 var DEFAULT_ICON = "chrome://messenger/content/extension.svg";
@@ -40,7 +50,7 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
    *        The name of the property in the extension manifest
    */
   async onManifestEntry(entryName) {
-    let {extension} = this;
+    let { extension } = this;
     this.paint = this.paint.bind(this);
     this.unpaint = this.unpaint.bind(this);
 
@@ -61,9 +71,16 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
 
     // In tests, startupReason is undefined, because the test suite is naughty.
     // Assume ADDON_INSTALL.
-    if (!this.extension.startupReason || this.extension.startupReason == "ADDON_INSTALL") {
+    if (
+      !this.extension.startupReason ||
+      this.extension.startupReason == "ADDON_INSTALL"
+    ) {
       for (let windowURL of this.windowURLs) {
-        let currentSet = Services.xulStore.getValue(windowURL, this.toolbarId, "currentset");
+        let currentSet = Services.xulStore.getValue(
+          windowURL,
+          this.toolbarId,
+          "currentset"
+        );
         if (!currentSet) {
           continue;
         }
@@ -72,26 +89,40 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
           continue;
         }
         currentSet.push(this.id);
-        Services.xulStore.setValue(windowURL, this.toolbarId, "currentset", currentSet.join(","));
+        Services.xulStore.setValue(
+          windowURL,
+          this.toolbarId,
+          "currentset",
+          currentSet.join(",")
+        );
       }
     }
 
     this.browserStyle = options.browser_style;
 
     this.defaults.icon = await StartupCache.get(
-      extension, [this.manifestName, "default_icon"],
-      () => IconDetails.normalize({
-        path: options.default_icon,
-        iconType: this.manifestName,
-        themeIcons: options.theme_icons,
-      }, extension));
+      extension,
+      [this.manifestName, "default_icon"],
+      () =>
+        IconDetails.normalize(
+          {
+            path: options.default_icon,
+            iconType: this.manifestName,
+            themeIcons: options.theme_icons,
+          },
+          extension
+        )
+    );
 
     this.iconData = new DefaultWeakMap(icons => this.getIconData(icons));
     this.iconData.set(
       this.defaults.icon,
       await StartupCache.get(
-        extension, [this.manifestName, "default_icon_data"],
-        () => this.getIconData(this.defaults.icon)));
+        extension,
+        [this.manifestName, "default_icon_data"],
+        () => this.getIconData(this.defaults.icon)
+      )
+    );
 
     ExtensionSupport.registerWindowListener(this.id, {
       chromeURLs: this.windowURLs,
@@ -121,7 +152,7 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
    * @param {Window} window
    */
   makeButton(window) {
-    let {document} = window;
+    let { document } = window;
     let button = document.createXULElement("toolbarbutton");
     button.id = this.id;
     button.classList.add("toolbarbutton-1");
@@ -139,7 +170,7 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
    * @param {Window} window
    */
   paint(window) {
-    let {document} = window;
+    let { document } = window;
     if (document.getElementById(this.id)) {
       return;
     }
@@ -155,8 +186,18 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
     } else {
       toolbar.appendChild(button);
     }
-    if (Services.xulStore.hasValue(window.location.href, this.toolbarId, "currentset")) {
-      toolbar.currentSet = Services.xulStore.getValue(window.location.href, this.toolbarId, "currentset");
+    if (
+      Services.xulStore.hasValue(
+        window.location.href,
+        this.toolbarId,
+        "currentset"
+      )
+    ) {
+      toolbar.currentSet = Services.xulStore.getValue(
+        window.location.href,
+        this.toolbarId,
+        "currentset"
+      );
       toolbar.setAttribute("currentset", toolbar.currentSet);
     } else {
       let currentSet = toolbar.getAttribute("defaultset").split(",");
@@ -175,7 +216,7 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
    * @param {Window} window
    */
   unpaint(window) {
-    let {document} = window;
+    let { document } = window;
     let button = document.getElementById(this.id);
     if (button) {
       button.remove();
@@ -192,13 +233,15 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
    * @param {Window} window
    */
   async triggerAction(window) {
-    let {document} = window;
+    let { document } = window;
     let button = document.getElementById(this.id);
     let popupURL = this.getProperty(this.globals, "popup");
     let enabled = this.getProperty(this.globals, "enabled");
 
     if (button && popupURL && enabled) {
-      let popup = ViewPopup.for(this.extension, window) || this.getPopup(window, popupURL);
+      let popup =
+        ViewPopup.for(this.extension, window) ||
+        this.getPopup(window, popupURL);
       popup.viewNode.openPopup(button, "bottomcenter topleft", 0, 0);
     } else {
       this.emit("click");
@@ -239,7 +282,14 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
    * @returns {ViewPopup}
    */
   getPopup(window, popupURL, blockParser = false) {
-    let popup = new ViewPopup(this.extension, window, popupURL, this.browserStyle, false, blockParser);
+    let popup = new ViewPopup(
+      this.extension,
+      window,
+      popupURL,
+      this.browserStyle,
+      false,
+      blockParser
+    );
     popup.ignoreResizes = false;
     return popup;
   }
@@ -275,13 +325,14 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
 
       let color = tabData.badgeBackgroundColor;
       if (color) {
-        color = `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${color[3] / 255})`;
+        color = `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${color[3] /
+          255})`;
         node.setAttribute("badgeStyle", `background-color: ${color};`);
       } else {
         node.removeAttribute("badgeStyle");
       }
 
-      let {style, legacy} = this.iconData.get(tabData.icon);
+      let { style, legacy } = this.iconData.get(tabData.icon);
       const LEGACY_CLASS = "toolbarbutton-legacy-addon";
       if (legacy) {
         node.classList.add(LEGACY_CLASS);
@@ -306,7 +357,11 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
    */
   getIconData(icons) {
     let baseSize = 16;
-    let {icon, size} = IconDetails.getPreferredIcon(icons, this.extension, baseSize);
+    let { icon, size } = IconDetails.getPreferredIcon(
+      icons,
+      this.extension,
+      baseSize
+    );
 
     let legacy = false;
 
@@ -323,7 +378,7 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
     }
 
     let getIcon = (size, theme) => {
-      let {icon} = IconDetails.getPreferredIcon(icons, this.extension, size);
+      let { icon } = IconDetails.getPreferredIcon(icons, this.extension, size);
       if (typeof icon === "object") {
         if (icon[theme] == IconDetails.DEFAULT_ICON) {
           icon[theme] = DEFAULT_ICON;
@@ -353,7 +408,7 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
 
     let realIcon = getIcon(size, "default");
 
-    return {style, legacy, realIcon};
+    return { style, legacy, realIcon };
   }
 
   /**
@@ -411,9 +466,11 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
    *        - `values` will contain the icon, title, badge, etc. associated with
    *          the target.
    */
-  getContextData({tabId, windowId}) {
+  getContextData({ tabId, windowId }) {
     if (tabId != null && windowId != null) {
-      throw new ExtensionError("Only one of tabId and windowId can be specified.");
+      throw new ExtensionError(
+        "Only one of tabId and windowId can be specified."
+      );
     }
     let target, values;
     // if (tabId != null) {
@@ -423,10 +480,10 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
     //   target = windowTracker.getWindow(windowId);
     //   values = this.tabContext.get(target);
     // } else {
-      target = null;
-      values = this.globals;
+    target = null;
+    values = this.globals;
     // }
-    return {target, values};
+    return { target, values };
   }
 
   /**
@@ -441,7 +498,7 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
    *        Value for prop.
    */
   async setProperty(details, prop, value) {
-    let {target, values} = this.getContextData(details);
+    let { target, values } = this.getContextData(details);
     if (value === null) {
       delete values[prop];
     } else {
@@ -472,7 +529,7 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
    * @param {Object} context
    */
   getAPI(context) {
-    let {extension} = context;
+    let { extension } = context;
 
     let action = this;
 
@@ -494,11 +551,11 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
         }).api(),
 
         async enable(tabId) {
-          await action.setProperty({tabId}, "enabled", true);
+          await action.setProperty({ tabId }, "enabled", true);
         },
 
         async disable(tabId) {
-          await action.setProperty({tabId}, "enabled", false);
+          await action.setProperty({ tabId }, "enabled", false);
         },
 
         isEnabled(details) {
@@ -539,7 +596,7 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
           // calling context.
           let url = details.popup && context.uri.resolve(details.popup);
           if (url && !context.checkLoadURL(url)) {
-            return Promise.reject({message: `Access denied for URL ${url}`});
+            return Promise.reject({ message: `Access denied for URL ${url}` });
           }
           await action.setProperty(details, "popup", url);
           return Promise.resolve(null);
@@ -554,7 +611,9 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
           if (typeof color == "string") {
             let col = InspectorUtils.colorToRGBA(color);
             if (!col) {
-              throw new ExtensionError(`Invalid badge background color: "${color}"`);
+              throw new ExtensionError(
+                `Invalid badge background color: "${color}"`
+              );
             }
             color = col && [col.r, col.g, col.b, Math.round(col.a * 255)];
           }

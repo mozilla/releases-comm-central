@@ -14,7 +14,9 @@ add_task(async () => {
   ok(testDocument.URL == TEST_DOCUMENT_URL);
   let testWindow = testDocument.ownerGlobal;
   let MENULIST_CLASS = testWindow.customElements.get("menulist");
-  let MENULIST_EDITABLE_CLASS = testWindow.customElements.get("menulist-editable");
+  let MENULIST_EDITABLE_CLASS = testWindow.customElements.get(
+    "menulist-editable"
+  );
 
   let menulists = testDocument.querySelectorAll("menulist");
   is(menulists.length, 3);
@@ -77,21 +79,35 @@ add_task(async () => {
   is(testDocument.activeElement, beforeButton);
 
   // The dropmarker should open and close the popup.
-  EventUtils.synthesizeMouseAtCenter(menulists[2]._dropmarker, { clickCount: 1 }, testWindow);
+  EventUtils.synthesizeMouseAtCenter(
+    menulists[2]._dropmarker,
+    { clickCount: 1 },
+    testWindow
+  );
   await new Promise(resolve => setTimeout(resolve));
   ok(menulists[2].hasAttribute("open"));
 
-  EventUtils.synthesizeMouseAtCenter(menulists[2]._dropmarker, { clickCount: 1 }, testWindow);
+  EventUtils.synthesizeMouseAtCenter(
+    menulists[2]._dropmarker,
+    { clickCount: 1 },
+    testWindow
+  );
   await new Promise(resolve => setTimeout(resolve));
   ok(!menulists[2].hasAttribute("open"));
 
   // Open the popup and choose an item.
-  EventUtils.synthesizeMouseAtCenter(menulists[2]._dropmarker, { clickCount: 1 }, testWindow);
+  EventUtils.synthesizeMouseAtCenter(
+    menulists[2]._dropmarker,
+    { clickCount: 1 },
+    testWindow
+  );
   await new Promise(resolve => setTimeout(resolve));
   ok(menulists[2].hasAttribute("open"));
 
   await new Promise(resolve => {
-    menulists[2].addEventListener("select", () => setTimeout(resolve), { once: true });
+    menulists[2].addEventListener("select", () => setTimeout(resolve), {
+      once: true,
+    });
     EventUtils.synthesizeMouseAtCenter(
       menulists[2].querySelectorAll("menuitem")[0],
       { clickCount: 1 },
@@ -105,12 +121,18 @@ add_task(async () => {
   is(menulists[2].getAttribute("value"), "foo");
 
   // Again.
-  EventUtils.synthesizeMouseAtCenter(menulists[2]._dropmarker, { clickCount: 1 }, testWindow);
+  EventUtils.synthesizeMouseAtCenter(
+    menulists[2]._dropmarker,
+    { clickCount: 1 },
+    testWindow
+  );
   await new Promise(resolve => setTimeout(resolve));
   ok(menulists[2].hasAttribute("open"));
 
   await new Promise(resolve => {
-    menulists[2].addEventListener("select", () => setTimeout(resolve), { once: true });
+    menulists[2].addEventListener("select", () => setTimeout(resolve), {
+      once: true,
+    });
     EventUtils.synthesizeMouseAtCenter(
       menulists[2].querySelectorAll("menuitem")[1],
       { clickCount: 1 },
@@ -128,22 +150,32 @@ add_task(async () => {
   is(menulists[2]._inputField.selectionEnd, 3);
   EventUtils.sendString("quux", testWindow);
   await new Promise(resolve => {
-    menulists[2].addEventListener("change", (event) => {
-      is(event.target, menulists[2]);
-      resolve();
-    }, { once: true });
+    menulists[2].addEventListener(
+      "change",
+      event => {
+        is(event.target, menulists[2]);
+        resolve();
+      },
+      { once: true }
+    );
     EventUtils.synthesizeKey("VK_TAB", { shiftKey: false }, testWindow);
   });
   is(menulists[2].value, "quux");
   is(menulists[2].getAttribute("value"), "quux");
 
   // Open the popup and choose an item.
-  EventUtils.synthesizeMouseAtCenter(menulists[2]._dropmarker, { clickCount: 1 }, testWindow);
+  EventUtils.synthesizeMouseAtCenter(
+    menulists[2]._dropmarker,
+    { clickCount: 1 },
+    testWindow
+  );
   await new Promise(resolve => setTimeout(resolve));
   ok(menulists[2].hasAttribute("open"));
 
   await new Promise(resolve => {
-    menulists[2].addEventListener("select", () => setTimeout(resolve), { once: true });
+    menulists[2].addEventListener("select", () => setTimeout(resolve), {
+      once: true,
+    });
     EventUtils.synthesizeMouseAtCenter(
       menulists[2].querySelectorAll("menuitem")[0],
       { clickCount: 1 },

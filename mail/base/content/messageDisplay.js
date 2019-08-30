@@ -16,8 +16,7 @@
  * You should not use this class directly, but rather its friendly subclasses
  *  that live later in this file.
  */
-function MessageDisplayWidget() {
-}
+function MessageDisplayWidget() {}
 MessageDisplayWidget.prototype = {
   _active: false,
   get active() {
@@ -41,8 +40,9 @@ MessageDisplayWidget.prototype = {
   set singleMessageDisplay(aSingleDisplay) {
     if (this._singleMessageDisplay != aSingleDisplay) {
       this._singleMessageDisplay = aSingleDisplay;
-      if (this._active)
+      if (this._active) {
         this._updateActiveMessagePane();
+      }
     }
   },
 
@@ -54,25 +54,28 @@ MessageDisplayWidget.prototype = {
     // when we return to it, we don't display prev selected message.  If we're
     // *not* summarizing, clear the summary display so that the summary can
     // clean itself up.
-    if (!this.singleMessageDisplay)
+    if (!this.singleMessageDisplay) {
       this.clearDisplay();
-    else
+    } else {
       gSummaryFrameManager.clear();
+    }
 
     // _singleMessageDisplay can be null, so use the property (getter)
-    document.getElementById("singlemessage").hidden =
-      !this.singleMessageDisplay;
-    document.getElementById("multimessage").hidden =
-      this.singleMessageDisplay;
+    document.getElementById("singlemessage").hidden = !this
+      .singleMessageDisplay;
+    document.getElementById("multimessage").hidden = this.singleMessageDisplay;
 
     // If the message pane is currently focused, make sure we have the
     // currently-visible content window (single- or multi-message) focused.
-    if (this.folderDisplay.focusedPane ==
-        document.getElementById("messagepanebox")) {
-      if (this.singleMessageDisplay)
+    if (
+      this.folderDisplay.focusedPane ==
+      document.getElementById("messagepanebox")
+    ) {
+      if (this.singleMessageDisplay) {
         document.getElementById("messagepane").focus();
-      else
+      } else {
         document.getElementById("multimessage").focus();
+      }
     }
   },
 
@@ -230,8 +233,9 @@ MessageDisplayWidget.prototype = {
     //  handling whatever is happening so the nsMsgDBView doesn't try and do
     //  anything.  makeActive will trigger a fake SelectionChanged notification
     //  when we switch, which should put everything in its right place.
-    if (!this.active)
+    if (!this.active) {
       return true;
+    }
 
     ClearPendingReadTimer();
 
@@ -255,8 +259,7 @@ MessageDisplayWidget.prototype = {
    * @return true if the MessageDisplayWidget handled this event and the
    *         FolderDisplayWidget should stop processing
    */
-  onMessagesRemoved() {
-  },
+  onMessagesRemoved() {},
 
   /**
    * If we are already summarized and we get a new request to summarize, require
@@ -310,8 +313,9 @@ MessageDisplayWidget.prototype = {
     // to summarize later. This occurs when we archive a single message and are
     // about to select a thread next, but haven't actually selected anything
     // yet.
-    if (this.folderDisplay._massMoveActive)
+    if (this.folderDisplay._massMoveActive) {
       return true;
+    }
 
     // If this is not a callback from the timeout and we currently have a
     // timeout, that means that we need to wait for the selection to stabilize.
@@ -319,25 +323,28 @@ MessageDisplayWidget.prototype = {
     // yet again and is not stable, so reset the timer for the full duration.
     if (!aIsCallback && this._summaryStabilityTimeout != null) {
       clearTimeout(this._summaryStabilityTimeout);
-      this._summaryStabilityTimeout =
-        setTimeout(this._wrapShowSummary,
-                   this.SUMMARIZATION_SELECTION_STABILITY_INTERVAL_MS,
-                   this);
+      this._summaryStabilityTimeout = setTimeout(
+        this._wrapShowSummary,
+        this.SUMMARIZATION_SELECTION_STABILITY_INTERVAL_MS,
+        this
+      );
       return true;
     }
 
     // Bail if our selection count has stabilized outside an acceptable range.
     let selectedCount = this.folderDisplay.selectedCount;
-    if (selectedCount == 1)
+    if (selectedCount == 1) {
       return true;
+    }
 
     // Setup a timeout call to _clearSummaryTimer so that we don't try and
     // summarize again within 100ms of now.  Do this before calling the
     // summarization logic in case it throws an exception.
-    this._summaryStabilityTimeout =
-      setTimeout(this._clearSummaryTimer,
-                 this.SUMMARIZATION_SELECTION_STABILITY_INTERVAL_MS,
-                 this);
+    this._summaryStabilityTimeout = setTimeout(
+      this._clearSummaryTimer,
+      this.SUMMARIZATION_SELECTION_STABILITY_INTERVAL_MS,
+      this
+    );
 
     if (this.folderDisplay.selectedCount == 0) {
       // If there are no messages selected, show the folder summary. Gloda will
@@ -392,8 +399,7 @@ MessageDisplayWidget.prototype = {
     if (wasInactive) {
       let dbView = this.folderDisplay.view.dbView;
       // (see our usage below)
-      let preDisplayedViewIndex =
-          dbView.currentlyDisplayedMessage;
+      let preDisplayedViewIndex = dbView.currentlyDisplayedMessage;
       // Force a synthetic selection changed event.  This will propagate through
       //  to a call to onSelectedMessagesChanged who will handle making sure the
       //  right message pane is in use, etc.
@@ -411,11 +417,15 @@ MessageDisplayWidget.prototype = {
       //  selectionChanged() call here instead of preDisplayedViewIndex, but we
       //  don't do that any more because this.displayedMessage might be out of
       //  sync with reality for an inactive tab.
-      if (!aDontReloadMessage && this.singleMessageDisplay &&
-          this.displayedMessage &&
-          (preDisplayedViewIndex != nsMsgViewIndex_None) &&
-          (this.displayedMessage == dbView.getMsgHdrAt(preDisplayedViewIndex)))
+      if (
+        !aDontReloadMessage &&
+        this.singleMessageDisplay &&
+        this.displayedMessage &&
+        preDisplayedViewIndex != nsMsgViewIndex_None &&
+        this.displayedMessage == dbView.getMsgHdrAt(preDisplayedViewIndex)
+      ) {
         dbView.reloadMessage();
+      }
     }
 
     this._updateActiveMessagePane();
@@ -453,12 +463,14 @@ MessagePaneDisplayWidget.prototype = {
   set visible(aVisible) {
     // Ignore this if we are inactive.  We don't want to get faked out by things
     //  happening after our tab has closed up shop.
-    if (!this._active)
+    if (!this._active) {
       return;
+    }
 
     // no-op if it's the same
-    if (aVisible == this._visible)
+    if (aVisible == this._visible) {
       return;
+    }
 
     this._visible = aVisible;
     // Update suppression.  If we were not visible and now are visible, the db
@@ -468,15 +480,18 @@ MessagePaneDisplayWidget.prototype = {
     if (dbView) {
       let treeSelection = this.folderDisplay.treeSelection;
       // flag if we need to force the redisplay manually...
-      let needToReloadMessage = treeSelection.count &&
+      let needToReloadMessage =
+        treeSelection.count &&
         dbView.currentlyDisplayedMessage == treeSelection.currentIndex;
       dbView.suppressMsgDisplay = !this._visible;
-      if (needToReloadMessage)
+      if (needToReloadMessage) {
         dbView.reloadMessage();
+      }
     }
     // But if we are no longer visible, it's on us to clear the display.
-    if (!aVisible)
+    if (!aVisible) {
       this.clearDisplay();
+    }
   },
 };
 
@@ -496,8 +511,7 @@ MessageTabDisplayWidget.prototype = {
   get visible() {
     return true;
   },
-  set visible(aIgnored) {
-  },
+  set visible(aIgnored) {},
 
   onSelectedMessagesChanged() {
     // Look at the number of messages left in the db view. If there aren't any,
@@ -505,17 +519,23 @@ MessageTabDisplayWidget.prototype = {
     if (this.folderDisplay.view.dbView.rowCount == 0) {
       if (!this.closing) {
         this.closing = true;
-        document.getElementById("tabmail").closeTab(this.folderDisplay._tabInfo, true);
+        document
+          .getElementById("tabmail")
+          .closeTab(this.folderDisplay._tabInfo, true);
       }
       return true;
     }
 
-    if (!this.closing)
-      document.getElementById("tabmail").setTabTitle(this.folderDisplay._tabInfo);
+    if (!this.closing) {
+      document
+        .getElementById("tabmail")
+        .setTabTitle(this.folderDisplay._tabInfo);
+    }
 
     // The db view shouldn't do anything if we're inactive or about to close
-    if (!this.active || this.closing)
+    if (!this.active || this.closing) {
       return true;
+    }
 
     // No summaries in a message tab
     this.singleMessageDisplay = true;
@@ -523,13 +543,17 @@ MessageTabDisplayWidget.prototype = {
   },
 
   onMessagesRemoved() {
-    if (!this.folderDisplay.treeSelection)
+    if (!this.folderDisplay.treeSelection) {
       return true;
+    }
 
-    if (this.folderDisplay._deleteInProgress &&
-        Services.prefs.getBoolPref("mail.close_message_window.on_delete")) {
-      document.getElementById("tabmail").closeTab(this.folderDisplay._tabInfo,
-                                                  true);
+    if (
+      this.folderDisplay._deleteInProgress &&
+      Services.prefs.getBoolPref("mail.close_message_window.on_delete")
+    ) {
+      document
+        .getElementById("tabmail")
+        .closeTab(this.folderDisplay._tabInfo, true);
       return true;
     }
 
@@ -543,8 +567,9 @@ MessageTabDisplayWidget.prototype = {
   clearDisplay() {
     if (!this.closing) {
       this.closing = true;
-      document.getElementById("tabmail").closeTab(this.folderDisplay._tabInfo,
-                                                  true);
+      document
+        .getElementById("tabmail")
+        .closeTab(this.folderDisplay._tabInfo, true);
     }
   },
 };
@@ -565,6 +590,5 @@ NeverVisibleMessageDisplayWidget.prototype = {
   onSelectedMessagesChanged() {
     return false;
   },
-  _updateActiveMessagePane() {
-  },
+  _updateActiveMessagePane() {},
 };

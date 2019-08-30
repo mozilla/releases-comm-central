@@ -2,9 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {Color} = ChromeUtils.import("resource://gre/modules/Color.jsm");
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { Color } = ChromeUtils.import("resource://gre/modules/Color.jsm");
 
 var EXPORTED_SYMBOLS = ["TagUtils"];
 
@@ -40,29 +42,44 @@ function addTagToAllDocumentSheets(aKey, aColor) {
 }
 
 function addTagToSheet(aKey, aColor, aSheet) {
-  if (!aSheet)
+  if (!aSheet) {
     return;
+  }
 
   // Add rules to sheet.
   let selector = MailServices.tags.getSelectorForKey(aKey);
-  let ruleString1 = "treechildren::-moz-tree-row(" + selector +
-                    ", selected, focus) { background-color: " + aColor + " !important; }";
-  let ruleString2 = "treechildren::-moz-tree-cell-text(" + selector +
-                    ") { color: " + aColor + "; }";
+  let ruleString1 =
+    "treechildren::-moz-tree-row(" +
+    selector +
+    ", selected, focus) { background-color: " +
+    aColor +
+    " !important; }";
+  let ruleString2 =
+    "treechildren::-moz-tree-cell-text(" +
+    selector +
+    ") { color: " +
+    aColor +
+    "; }";
   let textColor = "black";
   if (!isColorContrastEnough(aColor)) {
     textColor = "white";
   }
-  let ruleString3 = "treechildren::-moz-tree-cell-text(" + selector +
-                    ", selected, focus) { color: " + textColor + "; }";
+  let ruleString3 =
+    "treechildren::-moz-tree-cell-text(" +
+    selector +
+    ", selected, focus) { color: " +
+    textColor +
+    "; }";
   try {
     aSheet.insertRule(ruleString1, aSheet.cssRules.length);
     aSheet.insertRule(ruleString2, aSheet.cssRules.length);
     aSheet.insertRule(ruleString3, aSheet.cssRules.length);
   } catch (ex) {
-    aSheet.ownerNode.addEventListener("load",
-                                      () => addTagToSheet(aKey, aColor, aSheet),
-                                      { once: true });
+    aSheet.ownerNode.addEventListener(
+      "load",
+      () => addTagToSheet(aKey, aColor, aSheet),
+      { once: true }
+    );
   }
 }
 
@@ -87,5 +104,5 @@ function isColorContrastEnough(aColor) {
   let colorHex = ("00000000" + aColor).substr(-8);
   let colorArray = colorHex.match(/../g);
   let [, cR, cG, cB] = colorArray.map(val => parseInt(val, 16));
-  return !(new Color(cR, cG, cB)).useBrightText;
+  return !new Color(cR, cG, cB).useBrightText;
 }

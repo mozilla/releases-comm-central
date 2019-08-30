@@ -13,9 +13,15 @@
 
 var MODULE_NAME = "test-autohide-menubar";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "address-book-helpers", "compose-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "address-book-helpers",
+  "compose-helpers",
+];
 
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 
 var menuFolder;
 var menuState;
@@ -29,7 +35,7 @@ function setupModule(module) {
   ch.installInto(module);
 
   menuFolder = create_folder("menuFolder");
-  make_new_sets_in_folder(menuFolder, [{count: 1}]);
+  make_new_sets_in_folder(menuFolder, [{ count: 1 }]);
 
   // Make the menubar not autohide by default.
   menuState = toggle_main_menu(true);
@@ -63,18 +69,19 @@ function help_test_autohide(controller, menubar) {
   function hiddenChecker(aHidden) {
     // The XUL hidden attribute isn't what is set, so it's useless here -- use
     // information from the box model instead.
-    return () => ((menubar.getBoundingClientRect().height != 0) != aHidden);
+    return () => (menubar.getBoundingClientRect().height != 0) != aHidden;
   }
   set_autohide_menubar(controller, menubar, true);
   controller.waitFor(hiddenChecker(true), "Menubar should be hidden!");
 
   controller.keypress(new elib.Elem(menubar), "VK_ALT", {});
-  controller.waitFor(hiddenChecker(false),
-                     "Menubar should be shown after pressing alt!");
+  controller.waitFor(
+    hiddenChecker(false),
+    "Menubar should be shown after pressing alt!"
+  );
 
   set_autohide_menubar(controller, menubar, false);
-  controller.waitFor(hiddenChecker(false),
-                     "Menubar should be shown!");
+  controller.waitFor(hiddenChecker(false), "Menubar should be shown!");
 }
 
 function test_autohidden_menubar_3pane() {

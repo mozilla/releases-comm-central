@@ -4,13 +4,16 @@
 
 add_task(async function test_about_config() {
   await setupPolicyEngineWithJson({
-    "policies": {
-      "BlockAboutConfig": true,
+    policies: {
+      BlockAboutConfig: true,
     },
   });
 
-  is(Services.policies.isAllowed("about:config"), false,
-     "Policy Engine should report about:config as not allowed");
+  is(
+    Services.policies.isAllowed("about:config"),
+    false,
+    "Policy Engine should report about:config as not allowed"
+  );
 
   await checkBlockedPage("about:config", true);
 });

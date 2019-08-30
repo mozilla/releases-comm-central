@@ -13,18 +13,23 @@ var gAppManagerDialog = {
     var bundle = document.getElementById("appManagerBundle");
     gGeneralPane._prefsBundle = document.getElementById("bundlePreferences");
     var description = this.handlerInfo.typeDescription;
-    var key = (this.handlerInfo.wrappedHandlerInfo instanceof Ci.nsIMIMEInfo) ?
-                "handleFile" : "handleProtocol";
+    var key =
+      this.handlerInfo.wrappedHandlerInfo instanceof Ci.nsIMIMEInfo
+        ? "handleFile"
+        : "handleProtocol";
     var contentText = bundle.getFormattedString(key, [description]);
-    contentText = bundle.getFormattedString("descriptionApplications", [contentText]);
+    contentText = bundle.getFormattedString("descriptionApplications", [
+      contentText,
+    ]);
     document.getElementById("appDescription").textContent = contentText;
 
     var list = document.getElementById("appList");
     var apps = this.handlerInfo.possibleApplicationHandlers.enumerate();
     while (apps.hasMoreElements()) {
       let app = apps.getNext();
-      if (!gGeneralPane.isValidHandlerApp(app))
+      if (!gGeneralPane.isValidHandlerApp(app)) {
         continue;
+      }
 
       app.QueryInterface(Ci.nsIHandlerApp);
 
@@ -52,8 +57,9 @@ var gAppManagerDialog = {
       return;
     }
 
-    for (var i = 0; i < this._removed.length; ++i)
+    for (var i = 0; i < this._removed.length; ++i) {
       this.handlerInfo.removePossibleApplicationHandler(this._removed[i]);
+    }
 
     this.handlerInfo.store();
   },
@@ -69,8 +75,9 @@ var gAppManagerDialog = {
     } else {
       // Select the item at the same index, if we removed the last
       // item of the list, select the previous item
-      if (index == list.getRowCount())
+      if (index == list.getRowCount()) {
         --index;
+      }
       list.selectedIndex = index;
     }
   },
@@ -84,16 +91,19 @@ var gAppManagerDialog = {
     document.getElementById("remove").disabled = false;
     var app = list.selectedItem.app;
     var address = "";
-    if (app instanceof Ci.nsILocalHandlerApp)
+    if (app instanceof Ci.nsILocalHandlerApp) {
       address = app.executable.path;
-    else if (app instanceof Ci.nsIWebHandlerApp)
+    } else if (app instanceof Ci.nsIWebHandlerApp) {
       address = app.uriTemplate;
-    else if (app instanceof Ci.nsIWebContentHandlerInfo)
+    } else if (app instanceof Ci.nsIWebContentHandlerInfo) {
       address = app.uri;
+    }
     document.getElementById("appLocation").value = address;
     var bundle = document.getElementById("appManagerBundle");
-    var appType = (app instanceof Ci.nsILocalHandlerApp) ?
-                    "descriptionLocalApp" : "descriptionWebApp";
+    var appType =
+      app instanceof Ci.nsILocalHandlerApp
+        ? "descriptionLocalApp"
+        : "descriptionWebApp";
     document.getElementById("appType").value = bundle.getString(appType);
   },
 };

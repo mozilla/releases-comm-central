@@ -14,10 +14,16 @@
 
 var MODULE_NAME = "test-reply-format-flowed";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "compose-helpers",
+  "window-helpers",
+];
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
@@ -34,8 +40,9 @@ function setupModule(module) {
 }
 
 function subtest_reply_format_flowed(aFlowed) {
-  let file = os.getFileForPath(os.abspath("./format-flowed.eml",
-                               os.getFileForPath(__file__)));
+  let file = os.getFileForPath(
+    os.abspath("./format-flowed.eml", os.getFileForPath(__file__))
+  );
   let msgc = open_message_from_file(file);
 
   Services.prefs.setBoolPref("mailnews.send_plaintext_flowed", aFlowed);
@@ -45,7 +52,7 @@ function subtest_reply_format_flowed(aFlowed) {
   close_window(msgc);
 
   // Now save the message as a draft.
-  cwc.keypress(null, "s", {shiftKey: false, accelKey: true});
+  cwc.keypress(null, "s", { shiftKey: false, accelKey: true });
   close_compose_window(cwc);
 
   // Now check the message content in the drafts folder.
@@ -58,8 +65,10 @@ function subtest_reply_format_flowed(aFlowed) {
   assert_true(
     messageContent.includes(
       "\r\n> text text text text text text text text text text text text text text" +
-      (aFlowed ? " \r\n" : "\r\n")),
-    "Expected line not found in message.");
+        (aFlowed ? " \r\n" : "\r\n")
+    ),
+    "Expected line not found in message."
+  );
 
   // Delete the outgoing message.
   press_delete();

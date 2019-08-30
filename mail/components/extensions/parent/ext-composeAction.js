@@ -2,16 +2,23 @@
 /* vim: set sts=2 sw=2 et tw=80: */
 "use strict";
 
-ChromeUtils.defineModuleGetter(this, "ToolbarButtonAPI", "resource:///modules/ExtensionToolbarButtons.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "ToolbarButtonAPI",
+  "resource:///modules/ExtensionToolbarButtons.jsm"
+);
 
 this.composeAction = class extends ToolbarButtonAPI {
   constructor(extension) {
     super(extension);
     this.manifest_name = "compose_action";
     this.manifestName = "composeAction";
-    this.windowURLs = ["chrome://messenger/content/messengercompose/messengercompose.xul"];
+    this.windowURLs = [
+      "chrome://messenger/content/messengercompose/messengercompose.xul",
+    ];
 
-    let format = extension.manifest.compose_action.default_area == "formattoolbar";
+    let format =
+      extension.manifest.compose_action.default_area == "formattoolbar";
     this.toolboxId = format ? "FormatToolbox" : "compose-toolbox";
     this.toolbarId = format ? "FormatToolbar" : "composeToolbar2";
 
@@ -21,9 +28,9 @@ this.composeAction = class extends ToolbarButtonAPI {
   }
 
   paintFormatToolbar(window) {
-    let {document} = window;
+    let { document } = window;
     if (document.getElementById(this.id)) {
-        return;
+      return;
     }
 
     let toolbar = document.getElementById(this.toolbarId);
@@ -39,13 +46,23 @@ this.composeAction = class extends ToolbarButtonAPI {
     let widgetId = makeWidgetId(extensionId);
     let id = `${widgetId}-composeAction-toolbarbutton`;
 
-    let windowURL = "chrome://messenger/content/messengercompose/messengercompose.xul";
-    let currentSet = Services.xulStore.getValue(windowURL, "composeToolbar2", "currentset");
+    let windowURL =
+      "chrome://messenger/content/messengercompose/messengercompose.xul";
+    let currentSet = Services.xulStore.getValue(
+      windowURL,
+      "composeToolbar2",
+      "currentset"
+    );
     currentSet = currentSet.split(",");
     let index = currentSet.indexOf(id);
     if (index >= 0) {
       currentSet.splice(index, 1);
-      Services.xulStore.setValue(windowURL, "composeToolbar2", "currentset", currentSet.join(","));
+      Services.xulStore.setValue(
+        windowURL,
+        "composeToolbar2",
+        "currentset",
+        currentSet.join(",")
+      );
     }
   }
 };

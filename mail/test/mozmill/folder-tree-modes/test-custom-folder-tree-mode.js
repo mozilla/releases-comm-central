@@ -24,7 +24,11 @@ function setupModule(module) {
     collector.getModule(lib).installInto(module);
   }
 
-  let server = MailServices.accounts.FindServer("tinderbox", FAKE_SERVER_HOSTNAME, "pop3");
+  let server = MailServices.accounts.FindServer(
+    "tinderbox",
+    FAKE_SERVER_HOSTNAME,
+    "pop3"
+  );
   gInbox = get_special_folder(Ci.nsMsgFolderFlags.Inbox, false, server);
 }
 

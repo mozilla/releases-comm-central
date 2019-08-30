@@ -8,44 +8,52 @@ var reporterListener = {
   _isBusy: false,
   get securityButton() {
     delete this.securityButton;
-    return this.securityButton = document.getElementById("security-button");
+    return (this.securityButton = document.getElementById("security-button"));
   },
 
-  QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener",
-                                          "nsISupportsWeakReference"]),
+  QueryInterface: ChromeUtils.generateQI([
+    "nsIWebProgressListener",
+    "nsISupportsWeakReference",
+  ]),
 
-  onStateChange(/* in nsIWebProgress*/ aWebProgress,
-                /* in nsIRequest*/ aRequest,
-                /* in unsigned long*/ aStateFlags,
-                /* in nsresult*/ aStatus) {
-  },
+  onStateChange(
+    /* in nsIWebProgress*/ aWebProgress,
+    /* in nsIRequest*/ aRequest,
+    /* in unsigned long*/ aStateFlags,
+    /* in nsresult*/ aStatus
+  ) {},
 
-  onProgressChange(/* in nsIWebProgress*/ aWebProgress,
-                   /* in nsIRequest*/ aRequest,
-                   /* in long*/ aCurSelfProgress,
-                   /* in long */aMaxSelfProgress,
-                   /* in long */aCurTotalProgress,
-                   /* in long */aMaxTotalProgress) {
-  },
+  onProgressChange(
+    /* in nsIWebProgress*/ aWebProgress,
+    /* in nsIRequest*/ aRequest,
+    /* in long*/ aCurSelfProgress,
+    /* in long */ aMaxSelfProgress,
+    /* in long */ aCurTotalProgress,
+    /* in long */ aMaxTotalProgress
+  ) {},
 
-  onLocationChange(/* in nsIWebProgress*/ aWebProgress,
-                   /* in nsIRequest*/ aRequest,
-                   /* in nsIURI*/ aLocation) {
+  onLocationChange(
+    /* in nsIWebProgress*/ aWebProgress,
+    /* in nsIRequest*/ aRequest,
+    /* in nsIURI*/ aLocation
+  ) {
     document.getElementById("headerMessage").textContent = aLocation.spec;
   },
 
-  onStatusChange(/* in nsIWebProgress*/ aWebProgress,
-                 /* in nsIRequest*/ aRequest,
-                 /* in nsresult*/ aStatus,
-                 /* in wstring*/ aMessage) {
-  },
+  onStatusChange(
+    /* in nsIWebProgress*/ aWebProgress,
+    /* in nsIRequest*/ aRequest,
+    /* in nsresult*/ aStatus,
+    /* in wstring*/ aMessage
+  ) {},
 
-  onSecurityChange(/* in nsIWebProgress*/ aWebProgress,
-                   /* in nsIRequest*/ aRequest,
-                   /* in unsigned long*/ aState) {
-    const wpl_security_bits = wpl.STATE_IS_SECURE |
-                              wpl.STATE_IS_BROKEN |
-                              wpl.STATE_IS_INSECURE;
+  onSecurityChange(
+    /* in nsIWebProgress*/ aWebProgress,
+    /* in nsIRequest*/ aRequest,
+    /* in unsigned long*/ aState
+  ) {
+    const wpl_security_bits =
+      wpl.STATE_IS_SECURE | wpl.STATE_IS_BROKEN | wpl.STATE_IS_INSECURE;
     var browser = document.getElementById("requestFrame");
     var level;
 
@@ -64,14 +72,17 @@ var reporterListener = {
       this.securityButton.hidden = true;
       this.securityButton.removeAttribute("level");
     }
-    this.securityButton.setAttribute("tooltiptext",
-                                     browser.securityUI.tooltipText);
+    this.securityButton.setAttribute(
+      "tooltiptext",
+      browser.securityUI.tooltipText
+    );
   },
 
-  onContentBlockingEvent(/* in nsIWebProgress*/ aWebProgress,
-                         /* in nsIRequest*/ aRequest,
-                         /* in unsigned long*/ aEvent) {
-  },
+  onContentBlockingEvent(
+    /* in nsIWebProgress*/ aWebProgress,
+    /* in nsIRequest*/ aRequest,
+    /* in unsigned long*/ aEvent
+  ) {},
 };
 
 function cancelRequest() {
@@ -87,12 +98,12 @@ function reportUserClosed() {
 function loadRequestedUrl() {
   let request = window.arguments[0].wrappedJSObject;
   document.getElementById("headerMessage").textContent = request.promptText;
-  if (request.iconURI != "")
+  if (request.iconURI != "") {
     document.getElementById("headerImage").src = request.iconURI;
+  }
 
   var browser = document.getElementById("requestFrame");
-  browser.addProgressListener(reporterListener,
-                              Ci.nsIWebProgress.NOTIFY_ALL);
+  browser.addProgressListener(reporterListener, Ci.nsIWebProgress.NOTIFY_ALL);
   var url = request.url;
   if (url != "") {
     browser.setAttribute("src", url);

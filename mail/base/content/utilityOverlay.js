@@ -4,8 +4,10 @@
 
 /* import-globals-from mailWindow.js */
 
-var {PlacesUtils} = ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { PlacesUtils } = ChromeUtils.import(
+  "resource://gre/modules/PlacesUtils.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gShowBiDi = false;
 
@@ -22,8 +24,9 @@ function goUpdateGlobalEditMenuItems() {
   goUpdateCommand("cmd_paste");
   goUpdateCommand("cmd_selectAll");
   goUpdateCommand("cmd_delete");
-  if (gShowBiDi)
+  if (gShowBiDi) {
     goUpdateCommand("cmd_switchTextDirection");
+  }
 }
 
 // update menu items that rely on the current selection
@@ -54,11 +57,11 @@ function goCopyImage() {
   // A mailbox/imap URL then... copy only data then since the HTML data is
   // not that useful for pasting when the image won't be resolved.
   let param = Cu.createCommandParams();
-  param.setLongValue("imageCopy",
-                     Ci.nsIContentViewerEdit.COPY_IMAGE_DATA);
-  document.commandDispatcher.getControllerForCommand("cmd_copyImage")
-          .QueryInterface(Ci.nsICommandController)
-          .doCommandWithParams("cmd_copyImage", param);
+  param.setLongValue("imageCopy", Ci.nsIContentViewerEdit.COPY_IMAGE_DATA);
+  document.commandDispatcher
+    .getControllerForCommand("cmd_copyImage")
+    .QueryInterface(Ci.nsICommandController)
+    .doCommandWithParams("cmd_copyImage", param);
 }
 
 // update Find As You Type menu items, they rely on focus
@@ -113,12 +116,14 @@ function gatherTextUnder(root) {
 }
 
 function GenerateValidFilename(filename, extension) {
-  if (filename) { // we have a title; let's see if it's usable
+  if (filename) {
+    // we have a title; let's see if it's usable
     // clean up the filename to make it usable and
     // then trim whitespace from beginning and end
     filename = validateFileName(filename).trim();
-    if (filename.length > 0)
+    if (filename.length > 0) {
       return filename + extension;
+    }
   }
   return null;
 }
@@ -135,8 +140,11 @@ function validateFileName(aFileName) {
     re = /[\:\/]+/g;
   }
 
-  if (Services.prefs.getBoolPref("mail.save_msg_filename_underscores_for_space"))
+  if (
+    Services.prefs.getBoolPref("mail.save_msg_filename_underscores_for_space")
+  ) {
     aFileName = aFileName.replace(/ /g, "_");
+  }
 
   return aFileName.replace(re, "_");
 }
@@ -164,22 +172,27 @@ function goToggleToolbar(id, elementID) {
 function togglePaneSplitter(splitterId) {
   var splitter = document.getElementById(splitterId);
   var state = splitter.getAttribute("state");
-  if (state == "collapsed")
+  if (state == "collapsed") {
     splitter.setAttribute("state", "open");
-  else
+  } else {
     splitter.setAttribute("state", "collapsed");
+  }
 }
 
 // openUILink handles clicks on UI elements that cause URLs to load.
 // We currently only react to left click in Thunderbird.
 function openUILink(url, event) {
   if (!event.button) {
-    PlacesUtils.history.insert({
-      url,
-      visits: [{
-        date: new Date(),
-      }],
-    }).catch(Cu.reportError);
+    PlacesUtils.history
+      .insert({
+        url,
+        visits: [
+          {
+            date: new Date(),
+          },
+        ],
+      })
+      .catch(Cu.reportError);
     messenger.launchExternalURL(url);
   }
 }
@@ -193,7 +206,10 @@ function openLinkText(event, what) {
       openUILink("https://support.mozilla.org/kb/keyboard-shortcuts/", event);
       break;
     case "donateURL":
-      openUILink("https://donate.mozilla.org/thunderbird/?utm_source=thunderbird-client&utm_medium=referral&utm_content=help-menu", event);
+      openUILink(
+        "https://donate.mozilla.org/thunderbird/?utm_source=thunderbird-client&utm_medium=referral&utm_content=help-menu",
+        event
+      );
       break;
     case "tourURL":
       openUILink("https://www.thunderbird.net/features/", event);
@@ -202,7 +218,9 @@ function openLinkText(event, what) {
 }
 
 function openWhatsNew() {
-  openLinkExternally(Services.urlFormatter.formatURLPref("mailnews.start_page.override_url"));
+  openLinkExternally(
+    Services.urlFormatter.formatURLPref("mailnews.start_page.override_url")
+  );
 }
 
 /**
@@ -248,9 +266,13 @@ function openTab(tabType, tabParams, where) {
 
   // Either we explicitly wanted to open in a new window, or we fell through to
   // here because there's no 3pane.
-  window.openDialog("chrome://messenger/content/", "_blank",
-                    "chrome,dialog=no,all", null,
-                    { tabType, tabParams });
+  window.openDialog(
+    "chrome://messenger/content/",
+    "_blank",
+    "chrome,dialog=no,all",
+    null,
+    { tabType, tabParams }
+  );
 }
 
 /**
@@ -265,10 +287,14 @@ function openTab(tabType, tabParams, where) {
  */
 function openContentTab(url, where, handlerRegExp) {
   let clickHandler = null;
-  if (handlerRegExp)
-    clickHandler = "specialTabs.siteClickHandler(event, new RegExp(\"" + handlerRegExp + "\"));";
+  if (handlerRegExp) {
+    clickHandler =
+      'specialTabs.siteClickHandler(event, new RegExp("' +
+      handlerRegExp +
+      '"));';
+  }
 
-  openTab("contentTab", {contentPage: url, clickHandler}, where);
+  openTab("contentTab", { contentPage: url, clickHandler }, where);
 }
 
 /**
@@ -286,8 +312,15 @@ function openPreferencesTab(paneID, scrollPaneTo, otherArgs) {
     scrollPaneTo,
     otherArgs,
     onLoad(aEvent, aBrowser) {
-      let prefWindow = aBrowser.contentDocument.getElementById("MailPreferences");
-      aBrowser.contentWindow.selectPrefPane(prefWindow, paneID, scrollPaneTo, otherArgs);
+      let prefWindow = aBrowser.contentDocument.getElementById(
+        "MailPreferences"
+      );
+      aBrowser.contentWindow.selectPrefPane(
+        prefWindow,
+        paneID,
+        scrollPaneTo,
+        otherArgs
+      );
     },
   };
   openTab("preferencesTab", params);
@@ -301,9 +334,12 @@ function openPreferencesTab(paneID, scrollPaneTo, otherArgs) {
  *        'window'). See openContentTab for more details.
  */
 function openDictionaryList(where) {
-  let dictUrl = Services.urlFormatter
-    .formatURLPref("spellchecker.dictionaries.download.url");
-  let dictUrlRegExp = Services.prefs.getCharPref("extensions.getAddons.siteRegExp");
+  let dictUrl = Services.urlFormatter.formatURLPref(
+    "spellchecker.dictionaries.download.url"
+  );
+  let dictUrlRegExp = Services.prefs.getCharPref(
+    "extensions.getAddons.siteRegExp"
+  );
 
   openContentTab(dictUrl, where, dictUrlRegExp);
 }
@@ -323,11 +359,14 @@ function openPrivacyPolicy(where) {
 
 /* Used by the Add-on manager's search box */
 function openLinkIn(aURL, aWhere, aOpenParams) {
-  if (!aURL)
+  if (!aURL) {
     return;
+  }
   // Open a new tab and set the regexp to open links from the Addons site in Thunderbird.
-  let addonRegExp = Services.prefs.getCharPref("extensions.getAddons.siteRegExp");
-  switchToTabHavingURI(aURL, true, {handlerRegExp: addonRegExp});
+  let addonRegExp = Services.prefs.getCharPref(
+    "extensions.getAddons.siteRegExp"
+  );
+  switchToTabHavingURI(aURL, true, { handlerRegExp: addonRegExp });
 }
 
 /**
@@ -338,8 +377,9 @@ function goSetMenuValue(aCommand, aLabelAttribute) {
   var commandNode = top.document.getElementById(aCommand);
   if (commandNode) {
     var label = commandNode.getAttribute(aLabelAttribute);
-    if (label)
+    if (label) {
       commandNode.setAttribute("label", label);
+    }
   }
 }
 
@@ -347,8 +387,9 @@ function goSetAccessKey(aCommand, aValueAttribute) {
   var commandNode = top.document.getElementById(aCommand);
   if (commandNode) {
     var value = commandNode.getAttribute(aValueAttribute);
-    if (value)
+    if (value) {
       commandNode.setAttribute("accesskey", value);
+    }
   }
 }
 
@@ -359,9 +400,14 @@ function goOnEvent(aNode, aEvent) {
   var numControllers = aNode.controllers.getControllerCount();
   var controller;
 
-  for (var controllerIndex = 0; controllerIndex < numControllers; controllerIndex++) {
+  for (
+    var controllerIndex = 0;
+    controllerIndex < numControllers;
+    controllerIndex++
+  ) {
     controller = aNode.controllers.getControllerAt(controllerIndex);
-    if (controller)
+    if (controller) {
       controller.onEvent(aEvent);
+    }
   }
 }

@@ -25,7 +25,7 @@ function setupModule(module) {
   wh.installInto(module);
 
   folder = create_folder("FolderPaneVisibility");
-  make_new_sets_in_folder(folder, [{count: 3}]);
+  make_new_sets_in_folder(folder, [{ count: 3 }]);
 }
 
 /**
@@ -33,24 +33,30 @@ function setupModule(module) {
  * menus, splitters, etc. are set up right.
  */
 function assert_folder_pane_visible() {
-  if (!mc.folderDisplay.folderPaneVisible)
-    throw new Error("The folder display does not think that the folder pane " +
-                    "is visible, but it should!");
+  if (!mc.folderDisplay.folderPaneVisible) {
+    throw new Error(
+      "The folder display does not think that the folder pane " +
+        "is visible, but it should!"
+    );
+  }
 
   // - folder pane should be visible
-  if (mc.e("folderPaneBox").collapsed === true)
+  if (mc.e("folderPaneBox").collapsed === true) {
     throw new Error("folderPaneBox should not be collapsed!");
+  }
 
   // - the folder pane splitter should not be collapsed
-  if (mc.e("folderpane_splitter").collapsed === true)
+  if (mc.e("folderpane_splitter").collapsed === true) {
     throw new Error("folderpane_splitter should not be collapsed!");
+  }
 
   // - the menu item should be checked
   // force the view menu to update.
   mc.window.view_init();
   let paneMenuItem = mc.e("menu_showFolderPane");
-  if (paneMenuItem.getAttribute("checked") != "true")
+  if (paneMenuItem.getAttribute("checked") != "true") {
     throw new Error("The Folder Pane menu item should be checked.");
+  }
 }
 
 /**
@@ -61,13 +67,17 @@ function assert_folder_pane_visible() {
  *     This impacts whether the folder pane splitter should be visible.
  */
 function assert_folder_pane_hidden(aFolderPaneIllegal) {
-  if (mc.folderDisplay.folderPaneVisible)
-    throw new Error("The folder display thinks that the folder pane is " +
-                    "visible, but it shouldn't!");
+  if (mc.folderDisplay.folderPaneVisible) {
+    throw new Error(
+      "The folder display thinks that the folder pane is " +
+        "visible, but it shouldn't!"
+    );
+  }
 
   // - folder pane shouldn't be visible
-  if (mc.e("folderPaneBox").collapsed === false)
+  if (mc.e("folderPaneBox").collapsed === false) {
     throw new Error("folderPaneBox should be collapsed!");
+  }
 
   // force the view menu to update.
   mc.window.view_init();
@@ -75,15 +85,18 @@ function assert_folder_pane_hidden(aFolderPaneIllegal) {
   // - the folder pane splitter should or should not be collapsed, depending on
   //   aFolderPaneIllegal
   if (aFolderPaneIllegal) {
-    if (mc.e("folderpane_splitter").collapsed === false)
+    if (mc.e("folderpane_splitter").collapsed === false) {
       throw new Error("folderpane_splitter should be collapsed!");
+    }
     // if (paneMenuItem.getAttribute("disabled") != "true")
     //  throw new Error("The Folder Pane menu item should be disabled.");
   } else {
-    if (mc.e("folderpane_splitter").collapsed === true)
+    if (mc.e("folderpane_splitter").collapsed === true) {
       throw new Error("folderpane_splitter should not be collapsed!");
-    if (paneMenuItem.getAttribute("checked") == "true")
+    }
+    if (paneMenuItem.getAttribute("checked") == "true") {
       throw new Error("The Folder Pane menu item should not be checked.");
+    }
   }
 }
 
@@ -211,18 +224,20 @@ function test_folder_pane_persistence_generally_works() {
 
   // close everything but the first tab.
   function closeTabs() {
-    while (mc.tabmail.tabInfo.length > 1)
+    while (mc.tabmail.tabInfo.length > 1) {
       mc.tabmail.closeTab(1);
+    }
   }
 
   function verifyTabs(aConfig) {
     for (let [iTab, folderPaneVisible] of aConfig.entries()) {
       switch_tab(iTab);
       dump(" checking tab: " + iTab + "\n");
-      if (folderPaneVisible)
+      if (folderPaneVisible) {
         assert_folder_pane_visible();
-      else
+      } else {
         assert_folder_pane_hidden();
+      }
     }
   }
 

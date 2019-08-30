@@ -23,11 +23,9 @@ function installInto(module) {
 
   // Now copy helper functions
   module.open_search_window = open_search_window;
-  module.open_search_window_from_context_menu =
-    open_search_window_from_context_menu;
+  module.open_search_window_from_context_menu = open_search_window_from_context_menu;
   module.close_search_window = close_search_window;
-  module.assert_search_window_folder_displayed =
-    assert_search_window_folder_displayed;
+  module.assert_search_window_folder_displayed = assert_search_window_folder_displayed;
 }
 
 /**
@@ -37,7 +35,7 @@ function installInto(module) {
  */
 function open_search_window() {
   windowHelper.plan_for_new_window("mailnews:search");
-  mc.keypress(null, "f", {shiftKey: true, accelKey: true});
+  mc.keypress(null, "f", { shiftKey: true, accelKey: true });
   return windowHelper.wait_for_new_window("mailnews:search");
 }
 
@@ -73,8 +71,12 @@ function close_search_window(aController) {
  */
 function assert_search_window_folder_displayed(aController, aFolder) {
   let currentFolder = aController.currentFolder;
-  if (currentFolder != aFolder)
-    throw new Error("The search window's selected folder should have been: " +
-                    aFolder.prettyName + ", but is actually: " +
-                    currentFolder.prettyName);
+  if (currentFolder != aFolder) {
+    throw new Error(
+      "The search window's selected folder should have been: " +
+        aFolder.prettyName +
+        ", but is actually: " +
+        currentFolder.prettyName
+    );
+  }
 }

@@ -25,7 +25,7 @@ function setupModule(module) {
 
   folder = create_folder("CloseWindowOnDeleteA");
 
-  make_new_sets_in_folder(folder, [{count: 10}]);
+  make_new_sets_in_folder(folder, [{ count: 10 }]);
 }
 
 /**
@@ -48,12 +48,14 @@ function test_close_message_window_on_delete_from_message_window() {
   msgc.window.focus();
   plan_for_window_close(msgc);
   press_delete(msgc);
-  if (folder.getTotalMessages(false) != preCount - 1)
+  if (folder.getTotalMessages(false) != preCount - 1) {
     throw new Error("didn't delete a message before closing window");
+  }
   wait_for_window_close(msgc);
 
-  if (msgc2.window.closed)
+  if (msgc2.window.closed) {
     throw new Error("should only have closed the active window");
+  }
 
   close_window(msgc2);
 
@@ -83,13 +85,15 @@ function test_close_multiple_message_windows_on_delete_from_message_window() {
   plan_for_window_close(msgcA);
   press_delete(msgc);
 
-  if (folder.getTotalMessages(false) != preCount - 1)
+  if (folder.getTotalMessages(false) != preCount - 1) {
     throw new Error("didn't delete a message before closing window");
+  }
   wait_for_window_close(msgc);
   wait_for_window_close(msgcA);
 
-  if (msgc2.window.closed)
+  if (msgc2.window.closed) {
     throw new Error("should only have closed the active window");
+  }
 
   close_window(msgc2);
 
@@ -120,13 +124,15 @@ function test_close_multiple_message_windows_on_delete_from_3pane_window() {
   select_click_row(0);
   press_delete(mc);
 
-  if (folder.getTotalMessages(false) != preCount - 1)
+  if (folder.getTotalMessages(false) != preCount - 1) {
     throw new Error("didn't delete a message before closing window");
+  }
   wait_for_window_close(msgc);
   wait_for_window_close(msgcA);
 
-  if (msgc2.window.closed)
+  if (msgc2.window.closed) {
     throw new Error("should only have closed the first window");
+  }
 
   close_window(msgc2);
 
@@ -153,13 +159,15 @@ function test_close_message_tab_on_delete_from_message_tab() {
   switch_tab(msgc);
   press_delete();
 
-  if (folder.getTotalMessages(false) != preCount - 1)
+  if (folder.getTotalMessages(false) != preCount - 1) {
     throw new Error("didn't delete a message before closing tab");
+  }
 
   assert_number_of_tabs_open(2);
 
-  if (msgc2 != mc.tabmail.tabInfo[1])
+  if (msgc2 != mc.tabmail.tabInfo[1]) {
     throw new Error("should only have closed the active tab");
+  }
 
   close_tab(msgc2);
 
@@ -187,13 +195,15 @@ function test_close_multiple_message_tabs_on_delete_from_message_tab() {
   switch_tab(msgc);
   press_delete();
 
-  if (folder.getTotalMessages(false) != preCount - 1)
+  if (folder.getTotalMessages(false) != preCount - 1) {
     throw new Error("didn't delete a message before closing tab");
+  }
 
   assert_number_of_tabs_open(2);
 
-  if (msgc2 != mc.tabmail.tabInfo[1])
+  if (msgc2 != mc.tabmail.tabInfo[1]) {
     throw new Error("should only have closed the active tab");
+  }
 
   close_tab(msgc2);
 
@@ -222,13 +232,15 @@ function test_close_multiple_message_tabs_on_delete_from_3pane_window() {
   select_click_row(0);
   press_delete(mc);
 
-  if (folder.getTotalMessages(false) != preCount - 1)
+  if (folder.getTotalMessages(false) != preCount - 1) {
     throw new Error("didn't delete a message before closing window");
+  }
 
   assert_number_of_tabs_open(2);
 
-  if (msgc2 != mc.tabmail.tabInfo[1])
+  if (msgc2 != mc.tabmail.tabInfo[1]) {
     throw new Error("should only have closed the active tab");
+  }
 
   close_tab(msgc2);
 
@@ -259,17 +271,20 @@ function test_close_multiple_windows_tabs_on_delete_from_3pane_window() {
   select_click_row(0);
   press_delete(mc);
 
-  if (folder.getTotalMessages(false) != preCount - 1)
+  if (folder.getTotalMessages(false) != preCount - 1) {
     throw new Error("didn't delete a message before closing window");
+  }
   wait_for_window_close(msgcA);
 
   assert_number_of_tabs_open(2);
 
-  if (msgc2 != mc.tabmail.tabInfo[1])
+  if (msgc2 != mc.tabmail.tabInfo[1]) {
     throw new Error("should only have closed the active tab");
+  }
 
-  if (msgc2A.window.closed)
+  if (msgc2A.window.closed) {
     throw new Error("should only have closed the first window");
+  }
 
   close_tab(msgc2);
   close_window(msgc2A);

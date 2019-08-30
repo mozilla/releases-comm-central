@@ -4,15 +4,19 @@
 
 "use strict";
 
-var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm");
-var {ExtensionTestUtils} = ChromeUtils.import("resource://testing-common/ExtensionXPCShellUtils.jsm");
+var { cloudFileAccounts } = ChromeUtils.import(
+  "resource:///modules/cloudFileAccounts.jsm"
+);
+var { ExtensionTestUtils } = ChromeUtils.import(
+  "resource://testing-common/ExtensionXPCShellUtils.jsm"
+);
 
 ExtensionTestUtils.init(this);
 
 add_task(async () => {
   async function background() {
     function createCloudfileAccount() {
-      return new Promise((resolve) => {
+      return new Promise(resolve => {
         function accountListener(account) {
           browser.cloudFile.onAccountAdded.removeListener(accountListener);
           resolve(account);
@@ -24,7 +28,7 @@ add_task(async () => {
     }
 
     function removeCloudfileAccount(id) {
-      return new Promise((resolve) => {
+      return new Promise(resolve => {
         function accountListener(accountId) {
           browser.cloudFile.onAccountDeleted.removeListener(accountListener);
           resolve(accountId);
@@ -91,7 +95,9 @@ add_task(async () => {
       let createdAccount = await createCloudfileAccount();
 
       // getAccount and getAllAccounts
-      let retrievedAccount = await browser.cloudFile.getAccount(createdAccount.id);
+      let retrievedAccount = await browser.cloudFile.getAccount(
+        createdAccount.id
+      );
       assertAccountsMatch(createdAccount, retrievedAccount);
 
       let retrievedAccounts = await browser.cloudFile.getAllAccounts();
@@ -108,7 +114,10 @@ add_task(async () => {
         settingsUrl: "/accountsettings.html",
       };
 
-      let changedAccount = await browser.cloudFile.updateAccount(retrievedAccount.id, changes);
+      let changedAccount = await browser.cloudFile.updateAccount(
+        retrievedAccount.id,
+        changes
+      );
       retrievedAccount = await browser.cloudFile.getAccount(createdAccount.id);
 
       let expected = {
@@ -132,12 +141,15 @@ add_task(async () => {
       browser.test.log("test_upload_delete");
       let createdAccount = await createCloudfileAccount();
 
-      let fileId = await new Promise((resolve) => {
+      let fileId = await new Promise(resolve => {
         function fileListener(account, { id, name, data }) {
           browser.cloudFile.onFileUpload.removeListener(fileListener);
           browser.test.assertEq(account.id, createdAccount.id);
           browser.test.assertEq(name, "cloudFile1.txt");
-          browser.test.assertEq(new TextDecoder("utf-8").decode(data), "you got the moves!\n");
+          browser.test.assertEq(
+            new TextDecoder("utf-8").decode(data),
+            "you got the moves!\n"
+          );
           setTimeout(() => resolve(id));
           return { url: "https://example.com/" + name };
         }
@@ -147,13 +159,13 @@ add_task(async () => {
       });
 
       browser.test.log("test upload aborted");
-      await new Promise((resolve) => {
+      await new Promise(resolve => {
         async function fileListener(account, { id, name, data }) {
           browser.cloudFile.onFileUpload.removeListener(fileListener);
 
           // The listener won't return until onFileUploadAbort fires. When that happens,
           // we return an aborted message, which completes the abort cycle.
-          await new Promise((resolveAbort) => {
+          await new Promise(resolveAbort => {
             function abortListener(accountAccount, abortId) {
               browser.cloudFile.onFileUploadAbort.removeListener(abortListener);
               browser.test.assertEq(account.id, accountAccount.id);
@@ -169,11 +181,16 @@ add_task(async () => {
         }
 
         browser.cloudFile.onFileUpload.addListener(fileListener);
-        browser.test.sendMessage("uploadFile", createdAccount.id, "cloudFile2", "uploadCancelled");
+        browser.test.sendMessage(
+          "uploadFile",
+          createdAccount.id,
+          "cloudFile2",
+          "uploadCancelled"
+        );
       });
 
       browser.test.log("test delete");
-      await new Promise((resolve) => {
+      await new Promise(resolve => {
         function fileListener(account, id) {
           browser.cloudFile.onFileDeleted.removeListener(fileListener);
           browser.test.assertEq(account.id, createdAccount.id);
@@ -210,8 +227,8 @@ add_task(async () => {
   });
 
   let testFiles = {
-    "cloudFile1": do_get_file("data/cloudFile1.txt"),
-    "cloudFile2": do_get_file("data/cloudFile2.txt"),
+    cloudFile1: do_get_file("data/cloudFile1.txt"),
+    cloudFile2: do_get_file("data/cloudFile2.txt"),
   };
 
   let uploads = {};
@@ -220,7 +237,7 @@ add_task(async () => {
     cloudFileAccounts.createAccount(id);
   });
 
-  extension.onMessage("removeAccount", (id) => {
+  extension.onMessage("removeAccount", id => {
     cloudFileAccounts.removeAccount(id);
   });
 
@@ -231,20 +248,23 @@ add_task(async () => {
       expected = cloudFileAccounts.constants[expected];
     }
 
-    account.uploadFile(testFiles[filename]).then((upload) => {
-      Assert.equal(Cr.NS_OK, expected);
-      uploads[filename] = upload;
-    }, (status) => {
-      Assert.equal(status, expected);
-    });
+    account.uploadFile(testFiles[filename]).then(
+      upload => {
+        Assert.equal(Cr.NS_OK, expected);
+        uploads[filename] = upload;
+      },
+      status => {
+        Assert.equal(status, expected);
+      }
+    );
   });
 
-  extension.onMessage("cancelUpload", (id) => {
+  extension.onMessage("cancelUpload", id => {
     let account = cloudFileAccounts.getAccount(id);
     account.cancelFileUpload(testFiles.cloudFile2);
   });
 
-  extension.onMessage("deleteFile", (id) => {
+  extension.onMessage("deleteFile", id => {
     let account = cloudFileAccounts.getAccount(id);
     account.deleteFile(uploads.cloudFile1.id);
   });

@@ -5,12 +5,19 @@
 
 this.EXPORTED_SYMBOLS = ["moveCopyModule"];
 
-var nsActEvent = Components.Constructor("@mozilla.org/activity-event;1",
-                                          "nsIActivityEvent", "init");
+var nsActEvent = Components.Constructor(
+  "@mozilla.org/activity-event;1",
+  "nsIActivityEvent",
+  "init"
+);
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+const { PluralForm } = ChromeUtils.import(
+  "resource://gre/modules/PluralForm.jsm"
+);
 const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 // This module provides a link between the move/copy code and the activity
@@ -21,19 +28,21 @@ var moveCopyModule = {
 
   get log() {
     delete this.log;
-    return this.log = Log4Moz.getConfiguredLogger("moveCopyModule");
+    return (this.log = Log4Moz.getConfiguredLogger("moveCopyModule"));
   },
 
   get activityMgr() {
     delete this.activityMgr;
-    return this.activityMgr = Cc["@mozilla.org/activity-manager;1"]
-                                .getService(Ci.nsIActivityManager);
+    return (this.activityMgr = Cc["@mozilla.org/activity-manager;1"].getService(
+      Ci.nsIActivityManager
+    ));
   },
 
   get bundle() {
     delete this.bundle;
-    return this.bundle = Services.strings
-      .createBundle("chrome://messenger/locale/activity.properties");
+    return (this.bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/activity.properties"
+    ));
   },
 
   getString(stringName) {
@@ -45,31 +54,36 @@ var moveCopyModule = {
     }
   },
 
-  msgAdded(aMsg) {
-  },
+  msgAdded(aMsg) {},
 
   msgsDeleted(aMsgList) {
     this.log.info("in msgsDeleted");
 
     let count = aMsgList.length;
-    if (count <= 0)
+    if (count <= 0) {
       return;
+    }
 
     let displayCount = count;
     // get the folder of the deleted messages
     let folder = aMsgList.queryElementAt(0, Ci.nsIMsgDBHdr).folder;
 
     let activities = this.activityMgr.getActivities();
-    if (activities.length > 0 &&
-        activities[activities.length - 1].id == this.lastMessage.id &&
-        this.lastMessage.type == "deleteMail" &&
-        this.lastMessage.folder == folder.prettyName) {
+    if (
+      activities.length > 0 &&
+      activities[activities.length - 1].id == this.lastMessage.id &&
+      this.lastMessage.type == "deleteMail" &&
+      this.lastMessage.folder == folder.prettyName
+    ) {
       displayCount += this.lastMessage.count;
       this.activityMgr.removeActivity(this.lastMessage.id);
     }
 
     this.lastMessage = {};
-    let displayText = PluralForm.get(displayCount, this.getString("deletedMessages2"));
+    let displayText = PluralForm.get(
+      displayCount,
+      this.getString("deletedMessages2")
+    );
     displayText = displayText.replace("#1", displayCount);
     this.lastMessage.count = displayCount;
     displayText = displayText.replace("#2", folder.prettyName);
@@ -78,11 +92,13 @@ var moveCopyModule = {
     let statusText = folder.server.prettyName;
 
     // create an activity event
-    let event = new nsActEvent(displayText,
-                               folder,
-                               statusText,
-                               Date.now(),  // start time
-                               Date.now()); // completion time
+    let event = new nsActEvent(
+      displayText,
+      folder,
+      statusText,
+      Date.now(), // start time
+      Date.now()
+    ); // completion time
 
     event.iconClass = "deleteMail";
     this.lastMessage.type = event.iconClass;
@@ -100,8 +116,9 @@ var moveCopyModule = {
       this.log.info("in msgsMoveCopyCompleted");
 
       let count = aSrcMsgList.length;
-      if (count <= 0)
+      if (count <= 0) {
         return;
+      }
 
       // get the folder of the moved/copied messages
       let folder = aSrcMsgList.queryElementAt(0, Ci.nsIMsgDBHdr).folder;
@@ -110,11 +127,13 @@ var moveCopyModule = {
       let displayCount = count;
 
       let activities = this.activityMgr.getActivities();
-      if (activities.length > 0 &&
-          activities[activities.length - 1].id == this.lastMessage.id &&
-          this.lastMessage.type == (aMove ? "moveMail" : "copyMail") &&
-          this.lastMessage.sourceFolder == folder.prettyName &&
-          this.lastMessage.destFolder == aDestFolder.prettyName) {
+      if (
+        activities.length > 0 &&
+        activities[activities.length - 1].id == this.lastMessage.id &&
+        this.lastMessage.type == (aMove ? "moveMail" : "copyMail") &&
+        this.lastMessage.sourceFolder == folder.prettyName &&
+        this.lastMessage.destFolder == aDestFolder.prettyName
+      ) {
         displayCount += this.lastMessage.count;
         this.activityMgr.removeActivity(this.lastMessage.id);
       }
@@ -130,12 +149,17 @@ var moveCopyModule = {
 
       this.lastMessage = {};
       let displayText;
-      if (aMove)
-        displayText = PluralForm.get(displayCount,
-                                     this.getString("movedMessages"));
-      else
-        displayText = PluralForm.get(displayCount,
-                                     this.getString("copiedMessages"));
+      if (aMove) {
+        displayText = PluralForm.get(
+          displayCount,
+          this.getString("movedMessages")
+        );
+      } else {
+        displayText = PluralForm.get(
+          displayCount,
+          this.getString("copiedMessages")
+        );
+      }
 
       displayText = displayText.replace("#1", displayCount);
       this.lastMessage.count = displayCount;
@@ -145,11 +169,13 @@ var moveCopyModule = {
       this.lastMessage.destFolder = aDestFolder.prettyName;
 
       // create an activity event
-      let event = new nsActEvent(displayText,
-                                 folder,
-                                 statusText,
-                                 Date.now(),    // start time
-                                 Date.now());   // completion time
+      let event = new nsActEvent(
+        displayText,
+        folder,
+        statusText,
+        Date.now(), // start time
+        Date.now()
+      ); // completion time
       event.iconClass = aMove ? "moveMail" : "copyMail";
       this.lastMessage.type = event.iconClass;
 
@@ -163,8 +189,7 @@ var moveCopyModule = {
     }
   },
 
-  folderAdded(aFolder) {
-  },
+  folderAdded(aFolder) {},
 
   folderDeleted(aFolder) {
     let server;
@@ -174,25 +199,37 @@ var moveCopyModule = {
       // TODO: find out what it is.
       server = aFolder.server;
       // If the account has been removed, we're going to ignore this notification.
-      MailServices.accounts.FindServer(server.username, server.hostName, server.type);
-    } catch (ex) { return; }
+      MailServices.accounts.FindServer(
+        server.username,
+        server.hostName,
+        server.type
+      );
+    } catch (ex) {
+      return;
+    }
 
     let displayText;
     let statusText = server.prettyName;
 
     // Display a different message depending on whether we emptied the trash
     // or actually deleted a folder
-    if (aFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Trash, false))
+    if (aFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Trash, false)) {
       displayText = this.getString("emptiedTrash");
-    else
-      displayText = this.getString("deletedFolder").replace("#1", aFolder.prettyName);
+    } else {
+      displayText = this.getString("deletedFolder").replace(
+        "#1",
+        aFolder.prettyName
+      );
+    }
 
     // create an activity event
-    let event = new nsActEvent(displayText,
-                               server,
-                               statusText,
-                               Date.now(),  // start time
-                               Date.now()); // completion time
+    let event = new nsActEvent(
+      displayText,
+      server,
+      statusText,
+      Date.now(), // start time
+      Date.now()
+    ); // completion time
 
     event.addSubject(aFolder);
     event.iconClass = "deleteMail";
@@ -208,10 +245,11 @@ var moveCopyModule = {
     this.log.info("in folderMoveCopyCompleted, aMove = " + aMove);
 
     let displayText;
-    if (aMove)
+    if (aMove) {
       displayText = this.getString("movedFolder");
-    else
+    } else {
       displayText = this.getString("copiedFolder");
+    }
 
     displayText = displayText.replace("#1", aSrcFolder.prettyName);
     displayText = displayText.replace("#2", aDestFolder.prettyName);
@@ -225,11 +263,13 @@ var moveCopyModule = {
       statusText = aSrcFolder.server.prettyName;
     }
     // create an activity event
-    let event = new nsActEvent(displayText,
-                               aSrcFolder.server,
-                               statusText,
-                               Date.now(),    // start time
-                               Date.now());   // completion time
+    let event = new nsActEvent(
+      displayText,
+      aSrcFolder.server,
+      statusText,
+      Date.now(), // start time
+      Date.now()
+    ); // completion time
 
     event.addSubject(aSrcFolder);
     event.addSubject(aDestFolder);
@@ -239,8 +279,12 @@ var moveCopyModule = {
   },
 
   folderRenamed(aOrigFolder, aNewFolder) {
-    this.log.info("in folderRenamed, aOrigFolder = " + aOrigFolder.prettyName +
-                  ", aNewFolder = " + aNewFolder.prettyName);
+    this.log.info(
+      "in folderRenamed, aOrigFolder = " +
+        aOrigFolder.prettyName +
+        ", aNewFolder = " +
+        aNewFolder.prettyName
+    );
 
     let displayText;
     let statusText = aNewFolder.server.prettyName;
@@ -257,15 +301,18 @@ var moveCopyModule = {
     }
 
     // When renaming a folder, a delete event is always fired first
-    if (this.lastFolder.URI == aOrigFolder.URI)
+    if (this.lastFolder.URI == aOrigFolder.URI) {
       this.activityMgr.removeActivity(this.lastFolder.event);
+    }
 
     // create an activity event
-    let event = new nsActEvent(displayText,
-                               aOrigFolder.server,
-                               statusText,
-                               Date.now(),  // start time
-                               Date.now()); // completion time
+    let event = new nsActEvent(
+      displayText,
+      aOrigFolder.server,
+      statusText,
+      Date.now(), // start time
+      Date.now()
+    ); // completion time
 
     event.addSubject(aOrigFolder);
     event.addSubject(aNewFolder);
@@ -288,11 +335,13 @@ var moveCopyModule = {
         let displayCount = 1;
 
         let activities = this.activityMgr.getActivities();
-        if (activities.length > 0 &&
-            activities[activities.length - 1].id == this.lastMessage.id &&
-            this.lastMessage.type == "moveMail" &&
-            this.lastMessage.sourceFolder == srcFolder.prettyName &&
-            this.lastMessage.destFolder == destFolder.prettyName) {
+        if (
+          activities.length > 0 &&
+          activities[activities.length - 1].id == this.lastMessage.id &&
+          this.lastMessage.type == "moveMail" &&
+          this.lastMessage.sourceFolder == srcFolder.prettyName &&
+          this.lastMessage.destFolder == destFolder.prettyName
+        ) {
           displayCount += this.lastMessage.count;
           this.activityMgr.removeActivity(this.lastMessage.id);
         }
@@ -308,8 +357,10 @@ var moveCopyModule = {
 
         this.lastMessage = {};
         let displayText;
-        displayText = PluralForm.get(displayCount,
-                                     this.getString("movedMessages"));
+        displayText = PluralForm.get(
+          displayCount,
+          this.getString("movedMessages")
+        );
 
         displayText = displayText.replace("#1", displayCount);
         this.lastMessage.count = displayCount;
@@ -319,11 +370,13 @@ var moveCopyModule = {
         this.lastMessage.destFolder = destFolder.prettyName;
 
         // create an activity event
-        let event = new nsActEvent(displayText,
-                                   srcFolder,
-                                   statusText,
-                                   Date.now(),    // start time
-                                   Date.now());   // completion time
+        let event = new nsActEvent(
+          displayText,
+          srcFolder,
+          statusText,
+          Date.now(), // start time
+          Date.now()
+        ); // completion time
 
         event.iconClass = "moveMail";
         this.lastMessage.type = event.iconClass;
@@ -337,12 +390,14 @@ var moveCopyModule = {
 
   init() {
     // XXX when do we need to remove ourselves?
-    MailServices.mfn.addListener(this,
-                                 MailServices.mfn.msgsDeleted |
-                                 MailServices.mfn.msgsMoveCopyCompleted |
-                                 MailServices.mfn.folderDeleted |
-                                 MailServices.mfn.folderMoveCopyCompleted |
-                                 MailServices.mfn.folderRenamed |
-                                 MailServices.mfn.itemEvent);
+    MailServices.mfn.addListener(
+      this,
+      MailServices.mfn.msgsDeleted |
+        MailServices.mfn.msgsMoveCopyCompleted |
+        MailServices.mfn.folderDeleted |
+        MailServices.mfn.folderMoveCopyCompleted |
+        MailServices.mfn.folderRenamed |
+        MailServices.mfn.itemEvent
+    );
   },
 };

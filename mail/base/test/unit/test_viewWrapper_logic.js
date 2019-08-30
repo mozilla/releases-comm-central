@@ -16,16 +16,15 @@ function* test_threading_grouping_mutual_exclusion() {
   // enter an update that will never conclude.  this is fine.
   viewWrapper.beginViewUpdate();
   viewWrapper.showThreaded = true;
-  assert_true(viewWrapper.showThreaded,
-              "view should be threaded");
-  assert_false(viewWrapper.showGroupedBySort,
-               "view should not be grouped by sort");
+  assert_true(viewWrapper.showThreaded, "view should be threaded");
+  assert_false(
+    viewWrapper.showGroupedBySort,
+    "view should not be grouped by sort"
+  );
 
   viewWrapper.showGroupedBySort = true;
-  assert_false(viewWrapper.showThreaded,
-               "view should not be threaded");
-  assert_true(viewWrapper.showGroupedBySort,
-              "view should be grouped by sort");
+  assert_false(viewWrapper.showThreaded, "view should not be threaded");
+  assert_true(viewWrapper.showGroupedBySort, "view should be grouped by sort");
 }
 
 /**
@@ -83,19 +82,39 @@ function* test_sort_primary() {
   let [folder] = make_folder_with_sets(1);
 
   yield async_view_open(viewWrapper, folder);
-  viewWrapper.sort(Ci.nsMsgViewSortType.byDate,
-                   Ci.nsMsgViewSortOrder.ascending);
-  assert_equals(viewWrapper.dbView.sortType, Ci.nsMsgViewSortType.byDate,
-                "sort should be by date", true);
-  assert_equals(viewWrapper.dbView.sortOrder, Ci.nsMsgViewSortOrder.ascending,
-                "sort order should be ascending", true);
+  viewWrapper.sort(
+    Ci.nsMsgViewSortType.byDate,
+    Ci.nsMsgViewSortOrder.ascending
+  );
+  assert_equals(
+    viewWrapper.dbView.sortType,
+    Ci.nsMsgViewSortType.byDate,
+    "sort should be by date",
+    true
+  );
+  assert_equals(
+    viewWrapper.dbView.sortOrder,
+    Ci.nsMsgViewSortOrder.ascending,
+    "sort order should be ascending",
+    true
+  );
 
-  viewWrapper.sort(Ci.nsMsgViewSortType.byAuthor,
-                   Ci.nsMsgViewSortOrder.descending);
-  assert_equals(viewWrapper.dbView.sortType, Ci.nsMsgViewSortType.byAuthor,
-                "sort should be by author", true);
-  assert_equals(viewWrapper.dbView.sortOrder, Ci.nsMsgViewSortOrder.descending,
-                "sort order should be descending", true);
+  viewWrapper.sort(
+    Ci.nsMsgViewSortType.byAuthor,
+    Ci.nsMsgViewSortOrder.descending
+  );
+  assert_equals(
+    viewWrapper.dbView.sortType,
+    Ci.nsMsgViewSortType.byAuthor,
+    "sort should be by author",
+    true
+  );
+  assert_equals(
+    viewWrapper.dbView.sortOrder,
+    Ci.nsMsgViewSortOrder.descending,
+    "sort order should be descending",
+    true
+  );
 }
 
 /**
@@ -108,24 +127,35 @@ function* test_sort_secondary_explicit() {
   let [folder] = make_folder_with_sets(1);
 
   yield async_view_open(viewWrapper, folder);
-  viewWrapper.sort(Ci.nsMsgViewSortType.byAuthor,
-                   Ci.nsMsgViewSortOrder.ascending,
-                   Ci.nsMsgViewSortType.bySubject,
-                   Ci.nsMsgViewSortOrder.descending
-                   );
+  viewWrapper.sort(
+    Ci.nsMsgViewSortType.byAuthor,
+    Ci.nsMsgViewSortOrder.ascending,
+    Ci.nsMsgViewSortType.bySubject,
+    Ci.nsMsgViewSortOrder.descending
+  );
   // check once for what we just did, then again after refreshing to make
   //  sure the sort order 'stuck'
   for (let i = 0; i < 2; i++) {
-    assert_equals(viewWrapper.dbView.sortType, Ci.nsMsgViewSortType.byAuthor,
-                  "sort should be by author");
-    assert_equals(viewWrapper.dbView.sortOrder, Ci.nsMsgViewSortOrder.ascending,
-                  "sort order should be ascending");
-    assert_equals(viewWrapper.dbView.secondarySortType,
-                  Ci.nsMsgViewSortType.bySubject,
-                  "secondary sort should be by subject");
-    assert_equals(viewWrapper.dbView.secondarySortOrder,
-                  Ci.nsMsgViewSortOrder.descending,
-                  "secondary sort order should be descending");
+    assert_equals(
+      viewWrapper.dbView.sortType,
+      Ci.nsMsgViewSortType.byAuthor,
+      "sort should be by author"
+    );
+    assert_equals(
+      viewWrapper.dbView.sortOrder,
+      Ci.nsMsgViewSortOrder.ascending,
+      "sort order should be ascending"
+    );
+    assert_equals(
+      viewWrapper.dbView.secondarySortType,
+      Ci.nsMsgViewSortType.bySubject,
+      "secondary sort should be by subject"
+    );
+    assert_equals(
+      viewWrapper.dbView.secondarySortOrder,
+      Ci.nsMsgViewSortOrder.descending,
+      "secondary sort order should be descending"
+    );
     yield async_view_refresh(viewWrapper);
   }
 }
@@ -145,23 +175,37 @@ function* test_sort_secondary_implicit() {
   let [folder] = make_folder_with_sets(1);
 
   yield async_view_open(viewWrapper, folder);
-  viewWrapper.magicSort(Ci.nsMsgViewSortType.bySubject,
-                        Ci.nsMsgViewSortOrder.descending);
-  viewWrapper.magicSort(Ci.nsMsgViewSortType.byAuthor,
-                        Ci.nsMsgViewSortOrder.ascending);
+  viewWrapper.magicSort(
+    Ci.nsMsgViewSortType.bySubject,
+    Ci.nsMsgViewSortOrder.descending
+  );
+  viewWrapper.magicSort(
+    Ci.nsMsgViewSortType.byAuthor,
+    Ci.nsMsgViewSortOrder.ascending
+  );
   // check once for what we just did, then again after refreshing to make
   //  sure the sort order 'stuck'
   for (let i = 0; i < 2; i++) {
-    assert_equals(viewWrapper.dbView.sortType, Ci.nsMsgViewSortType.byAuthor,
-                  "sort should be by author");
-    assert_equals(viewWrapper.dbView.sortOrder, Ci.nsMsgViewSortOrder.ascending,
-                  "sort order should be ascending");
-    assert_equals(viewWrapper.dbView.secondarySortType,
-                  Ci.nsMsgViewSortType.bySubject,
-                  "secondary sort should be by subject");
-    assert_equals(viewWrapper.dbView.secondarySortOrder,
-                  Ci.nsMsgViewSortOrder.descending,
-                  "secondary sort order should be descending");
+    assert_equals(
+      viewWrapper.dbView.sortType,
+      Ci.nsMsgViewSortType.byAuthor,
+      "sort should be by author"
+    );
+    assert_equals(
+      viewWrapper.dbView.sortOrder,
+      Ci.nsMsgViewSortOrder.ascending,
+      "sort order should be ascending"
+    );
+    assert_equals(
+      viewWrapper.dbView.secondarySortType,
+      Ci.nsMsgViewSortType.bySubject,
+      "secondary sort should be by subject"
+    );
+    assert_equals(
+      viewWrapper.dbView.secondarySortOrder,
+      Ci.nsMsgViewSortOrder.descending,
+      "secondary sort order should be descending"
+    );
     yield async_view_refresh(viewWrapper);
   }
 }
@@ -185,35 +229,50 @@ function* test_sort_group_by_sort() {
   // - start out by being in an illegal (for group-by-sort) sort mode and
   //  switch to group-by-sort.
   // (sorting changes are synchronous)
-  viewWrapper.sort(Ci.nsMsgViewSortType.byId,
-                   Ci.nsMsgViewSortOrder.descending);
+  viewWrapper.sort(Ci.nsMsgViewSortType.byId, Ci.nsMsgViewSortOrder.descending);
   yield async_view_group_by_sort(viewWrapper, true);
 
   // there should have been no explosion, and we should have changed to date
-  assert_equals(viewWrapper.primarySortType, Ci.nsMsgViewSortType.byDate,
-                "sort should have reset to date");
+  assert_equals(
+    viewWrapper.primarySortType,
+    Ci.nsMsgViewSortType.byDate,
+    "sort should have reset to date"
+  );
 
   // - return to unthreaded, have an illegal secondary sort, go group-by-sort
   yield async_view_group_by_sort(viewWrapper, false);
 
-  viewWrapper.sort(Ci.nsMsgViewSortType.byDate,
-                   Ci.nsMsgViewSortOrder.descending,
-                   Ci.nsMsgViewSortType.byId,
-                   Ci.nsMsgViewSortOrder.descending);
+  viewWrapper.sort(
+    Ci.nsMsgViewSortType.byDate,
+    Ci.nsMsgViewSortOrder.descending,
+    Ci.nsMsgViewSortType.byId,
+    Ci.nsMsgViewSortOrder.descending
+  );
 
   yield async_view_group_by_sort(viewWrapper, true);
   // we should now only have a single sort type and it should be date
-  assert_equals(viewWrapper._sort.length, 1,
-                "we should only have one sort type active");
-  assert_equals(viewWrapper.primarySortType, Ci.nsMsgViewSortType.byDate,
-                "remaining (primary) sort type should be date");
+  assert_equals(
+    viewWrapper._sort.length,
+    1,
+    "we should only have one sort type active"
+  );
+  assert_equals(
+    viewWrapper.primarySortType,
+    Ci.nsMsgViewSortType.byDate,
+    "remaining (primary) sort type should be date"
+  );
 
   // - try and make group-by-sort sort by something illegal
   // (we're still in group-by-sort mode)
-  viewWrapper.magicSort(Ci.nsMsgViewSortType.byId,
-                        Ci.nsMsgViewSortOrder.descending);
-  assert_equals(viewWrapper.primarySortType, Ci.nsMsgViewSortType.byDate,
-                "remaining (primary) sort type should be date");
+  viewWrapper.magicSort(
+    Ci.nsMsgViewSortType.byId,
+    Ci.nsMsgViewSortOrder.descending
+  );
+  assert_equals(
+    viewWrapper.primarySortType,
+    Ci.nsMsgViewSortType.byDate,
+    "remaining (primary) sort type should be date"
+  );
 }
 
 /**
@@ -266,7 +325,9 @@ function test_view_update_depth_logic() {
   // create an instance-specific dummy method that counts calls t
   //  _applyViewChanges
   let applyViewCount = 0;
-  viewWrapper._applyViewChanges = function() { applyViewCount++; };
+  viewWrapper._applyViewChanges = function() {
+    applyViewCount++;
+  };
 
   // - view update depth basics
   Assert.equal(viewWrapper._viewUpdateDepth, 0);

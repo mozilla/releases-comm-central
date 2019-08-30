@@ -17,10 +17,12 @@ var MODULE_NAME = "test-columns";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 
 // needed to zero inter-folder processing delay
-var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 var folderInbox, folderSent, folderVirtual, folderA, folderB;
 // INBOX_DEFAULTS sans 'dateCol' but gains 'tagsCol'
@@ -45,8 +47,9 @@ function setupModule(module) {
   let wh = collector.getModule("window-helpers");
   wh.installInto(module);
 
-  useCorrespondent =
-    Services.prefs.getBoolPref("mail.threadpane.use_correspondents");
+  useCorrespondent = Services.prefs.getBoolPref(
+    "mail.threadpane.use_correspondents"
+  );
   INBOX_DEFAULTS = [
     "threadCol",
     "flaggedCol",
@@ -122,18 +125,28 @@ function assert_visible_columns(aDesiredColumns) {
     if (col.element.getAttribute("hidden") != "true") {
       visibleColumnIds.push(col.id);
       if (!failCol) {
-        if (aDesiredColumns[iDesired] != col.id)
+        if (aDesiredColumns[iDesired] != col.id) {
           failCol = col;
-        else
+        } else {
           iDesired++;
+        }
       }
     }
   }
-  if (failCol)
-    throw new Error("Found visible column '" + failCol.id + "' but was " +
-                    "expecting '" + aDesiredColumns[iDesired] + "'!" +
-                    "\ndesired list: " + aDesiredColumns +
-                    "\n actual list: " + visibleColumnIds);
+  if (failCol) {
+    throw new Error(
+      "Found visible column '" +
+        failCol.id +
+        "' but was " +
+        "expecting '" +
+        aDesiredColumns[iDesired] +
+        "'!" +
+        "\ndesired list: " +
+        aDesiredColumns +
+        "\n actual list: " +
+        visibleColumnIds
+    );
+  }
 }
 
 /**
@@ -192,8 +205,12 @@ function test_column_defaults_sent() {
  * Make sure we set the proper defaults for a multi-folder virtual folder.
  */
 function test_column_defaults_cross_folder_virtual_folder() {
-  folderVirtual = create_virtual_folder([folderInbox, folderSent], {},
-                                        true, "ColumnsVirtual");
+  folderVirtual = create_virtual_folder(
+    [folderInbox, folderSent],
+    {},
+    true,
+    "ColumnsVirtual"
+  );
 
   be_in_folder(folderVirtual);
   assert_visible_columns(VIRTUAL_DEFAULTS);
@@ -340,7 +357,10 @@ function test_column_reordering_persists() {
   let tabB = open_folder_in_new_tab(folderB);
 
   // put correspondent/sender before subject
-  reorder_column(useCorrespondent ? "correspondentCol" : "senderCol", "subjectCol");
+  reorder_column(
+    useCorrespondent ? "correspondentCol" : "senderCol",
+    "subjectCol"
+  );
   let reorderdB = columnsB.concat();
   reorderdB.splice(5, 1);
   reorderdB.splice(3, 0, useCorrespondent ? "correspondentCol" : "senderCol");
@@ -375,7 +395,6 @@ function invoke_column_picker_option(aActions) {
   mc.click_menus_in_sequence(colPickerPopup, aActions);
 }
 
-
 /**
  * The column picker's "reset columns to default" option should set our state
  *  back to the natural state.
@@ -390,7 +409,7 @@ function test_reset_to_inbox() {
   assert_visible_columns(conExtra);
 
   // reset!
-  invoke_column_picker_option([{anonid: "menuitem"}]);
+  invoke_column_picker_option([{ anonid: "menuitem" }]);
 }
 
 function subtest_say_yes(cwc) {
@@ -398,19 +417,25 @@ function subtest_say_yes(cwc) {
 }
 
 function _apply_to_folder_common(aChildrenToo, folder) {
-  if (aChildrenToo)
+  if (aChildrenToo) {
     plan_for_observable_event("msg-folder-columns-propagated");
+  }
   plan_for_modal_dialog("commonDialog", subtest_say_yes);
-  invoke_column_picker_option([{class: "applyTo-menu"},
-                               {class: aChildrenToo ?
-                                  "applyToFolderAndChildren-menu" :
-                                  "applyToFolder-menu"},
-                               {label: "Local Folders"},
-                               {label: folder.name},
-                               {label: folder.name}]);
+  invoke_column_picker_option([
+    { class: "applyTo-menu" },
+    {
+      class: aChildrenToo
+        ? "applyToFolderAndChildren-menu"
+        : "applyToFolder-menu",
+    },
+    { label: "Local Folders" },
+    { label: folder.name },
+    { label: folder.name },
+  ]);
   wait_for_modal_dialog("commonDialog");
-  if (aChildrenToo)
+  if (aChildrenToo) {
     wait_for_observable_event("msg-folder-columns-propagated");
+  }
 }
 
 /**
@@ -427,7 +452,7 @@ function test_apply_to_folder_no_children() {
   be_in_folder(folderSource);
 
   // reset!
-  invoke_column_picker_option([{anonid: "menuitem"}]);
+  invoke_column_picker_option([{ anonid: "menuitem" }]);
 
   // permute!
   let conExtra = INBOX_DEFAULTS.concat(["sizeCol"]);
@@ -458,7 +483,7 @@ function test_apply_to_folder_and_children() {
 
   be_in_folder(folderSource);
 
-  invoke_column_picker_option([{anonid: "menuitem"}]); // reset order!
+  invoke_column_picker_option([{ anonid: "menuitem" }]); // reset order!
   let cols = get_visible_threadtree_columns();
 
   // permute!
@@ -492,7 +517,7 @@ function test_apply_to_folder_no_children_swapped() {
 
   be_in_folder(folderSource);
 
-  invoke_column_picker_option([{anonid: "menuitem"}]); // reset order!
+  invoke_column_picker_option([{ anonid: "menuitem" }]); // reset order!
   // Hide the columns that were added in other tests, since reset now
   // only resets the order.
   hide_column("tagsCol");
@@ -537,7 +562,7 @@ function test_apply_to_folder_and_children_swapped() {
 
   be_in_folder(folderSource);
 
-  invoke_column_picker_option([{anonid: "menuitem"}]); // reset order!
+  invoke_column_picker_option([{ anonid: "menuitem" }]); // reset order!
 
   // permute!
   let conExtra = [...INBOX_DEFAULTS];
@@ -583,7 +608,10 @@ function wait_for_columns_state_updated() {
     gColumnStateUpdated = true;
   };
   Services.prefs.addObserver(STATE_PREF, columns_state_updated);
-  mc.waitFor(() => gColumnStateUpdated, "Timeout waiting for columns state updated.");
+  mc.waitFor(
+    () => gColumnStateUpdated,
+    "Timeout waiting for columns state updated."
+  );
   Services.prefs.removeObserver(STATE_PREF, columns_state_updated);
 }
 
@@ -621,7 +649,7 @@ function test_reset_columns_gloda_collection() {
   wait_for_all_messages_to_load();
   assert_visible_columns(glodaColumns);
 
-  invoke_column_picker_option([{anonid: "menuitem"}]); // reset!
+  invoke_column_picker_option([{ anonid: "menuitem" }]); // reset!
   assert_visible_columns(glodaColumns); // same, only order (would be) reset
 
   mc.tabmail.openTab("glodaList", { collection: fakeCollection });

@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {ExtensionTestUtils} = ChromeUtils.import("resource://testing-common/ExtensionXPCShellUtils.jsm");
+var { ExtensionTestUtils } = ChromeUtils.import(
+  "resource://testing-common/ExtensionXPCShellUtils.jsm"
+);
 
 ExtensionTestUtils.init(this);
 
@@ -10,13 +12,14 @@ ExtensionTestUtils.init(this);
 // to use the right timeout for content scripts executed at document_idle.
 ExtensionTestUtils.mockAppInfo();
 
-
 const server = createHttpServer({ hosts: ["example.com"] });
 
 server.registerPathHandler("/dummy", (request, response) => {
   response.setStatusLine(request.httpVersion, 200, "OK");
   response.setHeader("Content-Type", "text/html", false);
-  response.write("<!DOCTYPE html><html><head><meta charset='utf8'></head><body></body></html>");
+  response.write(
+    "<!DOCTYPE html><html><head><meta charset='utf8'></head><body></body></html>"
+  );
 });
 
 add_task(async function test_alias() {
@@ -24,7 +27,7 @@ add_task(async function test_alias() {
     background: async () => {
       let pending = new Set(["contentscript", "proxyscript", "webscript"]);
 
-      browser.runtime.onMessage.addListener((message) => {
+      browser.runtime.onMessage.addListener(message => {
         if (message == "error-no-messenger") {
           browser.test.fail("Proxy script has messenger object");
         } else if (message == "error-missing-onmessage") {
@@ -33,7 +36,9 @@ add_task(async function test_alias() {
           browser.test.fail("Proxy script can send messages");
         } else if (message == "proxyscript") {
           pending.delete(message);
-          browser.test.succeed("Proxy script can access everything it needs to");
+          browser.test.succeed(
+            "Proxy script can access everything it needs to"
+          );
         } else if (message == "contentscript") {
           pending.delete(message);
           browser.test.succeed("Content script has completed");
@@ -47,8 +52,16 @@ add_task(async function test_alias() {
         }
       });
 
-      browser.test.assertEq("object", typeof browser, "Background script has browser object");
-      browser.test.assertEq("object", typeof messenger, "Background script has messenger object");
+      browser.test.assertEq(
+        "object",
+        typeof browser,
+        "Background script has browser object"
+      );
+      browser.test.assertEq(
+        "object",
+        typeof messenger,
+        "Background script has messenger object"
+      );
       browser.test.assertEq(
         "alias@xpcshell",
         messenger.runtime.getManifest().applications.gecko.id, // eslint-disable-line no-undef
@@ -58,10 +71,12 @@ add_task(async function test_alias() {
       await browser.proxy.register("proxy.js");
     },
     manifest: {
-      content_scripts: [{
-        matches: ["http://example.com/dummy"],
-        js: ["content.js"],
-      }],
+      content_scripts: [
+        {
+          matches: ["http://example.com/dummy"],
+          js: ["content.js"],
+        },
+      ],
 
       applications: { gecko: { id: "alias@xpcshell" } },
       permissions: ["proxy"],
@@ -122,7 +137,9 @@ add_task(async function test_alias() {
 
   await extension.startup();
 
-  const contentPage = await ExtensionTestUtils.loadContentPage("http://example.com/dummy");
+  const contentPage = await ExtensionTestUtils.loadContentPage(
+    "http://example.com/dummy"
+  );
   await extension.awaitFinish("ext_alias");
 
   await contentPage.close();

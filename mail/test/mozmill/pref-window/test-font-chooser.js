@@ -26,9 +26,13 @@ var MODULE_REQUIRES = [
   "content-tab-helpers",
 ];
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-var {Preferences} = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
+var { Preferences } = ChromeUtils.import(
+  "resource://gre/modules/Preferences.jsm"
+);
 
 var gFontEnumerator;
 var gTodayPane;
@@ -48,8 +52,11 @@ function setupModule(module) {
   }
 
   let finished = false;
-  buildFontList().then(() => finished = true, Cu.reportError);
-  mc.waitFor(() => finished, "Timeout waiting for font enumeration to complete.");
+  buildFontList().then(() => (finished = true), Cu.reportError);
+  mc.waitFor(
+    () => finished,
+    "Timeout waiting for font enumeration to complete."
+  );
 
   // Hide Lightning's Today pane as it obscures buttons in preferences in the
   // small TB window our tests run in.
@@ -64,24 +71,43 @@ function setupModule(module) {
 }
 
 async function buildFontList() {
-  gFontEnumerator = Cc["@mozilla.org/gfx/fontenumerator;1"]
-                      .createInstance(Ci.nsIFontEnumerator);
+  gFontEnumerator = Cc["@mozilla.org/gfx/fontenumerator;1"].createInstance(
+    Ci.nsIFontEnumerator
+  );
   for (let fontType of kFontTypes) {
-    gRealFontLists[fontType] =
-      await gFontEnumerator.EnumerateFontsAsync(kLanguage, fontType);
-    if (gRealFontLists[fontType].length == 0)
-      throw new Error("No fonts found for language " + kLanguage +
-                      " and font type " + fontType + ".");
+    gRealFontLists[fontType] = await gFontEnumerator.EnumerateFontsAsync(
+      kLanguage,
+      fontType
+    );
+    if (gRealFontLists[fontType].length == 0) {
+      throw new Error(
+        "No fonts found for language " +
+          kLanguage +
+          " and font type " +
+          fontType +
+          "."
+      );
+    }
   }
 }
 
 function assert_fonts_equal(aDescription, aExpected, aActual, aPrefix = false) {
-  if (!((!aPrefix && (aExpected == aActual)) ||
-        (aPrefix && aActual.startsWith(aExpected)))) {
-    throw new Error("The " + aDescription + " font should be '" + aExpected +
-                    "', but " + (aActual.length == 0 ?
-                                "nothing is actually selected." :
-                                "is actually: " + aActual + "."));
+  if (
+    !(
+      (!aPrefix && aExpected == aActual) ||
+      (aPrefix && aActual.startsWith(aExpected))
+    )
+  ) {
+    throw new Error(
+      "The " +
+        aDescription +
+        " font should be '" +
+        aExpected +
+        "', but " +
+        (aActual.length == 0
+          ? "nothing is actually selected."
+          : "is actually: " + aActual + ".")
+    );
   }
 }
 
@@ -94,27 +120,35 @@ function _verify_fonts_displayed(aDefaults, aSerif, aSansSerif, aMonospace) {
   // Bring up the preferences window.
   let prefTab = open_pref_tab("paneGeneral");
 
-  let isSansDefault = (Services.prefs.getCharPref("font.default." + kLanguage) ==
-                       "sans-serif");
+  let isSansDefault =
+    Services.prefs.getCharPref("font.default." + kLanguage) == "sans-serif";
   let displayPaneExpected = isSansDefault ? aSansSerif : aSerif;
   let displayPaneActual = content_tab_e(prefTab, "defaultFont");
-  mc.waitFor(() => displayPaneActual.itemCount > 0,
-                "No font names were populated in the font picker.");
-  assert_fonts_equal("display pane", displayPaneExpected, displayPaneActual.value);
+  mc.waitFor(
+    () => displayPaneActual.itemCount > 0,
+    "No font names were populated in the font picker."
+  );
+  assert_fonts_equal(
+    "display pane",
+    displayPaneExpected,
+    displayPaneActual.value
+  );
 
   // Now open the advanced dialog.
   mc.click(content_tab_eid(prefTab, "advancedFonts"));
   let fontc = wait_for_frame_load(
     prefTab.browser.contentDocument
-           .getElementById("dialogOverlay-0")
-           .querySelector("browser"),
+      .getElementById("dialogOverlay-0")
+      .querySelector("browser"),
     "chrome://messenger/content/preferences/fonts.xul"
   );
 
   // The font pickers are populated async so we need to wait for it.
   for (let fontElemId of ["serif", "sans-serif", "monospace"]) {
-    fontc.waitFor(() => fontc.e(fontElemId).label != "",
-                  "Timeout waiting for font picker '" + fontElemId + "' to populate.");
+    fontc.waitFor(
+      () => fontc.e(fontElemId).label != "",
+      "Timeout waiting for font picker '" + fontElemId + "' to populate."
+    );
   }
 
   if (!aDefaults) {
@@ -130,12 +164,30 @@ function _verify_fonts_displayed(aDefaults, aSerif, aSansSerif, aMonospace) {
     // system-dependent what it will be. So we just check for the 'Default'
     // prefix.
     assert_fonts_equal("serif", `Default (`, fontc.e("serif").label, true);
-    assert_fonts_equal("sans-serif", `Default (`, fontc.e("sans-serif").label, true);
-    assert_fonts_equal("monospace", `Default (`, fontc.e("monospace").label, true);
+    assert_fonts_equal(
+      "sans-serif",
+      `Default (`,
+      fontc.e("sans-serif").label,
+      true
+    );
+    assert_fonts_equal(
+      "monospace",
+      `Default (`,
+      fontc.e("monospace").label,
+      true
+    );
   } else {
     assert_fonts_equal("serif", `Default (${aSerif})`, fontc.e("serif").label);
-    assert_fonts_equal("sans-serif", `Default (${aSansSerif})`, fontc.e("sans-serif").label);
-    assert_fonts_equal("monospace", `Default (${aMonospace})`, fontc.e("monospace").label);
+    assert_fonts_equal(
+      "sans-serif",
+      `Default (${aSansSerif})`,
+      fontc.e("sans-serif").label
+    );
+    assert_fonts_equal(
+      "monospace",
+      `Default (${aMonospace})`,
+      fontc.e("monospace").label
+    );
   }
 
   close_pref_tab(prefTab);
@@ -156,8 +208,10 @@ function test_font_name_displayed() {
     // substituted with Courier New) by getting the standard (substituted) family
     // name for each font.
     let standardFamily = gFontEnumerator.getStandardFamilyName(fontList[0]);
-    Services.prefs.setCharPref("font.name." + fontType + "." + kLanguage,
-                               standardFamily);
+    Services.prefs.setCharPref(
+      "font.name." + fontType + "." + kLanguage,
+      standardFamily
+    );
     expected[fontType] = standardFamily;
   }
 
@@ -168,9 +222,9 @@ function test_font_name_displayed() {
 // Fonts definitely not present on a computer -- we simply use UUIDs. These
 // should be kept in sync with the ones in *-prefs.js.
 const kFakeFonts = {
-  "serif": "bc7e8c62-0634-467f-a029-fe6abcdf1582",
+  serif: "bc7e8c62-0634-467f-a029-fe6abcdf1582",
   "sans-serif": "419129aa-43b7-40c4-b554-83d99b504b89",
-  "monospace": "348df6e5-e874-4d21-ad4b-359b530a33b7",
+  monospace: "348df6e5-e874-4d21-ad4b-359b530a33b7",
 };
 
 /**
@@ -190,22 +244,44 @@ function test_font_name_not_present() {
     let listPref = "font.name-list." + fontType + "." + kLanguage;
     let fontList = Services.prefs.getCharPref(listPref);
     let fonts = fontList.split(",").map(font => font.trim());
-    if (fonts.length != 2)
-      throw new Error(listPref + " should have exactly two fonts, but it is '" +
-                      fontList + "'.");
+    if (fonts.length != 2) {
+      throw new Error(
+        listPref +
+          " should have exactly two fonts, but it is '" +
+          fontList +
+          "'."
+      );
+    }
 
-    if (fonts[0] != fakeFont)
-      throw new Error("The first font in " + listPref + " should be '" + fakeFont +
-                      "', but is actually: " + fonts[0] + ".");
+    if (fonts[0] != fakeFont) {
+      throw new Error(
+        "The first font in " +
+          listPref +
+          " should be '" +
+          fakeFont +
+          "', but is actually: " +
+          fonts[0] +
+          "."
+      );
+    }
 
-    if (!gRealFontLists[fontType].includes(fonts[1]))
-      throw new Error("The second font in " + listPref + " (" + fonts[1] +
-                      ") should be present on this computer, but isn't.");
+    if (!gRealFontLists[fontType].includes(fonts[1])) {
+      throw new Error(
+        "The second font in " +
+          listPref +
+          " (" +
+          fonts[1] +
+          ") should be present on this computer, but isn't."
+      );
+    }
     expected[fontType] = fonts[1];
 
     // Set font.name to be a nonsense name that shouldn't exist.
     // font.name-list is handled by wrapper.py.
-    Services.prefs.setCharPref("font.name." + fontType + "." + kLanguage, fakeFont);
+    Services.prefs.setCharPref(
+      "font.name." + fontType + "." + kLanguage,
+      fakeFont
+    );
   }
 
   let fontTypes = kFontTypes.map(fontType => expected[fontType]);

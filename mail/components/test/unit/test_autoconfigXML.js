@@ -16,28 +16,35 @@
 
 // Globals
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {JXON} = ChromeUtils.import("resource:///modules/JXON.js");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { JXON } = ChromeUtils.import("resource:///modules/JXON.js");
 
 var xmlReader = {};
 Services.scriptloader.loadSubScript(
-      "chrome://messenger/content/accountcreation/util.js", xmlReader);
+  "chrome://messenger/content/accountcreation/util.js",
+  xmlReader
+);
 Services.scriptloader.loadSubScript(
-      "chrome://messenger/content/accountcreation/accountConfig.js",
-      xmlReader);
+  "chrome://messenger/content/accountcreation/accountConfig.js",
+  xmlReader
+);
 Services.scriptloader.loadSubScript(
-      "chrome://messenger/content/accountcreation/sanitizeDatatypes.js",
-      xmlReader);
+  "chrome://messenger/content/accountcreation/sanitizeDatatypes.js",
+  xmlReader
+);
 Services.scriptloader.loadSubScript(
-      "chrome://messenger/content/accountcreation/readFromXML.js", xmlReader);
+  "chrome://messenger/content/accountcreation/readFromXML.js",
+  xmlReader
+);
 
 /*
  * UTILITIES
  */
 
 function assert_equal(aA, aB, aWhy) {
-  if (aA != aB)
+  if (aA != aB) {
     do_throw(aWhy);
+  }
   Assert.equal(aA, aB);
 }
 
@@ -59,104 +66,102 @@ function assert_equal_config(aA, aB, field) {
 function test_readFromXML_config1() {
   var clientConfigXML =
     "<clientConfig>" +
-      '<emailProvider id="example.com">' +
-        "<domain>example.com</domain>" +
-        "<domain>example.net</domain>" +
-        "<displayName>Example</displayName>" +
-        "<displayShortName>Example Mail</displayShortName>" +
-
-        // 1. - protocol not supported
-        '<incomingServer type="imap5">' +
-          "<hostname>badprotocol.example.com</hostname>" +
-          "<port>993</port>" +
-          "<socketType>SSL</socketType>" +
-          "<username>%EMAILLOCALPART%</username>" +
-          "<authentication>ssl-client-cert</authentication>" +
-        "</incomingServer>" +
-        // 2. - socket type not supported
-        '<incomingServer type="imap">' +
-          "<hostname>badsocket.example.com</hostname>" +
-          "<port>993</port>" +
-          "<socketType>key-from-DNSSEC</socketType>" +
-          "<username>%EMAILLOCALPART%</username>" +
-          "<authentication>password-cleartext</authentication>" +
-        "</incomingServer>" +
-        // 3. - first supported incoming server
-        '<incomingServer type="imap">' +
-          "<hostname>imapmail.example.com</hostname>" +
-          "<port>993</port>" +
-          "<socketType>SSL</socketType>" +
-          "<username>%EMAILLOCALPART%</username>" +
-          "<authentication>password-cleartext</authentication>" +
-        "</incomingServer>" +
-        // 4. - auth method not supported
-        '<incomingServer type="imap">' +
-          "<hostname>badauth.example.com</hostname>" +
-          "<port>993</port>" +
-          "<socketType>SSL</socketType>" +
-          "<username>%EMAILLOCALPART%</username>" +
-          "<authentication>ssl-client-cert</authentication>" +
-          // Throw in some elements we don"t support yet
-          "<imap>" +
-            '<rootFolder path="INBOX."/>' +
-            '<specialFolder id="sent" path="INBOX.Sent Mail"/>' +
-          "</imap>" +
-        "</incomingServer>" +
-        // 5. - second supported incoming server
-        '<incomingServer type="pop3">' +
-          "<hostname>popmail.example.com</hostname>" +
-          // alternative hostname, not yet supported, should be ignored
-          "<hostname>popbackup.example.com</hostname>" +
-          "<port>110</port>" +
-          "<port>7878</port>" +
-          // unsupported socket type
-          "<socketType>GSSAPI2</socketType>" +
-          // but fall back
-          "<socketType>plain</socketType>" +
-          "<username>%EMAILLOCALPART%</username>" +
-          "<username>%EMAILADDRESS%</username>" +
-          // unsupported auth method
-          "<authentication>GSSAPI2</authentication>" +
-          // but fall back
-          "<authentication>password-encrypted</authentication>" +
-          "<pop3>" +
-            "<leaveMessagesOnServer>true</leaveMessagesOnServer>" +
-            "<daysToLeaveMessagesOnServer>999</daysToLeaveMessagesOnServer>" +
-          "</pop3>" +
-        "</incomingServer>" +
-
-        // outgoing server with invalid auth method
-        '<outgoingServer type="smtp">' +
-          "<hostname>badauth.example.com</hostname>" +
-          "<port>587</port>" +
-          "<socketType>STARTTLS</socketType>" +
-          "<username>%EMAILADDRESS%</username>" +
-          "<authentication>smtp-after-imap</authentication>" +
-        "</outgoingServer>" +
-        // outgoing server - supported
-        '<outgoingServer type="smtp">' +
-          "<hostname>smtpout.example.com</hostname>" +
-          "<hostname>smtpfallback.example.com</hostname>" +
-          "<port>587</port>" +
-          "<port>7878</port>" +
-          "<socketType>GSSAPI2</socketType>" +
-          "<socketType>STARTTLS</socketType>" +
-          "<username>%EMAILADDRESS%</username>" +
-          "<username>%EMAILLOCALPART%</username>" +
-          "<authentication>GSSAPI2</authentication>" +
-          "<authentication>client-IP-address</authentication>" +
-          "<smtp/>" +
-        "</outgoingServer>" +
-        // Throw in some more elements we don"t support yet
-        '<enableURL url="http://foobar"/>' +
-        '<instructionsURL url="http://foobar"/>' +
-
-      "</emailProvider>" +
+    '<emailProvider id="example.com">' +
+    "<domain>example.com</domain>" +
+    "<domain>example.net</domain>" +
+    "<displayName>Example</displayName>" +
+    "<displayShortName>Example Mail</displayShortName>" +
+    // 1. - protocol not supported
+    '<incomingServer type="imap5">' +
+    "<hostname>badprotocol.example.com</hostname>" +
+    "<port>993</port>" +
+    "<socketType>SSL</socketType>" +
+    "<username>%EMAILLOCALPART%</username>" +
+    "<authentication>ssl-client-cert</authentication>" +
+    "</incomingServer>" +
+    // 2. - socket type not supported
+    '<incomingServer type="imap">' +
+    "<hostname>badsocket.example.com</hostname>" +
+    "<port>993</port>" +
+    "<socketType>key-from-DNSSEC</socketType>" +
+    "<username>%EMAILLOCALPART%</username>" +
+    "<authentication>password-cleartext</authentication>" +
+    "</incomingServer>" +
+    // 3. - first supported incoming server
+    '<incomingServer type="imap">' +
+    "<hostname>imapmail.example.com</hostname>" +
+    "<port>993</port>" +
+    "<socketType>SSL</socketType>" +
+    "<username>%EMAILLOCALPART%</username>" +
+    "<authentication>password-cleartext</authentication>" +
+    "</incomingServer>" +
+    // 4. - auth method not supported
+    '<incomingServer type="imap">' +
+    "<hostname>badauth.example.com</hostname>" +
+    "<port>993</port>" +
+    "<socketType>SSL</socketType>" +
+    "<username>%EMAILLOCALPART%</username>" +
+    "<authentication>ssl-client-cert</authentication>" +
+    // Throw in some elements we don"t support yet
+    "<imap>" +
+    '<rootFolder path="INBOX."/>' +
+    '<specialFolder id="sent" path="INBOX.Sent Mail"/>' +
+    "</imap>" +
+    "</incomingServer>" +
+    // 5. - second supported incoming server
+    '<incomingServer type="pop3">' +
+    "<hostname>popmail.example.com</hostname>" +
+    // alternative hostname, not yet supported, should be ignored
+    "<hostname>popbackup.example.com</hostname>" +
+    "<port>110</port>" +
+    "<port>7878</port>" +
+    // unsupported socket type
+    "<socketType>GSSAPI2</socketType>" +
+    // but fall back
+    "<socketType>plain</socketType>" +
+    "<username>%EMAILLOCALPART%</username>" +
+    "<username>%EMAILADDRESS%</username>" +
+    // unsupported auth method
+    "<authentication>GSSAPI2</authentication>" +
+    // but fall back
+    "<authentication>password-encrypted</authentication>" +
+    "<pop3>" +
+    "<leaveMessagesOnServer>true</leaveMessagesOnServer>" +
+    "<daysToLeaveMessagesOnServer>999</daysToLeaveMessagesOnServer>" +
+    "</pop3>" +
+    "</incomingServer>" +
+    // outgoing server with invalid auth method
+    '<outgoingServer type="smtp">' +
+    "<hostname>badauth.example.com</hostname>" +
+    "<port>587</port>" +
+    "<socketType>STARTTLS</socketType>" +
+    "<username>%EMAILADDRESS%</username>" +
+    "<authentication>smtp-after-imap</authentication>" +
+    "</outgoingServer>" +
+    // outgoing server - supported
+    '<outgoingServer type="smtp">' +
+    "<hostname>smtpout.example.com</hostname>" +
+    "<hostname>smtpfallback.example.com</hostname>" +
+    "<port>587</port>" +
+    "<port>7878</port>" +
+    "<socketType>GSSAPI2</socketType>" +
+    "<socketType>STARTTLS</socketType>" +
+    "<username>%EMAILADDRESS%</username>" +
+    "<username>%EMAILLOCALPART%</username>" +
+    "<authentication>GSSAPI2</authentication>" +
+    "<authentication>client-IP-address</authentication>" +
+    "<smtp/>" +
+    "</outgoingServer>" +
+    // Throw in some more elements we don"t support yet
+    '<enableURL url="http://foobar"/>' +
+    '<instructionsURL url="http://foobar"/>' +
+    "</emailProvider>" +
     "</clientConfig>";
 
   var domParser = new DOMParser();
-  var config = xmlReader.readFromXML(JXON.build(
-    domParser.parseFromString(clientConfigXML, "text/xml")));
+  var config = xmlReader.readFromXML(
+    JXON.build(domParser.parseFromString(clientConfigXML, "text/xml"))
+  );
 
   Assert.equal(config instanceof xmlReader.AccountConfig, true);
   Assert.equal("example.com", config.id);
@@ -196,60 +201,75 @@ function test_readFromXML_config1() {
 function test_replaceVariables() {
   var clientConfigXML =
     "<clientConfig>" +
-      '<emailProvider id="example.com">' +
-        "<domain>example.com</domain>" +
-        "<displayName>example.com</displayName>" +
-        "<displayShortName>example.com</displayShortName>" +
-        '<incomingServer type="pop3">' +
-          "<hostname>pop.%EMAILDOMAIN%</hostname>" +
-          "<port>995</port>" +
-          "<socketType>SSL</socketType>" +
-          "<username>%EMAILLOCALPART%</username>" +
-          "<authentication>plain</authentication>" +
-          "<pop3>" +
-            "<leaveMessagesOnServer>true</leaveMessagesOnServer>" +
-            "<daysToLeaveMessagesOnServer>999</daysToLeaveMessagesOnServer>" +
-          "</pop3>" +
-        "</incomingServer>" +
-        '<outgoingServer type="smtp">' +
-          "<hostname>smtp.example.com</hostname>" +
-          "<port>587</port>" +
-          "<socketType>STARTTLS</socketType>" +
-          "<username>%EMAILADDRESS%</username>" +
-          "<authentication>plain</authentication>" +
-          "<addThisServer>true</addThisServer>" +
-          "<useGlobalPreferredServer>false</useGlobalPreferredServer>" +
-        "</outgoingServer>" +
-      "</emailProvider>" +
+    '<emailProvider id="example.com">' +
+    "<domain>example.com</domain>" +
+    "<displayName>example.com</displayName>" +
+    "<displayShortName>example.com</displayShortName>" +
+    '<incomingServer type="pop3">' +
+    "<hostname>pop.%EMAILDOMAIN%</hostname>" +
+    "<port>995</port>" +
+    "<socketType>SSL</socketType>" +
+    "<username>%EMAILLOCALPART%</username>" +
+    "<authentication>plain</authentication>" +
+    "<pop3>" +
+    "<leaveMessagesOnServer>true</leaveMessagesOnServer>" +
+    "<daysToLeaveMessagesOnServer>999</daysToLeaveMessagesOnServer>" +
+    "</pop3>" +
+    "</incomingServer>" +
+    '<outgoingServer type="smtp">' +
+    "<hostname>smtp.example.com</hostname>" +
+    "<port>587</port>" +
+    "<socketType>STARTTLS</socketType>" +
+    "<username>%EMAILADDRESS%</username>" +
+    "<authentication>plain</authentication>" +
+    "<addThisServer>true</addThisServer>" +
+    "<useGlobalPreferredServer>false</useGlobalPreferredServer>" +
+    "</outgoingServer>" +
+    "</emailProvider>" +
     "</clientConfig>";
 
   var domParser = new DOMParser();
-  var config = xmlReader.readFromXML(JXON.build(
-    domParser.parseFromString(clientConfigXML, "text/xml")));
+  var config = xmlReader.readFromXML(
+    JXON.build(domParser.parseFromString(clientConfigXML, "text/xml"))
+  );
 
-  xmlReader.replaceVariables(config,
-                             "Yamato Nadeshiko",
-                             "yamato.nadeshiko@example.com",
-                             "abc12345");
+  xmlReader.replaceVariables(
+    config,
+    "Yamato Nadeshiko",
+    "yamato.nadeshiko@example.com",
+    "abc12345"
+  );
 
-  assert_equal_config(config.incoming.username,
-                      "yamato.nadeshiko",
-                      "incoming server username");
-  assert_equal_config(config.outgoing.username,
-                      "yamato.nadeshiko@example.com",
-                      "outgoing server username");
-  assert_equal_config(config.incoming.hostname,
-                      "pop.example.com",
-                      "incoming server hostname");
-  assert_equal_config(config.outgoing.hostname,
-                      "smtp.example.com",
-                      "outgoing server hostname");
-  assert_equal_config(config.identity.realname,
-                      "Yamato Nadeshiko",
-                      "user real name");
-  assert_equal_config(config.identity.emailAddress,
-                      "yamato.nadeshiko@example.com",
-                      "user email address");
+  assert_equal_config(
+    config.incoming.username,
+    "yamato.nadeshiko",
+    "incoming server username"
+  );
+  assert_equal_config(
+    config.outgoing.username,
+    "yamato.nadeshiko@example.com",
+    "outgoing server username"
+  );
+  assert_equal_config(
+    config.incoming.hostname,
+    "pop.example.com",
+    "incoming server hostname"
+  );
+  assert_equal_config(
+    config.outgoing.hostname,
+    "smtp.example.com",
+    "outgoing server hostname"
+  );
+  assert_equal_config(
+    config.identity.realname,
+    "Yamato Nadeshiko",
+    "user real name"
+  );
+  assert_equal_config(
+    config.identity.emailAddress,
+    "yamato.nadeshiko@example.com",
+    "user email address"
+  );
 }
 
 function run_test() {

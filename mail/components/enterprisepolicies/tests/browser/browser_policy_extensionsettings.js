@@ -4,20 +4,32 @@
 
 add_task(async function test_extensionsettings() {
   await setupPolicyEngineWithJson({
-    "policies": {
-      "ExtensionSettings": {
+    policies: {
+      ExtensionSettings: {
         "extension1@mozilla.com": {
-          "blocked_install_message": "Extension1 error message.",
+          blocked_install_message: "Extension1 error message.",
         },
         "*": {
-          "blocked_install_message": "Generic error message.",
+          blocked_install_message: "Generic error message.",
         },
       },
     },
   });
 
-  let extensionSettings =  Services.policies.getExtensionSettings("extension1@mozilla.com");
-  is(extensionSettings.blocked_install_message, "Extension1 error message.", "Should have extension specific message.");
-  extensionSettings =  Services.policies.getExtensionSettings("extension2@mozilla.com");
-  is(extensionSettings.blocked_install_message, "Generic error message.", "Should have generic message.");
+  let extensionSettings = Services.policies.getExtensionSettings(
+    "extension1@mozilla.com"
+  );
+  is(
+    extensionSettings.blocked_install_message,
+    "Extension1 error message.",
+    "Should have extension specific message."
+  );
+  extensionSettings = Services.policies.getExtensionSettings(
+    "extension2@mozilla.com"
+  );
+  is(
+    extensionSettings.blocked_install_message,
+    "Generic error message.",
+    "Should have generic message."
+  );
 });

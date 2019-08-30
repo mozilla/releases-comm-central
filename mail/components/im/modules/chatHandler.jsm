@@ -5,8 +5,12 @@
 this.EXPORTED_SYMBOLS = ["allContacts", "onlineContacts", "ChatCore"];
 
 const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
-const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const { fixIterator } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var allContacts = {};
 var onlineContacts = {};
@@ -15,8 +19,9 @@ var ChatCore = {
   initialized: false,
   _initializing: false,
   init() {
-    if (this._initializing)
+    if (this._initializing) {
       return;
+    }
     this._initializing = true;
 
     ChromeUtils.import("resource:///modules/index_im.jsm", null);
@@ -33,62 +38,72 @@ var ChatCore = {
     Cc["@mozilla.org/messenger/msgAsyncPrompter;1"]
       .getService(Ci.nsIMsgAsyncPrompter)
       .queueAsyncAuthPrompt("im", false, {
-      onPromptStartAsync(callback) {
-        callback.onAuthResult(this.onPromptStart());
-      },
-      onPromptStart() {
-        Services.core.init();
+        onPromptStartAsync(callback) {
+          callback.onAuthResult(this.onPromptStart());
+        },
+        onPromptStart() {
+          Services.core.init();
 
-        // Find the accounts that exist in the im account service but
-        // not in nsMsgAccountManager. They have probably been lost if
-        // the user has used an older version of Thunderbird on a
-        // profile with IM accounts. See bug 736035.
-        let accountsById = {};
-        for (let account of fixIterator(Services.accounts.getAccounts()))
-          accountsById[account.numericId] = account;
-        let mgr = MailServices.accounts;
-        for (let account of fixIterator(mgr.accounts, Ci.nsIMsgAccount)) {
-          let incomingServer = account.incomingServer;
-          if (!incomingServer || incomingServer.type != "im")
-            continue;
-          delete accountsById[incomingServer.wrappedJSObject.imAccount.numericId];
-        }
-        // Let's recreate each of them...
-        for (let id in accountsById) {
-          let account = accountsById[id];
-          let inServer = mgr.createIncomingServer(account.name,
-                                                  account.protocol.id, // hostname
-                                                  "im");
-          inServer.wrappedJSObject.imAccount = account;
-          let acc = mgr.createAccount();
-          // Avoid new folder notifications.
-          inServer.valid = false;
-          acc.incomingServer = inServer;
-          inServer.valid = true;
-          mgr.notifyServerLoaded(inServer);
-        }
+          // Find the accounts that exist in the im account service but
+          // not in nsMsgAccountManager. They have probably been lost if
+          // the user has used an older version of Thunderbird on a
+          // profile with IM accounts. See bug 736035.
+          let accountsById = {};
+          for (let account of fixIterator(Services.accounts.getAccounts())) {
+            accountsById[account.numericId] = account;
+          }
+          let mgr = MailServices.accounts;
+          for (let account of fixIterator(mgr.accounts, Ci.nsIMsgAccount)) {
+            let incomingServer = account.incomingServer;
+            if (!incomingServer || incomingServer.type != "im") {
+              continue;
+            }
+            delete accountsById[
+              incomingServer.wrappedJSObject.imAccount.numericId
+            ];
+          }
+          // Let's recreate each of them...
+          for (let id in accountsById) {
+            let account = accountsById[id];
+            let inServer = mgr.createIncomingServer(
+              account.name,
+              account.protocol.id, // hostname
+              "im"
+            );
+            inServer.wrappedJSObject.imAccount = account;
+            let acc = mgr.createAccount();
+            // Avoid new folder notifications.
+            inServer.valid = false;
+            acc.incomingServer = inServer;
+            inServer.valid = true;
+            mgr.notifyServerLoaded(inServer);
+          }
 
-        Services.tags.getTags().forEach(function(aTag) {
-          aTag.getContacts().forEach(function(aContact) {
-            let name = aContact.preferredBuddy.normalizedName;
-            allContacts[name] = aContact;
+          Services.tags.getTags().forEach(function(aTag) {
+            aTag.getContacts().forEach(function(aContact) {
+              let name = aContact.preferredBuddy.normalizedName;
+              allContacts[name] = aContact;
+            });
           });
-        });
 
-        ChatCore.initialized = true;
-        Services.obs.notifyObservers(null, "chat-core-initialized");
-        ChatCore._initializing = false;
-        return true;
-      },
-      onPromptAuthAvailable() {},
-      onPromptCanceled() {},
-    });
+          ChatCore.initialized = true;
+          Services.obs.notifyObservers(null, "chat-core-initialized");
+          ChatCore._initializing = false;
+          return true;
+        },
+        onPromptAuthAvailable() {},
+        onPromptCanceled() {},
+      });
   },
   observe(aSubject, aTopic, aData) {
     if (aTopic == "browser-request") {
-      Services.ww.openWindow(null,
-                             "chrome://chat/content/browserRequest.xul",
-                             null, "chrome", aSubject);
+      Services.ww.openWindow(
+        null,
+        "chrome://chat/content/browserRequest.xul",
+        null,
+        "chrome",
+        aSubject
+      );
       return;
     }
 

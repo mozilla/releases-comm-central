@@ -14,7 +14,11 @@
 
 var MODULE_NAME = "test-account-deletion";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "account-manager-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "account-manager-helpers",
+];
 
 var gPopAccount, gImapAccount, gOriginalAccountCount;
 
@@ -50,7 +54,10 @@ function setupModule(module) {
   gImapAccount.incomingServer = imapServer;
   gImapAccount.addIdentity(identity);
 
-  assert_equals(MailServices.accounts.allServers.length, gOriginalAccountCount + 2);
+  assert_equals(
+    MailServices.accounts.allServers.length,
+    gOriginalAccountCount + 2
+  );
 }
 
 function teardownModule(module) {

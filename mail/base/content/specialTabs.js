@@ -8,11 +8,19 @@
 /* import-globals-from mailWindow.js */
 /* import-globals-from utilityOverlay.js */
 
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {AddonManager} = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
-var {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
-var {ExtensionParent} = ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { AddonManager } = ChromeUtils.import(
+  "resource://gre/modules/AddonManager.jsm"
+);
+var { StringBundle } = ChromeUtils.import(
+  "resource:///modules/StringBundle.js"
+);
+var { ExtensionParent } = ChromeUtils.import(
+  "resource://gre/modules/ExtensionParent.jsm"
+);
 
 function tabProgressListener(aTab, aStartsBlank) {
   this.mTab = aTab;
@@ -39,33 +47,64 @@ tabProgressListener.prototype = {
     this.mProgressListener = aProgressListener;
   },
 
-  onProgressChange(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress,
-                   aCurTotalProgress, aMaxTotalProgress) {
-    if (this.mProgressListener)
-      this.mProgressListener.onProgressChange(aWebProgress, aRequest,
-        aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress,
-        aMaxTotalProgress);
+  onProgressChange(
+    aWebProgress,
+    aRequest,
+    aCurSelfProgress,
+    aMaxSelfProgress,
+    aCurTotalProgress,
+    aMaxTotalProgress
+  ) {
+    if (this.mProgressListener) {
+      this.mProgressListener.onProgressChange(
+        aWebProgress,
+        aRequest,
+        aCurSelfProgress,
+        aMaxSelfProgress,
+        aCurTotalProgress,
+        aMaxTotalProgress
+      );
+    }
   },
-  onProgressChange64(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress,
-                     aCurTotalProgress, aMaxTotalProgress) {
-    if (this.mProgressListener)
-      this.mProgressListener.onProgressChange64(aWebProgress, aRequest,
-        aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress,
-        aMaxTotalProgress);
+  onProgressChange64(
+    aWebProgress,
+    aRequest,
+    aCurSelfProgress,
+    aMaxSelfProgress,
+    aCurTotalProgress,
+    aMaxTotalProgress
+  ) {
+    if (this.mProgressListener) {
+      this.mProgressListener.onProgressChange64(
+        aWebProgress,
+        aRequest,
+        aCurSelfProgress,
+        aMaxSelfProgress,
+        aCurTotalProgress,
+        aMaxTotalProgress
+      );
+    }
   },
   onLocationChange(aWebProgress, aRequest, aLocationURI, aFlags) {
-    if (this.mProgressListener)
-      this.mProgressListener.onLocationChange(aWebProgress, aRequest,
-        aLocationURI, aFlags);
+    if (this.mProgressListener) {
+      this.mProgressListener.onLocationChange(
+        aWebProgress,
+        aRequest,
+        aLocationURI,
+        aFlags
+      );
+    }
     // onLocationChange is called for both the top-level content
     // and the subframes.
     if (aWebProgress.DOMWindow == this.mBrowser.contentWindow) {
       // Don't clear the favicon if this onLocationChange was triggered
       // by a pushState or a replaceState. See bug 550565.
-      if (aWebProgress.isLoadingDocument &&
-          !(this.mBrowser.docShell.loadType &
-            Ci.nsIDocShell.LOAD_CMD_PUSHSTATE))
+      if (
+        aWebProgress.isLoadingDocument &&
+        !(this.mBrowser.docShell.loadType & Ci.nsIDocShell.LOAD_CMD_PUSHSTATE)
+      ) {
         this.mBrowser.mIconURL = null;
+      }
 
       var location = aLocationURI ? aLocationURI.spec : "";
       if (aLocationURI && !aLocationURI.schemeIs("about")) {
@@ -81,19 +120,26 @@ tabProgressListener.prototype = {
         // Although we're unlikely to be loading about:blank, we'll check it
         // anyway just in case. The second condition is for new tabs, otherwise
         // the reload function is enabled until tab is refreshed.
-        this.mTab.reloadEnabled =
-          !((location == "about:blank" && !this.mBrowser.contentWindow.opener) ||
-            location == "");
+        this.mTab.reloadEnabled = !(
+          (location == "about:blank" && !this.mBrowser.contentWindow.opener) ||
+          location == ""
+        );
       }
     }
   },
   onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
-    if (this.mProgressListener)
-      this.mProgressListener.onStateChange(aWebProgress, aRequest, aStateFlags,
-        aStatus);
+    if (this.mProgressListener) {
+      this.mProgressListener.onStateChange(
+        aWebProgress,
+        aRequest,
+        aStateFlags,
+        aStatus
+      );
+    }
 
-    if (!aRequest)
+    if (!aRequest) {
       return;
+    }
 
     let tabmail = document.getElementById("tabmail");
 
@@ -105,8 +151,10 @@ tabProgressListener.prototype = {
       this.mRequestCount = 0;
     }
 
-    if (aStateFlags & Ci.nsIWebProgressListener.STATE_START &&
-        aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK) {
+    if (
+      aStateFlags & Ci.nsIWebProgressListener.STATE_START &&
+      aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK
+    ) {
       if (!this.mBlank) {
         this.mTab.title = specialTabs.contentTabType.loadingTabString;
         this.mTab.security.setAttribute("loading", "true");
@@ -117,8 +165,10 @@ tabProgressListener.prototype = {
       // Set our unit testing variables accordingly
       this.mTab.pageLoading = true;
       this.mTab.pageLoaded = false;
-    } else if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
-               aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK) {
+    } else if (
+      aStateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
+      aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK
+    ) {
       this.mBlank = false;
       this.mTab.security.removeAttribute("loading");
       tabmail.setTabBusy(this.mTab, false);
@@ -130,24 +180,32 @@ tabProgressListener.prototype = {
 
       // If we've finished loading, and we've not had an icon loaded from a
       // link element, then we try using the default icon for the site.
-      if (aWebProgress.DOMWindow == this.mBrowser.contentWindow &&
-        !this.mBrowser.mIconURL)
+      if (
+        aWebProgress.DOMWindow == this.mBrowser.contentWindow &&
+        !this.mBrowser.mIconURL
+      ) {
         specialTabs.useDefaultIcon(this.mTab);
+      }
     }
   },
   onStatusChange(aWebProgress, aRequest, aStatus, aMessage) {
-    if (this.mProgressListener)
-      this.mProgressListener.onStatusChange(aWebProgress, aRequest, aStatus,
-        aMessage);
+    if (this.mProgressListener) {
+      this.mProgressListener.onStatusChange(
+        aWebProgress,
+        aRequest,
+        aStatus,
+        aMessage
+      );
+    }
   },
   onSecurityChange(aWebProgress, aRequest, aState) {
-    if (this.mProgressListener)
+    if (this.mProgressListener) {
       this.mProgressListener.onSecurityChange(aWebProgress, aRequest, aState);
+    }
 
     const wpl = Ci.nsIWebProgressListener;
-    const wpl_security_bits = wpl.STATE_IS_SECURE |
-                              wpl.STATE_IS_BROKEN |
-                              wpl.STATE_IS_INSECURE;
+    const wpl_security_bits =
+      wpl.STATE_IS_SECURE | wpl.STATE_IS_BROKEN | wpl.STATE_IS_INSECURE;
     let level = "";
     switch (aState & wpl_security_bits) {
       case wpl.STATE_IS_SECURE:
@@ -166,36 +224,50 @@ tabProgressListener.prototype = {
     }
   },
   onContentBlockingEvent(aWebProgress, aRequest, aEvent) {
-    if (this.mProgressListener)
-      this.mProgressListener.onContentBlockingEvent(aWebProgress, aRequest, aEvent);
+    if (this.mProgressListener) {
+      this.mProgressListener.onContentBlockingEvent(
+        aWebProgress,
+        aRequest,
+        aEvent
+      );
+    }
   },
   onRefreshAttempted(aWebProgress, aURI, aDelay, aSameURI) {
-    if (this.mProgressListener)
-      this.mProgressListener.onRefreshAttempted(aWebProgress, aURI, aDelay,
-        aSameURI);
+    if (this.mProgressListener) {
+      this.mProgressListener.onRefreshAttempted(
+        aWebProgress,
+        aURI,
+        aDelay,
+        aSameURI
+      );
+    }
   },
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIWebProgressListener,
-                                          Ci.nsIWebProgressListener2,
-                                          Ci.nsISupportsWeakReference]),
+  QueryInterface: ChromeUtils.generateQI([
+    Ci.nsIWebProgressListener,
+    Ci.nsIWebProgressListener2,
+    Ci.nsISupportsWeakReference,
+  ]),
 };
 
 var DOMLinkHandler = {
   handleEvent(event) {
     switch (event.type) {
-    case "DOMLinkAdded":
-      this.onLinkAdded(event);
-      break;
+      case "DOMLinkAdded":
+        this.onLinkAdded(event);
+        break;
     }
   },
   onLinkAdded(event) {
     let link = event.originalTarget;
     let rel = link.rel && link.rel.toLowerCase();
-    if (!link || !link.ownerDocument || !rel || !link.href)
+    if (!link || !link.ownerDocument || !rel || !link.href) {
       return;
+    }
 
     if (rel.split(/\s+/).includes("icon")) {
-      if (!Services.prefs.getBoolPref("browser.chrome.site_icons"))
+      if (!Services.prefs.getBoolPref("browser.chrome.site_icons")) {
         return;
+      }
 
       let targetDoc = link.ownerDocument;
       let uri = makeURI(link.href, targetDoc.characterSet);
@@ -203,26 +275,32 @@ var DOMLinkHandler = {
       // Verify that the load of this icon is legal.
       // Some error or special pages can load their favicon.
       // To be on the safe side, only allow chrome:// favicons.
-      let isAllowedPage = (targetDoc.documentURI == "about:home") ||
-        ["about:neterror?",
-         "about:blocked?",
-         "about:certerror?",
-        ].some(function(aStart) { targetDoc.documentURI.startsWith(aStart); });
+      let isAllowedPage =
+        targetDoc.documentURI == "about:home" ||
+        ["about:neterror?", "about:blocked?", "about:certerror?"].some(function(
+          aStart
+        ) {
+          targetDoc.documentURI.startsWith(aStart);
+        });
 
       if (!isAllowedPage || !uri.schemeIs("chrome")) {
         // Be extra paraniod and just make sure we're not going to load
         // something we shouldn't. Firefox does this, so we're doing the same.
-          try {
-            Services.scriptSecurityManager.checkLoadURIWithPrincipal(targetDoc.nodePrincipal, uri,
-                                           Ci.nsIScriptSecurityManager.DISALLOW_SCRIPT);
-          } catch (ex) {
-            return;
-          }
+        try {
+          Services.scriptSecurityManager.checkLoadURIWithPrincipal(
+            targetDoc.nodePrincipal,
+            uri,
+            Ci.nsIScriptSecurityManager.DISALLOW_SCRIPT
+          );
+        } catch (ex) {
+          return;
+        }
       }
 
       try {
-        var contentPolicy = Cc["@mozilla.org/layout/content-policy;1"]
-                              .getService(Ci.nsIContentPolicy);
+        var contentPolicy = Cc[
+          "@mozilla.org/layout/content-policy;1"
+        ].getService(Ci.nsIContentPolicy);
       } catch (e) {
         // Refuse to load if we can't do a security check.
         return;
@@ -232,7 +310,9 @@ var DOMLinkHandler = {
       // ensure that the image loaded always obeys the content policy. There
       // may have been a chance that it was cached and we're trying to load it
       // direct from the cache and not the normal route.
-      let {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
+      let { NetUtil } = ChromeUtils.import(
+        "resource://gre/modules/NetUtil.jsm"
+      );
       let tmpChannel = NetUtil.newChannel({
         uri,
         loadingNode: targetDoc,
@@ -240,16 +320,21 @@ var DOMLinkHandler = {
         contentPolicyType: Ci.nsIContentPolicy.TYPE_IMAGE,
       });
       let tmpLoadInfo = tmpChannel.loadInfo;
-      if (contentPolicy.shouldLoad(uri, tmpLoadInfo, link.type) !=
-                                   Ci.nsIContentPolicy.ACCEPT)
+      if (
+        contentPolicy.shouldLoad(uri, tmpLoadInfo, link.type) !=
+        Ci.nsIContentPolicy.ACCEPT
+      ) {
         return;
+      }
 
-      let tab = document.getElementById("tabmail")
-                        .getBrowserForDocument(targetDoc.defaultView);
+      let tab = document
+        .getElementById("tabmail")
+        .getBrowserForDocument(targetDoc.defaultView);
 
       // If we don't have a browser/tab, then don't load the icon.
-      if (!tab)
+      if (!tab) {
         return;
+      }
 
       // Just set the url on the browser and we'll display the actual icon
       // when we finish loading the page.
@@ -258,21 +343,17 @@ var DOMLinkHandler = {
   },
 };
 
-var kTelemetryPrompted    = "toolkit.telemetry.prompted";
-var kTelemetryEnabled     = "toolkit.telemetry.enabled";
-var kTelemetryRejected    = "toolkit.telemetry.rejected";
+var kTelemetryPrompted = "toolkit.telemetry.prompted";
+var kTelemetryEnabled = "toolkit.telemetry.enabled";
+var kTelemetryRejected = "toolkit.telemetry.rejected";
 var kTelemetryServerOwner = "toolkit.telemetry.server_owner";
 // This is used to reprompt/renotify users when privacy message changes
-var kTelemetryPromptRev   = 2;
+var kTelemetryPromptRev = 2;
 
 var contentTabBaseType = {
   // List of URLs that will receive special treatment when opened in a tab.
   // Note that about:preferences is loaded via a different mechanism.
-  inContentWhitelist: [
-    "about:addons",
-    "about:blank",
-    "about:*",
-  ],
+  inContentWhitelist: ["about:addons", "about:blank", "about:*"],
 
   // Code to run if a particular document is loaded in a tab.
   // The array members (functions) are for the respective document URLs
@@ -283,7 +364,8 @@ var contentTabBaseType = {
       // Switch off the context menu.
       aTab.browser.removeAttribute("context");
       Services.scriptloader.loadSubScript(
-        "chrome://messenger/content/aboutAddonsExtra.js", aDocument.defaultView
+        "chrome://messenger/content/aboutAddonsExtra.js",
+        aDocument.defaultView
       );
     },
 
@@ -297,7 +379,7 @@ var contentTabBaseType = {
     },
   ],
 
-  shouldSwitchTo({contentPage: aContentPage, duplicate: aDuplicate}) {
+  shouldSwitchTo({ contentPage: aContentPage, duplicate: aDuplicate }) {
     if (aDuplicate) {
       return -1;
     }
@@ -311,13 +393,18 @@ var contentTabBaseType = {
 
     let contentUrl = aContentPage.replace(regEx, "");
 
-    for (let selectedIndex = 0; selectedIndex < tabInfo.length; ++selectedIndex) {
-      if (tabInfo[selectedIndex].mode.name == this.name &&
-          tabInfo[selectedIndex].browser.currentURI.spec
-                                .replace(regEx, "") == contentUrl) {
+    for (
+      let selectedIndex = 0;
+      selectedIndex < tabInfo.length;
+      ++selectedIndex
+    ) {
+      if (
+        tabInfo[selectedIndex].mode.name == this.name &&
+        tabInfo[selectedIndex].browser.currentURI.spec.replace(regEx, "") ==
+          contentUrl
+      ) {
         // Ensure we go to the correct location on the page.
-        tabInfo[selectedIndex].browser
-                              .setAttribute("src", aContentPage);
+        tabInfo[selectedIndex].browser.setAttribute("src", aContentPage);
         return selectedIndex;
       }
     }
@@ -325,10 +412,16 @@ var contentTabBaseType = {
   },
 
   closeTab(aTab) {
-    aTab.browser.removeEventListener("DOMTitleChanged",
-                                     aTab.titleListener, true);
-    aTab.browser.removeEventListener("DOMWindowClose",
-                                     aTab.closeListener, true);
+    aTab.browser.removeEventListener(
+      "DOMTitleChanged",
+      aTab.titleListener,
+      true
+    );
+    aTab.browser.removeEventListener(
+      "DOMWindowClose",
+      aTab.closeListener,
+      true
+    );
     aTab.browser.removeEventListener("DOMLinkAdded", DOMLinkHandler);
     aTab.browser.webProgress.removeProgressListener(aTab.filter);
     aTab.filter.removeProgressListener(aTab.progressListener);
@@ -364,8 +457,9 @@ var contentTabBaseType = {
       }
       if (ind >= 0) {
         let overlayFunction = self.inContentOverlays[ind];
-        if (overlayFunction)
+        if (overlayFunction) {
           overlayFunction(doc, aTab);
+        }
       }
     }
 
@@ -385,14 +479,15 @@ var contentTabBaseType = {
     aTab.browser.addEventListener("DOMTitleChanged", aTab.titleListener, true);
   },
 
-    /**
-     * Internal function used to set up the close window listener on a content
-     * tab.
-     */
+  /**
+   * Internal function used to set up the close window listener on a content
+   * tab.
+   */
   _setUpCloseWindowListener(aTab) {
     function onDOMWindowClose(aEvent) {
-      if (!aEvent.isTrusted)
+      if (!aEvent.isTrusted) {
         return;
+      }
 
       // Redirect any window.close events to closing the tab. As a 3-pane tab
       // must be open, we don't need to worry about being the last tab open.
@@ -419,8 +514,8 @@ var contentTabBaseType = {
       case "button_print":
       case "cmd_stop":
       case "cmd_reload":
-      // XXX print preview not currently supported - bug 497994 to implement.
-      // case "cmd_printpreview":
+        // XXX print preview not currently supported - bug 497994 to implement.
+        // case "cmd_printpreview":
         return true;
       default:
         return false;
@@ -439,8 +534,8 @@ var contentTabBaseType = {
       case "cmd_printSetup":
       case "cmd_print":
       case "button_print":
-      // XXX print preview not currently supported - bug 497994 to implement.
-      // case "cmd_printpreview":
+        // XXX print preview not currently supported - bug 497994 to implement.
+        // case "cmd_printpreview":
         return true;
       case "cmd_reload":
         return aTab.reloadEnabled;
@@ -499,16 +594,16 @@ var specialTabs = {
   _kAboutRightsVersion: 1,
   get _protocolSvc() {
     delete this._protocolSvc;
-    return this._protocolSvc =
-      Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-        .getService(Ci.nsIExternalProtocolService);
+    return (this._protocolSvc = Cc[
+      "@mozilla.org/uriloader/external-protocol-service;1"
+    ].getService(Ci.nsIExternalProtocolService));
   },
 
   get mFaviconService() {
     delete this.mFaviconService;
-    return this.mFaviconService =
-      Cc["@mozilla.org/browser/favicon-service;1"]
-        .getService(Ci.nsIFaviconService);
+    return (this.mFaviconService = Cc[
+      "@mozilla.org/browser/favicon-service;1"
+    ].getService(Ci.nsIFaviconService));
   },
 
   get msgNotificationBar() {
@@ -520,7 +615,7 @@ var specialTabs = {
       document.getElementById("messenger-notification-bottom").append(element);
     });
 
-    return this.msgNotificationBar = newNotificationBox;
+    return (this.msgNotificationBar = newNotificationBox);
   },
 
   /**
@@ -539,10 +634,14 @@ var specialTabs = {
     let HTMLNS = "http://www.w3.org/1999/xhtml";
     let imageNode = document.createElementNS(HTMLNS, "img");
     imageNode.style.visibility = "collapse";
-    imageNode.addEventListener("load", event => successFunc(event, iconUrl),
-                               {capture: false, once: true});
-    imageNode.addEventListener("error", event => errorFunc(event, iconUrl),
-                               {capture: false, once: true});
+    imageNode.addEventListener("load", event => successFunc(event, iconUrl), {
+      capture: false,
+      once: true,
+    });
+    imageNode.addEventListener("error", event => errorFunc(event, iconUrl), {
+      capture: false,
+      once: true,
+    });
     imageNode.src = iconUrl;
     return imageNode;
   },
@@ -565,39 +664,49 @@ var specialTabs = {
       url = Services.io.newURI(aUrl).prePath;
       uri = Services.io.newURI(url);
     } catch (ex) {
-      if (aCallback)
+      if (aCallback) {
         aCallback("");
+      }
       return;
     }
 
-    let onLoadSuccess = (aEvent => {
+    let onLoadSuccess = aEvent => {
       let iconUri = Services.io.newURI(aEvent.target.src);
       specialTabs.mFaviconService.setAndFetchFaviconForPage(
-        uri, iconUri, false,
+        uri,
+        iconUri,
+        false,
         specialTabs.mFaviconService.FAVICON_LOAD_NON_PRIVATE,
-        null, Services.scriptSecurityManager.getSystemPrincipal());
+        null,
+        Services.scriptSecurityManager.getSystemPrincipal()
+      );
 
-      if (aCallback)
+      if (aCallback) {
         aCallback(iconUri.spec);
-    });
+      }
+    };
 
-    let onDownloadError = (aEvent => {
-      if (aCallback)
+    let onDownloadError = aEvent => {
+      if (aCallback) {
         aCallback("");
-    });
+      }
+    };
 
-    let onDownload = (aEvent => {
+    let onDownload = aEvent => {
       let request = aEvent.target;
       let dom = request.response;
-      if (request.status != 200 ||
-          ChromeUtils.getClassName(dom) !== "HTMLDocument") {
+      if (
+        request.status != 200 ||
+        ChromeUtils.getClassName(dom) !== "HTMLDocument"
+      ) {
         onDownloadError(aEvent);
         return;
       }
 
       let iconUri;
-      let linkNode = dom.head.querySelector('link[rel="shortcut icon"],' +
-                                            'link[rel="icon"]');
+      let linkNode = dom.head.querySelector(
+        'link[rel="shortcut icon"],' + 'link[rel="icon"]'
+      );
       let href = linkNode ? linkNode.href : null;
       try {
         iconUri = Services.io.newURI(href);
@@ -606,9 +715,12 @@ var specialTabs = {
         return;
       }
 
-      specialTabs.loadFaviconImageNode(onLoadSuccess, onDownloadError,
-                                       iconUri.spec);
-    });
+      specialTabs.loadFaviconImageNode(
+        onLoadSuccess,
+        onDownloadError,
+        iconUri.spec
+      );
+    };
 
     let request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -659,19 +771,20 @@ var specialTabs = {
       // Only show what's new tab if this is actually an upgraded version,
       // not just a new installation/profile (and don't show if the major version
       // hasn't changed).
-      if (fromVer && (fromVer[0] != toVer[0])) {
-          // showWhatsNewPage checks the details of the update manager before
-          // showing the page.
-          this.showWhatsNewPage();
+      if (fromVer && fromVer[0] != toVer[0]) {
+        // showWhatsNewPage checks the details of the update manager before
+        // showing the page.
+        this.showWhatsNewPage();
       }
       Services.prefs.clearUserPref("app.update.postupdate");
     }
 
     // Show the about rights notification if we need to.
-    if (this.shouldShowAboutRightsNotification())
+    if (this.shouldShowAboutRightsNotification()) {
       this.showAboutRightsNotification();
-    else if (this.shouldShowTelemetryNotification())
+    } else if (this.shouldShowTelemetryNotification()) {
       this.showTelemetryNotification();
+    }
   },
 
   /**
@@ -684,8 +797,9 @@ var specialTabs = {
     lastBrowserId: 0,
     get loadingTabString() {
       delete this.loadingTabString;
-      return this.loadingTabString = document.getElementById("bundle_messenger")
-                                             .getString("loadingTab");
+      return (this.loadingTabString = document
+        .getElementById("bundle_messenger")
+        .getString("loadingTab"));
     },
 
     modes: {
@@ -711,14 +825,18 @@ var specialTabs = {
      *  the second parameter's contentWindow property.
      */
     openTab(aTab, aArgs) {
-      if (!("contentPage" in aArgs))
+      if (!("contentPage" in aArgs)) {
         throw new Error("contentPage must be specified");
+      }
 
       // First clone the page and set up the basics.
-      let clone = document.getElementById("contentTab").firstChild.cloneNode(true);
+      let clone = document
+        .getElementById("contentTab")
+        .firstChild.cloneNode(true);
 
-      if ("opener" in aArgs && aArgs.opener)
+      if ("opener" in aArgs && aArgs.opener) {
         clone.querySelector("browser").presetOpenerWindow(aArgs.opener);
+      }
 
       const findbar = document.createXULElement("findbar");
       // Adding browserid to findbar so that browser property can be set
@@ -731,7 +849,10 @@ var specialTabs = {
 
       let toolbox = clone.firstChild;
       toolbox.setAttribute("id", "contentTabToolbox" + this.lastBrowserId);
-      toolbox.firstChild.setAttribute("id", "contentTabToolbar" + this.lastBrowserId);
+      toolbox.firstChild.setAttribute(
+        "id",
+        "contentTabToolbar" + this.lastBrowserId
+      );
 
       aTab.panel.setAttribute("id", "contentTabWrapper" + this.lastBrowserId);
       aTab.panel.appendChild(clone);
@@ -744,22 +865,27 @@ var specialTabs = {
       aTab.urlbar = aTab.panel.querySelector(".contentTabUrlbar");
       aTab.urlbar.textContent = aArgs.contentPage;
 
-      ExtensionParent.apiManager.emit("extension-browser-inserted", aTab.browser);
+      ExtensionParent.apiManager.emit(
+        "extension-browser-inserted",
+        aTab.browser
+      );
 
       // As we're opening this tab, showTab may not get called, so set
       // the type according to if we're opening in background or not.
-      let background = ("background" in aArgs) && aArgs.background;
+      let background = "background" in aArgs && aArgs.background;
       aTab.browser.setAttribute("type", "content");
-      if (background)
+      if (background) {
         aTab.browser.removeAttribute("primary");
-      else
+      } else {
         aTab.browser.setAttribute("primary", "true");
+      }
 
       aTab.browser.setAttribute("id", "contentTabBrowser" + this.lastBrowserId);
 
-      aTab.clickHandler = "clickHandler" in aArgs && aArgs.clickHandler ?
-                          aArgs.clickHandler :
-                          "specialTabs.defaultClickHandler(event);";
+      aTab.clickHandler =
+        "clickHandler" in aArgs && aArgs.clickHandler
+          ? aArgs.clickHandler
+          : "specialTabs.defaultClickHandler(event);";
       aTab.browser.setAttribute("onclick", aTab.clickHandler);
 
       // Set this attribute so that when favicons fail to load, we remove the
@@ -770,8 +896,10 @@ var specialTabs = {
 
       // Now initialise the find bar.
       aTab.findbar = aTab.panel.querySelector("findbar");
-      aTab.findbar.setAttribute("browserid",
-                                "contentTabBrowser" + this.lastBrowserId);
+      aTab.findbar.setAttribute(
+        "browserid",
+        "contentTabBrowser" + this.lastBrowserId
+      );
 
       // Default to reload being disabled.
       aTab.reloadEnabled = false;
@@ -782,25 +910,37 @@ var specialTabs = {
       this._setUpCloseWindowListener(aTab);
 
       if ("onLoad" in aArgs) {
-        aTab.browser.addEventListener("load", function _contentTab_onLoad(event) {
-          aArgs.onLoad(event, aTab.browser);
-          aTab.browser.removeEventListener("load", _contentTab_onLoad, true);
-        }, true);
+        aTab.browser.addEventListener(
+          "load",
+          function _contentTab_onLoad(event) {
+            aArgs.onLoad(event, aTab.browser);
+            aTab.browser.removeEventListener("load", _contentTab_onLoad, true);
+          },
+          true
+        );
       }
 
       // Create a filter and hook it up to our browser
-      let filter = Cc["@mozilla.org/appshell/component/browser-status-filter;1"]
-                     .createInstance(Ci.nsIWebProgress);
+      let filter = Cc[
+        "@mozilla.org/appshell/component/browser-status-filter;1"
+      ].createInstance(Ci.nsIWebProgress);
       aTab.filter = filter;
-      aTab.browser.webProgress.addProgressListener(filter, Ci.nsIWebProgress.NOTIFY_ALL);
+      aTab.browser.webProgress.addProgressListener(
+        filter,
+        Ci.nsIWebProgress.NOTIFY_ALL
+      );
 
       // Wire up a progress listener to the filter for this browser
       aTab.progressListener = new tabProgressListener(aTab, false);
 
-      filter.addProgressListener(aTab.progressListener, Ci.nsIWebProgress.NOTIFY_ALL);
+      filter.addProgressListener(
+        aTab.progressListener,
+        Ci.nsIWebProgress.NOTIFY_ALL
+      );
 
-      if ("onListener" in aArgs)
+      if ("onListener" in aArgs) {
         aArgs.onListener(aTab.browser, aTab.progressListener);
+      }
 
       // Initialize our unit testing variables.
       aTab.pageLoading = false;
@@ -821,12 +961,16 @@ var specialTabs = {
       // If we have a docshell, a contentViewer, and it forbids us from closing
       // the tab, then we return false, which means, we can't close the tab. All
       // other cases return true.
-      return !(docShell && docShell.contentViewer
-        && !docShell.contentViewer.permitUnload());
+      return !(
+        docShell &&
+        docShell.contentViewer &&
+        !docShell.contentViewer.permitUnload()
+      );
     },
     persistTab(aTab) {
-      if (aTab.browser.currentURI.spec == "about:blank")
+      if (aTab.browser.currentURI.spec == "about:blank") {
         return null;
+      }
 
       let onClick = aTab.clickHandler;
 
@@ -836,10 +980,12 @@ var specialTabs = {
       };
     },
     restoreTab(aTabmail, aPersistedState) {
-      aTabmail.openTab("contentTab", { contentPage: aPersistedState.tabURI,
-                                       clickHandler: aPersistedState.clickHandler,
-                                       duplicate: aPersistedState.duplicate,
-                                       background: true });
+      aTabmail.openTab("contentTab", {
+        contentPage: aPersistedState.tabURI,
+        clickHandler: aPersistedState.clickHandler,
+        duplicate: aPersistedState.duplicate,
+        background: true,
+      });
     },
   },
 
@@ -855,8 +1001,9 @@ var specialTabs = {
   splitVersion(version) {
     let re = /^(\d+)\.(\d+)\.?(.*)$/;
     let fields = re.exec(version);
-    if (fields === null)
+    if (fields === null) {
       return null;
+    }
     /* First element of the array from regex match is the entire string; drop that */
     fields.shift();
     return fields;
@@ -874,33 +1021,37 @@ var specialTabs = {
 
     let currentApplicationVersion = Services.appinfo.version;
 
-    if (savedAppVersion == "ignore")
+    if (savedAppVersion == "ignore") {
       return [null, this.splitVersion(currentApplicationVersion)];
+    }
 
-    if (savedAppVersion != currentApplicationVersion)
+    if (savedAppVersion != currentApplicationVersion) {
       Services.prefs.setCharPref(prefstring, currentApplicationVersion);
+    }
 
-    return [this.splitVersion(savedAppVersion), this.splitVersion(currentApplicationVersion)];
+    return [
+      this.splitVersion(savedAppVersion),
+      this.splitVersion(currentApplicationVersion),
+    ];
   },
 
   /**
    * Shows the what's new page in a content tab.
    */
   showWhatsNewPage() {
-    let um = Cc["@mozilla.org/updates/update-manager;1"]
-               .getService(Ci.nsIUpdateManager);
+    let um = Cc["@mozilla.org/updates/update-manager;1"].getService(
+      Ci.nsIUpdateManager
+    );
     let update;
     // The active update should be present when this code is called. If for
     // whatever reason it isn't fallback to the latest update in the update
     // history.
     if (um.activeUpdate) {
-      update = um.activeUpdate
-                 .QueryInterface(Ci.nsIWritablePropertyBag);
+      update = um.activeUpdate.QueryInterface(Ci.nsIWritablePropertyBag);
     } else {
       // If the updates.xml file is deleted then getUpdateAt will throw.
       try {
-        update = um.getUpdateAt(0)
-                   .QueryInterface(Ci.nsIPropertyBag);
+        update = um.getUpdateAt(0).QueryInterface(Ci.nsIPropertyBag);
       } catch (e) {
         Cu.reportError("Unable to find update: " + e);
         return;
@@ -908,8 +1059,9 @@ var specialTabs = {
     }
 
     let actions = update.getProperty("actions");
-    if (actions && actions.includes("silent"))
+    if (actions && actions.includes("silent")) {
       return;
+    }
 
     openWhatsNew();
   },
@@ -923,7 +1075,8 @@ var specialTabs = {
   shouldShowTelemetryNotification() {
     // Toolkit has decided that the pref should have no default value, so this
     // throws if not yet initialized.
-    let telemetryPrompted = Services.prefs.getIntPref(kTelemetryPrompted, 0) >= kTelemetryPromptRev;
+    let telemetryPrompted =
+      Services.prefs.getIntPref(kTelemetryPrompted, 0) >= kTelemetryPromptRev;
     let telemetryEnabled = Services.prefs.getBoolPref(kTelemetryEnabled, false);
     // In case user already allowed telemetry, do not bother him with any updated
     // prompt. Clear the pref first, in case it was not Int (from older versions).
@@ -932,21 +1085,27 @@ var specialTabs = {
       Services.prefs.setIntPref(kTelemetryPrompted, kTelemetryPromptRev);
     }
 
-    if (telemetryEnabled || telemetryPrompted)
+    if (telemetryEnabled || telemetryPrompted) {
       return false;
+    }
 
     return true;
   },
 
   showTelemetryNotification() {
-    var brandBundle =
-      new StringBundle("chrome://branding/locale/brand.properties");
-    var telemetryBundle =
-      new StringBundle("chrome://messenger/locale/telemetry.properties");
+    var brandBundle = new StringBundle(
+      "chrome://branding/locale/brand.properties"
+    );
+    var telemetryBundle = new StringBundle(
+      "chrome://messenger/locale/telemetry.properties"
+    );
 
     var productName = brandBundle.get("brandFullName");
     var serverOwner = Services.prefs.getCharPref(kTelemetryServerOwner);
-    var telemetryText = telemetryBundle.get("telemetryText", [productName, serverOwner]);
+    var telemetryText = telemetryBundle.get("telemetryText", [
+      productName,
+      serverOwner,
+    ]);
 
     // Clear all the prefs as we will set them as needed after answering the prompt.
     Services.prefs.clearUserPref(kTelemetryPrompted);
@@ -955,17 +1114,17 @@ var specialTabs = {
 
     var buttons = [
       {
-        label:     telemetryBundle.get("telemetryYesButtonLabel"),
+        label: telemetryBundle.get("telemetryYesButtonLabel"),
         accessKey: telemetryBundle.get("telemetryYesButtonAccessKey"),
-        popup:     null,
+        popup: null,
         callback(aNotificationBar, aButton) {
           Services.prefs.setBoolPref(kTelemetryEnabled, true);
         },
       },
       {
-        label:     telemetryBundle.get("telemetryNoButtonLabel"),
+        label: telemetryBundle.get("telemetryNoButtonLabel"),
         accessKey: telemetryBundle.get("telemetryNoButtonAccessKey"),
-        popup:     null,
+        popup: null,
         callback(aNotificationBar, aButton) {
           Services.prefs.setBoolPref(kTelemetryRejected, true);
         },
@@ -976,10 +1135,17 @@ var specialTabs = {
     Services.prefs.setIntPref(kTelemetryPrompted, kTelemetryPromptRev);
 
     let notification = this.msgNotificationBar.appendNotification(
-      telemetryText, "telemetry", null, this.msgNotificationBar.PRIORITY_INFO_LOW, buttons);
+      telemetryText,
+      "telemetry",
+      null,
+      this.msgNotificationBar.PRIORITY_INFO_LOW,
+      buttons
+    );
     notification.persistence = 3; // arbitrary number, just so bar sticks around for a bit
 
-    let link = notification.ownerDocument.createXULElement("label", {is: "text-link"});
+    let link = notification.ownerDocument.createXULElement("label", {
+      is: "text-link",
+    });
     link.className = "telemetry-text-link";
     link.setAttribute("value", telemetryBundle.get("telemetryLinkLabel"));
     link.addEventListener("click", function() {
@@ -988,7 +1154,12 @@ var specialTabs = {
       notification.parentNode.removeNotification(notification, true);
       // Add a new notification to that tab, with no "Learn more" link
       this.msgNotificationBar.appendNotification(
-        telemetryText, "telemetry", null, this.msgNotificationBar.PRIORITY_INFO_LOW, buttons);
+        telemetryText,
+        "telemetry",
+        null,
+        this.msgNotificationBar.PRIORITY_INFO_LOW,
+        buttons
+      );
     });
 
     notification.messageText.appendChild(link);
@@ -1015,17 +1186,25 @@ var specialTabs = {
       return !Services.prefs.getBoolPref("mail.rights.override");
     } catch (e) {}
 
-    return Services.prefs.getIntPref("mail.rights.version") < this._kAboutRightsVersion;
+    return (
+      Services.prefs.getIntPref("mail.rights.version") <
+      this._kAboutRightsVersion
+    );
   },
 
   showAboutRightsNotification() {
-    var brandBundle =
-      Services.strings.createBundle("chrome://branding/locale/brand.properties");
-    var rightsBundle =
-      Services.strings.createBundle("chrome://messenger/locale/aboutRights.properties");
+    var brandBundle = Services.strings.createBundle(
+      "chrome://branding/locale/brand.properties"
+    );
+    var rightsBundle = Services.strings.createBundle(
+      "chrome://messenger/locale/aboutRights.properties"
+    );
 
     var productName = brandBundle.GetStringFromName("brandFullName");
-    var notifyRightsText = rightsBundle.formatStringFromName("notifyRightsText", [productName]);
+    var notifyRightsText = rightsBundle.formatStringFromName(
+      "notifyRightsText",
+      [productName]
+    );
 
     var buttons = [
       {
@@ -1034,16 +1213,21 @@ var specialTabs = {
         popup: null,
         callback(aNotificationBar, aButton) {
           // Show the about:rights tab
-          document.getElementById("tabmail")
-                  .openTab("contentTab", { contentPage: "about:rights",
-                                           clickHandler: "specialTabs.aboutClickHandler(event);" });
+          document.getElementById("tabmail").openTab("contentTab", {
+            contentPage: "about:rights",
+            clickHandler: "specialTabs.aboutClickHandler(event);",
+          });
         },
       },
     ];
 
     var box = this.msgNotificationBar.appendNotification(
-      notifyRightsText, "about-rights", null,
-      this.msgNotificationBar.PRIORITY_INFO_LOW, buttons);
+      notifyRightsText,
+      "about-rights",
+      null,
+      this.msgNotificationBar.PRIORITY_INFO_LOW,
+      buttons
+    );
     // arbitrary number, just so bar sticks around for a bit
     box.persistence = 3;
 
@@ -1059,14 +1243,18 @@ var specialTabs = {
   aboutClickHandler(aEvent) {
     // Don't handle events that: a) aren't trusted, b) have already been
     // handled or c) aren't left-click.
-    if (!aEvent.isTrusted || aEvent.defaultPrevented || aEvent.button)
+    if (!aEvent.isTrusted || aEvent.defaultPrevented || aEvent.button) {
       return true;
+    }
 
     let href = hRefForClickEvent(aEvent, true)[0];
     if (href) {
       let uri = makeURI(href);
-      if (!this._protocolSvc.isExposedProtocol(uri.scheme) ||
-          uri.schemeIs("http") || uri.schemeIs("https")) {
+      if (
+        !this._protocolSvc.isExposedProtocol(uri.scheme) ||
+        uri.schemeIs("http") ||
+        uri.schemeIs("https")
+      ) {
         aEvent.preventDefault();
         openLinkExternally(href);
       }
@@ -1082,8 +1270,9 @@ var specialTabs = {
   defaultClickHandler(aEvent) {
     // Don't handle events that: a) aren't trusted, b) have already been
     // handled or c) aren't left-click.
-    if (!aEvent.isTrusted || aEvent.defaultPrevented || aEvent.button)
+    if (!aEvent.isTrusted || aEvent.defaultPrevented || aEvent.button) {
       return true;
+    }
 
     let href = hRefForClickEvent(aEvent, true)[0];
 
@@ -1092,9 +1281,12 @@ var specialTabs = {
     // for here.
     if (href) {
       let uri = makeURI(href);
-      if (!this._protocolSvc.isExposedProtocol(uri.scheme) ||
-          uri.schemeIs("http") || uri.schemeIs("https") ||
-          uri.schemeIs("about")) {
+      if (
+        !this._protocolSvc.isExposedProtocol(uri.scheme) ||
+        uri.schemeIs("http") ||
+        uri.schemeIs("https") ||
+        uri.schemeIs("about")
+      ) {
         aEvent.preventDefault();
         openLinkExternally(href);
       }
@@ -1120,8 +1312,9 @@ var specialTabs = {
   siteClickHandler(aEvent, aSiteRegexp) {
     // Don't handle events that: a) aren't trusted, b) have already been
     // handled or c) aren't left-click.
-    if (!aEvent.isTrusted || aEvent.defaultPrevented || aEvent.button)
+    if (!aEvent.isTrusted || aEvent.defaultPrevented || aEvent.button) {
       return true;
+    }
 
     let href = hRefForClickEvent(aEvent, true)[0];
 
@@ -1130,9 +1323,13 @@ var specialTabs = {
     // for here.
     if (href) {
       let uri = makeURI(href);
-      if (!this._protocolSvc.isExposedProtocol(uri.scheme) ||
-          ((uri.schemeIs("http") || uri.schemeIs("https") ||
-            uri.schemeIs("about")) && !aSiteRegexp.test(uri.spec))) {
+      if (
+        !this._protocolSvc.isExposedProtocol(uri.scheme) ||
+        ((uri.schemeIs("http") ||
+          uri.schemeIs("https") ||
+          uri.schemeIs("about")) &&
+          !aSiteRegexp.test(uri.spec))
+      ) {
         aEvent.preventDefault();
         openLinkExternally(href);
       }
@@ -1146,8 +1343,9 @@ var specialTabs = {
     lastBrowserId: 0,
     get loadingTabString() {
       delete this.loadingTabString;
-      return this.loadingTabString = document.getElementById("bundle_messenger")
-                                             .getString("loadingTab");
+      return (this.loadingTabString = document
+        .getElementById("bundle_messenger")
+        .getString("loadingTab"));
     },
 
     modes: {
@@ -1175,18 +1373,24 @@ var specialTabs = {
      *  the second parameter's chromeWindow property.
      */
     openTab(aTab, aArgs) {
-      if (!("chromePage" in aArgs))
+      if (!("chromePage" in aArgs)) {
         throw new Error("chromePage must be specified");
+      }
 
       // First clone the page and set up the basics.
-      let clone = document.getElementById("chromeTab").firstChild.cloneNode(true);
+      let clone = document
+        .getElementById("chromeTab")
+        .firstChild.cloneNode(true);
 
       clone.setAttribute("id", "chromeTab" + this.lastBrowserId);
       clone.setAttribute("collapsed", false);
 
       let toolbox = clone.firstChild;
       toolbox.setAttribute("id", "chromeTabToolbox" + this.lastBrowserId);
-      toolbox.firstChild.setAttribute("id", "chromeTabToolbar" + this.lastBrowserId);
+      toolbox.firstChild.setAttribute(
+        "id",
+        "chromeTabToolbar" + this.lastBrowserId
+      );
 
       aTab.panel.setAttribute("id", "chromeTabWrapper" + this.lastBrowserId);
       aTab.panel.appendChild(clone);
@@ -1194,10 +1398,12 @@ var specialTabs = {
       // Start setting up the browser.
       aTab.browser = aTab.panel.querySelector("browser");
 
-      aTab.browser.setAttribute("onclick",
-                                "clickHandler" in aArgs && aArgs.clickHandler ?
-                                aArgs.clickHandler :
-                                "specialTabs.defaultClickHandler(event);");
+      aTab.browser.setAttribute(
+        "onclick",
+        "clickHandler" in aArgs && aArgs.clickHandler
+          ? aArgs.clickHandler
+          : "specialTabs.defaultClickHandler(event);"
+      );
 
       // Set this attribute so that when favicons fail to load, we remove the
       // image attribute and just show the default tab icon.
@@ -1205,17 +1411,20 @@ var specialTabs = {
 
       aTab.browser.addEventListener("DOMLinkAdded", DOMLinkHandler);
 
-
       aTab.browser.setAttribute("id", "chromeTabBrowser" + this.lastBrowserId);
 
       // Now set up the listeners.
       this._setUpTitleListener(aTab);
       this._setUpCloseWindowListener(aTab);
       if ("onLoad" in aArgs) {
-        aTab.browser.addEventListener("load", function _chromeTab_onLoad(event) {
-          aArgs.onLoad(event, aTab.browser);
-          aTab.browser.removeEventListener("load", _chromeTab_onLoad, true);
-        }, true);
+        aTab.browser.addEventListener(
+          "load",
+          function _chromeTab_onLoad(event) {
+            aArgs.onLoad(event, aTab.browser);
+            aTab.browser.removeEventListener("load", _chromeTab_onLoad, true);
+          },
+          true
+        );
       }
 
       // Now start loading the content.
@@ -1232,25 +1441,33 @@ var specialTabs = {
       // If we have a docshell, a contentViewer, and it forbids us from closing
       // the tab, then we return false, which means, we can't close the tab. All
       // other cases return true.
-      return !(docShell && docShell.contentViewer
-        && !docShell.contentViewer.permitUnload());
+      return !(
+        docShell &&
+        docShell.contentViewer &&
+        !docShell.contentViewer.permitUnload()
+      );
     },
     closeTab(aTab) {
       aTab.browser.removeEventListener("load", aTab.loadListener, true);
-      aTab.browser.removeEventListener("DOMTitleChanged",
-                                       aTab.titleListener, true);
-      aTab.browser.removeEventListener("DOMWindowClose",
-                                       aTab.closeListener, true);
+      aTab.browser.removeEventListener(
+        "DOMTitleChanged",
+        aTab.titleListener,
+        true
+      );
+      aTab.browser.removeEventListener(
+        "DOMWindowClose",
+        aTab.closeListener,
+        true
+      );
       aTab.browser.removeEventListener("DOMLinkAdded", DOMLinkHandler);
       aTab.browser.destroy();
     },
-    saveTabState(aTab) {
-    },
-    showTab(aTab) {
-    },
+    saveTabState(aTab) {},
+    showTab(aTab) {},
     persistTab(aTab) {
-      if (aTab.browser.currentURI.spec == "about:blank")
+      if (aTab.browser.currentURI.spec == "about:blank") {
         return null;
+      }
 
       let onClick = aTab.browser.getAttribute("onclick");
 
@@ -1260,9 +1477,11 @@ var specialTabs = {
       };
     },
     restoreTab(aTabmail, aPersistedState) {
-      aTabmail.openTab("chromeTab", { chromePage: aPersistedState.tabURI,
-                                      clickHandler: aPersistedState.clickHandler,
-                                      background: true });
+      aTabmail.openTab("chromeTab", {
+        chromePage: aPersistedState.tabURI,
+        clickHandler: aPersistedState.clickHandler,
+        background: true,
+      });
     },
     onTitleChanged(aTab) {
       aTab.title = aTab.browser.contentDocument.title;
@@ -1276,8 +1495,8 @@ var specialTabs = {
         case "cmd_printSetup":
         case "cmd_print":
         case "button_print":
-        // XXX print preview not currently supported - bug 497994 to implement.
-        // case "cmd_printpreview":
+          // XXX print preview not currently supported - bug 497994 to implement.
+          // case "cmd_printpreview":
           return true;
         default:
           return false;
@@ -1292,8 +1511,8 @@ var specialTabs = {
         case "cmd_printSetup":
         case "cmd_print":
         case "button_print":
-        // XXX print preview not currently supported - bug 497994 to implement.
-        // case "cmd_printpreview":
+          // XXX print preview not currently supported - bug 497994 to implement.
+          // case "cmd_printpreview":
           return true;
         default:
           return false;
@@ -1337,8 +1556,11 @@ var specialTabs = {
       // Save the function we'll use as listener so we can remove it later.
       aTab.titleListener = onDOMTitleChanged;
       // Add the listener.
-      aTab.browser.addEventListener("DOMTitleChanged",
-                                    aTab.titleListener, true);
+      aTab.browser.addEventListener(
+        "DOMTitleChanged",
+        aTab.titleListener,
+        true
+      );
     },
     /**
      * Internal function used to set up the close window listener on a content
@@ -1346,23 +1568,23 @@ var specialTabs = {
      */
     _setUpCloseWindowListener(aTab) {
       function onDOMWindowClose(aEvent) {
-      try {
-        if (!aEvent.isTrusted)
-          return;
+        try {
+          if (!aEvent.isTrusted) {
+            return;
+          }
 
-        // Redirect any window.close events to closing the tab. As a 3-pane tab
-        // must be open, we don't need to worry about being the last tab open.
-        document.getElementById("tabmail").closeTab(aTab);
-        aEvent.preventDefault();
-      } catch (e) {
-        logException(e);
-      }
+          // Redirect any window.close events to closing the tab. As a 3-pane tab
+          // must be open, we don't need to worry about being the last tab open.
+          document.getElementById("tabmail").closeTab(aTab);
+          aEvent.preventDefault();
+        } catch (e) {
+          logException(e);
+        }
       }
       // Save the function we'll use as listener so we can remove it later.
       aTab.closeListener = onDOMWindowClose;
       // Add the listener.
-      aTab.browser.addEventListener("DOMWindowClose",
-                                    aTab.closeListener, true);
+      aTab.browser.addEventListener("DOMWindowClose", aTab.closeListener, true);
     },
   },
 
@@ -1372,11 +1594,13 @@ var specialTabs = {
    * @param aURI  An nsIURI containing the current url.
    */
   _shouldLoadFavIcon(aURI) {
-    return (aURI &&
-            Services.prefs.getBoolPref("browser.chrome.site_icons") &&
-            Services.prefs.getBoolPref("browser.chrome.favicons") &&
-            ("schemeIs" in aURI) &&
-            (aURI.schemeIs("http") || aURI.schemeIs("https")));
+    return (
+      aURI &&
+      Services.prefs.getBoolPref("browser.chrome.site_icons") &&
+      Services.prefs.getBoolPref("browser.chrome.favicons") &&
+      "schemeIs" in aURI &&
+      (aURI.schemeIs("http") || aURI.schemeIs("https"))
+    );
   },
 
   /**
@@ -1390,12 +1614,19 @@ var specialTabs = {
     var icon = null;
     if (aTab.browser.contentDocument instanceof ImageDocument) {
       if (Services.prefs.getBoolPref("browser.chrome.site_icons")) {
-        let sz = Services.prefs.getIntPref("browser.chrome.image_icons.max_size");
+        let sz = Services.prefs.getIntPref(
+          "browser.chrome.image_icons.max_size"
+        );
         try {
           let req = aTab.browser.contentDocument.imageRequest;
-          if (req && req.image && req.image.width <= sz &&
-              req.image.height <= sz)
+          if (
+            req &&
+            req.image &&
+            req.image.width <= sz &&
+            req.image.height <= sz
+          ) {
             icon = aTab.browser.currentURI.spec;
+          }
         } catch (e) {}
       }
     } else if (this._shouldLoadFavIcon(docURIObject)) {
@@ -1416,11 +1647,16 @@ var specialTabs = {
    * @param aIcon A string based URL of the icon to try and load.
    */
   setTabIcon(aTab, aIcon) {
-    if (aIcon && this.mFaviconService)
+    if (aIcon && this.mFaviconService) {
       this.mFaviconService.setAndFetchFaviconForPage(
-        aTab.browser.currentURI, makeURI(aIcon), false,
+        aTab.browser.currentURI,
+        makeURI(aIcon),
+        false,
         this.mFaviconService.FAVICON_LOAD_NON_PRIVATE,
-        null, aTab.browser.contentPrincipal);
+        null,
+        aTab.browser.contentPrincipal
+      );
+    }
 
     // Save this off so we know about it later,
     aTab.browser.mIconURL = aIcon;
@@ -1431,13 +1667,17 @@ var specialTabs = {
 
 let documentObserver = {
   observe(document) {
-    if (!document.location ||
-        document.location.href != "chrome://mozapps/content/extensions/aboutaddons.html") {
+    if (
+      !document.location ||
+      document.location.href !=
+        "chrome://mozapps/content/extensions/aboutaddons.html"
+    ) {
       return;
     }
 
     Services.scriptloader.loadSubScript(
-      "chrome://messenger/content/aboutAddonsExtra.js", document.defaultView
+      "chrome://messenger/content/aboutAddonsExtra.js",
+      document.defaultView
     );
   },
 };

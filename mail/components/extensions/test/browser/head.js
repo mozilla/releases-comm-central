@@ -2,15 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 // There are shutdown issues for which multiple rejections are left uncaught.
 // This bug should be fixed, but for the moment this directory is whitelisted.
 //
 // NOTE: Entire directory whitelisting should be kept to a minimum. Normally you
 //       should use "expectUncaughtRejection" to flag individual failures.
-const {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/PromiseTestUtils.jsm");
+const { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/PromiseTestUtils.jsm"
+);
 PromiseTestUtils.whitelistRejectionsGlobally(/Message manager disconnected/);
 PromiseTestUtils.whitelistRejectionsGlobally(/No matching message handler/);
 PromiseTestUtils.whitelistRejectionsGlobally(/Receiving end does not exist/);
@@ -41,9 +45,9 @@ function addIdentity(account) {
 }
 
 function createMessages(folder, count) {
-  const {
-    MessageGenerator,
-  } = ChromeUtils.import("resource://testing-common/mailnews/messageGenerator.js");
+  const { MessageGenerator } = ChromeUtils.import(
+    "resource://testing-common/mailnews/messageGenerator.js"
+  );
   let messages = new MessageGenerator().makeMessages({ count });
   let messageStrings = messages.map(message => message.toMboxString());
   folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
@@ -67,9 +71,13 @@ async function focusWindow(win) {
   }
 
   let promise = new Promise(resolve => {
-    win.addEventListener("focus", function() {
-      resolve();
-    }, {capture: true, once: true});
+    win.addEventListener(
+      "focus",
+      function() {
+        resolve();
+      },
+      { capture: true, once: true }
+    );
   });
 
   win.focus();
@@ -97,20 +105,30 @@ function getPanelForNode(node) {
   return node;
 }
 
-var awaitBrowserLoaded = browser => ContentTask.spawn(browser, null, () => {
-  if (content.document.readyState !== "complete" ||
-      content.document.documentURI === "about:blank") {
-    return ContentTaskUtils.waitForEvent(this, "load", true, event => {
-      return content.document.documentURI !== "about:blank";
-    }).then(() => {});
-  }
-  return Promise.resolve();
-});
+var awaitBrowserLoaded = browser =>
+  ContentTask.spawn(browser, null, () => {
+    if (
+      content.document.readyState !== "complete" ||
+      content.document.documentURI === "about:blank"
+    ) {
+      return ContentTaskUtils.waitForEvent(this, "load", true, event => {
+        return content.document.documentURI !== "about:blank";
+      }).then(() => {});
+    }
+    return Promise.resolve();
+  });
 
-var awaitExtensionPanel = async function(extension, win = window, awaitLoad = true) {
-  let {originalTarget: browser} = await BrowserTestUtils.waitForEvent(
-    win.document, "WebExtPopupLoaded", true,
-    event => event.detail.extension.id === extension.id);
+var awaitExtensionPanel = async function(
+  extension,
+  win = window,
+  awaitLoad = true
+) {
+  let { originalTarget: browser } = await BrowserTestUtils.waitForEvent(
+    win.document,
+    "WebExtPopupLoaded",
+    true,
+    event => event.detail.extension.id === extension.id
+  );
 
   await Promise.all([
     promisePopupShown(getPanelForNode(browser)),
@@ -134,10 +152,17 @@ function closeBrowserAction(extension, win = window) {
 
 async function openNewMailWindow(options = {}) {
   if (!options.newAccountWizard) {
-    Services.prefs.setBoolPref("mail.provider.suppress_dialog_on_startup", true);
+    Services.prefs.setBoolPref(
+      "mail.provider.suppress_dialog_on_startup",
+      true
+    );
   }
 
-  let win = window.openDialog("chrome://messenger/content/", "_blank", "chrome,all,dialog=no");
+  let win = window.openDialog(
+    "chrome://messenger/content/",
+    "_blank",
+    "chrome,all,dialog=no"
+  );
   await Promise.all([
     BrowserTestUtils.waitForEvent(win, "focus", true),
     BrowserTestUtils.waitForEvent(win, "activate", true),

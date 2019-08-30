@@ -1,6 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
-* License, v. 2.0. If a copy of the MPL was not distributed with this
-* file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 "use strict";
 
@@ -11,7 +11,9 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+  const { Services } = ChromeUtils.import(
+    "resource://gre/modules/Services.jsm"
+  );
 
   /**
    * The MozTabmailAlltabsMenuPopup widget is used as a menupopup to list all the
@@ -29,7 +31,7 @@
       this.tabmail = document.getElementById("tabmail");
 
       this._mutationObserver = new MutationObserver((records, observer) => {
-        records.forEach((mutation) => {
+        records.forEach(mutation => {
           let menuItem = mutation.target.mCorrespondingMenuitem;
           if (menuItem) {
             this._setMenuitemAttributes(menuItem, mutation.target);
@@ -37,7 +39,7 @@
         });
       });
 
-      this.addEventListener("popupshowing", (event) => {
+      this.addEventListener("popupshowing", event => {
         // Set up the menu popup.
         let tabcontainer = this.tabmail.tabContainer;
         let tabs = tabcontainer.allTabs;
@@ -62,7 +64,7 @@
         this._updateTabsVisibilityStatus();
       });
 
-      this.addEventListener("popuphiding", (event) => {
+      this.addEventListener("popuphiding", event => {
         // Clear out the menu popup and remove the listeners.
         while (this.hasChildNodes()) {
           let menuItem = this.lastChild;
@@ -73,7 +75,10 @@
         }
         this._mutationObserver.disconnect();
 
-        this.tabmail.tabContainer.arrowScrollbox.removeEventListener("scroll", this);
+        this.tabmail.tabContainer.arrowScrollbox.removeEventListener(
+          "scroll",
+          this
+        );
         this.tabmail.removeEventListener("TabOpen", this);
       });
     }
@@ -122,8 +127,10 @@
       for (let i = 0; i < this.childNodes.length; i++) {
         let currentTabBox = this.childNodes[i].tab.getBoundingClientRect();
 
-        if (currentTabBox.left >= tabStripBox.left &&
-            currentTabBox.right <= tabStripBox.right) {
+        if (
+          currentTabBox.left >= tabStripBox.left &&
+          currentTabBox.right <= tabStripBox.right
+        ) {
           this.childNodes[i].setAttribute("tabIsVisible", "true");
         } else {
           this.childNodes[i].removeAttribute("tabIsVisible");
@@ -134,7 +141,10 @@
     _createTabMenuItem(aTab) {
       let menuItem = document.createXULElement("menuitem");
 
-      menuItem.setAttribute("class", "menuitem-iconic alltabs-item menuitem-with-favicon");
+      menuItem.setAttribute(
+        "class",
+        "menuitem-iconic alltabs-item menuitem-with-favicon"
+      );
 
       this._setMenuitemAttributes(menuItem, aTab);
 
@@ -180,8 +190,11 @@
     }
   }
 
-  customElements.define("tabmail-alltabs-menupopup", MozTabmailAlltabsMenuPopup,
-    { "extends": "menupopup" });
+  customElements.define(
+    "tabmail-alltabs-menupopup",
+    MozTabmailAlltabsMenuPopup,
+    { extends: "menupopup" }
+  );
 
   /**
    * Thunderbird's tab UI mechanism.
@@ -456,8 +469,12 @@
       this.tabModes = {};
       this.defaultTabMode = null;
       this.tabInfo = [];
-      this.tabContainer = document.getElementById(this.getAttribute("tabcontainer"));
-      this.panelContainer = document.getElementById(this.getAttribute("panelcontainer"));
+      this.tabContainer = document.getElementById(
+        this.getAttribute("tabcontainer")
+      );
+      this.panelContainer = document.getElementById(
+        this.getAttribute("panelcontainer")
+      );
       this.tabMonitors = [];
       this.recentlyClosedTabs = [];
       this.mLastTabOpener = null;
@@ -466,7 +483,7 @@
 
       // @implements {nsIController}
       this.tabController = {
-        supportsCommand: (aCommand) => {
+        supportsCommand: aCommand => {
           let tab = this.currentTabInfo;
           // This can happen if we're starting up and haven't got a tab
           // loaded yet.
@@ -483,8 +500,8 @@
             }
           }
 
-          let supportsCommandFunc = tab.mode.supportsCommand ||
-            tab.mode.tabType.supportsCommand;
+          let supportsCommandFunc =
+            tab.mode.supportsCommand || tab.mode.tabType.supportsCommand;
           if (supportsCommandFunc) {
             return supportsCommandFunc.call(tab.mode.tabType, aCommand, tab);
           }
@@ -492,7 +509,7 @@
           return false;
         },
 
-        isCommandEnabled: (aCommand) => {
+        isCommandEnabled: aCommand => {
           let tab = this.currentTabInfo;
           // This can happen if we're starting up and haven't got a tab
           // loaded yet.
@@ -509,8 +526,8 @@
             }
           }
 
-          let isCommandEnabledFunc = tab.mode.isCommandEnabled ||
-            tab.mode.tabType.isCommandEnabled;
+          let isCommandEnabledFunc =
+            tab.mode.isCommandEnabled || tab.mode.tabType.isCommandEnabled;
           if (isCommandEnabledFunc) {
             return isCommandEnabledFunc.call(tab.mode.tabType, aCommand, tab);
           }
@@ -518,7 +535,7 @@
           return false;
         },
 
-        doCommand: (aCommand) => {
+        doCommand: aCommand => {
           let tab = this.currentTabInfo;
           // This can happen if we're starting up and haven't got a tab
           // loaded yet.
@@ -541,7 +558,7 @@
           }
         },
 
-        onEvent: (aEvent) => {
+        onEvent: aEvent => {
           let tab = this.currentTabInfo;
           // This can happen if we're starting up and haven't got a tab
           // loaded yet.
@@ -565,59 +582,68 @@
 
       // @implements {nsIWebProgressListener}
       this.progressListener = {
-        onProgressChange: (aWebProgress, aRequest, aCurSelf, aMaxSelf, aCurTotal, aMaxTotal) => {
+        onProgressChange: (
+          aWebProgress,
+          aRequest,
+          aCurSelf,
+          aMaxSelf,
+          aCurTotal,
+          aMaxTotal
+        ) => {
           let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
-                                    .sameTypeRootTreeItem
-                                    .chromeEventHandler;
+            .sameTypeRootTreeItem.chromeEventHandler;
           this._callTabListeners("onProgressChange", [browser, ...arguments]);
         },
 
-        onProgressChange64: (aWebProgress, aRequest, aCurSelf, aMaxSelf, aCurTotal, aMaxTotal) => {
+        onProgressChange64: (
+          aWebProgress,
+          aRequest,
+          aCurSelf,
+          aMaxSelf,
+          aCurTotal,
+          aMaxTotal
+        ) => {
           let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
-                                    .sameTypeRootTreeItem
-                                    .chromeEventHandler;
+            .sameTypeRootTreeItem.chromeEventHandler;
           this._callTabListeners("onProgressChange64", [browser, ...arguments]);
         },
 
         onLocationChange: (aWebProgress, aRequest, aLocationURI, aFlags) => {
           let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
-                                    .sameTypeRootTreeItem
-                                    .chromeEventHandler;
+            .sameTypeRootTreeItem.chromeEventHandler;
           this._callTabListeners("onLocationChange", [browser, ...arguments]);
         },
 
         onStateChange: (aWebProgress, aRequest, aStateFlags, aStatus) => {
           let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
-                                    .sameTypeRootTreeItem
-                                    .chromeEventHandler;
+            .sameTypeRootTreeItem.chromeEventHandler;
           this._callTabListeners("onStateChange", [browser, ...arguments]);
         },
 
         onStatusChange: (aWebProgress, aRequest, aStatus, aMessage) => {
           let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
-                                    .sameTypeRootTreeItem
-                                    .chromeEventHandler;
+            .sameTypeRootTreeItem.chromeEventHandler;
           this._callTabListeners("onStatusChange", [browser, ...arguments]);
         },
 
         onSecurityChange: (aWebProgress, aRequest, aState) => {
           let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
-                                    .sameTypeRootTreeItem
-                                    .chromeEventHandler;
+            .sameTypeRootTreeItem.chromeEventHandler;
           this._callTabListeners("onSecurityChange", [browser, ...arguments]);
         },
 
         onContentBlockingEvent: (aWebProgress, aRequest, aEvent) => {
           let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
-                                    .sameTypeRootTreeItem
-                                    .chromeEventHandler;
-          this._callTabListeners("onContentBlockingEvent", [browser, ...arguments]);
+            .sameTypeRootTreeItem.chromeEventHandler;
+          this._callTabListeners("onContentBlockingEvent", [
+            browser,
+            ...arguments,
+          ]);
         },
 
         onRefreshAttempted: (aWebProgress, aURI, aDelay, aSameURI) => {
           let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
-                                    .sameTypeRootTreeItem
-                                    .chromeEventHandler;
+            .sameTypeRootTreeItem.chromeEventHandler;
           this._callTabListeners("onRefreshAttempted", [browser, ...arguments]);
         },
 
@@ -646,7 +672,9 @@
     }
 
     createTooltip(event) {
-      let tab = document.tooltipNode ? document.tooltipNode.closest("tab") : null;
+      let tab = document.tooltipNode
+        ? document.tooltipNode.closest("tab")
+        : null;
       if (!tab) {
         event.preventDefault();
         return;
@@ -658,8 +686,12 @@
         return;
       }
 
-      event.target.setAttribute("label", tab.mOverCloseButton ?
-        tab.firstChild.getAttribute("closetabtext") : tab.getAttribute("label"));
+      event.target.setAttribute(
+        "label",
+        tab.mOverCloseButton
+          ? tab.firstChild.getAttribute("closetabtext")
+          : tab.getAttribute("label")
+      );
     }
 
     registerTabType(aTabType) {
@@ -681,8 +713,10 @@
       if (aTabType.panelId) {
         aTabType.panel = document.getElementById(aTabType.panelId);
       } else if (!aTabType.perTabPanel) {
-        throw new Error("Trying to register a tab type with neither panelId " +
-          "nor perTabPanel attributes.");
+        throw new Error(
+          "Trying to register a tab type with neither panelId " +
+            "nor perTabPanel attributes."
+        );
       }
 
       setTimeout(() => {
@@ -751,18 +785,21 @@
         iTab = this.tabContainer.selectedIndex;
         return [iTab, this.tabInfo[iTab], this.tabContainer.allTabs[iTab]];
       }
-      if (typeof(aTabIndexNodeOrInfo) == "number") {
+      if (typeof aTabIndexNodeOrInfo == "number") {
         iTab = aTabIndexNodeOrInfo;
         tabNode = this.tabContainer.allTabs[iTab];
         tab = this.tabInfo[iTab];
-      } else if (aTabIndexNodeOrInfo.tagName && aTabIndexNodeOrInfo.tagName == "tab") {
+      } else if (
+        aTabIndexNodeOrInfo.tagName &&
+        aTabIndexNodeOrInfo.tagName == "tab"
+      ) {
         tabNode = aTabIndexNodeOrInfo;
         iTab = this.tabContainer.getIndexOfItem(tabNode);
         tab = this.tabInfo[iTab];
       } else {
         tab = aTabIndexNodeOrInfo;
         iTab = this.tabInfo.indexOf(tab);
-        tabNode = (iTab >= 0) ? this.tabContainer.allTabs[iTab] : null;
+        tabNode = iTab >= 0 ? this.tabContainer.allTabs[iTab] : null;
       }
       return [iTab, tab, tabNode];
     }
@@ -785,15 +822,20 @@
             // from the first tab before it will start. Because linkedBrowser is
             // implemented as a getter, it's ignored by anything that
             // JSON-serializes this tab.
-            let browserFunc = this.mode.getBrowser || this.mode.tabType.getBrowser;
-            let browser = browserFunc ? browserFunc.call(this.mode.tabType, this) : null;
+            let browserFunc =
+              this.mode.getBrowser || this.mode.tabType.getBrowser;
+            let browser = browserFunc
+              ? browserFunc.call(this.mode.tabType, this)
+              : null;
             if (browser && !("permanentKey" in browser)) {
               // The permanentKey property is a unique Object, thus allowing this
               // browser to be stored in a WeakMap.
               // Use the JSM global to create the permanentKey, so that if the
               // permanentKey is held by something after this window closes, it
               // doesn't keep the window alive.
-              browser.permanentKey = new (Cu.getGlobalForObject(Services).Object);
+              browser.permanentKey = new (Cu.getGlobalForObject(
+                Services
+              )).Object();
             }
             return browser;
           },
@@ -801,8 +843,8 @@
 
         firstTab.mode.tabs.push(firstTab);
         this.tabInfo[0] = this.currentTabInfo = firstTab;
-        let tabOpenFirstFunc = firstTab.mode.openFirstTab ||
-          firstTab.mode.tabType.openFirstTab;
+        let tabOpenFirstFunc =
+          firstTab.mode.openFirstTab || firstTab.mode.tabType.openFirstTab;
         tabOpenFirstFunc.call(firstTab.mode.tabType, firstTab);
         this.setTabTitle(null);
         for (let tabMonitor of this.tabMonitors) {
@@ -836,12 +878,12 @@
         }
 
         // Do this so that we don't generate strict warnings
-        let background = ("background" in aArgs) && aArgs.background;
+        let background = "background" in aArgs && aArgs.background;
         // If the mode wants us to, we should switch to an existing tab
         // rather than open a new one. We shouldn't switch to the tab if
         // we're opening it in the background, though.
-        let shouldSwitchToFunc = tabMode.shouldSwitchTo ||
-          tabMode.tabType.shouldSwitchTo;
+        let shouldSwitchToFunc =
+          tabMode.shouldSwitchTo || tabMode.tabType.shouldSwitchTo;
         if (shouldSwitchToFunc) {
           let tabIndex = shouldSwitchToFunc.apply(tabMode.tabType, [aArgs]);
           if (tabIndex >= 0) {
@@ -882,8 +924,9 @@
           this.tabContainer._updateCloseButtons();
         }
 
-        let oldTab = this._mostRecentTabInfo = this.currentTabInfo;
-        let disregardOpener = ("disregardOpener" in aArgs) && aArgs.disregardOpener;
+        let oldTab = (this._mostRecentTabInfo = this.currentTabInfo);
+        let disregardOpener =
+          "disregardOpener" in aArgs && aArgs.disregardOpener;
         // If we're not disregarding the opening, hold a reference to opener
         // so that if the new tab is closed without switching, we can switch
         // back to the opener tab.
@@ -899,13 +942,14 @@
           this.currentTabInfo = tab;
           // this has a side effect of calling updateCurrentTab, but our
           //  setting currentTabInfo above will cause it to take no action.
-          this.tabContainer.selectedIndex = this.tabContainer.allTabs.length - 1;
+          this.tabContainer.selectedIndex =
+            this.tabContainer.allTabs.length - 1;
         }
 
         // make sure we are on the right panel
         if (tab.mode.tabType.perTabPanel) {
           // should we create the element for them, or will they do it?
-          if (typeof(tab.mode.tabType.perTabPanel) == "string") {
+          if (typeof tab.mode.tabType.perTabPanel == "string") {
             tab.panel = document.createXULElement(tab.mode.tabType.perTabPanel);
           } else {
             tab.panel = tab.mode.tabType.perTabPanel(tab);
@@ -925,7 +969,8 @@
 
         // Make sure the new panel is marked selected.
         let oldPanel = [...this.panelContainer.children].find(p =>
-          p.hasAttribute("selected"));
+          p.hasAttribute("selected")
+        );
         if (oldPanel) {
           oldPanel.removeAttribute("selected");
         }
@@ -937,7 +982,11 @@
         if (!t.linkedPanel) {
           if (!tab.panel.id) {
             // No id set. Create our own.
-            tab.panel.id = "unnamedTab" + Math.random().toString().substring(2);
+            tab.panel.id =
+              "unnamedTab" +
+              Math.random()
+                .toString()
+                .substring(2);
             console.warn(`Tab mode ${aTabModeName} should set an id
             on the first argument of openTab.`);
           }
@@ -946,10 +995,16 @@
 
         let restoreState = this._restoringTabState;
         for (let tabMonitor of this.tabMonitors) {
-          if (("onTabRestored" in tabMonitor) && restoreState &&
-            (tabMonitor.monitorName in restoreState.ext)) {
-            tabMonitor.onTabRestored(tab, restoreState.ext[tabMonitor.monitorName],
-              false);
+          if (
+            "onTabRestored" in tabMonitor &&
+            restoreState &&
+            tabMonitor.monitorName in restoreState.ext
+          ) {
+            tabMonitor.onTabRestored(
+              tab,
+              restoreState.ext[tabMonitor.monitorName],
+              false
+            );
           } else if ("onTabOpened" in tabMonitor) {
             tabMonitor.onTabOpened(tab, false, oldTab);
           }
@@ -977,7 +1032,9 @@
         let moving = restoreState ? restoreState.moving : null;
         // Dispatch tab opening event
         let evt = new CustomEvent("TabOpen", {
-          bubbles: true, detail: { tabInfo: tab, moving }});
+          bubbles: true,
+          detail: { tabInfo: tab, moving },
+        });
         t.dispatchEvent(evt);
         delete tab.beforeTabOpen;
         // Register browser progress listeners
@@ -987,8 +1044,10 @@
           // It would probably be better to have the tabs register this listener, since the
           // browser can change. This wasn't trivial to do while implementing basic WebExtension
           // support, so let's assume one browser only for now.
-          browser.webProgress.addProgressListener(this.progressListener,
-            Ci.nsIWebProgress.NOTIFY_ALL);
+          browser.webProgress.addProgressListener(
+            this.progressListener,
+            Ci.nsIWebProgress.NOTIFY_ALL
+          );
           browser._progressListenerAdded = true;
         }
 
@@ -1013,9 +1072,11 @@
         aIndex += this.tabInfo.length;
       }
 
-      if (aIndex >= 0 &&
+      if (
+        aIndex >= 0 &&
         aIndex < this.tabInfo.length &&
-        aIndex != this.tabContainer.selectedIndex) {
+        aIndex != this.tabContainer.selectedIndex
+      ) {
         this.tabContainer.selectedIndex = aIndex;
       }
 
@@ -1063,7 +1124,7 @@
         aIdx = this.recentlyClosedTabs.length - 1;
       }
       // splice always returns an array
-      let history = (this.recentlyClosedTabs.splice(aIdx, 1))[0];
+      let history = this.recentlyClosedTabs.splice(aIdx, 1)[0];
       if (!history.tab) {
         return;
       }
@@ -1079,8 +1140,10 @@
     }
 
     closeTab(aOptTabIndexNodeOrInfo, aNoUndo) {
-      let [iTab, tab, tabNode] =
-        this._getTabContextForTabbyThing(aOptTabIndexNodeOrInfo, true);
+      let [iTab, tab, tabNode] = this._getTabContextForTabbyThing(
+        aOptTabIndexNodeOrInfo,
+        true
+      );
       if (!tab.canClose) {
         return;
       }
@@ -1130,10 +1193,12 @@
 
       if (this.tabContainer.selectedIndex == -1) {
         if (this.mLastTabOpener && this.tabInfo.includes(this.mLastTabOpener)) {
-          this.tabContainer.selectedIndex = this.tabInfo.indexOf(this.mLastTabOpener);
+          this.tabContainer.selectedIndex = this.tabInfo.indexOf(
+            this.mLastTabOpener
+          );
         } else {
           this.tabContainer.selectedIndex =
-            (iTab == this.tabContainer.allTabs.length) ? iTab - 1 : iTab;
+            iTab == this.tabContainer.allTabs.length ? iTab - 1 : iTab;
         }
       }
 
@@ -1152,7 +1217,10 @@
           this.currentTabInfo.panel || this.currentTabInfo.mode.tabType.panel;
       }
 
-      if (this.tabContainer.allTabs.length == 1 && this.tabContainer.mAutoHide) {
+      if (
+        this.tabContainer.allTabs.length == 1 &&
+        this.tabContainer.mAutoHide
+      ) {
         this.tabContainer.mCollapseToolbar.collapsed = true;
       }
     }
@@ -1170,7 +1238,7 @@
       // closeTab mutates the tabInfo array, so start from the end.
       for (let i = this.tabInfo.length - 1; i >= 0; i--) {
         let tab = this.tabInfo[i];
-        if ((tab != thisTab) && tab.canClose) {
+        if (tab != thisTab && tab.canClose) {
           this.closeTab(tab, aNoUndo);
         }
       }
@@ -1198,9 +1266,9 @@
       // Set up an identifier for the move, consumers may want to correlate TabClose and
       // TabOpen events.
       let moveSession = Cc["@mozilla.org/uuid-generator;1"]
-                          .getService(Ci.nsIUUIDGenerator)
-                          .generateUUID()
-                          .toString();
+        .getService(Ci.nsIUUIDGenerator)
+        .generateUUID()
+        .toString();
       tab.moving = moveSession;
       aTab.moving = moveSession;
       this.closeTab(aTab, true);
@@ -1209,7 +1277,8 @@
         let targetTabmail = aTargetWindow.document.getElementById("tabmail");
         targetTabmail.restoreTab(tab);
         if (aTargetPosition) {
-          let droppedTab = targetTabmail.tabInfo[targetTabmail.tabInfo.length - 1];
+          let droppedTab =
+            targetTabmail.tabInfo[targetTabmail.tabInfo.length - 1];
           targetTabmail.moveTabTo(droppedTab, aTargetPosition);
         }
         return aTargetWindow;
@@ -1217,19 +1286,41 @@
 
       let features = ["chrome"];
       if (aTargetWindow === "popup") {
-        features.push("dialog", "resizable", "minimizable", "centerscreen", "titlebar", "close");
+        features.push(
+          "dialog",
+          "resizable",
+          "minimizable",
+          "centerscreen",
+          "titlebar",
+          "close"
+        );
       } else {
         features.push("dialog=no", "all", "status", "toolbar");
       }
 
-      return window.openDialog("chrome://messenger/content/", "_blank",
-        features.join(","), null, { action: "restore", tabs: [tab] }).focus();
+      return window
+        .openDialog(
+          "chrome://messenger/content/",
+          "_blank",
+          features.join(","),
+          null,
+          { action: "restore", tabs: [tab] }
+        )
+        .focus();
     }
 
     moveTabTo(aTabIndexNodeOrInfo, aIndex) {
-      let [oldIdx, tab, tabNode] =
-        this._getTabContextForTabbyThing(aTabIndexNodeOrInfo, false);
-      if (!tab || !tabNode || tabNode.tagName != "tab" || oldIdx < 0 || oldIdx == aIndex) {
+      let [oldIdx, tab, tabNode] = this._getTabContextForTabbyThing(
+        aTabIndexNodeOrInfo,
+        false
+      );
+      if (
+        !tab ||
+        !tabNode ||
+        tabNode.tagName != "tab" ||
+        oldIdx < 0 ||
+        oldIdx == aIndex
+      ) {
         return -1;
       }
 
@@ -1244,7 +1335,10 @@
 
       // Read it into tabInfo and the tabContainer
       this.tabInfo.splice(aIndex, 0, tab);
-      this.tabContainer.insertBefore(tabNode, this.tabContainer.allTabs[aIndex]);
+      this.tabContainer.insertBefore(
+        tabNode,
+        this.tabContainer.allTabs[aIndex]
+      );
       // Now it's getting a bit ugly, as tabModes stores redundant
       // information we need to get it in sync with tabInfo.
       //
@@ -1335,7 +1429,7 @@
         selectedIndex: null,
       };
 
-      let tabs = state.tabs = [];
+      let tabs = (state.tabs = []);
       for (let [iTab, tab] of this.tabInfo.entries()) {
         let persistTab = this.persistTab(tab);
         if (!persistTab) {
@@ -1445,7 +1539,9 @@
     }
 
     getBrowserForTab(aTab) {
-      let browserFunc = aTab ? aTab.mode.getBrowser || aTab.mode.tabType.getBrowser : null;
+      let browserFunc = aTab
+        ? aTab.mode.getBrowser || aTab.mode.tabType.getBrowser
+        : null;
       return browserFunc ? browserFunc.call(aTab.mode.tabType, aTab) : null;
     }
 
@@ -1455,12 +1551,15 @@
      */
     getBrowserForDocument(aDocument) {
       for (let i = 0; i < this.tabInfo.length; ++i) {
-        let browserFunc = this.tabInfo[i].mode.getBrowser ||
+        let browserFunc =
+          this.tabInfo[i].mode.getBrowser ||
           this.tabInfo[i].mode.tabType.getBrowser;
 
         if (browserFunc) {
-          let possBrowser = browserFunc.call(this.tabInfo[i].mode.tabType,
-            this.tabInfo[i]);
+          let possBrowser = browserFunc.call(
+            this.tabInfo[i].mode.tabType,
+            this.tabInfo[i]
+          );
           if (possBrowser && possBrowser.contentWindow == aDocument) {
             return this.tabInfo[i];
           }
@@ -1476,13 +1575,18 @@
      */
     getBrowserForDocumentId(aDocumentId) {
       for (let i = 0; i < this.tabInfo.length; ++i) {
-        let browserFunc = this.tabInfo[i].mode.getBrowser ||
+        let browserFunc =
+          this.tabInfo[i].mode.getBrowser ||
           this.tabInfo[i].mode.tabType.getBrowser;
         if (browserFunc) {
-          let possBrowser = browserFunc.call(this.tabInfo[i].mode.tabType,
-            this.tabInfo[i]);
-          if (possBrowser &&
-            possBrowser.contentDocument.documentElement.id == aDocumentId) {
+          let possBrowser = browserFunc.call(
+            this.tabInfo[i].mode.tabType,
+            this.tabInfo[i]
+          );
+          if (
+            possBrowser &&
+            possBrowser.contentDocument.documentElement.id == aDocumentId
+          ) {
             return this.tabInfo[i];
           }
         }
@@ -1501,7 +1605,9 @@
     }
 
     removeCurrentTab() {
-      this.removeTabByNode(this.tabContainer.allTabs[this.tabContainer.selectedIndex]);
+      this.removeTabByNode(
+        this.tabContainer.allTabs[this.tabContainer.selectedIndex]
+      );
     }
 
     switchToTab(aTabIndexNodeOrInfo) {
@@ -1513,15 +1619,20 @@
      * UpdateCurrentTab - called in response to changing the current tab.
      */
     updateCurrentTab() {
-      if (this.currentTabInfo != this.tabInfo[this.tabContainer.selectedIndex]) {
+      if (
+        this.currentTabInfo != this.tabInfo[this.tabContainer.selectedIndex]
+      ) {
         if (this.currentTabInfo) {
           this.saveCurrentTabState();
         }
 
         let oldTab = this.currentTabInfo;
         let oldPanel = [...this.panelContainer.children].find(p =>
-          p.hasAttribute("selected"));
-        let tab = this.currentTabInfo = this.tabInfo[this.tabContainer.selectedIndex];
+          p.hasAttribute("selected")
+        );
+        let tab = (this.currentTabInfo = this.tabInfo[
+          this.tabContainer.selectedIndex
+        ]);
         // Update the selected attribute on the current and old tab panel.
         if (oldPanel) {
           oldPanel.removeAttribute("selected");
@@ -1552,7 +1663,10 @@
         // We switched tabs, so we don't need to know the last tab
         // opener anymore.
         this.mLastTabOpener = null;
-        let evt = new CustomEvent("TabSelect", { bubbles: true, detail: { tabInfo: tab } });
+        let evt = new CustomEvent("TabSelect", {
+          bubbles: true,
+          detail: { tabInfo: tab },
+        });
         this.tabContainer.selectedItem.dispatchEvent(evt);
       }
     }
@@ -1582,13 +1696,15 @@
       let [iTab, tab] = this._getTabContextForTabbyThing(aTabNodeOrInfo, true);
       if (tab) {
         let tabNode = this.tabContainer.allTabs[iTab];
-        let titleChangeFunc = tab.mode.onTitleChanged ||
-          tab.mode.tabType.onTitleChanged;
+        let titleChangeFunc =
+          tab.mode.onTitleChanged || tab.mode.tabType.onTitleChanged;
         if (titleChangeFunc) {
           titleChangeFunc.call(tab.mode.tabType, tab, tabNode);
         }
 
-        let defaultTabTitle = document.documentElement.getAttribute("defaultTabTitle");
+        let defaultTabTitle = document.documentElement.getAttribute(
+          "defaultTabTitle"
+        );
         let oldLabel = tabNode.getAttribute("label");
         let newLabel = aTabNodeOrInfo ? tab.title : defaultTabTitle;
         if (oldLabel == newLabel) {
@@ -1652,7 +1768,7 @@
     _setActiveThinkingState(aThinkingState) {
       if (aThinkingState) {
         statusFeedback.showProgress(0);
-        if (typeof(aThinkingState) == "string") {
+        if (typeof aThinkingState == "string") {
           statusFeedback.showStatusString(aThinkingState);
         }
         gStatusBar.removeAttribute("value");
@@ -1663,9 +1779,11 @@
     }
 
     setTabThinking(aTabNodeOrInfo, aThinking) {
-      let [iTab, tab, tabNode] =
-        this._getTabContextForTabbyThing(aTabNodeOrInfo, false);
-      let isSelected = (iTab == this.tabContainer.selectedIndex);
+      let [iTab, tab, tabNode] = this._getTabContextForTabbyThing(
+        aTabNodeOrInfo,
+        false
+      );
+      let isSelected = iTab == this.tabContainer.selectedIndex;
       // if we are the current tab, update the cursor
       if (isSelected) {
         this._setActiveThinkingState(aThinking);
@@ -1688,9 +1806,11 @@
     }
 
     setTabBusy(aTabNodeOrInfo, aBusy) {
-      let [iTab, tab, tabNode] =
-        this._getTabContextForTabbyThing(aTabNodeOrInfo, false);
-      let isSelected = (iTab == this.tabContainer.selectedIndex);
+      let [iTab, tab, tabNode] = this._getTabContextForTabbyThing(
+        aTabNodeOrInfo,
+        false
+      );
+      let isSelected = iTab == this.tabContainer.selectedIndex;
 
       // if we are the current tab, update the cursor
       if (isSelected) {
@@ -1723,29 +1843,38 @@
       let tabContextMenu = document.getElementById("tabContextMenu");
       let tab = this._getTabContextForTabbyThing(aTabNode, true)[1];
       // by default "close other tabs" is disabled...
-      tabContextMenu.querySelector(`[anonid="closeOtherTabs"]`)
-                    .setAttribute("disabled", "true");
+      tabContextMenu
+        .querySelector(`[anonid="closeOtherTabs"]`)
+        .setAttribute("disabled", "true");
       // ... except if we find at least one other tab that can be closed.
       for (let i = 0; i < this.tabInfo.length; i++) {
         if (this.tabInfo[i].canClose && this.tabInfo[i] != tab) {
-          tabContextMenu.querySelector(`[anonid="closeOtherTabs"]`)
-                        .setAttribute("disabled", "false");
+          tabContextMenu
+            .querySelector(`[anonid="closeOtherTabs"]`)
+            .setAttribute("disabled", "false");
           break;
         }
       }
 
-      tabContextMenu.querySelector(`[anonid="closeTab"]`)
-                    .setAttribute("disabled", tab.canClose ? "false" : "true");
+      tabContextMenu
+        .querySelector(`[anonid="closeTab"]`)
+        .setAttribute("disabled", tab.canClose ? "false" : "true");
       // enable "Open in new Window" iff tab is closable and...
       // ... it can persist its state. Other wise it would get destroyed...
       // ... while moving it to a new window.
-      tabContextMenu.querySelector(`[anonid="openTabInWindow"]`)
-                    .setAttribute("disabled",
-                      (tab.canClose && this.persistTab(tab)) ? "false" : "true");
+      tabContextMenu
+        .querySelector(`[anonid="openTabInWindow"]`)
+        .setAttribute(
+          "disabled",
+          tab.canClose && this.persistTab(tab) ? "false" : "true"
+        );
       // If the tab history is empty, disable "Undo Close Tab"
-      tabContextMenu.querySelector(`[anonid="recentlyClosedTabs"]`)
-                    .setAttribute("disabled",
-                      (this.recentlyClosedTabs.length) ? "false" : "true");
+      tabContextMenu
+        .querySelector(`[anonid="recentlyClosedTabs"]`)
+        .setAttribute(
+          "disabled",
+          this.recentlyClosedTabs.length ? "false" : "true"
+        );
 
       return true;
     }
@@ -1763,7 +1892,8 @@
 
       // If we're on Mac, don't display the separator and the modifier.
       if (AppConstants.platform != "macosx") {
-        docTitle += docElement.getAttribute("titlemenuseparator") +
+        docTitle +=
+          docElement.getAttribute("titlemenuseparator") +
           docElement.getAttribute("titlemodifier");
       }
 

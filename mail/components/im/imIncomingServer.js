@@ -2,24 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {
-  EmptyEnumerator,
-  XPCOMUtils,
-} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var { EmptyEnumerator, XPCOMUtils } = ChromeUtils.import(
+  "resource:///modules/imXPCOMUtils.jsm"
+);
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 
 function imIncomingServer() {}
 
 imIncomingServer.prototype = {
-  get wrappedJSObject() { return this; },
+  get wrappedJSObject() {
+    return this;
+  },
   _imAccount: null,
   get imAccount() {
-    if (this._imAccount)
+    if (this._imAccount) {
       return this._imAccount;
+    }
 
     let id = this.getCharValue("imAccount");
-    if (!id)
+    if (!id) {
       return null;
+    }
     Services.core.init();
     return (this._imAccount = Services.accounts.getAccountById(id));
   },
@@ -30,10 +33,16 @@ imIncomingServer.prototype = {
   _prefBranch: null,
   valid: true,
   hidden: false,
-  get offlineSupportLevel() { return 0; },
-  get supportsDiskSpace() { return false; },
+  get offlineSupportLevel() {
+    return 0;
+  },
+  get supportsDiskSpace() {
+    return false;
+  },
   _key: "",
-  get key() { return this._key; },
+  get key() {
+    return this._key;
+  },
   set key(aKey) {
     this._key = aKey;
     this._prefBranch = Services.prefs.getBranch("mail.server." + aKey + ".");
@@ -82,20 +91,27 @@ imIncomingServer.prototype = {
   },
 
   // XXX Flo: I don't think constructedPrettyName is visible in the UI
-  get constructedPrettyName() { return "constructedPrettyName FIXME"; },
-  get realHostName() { return this.hostName; },
+  get constructedPrettyName() {
+    return "constructedPrettyName FIXME";
+  },
+  get realHostName() {
+    return this.hostName;
+  },
   set realHostName(aValue) {},
 
   port: -1,
   accountManagerChrome: "am-im.xul",
 
-
   // FIXME need a new imIIncomingService iface + classinfo for these 3 properties :(
-  get password() { return this.imAccount.password; },
+  get password() {
+    return this.imAccount.password;
+  },
   set password(aPassword) {
     this.imAccount.password = aPassword;
   },
-  get alias() { return this.imAccount.alias; },
+  get alias() {
+    return this.imAccount.alias;
+  },
   set alias(aAlias) {
     this.imAccount.alias = aAlias;
   },
@@ -114,22 +130,26 @@ imIncomingServer.prototype = {
 
   // This is used for user-visible advanced preferences.
   setUnicharValue(aPrefName, aValue) {
-    if (aPrefName == "autojoin")
+    if (aPrefName == "autojoin") {
       this.autojoin = aValue;
-    else if (aPrefName == "alias")
+    } else if (aPrefName == "alias") {
       this.alias = aValue;
-    else if (aPrefName == "password")
+    } else if (aPrefName == "password") {
       this.password = aValue;
-    else
+    } else {
       this.imAccount.setString(aPrefName, aValue);
+    }
   },
   getUnicharValue(aPrefName) {
-    if (aPrefName == "autojoin")
+    if (aPrefName == "autojoin") {
       return this.autojoin;
-    if (aPrefName == "alias")
+    }
+    if (aPrefName == "alias") {
       return this.alias;
-    if (aPrefName == "password")
+    }
+    if (aPrefName == "password") {
       return this.password;
+    }
 
     try {
       let prefName =
@@ -174,23 +194,24 @@ imIncomingServer.prototype = {
     if (aPrefName == "otrAllowMsgLog") {
       return Services.prefs.getBoolPref("chat.otr.default.allowMsgLog");
     }
-    if (this._defaultOptionValues)
+    if (this._defaultOptionValues) {
       return this._defaultOptionValues[aPrefName];
-
+    }
 
     this._defaultOptionValues = {};
     let options = this.imAccount.protocol.getOptions();
     while (options.hasMoreElements()) {
       let opt = options.getNext();
       let type = opt.type;
-      if (type == opt.typeBool)
+      if (type == opt.typeBool) {
         this._defaultOptionValues[opt.name] = opt.getBool();
-      else if (type == opt.typeInt)
+      } else if (type == opt.typeInt) {
         this._defaultOptionValues[opt.name] = opt.getInt();
-      else if (type == opt.typeString)
+      } else if (type == opt.typeString) {
         this._defaultOptionValues[opt.name] = opt.getString();
-      else if (type == opt.typeList)
+      } else if (type == opt.typeList) {
         this._defaultOptionValues[opt.name] = opt.getListDefault();
+      }
     }
     return this._defaultOptionValues[aPrefName];
   },
@@ -207,12 +228,16 @@ imIncomingServer.prototype = {
     }
   },
 
-  get type() { return this._prefBranch.getCharPref("type"); },
+  get type() {
+    return this._prefBranch.getCharPref("type");
+  },
   set type(aType) {
     this._prefBranch.setCharPref("type", aType);
   },
 
-  get username() { return this._prefBranch.getCharPref("userName"); },
+  get username() {
+    return this._prefBranch.getCharPref("userName");
+  },
   set username(aUsername) {
     if (!aUsername) {
       // nsMsgAccountManager::GetIncomingServer expects the pref to
@@ -223,7 +248,9 @@ imIncomingServer.prototype = {
     this._prefBranch.setCharPref("userName", aUsername);
   },
 
-  get hostName() { return this._prefBranch.getCharPref("hostname"); },
+  get hostName() {
+    return this._prefBranch.getCharPref("hostname");
+  },
   set hostName(aHostName) {
     this._prefBranch.setCharPref("hostname", aHostName);
   },
@@ -234,13 +261,16 @@ imIncomingServer.prototype = {
   // Shutdown the server instance so at least disconnect from the server.
   shutdown() {
     // Ensure this account has not been destroyed already.
-    if (this.imAccount.prplAccount)
+    if (this.imAccount.prplAccount) {
       this.imAccount.disconnect();
+    }
   },
 
   setFilterList() {},
 
-  get canBeDefaultServer() { return false; },
+  get canBeDefaultServer() {
+    return false;
+  },
 
   // AccountManager.js verifies that spamSettings is non-null before
   // using the initialize method, but we can't just use a null value
@@ -260,32 +290,45 @@ imIncomingServer.prototype = {
     supportsCompaction: false,
   },
 
-  get serverURI() { return "im://" + this.imAccount.protocol.id + "/" + this.imAccount.name; },
+  get serverURI() {
+    return "im://" + this.imAccount.protocol.id + "/" + this.imAccount.name;
+  },
   _rootFolder: null,
-  get rootMsgFolder() { return this.rootFolder; },
+  get rootMsgFolder() {
+    return this.rootFolder;
+  },
   get rootFolder() {
-    if (this._rootFolder)
+    if (this._rootFolder) {
       return this._rootFolder;
+    }
 
     return (this._rootFolder = {
       isServer: true,
       server: this,
-      get URI() { return this.server.serverURI; },
-      get prettyName() { return this.server.prettyName; }, // used in the account manager tree
-      get name() { return this.server.prettyName + " name"; }, // never displayed?
+      get URI() {
+        return this.server.serverURI;
+      },
+      get prettyName() {
+        return this.server.prettyName;
+      }, // used in the account manager tree
+      get name() {
+        return this.server.prettyName + " name";
+      }, // never displayed?
       // used in the folder pane tree, if we don't hide the IM accounts:
-      get abbreviatedName() { return this.server.prettyName + "abbreviatedName"; },
+      get abbreviatedName() {
+        return this.server.prettyName + "abbreviatedName";
+      },
       AddFolderListener() {},
       RemoveFolderListener() {},
-      descendants: Cc["@mozilla.org/array;1"]
-                  .createInstance(Ci.nsIArray),
+      descendants: Cc["@mozilla.org/array;1"].createInstance(Ci.nsIArray),
       ListDescendants(descendants) {},
       getFlag: () => false,
       getFolderWithFlags: aFlags => null,
       getFoldersWithFlags: aFlags =>
-        Cc["@mozilla.org/array;1"]
-          .createInstance(Ci.nsIArray),
-      get subFolders() { return EmptyEnumerator; },
+        Cc["@mozilla.org/array;1"].createInstance(Ci.nsIArray),
+      get subFolders() {
+        return EmptyEnumerator;
+      },
       getStringProperty: aPropertyName => "",
       getNumUnread: aDeep => 0,
       Shutdown() {},
@@ -293,11 +336,14 @@ imIncomingServer.prototype = {
     });
   },
 
-  get sortOrder() { return 300000000; },
+  get sortOrder() {
+    return 300000000;
+  },
 
   get protocolInfo() {
-    return Cc["@mozilla.org/messenger/protocol/info;1?type=im"]
-             .getService(Ci.nsIMsgProtocolInfo);
+    return Cc["@mozilla.org/messenger/protocol/info;1?type=im"].getService(
+      Ci.nsIMsgProtocolInfo
+    );
   },
 
   classDescription: "IM Msg Incoming Server implementation",

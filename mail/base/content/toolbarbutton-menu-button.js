@@ -1,6 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
-  * License, v. 2.0. If a copy of the MPL was not distributed with this
-  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 "use strict";
 
@@ -21,22 +21,29 @@
     static get inheritedAttributes() {
       return {
         ...super.inheritedAttributes,
-        ".toolbarbutton-menubutton-button": "command,hidden,disabled,align,dir,pack,orient,tooltiptext=buttontooltiptext",
+        ".toolbarbutton-menubutton-button":
+          "command,hidden,disabled,align,dir,pack,orient,tooltiptext=buttontooltiptext",
         ".toolbarbutton-menubutton-dropmarker": "open,disabled",
       };
     }
     static get menubuttonFragment() {
-      let frag = document.importNode(MozXULElement.parseXULToFragment(`
+      let frag = document.importNode(
+        MozXULElement.parseXULToFragment(`
         <toolbarbutton class="box-inherit toolbarbutton-menubutton-button" flex="1" allowevents="true"></toolbarbutton>
         <dropmarker type="menu-button" class="toolbarbutton-menubutton-dropmarker"></dropmarker>
-      `), true);
-      Object.defineProperty(this, "menubuttonFragment", {value: frag});
+      `),
+        true
+      );
+      Object.defineProperty(this, "menubuttonFragment", { value: frag });
       return frag;
     }
 
     /** @override */
     get _hasConnected() {
-      return (this.querySelector(":scope > toolbarbutton > .toolbarbutton-text") != null);
+      return (
+        this.querySelector(":scope > toolbarbutton > .toolbarbutton-text") !=
+        null
+      );
     }
 
     /** @override */
@@ -62,6 +69,9 @@
       this.render();
     }
   }
-  customElements.define("toolbarbutton-menu-button", MozToolbarButtonMenuButton,
-                        { extends: "toolbarbutton" });
+  customElements.define(
+    "toolbarbutton-menu-button",
+    MozToolbarButtonMenuButton,
+    { extends: "toolbarbutton" }
+  );
 }

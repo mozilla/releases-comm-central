@@ -15,7 +15,11 @@
 
 var MODULE_NAME = "test-exposed-in-content-tabs";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "content-tab-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "compose-helpers",
+  "content-tab-helpers",
+];
 
 var folder = null;
 var composeHelper = null;
@@ -26,15 +30,18 @@ var gMsgNo = 0;
 var url = collector.addHttpResource("../content-policy/html", "content");
 
 // These two constants are used to build the message body.
-var msgBody = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">\n' +
-"<html>\n" +
-"<head>\n" +
-"\n" +
-'<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">\n' +
-"</head>\n" +
-'<body bgcolor="#ffffff" text="#000000">\n' +
-'<img id="testelement" src="' + url + 'pass.png"/>\n' +
-"</body>\n</html>\n";
+var msgBody =
+  '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">\n' +
+  "<html>\n" +
+  "<head>\n" +
+  "\n" +
+  '<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">\n' +
+  "</head>\n" +
+  '<body bgcolor="#ffffff" text="#000000">\n' +
+  '<img id="testelement" src="' +
+  url +
+  'pass.png"/>\n' +
+  "</body>\n</html>\n";
 
 function setupModule(module) {
   let fdh = collector.getModule("folder-display-helpers");
@@ -48,23 +55,31 @@ function setupModule(module) {
 }
 
 function addToFolder(aSubject, aBody, aFolder) {
-  let msgId = Cc["@mozilla.org/uuid-generator;1"]
-                          .getService(Ci.nsIUUIDGenerator)
-                          .generateUUID() + "@mozillamessaging.invalid";
+  let msgId =
+    Cc["@mozilla.org/uuid-generator;1"]
+      .getService(Ci.nsIUUIDGenerator)
+      .generateUUID() + "@mozillamessaging.invalid";
 
-  let source = "From - Sat Nov  1 12:39:54 2008\n" +
-               "X-Mozilla-Status: 0001\n" +
-               "X-Mozilla-Status2: 00000000\n" +
-               "Message-ID: <" + msgId + ">\n" +
-               "Date: Wed, 11 Jun 2008 20:32:02 -0400\n" +
-               "From: Tester <tests@mozillamessaging.invalid>\n" +
-               "User-Agent: Thunderbird 3.0a2pre (Macintosh/2008052122)\n" +
-               "MIME-Version: 1.0\n" +
-               "To: recipient@mozillamessaging.invalid\n" +
-               "Subject: " + aSubject + "\n" +
-               "Content-Type: text/html; charset=ISO-8859-1\n" +
-               "Content-Transfer-Encoding: 7bit\n" +
-               "\n" + aBody + "\n";
+  let source =
+    "From - Sat Nov  1 12:39:54 2008\n" +
+    "X-Mozilla-Status: 0001\n" +
+    "X-Mozilla-Status2: 00000000\n" +
+    "Message-ID: <" +
+    msgId +
+    ">\n" +
+    "Date: Wed, 11 Jun 2008 20:32:02 -0400\n" +
+    "From: Tester <tests@mozillamessaging.invalid>\n" +
+    "User-Agent: Thunderbird 3.0a2pre (Macintosh/2008052122)\n" +
+    "MIME-Version: 1.0\n" +
+    "To: recipient@mozillamessaging.invalid\n" +
+    "Subject: " +
+    aSubject +
+    "\n" +
+    "Content-Type: text/html; charset=ISO-8859-1\n" +
+    "Content-Transfer-Encoding: 7bit\n" +
+    "\n" +
+    aBody +
+    "\n";
 
   aFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   aFolder.gettingNewMessages = true;
@@ -76,14 +91,16 @@ function addToFolder(aSubject, aBody, aFolder) {
 }
 
 function addMsgToFolder(folder) {
-  let msgDbHdr = addToFolder("exposed test message " + gMsgNo,
-                             msgBody, folder);
+  let msgDbHdr = addToFolder("exposed test message " + gMsgNo, msgBody, folder);
 
   // select the newly created message
   let msgHdr = select_click_row(gMsgNo);
 
-  if (msgDbHdr != msgHdr)
-    throw new Error("Selected Message Header is not the same as generated header");
+  if (msgDbHdr != msgHdr) {
+    throw new Error(
+      "Selected Message Header is not the same as generated header"
+    );
+  }
 
   assert_selected_and_displayed(gMsgNo);
 
@@ -93,8 +110,8 @@ function addMsgToFolder(folder) {
   let msgSimpleURL = msgHdr.folder.getUriForMsg(msgHdr);
 
   let msgService = Cc["@mozilla.org/messenger;1"]
-                     .createInstance(Ci.nsIMessenger)
-                     .messageServiceFromURI(msgSimpleURL);
+    .createInstance(Ci.nsIMessenger)
+    .messageServiceFromURI(msgSimpleURL);
 
   var neckoURL = {};
   msgService.GetUrlForUri(msgSimpleURL, neckoURL, null);
@@ -109,19 +126,28 @@ function checkContentTab(msgURL) {
   // in the data of what we want.
   let preCount = mc.tabmail.tabContainer.allTabs.length;
 
-  let dataurl = "data:text/html,<html><head><title>test exposed</title>" +
-    '</head><body><iframe id="msgIframe" src="' + msgURL + '"/></body></html>';
+  let dataurl =
+    "data:text/html,<html><head><title>test exposed</title>" +
+    '</head><body><iframe id="msgIframe" src="' +
+    msgURL +
+    '"/></body></html>';
 
   let newTab = open_content_tab_with_url(dataurl);
 
-  if (mc.window.content.document.getElementById("msgIframe")
-        .contentDocument.URL != "about:blank")
-    throw new Error("Message display/access has not been blocked from remote content!");
+  if (
+    mc.window.content.document.getElementById("msgIframe").contentDocument
+      .URL != "about:blank"
+  ) {
+    throw new Error(
+      "Message display/access has not been blocked from remote content!"
+    );
+  }
 
   mc.tabmail.closeTab(newTab);
 
-  if (mc.tabmail.tabContainer.allTabs.length != preCount)
+  if (mc.tabmail.tabContainer.allTabs.length != preCount) {
     throw new Error("The content tab didn't close");
+  }
 }
 
 function test_exposedInContentTabs() {

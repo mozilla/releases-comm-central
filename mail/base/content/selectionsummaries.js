@@ -22,9 +22,7 @@ function summarizeSelection(aMessageDisplay) {
   let dbView = folderDisplay.view.dbView;
 
   let getThreadId = function(index) {
-    return dbView.getThreadContainingIndex(index)
-                 .getChildHdrAt(0)
-                 .messageKey;
+    return dbView.getThreadContainingIndex(index).getChildHdrAt(0).messageKey;
   };
 
   let firstThreadId = getThreadId(selectedIndices[0]);
@@ -37,10 +35,11 @@ function summarizeSelection(aMessageDisplay) {
   }
 
   let selectedMessages = folderDisplay.selectedMessages;
-  if (oneThread)
+  if (oneThread) {
     summarizeThread(selectedMessages, aMessageDisplay);
-  else
+  } else {
     summarizeMultipleSelection(selectedMessages, aMessageDisplay);
+  }
 }
 
 /**
@@ -58,7 +57,9 @@ function summarizeThread(aSelectedMessages, aMessageDisplay) {
     let childWindow = gSummaryFrameManager.iframe.contentWindow;
     try {
       childWindow.gMessageSummary.summarize(
-        "thread", aSelectedMessages, aMessageDisplay
+        "thread",
+        aSelectedMessages,
+        aMessageDisplay
       );
     } catch (e) {
       Cu.reportError(e);
@@ -83,7 +84,9 @@ function summarizeMultipleSelection(aSelectedMessages, aMessageDisplay) {
     let childWindow = gSummaryFrameManager.iframe.contentWindow;
     try {
       childWindow.gMessageSummary.summarize(
-        "multipleselection", aSelectedMessages, aMessageDisplay
+        "multipleselection",
+        aSelectedMessages,
+        aMessageDisplay
       );
     } catch (e) {
       Cu.reportError(e);

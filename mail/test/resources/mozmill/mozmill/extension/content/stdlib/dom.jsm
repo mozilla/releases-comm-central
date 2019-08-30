@@ -44,8 +44,7 @@ function getAttributes(node) {
       try {
         var attr = node.attributes[i];
         attributes[attr.name] = attr.value;
-      } catch (err) {
-      }
+      } catch (err) {}
     }
   }
   return attributes;

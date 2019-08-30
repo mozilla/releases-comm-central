@@ -9,7 +9,9 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 
 var wh, fdh, mc;
 
@@ -24,8 +26,7 @@ function installInto(module) {
 
   // Now copy helper functions
   module.open_advanced_settings = open_advanced_settings;
-  module.open_advanced_settings_from_account_wizard =
-    open_advanced_settings_from_account_wizard;
+  module.open_advanced_settings_from_account_wizard = open_advanced_settings_from_account_wizard;
   module.open_mail_account_setup_wizard = open_mail_account_setup_wizard;
   module.click_account_tree_row = click_account_tree_row;
   module.get_account_tree_row = get_account_tree_row;
@@ -38,8 +39,9 @@ function installInto(module) {
  * @param callback Callback for the modal dialog that is opened.
  */
 function open_advanced_settings(aCallback, aController) {
-  if (aController === undefined)
+  if (aController === undefined) {
     aController = mc;
+  }
 
   wh.plan_for_modal_dialog("mailnews:accountmanager", aCallback);
   aController.click(mc.eid("menu_accountmgr"));
@@ -77,20 +79,27 @@ function open_mail_account_setup_wizard(aCallback) {
  * @param rowIndex the row to click
  */
 function click_account_tree_row(controller, rowIndex) {
-  utils.waitFor(() => controller.window.currentAccount != null,
-                "Timeout waiting for currentAccount to become non-null");
+  utils.waitFor(
+    () => controller.window.currentAccount != null,
+    "Timeout waiting for currentAccount to become non-null"
+  );
 
   let tree = controller.window.document.getElementById("accounttree");
 
   fdh.click_tree_row(tree, rowIndex, controller);
 
-  utils.waitFor(() => controller.window.pendingAccount == null,
-                "Timeout waiting for pendingAccount to become null");
+  utils.waitFor(
+    () => controller.window.pendingAccount == null,
+    "Timeout waiting for pendingAccount to become null"
+  );
 
   // Ensure the page is fully loaded (e.g. onInit functions).
-  wh.wait_for_frame_load(controller.e("contentFrame"),
-    controller.window.pageURL(tree.view.getItemAtIndex(rowIndex)
-                                              .getAttribute("PageTag")));
+  wh.wait_for_frame_load(
+    controller.e("contentFrame"),
+    controller.window.pageURL(
+      tree.view.getItemAtIndex(rowIndex).getAttribute("PageTag")
+    )
+  );
 }
 
 /**
@@ -117,17 +126,25 @@ function get_account_tree_row(aAccountKey, aPaneId, aController) {
         // If this is the wanted account, find the wanted settings pane.
         let accountBlock = accountHead.querySelectorAll("[PageTag]");
         // A null aPaneId means the main pane.
-        if (!aPaneId)
+        if (!aPaneId) {
           return rowIndex;
+        }
 
         // Otherwise find the pane in the children.
         for (let j = 0; j < accountBlock.length; j++) {
-          if (accountBlock[j].getAttribute("PageTag") == aPaneId)
+          if (accountBlock[j].getAttribute("PageTag") == aPaneId) {
             return rowIndex + j + 1;
+          }
         }
 
         // The pane was not found.
-        dump("The treerow for pane " + aPaneId + " of account " + aAccountKey + " was not found!\n");
+        dump(
+          "The treerow for pane " +
+            aPaneId +
+            " of account " +
+            aAccountKey +
+            " was not found!\n"
+        );
         return -1;
       }
       // If this is not the wanted account, skip all of its settings panes.
@@ -152,29 +169,48 @@ function get_account_tree_row(aAccountKey, aPaneId, aController) {
  * @param aRemoveAccount  Remove the account itself.
  * @param aRemoveData     Remove the message data of the account.
  */
-function remove_account(aAccount, aController, aRemoveAccount = true, aRemoveData = false) {
-  let accountRow = get_account_tree_row(aAccount.key, "am-server.xul", aController);
+function remove_account(
+  aAccount,
+  aController,
+  aRemoveAccount = true,
+  aRemoveData = false
+) {
+  let accountRow = get_account_tree_row(
+    aAccount.key,
+    "am-server.xul",
+    aController
+  );
   click_account_tree_row(aController, accountRow);
 
   wh.plan_for_modal_dialog("removeAccountDialog", function(cdc) {
     // Account removal confirmation dialog. Select what to remove.
-    if (aRemoveAccount)
-      cdc.click(new elib.Elem(cdc.window.document.getElementById("removeAccount")));
-    if (aRemoveData)
-      cdc.click(new elib.Elem(cdc.window.document.getElementById("removeData")));
+    if (aRemoveAccount) {
+      cdc.click(
+        new elib.Elem(cdc.window.document.getElementById("removeAccount"))
+      );
+    }
+    if (aRemoveData) {
+      cdc.click(
+        new elib.Elem(cdc.window.document.getElementById("removeData"))
+      );
+    }
 
     cdc.window.document.documentElement.acceptDialog();
-    cdc.waitFor(() => !cdc.window.document.documentElement.getButton("accept").disabled,
-                "Timeout waiting for finish of account removal",
-                5000, 100);
+    cdc.waitFor(
+      () => !cdc.window.document.documentElement.getButton("accept").disabled,
+      "Timeout waiting for finish of account removal",
+      5000,
+      100
+    );
     cdc.window.document.documentElement.acceptDialog();
   });
 
   aAccount = null;
   // Use the Remove item in the Account actions menu.
   aController.click(aController.eid("accountActionsButton"));
-  aController.click_menus_in_sequence(aController.e("accountActionsDropdown"),
-                                      [ {id: "accountActionsDropdownRemove"} ]);
+  aController.click_menus_in_sequence(aController.e("accountActionsDropdown"), [
+    { id: "accountActionsDropdownRemove" },
+  ]);
   wh.wait_for_modal_dialog("removeAccountDialog");
   // TODO: For unknown reason this also closes the whole account manager.
 }

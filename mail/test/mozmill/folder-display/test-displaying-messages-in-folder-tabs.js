@@ -17,7 +17,11 @@
 
 var MODULE_NAME = "test-displaying-messages-in-folder-tabs";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "search-window-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "search-window-helpers",
+];
 
 var folderA;
 var folderB;
@@ -25,7 +29,8 @@ var folderC;
 
 var folderTab;
 
-var msgHdrsInFolderA = [], msgHdrsInFolderB = [];
+var msgHdrsInFolderA = [],
+  msgHdrsInFolderB = [];
 
 // The number of messages in folderA/folderB.
 var NUM_MESSAGES_IN_FOLDER = 10;
@@ -51,12 +56,13 @@ function setupModule(module) {
   folderA = create_folder("DisplayMessageFolderTabA");
   folderB = create_folder("DisplayMessageFolderTabB");
   folderC = create_folder("DisplayMessageFolderTabC");
-  make_new_sets_in_folder(folderA, [{count: NUM_MESSAGES_IN_FOLDER}]);
-  let [, taggedMsg] = make_new_sets_in_folder(folderB,
-                                              [{count: NUM_MESSAGES_IN_FOLDER - 1},
-                                               {count: 1}]);
+  make_new_sets_in_folder(folderA, [{ count: NUM_MESSAGES_IN_FOLDER }]);
+  let [, taggedMsg] = make_new_sets_in_folder(folderB, [
+    { count: NUM_MESSAGES_IN_FOLDER - 1 },
+    { count: 1 },
+  ]);
   taggedMsg.addTag("$label3");
-  make_new_sets_in_folder(folderC, [{count: 50}]);
+  make_new_sets_in_folder(folderC, [{ count: 50 }]);
 }
 
 /**
@@ -99,7 +105,6 @@ function test_display_message_with_no_3pane_windows_open() {
   assert_row_visible(45);
 }
 
-
 /**
  * Initialize the globals we'll need for all our tests.
  */
@@ -115,11 +120,13 @@ function test_setup_displaying_messages_in_folder_tabs_globals() {
   // Stash messages into arrays for convenience. We do it this way so that the
   // order of messages in the arrays is the same as in the views.
   be_in_folder(folderA);
-  for (let i = 0; i < NUM_MESSAGES_IN_FOLDER; i++)
+  for (let i = 0; i < NUM_MESSAGES_IN_FOLDER; i++) {
     msgHdrsInFolderA.push(mc.dbView.getMsgHdrAt(i));
+  }
   be_in_folder(folderB);
-  for (let i = 0; i < NUM_MESSAGES_IN_FOLDER; i++)
+  for (let i = 0; i < NUM_MESSAGES_IN_FOLDER; i++) {
     msgHdrsInFolderB.push(mc.dbView.getMsgHdrAt(i));
+  }
 
   // Mark all messages read -- we need this for some tests
   folderA.markAllMessagesRead(null);
@@ -290,8 +297,7 @@ function test_display_message_in_same_folder_filtered_with_message_tab_active() 
  * Test displaying a message with the folder filtered, a different folder open,
  * and a message tab active.
  */
-function
-  test_display_message_in_different_folder_filtered_with_message_tab_active() {
+function test_display_message_in_different_folder_filtered_with_message_tab_active() {
   be_in_folder(folderA);
   set_mail_view(MailViewConstants.kViewItemTags, "$label1");
   // Make sure all the messages have actually disappeared

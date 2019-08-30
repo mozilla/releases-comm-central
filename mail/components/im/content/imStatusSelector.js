@@ -7,12 +7,13 @@ var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 
 var statusSelector = {
   observe(aSubject, aTopic, aMsg) {
-    if (aTopic == "status-changed")
+    if (aTopic == "status-changed") {
       this.displayCurrentStatus();
-    else if (aTopic == "user-icon-changed")
+    } else if (aTopic == "user-icon-changed") {
       this.displayUserIcon();
-    else if (aTopic == "user-display-name-changed")
+    } else if (aTopic == "user-display-name-changed") {
       this.displayUserDisplayName();
+    }
   },
 
   displayUserIcon() {
@@ -34,8 +35,9 @@ var statusSelector = {
   },
 
   displayStatusType(aStatusType) {
-    document.getElementById("statusMessage")
-            .setAttribute("statusType", aStatusType);
+    document
+      .getElementById("statusMessage")
+      .setAttribute("statusType", aStatusType);
     let statusString = Status.toLabel(aStatusType);
     let statusTypeIcon = document.getElementById("statusTypeIcon");
     statusTypeIcon.setAttribute("status", aStatusType);
@@ -48,8 +50,10 @@ var statusSelector = {
     let status = Status.toAttribute(us.statusType);
     let message = status == "offline" ? "" : us.statusText;
     let statusMessage = document.getElementById("statusMessage");
-    if (!statusMessage) // Chat toolbar not in the DOM yet
+    if (!statusMessage) {
+      // Chat toolbar not in the DOM yet
       return;
+    }
     if (message) {
       statusMessage.removeAttribute("usingDefault");
     } else {
@@ -63,15 +67,20 @@ var statusSelector = {
 
   editStatus(aEvent) {
     let status = aEvent.originalTarget.getAttribute("status");
-    if (status == "offline")
-      Services.core.globalUserStatus.setStatus(Ci.imIStatusInfo.STATUS_OFFLINE, "");
-    else if (status)
+    if (status == "offline") {
+      Services.core.globalUserStatus.setStatus(
+        Ci.imIStatusInfo.STATUS_OFFLINE,
+        ""
+      );
+    } else if (status) {
       this.startEditStatus(status);
+    }
   },
 
   startEditStatus(aStatusType) {
-    let currentStatusType =
-      document.getElementById("statusTypeIcon").getAttribute("status");
+    let currentStatusType = document
+      .getElementById("statusTypeIcon")
+      .getAttribute("status");
     if (aStatusType != currentStatusType) {
       this._statusTypeBeforeEditing = currentStatusType;
       this._statusTypeEditing = aStatusType;
@@ -85,8 +94,9 @@ var statusSelector = {
     let statusMessageInput = document.getElementById("statusMessageInput");
     statusMessage.setAttribute("collapsed", "true");
     statusMessageInput.setAttribute("collapsed", "false");
-    let statusType =
-      document.getElementById("statusTypeIcon").getAttribute("status");
+    let statusType = document
+      .getElementById("statusTypeIcon")
+      .getAttribute("status");
     if (statusType == "offline" || statusMessage.disabled) {
       return;
     }
@@ -95,14 +105,22 @@ var statusSelector = {
       statusMessageInput.setAttribute("editing", "true");
       statusMessageInput.addEventListener("blur", this.statusMessageBlur);
       if (statusMessage.hasAttribute("usingDefault")) {
-        if ("_statusTypeBeforeEditing" in this &&
-            this._statusTypeBeforeEditing == "offline") {
-          statusMessageInput.setAttribute("value", Services.core.globalUserStatus.statusText);
+        if (
+          "_statusTypeBeforeEditing" in this &&
+          this._statusTypeBeforeEditing == "offline"
+        ) {
+          statusMessageInput.setAttribute(
+            "value",
+            Services.core.globalUserStatus.statusText
+          );
         } else {
           statusMessageInput.removeAttribute("value");
         }
       } else {
-        statusMessageInput.setAttribute("value", statusMessage.getAttribute("value"));
+        statusMessageInput.setAttribute(
+          "value",
+          statusMessage.getAttribute("value")
+        );
       }
 
       if (Services.prefs.getBoolPref("mail.spellcheck.inline")) {
@@ -121,14 +139,21 @@ var statusSelector = {
 
   statusMessageRefreshTimer() {
     const timeBeforeAutoValidate = 20 * 1000;
-    if ("_stopEditStatusTimeout" in this)
+    if ("_stopEditStatusTimeout" in this) {
       clearTimeout(this._stopEditStatusTimeout);
-    this._stopEditStatusTimeout = setTimeout(this.finishEditStatusMessage,
-                                             timeBeforeAutoValidate, true);
+    }
+    this._stopEditStatusTimeout = setTimeout(
+      this.finishEditStatusMessage,
+      timeBeforeAutoValidate,
+      true
+    );
   },
 
   statusMessageBlur(aEvent) {
-    if (aEvent.originalTarget == document.getElementById("statusMessageInput").inputField) {
+    if (
+      aEvent.originalTarget ==
+      document.getElementById("statusMessageInput").inputField
+    ) {
       statusSelector.finishEditStatusMessage(true);
     }
   },
@@ -178,9 +203,14 @@ var statusSelector = {
         delete this._statusTypeEditing;
       }
       // apply the new status only if it is different from the current one
-      if (newStatus != Ci.imIStatusInfo.STATUS_UNKNOWN ||
-          statusMessageInput.value != statusMessageInput.getAttribute("value")) {
-        Services.core.globalUserStatus.setStatus(newStatus, statusMessageInput.value);
+      if (
+        newStatus != Ci.imIStatusInfo.STATUS_UNKNOWN ||
+        statusMessageInput.value != statusMessageInput.getAttribute("value")
+      ) {
+        Services.core.globalUserStatus.setStatus(
+          newStatus,
+          statusMessageInput.value
+        );
       }
     } else if ("_statusTypeBeforeEditing" in this) {
       this.displayStatusType(this._statusTypeBeforeEditing);
@@ -189,7 +219,10 @@ var statusSelector = {
     }
 
     if (statusMessage.hasAttribute("usingDefault")) {
-      statusMessage.setAttribute("value", statusMessage.getAttribute("usingDefault"));
+      statusMessage.setAttribute(
+        "value",
+        statusMessage.getAttribute("usingDefault")
+      );
     }
 
     statusMessageInput.removeAttribute("editing");
@@ -205,11 +238,13 @@ var statusSelector = {
 
   userIconClick() {
     const nsIFilePicker = Ci.nsIFilePicker;
-    let fp = Cc["@mozilla.org/filepicker;1"]
-               .createInstance(nsIFilePicker);
+    let fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
     let bundle = document.getElementById("chatBundle");
-    fp.init(window, bundle.getString("userIconFilePickerTitle"),
-            nsIFilePicker.modeOpen);
+    fp.init(
+      window,
+      bundle.getString("userIconFilePickerTitle"),
+      nsIFilePicker.modeOpen
+    );
     fp.appendFilters(nsIFilePicker.filterImages);
     fp.open(rv => {
       if (rv != nsIFilePicker.returnOK || !fp.file) {
@@ -229,7 +264,10 @@ var statusSelector = {
       if (displayName.hasAttribute("usingDefault")) {
         displayNameInput.removeAttribute("value");
       } else {
-        displayNameInput.setAttribute("value", displayName.getAttribute("value"));
+        displayNameInput.setAttribute(
+          "value",
+          displayName.getAttribute("value")
+        );
       }
       displayNameInput.addEventListener("keypress", this.displayNameKeyPress);
       displayNameInput.addEventListener("blur", this.displayNameBlur);
@@ -245,12 +283,18 @@ var statusSelector = {
   displayNameRefreshTimer() {
     const timeBeforeAutoValidate = 20 * 1000;
     clearTimeout(this._stopEditDisplayNameTimeout);
-    this._stopEditDisplayNameTimeout =
-      setTimeout(this.finishEditDisplayName, timeBeforeAutoValidate, true);
+    this._stopEditDisplayNameTimeout = setTimeout(
+      this.finishEditDisplayName,
+      timeBeforeAutoValidate,
+      true
+    );
   },
 
   displayNameBlur(aEvent) {
-    if (aEvent.originalTarget == document.getElementById("displayNameInput").inputField) {
+    if (
+      aEvent.originalTarget ==
+      document.getElementById("displayNameInput").inputField
+    ) {
       statusSelector.finishEditDisplayName(true);
     }
   },
@@ -277,10 +321,16 @@ var statusSelector = {
     displayName.setAttribute("collapsed", "false");
     displayNameInput.setAttribute("collapsed", "true");
     // Apply the new display name only if it is different from the current one.
-    if (aSave && displayNameInput.value != displayNameInput.getAttribute("value")) {
+    if (
+      aSave &&
+      displayNameInput.value != displayNameInput.getAttribute("value")
+    ) {
       Services.core.globalUserStatus.displayName = displayNameInput.value;
     } else if (displayName.hasAttribute("usingDefault")) {
-      displayName.setAttribute("value", displayName.getAttribute("usingDefault"));
+      displayName.setAttribute(
+        "value",
+        displayName.getAttribute("usingDefault")
+      );
     }
 
     displayNameInput.removeAttribute("editing");
@@ -306,18 +356,23 @@ var statusSelector = {
     let statusMessageInput = document.getElementById("statusMessageInput");
     if (statusMessage && statusMessageInput) {
       statusMessage.addEventListener("keypress", this.statusMessageKeyPress);
-      statusMessageInput.addEventListener("keypress", this.statusMessageKeyPress);
+      statusMessageInput.addEventListener(
+        "keypress",
+        this.statusMessageKeyPress
+      );
     }
 
-    for (let event of events)
+    for (let event of events) {
       Services.obs.addObserver(statusSelector, event);
+    }
     statusSelector._events = events;
 
     window.addEventListener("unload", statusSelector.unload);
   },
 
   unload() {
-    for (let event of statusSelector._events)
+    for (let event of statusSelector._events) {
       Services.obs.removeObserver(statusSelector, event);
-   },
+    }
+  },
 };

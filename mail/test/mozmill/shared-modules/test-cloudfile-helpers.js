@@ -1,6 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
-  * You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 "use strict";
 
@@ -8,8 +8,10 @@ var MODULE_NAME = "cloudfile-helpers";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers"];
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { cloudFileAccounts } = ChromeUtils.import(
+  "resource:///modules/cloudFileAccounts.jsm"
+);
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
 var kMockContractIDPrefix = "@mozilla.org/mail/mockCloudFile;1?id=";
@@ -43,7 +45,6 @@ function installInto(module) {
   module.collectFiles = collectFiles;
 }
 
-
 function getFile(aFilename, aRoot) {
   let path = os.getFileForPath(aRoot);
   let file = os.getFileForPath(os.abspath(aFilename, path));
@@ -69,8 +70,9 @@ function collectFiles(aFiles, aFileRoot) {
 }
 
 function MockCloudfileAccount() {
-  for (let someDefault in kDefaults)
+  for (let someDefault in kDefaults) {
     this[someDefault] = kDefaults[someDefault];
+  }
 }
 
 MockCloudfileAccount.prototype = {
@@ -81,14 +83,16 @@ MockCloudfileAccount.prototype = {
   },
 
   uploadFile(aFile) {
-    return new Promise(resolve => fdh.mc.window.setTimeout(() => {
-      resolve({
-        id: this.nextId++,
-        url: this.urlForFile(aFile),
-        path: aFile.path,
-        leafName: aFile.leafName,
-      });
-    }));
+    return new Promise(resolve =>
+      fdh.mc.window.setTimeout(() => {
+        resolve({
+          id: this.nextId++,
+          url: this.urlForFile(aFile),
+          path: aFile.path,
+          leafName: aFile.leafName,
+        });
+      })
+    );
   },
 
   urlForFile(aFile) {
@@ -112,11 +116,13 @@ var gMockCloudfileManager = {
   _mock_map: {},
 
   register(aID, aOverrides) {
-    if (!aID)
+    if (!aID) {
       aID = "default";
+    }
 
-    if (!aOverrides)
+    if (!aOverrides) {
       aOverrides = {};
+    }
 
     cloudFileAccounts.registerProvider(aID, {
       type: aID,
@@ -125,11 +131,13 @@ var gMockCloudfileManager = {
       initAccount(accountKey) {
         let account = new MockCloudfileAccount();
 
-        for (let someDefault in kDefaults)
+        for (let someDefault in kDefaults) {
           account[someDefault] = kDefaults[someDefault];
+        }
 
-        for (let override in aOverrides)
+        for (let override in aOverrides) {
           account[override] = aOverrides[override];
+        }
 
         account.init(accountKey);
         return account;
@@ -138,8 +146,9 @@ var gMockCloudfileManager = {
   },
 
   unregister(aID) {
-    if (!aID)
+    if (!aID) {
       aID = "default";
+    }
 
     cloudFileAccounts.unregisterProvider(aID);
   },

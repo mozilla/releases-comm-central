@@ -3,48 +3,71 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 add_task(async () => {
-  await testCheckboxes("paneGeneral", "generalCategory", {
-    checkboxID: "mailnewsStartPageEnabled",
-    pref: "mailnews.start_page.enabled",
-    enabledElements: ["#mailnewsStartPageUrl", "#mailnewsStartPageUrl + button"],
-  }, {
-    checkboxID: "alwaysCheckDefault",
-    pref: "mail.shell.checkDefaultClient",
-  });
+  await testCheckboxes(
+    "paneGeneral",
+    "generalCategory",
+    {
+      checkboxID: "mailnewsStartPageEnabled",
+      pref: "mailnews.start_page.enabled",
+      enabledElements: [
+        "#mailnewsStartPageUrl",
+        "#mailnewsStartPageUrl + button",
+      ],
+    },
+    {
+      checkboxID: "alwaysCheckDefault",
+      pref: "mail.shell.checkDefaultClient",
+    }
+  );
 });
 
 add_task(async () => {
-  await testCheckboxes("paneGeneral", "scrollingGroup", {
-    checkboxID: "useAutoScroll",
-    pref: "general.autoScroll",
-  }, {
-    checkboxID: "useSmoothScrolling",
-    pref: "general.smoothScroll",
-  });
+  await testCheckboxes(
+    "paneGeneral",
+    "scrollingGroup",
+    {
+      checkboxID: "useAutoScroll",
+      pref: "general.autoScroll",
+    },
+    {
+      checkboxID: "useSmoothScrolling",
+      pref: "general.smoothScroll",
+    }
+  );
 });
 
 add_task(async () => {
-  await testCheckboxes("paneGeneral", "enableGloda", {
-    checkboxID: "enableGloda",
-    pref: "mailnews.database.global.indexer.enabled",
-  }, {
-    checkboxID: "allowHWAccel",
-    pref: "layers.acceleration.disabled",
-    prefValues: [true, false],
-  });
+  await testCheckboxes(
+    "paneGeneral",
+    "enableGloda",
+    {
+      checkboxID: "enableGloda",
+      pref: "mailnews.database.global.indexer.enabled",
+    },
+    {
+      checkboxID: "allowHWAccel",
+      pref: "layers.acceleration.disabled",
+      prefValues: [true, false],
+    }
+  );
 });
 
 add_task(async () => {
   if (AppConstants.platform != "macosx") {
-    await testCheckboxes("paneGeneral", "incomingMailCategory", {
-      checkboxID: "newMailNotification",
-      pref: "mail.biff.play_sound",
-      enabledElements: ["#soundType radio"],
-    }, {
-      checkboxID: "newMailNotificationAlert",
-      pref: "mail.biff.show_alert",
-      enabledElements: ["#customizeMailAlert"],
-    });
+    await testCheckboxes(
+      "paneGeneral",
+      "incomingMailCategory",
+      {
+        checkboxID: "newMailNotification",
+        pref: "mail.biff.play_sound",
+        enabledElements: ["#soundType radio"],
+      },
+      {
+        checkboxID: "newMailNotificationAlert",
+        pref: "mail.biff.show_alert",
+        enabledElements: ["#customizeMailAlert"],
+      }
+    );
   }
 });
 
@@ -57,14 +80,17 @@ add_task(async () => {
 
   await testRadioButtons("paneGeneral", "incomingMailCategory", {
     pref: "mail.biff.play_sound.type",
-    states: [{
-      id: "system",
-      prefValue: 0,
-    }, {
-      id: "custom",
-      prefValue: 1,
-      enabledElements: ["#soundUrlLocation", "#browseForSound"],
-    }],
+    states: [
+      {
+        id: "system",
+        prefValue: 0,
+      },
+      {
+        id: "custom",
+        prefValue: 1,
+        enabledElements: ["#soundUrlLocation", "#browseForSound"],
+      },
+    ],
   });
 });
 
@@ -76,45 +102,63 @@ add_task(async () => {
     pref: "mail.display_glyph",
   });
 
-  await testCheckboxes("paneGeneral", "readingAndDisplayCategory", {
-    checkboxID: "automaticallyMarkAsRead",
-    pref: "mailnews.mark_message_read.auto",
-    enabledElements: ["#markAsReadAutoPreferences radio"],
-  }, {
-    checkboxID: "closeMsgOnMoveOrDelete",
-    pref: "mail.close_message_window.on_delete",
-  }, {
-    checkboxID: "showCondensedAddresses",
-    pref: "mail.showCondensedAddresses",
-  });
+  await testCheckboxes(
+    "paneGeneral",
+    "readingAndDisplayCategory",
+    {
+      checkboxID: "automaticallyMarkAsRead",
+      pref: "mailnews.mark_message_read.auto",
+      enabledElements: ["#markAsReadAutoPreferences radio"],
+    },
+    {
+      checkboxID: "closeMsgOnMoveOrDelete",
+      pref: "mail.close_message_window.on_delete",
+    },
+    {
+      checkboxID: "showCondensedAddresses",
+      pref: "mail.showCondensedAddresses",
+    }
+  );
 });
 
 add_task(async () => {
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", true);
 
-  await testRadioButtons("paneGeneral", "mark_read_immediately", {
-    pref: "mailnews.mark_message_read.delay",
-    states: [{
-      id: "mark_read_immediately",
-      prefValue: false,
-    }, {
-      id: "markAsReadAfterDelay",
-      prefValue: true,
-      enabledElements: ["#markAsReadDelay"],
-    }],
-  }, {
-    pref: "mail.openMessageBehavior",
-    states: [{
-      id: "newTab",
-      prefValue: 2,
-    }, {
-      id: "newWindow",
-      prefValue: 0,
-    }, {
-      id: "existingWindow",
-      prefValue: 1,
-    }],
-  });
+  await testRadioButtons(
+    "paneGeneral",
+    "mark_read_immediately",
+    {
+      pref: "mailnews.mark_message_read.delay",
+      states: [
+        {
+          id: "mark_read_immediately",
+          prefValue: false,
+        },
+        {
+          id: "markAsReadAfterDelay",
+          prefValue: true,
+          enabledElements: ["#markAsReadDelay"],
+        },
+      ],
+    },
+    {
+      pref: "mail.openMessageBehavior",
+      states: [
+        {
+          id: "newTab",
+          prefValue: 2,
+        },
+        {
+          id: "newWindow",
+          prefValue: 0,
+        },
+        {
+          id: "existingWindow",
+          prefValue: 1,
+        },
+      ],
+    }
+  );
 });
 
 add_task(async () => {
@@ -131,41 +175,52 @@ add_task(async () => {
   //   });
   // }
 
-  await testCheckboxes("paneGeneral", "allowSmartSize", {
-    checkboxID: "allowSmartSize",
-    pref: "browser.cache.disk.smart_size.enabled",
-    prefValues: [true, false],
-    enabledElements: ["#cacheSize"],
-  }, {
-    checkboxID: "offlineCompactFolder",
-    pref: "mail.prompt_purge_threshhold",
-    enabledElements: ["#offlineCompactFolderMin"],
-  });
+  await testCheckboxes(
+    "paneGeneral",
+    "allowSmartSize",
+    {
+      checkboxID: "allowSmartSize",
+      pref: "browser.cache.disk.smart_size.enabled",
+      prefValues: [true, false],
+      enabledElements: ["#cacheSize"],
+    },
+    {
+      checkboxID: "offlineCompactFolder",
+      pref: "mail.prompt_purge_threshhold",
+      enabledElements: ["#offlineCompactFolderMin"],
+    }
+  );
 });
 
 add_task(async () => {
   await testRadioButtons("paneGeneral", "formatLocale", {
     pref: "intl.regional_prefs.use_os_locales",
-    states: [{
-      id: "appLocale",
-      prefValue: false,
-    }, {
-      id: "rsLocale",
-      prefValue: true,
-    }],
+    states: [
+      {
+        id: "appLocale",
+        prefValue: false,
+      },
+      {
+        id: "rsLocale",
+        prefValue: true,
+      },
+    ],
   });
 });
 
 add_task(async () => {
   await testRadioButtons("paneGeneral", "filesAttachmentCategory", {
     pref: "browser.download.useDownloadDir",
-    states: [{
-      id: "saveTo",
-      prefValue: true,
-      enabledElements: ["#downloadFolder", "#chooseFolder"],
-    }, {
-      id: "alwaysAsk",
-      prefValue: false,
-    }],
+    states: [
+      {
+        id: "saveTo",
+        prefValue: true,
+        enabledElements: ["#downloadFolder", "#chooseFolder"],
+      },
+      {
+        id: "alwaysAsk",
+        prefValue: false,
+      },
+    ],
   });
 });

@@ -23,19 +23,22 @@ var MODULE_REQUIRES = [
   "notificationbox-helpers",
 ];
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var gDrafts;
 var gAccount;
 
 // The first identity should become the default in the account.
-var gIdentities = [ { email: "x@example.invalid" },
-                    { email: "y@example.invalid", fullname: "User Y" },
-                    { email: "y@example.invalid", fullname: "User YY", label: "YY" },
-                    { email: "y+y@example.invalid", fullname: "User Y" },
-                    { email: "z@example.invalid", fullname: "User Z", label: "Label Z" },
-                    { email: "a+b@example.invalid", fullname: "User A" },
-                  ];
+var gIdentities = [
+  { email: "x@example.invalid" },
+  { email: "y@example.invalid", fullname: "User Y" },
+  { email: "y@example.invalid", fullname: "User YY", label: "YY" },
+  { email: "y+y@example.invalid", fullname: "User Y" },
+  { email: "z@example.invalid", fullname: "User Z", label: "Label Z" },
+  { email: "a+b@example.invalid", fullname: "User A" },
+];
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
@@ -46,16 +49,22 @@ function setupModule(module) {
   let acctMgr = MailServices.accounts;
   gAccount = acctMgr.createAccount();
   gAccount.incomingServer = acctMgr.createIncomingServer(
-    "nobody", "Draft Identity Testing", "pop3");
+    "nobody",
+    "Draft Identity Testing",
+    "pop3"
+  );
 
   for (let id of gIdentities) {
     let identity = acctMgr.createIdentity();
-    if ("email" in id)
+    if ("email" in id) {
       identity.email = id.email;
-    if ("fullname" in id)
+    }
+    if ("fullname" in id) {
       identity.fullName = id.fullname;
-    if ("label" in id)
+    }
+    if ("label" in id) {
       identity.label = id.label;
+    }
     gAccount.addIdentity(identity);
     id.key = identity.key;
     id.name = identity.identityName;
@@ -79,9 +88,9 @@ function create_draft(aFrom, aIdKey) {
     "X-Mozilla-Status2: 00000000\n" +
     "X-Mozilla-Keys:                                                                                 \n" +
     "FCC: mailbox://nobody@Local%20Folders/Sent\n" +
-    (aIdKey ?
-    `X-Identity-Key: ${aIdKey}\n` +
-    `X-Account-Key: ${gAccount.key}\n` : "") +
+    (aIdKey
+      ? `X-Identity-Key: ${aIdKey}\n` + `X-Account-Key: ${gAccount.key}\n`
+      : "") +
     `From: ${aFrom}\n` +
     "To: nobody@example.invalid\n" +
     "Subject: test!\n" +
@@ -111,12 +120,21 @@ function create_draft(aFrom, aIdKey) {
  * @param aFrom           The expected displayed From address.
  */
 function checkCompIdentity(cwc, aIdentityKey, aFrom) {
-  assert_equals(cwc.window.getCurrentAccountKey(), gAccount.key,
-                "The From account is not correctly selected");
-  assert_equals(cwc.window.getCurrentIdentityKey(), aIdentityKey,
-                "The From identity is not correctly selected");
-  assert_equals(cwc.window.GetMsgIdentityElement().value, aFrom,
-                "The From value was initialized to an unexpected value");
+  assert_equals(
+    cwc.window.getCurrentAccountKey(),
+    gAccount.key,
+    "The From account is not correctly selected"
+  );
+  assert_equals(
+    cwc.window.getCurrentIdentityKey(),
+    aIdentityKey,
+    "The From identity is not correctly selected"
+  );
+  assert_equals(
+    cwc.window.GetMsgIdentityElement().value,
+    aFrom,
+    "The From value was initialized to an unexpected value"
+  );
 }
 
 /**
@@ -128,47 +146,81 @@ function test_draft_identity_selection() {
   let tests = [
     // X-Identity-Key header exists:
     // 1. From header matches X-Identity-Key identity exactly
-    { idIndex: 1, warning: false, draftIdKey: gIdentities[1].key,
-      draftFrom: gIdentities[1].name },
+    {
+      idIndex: 1,
+      warning: false,
+      draftIdKey: gIdentities[1].key,
+      draftFrom: gIdentities[1].name,
+    },
     // 2. From header similar to X-Identity-Key identity with +suffix appended
-    { idIndex: 1, warning: false, draftIdKey: gIdentities[1].key,
-      draftFrom: gIdentities[1].name.replace("y@", "y+x@") },
+    {
+      idIndex: 1,
+      warning: false,
+      draftIdKey: gIdentities[1].key,
+      draftFrom: gIdentities[1].name.replace("y@", "y+x@"),
+    },
     // 3. X-Identity-Key identity similar to From header with +suffix appended
-    { idIndex: 5, warning: false, draftIdKey: gIdentities[5].key,
-      draftFrom: gIdentities[5].name.replace("a+b@", "a@") },
+    {
+      idIndex: 5,
+      warning: false,
+      draftIdKey: gIdentities[5].key,
+      draftFrom: gIdentities[5].name.replace("a+b@", "a@"),
+    },
 
     // From header not similar to existing X-Identity-Key identity:
     // 4. From header not even containing an email address
-    { idIndex: 5, warning: false, draftIdKey: gIdentities[5].key,
-      draftFrom: "User", from: "User <>" },
+    {
+      idIndex: 5,
+      warning: false,
+      draftIdKey: gIdentities[5].key,
+      draftFrom: "User",
+      from: "User <>",
+    },
     // 5. no matching identity exists
-    { idIndex: 1, warning: true, draftIdKey: gIdentities[1].key,
-      draftFrom: "New User <modified@sender.invalid>" },
+    {
+      idIndex: 1,
+      warning: true,
+      draftIdKey: gIdentities[1].key,
+      draftFrom: "New User <modified@sender.invalid>",
+    },
     // 6. 1 matching identity exists
-    { idIndex: 4, warning: false, draftIdKey: gIdentities[4].key,
-      draftFrom: "New User <" + gIdentities[4].email + ">" },
+    {
+      idIndex: 4,
+      warning: false,
+      draftIdKey: gIdentities[4].key,
+      draftFrom: "New User <" + gIdentities[4].email + ">",
+    },
     // 7. 2 or more matching identities exist
-    { idIndex: 1, warning: true, draftIdKey: gIdentities[0].key,
-      draftFrom: gIdentities[1].name.replace("User Y", "User YZ") },
+    {
+      idIndex: 1,
+      warning: true,
+      draftIdKey: gIdentities[0].key,
+      draftFrom: gIdentities[1].name.replace("User Y", "User YZ"),
+    },
 
     // No X-Identity-Key header:
     // 8. no matching identity exists
     // This is a 'foreign draft' in which case we won't preserve the From value
     // and set it from the default identity.
-    { idIndex: 0, warning: true,
-      draftFrom: "Unknown <unknown@nowhere.invalid>", from: gIdentities[0].name },
+    {
+      idIndex: 0,
+      warning: true,
+      draftFrom: "Unknown <unknown@nowhere.invalid>",
+      from: gIdentities[0].name,
+    },
     // 9. From header matches default identity
-    { idIndex: 0, warning: false,
-      draftFrom: gIdentities[0].name },
+    { idIndex: 0, warning: false, draftFrom: gIdentities[0].name },
     // 10. From header matches some other identity
-    { idIndex: 5, warning: false,
-      draftFrom: gIdentities[5].name },
+    { idIndex: 5, warning: false, draftFrom: gIdentities[5].name },
     // 11. From header matches identity with suffix
-    { idIndex: 3, warning: false,
-      draftFrom: gIdentities[3].name },
+    { idIndex: 3, warning: false, draftFrom: gIdentities[3].name },
     // 12. From header matches 2 identities
-    { idIndex: 1, warning: true,
-      draftFrom: gIdentities[1].email, from: gIdentities[1].name },
+    {
+      idIndex: 1,
+      warning: true,
+      draftFrom: gIdentities[1].email,
+      from: gIdentities[1].name,
+    },
   ];
 
   for (let test of tests) {
@@ -181,19 +233,29 @@ function test_draft_identity_selection() {
     select_click_row(test.draftIndex);
 
     let cwc = open_compose_from_draft();
-    checkCompIdentity(cwc, gIdentities[test.idIndex].key,
-                      test.from ? test.from : test.draftFrom);
+    checkCompIdentity(
+      cwc,
+      gIdentities[test.idIndex].key,
+      test.from ? test.from : test.draftFrom
+    );
     if (test.warning) {
-      wait_for_notification_to_show(cwc, "compose-notification-bottom",
-                                    "identityWarning");
+      wait_for_notification_to_show(
+        cwc,
+        "compose-notification-bottom",
+        "identityWarning"
+      );
     } else {
-      assert_notification_displayed(cwc, "compose-notification-bottom",
-                                    "identityWarning", false);
+      assert_notification_displayed(
+        cwc,
+        "compose-notification-bottom",
+        "identityWarning",
+        false
+      );
     }
 
     close_compose_window(cwc, false);
   }
-/*
+  /*
   // TODO: fix this in bug 1238264, the identity selector does not properly close.
   // Open a draft again that shows the notification.
   be_in_folder(gDrafts);
@@ -215,7 +277,9 @@ test_draft_identity_selection.EXCLUDED_PLATFORMS = ["darwin"]; // See bug 141385
 
 function teardownModule(module) {
   for (let id = 1; id < gIdentities.length; id++) {
-    gAccount.removeIdentity(MailServices.accounts.getIdentity(gIdentities[id].key));
+    gAccount.removeIdentity(
+      MailServices.accounts.getIdentity(gIdentities[id].key)
+    );
   }
 
   // The last identity of an account can't be removed so clear all its prefs
@@ -229,6 +293,6 @@ function teardownModule(module) {
   let draftCount;
   while ((draftCount = gDrafts.getTotalMessages(false)) > 0) {
     press_delete();
-    mc.waitFor(() => (gDrafts.getTotalMessages(false) < draftCount));
+    mc.waitFor(() => gDrafts.getTotalMessages(false) < draftCount);
   }
 }

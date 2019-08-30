@@ -8,7 +8,9 @@ var MODULE_NAME = "mouse-event-helpers";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers"];
 
-var EventUtils = ChromeUtils.import("chrome://mozmill/content/stdlib/EventUtils.jsm");
+var EventUtils = ChromeUtils.import(
+  "chrome://mozmill/content/stdlib/EventUtils.jsm"
+);
 
 var fdh;
 
@@ -46,18 +48,25 @@ function installInto(module) {
  * @param {XULElement} aListener
  *   the element who's drop target should be captured and returned.
  */
-function drag_n_drop_element(aDragObject, aDragWindow, aDropObject,
-                             aDropWindow, aRelDropX, aRelDropY, aListener) {
+function drag_n_drop_element(
+  aDragObject,
+  aDragWindow,
+  aDropObject,
+  aDropWindow,
+  aRelDropX,
+  aRelDropY,
+  aListener
+) {
   let dt = synthesize_drag_start(aDragWindow, aDragObject, aListener);
   fdh.assert_true(dt, "Drag target was undefined");
 
   synthesize_drag_over(aDropWindow, aDropObject, dt);
 
   let dropRect = aDropObject.getBoundingClientRect();
-  synthesize_drop(aDropWindow, aDropObject, dt,
-      { screenX: aDropObject.screenX + (dropRect.width * aRelDropX),
-        screenY: aDropObject.screenY + (dropRect.height * aRelDropY),
-      });
+  synthesize_drop(aDropWindow, aDropObject, dt, {
+    screenX: aDropObject.screenX + dropRect.width * aRelDropX,
+    screenY: aDropObject.screenY + dropRect.height * aRelDropY,
+  });
 }
 
 /**
@@ -74,8 +83,9 @@ function synthesize_drag_start(aWindow, aDispatcher, aListener) {
   let dt;
 
   let trapDrag = function(event) {
-    if (!event.dataTransfer)
+    if (!event.dataTransfer) {
       throw new Error("no DataTransfer");
+    }
 
     dt = event.dataTransfer;
 
@@ -84,9 +94,21 @@ function synthesize_drag_start(aWindow, aDispatcher, aListener) {
 
   aListener.addEventListener("dragstart", trapDrag, true);
 
-  EventUtils.synthesizeMouse(aDispatcher, 5, 5, {type: "mousedown"}, aWindow);
-  EventUtils.synthesizeMouse(aDispatcher, 5, 10, {type: "mousemove"}, aWindow);
-  EventUtils.synthesizeMouse(aDispatcher, 5, 15, {type: "mousemove"}, aWindow);
+  EventUtils.synthesizeMouse(aDispatcher, 5, 5, { type: "mousedown" }, aWindow);
+  EventUtils.synthesizeMouse(
+    aDispatcher,
+    5,
+    10,
+    { type: "mousemove" },
+    aWindow
+  );
+  EventUtils.synthesizeMouse(
+    aDispatcher,
+    5,
+    15,
+    { type: "mousemove" },
+    aWindow
+  );
 
   aListener.removeEventListener("dragstart", trapDrag, true);
 
@@ -121,9 +143,15 @@ function synthesize_drag_end(aWindow, aDispatcher, aListener, aDt, aArgs) {
   _synthesizeDragEvent("dragend", aWindow, aListener, aDt, aArgs);
 
   // Ensure drag has ended.
-  EventUtils.synthesizeMouse(aDispatcher, 5, 5, {type: "mousemove"}, aWindow);
-  EventUtils.synthesizeMouse(aDispatcher, 5, 10, {type: "mousemove"}, aWindow);
-  EventUtils.synthesizeMouse(aDispatcher, 5, 5, {type: "mouseup"}, aWindow);
+  EventUtils.synthesizeMouse(aDispatcher, 5, 5, { type: "mousemove" }, aWindow);
+  EventUtils.synthesizeMouse(
+    aDispatcher,
+    5,
+    10,
+    { type: "mousemove" },
+    aWindow
+  );
+  EventUtils.synthesizeMouse(aDispatcher, 5, 5, { type: "mouseup" }, aWindow);
 }
 
 /**
@@ -140,9 +168,15 @@ function synthesize_drop(aWindow, aDispatcher, aDt, aArgs) {
   _synthesizeDragEvent("drop", aWindow, aDispatcher, aDt, aArgs);
 
   // Ensure drag has ended.
-  EventUtils.synthesizeMouse(aDispatcher, 5, 5, {type: "mousemove"}, aWindow);
-  EventUtils.synthesizeMouse(aDispatcher, 5, 10, {type: "mousemove"}, aWindow);
-  EventUtils.synthesizeMouse(aDispatcher, 5, 5, {type: "mouseup"}, aWindow);
+  EventUtils.synthesizeMouse(aDispatcher, 5, 5, { type: "mousemove" }, aWindow);
+  EventUtils.synthesizeMouse(
+    aDispatcher,
+    5,
+    10,
+    { type: "mousemove" },
+    aWindow
+  );
+  EventUtils.synthesizeMouse(aDispatcher, 5, 5, { type: "mouseup" }, aWindow);
 }
 
 /**
@@ -159,19 +193,37 @@ function synthesize_drop(aWindow, aDispatcher, aDt, aArgs) {
  */
 function _synthesizeDragEvent(aType, aWindow, aDispatcher, aDt, aArgs) {
   let screenX;
-  if (aArgs && ("screenX" in aArgs))
+  if (aArgs && "screenX" in aArgs) {
     screenX = aArgs.screenX;
-  else
+  } else {
     screenX = aDispatcher.screenX;
+  }
 
   let screenY;
-  if (aArgs && ("screenY" in aArgs))
+  if (aArgs && "screenY" in aArgs) {
     screenY = aArgs.screenY;
-  else
+  } else {
     screenY = aDispatcher.screenY;
+  }
 
   let event = aWindow.document.createEvent("DragEvent");
-  event.initDragEvent(aType, true, true, aWindow, 0,
-      screenX, screenY, 0, 0, false, false, false, false, 0, null, aDt);
+  event.initDragEvent(
+    aType,
+    true,
+    true,
+    aWindow,
+    0,
+    screenX,
+    screenY,
+    0,
+    0,
+    false,
+    false,
+    false,
+    false,
+    0,
+    null,
+    aDt
+  );
   aDispatcher.dispatchEvent(event);
 }

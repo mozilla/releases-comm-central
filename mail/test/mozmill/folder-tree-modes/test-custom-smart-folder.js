@@ -39,10 +39,12 @@ function setupModule(module) {
   rootFolder = inboxFolder.server.rootFolder;
 
   // register a new smart folder type
-  mc.folderTreeView.getFolderTreeMode("smart")
-        .addSmartFolderType(smartParentNameA, false, false);
-  mc.folderTreeView.getFolderTreeMode("smart")
-        .addSmartFolderType(smartParentNameB, false, false);
+  mc.folderTreeView
+    .getFolderTreeMode("smart")
+    .addSmartFolderType(smartParentNameA, false, false);
+  mc.folderTreeView
+    .getFolderTreeMode("smart")
+    .addSmartFolderType(smartParentNameB, false, false);
 
   // Create a folder as a subfolder of the inbox
   inboxFolder.createSubfolder("smartFolderA", null);
@@ -58,8 +60,8 @@ function setupModule(module) {
 
   // The message itself doesn't really matter, as long as there's at least one
   // in the folder.
-  make_new_sets_in_folder(subfolderA, [{count: 1}]);
-  make_new_sets_in_folder(subfolderB, [{count: 1}]);
+  make_new_sets_in_folder(subfolderA, [{ count: 1 }]);
+  make_new_sets_in_folder(subfolderB, [{ count: 1 }]);
 }
 
 /**
@@ -73,21 +75,34 @@ function test_switch_to_smart_folder_mode() {
   mc.folderTreeView.selectFolder(smartFolderA);
 }
 
-
 function test_cache_property() {
-  if (mc.window.getSmartFolderName(subfolderA) != smartParentNameA)
+  if (mc.window.getSmartFolderName(subfolderA) != smartParentNameA) {
     throw new Error("smartFolderName A cache property not set");
-  if (mc.window.getSmartFolderName(subfolderB) != smartParentNameB)
+  }
+  if (mc.window.getSmartFolderName(subfolderB) != smartParentNameB) {
     throw new Error("smartFolderName B cache property not set");
+  }
 }
 
 function _test_smart_folder_type(folder, parentName) {
   let smartMode = mc.folderTreeView.getFolderTreeMode("smart");
   let [flag, name] = smartMode._getSmartFolderType(folder);
-  if (flag != 0)
-    throw new Error("custom smart folder definition [" + parentName + "] has a flag");
-  if (name != parentName)
-    throw new Error("custom smart folder [" + folder.name + "] is incorrect [" + name + "] should be [" + parentName + "]");
+  if (flag != 0) {
+    throw new Error(
+      "custom smart folder definition [" + parentName + "] has a flag"
+    );
+  }
+  if (name != parentName) {
+    throw new Error(
+      "custom smart folder [" +
+        folder.name +
+        "] is incorrect [" +
+        name +
+        "] should be [" +
+        parentName +
+        "]"
+    );
+  }
 }
 
 function test_smart_folder_type() {
@@ -109,9 +124,12 @@ function test_custom_folder_exists() {
 
 function FTVItemHasChild(parentFTVItem, childFolder, recurse) {
   for (let child of parentFTVItem.children) {
-    if (child._folder.URI == childFolder.URI ||
-        recurse && FTVItemHasChild(child, childFolder, recurse))
+    if (
+      child._folder.URI == childFolder.URI ||
+      (recurse && FTVItemHasChild(child, childFolder, recurse))
+    ) {
       return true;
+    }
   }
   return false;
 }
@@ -123,11 +141,15 @@ function FTVItemHasChild(parentFTVItem, childFolder, recurse) {
 function test_smart_child_parent_relationship() {
   let folderIndex = assert_folder_visible(smartFolderA);
   let folderFTVItem = mc.folderTreeView.getFTVItemForIndex(folderIndex);
-  if (!FTVItemHasChild(folderFTVItem, subfolderA, false))
-    throw new Error("Folder: " + subfolderA.name + " is not a child of our smart parent folder");
+  if (!FTVItemHasChild(folderFTVItem, subfolderA, false)) {
+    throw new Error(
+      "Folder: " +
+        subfolderA.name +
+        " is not a child of our smart parent folder"
+    );
+  }
   assert_folder_mode("smart");
 }
-
 
 /**
  * test that our real smart folder is NOT a child of the smart inbox in the
@@ -141,11 +163,13 @@ function test_real_child_parent_relationship() {
   let folderFTVItem = mc.folderTreeView.getFTVItemForIndex(folderIndex);
   // in the tree, subfolder is a child of our magic smart folder, and should not
   // be a child of inbox
-  if (FTVItemHasChild(folderFTVItem, subfolderA, true))
-    throw new Error("Folder: " + subfolderA.name + " should not be a child of an inbox");
+  if (FTVItemHasChild(folderFTVItem, subfolderA, true)) {
+    throw new Error(
+      "Folder: " + subfolderA.name + " should not be a child of an inbox"
+    );
+  }
   assert_folder_mode("smart");
 }
-
 
 /**
  * test collapse/expand states of one of our smart folders

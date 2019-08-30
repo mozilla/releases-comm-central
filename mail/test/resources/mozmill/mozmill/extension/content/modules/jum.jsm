@@ -35,14 +35,26 @@
 //
 // ***** END LICENSE BLOCK *****
 
-var EXPORTED_SYMBOLS = ["assert", "assertTrue", "assertFalse", "assertEquals", "assertNotEquals",
-                        "assertNull", "assertNotNull", "assertUndefined", "assertNotUndefined",
-                        "assertNaN", "assertNotNaN", "fail", "pass"];
+var EXPORTED_SYMBOLS = [
+  "assert",
+  "assertTrue",
+  "assertFalse",
+  "assertEquals",
+  "assertNotEquals",
+  "assertNull",
+  "assertNotNull",
+  "assertUndefined",
+  "assertNotUndefined",
+  "assertNaN",
+  "assertNotNaN",
+  "fail",
+  "pass",
+];
 
 var frame = ChromeUtils.import("chrome://mozmill/content/modules/frame.jsm");
 
 var ifJSONable = function(v) {
-  if (typeof(v) == "function") {
+  if (typeof v == "function") {
     return undefined;
   }
   return v;
@@ -62,9 +74,16 @@ var assert = function(booleanValue, comment) {
 };
 
 var assertTrue = function(booleanValue, comment) {
-  if (typeof(booleanValue) != "boolean") {
-    reportFail("jum.assertTrue(" + ifJSONable(booleanValue) + ") " +
-      "Bad argument, value type " + typeof(booleanValue) + " isn't boolean - " + comment);
+  if (typeof booleanValue != "boolean") {
+    reportFail(
+      "jum.assertTrue(" +
+        ifJSONable(booleanValue) +
+        ") " +
+        "Bad argument, value type " +
+        typeof booleanValue +
+        " isn't boolean - " +
+        comment
+    );
     return false;
   }
 
@@ -81,9 +100,16 @@ var assertTrue = function(booleanValue, comment) {
 };
 
 var assertFalse = function(booleanValue, comment) {
-  if (typeof(booleanValue) != "boolean") {
-    reportFail("jum.assertFalse(" + ifJSONable(booleanValue) + ") " +
-      "Bad argument, value type " + typeof(booleanValue) + " isn't boolean - " + comment);
+  if (typeof booleanValue != "boolean") {
+    reportFail(
+      "jum.assertFalse(" +
+        ifJSONable(booleanValue) +
+        ") " +
+        "Bad argument, value type " +
+        typeof booleanValue +
+        " isn't boolean - " +
+        comment
+    );
     return false;
   }
 
@@ -109,8 +135,14 @@ var assertEquals = function(value1, value2, comment) {
     });
     return true;
   }
-  reportFail("jum.assertEquals(" + ifJSONable(value1) + ", " +
-    ifJSONable(value2) + ") - " + comment);
+  reportFail(
+    "jum.assertEquals(" +
+      ifJSONable(value1) +
+      ", " +
+      ifJSONable(value2) +
+      ") - " +
+      comment
+  );
   return false;
 };
 
@@ -124,8 +156,14 @@ var assertNotEquals = function(value1, value2, comment) {
     });
     return true;
   }
-  reportFail("jum.assertNotEquals(" + ifJSONable(value1) + ", " +
-      ifJSONable(value2) + ") - " + comment);
+  reportFail(
+    "jum.assertNotEquals(" +
+      ifJSONable(value1) +
+      ", " +
+      ifJSONable(value2) +
+      ") - " +
+      comment
+  );
   return false;
 };
 
@@ -232,5 +270,3 @@ var pass = function(comment) {
   });
   return true;
 };
-
-

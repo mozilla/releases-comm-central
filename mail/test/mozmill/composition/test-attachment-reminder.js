@@ -24,8 +24,10 @@ var MODULE_REQUIRES = [
   "keyboard-helpers",
 ];
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var kBoxId = "compose-notification-bottom";
 var kNotificationId = "attachmentReminder";
@@ -70,8 +72,9 @@ function wait_for_reminder_state(aCwc, aShown, aDelay = false) {
   const notificationSlackTime = 5000;
 
   if (aShown) {
-    if (aDelay)
+    if (aDelay) {
       aCwc.sleep(notificationSlackTime);
+    }
     // This waits up to 30 seconds for the notification to appear.
     wait_for_notification_to_show(aCwc, kBoxId, kNotificationId);
   } else if (check_notification_displayed(aCwc, kBoxId, kNotificationId)) {
@@ -92,8 +95,10 @@ function wait_for_reminder_state(aCwc, aShown, aDelay = false) {
  */
 function assert_manual_reminder_state(aCwc, aChecked) {
   const remindCommand = "cmd_remindLater";
-  assert_equals(aCwc.e("button-attachPopup_remindLaterItem").getAttribute("command"),
-                remindCommand);
+  assert_equals(
+    aCwc.e("button-attachPopup_remindLaterItem").getAttribute("command"),
+    remindCommand
+  );
 
   let checkedValue = aChecked ? "true" : "false";
   assert_equals(aCwc.e(remindCommand).getAttribute("checked"), checkedValue);
@@ -106,11 +111,13 @@ function assert_manual_reminder_state(aCwc, aChecked) {
  */
 function get_reminder_keywords(aCwc) {
   assert_automatic_reminder_state(aCwc, true);
-  let nBox = aCwc.e(kBoxId).querySelector(".notificationbox-stack")._notificationBox;
+  let nBox = aCwc.e(kBoxId).querySelector(".notificationbox-stack")
+    ._notificationBox;
   let notification = nBox.getNotificationWithValue(kNotificationId);
-  return notification.querySelector("#attachmentKeywords").getAttribute("value");
+  return notification
+    .querySelector("#attachmentKeywords")
+    .getAttribute("value");
 }
-
 
 /**
  * Test that the attachment reminder works, in general.
@@ -121,8 +128,12 @@ function test_attachment_reminder_appears_properly() {
   // There should be no notification yet.
   assert_automatic_reminder_state(cwc, false);
 
-  setup_msg_contents(cwc, "test@example.org", "Testing automatic reminder!",
-                     "Hello! ");
+  setup_msg_contents(
+    cwc,
+    "test@example.org",
+    "Testing automatic reminder!",
+    "Hello! "
+  );
 
   // Give the notification time to appear. It shouldn't.
   wait_for_reminder_state(cwc, false);
@@ -136,7 +147,11 @@ function test_attachment_reminder_appears_properly() {
   assert_manual_reminder_state(cwc, false);
 
   // Click ok to be notified on send if no attachments are attached.
-  cwc.click(new elementslib.Elem(cwc.e(kBoxId).querySelector("button[label=\"Remind Me Later\"]")));
+  cwc.click(
+    new elementslib.Elem(
+      cwc.e(kBoxId).querySelector('button[label="Remind Me Later"]')
+    )
+  );
   wait_for_reminder_state(cwc, false);
 
   // The manual reminder should be enabled now.
@@ -163,10 +178,14 @@ function test_attachment_reminder_dismissal() {
   // There should be no notification yet.
   assert_automatic_reminder_state(cwc, false);
 
-  setup_msg_contents(cwc, "test@example.org", "popping up, eh?",
-                     "Hi there, remember the attachment! " +
-                     "Yes, there is a file test.doc attached! " +
-                     "Do check it, test.doc is a nice attachment.");
+  setup_msg_contents(
+    cwc,
+    "test@example.org",
+    "popping up, eh?",
+    "Hi there, remember the attachment! " +
+      "Yes, there is a file test.doc attached! " +
+      "Do check it, test.doc is a nice attachment."
+  );
 
   // Give the notification time to appear.
   wait_for_reminder_state(cwc, true);
@@ -199,8 +218,12 @@ function test_attachment_reminder_with_attachment() {
   // There should be no notification yet.
   assert_automatic_reminder_state(cwc, false);
 
-  setup_msg_contents(cwc, "test@example.org", "Testing automatic reminder!",
-                     "Hello! We will have a real attachment here.");
+  setup_msg_contents(
+    cwc,
+    "test@example.org",
+    "Testing automatic reminder!",
+    "Hello! We will have a real attachment here."
+  );
 
   // Give the notification time to appear. It should.
   wait_for_reminder_state(cwc, true);
@@ -208,7 +231,10 @@ function test_attachment_reminder_with_attachment() {
   // Add an attachment.
   let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
   file.append("panacea.dat");
-  assert_true(file.exists(), "The required file panacea.dat was not found in the profile.");
+  assert_true(
+    file.exists(),
+    "The required file panacea.dat was not found in the profile."
+  );
   let attachment = [cwc.window.FileToAttachment(file)];
   cwc.window.AddAttachments(attachment);
 
@@ -243,8 +269,12 @@ function test_attachment_reminder_aggressive_pref() {
   // There should be no notification yet.
   assert_automatic_reminder_state(cwc, false);
 
-  setup_msg_contents(cwc, "test@example.org", "aggressive?",
-                     "Check this attachment!");
+  setup_msg_contents(
+    cwc,
+    "test@example.org",
+    "aggressive?",
+    "Check this attachment!"
+  );
 
   wait_for_reminder_state(cwc, true);
   click_send_and_handle_send_error(cwc);
@@ -252,8 +282,9 @@ function test_attachment_reminder_aggressive_pref() {
   close_compose_window(cwc);
 
   // Now reset the pref back to original value.
-  if (Services.prefs.prefHasUserValue(kPref))
+  if (Services.prefs.prefHasUserValue(kPref)) {
     Services.prefs.clearUserPref(kPref);
+  }
 }
 
 /**
@@ -263,9 +294,12 @@ function test_attachment_reminder_aggressive_pref() {
 function test_no_send_now_sends() {
   let cwc = open_compose_new_mail();
 
-  setup_msg_contents(cwc, "test@example.org",
-                     "will the 'No, Send Now' button work?",
-                     "Hello, I got your attachment!");
+  setup_msg_contents(
+    cwc,
+    "test@example.org",
+    "will the 'No, Send Now' button work?",
+    "Hello, I got your attachment!"
+  );
 
   wait_for_reminder_state(cwc, true);
 
@@ -292,9 +326,14 @@ function click_manual_reminder(aCwc, aExpectedState) {
   wait_for_window_focused(aCwc.window);
   let button = aCwc.window.document.getElementById("button-attach");
 
-  aCwc.click(new elementslib.Elem(button.querySelector(".toolbarbutton-menubutton-dropmarker")));
-  aCwc.click_menus_in_sequence(aCwc.e("button-attachPopup"),
-                               [ {id: "button-attachPopup_remindLaterItem"} ]);
+  aCwc.click(
+    new elementslib.Elem(
+      button.querySelector(".toolbarbutton-menubutton-dropmarker")
+    )
+  );
+  aCwc.click_menus_in_sequence(aCwc.e("button-attachPopup"), [
+    { id: "button-attachPopup_remindLaterItem" },
+  ]);
   wait_for_window_focused(aCwc.window);
   assert_manual_reminder_state(aCwc, aExpectedState);
 }
@@ -306,8 +345,12 @@ function click_manual_reminder(aCwc, aExpectedState) {
 function test_manual_attachment_reminder() {
   // Open a sample message with no attachment keywords.
   let cwc = open_compose_new_mail();
-  setup_msg_contents(cwc, "test@example.invalid", "Testing manual reminder!",
-                     "Some body...");
+  setup_msg_contents(
+    cwc,
+    "test@example.invalid",
+    "Testing manual reminder!",
+    "Some body..."
+  );
 
   // Enable the manual reminder.
   click_manual_reminder(cwc, true);
@@ -337,7 +380,9 @@ function test_manual_attachment_reminder() {
   // Edit the draft again...
   plan_for_new_window("msgcompose");
   // ... by clicking Edit in the draft message notification bar.
-  mc.click(mc.eid("mail-notification-top", {tagName: "button", label: "Edit"}));
+  mc.click(
+    mc.eid("mail-notification-top", { tagName: "button", label: "Edit" })
+  );
   cwc = wait_for_compose_window();
 
   // Check the reminder enablement was preserved in the message.
@@ -366,7 +411,7 @@ function test_manual_attachment_reminder() {
   // Delete the leftover draft message.
   press_delete();
 }
-test_manual_attachment_reminder.EXCLUDED_PLATFORMS = ["winnt", "linux"];  // See bug 1535292.
+test_manual_attachment_reminder.EXCLUDED_PLATFORMS = ["winnt", "linux"]; // See bug 1535292.
 
 /**
  * Bug 938759
@@ -381,8 +426,12 @@ function test_manual_automatic_attachment_reminder_interaction() {
   assert_automatic_reminder_state(cwc, false);
 
   // Add some attachment keywords.
-  setup_msg_contents(cwc, "test@example.invalid", "Testing manual reminder!",
-                     "Expect an attachment here...");
+  setup_msg_contents(
+    cwc,
+    "test@example.invalid",
+    "Testing manual reminder!",
+    "Expect an attachment here..."
+  );
 
   // The automatic attachment notification should pop up.
   wait_for_reminder_state(cwc, true);
@@ -426,8 +475,9 @@ function test_manual_automatic_attachment_reminder_interaction() {
  */
 function assert_any_notification(aCwc, aValue) {
   let notification = aCwc.e(kBoxId).currentNotification;
-  if ((notification == null) == aValue)
+  if ((notification == null) == aValue) {
     throw new Error("Notification in wrong state");
+  }
 }
 
 /**
@@ -437,8 +487,12 @@ function assert_any_notification(aCwc, aValue) {
 function test_attachment_vs_filelink_reminder() {
   // Open a blank message compose
   let cwc = open_compose_new_mail();
-  setup_msg_contents(cwc, "test@example.invalid", "Testing Filelink notification",
-                     "There is no body. I hope you don't mind!");
+  setup_msg_contents(
+    cwc,
+    "test@example.invalid",
+    "Testing Filelink notification",
+    "There is no body. I hope you don't mind!"
+  );
 
   // There should be no notification yet.
   assert_any_notification(cwc, false);
@@ -472,8 +526,12 @@ function test_attachment_reminder_in_subject() {
   assert_automatic_reminder_state(cwc, false);
 
   // Add some attachment keyword in subject.
-  setup_msg_contents(cwc, "test@example.invalid", "Testing attachment reminder!",
-                     "There is no keyword in this body...");
+  setup_msg_contents(
+    cwc,
+    "test@example.invalid",
+    "Testing attachment reminder!",
+    "There is no keyword in this body..."
+  );
 
   // The automatic attachment notification should pop up.
   wait_for_reminder_state(cwc, true);
@@ -502,8 +560,12 @@ function test_attachment_reminder_in_subject_and_body() {
   assert_automatic_reminder_state(cwc, false);
 
   // Add some attachment keyword in subject.
-  setup_msg_contents(cwc, "test@example.invalid", "Testing attachment reminder!",
-                     "There should be an attached file in this body...");
+  setup_msg_contents(
+    cwc,
+    "test@example.invalid",
+    "Testing attachment reminder!",
+    "There should be an attached file in this body..."
+  );
 
   // The automatic attachment notification should pop up.
   wait_for_reminder_state(cwc, true);
@@ -530,8 +592,12 @@ function test_disabled_attachment_reminder() {
 
   // Open a sample message with no attachment keywords.
   let cwc = open_compose_new_mail();
-  setup_msg_contents(cwc, "test@example.invalid", "Testing disabled keyword reminder!",
-                     "Some body...");
+  setup_msg_contents(
+    cwc,
+    "test@example.invalid",
+    "Testing disabled keyword reminder!",
+    "Some body..."
+  );
 
   // This one should have the manual reminder disabled.
   assert_manual_reminder_state(cwc, false);
@@ -568,8 +634,12 @@ function test_disabled_attachment_reminder() {
 function test_reminder_in_draft() {
   // Open a sample message with no attachment keywords.
   let cwc = open_compose_new_mail();
-  setup_msg_contents(cwc, "test@example.invalid", "Testing draft reminder!",
-                     "Some body...");
+  setup_msg_contents(
+    cwc,
+    "test@example.invalid",
+    "Testing draft reminder!",
+    "Some body..."
+  );
 
   // This one should have the manual reminder disabled.
   assert_manual_reminder_state(cwc, false);
@@ -597,7 +667,9 @@ function test_reminder_in_draft() {
   // Edit the draft again...
   plan_for_new_window("msgcompose");
   // ... by clicking Edit in the draft message notification bar.
-  mc.click(mc.eid("mail-notification-top", {tagName: "button", label: "Edit"}));
+  mc.click(
+    mc.eid("mail-notification-top", { tagName: "button", label: "Edit" })
+  );
   cwc = wait_for_compose_window();
 
   // Give the notification time to appear.
@@ -616,8 +688,12 @@ function test_reminder_in_draft() {
 function test_disabling_attachment_reminder() {
   // Open a sample message with attachment keywords.
   let cwc = open_compose_new_mail();
-  setup_msg_contents(cwc, "test@example.invalid", "Testing turning off the reminder",
-                     "Some attachment keywords here...");
+  setup_msg_contents(
+    cwc,
+    "test@example.invalid",
+    "Testing turning off the reminder",
+    "Some attachment keywords here..."
+  );
 
   // This one should have the manual reminder disabled.
   assert_manual_reminder_state(cwc, false);
@@ -626,11 +702,13 @@ function test_disabling_attachment_reminder() {
 
   // Disable the reminder (not just dismiss) using the menuitem
   // in the notification bar menu-button.
-  let disableButton = get_notification_button(cwc, kBoxId, kNotificationId,
-                                              { popup: "reminderBarPopup" });
+  let disableButton = get_notification_button(cwc, kBoxId, kNotificationId, {
+    popup: "reminderBarPopup",
+  });
   cwc.click(new elementslib.Elem(disableButton.querySelector("dropmarker")));
-  cwc.click_menus_in_sequence(cwc.e("reminderBarPopup"),
-                              [ {id: "disableReminder"} ]);
+  cwc.click_menus_in_sequence(cwc.e("reminderBarPopup"), [
+    { id: "disableReminder" },
+  ]);
 
   wait_for_reminder_state(cwc, false);
 
@@ -655,11 +733,13 @@ function test_disabling_attachment_reminder() {
   wait_for_reminder_state(cwc, true);
 
   // Disable the reminder again.
-  disableButton = get_notification_button(cwc, kBoxId, kNotificationId,
-                                          { popup: "reminderBarPopup" });
+  disableButton = get_notification_button(cwc, kBoxId, kNotificationId, {
+    popup: "reminderBarPopup",
+  });
   cwc.click(new elementslib.Elem(disableButton.querySelector("dropmarker")));
-  cwc.click_menus_in_sequence(cwc.e("reminderBarPopup"),
-                              [ {id: "disableReminder"} ]);
+  cwc.click_menus_in_sequence(cwc.e("reminderBarPopup"), [
+    { id: "disableReminder" },
+  ]);
   wait_for_reminder_state(cwc, false);
 
   // Now send the message.
@@ -675,11 +755,9 @@ function test_disabling_attachment_reminder() {
   press_delete();
 
   // Get back to the mail account for other tests.
-  let mail = MailServices.accounts.defaultAccount.incomingServer
-                                  .rootFolder;
+  let mail = MailServices.accounts.defaultAccount.incomingServer.rootFolder;
   be_in_folder(mail);
 }
-
 
 /**
  * Click the send button and handle the send error dialog popping up.
@@ -691,8 +769,9 @@ function test_disabling_attachment_reminder() {
  */
 function click_send_and_handle_send_error(aController, aAlreadySending) {
   plan_for_modal_dialog("commonDialog", click_ok_on_send_error);
-  if (!aAlreadySending)
+  if (!aAlreadySending) {
     aController.click(aController.eid("button-send"));
+  }
   wait_for_modal_dialog("commonDialog");
 }
 
@@ -714,9 +793,11 @@ function click_no_send_now(controller) {
  * Click Ok in the Send Message Error dialog.
  */
 function click_ok_on_send_error(controller) {
-  if (controller.window.document.title != "Send Message Error")
-    throw new Error("Not a send error dialog; title=" +
-                    controller.window.document.title);
+  if (controller.window.document.title != "Send Message Error") {
+    throw new Error(
+      "Not a send error dialog; title=" + controller.window.document.title
+    );
+  }
   controller.window.document.documentElement.getButton("accept").doCommand();
 }
 
@@ -724,8 +805,10 @@ function click_ok_on_send_error(controller) {
  * Click Save in the Save message dialog.
  */
 function click_save_message(controller) {
-  if (controller.window.document.title != "Save Message")
-    throw new Error("Not a Save message dialog; title=" +
-                    controller.window.document.title);
+  if (controller.window.document.title != "Save Message") {
+    throw new Error(
+      "Not a Save message dialog; title=" + controller.window.document.title
+    );
+  }
   controller.window.document.documentElement.getButton("accept").doCommand();
 }

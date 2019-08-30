@@ -22,13 +22,13 @@ var MODULE_REQUIRES = [
   "message-helpers",
 ];
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var sig = "roses are red";
 var folder;
 
 function setupModule(module) {
-    for (let req of MODULE_REQUIRES) {
+  for (let req of MODULE_REQUIRES) {
     collector.getModule(req).installInto(module);
   }
 
@@ -37,8 +37,11 @@ function setupModule(module) {
   let msg = create_message({
     subject: "msg with signature; format=flowed",
     body: {
-      body: "get with the flow! get with the flow! get with the flow! " +
-        "get with the \n flow! get with the flow!\n-- \n" + sig + "\n",
+      body:
+        "get with the flow! get with the flow! get with the flow! " +
+        "get with the \n flow! get with the flow!\n-- \n" +
+        sig +
+        "\n",
       contentType: "text/plain",
       charset: "UTF-8",
       format: "flowed",
@@ -48,8 +51,11 @@ function setupModule(module) {
   let msg2 = create_message({
     subject: "msg with signature; format not flowed",
     body: {
-      body: "not flowed! not flowed! not flowed! \n" +
-        "not flowed!\n-- \n" + sig + "\n",
+      body:
+        "not flowed! not flowed! not flowed! \n" +
+        "not flowed!\n-- \n" +
+        sig +
+        "\n",
       contentType: "text/plain",
       charset: "UTF-8",
       format: "",
@@ -106,5 +112,3 @@ function check_sig_strip_works(aRow, aShouldStrip) {
   }
   close_compose_window(rwc);
 }
-
-

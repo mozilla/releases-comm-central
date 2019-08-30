@@ -7,11 +7,9 @@
 /* import-globals-from ../../../../mailnews/addrbook/content/abResultsPane.js */
 /* import-globals-from abCommon.js */
 
-var {
-  getSearchTokens,
-  getModelQuery,
-  generateQueryURI,
-} = ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
+var { getSearchTokens, getModelQuery, generateQueryURI } = ChromeUtils.import(
+  "resource:///modules/ABQueryUtils.jsm"
+);
 
 function GetAbViewListener() {
   // the ab panel doesn't care if the total changes, or if the selection changes
@@ -31,8 +29,7 @@ function contactsListOnContextMenu(aEvent) {
   let positionArray;
 
   // For right-click on column header or column picker, don't show context menu.
-  if (target.localName == "treecol" ||
-      target.localName == "treecolpicker") {
+  if (target.localName == "treecol" || target.localName == "treecolpicker") {
     return;
   }
 
@@ -44,7 +41,7 @@ function contactsListOnContextMenu(aEvent) {
     if (!aEvent.button) {
       positionArray = [gAbResultsTree, "overlap", 0, 0, true];
     }
-  // If there's a selection, show "cardProperties" context menu.
+    // If there's a selection, show "cardProperties" context menu.
   } else {
     contextMenuID = gAbResultsTree.getAttribute("contextSelection");
   }
@@ -64,8 +61,10 @@ function contactsListOnClick(aEvent) {
 
   // Left click on column header: Change sort direction.
   if (target.localName == "treecol" && aEvent.button == 0) {
-    let sortDirection = target.getAttribute("sortDirection") == kDefaultDescending ?
-                        kDefaultAscending : kDefaultDescending;
+    let sortDirection =
+      target.getAttribute("sortDirection") == kDefaultDescending
+        ? kDefaultAscending
+        : kDefaultDescending;
     SortAndUpdateIndicators(target.id, sortDirection);
     return;
   }
@@ -99,16 +98,19 @@ function addSelectedAddresses(aRecipientType) {
   var cards = GetSelectedAbCards();
 
   // Turn each card into a properly formatted address.
-  var addressArray = cards.map(GenerateAddressFromCard).filter(addr => (addr != ""));
+  var addressArray = cards
+    .map(GenerateAddressFromCard)
+    .filter(addr => addr != "");
   parent.AddRecipientsArray(aRecipientType, addressArray);
 }
 
 function AddressBookMenuListChange(aValue) {
   let searchInput = document.getElementById("peopleSearchInput");
-  if (searchInput.value && !searchInput.showingSearchCriteria)
+  if (searchInput.value && !searchInput.showingSearchCriteria) {
     onEnterInSearchBar();
-  else
+  } else {
     ChangeDirectoryByURI(aValue);
+  }
 
   // Hide the addressbook column if the selected addressbook isn't
   // "All address books". Since the column is redundant in all other cases.
@@ -142,8 +144,9 @@ function AbPanelLoad() {
   var temp = abPopup.value;
   abPopup.selectedItem = null;
   abPopup.value = temp;
-  if (!abPopup.selectedItem)
+  if (!abPopup.selectedItem) {
     abPopup.selectedIndex = 0;
+  }
 
   // Postpone the slow contacts load so that the sidebar document
   // gets a chance to display quickly.
@@ -151,9 +154,11 @@ function AbPanelLoad() {
 
   mutationObs = new MutationObserver(function(aMutations) {
     aMutations.forEach(function(mutation) {
-      if (getSelectedDirectoryURI() == (kAllDirectoryRoot + "?") &&
-          mutation.type == "attributes" &&
-          mutation.attributeName == "hidden") {
+      if (
+        getSelectedDirectoryURI() == kAllDirectoryRoot + "?" &&
+        mutation.type == "attributes" &&
+        mutation.attributeName == "hidden"
+      ) {
         let curState = document.getElementById("addrbook").hidden;
         gShowAbColumnInComposeSidebar = !curState;
       }
@@ -162,8 +167,10 @@ function AbPanelLoad() {
 
   document.getElementById("addrbook").hidden = !gShowAbColumnInComposeSidebar;
 
-  mutationObs.observe(document.getElementById("addrbook"),
-                      { attributes: true, childList: true });
+  mutationObs.observe(document.getElementById("addrbook"), {
+    attributes: true,
+    childList: true,
+  });
 }
 
 function AbPanelUnload() {
@@ -199,7 +206,7 @@ function UpdateCardView() {
 
 function CommandUpdate_AddressBook() {
   // Toggle disable state of to,cc,bcc buttons.
-  let disabled = (GetNumSelectedCards() == 0) ? "true" : "false";
+  let disabled = GetNumSelectedCards() == 0 ? "true" : "false";
   document.getElementById("cmd_addrTo").setAttribute("disabled", disabled);
   document.getElementById("cmd_addrCc").setAttribute("disabled", disabled);
   document.getElementById("cmd_addrBcc").setAttribute("disabled", disabled);

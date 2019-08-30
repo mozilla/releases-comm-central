@@ -4,7 +4,9 @@
 
 /* globals MsgOpenNewWindowForFolder */
 
-let {BrowserTestUtils} = ChromeUtils.import("resource://testing-common/BrowserTestUtils.jsm");
+let { BrowserTestUtils } = ChromeUtils.import(
+  "resource://testing-common/BrowserTestUtils.jsm"
+);
 
 add_task(async () => {
   let extension = ExtensionTestUtils.loadExtension({
@@ -12,7 +14,7 @@ add_task(async () => {
       let listener = {
         waitingPromises: [],
         waitForEvent() {
-          return new Promise((resolve) => {
+          return new Promise(resolve => {
             listener.waitingPromises.push(resolve);
           });
         },
@@ -77,7 +79,10 @@ add_task(async () => {
       let focusChangedPromise3;
       if (["mac", "win"].includes(platformInfo.os)) {
         // Mac and Windows don't fire this event. Pretend they do.
-        focusChangedPromise3 = Promise.resolve(["onFocusChanged", browser.windows.WINDOW_ID_NONE]);
+        focusChangedPromise3 = Promise.resolve([
+          "onFocusChanged",
+          browser.windows.WINDOW_ID_NONE,
+        ]);
       } else {
         focusChangedPromise3 = listener.waitForEvent();
       }

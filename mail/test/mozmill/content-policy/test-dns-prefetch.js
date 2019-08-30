@@ -17,7 +17,11 @@
 
 var MODULE_NAME = "test-dns-prefetch";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "content-tab-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "compose-helpers",
+  "content-tab-helpers",
+];
 
 var folder = null;
 var composeHelper = null;
@@ -25,15 +29,16 @@ var gMsgNo = 0;
 var gMsgHdr = null;
 
 // These two constants are used to build the message body.
-var msgBody = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">\n' +
-"<html>\n" +
-"<head>\n" +
-"\n" +
-'<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">\n' +
-"</head>\n" +
-'<body bgcolor="#ffffff" text="#000000">\n' +
-"dns prefetch test message\n" +
-"</body>\n</html>\n";
+var msgBody =
+  '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">\n' +
+  "<html>\n" +
+  "<head>\n" +
+  "\n" +
+  '<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">\n' +
+  "</head>\n" +
+  '<body bgcolor="#ffffff" text="#000000">\n' +
+  "dns prefetch test message\n" +
+  "</body>\n</html>\n";
 
 function setupModule(module) {
   let fdh = collector.getModule("folder-display-helpers");
@@ -47,23 +52,31 @@ function setupModule(module) {
 }
 
 function addToFolder(aSubject, aBody, aFolder) {
-  let msgId = Cc["@mozilla.org/uuid-generator;1"]
-                          .getService(Ci.nsIUUIDGenerator)
-                          .generateUUID() + "@mozillamessaging.invalid";
+  let msgId =
+    Cc["@mozilla.org/uuid-generator;1"]
+      .getService(Ci.nsIUUIDGenerator)
+      .generateUUID() + "@mozillamessaging.invalid";
 
-  let source = "From - Sat Nov  1 12:39:54 2008\n" +
-               "X-Mozilla-Status: 0001\n" +
-               "X-Mozilla-Status2: 00000000\n" +
-               "Message-ID: <" + msgId + ">\n" +
-               "Date: Wed, 11 Jun 2008 20:32:02 -0400\n" +
-               "From: Tester <tests@mozillamessaging.invalid>\n" +
-               "User-Agent: Thunderbird 3.0a2pre (Macintosh/2008052122)\n" +
-               "MIME-Version: 1.0\n" +
-               "To: recipient@mozillamessaging.invalid\n" +
-               "Subject: " + aSubject + "\n" +
-               "Content-Type: text/html; charset=ISO-8859-1\n" +
-               "Content-Transfer-Encoding: 7bit\n" +
-               "\n" + aBody + "\n";
+  let source =
+    "From - Sat Nov  1 12:39:54 2008\n" +
+    "X-Mozilla-Status: 0001\n" +
+    "X-Mozilla-Status2: 00000000\n" +
+    "Message-ID: <" +
+    msgId +
+    ">\n" +
+    "Date: Wed, 11 Jun 2008 20:32:02 -0400\n" +
+    "From: Tester <tests@mozillamessaging.invalid>\n" +
+    "User-Agent: Thunderbird 3.0a2pre (Macintosh/2008052122)\n" +
+    "MIME-Version: 1.0\n" +
+    "To: recipient@mozillamessaging.invalid\n" +
+    "Subject: " +
+    aSubject +
+    "\n" +
+    "Content-Type: text/html; charset=ISO-8859-1\n" +
+    "Content-Transfer-Encoding: 7bit\n" +
+    "\n" +
+    aBody +
+    "\n";
 
   aFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   aFolder.gettingNewMessages = true;
@@ -75,14 +88,16 @@ function addToFolder(aSubject, aBody, aFolder) {
 }
 
 function addMsgToFolder(folder) {
-  let msgDbHdr = addToFolder("exposed test message " + gMsgNo,
-                             msgBody, folder);
+  let msgDbHdr = addToFolder("exposed test message " + gMsgNo, msgBody, folder);
 
   // select the newly created message
   gMsgHdr = select_click_row(gMsgNo);
 
-  if (msgDbHdr != gMsgHdr)
-    throw new Error("Selected Message Header is not the same as generated header");
+  if (msgDbHdr != gMsgHdr) {
+    throw new Error(
+      "Selected Message Header is not the same as generated header"
+    );
+  }
 
   assert_selected_and_displayed(gMsgNo);
 
@@ -101,32 +116,35 @@ function checkComposeWindow(replyType) {
   let errMsg = "";
   let replyWindow = null;
   switch (replyType) {
-  case 0:
-    replyWindow = composeHelper.open_compose_new_mail();
-    errMsg = "new mail";
-    break;
-  case 1:
-    replyWindow = composeHelper.open_compose_with_reply();
-    errMsg = "reply";
-    break;
-  case 2:
-    replyWindow = composeHelper.open_compose_with_forward();
-    errMsg = "forward";
-    break;
+    case 0:
+      replyWindow = composeHelper.open_compose_new_mail();
+      errMsg = "new mail";
+      break;
+    case 1:
+      replyWindow = composeHelper.open_compose_with_reply();
+      errMsg = "reply";
+      break;
+    case 2:
+      replyWindow = composeHelper.open_compose_with_forward();
+      errMsg = "forward";
+      break;
   }
 
   // Check the prefetch in the compose window.
-  if (replyWindow.e("content-frame").docShell.allowDNSPrefetch)
-    throw new Error("DNS Prefetch on compose window is not disabled (" +
-                    errMsg + ")");
+  if (replyWindow.e("content-frame").docShell.allowDNSPrefetch) {
+    throw new Error(
+      "DNS Prefetch on compose window is not disabled (" + errMsg + ")"
+    );
+  }
 
   composeHelper.close_compose_window(replyWindow);
 }
 
 function test_dnsPrefetch_message() {
   // Now we have started up, simply check that DNS prefetch is disabled
-  if (mc.e("messagepane").docShell.allowDNSPrefetch)
+  if (mc.e("messagepane").docShell.allowDNSPrefetch) {
     throw new Error("DNS Prefetch on messagepane is not disabled at startup");
+  }
 
   be_in_folder(folder);
 
@@ -135,8 +153,11 @@ function test_dnsPrefetch_message() {
   addMsgToFolder(folder);
 
   // Now we've got a message selected, check again.
-  if (mc.e("messagepane").docShell.allowDNSPrefetch)
-    throw new Error("DNS Prefetch on messagepane is not disabled after selecting message");
+  if (mc.e("messagepane").docShell.allowDNSPrefetch) {
+    throw new Error(
+      "DNS Prefetch on messagepane is not disabled after selecting message"
+    );
+  }
 }
 
 function test_dnsPrefetch_standaloneMessage() {
@@ -144,8 +165,11 @@ function test_dnsPrefetch_standaloneMessage() {
   assert_selected_and_displayed(msgc, gMsgHdr);
 
   // Check the docshell.
-  if (mc.e("messagepane").docShell.allowDNSPrefetch)
-    throw new Error("DNS Prefetch on messagepane is not disabled in standalone message window.");
+  if (mc.e("messagepane").docShell.allowDNSPrefetch) {
+    throw new Error(
+      "DNS Prefetch on messagepane is not disabled in standalone message window."
+    );
+  }
 
   close_message_window(msgc);
 }
@@ -161,16 +185,19 @@ function test_dnsPrefetch_contentTab() {
   // in the data of what we want.
   let preCount = mc.tabmail.tabContainer.allTabs.length;
 
-  let dataurl = "data:text/html,<html><head><title>test dns prefetch</title>" +
+  let dataurl =
+    "data:text/html,<html><head><title>test dns prefetch</title>" +
     "</head><body>test dns prefetch</body></html>";
 
   let newTab = open_content_tab_with_url(dataurl);
 
-  if (!mc.tabmail.getBrowserForSelectedTab().docShell.allowDNSPrefetch)
+  if (!mc.tabmail.getBrowserForSelectedTab().docShell.allowDNSPrefetch) {
     throw new Error("DNS prefetch unexpectedly disabled in content tabs");
+  }
 
   mc.tabmail.closeTab(newTab);
 
-  if (mc.tabmail.tabContainer.allTabs.length != preCount)
+  if (mc.tabmail.tabContainer.allTabs.length != preCount) {
     throw new Error("The content tab didn't close");
+  }
 }

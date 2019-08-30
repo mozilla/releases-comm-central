@@ -26,15 +26,22 @@ var MODULE_REQUIRES = [
   "dom-helpers",
 ];
 
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {HttpServer} = ChromeUtils.import("chrome://mozmill/content/stdlib/httpd.jsm");
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { HttpServer } = ChromeUtils.import(
+  "chrome://mozmill/content/stdlib/httpd.jsm"
+);
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
 // so we get the right path for the resources.
 var url = collector.addHttpResource("../newmailaccount/html", "");
-var kProvisionerUrl = "chrome://messenger/content/newmailaccount/accountProvisioner.xhtml";
+var kProvisionerUrl =
+  "chrome://messenger/content/newmailaccount/accountProvisioner.xhtml";
 var kProvisionerEnabledPref = "mail.provider.enabled";
 var kSuggestFromNamePref = "mail.provider.suggestFromName";
 var kProviderListPref = "mail.provider.providerList";
@@ -66,10 +73,12 @@ function setupModule(module) {
 
   // Add a "bar" search engine that we can switch to be the default.
   let engineAdded = false;
-  Services.search.addEngineWithDetails("bar", {
-    method: "post",
-    template: "http://www.example.com/search?q={searchTerms}",
-  }).then(() => engineAdded = true);
+  Services.search
+    .addEngineWithDetails("bar", {
+      method: "post",
+      template: "http://www.example.com/search?q={searchTerms}",
+    })
+    .then(() => (engineAdded = true));
   mc.waitFor(() => engineAdded);
 }
 
@@ -141,7 +150,9 @@ function test_get_an_account(aCloseAndRestore) {
   plan_for_new_window("AccountCreation");
 
   // Click the OK button to order the account.
-  let btn = tab.browser.contentWindow.document.querySelector("input[value=Send]");
+  let btn = tab.browser.contentWindow.document.querySelector(
+    "input[value=Send]"
+  );
   mc.click(new elib.Elem(btn));
 
   let ac = wait_for_new_window("AccountCreation");
@@ -180,13 +191,19 @@ function subtest_get_an_account(w) {
   // Click on the first address. This reveals the button with the price.
   let address = w.window.document.querySelector(".address:first-child");
   w.click(new elib.Elem(address));
-  w.waitFor(() => w.window.document.querySelectorAll('button.create:not([disabled="true"])').length > 0);
+  w.waitFor(
+    () =>
+      w.window.document.querySelectorAll('button.create:not([disabled="true"])')
+        .length > 0
+  );
 
   // Pick the email address green@example.com
   plan_for_content_tab_load();
 
   // Clicking this button should close the modal dialog.
-  let button = w.window.document.querySelector('button.create[address="green@example.com"]');
+  let button = w.window.document.querySelector(
+    'button.create[address="green@example.com"]'
+  );
   w.click(new elib.Elem(button));
 }
 
@@ -222,7 +239,10 @@ function test_restored_ap_tab_works() {
  * button dismisses the Account Provisioner window.
  */
 function test_can_dismiss_account_provisioner() {
-  plan_for_modal_dialog("AccountCreation", subtest_can_dismiss_account_provisioner);
+  plan_for_modal_dialog(
+    "AccountCreation",
+    subtest_can_dismiss_account_provisioner
+  );
   open_provisioner_window();
   wait_for_modal_dialog("AccountCreation");
 }
@@ -247,8 +267,10 @@ function subtest_can_dismiss_account_provisioner(w) {
  * sends us to the existing email account wizard.
  */
 function test_can_switch_to_existing_email_account_wizard() {
-  plan_for_modal_dialog("AccountCreation",
-                        subtest_can_switch_to_existing_email_account_wizard);
+  plan_for_modal_dialog(
+    "AccountCreation",
+    subtest_can_switch_to_existing_email_account_wizard
+  );
   open_provisioner_window();
   wait_for_modal_dialog("AccountCreation");
   // Ensure that the existing email account wizard opened.
@@ -279,8 +301,10 @@ function subtest_can_switch_to_existing_email_account_wizard(w) {
  * providers with other languages to be displayed.
  */
 function test_can_display_providers_in_other_languages() {
-  plan_for_modal_dialog("AccountCreation",
-                        subtest_can_display_providers_in_other_languages);
+  plan_for_modal_dialog(
+    "AccountCreation",
+    subtest_can_display_providers_in_other_languages
+  );
   open_provisioner_window();
   wait_for_modal_dialog("AccountCreation");
 }
@@ -311,8 +335,10 @@ function subtest_can_display_providers_in_other_languages(w) {
  * wizard, and then test to see if we can dismiss the provisioner.
  */
 function test_flip_flop_from_provisioner_menuitem() {
-  plan_for_modal_dialog("AccountCreation",
-                        subtest_flip_flop_from_provisioner_menuitem);
+  plan_for_modal_dialog(
+    "AccountCreation",
+    subtest_flip_flop_from_provisioner_menuitem
+  );
   plan_for_new_window("mail:autoconfig");
   open_provisioner_window();
   plan_for_new_window("mail:autoconfig");
@@ -323,8 +349,10 @@ function test_flip_flop_from_provisioner_menuitem() {
 
   for (let i = 0; i < NUM_OF_FLIP_FLOPS; ++i) {
     wizard = wait_for_new_window("mail:autoconfig");
-    plan_for_modal_dialog("AccountCreation",
-                          subtest_flip_flop_from_provisioner_menuitem);
+    plan_for_modal_dialog(
+      "AccountCreation",
+      subtest_flip_flop_from_provisioner_menuitem
+    );
     plan_for_new_window("mail:autoconfig");
     plan_for_window_close(wizard);
     wizard.click(wizard.eid("provisioner_button"));
@@ -332,8 +360,7 @@ function test_flip_flop_from_provisioner_menuitem() {
   }
 
   wizard = wait_for_new_window("mail:autoconfig");
-  plan_for_modal_dialog("AccountCreation",
-                        subtest_close_provisioner);
+  plan_for_modal_dialog("AccountCreation", subtest_close_provisioner);
   wizard.click(wizard.eid("provisioner_button"));
   wait_for_modal_dialog("AccountCreation");
 }
@@ -370,12 +397,16 @@ function subtest_close_provisioner(w) {
  * doing a search, or choosing to go to the email setup wizard.
  */
 function test_persist_name_in_search_field() {
-  plan_for_modal_dialog("AccountCreation",
-                        subtest_persist_name_in_search_field);
+  plan_for_modal_dialog(
+    "AccountCreation",
+    subtest_persist_name_in_search_field
+  );
   open_provisioner_window();
   wait_for_modal_dialog("AccountCreation");
-  plan_for_modal_dialog("AccountCreation",
-                        subtest_persist_name_in_search_field_part_2);
+  plan_for_modal_dialog(
+    "AccountCreation",
+    subtest_persist_name_in_search_field_part_2
+  );
   open_provisioner_window();
   wait_for_modal_dialog("AccountCreation");
 }
@@ -417,8 +448,10 @@ function subtest_persist_name_in_search_field_part_2(w) {
  * back to the user.
  */
 function test_html_characters_and_ampersands() {
-  plan_for_modal_dialog("AccountCreation",
-                        subtest_html_characters_and_ampersands);
+  plan_for_modal_dialog(
+    "AccountCreation",
+    subtest_html_characters_and_ampersands
+  );
   open_provisioner_window();
   wait_for_modal_dialog("AccountCreation");
 }
@@ -434,7 +467,8 @@ function subtest_html_characters_and_ampersands(w) {
 
   // Type a name with some HTML tags and an ampersand in there
   // to see if we can trip up account provisioner.
-  const CLEVER_STRING = "<i>Hey, I'm ''clever &\"\" smart!<!-- Ain't I a stinkah? --></i>";
+  const CLEVER_STRING =
+    "<i>Hey, I'm ''clever &\"\" smart!<!-- Ain't I a stinkah? --></i>";
   type_in_search_name(w, CLEVER_STRING);
 
   // Do the search.
@@ -448,12 +482,18 @@ function subtest_html_characters_and_ampersands(w) {
   // & should have been replaced with &amp;, and the
   // greater than / less than characters with &gt; and
   // &lt; respectively.
-  assert_true(displayedName.includes("&amp;"),
-              "Should have eliminated ampersands");
-  assert_true(displayedName.includes("&gt;"),
-              "Should have eliminated greater-than signs");
-  assert_true(displayedName.includes("&lt;"),
-              "Should have eliminated less-than signs");
+  assert_true(
+    displayedName.includes("&amp;"),
+    "Should have eliminated ampersands"
+  );
+  assert_true(
+    displayedName.includes("&gt;"),
+    "Should have eliminated greater-than signs"
+  );
+  assert_true(
+    displayedName.includes("&lt;"),
+    "Should have eliminated less-than signs"
+  );
 }
 
 /**
@@ -461,8 +501,10 @@ function subtest_html_characters_and_ampersands(w) {
  * providers are shown in the disclaimer.
  */
 function test_show_tos_privacy_links_for_selected_providers() {
-  plan_for_modal_dialog("AccountCreation",
-                        subtest_show_tos_privacy_links_for_selected_providers);
+  plan_for_modal_dialog(
+    "AccountCreation",
+    subtest_show_tos_privacy_links_for_selected_providers
+  );
   open_provisioner_window();
   wait_for_modal_dialog("AccountCreation");
 }
@@ -478,21 +520,29 @@ function subtest_show_tos_privacy_links_for_selected_providers(w) {
   // We should be showing the TOS and Privacy links for the selected
   // providers immediately after the providers have been loaded.
   // Those providers should be "foo" and "bar".
-  assert_links_shown(w, ["http://www.example.com/foo-tos",
-                         "http://www.example.com/foo-privacy",
-                         "http://www.example.com/bar-tos",
-                         "http://www.example.com/bar-privacy"]);
+  assert_links_shown(w, [
+    "http://www.example.com/foo-tos",
+    "http://www.example.com/foo-privacy",
+    "http://www.example.com/bar-tos",
+    "http://www.example.com/bar-privacy",
+  ]);
 
-  assert_links_not_shown(w, ["http://www.example.com/French-tos",
-                             "http://www.example.com/French-privacy"]);
+  assert_links_not_shown(w, [
+    "http://www.example.com/French-tos",
+    "http://www.example.com/French-privacy",
+  ]);
 
   // Now click off one of those providers - we shouldn't be displaying
   // and links for that one now.
-  let input = w.window.document.querySelector('input[type="checkbox"][value="foo"]');
+  let input = w.window.document.querySelector(
+    'input[type="checkbox"][value="foo"]'
+  );
   w.click(new elib.Elem(input));
 
-  assert_links_not_shown(w, ["http://www.example.com/foo-tos",
-                             "http://www.example.com/foo-privacy"]);
+  assert_links_not_shown(w, [
+    "http://www.example.com/foo-tos",
+    "http://www.example.com/foo-privacy",
+  ]);
 
   // Ensure that the "Other languages" div is visible
   wait_for_element_visible(w, "otherLangDesc");
@@ -501,33 +551,45 @@ function subtest_show_tos_privacy_links_for_selected_providers(w) {
   wait_for_element_invisible(w, "otherLangDesc");
 
   // And click on one of those providers...
-  input = w.window.document.querySelector('input[type="checkbox"][value="French"]');
+  input = w.window.document.querySelector(
+    'input[type="checkbox"][value="French"]'
+  );
   w.click(new elib.Elem(input));
   // We should be showing the French TOS / Privacy links, along
   // with those from the bar provider.
-  assert_links_shown(w, ["http://www.example.com/French-tos",
-                         "http://www.example.com/French-privacy",
-                         "http://www.example.com/bar-tos",
-                         "http://www.example.com/bar-privacy"]);
+  assert_links_shown(w, [
+    "http://www.example.com/French-tos",
+    "http://www.example.com/French-privacy",
+    "http://www.example.com/bar-tos",
+    "http://www.example.com/bar-privacy",
+  ]);
 
   // The foo provider should still have it's links hidden.
-  assert_links_not_shown(w, ["http://www.example.com/foo-tos",
-                             "http://www.example.com/foo-privacy"]);
+  assert_links_not_shown(w, [
+    "http://www.example.com/foo-tos",
+    "http://www.example.com/foo-privacy",
+  ]);
 
   // Click on the German provider.  It's links should now be
   // shown, along with the French and bar providers.
-  input = w.window.document.querySelector('input[type="checkbox"][value="German"]');
+  input = w.window.document.querySelector(
+    'input[type="checkbox"][value="German"]'
+  );
   w.click(new elib.Elem(input));
-  assert_links_shown(w, ["http://www.example.com/French-tos",
-                         "http://www.example.com/French-privacy",
-                         "http://www.example.com/bar-tos",
-                         "http://www.example.com/bar-privacy",
-                         "http://www.example.com/German-tos",
-                         "http://www.example.com/German-privacy"]);
+  assert_links_shown(w, [
+    "http://www.example.com/French-tos",
+    "http://www.example.com/French-privacy",
+    "http://www.example.com/bar-tos",
+    "http://www.example.com/bar-privacy",
+    "http://www.example.com/German-tos",
+    "http://www.example.com/German-privacy",
+  ]);
 
   // And the foo links should still be hidden.
-  assert_links_not_shown(w, ["http://www.example.com/foo-tos",
-                             "http://www.example.com/foo-privacy"]);
+  assert_links_not_shown(w, [
+    "http://www.example.com/foo-tos",
+    "http://www.example.com/foo-privacy",
+  ]);
 }
 
 /**
@@ -537,8 +599,10 @@ function subtest_show_tos_privacy_links_for_selected_providers(w) {
 function test_shows_error_on_bad_suggest_from_name() {
   let original = Services.prefs.getCharPref(kSuggestFromNamePref);
   Services.prefs.setCharPref(kSuggestFromNamePref, url + "badSuggestFromName");
-  plan_for_modal_dialog("AccountCreation",
-                        subtest_shows_error_on_bad_suggest_from_name);
+  plan_for_modal_dialog(
+    "AccountCreation",
+    subtest_shows_error_on_bad_suggest_from_name
+  );
   open_provisioner_window();
   wait_for_modal_dialog("AccountCreation");
   Services.prefs.setCharPref(kSuggestFromNamePref, original);
@@ -558,7 +622,9 @@ function subtest_shows_error_on_bad_suggest_from_name(w) {
   // Do the search.
   w.click(w.eid("searchSubmit"));
 
-  mc.waitFor(() => !w.window.document.querySelector("#notifications > .error").hidden);
+  mc.waitFor(
+    () => !w.window.document.querySelector("#notifications > .error").hidden
+  );
 }
 
 /**
@@ -567,9 +633,14 @@ function subtest_shows_error_on_bad_suggest_from_name(w) {
  */
 function test_shows_error_on_empty_suggest_from_name() {
   let original = Services.prefs.getCharPref(kSuggestFromNamePref);
-  Services.prefs.setCharPref(kSuggestFromNamePref, url + "emptySuggestFromName");
-  plan_for_modal_dialog("AccountCreation",
-                        subtest_shows_error_on_empty_suggest_from_name);
+  Services.prefs.setCharPref(
+    kSuggestFromNamePref,
+    url + "emptySuggestFromName"
+  );
+  plan_for_modal_dialog(
+    "AccountCreation",
+    subtest_shows_error_on_empty_suggest_from_name
+  );
   open_provisioner_window();
   wait_for_modal_dialog("AccountCreation");
   Services.prefs.setCharPref(kSuggestFromNamePref, original);
@@ -589,7 +660,9 @@ function subtest_shows_error_on_empty_suggest_from_name(w) {
   // Do the search.
   w.click(w.eid("searchSubmit"));
 
-  mc.waitFor(() => !w.window.document.querySelector("#notifications > .error").hidden);
+  mc.waitFor(
+    () => !w.window.document.querySelector("#notifications > .error").hidden
+  );
 }
 
 /**
@@ -613,7 +686,9 @@ function test_throws_console_error_on_corrupt_XML() {
   // Click the OK button to order the account.
   plan_for_modal_dialog("AccountCreation", close_dialog_immediately);
 
-  let btn = tab.browser.contentWindow.document.querySelector("input[value=Send]");
+  let btn = tab.browser.contentWindow.document.querySelector(
+    "input[value=Send]"
+  );
   mc.click(new elib.Elem(btn));
   wait_for_modal_dialog("AccountCreation");
 
@@ -630,8 +705,10 @@ function test_broken_provider_list_goes_offline() {
   let original = Services.prefs.getCharPref(kProviderListPref);
   Services.prefs.setCharPref(kProviderListPref, url + "providerListBad");
 
-  plan_for_modal_dialog("AccountCreation",
-                        subtest_broken_provider_list_goes_offline);
+  plan_for_modal_dialog(
+    "AccountCreation",
+    subtest_broken_provider_list_goes_offline
+  );
   open_provisioner_window();
   wait_for_modal_dialog("AccountCreation");
   Services.prefs.setCharPref(kProviderListPref, original);
@@ -653,8 +730,10 @@ function test_incomplete_provider_not_displayed() {
   let original = Services.prefs.getCharPref(kProviderListPref);
   Services.prefs.setCharPref(kProviderListPref, url + "providerListIncomplete");
 
-  plan_for_modal_dialog("AccountCreation",
-                        subtest_incomplete_provider_not_displayed);
+  plan_for_modal_dialog(
+    "AccountCreation",
+    subtest_incomplete_provider_not_displayed
+  );
   open_provisioner_window();
   wait_for_modal_dialog("AccountCreation");
   Services.prefs.setCharPref(kProviderListPref, original);
@@ -669,14 +748,20 @@ function subtest_incomplete_provider_not_displayed(w) {
   wait_for_provider_list_loaded(w);
   // Make sure that the provider that didn't include the required fields
   // is not displayed.
-  let input = w.window.document.querySelectorAll('input[type="checkbox"][value="corrupt"]');
-  assert_equals(0, input.length,
-                "The Corrupt provider should not have been displayed");
+  let input = w.window.document.querySelectorAll(
+    'input[type="checkbox"][value="corrupt"]'
+  );
+  assert_equals(
+    0,
+    input.length,
+    "The Corrupt provider should not have been displayed"
+  );
 
   // And check to ensure that at least one other provider is displayed
-  input = w.window.document.querySelectorAll('input[type="checkbox"][value="foo"]');
-  assert_equals(1, input.length,
-                "The foo provider should have been displayed");
+  input = w.window.document.querySelectorAll(
+    'input[type="checkbox"][value="foo"]'
+  );
+  assert_equals(1, input.length, "The foo provider should have been displayed");
 }
 
 /**
@@ -684,8 +769,10 @@ function subtest_incomplete_provider_not_displayed(w) {
  * that the search submit button is disabled.
  */
 function test_search_button_disabled_cases() {
-  plan_for_modal_dialog("AccountCreation",
-                        subtest_search_button_disabled_cases);
+  plan_for_modal_dialog(
+    "AccountCreation",
+    subtest_search_button_disabled_cases
+  );
   open_provisioner_window();
   wait_for_modal_dialog("AccountCreation");
 }
@@ -705,13 +792,15 @@ function subtest_search_button_disabled_cases(w) {
   // Empty any strings in the search input.  Select all of the input with
   // Ctrl-A, and then hit backspace.
   searchInput.getNode().focus();
-  w.keypress(null, "a", {accelKey: true});
+  w.keypress(null, "a", { accelKey: true });
   w.keypress(null, "VK_BACK_SPACE", {});
 
   // Make sure at least one provider is checked
   let input = w.window.document.querySelector('input[type="checkbox"]:checked');
   w.click(new elib.Elem(input));
-  input = w.window.document.querySelector('input[type="checkbox"][value="foo"]');
+  input = w.window.document.querySelector(
+    'input[type="checkbox"][value="foo"]'
+  );
   w.click(new elib.Elem(input));
 
   // The search submit button should become disabled
@@ -728,7 +817,9 @@ function subtest_search_button_disabled_cases(w) {
 
   // Case 3:  Search input has text, no providers selected
   // Make sure no provider checkboxes are checked.
-  let inputs = w.window.document.querySelectorAll('input[type="checkbox"]:checked');
+  let inputs = w.window.document.querySelectorAll(
+    'input[type="checkbox"]:checked'
+  );
   for (input of inputs) {
     mc.click(new elib.Elem(input));
   }
@@ -739,7 +830,9 @@ function subtest_search_button_disabled_cases(w) {
   // We'll turn on a single provider now to enable the search button,
   // so we can ensure that it actually *becomes* disabled for the next
   // case.
-  input = w.window.document.querySelector('input[type="checkbox"][value="foo"]');
+  input = w.window.document.querySelector(
+    'input[type="checkbox"][value="foo"]'
+  );
   w.click(new elib.Elem(input));
   wait_for_element_enabled(w, w.e("searchSubmit"), true);
 
@@ -747,7 +840,7 @@ function subtest_search_button_disabled_cases(w) {
   // selected.
 
   // Clear out the search input
-  w.keypress(null, "a", {accelKey: true});
+  w.keypress(null, "a", { accelKey: true });
   w.keypress(null, "VK_BACK_SPACE", {});
   input = w.window.document.querySelector('input[type="checkbox"]:checked');
   w.click(new elib.Elem(input));
@@ -844,10 +937,12 @@ test_can_pref_off_account_provisioner.EXCLUDED_PLATFORMS = ["darwin"];
  */
 function test_other_lang_link_hides() {
   let original = Services.prefs.getCharPref(kProviderListPref);
-  Services.prefs.setCharPref(kProviderListPref, url + "providerListNoOtherLangs");
+  Services.prefs.setCharPref(
+    kProviderListPref,
+    url + "providerListNoOtherLangs"
+  );
 
-  plan_for_modal_dialog("AccountCreation",
-                        subtest_other_lang_link_hides);
+  plan_for_modal_dialog("AccountCreation", subtest_other_lang_link_hides);
   open_provisioner_window();
   wait_for_modal_dialog("AccountCreation");
   Services.prefs.setCharPref(kProviderListPref, original);
@@ -868,8 +963,9 @@ function subtest_other_lang_link_hides(w) {
  * when we're there.
  */
 function get_to_order_form(aAddress) {
-  if (!aAddress)
+  if (!aAddress) {
     aAddress = "green@example.com";
+  }
 
   plan_for_modal_dialog("AccountCreation", function(aController) {
     sub_get_to_order_form(aController, aAddress);
@@ -900,17 +996,26 @@ function sub_get_to_order_form(aController, aAddress) {
   wait_for_search_results(aController);
 
   // Click on the requested address. This reveals the button with the price.
-  let addressElts = [...aController.window.document.querySelectorAll(".address")];
+  let addressElts = [
+    ...aController.window.document.querySelectorAll(".address"),
+  ];
   let address = addressElts.filter(a => a.textContent == aAddress).shift();
   assert_true(!!address, "Couldn't find the requested address " + aAddress);
   aController.click(new elib.Elem(address));
-  aController.waitFor(() => aController.window.document.querySelectorAll('button.create:not([disabled="true"])').length > 0);
+  aController.waitFor(
+    () =>
+      aController.window.document.querySelectorAll(
+        'button.create:not([disabled="true"])'
+      ).length > 0
+  );
 
   // Pick the email address.
   plan_for_content_tab_load();
 
   // Clicking this button should close the modal dialog.
-  let button = aController.window.document.querySelector('button.create[address="' + aAddress + '"]');
+  let button = aController.window.document.querySelector(
+    'button.create[address="' + aAddress + '"]'
+  );
   // mc.click() causes a failure here so click() is used for now.
   button.click();
 }
@@ -985,9 +1090,13 @@ function test_external_link_opening_behaviour() {
   let targetHref = external.href;
   mc.click(new elib.Elem(external));
 
-  mc.waitFor(() => gMockExtProtSvc.urlLoaded(targetHref),
-             "Timed out waiting for the link " + targetHref + "to be " +
-             "opened in the default browser.");
+  mc.waitFor(
+    () => gMockExtProtSvc.urlLoaded(targetHref),
+    "Timed out waiting for the link " +
+      targetHref +
+      "to be " +
+      "opened in the default browser."
+  );
   gMockExtProtSvcReg.unregister();
   mc.tabmail.closeTab(tab);
 }
@@ -1006,7 +1115,9 @@ function test_return_to_provisioner_on_error_XML() {
   plan_for_modal_dialog("AccountCreation", close_dialog_immediately);
 
   // Click the OK button to order the account.
-  let btn = tab.browser.contentWindow.document.querySelector("input[value=Send]");
+  let btn = tab.browser.contentWindow.document.querySelector(
+    "input[value=Send]"
+  );
   mc.click(new elib.Elem(btn));
 
   wait_for_modal_dialog("AccountCreation");
@@ -1014,8 +1125,11 @@ function test_return_to_provisioner_on_error_XML() {
   // We should be done executing the function defined in plan_for_modal_dialog
   // now, so the Account Provisioner dialog should be closed, and the order
   // form tab should have been closed.
-  assert_equals(kOriginalTabNum, mc.tabmail.tabContainer.allTabs.length,
-                "Timed out waiting for the order form tab to close.");
+  assert_equals(
+    kOriginalTabNum,
+    mc.tabmail.tabContainer.allTabs.length,
+    "Timed out waiting for the order form tab to close."
+  );
 }
 
 /**
@@ -1024,8 +1138,10 @@ function test_return_to_provisioner_on_error_XML() {
  * still be enabled though.
  */
 function test_disabled_fields_when_searching() {
-  plan_for_modal_dialog("AccountCreation",
-                        subtest_disabled_fields_when_searching);
+  plan_for_modal_dialog(
+    "AccountCreation",
+    subtest_disabled_fields_when_searching
+  );
   open_provisioner_window();
   wait_for_modal_dialog("AccountCreation");
 }
@@ -1044,14 +1160,16 @@ function subtest_disabled_fields_when_searching(aController) {
   function slow_results(aRequest, aResponse) {
     aResponse.processAsync();
     timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
-    let result = [{
-      product: "personalized_email",
-      addresses: ["green@example.com", "green_llama@example.com"],
-      succeeded: true,
-      quote: "b28acb3c0a474d33af22",
-      price: 0,
-      provider: "bar",
-    }];
+    let result = [
+      {
+        product: "personalized_email",
+        addresses: ["green@example.com", "green_llama@example.com"],
+        succeeded: true,
+        quote: "b28acb3c0a474d33af22",
+        price: 0,
+        provider: "bar",
+      },
+    ];
     let timerEvent = {
       notify(aTimer) {
         aResponse.setStatusLine(null, 200, "OK");
@@ -1060,8 +1178,11 @@ function subtest_disabled_fields_when_searching(aController) {
         aResponse.finish();
       },
     };
-    timer.initWithCallback(timerEvent, kSearchMSeconds,
-                           Ci.nsITimer.TYPE_ONE_SHOT);
+    timer.initWithCallback(
+      timerEvent,
+      kSearchMSeconds,
+      Ci.nsITimer.TYPE_ONE_SHOT
+    );
   }
 
   // Set up a mock HTTP server to serve up a super slow search...
@@ -1071,8 +1192,10 @@ function subtest_disabled_fields_when_searching(aController) {
 
   // Now point our suggestFromName pref at that slow server.
   let originalSuggest = Services.prefs.getCharPref(kSuggestFromNamePref);
-  Services.prefs.setCharPref(kSuggestFromNamePref,
-                             kDefaultServerRoot + kSuggestPath);
+  Services.prefs.setCharPref(
+    kSuggestFromNamePref,
+    kDefaultServerRoot + kSuggestPath
+  );
 
   wait_for_provider_list_loaded(aController);
   wait_for_search_ready(aController);
@@ -1089,8 +1212,9 @@ function subtest_disabled_fields_when_searching(aController) {
   wait_for_element_enabled(aController, aController.e("name"), false);
   let providerCheckboxes = doc.querySelectorAll(".providerCheckbox");
 
-  for (let checkbox of providerCheckboxes)
+  for (let checkbox of providerCheckboxes) {
     wait_for_element_enabled(aController, checkbox, false);
+  }
 
   // Check to ensure that the buttons for switching to the wizard and closing
   // the wizard are still enabled.
@@ -1103,8 +1227,9 @@ function subtest_disabled_fields_when_searching(aController) {
   wait_for_element_enabled(aController, aController.e("searchSubmit"), true);
   wait_for_element_enabled(aController, aController.e("name"), true);
 
-  for (let checkbox of providerCheckboxes)
+  for (let checkbox of providerCheckboxes) {
     wait_for_element_enabled(aController, checkbox, true);
+  }
 
   // Ok, cleanup time. Put the old suggest URL back.
   Services.prefs.setCharPref(kSuggestFromNamePref, originalSuggest);
@@ -1115,8 +1240,10 @@ function subtest_disabled_fields_when_searching(aController) {
   server.stop(function() {
     serverStopped = true;
   });
-  aController.waitFor(() => serverStopped,
-                      "Timed out waiting for the fake server to stop.");
+  aController.waitFor(
+    () => serverStopped,
+    "Timed out waiting for the fake server to stop."
+  );
 
   close_dialog_immediately(aController);
 }
@@ -1157,7 +1284,6 @@ function subtest_search_button_enabled_state_on_init(aController) {
   // The search button should be disabled if there's not search input.
   wait_for_element_enabled(aController, aController.e("searchSubmit"), enabled);
 
-
   close_dialog_immediately(aController);
 }
 
@@ -1173,8 +1299,7 @@ function test_provider_language_wildcard() {
   let original = Services.prefs.getCharPref(kProviderListPref);
   Services.prefs.setCharPref(kProviderListPref, url + "providerListWildcard");
 
-  plan_for_modal_dialog("AccountCreation",
-                        subtest_provider_language_wildcard);
+  plan_for_modal_dialog("AccountCreation", subtest_provider_language_wildcard);
   open_provisioner_window();
   wait_for_modal_dialog("AccountCreation");
   Services.prefs.setCharPref(kProviderListPref, original);
@@ -1203,8 +1328,10 @@ function subtest_provider_language_wildcard(aController) {
  */
 function test_search_button_disabled_if_no_query_on_init() {
   Services.prefs.setStringPref("mail.provider.realname", "");
-  plan_for_modal_dialog("AccountCreation",
-                        subtest_search_button_enabled_state_on_init);
+  plan_for_modal_dialog(
+    "AccountCreation",
+    subtest_search_button_enabled_state_on_init
+  );
   open_provisioner_window();
   wait_for_modal_dialog("AccountCreation");
 }
@@ -1217,7 +1344,8 @@ function test_search_button_disabled_if_no_query_on_init() {
 function test_get_new_account_focuses_existing_ap_tab() {
   get_to_order_form("green@example.com");
   let apTab = mc.tabmail.getTabInfoForCurrentOrFirstModeInstance(
-    mc.tabmail.tabModes.accountProvisionerTab);
+    mc.tabmail.tabModes.accountProvisionerTab
+  );
 
   // Switch back to the inbox tab.
   mc.tabmail.switchToTab(0);
@@ -1290,10 +1418,16 @@ function subtest_per_address_prices(w) {
 
   // Click on the multi provider. This reveals the buttons with the prices.
   mc.click(new elib.Elem(multi));
-  mc.waitFor(() => w.window.document.querySelectorAll('button.create:not([disabled="true"])').length > 0);
+  mc.waitFor(
+    () =>
+      w.window.document.querySelectorAll('button.create:not([disabled="true"])')
+        .length > 0
+  );
 
   // For each button, make sure it has the correct price.
-  let buttons = w.window.document.querySelectorAll('button.create:not([disabled="true"])');
+  let buttons = w.window.document.querySelectorAll(
+    'button.create:not([disabled="true"])'
+  );
   let index = 0;
   for (let button of buttons) {
     // Emulate jquery's :visible selector

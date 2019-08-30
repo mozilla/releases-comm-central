@@ -35,8 +35,12 @@ add_task(async () => {
     manifest: { permissions: ["addressBooks"] },
   });
 
-  extension.onMessage("checkNumberOfAddressBookWindows", (count) => {
-    is([...Services.wm.getEnumerator("mail:addressbook")].length, count, "Right number of address books open");
+  extension.onMessage("checkNumberOfAddressBookWindows", count => {
+    is(
+      [...Services.wm.getEnumerator("mail:addressbook")].length,
+      count,
+      "Right number of address books open"
+    );
     extension.sendMessage();
   });
 

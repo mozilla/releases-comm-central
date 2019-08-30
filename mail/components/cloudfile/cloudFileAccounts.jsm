@@ -6,10 +6,12 @@ this.EXPORTED_SYMBOLS = ["cloudFileAccounts"];
 
 var ACCOUNT_ROOT = "mail.cloud_files.accounts.";
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {EventEmitter} = ChromeUtils.import("resource://gre/modules/EventEmitter.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { EventEmitter } = ChromeUtils.import(
+  "resource://gre/modules/EventEmitter.jsm"
+);
 
-var cloudFileAccounts = new class extends EventEmitter {
+var cloudFileAccounts = new (class extends EventEmitter {
   get constants() {
     return {
       offlineErr: 0x80550014, // NS_MSG_ERROR_OFFLINE
@@ -56,10 +58,12 @@ var cloudFileAccounts = new class extends EventEmitter {
    * @return the account key
    */
   _ensureKey(aKeyOrAccount) {
-    if (typeof aKeyOrAccount == "string")
+    if (typeof aKeyOrAccount == "string") {
       return aKeyOrAccount;
-    if ("accountKey" in aKeyOrAccount)
+    }
+    if ("accountKey" in aKeyOrAccount) {
       return aKeyOrAccount.accountKey;
+    }
     throw new Error("String or cloud file account expected");
   }
 
@@ -111,7 +115,10 @@ var cloudFileAccounts = new class extends EventEmitter {
       let account = provider.initAccount(key);
 
       Services.prefs.setCharPref(ACCOUNT_ROOT + key + ".type", aType);
-      Services.prefs.setCharPref(ACCOUNT_ROOT + key + ".displayName", account.displayName);
+      Services.prefs.setCharPref(
+        ACCOUNT_ROOT + key + ".displayName",
+        account.displayName
+      );
 
       this._accounts.set(key, account);
       this.emit("accountAdded", account);
@@ -168,9 +175,12 @@ var cloudFileAccounts = new class extends EventEmitter {
     let result = [];
 
     for (let accountKey of this._accountKeys) {
-      let type = Services.prefs.getCharPref(ACCOUNT_ROOT + accountKey + ".type");
-      if (type === aType)
+      let type = Services.prefs.getCharPref(
+        ACCOUNT_ROOT + accountKey + ".type"
+      );
+      if (type === aType) {
         result.push(this.getAccount(accountKey));
+      }
     }
 
     return result;
@@ -189,6 +199,9 @@ var cloudFileAccounts = new class extends EventEmitter {
 
   setDisplayName(aKeyOrAccount, aDisplayName) {
     let key = this._ensureKey(aKeyOrAccount);
-    Services.prefs.setCharPref(ACCOUNT_ROOT + key + ".displayName", aDisplayName);
+    Services.prefs.setCharPref(
+      ACCOUNT_ROOT + key + ".displayName",
+      aDisplayName
+    );
   }
-};
+})();

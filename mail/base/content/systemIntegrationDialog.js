@@ -5,12 +5,15 @@
 
 // This dialog can only be opened if we have a shell service.
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {SearchIntegration} = ChromeUtils.import("resource:///modules/SearchIntegration.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { SearchIntegration } = ChromeUtils.import(
+  "resource:///modules/SearchIntegration.jsm"
+);
 
 var gSystemIntegrationDialog = {
-  _shellSvc: Cc["@mozilla.org/mail/shell-service;1"]
-               .getService(Ci.nsIShellService),
+  _shellSvc: Cc["@mozilla.org/mail/shell-service;1"].getService(
+    Ci.nsIShellService
+  ),
 
   _mailCheckbox: null,
 
@@ -24,18 +27,20 @@ var gSystemIntegrationDialog = {
 
   onLoad() {
     // initialize elements
-    this._mailCheckbox    = document.getElementById("checkMail");
-    this._newsCheckbox    = document.getElementById("checkNews");
-    this._rssCheckbox     = document.getElementById("checkRSS");
+    this._mailCheckbox = document.getElementById("checkMail");
+    this._newsCheckbox = document.getElementById("checkNews");
+    this._rssCheckbox = document.getElementById("checkRSS");
     this._startupCheckbox = document.getElementById("checkOnStartup");
-    this._searchCheckbox  = document.getElementById("searchIntegration");
+    this._searchCheckbox = document.getElementById("searchIntegration");
 
     // Initialize the check boxes based on the default app states.
-    this._mailCheckbox.disabled =
-      this._shellSvc.isDefaultClient(false, this._shellSvc.MAIL);
+    this._mailCheckbox.disabled = this._shellSvc.isDefaultClient(
+      false,
+      this._shellSvc.MAIL
+    );
 
-    let calledFromPrefs = ("arguments" in window) &&
-                          (window.arguments[0] == "calledFromPrefs");
+    let calledFromPrefs =
+      "arguments" in window && window.arguments[0] == "calledFromPrefs";
 
     if (!calledFromPrefs) {
       // As an optimization, if we aren't already the default mail client,
@@ -48,33 +53,45 @@ var gSystemIntegrationDialog = {
 
       // If called from preferences, use only a simpler "Cancel" label on the
       // cancel button.
-      document.documentElement.getButton("cancel").label =
-        document.documentElement.getAttribute("buttonlabelcancel2");
+      document.documentElement.getButton(
+        "cancel"
+      ).label = document.documentElement.getAttribute("buttonlabelcancel2");
     }
 
-    if (!this._mailCheckbox.disabled)
+    if (!this._mailCheckbox.disabled) {
       this._mailCheckbox.removeAttribute("tooltiptext");
+    }
 
-    this._newsCheckbox.checked = this._newsCheckbox.disabled =
-      this._shellSvc.isDefaultClient(false, this._shellSvc.NEWS);
-    if (!this._newsCheckbox.disabled)
+    this._newsCheckbox.checked = this._newsCheckbox.disabled = this._shellSvc.isDefaultClient(
+      false,
+      this._shellSvc.NEWS
+    );
+    if (!this._newsCheckbox.disabled) {
       this._newsCheckbox.removeAttribute("tooltiptext");
+    }
 
-    this._rssCheckbox.checked  = this._rssCheckbox.disabled  =
-      this._shellSvc.isDefaultClient(false, this._shellSvc.RSS);
-    if (!this._rssCheckbox.disabled)
+    this._rssCheckbox.checked = this._rssCheckbox.disabled = this._shellSvc.isDefaultClient(
+      false,
+      this._shellSvc.RSS
+    );
+    if (!this._rssCheckbox.disabled) {
       this._rssCheckbox.removeAttribute("tooltiptext");
+    }
 
     // read the raw pref value and not shellSvc.shouldCheckDefaultMail
-    this._startupCheckbox.checked =
-      Services.prefs.getBoolPref("mail.shell.checkDefaultClient");
+    this._startupCheckbox.checked = Services.prefs.getBoolPref(
+      "mail.shell.checkDefaultClient"
+    );
 
     // Search integration - check whether we should show/disable integration options
     if (SearchIntegration) {
       this._searchCheckbox.checked = SearchIntegration.prefEnabled;
       // On Windows, do not offer the option on startup as it does not perform well.
-      if ((Services.appinfo.OS == "WINNT") && !calledFromPrefs &&
-          !this._searchCheckbox.checked) {
+      if (
+        Services.appinfo.OS == "WINNT" &&
+        !calledFromPrefs &&
+        !this._searchCheckbox.checked
+      ) {
         this._searchCheckbox.hidden = true;
         // Even if the user wasn't presented the choice,
         // we do not want to ask again automatically.
@@ -111,8 +128,9 @@ var gSystemIntegrationDialog = {
     // and close the dialog.
     if (!aSetAsDefault) {
       // Disable search integration in this case.
-      if (searchIntegPossible)
+      if (searchIntegPossible) {
         SearchIntegration.prefEnabled = false;
+      }
 
       return true;
     }
@@ -121,29 +139,44 @@ var gSystemIntegrationDialog = {
     // make us the default.
     let appTypes = 0;
 
-    if (this._mailCheckbox.checked &&
-        !this._shellSvc.isDefaultClient(false, this._shellSvc.MAIL))
+    if (
+      this._mailCheckbox.checked &&
+      !this._shellSvc.isDefaultClient(false, this._shellSvc.MAIL)
+    ) {
       appTypes |= this._shellSvc.MAIL;
+    }
 
-    if (this._newsCheckbox.checked &&
-        !this._shellSvc.isDefaultClient(false, this._shellSvc.NEWS))
+    if (
+      this._newsCheckbox.checked &&
+      !this._shellSvc.isDefaultClient(false, this._shellSvc.NEWS)
+    ) {
       appTypes |= this._shellSvc.NEWS;
+    }
 
-    if (this._rssCheckbox.checked &&
-        !this._shellSvc.isDefaultClient(false, this._shellSvc.RSS))
+    if (
+      this._rssCheckbox.checked &&
+      !this._shellSvc.isDefaultClient(false, this._shellSvc.RSS)
+    ) {
       appTypes |= this._shellSvc.RSS;
+    }
 
-    if (appTypes)
+    if (appTypes) {
       this._shellSvc.setDefaultClient(false, appTypes);
+    }
 
     // Set the search integration pref if it is changed.
     // The integration will handle the rest.
-    if (searchIntegPossible)
+    if (searchIntegPossible) {
       SearchIntegration.prefEnabled = this._searchCheckbox.checked;
+    }
 
     return true;
   },
 };
 
-document.addEventListener("dialogaccept", () => gSystemIntegrationDialog.onDialogClose(true));
-document.addEventListener("dialogcancel", () => gSystemIntegrationDialog.onDialogClose(false));
+document.addEventListener("dialogaccept", () =>
+  gSystemIntegrationDialog.onDialogClose(true)
+);
+document.addEventListener("dialogcancel", () =>
+  gSystemIntegrationDialog.onDialogClose(false)
+);

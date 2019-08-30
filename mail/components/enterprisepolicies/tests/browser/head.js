@@ -4,19 +4,25 @@
 
 "use strict";
 
-const {
-  EnterprisePolicyTesting,
-  PoliciesPrefTracker,
-} = ChromeUtils.import("resource://testing-common/EnterprisePolicyTesting.jsm", null);
-const {TestUtils} = ChromeUtils.import("resource://testing-common/TestUtils.jsm", null);
+const { EnterprisePolicyTesting, PoliciesPrefTracker } = ChromeUtils.import(
+  "resource://testing-common/EnterprisePolicyTesting.jsm",
+  null
+);
+const { TestUtils } = ChromeUtils.import(
+  "resource://testing-common/TestUtils.jsm",
+  null
+);
 
 PoliciesPrefTracker.start();
 
 async function setupPolicyEngineWithJson(json, customSchema) {
   PoliciesPrefTracker.restoreDefaultValues();
-  if (typeof(json) != "object") {
+  if (typeof json != "object") {
     let filePath = getTestFilePath(json ? json : "non-existing-file.json");
-    return EnterprisePolicyTesting.setupPolicyEngineWithJson(filePath, customSchema);
+    return EnterprisePolicyTesting.setupPolicyEngineWithJson(
+      filePath,
+      customSchema
+    );
   }
   return EnterprisePolicyTesting.setupPolicyEngineWithJson(json, customSchema);
 }
@@ -52,14 +58,22 @@ add_task(async function policies_headjs_startWithCleanSlate() {
   if (Services.policies.status != Ci.nsIEnterprisePolicies.INACTIVE) {
     await setupPolicyEngineWithJson("");
   }
-  is(Services.policies.status, Ci.nsIEnterprisePolicies.INACTIVE, "Engine is inactive at the start of the test");
+  is(
+    Services.policies.status,
+    Ci.nsIEnterprisePolicies.INACTIVE,
+    "Engine is inactive at the start of the test"
+  );
 });
 
 registerCleanupFunction(async function policies_headjs_finishWithCleanSlate() {
   if (Services.policies.status != Ci.nsIEnterprisePolicies.INACTIVE) {
     await setupPolicyEngineWithJson("");
   }
-  is(Services.policies.status, Ci.nsIEnterprisePolicies.INACTIVE, "Engine is inactive at the end of the test");
+  is(
+    Services.policies.status,
+    Ci.nsIEnterprisePolicies.INACTIVE,
+    "Engine is inactive at the end of the test"
+  );
 
   EnterprisePolicyTesting.resetRunOnceState();
   PoliciesPrefTracker.stop();

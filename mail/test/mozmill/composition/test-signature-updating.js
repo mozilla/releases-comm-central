@@ -20,9 +20,13 @@
 
 var MODULE_NAME = "test-signature-updating";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "compose-helpers",
+  "window-helpers",
+];
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var cwc = null; // compose window controller
 
@@ -33,7 +37,11 @@ function setupModule(module) {
 
   // Ensure we're in the tinderbox account as that has the right identities set
   // up for this test.
-  let server = MailServices.accounts.FindServer("tinderbox", FAKE_SERVER_HOSTNAME, "pop3");
+  let server = MailServices.accounts.FindServer(
+    "tinderbox",
+    FAKE_SERVER_HOSTNAME,
+    "pop3"
+  );
   let inbox = get_special_folder(Ci.nsMsgFolderFlags.Inbox, false, server);
   be_in_folder(inbox);
 }
@@ -41,8 +49,12 @@ function setupModule(module) {
 function teardownModule(module) {
   Services.prefs.clearUserPref("mail.compose.default_to_paragraph");
   Services.prefs.clearUserPref("mail.identity.id1.compose_html");
-  Services.prefs.clearUserPref("mail.identity.id1.suppress_signature_separator");
-  Services.prefs.clearUserPref("mail.identity.id2.suppress_signature_separator");
+  Services.prefs.clearUserPref(
+    "mail.identity.id1.suppress_signature_separator"
+  );
+  Services.prefs.clearUserPref(
+    "mail.identity.id2.suppress_signature_separator"
+  );
 }
 
 /**
@@ -51,10 +63,14 @@ function teardownModule(module) {
  */
 function plaintextComposeWindowSwitchSignatures(suppressSigSep) {
   Services.prefs.setBoolPref("mail.identity.id1.compose_html", false);
-  Services.prefs.setBoolPref("mail.identity.id1.suppress_signature_separator",
-                             suppressSigSep);
-  Services.prefs.setBoolPref("mail.identity.id2.suppress_signature_separator",
-                             suppressSigSep);
+  Services.prefs.setBoolPref(
+    "mail.identity.id1.suppress_signature_separator",
+    suppressSigSep
+  );
+  Services.prefs.setBoolPref(
+    "mail.identity.id2.suppress_signature_separator",
+    suppressSigSep
+  );
   cwc = open_compose_new_mail();
 
   let contentFrame = cwc.e("content-frame");
@@ -95,7 +111,9 @@ function plaintextComposeWindowSwitchSignatures(suppressSigSep) {
 
   // Now switch identities!
   cwc.click(cwc.eid("msgIdentity"));
-  cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [ { identitykey: "id2" } ]);
+  cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
+    { identitykey: "id2" },
+  ]);
 
   node = contentFrame.contentDocument.body.lastChild;
 
@@ -126,10 +144,11 @@ function plaintextComposeWindowSwitchSignatures(suppressSigSep) {
   assert_equals(sigs.length, 1);
 
   // And ensure that the text we wrote wasn't altered
-  let bodyFirstChild =  contentFrame.contentDocument.body.firstChild;
+  let bodyFirstChild = contentFrame.contentDocument.body.firstChild;
 
-  while (node != bodyFirstChild)
+  while (node != bodyFirstChild) {
     node = node.previousSibling;
+  }
 
   assert_equals(node.nodeValue, "Body, first line.");
 
@@ -148,13 +167,20 @@ function testPlaintextComposeWindowSwitchSignaturesWithSuppressedSeparator() {
  * Same test, but with an HTML compose window
  */
 function HTMLComposeWindowSwitchSignatures(suppressSigSep, paragraphFormat) {
-  Services.prefs.setBoolPref("mail.compose.default_to_paragraph", paragraphFormat);
+  Services.prefs.setBoolPref(
+    "mail.compose.default_to_paragraph",
+    paragraphFormat
+  );
 
   Services.prefs.setBoolPref("mail.identity.id1.compose_html", true);
-  Services.prefs.setBoolPref("mail.identity.id1.suppress_signature_separator",
-                             suppressSigSep);
-  Services.prefs.setBoolPref("mail.identity.id2.suppress_signature_separator",
-                             suppressSigSep);
+  Services.prefs.setBoolPref(
+    "mail.identity.id1.suppress_signature_separator",
+    suppressSigSep
+  );
+  Services.prefs.setBoolPref(
+    "mail.identity.id2.suppress_signature_separator",
+    suppressSigSep
+  );
   cwc = open_compose_new_mail();
 
   setup_msg_contents(cwc, "", "HTML compose window", "Body, first line.");
@@ -166,14 +192,17 @@ function HTMLComposeWindowSwitchSignatures(suppressSigSep, paragraphFormat) {
   // class="moz-signature".
   assert_equals(node.className, "moz-signature");
   node = node.firstChild; // text node containing the signature divider
-  if (suppressSigSep)
+  if (suppressSigSep) {
     assert_equals(node.nodeValue, "Tinderbox is soo 90ies");
-  else
+  } else {
     assert_equals(node.nodeValue, "-- \nTinderbox is soo 90ies");
+  }
 
   // Now switch identities!
   cwc.click(cwc.eid("msgIdentity"));
-  cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [ { identitykey: "id2" } ]);
+  cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
+    { identitykey: "id2" },
+  ]);
 
   node = contentFrame.contentDocument.body.lastChild;
 

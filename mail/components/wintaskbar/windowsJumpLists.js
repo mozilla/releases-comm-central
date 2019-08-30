@@ -5,23 +5,31 @@
 
 var EXPORTED_SYMBOLS = ["WinTaskbarJumpList"];
 
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { toXPCOMArray } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { toXPCOMArray } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
 
 // Prefs
-var PREF_TASKBAR_BRANCH    = "mail.taskbar.lists.";
-var PREF_TASKBAR_ENABLED   = "enabled";
-var PREF_TASKBAR_TASKS     = "tasks.enabled";
+var PREF_TASKBAR_BRANCH = "mail.taskbar.lists.";
+var PREF_TASKBAR_ENABLED = "enabled";
+var PREF_TASKBAR_TASKS = "tasks.enabled";
 
 XPCOMUtils.defineLazyGetter(this, "_stringBundle", function() {
-  return Services.strings
-                 .createBundle("chrome://messenger/locale/taskbar.properties");
+  return Services.strings.createBundle(
+    "chrome://messenger/locale/taskbar.properties"
+  );
 });
 
-XPCOMUtils.defineLazyServiceGetter(this, "_taskbarService",
-                                   "@mozilla.org/windows-taskbar;1",
-                                   "nsIWinTaskbar");
+XPCOMUtils.defineLazyServiceGetter(
+  this,
+  "_taskbarService",
+  "@mozilla.org/windows-taskbar;1",
+  "nsIWinTaskbar"
+);
 
 XPCOMUtils.defineLazyGetter(this, "_prefs", function() {
   return Services.prefs.getBranch(PREF_TASKBAR_BRANCH);
@@ -37,32 +45,39 @@ function _getString(aName) {
 var gTasks = [
   // Write new message
   {
-    get title() { return _getString("taskbar.tasks.composeMessage.label"); },
-    get description() { return _getString("taskbar.tasks.composeMessage.description"); },
+    get title() {
+      return _getString("taskbar.tasks.composeMessage.label");
+    },
+    get description() {
+      return _getString("taskbar.tasks.composeMessage.description");
+    },
     args: "-compose",
     iconIndex: 2, // Write message icon
   },
 
   // Open address book
   {
-    get title() { return _getString("taskbar.tasks.openAddressBook.label"); },
-    get description() { return _getString("taskbar.tasks.openAddressBook.description"); },
+    get title() {
+      return _getString("taskbar.tasks.openAddressBook.label");
+    },
+    get description() {
+      return _getString("taskbar.tasks.openAddressBook.description");
+    },
     args: "-addressbook",
     iconIndex: 3, // Open address book icon
   },
 ];
 
-
 var WinTaskbarJumpList = {
-
   /**
    * Startup, shutdown, and update
    */
 
   startup() {
     // exit if this isn't win7 or higher.
-    if (!this._initTaskbar())
+    if (!this._initTaskbar()) {
       return;
+    }
 
     // Store our task list config data
     this._tasks = gTasks;
@@ -78,8 +93,9 @@ var WinTaskbarJumpList = {
 
   update() {
     // are we disabled via prefs? don't do anything!
-    if (!this._enabled)
+    if (!this._enabled) {
       return;
+    }
 
     // do what we came here to do, update the taskbar jumplist
     this._buildList();
@@ -103,11 +119,13 @@ var WinTaskbarJumpList = {
       return;
     }
 
-    if (!this._startBuild())
+    if (!this._startBuild()) {
       return;
+    }
 
-    if (this._showTasks)
+    if (this._showTasks) {
       this._buildTasks();
+    }
 
     this._commitBuild();
   },
@@ -122,8 +140,9 @@ var WinTaskbarJumpList = {
     this._builder.abortListBuild();
     // Since our list is static right now, we won't actually get back any
     // removed items.
-    let removedItems = Cc["@mozilla.org/array;1"]
-                         .createInstance(Ci.nsIMutableArray);
+    let removedItems = Cc["@mozilla.org/array;1"].createInstance(
+      Ci.nsIMutableArray
+    );
     return this._builder.initListBuild(removedItems);
   },
 
@@ -137,10 +156,14 @@ var WinTaskbarJumpList = {
 
   _buildTasks() {
     if (this._tasks.length > 0) {
-      let items = toXPCOMArray(this._tasks.map(task =>
-                                 this._createHandlerAppItem(task)),
-                               Ci.nsIMutableArray);
-      this._builder.addListToBuild(this._builder.JUMPLIST_CATEGORY_TASKS, items);
+      let items = toXPCOMArray(
+        this._tasks.map(task => this._createHandlerAppItem(task)),
+        Ci.nsIMutableArray
+      );
+      this._builder.addListToBuild(
+        this._builder.JUMPLIST_CATEGORY_TASKS,
+        items
+      );
     }
   },
 
@@ -158,26 +181,30 @@ var WinTaskbarJumpList = {
     // XXX where can we grab this from in the build? Do we need to?
     file.append("thunderbird.exe");
 
-    let handlerApp = Cc["@mozilla.org/uriloader/local-handler-app;1"]
-                       .createInstance(Ci.nsILocalHandlerApp);
+    let handlerApp = Cc[
+      "@mozilla.org/uriloader/local-handler-app;1"
+    ].createInstance(Ci.nsILocalHandlerApp);
     handlerApp.executable = file;
     // handlers default to the leaf name if a name is not specified
     let title = aTask.title;
-    if (title && title.length != 0)
+    if (title && title.length != 0) {
       handlerApp.name = title;
+    }
     handlerApp.detailedDescription = aTask.description;
     handlerApp.appendParameter(aTask.args);
 
-    let item = Cc["@mozilla.org/windows-jumplistshortcut;1"]
-                 .createInstance(Ci.nsIJumpListShortcut);
+    let item = Cc["@mozilla.org/windows-jumplistshortcut;1"].createInstance(
+      Ci.nsIJumpListShortcut
+    );
     item.app = handlerApp;
     item.iconIndex = aTask.iconIndex;
     return item;
   },
 
   _createSeparatorItem() {
-    return Cc["@mozilla.org/windows-jumplistseparator;1"]
-             .createInstance(Ci.nsIJumpListSeparator);
+    return Cc["@mozilla.org/windows-jumplistseparator;1"].createInstance(
+      Ci.nsIJumpListSeparator
+    );
   },
 
   /**
@@ -195,8 +222,9 @@ var WinTaskbarJumpList = {
 
   _initTaskbar() {
     this._builder = _taskbarService.createJumpListBuilder();
-    if (!this._builder || !this._builder.available)
+    if (!this._builder || !this._builder.available) {
       return false;
+    }
 
     return true;
   },
@@ -214,15 +242,16 @@ var WinTaskbarJumpList = {
   observe(aSubject, aTopic, aData) {
     switch (aTopic) {
       case "nsPref:changed":
-        if (this._enabled && !_prefs.getBoolPref(PREF_TASKBAR_ENABLED))
+        if (this._enabled && !_prefs.getBoolPref(PREF_TASKBAR_ENABLED)) {
           this._deleteActiveJumpList();
+        }
         this._refreshPrefs();
         this.update();
-      break;
+        break;
 
       case "profile-before-change":
         this._shutdown();
-      break;
+        break;
     }
   },
 

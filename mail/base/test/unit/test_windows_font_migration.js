@@ -9,8 +9,10 @@
  * version the test is run on.
  */
 
-var {MailMigrator} = ChromeUtils.import("resource:///modules/MailMigrator.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailMigrator } = ChromeUtils.import(
+  "resource:///modules/MailMigrator.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * A list of font names to verify using |makeVerifier| and
@@ -35,33 +37,41 @@ var kSizesToVerify = ["variableSize", "fixedSize"];
  */
 function makeVerifier(aFonts) {
   function getFont(aFontType, aEncoding) {
-    var font = Services.prefs.getCharPref("font.name." + aFontType + "." + aEncoding);
-    if (font)
+    var font = Services.prefs.getCharPref(
+      "font.name." + aFontType + "." + aEncoding
+    );
+    if (font) {
       return font;
+    }
 
     // Get the default.
-    var enumerator = Cc["@mozilla.org/gfx/fontenumerator;1"]
-                       .createInstance(Ci.nsIFontEnumerator);
+    var enumerator = Cc["@mozilla.org/gfx/fontenumerator;1"].createInstance(
+      Ci.nsIFontEnumerator
+    );
     var fonts = enumerator.EnumerateFonts(aEncoding, aFontType);
     var defaultFont = null;
-    if (fonts.length > 0)
+    if (fonts.length > 0) {
       defaultFont = enumerator.getDefaultFont(aEncoding, aFontType);
+    }
     return defaultFont;
   }
 
   function verifier(aEncoding, aNonDefaultFonts) {
-    if (!aNonDefaultFonts)
+    if (!aNonDefaultFonts) {
       aNonDefaultFonts = {};
+    }
 
     let expectedFonts = {};
-    for (let key of kNamesToVerify)
-      expectedFonts[key] = (key in aNonDefaultFonts ? aNonDefaultFonts[key] :
-                            aFonts[key]);
+    for (let key of kNamesToVerify) {
+      expectedFonts[key] =
+        key in aNonDefaultFonts ? aNonDefaultFonts[key] : aFonts[key];
+    }
     for (let key of kSizesToVerify) {
       let nonDefaultKey = key + (aFonts.migrated ? "" : "Non") + "Migrated";
-      expectedFonts[key] = (nonDefaultKey in aNonDefaultFonts ?
-                            aNonDefaultFonts[nonDefaultKey] :
-                            aFonts[key]);
+      expectedFonts[key] =
+        nonDefaultKey in aNonDefaultFonts
+          ? aNonDefaultFonts[nonDefaultKey]
+          : aFonts[key];
     }
 
     // A distinct lack of magic here, so that failing stuff is generally easier
@@ -69,10 +79,14 @@ function makeVerifier(aFonts) {
     Assert.equal(getFont("serif", aEncoding), expectedFonts.serif);
     Assert.equal(getFont("sans-serif", aEncoding), expectedFonts.sans);
     Assert.equal(getFont("monospace", aEncoding), expectedFonts.monospace);
-    Assert.equal(Services.prefs.getIntPref("font.size.variable." + aEncoding),
-                 expectedFonts.variableSize);
-    Assert.equal(Services.prefs.getIntPref("font.size.monospace." + aEncoding),
-                 expectedFonts.fixedSize);
+    Assert.equal(
+      Services.prefs.getIntPref("font.size.variable." + aEncoding),
+      expectedFonts.variableSize
+    );
+    Assert.equal(
+      Services.prefs.getIntPref("font.size.monospace." + aEncoding),
+      expectedFonts.fixedSize
+    );
   }
 
   return verifier;
@@ -108,14 +122,15 @@ var gCTVerifier = makeVerifier({
  */
 var kWindowsVersions = {
   // Windows XP
-  "xp": [5.1, gNonCTVerifier],
+  xp: [5.1, gNonCTVerifier],
   // Windows Vista
-  "vista": [6.0, gCTVerifier],
+  vista: [6.0, gCTVerifier],
 };
 
 function set_windows_version(aVersion) {
-  Services.sysinfo.QueryInterface(Ci.nsIWritablePropertyBag2)
-          .setPropertyAsDouble("version", aVersion);
+  Services.sysinfo
+    .QueryInterface(Ci.nsIWritablePropertyBag2)
+    .setPropertyAsDouble("version", aVersion);
 }
 
 /**
@@ -145,13 +160,17 @@ function reset_font_prefs(aDontResetVersion) {
   for (let prefBranch of kPrefBranchesToClear) {
     for (let encoding of kEncodingsToClear) {
       let pref = prefBranch + encoding;
-      if (Services.prefs.prefHasUserValue(pref))
+      if (Services.prefs.prefHasUserValue(pref)) {
         Services.prefs.clearUserPref(pref);
+      }
     }
   }
-  if (!aDontResetVersion &&
-      Services.prefs.prefHasUserValue("mail.font.windows.version"))
+  if (
+    !aDontResetVersion &&
+    Services.prefs.prefHasUserValue("mail.font.windows.version")
+  ) {
     Services.prefs.clearUserPref("mail.font.windows.version");
+  }
 }
 
 /**
@@ -177,8 +196,9 @@ function test_not_migrating_serif(aVerifier) {
   };
   // If we do migrate, if the default style is serif, the font size shouldn't be
   // clobbered. (Otherwise it should.)
-  if (Services.prefs.getCharPref("font.default.x-unicode") == "serif")
+  if (Services.prefs.getCharPref("font.default.x-unicode") == "serif") {
     nonDefaultFonts.variableSizeMigrated = 20;
+  }
 
   Services.prefs.setCharPref("font.name.serif.x-unicode", "Foo Serif");
   Services.prefs.setIntPref("font.size.variable.x-unicode", 20);
@@ -202,8 +222,9 @@ function test_not_migrating_sans(aVerifier) {
   };
   // If we do migrate, if the default style is sans-serif, the font size
   // shouldn't be clobbered. (Otherwise it should.)
-  if (Services.prefs.getCharPref("font.default.x-unicode") == "sans-serif")
+  if (Services.prefs.getCharPref("font.default.x-unicode") == "sans-serif") {
     nonDefaultFonts.variableSizeMigrated = 20;
+  }
 
   Services.prefs.setCharPref("font.name.sans-serif.x-unicode", "Foo Sans");
   Services.prefs.setIntPref("font.size.variable.x-unicode", 20);
@@ -250,10 +271,10 @@ function test_migrating_non_default_font_sizes(aVerifier) {
 
   MailMigrator.migrateToClearTypeFonts();
 
-  aVerifier("x-unicode", {variableSizeNonMigrated: 20});
-  aVerifier("x-western", {fixedSizeNonMigrated: 30});
-  aVerifier("x-cyrillic", {fixedSizeNonMigrated: 50});
-  aVerifier("el", {fixedSizeNonMigrated: 70});
+  aVerifier("x-unicode", { variableSizeNonMigrated: 20 });
+  aVerifier("x-western", { fixedSizeNonMigrated: 30 });
+  aVerifier("x-cyrillic", { fixedSizeNonMigrated: 50 });
+  aVerifier("el", { fixedSizeNonMigrated: 70 });
 }
 
 /**
@@ -347,10 +368,7 @@ var testsForEveryVersion = [
  * to the test, so it is recommended that tests here set it right at the
  * beginning.
  */
-var otherTests = [
-  test_migrating_at_most_once,
-  test_migrating_at_least_once,
-];
+var otherTests = [test_migrating_at_most_once, test_migrating_at_least_once];
 
 function run_test() {
   reset_font_prefs();

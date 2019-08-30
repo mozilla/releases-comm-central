@@ -36,23 +36,44 @@
 //
 // ***** END LICENSE BLOCK *****
 
-var EXPORTED_SYMBOLS = ["controller", "events", "utils", "elementslib", "os",
-                        "getBrowserController", "newBrowserController",
-                        "getAddonsController", "getPreferencesController",
-                        "newMail3PaneController", "getMail3PaneController",
-                        "wm", "platform", "getAddrbkController",
-                        "getMsgComposeController", "getDownloadsController",
-                        "Application", "MozMillAsyncTest", "cleanQuit",
-                        "getPlacesController", "isMac", "isLinux", "isWindows",
-                        "appInfo", "locale",
-                       ];
+var EXPORTED_SYMBOLS = [
+  "controller",
+  "events",
+  "utils",
+  "elementslib",
+  "os",
+  "getBrowserController",
+  "newBrowserController",
+  "getAddonsController",
+  "getPreferencesController",
+  "newMail3PaneController",
+  "getMail3PaneController",
+  "wm",
+  "platform",
+  "getAddrbkController",
+  "getMsgComposeController",
+  "getDownloadsController",
+  "Application",
+  "MozMillAsyncTest",
+  "cleanQuit",
+  "getPlacesController",
+  "isMac",
+  "isLinux",
+  "isWindows",
+  "appInfo",
+  "locale",
+];
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var controller = ChromeUtils.import("chrome://mozmill/content/modules/controller.jsm");
+var controller = ChromeUtils.import(
+  "chrome://mozmill/content/modules/controller.jsm"
+);
 var events = ChromeUtils.import("chrome://mozmill/content/modules/events.jsm");
 var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
-var elementslib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var elementslib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 var frame = ChromeUtils.import("chrome://mozmill/content/modules/frame.jsm");
 
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
@@ -76,8 +97,8 @@ if (platform == "linux") {
 var appInfo = Services.appinfo;
 
 var locale = Cc["@mozilla.org/chrome/chrome-registry;1"]
-               .getService(Ci.nsIXULChromeRegistry)
-               .getSelectedLocale("global");
+  .getService(Ci.nsIXULChromeRegistry)
+  .getSelectedLocale("global");
 
 var applicationDictionary = {
   "{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}": "SeaMonkey",
@@ -90,7 +111,9 @@ function cleanQuit() {
 }
 
 function newBrowserController() {
-  return new controller.MozMillController(utils.getMethodInWindows("OpenBrowserWindow")());
+  return new controller.MozMillController(
+    utils.getMethodInWindows("OpenBrowserWindow")()
+  );
 }
 
 function getBrowserController() {
@@ -103,7 +126,9 @@ function getBrowserController() {
 }
 
 function getPlacesController() {
-  utils.getMethodInWindows("PlacesCommandHook").showPlacesOrganizer("AllBookmarks");
+  utils
+    .getMethodInWindows("PlacesCommandHook")
+    .showPlacesOrganizer("AllBookmarks");
   return new controller.MozMillController(Services.wm.getMostRecentWindow(""));
 }
 
@@ -135,7 +160,9 @@ function getPreferencesController() {
 
 // Thunderbird functions
 function newMail3PaneController() {
-  return new controller.MozMillController(utils.getMethodInWindows("toMessengerWindow")());
+  return new controller.MozMillController(
+    utils.getMethodInWindows("toMessengerWindow")()
+  );
 }
 
 function getMail3PaneController() {
@@ -173,12 +200,12 @@ function timer(name) {
   this.actions = [];
 }
 timer.prototype.start = function(name) {
-  this.timers[name].startTime = (new Date).getTime();
+  this.timers[name].startTime = new Date().getTime();
 };
 timer.prototype.stop = function(name) {
   var t = this.timers[name];
-  t.endTime = (new Date).getTime();
-  t.totalTime = (t.endTime - t.startTime);
+  t.endTime = new Date().getTime();
+  t.totalTime = t.endTime - t.startTime;
 };
 timer.prototype.end = function() {
   frame.events.fireEvent("timer", this);

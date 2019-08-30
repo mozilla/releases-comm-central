@@ -6,11 +6,17 @@
 
 var MODULE_NAME = "content-tab-helpers";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "mock-object-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "mock-object-helpers",
+];
 
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var NORMAL_TIMEOUT = 6000;
 var FAST_TIMEOUT = 1000;
@@ -34,8 +40,10 @@ function setupModule() {
 
   wh = collector.getModule("window-helpers");
   let moh = collector.getModule("mock-object-helpers");
-  gMockExtProtSvcReg = new moh.MockObjectReplacer(EXT_PROTOCOL_SVC_CID,
-                                                  MockExtProtConstructor);
+  gMockExtProtSvcReg = new moh.MockObjectReplacer(
+    EXT_PROTOCOL_SVC_CID,
+    MockExtProtConstructor
+  );
 }
 
 function installInto(module) {
@@ -76,27 +84,21 @@ var gMockExtProtSvc = {
   _loadedURLs: [],
   QueryInterface: ChromeUtils.generateQI([Ci.nsIExternalProtocolService]),
 
-  externalProtocolHandlerExists(aProtocolScheme) {
-  },
+  externalProtocolHandlerExists(aProtocolScheme) {},
 
-  getApplicationDescription(aScheme) {
-  },
+  getApplicationDescription(aScheme) {},
 
-  getProtocolHandlerInfo(aProtocolScheme) {
-  },
+  getProtocolHandlerInfo(aProtocolScheme) {},
 
-  getProtocolHandlerInfoFromOS(aProtocolScheme, aFound) {
-  },
+  getProtocolHandlerInfoFromOS(aProtocolScheme, aFound) {},
 
-  isExposedProtocol(aProtocolScheme) {
-  },
+  isExposedProtocol(aProtocolScheme) {},
 
   loadURI(aURI, aWindowContext) {
     this._loadedURLs.push(aURI.spec);
   },
 
-  setProtocolHandlerDefaults(aHandlerInfo, aOSHandlerExists) {
-  },
+  setProtocolHandlerDefaults(aHandlerInfo, aOSHandlerExists) {},
 
   urlLoaded(aURL) {
     return this._loadedURLs.includes(aURL);
@@ -107,7 +109,6 @@ function MockExtProtConstructor() {
   return gMockExtProtSvc;
 }
 
-
 /* Allows for planning / capture of notification events within
  * content tabs, for example: plugin crash notifications, theme
  * install notifications.
@@ -117,24 +118,37 @@ var ALERT_TIMEOUT = 10000;
 var NotificationWatcher = {
   planForNotification(aController) {
     this.alerted = false;
-    aController.window.document.addEventListener("AlertActive",
-                                                 this.alertActive);
+    aController.window.document.addEventListener(
+      "AlertActive",
+      this.alertActive
+    );
   },
   waitForNotification(aController) {
     if (!this.alerted) {
-      aController.waitFor(() => this.alerted, "Timeout waiting for alert",
-                          ALERT_TIMEOUT, 100);
+      aController.waitFor(
+        () => this.alerted,
+        "Timeout waiting for alert",
+        ALERT_TIMEOUT,
+        100
+      );
     }
     // Double check the notification box has finished animating.
-    let notificationBox =
-      mc.tabmail.selectedTab.panel.querySelector("notificationbox");
-    if (notificationBox && notificationBox._animating)
-      aController.waitFor(() => !notificationBox._animating,
-                          "Timeout waiting for notification box animation to finish",
-                          ALERT_TIMEOUT, 100);
+    let notificationBox = mc.tabmail.selectedTab.panel.querySelector(
+      "notificationbox"
+    );
+    if (notificationBox && notificationBox._animating) {
+      aController.waitFor(
+        () => !notificationBox._animating,
+        "Timeout waiting for notification box animation to finish",
+        ALERT_TIMEOUT,
+        100
+      );
+    }
 
-    aController.window.document.removeEventListener("AlertActive",
-                                                    this.alertActive);
+    aController.window.document.removeEventListener(
+      "AlertActive",
+      this.alertActive
+    );
   },
   alerted: false,
   alertActive() {
@@ -152,13 +166,21 @@ var NotificationWatcher = {
  *
  * @returns The newly-opened tab.
  */
-function open_content_tab_with_url(aURL, aClickHandler, aBackground, aController) {
-  if (aClickHandler === undefined)
+function open_content_tab_with_url(
+  aURL,
+  aClickHandler,
+  aBackground,
+  aController
+) {
+  if (aClickHandler === undefined) {
     aClickHandler = null;
-  if (aBackground === undefined)
+  }
+  if (aBackground === undefined) {
     aBackground = false;
-  if (aController === undefined)
+  }
+  if (aController === undefined) {
     aController = mc;
+  }
 
   let preCount = mc.tabmail.tabContainer.allTabs.length;
   mc.tabmail.openTab("contentTab", {
@@ -166,10 +188,12 @@ function open_content_tab_with_url(aURL, aClickHandler, aBackground, aController
     background: aBackground,
     clickHandler: aClickHandler,
   });
-  utils.waitFor(() => (
-                aController.tabmail.tabContainer.allTabs.length == preCount + 1),
-                "Timeout waiting for the content tab to open with URL: " + aURL,
-                FAST_TIMEOUT, FAST_INTERVAL);
+  utils.waitFor(
+    () => aController.tabmail.tabContainer.allTabs.length == preCount + 1,
+    "Timeout waiting for the content tab to open with URL: " + aURL,
+    FAST_TIMEOUT,
+    FAST_INTERVAL
+  );
 
   // We append new tabs at the end, so check the last one.
   let expectedNewTab = aController.tabmail.tabInfo[preCount];
@@ -190,20 +214,29 @@ function open_content_tab_with_url(aURL, aClickHandler, aBackground, aController
  * @param [aTabType]    Optional tab type to expect (string).
  * @returns The newly-opened tab.
  */
-function open_content_tab_with_click(aElem, aExpectedURL, aController, aTabType = "contentTab") {
-  if (aController === undefined)
+function open_content_tab_with_click(
+  aElem,
+  aExpectedURL,
+  aController,
+  aTabType = "contentTab"
+) {
+  if (aController === undefined) {
     aController = mc;
+  }
 
   let preCount = aController.tabmail.tabContainer.allTabs.length;
-  if (typeof(aElem) != "function")
+  if (typeof aElem != "function") {
     aController.click(new elib.Elem(aElem));
-  else
+  } else {
     aElem();
+  }
 
-  utils.waitFor(() => (
-                aController.tabmail.tabContainer.allTabs.length == preCount + 1),
-                "Timeout waiting for the content tab to open",
-                FAST_TIMEOUT, FAST_INTERVAL);
+  utils.waitFor(
+    () => aController.tabmail.tabContainer.allTabs.length == preCount + 1,
+    "Timeout waiting for the content tab to open",
+    FAST_TIMEOUT,
+    FAST_INTERVAL
+  );
 
   // We append new tabs at the end, so check the last one.
   let expectedNewTab = aController.tabmail.tabInfo[preCount];
@@ -222,8 +255,9 @@ function open_content_tab_with_click(aElem, aExpectedURL, aController, aTabType 
  * @param [aTab] optional tab, defaulting to the current tab.
  */
 function plan_for_content_tab_load(aTab) {
-  if (aTab === undefined)
+  if (aTab === undefined) {
     aTab = mc.tabmail.currentTabInfo;
+  }
   aTab.pageLoaded = false;
 }
 
@@ -240,19 +274,24 @@ function plan_for_content_tab_load(aTab) {
  * @param [aTimeout]  Optional time to wait for the load.
  */
 function wait_for_content_tab_load(aTab, aURL, aTimeout) {
-  if (aTab === undefined)
+  if (aTab === undefined) {
     aTab = mc.tabmail.currentTabInfo;
+  }
 
   function isLoadedChecker() {
     // Require that the progress listener think that the page is loaded.
-    if (!aTab.pageLoaded)
+    if (!aTab.pageLoaded) {
       return false;
+    }
     // Also require that our tab infrastructure thinks that the page is loaded.
-    return (!aTab.busy);
+    return !aTab.busy;
   }
 
-  utils.waitFor(isLoadedChecker,
-                "Timeout waiting for the content tab page to load.", aTimeout);
+  utils.waitFor(
+    isLoadedChecker,
+    "Timeout waiting for the content tab page to load.",
+    aTimeout
+  );
   // The above may return immediately, meaning the event queue might not get a
   // chance. Give it a chance now.
   mc.sleep(0);
@@ -264,9 +303,16 @@ function wait_for_content_tab_load(aTab, aURL, aTimeout) {
  * Assert that the given content tab has the given URL (string) loaded.
  */
 function assert_content_tab_has_url(aTab, aURL) {
-  if (aTab.browser.currentURI.spec != aURL)
-    mark_failure(["The tab", aTab, "should have URL", aURL, "but instead has",
-                  aTab.browser.currentURI.spec]);
+  if (aTab.browser.currentURI.spec != aURL) {
+    mark_failure([
+      "The tab",
+      aTab,
+      "should have URL",
+      aURL,
+      "but instead has",
+      aTab.browser.currentURI.spec,
+    ]);
+  }
 }
 
 /**
@@ -280,9 +326,16 @@ function content_tab_e(aTab, aId) {
  * Assert that the given content tab has the given URL loaded as a favicon.
  */
 function assert_content_tab_has_favicon(aTab, aURL) {
-  if (aTab.browser.mIconURL != aURL)
-    mark_failure(["The tab", aTab, "should have a favicon with URL", aURL,
-                  "but instead has", aTab.browser.mIconURL]);
+  if (aTab.browser.mIconURL != aURL) {
+    mark_failure([
+      "The tab",
+      aTab,
+      "should have a favicon with URL",
+      aURL,
+      "but instead has",
+      aTab.browser.mIconURL,
+    ]);
+  }
 }
 
 /**
@@ -307,8 +360,13 @@ function get_content_tab_element_display(aTab, aElem) {
 function assert_content_tab_element_hidden(aTab, aElem) {
   let display = get_content_tab_element_display(aTab, aElem);
   if (display != "none") {
-    mark_failure(["Element", aElem, "should be hidden but has display", display,
-                  "instead"]);
+    mark_failure([
+      "Element",
+      aElem,
+      "should be hidden but has display",
+      display,
+      "instead",
+    ]);
   }
 }
 
@@ -318,8 +376,13 @@ function assert_content_tab_element_hidden(aTab, aElem) {
 function assert_content_tab_element_visible(aTab, aElem) {
   let display = get_content_tab_element_display(aTab, aElem);
   if (display == "none") {
-    mark_failure(["Element", aElem, "should be visible but has display", display,
-                  "instead"]);
+    mark_failure([
+      "Element",
+      aElem,
+      "should be visible but has display",
+      display,
+      "instead",
+    ]);
   }
 }
 
@@ -334,8 +397,12 @@ function wait_for_content_tab_element_display_value(aTab, aElem, aValue) {
     utils.waitFor(isValue);
   } catch (e) {
     if (e instanceof utils.TimeoutError) {
-      mark_failure(["Timeout waiting for element", aElem, "to have display value",
-                    aValue]);
+      mark_failure([
+        "Timeout waiting for element",
+        aElem,
+        "to have display value",
+        aValue,
+      ]);
     } else {
       throw e;
     }
@@ -372,8 +439,9 @@ function get_element_by_text(aRootNode, aText) {
   let nodes = aRootNode.querySelectorAll("*");
   for (let node of nodes) {
     // We ignore surrounding whitespace.
-    if (node.textContent.trim() == aText)
+    if (node.textContent.trim() == aText) {
       return node;
+    }
   }
 
   return null;
@@ -392,7 +460,9 @@ function get_content_tab_element_by_text(aTab, aText) {
  */
 function assert_content_tab_text_present(aTab, aText) {
   if (!get_content_tab_element_by_text(aTab, aText)) {
-    mark_failure(["Unable to find string \"" + aText + "\" on the content tab's page"]);
+    mark_failure([
+      'Unable to find string "' + aText + "\" on the content tab's page",
+    ]);
   }
 }
 
@@ -401,7 +471,7 @@ function assert_content_tab_text_present(aTab, aText) {
  */
 function assert_content_tab_text_absent(aTab, aText) {
   if (get_content_tab_element_by_text(aTab, aText)) {
-    mark_failure(["Found string \"" + aText + "\" on the content tab's page"]);
+    mark_failure(['Found string "' + aText + "\" on the content tab's page"]);
   }
 }
 
@@ -410,9 +480,12 @@ function assert_content_tab_text_absent(aTab, aText) {
  * null if otherwise.
  */
 function get_notification_bar_for_tab(aTab) {
-  let notificationBoxEls = mc.tabmail.selectedTab.panel.querySelector("notificationbox");
-  if (!notificationBoxEls)
+  let notificationBoxEls = mc.tabmail.selectedTab.panel.querySelector(
+    "notificationbox"
+  );
+  if (!notificationBoxEls) {
     return null;
+  }
 
   return notificationBoxEls;
 }
@@ -427,8 +500,9 @@ function get_test_plugin() {
 
   // Find the test plugin
   for (var i = 0; i < tags.length; i++) {
-    if (tags[i].name == "Test Plug-in")
+    if (tags[i].name == "Test Plug-in") {
       return tags[i];
+    }
   }
   return null;
 }
@@ -444,7 +518,9 @@ function updateBlocklist(aController, aCallback) {
 
 function setAndUpdateBlocklist(aController, aURL, aCallback) {
   if (!_originalBlocklistURL) {
-    _originalBlocklistURL = Services.prefs.getCharPref("extensions.blocklist.url");
+    _originalBlocklistURL = Services.prefs.getCharPref(
+      "extensions.blocklist.url"
+    );
   }
   Services.prefs.setCharPref("extensions.blocklist.url", aURL);
   updateBlocklist(aController, aCallback);

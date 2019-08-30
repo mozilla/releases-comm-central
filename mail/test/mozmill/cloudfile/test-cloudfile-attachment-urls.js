@@ -26,8 +26,10 @@ var MODULE_REQUIRES = [
   "window-helpers",
 ];
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var kUploadedFile = "attachment-uploaded";
 var kHtmlPrefKey = "mail.identity.default.compose_html";
@@ -52,8 +54,11 @@ function setupModule(module) {
 
   // For replies and forwards, we'll work off a message in the Inbox folder
   // of the fake "tinderbox" account.
-  let server = MailServices.accounts.FindServer("tinderbox", FAKE_SERVER_HOSTNAME,
-                                                "pop3");
+  let server = MailServices.accounts.FindServer(
+    "tinderbox",
+    FAKE_SERVER_HOSTNAME,
+    "pop3"
+  );
   gInbox = get_special_folder(Ci.nsMsgFolderFlags.Inbox, false, server);
   add_message_to_folder(gInbox, create_message());
 
@@ -99,16 +104,22 @@ function wait_for_attachment_urls(aController, aNumUrls) {
   let mailBody = get_compose_body(aController);
 
   // Wait until we can find the root attachment URL node...
-  let root = wait_for_element(mailBody.parentNode,
-                              "body > #cloudAttachmentListRoot");
+  let root = wait_for_element(
+    mailBody.parentNode,
+    "body > #cloudAttachmentListRoot"
+  );
 
-  let list = wait_for_element(mailBody,
-                              "#cloudAttachmentListRoot > #cloudAttachmentList");
+  let list = wait_for_element(
+    mailBody,
+    "#cloudAttachmentListRoot > #cloudAttachmentList"
+  );
 
   let urls = null;
   aController.waitFor(function() {
-    urls = mailBody.querySelectorAll("#cloudAttachmentList > .cloudAttachmentItem");
-    return (urls != null && urls.length == aNumUrls);
+    urls = mailBody.querySelectorAll(
+      "#cloudAttachmentList > .cloudAttachmentItem"
+    );
+    return urls != null && urls.length == aNumUrls;
   });
 
   return [root, list, urls];
@@ -255,14 +266,19 @@ function subtest_inserts_linebreak_on_empty_compose() {
   let [root] = wait_for_attachment_urls(cw, kFiles.length);
 
   let br = root.previousSibling;
-  assert_equals(br.localName, "br",
-                "The attachment URL containment node should be preceded by " +
-                "a linebreak");
+  assert_equals(
+    br.localName,
+    "br",
+    "The attachment URL containment node should be preceded by " + "a linebreak"
+  );
 
   let mailBody = get_compose_body(cw);
 
-  assert_equals(mailBody.firstChild, br,
-                "The linebreak should be the first child of the compose body");
+  assert_equals(
+    mailBody.firstChild,
+    br,
+    "The linebreak should be the first child of the compose body"
+  );
 
   close_window(cw);
 }
@@ -288,18 +304,26 @@ function test_inserts_linebreak_on_empty_compose_with_signature() {
   let br = assert_previous_nodes("br", root, 1);
 
   let mailBody = get_compose_body(cw);
-  assert_equals(mailBody.firstChild, br,
-                "The linebreak should be the first child of the compose body");
+  assert_equals(
+    mailBody.firstChild,
+    br,
+    "The linebreak should be the first child of the compose body"
+  );
 
   // Now ensure that the node after the attachments is a br, and following
   // that is the signature.
   br = assert_next_nodes("br", root, 1);
 
   let pre = br.nextSibling;
-  assert_equals(pre.localName, "pre",
-                "The linebreak should be followed by the signature pre");
-  assert_true(pre.classList.contains("moz-signature"),
-              "The pre should have the moz-signature class");
+  assert_equals(
+    pre.localName,
+    "pre",
+    "The linebreak should be followed by the signature pre"
+  );
+  assert_true(
+    pre.classList.contains("moz-signature"),
+    "The pre should have the moz-signature class"
+  );
 
   close_window(cw);
 
@@ -313,18 +337,26 @@ function test_inserts_linebreak_on_empty_compose_with_signature() {
   br = assert_previous_nodes("br", root, 1);
 
   mailBody = get_compose_body(cw);
-  assert_equals(mailBody.firstChild, br,
-                "The linebreak should be the first child of the compose body");
+  assert_equals(
+    mailBody.firstChild,
+    br,
+    "The linebreak should be the first child of the compose body"
+  );
 
   // Now ensure that the node after the attachments is a br, and following
   // that is the signature.
   br = assert_next_nodes("br", root, 1);
 
   let div = br.nextSibling;
-  assert_equals(div.localName, "div",
-                "The linebreak should be followed by the signature div");
-  assert_true(div.classList.contains("moz-signature"),
-              "The div should have the moz-signature class");
+  assert_equals(
+    div.localName,
+    "div",
+    "The linebreak should be followed by the signature div"
+  );
+  assert_true(
+    div.classList.contains("moz-signature"),
+    "The div should have the moz-signature class"
+  );
 
   close_window(cw);
 
@@ -335,7 +367,9 @@ function test_inserts_linebreak_on_empty_compose_with_signature() {
  * Tests that removing all Filelinks causes the root node to be removed.
  */
 function test_removing_filelinks_removes_root_node() {
-  try_with_plaintext_and_html_mail(subtest_removing_filelinks_removes_root_node);
+  try_with_plaintext_and_html_mail(
+    subtest_removing_filelinks_removes_root_node
+  );
 }
 
 /**
@@ -354,7 +388,7 @@ function subtest_removing_filelinks_removes_root_node() {
   let mailBody = get_compose_body(cw);
   cw.waitFor(function() {
     let result = mailBody.querySelector(root.id);
-    return (result == null);
+    return result == null;
   }, "Timed out waiting for attachment container to be removed");
 
   close_window(cw);
@@ -386,13 +420,18 @@ function subtest_adding_filelinks_to_written_message() {
   let [root] = wait_for_attachment_urls(cw, kFiles.length);
 
   let br = root.previousSibling;
-  assert_equals(br.localName, "br",
-                "The attachment URL containment node should be preceded by " +
-                "a linebreak");
+  assert_equals(
+    br.localName,
+    "br",
+    "The attachment URL containment node should be preceded by " + "a linebreak"
+  );
   br = br.previousSibling;
-  assert_equals(br.localName, "br",
-                "The attachment URL containment node should be preceded by " +
-                "two linebreaks");
+  assert_equals(
+    br.localName,
+    "br",
+    "The attachment URL containment node should be preceded by " +
+      "two linebreaks"
+  );
   close_window(cw);
 }
 
@@ -405,11 +444,15 @@ function test_adding_filelinks_to_empty_reply_above() {
   Services.prefs.setIntPref(kReplyOnTopKey, kReplyOnTop);
 
   try_with_and_without_signature_in_reply_or_fwd(
-    subtest_adding_filelinks_to_reply_above, []);
+    subtest_adding_filelinks_to_reply_above,
+    []
+  );
   // Now with HTML mail...
   Services.prefs.setBoolPref(kHtmlPrefKey, false);
   try_with_and_without_signature_in_reply_or_fwd(
-    subtest_adding_filelinks_to_reply_above_plaintext, []);
+    subtest_adding_filelinks_to_reply_above_plaintext,
+    []
+  );
 
   Services.prefs.setBoolPref(kHtmlPrefKey, true);
   Services.prefs.setIntPref(kReplyOnTopKey, oldReplyOnTop);
@@ -442,29 +485,37 @@ function subtest_adding_filelinks_to_reply_above_plaintext(aText, aWithSig) {
   let [root] = wait_for_attachment_urls(cw, kFiles.length);
 
   let br;
-  if (aText.length)
+  if (aText.length) {
     br = assert_next_nodes("br", root, 2);
-  else
+  } else {
     br = assert_next_nodes("br", root, 1);
+  }
 
   let div = br.nextSibling;
-  assert_equals(div.localName, "div",
-                "The linebreak should be followed by a div");
+  assert_equals(
+    div.localName,
+    "div",
+    "The linebreak should be followed by a div"
+  );
 
   assert_true(div.classList.contains("moz-cite-prefix"));
 
-  if (aText.length)
+  if (aText.length) {
     br = assert_previous_nodes("br", root, 2);
-  else
+  } else {
     br = assert_previous_nodes("br", root, 1);
+  }
 
   if (aText.length == 0) {
     // If we didn't type anything, that br should be the first element of the
     // message body.
     let msgBody = get_compose_body(cw);
-    assert_equals(msgBody.firstChild, br,
-                  "The linebreak should have been the first element in the " +
-                  "message body");
+    assert_equals(
+      msgBody.firstChild,
+      br,
+      "The linebreak should have been the first element in the " +
+        "message body"
+    );
   } else {
     let targetText = aText[aText.length - 1];
     let textNode = br.previousSibling;
@@ -484,13 +535,18 @@ function subtest_adding_filelinks_to_reply_above(aText) {
 
   // If there's any text written, then there's only a single break between the
   // end of the text and the reply. Otherwise, there are two breaks.
-  let br = aText.length > 1 ? assert_next_nodes("br", root, 2)
-                            : assert_next_nodes("br", root, 1);
+  let br =
+    aText.length > 1
+      ? assert_next_nodes("br", root, 2)
+      : assert_next_nodes("br", root, 1);
 
   // ... which is followed by a div with a class of "moz-cite-prefix".
   let div = br.nextSibling;
-  assert_equals(div.localName, "div",
-                "The linebreak should be followed by a div");
+  assert_equals(
+    div.localName,
+    "div",
+    "The linebreak should be followed by a div"
+  );
 
   assert_true(div.classList.contains("moz-cite-prefix"));
 
@@ -506,10 +562,14 @@ function test_adding_filelinks_to_empty_reply_below() {
   Services.prefs.setIntPref(kReplyOnTopKey, kReplyOnBottom);
 
   try_with_and_without_signature_in_reply_or_fwd(
-    subtest_adding_filelinks_to_reply_below, []);
+    subtest_adding_filelinks_to_reply_below,
+    []
+  );
   Services.prefs.setBoolPref(kHtmlPrefKey, false);
   try_with_and_without_signature_in_reply_or_fwd(
-    subtest_adding_filelinks_to_plaintext_reply_below, []);
+    subtest_adding_filelinks_to_plaintext_reply_below,
+    []
+  );
   Services.prefs.setBoolPref(kHtmlPrefKey, true);
 
   Services.prefs.setIntPref(kReplyOnTopKey, oldReplyOnTop);
@@ -524,11 +584,15 @@ function test_adding_filelinks_to_nonempty_reply_below() {
   Services.prefs.setIntPref(kReplyOnTopKey, kReplyOnBottom);
 
   try_with_and_without_signature_in_reply_or_fwd(
-    subtest_adding_filelinks_to_reply_below, kLines);
+    subtest_adding_filelinks_to_reply_below,
+    kLines
+  );
 
   Services.prefs.setBoolPref(kHtmlPrefKey, false);
   try_with_and_without_signature_in_reply_or_fwd(
-    subtest_adding_filelinks_to_plaintext_reply_below, kLines);
+    subtest_adding_filelinks_to_plaintext_reply_below,
+    kLines
+  );
   Services.prefs.setBoolPref(kHtmlPrefKey, true);
 
   Services.prefs.setIntPref(kReplyOnTopKey, oldReplyOnTop);
@@ -542,9 +606,11 @@ function subtest_adding_filelinks_to_reply_below(aText, aWithSig) {
   let [root] = wait_for_attachment_urls(cw, kFiles.length);
   // So, we should have the root, followed by a br
   let br = root.nextSibling;
-  assert_equals(br.localName, "br",
-                "The attachment URL containment node should be followed by " +
-                " a br");
+  assert_equals(
+    br.localName,
+    "br",
+    "The attachment URL containment node should be followed by " + " a br"
+  );
 
   let blockquote;
   if (aText.length) {
@@ -560,14 +626,22 @@ function subtest_adding_filelinks_to_reply_below(aText, aWithSig) {
     blockquote = br.previousSibling;
   }
 
-  assert_equals(blockquote.localName, "blockquote",
-                "The linebreak should be preceded by a blockquote.");
+  assert_equals(
+    blockquote.localName,
+    "blockquote",
+    "The linebreak should be preceded by a blockquote."
+  );
 
   let prefix = blockquote.previousSibling;
-  assert_equals(prefix.localName, "div",
-                "The blockquote should be preceded by the prefix div");
-  assert_true(prefix.classList.contains("moz-cite-prefix"),
-              "The prefix should have the moz-cite-prefix class");
+  assert_equals(
+    prefix.localName,
+    "div",
+    "The blockquote should be preceded by the prefix div"
+  );
+  assert_true(
+    prefix.classList.contains("moz-cite-prefix"),
+    "The prefix should have the moz-cite-prefix class"
+  );
 
   close_window(cw);
 }
@@ -595,18 +669,27 @@ function subtest_adding_filelinks_to_plaintext_reply_below(aText, aWithSig) {
     // will be the span.
     span = br.previousSibling;
     // Sometimes we need to skip one more linebreak.
-    if (span.localName != "span")
+    if (span.localName != "span") {
       span = span.previousSibling;
+    }
   }
 
-  assert_equals(span.localName, "span",
-                "The linebreak should be preceded by a span.");
+  assert_equals(
+    span.localName,
+    "span",
+    "The linebreak should be preceded by a span."
+  );
 
   let prefix = span.previousSibling;
-  assert_equals(prefix.localName, "div",
-                "The blockquote should be preceded by the prefix div");
-  assert_true(prefix.classList.contains("moz-cite-prefix"),
-              "The prefix should have the moz-cite-prefix class");
+  assert_equals(
+    prefix.localName,
+    "div",
+    "The blockquote should be preceded by the prefix div"
+  );
+  assert_true(
+    prefix.classList.contains("moz-cite-prefix"),
+    "The prefix should have the moz-cite-prefix class"
+  );
 
   close_window(cw);
 }
@@ -618,10 +701,14 @@ function subtest_adding_filelinks_to_plaintext_reply_below(aText, aWithSig) {
 function test_adding_filelinks_to_empty_forward() {
   Services.prefs.setIntPref(kReplyOnTopKey, kReplyOnTop);
   try_with_and_without_signature_in_reply_or_fwd(
-    subtest_adding_filelinks_to_forward, []);
+    subtest_adding_filelinks_to_forward,
+    []
+  );
   Services.prefs.setBoolPref(kHtmlPrefKey, false);
   try_with_and_without_signature_in_reply_or_fwd(
-    subtest_adding_filelinks_to_forward, []);
+    subtest_adding_filelinks_to_forward,
+    []
+  );
   Services.prefs.setBoolPref(kHtmlPrefKey, true);
 }
 
@@ -631,10 +718,14 @@ function test_adding_filelinks_to_empty_forward() {
  */
 function test_adding_filelinks_to_forward() {
   try_with_and_without_signature_in_reply_or_fwd(
-    subtest_adding_filelinks_to_forward, kLines);
+    subtest_adding_filelinks_to_forward,
+    kLines
+  );
   Services.prefs.setBoolPref(kHtmlPrefKey, false);
   try_with_and_without_signature_in_reply_or_fwd(
-    subtest_adding_filelinks_to_forward, kLines);
+    subtest_adding_filelinks_to_forward,
+    kLines
+  );
   Services.prefs.setBoolPref(kHtmlPrefKey, true);
 }
 
@@ -704,8 +795,11 @@ function subtest_converting_filelink_updates_urls() {
 
     let newUrl = urls[i];
 
-    assert_not_equals(url, newUrl,
-                      "The original URL should have been replaced");
+    assert_not_equals(
+      url,
+      newUrl,
+      "The original URL should have been replaced"
+    );
   }
 
   close_window(cw);
@@ -717,7 +811,8 @@ function subtest_converting_filelink_updates_urls() {
  */
 function test_converting_filelink_to_normal_removes_url() {
   try_with_plaintext_and_html_mail(
-    subtest_converting_filelink_to_normal_removes_url);
+    subtest_converting_filelink_to_normal_removes_url
+  );
 }
 
 /**
@@ -747,8 +842,9 @@ function subtest_converting_filelink_to_normal_removes_url() {
   // At this point, the root should also have been removed.
   let mailBody = get_compose_body(cw);
   root = mailBody.querySelector("#cloudAttachmentListRoot");
-  if (root)
+  if (root) {
     throw new Error("Should not have found the cloudAttachmentListRoot");
+  }
 
   close_window(cw);
 }

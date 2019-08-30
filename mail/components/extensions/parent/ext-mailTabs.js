@@ -2,10 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.defineModuleGetter(this, "Services", "resource://gre/modules/Services.jsm");
-ChromeUtils.defineModuleGetter(this, "MailServices", "resource:///modules/MailServices.jsm");
-ChromeUtils.defineModuleGetter(this, "QuickFilterManager",
-                               "resource:///modules/QuickFilterManager.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "Services",
+  "resource://gre/modules/Services.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "MailServices",
+  "resource:///modules/MailServices.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "QuickFilterManager",
+  "resource:///modules/QuickFilterManager.jsm"
+);
 
 const LAYOUTS = ["standard", "wide", "vertical"];
 // From nsIMsgDBView.idl
@@ -17,7 +28,10 @@ const SORT_TYPE_MAP = new Map(
   })
 );
 const SORT_ORDER_MAP = new Map(
-  Object.keys(Ci.nsMsgViewSortOrder).map(key => [Ci.nsMsgViewSortOrder[key], key])
+  Object.keys(Ci.nsMsgViewSortOrder).map(key => [
+    Ci.nsMsgViewSortOrder[key],
+    key,
+  ])
 );
 
 /**
@@ -39,14 +53,22 @@ function convertMailTab(tab, context) {
   let nativeTab = tab.nativeTab;
   let { folderDisplay } = nativeTab;
   if (folderDisplay.view.displayedFolder) {
-    let { folderPaneVisible, messagePaneVisible } = nativeTab.mode.persistTab(nativeTab);
-    mailTabObject.sortType = SORT_TYPE_MAP.get(folderDisplay.view.primarySortType);
-    mailTabObject.sortOrder = SORT_ORDER_MAP.get(folderDisplay.view.primarySortOrder);
+    let { folderPaneVisible, messagePaneVisible } = nativeTab.mode.persistTab(
+      nativeTab
+    );
+    mailTabObject.sortType = SORT_TYPE_MAP.get(
+      folderDisplay.view.primarySortType
+    );
+    mailTabObject.sortOrder = SORT_ORDER_MAP.get(
+      folderDisplay.view.primarySortOrder
+    );
     mailTabObject.folderPaneVisible = folderPaneVisible;
     mailTabObject.messagePaneVisible = messagePaneVisible;
   }
   if (context.extension.hasPermission("accountsRead")) {
-    mailTabObject.displayedFolder = convertFolder(folderDisplay.displayedFolder);
+    mailTabObject.displayedFolder = convertFolder(
+      folderDisplay.displayedFolder
+    );
   }
   return mailTabObject;
 }
@@ -54,7 +76,7 @@ function convertMailTab(tab, context) {
 /**
  * Listens for changes in the UI to fire events.
  */
-var uiListener = new class extends EventEmitter {
+var uiListener = new (class extends EventEmitter {
   constructor() {
     super();
     this.listenerCount = 0;
@@ -74,7 +96,11 @@ var uiListener = new class extends EventEmitter {
       return;
     }
     if (event.target.id == "threadTree") {
-      this.emit("messages-changed", tab, tab.folderDisplay.view.dbView.getSelectedMsgHdrs());
+      this.emit(
+        "messages-changed",
+        tab,
+        tab.folderDisplay.view.dbView.getSelectedMsgHdrs()
+      );
     }
   }
 
@@ -103,7 +129,7 @@ var uiListener = new class extends EventEmitter {
       this.lastSelected = new WeakMap();
     }
   }
-};
+})();
 
 class PermissionedEventManager extends EventManager {
   constructor({ permission, context, name, register }) {
@@ -150,18 +176,24 @@ this.mailTabs = class extends ExtensionAPI {
     return {
       mailTabs: {
         async query({ active, currentWindow, lastFocusedWindow, windowId }) {
-          return Array.from(tabManager.query({
-            active,
-            currentWindow,
-            lastFocusedWindow,
-            mailTab: true,
-            windowId,
+          return Array.from(
+            tabManager.query(
+              {
+                active,
+                currentWindow,
+                lastFocusedWindow,
+                mailTab: true,
+                windowId,
 
-            // All of these are needed for tabManager to return every tab we want.
-            index: null,
-            screen: null,
-            windowType: null,
-          }, context), (tab) => convertMailTab(tab, context));
+                // All of these are needed for tabManager to return every tab we want.
+                index: null,
+                screen: null,
+                windowType: null,
+              },
+              context
+            ),
+            tab => convertMailTab(tab, context)
+          );
         },
 
         async update(tabId, args) {
@@ -178,16 +210,20 @@ this.mailTabs = class extends ExtensionAPI {
           } = args;
 
           if (displayedFolder && extension.hasPermission("accountsRead")) {
-            let uri = folderPathToURI(displayedFolder.accountId, displayedFolder.path);
+            let uri = folderPathToURI(
+              displayedFolder.accountId,
+              displayedFolder.path
+            );
             if (tab.active) {
-              let treeView = Cu.getGlobalForObject(tab.nativeTab).gFolderTreeView;
+              let treeView = Cu.getGlobalForObject(tab.nativeTab)
+                .gFolderTreeView;
               let folder = MailServices.folderLookup.getFolderForURL(uri);
               if (folder) {
                 treeView.selectFolder(folder);
               } else {
                 throw new ExtensionError(
                   `Folder "${displayedFolder.path}" for account ` +
-                  `"${displayedFolder.accountId}" not found.`
+                    `"${displayedFolder.accountId}" not found.`
                 );
               }
             } else {
@@ -198,23 +234,36 @@ this.mailTabs = class extends ExtensionAPI {
           if (sortType) {
             // Change "foo" to "byFoo".
             sortType = "by" + sortType[0].toUpperCase() + sortType.substring(1);
-            if (sortType in Ci.nsMsgViewSortType &&
-                sortOrder && sortOrder in Ci.nsMsgViewSortOrder) {
-              tab.nativeTab.folderDisplay.view.sort(Ci.nsMsgViewSortType[sortType],
-                                                    Ci.nsMsgViewSortOrder[sortOrder]);
+            if (
+              sortType in Ci.nsMsgViewSortType &&
+              sortOrder &&
+              sortOrder in Ci.nsMsgViewSortOrder
+            ) {
+              tab.nativeTab.folderDisplay.view.sort(
+                Ci.nsMsgViewSortType[sortType],
+                Ci.nsMsgViewSortOrder[sortOrder]
+              );
             }
           }
 
           // Layout applies to all folder tabs.
           if (layout) {
-            Services.prefs.setIntPref("mail.pane_config.dynamic", LAYOUTS.indexOf(layout));
+            Services.prefs.setIntPref(
+              "mail.pane_config.dynamic",
+              LAYOUTS.indexOf(layout)
+            );
           }
 
           if (typeof folderPaneVisible == "boolean") {
             if (tab.active) {
               let document = window.document;
-              let folderPaneSplitter = document.getElementById("folderpane_splitter");
-              folderPaneSplitter.setAttribute("state", folderPaneVisible ? "open" : "collapsed");
+              let folderPaneSplitter = document.getElementById(
+                "folderpane_splitter"
+              );
+              folderPaneSplitter.setAttribute(
+                "state",
+                folderPaneVisible ? "open" : "collapsed"
+              );
             } else {
               tab.nativeTab.folderDisplay.folderPaneVisible = folderPaneVisible;
             }
@@ -264,18 +313,19 @@ this.mailTabs = class extends ExtensionAPI {
           // Map of QuickFilter state names to possible WebExtensions state names.
           // WebExtensions names are comma-separated in increasing order of precedence.
           let stateMap = {
-            "unread": "unread",
-            "starred": "starred,flagged",
-            "addrBook": "contact",
-            "attachment": "attachment",
+            unread: "unread",
+            starred: "starred,flagged",
+            addrBook: "contact",
+            attachment: "attachment",
           };
 
-          filterer.visible = (state.show !== false);
+          filterer.visible = state.show !== false;
           for (let [key, names] of Object.entries(stateMap)) {
             let value = null;
             for (let name of names.split(",")) {
-              if (state[name] !== null)
+              if (state[name] !== null) {
                 value = state[name];
+              }
             }
             if (value === null) {
               delete filterer.filterValues[key];
@@ -293,7 +343,8 @@ this.mailTabs = class extends ExtensionAPI {
               filterer.filterValues.tags[tag.key] = null;
             }
             if (typeof state.tags == "object") {
-              filterer.filterValues.tags.mode = (state.tags.mode == "any") ? "OR" : "AND";
+              filterer.filterValues.tags.mode =
+                state.tags.mode == "any" ? "OR" : "AND";
               for (let [key, value] of Object.entries(state.tags.tags)) {
                 filterer.filterValues.tags.tags[key] = value;
               }
@@ -313,7 +364,10 @@ this.mailTabs = class extends ExtensionAPI {
 
           if (tab.active) {
             window.QuickFilterBarMuxer.deferredUpdateSearch();
-            window.QuickFilterBarMuxer.reflectFiltererState(filterer, window.gFolderDisplay);
+            window.QuickFilterBarMuxer.reflectFiltererState(
+              filterer,
+              window.gFolderDisplay
+            );
           }
           // Inactive tabs are updated when they become active, except the search doesn't. :(
         },
@@ -322,7 +376,7 @@ this.mailTabs = class extends ExtensionAPI {
           permission: "accountsRead",
           context,
           name: "mailTabs.onDisplayedFolderChanged",
-          register: (fire) => {
+          register: fire => {
             let listener = (event, tab, folder) => {
               fire.sync(tabTracker.getId(tab), convertFolder(folder));
             };
@@ -340,9 +394,12 @@ this.mailTabs = class extends ExtensionAPI {
           permission: "messagesRead",
           context,
           name: "mailTabs.onSelectedMessagesChanged",
-          register: (fire) => {
+          register: fire => {
             let listener = (event, tab, messages) => {
-              fire.sync(tabTracker.getId(tab), messageListTracker.startList(messages, extension));
+              fire.sync(
+                tabTracker.getId(tab),
+                messageListTracker.startList(messages, extension)
+              );
             };
 
             uiListener.on("messages-changed", listener);

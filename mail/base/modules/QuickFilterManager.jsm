@@ -2,25 +2,37 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ["QuickFilterState", "QuickFilterManager",
-                          "MessageTextFilter", "QuickFilterSearchListener"];
+this.EXPORTED_SYMBOLS = [
+  "QuickFilterState",
+  "QuickFilterManager",
+  "MessageTextFilter",
+  "QuickFilterSearchListener",
+];
 
-const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+const { PluralForm } = ChromeUtils.import(
+  "resource://gre/modules/PluralForm.jsm"
+);
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 
-const {
-  logException,
-  logObject,
-} = ChromeUtils.import("resource:///modules/errUtils.js");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const { logException, logObject } = ChromeUtils.import(
+  "resource:///modules/errUtils.js"
+);
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 // XXX we need to know whether the gloda indexer is enabled for upsell reasons,
 // but this should really just be exposed on the main Gloda public interface.
-const { GlodaIndexer } = ChromeUtils.import("resource:///modules/gloda/indexer.js");
+const { GlodaIndexer } = ChromeUtils.import(
+  "resource:///modules/gloda/indexer.js"
+);
 // we need to be able to create gloda message searcher instances for upsells:
-const { GlodaMsgSearcher } = ChromeUtils.import("resource:///modules/gloda/msg_search.js");
-
+const { GlodaMsgSearcher } = ChromeUtils.import(
+  "resource:///modules/gloda/msg_search.js"
+);
 
 /**
  * Shallow object copy.
@@ -53,7 +65,8 @@ function QuickFilterState(aTemplateState, aJsonedState) {
     this.visible = aJsonedState.visible;
   } else if (aTemplateState) {
     this.filterValues = QuickFilterManager.propagateValues(
-                          aTemplateState.filterValues);
+      aTemplateState.filterValues
+    );
     this.visible = aTemplateState.visible;
   } else {
     this.filterValues = QuickFilterManager.getDefaultValues();
@@ -83,8 +96,9 @@ QuickFilterState.prototype = {
    *     lastFilterAttr purposes?
    */
   getFilterValue(aName, aNoChange) {
-    if (!aNoChange)
+    if (!aNoChange) {
       this._lastFilterAttr = aName;
+    }
     return this.filterValues[aName];
   },
 
@@ -103,8 +117,9 @@ QuickFilterState.prototype = {
     }
 
     this.filterValues[aName] = aValue;
-    if (!aNoChange)
+    if (!aNoChange) {
       this._lastFilterAttr = aName;
+    }
   },
 
   /**
@@ -126,8 +141,12 @@ QuickFilterState.prototype = {
     if (this._lastFilterAttr) {
       // it's possible the UI state the last attribute has already been cleared,
       //  in which case we want to fall through...
-      if (QuickFilterManager.clearFilterValue(this._lastFilterAttr,
-                                              this.filterValues)) {
+      if (
+        QuickFilterManager.clearFilterValue(
+          this._lastFilterAttr,
+          this.filterValues
+        )
+      ) {
         this._lastFilterAttr = null;
         return true;
       }
@@ -148,8 +167,10 @@ QuickFilterState.prototype = {
    * Create the search terms appropriate to the current filter states.
    */
   createSearchTerms(aTermCreator) {
-    return QuickFilterManager.createSearchTerms(this.filterValues,
-                                                aTermCreator);
+    return QuickFilterManager.createSearchTerms(
+      this.filterValues,
+      aTermCreator
+    );
   },
 
   persistToObj() {
@@ -200,8 +221,13 @@ QuickFilterState.prototype = {
  * @param aFilterer The QuickFilterState instance.
  * @param aListener The thing on which we invoke methods.
  */
-function QuickFilterSearchListener(aFolderDisplay, aFilterer, aFilterDef,
-                                   aListener, aMuxer) {
+function QuickFilterSearchListener(
+  aFolderDisplay,
+  aFilterer,
+  aFilterDef,
+  aListener,
+  aMuxer
+) {
   this.folderDisplay = aFolderDisplay;
   this.filterer = aFilterer;
   this.filterDef = aFilterDef;
@@ -215,14 +241,15 @@ function QuickFilterSearchListener(aFolderDisplay, aFilterer, aFilterDef,
   this.count = 0;
   this.started = false;
 
-  this.session.registerListener(this,
-                                Ci.nsIMsgSearchSession.allNotifications);
+  this.session.registerListener(this, Ci.nsIMsgSearchSession.allNotifications);
 }
 QuickFilterSearchListener.prototype = {
   onNewSearch() {
     this.started = true;
-    let curState = (this.filterDef.name in this.filterer.filterValues) ?
-                     this.filterer.filterValues[this.filterDef.name] : null;
+    let curState =
+      this.filterDef.name in this.filterer.filterValues
+        ? this.filterer.filterValues[this.filterDef.name]
+        : null;
     this.scratch = this.listener.onSearchStart(curState);
   },
 
@@ -234,8 +261,9 @@ QuickFilterSearchListener.prototype = {
     //  we can't guarantee it, as XPConnect does not inform memory pressure,
     //  so it's us to stop-gap it.
     this.count++;
-    if (!(this.count % 4096))
+    if (!(this.count % 4096)) {
       Cu.forceGC();
+    }
 
     try {
       this.listener.onSearchMessage(this.scratch, aMsgHdr, aFolder);
@@ -247,21 +275,33 @@ QuickFilterSearchListener.prototype = {
 
   onSearchDone(aStatus) {
     // it's possible we will see the tail end of an existing search. ignore.
-    if (!this.started)
+    if (!this.started) {
       return;
+    }
 
     this.session.unregisterListener(this);
 
-    let curState = (this.filterDef.name in this.filterer.filterValues) ?
-                     this.filterer.filterValues[this.filterDef.name] : null;
-    let [newState, update, treatAsUserAction] =
-      this.listener.onSearchDone(curState, this.scratch, aStatus);
+    let curState =
+      this.filterDef.name in this.filterer.filterValues
+        ? this.filterer.filterValues[this.filterDef.name]
+        : null;
+    let [newState, update, treatAsUserAction] = this.listener.onSearchDone(
+      curState,
+      this.scratch,
+      aStatus
+    );
 
-    this.filterer.setFilterValue(this.filterDef.name, newState,
-                                 !treatAsUserAction);
+    this.filterer.setFilterValue(
+      this.filterDef.name,
+      newState,
+      !treatAsUserAction
+    );
     if (update && this.folderDisplay.active) {
-     this.muxer.reflectFiltererState(this.filterer, this.folderDisplay,
-                                     this.filterDef.name);
+      this.muxer.reflectFiltererState(
+        this.filterer,
+        this.folderDisplay,
+        this.filterDef.name
+      );
     }
   },
 };
@@ -408,19 +448,23 @@ var QuickFilterManager = {
    */
   propagateValues(aTemplValues) {
     let values = {};
-    let sticky = ("sticky" in aTemplValues) ? aTemplValues.sticky : false;
+    let sticky = "sticky" in aTemplValues ? aTemplValues.sticky : false;
 
     for (let filterDef of this.filterDefs) {
       if ("propagateState" in filterDef) {
-        let curValue = (filterDef.name in aTemplValues) ?
-                         aTemplValues[filterDef.name] : undefined;
+        let curValue =
+          filterDef.name in aTemplValues
+            ? aTemplValues[filterDef.name]
+            : undefined;
         let newValue = filterDef.propagateState(curValue, sticky);
-        if (newValue != null)
+        if (newValue != null) {
           values[filterDef.name] = newValue;
+        }
       } else if (sticky) {
         // Always propagate the value if sticky and there was no handler.
-        if (filterDef.name in aTemplValues)
+        if (filterDef.name in aTemplValues) {
           values[filterDef.name] = aTemplValues[filterDef.name];
+        }
       }
     }
 
@@ -436,8 +480,9 @@ var QuickFilterManager = {
     for (let filterDef of this.filterDefs) {
       if ("getDefaults" in filterDef) {
         let newValue = filterDef.getDefaults();
-        if (newValue != null)
+        if (newValue != null) {
           values[filterDef.name] = newValue;
+        }
       }
     }
     return values;
@@ -459,14 +504,14 @@ var QuickFilterManager = {
       return false;
     }
 
-    let curValue = (aFilterName in aValues) ?
-                     aValues[aFilterName] : undefined;
+    let curValue = aFilterName in aValues ? aValues[aFilterName] : undefined;
     // Yes, we want to call it to clear its state even if it has no state.
     let [newValue, didClear] = filterDef.clearState(curValue);
-    if (newValue != null)
+    if (newValue != null) {
       aValues[aFilterName] = newValue;
-    else
+    } else {
       delete aValues[aFilterName];
+    }
     return didClear;
   },
 
@@ -479,8 +524,9 @@ var QuickFilterManager = {
   clearAllFilterValues(aFilterValues) {
     let didClearSomething = false;
     for (let filterDef of this.filterDefs) {
-      if (this.clearFilterValue(filterDef.name, aFilterValues))
+      if (this.clearFilterValue(filterDef.name, aFilterValues)) {
         didClearSomething = true;
+      }
     }
     return didClearSomething;
   },
@@ -492,15 +538,20 @@ var QuickFilterManager = {
    * as per the contract.
    */
   createSearchTerms(aFilterValues, aTermCreator) {
-    let searchTerms = [], listeners = [];
+    let searchTerms = [],
+      listeners = [];
     for (let filterName in aFilterValues) {
       let filterValue = aFilterValues[filterName];
       let filterDef = this.filterDefsByName[filterName];
       try {
-        let listener =
-          filterDef.appendTerms(aTermCreator, searchTerms, filterValue);
-        if (listener)
+        let listener = filterDef.appendTerms(
+          aTermCreator,
+          searchTerms,
+          filterValue
+        );
+        if (listener) {
           listeners.push([listener, filterDef]);
+        }
       } catch (ex) {
         logException(ex);
       }
@@ -515,8 +566,7 @@ var QuickFilterManager = {
 QuickFilterManager.defineFilter({
   name: "sticky",
   domId: "qfb-sticky",
-  appendTerms(aTermCreator, aTerms, aFilterValue) {
-  },
+  appendTerms(aTermCreator, aTerms, aFilterValue) {},
   /**
    * This should not cause an update, otherwise default logic.
    */
@@ -579,15 +629,16 @@ QuickFilterManager.defineFilter({
     term = null;
     while (enumerator.hasMoreElements()) {
       let addrbook = enumerator.getNext();
-      if (addrbook instanceof Ci.nsIAbDirectory &&
-          !addrbook.isRemote) {
+      if (addrbook instanceof Ci.nsIAbDirectory && !addrbook.isRemote) {
         term = aTermCreator.createTerm();
         term.attrib = Ci.nsMsgSearchAttrib.Sender;
         value = term.value;
         value.attrib = term.attrib;
         value.str = addrbook.URI;
         term.value = value;
-        term.op = aFilterValue ? Ci.nsMsgSearchOp.IsInAB : Ci.nsMsgSearchOp.IsntInAB;
+        term.op = aFilterValue
+          ? Ci.nsMsgSearchOp.IsInAB
+          : Ci.nsMsgSearchOp.IsntInAB;
         // It's an AND if we're the first book (so the boolean affects the
         //  group as a whole.)
         // It's the negation of whether we're filtering otherwise; demorgans.
@@ -597,8 +648,9 @@ QuickFilterManager.defineFilter({
         firstBook = false;
       }
     }
-    if (term)
+    if (term) {
       term.endsGrouping = true;
+    }
   },
 });
 
@@ -622,8 +674,9 @@ var TagFacetingFilter = {
    */
   isSimple(aFilterValue) {
     // it's the simple case if the value is just a boolean
-    if (typeof(aFilterValue) != "object")
+    if (typeof aFilterValue != "object") {
       return true;
+    }
     // but also if the object contains no non-null values
     let simpleCase = true;
     for (let key in aFilterValue.tags) {
@@ -644,8 +697,9 @@ var TagFacetingFilter = {
    *  exclusion.
    */
   appendTerms(aTermCreator, aTerms, aFilterValue) {
-    if (aFilterValue == null)
+    if (aFilterValue == null) {
       return null;
+    }
 
     let term, value;
 
@@ -656,17 +710,19 @@ var TagFacetingFilter = {
       value = term.value;
       value.str = "";
       term.value = value;
-      term.op = aFilterValue ?
-                  Ci.nsMsgSearchOp.IsntEmpty :
-                  Ci.nsMsgSearchOp.IsEmpty;
+      term.op = aFilterValue
+        ? Ci.nsMsgSearchOp.IsntEmpty
+        : Ci.nsMsgSearchOp.IsEmpty;
       term.booleanAnd = true;
       aTerms.push(term);
 
       // we need to perform faceting if the value is literally true.
-      if (aFilterValue === true)
+      if (aFilterValue === true) {
         return this;
+      }
     } else {
-      let firstIncludeClause = true, firstExcludeClause = true;
+      let firstIncludeClause = true,
+        firstExcludeClause = true;
       let lastIncludeTerm = null;
       term = null;
 
@@ -686,7 +742,7 @@ var TagFacetingFilter = {
             term.op = Ci.nsMsgSearchOp.Contains;
             // AND for the group. Inside the group we also want AND if the
             // mode is set to "All of".
-            term.booleanAnd = firstIncludeClause || (mode === "AND");
+            term.booleanAnd = firstIncludeClause || mode === "AND";
             term.beginsGrouping = firstIncludeClause;
             aTerms.push(term);
             firstIncludeClause = false;
@@ -701,8 +757,9 @@ var TagFacetingFilter = {
           }
         }
       }
-      if (lastIncludeTerm)
+      if (lastIncludeTerm) {
         lastIncludeTerm.endsGrouping = true;
+      }
 
       // if we have any exclude terms:
       // - we might need to add a "has a tag" clause if there were no explicit
@@ -744,18 +801,20 @@ var TagFacetingFilter = {
   onSearchDone(aCurState, aKeywordMap, aStatus) {
     // we are an async operation; if the user turned off the tag facet already,
     //  then leave that state intact...
-    if (aCurState == null)
+    if (aCurState == null) {
       return [null, false, false];
+    }
 
     // only propagate things that are actually tags though!
-    let outKeyMap = {tags: {}};
+    let outKeyMap = { tags: {} };
     let tags = MailServices.tags.getAllTags({});
     let tagCount = tags.length;
     for (let iTag = 0; iTag < tagCount; iTag++) {
       let tag = tags[iTag];
 
-      if (tag.key in aKeywordMap)
+      if (tag.key in aKeywordMap) {
         outKeyMap.tags[tag.key] = aKeywordMap[tag.key];
+      }
     }
     return [outKeyMap, true, false];
   },
@@ -765,10 +824,12 @@ var TagFacetingFilter = {
    */
   propagateState(aOld, aSticky) {
     // stay disabled when disabled, get disabled when not sticky
-    if (aOld == null || !aSticky)
+    if (aOld == null || !aSticky) {
       return null;
-    if (this.isSimple(aOld))
-      return !!aOld; // could be an object, need to convert.
+    }
+    if (this.isSimple(aOld)) {
+      return !!aOld;
+    } // could be an object, need to convert.
     return shallowObjCopy(aOld);
   },
 
@@ -779,8 +840,9 @@ var TagFacetingFilter = {
    */
   onCommand(aState, aNode, aEvent, aDocument) {
     let checked = aNode.checked ? true : null;
-    if (!checked)
+    if (!checked) {
       aDocument.getElementById("quick-filter-bar-tab-bar").collapsed = true;
+    }
 
     // return ourselves if we just got checked to have
     //  onSearchStart/onSearchMessage/onSearchDone get to do their thing.
@@ -790,21 +852,24 @@ var TagFacetingFilter = {
   domBindExtra(aDocument, aMuxer, aNode) {
     // Tag filtering mode menu (All of/Any of)
     function commandHandler(aEvent) {
-      let filterValue = aMuxer.getFilterValueForMutation(TagFacetingFilter.name);
+      let filterValue = aMuxer.getFilterValueForMutation(
+        TagFacetingFilter.name
+      );
       filterValue.mode = aEvent.target.value;
       aMuxer.updateSearch();
     }
-    aDocument.getElementById("qfb-boolean-mode").addEventListener(
-      "ValueChange", commandHandler);
+    aDocument
+      .getElementById("qfb-boolean-mode")
+      .addEventListener("ValueChange", commandHandler);
   },
 
   reflectInDOM(aNode, aFilterValue, aDocument, aMuxer) {
     aNode.checked = !!aFilterValue;
-    if ((aFilterValue != null) &&
-        (typeof(aFilterValue) == "object"))
+    if (aFilterValue != null && typeof aFilterValue == "object") {
       this._populateTagBar(aFilterValue, aDocument, aMuxer);
-    else
+    } else {
       aDocument.getElementById("quick-filter-bar-tab-bar").collapsed = true;
+    }
   },
 
   _populateTagBar(aState, aDocument, aMuxer) {
@@ -815,10 +880,11 @@ var TagFacetingFilter = {
     // our state to agree with what the UI is currently displaying;
     // this will happen for fresh profiles.
     let qbm = aDocument.getElementById("qfb-boolean-mode");
-    if (aState.mode)
+    if (aState.mode) {
       qbm.value = aState.mode;
-    else
+    } else {
       aState.mode = qbm.value;
+    }
 
     function commandHandler(aEvent) {
       let tagKey = aEvent.target.getAttribute("value");
@@ -838,10 +904,11 @@ var TagFacetingFilter = {
         let tagKey = aEvent.target.getAttribute("value");
         let state = aMuxer.getFilterValueForMutation(TagFacetingFilter.name);
         state.tags[tagKey] = aEvent.target.checked ? false : null;
-        if (aEvent.target.checked)
+        if (aEvent.target.checked) {
           aEvent.target.setAttribute("inverted", "true");
-        else
+        } else {
           aEvent.target.removeAttribute("inverted");
+        }
         aMuxer.updateSearch();
         aEvent.stopPropagation();
         aEvent.preventDefault();
@@ -875,14 +942,15 @@ var TagFacetingFilter = {
         button.setAttribute("type", "checkbox");
         if (keywordMap[tag.key] !== null) {
           button.setAttribute("checked", "true");
-          if (!keywordMap[tag.key])
+          if (!keywordMap[tag.key]) {
             button.setAttribute("inverted", "true");
+          }
         }
         button.setAttribute("label", tag.tag);
         button.setAttribute("value", tag.key);
         let color = tag.color;
         // everybody always gets to be an qfb-tag-button.
-          button.setAttribute("class", "toolbarbutton-1 qfb-tag-button");
+        button.setAttribute("class", "toolbarbutton-1 qfb-tag-button");
         if (color) {
           button.setAttribute("style", "color: " + color + " !important;");
         }
@@ -948,8 +1016,9 @@ var MessageTextFilter = {
      * In the future this might have other helper logic; it did once before.
      */
     function addTerm(aTerm) {
-      if (aTerm)
+      if (aTerm) {
         terms.push(aTerm);
+      }
     }
 
     /**
@@ -995,8 +1064,9 @@ var MessageTextFilter = {
         let splitPhrases = groupedPhrases.split("|");
         for (let phrase of splitPhrases) {
           for (let [tfName, tfValue] of Object.entries(aFilterValue.states)) {
-            if (!tfValue)
+            if (!tfValue) {
               continue;
+            }
             let tfDef = this.textFilterDefs[tfName];
 
             term = aTermCreator.createTerm();
@@ -1013,8 +1083,9 @@ var MessageTextFilter = {
             firstClause = false;
           }
         }
-        if (term)
+        if (term) {
           term.endsGrouping = true;
+        }
       }
     }
   },
@@ -1049,9 +1120,15 @@ var MessageTextFilter = {
     // -- platform-dependent placeholder setup
     aNode.setAttribute(
       "placeholder",
-      aNode.getAttribute("emptytextbase")
-           .replace("#1", aNode.getAttribute((AppConstants.platform == "macosx") ?
-                                             "keyLabelMac" : "keyLabelNonMac")));
+      aNode
+        .getAttribute("emptytextbase")
+        .replace(
+          "#1",
+          aNode.getAttribute(
+            AppConstants.platform == "macosx" ? "keyLabelMac" : "keyLabelNonMac"
+          )
+        )
+    );
     // force an update of the emptytext now that we've updated it.
     aNode.value = "";
 
@@ -1070,14 +1147,20 @@ var MessageTextFilter = {
     });
 
     // -- Blurring kills upsell.
-    aNode.addEventListener("blur", function(aEvent) {
-      let panel = aDocument.getElementById("qfb-text-search-upsell");
-      if ((Services.focus.activeWindow != aDocument.defaultView ||
-           aDocument.commandDispatcher.focusedElement != aNode.inputField) &&
-          panel.state == "open") {
-        panel.hidePopup();
-      }
-    }, true);
+    aNode.addEventListener(
+      "blur",
+      function(aEvent) {
+        let panel = aDocument.getElementById("qfb-text-search-upsell");
+        if (
+          (Services.focus.activeWindow != aDocument.defaultView ||
+            aDocument.commandDispatcher.focusedElement != aNode.inputField) &&
+          panel.state == "open"
+        ) {
+          panel.hidePopup();
+        }
+      },
+      true
+    );
 
     // -- Expando Buttons!
     function commandHandler(aEvent) {
@@ -1088,9 +1171,10 @@ var MessageTextFilter = {
     }
 
     for (let name in this.textFilterDefs) {
-      let textFilter  = this.textFilterDefs[name];
-      aDocument.getElementById(textFilter.domId).addEventListener(
-        "command", commandHandler);
+      let textFilter = this.textFilterDefs[name];
+      aDocument
+        .getElementById(textFilter.domId)
+        .addEventListener("command", commandHandler);
     }
   },
 
@@ -1102,23 +1186,24 @@ var MessageTextFilter = {
         upsell.hidePopup();
         let tabmail = aDocument.getElementById("tabmail");
         tabmail.openTab("glodaFacet", {
-                          searcher: new GlodaMsgSearcher(null, aState.text),
-                        });
+          searcher: new GlodaMsgSearcher(null, aState.text),
+        });
       }
       return [aState, false];
     }
 
     aState.text = text;
     aDocument.getElementById("quick-filter-bar-filter-text-bar").collapsed =
-      (text == null);
+      text == null;
     return [aState, true];
   },
 
   reflectInDOM(aNode, aFilterValue, aDocument, aMuxer, aFromPFP) {
     if (aFromPFP == "nosale") {
       let panel = aDocument.getElementById("qfb-text-search-upsell");
-      if (panel.state != "closed")
+      if (panel.state != "closed") {
         panel.hidePopup();
+      }
       return;
     }
     if (aFromPFP == "upsell") {
@@ -1128,8 +1213,10 @@ var MessageTextFilter = {
       line1.value = line1.getAttribute("fmt").replace("#1", aFilterValue.text);
       line2.value = line2.getAttribute("fmt").replace("#1", aFilterValue.text);
 
-      if (panel.state == "closed" &&
-          aDocument.commandDispatcher.focusedElement == aNode.inputField) {
+      if (
+        panel.state == "closed" &&
+        aDocument.commandDispatcher.focusedElement == aNode.inputField
+      ) {
         let filterBar = aDocument.getElementById("quick-filter-bar");
         // panel.sizeTo(filterBar.clientWidth - 20, filterBar.clientHeight - 20);
         panel.openPopup(filterBar, "after_end", -7, 7, false, true);
@@ -1140,26 +1227,28 @@ var MessageTextFilter = {
     // Make sure we have no visible upsell on state change while our textbox
     //  retains focus.
     let panel = aDocument.getElementById("qfb-text-search-upsell");
-    if (panel.state != "closed")
+    if (panel.state != "closed") {
       panel.hidePopup();
+    }
 
     // Update the text if it has changed (linux does weird things with empty
     //  text if we're transitioning emptytext to emptytext)
     let desiredValue = aFilterValue.text || "";
-    if (aNode.value != desiredValue)
+    if (aNode.value != desiredValue) {
       aNode.value = desiredValue;
+    }
 
     // Update our expando buttons
     let states = aFilterValue.states;
     for (let name in this.textFilterDefs) {
-      let textFilter  = this.textFilterDefs[name];
+      let textFilter = this.textFilterDefs[name];
       aDocument.getElementById(textFilter.domId).checked =
         states[textFilter.name];
     }
 
     // Show the expando?
     aDocument.getElementById("quick-filter-bar-filter-text-bar").collapsed =
-      (aFilterValue.text == null);
+      aFilterValue.text == null;
   },
 
   /**
@@ -1172,9 +1261,14 @@ var MessageTextFilter = {
     // (Currently we always return "nosale" to make sure our panel is closed;
     //  this might be overkill but unless it becomes a performance problem, it
     //  keeps us safe from weird stuff.)
-    if (!aFiltering || !aState.text || aViewWrapper.dbView.numMsgsInView ||
-        !GlodaIndexer.enabled)
+    if (
+      !aFiltering ||
+      !aState.text ||
+      aViewWrapper.dbView.numMsgsInView ||
+      !GlodaIndexer.enabled
+    ) {
       return [aState, "nosale", false];
+    }
 
     // since we're filtering, filtering on text, and there are no results, tell
     //  the upsell code to get bizzay
@@ -1190,8 +1284,9 @@ var MessageTextFilter = {
   defineTextFilter(aTextDef) {
     this.textFilterDefs[aTextDef.name] = aTextDef;
     this.textFilterDefsByDomId[aTextDef.domId] = aTextDef;
-    if (aTextDef.defaultState)
+    if (aTextDef.defaultState) {
       this._defaultStates[aTextDef.name] = true;
+    }
   },
 };
 // Note that we definitely want this filter defined AFTER the cheap message
@@ -1235,19 +1330,23 @@ function ResultsLabelFolderDisplayListener(aMuxer) {
 ResultsLabelFolderDisplayListener.prototype = {
   _update(aFolderDisplay) {
     let filterer = aFolderDisplay._tabInfo._ext.quickFilter;
-    if (!filterer)
+    if (!filterer) {
       return;
-    let oldCount = ("results" in filterer.filterValues) ?
-                     filterer.filterValues.results : null;
+    }
+    let oldCount =
+      "results" in filterer.filterValues ? filterer.filterValues.results : null;
     // (we only display the tally when the filter is active; don't change that)
-    if (oldCount == null)
+    if (oldCount == null) {
       return;
+    }
     let newCount = aFolderDisplay.view.dbView.numMsgsInView;
-    if (oldCount == newCount)
+    if (oldCount == newCount) {
       return;
+    }
     filterer.setFilterValue("results", newCount, true);
-    if (aFolderDisplay.active)
+    if (aFolderDisplay.active) {
       this.muxer.reflectFiltererState(filterer, aFolderDisplay, "results");
+    }
   },
 
   // ---------------------
@@ -1271,8 +1370,7 @@ ResultsLabelFolderDisplayListener.prototype = {
 QuickFilterManager.defineFilter({
   name: "results",
   domId: "qfb-results-label",
-  appendTerms(aTermCreator, aTerms, aFilterValue) {
-  },
+  appendTerms(aTermCreator, aTerms, aFilterValue) {},
 
   /**
    * Our state is meaningless; we implement this to avoid clearState ever
@@ -1295,7 +1393,8 @@ QuickFilterManager.defineFilter({
    */
   domBindExtra(aDocument, aMuxer, aNode) {
     aDocument.defaultView.FolderDisplayListenerManager.registerListener(
-      new ResultsLabelFolderDisplayListener(aMuxer));
+      new ResultsLabelFolderDisplayListener(aMuxer)
+    );
   },
   reflectInDOM(aNode, aFilterValue, aDocument) {
     if (aFilterValue == null) {
@@ -1307,8 +1406,10 @@ QuickFilterManager.defineFilter({
     } else {
       let fmtstring = aNode.getAttribute("somefmtstring");
 
-      aNode.value = PluralForm.get(aFilterValue, fmtstring)
-                              .replace("#1", aFilterValue.toString());
+      aNode.value = PluralForm.get(aFilterValue, fmtstring).replace(
+        "#1",
+        aFilterValue.toString()
+      );
       aNode.style.visibility = "visible";
     }
   },

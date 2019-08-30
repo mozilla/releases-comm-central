@@ -5,9 +5,13 @@
 // mail/base/content/specialTabs.js
 /* globals contentTabBaseType, DOMLinkHandler */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {ExtensionParent} = ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+var { ExtensionParent } = ChromeUtils.import(
+  "resource://gre/modules/ExtensionParent.jsm"
+);
 
 var gPrefTab = null;
 
@@ -20,14 +24,17 @@ var preferencesTabType = {
   perTabPanel: "vbox",
   lastBrowserId: 0,
   bundle: Services.strings.createBundle(
-    "chrome://messenger/locale/messenger.properties"),
-  protoSvc: Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-              .getService(Ci.nsIExternalProtocolService),
+    "chrome://messenger/locale/messenger.properties"
+  ),
+  protoSvc: Cc["@mozilla.org/uriloader/external-protocol-service;1"].getService(
+    Ci.nsIExternalProtocolService
+  ),
 
   get loadingTabString() {
     delete this.loadingTabString;
-    return this.loadingTabString = document.getElementById("bundle_messenger")
-                                           .getString("loadingTab");
+    return (this.loadingTabString = document
+      .getElementById("bundle_messenger")
+      .getString("loadingTab"));
   },
 
   modes: {
@@ -45,9 +52,15 @@ var preferencesTabType = {
     if (!gPrefTab) {
       return -1;
     }
-    let prefWindow = gPrefTab.browser.contentDocument.getElementById("MailPreferences");
-    gPrefTab.browser.contentWindow.selectPrefPane(prefWindow, aArgs.paneID,
-                                                  aArgs.scrollPaneTo, aArgs.otherArgs);
+    let prefWindow = gPrefTab.browser.contentDocument.getElementById(
+      "MailPreferences"
+    );
+    gPrefTab.browser.contentWindow.selectPrefPane(
+      prefWindow,
+      aArgs.paneID,
+      aArgs.scrollPaneTo,
+      aArgs.otherArgs
+    );
     return document.getElementById("tabmail").tabInfo.indexOf(gPrefTab);
   },
 
@@ -61,8 +74,9 @@ var preferencesTabType = {
     }
 
     // First clone the page and set up the basics.
-    let clone = document.getElementById("preferencesTab").firstChild
-                        .cloneNode(true);
+    let clone = document
+      .getElementById("preferencesTab")
+      .firstChild.cloneNode(true);
 
     clone.setAttribute("id", "preferencesTab" + this.lastBrowserId);
     clone.setAttribute("collapsed", false);
@@ -72,11 +86,17 @@ var preferencesTabType = {
 
     // Start setting up the browser.
     aTab.browser = aTab.panel.querySelector("browser");
-    aTab.browser.setAttribute("id", "preferencesTabBrowser" + this.lastBrowserId);
+    aTab.browser.setAttribute(
+      "id",
+      "preferencesTabBrowser" + this.lastBrowserId
+    );
     aTab.browser.addEventListener("DOMLinkAdded", DOMLinkHandler);
 
     aTab.findbar = aTab.panel.querySelector("findbar");
-    aTab.findbar.setAttribute("browserid", "preferencesTabBrowser" + this.lastBrowserId);
+    aTab.findbar.setAttribute(
+      "browserid",
+      "preferencesTabBrowser" + this.lastBrowserId
+    );
 
     // Default to reload being disabled.
     aTab.reloadEnabled = false;
@@ -92,7 +112,8 @@ var preferencesTabType = {
 
     // Wait for full loading of the tab and the automatic selecting of last tab.
     // Then run the given onload code.
-    aTab.browser.addEventListener("paneSelected",
+    aTab.browser.addEventListener(
+      "paneSelected",
       function(event) {
         aTab.pageLoading = false;
         aTab.pageLoaded = true;
@@ -104,9 +125,9 @@ var preferencesTabType = {
             aArgs.onLoad(event, aTab.browser);
           }, 0);
         }
-      }, { once: true }
+      },
+      { once: true }
     );
-
 
     // Initialize our unit testing variables.
     aTab.pageLoading = true;
@@ -127,8 +148,9 @@ var preferencesTabType = {
   },
 
   persistTab(aTab) {
-    if (aTab.browser.currentURI.spec == "about:blank")
+    if (aTab.browser.currentURI.spec == "about:blank") {
       return null;
+    }
 
     return {
       tabURI: aTab.url,

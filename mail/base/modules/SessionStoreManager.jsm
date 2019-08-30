@@ -4,8 +4,8 @@
 
 this.EXPORTED_SYMBOLS = ["SessionStoreManager"];
 
-const {JSONFile} = ChromeUtils.import("resource://gre/modules/JSONFile.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { JSONFile } = ChromeUtils.import("resource://gre/modules/JSONFile.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * asuth arbitrarily chose this value to trade-off powersaving,
@@ -46,10 +46,11 @@ var SessionStoreManager = {
    * The JSONFile store object.
    */
   get store() {
-    if (this._store)
+    if (this._store) {
       return this._store;
+    }
 
-    return this._store = new JSONFile({path: this.sessionFile.path});
+    return (this._store = new JSONFile({ path: this.sessionFile.path }));
   },
 
   /**
@@ -84,15 +85,16 @@ var SessionStoreManager = {
    * _init and a unit test.
    */
   async _loadSessionFile() {
-    if (!this.sessionFile.exists())
+    if (!this.sessionFile.exists()) {
       return;
+    }
 
     // Read the session state data from file, asynchronously.
     // An error on the json file returns an empty object which corresponds
     // to a null |_initialState|.
     await this.store.load();
-    this._initialState = this.store.data.toSource() == {}.toSource() ?
-                           null : this.store.data;
+    this._initialState =
+      this.store.data.toSource() == {}.toSource() ? null : this.store.data;
   },
 
   /**
@@ -102,14 +104,17 @@ var SessionStoreManager = {
     // XXX we might want to display a restore page and let the user decide
     // whether to restore the other windows, just like Firefox does.
 
-    if (!this._initialState || !this._initialState.windows || !aWindow)
+    if (!this._initialState || !this._initialState.windows || !aWindow) {
       return;
+    }
 
-    for (var i = 0; i < this._initialState.windows.length; ++i)
+    for (var i = 0; i < this._initialState.windows.length; ++i) {
       aWindow.open(
-             "chrome://messenger/content/messenger.xul",
-             "_blank",
-             "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar");
+        "chrome://messenger/content/messenger.xul",
+        "_blank",
+        "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar"
+      );
+    }
   },
 
   /**
@@ -117,18 +122,23 @@ var SessionStoreManager = {
    */
   _saveStateObject(aStateObj) {
     if (!this.store) {
-      Cu.reportError("SessionStoreManager: could not create data store from file");
+      Cu.reportError(
+        "SessionStoreManager: could not create data store from file"
+      );
       return;
     }
 
     let currentStateString = JSON.stringify(aStateObj);
-    let storedStateString = this.store.dataReady && this.store.data ?
-                              JSON.stringify(this.store.data) : null;
+    let storedStateString =
+      this.store.dataReady && this.store.data
+        ? JSON.stringify(this.store.data)
+        : null;
 
     // Do not save state (overwrite last good state) in case of a failed startup.
     // Write async to disk only if state changed since last write.
-    if (!this._restored || currentStateString == storedStateString)
+    if (!this._restored || currentStateString == storedStateString) {
       return;
+    }
 
     this.store.data = aStateObj;
     this.store.saveSoon();
@@ -155,9 +165,13 @@ var SessionStoreManager = {
     let enumerator = Services.wm.getEnumerator("mail:3pane");
     while (enumerator.hasMoreElements()) {
       let win = enumerator.getNext();
-      if (win && "complete" == win.document.readyState &&
-          win.getWindowStateForSessionPersistence)
+      if (
+        win &&
+        "complete" == win.document.readyState &&
+        win.getWindowStateForSessionPersistence
+      ) {
         state.windows.push(win.getWindowStateForSessionPersistence());
+      }
     }
 
     this._saveStateObject(state);
@@ -171,19 +185,19 @@ var SessionStoreManager = {
   // Observer Notification Handler
   observe(aSubject, aTopic, aData) {
     switch (aTopic) {
-    // This is observed before any windows start unloading if something other
-    // than the last 3pane window closing requested the application be
-    // shutdown. For example, when the user quits via the file menu.
-    case "quit-application-granted":
-      if (!this._shutdownStateSaved) {
-        this.stopPeriodicSave();
-        this._saveState();
+      // This is observed before any windows start unloading if something other
+      // than the last 3pane window closing requested the application be
+      // shutdown. For example, when the user quits via the file menu.
+      case "quit-application-granted":
+        if (!this._shutdownStateSaved) {
+          this.stopPeriodicSave();
+          this._saveState();
 
-        // this is to ensure we don't clobber the saved state when the
-        // 3pane windows unload.
-        this._shutdownStateSaved = true;
-      }
-      break;
+          // this is to ensure we don't clobber the saved state when the
+          // 3pane windows unload.
+          this._shutdownStateSaved = true;
+        }
+        break;
     }
   },
 
@@ -197,8 +211,9 @@ var SessionStoreManager = {
    */
   async loadingWindow(aWindow) {
     let firstWindow = !this._initialized || this._shutdownStateSaved;
-    if (firstWindow)
+    if (firstWindow) {
       await this._init();
+    }
 
     // If we are seeing a new 3-pane, we are obviously not in a shutdown
     // state anymore.  (This would happen if all the 3panes got closed but
@@ -210,12 +225,14 @@ var SessionStoreManager = {
     let windowState = null;
     if (this._initialState && this._initialState.windows) {
       windowState = this._initialState.windows.pop();
-      if (0 == this._initialState.windows.length)
+      if (0 == this._initialState.windows.length) {
         this._initialState = null;
+      }
     }
 
-    if (firstWindow)
+    if (firstWindow) {
       this._openOtherRequiredWindows(aWindow);
+    }
 
     return windowState;
   },
@@ -231,8 +248,9 @@ var SessionStoreManager = {
       let lastWindow = true;
       let enumerator = Services.wm.getEnumerator("mail:3pane");
       while (enumerator.hasMoreElements()) {
-        if (enumerator.getNext() != aWindow)
+        if (enumerator.getNext() != aWindow) {
           lastWindow = false;
+        }
       }
 
       if (lastWindow) {
@@ -269,13 +287,15 @@ var SessionStoreManager = {
    */
   startPeriodicSave() {
     if (!this._sessionAutoSaveTimer) {
-      this._sessionAutoSaveTimer = Cc["@mozilla.org/timer;1"]
-                                   .createInstance(Ci.nsITimer);
+      this._sessionAutoSaveTimer = Cc["@mozilla.org/timer;1"].createInstance(
+        Ci.nsITimer
+      );
 
       this._sessionAutoSaveTimer.initWithCallback(
-                                   this._sessionAutoSaveTimerCallback,
-                                   this._sessionAutoSaveTimerIntervalMS,
-                                   Ci.nsITimer.TYPE_REPEATING_SLACK);
+        this._sessionAutoSaveTimerCallback,
+        this._sessionAutoSaveTimerIntervalMS,
+        Ci.nsITimer.TYPE_REPEATING_SLACK
+      );
     }
   },
 };

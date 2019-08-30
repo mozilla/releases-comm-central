@@ -23,8 +23,10 @@ var MODULE_REQUIRES = [
   "notificationbox-helpers",
 ];
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var kBoxId = "mail-notification-top";
 var draftsFolder;
@@ -42,7 +44,7 @@ function setupModule(module) {
  * Tests that we only open one compose window for one instance of a draft.
  */
 function test_open_draft_again() {
-  make_new_sets_in_folder(draftsFolder, [{count: 1}]);
+  make_new_sets_in_folder(draftsFolder, [{ count: 1 }]);
   be_in_folder(draftsFolder);
   select_click_row(0);
 
@@ -50,7 +52,7 @@ function test_open_draft_again() {
   wait_for_notification_to_show(mc, kBoxId, "draftMsgContent");
 
   plan_for_new_window("msgcompose");
-  mc.click(mc.eid(kBoxId, {tagName: "button", label: "Edit"}));
+  mc.click(mc.eid(kBoxId, { tagName: "button", label: "Edit" }));
   let cwc = wait_for_compose_window();
 
   let cwins = 0;
@@ -61,12 +63,14 @@ function test_open_draft_again() {
   }
 
   // click edit in main win again
-  mc.click(mc.eid(kBoxId, {tagName: "button", label: "Edit"}));
+  mc.click(mc.eid(kBoxId, { tagName: "button", label: "Edit" }));
 
   mc.sleep(1000); // wait a sec to see if it caused a new window
 
-  assert_true(Services.ww.activeWindow == cwc.window,
-    "the original draft composition window should have got focus (again)");
+  assert_true(
+    Services.ww.activeWindow == cwc.window,
+    "the original draft composition window should have got focus (again)"
+  );
 
   let cwins2 = 0;
   let e2 = Services.wm.getEnumerator("msgcompose");
@@ -80,7 +84,7 @@ function test_open_draft_again() {
 
   // Type something and save, then check that we only have one draft.
   cwc.type(cwc.eid("content-frame"), "Hello!");
-  cwc.keypress(null, "s", {shiftKey: false, accelKey: true});
+  cwc.keypress(null, "s", { shiftKey: false, accelKey: true });
   close_compose_window(cwc);
   assert_equals(draftsFolder.getTotalMessages(false), 1);
 
@@ -94,19 +98,28 @@ function test_open_draft_again() {
 function internal_check_delivery_format(editDraft) {
   let cwc = open_compose_new_mail();
 
-  setup_msg_contents(cwc, "test@example.invalid",
-                     "Testing storing of the composition properties in the draft!",
-                     "Hello!");
+  setup_msg_contents(
+    cwc,
+    "test@example.invalid",
+    "Testing storing of the composition properties in the draft!",
+    "Hello!"
+  );
 
   // Select our wanted format.
   if (!mc.mozmillModule.isMac) {
     cwc.click(cwc.eid("optionsMenu"));
-    cwc.click_menus_in_sequence(cwc.e("optionsMenuPopup"),
-                                [ { id: "outputFormatMenu" },
-                                  { id: "format_both" } ]);
+    cwc.click_menus_in_sequence(cwc.e("optionsMenuPopup"), [
+      { id: "outputFormatMenu" },
+      { id: "format_both" },
+    ]);
   } else {
     // On OS X the main menu seems not accessible for clicking from mozmill.
-    assert_true(cwc.e("outputFormatMenu").getAttribute("oncommand").startsWith("OutputFormatMenuSelect("));
+    assert_true(
+      cwc
+        .e("outputFormatMenu")
+        .getAttribute("oncommand")
+        .startsWith("OutputFormatMenuSelect(")
+    );
     cwc.window.OutputFormatMenuSelect(cwc.e("format_both"));
   }
 
@@ -119,10 +132,14 @@ function internal_check_delivery_format(editDraft) {
   function assert_format_value(aMenuItemId, aValue) {
     if (!mc.mozmillModule.isMac) {
       cwc.click(cwc.eid("optionsMenu"));
-      let formatMenu = cwc.click_menus_in_sequence(cwc.e("optionsMenuPopup"),
-                                                   [ { id: "outputFormatMenu" } ], true);
-      let formatItem = cwc.e("outputFormatMenuPopup")
-                          .querySelector("[name=output_format][checked=true]");
+      let formatMenu = cwc.click_menus_in_sequence(
+        cwc.e("optionsMenuPopup"),
+        [{ id: "outputFormatMenu" }],
+        true
+      );
+      let formatItem = cwc
+        .e("outputFormatMenuPopup")
+        .querySelector("[name=output_format][checked=true]");
       assert_equals(formatItem.id, aMenuItemId);
       cwc.close_popup_sequence(formatMenu);
     } else {
@@ -131,8 +148,10 @@ function internal_check_delivery_format(editDraft) {
   }
 
   cwc.window.SaveAsDraft();
-  utils.waitFor(() => !cwc.window.gSaveOperationInProgress && !cwc.window.gWindowLock,
-                "Saving of draft did not finish");
+  utils.waitFor(
+    () => !cwc.window.gSaveOperationInProgress && !cwc.window.gWindowLock,
+    "Saving of draft did not finish"
+  );
   wait_for_window_focused(cwc.window);
 
   close_compose_window(cwc);
@@ -154,10 +173,10 @@ function internal_check_delivery_format(editDraft) {
   plan_for_new_window("msgcompose");
   if (editDraft) {
     // Trigger "edit draft".
-    mc.click(mc.eid(kBoxId, {tagName: "button", label: "Edit"}));
+    mc.click(mc.eid(kBoxId, { tagName: "button", label: "Edit" }));
   } else {
     // Trigger "edit as new" resulting in template processing.
-    mc.keypress(null, "e", {shiftKey: false, accelKey: true});
+    mc.keypress(null, "e", { shiftKey: false, accelKey: true });
   }
   cwc = wait_for_compose_window();
 
@@ -181,7 +200,7 @@ function test_save_delivery_format_with_edit_template() {
  * Tests that 'Edit as New' leaves the original message in drafts folder.
  */
 function test_edit_as_new_in_draft() {
-  make_new_sets_in_folder(draftsFolder, [{count: 1}]);
+  make_new_sets_in_folder(draftsFolder, [{ count: 1 }]);
   be_in_folder(draftsFolder);
 
   assert_equals(draftsFolder.getTotalMessages(false), 1);
@@ -192,11 +211,11 @@ function test_edit_as_new_in_draft() {
   wait_for_notification_to_show(mc, kBoxId, "draftMsgContent");
 
   plan_for_new_window("msgcompose");
-  mc.keypress(null, "e", {shiftKey: false, accelKey: true});
+  mc.keypress(null, "e", { shiftKey: false, accelKey: true });
   let cwc = wait_for_compose_window();
 
   cwc.type(cwc.eid("content-frame"), "Hello!");
-  cwc.keypress(null, "s", {shiftKey: false, accelKey: true});
+  cwc.keypress(null, "s", { shiftKey: false, accelKey: true });
 
   close_compose_window(cwc);
   assert_equals(draftsFolder.getTotalMessages(false), 2);
@@ -213,13 +232,18 @@ function test_edit_as_new_in_draft() {
 function test_content_language_header() {
   let cwc = open_compose_new_mail();
 
-  setup_msg_contents(cwc, "test@example.invalid",
-                     "Testing Content-Language header",
-                     "Hello, we speak en-US");
+  setup_msg_contents(
+    cwc,
+    "test@example.invalid",
+    "Testing Content-Language header",
+    "Hello, we speak en-US"
+  );
 
   cwc.window.SaveAsDraft();
-  utils.waitFor(() => !cwc.window.gSaveOperationInProgress && !cwc.window.gWindowLock,
-                "Saving of draft did not finish");
+  utils.waitFor(
+    () => !cwc.window.gSaveOperationInProgress && !cwc.window.gWindowLock,
+    "Saving of draft did not finish"
+  );
   wait_for_window_focused(cwc.window);
   close_compose_window(cwc);
 
@@ -228,8 +252,11 @@ function test_content_language_header() {
   let draftMsgContent = get_msg_source(draftMsg);
 
   // Check for a single line that contains our header.
-  if (!draftMsgContent.split("\n")
-                      .some(line => (line.trim() == "Content-Language: en-US"))) {
+  if (
+    !draftMsgContent
+      .split("\n")
+      .some(line => line.trim() == "Content-Language: en-US")
+  ) {
     assert_true(false, "Failed to find Content-Language: en-US");
   }
 
@@ -242,18 +269,25 @@ function test_content_language_header() {
  */
 function test_remove_space_stuffing_format_flowed() {
   // Prepare for plaintext email.
-  let oldHtmlPref = Services.prefs.getBoolPref("mail.identity.default.compose_html");
+  let oldHtmlPref = Services.prefs.getBoolPref(
+    "mail.identity.default.compose_html"
+  );
   Services.prefs.setBoolPref("mail.identity.default.compose_html", false);
 
   let cwc = open_compose_new_mail();
 
-  setup_msg_contents(cwc, "test@example.invalid",
-                     "Testing space stuffing in plain text email",
-                     "NoSpace\n OneSpace\n  TwoSpaces");
+  setup_msg_contents(
+    cwc,
+    "test@example.invalid",
+    "Testing space stuffing in plain text email",
+    "NoSpace\n OneSpace\n  TwoSpaces"
+  );
 
   cwc.window.SaveAsDraft();
-  utils.waitFor(() => !cwc.window.gSaveOperationInProgress && !cwc.window.gWindowLock,
-                "Saving of draft did not finish");
+  utils.waitFor(
+    () => !cwc.window.gSaveOperationInProgress && !cwc.window.gWindowLock,
+    "Saving of draft did not finish"
+  );
   wait_for_window_focused(cwc.window);
 
   close_compose_window(cwc);
@@ -266,7 +300,7 @@ function test_remove_space_stuffing_format_flowed() {
   wait_for_notification_to_show(mc, kBoxId, "draftMsgContent");
 
   plan_for_new_window("msgcompose");
-  mc.click(mc.eid(kBoxId, {tagName: "button", label: "Edit"}));
+  mc.click(mc.eid(kBoxId, { tagName: "button", label: "Edit" }));
   cwc = wait_for_compose_window();
 
   let bodyText = get_compose_body(cwc).innerHTML;
@@ -280,5 +314,4 @@ function test_remove_space_stuffing_format_flowed() {
   Services.prefs.setBoolPref("mail.identity.default.compose_html", oldHtmlPref);
 }
 
-function teardownModule() {
-}
+function teardownModule() {}

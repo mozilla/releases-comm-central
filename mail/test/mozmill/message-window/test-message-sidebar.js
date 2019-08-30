@@ -20,7 +20,6 @@ function setupModule(module) {
   windowHelper.augment_controller(mc);
 }
 
-
 function test_messagepane_extension_points_exist() {
   mc.assertNode(mc.eid("messagepanewrapper"));
 }

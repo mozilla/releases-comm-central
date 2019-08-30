@@ -10,11 +10,15 @@
 /* import-globals-from abTrees.js */
 /* import-globals-from addressbook.js */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
-var {PrivateBrowsingUtils} = ChromeUtils.import("resource://gre/modules/PrivateBrowsingUtils.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.js");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+var { PrivateBrowsingUtils } = ChromeUtils.import(
+  "resource://gre/modules/PrivateBrowsingUtils.jsm"
+);
 
 var gDirTree;
 var abList = null;
@@ -68,12 +72,13 @@ var DirPaneController = {
         // The gDirTree pane only handles single selection, but normally we
         // enable cmd_selectAll as it will get forwarded to the results pane.
         // But if there is no gAbView, disable as we can't forward to anywhere.
-        return (gAbView != null);
+        return gAbView != null;
       case "cmd_delete":
       case "button_delete": {
         let selectedDir = getSelectedDirectory();
-        if (!selectedDir)
+        if (!selectedDir) {
           return false;
+        }
         let selectedDirURI = selectedDir.URI;
 
         // Context-sensitive labels for Edit > Delete menuitem.
@@ -81,20 +86,26 @@ var DirPaneController = {
         // For contacts and mixed selections, the label is set in
         // ResultsPaneController in abResultsPane.js.
         if (command == "cmd_delete") {
-          goSetMenuValue(command, selectedDir.isMailList ?
-                                  "valueList" : "valueAddressBook");
+          goSetMenuValue(
+            command,
+            selectedDir.isMailList ? "valueList" : "valueAddressBook"
+          );
         }
 
         // If it's one of these special ABs, return false to disable deletion.
-        if (selectedDirURI == kPersonalAddressbookURI ||
-            selectedDirURI == kCollectedAddressbookURI ||
-            selectedDirURI == (kAllDirectoryRoot + "?"))
+        if (
+          selectedDirURI == kPersonalAddressbookURI ||
+          selectedDirURI == kCollectedAddressbookURI ||
+          selectedDirURI == kAllDirectoryRoot + "?"
+        ) {
           return false;
+        }
 
         // If the directory is a mailing list, and it is read-only,
         // return false to disable deletion.
-        if (selectedDir.isMailList && selectedDir.readOnly)
+        if (selectedDir.isMailList && selectedDir.readOnly) {
           return false;
+        }
 
         // If the selected directory is an ldap directory,
         // and if the prefs for this directory are locked,
@@ -107,8 +118,9 @@ var DirPaneController = {
           } catch (ex) {
             // If this preference is not set, that's ok.
           }
-          if (disable)
+          if (disable) {
             return false;
+          }
         }
 
         // Else return true to enable deletion (default).
@@ -116,7 +128,7 @@ var DirPaneController = {
       }
       case "cmd_printcard":
       case "cmd_printcardpreview":
-        return (GetSelectedCardIndex() != -1);
+        return GetSelectedCardIndex() != -1;
       case "cmd_properties": {
         let attrs = {
           label: "valueGeneric",
@@ -127,10 +139,14 @@ var DirPaneController = {
         if (selectedDir) {
           let isMailList = selectedDir.isMailList;
           attrs.label = isMailList ? "valueMailingList" : "valueAddressBook";
-          attrs.accesskey = isMailList ? "valueMailingListAccessKey" : "valueAddressBookAccessKey";
-          attrs.tooltiptext = isMailList ? "valueMailingListTooltipText" : "valueAddressBookTooltipText";
+          attrs.accesskey = isMailList
+            ? "valueMailingListAccessKey"
+            : "valueAddressBookAccessKey";
+          attrs.tooltiptext = isMailList
+            ? "valueMailingListTooltipText"
+            : "valueAddressBookTooltipText";
         }
-        let enabled = (selectedDir != null);
+        let enabled = selectedDir != null;
         document.querySelectorAll("[command=cmd_properties]").forEach(e => {
           e.disabled = !enabled;
           for (let [attr, name] of Object.entries(attrs)) {
@@ -160,8 +176,9 @@ var DirPaneController = {
         break;
       case "cmd_delete":
       case "button_delete":
-        if (gDirTree)
+        if (gDirTree) {
           AbDeleteSelectedDirectory();
+        }
         break;
       case "cmd_properties":
         AbEditSelectedDirectory();
@@ -180,8 +197,9 @@ var DirPaneController = {
 
   onEvent(event) {
     // on blur events set the menu item texts back to the normal values
-    if (event == "blur")
+    if (event == "blur") {
       goSetMenuValue("cmd_delete", "valueDefault");
+    }
   },
 };
 
@@ -194,40 +212,49 @@ function SendCommandToResultsPane(command) {
 }
 
 function AbNewLDAPDirectory() {
-  window.openDialog("chrome://messenger/content/addressbook/pref-directory-add.xul",
-                    "",
-                    "chrome,modal,resizable=no,centerscreen",
-                    null);
+  window.openDialog(
+    "chrome://messenger/content/addressbook/pref-directory-add.xul",
+    "",
+    "chrome,modal,resizable=no,centerscreen",
+    null
+  );
 }
 
 function AbNewAddressBook() {
-  window.openDialog("chrome://messenger/content/addressbook/abAddressBookNameDialog.xul",
-                    "",
-                    "chrome,modal,resizable=no,centerscreen",
-                    null);
+  window.openDialog(
+    "chrome://messenger/content/addressbook/abAddressBookNameDialog.xul",
+    "",
+    "chrome,modal,resizable=no,centerscreen",
+    null
+  );
 }
 
 function AbEditSelectedDirectory() {
   let selectedDir = getSelectedDirectory();
-  if (!selectedDir)
+  if (!selectedDir) {
     return;
+  }
 
   if (selectedDir.isMailList) {
     goEditListDialog(null, selectedDir.URI);
   } else {
-    window.openDialog(selectedDir.propertiesChromeURI,
-                      "",
-                      "chrome,modal,resizable=no,centerscreen",
-                      {selectedDirectory: selectedDir});
+    window.openDialog(
+      selectedDir.propertiesChromeURI,
+      "",
+      "chrome,modal,resizable=no,centerscreen",
+      { selectedDirectory: selectedDir }
+    );
   }
 }
 
 function updateDirTreeContext() {
   let startupItem = document.getElementById("dirTreeContext-startupDir");
   if (Services.prefs.getBoolPref("mail.addr_book.view.startupURIisDefault")) {
-    let startupURI = Services.prefs.getCharPref("mail.addr_book.view.startupURI");
+    let startupURI = Services.prefs.getCharPref(
+      "mail.addr_book.view.startupURI"
+    );
     let selectedDirURI = getSelectedDirectoryURI();
-    startupItem.setAttribute("checked", (startupURI == selectedDirURI));
+    startupItem.setAttribute("checked", startupURI == selectedDirURI);
   } else {
     startupItem.setAttribute("checked", "false");
   }
@@ -235,20 +262,29 @@ function updateDirTreeContext() {
 
 function abToggleSelectedDirStartup() {
   let selectedDirURI = getSelectedDirectoryURI();
-  if (!selectedDirURI)
+  if (!selectedDirURI) {
     return;
+  }
 
-  let isDefault = Services.prefs.getBoolPref("mail.addr_book.view.startupURIisDefault");
+  let isDefault = Services.prefs.getBoolPref(
+    "mail.addr_book.view.startupURIisDefault"
+  );
   let startupURI = Services.prefs.getCharPref("mail.addr_book.view.startupURI");
 
-  if (isDefault && (startupURI == selectedDirURI)) {
+  if (isDefault && startupURI == selectedDirURI) {
     // The current directory has been the default startup view directory;
     // toggle that off now. So there's no default startup view directory any more.
-    Services.prefs.setBoolPref("mail.addr_book.view.startupURIisDefault", false);
+    Services.prefs.setBoolPref(
+      "mail.addr_book.view.startupURIisDefault",
+      false
+    );
   } else {
     // The current directory will now be the default view
     // when starting up the main AB window.
-    Services.prefs.setCharPref("mail.addr_book.view.startupURI", selectedDirURI);
+    Services.prefs.setCharPref(
+      "mail.addr_book.view.startupURI",
+      selectedDirURI
+    );
     Services.prefs.setBoolPref("mail.addr_book.view.startupURIisDefault", true);
   }
 
@@ -258,8 +294,9 @@ function abToggleSelectedDirStartup() {
 
 function AbDeleteSelectedDirectory() {
   let selectedDirURI = getSelectedDirectoryURI();
-  if (!selectedDirURI)
+  if (!selectedDirURI) {
     return;
+  }
 
   AbDeleteDirectory(selectedDirURI);
 }
@@ -279,10 +316,14 @@ function AbDeleteDirectory(aURI) {
     // It's a mailing list.
     confirmDeleteMessageID = "confirmDeleteThisMailingList";
     confirmDeleteTitleID = "confirmDeleteThisMailingListTitle";
-  } else if (Services.prefs.getCharPref("mail.collect_addressbook") == aURI &&
-             Services.prefs.getBoolPref("mail.collect_email_address_outgoing")) {
+  } else if (
+    Services.prefs.getCharPref("mail.collect_addressbook") == aURI &&
+    Services.prefs.getBoolPref("mail.collect_email_address_outgoing")
+  ) {
     // It's a collection address book: let's be clear about the consequences.
-    brandShortName = document.getElementById("bundle_brand").getString("brandShortName");
+    brandShortName = document
+      .getElementById("bundle_brand")
+      .getString("brandShortName");
     confirmDeleteMessageID = "confirmDeleteThisCollectionAddressbook";
     confirmDeleteTitleID = "confirmDeleteThisCollectionAddressbookTitle";
     clearCollectionPrefs = true;
@@ -297,7 +338,7 @@ function AbDeleteDirectory(aURI) {
   }
 
   // Get the raw strings with placeholders.
-  confirmDeleteTitle   = gAddressBookBundle.getString(confirmDeleteTitleID);
+  confirmDeleteTitle = gAddressBookBundle.getString(confirmDeleteTitleID);
   confirmDeleteMessage = gAddressBookBundle.getString(confirmDeleteMessageID);
 
   // Substitute placeholders as required.
@@ -309,8 +350,9 @@ function AbDeleteDirectory(aURI) {
   }
 
   // Ask for confirmation before deleting
-  if (!Services.prompt.confirm(window, confirmDeleteTitle,
-                                       confirmDeleteMessage)) {
+  if (
+    !Services.prompt.confirm(window, confirmDeleteTitle, confirmDeleteMessage)
+  ) {
     // Deletion cancelled by user.
     return;
   }
@@ -321,7 +363,10 @@ function AbDeleteDirectory(aURI) {
 
     // Change the collection AB pref to "Personal Address Book" so that we
     // don't get a blank item in prefs dialog when collection is re-enabled.
-    Services.prefs.setCharPref("mail.collect_addressbook", kPersonalAddressbookURI);
+    Services.prefs.setCharPref(
+      "mail.collect_addressbook",
+      kPersonalAddressbookURI
+    );
   }
 
   MailServices.ab.deleteAddressBook(aURI);
@@ -333,8 +378,9 @@ function GetParentRow(aTree, aRow) {
   var parentLevel = level;
   while (parentLevel >= level) {
     row--;
-    if (row == -1)
+    if (row == -1) {
       return row;
+    }
     parentLevel = aTree.view.getLevel(row);
   }
   return row;
@@ -348,8 +394,9 @@ function InitCommonJS() {
 
 function AbDelete() {
   let types = GetSelectedCardTypes();
-  if (types == kNothingSelected)
+  if (types == kNothingSelected) {
     return;
+  }
 
   // Determine strings for smart and context-sensitive user prompts
   // for confirming deletion.
@@ -365,18 +412,18 @@ function AbDelete() {
   switch (types) {
     case kListsAndCards:
       confirmDeleteMessageID = "confirmDelete2orMoreContactsAndLists";
-      confirmDeleteTitleID   = "confirmDelete2orMoreContactsAndListsTitle";
+      confirmDeleteTitleID = "confirmDelete2orMoreContactsAndListsTitle";
       break;
     case kSingleListOnly:
       // Set item name for single mailing list.
       let theCard = GetSelectedAbCards()[0];
       itemName = theCard.displayName;
       confirmDeleteMessageID = "confirmDeleteThisMailingList";
-      confirmDeleteTitleID   = "confirmDeleteThisMailingListTitle";
+      confirmDeleteTitleID = "confirmDeleteThisMailingListTitle";
       break;
     case kMultipleListsOnly:
       confirmDeleteMessageID = "confirmDelete2orMoreMailingLists";
-      confirmDeleteTitleID   = "confirmDelete2orMoreMailingListsTitle";
+      confirmDeleteTitleID = "confirmDelete2orMoreMailingListsTitle";
       break;
     case kCardsOnly:
       if (selectedDir.isMailList) {
@@ -386,22 +433,24 @@ function AbDelete() {
           confirmDeleteTitleID = "confirmRemoveThisContactTitle";
         } else {
           confirmDeleteMessageID = "confirmRemove2orMoreContacts";
-          confirmDeleteTitleID   = "confirmRemove2orMoreContactsTitle";
+          confirmDeleteTitleID = "confirmRemove2orMoreContactsTitle";
         }
         // For removing contacts from mailing list, set placeholder value
         containingListName = selectedDir.dirName;
       } else if (numSelectedItems == 1) {
         // Contact(s) in address books will be deleted.
         confirmDeleteMessageID = "confirmDeleteThisContact";
-        confirmDeleteTitleID   = "confirmDeleteThisContactTitle";
+        confirmDeleteTitleID = "confirmDeleteThisContactTitle";
       } else {
         confirmDeleteMessageID = "confirmDelete2orMoreContacts";
-        confirmDeleteTitleID   = "confirmDelete2orMoreContactsTitle";
+        confirmDeleteTitleID = "confirmDelete2orMoreContactsTitle";
       }
       if (numSelectedItems == 1) {
         // Set item name for single contact.
         let theCard = GetSelectedAbCards()[0];
-        let nameFormatFromPref = Services.prefs.getIntPref("mail.addr_book.lastnamefirst");
+        let nameFormatFromPref = Services.prefs.getIntPref(
+          "mail.addr_book.lastnamefirst"
+        );
         itemName = theCard.generateName(nameFormatFromPref);
       }
       break;
@@ -411,7 +460,7 @@ function AbDelete() {
   // For numSelectedItems == 1, it's simple strings.
   // For messages with numSelectedItems > 1, it's multi-pluralform string sets.
   // confirmDeleteMessage has placeholders for some forms.
-  confirmDeleteTitle   = gAddressBookBundle.getString(confirmDeleteTitleID);
+  confirmDeleteTitle = gAddressBookBundle.getString(confirmDeleteTitleID);
   confirmDeleteMessage = gAddressBookBundle.getString(confirmDeleteMessageID);
 
   // Get plural form where applicable; substitute placeholders as required.
@@ -421,34 +470,45 @@ function AbDelete() {
   } else {
     // If multiple selected items, get the right plural string from the
     // localized set, then substitute numSelectedItems.
-    confirmDeleteMessage = PluralForm.get(numSelectedItems, confirmDeleteMessage);
+    confirmDeleteMessage = PluralForm.get(
+      numSelectedItems,
+      confirmDeleteMessage
+    );
     confirmDeleteMessage = confirmDeleteMessage.replace("#1", numSelectedItems);
   }
   // If contact(s) in a mailing list, substitute containingListName.
-  if (containingListName)
-    confirmDeleteMessage = confirmDeleteMessage.replace("#2", containingListName);
+  if (containingListName) {
+    confirmDeleteMessage = confirmDeleteMessage.replace(
+      "#2",
+      containingListName
+    );
+  }
 
   // Finally, show our smart confirmation message, and act upon it!
-  if (!Services.prompt.confirm(window, confirmDeleteTitle,
-                                       confirmDeleteMessage)) {
+  if (
+    !Services.prompt.confirm(window, confirmDeleteTitle, confirmDeleteMessage)
+  ) {
     // Deletion cancelled by user.
     return;
   }
 
-  if (selectedDir.URI == (kAllDirectoryRoot + "?")) {
+  if (selectedDir.URI == kAllDirectoryRoot + "?") {
     // Delete cards from "All Address Books" view.
     let cards = GetSelectedAbCards();
     for (let i = 0; i < cards.length; i++) {
-      let dirId = cards[i].directoryId
-                          .substring(0, cards[i].directoryId.indexOf("&"));
+      let dirId = cards[i].directoryId.substring(
+        0,
+        cards[i].directoryId.indexOf("&")
+      );
       let directory = MailServices.ab.getDirectoryFromId(dirId);
 
-      let cardArray =
-        Cc["@mozilla.org/array;1"]
-          .createInstance(Ci.nsIMutableArray);
+      let cardArray = Cc["@mozilla.org/array;1"].createInstance(
+        Ci.nsIMutableArray
+      );
       cardArray.appendElement(cards[i]);
-      if (directory)
+      if (directory) {
         directory.deleteCards(cardArray);
+      }
     }
     SetAbView(kAllDirectoryRoot + "?");
   } else {
@@ -464,8 +524,9 @@ function AbNewCard() {
 function AbEditCard(card) {
   // Need a card,
   // but not allowing AOL special groups to be edited.
-  if (!card)
+  if (!card) {
     return;
+  }
 
   if (card.isMailList) {
     goEditListDialog(card, card.mailListURI);
@@ -478,11 +539,15 @@ function AbNewMessage() {
   let msgComposeType = Ci.nsIMsgCompType;
   let msgComposeFormat = Ci.nsIMsgCompFormat;
 
-  let params = Cc["@mozilla.org/messengercompose/composeparams;1"].createInstance(Ci.nsIMsgComposeParams);
+  let params = Cc[
+    "@mozilla.org/messengercompose/composeparams;1"
+  ].createInstance(Ci.nsIMsgComposeParams);
   if (params) {
     params.type = msgComposeType.New;
     params.format = msgComposeFormat.Default;
-    let composeFields = Cc["@mozilla.org/messengercompose/composefields;1"].createInstance(Ci.nsIMsgCompFields);
+    let composeFields = Cc[
+      "@mozilla.org/messengercompose/composefields;1"
+    ].createInstance(Ci.nsIMsgCompFields);
     if (composeFields) {
       if (DirPaneHasFocus()) {
         let selectedDir = getSelectedDirectory();
@@ -496,14 +561,15 @@ function AbNewMessage() {
           // associated with them, so we'll silently eat the error.
         }
 
-        if (selectedDir && selectedDir.isMailList && hidesRecipients)
+        if (selectedDir && selectedDir.isMailList && hidesRecipients) {
           // Bug 669301 (https://bugzilla.mozilla.org/show_bug.cgi?id=669301)
           // We're using BCC right now to hide recipients from one another.
           // We should probably use group syntax, but that's broken
           // right now, so this will have to do.
           composeFields.bcc = GetSelectedAddressesFromDirTree();
-        else
+        } else {
           composeFields.to = GetSelectedAddressesFromDirTree();
+        }
       } else {
         composeFields.to = GetSelectedAddresses();
       }
@@ -521,12 +587,18 @@ function AbNewMessage() {
  */
 function InitViewLayoutMenuPopup(event) {
   let dirPaneMenuItem = document.getElementById("menu_showDirectoryPane");
-  dirPaneMenuItem.setAttribute("checked", document.getElementById(
-    "dirTree-splitter").getAttribute("state") != "collapsed");
+  dirPaneMenuItem.setAttribute(
+    "checked",
+    document.getElementById("dirTree-splitter").getAttribute("state") !=
+      "collapsed"
+  );
 
   let cardPaneMenuItem = document.getElementById("menu_showCardPane");
-  cardPaneMenuItem.setAttribute("checked", document.getElementById(
-    "results-splitter").getAttribute("state") != "collapsed");
+  cardPaneMenuItem.setAttribute(
+    "checked",
+    document.getElementById("results-splitter").getAttribute("state") !=
+      "collapsed"
+  );
 }
 
 // Generate a list of cards from the selected mailing list
@@ -536,14 +608,15 @@ function InitViewLayoutMenuPopup(event) {
 function GetSelectedAddressesFromDirTree() {
   let selectedDir = getSelectedDirectory();
 
-  if (!selectedDir || !selectedDir.isMailList)
+  if (!selectedDir || !selectedDir.isMailList) {
     return "";
+  }
 
   let listCardsCount = selectedDir.addressLists.length;
   let cards = new Array(listCardsCount);
-  for (let i = 0; i < listCardsCount; ++i)
-    cards[i] = selectedDir.addressLists
-                 .queryElementAt(i, Ci.nsIAbCard);
+  for (let i = 0; i < listCardsCount; ++i) {
+    cards[i] = selectedDir.addressLists.queryElementAt(i, Ci.nsIAbCard);
+  }
   return GetAddressesForCards(cards);
 }
 
@@ -561,7 +634,8 @@ function GetAddressesForCards(cards) {
   // element in the Array.  Always non-null element is pushed into
   // cards[] array.
 
-  let generatedAddresses = cards.map(GenerateAddressFromCard)
+  let generatedAddresses = cards
+    .map(GenerateAddressFromCard)
     .filter(function(aAddress) {
       return aAddress;
     });
@@ -574,8 +648,9 @@ function SelectFirstAddressBook() {
     // If gPreviousDirTreeIndex == 0 then DirPaneSelectionChange() and
     // ChangeDirectoryByURI() have already been run
     // (e.g. by the onselect event on the tree) so skip the call.
-    if (gPreviousDirTreeIndex != 0)
+    if (gPreviousDirTreeIndex != 0) {
       ChangeDirectoryByURI(getSelectedDirectoryURI());
+    }
   }
   gAbResultsTree.focus();
 }
@@ -599,15 +674,18 @@ function selectStartupViewDirectory() {
   // deletion will be the only case to end up here, then we could reset the pref
   // here (somewhat lazy and fuzzy).
   if (startupDirTreeIndex == -1) {
-    startupDirTreeIndex = gDirectoryTreeView.getIndexForId(kAllDirectoryRoot + "?");
+    startupDirTreeIndex = gDirectoryTreeView.getIndexForId(
+      kAllDirectoryRoot + "?"
+    );
   }
   gDirectoryTreeView.selection.select(startupDirTreeIndex);
 }
 
 function DirPaneClick(event) {
   // we only care about left button events
-  if (event.button != 0)
+  if (event.button != 0) {
     return;
+  }
 
   // if the user clicks on the header / trecol, do nothing
   if (event.originalTarget.localName == "treecol") {
@@ -617,20 +695,25 @@ function DirPaneClick(event) {
 
 function DirPaneDoubleClick(event) {
   // We only care about left button events.
-  if (event.button != 0)
+  if (event.button != 0) {
     return;
+  }
 
   // Ignore double clicking on invalid rows.
   let row = gDirTree.getRowAt(event.clientX, event.clientY);
-  if (row == -1 || row > gDirTree.view.rowCount - 1)
+  if (row == -1 || row > gDirTree.view.rowCount - 1) {
     return;
+  }
 
   // Default action for double click is expand/collapse which ships with the tree.
   // For convenience, allow double-click to edit the properties of mailing
   // lists in directory tree.
-  if (gDirTree && gDirTree.view.selection &&
-      gDirTree.view.selection.count == 1 &&
-      getSelectedDirectory().isMailList) {
+  if (
+    gDirTree &&
+    gDirTree.view.selection &&
+    gDirTree.view.selection.count == 1 &&
+    getSelectedDirectory().isMailList
+  ) {
     AbEditSelectedDirectory();
   }
 }
@@ -639,13 +722,19 @@ function DirPaneSelectionChange() {
   let uri = getSelectedDirectoryURI();
   // clear out the search box when changing folders...
   onAbClearSearch(false);
-  if (gDirTree && gDirTree.view.selection && gDirTree.view.selection.count == 1) {
+  if (
+    gDirTree &&
+    gDirTree.view.selection &&
+    gDirTree.view.selection.count == 1
+  ) {
     gPreviousDirTreeIndex = gDirTree.currentIndex; // eslint-disable-line no-global-assign
     ChangeDirectoryByURI(uri);
-    document.getElementById("localResultsOnlyMessage")
-            .setAttribute("hidden",
-                          !gDirectoryTreeView.hasRemoteAB ||
-                          uri != kAllDirectoryRoot + "?");
+    document
+      .getElementById("localResultsOnlyMessage")
+      .setAttribute(
+        "hidden",
+        !gDirectoryTreeView.hasRemoteAB || uri != kAllDirectoryRoot + "?"
+      );
   }
 
   goUpdateCommand("cmd_newlist");
@@ -657,11 +746,13 @@ function ChangeDirectoryByURI(uri = kPersonalAddressbookURI) {
 
   // Actively de-selecting if there are any pre-existing selections
   // in the results list.
-  if (gAbView && gAbView.getCardFromRow(0))
+  if (gAbView && gAbView.getCardFromRow(0)) {
     gAbView.selection.clearSelection();
-  else
-    // the selection changes if we were switching directories.
+  }
+  // the selection changes if we were switching directories.
+  else {
     ResultsPaneSelectionChanged();
+  }
 }
 
 function AbNewList() {
@@ -669,10 +760,12 @@ function AbNewList() {
 }
 
 function goNewListDialog(selectedAB) {
-  window.openDialog("chrome://messenger/content/addressbook/abMailListDialog.xul",
-                    "",
-                    "chrome,modal,resizable=no,centerscreen",
-                    {selectedAB});
+  window.openDialog(
+    "chrome://messenger/content/addressbook/abMailListDialog.xul",
+    "",
+    "chrome,modal,resizable=no,centerscreen",
+    { selectedAB }
+  );
 }
 
 function goEditListDialog(abCard, listURI) {
@@ -681,33 +774,40 @@ function goEditListDialog(abCard, listURI) {
     listURI,
     refresh: false, // This is an out param, true if OK in dialog is clicked.
   };
-  window.openDialog("chrome://messenger/content/addressbook/abEditListDialog.xul",
-                    "",
-                    "chrome,modal,resizable=no,centerscreen",
-                    params);
+  window.openDialog(
+    "chrome://messenger/content/addressbook/abEditListDialog.xul",
+    "",
+    "chrome,modal,resizable=no,centerscreen",
+    params
+  );
   if (params.refresh) {
     ChangeDirectoryByURI(listURI); // force refresh
   }
 }
 
 function goNewCardDialog(selectedAB) {
-  window.openDialog("chrome://messenger/content/addressbook/abNewCardDialog.xul",
-                    "",
-                    "chrome,modal,resizable=no,centerscreen",
-                    {selectedAB});
+  window.openDialog(
+    "chrome://messenger/content/addressbook/abNewCardDialog.xul",
+    "",
+    "chrome,modal,resizable=no,centerscreen",
+    { selectedAB }
+  );
 }
 
 function goEditCardDialog(abURI, card) {
-  window.openDialog("chrome://messenger/content/addressbook/abEditCardDialog.xul",
-                    "",
-                    "chrome,modal,resizable=no,centerscreen",
-                    {abURI, card});
+  window.openDialog(
+    "chrome://messenger/content/addressbook/abEditCardDialog.xul",
+    "",
+    "chrome,modal,resizable=no,centerscreen",
+    { abURI, card }
+  );
 }
 
 function setSortByMenuItemCheckState(id, value) {
   var menuitem = document.getElementById(id);
-  if (menuitem)
+  if (menuitem) {
     menuitem.setAttribute("checked", value);
+  }
 }
 
 function InitViewSortByMenu() {
@@ -724,16 +824,23 @@ function InitViewSortByMenu() {
   for (let i = 0; i < elements.length; i++) {
     let cmd = elements[i].id;
     let columnForCmd = cmd.substr(10); // everything right of cmd_SortBy
-    setSortByMenuItemCheckState(cmd, (sortColumn == columnForCmd));
+    setSortByMenuItemCheckState(cmd, sortColumn == columnForCmd);
   }
 
-  setSortByMenuItemCheckState("sortAscending", (sortDirection == kDefaultAscending));
-  setSortByMenuItemCheckState("sortDescending", (sortDirection == kDefaultDescending));
+  setSortByMenuItemCheckState(
+    "sortAscending",
+    sortDirection == kDefaultAscending
+  );
+  setSortByMenuItemCheckState(
+    "sortDescending",
+    sortDirection == kDefaultDescending
+  );
 }
 
 function GenerateAddressFromCard(card) {
-  if (!card)
+  if (!card) {
     return "";
+  }
 
   var email;
 
@@ -760,7 +867,11 @@ function GetParentDirectoryFromMailingListURI(abURI) {
    then, turn ["moz-abmdbdirectory:","","abook.mab","MailList6"]
    into "moz-abmdbdirectory://abook.mab"
   */
-  if (abURIArr.length == 4 && abURIArr[0] == "moz-abmdbdirectory:" && abURIArr[3] != "") {
+  if (
+    abURIArr.length == 4 &&
+    abURIArr[0] == "moz-abmdbdirectory:" &&
+    abURIArr[3] != ""
+  ) {
     return abURIArr[0] + "/" + abURIArr[1] + "/" + abURIArr[2];
   }
 
@@ -771,7 +882,7 @@ function GetParentDirectoryFromMailingListURI(abURI) {
  * Return true if the directory pane has focus, otherwise false.
  */
 function DirPaneHasFocus() {
-  return (top.document.commandDispatcher.focusedElement == gDirTree);
+  return top.document.commandDispatcher.focusedElement == gDirTree;
 }
 
 /**
@@ -781,12 +892,14 @@ function DirPaneHasFocus() {
  */
 function getSelectedDirectory() {
   // Contacts Sidebar
-  if (abList)
+  if (abList) {
     return MailServices.ab.getDirectory(abList.value);
+  }
 
   // Main Address Book
-  if (gDirTree.currentIndex < 0)
+  if (gDirTree.currentIndex < 0) {
     return null;
+  }
   return gDirectoryTreeView.getDirectoryAtIndex(gDirTree.currentIndex);
 }
 
@@ -797,12 +910,14 @@ function getSelectedDirectory() {
  */
 function getSelectedDirectoryURI() {
   // Contacts Sidebar
-  if (abList)
+  if (abList) {
     return abList.value;
+  }
 
   // Main Address Book
-  if (gDirTree.currentIndex < 0)
+  if (gDirTree.currentIndex < 0) {
     return null;
+  }
   return gDirectoryTreeView.getDirectoryAtIndex(gDirTree.currentIndex).URI;
 }
 
@@ -824,12 +939,14 @@ function GetSelectedDirectory() {
  */
 function onAbClearSearch(aRefresh = true) {
   let searchInput = document.getElementById("peopleSearchInput");
-  if (!searchInput || !searchInput.value)
+  if (!searchInput || !searchInput.value) {
     return;
+  }
 
   searchInput.value = "";
-  if (aRefresh)
+  if (aRefresh) {
     onEnterInSearchBar();
+  }
 }
 
 // sets focus into the quick search box
@@ -849,8 +966,9 @@ function getPhotosDir() {
   let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
   // Get the Photos directory
   file.append("Photos");
-  if (!file.exists() || !file.isDirectory())
+  if (!file.exists() || !file.isDirectory()) {
     file.create(Ci.nsIFile.DIRECTORY_TYPE, PERMS_DIRECTORY);
+  }
   return file;
 }
 
@@ -864,16 +982,18 @@ function getPhotosDir() {
  * @return A URI pointing to a photo.
  */
 function getPhotoURI(aPhotoName) {
-  if (!aPhotoName)
+  if (!aPhotoName) {
     return defaultPhotoURI;
+  }
   var file = getPhotosDir();
   try {
     file.append(aPhotoName);
   } catch (e) {
     return defaultPhotoURI;
   }
-  if (!file.exists())
+  if (!file.exists()) {
     return defaultPhotoURI;
+  }
   return Services.io.newFileURI(file).spec;
 }
 
@@ -889,7 +1009,12 @@ function makePhotoFile(aDir, aExtension) {
   var filename, newFile;
   // Find a random filename for the photo that doesn't exist yet
   do {
-    filename = Math.random().toString().replace("0.", "") + "." + aExtension;
+    filename =
+      Math.random()
+        .toString()
+        .replace("0.", "") +
+      "." +
+      aExtension;
     newFile = aDir.clone();
     newFile.append(filename);
   } while (newFile.exists());
@@ -936,7 +1061,6 @@ var gImageDownloader = (function() {
   // An error occurred while saving the image to the hard drive.
   const ERROR_SAVE = 4;
 
-
   /**
    * Saves a target photo in the profile's photo directory. Only one concurrent file transfer is
    * supported. Starting a new transfer while another is still in progress will cancel the former
@@ -952,9 +1076,9 @@ var gImageDownloader = (function() {
    *   State transitions: STATE_TRANSFERRING -> STATE_RESIZING -> STATE_OK (100%)
    */
   function savePhoto(aURI, aCBSuccess, aCBError, aCBProgress) {
-    callbackSuccess = (typeof aCBSuccess == "function") ? aCBSuccess : null;
-    callbackError = (typeof aCBError == "function") ? aCBError : null;
-    callbackProgress = (typeof aCBProgress == "function") ? aCBProgress : null;
+    callbackSuccess = typeof aCBSuccess == "function" ? aCBSuccess : null;
+    callbackError = typeof aCBError == "function" ? aCBError : null;
+    callbackProgress = typeof aCBProgress == "function" ? aCBProgress : null;
 
     // Make sure that there is no running download.
     cancelSave();
@@ -964,24 +1088,37 @@ var gImageDownloader = (function() {
       callbackProgress(STATE_TRANSFERRING, initProgress);
     }
 
-    downloader = Cc["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
-                   .createInstance(Ci.nsIWebBrowserPersist);
-    downloader.persistFlags = Ci.nsIWebBrowserPersist.PERSIST_FLAGS_BYPASS_CACHE
-                            | Ci.nsIWebBrowserPersist.PERSIST_FLAGS_REPLACE_EXISTING_FILES
-                            | Ci.nsIWebBrowserPersist.PERSIST_FLAGS_CLEANUP_ON_FAILURE;
+    downloader = Cc[
+      "@mozilla.org/embedding/browser/nsWebBrowserPersist;1"
+    ].createInstance(Ci.nsIWebBrowserPersist);
+    downloader.persistFlags =
+      Ci.nsIWebBrowserPersist.PERSIST_FLAGS_BYPASS_CACHE |
+      Ci.nsIWebBrowserPersist.PERSIST_FLAGS_REPLACE_EXISTING_FILES |
+      Ci.nsIWebBrowserPersist.PERSIST_FLAGS_CLEANUP_ON_FAILURE;
     downloader.progressListener = {
-      onProgressChange(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress,
-                                 aCurTotalProgress, aMaxTotalProgress) {
+      onProgressChange(
+        aWebProgress,
+        aRequest,
+        aCurSelfProgress,
+        aMaxSelfProgress,
+        aCurTotalProgress,
+        aMaxTotalProgress
+      ) {
         if (aMaxTotalProgress > -1 && callbackProgress) {
           // Download progress is 0-90%, 90-100% is verifying and scaling the image.
-          let percent = Math.round(initProgress + (aCurTotalProgress / aMaxTotalProgress) * (90 - initProgress));
+          let percent = Math.round(
+            initProgress +
+              (aCurTotalProgress / aMaxTotalProgress) * (90 - initProgress)
+          );
           callbackProgress(STATE_TRANSFERRING, percent);
         }
       },
       onStateChange(aWebProgress, aRequest, aStateFlag, aStatus) {
         // Check if the download successfully finished.
-        if ((aStateFlag & Ci.nsIWebProgressListener.STATE_STOP) &&
-            !(aStateFlag & Ci.nsIWebProgressListener.STATE_IS_REQUEST)) {
+        if (
+          aStateFlag & Ci.nsIWebProgressListener.STATE_STOP &&
+          !(aStateFlag & Ci.nsIWebProgressListener.STATE_IS_REQUEST)
+        ) {
           try {
             // Check the response code in case of an HTTP request to catch 4xx errors
             let http = aRequest.QueryInterface(Ci.nsIHttpChannel);
@@ -1009,15 +1146,30 @@ var gImageDownloader = (function() {
     }
 
     // Start the transfer to a temporary file.
-    tempFile = FileUtils.getFile("TmpD", ["tb-photo-" + new Date().getTime() + ".tmp"]);
+    tempFile = FileUtils.getFile("TmpD", [
+      "tb-photo-" + new Date().getTime() + ".tmp",
+    ]);
     tempFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, FileUtils.PERMS_FILE);
     try {
       // Obtain the privacy context of the browser window that the URL
       // we are downloading comes from. If, and only if, the URL is not
       // related to a window, null should be used instead.
       let privacy = PrivateBrowsingUtils.privacyContextFromWindow(window);
-      let principal = Services.scriptSecurityManager.createContentPrincipal(source, {});
-      downloader.saveURI(source, principal, null, null, null, null, null, tempFile, privacy);
+      let principal = Services.scriptSecurityManager.createContentPrincipal(
+        source,
+        {}
+      );
+      downloader.saveURI(
+        source,
+        principal,
+        null,
+        null,
+        null,
+        null,
+        null,
+        tempFile,
+        privacy
+      );
     } catch (err) {
       cleanup();
       if (callbackError) {
@@ -1081,14 +1233,17 @@ var gImageDownloader = (function() {
     let h = aGraphicsObject.height;
 
     if (w > h && w > aMaxDimension) {
-      h = Math.round(aMaxDimension * h / w);
+      h = Math.round((aMaxDimension * h) / w);
       w = aMaxDimension;
     } else if (h > aMaxDimension) {
-      w = Math.round(aMaxDimension * w / h);
+      w = Math.round((aMaxDimension * w) / h);
       h = aMaxDimension;
     }
 
-    let canvas = document.createElementNS("http://www.w3.org/1999/xhtml", "canvas");
+    let canvas = document.createElementNS(
+      "http://www.w3.org/1999/xhtml",
+      "canvas"
+    );
     canvas.width = w;
     canvas.height = h;
 
@@ -1140,15 +1295,19 @@ var gImageDownloader = (function() {
     let source = Services.io.newURI(aCanvas.toDataURL("image/png", ""), "UTF8");
     let target = Services.io.newFileURI(file);
 
-    downloader = Cc["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
-                   .createInstance(Ci.nsIWebBrowserPersist);
-    downloader.persistFlags = Ci.nsIWebBrowserPersist.PERSIST_FLAGS_BYPASS_CACHE
-                            | Ci.nsIWebBrowserPersist.PERSIST_FLAGS_REPLACE_EXISTING_FILES
-                            | Ci.nsIWebBrowserPersist.PERSIST_FLAGS_CLEANUP_ON_FAILURE;
+    downloader = Cc[
+      "@mozilla.org/embedding/browser/nsWebBrowserPersist;1"
+    ].createInstance(Ci.nsIWebBrowserPersist);
+    downloader.persistFlags =
+      Ci.nsIWebBrowserPersist.PERSIST_FLAGS_BYPASS_CACHE |
+      Ci.nsIWebBrowserPersist.PERSIST_FLAGS_REPLACE_EXISTING_FILES |
+      Ci.nsIWebBrowserPersist.PERSIST_FLAGS_CLEANUP_ON_FAILURE;
     downloader.progressListener = {
       onStateChange(aWebProgress, aRequest, aFlag, aStatus) {
-        if ((aFlag & Ci.nsIWebProgressListener.STATE_STOP) &&
-            !(aFlag & Ci.nsIWebProgressListener.STATE_IS_REQUEST)) {
+        if (
+          aFlag & Ci.nsIWebProgressListener.STATE_STOP &&
+          !(aFlag & Ci.nsIWebProgressListener.STATE_IS_REQUEST)
+        ) {
           if (callbackSuccess) {
             callbackSuccess(file.leafName);
           }
@@ -1160,8 +1319,21 @@ var gImageDownloader = (function() {
     // we are downloading comes from. If, and only if, the URL is not
     // related to a window, null should be used instead.
     let privacy = PrivateBrowsingUtils.privacyContextFromWindow(window);
-    let principal = Services.scriptSecurityManager.createContentPrincipal(source, {});
-    downloader.saveURI(source, principal, null, null, null, null, null, target, privacy);
+    let principal = Services.scriptSecurityManager.createContentPrincipal(
+      source,
+      {}
+    );
+    downloader.saveURI(
+      source,
+      principal,
+      null,
+      null,
+      null,
+      null,
+      null,
+      target,
+      privacy
+    );
   }
 
   // Publicly accessible methods.
@@ -1178,14 +1350,13 @@ var gImageDownloader = (function() {
   };
 })();
 
-
 /**
  * Validates the given year and returns it, if it looks sane.
  * Returns kDefaultYear (a leap year), if no valid date is given.
  * This ensures that month/day calculations still work.
  */
 function saneBirthYear(aYear) {
-  return aYear && (aYear <= kMaxYear) && (aYear >= kMinYear) ? aYear : kDefaultYear;
+  return aYear && aYear <= kMaxYear && aYear >= kMinYear ? aYear : kDefaultYear;
 }
 
 /**
@@ -1193,8 +1364,9 @@ function saneBirthYear(aYear) {
  */
 function nearestLeap(aYear) {
   for (let year = aYear; year > 0; year--) {
-    if (new Date(year, 1, 29).getMonth() == 1)
+    if (new Date(year, 1, 29).getMonth() == 1) {
       return year;
+    }
   }
   return 2000;
 }

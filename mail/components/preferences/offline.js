@@ -11,7 +11,7 @@ Preferences.addAll([
   { id: "offline.download.download_messages", type: "int" },
 ]);
 
-var kAutomatic         = 4;
+var kAutomatic = 4;
 var kRememberLastState = 0;
 
 var gOfflineDialog = {

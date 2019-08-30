@@ -27,7 +27,7 @@ function setupModule(module) {
   folderA = create_folder("FolderToolbarA");
   // we need one message to select and open
   folderB = create_folder("FolderToolbarB");
-  make_new_sets_in_folder(folderB, [{count: 1}]);
+  make_new_sets_in_folder(folderB, [{ count: 1 }]);
 }
 
 function test_add_folder_toolbar() {
@@ -40,8 +40,11 @@ function test_add_folder_toolbar() {
   folderLoc = mc.eid("locationFolders");
   mc.assertNode(folderLoc);
 
-  assert_equals(!!folderLoc.node.label, true,
-                "Uninitialized Folder doesn't have a default label.");
+  assert_equals(
+    !!folderLoc.node.label,
+    true,
+    "Uninitialized Folder doesn't have a default label."
+  );
 }
 
 function test_folder_toolbar_shows_correct_item() {
@@ -52,30 +55,42 @@ function test_folder_toolbar_shows_correct_item() {
   let tabFolderA = be_in_folder(folderA);
   assert_folder_selected_and_displayed(folderA);
   assert_nothing_selected();
-  assert_equals(folderLoc.node.label, "FolderToolbarA",
-                "Opening FolderA doesn't update toolbar.");
+  assert_equals(
+    folderLoc.node.label,
+    "FolderToolbarA",
+    "Opening FolderA doesn't update toolbar."
+  );
 
   // Open tab b, make sure it works right.
   let tabFolderB = open_folder_in_new_tab(folderB);
   wait_for_blank_content_pane();
   assert_folder_selected_and_displayed(folderB);
   assert_nothing_selected();
-  assert_equals(folderLoc.node.label, "FolderToolbarB",
-                "Opening FolderB in a tab doesn't update toolbar.");
+  assert_equals(
+    folderLoc.node.label,
+    "FolderToolbarB",
+    "Opening FolderB in a tab doesn't update toolbar."
+  );
 
   // Go back to tab/folder A and make sure we change correctly.
   switch_tab(tabFolderA);
   assert_folder_selected_and_displayed(folderA);
   assert_nothing_selected();
-  assert_equals(folderLoc.node.label, "FolderToolbarA",
-                "Switching back to FolderA's tab doesn't update toolbar.");
+  assert_equals(
+    folderLoc.node.label,
+    "FolderToolbarA",
+    "Switching back to FolderA's tab doesn't update toolbar."
+  );
 
   // Go back to tab/folder A and make sure we change correctly.
   switch_tab(tabFolderB);
   assert_folder_selected_and_displayed(folderB);
   assert_nothing_selected();
-  assert_equals(folderLoc.node.label, "FolderToolbarB",
-                "Switching back to FolderB's tab doesn't update toolbar.");
+  assert_equals(
+    folderLoc.node.label,
+    "FolderToolbarB",
+    "Switching back to FolderB's tab doesn't update toolbar."
+  );
   close_tab(tabFolderB);
 }
 
@@ -84,18 +99,27 @@ function test_folder_toolbar_disappears_on_message_tab() {
   be_in_folder(folderB);
   let folderLoc = mc.eid("locationFolders");
   mc.assertNode(folderLoc);
-  assert_equals(folderLoc.node.label, "FolderToolbarB",
-                "We should have started in FolderB.");
-  assert_equals(folderLoc.node.collapsed, false,
-                "The toolbar should be shown.");
+  assert_equals(
+    folderLoc.node.label,
+    "FolderToolbarB",
+    "We should have started in FolderB."
+  );
+  assert_equals(
+    folderLoc.node.collapsed,
+    false,
+    "The toolbar should be shown."
+  );
 
   // Select one message
   select_click_row(0);
   // Open it
   let messageTab = open_selected_message_in_new_tab();
 
-  assert_equals(mc.e("folder-location-container").collapsed, true,
-                "The toolbar should be hidden.");
+  assert_equals(
+    mc.e("folder-location-container").collapsed,
+    true,
+    "The toolbar should be hidden."
+  );
 
   // Clean up, close the tab
   close_tab(messageTab);

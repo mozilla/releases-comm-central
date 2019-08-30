@@ -5,14 +5,23 @@
 
 this.EXPORTED_SYMBOLS = ["sendLaterModule"];
 
-var nsActProcess = Components.Constructor("@mozilla.org/activity-process;1",
-                                            "nsIActivityProcess", "init");
-var nsActEvent = Components.Constructor("@mozilla.org/activity-event;1",
-                                          "nsIActivityEvent", "init");
-var nsActWarning = Components.Constructor("@mozilla.org/activity-warning;1",
-                                            "nsIActivityWarning", "init");
+var nsActProcess = Components.Constructor(
+  "@mozilla.org/activity-process;1",
+  "nsIActivityProcess",
+  "init"
+);
+var nsActEvent = Components.Constructor(
+  "@mozilla.org/activity-event;1",
+  "nsIActivityEvent",
+  "init"
+);
+var nsActWarning = Components.Constructor(
+  "@mozilla.org/activity-warning;1",
+  "nsIActivityWarning",
+  "init"
+);
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 /**
@@ -23,18 +32,18 @@ const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
  * just have to do it here.
  */
 var sendMsgProgressListener = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgStatusFeedback,
-                                          Ci.nsISupportsWeakReference]),
+  QueryInterface: ChromeUtils.generateQI([
+    Ci.nsIMsgStatusFeedback,
+    Ci.nsISupportsWeakReference,
+  ]),
 
   showStatusString(aStatusText) {
     sendLaterModule.onMsgStatus(aStatusText);
   },
 
-  startMeteors() {
-  },
+  startMeteors() {},
 
-  stopMeteors() {
-  },
+  stopMeteors() {},
 
   showProgress(aPercentage) {
     sendLaterModule.onMessageSendProgress(0, 0, aPercentage, 0);
@@ -51,42 +60,49 @@ var sendLaterModule = {
 
   get log() {
     delete this.log;
-    return this.log = Log4Moz.getConfiguredLogger("sendLaterModule");
+    return (this.log = Log4Moz.getConfiguredLogger("sendLaterModule"));
   },
 
   get activityMgr() {
     delete this.activityMgr;
-    return this.activityMgr = Cc["@mozilla.org/activity-manager;1"]
-                                .getService(Ci.nsIActivityManager);
+    return (this.activityMgr = Cc["@mozilla.org/activity-manager;1"].getService(
+      Ci.nsIActivityManager
+    ));
   },
 
   get bundle() {
     delete this.bundle;
-    return this.bundle = Services.strings
-      .createBundle("chrome://messenger/locale/activity.properties");
+    return (this.bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/activity.properties"
+    ));
   },
 
   QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgSendLaterListener]),
 
   _displayTextForHeader(aLocaleStringBase, aSubject) {
-    return aSubject ?
-           this.bundle.formatStringFromName(aLocaleStringBase + "WithSubject", [aSubject]) :
-           this.bundle.GetStringFromName(aLocaleStringBase);
+    return aSubject
+      ? this.bundle.formatStringFromName(aLocaleStringBase + "WithSubject", [
+          aSubject,
+        ])
+      : this.bundle.GetStringFromName(aLocaleStringBase);
   },
 
   _newProcess(aLocaleStringBase, aAddSubject) {
-    let process =
-      new nsActProcess(this._displayTextForHeader(aLocaleStringBase,
-                                                  aAddSubject ?
-                                                  this._subject :
-                                                  ""),
-                                   this.activityMgr);
+    let process = new nsActProcess(
+      this._displayTextForHeader(
+        aLocaleStringBase,
+        aAddSubject ? this._subject : ""
+      ),
+      this.activityMgr
+    );
 
     process.iconClass = "sendMail";
     process.groupingStyle = Ci.nsIActivity.GROUPING_STYLE_BYCONTEXT;
     process.contextObj = this;
     process.contextType = "SendLater";
-    process.contextDisplayText = this.bundle.GetStringFromName("sendingMessages");
+    process.contextDisplayText = this.bundle.GetStringFromName(
+      "sendingMessages"
+    );
 
     return process;
   },
@@ -98,8 +114,9 @@ var sendLaterModule = {
       aActivity.contextType = this._identity.key;
       aActivity.contextObj = this._identity;
       let contextDisplayText = this._identity.identityName;
-      if (!contextDisplayText)
+      if (!contextDisplayText) {
         contextDisplayText = this._identity.email;
+      }
 
       aActivity.contextDisplayText = contextDisplayText;
     } else {
@@ -111,10 +128,13 @@ var sendLaterModule = {
   _replaceProcessWithEvent(aProcess) {
     this.activityMgr.removeActivity(aProcess.id);
 
-    let event = new nsActEvent(this._displayTextForHeader("sentMessage",
-                                                          this._subject),
-                               this.activityMgr, "", aProcess.startTime,
-                               new Date());
+    let event = new nsActEvent(
+      this._displayTextForHeader("sentMessage", this._subject),
+      this.activityMgr,
+      "",
+      aProcess.startTime,
+      new Date()
+    );
 
     event.iconClass = "sendMail";
     this._applyIdentityGrouping(event);
@@ -123,13 +143,20 @@ var sendLaterModule = {
   },
 
   // Replaces the process with a warning that reflects the failed process.
-  _replaceProcessWithWarning(aProcess, aCopyOrSend, aStatus, aMsg, aMessageHeader) {
+  _replaceProcessWithWarning(
+    aProcess,
+    aCopyOrSend,
+    aStatus,
+    aMsg,
+    aMessageHeader
+  ) {
     this.activityMgr.removeActivity(aProcess.id);
 
-    let warning =
-      new nsActWarning(this._displayTextForHeader("failedTo" + aCopyOrSend,
-                                                  this._subject),
-                       this.activityMgr, "");
+    let warning = new nsActWarning(
+      this._displayTextForHeader("failedTo" + aCopyOrSend, this._subject),
+      this.activityMgr,
+      ""
+    );
 
     warning.groupingStyle = Ci.nsIActivity.GROUPING_STYLE_STANDALONE;
     this._applyIdentityGrouping(warning);
@@ -143,11 +170,17 @@ var sendLaterModule = {
     }
   },
 
-  onMessageStartSending(aCurrentMessage, aTotalMessageCount, aMessageHeader, aIdentity) {
+  onMessageStartSending(
+    aCurrentMessage,
+    aTotalMessageCount,
+    aMessageHeader,
+    aIdentity
+  ) {
     // We want to use the identity and subject later, so store them for now.
     this._identity = aIdentity;
-    if (aMessageHeader)
+    if (aMessageHeader) {
       this._subject = aMessageHeader.mime2DecodedSubject;
+    }
 
     // Create the process to display the send activity.
     let process = this._newProcess("sendingMessage", true);
@@ -160,36 +193,46 @@ var sendLaterModule = {
     this.activityMgr.addActivity(process);
   },
 
-  onMessageSendProgress(aCurrentMessage, aTotalMessageCount,
-                        aMessageSendPercent, aMessageCopyPercent) {
+  onMessageSendProgress(
+    aCurrentMessage,
+    aTotalMessageCount,
+    aMessageSendPercent,
+    aMessageCopyPercent
+  ) {
     if (aMessageSendPercent < 100) {
       // Ensure we are in progress...
-      if (this._sendProcess.state != Ci.nsIActivityProcess.STATE_INPROGRESS)
+      if (this._sendProcess.state != Ci.nsIActivityProcess.STATE_INPROGRESS) {
         this._sendProcess.state = Ci.nsIActivityProcess.STATE_INPROGRESS;
+      }
 
       // ... and update the progress.
-      this._sendProcess.setProgress(this._sendProcess.lastStatusText,
-                                    aMessageSendPercent, 100);
+      this._sendProcess.setProgress(
+        this._sendProcess.lastStatusText,
+        aMessageSendPercent,
+        100
+      );
     } else if (aMessageSendPercent == 100) {
       if (aMessageCopyPercent == 0) {
         // Set send state to completed
-        if (this._sendProcess.state != Ci.nsIActivityProcess.STATE_COMPLETED)
+        if (this._sendProcess.state != Ci.nsIActivityProcess.STATE_COMPLETED) {
           this._sendProcess.state = Ci.nsIActivityProcess.STATE_COMPLETED;
+        }
         this._replaceProcessWithEvent(this._sendProcess);
 
         // Set copy state to in progress.
-        if (this._copyProcess.state != Ci.nsIActivityProcess.STATE_INPROGRESS)
+        if (this._copyProcess.state != Ci.nsIActivityProcess.STATE_INPROGRESS) {
           this._copyProcess.state = Ci.nsIActivityProcess.STATE_INPROGRESS;
+        }
 
         // We don't know the progress of the copy, so just set to 0, and we'll
         // display an undetermined progress meter.
-        this._copyProcess.setProgress(this._copyProcess.lastStatusText,
-                                      0, 0);
+        this._copyProcess.setProgress(this._copyProcess.lastStatusText, 0, 0);
       } else if (aMessageCopyPercent >= 100) {
         // We need to set this to completed otherwise activity manager
         // complains.
-        if (this._copyProcess.state != Ci.nsIActivityProcess.STATE_COMPLETED)
+        if (this._copyProcess.state != Ci.nsIActivityProcess.STATE_COMPLETED) {
           this._copyProcess.state = Ci.nsIActivityProcess.STATE_COMPLETED;
+        }
 
         // Just drop the copy process, we don't need it now.
         this.activityMgr.removeActivity(this._copyProcess.id);
@@ -200,15 +243,24 @@ var sendLaterModule = {
   },
 
   onMessageSendError(aCurrentMessage, aMessageHeader, aStatus, aMsg) {
-    if (this._sendProcess &&
-        this._sendProcess.state != Ci.nsIActivityProcess.STATE_COMPLETED) {
+    if (
+      this._sendProcess &&
+      this._sendProcess.state != Ci.nsIActivityProcess.STATE_COMPLETED
+    ) {
       this._sendProcess.state = Ci.nsIActivityProcess.STATE_COMPLETED;
-      this._replaceProcessWithWarning(this._sendProcess, "SendMessage", aStatus, aMsg,
-                                      aMessageHeader);
+      this._replaceProcessWithWarning(
+        this._sendProcess,
+        "SendMessage",
+        aStatus,
+        aMsg,
+        aMessageHeader
+      );
       this._sendProcess = null;
 
-      if (this._copyProcess &&
-          this._copyProcess.state != Ci.nsIActivityProcess.STATE_COMPLETED) {
+      if (
+        this._copyProcess &&
+        this._copyProcess.state != Ci.nsIActivityProcess.STATE_COMPLETED
+      ) {
         this._copyProcess.state = Ci.nsIActivityProcess.STATE_COMPLETED;
         this.activityMgr.removeActivity(this._copyProcess.id);
         this._copyProcess = null;
@@ -217,24 +269,28 @@ var sendLaterModule = {
   },
 
   onMsgStatus(aStatusText) {
-    this._sendProcess.setProgress(aStatusText, this._sendProcess.workUnitComplete,
-                                  this._sendProcess.totalWorkUnits);
+    this._sendProcess.setProgress(
+      aStatusText,
+      this._sendProcess.workUnitComplete,
+      this._sendProcess.totalWorkUnits
+    );
   },
 
-  onStopSending(aStatus, aMsg, aTotalTried, aSuccessful) {
-  },
+  onStopSending(aStatus, aMsg, aTotalTried, aSuccessful) {},
 
   init() {
     // We should need to remove the listener as we're not being held by anyone
     // except by the send later instance.
-    let sendLaterService = Cc["@mozilla.org/messengercompose/sendlater;1"]
-                             .getService(Ci.nsIMsgSendLater);
+    let sendLaterService = Cc[
+      "@mozilla.org/messengercompose/sendlater;1"
+    ].getService(Ci.nsIMsgSendLater);
 
     sendLaterService.addListener(this);
 
     // Also add the nsIMsgStatusFeedback object.
-    let statusFeedback = Cc["@mozilla.org/messenger/statusfeedback;1"]
-                           .createInstance(Ci.nsIMsgStatusFeedback);
+    let statusFeedback = Cc[
+      "@mozilla.org/messenger/statusfeedback;1"
+    ].createInstance(Ci.nsIMsgStatusFeedback);
 
     statusFeedback.setWrappedStatusFeedback(sendMsgProgressListener);
 

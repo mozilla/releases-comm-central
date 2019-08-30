@@ -1,6 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
-  * License, v. 2.0. If a copy of the MPL was not distributed with this
-  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 "use strict";
 
@@ -8,7 +8,9 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+  const { Services } = ChromeUtils.import(
+    "resource://gre/modules/Services.jsm"
+  );
 
   /**
    * The MozChatContact widget displays contact information about user under
@@ -34,7 +36,7 @@
 
       this.setAttribute("is", "chat-contact");
 
-      this.addEventListener("blur", (event) => {
+      this.addEventListener("blur", event => {
         if (!this.hasAttribute("aliasing")) {
           return;
         }
@@ -44,42 +46,54 @@
         }
       });
 
-      this.addEventListener("mousedown", (event) => {
-        if (!this.hasAttribute("aliasing") && this.canOpenConversation() &&
-            event.originalTarget.classList.contains("startChatBubble")) {
+      this.addEventListener("mousedown", event => {
+        if (
+          !this.hasAttribute("aliasing") &&
+          this.canOpenConversation() &&
+          event.originalTarget.classList.contains("startChatBubble")
+        ) {
           this.openConversation();
           event.preventDefault();
         }
       });
 
-      this.addEventListener("click", (event) => {
-        if (!this.hasAttribute("aliasing") && this.canOpenConversation() &&
-            event.detail == 2) {
+      this.addEventListener("click", event => {
+        if (
+          !this.hasAttribute("aliasing") &&
+          this.canOpenConversation() &&
+          event.detail == 2
+        ) {
           this.openConversation();
         }
       });
 
-      this.parentNode.addEventListener("mousedown", (event) => {
+      this.parentNode.addEventListener("mousedown", event => {
         event.preventDefault();
       });
 
       // @implements {nsIObserver}
       this.observer = {
         QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver]),
-        observe: (function(subject, topic, data) {
-          if (topic == "contact-preferred-buddy-changed" ||
-              topic == "contact-display-name-changed" ||
-              topic == "contact-status-changed") {
+        observe: function(subject, topic, data) {
+          if (
+            topic == "contact-preferred-buddy-changed" ||
+            topic == "contact-display-name-changed" ||
+            topic == "contact-status-changed"
+          ) {
             this.update();
           }
-          if ((topic == "contact-availability-changed" ||
-              topic == "contact-display-name-changed")) {
+          if (
+            topic == "contact-availability-changed" ||
+            topic == "contact-display-name-changed"
+          ) {
             this.group.updateContactPosition(subject);
           }
-        }).bind(this),
+        }.bind(this),
       };
 
-      this.appendChild(MozXULElement.parseXULToFragment(`
+      this.appendChild(
+        MozXULElement.parseXULToFragment(
+          `
         <vbox class="box-line"></vbox>
         <stack class="prplBuddyIcon" mousethrough="always">
           <image class="protoIcon"></image>
@@ -95,7 +109,10 @@
           <button class="startChatBubble" tooltiptext="&openConversationButton.tooltip;">
           </button>
         </hbox>
-      `, ["chrome://messenger/locale/chat.dtd"]));
+      `,
+          ["chrome://messenger/locale/chat.dtd"]
+        )
+      );
 
       this.initializeAttributeInheritance();
     }
@@ -151,11 +168,11 @@
       // Some keys (home/end for example) can make the selected item
       // of the richlistbox change without producing a blur event on
       // our textbox. Make sure we watch richlistbox selection changes.
-      this._parentSelectListener = (function(event) {
+      this._parentSelectListener = function(event) {
         if (event.target == this.parentNode) {
           this.finishAliasing(true);
         }
-      }).bind(this);
+      }.bind(this);
       this.parentNode.addEventListener("select", this._parentSelectListener);
     }
 
@@ -219,9 +236,11 @@
     }
   }
 
-  MozXULElement.implementCustomInterface(
-    MozChatContact, [Ci.nsIDOMXULSelectControlItemElement]
-  );
+  MozXULElement.implementCustomInterface(MozChatContact, [
+    Ci.nsIDOMXULSelectControlItemElement,
+  ]);
 
-  customElements.define("chat-contact", MozChatContact, { "extends": "richlistitem" });
+  customElements.define("chat-contact", MozChatContact, {
+    extends: "richlistitem",
+  });
 }

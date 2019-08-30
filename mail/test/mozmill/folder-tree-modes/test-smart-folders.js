@@ -12,7 +12,9 @@
 
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 
-var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var { fixIterator } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
 
 var MODULE_NAME = "test-smart-folders";
 var RELATIVE_ROOT = "../shared-modules";
@@ -38,14 +40,15 @@ function setupModule(module) {
   inboxSubfolder = inboxFolder.getChildNamed("SmartFoldersA");
 
   trashFolder = inboxFolder.server.rootFolder.getFolderWithFlags(
-    Ci.nsMsgFolderFlags.Trash);
+    Ci.nsMsgFolderFlags.Trash
+  );
   trashFolder.createSubfolder("SmartFoldersB", null);
   trashSubfolder = trashFolder.getChildNamed("SmartFoldersB");
 
   // The message itself doesn't really matter, as long as there's at least one
   // in the folder.
-  [inboxSet] = make_new_sets_in_folder(inboxFolder, [{count: 1}]);
-  make_new_sets_in_folder(inboxSubfolder, [{count: 1}]);
+  [inboxSet] = make_new_sets_in_folder(inboxFolder, [{ count: 1 }]);
+  make_new_sets_in_folder(inboxSubfolder, [{ count: 1 }]);
 }
 
 /**
@@ -54,11 +57,16 @@ function setupModule(module) {
  */
 function assert_folder_for_msg_hdr(aMsgHdr, aFolder) {
   let actualFolder = mc.folderTreeView.getFolderForMsgHdr(aMsgHdr);
-  if (actualFolder != aFolder)
-    throw new Error("Message " + aMsgHdr.messageId +
-                    " should be contained in folder " + aFolder.URI +
-                    "in this view, but is actually contained in " +
-                    actualFolder.URI);
+  if (actualFolder != aFolder) {
+    throw new Error(
+      "Message " +
+        aMsgHdr.messageId +
+        " should be contained in folder " +
+        aFolder.URI +
+        "in this view, but is actually contained in " +
+        actualFolder.URI
+    );
+  }
 }
 
 /**
@@ -90,8 +98,10 @@ function test_get_parent_of_folder() {
 
   // Subfolders of subfolders of the inbox should behave as normal
   inboxSubfolder.createSubfolder("SmartFoldersC", null);
-  assert_folder_child_in_view(inboxSubfolder.getChildNamed("SmartFoldersC"),
-                              inboxSubfolder);
+  assert_folder_child_in_view(
+    inboxSubfolder.getChildNamed("SmartFoldersC"),
+    inboxSubfolder
+  );
 }
 
 /**
@@ -159,16 +169,28 @@ function test_folder_flag_changes() {
   // create a smart Archives folder.
   select_click_row(0);
   archive_selected_messages();
-  let pop3Server = MailServices.accounts.FindServer("tinderbox", FAKE_SERVER_HOSTNAME, "pop3");
-  let pop3Inbox = get_special_folder(Ci.nsMsgFolderFlags.Inbox, false, pop3Server);
-  make_new_sets_in_folder(pop3Inbox, [{count: 1}]);
+  let pop3Server = MailServices.accounts.FindServer(
+    "tinderbox",
+    FAKE_SERVER_HOSTNAME,
+    "pop3"
+  );
+  let pop3Inbox = get_special_folder(
+    Ci.nsMsgFolderFlags.Inbox,
+    false,
+    pop3Server
+  );
+  make_new_sets_in_folder(pop3Inbox, [{ count: 1 }]);
   mc.folderTreeView.selectFolder(pop3Inbox);
   select_click_row(0);
   archive_selected_messages();
 
   let smartArchiveFolder = get_smart_folder_named("Archives");
-  let archiveScope = "|" + smartArchiveFolder.msgDatabase.dBFolderInfo
-                     .getCharProperty("searchFolderUri") + "|";
+  let archiveScope =
+    "|" +
+    smartArchiveFolder.msgDatabase.dBFolderInfo.getCharProperty(
+      "searchFolderUri"
+    ) +
+    "|";
   // We should have both this account, and a folder corresponding
   // to this year in the scope.
   rootFolder = inboxFolder.server.rootFolder;
@@ -183,8 +205,12 @@ function test_folder_flag_changes() {
 
   // Refresh the archive scope because clearing the flag should have
   // changed it.
-  archiveScope = "|" + smartArchiveFolder.msgDatabase.dBFolderInfo
-                 .getCharProperty("searchFolderUri") + "|";
+  archiveScope =
+    "|" +
+    smartArchiveFolder.msgDatabase.dBFolderInfo.getCharProperty(
+      "searchFolderUri"
+    ) +
+    "|";
 
   // figure out what we expect the archiveScope to now be.
   rootFolder = inboxFolder.server.rootFolder;
@@ -195,8 +221,9 @@ function test_folder_flag_changes() {
     desiredScope += folder.URI + "|";
   }
 
-  if (archiveScope != desiredScope)
+  if (archiveScope != desiredScope) {
     throw new Error("archive scope wrong after removing folder");
+  }
   assert_folder_and_children_not_in_scope(archiveFolder, archiveScope);
 }
 
@@ -219,14 +246,17 @@ function assert_folder_and_children_not_in_scope(folder, searchScope) {
 }
 
 function assert_uri_found(folderURI, scopeList) {
-  if (!scopeList.includes(folderURI))
+  if (!scopeList.includes(folderURI)) {
     throw new Error("scope " + scopeList + "doesn't contain " + folderURI);
+  }
 }
 
 function assert_uri_not_found(folderURI, scopeList) {
-  if (scopeList.includes(folderURI))
-    throw new Error("scope " + scopeList + "contains " + folderURI +
-                    " but shouldn't");
+  if (scopeList.includes(folderURI)) {
+    throw new Error(
+      "scope " + scopeList + "contains " + folderURI + " but shouldn't"
+    );
+  }
 }
 
 /**

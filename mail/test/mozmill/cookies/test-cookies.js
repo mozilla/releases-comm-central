@@ -16,7 +16,11 @@
 
 var MODULE_NAME = "test-cookies";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["window-helpers", "content-tab-helpers", "folder-display-helpers"];
+var MODULE_REQUIRES = [
+  "window-helpers",
+  "content-tab-helpers",
+  "folder-display-helpers",
+];
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
 // so we get the right path for the resources.
@@ -41,16 +45,23 @@ function test_load_cookie_page() {
 function test_load_cookie_result_page() {
   open_content_tab_with_url(url + "cookietest2.html");
 
-  if (mc.window.content.document.title != "Cookie Test 2")
-    throw new Error("The cookie test 2 page is not the selected tab or not content-primary");
+  if (mc.window.content.document.title != "Cookie Test 2") {
+    throw new Error(
+      "The cookie test 2 page is not the selected tab or not content-primary"
+    );
+  }
 
   let cookie = mc.window.content.wrappedJSObject.theCookie;
 
   dump("Cookie is: " + cookie + "\n");
 
-  if (!cookie)
+  if (!cookie) {
     throw new Error("Document has no cookie :-(");
+  }
 
-  if (cookie != "name=CookieTest")
-    throw new Error("Cookie set incorrectly, expected: name=CookieTest, got: " + cookie + "\n");
+  if (cookie != "name=CookieTest") {
+    throw new Error(
+      "Cookie set incorrectly, expected: name=CookieTest, got: " + cookie + "\n"
+    );
+  }
 }

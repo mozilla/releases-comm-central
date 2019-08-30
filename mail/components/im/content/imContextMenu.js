@@ -8,24 +8,25 @@
 var gChatContextMenu = null;
 
 function imContextMenu(aXulMenu) {
-  this.target            = null;
-  this.menu              = null;
-  this.onLink            = false;
-  this.onMailtoLink      = false;
-  this.onSaveableLink    = false;
-  this.link              = false;
-  this.linkURL           = "";
-  this.linkURI           = null;
-  this.linkProtocol      = null;
-  this.isTextSelected    = false;
+  this.target = null;
+  this.menu = null;
+  this.onLink = false;
+  this.onMailtoLink = false;
+  this.onSaveableLink = false;
+  this.link = false;
+  this.linkURL = "";
+  this.linkURI = null;
+  this.linkProtocol = null;
+  this.isTextSelected = false;
   this.isContentSelected = false;
-  this.shouldDisplay     = true;
+  this.shouldDisplay = true;
   this.ellipsis = "\u2026";
 
   try {
-    this.ellipsis =
-      Services.prefs.getComplexValue("intl.ellipsis",
-                                     Ci.nsIPrefLocalizedString).data;
+    this.ellipsis = Services.prefs.getComplexValue(
+      "intl.ellipsis",
+      Ci.nsIPrefLocalizedString
+    ).data;
   } catch (e) {}
 
   // Initialize new menu.
@@ -86,7 +87,10 @@ imContextMenu.prototype = {
 
     // Copy link location depends on whether we're on a non-mailto link.
     this.showItem("context-copylink", this.onLink && !this.onMailtoLink);
-    this.showItem("context-sep-copylink", this.onLink && this.isContentSelected);
+    this.showItem(
+      "context-sep-copylink",
+      this.onLink && this.isContentSelected
+    );
 
     // Display action menu items.
     let sep = document.getElementById("context-sep-messageactions");
@@ -102,10 +106,10 @@ imContextMenu.prototype = {
   // Set various context menu attributes based on the state of the world.
   setTarget(aNode) {
     // Initialize contextual info.
-    this.onLink            = false;
-    this.linkURL           = "";
-    this.linkURI           = null;
-    this.linkProtocol      = "";
+    this.onLink = false;
+    this.linkURL = "";
+    this.linkURI = null;
+    this.linkProtocol = "";
 
     // Remember the node that was clicked.
     this.target = aNode;
@@ -117,11 +121,14 @@ imContextMenu.prototype = {
     while (elem) {
       if (elem.nodeType == Node.ELEMENT_NODE) {
         // Link?
-        if (!this.onLink &&
-             ((elem instanceof HTMLAnchorElement && elem.href) ||
-              (elem instanceof HTMLAreaElement && elem.href) ||
-              elem instanceof HTMLLinkElement ||
-              elem.getAttributeNS("http://www.w3.org/1999/xlink", "type") == "simple")) {
+        if (
+          !this.onLink &&
+          ((elem instanceof HTMLAnchorElement && elem.href) ||
+            (elem instanceof HTMLAreaElement && elem.href) ||
+            elem instanceof HTMLLinkElement ||
+            elem.getAttributeNS("http://www.w3.org/1999/xlink", "type") ==
+              "simple")
+        ) {
           // Target is a link or a descendant of a link.
           this.onLink = true;
 
@@ -130,14 +137,20 @@ imContextMenu.prototype = {
           // this shouldn't be necessary, but we're matching the existing behaviour for left click
           var realLink = elem;
           var parent = elem;
-          while ((parent = parent.parentNode) &&
-                 (parent.nodeType == Node.ELEMENT_NODE)) {
+          while (
+            (parent = parent.parentNode) &&
+            parent.nodeType == Node.ELEMENT_NODE
+          ) {
             try {
-              if ((parent instanceof HTMLAnchorElement && parent.href) ||
-                  (parent instanceof HTMLAreaElement && parent.href) ||
-                  parent instanceof HTMLLinkElement ||
-                  parent.getAttributeNS("http://www.w3.org/1999/xlink", "type") == "simple")
+              if (
+                (parent instanceof HTMLAnchorElement && parent.href) ||
+                (parent instanceof HTMLAreaElement && parent.href) ||
+                parent instanceof HTMLLinkElement ||
+                parent.getAttributeNS("http://www.w3.org/1999/xlink", "type") ==
+                  "simple"
+              ) {
                 realLink = parent;
+              }
             } catch (e) {}
           }
 
@@ -146,7 +159,7 @@ imContextMenu.prototype = {
           this.linkURL = this.getLinkURL();
           this.linkURI = this.getLinkURI();
           this.linkProtocol = this.getLinkProtocol();
-          this.onMailtoLink = (this.linkProtocol == "mailto");
+          this.onMailtoLink = this.linkProtocol == "mailto";
           this.onSaveableLink = this.isLinkSaveable(this.link);
         }
       }
@@ -157,15 +170,17 @@ imContextMenu.prototype = {
 
   // Returns true if clicked-on link targets a resource that can be saved.
   isLinkSaveable(aLink) {
-    return this.linkProtocol &&
-      !["mailto", "javascript", "news", "snews"].includes(this.linkProtocol);
+    return (
+      this.linkProtocol &&
+      !["mailto", "javascript", "news", "snews"].includes(this.linkProtocol)
+    );
   },
 
   // Open linked-to URL in a new window.
   openLink(aURI) {
-    Cc["@mozilla.org/uriloader/external-protocol-service;1"].
-    getService(Ci.nsIExternalProtocolService).
-    loadURI(aURI || this.linkURI, window);
+    Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+      .getService(Ci.nsIExternalProtocolService)
+      .loadURI(aURI || this.linkURI, window);
   },
 
   // Generate email address and put it on clipboard.
@@ -184,13 +199,17 @@ imContextMenu.prototype = {
     // in case the address is not ASCII.
     try {
       var characterSet = this.target.ownerDocument.characterSet;
-      addresses = Services.textToSubURI.unEscapeURIForUI(characterSet, addresses);
+      addresses = Services.textToSubURI.unEscapeURIForUI(
+        characterSet,
+        addresses
+      );
     } catch (ex) {
       // Do nothing.
     }
 
-    var clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"].
-                    getService(Ci.nsIClipboardHelper);
+    var clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(
+      Ci.nsIClipboardHelper
+    );
     clipboard.copyString(addresses);
   },
 
@@ -199,10 +218,13 @@ imContextMenu.prototype = {
 
   // Show/hide one item (specified via name or the item element itself).
   showItem(aItemOrId, aShow) {
-    var item = aItemOrId.constructor == String ?
-      document.getElementById(aItemOrId) : aItemOrId;
-    if (item)
+    var item =
+      aItemOrId.constructor == String
+        ? document.getElementById(aItemOrId)
+        : aItemOrId;
+    if (item) {
       item.hidden = !aShow;
+    }
   },
 
   // Temporary workaround for DOM api not yet implemented by XUL nodes.
@@ -224,13 +246,13 @@ imContextMenu.prototype = {
   // Generate fully qualified URL for clicked-on link.
   getLinkURL() {
     var href = this.link.href;
-    if (href)
+    if (href) {
       return href;
+    }
 
-    href = this.link.getAttributeNS("http://www.w3.org/1999/xlink",
-                                    "href");
+    href = this.link.getAttributeNS("http://www.w3.org/1999/xlink", "href");
 
-    if (!href || (href.trim() == "")) {
+    if (!href || href.trim() == "") {
       // Without this we try to save as the current doc,
       // for example, HTML case also throws if empty
       throw new Error("Empty href");
@@ -250,8 +272,9 @@ imContextMenu.prototype = {
   },
 
   getLinkProtocol() {
-    if (this.linkURI)
-      return this.linkURI.scheme; // can be |undefined|
+    if (this.linkURI) {
+      return this.linkURI.scheme;
+    } // can be |undefined|
 
     return null;
   },
@@ -261,10 +284,11 @@ imContextMenu.prototype = {
     var text = gatherTextUnder(this.link);
     if (text == "") {
       text = this.link.getAttribute("title");
-      if (!text || (text.trim() == "")) {
+      if (!text || text.trim() == "") {
         text = this.link.getAttribute("alt");
-        if (!text || (text.trim() == ""))
+        if (!text || text.trim() == "") {
           text = this.linkURL;
+        }
       }
     }
 
@@ -277,11 +301,13 @@ imContextMenu.prototype = {
     // than 15 chars
     var selectedText = getBrowserSelection(16);
 
-    if (!selectedText)
+    if (!selectedText) {
       return false;
+    }
 
-    if (selectedText.length > 15)
+    if (selectedText.length > 15) {
       selectedText = selectedText.substr(0, 15) + this.ellipsis;
+    }
 
     return true;
   },
@@ -319,8 +345,9 @@ function getBrowserSelection(aCharLen) {
 
     selection = selection.trim().replace(/\s+/g, " ");
 
-    if (selection.length > charLen)
+    if (selection.length > charLen) {
       selection = selection.substr(0, charLen);
+    }
   }
   return selection;
 }

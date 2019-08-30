@@ -2,14 +2,22 @@
 /* vim: set ts=2 et sw=2 tw=80 filetype=javascript: */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
-  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* globals goUpdateCommand */
 
 "use strict";
 
-ChromeUtils.defineModuleGetter(this, "Downloads", "resource://gre/modules/Downloads.jsm");
-ChromeUtils.defineModuleGetter(this, "DownloadUtils", "resource://gre/modules/DownloadUtils.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "Downloads",
+  "resource://gre/modules/Downloads.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "DownloadUtils",
+  "resource://gre/modules/DownloadUtils.jsm"
+);
 ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 
 var DownloadsView = {
@@ -20,13 +28,13 @@ var DownloadsView = {
     this.items = new Map();
 
     Downloads.getList(Downloads.ALL)
-             .then(list => list.addView(this))
-             .then(null, Cu.reportError);
+      .then(list => list.addView(this))
+      .then(null, Cu.reportError);
 
     window.addEventListener("unload", aEvent => {
       Downloads.getList(Downloads.ALL)
-               .then(list => list.removeView(this))
-               .then(null, Cu.reportError);
+        .then(list => list.removeView(this))
+        .then(null, Cu.reportError);
       window.controllers.removeController(this);
     });
   },
@@ -53,14 +61,14 @@ var DownloadsView = {
       if (!download.succeeded) {
         return false;
       }
-      let targetFile = Cc["@mozilla.org/file/local;1"]
-                         .createInstance(Ci.nsIFile);
+      let targetFile = Cc["@mozilla.org/file/local;1"].createInstance(
+        Ci.nsIFile
+      );
       targetFile.initWithPath(download.target.path);
       return !targetFile.exists();
     };
     if (isPurgedFromDisk(aDownload)) {
-      Downloads.getList(Downloads.ALL)
-               .then(list => list.remove(aDownload));
+      Downloads.getList(Downloads.ALL).then(list => list.remove(aDownload));
       return;
     }
 
@@ -100,23 +108,26 @@ var DownloadsView = {
 
   clearDownloads() {
     Downloads.getList(Downloads.ALL)
-             .then(list => list.removeFinished())
-             .then(null, Cu.reportError);
+      .then(list => list.removeFinished())
+      .then(null, Cu.reportError);
   },
 
   searchDownloads() {
     let searchString = document.getElementById("searchBox").value.toLowerCase();
     for (let i = 0; i < this.listElement.itemCount; i++) {
       let downloadElem = this.listElement.getItemAtIndex(i);
-      downloadElem.collapsed =
-        !downloadElem.downloadItem.fileName.toLowerCase().includes(searchString);
+      downloadElem.collapsed = !downloadElem.downloadItem.fileName
+        .toLowerCase()
+        .includes(searchString);
     }
     this.listElement.clearSelection();
   },
 
   supportsCommand(aCommand) {
-    return (this.commands.includes(aCommand) ||
-            (DownloadItem.prototype.supportsCommand(aCommand)));
+    return (
+      this.commands.includes(aCommand) ||
+      DownloadItem.prototype.supportsCommand(aCommand)
+    );
   },
 
   isCommandEnabled(aCommand) {
@@ -155,7 +166,7 @@ var DownloadsView = {
     }
   },
 
-  onEvent() { },
+  onEvent() {},
 
   updateCommands() {
     this.commands.forEach(goUpdateCommand);
@@ -179,7 +190,9 @@ function DownloadItem(aDownload) {
   }
   this._fileName = this._htmlEscape(OS.Path.basename(aDownload.target.path));
   this._iconUrl = "moz-icon://" + this._fileName + "?size=32";
-  this._startDate = this._htmlEscape(DownloadUtils.getReadableDates(aDownload.startTime)[0]);
+  this._startDate = this._htmlEscape(
+    DownloadUtils.getReadableDates(aDownload.startTime)[0]
+  );
   this._filePath = aDownload.target.path;
 }
 
@@ -217,7 +230,9 @@ DownloadItem.prototype = {
     return false;
   },
 
-  get download() { return this._download; },
+  get download() {
+    return this._download;
+  },
 
   get element() {
     if (!this._element) {
@@ -302,9 +317,9 @@ DownloadItem.prototype = {
 
   remove() {
     Downloads.getList(Downloads.ALL)
-             .then(list => list.remove(this.download))
-             .then(() => this.download.finalize(true))
-             .then(null, Cu.reportError);
+      .then(list => list.remove(this.download))
+      .then(() => this.download.finalize(true))
+      .then(null, Cu.reportError);
   },
 
   show() {
@@ -320,11 +335,17 @@ DownloadItem.prototype = {
     this.updateElement(this.element);
   },
 
-  get fileName() { return this._fileName; },
+  get fileName() {
+    return this._fileName;
+  },
 
-  get iconUrl() { return this._iconUrl; },
+  get iconUrl() {
+    return this._iconUrl;
+  },
 
-  get sender() { return this._sender; },
+  get sender() {
+    return this._sender;
+  },
 
   get size() {
     let bytes;
@@ -336,7 +357,9 @@ DownloadItem.prototype = {
     return DownloadUtils.convertByteUnits(bytes).join("");
   },
 
-  get startDate() { return this._startDate; },
+  get startDate() {
+    return this._startDate;
+  },
 
   supportsCommand(aCommand) {
     return this.commands.includes(aCommand);

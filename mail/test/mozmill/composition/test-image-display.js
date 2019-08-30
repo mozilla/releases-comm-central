@@ -14,11 +14,17 @@
 
 var MODULE_NAME = "test-image-display";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "compose-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "compose-helpers",
+];
 
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
-var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
+var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.js");
 
 var gImageFolder;
 
@@ -37,20 +43,39 @@ function check_image_size(aController, aImage, aSrcStart) {
   aController.waitFor(() => aImage.complete);
   // There should not be a cid: URL now.
   assert_false(aImage.src.startsWith("cid:"));
-  if (aSrcStart)
+  if (aSrcStart) {
     assert_true(aImage.src.startsWith(aSrcStart));
+  }
 
   // Check if there are height and width attributes forcing the image to a size.
   let id = aImage.id;
-  assert_true(aImage.hasAttribute("height"), "Image " + id + " is missing a required attribute");
-  assert_true(aImage.hasAttribute("width"), "Image " + id + " is missing a required attribute");
+  assert_true(
+    aImage.hasAttribute("height"),
+    "Image " + id + " is missing a required attribute"
+  );
+  assert_true(
+    aImage.hasAttribute("width"),
+    "Image " + id + " is missing a required attribute"
+  );
 
-  assert_true(aImage.height > 0, "Image " + id + " is missing a required attribute");
-  assert_true(aImage.width > 0, "Image " + id + " is missing a required attribute");
+  assert_true(
+    aImage.height > 0,
+    "Image " + id + " is missing a required attribute"
+  );
+  assert_true(
+    aImage.width > 0,
+    "Image " + id + " is missing a required attribute"
+  );
 
   // If the image couldn't be loaded, the naturalWidth and Height are zero.
-  assert_true(aImage.naturalHeight > 0, "Loaded image " + id + " is of zero size");
-  assert_true(aImage.naturalWidth > 0, "Loaded image " + id + " is of zero size");
+  assert_true(
+    aImage.naturalHeight > 0,
+    "Loaded image " + id + " is of zero size"
+  );
+  assert_true(
+    aImage.naturalWidth > 0,
+    "Loaded image " + id + " is of zero size"
+  );
 }
 
 /**
@@ -58,8 +83,9 @@ function check_image_size(aController, aImage, aSrcStart) {
  * Test that showing an image with cid: URL in a HTML message from file will work.
  */
 function test_cid_image_load() {
-  let file = os.getFileForPath(os.abspath("./content-utf8-rel-only.eml",
-                               os.getFileForPath(__file__)));
+  let file = os.getFileForPath(
+    os.abspath("./content-utf8-rel-only.eml", os.getFileForPath(__file__))
+  );
 
   // Make sure there is a cid: referenced image in the message.
   let msgSource = IOUtils.loadFileToString(file);
@@ -77,9 +103,9 @@ function test_cid_image_load() {
   let documentChild = messageDoc.firstChild;
   msgc.rightClick(new elib.Elem(documentChild));
   msgc.click_menus_in_sequence(msgc.e("mailContext"), [
-    {id: "mailContext-copyMenu"},
-    {label: "Local Folders"},
-    {label: gImageFolder.prettyName },
+    { id: "mailContext-copyMenu" },
+    { label: "Local Folders" },
+    { label: gImageFolder.prettyName },
   ]);
   close_window(msgc);
 }
@@ -109,11 +135,18 @@ function test_cid_image_view() {
  */
 function test_cid_image_compose() {
   // Our image should also be in composition when the message is forwarded/replied.
-  for (let msgOperation of [open_compose_with_forward, open_compose_with_reply]) {
+  for (let msgOperation of [
+    open_compose_with_forward,
+    open_compose_with_reply,
+  ]) {
     let cwc = msgOperation();
-    let image = cwc.e("content-frame").contentDocument.getElementById("cidImage");
+    let image = cwc
+      .e("content-frame")
+      .contentDocument.getElementById("cidImage");
     check_image_size(cwc, image, "data:");
-    image = cwc.e("content-frame").contentDocument.getElementById("cidImageOrigin");
+    image = cwc
+      .e("content-frame")
+      .contentDocument.getElementById("cidImageOrigin");
     check_image_size(cwc, image, "data:");
     close_compose_window(cwc);
   }

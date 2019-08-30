@@ -22,7 +22,9 @@ function MsgHdrSyntheticView(aMsgHdr) {
 }
 
 MsgHdrSyntheticView.prototype = {
-  defaultSort: [[Ci.nsMsgViewSortType.byDate, Ci.nsMsgViewSortOrder.descending]],
+  defaultSort: [
+    [Ci.nsMsgViewSortType.byDate, Ci.nsMsgViewSortOrder.descending],
+  ],
 
   /**
    * Request the search be performed and notifications provided to
@@ -42,10 +44,12 @@ MsgHdrSyntheticView.prototype = {
    * Aborts or completes the search -- we do not make a distinction.
    */
   abortSearch() {
-    if (this.searchListener)
+    if (this.searchListener) {
       this.searchListener.onSearchDone(Cr.NS_OK);
-    if (this.completionCallback)
+    }
+    if (this.completionCallback) {
       this.completionCallback();
+    }
     this.searchListener = null;
     this.completionCallback = null;
   },
@@ -54,8 +58,9 @@ MsgHdrSyntheticView.prototype = {
    * Helper function used by |DBViewWrapper.getMsgHdrForMessageID|.
    */
   getMsgHdrForMessageID(aMessageId) {
-    if (this.msgHdr.messageId == aMessageId)
+    if (this.msgHdr.messageId == aMessageId) {
       return this.msgHdr;
+    }
 
     return null;
   },

@@ -10,8 +10,12 @@ if (!customElements.get("menulist")) {
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
-  const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+  const { MailServices } = ChromeUtils.import(
+    "resource:///modules/MailServices.jsm"
+  );
+  const { fixIterator } = ChromeUtils.import(
+    "resource:///modules/iteratorUtils.jsm"
+  );
   /**
    * MozMenulistAddrbooks is a menulist widget that is automatically
    * populated with the complete address book list.
@@ -53,9 +57,10 @@ if (!customElements.get("menulist")) {
             if (index != -1) {
               this._directories.splice(index, 1);
               // Are we removing the selected directory?
-              if (this.selectedItem ==
-                this.menupopup.removeChild(
-                  this.menupopup.childNodes[index])) {
+              if (
+                this.selectedItem ==
+                this.menupopup.removeChild(this.menupopup.childNodes[index])
+              ) {
                 // If so, try to select the first directory, if available.
                 if (this.menupopup.hasChildNodes()) {
                   this.menupopup.firstChild.doCommand();
@@ -83,10 +88,17 @@ if (!customElements.get("menulist")) {
         },
       };
 
-      MailServices.ab.addAddressBookListener(this.addressBookListener, Ci.nsIAbListener.all);
-      window.addEventListener("unload", () => {
-        MailServices.ab.removeAddressBookListener(this.addressBookListener);
-      }, { once: true });
+      MailServices.ab.addAddressBookListener(
+        this.addressBookListener,
+        Ci.nsIAbListener.all
+      );
+      window.addEventListener(
+        "unload",
+        () => {
+          MailServices.ab.removeAddressBookListener(this.addressBookListener);
+        },
+        { once: true }
+      );
     }
 
     /**
@@ -114,7 +126,7 @@ if (!customElements.get("menulist")) {
 
       while (directories && directories.hasMoreElements()) {
         let ab = directories.getNext();
-        if ((ab instanceof Ci.nsIAbDirectory) && this._matches(ab)) {
+        if (ab instanceof Ci.nsIAbDirectory && this._matches(ab)) {
           this._directories.push(ab);
 
           if (this.getAttribute("mailinglists") == "true") {
@@ -181,7 +193,7 @@ if (!customElements.get("menulist")) {
       }
 
       // Attempt to select the persisted or otherwise first directory.
-      this.selectedIndex = this._directories.findIndex((d) => {
+      this.selectedIndex = this._directories.findIndex(d => {
         return d && d[type] == this.value;
       });
 
@@ -204,12 +216,16 @@ if (!customElements.get("menulist")) {
       }
 
       // This condition is used for instance when creating mailing lists
-      if (this.getAttribute("supportsmaillists") == "true" &&
-        !ab.supportsMailingLists) {
+      if (
+        this.getAttribute("supportsmaillists") == "true" &&
+        !ab.supportsMailingLists
+      ) {
         return false;
       }
 
-      return this.getAttribute(ab.isRemote ? "localonly" : "remoteonly") != "true";
+      return (
+        this.getAttribute(ab.isRemote ? "localonly" : "remoteonly") != "true"
+      );
     }
 
     _sort() {
@@ -300,6 +316,7 @@ if (!customElements.get("menulist")) {
     }
   }
 
-  customElements.define("menulist-addrbooks",
-    MozMenulistAddrbooks, { extends: "menulist" });
+  customElements.define("menulist-addrbooks", MozMenulistAddrbooks, {
+    extends: "menulist",
+  });
 }

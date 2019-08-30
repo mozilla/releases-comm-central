@@ -2,23 +2,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 var { Gloda } = ChromeUtils.import("resource:///modules/gloda/gloda.js");
-var {
-  mimeMsgToContentSnippetAndMeta,
-} = ChromeUtils.import("resource:///modules/gloda/connotent.js");
-var { MsgHdrToMimeMessage } = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
-var {DisplayNameUtils} = ChromeUtils.import("resource:///modules/DisplayNameUtils.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {TagUtils} = ChromeUtils.import("resource:///modules/TagUtils.jsm");
+var { mimeMsgToContentSnippetAndMeta } = ChromeUtils.import(
+  "resource:///modules/gloda/connotent.js"
+);
+var { MsgHdrToMimeMessage } = ChromeUtils.import(
+  "resource:///modules/gloda/mimemsg.js"
+);
+var { DisplayNameUtils } = ChromeUtils.import(
+  "resource:///modules/DisplayNameUtils.jsm"
+);
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { TagUtils } = ChromeUtils.import("resource:///modules/TagUtils.jsm");
 
-var {
-  PluralStringFormatter,
-  makeFriendlyDateAgo,
-} = ChromeUtils.import("resource:///modules/templateUtils.js");
+var { PluralStringFormatter, makeFriendlyDateAgo } = ChromeUtils.import(
+  "resource:///modules/templateUtils.js"
+);
 
-var gMessenger = Cc["@mozilla.org/messenger;1"]
-                   .createInstance(Ci.nsIMessenger);
+var gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
 // Set up our string formatter for localizing strings.
 XPCOMUtils.defineLazyGetter(this, "formatString", function() {
@@ -74,10 +80,11 @@ var ITERATOR_SYMBOL = JS_HAS_SYMBOLS ? Symbol.iterator : "@@iterator";
  * Iterate over the array until we hit the end or the maximum length,
  * whichever comes first.
  */
-LimitIterator.prototype[ITERATOR_SYMBOL] = function* () {
+LimitIterator.prototype[ITERATOR_SYMBOL] = function*() {
   let length = this.length;
-  for (let i = 0; i < length; i++)
+  for (let i = 0; i < length; i++) {
     yield this._array[i];
+  }
 };
 
 /**
@@ -130,8 +137,9 @@ MultiMessageSummary.prototype = {
 
     // Clear the messages list.
     let messageList = document.getElementById("message_list");
-    while (messageList.hasChildNodes())
+    while (messageList.hasChildNodes()) {
       messageList.lastChild.remove();
+    }
 
     // Clear the notice.
     let notice = document.getElementById("notice");
@@ -150,24 +158,27 @@ MultiMessageSummary.prototype = {
     this.clear();
 
     this._listener = aListener;
-    if (this._listener)
+    if (this._listener) {
       this._listener.onLoadStarted();
+    }
 
     // Enable/disable the archive button as appropriate.
     let archiveBtn = document.getElementById("hdrArchiveButton");
     archiveBtn.collapsed = !window.top.gFolderDisplay
-                                  .canArchiveSelectedMessages;
+      .canArchiveSelectedMessages;
 
     let summarizer = this._summarizers[aType];
-    if (!summarizer)
+    if (!summarizer) {
       throw new Error('Unknown summarizer "' + aType + '"');
+    }
 
     let messages = new LimitIterator(aMessages, this.kMaxMessages);
     let summarizedMessages = summarizer.summarize(messages);
 
     // Stash somewhere so it doesn't get GC'ed.
     this._glodaQuery = Gloda.getMessageCollectionForHeaders(
-      summarizedMessages, this
+      summarizedMessages,
+      this
     );
     this._computeSize(messages);
   },
@@ -215,12 +226,15 @@ MultiMessageSummary.prototype = {
       numUnread = thread.reduce(function(x, hdr) {
         return x + (hdr.isRead ? 0 : 1);
       }, 0);
-      isStarred = thread.some(function(hdr) { return hdr.isFlagged; });
+      isStarred = thread.some(function(hdr) {
+        return hdr.isFlagged;
+      });
 
       tags = new Set();
       for (let message of thread) {
-        for (let tag of this._getTagsForMsg(message))
+        for (let tag of this._getTagsForMsg(message)) {
           tags.add(tag);
+        }
       }
     }
 
@@ -228,18 +242,20 @@ MultiMessageSummary.prototype = {
     row.classList.toggle("thread", thread && thread.length > 1);
     row.classList.toggle("unread", numUnread > 0);
     row.classList.toggle("starred", isStarred);
-    row.innerHTML = '<div class="star"/>' +
-                    '<div class="item_summary">' +
-                      '<div class="item_header"/>' +
-                      '<div class="snippet"/>' +
-                    "</div>";
+    row.innerHTML =
+      '<div class="star"/>' +
+      '<div class="item_summary">' +
+      '<div class="item_header"/>' +
+      '<div class="snippet"/>' +
+      "</div>";
 
     let itemHeaderNode = row.querySelector(".item_header");
 
     let authorNode = document.createElement("span");
     authorNode.classList.add("author");
     authorNode.textContent = DisplayNameUtils.formatDisplayNameList(
-      message.mime2DecodedAuthor, "from"
+      message.mime2DecodedAuthor,
+      "from"
     );
 
     if (aOptions && aOptions.showSubject) {
@@ -248,8 +264,8 @@ MultiMessageSummary.prototype = {
 
       let subjectNode = document.createElement("span");
       subjectNode.classList.add("subject", "primary_header", "link");
-      subjectNode.textContent = message.mime2DecodedSubject ||
-                                formatString("noSubject");
+      subjectNode.textContent =
+        message.mime2DecodedSubject || formatString("noSubject");
       subjectNode.addEventListener("click", function() {
         window.top.gFolderDisplay.selectMessages(thread);
       });
@@ -257,13 +273,22 @@ MultiMessageSummary.prototype = {
 
       if (thread && thread.length > 1) {
         let numUnreadStr = "";
-        if (numUnread)
+        if (numUnread) {
           numUnreadStr = formatString(
-            "numUnread", [numUnread.toLocaleString()], numUnread
+            "numUnread",
+            [numUnread.toLocaleString()],
+            numUnread
           );
-        let countStr = "(" + formatString(
-          "numMessages", [thread.length.toLocaleString()], thread.length
-        ) + numUnreadStr + ")";
+        }
+        let countStr =
+          "(" +
+          formatString(
+            "numMessages",
+            [thread.length.toLocaleString()],
+            thread.length
+          ) +
+          numUnreadStr +
+          ")";
 
         let countNode = document.createElement("span");
         countNode.classList.add("count");
@@ -291,18 +316,27 @@ MultiMessageSummary.prototype = {
 
     let snippetNode = row.querySelector(".snippet");
     try {
-      const kSnippetLength = (aOptions && aOptions.snippetLength);
-      MsgHdrToMimeMessage(message, null, function(aMsgHdr, aMimeMsg) {
-        if (aMimeMsg == null) /* shouldn't happen, but sometimes does? */ {
-          return;
-        }
-        let [text, meta] = mimeMsgToContentSnippetAndMeta(
-          aMimeMsg, aMsgHdr.folder, kSnippetLength
-        );
-        snippetNode.textContent = text;
-        if (meta.author)
-          authorNode.textContent = meta.author;
-      }, false, {saneBodySize: true});
+      const kSnippetLength = aOptions && aOptions.snippetLength;
+      MsgHdrToMimeMessage(
+        message,
+        null,
+        function(aMsgHdr, aMimeMsg) {
+          if (aMimeMsg == null) {
+            /* shouldn't happen, but sometimes does? */ return;
+          }
+          let [text, meta] = mimeMsgToContentSnippetAndMeta(
+            aMimeMsg,
+            aMsgHdr.folder,
+            kSnippetLength
+          );
+          snippetNode.textContent = text;
+          if (meta.author) {
+            authorNode.textContent = meta.author;
+          }
+        },
+        false,
+        { saneBodySize: true }
+      );
     } catch (e) {
       if (e.result == Cr.NS_ERROR_FAILURE) {
         // Offline messages generate exceptions, which is unfortunate.  When
@@ -355,8 +389,7 @@ MultiMessageSummary.prototype = {
     // Make sure the tags are sorted in their natural order.
     let sortedTags = [...aTags];
     sortedTags.sort(function(a, b) {
-      return a.key.localeCompare(b.key) ||
-             a.ordinal.localeCompare(b.ordinal);
+      return a.key.localeCompare(b.key) || a.ordinal.localeCompare(b.ordinal);
     });
 
     for (let tag of sortedTags) {
@@ -368,7 +401,10 @@ MultiMessageSummary.prototype = {
       }
 
       tagNode.className = "tag";
-      tagNode.setAttribute("style", "color: " + textColor + "; background-color: " + color + ";");
+      tagNode.setAttribute(
+        "style",
+        "color: " + textColor + "; background-color: " + color + ";"
+      );
       tagNode.dataset.tag = tag.tag;
       tagNode.textContent = tag.tag;
       aTagsNode.appendChild(tagNode);
@@ -383,14 +419,16 @@ MultiMessageSummary.prototype = {
    */
   _computeSize(aMessages) {
     let numBytes = 0;
-    for (let msgHdr of aMessages)
-      numBytes += msgHdr.messageSize; // XXX do something about news?
+    for (let msgHdr of aMessages) {
+      numBytes += msgHdr.messageSize;
+    } // XXX do something about news?
 
-    let format = aMessages.limited ? "messagesTotalSizeMoreThan" :
-                                     "messagesTotalSize";
-    document.getElementById("size").textContent = formatString(
-      format, [gMessenger.formatFileSize(numBytes)]
-    );
+    let format = aMessages.limited
+      ? "messagesTotalSizeMoreThan"
+      : "messagesTotalSize";
+    document.getElementById("size").textContent = formatString(format, [
+      gMessenger.formatFileSize(numBytes),
+    ]);
   },
 
   /**
@@ -402,10 +440,11 @@ MultiMessageSummary.prototype = {
     let heading = document.getElementById("heading");
     let buttonbox = document.getElementById("header-view-toolbox");
 
-    content.style.top = Math.max(
-      buttonbox.getBoundingClientRect().height,
-      heading.getBoundingClientRect().height
-    ) + "px";
+    content.style.top =
+      Math.max(
+        buttonbox.getBoundingClientRect().height,
+        heading.getBoundingClientRect().height
+      ) + "px";
   },
 
   // These are listeners for the gloda collections.
@@ -448,8 +487,9 @@ MultiMessageSummary.prototype = {
       // Count as starred if *any* of the messages are starred.
       flags.starred |= glodaMsg.starred;
       // Count as tagged with a tag if *any* of the messages have that tag.
-      for (let tag of this._getTagsForMsg(glodaMsg.folderMessage))
+      for (let tag of this._getTagsForMsg(glodaMsg.folderMessage)) {
         flags.tags.add(tag);
+      }
     }
 
     for (let [headerNode, flags] of knownMessageNodes) {
@@ -459,8 +499,9 @@ MultiMessageSummary.prototype = {
       // Clear out all the tags and start fresh, just to make sure we don't get
       // out of sync.
       let tagsNode = headerNode.querySelector(".tags");
-      while (tagsNode.hasChildNodes())
+      while (tagsNode.hasChildNodes()) {
         tagsNode.lastChild.remove();
+      }
       this._addTagNodes(flags.tags, tagsNode);
     }
   },
@@ -468,8 +509,9 @@ MultiMessageSummary.prototype = {
   onQueryCompleted(aCollection) {
     // If we need something that's just available from GlodaMessages, this is
     // where we'll get it initially.
-    if (this._listener)
+    if (this._listener) {
       this._listener.onLoadCompleted();
+    }
   },
 };
 
@@ -534,8 +576,9 @@ ThreadSummarizer.prototype = {
         break;
       }
 
-      if (subject == null)
+      if (subject == null) {
         subject = msgHdr.mime2DecodedSubject;
+      }
 
       let msgNode = this.context.makeSummaryItem(msgHdr, {
         snippetLength: this.kSnippetLength,
@@ -547,22 +590,28 @@ ThreadSummarizer.prototype = {
 
     // Set the heading based on the subject and number of messages.
     let countInfo = formatString(
-      "numMessages", [aMessages.length.toLocaleString()], aMessages.length
+      "numMessages",
+      [aMessages.length.toLocaleString()],
+      aMessages.length
     );
     if (ignoredCount != 0) {
       let format = aMessages.limited ? "atLeastNumIgnored" : "numIgnored";
       countInfo += formatString(
-        format, [ignoredCount.toLocaleString()], ignoredCount
+        format,
+        [ignoredCount.toLocaleString()],
+        ignoredCount
       );
     }
 
     this.context.setHeading(subject || formatString("noSubject"), countInfo);
 
     if (maxCountExceeded) {
-      this.context.showNotice(formatString("maxCountExceeded", [
-        aMessages.trueLength.toLocaleString(),
-        this.kMaxSummarizedMessages.toLocaleString(),
-      ]));
+      this.context.showNotice(
+        formatString("maxCountExceeded", [
+          aMessages.trueLength.toLocaleString(),
+          this.kMaxSummarizedMessages.toLocaleString(),
+        ])
+      );
     }
 
     return summarizedMessages;
@@ -618,19 +667,22 @@ MultipleSelectionSummarizer.prototype = {
     let threads = this._buildThreads(aMessages);
 
     // Set the heading based on the number of messages & threads.
-    let format = aMessages.limited ? "atLeastNumConversations" :
-                                     "numConversations";
-    this.context.setHeading(formatString(
-      format, [threads.length.toLocaleString()], threads.length
-    ));
+    let format = aMessages.limited
+      ? "atLeastNumConversations"
+      : "numConversations";
+    this.context.setHeading(
+      formatString(format, [threads.length.toLocaleString()], threads.length)
+    );
 
     // Summarize the selected messages by thread.
     let maxCountExceeded = false;
     let messageCount = 0;
     for (let [i, msgs] of threads.entries()) {
       messageCount += msgs.length;
-      if (messageCount > this.kMaxSummarizedMessages ||
-          i > this.kMaxSummarizedThreads) {
+      if (
+        messageCount > this.kMaxSummarizedMessages ||
+        i > this.kMaxSummarizedThreads
+      ) {
         threads.length = i;
         maxCountExceeded = true;
         break;
@@ -642,15 +694,18 @@ MultipleSelectionSummarizer.prototype = {
       });
       messageList.appendChild(msgNode);
 
-      for (let msgHdr of msgs)
+      for (let msgHdr of msgs) {
         this.context.mapMsgToNode(msgHdr, msgNode);
+      }
     }
 
     if (maxCountExceeded) {
-      this.context.showNotice(formatString("maxCountExceeded", [
-        aMessages.trueLength.toLocaleString(),
-        this.kMaxSummarizedMessages.toLocaleString(),
-      ]));
+      this.context.showNotice(
+        formatString("maxCountExceeded", [
+          aMessages.trueLength.toLocaleString(),
+          this.kMaxSummarizedMessages.toLocaleString(),
+        ])
+      );
 
       // Return only the messages for the threads we're actually showing. We
       // need to collapse our array-of-arrays into a flat array.
@@ -676,9 +731,9 @@ MultipleSelectionSummarizer.prototype = {
     let threads = [];
     let threadMap = {};
     for (let msgHdr of aMessages) {
-      let viewThreadId = window.top.gFolderDisplay.view.dbView
-                                   .getThreadContainingMsgHdr(msgHdr)
-                                   .threadKey;
+      let viewThreadId = window.top.gFolderDisplay.view.dbView.getThreadContainingMsgHdr(
+        msgHdr
+      ).threadKey;
       if (!(viewThreadId in threadMap)) {
         threadMap[viewThreadId] = threads.length;
         threads.push([msgHdr]);

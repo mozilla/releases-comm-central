@@ -14,7 +14,11 @@
 
 var MODULE_NAME = "test-account-tree";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "account-manager-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "account-manager-helpers",
+];
 
 var gPopAccount, gOriginalAccountCount;
 
@@ -39,7 +43,10 @@ function setupModule(module) {
   gPopAccount.addIdentity(identity);
 
   // Now there should be one more account.
-  assert_equals(MailServices.accounts.allServers.length, gOriginalAccountCount + 1);
+  assert_equals(
+    MailServices.accounts.allServers.length,
+    gOriginalAccountCount + 1
+  );
 }
 
 function teardownModule(module) {
@@ -90,7 +97,9 @@ function subtest_check_account_open_state(amc, aWishedState) {
   assert_true(accountTree.view.isContainerOpen(accountRow));
 
   // Set the proper state again for continuation of the test.
-  accountTree.view.getItemAtIndex(accountRow).setAttribute("open", !aWishedState);
+  accountTree.view
+    .getItemAtIndex(accountRow)
+    .setAttribute("open", !aWishedState);
   assert_equals(accountTree.view.isContainerOpen(accountRow), !aWishedState);
 }
 
@@ -112,7 +121,11 @@ function test_default_account_highlight() {
  */
 function subtest_check_default_account_highlight(amc) {
   // Select the default account.
-  let accountRow = get_account_tree_row(MailServices.accounts.defaultAccount.key, null, amc);
+  let accountRow = get_account_tree_row(
+    MailServices.accounts.defaultAccount.key,
+    null,
+    amc
+  );
   click_account_tree_row(amc, accountRow);
 
   let accountTree = amc.e("accounttree");
@@ -124,7 +137,8 @@ function subtest_check_default_account_highlight(amc) {
   // if the isDefaultServer-true property is set on it. Hopefully the proper style
   // is attached to this property.
   let propArray = accountTree.view
-    .getCellProperties(accountRow, accountTree.columns.getColumnAt(0)).split(" ");
+    .getCellProperties(accountRow, accountTree.columns.getColumnAt(0))
+    .split(" ");
   assert_true(propArray.includes("isDefaultServer-true"));
 
   // Now select another account that is not default.
@@ -133,7 +147,8 @@ function subtest_check_default_account_highlight(amc) {
 
   // There should isDefaultServer-true on its tree cell.
   propArray = accountTree.view
-    .getCellProperties(accountRow, accountTree.columns.getColumnAt(0)).split(" ");
+    .getCellProperties(accountRow, accountTree.columns.getColumnAt(0))
+    .split(" ");
   assert_false(propArray.includes("isDefaultServer-true"));
 }
 /**
@@ -161,8 +176,9 @@ function subtest_check_selection_after_account_deletion(amc) {
   for (let i = 0; i < accountTreeNode.childNodes.length; i++) {
     if ("_account" in accountTreeNode.childNodes[i]) {
       let curAccount = accountTreeNode.childNodes[i]._account;
-      if (!accountList.includes(curAccount))
+      if (!accountList.includes(curAccount)) {
         accountList.push(curAccount);
+      }
     }
   }
 
@@ -178,6 +194,8 @@ function subtest_check_selection_after_account_deletion(amc) {
   // See if the currently selected account is the one next in the account list.
   let accountTree = amc.e("accounttree");
   let accountRow = accountTree.view.selection.currentIndex;
-  assert_equals(accountTree.view.getItemAtIndex(accountRow)._account,
-                accountList[accountIndex + 1]);
+  assert_equals(
+    accountTree.view.getItemAtIndex(accountRow)._account,
+    accountList[accountIndex + 1]
+  );
 }

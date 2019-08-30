@@ -11,8 +11,12 @@ var MODULE_NAME = "test-commands";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
 var folder1, folder2;
@@ -25,7 +29,7 @@ var setupModule = function(module) {
 
   folder1 = create_folder("CopyFromFolder");
   folder2 = create_folder("CopyToFolder");
-  make_new_sets_in_folder(folder1, [{count: 1}]);
+  make_new_sets_in_folder(folder1, [{ count: 1 }]);
 };
 
 function test_copy_eml_message() {
@@ -34,11 +38,17 @@ function test_copy_eml_message() {
   // context menu.
   be_in_folder(folder1);
   let message = select_click_row(0);
-  let array = Cc["@mozilla.org/array;1"]
-                .createInstance(Ci.nsIMutableArray);
+  let array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   array.appendElement(message);
-  MailServices.copy.CopyMessages(folder1, array, folder2, true,
-                                 null, mc.window.msgWindow, true);
+  MailServices.copy.CopyMessages(
+    folder1,
+    array,
+    folder2,
+    true,
+    null,
+    mc.window.msgWindow,
+    true
+  );
   be_in_folder(folder2);
   select_click_row(0);
   press_delete(mc);
@@ -51,9 +61,9 @@ function test_copy_eml_message() {
   let documentChild = msgc.e("messagepane").contentDocument.firstChild;
   msgc.rightClick(new elib.Elem(documentChild));
   msgc.click_menus_in_sequence(msgc.e("mailContext"), [
-    {id: "mailContext-copyMenu"},
-    {label: "Recent"},
-    {label: "CopyToFolder"},
+    { id: "mailContext-copyMenu" },
+    { label: "Recent" },
+    { label: "CopyToFolder" },
   ]);
   close_window(msgc);
 

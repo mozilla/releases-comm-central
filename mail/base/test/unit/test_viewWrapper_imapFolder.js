@@ -6,7 +6,7 @@
 
 /* import-globals-from resources/viewWrapperTestUtils.js */
 load("resources/viewWrapperTestUtils.js");
-initViewWrapperTestUtils({mode: "imap", offline: false});
+initViewWrapperTestUtils({ mode: "imap", offline: false });
 
 /**
  * Create an empty folder, inject messages into it without triggering an
@@ -23,7 +23,7 @@ function* test_enter_imap_folder_requiring_update_folder_immediately() {
   let msgFolder = get_real_injection_folder(folderHandle);
 
   // - add the messages
-  let [msgSet] = make_new_sets_in_folder(folderHandle, [{count: 1}], true);
+  let [msgSet] = make_new_sets_in_folder(folderHandle, [{ count: 1 }], true);
   yield wait_for_message_injection();
 
   let viewWrapper = make_view_wrapper();
@@ -45,9 +45,7 @@ function* test_enter_imap_folder_requiring_update_folder_immediately() {
   verify_messages_in_view(msgSet, viewWrapper);
 }
 
-var tests = [
-  test_enter_imap_folder_requiring_update_folder_immediately,
-];
+var tests = [test_enter_imap_folder_requiring_update_folder_immediately];
 
 function run_test() {
   async_run_tests(tests);

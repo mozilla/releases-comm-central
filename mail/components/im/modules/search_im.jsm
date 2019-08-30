@@ -4,7 +4,7 @@
 
 this.EXPORTED_SYMBOLS = ["GlodaIMSearcher"];
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { Gloda } = ChromeUtils.import("resource:///modules/gloda/public.js");
 
 /**
@@ -71,23 +71,26 @@ var NUEVO_FULLTEXT_SQL =
   "SELECT imConversations.*, imConversationsText.*, offsets(imConversationsText) AS osets " +
   "FROM imConversationsText, imConversations " +
   "WHERE" +
-    " imConversationsText MATCH ?1 " +
-    " AND imConversationsText.docid IN (" +
-       "SELECT docid " +
-       "FROM imConversationsText JOIN imConversations ON imConversationsText.docid = imConversations.id " +
-       "WHERE imConversationsText MATCH ?1 " +
-       "ORDER BY " + DASCORE + " DESC " +
-       "LIMIT ?2" +
-    " )" +
-    " AND imConversations.id = imConversationsText.docid";
+  " imConversationsText MATCH ?1 " +
+  " AND imConversationsText.docid IN (" +
+  "SELECT docid " +
+  "FROM imConversationsText JOIN imConversations ON imConversationsText.docid = imConversations.id " +
+  "WHERE imConversationsText MATCH ?1 " +
+  "ORDER BY " +
+  DASCORE +
+  " DESC " +
+  "LIMIT ?2" +
+  " )" +
+  " AND imConversations.id = imConversationsText.docid";
 
 function identityFunc(x) {
   return x;
 }
 
 function oneLessMaxZero(x) {
-  if (x <= 1)
+  if (x <= 1) {
     return 0;
+  }
   return x - 1;
 }
 
@@ -135,16 +138,19 @@ function scoreOffsets(aMessage, aContext) {
 
   let termTemplate = aContext.terms.map(_ => 0);
   // for each column, a list of the incidence of each term
-  let columnTermIncidence = [termTemplate.concat(),
-                             termTemplate.concat(),
-                             termTemplate.concat(),
-                             termTemplate.concat(),
-                             termTemplate.concat()];
+  let columnTermIncidence = [
+    termTemplate.concat(),
+    termTemplate.concat(),
+    termTemplate.concat(),
+    termTemplate.concat(),
+    termTemplate.concat(),
+  ];
 
   // we need a friendlyParseInt because otherwise the radix stuff happens
   //  because of the extra arguments map parses.  curse you, map!
-  let offsetNums =
-    aContext.stashedColumns[aMessage.id][0].split(" ").map(x => parseInt(x));
+  let offsetNums = aContext.stashedColumns[aMessage.id][0]
+    .split(" ")
+    .map(x => parseInt(x));
   for (let i = 0; i < offsetNums.length; i += 4) {
     let columnIndex = offsetNums[i];
     let termIndex = offsetNums[i + 1];
@@ -154,17 +160,23 @@ function scoreOffsets(aMessage, aContext) {
   for (let iColumn = 0; iColumn < COLUMN_ALL_MATCH_SCORES.length; iColumn++) {
     let termIncidence = columnTermIncidence[iColumn];
     // bestow all match credit
-    if (termIncidence.every(identityFunc))
+    if (termIncidence.every(identityFunc)) {
       score += COLUMN_ALL_MATCH_SCORES[iColumn];
+    }
     // bestow partial match credit
-    else if (termIncidence.some(identityFunc))
-      score += Math.min(COLUMN_ALL_MATCH_SCORES[iColumn],
-                        COLUMN_PARTIAL_PER_MATCH_SCORES[iColumn] *
-                          termIncidence.filter(identityFunc).length);
+    else if (termIncidence.some(identityFunc)) {
+      score += Math.min(
+        COLUMN_ALL_MATCH_SCORES[iColumn],
+        COLUMN_PARTIAL_PER_MATCH_SCORES[iColumn] *
+          termIncidence.filter(identityFunc).length
+      );
+    }
     // bestow multiple match credit
-    score += Math.min(termIncidence.map(oneLessMaxZero).reduce(reduceSum, 0),
-                      COLUMN_MULTIPLE_MATCH_LIMIT[iColumn]) *
-             COLUMN_MULTIPLE_MATCH_SCORES[iColumn];
+    score +=
+      Math.min(
+        termIncidence.map(oneLessMaxZero).reduce(reduceSum, 0),
+        COLUMN_MULTIPLE_MATCH_LIMIT[iColumn]
+      ) * COLUMN_MULTIPLE_MATCH_SCORES[iColumn];
   }
 
   return score;
@@ -185,7 +197,7 @@ function GlodaIMSearcher(aListener, aSearchString, aAndTerms) {
 
   this.searchString = aSearchString;
   this.fulltextTerms = this.parseSearchString(aSearchString);
-  this.andTerms = (aAndTerms != null) ? aAndTerms : true;
+  this.andTerms = aAndTerms != null ? aAndTerms : true;
 
   this.query = null;
   this.collection = null;
@@ -215,8 +227,9 @@ GlodaIMSearcher.prototype = {
      * In the future this might have other helper logic; it did once before.
      */
     function addTerm(aTerm) {
-      if (aTerm)
+      if (aTerm) {
         terms.push(aTerm);
+      }
     }
 
     while (aSearchString) {
@@ -259,26 +272,29 @@ GlodaIMSearcher.prototype = {
     let fulltextQueryString = "";
 
     for (let [iTerm, term] of this.fulltextTerms.entries()) {
-      if (iTerm)
+      if (iTerm) {
         fulltextQueryString += this.andTerms ? " " : " OR ";
+      }
 
       // Put our term in quotes.  This is needed for the tokenizer to be able
       //  to do useful things.  The exception is people clever enough to use
       //  NEAR.
-      if (/^NEAR(\/\d+)?$/.test(term))
+      if (/^NEAR(\/\d+)?$/.test(term)) {
         fulltextQueryString += term;
+      }
       // Check if this is a single-character CJK search query.  If so, we want
       //  to add a wildcard.
       // Our tokenizer treats anything at/above 0x2000 as CJK for now.
-      else if (term.length == 1 && term.charCodeAt(0) >= 0x2000)
+      else if (term.length == 1 && term.charCodeAt(0) >= 0x2000) {
         fulltextQueryString += term + "*";
-      else if (
-          term.length == 2 &&
-            term.charCodeAt(0) >= 0x2000 &&
-            term.charCodeAt(1) >= 0x2000
-          || term.length >= 3
-      )
+      } else if (
+        (term.length == 2 &&
+          term.charCodeAt(0) >= 0x2000 &&
+          term.charCodeAt(1) >= 0x2000) ||
+        term.length >= 3
+      ) {
         fulltextQueryString += '"' + term + '"';
+      }
     }
 
     query.fulltextMatches(fulltextQueryString);
@@ -288,8 +304,9 @@ GlodaIMSearcher.prototype = {
   },
 
   getCollection(aListenerOverride, aData) {
-    if (aListenerOverride)
+    if (aListenerOverride) {
       this.listener = aListenerOverride;
+    }
 
     this.query = this.buildFulltextQuery();
     this.collection = this.query.getCollection(this, aData);
@@ -307,26 +324,32 @@ GlodaIMSearcher.prototype = {
         terms: this.fulltextTerms,
         stashedColumns: aCollection.stashedColumns,
       },
-      [scoreOffsets]);
-    if (this.scores)
+      [scoreOffsets]
+    );
+    if (this.scores) {
       this.scores = this.scores.concat(newScores);
-    else
+    } else {
       this.scores = newScores;
+    }
 
-    if (this.listener)
+    if (this.listener) {
       this.listener.onItemsAdded(aItems, aCollection);
+    }
   },
   onItemsModified(aItems, aCollection) {
-    if (this.listener)
+    if (this.listener) {
       this.listener.onItemsModified(aItems, aCollection);
+    }
   },
   onItemsRemoved(aItems, aCollection) {
-    if (this.listener)
+    if (this.listener) {
       this.listener.onItemsRemoved(aItems, aCollection);
+    }
   },
   onQueryCompleted(aCollection) {
     this.completed = true;
-    if (this.listener)
+    if (this.listener) {
       this.listener.onQueryCompleted(aCollection);
+    }
   },
 };

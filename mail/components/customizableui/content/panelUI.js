@@ -13,11 +13,17 @@
   RefreshViewPopup SanitizeAttachmentDisplayName Services ShortcutUtils
   UpdateCharsetMenu updateEditUIVisibility UpdateFullZoomMenu XPCOMUtils */
 
-ChromeUtils.defineModuleGetter(this, "AppMenuNotifications",
-                               "resource://gre/modules/AppMenuNotifications.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "AppMenuNotifications",
+  "resource://gre/modules/AppMenuNotifications.jsm"
+);
 
-ChromeUtils.defineModuleGetter(this, "PanelMultiView",
-                               "resource:///modules/PanelMultiView.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "PanelMultiView",
+  "resource:///modules/PanelMultiView.jsm"
+);
 
 // Needed for character encoding subviews.
 XPCOMUtils.defineLazyGetter(this, "gBundle", function() {
@@ -31,8 +37,13 @@ XPCOMUtils.defineLazyGetter(this, "gBundle", function() {
 const PanelUI = {
   /** Panel events that we listen for. **/
   get kEvents() {
-    return ["popupshowing", "popupshown", "popuphiding", "popuphidden",
-      "ViewShowing"];
+    return [
+      "popupshowing",
+      "popupshown",
+      "popuphiding",
+      "popuphidden",
+      "ViewShowing",
+    ];
   },
   /**
    * Used for lazily getting and memoizing elements from the document. Lazy
@@ -113,10 +124,7 @@ const PanelUI = {
   // Not ideal: copied from: mozilla-central/toolkit/modules/CharsetMenu.jsm
   // Always at the start of the text encodings view, in this order, followed by
   // a separator.
-  kPinnedEncodings: [
-    "UTF-8",
-    "windows-1252",
-  ],
+  kPinnedEncodings: ["UTF-8", "windows-1252"],
 
   _initialized: false,
   _notifications: null,
@@ -137,8 +145,12 @@ const PanelUI = {
     Services.obs.addObserver(this, "fullscreen-nav-toolbox");
     Services.obs.addObserver(this, "appMenu-notifications");
 
-    XPCOMUtils.defineLazyPreferenceGetter(this, "autoHideToolbarInFullScreen",
-      "browser.fullscreen.autohide", false, (pref, previousValue, newValue) => {
+    XPCOMUtils.defineLazyPreferenceGetter(
+      this,
+      "autoHideToolbarInFullScreen",
+      "browser.fullscreen.autohide",
+      false,
+      (pref, previousValue, newValue) => {
         // On OSX, or with autohide preffed off, MozDOMFullscreen is the only
         // event we care about, since fullscreen should behave just like non
         // fullscreen. Otherwise, we don't want to listen to these because
@@ -155,7 +167,9 @@ const PanelUI = {
         }
 
         this._updateNotifications(false);
-      }, autoHidePref => autoHidePref && Services.appinfo.OS !== "Darwin");
+      },
+      autoHidePref => autoHidePref && Services.appinfo.OS !== "Darwin"
+    );
 
     if (this.autoHideToolbarInFullScreen) {
       window.addEventListener("fullscreen", this);
@@ -167,7 +181,11 @@ const PanelUI = {
     window.addEventListener("activate", this);
     CustomizableUI.addListener(this);
 
-    Services.obs.notifyObservers(null, "appMenu-notifications-request", "refresh");
+    Services.obs.notifyObservers(
+      null,
+      "appMenu-notifications-request",
+      "refresh"
+    );
 
     this._initialized = true;
   },
@@ -180,15 +198,16 @@ const PanelUI = {
       this.__defineGetter__(getKey, function() {
         delete this[getKey];
         // eslint-disable-next-line consistent-return
-        return this[getKey] = document.getElementById(id);
+        return (this[getKey] = document.getElementById(id));
       });
     }
   },
 
   _eventListenersAdded: false,
   _ensureEventListenersAdded() {
-    if (this._eventListenersAdded)
+    if (this._eventListenersAdded) {
       return;
+    }
     this._addEventListeners();
   },
 
@@ -266,8 +285,10 @@ const PanelUI = {
     (async () => {
       await this.ensureReady();
 
-      if (this.panel.state == "open" ||
-          document.documentElement.hasAttribute("customizing")) {
+      if (
+        this.panel.state == "open" ||
+        document.documentElement.hasAttribute("customizing")
+      ) {
         return;
       }
 
@@ -314,21 +335,20 @@ const PanelUI = {
 
   handleEvent(event) {
     // Ignore context menus and menu button menus showing and hiding:
-    if (event.type.startsWith("popup") &&
-        event.target != this.panel) {
+    if (event.type.startsWith("popup") && event.target != this.panel) {
       return;
     }
     switch (event.type) {
       case "popupshowing":
         initAppMenuPopup();
-        // Fall through
+      // Fall through
       case "popupshown":
         if (event.type == "popupshown") {
           CustomizableUI.addPanelCloseListeners(this.panel);
         }
-        // Fall through
+      // Fall through
       case "popuphiding":
-        // Fall through
+      // Fall through
       case "popuphidden":
         this._updateNotifications();
         this._updatePanelButton(event.target);
@@ -380,17 +400,21 @@ const PanelUI = {
         this._onFoldersViewShow(event);
         break;
       case "appMenu-addonsView":
-        initAddonPrefsMenu(event.target.querySelector(".panel-subview-body"),
+        initAddonPrefsMenu(
+          event.target.querySelector(".panel-subview-body"),
           "toolbarbutton",
           "subviewbutton subviewbutton-iconic",
-          "subviewbutton subviewbutton-iconic");
+          "subviewbutton subviewbutton-iconic"
+        );
         break;
       case "appMenu-preferencesView":
-        onViewToolbarsPopupShowing(event,
+        onViewToolbarsPopupShowing(
+          event,
           "mail-toolbox",
           document.getElementById("appmenu_quickFilterBar"),
           "toolbarbutton",
-          "subviewbutton subviewbutton-iconic");
+          "subviewbutton subviewbutton-iconic"
+        );
         break;
       case "appMenu-preferencesLayoutView":
         PanelUI._onPreferencesLayoutViewShow(event);
@@ -452,10 +476,12 @@ const PanelUI = {
    * @param {Function} refreshFunction  Function that refreshes a particular view.
    */
   _refreshDynamicView(event, refreshFunction) {
-    refreshFunction(event.target.querySelector(".panel-subview-body"),
+    refreshFunction(
+      event.target.querySelector(".panel-subview-body"),
       "toolbarbutton",
       "subviewbutton subviewbutton-iconic",
-      "toolbarseparator");
+      "toolbarseparator"
+    );
   },
 
   get isReady() {
@@ -504,15 +530,35 @@ const PanelUI = {
       if (aEvent.type == "mousedown" && aEvent.button != 0) {
         return;
       }
-      if (aEvent.type == "keypress" && aEvent.key != " " &&
-          aEvent.key != "Enter") {
+      if (
+        aEvent.type == "keypress" &&
+        aEvent.key != " " &&
+        aEvent.key != "Enter"
+      ) {
         return;
       }
       if (aEvent.type == "command" && aEvent.inputSource != null) {
         // Synthesize a new DOM mouse event to pass on the inputSource.
         domEvent = document.createEvent("MouseEvent");
-        domEvent.initNSMouseEvent("click", true, true, null, 0, aEvent.screenX, aEvent.screenY,
-                                  0, 0, false, false, false, false, 0, aEvent.target, 0, aEvent.inputSource);
+        domEvent.initNSMouseEvent(
+          "click",
+          true,
+          true,
+          null,
+          0,
+          aEvent.screenX,
+          aEvent.screenY,
+          0,
+          0,
+          false,
+          false,
+          false,
+          false,
+          0,
+          aEvent.target,
+          0,
+          aEvent.inputSource
+        );
       } else if (aEvent.mozInputSource != null || aEvent.type == "keypress") {
         domEvent = aEvent;
       }
@@ -526,7 +572,9 @@ const PanelUI = {
     }
 
     if (!aAnchor) {
-      Cu.reportError("Expected an anchor when opening subview with id: " + aViewId);
+      Cu.reportError(
+        "Expected an anchor when opening subview with id: " + aViewId
+      );
       return;
     }
 
@@ -548,10 +596,14 @@ const PanelUI = {
         tempPanel.setAttribute("animate", "false");
       }
       tempPanel.setAttribute("context", "");
-      document.getElementById(CustomizableUI.AREA_NAVBAR).appendChild(tempPanel);
+      document
+        .getElementById(CustomizableUI.AREA_NAVBAR)
+        .appendChild(tempPanel);
       // If the view has a footer, set a convenience class on the panel.
-      tempPanel.classList.toggle("cui-widget-panelWithFooter",
-                                 viewNode.querySelector(".panel-subview-footer"));
+      tempPanel.classList.toggle(
+        "cui-widget-panelWithFooter",
+        viewNode.querySelector(".panel-subview-footer")
+      );
 
       let multiView = document.createXULElement("panelmultiview");
       multiView.setAttribute("id", "customizationui-widget-multiview");
@@ -618,8 +670,8 @@ const PanelUI = {
    * on the state of the panel.
    */
   _updatePanelButton() {
-    this.menuButton.open = this.panel.state == "open" ||
-                           this.panel.state == "showing";
+    this.menuButton.open =
+      this.panel.state == "open" || this.panel.state == "showing";
   },
 
   /**
@@ -629,7 +681,8 @@ const PanelUI = {
    * @param {ViewShowingEvent} event  ViewShowing event.
    */
   _onPreferencesLayoutViewShow(event) {
-    event.target.querySelectorAll("[name='viewlayoutgroup']")
+    event.target
+      .querySelectorAll("[name='viewlayoutgroup']")
       .forEach(item => item.removeAttribute("checked"));
 
     InitViewLayoutStyleMenu(event, true);
@@ -650,7 +703,11 @@ const PanelUI = {
     }
 
     for (const [attachmentIndex, attachment] of currentAttachments.entries()) {
-      PanelUI._addAttachmentToAttachmentsView(viewBody, attachment, attachmentIndex + 1);
+      PanelUI._addAttachmentToAttachmentsView(
+        viewBody,
+        attachment,
+        attachmentIndex + 1
+      );
     }
 
     goUpdateAttachmentCommands();
@@ -675,27 +732,38 @@ const PanelUI = {
     }
 
     // Insert the item just before the separator.
-    item.setAttribute("class", "subviewbutton subviewbutton-iconic subviewbutton-nav");
+    item.setAttribute(
+      "class",
+      "subviewbutton subviewbutton-iconic subviewbutton-nav"
+    );
     item.setAttribute("image", getIconForAttachment(attachment));
     item.setAttribute("closemenu", "none");
 
     // Find the separator index.
     let separatorIndex = 0;
-    while (viewBody.childNodes[separatorIndex].localName != "toolbarseparator") {
+    while (
+      viewBody.childNodes[separatorIndex].localName != "toolbarseparator"
+    ) {
       separatorIndex += 1;
     }
 
     // The accesskeys for the attachments in the menu start with 1 (not 0).
     const displayName = SanitizeAttachmentDisplayName(attachment);
-    const label = document.getElementById("bundle_messenger")
-                          .getFormattedString("attachmentDisplayNameFormat",
-                                              [attachmentIndex, displayName]);
+    const label = document
+      .getElementById("bundle_messenger")
+      .getFormattedString("attachmentDisplayNameFormat", [
+        attachmentIndex,
+        displayName,
+      ]);
     item.setAttribute("crop", "center");
     item.setAttribute("label", label);
     item.setAttribute("accesskey", attachmentIndex % 10);
 
     // Each attachment gets its own subview with options for opening, saving, deleting, etc.
-    item.setAttribute("oncommand", "PanelUI.showSubView('appMenu-attachmentView', this)");
+    item.setAttribute(
+      "oncommand",
+      "PanelUI.showSubView('appMenu-attachmentView', this)"
+    );
 
     // Add the attachment data to the item so that when the item is clicked and the subview is
     // shown, we can access the attachment data from the ViewShowing event's explicitOriginalTarget.
@@ -723,7 +791,7 @@ const PanelUI = {
     const bundle = document.getElementById("bundle_messenger");
 
     const detached = attachment.isExternalAttachment;
-    const deleted  = !attachment.hasFile;
+    const deleted = !attachment.hasFile;
     const canDetach = CanDetachAttachments() && !deleted && !detached;
 
     const attachmentView = document.getElementById("appMenu-attachmentView");
@@ -742,7 +810,10 @@ const PanelUI = {
     openButton.setAttribute("class", "subviewbutton subviewbutton-iconic");
     openButton.setAttribute("oncommand", "this.attachment.open();");
     openButton.setAttribute("label", bundle.getString("openLabel"));
-    openButton.setAttribute("accesskey", bundle.getString("openLabelAccesskey"));
+    openButton.setAttribute(
+      "accesskey",
+      bundle.getString("openLabelAccesskey")
+    );
     if (deleted) {
       openButton.setAttribute("disabled", "true");
     }
@@ -754,7 +825,10 @@ const PanelUI = {
     saveButton.setAttribute("class", "subviewbutton subviewbutton-iconic");
     saveButton.setAttribute("oncommand", "this.attachment.save();");
     saveButton.setAttribute("label", bundle.getString("saveLabel"));
-    saveButton.setAttribute("accesskey", bundle.getString("saveLabelAccesskey"));
+    saveButton.setAttribute(
+      "accesskey",
+      bundle.getString("saveLabelAccesskey")
+    );
     if (deleted) {
       saveButton.setAttribute("disabled", "true");
     }
@@ -766,7 +840,10 @@ const PanelUI = {
     detachButton.setAttribute("class", "subviewbutton subviewbutton-iconic");
     detachButton.setAttribute("oncommand", "this.attachment.detach(true);");
     detachButton.setAttribute("label", bundle.getString("detachLabel"));
-    detachButton.setAttribute("accesskey", bundle.getString("detachLabelAccesskey"));
+    detachButton.setAttribute(
+      "accesskey",
+      bundle.getString("detachLabelAccesskey")
+    );
     if (!canDetach) {
       detachButton.setAttribute("disabled", "true");
     }
@@ -778,7 +855,10 @@ const PanelUI = {
     deleteButton.setAttribute("class", "subviewbutton subviewbutton-iconic");
     deleteButton.setAttribute("oncommand", "this.attachment.detach(false);");
     deleteButton.setAttribute("label", bundle.getString("deleteLabel"));
-    deleteButton.setAttribute("accesskey", bundle.getString("deleteLabelAccesskey"));
+    deleteButton.setAttribute(
+      "accesskey",
+      bundle.getString("deleteLabelAccesskey")
+    );
     if (!canDetach) {
       deleteButton.setAttribute("disabled", "true");
     }
@@ -790,10 +870,22 @@ const PanelUI = {
       viewBody.appendChild(separator);
       const openFolderButton = document.createXULElement("toolbarbutton");
       openFolderButton.attachment = attachment;
-      openFolderButton.setAttribute("class", "subviewbutton subviewbutton-iconic");
-      openFolderButton.setAttribute("oncommand", "this.attachment.openFolder();");
-      openFolderButton.setAttribute("label", bundle.getString("openFolderLabel"));
-      openFolderButton.setAttribute("accesskey", bundle.getString("openFolderLabelAccesskey"));
+      openFolderButton.setAttribute(
+        "class",
+        "subviewbutton subviewbutton-iconic"
+      );
+      openFolderButton.setAttribute(
+        "oncommand",
+        "this.attachment.openFolder();"
+      );
+      openFolderButton.setAttribute(
+        "label",
+        bundle.getString("openFolderLabel")
+      );
+      openFolderButton.setAttribute(
+        "accesskey",
+        bundle.getString("openFolderLabelAccesskey")
+      );
       if (deleted) {
         openFolderButton.setAttribute("disabled", "true");
       }
@@ -807,7 +899,8 @@ const PanelUI = {
    * @param {ViewShowingEvent} event  ViewShowing event.
    */
   _onFoldersViewShow(event) {
-    event.target.querySelectorAll('[name="viewmessages"]')
+    event.target
+      .querySelectorAll('[name="viewmessages"]')
       .forEach(item => item.removeAttribute("checked"));
 
     InitAppFolderViewsMenu();
@@ -858,14 +951,20 @@ const PanelUI = {
       node.setAttribute("class", "subviewbutton subviewbutton-nav");
       node.setAttribute("closemenu", "none");
 
-      node.setAttribute("label",
-        gBundle.GetStringFromName("charsetMenuAutodet"));
+      node.setAttribute(
+        "label",
+        gBundle.GetStringFromName("charsetMenuAutodet")
+      );
 
-      node.setAttribute("accesskey",
-        gBundle.GetStringFromName("charsetMenuAutodet.key"));
+      node.setAttribute(
+        "accesskey",
+        gBundle.GetStringFromName("charsetMenuAutodet.key")
+      );
 
-      node.setAttribute("oncommand",
-        "PanelUI.showSubView('appMenu-viewTextEncodingDetectorsView', this)");
+      node.setAttribute(
+        "oncommand",
+        "PanelUI.showSubView('appMenu-viewTextEncodingDetectorsView', this)"
+      );
 
       parent.appendChild(node);
       parent.appendChild(doc.createXULElement("toolbarseparator"));
@@ -873,17 +972,21 @@ const PanelUI = {
 
     // Add a toolbarbutton for each character encoding.
     const pinnedInfoCache = CharsetMenu.getCharsetInfo(
-      PanelUI.kPinnedEncodings, false);
+      PanelUI.kPinnedEncodings,
+      false
+    );
 
     const charsetInfoCache = CharsetMenu.getCharsetInfo(PanelUI.kEncodings);
 
-    pinnedInfoCache.forEach(charsetInfo => parent.appendChild(
-      PanelUI._createTextEncodingNode(doc, charsetInfo)));
+    pinnedInfoCache.forEach(charsetInfo =>
+      parent.appendChild(PanelUI._createTextEncodingNode(doc, charsetInfo))
+    );
 
     parent.appendChild(doc.createXULElement("toolbarseparator"));
 
-    charsetInfoCache.forEach(charsetInfo => parent.appendChild(
-      PanelUI._createTextEncodingNode(doc, charsetInfo)));
+    charsetInfoCache.forEach(charsetInfo =>
+      parent.appendChild(PanelUI._createTextEncodingNode(doc, charsetInfo))
+    );
 
     UpdateCharsetMenu(msgWindow.mailCharacterSet, parent);
   },
@@ -905,19 +1008,24 @@ const PanelUI = {
     }
 
     // Populate the view with toolbarbuttons.
-    panelView.setAttribute("title",
-      gBundle.GetStringFromName("charsetMenuAutodet"));
+    panelView.setAttribute(
+      "title",
+      gBundle.GetStringFromName("charsetMenuAutodet")
+    );
 
     const detectorInfoCache = CharsetMenu.getDetectorInfo();
 
-    detectorInfoCache.forEach(detectorInfo => parent.appendChild(
-        PanelUI._createTextEncodingNode(doc, detectorInfo)));
+    detectorInfoCache.forEach(detectorInfo =>
+      parent.appendChild(PanelUI._createTextEncodingNode(doc, detectorInfo))
+    );
 
     parent.appendChild(doc.createXULElement("toolbarseparator"));
 
     // Make the current selection checked. (Like UpdateDetectorMenu function.)
-    const detector = Services.prefs.getComplexValue("intl.charset.detector",
-      Ci.nsIPrefLocalizedString);
+    const detector = Services.prefs.getComplexValue(
+      "intl.charset.detector",
+      Ci.nsIPrefLocalizedString
+    );
 
     const item = parent.getElementsByAttribute("detector", detector).item(0);
 
@@ -933,8 +1041,10 @@ const PanelUI = {
    * @param {Event} event  The 'oncommand' event.
    */
   setTextEncodingDetector(event) {
-    Services.prefs.setStringPref("intl.charset.detector",
-      event.target.getAttribute("detector"));
+    Services.prefs.setStringPref(
+      "intl.charset.detector",
+      event.target.getAttribute("detector")
+    );
   },
 
   _updateQuitTooltip() {
@@ -942,16 +1052,23 @@ const PanelUI = {
       return;
     }
 
-    let tooltipId = AppConstants.platform == "macosx" ?
-                    "quit-button.tooltiptext.mac" :
-                    "quit-button.tooltiptext.linux2";
+    let tooltipId =
+      AppConstants.platform == "macosx"
+        ? "quit-button.tooltiptext.mac"
+        : "quit-button.tooltiptext.linux2";
 
-    let brands = Services.strings.createBundle("chrome://branding/locale/brand.properties");
+    let brands = Services.strings.createBundle(
+      "chrome://branding/locale/brand.properties"
+    );
     let stringArgs = [brands.GetStringFromName("brandShortName")];
 
     let key = document.getElementById("key_quitApplication");
     stringArgs.push(ShortcutUtils.prettifyShortcut(key));
-    let tooltipString = CustomizableUI.getLocalizedProperty({x: tooltipId}, "x", stringArgs);
+    let tooltipString = CustomizableUI.getLocalizedProperty(
+      { x: tooltipId },
+      "x",
+      stringArgs
+    );
     let quitButton = document.getElementById("PanelUI-quit");
     quitButton.setAttribute("tooltiptext", tooltipString);
   },
@@ -972,13 +1089,17 @@ const PanelUI = {
       return;
     }
 
-    if ((window.fullScreen && FullScreen.navToolboxHidden) || document.fullscreenElement) {
+    if (
+      (window.fullScreen && FullScreen.navToolboxHidden) ||
+      document.fullscreenElement
+    ) {
       this._hidePopup();
       return;
     }
 
-    let doorhangers =
-      notifications.filter(n => !n.dismissed && !n.options.badgeOnly);
+    let doorhangers = notifications.filter(
+      n => !n.dismissed && !n.options.badgeOnly
+    );
 
     if (this.panel.state == "showing" || this.panel.state == "open") {
       // If the menu is already showing, then we need to dismiss all notifications
@@ -996,7 +1117,10 @@ const PanelUI = {
       }
     } else if (doorhangers.length > 0) {
       // Only show the doorhanger if the window is focused and not fullscreen
-      if ((window.fullScreen && this.autoHideToolbarInFullScreen) || Services.focus.activeWindow !== window) {
+      if (
+        (window.fullScreen && this.autoHideToolbarInFullScreen) ||
+        Services.focus.activeWindow !== window
+      ) {
         this._hidePopup();
         this._showBadge(doorhangers[0]);
         this._showBannerItem(doorhangers[0]);
@@ -1031,10 +1155,13 @@ const PanelUI = {
     MozXULElement.insertFTLIfNeeded("browser/appMenuNotifications.ftl");
 
     // After Fluent files are loaded into document replace data-lazy-l10n-ids with actual ones
-    document.getElementById("appMenu-notification-popup").querySelectorAll("[data-lazy-l10n-id]").forEach(el => {
-      el.setAttribute("data-l10n-id", el.getAttribute("data-lazy-l10n-id"));
-      el.removeAttribute("data-lazy-l10n-id");
-    });
+    document
+      .getElementById("appMenu-notification-popup")
+      .querySelectorAll("[data-lazy-l10n-id]")
+      .forEach(el => {
+        el.setAttribute("data-l10n-id", el.getAttribute("data-lazy-l10n-id"));
+        el.removeAttribute("data-lazy-l10n-id");
+      });
 
     this.notificationPanel.openPopup(anchor, "bottomcenter topright");
   },
@@ -1068,9 +1195,14 @@ const PanelUI = {
     let popupnotification = document.getElementById(popupnotificationID);
 
     popupnotification.setAttribute("id", popupnotificationID);
-    popupnotification.setAttribute("buttoncommand", "PanelUI._onNotificationButtonEvent(event, 'buttoncommand');");
-    popupnotification.setAttribute("secondarybuttoncommand",
-      "PanelUI._onNotificationButtonEvent(event, 'secondarybuttoncommand');");
+    popupnotification.setAttribute(
+      "buttoncommand",
+      "PanelUI._onNotificationButtonEvent(event, 'buttoncommand');"
+    );
+    popupnotification.setAttribute(
+      "secondarybuttoncommand",
+      "PanelUI._onNotificationButtonEvent(event, 'secondarybuttoncommand');"
+    );
 
     if (notification.options.message) {
       let desc = this._formatDescriptionMessage(notification);
@@ -1125,11 +1257,17 @@ const PanelUI = {
   _onNotificationButtonEvent(event, type) {
     let notificationEl = getNotificationFromElement(event.originalTarget);
 
-    if (!notificationEl)
-      throw new Error("PanelUI._onNotificationButtonEvent: couldn't find notification element");
+    if (!notificationEl) {
+      throw new Error(
+        "PanelUI._onNotificationButtonEvent: couldn't find notification element"
+      );
+    }
 
-    if (!notificationEl.notification)
-      throw new Error("PanelUI._onNotificationButtonEvent: couldn't find notification");
+    if (!notificationEl.notification) {
+      throw new Error(
+        "PanelUI._onNotificationButtonEvent: couldn't find notification"
+      );
+    }
 
     let notification = notificationEl.notification;
 
@@ -1142,16 +1280,23 @@ const PanelUI = {
 
   _onBannerItemSelected(event) {
     let target = event.originalTarget;
-    if (!target.notification)
-      throw new Error("menucommand target has no associated action/notification");
+    if (!target.notification) {
+      throw new Error(
+        "menucommand target has no associated action/notification"
+      );
+    }
 
     event.stopPropagation();
     AppMenuNotifications.callMainAction(window, target.notification, false);
   },
 
-  _getPopupId(notification) { return "appMenu-" + notification.id + "-notification"; },
+  _getPopupId(notification) {
+    return "appMenu-" + notification.id + "-notification";
+  },
 
-  _getBadgeStatus(notification) { return notification.id; },
+  _getBadgeStatus(notification) {
+    return notification.id;
+  },
 
   _getPanelAnchor(candidate) {
     let iconAnchor = candidate.badgeStack || candidate.icon;

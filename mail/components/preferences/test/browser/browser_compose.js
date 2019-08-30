@@ -3,61 +3,85 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 add_task(async () => {
-  await testCheckboxes("paneCompose", "compositionMainCategory", {
-    checkboxID: "addExtension",
-    pref: "mail.forward_add_extension",
-  }, {
-    checkboxID: "autoSave",
-    pref: "mail.compose.autosave",
-    enabledElements: ["#autoSaveInterval"],
-  }, {
-    checkboxID: "mailWarnOnSendAccelKey",
-    pref: "mail.warn_on_send_accel_key",
-  }, {
-    checkboxID: "spellCheckBeforeSend",
-    pref: "mail.SpellCheckBeforeSend",
-  }, {
-    checkboxID: "inlineSpellCheck",
-    pref: "mail.spellcheck.inline",
-  });
+  await testCheckboxes(
+    "paneCompose",
+    "compositionMainCategory",
+    {
+      checkboxID: "addExtension",
+      pref: "mail.forward_add_extension",
+    },
+    {
+      checkboxID: "autoSave",
+      pref: "mail.compose.autosave",
+      enabledElements: ["#autoSaveInterval"],
+    },
+    {
+      checkboxID: "mailWarnOnSendAccelKey",
+      pref: "mail.warn_on_send_accel_key",
+    },
+    {
+      checkboxID: "spellCheckBeforeSend",
+      pref: "mail.SpellCheckBeforeSend",
+    },
+    {
+      checkboxID: "inlineSpellCheck",
+      pref: "mail.spellcheck.inline",
+    }
+  );
 
-  await testCheckboxes("paneCompose", "FontSelect", {
-    checkboxID: "useReaderDefaults",
-    pref: "msgcompose.default_colors",
-    enabledInverted: true,
-    enabledElements: [
-      "#textColorLabel",
-      "#textColorButton",
-      "#backgroundColorLabel",
-      "#backgroundColorButton",
-    ],
-  }, {
-    checkboxID: "defaultToParagraph",
-    pref: "mail.compose.default_to_paragraph",
-  });
+  await testCheckboxes(
+    "paneCompose",
+    "FontSelect",
+    {
+      checkboxID: "useReaderDefaults",
+      pref: "msgcompose.default_colors",
+      enabledInverted: true,
+      enabledElements: [
+        "#textColorLabel",
+        "#textColorButton",
+        "#backgroundColorLabel",
+        "#backgroundColorButton",
+      ],
+    },
+    {
+      checkboxID: "defaultToParagraph",
+      pref: "mail.compose.default_to_paragraph",
+    }
+  );
 
-  await testCheckboxes("paneCompose", "compositionAddressingCategory", {
-    checkboxID: "addressingAutocomplete",
-    pref: "mail.enable_autocomplete",
-  }, {
-    checkboxID: "autocompleteLDAP",
-    pref: "ldap_2.autoComplete.useDirectory",
-    enabledElements: ["#directoriesList", "#editButton"],
-  }, {
-    checkboxID: "emailCollectionOutgoing",
-    pref: "mail.collect_email_address_outgoing",
-    enabledElements: ["#localDirectoriesList"],
-  });
+  await testCheckboxes(
+    "paneCompose",
+    "compositionAddressingCategory",
+    {
+      checkboxID: "addressingAutocomplete",
+      pref: "mail.enable_autocomplete",
+    },
+    {
+      checkboxID: "autocompleteLDAP",
+      pref: "ldap_2.autoComplete.useDirectory",
+      enabledElements: ["#directoriesList", "#editButton"],
+    },
+    {
+      checkboxID: "emailCollectionOutgoing",
+      pref: "mail.collect_email_address_outgoing",
+      enabledElements: ["#localDirectoriesList"],
+    }
+  );
 });
 
 add_task(async () => {
-  await testCheckboxes("paneCompose", "compositionAttachmentsCategory", {
-    checkboxID: "attachment_reminder_label",
-    pref: "mail.compose.attachment_reminder",
-    enabledElements: ["#attachment_reminder_button"],
-  }, {
-    checkboxID: "enableThreshold",
-    pref: "mail.compose.big_attachments.notify",
-    enabledElements: ["#cloudFileThreshold"],
-  });
+  await testCheckboxes(
+    "paneCompose",
+    "compositionAttachmentsCategory",
+    {
+      checkboxID: "attachment_reminder_label",
+      pref: "mail.compose.attachment_reminder",
+      enabledElements: ["#attachment_reminder_button"],
+    },
+    {
+      checkboxID: "enableThreshold",
+      pref: "mail.compose.big_attachments.notify",
+      enabledElements: ["#cloudFileThreshold"],
+    }
+  );
 });

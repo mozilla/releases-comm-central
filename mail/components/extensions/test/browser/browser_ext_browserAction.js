@@ -14,17 +14,31 @@ add_task(async () => {
     let button = document.getElementById(buttonId);
     ok(button, "Button created");
     is(toolbar.id, button.parentNode.id, "Button added to toolbar");
-    ok(toolbar.currentSet.split(",").includes(buttonId), "Button added to toolbar current set");
-    ok(toolbar.getAttribute("currentset").split(",").includes(buttonId),
-       "Button added to toolbar current set attribute");
-    ok(Services.xulStore.getValue(location.href, "mail-bar3", "currentset")
-                        .split(",")
-                        .includes(buttonId),
-       "Button added to toolbar current set persistence");
+    ok(
+      toolbar.currentSet.split(",").includes(buttonId),
+      "Button added to toolbar current set"
+    );
+    ok(
+      toolbar
+        .getAttribute("currentset")
+        .split(",")
+        .includes(buttonId),
+      "Button added to toolbar current set attribute"
+    );
+    ok(
+      Services.xulStore
+        .getValue(location.href, "mail-bar3", "currentset")
+        .split(",")
+        .includes(buttonId),
+      "Button added to toolbar current set persistence"
+    );
 
     let icon = button.querySelector(".toolbarbutton-icon");
-    is(getComputedStyle(icon).listStyleImage,
-       `url("chrome://messenger/content/extension.svg")`, "Default icon");
+    is(
+      getComputedStyle(icon).listStyleImage,
+      `url("chrome://messenger/content/extension.svg")`,
+      "Default icon"
+    );
     let label = button.querySelector(".toolbarbutton-text");
     is(label.value, "This is a test", "Correct label");
 
@@ -42,10 +56,13 @@ add_task(async () => {
     await new Promise(resolve => setTimeout(resolve));
 
     ok(!document.getElementById(buttonId), "Button destroyed");
-    ok(!Services.xulStore.getValue(location.href, "mail-bar3", "currentset")
-                         .split(",")
-                         .includes(buttonId),
-       "Button removed from toolbar current set persistence");
+    ok(
+      !Services.xulStore
+        .getValue(location.href, "mail-bar3", "currentset")
+        .split(",")
+        .includes(buttonId),
+      "Button removed from toolbar current set persistence"
+    );
   }
 
   async function background_nopopup() {
@@ -56,7 +73,7 @@ add_task(async () => {
   }
 
   async function background_popup() {
-    browser.runtime.onMessage.addListener(async (msg) => {
+    browser.runtime.onMessage.addListener(async msg => {
       browser.test.assertEq("popup.html", msg);
       await browser.browserAction.setTitle({ title: "New title" });
       browser.test.sendMessage("browserAction");

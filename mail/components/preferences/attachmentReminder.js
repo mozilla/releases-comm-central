@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gAttachmentReminderOptionsDialog = {
   keywordListBox: null,
@@ -16,27 +16,35 @@ var gAttachmentReminderOptionsDialog = {
   },
 
   buildKeywordList() {
-    var keywordsInCsv = Services.prefs
-      .getComplexValue("mail.compose.attachment_reminder_keywords",
-                       Ci.nsIPrefLocalizedString);
-    if (!keywordsInCsv)
+    var keywordsInCsv = Services.prefs.getComplexValue(
+      "mail.compose.attachment_reminder_keywords",
+      Ci.nsIPrefLocalizedString
+    );
+    if (!keywordsInCsv) {
       return;
+    }
     keywordsInCsv = keywordsInCsv.data;
     var keywordsInArr = keywordsInCsv.split(",");
     for (let i = 0; i < keywordsInArr.length; i++) {
-      if (keywordsInArr[i])
+      if (keywordsInArr[i]) {
         this.keywordListBox.appendItem(keywordsInArr[i], keywordsInArr[i]);
+      }
     }
-    if (keywordsInArr.length)
+    if (keywordsInArr.length) {
       this.keywordListBox.selectedIndex = 0;
+    }
   },
 
   addKeyword() {
-    var input = {value: ""}; // Default to empty.
-    var ok = Services.prompt.prompt(window,
-                                    this.bundle.getString("attachmentReminderNewDialogTitle"),
-                                    this.bundle.getString("attachmentReminderNewText"),
-                                    input, null, {value: 0});
+    var input = { value: "" }; // Default to empty.
+    var ok = Services.prompt.prompt(
+      window,
+      this.bundle.getString("attachmentReminderNewDialogTitle"),
+      this.bundle.getString("attachmentReminderNewText"),
+      input,
+      null,
+      { value: 0 }
+    );
     if (ok && input.value) {
       let newKey = this.keywordListBox.appendItem(input.value, input.value);
       this.keywordListBox.ensureElementIsVisible(newKey);
@@ -45,14 +53,19 @@ var gAttachmentReminderOptionsDialog = {
   },
 
   editKeyword() {
-    if (this.keywordListBox.selectedIndex < 0)
+    if (this.keywordListBox.selectedIndex < 0) {
       return;
+    }
     var keywordToEdit = this.keywordListBox.selectedItem;
-    var input = {value: keywordToEdit.getAttribute("value")};
-    var ok = Services.prompt.prompt(window,
-                                    this.bundle.getString("attachmentReminderEditDialogTitle"),
-                                    this.bundle.getString("attachmentReminderEditText"),
-                                    input, null, {value: 0});
+    var input = { value: keywordToEdit.getAttribute("value") };
+    var ok = Services.prompt.prompt(
+      window,
+      this.bundle.getString("attachmentReminderEditDialogTitle"),
+      this.bundle.getString("attachmentReminderEditText"),
+      input,
+      null,
+      { value: 0 }
+    );
     if (ok && input.value) {
       this.keywordListBox.selectedItem.value = input.value;
       this.keywordListBox.selectedItem.label = input.value;
@@ -60,22 +73,30 @@ var gAttachmentReminderOptionsDialog = {
   },
 
   removeKeyword() {
-    if (this.keywordListBox.selectedIndex < 0)
+    if (this.keywordListBox.selectedIndex < 0) {
       return;
+    }
     this.keywordListBox.selectedItem.remove();
   },
 
   saveKeywords() {
     var keywordList = "";
     for (var i = 0; i < this.keywordListBox.getRowCount(); i++) {
-      keywordList += this.keywordListBox.getItemAtIndex(i).getAttribute("value");
-      if (i != this.keywordListBox.getRowCount() - 1)
+      keywordList += this.keywordListBox
+        .getItemAtIndex(i)
+        .getAttribute("value");
+      if (i != this.keywordListBox.getRowCount() - 1) {
         keywordList += ",";
+      }
     }
 
-    Services.prefs.setStringPref("mail.compose.attachment_reminder_keywords",
-                                 keywordList);
+    Services.prefs.setStringPref(
+      "mail.compose.attachment_reminder_keywords",
+      keywordList
+    );
   },
 };
 
-document.addEventListener("dialogaccept", () => gAttachmentReminderOptionsDialog.saveKeywords());
+document.addEventListener("dialogaccept", () =>
+  gAttachmentReminderOptionsDialog.saveKeywords()
+);

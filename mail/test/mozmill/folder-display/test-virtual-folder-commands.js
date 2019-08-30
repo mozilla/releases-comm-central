@@ -22,8 +22,8 @@ function setupModule(module) {
   let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
 
-  let [folderOne] = make_folder_with_sets([{msgsPerThread}]);
-  let [folderTwo] = make_folder_with_sets([{msgsPerThread}]);
+  let [folderOne] = make_folder_with_sets([{ msgsPerThread }]);
+  let [folderTwo] = make_folder_with_sets([{ msgsPerThread }]);
 
   singleVirtFolder = make_virtual_folder([folderOne], {});
   multiVirtFolder = make_virtual_folder([folderOne, folderTwo], {});
@@ -36,15 +36,19 @@ function test_single_folder_select_thread() {
 
   // Try selecting the thread from the root message.
   select_click_row(0);
-  mc.keypress(null, "a", {accelKey: true, shiftKey: true});
-  assert_true(mc.folderDisplay.selectedCount == msgsPerThread,
-              "Didn't select all messages in the thread!");
+  mc.keypress(null, "a", { accelKey: true, shiftKey: true });
+  assert_true(
+    mc.folderDisplay.selectedCount == msgsPerThread,
+    "Didn't select all messages in the thread!"
+  );
 
   // Now try selecting the thread from a non-root message.
   select_click_row(1);
-  mc.keypress(null, "a", {accelKey: true, shiftKey: true});
-  assert_true(mc.folderDisplay.selectedCount == msgsPerThread,
-              "Didn't select all messages in the thread!");
+  mc.keypress(null, "a", { accelKey: true, shiftKey: true });
+  assert_true(
+    mc.folderDisplay.selectedCount == msgsPerThread,
+    "Didn't select all messages in the thread!"
+  );
 }
 
 function test_cross_folder_select_thread() {
@@ -54,13 +58,17 @@ function test_cross_folder_select_thread() {
 
   // Try selecting the thread from the root message.
   select_click_row(0);
-  mc.keypress(null, "a", {accelKey: true, shiftKey: true});
-  assert_true(mc.folderDisplay.selectedCount == msgsPerThread,
-              "Didn't select all messages in the thread!");
+  mc.keypress(null, "a", { accelKey: true, shiftKey: true });
+  assert_true(
+    mc.folderDisplay.selectedCount == msgsPerThread,
+    "Didn't select all messages in the thread!"
+  );
 
   // Now try selecting the thread from a non-root message.
   select_click_row(1);
-  mc.keypress(null, "a", {accelKey: true, shiftKey: true});
-  assert_true(mc.folderDisplay.selectedCount == msgsPerThread,
-              "Didn't select all messages in the thread!");
+  mc.keypress(null, "a", { accelKey: true, shiftKey: true });
+  assert_true(
+    mc.folderDisplay.selectedCount == msgsPerThread,
+    "Didn't select all messages in the thread!"
+  );
 }

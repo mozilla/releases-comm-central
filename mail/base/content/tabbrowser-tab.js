@@ -1,6 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
-  * License, v. 2.0. If a copy of the MPL was not distributed with this
-  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 "use strict";
 
@@ -9,12 +9,12 @@
 // Wrap in a block to prevent leaking to window scope.
 {
   /**
-    * The MozTabmailTab widget behaves as a tab in the messenger window.
-    * It is used to navigate between different views. It displays information
-    * about the view: i.e. name and icon.
-    *
-    * @extends {MozElements.MozTab}
-    */
+   * The MozTabmailTab widget behaves as a tab in the messenger window.
+   * It is used to navigate between different views. It displays information
+   * about the view: i.e. name and icon.
+   *
+   * @extends {MozElements.MozTab}
+   */
   class MozTabmailTab extends MozElements.MozTab {
     static get inheritedAttributes() {
       return {
@@ -35,7 +35,9 @@
       }
 
       this.setAttribute("is", "tabmail-tab");
-      this.appendChild(MozXULElement.parseXULToFragment(`
+      this.appendChild(
+        MozXULElement.parseXULToFragment(
+          `
         <stack class="tab-stack" flex="1" closetabtext="&closeTab.label;">
           <vbox class="tab-background">
             <hbox class="tab-line"></hbox>
@@ -51,41 +53,56 @@
             <image class="tab-close-button close-icon"/>
           </hbox>
         </stack>
-      `, ["chrome://messenger/locale/tabmail.dtd"]));
+      `,
+          ["chrome://messenger/locale/tabmail.dtd"]
+        )
+      );
 
-      this.addEventListener("mouseover", (event) => {
+      this.addEventListener("mouseover", event => {
         document.tab = this;
         if (event.originalTarget.classList.contains("tab-close-button")) {
           this.mOverCloseButton = true;
         }
       });
 
-      this.addEventListener("dragstart", (event) => {
-        document.dragTab = this;
-      }, true);
+      this.addEventListener(
+        "dragstart",
+        event => {
+          document.dragTab = this;
+        },
+        true
+      );
 
-      this.addEventListener("dragover", (event) => {
-        document.dragTab = null;
-      }, true);
+      this.addEventListener(
+        "dragover",
+        event => {
+          document.dragTab = null;
+        },
+        true
+      );
 
-      this.addEventListener("mouseout", (event) => {
+      this.addEventListener("mouseout", event => {
         document.tab = null;
         if (event.originalTarget.classList.contains("tab-close-button")) {
           this.mOverCloseButton = false;
         }
       });
 
-      this.addEventListener("mousedown", (event) => {
-        if (event.button != 0) {
-          return;
-        }
+      this.addEventListener(
+        "mousedown",
+        event => {
+          if (event.button != 0) {
+            return;
+          }
 
-        if (this.mOverCloseButton) {
-          event.stopPropagation();
-        }
-      }, true);
+          if (this.mOverCloseButton) {
+            event.stopPropagation();
+          }
+        },
+        true
+      );
 
-      this.addEventListener("click", (event) => {
+      this.addEventListener("click", event => {
         if (event.button != 0) {
           return;
         }
@@ -134,22 +151,31 @@
             tabContainer.removeEventListener("click", enableDblClick, true);
           };
           tabContainer.addEventListener("click", enableDblClick, true);
-        } else { // "tabs"
+        } else {
+          // "tabs"
           tabbedBrowser.removeCurrentTab();
         }
       });
 
-      this.addEventListener("contextmenu", (event) => {
-        document.popupNode = this;
-      }, true);
+      this.addEventListener(
+        "contextmenu",
+        event => {
+          document.popupNode = this;
+        },
+        true
+      );
 
-      this.addEventListener("dblclick", (event) => {
-        if (event.button != 0) {
-          return;
-        }
-        // for the one-close-button case
-        event.stopPropagation();
-      }, true);
+      this.addEventListener(
+        "dblclick",
+        event => {
+          if (event.button != 0) {
+            return;
+          }
+          // for the one-close-button case
+          event.stopPropagation();
+        },
+        true
+      );
 
       this.mOverCloseButton = false;
 
@@ -173,7 +199,9 @@
     }
   }
 
-  MozXULElement.implementCustomInterface(MozTabmailTab, [Ci.nsIDOMXULSelectControlItemElement]);
+  MozXULElement.implementCustomInterface(MozTabmailTab, [
+    Ci.nsIDOMXULSelectControlItemElement,
+  ]);
 
   customElements.define("tabmail-tab", MozTabmailTab, { extends: "tab" });
 }

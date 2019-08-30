@@ -4,7 +4,9 @@
 
 let gParams;
 
-const { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+const { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function init() {
@@ -39,7 +41,9 @@ function moreInfo(event) {
   }
   event.preventDefault();
 
-  let uri = Services.io.newURI("https://support.mozilla.org/kb/unable-launch-older-version-profile");
+  let uri = Services.io.newURI(
+    "https://support.mozilla.org/kb/unable-launch-older-version-profile"
+  );
   Cc["@mozilla.org/uriloader/external-protocol-service;1"]
     .getService(Ci.nsIExternalProtocolService)
     .loadURI(uri);

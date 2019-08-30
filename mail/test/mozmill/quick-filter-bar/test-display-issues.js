@@ -44,8 +44,10 @@ function setupModule(module) {
 
   // Let's check window dimensions so we can enlarge from them.
   assert_default_window_size();
-  assert_true(gEnlargedWindowWidth > gDefaultWindowWidth,
-              "Main window too large for the test logic");
+  assert_true(
+    gEnlargedWindowWidth > gDefaultWindowWidth,
+    "Main window too large for the test logic"
+  );
 
   // Store folder pane width that we will change temporarily.
   let folderPaneBox = mc.e("folderPaneBox");
@@ -78,29 +80,40 @@ function test_buttons_collapse_and_expand() {
   let qfbExemplarLabel = qfbExemplarButton.querySelector(".toolbarbutton-text");
 
   function logState(aWhen) {
-    mark_action("test", "log_window_state",
-                [aWhen,
-                 "location:", mc.window.screenX, mc.window.screenY,
-                 "dims:", mc.window.outerWidth, mc.window.outerHeight,
-                 "Collapsy bar width:", qfbCollapsy.clientWidth,
-                 "shrunk?", qfbCollapsy.getAttribute("shrink")]);
+    mark_action("test", "log_window_state", [
+      aWhen,
+      "location:",
+      mc.window.screenX,
+      mc.window.screenY,
+      "dims:",
+      mc.window.outerWidth,
+      mc.window.outerHeight,
+      "Collapsy bar width:",
+      qfbCollapsy.clientWidth,
+      "shrunk?",
+      qfbCollapsy.getAttribute("shrink"),
+    ]);
   }
 
   function assertCollapsed() {
     // The bar should be shrunken and the button should be the same size as its
     // image!
-    if (qfbCollapsy.getAttribute("shrink") != "true")
+    if (qfbCollapsy.getAttribute("shrink") != "true") {
       throw new Error("The collapsy bar should be shrunk!");
-    if (qfbExemplarLabel.clientWidth != 0)
+    }
+    if (qfbExemplarLabel.clientWidth != 0) {
       throw new Error("The exemplar label should be collapsed!");
+    }
   }
   function assertExpanded() {
     // The bar should not be shrunken and the button should be smaller than its
     // label!
-    if (qfbCollapsy.hasAttribute("shrink"))
+    if (qfbCollapsy.hasAttribute("shrink")) {
       throw new Error("The collapsy bar should not be shrunk!");
-    if (qfbExemplarLabel.clientWidth == 0)
+    }
+    if (qfbExemplarLabel.clientWidth == 0) {
       throw new Error("The exemplar label should not be collapsed!");
+    }
   }
 
   logState("entry");
@@ -146,8 +159,10 @@ function test_buttons_collapse_and_expand_on_spawn_in_vertical_mode() {
   // Now spawn a new 3pane...
   let mc2 = open_folder_in_new_window(folder);
   let qfb = mc2.e("quick-filter-bar-collapsible-buttons");
-  mc2.waitFor(() => (qfb.getAttribute("shrink") == "true"),
-              "New 3pane should have had a collapsed QFB");
+  mc2.waitFor(
+    () => qfb.getAttribute("shrink") == "true",
+    "New 3pane should have had a collapsed QFB"
+  );
   close_window(mc2);
 
   set_pane_layout(kClassicMailLayout);

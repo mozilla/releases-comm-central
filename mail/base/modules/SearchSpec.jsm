@@ -4,9 +4,13 @@
 
 this.EXPORTED_SYMBOLS = ["SearchSpec"];
 
-const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { fixIterator } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * Wrapper abstraction around a view's search session.  This is basically a
@@ -64,9 +68,9 @@ SearchSpec.prototype = {
    */
   get session() {
     if (this._session == null) {
-      this._session =
-        Cc["@mozilla.org/messenger/searchSession;1"]
-          .createInstance(Ci.nsIMsgSearchSession);
+      this._session = Cc[
+        "@mozilla.org/messenger/searchSession;1"
+      ].createInstance(Ci.nsIMsgSearchSession);
     }
     return this._session;
   },
@@ -87,15 +91,20 @@ SearchSpec.prototype = {
       if (this.owner.isSynthetic) {
         this.owner._syntheticView.search(new FilteringSyntheticListener(this));
       } else {
-        if (!this._sessionListener)
+        if (!this._sessionListener) {
           this._sessionListener = new SearchSpecListener(this);
+        }
 
-        this.session.registerListener(aDBView,
-                                      Ci.nsIMsgSearchSession.allNotifications);
+        this.session.registerListener(
+          aDBView,
+          Ci.nsIMsgSearchSession.allNotifications
+        );
         aDBView.searchSession = this._session;
-        this._session.registerListener(this._sessionListener,
-                                       Ci.nsIMsgSearchSession.onNewSearch |
-                                       Ci.nsIMsgSearchSession.onSearchDone);
+        this._session.registerListener(
+          this._sessionListener,
+          Ci.nsIMsgSearchSession.onNewSearch |
+            Ci.nsIMsgSearchSession.onSearchDone
+        );
         this._listenersRegistered = true;
 
         this.owner.searching = true;
@@ -108,7 +117,10 @@ SearchSpec.prototype = {
       owner.searching = true;
       this.owner._syntheticView.search(
         aDBView.QueryInterface(Ci.nsIMsgSearchNotify),
-        function() { owner.searching = false; });
+        function() {
+          owner.searching = false;
+        }
+      );
     }
   },
   /**
@@ -120,10 +132,11 @@ SearchSpec.prototype = {
     //  immediately notify the listeners that the search is done with and
     //  clear the searching flag for us.
     if (this.owner.searching) {
-      if (this.owner.isSynthetic)
+      if (this.owner.isSynthetic) {
         this.owner._syntheticView.abortSearch();
-      else
+      } else {
         this.session.interruptSearch();
+      }
     }
 
     if (this._listenersRegistered) {
@@ -142,7 +155,8 @@ SearchSpec.prototype = {
    * @param aCloneTerms Do we need to clone the terms?
    */
   _flattenGroupifyTerms(aTerms, aCloneTerms) {
-    let iTerm = 0, term;
+    let iTerm = 0,
+      term;
     let outTerms = aCloneTerms ? [] : aTerms;
     for (term of fixIterator(aTerms, Ci.nsIMsgSearchTerm)) {
       if (aCloneTerms) {
@@ -168,8 +182,9 @@ SearchSpec.prototype = {
       }
       iTerm++;
     }
-    if (term)
+    if (term) {
       term.endsGrouping = true;
+    }
 
     return outTerms;
   },
@@ -194,17 +209,20 @@ SearchSpec.prototype = {
       // If we're in a group, all that is forbidden is the creation of new
       // groups.
       if (inGroup) {
-        if (term.beginsGrouping) // forbidden!
+        if (term.beginsGrouping) {
+          // forbidden!
           return this._flattenGroupifyTerms(aTerms, aCloneTerms);
-        else if (term.endsGrouping)
+        } else if (term.endsGrouping) {
           inGroup = false;
+        }
       } else {
         // If we're not in a group, the boolean must be AND.  It's okay for a group
         // to start.
         // If it's not an AND then it needs to be in a group and we use the other
         //  function to take care of it.  (This function can't back up...)
-        if (!term.booleanAnd)
+        if (!term.booleanAnd) {
           return this._flattenGroupifyTerms(aTerms, aCloneTerms);
+        }
 
         inGroup = term.beginsGrouping;
       }
@@ -237,13 +255,15 @@ SearchSpec.prototype = {
    * @param aViewTerms The list of terms.  We take ownership and mutate it.
    */
   set viewTerms(aViewTerms) {
-    if (aViewTerms)
+    if (aViewTerms) {
       this._viewTerms = this._groupifyTerms(aViewTerms);
+    }
     // if they are nulling out already null values, do not apply view changes!
-    else if (this._viewTerms === null)
+    else if (this._viewTerms === null) {
       return;
-    else
+    } else {
       this._viewTerms = null;
+    }
     this.owner._applyViewChanges();
   },
   /**
@@ -260,16 +280,17 @@ SearchSpec.prototype = {
    *     do not mutate yours.
    */
   set virtualFolderTerms(aVirtualFolderTerms) {
-    if (aVirtualFolderTerms)
+    if (aVirtualFolderTerms) {
       // we need to clone virtual folder terms because they are pulled from a
       //  persistent location rather than created on demand
-      this._virtualFolderTerms = this._groupifyTerms(aVirtualFolderTerms,
-                                                     true);
+      this._virtualFolderTerms = this._groupifyTerms(aVirtualFolderTerms, true);
+    }
     // if they are nulling out already null values, do not apply view changes!
-    else if (this._virtualFolderTerms === null)
+    else if (this._virtualFolderTerms === null) {
       return;
-    else
+    } else {
       this._virtualFolderTerms = null;
+    }
     this.owner._applyViewChanges();
   },
   /**
@@ -287,13 +308,15 @@ SearchSpec.prototype = {
    * @param aUserTerms The list of terms.  We take ownership and mutate it.
    */
   set userTerms(aUserTerms) {
-    if (aUserTerms)
+    if (aUserTerms) {
       this._userTerms = this._groupifyTerms(aUserTerms);
+    }
     // if they are nulling out already null values, do not apply view changes!
-    else if (this._userTerms === null)
+    else if (this._userTerms === null) {
       return;
-    else
+    } else {
       this._userTerms = null;
+    }
     this.owner._applyViewChanges();
   },
   /**
@@ -348,7 +371,10 @@ SearchSpec.prototype = {
 
     // -- apply terms
     if (this._virtualFolderTerms) {
-      for (let term of fixIterator(this._virtualFolderTerms, Ci.nsIMsgSearchTerm)) {
+      for (let term of fixIterator(
+        this._virtualFolderTerms,
+        Ci.nsIMsgSearchTerm
+      )) {
         session.appendTerm(term);
       }
     }
@@ -376,8 +402,9 @@ SearchSpec.prototype = {
     }
 
     let filtering = this._userTerms != null || this._viewTerms != null;
-    let validityManager = Cc["@mozilla.org/mail/search/validityManager;1"]
-                            .getService(Ci.nsIMsgSearchValidityManager);
+    let validityManager = Cc[
+      "@mozilla.org/mail/search/validityManager;1"
+    ].getService(Ci.nsIMsgSearchValidityManager);
     for (let folder of this.owner._underlyingFolders) {
       // we do not need to check isServer here because _underlyingFolders
       //  filtered it out when it was initialized.
@@ -386,61 +413,81 @@ SearchSpec.prototype = {
       let serverScope = folder.server.searchScope;
       // If we're offline, or this is a local folder, or there's no separate
       //  online scope, use server scope.
-      if (Services.io.offline || (serverScope == Ci.nsMsgSearchScope.offlineMail) ||
-                                 (folder instanceof Ci.nsIMsgLocalMailFolder)) {
+      if (
+        Services.io.offline ||
+        serverScope == Ci.nsMsgSearchScope.offlineMail ||
+        folder instanceof Ci.nsIMsgLocalMailFolder
+      ) {
         scope = serverScope;
       } else {
         // we need to test the validity in online and offline tables
         let onlineValidityTable = validityManager.getTable(serverScope);
 
         let offlineScope;
-        if (folder.flags & Ci.nsMsgFolderFlags.Offline)
+        if (folder.flags & Ci.nsMsgFolderFlags.Offline) {
           offlineScope = Ci.nsMsgSearchScope.offlineMail;
-        else
-          // The onlineManual table is used for local search when there is no
-          //  body available.
+        }
+        // The onlineManual table is used for local search when there is no
+        //  body available.
+        else {
           offlineScope = Ci.nsMsgSearchScope.onlineManual;
+        }
 
         let offlineValidityTable = validityManager.getTable(offlineScope);
         let offlineAvailable = true;
         let onlineAvailable = true;
-        for (let term of fixIterator(session.searchTerms,
-                                     Ci.nsIMsgSearchTerm)) {
+        for (let term of fixIterator(
+          session.searchTerms,
+          Ci.nsIMsgSearchTerm
+        )) {
           if (!term.matchAll) {
             // for custom terms, we need to getAvailable from the custom term
             if (term.attrib == Ci.nsMsgSearchAttrib.Custom) {
-              let customTerm = MailServices.filters.getCustomTerm(term.customId);
+              let customTerm = MailServices.filters.getCustomTerm(
+                term.customId
+              );
               if (customTerm) {
-                offlineAvailable = customTerm.getAvailable(offlineScope, term.op);
+                offlineAvailable = customTerm.getAvailable(
+                  offlineScope,
+                  term.op
+                );
                 onlineAvailable = customTerm.getAvailable(serverScope, term.op);
-              } else { // maybe an extension with a custom term was unloaded?
-                Cu.reportError("Custom search term " + term.customId + " missing");
+              } else {
+                // maybe an extension with a custom term was unloaded?
+                Cu.reportError(
+                  "Custom search term " + term.customId + " missing"
+                );
               }
             } else {
-              if (!offlineValidityTable.getAvailable(term.attrib, term.op))
+              if (!offlineValidityTable.getAvailable(term.attrib, term.op)) {
                 offlineAvailable = false;
-              if (!onlineValidityTable.getAvailable(term.attrib, term.op))
+              }
+              if (!onlineValidityTable.getAvailable(term.attrib, term.op)) {
                 onlineAvailable = false;
+              }
             }
           }
         }
         // If both scopes work, honor the onlineSearch request, unless we're
         // filtering (quick search and/or a view selected)
-        if (onlineAvailable && offlineAvailable)
-          scope = (!filtering && this.onlineSearch) ? serverScope : offlineScope;
+        if (onlineAvailable && offlineAvailable) {
+          scope = !filtering && this.onlineSearch ? serverScope : offlineScope;
+        }
         // If only one works, use it. Otherwise, default to offline
-        else if (onlineAvailable)
+        else if (onlineAvailable) {
           scope = serverScope;
-        else
+        } else {
           scope = offlineScope;
+        }
       }
       session.addScopeTerm(scope, folder);
     }
   },
 
   prettyStringOfSearchTerms(aSearchTerms) {
-    if (aSearchTerms == null)
+    if (aSearchTerms == null) {
       return "      (none)\n";
+    }
 
     let s = "";
 
@@ -503,8 +550,9 @@ SearchSpecListener.prototype = {
 function FilteringSyntheticListener(aSearchSpec) {
   this.searchSpec = aSearchSpec;
   this.session = this.searchSpec.session;
-  this.dbView =
-    this.searchSpec.owner.dbView.QueryInterface(Ci.nsIMsgSearchNotify);
+  this.dbView = this.searchSpec.owner.dbView.QueryInterface(
+    Ci.nsIMsgSearchNotify
+  );
 }
 FilteringSyntheticListener.prototype = {
   onNewSearch() {
@@ -515,8 +563,9 @@ FilteringSyntheticListener.prototype = {
     // We don't need to worry about msgDatabase opening the database.
     // It is (obviously) already open, and presumably gloda is already on the
     //  hook to perform the cleanup (assuming gloda is backing this search).
-    if (this.session.MatchHdr(aMsgHdr, aFolder.msgDatabase))
+    if (this.session.MatchHdr(aMsgHdr, aFolder.msgDatabase)) {
       this.dbView.onSearchHit(aMsgHdr, aFolder);
+    }
   },
   onSearchDone(aStatus) {
     this.searchSpec.owner.searching = false;

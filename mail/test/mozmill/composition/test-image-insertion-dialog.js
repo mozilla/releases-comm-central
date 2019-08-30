@@ -22,7 +22,9 @@ var MODULE_REQUIRES = [
   "keyboard-helpers",
 ];
 
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 
 var fdh, ch, wh, kh;
 
@@ -63,8 +65,10 @@ function test_image_insertion_dialog_persist() {
 
   // Check that the radio option persists
   wh.plan_for_modal_dialog("imageDlg", function insert_image(mwc) {
-    assert_true(mwc.window.document.getElementById("noAltTextRadio").selected,
-      "We should persist the previously selected value");
+    assert_true(
+      mwc.window.document.getElementById("noAltTextRadio").selected,
+      "We should persist the previously selected value"
+    );
     // We change to "use alt text"
     mwc.click(mwc.eid("altTextRadio"));
     mwc.window.document.documentElement.cancelDialog();
@@ -75,8 +79,10 @@ function test_image_insertion_dialog_persist() {
 
   // Check that the radio option still persists (be really sure)
   wh.plan_for_modal_dialog("imageDlg", function insert_image(mwc) {
-    assert_true(mwc.window.document.getElementById("altTextRadio").selected,
-      "We should persist the previously selected value");
+    assert_true(
+      mwc.window.document.getElementById("altTextRadio").selected,
+      "We should persist the previously selected value"
+    );
     // Accept the dialog
     mwc.window.document.documentElement.cancelDialog();
   });
@@ -88,8 +94,10 @@ function test_image_insertion_dialog_persist() {
   // text", despite the persisted value being "use alt text"
   let img = cwc.e("content-frame").contentDocument.querySelector("img");
   wh.plan_for_modal_dialog("imageDlg", function insert_image(mwc) {
-    assert_true(mwc.window.document.getElementById("noAltTextRadio").selected,
-      "We shouldn't use the persisted value because the insert image has no alt text");
+    assert_true(
+      mwc.window.document.getElementById("noAltTextRadio").selected,
+      "We shouldn't use the persisted value because the insert image has no alt text"
+    );
     mwc.window.document.documentElement.cancelDialog();
   });
   cwc.doubleClick(new elib.Elem(img));
@@ -101,8 +109,10 @@ function test_image_insertion_dialog_persist() {
 
   // Now use some alt text for the edit image dialog
   wh.plan_for_modal_dialog("imageDlg", function insert_image(mwc) {
-    assert_true(mwc.window.document.getElementById("noAltTextRadio").selected,
-      "That value should persist still...");
+    assert_true(
+      mwc.window.document.getElementById("noAltTextRadio").selected,
+      "That value should persist still..."
+    );
     mwc.click(mwc.eid("altTextRadio"));
 
     let srcloc = mwc.window.document.getElementById("altTextInput");
@@ -122,8 +132,10 @@ function test_image_insertion_dialog_persist() {
   // Make sure next time we edit it, we still have "use alt text" selected.
   img = cwc.e("content-frame").contentDocument.querySelector("img");
   wh.plan_for_modal_dialog("imageDlg", function insert_image(mwc) {
-    assert_true(mwc.window.document.getElementById("altTextRadio").selected,
-      "We edited the image to make it have alt text, we should keep it selected");
+    assert_true(
+      mwc.window.document.getElementById("altTextRadio").selected,
+      "We edited the image to make it have alt text, we should keep it selected"
+    );
     // Accept the dialog
     mwc.window.document.documentElement.cancelDialog();
   });

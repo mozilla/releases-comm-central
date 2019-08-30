@@ -5,20 +5,20 @@
 async function testExecuteBrowserActionWithOptions(options = {}) {
   // Make sure the mouse isn't hovering over the browserAction widget.
   let folderTree = document.getElementById("folderTree");
-  EventUtils.synthesizeMouseAtCenter(folderTree, {type: "mouseover"}, window);
+  EventUtils.synthesizeMouseAtCenter(folderTree, { type: "mouseover" }, window);
 
   let extensionOptions = {};
 
   extensionOptions.manifest = {
-    "commands": {
-      "_execute_browser_action": {
-        "suggested_key": {
-          "default": "Alt+Shift+J",
+    commands: {
+      _execute_browser_action: {
+        suggested_key: {
+          default: "Alt+Shift+J",
         },
       },
     },
-    "browser_action": {
-      "browser_style": true,
+    browser_action: {
+      browser_style: true,
     },
   };
 
@@ -44,15 +44,19 @@ async function testExecuteBrowserActionWithOptions(options = {}) {
 
   extensionOptions.background = () => {
     browser.test.onMessage.addListener((message, withPopup) => {
-      browser.commands.onCommand.addListener((commandName) => {
+      browser.commands.onCommand.addListener(commandName => {
         if (commandName == "_execute_browser_action") {
-          browser.test.fail("The onCommand listener should never fire for _execute_browser_action.");
+          browser.test.fail(
+            "The onCommand listener should never fire for _execute_browser_action."
+          );
         }
       });
 
       browser.browserAction.onClicked.addListener(() => {
         if (withPopup) {
-          browser.test.fail("The onClick listener should never fire if the browserAction has a popup.");
+          browser.test.fail(
+            "The onClick listener should never fire if the browserAction has a popup."
+          );
           browser.test.notifyFail("execute-browser-action-on-clicked-fired");
         } else {
           browser.test.notifyPass("execute-browser-action-on-clicked-fired");
@@ -72,7 +76,7 @@ async function testExecuteBrowserActionWithOptions(options = {}) {
   let extension = ExtensionTestUtils.loadExtension(extensionOptions);
 
   extension.onMessage("send-keys", () => {
-    EventUtils.synthesizeKey("j", {altKey: true, shiftKey: true});
+    EventUtils.synthesizeKey("j", { altKey: true, shiftKey: true });
   });
 
   await extension.startup();

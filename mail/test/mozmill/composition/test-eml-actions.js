@@ -14,11 +14,19 @@
 
 var MODULE_NAME = "test-eml-actions";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "compose-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "compose-helpers",
+];
 
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 
 var gDrafts;
 
@@ -37,19 +45,21 @@ function setupModule(module) {
 function test_reply_to_eml_save_as_draft() {
   // Open an .eml file.
   let file = os.getFileForPath(
-    os.abspath("./testmsg.eml", os.getFileForPath(__file__)));
+    os.abspath("./testmsg.eml", os.getFileForPath(__file__))
+  );
   let msgc = open_message_from_file(file);
 
   let replyWin = open_compose_with_reply(msgc);
 
   // Ctrl+S saves as draft.
-  replyWin.keypress(null, "s", {shiftKey: false, accelKey: true});
+  replyWin.keypress(null, "s", { shiftKey: false, accelKey: true });
 
   // Drafts folder should exist now.
   be_in_folder(gDrafts);
   let draftMsg = select_click_row(0);
-  if (!draftMsg)
+  if (!draftMsg) {
     throw new Error("No draft saved!");
+  }
   press_delete(); // Delete the draft.
 
   close_compose_window(replyWin); // close compose window
@@ -63,19 +73,21 @@ function test_reply_to_eml_save_as_draft() {
 function test_forward_eml_save_as_draft() {
   // Open an .eml file.
   let file = os.getFileForPath(
-    os.abspath("./testmsg.eml", os.getFileForPath(__file__)));
+    os.abspath("./testmsg.eml", os.getFileForPath(__file__))
+  );
   let msgc = open_message_from_file(file);
 
   let replyWin = open_compose_with_forward(msgc);
 
   // Ctrl+S saves as draft.
-  replyWin.keypress(null, "s", {shiftKey: false, accelKey: true});
+  replyWin.keypress(null, "s", { shiftKey: false, accelKey: true });
 
   // Drafts folder should exist now.
   be_in_folder(gDrafts);
   let draftMsg = select_click_row(0);
-  if (!draftMsg)
+  if (!draftMsg) {
     throw new Error("No draft saved!");
+  }
   press_delete(); // Delete the draft.
 
   close_compose_window(replyWin); // close compose window
@@ -88,7 +100,8 @@ function test_forward_eml_save_as_draft() {
 function test_reply_eml_subject() {
   // Open an .eml file whose subject is encoded.
   let file = os.getFileForPath(
-    os.abspath("./mime-encoded-subject.eml", os.getFileForPath(__file__)));
+    os.abspath("./mime-encoded-subject.eml", os.getFileForPath(__file__))
+  );
   let msgc = open_message_from_file(file);
 
   let replyWin = open_compose_with_reply(msgc);
@@ -104,16 +117,22 @@ function test_reply_eml_subject() {
 function test_reply_to_base64_eml() {
   // Open an .eml file.
   let file = os.getFileForPath(
-    os.abspath("./base64-encoded-msg.eml", os.getFileForPath(__file__)));
+    os.abspath("./base64-encoded-msg.eml", os.getFileForPath(__file__))
+  );
   let msgc = open_message_from_file(file);
 
   let compWin = open_compose_with_reply(msgc);
 
   let bodyText = get_compose_body(compWin).textContent;
   const message = "You have decoded this text from base64.";
-  if (!bodyText.includes(message))
-    throw new Error("body text didn't contain the decoded text; message=" +
-                    message + ", bodyText=" + bodyText);
+  if (!bodyText.includes(message)) {
+    throw new Error(
+      "body text didn't contain the decoded text; message=" +
+        message +
+        ", bodyText=" +
+        bodyText
+    );
+  }
 
   close_compose_window(compWin);
   close_window(msgc);
@@ -125,16 +144,22 @@ function test_reply_to_base64_eml() {
 function test_forward_base64_eml() {
   // Open an .eml file.
   let file = os.getFileForPath(
-    os.abspath("./base64-encoded-msg.eml", os.getFileForPath(__file__)));
+    os.abspath("./base64-encoded-msg.eml", os.getFileForPath(__file__))
+  );
   let msgc = open_message_from_file(file);
 
   let compWin = open_compose_with_forward(msgc);
 
   let bodyText = get_compose_body(compWin).textContent;
   const message = "You have decoded this text from base64.";
-  if (!bodyText.includes(message))
-    throw new Error("body text didn't contain the decoded text; message=" +
-                    message + ", bodyText=" + bodyText);
+  if (!bodyText.includes(message)) {
+    throw new Error(
+      "body text didn't contain the decoded text; message=" +
+        message +
+        ", bodyText=" +
+        bodyText
+    );
+  }
 
   close_compose_window(compWin);
   close_window(msgc);

@@ -44,8 +44,11 @@ function test_main_menu_collapsed() {
   mc.waitFor(() => done);
 
   let mainMenu = mc.e("mail-toolbar-menubar2");
-  assert_equals(mainMenu.getAttribute("autohide"), "true",
-                "The main menu should have the autohide attribute set to true.");
+  assert_equals(
+    mainMenu.getAttribute("autohide"),
+    "true",
+    "The main menu should have the autohide attribute set to true."
+  );
 
   Services.obs.removeObserver(observer, "mail-startup-done");
 }

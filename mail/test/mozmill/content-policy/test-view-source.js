@@ -15,9 +15,11 @@ var MODULE_NAME = "test-view-source";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var folder = null;
 
@@ -30,22 +32,30 @@ function setupModule(module) {
 }
 
 function addToFolder(aSubject, aBody, aFolder) {
-  let msgId = Cc["@mozilla.org/uuid-generator;1"]
-                          .getService(Ci.nsIUUIDGenerator)
-                          .generateUUID() + "@invalid";
+  let msgId =
+    Cc["@mozilla.org/uuid-generator;1"]
+      .getService(Ci.nsIUUIDGenerator)
+      .generateUUID() + "@invalid";
 
-  let source = "From - Sat Nov  1 12:39:54 2008\n" +
-               "X-Mozilla-Status: 0001\n" +
-               "X-Mozilla-Status2: 00000000\n" +
-               "Message-ID: <" + msgId + ">\n" +
-               "Date: Wed, 11 Jun 2008 20:32:02 -0400\n" +
-               "From: Tester <tests@mozillamessaging.invalid>\n" +
-               "MIME-Version: 1.0\n" +
-               "To: anna@example.com\n" +
-               "Subject: " + aSubject + "\n" +
-               "Content-Type: text/plain; charset=ISO-8859-1\n" +
-               "Content-Transfer-Encoding: 7bit\n" +
-               "\n" + aBody + "\n";
+  let source =
+    "From - Sat Nov  1 12:39:54 2008\n" +
+    "X-Mozilla-Status: 0001\n" +
+    "X-Mozilla-Status2: 00000000\n" +
+    "Message-ID: <" +
+    msgId +
+    ">\n" +
+    "Date: Wed, 11 Jun 2008 20:32:02 -0400\n" +
+    "From: Tester <tests@mozillamessaging.invalid>\n" +
+    "MIME-Version: 1.0\n" +
+    "To: anna@example.com\n" +
+    "Subject: " +
+    aSubject +
+    "\n" +
+    "Content-Type: text/plain; charset=ISO-8859-1\n" +
+    "Content-Transfer-Encoding: 7bit\n" +
+    "\n" +
+    aBody +
+    "\n";
 
   aFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   aFolder.addMessage(source);
@@ -65,19 +75,30 @@ function test_view_source_reload() {
   let msg = addToFolder("view-source reload test123?", contentLatin1, folder);
 
   let selMsg = select_click_row(0);
-  assert_true(msg == selMsg, "Selected msg isn't the same as the generated one.");
+  assert_true(
+    msg == selMsg,
+    "Selected msg isn't the same as the generated one."
+  );
 
   plan_for_new_window("navigator:view-source");
-  mc.keypress(null, "U", {shiftKey: false, accelKey: true});
+  mc.keypress(null, "U", { shiftKey: false, accelKey: true });
   let vsc = wait_for_new_window("navigator:view-source");
 
-  vsc.waitFor(() => vsc.e("content").contentDocument.querySelector("pre") != null,
-              "Timeout waiting for the latin1 view-source document to load.");
+  vsc.waitFor(
+    () => vsc.e("content").contentDocument.querySelector("pre") != null,
+    "Timeout waiting for the latin1 view-source document to load."
+  );
 
-  let source = vsc.e("content").contentDocument.querySelector("pre").textContent;
-  if (!source.includes(contentLatin1))
-    throw new Error("View source didn't contain the latin1 text;\n" +
-                    contentLatin1 + "\n" + source);
+  let source = vsc.e("content").contentDocument.querySelector("pre")
+    .textContent;
+  if (!source.includes(contentLatin1)) {
+    throw new Error(
+      "View source didn't contain the latin1 text;\n" +
+        contentLatin1 +
+        "\n" +
+        source
+    );
+  }
 
   let doc = vsc.e("content").contentDocument; // keep a ref to the latin1 doc
 
@@ -85,20 +106,29 @@ function test_view_source_reload() {
   vsc.click(vsc.eid("content"));
 
   vsc.click(vsc.eid("menu_view"));
-  vsc.click_menus_in_sequence(vsc.e("viewmenu-popup"),
-    [{id: "charsetMenu"}, {label: "Unicode"}]);
+  vsc.click_menus_in_sequence(vsc.e("viewmenu-popup"), [
+    { id: "charsetMenu" },
+    { label: "Unicode" },
+  ]);
 
-  vsc.waitFor(() => vsc.e("content").contentDocument != doc &&
-                    vsc.e("content").contentDocument.querySelector("pre") != null,
-              "Timeout waiting utf-8 encoded view-source document to load.");
+  vsc.waitFor(
+    () =>
+      vsc.e("content").contentDocument != doc &&
+      vsc.e("content").contentDocument.querySelector("pre") != null,
+    "Timeout waiting utf-8 encoded view-source document to load."
+  );
 
   source = vsc.e("content").contentDocument.querySelector("pre").textContent;
-  if (!source.includes(contentUTF8))
-    throw new Error("View source didn't contain the utf-8 text;\n" +
-                    contentUTF8 + "\n" + source);
+  if (!source.includes(contentUTF8)) {
+    throw new Error(
+      "View source didn't contain the utf-8 text;\n" +
+        contentUTF8 +
+        "\n" +
+        source
+    );
+  }
 
   close_window(vsc);
 }
 // Skip on Mac, as we can't click the (native) menus to make it work.
 test_view_source_reload.EXCLUDED_PLATFORMS = ["darwin"];
-

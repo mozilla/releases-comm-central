@@ -28,7 +28,7 @@ var SAVE = 0;
 var CANCEL = 1;
 var DONT_SAVE = 2;
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var cwc = null; // compose window controller
 var folder = null;
@@ -47,22 +47,31 @@ function setupModule(module) {
 }
 
 function msgSource(aSubject, aContentType) {
-  let msgId = Cc["@mozilla.org/uuid-generator;1"]
-                .getService(Ci.nsIUUIDGenerator)
-                .generateUUID() + "@invalid";
+  let msgId =
+    Cc["@mozilla.org/uuid-generator;1"]
+      .getService(Ci.nsIUUIDGenerator)
+      .generateUUID() + "@invalid";
 
-  return "From - Sun Apr 07 22:47:11 2013\r\n" +
-         "X-Mozilla-Status: 0001\r\n" +
-         "X-Mozilla-Status2: 00000000\r\n" +
-         "Message-ID: <" + msgId + ">\r\n" +
-         "Date: Sun, 07 Apr 2013 22:47:11 +0300\r\n" +
-         "From: Someone <some.one@invalid>\r\n" +
-         "To: someone.else@invalid\r\n" +
-         "Subject: " + aSubject + "\r\n" +
-         "MIME-Version: 1.0\r\n" +
-         (aContentType ? "Content-Type: " + aContentType + "\r\n" : "") +
-         "Content-Transfer-Encoding: 7bit\r\n\r\n" +
-         "A msg with contentType " + aContentType + "\r\n";
+  return (
+    "From - Sun Apr 07 22:47:11 2013\r\n" +
+    "X-Mozilla-Status: 0001\r\n" +
+    "X-Mozilla-Status2: 00000000\r\n" +
+    "Message-ID: <" +
+    msgId +
+    ">\r\n" +
+    "Date: Sun, 07 Apr 2013 22:47:11 +0300\r\n" +
+    "From: Someone <some.one@invalid>\r\n" +
+    "To: someone.else@invalid\r\n" +
+    "Subject: " +
+    aSubject +
+    "\r\n" +
+    "MIME-Version: 1.0\r\n" +
+    (aContentType ? "Content-Type: " + aContentType + "\r\n" : "") +
+    "Content-Transfer-Encoding: 7bit\r\n\r\n" +
+    "A msg with contentType " +
+    aContentType +
+    "\r\n"
+  );
 }
 
 /**
@@ -82,14 +91,14 @@ function test_can_cancel_quit_on_changes() {
   // Make some changes
   cwc.type(cwc.eid("content-frame"), "Hey check out this megalol link");
 
-  let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"]
-                   .createInstance(Ci.nsISupportsPRBool);
+  let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
+    Ci.nsISupportsPRBool
+  );
 
   // Set the Mock Prompt Service to return false, so that we
   // cancel the quit.
   gMockPromptService.returnValue = CANCEL;
   // Trigger the quit-application-request notification
-
 
   Services.obs.notifyObservers(cancelQuit, "quit-application-requested");
 
@@ -125,8 +134,9 @@ function test_can_quit_on_changes() {
   // Make some changes
   cwc.type(cwc.eid("content-frame"), "Hey check out this megalol link");
 
-  let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"]
-                   .createInstance(Ci.nsISupportsPRBool);
+  let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
+    Ci.nsISupportsPRBool
+  );
 
   // Set the Mock Prompt Service to return true, so that we're
   // allowing the quit to occur.
@@ -168,8 +178,9 @@ function test_window_quit_state_reset_on_aborted_quit() {
   cwc1.type(cwc1.eid("content-frame"), "Marco!");
   cwc2.type(cwc2.eid("content-frame"), "Polo!");
 
-  let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"]
-                   .createInstance(Ci.nsISupportsPRBool);
+  let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
+    Ci.nsISupportsPRBool
+  );
 
   // This is a hacky method for making sure that the second window
   // receives a CANCEL click in the popup dialog.
@@ -177,8 +188,9 @@ function test_window_quit_state_reset_on_aborted_quit() {
   gMockPromptService.onPromptCallback = function() {
     numOfPrompts++;
 
-    if (numOfPrompts > 1)
+    if (numOfPrompts > 1) {
       gMockPromptService.returnValue = CANCEL;
+    }
   };
 
   gMockPromptService.returnValue = DONT_SAVE;
@@ -260,8 +272,11 @@ function test_no_prompt_on_close_for_unmodified_content_type_text() {
   close_compose_window(rwc, false);
 
   let fwc = open_compose_with_forward();
-  assert_equals(fwc.e("attachmentBucket").getRowCount(), 0,
-                "forwarding msg created attachment");
+  assert_equals(
+    fwc.e("attachmentBucket").getRowCount(),
+    0,
+    "forwarding msg created attachment"
+  );
   close_compose_window(fwc, false);
 }
 
@@ -278,8 +293,10 @@ function test_no_prompt_on_close_for_unmodified_no_content_type() {
   close_compose_window(rwc, false);
 
   let fwc = open_compose_with_forward();
-  assert_equals(fwc.e("attachmentBucket").getRowCount(), 0,
-                "forwarding msg created attachment");
+  assert_equals(
+    fwc.e("attachmentBucket").getRowCount(),
+    0,
+    "forwarding msg created attachment"
+  );
   close_compose_window(fwc, false);
 }
-

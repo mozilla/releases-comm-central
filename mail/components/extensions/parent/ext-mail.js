@@ -2,21 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.defineModuleGetter(this, "MailServices", "resource:///modules/MailServices.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "MailServices",
+  "resource:///modules/MailServices.jsm"
+);
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 XPCOMUtils.defineLazyServiceGetter(
-  this, "uuidGenerator", "@mozilla.org/uuid-generator;1", "nsIUUIDGenerator"
+  this,
+  "uuidGenerator",
+  "@mozilla.org/uuid-generator;1",
+  "nsIUUIDGenerator"
 );
 
-var {
-  ExtensionError,
-  getInnerWindowID,
-} = ExtensionUtils;
+var { ExtensionError, getInnerWindowID } = ExtensionUtils;
 
-var {
-  defineLazyGetter,
-} = ExtensionCommon;
-
+var { defineLazyGetter } = ExtensionCommon;
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   ExtensionPageChild: "resource://gre/modules/ExtensionPageChild.jsm",
@@ -40,7 +43,11 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   ExtensionProcessScript.loadContentScript = function(contentScript, window) {
     let script = ExtensionContent.contentScripts.get(contentScript);
     let context = script.extension.getContext(window);
-    Schemas.exportLazyGetter(context.sandbox, "messenger", () => context.chromeObj);
+    Schemas.exportLazyGetter(
+      context.sandbox,
+      "messenger",
+      () => context.chromeObj
+    );
 
     return loadContentScript.apply(ExtensionProcessScript, arguments);
   };
@@ -56,7 +63,10 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 
   // This patches priviledged pages such as the background script
   ExtensionPageChild.initExtensionContext = function(extension, window) {
-    let retval = initPageChildExtensionContext.apply(ExtensionPageChild, arguments);
+    let retval = initPageChildExtensionContext.apply(
+      ExtensionPageChild,
+      arguments
+    );
 
     let windowId = getInnerWindowID(window);
     let context = ExtensionPageChild.extensionContexts.get(windowId);
@@ -90,8 +100,10 @@ const getSender = (extension, target, sender) => {
     // page-open listener below).
     tabId = sender.tabId;
     delete sender.tabId;
-  } else if (ExtensionCommon.instanceOf(target, "XULFrameElement") ||
-             ExtensionCommon.instanceOf(target, "HTMLIFrameElement")) {
+  } else if (
+    ExtensionCommon.instanceOf(target, "XULFrameElement") ||
+    ExtensionCommon.instanceOf(target, "HTMLIFrameElement")
+  ) {
     tabId = tabTracker.getBrowserData(target).tabId;
   }
 
@@ -111,7 +123,6 @@ global.makeWidgetId = id => {
   // FIXME: This allows for collisions.
   return id.replace(/[^a-z0-9_-]/g, "_");
 };
-
 
 /**
  * Gets the tab browser for the tabmail tabInfo.
@@ -145,7 +156,10 @@ XPCOMUtils.defineLazyGetter(global, "searchInitialized", () => {
   if (Services.search.isInitialized) {
     return Promise.resolve();
   }
-  return ExtensionUtils.promiseObserved("browser-search-service", (_, data) => data == "init-complete");
+  return ExtensionUtils.promiseObserved(
+    "browser-search-service",
+    (_, data) => data == "init-complete"
+  );
 });
 
 /**
@@ -310,7 +324,8 @@ class TabTracker extends TabTrackerBase {
     }
 
     let tabmail = browser.ownerDocument.getElementById("tabmail");
-    let tab = tabmail && tabmail.tabInfo.find(info => getTabBrowser(info) == browser);
+    let tab =
+      tabmail && tabmail.tabInfo.find(info => getTabBrowser(info) == browser);
 
     if (tab) {
       id = this.getId(tab);
@@ -484,7 +499,12 @@ class TabTracker extends TabTrackerBase {
     let tabIndex = tabmail._getTabContextForTabbyThing(nativeTabInfo)[0];
     let newWindowId = windowTracker.getId(browser.ownerGlobal);
 
-    this.emit("tab-attached", { nativeTabInfo, tabId, newWindowId, newPosition: tabIndex });
+    this.emit("tab-attached", {
+      nativeTabInfo,
+      tabId,
+      newWindowId,
+      newPosition: tabIndex,
+    });
   }
 
   /**
@@ -499,7 +519,12 @@ class TabTracker extends TabTrackerBase {
     let tabIndex = tabmail._getTabContextForTabbyThing(nativeTabInfo)[0];
     let oldWindowId = windowTracker.getId(browser.ownerGlobal);
 
-    this.emit("tab-detached", { nativeTabInfo, tabId, oldWindowId, oldPosition: tabIndex });
+    this.emit("tab-detached", {
+      nativeTabInfo,
+      tabId,
+      oldWindowId,
+      oldPosition: tabIndex,
+    });
   }
 
   /**
@@ -524,7 +549,12 @@ class TabTracker extends TabTrackerBase {
     let windowId = windowTracker.getId(browser.ownerGlobal);
     let tabId = this.getId(nativeTabInfo);
 
-    this.emit("tab-removed", { nativeTabInfo, tabId, windowId, isWindowClosing });
+    this.emit("tab-removed", {
+      nativeTabInfo,
+      tabId,
+      windowId,
+      isWindowClosing,
+    });
   }
 
   /**
@@ -660,7 +690,9 @@ class Tab extends TabBase {
 
   /** Returns the tab index. */
   get index() {
-    return this.tabmail.tabInfo.filter(info => getTabBrowser(info)).indexOf(this.nativeTab);
+    return this.tabmail.tabInfo
+      .filter(info => getTabBrowser(info))
+      .indexOf(this.nativeTab);
   }
 
   /** Returns information about the muted state of the tab. */
@@ -771,7 +803,8 @@ class Window extends WindowBase {
 
     if (options.width !== null || options.height !== null) {
       let width = options.width === null ? window.outerWidth : options.width;
-      let height = options.height === null ? window.outerHeight : options.height;
+      let height =
+        options.height === null ? window.outerHeight : options.height;
       window.resizeTo(width, height);
     }
   }
@@ -801,7 +834,10 @@ class Window extends WindowBase {
    * @param {String} titlePreface       The title preface to set
    */
   setTitlePreface(titlePreface) {
-    this.window.document.documentElement.setAttribute("titlepreface", titlePreface);
+    this.window.document.documentElement.setAttribute(
+      "titlepreface",
+      titlePreface
+    );
   }
 
   /** Gets the foucsed state of the window. */
@@ -918,7 +954,7 @@ class Window extends WindowBase {
    *
    * @yields {Tab}      The wrapped Tab in this window
    */
-  * getTabs() {
+  *getTabs() {
     let { tabManager } = this.extension;
 
     for (let nativeTabInfo of this.tabmail.tabInfo) {
@@ -947,7 +983,9 @@ class Window extends WindowBase {
    */
   getTabAtIndex(index) {
     let { tabManager } = this.extension;
-    let nativeTabInfo = this.tabmail.tabInfo.filter(info => getTabBrowser(info))[index];
+    let nativeTabInfo = this.tabmail.tabInfo.filter(info =>
+      getTabBrowser(info)
+    )[index];
     if (nativeTabInfo) {
       return tabManager.getWrapper(nativeTabInfo);
     }
@@ -1016,7 +1054,11 @@ class TabManager extends TabManagerBase {
    * @return {Tab}                              The wrapped native tab
    */
   wrapTab(nativeTabInfo) {
-    return new Tab(this.extension, nativeTabInfo, tabTracker.getId(nativeTabInfo));
+    return new Tab(
+      this.extension,
+      nativeTabInfo,
+      tabTracker.getId(nativeTabInfo)
+    );
   }
 }
 
@@ -1042,7 +1084,7 @@ class WindowManager extends WindowManagerBase {
    *
    * @yields {Window}
    */
-  * getAll() {
+  *getAll() {
     for (let window of windowTracker.browserWindows()) {
       yield this.getWrapper(window);
     }
@@ -1070,7 +1112,10 @@ class WindowManager extends WindowManagerBase {
  */
 function folderURIToPath(uri) {
   let path = Services.io.newURI(uri).filePath;
-  return path.split("/").map(decodeURIComponent).join("/");
+  return path
+    .split("/")
+    .map(decodeURIComponent)
+    .join("/");
 }
 
 /**
@@ -1079,11 +1124,18 @@ function folderURIToPath(uri) {
  * @return {String}
  */
 function folderPathToURI(accountId, path) {
-  let rootURI = MailServices.accounts.getAccount(accountId).incomingServer.rootFolder.URI;
+  let rootURI = MailServices.accounts.getAccount(accountId).incomingServer
+    .rootFolder.URI;
   if (path == "/") {
     return rootURI;
   }
-  return rootURI + path.split("/").map(encodeURIComponent).join("/");
+  return (
+    rootURI +
+    path
+      .split("/")
+      .map(encodeURIComponent)
+      .join("/")
+  );
 }
 
 const folderTypeMap = new Map([
@@ -1136,7 +1188,9 @@ class FolderManager {
   }
 
   get(accountId, path) {
-    return MailServices.folderLookup.getFolderForURL(folderPathToURI(accountId, path));
+    return MailServices.folderLookup.getFolderForURL(
+      folderPathToURI(accountId, path)
+    );
   }
 }
 
@@ -1150,14 +1204,19 @@ function convertMessage(msgHdr, extension) {
     return null;
   }
 
-  let composeFields = Cc["@mozilla.org/messengercompose/composefields;1"]
-                        .createInstance(Ci.nsIMsgCompFields);
+  let composeFields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
 
   let messageObject = {
     id: messageTracker.getId(msgHdr),
     date: new Date(msgHdr.dateInSeconds * 1000),
     author: msgHdr.mime2DecodedAuthor,
-    recipients: composeFields.splitRecipients(msgHdr.mime2DecodedRecipients, false, {}),
+    recipients: composeFields.splitRecipients(
+      msgHdr.mime2DecodedRecipients,
+      false,
+      {}
+    ),
     ccList: composeFields.splitRecipients(msgHdr.ccList, false, {}),
     bccList: composeFields.splitRecipients(msgHdr.bccList, false, {}),
     subject: msgHdr.mime2DecodedSubject,
@@ -1185,7 +1244,10 @@ var messageTracker = {
    */
   getId(msgHdr) {
     for (let [key, value] of this._messages.entries()) {
-      if (value.folderURI == msgHdr.folder.URI && value.messageId == msgHdr.messageId) {
+      if (
+        value.folderURI == msgHdr.folder.URI &&
+        value.messageId == msgHdr.messageId
+      ) {
         return key;
       }
     }
@@ -1221,7 +1283,10 @@ var messageTracker = {
    * Adds a message to the map.
    */
   setId(msgHdr, id) {
-    this._messages.set(id, { folderURI: msgHdr.folder.URI, messageId: msgHdr.messageId });
+    this._messages.set(id, {
+      folderURI: msgHdr.folder.URI,
+      messageId: msgHdr.messageId,
+    });
   },
 };
 
@@ -1298,7 +1363,10 @@ var messageListTracker = {
   },
 
   _getNextPage(messageList) {
-    let messageCount = Services.prefs.getIntPref("extensions.webextensions.messagesPerPage", 100);
+    let messageCount = Services.prefs.getIntPref(
+      "extensions.webextensions.messagesPerPage",
+      100
+    );
     let page = [];
     for (let i = 0; i < messageCount && messageList.hasMoreElements(); i++) {
       page.push(messageList.getNext().QueryInterface(Ci.nsIMsgDBHdr));
@@ -1325,13 +1393,26 @@ class MessageManager {
   }
 }
 
-extensions.on("startup", (type, extension) => { // eslint-disable-line mozilla/balanced-listeners
+extensions.on("startup", (type, extension) => {
+  // eslint-disable-line mozilla/balanced-listeners
   if (extension.hasPermission("accountsRead")) {
-    defineLazyGetter(extension, "folderManager", () => new FolderManager(extension));
+    defineLazyGetter(
+      extension,
+      "folderManager",
+      () => new FolderManager(extension)
+    );
   }
   if (extension.hasPermission("messagesRead")) {
-    defineLazyGetter(extension, "messageManager", () => new MessageManager(extension));
+    defineLazyGetter(
+      extension,
+      "messageManager",
+      () => new MessageManager(extension)
+    );
   }
   defineLazyGetter(extension, "tabManager", () => new TabManager(extension));
-  defineLazyGetter(extension, "windowManager", () => new WindowManager(extension));
+  defineLazyGetter(
+    extension,
+    "windowManager",
+    () => new WindowManager(extension)
+  );
 });

@@ -15,10 +15,16 @@
 
 var MODULE_NAME = "test-charset-upgrade";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "compose-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "compose-helpers",
+];
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var gDrafts;
 var gOutbox;
@@ -32,11 +38,15 @@ function setupModule(module) {
 
   // Ensure reply charset isn't UTF-8, otherwise there's no need to upgrade,
   //  which is what this test tests.
-  let str = Cc["@mozilla.org/pref-localizedstring;1"]
-              .createInstance(Ci.nsIPrefLocalizedString);
+  let str = Cc["@mozilla.org/pref-localizedstring;1"].createInstance(
+    Ci.nsIPrefLocalizedString
+  );
   str.data = "windows-1252";
-  Services.prefs.setComplexValue("mailnews.send_default_charset",
-                                 Ci.nsIPrefLocalizedString, str);
+  Services.prefs.setComplexValue(
+    "mailnews.send_default_charset",
+    Ci.nsIPrefLocalizedString,
+    str
+  );
 
   // Don't create paragraphs in the test.
   // When creating a paragraph, the test fails to retrieve the
@@ -53,13 +63,15 @@ function test_encoding_upgrade_html_compose() {
   Services.prefs.setBoolPref("mail.identity.default.compose_html", true);
   let compWin = open_compose_new_mail();
 
-  setup_msg_contents(compWin,
-                     "someone@example.com",
-                     "encoding upgrade test - html mode",
-                     "so far, this is latin1\n");
+  setup_msg_contents(
+    compWin,
+    "someone@example.com",
+    "encoding upgrade test - html mode",
+    "so far, this is latin1\n"
+  );
 
   // Ctrl+S = save as draft.
-  compWin.keypress(null, "s", {shiftKey: false, accelKey: true});
+  compWin.keypress(null, "s", { shiftKey: false, accelKey: true });
 
   be_in_folder(gDrafts);
   let draftMsg = select_click_row(0);
@@ -69,21 +81,25 @@ function test_encoding_upgrade_html_compose() {
 
   // We could pass "windows-1252", but the message is ASCII.
   let draftMsgContent = get_msg_source(draftMsg);
-  if (!draftMsgContent.includes('content="text/html; charset=windows-1252"'))
-    throw new Error("Expected content type not in msg; draftMsgContent=" +
-                    draftMsgContent);
+  if (!draftMsgContent.includes('content="text/html; charset=windows-1252"')) {
+    throw new Error(
+      "Expected content type not in msg; draftMsgContent=" + draftMsgContent
+    );
+  }
 
   const CHINESE = "漢皇重色思傾國漢皇重色思傾國";
-  type_in_composer(compWin, ["but now, we enter some chinese: " + CHINESE + "\n"]);
+  type_in_composer(compWin, [
+    "but now, we enter some chinese: " + CHINESE + "\n",
+  ]);
 
   // Ctrl+U = Underline (so we can check multipart/alternative gets right,
   // without it html->plaintext conversion will it as send plain text only)
-  compWin.keypress(null, "U", {shiftKey: false, accelKey: true});
+  compWin.keypress(null, "U", { shiftKey: false, accelKey: true });
 
   type_in_composer(compWin, ["content need to be upgraded to utf-8 now."]);
 
   // Ctrl+S = save as draft.
-  compWin.keypress(null, "s", {shiftKey: false, accelKey: true});
+  compWin.keypress(null, "s", { shiftKey: false, accelKey: true });
 
   be_in_folder(gDrafts);
   let draftMsg2 = select_click_row(0);
@@ -91,13 +107,20 @@ function test_encoding_upgrade_html_compose() {
   assert_equals(draftMsg2.Charset, "UTF-8");
 
   let draftMsg2Content = get_msg_source(draftMsg2, "UTF-8");
-  if (!draftMsg2Content.includes('content="text/html; charset=UTF-8"'))
-    throw new Error("Expected content type not in msg; draftMsg2Content=" +
-                    draftMsg2Content);
+  if (!draftMsg2Content.includes('content="text/html; charset=UTF-8"')) {
+    throw new Error(
+      "Expected content type not in msg; draftMsg2Content=" + draftMsg2Content
+    );
+  }
 
-  if (!draftMsg2Content.includes(CHINESE))
-    throw new Error("Chinese text not in msg; CHINESE=" + CHINESE +
-                    ", draftMsg2Content=" + draftMsg2Content);
+  if (!draftMsg2Content.includes(CHINESE)) {
+    throw new Error(
+      "Chinese text not in msg; CHINESE=" +
+        CHINESE +
+        ", draftMsg2Content=" +
+        draftMsg2Content
+    );
+  }
 
   plan_for_window_close(compWin);
   compWin.window.goDoCommand("cmd_sendLater");
@@ -108,21 +131,28 @@ function test_encoding_upgrade_html_compose() {
   let outMsgContent = get_msg_source(outMsg, "UTF-8");
 
   // This message should be multipart/alternative.
-  if (!outMsgContent.includes("Content-Type: multipart/alternative"))
+  if (!outMsgContent.includes("Content-Type: multipart/alternative")) {
     throw new Error("Expected multipart/alternative; content=" + outMsgContent);
+  }
 
   let chinesePlainIdx = outMsgContent.indexOf(CHINESE);
-  assert_true(chinesePlainIdx > 0, "chinesePlainIdx=" + chinesePlainIdx +
-                                   ", outMsgContent=" + outMsgContent);
+  assert_true(
+    chinesePlainIdx > 0,
+    "chinesePlainIdx=" + chinesePlainIdx + ", outMsgContent=" + outMsgContent
+  );
 
   let chineseHTMLIdx = outMsgContent.indexOf(CHINESE, chinesePlainIdx);
-  assert_true(chineseHTMLIdx > 0, "chineseHTMLIdx=" + chineseHTMLIdx +
-                                  ", outMsgContent=" + outMsgContent);
+  assert_true(
+    chineseHTMLIdx > 0,
+    "chineseHTMLIdx=" + chineseHTMLIdx + ", outMsgContent=" + outMsgContent
+  );
 
   // Make sure the actual html also got the content type set correctly.
-  if (!outMsgContent.includes('content="text/html; charset=UTF-8"'))
-    throw new Error("Expected content type not in html; outMsgContent=" +
-                    outMsgContent);
+  if (!outMsgContent.includes('content="text/html; charset=UTF-8"')) {
+    throw new Error(
+      "Expected content type not in html; outMsgContent=" + outMsgContent
+    );
+  }
 
   press_delete(); // Delete the msg from Outbox.
 }
@@ -136,13 +166,15 @@ function test_encoding_upgrade_plaintext_compose() {
   let compWin = open_compose_new_mail();
   Services.prefs.setBoolPref("mail.identity.default.compose_html", true);
 
-  setup_msg_contents(compWin,
-                     "someone-else@example.com",
-                     "encoding upgrade test - plaintext",
-                     "this is plaintext latin1\n");
+  setup_msg_contents(
+    compWin,
+    "someone-else@example.com",
+    "encoding upgrade test - plaintext",
+    "this is plaintext latin1\n"
+  );
 
   // Ctrl+S = Save as Draft.
-  compWin.keypress(null, "s", {shiftKey: false, accelKey: true});
+  compWin.keypress(null, "s", { shiftKey: false, accelKey: true });
 
   be_in_folder(gDrafts);
   let draftMsg = select_click_row(0);
@@ -151,11 +183,13 @@ function test_encoding_upgrade_plaintext_compose() {
   assert_equals(draftMsg.Charset, "windows-1252");
 
   const CHINESE = "漢皇重色思傾國漢皇重色思傾國";
-  type_in_composer(compWin, ["enter some plain text chinese: " + CHINESE,
-                             "content need to be upgraded to utf-8 now."]);
+  type_in_composer(compWin, [
+    "enter some plain text chinese: " + CHINESE,
+    "content need to be upgraded to utf-8 now.",
+  ]);
 
   // Ctrl+S = Save as Draft.
-  compWin.keypress(null, "s", {shiftKey: false, accelKey: true});
+  compWin.keypress(null, "s", { shiftKey: false, accelKey: true });
 
   be_in_folder(gDrafts);
   let draftMsg2 = select_click_row(0);
@@ -163,13 +197,22 @@ function test_encoding_upgrade_plaintext_compose() {
   assert_equals(draftMsg2.Charset, "UTF-8");
 
   let draftMsg2Content = get_msg_source(draftMsg2, "UTF-8");
-  if (draftMsg2Content.includes("<html>"))
-    throw new Error("Plaintext draft contained <html>; " +
-                    "draftMsg2Content=" + draftMsg2Content);
+  if (draftMsg2Content.includes("<html>")) {
+    throw new Error(
+      "Plaintext draft contained <html>; " +
+        "draftMsg2Content=" +
+        draftMsg2Content
+    );
+  }
 
-  if (!draftMsg2Content.includes(CHINESE))
-    throw new Error("Chinese text not in msg; CHINESE=" + CHINESE +
-                    ", draftMsg2Content=" + draftMsg2Content);
+  if (!draftMsg2Content.includes(CHINESE)) {
+    throw new Error(
+      "Chinese text not in msg; CHINESE=" +
+        CHINESE +
+        ", draftMsg2Content=" +
+        draftMsg2Content
+    );
+  }
 
   plan_for_window_close(compWin);
   compWin.window.goDoCommand("cmd_sendLater");
@@ -180,12 +223,18 @@ function test_encoding_upgrade_plaintext_compose() {
   let outMsgContent = get_msg_source(outMsg, "UTF-8");
 
   // This message should be text/plain;
-  if (!outMsgContent.includes("Content-Type: text/plain"))
+  if (!outMsgContent.includes("Content-Type: text/plain")) {
     throw new Error("Expected text/plain; content=" + outMsgContent);
+  }
 
-  if (!outMsgContent.includes(CHINESE))
-    throw new Error("Chinese text not in msg; CHINESE=" + CHINESE +
-                    ", outMsgContent=" + outMsgContent);
+  if (!outMsgContent.includes(CHINESE)) {
+    throw new Error(
+      "Chinese text not in msg; CHINESE=" +
+        CHINESE +
+        ", outMsgContent=" +
+        outMsgContent
+    );
+  }
 
   press_delete(); // Delete the msg from Outbox.
 }

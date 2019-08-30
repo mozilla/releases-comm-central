@@ -2,11 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.defineModuleGetter(this, "MailServices", "resource:///modules/MailServices.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "MailServices",
+  "resource:///modules/MailServices.jsm"
+);
 
 async function openComposeWindow(relatedMessageId, type, composeParams) {
   function generateAddressFromCard(card) {
-    return MailServices.headerParser.makeMimeAddress(card.displayName, card.primaryEmail);
+    return MailServices.headerParser.makeMimeAddress(
+      card.displayName,
+      card.primaryEmail
+    );
   }
 
   // ForwardInline is totally broken, see bug 1513824.
@@ -18,14 +25,24 @@ async function openComposeWindow(relatedMessageId, type, composeParams) {
       msgHdr = messageTracker.getMessage(relatedMessageId);
       msgURI = msgHdr.folder.getUriForMsg(msgHdr);
     }
-    MailServices.compose.OpenComposeWindow(null, msgHdr, msgURI, type, 0, hdrIdentity, null);
+    MailServices.compose.OpenComposeWindow(
+      null,
+      msgHdr,
+      msgURI,
+      type,
+      0,
+      hdrIdentity,
+      null
+    );
     return;
   }
 
-  let params = Cc["@mozilla.org/messengercompose/composeparams;1"]
-                 .createInstance(Ci.nsIMsgComposeParams);
-  let composeFields = Cc["@mozilla.org/messengercompose/composefields;1"]
-                        .createInstance(Ci.nsIMsgCompFields);
+  let params = Cc[
+    "@mozilla.org/messengercompose/composeparams;1"
+  ].createInstance(Ci.nsIMsgComposeParams);
+  let composeFields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
 
   if (relatedMessageId) {
     let msgHdr = messageTracker.getMessage(relatedMessageId);
@@ -45,10 +62,14 @@ async function openComposeWindow(relatedMessageId, type, composeParams) {
             await extensions.asyncLoadModule("addressBook");
           }
           if (recipient.type == "contact") {
-            let contactNode = this.addressBookCache.findContactById(recipient.id);
+            let contactNode = this.addressBookCache.findContactById(
+              recipient.id
+            );
             recipients.push(generateAddressFromCard(contactNode.item));
           } else {
-            let mailingListNode = this.addressBookCache.findMailingListById(recipient.id);
+            let mailingListNode = this.addressBookCache.findMailingListById(
+              recipient.id
+            );
             for (let contactNode of mailingListNode.contacts) {
               recipients.push(generateAddressFromCard(contactNode.item));
             }
@@ -89,7 +110,10 @@ this.compose = class extends ExtensionAPI {
           let type = Ci.nsIMsgCompType.ForwardInline;
           if (forwardType == "forwardAsAttachment") {
             type = Ci.nsIMsgCompType.ForwardAsAttachment;
-          } else if (forwardType === null && Services.prefs.getIntPref("mail.forward_message_mode") == 0) {
+          } else if (
+            forwardType === null &&
+            Services.prefs.getIntPref("mail.forward_message_mode") == 0
+          ) {
             type = Ci.nsIMsgCompType.ForwardAsAttachment;
           }
           openComposeWindow(messageId, type, composeParams);

@@ -28,9 +28,15 @@
 
 var MODULE_NAME = "test-reply-multipart-charset";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "compose-helpers",
+  "window-helpers",
+];
 
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
 var folderToStoreMessages;
@@ -43,13 +49,16 @@ function setupModule(module) {
   folderToStoreMessages = create_folder("FolderWithMessages");
 }
 
-function subtest_replyEditAsNewForward_charset(aAction, aFile, aCharset,
-                                               aOverride = null,
-                                               aViewed = true) {
+function subtest_replyEditAsNewForward_charset(
+  aAction,
+  aFile,
+  aCharset,
+  aOverride = null,
+  aViewed = true
+) {
   be_in_folder(folderToStoreMessages);
 
-  let file = os.getFileForPath(os.abspath(aFile,
-                               os.getFileForPath(__file__)));
+  let file = os.getFileForPath(os.abspath(aFile, os.getFileForPath(__file__)));
   let msgc = open_message_from_file(file);
 
   // Copy the message to a folder. We run the message through a folder
@@ -59,9 +68,9 @@ function subtest_replyEditAsNewForward_charset(aAction, aFile, aCharset,
   let documentChild = msgc.e("messagepane").contentDocument.firstChild;
   msgc.rightClick(new elib.Elem(documentChild));
   msgc.click_menus_in_sequence(msgc.e("mailContext"), [
-    {id: "mailContext-copyMenu"},
-    {label: "Local Folders"},
-    {label: "FolderWithMessages"},
+    { id: "mailContext-copyMenu" },
+    { label: "Local Folders" },
+    { label: "FolderWithMessages" },
   ]);
   close_window(msgc);
 
@@ -74,24 +83,25 @@ function subtest_replyEditAsNewForward_charset(aAction, aFile, aCharset,
   if (aOverride) {
     // Display the message using the override charset.
     // Use the app menu which is also available on Mac.
-    mc.click_through_appmenu([{label: "View"}, {label: "Text Encoding"}],
-      {label: aOverride});
+    mc.click_through_appmenu([{ label: "View" }, { label: "Text Encoding" }], {
+      label: aOverride,
+    });
   }
 
   let fwdWin;
   switch (aAction) {
-  case 1: // Reply.
-    fwdWin = open_compose_with_reply();
-    break;
-  case 2: // Edit as new.
-    fwdWin = open_compose_with_edit_as_new();
-    break;
-  case 3: // Forward inline.
-    fwdWin = open_compose_with_forward();
-    break;
-  case 4: // Forward as attachment.
-    fwdWin = open_compose_with_forward_as_attachments();
-    break;
+    case 1: // Reply.
+      fwdWin = open_compose_with_reply();
+      break;
+    case 2: // Edit as new.
+      fwdWin = open_compose_with_edit_as_new();
+      break;
+    case 3: // Forward inline.
+      fwdWin = open_compose_with_forward();
+      break;
+    case 4: // Forward as attachment.
+      fwdWin = open_compose_with_forward_as_attachments();
+      break;
   }
 
   // Check the charset in the compose window.
@@ -118,18 +128,45 @@ function test_reply_noUTF16() {
 
 function test_replyEditAsNewForward_override() {
   // Check that the override is honoured (inspired by bug 1323377).
-  subtest_replyEditAsNewForward_charset(1, "./multipart-charset.eml", "UTF-8", "Unicode");
-  subtest_replyEditAsNewForward_charset(2, "./multipart-charset.eml", "windows-1252", "Western");
-  subtest_replyEditAsNewForward_charset(3, "./multipart-charset.eml", "ISO-8859-7", "Greek (ISO)");
+  subtest_replyEditAsNewForward_charset(
+    1,
+    "./multipart-charset.eml",
+    "UTF-8",
+    "Unicode"
+  );
+  subtest_replyEditAsNewForward_charset(
+    2,
+    "./multipart-charset.eml",
+    "windows-1252",
+    "Western"
+  );
+  subtest_replyEditAsNewForward_charset(
+    3,
+    "./multipart-charset.eml",
+    "ISO-8859-7",
+    "Greek (ISO)"
+  );
 }
 
 function test_replyEditAsNewForward_enforceDefault() {
   // Check that the default is honoured (inspired by bug 1323377).
   Services.prefs.setBoolPref("mailnews.reply_in_default_charset", true);
   Services.prefs.setCharPref("mailnews.send_default_charset", "ISO-8859-7");
-  subtest_replyEditAsNewForward_charset(1, "./multipart-charset.eml", "ISO-8859-7");
-  subtest_replyEditAsNewForward_charset(2, "./multipart-charset.eml", "ISO-8859-7");
-  subtest_replyEditAsNewForward_charset(3, "./multipart-charset.eml", "ISO-8859-7");
+  subtest_replyEditAsNewForward_charset(
+    1,
+    "./multipart-charset.eml",
+    "ISO-8859-7"
+  );
+  subtest_replyEditAsNewForward_charset(
+    2,
+    "./multipart-charset.eml",
+    "ISO-8859-7"
+  );
+  subtest_replyEditAsNewForward_charset(
+    3,
+    "./multipart-charset.eml",
+    "ISO-8859-7"
+  );
   Services.prefs.clearUserPref("mailnews.reply_in_default_charset");
   Services.prefs.clearUserPref("mailnews.send_default_charset");
 }
@@ -140,7 +177,25 @@ function test_replyEditAsNewForward_noPreview() {
   be_in_folder(folderToStoreMessages);
   mc.window.goDoCommand("cmd_toggleMessagePane");
 
-  subtest_replyEditAsNewForward_charset(1, "./format-flowed.eml", "windows-1252", null, false);
-  subtest_replyEditAsNewForward_charset(2, "./body-greek.eml", "ISO-8859-7", null, false);
-  subtest_replyEditAsNewForward_charset(3, "./multipart-charset.eml", "EUC-KR", null, false);
+  subtest_replyEditAsNewForward_charset(
+    1,
+    "./format-flowed.eml",
+    "windows-1252",
+    null,
+    false
+  );
+  subtest_replyEditAsNewForward_charset(
+    2,
+    "./body-greek.eml",
+    "ISO-8859-7",
+    null,
+    false
+  );
+  subtest_replyEditAsNewForward_charset(
+    3,
+    "./multipart-charset.eml",
+    "EUC-KR",
+    null,
+    false
+  );
 }

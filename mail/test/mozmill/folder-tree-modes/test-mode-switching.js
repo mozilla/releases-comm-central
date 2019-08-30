@@ -46,7 +46,7 @@ function setupModule(module) {
   inboxFolder.createSubfolder("FavoriteFolder", null);
   favoriteFolder = inboxFolder.getChildNamed("FavoriteFolder");
 
-  make_new_sets_in_folder(unreadFolder, [{count: 1}]);
+  make_new_sets_in_folder(unreadFolder, [{ count: 1 }]);
   favoriteFolder.setFlag(Ci.nsMsgFolderFlags.Favorite);
 
   toggle_menu = mc.e("menu_compactFolderView");
@@ -95,13 +95,28 @@ function assert_mode_selected(aMode) {
   if (!mc.mozmillModule.isMac) {
     // On OS X the main menu seems not accessible for clicking from mozmill.
     mc.click(view_menu);
-    let popuplist = mc.click_menus_in_sequence(view_menupopup, [ { id: modeList_menu.parentNode.id } ], true);
-    assert_true(modeList_menu.querySelector('[value="' + baseMode + '"]').hasAttribute("checked"));
+    let popuplist = mc.click_menus_in_sequence(
+      view_menupopup,
+      [{ id: modeList_menu.parentNode.id }],
+      true
+    );
+    assert_true(
+      modeList_menu
+        .querySelector('[value="' + baseMode + '"]')
+        .hasAttribute("checked")
+    );
     mc.close_popup_sequence(popuplist);
   }
-  mc.click_through_appmenu([{id: "appmenu_View"}, {id: "appmenu_FolderViews"}]);
+  mc.click_through_appmenu([
+    { id: "appmenu_View" },
+    { id: "appmenu_FolderViews" },
+  ]);
 
-  assert_true(modeList_appmenu.querySelector('[value="' + baseMode + '"]').hasAttribute("checked"));
+  assert_true(
+    modeList_appmenu
+      .querySelector('[value="' + baseMode + '"]')
+      .hasAttribute("checked")
+  );
   // Close the appmenu by clicking the appmenu button again.
   mc.click(appmenu_button);
 }
@@ -112,8 +127,10 @@ function assert_mode_selected(aMode) {
  * @param mode  The base name of the mode to select.
  */
 function select_mode_in_menu(mode) {
-  mc.click_through_appmenu([{id: "appmenu_View"}, {id: "appmenu_FolderViews"}],
-    {value: mode});
+  mc.click_through_appmenu(
+    [{ id: "appmenu_View" }, { id: "appmenu_FolderViews" }],
+    { value: mode }
+  );
 }
 
 /**
@@ -123,10 +140,11 @@ function toggle_compact_in_menu() {
   // For some reason, clicking the menuitem does not work by any means,
   // therefore we just simulate it here.
   let checked = toggle_appmenu.hasAttribute("checked");
-  if (checked)
+  if (checked) {
     toggle_appmenu.removeAttribute("checked");
-  else
+  } else {
     toggle_appmenu.setAttribute("checked", "true");
+  }
 
   toggle_appmenu.doCommand();
 }
@@ -136,10 +154,11 @@ function toggle_compact_in_menu() {
  */
 function subtest_switch_to_all_folders(aViaMenu) {
   const mode = "all";
-  if (aViaMenu)
+  if (aViaMenu) {
     select_mode_in_menu(mode);
-  else
+  } else {
     tree.mode = mode;
+  }
 
   assert_mode_selected(mode);
   assert_compact_state(false, true);
@@ -174,10 +193,11 @@ function subtest_switch_to_unread_folders(aViaMenu) {
   assert_folder_visible(unreadFolder);
   assert_folder_not_visible(favoriteFolder);
 
-  if (aViaMenu)
+  if (aViaMenu) {
     toggle_compact_in_menu();
-  else
+  } else {
     tree.mode = mode + "_compact";
+  }
 
   assert_mode_selected(mode + "_compact");
   // In compact mode parent folders are not shown.
@@ -212,10 +232,11 @@ function subtest_switch_to_favorite_folders(aViaMenu) {
   assert_folder_not_visible(unreadFolder);
   assert_folder_visible(favoriteFolder);
 
-  if (aViaMenu)
+  if (aViaMenu) {
     toggle_compact_in_menu();
-  else
+  } else {
     tree.mode = mode + "_compact";
+  }
 
   assert_mode_selected(mode + "_compact");
   // In compact mode parent folders are not shown.
@@ -230,10 +251,11 @@ function subtest_switch_to_favorite_folders(aViaMenu) {
  */
 function subtest_switch_to_recent_folders(aViaMenu) {
   const mode = "recent_compact";
-  if (aViaMenu)
+  if (aViaMenu) {
     select_mode_in_menu("recent");
-  else
+  } else {
     tree.mode = mode;
+  }
 
   assert_mode_selected(mode);
   assert_compact_state(true, true);
@@ -248,10 +270,11 @@ function subtest_switch_to_recent_folders(aViaMenu) {
  */
 function subtest_switch_to_smart_folders(aViaMenu) {
   const mode = "smart";
-  if (aViaMenu)
+  if (aViaMenu) {
     select_mode_in_menu(mode);
-  else
+  } else {
     tree.mode = mode;
+  }
 
   assert_mode_selected(mode);
   assert_compact_state(false, true);

@@ -18,21 +18,40 @@
 
 // Ensure the activity modules are loaded for this window.
 ChromeUtils.import("resource:///modules/activity/activityModules.jsm");
-var {AttachmentChecker} = ChromeUtils.import("resource:///modules/AttachmentChecker.jsm");
-var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm");
-var {MimeParser} = ChromeUtils.import("resource:///modules/mimeParser.jsm");
-var {allAccountsSorted} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
-var {fixIterator, toArray} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-var {InlineSpellChecker} = ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
-var {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var { AttachmentChecker } = ChromeUtils.import(
+  "resource:///modules/AttachmentChecker.jsm"
+);
+var { cloudFileAccounts } = ChromeUtils.import(
+  "resource:///modules/cloudFileAccounts.jsm"
+);
+var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
+var { allAccountsSorted } = ChromeUtils.import(
+  "resource:///modules/folderUtils.jsm"
+);
+var { fixIterator, toArray } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { InlineSpellChecker } = ChromeUtils.import(
+  "resource://gre/modules/InlineSpellChecker.jsm"
+);
+var { PluralForm } = ChromeUtils.import(
+  "resource://gre/modules/PluralForm.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 
 ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
-ChromeUtils.defineModuleGetter(this, "ShortcutUtils",
-                               "resource://gre/modules/ShortcutUtils.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "ShortcutUtils",
+  "resource://gre/modules/ShortcutUtils.jsm"
+);
 
 var sDictCount = 0;
 
@@ -90,8 +109,9 @@ function getComposeBundle() {
   // fire up, thus executing the personas code while the DOM is not fully built.
   // Since this <script> comes before the <statusbar>, the Personas code will
   // fail.
-  if (!_gComposeBundle)
+  if (!_gComposeBundle) {
     _gComposeBundle = document.getElementById("bundle_composeMsgs");
+  }
   return _gComposeBundle;
 }
 
@@ -110,8 +130,7 @@ var gNumUploadingAttachments;
 var kComposeAttachDirPrefName = "mail.compose.attach.dir";
 
 function InitializeGlobalVariables() {
-  gMessenger = Cc["@mozilla.org/messenger;1"]
-                 .createInstance(Ci.nsIMessenger);
+  gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
   gMsgCompose = null;
   gOriginalMsgURI = null;
@@ -126,7 +145,9 @@ function InitializeGlobalVariables() {
   gCloseWindowAfterSave = false;
   gSavedSendNowKey = null;
   gSendFormat = Ci.nsIMsgCompSendFormat.AskUser;
-  gCharsetConvertManager = Cc["@mozilla.org/charset-converter-manager;1"].getService(Ci.nsICharsetConverterManager);
+  gCharsetConvertManager = Cc[
+    "@mozilla.org/charset-converter-manager;1"
+  ].getService(Ci.nsICharsetConverterManager);
   gManualAttachmentReminder = false;
   gDisableAttachmentReminder = false;
   gLanguageObserver = null;
@@ -138,8 +159,9 @@ function InitializeGlobalVariables() {
   gAttachmentsSize = 0;
   gNumUploadingAttachments = 0;
   // eslint-disable-next-line no-global-assign
-  msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
-                .createInstance(Ci.nsIMsgWindow);
+  msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
+    Ci.nsIMsgWindow
+  );
   MailServices.mailSession.AddMsgWindow(msgWindow);
 }
 InitializeGlobalVariables();
@@ -186,24 +208,28 @@ function getPrettyKey(aKeyId) {
  * @param aDisable  true = disable items. false = enable items.
  */
 function updateEditableFields(aDisable) {
-  if (!gMsgCompose)
+  if (!gMsgCompose) {
     return;
+  }
 
-  if (aDisable)
+  if (aDisable) {
     gMsgCompose.editor.flags |= Ci.nsIPlaintextEditor.eEditorReadonlyMask;
-  else
+  } else {
     gMsgCompose.editor.flags &= ~Ci.nsIPlaintextEditor.eEditorReadonlyMask;
+  }
 
   let elements = document.querySelectorAll('[disableonsend="true"]');
-  for (let i = 0; i < elements.length; i++)
+  for (let i = 0; i < elements.length; i++) {
     elements[i].disabled = aDisable;
+  }
 }
 
 var PrintPreviewListener = {
   getPrintPreviewBrowser() {
     let browser = document.getElementById("cppBrowser");
-    if (!gChromeState)
+    if (!gChromeState) {
       gChromeState = {};
+    }
     preparePrintPreviewTitleHeader();
     if (!browser) {
       browser = document.createXULElement("browser");
@@ -211,8 +237,9 @@ var PrintPreviewListener = {
       browser.setAttribute("flex", "1");
       browser.setAttribute("disablehistory", "true");
       browser.setAttribute("type", "content");
-      document.getElementById("headers-parent").
-        insertBefore(browser, document.getElementById("appcontent"));
+      document
+        .getElementById("headers-parent")
+        .insertBefore(browser, document.getElementById("appcontent"));
     }
     return browser;
   },
@@ -238,8 +265,9 @@ function sidebar_is_hidden() {
 
 function sidebar_is_collapsed() {
   let sidebar_splitter = document.getElementById("sidebar-splitter");
-  return (sidebar_splitter &&
-          sidebar_splitter.getAttribute("state") == "collapsed");
+  return (
+    sidebar_splitter && sidebar_splitter.getAttribute("state") == "collapsed"
+  );
 }
 
 function SidebarSetState(aState) {
@@ -248,10 +276,12 @@ function SidebarSetState(aState) {
 }
 
 function SidebarGetState() {
-  if (sidebar_is_hidden())
+  if (sidebar_is_hidden()) {
     return "hidden";
-  if (sidebar_is_collapsed())
+  }
+  if (sidebar_is_collapsed()) {
     return "collapsed";
+  }
   return "visible";
 }
 
@@ -264,8 +294,9 @@ function preparePrintPreviewTitleHeader() {
   // we temporarily change the title of message content document before going
   // into print preview (workaround for bug 1396455).
   let msgDocument = getBrowser().contentDocument;
-  let msgSubject = GetMsgSubjectElement().value.trim() ||
-                   getComposeBundle().getString("defaultSubject");
+  let msgSubject =
+    GetMsgSubjectElement().value.trim() ||
+    getComposeBundle().getString("defaultSubject");
   gChromeState.msgDocumentHadTitle = !!msgDocument.querySelector("title");
   gChromeState.msgDocumentTitle = msgDocument.title;
   msgDocument.title = msgDocument.title || msgSubject;
@@ -329,8 +360,10 @@ function toggleAffectedChrome(aHide) {
  * Note that a text node is not a DOM element, hence .localName can't be used.
  */
 function isSignature(aNode) {
-  return ["DIV", "PRE"].includes(aNode.nodeName) &&
-         aNode.classList.contains("moz-signature");
+  return (
+    ["DIV", "PRE"].includes(aNode.nodeName) &&
+    aNode.classList.contains("moz-signature")
+  );
 }
 
 var stateListener = {
@@ -342,41 +375,44 @@ var stateListener = {
   NotifyComposeBodyReady() {
     // Look all the possible compose types (nsIMsgComposeParams.idl):
     switch (gComposeType) {
-    case Ci.nsIMsgCompType.MailToUrl:
-      gBodyFromArgs = true;
+      case Ci.nsIMsgCompType.MailToUrl:
+        gBodyFromArgs = true;
       // Falls through
-    case Ci.nsIMsgCompType.New:
-    case Ci.nsIMsgCompType.NewsPost:
-    case Ci.nsIMsgCompType.ForwardAsAttachment:
-      this.NotifyComposeBodyReadyNew();
-      break;
+      case Ci.nsIMsgCompType.New:
+      case Ci.nsIMsgCompType.NewsPost:
+      case Ci.nsIMsgCompType.ForwardAsAttachment:
+        this.NotifyComposeBodyReadyNew();
+        break;
 
-    case Ci.nsIMsgCompType.Reply:
-    case Ci.nsIMsgCompType.ReplyAll:
-    case Ci.nsIMsgCompType.ReplyToSender:
-    case Ci.nsIMsgCompType.ReplyToGroup:
-    case Ci.nsIMsgCompType.ReplyToSenderAndGroup:
-    case Ci.nsIMsgCompType.ReplyWithTemplate:
-    case Ci.nsIMsgCompType.ReplyToList:
-      this.NotifyComposeBodyReadyReply();
-      break;
+      case Ci.nsIMsgCompType.Reply:
+      case Ci.nsIMsgCompType.ReplyAll:
+      case Ci.nsIMsgCompType.ReplyToSender:
+      case Ci.nsIMsgCompType.ReplyToGroup:
+      case Ci.nsIMsgCompType.ReplyToSenderAndGroup:
+      case Ci.nsIMsgCompType.ReplyWithTemplate:
+      case Ci.nsIMsgCompType.ReplyToList:
+        this.NotifyComposeBodyReadyReply();
+        break;
 
-    case Ci.nsIMsgCompType.ForwardInline:
-      this.NotifyComposeBodyReadyForwardInline();
-      break;
+      case Ci.nsIMsgCompType.ForwardInline:
+        this.NotifyComposeBodyReadyForwardInline();
+        break;
 
-    case Ci.nsIMsgCompType.EditTemplate:
-      defaultSaveOperation = "template";
-      break;
-    case Ci.nsIMsgCompType.Draft:
-    case Ci.nsIMsgCompType.Template:
-    case Ci.nsIMsgCompType.Redirect:
-    case Ci.nsIMsgCompType.EditAsNew:
-      break;
+      case Ci.nsIMsgCompType.EditTemplate:
+        defaultSaveOperation = "template";
+        break;
+      case Ci.nsIMsgCompType.Draft:
+      case Ci.nsIMsgCompType.Template:
+      case Ci.nsIMsgCompType.Redirect:
+      case Ci.nsIMsgCompType.EditAsNew:
+        break;
 
-    default:
-      dump("Unexpected nsIMsgCompType in NotifyComposeBodyReady (" +
-           gComposeType + ")\n");
+      default:
+        dump(
+          "Unexpected nsIMsgCompType in NotifyComposeBodyReady (" +
+            gComposeType +
+            ")\n"
+        );
     }
 
     // Setting the selected item in the identity list will cause an
@@ -394,20 +430,25 @@ var stateListener = {
       editor.enableUndo(false);
       let identityList = GetMsgIdentityElement();
       identityList.selectedItem = identityList.getElementsByAttribute(
-        "identitykey", gMsgCompose.identity.key)[0];
+        "identitykey",
+        gMsgCompose.identity.key
+      )[0];
       LoadIdentity(false);
 
       editor.enableUndo(true);
       editor.resetModificationCount();
       selection.collapse(startNode, start);
     }
-    if (gMsgCompose.composeHTML)
+    if (gMsgCompose.composeHTML) {
       loadHTMLMsgPrefs();
+    }
     AdjustFocus();
   },
 
   NotifyComposeBodyReadyNew() {
-    let useParagraph = Services.prefs.getBoolPref("mail.compose.default_to_paragraph");
+    let useParagraph = Services.prefs.getBoolPref(
+      "mail.compose.default_to_paragraph"
+    );
     let insertParagraph = gMsgCompose.composeHTML && useParagraph;
 
     let mailBody = getBrowser().contentDocument.querySelector("body");
@@ -421,9 +462,12 @@ var stateListener = {
       // Note that <br><div/pre class="moz-signature"> doesn't happen in
       // paragraph mode.
       let firstChild = mailBody.firstChild;
-      if ((firstChild.nodeName != "BR" || firstChild.nextSibling) &&
-          !isSignature(firstChild))
+      if (
+        (firstChild.nodeName != "BR" || firstChild.nextSibling) &&
+        !isSignature(firstChild)
+      ) {
         insertParagraph = false;
+      }
     }
 
     // Control insertion of line breaks.
@@ -448,15 +492,18 @@ var stateListener = {
 
   NotifyComposeBodyReadyReply() {
     // Control insertion of line breaks.
-    let useParagraph = Services.prefs.getBoolPref("mail.compose.default_to_paragraph");
+    let useParagraph = Services.prefs.getBoolPref(
+      "mail.compose.default_to_paragraph"
+    );
     if (gMsgCompose.composeHTML && useParagraph) {
       let mailBody = getBrowser().contentDocument.querySelector("body");
       let editor = GetCurrentEditor();
       let selection = editor.selection;
 
       // Make sure the selection isn't inside the signature.
-      if (isSignature(mailBody.firstChild))
+      if (isSignature(mailBody.firstChild)) {
         selection.collapse(mailBody, 0);
+      }
 
       let range = selection.getRangeAt(0);
       let start = range.startOffset;
@@ -499,7 +546,9 @@ var stateListener = {
 
     // Control insertion of line breaks.
     selection.collapse(mailBody, 0);
-    let useParagraph = Services.prefs.getBoolPref("mail.compose.default_to_paragraph");
+    let useParagraph = Services.prefs.getBoolPref(
+      "mail.compose.default_to_paragraph"
+    );
     if (gMsgCompose.composeHTML && useParagraph) {
       let pElement = editor.createElementWithDefaults("p");
       let brElement = editor.createElementWithDefaults("br");
@@ -523,13 +572,15 @@ var stateListener = {
     ToggleWindowLock(false);
 
     if (aResult == Cr.NS_OK) {
-      if (!gAutoSaving)
+      if (!gAutoSaving) {
         SetContentAndBodyAsUnmodified();
+      }
 
       if (gCloseWindowAfterSave) {
         // Notify the SendListener that Send has been aborted and Stopped
-        if (gMsgCompose)
+        if (gMsgCompose) {
           gMsgCompose.onSendNotPerformed(null, Cr.NS_ERROR_ABORT);
+        }
 
         MsgComposeCloseWindow();
       }
@@ -554,8 +605,9 @@ var gSendListener = {
   onProgress(aMsgID, aProgress, aProgressMax) {},
   onStatus(aMsgID, aMsg) {},
   onStopSending(aMsgID, aStatus, aMsg, aReturnFile) {
-    if (Components.isSuccessCode(aStatus))
+    if (Components.isSuccessCode(aStatus)) {
       Services.obs.notifyObservers(null, "mail:composeSendSucceeded");
+    }
   },
   onGetDraftFolderURI(aFolderURI) {},
   onSendNotPerformed(aMsgID, aStatus) {},
@@ -578,13 +630,21 @@ var progressListener = {
     }
   },
 
-  onProgressChange(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) {
+  onProgressChange(
+    aWebProgress,
+    aRequest,
+    aCurSelfProgress,
+    aMaxSelfProgress,
+    aCurTotalProgress,
+    aMaxTotalProgress
+  ) {
     // Calculate percentage.
     var percent;
     if (aMaxTotalProgress > 0) {
       percent = Math.round((aCurTotalProgress * 100) / aMaxTotalProgress);
-      if (percent > 100)
+      if (percent > 100) {
         percent = 100;
+      }
 
       // Advance progress meter.
       document.getElementById("compose-progressmeter").value = percent;
@@ -603,8 +663,9 @@ var progressListener = {
     // therefore we need to protect ourself by using try/catch
     try {
       let statusText = document.getElementById("statusText");
-      if (statusText)
+      if (statusText) {
         statusText.setAttribute("value", aMessage);
+      }
     } catch (ex) {}
   },
 
@@ -616,8 +677,10 @@ var progressListener = {
     // we can ignore this notification
   },
 
-  QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener",
-                                          "nsISupportsWeakReference"]),
+  QueryInterface: ChromeUtils.generateQI([
+    "nsIWebProgressListener",
+    "nsISupportsWeakReference",
+  ]),
 };
 
 var defaultController = {
@@ -636,9 +699,10 @@ var defaultController = {
         // Hide the command entirely if there are no cloud accounts or
         // the feature is disabled.
         let cmd = document.getElementById("cmd_attachCloud");
-        cmd.hidden = !Services.prefs.getBoolPref("mail.cloud_files.enabled") ||
-                     (cloudFileAccounts.configuredAccounts.length == 0) ||
-                     Services.io.offline;
+        cmd.hidden =
+          !Services.prefs.getBoolPref("mail.cloud_files.enabled") ||
+          cloudFileAccounts.configuredAccounts.length == 0 ||
+          Services.io.offline;
         return !cmd.hidden && !gWindowLocked;
       },
       doCommand() {
@@ -658,8 +722,9 @@ var defaultController = {
 
     cmd_toggleAttachmentPane: {
       isEnabled() {
-        let cmdToggleAttachmentPane =
-          document.getElementById("cmd_toggleAttachmentPane");
+        let cmdToggleAttachmentPane = document.getElementById(
+          "cmd_toggleAttachmentPane"
+        );
         let paneShown = !document.getElementById("attachments-box").collapsed;
         cmdToggleAttachmentPane.setAttribute("checked", paneShown);
 
@@ -674,15 +739,16 @@ var defaultController = {
     cmd_reorderAttachments: {
       isEnabled() {
         if (attachmentsCount() == 0) {
-          let reorderAttachmentsPanel =
-            document.getElementById("reorderAttachmentsPanel");
+          let reorderAttachmentsPanel = document.getElementById(
+            "reorderAttachmentsPanel"
+          );
           if (reorderAttachmentsPanel.state == "open") {
             // When the panel is open and all attachments get deleted,
             // we get notified here and want to close the panel.
             reorderAttachmentsPanel.hidePopup();
           }
         }
-        return (attachmentsCount() > 1);
+        return attachmentsCount() > 1;
       },
       doCommand() {
         showReorderAttachmentsPanel();
@@ -748,17 +814,22 @@ var defaultController = {
         return !gWindowLocked && !gNumUploadingAttachments && !gSendLocked;
       },
       doCommand() {
-        if (Services.io.offline)
+        if (Services.io.offline) {
           SendMessageLater();
-        else
+        } else {
           SendMessage();
+        }
       },
     },
 
     cmd_sendNow: {
       isEnabled() {
-        return !gWindowLocked && !Services.io.offline && !gSendLocked &&
-               !gNumUploadingAttachments;
+        return (
+          !gWindowLocked &&
+          !Services.io.offline &&
+          !gSendLocked &&
+          !gNumUploadingAttachments
+        );
       },
       doCommand() {
         SendMessage();
@@ -821,8 +892,7 @@ var defaultController = {
 
         return false;
       },
-      doCommand() {
-      },
+      doCommand() {},
     },
 
     cmd_account: {
@@ -848,7 +918,7 @@ var defaultController = {
     cmd_quoteMessage: {
       isEnabled() {
         let selectedURIs = GetSelectedMessages();
-        return (selectedURIs && selectedURIs.length > 0);
+        return selectedURIs && selectedURIs.length > 0;
       },
       doCommand() {
         QuoteSelectedMessage();
@@ -889,11 +959,16 @@ var defaultController = {
       doCommand() {
         window.cancelSendMessage = false;
         var skipBlockQuotes =
-          (window.document.documentElement.getAttribute("windowtype") ==
-          "msgcompose");
-        window.openDialog("chrome://editor/content/EdSpellCheck.xul", "_blank",
-                          "dialog,close,titlebar,modal,resizable",
-                          false, skipBlockQuotes, true);
+          window.document.documentElement.getAttribute("windowtype") ==
+          "msgcompose";
+        window.openDialog(
+          "chrome://editor/content/EdSpellCheck.xul",
+          "_blank",
+          "dialog,close,titlebar,modal,resizable",
+          false,
+          skipBlockQuotes,
+          true
+        );
       },
     },
 
@@ -908,21 +983,24 @@ var defaultController = {
   },
 
   supportsCommand(aCommand) {
-    return (aCommand in this.commands);
+    return aCommand in this.commands;
   },
 
   isCommandEnabled(aCommand) {
-    if (!this.supportsCommand(aCommand))
+    if (!this.supportsCommand(aCommand)) {
       return false;
+    }
     return this.commands[aCommand].isEnabled();
   },
 
   doCommand(aCommand) {
-    if (!this.supportsCommand(aCommand))
+    if (!this.supportsCommand(aCommand)) {
       return;
+    }
     var cmd = this.commands[aCommand];
-    if (!cmd.isEnabled())
+    if (!cmd.isEnabled()) {
       return;
+    }
     cmd.doCommand();
   },
 
@@ -946,7 +1024,9 @@ var attachmentBucketController = {
         let cmdDelete = document.getElementById("cmd_delete");
         let textValue = getComposeBundle().getString("removeAttachmentMsgs");
         textValue = PluralForm.get(selectedCount, textValue);
-        let accesskeyValue = cmdDelete.getAttribute("valueRemoveAttachmentAccessKey");
+        let accesskeyValue = cmdDelete.getAttribute(
+          "valueRemoveAttachmentAccessKey"
+        );
         cmdDelete.setAttribute("label", textValue);
         cmdDelete.setAttribute("accesskey", accesskeyValue);
 
@@ -977,8 +1057,9 @@ var attachmentBucketController = {
 
     cmd_moveAttachmentUp: {
       isEnabled() {
-        return attachmentsSelectedCount() > 0 &&
-               !attachmentsSelectionIsBlock("top");
+        return (
+          attachmentsSelectedCount() > 0 && !attachmentsSelectionIsBlock("top")
+        );
       },
       doCommand() {
         moveSelectedAttachments("up");
@@ -987,8 +1068,10 @@ var attachmentBucketController = {
 
     cmd_moveAttachmentDown: {
       isEnabled() {
-        return attachmentsSelectedCount() > 0 &&
-               !attachmentsSelectionIsBlock("bottom");
+        return (
+          attachmentsSelectedCount() > 0 &&
+          !attachmentsSelectionIsBlock("bottom")
+        );
       },
       doCommand() {
         moveSelectedAttachments("down");
@@ -997,8 +1080,7 @@ var attachmentBucketController = {
 
     cmd_moveAttachmentBundleUp: {
       isEnabled() {
-        return attachmentsSelectedCount() > 1 &&
-               !attachmentsSelectionIsBlock();
+        return attachmentsSelectedCount() > 1 && !attachmentsSelectionIsBlock();
       },
       doCommand() {
         moveSelectedAttachments("bundleUp");
@@ -1007,8 +1089,7 @@ var attachmentBucketController = {
 
     cmd_moveAttachmentBundleDown: {
       isEnabled() {
-        return attachmentsSelectedCount() > 1 &&
-               !attachmentsSelectionIsBlock();
+        return attachmentsSelectedCount() > 1 && !attachmentsSelectionIsBlock();
       },
       doCommand() {
         moveSelectedAttachments("bundleDown");
@@ -1017,8 +1098,9 @@ var attachmentBucketController = {
 
     cmd_moveAttachmentTop: {
       isEnabled() {
-        return attachmentsSelectedCount() > 0 &&
-               !attachmentsSelectionIsBlock("top");
+        return (
+          attachmentsSelectedCount() > 0 && !attachmentsSelectionIsBlock("top")
+        );
       },
       doCommand() {
         moveSelectedAttachments("top");
@@ -1027,8 +1109,10 @@ var attachmentBucketController = {
 
     cmd_moveAttachmentBottom: {
       isEnabled() {
-        return attachmentsSelectedCount() > 0 &&
-               !attachmentsSelectionIsBlock("bottom");
+        return (
+          attachmentsSelectedCount() > 0 &&
+          !attachmentsSelectionIsBlock("bottom")
+        );
       },
       doCommand() {
         moveSelectedAttachments("bottom");
@@ -1047,8 +1131,10 @@ var attachmentBucketController = {
         let sortDirection;
         let btnLabelAttr;
 
-        if (attachmentsSelCount > 1 &&
-            attachmentsSelCount < attachmentsCount()) {
+        if (
+          attachmentsSelCount > 1 &&
+          attachmentsSelCount < attachmentsCount()
+        ) {
           // Sort selected attachments only, which needs at least 2 of them,
           // but not all.
           sortSelection = true;
@@ -1058,8 +1144,10 @@ var attachmentBucketController = {
           // if current sorting is descending AND it's NOT a block yet:
           // Offer toggle button face to sort descending.
           // In all other cases, offer toggle button face to sort ascending.
-          btnAscending = !((currSortOrder == "ascending") && isBlock ||
-                           (currSortOrder == "descending") && !isBlock);
+          btnAscending = !(
+            (currSortOrder == "ascending" && isBlock) ||
+            (currSortOrder == "descending" && !isBlock)
+          );
           // Set sortDirection for toggleCmd, and respective button face.
           if (btnAscending) {
             sortDirection = "ascending";
@@ -1068,7 +1156,8 @@ var attachmentBucketController = {
             sortDirection = "descending";
             btnLabelAttr = "label-selection-ZA";
           }
-        } else { // attachmentsSelectedCount() <= 1 or all attachments selected
+        } else {
+          // attachmentsSelectedCount() <= 1 or all attachments selected
           // Sort all attachments.
           sortSelection = false;
           currSortOrder = attachmentsGetSortOrder();
@@ -1089,8 +1178,9 @@ var attachmentBucketController = {
         // sortdirection attribute, which is forwarded by the command.
         toggleBtn.setAttribute("label", toggleBtn.getAttribute(btnLabelAttr));
 
-        return sortSelection ? !(currSortOrder == "equivalent" && isBlock)
-                             : !(currSortOrder == "equivalent");
+        return sortSelection
+          ? !(currSortOrder == "equivalent" && isBlock)
+          : !(currSortOrder == "equivalent");
       },
       doCommand() {
         moveSelectedAttachments("toggleSort");
@@ -1103,18 +1193,22 @@ var attachmentBucketController = {
         // no cloud accounts.
         let cmd = document.getElementById("cmd_convertCloud");
 
-        cmd.hidden = (!Services.prefs.getBoolPref("mail.cloud_files.enabled") ||
-                      cloudFileAccounts.configuredAccounts.length == 0) ||
-                      Services.io.offline;
-        if (cmd.hidden)
+        cmd.hidden =
+          !Services.prefs.getBoolPref("mail.cloud_files.enabled") ||
+          cloudFileAccounts.configuredAccounts.length == 0 ||
+          Services.io.offline;
+        if (cmd.hidden) {
           return false;
+        }
 
         let bucket = document.getElementById("attachmentBucket");
         for (let item of bucket.selectedItems) {
-          if (item.uploading)
+          if (item.uploading) {
             return false;
-          if (item.cloudFileUpload && item.cloudFileUpload.repeat)
+          }
+          if (item.cloudFileUpload && item.cloudFileUpload.repeat) {
             return false;
+          }
         }
         return true;
       },
@@ -1126,15 +1220,18 @@ var attachmentBucketController = {
 
     cmd_convertAttachment: {
       isEnabled() {
-        if (!Services.prefs.getBoolPref("mail.cloud_files.enabled"))
+        if (!Services.prefs.getBoolPref("mail.cloud_files.enabled")) {
           return false;
+        }
 
         let bucket = document.getElementById("attachmentBucket");
         for (let item of bucket.selectedItems) {
-          if (item.uploading)
+          if (item.uploading) {
             return false;
-          if (item.cloudFileUpload && item.cloudFileUpload.repeat)
+          }
+          if (item.cloudFileUpload && item.cloudFileUpload.repeat) {
             return false;
+          }
         }
         return true;
       },
@@ -1145,7 +1242,9 @@ var attachmentBucketController = {
 
     cmd_cancelUpload: {
       isEnabled() {
-        let cmd = document.getElementById("composeAttachmentContext_cancelUploadItem");
+        let cmd = document.getElementById(
+          "composeAttachmentContext_cancelUploadItem"
+        );
 
         // If Filelink is disabled, hide this menuitem and bailout.
         if (!Services.prefs.getBoolPref("mail.cloud_files.enabled")) {
@@ -1169,8 +1268,9 @@ var attachmentBucketController = {
         return false;
       },
       doCommand() {
-        let fileHandler = Services.io.getProtocolHandler("file")
-                                  .QueryInterface(Ci.nsIFileProtocolHandler);
+        let fileHandler = Services.io
+          .getProtocolHandler("file")
+          .QueryInterface(Ci.nsIFileProtocolHandler);
 
         let bucket = document.getElementById("attachmentBucket");
         for (let item of bucket.selectedItems) {
@@ -1184,21 +1284,24 @@ var attachmentBucketController = {
   },
 
   supportsCommand(aCommand) {
-    return (aCommand in this.commands);
+    return aCommand in this.commands;
   },
 
   isCommandEnabled(aCommand) {
-    if (!this.supportsCommand(aCommand))
+    if (!this.supportsCommand(aCommand)) {
       return false;
+    }
     return this.commands[aCommand].isEnabled();
   },
 
   doCommand(aCommand) {
-    if (!this.supportsCommand(aCommand))
+    if (!this.supportsCommand(aCommand)) {
       return;
+    }
     var cmd = this.commands[aCommand];
-    if (!cmd.isEnabled())
+    if (!cmd.isEnabled()) {
       return;
+    }
     cmd.doCommand();
   },
 
@@ -1211,26 +1314,35 @@ var attachmentBucketController = {
 function goOpenNewMessage(aEvent) {
   // If aEvent is passed, check if Shift key was pressed for composition in
   // non-default format (HTML vs. plaintext).
-  let msgCompFormat = (aEvent && aEvent.shiftKey) ?
-    Ci.nsIMsgCompFormat.OppositeOfDefault :
-    Ci.nsIMsgCompFormat.Default;
+  let msgCompFormat =
+    aEvent && aEvent.shiftKey
+      ? Ci.nsIMsgCompFormat.OppositeOfDefault
+      : Ci.nsIMsgCompFormat.Default;
 
   let identity = getCurrentIdentity();
-  MailServices.compose.OpenComposeWindow(null, null, null,
+  MailServices.compose.OpenComposeWindow(
+    null,
+    null,
+    null,
     Ci.nsIMsgCompType.New,
-    msgCompFormat, identity, null);
+    msgCompFormat,
+    identity,
+    null
+  );
 }
 
 function QuoteSelectedMessage() {
   var selectedURIs = GetSelectedMessages();
-  if (selectedURIs)
-    for (let i = 0; i < selectedURIs.length; i++)
+  if (selectedURIs) {
+    for (let i = 0; i < selectedURIs.length; i++) {
       gMsgCompose.quoteMessage(selectedURIs[i]);
+    }
+  }
 }
 
 function GetSelectedMessages() {
   let mailWindow = Services.wm.getMostRecentWindow("mail:3pane");
-  return (mailWindow) ? mailWindow.gFolderDisplay.selectedMessageUris : null;
+  return mailWindow ? mailWindow.gFolderDisplay.selectedMessageUris : null;
 }
 
 function SetupCommandUpdateHandlers() {
@@ -1239,15 +1351,17 @@ function SetupCommandUpdateHandlers() {
   top.controllers.appendController(defaultController);
   attachmentBucket.controllers.appendController(attachmentBucketController);
 
-  document.getElementById("optionsMenuPopup")
-          .addEventListener("popupshowing", updateOptionItems, true);
+  document
+    .getElementById("optionsMenuPopup")
+    .addEventListener("popupshowing", updateOptionItems, true);
 }
 
 function UnloadCommandUpdateHandlers() {
   let attachmentBucket = document.getElementById("attachmentBucket");
 
-  document.getElementById("optionsMenuPopup")
-          .removeEventListener("popupshowing", updateOptionItems, true);
+  document
+    .getElementById("optionsMenuPopup")
+    .removeEventListener("popupshowing", updateOptionItems, true);
 
   attachmentBucket.controllers.removeController(attachmentBucketController);
   top.controllers.removeController(defaultController);
@@ -1257,8 +1371,9 @@ function CommandUpdate_MsgCompose() {
   var focusedWindow = top.document.commandDispatcher.focusedWindow;
 
   // we're just setting focus to where it was before
-  if (focusedWindow == gLastWindowToHaveFocus)
+  if (focusedWindow == gLastWindowToHaveFocus) {
     return;
+  }
 
   gLastWindowToHaveFocus = focusedWindow;
   updateComposeItems();
@@ -1311,22 +1426,23 @@ function updateComposeItems() {
  */
 function updateAllItems(aDisable) {
   function getDisabledState(aElement) {
-    if ("disabled" in aElement)
-      return (aElement.disabled ? "true" : "false");
-    else if (!aElement.hasAttribute("disabled"))
+    if ("disabled" in aElement) {
+      return aElement.disabled ? "true" : "false";
+    } else if (!aElement.hasAttribute("disabled")) {
       return "";
+    }
     return aElement.getAttribute("disabled");
   }
 
   function setDisabledState(aElement, aValue) {
-    if ("disabled" in aElement)
-      aElement.disabled = (aValue == "true");
-    else if (aValue == "")
+    if ("disabled" in aElement) {
+      aElement.disabled = aValue == "true";
+    } else if (aValue == "") {
       aElement.removeAttribute("disabled");
-    else
+    } else {
       aElement.setAttribute("disabled", aValue);
+    }
   }
-
 
   // This array will contain HTMLCollection objects as members.
   let commandItemCollections = [];
@@ -1342,14 +1458,20 @@ function updateAllItems(aDisable) {
         // list so only act on it if we didn't already set the "stateBeforeSend"
         // attribute on previous visit.
         if (!commandItem.hasAttribute("stateBeforeSend")) {
-          commandItem.setAttribute("stateBeforeSend", getDisabledState(commandItem));
+          commandItem.setAttribute(
+            "stateBeforeSend",
+            getDisabledState(commandItem)
+          );
           setDisabledState(commandItem, true);
         }
       } else if (commandItem.hasAttribute("stateBeforeSend")) {
         // Any element can appear multiple times in the commandItemCollections
         // list so only act on it if it still has the "stateBeforeSend"
         // attribute.
-        setDisabledState(commandItem, commandItem.getAttribute("stateBeforeSend"));
+        setDisabledState(
+          commandItem,
+          commandItem.getAttribute("stateBeforeSend")
+        );
         commandItem.removeAttribute("stateBeforeSend");
       }
     }
@@ -1357,25 +1479,33 @@ function updateAllItems(aDisable) {
 }
 
 function InitFileSaveAsMenu() {
-  document.getElementById("cmd_saveAsFile")
-          .setAttribute("checked", defaultSaveOperation == "file");
-  document.getElementById("cmd_saveAsDraft")
-          .setAttribute("checked", defaultSaveOperation == "draft");
-  document.getElementById("cmd_saveAsTemplate")
-          .setAttribute("checked", defaultSaveOperation == "template");
+  document
+    .getElementById("cmd_saveAsFile")
+    .setAttribute("checked", defaultSaveOperation == "file");
+  document
+    .getElementById("cmd_saveAsDraft")
+    .setAttribute("checked", defaultSaveOperation == "draft");
+  document
+    .getElementById("cmd_saveAsTemplate")
+    .setAttribute("checked", defaultSaveOperation == "template");
 }
 
 function openEditorContextMenu(popup) {
   gSpellChecker.clearSuggestionsFromMenu();
-  gSpellChecker.initFromEvent(document.popupRangeParent, document.popupRangeOffset);
+  gSpellChecker.initFromEvent(
+    document.popupRangeParent,
+    document.popupRangeOffset
+  );
   var onMisspelling = gSpellChecker.overMisspelling;
-  document.getElementById("spellCheckSuggestionsSeparator").hidden = !onMisspelling;
+  document.getElementById(
+    "spellCheckSuggestionsSeparator"
+  ).hidden = !onMisspelling;
   document.getElementById("spellCheckAddToDictionary").hidden = !onMisspelling;
   document.getElementById("spellCheckIgnoreWord").hidden = !onMisspelling;
   var separator = document.getElementById("spellCheckAddSep");
   separator.hidden = !onMisspelling;
-  document.getElementById("spellCheckNoSuggestions").hidden = !onMisspelling ||
-      gSpellChecker.addSuggestionsToMenu(popup, separator, 5);
+  document.getElementById("spellCheckNoSuggestions").hidden =
+    !onMisspelling || gSpellChecker.addSuggestionsToMenu(popup, separator, 5);
 
   // We ought to do that, otherwise changing dictionaries will have no effect!
   // InlineSpellChecker only registers callbacks for entries that are not the
@@ -1445,16 +1575,29 @@ function updateSendCommands(aHaveController) {
     goUpdateCommand("cmd_sendLater");
     goUpdateCommand("cmd_sendWithCheck");
   } else {
-    goSetCommandEnabled("cmd_sendButton", defaultController.isCommandEnabled("cmd_sendButton"));
-    goSetCommandEnabled("cmd_sendNow", defaultController.isCommandEnabled("cmd_sendNow"));
-    goSetCommandEnabled("cmd_sendLater", defaultController.isCommandEnabled("cmd_sendLater"));
-    goSetCommandEnabled("cmd_sendWithCheck", defaultController.isCommandEnabled("cmd_sendWithCheck"));
+    goSetCommandEnabled(
+      "cmd_sendButton",
+      defaultController.isCommandEnabled("cmd_sendButton")
+    );
+    goSetCommandEnabled(
+      "cmd_sendNow",
+      defaultController.isCommandEnabled("cmd_sendNow")
+    );
+    goSetCommandEnabled(
+      "cmd_sendLater",
+      defaultController.isCommandEnabled("cmd_sendLater")
+    );
+    goSetCommandEnabled(
+      "cmd_sendWithCheck",
+      defaultController.isCommandEnabled("cmd_sendWithCheck")
+    );
   }
 }
 
 function addAttachCloudMenuItems(aParentMenu) {
-  while (aParentMenu.hasChildNodes())
+  while (aParentMenu.hasChildNodes()) {
     aParentMenu.lastChild.remove();
+  }
 
   for (let account of cloudFileAccounts.configuredAccounts) {
     if (aParentMenu.lastChild && aParentMenu.lastChild.cloudFileUpload) {
@@ -1464,7 +1607,10 @@ function addAttachCloudMenuItems(aParentMenu) {
     let item = document.createXULElement("menuitem");
     let iconURL = account.iconURL;
     item.cloudFileAccount = account;
-    item.setAttribute("label", cloudFileAccounts.getDisplayName(account) + "\u2026");
+    item.setAttribute(
+      "label",
+      cloudFileAccounts.getDisplayName(account) + "\u2026"
+    );
     if (iconURL) {
       item.setAttribute("class", `${item.localName}-iconic`);
       item.setAttribute("image", iconURL);
@@ -1495,11 +1641,14 @@ function addAttachCloudMenuItems(aParentMenu) {
 function addConvertCloudMenuItems(aParentMenu, aAfterNodeId, aRadioGroup) {
   let attachment = document.getElementById("attachmentBucket").selectedItem;
   let afterNode = document.getElementById(aAfterNodeId);
-  while (afterNode.nextSibling)
+  while (afterNode.nextSibling) {
     afterNode.nextSibling.remove();
+  }
 
   if (!attachment.sendViaCloud) {
-    let item = document.getElementById("convertCloudMenuItems_popup_convertAttachment");
+    let item = document.getElementById(
+      "convertCloudMenuItems_popup_convertAttachment"
+    );
     item.setAttribute("checked", "true");
   }
 
@@ -1511,8 +1660,10 @@ function addConvertCloudMenuItems(aParentMenu, aAfterNodeId, aRadioGroup) {
     item.setAttribute("type", "radio");
     item.setAttribute("name", aRadioGroup);
 
-    if (attachment.cloudFileAccount &&
-        attachment.cloudFileAccount.accountKey == account.accountKey) {
+    if (
+      attachment.cloudFileAccount &&
+      attachment.cloudFileAccount.accountKey == account.accountKey
+    ) {
       item.setAttribute("checked", "true");
     } else if (iconURL) {
       item.setAttribute("class", "menu-iconic");
@@ -1536,10 +1687,12 @@ async function uploadCloudAttachment(attachment, file, cloudFileAccount) {
     let itemIcon = attachmentItem.querySelector(".attachmentcell-icon");
     attachmentItem.image = "chrome://global/skin/icons/loading.png";
     itemIcon.setAttribute("src", "chrome://global/skin/icons/loading.png");
-    attachmentItem.setAttribute("tooltiptext",
+    attachmentItem.setAttribute(
+      "tooltiptext",
       getComposeBundle().getFormattedString("cloudFileUploadingTooltip", [
         cloudFileAccounts.getDisplayName(cloudFileAccount),
-      ]));
+      ])
+    );
     attachmentItem.uploading = true;
     attachmentItem.cloudFileAccount = cloudFileAccount;
   }
@@ -1562,10 +1715,12 @@ async function uploadCloudAttachment(attachment, file, cloudFileAccount) {
         attachmentItem.originalUrl = originalUrl;
       }
       attachmentItem.cloudFileUpload = upload;
-      attachmentItem.setAttribute("tooltiptext",
+      attachmentItem.setAttribute(
+        "tooltiptext",
         getComposeBundle().getFormattedString("cloudFileUploadedTooltip", [
           cloudFileAccounts.getDisplayName(cloudFileAccount),
-        ]));
+        ])
+      );
       attachmentItem.uploading = false;
 
       // Set the icon for the attachment.
@@ -1582,7 +1737,10 @@ async function uploadCloudAttachment(attachment, file, cloudFileAccount) {
       }
 
       attachmentItem.dispatchEvent(
-        new CustomEvent("attachment-uploaded", { bubbles: true, cancelable: true })
+        new CustomEvent("attachment-uploaded", {
+          bubbles: true,
+          cancelable: true,
+        })
       );
     }
   } else {
@@ -1592,56 +1750,75 @@ async function uploadCloudAttachment(attachment, file, cloudFileAccount) {
     let bundle = getComposeBundle();
     let displayError = true;
     switch (statusCode) {
-    case cloudFileAccounts.constants.authErr:
-      title = bundle.getString("errorCloudFileAuth.title");
-      msg = bundle.getFormattedString("errorCloudFileAuth.message",
-                                      [displayName]);
-      break;
-    case cloudFileAccounts.constants.uploadErr:
-      title = bundle.getString("errorCloudFileUpload.title");
-      msg = bundle.getFormattedString("errorCloudFileUpload.message",
-                                      [displayName,
-                                       attachment.name]);
-      break;
-    case cloudFileAccounts.constants.uploadWouldExceedQuota:
-      title = bundle.getString("errorCloudFileQuota.title");
-      msg = bundle.getFormattedString("errorCloudFileQuota.message",
-                                      [displayName,
-                                       attachment.name]);
-      break;
-    case cloudFileAccounts.constants.uploadExceedsFileNameLimit:
-      title = bundle.getString("errorCloudFileNameLimit.title");
-      msg = bundle.getFormattedString("errorCloudFileNameLimit.message",
-                                      [displayName,
-                                       attachment.name]);
-      break;
-    case cloudFileAccounts.constants.uploadExceedsFileLimit:
-      title = bundle.getString("errorCloudFileLimit.title");
-      msg = bundle.getFormattedString("errorCloudFileLimit.message",
-                                      [displayName,
-                                       attachment.name]);
-      break;
-    case cloudFileAccounts.constants.uploadCancelled:
-      displayError = false;
-      break;
-    default:
-      title = bundle.getString("errorCloudFileOther.title");
-      msg = bundle.getFormattedString("errorCloudFileOther.message",
-                                      [displayName]);
-      break;
+      case cloudFileAccounts.constants.authErr:
+        title = bundle.getString("errorCloudFileAuth.title");
+        msg = bundle.getFormattedString("errorCloudFileAuth.message", [
+          displayName,
+        ]);
+        break;
+      case cloudFileAccounts.constants.uploadErr:
+        title = bundle.getString("errorCloudFileUpload.title");
+        msg = bundle.getFormattedString("errorCloudFileUpload.message", [
+          displayName,
+          attachment.name,
+        ]);
+        break;
+      case cloudFileAccounts.constants.uploadWouldExceedQuota:
+        title = bundle.getString("errorCloudFileQuota.title");
+        msg = bundle.getFormattedString("errorCloudFileQuota.message", [
+          displayName,
+          attachment.name,
+        ]);
+        break;
+      case cloudFileAccounts.constants.uploadExceedsFileNameLimit:
+        title = bundle.getString("errorCloudFileNameLimit.title");
+        msg = bundle.getFormattedString("errorCloudFileNameLimit.message", [
+          displayName,
+          attachment.name,
+        ]);
+        break;
+      case cloudFileAccounts.constants.uploadExceedsFileLimit:
+        title = bundle.getString("errorCloudFileLimit.title");
+        msg = bundle.getFormattedString("errorCloudFileLimit.message", [
+          displayName,
+          attachment.name,
+        ]);
+        break;
+      case cloudFileAccounts.constants.uploadCancelled:
+        displayError = false;
+        break;
+      default:
+        title = bundle.getString("errorCloudFileOther.title");
+        msg = bundle.getFormattedString("errorCloudFileOther.message", [
+          displayName,
+        ]);
+        break;
     }
 
     // TODO: support actions other than "Upgrade"
     if (displayError) {
-      let url = cloudFileAccount.providerUrlForError &&
-                cloudFileAccount.providerUrlForError(statusCode);
-      let flags = Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_OK;
+      let url =
+        cloudFileAccount.providerUrlForError &&
+        cloudFileAccount.providerUrlForError(statusCode);
+      let flags =
+        Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_OK;
       if (url) {
-        flags += Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_IS_STRING;
+        flags +=
+          Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_IS_STRING;
       }
-      if (Services.prompt.confirmEx(window, title, msg, flags, null,
-                                    bundle.getString("errorCloudFileUpgrade.label"),
-                                    null, null, {})) {
+      if (
+        Services.prompt.confirmEx(
+          window,
+          title,
+          msg,
+          flags,
+          null,
+          bundle.getString("errorCloudFileUpgrade.label"),
+          null,
+          null,
+          {}
+        )
+      ) {
         openLinkExternally(url);
       }
     }
@@ -1673,14 +1850,20 @@ async function deleteCloudAttachment(attachment, id, cloudFileAccount) {
     Services.prompt.alert(
       window,
       bundle.getString("errorCloudFileDeletion.title"),
-      bundle.getFormattedString("errorCloudFileDeletion.message", [displayName, attachment.name])
+      bundle.getFormattedString("errorCloudFileDeletion.message", [
+        displayName,
+        attachment.name,
+      ])
     );
   }
 }
 
 function attachToCloud(event) {
   if (event.target.cloudFileUpload) {
-    attachToCloudRepeat(event.target.cloudFileUpload, event.target.cloudFileAccount);
+    attachToCloudRepeat(
+      event.target.cloudFileUpload,
+      event.target.cloudFileAccount
+    );
   } else {
     attachToCloudNew(event.target.cloudFileAccount);
   }
@@ -1721,7 +1904,10 @@ function attachToCloudRepeat(upload, account) {
       itemIcon.setAttribute("src", "");
     }
     item.dispatchEvent(
-      new CustomEvent("attachment-uploaded", { bubbles: true, cancelable: true })
+      new CustomEvent("attachment-uploaded", {
+        bubbles: true,
+        cancelable: true,
+      })
     );
   });
 }
@@ -1734,16 +1920,19 @@ function attachToCloudRepeat(upload, account) {
 function attachToCloudNew(aAccount) {
   // We need to let the user pick local file(s) to upload to the cloud and
   // gather url(s) to those files.
-  var fp = Cc["@mozilla.org/filepicker;1"]
-             .createInstance(Ci.nsIFilePicker);
-  fp.init(window, getComposeBundle().getFormattedString(
-            "chooseFileToAttachViaCloud",
-            [cloudFileAccounts.getDisplayName(aAccount)]),
-          Ci.nsIFilePicker.modeOpenMultiple);
+  var fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
+  fp.init(
+    window,
+    getComposeBundle().getFormattedString("chooseFileToAttachViaCloud", [
+      cloudFileAccounts.getDisplayName(aAccount),
+    ]),
+    Ci.nsIFilePicker.modeOpenMultiple
+  );
 
   var lastDirectory = GetLastAttachDirectory();
-  if (lastDirectory)
+  if (lastDirectory) {
     fp.displayDirectory = lastDirectory;
+  }
 
   fp.appendFilters(Ci.nsIFilePicker.filterAll);
   fp.open(rv => {
@@ -1775,11 +1964,13 @@ function attachToCloudNew(aAccount) {
 function convertListItemsToCloudAttachment(aItems, aAccount) {
   // If we want to display an offline error message, we should do it here.
   // No sense in doing the delete and upload and having them fail.
-  if (Services.io.offline)
+  if (Services.io.offline) {
     return;
+  }
 
-  let fileHandler = Services.io.getProtocolHandler("file")
-                            .QueryInterface(Ci.nsIFileProtocolHandler);
+  let fileHandler = Services.io
+    .getProtocolHandler("file")
+    .QueryInterface(Ci.nsIFileProtocolHandler);
   let convertedAttachments = [];
 
   for (let item of aItems) {
@@ -1794,7 +1985,11 @@ function convertListItemsToCloudAttachment(aItems, aAccount) {
 
     let file = fileHandler.getFileFromURLSpec(url);
     if (item.cloudFileAccount) {
-      deleteCloudAttachment(item.attachment, item.cloudFileUpload.id, item.cloudFileAccount);
+      deleteCloudAttachment(
+        item.attachment,
+        item.cloudFileUpload.id,
+        item.cloudFileAccount
+      );
     }
 
     uploadCloudAttachment(item.attachment, file, aAccount);
@@ -1802,7 +1997,10 @@ function convertListItemsToCloudAttachment(aItems, aAccount) {
   }
 
   if (convertedAttachments.length > 0) {
-    dispatchAttachmentBucketEvent("attachments-converted", convertedAttachments);
+    dispatchAttachmentBucketEvent(
+      "attachments-converted",
+      convertedAttachments
+    );
   }
 }
 
@@ -1827,8 +2025,9 @@ function convertToCloudAttachment(aAttachments, aAccount) {
   let items = [];
   for (let attachment of aAttachments) {
     let item = bucket.findItemForAttachment(attachment);
-    if (item)
+    if (item) {
       items.push(item);
+    }
   }
 
   convertListItemsToCloudAttachment(items, aAccount);
@@ -1841,8 +2040,9 @@ function convertToCloudAttachment(aAttachments, aAccount) {
  *        question
  */
 function convertListItemsToRegularAttachment(aItems) {
-  let convertedAttachments = Cc["@mozilla.org/array;1"]
-                               .createInstance(Ci.nsIMutableArray);
+  let convertedAttachments = Cc["@mozilla.org/array;1"].createInstance(
+    Ci.nsIMutableArray
+  );
 
   for (let item of aItems) {
     if (!item.attachment.sendViaCloud || !item.cloudFileAccount) {
@@ -1852,9 +2052,13 @@ function convertListItemsToRegularAttachment(aItems) {
     try {
       // This will fail for drafts, but we can still send the message
       // with a normal attachment.
-      deleteCloudAttachment(item.attachment, item.cloudFileUpload.id, item.cloudFileAccount);
+      deleteCloudAttachment(
+        item.attachment,
+        item.cloudFileUpload.id,
+        item.cloudFileAccount
+      );
     } catch (ex) {
-       Cu.reportError(ex);
+      Cu.reportError(ex);
     }
 
     item.attachment.url = item.originalUrl;
@@ -1872,8 +2076,9 @@ function convertListItemsToRegularAttachment(aItems) {
 
   // We leave the content location in for the notifications because
   // it may be needed to identify the attachment. But clear it out now.
-  for (let item of aItems)
+  for (let item of aItems) {
     delete item.attachment.contentLocation;
+  }
 }
 
 /**
@@ -1894,8 +2099,9 @@ function convertToRegularAttachment(aAttachments) {
   let items = [];
   for (let attachment of aAttachments) {
     let item = bucket.findItemForAttachment(attachment);
-    if (item)
+    if (item) {
       items.push(item);
+    }
   }
 
   convertListItemsToRegularAttachment(items);
@@ -1914,9 +2120,11 @@ var messageComposeOfflineQuitObserver = {
     // sanity checks
     if (aTopic == "network:offline-status-changed") {
       MessageComposeOfflineStateChanged(Services.io.offline);
-    } else if (aTopic == "quit-application-requested"
-        && (aSubject instanceof Ci.nsISupportsPRBool)
-        && !aSubject.data) {
+    } else if (
+      aTopic == "quit-application-requested" &&
+      aSubject instanceof Ci.nsISupportsPRBool &&
+      !aSubject.data
+    ) {
       // Check whether to veto the quit request
       // (unless another observer already did).
       aSubject.data = !ComposeCanClose();
@@ -1925,20 +2133,28 @@ var messageComposeOfflineQuitObserver = {
 };
 
 function AddMessageComposeOfflineQuitObserver() {
-  Services.obs.addObserver(messageComposeOfflineQuitObserver,
-                           "network:offline-status-changed");
-  Services.obs.addObserver(messageComposeOfflineQuitObserver,
-                           "quit-application-requested");
+  Services.obs.addObserver(
+    messageComposeOfflineQuitObserver,
+    "network:offline-status-changed"
+  );
+  Services.obs.addObserver(
+    messageComposeOfflineQuitObserver,
+    "quit-application-requested"
+  );
 
   // set the initial state of the send button
   MessageComposeOfflineStateChanged(Services.io.offline);
 }
 
 function RemoveMessageComposeOfflineQuitObserver() {
-  Services.obs.removeObserver(messageComposeOfflineQuitObserver,
-                              "network:offline-status-changed");
-  Services.obs.removeObserver(messageComposeOfflineQuitObserver,
-                              "quit-application-requested");
+  Services.obs.removeObserver(
+    messageComposeOfflineQuitObserver,
+    "network:offline-status-changed"
+  );
+  Services.obs.removeObserver(
+    messageComposeOfflineQuitObserver,
+    "quit-application-requested"
+  );
 }
 
 function MessageComposeOfflineStateChanged(goingOffline) {
@@ -1955,11 +2171,17 @@ function MessageComposeOfflineStateChanged(goingOffline) {
 
     if (goingOffline) {
       sendButton.label = sendButton.getAttribute("later_label");
-      sendButton.setAttribute("tooltiptext", sendButton.getAttribute("later_tooltiptext"));
+      sendButton.setAttribute(
+        "tooltiptext",
+        sendButton.getAttribute("later_tooltiptext")
+      );
       sendNowMenuItem.removeAttribute("key");
     } else {
       sendButton.label = sendButton.getAttribute("now_label");
-      sendButton.setAttribute("tooltiptext", sendButton.getAttribute("now_tooltiptext"));
+      sendButton.setAttribute(
+        "tooltiptext",
+        sendButton.getAttribute("now_tooltiptext")
+      );
       if (gSavedSendNowKey) {
         sendNowMenuItem.setAttribute("key", gSavedSendNowKey);
       }
@@ -1970,8 +2192,9 @@ function MessageComposeOfflineStateChanged(goingOffline) {
 function DoCommandClose() {
   if (ComposeCanClose()) {
     // Notify the SendListener that Send has been aborted and Stopped
-    if (gMsgCompose)
+    if (gMsgCompose) {
       gMsgCompose.onSendNotPerformed(null, Cr.NS_ERROR_ABORT);
+    }
 
     // This destroys the window for us.
     MsgComposeCloseWindow();
@@ -2008,16 +2231,18 @@ function ToggleWindowLock(aDisable) {
   gWindowLocked = aDisable;
   updateAllItems(aDisable);
   updateEditableFields(aDisable);
-  if (!aDisable)
+  if (!aDisable) {
     updateComposeItems();
+  }
 }
 
 /* This function will go away soon as now arguments are passed to the window using a object of type nsMsgComposeParams instead of a string */
 function GetArgs(originalData) {
   var args = {};
 
-  if (originalData == "")
+  if (originalData == "") {
     return null;
+  }
 
   var data = "";
   var separator = String.fromCharCode(1);
@@ -2028,23 +2253,27 @@ function GetArgs(originalData) {
   for (let i = 0; i < originalData.length; i++, prevChar = aChar) {
     var aChar = originalData.charAt(i);
     var aCharCode = originalData.charCodeAt(i);
-    if (i < originalData.length - 1)
+    if (i < originalData.length - 1) {
       nextChar = originalData.charAt(i + 1);
-    else
+    } else {
       nextChar = "";
+    }
 
     if (aChar == quoteChar && (nextChar == "," || nextChar == "")) {
       quoteChar = "";
       data += aChar;
-    } else if ((aCharCode == 39 || aCharCode == 34) && prevChar == "=") { // quote or double quote
-      if (quoteChar == "")
+    } else if ((aCharCode == 39 || aCharCode == 34) && prevChar == "=") {
+      // quote or double quote
+      if (quoteChar == "") {
         quoteChar = aChar;
+      }
       data += aChar;
     } else if (aChar == ",") {
-      if (quoteChar == "")
+      if (quoteChar == "") {
         data += separator;
-      else
+      } else {
         data += aChar;
+      }
     } else {
       data += aChar;
     }
@@ -2055,8 +2284,9 @@ function GetArgs(originalData) {
 
   for (let i = pairs.length - 1; i >= 0; i--) {
     var pos = pairs[i].indexOf("=");
-    if (pos == -1)
+    if (pos == -1) {
       continue;
+    }
     var argname = pairs[i].substring(0, pos);
     var argvalue = pairs[i].substring(pos + 1);
     if (argvalue.startsWith("'") && argvalue.endsWith("'")) {
@@ -2088,8 +2318,8 @@ function ComposeFieldsReady() {
   // If we are in plain text, we need to set the wrap column
   if (!gMsgCompose.composeHTML) {
     try {
-      gMsgCompose.editor.QueryInterface(Ci.nsIPlaintextEditor).wrapWidth
-          = gMsgCompose.wrapLength;
+      gMsgCompose.editor.QueryInterface(Ci.nsIPlaintextEditor).wrapWidth =
+        gMsgCompose.wrapLength;
     } catch (e) {
       dump("### textEditor.wrapWidth exception text: " + e + " - failed\n");
     }
@@ -2135,10 +2365,13 @@ function handleEsc() {
   // AND focus is in message body, subject field or on the notification,
   // hide it.
   let notification = gNotification.notificationbox.currentNotification;
-  if (notification && (activeElement.id == "content-frame" ||
+  if (
+    notification &&
+    (activeElement.id == "content-frame" ||
       activeElement.parentNode.parentNode.id == "msgSubject" ||
       notification.contains(activeElement) ||
-      activeElement.classList.contains("messageCloseButton"))) {
+      activeElement.classList.contains("messageCloseButton"))
+  ) {
     notification.close();
   }
 }
@@ -2195,8 +2428,9 @@ function manageAttachmentNotification(aForce = false) {
     }
   }
 
-  let notification = gNotification.notificationbox.
-    getNotificationWithValue("attachmentReminder");
+  let notification = gNotification.notificationbox.getNotificationWithValue(
+    "attachmentReminder"
+  );
   if (removeNotification) {
     if (notification) {
       gNotification.notificationbox.removeNotification(notification);
@@ -2206,12 +2440,17 @@ function manageAttachmentNotification(aForce = false) {
 
   // We have some keywords, however only pop up the notification if requested
   // to do so.
-  if (!aForce)
+  if (!aForce) {
     return;
+  }
 
-  let textValue = getComposeBundle().getString("attachmentReminderKeywordsMsgs");
-  textValue = PluralForm.get(keywordsCount, textValue)
-                        .replace("#1", keywordsCount);
+  let textValue = getComposeBundle().getString(
+    "attachmentReminderKeywordsMsgs"
+  );
+  textValue = PluralForm.get(keywordsCount, textValue).replace(
+    "#1",
+    keywordsCount
+  );
   // If the notification already exists, we simply add the new attachment
   // specific keywords to the existing notification instead of creating it
   // from scratch.
@@ -2227,8 +2466,9 @@ function manageAttachmentNotification(aForce = false) {
   let msg = document.createXULElement("hbox");
   msg.setAttribute("flex", "100");
   msg.onclick = function(event) {
-    openOptionsDialog("paneCompose", "compositionAttachmentsCategory",
-                      {subdialog: "attachment_reminder_button"});
+    openOptionsDialog("paneCompose", "compositionAttachmentsCategory", {
+      subdialog: "attachment_reminder_button",
+    });
   };
 
   let msgText = document.createXULElement("label");
@@ -2256,9 +2496,14 @@ function manageAttachmentNotification(aForce = false) {
   remindLaterMenuPopup.id = "reminderBarPopup";
   let disableAttachmentReminder = document.createXULElement("menuitem");
   disableAttachmentReminder.id = "disableReminder";
-  disableAttachmentReminder.setAttribute("label",
-    getComposeBundle().getString("disableAttachmentReminderButton"));
-  disableAttachmentReminder.setAttribute("command", "cmd_doNotRemindForAttachments");
+  disableAttachmentReminder.setAttribute(
+    "label",
+    getComposeBundle().getString("disableAttachmentReminderButton")
+  );
+  disableAttachmentReminder.setAttribute(
+    "command",
+    "cmd_doNotRemindForAttachments"
+  );
   remindLaterMenuPopup.appendChild(disableAttachmentReminder);
 
   let remindButton = {
@@ -2271,13 +2516,17 @@ function manageAttachmentNotification(aForce = false) {
   };
 
   notification = gNotification.notificationbox.appendNotification(
-    "", "attachmentReminder", "null",
+    "",
+    "attachmentReminder",
+    "null",
     gNotification.notificationbox.PRIORITY_WARNING_MEDIUM,
-    [addButton, remindButton]);
+    [addButton, remindButton]
+  );
   notification.setAttribute("id", "attachmentNotificationBox");
 
   notification.messageDetails.querySelector("button").before(msg);
-  notification.messageDetails.querySelector("button:last-child")
+  notification.messageDetails
+    .querySelector("button:last-child")
     .appendChild(remindLaterMenuPopup);
 }
 
@@ -2286,8 +2535,11 @@ function manageAttachmentNotification(aForce = false) {
  * the state of keywords.
  */
 function attachmentNotificationSupressed() {
-  return (gDisableAttachmentReminder || gManualAttachmentReminder ||
-          AttachmentElementHasItems());
+  return (
+    gDisableAttachmentReminder ||
+    gManualAttachmentReminder ||
+    AttachmentElementHasItems()
+  );
 }
 
 var attachmentWorker = new Worker("resource:///modules/AttachmentChecker.jsm");
@@ -2314,14 +2566,19 @@ attachmentWorker.onerror = function(error) {
  */
 attachmentWorker.onmessage = function(event, aManage = true) {
   // Exit if keywords haven't changed.
-  if (!event || (attachmentWorker.lastMessage &&
-                (event.data.toString() == attachmentWorker.lastMessage.toString())))
+  if (
+    !event ||
+    (attachmentWorker.lastMessage &&
+      event.data.toString() == attachmentWorker.lastMessage.toString())
+  ) {
     return;
+  }
 
   let data = event ? event.data : [];
   attachmentWorker.lastMessage = data.slice(0);
-  if (aManage)
+  if (aManage) {
     manageAttachmentNotification(true);
+  }
 };
 
 /**
@@ -2360,11 +2617,12 @@ function AttachmentsChanged(aShowPane, aContentChanged = true) {
  */
 function getValidSpellcheckerDictionary(draftLanguage) {
   let prefValue = Services.prefs.getCharPref("spellchecker.dictionary");
-  let spellChecker = Cc["@mozilla.org/spellchecker/engine;1"]
-                       .getService(Ci.mozISpellCheckingEngine);
+  let spellChecker = Cc["@mozilla.org/spellchecker/engine;1"].getService(
+    Ci.mozISpellCheckingEngine
+  );
 
   let dictList = spellChecker.getDictionaryList();
-  let count    = dictList.length;
+  let count = dictList.length;
 
   if (count == 0) {
     // If there are no dictionaries, we can't check the value, so return it.
@@ -2392,11 +2650,12 @@ var dictionaryRemovalObserver = {
       return;
     }
     let language = document.documentElement.getAttribute("lang");
-    let spellChecker = Cc["@mozilla.org/spellchecker/engine;1"]
-                         .getService(Ci.mozISpellCheckingEngine);
+    let spellChecker = Cc["@mozilla.org/spellchecker/engine;1"].getService(
+      Ci.mozISpellCheckingEngine
+    );
 
     let dictList = spellChecker.getDictionaryList();
-    let count    = dictList.length;
+    let count = dictList.length;
 
     if (count > 0 && dictList.includes(language)) {
       // There still is a dictionary for the language of the document.
@@ -2436,7 +2695,7 @@ var dictionaryRemovalObserver = {
  */
 function onPasteOrDrop(e) {
   // For paste use e.clipboardData, for drop use e.dataTransfer.
-  let dataTransfer = ("clipboardData" in e) ? e.clipboardData : e.dataTransfer;
+  let dataTransfer = "clipboardData" in e ? e.clipboardData : e.dataTransfer;
 
   if (!dataTransfer.types.includes("text/html")) {
     return;
@@ -2448,7 +2707,7 @@ function onPasteOrDrop(e) {
   }
 
   let html = dataTransfer.getData("text/html");
-  let doc = (new DOMParser()).parseFromString(html, "text/html");
+  let doc = new DOMParser().parseFromString(html, "text/html");
   let tmpD = Services.dirsvc.get("TmpD", Ci.nsIFile);
   let pendingConversions = 0;
   let needToPreventDefault = true;
@@ -2461,7 +2720,8 @@ function onPasteOrDrop(e) {
     // This may throw if the URL is invalid for the OS.
     let nsFile;
     try {
-      nsFile = Services.io.getProtocolHandler("file")
+      nsFile = Services.io
+        .getProtocolHandler("file")
         .QueryInterface(Ci.nsIFileProtocolHandler)
         .getFileFromURLSpec(img.src);
     } catch (ex) {
@@ -2473,7 +2733,7 @@ function onPasteOrDrop(e) {
     }
 
     if (!tmpD.contains(nsFile)) {
-       // Not anywhere under the temp dir.
+      // Not anywhere under the temp dir.
       continue;
     }
 
@@ -2492,7 +2752,7 @@ function onPasteOrDrop(e) {
     }
 
     File.createFromNsIFile(nsFile).then(function(file) {
-      if (file.lastModified < (Date.now() - 60000)) {
+      if (file.lastModified < Date.now() - 60000) {
         // Not put in temp in the last minute. May be something other than
         // a copy-paste. Let's not allow that.
         return;
@@ -2501,10 +2761,13 @@ function onPasteOrDrop(e) {
       let doTheInsert = function() {
         // Now run it through sanitation to make sure there wasn't any
         // unwanted things in the content.
-        let ParserUtils = Cc["@mozilla.org/parserutils;1"]
-          .getService(Ci.nsIParserUtils);
-        let html2 = ParserUtils.sanitize(doc.documentElement.innerHTML,
-                                       ParserUtils.SanitizerAllowStyle);
+        let ParserUtils = Cc["@mozilla.org/parserutils;1"].getService(
+          Ci.nsIParserUtils
+        );
+        let html2 = ParserUtils.sanitize(
+          doc.documentElement.innerHTML,
+          ParserUtils.SanitizerAllowStyle
+        );
         getBrowser().contentDocument.execCommand("insertHTML", false, html2);
       };
 
@@ -2538,9 +2801,18 @@ function ComposeStartup(aParams) {
     let replaceButton = document.createXULElement("toolbarbutton");
     replaceButton.setAttribute("id", "findbar-replaceButton");
     replaceButton.setAttribute("class", "findbar-button tabbable");
-    replaceButton.setAttribute("label", getComposeBundle().getString("replaceButton.label"));
-    replaceButton.setAttribute("accesskey", getComposeBundle().getString("replaceButton.accesskey"));
-    replaceButton.setAttribute("tooltiptext", getComposeBundle().getString("replaceButton.tooltip"));
+    replaceButton.setAttribute(
+      "label",
+      getComposeBundle().getString("replaceButton.label")
+    );
+    replaceButton.setAttribute(
+      "accesskey",
+      getComposeBundle().getString("replaceButton.accesskey")
+    );
+    replaceButton.setAttribute(
+      "tooltiptext",
+      getComposeBundle().getString("replaceButton.tooltip")
+    );
     replaceButton.setAttribute("oncommand", "findbarFindReplace();");
 
     let findbar = document.getElementById("FindToolbar");
@@ -2552,17 +2824,18 @@ function ComposeStartup(aParams) {
   }
 
   var params = null; // New way to pass parameters to the compose window as a nsIMsgComposeParameters object
-  var args = null;   // old way, parameters are passed as a string
+  var args = null; // old way, parameters are passed as a string
   gBodyFromArgs = false;
 
   if (aParams) {
     params = aParams;
   } else if (window.arguments && window.arguments[0]) {
     try {
-      if (window.arguments[0] instanceof Ci.nsIMsgComposeParams)
+      if (window.arguments[0] instanceof Ci.nsIMsgComposeParams) {
         params = window.arguments[0];
-      else
+      } else {
         params = handleMailtoArgs(window.arguments[0]);
+      }
     } catch (ex) {
       dump("ERROR with parameters: " + ex + "\n");
     }
@@ -2582,8 +2855,9 @@ function ComposeStartup(aParams) {
     let defaultWidth = Math.min(screen.availWidth, 860);
 
     // On small screens, default to maximized state.
-    if (defaultHeight <= 600)
+    if (defaultHeight <= 600) {
       document.documentElement.setAttribute("sizemode", "maximized");
+    }
 
     document.documentElement.setAttribute("width", defaultWidth);
     document.documentElement.setAttribute("height", defaultHeight);
@@ -2601,8 +2875,9 @@ function ComposeStartup(aParams) {
         // Update the language in the composition fields, so we can save it
         // to the draft next time.
         if (gMsgCompose && gMsgCompose.compFields) {
-          gMsgCompose.compFields.contentLanguage =
-            document.documentElement.getAttribute("lang");
+          gMsgCompose.compFields.contentLanguage = document.documentElement.getAttribute(
+            "lang"
+          );
         }
       }
     });
@@ -2622,55 +2897,74 @@ function ComposeStartup(aParams) {
   // Some false positives like function or OS keys might occur; we accept that.
   // Alt+CursorDown will still show the dropdown in the wrong place.
   let addressingWidget = GetMsgAddressingWidgetTreeElement();
-  addressingWidget.addEventListener("keyup", (event) => {
+  addressingWidget.addEventListener("keyup", event => {
     if (event.target.classList.contains("aw-menulist")) {
       addressingWidget.ensureElementIsVisible(event.target);
     }
   });
 
   let identityList = GetMsgIdentityElement();
-  if (identityList)
+  if (identityList) {
     FillIdentityList(identityList);
+  }
 
   if (!params) {
     // This code will go away soon as now arguments are passed to the window using a object of type nsMsgComposeParams instead of a string
 
-    params = Cc["@mozilla.org/messengercompose/composeparams;1"].createInstance(Ci.nsIMsgComposeParams);
-    params.composeFields = Cc["@mozilla.org/messengercompose/composefields;1"].createInstance(Ci.nsIMsgCompFields);
+    params = Cc["@mozilla.org/messengercompose/composeparams;1"].createInstance(
+      Ci.nsIMsgComposeParams
+    );
+    params.composeFields = Cc[
+      "@mozilla.org/messengercompose/composefields;1"
+    ].createInstance(Ci.nsIMsgCompFields);
 
-    if (args) { // Convert old fashion arguments into params
+    if (args) {
+      // Convert old fashion arguments into params
       var composeFields = params.composeFields;
-      if (args.bodyislink == "true")
+      if (args.bodyislink == "true") {
         params.bodyIsLink = true;
-      if (args.type)
+      }
+      if (args.type) {
         params.type = args.type;
+      }
       if (args.format) {
         // Only use valid values.
-        if (args.format == Ci.nsIMsgCompFormat.PlainText ||
-            args.format == Ci.nsIMsgCompFormat.HTML ||
-            args.format == Ci.nsIMsgCompFormat.OppositeOfDefault)
+        if (
+          args.format == Ci.nsIMsgCompFormat.PlainText ||
+          args.format == Ci.nsIMsgCompFormat.HTML ||
+          args.format == Ci.nsIMsgCompFormat.OppositeOfDefault
+        ) {
           params.format = args.format;
-        else if (args.format.toLowerCase().trim() == "html")
+        } else if (args.format.toLowerCase().trim() == "html") {
           params.format = Ci.nsIMsgCompFormat.HTML;
-        else if (args.format.toLowerCase().trim() == "text")
+        } else if (args.format.toLowerCase().trim() == "text") {
           params.format = Ci.nsIMsgCompFormat.PlainText;
+        }
       }
-      if (args.originalMsgURI)
+      if (args.originalMsgURI) {
         params.originalMsgURI = args.originalMsgURI;
-      if (args.preselectid)
+      }
+      if (args.preselectid) {
         params.identity = getIdentityForKey(args.preselectid);
-      if (args.from)
+      }
+      if (args.from) {
         composeFields.from = args.from;
-      if (args.to)
+      }
+      if (args.to) {
         composeFields.to = args.to;
-      if (args.cc)
+      }
+      if (args.cc) {
         composeFields.cc = args.cc;
-      if (args.bcc)
+      }
+      if (args.bcc) {
         composeFields.bcc = args.bcc;
-      if (args.newsgroups)
+      }
+      if (args.newsgroups) {
         composeFields.newsgroups = args.newsgroups;
-      if (args.subject)
+      }
+      if (args.subject) {
         composeFields.subject = args.subject;
+      }
       if (args.attachment) {
         let attachmentList = args.attachment.split(",");
         let commandLine = Cu.createCommandLine();
@@ -2678,14 +2972,16 @@ function ComposeStartup(aParams) {
           // resolveURI does all the magic around working out what the
           // attachment is, including web pages, and generating the correct uri.
           let uri = commandLine.resolveURI(attachmentName);
-          let attachment = Cc["@mozilla.org/messengercompose/attachment;1"]
-                             .createInstance(Ci.nsIMsgAttachment);
+          let attachment = Cc[
+            "@mozilla.org/messengercompose/attachment;1"
+          ].createInstance(Ci.nsIMsgAttachment);
           // If uri is for a file and it exists set the attachment size.
           if (uri instanceof Ci.nsIFileURL) {
-            if (uri.file.exists())
+            if (uri.file.exists()) {
               attachment.size = uri.file.fileSize;
-            else
+            } else {
               attachment = null;
+            }
           }
 
           // Only want to attach if a file that exists or it is not a file.
@@ -2694,27 +2990,36 @@ function ComposeStartup(aParams) {
             composeFields.addAttachment(attachment);
           } else {
             let title = getComposeBundle().getString("errorFileAttachTitle");
-            let msg = getComposeBundle().getFormattedString("errorFileAttachMessage",
-                                                        [attachmentName]);
+            let msg = getComposeBundle().getFormattedString(
+              "errorFileAttachMessage",
+              [attachmentName]
+            );
             Services.prompt.alert(null, title, msg);
           }
         }
       }
-      if (args.newshost)
+      if (args.newshost) {
         composeFields.newshost = args.newshost;
+      }
       if (args.message) {
-        let msgFile = Cc["@mozilla.org/file/local;1"]
-                        .createInstance(Ci.nsIFile);
+        let msgFile = Cc["@mozilla.org/file/local;1"].createInstance(
+          Ci.nsIFile
+        );
         if (OS.Path.dirname(args.message) == ".") {
           let workingDir = Services.dirsvc.get("CurWorkD", Ci.nsIFile);
-          args.message = OS.Path.join(workingDir.path, OS.Path.basename(args.message));
+          args.message = OS.Path.join(
+            workingDir.path,
+            OS.Path.basename(args.message)
+          );
         }
         msgFile.initWithPath(args.message);
 
         if (!msgFile.exists()) {
           let title = getComposeBundle().getString("errorFileMessageTitle");
-          let msg = getComposeBundle().getFormattedString("errorFileMessageMessage",
-                                                          [args.message]);
+          let msg = getComposeBundle().getFormattedString(
+            "errorFileMessageMessage",
+            [args.message]
+          );
           Services.prompt.alert(null, title, msg);
         } else {
           let data = "";
@@ -2722,10 +3027,12 @@ function ComposeStartup(aParams) {
           let cstream = null;
 
           try {
-            fstream = Cc["@mozilla.org/network/file-input-stream;1"]
-                        .createInstance(Ci.nsIFileInputStream);
-            cstream = Cc["@mozilla.org/intl/converter-input-stream;1"]
-                        .createInstance(Ci.nsIConverterInputStream);
+            fstream = Cc[
+              "@mozilla.org/network/file-input-stream;1"
+            ].createInstance(Ci.nsIFileInputStream);
+            cstream = Cc[
+              "@mozilla.org/intl/converter-input-stream;1"
+            ].createInstance(Ci.nsIConverterInputStream);
             fstream.init(msgFile, -1, 0, 0); // Open file in default/read-only mode.
             cstream.init(fstream, "UTF-8", 0, 0);
 
@@ -2739,23 +3046,30 @@ function ComposeStartup(aParams) {
             } while (read != 0);
           } catch (e) {
             let title = getComposeBundle().getString("errorFileMessageTitle");
-            let msg = getComposeBundle().getFormattedString("errorLoadFileMessageMessage",
-                                                            [args.message]);
+            let msg = getComposeBundle().getFormattedString(
+              "errorLoadFileMessageMessage",
+              [args.message]
+            );
             Services.prompt.alert(null, title, msg);
           } finally {
-            if (cstream)
+            if (cstream) {
               cstream.close();
-            if (fstream)
+            }
+            if (fstream) {
               fstream.close();
+            }
           }
 
           if (data) {
             let pos = data.search(/\S/); // Find first non-whitespace character.
 
-            if (params.format != Ci.nsIMsgCompFormat.PlainText &&
-                (args.message.endsWith(".htm") || args.message.endsWith(".html") ||
-                 data.substr(pos, 14).toLowerCase() == "<!doctype html" ||
-                 data.substr(pos, 5).toLowerCase() == "<html")) {
+            if (
+              params.format != Ci.nsIMsgCompFormat.PlainText &&
+              (args.message.endsWith(".htm") ||
+                args.message.endsWith(".html") ||
+                data.substr(pos, 14).toLowerCase() == "<!doctype html" ||
+                data.substr(pos, 5).toLowerCase() == "<html")
+            ) {
               // We replace line breaks because otherwise they'll be converted to
               // <br> in nsMsgCompose::BuildBodyMessageAndSignature().
               // Don't do the conversion if the user asked explicitly for plain text.
@@ -2785,13 +3099,21 @@ function ComposeStartup(aParams) {
     params.identity = creatorKey ? getIdentityForKey(creatorKey) : null;
   }
   let from = [];
-  if (params.composeFields.from)
-    from = MailServices.headerParser
-                       .parseEncodedHeader(params.composeFields.from, null);
-  from = (from.length && from[0] && from[0].email) ?
-    from[0].email.toLowerCase().trim() : null;
-  if (!params.identity || !params.identity.email ||
-      (from && !emailSimilar(from, params.identity.email))) {
+  if (params.composeFields.from) {
+    from = MailServices.headerParser.parseEncodedHeader(
+      params.composeFields.from,
+      null
+    );
+  }
+  from =
+    from.length && from[0] && from[0].email
+      ? from[0].email.toLowerCase().trim()
+      : null;
+  if (
+    !params.identity ||
+    !params.identity.email ||
+    (from && !emailSimilar(from, params.identity.email))
+  ) {
     let identities = MailServices.accounts.allIdentities;
     let suitableCount = 0;
 
@@ -2799,11 +3121,13 @@ function ComposeStartup(aParams) {
     if (from) {
       for (let ident of fixIterator(identities, Ci.nsIMsgIdentity)) {
         if (ident.email && from == ident.email.toLowerCase()) {
-          if (suitableCount == 0)
+          if (suitableCount == 0) {
             params.identity = ident;
+          }
           suitableCount++;
-          if (suitableCount > 1)
-            break; // No need to find more, it's already not unique.
+          if (suitableCount > 1) {
+            break;
+          } // No need to find more, it's already not unique.
         }
       }
     }
@@ -2812,11 +3136,14 @@ function ComposeStartup(aParams) {
       let identity = null;
       // No preset identity and no match, so use the default account.
       let defaultAccount = MailServices.accounts.defaultAccount;
-      if (defaultAccount)
+      if (defaultAccount) {
         identity = defaultAccount.defaultIdentity;
+      }
       if (!identity) {
         // Get the first identity we have in the list.
-        let identitykey = identityList.getItemAtIndex(0).getAttribute("identitykey");
+        let identitykey = identityList
+          .getItemAtIndex(0)
+          .getAttribute("identitykey");
         identity = MailServices.accounts.getIdentity(identitykey);
       }
       params.identity = identity;
@@ -2824,19 +3151,27 @@ function ComposeStartup(aParams) {
 
     // Warn if no or more than one match was found.
     // But don't warn for +suffix additions (a+b@c.com).
-    if (from && (suitableCount > 1 ||
-        (suitableCount == 0 && !emailSimilar(from, params.identity.email))))
+    if (
+      from &&
+      (suitableCount > 1 ||
+        (suitableCount == 0 && !emailSimilar(from, params.identity.email)))
+    ) {
       gComposeNotificationBar.setIdentityWarning(params.identity.identityName);
+    }
   }
 
-  identityList.selectedItem =
-    identityList.getElementsByAttribute("identitykey", params.identity.key)[0];
+  identityList.selectedItem = identityList.getElementsByAttribute(
+    "identitykey",
+    params.identity.key
+  )[0];
 
   // Here we set the From from the original message, be it a draft or another
   // message, for example a template, we want to "edit as new".
   // Only do this if the message is our own draft or template.
   if (params.composeFields.creatorIdentityKey && params.composeFields.from) {
-    let from = MailServices.headerParser.parseEncodedHeader(params.composeFields.from, null).join(", ");
+    let from = MailServices.headerParser
+      .parseEncodedHeader(params.composeFields.from, null)
+      .join(", ");
     if (from != identityList.value) {
       MakeFromFieldEditable(true);
       identityList.value = from;
@@ -2853,16 +3188,23 @@ function ComposeStartup(aParams) {
   // For our purposes we need the URI of the message being processed, not its
   // original ancestor.
   gOriginalMsgURI = params.originalMsgURI;
-  gMsgCompose = MailServices.compose.initCompose(params, window, editorElement.docShell);
+  gMsgCompose = MailServices.compose.initCompose(
+    params,
+    window,
+    editorElement.docShell
+  );
 
   gMsgCompose.addMsgSendListener(gSendListener);
 
-  document.getElementById("returnReceiptMenu")
-          .setAttribute("checked", gMsgCompose.compFields.returnReceipt);
-  document.getElementById("dsnMenu")
-          .setAttribute("checked", gMsgCompose.compFields.DSN);
-  document.getElementById("cmd_attachVCard")
-          .setAttribute("checked", gMsgCompose.compFields.attachVCard);
+  document
+    .getElementById("returnReceiptMenu")
+    .setAttribute("checked", gMsgCompose.compFields.returnReceipt);
+  document
+    .getElementById("dsnMenu")
+    .setAttribute("checked", gMsgCompose.compFields.DSN);
+  document
+    .getElementById("cmd_attachVCard")
+    .setAttribute("checked", gMsgCompose.compFields.attachVCard);
   toggleAttachmentReminder(gMsgCompose.compFields.attachmentReminder);
   gSendFormat = gMsgCompose.compFields.deliveryFormat;
   SetCompositionAsPerDeliveryFormat(gSendFormat);
@@ -2871,8 +3213,10 @@ function ComposeStartup(aParams) {
   // Set document language to the draft language or the preference
   // if this is a draft or template we prepared.
   let draftLanguage = null;
-  if (gMsgCompose.compFields.creatorIdentityKey &&
-      gMsgCompose.compFields.contentLanguage) {
+  if (
+    gMsgCompose.compFields.creatorIdentityKey &&
+    gMsgCompose.compFields.contentLanguage
+  ) {
     draftLanguage = gMsgCompose.compFields.contentLanguage;
   }
 
@@ -2908,7 +3252,7 @@ function ComposeStartup(aParams) {
 
       body = body.replace(/&/g, "&amp;");
       gMsgCompose.compFields.body =
-        "<br /><a href=\"" + body + "\">" + cleanBody + "</a><br />";
+        '<br /><a href="' + body + '">' + cleanBody + "</a><br />";
     } else {
       gMsgCompose.compFields.body = "\n<" + body + ">\n";
     }
@@ -2918,21 +3262,25 @@ function ComposeStartup(aParams) {
 
   AddAttachments(gMsgCompose.compFields.attachments, null, false);
 
-  if (Services.prefs.getBoolPref(
-      "mail.compose.show_attachment_pane")) {
+  if (Services.prefs.getBoolPref("mail.compose.show_attachment_pane")) {
     toggleAttachmentPane("show");
   }
 
-  document.getElementById("msgcomposeWindow").dispatchEvent(
-    new Event("compose-window-init", { bubbles: false, cancelable: true }));
+  document
+    .getElementById("msgcomposeWindow")
+    .dispatchEvent(
+      new Event("compose-window-init", { bubbles: false, cancelable: true })
+    );
 
   gMsgCompose.RegisterStateListener(stateListener);
 
   // Add an observer to be called when document is done loading,
   // which creates the editor.
   try {
-    GetCurrentCommandManager().
-            addCommandObserver(gMsgEditorCreationObserver, "obs_documentCreated");
+    GetCurrentCommandManager().addCommandObserver(
+      gMsgEditorCreationObserver,
+      "obs_documentCreated"
+    );
 
     // Load empty page to create the editor.
     let loadURIOptions = {
@@ -2958,14 +3306,17 @@ function ComposeStartup(aParams) {
   }
 
   // Update the priority button.
-  if (gMsgCompose.compFields.priority)
+  if (gMsgCompose.compFields.priority) {
     updatePriorityToolbarButton(gMsgCompose.compFields.priority);
+  }
 
-  gAutoSaveInterval = Services.prefs.getBoolPref("mail.compose.autosave") ?
-    Services.prefs.getIntPref("mail.compose.autosaveinterval") * 60000 : 0;
+  gAutoSaveInterval = Services.prefs.getBoolPref("mail.compose.autosave")
+    ? Services.prefs.getIntPref("mail.compose.autosaveinterval") * 60000
+    : 0;
 
-  if (gAutoSaveInterval)
+  if (gAutoSaveInterval) {
     gAutoSaveTimeout = setTimeout(AutoSave, gAutoSaveInterval);
+  }
 
   gAutoSaveKickedIn = false;
 }
@@ -2973,13 +3324,14 @@ function ComposeStartup(aParams) {
 
 function splitEmailAddress(aEmail) {
   let at = aEmail.lastIndexOf("@");
-  return (at != -1) ? [aEmail.slice(0, at), aEmail.slice(at + 1)] : [aEmail, ""];
+  return at != -1 ? [aEmail.slice(0, at), aEmail.slice(at + 1)] : [aEmail, ""];
 }
 
 // Emails are equal ignoring +suffixes (email+suffix@example.com).
 function emailSimilar(a, b) {
-  if (!a || !b)
+  if (!a || !b) {
     return a == b;
+  }
   a = splitEmailAddress(a.toLowerCase());
   b = splitEmailAddress(b.toLowerCase());
   return a[1] == b[1] && a[0].split("+", 1)[0] == b[0].split("+", 1)[0];
@@ -2997,16 +3349,19 @@ var gMsgEditorCreationObserver = {
         // mark our editor as modified when the user hasn't typed anything yet,
         // but that means the sheet must not @import slow things, especially
         // not over the network.
-        editorStyle.addOverrideStyleSheet("chrome://messenger/skin/messageQuotes.css");
+        editorStyle.addOverrideStyleSheet(
+          "chrome://messenger/skin/messageQuotes.css"
+        );
         InitEditor();
       }
       // Now that we know this document is an editor, update commands now if
       // the document has focus, or next time it receives focus via
       // CommandUpdate_MsgCompose()
-      if (gLastWindowToHaveFocus == document.commandDispatcher.focusedWindow)
+      if (gLastWindowToHaveFocus == document.commandDispatcher.focusedWindow) {
         updateComposeItems();
-      else
+      } else {
         gLastWindowToHaveFocus = null;
+      }
     }
   },
 };
@@ -3021,7 +3376,10 @@ function WizCallback(state) {
 }
 
 function ComposeLoad() {
-  var other_headers = Services.prefs.getCharPref("mail.compose.other.header", "");
+  var other_headers = Services.prefs.getCharPref(
+    "mail.compose.other.header",
+    ""
+  );
 
   AddMessageComposeOfflineQuitObserver();
 
@@ -3036,15 +3394,20 @@ function ComposeLoad() {
     if (other_headers) {
       var selectNode = document.getElementById("addressCol1#1");
       var other_headers_Array = other_headers.split(",");
-      for (let i = 0; i < other_headers_Array.length; i++)
+      for (let i = 0; i < other_headers_Array.length; i++) {
         selectNode.appendItem(other_headers_Array[i] + ":", "addr_other");
+      }
     }
-    if (state)
+    if (state) {
       ComposeStartup(null);
+    }
   } catch (ex) {
     Cu.reportError(ex);
-    Services.prompt.alert(window, getComposeBundle().getString("initErrorDlogTitle"),
-                          getComposeBundle().getString("initErrorDlgMessage"));
+    Services.prompt.alert(
+      window,
+      getComposeBundle().getString("initErrorDlogTitle"),
+      getComposeBundle().getString("initErrorDlgMessage")
+    );
 
     MsgComposeCloseWindow();
     return;
@@ -3054,7 +3417,9 @@ function ComposeLoad() {
 
   // initialize the customizeDone method on the customizeable toolbar
   var toolbox = document.getElementById("compose-toolbox");
-  toolbox.customizeDone = function(aEvent) { MailToolboxCustomizeDone(aEvent, "CustomizeComposeToolbar"); };
+  toolbox.customizeDone = function(aEvent) {
+    MailToolboxCustomizeDone(aEvent, "CustomizeComposeToolbar");
+  };
 
   awInitializeNumberOfRowsShown();
   updateAttachmentPane();
@@ -3063,11 +3428,16 @@ function ComposeLoad() {
 
 function ComposeUnload() {
   // Send notification that the window is going away completely.
-  document.getElementById("msgcomposeWindow").dispatchEvent(
-    new Event("compose-window-unload", { bubbles: false, cancelable: false }));
+  document
+    .getElementById("msgcomposeWindow")
+    .dispatchEvent(
+      new Event("compose-window-unload", { bubbles: false, cancelable: false })
+    );
 
-  GetCurrentCommandManager().removeCommandObserver(gMsgEditorCreationObserver,
-                                                   "obs_documentCreated");
+  GetCurrentCommandManager().removeCommandObserver(
+    gMsgEditorCreationObserver,
+    "obs_documentCreated"
+  );
   UnloadCommandUpdateHandlers();
 
   // In some Mozmill tests, the window is closed so quickly that the observer
@@ -3078,8 +3448,9 @@ function ComposeUnload() {
 
   EditorCleanup();
 
-  if (gMsgCompose)
+  if (gMsgCompose) {
     gMsgCompose.removeMsgSendListener(gSendListener);
+  }
 
   RemoveMessageComposeOfflineQuitObserver();
   gAttachmentNotifier.shutdown();
@@ -3088,12 +3459,15 @@ function ComposeUnload() {
   // Stop observing dictionary removals.
   dictionaryRemovalObserver.removeObserver();
 
-  if (gMsgCompose)
+  if (gMsgCompose) {
     gMsgCompose.UnregisterStateListener(stateListener);
-  if (gAutoSaveTimeout)
+  }
+  if (gAutoSaveTimeout) {
     clearTimeout(gAutoSaveTimeout);
-  if (msgWindow)
+  }
+  if (msgWindow) {
     msgWindow.closeWindow();
+  }
 
   ReleaseGlobalVariables();
 }
@@ -3123,13 +3497,18 @@ function SetDocumentCharacterSet(aCharset) {
 function GetCharsetUIString() {
   // The charset here is already the canonical charset (not an alias).
   let charset = gMsgCompose.compFields.characterSet;
-  if (!charset)
+  if (!charset) {
     return "";
+  }
 
-  if (charset.toLowerCase() != gMsgCompose.compFields.defaultCharacterSet.toLowerCase()) {
+  if (
+    charset.toLowerCase() !=
+    gMsgCompose.compFields.defaultCharacterSet.toLowerCase()
+  ) {
     try {
       return gCharsetConvertManager.getCharsetTitle(charset);
-    } catch (e) { // Not a canonical charset after all...
+    } catch (e) {
+      // Not a canonical charset after all...
       Cu.reportError("No charset title for charset=" + charset);
       return charset;
     }
@@ -3151,9 +3530,13 @@ function GenericSendMessage(msgType) {
   var msgCompFields = gMsgCompose.compFields;
 
   Recipients2CompFields(msgCompFields);
-  let addresses = MailServices.headerParser
-                              .makeFromDisplayAddress(GetMsgIdentityElement().value);
-  msgCompFields.from = MailServices.headerParser.makeMimeHeader(addresses, addresses.length);
+  let addresses = MailServices.headerParser.makeFromDisplayAddress(
+    GetMsgIdentityElement().value
+  );
+  msgCompFields.from = MailServices.headerParser.makeMimeHeader(
+    addresses,
+    addresses.length
+  );
   var subject = GetMsgSubjectElement().value;
   msgCompFields.subject = subject;
   Attachments2CompFields(msgCompFields);
@@ -3161,15 +3544,17 @@ function GenericSendMessage(msgType) {
   // toggle functions, e.g. ToggleReturnReceipt(), ToggleDSN(),  ToggleAttachVCard(),
   // and toggleAttachmentReminder().
 
-  let sending = msgType == Ci.nsIMsgCompDeliverMode.Now ||
-      msgType == Ci.nsIMsgCompDeliverMode.Later ||
-      msgType == Ci.nsIMsgCompDeliverMode.Background;
+  let sending =
+    msgType == Ci.nsIMsgCompDeliverMode.Now ||
+    msgType == Ci.nsIMsgCompDeliverMode.Later ||
+    msgType == Ci.nsIMsgCompDeliverMode.Background;
   if (sending) {
     expandRecipients();
     // Check if e-mail addresses are complete, in case user turned off
     // autocomplete to local domain.
-    if (!CheckValidEmailAddress(msgCompFields))
+    if (!CheckValidEmailAddress(msgCompFields)) {
       return;
+    }
 
     // Do we need to check the spelling?
     if (DoSpellCheckBeforeSend()) {
@@ -3178,11 +3563,18 @@ function GenericSendMessage(msgType) {
       // focus on the mail body when we have to do a spellcheck.
       SetMsgBodyFrameFocus();
       window.cancelSendMessage = false;
-      window.openDialog("chrome://editor/content/EdSpellCheck.xul", "_blank",
-                        "dialog,close,titlebar,modal,resizable", true, true, false);
+      window.openDialog(
+        "chrome://editor/content/EdSpellCheck.xul",
+        "_blank",
+        "dialog,close,titlebar,modal,resizable",
+        true,
+        true,
+        false
+      );
 
-      if (window.cancelSendMessage)
+      if (window.cancelSendMessage) {
         return;
+      }
     }
 
     // Strip trailing spaces and long consecutive WSP sequences from the
@@ -3196,15 +3588,22 @@ function GenericSendMessage(msgType) {
 
     // Remind the person if there isn't a subject
     if (subject == "") {
-      if (Services.prompt.confirmEx(
-            window,
-            getComposeBundle().getString("subjectEmptyTitle"),
-            getComposeBundle().getString("subjectEmptyMessage"),
-            (Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0) +
-            (Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_1),
-            getComposeBundle().getString("sendWithEmptySubjectButton"),
-            getComposeBundle().getString("cancelSendingButton"),
-            null, null, {value: 0}) == 1) {
+      if (
+        Services.prompt.confirmEx(
+          window,
+          getComposeBundle().getString("subjectEmptyTitle"),
+          getComposeBundle().getString("subjectEmptyMessage"),
+          Services.prompt.BUTTON_TITLE_IS_STRING *
+            Services.prompt.BUTTON_POS_0 +
+            Services.prompt.BUTTON_TITLE_IS_STRING *
+              Services.prompt.BUTTON_POS_1,
+          getComposeBundle().getString("sendWithEmptySubjectButton"),
+          getComposeBundle().getString("cancelSendingButton"),
+          null,
+          null,
+          { value: 0 }
+        ) == 1
+      ) {
         GetMsgSubjectElement().focus();
         return;
       }
@@ -3217,25 +3616,38 @@ function GenericSendMessage(msgType) {
     //  - the aggressive pref is set and the latest notification is still showing (implying
     //    that the message has no attachment(s) yet, message still contains some attachment
     //    keywords, and notification was not dismissed).
-    if (gManualAttachmentReminder ||
-        (Services.prefs.getBoolPref("mail.compose.attachment_reminder_aggressive") &&
-         gNotification.notificationbox.getNotificationWithValue("attachmentReminder"))) {
-      let flags = Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING +
-                  Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_IS_STRING;
-      let hadForgotten = Services.prompt.confirmEx(window,
-                         getComposeBundle().getString("attachmentReminderTitle"),
-                         getComposeBundle().getString("attachmentReminderMsg"),
-                         flags,
-                         getComposeBundle().getString("attachmentReminderFalseAlarm"),
-                         getComposeBundle().getString("attachmentReminderYesIForgot"),
-                         null, null, {value: 0});
+    if (
+      gManualAttachmentReminder ||
+      (Services.prefs.getBoolPref(
+        "mail.compose.attachment_reminder_aggressive"
+      ) &&
+        gNotification.notificationbox.getNotificationWithValue(
+          "attachmentReminder"
+        ))
+    ) {
+      let flags =
+        Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING +
+        Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_IS_STRING;
+      let hadForgotten = Services.prompt.confirmEx(
+        window,
+        getComposeBundle().getString("attachmentReminderTitle"),
+        getComposeBundle().getString("attachmentReminderMsg"),
+        flags,
+        getComposeBundle().getString("attachmentReminderFalseAlarm"),
+        getComposeBundle().getString("attachmentReminderYesIForgot"),
+        null,
+        null,
+        { value: 0 }
+      );
       // Deactivate manual attachment reminder after showing the alert to avoid alert loop.
       // We also deactivate reminder when user ignores alert with [x] or [ESC].
-      if (gManualAttachmentReminder)
+      if (gManualAttachmentReminder) {
         toggleAttachmentReminder(false);
+      }
 
-      if (hadForgotten)
+      if (hadForgotten) {
         return;
+      }
     }
 
     // Check if the user tries to send a message to a newsgroup through a mail
@@ -3243,23 +3655,29 @@ function GenericSendMessage(msgType) {
     var currentAccountKey = getCurrentAccountKey();
     let account = MailServices.accounts.getAccount(currentAccountKey);
     if (!account) {
-      throw new Error("currentAccountKey '" + currentAccountKey +
-                      "' has no matching account!");
+      throw new Error(
+        "currentAccountKey '" + currentAccountKey + "' has no matching account!"
+      );
     }
-    if (account.incomingServer.type != "nntp" && msgCompFields.newsgroups != "") {
+    if (
+      account.incomingServer.type != "nntp" &&
+      msgCompFields.newsgroups != ""
+    ) {
       const kDontAskAgainPref = "mail.compose.dontWarnMail2Newsgroup";
       // default to ask user if the pref is not set
       let dontAskAgain = Services.prefs.getBoolPref(kDontAskAgainPref);
       if (!dontAskAgain) {
-        let checkbox = {value: false};
+        let checkbox = { value: false };
         let okToProceed = Services.prompt.confirmCheck(
-                              window,
-                              getComposeBundle().getString("noNewsgroupSupportTitle"),
-                              getComposeBundle().getString("recipientDlogMessage"),
-                              getComposeBundle().getString("CheckMsg"),
-                              checkbox);
-        if (!okToProceed)
+          window,
+          getComposeBundle().getString("noNewsgroupSupportTitle"),
+          getComposeBundle().getString("recipientDlogMessage"),
+          getComposeBundle().getString("CheckMsg"),
+          checkbox
+        );
+        if (!okToProceed) {
           return;
+        }
 
         if (checkbox.value) {
           Services.prefs.setBoolPref(kDontAskAgainPref, true);
@@ -3277,15 +3695,24 @@ function GenericSendMessage(msgType) {
     var action = DetermineHTMLAction(convert);
 
     if (action == Ci.nsIMsgCompSendFormat.AskUser) {
-      var recommAction = (convert == Ci.nsIMsgCompConvertible.No)
-                          ? Ci.nsIMsgCompSendFormat.AskUser
-                          : Ci.nsIMsgCompSendFormat.PlainText;
-      var result2 = {action: recommAction, convertible: convert, abort: false};
-      window.openDialog("chrome://messenger/content/messengercompose/askSendFormat.xul",
-                        "askSendFormatDialog", "chrome,modal,titlebar,centerscreen",
-                        result2);
-      if (result2.abort)
+      var recommAction =
+        convert == Ci.nsIMsgCompConvertible.No
+          ? Ci.nsIMsgCompSendFormat.AskUser
+          : Ci.nsIMsgCompSendFormat.PlainText;
+      var result2 = {
+        action: recommAction,
+        convertible: convert,
+        abort: false,
+      };
+      window.openDialog(
+        "chrome://messenger/content/messengercompose/askSendFormat.xul",
+        "askSendFormatDialog",
+        "chrome,modal,titlebar,centerscreen",
+        result2
+      );
+      if (result2.abort) {
         return;
+      }
       action = result2.action;
     }
 
@@ -3308,7 +3735,9 @@ function GenericSendMessage(msgType) {
         msgCompFields.useMultipartAlternative = true;
         break;
       default:
-        throw new Error("Invalid nsIMsgCompSendFormat action; action=" + action);
+        throw new Error(
+          "Invalid nsIMsgCompSendFormat action; action=" + action
+        );
     }
   }
 
@@ -3317,28 +3746,39 @@ function GenericSendMessage(msgType) {
 
   var originalCharset = gMsgCompose.compFields.characterSet;
   // Check if the headers of composing mail can be converted to a mail charset.
-  if (msgType == Ci.nsIMsgCompDeliverMode.Now ||
-      msgType == Ci.nsIMsgCompDeliverMode.Later ||
-      msgType == Ci.nsIMsgCompDeliverMode.Background ||
-      msgType == Ci.nsIMsgCompDeliverMode.Save ||
-      msgType == Ci.nsIMsgCompDeliverMode.SaveAsDraft ||
-      msgType == Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft ||
-      msgType == Ci.nsIMsgCompDeliverMode.SaveAsTemplate) {
+  if (
+    msgType == Ci.nsIMsgCompDeliverMode.Now ||
+    msgType == Ci.nsIMsgCompDeliverMode.Later ||
+    msgType == Ci.nsIMsgCompDeliverMode.Background ||
+    msgType == Ci.nsIMsgCompDeliverMode.Save ||
+    msgType == Ci.nsIMsgCompDeliverMode.SaveAsDraft ||
+    msgType == Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft ||
+    msgType == Ci.nsIMsgCompDeliverMode.SaveAsTemplate
+  ) {
     var fallbackCharset = {};
     // Check encoding, switch to UTF-8 if the default encoding doesn't fit
     // and disable_fallback_to_utf8 isn't set for this encoding.
-    if (!gMsgCompose.checkCharsetConversion(getCurrentIdentity(), fallbackCharset)) {
-      let disableFallback = Services.prefs
-        .getBoolPref("mailnews.disable_fallback_to_utf8." + originalCharset, false);
-      if (disableFallback)
+    if (
+      !gMsgCompose.checkCharsetConversion(getCurrentIdentity(), fallbackCharset)
+    ) {
+      let disableFallback = Services.prefs.getBoolPref(
+        "mailnews.disable_fallback_to_utf8." + originalCharset,
+        false
+      );
+      if (disableFallback) {
         msgCompFields.needToCheckCharset = false;
-      else
+      } else {
         fallbackCharset.value = "UTF-8";
+      }
     }
 
-    if (fallbackCharset &&
-        fallbackCharset.value && fallbackCharset.value != "")
+    if (
+      fallbackCharset &&
+      fallbackCharset.value &&
+      fallbackCharset.value != ""
+    ) {
       gMsgCompose.SetDocumentCharset(fallbackCharset.value);
+    }
   }
 
   try {
@@ -3350,10 +3790,11 @@ function GenericSendMessage(msgType) {
     var msgcomposeWindow = document.getElementById("msgcomposeWindow");
     msgcomposeWindow.setAttribute("msgtype", msgType);
     msgcomposeWindow.dispatchEvent(event);
-    if (event.defaultPrevented)
+    if (event.defaultPrevented) {
       throw Cr.NS_ERROR_ABORT;
+    }
 
-    gAutoSaving = (msgType == Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft);
+    gAutoSaving = msgType == Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft;
 
     // disable the ui if we're not auto-saving
     if (!gAutoSaving) {
@@ -3365,28 +3806,38 @@ function GenericSendMessage(msgType) {
       SetContentAndBodyAsUnmodified();
     }
 
-    var progress = Cc["@mozilla.org/messenger/progress;1"]
-                     .createInstance(Ci.nsIMsgProgress);
+    var progress = Cc["@mozilla.org/messenger/progress;1"].createInstance(
+      Ci.nsIMsgProgress
+    );
     if (progress) {
       progress.registerListener(progressListener);
-      if (msgType == Ci.nsIMsgCompDeliverMode.Save ||
-          msgType == Ci.nsIMsgCompDeliverMode.SaveAsDraft ||
-          msgType == Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft ||
-          msgType == Ci.nsIMsgCompDeliverMode.SaveAsTemplate)
+      if (
+        msgType == Ci.nsIMsgCompDeliverMode.Save ||
+        msgType == Ci.nsIMsgCompDeliverMode.SaveAsDraft ||
+        msgType == Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft ||
+        msgType == Ci.nsIMsgCompDeliverMode.SaveAsTemplate
+      ) {
         gSaveOperationInProgress = true;
-      else
+      } else {
         gSendOperationInProgress = true;
+      }
     }
     msgWindow.domWindow = window;
     msgWindow.rootDocShell.allowAuth = true;
-    gMsgCompose.SendMsg(msgType, getCurrentIdentity(),
-                        getCurrentAccountKey(), msgWindow, progress);
+    gMsgCompose.SendMsg(
+      msgType,
+      getCurrentIdentity(),
+      getCurrentAccountKey(),
+      msgWindow,
+      progress
+    );
   } catch (ex) {
     Cu.reportError("GenericSendMessage FAILED: " + ex);
     ToggleWindowLock(false);
   }
-  if (gMsgCompose && originalCharset != gMsgCompose.compFields.characterSet)
+  if (gMsgCompose && originalCharset != gMsgCompose.compFields.characterSet) {
     SetDocumentCharacterSet(gMsgCompose.compFields.characterSet);
+  }
 }
 /* eslint-enable complexity */
 
@@ -3396,7 +3847,7 @@ function GenericSendMessage(msgType) {
  * @param aAddress  The address string to check.
  */
 function isValidAddress(aAddress) {
-  return (aAddress.includes("@", 1) && !aAddress.endsWith("@"));
+  return aAddress.includes("@", 1) && !aAddress.endsWith("@");
 }
 
 /**
@@ -3404,10 +3855,11 @@ function isValidAddress(aAddress) {
  */
 function updateSendLock() {
   gSendLocked = true;
-  if (!gMsgCompose)
+  if (!gMsgCompose) {
     return;
+  }
 
-  const mailTypes = [ "addr_to", "addr_cc", "addr_bcc" ];
+  const mailTypes = ["addr_to", "addr_cc", "addr_bcc"];
 
   // Enable the send buttons if anything usable was entered into at least one
   // recipient field.
@@ -3415,12 +3867,20 @@ function updateSendLock() {
     let popupValue = awGetPopupElement(row).value;
     let inputValue = awGetInputElement(row).value.trim();
     if (mailTypes.includes(popupValue)) {
-      if (isValidAddress(inputValue)) { // a properly looking email address
+      if (isValidAddress(inputValue)) {
+        // a properly looking email address
         gSendLocked = false;
         break;
-      } else { // a valid mailing list name in some or our addressbooks
-        let listNames = MimeParser.parseHeaderField(inputValue, MimeParser.HEADER_ADDRESS);
-        if (listNames.length > 0 && MailServices.ab.mailListNameExists(listNames[0].name)) {
+      } else {
+        // a valid mailing list name in some or our addressbooks
+        let listNames = MimeParser.parseHeaderField(
+          inputValue,
+          MimeParser.HEADER_ADDRESS
+        );
+        if (
+          listNames.length > 0 &&
+          MailServices.ab.mailListNameExists(listNames[0].name)
+        ) {
           gSendLocked = false;
           break;
         }
@@ -3442,7 +3902,11 @@ function CheckValidEmailAddress(aMsgCompFields) {
   let recipientCount = 0;
   // Check that each of the To, CC, and BCC recipients contains a '@'.
   for (let type of ["to", "cc", "bcc"]) {
-    let recipients = aMsgCompFields.splitRecipients(aMsgCompFields[type], false, {});
+    let recipients = aMsgCompFields.splitRecipients(
+      aMsgCompFields[type],
+      false,
+      {}
+    );
     // MsgCompFields contains only non-empty recipients.
     recipientCount += recipients.length;
     for (let recipient of recipients) {
@@ -3451,20 +3915,26 @@ function CheckValidEmailAddress(aMsgCompFields) {
         break;
       }
     }
-    if (invalidStr)
+    if (invalidStr) {
       break;
+    }
   }
 
   if (recipientCount == 0 && aMsgCompFields.newsgroups.trim() == "") {
-    Services.prompt.alert(window, getComposeBundle().getString("addressInvalidTitle"),
-                          getComposeBundle().getString("noRecipients"));
+    Services.prompt.alert(
+      window,
+      getComposeBundle().getString("addressInvalidTitle"),
+      getComposeBundle().getString("noRecipients")
+    );
     return false;
   }
 
   if (invalidStr) {
-    Services.prompt.alert(window, getComposeBundle().getString("addressInvalidTitle"),
-                          getComposeBundle().getFormattedString("addressInvalid",
-                          [invalidStr], 1));
+    Services.prompt.alert(
+      window,
+      getComposeBundle().getString("addressInvalidTitle"),
+      getComposeBundle().getFormattedString("addressInvalid", [invalidStr], 1)
+    );
     return false;
   }
 
@@ -3472,22 +3942,26 @@ function CheckValidEmailAddress(aMsgCompFields) {
 }
 
 function SendMessage() {
-  let sendInBackground =
-    Services.prefs.getBoolPref("mailnews.sendInBackground");
-  if (sendInBackground && (AppConstants.platform != "macosx")) {
+  let sendInBackground = Services.prefs.getBoolPref(
+    "mailnews.sendInBackground"
+  );
+  if (sendInBackground && AppConstants.platform != "macosx") {
     let enumerator = Services.wm.getEnumerator(null);
     let count = 0;
     while (enumerator.hasMoreElements() && count < 2) {
       enumerator.getNext();
       count++;
     }
-    if (count == 1)
+    if (count == 1) {
       sendInBackground = false;
+    }
   }
 
-  GenericSendMessage(sendInBackground ?
-                     Ci.nsIMsgCompDeliverMode.Background :
-                     Ci.nsIMsgCompDeliverMode.Now);
+  GenericSendMessage(
+    sendInBackground
+      ? Ci.nsIMsgCompDeliverMode.Background
+      : Ci.nsIMsgCompDeliverMode.Now
+  );
   ExitFullscreenMode();
 }
 
@@ -3496,16 +3970,19 @@ function SendMessageWithCheck() {
 
   if (warn) {
     let bundle = getComposeBundle();
-    let checkValue = {value: false};
-    let buttonPressed = Services.prompt.confirmEx(window,
+    let checkValue = { value: false };
+    let buttonPressed = Services.prompt.confirmEx(
+      window,
       bundle.getString("sendMessageCheckWindowTitle"),
       bundle.getString("sendMessageCheckLabel"),
-      (Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0) +
-      (Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1),
+      Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0 +
+        Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1,
       bundle.getString("sendMessageCheckSendButtonLabel"),
-      null, null,
+      null,
+      null,
       bundle.getString("CheckMsg"),
-      checkValue);
+      checkValue
+    );
     if (buttonPressed != 0) {
       return;
     }
@@ -3514,13 +3991,17 @@ function SendMessageWithCheck() {
     }
   }
 
-  let sendInBackground = Services.prefs.getBoolPref("mailnews.sendInBackground");
+  let sendInBackground = Services.prefs.getBoolPref(
+    "mailnews.sendInBackground"
+  );
 
   let mode;
   if (Services.io.offline) {
     mode = Ci.nsIMsgCompDeliverMode.Later;
   } else {
-    mode = sendInBackground ? Ci.nsIMsgCompDeliverMode.Background : Ci.nsIMsgCompDeliverMode.Now;
+    mode = sendInBackground
+      ? Ci.nsIMsgCompDeliverMode.Background
+      : Ci.nsIMsgCompDeliverMode.Now;
   }
   GenericSendMessage(mode);
   ExitFullscreenMode();
@@ -3556,10 +4037,11 @@ function SaveAsFile(saveAs) {
   var subject = GetMsgSubjectElement().value;
   GetCurrentEditorElement().contentDocument.title = subject;
 
-  if (gMsgCompose.bodyConvertible() == Ci.nsIMsgCompConvertible.Plain)
+  if (gMsgCompose.bodyConvertible() == Ci.nsIMsgCompConvertible.Plain) {
     SaveDocument(saveAs, false, "text/plain");
-  else
+  } else {
     SaveDocument(saveAs, false, "text/html");
+  }
   defaultSaveOperation = "file";
 }
 
@@ -3589,22 +4071,25 @@ function SaveAsTemplate() {
   GenericSendMessage(Ci.nsIMsgCompDeliverMode.SaveAsTemplate);
   defaultSaveOperation = "template";
 
-  if (savedReferences)
+  if (savedReferences) {
     gMsgCompose.compFields.references = savedReferences;
+  }
 }
 
 // Sets the additional FCC, in addition to the default FCC.
 function MessageFcc(aFolder) {
-  if (!gMsgCompose)
+  if (!gMsgCompose) {
     return;
+  }
 
   var msgCompFields = gMsgCompose.compFields;
-  if (!msgCompFields)
+  if (!msgCompFields) {
     return;
+  }
 
   // Get the uri for the folder to FCC into.
   var fccURI = aFolder.URI;
-  msgCompFields.fcc2 = (msgCompFields.fcc2 == fccURI) ? "nocopy://" : fccURI;
+  msgCompFields.fcc2 = msgCompFields.fcc2 == fccURI ? "nocopy://" : fccURI;
 }
 
 function updatePriorityMenu() {
@@ -3613,22 +4098,26 @@ function updatePriorityMenu() {
     if (msgCompFields && msgCompFields.priority) {
       var priorityMenu = document.getElementById("priorityMenu");
       priorityMenu.querySelector('[checked="true"]').removeAttribute("checked");
-      priorityMenu.querySelector('[value="' + msgCompFields.priority + '"]').setAttribute("checked", "true");
+      priorityMenu
+        .querySelector('[value="' + msgCompFields.priority + '"]')
+        .setAttribute("checked", "true");
     }
   }
 }
 
 function updatePriorityToolbarButton(newPriorityValue) {
   var prioritymenu = document.getElementById("priorityMenu-button");
-  if (prioritymenu)
+  if (prioritymenu) {
     prioritymenu.value = newPriorityValue;
+  }
 }
 
 function PriorityMenuSelect(target) {
   if (gMsgCompose) {
     var msgCompFields = gMsgCompose.compFields;
-    if (msgCompFields)
+    if (msgCompFields) {
       msgCompFields.priority = target.getAttribute("value");
+    }
 
     // keep priority toolbar button in synch with possible changes via the menu item
     updatePriorityToolbarButton(target.getAttribute("value"));
@@ -3653,8 +4142,8 @@ function SetCompositionAsPerDeliveryFormat(aDeliveryFormat) {
   view_menuitem.hidden = hideMenus;
   // Hide the HTML toolbar for a plain text composition
   // or the user manually hid the toolbar on the view menu.
-  format_toolbar.hidden = hideMenus ||
-    (view_menuitem.getAttribute("checked") == "false");
+  format_toolbar.hidden =
+    hideMenus || view_menuitem.getAttribute("checked") == "false";
 }
 
 function SelectDeliveryFormatMenuOption(aDeliveryFormat) {
@@ -3713,23 +4202,36 @@ function addRecipientsToIgnoreList(aAddressesToAdd) {
     var emailAddresses = {};
     var names = {};
     var fullNames = {};
-    MailServices.headerParser.parseHeadersWithArray(aAddressesToAdd, emailAddresses, names, fullNames);
-    if (!names)
+    MailServices.headerParser.parseHeadersWithArray(
+      aAddressesToAdd,
+      emailAddresses,
+      names,
+      fullNames
+    );
+    if (!names) {
       return;
+    }
     let tokenizedNames = [];
 
     // Each name could consist of multiple word delimited by either commas or spaces, i.e. Green Lantern
     // or Lantern,Green. Tokenize on comma first, then tokenize again on spaces.
     for (let name in names.value) {
-      if (!names.value[name])
+      if (!names.value[name]) {
         continue;
+      }
       let splitNames = names.value[name].split(",");
       for (let i = 0; i < splitNames.length; i++) {
         // now tokenize off of white space
         let splitNamesFromWhiteSpaceArray = splitNames[i].split(" ");
-        for (let whiteSpaceIndex = 0; whiteSpaceIndex < splitNamesFromWhiteSpaceArray.length; whiteSpaceIndex++)
-          if (splitNamesFromWhiteSpaceArray[whiteSpaceIndex])
+        for (
+          let whiteSpaceIndex = 0;
+          whiteSpaceIndex < splitNamesFromWhiteSpaceArray.length;
+          whiteSpaceIndex++
+        ) {
+          if (splitNamesFromWhiteSpaceArray[whiteSpaceIndex]) {
             tokenizedNames.push(splitNamesFromWhiteSpaceArray[whiteSpaceIndex]);
+          }
+        }
       }
     }
     spellCheckReadyObserver.addWordsToIgnore(tokenizedNames);
@@ -3757,16 +4259,18 @@ var spellCheckReadyObserver = {
   _isAdded: false,
 
   addObserver() {
-    if (this._isAdded)
+    if (this._isAdded) {
       return;
+    }
 
     Services.obs.addObserver(this, this._topic);
     this._isAdded = true;
   },
 
   removeObserver() {
-    if (!this._isAdded)
+    if (!this._isAdded) {
       return;
+    }
 
     Services.obs.removeObserver(this, this._topic);
     this._clearPendingWords();
@@ -3839,31 +4343,49 @@ function onRecipientsChanged(aAutomatic) {
  *                                     popup node overrides the position parameter
  * @param triggerEvent the event that triggered the popup
  */
-function showPopupById(aPopupID, aAnchorID, aPosition = "after_start",
-                       x, y, isContextMenu, attributesOverride, triggerEvent) {
+function showPopupById(
+  aPopupID,
+  aAnchorID,
+  aPosition = "after_start",
+  x,
+  y,
+  isContextMenu,
+  attributesOverride,
+  triggerEvent
+) {
   let popup = document.getElementById(aPopupID);
   let anchor = document.getElementById(aAnchorID);
-  popup.openPopup(anchor, aPosition, x, y,
-                  isContextMenu, attributesOverride, triggerEvent);
+  popup.openPopup(
+    anchor,
+    aPosition,
+    x,
+    y,
+    isContextMenu,
+    attributesOverride,
+    triggerEvent
+  );
 }
 
 function InitLanguageMenu() {
   var languageMenuList = document.getElementById("languageMenuList");
-  if (!languageMenuList)
+  if (!languageMenuList) {
     return;
+  }
 
-  var spellChecker = Cc["@mozilla.org/spellchecker/engine;1"]
-                       .getService(Ci.mozISpellCheckingEngine);
+  var spellChecker = Cc["@mozilla.org/spellchecker/engine;1"].getService(
+    Ci.mozISpellCheckingEngine
+  );
 
   // Get the list of dictionaries from
   // the spellchecker.
 
   var dictList = spellChecker.getDictionaryList();
-  var count    = dictList.length;
+  var count = dictList.length;
 
   // If dictionary count hasn't changed then no need to update the menu.
-  if (sDictCount == count)
+  if (sDictCount == count) {
     return;
+  }
 
   // Store current dictionary count.
   sDictCount = count;
@@ -3871,8 +4393,9 @@ function InitLanguageMenu() {
   var sortedList = gSpellChecker.sortDictionaryList(dictList);
 
   // Remove any languages from the list.
-  while (languageMenuList.hasChildNodes())
+  while (languageMenuList.hasChildNodes()) {
     languageMenuList.lastChild.remove();
+  }
 
   for (let i = 0; i < count; i++) {
     var item = document.createXULElement("menuitem");
@@ -3886,12 +4409,14 @@ function InitLanguageMenu() {
 function OnShowDictionaryMenu(aTarget) {
   InitLanguageMenu();
   let curLang = document.documentElement.getAttribute("lang");
-  if (!curLang)
+  if (!curLang) {
     return;
+  }
 
   let language = aTarget.querySelector('[value="' + curLang + '"]');
-  if (language)
+  if (language) {
     language.setAttribute("checked", true);
+  }
 }
 
 /**
@@ -3917,8 +4442,9 @@ function ComposeChangeLanguage(aLang) {
 
         // Also force a recheck of the subject. If for some reason the spell
         // checker isn't ready yet, don't auto-create it, hence pass 'false'.
-        let inlineSpellChecker =
-          GetMsgSubjectElement().editor.getInlineSpellChecker(false);
+        let inlineSpellChecker = GetMsgSubjectElement().editor.getInlineSpellChecker(
+          false
+        );
         if (inlineSpellChecker) {
           inlineSpellChecker.spellCheckRange(null);
         }
@@ -4017,13 +4543,13 @@ function ToggleAttachVCard(target) {
  */
 function toggleAttachmentReminder(aState = !gManualAttachmentReminder) {
   gManualAttachmentReminder = aState;
-  document.getElementById("cmd_remindLater")
-          .setAttribute("checked", aState);
+  document.getElementById("cmd_remindLater").setAttribute("checked", aState);
   gMsgCompose.compFields.attachmentReminder = aState;
 
   // If we enabled manual reminder, the reminder can't be turned off.
-  if (aState)
+  if (aState) {
     gDisableAttachmentReminder = false;
+  }
 
   manageAttachmentNotification(false);
 }
@@ -4035,13 +4561,15 @@ function FillIdentityList(menulist) {
   let firstAccountWithIdentities = true;
   for (let acc = 0; acc < accounts.length; acc++) {
     let account = accounts[acc];
-    let identities = toArray(fixIterator(account.identities,
-                                         Ci.nsIMsgIdentity));
+    let identities = toArray(
+      fixIterator(account.identities, Ci.nsIMsgIdentity)
+    );
 
-    if (identities.length == 0)
+    if (identities.length == 0) {
       continue;
+    }
 
-    let needSeparator = (identities.length > 1);
+    let needSeparator = identities.length > 1;
     if (needSeparator || accountHadSeparator) {
       // Separate identities from this account from the previous
       // account's identities if there is more than 1 in the current
@@ -4057,9 +4585,11 @@ function FillIdentityList(menulist) {
 
     for (let i = 0; i < identities.length; i++) {
       let identity = identities[i];
-      let item = menulist.appendItem(identity.identityName,
-                                     identity.fullAddress,
-                                     account.incomingServer.prettyName);
+      let item = menulist.appendItem(
+        identity.identityName,
+        identity.fullAddress,
+        account.incomingServer.prettyName
+      );
       item.setAttribute("identitykey", identity.key);
       item.setAttribute("accountkey", account.key);
       if (i == 0) {
@@ -4078,8 +4608,9 @@ function FillIdentityList(menulist) {
   }
 
   menulist.menupopup.appendChild(document.createXULElement("menuseparator"));
-  menulist.menupopup.appendChild(document.createXULElement("menuitem"))
-          .setAttribute("command", "cmd_customizeFromAddress");
+  menulist.menupopup
+    .appendChild(document.createXULElement("menuitem"))
+    .setAttribute("command", "cmd_customizeFromAddress");
 }
 
 function getCurrentAccountKey() {
@@ -4125,14 +4656,18 @@ function AdjustFocus() {
  *                                  false: Set title for 'Write' window (default).
  */
 function SetComposeWindowTitle(isPrintPreview = false) {
-  let aStringName = isPrintPreview ? "windowTitlePrintPreview"
-                                   : "windowTitleWrite";
-  let subject = GetMsgSubjectElement().value.trim() ||
-                getComposeBundle().getString("defaultSubject");
+  let aStringName = isPrintPreview
+    ? "windowTitlePrintPreview"
+    : "windowTitleWrite";
+  let subject =
+    GetMsgSubjectElement().value.trim() ||
+    getComposeBundle().getString("defaultSubject");
   let brandBundle = document.getElementById("brandBundle");
   let brandShortName = brandBundle.getString("brandShortName");
-  let newTitle = getComposeBundle().getFormattedString(aStringName,
-                                                       [subject, brandShortName]);
+  let newTitle = getComposeBundle().getFormattedString(aStringName, [
+    subject,
+    brandShortName,
+  ]);
   document.title = newTitle;
 }
 
@@ -4140,8 +4675,9 @@ function SetComposeWindowTitle(isPrintPreview = false) {
 // This is hooked up to the OS's window close widget (e.g., "X" for Windows)
 function ComposeCanClose() {
   // No open compose window?
-  if (!gMsgCompose)
+  if (!gMsgCompose) {
     return true;
+  }
 
   // Do this early, so ldap sessions have a better chance to
   // cleanup after themselves.
@@ -4150,21 +4686,39 @@ function ComposeCanClose() {
 
     let brandBundle = document.getElementById("brandBundle");
     let brandShortName = brandBundle.getString("brandShortName");
-    let promptTitle = gSendOperationInProgress ?
-      getComposeBundle().getString("quitComposeWindowTitle") :
-      getComposeBundle().getString("quitComposeWindowSaveTitle");
-    let promptMsg = gSendOperationInProgress ?
-      getComposeBundle().getFormattedString("quitComposeWindowMessage2",
-        [brandShortName], 1) :
-      getComposeBundle().getFormattedString("quitComposeWindowSaveMessage",
-        [brandShortName], 1);
-    let quitButtonLabel = getComposeBundle().getString("quitComposeWindowQuitButtonLabel2");
-    let waitButtonLabel = getComposeBundle().getString("quitComposeWindowWaitButtonLabel2");
+    let promptTitle = gSendOperationInProgress
+      ? getComposeBundle().getString("quitComposeWindowTitle")
+      : getComposeBundle().getString("quitComposeWindowSaveTitle");
+    let promptMsg = gSendOperationInProgress
+      ? getComposeBundle().getFormattedString(
+          "quitComposeWindowMessage2",
+          [brandShortName],
+          1
+        )
+      : getComposeBundle().getFormattedString(
+          "quitComposeWindowSaveMessage",
+          [brandShortName],
+          1
+        );
+    let quitButtonLabel = getComposeBundle().getString(
+      "quitComposeWindowQuitButtonLabel2"
+    );
+    let waitButtonLabel = getComposeBundle().getString(
+      "quitComposeWindowWaitButtonLabel2"
+    );
 
-    result = Services.prompt.confirmEx(window, promptTitle, promptMsg,
-        (Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0) +
-        (Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_1),
-        waitButtonLabel, quitButtonLabel, null, null, {value: 0});
+    result = Services.prompt.confirmEx(
+      window,
+      promptTitle,
+      promptMsg,
+      Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0 +
+        Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_1,
+      waitButtonLabel,
+      quitButtonLabel,
+      null,
+      null,
+      { value: 0 }
+    );
 
     if (result == 1) {
       gMsgCompose.abort();
@@ -4179,18 +4733,23 @@ function ComposeCanClose() {
     // and therefore need to be visible (to prevent user confusion)
     window.focus();
     let draftFolderURI = gCurrentIdentity.draftFolder;
-    let draftFolderName = MailUtils.getOrCreateFolder(draftFolderURI).prettyName;
-    let result = Services.prompt
-                         .confirmEx(window,
-                                    getComposeBundle().getString("saveDlogTitle"),
-                                    getComposeBundle().getFormattedString("saveDlogMessages3", [draftFolderName]),
-                                    (Services.prompt.BUTTON_TITLE_SAVE * Services.prompt.BUTTON_POS_0) +
-                                    (Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1) +
-                                    (Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_2),
-                                    null,
-                                    null,
-                                    getComposeBundle().getString("discardButtonLabel"),
-                                    null, {value: 0});
+    let draftFolderName = MailUtils.getOrCreateFolder(draftFolderURI)
+      .prettyName;
+    let result = Services.prompt.confirmEx(
+      window,
+      getComposeBundle().getString("saveDlogTitle"),
+      getComposeBundle().getFormattedString("saveDlogMessages3", [
+        draftFolderName,
+      ]),
+      Services.prompt.BUTTON_TITLE_SAVE * Services.prompt.BUTTON_POS_0 +
+        Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1 +
+        Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_2,
+      null,
+      null,
+      getComposeBundle().getString("discardButtonLabel"),
+      null,
+      { value: 0 }
+    );
     switch (result) {
       case 0: // Save
         // Since we're going to save the message, we tell toolkit that
@@ -4214,11 +4773,13 @@ function ComposeCanClose() {
       case 2: // Don't Save
         // don't delete the draft if we didn't start off editing a draft
         // and the user hasn't explicitly saved it.
-        if (!gEditingDraft && gAutoSaveKickedIn)
+        if (!gEditingDraft && gAutoSaveKickedIn) {
           RemoveDraft();
+        }
         // Remove auto-saved draft created during "edit template".
-        if (gMsgCompose.compFields.templateId && gAutoSaveKickedIn)
+        if (gMsgCompose.compFields.templateId && gAutoSaveKickedIn) {
           RemoveDraft();
+        }
         break;
     }
   }
@@ -4231,22 +4792,30 @@ function RemoveDraft() {
     var draftUri = gMsgCompose.compFields.draftId;
     var msgKey = draftUri.substr(draftUri.indexOf("#") + 1);
     let folder = MailUtils.getExistingFolder(gMsgCompose.savedFolderURI);
-    if (!folder)
+    if (!folder) {
       return;
+    }
     try {
       if (folder.getFlag(Ci.nsMsgFolderFlags.Drafts)) {
-        var msgs = Cc["@mozilla.org/array;1"].
-            createInstance(Ci.nsIMutableArray);
+        var msgs = Cc["@mozilla.org/array;1"].createInstance(
+          Ci.nsIMutableArray
+        );
         msgs.appendElement(folder.GetMessageHeader(msgKey));
         folder.deleteMessages(msgs, null, true, false, null, false);
       }
-    } catch (ex) { // couldn't find header - perhaps an imap folder.
+    } catch (ex) {
+      // couldn't find header - perhaps an imap folder.
       var imapFolder = folder.QueryInterface(Ci.nsIMsgImapMailFolder);
       if (imapFolder) {
         let keyArray = [];
         keyArray[0] = msgKey;
-        imapFolder.storeImapFlags(Ci.nsMsgFolderFlags.Expunged,
-                                  true, keyArray, 1, null);
+        imapFolder.storeImapFlags(
+          Ci.nsMsgFolderFlags.Expunged,
+          true,
+          keyArray,
+          1,
+          null
+        );
       }
     }
   } catch (ex) {}
@@ -4258,19 +4827,21 @@ function SetContentAndBodyAsUnmodified() {
 }
 
 function MsgComposeCloseWindow() {
-  if (gMsgCompose)
+  if (gMsgCompose) {
     gMsgCompose.CloseWindow();
-  else
+  } else {
     window.close();
+  }
 }
 
 function GetLastAttachDirectory() {
   var lastDirectory;
 
   try {
-    lastDirectory = Services.prefs
-                            .getComplexValue(kComposeAttachDirPrefName,
-                                             Ci.nsIFile);
+    lastDirectory = Services.prefs.getComplexValue(
+      kComposeAttachDirPrefName,
+      Ci.nsIFile
+    );
   } catch (ex) {
     // this will fail the first time we attach a file
     // as we won't have a pref value.
@@ -4286,8 +4857,11 @@ function SetLastAttachDirectory(attachedLocalFile) {
     let file = attachedLocalFile.QueryInterface(Ci.nsIFile);
     let parent = file.parent.QueryInterface(Ci.nsIFile);
 
-    Services.prefs.setComplexValue(kComposeAttachDirPrefName,
-                                   Ci.nsIFile, parent);
+    Services.prefs.setComplexValue(
+      kComposeAttachDirPrefName,
+      Ci.nsIFile,
+      parent
+    );
   } catch (ex) {
     dump("error: SetLastAttachDirectory failed: " + ex + "\n");
   }
@@ -4302,23 +4876,29 @@ function AttachFile() {
 
   // Get file using nsIFilePicker and convert to URL
   let fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
-  fp.init(window, getComposeBundle().getString("chooseFileToAttach"),
-          Ci.nsIFilePicker.modeOpenMultiple);
+  fp.init(
+    window,
+    getComposeBundle().getString("chooseFileToAttach"),
+    Ci.nsIFilePicker.modeOpenMultiple
+  );
 
   let lastDirectory = GetLastAttachDirectory();
-  if (lastDirectory)
+  if (lastDirectory) {
     fp.displayDirectory = lastDirectory;
+  }
 
   fp.appendFilters(Ci.nsIFilePicker.filterAll);
   fp.open(rv => {
-    if (rv != Ci.nsIFilePicker.returnOK || !fp.files)
+    if (rv != Ci.nsIFilePicker.returnOK || !fp.files) {
       return;
+    }
 
     let file;
     let attachments = [];
 
-    for (file of fixIterator(fp.files, Ci.nsIFile))
+    for (file of fixIterator(fp.files, Ci.nsIFile)) {
       attachments.push(FileToAttachment(file));
+    }
 
     AddAttachments(attachments);
     SetLastAttachDirectory(file);
@@ -4332,10 +4912,12 @@ function AttachFile() {
  * @return an attachment pointing to the file
  */
 function FileToAttachment(file) {
-  let fileHandler = Services.io.getProtocolHandler("file")
-                            .QueryInterface(Ci.nsIFileProtocolHandler);
-  let attachment = Cc["@mozilla.org/messengercompose/attachment;1"]
-                     .createInstance(Ci.nsIMsgAttachment);
+  let fileHandler = Services.io
+    .getProtocolHandler("file")
+    .QueryInterface(Ci.nsIFileProtocolHandler);
+  let attachment = Cc[
+    "@mozilla.org/messengercompose/attachment;1"
+  ].createInstance(Ci.nsIMsgAttachment);
 
   attachment.url = fileHandler.getURLSpecFromFile(file);
   attachment.size = file.fileSize;
@@ -4357,33 +4939,44 @@ function FileToAttachment(file) {
  */
 function AddAttachments(aAttachments, aCallback, aContentChanged = true) {
   let bucket = document.getElementById("attachmentBucket");
-  let addedAttachments = Cc["@mozilla.org/array;1"]
-                           .createInstance(Ci.nsIMutableArray);
+  let addedAttachments = Cc["@mozilla.org/array;1"].createInstance(
+    Ci.nsIMutableArray
+  );
   let items = [];
 
-  for (let attachment of fixIterator(aAttachments,
-                                     Ci.nsIMsgAttachment)) {
-    if (!(attachment && attachment.url) ||
-        DuplicateFileAlreadyAttached(attachment.url))
+  for (let attachment of fixIterator(aAttachments, Ci.nsIMsgAttachment)) {
+    if (
+      !(attachment && attachment.url) ||
+      DuplicateFileAlreadyAttached(attachment.url)
+    ) {
       continue;
+    }
 
-    if (!attachment.name)
+    if (!attachment.name) {
       attachment.name = gMsgCompose.AttachmentPrettyName(attachment.url, null);
+    }
 
     // For security reasons, don't allow *-message:// uris to leak out.
     // We don't want to reveal the .slt path (for mailbox://), or the username
     // or hostname.
-    if (/^mailbox-message:|^imap-message:|^news-message:/i.test(attachment.name))
-      attachment.name = getComposeBundle().getString("messageAttachmentSafeName");
+    if (
+      /^mailbox-message:|^imap-message:|^news-message:/i.test(attachment.name)
+    ) {
+      attachment.name = getComposeBundle().getString(
+        "messageAttachmentSafeName"
+      );
+    }
     // Don't allow file or mail/news protocol uris to leak out either.
-    else if (/^file:|^mailbox:|^imap:|^s?news:/i.test(attachment.name))
+    else if (/^file:|^mailbox:|^imap:|^s?news:/i.test(attachment.name)) {
       attachment.name = getComposeBundle().getString("partAttachmentSafeName");
+    }
 
     let item = bucket.appendItem(attachment);
     addedAttachments.appendElement(attachment);
 
-    if (attachment.size != -1)
+    if (attachment.size != -1) {
       gAttachmentsSize += attachment.size;
+    }
 
     try {
       item.setAttribute("tooltiptext", decodeURI(attachment.url));
@@ -4394,7 +4987,9 @@ function AddAttachments(aAttachments, aCallback, aContentChanged = true) {
 
     if (attachment.sendViaCloud) {
       try {
-        let account = cloudFileAccounts.getAccount(attachment.cloudFileAccountKey);
+        let account = cloudFileAccounts.getAccount(
+          attachment.cloudFileAccountKey
+        );
         item.cloudFileAccount = account;
         item.image = account.iconURL;
         item.originalUrl = attachment.url;
@@ -4402,21 +4997,22 @@ function AddAttachments(aAttachments, aCallback, aContentChanged = true) {
         dump(ex);
       }
 
-    // For local file urls, we are better off using the full file url because
-    // moz-icon will actually resolve the file url and get the right icon from
-    // the file url. All other urls, we should try to extract the file name from
-    // them. This fixes issues where an icon wasn't showing up if you dragged a
-    // web url that had a query or reference string after the file name and for
-    // mailnews urls where the filename is hidden in the url as a &filename=
-    // part.
-    } else if (/^mailbox-message:|^imap-message:|^news-message:/i.test(attachment.url)) {
+      // For local file urls, we are better off using the full file url because
+      // moz-icon will actually resolve the file url and get the right icon from
+      // the file url. All other urls, we should try to extract the file name from
+      // them. This fixes issues where an icon wasn't showing up if you dragged a
+      // web url that had a query or reference string after the file name and for
+      // mailnews urls where the filename is hidden in the url as a &filename=
+      // part.
+    } else if (
+      /^mailbox-message:|^imap-message:|^news-message:/i.test(attachment.url)
+    ) {
       // We're attaching a message. Pretend that is comes from a file,
       // so we get the icon that matches .eml files.
       item.image = "moz-icon://message.eml";
     } else {
       let url = Services.io.newURI(attachment.url);
-      if (url instanceof Ci.nsIURL &&
-          url.fileName && !url.schemeIs("file")) {
+      if (url instanceof Ci.nsIURL && url.fileName && !url.schemeIs("file")) {
         item.image = "moz-icon://" + url.fileName;
       } else {
         item.image = "moz-icon:" + attachment.url;
@@ -4425,8 +5021,9 @@ function AddAttachments(aAttachments, aCallback, aContentChanged = true) {
 
     items.push(item);
 
-    if (aCallback)
+    if (aCallback) {
       aCallback(item);
+    }
   }
 
   if (addedAttachments.length > 0) {
@@ -4459,7 +5056,7 @@ function AddAttachments(aAttachments, aCallback, aContentChanged = true) {
  */
 function attachmentsCount() {
   let bucketList = GetMsgAttachmentElement();
-  return (bucketList) ? bucketList.itemCount : 0;
+  return bucketList ? bucketList.itemCount : 0;
 }
 
 /**
@@ -4470,7 +5067,7 @@ function attachmentsCount() {
  */
 function attachmentsSelectedCount() {
   let bucketList = GetMsgAttachmentElement();
-  return (bucketList) ? bucketList.selectedCount : 0;
+  return bucketList ? bucketList.selectedCount : 0;
 }
 
 /**
@@ -4491,8 +5088,9 @@ function attachmentsGetSortedArray(aAscending = true, aSelectedOnly = false) {
 
   if (aSelectedOnly) {
     // Selected attachments only.
-    if (attachmentsSelectedCount() < 1)
+    if (attachmentsSelectedCount() < 1) {
       return [];
+    }
 
     bucketList = document.getElementById("attachmentBucket");
     // bucketList.selectedItems is a "live" and "unordered" node list (items get
@@ -4501,8 +5099,9 @@ function attachmentsGetSortedArray(aAscending = true, aSelectedOnly = false) {
     listItems = [...bucketList.selectedItems];
   } else {
     // All attachments.
-    if (attachmentsCount() < 1)
+    if (attachmentsCount() < 1) {
       return [];
+    }
 
     bucketList = document.getElementById("attachmentBucket");
     listItems = [...bucketList.itemChildren];
@@ -4510,10 +5109,13 @@ function attachmentsGetSortedArray(aAscending = true, aSelectedOnly = false) {
 
   if (aAscending) {
     listItems.sort(
-      (a, b) => bucketList.getIndexOfItem(a) - bucketList.getIndexOfItem(b));
-  } else { // descending
+      (a, b) => bucketList.getIndexOfItem(a) - bucketList.getIndexOfItem(b)
+    );
+  } else {
+    // descending
     listItems.sort(
-      (a, b) => bucketList.getIndexOfItem(b) - bucketList.getIndexOfItem(a));
+      (a, b) => bucketList.getIndexOfItem(b) - bucketList.getIndexOfItem(a)
+    );
   }
   return listItems;
 }
@@ -4549,48 +5151,54 @@ function attachmentsSelectionGetSortedArray(aAscending = true) {
  */
 function attachmentsSelectionIsBlock(aListPosition) {
   let selectedCount = attachmentsSelectedCount();
-  if (selectedCount < 1)
+  if (selectedCount < 1) {
     // No attachments selected, no attachments, or no attachmentBucket.
     return false;
+  }
 
   let bucketList = document.getElementById("attachmentBucket");
   let selItems = attachmentsSelectionGetSortedArray();
-  let indexFirstSelAttachment =
-    bucketList.getIndexOfItem(selItems[0]);
-  let indexLastSelAttachment =
-    bucketList.getIndexOfItem(selItems[selectedCount - 1]);
-  let isBlock = ((indexFirstSelAttachment) ==
-                 (indexLastSelAttachment + 1 - selectedCount));
+  let indexFirstSelAttachment = bucketList.getIndexOfItem(selItems[0]);
+  let indexLastSelAttachment = bucketList.getIndexOfItem(
+    selItems[selectedCount - 1]
+  );
+  let isBlock =
+    indexFirstSelAttachment == indexLastSelAttachment + 1 - selectedCount;
 
   switch (aListPosition) {
-  case "top":
-    // True if selection is a coherent block at the top of the list.
-    return (indexFirstSelAttachment == 0) && isBlock;
-  case "bottom":
-    // True if selection is a coherent block at the bottom of the list.
-    return (indexLastSelAttachment == (attachmentsCount() - 1)) && isBlock;
-  default:
-    // True if selection is a coherent block.
-    return isBlock;
+    case "top":
+      // True if selection is a coherent block at the top of the list.
+      return indexFirstSelAttachment == 0 && isBlock;
+    case "bottom":
+      // True if selection is a coherent block at the bottom of the list.
+      return indexLastSelAttachment == attachmentsCount() - 1 && isBlock;
+    default:
+      // True if selection is a coherent block.
+      return isBlock;
   }
 }
 
 function AttachPage() {
-  let result = {value: "http://"};
-  if (Services.prompt.prompt(window,
-                      getComposeBundle().getString("attachPageDlogTitle"),
-                      getComposeBundle().getString("attachPageDlogMessage"),
-                      result,
-                      null,
-                      {value: 0})) {
+  let result = { value: "http://" };
+  if (
+    Services.prompt.prompt(
+      window,
+      getComposeBundle().getString("attachPageDlogTitle"),
+      getComposeBundle().getString("attachPageDlogMessage"),
+      result,
+      null,
+      { value: 0 }
+    )
+  ) {
     if (result.value.length <= "http://".length) {
       // Nothing filled, just show the dialog again.
       AttachPage();
       return;
     }
 
-    let attachment = Cc["@mozilla.org/messengercompose/attachment;1"]
-                       .createInstance(Ci.nsIMsgAttachment);
+    let attachment = Cc[
+      "@mozilla.org/messengercompose/attachment;1"
+    ].createInstance(Ci.nsIMsgAttachment);
     attachment.url = result.value;
     AddAttachments([attachment]);
   }
@@ -4606,8 +5214,9 @@ function DuplicateFileAlreadyAttached(fileURL) {
   let rowCount = bucket.getRowCount();
   for (let i = 0; i < rowCount; i++) {
     let attachment = bucket.getItemAtIndex(i).attachment;
-    if (attachment && attachment.url == fileURL)
+    if (attachment && attachment.url == fileURL) {
       return true;
+    }
   }
   return false;
 }
@@ -4621,8 +5230,9 @@ function Attachments2CompFields(compFields) {
   let rowCount = bucket.getRowCount();
   for (let i = 0; i < rowCount; i++) {
     let attachment = bucket.getItemAtIndex(i).attachment;
-    if (attachment)
+    if (attachment) {
       compFields.addAttachment(attachment);
+    }
   }
 }
 
@@ -4631,13 +5241,16 @@ function RemoveAllAttachments() {
   toggleAttachmentPane("show");
 
   let bucket = document.getElementById("attachmentBucket");
-  if (bucket.itemCount == 0)
+  if (bucket.itemCount == 0) {
     return;
+  }
 
-  let fileHandler = Services.io.getProtocolHandler("file")
-                            .QueryInterface(Ci.nsIFileProtocolHandler);
-  let removedAttachments = Cc["@mozilla.org/array;1"]
-                             .createInstance(Ci.nsIMutableArray);
+  let fileHandler = Services.io
+    .getProtocolHandler("file")
+    .QueryInterface(Ci.nsIFileProtocolHandler);
+  let removedAttachments = Cc["@mozilla.org/array;1"].createInstance(
+    Ci.nsIMutableArray
+  );
 
   while (bucket.itemCount > 0) {
     let item = bucket.getItemAtIndex(bucket.itemCount - 1);
@@ -4647,13 +5260,18 @@ function RemoveAllAttachments() {
 
     if (item.attachment.sendViaCloud && item.cloudFileAccount) {
       let originalUrl = item.originalUrl;
-      if (!originalUrl)
+      if (!originalUrl) {
         originalUrl = item.attachment.url;
+      }
       if (item.uploading) {
         let file = fileHandler.getFileFromURLSpec(originalUrl);
         item.cloudFileAccount.cancelFileUpload(file);
       } else {
-        deleteCloudAttachment(item.attachment, item.cloudFileUpload.id, item.cloudFileAccount);
+        deleteCloudAttachment(
+          item.attachment,
+          item.cloudFileUpload.id,
+          item.cloudFileAccount
+        );
       }
     }
 
@@ -4701,19 +5319,20 @@ function updateAttachmentPane(aShowPane) {
 
   bucketCountLabel.value = countStr;
   document.getElementById("attachmentBucketSize").value =
-    (count > 0) ? gMessenger.formatFileSize(gAttachmentsSize)
-                : "";
+    count > 0 ? gMessenger.formatFileSize(gAttachmentsSize) : "";
   document.getElementById("attachmentBucketCloseButton").collapsed = count > 0;
 
-  let placeholderTooltip = (count > 0) ? countStr : "";
-  document.getElementById("attachments-placeholder-box")
-          .setAttribute("tooltiptext", placeholderTooltip);
+  let placeholderTooltip = count > 0 ? countStr : "";
+  document
+    .getElementById("attachments-placeholder-box")
+    .setAttribute("tooltiptext", placeholderTooltip);
 
   attachmentBucketUpdateTooltips();
 
   // If aShowPane argument is omitted, it's just updating, so we're done.
-  if (aShowPane === undefined)
+  if (aShowPane === undefined) {
     return;
+  }
 
   // Otherwise, show or hide the panel per aShowPane argument.
   toggleAttachmentPane(aShowPane);
@@ -4721,16 +5340,19 @@ function updateAttachmentPane(aShowPane) {
 
 function RemoveSelectedAttachment() {
   let bucket = GetMsgAttachmentElement();
-  if (bucket.selectedCount == 0)
+  if (bucket.selectedCount == 0) {
     return;
+  }
 
   // Remember the current focus index so we can try to restore it when done.
   let focusIndex = bucket.currentIndex;
 
-  let fileHandler = Services.io.getProtocolHandler("file")
-                            .QueryInterface(Ci.nsIFileProtocolHandler);
-  let removedAttachments = Cc["@mozilla.org/array;1"]
-                             .createInstance(Ci.nsIMutableArray);
+  let fileHandler = Services.io
+    .getProtocolHandler("file")
+    .QueryInterface(Ci.nsIFileProtocolHandler);
+  let removedAttachments = Cc["@mozilla.org/array;1"].createInstance(
+    Ci.nsIMutableArray
+  );
 
   for (let i = bucket.selectedCount - 1; i >= 0; i--) {
     let item = bucket.getSelectedItem(i);
@@ -4738,16 +5360,24 @@ function RemoveSelectedAttachment() {
       gAttachmentsSize -= item.attachment.size;
     }
 
-    if (item.attachment.sendViaCloud && item.cloudFileAccount &&
-        (!item.cloudFileUpload || !item.cloudFileUpload.repeat)) {
+    if (
+      item.attachment.sendViaCloud &&
+      item.cloudFileAccount &&
+      (!item.cloudFileUpload || !item.cloudFileUpload.repeat)
+    ) {
       let originalUrl = item.originalUrl;
-      if (!originalUrl)
+      if (!originalUrl) {
         originalUrl = item.attachment.url;
+      }
       if (item.uploading) {
         let file = fileHandler.getFileFromURLSpec(originalUrl);
         item.cloudFileAccount.cancelFileUpload(file);
       } else {
-        deleteCloudAttachment(item.attachment, item.cloudFileUpload.id, item.cloudFileAccount);
+        deleteCloudAttachment(
+          item.attachment,
+          item.cloudFileUpload.id,
+          item.cloudFileAccount
+        );
       }
     }
 
@@ -4763,12 +5393,14 @@ function RemoveSelectedAttachment() {
   bucket.clearSelection();
 
   // Try to restore original focus or somewhere close by.
-  if (focusIndex < bucket.itemCount) { // If possible,
-    bucket.currentIndex = focusIndex;  // restore focus at original position;
+  if (focusIndex < bucket.itemCount) {
+    // If possible,
+    bucket.currentIndex = focusIndex; // restore focus at original position;
   } else {
-    bucket.currentIndex = (bucket.itemCount > 0) ? // else: if attachments exist,
-                          (bucket.itemCount - 1) : // focus last item;
-                          -1;                      // else: nothing to focus.
+    bucket.currentIndex =
+      bucket.itemCount > 0 // else: if attachments exist,
+        ? bucket.itemCount - 1 // focus last item;
+        : -1; // else: nothing to focus.
   }
 
   AttachmentsChanged();
@@ -4777,20 +5409,25 @@ function RemoveSelectedAttachment() {
 
 function RenameSelectedAttachment() {
   let bucket = document.getElementById("attachmentBucket");
-  if (bucket.selectedItems.length != 1)
-    return; // not one attachment selected
+  if (bucket.selectedItems.length != 1) {
+    return;
+  } // not one attachment selected
 
   let item = bucket.getSelectedItem(0);
-  let attachmentName = {value: item.attachment.name};
-  if (Services.prompt
-              .prompt(window,
-                      getComposeBundle().getString("renameAttachmentTitle"),
-                      getComposeBundle().getString("renameAttachmentMessage"),
-                      attachmentName,
-                      null,
-                      {value: 0})) {
-    if (attachmentName.value == "")
-      return; // name was not filled, bail out
+  let attachmentName = { value: item.attachment.name };
+  if (
+    Services.prompt.prompt(
+      window,
+      getComposeBundle().getString("renameAttachmentTitle"),
+      getComposeBundle().getString("renameAttachmentMessage"),
+      attachmentName,
+      null,
+      { value: 0 }
+    )
+  ) {
+    if (attachmentName.value == "") {
+      return;
+    } // name was not filled, bail out
 
     let originalName = item.attachment.name;
     let itemLabel = item.querySelector(".attachmentcell-name");
@@ -4805,7 +5442,9 @@ function RenameSelectedAttachment() {
     item.dispatchEvent(event);
   }
 
-  let reorderAttachmentsPanel = document.getElementById("reorderAttachmentsPanel");
+  let reorderAttachmentsPanel = document.getElementById(
+    "reorderAttachmentsPanel"
+  );
   if (reorderAttachmentsPanel.state == "open") {
     // Hack to ensure that reorderAttachmentsPanel does not get closed as we exit.
     bucket.setAttribute("data-ignorenextblur", "true");
@@ -4832,8 +5471,9 @@ function moveSelectedAttachments(aDirection) {
   // or if block selections can't be moved, or if other direction-specific
   // adverse circumstances prevent the intended movement.
 
-  if (!aDirection)
+  if (!aDirection) {
     return;
+  }
 
   let bucket = document.getElementById("attachmentBucket");
 
@@ -4866,21 +5506,19 @@ function moveSelectedAttachments(aDirection) {
           // If current selItem is the last blockItem, check out its adjacent
           // item in the intended direction to see if there's room for moving.
           // Note that the block might contain one or more items.
-          let checkItem = upwards ?
-                          blockItems[0].previousSibling
-                        : nextItem;
+          let checkItem = upwards ? blockItems[0].previousSibling : nextItem;
           // If block-adjacent checkItem exists (and is not selected because
           // then it would be part of the block), we can move the block to the
           // right position.
           if (checkItem) {
-            targetItem = upwards ?
-                         // Upwards: Insert block items before checkItem,
-                         // i.e. before previousSibling of block.
-                         checkItem
-                         // Downwards: Insert block items *after* checkItem,
-                         // i.e. *before* nextSibling.nextSibling of block,
-                         // which works according to spec even if that's null.
-                       : checkItem.nextSibling;
+            targetItem = upwards
+              ? // Upwards: Insert block items before checkItem,
+                // i.e. before previousSibling of block.
+                checkItem
+              : // Downwards: Insert block items *after* checkItem,
+                // i.e. *before* nextSibling.nextSibling of block,
+                // which works according to spec even if that's null.
+                checkItem.nextSibling;
             // Move current blockItems.
             for (let blockItem of blockItems) {
               bucket.insertBefore(blockItem, targetItem);
@@ -4901,12 +5539,17 @@ function moveSelectedAttachments(aDirection) {
       // nearest unselected sibling of selection according to direction of move.
       if (bucket.getIndexOfItem(selItems[0]) == 0) {
         visibleIndex = 0;
-      } else if (bucket.getIndexOfItem(selItems[selItems.length - 1]) == (bucket.itemCount - 1)) {
+      } else if (
+        bucket.getIndexOfItem(selItems[selItems.length - 1]) ==
+        bucket.itemCount - 1
+      ) {
         visibleIndex = bucket.itemCount - 1;
       } else if (upwards) {
         visibleIndex = bucket.getIndexOfItem(selItems[0].previousSibling);
       } else {
-        visibleIndex = bucket.getIndexOfItem(selItems[selItems.length - 1].nextSibling);
+        visibleIndex = bucket.getIndexOfItem(
+          selItems[selItems.length - 1].nextSibling
+        );
       }
       break;
 
@@ -4918,24 +5561,27 @@ function moveSelectedAttachments(aDirection) {
 
       upwards = ["top", "bundleUp"].includes(aDirection);
       // Downwards: Reverse order of selItems so we can use the same algorithm.
-      if (!upwards)
+      if (!upwards) {
         selItems.reverse();
+      }
 
       if (["top", "bottom"].includes(aDirection)) {
-        let listEdgeItem = bucket.getItemAtIndex(upwards ? 0 : bucket.itemCount - 1);
+        let listEdgeItem = bucket.getItemAtIndex(
+          upwards ? 0 : bucket.itemCount - 1
+        );
         let selEdgeItem = selItems[0];
         if (selEdgeItem != listEdgeItem) {
           // Top/Bottom: Move the first/last selected item to the edge of the list
           // so that we always have an initial anchor target block in the right
           // place, so we can use the same algorithm for top/bottom and
           // inner bundling.
-          targetItem = upwards ?
-                       // Upwards: Insert before first list item.
-                       listEdgeItem
-                       // Downwards: Insert after last list item, i.e.
-                       // *before* non-existing listEdgeItem.nextSibling,
-                       // which is null. It works because it's a feature.
-                     : null;
+          targetItem = upwards
+            ? // Upwards: Insert before first list item.
+              listEdgeItem
+            : // Downwards: Insert after last list item, i.e.
+              // *before* non-existing listEdgeItem.nextSibling,
+              // which is null. It works because it's a feature.
+              null;
           bucket.insertBefore(selEdgeItem, targetItem);
         }
       }
@@ -4948,11 +5594,11 @@ function moveSelectedAttachments(aDirection) {
           // We know where to move it, so move it!
           bucket.insertBefore(item, targetItem);
           if (!upwards) {
-          // Downwards: As selItems are reversed, and there's no insertAfter()
-          // method to insert *after* a stable target, we need to insert
-          // *before* the first item of the target block at target position,
-          // which is the current selItem which we've just moved onto the block.
-          targetItem = item;
+            // Downwards: As selItems are reversed, and there's no insertAfter()
+            // method to insert *after* a stable target, we need to insert
+            // *before* the first item of the target block at target position,
+            // which is the current selItem which we've just moved onto the block.
+            targetItem = item;
           }
         } else {
           // If there's no targetItem yet, find the inner edge of the target block.
@@ -4960,11 +5606,11 @@ function moveSelectedAttachments(aDirection) {
           if (!nextItem.selected) {
             // If nextItem is not selected, current selItem is the inner edge of
             // the initial anchor target block, so we can set targetItem.
-            targetItem = upwards ?
-                         // Upwards: set stable targetItem.
-                         nextItem
-                         // Downwards: set initial targetItem.
-                       : item;
+            targetItem = upwards
+              ? // Upwards: set stable targetItem.
+                nextItem
+              : // Downwards: set initial targetItem.
+                item;
           }
           // Else if nextItem is selected, it is still part of initial anchor
           // target block, so just proceed to look for the edge of that block.
@@ -4981,7 +5627,8 @@ function moveSelectedAttachments(aDirection) {
       // direction based on the current sorting and block status of the selection.
 
       let toggleCmd = document.getElementById("cmd_sortAttachmentsToggle");
-      let sortDirection = toggleCmd.getAttribute("sortdirection") || "ascending";
+      let sortDirection =
+        toggleCmd.getAttribute("sortdirection") || "ascending";
       let sortItems;
       let sortSelection;
 
@@ -5014,11 +5661,14 @@ function moveSelectedAttachments(aDirection) {
       }
       // Now let's sort our sortItems according to sortDirection.
       if (sortDirection == "ascending") {
-        sortItems.sort(
-          (a, b) => a.attachment.name.localeCompare(b.attachment.name));
-      } else { // "descending"
-        sortItems.sort(
-          (a, b) => b.attachment.name.localeCompare(a.attachment.name));
+        sortItems.sort((a, b) =>
+          a.attachment.name.localeCompare(b.attachment.name)
+        );
+      } else {
+        // "descending"
+        sortItems.sort((a, b) =>
+          b.attachment.name.localeCompare(a.attachment.name)
+        );
       }
 
       // Insert sortItems in new order before the nextSibling of the block.
@@ -5026,15 +5676,13 @@ function moveSelectedAttachments(aDirection) {
         bucket.insertBefore(item, targetItem);
       }
 
-
       if (sortSelection) {
         // After sorting selection: Ensure visibility of first selected item.
         visibleIndex = bucket.getIndexOfItem(selItems[0]);
       } else {
         // After sorting all items: Ensure visibility of selected item,
         // otherwise first list item.
-        visibleIndex = (selItems.length == 1) ? bucket.selectedIndex
-                                              : 0;
+        visibleIndex = selItems.length == 1 ? bucket.selectedIndex : 0;
       }
       break;
   } // end switch (aDirection)
@@ -5053,8 +5701,9 @@ function moveSelectedAttachments(aDirection) {
 function keyToggleAttachmentPaneOnCommand() {
   // For easy and efficient UX with (access key == command key), remember that
   // we're coming from key_toggleAttachmentPane before going into command handling.
-  document.getElementById("cmd_toggleAttachmentPane").setAttribute("eventsource",
-                                                                   "key");
+  document
+    .getElementById("cmd_toggleAttachmentPane")
+    .setAttribute("eventsource", "key");
   goDoCommand("cmd_toggleAttachmentPane");
 }
 
@@ -5069,8 +5718,10 @@ function keyToggleAttachmentPaneOnCommand() {
 function toggleAttachmentPane(aAction = "toggle") {
   let bucket = GetMsgAttachmentElement();
   let attachmentsBox = document.getElementById("attachments-box");
-  let bucketHasFocus = (document.activeElement == bucket);
-  let cmdToggleAttachmentPane = document.getElementById("cmd_toggleAttachmentPane");
+  let bucketHasFocus = document.activeElement == bucket;
+  let cmdToggleAttachmentPane = document.getElementById(
+    "cmd_toggleAttachmentPane"
+  );
   let eventSource = cmdToggleAttachmentPane.getAttribute("eventsource");
   cmdToggleAttachmentPane.removeAttribute("eventsource"); // reset eventsource
   let attachmentBucketSizer = document.getElementById("attachmentbucket-sizer");
@@ -5098,13 +5749,15 @@ function toggleAttachmentPane(aAction = "toggle") {
       attachmentsBox.collapsed = false;
       attachmentBucketSizer.collapsed = false;
       attachmentBucketSizer.setAttribute("state", "");
-      if (!bucketHasFocus && eventSource == "key")
+      if (!bucketHasFocus && eventSource == "key") {
         bucket.focus();
+      }
       break;
 
     case "hide":
-      if (bucketHasFocus)
+      if (bucketHasFocus) {
         SetMsgBodyFrameFocus();
+      }
       attachmentsBox.collapsed = true;
       attachmentBucketSizer.setAttribute("state", "collapsed");
       break;
@@ -5116,8 +5769,13 @@ function toggleAttachmentPane(aAction = "toggle") {
 function showReorderAttachmentsPanel() {
   // Ensure attachment pane visibility as it might be collapsed.
   toggleAttachmentPane("show");
-  showPopupById("reorderAttachmentsPanel", "attachmentBucket",
-                "after_start", 15, 0);
+  showPopupById(
+    "reorderAttachmentsPanel",
+    "attachmentBucket",
+    "after_start",
+    15,
+    0
+  );
   // After the panel is shown, focus attachmentBucket so that keyboard
   // operation for selecting and moving attachment items works; the panel
   // helpfully presents the keyboard shortcuts for moving things around.
@@ -5161,13 +5819,16 @@ function attachmentsSelectionGetSortOrder() {
 function attachmentsGetSortOrder(aSelectedOnly = false) {
   let listItems;
   if (aSelectedOnly) {
-    if (attachmentsSelectedCount() <= 1)
+    if (attachmentsSelectedCount() <= 1) {
       return "";
+    }
 
     listItems = attachmentsSelectionGetSortedArray();
-  } else { // aSelectedOnly == false
-    if (attachmentsCount() < 1)
+  } else {
+    // aSelectedOnly == false
+    if (attachmentsCount() < 1) {
       return "";
+    }
 
     listItems = attachmentsGetSortedArray();
   }
@@ -5178,22 +5839,31 @@ function attachmentsGetSortOrder(aSelectedOnly = false) {
   let someDescending;
 
   // Check if some adjacent items are sorted ascending.
-  someAscending = listItems1.some((item, index) =>
-    item.attachment.name.localeCompare(listItems[index + 1].attachment.name) < 0);
+  someAscending = listItems1.some(
+    (item, index) =>
+      item.attachment.name.localeCompare(listItems[index + 1].attachment.name) <
+      0
+  );
 
   // Check if some adjacent items are sorted descending.
-  someDescending = listItems1.some((item, index) =>
-    item.attachment.name.localeCompare(listItems[index + 1].attachment.name) > 0);
+  someDescending = listItems1.some(
+    (item, index) =>
+      item.attachment.name.localeCompare(listItems[index + 1].attachment.name) >
+      0
+  );
 
   // Unsorted (but not all equivalent in sort order)
-  if (someAscending && someDescending)
+  if (someAscending && someDescending) {
     return "";
+  }
 
-  if (someAscending && !someDescending)
+  if (someAscending && !someDescending) {
     return "ascending";
+  }
 
-  if (someDescending && !someAscending)
+  if (someDescending && !someAscending) {
     return "descending";
+  }
 
   // No ascending pairs, no descending pairs, so all equivalent in sort order.
   // if (!someAscending && !someDescending)
@@ -5220,16 +5890,21 @@ function reorderAttachmentsPanelOnPopupShowing() {
 }
 
 function attachmentHeaderContextOnPopupShowing() {
-  let initiallyShowItem =
-    document.getElementById("attachmentHeaderContext_initiallyShowItem");
+  let initiallyShowItem = document.getElementById(
+    "attachmentHeaderContext_initiallyShowItem"
+  );
 
-  initiallyShowItem.setAttribute("checked", Services.prefs.getBoolPref(
-    "mail.compose.show_attachment_pane"));
+  initiallyShowItem.setAttribute(
+    "checked",
+    Services.prefs.getBoolPref("mail.compose.show_attachment_pane")
+  );
 }
 
 function toggleInitiallyShowAttachmentPane(aMenuItem) {
-  Services.prefs.setBoolPref("mail.compose.show_attachment_pane",
-                             aMenuItem.getAttribute("checked"));
+  Services.prefs.setBoolPref(
+    "mail.compose.show_attachment_pane",
+    aMenuItem.getAttribute("checked")
+  );
 }
 
 function attachmentBucketOnBlur() {
@@ -5241,10 +5916,15 @@ function attachmentBucketOnBlur() {
     attachmentBucket.setAttribute("data-ignorenextblur", "false");
     return;
   }
-  let reorderAttachmentsPanel = document.getElementById("reorderAttachmentsPanel");
-  if (document.activeElement.id != "attachmentBucket" ||
-      document.activeElement.id != "reorderAttachmentsPanel")
+  let reorderAttachmentsPanel = document.getElementById(
+    "reorderAttachmentsPanel"
+  );
+  if (
+    document.activeElement.id != "attachmentBucket" ||
+    document.activeElement.id != "reorderAttachmentsPanel"
+  ) {
     reorderAttachmentsPanel.hidePopup();
+  }
 }
 
 function attachmentBucketOnKeyPress(aEvent) {
@@ -5252,7 +5932,9 @@ function attachmentBucketOnKeyPress(aEvent) {
 
   // When ESC is pressed ...
   if (aEvent.key == "Escape") {
-    let reorderAttachmentsPanel = document.getElementById("reorderAttachmentsPanel");
+    let reorderAttachmentsPanel = document.getElementById(
+      "reorderAttachmentsPanel"
+    );
     if (reorderAttachmentsPanel.state == "open") {
       // First close reorderAttachmentsPanel if open.
       reorderAttachmentsPanel.hidePopup();
@@ -5264,7 +5946,8 @@ function attachmentBucketOnKeyPress(aEvent) {
         // Then unfocus full bucket to continue with msg body.
         SetMsgBodyFrameFocus();
       }
-    } else {  // (bucket.itemCount == 0)
+    } else {
+      // (bucket.itemCount == 0)
       // Otherwise close empty bucket.
       toggleAttachmentPane("hide");
     }
@@ -5288,17 +5971,20 @@ function attachmentBucketOnKeyPress(aEvent) {
   if (AppConstants.platform == "macosx") {
     // Mac does not have localized access keys, so here we're reconstructing the
     // typically non-localized shortcut key, Ctrl+M.
-    let attachmentsCommandKeyMac =
-      document.getElementById("key_toggleAttachmentPane").getAttribute("key");
-    if (aEvent.key == attachmentsCommandKeyMac && aEvent.ctrlKey)
+    let attachmentsCommandKeyMac = document
+      .getElementById("key_toggleAttachmentPane")
+      .getAttribute("key");
+    if (aEvent.key == attachmentsCommandKeyMac && aEvent.ctrlKey) {
       goDoCommand("cmd_toggleAttachmentPane");
+    }
   } else {
     let attachmentsAccessKey = document.getElementById("attachmentBucketCount")
-                                       .accessKey;
+      .accessKey;
     // We can get away with hardcoding the access key modifier key as aEvent.altKey
     // because it's ALT for Windows and Linux.
-    if (aEvent.key == attachmentsAccessKey && aEvent.altKey)
+    if (aEvent.key == attachmentsAccessKey && aEvent.altKey) {
       goDoCommand("cmd_toggleAttachmentPane");
+    }
   }
 }
 
@@ -5312,8 +5998,13 @@ function attachmentBucketOnClick(aEvent) {
   // - Otherwise, e.g. on a plain empty bucket, show 'Attach File(s)' dialog.
   if (attachmentsSelectedCount() == 0) {
     let boundTarget = aEvent.originalTarget;
-    if (aEvent.button == 0 && boundTarget && boundTarget.getAttribute("is") == "attachment-list")
+    if (
+      aEvent.button == 0 &&
+      boundTarget &&
+      boundTarget.getAttribute("is") == "attachment-list"
+    ) {
       goDoCommand("cmd_attachFile");
+    }
   }
 }
 
@@ -5327,11 +6018,13 @@ function attachmentBucketUpdateTooltips() {
 
   // Attachment pane whitespace tooltip
   if (attachmentsSelectedCount() > 0) {
-    bucket.tooltipText =
-      getComposeBundle().getString("attachmentBucketClearSelectionTooltip");
+    bucket.tooltipText = getComposeBundle().getString(
+      "attachmentBucketClearSelectionTooltip"
+    );
   } else {
-    bucket.tooltipText =
-      getComposeBundle().getString("attachmentBucketAttachFilesTooltip");
+    bucket.tooltipText = getComposeBundle().getString(
+      "attachmentBucketAttachFilesTooltip"
+    );
   }
 }
 
@@ -5356,7 +6049,7 @@ function attachmentBucketSizerOnMouseUp() {
 
 function AttachmentElementHasItems() {
   var element = document.getElementById("attachmentBucket");
-  return element ? (element.getRowCount() > 0) : false;
+  return element ? element.getRowCount() > 0 : false;
 }
 
 function attachmentBucketMarkEmptyBucket() {
@@ -5377,21 +6070,28 @@ function OpenSelectedAttachment() {
     let messagePrefix = /^mailbox-message:|^imap-message:|^news-message:/i;
     if (messagePrefix.test(attachmentUrl)) {
       // we must be dealing with a forwarded attachment, treat this special
-      let msgHdr = gMessenger.messageServiceFromURI(attachmentUrl).messageURIToMsgHdr(attachmentUrl);
-      if (msgHdr)
+      let msgHdr = gMessenger
+        .messageServiceFromURI(attachmentUrl)
+        .messageURIToMsgHdr(attachmentUrl);
+      if (msgHdr) {
         MailUtils.openMessageInNewWindow(msgHdr);
+      }
     } else {
       // Turn the URL into a nsIURI object then open it.
       let uri = Services.io.newURI(attachmentUrl);
       if (uri) {
-        let channel = Services.io.newChannelFromURI(uri,
-                                                    null,
-                                                    Services.scriptSecurityManager.getSystemPrincipal(),
-                                                    null,
-                                                    Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                    Ci.nsIContentPolicy.TYPE_OTHER);
+        let channel = Services.io.newChannelFromURI(
+          uri,
+          null,
+          Services.scriptSecurityManager.getSystemPrincipal(),
+          null,
+          Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+          Ci.nsIContentPolicy.TYPE_OTHER
+        );
         if (channel) {
-          let uriLoader = Cc["@mozilla.org/uriloader;1"].getService(Ci.nsIURILoader);
+          let uriLoader = Cc["@mozilla.org/uriloader;1"].getService(
+            Ci.nsIURILoader
+          );
           uriLoader.openURI(channel, true, new nsAttachmentOpener());
         }
       }
@@ -5399,12 +6099,13 @@ function OpenSelectedAttachment() {
   } // if one attachment selected
 }
 
-function nsAttachmentOpener() {
-}
+function nsAttachmentOpener() {}
 
 nsAttachmentOpener.prototype = {
-  QueryInterface: ChromeUtils.generateQI(["nsIURIContentListener",
-                                          "nsIInterfaceRequestor"]),
+  QueryInterface: ChromeUtils.generateQI([
+    "nsIURIContentListener",
+    "nsIInterfaceRequestor",
+  ]),
 
   onStartURIOpen(uri) {
     return false;
@@ -5414,17 +6115,21 @@ nsAttachmentOpener.prototype = {
     // If we came here to display an attached message, make sure we provide a type.
     if (/[?&]part=/i.test(request.URI.query)) {
       let newQuery = request.URI.query + "&type=message/rfc822";
-      request.URI = request.URI.mutate().setQuery(newQuery).finalize();
+      request.URI = request.URI.mutate()
+        .setQuery(newQuery)
+        .finalize();
     }
-    let newHandler = Cc["@mozilla.org/uriloader/content-handler;1?type=application/x-message-display"]
-                       .createInstance(Ci.nsIContentHandler);
+    let newHandler = Cc[
+      "@mozilla.org/uriloader/content-handler;1?type=application/x-message-display"
+    ].createInstance(Ci.nsIContentHandler);
     newHandler.handleContent("application/x-message-display", this, request);
     return true;
   },
 
   isPreferred(contentType, desiredContentType) {
-    if (contentType == "message/rfc822")
+    if (contentType == "message/rfc822") {
       return true;
+    }
     return false;
   },
 
@@ -5454,11 +6159,13 @@ nsAttachmentOpener.prototype = {
  *                     message convertibility to plain text.
  */
 function DetermineHTMLAction(convertible) {
-  if (!gMsgCompose.composeHTML)
+  if (!gMsgCompose.composeHTML) {
     return Ci.nsIMsgCompSendFormat.PlainText;
+  }
 
-  if (gSendFormat == Ci.nsIMsgCompSendFormat.AskUser)
+  if (gSendFormat == Ci.nsIMsgCompSendFormat.AskUser) {
     return gMsgCompose.determineHTMLAction(convertible);
+  }
 
   return gSendFormat;
 }
@@ -5471,8 +6178,9 @@ function expandRecipients() {
 }
 
 function DetermineConvertibility() {
-  if (!gMsgCompose.composeHTML)
+  if (!gMsgCompose.composeHTML) {
     return Ci.nsIMsgCompConvertible.Plain;
+  }
 
   try {
     return gMsgCompose.bodyConvertible();
@@ -5489,17 +6197,21 @@ function DetermineConvertibility() {
  */
 function hideIrrelevantAddressingOptions(aAccountKey) {
   let hideNews = true;
-  for (let account of fixIterator(MailServices.accounts.accounts,
-                                  Ci.nsIMsgAccount)) {
-    if (account.incomingServer.type == "nntp")
+  for (let account of fixIterator(
+    MailServices.accounts.accounts,
+    Ci.nsIMsgAccount
+  )) {
+    if (account.incomingServer.type == "nntp") {
       hideNews = false;
+    }
   }
   // If there is no News (NNTP) account existing then
   // hide the Newsgroup and Followup-To recipient type in all the menulists.
   let addrWidget = document.getElementById("addressingWidget");
   // Only really touch the News related items we know about.
-  let newsTypes = addrWidget
-    .querySelectorAll('menuitem[value="addr_newsgroups"], menuitem[value="addr_followup"]');
+  let newsTypes = addrWidget.querySelectorAll(
+    'menuitem[value="addr_newsgroups"], menuitem[value="addr_followup"]'
+  );
   // Collapsing the menuitem only prevents it getting chosen, it does not
   // affect the menulist widget display when Newsgroup is already selected.
   for (let item of newsTypes) {
@@ -5542,11 +6254,13 @@ function LoadIdentity(startup) {
       var prevDSN = prevIdentity.DSN;
       var prevAttachVCard = prevIdentity.attachVCard;
 
-      if (prevIdentity.doCc)
+      if (prevIdentity.doCc) {
         prevCc += prevIdentity.doCcList;
+      }
 
-      if (prevIdentity.doBcc)
+      if (prevIdentity.doBcc) {
         prevBcc += prevIdentity.doBccList;
+      }
 
       var newReplyTo = gCurrentIdentity.replyTo;
       var newCc = "";
@@ -5555,53 +6269,72 @@ function LoadIdentity(startup) {
       var newDSN = gCurrentIdentity.DSN;
       var newAttachVCard = gCurrentIdentity.attachVCard;
 
-      if (gCurrentIdentity.doCc)
+      if (gCurrentIdentity.doCc) {
         newCc += gCurrentIdentity.doCcList;
+      }
 
-      if (gCurrentIdentity.doBcc)
+      if (gCurrentIdentity.doBcc) {
         newBcc += gCurrentIdentity.doBccList;
+      }
 
       var needToCleanUp = false;
       var msgCompFields = gMsgCompose.compFields;
 
-      if (!gReceiptOptionChanged &&
-          prevReceipt == msgCompFields.returnReceipt &&
-          prevReceipt != newReceipt) {
+      if (
+        !gReceiptOptionChanged &&
+        prevReceipt == msgCompFields.returnReceipt &&
+        prevReceipt != newReceipt
+      ) {
         msgCompFields.returnReceipt = newReceipt;
-        document.getElementById("returnReceiptMenu").setAttribute("checked", msgCompFields.returnReceipt);
+        document
+          .getElementById("returnReceiptMenu")
+          .setAttribute("checked", msgCompFields.returnReceipt);
       }
 
-      if (!gDSNOptionChanged &&
-          prevDSN == msgCompFields.DSN &&
-          prevDSN != newDSN) {
+      if (
+        !gDSNOptionChanged &&
+        prevDSN == msgCompFields.DSN &&
+        prevDSN != newDSN
+      ) {
         msgCompFields.DSN = newDSN;
-        document.getElementById("dsnMenu").setAttribute("checked", msgCompFields.DSN);
+        document
+          .getElementById("dsnMenu")
+          .setAttribute("checked", msgCompFields.DSN);
       }
 
-      if (!gAttachVCardOptionChanged &&
-          prevAttachVCard == msgCompFields.attachVCard &&
-          prevAttachVCard != newAttachVCard) {
+      if (
+        !gAttachVCardOptionChanged &&
+        prevAttachVCard == msgCompFields.attachVCard &&
+        prevAttachVCard != newAttachVCard
+      ) {
         msgCompFields.attachVCard = newAttachVCard;
-        document.getElementById("cmd_attachVCard").setAttribute("checked", msgCompFields.attachVCard);
+        document
+          .getElementById("cmd_attachVCard")
+          .setAttribute("checked", msgCompFields.attachVCard);
       }
 
       if (newReplyTo != prevReplyTo) {
         needToCleanUp = true;
-        if (prevReplyTo != "")
+        if (prevReplyTo != "") {
           awRemoveRecipients(msgCompFields, "addr_reply", prevReplyTo);
-        if (newReplyTo != "")
+        }
+        if (newReplyTo != "") {
           awAddRecipients(msgCompFields, "addr_reply", newReplyTo);
+        }
       }
 
-      let toAddrs = new Set(msgCompFields.splitRecipients(
-        msgCompFields.to, true, {}));
-      let ccAddrs = new Set(msgCompFields.splitRecipients(
-        msgCompFields.cc, true, {}));
+      let toAddrs = new Set(
+        msgCompFields.splitRecipients(msgCompFields.to, true, {})
+      );
+      let ccAddrs = new Set(
+        msgCompFields.splitRecipients(msgCompFields.cc, true, {})
+      );
 
       if (newCc != prevCc) {
         needToCleanUp = true;
-        if (prevCc)
+        if (prevCc) {
           awRemoveRecipients(msgCompFields, "addr_cc", prevCc);
+        }
         if (newCc) {
           // Ensure none of the Ccs are already in To.
           let cc2 = msgCompFields.splitRecipients(newCc, true, {});
@@ -5612,8 +6345,9 @@ function LoadIdentity(startup) {
 
       if (newBcc != prevBcc) {
         needToCleanUp = true;
-        if (prevBcc)
+        if (prevBcc) {
           awRemoveRecipients(msgCompFields, "addr_bcc", prevBcc);
+        }
         if (newBcc) {
           // Ensure none of the Bccs are already in To or Cc.
           let bcc2 = msgCompFields.splitRecipients(newBcc, true, {});
@@ -5623,8 +6357,9 @@ function LoadIdentity(startup) {
         }
       }
 
-      if (needToCleanUp)
+      if (needToCleanUp) {
         awCleanupRows();
+      }
 
       try {
         gMsgCompose.identity = gCurrentIdentity;
@@ -5640,8 +6375,9 @@ function LoadIdentity(startup) {
     }
 
     if (!startup) {
-      if (Services.prefs.getBoolPref("mail.autoComplete.highlightNonMatches"))
+      if (Services.prefs.getBoolPref("mail.autoComplete.highlightNonMatches")) {
         document.getElementById("addressCol2#1").highlightNonMatches = true;
+      }
 
       // Only do this if we aren't starting up...
       // It gets done as part of startup already.
@@ -5651,7 +6387,8 @@ function LoadIdentity(startup) {
       if (identityElement.editable) {
         identityElement.value = identityElement.selectedItem.value;
         identityElement.placeholder = getComposeBundle().getFormattedString(
-          "msgIdentityPlaceholder", [identityElement.selectedItem.value]
+          "msgIdentityPlaceholder",
+          [identityElement.selectedItem.value]
         );
       }
     }
@@ -5660,20 +6397,32 @@ function LoadIdentity(startup) {
 
 function MakeFromFieldEditable(ignoreWarning) {
   let bundle = getComposeBundle();
-  if (!ignoreWarning &&
-      !Services.prefs.getBoolPref("mail.compose.warned_about_customize_from")) {
+  if (
+    !ignoreWarning &&
+    !Services.prefs.getBoolPref("mail.compose.warned_about_customize_from")
+  ) {
     var check = { value: false };
-    if (Services.prompt.confirmEx(window,
-          bundle.getString("customizeFromAddressTitle"),
-          bundle.getString("customizeFromAddressWarning"),
-          Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_OK +
+    if (
+      Services.prompt.confirmEx(
+        window,
+        bundle.getString("customizeFromAddressTitle"),
+        bundle.getString("customizeFromAddressWarning"),
+        Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_OK +
           Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_CANCEL +
           Services.prompt.BUTTON_POS_1_DEFAULT,
-          null, null, null,
-          bundle.getString("customizeFromAddressIgnore"),
-          check) != 0)
+        null,
+        null,
+        null,
+        bundle.getString("customizeFromAddressIgnore"),
+        check
+      ) != 0
+    ) {
       return;
-    Services.prefs.setBoolPref("mail.compose.warned_about_customize_from", check.value);
+    }
+    Services.prefs.setBoolPref(
+      "mail.compose.warned_about_customize_from",
+      check.value
+    );
   }
 
   var customizeMenuitem = document.getElementById("cmd_customizeFromAddress");
@@ -5684,7 +6433,10 @@ function MakeFromFieldEditable(ignoreWarning) {
   identityElement.focus();
   identityElement.value = identityElement.selectedItem.value;
   identityElement.select();
-  identityElement.placeholder = bundle.getFormattedString("msgIdentityPlaceholder", [identityElement.selectedItem.value]);
+  identityElement.placeholder = bundle.getFormattedString(
+    "msgIdentityPlaceholder",
+    [identityElement.selectedItem.value]
+  );
 }
 
 function setupAutocomplete() {
@@ -5693,25 +6445,27 @@ function setupAutocomplete() {
     // Request that input that isn't matched be highlighted.
     // This element then gets cloned for subsequent rows, so they should
     // honor it as well.
-    if (Services.prefs.getBoolPref("mail.autoComplete.highlightNonMatches"))
+    if (Services.prefs.getBoolPref("mail.autoComplete.highlightNonMatches")) {
       autoCompleteWidget.highlightNonMatches = true;
+    }
   } catch (ex) {}
 }
 
 function fromKeyPress(event) {
-  if (event.keyCode == KeyEvent.DOM_VK_RETURN)
+  if (event.keyCode == KeyEvent.DOM_VK_RETURN) {
     awSetFocusTo(awGetInputElement(1));
+  }
 }
 
 function subjectKeyPress(event) {
   gSubjectChanged = true;
-  if (event.keyCode == KeyEvent.DOM_VK_RETURN)
+  if (event.keyCode == KeyEvent.DOM_VK_RETURN) {
     SetMsgBodyFrameFocus();
+  }
 }
 
 // we can drag and drop addresses, files, messages and urls into the compose envelope
 var envelopeDragObserver = {
-
   canHandleMultipleItems: true,
 
   /**
@@ -5733,7 +6487,11 @@ var envelopeDragObserver = {
 
     if (target == bucket) {
       // Dragging or dropping at top/bottom border of the listbox
-      if ((aEvent.screenY - target.screenY) / target.getBoundingClientRect().height < 0.5) {
+      if (
+        (aEvent.screenY - target.screenY) /
+          target.getBoundingClientRect().height <
+        0.5
+      ) {
         target = bucket.firstChild;
       } else {
         target = bucket.lastChild;
@@ -5743,7 +6501,11 @@ var envelopeDragObserver = {
       // Dragging or dropping at top border of the listbox.
       // Allow bottom half of attachment list header as extended drop target
       // for top of list, because otherwise it would be too small.
-      if ((aEvent.screenY - target.screenY) / target.getBoundingClientRect().height >= 0.5) {
+      if (
+        (aEvent.screenY - target.screenY) /
+          target.getBoundingClientRect().height >=
+        0.5
+      ) {
         target = bucket.firstChild;
         // We'll check below if this is a valid target.
       } else {
@@ -5756,15 +6518,20 @@ var envelopeDragObserver = {
     if (target.matches("richlistitem.attachmentItem")) {
       // If we're dragging/dropping in bottom half of attachmentitem,
       // adjust target to target.nextSibling (to show dropmarker above that).
-      if ((aEvent.screenY - target.screenY) / target.getBoundingClientRect().height >= 0.5) {
+      if (
+        (aEvent.screenY - target.screenY) /
+          target.getBoundingClientRect().height >=
+        0.5
+      ) {
         target = target.nextSibling;
 
         // If there's no target.nextSibling, we're dragging/dropping
         // to the bottom of the list.
         if (!target) {
           // We can't move a bottom block selection to the bottom.
-          if (attachmentsSelectionIsBlock("bottom"))
+          if (attachmentsSelectionIsBlock("bottom")) {
             return "none";
+          }
 
           // Not a bottom block selection: Target is *after* the last item.
           return "afterLastItem";
@@ -5776,12 +6543,14 @@ var envelopeDragObserver = {
       // If target is first list item, there's no previous sibling;
       // treat like unselected previous sibling.
       let prevSelected = prevItem ? prevItem.selected : false;
-      if (target.selected && (isBlock || prevSelected) ||
-          // target at end of block selection
-          isBlock && prevSelected) {
-          // We can't move a block selection before/after itself,
-          // or any selection onto itself, so trigger dropeffect "none".
-          return "none";
+      if (
+        (target.selected && (isBlock || prevSelected)) ||
+        // target at end of block selection
+        (isBlock && prevSelected)
+      ) {
+        // We can't move a block selection before/after itself,
+        // or any selection onto itself, so trigger dropeffect "none".
+        return "none";
       }
       return target;
     }
@@ -5792,10 +6561,12 @@ var envelopeDragObserver = {
   _showDropMarker(targetItem) {
     let bucket = document.getElementById("attachmentBucket");
 
-    let oldDropMarkerItem =
-      bucket.querySelector("richlistitem.attachmentItem[dropOn]");
-    if (oldDropMarkerItem)
+    let oldDropMarkerItem = bucket.querySelector(
+      "richlistitem.attachmentItem[dropOn]"
+    );
+    if (oldDropMarkerItem) {
       oldDropMarkerItem.removeAttribute("dropOn");
+    }
 
     if (targetItem == "afterLastItem") {
       targetItem = bucket.lastChild;
@@ -5806,11 +6577,12 @@ var envelopeDragObserver = {
   },
 
   _hideDropMarker() {
-   let oldDropMarkerItem =
-     document.getElementById("attachmentBucket")
-             .querySelector("richlistitem.attachmentItem[dropOn]");
-    if (oldDropMarkerItem)
+    let oldDropMarkerItem = document
+      .getElementById("attachmentBucket")
+      .querySelector("richlistitem.attachmentItem[dropOn]");
+    if (oldDropMarkerItem) {
       oldDropMarkerItem.removeAttribute("dropOn");
+    }
   },
 
   onDrop(aEvent, aData, aDragSession) {
@@ -5832,8 +6604,10 @@ var envelopeDragObserver = {
 
       // Moving possibly non-coherent multiple selections around correctly
       // is much more complex than one might think...
-      if ((target.matches && target.matches("richlistitem.attachmentItem")) ||
-          target == "afterLastItem") {
+      if (
+        (target.matches && target.matches("richlistitem.attachmentItem")) ||
+        target == "afterLastItem"
+      ) {
         // Drop before targetItem in the list, or after last item.
         let blockItems = [];
         let targetItem;
@@ -5875,9 +6649,10 @@ var envelopeDragObserver = {
             } else {
               // Item from block after block containing target: insert before
               // targetItem, i.e. after end of block containing target.
-                bucket.insertBefore(item, targetItem);
+              bucket.insertBefore(item, targetItem);
             }
-          } else { // target != selItems [0]
+          } else {
+            // target != selItems [0]
             // Original target is NOT first item of any block, and NOT selected:
             // Insert all items before the original target.
             bucket.insertBefore(item, target);
@@ -5908,11 +6683,13 @@ var envelopeDragObserver = {
         // Process attachments.
         case "application/x-moz-file": {
           let fileHandler = Services.io
-                                    .getProtocolHandler("file")
-                                    .QueryInterface(Ci.nsIFileProtocolHandler);
+            .getProtocolHandler("file")
+            .QueryInterface(Ci.nsIFileProtocolHandler);
           if (!rawData.exists() || !rawData.isReadable()) {
             // For some reason we couldn't read the file just dragged. Permission problem?
-            Cu.reportError("Couldn't access the dragged file " + rawData.leafName);
+            Cu.reportError(
+              "Couldn't access the dragged file " + rawData.leafName
+            );
             break;
           }
 
@@ -5921,15 +6698,18 @@ var envelopeDragObserver = {
             rawData = fileHandler.getURLSpecFromFile(rawData);
             isValidAttachment = true;
           } catch (e) {
-            Cu.reportError("Couldn't process the dragged file " + rawData.leafName + ":" + e);
+            Cu.reportError(
+              "Couldn't process the dragged file " + rawData.leafName + ":" + e
+            );
           }
           break;
         }
 
         case "text/x-moz-message": {
           isValidAttachment = true;
-          let msgHdr = gMessenger.messageServiceFromURI(rawData)
-                                 .messageURIToMsgHdr(rawData);
+          let msgHdr = gMessenger
+            .messageServiceFromURI(rawData)
+            .messageURIToMsgHdr(rawData);
           prettyName = msgHdr.mime2DecodedSubject + ".eml";
           size = msgHdr.messageSize;
           break;
@@ -5938,18 +6718,21 @@ var envelopeDragObserver = {
         case "text/x-moz-url": {
           let pieces = rawData.split("\n");
           rawData = pieces[0];
-          if (pieces.length > 1)
+          if (pieces.length > 1) {
             prettyName = pieces[1];
-          if (pieces.length > 2)
+          }
+          if (pieces.length > 2) {
             size = parseInt(pieces[2]);
+          }
 
           // If this is a URL (or selected text), check if it's a valid URL
           // by checking if we can extract a scheme using Services.io.
           // Don't attach invalid or mailto: URLs.
           try {
             let scheme = Services.io.extractScheme(rawData);
-            if (scheme != "mailto")
+            if (scheme != "mailto") {
               isValidAttachment = true;
+            }
           } catch (ex) {}
           break;
         }
@@ -5972,21 +6755,24 @@ var envelopeDragObserver = {
 
       // Create the attachment and add it to attachments array.
       if (isValidAttachment) {
-        let attachment = Cc["@mozilla.org/messengercompose/attachment;1"]
-                           .createInstance(Ci.nsIMsgAttachment);
+        let attachment = Cc[
+          "@mozilla.org/messengercompose/attachment;1"
+        ].createInstance(Ci.nsIMsgAttachment);
         attachment.url = rawData;
         attachment.name = prettyName;
 
-        if (size !== undefined)
+        if (size !== undefined) {
           attachment.size = size;
+        }
 
         attachments.push(attachment);
       }
     }
 
     // Add attachments if any.
-    if (attachments.length > 0)
+    if (attachments.length > 0) {
       AddAttachments(attachments);
+    }
 
     bucket.focus();
   },
@@ -6000,8 +6786,10 @@ var envelopeDragObserver = {
 
       let target = this._adjustDropTarget(aEvent);
 
-      if ((target.matches && target.matches("richlistitem.attachmentItem")) ||
-          target == "afterLastItem") {
+      if (
+        (target.matches && target.matches("richlistitem.attachmentItem")) ||
+        target == "afterLastItem"
+      ) {
         // Adjusted target is an attachment list item; show dropmarker.
         this._showDropMarker(target);
       } else {
@@ -6043,8 +6831,9 @@ var attachmentBucketDNDObserver = {
   onDragStart(aEvent, aAttachmentData, aDragAction) {
     var target = aEvent.target;
 
-    if (target.matches("richlistitem.attachmentItem"))
+    if (target.matches("richlistitem.attachmentItem")) {
       aAttachmentData.data = CreateAttachmentTransferData(target.attachment);
+    }
   },
 };
 
@@ -6057,21 +6846,27 @@ function DisplaySaveFolderDlg(folderURI) {
 
   if (showDialog) {
     let msgfolder = MailUtils.getExistingFolder(folderURI);
-    if (!msgfolder)
+    if (!msgfolder) {
       return;
-    let checkbox = {value: 0};
+    }
+    let checkbox = { value: 0 };
     let bundle = getComposeBundle();
     let SaveDlgTitle = bundle.getString("SaveDialogTitle");
-    let dlgMsg = bundle.getFormattedString("SaveDialogMsg",
-                                           [msgfolder.name,
-                                            msgfolder.server.prettyName]);
+    let dlgMsg = bundle.getFormattedString("SaveDialogMsg", [
+      msgfolder.name,
+      msgfolder.server.prettyName,
+    ]);
 
-    Services.prompt.alertCheck(window, SaveDlgTitle, dlgMsg,
-                               bundle.getString("CheckMsg"), checkbox);
+    Services.prompt.alertCheck(
+      window,
+      SaveDlgTitle,
+      dlgMsg,
+      bundle.getString("CheckMsg"),
+      checkbox
+    );
     try {
       gCurrentIdentity.showSaveMsgDlg = !checkbox.value;
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 }
 
@@ -6099,8 +6894,10 @@ function SetMsgAttachmentElementFocus() {
  */
 function focusContactsSidebarSearchInput() {
   // Caveat: Callers must ensure that contacts side bar is visible.
-  let peopleSearchInput = sidebarDocumentGetElementById("peopleSearchInput",
-                                                        "abContactsPanel");
+  let peopleSearchInput = sidebarDocumentGetElementById(
+    "peopleSearchInput",
+    "abContactsPanel"
+  );
   if (peopleSearchInput) {
     peopleSearchInput.focus();
     return true;
@@ -6110,34 +6907,41 @@ function focusContactsSidebarSearchInput() {
 
 function SetMsgBodyFrameFocus() {
   // window.content.focus() fails to blur the currently focused element
-  document.commandDispatcher
-          .advanceFocusIntoSubtree(document.getElementById("appcontent"));
+  document.commandDispatcher.advanceFocusIntoSubtree(
+    document.getElementById("appcontent")
+  );
 }
 
 function GetMsgAddressingWidgetTreeElement() {
-  if (!gMsgAddressingWidgetTreeElement)
-    gMsgAddressingWidgetTreeElement = document.getElementById("addressingWidget");
+  if (!gMsgAddressingWidgetTreeElement) {
+    gMsgAddressingWidgetTreeElement = document.getElementById(
+      "addressingWidget"
+    );
+  }
 
   return gMsgAddressingWidgetTreeElement;
 }
 
 function GetMsgIdentityElement() {
-  if (!gMsgIdentityElement)
+  if (!gMsgIdentityElement) {
     gMsgIdentityElement = document.getElementById("msgIdentity");
+  }
 
   return gMsgIdentityElement;
 }
 
 function GetMsgSubjectElement() {
-  if (!gMsgSubjectElement)
+  if (!gMsgSubjectElement) {
     gMsgSubjectElement = document.getElementById("msgSubject");
+  }
 
   return gMsgSubjectElement;
 }
 
 function GetMsgAttachmentElement() {
-  if (!gMsgAttachmentElement)
+  if (!gMsgAttachmentElement) {
     gMsgAttachmentElement = document.getElementById("attachmentBucket");
+  }
 
   return gMsgAttachmentElement;
 }
@@ -6168,8 +6972,9 @@ function sidebarDocumentGetElementById(aId, aPageId) {
 }
 
 function GetMsgHeadersToolbarElement() {
-  if (!gMsgHeadersToolbarElement)
+  if (!gMsgHeadersToolbarElement) {
     gMsgHeadersToolbarElement = document.getElementById("MsgHeadersToolbar");
+  }
 
   return gMsgHeadersToolbarElement;
 }
@@ -6188,16 +6993,19 @@ function WhichElementHasFocus() {
   let msgAttachmentElement = GetMsgAttachmentElement();
   let abContactsPanelElement = sidebarDocumentGetElementById("abContactsPanel");
 
-  if (top.document.commandDispatcher.focusedWindow == window.content)
+  if (top.document.commandDispatcher.focusedWindow == window.content) {
     return window.content;
+  }
 
   let currentNode = top.document.commandDispatcher.focusedElement;
   while (currentNode) {
-    if (currentNode == msgIdentityElement ||
-        currentNode == msgAddressingWidgetTreeElement ||
-        currentNode == msgSubjectElement ||
-        currentNode == msgAttachmentElement ||
-        currentNode == abContactsPanelElement) {
+    if (
+      currentNode == msgIdentityElement ||
+      currentNode == msgAddressingWidgetTreeElement ||
+      currentNode == msgSubjectElement ||
+      currentNode == msgAttachmentElement ||
+      currentNode == abContactsPanelElement
+    ) {
       return currentNode;
     }
     currentNode = currentNode.parentNode;
@@ -6237,23 +7045,26 @@ function SwitchElementFocus(event) {
       case gMsgIdentityElement:
         // Focus the search input of contacts side bar if that's available,
         // otherwise focus message body.
-        if (sidebar_is_hidden() || !focusContactsSidebarSearchInput())
+        if (sidebar_is_hidden() || !focusContactsSidebarSearchInput()) {
           SetMsgBodyFrameFocus();
+        }
         break;
       case sidebarDocumentGetElementById("abContactsPanel"):
         SetMsgBodyFrameFocus();
         break;
       case window.content: // message body
         // Only set focus to the attachment element if it is shown.
-        if (!document.getElementById("attachments-box").collapsed)
+        if (!document.getElementById("attachments-box").collapsed) {
           SetMsgAttachmentElementFocus();
-        else
+        } else {
           SetMsgSubjectElementFocus();
+        }
         break;
       case gMsgAttachmentElement:
         SetMsgSubjectElementFocus();
         break;
-      default: // gMsgSubjectElement
+      default:
+        // gMsgSubjectElement
         SetMsgAddressingWidgetTreeElementFocus();
         break;
     }
@@ -6265,10 +7076,11 @@ function SwitchElementFocus(event) {
         break;
       case gMsgSubjectElement:
         // Only set focus to the attachment element if it is shown.
-        if (!document.getElementById("attachments-box").collapsed)
+        if (!document.getElementById("attachments-box").collapsed) {
           SetMsgAttachmentElementFocus();
-        else
+        } else {
           SetMsgBodyFrameFocus();
+        }
         break;
       case gMsgAttachmentElement:
         SetMsgBodyFrameFocus();
@@ -6276,13 +7088,15 @@ function SwitchElementFocus(event) {
       case window.content:
         // Focus the search input of contacts side bar if that's available,
         // otherwise focus "From" selector.
-        if (sidebar_is_hidden() || !focusContactsSidebarSearchInput())
+        if (sidebar_is_hidden() || !focusContactsSidebarSearchInput()) {
           SetMsgIdentityElementFocus();
+        }
         break;
       case sidebarDocumentGetElementById("abContactsPanel"):
         SetMsgIdentityElementFocus();
         break;
-      default: // gMsgIdentityElement
+      default:
+        // gMsgIdentityElement
         SetMsgAddressingWidgetTreeElementFocus();
         break;
     }
@@ -6349,11 +7163,13 @@ function toggleAddressPicker(aFocus = true) {
     // If something in the sidebar was left marked focused,
     // clear out the attribute so that it does not keep focus in a hidden element.
     let sidebarContent = sidebar.contentDocument;
-    let sideFocused = Array.from(sidebarContent.querySelectorAll('[focused="true"]'))
-                           .concat(Array.from(sidebarContent.querySelectorAll(":focus")));
+    let sideFocused = Array.from(
+      sidebarContent.querySelectorAll('[focused="true"]')
+    ).concat(Array.from(sidebarContent.querySelectorAll(":focus")));
     for (let elem of sideFocused) {
-      if ("blur" in elem)
+      if ("blur" in elem) {
         elem.blur();
+      }
       elem.removeAttribute("focused");
     }
 
@@ -6370,8 +7186,9 @@ function toggleAddressPicker(aFocus = true) {
     // Contacts sidebar and then the main window/frame does not respond to accesskeys.
     // This may be fixed by bug 570835.
     let composerBox = document.getElementById("headers-parent");
-    let focusedElement = composerBox.querySelector(":focus") ||
-                         composerBox.querySelector('[focused="true"]');
+    let focusedElement =
+      composerBox.querySelector(":focus") ||
+      composerBox.querySelector('[focused="true"]');
     if (focusedElement) {
       focusedElement.focus();
     } else if (!GetMsgSubjectElement().value) {
@@ -6394,37 +7211,49 @@ function AddRecipientsArray(aRecipientType, aAddressArray) {
 
 function loadHTMLMsgPrefs() {
   let fontFace = Services.prefs.getStringPref("msgcompose.font_face", "");
-  if (fontFace)
+  if (fontFace) {
     doStatefulCommand("cmd_fontFace", fontFace);
+  }
 
   let fontSize = Services.prefs.getCharPref("msgcompose.font_size", "");
-  if (fontSize)
+  if (fontSize) {
     EditorSetFontSize(fontSize);
+  }
 
   let bodyElement = GetBodyElement();
 
   let useDefault = Services.prefs.getBoolPref("msgcompose.default_colors");
 
-  let textColor = (useDefault ? "" : Services.prefs.getCharPref("msgcompose.text_color", ""));
-  if ((!bodyElement.getAttribute("text")) && textColor) {
+  let textColor = useDefault
+    ? ""
+    : Services.prefs.getCharPref("msgcompose.text_color", "");
+  if (!bodyElement.getAttribute("text") && textColor) {
     bodyElement.setAttribute("text", textColor);
     gDefaultTextColor = textColor;
     document.getElementById("cmd_fontColor").setAttribute("state", textColor);
     onFontColorChange();
   }
 
-  let bgColor = (useDefault ? "" : Services.prefs.getCharPref("msgcompose.background_color", ""));
-  if ((!bodyElement.getAttribute("bgcolor")) && bgColor) {
+  let bgColor = useDefault
+    ? ""
+    : Services.prefs.getCharPref("msgcompose.background_color", "");
+  if (!bodyElement.getAttribute("bgcolor") && bgColor) {
     bodyElement.setAttribute("bgcolor", bgColor);
     gDefaultBackgroundColor = bgColor;
-    document.getElementById("cmd_backgroundColor").setAttribute("state", bgColor);
+    document
+      .getElementById("cmd_backgroundColor")
+      .setAttribute("state", bgColor);
     onBackgroundColorChange();
   }
 }
 
 function AutoSave() {
-  if (gMsgCompose.editor && (gContentChanged || gMsgCompose.bodyModified) &&
-      !gSendOperationInProgress && !gSaveOperationInProgress) {
+  if (
+    gMsgCompose.editor &&
+    (gContentChanged || gMsgCompose.bodyModified) &&
+    !gSendOperationInProgress &&
+    !gSaveOperationInProgress
+  ) {
     GenericSendMessage(Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft);
     gAutoSaveKickedIn = true;
   }
@@ -6441,17 +7270,24 @@ var gAttachmentNotifier = {
   enabled: false,
 
   init(aDocument) {
-    if (this._obs)
+    if (this._obs) {
       this.shutdown();
+    }
 
-    this.enabled = Services.prefs.getBoolPref("mail.compose.attachment_reminder");
-    if (!this.enabled)
+    this.enabled = Services.prefs.getBoolPref(
+      "mail.compose.attachment_reminder"
+    );
+    if (!this.enabled) {
       return;
+    }
 
     this._obs = new MutationObserver(function(aMutations) {
       gAttachmentNotifier.timer.cancel();
-      gAttachmentNotifier.timer.initWithCallback(gAttachmentNotifier.event, 500,
-                                                 Ci.nsITimer.TYPE_ONE_SHOT);
+      gAttachmentNotifier.timer.initWithCallback(
+        gAttachmentNotifier.event,
+        500,
+        Ci.nsITimer.TYPE_ONE_SHOT
+      );
     });
 
     this._obs.observe(aDocument, {
@@ -6463,8 +7299,11 @@ var gAttachmentNotifier = {
 
     // Add an input event listener for the subject field since there
     // are ways of changing its value without key presses.
-    GetMsgSubjectElement().addEventListener("input",
-      this.subjectObserver, true);
+    GetMsgSubjectElement().addEventListener(
+      "input",
+      this.subjectObserver,
+      true
+    );
 
     // We could have been opened with a draft message already containing
     // some keywords, so run the checker once to pick them up.
@@ -6475,8 +7314,11 @@ var gAttachmentNotifier = {
   // for the subject field.
   subjectObserver() {
     gAttachmentNotifier.timer.cancel();
-    gAttachmentNotifier.timer.initWithCallback(gAttachmentNotifier.event, 500,
-                                               Ci.nsITimer.TYPE_ONE_SHOT);
+    gAttachmentNotifier.timer.initWithCallback(
+      gAttachmentNotifier.event,
+      500,
+      Ci.nsITimer.TYPE_ONE_SHOT
+    );
   },
 
   /**
@@ -6485,10 +7327,14 @@ var gAttachmentNotifier = {
    * @param aManage  Determines whether to manage the notification according to keywords found.
    */
   redetectKeywords(aManage) {
-    if (!this.enabled)
+    if (!this.enabled) {
       return;
+    }
 
-    attachmentWorker.onmessage({ data: this._checkForAttachmentKeywords(false) }, aManage);
+    attachmentWorker.onmessage(
+      { data: this._checkForAttachmentKeywords(false) },
+      aManage
+    );
   },
 
   /**
@@ -6501,26 +7347,32 @@ var gAttachmentNotifier = {
    *          If it is false, the array is returned from this function immediately.
    */
   _checkForAttachmentKeywords(async) {
-    if (!this.enabled)
-      return (async ? null : []);
+    if (!this.enabled) {
+      return async ? null : [];
+    }
 
     if (attachmentNotificationSupressed()) {
       // If we know we don't need to show the notification,
       // we can skip the expensive checking of keywords in the message.
       // but mark it in the .lastMessage that the keywords are unknown.
       attachmentWorker.lastMessage = null;
-      return (async ? null : []);
+      return async ? null : [];
     }
 
     let keywordsInCsv = Services.prefs.getComplexValue(
       "mail.compose.attachment_reminder_keywords",
-      Ci.nsIPrefLocalizedString).data;
+      Ci.nsIPrefLocalizedString
+    ).data;
     let mailBody = getBrowser().contentDocument.querySelector("body");
 
     // We use a new document and import the body into it. We do that to avoid
     // loading images that were previously blocked. Content policy of the newly
     // created data document will block the loads. Details: Bug 1409458 comment #22.
-    let newDoc = getBrowser().contentDocument.implementation.createDocument("", "", null);
+    let newDoc = getBrowser().contentDocument.implementation.createDocument(
+      "",
+      "",
+      null
+    );
     let mailBodyNode = newDoc.importNode(mailBody, true);
 
     // Don't check quoted text from reply.
@@ -6546,51 +7398,67 @@ var gAttachmentNotifier = {
     // together to foobar.
     let brs = mailBodyNode.getElementsByTagName("br");
     for (let i = brs.length - 1; i >= 0; i--) {
-      brs[i].parentNode.replaceChild(mailBodyNode.ownerDocument.createTextNode("\n"), brs[i]);
+      brs[i].parentNode.replaceChild(
+        mailBodyNode.ownerDocument.createTextNode("\n"),
+        brs[i]
+      );
     }
 
     // Ignore signature (plain text compose mode).
     let mailData = mailBodyNode.textContent;
     let sigIndex = mailData.indexOf("-- \n");
-    if (sigIndex > 0)
+    if (sigIndex > 0) {
       mailData = mailData.substring(0, sigIndex);
+    }
 
     // Ignore replied messages (plain text and html compose mode).
-    let repText = getComposeBundle().getString("mailnews.reply_header_originalmessage");
+    let repText = getComposeBundle().getString(
+      "mailnews.reply_header_originalmessage"
+    );
     let repIndex = mailData.indexOf(repText);
-    if (repIndex > 0)
+    if (repIndex > 0) {
       mailData = mailData.substring(0, repIndex);
+    }
 
     // Ignore forwarded messages (plain text and html compose mode).
-    let fwdText = getComposeBundle().getString("mailnews.forward_header_originalmessage");
+    let fwdText = getComposeBundle().getString(
+      "mailnews.forward_header_originalmessage"
+    );
     let fwdIndex = mailData.indexOf(fwdText);
-    if (fwdIndex > 0)
+    if (fwdIndex > 0) {
       mailData = mailData.substring(0, fwdIndex);
+    }
 
     // Prepend the subject to see if the subject contains any attachment
     // keywords too, after making sure that the subject has changed.
     let subject = GetMsgSubjectElement().value;
-    if (subject && (gSubjectChanged ||
-       (gEditingDraft &&
-         (gComposeType == Ci.nsIMsgCompType.New ||
-          gComposeType == Ci.nsIMsgCompType.NewsPost ||
-          gComposeType == Ci.nsIMsgCompType.Draft ||
-          gComposeType == Ci.nsIMsgCompType.Template ||
-          gComposeType == Ci.nsIMsgCompType.EditTemplate ||
-          gComposeType == Ci.nsIMsgCompType.EditAsNew ||
-          gComposeType == Ci.nsIMsgCompType.MailToUrl))))
+    if (
+      subject &&
+      (gSubjectChanged ||
+        (gEditingDraft &&
+          (gComposeType == Ci.nsIMsgCompType.New ||
+            gComposeType == Ci.nsIMsgCompType.NewsPost ||
+            gComposeType == Ci.nsIMsgCompType.Draft ||
+            gComposeType == Ci.nsIMsgCompType.Template ||
+            gComposeType == Ci.nsIMsgCompType.EditTemplate ||
+            gComposeType == Ci.nsIMsgCompType.EditAsNew ||
+            gComposeType == Ci.nsIMsgCompType.MailToUrl)))
+    ) {
       mailData = subject + " " + mailData;
+    }
 
-    if (!async)
+    if (!async) {
       return AttachmentChecker.getAttachmentKeywords(mailData, keywordsInCsv);
+    }
 
     attachmentWorker.postMessage([mailData, keywordsInCsv]);
     return null;
   },
 
   shutdown() {
-    if (this._obs)
+    if (this._obs) {
       this._obs.disconnect();
+    }
     gAttachmentNotifier.timer.cancel();
 
     this._obs = null;
@@ -6621,17 +7489,20 @@ var gAttachmentNotifier = {
  */
 function removeQueryPart(aURL, aQuery) {
   // Quick pre-check.
-  if (!aURL.includes(aQuery))
+  if (!aURL.includes(aQuery)) {
     return aURL;
+  }
 
   let indexQM = aURL.indexOf("?");
-  if (indexQM < 0)
+  if (indexQM < 0) {
     return aURL;
+  }
 
   let queryParts = aURL.substr(indexQM + 1).split("&");
   let indexPart = queryParts.indexOf(aQuery);
-  if (indexPart < 0)
+  if (indexPart < 0) {
     return aURL;
+  }
   queryParts.splice(indexPart, 1);
   return aURL.substr(0, indexQM + 1) + queryParts.join("&");
 }
@@ -6647,16 +7518,25 @@ function InitEditor() {
   GetMsgSubjectElement().editor.flags |= eEditorMailMask;
 
   // Control insertion of line breaks.
-  editor.returnInParagraphCreatesNewParagraph =
-    Services.prefs.getBoolPref("editor.CR_creates_new_p");
-  editor.document.execCommand("defaultparagraphseparator", false,
+  editor.returnInParagraphCreatesNewParagraph = Services.prefs.getBoolPref(
+    "editor.CR_creates_new_p"
+  );
+  editor.document.execCommand(
+    "defaultparagraphseparator",
+    false,
     gMsgCompose.composeHTML &&
-    Services.prefs.getBoolPref("mail.compose.default_to_paragraph") ?
-                               "p" : "br");
+      Services.prefs.getBoolPref("mail.compose.default_to_paragraph")
+      ? "p"
+      : "br"
+  );
   if (gMsgCompose.composeHTML) {
     // Re-enable table/image resizers.
-    editor.QueryInterface(Ci.nsIHTMLAbsPosEditor).absolutePositioningEnabled = true;
-    editor.QueryInterface(Ci.nsIHTMLInlineTableEditor).inlineTableEditingEnabled = true;
+    editor.QueryInterface(
+      Ci.nsIHTMLAbsPosEditor
+    ).absolutePositioningEnabled = true;
+    editor.QueryInterface(
+      Ci.nsIHTMLInlineTableEditor
+    ).inlineTableEditingEnabled = true;
     editor.QueryInterface(Ci.nsIHTMLObjectResizer).objectResizingEnabled = true;
   }
 
@@ -6666,20 +7546,25 @@ function InitEditor() {
   // mark our editor as modified when the user hasn't typed anything yet,
   // but that means the sheet must not @import slow things, especially
   // not over the network.
-  editor.addOverrideStyleSheet("chrome://messenger/content/composerOverlay.css");
+  editor.addOverrideStyleSheet(
+    "chrome://messenger/content/composerOverlay.css"
+  );
   gMsgCompose.initEditor(editor, window.content);
 
   // We always go through this function every time we init an editor.
   // First step is making sure we can spell check.
   gSpellChecker.init(editor);
-  document.getElementById("menu_inlineSpellCheck")
-          .setAttribute("disabled", !gSpellChecker.canSpellCheck);
-  document.getElementById("spellCheckEnable")
-          .setAttribute("disabled", !gSpellChecker.canSpellCheck);
+  document
+    .getElementById("menu_inlineSpellCheck")
+    .setAttribute("disabled", !gSpellChecker.canSpellCheck);
+  document
+    .getElementById("spellCheckEnable")
+    .setAttribute("disabled", !gSpellChecker.canSpellCheck);
   // If canSpellCheck = false, then hidden = false, i.e. show it so that we can
   // still add dictionaries. Else, hide that.
-  document.getElementById("spellCheckAddDictionariesMain")
-          .setAttribute("hidden", gSpellChecker.canSpellCheck);
+  document
+    .getElementById("spellCheckAddDictionariesMain")
+    .setAttribute("hidden", gSpellChecker.canSpellCheck);
   // Then, we enable related UI entries.
   enableInlineSpellCheck(Services.prefs.getBoolPref("mail.spellcheck.inline"));
   gAttachmentNotifier.init(editor.document);
@@ -6689,69 +7574,84 @@ function InitEditor() {
   document.addEventListener("spellcheck-changed", updateDocumentLanguage);
 
   // XXX: the error event fires twice for each load. Why??
-  editor.document.body.addEventListener("error", function(event) {
-    if (event.target.localName != "img") {
-      return;
-    }
-
-    if (event.target.getAttribute("moz-do-not-send") == "true") {
-      return;
-    }
-
-    let src = event.target.src;
-    if (!src) {
-      return;
-    }
-    if (!/^file:/i.test(src)) {
-      // Check if this is a protocol that can fetch parts.
-      let protocol = src.substr(0, src.indexOf(":")).toLowerCase();
-      if (!(Services.io.getProtocolHandler(protocol) instanceof
-            Ci.nsIMsgMessageFetchPartService)) {
-        // Can't fetch parts, don't try to load.
+  editor.document.body.addEventListener(
+    "error",
+    function(event) {
+      if (event.target.localName != "img") {
         return;
       }
-    }
 
-    if (event.target.classList.contains("loading-internal")) {
-      // We're already loading this, or tried so unsuccessfully.
-      return;
-    }
-    if (gOriginalMsgURI) {
-      let msgSvc = Cc["@mozilla.org/messenger;1"]
-        .createInstance(Ci.nsIMessenger)
-        .messageServiceFromURI(gOriginalMsgURI);
-      let originalMsgNeckoURI = {};
-      msgSvc.GetUrlForUri(gOriginalMsgURI, originalMsgNeckoURI, null);
-      if (src.startsWith(removeQueryPart(originalMsgNeckoURI.value.spec,
-                                         "type=application/x-message-display"))
-          ||
+      if (event.target.getAttribute("moz-do-not-send") == "true") {
+        return;
+      }
+
+      let src = event.target.src;
+      if (!src) {
+        return;
+      }
+      if (!/^file:/i.test(src)) {
+        // Check if this is a protocol that can fetch parts.
+        let protocol = src.substr(0, src.indexOf(":")).toLowerCase();
+        if (
+          !(
+            Services.io.getProtocolHandler(protocol) instanceof
+            Ci.nsIMsgMessageFetchPartService
+          )
+        ) {
+          // Can't fetch parts, don't try to load.
+          return;
+        }
+      }
+
+      if (event.target.classList.contains("loading-internal")) {
+        // We're already loading this, or tried so unsuccessfully.
+        return;
+      }
+      if (gOriginalMsgURI) {
+        let msgSvc = Cc["@mozilla.org/messenger;1"]
+          .createInstance(Ci.nsIMessenger)
+          .messageServiceFromURI(gOriginalMsgURI);
+        let originalMsgNeckoURI = {};
+        msgSvc.GetUrlForUri(gOriginalMsgURI, originalMsgNeckoURI, null);
+        if (
+          src.startsWith(
+            removeQueryPart(
+              originalMsgNeckoURI.value.spec,
+              "type=application/x-message-display"
+            )
+          ) ||
           // Special hack for saved messages.
           (src.includes("?number=0&") &&
-           originalMsgNeckoURI.value.spec.startsWith("file://") &&
-           src.startsWith(
-             removeQueryPart(originalMsgNeckoURI.value.spec,
-                             "type=application/x-message-display")
-             .replace("file://", "mailbox://") + "number=0"))) {
-        // Reply/Forward/Edit Draft/Edit as New can contain references to
-        // images in the original message. Load those and make them data: URLs
-        // now.
-        event.target.classList.add("loading-internal");
-        try {
-          loadBlockedImage(src);
-        } catch (e) {
-          // Couldn't load the referenced image.
-          Cu.reportError(e);
+            originalMsgNeckoURI.value.spec.startsWith("file://") &&
+            src.startsWith(
+              removeQueryPart(
+                originalMsgNeckoURI.value.spec,
+                "type=application/x-message-display"
+              ).replace("file://", "mailbox://") + "number=0"
+            ))
+        ) {
+          // Reply/Forward/Edit Draft/Edit as New can contain references to
+          // images in the original message. Load those and make them data: URLs
+          // now.
+          event.target.classList.add("loading-internal");
+          try {
+            loadBlockedImage(src);
+          } catch (e) {
+            // Couldn't load the referenced image.
+            Cu.reportError(e);
+          }
+        } else {
+          // Appears to reference a random message. Notify and keep blocking.
+          gComposeNotificationBar.setBlockedContent(src);
         }
       } else {
-        // Appears to reference a random message. Notify and keep blocking.
+        // For file:, and references to parts of random messages, show the
+        // blocked content notification.
         gComposeNotificationBar.setBlockedContent(src);
       }
-    } else {
-      // For file:, and references to parts of random messages, show the
-      // blocked content notification.
-      gComposeNotificationBar.setBlockedContent(src);
-    }
-  }, true);
+    },
+    true
+  );
 
   // Convert mailnews URL back to data: URL.
   let background = editor.document.body.background;
@@ -6762,9 +7662,14 @@ function InitEditor() {
       .messageServiceFromURI(gOriginalMsgURI);
     let originalMsgNeckoURI = {};
     msgSvc.GetUrlForUri(gOriginalMsgURI, originalMsgNeckoURI, null);
-    if (background.startsWith(
-        removeQueryPart(originalMsgNeckoURI.value.spec,
-                        "type=application/x-message-display"))) {
+    if (
+      background.startsWith(
+        removeQueryPart(
+          originalMsgNeckoURI.value.spec,
+          "type=application/x-message-display"
+        )
+      )
+    ) {
       try {
         editor.document.body.background = loadBlockedImage(background, true);
       } catch (e) {
@@ -6797,14 +7702,18 @@ function enableInlineSpellCheck(aEnableInlineSpellCheck) {
     spellCheckReadyObserver.removeObserver();
   }
   gSpellChecker.enabled = aEnableInlineSpellCheck;
-  document.getElementById("msgSubject").setAttribute("spellcheck",
-                                                     aEnableInlineSpellCheck);
-  document.getElementById("menu_inlineSpellCheck")
-          .setAttribute("checked", aEnableInlineSpellCheck);
-  document.getElementById("spellCheckEnable")
-          .setAttribute("checked", aEnableInlineSpellCheck);
-  document.getElementById("spellCheckDictionaries")
-          .setAttribute("hidden", !aEnableInlineSpellCheck);
+  document
+    .getElementById("msgSubject")
+    .setAttribute("spellcheck", aEnableInlineSpellCheck);
+  document
+    .getElementById("menu_inlineSpellCheck")
+    .setAttribute("checked", aEnableInlineSpellCheck);
+  document
+    .getElementById("spellCheckEnable")
+    .setAttribute("checked", aEnableInlineSpellCheck);
+  document
+    .getElementById("spellCheckDictionaries")
+    .setAttribute("hidden", !aEnableInlineSpellCheck);
 }
 
 function getMailToolbox() {
@@ -6819,11 +7728,13 @@ function getMailToolbox() {
  */
 function dispatchAttachmentBucketEvent(aEventType, aData) {
   let bucket = document.getElementById("attachmentBucket");
-  bucket.dispatchEvent(new CustomEvent(aEventType, {
-    bubbles: true,
-    cancelable: true,
-    detail: aData,
-  }));
+  bucket.dispatchEvent(
+    new CustomEvent(aEventType, {
+      bubbles: true,
+      cancelable: true,
+      detail: aData,
+    })
+  );
 }
 
 /** Update state of zoom type (text vs. full) menu item. */
@@ -6844,8 +7755,9 @@ function getBrowser() {
 function goUpdateMailMenuItems(commandset) {
   for (let i = 0; i < commandset.childNodes.length; i++) {
     let commandID = commandset.childNodes[i].getAttribute("id");
-    if (commandID)
+    if (commandID) {
       goUpdateCommand(commandID);
+    }
   }
 }
 
@@ -6856,52 +7768,72 @@ function goUpdateMailMenuItems(commandset) {
 var gComposeNotificationBar = {
   get brandBundle() {
     delete this.brandBundle;
-    return this.brandBundle = document.getElementById("brandBundle");
+    return (this.brandBundle = document.getElementById("brandBundle"));
   },
 
   setBlockedContent(aBlockedURI) {
     let brandName = this.brandBundle.getString("brandShortName");
-    let buttonLabel = getComposeBundle().getString((AppConstants.platform == "win") ?
-      "blockedContentPrefLabel" : "blockedContentPrefLabelUnix");
-    let buttonAccesskey = getComposeBundle().getString((AppConstants.platform == "win") ?
-      "blockedContentPrefAccesskey" : "blockedContentPrefAccesskeyUnix");
+    let buttonLabel = getComposeBundle().getString(
+      AppConstants.platform == "win"
+        ? "blockedContentPrefLabel"
+        : "blockedContentPrefLabelUnix"
+    );
+    let buttonAccesskey = getComposeBundle().getString(
+      AppConstants.platform == "win"
+        ? "blockedContentPrefAccesskey"
+        : "blockedContentPrefAccesskeyUnix"
+    );
 
-    let buttons = [{
-      label: buttonLabel,
-      accessKey: buttonAccesskey,
-      popup: "blockedContentOptions",
-      callback(aNotification, aButton) {
-        return true; // keep notification open
+    let buttons = [
+      {
+        label: buttonLabel,
+        accessKey: buttonAccesskey,
+        popup: "blockedContentOptions",
+        callback(aNotification, aButton) {
+          return true; // keep notification open
+        },
       },
-    }];
+    ];
 
     // The popup value is a space separated list of all the blocked urls.
     let popup = document.getElementById("blockedContentOptions");
     let urls = popup.value ? popup.value.split(" ") : [];
-    if (!urls.includes(aBlockedURI))
+    if (!urls.includes(aBlockedURI)) {
       urls.push(aBlockedURI);
+    }
     popup.value = urls.join(" ");
 
-    let msg = getComposeBundle().getFormattedString(
-      "blockedContentMessage", [brandName, brandName]);
+    let msg = getComposeBundle().getFormattedString("blockedContentMessage", [
+      brandName,
+      brandName,
+    ]);
     msg = PluralForm.get(urls.length, msg);
 
     if (!this.isShowingBlockedContentNotification()) {
-      gNotification.notificationbox.appendNotification(msg, "blockedContent",
-        null, gNotification.notificationbox.PRIORITY_WARNING_MEDIUM, buttons);
+      gNotification.notificationbox.appendNotification(
+        msg,
+        "blockedContent",
+        null,
+        gNotification.notificationbox.PRIORITY_WARNING_MEDIUM,
+        buttons
+      );
     } else {
-      gNotification.notificationbox.getNotificationWithValue("blockedContent")
+      gNotification.notificationbox
+        .getNotificationWithValue("blockedContent")
         .setAttribute("label", msg);
     }
   },
 
   isShowingBlockedContentNotification() {
-    return !!gNotification.notificationbox.getNotificationWithValue("blockedContent");
+    return !!gNotification.notificationbox.getNotificationWithValue(
+      "blockedContent"
+    );
   },
 
   clearBlockedContentNotification() {
     gNotification.notificationbox.removeNotification(
-      gNotification.notificationbox.getNotificationWithValue("blockedContent"));
+      gNotification.notificationbox.getNotificationWithValue("blockedContent")
+    );
   },
 
   clearNotifications(aValue) {
@@ -6909,21 +7841,33 @@ var gComposeNotificationBar = {
   },
 
   setIdentityWarning(aIdentityName) {
-    if (!gNotification.notificationbox.getNotificationWithValue("identityWarning")) {
-      let text = getComposeBundle().getString("identityWarning").split("%S");
+    if (
+      !gNotification.notificationbox.getNotificationWithValue("identityWarning")
+    ) {
+      let text = getComposeBundle()
+        .getString("identityWarning")
+        .split("%S");
       let label = new DocumentFragment();
       label.appendChild(document.createTextNode(text[0]));
-      label.appendChild(document.createElementNS("http://www.w3.org/1999/xhtml", "b"));
+      label.appendChild(
+        document.createElementNS("http://www.w3.org/1999/xhtml", "b")
+      );
       label.lastChild.appendChild(document.createTextNode(aIdentityName));
       label.appendChild(document.createTextNode(text[1]));
-      gNotification.notificationbox.appendNotification(label, "identityWarning", null,
-        gNotification.notificationbox.PRIORITY_WARNING_HIGH, null);
+      gNotification.notificationbox.appendNotification(
+        label,
+        "identityWarning",
+        null,
+        gNotification.notificationbox.PRIORITY_WARNING_HIGH,
+        null
+      );
     }
   },
 
   clearIdentityWarning() {
-    let idWarning = gNotification.notificationbox
-      .getNotificationWithValue("identityWarning");
+    let idWarning = gNotification.notificationbox.getNotificationWithValue(
+      "identityWarning"
+    );
     if (idWarning) {
       gNotification.notificationbox.removeNotification(idWarning);
     }
@@ -6945,12 +7889,16 @@ function onBlockedContentOptionsShowing(aEvent) {
   // ... and in with the new.
   for (let url of urls) {
     let menuitem = document.createXULElement("menuitem");
-    menuitem.setAttribute("label",
-      getComposeBundle().getFormattedString("blockedAllowResource", [url]));
+    menuitem.setAttribute(
+      "label",
+      getComposeBundle().getFormattedString("blockedAllowResource", [url])
+    );
     menuitem.setAttribute("crop", "center");
     menuitem.setAttribute("value", url);
-    menuitem.setAttribute("oncommand",
-                          "onUnblockResource(this.value, this.parentNode);");
+    menuitem.setAttribute(
+      "oncommand",
+      "onUnblockResource(this.value, this.parentNode);"
+    );
     aEvent.target.appendChild(menuitem);
   }
 }
@@ -7014,22 +7962,26 @@ function loadBlockedImage(aURL, aReturnDataURL = false) {
 
     if (!contentType.startsWith("image/")) {
       // Unsafe to unblock this. It would just be garbage either way.
-      throw new Error("Won't unblock; URL=" + aURL +
-                      ", contentType=" + contentType);
+      throw new Error(
+        "Won't unblock; URL=" + aURL + ", contentType=" + contentType
+      );
     }
   } else {
     // Assuming image/png is the best we can do.
     contentType = "image/png";
   }
-  let channel = Services.io.newChannelFromURI(uri,
+  let channel = Services.io.newChannelFromURI(
+    uri,
     null,
     Services.scriptSecurityManager.getSystemPrincipal(),
     null,
     Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-    Ci.nsIContentPolicy.TYPE_OTHER);
+    Ci.nsIContentPolicy.TYPE_OTHER
+  );
   let inputStream = channel.open();
-  let stream = Cc["@mozilla.org/binaryinputstream;1"]
-    .createInstance(Ci.nsIBinaryInputStream);
+  let stream = Cc["@mozilla.org/binaryinputstream;1"].createInstance(
+    Ci.nsIBinaryInputStream
+  );
   stream.setInputStream(inputStream);
   let streamData = "";
   try {
@@ -7042,12 +7994,16 @@ function loadBlockedImage(aURL, aReturnDataURL = false) {
   }
   stream.close();
   let encoded = btoa(streamData);
-  let dataURL = "data:" + contentType +
+  let dataURL =
+    "data:" +
+    contentType +
     (filename ? ";filename=" + encodeURIComponent(filename) : "") +
-    ";base64," + encoded;
+    ";base64," +
+    encoded;
 
-  if (aReturnDataURL)
+  if (aReturnDataURL) {
     return dataURL;
+  }
 
   let editor = GetCurrentEditor();
   for (let img of editor.document.images) {

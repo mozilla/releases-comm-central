@@ -5,7 +5,9 @@
 
 "use strict";
 
-var {ExtensionSupport} = ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
+var { ExtensionSupport } = ChromeUtils.import(
+  "resource:///modules/ExtensionSupport.jsm"
+);
 
 // const addonID = "testfoldertreemode@mozilla.org";
 
@@ -14,12 +16,10 @@ function install() {}
 function uninstall() {}
 
 function startup(data, reason) {
-  ExtensionSupport.registerWindowListener(
-    data.id,
-    {
-      chromeURLs: [ "chrome://messenger/content/messenger.xul" ],
-      onLoadWindow: setupFolderMode,
-    });
+  ExtensionSupport.registerWindowListener(data.id, {
+    chromeURLs: ["chrome://messenger/content/messenger.xul"],
+    onLoadWindow: setupFolderMode,
+  });
 }
 
 function shutdown(data, reason) {
@@ -30,15 +30,24 @@ function setupFolderMode(aWindow) {
   let testFolderTreeMode = {
     __proto__: aWindow.IFolderTreeMode,
     generateMap(aFTV) {
-      var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+      var { MailServices } = ChromeUtils.import(
+        "resource:///modules/MailServices.jsm"
+      );
       // Pick the tinderbox@foo.invalid inbox and use it as the only folder
-      let server = MailServices.accounts.FindServer("tinderbox", "tinderbox123", "pop3");
+      let server = MailServices.accounts.FindServer(
+        "tinderbox",
+        "tinderbox123",
+        "pop3"
+      );
       let item = new aWindow.ftvItem(server.rootFolder.getChildNamed("Inbox"));
       item.__defineGetter__("children", () => []);
       return [item];
     },
   };
 
-  aWindow.gFolderTreeView.registerFolderTreeMode("testmode", testFolderTreeMode,
-                                                 "Test Mode");
+  aWindow.gFolderTreeView.registerFolderTreeMode(
+    "testmode",
+    testFolderTreeMode,
+    "Test Mode"
+  );
 }

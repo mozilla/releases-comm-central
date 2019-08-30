@@ -70,15 +70,17 @@ var nameToBarDomId = {
 
 function assert_quick_filter_button_enabled(aEnabled) {
   if (mc.e("qfb-show-filter-bar").disabled == aEnabled) {
-    throw new Error("Quick filter bar button should be " +
-                    (aEnabled ? "enabled" : "disabled"));
+    throw new Error(
+      "Quick filter bar button should be " + (aEnabled ? "enabled" : "disabled")
+    );
   }
 }
 
 function assert_quick_filter_bar_visible(aVisible) {
-  if ((mc.e("quick-filter-bar").getBoundingClientRect().height > 0) != aVisible) {
-    throw new Error("Quick filter bar should be " +
-                    (aVisible ? "visible" : "collapsed"));
+  if (mc.e("quick-filter-bar").getBoundingClientRect().height > 0 != aVisible) {
+    throw new Error(
+      "Quick filter bar should be " + (aVisible ? "visible" : "collapsed")
+    );
   }
 }
 
@@ -98,7 +100,7 @@ function toggle_quick_filter_bar() {
 function assert_constraints_expressed(aConstraints) {
   for (let name in nameToBarDomId) {
     let domId = nameToBarDomId[name];
-    let expectedValue = (name in aConstraints) ? aConstraints[name] : false;
+    let expectedValue = name in aConstraints ? aConstraints[name] : false;
     let domNode = mc.e(domId);
     if (domNode.checked !== expectedValue) {
       throw new Error(name + "'s checked state should be " + expectedValue);
@@ -151,21 +153,34 @@ function toggle_tag_mode() {
  */
 function assert_tag_constraints_visible(...aArgs) {
   // the stupid bar should be visible if any arguments are specified
-  if (aArgs.length > 0 && mc.e("quick-filter-bar-tab-bar").collapsed)
+  if (aArgs.length > 0 && mc.e("quick-filter-bar-tab-bar").collapsed) {
     throw new Error("The tag bar should not be collapsed!");
+  }
 
   let kids = mc.e("quick-filter-bar-tab-bar").childNodes;
   let tagLength = kids.length - 1; // -1 for the qfb-boolean-mode widget
   // this is bad error reporting in here for now.
-  if (tagLength != aArgs.length)
-    throw new Error("Mismatch in expected tag count and actual. " +
-                    "Expected " + aArgs.length +
-                    " actual " + tagLength);
+  if (tagLength != aArgs.length) {
+    throw new Error(
+      "Mismatch in expected tag count and actual. " +
+        "Expected " +
+        aArgs.length +
+        " actual " +
+        tagLength
+    );
+  }
   for (let iArg = 0; iArg < aArgs.length; iArg++) {
     let nodeId = "qfb-tag-" + aArgs[iArg];
-    if (nodeId != kids[iArg + 1].id)
-      throw new Error("Mismatch at tag " + iArg + " expected " + nodeId +
-                      " but got " + kids[iArg + 1].id);
+    if (nodeId != kids[iArg + 1].id) {
+      throw new Error(
+        "Mismatch at tag " +
+          iArg +
+          " expected " +
+          nodeId +
+          " but got " +
+          kids[iArg + 1].id
+      );
+    }
   }
 }
 
@@ -183,9 +198,15 @@ function assert_tag_constraints_checked(...aArgs) {
   let kids = mc.e("quick-filter-bar-tab-bar").childNodes;
   for (let iNode = 0; iNode < kids.length; iNode++) {
     let node = kids[iNode];
-    if (node.checked != (node.id in expected))
-      throw new Error("node " + node.id + " should " +
-                      ((node.id in expected) ? "be " : "not be ") + "checked.");
+    if (node.checked != node.id in expected) {
+      throw new Error(
+        "node " +
+          node.id +
+          " should " +
+          (node.id in expected ? "be " : "not be ") +
+          "checked."
+      );
+    }
   }
 }
 
@@ -215,11 +236,18 @@ function assert_text_constraints_checked(...aArgs) {
   let kids = mc.e("quick-filter-bar-filter-text-bar").childNodes;
   for (let iNode = 0; iNode < kids.length; iNode++) {
     let node = kids[iNode];
-    if (node.tagName == "label")
+    if (node.tagName == "label") {
       continue;
-    if (node.checked != (node.id in expected))
-      throw new Error("node " + node.id + " should " +
-                      ((node.id in expected) ? "be " : "not be ") + "checked.");
+    }
+    if (node.checked != node.id in expected) {
+      throw new Error(
+        "node " +
+          node.id +
+          " should " +
+          (node.id in expected ? "be " : "not be ") +
+          "checked."
+      );
+    }
   }
 }
 
@@ -238,9 +266,11 @@ function set_filter_text(aText) {
 
 function assert_filter_text(aText) {
   let textbox = mc.e("qfb-qs-textbox");
-  if (textbox.value != aText)
-    throw new Error("Expected text filter value of '" + aText + "' but got '" +
-                    textbox.value);
+  if (textbox.value != aText) {
+    throw new Error(
+      "Expected text filter value of '" + aText + "' but got '" + textbox.value
+    );
+  }
 }
 
 /**
@@ -250,14 +280,19 @@ function assert_filter_text(aText) {
 function assert_results_label_count(aCount) {
   let resultsLabel = mc.e("qfb-results-label");
   if (aCount == 0) {
-    if (resultsLabel.value != resultsLabel.getAttribute("noresultsstring"))
-      throw new Error("results label should be displaying the no messages case");
+    if (resultsLabel.value != resultsLabel.getAttribute("noresultsstring")) {
+      throw new Error(
+        "results label should be displaying the no messages case"
+      );
+    }
   } else {
     let s = resultsLabel.value;
     s = s.substring(0, s.indexOf(" "));
-    if (parseInt(s) !== aCount)
-     throw new Error("Result count is displaying " + s + " but should show " +
-                     aCount);
+    if (parseInt(s) !== aCount) {
+      throw new Error(
+        "Result count is displaying " + s + " but should show " + aCount
+      );
+    }
   }
 }
 

@@ -2,9 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
+const { fixIterator } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+const { StringBundle } = ChromeUtils.import(
+  "resource:///modules/StringBundle.js"
+);
 
 var EXPORTED_SYMBOLS = ["DisplayNameUtils"];
 
@@ -36,8 +42,9 @@ function getCardForEmail(aEmailAddress) {
   for (let book of fixIterator(books, Ci.nsIAbDirectory)) {
     try {
       let card = book.cardForEmailAddress(aEmailAddress);
-      if (card)
+      if (card) {
         return { book, card };
+      }
     } catch (ex) {}
   }
 
@@ -46,12 +53,16 @@ function getCardForEmail(aEmailAddress) {
 
 function _getIdentityForAddress(aEmailAddress) {
   let emailAddress = aEmailAddress.toLowerCase();
-  for (let identity of fixIterator(MailServices.accounts.allIdentities,
-                                   Ci.nsIMsgIdentity)) {
-    if (!identity.email)
+  for (let identity of fixIterator(
+    MailServices.accounts.allIdentities,
+    Ci.nsIMsgIdentity
+  )) {
+    if (!identity.email) {
       continue;
-    if (emailAddress == identity.email.toLowerCase())
+    }
+    if (emailAddress == identity.email.toLowerCase()) {
       return identity;
+    }
   }
   return null;
 }
@@ -87,10 +98,11 @@ function formatDisplayName(aEmailAddress, aHeaderDisplayName, aContext, aCard) {
     }
 
     // Make sure we have an unambiguous name if there are multiple identities
-    if (MailServices.accounts.allIdentities.length > 1)
+    if (MailServices.accounts.allIdentities.length > 1) {
       displayName = MailServices.headerParser
-                                .makeMailboxObject(displayName,
-                                                   identity.email).toString();
+        .makeMailboxObject(displayName, identity.email)
+        .toString();
+    }
   }
 
   // If we don't have a card, refuse to generate a display name. Places calling
@@ -98,8 +110,9 @@ function formatDisplayName(aEmailAddress, aHeaderDisplayName, aContext, aCard) {
   // value from the message header).
   if (card) {
     // getProperty may return a "1" or "0" string, we want a boolean
-    if (card.getProperty("PreferDisplayName", "1") == "1")
+    if (card.getProperty("PreferDisplayName", "1") == "1") {
       displayName = card.displayName || null;
+    }
 
     // Note: aHeaderDisplayName is not used as a fallback as confusion could be
     // caused by a collected address using an e-mail address as display name.
@@ -120,20 +133,27 @@ function formatDisplayName(aEmailAddress, aHeaderDisplayName, aContext, aCard) {
 function formatDisplayNameList(aHeaderValue, aContext) {
   let addresses = MailServices.headerParser.parseDecodedHeader(aHeaderValue);
   if (addresses.length > 0) {
-    let displayName = formatDisplayName(addresses[0].email,
-                                        addresses[0].name, aContext);
+    let displayName = formatDisplayName(
+      addresses[0].email,
+      addresses[0].name,
+      aContext
+    );
     let andOthersStr = "";
-    if (addresses.length > 1)
+    if (addresses.length > 1) {
       andOthersStr = " " + gMessengerBundle.getString("andOthers");
+    }
 
-    if (displayName)
+    if (displayName) {
       return displayName + andOthersStr;
+    }
 
     // Construct default display.
     if (addresses[0].email) {
-      return MailServices.headerParser
-                         .makeMailboxObject(addresses[0].name, addresses[0].email)
-                         .toString() + andOthersStr;
+      return (
+        MailServices.headerParser
+          .makeMailboxObject(addresses[0].name, addresses[0].email)
+          .toString() + andOthersStr
+      );
     }
   }
 

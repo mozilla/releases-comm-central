@@ -47,19 +47,29 @@ add_task(async () => {
     browser.mailTabs.setQuickFilter({ tags: true });
     await awaitMessage("checkVisible", 0, 1, 3, 5, 6, 7, 8, 9);
 
-    browser.mailTabs.setQuickFilter({ tags: { mode: "any", tags: { "$label1": true } } });
+    browser.mailTabs.setQuickFilter({
+      tags: { mode: "any", tags: { $label1: true } },
+    });
     await awaitMessage("checkVisible", 0, 3, 6, 9);
 
-    browser.mailTabs.setQuickFilter({ tags: { mode: "any", tags: { "$label2": true } } });
+    browser.mailTabs.setQuickFilter({
+      tags: { mode: "any", tags: { $label2: true } },
+    });
     await awaitMessage("checkVisible", 1, 3, 5, 7, 9);
 
-    browser.mailTabs.setQuickFilter({ tags: { mode: "any", tags: { "$label1": true, "$label2": true } } });
+    browser.mailTabs.setQuickFilter({
+      tags: { mode: "any", tags: { $label1: true, $label2: true } },
+    });
     await awaitMessage("checkVisible", 0, 1, 3, 5, 6, 7, 9);
 
-    browser.mailTabs.setQuickFilter({ tags: { mode: "all", tags: { "$label1": true, "$label2": true } } });
+    browser.mailTabs.setQuickFilter({
+      tags: { mode: "all", tags: { $label1: true, $label2: true } },
+    });
     await awaitMessage("checkVisible", 3, 9);
 
-    browser.mailTabs.setQuickFilter({ tags: { mode: "all", tags: { "$label1": true, "$label2": false } } });
+    browser.mailTabs.setQuickFilter({
+      tags: { mode: "all", tags: { $label1: true, $label2: false } },
+    });
     await awaitMessage("checkVisible", 0, 6);
 
     browser.mailTabs.setQuickFilter({ attachment: true });
@@ -120,7 +130,9 @@ add_task(async () => {
   // Add an author to the address book.
 
   let author = messages[7].author.replace(/["<>]/g, "").split(" ");
-  let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(Ci.nsIAbCard);
+  let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+    Ci.nsIAbCard
+  );
   card.setProperty("FirstName", author[0]);
   card.setProperty("LastName", author[1]);
   card.setProperty("DisplayName", `${author[0]} ${author[1]}`);

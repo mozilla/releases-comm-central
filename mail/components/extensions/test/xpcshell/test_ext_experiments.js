@@ -4,7 +4,9 @@
 
 "use strict";
 
-var {ExtensionTestUtils} = ChromeUtils.import("resource://testing-common/ExtensionXPCShellUtils.jsm");
+var { ExtensionTestUtils } = ChromeUtils.import(
+  "resource://testing-common/ExtensionXPCShellUtils.jsm"
+);
 ExtensionTestUtils.init(this);
 
 async function run_test() {
@@ -22,7 +24,9 @@ add_task(async function test_managers() {
     background: async () => {
       let [testAccount] = await browser.accounts.list();
       let testFolder = testAccount.folders.find(f => f.name == "test1");
-      let { messages: [testMessage] } = await browser.messages.list(testFolder);
+      let {
+        messages: [testMessage],
+      } = await browser.messages.list(testFolder);
 
       let messageCount = await browser.testapi.testCanGetFolder(testFolder);
       browser.test.assertEq(5, messageCount);
@@ -42,51 +46,68 @@ add_task(async function test_managers() {
       let messageList = await browser.testapi.testCanStartMessageList();
       browser.test.assertEq(36, messageList.id.length);
       browser.test.assertEq(4, messageList.messages.length);
-      browser.test.assertEq(testMessage.subject, messageList.messages[0].subject);
+      browser.test.assertEq(
+        testMessage.subject,
+        messageList.messages[0].subject
+      );
 
       messageList = await browser.messages.continueList(messageList.id);
       browser.test.assertEq(null, messageList.id);
       browser.test.assertEq(1, messageList.messages.length);
-      browser.test.assertTrue(testMessage.subject != messageList.messages[0].subject);
+      browser.test.assertTrue(
+        testMessage.subject != messageList.messages[0].subject
+      );
 
       browser.test.notifyPass("finished");
     },
     files: {
-      "schema.json": JSON.stringify([{
-        namespace: "testapi",
-        functions: [{
-          name: "testCanGetFolder",
-          type: "function",
-          async: true,
-          parameters: [{
-            name: "folder",
-            $ref: "folders.MailFolder",
-          }],
-        }, {
-          name: "testCanConvertFolder",
-          type: "function",
-          async: true,
-          parameters: [],
-        }, {
-          name: "testCanGetMessage",
-          type: "function",
-          async: true,
-          parameters: [{
-            name: "messageId",
-            type: "integer",
-          }],
-        }, {
-          name: "testCanConvertMessage",
-          type: "function",
-          async: true,
-          parameters: [],
-        }, {
-          name: "testCanStartMessageList",
-          type: "function",
-          async: true,
-          parameters: [],
-        }],
-      }]),
+      "schema.json": JSON.stringify([
+        {
+          namespace: "testapi",
+          functions: [
+            {
+              name: "testCanGetFolder",
+              type: "function",
+              async: true,
+              parameters: [
+                {
+                  name: "folder",
+                  $ref: "folders.MailFolder",
+                },
+              ],
+            },
+            {
+              name: "testCanConvertFolder",
+              type: "function",
+              async: true,
+              parameters: [],
+            },
+            {
+              name: "testCanGetMessage",
+              type: "function",
+              async: true,
+              parameters: [
+                {
+                  name: "messageId",
+                  type: "integer",
+                },
+              ],
+            },
+            {
+              name: "testCanConvertMessage",
+              type: "function",
+              async: true,
+              parameters: [],
+            },
+            {
+              name: "testCanStartMessageList",
+              type: "function",
+              async: true,
+              parameters: [],
+            },
+          ],
+        },
+      ]),
       "implementation.js": `
         var { ExtensionCommon } = ChromeUtils.import("resource://gre/modules/ExtensionCommon.jsm");
         var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");

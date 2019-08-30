@@ -3,13 +3,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
-var URI_INHERITS_SECURITY_CONTEXT = Ci.nsIProtocolHandler
-                                      .URI_INHERITS_SECURITY_CONTEXT;
+var URI_INHERITS_SECURITY_CONTEXT =
+  Ci.nsIProtocolHandler.URI_INHERITS_SECURITY_CONTEXT;
 
 function resolveURIInternal(aCmdLine, aArgument) {
   var uri = aCmdLine.resolveURI(aArgument);
@@ -19,8 +23,9 @@ function resolveURIInternal(aCmdLine, aArgument) {
   }
 
   try {
-    if (uri.file.exists())
+    if (uri.file.exists()) {
       return uri;
+    }
   } catch (e) {
     Cu.reportError(e);
   }
@@ -39,47 +44,54 @@ function resolveURIInternal(aCmdLine, aArgument) {
 
 function handleIndexerResult(aFile) {
   // Do this here because xpcshell isn't too happy with this at startup
-  var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+  var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
   // Make sure the folder tree is initialized
   MailUtils.discoverFolders();
 
   // Use the search integration module to convert the indexer result into a
   // message header
-  const {SearchIntegration} = ChromeUtils.import("resource:///modules/SearchIntegration.jsm");
+  const { SearchIntegration } = ChromeUtils.import(
+    "resource:///modules/SearchIntegration.jsm"
+  );
   let msgHdr = SearchIntegration.handleResult(aFile);
 
   // If we found a message header, open it, otherwise throw an exception
-  if (msgHdr)
+  if (msgHdr) {
     MailUtils.displayMessage(msgHdr);
-  else
+  } else {
     throw Cr.NS_ERROR_FAILURE;
+  }
 }
 
 function mayOpenURI(uri) {
-  var ext = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-    .getService(Ci.nsIExternalProtocolService);
+  var ext = Cc["@mozilla.org/uriloader/external-protocol-service;1"].getService(
+    Ci.nsIExternalProtocolService
+  );
 
   return ext.isExposedProtocol(uri.scheme);
 }
 
 function openURI(uri) {
-  if (!mayOpenURI(uri))
+  if (!mayOpenURI(uri)) {
     throw Cr.NS_ERROR_FAILURE;
+  }
 
-  var channel = Services.io.newChannelFromURI(uri,
-                                              null,
-                                              Services.scriptSecurityManager.getSystemPrincipal(),
-                                              null,
-                                              Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                              Ci.nsIContentPolicy.TYPE_OTHER);
-  var loader = Cc["@mozilla.org/uriloader;1"]
-                 .getService(Ci.nsIURILoader);
+  var channel = Services.io.newChannelFromURI(
+    uri,
+    null,
+    Services.scriptSecurityManager.getSystemPrincipal(),
+    null,
+    Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+    Ci.nsIContentPolicy.TYPE_OTHER
+  );
+  var loader = Cc["@mozilla.org/uriloader;1"].getService(Ci.nsIURILoader);
 
   // We cannot load a URI on startup asynchronously without protecting
   // the startup
 
-  var loadgroup = Cc["@mozilla.org/network/load-group;1"]
-                    .createInstance(Ci.nsILoadGroup);
+  var loadgroup = Cc["@mozilla.org/network/load-group;1"].createInstance(
+    Ci.nsILoadGroup
+  );
 
   var loadlistener = {
     onStartRequest(aRequest) {
@@ -90,34 +102,44 @@ function openURI(uri) {
       Services.startup.exitLastWindowClosingSurvivalArea();
     },
 
-    QueryInterface: ChromeUtils.generateQI([Ci.nsIRequestObserver,
-                                            Ci.nsISupportsWeakReference]),
+    QueryInterface: ChromeUtils.generateQI([
+      Ci.nsIRequestObserver,
+      Ci.nsISupportsWeakReference,
+    ]),
   };
 
   loadgroup.groupObserver = loadlistener;
 
   var listener = {
-    onStartURIOpen(uri) { return false; },
+    onStartURIOpen(uri) {
+      return false;
+    },
     doContent(ctype, preferred, request, handler) {
-      var newHandler = Cc["@mozilla.org/uriloader/content-handler;1?type=application/x-message-display"]
-                         .createInstance(Ci.nsIContentHandler);
+      var newHandler = Cc[
+        "@mozilla.org/uriloader/content-handler;1?type=application/x-message-display"
+      ].createInstance(Ci.nsIContentHandler);
       newHandler.handleContent("application/x-message-display", this, request);
       return true;
     },
     isPreferred(ctype, desired) {
-      if (ctype == "message/rfc822")
+      if (ctype == "message/rfc822") {
         return true;
+      }
       return false;
     },
-    canHandleContent(ctype, preferred, desired) { return false; },
+    canHandleContent(ctype, preferred, desired) {
+      return false;
+    },
     loadCookie: null,
     parentContentListener: null,
     getInterface(iid) {
-      if (iid.equals(Ci.nsIURIContentListener))
+      if (iid.equals(Ci.nsIURIContentListener)) {
         return this;
+      }
 
-      if (iid.equals(Ci.nsILoadGroup))
+      if (iid.equals(Ci.nsILoadGroup)) {
         return loadgroup;
+      }
 
       throw Cr.NS_ERROR_NO_INTERFACE;
     },
@@ -126,9 +148,11 @@ function openURI(uri) {
 }
 
 var nsMailDefaultHandler = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsICommandLineHandler,
-                                          Ci.nsICommandLineValidator,
-                                          Ci.nsIFactory]),
+  QueryInterface: ChromeUtils.generateQI([
+    Ci.nsICommandLineHandler,
+    Ci.nsICommandLineValidator,
+    Ci.nsIFactory,
+  ]),
 
   /* nsICommandLineHandler */
 
@@ -149,51 +173,63 @@ var nsMailDefaultHandler = {
         var remoteParams = a[2].split(",");
 
         switch (remoteVerb) {
-        case "openurl": {
-          let xuri = cmdLine.resolveURI(remoteParams[0]);
-          openURI(xuri);
-          break;
-        }
-        case "mailto": {
-          let xuri = cmdLine.resolveURI("mailto:" + remoteParams[0]);
-          openURI(xuri);
-          break;
-        }
-        case "xfedocommand":
-          // xfeDoCommand(openBrowser)
-          switch (remoteParams[0].toLowerCase()) {
-          case "openinbox": {
-            var win = Services.wm.getMostRecentWindow("mail:3pane");
-            if (win) {
-              win.focus();
-            } else {
-              // Bug 277798 - we have to pass an argument to openWindow(), or
-              // else it won't honor the dialog=no instruction.
-              let argstring = Cc["@mozilla.org/supports-string;1"]
-                                .createInstance(Ci.nsISupportsString);
-              Services.ww.openWindow(null, "chrome://messenger/content/", "_blank",
-                                     "chrome,dialog=no,all", argstring);
+          case "openurl": {
+            let xuri = cmdLine.resolveURI(remoteParams[0]);
+            openURI(xuri);
+            break;
+          }
+          case "mailto": {
+            let xuri = cmdLine.resolveURI("mailto:" + remoteParams[0]);
+            openURI(xuri);
+            break;
+          }
+          case "xfedocommand":
+            // xfeDoCommand(openBrowser)
+            switch (remoteParams[0].toLowerCase()) {
+              case "openinbox": {
+                var win = Services.wm.getMostRecentWindow("mail:3pane");
+                if (win) {
+                  win.focus();
+                } else {
+                  // Bug 277798 - we have to pass an argument to openWindow(), or
+                  // else it won't honor the dialog=no instruction.
+                  let argstring = Cc[
+                    "@mozilla.org/supports-string;1"
+                  ].createInstance(Ci.nsISupportsString);
+                  Services.ww.openWindow(
+                    null,
+                    "chrome://messenger/content/",
+                    "_blank",
+                    "chrome,dialog=no,all",
+                    argstring
+                  );
+                }
+                break;
+              }
+              case "composemessage": {
+                let argstring = Cc[
+                  "@mozilla.org/supports-string;1"
+                ].createInstance(Ci.nsISupportsString);
+                remoteParams.shift();
+                argstring.data = remoteParams.join(",");
+                Services.ww.openWindow(
+                  null,
+                  "chrome://messenger/content/messengercompose/messengercompose.xul",
+                  "_blank",
+                  "chrome,dialog=no,all",
+                  argstring
+                );
+                break;
+              }
+              default:
+                throw Cr.NS_ERROR_ABORT;
             }
             break;
-          }
-          case "composemessage": {
-            let argstring = Cc["@mozilla.org/supports-string;1"]
-                              .createInstance(Ci.nsISupportsString);
-            remoteParams.shift();
-            argstring.data = remoteParams.join(",");
-            Services.ww.openWindow(null, "chrome://messenger/content/messengercompose/messengercompose.xul",
-                                   "_blank", "chrome,dialog=no,all", argstring);
-            break;
-          }
-          default:
-            throw Cr.NS_ERROR_ABORT;
-          }
-          break;
 
-        default:
-          // Somebody sent us a remote command we don't know how to process:
-          // just abort.
-          throw Cr.NS_ERROR_ABORT;
+          default:
+            // Somebody sent us a remote command we don't know how to process:
+            // just abort.
+            throw Cr.NS_ERROR_ABORT;
         }
 
         cmdLine.preventDefault = true;
@@ -209,13 +245,24 @@ var nsMailDefaultHandler = {
     var chromeParam = cmdLine.handleFlagWithParam("chrome", false);
     if (chromeParam) {
       try {
-        let argstring = Cc["@mozilla.org/supports-string;1"]
-                          .createInstance(Ci.nsISupportsString);
+        let argstring = Cc["@mozilla.org/supports-string;1"].createInstance(
+          Ci.nsISupportsString
+        );
         let _uri = resolveURIInternal(cmdLine, chromeParam);
         // only load URIs which do not inherit chrome privs
-        if (!Services.netUtils.URIChainHasFlags(_uri, URI_INHERITS_SECURITY_CONTEXT)) {
-          Services.ww.openWindow(null, _uri.spec, "_blank",
-                                 "chrome,dialog=no,all", argstring);
+        if (
+          !Services.netUtils.URIChainHasFlags(
+            _uri,
+            URI_INHERITS_SECURITY_CONTEXT
+          )
+        ) {
+          Services.ww.openWindow(
+            null,
+            _uri.spec,
+            "_blank",
+            "chrome,dialog=no,all",
+            argstring
+          );
           cmdLine.preventDefault = true;
         }
       } catch (e) {
@@ -229,14 +276,19 @@ var nsMailDefaultHandler = {
 
     if (cmdLine.handleFlag("options", false)) {
       // Open the options window
-      let instantApply = Services.prefs
-                                 .getBoolPref("browser.preferences.instantApply");
-      let features = "chrome,titlebar,toolbar" +
-                     (instantApply ? ",dialog=no" : ",modal");
+      let instantApply = Services.prefs.getBoolPref(
+        "browser.preferences.instantApply"
+      );
+      let features =
+        "chrome,titlebar,toolbar" + (instantApply ? ",dialog=no" : ",modal");
 
-      Services.ww.openWindow(null,
+      Services.ww.openWindow(
+        null,
         "chrome://messenger/content/preferences/preferences.xul",
-        "_blank", features, null);
+        "_blank",
+        features,
+        null
+      );
     }
 
     // The URI might be passed as the argument to the file parameter
@@ -247,8 +299,9 @@ var nsMailDefaultHandler = {
       var i = 0;
       while (i < count) {
         var curarg = cmdLine.getArgument(i);
-        if (!curarg.startsWith("-"))
+        if (!curarg.startsWith("-")) {
           break;
+        }
 
         dump("Warning: unrecognized command line flag " + curarg + "\n");
         // To emulate the pre-nsICommandLine behavior, we ignore the
@@ -265,8 +318,9 @@ var nsMailDefaultHandler = {
         if (uri.startsWith("mailto:")) {
           while (++i < count) {
             var testarg = cmdLine.getArgument(i);
-            if (testarg.startsWith("-"))
+            if (testarg.startsWith("-")) {
               break;
+            }
 
             uri += " " + testarg;
           }
@@ -274,8 +328,9 @@ var nsMailDefaultHandler = {
       }
     }
 
-    if (!uri && cmdLine.preventDefault)
+    if (!uri && cmdLine.preventDefault) {
       return;
+    }
 
     if (!uri && cmdLine.state != Ci.nsICommandLine.STATE_INITIAL_LAUNCH) {
       try {
@@ -299,8 +354,10 @@ var nsMailDefaultHandler = {
         } catch (e) {
           // If feed handling is not installed, do nothing
         }
-      } else if (uri.toLowerCase().endsWith(".mozeml") ||
-                 uri.toLowerCase().endsWith(".wdseml")) {
+      } else if (
+        uri.toLowerCase().endsWith(".mozeml") ||
+        uri.toLowerCase().endsWith(".wdseml")
+      ) {
         handleIndexerResult(cmdLine.resolveFile(uri));
         cmdLine.preventDefault = true;
       } else if (uri.toLowerCase().endsWith(".eml")) {
@@ -309,21 +366,32 @@ var nsMailDefaultHandler = {
         // No point in trying to open a file if it doesn't exist or is empty
         if (file.exists() && file.fileSize > 0) {
           // Get the URL for this file
-          let fileURL = Services.io.newFileURI(file)
-                                .QueryInterface(Ci.nsIFileURL);
-          fileURL = fileURL.mutate().setQuery("type=application/x-message-display").finalize();
+          let fileURL = Services.io
+            .newFileURI(file)
+            .QueryInterface(Ci.nsIFileURL);
+          fileURL = fileURL
+            .mutate()
+            .setQuery("type=application/x-message-display")
+            .finalize();
 
-          Services.ww.openWindow(null,
-                                 "chrome://messenger/content/messageWindow.xul",
-                                 "_blank", "all,chrome,dialog=no,status,toolbar",
-                                 fileURL);
+          Services.ww.openWindow(
+            null,
+            "chrome://messenger/content/messageWindow.xul",
+            "_blank",
+            "all,chrome,dialog=no,status,toolbar",
+            fileURL
+          );
           cmdLine.preventDefault = true;
         } else {
-          let bundle = Services.strings.createBundle("chrome://messenger/locale/messenger.properties");
+          let bundle = Services.strings.createBundle(
+            "chrome://messenger/locale/messenger.properties"
+          );
           let title, message;
           if (!file.exists()) {
             title = bundle.GetStringFromName("fileNotFoundTitle");
-            message = bundle.formatStringFromName("fileNotFoundMsg", [file.path]);
+            message = bundle.formatStringFromName("fileNotFoundMsg", [
+              file.path,
+            ]);
           } else {
             // The file is empty
             title = bundle.GetStringFromName("fileEmptyTitle");
@@ -337,35 +405,45 @@ var nsMailDefaultHandler = {
         let file = cmdLine.resolveFile(uri);
         if (file.exists() && file.fileSize > 0) {
           let uriSpec = Services.io.newFileURI(file).spec;
-          NetUtil.asyncFetch({uri: uriSpec, loadUsingSystemPrincipal: true},
+          NetUtil.asyncFetch(
+            { uri: uriSpec, loadUsingSystemPrincipal: true },
             function(inputStream, status) {
               if (!Components.isSuccessCode(status)) {
                 return;
               }
 
               let data = NetUtil.readInputStreamToString(
-                inputStream, inputStream.available());
+                inputStream,
+                inputStream.available()
+              );
               let card = MailServices.ab.escapedVCardToAbCard(data);
               Services.ww.openWindow(
                 null,
                 "chrome://messenger/content/addressbook/abNewCardDialog.xul",
                 "_blank",
                 "chrome,resizable=no,titlebar,modal,centerscreen",
-                card);
-          });
+                card
+              );
+            }
+          );
         }
       } else {
         // This must be a regular filename. Use it to create a new message with attachment.
-        let msgParams = Cc["@mozilla.org/messengercompose/composeparams;1"]
-                          .createInstance(Ci.nsIMsgComposeParams);
-        let composeFields = Cc["@mozilla.org/messengercompose/composefields;1"]
-                              .createInstance(Ci.nsIMsgCompFields);
-        let attachment = Cc["@mozilla.org/messengercompose/attachment;1"]
-                           .createInstance(Ci.nsIMsgAttachment);
-        let localFile = Cc["@mozilla.org/file/local;1"]
-                          .createInstance(Ci.nsIFile);
-        let fileHandler = Services.io.getProtocolHandler("file")
-                                     .QueryInterface(Ci.nsIFileProtocolHandler);
+        let msgParams = Cc[
+          "@mozilla.org/messengercompose/composeparams;1"
+        ].createInstance(Ci.nsIMsgComposeParams);
+        let composeFields = Cc[
+          "@mozilla.org/messengercompose/composefields;1"
+        ].createInstance(Ci.nsIMsgCompFields);
+        let attachment = Cc[
+          "@mozilla.org/messengercompose/attachment;1"
+        ].createInstance(Ci.nsIMsgAttachment);
+        let localFile = Cc["@mozilla.org/file/local;1"].createInstance(
+          Ci.nsIFile
+        );
+        let fileHandler = Services.io
+          .getProtocolHandler("file")
+          .QueryInterface(Ci.nsIFileProtocolHandler);
 
         try {
           // Unescape the URI so that we work with clients that escape spaces.
@@ -383,11 +461,17 @@ var nsMailDefaultHandler = {
         }
       }
     } else {
-      var argstring = Cc["@mozilla.org/supports-string;1"]
-                        .createInstance(Ci.nsISupportsString);
+      var argstring = Cc["@mozilla.org/supports-string;1"].createInstance(
+        Ci.nsISupportsString
+      );
 
-      Services.ww.openWindow(null, "chrome://messenger/content/", "_blank",
-                             "chrome,dialog=no,all", argstring);
+      Services.ww.openWindow(
+        null,
+        "chrome://messenger/content/",
+        "_blank",
+        "chrome,dialog=no,all",
+        argstring
+      );
     }
   },
   /* eslint-enable complexity */
@@ -395,40 +479,49 @@ var nsMailDefaultHandler = {
   /* nsICommandLineValidator */
   validate(cmdLine) {
     var osintFlagIdx = cmdLine.findFlag("osint", false);
-    if (osintFlagIdx == -1)
+    if (osintFlagIdx == -1) {
       return;
+    }
 
     // Other handlers may use osint so only handle the osint flag if the mail
     // or compose flag is also present and the command line is valid.
     var mailFlagIdx = cmdLine.findFlag("mail", false);
     var composeFlagIdx = cmdLine.findFlag("compose", false);
-    if (mailFlagIdx == -1 && composeFlagIdx == -1)
+    if (mailFlagIdx == -1 && composeFlagIdx == -1) {
       return;
+    }
 
     // If both flags are present use the first flag found so the command line
     // length test will fail.
-    if (mailFlagIdx > -1 && composeFlagIdx > -1)
-      var actionFlagIdx = mailFlagIdx > composeFlagIdx ? composeFlagIdx : mailFlagIdx;
-    else
+    if (mailFlagIdx > -1 && composeFlagIdx > -1) {
+      var actionFlagIdx =
+        mailFlagIdx > composeFlagIdx ? composeFlagIdx : mailFlagIdx;
+    } else {
       actionFlagIdx = mailFlagIdx > -1 ? mailFlagIdx : composeFlagIdx;
+    }
 
-    if (actionFlagIdx && (osintFlagIdx > -1)) {
+    if (actionFlagIdx && osintFlagIdx > -1) {
       var param = cmdLine.getArgument(actionFlagIdx + 1);
-      if (cmdLine.length != actionFlagIdx + 2 ||
-          /thunderbird.url.(mailto|news):/.test(param))
+      if (
+        cmdLine.length != actionFlagIdx + 2 ||
+        /thunderbird.url.(mailto|news):/.test(param)
+      ) {
         throw Cr.NS_ERROR_ABORT;
+      }
       cmdLine.handleFlag("osint", false);
     }
   },
 
-  helpInfo: "  -options           Open the options dialog.\n" +
-            "  -file              Open the specified email file.\n",
+  helpInfo:
+    "  -options           Open the options dialog.\n" +
+    "  -file              Open the specified email file.\n",
 
   /* nsIFactory */
 
   createInstance(outer, iid) {
-    if (outer != null)
+    if (outer != null) {
       throw Cr.NS_ERROR_NO_AGGREGATION;
+    }
 
     return this.QueryInterface(iid);
   },
@@ -450,4 +543,6 @@ mailDefaultCommandLineHandler.prototype = {
   _xpcom_factory: nsMailDefaultHandler,
 };
 
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([mailDefaultCommandLineHandler]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([
+  mailDefaultCommandLineHandler,
+]);

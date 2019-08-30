@@ -12,10 +12,12 @@
 
 "use strict";
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-var {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-var {TagUtils} = ChromeUtils.import("resource:///modules/TagUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { PluralForm } = ChromeUtils.import(
+  "resource://gre/modules/PluralForm.jsm"
+);
+var { TagUtils } = ChromeUtils.import("resource:///modules/TagUtils.jsm");
 
 var gCurrentFolder;
 
@@ -65,15 +67,17 @@ var nsSearchResultsController = {
 
     switch (command) {
       case "open_in_folder_button":
-        if (gFolderDisplay.selectedCount != 1)
+        if (gFolderDisplay.selectedCount != 1) {
           enabled = false;
+        }
         break;
       case "cmd_delete":
       case "cmd_shiftDelete":
       case "button_delete":
         // this assumes that advanced searches don't cross accounts
-        if (gFolderDisplay.selectedCount <= 0)
+        if (gFolderDisplay.selectedCount <= 0) {
           enabled = false;
+        }
         break;
       case "saveas_vf_button":
         // need someway to see if there are any search criteria...
@@ -81,8 +85,9 @@ var nsSearchResultsController = {
       case "cmd_selectAll":
         return true;
       default:
-        if (gFolderDisplay.selectedCount <= 0)
+        if (gFolderDisplay.selectedCount <= 0) {
           enabled = false;
+        }
         break;
     }
 
@@ -123,8 +128,7 @@ var nsSearchResultsController = {
     }
   },
 
-  onEvent(event) {
-  },
+  onEvent(event) {},
 };
 
 function UpdateMailSearch(caller) {
@@ -140,11 +144,9 @@ var UpdateMailToolbar = UpdateMailSearch;
 /**
  * No-op clear message pane function for FolderDisplayWidget.
  */
-function ClearMessagePane() {
-}
+function ClearMessagePane() {}
 
-function SetAdvancedSearchStatusText(aNumHits) {
-}
+function SetAdvancedSearchStatusText(aNumHits) {}
 
 /**
  * Subclass the FolderDisplayWidget to deal with UI specific to the search
@@ -164,9 +166,13 @@ SearchFolderDisplayWidget.prototype = {
     if (aIsSearching) {
       // Search button becomes the "stop" button
       gSearchStopButton.setAttribute(
-        "label", gSearchBundle.getString("labelForStopButton"));
+        "label",
+        gSearchBundle.getString("labelForStopButton")
+      );
       gSearchStopButton.setAttribute(
-        "accesskey", gSearchBundle.getString("labelForStopButton.accesskey"));
+        "accesskey",
+        gSearchBundle.getString("labelForStopButton.accesskey")
+      );
 
       // update our toolbar equivalent
       UpdateMailSearch("new-search");
@@ -174,13 +180,18 @@ SearchFolderDisplayWidget.prototype = {
       gStatusFeedback._startMeteors();
       // tell the user that we're searching
       gStatusFeedback.showStatusString(
-        gSearchBundle.getString("searchingMessage"));
+        gSearchBundle.getString("searchingMessage")
+      );
     } else {
       // Stop button resumes being the "search" button
       gSearchStopButton.setAttribute(
-        "label", gSearchBundle.getString("labelForSearchButton"));
+        "label",
+        gSearchBundle.getString("labelForSearchButton")
+      );
       gSearchStopButton.setAttribute(
-        "accesskey", gSearchBundle.getString("labelForSearchButton.accesskey"));
+        "accesskey",
+        gSearchBundle.getString("labelForSearchButton.accesskey")
+      );
 
       // update our toolbar equivalent
       UpdateMailSearch("done-search");
@@ -197,8 +208,9 @@ SearchFolderDisplayWidget.prototype = {
    */
   onMessagesRemoved() {
     // result text is only for when we are not searching
-    if (!this.view.searching)
+    if (!this.view.searching) {
       this.updateStatusResultText();
+    }
     this.__proto__.__proto__.onMessagesRemoved.call(this);
   },
 
@@ -209,8 +221,10 @@ SearchFolderDisplayWidget.prototype = {
     if (rowCount == 0) {
       statusMsg = gSearchBundle.getString("noMatchesFound");
     } else {
-      statusMsg = PluralForm.get(rowCount,
-                                 gSearchBundle.getString("matchesFound"));
+      statusMsg = PluralForm.get(
+        rowCount,
+        gSearchBundle.getString("matchesFound")
+      );
       statusMsg = statusMsg.replace("#1", rowCount);
     }
 
@@ -218,18 +232,22 @@ SearchFolderDisplayWidget.prototype = {
   },
 };
 
-
 function searchOnLoad() {
   TagUtils.loadTagsIntoCSS(document);
   initializeSearchWidgets();
   initializeSearchWindowWidgets();
   // eslint-disable-next-line no-global-assign
-  messenger = Cc["@mozilla.org/messenger;1"]
-                .createInstance(Ci.nsIMessenger);
+  messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
   gSearchBundle = document.getElementById("bundle_search");
-  gSearchStopButton.setAttribute("label", gSearchBundle.getString("labelForSearchButton"));
-  gSearchStopButton.setAttribute("accesskey", gSearchBundle.getString("labelForSearchButton.accesskey"));
+  gSearchStopButton.setAttribute(
+    "label",
+    gSearchBundle.getString("labelForSearchButton")
+  );
+  gSearchStopButton.setAttribute(
+    "accesskey",
+    gSearchBundle.getString("labelForSearchButton.accesskey")
+  );
 
   gMessageDisplay = new NeverVisibleMessageDisplayWidget();
   gFolderDisplay = new SearchFolderDisplayWidget(gMessageDisplay);
@@ -244,8 +262,10 @@ function searchOnLoad() {
   let sortType, sortOrder;
   if (sortCol) {
     sortType = Ci.nsMsgViewSortType[gFolderDisplay.COLUMNS_MAP.get(sortCol.id)];
-    sortOrder = sortCol.getAttribute("sortDirection") == "descending" ?
-                  Ci.nsMsgViewSortOrder.descending : Ci.nsMsgViewSortOrder.ascending;
+    sortOrder =
+      sortCol.getAttribute("sortDirection") == "descending"
+        ? Ci.nsMsgViewSortOrder.descending
+        : Ci.nsMsgViewSortOrder.ascending;
   }
 
   gFolderDisplay.view.openSearchView();
@@ -255,8 +275,9 @@ function searchOnLoad() {
     gFolderDisplay.view.sort(sortType, sortOrder);
   }
 
-  if (window.arguments && window.arguments[0])
+  if (window.arguments && window.arguments[0]) {
     updateSearchFolderPicker(window.arguments[0].folder);
+  }
 
   // Trigger searchTerm.js to create the first criterion.
   onMore(null);
@@ -278,8 +299,9 @@ function initializeSearchWindowWidgets() {
   hideMatchAllItem();
 
   // eslint-disable-next-line no-global-assign
-  msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
-                .createInstance(Ci.nsIMsgWindow);
+  msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
+    Ci.nsIMsgWindow
+  );
   msgWindow.domWindow = window;
   msgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
 
@@ -290,7 +312,6 @@ function initializeSearchWindowWidgets() {
   // depending of whether items are selected in the search results thread pane.
   top.controllers.insertControllerAt(0, nsSearchResultsController);
 }
-
 
 function onSearchStop() {
   gFolderDisplay.view.search.session.interruptSearch();
@@ -334,7 +355,10 @@ function onEnterInSearchTerm() {
   // on enter
   // if not searching, start the search
   // if searching, stop and then start again
-  if (gSearchStopButton.getAttribute("label") == gSearchBundle.getString("labelForSearchButton")) {
+  if (
+    gSearchStopButton.getAttribute("label") ==
+    gSearchBundle.getString("labelForSearchButton")
+  ) {
     onSearch();
   } else {
     onSearchStop();
@@ -371,9 +395,12 @@ function getSearchTerms() {
     //  explode.  You don't want that and I don't want that.  So let's check
     //  if the bloody term is a subject search on a blank string, and if it
     //  is, let's secretly not add the term.  Everyone wins!
-    if ((realTerm.attrib != Ci.nsMsgSearchAttrib.Subject) ||
-        (realTerm.value.str != ""))
+    if (
+      realTerm.attrib != Ci.nsMsgSearchAttrib.Subject ||
+      realTerm.value.str != ""
+    ) {
       searchTerms.push(realTerm);
+    }
   }
 
   return searchTerms;
@@ -385,14 +412,18 @@ function getSearchTerms() {
 function getSearchFolders() {
   let searchFolders = [];
 
-  if (!gCurrentFolder.isServer && !gCurrentFolder.noSelect)
+  if (!gCurrentFolder.isServer && !gCurrentFolder.noSelect) {
     searchFolders.push(gCurrentFolder);
+  }
 
-  var searchSubfolders =
-    document.getElementById("checkSearchSubFolders").checked;
-  if (gCurrentFolder &&
-      (searchSubfolders || gCurrentFolder.isServer || gCurrentFolder.noSelect))
+  var searchSubfolders = document.getElementById("checkSearchSubFolders")
+    .checked;
+  if (
+    gCurrentFolder &&
+    (searchSubfolders || gCurrentFolder.isServer || gCurrentFolder.noSelect)
+  ) {
     AddSubFolders(gCurrentFolder, searchFolders);
+  }
 
   return searchFolders;
 }
@@ -400,12 +431,12 @@ function getSearchFolders() {
 function AddSubFolders(folder, outFolders) {
   var subFolders = folder.subFolders;
   while (subFolders.hasMoreElements()) {
-    var nextFolder =
-      subFolders.getNext().QueryInterface(Ci.nsIMsgFolder);
+    var nextFolder = subFolders.getNext().QueryInterface(Ci.nsIMsgFolder);
 
     if (!(nextFolder.flags & Ci.nsMsgFolderFlags.Virtual)) {
-      if (!nextFolder.noSelect)
+      if (!nextFolder.noSelect) {
         outFolders.push(nextFolder);
+      }
 
       AddSubFolders(nextFolder, outFolders);
     }
@@ -418,19 +449,20 @@ function AddSubFoldersToURI(folder) {
   var subFolders = folder.subFolders;
 
   while (subFolders.hasMoreElements()) {
-    var nextFolder =
-      subFolders.getNext().QueryInterface(Ci.nsIMsgFolder);
+    var nextFolder = subFolders.getNext().QueryInterface(Ci.nsIMsgFolder);
 
     if (!(nextFolder.flags & Ci.nsMsgFolderFlags.Virtual)) {
       if (!nextFolder.noSelect && !nextFolder.isServer) {
-        if (returnString.length > 0)
+        if (returnString.length > 0) {
           returnString += "|";
+        }
         returnString += nextFolder.URI;
       }
       var subFoldersString = AddSubFoldersToURI(nextFolder);
       if (subFoldersString.length > 0) {
-        if (returnString.length > 0)
+        if (returnString.length > 0) {
           returnString += "|";
+        }
         returnString += subFoldersString;
       }
     }
@@ -475,14 +507,20 @@ function GetScopeForFolder(folder) {
       // News has four offline scopes, depending on whether junk and body
       // are available.
       let hasJunk =
-        folder.getInheritedStringProperty("dobayes.mailnews@mozilla.org#junk")
-               == "true";
-      if (hasJunk && hasBody)
+        folder.getInheritedStringProperty(
+          "dobayes.mailnews@mozilla.org#junk"
+        ) == "true";
+      if (hasJunk && hasBody) {
         return nsMsgSearchScope.localNewsJunkBody;
-      if (hasJunk) // and no body
+      }
+      if (hasJunk) {
+        // and no body
         return nsMsgSearchScope.localNewsJunk;
-      if (hasBody) // and no junk
+      }
+      if (hasBody) {
+        // and no junk
         return nsMsgSearchScope.localNewsBody;
+      }
       // We don't have offline message bodies or junk processing.
       return nsMsgSearchScope.localNews;
 
@@ -493,15 +531,16 @@ function GetScopeForFolder(folder) {
       // If we are the root folder, use the server property for body rather
       // than the folder property.
       if (folder.isServer) {
-        let imapServer = folder.server
-                               .QueryInterface(Ci.nsIImapIncomingServer);
-        if (imapServer && imapServer.offlineDownload)
+        let imapServer = folder.server.QueryInterface(Ci.nsIImapIncomingServer);
+        if (imapServer && imapServer.offlineDownload) {
           hasBody = true;
+        }
       }
 
-      if (!hasBody)
+      if (!hasBody) {
         return nsMsgSearchScope.onlineManual;
-        // fall through to default
+      }
+    // fall through to default
     default:
       return nsMsgSearchScope.offlineMail;
   }
@@ -518,10 +557,11 @@ function goUpdateSearchItems(commandset) {
 
 // used to toggle functionality for Search/Stop button.
 function onSearchButton(event) {
-  if (event.target.label == gSearchBundle.getString("labelForSearchButton"))
+  if (event.target.label == gSearchBundle.getString("labelForSearchButton")) {
     onSearch();
-  else
+  } else {
     onSearchStop();
+  }
 }
 
 function MsgDeleteSelectedMessages(aCommandType) {
@@ -536,8 +576,10 @@ function MsgDeleteSelectedMessages(aCommandType) {
  */
 function MoveMessageInSearch(destFolder) {
   gFolderDisplay.hintAboutToDeleteMessages();
-  gFolderDisplay.doCommandWithFolder(Ci.nsMsgViewCommandType.moveMessages,
-                                     destFolder);
+  gFolderDisplay.doCommandWithFolder(
+    Ci.nsMsgViewCommandType.moveMessages,
+    destFolder
+  );
 }
 
 function OpenInFolder() {
@@ -547,22 +589,30 @@ function OpenInFolder() {
 function saveAsVirtualFolder() {
   var searchFolderURIs = gCurrentFolder.URI;
 
-  var searchSubfolders = document.getElementById("checkSearchSubFolders").checked;
-  if (gCurrentFolder && (searchSubfolders || gCurrentFolder.isServer || gCurrentFolder.noSelect)) {
+  var searchSubfolders = document.getElementById("checkSearchSubFolders")
+    .checked;
+  if (
+    gCurrentFolder &&
+    (searchSubfolders || gCurrentFolder.isServer || gCurrentFolder.noSelect)
+  ) {
     var subFolderURIs = AddSubFoldersToURI(gCurrentFolder);
-    if (subFolderURIs.length > 0)
+    if (subFolderURIs.length > 0) {
       searchFolderURIs += "|" + subFolderURIs;
+    }
   }
 
   var searchOnline = document.getElementById("checkSearchOnline");
   var doOnlineSearch = searchOnline.checked && !searchOnline.disabled;
 
-  window.openDialog("chrome://messenger/content/virtualFolderProperties.xul", "",
-                    "chrome,titlebar,modal,centerscreen",
-                    {
-                      folder: window.arguments[0].folder,
-                      searchTerms: getSearchTerms(),
-                      searchFolderURIs,
-                      searchOnline: doOnlineSearch,
-                    });
+  window.openDialog(
+    "chrome://messenger/content/virtualFolderProperties.xul",
+    "",
+    "chrome,titlebar,modal,centerscreen",
+    {
+      folder: window.arguments[0].folder,
+      searchTerms: getSearchTerms(),
+      searchFolderURIs,
+      searchOnline: doOnlineSearch,
+    }
+  );
 }

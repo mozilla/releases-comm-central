@@ -10,25 +10,32 @@
  * depends on jsTreeView.js being loaded before this script is loaded.
  */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.js");
 
 // Tree Sort helper methods.
 var AB_ORDER = ["aab", "pab", "mork", "ldap", "mapi+other", "anyab", "cab"];
 
 function getDirectoryValue(aDir, aKey) {
   if (aKey == "ab_type") {
-    if (aDir._directory.URI == kAllDirectoryRoot + "?")
+    if (aDir._directory.URI == kAllDirectoryRoot + "?") {
       return "aab";
-    if (aDir._directory.URI == kPersonalAddressbookURI)
+    }
+    if (aDir._directory.URI == kPersonalAddressbookURI) {
       return "pab";
-    if (aDir._directory.URI == kCollectedAddressbookURI)
+    }
+    if (aDir._directory.URI == kCollectedAddressbookURI) {
       return "cab";
-    if (aDir._directory instanceof Ci.nsIAbMDBDirectory)
+    }
+    if (aDir._directory instanceof Ci.nsIAbMDBDirectory) {
       return "mork";
-    if (aDir._directory instanceof Ci.nsIAbLDAPDirectory)
+    }
+    if (aDir._directory instanceof Ci.nsIAbLDAPDirectory) {
       return "ldap";
+    }
 
     // If there is any other AB type.
     return "mapi+other";
@@ -45,7 +52,7 @@ function abNameCompare(a, b) {
 }
 
 function abTypeCompare(a, b) {
-  return (AB_ORDER.indexOf(a) - AB_ORDER.indexOf(b));
+  return AB_ORDER.indexOf(a) - AB_ORDER.indexOf(b);
 }
 
 var SORT_PRIORITY = ["ab_type", "ab_name"];
@@ -57,17 +64,21 @@ function abSort(a, b) {
     let aValue = getDirectoryValue(a, sortBy);
     let bValue = getDirectoryValue(b, sortBy);
 
-    if (!aValue && !bValue)
+    if (!aValue && !bValue) {
       return 0;
-    if (!aValue)
+    }
+    if (!aValue) {
       return -1;
-    if (!bValue)
+    }
+    if (!bValue) {
       return 1;
+    }
     if (aValue != bValue) {
       let result = SORT_FUNCS[i](aValue, bValue);
 
-      if (result != 0)
+      if (result != 0) {
         return result;
+      }
     }
   }
   return 0;
@@ -104,18 +115,23 @@ abDirTreeItem.prototype = {
     if (!this._children) {
       this._children = [];
       let myEnum;
-      if (this._directory.URI == (kAllDirectoryRoot + "?"))
+      if (this._directory.URI == kAllDirectoryRoot + "?") {
         myEnum = MailServices.ab.directories;
-      else
+      } else {
         myEnum = this._directory.childNodes;
+      }
 
       while (myEnum.hasMoreElements()) {
-        var abItem = new abDirTreeItem(myEnum.getNext()
-                                       .QueryInterface(Ci.nsIAbDirectory));
-        if (gDirectoryTreeView &&
-            this.id == kAllDirectoryRoot + "?" &&
-            getDirectoryValue(abItem, "ab_type") == "ldap")
+        var abItem = new abDirTreeItem(
+          myEnum.getNext().QueryInterface(Ci.nsIAbDirectory)
+        );
+        if (
+          gDirectoryTreeView &&
+          this.id == kAllDirectoryRoot + "?" &&
+          getDirectoryValue(abItem, "ab_type") == "ldap"
+        ) {
           gDirectoryTreeView.hasRemoteAB = true;
+        }
 
         this._children.push(abItem);
         this._children[this._children.length - 1]._level = this._level + 1;
@@ -129,12 +145,15 @@ abDirTreeItem.prototype = {
 
   getProperties() {
     let properties = [];
-    if (this._directory.isMailList)
+    if (this._directory.isMailList) {
       properties.push("IsMailList-true");
-    if (this._directory.isRemote)
+    }
+    if (this._directory.isRemote) {
       properties.push("IsRemote-true");
-    if (this._directory.isSecure)
+    }
+    if (this._directory.isSecure) {
       properties.push("IsSecure-true");
+    }
     return properties.join(" ");
   },
 };
@@ -152,8 +171,9 @@ directoryTreeView.prototype = {
     if (aJSONFile) {
       // Parse our persistent-open-state json file
       let data = IOUtils.loadFileToString(aJSONFile);
-      if (data)
+      if (data) {
         this._persistOpenMap = JSON.parse(data);
+      }
     }
 
     this._rebuild();
@@ -206,16 +226,18 @@ directoryTreeView.prototype = {
     // Sort our addressbooks now
     this._rowMap.sort(abSort);
 
-    if (this._tree)
+    if (this._tree) {
       this._tree.rowCountChanged(0, this._rowMap.length - oldCount);
+    }
 
     this._restoreOpenStates();
   },
 
   getIndexForId(aId) {
     for (let i = 0; i < this._rowMap.length; i++) {
-      if (this._rowMap[i].id == aId)
+      if (this._rowMap[i].id == aId) {
         return i;
+      }
     }
 
     return -1;
@@ -223,13 +245,15 @@ directoryTreeView.prototype = {
 
   // nsIAbListener interfaces
   onItemAdded(aParent, aItem) {
-    if (!(aItem instanceof Ci.nsIAbDirectory))
+    if (!(aItem instanceof Ci.nsIAbDirectory)) {
       return;
+    }
     // XXX we can optimize this later
     this._rebuild();
 
-    if (!this._tree)
+    if (!this._tree) {
       return;
+    }
 
     // Now select this new item
     for (var [i, row] of this._rowMap.entries()) {
@@ -241,17 +265,21 @@ directoryTreeView.prototype = {
   },
 
   onItemRemoved(aParent, aItem) {
-    if (!(aItem instanceof Ci.nsIAbDirectory))
+    if (!(aItem instanceof Ci.nsIAbDirectory)) {
       return;
+    }
     // XXX we can optimize this later
     this._rebuild();
 
-    if (!this._tree)
+    if (!this._tree) {
       return;
+    }
 
     // If we're deleting a top-level address-book, just select the first book
-    if (aParent.URI == kAllDirectoryRoot ||
-        aParent.URI == kAllDirectoryRoot + "?") {
+    if (
+      aParent.URI == kAllDirectoryRoot ||
+      aParent.URI == kAllDirectoryRoot + "?"
+    ) {
       this.selection.select(0);
       return;
     }
@@ -266,8 +294,9 @@ directoryTreeView.prototype = {
   },
 
   onItemPropertyChanged(aItem, aProp, aOld, aNew) {
-    if (!(aItem instanceof Ci.nsIAbDirectory))
+    if (!(aItem instanceof Ci.nsIAbDirectory)) {
       return;
+    }
 
     for (let i in this._rowMap) {
       if (this._rowMap[i]._directory == aItem) {

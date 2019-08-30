@@ -9,16 +9,30 @@
 
 "use strict";
 
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {Troubleshoot} = ChromeUtils.import("resource://gre/modules/Troubleshoot.jsm");
-var {ResetProfile} = ChromeUtils.import("resource://gre/modules/ResetProfile.jsm");
-var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Troubleshoot } = ChromeUtils.import(
+  "resource://gre/modules/Troubleshoot.jsm"
+);
+var { ResetProfile } = ChromeUtils.import(
+  "resource://gre/modules/ResetProfile.jsm"
+);
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 
-ChromeUtils.defineModuleGetter(this, "PluralForm",
-                               "resource://gre/modules/PluralForm.jsm");
-ChromeUtils.defineModuleGetter(this, "PlacesDBUtils",
-                               "resource://gre/modules/PlacesDBUtils.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "PluralForm",
+  "resource://gre/modules/PluralForm.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "PlacesDBUtils",
+  "resource://gre/modules/PlacesDBUtils.jsm"
+);
 
 // added for TB
 /* Node classes. All of these are mutually exclusive. */
@@ -39,18 +53,22 @@ window.addEventListener("load", function onload(event) {
   try {
     window.removeEventListener("load", onload);
     Troubleshoot.snapshot(async function(snapshot) {
-      for (let prop in snapshotFormatters)
+      for (let prop in snapshotFormatters) {
         await snapshotFormatters[prop](snapshot[prop]);
+      }
     });
     populateActionBox();
     setupEventListeners();
   } catch (e) {
-    Cu.reportError("stack of load error for about:support: " + e + ": " + e.stack);
+    Cu.reportError(
+      "stack of load error for about:support: " + e + ": " + e.stack
+    );
   }
   // added for TB
   populateAccountsSection();
-  document.getElementById("check-show-private-data")
-          .addEventListener("change", () => onShowPrivateDataChange());
+  document
+    .getElementById("check-show-private-data")
+    .addEventListener("change", () => onShowPrivateDataChange());
 });
 
 // Fluent uses lisp-case IDs so this converts
@@ -60,29 +78,39 @@ function toFluentID(str) {
   if (!FLUENT_IDENT_REGEX.test(str)) {
     return null;
   }
-  return str.toString().replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+  return str
+    .toString()
+    .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+    .toLowerCase();
 }
 
 // Each property in this object corresponds to a property in Troubleshoot.jsm's
 // snapshot data.  Each function is passed its property's corresponding data,
 // and it's the function's job to update the page with it.
 var snapshotFormatters = {
-
   async application(data) {
     $("application-box").textContent = data.name;
     $("useragent-box").textContent = data.userAgent;
     $("os-box").textContent = data.osVersion;
-    $("binary-box").textContent = Services.dirsvc.get("XREExeF", Ci.nsIFile).path;
+    $("binary-box").textContent = Services.dirsvc.get(
+      "XREExeF",
+      Ci.nsIFile
+    ).path;
     $("supportLink").href = data.supportURL;
     let version = AppConstants.MOZ_APP_VERSION_DISPLAY;
-    if (data.vendor)
+    if (data.vendor) {
       version += " (" + data.vendor + ")";
+    }
     $("version-box").textContent = version;
     $("buildid-box").textContent = data.buildID;
-    if (data.updateChannel)
+    if (data.updateChannel) {
       $("updatechannel-box").textContent = data.updateChannel;
+    }
     if (AppConstants.MOZ_UPDATER) {
-      $("update-dir-box").textContent = Services.dirsvc.get("UpdRootD", Ci.nsIFile).path;
+      $("update-dir-box").textContent = Services.dirsvc.get(
+        "UpdRootD",
+        Ci.nsIFile
+      ).path;
     }
 
     try {
@@ -91,11 +119,15 @@ var snapshotFormatters = {
         case 0:
         case 1:
         case 2:
-          launcherStatusTextId = "launcher-process-status-" + data.launcherProcessState;
+          launcherStatusTextId =
+            "launcher-process-status-" + data.launcherProcessState;
           break;
       }
 
-      document.l10n.setAttributes($("launcher-process-box"), launcherStatusTextId);
+      document.l10n.setAttributes(
+        $("launcher-process-box"),
+        launcherStatusTextId
+      );
     } catch (e) {}
 
     let statusTextId = "multi-process-status-unknown";
@@ -113,12 +145,14 @@ var snapshotFormatters = {
         break;
     }
 
-    document.l10n.setAttributes($("multiprocess-box-process-count"),
-                                "multi-process-windows",
-                                {
-                                  remoteWindows: data.numRemoteWindows,
-                                  totalWindows: data.numTotalWindows,
-                                });
+    document.l10n.setAttributes(
+      $("multiprocess-box-process-count"),
+      "multi-process-windows",
+      {
+        remoteWindows: data.numRemoteWindows,
+        totalWindows: data.numTotalWindows,
+      }
+    );
     document.l10n.setAttributes($("multiprocess-box-status"), statusTextId);
 
     if (Services.policies) {
@@ -153,11 +187,21 @@ var snapshotFormatters = {
       $("policies-status-row").hidden = true;
     }
 
-    let keyLocationServiceGoogleFound = data.keyLocationServiceGoogleFound ? "found" : "missing";
-    document.l10n.setAttributes($("key-location-service-google-box"), keyLocationServiceGoogleFound);
+    let keyLocationServiceGoogleFound = data.keyLocationServiceGoogleFound
+      ? "found"
+      : "missing";
+    document.l10n.setAttributes(
+      $("key-location-service-google-box"),
+      keyLocationServiceGoogleFound
+    );
 
-    let keySafebrowsingGoogleFound = data.keySafebrowsingGoogleFound ? "found" : "missing";
-    document.l10n.setAttributes($("key-safebrowsing-google-box"), keySafebrowsingGoogleFound);
+    let keySafebrowsingGoogleFound = data.keySafebrowsingGoogleFound
+      ? "found"
+      : "missing";
+    document.l10n.setAttributes(
+      $("key-safebrowsing-google-box"),
+      keySafebrowsingGoogleFound
+    );
 
     let keyMozillaFound = data.keyMozillaFound ? "found" : "missing";
     document.l10n.setAttributes($("key-mozilla-box"), keyMozillaFound);
@@ -186,7 +230,8 @@ var snapshotFormatters = {
     try {
       fsType = AboutSupportPlatform.getFileSystemType(currProfD);
       let bundle = Services.strings.createBundle(
-        "chrome://messenger/locale/aboutSupportMail.properties");
+        "chrome://messenger/locale/aboutSupportMail.properties"
+      );
       let fsText = bundle.GetStringFromName("fsType." + fsType);
       let fsTextNode = document.createElement("span");
       fsTextNode.textContent = fsText;
@@ -198,18 +243,22 @@ var snapshotFormatters = {
   },
 
   crashes(data) {
-    if (!AppConstants.MOZ_CRASHREPORTER)
+    if (!AppConstants.MOZ_CRASHREPORTER) {
       return;
+    }
 
     let daysRange = Troubleshoot.kMaxCrashAge / (24 * 60 * 60 * 1000);
-    document.l10n.setAttributes($("crashes-title"), "report-crash-for-days", { days: daysRange });
+    document.l10n.setAttributes($("crashes-title"), "report-crash-for-days", {
+      days: daysRange,
+    });
     let reportURL;
     try {
       reportURL = Services.prefs.getCharPref("breakpad.reportURL");
       // Ignore any non http/https urls
-      if (!/^https?:/i.test(reportURL))
+      if (!/^https?:/i.test(reportURL)) {
         reportURL = null;
-    } catch (e) { }
+      }
+    } catch (e) {}
     if (!reportURL) {
       $("crashes-noConfig").style.display = "block";
       $("crashes-noConfig").classList.remove("no-copy");
@@ -218,46 +267,59 @@ var snapshotFormatters = {
     $("crashes-allReports").style.display = "block";
 
     if (data.pending > 0) {
-      document.l10n.setAttributes($("crashes-allReportsWithPending"), "pending-reports", { reports: data.pending });
+      document.l10n.setAttributes(
+        $("crashes-allReportsWithPending"),
+        "pending-reports",
+        { reports: data.pending }
+      );
     }
 
     let dateNow = new Date();
-    $.append($("crashes-tbody"), data.submitted.map(function(crash) {
-      let date = new Date(crash.date);
-      let timePassed = dateNow - date;
-      let formattedDateStrId;
-      let formattedDateStrArgs;
-      if (timePassed >= 24 * 60 * 60 * 1000) {
-        let daysPassed = Math.round(timePassed / (24 * 60 * 60 * 1000));
-        formattedDateStrId = "crashes-time-days";
-        formattedDateStrArgs = { days: daysPassed };
-      } else if (timePassed >= 60 * 60 * 1000) {
-        let hoursPassed = Math.round(timePassed / (60 * 60 * 1000));
-        formattedDateStrId = "crashes-time-hours";
-        formattedDateStrArgs = { hours: hoursPassed };
-      } else {
-        let minutesPassed = Math.max(Math.round(timePassed / (60 * 1000)), 1);
-        formattedDateStrId = "crashes-time-minutes";
-        formattedDateStrArgs = { minutes: minutesPassed };
-      }
-      return $.new("tr", [
-        $.new("td", [
-          $.new("a", crash.id, null, {href: reportURL + crash.id}),
-        ]),
-        $.new("td", null, null, {"data-l10n-id": formattedDateStrId, "data-l10n-args": formattedDateStrArgs}),
-      ]);
-    }));
+    $.append(
+      $("crashes-tbody"),
+      data.submitted.map(function(crash) {
+        let date = new Date(crash.date);
+        let timePassed = dateNow - date;
+        let formattedDateStrId;
+        let formattedDateStrArgs;
+        if (timePassed >= 24 * 60 * 60 * 1000) {
+          let daysPassed = Math.round(timePassed / (24 * 60 * 60 * 1000));
+          formattedDateStrId = "crashes-time-days";
+          formattedDateStrArgs = { days: daysPassed };
+        } else if (timePassed >= 60 * 60 * 1000) {
+          let hoursPassed = Math.round(timePassed / (60 * 60 * 1000));
+          formattedDateStrId = "crashes-time-hours";
+          formattedDateStrArgs = { hours: hoursPassed };
+        } else {
+          let minutesPassed = Math.max(Math.round(timePassed / (60 * 1000)), 1);
+          formattedDateStrId = "crashes-time-minutes";
+          formattedDateStrArgs = { minutes: minutesPassed };
+        }
+        return $.new("tr", [
+          $.new("td", [
+            $.new("a", crash.id, null, { href: reportURL + crash.id }),
+          ]),
+          $.new("td", null, null, {
+            "data-l10n-id": formattedDateStrId,
+            "data-l10n-args": formattedDateStrArgs,
+          }),
+        ]);
+      })
+    );
   },
 
   extensions(data) {
-    $.append($("extensions-tbody"), data.map(function(extension) {
-      return $.new("tr", [
-        $.new("td", extension.name),
-        $.new("td", extension.version),
-        $.new("td", extension.isActive),
-        $.new("td", extension.id),
-      ]);
-    }));
+    $.append(
+      $("extensions-tbody"),
+      data.map(function(extension) {
+        return $.new("tr", [
+          $.new("td", extension.name),
+          $.new("td", extension.version),
+          $.new("td", extension.isActive),
+          $.new("td", extension.id),
+        ]);
+      })
+    );
   },
 
   securitySoftware(data) {
@@ -272,7 +334,7 @@ var snapshotFormatters = {
     $("security-software-firewall").textContent = data.registeredFirewall;
   },
 
-/* Not used by TB
+  /* Not used by TB
   features(data) {
     $.append($("features-tbody"), data.map(function(feature) {
       return $.new("tr", [
@@ -286,22 +348,31 @@ var snapshotFormatters = {
 
   async processes(data) {
     async function buildEntry(name, value) {
-      let entryName = (await document.l10n.formatValue(`process-type-${name.toLowerCase()}`))
-                      || name;
+      let entryName =
+        (await document.l10n.formatValue(
+          `process-type-${name.toLowerCase()}`
+        )) || name;
 
-      $("processes-tbody").appendChild($.new("tr", [
-        $.new("td", entryName),
-        $.new("td", value),
-      ]));
+      $("processes-tbody").appendChild(
+        $.new("tr", [$.new("td", entryName), $.new("td", value)])
+      );
     }
 
-    let remoteProcessesCount = Object.values(data.remoteTypes).reduce((a, b) => a + b, 0);
-    document.querySelector("#remoteprocesses-row a").textContent = remoteProcessesCount;
+    let remoteProcessesCount = Object.values(data.remoteTypes).reduce(
+      (a, b) => a + b,
+      0
+    );
+    document.querySelector(
+      "#remoteprocesses-row a"
+    ).textContent = remoteProcessesCount;
 
     // Display the regular "web" process type first in the list,
     // and with special formatting.
     if (data.remoteTypes.web) {
-      await buildEntry("web", `${data.remoteTypes.web} / ${data.maxWebContentProcesses}`);
+      await buildEntry(
+        "web",
+        `${data.remoteTypes.web} / ${data.maxWebContentProcesses}`
+      );
       delete data.remoteTypes.web;
     }
 
@@ -311,8 +382,9 @@ var snapshotFormatters = {
   },
 
   modifiedPreferences(data) {
-    $.append($("prefs-tbody"), sortedArrayFromObject(data).map(
-      function([name, value]) {
+    $.append(
+      $("prefs-tbody"),
+      sortedArrayFromObject(data).map(function([name, value]) {
         return $.new("tr", [
           $.new("td", name, "pref-name"),
           // Very long preference values can cause users problems when they
@@ -320,19 +392,20 @@ var snapshotFormatters = {
           // aren't useful anyway, so truncate them to a reasonable length.
           $.new("td", String(value).substr(0, 120), "pref-value"),
         ]);
-      }
-    ));
+      })
+    );
   },
 
   lockedPreferences(data) {
-    $.append($("locked-prefs-tbody"), sortedArrayFromObject(data).map(
-      function([name, value]) {
+    $.append(
+      $("locked-prefs-tbody"),
+      sortedArrayFromObject(data).map(function([name, value]) {
         return $.new("tr", [
           $.new("td", name, "pref-name"),
           $.new("td", String(value).substr(0, 120), "pref-value"),
         ]);
-      }
-    ));
+      })
+    );
   },
 
   /* eslint-disable complexity */
@@ -355,8 +428,9 @@ var snapshotFormatters = {
       for (let type of ["Wheel", "Touch", "Drag", "Keyboard", "Autoscroll"]) {
         let key = "Apz" + type + "Input";
 
-        if (!(key in info))
+        if (!(key in info)) {
           continue;
+        }
 
         delete info[key];
 
@@ -384,10 +458,7 @@ var snapshotFormatters = {
       if (!key.startsWith("#")) {
         document.l10n.setAttributes(th, keyStrId);
       }
-      return $.new("tr", [
-        th,
-        td,
-      ]);
+      return $.new("tr", [th, td]);
     }
 
     // @where    The name in "graphics-<name>-tbody", of the element to append to.
@@ -408,10 +479,7 @@ var snapshotFormatters = {
       let trs = sortedArrayFromObject(data.info).map(function([prop, val]) {
         let td = $.new("td", String(val));
         td.style["word-break"] = "break-all";
-        return $.new("tr", [
-          $.new("th", prop, "column"),
-          td,
-        ]);
+        return $.new("tr", [$.new("th", prop, "column"), td]);
       });
       addRows("diagnostics", trs);
 
@@ -430,7 +498,10 @@ var snapshotFormatters = {
           windowUtils.terminateGPUProcess();
         });
 
-        document.l10n.setAttributes(gpuProcessKillButton, "gpu-process-kill-button");
+        document.l10n.setAttributes(
+          gpuProcessKillButton,
+          "gpu-process-kill-button"
+        );
       }
 
       addRow("diagnostics", "gpu-process-pid", [new Text(gpuProcessPid)]);
@@ -439,14 +510,20 @@ var snapshotFormatters = {
       }
     }
 
-    if ((AppConstants.NIGHTLY_BUILD || AppConstants.MOZ_DEV_EDITION) && AppConstants.platform != "macosx") {
+    if (
+      (AppConstants.NIGHTLY_BUILD || AppConstants.MOZ_DEV_EDITION) &&
+      AppConstants.platform != "macosx"
+    ) {
       let gpuDeviceResetButton = $.new("button");
 
       gpuDeviceResetButton.addEventListener("click", function() {
         windowUtils.triggerDeviceReset();
       });
 
-      document.l10n.setAttributes(gpuDeviceResetButton, "gpu-device-reset-button");
+      document.l10n.setAttributes(
+        gpuDeviceResetButton,
+        "gpu-device-reset-button"
+      );
       addRow("diagnostics", "gpu-device-reset", [gpuDeviceResetButton]);
     }
 
@@ -461,22 +538,36 @@ var snapshotFormatters = {
           combined.push(assembled);
         }
         combined.sort(function(a, b) {
-            if (a.index < b.index) return -1;
-            if (a.index > b.index) return 1;
-            return 0;
+          if (a.index < b.index) {
+            return -1;
+          }
+          if (a.index > b.index) {
+            return 1;
+          }
+          return 0;
         });
-        $.append($("graphics-failures-tbody"),
-                 combined.map(function(val) {
-                   return $.new("tr", [$.new("th", val.header, "column"),
-                                       $.new("td", val.message)]);
-                 }));
+        $.append(
+          $("graphics-failures-tbody"),
+          combined.map(function(val) {
+            return $.new("tr", [
+              $.new("th", val.header, "column"),
+              $.new("td", val.message),
+            ]);
+          })
+        );
         delete data.indices;
       } else {
-        $.append($("graphics-failures-tbody"),
-          [$.new("tr", [$.new("th", "LogFailure", "column"),
-                        $.new("td", data.failures.map(function(val) {
-                          return $.new("p", val);
-                       }))])]);
+        $.append($("graphics-failures-tbody"), [
+          $.new("tr", [
+            $.new("th", "LogFailure", "column"),
+            $.new(
+              "td",
+              data.failures.map(function(val) {
+                return $.new("p", val);
+              })
+            ),
+          ]),
+        ]);
       }
       delete data.failures;
     } else {
@@ -489,8 +580,9 @@ var snapshotFormatters = {
     // @key          Data key to use.
     // @colKey       The localization key to use, if different from key.
     async function addRowFromKey(where, key, colKey) {
-      if (!(key in data))
+      if (!(key in data)) {
         return;
+      }
       colKey = colKey || key;
 
       let value;
@@ -527,10 +619,21 @@ var snapshotFormatters = {
     delete data.numAcceleratedWindowsMessage;
     delete data.windowUsingAdvancedLayers;
 
-    addRow("features", "asyncPanZoom",
-           apzInfo.length
-           ? [new Text((await document.l10n.formatValues(apzInfo.map(id => { return {id}; }))).join("; "))]
-           : "apz-none");
+    addRow(
+      "features",
+      "asyncPanZoom",
+      apzInfo.length
+        ? [
+            new Text(
+              (await document.l10n.formatValues(
+                apzInfo.map(id => {
+                  return { id };
+                })
+              )).join("; ")
+            ),
+          ]
+        : "apz-none"
+    );
     let featureKeys = [
       "webgl1WSIInfo",
       "webgl1Renderer",
@@ -561,8 +664,9 @@ var snapshotFormatters = {
 
     if ("directWriteEnabled" in data) {
       let message = data.directWriteEnabled;
-      if ("directWriteVersion" in data)
+      if ("directWriteVersion" in data) {
         message += " (" + data.directWriteVersion + ")";
+      }
       await addRow("features", "#DirectWrite", [new Text(message)]);
       delete data.directWriteEnabled;
       delete data.directWriteVersion;
@@ -589,8 +693,9 @@ var snapshotFormatters = {
       let trs = [];
       for (let [prop, key] of adapterKeys) {
         let value = get(prop);
-        if (value === undefined || value === "")
+        if (value === undefined || value === "") {
           continue;
+        }
         trs.push(buildRow(key, value));
       }
 
@@ -600,7 +705,7 @@ var snapshotFormatters = {
       }
 
       let active = "yes";
-      if ("isGPU2Active" in data && ((suffix == "2") != data.isGPU2Active)) {
+      if ("isGPU2Active" in data && (suffix == "2") != data.isGPU2Active) {
         active = "no";
       }
 
@@ -633,8 +738,9 @@ var snapshotFormatters = {
       for (let feature of features) {
         let trs = [];
         for (let entry of feature.log) {
-          if (entry.type == "default" && entry.status == "available")
+          if (entry.type == "default" && entry.status == "available") {
             continue;
+          }
 
           let contents;
           if (entry.message.length > 0 && entry.message[0] == "#") {
@@ -645,22 +751,26 @@ var snapshotFormatters = {
               document.l10n.setAttributes(bugSpan, "blocklisted-bug");
 
               let bugHref = $.new("a");
-              bugHref.href = "https://bugzilla.mozilla.org/show_bug.cgi?id=" + m[1];
-              document.l10n.setAttributes(bugHref, "bug-link", { bugNumber: m[1]});
+              bugHref.href =
+                "https://bugzilla.mozilla.org/show_bug.cgi?id=" + m[1];
+              document.l10n.setAttributes(bugHref, "bug-link", {
+                bugNumber: m[1],
+              });
 
               contents = [bugSpan, bugHref];
             } else {
               let unknownFailure = $.new("span");
-              document.l10n.setAttributes(unknownFailure, "unknown-failure", { failureCode: entry.message.substr(1) });
+              document.l10n.setAttributes(unknownFailure, "unknown-failure", {
+                failureCode: entry.message.substr(1),
+              });
               contents = [unknownFailure];
             }
           } else {
-            contents = entry.status + " by " + entry.type + ": " + entry.message;
+            contents =
+              entry.status + " by " + entry.type + ": " + entry.message;
           }
 
-          trs.push($.new("tr", [
-            $.new("td", contents),
-          ]));
+          trs.push($.new("tr", [$.new("td", contents)]));
         }
         addRow("decisions", "#" + feature.name, [$.new("table", trs)]);
       }
@@ -670,7 +780,9 @@ var snapshotFormatters = {
 
     if (featureLog.fallbacks.length) {
       for (let fallback of featureLog.fallbacks) {
-        addRow("workarounds", "#" + fallback.name, [new Text(fallback.message)]);
+        addRow("workarounds", "#" + fallback.name, [
+          new Text(fallback.message),
+        ]);
       }
     } else {
       $("graphics-workarounds-tbody").style.display = "none";
@@ -747,9 +859,11 @@ var snapshotFormatters = {
           return preferreds[deviceInfo.PREF_ALL];
         }
         let str = "";
-        for (let pref of [deviceInfo.PREF_MULTIMEDIA,
-                          deviceInfo.PREF_VOICE,
-                          deviceInfo.PREF_NOTIFICATION]) {
+        for (let pref of [
+          deviceInfo.PREF_MULTIMEDIA,
+          deviceInfo.PREF_VOICE,
+          deviceInfo.PREF_NOTIFICATION,
+        ]) {
           if (preferred & pref) {
             str += " " + preferreds[pref];
           }
@@ -759,10 +873,12 @@ var snapshotFormatters = {
 
       function toFromatString(dev) {
         let str = "default: " + formats[dev.defaultFormat] + ", support:";
-        for (let fmt of [deviceInfo.FMT_S16LE,
-                         deviceInfo.FMT_S16BE,
-                         deviceInfo.FMT_F32LE,
-                         deviceInfo.FMT_F32BE]) {
+        for (let fmt of [
+          deviceInfo.FMT_S16LE,
+          deviceInfo.FMT_S16BE,
+          deviceInfo.FMT_F32LE,
+          deviceInfo.FMT_F32BE,
+        ]) {
           if (dev.supportedFormat & fmt) {
             str += " " + formats[fmt];
           }
@@ -771,23 +887,31 @@ var snapshotFormatters = {
       }
 
       function toRateString(dev) {
-        return "default: " + dev.defaultRate +
-               ", support: " + dev.minRate + " - " + dev.maxRate;
+        return (
+          "default: " +
+          dev.defaultRate +
+          ", support: " +
+          dev.minRate +
+          " - " +
+          dev.maxRate
+        );
       }
 
       function toLatencyString(dev) {
         return dev.minLatency + " - " + dev.maxLatency;
       }
 
-      return $.new("tr", [$.new("td", device.name),
-                          $.new("td", device.groupId),
-                          $.new("td", device.vendor),
-                          $.new("td", states[device.state]),
-                          $.new("td", toPreferredString(device.preferred)),
-                          $.new("td", toFromatString(device)),
-                          $.new("td", device.maxChannels),
-                          $.new("td", toRateString(device)),
-                          $.new("td", toLatencyString(device))]);
+      return $.new("tr", [
+        $.new("td", device.name),
+        $.new("td", device.groupId),
+        $.new("td", device.vendor),
+        $.new("td", states[device.state]),
+        $.new("td", toPreferredString(device.preferred)),
+        $.new("td", toFromatString(device)),
+        $.new("td", device.maxChannels),
+        $.new("td", toRateString(device)),
+        $.new("td", toLatencyString(device)),
+      ]);
     }
 
     function insertDeviceInfo(side, devices) {
@@ -833,25 +957,26 @@ var snapshotFormatters = {
     let trs = [
       $.new("tr", [
         $.new("th", ""),
-        $.new("th", null, null, {"data-l10n-id": "min-lib-versions"}),
-        $.new("th", null, null, {"data-l10n-id": "loaded-lib-versions"}),
+        $.new("th", null, null, { "data-l10n-id": "min-lib-versions" }),
+        $.new("th", null, null, { "data-l10n-id": "loaded-lib-versions" }),
       ]),
     ];
-    sortedArrayFromObject(data).forEach(
-      function([name, val]) {
-        trs.push($.new("tr", [
+    sortedArrayFromObject(data).forEach(function([name, val]) {
+      trs.push(
+        $.new("tr", [
           $.new("td", name),
           $.new("td", val.minVersion),
           $.new("td", val.version),
-        ]));
-      }
-    );
+        ])
+      );
+    });
     $.append($("libversions-tbody"), trs);
   },
 
   userJS(data) {
-    if (!data.exists)
+    if (!data.exists) {
       return;
+    }
     let userJSFile = Services.dirsvc.get("PrefD", Ci.nsIFile);
     userJSFile.append("user.js");
     $("prefs-user-js-link").href = Services.io.newFileURI(userJSFile).spec;
@@ -861,14 +986,17 @@ var snapshotFormatters = {
   },
 
   sandbox(data) {
-    if (!AppConstants.MOZ_SANDBOX)
+    if (!AppConstants.MOZ_SANDBOX) {
       return;
+    }
 
     let tbody = $("sandbox-tbody");
     for (let key in data) {
       // Simplify the display a little in the common case.
-      if (key === "hasPrivilegedUserNamespaces" &&
-          data[key] === data.hasUserNamespaces) {
+      if (
+        key === "hasPrivilegedUserNamespaces" &&
+        data[key] === data.hasUserNamespaces
+      ) {
         continue;
       }
       if (key === "syscallLog") {
@@ -878,10 +1006,7 @@ var snapshotFormatters = {
       let keyStrId = toFluentID(key);
       let th = $.new("th", null, "column");
       document.l10n.setAttributes(th, keyStrId);
-      tbody.appendChild($.new("tr", [
-        th,
-        $.new("td", data[key]),
-      ]));
+      tbody.appendChild($.new("tr", [th, $.new("td", data[key])]));
     }
 
     if ("syscallLog" in data) {
@@ -897,7 +1022,9 @@ var snapshotFormatters = {
           $.new("td", syscall.msecAgo / 1000),
           $.new("td", syscall.pid, "integer"),
           $.new("td", syscall.tid, "integer"),
-          $.new("td", null, null, {"data-l10n-id": "sandbox-proc-type-" + procTypeStrId}),
+          $.new("td", null, null, {
+            "data-l10n-id": "sandbox-proc-type-" + procTypeStrId,
+          }),
           $.new("td", syscall.syscall, "integer"),
         ];
         for (let arg of syscall.args) {
@@ -909,39 +1036,45 @@ var snapshotFormatters = {
   },
 
   intl(data) {
-    $("intl-locale-requested").textContent =
-      JSON.stringify(data.localeService.requested);
-    $("intl-locale-available").textContent =
-      JSON.stringify(data.localeService.available);
-    $("intl-locale-supported").textContent =
-      JSON.stringify(data.localeService.supported);
-    $("intl-locale-regionalprefs").textContent =
-      JSON.stringify(data.localeService.regionalPrefs);
-    $("intl-locale-default").textContent =
-      JSON.stringify(data.localeService.defaultLocale);
+    $("intl-locale-requested").textContent = JSON.stringify(
+      data.localeService.requested
+    );
+    $("intl-locale-available").textContent = JSON.stringify(
+      data.localeService.available
+    );
+    $("intl-locale-supported").textContent = JSON.stringify(
+      data.localeService.supported
+    );
+    $("intl-locale-regionalprefs").textContent = JSON.stringify(
+      data.localeService.regionalPrefs
+    );
+    $("intl-locale-default").textContent = JSON.stringify(
+      data.localeService.defaultLocale
+    );
 
-    $("intl-osprefs-systemlocales").textContent =
-      JSON.stringify(data.osPrefs.systemLocales);
-    $("intl-osprefs-regionalprefs").textContent =
-      JSON.stringify(data.osPrefs.regionalPrefsLocales);
+    $("intl-osprefs-systemlocales").textContent = JSON.stringify(
+      data.osPrefs.systemLocales
+    );
+    $("intl-osprefs-regionalprefs").textContent = JSON.stringify(
+      data.osPrefs.regionalPrefsLocales
+    );
   },
 };
 
 var $ = document.getElementById.bind(document);
 
-$.new = function $_new(tag, textContentOrChildren, className, attributes) { // eslint-disable-line func-names
+$.new = function $_new(tag, textContentOrChildren, className, attributes) {
+  // eslint-disable-line func-names
   let elt = document.createElement(tag);
   if (className) {
     elt.className = className;
   }
   if (attributes) {
     if (attributes["data-l10n-id"]) {
-      let args = attributes.hasOwnProperty("data-l10n-args") ?
-        attributes["data-l10n-args"] :
-        undefined;
-      document.l10n.setAttributes(elt,
-                                  attributes["data-l10n-id"],
-                                  args);
+      let args = attributes.hasOwnProperty("data-l10n-args")
+        ? attributes["data-l10n-args"]
+        : undefined;
+      document.l10n.setAttributes(elt, attributes["data-l10n-id"], args);
       delete attributes["data-l10n-id"];
       if (args) {
         delete attributes["data-l10n-args"];
@@ -960,7 +1093,8 @@ $.new = function $_new(tag, textContentOrChildren, className, attributes) { // e
   return elt;
 };
 
-$.append = function $_append(parent, children) { // eslint-disable-line func-names
+$.append = function $_append(parent, children) {
+  // eslint-disable-line func-names
   children.forEach(c => parent.appendChild(c));
 };
 
@@ -983,46 +1117,62 @@ function assembleFromGraphicsFailure(i, data) {
     what = "Assert";
     message = message.substring(8);
   }
-  let assembled = {"index": index,
-                   "header": ("(#" + index + ") " + what),
-                   "message": message};
+  let assembled = {
+    index,
+    header: "(#" + index + ") " + what,
+    message,
+  };
   return assembled;
 }
 
 function sortedArrayFromObject(obj) {
   let tuples = [];
-  for (let prop in obj)
+  for (let prop in obj) {
     tuples.push([prop, obj[prop]]);
+  }
   tuples.sort(([prop1, v1], [prop2, v2]) => prop1.localeCompare(prop2));
   return tuples;
 }
 
 function copyRawDataToClipboard(button) {
-  if (button)
+  if (button) {
     button.disabled = true;
+  }
   try {
     Troubleshoot.snapshot(async function(snapshot) {
-      if (button)
+      if (button) {
         button.disabled = false;
-      let str = Cc["@mozilla.org/supports-string;1"].
-                createInstance(Ci.nsISupportsString);
+      }
+      let str = Cc["@mozilla.org/supports-string;1"].createInstance(
+        Ci.nsISupportsString
+      );
       str.data = JSON.stringify(snapshot, undefined, 2);
-      let transferable = Cc["@mozilla.org/widget/transferable;1"].
-                         createInstance(Ci.nsITransferable);
+      let transferable = Cc[
+        "@mozilla.org/widget/transferable;1"
+      ].createInstance(Ci.nsITransferable);
       transferable.init(getLoadContext());
       transferable.addDataFlavor("text/unicode");
       transferable.setTransferData("text/unicode", str, str.data.length * 2);
-      Services.clipboard.setData(transferable, null, Ci.nsIClipboard.kGlobalClipboard);
+      Services.clipboard.setData(
+        transferable,
+        null,
+        Ci.nsIClipboard.kGlobalClipboard
+      );
       if (AppConstants.platform == "android") {
         // Present a snackbar notification.
-        var {Snackbars} = ChromeUtils.import("resource://gre/modules/Snackbars.jsm");
-        let rawDataCopiedString = await document.l10n.formatValue("raw-data-copied");
+        var { Snackbars } = ChromeUtils.import(
+          "resource://gre/modules/Snackbars.jsm"
+        );
+        let rawDataCopiedString = await document.l10n.formatValue(
+          "raw-data-copied"
+        );
         Snackbars.show(rawDataCopiedString, Snackbars.LENGTH_SHORT);
       }
     });
   } catch (err) {
-    if (button)
+    if (button) {
       button.disabled = false;
+    }
     throw err;
   }
 }
@@ -1044,8 +1194,9 @@ async function copyContentsToClipboard() {
   let ssHtml = supportsStringClass.createInstance(Ci.nsISupportsString);
   let ssText = supportsStringClass.createInstance(Ci.nsISupportsString);
 
-  let transferable = Cc["@mozilla.org/widget/transferable;1"]
-                       .createInstance(Ci.nsITransferable);
+  let transferable = Cc["@mozilla.org/widget/transferable;1"].createInstance(
+    Ci.nsITransferable
+  );
   transferable.init(getLoadContext());
 
   // Add the HTML flavor.
@@ -1059,11 +1210,17 @@ async function copyContentsToClipboard() {
   transferable.setTransferData("text/unicode", ssText, dataText.length * 2);
 
   // Store the data into the clipboard.
-  Services.clipboard.setData(transferable, null, Services.clipboard.kGlobalClipboard);
+  Services.clipboard.setData(
+    transferable,
+    null,
+    Services.clipboard.kGlobalClipboard
+  );
 
   if (AppConstants.platform == "android") {
     // Present a snackbar notification.
-    var {Snackbars} = ChromeUtils.import("resource://gre/modules/Snackbars.jsm");
+    var { Snackbars } = ChromeUtils.import(
+      "resource://gre/modules/Snackbars.jsm"
+    );
     let textCopiedString = await document.l10n.formatValue("text-copied");
     Snackbars.show(textCopiedString, Snackbars.LENGTH_SHORT);
   }
@@ -1083,11 +1240,9 @@ function createTextForElement(elem) {
   return text;
 }
 
-function Serializer() {
-}
+function Serializer() {}
 
 Serializer.prototype = {
-
   serialize(rootElem) {
     this._lines = [];
     this._startNewLine();
@@ -1104,7 +1259,7 @@ Serializer.prototype = {
   },
 
   set _currentLine(val) {
-    return this._lines[this._lines.length - 1] = val;
+    return (this._lines[this._lines.length - 1] = val);
   },
 
   _serializeElement(elem) {
@@ -1149,9 +1304,10 @@ Serializer.prototype = {
     if (currLine) {
       // The current line is not empty.  Trim it.
       this._currentLine = currLine.trim();
-      if (!this._currentLine)
+      if (!this._currentLine) {
         // The current line became empty.  Discard it.
         this._lines.pop();
+      }
     }
     this._lines.push("");
   },
@@ -1169,30 +1325,34 @@ Serializer.prototype = {
     // check thead.  If there's no thead, check the first tr.
     let colHeadings = {};
     let tableHeadingElem = table.querySelector("thead");
-    if (!tableHeadingElem)
+    if (!tableHeadingElem) {
       tableHeadingElem = table.querySelector("tr");
+    }
     if (tableHeadingElem) {
       let tableHeadingCols = tableHeadingElem.querySelectorAll("th,td");
       // If there's a contiguous run of th's in the children starting from the
       // rightmost child, then consider them to be column headings.
       for (let i = tableHeadingCols.length - 1; i >= 0; i--) {
         let col = tableHeadingCols[i];
-        if (col.localName != "th" || col.classList.contains("title-column"))
+        if (col.localName != "th" || col.classList.contains("title-column")) {
           break;
+        }
         colHeadings[i] = this._nodeText(col).trim();
       }
     }
     let hasColHeadings = Object.keys(colHeadings).length > 0;
-    if (!hasColHeadings)
+    if (!hasColHeadings) {
       tableHeadingElem = null;
+    }
 
     let trs = table.querySelectorAll("table > tr, tbody > tr");
     let startRow =
       tableHeadingElem && tableHeadingElem.localName == "tr" ? 1 : 0;
 
-    if (startRow >= trs.length)
+    if (startRow >= trs.length) {
       // The table's empty.
       return;
+    }
 
     if (hasColHeadings) {
       // Use column headings.  Print each tr as a multi-line chunk like:
@@ -1202,8 +1362,9 @@ Serializer.prototype = {
         let children = trs[i].querySelectorAll("td");
         for (let j = 0; j < children.length; j++) {
           let text = "";
-          if (colHeadings[j])
+          if (colHeadings[j]) {
             text += colHeadings[j] + ": ";
+          }
           text += this._nodeText(children[j]).trim();
           this._appendText(text);
           this._startNewLine();
@@ -1220,8 +1381,9 @@ Serializer.prototype = {
       let children = trs[i].querySelectorAll("th,td");
       let rowHeading = this._nodeText(children[0]).trim();
       if (children[0].classList.contains("title-column")) {
-        if (!this._isHiddenSubHeading(children[0]))
+        if (!this._isHiddenSubHeading(children[0])) {
           this._appendText(rowHeading);
+        }
       } else if (children.length == 1) {
         // This is a single-cell row.
         this._appendText(rowHeading);
@@ -1232,7 +1394,9 @@ Serializer.prototype = {
           // queued up from querySelectorAll earlier.
           this._appendText(rowHeading + ": ");
         } else {
-          this._appendText(rowHeading + ": " + this._nodeText(children[1]).trim());
+          this._appendText(
+            rowHeading + ": " + this._nodeText(children[1]).trim()
+          );
         }
       }
       this._startNewLine();
@@ -1251,8 +1415,11 @@ function openProfileDirectory() {
   let profileDir = currProfD.path;
 
   // Show the profile directory.
-  let nsLocalFile = Components.Constructor("@mozilla.org/file/local;1",
-                                           "nsIFile", "initWithPath");
+  let nsLocalFile = Components.Constructor(
+    "@mozilla.org/file/local;1",
+    "nsIFile",
+    "initWithPath"
+  );
   new nsLocalFile(profileDir).reveal();
 }
 
@@ -1276,9 +1443,14 @@ function populateActionBox() {
 
 // Prompt user to restart the browser in safe mode
 function safeModeRestart() {
-  let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"]
-                     .createInstance(Ci.nsISupportsPRBool);
-  Services.obs.notifyObservers(cancelQuit, "quit-application-requested", "restart");
+  let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
+    Ci.nsISupportsPRBool
+  );
+  Services.obs.notifyObservers(
+    cancelQuit,
+    "quit-application-requested",
+    "restart"
+  );
 
   if (!cancelQuit.data) {
     Services.startup.restartInSafeMode(Ci.nsIAppStartup.eAttemptQuit);
@@ -1287,15 +1459,16 @@ function safeModeRestart() {
 
 // Added for TB.
 function onShowPrivateDataChange() {
-  document.getElementById("about-support-private").disabled =
-    document.getElementById("check-show-private-data").checked;
+  document.getElementById(
+    "about-support-private"
+  ).disabled = document.getElementById("check-show-private-data").checked;
 }
 
 /**
  * Set up event listeners for buttons.
  */
 function setupEventListeners() {
-/* not used by TB
+  /* not used by TB
   let button = $("reset-box-button");
   if (button) {
     button.addEventListener("click", function(event) {
@@ -1306,7 +1479,11 @@ function setupEventListeners() {
   let button = $("restart-in-safe-mode-button");
   if (button) {
     button.addEventListener("click", function(event) {
-      if (Services.obs.enumerateObservers("restart-in-safe-mode").hasMoreElements()) {
+      if (
+        Services.obs
+          .enumerateObservers("restart-in-safe-mode")
+          .hasMoreElements()
+      ) {
         Services.obs.notifyObservers(null, "restart-in-safe-mode");
       } else {
         safeModeRestart();
@@ -1324,8 +1501,11 @@ function setupEventListeners() {
         }
         let updateDirPath = updateDir.path;
         // Show the update directory.
-        let nsLocalFile = Components.Constructor("@mozilla.org/file/local;1",
-                                                 "nsIFile", "initWithPath");
+        let nsLocalFile = Components.Constructor(
+          "@mozilla.org/file/local;1",
+          "nsIFile",
+          "initWithPath"
+        );
         new nsLocalFile(updateDirPath).reveal();
       });
     }
@@ -1333,8 +1513,9 @@ function setupEventListeners() {
     if (button) {
       button.addEventListener("click", function(event) {
         let uri = "chrome://mozapps/content/update/history.xul";
-        let features = "chrome,centerscreen,resizable=no,titlebar,toolbar=no," +
-                       "dialog=yes,modal";
+        let features =
+          "chrome,centerscreen,resizable=no,titlebar,toolbar=no," +
+          "dialog=yes,modal";
         Services.ww.openWindow(window, uri, "Update:History", features, null);
       });
     }
@@ -1342,7 +1523,7 @@ function setupEventListeners() {
   button = $("verify-place-integrity-button");
   if (button) {
     button.addEventListener("click", function(event) {
-      PlacesDBUtils.checkAndFixDatabase().then((tasksStatusMap) => {
+      PlacesDBUtils.checkAndFixDatabase().then(tasksStatusMap => {
         let logs = [];
         for (let [key, value] of tasksStatusMap) {
           logs.push(`> Task: ${key}`);
@@ -1361,7 +1542,7 @@ function setupEventListeners() {
     sendViaEmail();
   });
   // end of TB addition
-/* not used by TB
+  /* not used by TB
   $("copy-raw-data-to-clipboard").addEventListener("click", function(event) {
     copyRawDataToClipboard(this);
   });

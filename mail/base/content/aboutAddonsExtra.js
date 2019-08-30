@@ -4,10 +4,16 @@
 
 /* import-globals-from ../../../../toolkit/mozapps/extensions/content/aboutaddons.js */
 
-var {ExtensionSupport} = ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
-var {BrowserUtils} = ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
+var { ExtensionSupport } = ChromeUtils.import(
+  "resource:///modules/ExtensionSupport.jsm"
+);
+var { BrowserUtils } = ChromeUtils.import(
+  "resource://gre/modules/BrowserUtils.jsm"
+);
 
-var mailExtBundle = Services.strings.createBundle("chrome://messenger/locale/extensionsOverlay.properties");
+var mailExtBundle = Services.strings.createBundle(
+  "chrome://messenger/locale/extensionsOverlay.properties"
+);
 var extensionsNeedingRestart = new Set();
 
 /* This file runs in both the outer window, which controls the categories list, search bar, etc.,
@@ -16,7 +22,8 @@ var extensionsNeedingRestart = new Set();
   if (window.location.href == "about:addons") {
     let contentStylesheet = document.createProcessingInstruction(
       "xml-stylesheet",
-      'href="chrome://messenger/content/aboutAddonsExtra.css" type="text/css"');
+      'href="chrome://messenger/content/aboutAddonsExtra.css" type="text/css"'
+    );
     document.insertBefore(contentStylesheet, document.documentElement);
 
     // Add navigation buttons for back and forward on the addons page.
@@ -29,33 +36,47 @@ var extensionsNeedingRestart = new Set();
     backButton.setAttribute("id", "back-btn");
     backButton.setAttribute("class", "nav-button");
     backButton.setAttribute("command", "cmd_back");
-    backButton.setAttribute("tooltiptext", mailExtBundle.GetStringFromName("cmdBackTooltip"));
+    backButton.setAttribute(
+      "tooltiptext",
+      mailExtBundle.GetStringFromName("cmdBackTooltip")
+    );
     backButton.setAttribute("disabled", "true");
 
     let forwardButton = document.createXULElement("toolbarbutton");
     forwardButton.setAttribute("id", "forward-btn");
     forwardButton.setAttribute("class", "nav-button");
     forwardButton.setAttribute("command", "cmd_forward");
-    forwardButton.setAttribute("tooltiptext", mailExtBundle.GetStringFromName("cmdForwardTooltip"));
+    forwardButton.setAttribute(
+      "tooltiptext",
+      mailExtBundle.GetStringFromName("cmdForwardTooltip")
+    );
     forwardButton.setAttribute("disabled", "true");
     hbox.appendChild(backButton);
     hbox.appendChild(forwardButton);
 
-    document.getElementById("category-box")
-            .insertBefore(hbox, document.getElementById("categories"));
+    document
+      .getElementById("category-box")
+      .insertBefore(hbox, document.getElementById("categories"));
 
     // Fix the "Search on addons.mozilla.org" placeholder text in the searchbox.
     let textbox = document.getElementById("header-search");
     let placeholder = textbox.getAttribute("placeholder");
-    placeholder = placeholder.replace("addons.mozilla.org", "addons.thunderbird.net");
+    placeholder = placeholder.replace(
+      "addons.mozilla.org",
+      "addons.thunderbird.net"
+    );
     textbox.setAttribute("placeholder", placeholder);
     return;
   }
 
-  window.isCorrectlySigned = function() { return true; };
+  window.isCorrectlySigned = function() {
+    return true;
+  };
 
   delete window.browserBundle;
-  window.browserBundle = Services.strings.createBundle("chrome://messenger/locale/addons.properties");
+  window.browserBundle = Services.strings.createBundle(
+    "chrome://messenger/locale/addons.properties"
+  );
 
   let _getAddonMessageInfo = getAddonMessageInfo;
   getAddonMessageInfo = async function(addon) {
@@ -63,9 +84,10 @@ var extensionsNeedingRestart = new Set();
     if (!result.message) {
       let { stringName } = getTrueState(addon, "gDetailView._addon");
       if (stringName) {
-        result.message = mailExtBundle.formatStringFromName(
-          stringName, [addon.name, brandBundle.GetStringFromName("brandShortName")]
-        );
+        result.message = mailExtBundle.formatStringFromName(stringName, [
+          addon.name,
+          brandBundle.GetStringFromName("brandShortName"),
+        ]);
         result.type = "success";
         extensionsNeedingRestart.add(addon.id);
       } else {
@@ -91,7 +113,9 @@ var extensionsNeedingRestart = new Set();
     },
   };
   AddonManager.addAddonListener(listener);
-  window.addEventListener("unload", () => AddonManager.removeAddonListener(listener));
+  window.addEventListener("unload", () =>
+    AddonManager.removeAddonListener(listener)
+  );
 
   // If a legacy extension has been removed, it needs a restart but is not in the list
   // - show the restart bar anyway.
@@ -125,7 +149,8 @@ function setRestartBar() {
 
   const message = document.createElement("span");
   message.textContent = mailExtBundle.formatStringFromName(
-    "globalRestartMessage", [brandBundle.GetStringFromName("brandShortName")]
+    "globalRestartMessage",
+    [brandBundle.GetStringFromName("brandShortName")]
   );
 
   const restart = document.createElement("button");
@@ -155,8 +180,10 @@ function getTrueState(addon) {
     return returnObject;
   }
 
-  if (addon.pendingOperations & AddonManager.PENDING_UNINSTALL &&
-      ExtensionSupport.loadedLegacyExtensions.has(addon.id)) {
+  if (
+    addon.pendingOperations & AddonManager.PENDING_UNINSTALL &&
+    ExtensionSupport.loadedLegacyExtensions.has(addon.id)
+  ) {
     returnObject.stringName = "warnLegacyUninstall";
     returnObject.undoFunction = addon.cancelUninstall;
   } else if (state.pendingOperation == "install") {

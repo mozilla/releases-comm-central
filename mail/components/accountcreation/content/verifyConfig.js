@@ -5,12 +5,16 @@
 
 /* import-globals-from emailWizard.js */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {OAuth2Providers} = ChromeUtils.import("resource:///modules/OAuth2Providers.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { OAuth2Providers } = ChromeUtils.import(
+  "resource:///modules/OAuth2Providers.jsm"
+);
 var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
 
 if (typeof gEmailWizardLogger == "undefined") {
-  var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+  var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
   var gEmailWizardLogger = Log4Moz.getConfiguredLogger("mail.wizard");
 }
 
@@ -39,62 +43,95 @@ if (typeof gEmailWizardLogger == "undefined") {
  *   because there was an error (e.g. no network connection).
  *   The ex.message will contain a user-presentable message.
  */
-function verifyConfig(config, alter, msgWindow, successCallback, errorCallback) {
+function verifyConfig(
+  config,
+  alter,
+  msgWindow,
+  successCallback,
+  errorCallback
+) {
   ddump("verify config:\n" + config);
-  assert(config instanceof AccountConfig,
-         "BUG: Arg 'config' needs to be an AccountConfig object");
-  assert(typeof(alter) == "boolean");
-  assert(typeof(successCallback) == "function");
-  assert(typeof(errorCallback) == "function");
+  assert(
+    config instanceof AccountConfig,
+    "BUG: Arg 'config' needs to be an AccountConfig object"
+  );
+  assert(typeof alter == "boolean");
+  assert(typeof successCallback == "function");
+  assert(typeof errorCallback == "function");
 
-  if (MailServices.accounts.findRealServer(config.incoming.username,
-                                           config.incoming.hostname,
-                                           config.incoming.type,
-                                           config.incoming.port)) {
+  if (
+    MailServices.accounts.findRealServer(
+      config.incoming.username,
+      config.incoming.hostname,
+      config.incoming.type,
+      config.incoming.port
+    )
+  ) {
     errorCallback("Incoming server exists");
     return;
   }
 
   // incoming server
-  let inServer =
-    MailServices.accounts.createIncomingServer(config.incoming.username,
-                                               config.incoming.hostname,
-                                               config.incoming.type);
+  let inServer = MailServices.accounts.createIncomingServer(
+    config.incoming.username,
+    config.incoming.hostname,
+    config.incoming.type
+  );
   inServer.port = config.incoming.port;
   inServer.password = config.incoming.password;
-  if (config.incoming.socketType == 1) // plain
+  if (config.incoming.socketType == 1) {
+    // plain
     inServer.socketType = Ci.nsMsgSocketType.plain;
-  else if (config.incoming.socketType == 2) // SSL
+  } else if (config.incoming.socketType == 2) {
+    // SSL
     inServer.socketType = Ci.nsMsgSocketType.SSL;
-  else if (config.incoming.socketType == 3) // STARTTLS
+  } else if (config.incoming.socketType == 3) {
+    // STARTTLS
     inServer.socketType = Ci.nsMsgSocketType.alwaysSTARTTLS;
+  }
 
-  gEmailWizardLogger.info("Setting incoming server authMethod to " +
-                           config.incoming.auth);
+  gEmailWizardLogger.info(
+    "Setting incoming server authMethod to " + config.incoming.auth
+  );
   inServer.authMethod = config.incoming.auth;
 
   try {
     // Lookup issuer if needed.
-    if (config.incoming.auth == Ci.nsMsgAuthMethod.OAuth2 ||
-        config.outgoing.auth == Ci.nsMsgAuthMethod.OAuth2) {
-      if (!config.oauthSettings)
+    if (
+      config.incoming.auth == Ci.nsMsgAuthMethod.OAuth2 ||
+      config.outgoing.auth == Ci.nsMsgAuthMethod.OAuth2
+    ) {
+      if (!config.oauthSettings) {
         config.oauthSettings = {};
+      }
       if (!config.oauthSettings.issuer || !config.oauthSettings.scope) {
         // lookup issuer or scope from hostname
-        let hostname = (config.incoming.auth == Ci.nsMsgAuthMethod.OAuth2) ?
-                       config.incoming.hostname : config.outgoing.hostname;
+        let hostname =
+          config.incoming.auth == Ci.nsMsgAuthMethod.OAuth2
+            ? config.incoming.hostname
+            : config.outgoing.hostname;
         let hostDetails = OAuth2Providers.getHostnameDetails(hostname);
-        if (hostDetails)
-          [config.oauthSettings.issuer, config.oauthSettings.scope] = hostDetails;
-        if (!config.oauthSettings.issuer || !config.oauthSettings.scope)
+        if (hostDetails) {
+          [
+            config.oauthSettings.issuer,
+            config.oauthSettings.scope,
+          ] = hostDetails;
+        }
+        if (!config.oauthSettings.issuer || !config.oauthSettings.scope) {
           throw new Error("Could not get issuer for oauth2 authentication");
+        }
       }
-      gEmailWizardLogger.info("Saving oauth parameters for issuer " +
-                               config.oauthSettings.issuer);
+      gEmailWizardLogger.info(
+        "Saving oauth parameters for issuer " + config.oauthSettings.issuer
+      );
       inServer.setCharValue("oauth2.scope", config.oauthSettings.scope);
       inServer.setCharValue("oauth2.issuer", config.oauthSettings.issuer);
-      gEmailWizardLogger.info("OAuth2 issuer, scope is " +
-                              config.oauthSettings.issuer + ", " + config.oauthSettings.scope);
+      gEmailWizardLogger.info(
+        "OAuth2 issuer, scope is " +
+          config.oauthSettings.issuer +
+          ", " +
+          config.oauthSettings.scope
+      );
     }
     if (config.incoming.owaURL) {
       inServer.setUnicharValue("owa_url", config.incoming.owaURL);
@@ -107,7 +144,14 @@ function verifyConfig(config, alter, msgWindow, successCallback, errorCallback) 
     }
 
     if (inServer.password || inServer.authMethod == Ci.nsMsgAuthMethod.OAuth2) {
-      verifyLogon(config, inServer, alter, msgWindow, successCallback, errorCallback);
+      verifyLogon(
+        config,
+        inServer,
+        alter,
+        msgWindow,
+        successCallback,
+        errorCallback
+      );
     } else {
       // Avoid pref pollution, clear out server prefs.
       MailServices.accounts.removeIncomingServer(inServer, true);
@@ -121,15 +165,27 @@ function verifyConfig(config, alter, msgWindow, successCallback, errorCallback) 
   }
 }
 
-function verifyLogon(config, inServer, alter, msgWindow, successCallback,
-                     errorCallback) {
+function verifyLogon(
+  config,
+  inServer,
+  alter,
+  msgWindow,
+  successCallback,
+  errorCallback
+) {
   gEmailWizardLogger.info("verifyLogon for server at " + inServer.hostName);
   // hack - save away the old callbacks.
   let saveCallbacks = msgWindow.notificationCallbacks;
   // set our own callbacks - this works because verifyLogon will
   // synchronously create the transport and use the notification callbacks.
-  let listener = new urlListener(config, inServer, alter, msgWindow,
-                                 successCallback, errorCallback);
+  let listener = new urlListener(
+    config,
+    inServer,
+    alter,
+    msgWindow,
+    successCallback,
+    errorCallback
+  );
   // our listener listens both for the url and cert errors.
   msgWindow.notificationCallbacks = listener;
   // try to work around bug where backend is clearing password.
@@ -138,7 +194,10 @@ function verifyLogon(config, inServer, alter, msgWindow, successCallback,
     let uri = inServer.verifyLogon(listener, msgWindow);
     // clear msgWindow so url won't prompt for passwords.
     uri.QueryInterface(Ci.nsIMsgMailNewsUrl).msgWindow = null;
-  } catch (e) { gEmailWizardLogger.error("verifyLogon failed: " + e); throw e; } finally {
+  } catch (e) {
+    gEmailWizardLogger.error("verifyLogon failed: " + e);
+    throw e;
+  } finally {
     // restore them
     msgWindow.notificationCallbacks = saveCallbacks;
   }
@@ -151,8 +210,14 @@ function verifyLogon(config, inServer, alter, msgWindow, successCallback,
  * information in the future.
  */
 
-function urlListener(config, server, alter, msgWindow, successCallback,
-                     errorCallback) {
+function urlListener(
+  config,
+  server,
+  alter,
+  msgWindow,
+  successCallback,
+  errorCallback
+) {
   this.mConfig = config;
   this.mServer = server;
   this.mAlter = alter;
@@ -165,10 +230,12 @@ function urlListener(config, server, alter, msgWindow, successCallback,
 urlListener.prototype = {
   OnStartRunningUrl(aUrl) {
     this._log.info("Starting to test username");
-    this._log.info("  username=" + (this.mConfig.incoming.username !=
-                          this.mConfig.identity.emailAddress) +
-                          ", have savedUsername=" +
-                          (this.mConfig.usernameSaved ? "true" : "false"));
+    this._log.info(
+      "  username=" +
+        (this.mConfig.incoming.username != this.mConfig.identity.emailAddress) +
+        ", have savedUsername=" +
+        (this.mConfig.usernameSaved ? "true" : "false")
+    );
     this._log.info("  authMethod=" + this.mServer.authMethod);
   },
 
@@ -189,10 +256,12 @@ urlListener.prototype = {
 
   tryNextLogon(aPreviousUrl) {
     this._log.info("tryNextLogon()");
-    this._log.info("  username=" + (this.mConfig.incoming.username !=
-                          this.mConfig.identity.emailAddress) +
-                          ", have savedUsername=" +
-                          (this.mConfig.usernameSaved ? "true" : "false"));
+    this._log.info(
+      "  username=" +
+        (this.mConfig.incoming.username != this.mConfig.identity.emailAddress) +
+        ", have savedUsername=" +
+        (this.mConfig.usernameSaved ? "true" : "false")
+    );
     this._log.info("  authMethod=" + this.mServer.authMethod);
     // check if we tried full email address as username
     if (this.mConfig.incoming.username != this.mConfig.identity.emailAddress) {
@@ -202,8 +271,14 @@ urlListener.prototype = {
       this.mConfig.outgoing.username = this.mConfig.identity.emailAddress;
       this.mServer.username = this.mConfig.incoming.username;
       this.mServer.password = this.mConfig.incoming.password;
-      verifyLogon(this.mConfig, this.mServer, this.mAlter, this.mMsgWindow,
-                  this.mSuccessCallback, this.mErrorCallback);
+      verifyLogon(
+        this.mConfig,
+        this.mServer,
+        this.mAlter,
+        this.mMsgWindow,
+        this.mSuccessCallback,
+        this.mErrorCallback
+      );
       return;
     }
 
@@ -223,34 +298,50 @@ urlListener.prototype = {
     // So fall back to non-secure auth, and
     // again try the user name and email address as username
     assert(this.mConfig.incoming.auth == this.mServer.authMethod);
-    this._log.info("  Using SSL: " +
+    this._log.info(
+      "  Using SSL: " +
         (this.mServer.socketType == Ci.nsMsgSocketType.SSL ||
-         this.mServer.socketType == Ci.nsMsgSocketType.alwaysSTARTTLS));
-    if (this.mConfig.incoming.authAlternatives &&
-        this.mConfig.incoming.authAlternatives.length) {
+          this.mServer.socketType == Ci.nsMsgSocketType.alwaysSTARTTLS)
+    );
+    if (
+      this.mConfig.incoming.authAlternatives &&
+      this.mConfig.incoming.authAlternatives.length
+    ) {
       // We may be dropping back to insecure auth methods here,
       // which is not good. But then again, we already warned the user,
       // if it is a config without SSL.
-      this._log.info("  auth alternatives = " +
-          this.mConfig.incoming.authAlternatives.join(","));
+      this._log.info(
+        "  auth alternatives = " +
+          this.mConfig.incoming.authAlternatives.join(",")
+      );
       this._log.info("  Decreasing auth.");
-      this._log.info("  Have password: " +
-                     (this.mServer.password ? "true" : "false"));
+      this._log.info(
+        "  Have password: " + (this.mServer.password ? "true" : "false")
+      );
       let brokenAuth = this.mConfig.incoming.auth;
       // take the next best method (compare chooseBestAuthMethod() in guess)
-      this.mConfig.incoming.auth =
-          this.mConfig.incoming.authAlternatives.shift();
+      this.mConfig.incoming.auth = this.mConfig.incoming.authAlternatives.shift();
       this.mServer.authMethod = this.mConfig.incoming.auth;
       // Assume that SMTP server has same methods working as incoming.
       // Broken assumption, but we currently have no SMTP verification.
       // TODO implement real SMTP verification
-      if (this.mConfig.outgoing.auth == brokenAuth &&
-          this.mConfig.outgoing.authAlternatives.includes(this.mConfig.incoming.auth)) {
+      if (
+        this.mConfig.outgoing.auth == brokenAuth &&
+        this.mConfig.outgoing.authAlternatives.includes(
+          this.mConfig.incoming.auth
+        )
+      ) {
         this.mConfig.outgoing.auth = this.mConfig.incoming.auth;
       }
       this._log.info("  outgoing auth: " + this.mConfig.outgoing.auth);
-      verifyLogon(this.mConfig, this.mServer, this.mAlter, this.mMsgWindow,
-                  this.mSuccessCallback, this.mErrorCallback);
+      verifyLogon(
+        this.mConfig,
+        this.mServer,
+        this.mAlter,
+        this.mMsgWindow,
+        this.mSuccessCallback,
+        this.mErrorCallback
+      );
       return;
     }
 
@@ -266,7 +357,9 @@ urlListener.prototype = {
         MailServices.accounts.removeIncomingServer(this.mServer, true);
         this.mServer = null;
       }
-    } catch (e) { this._log.error(e); }
+    } catch (e) {
+      this._log.error(e);
+    }
   },
 
   _failed(aUrl) {
@@ -279,13 +372,15 @@ urlListener.prototype = {
     // custom server messages that tell the user to do something,
     // so show the backend error message, unless we are certain
     // that it's a wrong username or password.
-    if (!msg || // Normal IMAP login error sets no error msg
-         code == "pop3UsernameFailure" ||
-         code == "pop3PasswordFailed" ||
-         code == "imapOAuth2Error") {
+    if (
+      !msg || // Normal IMAP login error sets no error msg
+      code == "pop3UsernameFailure" ||
+      code == "pop3PasswordFailed" ||
+      code == "imapOAuth2Error"
+    ) {
       msg = getStringBundle(
-        "chrome://messenger/locale/accountCreationModel.properties")
-        .GetStringFromName("cannot_login.error");
+        "chrome://messenger/locale/accountCreationModel.properties"
+      ).GetStringFromName("cannot_login.error");
     }
     var ex = new Exception(msg);
     ex.code = code;
@@ -300,7 +395,9 @@ urlListener.prototype = {
     setTimeout(function() {
       try {
         self.informUserOfCertError(socketInfo, status, targetSite);
-      } catch (e) { logException(e); }
+      } catch (e) {
+        logException(e);
+      }
     }, 0);
     return true;
   },
@@ -312,20 +409,30 @@ urlListener.prototype = {
       prefetchCert: true,
       location: targetSite,
     };
-    window.openDialog("chrome://pippki/content/exceptionDialog.xul",
-                      "", "chrome,centerscreen,modal", params);
+    window.openDialog(
+      "chrome://pippki/content/exceptionDialog.xul",
+      "",
+      "chrome,centerscreen,modal",
+      params
+    );
     this._log.info("cert exception dialog closed");
     this._log.info("cert exceptionAdded = " + params.exceptionAdded);
     if (!params.exceptionAdded) {
       this._cleanup();
       let errorMsg = getStringBundle(
-          "chrome://messenger/locale/accountCreationModel.properties")
-          .GetStringFromName("cannot_login.error");
+        "chrome://messenger/locale/accountCreationModel.properties"
+      ).GetStringFromName("cannot_login.error");
       this.mErrorCallback(new Exception(errorMsg));
     } else {
       // Retry the logon now that we've added the cert exception.
-      verifyLogon(this.mConfig, this.mServer, this.mAlter, this.mMsgWindow,
-                  this.mSuccessCallback, this.mErrorCallback);
+      verifyLogon(
+        this.mConfig,
+        this.mServer,
+        this.mAlter,
+        this.mMsgWindow,
+        this.mSuccessCallback,
+        this.mErrorCallback
+      );
     }
   },
 
@@ -335,7 +442,9 @@ urlListener.prototype = {
   },
 
   // nsISupports
-  QueryInterface: ChromeUtils.generateQI(["nsIBadCertListener2",
-                                          "nsIInterfaceRequestor",
-                                          "nsIUrlListener"]),
+  QueryInterface: ChromeUtils.generateQI([
+    "nsIBadCertListener2",
+    "nsIInterfaceRequestor",
+    "nsIUrlListener",
+  ]),
 };

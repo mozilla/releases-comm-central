@@ -5,17 +5,16 @@
 /* import-globals-from folderDisplay.js */
 /* import-globals-from mailWindow.js */
 
-var {
-  logException,
-  errorWithDebug,
-} = ChromeUtils.import("resource:///modules/errUtils.js");
+var { logException, errorWithDebug } = ChromeUtils.import(
+  "resource:///modules/errUtils.js"
+);
 var {
   MessageTextFilter,
   QuickFilterManager,
   QuickFilterSearchListener,
   QuickFilterState,
 } = ChromeUtils.import("resource:///modules/QuickFilterManager.jsm");
-var {SearchSpec} = ChromeUtils.import("resource:///modules/SearchSpec.jsm");
+var { SearchSpec } = ChromeUtils.import("resource:///modules/SearchSpec.jsm");
 
 // -----------
 // Proper Code
@@ -44,8 +43,8 @@ var QuickFilterBarMuxer = {
     // know when a resize happens so we can expand things collapsed by our
     //  overflow handler (registered by attribute in the XUL file).
     window.addEventListener("resize", function() {
-                              dis.onWindowResize();
-                            });
+      dis.onWindowResize();
+    });
 
     this._bindUI();
   },
@@ -65,11 +64,14 @@ var QuickFilterBarMuxer = {
     // handled by onLoadingFolder. Here we handle the case where previous
     // aFolderDisplay shows an account folder instead (this cannot be done
     // in onLoadingFolder because that event is not raised).
-    if (!aFolderDisplay.displayedFolder ||
-        aFolderDisplay.displayedFolder.isServer) {
+    if (
+      !aFolderDisplay.displayedFolder ||
+      aFolderDisplay.displayedFolder.isServer
+    ) {
       let filterer = this.maybeActiveFilterer;
-      if (!filterer)
+      if (!filterer) {
         return;
+      }
       // Clear displayedFolder to force next onLoadingFolder to recreate the view
       filterer.displayedFolder = null;
     }
@@ -81,8 +83,9 @@ var QuickFilterBarMuxer = {
    */
   _updateToggle(aTabInfo) {
     if (!this.isCommandEnabled("cmd_toggleQuickFilterBar", aTabInfo)) {
-      document.getElementById("view_toolbars_popup_quickFilterBar")
-              .setAttribute("checked", false);
+      document
+        .getElementById("view_toolbars_popup_quickFilterBar")
+        .setAttribute("checked", false);
     }
 
     this._updateCommands();
@@ -107,9 +110,10 @@ var QuickFilterBarMuxer = {
    */
   onLoadingFolder(aFolderDisplay, aIsOutbound) {
     let tab = aFolderDisplay._tabInfo;
-    let filterer = ("quickFilter" in tab._ext) ? tab._ext.quickFilter : null;
-    if (!filterer)
+    let filterer = "quickFilter" in tab._ext ? tab._ext.quickFilter : null;
+    if (!filterer) {
       return;
+    }
 
     // check if there actually was a change (notification might not be for us)
     if (tab.folderDisplay.displayedFolder != filterer.displayedFolder) {
@@ -130,8 +134,9 @@ var QuickFilterBarMuxer = {
    */
   onActiveMessagesLoaded(aFolderDisplay) {
     let filterer = this.maybeActiveFilterer;
-    if (!filterer)
+    if (!filterer) {
       return;
+    }
 
     let filtering = aFolderDisplay.view.search.userTerms != null;
 
@@ -139,14 +144,21 @@ var QuickFilterBarMuxer = {
     // This may need to be converted into an asynchronous process at some point.
     for (let filterDef of QuickFilterManager.filterDefs) {
       if ("postFilterProcess" in filterDef) {
-        let preState = (filterDef.name in filterer.filterValues) ?
-          filterer.filterValues[filterDef.name] : null;
-        let [newState, update, treatAsUserAction] =
-          filterDef.postFilterProcess(preState, aFolderDisplay.view, filtering);
+        let preState =
+          filterDef.name in filterer.filterValues
+            ? filterer.filterValues[filterDef.name]
+            : null;
+        let [newState, update, treatAsUserAction] = filterDef.postFilterProcess(
+          preState,
+          aFolderDisplay.view,
+          filtering
+        );
         filterer.setFilterValue(filterDef.name, newState, !treatAsUserAction);
         if (update) {
-          if (aFolderDisplay._tabInfo == this.tabmail.currentTabInfo &&
-              ("reflectInDOM" in filterDef)) {
+          if (
+            aFolderDisplay._tabInfo == this.tabmail.currentTabInfo &&
+            "reflectInDOM" in filterDef
+          ) {
             let domNode = document.getElementById(filterDef.domId);
             // We are passing update as a super-secret data propagation channel
             //  exclusively for one-off cases like the text filter gloda upsell.
@@ -167,13 +179,13 @@ var QuickFilterBarMuxer = {
    */
   onSearching(aFolderDisplay, aIsSearching) {
     // we only care if we just started searching and we are active
-    if (!aIsSearching || !aFolderDisplay.active)
+    if (!aIsSearching || !aFolderDisplay.active) {
       return;
+    }
 
     // - Update match status.
     this.reflectFiltererResults(this.activeFilterer, aFolderDisplay);
   },
-
 
   // ---------------------
   // UI State Manipulation
@@ -198,7 +210,9 @@ var QuickFilterBarMuxer = {
           try {
             let postValue = domNode.checked ? true : null;
             QuickFilterBarMuxer.activeFilterer.setFilterValue(
-              latchedFilterDef.name, postValue);
+              latchedFilterDef.name,
+              postValue
+            );
             QuickFilterBarMuxer.deferredUpdateSearch();
           } catch (ex) {
             logException(ex);
@@ -207,20 +221,31 @@ var QuickFilterBarMuxer = {
       } else {
         handler = function(aEvent) {
           let filterValues = QuickFilterBarMuxer.activeFilterer.filterValues;
-          let preValue = (latchedFilterDef.name in filterValues) ?
-                           filterValues[latchedFilterDef.name] : null;
-          let [postValue, update] =
-            latchedFilterDef.onCommand(preValue, domNode, aEvent, document);
+          let preValue =
+            latchedFilterDef.name in filterValues
+              ? filterValues[latchedFilterDef.name]
+              : null;
+          let [postValue, update] = latchedFilterDef.onCommand(
+            preValue,
+            domNode,
+            aEvent,
+            document
+          );
           QuickFilterBarMuxer.activeFilterer.setFilterValue(
-            latchedFilterDef.name, postValue, !update);
-          if (update)
+            latchedFilterDef.name,
+            postValue,
+            !update
+          );
+          if (update) {
             QuickFilterBarMuxer.deferredUpdateSearch();
+          }
         };
       }
       domNode.addEventListener("command", handler);
 
-      if ("domBindExtra" in filterDef)
+      if ("domBindExtra" in filterDef) {
         filterDef.domBindExtra(document, this, domNode);
+      }
     }
   },
 
@@ -237,25 +262,27 @@ var QuickFilterBarMuxer = {
       let filterValues = aFilterer.filterValues;
       for (let filterDef of QuickFilterManager.filterDefs) {
         // If we only need to update one state, check and skip as appropriate.
-        if (aFilterName && filterDef.name != aFilterName)
+        if (aFilterName && filterDef.name != aFilterName) {
           continue;
+        }
 
         let domNode = document.getElementById(filterDef.domId);
-        let value = (filterDef.name in filterValues) ?
-          filterValues[filterDef.name] : null;
-        if (!("reflectInDOM" in filterDef))
+        let value =
+          filterDef.name in filterValues ? filterValues[filterDef.name] : null;
+        if (!("reflectInDOM" in filterDef)) {
           domNode.checked = Boolean(value);
-        else
+        } else {
           filterDef.reflectInDOM(domNode, value, document, this);
+        }
       }
     }
 
     this.reflectFiltererResults(aFilterer, aFolderDisplay);
 
-    document.getElementById("quick-filter-bar").collapsed =
-      !aFilterer.visible;
-    document.getElementById("view_toolbars_popup_quickFilterBar")
-            .setAttribute("checked", aFilterer.visible);
+    document.getElementById("quick-filter-bar").collapsed = !aFilterer.visible;
+    document
+      .getElementById("view_toolbars_popup_quickFilterBar")
+      .setAttribute("checked", aFilterer.visible);
   },
 
   /**
@@ -277,28 +304,35 @@ var QuickFilterBarMuxer = {
     let qfb = document.getElementById("quick-filter-bar");
 
     // bail early if the view is in the process of being created
-    if (!view.dbView)
+    if (!view.dbView) {
       return;
+    }
 
     // no filter active
     if (!view.search || !view.search.userTerms) {
       threadPane.removeAttribute("filterActive");
       qfb.removeAttribute("filterActive");
-    } else if (view.searching) { // filter active, still searching
+    } else if (view.searching) {
+      // filter active, still searching
       // Do not set this immediately; wait a bit and then only set this if we
       //  still are in this same state (and we are still the active tab...)
       setTimeout(function() {
-        if (!view.searching ||
-            (QuickFilterBarMuxer.maybeActiveFilterer != aFilterer))
+        if (
+          !view.searching ||
+          QuickFilterBarMuxer.maybeActiveFilterer != aFilterer
+        ) {
           return;
+        }
         threadPane.setAttribute("filterActive", "searching");
         qfb.setAttribute("filterActive", "searching");
       }, 500);
-    } else if (view.dbView.numMsgsInView) { // filter completed, results
+    } else if (view.dbView.numMsgsInView) {
+      // filter completed, results
       // some matches
       threadPane.setAttribute("filterActive", "matches");
       qfb.setAttribute("filterActive", "matches");
-    } else { // filter completed, no results
+    } else {
+      // filter completed, no results
       // no matches! :(
       threadPane.setAttribute("filterActive", "nomatches");
       qfb.setAttribute("filterActive", "nomatches");
@@ -342,13 +376,16 @@ var QuickFilterBarMuxer = {
    */
   onOverflow() {
     // If we are already collapsed, there is nothing more to do.
-    if (this._buttonLabelsCollapsed)
+    if (this._buttonLabelsCollapsed) {
       return;
+    }
 
-    let quickFilterBarBox =
-      document.getElementById("quick-filter-bar-main-bar");
-    let collapsibleButtonBox =
-      document.getElementById("quick-filter-bar-collapsible-buttons");
+    let quickFilterBarBox = document.getElementById(
+      "quick-filter-bar-main-bar"
+    );
+    let collapsibleButtonBox = document.getElementById(
+      "quick-filter-bar-collapsible-buttons"
+    );
     // the scroll width is the actual size it wants to be...
     this._minExpandedBarWidth = quickFilterBarBox.scrollWidth;
     this._buttonLabelsCollapsed = true;
@@ -369,14 +406,17 @@ var QuickFilterBarMuxer = {
    */
   onWindowResize() {
     // nothing to do here if the buttons are not collapsed
-    if (!this._buttonLabelsCollapsed)
+    if (!this._buttonLabelsCollapsed) {
       return;
+    }
 
-    let quickFilterBarBox =
-      document.getElementById("quick-filter-bar-main-bar");
+    let quickFilterBarBox = document.getElementById(
+      "quick-filter-bar-main-bar"
+    );
     // the client width is how big it actually is (thanks to overflow:hidden)
-    if (quickFilterBarBox.clientWidth < this._minExpandedBarWidth)
+    if (quickFilterBarBox.clientWidth < this._minExpandedBarWidth) {
       return;
+    }
 
     this._buttonLabelsCollapsed = false;
     this._minExpandedBarWidth = null;
@@ -388,8 +428,9 @@ var QuickFilterBarMuxer = {
       this._savedOffTextWidgetMinWidth = null;
     }
 
-    let collapsibleButtonBox =
-      document.getElementById("quick-filter-bar-collapsible-buttons");
+    let collapsibleButtonBox = document.getElementById(
+      "quick-filter-bar-collapsible-buttons"
+    );
     collapsibleButtonBox.removeAttribute("shrink");
   },
 
@@ -407,12 +448,14 @@ var QuickFilterBarMuxer = {
    *  state.
    */
   onTabOpened(aTab, aFirstTab, aOldTab) {
-    if (aTab.mode.name == "folder" ||
-        aTab.mode.name == "glodaList") {
-      let modelTab =
-        this.tabmail.getTabInfoForCurrentOrFirstModeInstance(aTab.mode);
-      let oldFilterer = (modelTab && ("quickFilter" in modelTab._ext)) ?
-                          modelTab._ext.quickFilter : undefined;
+    if (aTab.mode.name == "folder" || aTab.mode.name == "glodaList") {
+      let modelTab = this.tabmail.getTabInfoForCurrentOrFirstModeInstance(
+        aTab.mode
+      );
+      let oldFilterer =
+        modelTab && "quickFilter" in modelTab._ext
+          ? modelTab._ext.quickFilter
+          : undefined;
       aTab._ext.quickFilter = new QuickFilterState(oldFilterer);
       this.updateSearch(aTab);
       this._updateToggle(aTab);
@@ -420,16 +463,18 @@ var QuickFilterBarMuxer = {
   },
 
   onTabRestored(aTab, aState, aFirstTab) {
-    let filterer = aTab._ext.quickFilter = new QuickFilterState(null, aState);
+    let filterer = (aTab._ext.quickFilter = new QuickFilterState(null, aState));
     this.updateSearch(aTab);
-    if (aTab == this.tabmail.currentTabInfo)
+    if (aTab == this.tabmail.currentTabInfo) {
       this.reflectFiltererState(filterer, aTab.folderDisplay);
+    }
   },
 
   onTabPersist(aTab) {
-    let filterer = ("quickFilter" in aTab._ext) ? aTab._ext.quickFilter : null;
-    if (filterer)
+    let filterer = "quickFilter" in aTab._ext ? aTab._ext.quickFilter : null;
+    if (filterer) {
       return filterer.persistToObj();
+    }
     return null;
   },
 
@@ -446,60 +491,75 @@ var QuickFilterBarMuxer = {
     // is good enough.)
 
     let filterer = this.maybeActiveFilterer;
-    if (filterer)
+    if (filterer) {
       this.reflectFiltererState(filterer, aTab.folderDisplay);
+    }
     this._updateCommands();
   },
 
   supportsCommand(aCommand, aTab) {
     // we are not active on tab types we do not support (message tabs)
-    if (!("quickFilter" in aTab._ext))
+    if (!("quickFilter" in aTab._ext)) {
       return null;
+    }
 
-    if (aCommand == "cmd_popQuickFilterBarStack" ||
-        aCommand == "cmd_showQuickFilterBar" ||
-        aCommand == "cmd_toggleQuickFilterBar")
+    if (
+      aCommand == "cmd_popQuickFilterBarStack" ||
+      aCommand == "cmd_showQuickFilterBar" ||
+      aCommand == "cmd_toggleQuickFilterBar"
+    ) {
       return true;
+    }
     return null;
   },
   isCommandEnabled(aCommand, aTab) {
     // we are not active on tab types we do not support (message tabs)
-    if (!("quickFilter" in aTab._ext))
+    if (!("quickFilter" in aTab._ext)) {
       return null;
+    }
 
-    let isFolderView = (aTab.mode.name == "folder" &&
-                        aTab.folderDisplay.displayedFolder &&
-                        !aTab.folderDisplay.displayedFolder.isServer);
+    let isFolderView =
+      aTab.mode.name == "folder" &&
+      aTab.folderDisplay.displayedFolder &&
+      !aTab.folderDisplay.displayedFolder.isServer;
     let isGlodaList = aTab.mode.name == "glodaList";
 
-    if (!isFolderView && !isGlodaList)
+    if (!isFolderView && !isGlodaList) {
       return null;
+    }
 
-    if (aCommand == "cmd_popQuickFilterBarStack" ||
-        aCommand == "cmd_showQuickFilterBar" ||
-        aCommand == "cmd_toggleQuickFilterBar")
+    if (
+      aCommand == "cmd_popQuickFilterBarStack" ||
+      aCommand == "cmd_showQuickFilterBar" ||
+      aCommand == "cmd_toggleQuickFilterBar"
+    ) {
       return true;
+    }
     return null;
   },
   doCommand(aCommand, aTab) {
     // we are not active on tab types we do not support (message tabs)
-    if (!("quickFilter" in aTab._ext))
+    if (!("quickFilter" in aTab._ext)) {
       return null;
+    }
 
     if (aCommand == "cmd_popQuickFilterBarStack") {
       QuickFilterBarMuxer.cmdEscapeFilterStack();
       return true;
     } else if (aCommand == "cmd_showQuickFilterBar") {
       let textWidget = document.getElementById(QuickFilterManager.textBoxDomId);
-      if (!this.activeFilterer.visible)
+      if (!this.activeFilterer.visible) {
         QuickFilterBarMuxer._showFilterBar(true);
+      }
       textWidget.select();
       return true;
     } else if (aCommand == "cmd_toggleQuickFilterBar") {
       let show = !this.activeFilterer.visible;
       this._showFilterBar(show);
       if (show) {
-        let textWidget = document.getElementById(QuickFilterManager.textBoxDomId);
+        let textWidget = document.getElementById(
+          QuickFilterManager.textBoxDomId
+        );
         textWidget.select();
       }
       return true;
@@ -508,16 +568,22 @@ var QuickFilterBarMuxer = {
   },
 
   get maybeActiveFilterer() {
-    if (this.tabmail.currentTabInfo &&
-       "quickFilter" in this.tabmail.currentTabInfo._ext)
+    if (
+      this.tabmail.currentTabInfo &&
+      "quickFilter" in this.tabmail.currentTabInfo._ext
+    ) {
       return this.tabmail.currentTabInfo._ext.quickFilter;
+    }
     return null;
   },
 
   get activeFilterer() {
-    if (this.tabmail.currentTabInfo &&
-        "quickFilter" in this.tabmail.currentTabInfo._ext)
+    if (
+      this.tabmail.currentTabInfo &&
+      "quickFilter" in this.tabmail.currentTabInfo._ext
+    ) {
       return this.tabmail.currentTabInfo._ext.quickFilter;
+    }
     throw errorWithDebug("There is no active filterer but we want one.");
   },
 
@@ -569,20 +635,26 @@ var QuickFilterBarMuxer = {
   updateSearch(aTab) {
     let tab = aTab || this.tabmail.currentTabInfo;
     // bail if things don't really exist yet
-    if (!tab.folderDisplay || !tab.folderDisplay.view.search)
+    if (!tab.folderDisplay || !tab.folderDisplay.view.search) {
       return;
+    }
 
     let filterer = tab._ext.quickFilter;
     filterer.displayedFolder = tab.folderDisplay.displayedFolder;
 
-    let [terms, listeners] =
-      filterer.createSearchTerms(tab.folderDisplay.view.search.session);
+    let [terms, listeners] = filterer.createSearchTerms(
+      tab.folderDisplay.view.search.session
+    );
 
     for (let [listener, filterDef] of listeners) {
       // it registers itself with the search session.
       new QuickFilterSearchListener(
-        tab.folderDisplay, filterer, filterDef,
-        listener, QuickFilterBarMuxer);
+        tab.folderDisplay,
+        filterer,
+        filterDef,
+        listener,
+        QuickFilterBarMuxer
+      );
     }
     tab.folderDisplay.view.search.userTerms = terms;
     // Uncomment to know what the search state is when we (try and) update it.
@@ -597,8 +669,10 @@ var QuickFilterBarMuxer = {
       let threadPane = document.getElementById("threadTree");
       threadPane.focus();
     }
-    this.reflectFiltererState(this.activeFilterer,
-                              this.tabmail.currentTabInfo.folderDisplay);
+    this.reflectFiltererState(
+      this.activeFilterer,
+      this.tabmail.currentTabInfo.folderDisplay
+    );
   },
 
   /**
@@ -607,8 +681,7 @@ var QuickFilterBarMuxer = {
   cmdGlodaSearchDownSell(aEvent) {
     aEvent.stopPropagation();
     this._showFilterBar(true);
-    let textWidget = document.getElementById(
-                       QuickFilterManager.textBoxDomId);
+    let textWidget = document.getElementById(QuickFilterManager.textBoxDomId);
     textWidget.select();
   },
 
@@ -625,14 +698,17 @@ var QuickFilterBarMuxer = {
    */
   cmdEscapeFilterStack() {
     let filterer = this.maybeActiveFilterer;
-    if (!filterer || !filterer.visible)
+    if (!filterer || !filterer.visible) {
       return;
+    }
 
     // update the search if we were relaxing something
     if (filterer.userHitEscape()) {
       this.updateSearch();
-      this.reflectFiltererState(filterer,
-                                this.tabmail.currentTabInfo.folderDisplay);
+      this.reflectFiltererState(
+        filterer,
+        this.tabmail.currentTabInfo.folderDisplay
+      );
     } else {
       // close the filter since there was nothing left to relax
       this.cmdClose();
@@ -641,8 +717,9 @@ var QuickFilterBarMuxer = {
 
   _testHelperResetFilterState() {
     let filterer = this.maybeActiveFilterer;
-    if (!filterer)
+    if (!filterer) {
       return;
+    }
     let tab = this.tabmail.currentTabInfo;
     tab._ext.quickFilter = filterer = new QuickFilterState();
     this.updateSearch();

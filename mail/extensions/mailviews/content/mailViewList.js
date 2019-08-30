@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gMailListView;
 var gListBox;
@@ -11,7 +11,9 @@ var gEditButton;
 var gDeleteButton;
 
 function mailViewListOnLoad() {
-  gMailListView = Cc["@mozilla.org/messenger/mailviewlist;1"].getService(Ci.nsIMsgMailViewList);
+  gMailListView = Cc["@mozilla.org/messenger/mailviewlist;1"].getService(
+    Ci.nsIMsgMailViewList
+  );
   gListBox = document.getElementById("mailViewList");
 
   // Construct list view based on current mail view list data
@@ -24,30 +26,47 @@ function mailViewListOnLoad() {
 
 function refreshListView(aSelectedMailView) {
   // remove any existing items in the view...
-  for (var index = gListBox.getRowCount(); index > 0; index--)
+  for (var index = gListBox.getRowCount(); index > 0; index--) {
     gListBox.getItemAtIndex(index - 1).remove();
+  }
 
   var numItems = gMailListView.mailViewCount;
   var mailView;
   for (index = 0; index < numItems; index++) {
     mailView = gMailListView.getMailViewAt(index);
     gListBox.appendItem(mailView.prettyName, index);
-    if (aSelectedMailView && (mailView.prettyName == aSelectedMailView.prettyName))
+    if (
+      aSelectedMailView &&
+      mailView.prettyName == aSelectedMailView.prettyName
+    ) {
       gListBox.selectedIndex = index;
+    }
   }
 }
 
 function onNewMailView() {
-   window.openDialog("chrome://messenger/content/mailViewSetup.xul",
-                     "", "centerscreen,resizable,modal,titlebar,chrome",
-                     { onOkCallback: refreshListView });
+  window.openDialog(
+    "chrome://messenger/content/mailViewSetup.xul",
+    "",
+    "centerscreen,resizable,modal,titlebar,chrome",
+    { onOkCallback: refreshListView }
+  );
 }
 
 function onDeleteMailView() {
-  var bundle = Services.strings.createBundle("chrome://messenger/locale/messenger.properties");
+  var bundle = Services.strings.createBundle(
+    "chrome://messenger/locale/messenger.properties"
+  );
 
-  if (!Services.prompt.confirm(window, bundle.GetStringFromName("confirmViewDeleteTitle"), bundle.GetStringFromName("confirmViewDeleteMessage")))
+  if (
+    !Services.prompt.confirm(
+      window,
+      bundle.GetStringFromName("confirmViewDeleteTitle"),
+      bundle.GetStringFromName("confirmViewDeleteMessage")
+    )
+  ) {
     return;
+  }
 
   // get the selected index
   var selectedIndex = gListBox.selectedIndex;
@@ -59,10 +78,11 @@ function onDeleteMailView() {
       gListBox.selectedItem.remove();
 
       // select the next item in the list..
-      if (selectedIndex < gListBox.getRowCount())
+      if (selectedIndex < gListBox.getRowCount()) {
         gListBox.selectedIndex = selectedIndex;
-      else
+      } else {
         gListBox.selectedIndex = gListBox.getRowCount() - 1;
+      }
 
       gMailListView.save();
     }
@@ -76,10 +96,14 @@ function onEditMailView() {
     var selMailView = gMailListView.getMailViewAt(selectedIndex);
     // open up the mail view setup dialog passing in the mail view as an argument....
 
-    var args = {mailView: selMailView, onOkCallback: refreshListView};
+    var args = { mailView: selMailView, onOkCallback: refreshListView };
 
-    window.openDialog("chrome://messenger/content/mailViewSetup.xul",
-                      "", "centerscreen,modal,resizable,titlebar,chrome", args);
+    window.openDialog(
+      "chrome://messenger/content/mailViewSetup.xul",
+      "",
+      "centerscreen,modal,resizable,titlebar,chrome",
+      args
+    );
   }
 }
 

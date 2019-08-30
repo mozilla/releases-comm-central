@@ -39,12 +39,15 @@
 
 var EXPORTED_SYMBOLS = ["mozmill"];
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-const controller = ChromeUtils.import("chrome://mozmill/content/modules/controller.jsm");
-const mozmill = ChromeUtils.import("chrome://mozmill/content/modules/mozmill.jsm");
+const controller = ChromeUtils.import(
+  "chrome://mozmill/content/modules/controller.jsm"
+);
+const mozmill = ChromeUtils.import(
+  "chrome://mozmill/content/modules/mozmill.jsm"
+);
 const utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
-
 
 // Observer when a new top-level window is ready
 var windowReadyObserver = {
@@ -53,14 +56,12 @@ var windowReadyObserver = {
   },
 };
 
-
 // Observer when a top-level window is closed
 var windowCloseObserver = {
   observe(subject, topic, data) {
     controller.windowMap.remove(utils.getWindowId(subject));
   },
 };
-
 
 /**
  * Attach event listeners
@@ -71,28 +72,10 @@ function attachEventListeners(aWindow) {
 
     if ("gBrowser" in aWindow) {
       // Page is ready
-      aWindow.gBrowser.addEventListener("load", function(event) {
-        var doc = event.originalTarget;
-
-        // Only update the flag if we have a document as target
-        if ("defaultView" in doc) {
-          var id = utils.getWindowId(doc.defaultView);
-          controller.windowMap.update(id, "loaded", true);
-          // dump("*** load event: " + id + ", " + doc.location + ", baseURI=" + doc.baseURI + "\n");
-        }
-      }, true);
-
-      // Note: Error pages will never fire a "load" event. For those we
-      // have to wait for the "DOMContentLoaded" event. That's the final state.
-      // Error pages will always have a baseURI starting with
-      // "about:" followed by "error" or "blocked".
-      aWindow.gBrowser.addEventListener("DOMContentLoaded", function(event) {
-        var doc = event.originalTarget;
-
-        var errorRegex = /about:.+(error)|(blocked)\?/;
-        if (errorRegex.exec(doc.baseURI)) {
-          // Wait about 1s to be sure the DOM is ready
-          mozmill.utils.sleep(1000);
+      aWindow.gBrowser.addEventListener(
+        "load",
+        function(event) {
+          var doc = event.originalTarget;
 
           // Only update the flag if we have a document as target
           if ("defaultView" in doc) {
@@ -100,20 +83,50 @@ function attachEventListeners(aWindow) {
             controller.windowMap.update(id, "loaded", true);
             // dump("*** load event: " + id + ", " + doc.location + ", baseURI=" + doc.baseURI + "\n");
           }
-        }
-      }, true);
+        },
+        true
+      );
+
+      // Note: Error pages will never fire a "load" event. For those we
+      // have to wait for the "DOMContentLoaded" event. That's the final state.
+      // Error pages will always have a baseURI starting with
+      // "about:" followed by "error" or "blocked".
+      aWindow.gBrowser.addEventListener(
+        "DOMContentLoaded",
+        function(event) {
+          var doc = event.originalTarget;
+
+          var errorRegex = /about:.+(error)|(blocked)\?/;
+          if (errorRegex.exec(doc.baseURI)) {
+            // Wait about 1s to be sure the DOM is ready
+            mozmill.utils.sleep(1000);
+
+            // Only update the flag if we have a document as target
+            if ("defaultView" in doc) {
+              var id = utils.getWindowId(doc.defaultView);
+              controller.windowMap.update(id, "loaded", true);
+              // dump("*** load event: " + id + ", " + doc.location + ", baseURI=" + doc.baseURI + "\n");
+            }
+          }
+        },
+        true
+      );
 
       // Page is about to get unloaded
-      aWindow.gBrowser.addEventListener("beforeunload", function(event) {
-        var doc = event.originalTarget;
+      aWindow.gBrowser.addEventListener(
+        "beforeunload",
+        function(event) {
+          var doc = event.originalTarget;
 
-        // Only update the flag if we have a document as target
-        if ("defaultView" in doc) {
-          var id = utils.getWindowId(doc.defaultView);
-          controller.windowMap.update(id, "loaded", false);
-          // dump("*** beforeunload event: " + id + ", " + doc.location + ", baseURI=" + doc.baseURI + "\n");
-        }
-      }, true);
+          // Only update the flag if we have a document as target
+          if ("defaultView" in doc) {
+            var id = utils.getWindowId(doc.defaultView);
+            controller.windowMap.update(id, "loaded", false);
+            // dump("*** beforeunload event: " + id + ", " + doc.location + ", baseURI=" + doc.baseURI + "\n");
+          }
+        },
+        true
+      );
     }
   });
 }

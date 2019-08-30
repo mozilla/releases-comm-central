@@ -14,13 +14,21 @@
 
 var MODULE_NAME = "test-multipart-related";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "compose-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "compose-helpers",
+];
 
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {MimeParser} = ChromeUtils.import("resource:///modules/mimeParser.jsm");
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 
 var gDrafts;
@@ -42,13 +50,16 @@ function getMsgHeaders(aMsgHdr) {
   let msgFolder = aMsgHdr.folder;
   let msgUri = msgFolder.getUriForMsg(aMsgHdr);
 
-  let messenger = Cc["@mozilla.org/messenger;1"]
-                    .createInstance(Ci.nsIMessenger);
+  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+    Ci.nsIMessenger
+  );
   let handler = {
     _done: false,
     _data: new Map(),
     _text: new Map(),
-    endMessage() { this._done = true; },
+    endMessage() {
+      this._done = true;
+    },
     deliverPartData(num, text) {
       this._text.set(num, this._text.get(num) + text);
     },
@@ -57,17 +68,14 @@ function getMsgHeaders(aMsgHdr) {
       this._text.set(num, "");
     },
   };
-  let streamListener = MimeParser.makeStreamListenerParser(handler,
-    {strformat: "unicode"});
-  messenger.messageServiceFromURI(msgUri).streamMessage(msgUri,
-                                                        streamListener,
-                                                        null,
-                                                        null,
-                                                        false,
-                                                        "",
-                                                        false);
+  let streamListener = MimeParser.makeStreamListenerParser(handler, {
+    strformat: "unicode",
+  });
+  messenger
+    .messageServiceFromURI(msgUri)
+    .streamMessage(msgUri, streamListener, null, null, false, "", false);
   utils.waitFor(() => handler._done);
-  return {headers: handler._data, text: handler._text};
+  return { headers: handler._data, text: handler._text };
 }
 
 /**
@@ -80,7 +88,8 @@ function test_basic_multipart_related() {
 
   const fname = "./tb-logo.png";
   let file = os.getFileForPath(os.abspath(fname, os.getFileForPath(__file__)));
-  let fileHandler = Services.io.getProtocolHandler("file")
+  let fileHandler = Services.io
+    .getProtocolHandler("file")
     .QueryInterface(Ci.nsIFileProtocolHandler);
   let fileURL = fileHandler.getURLSpecFromFile(file);
 
@@ -99,21 +108,26 @@ function test_basic_multipart_related() {
   wait_for_window_close();
 
   // Ctrl+S = save as draft.
-  compWin.keypress(null, "s", {shiftKey: false, accelKey: true});
+  compWin.keypress(null, "s", { shiftKey: false, accelKey: true });
   close_compose_window(compWin);
 
   // Make sure that the headers are right on this one.
   be_in_folder(gDrafts);
   let draftMsg = select_click_row(0);
-  let {headers, text} = getMsgHeaders(draftMsg, true);
+  let { headers, text } = getMsgHeaders(draftMsg, true);
   assert_equals(headers.get("").contentType.type, "multipart/related");
   assert_equals(headers.get("1").contentType.type, "text/html");
   assert_equals(headers.get("2").contentType.type, "image/png");
   assert_equals(headers.get("2").get("Content-Transfer-Encoding"), "base64");
-  assert_equals(headers.get("2").getRawHeader("Content-Disposition")[0],
-    "inline; filename=\"tb-logo.png\"");
-  let cid = headers.get("2").getRawHeader("Content-ID")[0].slice(1, -1);
-  if (!text.get("1").includes("src=\"cid:" + cid + '"')) {
+  assert_equals(
+    headers.get("2").getRawHeader("Content-Disposition")[0],
+    'inline; filename="tb-logo.png"'
+  );
+  let cid = headers
+    .get("2")
+    .getRawHeader("Content-ID")[0]
+    .slice(1, -1);
+  if (!text.get("1").includes('src="cid:' + cid + '"')) {
     throw new Error("Expected HTML to refer to cid " + cid);
   }
   press_delete(mc); // Delete message

@@ -2,22 +2,42 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.defineModuleGetter(this, "ChromeManifest", "resource:///modules/ChromeManifest.jsm");
-ChromeUtils.defineModuleGetter(this, "ExtensionSupport", "resource:///modules/ExtensionSupport.jsm");
-ChromeUtils.defineModuleGetter(this, "Overlays", "resource:///modules/Overlays.jsm");
-ChromeUtils.defineModuleGetter(this, "XPIInternal", "resource://gre/modules/addons/XPIProvider.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "ChromeManifest",
+  "resource:///modules/ChromeManifest.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "ExtensionSupport",
+  "resource:///modules/ExtensionSupport.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "Overlays",
+  "resource:///modules/Overlays.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "XPIInternal",
+  "resource://gre/modules/addons/XPIProvider.jsm"
+);
 
 Cu.importGlobalProperties(["fetch"]);
 
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {ConsoleAPI} = ChromeUtils.import("resource://gre/modules/Console.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+var { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "BOOTSTRAP_REASONS", () => {
-  const {XPIProvider} = ChromeUtils.import("resource://gre/modules/addons/XPIProvider.jsm");
+  const { XPIProvider } = ChromeUtils.import(
+    "resource://gre/modules/addons/XPIProvider.jsm"
+  );
   return XPIProvider.BOOTSTRAP_REASONS;
 });
 
-const {Log} = ChromeUtils.import("resource://gre/modules/Log.jsm");
+const { Log } = ChromeUtils.import("resource://gre/modules/Log.jsm");
 var logger = Log.repository.getLogger("addons.bootstrap");
 
 let bootstrapScopes = new Map();
@@ -26,7 +46,10 @@ let cachedParams = new Map();
 Services.obs.addObserver(() => {
   for (let [id, scope] of bootstrapScopes.entries()) {
     if (ExtensionSupport.loadedBootstrapExtensions.has(id)) {
-      scope.shutdown({...cachedParams.get(id)}, BOOTSTRAP_REASONS.APP_SHUTDOWN);
+      scope.shutdown(
+        { ...cachedParams.get(id) },
+        BOOTSTRAP_REASONS.APP_SHUTDOWN
+      );
     }
   }
 }, "quit-application-granted");
@@ -56,7 +79,10 @@ this.legacy = class extends ExtensionAPI {
     };
     if (ExtensionSupport.loadedLegacyExtensions.has(this.extension.id)) {
       state = ExtensionSupport.loadedLegacyExtensions.get(this.extension.id);
-      let versionComparison = Services.vc.compare(this.extension.version, state.version);
+      let versionComparison = Services.vc.compare(
+        this.extension.version,
+        state.version
+      );
       if (versionComparison != 0) {
         if (versionComparison > 0) {
           state.pendingOperation = "upgrade";
@@ -69,7 +95,11 @@ this.legacy = class extends ExtensionAPI {
         // Forget any cached files we might've had from another version of this extension.
         Services.obs.notifyObservers(null, "startupcache-invalidate");
       }
-      console.log(`Legacy WebExtension ${this.extension.id} has already been loaded in this run, refusing to do so again. Please restart.`);
+      console.log(
+        `Legacy WebExtension ${
+          this.extension.id
+        } has already been loaded in this run, refusing to do so again. Please restart.`
+      );
       return;
     }
 
@@ -77,18 +107,28 @@ this.legacy = class extends ExtensionAPI {
     if (this.extension.startupReason == "ADDON_INSTALL") {
       // Usually, sideloaded extensions are disabled when they first appear,
       // but for MozMill to run calendar tests, we disable this.
-      let scope = XPIInternal.XPIStates.findAddon(this.extension.id).location.scope;
-      let autoDisableScopes = Services.prefs.getIntPref("extensions.autoDisableScopes");
+      let scope = XPIInternal.XPIStates.findAddon(this.extension.id).location
+        .scope;
+      let autoDisableScopes = Services.prefs.getIntPref(
+        "extensions.autoDisableScopes"
+      );
 
       // If the extension was just installed from the distribution folder,
       // it's in the profile extensions folder. We don't want to disable it.
       let isDistroAddon = Services.prefs.getBoolPref(
-        "extensions.installedDistroAddon." + this.extension.id, false
+        "extensions.installedDistroAddon." + this.extension.id,
+        false
       );
 
-      if (!isDistroAddon && (scope & autoDisableScopes)) {
+      if (!isDistroAddon && scope & autoDisableScopes) {
         state.pendingOperation = "install";
-        console.log(`Legacy WebExtension ${this.extension.id} loading for other reason than startup (${this.extension.startupReason}), refusing to load immediately.`);
+        console.log(
+          `Legacy WebExtension ${
+            this.extension.id
+          } loading for other reason than startup (${
+            this.extension.startupReason
+          }), refusing to load immediately.`
+        );
         ExtensionSupport.loadedLegacyExtensions.notifyObservers(state);
 
         // Forget any cached files we might've had if this extension was previously installed.
@@ -98,14 +138,22 @@ this.legacy = class extends ExtensionAPI {
     }
     if (this.extension.startupReason == "ADDON_ENABLE") {
       state.pendingOperation = "enable";
-      console.log(`Legacy WebExtension ${this.extension.id} loading for other reason than startup (${this.extension.startupReason}), refusing to load immediately.`);
+      console.log(
+        `Legacy WebExtension ${
+          this.extension.id
+        } loading for other reason than startup (${
+          this.extension.startupReason
+        }), refusing to load immediately.`
+      );
       ExtensionSupport.loadedLegacyExtensions.notifyObservers(state);
       return;
     }
 
     let extensionRoot;
     if (this.extension.rootURI instanceof Ci.nsIJARURI) {
-      extensionRoot = this.extension.rootURI.JARFile.QueryInterface(Ci.nsIFileURL).file;
+      extensionRoot = this.extension.rootURI.JARFile.QueryInterface(
+        Ci.nsIFileURL
+      ).file;
       console.log("Loading packed extension from", extensionRoot.path);
     } else {
       extensionRoot = this.extension.rootURI.QueryInterface(Ci.nsIFileURL).file;
@@ -131,7 +179,7 @@ this.legacy = class extends ExtensionAPI {
       osversion: Services.sysinfo.getProperty("version"),
       abi: appinfo.XPCOMABI,
     };
-    let loader = async (filename) => {
+    let loader = async filename => {
       let url = this.extension.getURL(filename);
       return fetch(url).then(response => response.text());
     };
@@ -144,7 +192,9 @@ this.legacy = class extends ExtensionAPI {
 
     // Fire profile-after-change notifications, because we are past that event by now
     console.log("Firing profile-after-change listeners for", this.extension.id);
-    let profileAfterChange = chromeManifest.category.get("profile-after-change");
+    let profileAfterChange = chromeManifest.category.get(
+      "profile-after-change"
+    );
     for (let contractid of profileAfterChange.values()) {
       let service = contractid.startsWith("service,");
       let instance;
@@ -157,7 +207,10 @@ this.legacy = class extends ExtensionAPI {
 
         instance.observe(null, "profile-after-change", null);
       } catch (e) {
-        console.error("Error firing profile-after-change listener for", contractid);
+        console.error(
+          "Error firing profile-after-change listener for",
+          contractid
+        );
       }
     }
 
@@ -168,8 +221,10 @@ this.legacy = class extends ExtensionAPI {
     // Listen for new windows to overlay.
     let documentObserver = {
       observe(doc) {
-        if (ExtensionCommon.instanceOf(doc, "HTMLDocument") &&
-            !seenDocuments.has(doc)) {
+        if (
+          ExtensionCommon.instanceOf(doc, "HTMLDocument") &&
+          !seenDocuments.has(doc)
+        ) {
           seenDocuments.add(doc);
           Overlays.load(chromeManifest, doc.defaultView);
         }
@@ -179,8 +234,10 @@ this.legacy = class extends ExtensionAPI {
 
     // Add overlays to all existing windows.
     getAllWindows().forEach(win => {
-      if (["interactive", "complete"].includes(win.document.readyState) &&
-          !seenDocuments.has(win.document)) {
+      if (
+        ["interactive", "complete"].includes(win.document.readyState) &&
+        !seenDocuments.has(win.document)
+      ) {
         seenDocuments.add(win.document);
         Overlays.load(chromeManifest, win);
       }
@@ -188,7 +245,10 @@ this.legacy = class extends ExtensionAPI {
 
     this.extension.callOnClose({
       close: () => {
-        Services.obs.removeObserver(documentObserver, "chrome-document-interactive");
+        Services.obs.removeObserver(
+          documentObserver,
+          "chrome-document-interactive"
+        );
       },
     });
   }
@@ -203,16 +263,25 @@ this.legacy = class extends ExtensionAPI {
       resourceURI: Services.io.newURI(this.extension.resourceURL),
       installPath: this.extensionFile.path,
     };
-    cachedParams.set(this.extension.id, {...params});
+    cachedParams.set(this.extension.id, { ...params });
 
-    if (oldParams && ["ADDON_UPGRADE", "ADDON_DOWNGRADE"].includes(this.extension.startupReason)) {
+    if (
+      oldParams &&
+      ["ADDON_UPGRADE", "ADDON_DOWNGRADE"].includes(
+        this.extension.startupReason
+      )
+    ) {
       params.oldVersion = oldParams.version;
     }
 
     let scope = await this.loadScope();
     bootstrapScopes.set(this.extension.id, scope);
 
-    if (["ADDON_INSTALL", "ADDON_UPGRADE", "ADDON_DOWNGRADE"].includes(this.extension.startupReason)) {
+    if (
+      ["ADDON_INSTALL", "ADDON_UPGRADE", "ADDON_DOWNGRADE"].includes(
+        this.extension.startupReason
+      )
+    ) {
       scope.install(params, BOOTSTRAP_REASONS[this.extension.startupReason]);
     }
     scope.startup(params, BOOTSTRAP_REASONS[this.extension.startupReason]);
@@ -221,7 +290,9 @@ this.legacy = class extends ExtensionAPI {
 
   static onDisable(id) {
     if (bootstrapScopes.has(id)) {
-      bootstrapScopes.get(id).shutdown({...cachedParams.get(id)}, BOOTSTRAP_REASONS.ADDON_DISABLE);
+      bootstrapScopes
+        .get(id)
+        .shutdown({ ...cachedParams.get(id) }, BOOTSTRAP_REASONS.ADDON_DISABLE);
       ExtensionSupport.loadedBootstrapExtensions.delete(id);
     }
   }
@@ -247,7 +318,12 @@ this.legacy = class extends ExtensionAPI {
 
   static onUninstall(id) {
     if (bootstrapScopes.has(id)) {
-      bootstrapScopes.get(id).uninstall({...cachedParams.get(id)}, BOOTSTRAP_REASONS.ADDON_UNINSTALL);
+      bootstrapScopes
+        .get(id)
+        .uninstall(
+          { ...cachedParams.get(id) },
+          BOOTSTRAP_REASONS.ADDON_UNINSTALL
+        );
       bootstrapScopes.delete(id);
     }
   }
@@ -261,7 +337,7 @@ this.legacy = class extends ExtensionAPI {
   }
 
   loadScope() {
-    let {extension} = this;
+    let { extension } = this;
     let file = this.extensionFile;
     let uri = this.extension.getURL("bootstrap.js");
     let principal = Services.scriptSecurityManager.getSystemPrincipal();
@@ -276,8 +352,11 @@ this.legacy = class extends ExtensionAPI {
     try {
       Object.assign(sandbox, BOOTSTRAP_REASONS);
 
-      XPCOMUtils.defineLazyGetter(sandbox, "console", () =>
-        new ConsoleAPI({ consoleID: `addon/${this.extension.id}` }));
+      XPCOMUtils.defineLazyGetter(
+        sandbox,
+        "console",
+        () => new ConsoleAPI({ consoleID: `addon/${this.extension.id}` })
+      );
 
       Services.scriptloader.loadSubScript(uri, sandbox);
     } catch (e) {
@@ -292,10 +371,12 @@ this.legacy = class extends ExtensionAPI {
       try {
         let method = Cu.evalInSandbox(name, sandbox);
         return method;
-      } catch (err) { }
+      } catch (err) {}
 
       return () => {
-        logger.warn(`Add-on ${extension.id} is missing bootstrap method ${name}`);
+        logger.warn(
+          `Add-on ${extension.id} is missing bootstrap method ${name}`
+        );
       };
     }
 
@@ -370,16 +451,18 @@ function getAllWindows() {
     );
 
     for (let docShell of docShellEnum) {
-      docShell.QueryInterface(Ci.nsIInterfaceRequestor)
-              .getInterface(Ci.nsIWebProgress);
+      docShell
+        .QueryInterface(Ci.nsIInterfaceRequestor)
+        .getInterface(Ci.nsIWebProgress);
       domWindows.push(docShell.domWindow);
     }
   }
 
   let domWindows = [];
   for (let win of Services.ww.getWindowEnumerator()) {
-    let parentDocShell = win.getInterface(Ci.nsIWebNavigation)
-                            .QueryInterface(Ci.nsIDocShell);
+    let parentDocShell = win
+      .getInterface(Ci.nsIWebNavigation)
+      .QueryInterface(Ci.nsIDocShell);
     getChildDocShells(parentDocShell);
   }
   return domWindows;

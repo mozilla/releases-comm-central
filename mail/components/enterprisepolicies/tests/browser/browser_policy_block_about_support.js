@@ -4,13 +4,16 @@
 
 add_task(async function test_about_support() {
   await setupPolicyEngineWithJson({
-    "policies": {
-      "BlockAboutSupport": true,
+    policies: {
+      BlockAboutSupport: true,
     },
   });
 
-  is(Services.policies.isAllowed("about:support"), false,
-     "Policy Engine should report about:support as not allowed");
+  is(
+    Services.policies.isAllowed("about:support"),
+    false,
+    "Policy Engine should report about:support as not allowed"
+  );
 
   await checkBlockedPage("about:support", true);
 });

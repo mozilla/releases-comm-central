@@ -76,6 +76,7 @@ function test_toArray_custom_content_iterator() {
 
   assert_equals(kExpected.length, iterArray.length);
 
-  for (let [i, val] of kExpected.entries())
+  for (let [i, val] of kExpected.entries()) {
     assert_equals(val, iterArray[i]);
+  }
 }

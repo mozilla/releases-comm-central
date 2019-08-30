@@ -8,7 +8,11 @@
 /* import-globals-from preferences.js */
 /* import-globals-from subdialogs.js */
 
-ChromeUtils.defineModuleGetter(this, "LoginHelper", "resource://gre/modules/LoginHelper.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "LoginHelper",
+  "resource://gre/modules/LoginHelper.jsm"
+);
 
 Preferences.addAll([
   { id: "mail.spam.manualMark", type: "bool" },
@@ -21,7 +25,11 @@ Preferences.addAll([
   { id: "pref.privacy.disable_button.view_passwords", type: "bool" },
   { id: "pref.privacy.disable_button.cookie_exceptions", type: "bool" },
   { id: "pref.privacy.disable_button.view_cookies", type: "bool" },
-  { id: "mailnews.message_display.disable_remote_image", type: "bool", inverted: "true" },
+  {
+    id: "mailnews.message_display.disable_remote_image",
+    type: "bool",
+    inverted: "true",
+  },
   { id: "places.history.enabled", type: "bool" },
   { id: "network.cookie.cookieBehavior", type: "int" },
   { id: "network.cookie.lifetimePolicy", type: "int" },
@@ -37,28 +45,37 @@ if (AppConstants.MOZ_TELEMETRY_REPORTING) {
   Preferences.add({ id: "toolkit.telemetry.enabled", type: "bool" });
 }
 
-document.getElementById("panePrivacy")
-        .addEventListener("paneload", function() { gPrivacyPane.init(); });
+document.getElementById("panePrivacy").addEventListener("paneload", function() {
+  gPrivacyPane.init();
+});
 
 var gPrivacyPane = {
-
   init() {
     this.updateManualMarkMode(Preferences.get("mail.spam.manualMark").value);
-    this.updateJunkLogButton(Preferences.get("mail.spam.logging.enabled").value);
+    this.updateJunkLogButton(
+      Preferences.get("mail.spam.logging.enabled").value
+    );
 
     this._initMasterPasswordUI();
 
-    if (AppConstants.MOZ_CRASHREPORTER)
+    if (AppConstants.MOZ_CRASHREPORTER) {
       this.initSubmitCrashes();
+    }
     this.initTelemetry();
 
     let element = document.getElementById("acceptCookies");
-    Preferences.addSyncFromPrefListener(element, () => this.readAcceptCookies());
+    Preferences.addSyncFromPrefListener(element, () =>
+      this.readAcceptCookies()
+    );
     Preferences.addSyncToPrefListener(element, () => this.writeAcceptCookies());
 
     element = document.getElementById("acceptThirdPartyMenu");
-    Preferences.addSyncFromPrefListener(element, () => this.readAcceptThirdPartyCookies());
-    Preferences.addSyncToPrefListener(element, () => this.writeAcceptThirdPartyCookies());
+    Preferences.addSyncFromPrefListener(element, () =>
+      this.readAcceptThirdPartyCookies()
+    );
+    Preferences.addSyncToPrefListener(element, () =>
+      this.writeAcceptThirdPartyCookies()
+    );
 
     element = document.getElementById("enableOCSP");
     Preferences.addSyncFromPrefListener(element, () => this.readEnableOCSP());
@@ -70,9 +87,13 @@ var gPrivacyPane = {
    * has been changed and we are in instantApply mode.
    */
   reloadMessageInOpener() {
-    if (Services.prefs.getBoolPref("browser.preferences.instantApply") &&
-        window.opener && typeof(window.opener.ReloadMessage) == "function")
+    if (
+      Services.prefs.getBoolPref("browser.preferences.instantApply") &&
+      window.opener &&
+      typeof window.opener.ReloadMessage == "function"
+    ) {
       window.opener.ReloadMessage();
+    }
   },
 
   /**
@@ -82,13 +103,15 @@ var gPrivacyPane = {
    */
   readAcceptCookies() {
     let pref = Preferences.get("network.cookie.cookieBehavior");
-    let acceptThirdPartyLabel = document.getElementById("acceptThirdPartyLabel");
+    let acceptThirdPartyLabel = document.getElementById(
+      "acceptThirdPartyLabel"
+    );
     let acceptThirdPartyMenu = document.getElementById("acceptThirdPartyMenu");
     let keepUntil = document.getElementById("keepUntil");
     let menu = document.getElementById("keepCookiesUntil");
 
     // enable the rest of the UI for anything other than "disable all cookies"
-    let acceptCookies = (pref.value != 2);
+    let acceptCookies = pref.value != 2;
 
     acceptThirdPartyLabel.disabled = acceptThirdPartyMenu.disabled = !acceptCookies;
     keepUntil.disabled = menu.disabled = !acceptCookies;
@@ -106,8 +129,9 @@ var gPrivacyPane = {
     let accept = document.getElementById("acceptCookies");
     let acceptThirdPartyMenu = document.getElementById("acceptThirdPartyMenu");
     // if we're enabling cookies, automatically select 'accept third party always'
-    if (accept.checked)
+    if (accept.checked) {
       acceptThirdPartyMenu.selectedIndex = 0;
+    }
 
     return accept.checked ? 0 : 2;
   },
@@ -126,8 +150,11 @@ var gPrivacyPane = {
       windowTitle: bundle.getString("cookiepermissionstitle"),
       introText: bundle.getString("cookiepermissionstext"),
     };
-    gSubDialog.open("chrome://messenger/content/preferences/permissions.xul",
-                    null, params);
+    gSubDialog.open(
+      "chrome://messenger/content/preferences/permissions.xul",
+      null,
+      params
+    );
   },
 
   /**
@@ -186,8 +213,11 @@ var gPrivacyPane = {
       windowTitle: bundle.getString("imagepermissionstitle"),
       introText: bundle.getString("imagepermissionstext"),
     };
-    gSubDialog.open("chrome://messenger/content/preferences/permissions.xul",
-                    null, params);
+    gSubDialog.open(
+      "chrome://messenger/content/preferences/permissions.xul",
+      null,
+      params
+    );
   },
   updateManualMarkMode(aEnableRadioGroup) {
     document.getElementById("manualMarkMode").disabled = !aEnableRadioGroup;
@@ -208,8 +238,9 @@ var gPrivacyPane = {
     var text = bundle.getString("confirmResetJunkTrainingText");
 
     // if the user says no, then just fall out
-    if (!Services.prompt.confirm(window, title, text))
+    if (!Services.prompt.confirm(window, title, text)) {
       return;
+    }
 
     // otherwise go ahead and remove the training data
     MailServices.junk.resetTrainingData();
@@ -244,10 +275,11 @@ var gPrivacyPane = {
     // password used to encrypt all the passwords without providing it (by
     // design), and it would be extremely odd to pop up that dialog when the
     // user closes the prefwindow and saves his settings
-    if (!checkbox.checked)
+    if (!checkbox.checked) {
       this._removeMasterPassword();
-    else
+    } else {
       this.changeMasterPassword();
+    }
 
     this._initMasterPasswordUI();
   },
@@ -258,16 +290,23 @@ var gPrivacyPane = {
    * UI is automatically updated.
    */
   _removeMasterPassword() {
-    var secmodDB = Cc["@mozilla.org/security/pkcs11moduledb;1"].
-                   getService(Ci.nsIPKCS11ModuleDB);
+    var secmodDB = Cc["@mozilla.org/security/pkcs11moduledb;1"].getService(
+      Ci.nsIPKCS11ModuleDB
+    );
     if (secmodDB.isFIPSEnabled) {
       let bundle = document.getElementById("bundleMasterPwPreferences");
-      Services.prompt.alert(window,
-                            bundle.getString("pw_change_failed_title"),
-                            bundle.getString("pw_change2empty_in_fips_mode"));
+      Services.prompt.alert(
+        window,
+        bundle.getString("pw_change_failed_title"),
+        bundle.getString("pw_change2empty_in_fips_mode")
+      );
     } else {
-      gSubDialog.open("chrome://mozapps/content/preferences/removemp.xul",
-                      null, null, this._initMasterPasswordUI.bind(this));
+      gSubDialog.open(
+        "chrome://mozapps/content/preferences/removemp.xul",
+        null,
+        null,
+        this._initMasterPasswordUI.bind(this)
+      );
     }
     this._initMasterPasswordUI();
   },
@@ -276,8 +315,12 @@ var gPrivacyPane = {
    * Displays a dialog in which the master password may be changed.
    */
   changeMasterPassword() {
-    gSubDialog.open("chrome://mozapps/content/preferences/changemp.xul",
-                    null, null, this._initMasterPasswordUI.bind(this));
+    gSubDialog.open(
+      "chrome://mozapps/content/preferences/changemp.xul",
+      null,
+      null,
+      this._initMasterPasswordUI.bind(this)
+    );
   },
 
   /**
@@ -285,12 +328,15 @@ var gPrivacyPane = {
    * login information.
    */
   showPasswords() {
-    gSubDialog.open("chrome://messenger/content/preferences/passwordManager.xul");
+    gSubDialog.open(
+      "chrome://messenger/content/preferences/passwordManager.xul"
+    );
   },
 
   updateDownloadedPhishingListState() {
-    document.getElementById("useDownloadedList").disabled =
-      !document.getElementById("enablePhishingDetector").checked;
+    document.getElementById(
+      "useDownloadedList"
+    ).disabled = !document.getElementById("enablePhishingDetector").checked;
   },
 
   /**
@@ -311,28 +357,33 @@ var gPrivacyPane = {
   initSubmitCrashes() {
     var checkbox = document.getElementById("submitCrashesBox");
     try {
-      var cr = Cc["@mozilla.org/toolkit/crash-reporter;1"]
-                  .getService(Ci.nsICrashReporter);
+      var cr = Cc["@mozilla.org/toolkit/crash-reporter;1"].getService(
+        Ci.nsICrashReporter
+      );
       checkbox.checked = cr.submitReports;
     } catch (e) {
       checkbox.style.display = "none";
     }
-    this._setupLearnMoreLink("toolkit.crashreporter.infoURL", "crashReporterLearnMore");
+    this._setupLearnMoreLink(
+      "toolkit.crashreporter.infoURL",
+      "crashReporterLearnMore"
+    );
   },
 
   updateSubmitCrashReports(aChecked) {
-    Cc["@mozilla.org/toolkit/crash-reporter;1"]
-      .getService(Ci.nsICrashReporter)
-      .submitReports = aChecked;
+    Cc["@mozilla.org/toolkit/crash-reporter;1"].getService(
+      Ci.nsICrashReporter
+    ).submitReports = aChecked;
   },
 
   updateSubmitCrashes() {
     var checkbox = document.getElementById("submitCrashesBox");
     try {
-      var cr = Cc["@mozilla.org/toolkit/crash-reporter;1"]
-                  .getService(Ci.nsICrashReporter);
+      var cr = Cc["@mozilla.org/toolkit/crash-reporter;1"].getService(
+        Ci.nsICrashReporter
+      );
       cr.submitReports = checkbox.checked;
-    } catch (e) { }
+    } catch (e) {}
   },
 
   /**
@@ -341,8 +392,12 @@ var gPrivacyPane = {
    * In all cases, set up the Learn More link sanely
    */
   initTelemetry() {
-    if (AppConstants.MOZ_TELEMETRY_REPORTING)
-      this._setupLearnMoreLink("toolkit.telemetry.infoURL", "telemetryLearnMore");
+    if (AppConstants.MOZ_TELEMETRY_REPORTING) {
+      this._setupLearnMoreLink(
+        "toolkit.telemetry.infoURL",
+        "telemetryLearnMore"
+      );
+    }
   },
 
   /**
@@ -381,5 +436,11 @@ var gPrivacyPane = {
   },
 };
 
-Preferences.get("mailnews.message_display.disable_remote_image").on("change", gPrivacyPane.reloadMessageInOpener);
-Preferences.get("mail.phishing.detection.enabled").on("change", gPrivacyPane.reloadMessageInOpener);
+Preferences.get("mailnews.message_display.disable_remote_image").on(
+  "change",
+  gPrivacyPane.reloadMessageInOpener
+);
+Preferences.get("mail.phishing.detection.enabled").on(
+  "change",
+  gPrivacyPane.reloadMessageInOpener
+);

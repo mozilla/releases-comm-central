@@ -15,7 +15,11 @@
 
 var MODULE_NAME = "test-send-format";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "compose-helpers",
+  "window-helpers",
+];
 
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
@@ -26,8 +30,9 @@ function setupModule(module) {
 }
 
 function checkMsgFile(aFilePath, aConvertibility) {
-  let file = os.getFileForPath(os.abspath(aFilePath,
-                               os.getFileForPath(__file__)));
+  let file = os.getFileForPath(
+    os.abspath(aFilePath, os.getFileForPath(__file__))
+  );
   let msgc = open_message_from_file(file);
 
   // Creating a reply should not affect convertibility.
@@ -53,5 +58,4 @@ function test_msg_convertibility() {
   checkMsgFile("./format3-style-tag.eml", Ci.nsIMsgCompConvertible.No);
 }
 
-function teardownModule() {
-}
+function teardownModule() {}

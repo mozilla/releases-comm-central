@@ -23,7 +23,9 @@ function DateFacetVis(aBinding, aCanvasNode) {
 }
 DateFacetVis.prototype = {
   build() {
-    let resultsBarRect = document.getElementById("results").getBoundingClientRect();
+    let resultsBarRect = document
+      .getElementById("results")
+      .getBoundingClientRect();
     this.allowedSpace = resultsBarRect.right - resultsBarRect.left;
     this.render();
   },
@@ -65,8 +67,12 @@ DateFacetVis.prototype = {
     let scale = pv.Scales.dateTime(facet.oldest, facet.newest);
 
     const Span = pv.Scales.DateTimeScale.Span;
-    const MS_MIN = 60 * 1000, MS_HOUR = 60 * MS_MIN, MS_DAY = 24 * MS_HOUR,
-          MS_WEEK = 7 * MS_DAY, MS_MONTHISH = 31 * MS_DAY, MS_YEARISH = 366 * MS_DAY;
+    const MS_MIN = 60 * 1000,
+      MS_HOUR = 60 * MS_MIN,
+      MS_DAY = 24 * MS_HOUR,
+      MS_WEEK = 7 * MS_DAY,
+      MS_MONTHISH = 31 * MS_DAY,
+      MS_YEARISH = 366 * MS_DAY;
     const roughMap = {};
     roughMap[Span.DAYS] = MS_DAY;
     roughMap[Span.WEEKS] = MS_WEEK;
@@ -84,8 +90,9 @@ DateFacetVis.prototype = {
       span = aSpan;
       // do a rough guestimate before doing something potentially expensive...
       barPixBudget = Math.floor(aPixels / (delta / roughMap[span]));
-      if (barPixBudget < (minBarPix + 1))
+      if (barPixBudget < minBarPix + 1) {
         return false;
+      }
 
       rules = scale.ruleValues(span);
       // + 0 because we want to over-estimate slightly for niceness rounding
@@ -103,8 +110,9 @@ DateFacetVis.prototype = {
         scale.min(scale.round(scale.min(), trySpan, false));
         scale.max(scale.round(scale.max(), trySpan, true));
         // try again for paranoia, but mainly for the side-effect...
-        if (enoughPix(trySpan))
+        if (enoughPix(trySpan)) {
           break;
+        }
       }
     }
 
@@ -116,11 +124,11 @@ DateFacetVis.prototype = {
     // add year spans in all cases, although whether we draw bars depends on if
     //  we are in year mode or not
     labelTiers.push({
-      rules: (span == Span.YEARS) ? rules : scale.ruleValues(Span.YEARS, true),
+      rules: span == Span.YEARS ? rules : scale.ruleValues(Span.YEARS, true),
       // We should not hit the null member of the array...
       label: [{ year: "numeric" }, { year: "2-digit" }, null],
-      boost: (span == Span.YEARS),
-      noFringe: (span == Span.YEARS),
+      boost: span == Span.YEARS,
+      noFringe: span == Span.YEARS,
     });
     // add month spans if we are days or weeks...
     if (spandex < 2) {
@@ -141,12 +149,14 @@ DateFacetVis.prototype = {
         labelTiers.push({
           rules,
           label: [{ day: "numeric" }, null],
-          boost: true, noFringe: true,
+          boost: true,
+          noFringe: true,
         });
         labelTiers.push({
           rules,
           label: [{ weekday: "short" }, null],
-          boost: true, noFringe: true,
+          boost: true,
+          noFringe: true,
         });
       } else {
         // show the weeks since we're at greater than a day time-scale
@@ -164,8 +174,13 @@ DateFacetVis.prototype = {
   },
 
   render() {
-    let { scale, span, rules, barPixBudget, labelTiers } =
-      this.makeIdealScaleGivenSpace(this.allowedSpace);
+    let {
+      scale,
+      span,
+      rules,
+      barPixBudget,
+      labelTiers,
+    } = this.makeIdealScaleGivenSpace(this.allowedSpace);
 
     barPixBudget = Math.floor(barPixBudget);
 
@@ -192,32 +207,40 @@ DateFacetVis.prototype = {
         for (let iRule = 0; iRule < labelRules.length - 1; iRule++) {
           // is this at the either edge of the display?  in that case, it might
           //  be partial...
-          let fringe = (labelRules.length > 2) &&
-                       ((iRule == 0) || (iRule == labelRules.length - 2));
+          let fringe =
+            labelRules.length > 2 &&
+            (iRule == 0 || iRule == labelRules.length - 2);
           let labelStartDate = labelRules[iRule];
           let labelEndDate = labelRules[iRule + 1];
-          let labelText = labelFormat ?
-                            labelStartDate.toLocaleDateString(undefined, labelFormat) : null;
+          let labelText = labelFormat
+            ? labelStartDate.toLocaleDateString(undefined, labelFormat)
+            : null;
           let labelStartNorm = Math.max(0, scale.normalize(labelStartDate));
           let labelEndNorm = Math.min(1, scale.normalize(labelEndDate));
           let labelBudget = (labelEndNorm - labelStartNorm) * width;
           if (labelText) {
             let labelWidth = ctx.measureText(labelText).width;
             // discard labels at the fringe who don't fit in our budget
-            if (fringe && !labelTier.noFringe && labelWidth > labelBudget)
+            if (fringe && !labelTier.noFringe && labelWidth > labelBudget) {
               labelText = null;
-            else
+            } else {
               maxWidth = Math.max(labelWidth, maxWidth);
+            }
           }
 
-          displayValues.push([labelStartNorm, labelEndNorm, labelText,
-                              labelStartDate, labelEndDate]);
+          displayValues.push([
+            labelStartNorm,
+            labelEndNorm,
+            labelText,
+            labelStartDate,
+            labelEndDate,
+          ]);
         }
         // there needs to be space between the labels.  (we may be over-padding
         //  here if there is only one label with the maximum width...)
         maxWidth += this._AXIS_HORIZ_MIN_SPACING_PX;
 
-        if (labelTier.boost && (maxWidth > perLabelBudget)) {
+        if (labelTier.boost && maxWidth > perLabelBudget) {
           // we only boost labels that are the same span as the bins, so rules
           //  === labelRules at this point.  (and barPix === perLabelBudget)
           barPix = perLabelBudget = maxWidth;
@@ -226,11 +249,12 @@ DateFacetVis.prototype = {
         if (maxWidth <= perLabelBudget) {
           labelTier.displayValues = displayValues;
           labelTier.displayLabel = labelFormat != null;
-          labelTier.vertHeight = labelFormat ? this._AXIS_HEIGHT_WITH_LABEL_PX
-                                             : this._AXIS_HEIGHT_NO_LABEL_PX;
+          labelTier.vertHeight = labelFormat
+            ? this._AXIS_HEIGHT_WITH_LABEL_PX
+            : this._AXIS_HEIGHT_NO_LABEL_PX;
           labelTier.vertOffset = totalAxisLabelHeight;
-          totalAxisLabelHeight += labelTier.vertHeight +
-                                  this._AXIS_VERT_SPACING_PX;
+          totalAxisLabelHeight +=
+            labelTier.vertHeight + this._AXIS_VERT_SPACING_PX;
 
           break;
         }
@@ -249,61 +273,93 @@ DateFacetVis.prototype = {
     // build empty bins for our hot bins
     this.emptyBins = bins.map(bin => 0);
 
-    let binScale = maxBinSize ? (ch / maxBinSize) : 1;
+    let binScale = maxBinSize ? ch / maxBinSize : 1;
 
-    let vis = this.vis = new pv.Panel().canvas(this.canvasNode)
+    let vis = (this.vis = new pv.Panel()
+      .canvas(this.canvasNode)
       // dimensions
-      .width(width).height(ch)
+      .width(width)
+      .height(ch)
       // margins
-      .bottom(totalAxisLabelHeight);
+      .bottom(totalAxisLabelHeight));
 
     let faceter = this.faceter;
     let dis = this;
     // bin bars...
-    vis.add(pv.Bar)
+    vis
+      .add(pv.Bar)
       .data(bins)
       .bottom(0)
       .height(d => Math.floor(d.items.length * binScale))
       .width(() => barWidth)
-      .left(function() { return isRTL ? null : (this.index * barPix); })
-      .right(function() { return isRTL ? (this.index * barPix) : null; })
+      .left(function() {
+        return isRTL ? null : this.index * barPix;
+      })
+      .right(function() {
+        return isRTL ? this.index * barPix : null;
+      })
       .fillStyle("var(--barColor)")
-      .event("mouseover", function(d) { return this.fillStyle("var(--barHlColor)"); })
-      .event("mouseout", function(d) { return this.fillStyle("var(--barColor)"); })
+      .event("mouseover", function(d) {
+        return this.fillStyle("var(--barHlColor)");
+      })
+      .event("mouseout", function(d) {
+        return this.fillStyle("var(--barColor)");
+      })
       .event("click", function(d) {
-          dis.constraints = [[d.startDate, d.endDate]];
-          dis.binding.setAttribute("zoomedout", "false");
-          FacetContext.addFacetConstraint(faceter, true, dis.constraints, true, true);
-        }
-      );
+        dis.constraints = [[d.startDate, d.endDate]];
+        dis.binding.setAttribute("zoomedout", "false");
+        FacetContext.addFacetConstraint(
+          faceter,
+          true,
+          dis.constraints,
+          true,
+          true
+        );
+      });
 
-    this.hotBars = vis.add(pv.Bar)
+    this.hotBars = vis
+      .add(pv.Bar)
       .data(this.emptyBins)
       .bottom(0)
       .height(d => Math.floor(d * binScale))
       .width(() => barWidth)
-      .left(function() { return this.index * barPix; })
+      .left(function() {
+        return this.index * barPix;
+      })
       .fillStyle("var(--barHlColor)");
 
     for (let labelTier of labelTiers) {
-      let labelBar = vis.add(pv.Bar)
+      let labelBar = vis
+        .add(pv.Bar)
         .data(labelTier.displayValues)
         .bottom(-totalAxisLabelHeight + labelTier.vertOffset)
         .height(labelTier.vertHeight)
-        .left(d => isRTL ? null : Math.floor(width * d[0]))
-        .right(d => isRTL ? Math.floor(width * d[0]) : null)
+        .left(d => (isRTL ? null : Math.floor(width * d[0])))
+        .right(d => (isRTL ? Math.floor(width * d[0]) : null))
         .width(d => Math.floor(width * d[1]) - Math.floor(width * d[0]) - 1)
         .fillStyle("var(--dateColor)")
-        .event("mouseover", function(d) { return this.fillStyle("var(--dateHLColor)"); })
-        .event("mouseout", function(d) { return this.fillStyle("var(--dateColor)"); })
+        .event("mouseover", function(d) {
+          return this.fillStyle("var(--dateHLColor)");
+        })
+        .event("mouseout", function(d) {
+          return this.fillStyle("var(--dateColor)");
+        })
         .event("click", function(d) {
           dis.constraints = [[d[3], d[4]]];
           dis.binding.setAttribute("zoomedout", "false");
-          FacetContext.addFacetConstraint(faceter, true, dis.constraints, true, true);
+          FacetContext.addFacetConstraint(
+            faceter,
+            true,
+            dis.constraints,
+            true,
+            true
+          );
         });
 
       if (labelTier.displayLabel) {
-        labelBar.anchor("top").add(pv.Label)
+        labelBar
+          .anchor("top")
+          .add(pv.Label)
           .font(this._AXIS_FONT)
           .textAlign("center")
           .textBaseline("top")
@@ -312,7 +368,6 @@ DateFacetVis.prototype = {
       }
     }
 
-
     vis.render();
   },
 
@@ -320,8 +375,9 @@ DateFacetVis.prototype = {
     let itemToBin = this.itemToBin;
     let bins = this.emptyBins.concat();
     for (let item of aItems) {
-      if (item.id in itemToBin)
+      if (item.id in itemToBin) {
         bins[itemToBin[item.id]]++;
+      }
     }
     this.hotBars.data(bins);
     this.vis.render();
@@ -342,7 +398,7 @@ DateFacetVis.prototype = {
     let bins = [];
     let maxBinSize = 0;
     let binCount = aRules.length - 1;
-    let itemToBin = this.itemToBin = {};
+    let itemToBin = (this.itemToBin = {});
 
     // We used to break this out by case, but that was a lot of code, and it was
     //  somewhat ridiculous.  So now we just do the simple, if somewhat more
@@ -353,11 +409,10 @@ DateFacetVis.prototype = {
     //  rounding, but I doubt it's worth it.
     let binMap = {};
     for (let iRule = 0; iRule < binCount; iRule++) {
-      let binStartDate = aRules[iRule], binEndDate = aRules[iRule + 1];
+      let binStartDate = aRules[iRule],
+        binEndDate = aRules[iRule + 1];
       binMap[binStartDate.valueOf().toString()] = iRule;
-      bins.push({items: [],
-                 startDate: binStartDate,
-                 endDate: binEndDate});
+      bins.push({ items: [], startDate: binStartDate, endDate: binEndDate });
     }
     let attrKey = this.attrDef.boundName;
     for (let item of this.faceter.validItems) {
@@ -375,5 +430,4 @@ DateFacetVis.prototype = {
 
     return [bins, maxBinSize];
   },
-
 };

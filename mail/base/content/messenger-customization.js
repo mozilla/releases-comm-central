@@ -6,7 +6,8 @@
 var AutoHideMenubar = {
   get _node() {
     delete this._node;
-    return this._node = (document.getElementById("mail-toolbar-menubar2") ||
+    return (this._node =
+      document.getElementById("mail-toolbar-menubar2") ||
       document.getElementById("compose-toolbar-menubar2") ||
       document.getElementById("addrbook-toolbar-menubar2"));
   },
@@ -61,7 +62,12 @@ var AutoHideMenubar = {
     }
   },
 
-  _events: ["DOMMenuBarInactive", "DOMMenuBarActive", "popupshowing", "mousedown"],
+  _events: [
+    "DOMMenuBarInactive",
+    "DOMMenuBarActive",
+    "popupshowing",
+    "mousedown",
+  ],
   _enable() {
     this._node.setAttribute("inactive", "true");
     for (let event of this._events) {
@@ -92,8 +98,9 @@ var AutoHideMenubar = {
         }
         break;
       case "DOMMenuBarInactive":
-        if (!this._contextMenuListener.active)
+        if (!this._contextMenuListener.active) {
           this._setInactiveAsync();
+        }
         break;
     }
   },

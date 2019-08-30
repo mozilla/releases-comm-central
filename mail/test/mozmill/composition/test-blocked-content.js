@@ -23,9 +23,11 @@ var MODULE_REQUIRES = [
 ];
 
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 
 var gOutboxFolder;
 
@@ -40,20 +42,21 @@ function setupModule(module) {
 }
 
 function putHTMLOnClipboard(html) {
-  let trans = Cc["@mozilla.org/widget/transferable;1"]
-                .createInstance(Ci.nsITransferable);
+  let trans = Cc["@mozilla.org/widget/transferable;1"].createInstance(
+    Ci.nsITransferable
+  );
 
   // Register supported data flavors
   trans.init(null);
   trans.addDataFlavor("text/html");
 
-  let wapper = Cc["@mozilla.org/supports-string;1"]
-   .createInstance(Ci.nsISupportsString);
+  let wapper = Cc["@mozilla.org/supports-string;1"].createInstance(
+    Ci.nsISupportsString
+  );
   wapper.data = html;
   trans.setTransferData("text/html", wapper, wapper.data.length * 2);
 
-  Services.clipboard.setData(trans, null,
-    Ci.nsIClipboard.kGlobalClipboard);
+  Services.clipboard.setData(trans, null, Ci.nsIClipboard.kGlobalClipboard);
 }
 
 /**
@@ -62,41 +65,48 @@ function putHTMLOnClipboard(html) {
  */
 function test_paste_file_urls() {
   let cwc = open_compose_new_mail();
-  setup_msg_contents(cwc,
-                     "someone@example.com",
-                     "testing html paste",
-                     "See these images- one broken one not\n");
+  setup_msg_contents(
+    cwc,
+    "someone@example.com",
+    "testing html paste",
+    "See these images- one broken one not\n"
+  );
 
   const fname = "./tb-logo.png";
   let file = os.getFileForPath(os.abspath(fname, os.getFileForPath(__file__)));
-  let fileHandler = Services.io.getProtocolHandler("file")
+  let fileHandler = Services.io
+    .getProtocolHandler("file")
     .QueryInterface(Ci.nsIFileProtocolHandler);
 
   let dest = OS.Path.join(OS.Constants.Path.tmpDir, file.leafName);
   let tmpFile;
   let tmpFileURL;
-  OS.File.remove(dest, {"ignoreAbsent": true })
-  .then(function() {
-    return OS.File.copy(file.path, dest);
-  })
-  .then(function() {
-    return OS.File.setDates(dest, null, null);
-  }).then(function() {
-    tmpFile = os.getFileForPath(dest);
-    assert_true(tmpFile.exists(), "tmpFile's not there at " + dest);
+  OS.File.remove(dest, { ignoreAbsent: true })
+    .then(function() {
+      return OS.File.copy(file.path, dest);
+    })
+    .then(function() {
+      return OS.File.setDates(dest, null, null);
+    })
+    .then(function() {
+      tmpFile = os.getFileForPath(dest);
+      assert_true(tmpFile.exists(), "tmpFile's not there at " + dest);
 
-    tmpFileURL = fileHandler.getURLSpecFromFile(tmpFile);
-    putHTMLOnClipboard(
-      "<img id='bad-img' src='file://foo/non-existant' alt='bad' /> and " +
-      "<img id='tmp-img' src='" + tmpFileURL + "' alt='tmp' />"
-    );
+      tmpFileURL = fileHandler.getURLSpecFromFile(tmpFile);
+      putHTMLOnClipboard(
+        "<img id='bad-img' src='file://foo/non-existant' alt='bad' /> and " +
+          "<img id='tmp-img' src='" +
+          tmpFileURL +
+          "' alt='tmp' />"
+      );
 
-    cwc.e("content-frame").focus();
-    // Ctrl+V = Paste
-    cwc.keypress(null, "v", {shiftKey: false, accelKey: true});
-  }).catch(function(err) {
-    throw new Error("Setting up img file FAILED: " + err);
-  });
+      cwc.e("content-frame").focus();
+      // Ctrl+V = Paste
+      cwc.keypress(null, "v", { shiftKey: false, accelKey: true });
+    })
+    .catch(function(err) {
+      throw new Error("Setting up img file FAILED: " + err);
+    });
 
   // Now wait for the paste, and for the file: based image to get converted
   // to data:.
@@ -116,18 +126,22 @@ function test_paste_file_urls() {
   let outMsg = select_click_row(0);
   let outMsgContent = get_msg_source(outMsg);
 
-  assert_true(outMsgContent.includes("file://foo/non-existant"),
-    "non-existant file not in content=" + outMsgContent);
+  assert_true(
+    outMsgContent.includes("file://foo/non-existant"),
+    "non-existant file not in content=" + outMsgContent
+  );
 
-  assert_false(outMsgContent.includes(tmpFileURL),
-    "tmp file url still in content=" + outMsgContent);
+  assert_false(
+    outMsgContent.includes(tmpFileURL),
+    "tmp file url still in content=" + outMsgContent
+  );
 
-  assert_true(outMsgContent.includes('id="tmp-img" src="cid:'),
-    "tmp-img should be cid after send; content=" + outMsgContent);
+  assert_true(
+    outMsgContent.includes('id="tmp-img" src="cid:'),
+    "tmp-img should be cid after send; content=" + outMsgContent
+  );
 
   press_delete(); // Delete the msg from Outbox.
 }
 
-
-function teardownModule(module) {
-}
+function teardownModule(module) {}

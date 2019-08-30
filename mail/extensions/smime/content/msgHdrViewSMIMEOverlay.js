@@ -46,11 +46,10 @@ var smimeHeaderSink = {
     }
 
     let neckoURI = neckoURLForMessageURI(gFolderDisplay.selectedMessageUris[0]);
-    return (neckoURI === aMsgNeckoURL);
+    return neckoURI === aMsgNeckoURL;
   },
 
-  signedStatus(aNestingLevel, aSignatureStatus, aSignerCert,
-               aMsgNeckoURL) {
+  signedStatus(aNestingLevel, aSignatureStatus, aSignerCert, aMsgNeckoURL) {
     if (aNestingLevel > 1) {
       // we are not interested
       return;
@@ -98,14 +97,17 @@ var smimeHeaderSink = {
    * to have the Sender header showing.
    */
   showSenderIfSigner() {
-    if (!("sender" in currentHeaderData))
-      return; // Sender not set, or same as From (so no longer present).
+    if (!("sender" in currentHeaderData)) {
+      return;
+    } // Sender not set, or same as From (so no longer present).
 
-    if (Services.prefs.getBoolPref("mailnews.headers.showSender"))
-      return; // Sender header will be show due to pref - nothing more to do.
+    if (Services.prefs.getBoolPref("mailnews.headers.showSender")) {
+      return;
+    } // Sender header will be show due to pref - nothing more to do.
 
-    let fromMailboxes = MailServices.headerParser.extractHeaderAddressMailboxes(
-            currentHeaderData.from.headerValue).split(",");
+    let fromMailboxes = MailServices.headerParser
+      .extractHeaderAddressMailboxes(currentHeaderData.from.headerValue)
+      .split(",");
     for (let i = 0; i < fromMailboxes.length; i++) {
       if (gSignerCert.containsEmailAddress(fromMailboxes[i])) {
         return; // It's signed by a From. Nothing more to do
@@ -119,8 +121,12 @@ var smimeHeaderSink = {
     UpdateExpandedMessageHeaders();
   },
 
-  encryptionStatus(aNestingLevel, aEncryptionStatus, aRecipientCert,
-                   aMsgNeckoURL) {
+  encryptionStatus(
+    aNestingLevel,
+    aEncryptionStatus,
+    aRecipientCert,
+    aMsgNeckoURL
+  ) {
     if (aNestingLevel > 1) {
       // we are not interested
       return;
@@ -148,31 +154,42 @@ var smimeHeaderSink = {
       gMyLastEncryptedURI = gFolderDisplay.selectedMessageUris[0];
       gEncryptedURIService.rememberEncrypted(gMyLastEncryptedURI);
       gEncryptedURIService.rememberEncrypted(
-        neckoURLForMessageURI(gMyLastEncryptedURI));
+        neckoURLForMessageURI(gMyLastEncryptedURI)
+      );
     }
 
     switch (aEncryptionStatus) {
-    case Ci.nsICMSMessageErrors.SUCCESS:
-    case Ci.nsICMSMessageErrors.ENCRYPT_INCOMPLETE:
-      break;
-    default:
-      var brand = document.getElementById("bundle_brand")
-                          .getString("brandShortName");
-      var title = gSMIMEBundle.getString("CantDecryptTitle").replace(/%brand%/g, brand);
-      var body = gSMIMEBundle.getString("CantDecryptBody").replace(/%brand%/g, brand);
+      case Ci.nsICMSMessageErrors.SUCCESS:
+      case Ci.nsICMSMessageErrors.ENCRYPT_INCOMPLETE:
+        break;
+      default:
+        var brand = document
+          .getElementById("bundle_brand")
+          .getString("brandShortName");
+        var title = gSMIMEBundle
+          .getString("CantDecryptTitle")
+          .replace(/%brand%/g, brand);
+        var body = gSMIMEBundle
+          .getString("CantDecryptBody")
+          .replace(/%brand%/g, brand);
 
-      // insert our message
-      msgWindow.displayHTMLInMessagePane(title,
-       "<html>\n" +
-       "<body bgcolor=\"#fafaee\">\n" +
-       "<center><br><br><br>\n" +
-       "<table>\n" +
-       "<tr><td>\n" +
-       "<center><strong><font size=\"+3\">\n" +
-       title + "</font></center><br>\n" +
-       body + "\n" +
-       "</td></tr></table></center></body></html>", false);
-      break;
+        // insert our message
+        msgWindow.displayHTMLInMessagePane(
+          title,
+          "<html>\n" +
+            '<body bgcolor="#fafaee">\n' +
+            "<center><br><br><br>\n" +
+            "<table>\n" +
+            "<tr><td>\n" +
+            '<center><strong><font size="+3">\n' +
+            title +
+            "</font></center><br>\n" +
+            body +
+            "\n" +
+            "</td></tr></table></center></body></html>",
+          false
+        );
+        break;
     }
   },
 
@@ -183,7 +200,8 @@ function forgetEncryptedURI() {
   if (gMyLastEncryptedURI && gEncryptedURIService) {
     gEncryptedURIService.forgetEncrypted(gMyLastEncryptedURI);
     gEncryptedURIService.forgetEncrypted(
-      neckoURLForMessageURI(gMyLastEncryptedURI));
+      neckoURLForMessageURI(gMyLastEncryptedURI)
+    );
     gMyLastEncryptedURI = null;
   }
 }
@@ -208,8 +226,7 @@ function onSMIMEStartHeaders() {
   forgetEncryptedURI();
 }
 
-function onSMIMEEndHeaders() {
-}
+function onSMIMEEndHeaders() {}
 
 function onSmartCardChange() {
   // only reload encrypted windows
@@ -222,8 +239,10 @@ function onSMIMEBeforeShowHeaderPane() {
   // For signed messages with differing Sender as signer we force showing Sender.
   // If we're now in a different message, hide the (old) sender row and remove
   // it from the header view, so that Sender normally isn't shown.
-  if ("sender" in gExpandedHeaderView &&
-      !Services.prefs.getBoolPref("mailnews.headers.showSender")) {
+  if (
+    "sender" in gExpandedHeaderView &&
+    !Services.prefs.getBoolPref("mailnews.headers.showSender")
+  ) {
     gExpandedHeaderView.sender.enclosingRow.collapsed = true;
     delete gExpandedHeaderView.sender;
   }
@@ -233,8 +252,9 @@ function msgHdrViewSMIMEOnLoad(event) {
   window.crypto.enableSmartCardEvents = true;
   document.addEventListener("smartcard-insert", onSmartCardChange);
   document.addEventListener("smartcard-remove", onSmartCardChange);
-  if (!gSMIMEBundle)
+  if (!gSMIMEBundle) {
     gSMIMEBundle = document.getElementById("bundle_read_smime");
+  }
 
   // we want to register our security header sink as an opaque nsISupports
   // on the msgHdrSink used by mail.....
@@ -253,9 +273,9 @@ function msgHdrViewSMIMEOnLoad(event) {
   listener.onBeforeShowHeaderPane = onSMIMEBeforeShowHeaderPane;
   gMessageListeners.push(listener);
 
-  gEncryptedURIService =
-    Cc["@mozilla.org/messenger-smime/smime-encrypted-uris-service;1"]
-    .getService(Ci.nsIEncryptedSMIMEURIsService);
+  gEncryptedURIService = Cc[
+    "@mozilla.org/messenger-smime/smime-encrypted-uris-service;1"
+  ].getService(Ci.nsIEncryptedSMIMEURIsService);
 }
 
 function msgHdrViewSMIMEOnUnload(event) {
@@ -265,8 +285,16 @@ function msgHdrViewSMIMEOnUnload(event) {
   forgetEncryptedURI();
   removeEventListener("messagepane-loaded", msgHdrViewSMIMEOnLoad, true);
   removeEventListener("messagepane-unloaded", msgHdrViewSMIMEOnUnload, true);
-  removeEventListener("messagepane-hide", msgHdrViewSMIMEOnMessagePaneHide, true);
-  removeEventListener("messagepane-unhide", msgHdrViewSMIMEOnMessagePaneUnhide, true);
+  removeEventListener(
+    "messagepane-hide",
+    msgHdrViewSMIMEOnMessagePaneHide,
+    true
+  );
+  removeEventListener(
+    "messagepane-unhide",
+    msgHdrViewSMIMEOnMessagePaneUnhide,
+    true
+  );
 }
 
 function msgHdrViewSMIMEOnMessagePaneHide() {
@@ -292,4 +320,8 @@ function msgHdrViewSMIMEOnMessagePaneUnhide() {
 addEventListener("messagepane-loaded", msgHdrViewSMIMEOnLoad, true);
 addEventListener("messagepane-unloaded", msgHdrViewSMIMEOnUnload, true);
 addEventListener("messagepane-hide", msgHdrViewSMIMEOnMessagePaneHide, true);
-addEventListener("messagepane-unhide", msgHdrViewSMIMEOnMessagePaneUnhide, true);
+addEventListener(
+  "messagepane-unhide",
+  msgHdrViewSMIMEOnMessagePaneUnhide,
+  true
+);

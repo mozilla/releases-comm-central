@@ -17,11 +17,17 @@
 
 var MODULE_NAME = "test-message-commands-on-msgstore";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "compose-helpers",
+  "window-helpers",
+];
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.js");
 
 var statusHeader = "X-Mozilla-Status: ";
 
@@ -39,7 +45,7 @@ function setupModule(module) {
 
   gOutbox = get_special_folder(Ci.nsMsgFolderFlags.Queue);
   gInbox = create_folder("MsgStoreChecks");
-  make_new_sets_in_folder(gInbox, [ {count: 6} ]);
+  make_new_sets_in_folder(gInbox, [{ count: 6 }]);
 
   // We delete the first message so that we have to compact anything.
   be_in_folder(gInbox);
@@ -50,8 +56,7 @@ function setupModule(module) {
   let urlListener = {
     compactDone: false,
 
-    OnStartRunningUrl(aUrl) {
-    },
+    OnStartRunningUrl(aUrl) {},
     OnStopRunningUrl(aUrl, aExitCode) {
       assert_equals(aExitCode, 0);
       assert_true(gInbox.msgDatabase.summaryValid);
@@ -64,8 +69,14 @@ function setupModule(module) {
   assert_true(gInbox.msgStore.supportsCompaction);
   gInbox.compact(urlListener, null);
 
-  mc.waitFor(function() { return urlListener.compactDone; },
-             "Timeout waiting for compact to complete", 10000, 100);
+  mc.waitFor(
+    function() {
+      return urlListener.compactDone;
+    },
+    "Timeout waiting for compact to complete",
+    10000,
+    100
+  );
 }
 
 /**
@@ -78,12 +89,14 @@ function setupModule(module) {
  * @param aStatus        The required status of the message.
  */
 function check_status(aMsgHdr, aOffset, aStatusOffset, aStatus) {
-  if (aOffset == null)
+  if (aOffset == null) {
     aOffset = aMsgHdr.messageOffset;
-  if (aStatusOffset == null)
+  }
+  if (aStatusOffset == null) {
     aStatusOffset = aMsgHdr.statusOffset;
+  }
 
-  let folder = (aMsgHdr == null) ? gInbox : aMsgHdr.folder;
+  let folder = aMsgHdr == null ? gInbox : aMsgHdr.folder;
 
   let mboxstring = IOUtils.loadFileToString(folder.filePath);
 
@@ -92,11 +105,20 @@ function check_status(aMsgHdr, aOffset, aStatusOffset, aStatus) {
     expectedStatusString = "0" + expectedStatusString;
   }
 
-  assert_equals(mboxstring.substr(aOffset + aStatusOffset, statusHeader.length),
-                statusHeader,
-                "The header '" + statusHeader + "' not found at offset: " + aOffset + ", statusOffset: " + aStatusOffset);
-  assert_equals(mboxstring.substr(aOffset + aStatusOffset + statusHeader.length, 4),
-                expectedStatusString);
+  assert_equals(
+    mboxstring.substr(aOffset + aStatusOffset, statusHeader.length),
+    statusHeader,
+    "The header '" +
+      statusHeader +
+      "' not found at offset: " +
+      aOffset +
+      ", statusOffset: " +
+      aStatusOffset
+  );
+  assert_equals(
+    mboxstring.substr(aOffset + aStatusOffset + statusHeader.length, 4),
+    expectedStatusString
+  );
 }
 
 function test_mark_messages_read() {
@@ -110,8 +132,12 @@ function test_mark_messages_read() {
   check_status(curMessage, null, null, 0); // status = unread
   press_delete(mc);
   assert_not_equals(curMessage, select_click_row(0));
-  check_status(null, offset, statusOffset,
-               Ci.nsMsgMessageFlags.Read + Ci.nsMsgMessageFlags.Expunged);
+  check_status(
+    null,
+    offset,
+    statusOffset,
+    Ci.nsMsgMessageFlags.Read + Ci.nsMsgMessageFlags.Expunged
+  );
 
   // 4 messages in the folder.
   curMessage = select_click_row(0);
@@ -119,8 +145,10 @@ function test_mark_messages_read() {
 
   // Make sure we can mark all read with >0 messages unread.
   right_click_on_row(0);
-  mc.click_menus_in_sequence(mc.e("mailContext"), [{id: "mailContext-mark"},
-                                                   {id: "mailContext-markAllRead"}]);
+  mc.click_menus_in_sequence(mc.e("mailContext"), [
+    { id: "mailContext-mark" },
+    { id: "mailContext-markAllRead" },
+  ]);
 
   // All the 4 messages should now be read.
   assert_true(curMessage.isRead, "Message should have been marked Read!");
@@ -137,8 +165,10 @@ function test_mark_messages_read() {
 
   // Let's have the last message unread.
   right_click_on_row(3);
-  mc.click_menus_in_sequence(mc.e("mailContext"), [{id: "mailContext-mark"},
-                                                   {id: "mailContext-markUnread"}]);
+  mc.click_menus_in_sequence(mc.e("mailContext"), [
+    { id: "mailContext-mark" },
+    { id: "mailContext-markUnread" },
+  ]);
   assert_false(curMessage.isRead, "Message should have not been marked Read!");
   check_status(curMessage, null, null, 0);
 }
@@ -147,10 +177,17 @@ function test_mark_messages_flagged() {
   // Mark a message with the star.
   let curMessage = select_click_row(1);
   right_click_on_row(1);
-  mc.click_menus_in_sequence(mc.e("mailContext"), [{id: "mailContext-mark"},
-                                                   {id: "mailContext-markFlagged"}]);
+  mc.click_menus_in_sequence(mc.e("mailContext"), [
+    { id: "mailContext-mark" },
+    { id: "mailContext-markFlagged" },
+  ]);
   assert_true(curMessage.isFlagged, "Message should have been marked Flagged!");
-  check_status(curMessage, null, null, Ci.nsMsgMessageFlags.Read + Ci.nsMsgMessageFlags.Marked);
+  check_status(
+    curMessage,
+    null,
+    null,
+    Ci.nsMsgMessageFlags.Read + Ci.nsMsgMessageFlags.Marked
+  );
 }
 
 function subtest_check_queued_message() {
@@ -188,7 +225,10 @@ function reply_forward_message(aMsgRow, aReply) {
   // Send it later.
   plan_for_window_close(cwc);
   // Ctrl+Shift+Return = Send Later
-  cwc.keypress(cwc.eid("content-frame"), "VK_RETURN", {shiftKey: true, accelKey: true});
+  cwc.keypress(cwc.eid("content-frame"), "VK_RETURN", {
+    shiftKey: true,
+    accelKey: true,
+  });
   wait_for_window_close(cwc);
 
   subtest_check_queued_message();
@@ -201,16 +241,21 @@ function reply_forward_message(aMsgRow, aReply) {
   // a different function and the purpose of this test would be lost.
   be_in_folder(gInbox);
   let curMessage = select_click_row(aMsgRow);
-  let disposition = aReply ? gInbox.nsMsgDispositionState_Replied :
-                             gInbox.nsMsgDispositionState_Forwarded;
+  let disposition = aReply
+    ? gInbox.nsMsgDispositionState_Replied
+    : gInbox.nsMsgDispositionState_Forwarded;
   gInbox.addMessageDispositionState(curMessage, disposition);
 }
 
 function test_mark_messages_replied() {
   reply_forward_message(2, true);
   let curMessage = select_click_row(2);
-  check_status(curMessage, null, null,
-               Ci.nsMsgMessageFlags.Replied + Ci.nsMsgMessageFlags.Read);
+  check_status(
+    curMessage,
+    null,
+    null,
+    Ci.nsMsgMessageFlags.Replied + Ci.nsMsgMessageFlags.Read
+  );
 }
 
 function test_mark_messages_forwarded() {
@@ -223,9 +268,14 @@ function test_mark_messages_forwarded() {
   // Forward a message that is read and already replied to.
   reply_forward_message(2, false);
   curMessage = select_click_row(2);
-  check_status(curMessage, null, null,
-               Ci.nsMsgMessageFlags.Forwarded + Ci.nsMsgMessageFlags.Replied +
-               Ci.nsMsgMessageFlags.Read);
+  check_status(
+    curMessage,
+    null,
+    null,
+    Ci.nsMsgMessageFlags.Forwarded +
+      Ci.nsMsgMessageFlags.Replied +
+      Ci.nsMsgMessageFlags.Read
+  );
 }
 
 function teardownModule(module) {

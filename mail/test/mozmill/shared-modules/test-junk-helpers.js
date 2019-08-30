@@ -8,7 +8,9 @@ var MODULE_NAME = "junk-helpers";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers"];
 
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 
 var folderDisplayHelper;
@@ -38,10 +40,10 @@ function installInto(module) {
  *     |mc| if omitted.
  */
 function mark_selected_messages_as_junk(aController) {
-  if (aController === undefined)
+  if (aController === undefined) {
     aController = mc;
-  aController.keypress(aController == mc ? mc.eThreadTree : null,
-                       "j", {});
+  }
+  aController.keypress(aController == mc ? mc.eThreadTree : null, "j", {});
 }
 
 /**
@@ -53,8 +55,9 @@ function mark_selected_messages_as_junk(aController) {
  *     |mc| if omitted.
  */
 function delete_mail_marked_as_junk(aNumDeletesExpected, aController) {
-  if (aController === undefined)
+  if (aController === undefined) {
     aController = mc;
+  }
   // Monkey patch and wrap around the deleteJunkInFolder function, mainly for
   // the case where deletes aren't expected. See the below comment for an
   // explanation of why this is done.
@@ -71,13 +74,16 @@ function delete_mail_marked_as_junk(aNumDeletesExpected, aController) {
     folderDisplayHelper.wait_for_message_display_completion(aController);
     if (aNumDeletesExpected != 0) {
       folderDisplayHelper.plan_to_wait_for_folder_events(
-        "DeleteOrMoveMsgCompleted", "DeleteOrMoveMsgFailed");
+        "DeleteOrMoveMsgCompleted",
+        "DeleteOrMoveMsgFailed"
+      );
     }
 
     aController.click(new elib.Elem(aController.menus.tasksMenu.deleteJunk));
 
-    if (aNumDeletesExpected != 0)
+    if (aNumDeletesExpected != 0) {
       folderDisplayHelper.wait_for_folder_events();
+    }
 
     // The case where no deletes are expected is somewhat more complicated,
     // since proving the lack of events is generally harder than proving their
@@ -129,15 +135,23 @@ function delete_mail_marked_as_junk(aNumDeletesExpected, aController) {
     // fine, because we already have all sorts of events when messages are
     // deleted). The only assumption is that deleteJunkInFolder is synchronous
     // if no messages are deleted.
-    utils.waitFor(() => numMessagesDeleted != null,
-                  "Timeout waiting for numMessagesDeleted to turn " +
-                  "non-null. This either means that deleteJunkInFolder " +
-                  "didn't get called or that it didn't return a value.");
+    utils.waitFor(
+      () => numMessagesDeleted != null,
+      "Timeout waiting for numMessagesDeleted to turn " +
+        "non-null. This either means that deleteJunkInFolder " +
+        "didn't get called or that it didn't return a value."
+    );
 
     // Check the number of deleted messages.
-    if (aNumDeletesExpected != numMessagesDeleted)
-      mark_failure(["Expected", aNumDeletesExpected, "deletes, but",
-                    numMessagesDeleted, "happened"]);
+    if (aNumDeletesExpected != numMessagesDeleted) {
+      mark_failure([
+        "Expected",
+        aNumDeletesExpected,
+        "deletes, but",
+        numMessagesDeleted,
+        "happened",
+      ]);
+    }
   } finally {
     aController.window.deleteJunkInFolder = realDeleteJunkInFolder;
   }

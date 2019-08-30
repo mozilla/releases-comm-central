@@ -21,8 +21,9 @@ function installInto(module) {
  * @param aElement    (optional) Element on which to perform the input
  */
 function input_value(aController, aStr, aElement) {
-  for (let i = 0; i < aStr.length; i++)
+  for (let i = 0; i < aStr.length; i++) {
     aController.keypress(aElement || null, aStr.charAt(i), {});
+  }
 }
 
 /**
@@ -33,8 +34,9 @@ function input_value(aController, aStr, aElement) {
  * @param aNumber     The number of times to press the delete key.
  */
 function delete_existing(aController, aElement, aNumber) {
-  for (let i = 0; i < aNumber; ++i)
+  for (let i = 0; i < aNumber; ++i) {
     aController.keypress(aElement, "VK_BACK_SPACE", {});
+  }
 }
 
 /**
@@ -44,6 +46,6 @@ function delete_existing(aController, aElement, aNumber) {
  * @param aElement    The element in which to delete characters
  */
 function delete_all_existing(aController, aElement) {
-  aController.keypress(aElement, "a", {accelKey: true});
+  aController.keypress(aElement, "a", { accelKey: true });
   aController.keypress(aElement, "VK_DELETE", {});
 }

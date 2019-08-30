@@ -7,42 +7,62 @@ this.EXPORTED_SYMBOLS = [];
 var CC = Components.Constructor;
 
 const { Gloda } = ChromeUtils.import("resource:///modules/gloda/public.js");
-const { GlodaAccount } = ChromeUtils.import("resource:///modules/gloda/datamodel.js");
-const {
-  GlodaIndexer,
-  IndexingJob,
-} = ChromeUtils.import("resource:///modules/gloda/indexer.js");
-const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const { GlodaAccount } = ChromeUtils.import(
+  "resource:///modules/gloda/datamodel.js"
+);
+const { GlodaIndexer, IndexingJob } = ChromeUtils.import(
+  "resource:///modules/gloda/indexer.js"
+);
+const { fixIterator } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
 const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
-const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-const {
-  clearTimeout,
-  setTimeout,
-} = ChromeUtils.import("resource://gre/modules/Timer.jsm");
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+const { FileUtils } = ChromeUtils.import(
+  "resource://gre/modules/FileUtils.jsm"
+);
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+const { clearTimeout, setTimeout } = ChromeUtils.import(
+  "resource://gre/modules/Timer.jsm"
+);
 
 ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
-ChromeUtils.defineModuleGetter(this, "AsyncShutdown",
-                               "resource://gre/modules/AsyncShutdown.jsm");
-ChromeUtils.defineModuleGetter(this, "GlodaDatastore",
-                               "resource:///modules/gloda/datastore.js");
+ChromeUtils.defineModuleGetter(
+  this,
+  "AsyncShutdown",
+  "resource://gre/modules/AsyncShutdown.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "GlodaDatastore",
+  "resource:///modules/gloda/datastore.js"
+);
 
 var kCacheFileName = "indexedFiles.json";
 
-var FileInputStream = CC("@mozilla.org/network/file-input-stream;1",
-                           "nsIFileInputStream",
-                           "init");
-var ScriptableInputStream = CC("@mozilla.org/scriptableinputstream;1",
-                                 "nsIScriptableInputStream",
-                                 "init");
+var FileInputStream = CC(
+  "@mozilla.org/network/file-input-stream;1",
+  "nsIFileInputStream",
+  "init"
+);
+var ScriptableInputStream = CC(
+  "@mozilla.org/scriptableinputstream;1",
+  "nsIScriptableInputStream",
+  "init"
+);
 
 // kIndexingDelay is how long we wait from the point of scheduling an indexing
 // job to actually carrying it out.
 var kIndexingDelay = 5000; // in milliseconds
 
 XPCOMUtils.defineLazyGetter(this, "MailFolder", () =>
-  Cc["@mozilla.org/rdf/resource-factory;1?name=mailbox"].createInstance(Ci.nsIMsgFolder)
+  Cc["@mozilla.org/rdf/resource-factory;1?name=mailbox"].createInstance(
+    Ci.nsIMsgFolder
+  )
 );
 
 var gIMAccounts = {};
@@ -58,40 +78,60 @@ function GlodaIMConversation(aTitle, aTime, aPath, aContent) {
   this._content = aContent;
 }
 GlodaIMConversation.prototype = {
-  get title() { return this._title; },
-  get time() { return this._time; },
-  get path() { return this._path; },
-  get content() { return this._content; },
+  get title() {
+    return this._title;
+  },
+  get time() {
+    return this._time;
+  },
+  get path() {
+    return this._path;
+  },
+  get content() {
+    return this._content;
+  },
 
   // for glodaFacetBindings.xml compatibility (pretend we are a message object)
   get account() {
     let [protocol, username] = this._path.split("/", 2);
 
     let cacheName = protocol + "/" + username;
-    if (cacheName in gIMAccounts)
+    if (cacheName in gIMAccounts) {
       return gIMAccounts[cacheName];
+    }
 
     // Find the nsIIncomingServer for the current imIAccount.
     let mgr = MailServices.accounts;
     for (let account of fixIterator(mgr.accounts, Ci.nsIMsgAccount)) {
       let incomingServer = account.incomingServer;
-      if (!incomingServer || incomingServer.type != "im")
+      if (!incomingServer || incomingServer.type != "im") {
         continue;
+      }
       let imAccount = incomingServer.wrappedJSObject.imAccount;
-      if (imAccount.protocol.normalizedName == protocol &&
-          imAccount.normalizedName == username)
+      if (
+        imAccount.protocol.normalizedName == protocol &&
+        imAccount.normalizedName == username
+      ) {
         return (gIMAccounts[cacheName] = new GlodaAccount(incomingServer));
+      }
     }
     // The IM conversation is probably for an account that no longer exists.
     return null;
   },
-  get subject() { return this._title; },
-  get date() { return new Date(this._time * 1000); },
-  get involves() { return Gloda.IGNORE_FACET; },
+  get subject() {
+    return this._title;
+  },
+  get date() {
+    return new Date(this._time * 1000);
+  },
+  get involves() {
+    return Gloda.IGNORE_FACET;
+  },
   _recipients: null,
   get recipients() {
-    if (!this._recipients)
-      this._recipients = [{contact: {name: this._path.split("/", 2)[1]}}];
+    if (!this._recipients) {
+      this._recipients = [{ contact: { name: this._path.split("/", 2)[1] } }];
+    }
     return this._recipients;
   },
   _from: null,
@@ -99,27 +139,42 @@ GlodaIMConversation.prototype = {
     if (!this._from) {
       let from = "";
       let account = this.account;
-      if (account)
+      if (account) {
         from = account.incomingServer.wrappedJSObject.imAccount.protocol.name;
-      this._from = {value: "", contact: {name: from}};
+      }
+      this._from = { value: "", contact: { name: from } };
     }
     return this._from;
   },
-  get tags() { return []; },
-  get starred() { return false; },
-  get attachmentNames() { return null; },
-  get indexedBodyText() { return this._content; },
-  get read() { return true; },
-  get folder() { return Gloda.IGNORE_FACET; },
+  get tags() {
+    return [];
+  },
+  get starred() {
+    return false;
+  },
+  get attachmentNames() {
+    return null;
+  },
+  get indexedBodyText() {
+    return this._content;
+  },
+  get read() {
+    return true;
+  },
+  get folder() {
+    return Gloda.IGNORE_FACET;
+  },
 
   // for glodaFacetView.js _removeDupes
-  get headerMessageID() { return this.id; },
+  get headerMessageID() {
+    return this.id;
+  },
 };
 
 // FIXME
 var WidgetProvider = {
   providerName: "widget",
-  * process() {
+  *process() {
     // XXX What is this supposed to do?
     yield Gloda.kWorkDone;
   },
@@ -131,11 +186,12 @@ var IMConversationNoun = {
   allowsArbitraryAttrs: true,
   tableName: "imConversations",
   schema: {
-    columns: [["id", "INTEGER PRIMARY KEY"],
-              ["title", "STRING"],
-              ["time", "NUMBER"],
-              ["path", "STRING"],
-             ],
+    columns: [
+      ["id", "INTEGER PRIMARY KEY"],
+      ["title", "STRING"],
+      ["time", "NUMBER"],
+      ["path", "STRING"],
+    ],
     fulltextColumns: [["content", "STRING"]],
   },
 };
@@ -152,10 +208,14 @@ IMConversationNoun.objFromRow = function(aRow) {
   // 4 jsonAttributes
   // 5 content
   // 6 offsets
-  let conv = new GlodaIMConversation(aRow.getString(1), aRow.getInt64(2),
-                                     aRow.getString(3), aRow.getString(5));
+  let conv = new GlodaIMConversation(
+    aRow.getString(1),
+    aRow.getInt64(2),
+    aRow.getString(3),
+    aRow.getString(5)
+  );
   conv.id = aRow.getInt64(0); // handleResult will keep only our first result
-                              // if the id property isn't set.
+  // if the id property isn't set.
   return conv;
 };
 
@@ -163,7 +223,8 @@ var EXT_NAME = "im";
 
 // --- special (on-row) attributes
 Gloda.defineAttribute({
-  provider: WidgetProvider, extensionName: EXT_NAME,
+  provider: WidgetProvider,
+  extensionName: EXT_NAME,
   attributeType: Gloda.kAttrFundamental,
   attributeName: "time",
   singular: true,
@@ -174,7 +235,8 @@ Gloda.defineAttribute({
   canQuery: true,
 });
 Gloda.defineAttribute({
-  provider: WidgetProvider, extensionName: EXT_NAME,
+  provider: WidgetProvider,
+  extensionName: EXT_NAME,
   attributeType: Gloda.kAttrFundamental,
   attributeName: "title",
   singular: true,
@@ -185,7 +247,8 @@ Gloda.defineAttribute({
   canQuery: true,
 });
 Gloda.defineAttribute({
-  provider: WidgetProvider, extensionName: EXT_NAME,
+  provider: WidgetProvider,
+  extensionName: EXT_NAME,
   attributeType: Gloda.kAttrFundamental,
   attributeName: "path",
   singular: true,
@@ -198,7 +261,8 @@ Gloda.defineAttribute({
 
 // --- fulltext attributes
 Gloda.defineAttribute({
-  provider: WidgetProvider, extensionName: EXT_NAME,
+  provider: WidgetProvider,
+  extensionName: EXT_NAME,
   attributeType: Gloda.kAttrFundamental,
   attributeName: "content",
   singular: true,
@@ -225,7 +289,8 @@ this._attrFulltext = Gloda.defineAttribute({
 });
 // For facet.js DateFaceter
 Gloda.defineAttribute({
-  provider: WidgetProvider, extensionName: EXT_NAME,
+  provider: WidgetProvider,
+  extensionName: EXT_NAME,
   attributeType: Gloda.kAttrDerived,
   attributeName: "date",
   singular: true,
@@ -248,30 +313,40 @@ var GlodaIMIndexer = {
 
     // The shutdown blocker ensures pending saves happen even if the app
     // gets shut down before the timer fires.
-    if (this._shutdownBlockerAdded)
+    if (this._shutdownBlockerAdded) {
       return;
+    }
     this._shutdownBlockerAdded = true;
-    AsyncShutdown.profileBeforeChange.addBlocker("GlodaIMIndexer cache save",
+    AsyncShutdown.profileBeforeChange.addBlocker(
+      "GlodaIMIndexer cache save",
       () => {
-        if (!this._cacheSaveTimer)
+        if (!this._cacheSaveTimer) {
           return Promise.resolve();
+        }
         clearTimeout(this._cacheSaveTimer);
         return this._saveCacheNow();
-      });
+      }
+    );
 
     this._knownFiles = {};
 
     let dir = FileUtils.getFile("ProfD", ["logs"]);
-    if (!dir.exists() || !dir.isDirectory())
+    if (!dir.exists() || !dir.isDirectory()) {
       return;
+    }
     let cacheFile = dir.clone();
     cacheFile.append(kCacheFileName);
-    if (!cacheFile.exists())
+    if (!cacheFile.exists()) {
       return;
+    }
 
     const PR_RDONLY = 0x01;
-    let fis = new FileInputStream(cacheFile, PR_RDONLY, parseInt("0444", 8),
-                                  Ci.nsIFileInputStream.CLOSE_ON_EOF);
+    let fis = new FileInputStream(
+      cacheFile,
+      PR_RDONLY,
+      parseInt("0444", 8),
+      Ci.nsIFileInputStream.CLOSE_ON_EOF
+    );
     let sis = new ScriptableInputStream(fis);
     let text = sis.read(sis.available());
     sis.close();
@@ -282,9 +357,11 @@ var GlodaIMIndexer = {
     // in the cache. If so, we can trust it. If not, that means that the
     // cache is likely invalid now, so we ignore it (and eventually
     // overwrite it).
-    if ("datastoreID" in data &&
-        Gloda.datastoreID &&
-        data.datastoreID === Gloda.datastoreID) {
+    if (
+      "datastoreID" in data &&
+      Gloda.datastoreID &&
+      data.datastoreID === Gloda.datastoreID
+    ) {
       // Ok, the cache's datastoreID matches the one we expected, so it's
       // still valid.
       this._knownFiles = data.knownFiles;
@@ -294,8 +371,9 @@ var GlodaIMIndexer = {
 
     // If there was no version set on the cache, there is a chance that the index
     // is affected by bug 1069845. fixEntriesWithAbsolutePaths() sets the version to 1.
-    if (!this.cacheVersion)
+    if (!this.cacheVersion) {
       this.fixEntriesWithAbsolutePaths();
+    }
   },
   disable() {
     Services.obs.removeObserver(this, "conversation-closed");
@@ -319,8 +397,9 @@ var GlodaIMIndexer = {
   _cacheSaveTimer: null,
   _shutdownBlockerAdded: false,
   _scheduleCacheSave() {
-    if (this._cacheSaveTimer)
+    if (this._cacheSaveTimer) {
       return;
+    }
     this._cacheSaveTimer = setTimeout(this._saveCacheNow, 5000);
   },
   _saveCacheNow() {
@@ -333,10 +412,15 @@ var GlodaIMIndexer = {
     };
 
     // Asynchronously copy the data to the file.
-    let path = OS.Path.join(OS.Constants.Path.profileDir, "logs", kCacheFileName);
-    return OS.File.writeAtomic(path, JSON.stringify(data),
-                               {encoding: "utf-8", tmpPath: path + ".tmp"})
-             .catch(aError => Cu.reportError("Failed to write cache file: " + aError));
+    let path = OS.Path.join(
+      OS.Constants.Path.profileDir,
+      "logs",
+      kCacheFileName
+    );
+    return OS.File.writeAtomic(path, JSON.stringify(data), {
+      encoding: "utf-8",
+      tmpPath: path + ".tmp",
+    }).catch(aError => Cu.reportError("Failed to write cache file: " + aError));
   },
 
   _knownConversations: {},
@@ -366,7 +450,8 @@ var GlodaIMIndexer = {
       // Ok, let's schedule the job.
       this._knownConversations[convId].scheduledIndex = setTimeout(
         this._beginIndexingJob.bind(this, aConversation),
-        kIndexingDelay);
+        kIndexingDelay
+      );
     }
   },
 
@@ -390,8 +475,9 @@ var GlodaIMIndexer = {
     (async () => {
       // We need to get the log files every time, because a new log file might
       // have been started since we last got them.
-      let logFiles =
-        await Services.logs.getLogPathsForConversation(aConversation);
+      let logFiles = await Services.logs.getLogPathsForConversation(
+        aConversation
+      );
       if (!logFiles || !logFiles.length) {
         // No log files exist yet, nothing to do!
         return;
@@ -406,14 +492,19 @@ var GlodaIMIndexer = {
         let accountName = OS.Path.basename(folder);
         folder = OS.Path.dirname(folder);
         let protoName = OS.Path.basename(folder);
-        if (!Object.prototype.hasOwnProperty.call(this._knownFiles, protoName))
+        if (
+          !Object.prototype.hasOwnProperty.call(this._knownFiles, protoName)
+        ) {
           this._knownFiles[protoName] = {};
+        }
         let protoObj = this._knownFiles[protoName];
-        if (!Object.prototype.hasOwnProperty.call(protoObj, accountName))
+        if (!Object.prototype.hasOwnProperty.call(protoObj, accountName)) {
           protoObj[accountName] = {};
+        }
         let accountObj = protoObj[accountName];
-        if (!Object.prototype.hasOwnProperty.call(accountObj, convName))
+        if (!Object.prototype.hasOwnProperty.call(accountObj, convName)) {
           accountObj[convName] = {};
+        }
 
         // convObj is the penultimate level of the tree,
         // maps file name -> last modified time
@@ -426,21 +517,26 @@ var GlodaIMIndexer = {
       // one as well as index the new ones. The index of the previous one is
       // conv.logFiles.length - 1, so we slice from there. This gives us all new
       // log files even if there are multiple new ones.
-      let currentLogFiles = conv.logFileCount > 1 ?
-                            logFiles.slice(conv.logFileCount - 1) :
-                            logFiles;
+      let currentLogFiles =
+        conv.logFileCount > 1
+          ? logFiles.slice(conv.logFileCount - 1)
+          : logFiles;
       for (let logFile of currentLogFiles) {
         let fileName = OS.Path.basename(logFile);
-        let lastModifiedTime =
-          (await OS.File.stat(logFile)).lastModificationDate.valueOf();
-        if (Object.prototype.hasOwnProperty.call(conv.convObj, fileName) &&
-            conv.convObj[fileName] == lastModifiedTime) {
+        let lastModifiedTime = (await OS.File.stat(
+          logFile
+        )).lastModificationDate.valueOf();
+        if (
+          Object.prototype.hasOwnProperty.call(conv.convObj, fileName) &&
+          conv.convObj[fileName] == lastModifiedTime
+        ) {
           // The file hasn't changed since we last indexed it, so we're done.
           continue;
         }
 
-        if (this._indexingJobPromise)
+        if (this._indexingJobPromise) {
           await this._indexingJobPromise;
+        }
         this._indexingJobPromise = new Promise(aResolve => {
           this._indexingJobCallbacks.set(convId, aResolve);
         });
@@ -490,8 +586,10 @@ var GlodaIMIndexer = {
       let convId = aSubject.id;
       // If there's a scheduled indexing job, cancel it, because we're going
       // to index now.
-      if (convId in this._knownConversations &&
-          this._knownConversations[convId].scheduledIndex != null) {
+      if (
+        convId in this._knownConversations &&
+        this._knownConversations[convId].scheduledIndex != null
+      ) {
         clearTimeout(this._knownConversations[convId].scheduledIndex);
       }
 
@@ -511,35 +609,40 @@ var GlodaIMIndexer = {
       // the unread message count on the associated UIConversation for this
       // message. If the unread count is 0, we know that the message has been
       // displayed to the user.
-      if (uiConv.unreadIncomingMessageCount == 0)
+      if (uiConv.unreadIncomingMessageCount == 0) {
         this._scheduleIndexingJob(conv);
+      }
     }
   },
-
 
   /* If there is an existing gloda conversation for the given path,
    * find its id.
    */
   _getIdFromPath(aPath) {
     let selectStatement = GlodaDatastore._createAsyncStatement(
-      "SELECT id FROM imConversations WHERE path = ?1");
+      "SELECT id FROM imConversations WHERE path = ?1"
+    );
     selectStatement.bindByIndex(0, aPath);
     let id;
     return new Promise((resolve, reject) => {
       selectStatement.executeAsync({
         handleResult: aResultSet => {
           let row = aResultSet.getNextRow();
-          if (!row)
+          if (!row) {
             return;
+          }
           if (id || aResultSet.getNextRow()) {
-            Cu.reportError("Warning: found more than one gloda conv id for " +
-              aPath + "\n");
+            Cu.reportError(
+              "Warning: found more than one gloda conv id for " + aPath + "\n"
+            );
           }
           id = id || row.getInt64(0); // We use the first found id.
         },
         handleError: aError =>
           Cu.reportError("Error finding gloda id from path:\n" + aError),
-        handleCompletion: () => { resolve(id); },
+        handleCompletion: () => {
+          resolve(id);
+        },
       });
     });
   },
@@ -547,7 +650,9 @@ var GlodaIMIndexer = {
   // Get the path of a log file relative to the logs directory - the last 4
   // components of the path.
   _getRelativePath(aLogPath) {
-    return OS.Path.split(aLogPath).components.slice(-4).join("/");
+    return OS.Path.split(aLogPath)
+      .components.slice(-4)
+      .join("/");
   },
 
   /* aGlodaConv is an optional inout param that lets the caller save and reuse
@@ -563,70 +668,98 @@ var GlodaIMIndexer = {
    * currently being indexed is updated to the aLastModifiedTime parameter's
    * value once indexing is complete.
    * */
-  async indexIMConversation(aCallbackHandle, aLogPath, aLastModifiedTime, aCache, aGlodaConv) {
+  async indexIMConversation(
+    aCallbackHandle,
+    aLogPath,
+    aLastModifiedTime,
+    aCache,
+    aGlodaConv
+  ) {
     let log = await Services.logs.getLogFromFile(aLogPath);
     let logConv = await log.getConversation();
 
     // Ignore corrupted log files.
-    if (!logConv)
+    if (!logConv) {
       return Gloda.kWorkDone;
+    }
 
     let fileName = OS.Path.basename(aLogPath);
-    let content = logConv.getMessages()
-                         // Some messages returned, e.g. sessionstart messages,
-                         // may have the noLog flag set. Ignore these.
-                         .filter(m => !m.noLog)
-                         .map(m => {
-                           let who = m.alias || m.who;
-                           // Some messages like topic change notifications may
-                           // not have a source.
-                           let prefix = who ? who + ": " : "";
-                           return prefix + MailFolder.convertMsgSnippetToPlainText(m.message);
-                         })
-                         .join("\n\n");
+    let content = logConv
+      .getMessages()
+      // Some messages returned, e.g. sessionstart messages,
+      // may have the noLog flag set. Ignore these.
+      .filter(m => !m.noLog)
+      .map(m => {
+        let who = m.alias || m.who;
+        // Some messages like topic change notifications may
+        // not have a source.
+        let prefix = who ? who + ": " : "";
+        return prefix + MailFolder.convertMsgSnippetToPlainText(m.message);
+      })
+      .join("\n\n");
     let glodaConv;
     if (aGlodaConv && aGlodaConv.value) {
       glodaConv = aGlodaConv.value;
       glodaConv._content = content;
     } else {
       let relativePath = this._getRelativePath(aLogPath);
-      glodaConv = new GlodaIMConversation(logConv.title, log.time, relativePath, content);
+      glodaConv = new GlodaIMConversation(
+        logConv.title,
+        log.time,
+        relativePath,
+        content
+      );
       // If we've indexed this file before, we need the id of the existing
       // gloda conversation so that the existing entry gets updated. This can
       // happen if the log sweep detects that the last messages in an open
       // chat were not in fact indexed before that session was shut down.
       let id = await this._getIdFromPath(relativePath);
-      if (id)
+      if (id) {
         glodaConv.id = id;
-      if (aGlodaConv)
+      }
+      if (aGlodaConv) {
         aGlodaConv.value = glodaConv;
+      }
     }
 
-    if (!aCache)
+    if (!aCache) {
       throw new Error("indexIMConversation called without aCache parameter.");
-    let isNew = !Object.prototype.hasOwnProperty.call(aCache, fileName) && !glodaConv.id;
+    }
+    let isNew =
+      !Object.prototype.hasOwnProperty.call(aCache, fileName) && !glodaConv.id;
     let rv = aCallbackHandle.pushAndGo(
-      Gloda.grokNounItem(glodaConv, {}, true, isNew, aCallbackHandle));
+      Gloda.grokNounItem(glodaConv, {}, true, isNew, aCallbackHandle)
+    );
 
-    if (!aLastModifiedTime)
-      Cu.reportError("indexIMConversation called without lastModifiedTime parameter.");
+    if (!aLastModifiedTime) {
+      Cu.reportError(
+        "indexIMConversation called without lastModifiedTime parameter."
+      );
+    }
     aCache[fileName] = aLastModifiedTime || 1;
     this._scheduleCacheSave();
 
     return rv;
   },
 
-  * _worker_indexIMConversation(aJob, aCallbackHandle) {
+  *_worker_indexIMConversation(aJob, aCallbackHandle) {
     let glodaConv = {};
     let existingGlodaConv = aJob.conversation.glodaConv;
-    if (existingGlodaConv &&
-        existingGlodaConv.path == this._getRelativePath(aJob.path))
+    if (
+      existingGlodaConv &&
+      existingGlodaConv.path == this._getRelativePath(aJob.path)
+    ) {
       glodaConv.value = aJob.conversation.glodaConv;
+    }
 
     // indexIMConversation may initiate an async grokNounItem sub-job.
-    this.indexIMConversation(aCallbackHandle, aJob.path, aJob.lastModifiedTime,
-                             aJob.conversation.convObj, glodaConv)
-        .then(() => GlodaIndexer.callbackDriver());
+    this.indexIMConversation(
+      aCallbackHandle,
+      aJob.path,
+      aJob.lastModifiedTime,
+      aJob.conversation.convObj,
+      glodaConv
+    ).then(() => GlodaIndexer.callbackDriver());
     // Tell the Indexer that we're doing async indexing. We'll be left alone
     // until callbackDriver() is called above.
     yield Gloda.kWorkAsync;
@@ -640,7 +773,7 @@ var GlodaIMIndexer = {
     yield Gloda.kWorkDone;
   },
 
-  * _worker_logsFolderSweep(aJob) {
+  *_worker_logsFolderSweep(aJob) {
     let dir = FileUtils.getFile("ProfD", ["logs"]);
     if (!dir.exists() || !dir.isDirectory()) {
       // If the folder does not exist, then we are done.
@@ -652,29 +785,35 @@ var GlodaIMIndexer = {
     let children = dir.directoryEntries;
     while (children.hasMoreElements()) {
       let proto = children.nextFile;
-      if (!proto.isDirectory())
+      if (!proto.isDirectory()) {
         continue;
+      }
       let protoName = proto.leafName;
-      if (!Object.prototype.hasOwnProperty.call(this._knownFiles, protoName))
+      if (!Object.prototype.hasOwnProperty.call(this._knownFiles, protoName)) {
         this._knownFiles[protoName] = {};
+      }
       let protoObj = this._knownFiles[protoName];
       let accounts = proto.directoryEntries;
       while (accounts.hasMoreElements()) {
         let account = accounts.nextFile;
-        if (!account.isDirectory())
+        if (!account.isDirectory()) {
           continue;
+        }
         let accountName = account.leafName;
-        if (!Object.prototype.hasOwnProperty.call(protoObj, accountName))
+        if (!Object.prototype.hasOwnProperty.call(protoObj, accountName)) {
           protoObj[accountName] = {};
+        }
         let accountObj = protoObj[accountName];
         let convs = account.directoryEntries;
         while (convs.hasMoreElements()) {
           let conv = convs.nextFile;
           let convName = conv.leafName;
-          if (!conv.isDirectory() || convName == ".system")
+          if (!conv.isDirectory() || convName == ".system") {
             continue;
-          if (!Object.prototype.hasOwnProperty.call(accountObj, convName))
+          }
+          if (!Object.prototype.hasOwnProperty.call(accountObj, convName)) {
             accountObj[convName] = {};
+          }
           let job = new IndexingJob("convFolderSweep", null);
           job.folder = conv;
           job.convObj = accountObj[convName];
@@ -686,21 +825,29 @@ var GlodaIMIndexer = {
     yield GlodaIndexer.kWorkDone;
   },
 
-  * _worker_convFolderSweep(aJob, aCallbackHandle) {
+  *_worker_convFolderSweep(aJob, aCallbackHandle) {
     let folder = aJob.folder;
 
     let sessions = folder.directoryEntries;
     while (sessions.hasMoreElements()) {
       let file = sessions.nextFile;
       let fileName = file.leafName;
-      if (!file.isFile() || !file.isReadable() || !fileName.endsWith(".json") ||
-          (Object.prototype.hasOwnProperty.call(aJob.convObj, fileName) &&
-           aJob.convObj[fileName] == file.lastModifiedTime))
+      if (
+        !file.isFile() ||
+        !file.isReadable() ||
+        !fileName.endsWith(".json") ||
+        (Object.prototype.hasOwnProperty.call(aJob.convObj, fileName) &&
+          aJob.convObj[fileName] == file.lastModifiedTime)
+      ) {
         continue;
+      }
       // indexIMConversation may initiate an async grokNounItem sub-job.
-      this.indexIMConversation(aCallbackHandle, file.path,
-                               file.lastModifiedTime, aJob.convObj)
-          .then(() => GlodaIndexer.callbackDriver());
+      this.indexIMConversation(
+        aCallbackHandle,
+        file.path,
+        file.lastModifiedTime,
+        aJob.convObj
+      ).then(() => GlodaIndexer.callbackDriver());
       // Tell the Indexer that we're doing async indexing. We'll be left alone
       // until callbackDriver() is called above.
       yield Gloda.kWorkAsync;
@@ -727,9 +874,11 @@ var GlodaIMIndexer = {
   fixEntriesWithAbsolutePaths() {
     let store = GlodaDatastore;
     let selectStatement = store._createAsyncStatement(
-      "SELECT id, path FROM imConversations");
+      "SELECT id, path FROM imConversations"
+    );
     let updateStatement = store._createAsyncStatement(
-      "UPDATE imConversations SET path = ?1 WHERE id = ?2");
+      "UPDATE imConversations SET path = ?1 WHERE id = ?2"
+    );
 
     store._beginTransaction();
     selectStatement.executeAsync({
@@ -745,8 +894,7 @@ var GlodaIMIndexer = {
           let pathComponents = OS.Path.split(row.getString(1)).components;
           if (pathComponents.length > 4) {
             updateStatement.bindByIndex(1, row.getInt64(0)); // id
-            updateStatement.bindByIndex(0,
-              pathComponents.slice(-4).join("/")); // Last 4 path components
+            updateStatement.bindByIndex(0, pathComponents.slice(-4).join("/")); // Last 4 path components
             updateStatement.executeAsync({
               handleResult: () => {},
               handleError: aError =>

@@ -10,12 +10,22 @@
 
 var MODULE_NAME = "test-install-xpi";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["window-helpers", "folder-display-helpers", "content-tab-helpers"];
+var MODULE_REQUIRES = [
+  "window-helpers",
+  "folder-display-helpers",
+  "content-tab-helpers",
+];
 
-var controller = ChromeUtils.import("chrome://mozmill/content/modules/controller.jsm");
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
-var mozmill = ChromeUtils.import("chrome://mozmill/content/modules/mozmill.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var controller = ChromeUtils.import(
+  "chrome://mozmill/content/modules/controller.jsm"
+);
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
+var mozmill = ChromeUtils.import(
+  "chrome://mozmill/content/modules/mozmill.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
 // so we get the right path for the resources.
@@ -33,8 +43,10 @@ function setupModule(module) {
   cth.installInto(module);
 
   gDocument = mc.window.document;
-  gNewTab = open_content_tab_with_url(url + "installxpi.html",
-      "specialTabs.siteClickHandler(event, new RegExp('^" + url + "'));");
+  gNewTab = open_content_tab_with_url(
+    url + "installxpi.html",
+    "specialTabs.siteClickHandler(event, new RegExp('^" + url + "'));"
+  );
 }
 
 var teardownModule = function(module) {
@@ -53,7 +65,9 @@ function waitForNotification(id, buttonToClickSelector, callback) {
   if (callback) {
     callback();
   }
-  let button = gDocument.querySelector(`#${id}-notification ${buttonToClickSelector}`);
+  let button = gDocument.querySelector(
+    `#${id}-notification ${buttonToClickSelector}`
+  );
   mc.click(new elib.Elem(button));
   mc.waitForElementNotPresent(notification);
 }
@@ -61,14 +75,26 @@ function waitForNotification(id, buttonToClickSelector, callback) {
 function test_install_corrupt_xpi() {
   // This install with give us a corrupt xpi warning.
   mc.click(content_tab_eid(gNewTab, "corruptlink"));
-  waitForNotification("addon-install-blocked", ".popup-notification-primary-button");
-  waitForNotification("addon-install-failed", ".popup-notification-primary-button");
+  waitForNotification(
+    "addon-install-blocked",
+    ".popup-notification-primary-button"
+  );
+  waitForNotification(
+    "addon-install-failed",
+    ".popup-notification-primary-button"
+  );
 }
 
 function test_install_xpi_offer() {
   mc.click(content_tab_eid(gNewTab, "installlink"));
-  waitForNotification("addon-install-blocked", ".popup-notification-primary-button");
-  waitForNotification("addon-install-failed", ".popup-notification-primary-button");
+  waitForNotification(
+    "addon-install-blocked",
+    ".popup-notification-primary-button"
+  );
+  waitForNotification(
+    "addon-install-failed",
+    ".popup-notification-primary-button"
+  );
 }
 
 function test_xpinstall_disabled() {
@@ -76,26 +102,42 @@ function test_xpinstall_disabled() {
 
   // Try installation again - this time we'll get an install has been disabled message.
   mc.click(content_tab_eid(gNewTab, "installlink"));
-  waitForNotification("xpinstall-disabled", ".popup-notification-secondary-button");
+  waitForNotification(
+    "xpinstall-disabled",
+    ".popup-notification-secondary-button"
+  );
 
   Services.prefs.clearUserPref("xpinstall.enabled");
 }
 
 function test_xpinstall_actually_install() {
   mc.click(content_tab_eid(gNewTab, "installlink"));
-  waitForNotification("addon-install-blocked", ".popup-notification-primary-button");
-  waitForNotification("addon-install-failed", ".popup-notification-primary-button");
+  waitForNotification(
+    "addon-install-blocked",
+    ".popup-notification-primary-button"
+  );
+  waitForNotification(
+    "addon-install-failed",
+    ".popup-notification-primary-button"
+  );
 }
 
 function test_xpinstall_webext_actually_install() {
   mc.click(content_tab_eid(gNewTab, "installwebextlink"));
-  waitForNotification("addon-install-blocked", ".popup-notification-primary-button");
-  waitForNotification("addon-webext-permissions", ".popup-notification-primary-button", () => {
-    let intro = new elib.ID(gDocument, "addon-webext-perm-intro");
-    mc.assertNotDOMProperty(intro, "hidden", "true");
-    let permissionList = new elib.ID(gDocument, "addon-webext-perm-list");
-    mc.assertNotDOMProperty(permissionList, "hidden", "true");
-    mc.assert(() => permissionList.getNode().childElementCount == 1);
-  });
+  waitForNotification(
+    "addon-install-blocked",
+    ".popup-notification-primary-button"
+  );
+  waitForNotification(
+    "addon-webext-permissions",
+    ".popup-notification-primary-button",
+    () => {
+      let intro = new elib.ID(gDocument, "addon-webext-perm-intro");
+      mc.assertNotDOMProperty(intro, "hidden", "true");
+      let permissionList = new elib.ID(gDocument, "addon-webext-perm-list");
+      mc.assertNotDOMProperty(permissionList, "hidden", "true");
+      mc.assert(() => permissionList.getNode().childElementCount == 1);
+    }
+  );
   waitForNotification("addon-installed", ".popup-notification-primary-button");
 }

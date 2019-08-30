@@ -23,7 +23,7 @@ var MODULE_REQUIRES = [
   "message-helpers",
 ];
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var cwc = null; // compose window controller
 var folder;
@@ -92,17 +92,24 @@ function test_forward_inline() {
   // forwarded message header
   let fMsgHdr = select_click_row(0);
 
-  assert_true(fMsgHdr.numReferences > 0, "No References Header in forwarded msg.");
-  assert_equals(fMsgHdr.getStringReference(0), oMsgHdr.messageId,
-    "The forwarded message should have References: = Message-Id: of the original msg");
+  assert_true(
+    fMsgHdr.numReferences > 0,
+    "No References Header in forwarded msg."
+  );
+  assert_equals(
+    fMsgHdr.getStringReference(0),
+    oMsgHdr.messageId,
+    "The forwarded message should have References: = Message-Id: of the original msg"
+  );
 
   // test for x-forwarded-message id and exercise the js mime representation as
   // well
   to_mime_message(fMsgHdr, null, function(aMsgHdr, aMimeMsg) {
-    assert_equals(aMimeMsg.headers["x-forwarded-message-id"],
-      "<" + oMsgHdr.messageId + ">");
-    assert_equals(aMimeMsg.headers.references,
-      "<" + oMsgHdr.messageId + ">");
+    assert_equals(
+      aMimeMsg.headers["x-forwarded-message-id"],
+      "<" + oMsgHdr.messageId + ">"
+    );
+    assert_equals(aMimeMsg.headers.references, "<" + oMsgHdr.messageId + ">");
   });
   press_delete(mc);
 }
@@ -114,25 +121,43 @@ function test_forward_as_attachments() {
   let oMsgHdr1 = select_click_row(1);
   select_shift_click_row(0);
 
-  forward_selected_messages_and_go_to_drafts_folder(open_compose_with_forward_as_attachments);
+  forward_selected_messages_and_go_to_drafts_folder(
+    open_compose_with_forward_as_attachments
+  );
 
   // forwarded message header
   let fMsgHdr = select_click_row(0);
 
-  assert_true(fMsgHdr.numReferences > 0, "No References Header in forwarded msg.");
-  assert_true(fMsgHdr.numReferences > 1, "Only one References Header in forwarded msg.");
-  assert_equals(fMsgHdr.getStringReference(1), oMsgHdr1.messageId,
-    "The forwarded message should have References: = Message-Id: of the original msg#1");
-  assert_equals(fMsgHdr.getStringReference(0), oMsgHdr0.messageId,
-    "The forwarded message should have References: = Message-Id: of the original msg#0");
+  assert_true(
+    fMsgHdr.numReferences > 0,
+    "No References Header in forwarded msg."
+  );
+  assert_true(
+    fMsgHdr.numReferences > 1,
+    "Only one References Header in forwarded msg."
+  );
+  assert_equals(
+    fMsgHdr.getStringReference(1),
+    oMsgHdr1.messageId,
+    "The forwarded message should have References: = Message-Id: of the original msg#1"
+  );
+  assert_equals(
+    fMsgHdr.getStringReference(0),
+    oMsgHdr0.messageId,
+    "The forwarded message should have References: = Message-Id: of the original msg#0"
+  );
 
   // test for x-forwarded-message id and exercise the js mime representation as
   // well
   to_mime_message(fMsgHdr, null, function(aMsgHdr, aMimeMsg) {
-    assert_equals(aMimeMsg.headers["x-forwarded-message-id"],
-      "<" + oMsgHdr0.messageId + "> <" + oMsgHdr1.messageId + ">");
-    assert_equals(aMimeMsg.headers.references,
-      "<" + oMsgHdr0.messageId + "> <" + oMsgHdr1.messageId + ">");
+    assert_equals(
+      aMimeMsg.headers["x-forwarded-message-id"],
+      "<" + oMsgHdr0.messageId + "> <" + oMsgHdr1.messageId + ">"
+    );
+    assert_equals(
+      aMimeMsg.headers.references,
+      "<" + oMsgHdr0.messageId + "> <" + oMsgHdr1.messageId + ">"
+    );
   });
 
   press_delete(mc);

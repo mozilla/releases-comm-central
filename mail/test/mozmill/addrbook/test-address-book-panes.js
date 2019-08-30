@@ -55,14 +55,21 @@ function _help_toggle_pane(splitterId) {
  * @param visible true if the pane should be visible, false otherwise
  */
 function _help_assert_pane_visibility(paneId, menuitemId, visible) {
-  if (abController.e(paneId).collapsed == visible)
-    throw new Error(paneId + " pane should be " +
-                    (visible ? "visible" : "hidden"));
+  if (abController.e(paneId).collapsed == visible) {
+    throw new Error(
+      paneId + " pane should be " + (visible ? "visible" : "hidden")
+    );
+  }
 
   abController.window.InitViewLayoutMenuPopup();
-  if ((abController.e(menuitemId).getAttribute("checked") == "true") != visible)
-    throw new Error(menuitemId + " menuitem should be " +
-                    (visible ? "checked" : "unchecked"));
+  if (
+    (abController.e(menuitemId).getAttribute("checked") == "true") !=
+    visible
+  ) {
+    throw new Error(
+      menuitemId + " menuitem should be " + (visible ? "checked" : "unchecked")
+    );
+  }
 }
 
 /**
@@ -94,8 +101,11 @@ function assert_directory_pane_visibility(visible) {
  * @param visible true if the pane should be visible, false otherwise
  */
 function assert_contact_pane_visibility(visible) {
-  _help_assert_pane_visibility("CardViewOuterBox", "menu_showCardPane",
-                               visible);
+  _help_assert_pane_visibility(
+    "CardViewOuterBox",
+    "menu_showCardPane",
+    visible
+  );
 }
 
 function test_hide_directory_pane() {

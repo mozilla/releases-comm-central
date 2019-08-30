@@ -15,10 +15,16 @@
 
 var MODULE_NAME = "test-forward-rfc822-attach";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "compose-helpers",
+  "window-helpers",
+];
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
 var gDrafts;
@@ -32,14 +38,15 @@ function setupModule(module) {
 }
 
 function forwardDirect(aFilePath, aExpectedText) {
-  let file = os.getFileForPath(os.abspath(aFilePath,
-                               os.getFileForPath(__file__)));
+  let file = os.getFileForPath(
+    os.abspath(aFilePath, os.getFileForPath(__file__))
+  );
   let msgc = open_message_from_file(file);
 
   let cwc = open_compose_with_forward_as_attachments(msgc);
 
   // Ctrl+S saves as draft.
-  cwc.keypress(null, "s", {shiftKey: false, accelKey: true});
+  cwc.keypress(null, "s", { shiftKey: false, accelKey: true });
 
   close_compose_window(cwc);
   close_window(msgc);

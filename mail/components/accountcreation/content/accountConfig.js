@@ -128,14 +128,14 @@ AccountConfig.prototype = {
     return {
       type: "smtp",
       hostname: null,
-      port: null,     // see incoming
+      port: null, // see incoming
       username: null, // see incoming. may be null, if auth is 0.
       password: null, // see incoming. may be null, if auth is 0.
-      socketType: 0,  // see incoming
+      socketType: 0, // see incoming
       badCert: false, // see incoming
-      auth: 0,        // see incoming
+      auth: 0, // see incoming
       authAlternatives: null, // see incoming
-      addThisServer: true,    // if we already have an SMTP server, add this
+      addThisServer: true, // if we already have an SMTP server, add this
       // if we already have an SMTP server, use it.
       useGlobalPreferredServer: false,
       // we should reuse an already configured SMTP server.
@@ -207,14 +207,20 @@ AccountConfig.prototype = {
   },
 
   isComplete() {
-    return (!!this.incoming.hostname && !!this.incoming.port &&
-         !!this.incoming.socketType && !!this.incoming.auth &&
-         !!this.incoming.username &&
-         (!!this.outgoing.existingServerKey ||
-          this.outgoing.useGlobalPreferredServer ||
-          (!!this.outgoing.hostname && !!this.outgoing.port &&
-           !!this.outgoing.socketType && !!this.outgoing.auth &&
-           !!this.outgoing.username)));
+    return (
+      !!this.incoming.hostname &&
+      !!this.incoming.port &&
+      !!this.incoming.socketType &&
+      !!this.incoming.auth &&
+      !!this.incoming.username &&
+      (!!this.outgoing.existingServerKey ||
+        this.outgoing.useGlobalPreferredServer ||
+        (!!this.outgoing.hostname &&
+          !!this.outgoing.port &&
+          !!this.outgoing.socketType &&
+          !!this.outgoing.auth &&
+          !!this.outgoing.username))
+    );
   },
 
   toString() {
@@ -269,17 +275,24 @@ AccountConfig.prototype = {
       return password ? "set" : "not set";
     }
     function configToString(config) {
-      return config.type +
-      ", " + config.hostname + ":" + config.port +
-      ", " + sslToString(config.socketType) +
-      ", auth: " + authToString(config.auth) +
-       ", username: " + usernameToString(config.username) +
-      ", password: " + passwordToString(config.password);
+      return (
+        config.type +
+        ", " +
+        config.hostname +
+        ":" +
+        config.port +
+        ", " +
+        sslToString(config.socketType) +
+        ", auth: " +
+        authToString(config.auth) +
+        ", username: " +
+        usernameToString(config.username) +
+        ", password: " +
+        passwordToString(config.password)
+      );
     }
 
-    let result =
-      "Incoming: " + configToString(this.incoming) +
-      "\nOutgoing: ";
+    let result = "Incoming: " + configToString(this.incoming) + "\nOutgoing: ";
     if (this.outgoing.useGlobalPreferredServer) {
       result += "Use global server";
     } else if (this.outgoing.existingServerKey) {
@@ -297,7 +310,6 @@ AccountConfig.prototype = {
   },
 };
 
-
 // enum consts
 
 // .source
@@ -305,7 +317,6 @@ AccountConfig.kSourceUser = 1; // user manually entered the config
 AccountConfig.kSourceXML = 2; // config from XML from ISP or Mozilla DB
 AccountConfig.kSourceGuess = 3; // guessConfig()
 AccountConfig.kSourceExchange = 4; // from Microsoft Exchange AutoDiscover
-
 
 /**
  * Some fields on the account config accept placeholders (when coming from XML).
@@ -343,8 +354,10 @@ AccountConfig.kSourceExchange = 4; // from Microsoft Exchange AutoDiscover
 function replaceVariables(account, realname, emailfull, password) {
   sanitize.nonemptystring(emailfull);
   let emailsplit = emailfull.split("@");
-  assert(emailsplit.length == 2,
-         "email address not in expected format: must contain exactly one @");
+  assert(
+    emailsplit.length == 2,
+    "email address not in expected format: must contain exactly one @"
+  );
   let emaillocal = sanitize.nonemptystring(emailsplit[0]);
   let emaildomain = sanitize.hostname(emailsplit[1]);
   sanitize.label(realname);
@@ -360,29 +373,45 @@ function replaceVariables(account, realname, emailfull, password) {
     account.incoming.password = password;
     account.outgoing.password = password; // set member only if auth required?
   }
-  account.incoming.username = _replaceVariable(account.incoming.username,
-                                               otherVariables);
-  account.outgoing.username = _replaceVariable(account.outgoing.username,
-                                               otherVariables);
-  account.incoming.hostname =
-      _replaceVariable(account.incoming.hostname, otherVariables);
-  if (account.outgoing.hostname) // will be null if user picked existing server.
-    account.outgoing.hostname =
-        _replaceVariable(account.outgoing.hostname, otherVariables);
-  account.identity.realname =
-      _replaceVariable(account.identity.realname, otherVariables);
-  account.identity.emailAddress =
-      _replaceVariable(account.identity.emailAddress, otherVariables);
+  account.incoming.username = _replaceVariable(
+    account.incoming.username,
+    otherVariables
+  );
+  account.outgoing.username = _replaceVariable(
+    account.outgoing.username,
+    otherVariables
+  );
+  account.incoming.hostname = _replaceVariable(
+    account.incoming.hostname,
+    otherVariables
+  );
+  if (account.outgoing.hostname) {
+    // will be null if user picked existing server.
+    account.outgoing.hostname = _replaceVariable(
+      account.outgoing.hostname,
+      otherVariables
+    );
+  }
+  account.identity.realname = _replaceVariable(
+    account.identity.realname,
+    otherVariables
+  );
+  account.identity.emailAddress = _replaceVariable(
+    account.identity.emailAddress,
+    otherVariables
+  );
   account.displayName = _replaceVariable(account.displayName, otherVariables);
 }
 
 function _replaceVariable(variable, values) {
   let str = variable;
-  if (typeof(str) != "string")
+  if (typeof str != "string") {
     return str;
+  }
 
-  for (let varname in values)
-      str = str.replace("%" + varname + "%", values[varname]);
+  for (let varname in values) {
+    str = str.replace("%" + varname + "%", values[varname]);
+  }
 
   return str;
 }

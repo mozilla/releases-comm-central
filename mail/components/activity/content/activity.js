@@ -4,7 +4,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
-const activityManager = Cc["@mozilla.org/activity-manager;1"].getService(Ci.nsIActivityManager);
+const activityManager = Cc["@mozilla.org/activity-manager;1"].getService(
+  Ci.nsIActivityManager
+);
 
 var ACTIVITY_LIMIT = 250;
 
@@ -26,7 +28,9 @@ var activityObject = {
    */
   createActivityWidget(type) {
     let builtInName = type.bindingName;
-    let element = document.createXULElement("richlistitem", { is: builtInName });
+    let element = document.createXULElement("richlistitem", {
+      is: builtInName,
+    });
 
     if (element) {
       element.setAttribute("actID", type.id);
@@ -49,8 +53,10 @@ var activityObject = {
    */
   placeActivityElement(element) {
     if (element.isGroup || element.isProcess) {
-      this._activitiesView.insertBefore(element,
-                                        this._activitiesView.firstChild);
+      this._activitiesView.insertBefore(
+        element,
+        this._activitiesView.firstChild
+      );
     } else {
       let next = this._activitiesView.firstChild;
       while (next && (next.isWarning || next.isProcess || next.isGroup)) {
@@ -63,10 +69,15 @@ var activityObject = {
       }
     }
     if (element.isGroup) {
-      this._groupCache.set(element.contextType + ":" + element.contextObj, element);
+      this._groupCache.set(
+        element.contextType + ":" + element.contextObj,
+        element
+      );
     }
     while (this._activitiesView.childNodes.length > ACTIVITY_LIMIT) {
-      this.removeActivityElement(this._activitiesView.lastChild.getAttribute("actID"));
+      this.removeActivityElement(
+        this._activitiesView.lastChild.getAttribute("actID")
+      );
     }
   },
 
@@ -82,18 +93,21 @@ var activityObject = {
       // get |groupingStyle| of the activity. Grouping style determines
       // whether we show the activity standalone or grouped by context in
       // the activity manager window.
-      let isGroupByContext = (aActivity.groupingStyle ==
-                              Ci.nsIActivity
-                                .GROUPING_STYLE_BYCONTEXT);
+      let isGroupByContext =
+        aActivity.groupingStyle == Ci.nsIActivity.GROUPING_STYLE_BYCONTEXT;
 
       // find out if an activity group has already been created for this context
       let group = null;
       if (isGroupByContext) {
-        group = this.getActivityGroupElementByContext(aActivity.contextType,
-                                                 aActivity.contextObj);
+        group = this.getActivityGroupElementByContext(
+          aActivity.contextType,
+          aActivity.contextObj
+        );
         // create a group if it's not already created.
         if (!group) {
-          group = document.createXULElement("richlistitem", { is: "activity-group" });
+          group = document.createXULElement("richlistitem", {
+            is: "activity-group",
+          });
           this._activityLogger.info("created group element");
           // Set the context type and object of the newly created group
           group.contextType = aActivity.contextType;
@@ -175,8 +189,11 @@ var activityObject = {
       this._activitiesView = document.getElementById("activityView");
 
       let activities = activityManager.getActivities();
-      for (let iActivity = Math.max(0, activities.length - ACTIVITY_LIMIT);
-           iActivity < activities.length; iActivity++) {
+      for (
+        let iActivity = Math.max(0, activities.length - ACTIVITY_LIMIT);
+        iActivity < activities.length;
+        iActivity++
+      ) {
         let activity = activities[iActivity];
         this.addActivityElement(activity.id, activity);
       }
@@ -222,11 +239,19 @@ var activityObject = {
       if (!item.isGroup) {
         item.detachFromActivity();
       } else {
-        let actElement = document.getAnonymousElementByAttribute(item, "actID", "*");
+        let actElement = document.getAnonymousElementByAttribute(
+          item,
+          "actID",
+          "*"
+        );
         while (actElement) {
           actElement.detachFromActivity();
           actElement.remove();
-          actElement = document.getAnonymousElementByAttribute(item, "actID", "*");
+          actElement = document.getAnonymousElementByAttribute(
+            item,
+            "actID",
+            "*"
+          );
         }
       }
     }

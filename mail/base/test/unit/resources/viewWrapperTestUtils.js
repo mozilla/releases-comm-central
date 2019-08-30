@@ -2,26 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {
-  DBViewWrapper,
-  IDBViewWrapperListener,
-} = ChromeUtils.import("resource:///modules/DBViewWrapper.jsm");
-var {
-  MailViewManager,
-  MailViewConstants,
-} = ChromeUtils.import("resource:///modules/MailViewManager.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {
-  VirtualFolderHelper,
-} = ChromeUtils.import("resource:///modules/virtualFolderWrapper.js");
-var {
-  toXPCOMArray,
-} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var { DBViewWrapper, IDBViewWrapperListener } = ChromeUtils.import(
+  "resource:///modules/DBViewWrapper.jsm"
+);
+var { MailViewManager, MailViewConstants } = ChromeUtils.import(
+  "resource:///modules/MailViewManager.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { VirtualFolderHelper } = ChromeUtils.import(
+  "resource:///modules/virtualFolderWrapper.js"
+);
+var { toXPCOMArray } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
 
 // Only load these files if we're an XPCShell test. This file is also included by
 // MozMill tests (mail/test/mozmill/shared-modules/test-folder-display-helpers.js).
-if (Cc["@mozilla.org/process/environment;1"].getService(Ci.nsIEnvironment)
-                                            .exists("XPCSHELL_TEST_PROFILE_DIR")) {
+if (
+  Cc["@mozilla.org/process/environment;1"]
+    .getService(Ci.nsIEnvironment)
+    .exists("XPCSHELL_TEST_PROFILE_DIR")
+) {
   /* import-globals-from ../../../../../mailnews/test/resources/logHelper.js */
   load("../../../../mailnews/resources/logHelper.js");
   /* import-globals-from ../../../../../mailnews/test/resources/asyncTestUtils.js */
@@ -47,59 +48,61 @@ function initViewWrapperTestUtils(aInjectionConfig) {
 
   async_test_runner_register_helper(VWTU_testHelper);
   register_message_injection_listener(VWTU_testHelper);
-  if (aInjectionConfig)
+  if (aInjectionConfig) {
     gInbox = configure_message_injection(aInjectionConfig);
-  else
-    gInbox = configure_message_injection({mode: "local"});
+  } else {
+    gInbox = configure_message_injection({ mode: "local" });
+  }
 }
 
 // something less sucky than do_check_true
 function assert_true(aBeTrue, aWhy, aDumpView) {
   if (!aBeTrue) {
-    if (aDumpView)
+    if (aDumpView) {
       dump_view_state(VWTU_testHelper.active_view_wrappers[0]);
+    }
     do_throw(aWhy);
   }
 }
 
 function assert_false(aBeFalse, aWhy, aDumpView) {
   if (aBeFalse) {
-    if (aDumpView)
+    if (aDumpView) {
       dump_view_state(VWTU_testHelper.active_view_wrappers[0]);
+    }
     do_throw(aWhy);
   }
 }
 
 function assert_equals(aA, aB, aWhy, aDumpView) {
   if (aA != aB) {
-    if (aDumpView)
+    if (aDumpView) {
       dump_view_state(VWTU_testHelper.active_view_wrappers[0]);
+    }
     do_throw(aWhy);
   }
 }
 
 function assert_bit_set(aWhat, aBit, aWhy) {
-  if (!(aWhat & aBit))
+  if (!(aWhat & aBit)) {
     do_throw(aWhy);
+  }
 }
 
 function assert_bit_not_set(aWhat, aBit, aWhy) {
-  if (aWhat & aBit)
+  if (aWhat & aBit) {
     do_throw(aWhy);
+  }
 }
 
 var gFakeCommandUpdater = {
-  updateCommandStatus() {
-  },
+  updateCommandStatus() {},
 
-  displayMessageChanged(aFolder, aSubject, aKeywords) {
-  },
+  displayMessageChanged(aFolder, aSubject, aKeywords) {},
 
-  summarizeSelection() {
-  },
+  summarizeSelection() {},
 
-  updateNextMessageAfterDelete() {
-  },
+  updateNextMessageAfterDelete() {},
 };
 
 var gMockViewWrapperListener = {
@@ -107,9 +110,9 @@ var gMockViewWrapperListener = {
   shouldUseMailViews: true,
   shouldDeferMessageDisplayUntilAfterServerConnect: false,
   shouldMarkMessagesReadOnLeavingFolder(aMsgFolder) {
-      return Services.prefs
-                     .getBoolPref("mailnews.mark_message_read." +
-                                  aMsgFolder.server.type);
+    return Services.prefs.getBoolPref(
+      "mailnews.mark_message_read." + aMsgFolder.server.type
+    );
   },
   messenger: null,
   // use no message window!
@@ -118,8 +121,9 @@ var gMockViewWrapperListener = {
   // event handlers
   allMessagesLoadedEventCount: 0,
   onMessagesLoaded(aAll) {
-    if (!aAll)
+    if (!aAll) {
       return;
+    }
     this.allMessagesLoadedEventCount++;
     if (this.pendingLoad) {
       this.pendingLoad = false;
@@ -165,12 +169,12 @@ var VWTU_testHelper = {
       dump("*** " + msg + "\n");
       dump("Pending URIs:\n");
       for (let folderURI in IDBViewWrapperListener.prototype._FNH
-                              ._pendingFolderUriToViewWrapperLists) {
+        ._pendingFolderUriToViewWrapperLists) {
         dump("  " + folderURI + "\n");
       }
       dump("Interested wrappers:\n");
       for (let folderURI in IDBViewWrapperListener.prototype._FNH
-                              ._interestedWrappers) {
+        ._interestedWrappers) {
         dump("  " + folderURI + "\n");
       }
       dump("***\n");
@@ -280,10 +284,14 @@ function async_view_end_update(aViewWrapper) {
  */
 function async_delete_folder(aFolder, aViewWrapper, aDontEmptyTrash) {
   VWTU_testHelper.active_real_folders.splice(
-    VWTU_testHelper.active_real_folders.indexOf(aFolder), 1);
+    VWTU_testHelper.active_real_folders.indexOf(aFolder),
+    1
+  );
   // deleting tries to be helpful and move the folder to the trash...
   aFolder.parent.deleteSubFolders(
-    toXPCOMArray([aFolder], Ci.nsIMutableArray), null);
+    toXPCOMArray([aFolder], Ci.nsIMutableArray),
+    null
+  );
 
   // ugh.  So we have the problem where that move above just triggered a
   //  re-computation of the view... which is an asynchronous operation
@@ -295,16 +303,18 @@ function async_delete_folder(aFolder, aViewWrapper, aDontEmptyTrash) {
   //  normally.  (Because things are single-threaded we are also
   //  guaranteed that we can interrupt it without needing locks or anything.)
   if (aViewWrapper) {
-    if (aViewWrapper.searching)
+    if (aViewWrapper.searching) {
       aViewWrapper.search.session.interruptSearch();
+    }
     aViewWrapper.listener.pendingLoad = true;
   }
 
   // ...so now the stupid folder is in the stupid trash
   // let's empty the trash, then, shall we?
   // (for local folders it doesn't matter who we call this on.)
-  if (!aDontEmptyTrash)
+  if (!aDontEmptyTrash) {
     aFolder.emptyTrash(null, null);
+  }
   return false;
 }
 var delete_folder = async_delete_folder;
@@ -318,12 +328,25 @@ function dump_message_header(aMsgHdr) {
   dump("  Author: " + aMsgHdr.mime2DecodedAuthor + "\n");
   dump("  Recipients: " + aMsgHdr.mime2DecodedRecipients + "\n");
   let junkScore = aMsgHdr.getStringProperty("junkscore");
-  dump("  Read: " + aMsgHdr.isRead + "   Flagged: " + aMsgHdr.isFlagged +
-       "   Killed: " + aMsgHdr.isKilled + "   Junk: " + (junkScore == "100") +
-       "\n");
+  dump(
+    "  Read: " +
+      aMsgHdr.isRead +
+      "   Flagged: " +
+      aMsgHdr.isFlagged +
+      "   Killed: " +
+      aMsgHdr.isKilled +
+      "   Junk: " +
+      (junkScore == "100") +
+      "\n"
+  );
   dump("  Keywords: " + aMsgHdr.getStringProperty("Keywords") + "\n");
-  dump("  Folder: " + aMsgHdr.folder.prettyName +
-       "  Key: " + aMsgHdr.messageKey + "\n");
+  dump(
+    "  Folder: " +
+      aMsgHdr.folder.prettyName +
+      "  Key: " +
+      aMsgHdr.messageKey +
+      "\n"
+  );
 }
 
 var WHITESPACE = "                                              ";
@@ -340,13 +363,15 @@ function dump_view_contents(aViewWrapper) {
     let msgHdr = dbView.getMsgHdrAt(iViewIndex);
 
     let s = WHITESPACE.substr(0, level * 2);
-    if (treeView.isContainer(iViewIndex))
+    if (treeView.isContainer(iViewIndex)) {
       s += treeView.isContainerOpen(iViewIndex) ? "- " : "+ ";
-    else
+    } else {
       s += ". ";
+    }
     // s += treeView.getCellText(iViewIndex, )
-    if (flags & MSG_VIEW_FLAG_DUMMY)
+    if (flags & MSG_VIEW_FLAG_DUMMY) {
       s += "dummy: ";
+    }
     s += dbView.cellTextForColumn(iViewIndex, "subject");
     s += " [" + msgHdr.folder.prettyName + "," + msgHdr.messageKey + "]";
 
@@ -358,8 +383,9 @@ function dump_view_contents(aViewWrapper) {
 function _lookupValueNameInInterface(aValue, aInterface) {
   for (let key in aInterface) {
     let value = aInterface[key];
-    if (value == aValue)
+    if (value == aValue) {
       return key;
+    }
   }
   return "unknown: " + aValue;
 }
@@ -369,22 +395,35 @@ function dump_view_state(aViewWrapper, aDoNotDumpContents) {
     dump("no nsIMsgDBView instance!\n");
     return;
   }
-  if (!aDoNotDumpContents)
+  if (!aDoNotDumpContents) {
     dump_view_contents(aViewWrapper);
+  }
   dump("View: " + aViewWrapper.dbView + "\n");
-  dump("  View Type: " +
-       _lookupValueNameInInterface(aViewWrapper.dbView.viewType,
-                                   Ci.nsMsgViewType) +
-       "   " +
-       "View Flags: " + aViewWrapper.dbView.viewFlags + "\n");
-  dump("  Sort Type: " +
-       _lookupValueNameInInterface(aViewWrapper.dbView.sortType,
-                                   Ci.nsMsgViewSortType) +
-       "   " +
-       "Sort Order: " +
-       _lookupValueNameInInterface(aViewWrapper.dbView.sortOrder,
-                                   Ci.nsMsgViewSortOrder) +
-       "\n");
+  dump(
+    "  View Type: " +
+      _lookupValueNameInInterface(
+        aViewWrapper.dbView.viewType,
+        Ci.nsMsgViewType
+      ) +
+      "   " +
+      "View Flags: " +
+      aViewWrapper.dbView.viewFlags +
+      "\n"
+  );
+  dump(
+    "  Sort Type: " +
+      _lookupValueNameInInterface(
+        aViewWrapper.dbView.sortType,
+        Ci.nsMsgViewSortType
+      ) +
+      "   " +
+      "Sort Order: " +
+      _lookupValueNameInInterface(
+        aViewWrapper.dbView.sortOrder,
+        Ci.nsMsgViewSortOrder
+      ) +
+      "\n"
+  );
 
   dump(aViewWrapper.search.prettyString());
 }
@@ -406,8 +445,9 @@ function dump_view_state(aViewWrapper, aDoNotDumpContents) {
  * @param aViewWrapper The DBViewWrapper whose contents you want to validate.
  */
 function verify_messages_in_view(aSynSets, aViewWrapper) {
-  if (!("length" in aSynSets))
+  if (!("length" in aSynSets)) {
     aSynSets = [aSynSets];
+  }
 
   // - Iterate over all the message sets, retrieving the message header.  Use
   //  this to construct a URI to populate a dictionary mapping.
@@ -433,13 +473,17 @@ function verify_messages_in_view(aSynSets, aViewWrapper) {
       synMessageURIs[uri] = null;
     } else {
       // the view is showing a message that should not be shown, explode.
-      dump("The view is showing the following message header and should not" +
-           " be:\n");
+      dump(
+        "The view is showing the following message header and should not" +
+          " be:\n"
+      );
       dump_message_header(msgHdr);
       dump("View State:\n");
       dump_view_state(aViewWrapper);
-      mark_failure(["view contains header that should not be present!",
-                    msgHdr]);
+      mark_failure([
+        "view contains header that should not be present!",
+        msgHdr,
+      ]);
     }
   }
 
@@ -448,13 +492,17 @@ function verify_messages_in_view(aSynSets, aViewWrapper) {
     let msgHdr = synMessageURIs[uri];
     if (msgHdr != null) {
       dump("************************\n");
-      dump("The view should have included the following message header but" +
-           " did not:\n");
+      dump(
+        "The view should have included the following message header but" +
+          " did not:\n"
+      );
       dump_message_header(msgHdr);
       dump("View State:\n");
       dump_view_state(aViewWrapper);
-      mark_failure(["view does not contain a header that should be present!",
-                    msgHdr]);
+      mark_failure([
+        "view does not contain a header that should be present!",
+        msgHdr,
+      ]);
     }
   }
 }
@@ -487,8 +535,15 @@ function verify_view_level_histogram(aExpectedHisto, aViewWrapper) {
     if (actualHisto[level] != count) {
       dump_view_state(aViewWrapper);
       dump("*******************\n");
-      dump("Expected count for histogram level " + level + " was " + count +
-           " but got " + actualHisto[level] + "\n");
+      dump(
+        "Expected count for histogram level " +
+          level +
+          " was " +
+          count +
+          " but got " +
+          actualHisto[level] +
+          "\n"
+      );
       do_throw("View histogram does not match!");
     }
   }

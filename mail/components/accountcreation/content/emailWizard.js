@@ -17,9 +17,13 @@
 /* import-globals-from util.js */
 /* import-globals-from verifyConfig.js */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {OAuth2Providers} = ChromeUtils.import("resource:///modules/OAuth2Providers.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { OAuth2Providers } = ChromeUtils.import(
+  "resource:///modules/OAuth2Providers.jsm"
+);
 
 var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 var {
@@ -58,7 +62,9 @@ var emailRE = /^[-_a-z0-9\'+*$^&%=~!?{}]+(?:\.[-_a-z0-9\'+*$^&%=~!?{}]+)*@(?:[-a
 if (typeof gEmailWizardLogger == "undefined") {
   var gEmailWizardLogger = Log4Moz.getConfiguredLogger("mail.setup");
   gEmailWizardLogger.level = Log4Moz.Level.Info;
-  gEmailWizardLogger.addAppender(new Log4Moz.ConsoleAppender(new Log4Moz.BasicFormatter())); // browser console
+  gEmailWizardLogger.addAppender(
+    new Log4Moz.ConsoleAppender(new Log4Moz.BasicFormatter())
+  ); // browser console
 }
 
 var gStringsBundle;
@@ -124,7 +130,10 @@ function setText(id, value) {
 
   if (element.localName == "textbox" || element.localName == "label") {
     element.value = value;
-  } else if (element.localName == "description" || element.localName == "hbox") {
+  } else if (
+    element.localName == "description" ||
+    element.localName == "hbox"
+  ) {
     element.textContent = value;
   } else {
     throw new NotReached("XUL element type not supported");
@@ -196,18 +205,26 @@ EmailConfigWizard.prototype = {
     gMessengerBundle = e("bundle_messenger");
     gBrandShortName = e("bundle_brand").getString("brandShortName");
 
-    setLabelFromStringBundle("in-authMethod-password-cleartext",
-        "authPasswordCleartextViaSSL"); // will warn about insecure later
-    setLabelFromStringBundle("in-authMethod-password-encrypted",
-        "authPasswordEncrypted");
+    setLabelFromStringBundle(
+      "in-authMethod-password-cleartext",
+      "authPasswordCleartextViaSSL"
+    ); // will warn about insecure later
+    setLabelFromStringBundle(
+      "in-authMethod-password-encrypted",
+      "authPasswordEncrypted"
+    );
     setLabelFromStringBundle("in-authMethod-kerberos", "authKerberos");
     setLabelFromStringBundle("in-authMethod-ntlm", "authNTLM");
     setLabelFromStringBundle("in-authMethod-oauth2", "authOAuth2");
     setLabelFromStringBundle("out-authMethod-no", "authNo");
-    setLabelFromStringBundle("out-authMethod-password-cleartext",
-        "authPasswordCleartextViaSSL"); // will warn about insecure later
-    setLabelFromStringBundle("out-authMethod-password-encrypted",
-        "authPasswordEncrypted");
+    setLabelFromStringBundle(
+      "out-authMethod-password-cleartext",
+      "authPasswordCleartextViaSSL"
+    ); // will warn about insecure later
+    setLabelFromStringBundle(
+      "out-authMethod-password-encrypted",
+      "authPasswordEncrypted"
+    );
     setLabelFromStringBundle("out-authMethod-kerberos", "authKerberos");
     setLabelFromStringBundle("out-authMethod-ntlm", "authNTLM");
     setLabelFromStringBundle("out-authMethod-oauth2", "authOAuth2");
@@ -233,8 +250,10 @@ EmailConfigWizard.prototype = {
       let server = smtpServers.getNext().QueryInterface(Ci.nsISmtpServer);
       let label = server.displayname;
       let key = server.key;
-      if (MailServices.smtp.defaultServer &&
-          MailServices.smtp.defaultServer.key == key) {
+      if (
+        MailServices.smtp.defaultServer &&
+        MailServices.smtp.defaultServer.key == key
+      ) {
         label += " " + gStringsBundle.getString("default_server_tag");
       }
       menuitem = menulist.appendItem(label, key, ""); // label,value,descr
@@ -392,8 +411,12 @@ EmailConfigWizard.prototype = {
     // In a new profile, the first request to live.thunderbird.net
     // is much slower because of one-time overheads.
     // Let's create some dummy requests to prime the connections.
-    fetch(Services.prefs.getCharPref("mailnews.auto_config_url"), { method: "OPTIONS" });
-    fetch(Services.prefs.getCharPref("mailnews.auto_config.addons_url"), { method: "OPTIONS" });
+    fetch(Services.prefs.getCharPref("mailnews.auto_config_url"), {
+      method: "OPTIONS",
+    });
+    fetch(Services.prefs.getCharPref("mailnews.auto_config.addons_url"), {
+      method: "OPTIONS",
+    });
   },
 
   /**
@@ -410,8 +433,8 @@ EmailConfigWizard.prototype = {
   getConcreteConfig() {
     var result = this._currentConfig.copy();
     replaceVariables(result, this._realname, this._email, this._password);
-    result.rememberPassword = e("remember_password").checked &&
-                              !!this._password;
+    result.rememberPassword =
+      e("remember_password").checked && !!this._password;
     if (result.incoming.addonAccountType) {
       result.incoming.type = result.incoming.addonAccountType;
     }
@@ -480,7 +503,7 @@ EmailConfigWizard.prototype = {
     if (this._realname) {
       this.clearError("realname");
       realnameEl.removeAttribute("error");
-    // bug 638790: don't show realname error until user enter an email address
+      // bug 638790: don't show realname error until user enter an email address
     } else if (this.validateEmailMinimally(this._email)) {
       this.setError("realname", "please_enter_name");
       realnameEl.setAttribute("error", "true");
@@ -532,8 +555,7 @@ EmailConfigWizard.prototype = {
    * and is allowed to proceed to detection step.
    */
   checkStartDone() {
-    if (this.validateEmailMinimally(this._email) &&
-        this._realname) {
+    if (this.validateEmailMinimally(this._email) && this._realname) {
       this._domain = this._email.split("@")[1].toLowerCase();
       _enable("next_button");
     } else {
@@ -569,14 +591,16 @@ EmailConfigWizard.prototype = {
     var call = null;
     var fetch = null;
 
-    var priority = this._abortable = new PriorityOrderAbortable(
-      function(config, call) { // success
+    var priority = (this._abortable = new PriorityOrderAbortable(
+      function(config, call) {
+        // success
         self._abortable = null;
         self.removeStatusLines();
         self.stopSpinner(call.foundMsg);
         self.foundConfig(config);
       },
-      function(e) { // all failed
+      function(e) {
+        // all failed
         self._abortable = null;
         self.removeStatusLines();
         if (e instanceof CancelledException) {
@@ -587,56 +611,79 @@ EmailConfigWizard.prototype = {
         let initialConfig = new AccountConfig();
         self._prefillConfig(initialConfig);
         self._guessConfig(domain, initialConfig);
-      });
+      }
+    ));
     priority.addOneFinishedObserver(call => this.updateStatusLine(call));
 
     try {
       call = priority.addCall();
       this.addStatusLine("looking_up_settings_disk", call);
       call.foundMsg = "found_settings_disk";
-      fetch = fetchConfigFromDisk(domain,
-        call.successCallback(), call.errorCallback());
+      fetch = fetchConfigFromDisk(
+        domain,
+        call.successCallback(),
+        call.errorCallback()
+      );
       call.setAbortable(fetch);
 
       call = priority.addCall();
       this.addStatusLine("looking_up_settings_isp", call);
       call.foundMsg = "found_settings_isp";
-      fetch = fetchConfigFromISP(domain, emailAddress,
-        call.successCallback(), call.errorCallback());
+      fetch = fetchConfigFromISP(
+        domain,
+        emailAddress,
+        call.successCallback(),
+        call.errorCallback()
+      );
       call.setAbortable(fetch);
 
       call = priority.addCall();
       this.addStatusLine("looking_up_settings_db", call);
       call.foundMsg = "found_settings_db";
-      fetch = fetchConfigFromDB(domain,
-        call.successCallback(), call.errorCallback());
+      fetch = fetchConfigFromDB(
+        domain,
+        call.successCallback(),
+        call.errorCallback()
+      );
       call.setAbortable(fetch);
 
       call = priority.addCall();
       this.addStatusLine("looking_up_settings_mx", call);
       // "found_settings_db" is correct. We display the same message for both db and mx cases.
       call.foundMsg = "found_settings_db";
-      fetch = fetchConfigForMX(domain,
-        call.successCallback(), call.errorCallback());
+      fetch = fetchConfigForMX(
+        domain,
+        call.successCallback(),
+        call.errorCallback()
+      );
       call.setAbortable(fetch);
 
       call = priority.addCall();
       this.addStatusLine("looking_up_settings_exchange", call);
       call.foundMsg = "found_settings_exchange";
-      fetch = fetchConfigFromExchange(domain,
-        emailAddress, this._exchangeUsername, this._password,
+      fetch = fetchConfigFromExchange(
+        domain,
+        emailAddress,
+        this._exchangeUsername,
+        this._password,
         call.successCallback(),
         (e, allErrors) => {
           // Must call error callback in any case to stop the discover mode.
           call.errorCallback()(e); // ()(e) is correct
-          if (e.code == 401 || allErrors && allErrors.find(e => e.code == 401)) { // Auth failed
+          if (
+            e.code == 401 ||
+            (allErrors && allErrors.find(e => e.code == 401))
+          ) {
+            // Auth failed
             // Ask user for username.
             _show("usernameRow");
             this.switchToMode("start");
           }
-        });
+        }
+      );
       call.setAbortable(fetch);
-    } catch (e) { // e.g. when entering an invalid domain like "c@c.-com"
+    } catch (e) {
+      // e.g. when entering an invalid domain like "c@c.-com"
       this.showErrorMsg(e);
       this.removeStatusLines();
       this.onStop();
@@ -649,20 +696,34 @@ EmailConfigWizard.prototype = {
   _guessConfig(domain, initialConfig) {
     this.startSpinner("looking_up_settings_guess");
     var self = this;
-    self._abortable = guessConfig(domain,
-      function(type, hostname, port, ssl, done, config) { // progress
-        var msg = hostname + ":" + port + " ssl=" + ssl + " " +
-                  type + ": progress callback";
+    self._abortable = guessConfig(
+      domain,
+      function(type, hostname, port, ssl, done, config) {
+        // progress
+        var msg =
+          hostname +
+          ":" +
+          port +
+          " ssl=" +
+          ssl +
+          " " +
+          type +
+          ": progress callback";
         gEmailWizardLogger.info(msg);
       },
-      function(config) { // success
+      function(config) {
+        // success
         self._abortable = null;
         self.foundConfig(config);
-        self.stopSpinner(Services.io.offline ?
-                         "guessed_settings_offline" : "found_settings_guess");
+        self.stopSpinner(
+          Services.io.offline
+            ? "guessed_settings_offline"
+            : "found_settings_guess"
+        );
         window.sizeToContent();
       },
-      function(e, config) { // guessconfig failed
+      function(e, config) {
+        // guessconfig failed
         if (e instanceof CancelledException) {
           return;
         }
@@ -671,7 +732,9 @@ EmailConfigWizard.prototype = {
         self.showErrorStatus("failed_to_find_settings");
         self.editConfigDetails();
       },
-      initialConfig, "both");
+      initialConfig,
+      "both"
+    );
   },
 
   /**
@@ -680,8 +743,10 @@ EmailConfigWizard.prototype = {
    */
   foundConfig(config) {
     gEmailWizardLogger.info("found config:\n" + config);
-    assert(config instanceof AccountConfig,
-        "BUG: Arg 'config' needs to be an AccountConfig object");
+    assert(
+      config instanceof AccountConfig,
+      "BUG: Arg 'config' needs to be an AccountConfig object"
+    );
 
     this._haveValidConfigForDomain = this._email.split("@")[1];
 
@@ -817,8 +882,9 @@ EmailConfigWizard.prototype = {
   },
 
   updateStatusLine(call) {
-    let line = [...document.querySelectorAll("#status-lines > .status-line")]
-      .find(line => line == call.statusLine);
+    let line = [
+      ...document.querySelectorAll("#status-lines > .status-line"),
+    ].find(line => line == call.statusLine);
     if (!line) {
       return;
     }
@@ -851,8 +917,9 @@ EmailConfigWizard.prototype = {
     var configFilledIn = this.getConcreteConfig();
 
     // IMAP / POP3 server type radio buttons
-    let alternatives = config.incomingAlternatives.filter(alt =>
-        alt.type == "imap" || alt.type == "pop3" || alt.type == "exchange");
+    let alternatives = config.incomingAlternatives.filter(
+      alt => alt.type == "imap" || alt.type == "pop3" || alt.type == "exchange"
+    );
     alternatives.unshift(config.incoming);
     alternatives = alternatives.unique(alt => alt.type);
     if (alternatives.length > 1) {
@@ -888,7 +955,8 @@ EmailConfigWizard.prototype = {
         }
         let installedAddon = config.addons.find(addon => addon.isInstalled);
         if (installedAddon) {
-          config.incoming.addonAccountType = installedAddon.useType.addonAccountType;
+          config.incoming.addonAccountType =
+            installedAddon.useType.addonAccountType;
           _hide("result_addon_intro");
           _hide("result_addon_install");
           _enable("create_button");
@@ -896,7 +964,11 @@ EmailConfigWizard.prototype = {
           _hide("status-area");
           _show("result_addon_intro");
           var msg = gStringsBundle.getString("addon-intro");
-          if (!config.incomingAlternatives.find(alt => (alt.type == "imap" || alt.type == "pop3"))) {
+          if (
+            !config.incomingAlternatives.find(
+              alt => alt.type == "imap" || alt.type == "pop3"
+            )
+          ) {
             msg = gStringsBundle.getString("no-open-protocols") + " " + msg;
           }
           setText("result_addon_intro", msg);
@@ -916,7 +988,9 @@ EmailConfigWizard.prototype = {
             // </hbox>
             let addonE = document.createXULElement("hbox");
             let iconE = document.createXULElement("image");
-            let descrE = document.createXULElement("label", {is: "text-link"}); // must be <label> to be clickable
+            let descrE = document.createXULElement("label", {
+              is: "text-link",
+            }); // must be <label> to be clickable
             let buttonE = document.createXULElement("button");
             addonE.appendChild(iconE);
             addonE.appendChild(descrE);
@@ -934,8 +1008,14 @@ EmailConfigWizard.prototype = {
             buttonE.classList.add("larger-button");
             buttonE.setAttribute("orient", "vertical");
             buttonE.setAttribute("crop", "right");
-            buttonE.setAttribute("label", gStringsBundle.getString("addonInstallShortLabel"));
-            buttonE.setAttribute("oncommand", "gEmailConfigWizard.addonInstall(this.addon);");
+            buttonE.setAttribute(
+              "label",
+              gStringsBundle.getString("addonInstallShortLabel")
+            );
+            buttonE.setAttribute(
+              "oncommand",
+              "gEmailConfigWizard.addonInstall(this.addon);"
+            );
             buttonE.addon = addon;
           }
           _show("result_addon_install");
@@ -955,17 +1035,32 @@ EmailConfigWizard.prototype = {
     var unknownString = gStringsBundle.getString("resultUnknown");
 
     function _makeHostDisplayString(server, descrE) {
-      let type = gStringsBundle.getString(sanitize.translate(server.type,
-        { imap: "resultIMAP", pop3: "resultPOP3", smtp: "resultSMTP", exchange: "resultExchange" }),
-        unknownString);
+      let type = gStringsBundle.getString(
+        sanitize.translate(server.type, {
+          imap: "resultIMAP",
+          pop3: "resultPOP3",
+          smtp: "resultSMTP",
+          exchange: "resultExchange",
+        }),
+        unknownString
+      );
       let domain = Services.eTLD.getBaseDomainFromHost(server.hostname);
-      let host = server.hostname.substr(0, server.hostname.length - domain.length);
-      let port = (isStandardPort(server.port) ? "" : ":" + server.port);
-      let ssl = gStringsBundle.getString(sanitize.translate(server.socketType,
-          { 1: "resultNoEncryption", 2: "resultSSL", 3: "resultSTARTTLS" }),
-          unknownString);
-      let certStatus = gStringsBundle.getString(server.badCert ?
-          "resultSSLCertWeak" : "resultSSLCertOK");
+      let host = server.hostname.substr(
+        0,
+        server.hostname.length - domain.length
+      );
+      let port = isStandardPort(server.port) ? "" : ":" + server.port;
+      let ssl = gStringsBundle.getString(
+        sanitize.translate(server.socketType, {
+          1: "resultNoEncryption",
+          2: "resultSSL",
+          3: "resultSTARTTLS",
+        }),
+        unknownString
+      );
+      let certStatus = gStringsBundle.getString(
+        server.badCert ? "resultSSLCertWeak" : "resultSSLCertOK"
+      );
       // TODO: we should really also display authentication method here.
 
       function _addComponent(text, className) {
@@ -998,11 +1093,14 @@ EmailConfigWizard.prototype = {
       _addComponent(ssl, "ssl");
       _addCertStatus(certStatus, "certStatus");
 
-      if (server.socketType != 2 && server.socketType != 3) { // not SSL/STARTTLS
+      if (server.socketType != 2 && server.socketType != 3) {
+        // not SSL/STARTTLS
         descrE.querySelector(".ssl").classList.add("insecure");
       }
       if (server.badCert) {
-        descrE.parentNode.querySelector(".certStatus").classList.add("insecure");
+        descrE.parentNode
+          .querySelector(".certStatus")
+          .classList.add("insecure");
       }
     }
 
@@ -1016,19 +1114,26 @@ EmailConfigWizard.prototype = {
       }
     } else {
       // setText() would confuse _makeHostDisplayString() when clearing the child nodes
-      e("result-outgoing").appendChild(document.createTextNode(
-        gStringsBundle.getString("resultOutgoingExisting")));
+      e("result-outgoing").appendChild(
+        document.createTextNode(
+          gStringsBundle.getString("resultOutgoingExisting")
+        )
+      );
     }
 
     var usernameResult;
     if (configFilledIn.incoming.username == configFilledIn.outgoing.username) {
-      usernameResult = gStringsBundle.getFormattedString("resultUsernameBoth",
-            [ configFilledIn.incoming.username || unknownString ]);
+      usernameResult = gStringsBundle.getFormattedString("resultUsernameBoth", [
+        configFilledIn.incoming.username || unknownString,
+      ]);
     } else {
       usernameResult = gStringsBundle.getFormattedString(
-            "resultUsernameDifferent",
-            [ configFilledIn.incoming.username || unknownString,
-              configFilledIn.outgoing.username || unknownString ]);
+        "resultUsernameDifferent",
+        [
+          configFilledIn.incoming.username || unknownString,
+          configFilledIn.outgoing.username || unknownString,
+        ]
+      );
     }
     setText("result-username", usernameResult);
 
@@ -1051,8 +1156,9 @@ EmailConfigWizard.prototype = {
     // use selected server (stored as special property on the <radio> node)
     config.incoming = e("result_servertype").selectedItem.configIncoming;
     // remove newly selected server from list of alternatives
-    config.incomingAlternatives = config.incomingAlternatives.filter(alt =>
-      alt != config.incoming);
+    config.incomingAlternatives = config.incomingAlternatives.filter(
+      alt => alt != config.incoming
+    );
     this.displayConfigResult(config);
   },
 
@@ -1070,7 +1176,7 @@ EmailConfigWizard.prototype = {
     this.startSpinner("addonInstallStarted");
 
     try {
-      var installer = this._abortable = new AddonInstaller(addon);
+      var installer = (this._abortable = new AddonInstaller(addon));
       await installer.install();
 
       this._abortable = null;
@@ -1084,7 +1190,6 @@ EmailConfigWizard.prototype = {
       _show("result_addon_install");
     }
   },
-
 
   // ----------------
   // Manual Edit area
@@ -1108,15 +1213,23 @@ EmailConfigWizard.prototype = {
       var inHostnameField = e("incoming_hostname");
       config.incoming.hostname = sanitize.hostname(inHostnameField.value);
       inHostnameField.value = config.incoming.hostname;
-    } catch (e) { gEmailWizardLogger.warn(e); }
+    } catch (e) {
+      gEmailWizardLogger.warn(e);
+    }
     try {
-      config.incoming.port = sanitize.integerRange(e("incoming_port").value,
-                                                   kMinPort, kMaxPort);
+      config.incoming.port = sanitize.integerRange(
+        e("incoming_port").value,
+        kMinPort,
+        kMaxPort
+      );
     } catch (e) {
       config.incoming.port = undefined; // incl. default "Auto"
     }
-    config.incoming.type = sanitize.translate(e("incoming_protocol").value,
-        { 1: "imap", 2: "pop3", 0: null });
+    config.incoming.type = sanitize.translate(e("incoming_protocol").value, {
+      1: "imap",
+      2: "pop3",
+      0: null,
+    });
     config.incoming.socketType = sanitize.integer(e("incoming_ssl").value);
     config.incoming.auth = sanitize.integer(e("incoming_authMethod").value);
     config.incoming.username = e("incoming_username").value;
@@ -1144,8 +1257,11 @@ EmailConfigWizard.prototype = {
         gEmailWizardLogger.warn(e);
       }
       try {
-        config.outgoing.port = sanitize.integerRange(e("outgoing_port").value,
-              kMinPort, kMaxPort);
+        config.outgoing.port = sanitize.integerRange(
+          e("outgoing_port").value,
+          kMinPort,
+          kMaxPort
+        );
       } catch (e) {
         config.outgoing.port = undefined; // incl. default "Auto"
       }
@@ -1207,13 +1323,22 @@ EmailConfigWizard.prototype = {
     assert(config instanceof AccountConfig);
 
     // incoming server
-    e("incoming_protocol").value = sanitize.translate(config.incoming.type,
-                                                { "imap": 1, "pop3": 2 }, 1);
+    e("incoming_protocol").value = sanitize.translate(
+      config.incoming.type,
+      { imap: 1, pop3: 2 },
+      1
+    );
     e("incoming_hostname").value = config.incoming.hostname;
-    e("incoming_ssl").value = sanitize.enum(config.incoming.socketType,
-                                            [ 0, 1, 2, 3 ], 0);
-    e("incoming_authMethod").value = sanitize.enum(config.incoming.auth,
-                                                   [ 0, 3, 4, 5, 6, 10 ], 0);
+    e("incoming_ssl").value = sanitize.enum(
+      config.incoming.socketType,
+      [0, 1, 2, 3],
+      0
+    );
+    e("incoming_authMethod").value = sanitize.enum(
+      config.incoming.auth,
+      [0, 3, 4, 5, 6, 10],
+      0
+    );
     e("incoming_username").value = config.incoming.username;
     if (config.incoming.port) {
       e("incoming_port").value = config.incoming.port;
@@ -1225,10 +1350,16 @@ EmailConfigWizard.prototype = {
     // If the hostname supports OAuth2 and imap is enabled, enable OAuth2.
     let iDetails = OAuth2Providers.getHostnameDetails(config.incoming.hostname);
     if (iDetails) {
-      gEmailWizardLogger.info("OAuth2 details for incoming server " +
-        config.incoming.hostname + " is " + iDetails);
+      gEmailWizardLogger.info(
+        "OAuth2 details for incoming server " +
+          config.incoming.hostname +
+          " is " +
+          iDetails
+      );
     }
-    e("in-authMethod-oauth2").hidden = !(iDetails && e("incoming_protocol").value == 1);
+    e("in-authMethod-oauth2").hidden = !(
+      iDetails && e("incoming_protocol").value == 1
+    );
     if (!e("in-authMethod-oauth2").hidden) {
       config.oauthSettings = {};
       [config.oauthSettings.issuer, config.oauthSettings.scope] = iDetails;
@@ -1243,10 +1374,16 @@ EmailConfigWizard.prototype = {
     // While sameInOutUsernames is true we synchronize values of incoming
     // and outgoing username.
     this.sameInOutUsernames = true;
-    e("outgoing_ssl").value = sanitize.enum(config.outgoing.socketType,
-                                            [ 0, 1, 2, 3 ], 0);
-    e("outgoing_authMethod").value = sanitize.enum(config.outgoing.auth,
-                                                   [ 0, 1, 3, 4, 5, 6, 10 ], 0);
+    e("outgoing_ssl").value = sanitize.enum(
+      config.outgoing.socketType,
+      [0, 1, 2, 3],
+      0
+    );
+    e("outgoing_authMethod").value = sanitize.enum(
+      config.outgoing.auth,
+      [0, 1, 3, 4, 5, 6, 10],
+      0
+    );
     if (config.outgoing.port) {
       e("outgoing_port").value = config.outgoing.port;
     } else {
@@ -1256,8 +1393,12 @@ EmailConfigWizard.prototype = {
     // If the hostname supports OAuth2 and imap is enabled, enable OAuth2.
     let oDetails = OAuth2Providers.getHostnameDetails(config.outgoing.hostname);
     if (oDetails) {
-      gEmailWizardLogger.info("OAuth2 details for outgoing server " +
-        config.outgoing.hostname + " is " + oDetails);
+      gEmailWizardLogger.info(
+        "OAuth2 details for outgoing server " +
+          config.outgoing.hostname +
+          " is " +
+          oDetails
+      );
     }
     e("out-authMethod-oauth2").hidden = !oDetails;
     if (!e("out-authMethod-oauth2").hidden) {
@@ -1298,17 +1439,21 @@ EmailConfigWizard.prototype = {
       if (incoming.type == "imap") {
         if (incoming.socketType == 1 || incoming.socketType == 3) {
           newInPort = 143;
-        } else if (incoming.socketType == 2) { // Normal SSL
+        } else if (incoming.socketType == 2) {
+          // Normal SSL
           newInPort = 993;
-        } else { // auto
+        } else {
+          // auto
           newInPort = autoPort;
         }
       } else if (incoming.type == "pop3") {
         if (incoming.socketType == 1 || incoming.socketType == 3) {
           newInPort = 110;
-        } else if (incoming.socketType == 2) { // Normal SSLs
+        } else if (incoming.socketType == 2) {
+          // Normal SSLs
           newInPort = 995;
-        } else { // auto
+        } else {
+          // auto
           newInPort = autoPort;
         }
       }
@@ -1333,9 +1478,11 @@ EmailConfigWizard.prototype = {
         if (outgoing.port != 25 && outgoing.port != 587) {
           newOutPort = autoPort;
         }
-      } else if (outgoing.socketType == 2) { // Normal SSL
+      } else if (outgoing.socketType == 2) {
+        // Normal SSL
         newOutPort = 465;
-      } else { // auto
+      } else {
+        // auto
         newOutPort = autoPort;
       }
     }
@@ -1353,15 +1500,17 @@ EmailConfigWizard.prototype = {
   adjustIncomingSSLToPort(config) {
     var incoming = config.incoming;
     var newInSocketType = undefined;
-    if (!incoming.port || // auto
-        !isStandardPort(incoming.port)) {
+    if (
+      !incoming.port || // auto
+      !isStandardPort(incoming.port)
+    ) {
       return;
     }
     if (incoming.type == "imap") {
       // normal SSL impossible
       if (incoming.port == 143 && incoming.socketType == 2) {
         newInSocketType = 0; // auto
-      // must be normal SSL
+        // must be normal SSL
       } else if (incoming.port == 993 && incoming.socketType != 2) {
         newInSocketType = 2;
       }
@@ -1369,7 +1518,7 @@ EmailConfigWizard.prototype = {
       // normal SSL impossible
       if (incoming.port == 110 && incoming.socketType == 2) {
         newInSocketType = 0; // auto
-      // must be normal SSL
+        // must be normal SSL
       } else if (incoming.port == 995 && incoming.socketType != 2) {
         newInSocketType = 2;
       }
@@ -1386,15 +1535,19 @@ EmailConfigWizard.prototype = {
   adjustOutgoingSSLToPort(config) {
     var outgoing = config.outgoing;
     var newOutSocketType = undefined;
-    if (!outgoing.port || // auto
-        !isStandardPort(outgoing.port)) {
+    if (
+      !outgoing.port || // auto
+      !isStandardPort(outgoing.port)
+    ) {
       return;
     }
     // normal SSL impossible
-    if ((outgoing.port == 587 || outgoing.port == 25) &&
-        outgoing.socketType == 2) {
+    if (
+      (outgoing.port == 587 || outgoing.port == 25) &&
+      outgoing.socketType == 2
+    ) {
       newOutSocketType = 0; // auto
-    // must be normal SSL
+      // must be normal SSL
     } else if (outgoing.port == 465 && outgoing.socketType != 2) {
       newOutSocketType = 2;
     }
@@ -1452,13 +1605,14 @@ EmailConfigWizard.prototype = {
   },
   onChangedOutAuth(aSelectedAuth) {
     if (aSelectedAuth) {
-      e("outgoing_username").disabled = (aSelectedAuth.id == "out-authMethod-no");
+      e("outgoing_username").disabled = aSelectedAuth.id == "out-authMethod-no";
     }
     this.onChangedManualEdit();
   },
   onInputInUsername() {
-    if (this.sameInOutUsernames)
+    if (this.sameInOutUsernames) {
       e("outgoing_username").value = e("incoming_username").value;
+    }
     this.onChangedManualEdit();
   },
   onInputOutUsername() {
@@ -1533,8 +1687,10 @@ EmailConfigWizard.prototype = {
     this._currentConfig = manualConfig;
     if (manualConfig.isComplete()) {
       this.switchToMode("manual-edit-complete");
-    } else if (!!manualConfig.incoming.hostname &&
-               !!manualConfig.outgoing.hostname) {
+    } else if (
+      !!manualConfig.incoming.hostname &&
+      !!manualConfig.outgoing.hostname
+    ) {
       this.switchToMode("manual-edit-have-hostname");
     } else {
       this.switchToMode("manual-edit");
@@ -1554,7 +1710,10 @@ EmailConfigWizard.prototype = {
     // with a function that spawns the account provisioner, and then
     // close the window.
     this._okCallback = function() {
-      NewMailAccountProvisioner(window.arguments[0].msgWindow, window.arguments[0].extraData);
+      NewMailAccountProvisioner(
+        window.arguments[0].msgWindow,
+        window.arguments[0].extraData
+      );
     };
     window.close();
   },
@@ -1570,29 +1729,38 @@ EmailConfigWizard.prototype = {
     let configFilledIn = this.getConcreteConfig();
 
     if (checkIncomingServerAlreadyExists(configFilledIn)) {
-      alertPrompt(gStringsBundle.getString("error_creating_account"),
-                  gStringsBundle.getString("incoming_server_exists"));
+      alertPrompt(
+        gStringsBundle.getString("error_creating_account"),
+        gStringsBundle.getString("incoming_server_exists")
+      );
       return;
     }
 
-    if (!Services.prompt.confirm(null,
-      gStringsBundle.getString("confirmAdvancedConfigTitle"),
-      gStringsBundle.getString("confirmAdvancedConfigText"))) {
+    if (
+      !Services.prompt.confirm(
+        null,
+        gStringsBundle.getString("confirmAdvancedConfigTitle"),
+        gStringsBundle.getString("confirmAdvancedConfigText")
+      )
+    ) {
       return;
     }
 
     gEmailWizardLogger.info("creating account in backend");
     let newAccount = createAccountInBackend(configFilledIn);
 
-    let existingAccountManager = Services.wm
-        .getMostRecentWindow("mailnews:accountmanager");
+    let existingAccountManager = Services.wm.getMostRecentWindow(
+      "mailnews:accountmanager"
+    );
     if (existingAccountManager) {
       existingAccountManager.focus();
     } else {
-      window.openDialog("chrome://messenger/content/AccountManager.xul",
-                        "AccountManager", "chrome,centerscreen,modal,titlebar",
-                        { server: newAccount.incomingServer,
-                          selectPage: "am-server.xul" });
+      window.openDialog(
+        "chrome://messenger/content/AccountManager.xul",
+        "AccountManager",
+        "chrome,centerscreen,modal,titlebar",
+        { server: newAccount.incomingServer, selectPage: "am-server.xul" }
+      );
     }
     window.close();
   },
@@ -1614,18 +1782,28 @@ EmailConfigWizard.prototype = {
     this.switchToMode("manual-edit-testing");
     // if (this._userPickedOutgoingServer) TODO
     var self = this;
-    this._abortable = guessConfig(this._domain,
-      function(type, hostname, port, ssl, done, config) { // progress
-        gEmailWizardLogger.info("progress callback host " + hostname +
-                                " port " + port + " type " + type);
+    this._abortable = guessConfig(
+      this._domain,
+      function(type, hostname, port, ssl, done, config) {
+        // progress
+        gEmailWizardLogger.info(
+          "progress callback host " +
+            hostname +
+            " port " +
+            port +
+            " type " +
+            type
+        );
       },
-      function(config) { // success
+      function(config) {
+        // success
         self._abortable = null;
         self._fillManualEditFields(config);
         self.switchToMode("manual-edit-complete");
         self.stopSpinner("found_settings_halfmanual");
       },
-      function(e, config) { // guessconfig failed
+      function(e, config) {
+        // guessconfig failed
         if (e instanceof CancelledException) {
           return;
         }
@@ -1635,7 +1813,8 @@ EmailConfigWizard.prototype = {
         self.switchToMode("manual-edit-have-hostname");
       },
       newConfig,
-      newConfig.outgoing.existingServerKey ? "incoming" : "both");
+      newConfig.outgoing.existingServerKey ? "incoming" : "both"
+    );
   },
 
   // -------------------
@@ -1669,16 +1848,20 @@ EmailConfigWizard.prototype = {
 
   onKeyDown(event) {
     let key = event.keyCode;
-    if (key == 27) { // Escape key
+    if (key == 27) {
+      // Escape key
       this.onCancel();
       return true;
     }
-    if (key == 13) { // OK key
+    if (key == 13) {
+      // OK key
       let buttons = [
         { id: "next_button", action: makeCallback(this, this.onNext) },
         { id: "create_button", action: makeCallback(this, this.onCreate) },
-        { id: "half-manual-test_button",
-          action: makeCallback(this, this.onHalfManualTest) },
+        {
+          id: "half-manual-test_button",
+          action: makeCallback(this, this.onHalfManualTest),
+        },
       ];
       for (let button of buttons) {
         button.e = e(button.id);
@@ -1715,15 +1898,22 @@ EmailConfigWizard.prototype = {
       var configFilledIn = this.getConcreteConfig();
       var self = this;
       // If the dialog is not needed, it will go straight to OK callback
-      gSecurityWarningDialog.open(this._currentConfig, configFilledIn, true,
-        function() { // on OK
+      gSecurityWarningDialog.open(
+        this._currentConfig,
+        configFilledIn,
+        true,
+        function() {
+          // on OK
           self.validateAndFinish(configFilledIn);
         },
-        function() { // on cancel, do nothing
-        });
+        function() {
+          // on cancel, do nothing
+        }
+      );
     } catch (ex) {
-      gEmailWizardLogger.error("Error creating account.  ex=" + ex +
-                               ", stack=" + ex.stack);
+      gEmailWizardLogger.error(
+        "Error creating account.  ex=" + ex + ", stack=" + ex.stack
+      );
       alertPrompt(gStringsBundle.getString("error_creating_account"), ex);
     }
   },
@@ -1733,8 +1923,10 @@ EmailConfigWizard.prototype = {
     var configFilledIn = this.getConcreteConfig();
 
     if (checkIncomingServerAlreadyExists(configFilledIn)) {
-      alertPrompt(gStringsBundle.getString("error_creating_account"),
-                  gStringsBundle.getString("incoming_server_exists"));
+      alertPrompt(
+        gStringsBundle.getString("error_creating_account"),
+        gStringsBundle.getString("incoming_server_exists")
+      );
       return;
     }
 
@@ -1764,25 +1956,31 @@ EmailConfigWizard.prototype = {
       // Find out what it was and fix it.
       // concreteConfig.source == AccountConfig.kSourceGuess,
       this._parentMsgWindow,
-      function(successfulConfig) { // success
-        self.stopSpinner(successfulConfig.incoming.password ?
-                         "password_ok" : null);
+      function(successfulConfig) {
+        // success
+        self.stopSpinner(
+          successfulConfig.incoming.password ? "password_ok" : null
+        );
 
         // the auth might have changed, so we
         // should back-port it to the current config.
         self._currentConfig.incoming.auth = successfulConfig.incoming.auth;
         self._currentConfig.outgoing.auth = successfulConfig.outgoing.auth;
-        self._currentConfig.incoming.username = successfulConfig.incoming.username;
-        self._currentConfig.outgoing.username = successfulConfig.outgoing.username;
+        self._currentConfig.incoming.username =
+          successfulConfig.incoming.username;
+        self._currentConfig.outgoing.username =
+          successfulConfig.outgoing.username;
 
         // We loaded dynamic client registration, fill this data back in to the
         // config set.
-        if (successfulConfig.oauthSettings)
+        if (successfulConfig.oauthSettings) {
           self._currentConfig.oauthSettings = successfulConfig.oauthSettings;
+        }
 
         self.finish(configFilledIn);
       },
-      function(e) { // failed
+      function(e) {
+        // failed
         // Could be a wrong password, but there are 1000 other
         // reasons why this failed. Only the backend knows.
         // If we got no message, then something other than VerifyLogon failed.
@@ -1794,7 +1992,8 @@ EmailConfigWizard.prototype = {
         _enable("create_button");
         // hidden in non-manual mode, so it's fine to enable
         _enable("half-manual-test_button");
-      });
+      }
+    );
   },
 
   finish(concreteConfig) {
@@ -1811,22 +2010,24 @@ EmailConfigWizard.prototype = {
 var gEmailConfigWizard = new EmailConfigWizard();
 
 function serverMatches(a, b) {
-  return a.type == b.type &&
-         a.hostname == b.hostname &&
-         a.port == b.port &&
-         a.socketType == b.socketType &&
-         a.auth == b.auth;
+  return (
+    a.type == b.type &&
+    a.hostname == b.hostname &&
+    a.port == b.port &&
+    a.socketType == b.socketType &&
+    a.auth == b.auth
+  );
 }
 
 var _gStandardPorts = {};
-_gStandardPorts.imap = [ 143, 993 ];
-_gStandardPorts.pop3 = [ 110, 995 ];
-_gStandardPorts.smtp = [ 587, 25, 465 ]; // order matters
-_gStandardPorts.exchange = [ 443 ];
+_gStandardPorts.imap = [143, 993];
+_gStandardPorts.pop3 = [110, 995];
+_gStandardPorts.smtp = [587, 25, 465]; // order matters
+_gStandardPorts.exchange = [443];
 var _gAllStandardPorts = _gStandardPorts.smtp
-    .concat(_gStandardPorts.imap)
-    .concat(_gStandardPorts.pop3)
-    .concat(_gStandardPorts.exchange);
+  .concat(_gStandardPorts.imap)
+  .concat(_gStandardPorts.pop3)
+  .concat(_gStandardPorts.exchange);
 
 function isStandardPort(port) {
   return _gAllStandardPorts.includes(port);
@@ -1855,10 +2056,10 @@ SecurityWarningDialog.prototype = {
    */
   _acknowledged: null,
 
-  _inSecurityBad:  0x0001,
-  _inCertBad:      0x0010,
+  _inSecurityBad: 0x0001,
+  _inCertBad: 0x0010,
   _outSecurityBad: 0x0100,
-  _outCertBad:     0x1000,
+  _outCertBad: 0x1000,
 
   /**
    * Checks whether we need to warn about this config.
@@ -1886,27 +2087,33 @@ SecurityWarningDialog.prototype = {
     assert(configSchema.isComplete());
     assert(configFilledIn.isComplete());
 
-    var incomingBad = ((configFilledIn.incoming.socketType > 1) ? 0 : this._inSecurityBad) |
-                      ((configFilledIn.incoming.badCert) ? this._inCertBad : 0);
+    var incomingBad =
+      (configFilledIn.incoming.socketType > 1 ? 0 : this._inSecurityBad) |
+      (configFilledIn.incoming.badCert ? this._inCertBad : 0);
     var outgoingBad = 0;
     if (configFilledIn.outgoing.addThisServer) {
-      outgoingBad = ((configFilledIn.outgoing.socketType > 1) ? 0 : this._outSecurityBad) |
-                    ((configFilledIn.outgoing.badCert) ? this._outCertBad : 0);
+      outgoingBad =
+        (configFilledIn.outgoing.socketType > 1 ? 0 : this._outSecurityBad) |
+        (configFilledIn.outgoing.badCert ? this._outCertBad : 0);
     }
 
     if (incomingBad > 0) {
-      if (this._acknowledged.some(
-          function(ackServer) {
-            return serverMatches(ackServer, configFilledIn.incoming);
-          }))
+      if (
+        this._acknowledged.some(function(ackServer) {
+          return serverMatches(ackServer, configFilledIn.incoming);
+        })
+      ) {
         incomingBad = 0;
+      }
     }
     if (outgoingBad > 0) {
-      if (this._acknowledged.some(
-          function(ackServer) {
-            return serverMatches(ackServer, configFilledIn.outgoing);
-          }))
+      if (
+        this._acknowledged.some(function(ackServer) {
+          return serverMatches(ackServer, configFilledIn.outgoing);
+        })
+      ) {
         outgoingBad = 0;
+      }
     }
 
     return incomingBad | outgoingBad;
@@ -1931,13 +2138,12 @@ SecurityWarningDialog.prototype = {
    * @param cancalCallback {function()}
    *      Called when the user decided to heed the warnings and not approve.
    */
-  open(configSchema, configFilledIn, onlyIfNeeded,
-                  okCallback, cancelCallback) {
-    assert(typeof(okCallback) == "function");
-    assert(typeof(cancelCallback) == "function");
+  open(configSchema, configFilledIn, onlyIfNeeded, okCallback, cancelCallback) {
+    assert(typeof okCallback == "function");
+    assert(typeof cancelCallback == "function");
     // needed() also checks the parameters
     var needed = this.needed(configSchema, configFilledIn);
-    if ((needed == 0) && onlyIfNeeded) {
+    if (needed == 0 && onlyIfNeeded) {
       okCallback();
       return;
     }
@@ -1960,39 +2166,65 @@ SecurityWarningDialog.prototype = {
     e("outgoing_details").setAttribute("collapsed", true);
 
     if (needed & this._inSecurityBad) {
-      setText("warning_incoming", gStringsBundle.getFormattedString(
-          "cleartext_warning", [incoming.hostname]));
-      setText("incoming_details", gStringsBundle.getString(
-          "cleartext_details"));
+      setText(
+        "warning_incoming",
+        gStringsBundle.getFormattedString("cleartext_warning", [
+          incoming.hostname,
+        ])
+      );
+      setText(
+        "incoming_details",
+        gStringsBundle.getString("cleartext_details")
+      );
       _show("incoming_box");
     } else if (needed & this._inCertBad) {
-      setText("warning_incoming", gStringsBundle.getFormattedString(
-          "selfsigned_warning", [incoming.hostname]));
-      setText("incoming_details", gStringsBundle.getString(
-          "selfsigned_details"));
+      setText(
+        "warning_incoming",
+        gStringsBundle.getFormattedString("selfsigned_warning", [
+          incoming.hostname,
+        ])
+      );
+      setText(
+        "incoming_details",
+        gStringsBundle.getString("selfsigned_details")
+      );
       _show("incoming_box");
     } else {
       _hide("incoming_box");
     }
 
     if (needed & this._outSecurityBad) {
-      setText("warning_outgoing", gStringsBundle.getFormattedString(
-          "cleartext_warning", [outgoing.hostname]));
-      setText("outgoing_details", gStringsBundle.getString(
-          "cleartext_details"));
+      setText(
+        "warning_outgoing",
+        gStringsBundle.getFormattedString("cleartext_warning", [
+          outgoing.hostname,
+        ])
+      );
+      setText(
+        "outgoing_details",
+        gStringsBundle.getString("cleartext_details")
+      );
       _show("outgoing_box");
     } else if (needed & this._outCertBad) {
-      setText("warning_outgoing", gStringsBundle.getFormattedString(
-          "selfsigned_warning", [outgoing.hostname]));
-      setText("outgoing_details", gStringsBundle.getString(
-          "selfsigned_details"));
+      setText(
+        "warning_outgoing",
+        gStringsBundle.getFormattedString("selfsigned_warning", [
+          outgoing.hostname,
+        ])
+      );
+      setText(
+        "outgoing_details",
+        gStringsBundle.getString("selfsigned_details")
+      );
       _show("outgoing_box");
     } else {
       _hide("outgoing_box");
     }
     _show("acknowledge_warning");
-    assert(!e("incoming_box").hidden || !e("outgoing_box").hidden,
-           "warning dialog shown for unknown reason");
+    assert(
+      !e("incoming_box").hidden || !e("outgoing_box").hidden,
+      "warning dialog shown for unknown reason"
+    );
 
     window.sizeToContent();
   },
@@ -2077,32 +2309,46 @@ SecurityWarningDialog.prototype = {
    * sync function: blocks until the dialog is closed.
    */
   showCertOverrideDialog(config) {
-    if (config.incoming.socketType > 1 && // SSL or STARTTLS
-        config.incoming.badCert) {
+    if (
+      config.incoming.socketType > 1 && // SSL or STARTTLS
+      config.incoming.badCert
+    ) {
       let params = {
         exceptionAdded: false,
         prefetchCert: true,
         location: config.incoming.targetSite,
       };
-      window.openDialog("chrome://pippki/content/exceptionDialog.xul",
-                        "", "chrome,centerscreen,modal", params);
-      if (params.exceptionAdded) { // set by dialog
+      window.openDialog(
+        "chrome://pippki/content/exceptionDialog.xul",
+        "",
+        "chrome,centerscreen,modal",
+        params
+      );
+      if (params.exceptionAdded) {
+        // set by dialog
         config.incoming.badCert = false;
       } else {
         return false;
       }
     }
     if (!config.outgoing.existingServerKey) {
-      if (config.outgoing.socketType > 1 && // SSL or STARTTLS
-          config.outgoing.badCert) {
+      if (
+        config.outgoing.socketType > 1 && // SSL or STARTTLS
+        config.outgoing.badCert
+      ) {
         let params = {
           exceptionAdded: false,
           prefetchCert: true,
           location: config.outgoing.targetSite,
         };
-        window.openDialog("chrome://pippki/content/exceptionDialog.xul",
-                          "", "chrome,centerscreen,modal", params);
-        if (params.exceptionAdded) { // set by dialog
+        window.openDialog(
+          "chrome://pippki/content/exceptionDialog.xul",
+          "",
+          "chrome,centerscreen,modal",
+          params
+        );
+        if (params.exceptionAdded) {
+          // set by dialog
           config.outgoing.badCert = false;
         } else {
           return false;

@@ -101,7 +101,9 @@ this.windows = class extends ExtensionAPI {
         get(windowId, getInfo) {
           let window = windowTracker.getWindow(windowId, context);
           if (!window) {
-            return Promise.reject({ message: `Invalid window ID: ${windowId}` });
+            return Promise.reject({
+              message: `Invalid window ID: ${windowId}`,
+            });
           }
           return Promise.resolve(windowManager.convert(window, getInfo));
         },
@@ -119,27 +121,42 @@ this.windows = class extends ExtensionAPI {
         getAll(getInfo) {
           let doNotCheckTypes = !getInfo || !getInfo.windowTypes;
 
-          let windows = Array.from(windowManager.getAll(), win => win.convert(getInfo))
-            .filter(win => doNotCheckTypes || getInfo.windowTypes.includes(win.type));
+          let windows = Array.from(windowManager.getAll(), win =>
+            win.convert(getInfo)
+          ).filter(
+            win => doNotCheckTypes || getInfo.windowTypes.includes(win.type)
+          );
           return Promise.resolve(windows);
         },
 
         create(createData) {
-          let needResize = (createData.left !== null || createData.top !== null ||
-                            createData.width !== null || createData.height !== null);
+          let needResize =
+            createData.left !== null ||
+            createData.top !== null ||
+            createData.width !== null ||
+            createData.height !== null;
 
           if (needResize) {
             if (createData.state && createData.state != "normal") {
-              return Promise.reject({ message: `"state": "${createData.state}" may not be combined with "left", "top", "width", or "height"` });
+              return Promise.reject({
+                message: `"state": "${
+                  createData.state
+                }" may not be combined with "left", "top", "width", or "height"`,
+              });
             }
             createData.state = "normal";
           }
 
-          let createWindowArgs = (urls) => {
-            let args = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+          let createWindowArgs = urls => {
+            let args = Cc["@mozilla.org/array;1"].createInstance(
+              Ci.nsIMutableArray
+            );
             let actionData = {
               action: "open",
-              tabs: urls.map(url => ({ tabType: "contentTab", tabParams: { contentPage: url } })),
+              tabs: urls.map(url => ({
+                tabType: "contentTab",
+                tabParams: { contentPage: url },
+              })),
             };
             actionData.wrappedJSObject = actionData;
             args.appendElement(null);
@@ -148,18 +165,29 @@ this.windows = class extends ExtensionAPI {
           };
 
           let window;
-          let wantNormalWindow = createData.type === null || createData.type == "normal";
+          let wantNormalWindow =
+            createData.type === null || createData.type == "normal";
           let features = ["chrome"];
           if (wantNormalWindow) {
             features.push("dialog=no", "all", "status", "toolbar");
 
             if (createData.incognito) {
               // A private mode mail window isn't useful for Thunderbird
-              return Promise.reject({ message: "`incognito` is currently not supported for normal windows" });
+              return Promise.reject({
+                message:
+                  "`incognito` is currently not supported for normal windows",
+              });
             }
           } else {
             // All other types create "popup"-type windows by default.
-            features.push("dialog", "resizable", "minimizable", "centerscreen", "titlebar", "close");
+            features.push(
+              "dialog",
+              "resizable",
+              "minimizable",
+              "centerscreen",
+              "titlebar",
+              "close"
+            );
 
             if (createData.incognito) {
               features.push("private");
@@ -168,27 +196,48 @@ this.windows = class extends ExtensionAPI {
 
           if (createData.tabId) {
             if (createData.url) {
-              return Promise.reject({ message: "`tabId` may not be used in conjunction with `url`" });
+              return Promise.reject({
+                message: "`tabId` may not be used in conjunction with `url`",
+              });
             }
 
             if (createData.allowScriptsToClose) {
-              return Promise.reject({ message: "`tabId` may not be used in conjunction with `allowScriptsToClose`" });
+              return Promise.reject({
+                message:
+                  "`tabId` may not be used in conjunction with `allowScriptsToClose`",
+              });
             }
 
             let nativeTabInfo = tabTracker.getTab(createData.tabId);
-            let tabmail = getTabBrowser(nativeTabInfo).ownerDocument.getElementById("tabmail");
+            let tabmail = getTabBrowser(
+              nativeTabInfo
+            ).ownerDocument.getElementById("tabmail");
             let targetType = wantNormalWindow ? null : "popup";
             window = tabmail.replaceTabWithWindow(nativeTabInfo, targetType)[0];
           } else if (createData.url) {
-            let uris = Array.isArray(createData.url) ? createData.url : [createData.url];
+            let uris = Array.isArray(createData.url)
+              ? createData.url
+              : [createData.url];
             let args = createWindowArgs(uris);
-            window = Services.ww.openWindow(null, "chrome://messenger/content/", "_blank", features.join(","), args);
+            window = Services.ww.openWindow(
+              null,
+              "chrome://messenger/content/",
+              "_blank",
+              features.join(","),
+              args
+            );
           } else {
             let args = null;
             if (!wantNormalWindow) {
               args = createWindowArgs(["about:blank"]);
             }
-            window = Services.ww.openWindow(null, "chrome://messenger/content/", "_blank", features.join(","), args);
+            window = Services.ww.openWindow(
+              null,
+              "chrome://messenger/content/",
+              "_blank",
+              features.join(","),
+              args
+            );
           }
 
           let win = windowManager.getWrapper(window);
@@ -197,11 +246,23 @@ this.windows = class extends ExtensionAPI {
           // TODO: focused, type
 
           return new Promise(resolve => {
-            window.addEventListener("load", () => {
-              resolve();
-            }, { once: true });
+            window.addEventListener(
+              "load",
+              () => {
+                resolve();
+              },
+              { once: true }
+            );
           }).then(() => {
-            if (["minimized", "fullscreen", "docked", "normal", "maximized"].includes(createData.state)) {
+            if (
+              [
+                "minimized",
+                "fullscreen",
+                "docked",
+                "normal",
+                "maximized",
+              ].includes(createData.state)
+            ) {
               win.state = createData.state;
             }
             return win.convert({ populate: true });
@@ -210,9 +271,17 @@ this.windows = class extends ExtensionAPI {
 
         update(windowId, updateInfo) {
           if (updateInfo.state && updateInfo.state != "normal") {
-            if (updateInfo.left !== null || updateInfo.top !== null ||
-                updateInfo.width !== null || updateInfo.height !== null) {
-              return Promise.reject({ message: `"state": "${updateInfo.state}" may not be combined with "left", "top", "width", or "height"` });
+            if (
+              updateInfo.left !== null ||
+              updateInfo.top !== null ||
+              updateInfo.width !== null ||
+              updateInfo.height !== null
+            ) {
+              return Promise.reject({
+                message: `"state": "${
+                  updateInfo.state
+                }" may not be combined with "left", "top", "width", or "height"`,
+              });
             }
           }
 

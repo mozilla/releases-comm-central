@@ -10,10 +10,16 @@
 
 var MODULE_NAME = "test-instrument-setup";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "keyboard-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "keyboard-helpers",
+];
 
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var user = {
   name: "Roger Sterling",
@@ -21,7 +27,6 @@ var user = {
   incomingHost: "testin.example.com",
   outgoingHost: "testout.example.com",
 };
-
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
@@ -51,9 +56,12 @@ function test_mail_account_setup() {
   awc.e("next_button").click();
 
   // XXX: This should probably use a notification, once we fix bug 561143.
-  awc.waitFor(() => awc.window.gEmailConfigWizard._currentConfig != null,
-              "Timeout waiting for current config to become non-null",
-              8000, 600);
+  awc.waitFor(
+    () => awc.window.gEmailConfigWizard._currentConfig != null,
+    "Timeout waiting for current config to become non-null",
+    8000,
+    600
+  );
   plan_for_window_close(awc);
   awc.e("create_button").click();
 
@@ -61,15 +69,20 @@ function test_mail_account_setup() {
   wait_for_window_close();
 
   // we expect to have accountAdded and smtpServerAdded events.
-  if (!(events.accountAdded.data))
+  if (!events.accountAdded.data) {
     throw new Error("failed to add an account");
-  else if (!(events.smtpServerAdded.data))
+  } else if (!events.smtpServerAdded.data) {
     throw new Error("failed to add an smtp server");
+  }
 }
 
 // Remove the accounts we added.
 function tearDownModule(module) {
-  let incomingServer = MailServices.accounts.FindServer("roger.sterling", user.incomingHost, "pop3");
+  let incomingServer = MailServices.accounts.FindServer(
+    "roger.sterling",
+    user.incomingHost,
+    "pop3"
+  );
   assert_equals(incomingServer.hostName, user.incomingHost);
   let account = MailServices.accounts.FindAccountForServer(incomingServer);
 

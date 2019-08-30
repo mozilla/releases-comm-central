@@ -5,16 +5,26 @@
 
 this.EXPORTED_SYMBOLS = ["glodaIndexerActivity"];
 
-var nsActProcess = Components.Constructor("@mozilla.org/activity-process;1",
-                                            "nsIActivityProcess", "init");
-var nsActEvent   = Components.Constructor("@mozilla.org/activity-event;1",
-                                            "nsIActivityEvent", "init");
+var nsActProcess = Components.Constructor(
+  "@mozilla.org/activity-process;1",
+  "nsIActivityProcess",
+  "init"
+);
+var nsActEvent = Components.Constructor(
+  "@mozilla.org/activity-event;1",
+  "nsIActivityEvent",
+  "init"
+);
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { PluralForm } = ChromeUtils.import(
+  "resource://gre/modules/PluralForm.jsm"
+);
 const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 const { Gloda } = ChromeUtils.import("resource:///modules/gloda/public.js");
-const { GlodaIndexer } = ChromeUtils.import("resource:///modules/gloda/indexer.js");
+const { GlodaIndexer } = ChromeUtils.import(
+  "resource:///modules/gloda/indexer.js"
+);
 
 /**
  * Gloda message indexer feedback.
@@ -22,19 +32,21 @@ const { GlodaIndexer } = ChromeUtils.import("resource:///modules/gloda/indexer.j
 var glodaIndexerActivity = {
   get log() {
     delete this.log;
-    return this.log = Log4Moz.getConfiguredLogger("glodaIndexerActivity");
+    return (this.log = Log4Moz.getConfiguredLogger("glodaIndexerActivity"));
   },
 
   get activityMgr() {
     delete this.activityMgr;
-    return this.activityMgr = Cc["@mozilla.org/activity-manager;1"]
-                                .getService(Ci.nsIActivityManager);
+    return (this.activityMgr = Cc["@mozilla.org/activity-manager;1"].getService(
+      Ci.nsIActivityManager
+    ));
   },
 
   get bundle() {
     delete this.bundle;
-    return this.bundle = Services.strings
-      .createBundle("chrome://messenger/locale/activity.properties");
+    return (this.bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/activity.properties"
+    ));
   },
 
   getString(stringName) {
@@ -80,45 +92,49 @@ var glodaIndexerActivity = {
     this.log.debug("Gloda Indexer Item: " + aItemNumber + "/" + aTotalItemNum);
 
     if (aStatus == Gloda.kIndexerIdle) {
-      if (this.currentJob)
+      if (this.currentJob) {
         this.onJobCompleted();
+      }
     } else {
       // If the job numbers have changed, the indexer has finished the job
       // we were previously tracking, so convert the corresponding process
       // into an event and start a new process to track the new job.
-      if (this.currentJob && aJobNumber != this.currentJob.jobNumber)
+      if (this.currentJob && aJobNumber != this.currentJob.jobNumber) {
         this.onJobCompleted();
+      }
 
       // If we aren't tracking a job, either this is the first time we've been
       // called or the last job we were tracking was completed.  Either way,
       // start tracking the new job.
-      if (!this.currentJob)
+      if (!this.currentJob) {
         this.onJobBegun(aFolder, aJobNumber, aTotalItemNum, aJobType);
+      }
 
       // If there is only one item, don't bother creating a progress item.
-      if (aTotalItemNum != 1)
+      if (aTotalItemNum != 1) {
         this.onJobProgress(aFolder, aItemNumber, aTotalItemNum);
+      }
     }
   },
 
   onJobBegun(aFolder, aJobNumber, aTotalItemNum, aJobType) {
-    let displayText =
-      aFolder ? this.getString("indexingFolder").replace("#1", aFolder)
-              : this.getString("indexing");
+    let displayText = aFolder
+      ? this.getString("indexingFolder").replace("#1", aFolder)
+      : this.getString("indexing");
     let process = new nsActProcess(displayText, Gloda);
 
-    process.iconClass   = "indexMail";
+    process.iconClass = "indexMail";
     process.contextType = "account";
-    process.contextObj  = aFolder;
+    process.contextObj = aFolder;
     process.addSubject(aFolder);
 
     this.currentJob = {
-      folder:       aFolder,
-      jobNumber:    aJobNumber,
+      folder: aFolder,
+      jobNumber: aJobNumber,
       process,
-      startTime:    new Date(),
+      startTime: new Date(),
       totalItemNum: aTotalItemNum,
-      jobType:      aJobType,
+      jobType: aJobType,
     };
 
     this.activityMgr.addActivity(process);
@@ -134,22 +150,25 @@ var glodaIndexerActivity = {
 
     let statusText;
     if (aTotalItemNum == null) {
-      statusText = aFolder ? this.getString("indexingFolderStatusVague")
-                               .replace("#1", aFolder)
-                           : this.getString("indexingStatusVague");
+      statusText = aFolder
+        ? this.getString("indexingFolderStatusVague").replace("#1", aFolder)
+        : this.getString("indexingStatusVague");
     } else {
       let percentComplete =
-        aTotalItemNum == 0 ? 100 : parseInt(aItemNumber / aTotalItemNum * 100);
+        aTotalItemNum == 0
+          ? 100
+          : parseInt((aItemNumber / aTotalItemNum) * 100);
       // Note: we must replace the folder name placeholder last; otherwise,
       // if the name happens to contain another one of the placeholders, we'll
       // hork the name when replacing it.
-      statusText = this.getString(aFolder ? "indexingFolderStatusExact"
-                                          : "indexingStatusExact");
+      statusText = this.getString(
+        aFolder ? "indexingFolderStatusExact" : "indexingStatusExact"
+      );
       statusText = PluralForm.get(aTotalItemNum, statusText)
-                     .replace("#1", aItemNumber + 1)
-                     .replace("#2", aTotalItemNum)
-                     .replace("#3", percentComplete)
-                     .replace("#4", aFolder);
+        .replace("#1", aItemNumber + 1)
+        .replace("#2", aTotalItemNum)
+        .replace("#3", percentComplete)
+        .replace("#4", aFolder);
     }
 
     this.currentJob.process.setProgress(statusText, aItemNumber, aTotalItemNum);
@@ -172,41 +191,51 @@ var glodaIndexerActivity = {
     // that aren't useful enough to justify their presence in the manager.
     // TODO: Aggregate event-driven indexing jobs into batches significant
     // enough for us to create activity events for them.
-    if (this.currentJob.jobType == "folder" &&
-        this.currentJob.folder && totalItemNum > 0) {
+    if (
+      this.currentJob.jobType == "folder" &&
+      this.currentJob.folder &&
+      totalItemNum > 0
+    ) {
       // Note: we must replace the folder name placeholder last; otherwise,
       // if the name happens to contain another one of the placeholders, we'll
       // hork the name when replacing it.
-      let displayText = PluralForm.get(totalItemNum,
-                                       this.getString("indexedFolder"))
-                          .replace("#1", totalItemNum)
-                          .replace("#2", this.currentJob.folder);
+      let displayText = PluralForm.get(
+        totalItemNum,
+        this.getString("indexedFolder")
+      )
+        .replace("#1", totalItemNum)
+        .replace("#2", this.currentJob.folder);
 
       let endTime = new Date();
-      let secondsElapsed = parseInt((endTime - this.currentJob.startTime) / 1000);
+      let secondsElapsed = parseInt(
+        (endTime - this.currentJob.startTime) / 1000
+      );
 
-      let statusText = PluralForm.get(secondsElapsed,
-                                      this.getString("indexedFolderStatus"))
-                         .replace("#1", secondsElapsed);
+      let statusText = PluralForm.get(
+        secondsElapsed,
+        this.getString("indexedFolderStatus")
+      ).replace("#1", secondsElapsed);
 
-      let event = new nsActEvent(displayText,
-                                 Gloda,
-                                 statusText,
-                                 this.currentJob.startTime,
-                                 endTime);
+      let event = new nsActEvent(
+        displayText,
+        Gloda,
+        statusText,
+        this.currentJob.startTime,
+        endTime
+      );
       event.contextType = this.currentJob.contextType;
       event.contextObj = this.currentJob.contextObj;
-      event.iconClass   = "indexMail";
+      event.iconClass = "indexMail";
 
       // Transfer subjects.
       let subjects = this.currentJob.process.getSubjects({});
-      for (let subject of subjects)
+      for (let subject of subjects) {
         event.addSubject(subject);
+      }
 
       this.activityMgr.addActivity(event);
     }
 
     this.currentJob = null;
   },
-
 };

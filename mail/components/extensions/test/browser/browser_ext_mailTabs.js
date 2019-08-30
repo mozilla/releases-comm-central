@@ -63,7 +63,10 @@ add_task(async function test_update() {
     }
 
     async function checkCurrent(expected) {
-      let [current] = await browser.mailTabs.query({ active: true, currentWindow: true });
+      let [current] = await browser.mailTabs.query({
+        active: true,
+        currentWindow: true,
+      });
       assertDeepEqual(expected, current);
     }
 
@@ -96,13 +99,19 @@ add_task(async function test_update() {
 
     state.sortOrder = "descending";
     for (let value of ["date", "subject", "author"]) {
-      await browser.mailTabs.update({ sortType: value, sortOrder: "descending" });
+      await browser.mailTabs.update({
+        sortType: value,
+        sortOrder: "descending",
+      });
       state.sortType = value;
       await awaitMessage("checkRealSort", state);
     }
     state.sortOrder = "ascending";
     for (let value of ["author", "subject", "date"]) {
-      await browser.mailTabs.update({ sortType: value, sortOrder: "ascending" });
+      await browser.mailTabs.update({
+        sortType: value,
+        sortOrder: "ascending",
+      });
       state.sortType = value;
       await awaitMessage("checkRealSort", state);
     }
@@ -134,19 +143,25 @@ add_task(async function test_update() {
     manifest: { permissions: ["accountsRead", "messagesRead"] },
   });
 
-  extension.onMessage("checkRealLayout", (expected) => {
+  extension.onMessage("checkRealLayout", expected => {
     let intValue = ["standard", "wide", "vertical"].indexOf(expected.layout);
     is(Services.prefs.getIntPref("mail.pane_config.dynamic"), intValue);
     if (typeof expected.messagePaneVisible == "boolean") {
-      is(document.getElementById("messagepaneboxwrapper").collapsed, !expected.messagePaneVisible);
+      is(
+        document.getElementById("messagepaneboxwrapper").collapsed,
+        !expected.messagePaneVisible
+      );
     }
     if (typeof expected.folderPaneVisible == "boolean") {
-      is(document.getElementById("folderPaneBox").collapsed, !expected.folderPaneVisible);
+      is(
+        document.getElementById("folderPaneBox").collapsed,
+        !expected.folderPaneVisible
+      );
     }
     extension.sendMessage();
   });
 
-  extension.onMessage("checkRealSort", (expected) => {
+  extension.onMessage("checkRealSort", expected => {
     for (let [columnId, sortType] of window.gFolderDisplay.COLUMNS_MAP) {
       sortType = sortType[2].toLowerCase() + sortType.substring(3);
       if (sortType == expected.sortType) {
@@ -180,13 +195,19 @@ add_task(async function test_displayedFolderChanged() {
 
     let [accountId] = await awaitMessage();
 
-    let [current] = await browser.mailTabs.query({ active: true, currentWindow: true });
+    let [current] = await browser.mailTabs.query({
+      active: true,
+      currentWindow: true,
+    });
     browser.test.assertEq(accountId, current.displayedFolder.accountId);
     browser.test.assertEq("/", current.displayedFolder.path);
 
     async function selectFolder(newFolderPath) {
       return new Promise(resolve => {
-        browser.mailTabs.onDisplayedFolderChanged.addListener(function listener(tabId, folder) {
+        browser.mailTabs.onDisplayedFolderChanged.addListener(function listener(
+          tabId,
+          folder
+        ) {
           browser.mailTabs.onDisplayedFolderChanged.removeListener(listener);
           browser.test.assertEq(current.id, tabId);
           browser.test.assertEq(accountId, folder.accountId);
@@ -202,14 +223,19 @@ add_task(async function test_displayedFolderChanged() {
 
     async function selectFolderByUpdate(newFolderPath) {
       return new Promise(resolve => {
-        browser.mailTabs.onDisplayedFolderChanged.addListener(function listener(tabId, folder) {
+        browser.mailTabs.onDisplayedFolderChanged.addListener(function listener(
+          tabId,
+          folder
+        ) {
           browser.mailTabs.onDisplayedFolderChanged.removeListener(listener);
           browser.test.assertEq(current.id, tabId);
           browser.test.assertEq(accountId, folder.accountId);
           browser.test.assertEq(newFolderPath, folder.path);
           resolve();
         });
-        browser.mailTabs.update({ displayedFolder: { accountId, path: newFolderPath } });
+        browser.mailTabs.update({
+          displayedFolder: { accountId, path: newFolderPath },
+        });
       });
     }
     await selectFolderByUpdate("/Trash");
@@ -232,7 +258,7 @@ add_task(async function test_displayedFolderChanged() {
     manifest: { permissions: ["accountsRead", "messagesRead"] },
   });
 
-  extension.onMessage("selectFolder", async (newFolderPath) => {
+  extension.onMessage("selectFolder", async newFolderPath => {
     window.gFolderTreeView.selectFolder(folderMap.get(newFolderPath));
     await new Promise(resolve => executeSoon(resolve));
   });
@@ -264,10 +290,12 @@ add_task(async function test_selectedMessagesChanged() {
 
     async function selectMessages(...newMessages) {
       return new Promise(resolve => {
-        browser.mailTabs.onSelectedMessagesChanged.addListener(function listener(tabId, messageList) {
-          browser.mailTabs.onSelectedMessagesChanged.removeListener(listener);
-          resolve(messageList);
-        });
+        browser.mailTabs.onSelectedMessagesChanged.addListener(
+          function listener(tabId, messageList) {
+            browser.mailTabs.onSelectedMessagesChanged.removeListener(listener);
+            resolve(messageList);
+          }
+        );
         browser.test.sendMessage("selectMessage", newMessages);
       });
     }
@@ -281,7 +309,20 @@ add_task(async function test_selectedMessagesChanged() {
     checkMessageList(false, 2, messageList);
     messageList = await selectMessages();
     checkMessageList(false, 0, messageList);
-    messageList = await selectMessages(2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37);
+    messageList = await selectMessages(
+      2,
+      3,
+      5,
+      7,
+      11,
+      13,
+      17,
+      19,
+      23,
+      29,
+      31,
+      37
+    );
     checkMessageList(true, 10, messageList);
     messageList = await browser.messages.continueList(messageList.id);
     checkMessageList(false, 2, messageList);
@@ -305,7 +346,7 @@ add_task(async function test_selectedMessagesChanged() {
   }
   let allMessages = [...window.gFolderDisplay.displayedFolder.messages];
 
-  extension.onMessage("selectMessage", (newMessages) => {
+  extension.onMessage("selectMessage", newMessages => {
     window.gFolderDisplay.selectMessages(newMessages.map(i => allMessages[i]));
   });
 
@@ -373,7 +414,10 @@ add_task(async function test_background_tab() {
     browser.test.assertEq(2, allMailTabs.length);
 
     browser.test.assertEq(accountId, allMailTabs[0].displayedFolder.accountId);
-    browser.test.assertEq("/Unsent Messages", allMailTabs[0].displayedFolder.path);
+    browser.test.assertEq(
+      "/Unsent Messages",
+      allMailTabs[0].displayedFolder.path
+    );
 
     browser.test.assertEq(accountId, allMailTabs[1].displayedFolder.accountId);
     browser.test.assertEq("/Trash", allMailTabs[1].displayedFolder.path);
@@ -417,11 +461,19 @@ add_task(async function test_background_tab() {
     manifest: { permissions: ["accountsRead"] },
   });
 
-  extension.onMessage("checkRealLayout", async (expected) => {
-    is(document.getElementById("messagepaneboxwrapper").collapsed, !expected.messagePaneVisible);
-    is(document.getElementById("folderPaneBox").collapsed, !expected.folderPaneVisible);
-    is(window.gFolderTreeView.getSelectedFolders()[0].URI,
-       account.incomingServer.serverURI + expected.displayedFolder);
+  extension.onMessage("checkRealLayout", async expected => {
+    is(
+      document.getElementById("messagepaneboxwrapper").collapsed,
+      !expected.messagePaneVisible
+    );
+    is(
+      document.getElementById("folderPaneBox").collapsed,
+      !expected.folderPaneVisible
+    );
+    is(
+      window.gFolderTreeView.getSelectedFolders()[0].URI,
+      account.incomingServer.serverURI + expected.displayedFolder
+    );
     extension.sendMessage();
   });
 

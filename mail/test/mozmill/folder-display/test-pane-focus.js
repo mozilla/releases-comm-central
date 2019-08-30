@@ -38,15 +38,16 @@ function setupModule(module) {
  * @return the focused pane
  */
 function get_focused_pane() {
-  let panes = [
-    "threadTree", "folderTree", "messagepane", "multimessage",
-  ].map(id => mc.e(id));
+  let panes = ["threadTree", "folderTree", "messagepane", "multimessage"].map(
+    id => mc.e(id)
+  );
 
   let currentNode = mc.window.top.document.activeElement;
 
   while (currentNode) {
-    if (panes.includes(currentNode))
+    if (panes.includes(currentNode)) {
       return currentNode;
+    }
 
     currentNode = currentNode.parentNode;
   }
@@ -73,11 +74,11 @@ function check_pane_cycling(multimessage) {
   mc.keypress(null, "VK_F6", {});
   assert_equals(folderPane, get_focused_pane());
 
-  mc.keypress(null, "VK_F6", {shiftKey: true});
+  mc.keypress(null, "VK_F6", { shiftKey: true });
   assert_equals(messagePane, get_focused_pane());
-  mc.keypress(null, "VK_F6", {shiftKey: true});
+  mc.keypress(null, "VK_F6", { shiftKey: true });
   assert_equals(threadPane, get_focused_pane());
-  mc.keypress(null, "VK_F6", {shiftKey: true});
+  mc.keypress(null, "VK_F6", { shiftKey: true });
   assert_equals(folderPane, get_focused_pane());
 }
 

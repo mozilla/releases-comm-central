@@ -6,7 +6,11 @@
 
 var MODULE_NAME = "subscribe-window-helpers";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["window-helpers", "folder-display-helpers", "keyboard-helpers"];
+var MODULE_REQUIRES = [
+  "window-helpers",
+  "folder-display-helpers",
+  "keyboard-helpers",
+];
 
 var folderDisplayHelper;
 var mc;
@@ -24,8 +28,7 @@ function installInto(module) {
   setupModule();
 
   // Now copy helper functions
-  module.open_subscribe_window_from_context_menu =
-    open_subscribe_window_from_context_menu;
+  module.open_subscribe_window_from_context_menu = open_subscribe_window_from_context_menu;
   module.enter_text_in_search_box = enter_text_in_search_box;
   module.check_newsgroup_displayed = check_newsgroup_displayed;
 }
@@ -84,8 +87,9 @@ function check_newsgroup_displayed(swc, name) {
   let treeview = tree.view;
   let nameCol = tree.columns.getColumnFor(swc.eid("nameColumn2").getNode());
   for (let i = 0; i < treeview.rowCount; i++) {
-    if (treeview.getCellText(i, nameCol) == name)
+    if (treeview.getCellText(i, nameCol) == name) {
       return true;
+    }
   }
   return false;
 }

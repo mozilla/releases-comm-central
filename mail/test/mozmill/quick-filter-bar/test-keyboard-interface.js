@@ -17,7 +17,11 @@
 
 var MODULE_NAME = "test-keyboard-interface";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "quick-filter-bar-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "quick-filter-bar-helpers",
+];
 
 var folder;
 
@@ -31,7 +35,7 @@ function setupModule(module) {
 
   folder = create_folder("QuickFilterBarKeyboardInterface");
   // we need a message so we can select it so we can find in message
-  make_new_sets_in_folder(folder, [{count: 1}]);
+  make_new_sets_in_folder(folder, [{ count: 1 }]);
   be_in_folder(folder);
 }
 
@@ -54,13 +58,17 @@ function test_escape_rules() {
   function legwork() {
     // apply two...
     toggle_boolean_constraints("unread", "starred", "addrbook");
-    assert_constraints_expressed({unread: true, starred: true, addrbook: true});
+    assert_constraints_expressed({
+      unread: true,
+      starred: true,
+      addrbook: true,
+    });
     assert_quick_filter_bar_visible(true);
 
     // hit escape, should clear addrbook
     mc.keypress(null, "VK_ESCAPE", {});
     assert_quick_filter_bar_visible(true);
-    assert_constraints_expressed({unread: true, starred: true});
+    assert_constraints_expressed({ unread: true, starred: true });
 
     // hit escape, should clear both remaining ones
     mc.keypress(null, "VK_ESCAPE", {});
@@ -136,21 +144,28 @@ function test_control_shift_k_shows_quick_filter_bar() {
   select_click_row(0);
 
   // hit control-shift-k to get in the quick filter box
-  mc.keypress(null, "k", {accelKey: true, shiftKey: true});
-  if (dispatcha.focusedElement != qfbTextbox.inputField)
+  mc.keypress(null, "k", { accelKey: true, shiftKey: true });
+  if (dispatcha.focusedElement != qfbTextbox.inputField) {
     throw new Error("control-shift-k did not focus quick filter textbox");
+  }
 
   set_filter_text("search string");
 
   // hit control-shift-k to select the text in the quick filter box
-  mc.keypress(null, "k", {accelKey: true, shiftKey: true});
-  if (dispatcha.focusedElement != qfbTextbox.inputField)
-    throw new Error("second control-shift-k did not keep focus on filter " +
-                    "textbox");
-  if (qfbTextbox.inputField.selectionStart != 0 ||
-      qfbTextbox.inputField.selectionEnd != qfbTextbox.inputField.textLength)
-    throw new Error("second control-shift-k did not select text in filter " +
-                    "textbox");
+  mc.keypress(null, "k", { accelKey: true, shiftKey: true });
+  if (dispatcha.focusedElement != qfbTextbox.inputField) {
+    throw new Error(
+      "second control-shift-k did not keep focus on filter " + "textbox"
+    );
+  }
+  if (
+    qfbTextbox.inputField.selectionStart != 0 ||
+    qfbTextbox.inputField.selectionEnd != qfbTextbox.inputField.textLength
+  ) {
+    throw new Error(
+      "second control-shift-k did not select text in filter " + "textbox"
+    );
+  }
 
   // hit escape and make sure the text is cleared, but the quick filter bar is
   // still open.

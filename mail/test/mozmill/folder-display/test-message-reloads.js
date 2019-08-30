@@ -22,7 +22,7 @@ function setupModule(module) {
   fdh.installInto(module);
 
   folder = create_folder("MessageReloads");
-  make_new_sets_in_folder(folder, [{count: 1}]);
+  make_new_sets_in_folder(folder, [{ count: 1 }]);
 }
 
 function test_message_reloads_work_with_message_pane_toggles() {

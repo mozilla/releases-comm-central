@@ -19,9 +19,14 @@ var MODULE_NAME = "test-deletion-with-multiple-displays";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
-var folder, lastMessageFolder, oneBeforeFolder, oneAfterFolder,
-    multipleDeletionFolder1, multipleDeletionFolder2, multipleDeletionFolder3,
-    multipleDeletionFolder4;
+var folder,
+  lastMessageFolder,
+  oneBeforeFolder,
+  oneAfterFolder,
+  multipleDeletionFolder1,
+  multipleDeletionFolder2,
+  multipleDeletionFolder3,
+  multipleDeletionFolder4;
 
 function setupModule(module) {
   let fdh = collector.getModule("folder-display-helpers");
@@ -40,19 +45,19 @@ function setupModule(module) {
   // we want exactly as many messages as we plan to delete, so that we can test
   //  that the message window and tabs close when they run out of things to
   //  to display.
-  make_new_sets_in_folder(folder, [{count: 4}]);
+  make_new_sets_in_folder(folder, [{ count: 4 }]);
 
   // since we don't test window close here, it doesn't really matter how many
   // messages these have
-  make_new_sets_in_folder(lastMessageFolder, [{count: 4}]);
-  make_new_sets_in_folder(oneBeforeFolder, [{count: 10}]);
-  make_new_sets_in_folder(oneAfterFolder, [{count: 10}]);
-  make_new_sets_in_folder(multipleDeletionFolder1, [{count: 30}]);
+  make_new_sets_in_folder(lastMessageFolder, [{ count: 4 }]);
+  make_new_sets_in_folder(oneBeforeFolder, [{ count: 10 }]);
+  make_new_sets_in_folder(oneAfterFolder, [{ count: 10 }]);
+  make_new_sets_in_folder(multipleDeletionFolder1, [{ count: 30 }]);
 
   // We're depending on selecting the last message here, so these do matter
-  make_new_sets_in_folder(multipleDeletionFolder2, [{count: 10}]);
-  make_new_sets_in_folder(multipleDeletionFolder3, [{count: 10}]);
-  make_new_sets_in_folder(multipleDeletionFolder4, [{count: 10}]);
+  make_new_sets_in_folder(multipleDeletionFolder2, [{ count: 10 }]);
+  make_new_sets_in_folder(multipleDeletionFolder3, [{ count: 10 }]);
+  make_new_sets_in_folder(multipleDeletionFolder4, [{ count: 10 }]);
 }
 
 var tabFolder, tabMessage, tabMessageBackground, curMessage, nextMessage;
@@ -100,7 +105,7 @@ var VERIFY_MESSAGE_TAB = 0x2;
 var VERIFY_BACKGROUND_MESSAGE_TAB = 0x4;
 // Check whether this message is displayed in the message window
 var VERIFY_MESSAGE_WINDOW = 0x8;
-var VERIFY_ALL = 0xF;
+var VERIFY_ALL = 0xf;
 
 /**
  * Verify that the message is displayed in the given tabs. The index is
@@ -110,8 +115,9 @@ function _verify_message_is_displayed_in(aFlags, aMessage, aIndex) {
   if (aFlags & VERIFY_FOLDER_TAB) {
     switch_tab(tabFolder);
     assert_selected_and_displayed(aMessage);
-    if (aIndex !== undefined)
+    if (aIndex !== undefined) {
       assert_selected_and_displayed(aIndex);
+    }
   }
   if (aFlags & VERIFY_MESSAGE_TAB) {
     // Verify the title first
@@ -120,8 +126,9 @@ function _verify_message_is_displayed_in(aFlags, aMessage, aIndex) {
     // Verify the title again, just in case
     assert_tab_titled_from(tabMessage, aMessage);
     assert_selected_and_displayed(aMessage);
-    if (aIndex !== undefined)
+    if (aIndex !== undefined) {
       assert_selected_and_displayed(aIndex);
+    }
   }
   if (aFlags & VERIFY_BACKGROUND_MESSAGE_TAB) {
     // Only verify the title
@@ -129,8 +136,9 @@ function _verify_message_is_displayed_in(aFlags, aMessage, aIndex) {
   }
   if (aFlags & VERIFY_MESSAGE_WINDOW) {
     assert_selected_and_displayed(msgc, aMessage);
-    if (aIndex !== undefined)
+    if (aIndex !== undefined) {
       assert_selected_and_displayed(msgc, aIndex);
+    }
   }
 }
 
@@ -176,8 +184,9 @@ function test_delete_in_message_tab() {
 
   // figure out the next guy...
   nextMessage = mc.dbView.getMsgHdrAt(1);
-  if (!nextMessage)
+  if (!nextMessage) {
     throw new Error("We ran out of messages early?");
+  }
 }
 
 /**
@@ -214,11 +223,13 @@ function test_delete_last_message_closes_message_displays() {
   msgc = null;
 
   // - and we should now be on the folder tab and there should be no other tabs
-  if (mc.tabmail.tabInfo.length != 1)
+  if (mc.tabmail.tabInfo.length != 1) {
     throw new Error("There should only be one tab left!");
+  }
   // the below check is implied by the previous check if things are sane-ish
-  if (mc.tabmail.currentTabInfo != tabFolder)
+  if (mc.tabmail.currentTabInfo != tabFolder) {
     throw new Error("We should be on the folder tab!");
+  }
 }
 
 /*
@@ -270,8 +281,9 @@ function test_delete_last_message_in_message_tab() {
   // figure out the next guy...
 
   nextMessage = mc.dbView.getMsgHdrAt(0);
-  if (!nextMessage)
+  if (!nextMessage) {
     throw new Error("We ran out of messages early?");
+  }
 }
 
 /**
@@ -312,9 +324,10 @@ function test_delete_one_before_message_in_folder_tab() {
   press_delete();
 
   // The message tab, background message tab and window shouldn't have changed
-  _verify_message_is_displayed_in(VERIFY_MESSAGE_TAB |
-                                  VERIFY_BACKGROUND_MESSAGE_TAB |
-                                  VERIFY_MESSAGE_WINDOW, expectedMessage);
+  _verify_message_is_displayed_in(
+    VERIFY_MESSAGE_TAB | VERIFY_BACKGROUND_MESSAGE_TAB | VERIFY_MESSAGE_WINDOW,
+    expectedMessage
+  );
 
   // Clean up, close everything
   close_message_window(msgc);
@@ -340,9 +353,10 @@ function test_delete_one_before_message_in_message_tab() {
   press_delete();
 
   // The folder tab, background message tab and window shouldn't have changed
-  _verify_message_is_displayed_in(VERIFY_FOLDER_TAB |
-                                  VERIFY_BACKGROUND_MESSAGE_TAB |
-                                  VERIFY_MESSAGE_WINDOW, expectedMessage);
+  _verify_message_is_displayed_in(
+    VERIFY_FOLDER_TAB | VERIFY_BACKGROUND_MESSAGE_TAB | VERIFY_MESSAGE_WINDOW,
+    expectedMessage
+  );
 
   // Clean up, close everything
   close_message_window(msgc);
@@ -369,10 +383,10 @@ function test_delete_one_before_message_in_message_window() {
 
   // The folder tab, message tab and background message tab shouldn't have
   // changed
-  _verify_message_is_displayed_in(VERIFY_FOLDER_TAB |
-                                  VERIFY_MESSAGE_TAB |
-                                  VERIFY_BACKGROUND_MESSAGE_TAB,
-                                  expectedMessage);
+  _verify_message_is_displayed_in(
+    VERIFY_FOLDER_TAB | VERIFY_MESSAGE_TAB | VERIFY_BACKGROUND_MESSAGE_TAB,
+    expectedMessage
+  );
 
   // Clean up, close everything
   close_message_window(msgc);
@@ -397,9 +411,10 @@ function test_delete_one_after_message_in_folder_tab() {
   press_delete();
 
   // The message tab, background message tab and window shouldn't have changed
-  _verify_message_is_displayed_in(VERIFY_MESSAGE_TAB |
-                                  VERIFY_BACKGROUND_MESSAGE_TAB |
-                                  VERIFY_MESSAGE_WINDOW, expectedMessage);
+  _verify_message_is_displayed_in(
+    VERIFY_MESSAGE_TAB | VERIFY_BACKGROUND_MESSAGE_TAB | VERIFY_MESSAGE_WINDOW,
+    expectedMessage
+  );
 
   // Clean up, close everything
   close_message_window(msgc);
@@ -425,9 +440,10 @@ function test_delete_one_after_message_in_message_tab() {
   press_delete();
 
   // The folder tab, background message tab and window shouldn't have changed
-  _verify_message_is_displayed_in(VERIFY_FOLDER_TAB |
-                                  VERIFY_BACKGROUND_MESSAGE_TAB |
-                                  VERIFY_MESSAGE_WINDOW, expectedMessage);
+  _verify_message_is_displayed_in(
+    VERIFY_FOLDER_TAB | VERIFY_BACKGROUND_MESSAGE_TAB | VERIFY_MESSAGE_WINDOW,
+    expectedMessage
+  );
 
   // Clean up, close everything
   close_message_window(msgc);
@@ -454,10 +470,10 @@ function test_delete_one_after_message_in_message_window() {
 
   // The folder tab, message tab and background message tab shouldn't have
   // changed
-  _verify_message_is_displayed_in(VERIFY_FOLDER_TAB |
-                                  VERIFY_MESSAGE_TAB |
-                                  VERIFY_BACKGROUND_MESSAGE_TAB,
-                                  expectedMessage);
+  _verify_message_is_displayed_in(
+    VERIFY_FOLDER_TAB | VERIFY_MESSAGE_TAB | VERIFY_BACKGROUND_MESSAGE_TAB,
+    expectedMessage
+  );
 
   // Clean up, close everything
   close_message_window(msgc);
@@ -477,8 +493,10 @@ function test_delete_one_after_message_in_message_window() {
  */
 function test_delete_multiple_messages_with_first_selected_message_open() {
   // Open up 2 in a message tab, background tab, and message window.
-  _open_message_in_all_four_display_mechanisms_helper(multipleDeletionFolder1,
-                                                      2);
+  _open_message_in_all_four_display_mechanisms_helper(
+    multipleDeletionFolder1,
+    2
+  );
 
   // We'll select 2-5, 8, 9 and 10. We expect 6 to be the next displayed
   // message.
@@ -508,8 +526,10 @@ function test_delete_multiple_messages_with_first_selected_message_open() {
  */
 function test_delete_multiple_messages_with_nth_selected_message_open() {
   // Open up 9 in a message tab, background tab, and message window.
-  _open_message_in_all_four_display_mechanisms_helper(multipleDeletionFolder1,
-                                                      9);
+  _open_message_in_all_four_display_mechanisms_helper(
+    multipleDeletionFolder1,
+    9
+  );
 
   // We'll select 2-5, 8, 9 and 10. We expect 11 to be the next displayed
   // message.
@@ -527,9 +547,10 @@ function test_delete_multiple_messages_with_nth_selected_message_open() {
   assert_selected_and_displayed(2);
 
   // The other displays should now be showing the expectedMessage
-  _verify_message_is_displayed_in(VERIFY_MESSAGE_TAB |
-                                  VERIFY_BACKGROUND_MESSAGE_TAB |
-                                  VERIFY_MESSAGE_WINDOW, expectedMessage);
+  _verify_message_is_displayed_in(
+    VERIFY_MESSAGE_TAB | VERIFY_BACKGROUND_MESSAGE_TAB | VERIFY_MESSAGE_WINDOW,
+    expectedMessage
+  );
 
   // Clean up, close everything
   close_message_window(msgc);
@@ -544,8 +565,10 @@ function test_delete_multiple_messages_with_nth_selected_message_open() {
  */
 function test_delete_multiple_messages_with_last_selected_message_open() {
   // Open up 10 in a message tab, background tab, and message window.
-  _open_message_in_all_four_display_mechanisms_helper(multipleDeletionFolder1,
-                                                      9);
+  _open_message_in_all_four_display_mechanisms_helper(
+    multipleDeletionFolder1,
+    9
+  );
 
   // We'll select 2-5, 8, 9 and 10. We expect 11 to be the next displayed
   // message.
@@ -563,9 +586,10 @@ function test_delete_multiple_messages_with_last_selected_message_open() {
   assert_selected_and_displayed(2);
 
   // The other displays should now be showing the expectedMessage
-  _verify_message_is_displayed_in(VERIFY_MESSAGE_TAB |
-                                  VERIFY_BACKGROUND_MESSAGE_TAB |
-                                  VERIFY_MESSAGE_WINDOW, expectedMessage);
+  _verify_message_is_displayed_in(
+    VERIFY_MESSAGE_TAB | VERIFY_BACKGROUND_MESSAGE_TAB | VERIFY_MESSAGE_WINDOW,
+    expectedMessage
+  );
   // Clean up, close everything
   close_message_window(msgc);
   close_tab(tabMessage);
@@ -579,8 +603,10 @@ function test_delete_multiple_messages_with_last_selected_message_open() {
  */
 function test_delete_multiple_messages_including_the_last_one_with_first_open() {
   // 10 messages in this folder. Open up message 1 everywhere.
-  _open_message_in_all_four_display_mechanisms_helper(multipleDeletionFolder2,
-                                                      1);
+  _open_message_in_all_four_display_mechanisms_helper(
+    multipleDeletionFolder2,
+    1
+  );
 
   // We'll select 1-4, 7, 8 and 9. We expect 5 to be the next displayed message.
   select_click_row(1);
@@ -609,8 +635,10 @@ function test_delete_multiple_messages_including_the_last_one_with_first_open() 
  */
 function test_delete_multiple_messages_including_the_last_one_with_nth_open() {
   // 10 messages in this folder. Open up message 7 everywhere.
-  _open_message_in_all_four_display_mechanisms_helper(multipleDeletionFolder3,
-                                                      7);
+  _open_message_in_all_four_display_mechanisms_helper(
+    multipleDeletionFolder3,
+    7
+  );
 
   // We'll select 1-4, 7, 8 and 9. We expect 6 to be the next displayed message.
   select_click_row(1);
@@ -627,9 +655,10 @@ function test_delete_multiple_messages_including_the_last_one_with_nth_open() {
   assert_selected_and_displayed(1);
 
   // The other displays should now be showing the expectedMessage
-  _verify_message_is_displayed_in(VERIFY_MESSAGE_TAB |
-                                  VERIFY_BACKGROUND_MESSAGE_TAB |
-                                  VERIFY_MESSAGE_WINDOW, expectedMessage);
+  _verify_message_is_displayed_in(
+    VERIFY_MESSAGE_TAB | VERIFY_BACKGROUND_MESSAGE_TAB | VERIFY_MESSAGE_WINDOW,
+    expectedMessage
+  );
 
   // Clean up, close everything
   close_message_window(msgc);
@@ -644,8 +673,10 @@ function test_delete_multiple_messages_including_the_last_one_with_nth_open() {
  */
 function test_delete_multiple_messages_including_the_last_one_with_last_open() {
   // 10 messages in this folder. Open up message 9 everywhere.
-  _open_message_in_all_four_display_mechanisms_helper(multipleDeletionFolder4,
-                                                      9);
+  _open_message_in_all_four_display_mechanisms_helper(
+    multipleDeletionFolder4,
+    9
+  );
 
   // We'll select 1-4, 7, 8 and 9. We expect 6 to be the next displayed message.
   select_click_row(1);
@@ -662,9 +693,10 @@ function test_delete_multiple_messages_including_the_last_one_with_last_open() {
   assert_selected_and_displayed(1);
 
   // The other displays should now be showing the expectedMessage
-  _verify_message_is_displayed_in(VERIFY_MESSAGE_TAB |
-                                  VERIFY_BACKGROUND_MESSAGE_TAB |
-                                  VERIFY_MESSAGE_WINDOW, expectedMessage);
+  _verify_message_is_displayed_in(
+    VERIFY_MESSAGE_TAB | VERIFY_BACKGROUND_MESSAGE_TAB | VERIFY_MESSAGE_WINDOW,
+    expectedMessage
+  );
 
   // Clean up, close everything
   close_message_window(msgc);

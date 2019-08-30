@@ -7,12 +7,15 @@
 "use strict";
 
 // Services = object with smart getters for common XPCOM services
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 
 function init(aEvent) {
-  if (aEvent.target != document)
+  if (aEvent.target != document) {
     return;
+  }
 
   try {
     var distroId = Services.prefs.getCharPref("distribution.id");
@@ -25,8 +28,10 @@ function init(aEvent) {
 
       try {
         // This is in its own try catch due to bug 895473 and bug 900925.
-        var distroAbout = Services.prefs.getComplexValue("distribution.about",
-          Ci.nsISupportsString);
+        var distroAbout = Services.prefs.getComplexValue(
+          "distribution.about",
+          Ci.nsISupportsString
+        );
         var distroField = document.getElementById("distribution");
         distroField.value = distroAbout;
         distroField.style.display = "block";
@@ -55,10 +60,12 @@ function init(aEvent) {
   }
 
   // Append "(32-bit)" or "(64-bit)" build architecture to the version number:
-  let bundle = Services.strings.createBundle("chrome://messenger/locale/messenger.properties");
+  let bundle = Services.strings.createBundle(
+    "chrome://messenger/locale/messenger.properties"
+  );
   let archResource = Services.appinfo.is64Bit
-                     ? "aboutDialog.architecture.sixtyFourBit"
-                     : "aboutDialog.architecture.thirtyTwoBit";
+    ? "aboutDialog.architecture.sixtyFourBit"
+    : "aboutDialog.architecture.thirtyTwoBit";
   let arch = bundle.GetStringFromName(archResource);
   versionField.textContent += ` (${arch})`;
 
@@ -67,7 +74,9 @@ function init(aEvent) {
     let relNotesLink = document.getElementById("releasenotes");
     let relNotesPrefType = Services.prefs.getPrefType("app.releaseNotesURL");
     if (relNotesPrefType != Services.prefs.PREF_INVALID) {
-      let relNotesURL = Services.urlFormatter.formatURLPref("app.releaseNotesURL");
+      let relNotesURL = Services.urlFormatter.formatURLPref(
+        "app.releaseNotesURL"
+      );
       if (relNotesURL != "about:blank") {
         relNotesLink.href = relNotesURL;
         relNotesLink.hidden = false;
@@ -86,7 +95,10 @@ function init(aEvent) {
   window.sizeToContent();
 
   if (AppConstants.platform == "macosx") {
-    window.moveTo((screen.availWidth / 2) - (window.outerWidth / 2), screen.availHeight / 5);
+    window.moveTo(
+      screen.availWidth / 2 - window.outerWidth / 2,
+      screen.availHeight / 5
+    );
   }
 }
 
@@ -97,22 +109,33 @@ function openAboutTab(url) {
   let mailWindow = Services.wm.getMostRecentWindow("mail:3pane");
   if (mailWindow) {
     mailWindow.focus();
-    mailWindow.document.getElementById("tabmail")
-              .openTab("contentTab", {contentPage: url,
-                                      clickHandler: "specialTabs.aboutClickHandler(event);"});
+    mailWindow.document.getElementById("tabmail").openTab("contentTab", {
+      contentPage: url,
+      clickHandler: "specialTabs.aboutClickHandler(event);",
+    });
     return;
   }
 
   // No existing windows.
-  window.openDialog("chrome://messenger/content/", "_blank",
-                    "chrome,dialog=no,all", null,
-                    { tabType: "contentTab",
-                      tabParams: {contentPage: url, clickHandler: "specialTabs.aboutClickHandler(event);"} });
+  window.openDialog(
+    "chrome://messenger/content/",
+    "_blank",
+    "chrome,dialog=no,all",
+    null,
+    {
+      tabType: "contentTab",
+      tabParams: {
+        contentPage: url,
+        clickHandler: "specialTabs.aboutClickHandler(event);",
+      },
+    }
+  );
 }
 
 function openLink(url) {
-  let m = ("messenger" in window) ? window.messenger :
-    Cc["@mozilla.org/messenger;1"]
-      .createInstance(Ci.nsIMessenger);
+  let m =
+    "messenger" in window
+      ? window.messenger
+      : Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
   m.launchExternalURL(url);
 }

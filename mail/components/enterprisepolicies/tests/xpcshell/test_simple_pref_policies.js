@@ -1,4 +1,3 @@
-
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
@@ -33,8 +32,8 @@ const POLICIES_TESTS = [
   // POLICY: Certificates (true)
   {
     policies: {
-      "Certificates": {
-        "ImportEnterpriseRoots": true,
+      Certificates: {
+        ImportEnterpriseRoots: true,
       },
     },
     lockedPrefs: {
@@ -45,8 +44,8 @@ const POLICIES_TESTS = [
   // POLICY: Certificates (false)
   {
     policies: {
-      "Certificates": {
-        "ImportEnterpriseRoots": false,
+      Certificates: {
+        ImportEnterpriseRoots: false,
       },
     },
     lockedPrefs: {
@@ -57,9 +56,9 @@ const POLICIES_TESTS = [
   // POLICY: DisableSecurityBypass
   {
     policies: {
-      "DisableSecurityBypass": {
-        "InvalidCertificate": true,
-        "SafeBrowsing": true,
+      DisableSecurityBypass: {
+        InvalidCertificate: true,
+        SafeBrowsing: true,
       },
     },
     lockedPrefs: {
@@ -71,7 +70,7 @@ const POLICIES_TESTS = [
   // POLICY: ExtensionUpdate
   {
     policies: {
-      "ExtensionUpdate": false,
+      ExtensionUpdate: false,
     },
     lockedPrefs: {
       "extensions.update.enabled": false,
@@ -81,8 +80,8 @@ const POLICIES_TESTS = [
   // POLICY: InstallAddons.Default (block addon installs)
   {
     policies: {
-      "InstallAddonsPermission": {
-        "Default": false,
+      InstallAddonsPermission: {
+        Default: false,
       },
     },
     lockedPrefs: {
@@ -93,8 +92,8 @@ const POLICIES_TESTS = [
   // POLICY: SSLVersionMin/SSLVersionMax (1)
   {
     policies: {
-      "SSLVersionMin": "tls1",
-      "SSLVersionMax": "tls1.1",
+      SSLVersionMin: "tls1",
+      SSLVersionMax: "tls1.1",
     },
     lockedPrefs: {
       "security.tls.version.min": 1,
@@ -105,8 +104,8 @@ const POLICIES_TESTS = [
   // POLICY: SSLVersionMin/SSLVersionMax (2)
   {
     policies: {
-      "SSLVersionMin": "tls1.2",
-      "SSLVersionMax": "tls1.3",
+      SSLVersionMin: "tls1.2",
+      SSLVersionMax: "tls1.3",
     },
     lockedPrefs: {
       "security.tls.version.min": 3,
@@ -118,7 +117,7 @@ const POLICIES_TESTS = [
 add_task(async function test_policy_simple_prefs() {
   for (let test of POLICIES_TESTS) {
     await setupPolicyEngineWithJson({
-      "policies": test.policies,
+      policies: test.policies,
     });
 
     info("Checking policy: " + Object.keys(test.policies)[0]);
@@ -127,8 +126,10 @@ add_task(async function test_policy_simple_prefs() {
       checkLockedPref(prefName, prefValue);
     }
 
-    for (let [prefName, prefValue] of Object.entries(test.unlockedPrefs || {})) {
+    for (let [prefName, prefValue] of Object.entries(
+      test.unlockedPrefs || {}
+    )) {
       checkUnlockedPref(prefName, prefValue);
     }
   }
- });
+});

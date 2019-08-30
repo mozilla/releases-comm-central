@@ -16,7 +16,7 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers"];
 
 // Get original preference value
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var prefName = "mail.advance_on_spacebar";
 var prefValue = Services.prefs.getBoolPref(prefName);
 
@@ -24,7 +24,7 @@ function setupModule(module) {
   collector.getModule("folder-display-helpers").installInto(module);
   // Create four unread messages in a sample folder
   let folder = create_folder("Sample");
-  make_new_sets_in_folder(folder, [{count: 4}]);
+  make_new_sets_in_folder(folder, [{ count: 4 }]);
   be_in_folder(folder);
 }
 
@@ -47,10 +47,12 @@ function subtest_advance_on_spacebar(aAdvance, aShift) {
   let oldmessage = select_click_row(1);
   wait_for_message_display_completion(mc);
   // Press [Shift-]Space
-  mc.keypress(null, " ", {shiftKey: aShift});
+  mc.keypress(null, " ", { shiftKey: aShift });
   // Check that message focus changes iff aAdvance is true
   let newmessage = mc.folderDisplay.selectedMessage;
-  aAdvance ? assert_not_equals(oldmessage, newmessage) : assert_equals(oldmessage, newmessage);
+  aAdvance
+    ? assert_not_equals(oldmessage, newmessage)
+    : assert_equals(oldmessage, newmessage);
 }
 
 /**

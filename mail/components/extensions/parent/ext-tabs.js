@@ -2,8 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.defineModuleGetter(this, "PromiseUtils",
-                               "resource://gre/modules/PromiseUtils.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "PromiseUtils",
+  "resource://gre/modules/PromiseUtils.jsm"
+);
 var { ExtensionError } = ExtensionUtils;
 
 /**
@@ -62,8 +65,10 @@ let tabListener = {
     if (!deferred) {
       deferred = PromiseUtils.defer();
       let browser = getTabBrowser(nativeTabInfo);
-      if (!this.initializingTabs.has(nativeTabInfo) &&
-          (browser.innerWindowID || browser.currentURI.spec === "about:blank")) {
+      if (
+        !this.initializingTabs.has(nativeTabInfo) &&
+        (browser.innerWindowID || browser.currentURI.spec === "about:blank")
+      ) {
         deferred.resolve(nativeTabInfo);
       } else {
         this.initTabReady();
@@ -76,11 +81,7 @@ let tabListener = {
 
 // Attributes and properties used in the TabsUpdateFilterManager.
 const allAttrs = new Set(["favIconUrl", "title"]);
-const allProperties = new Set([
-  "favIconUrl",
-  "status",
-  "title",
-]);
+const allProperties = new Set(["favIconUrl", "status", "title"]);
 const restricted = new Set(["url", "favIconUrl", "title"]);
 
 /**
@@ -132,7 +133,10 @@ class TabsUpdateFilterEventManager extends EventManager {
         if (filter.tabId != null && tab.id != filter.tabId) {
           return false;
         }
-        if (filter.windowId != null && tab.windowId != getWindowID(filter.windowId)) {
+        if (
+          filter.windowId != null &&
+          tab.windowId != getWindowID(filter.windowId)
+        ) {
           return false;
         }
         if (filter.urls) {
@@ -157,7 +161,10 @@ class TabsUpdateFilterEventManager extends EventManager {
         let needed = [];
         if (event.type == "TabAttrModified") {
           let changed = event.detail.changed;
-          if (changed.includes("image") && filter.properties.has("favIconUrl")) {
+          if (
+            changed.includes("image") &&
+            filter.properties.has("favIconUrl")
+          ) {
             needed.push("favIconUrl");
           }
           if (changed.includes("label") && filter.properties.has("title")) {
@@ -215,9 +222,15 @@ class TabsUpdateFilterEventManager extends EventManager {
 
   addListener(callback, filter) {
     let { extension } = this.context;
-    if (filter && filter.urls &&
-        (!extension.hasPermission("tabs") && !extension.hasPermission("activeTab"))) {
-      Cu.reportError("Url filtering in tabs.onUpdated requires \"tabs\" or \"activeTab\" permission.");
+    if (
+      filter &&
+      filter.urls &&
+      (!extension.hasPermission("tabs") &&
+        !extension.hasPermission("activeTab"))
+    ) {
+      Cu.reportError(
+        'Url filtering in tabs.onUpdated requires "tabs" or "activeTab" permission.'
+      );
       return false;
     }
     return super.addListener(callback, filter);
@@ -283,7 +296,9 @@ this.tabs = class extends ExtensionAPI {
           name: "tabs.onCreated",
           register: fire => {
             let listener = (eventName, event) => {
-              fire.async(tabManager.convert(event.nativeTabInfo, event.currentTab));
+              fire.async(
+                tabManager.convert(event.nativeTabInfo, event.currentTab)
+              );
             };
 
             tabTracker.on("tab-created", listener);
@@ -298,7 +313,10 @@ this.tabs = class extends ExtensionAPI {
           name: "tabs.onAttached",
           register: fire => {
             let listener = (eventName, event) => {
-              fire.async(event.tabId, { newWindowId: event.newWindowId, newPosition: event.newPosition });
+              fire.async(event.tabId, {
+                newWindowId: event.newWindowId,
+                newPosition: event.newPosition,
+              });
             };
 
             tabTracker.on("tab-attached", listener);
@@ -313,7 +331,10 @@ this.tabs = class extends ExtensionAPI {
           name: "tabs.onDetached",
           register: fire => {
             let listener = (eventName, event) => {
-              fire.async(event.tabId, { oldWindowId: event.oldWindowId, oldPosition: event.oldPosition });
+              fire.async(event.tabId, {
+                oldWindowId: event.oldWindowId,
+                oldPosition: event.oldPosition,
+              });
             };
 
             tabTracker.on("tab-detached", listener);
@@ -328,7 +349,10 @@ this.tabs = class extends ExtensionAPI {
           name: "tabs.onRemoved",
           register: fire => {
             let listener = (eventName, event) => {
-              fire.async(event.tabId, { windowId: event.windowId, isWindowClosing: event.isWindowClosing });
+              fire.async(event.tabId, {
+                windowId: event.windowId,
+                isWindowClosing: event.isWindowClosing,
+              });
             };
 
             tabTracker.on("tab-removed", listener);
@@ -364,7 +388,8 @@ this.tabs = class extends ExtensionAPI {
         onUpdated: new TabsUpdateFilterEventManager({ context }).api(),
 
         async create(createProperties) {
-          let window = createProperties.windowId === null
+          let window =
+            createProperties.windowId === null
               ? windowTracker.topNormalWindow
               : windowTracker.getWindow(createProperties.windowId, context);
           let tabmail = window.document.getElementById("tabmail");
@@ -433,8 +458,8 @@ this.tabs = class extends ExtensionAPI {
 
             let options = {
               flags: updateProperties.loadReplace
-                      ? Ci.nsIWebNavigation.LOAD_FLAGS_REPLACE_HISTORY
-                      : Ci.nsIWebNavigation.LOAD_FLAGS_NONE,
+                ? Ci.nsIWebNavigation.LOAD_FLAGS_REPLACE_HISTORY
+                : Ci.nsIWebNavigation.LOAD_FLAGS_NONE,
               triggeringPrincipal: context.principal,
             };
             browser.loadURI(url, options);
@@ -477,7 +502,10 @@ this.tabs = class extends ExtensionAPI {
         async query(queryInfo) {
           if (!extension.hasPermission("tabs")) {
             if (queryInfo.url || queryInfo.title !== null) {
-              return Promise.reject({ message: 'The "tabs" permission is required to use the query API with the "url" or "title" parameters' });
+              return Promise.reject({
+                message:
+                  'The "tabs" permission is required to use the query API with the "url" or "title" parameters',
+              });
             }
           }
 
@@ -493,7 +521,9 @@ this.tabs = class extends ExtensionAPI {
           // Make ext-tabs-base happy since it does a strict check.
           queryInfo.screen = null;
 
-          return Array.from(tabManager.query(queryInfo, context), tab => tab.convert());
+          return Array.from(tabManager.query(queryInfo, context), tab =>
+            tab.convert()
+          );
         },
 
         async executeScript(tabId, details) {
@@ -525,10 +555,14 @@ this.tabs = class extends ExtensionAPI {
 
           let destinationWindow = null;
           if (moveProperties.windowId !== null) {
-            destinationWindow = windowTracker.getWindow(moveProperties.windowId);
+            destinationWindow = windowTracker.getWindow(
+              moveProperties.windowId
+            );
             // Fail on an invalid window.
             if (!destinationWindow) {
-              return Promise.reject({ message: `Invalid window ID: ${moveProperties.windowId}` });
+              return Promise.reject({
+                message: `Invalid window ID: ${moveProperties.windowId}`,
+              });
             }
           }
 
@@ -558,7 +592,8 @@ this.tabs = class extends ExtensionAPI {
               continue;
             }
 
-            let insertionPoint = indexMap.get(tgtwindow) || moveProperties.index;
+            let insertionPoint =
+              indexMap.get(tgtwindow) || moveProperties.index;
             // If the index is -1 it should go to the end of the tabs.
             if (insertionPoint == -1) {
               insertionPoint = tgttabmail.tabInfo.length;
@@ -570,9 +605,11 @@ this.tabs = class extends ExtensionAPI {
             // the insertion point is the same as the last insertion and
             // the tab is further to the right than the current insertion point
             // then you need to bump up the insertion point. See bug 1323311.
-            if (lastInsertion.has(tgtwindow) &&
-                lastInsertion.get(tgtwindow) === insertionPoint &&
-                tabPosition > insertionPoint) {
+            if (
+              lastInsertion.has(tgtwindow) &&
+              lastInsertion.get(tgtwindow) === insertionPoint &&
+              tabPosition > insertionPoint
+            ) {
               insertionPoint++;
               indexMap.set(tgtwindow, insertionPoint);
             }
@@ -583,15 +620,22 @@ this.tabs = class extends ExtensionAPI {
             } else {
               // If the window we are moving the tab in is different, then move the tab
               // to the new window.
-              srctabmail.replaceTabWithWindow(nativeTabInfo, tgtwindow, insertionPoint);
-              nativeTabInfo = tgttabmail.tabInfo[insertionPoint] ||
+              srctabmail.replaceTabWithWindow(
+                nativeTabInfo,
+                tgtwindow,
+                insertionPoint
+              );
+              nativeTabInfo =
+                tgttabmail.tabInfo[insertionPoint] ||
                 tgttabmail.tabInfo[tgttabmail.tabInfo.length - 1];
             }
             lastInsertion.set(tgtwindow, tabPosition);
             tabsMoved.push(nativeTabInfo);
           }
 
-          return tabsMoved.map(nativeTabInfo => tabManager.convert(nativeTabInfo));
+          return tabsMoved.map(nativeTabInfo =>
+            tabManager.convert(nativeTabInfo)
+          );
         },
 
         duplicate(tabId) {
@@ -605,7 +649,9 @@ this.tabs = class extends ExtensionAPI {
           state.state.duplicate = true;
 
           if (mode.tabs.length && mode.tabs.length == mode.maxTabs) {
-            throw new ExtensionError(`Maximum number of ${state.mode} tabs reached`);
+            throw new ExtensionError(
+              `Maximum number of ${state.mode} tabs reached`
+            );
           } else {
             tabmail.restoreTab(state);
             return tabManager.convert(mode.tabs[mode.tabs.length - 1]);

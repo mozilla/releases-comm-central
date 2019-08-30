@@ -2,7 +2,11 @@
 /* vim: set sts=2 sw=2 et tw=80: */
 "use strict";
 
-ChromeUtils.defineModuleGetter(this, "ToolbarButtonAPI", "resource:///modules/ExtensionToolbarButtons.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "ToolbarButtonAPI",
+  "resource:///modules/ExtensionToolbarButtons.jsm"
+);
 
 const browserActionMap = new WeakMap();
 
@@ -26,12 +30,21 @@ this.browserAction = class extends ToolbarButtonAPI {
     let id = `${widgetId}-browserAction-toolbarbutton`;
 
     let windowURL = "chrome://messenger/content/messenger.xul";
-    let currentSet = Services.xulStore.getValue(windowURL, "mail-bar3", "currentset");
+    let currentSet = Services.xulStore.getValue(
+      windowURL,
+      "mail-bar3",
+      "currentset"
+    );
     currentSet = currentSet.split(",");
     let index = currentSet.indexOf(id);
     if (index >= 0) {
       currentSet.splice(index, 1);
-      Services.xulStore.setValue(windowURL, "mail-bar3", "currentset", currentSet.join(","));
+      Services.xulStore.setValue(
+        windowURL,
+        "mail-bar3",
+        "currentset",
+        currentSet.join(",")
+      );
     }
   }
 

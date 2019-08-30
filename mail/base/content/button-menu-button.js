@@ -1,6 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
-  * License, v. 2.0. If a copy of the MPL was not distributed with this
-  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 "use strict";
 
@@ -27,12 +27,15 @@
     }
 
     static get menubuttonFragment() {
-      let frag = document.importNode(MozXULElement.parseXULToFragment(`
+      let frag = document.importNode(
+        MozXULElement.parseXULToFragment(`
         <hbox class="box-inherit button-box" align="center" pack="center" flex="1">
           <button class="box-inherit button-menubutton-button" allowevents="true" flex="1"></button>
           <dropmarker class="button-menubutton-dropmarker"></dropmarker>
-        </hbox>`), true);
-      Object.defineProperty(this, "menubuttonFragment", {value: frag});
+        </hbox>`),
+        true
+      );
+      Object.defineProperty(this, "menubuttonFragment", { value: frag });
       return frag;
     }
 
@@ -47,12 +50,12 @@
       this.appendChild(fragment.cloneNode(true));
 
       let button = this.querySelector("button");
-      button.addEventListener("command", (event) => {
+      button.addEventListener("command", event => {
         // Retarget the command on the main object.
         event.stopPropagation();
         this.dispatchEvent(new CustomEvent("command", { bubbles: true }));
       });
-      button.addEventListener("keydown", (event) => {
+      button.addEventListener("keydown", event => {
         if (event.key != "Enter" && event.key != " ") {
           return;
         }
@@ -61,7 +64,7 @@
         event.stopPropagation();
       });
 
-      this.addEventListener("keydown", (event) => {
+      this.addEventListener("keydown", event => {
         if (event.key != "Enter" && event.key != " ") {
           return;
         }
@@ -75,5 +78,7 @@
       this.initializeAttributeInheritance();
     }
   }
-  customElements.define("button-menu-button", MozButtonMenuButton, { extends: "button" });
+  customElements.define("button-menu-button", MozButtonMenuButton, {
+    extends: "button",
+  });
 }

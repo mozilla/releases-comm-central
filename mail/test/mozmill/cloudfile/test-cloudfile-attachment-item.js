@@ -24,7 +24,9 @@ var MODULE_REQUIRES = [
 
 var kAttachmentItemContextID = "msgComposeAttachmentItemContext";
 
-var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm");
+var { cloudFileAccounts } = ChromeUtils.import(
+  "resource:///modules/cloudFileAccounts.jsm"
+);
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
@@ -91,9 +93,7 @@ function test_upload_cancel_repeat() {
  * Test that we can cancel a whole series of files being uploaded at once.
  */
 function test_upload_multiple_and_cancel() {
-  const kFiles = ["./data/testFile1",
-                  "./data/testFile2",
-                  "./data/testFile3"];
+  const kFiles = ["./data/testFile1", "./data/testFile2", "./data/testFile3"];
 
   // Prepare the mock file picker to return our test file.
   let files = collectFiles(kFiles, __file__);
@@ -131,7 +131,12 @@ function test_upload_multiple_and_cancel() {
  *                  function.
  * @param aTargetFile the nsIFile to cancel the upload for.
  */
-function assert_can_cancel_upload(aController, aProvider, aPromise, aTargetFile) {
+function assert_can_cancel_upload(
+  aController,
+  aProvider,
+  aPromise,
+  aTargetFile
+) {
   let cancelled = false;
 
   // Override the provider's cancelFileUpload function.  We can do this because
@@ -144,8 +149,7 @@ function assert_can_cancel_upload(aController, aProvider, aPromise, aTargetFile)
   };
 
   // Retrieve the attachment bucket index for the target file...
-  let index = get_attachmentitem_index_for_file(aController,
-                                                aTargetFile);
+  let index = get_attachmentitem_index_for_file(aController, aTargetFile);
 
   // Select that attachmentitem in the bucket
   select_attachments(aController, index)[0];
@@ -180,8 +184,9 @@ function get_attachmentitem_index_for_file(aController, aFile) {
   let bucket = aController.e("attachmentBucket");
   for (let i = 0; i < bucket.getRowCount(); ++i) {
     let attachmentitem = bucket.getItemAtIndex(i);
-    if (attachmentitem.attachment.url == fileUrl)
+    if (attachmentitem.attachment.url == fileUrl) {
       return i;
+    }
   }
   return null;
 }

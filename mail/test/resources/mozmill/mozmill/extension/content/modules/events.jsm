@@ -37,10 +37,18 @@
 //
 // ***** END LICENSE BLOCK *****
 
-var EXPORTED_SYMBOLS = ["createEventObject", "triggerEvent", "getKeyCodeFromKeySequence",
-                        "triggerKeyEvent", "triggerMouseEvent", "fakeOpenPopup"];
+var EXPORTED_SYMBOLS = [
+  "createEventObject",
+  "triggerEvent",
+  "getKeyCodeFromKeySequence",
+  "triggerKeyEvent",
+  "triggerMouseEvent",
+  "fakeOpenPopup",
+];
 
-var EventUtils = ChromeUtils.import("chrome://mozmill/content/stdlib/EventUtils.jsm");
+var EventUtils = ChromeUtils.import(
+  "chrome://mozmill/content/stdlib/EventUtils.jsm"
+);
 
 var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 
@@ -48,7 +56,13 @@ var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 
 // var eventsLogger = logging.getLogger('eventsLogger');
 
-var createEventObject = function(element, controlKeyDown, altKeyDown, shiftKeyDown, metaKeyDown) {
+var createEventObject = function(
+  element,
+  controlKeyDown,
+  altKeyDown,
+  shiftKeyDown,
+  metaKeyDown
+) {
   var evt = element.ownerDocument.createEventObject();
   evt.shiftKey = shiftKeyDown;
   evt.metaKey = metaKeyDown;
@@ -67,15 +81,37 @@ var createEventObject = function(element, controlKeyDown, altKeyDown, shiftKeyDo
  */
 function fakeOpenPopup(aWindow, aPopup) {
   var popupEvent = aWindow.document.createEvent("MouseEvent");
-  popupEvent.initMouseEvent("popupshowing", true, true, aWindow, 0,
-                            0, 0, 0, 0, false, false, false, false,
-                            0, null);
+  popupEvent.initMouseEvent(
+    "popupshowing",
+    true,
+    true,
+    aWindow,
+    0,
+    0,
+    0,
+    0,
+    0,
+    false,
+    false,
+    false,
+    false,
+    0,
+    null
+  );
   aPopup.dispatchEvent(popupEvent);
 }
 
 /* Fire an event in a browser-compatible manner */
-var triggerEvent = function(element, eventType, canBubble, controlKeyDown, altKeyDown, shiftKeyDown, metaKeyDown) {
-  canBubble = (typeof(canBubble) == undefined) ? true : canBubble;
+var triggerEvent = function(
+  element,
+  eventType,
+  canBubble,
+  controlKeyDown,
+  altKeyDown,
+  shiftKeyDown,
+  metaKeyDown
+) {
+  canBubble = typeof canBubble == undefined ? true : canBubble;
   var evt = element.ownerDocument.createEvent("HTMLEvents");
 
   evt.shiftKey = shiftKeyDown;
@@ -109,7 +145,13 @@ var getKeyCodeFromKeySequence = function(keySequence) {
   throw new Error("Should never reach here");
 };
 
-var triggerKeyEvent = function(element, eventType, aKey, modifiers, expectedEvent) {
+var triggerKeyEvent = function(
+  element,
+  eventType,
+  aKey,
+  modifiers,
+  expectedEvent
+) {
   // get the window and send focus event
   var win = element.ownerDocument ? element.ownerGlobal : element;
   win.focus();
@@ -117,37 +159,60 @@ var triggerKeyEvent = function(element, eventType, aKey, modifiers, expectedEven
 
   // If we have an element check if it needs to be focused
   if (element.ownerDocument) {
-    var focusedElement = utils.getChromeWindow(win).document.commandDispatcher.focusedElement;
-    for (var node = focusedElement; node && node != element;)
+    var focusedElement = utils.getChromeWindow(win).document.commandDispatcher
+      .focusedElement;
+    for (var node = focusedElement; node && node != element;) {
       node = node.parentNode;
+    }
 
     // Only focus the element when it's not focused yet
-    if (!node)
+    if (!node) {
       element.focus();
+    }
   }
 
   if (expectedEvent) {
     // The expected event type has to be set
-    if (!expectedEvent.type)
+    if (!expectedEvent.type) {
       throw new Error("triggerKeyEvent: Expected event type not specified");
-
-    // If no target has been specified use the specified element
-    var target = expectedEvent.target ? expectedEvent.target.getNode() : element;
-    if (!target) {
-      throw new Error("triggerKeyEvent: could not find element " +
-                      expectedEvent.target.getInfo());
     }
 
-    EventUtils.synthesizeKeyExpectEvent(aKey, modifiers, target,
-                                        expectedEvent.type,
-                                        "events.triggerKeyEvent()", win);
+    // If no target has been specified use the specified element
+    var target = expectedEvent.target
+      ? expectedEvent.target.getNode()
+      : element;
+    if (!target) {
+      throw new Error(
+        "triggerKeyEvent: could not find element " +
+          expectedEvent.target.getInfo()
+      );
+    }
+
+    EventUtils.synthesizeKeyExpectEvent(
+      aKey,
+      modifiers,
+      target,
+      expectedEvent.type,
+      "events.triggerKeyEvent()",
+      win
+    );
   } else {
     EventUtils.synthesizeKey(aKey, modifiers, win);
   }
 };
 
 /* Fire a mouse event in a browser-compatible manner */
-var triggerMouseEvent = function(element, eventType, canBubble, clientX, clientY, controlKeyDown, altKeyDown, shiftKeyDown, metaKeyDown) {
+var triggerMouseEvent = function(
+  element,
+  eventType,
+  canBubble,
+  clientX,
+  clientY,
+  controlKeyDown,
+  altKeyDown,
+  shiftKeyDown,
+  metaKeyDown
+) {
   clientX = clientX ? clientX : 0;
   clientY = clientY ? clientY : 0;
 
@@ -156,13 +221,29 @@ var triggerMouseEvent = function(element, eventType, canBubble, clientX, clientY
   var screenX = element.screenX ? element.screenX : 0;
   var screenY = element.screenY ? element.screenY : 0;
 
-  canBubble = (typeof(canBubble) == undefined) ? true : canBubble;
+  canBubble = typeof canBubble == undefined ? true : canBubble;
 
   var evt = element.ownerGlobal.document.createEvent("MouseEvents");
   if (evt.initMouseEvent) {
     // LOG.info("element has initMouseEvent");
     // Safari
-    evt.initMouseEvent(eventType, canBubble, true, element.ownerGlobal, 1, screenX, screenY, clientX, clientY, controlKeyDown, altKeyDown, shiftKeyDown, metaKeyDown, 0, null);
+    evt.initMouseEvent(
+      eventType,
+      canBubble,
+      true,
+      element.ownerGlobal,
+      1,
+      screenX,
+      screenY,
+      clientX,
+      clientY,
+      controlKeyDown,
+      altKeyDown,
+      shiftKeyDown,
+      metaKeyDown,
+      0,
+      null
+    );
   } else {
     // LOG.warn("element doesn't have initMouseEvent; firing an event which should -- but doesn't -- have other mouse-event related attributes here, as well as controlKeyDown, altKeyDown, shiftKeyDown, metaKeyDown");
     evt.initEvent(eventType, canBubble, true);

@@ -22,28 +22,35 @@ function open_chat_tab() {
   mark_action("imh", "open_chat_tab", []);
   wait_for_chat_tab_to_open(mc);
 
-  if (mc.tabmail.tabContainer.allTabs.length != preCount + 1)
+  if (mc.tabmail.tabContainer.allTabs.length != preCount + 1) {
     throw new Error("The tab never actually got opened!");
+  }
 
   let newTab = mc.tabmail.tabInfo[preCount];
   return newTab;
 }
 
 function wait_for_chat_tab_to_open(aController) {
-  if (aController == null)
+  if (aController == null) {
     aController = mc;
+  }
 
   mark_action("imh", "wait_for_chat_tab_to_open", [aController]);
-  utils.waitFor(function() {
-    let chatTabFound = false;
-    for (let tab of mc.tabmail.tabInfo) {
-      if (tab.mode.type == "chat") {
-        chatTabFound = true;
-        break;
+  utils.waitFor(
+    function() {
+      let chatTabFound = false;
+      for (let tab of mc.tabmail.tabInfo) {
+        if (tab.mode.type == "chat") {
+          chatTabFound = true;
+          break;
+        }
       }
-    }
-    return chatTabFound;
-  }, "Timeout waiting for chat tab to open", 1000, 50);
+      return chatTabFound;
+    },
+    "Timeout waiting for chat tab to open",
+    1000,
+    50
+  );
 
   // The above may return immediately, meaning the event queue might not get a
   // chance. Give it a chance now.
@@ -63,8 +70,9 @@ function setupModule(module) {
 function test_chat_tab_restore() {
   // Close everything but the first tab.
   let closeTabs = function() {
-    while (mc.tabmail.tabInfo.length > 1)
+    while (mc.tabmail.tabInfo.length > 1) {
       mc.tabmail.closeTab(1);
+    }
   };
 
   open_chat_tab();
@@ -72,8 +80,9 @@ function test_chat_tab_restore() {
   closeTabs();
   mc.tabmail.restoreTabs(state);
 
-  if (mc.tabmail.tabContainer.allTabs.length < 2)
+  if (mc.tabmail.tabContainer.allTabs.length < 2) {
     throw new Error("The tab is not restored!");
+  }
 
   let tabTypes = ["folder", "chat"];
   for (let i in tabTypes) {

@@ -3,18 +3,24 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 add_task(async () => {
-  await testCheckboxes("paneSecurity", "junkTab", {
-    checkboxID: "manualMark",
-    pref: "mail.spam.manualMark",
-    enabledElements: ["#manualMarkMode radio"],
-  }, {
-    checkboxID: "markAsReadOnSpam",
-    pref: "mail.spam.markAsReadOnSpam",
-  }, {
-    checkboxID: "enableJunkLogging",
-    pref: "mail.spam.logging.enabled",
-    enabledElements: ["#openJunkLogButton"],
-  });
+  await testCheckboxes(
+    "paneSecurity",
+    "junkTab",
+    {
+      checkboxID: "manualMark",
+      pref: "mail.spam.manualMark",
+      enabledElements: ["#manualMarkMode radio"],
+    },
+    {
+      checkboxID: "markAsReadOnSpam",
+      pref: "mail.spam.markAsReadOnSpam",
+    },
+    {
+      checkboxID: "enableJunkLogging",
+      pref: "mail.spam.logging.enabled",
+      enabledElements: ["#openJunkLogButton"],
+    }
+  );
 
   await testCheckboxes("paneSecurity", "phishingTab", {
     checkboxID: "enablePhishingDetector",
@@ -32,12 +38,15 @@ add_task(async () => {
 
   await testRadioButtons("paneSecurity", "junkTab", {
     pref: "mail.spam.manualMarkMode",
-    states: [{
-      id: "manualMarkMode0",
-      prefValue: 0,
-    }, {
-      id: "manualMarkMode1",
-      prefValue: 1,
-    }],
+    states: [
+      {
+        id: "manualMarkMode0",
+        prefValue: 0,
+      },
+      {
+        id: "manualMarkMode1",
+        prefValue: 1,
+      },
+    ],
   });
 });

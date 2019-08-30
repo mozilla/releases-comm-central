@@ -11,7 +11,8 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers"];
 
 // let us have 2 folders
-var folder = null, folder2 = null;
+var folder = null,
+  folder2 = null;
 
 var setupModule = function(module) {
   let fdh = collector.getModule("folder-display-helpers");
@@ -19,7 +20,7 @@ var setupModule = function(module) {
 
   folder = create_folder("SelectionA");
   folder2 = create_folder("SelectionB");
-  make_new_sets_in_folders([folder, folder2], [{count: 50}]);
+  make_new_sets_in_folders([folder, folder2], [{ count: 50 }]);
 };
 
 // https://bugzilla.mozilla.org/show_bug.cgi?id=474701#c80
@@ -153,7 +154,7 @@ function test_enter_scroll_to_new() {
   // leave the folder so that the messages get marked as read
   enter_folder(folder.rootFolder);
   // add a new message, and make sure it is new
-  make_new_sets_in_folder(folder, [{count: 1}]);
+  make_new_sets_in_folder(folder, [{ count: 1 }]);
   // enter the folder
   enter_folder(folder);
   // make sure it (which must be the last row) is visible

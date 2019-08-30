@@ -14,8 +14,12 @@ var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 var baseFolder, savedFolder;
 var setUntagged, setTagged;
 
-var {MailViewConstants} = ChromeUtils.import("resource:///modules/MailViewManager.jsm");
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var { MailViewConstants } = ChromeUtils.import(
+  "resource:///modules/MailViewManager.jsm"
+);
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 
 var setupModule = function(module) {
   let fdh = collector.getModule("folder-display-helpers");
@@ -26,8 +30,7 @@ var setupModule = function(module) {
   // Create a folder with some messages that have no tags and some that are
   //  tagged Important ($label1).
   baseFolder = create_folder("MailViewA");
-  [setUntagged, setTagged] = make_new_sets_in_folder(baseFolder,
-                                                     [{}, {}]);
+  [setUntagged, setTagged] = make_new_sets_in_folder(baseFolder, [{}, {}]);
   setTagged.addTag("$label1"); // Important, by default
 };
 
@@ -53,8 +56,10 @@ function test_save_view_as_folder() {
   wait_for_all_messages_to_load();
 
   // - save it
-  plan_for_modal_dialog("mailnews:virtualFolderProperties",
-                        subtest_save_mail_view);
+  plan_for_modal_dialog(
+    "mailnews:virtualFolderProperties",
+    subtest_save_mail_view
+  );
   // we have to use value here because the option mechanism is not sophisticated
   //  enough.
   mc.window.ViewChange(MailViewConstants.kViewItemVirtual);
@@ -84,8 +89,9 @@ function subtest_save_mail_view(savc) {
 function test_verify_saved_mail_view() {
   // - make sure the folder got created
   savedFolder = baseFolder.getChildNamed(baseFolder.prettyName + "-Important");
-  if (!savedFolder)
+  if (!savedFolder) {
     throw new Error("MailViewA-Important was not created!");
+  }
 
   // - go in the folder and make sure the right messages are displayed
   be_in_folder(savedFolder);

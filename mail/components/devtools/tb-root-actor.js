@@ -11,14 +11,48 @@
 
 var { ActorRegistry } = require("devtools/server/actors/utils/actor-registry");
 
-loader.lazyRequireGetter(this, "RootActor", "devtools/server/actors/root", true);
-loader.lazyRequireGetter(this, "BrowserTabList", "devtools/server/actors/webbrowser", true);
-loader.lazyRequireGetter(this, "BrowserAddonList", "devtools/server/actors/webbrowser", true);
-loader.lazyRequireGetter(this, "sendShutdownEvent", "devtools/server/actors/webbrowser", true);
-loader.lazyRequireGetter(this, "WorkerTargetActorList", "devtools/server/actors/worker/worker-target-actor-list", true);
-loader.lazyRequireGetter(this, "ServiceWorkerRegistrationActorList",
-  "devtools/server/actors/worker/service-worker-registration-list", true);
-loader.lazyRequireGetter(this, "ProcessActorList", "devtools/server/actors/process", true);
+loader.lazyRequireGetter(
+  this,
+  "RootActor",
+  "devtools/server/actors/root",
+  true
+);
+loader.lazyRequireGetter(
+  this,
+  "BrowserTabList",
+  "devtools/server/actors/webbrowser",
+  true
+);
+loader.lazyRequireGetter(
+  this,
+  "BrowserAddonList",
+  "devtools/server/actors/webbrowser",
+  true
+);
+loader.lazyRequireGetter(
+  this,
+  "sendShutdownEvent",
+  "devtools/server/actors/webbrowser",
+  true
+);
+loader.lazyRequireGetter(
+  this,
+  "WorkerTargetActorList",
+  "devtools/server/actors/worker/worker-target-actor-list",
+  true
+);
+loader.lazyRequireGetter(
+  this,
+  "ServiceWorkerRegistrationActorList",
+  "devtools/server/actors/worker/service-worker-registration-list",
+  true
+);
+loader.lazyRequireGetter(
+  this,
+  "ProcessActorList",
+  "devtools/server/actors/process",
+  true
+);
 
 /**
  * Create the root actor for Thunderbird.
@@ -31,8 +65,9 @@ exports.createRootActor = function(aConnection) {
     tabList: new TBTabList(aConnection),
     addonList: new BrowserAddonList(aConnection),
     workerList: new WorkerTargetActorList(aConnection, {}),
-    serviceWorkerRegistrationList:
-      new ServiceWorkerRegistrationActorList(aConnection),
+    serviceWorkerRegistrationList: new ServiceWorkerRegistrationActorList(
+      aConnection
+    ),
     processList: new ProcessActorList(),
     globalActorFactories: ActorRegistry.globalActorFactories,
     onShutdown: sendShutdownEvent,
@@ -62,6 +97,8 @@ class TBTabList extends BrowserTabList {
       return [];
     }
 
-    return tabmail.tabInfo.map(tab => tabmail.getBrowserForTab(tab)).filter(Boolean);
+    return tabmail.tabInfo
+      .map(tab => tabmail.getBrowserForTab(tab))
+      .filter(Boolean);
   }
 }

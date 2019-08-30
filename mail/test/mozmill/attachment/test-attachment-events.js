@@ -28,8 +28,10 @@ var MODULE_REQUIRES = [
 
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { fixIterator } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
 
 var kAttachmentsAdded = "attachments-added";
 var kAttachmentsRemoved = "attachments-removed";
@@ -71,8 +73,10 @@ function test_attachments_added_on_single() {
   // Make sure that we were passed the right subject
   let subjects = lastEvent.detail;
   assert_true(subjects instanceof Ci.nsIMutableArray);
-  assert_equals("http://www.example.com/1",
-                subjects.queryElementAt(0, Ci.nsIMsgAttachment).url);
+  assert_equals(
+    "http://www.example.com/1",
+    subjects.queryElementAt(0, Ci.nsIMsgAttachment).url
+  );
 
   // Make sure that we can get that event again if we
   // attach more files.
@@ -80,8 +84,10 @@ function test_attachments_added_on_single() {
   assert_equals(2, eventCount);
   subjects = lastEvent.detail;
   assert_true(subjects instanceof Ci.nsIMutableArray);
-  assert_equals("http://www.example.com/2",
-                subjects.queryElementAt(0, Ci.nsIMsgAttachment).url);
+  assert_equals(
+    "http://www.example.com/2",
+    subjects.queryElementAt(0, Ci.nsIMsgAttachment).url
+  );
 
   // And check that we don't receive the event if we try to attach a file
   // that's already attached.
@@ -107,8 +113,7 @@ function test_attachments_added_on_multiple() {
 
   // Prepare the attachments - we store the names in attachmentNames to
   // make sure that we observed the right event subjects later on.
-  let attachmentUrls = ["http://www.example.com/1",
-                        "http://www.example.com/2"];
+  let attachmentUrls = ["http://www.example.com/1", "http://www.example.com/2"];
 
   // Open the compose window and add the attachments
   let cw = open_compose_new_mail(mc);
@@ -133,9 +138,11 @@ function test_attachments_added_on_multiple() {
   cw.e("attachmentBucket").removeEventListener(kAttachmentsAdded, listener);
   close_compose_window(cw);
 
-  attachmentUrls = ["http://www.example.com/1",
-                    "http://www.example.com/2",
-                    "http://www.example.com/3"];
+  attachmentUrls = [
+    "http://www.example.com/1",
+    "http://www.example.com/2",
+    "http://www.example.com/3",
+  ];
 
   // Open the compose window and attach the files, and ensure that we saw
   // the attachments-added event
@@ -176,7 +183,6 @@ function test_attachments_removed_on_single() {
     lastEvent = event;
   };
 
-
   // Open up the compose window, attach a file...
   let cw = open_compose_new_mail(mc);
   cw.e("attachmentBucket").addEventListener(kAttachmentsRemoved, listener);
@@ -195,8 +201,10 @@ function test_attachments_removed_on_single() {
   let subjects = lastEvent.detail;
   assert_true(subjects instanceof Ci.nsIMutableArray);
   assert_equals(1, subjects.length);
-  assert_equals(subjects.queryElementAt(0, Ci.nsIMsgAttachment).url,
-                "http://www.example.com/1");
+  assert_equals(
+    subjects.queryElementAt(0, Ci.nsIMsgAttachment).url,
+    "http://www.example.com/1"
+  );
 
   // Ok, let's attach it again, and remove it again to ensure that
   // we still see the event.
@@ -208,8 +216,10 @@ function test_attachments_removed_on_single() {
   subjects = lastEvent.detail;
   assert_true(subjects instanceof Ci.nsIMutableArray);
   assert_equals(1, subjects.length);
-  assert_equals(subjects.queryElementAt(0, Ci.nsIMsgAttachment).url,
-                "http://www.example.com/2");
+  assert_equals(
+    subjects.queryElementAt(0, Ci.nsIMsgAttachment).url,
+    "http://www.example.com/2"
+  );
 
   cw.e("attachmentBucket").removeEventListener(kAttachmentsRemoved, listener);
   close_compose_window(cw);
@@ -232,9 +242,11 @@ function test_attachments_removed_on_multiple() {
   let cw = open_compose_new_mail(mc);
   cw.e("attachmentBucket").addEventListener(kAttachmentsRemoved, listener);
 
-  add_attachments(cw, ["http://www.example.com/1",
-                       "http://www.example.com/2",
-                       "http://www.example.com/3"]);
+  add_attachments(cw, [
+    "http://www.example.com/1",
+    "http://www.example.com/2",
+    "http://www.example.com/3",
+  ]);
 
   // Select all three attachments, and remove them.
   let removedAttachmentItems = select_attachments(cw, 0, 2);
@@ -259,8 +271,7 @@ function test_attachments_removed_on_multiple() {
   }
 
   // Ok, let's attach and remove some again to ensure that we still see the event.
-  add_attachments(cw, ["http://www.example.com/1",
-                       "http://www.example.com/2"]);
+  add_attachments(cw, ["http://www.example.com/1", "http://www.example.com/2"]);
 
   select_attachments(cw, 0, 1);
   cw.window.goDoCommand("cmd_delete");
@@ -285,9 +296,11 @@ function test_no_attachments_removed_on_none() {
   let cw = open_compose_new_mail(mc);
   cw.e("attachmentBucket").addEventListener(kAttachmentsRemoved, listener);
 
-  add_attachments(cw, ["http://www.example.com/1",
-                       "http://www.example.com/2",
-                       "http://www.example.com/3"]);
+  add_attachments(cw, [
+    "http://www.example.com/1",
+    "http://www.example.com/2",
+    "http://www.example.com/3",
+  ]);
 
   // Choose no attachments
   cw.e("attachmentBucket").clearSelection();
@@ -330,9 +343,11 @@ function test_attachment_renamed() {
   let cw = open_compose_new_mail(mc);
   cw.e("attachmentBucket").addEventListener(kAttachmentRenamed, listener);
 
-  add_attachments(cw, ["http://www.example.com/1",
-                       "http://www.example.com/2",
-                       "http://www.example.com/3"]);
+  add_attachments(cw, [
+    "http://www.example.com/1",
+    "http://www.example.com/2",
+    "http://www.example.com/3",
+  ]);
 
   select_attachments(cw, 0);
   cw.window.goDoCommand("cmd_renameAttachment");
@@ -412,9 +427,11 @@ function test_no_attachment_renamed_on_blank() {
   let cw = open_compose_new_mail(mc);
   cw.e("attachmentBucket").addEventListener(kAttachmentRenamed, listener);
 
-  add_attachments(cw, ["http://www.example.com/1",
-                       "http://www.example.com/2",
-                       "http://www.example.com/3"]);
+  add_attachments(cw, [
+    "http://www.example.com/1",
+    "http://www.example.com/2",
+    "http://www.example.com/3",
+  ]);
 
   select_attachments(cw, 0);
   cw.window.goDoCommand("cmd_renameAttachment");

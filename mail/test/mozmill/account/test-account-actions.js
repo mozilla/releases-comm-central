@@ -10,7 +10,11 @@
 
 var MODULE_NAME = "test-account-actions";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "account-manager-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "account-manager-helpers",
+];
 
 var imapAccount, nntpAccount, originalAccountCount;
 
@@ -49,7 +53,10 @@ function setupModule(module) {
   nntpAccount.incomingServer = nntpServer;
   nntpAccount.addIdentity(identity);
   // Now there should be 2 more accounts.
-  assert_equals(MailServices.accounts.allServers.length, originalAccountCount + 2);
+  assert_equals(
+    MailServices.accounts.allServers.length,
+    originalAccountCount + 2
+  );
 }
 
 function teardownModule(module) {
@@ -70,8 +77,13 @@ function teardownModule(module) {
  * @param aIsAddAccountEnabled    true if the menuitems (Add Mail Account+Add Other Account)
  *                                should be enabled, false otherwise
  */
-function subtest_check_account_actions(amc, aAccountKey, aIsSetAsDefaultEnabled,
-                                       aIsRemoveEnabled, aIsAddAccountEnabled) {
+function subtest_check_account_actions(
+  amc,
+  aAccountKey,
+  aIsSetAsDefaultEnabled,
+  aIsRemoveEnabled,
+  aIsAddAccountEnabled
+) {
   let accountRow = get_account_tree_row(aAccountKey, null, amc);
   click_account_tree_row(amc, accountRow);
 
@@ -81,15 +93,24 @@ function subtest_check_account_actions(amc, aAccountKey, aIsSetAsDefaultEnabled,
 
   let actionAddMailAccount = amc.e("accountActionsAddMailAccount");
   assert_not_equals(actionAddMailAccount, undefined);
-  assert_equals(!actionAddMailAccount.getAttribute("disabled"), aIsAddAccountEnabled);
+  assert_equals(
+    !actionAddMailAccount.getAttribute("disabled"),
+    aIsAddAccountEnabled
+  );
 
   let actionAddOtherAccount = amc.e("accountActionsAddOtherAccount");
   assert_not_equals(actionAddOtherAccount, undefined);
-  assert_equals(!actionAddOtherAccount.getAttribute("disabled"), aIsAddAccountEnabled);
+  assert_equals(
+    !actionAddOtherAccount.getAttribute("disabled"),
+    aIsAddAccountEnabled
+  );
 
   let actionSetDefault = amc.e("accountActionsDropdownSetDefault");
   assert_not_equals(actionSetDefault, undefined);
-  assert_equals(!actionSetDefault.getAttribute("disabled"), aIsSetAsDefaultEnabled);
+  assert_equals(
+    !actionSetDefault.getAttribute("disabled"),
+    aIsSetAsDefaultEnabled
+  );
 
   let actionRemove = amc.e("accountActionsDropdownRemove");
   assert_not_equals(actionRemove, undefined);
@@ -110,9 +131,17 @@ function test_account_actions() {
   });
 
   // Local Folders account: can't be removed, can't be default.
-  var localFoldersAccount = MailServices.accounts.FindAccountForServer(MailServices.accounts.localFoldersServer);
+  var localFoldersAccount = MailServices.accounts.FindAccountForServer(
+    MailServices.accounts.localFoldersServer
+  );
   open_advanced_settings(function(amc) {
-    subtest_check_account_actions(amc, localFoldersAccount.key, false, false, true);
+    subtest_check_account_actions(
+      amc,
+      localFoldersAccount.key,
+      false,
+      false,
+      true
+    );
   });
   // SMTP server row: can't be removed, can't be default.
   open_advanced_settings(function(amc) {

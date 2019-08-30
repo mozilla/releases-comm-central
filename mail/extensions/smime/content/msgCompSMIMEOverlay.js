@@ -7,8 +7,10 @@
 /* import-globals-from ../../../components/compose/content/MsgComposeCommands.js */
 /* import-globals-from ../../../components/compose/content/addressingWidgetOverlay.js */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 // Account encryption policy values:
 // const kEncryptionPolicy_Never = 0;
@@ -16,9 +18,9 @@ var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 // const kEncryptionPolicy_IfPossible = 1;
 var kEncryptionPolicy_Always = 2;
 
-var gEncryptedURIService =
-        Cc["@mozilla.org/messenger-smime/smime-encrypted-uris-service;1"]
-          .getService(Ci.nsIEncryptedSMIMEURIsService);
+var gEncryptedURIService = Cc[
+  "@mozilla.org/messenger-smime/smime-encrypted-uris-service;1"
+].getService(Ci.nsIEncryptedSMIMEURIsService);
 
 var gNextSecurityButtonCommand = "";
 var gSMFields = null;
@@ -28,40 +30,48 @@ var gSignOptionChanged;
 
 function onComposerLoad() {
   // Are we already set up ? Or are the required fields missing ?
-  if (gSMFields || !gMsgCompose || !gMsgCompose.compFields)
+  if (gSMFields || !gMsgCompose || !gMsgCompose.compFields) {
     return;
+  }
 
   gMsgCompose.compFields.composeSecure = null;
 
-  gSMFields = Cc["@mozilla.org/messengercompose/composesecure;1"]
-                .createInstance(Ci.nsIMsgComposeSecure);
-  if (!gSMFields)
+  gSMFields = Cc[
+    "@mozilla.org/messengercompose/composesecure;1"
+  ].createInstance(Ci.nsIMsgComposeSecure);
+  if (!gSMFields) {
     return;
+  }
 
   gMsgCompose.compFields.composeSecure = gSMFields;
 
   // Set up the initial security state.
   gSMFields.requireEncryptMessage =
-    gCurrentIdentity.getIntAttribute("encryptionpolicy") == kEncryptionPolicy_Always;
-  if (!gSMFields.requireEncryptMessage &&
-      gEncryptedURIService &&
-      gEncryptedURIService.isEncrypted(gMsgCompose.originalMsgURI)) {
+    gCurrentIdentity.getIntAttribute("encryptionpolicy") ==
+    kEncryptionPolicy_Always;
+  if (
+    !gSMFields.requireEncryptMessage &&
+    gEncryptedURIService &&
+    gEncryptedURIService.isEncrypted(gMsgCompose.originalMsgURI)
+  ) {
     // Override encryption setting if original is known as encrypted.
     gSMFields.requireEncryptMessage = true;
   }
-  if (gSMFields.requireEncryptMessage)
+  if (gSMFields.requireEncryptMessage) {
     setEncryptionUI();
-  else
+  } else {
     setNoEncryptionUI();
+  }
 
   gSMFields.signMessage = gCurrentIdentity.getBoolAttribute("sign_mail");
-  if (gSMFields.signMessage)
+  if (gSMFields.signMessage) {
     setSignatureUI();
-  else
+  } else {
     setNoSignatureUI();
+  }
 }
 
-addEventListener("load", smimeComposeOnLoad, {capture: false, once: true});
+addEventListener("load", smimeComposeOnLoad, { capture: false, once: true });
 
 // this function gets called multiple times.
 function smimeComposeOnLoad() {
@@ -72,7 +82,10 @@ function smimeComposeOnLoad() {
   addEventListener("compose-from-changed", onComposerFromChanged, true);
   addEventListener("compose-send-message", onComposerSendMessage, true);
 
-  addEventListener("unload", smimeComposeOnUnload, {capture: false, once: true});
+  addEventListener("unload", smimeComposeOnUnload, {
+    capture: false,
+    once: true,
+  });
 }
 
 function smimeComposeOnUnload() {
@@ -90,21 +103,30 @@ function GetServer() {
 function showNeedSetupInfo() {
   let compSmimeBundle = document.getElementById("bundle_comp_smime");
   let brandBundle = document.getElementById("brandBundle");
-  if (!compSmimeBundle || !brandBundle)
+  if (!compSmimeBundle || !brandBundle) {
     return;
+  }
 
-  let buttonPressed =
-    Services.prompt.confirmEx(window,
-                              brandBundle.getString("brandShortName"),
-                              compSmimeBundle.getString("NeedSetup"),
-                              Services.prompt.STD_YES_NO_BUTTONS, 0, 0, 0, null, {});
-  if (buttonPressed == 0)
+  let buttonPressed = Services.prompt.confirmEx(
+    window,
+    brandBundle.getString("brandShortName"),
+    compSmimeBundle.getString("NeedSetup"),
+    Services.prompt.STD_YES_NO_BUTTONS,
+    0,
+    0,
+    0,
+    null,
+    {}
+  );
+  if (buttonPressed == 0) {
     MsgAccountManager("am-smime.xul", GetServer());
+  }
 }
 
 function toggleEncryptMessage() {
-  if (!gSMFields)
+  if (!gSMFields) {
     return;
+  }
 
   gSMFields.requireEncryptMessage = !gSMFields.requireEncryptMessage;
 
@@ -125,12 +147,14 @@ function toggleEncryptMessage() {
 }
 
 function toggleSignMessage() {
-  if (!gSMFields)
+  if (!gSMFields) {
     return;
+  }
 
   gSMFields.signMessage = !gSMFields.signMessage;
 
-  if (gSMFields.signMessage) { // make sure we have a cert name...
+  if (gSMFields.signMessage) {
+    // make sure we have a cert name...
     if (!gCurrentIdentity.getUnicharAttribute("signing_cert_name")) {
       gSMFields.signMessage = false;
       showNeedSetupInfo();
@@ -146,13 +170,16 @@ function toggleSignMessage() {
 }
 
 function setSecuritySettings(menu_id) {
-  if (!gSMFields)
+  if (!gSMFields) {
     return;
+  }
 
-  document.getElementById("menu_securityEncryptRequire" + menu_id)
-          .setAttribute("checked", gSMFields.requireEncryptMessage);
-  document.getElementById("menu_securitySign" + menu_id)
-          .setAttribute("checked", gSMFields.signMessage);
+  document
+    .getElementById("menu_securityEncryptRequire" + menu_id)
+    .setAttribute("checked", gSMFields.requireEncryptMessage);
+  document
+    .getElementById("menu_securitySign" + menu_id)
+    .setAttribute("checked", gSMFields.signMessage);
 }
 
 function setNextCommand(what) {
@@ -187,11 +214,15 @@ function setSignatureUI() {
 }
 
 function setNoEncryptionUI() {
-  top.document.getElementById("encryption-status").classList.remove("encrypting-msg");
+  top.document
+    .getElementById("encryption-status")
+    .classList.remove("encrypting-msg");
 }
 
 function setEncryptionUI() {
-  top.document.getElementById("encryption-status").classList.add("encrypting-msg");
+  top.document
+    .getElementById("encryption-status")
+    .classList.add("encrypting-msg");
 }
 
 function showMessageComposeSecurityStatus() {
@@ -241,14 +272,13 @@ function onComposerSendMessage() {
   let emailAddresses = {};
 
   try {
-    if (!gMsgCompose.compFields.composeSecure.requireEncryptMessage)
+    if (!gMsgCompose.compFields.composeSecure.requireEncryptMessage) {
       return;
+    }
 
     Cc["@mozilla.org/messenger-smime/smimejshelper;1"]
       .createInstance(Ci.nsISMimeJSHelper)
-      .getNoCertAddresses(gMsgCompose.compFields,
-                                  missingCount,
-                                  emailAddresses);
+      .getNoCertAddresses(gMsgCompose.compFields, missingCount, emailAddresses);
   } catch (e) {
     return;
   }
@@ -264,22 +294,27 @@ function onComposerSendMessage() {
       autocompleteDirectory = gCurrentIdentity.directoryServer;
     } else if (Services.prefs.getBoolPref("ldap_2.autoComplete.useDirectory")) {
       // Try the global one
-      autocompleteDirectory =
-        Services.prefs.getCharPref("ldap_2.autoComplete.directoryServer");
+      autocompleteDirectory = Services.prefs.getCharPref(
+        "ldap_2.autoComplete.directoryServer"
+      );
     }
 
-    if (autocompleteDirectory)
-      window.openDialog("chrome://messenger-smime/content/certFetchingStatus.xul",
-                        "",
-                        "chrome,modal,resizable,centerscreen",
-                        autocompleteDirectory,
-                        emailAddresses.value);
+    if (autocompleteDirectory) {
+      window.openDialog(
+        "chrome://messenger-smime/content/certFetchingStatus.xul",
+        "",
+        "chrome,modal,resizable,centerscreen",
+        autocompleteDirectory,
+        emailAddresses.value
+      );
+    }
   }
 }
 
 function onComposerFromChanged() {
-  if (!gSMFields)
+  if (!gSMFields) {
     return;
+  }
 
   var encryptionPolicy = gCurrentIdentity.getIntAttribute("encryptionpolicy");
   var useEncryption = false;
@@ -287,7 +322,7 @@ function onComposerFromChanged() {
     // Encryption wasn't manually checked.
     // Set up the encryption policy from the setting of the new identity.
 
-    useEncryption = (encryptionPolicy == kEncryptionPolicy_Always);
+    useEncryption = encryptionPolicy == kEncryptionPolicy_Always;
   } else if (encryptionPolicy != kEncryptionPolicy_Always) {
     // The encryption policy was manually checked. That means we can get into
     // the situation that the new identity doesn't have a cert to encrypt with.
@@ -295,13 +330,16 @@ function onComposerFromChanged() {
 
     // Encrypted (policy unencrypted, manually changed).
     // Make sure we have a cert for encryption.
-    useEncryption = !!gCurrentIdentity.getUnicharAttribute("encryption_cert_name");
+    useEncryption = !!gCurrentIdentity.getUnicharAttribute(
+      "encryption_cert_name"
+    );
   }
   gSMFields.requireEncryptMessage = useEncryption;
-  if (useEncryption)
+  if (useEncryption) {
     setEncryptionUI();
-  else
+  } else {
     setNoEncryptionUI();
+  }
 
   var signMessage = gCurrentIdentity.getBoolAttribute("sign_mail");
   var useSigning = false;
@@ -320,8 +358,9 @@ function onComposerFromChanged() {
     useSigning = !!gCurrentIdentity.getUnicharAttribute("signing_cert_name");
   }
   gSMFields.signMessage = useSigning;
-  if (useSigning)
+  if (useSigning) {
     setSignatureUI();
-  else
+  } else {
     setNoSignatureUI();
+  }
 }

@@ -1,10 +1,10 @@
 /* import-globals-from resources/viewWrapperTestUtils.js */
 load("resources/viewWrapperTestUtils.js");
-initViewWrapperTestUtils({mode: "imap", offline: false});
+initViewWrapperTestUtils({ mode: "imap", offline: false });
 
 function* test_real_folder_load_and_move_to_trash() {
   let viewWrapper = make_view_wrapper();
-  let [msgFolder, msgSet] = make_folder_with_sets([{count: 1}]);
+  let [msgFolder, msgSet] = make_folder_with_sets([{ count: 1 }]);
 
   yield wait_for_message_injection();
   yield async_view_open(viewWrapper, get_real_injection_folder(msgFolder));
@@ -28,15 +28,12 @@ function* test_empty_trash() {
 
   Assert.ok(viewWrapper.displayedFolder !== null);
 
-  let [msgSet] = make_new_sets_in_folders([trashHandle], [{count: 1}]);
+  let [msgSet] = make_new_sets_in_folders([trashHandle], [{ count: 1 }]);
   yield wait_for_message_injection();
   verify_messages_in_view(msgSet, viewWrapper);
 }
 
-var tests = [
-  test_real_folder_load_and_move_to_trash,
-  test_empty_trash,
-];
+var tests = [test_real_folder_load_and_move_to_trash, test_empty_trash];
 
 function run_test() {
   async_run_tests(tests);

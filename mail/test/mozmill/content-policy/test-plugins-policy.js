@@ -23,7 +23,7 @@ var MODULE_REQUIRES = [
   "content-tab-helpers",
 ];
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var folder = null;
 var composeHelper = null;
@@ -34,15 +34,16 @@ var gMsgNo = 0;
 var url = collector.addHttpResource("../content-policy/html", "content");
 
 // These two constants are used to build the message body.
-var msgBody = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">\n' +
-"<html>\n" +
-"<head>\n" +
-"\n" +
-'<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">\n' +
-"</head>\n" +
-'<body bgcolor="#ffffff" text="#000000">\n' +
-'<embed id="testelement" type="application/x-test" width="400" height="400" border="1"></embed>\n' +
-"</body>\n</html>\n";
+var msgBody =
+  '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">\n' +
+  "<html>\n" +
+  "<head>\n" +
+  "\n" +
+  '<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">\n' +
+  "</head>\n" +
+  '<body bgcolor="#ffffff" text="#000000">\n' +
+  '<embed id="testelement" type="application/x-test" width="400" height="400" border="1"></embed>\n' +
+  "</body>\n</html>\n";
 
 function setupModule(module) {
   let fdh = collector.getModule("folder-display-helpers");
@@ -58,24 +59,31 @@ function setupModule(module) {
 }
 
 function addToFolder(aSubject, aBody, aFolder) {
-  let msgId = Cc["@mozilla.org/uuid-generator;1"]
-                          .getService(Ci.nsIUUIDGenerator)
-                          .generateUUID() + "@mozillamessaging.invalid";
+  let msgId =
+    Cc["@mozilla.org/uuid-generator;1"]
+      .getService(Ci.nsIUUIDGenerator)
+      .generateUUID() + "@mozillamessaging.invalid";
 
-  let source = "From - Sat Nov  1 12:39:54 2008\n" +
-
-  "X-Mozilla-Status: 0001\n" +
-               "X-Mozilla-Status2: 00000000\n" +
-               "Message-ID: <" + msgId + ">\n" +
-               "Date: Wed, 11 Jun 2008 20:32:02 -0400\n" +
-               "From: Tester <tests@mozillamessaging.invalid>\n" +
-               "User-Agent: Thunderbird 3.0a2pre (Macintosh/2008052122)\n" +
-               "MIME-Version: 1.0\n" +
-               "To: recipient@mozillamessaging.invalid\n" +
-               "Subject: " + aSubject + "\n" +
-               "Content-Type: text/html; charset=ISO-8859-1\n" +
-               "Content-Transfer-Encoding: 7bit\n" +
-               "\n" + aBody + "\n";
+  let source =
+    "From - Sat Nov  1 12:39:54 2008\n" +
+    "X-Mozilla-Status: 0001\n" +
+    "X-Mozilla-Status2: 00000000\n" +
+    "Message-ID: <" +
+    msgId +
+    ">\n" +
+    "Date: Wed, 11 Jun 2008 20:32:02 -0400\n" +
+    "From: Tester <tests@mozillamessaging.invalid>\n" +
+    "User-Agent: Thunderbird 3.0a2pre (Macintosh/2008052122)\n" +
+    "MIME-Version: 1.0\n" +
+    "To: recipient@mozillamessaging.invalid\n" +
+    "Subject: " +
+    aSubject +
+    "\n" +
+    "Content-Type: text/html; charset=ISO-8859-1\n" +
+    "Content-Transfer-Encoding: 7bit\n" +
+    "\n" +
+    aBody +
+    "\n";
 
   aFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   aFolder.gettingNewMessages = true;
@@ -105,8 +113,11 @@ function addMsgToFolderAndCheckContent(loadAllowed) {
   // select the newly created message
   let msgHdr = select_click_row(gMsgNo);
 
-  if (msgDbHdr != msgHdr)
-    throw new Error("Selected Message Header is not the same as generated header");
+  if (msgDbHdr != msgHdr) {
+    throw new Error(
+      "Selected Message Header is not the same as generated header"
+    );
+  }
 
   assert_selected_and_displayed(gMsgNo);
 
@@ -118,11 +129,16 @@ function addMsgToFolderAndCheckContent(loadAllowed) {
   mc.sleep(1000);
 
   // Now check that the content hasn't been loaded
-  if (isPluginLoaded(mozmill.getMail3PaneController().window
-                            .content.document) != loadAllowed)
-    throw new Error(loadAllowed ?
-                    "Plugin has been unexpectedly blocked in message content" :
-                    "Plugin has not been blocked in message as expected");
+  if (
+    isPluginLoaded(mozmill.getMail3PaneController().window.content.document) !=
+    loadAllowed
+  ) {
+    throw new Error(
+      loadAllowed
+        ? "Plugin has been unexpectedly blocked in message content"
+        : "Plugin has not been blocked in message as expected"
+    );
+  }
 }
 
 function checkStandaloneMessageWindow(loadAllowed) {
@@ -139,10 +155,13 @@ function checkStandaloneMessageWindow(loadAllowed) {
   // for long enough in all situations, so this will have to do for now.
   mc.sleep(1000);
 
-  if (isPluginLoaded(msgc.window.content.document) != loadAllowed)
-    throw new Error(loadAllowed ?
-                    "Plugin has been unexpectedly blocked in standalone window" :
-                    "Plugin has not been blocked in standalone window as expected");
+  if (isPluginLoaded(msgc.window.content.document) != loadAllowed) {
+    throw new Error(
+      loadAllowed
+        ? "Plugin has been unexpectedly blocked in standalone window"
+        : "Plugin has not been blocked in standalone window as expected"
+    );
+  }
 
   // Clean up, close the window
   close_message_window(msgc);
@@ -166,8 +185,13 @@ function test_checkPluginsInNonMessageContent() {
 
   wait_for_message_display_completion();
 
-  if (isPluginLoaded(mozmill.getMail3PaneController().window.content.document))
-    throw new Error("Plugin is turned on in content in message pane - it should not be.");
+  if (
+    isPluginLoaded(mozmill.getMail3PaneController().window.content.document)
+  ) {
+    throw new Error(
+      "Plugin is turned on in content in message pane - it should not be."
+    );
+  }
 }
 
 function test_3paneWindowDeniedAgain() {
@@ -176,8 +200,11 @@ function test_3paneWindowDeniedAgain() {
   assert_selected_and_displayed(0);
 
   // Now check that the content hasn't been loaded
-  if (isPluginLoaded(mozmill.getMail3PaneController().window.content.document))
+  if (
+    isPluginLoaded(mozmill.getMail3PaneController().window.content.document)
+  ) {
     throw new Error("Plugin has not been blocked in message as expected");
+  }
 }
 
 function test_checkStandaloneMessageWindowDenied() {
@@ -191,11 +218,13 @@ function test_checkContentTab() {
 
   let newTab = open_content_tab_with_url(url + "plugin.html");
 
-  if (isPluginLoaded(mc.tabmail.getBrowserForSelectedTab().contentDocument))
+  if (isPluginLoaded(mc.tabmail.getBrowserForSelectedTab().contentDocument)) {
     throw new Error("Plugin has been unexpectedly not blocked in content tab");
+  }
 
   mc.tabmail.closeTab(newTab);
 
-  if (mc.tabmail.tabContainer.allTabs.length != preCount)
+  if (mc.tabmail.tabContainer.allTabs.length != preCount) {
     throw new Error("The content tab didn't close");
+  }
 }

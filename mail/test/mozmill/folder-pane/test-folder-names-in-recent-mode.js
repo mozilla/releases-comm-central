@@ -14,7 +14,9 @@ var MODULE_NAME = "test-folder-names-in-recent-mode";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers"];
 
-var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var { fixIterator } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
 
 function setupModule(module) {
   collector.getModule("folder-display-helpers").installInto(module);
@@ -27,9 +29,14 @@ function test_folder_names_in_recent_view_mode() {
   // We need 2 local accounts that have pristine folders with
   // unmodified times, so that it does not influence the
   // list of Recent folders. So clear out the most-recently-used time.
-  for (let acc of fixIterator(MailServices.accounts.accounts, Ci.nsIMsgAccount)) {
-    for (let fld of fixIterator(acc.incomingServer.rootFolder.subFolders,
-                                Ci.nsIMsgFolder)) {
+  for (let acc of fixIterator(
+    MailServices.accounts.accounts,
+    Ci.nsIMsgAccount
+  )) {
+    for (let fld of fixIterator(
+      acc.incomingServer.rootFolder.subFolders,
+      Ci.nsIMsgFolder
+    )) {
       fld.setStringProperty("MRUTime", "0");
     }
   }
@@ -53,10 +60,10 @@ function test_folder_names_in_recent_view_mode() {
   assert_folder_tree_view_row_count(10);
 
   // Create some messages in the folders to make them modified.
-  make_new_sets_in_folder(fUnique, [{count: 1}]);
-  make_new_sets_in_folder(fDup1, [{count: 1}]);
-  make_new_sets_in_folder(fDup2, [{count: 2}]);
-  make_new_sets_in_folder(fDup3, [{count: 3}]);
+  make_new_sets_in_folder(fUnique, [{ count: 1 }]);
+  make_new_sets_in_folder(fDup1, [{ count: 1 }]);
+  make_new_sets_in_folder(fDup2, [{ count: 2 }]);
+  make_new_sets_in_folder(fDup3, [{ count: 3 }]);
 
   mc.window.gFolderTreeView.mode = "recent_compact";
 

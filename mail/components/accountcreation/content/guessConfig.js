@@ -6,7 +6,7 @@
 /* import-globals-from emailWizard.js */
 
 var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // This is a bit ugly - we set outgoingDone to false
 // when emailWizard.js cancels the outgoing probe because the user picked
@@ -53,11 +53,17 @@ var outgoingDone = false;
  *   Default "both". Whether to guess only the incoming or outgoing server.
  * @result {Abortable} Allows you to cancel the guess
  */
-function guessConfig(domain, progressCallback, successCallback, errorCallback,
-                     resultConfig, which) {
-  assert(typeof(progressCallback) == "function", "need progressCallback");
-  assert(typeof(successCallback) == "function", "need successCallback");
-  assert(typeof(errorCallback) == "function", "need errorCallback");
+function guessConfig(
+  domain,
+  progressCallback,
+  successCallback,
+  errorCallback,
+  resultConfig,
+  which
+) {
+  assert(typeof progressCallback == "function", "need progressCallback");
+  assert(typeof successCallback == "function", "need successCallback");
+  assert(typeof errorCallback == "function", "need errorCallback");
 
   // Servers that we know enough that they support OAuth2 do not need guessing.
   if (resultConfig.incoming.auth == Ci.nsMsgAuthMethod.OAuth2) {
@@ -65,16 +71,16 @@ function guessConfig(domain, progressCallback, successCallback, errorCallback,
     return new Abortable();
   }
 
-  if (!resultConfig)
+  if (!resultConfig) {
     resultConfig = new AccountConfig();
+  }
   resultConfig.source = AccountConfig.kSourceGuess;
 
   if (!which) {
     which = "both";
   }
 
-  if (!Services.prefs.getBoolPref(
-      "mailnews.auto_config.guess.enabled")) {
+  if (!Services.prefs.getBoolPref("mailnews.auto_config.guess.enabled")) {
     errorCallback("Guessing config disabled per user preference");
     return new Abortable();
   }
@@ -83,8 +89,8 @@ function guessConfig(domain, progressCallback, successCallback, errorCallback,
   var outgoingHostDetector = null;
   var incomingEx = null; // if incoming had error, store ex here
   var outgoingEx = null; // if incoming had error, store ex here
-  var incomingDone = (which == "outgoing");
-  var outgoingDone = (which == "incoming");
+  var incomingDone = which == "outgoing";
+  var outgoingDone = which == "incoming";
   // If we're offline, we're going to pick the most common settings.
   // (Not the "best" settings, but common).
   if (Services.io.offline) {
@@ -112,9 +118,14 @@ function guessConfig(domain, progressCallback, successCallback, errorCallback,
     return new Abortable();
   }
   var progress = function(thisTry) {
-    progressCallback(protocolToString(thisTry.protocol), thisTry.hostname,
-                     thisTry.port, sslConvertToSocketType(thisTry.ssl), false,
-                     resultConfig);
+    progressCallback(
+      protocolToString(thisTry.protocol),
+      thisTry.hostname,
+      thisTry.port,
+      sslConvertToSocketType(thisTry.ssl),
+      false,
+      resultConfig
+    );
   };
 
   var updateConfig = function(config) {
@@ -131,13 +142,17 @@ function guessConfig(domain, progressCallback, successCallback, errorCallback,
     if (incomingEx) {
       try {
         errorCallback(incomingEx, resultConfig);
-      } catch (e) { errorInCallback(e); }
+      } catch (e) {
+        errorInCallback(e);
+      }
       return;
     }
     if (outgoingEx) {
       try {
         errorCallback(outgoingEx, resultConfig);
-      } catch (e) { errorInCallback(e); }
+      } catch (e) {
+        errorInCallback(e);
+      }
       return;
     }
     if (incomingDone && outgoingDone) {
@@ -146,7 +161,9 @@ function guessConfig(domain, progressCallback, successCallback, errorCallback,
       } catch (e) {
         try {
           errorCallback(e);
-        } catch (e) { errorInCallback(e); }
+        } catch (e) {
+          errorInCallback(e);
+        }
       }
     }
   };
@@ -164,11 +181,22 @@ function guessConfig(domain, progressCallback, successCallback, errorCallback,
     // Fix SSLErrorHandler and security warning dialog in emailWizard.js.
     server.badCert = thisTry.selfSignedCert;
     server.targetSite = thisTry.targetSite;
-    logger.info("CHOOSING " + server.type + " " + server.hostname + ":" +
-          server.port + ", auth method " + server.auth +
-          (server.authAlternatives.length ? " " + server.authAlternatives.join(",") : "") +
-          ", SSL " + server.socketType +
-          (server.badCert ? " (bad cert!)" : ""));
+    logger.info(
+      "CHOOSING " +
+        server.type +
+        " " +
+        server.hostname +
+        ":" +
+        server.port +
+        ", auth method " +
+        server.auth +
+        (server.authAlternatives.length
+          ? " " + server.authAlternatives.join(",")
+          : "") +
+        ", SSL " +
+        server.socketType +
+        (server.badCert ? " (bad cert!)" : "")
+    );
   };
 
   var outgoingSuccess = function(thisTry, alternativeTries) {
@@ -186,9 +214,14 @@ function guessConfig(domain, progressCallback, successCallback, errorCallback,
       resultConfig.outgoingAlternatives.push(altServer);
     }
 
-    progressCallback(resultConfig.outgoing.type,
-        resultConfig.outgoing.hostname, resultConfig.outgoing.port,
-        resultConfig.outgoing.socketType, true, resultConfig);
+    progressCallback(
+      resultConfig.outgoing.type,
+      resultConfig.outgoing.hostname,
+      resultConfig.outgoing.port,
+      resultConfig.outgoing.socketType,
+      true,
+      resultConfig
+    );
     outgoingDone = true;
     checkDone();
   };
@@ -207,9 +240,14 @@ function guessConfig(domain, progressCallback, successCallback, errorCallback,
       resultConfig.incomingAlternatives.push(altServer);
     }
 
-    progressCallback(resultConfig.incoming.type,
-        resultConfig.incoming.hostname, resultConfig.incoming.port,
-        resultConfig.incoming.socketType, true, resultConfig);
+    progressCallback(
+      resultConfig.incoming.type,
+      resultConfig.incoming.hostname,
+      resultConfig.incoming.port,
+      resultConfig.incoming.socketType,
+      true,
+      resultConfig
+    );
     incomingDone = true;
     checkDone();
   };
@@ -228,29 +266,47 @@ function guessConfig(domain, progressCallback, successCallback, errorCallback,
     outgoingHostDetector.cancel(new CancelOthersException());
   };
 
-  incomingHostDetector = new IncomingHostDetector(progress, incomingSuccess,
-                                                  incomingError);
-  outgoingHostDetector = new OutgoingHostDetector(progress, outgoingSuccess,
-                                                  outgoingError);
+  incomingHostDetector = new IncomingHostDetector(
+    progress,
+    incomingSuccess,
+    incomingError
+  );
+  outgoingHostDetector = new OutgoingHostDetector(
+    progress,
+    outgoingSuccess,
+    outgoingError
+  );
   if (which == "incoming" || which == "both") {
-    incomingHostDetector.start(resultConfig.incoming.hostname ?
-            resultConfig.incoming.hostname : domain,
-        !!resultConfig.incoming.hostname, resultConfig.incoming.type,
-        resultConfig.incoming.port, resultConfig.incoming.socketType);
+    incomingHostDetector.start(
+      resultConfig.incoming.hostname ? resultConfig.incoming.hostname : domain,
+      !!resultConfig.incoming.hostname,
+      resultConfig.incoming.type,
+      resultConfig.incoming.port,
+      resultConfig.incoming.socketType
+    );
   }
   if (which == "outgoing" || which == "both") {
-    outgoingHostDetector.start(resultConfig.outgoing.hostname ?
-            resultConfig.outgoing.hostname : domain,
-        !!resultConfig.outgoing.hostname, "smtp",
-        resultConfig.outgoing.port, resultConfig.outgoing.socketType);
+    outgoingHostDetector.start(
+      resultConfig.outgoing.hostname ? resultConfig.outgoing.hostname : domain,
+      !!resultConfig.outgoing.hostname,
+      "smtp",
+      resultConfig.outgoing.port,
+      resultConfig.outgoing.socketType
+    );
   }
 
-  return new GuessAbortable(incomingHostDetector, outgoingHostDetector,
-                            updateConfig);
+  return new GuessAbortable(
+    incomingHostDetector,
+    outgoingHostDetector,
+    updateConfig
+  );
 }
 
-function GuessAbortable(incomingHostDetector, outgoingHostDetector,
-                        updateConfig) {
+function GuessAbortable(
+  incomingHostDetector,
+  outgoingHostDetector,
+  updateConfig
+) {
   Abortable.call(this);
   this._incomingHostDetector = incomingHostDetector;
   this._outgoingHostDetector = outgoingHostDetector;
@@ -281,8 +337,7 @@ var kSuccess = 3;
  * of this file and not the same as those used in AccountConfig (type,
  * socketType). (fix this)
  */
-function HostTry() {
-}
+function HostTry() {}
 HostTry.prototype = {
   // IMAP, POP or SMTP
   protocol: UNKNOWN,
@@ -351,14 +406,17 @@ HostDetector.prototype = {
     // this happens, the javascript stack is horked.
     for (let i = 0; i < this._hostsToTry.length; i++) {
       let thisTry = this._hostsToTry[i]; // {HostTry}
-      if (thisTry.abortable)
+      if (thisTry.abortable) {
         thisTry.abortable.cancel(ex);
+      }
       thisTry.status = kFailed; // or don't set? Maybe we want to continue.
     }
-    if (ex instanceof CancelOthersException)
+    if (ex instanceof CancelOthersException) {
       return;
-    if (!ex)
+    }
+    if (!ex) {
       ex = new CancelledException();
+    }
     this.mErrorCallback(ex);
   },
 
@@ -378,41 +436,64 @@ HostDetector.prototype = {
    */
   start(domain, hostIsPrecise, type, port, socketType) {
     domain = domain.replace(/\s*/g, ""); // Remove whitespace
-    if (!hostIsPrecise)
+    if (!hostIsPrecise) {
       hostIsPrecise = false;
-    var protocol = sanitize.translate(type,
-        { "imap": IMAP, "pop3": POP, "smtp": SMTP }, UNKNOWN);
-    if (!port)
+    }
+    var protocol = sanitize.translate(
+      type,
+      { imap: IMAP, pop3: POP, smtp: SMTP },
+      UNKNOWN
+    );
+    if (!port) {
       port = UNKNOWN;
-    var ssl_only = Services.prefs.getBoolPref("mailnews.auto_config.guess.sslOnly");
+    }
+    var ssl_only = Services.prefs.getBoolPref(
+      "mailnews.auto_config.guess.sslOnly"
+    );
     var ssl = ConvertSocketTypeToSSL(socketType);
     this._cancel = false;
-    this._log.info("doing auto detect for protocol " + protocol +
-        ", domain " + domain + ", (exactly: " + hostIsPrecise +
-        "), port " + port + ", ssl " + ssl);
+    this._log.info(
+      "doing auto detect for protocol " +
+        protocol +
+        ", domain " +
+        domain +
+        ", (exactly: " +
+        hostIsPrecise +
+        "), port " +
+        port +
+        ", ssl " +
+        ssl
+    );
 
     // fill this._hostsToTry
     this._hostsToTry = [];
     var hostnamesToTry = [];
     // if hostIsPrecise is true, it's because that's what the user input
     // explicitly, and we'll just try it, nothing else.
-    if (hostIsPrecise)
+    if (hostIsPrecise) {
       hostnamesToTry.push(domain);
-    else
+    } else {
       hostnamesToTry = this._hostnamesToTry(protocol, domain);
+    }
 
     for (let i = 0; i < hostnamesToTry.length; i++) {
       let hostname = hostnamesToTry[i];
       let hostEntries = this._portsToTry(hostname, protocol, ssl, port);
       for (let j = 0; j < hostEntries.length; j++) {
         let hostTry = hostEntries[j]; // from getHostEntry()
-        if (ssl_only && hostTry.ssl == NONE)
+        if (ssl_only && hostTry.ssl == NONE) {
           continue;
+        }
         hostTry.hostname = hostname;
         hostTry.status = kNotTried;
-        hostTry.desc = hostTry.hostname + ":" + hostTry.port +
-                       " ssl=" + hostTry.ssl + " " +
-                       protocolToString(hostTry.protocol);
+        hostTry.desc =
+          hostTry.hostname +
+          ":" +
+          hostTry.port +
+          " ssl=" +
+          hostTry.ssl +
+          " " +
+          protocolToString(hostTry.protocol);
         this._hostsToTry.push(hostTry);
       }
     }
@@ -426,10 +507,13 @@ HostDetector.prototype = {
   // higher-priority ones have failed, we abort all lower-priority ones.
 
   _tryAll() {
-    if (this._cancel)
+    if (this._cancel) {
       return;
+    }
     var me = this;
-    var timeout = Services.prefs.getIntPref("mailnews.auto_config.guess.timeout");
+    var timeout = Services.prefs.getIntPref(
+      "mailnews.auto_config.guess.timeout"
+    );
     // We assume we'll resolve the same proxy for all tries, and
     // proceed to use the first resolved proxy for all tries. This
     // assumption is generally sound, but not always: mechanisms like
@@ -438,26 +522,37 @@ HostDetector.prototype = {
     doProxy(this._hostsToTry[0].hostname, function(proxy) {
       for (let i = 0; i < me._hostsToTry.length; i++) {
         let thisTry = me._hostsToTry[i]; // {HostTry}
-        if (thisTry.status != kNotTried)
+        if (thisTry.status != kNotTried) {
           continue;
+        }
         me._log.info(thisTry.desc + ": initializing probe...");
-        if (i == 0) // showing 50 servers at once is pointless
+        if (i == 0) {
+          // showing 50 servers at once is pointless
           me.mProgressCallback(thisTry);
+        }
 
         thisTry.abortable = SocketUtil(
-          thisTry.hostname, thisTry.port, thisTry.ssl,
-          thisTry.commands, timeout, proxy,
+          thisTry.hostname,
+          thisTry.port,
+          thisTry.ssl,
+          thisTry.commands,
+          timeout,
+          proxy,
           new SSLErrorHandler(thisTry, me._log),
-          function(wiredata) { // result callback
-            if (me._cancel)
-              return; // don't use response anymore
+          function(wiredata) {
+            // result callback
+            if (me._cancel) {
+              return;
+            } // don't use response anymore
             me.mProgressCallback(thisTry);
             me._processResult(thisTry, wiredata);
             me._checkFinished();
           },
-          function(e) { // error callback
-            if (me._cancel)
-              return; // who set cancel to true already called mErrorCallback()
+          function(e) {
+            // error callback
+            if (me._cancel) {
+              return;
+            } // who set cancel to true already called mErrorCallback()
             me._log.warn(thisTry.desc + ": " + e);
             thisTry.status = kFailed;
             me._checkFinished();
@@ -481,9 +576,13 @@ HostDetector.prototype = {
         return;
       }
 
-      if (thisTry._gotCertError == Ci.nsICertOverrideService.ERROR_UNTRUSTED ||
-          thisTry._gotCertError == Ci.nsICertOverrideService.ERROR_TIME) {
-        this._log.info(thisTry.desc + ": TRYING AGAIN, hopefully with exception recorded");
+      if (
+        thisTry._gotCertError == Ci.nsICertOverrideService.ERROR_UNTRUSTED ||
+        thisTry._gotCertError == Ci.nsICertOverrideService.ERROR_TIME
+      ) {
+        this._log.info(
+          thisTry.desc + ": TRYING AGAIN, hopefully with exception recorded"
+        );
         thisTry._gotCertError = 0;
         thisTry.selfSignedCert = true; // _next_ run gets this exception
         thisTry.status = kNotTried; // try again (with exception)
@@ -498,24 +597,31 @@ HostDetector.prototype = {
       return;
     }
     this._log.info(thisTry.desc + ": wiredata: " + wiredata.join(""));
-    thisTry.authMethods =
-        this._advertisesAuthMethods(thisTry.protocol, wiredata);
+    thisTry.authMethods = this._advertisesAuthMethods(
+      thisTry.protocol,
+      wiredata
+    );
     if (thisTry.ssl == TLS && !this._hasTLS(thisTry, wiredata)) {
       this._log.info(thisTry.desc + ": STARTTLS wanted, but not offered");
       thisTry.status = kFailed;
       return;
     }
-    this._log.info(thisTry.desc + ": success" +
-        (thisTry.selfSignedCert ? " (selfSignedCert)" : ""));
+    this._log.info(
+      thisTry.desc +
+        ": success" +
+        (thisTry.selfSignedCert ? " (selfSignedCert)" : "")
+    );
     thisTry.status = kSuccess;
 
-    if (thisTry.selfSignedCert) { // eh, ERROR_UNTRUSTED or ERROR_TIME
+    if (thisTry.selfSignedCert) {
+      // eh, ERROR_UNTRUSTED or ERROR_TIME
       // We clear the temporary override now after success. If we clear it
       // earlier we get into an infinite loop, probably because the cert
       // remembering is temporary and the next try gets a new connection which
       // isn't covered by that temporariness.
-      this._log.info(thisTry.desc + ": clearing validity override for " +
-                     thisTry.hostname);
+      this._log.info(
+        thisTry.desc + ": clearing validity override for " + thisTry.hostname
+      );
       Cc["@mozilla.org/security/certoverride;1"]
         .getService(Ci.nsICertOverrideService)
         .clearValidityOverride(thisTry.hostname, thisTry.port);
@@ -535,8 +641,9 @@ HostDetector.prototype = {
         // thisTry is good, and all higher preference tries failed, so use this
         if (!successfulTry) {
           successfulTry = thisTry;
-          if (successfulTry.protocol == SMTP)
+          if (successfulTry.protocol == SMTP) {
             break;
+          }
         } else if (successfulTry.protocol != thisTry.protocol) {
           successfulTryAlternative = thisTry;
           break;
@@ -544,14 +651,17 @@ HostDetector.prototype = {
       }
     }
     if (successfulTry && (successfulTryAlternative || !unfinishedBusiness)) {
-      this.mSuccessCallback(successfulTry,
-          successfulTryAlternative ? [ successfulTryAlternative ] : []);
+      this.mSuccessCallback(
+        successfulTry,
+        successfulTryAlternative ? [successfulTryAlternative] : []
+      );
       this.cancel(new CancelOthersException());
-    } else if (!unfinishedBusiness) { // all failed
+    } else if (!unfinishedBusiness) {
+      // all failed
       this._log.info("ran out of options");
       var errorMsg = getStringBundle(
-          "chrome://messenger/locale/accountCreationModel.properties")
-          .GetStringFromName("cannot_find_server.error");
+        "chrome://messenger/locale/accountCreationModel.properties"
+      ).GetStringFromName("cannot_find_server.error");
       this.mErrorCallback(new Exception(errorMsg));
       // no need to cancel, all failed
     }
@@ -581,30 +691,40 @@ HostDetector.prototype = {
     var result = [];
     var line = capaResponse.join("\n").toUpperCase();
     var prefix = "";
-    if (protocol == POP)
+    if (protocol == POP) {
       prefix = "";
-    else if (protocol == IMAP)
+    } else if (protocol == IMAP) {
       prefix = "AUTH=";
-    else if (protocol == SMTP)
+    } else if (protocol == SMTP) {
       prefix = "AUTH.*";
-    else
+    } else {
       throw NotReached("must pass protocol");
+    }
     // add in decreasing order of preference
-    if (new RegExp(prefix + "GSSAPI").test(line))
+    if (new RegExp(prefix + "GSSAPI").test(line)) {
       result.push(Ci.nsMsgAuthMethod.GSSAPI);
-    if (new RegExp(prefix + "CRAM-MD5").test(line))
+    }
+    if (new RegExp(prefix + "CRAM-MD5").test(line)) {
       result.push(Ci.nsMsgAuthMethod.passwordEncrypted);
-    if (new RegExp(prefix + "(NTLM|MSN)").test(line))
+    }
+    if (new RegExp(prefix + "(NTLM|MSN)").test(line)) {
       result.push(Ci.nsMsgAuthMethod.NTLM);
-    if (protocol != IMAP || !line.includes("LOGINDISABLED"))
+    }
+    if (protocol != IMAP || !line.includes("LOGINDISABLED")) {
       result.push(Ci.nsMsgAuthMethod.passwordCleartext);
+    }
     return result;
   },
 
   _hasTLS(thisTry, wiredata) {
     var capa = thisTry.protocol == POP ? "STLS" : "STARTTLS";
-    return thisTry.ssl == TLS &&
-        wiredata.join("").toUpperCase().includes(capa);
+    return (
+      thisTry.ssl == TLS &&
+      wiredata
+        .join("")
+        .toUpperCase()
+        .includes(capa)
+    );
   },
 };
 
@@ -616,21 +736,26 @@ HostDetector.prototype = {
  * so you might need to try the others, too.
  */
 function chooseBestAuthMethod(authMethods) {
-  if (!authMethods || !authMethods.length)
+  if (!authMethods || !authMethods.length) {
     return Ci.nsMsgAuthMethod.passwordCleartext;
+  }
   return authMethods.shift(); // take first (= most preferred)
 }
 
 function IncomingHostDetector(
-  progressCallback, successCallback, errorCallback) {
+  progressCallback,
+  successCallback,
+  errorCallback
+) {
   HostDetector.call(this, progressCallback, successCallback, errorCallback);
 }
 IncomingHostDetector.prototype = {
   __proto__: HostDetector.prototype,
   _hostnamesToTry(protocol, domain) {
     var hostnamesToTry = [];
-    if (protocol != POP)
+    if (protocol != POP) {
       hostnamesToTry.push("imap." + domain);
+    }
     if (protocol != IMAP) {
       hostnamesToTry.push("pop3." + domain);
       hostnamesToTry.push("pop." + domain);
@@ -643,7 +768,10 @@ IncomingHostDetector.prototype = {
 };
 
 function OutgoingHostDetector(
-  progressCallback, successCallback, errorCallback) {
+  progressCallback,
+  successCallback,
+  errorCallback
+) {
   HostDetector.call(this, progressCallback, successCallback, errorCallback);
 }
 OutgoingHostDetector.prototype = {
@@ -701,15 +829,19 @@ function sortTriesByPreference(tries) {
   return tries.sort(function(a, b) {
     // -1 = a is better; 1 = b is better; 0 = equal
     // Prefer SSL/TLS above all else
-    if (a.ssl != NONE && b.ssl == NONE)
+    if (a.ssl != NONE && b.ssl == NONE) {
       return -1;
-    if (b.ssl != NONE && a.ssl == NONE)
+    }
+    if (b.ssl != NONE && a.ssl == NONE) {
       return 1;
+    }
     // Prefer IMAP over POP
-    if (a.protocol == IMAP && b.protocol == POP)
+    if (a.protocol == IMAP && b.protocol == POP) {
       return -1;
-    if (b.protocol == IMAP && a.protocol == POP)
+    }
+    if (b.protocol == IMAP && a.protocol == POP) {
       return 1;
+    }
     // For hostnames, leave existing sorting, as in _hostnamesToTry()
     // For ports, leave existing sorting, as in getOutgoingTryOrder()
     return 0;
@@ -725,28 +857,36 @@ function sortTriesByPreference(tries) {
 function getIncomingTryOrder(host, protocol, ssl, port) {
   var lowerCaseHost = host.toLowerCase();
 
-  if (protocol == UNKNOWN &&
-      (lowerCaseHost.startsWith("pop.") || lowerCaseHost.startsWith("pop3.")))
+  if (
+    protocol == UNKNOWN &&
+    (lowerCaseHost.startsWith("pop.") || lowerCaseHost.startsWith("pop3."))
+  ) {
     protocol = POP;
-  else if (protocol == UNKNOWN && lowerCaseHost.startsWith("imap."))
+  } else if (protocol == UNKNOWN && lowerCaseHost.startsWith("imap.")) {
     protocol = IMAP;
+  }
 
   if (protocol != UNKNOWN) {
-    if (ssl == UNKNOWN)
-      return [getHostEntry(protocol, TLS, port),
-              // getHostEntry(protocol, SSL, port),
-              getHostEntry(protocol, NONE, port)];
+    if (ssl == UNKNOWN) {
+      return [
+        getHostEntry(protocol, TLS, port),
+        // getHostEntry(protocol, SSL, port),
+        getHostEntry(protocol, NONE, port),
+      ];
+    }
     return [getHostEntry(protocol, ssl, port)];
   }
-  if (ssl == UNKNOWN)
-    return [getHostEntry(IMAP, TLS, port),
-            // getHostEntry(IMAP, SSL, port),
-            getHostEntry(POP, TLS, port),
-            // getHostEntry(POP, SSL, port),
-            getHostEntry(IMAP, NONE, port),
-            getHostEntry(POP, NONE, port)];
-  return [getHostEntry(IMAP, ssl, port),
-          getHostEntry(POP, ssl, port)];
+  if (ssl == UNKNOWN) {
+    return [
+      getHostEntry(IMAP, TLS, port),
+      // getHostEntry(IMAP, SSL, port),
+      getHostEntry(POP, TLS, port),
+      // getHostEntry(POP, SSL, port),
+      getHostEntry(IMAP, NONE, port),
+      getHostEntry(POP, NONE, port),
+    ];
+  }
+  return [getHostEntry(IMAP, ssl, port), getHostEntry(POP, ssl, port)];
 }
 
 /**
@@ -755,24 +895,29 @@ function getIncomingTryOrder(host, protocol, ssl, port) {
 function getOutgoingTryOrder(host, protocol, ssl, port) {
   assert(protocol == SMTP, "need SMTP as protocol for outgoing");
   if (ssl == UNKNOWN) {
-    if (port == UNKNOWN)
+    if (port == UNKNOWN) {
       // neither SSL nor port known
-      return [getHostEntry(SMTP, TLS, UNKNOWN),
-              getHostEntry(SMTP, TLS, 25),
-              // getHostEntry(SMTP, SSL, UNKNOWN),
-              getHostEntry(SMTP, NONE, UNKNOWN),
-              getHostEntry(SMTP, NONE, 25)];
+      return [
+        getHostEntry(SMTP, TLS, UNKNOWN),
+        getHostEntry(SMTP, TLS, 25),
+        // getHostEntry(SMTP, SSL, UNKNOWN),
+        getHostEntry(SMTP, NONE, UNKNOWN),
+        getHostEntry(SMTP, NONE, 25),
+      ];
+    }
     // port known, SSL not
-    return [getHostEntry(SMTP, TLS, port),
-            // getHostEntry(SMTP, SSL, port),
-            getHostEntry(SMTP, NONE, port)];
+    return [
+      getHostEntry(SMTP, TLS, port),
+      // getHostEntry(SMTP, SSL, port),
+      getHostEntry(SMTP, NONE, port),
+    ];
   }
   // SSL known, port not
   if (port == UNKNOWN) {
-    if (ssl == SSL)
+    if (ssl == SSL) {
       return [getHostEntry(SMTP, SSL, UNKNOWN)];
-    return [getHostEntry(SMTP, ssl, UNKNOWN),
-              getHostEntry(SMTP, ssl, 25)];
+    }
+    return [getHostEntry(SMTP, ssl, UNKNOWN), getHostEntry(SMTP, ssl, 25)];
   }
   // SSL and port known
   return [getHostEntry(SMTP, ssl, port)];
@@ -807,40 +952,48 @@ function getHostEntry(protocol, ssl, port) {
   return r;
 }
 
-
 // Convert consts from those used here to those from AccountConfig
 // TODO adjust consts to match AccountConfig
 
 // here -> AccountConfig
 function sslConvertToSocketType(ssl) {
-  if (ssl == NONE)
+  if (ssl == NONE) {
     return 1;
-  if (ssl == SSL)
+  }
+  if (ssl == SSL) {
     return 2;
-  if (ssl == TLS)
+  }
+  if (ssl == TLS) {
     return 3;
+  }
   throw new NotReached("unexpected SSL type");
 }
 
 // AccountConfig -> here
 function ConvertSocketTypeToSSL(socketType) {
-  if (socketType == 1)
+  if (socketType == 1) {
     return NONE;
-  if (socketType == 2)
+  }
+  if (socketType == 2) {
     return SSL;
-  if (socketType == 3)
+  }
+  if (socketType == 3) {
     return TLS;
+  }
   return UNKNOWN;
 }
 
 // here -> AccountConfig
 function protocolToString(type) {
-  if (type == IMAP)
+  if (type == IMAP) {
     return "imap";
-  if (type == POP)
+  }
+  if (type == POP) {
     return "pop3";
-  if (type == SMTP)
+  }
+  if (type == SMTP) {
     return "smtp";
+  }
   throw new NotReached("unexpected protocol");
 }
 
@@ -864,8 +1017,9 @@ SSLErrorHandler.prototype = {
   processCertError(socketInfo, secInfo, targetSite) {
     this._log.error("Got Cert error for " + targetSite);
 
-    if (!status)
+    if (!status) {
       return true;
+    }
 
     let cert = secInfo.serverCert;
     let flags = 0;
@@ -903,7 +1057,8 @@ SSLErrorHandler.prototype = {
     if (status.isDomainMismatch) {
       this._try._gotCertError = Ci.nsICertOverrideService.ERROR_MISMATCH;
       flags |= Ci.nsICertOverrideService.ERROR_MISMATCH;
-    } else if (status.isUntrusted) { // e.g. self-signed
+    } else if (status.isUntrusted) {
+      // e.g. self-signed
       this._try._gotCertError = Ci.nsICertOverrideService.ERROR_UNTRUSTED;
       flags |= Ci.nsICertOverrideService.ERROR_UNTRUSTED;
     } else if (status.isNotValidAtThisTime) {
@@ -928,10 +1083,16 @@ SSLErrorHandler.prototype = {
     this._try.targetSite = targetSite;
     Cc["@mozilla.org/security/certoverride;1"]
       .getService(Ci.nsICertOverrideService)
-      .rememberValidityOverride(host, port, cert, flags,
-        true); // temporary override
-    this._log.warn("!! Overrode bad cert temporarily " + host + " " + port +
-                   " flags=" + flags + "\n");
+      .rememberValidityOverride(host, port, cert, flags, true); // temporary override
+    this._log.warn(
+      "!! Overrode bad cert temporarily " +
+        host +
+        " " +
+        port +
+        " flags=" +
+        flags +
+        "\n"
+    );
     return true;
   },
 };
@@ -953,8 +1114,17 @@ SSLErrorHandler.prototype = {
  *            or null if no communication occurred.
  * @param errorCallback {function(e)}
  */
-function SocketUtil(hostname, port, ssl, commands, timeout, proxy,
-                    sslErrorHandler, resultCallback, errorCallback) {
+function SocketUtil(
+  hostname,
+  port,
+  ssl,
+  commands,
+  timeout,
+  proxy,
+  sslErrorHandler,
+  resultCallback,
+  errorCallback
+) {
   assert(commands && commands.length, "need commands");
 
   var index = 0; // commands[index] is next to send to server
@@ -962,15 +1132,17 @@ function SocketUtil(hostname, port, ssl, commands, timeout, proxy,
   var aborted = false;
 
   function _error(e) {
-    if (aborted)
+    if (aborted) {
       return;
+    }
     aborted = true;
     errorCallback(e);
   }
 
   function timeoutFunc() {
-    if (!initialized)
+    if (!initialized) {
       _error("timeout");
+    }
   }
 
   // In case DNS takes too long or does not resolve or another blocking
@@ -980,10 +1152,11 @@ function SocketUtil(hostname, port, ssl, commands, timeout, proxy,
   // for socket and io resources.
 
   // The timeout value plus 2 seconds
-  setTimeout(timeoutFunc, (timeout * 1000) + 2000);
+  setTimeout(timeoutFunc, timeout * 1000 + 2000);
 
-  var transportService = Cc["@mozilla.org/network/socket-transport-service;1"]
-                         .getService(Ci.nsISocketTransportService);
+  var transportService = Cc[
+    "@mozilla.org/network/socket-transport-service;1"
+  ].getService(Ci.nsISocketTransportService);
 
   // @see NS_NETWORK_SOCKET_CONTRACTID_PREFIX
   var socketTypeName;
@@ -994,8 +1167,12 @@ function SocketUtil(hostname, port, ssl, commands, timeout, proxy,
   } else {
     socketTypeName = [];
   }
-  var transport = transportService.createTransport(socketTypeName,
-                                                   hostname, port, proxy);
+  var transport = transportService.createTransport(
+    socketTypeName,
+    hostname,
+    port,
+    proxy
+  );
 
   transport.setTimeout(Ci.nsISocketTransport.TIMEOUT_CONNECT, timeout);
   transport.setTimeout(Ci.nsISocketTransport.TIMEOUT_READ_WRITE, timeout);
@@ -1006,8 +1183,9 @@ function SocketUtil(hostname, port, ssl, commands, timeout, proxy,
   }
   var outstream = transport.openOutputStream(0, 0, 0);
   var stream = transport.openInputStream(0, 0, 0);
-  var instream = Cc["@mozilla.org/scriptableinputstream;1"]
-      .createInstance(Ci.nsIScriptableInputStream);
+  var instream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+    Ci.nsIScriptableInputStream
+  );
   instream.init(stream);
 
   var dataListener = {
@@ -1020,14 +1198,18 @@ function SocketUtil(hostname, port, ssl, commands, timeout, proxy,
           let outputData = commands[index++];
           outstream.write(outputData, outputData.length);
         }
-      } catch (e) { _error(e); }
+      } catch (e) {
+        _error(e);
+      }
     },
     onStopRequest(request, status) {
       try {
         instream.close();
         outstream.close();
         resultCallback(this.data.length ? this.data : null);
-      } catch (e) { _error(e); }
+      } catch (e) {
+        _error(e);
+      }
     },
     onDataAvailable(request, inputStream, offset, count) {
       try {
@@ -1040,18 +1222,23 @@ function SocketUtil(hostname, port, ssl, commands, timeout, proxy,
             outstream.write(outputData, outputData.length);
           }
         }
-      } catch (e) { _error(e); }
+      } catch (e) {
+        _error(e);
+      }
     },
   };
 
   try {
-    var pump = Cc["@mozilla.org/network/input-stream-pump;1"]
-        .createInstance(Ci.nsIInputStreamPump);
+    var pump = Cc["@mozilla.org/network/input-stream-pump;1"].createInstance(
+      Ci.nsIInputStreamPump
+    );
 
     pump.init(stream, 0, 0, false);
     pump.asyncRead(dataListener, null);
     return new SocketAbortable(transport);
-  } catch (e) { _error(e); }
+  } catch (e) {
+    _error(e);
+  }
   return null;
 }
 
@@ -1081,25 +1268,26 @@ SocketAbortable.prototype.cancel = function(ex) {
  */
 function doProxy(hostname, resultCallback) {
   // This implements the nsIProtocolProxyCallback interface:
-  function ProxyResolveCallback() { }
+  function ProxyResolveCallback() {}
   ProxyResolveCallback.prototype = {
     onProxyAvailable(req, uri, proxy, status) {
       // Anything but a SOCKS proxy will be unusable for email.
-      if (proxy != null && proxy.type != "socks" &&
-          proxy.type != "socks4") {
+      if (proxy != null && proxy.type != "socks" && proxy.type != "socks4") {
         proxy = null;
       }
       resultCallback(proxy);
     },
   };
-  var proxyService = Cc["@mozilla.org/network/protocol-proxy-service;1"]
-                     .getService(Ci.nsIProtocolProxyService);
+  var proxyService = Cc[
+    "@mozilla.org/network/protocol-proxy-service;1"
+  ].getService(Ci.nsIProtocolProxyService);
   // Use some arbitrary scheme just because it is required...
   var uri = Services.io.newURI("http://" + hostname);
   // ... we'll ignore it any way. We prefer SOCKS since that's the
   // only thing we can use for email protocols.
-  var proxyFlags = Ci.nsIProtocolProxyService.RESOLVE_IGNORE_URI_SCHEME |
-                   Ci.nsIProtocolProxyService.RESOLVE_PREFER_SOCKS_PROXY;
+  var proxyFlags =
+    Ci.nsIProtocolProxyService.RESOLVE_IGNORE_URI_SCHEME |
+    Ci.nsIProtocolProxyService.RESOLVE_PREFER_SOCKS_PROXY;
   if (Services.prefs.getBoolPref("network.proxy.socks_remote_dns")) {
     proxyFlags |= Ci.nsIProtocolProxyService.RESOLVE_ALWAYS_TUNNEL;
   }

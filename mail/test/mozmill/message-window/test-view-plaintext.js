@@ -15,7 +15,7 @@ var MODULE_NAME = "test-view-plaintext";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
 function setupModule(module) {
@@ -36,15 +36,23 @@ function check_content(aWindow, aExpected, aDontWantToSee) {
   let messageContent = messagePane.contentDocument.firstChild.textContent;
 
   if (aExpected != aDontWantToSee) {
-    assert_true(messageContent.includes(aExpected), "Didn't find expected content");
-    assert_false(messageContent.includes(aDontWantToSee),
-                 "Found content that shouldn't be there");
+    assert_true(
+      messageContent.includes(aExpected),
+      "Didn't find expected content"
+    );
+    assert_false(
+      messageContent.includes(aDontWantToSee),
+      "Found content that shouldn't be there"
+    );
   } else {
     let ind = messageContent.indexOf(aExpected);
     assert_true(ind >= 0, "Didn't find expected content");
-    if (ind >= 0)
-      assert_false(messageContent.substr(ind + aExpected.length).includes(aExpected),
-                   "Found content a second time");
+    if (ind >= 0) {
+      assert_false(
+        messageContent.substr(ind + aExpected.length).includes(aExpected),
+        "Found content a second time"
+      );
+    }
   }
 }
 
@@ -57,8 +65,9 @@ function check_content(aWindow, aExpected, aDontWantToSee) {
  * @param aExpectedHTML        Expected content when viewed as HTML.
  */
 function checkSingleMessage(aFilePath, aExpectedPlainText, aExpectedHTML) {
-  let file = os.getFileForPath(os.abspath(aFilePath,
-                               os.getFileForPath(__file__)));
+  let file = os.getFileForPath(
+    os.abspath(aFilePath, os.getFileForPath(__file__))
+  );
 
   // Load and display as plain text.
   Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", true);
@@ -86,7 +95,11 @@ function test_view() {
   // 3) multipart/alternative with embedded multipart/related embedded in multipart/mixed
   checkSingleMessage("./test-alt.eml", "Plain Text", "HTML Body");
   checkSingleMessage("./test-alt-rel.eml", "Plain Text", "HTML Body");
-  checkSingleMessage("./test-alt-rel-with-attach.eml", "Plain Text", "HTML Body");
+  checkSingleMessage(
+    "./test-alt-rel-with-attach.eml",
+    "Plain Text",
+    "HTML Body"
+  );
 
   // 4) HTML part missing
   // 5) Plain part missing
@@ -94,7 +107,11 @@ function test_view() {
   checkSingleMessage("./test-alt-plain-missing.eml", "HTML Body", "HTML Body");
 
   // 6) plain and HTML parts reversed in order
-  checkSingleMessage("./test-alt-plain-HTML-reversed.eml", "Plain Text", "HTML Body");
+  checkSingleMessage(
+    "./test-alt-plain-HTML-reversed.eml",
+    "Plain Text",
+    "HTML Body"
+  );
 
   // 7) 3 alt. parts with 2 plain and 1 HTML part
   checkSingleMessage("./test-triple-alt.eml", "Plain Text", "HTML Body");

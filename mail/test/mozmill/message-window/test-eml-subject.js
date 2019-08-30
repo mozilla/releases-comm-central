@@ -16,8 +16,12 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
-var {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
-var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var { StringBundle } = ChromeUtils.import(
+  "resource:///modules/StringBundle.js"
+);
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 
 var setupModule = function(module) {
   let fdh = collector.getModule("folder-display-helpers");
@@ -30,14 +34,18 @@ function check_eml_window_title(subject, eml) {
   let file = os.getFileForPath(os.abspath(eml, os.getFileForPath(__file__)));
   let msgc = open_message_from_file(file);
 
-  let brandBundle = new StringBundle("chrome://branding/locale/brand.properties");
+  let brandBundle = new StringBundle(
+    "chrome://branding/locale/brand.properties"
+  );
   let productName = brandBundle.get("brandFullName");
   let expectedTitle = subject;
-  if (expectedTitle && (AppConstants.platform != "macosx"))
+  if (expectedTitle && AppConstants.platform != "macosx") {
     expectedTitle += " - ";
+  }
 
-  if (!expectedTitle || (AppConstants.platform != "macosx"))
+  if (!expectedTitle || AppConstants.platform != "macosx") {
     expectedTitle += productName;
+  }
 
   assert_equals(msgc.window.document.title, expectedTitle);
   close_window(msgc);

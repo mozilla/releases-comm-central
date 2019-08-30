@@ -11,10 +11,12 @@
  * one of our account providers.
  */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
-var {JXON} = ChromeUtils.import("resource:///modules/JXON.js");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
+var { JXON } = ChromeUtils.import("resource:///modules/JXON.js");
 
 /**
  * This is an observer that watches all HTTP requests for one where the
@@ -38,13 +40,18 @@ function httpRequestObserver(aBrowser, aParams) {
 
 httpRequestObserver.prototype = {
   observe(aSubject, aTopic, aData) {
-    if (aTopic != "http-on-examine-response" &&
-        aTopic != "http-on-examine-cached-response")
+    if (
+      aTopic != "http-on-examine-response" &&
+      aTopic != "http-on-examine-cached-response"
+    ) {
       return;
+    }
 
     if (!(aSubject instanceof Ci.nsIHttpChannel)) {
-      Cu.reportError("Failed to get a nsIHttpChannel when "
-                     + "observing http-on-examine-response");
+      Cu.reportError(
+        "Failed to get a nsIHttpChannel when " +
+          "observing http-on-examine-response"
+      );
       return;
     }
 
@@ -57,12 +64,14 @@ httpRequestObserver.prototype = {
       return;
     }
 
-    if (!contentType.toLowerCase().startsWith("text/xml"))
+    if (!contentType.toLowerCase().startsWith("text/xml")) {
       return;
+    }
 
     let requestWindow = this._getWindowForRequest(aSubject);
-    if (!requestWindow || (requestWindow !== this.browser.contentWindow))
+    if (!requestWindow || requestWindow !== this.browser.contentWindow) {
       return;
+    }
 
     // Ok, we've got a request that looks like a decent candidate.
     // Let's attach our TracingListener.
@@ -83,20 +92,24 @@ httpRequestObserver.prototype = {
   _getWindowForRequest(aRequest) {
     try {
       if (aRequest && aRequest.notificationCallbacks) {
-        return aRequest.notificationCallbacks
-                       .getInterface(Ci.nsILoadContext)
-                       .associatedWindow;
+        return aRequest.notificationCallbacks.getInterface(Ci.nsILoadContext)
+          .associatedWindow;
       }
-      if (aRequest && aRequest.loadGroup
-          && aRequest.loadGroup.notificationCallbacks) {
-        return aRequest.loadGroup
-                       .notificationCallbacks
-                       .getInterface(Ci.nsILoadContext)
-                       .associatedWindow;
+      if (
+        aRequest &&
+        aRequest.loadGroup &&
+        aRequest.loadGroup.notificationCallbacks
+      ) {
+        return aRequest.loadGroup.notificationCallbacks.getInterface(
+          Ci.nsILoadContext
+        ).associatedWindow;
       }
     } catch (e) {
-      Cu.reportError("Could not find an associated window "
-                     + "for an HTTP request. Error: " + e);
+      Cu.reportError(
+        "Could not find an associated window " +
+          "for an HTTP request. Error: " +
+          e
+      );
     }
     return null;
   },
@@ -125,45 +138,53 @@ function TracingListener(aBrowser, aParams) {
 }
 
 TracingListener.prototype = {
-
   onStartRequest(/* nsIRequest */ aRequest) {
     this.oldListener.onStartRequest(aRequest);
   },
 
-  onStopRequest(/* nsIRequest */ aRequest,
-                /* int */ aStatusCode) {
+  onStopRequest(/* nsIRequest */ aRequest, /* int */ aStatusCode) {
     // Why don't people use JSMs? Sigh...
     let accountCreationFuncs = {};
     Services.scriptloader.loadSubScript(
       "chrome://messenger/content/accountcreation/util.js",
-      accountCreationFuncs);
+      accountCreationFuncs
+    );
     Services.scriptloader.loadSubScript(
       "chrome://messenger/content/accountcreation/accountConfig.js",
-      accountCreationFuncs);
+      accountCreationFuncs
+    );
     Services.scriptloader.loadSubScript(
       "chrome://messenger/content/accountcreation/emailWizard.js",
-      accountCreationFuncs);
+      accountCreationFuncs
+    );
     Services.scriptloader.loadSubScript(
       "chrome://messenger/content/accountcreation/sanitizeDatatypes.js",
-      accountCreationFuncs);
+      accountCreationFuncs
+    );
     Services.scriptloader.loadSubScript(
       "chrome://messenger/content/accountcreation/fetchhttp.js",
-      accountCreationFuncs);
+      accountCreationFuncs
+    );
     Services.scriptloader.loadSubScript(
-     "chrome://messenger/content/accountcreation/readFromXML.js",
-     accountCreationFuncs);
+      "chrome://messenger/content/accountcreation/readFromXML.js",
+      accountCreationFuncs
+    );
     Services.scriptloader.loadSubScript(
       "chrome://messenger/content/accountcreation/verifyConfig.js",
-      accountCreationFuncs);
+      accountCreationFuncs
+    );
     Services.scriptloader.loadSubScript(
       "chrome://messenger/content/accountcreation/fetchConfig.js",
-      accountCreationFuncs);
+      accountCreationFuncs
+    );
     Services.scriptloader.loadSubScript(
       "chrome://messenger/content/accountcreation/createInBackend.js",
-      accountCreationFuncs);
+      accountCreationFuncs
+    );
     Services.scriptloader.loadSubScript(
       "chrome://messenger/content/accountcreation/MyBadCertHandler.js",
-      accountCreationFuncs);
+      accountCreationFuncs
+    );
 
     let tabmail = document.getElementById("tabmail");
     let success = false;
@@ -175,11 +196,14 @@ TracingListener.prototype = {
 
       // Attempt to derive email account information
       let domParser = new DOMParser();
-      let accountConfig = accountCreationFuncs.readFromXML(JXON.build(
-        domParser.parseFromString(data, "text/xml")));
-      accountCreationFuncs.replaceVariables(accountConfig,
-                                            this.params.realName,
-                                            this.params.email);
+      let accountConfig = accountCreationFuncs.readFromXML(
+        JXON.build(domParser.parseFromString(data, "text/xml"))
+      );
+      accountCreationFuncs.replaceVariables(
+        accountConfig,
+        this.params.realName,
+        this.params.email
+      );
       account = accountCreationFuncs.createAccountInBackend(accountConfig);
       success = true;
     } catch (e) {
@@ -192,10 +216,11 @@ TracingListener.prototype = {
     tabmail.switchToTab(0);
 
     // Find the tab associated with this browser, and close it.
-    let myTabInfo = tabmail.tabInfo
-      .filter((function(x) {
-            return "browser" in x && x.browser == this.browser;
-            }).bind(this))[0];
+    let myTabInfo = tabmail.tabInfo.filter(
+      function(x) {
+        return "browser" in x && x.browser == this.browser;
+      }.bind(this)
+    )[0];
     tabmail.closeTab(myTabInfo);
 
     // Respawn the account provisioner to announce our success
@@ -208,20 +233,25 @@ TracingListener.prototype = {
     this.oldListener.onStopRequest(aRequest, aStatusCode);
   },
 
-  onDataAvailable(/* nsIRequest */ aRequest,
-                  /* nsIInputStream */ aStream,
-                  /* int */ aOffset,
-                  /* int */ aCount) {
+  onDataAvailable(
+    /* nsIRequest */ aRequest,
+    /* nsIInputStream */ aStream,
+    /* int */ aOffset,
+    /* int */ aCount
+  ) {
     // We want to read the stream of incoming data, but we also want
     // to make sure it gets passed to the original listener. We do this
     // by passing the input stream through an nsIStorageStream, writing
     // the data to that stream, and passing it along to the next listener.
-    let binaryInputStream = Cc["@mozilla.org/binaryinputstream;1"]
-                           .createInstance(Ci.nsIBinaryInputStream);
-    let storageStream = Cc["@mozilla.org/storagestream;1"]
-                        .createInstance(Ci.nsIStorageStream);
-    let outStream = Cc["@mozilla.org/binaryoutputstream;1"]
-                    .createInstance(Ci.nsIBinaryOutputStream);
+    let binaryInputStream = Cc[
+      "@mozilla.org/binaryinputstream;1"
+    ].createInstance(Ci.nsIBinaryInputStream);
+    let storageStream = Cc["@mozilla.org/storagestream;1"].createInstance(
+      Ci.nsIStorageStream
+    );
+    let outStream = Cc["@mozilla.org/binaryoutputstream;1"].createInstance(
+      Ci.nsIBinaryOutputStream
+    );
 
     binaryInputStream.setInputStream(aStream);
 
@@ -235,12 +265,16 @@ TracingListener.prototype = {
     this.chunks.push(data);
 
     outStream.writeBytes(data, aCount);
-    this.oldListener.onDataAvailable(aRequest,
-                                     storageStream.newInputStream(0),
-                                     aOffset, aCount);
+    this.oldListener.onDataAvailable(
+      aRequest,
+      storageStream.newInputStream(0),
+      aOffset,
+      aCount
+    );
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener,
-                                          Ci.nsIRequestObserver]),
-
+  QueryInterface: ChromeUtils.generateQI([
+    Ci.nsIStreamListener,
+    Ci.nsIRequestObserver,
+  ]),
 };

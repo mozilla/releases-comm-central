@@ -25,7 +25,7 @@ function setupModule(module) {
   wh.installInto(module);
 
   folder = create_folder("MessagePaneVisibility");
-  make_new_sets_in_folder(folder, [{count: 3}]);
+  make_new_sets_in_folder(folder, [{ count: 3 }]);
 }
 
 /**
@@ -183,18 +183,20 @@ function test_message_pane_persistence_generally_works() {
 
   // close everything but the first tab.
   function closeTabs() {
-    while (mc.tabmail.tabInfo.length > 1)
+    while (mc.tabmail.tabInfo.length > 1) {
       close_tab(1);
+    }
   }
 
   function verifyTabs(aConfig) {
     for (let [iTab, messagePaneVisible] of aConfig.entries()) {
       switch_tab(iTab);
       dump(" checking tab: " + iTab + "\n");
-      if (messagePaneVisible)
+      if (messagePaneVisible) {
         assert_message_pane_visible();
-      else
+      } else {
         assert_message_pane_hidden();
+      }
     }
   }
 
@@ -229,4 +231,3 @@ function test_message_pane_persistence_generally_works() {
     toggle_message_pane();
   }
 }
-

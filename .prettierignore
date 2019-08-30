@@ -11,6 +11,5 @@
 .eslintrc.js
 
 # Ignore all top-level directories that contain JS files (for now).
-mail/**
 mailnews/**
 suite/**

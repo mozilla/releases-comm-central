@@ -26,7 +26,9 @@ var MODULE_REQUIRES = [
   "window-helpers",
 ];
 
-var elementslib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var elementslib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 var downloads = ChromeUtils.import("resource://gre/modules/Downloads.jsm");
 
 var downloadsTab;
@@ -51,8 +53,7 @@ var downloadsView = {
     this.items.set(aDownload, aDownload.target.path);
   },
 
-  onDownloadChanged(aDownload) {
-  },
+  onDownloadChanged(aDownload) {},
 
   onDownloadRemoved(aDownload) {
     this.removedItems.push(aDownload.target.path);
@@ -66,7 +67,10 @@ var downloadsView = {
       succeededPromises.push(succeededPromise);
     }
     let finished = false;
-    Promise.all(succeededPromises).then(() => finished = true, Cu.reportError);
+    Promise.all(succeededPromises).then(
+      () => (finished = true),
+      Cu.reportError
+    );
     mc.waitFor(() => finished, "Timeout waiting for downloads to complete.");
   },
 };
@@ -76,24 +80,30 @@ function prepare_messages() {
   make_new_sets_in_folder(folder, [
     {
       count: 1,
-      attachments: [{
-        filename: attachmentFileNames[0],
-        body: "Body",
-      }],
+      attachments: [
+        {
+          filename: attachmentFileNames[0],
+          body: "Body",
+        },
+      ],
     },
     {
       count: 1,
-      attachments: [{
-        filename: attachmentFileNames[1],
-        body: "Body",
-      }],
+      attachments: [
+        {
+          filename: attachmentFileNames[1],
+          body: "Body",
+        },
+      ],
     },
     {
       count: 1,
-      attachments: [{
-        filename: attachmentFileNames[2],
-        body: "Body",
-      }],
+      attachments: [
+        {
+          filename: attachmentFileNames[2],
+          body: "Body",
+        },
+      ],
     },
   ]);
   be_in_folder(folder);
@@ -102,8 +112,8 @@ function prepare_messages() {
 function prepare_downloads_view() {
   let success = false;
   downloads.Downloads.getList(downloads.Downloads.ALL)
-                     .then(list => list.addView(downloadsView))
-                     .then(() => success = true, Cu.reportError);
+    .then(list => list.addView(downloadsView))
+    .then(() => (success = true), Cu.reportError);
   mc.waitFor(() => success, "Timeout waiting for attaching our download view.");
 }
 
@@ -125,10 +135,14 @@ function setupTest(test) {
 
 function open_about_downloads() {
   let preCount = mc.tabmail.tabContainer.allTabs.length;
-  let newTab = mc.tabmail.openTab("chromeTab", { chromePage: "about:downloads",
-                                                 clickHandler: "specialTabs.aboutClickHandler(event);" });
-  mc.waitFor(() => mc.tabmail.tabContainer.allTabs.length == preCount + 1,
-             "Timeout waiting for about:downloads tab");
+  let newTab = mc.tabmail.openTab("chromeTab", {
+    chromePage: "about:downloads",
+    clickHandler: "specialTabs.aboutClickHandler(event);",
+  });
+  mc.waitFor(
+    () => mc.tabmail.tabContainer.allTabs.length == preCount + 1,
+    "Timeout waiting for about:downloads tab"
+  );
 
   wait_for_browser_load(newTab.browser, "about:downloads");
   // We append new tabs at the end, so check the last one.
@@ -156,9 +170,12 @@ function save_attachment_files() {
     let file = profileDir.clone();
     file.append(attachmentFileNames[i]);
     select_click_row(i);
-    gMockFilePicker.returnFiles = [ file ];
-    mc.click(mc.eid("attachmentSaveAllSingle",
-                    {"class": "toolbarbutton-menubutton-button"}));
+    gMockFilePicker.returnFiles = [file];
+    mc.click(
+      mc.eid("attachmentSaveAllSingle", {
+        class: "toolbarbutton-menubutton-button",
+      })
+    );
   }
 }
 
@@ -172,9 +189,13 @@ function test_save_attachment_files_in_list() {
   let list = content_tab_e(downloadsTab, "msgDownloadsRichListBox");
 
   let length = attachmentFileNames.length;
-  mc.waitFor(() => downloadsView.count == length,
-             () => ("Timeout waiting for saving three attachment files; " +
-                    "downloadsView.count=" + downloadsView.count));
+  mc.waitFor(
+    () => downloadsView.count == length,
+    () =>
+      "Timeout waiting for saving three attachment files; " +
+      "downloadsView.count=" +
+      downloadsView.count
+  );
 
   assert_equals(length, list.childNodes.length);
   assert_equals(downloadsView.count, list.childNodes.length);
@@ -202,7 +223,9 @@ function test_remove_file() {
 
   let list = content_tab_e(downloadsTab, "msgDownloadsRichListBox");
   let firstElement = list.firstChild;
-  let removingFileName = firstElement.querySelector(".fileName").getAttribute("value");
+  let removingFileName = firstElement
+    .querySelector(".fileName")
+    .getAttribute("value");
 
   // select first element
   mc.click(new elementslib.Elem(firstElement));
@@ -211,14 +234,19 @@ function test_remove_file() {
   let contextMenu = content_tab_e(downloadsTab, "msgDownloadsContextMenu");
   wait_for_popup_to_open(contextMenu);
   mc.click_menus_in_sequence(contextMenu, [
-                               { command: "msgDownloadsCmd_remove" },
-                             ]);
-  mc.waitFor(() => downloadsView.count == 2,
-             "Timeout waiting for removing a saved attachment file.");
+    { command: "msgDownloadsCmd_remove" },
+  ]);
+  mc.waitFor(
+    () => downloadsView.count == 2,
+    "Timeout waiting for removing a saved attachment file."
+  );
 
   let child = list.firstChild;
   while (child) {
-    assert_not_equals(removingFileName, child.querySelector(".fileName").getAttribute("value"));
+    assert_not_equals(
+      removingFileName,
+      child.querySelector(".fileName").getAttribute("value")
+    );
     child = child.nextSibling;
   }
 }
@@ -234,8 +262,12 @@ function test_remove_multiple_files() {
   let secondElement = firstElement.nextSibling;
   let removingFileNames = [];
 
-  removingFileNames.push(firstElement.querySelector(".fileName").getAttribute("value"));
-  removingFileNames.push(secondElement.querySelector(".fileName").getAttribute("value"));
+  removingFileNames.push(
+    firstElement.querySelector(".fileName").getAttribute("value")
+  );
+  removingFileNames.push(
+    secondElement.querySelector(".fileName").getAttribute("value")
+  );
 
   // select two elements
   mc.click(new elementslib.Elem(firstElement));
@@ -245,15 +277,20 @@ function test_remove_multiple_files() {
   let contextMenu = content_tab_e(downloadsTab, "msgDownloadsContextMenu");
   wait_for_popup_to_open(contextMenu);
   mc.click_menus_in_sequence(contextMenu, [
-                               { command: "msgDownloadsCmd_remove" },
-                             ]);
-  mc.waitFor(() => downloadsView.count == 1,
-             "Timeout waiting for removing two saved attachment files.");
+    { command: "msgDownloadsCmd_remove" },
+  ]);
+  mc.waitFor(
+    () => downloadsView.count == 1,
+    "Timeout waiting for removing two saved attachment files."
+  );
 
   let child = list.firstChild;
   while (child) {
     for (let name of removingFileNames) {
-      assert_not_equals(name, child.querySelector(".fileName").getAttribute("value"));
+      assert_not_equals(
+        name,
+        child.querySelector(".fileName").getAttribute("value")
+      );
     }
     child = child.nextSibling;
   }
@@ -272,10 +309,12 @@ function test_clear_all_files() {
   let contextMenu = content_tab_e(downloadsTab, "msgDownloadsContextMenu");
   wait_for_popup_to_open(contextMenu);
   mc.click_menus_in_sequence(contextMenu, [
-                               { command: "msgDownloadsCmd_clearDownloads" },
-                             ]);
-  mc.waitFor(() => downloadsView.count == 0,
-             "Timeout waiting for clearing all saved attachment files.");
+    { command: "msgDownloadsCmd_clearDownloads" },
+  ]);
+  mc.waitFor(
+    () => downloadsView.count == 0,
+    "Timeout waiting for clearing all saved attachment files."
+  );
 
   let empty = content_tab_e(downloadsTab, "msgDownloadsListEmptyDescription");
   assert_false(empty.hidden, "msgDownloadsListEmptyDescription is not visible");
@@ -283,17 +322,21 @@ function test_clear_all_files() {
 
 function teardownTest() {
   downloads.Downloads.getList(downloads.Downloads.ALL)
-                     .then(function(list) {
-                       for (let download of downloadsView.items.keys()) {
-                         list.remove(download);
-                       }
-                     })
-                     .then(null, Cu.reportError);
-  mc.waitFor(() => downloadsView.count == 0,
-             "Timeout waiting for clearing all saved attachment files.");
+    .then(function(list) {
+      for (let download of downloadsView.items.keys()) {
+        list.remove(download);
+      }
+    })
+    .then(null, Cu.reportError);
+  mc.waitFor(
+    () => downloadsView.count == 0,
+    "Timeout waiting for clearing all saved attachment files."
+  );
   let empty = content_tab_e(downloadsTab, "msgDownloadsListEmptyDescription");
-  mc.waitFor(() => empty.hidden === false,
-             "Timeout waiting for msgDownloadsListEmptyDescription is visible.");
+  mc.waitFor(
+    () => empty.hidden === false,
+    "Timeout waiting for msgDownloadsListEmptyDescription is visible."
+  );
 }
 
 function teardownModule(module) {

@@ -6,12 +6,14 @@
 // SearchIntegration.jsm
 /* globals SearchIntegration, SearchSupport, Services */
 
-var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 var MSG_DB_LARGE_COMMIT = 1;
-var gFileHeader = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.\ncom/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>";
+var gFileHeader =
+  '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.\ncom/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0">\n<dict>';
 
-SearchIntegration = { // eslint-disable-line no-global-assign
+SearchIntegration = {
+  // eslint-disable-line no-global-assign
   __proto__: SearchSupport,
 
   // The property of the header and (sometimes) folders that's used to check
@@ -27,7 +29,7 @@ SearchIntegration = { // eslint-disable-line no-global-assign
   // The user's profile dir, which we'll cache and use a lot for path clean-up
   get _profileDir() {
     delete this._profileDir;
-    return this._profileDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
+    return (this._profileDir = Services.dirsvc.get("ProfD", Ci.nsIFile));
   },
 
   get _metadataDir() {
@@ -37,27 +39,29 @@ SearchIntegration = { // eslint-disable-line no-global-assign
     metadataDir.append("Caches");
     metadataDir.append("Metadata");
     metadataDir.append("Thunderbird");
-    return this._metadataDir = metadataDir;
+    return (this._metadataDir = metadataDir);
   },
 
   // Spotlight won't index files in the profile dir, but will use ~/Library/Caches/Metadata
   _getSearchPathForFolder(aFolder) {
     // Swap the metadata dir for the profile dir prefix in the folder's path
     let folderPath = aFolder.filePath.path;
-    let fixedPath = folderPath.replace(this._profileDir.path,
-                                       this._metadataDir.path);
-    let searchPath = Cc["@mozilla.org/file/local;1"]
-                       .createInstance(Ci.nsIFile);
+    let fixedPath = folderPath.replace(
+      this._profileDir.path,
+      this._metadataDir.path
+    );
+    let searchPath = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
     searchPath.initWithPath(fixedPath);
     return searchPath;
   },
 
   // Replace ~/Library/Caches/Metadata with the profile directory, then convert
   _getFolderForSearchPath(aPath) {
-    let folderPath = aPath.path.replace(this._metadataDir.path,
-                                        this._profileDir.path);
-    let folderFile = Cc["@mozilla.org/file/local;1"]
-                      .createInstance(Ci.nsIFile);
+    let folderPath = aPath.path.replace(
+      this._metadataDir.path,
+      this._profileDir.path
+    );
+    let folderFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
     folderFile.initWithPath(folderPath);
     return MailUtils.getFolderForFileInProfile(folderFile);
   },
@@ -88,8 +92,9 @@ SearchIntegration = { // eslint-disable-line no-global-assign
     this._initLogging();
 
     let enabled = this._prefBranch.getBoolPref("enable", false);
-    if (enabled)
+    if (enabled) {
       this._log.info("Initializing Spotlight integration");
+    }
     this._initSupport(enabled);
   },
 
@@ -104,49 +109,61 @@ SearchIntegration = { // eslint-disable-line no-global-assign
     _xmlEscapeString(s) {
       return s.replace(/[<>&]/g, function(s) {
         switch (s) {
-          case "<": return "&lt;";
-          case ">": return "&gt;";
-          case "&": return "&amp;";
-          default: throw new Error("Unexpected match");
-          }
+          case "<":
+            return "&lt;";
+          case ">":
+            return "&gt;";
+          case "&":
+            return "&amp;";
+          default:
+            throw new Error("Unexpected match");
         }
-      );
+      });
     },
 
     onStartRequest(request) {
       try {
-        let outputFileStream = Cc["@mozilla.org/network/file-output-stream;1"]
-                               .createInstance(Ci.nsIFileOutputStream);
+        let outputFileStream = Cc[
+          "@mozilla.org/network/file-output-stream;1"
+        ].createInstance(Ci.nsIFileOutputStream);
         outputFileStream.init(this._outputFile, -1, -1, 0);
-        this._outputStream = Cc["@mozilla.org/intl/converter-output-stream;1"]
-                               .createInstance(Ci.nsIConverterOutputStream);
+        this._outputStream = Cc[
+          "@mozilla.org/intl/converter-output-stream;1"
+        ].createInstance(Ci.nsIConverterOutputStream);
         this._outputStream.init(outputFileStream, "UTF-8");
 
         this._outputStream.writeString(gFileHeader);
         this._outputStream.writeString(
-          "<key>kMDItemLastUsedDate</key><string>");
+          "<key>kMDItemLastUsedDate</key><string>"
+        );
         // need to write the date as a string
         let curTimeStr = new Date().toLocaleString();
         this._outputStream.writeString(curTimeStr);
 
         // need to write the subject in utf8 as the title
         this._outputStream.writeString(
-          "</string>\n<key>kMDItemTitle</key>\n<string>");
+          "</string>\n<key>kMDItemTitle</key>\n<string>"
+        );
 
         let escapedSubject = this._xmlEscapeString(
-          this._msgHdr.mime2DecodedSubject);
+          this._msgHdr.mime2DecodedSubject
+        );
         this._outputStream.writeString(escapedSubject);
 
         this._outputStream.writeString(
-          "</string>\n<key>kMDItemDisplayName</key>\n<string>");
+          "</string>\n<key>kMDItemDisplayName</key>\n<string>"
+        );
         this._outputStream.writeString(escapedSubject);
 
         this._outputStream.writeString(
-          "</string>\n<key>kMDItemTextContent</key>\n<string>");
-        this._outputStream.writeString(this._xmlEscapeString(
-          this._msgHdr.mime2DecodedAuthor));
-        this._outputStream.writeString(this._xmlEscapeString(
-          this._msgHdr.mime2DecodedRecipients));
+          "</string>\n<key>kMDItemTextContent</key>\n<string>"
+        );
+        this._outputStream.writeString(
+          this._xmlEscapeString(this._msgHdr.mime2DecodedAuthor)
+        );
+        this._outputStream.writeString(
+          this._xmlEscapeString(this._msgHdr.mime2DecodedRecipients)
+        );
 
         this._outputStream.writeString(escapedSubject);
         this._outputStream.writeString(" ");
@@ -159,21 +176,32 @@ SearchIntegration = { // eslint-disable-line no-global-assign
       try {
         // we want to write out the from, to, cc, and subject headers into the
         // Text Content value, so they'll be indexed.
-        let stringStream = Cc["@mozilla.org/io/string-input-stream;1"]
-                             .createInstance(Ci.nsIStringInputStream);
+        let stringStream = Cc[
+          "@mozilla.org/io/string-input-stream;1"
+        ].createInstance(Ci.nsIStringInputStream);
         stringStream.setData(this._message, this._message.length);
         let folder = this._msgHdr.folder;
-        let text = folder.getMsgTextFromStream(stringStream,
-                                               this._msgHdr.Charset, 20000,
-                                               20000, false, true, {});
+        let text = folder.getMsgTextFromStream(
+          stringStream,
+          this._msgHdr.Charset,
+          20000,
+          20000,
+          false,
+          true,
+          {}
+        );
         text = this._xmlEscapeString(text);
-        SearchIntegration._log.debug("escaped text = *****************\n" + text);
+        SearchIntegration._log.debug(
+          "escaped text = *****************\n" + text
+        );
         this._outputStream.writeString(text);
         // close out the content, dict, and plist
         this._outputStream.writeString("</string>\n</dict>\n</plist>\n");
 
-        this._msgHdr.setUint32Property(SearchIntegration._hdrIndexedProperty,
-                                       this._reindexTime);
+        this._msgHdr.setUint32Property(
+          SearchIntegration._hdrIndexedProperty,
+          this._reindexTime
+        );
         folder.msgDatabase.Commit(MSG_DB_LARGE_COMMIT);
 
         this._message = "";
@@ -187,16 +215,18 @@ SearchIntegration = { // eslint-disable-line no-global-assign
 
     onDataAvailable(request, inputStream, offset, count) {
       try {
-        let inStream = Cc["@mozilla.org/scriptableinputstream;1"]
-                         .createInstance(Ci.nsIScriptableInputStream);
+        let inStream = Cc[
+          "@mozilla.org/scriptableinputstream;1"
+        ].createInstance(Ci.nsIScriptableInputStream);
         inStream.init(inputStream);
 
         // It is necessary to read in data from the input stream
         let inData = inStream.read(count);
 
         // ignore stuff after the first 20K or so
-        if (this._message && this._message.length > 20000)
+        if (this._message && this._message.length > 20000) {
           return;
+        }
 
         this._message += inData;
       } catch (ex) {

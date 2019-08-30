@@ -18,14 +18,23 @@
 /* import-globals-from mailWindow.js */
 /* import-globals-from utilityOverlay.js */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {CharsetMenu} = ChromeUtils.import("resource://gre/modules/CharsetMenu.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+var { CharsetMenu } = ChromeUtils.import(
+  "resource://gre/modules/CharsetMenu.jsm"
+);
 
 XPCOMUtils.defineLazyGetter(this, "gViewSourceUtils", function() {
   let scope = {};
-  Services.scriptloader.loadSubScript("chrome://global/content/viewSourceUtils.js", scope);
+  Services.scriptloader.loadSubScript(
+    "chrome://global/content/viewSourceUtils.js",
+    scope
+  );
   scope.gViewSourceUtils.viewSource = async function(aArgs) {
     // Check if external view source is enabled. If so, try it. If it fails,
     // fallback to internal view source.
@@ -36,46 +45,67 @@ XPCOMUtils.defineLazyGetter(this, "gViewSourceUtils", function() {
       } catch (ex) {}
     }
 
-    window.openDialog("chrome://messenger/content/viewSource.xul", "_blank", "all,dialog=no", aArgs);
+    window.openDialog(
+      "chrome://messenger/content/viewSource.xul",
+      "_blank",
+      "all,dialog=no",
+      aArgs
+    );
   };
   return scope.gViewSourceUtils;
 });
 
-Services.obs.addObserver({
-  observe(win) {
-    win.addEventListener("load", function() {
-      if (this.location.href != "chrome://devtools/content/webconsole/index.html") {
-        return;
-      }
+Services.obs.addObserver(
+  {
+    observe(win) {
+      win.addEventListener(
+        "load",
+        function() {
+          if (
+            this.location.href !=
+            "chrome://devtools/content/webconsole/index.html"
+          ) {
+            return;
+          }
 
-      this.setTimeout(() => {
-        this.gViewSourceUtils = {
-          async viewSource(aArgs) {
-            // Check if external view source is enabled. If so, try it. If it fails,
-            // fallback to internal view source.
-            if (Services.prefs.getBoolPref("view_source.editor.external")) {
-              try {
-                await this.openInExternalEditor(aArgs);
-                return;
-              } catch (ex) {}
-            }
+          this.setTimeout(() => {
+            this.gViewSourceUtils = {
+              async viewSource(aArgs) {
+                // Check if external view source is enabled. If so, try it. If it fails,
+                // fallback to internal view source.
+                if (Services.prefs.getBoolPref("view_source.editor.external")) {
+                  try {
+                    await this.openInExternalEditor(aArgs);
+                    return;
+                  } catch (ex) {}
+                }
 
-            window.openDialog("chrome://messenger/content/viewSource.xul", "_blank", "all,dialog=no", aArgs);
-          },
-        };
-      });
-    }, { capture: false, once: true });
+                window.openDialog(
+                  "chrome://messenger/content/viewSource.xul",
+                  "_blank",
+                  "all,dialog=no",
+                  aArgs
+                );
+              },
+            };
+          });
+        },
+        { capture: false, once: true }
+      );
+    },
   },
-}, "chrome-document-global-created");
+  "chrome-document-global-created"
+);
 
 var gCustomizeSheet = false;
 
 function overlayRestoreDefaultSet() {
   let toolbox = null;
-  if ("arguments" in window && window.arguments[0])
+  if ("arguments" in window && window.arguments[0]) {
     toolbox = window.arguments[0];
-  else if (window.frameElement && "toolbox" in window.frameElement)
+  } else if (window.frameElement && "toolbox" in window.frameElement) {
     toolbox = window.frameElement.toolbox;
+  }
 
   let mode = toolbox.getAttribute("defaultmode");
   let align = toolbox.getAttribute("defaultlabelalign");
@@ -100,10 +130,11 @@ function overlayRestoreDefaultSet() {
 
 function overlayUpdateToolbarMode(aModeValue) {
   let toolbox = null;
-  if ("arguments" in window && window.arguments[0])
+  if ("arguments" in window && window.arguments[0]) {
     toolbox = window.arguments[0];
-  else if (window.frameElement && "toolbox" in window.frameElement)
+  } else if (window.frameElement && "toolbox" in window.frameElement) {
     toolbox = window.frameElement.toolbox;
+  }
 
   // If they chose a mode of textbesideicon or full,
   // then map that to a mode of full, and a labelalign of true or false.
@@ -117,16 +148,18 @@ function overlayUpdateToolbarMode(aModeValue) {
 }
 
 function overlayOnLoad() {
-  let restoreButton = document.getElementById("main-box")
-                              .querySelector("[oncommand*='restore']");
+  let restoreButton = document
+    .getElementById("main-box")
+    .querySelector("[oncommand*='restore']");
   restoreButton.setAttribute("oncommand", "overlayRestoreDefaultSet();");
 
   // Add the textBesideIcon menu item if it's not already there.
   let menuitem = document.getElementById("textbesideiconItem");
   if (!menuitem) {
     let menulist = document.getElementById("modelist");
-    let label = document.getElementById("iconsBesideText.label")
-                        .getAttribute("value");
+    let label = document
+      .getElementById("iconsBesideText.label")
+      .getAttribute("value");
     menuitem = menulist.appendItem(label, "textbesideicon");
     menuitem.id = "textbesideiconItem";
   }
@@ -134,10 +167,11 @@ function overlayOnLoad() {
   // If they have a mode of full and a labelalign of true,
   // then pretend the mode is textbesideicon when populating the popup.
   let toolbox = null;
-  if ("arguments" in window && window.arguments[0])
+  if ("arguments" in window && window.arguments[0]) {
     toolbox = window.arguments[0];
-  else if (window.frameElement && "toolbox" in window.frameElement)
+  } else if (window.frameElement && "toolbox" in window.frameElement) {
     toolbox = window.frameElement.toolbox;
+  }
 
   let toolbarWindow = document.getElementById("CustomizeToolbarWindow");
   toolbarWindow.setAttribute("toolboxId", toolbox.id);
@@ -145,8 +179,9 @@ function overlayOnLoad() {
 
   let mode = toolbox.getAttribute("mode");
   let align = toolbox.getAttribute("labelalign");
-  if (mode == "full" && align == "end")
+  if (mode == "full" && align == "end") {
     toolbox.setAttribute("mode", "textbesideicon");
+  }
 
   onLoad();
   overlayRepositionDialog();
@@ -164,12 +199,12 @@ function overlayRepositionDialog() {
 
   // Seems to be necessary to get the correct dialog height/width
   window.sizeToContent();
-  var wH  = window.outerHeight;
-  var wW  = window.outerWidth;
-  var sH  = window.screen.height;
-  var sW  = window.screen.width;
-  var sX  = window.screenX;
-  var sY  = window.screenY;
+  var wH = window.outerHeight;
+  var wW = window.outerWidth;
+  var sH = window.screen.height;
+  var sW = window.screen.width;
+  var sX = window.screenX;
+  var sY = window.screenY;
   var sAL = window.screen.availLeft;
   var sAT = window.screen.availTop;
 
@@ -181,8 +216,9 @@ function overlayRepositionDialog() {
 function CustomizeMailToolbar(toolboxId, customizePopupId) {
   // Disable the toolbar context menu items
   var menubar = document.getElementById("mail-menubar");
-  for (var i = 0; i < menubar.childNodes.length; ++i)
+  for (var i = 0; i < menubar.childNodes.length; ++i) {
     menubar.childNodes[i].setAttribute("disabled", true);
+  }
 
   var customizePopup = document.getElementById(customizePopupId);
   customizePopup.setAttribute("disabled", "true");
@@ -190,14 +226,19 @@ function CustomizeMailToolbar(toolboxId, customizePopupId) {
   var toolbox = document.getElementById(toolboxId);
 
   var customizeURL = "chrome://messenger/content/customizeToolbar.xul";
-  gCustomizeSheet = Services.prefs.getBoolPref("toolbar.customization.usesheet");
+  gCustomizeSheet = Services.prefs.getBoolPref(
+    "toolbar.customization.usesheet"
+  );
 
   let externalToolbars = [];
   if (toolbox.getAttribute("id") == "mail-toolbox") {
     if (document.getElementById("tabbar-toolbar")) {
       externalToolbars.push(document.getElementById("tabbar-toolbar"));
     }
-    if (AppConstants.platform != "macosx" && document.getElementById("mail-toolbar-menubar2")) {
+    if (
+      AppConstants.platform != "macosx" &&
+      document.getElementById("mail-toolbar-menubar2")
+    ) {
       externalToolbars.push(document.getElementById("mail-toolbar-menubar2"));
     }
     if (document.getElementById("folderPane-toolbar")) {
@@ -218,25 +259,34 @@ function CustomizeMailToolbar(toolboxId, customizePopupId) {
     // The document might not have been loaded yet, if this is the first time.
     // If it is already loaded, reload it so that the onload initialization code
     // re-runs.
-    if (sheetFrame.getAttribute("src") == customizeURL)
+    if (sheetFrame.getAttribute("src") == customizeURL) {
       sheetFrame.contentWindow.location.reload();
-    else
+    } else {
       sheetFrame.setAttribute("src", customizeURL);
+    }
 
     // Open the panel, but make it invisible until the iframe has loaded so
     // that the user doesn't see a white flash.
     panel.style.visibility = "hidden";
-    toolbox.addEventListener("beforecustomization", function() {
-      panel.style.removeProperty("visibility");
-    }, {capture: false, once: true});
+    toolbox.addEventListener(
+      "beforecustomization",
+      function() {
+        panel.style.removeProperty("visibility");
+      },
+      { capture: false, once: true }
+    );
     panel.openPopup(toolbox, "after_start", 0, 0);
   } else {
     var wintype = document.documentElement.getAttribute("windowtype");
     wintype = wintype.replace(/:/g, "");
 
-    window.openDialog(customizeURL,
-                      "CustomizeToolbar" + wintype,
-                      "chrome,all,dependent", toolbox, externalToolbars);
+    window.openDialog(
+      customizeURL,
+      "CustomizeToolbar" + wintype,
+      "chrome,all,dependent",
+      toolbox,
+      externalToolbars
+    );
   }
 }
 
@@ -250,23 +300,27 @@ function MailToolboxCustomizeDone(aEvent, customizePopupId) {
 
   // Re-enable parts of the UI we disabled during the dialog
   var menubar = document.getElementById("mail-menubar");
-  for (var i = 0; i < menubar.childNodes.length; ++i)
+  for (var i = 0; i < menubar.childNodes.length; ++i) {
     menubar.childNodes[i].setAttribute("disabled", false);
+  }
 
   // make sure the mail views search box is initialized
-  if (document.getElementById("mailviews-container"))
+  if (document.getElementById("mailviews-container")) {
     ViewPickerOnLoad();
+  }
 
   // make sure the folder location picker is initialized
-  if (document.getElementById("folder-location-container"))
+  if (document.getElementById("folder-location-container")) {
     FolderPaneSelectionChange();
+  }
 
   var customizePopup = document.getElementById(customizePopupId);
   customizePopup.removeAttribute("disabled");
 
   // make sure our toolbar buttons have the correct enabled state restored to them...
-  if (this.UpdateMailToolbar != undefined)
+  if (this.UpdateMailToolbar != undefined) {
     UpdateMailToolbar(focus);
+  }
 
   let toolbox = document.querySelector('[doCustomization="true"]');
   if (toolbox) {
@@ -280,13 +334,16 @@ function MailToolboxCustomizeDone(aEvent, customizePopupId) {
     // TODO bug 904223: try to fix folderWidgets.xml to not do this.
     // See Bug 520457 and Bug 534448 and Bug 709733.
     // Fix Bug 565045: Only treat "Get Message Button" if it is in our toolbox
-    for (let popup of [ toolbox.querySelector("#button-getMsgPopup"),
-                        document.getElementById("menu_getAllNewMsgPopup"),
-                        document.getElementById("appmenu_getAllNewMsgPopup"),
-                        document.getElementById("menu_GoFolderPopup"),
-                        document.getElementById("appmenu_GoFolderPopup") ]) {
-      if (!popup)
+    for (let popup of [
+      toolbox.querySelector("#button-getMsgPopup"),
+      document.getElementById("menu_getAllNewMsgPopup"),
+      document.getElementById("appmenu_getAllNewMsgPopup"),
+      document.getElementById("menu_GoFolderPopup"),
+      document.getElementById("appmenu_GoFolderPopup"),
+    ]) {
+      if (!popup) {
         continue;
+      }
 
       // .teardown() is only available here if the menu has its frame
       // otherwise the folderWidgets.xml::folder-menupopup binding is not
@@ -297,10 +354,12 @@ function MailToolboxCustomizeDone(aEvent, customizePopupId) {
       } else {
         for (let i = popup.childNodes.length - 1; i >= 0; i--) {
           let child = popup.childNodes[i];
-          if (child.getAttribute("generated") != "true")
+          if (child.getAttribute("generated") != "true") {
             continue;
-          if ("_teardown" in child)
+          }
+          if ("_teardown" in child) {
             child._teardown();
+          }
           child.remove();
         }
       }
@@ -320,13 +379,19 @@ function MailToolboxCustomizeDone(aEvent, customizePopupId) {
  *                                      E.g. "toolbarbutton" for the appmenu.
  * @param {string} [classes]            Classes to set on menu items.
  */
-function onViewToolbarsPopupShowing(event, toolboxIds, insertPoint,
-  elementName = "menuitem", classes) {
+function onViewToolbarsPopupShowing(
+  event,
+  toolboxIds,
+  insertPoint,
+  elementName = "menuitem",
+  classes
+) {
   if (!Array.isArray(toolboxIds)) {
     toolboxIds = [toolboxIds];
   }
 
-  const popup = event.target.querySelector(".panel-subview-body") || event.target;
+  const popup =
+    event.target.querySelector(".panel-subview-body") || event.target;
 
   // Remove all collapsible nodes from the menu.
   for (let i = popup.childNodes.length - 1; i >= 0; --i) {
@@ -349,8 +414,10 @@ function onViewToolbarsPopupShowing(event, toolboxIds, insertPoint,
     // Add the folder pane toolbar to the list of toolbars that can be shown and
     // hidden.
     if (toolbox.getAttribute("id") === "mail-toolbox") {
-      if (AppConstants.platform != "macosx" &&
-          document.getElementById("mail-toolbar-menubar2")) {
+      if (
+        AppConstants.platform != "macosx" &&
+        document.getElementById("mail-toolbar-menubar2")
+      ) {
         toolbars.push(document.getElementById("mail-toolbar-menubar2"));
       }
       if (document.getElementById("folderPane-toolbar")) {
@@ -363,8 +430,8 @@ function onViewToolbarsPopupShowing(event, toolboxIds, insertPoint,
       if (toolbarName) {
         const menuItem = document.createXULElement(elementName);
 
-        const hidingAttribute = toolbar.getAttribute("type") == "menubar" ?
-          "autohide" : "collapsed";
+        const hidingAttribute =
+          toolbar.getAttribute("type") == "menubar" ? "autohide" : "collapsed";
 
         menuItem.setAttribute("type", "checkbox");
         // Mark this menuitem with an iscollapsible attribute, so we
@@ -373,8 +440,10 @@ function onViewToolbarsPopupShowing(event, toolboxIds, insertPoint,
         menuItem.setAttribute("toolbarid", toolbar.id);
         menuItem.setAttribute("label", toolbarName);
         menuItem.setAttribute("accesskey", toolbar.getAttribute("accesskey"));
-        menuItem.setAttribute("checked",
-                              toolbar.getAttribute(hidingAttribute) != "true");
+        menuItem.setAttribute(
+          "checked",
+          toolbar.getAttribute(hidingAttribute) != "true"
+        );
         if (classes) {
           menuItem.setAttribute("class", classes);
         }
@@ -401,60 +470,75 @@ function toJavaScriptConsole() {
 
 function openAboutDebugging(hash) {
   let url = "about:debugging" + (hash ? "#" + hash : "");
-  document.getElementById("tabmail").openTab("contentTab", { contentPage: url });
+  document
+    .getElementById("tabmail")
+    .openTab("contentTab", { contentPage: url });
 }
 
 function toOpenWindowByType(inType, uri) {
   var topWindow = Services.wm.getMostRecentWindow(inType);
-  if (topWindow)
+  if (topWindow) {
     topWindow.focus();
-  else
-    window.open(uri, "_blank", "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar");
+  } else {
+    window.open(
+      uri,
+      "_blank",
+      "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar"
+    );
+  }
 }
 
 function toMessengerWindow() {
   toOpenWindowByType("mail:3pane", "chrome://messenger/content/messenger.xul");
 }
 
-
 function focusOnMail(tabNo, event) {
   // this is invoked by accel-<number>
   // if the window isn't visible or focused, make it so
   var topWindow = Services.wm.getMostRecentWindow("mail:3pane");
   if (topWindow) {
-    if (topWindow != window)
+    if (topWindow != window) {
       topWindow.focus();
-    else
+    } else {
       document.getElementById("tabmail").selectTabByIndex(event, tabNo);
+    }
   } else {
-    window.open("chrome://messenger/content/messenger.xul",
-                "_blank",
-                "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar");
+    window.open(
+      "chrome://messenger/content/messenger.xul",
+      "_blank",
+      "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar"
+    );
   }
 }
 
 function toAddressBook() {
-  toOpenWindowByType("mail:addressbook",
-                     "chrome://messenger/content/addressbook/addressbook.xul");
+  toOpenWindowByType(
+    "mail:addressbook",
+    "chrome://messenger/content/addressbook/addressbook.xul"
+  );
 }
 
 function showChatTab() {
   let tabmail = document.getElementById("tabmail");
-  if (gChatTab)
+  if (gChatTab) {
     tabmail.switchToTab(gChatTab);
-  else
+  } else {
     tabmail.openTab("chat", {});
+  }
 }
 
 function toImport() {
-  window.openDialog("chrome://messenger/content/importDialog.xul", "importDialog",
-                    "chrome, modal, titlebar, centerscreen");
+  window.openDialog(
+    "chrome://messenger/content/importDialog.xul",
+    "importDialog",
+    "chrome, modal, titlebar, centerscreen"
+  );
 }
 
 function toSanitize() {
-   Cc["@mozilla.org/mail/mailglue;1"]
-     .getService(Ci.nsIMailGlue)
-     .sanitize(window);
+  Cc["@mozilla.org/mail/mailglue;1"]
+    .getService(Ci.nsIMailGlue)
+    .sanitize(window);
 }
 
 /**
@@ -493,9 +577,10 @@ function openAddonsMgr(aView) {
     }
   }
 
-  let addonSiteRegExp = Services.prefs.getCharPref("extensions.getAddons.siteRegExp");
+  let addonSiteRegExp = Services.prefs.getCharPref(
+    "extensions.getAddons.siteRegExp"
+  );
   openContentTab("about:addons", "tab", addonSiteRegExp);
-
 
   if (aView) {
     // This must be a new load, else the ping/pong would have
@@ -518,18 +603,21 @@ function openAddonPrefs(aURL, aOptionsType) {
   } else if (aOptionsType == "tab") {
     switchToTabHavingURI(aURL, true);
   } else {
-    let instantApply = Services.prefs
-                               .getBoolPref("browser.preferences.instantApply");
-    let features = "chrome,titlebar,toolbar,centerscreen" +
-                   (instantApply ? ",dialog=no" : ",modal");
+    let instantApply = Services.prefs.getBoolPref(
+      "browser.preferences.instantApply"
+    );
+    let features =
+      "chrome,titlebar,toolbar,centerscreen" +
+      (instantApply ? ",dialog=no" : ",modal");
 
     window.openDialog(aURL, "addonPrefs", features);
   }
 }
 
 function openActivityMgr() {
-  Cc["@mozilla.org/activity-manager-ui;1"].
-    getService(Ci.nsIActivityManagerUI).show(window);
+  Cc["@mozilla.org/activity-manager-ui;1"]
+    .getService(Ci.nsIActivityManagerUI)
+    .show(window);
 }
 
 function openIMAccountMgr() {
@@ -537,10 +625,13 @@ function openIMAccountMgr() {
   if (win) {
     win.focus();
   } else {
-    win = Services.ww.openWindow(null,
-                                 "chrome://messenger/content/chat/imAccounts.xul",
-                                 "Accounts", "chrome,resizable,centerscreen",
-                                 null);
+    win = Services.ww.openWindow(
+      null,
+      "chrome://messenger/content/chat/imAccounts.xul",
+      "Accounts",
+      "chrome,resizable,centerscreen",
+      null
+    );
   }
   return win;
 }
@@ -553,8 +644,9 @@ function openIMAccountWizard() {
   if (AppConstants.platform == "macosx") {
     // On Mac, avoid using the hidden window as a parent as that would
     // make it visible.
-    let hiddenWindowUrl =
-      Services.prefs.getCharPref("browser.hiddenWindowChromeURL");
+    let hiddenWindowUrl = Services.prefs.getCharPref(
+      "browser.hiddenWindowChromeURL"
+    );
     if (window.location.href == hiddenWindowUrl) {
       Services.ww.openWindow(null, kUrl, kName, kFeatures, null);
       return;
@@ -570,27 +662,30 @@ function openSavedFilesWnd() {
   if (downloadsBrowser) {
     tabmail.switchToTab(downloadsBrowser);
   } else {
-    tabmail.openTab("chromeTab",
-                    { chromePage: "about:downloads",
-                      clickHandler: "specialTabs.aboutClickHandler(event);" });
+    tabmail.openTab("chromeTab", {
+      chromePage: "about:downloads",
+      clickHandler: "specialTabs.aboutClickHandler(event);",
+    });
   }
 }
 
 function SetBusyCursor(window, enable) {
-    // setCursor() is only available for chrome windows.
-    // However one of our frames is the start page which
-    // is a non-chrome window, so check if this window has a
-    // setCursor method
-    if ("setCursor" in window) {
-        if (enable)
-            window.setCursor("progress");
-        else
-            window.setCursor("auto");
+  // setCursor() is only available for chrome windows.
+  // However one of our frames is the start page which
+  // is a non-chrome window, so check if this window has a
+  // setCursor method
+  if ("setCursor" in window) {
+    if (enable) {
+      window.setCursor("progress");
+    } else {
+      window.setCursor("auto");
     }
+  }
 
   var numFrames = window.frames.length;
-  for (var i = 0; i < numFrames; i++)
+  for (var i = 0; i < numFrames; i++) {
     SetBusyCursor(window.frames[i], enable);
+  }
 }
 
 function openAboutDialog() {
@@ -603,14 +698,19 @@ function openAboutDialog() {
   }
 
   let features;
-  if (AppConstants.platform == "win")
+  if (AppConstants.platform == "win") {
     features = "chrome,centerscreen,dependent";
-  else if (AppConstants.platform == "macosx")
+  } else if (AppConstants.platform == "macosx") {
     features = "chrome,resizable=no,minimizable=no";
-  else
+  } else {
     features = "chrome,centerscreen,dependent,dialog=no";
+  }
 
-  window.openDialog("chrome://messenger/content/aboutDialog.xul", "About", features);
+  window.openDialog(
+    "chrome://messenger/content/aboutDialog.xul",
+    "About",
+    features
+  );
 }
 
 /**
@@ -631,8 +731,9 @@ function openFormattedURL(aPrefName) {
 
   var uri = Services.io.newURI(urlToOpen);
 
-  var protocolSvc = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-                      .getService(Ci.nsIExternalProtocolService);
+  var protocolSvc = Cc[
+    "@mozilla.org/uriloader/external-protocol-service;1"
+  ].getService(Ci.nsIExternalProtocolService);
   protocolSvc.loadURI(uri);
 }
 
@@ -641,8 +742,10 @@ function openFormattedURL(aPrefName) {
  */
 function openAboutSupport() {
   let tabmail = document.getElementById("tabmail");
-  tabmail.openTab("contentTab", {contentPage: "about:support",
-                  clickHandler: "specialTabs.aboutClickHandler(event);" });
+  tabmail.openTab("contentTab", {
+    contentPage: "about:support",
+    clickHandler: "specialTabs.aboutClickHandler(event);",
+  });
 }
 
 /**
@@ -651,36 +754,55 @@ function openAboutSupport() {
 function safeModeRestart() {
   // Is TB in safe mode?
   if (Services.appinfo.inSafeMode) {
-    let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].
-                     createInstance(Ci.nsISupportsPRBool);
-    Services.obs.notifyObservers(cancelQuit, "quit-application-requested", "restart");
+    let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
+      Ci.nsISupportsPRBool
+    );
+    Services.obs.notifyObservers(
+      cancelQuit,
+      "quit-application-requested",
+      "restart"
+    );
 
-    if (cancelQuit.data)
+    if (cancelQuit.data) {
       return;
+    }
 
-    Services.startup.quit(Ci.nsIAppStartup.eRestart | Ci.nsIAppStartup.eAttemptQuit);
+    Services.startup.quit(
+      Ci.nsIAppStartup.eRestart | Ci.nsIAppStartup.eAttemptQuit
+    );
     return;
   }
   // prompt the user to confirm
   let bundle = Services.strings.createBundle(
-    "chrome://messenger/locale/messenger.properties");
+    "chrome://messenger/locale/messenger.properties"
+  );
   let promptTitle = bundle.GetStringFromName("safeModeRestartPromptTitle");
   let promptMessage = bundle.GetStringFromName("safeModeRestartPromptMessage");
   let restartText = bundle.GetStringFromName("safeModeRestartButton");
-  let buttonFlags = (Services.prompt.BUTTON_POS_0 *
-                     Services.prompt.BUTTON_TITLE_IS_STRING) +
-                    (Services.prompt.BUTTON_POS_1 *
-                     Services.prompt.BUTTON_TITLE_CANCEL) +
-                    Services.prompt.BUTTON_POS_0_DEFAULT;
+  let buttonFlags =
+    Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING +
+    Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_CANCEL +
+    Services.prompt.BUTTON_POS_0_DEFAULT;
 
-  let rv = Services.prompt.confirmEx(window, promptTitle, promptMessage,
-                                     buttonFlags, restartText, null, null,
-                                     null, {});
+  let rv = Services.prompt.confirmEx(
+    window,
+    promptTitle,
+    promptMessage,
+    buttonFlags,
+    restartText,
+    null,
+    null,
+    null,
+    {}
+  );
   if (rv == 0) {
-    let environment = Cc["@mozilla.org/process/environment;1"]
-                        .getService(Ci.nsIEnvironment);
+    let environment = Cc["@mozilla.org/process/environment;1"].getService(
+      Ci.nsIEnvironment
+    );
     environment.set("MOZ_SAFE_MODE_RESTART", "1");
-    let {BrowserUtils} = ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
+    let { BrowserUtils } = ChromeUtils.import(
+      "resource://gre/modules/BrowserUtils.jsm"
+    );
     BrowserUtils.restartApplication();
   }
 }
@@ -697,8 +819,9 @@ function getMostRecentMailWindow() {
     // This is oldest to newest, so this gets a bit ugly.
     while (windowList.hasMoreElements()) {
       let nextWin = windowList.getNext();
-      if (!nextWin.document.documentElement.getAttribute("chromehidden"))
+      if (!nextWin.document.documentElement.getAttribute("chromehidden")) {
         win = nextWin;
+      }
     }
   }
 
@@ -717,8 +840,9 @@ function getMostRecentMailWindow() {
  */
 function SanitizeAttachmentDisplayName(aAttachment) {
   let displayName = aAttachment.name.trim().replace(/\s+/g, " ");
-  if (AppConstants.platform == "win")
+  if (AppConstants.platform == "win") {
     displayName = displayName.replace(/[ \.]+$/, "");
+  }
   return displayName.replace(/(.)\1{9,}/g, "$1…$1");
 }
 
@@ -732,9 +856,12 @@ function SanitizeAttachmentDisplayName(aAttachment) {
 function CreateAttachmentTransferData(aAttachment) {
   // For now, disallow drag-and-drop on cloud attachments. In the future, we
   // should allow this.
-  if (aAttachment.contentType == "text/x-moz-deleted" ||
-      aAttachment.sendViaCloud)
+  if (
+    aAttachment.contentType == "text/x-moz-deleted" ||
+    aAttachment.sendViaCloud
+  ) {
     return null;
+  }
 
   var name = aAttachment.name || aAttachment.displayName;
 
@@ -743,27 +870,38 @@ function CreateAttachmentTransferData(aAttachment) {
     // Only add type/filename info for non-file URLs that don't already
     // have it.
     var info;
-    if (/(^file:|&filename=)/.test(aAttachment.url))
+    if (/(^file:|&filename=)/.test(aAttachment.url)) {
       info = aAttachment.url;
-    else
-      info = aAttachment.url + "&type=" + aAttachment.contentType +
-                               "&filename=" + encodeURIComponent(name);
+    } else {
+      info =
+        aAttachment.url +
+        "&type=" +
+        aAttachment.contentType +
+        "&filename=" +
+        encodeURIComponent(name);
+    }
 
-    data.addDataForFlavour("text/x-moz-url",
-                           info + "\n" + name + "\n" + aAttachment.size);
+    data.addDataForFlavour(
+      "text/x-moz-url",
+      info + "\n" + name + "\n" + aAttachment.size
+    );
     data.addDataForFlavour("text/x-moz-url-data", aAttachment.url);
     data.addDataForFlavour("text/x-moz-url-desc", name);
-    data.addDataForFlavour("application/x-moz-file-promise-url",
-                           aAttachment.url);
-    data.addDataForFlavour("application/x-moz-file-promise",
-                           new nsFlavorDataProvider(), 0,
-                           Ci.nsISupports);
+    data.addDataForFlavour(
+      "application/x-moz-file-promise-url",
+      aAttachment.url
+    );
+    data.addDataForFlavour(
+      "application/x-moz-file-promise",
+      new nsFlavorDataProvider(),
+      0,
+      Ci.nsISupports
+    );
   }
   return data;
 }
 
-function nsFlavorDataProvider() {
-}
+function nsFlavorDataProvider() {}
 
 nsFlavorDataProvider.prototype = {
   QueryInterface: ChromeUtils.generateQI(["nsIFlavorDataProvider"]),
@@ -773,15 +911,23 @@ nsFlavorDataProvider.prototype = {
     if (aFlavor == "application/x-moz-file-promise") {
       var urlPrimitive = {};
       var dataSize = {};
-      aTransferable.getTransferData("application/x-moz-file-promise-url",
-                                    urlPrimitive, dataSize);
+      aTransferable.getTransferData(
+        "application/x-moz-file-promise-url",
+        urlPrimitive,
+        dataSize
+      );
 
-      var srcUrlPrimitive = urlPrimitive.value.QueryInterface(Ci.nsISupportsString);
+      var srcUrlPrimitive = urlPrimitive.value.QueryInterface(
+        Ci.nsISupportsString
+      );
 
       // now get the destination file location from kFilePromiseDirectoryMime
       var dirPrimitive = {};
-      aTransferable.getTransferData("application/x-moz-file-promise-dir",
-                                    dirPrimitive, dataSize);
+      aTransferable.getTransferData(
+        "application/x-moz-file-promise-dir",
+        dirPrimitive,
+        dataSize
+      );
       var destDirectory = dirPrimitive.value.QueryInterface(Ci.nsIFile);
 
       // now save the attachment to the specified location
@@ -792,18 +938,21 @@ nsFlavorDataProvider.prototype = {
       var attachment = null;
       for (let index of currentAttachments.keys()) {
         attachment = currentAttachments[index];
-        if (attachment.url == srcUrlPrimitive)
+        if (attachment.url == srcUrlPrimitive) {
           break;
+        }
       }
 
       // call our code for saving attachments
       if (attachment) {
         var name = attachment.name || attachment.displayName;
-        var destFilePath = messenger.saveAttachmentToFolder(attachment.contentType,
-                                                            attachment.url,
-                                                            encodeURIComponent(name),
-                                                            attachment.uri,
-                                                            destDirectory);
+        var destFilePath = messenger.saveAttachmentToFolder(
+          attachment.contentType,
+          attachment.url,
+          encodeURIComponent(name),
+          attachment.uri,
+          destDirectory
+        );
         aData.value = destFilePath.QueryInterface(Ci.nsISupports);
         aDataLen.value = 4;
       }

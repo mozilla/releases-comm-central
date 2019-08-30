@@ -5,7 +5,9 @@
 this.EXPORTED_SYMBOLS = ["MessageArchiver"];
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 function MessageArchiver() {
@@ -21,8 +23,9 @@ function MessageArchiver() {
 
 MessageArchiver.prototype = {
   archiveMessages(aMsgHdrs) {
-    if (!aMsgHdrs.length)
+    if (!aMsgHdrs.length) {
       return;
+    }
 
     if (this.folderDisplay) {
       this.folderDisplay.hintMassMoveStarting();
@@ -35,7 +38,8 @@ MessageArchiver.prototype = {
       // Convert date to JS date object.
       let msgDate = new Date(msgHdr.date / 1000);
       let msgYear = msgDate.getFullYear().toString();
-      let monthFolderName = msgYear + "-" + (msgDate.getMonth() + 1).toString().padStart(2, "0");
+      let monthFolderName =
+        msgYear + "-" + (msgDate.getMonth() + 1).toString().padStart(2, "0");
 
       let archiveFolderURI;
       let archiveGranularity;
@@ -49,8 +53,9 @@ MessageArchiver.prototype = {
         let enabled = Services.prefs.getBoolPref(
           "mail.identity.default.archive_enabled"
         );
-        if (!enabled)
+        if (!enabled) {
           continue;
+        }
 
         archiveFolderURI = server.serverURI + "/Archives";
         archiveGranularity = Services.prefs.getIntPref(
@@ -60,8 +65,9 @@ MessageArchiver.prototype = {
           "mail.identity.default.archive_keep_folder_structure"
         );
       } else {
-        if (!identity.archiveEnabled)
+        if (!identity.archiveEnabled) {
           continue;
+        }
 
         archiveFolderURI = identity.archiveFolder;
         archiveGranularity = identity.archiveGranularity;
@@ -69,16 +75,17 @@ MessageArchiver.prototype = {
       }
 
       let copyBatchKey = msgHdr.folder.URI;
-      if (archiveGranularity >= Ci.nsIMsgIdentity
-                                  .perYearArchiveFolders)
+      if (archiveGranularity >= Ci.nsIMsgIdentity.perYearArchiveFolders) {
         copyBatchKey += "\0" + msgYear;
+      }
 
-      if (archiveGranularity >= Ci.nsIMsgIdentity
-                                  .perMonthArchiveFolders)
+      if (archiveGranularity >= Ci.nsIMsgIdentity.perMonthArchiveFolders) {
         copyBatchKey += "\0" + monthFolderName;
+      }
 
-      if (archiveKeepFolderStructure)
+      if (archiveKeepFolderStructure) {
         copyBatchKey += msgHdr.folder.URI;
+      }
 
       // Add a key to copyBatchKey
       if (!(copyBatchKey in this._batches)) {
@@ -122,8 +129,9 @@ MessageArchiver.prototype = {
   filterBatch() {
     let batch = this._currentBatch;
 
-    let filterArray = Cc["@mozilla.org/array;1"]
-                        .createInstance(Ci.nsIMutableArray);
+    let filterArray = Cc["@mozilla.org/array;1"].createInstance(
+      Ci.nsIMutableArray
+    );
     for (let message of batch.messages) {
       filterArray.appendElement(message);
     }
@@ -131,7 +139,11 @@ MessageArchiver.prototype = {
     // Apply filters to this batch.
     MailServices.filters.applyFilters(
       Ci.nsMsgFilterType.Archive,
-      filterArray, batch.srcFolder, this.msgWindow, this);
+      filterArray,
+      batch.srcFolder,
+      this.msgWindow,
+      this
+    );
     // continues with onStopOperation
   },
 
@@ -153,19 +165,25 @@ MessageArchiver.prototype = {
     let archiveFolder = MailUtils.getOrCreateFolder(archiveFolderURI);
     let dstFolder = archiveFolder;
 
-    let moveArray = Cc["@mozilla.org/array;1"]
-                      .createInstance(Ci.nsIMutableArray);
+    let moveArray = Cc["@mozilla.org/array;1"].createInstance(
+      Ci.nsIMutableArray
+    );
     // Don't move any items that the filter moves or deleted
     for (let item of batch.messages) {
-      if (srcFolder.msgDatabase.ContainsKey(item.messageKey) &&
-          !(srcFolder.getProcessingFlags(item.messageKey) &
-            Ci.nsMsgProcessingFlags.FilterToMove)) {
+      if (
+        srcFolder.msgDatabase.ContainsKey(item.messageKey) &&
+        !(
+          srcFolder.getProcessingFlags(item.messageKey) &
+          Ci.nsMsgProcessingFlags.FilterToMove
+        )
+      ) {
         moveArray.appendElement(item);
       }
     }
 
-    if (moveArray.length == 0)
-      this.processNextBatch(); // continue processing
+    if (moveArray.length == 0) {
+      this.processNextBatch();
+    } // continue processing
 
     // For folders on some servers (e.g. IMAP), we need to create the
     // sub-folders asynchronously, so we chain the urls using the listener
@@ -175,25 +193,31 @@ MessageArchiver.prototype = {
     if (!archiveFolder.parent) {
       archiveFolder.setFlag(Ci.nsMsgFolderFlags.Archive);
       archiveFolder.createStorageIfMissing(this);
-      if (isAsync)
-        return; // continues with OnStopRunningUrl
+      if (isAsync) {
+        return;
+      } // continues with OnStopRunningUrl
     }
 
     let granularity = batch.granularity;
     let forceSingle = !archiveFolder.canCreateSubfolders;
-    if (!forceSingle && (archiveFolder.server instanceof
-                         Ci.nsIImapIncomingServer))
+    if (
+      !forceSingle &&
+      archiveFolder.server instanceof Ci.nsIImapIncomingServer
+    ) {
       forceSingle = archiveFolder.server.isGMailServer;
-    if (forceSingle)
-       granularity = Ci.nsIMsgIncomingServer.singleArchiveFolder;
+    }
+    if (forceSingle) {
+      granularity = Ci.nsIMsgIncomingServer.singleArchiveFolder;
+    }
 
     if (granularity >= Ci.nsIMsgIdentity.perYearArchiveFolders) {
       archiveFolderURI += "/" + batch.yearFolderName;
       dstFolder = MailUtils.getOrCreateFolder(archiveFolderURI);
       if (!dstFolder.parent) {
         dstFolder.createStorageIfMissing(this);
-        if (isAsync)
-          return; // continues with OnStopRunningUrl
+        if (isAsync) {
+          return;
+        } // continues with OnStopRunningUrl
       }
     }
     if (granularity >= Ci.nsIMsgIdentity.perMonthArchiveFolders) {
@@ -201,8 +225,9 @@ MessageArchiver.prototype = {
       dstFolder = MailUtils.getOrCreateFolder(archiveFolderURI);
       if (!dstFolder.parent) {
         dstFolder.createStorageIfMissing(this);
-        if (isAsync)
-          return; // continues with OnStopRunningUrl
+        if (isAsync) {
+          return;
+        } // continues with OnStopRunningUrl
       }
     }
 
@@ -231,8 +256,9 @@ MessageArchiver.prototype = {
             this._dstFolderName = folderName;
           }
           dstFolder.createSubfolder(folderName, this.msgWindow);
-          if (isAsync)
-            return; // continues with folderAdded
+          if (isAsync) {
+            return;
+          } // continues with folderAdded
         }
         dstFolder = dstFolder.getChildNamed(folderName);
       }
@@ -242,8 +268,13 @@ MessageArchiver.prototype = {
       // If the source folder doesn't support deleting messages, we
       // make archive a copy, not a move.
       MailServices.copy.CopyMessages(
-        srcFolder, moveArray, dstFolder,
-        srcFolder.canDeleteMessages, this, this.msgWindow, true
+        srcFolder,
+        moveArray,
+        dstFolder,
+        srcFolder.canDeleteMessages,
+        this,
+        this.msgWindow,
+        true
       );
       return; // continues with OnStopCopy
     }
@@ -286,15 +317,19 @@ MessageArchiver.prototype = {
   // @implements {nsIMsgFolderListener}
   folderAdded(aFolder) {
     // Check that this is the folder we're interested in.
-    if (aFolder.parent == this._dstFolderParent &&
-        aFolder.name == this._dstFolderName) {
+    if (
+      aFolder.parent == this._dstFolderParent &&
+      aFolder.name == this._dstFolderName
+    ) {
       this._dstFolderParent = null;
       this._dstFolderName = null;
       this.continueBatch();
     }
   },
 
-  QueryInterface: ChromeUtils.generateQI(["nsIUrlListener",
-                                          "nsIMsgCopyServiceListener",
-                                          "nsIMsgOperationListener"]),
+  QueryInterface: ChromeUtils.generateQI([
+    "nsIUrlListener",
+    "nsIMsgCopyServiceListener",
+    "nsIMsgOperationListener",
+  ]),
 };

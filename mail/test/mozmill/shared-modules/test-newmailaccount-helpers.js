@@ -6,12 +6,22 @@
 
 var MODULE_NAME = "newmailaccount-helpers";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "keyboard-helpers", "dom-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "keyboard-helpers",
+  "dom-helpers",
+];
 
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { fixIterator } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var mc, fdh, kbh, dh;
 
@@ -44,8 +54,7 @@ function installInto(module) {
 function wait_for_provider_list_loaded(aController) {
   mc.waitFor(function() {
     return aController.window.EmailAccountProvisioner.loadedProviders;
-  },
-            "Timed out waiting for the provider list to be loaded");
+  }, "Timed out waiting for the provider list to be loaded");
 }
 
 /* Wait until the search fields are enabled, and we're ready to
@@ -55,14 +64,15 @@ function wait_for_search_ready(aController) {
   mc.waitFor(function() {
     mc.sleep(0);
     return !aController.e("name").disabled;
-  },
-            "Timed out waiting for the search input field to be enabled");
+  }, "Timed out waiting for the search input field to be enabled");
 }
 
 /* Opens the account provisioner by selecting it from the File/Edit menu.
  */
 function open_provisioner_window() {
-  mc.click(new elib.Elem(mc.menus.menu_File.menu_New.newCreateEmailAccountMenuItem));
+  mc.click(
+    new elib.Elem(mc.menus.menu_File.menu_New.newCreateEmailAccountMenuItem)
+  );
 }
 
 /* Used by wait_for_the_wizard_to_be_closed to check if the wizard is still
@@ -85,11 +95,14 @@ function wait_for_the_wizard_to_be_closed(aController) {
  * be a single link, or an Array of links.
  */
 function assert_links_shown(aController, aLinks) {
-  if (!Array.isArray(aLinks))
+  if (!Array.isArray(aLinks)) {
     aLinks = [aLinks];
+  }
 
   aLinks.forEach(function(aLink) {
-    let anchors = aController.window.document.querySelectorAll('a[href="' + aLink + '"]');
+    let anchors = aController.window.document.querySelectorAll(
+      'a[href="' + aLink + '"]'
+    );
     fdh.assert_true(anchors.length > 0);
     for (let anchor of anchors) {
       fdh.assert_false(anchor.hidden);
@@ -101,11 +114,14 @@ function assert_links_shown(aController, aLinks) {
  * be a single link, or an Array of links.
  */
 function assert_links_not_shown(aController, aLinks) {
-  if (!Array.isArray(aLinks))
+  if (!Array.isArray(aLinks)) {
     aLinks = [aLinks];
+  }
 
   aLinks.forEach(function(aLink) {
-    let anchors = aController.window.document.querySelectorAll('a[href="' + aLink + '"]');
+    let anchors = aController.window.document.querySelectorAll(
+      'a[href="' + aLink + '"]'
+    );
     fdh.assert_equals(anchors.length, 0);
   });
 }
@@ -113,8 +129,10 @@ function assert_links_not_shown(aController, aLinks) {
 /* Waits for account provisioner search results to come in.
  */
 function wait_for_search_results(w) {
-  w.waitFor(() => w.e("results").childNodes.length > 0,
-            "Timed out waiting for search results to arrive.");
+  w.waitFor(
+    () => w.e("results").childNodes.length > 0,
+    "Timed out waiting for search results to arrive."
+  );
 }
 
 /* Waits for the account provisioner to be displaying the offline
@@ -125,8 +143,8 @@ function wait_for_search_results(w) {
 function wait_to_be_offline(w) {
   mc.waitFor(function() {
     return dh.check_element_visible(w, "cannotConnectMessage");
-  }, "Timed out waiting for the account provisioner to be in "
-    + "offline mode.");
+  }, "Timed out waiting for the account provisioner to be in " +
+    "offline mode.");
 }
 
 /**
@@ -135,8 +153,10 @@ function wait_to_be_offline(w) {
  * @param aAddress the email address to try to remove.
  */
 function remove_email_account(aAddress) {
-  for (let account of fixIterator(MailServices.accounts.accounts,
-                                  Ci.nsIMsgAccount)) {
+  for (let account of fixIterator(
+    MailServices.accounts.accounts,
+    Ci.nsIMsgAccount
+  )) {
     if (account.defaultIdentity && account.defaultIdentity.email == aAddress) {
       MailServices.accounts.removeAccount(account);
       break;
@@ -153,7 +173,7 @@ function remove_email_account(aAddress) {
  */
 function type_in_search_name(aController, aName) {
   aController.e("name").focus();
-  aController.keypress(null, "a", {accelKey: true});
+  aController.keypress(null, "a", { accelKey: true });
   aController.keypress(null, "VK_BACK_SPACE", {});
 
   kbh.input_value(aController, aName);
@@ -168,10 +188,11 @@ var gConsoleListener = {
   _sawMsg: false,
 
   observe(aMsg) {
-    if (!this._msg)
+    if (!this._msg) {
       return;
+    }
 
-    this._sawMsg |= (aMsg.message.includes(this._msg));
+    this._sawMsg |= aMsg.message.includes(this._msg);
   },
 
   listenFor(aMsg) {
@@ -191,7 +212,6 @@ var gConsoleListener = {
     let self = this;
     mc.waitFor(function() {
       return self.sawMsg;
-    },
-    "Timed out waiting for console message: " + this._msg);
+    }, "Timed out waiting for console message: " + this._msg);
   },
 };

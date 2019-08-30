@@ -5,70 +5,81 @@
 
 /* import-globals-from abCommon.js */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
-var kNonVcardFields =
-        ["NickNameContainer", "SecondaryEmailContainer", "ScreenNameContainer",
-         "customFields", "preferDisplayName"];
+var kNonVcardFields = [
+  "NickNameContainer",
+  "SecondaryEmailContainer",
+  "ScreenNameContainer",
+  "customFields",
+  "preferDisplayName",
+];
 
-var kPhoneticFields =
-        ["PhoneticLastName", "PhoneticLabel1", "PhoneticSpacer1",
-         "PhoneticFirstName", "PhoneticLabel2", "PhoneticSpacer2"];
+var kPhoneticFields = [
+  "PhoneticLastName",
+  "PhoneticLabel1",
+  "PhoneticSpacer1",
+  "PhoneticFirstName",
+  "PhoneticLabel2",
+  "PhoneticSpacer2",
+];
 
 // Item is |[dialogField, cardProperty]|.
-var kVcardFields =
-        [ // Contact > Name
-         ["FirstName", "FirstName"],
-         ["LastName", "LastName"],
-         ["DisplayName", "DisplayName"],
-         ["NickName", "NickName"],
-          // Contact > Internet
-         ["PrimaryEmail", "PrimaryEmail"],
-         ["SecondEmail", "SecondEmail"],
-          // Contact > Phones
-         ["WorkPhone", "WorkPhone"],
-         ["HomePhone", "HomePhone"],
-         ["FaxNumber", "FaxNumber"],
-         ["PagerNumber", "PagerNumber"],
-         ["CellularNumber", "CellularNumber"],
-          // Address > Home
-         ["HomeAddress", "HomeAddress"],
-         ["HomeAddress2", "HomeAddress2"],
-         ["HomeCity", "HomeCity"],
-         ["HomeState", "HomeState"],
-         ["HomeZipCode", "HomeZipCode"],
-         ["HomeCountry", "HomeCountry"],
-         ["WebPage2", "WebPage2"],
-          // Address > Work
-         ["JobTitle", "JobTitle"],
-         ["Department", "Department"],
-         ["Company", "Company"],
-         ["WorkAddress", "WorkAddress"],
-         ["WorkAddress2", "WorkAddress2"],
-         ["WorkCity", "WorkCity"],
-         ["WorkState", "WorkState"],
-         ["WorkZipCode", "WorkZipCode"],
-         ["WorkCountry", "WorkCountry"],
-         ["WebPage1", "WebPage1"],
-          // Other > (custom)
-         ["Custom1", "Custom1"],
-         ["Custom2", "Custom2"],
-         ["Custom3", "Custom3"],
-         ["Custom4", "Custom4"],
-          // Other > Notes
-         ["Notes", "Notes"],
-          // Chat
-         ["Gtalk", "_GoogleTalk"],
-         ["AIM", "_AimScreenName"],
-         ["Yahoo", "_Yahoo"],
-         ["Skype", "_Skype"],
-         ["QQ", "_QQ"],
-         ["MSN", "_MSN"],
-         ["ICQ", "_ICQ"],
-         ["XMPP", "_JabberId"],
-         ["IRC", "_IRC"],
-        ];
+var kVcardFields = [
+  // Contact > Name
+  ["FirstName", "FirstName"],
+  ["LastName", "LastName"],
+  ["DisplayName", "DisplayName"],
+  ["NickName", "NickName"],
+  // Contact > Internet
+  ["PrimaryEmail", "PrimaryEmail"],
+  ["SecondEmail", "SecondEmail"],
+  // Contact > Phones
+  ["WorkPhone", "WorkPhone"],
+  ["HomePhone", "HomePhone"],
+  ["FaxNumber", "FaxNumber"],
+  ["PagerNumber", "PagerNumber"],
+  ["CellularNumber", "CellularNumber"],
+  // Address > Home
+  ["HomeAddress", "HomeAddress"],
+  ["HomeAddress2", "HomeAddress2"],
+  ["HomeCity", "HomeCity"],
+  ["HomeState", "HomeState"],
+  ["HomeZipCode", "HomeZipCode"],
+  ["HomeCountry", "HomeCountry"],
+  ["WebPage2", "WebPage2"],
+  // Address > Work
+  ["JobTitle", "JobTitle"],
+  ["Department", "Department"],
+  ["Company", "Company"],
+  ["WorkAddress", "WorkAddress"],
+  ["WorkAddress2", "WorkAddress2"],
+  ["WorkCity", "WorkCity"],
+  ["WorkState", "WorkState"],
+  ["WorkZipCode", "WorkZipCode"],
+  ["WorkCountry", "WorkCountry"],
+  ["WebPage1", "WebPage1"],
+  // Other > (custom)
+  ["Custom1", "Custom1"],
+  ["Custom2", "Custom2"],
+  ["Custom3", "Custom3"],
+  ["Custom4", "Custom4"],
+  // Other > Notes
+  ["Notes", "Notes"],
+  // Chat
+  ["Gtalk", "_GoogleTalk"],
+  ["AIM", "_AimScreenName"],
+  ["Yahoo", "_Yahoo"],
+  ["Skype", "_Skype"],
+  ["QQ", "_QQ"],
+  ["MSN", "_MSN"],
+  ["ICQ", "_ICQ"],
+  ["XMPP", "_JabberId"],
+  ["IRC", "_IRC"],
+];
 
 var gEditCard;
 var gOnSaveListeners = [];
@@ -87,27 +98,32 @@ function OnLoadNewCard() {
   InitEditCard();
 
   gEditCard.card =
-    (("arguments" in window) && (window.arguments.length > 0) &&
-     (window.arguments[0] instanceof Ci.nsIAbCard))
-    ? window.arguments[0]
-    : Cc["@mozilla.org/addressbook/cardproperty;1"]
-        .createInstance(Ci.nsIAbCard);
+    "arguments" in window &&
+    window.arguments.length > 0 &&
+    window.arguments[0] instanceof Ci.nsIAbCard
+      ? window.arguments[0]
+      : Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+          Ci.nsIAbCard
+        );
   gEditCard.titleProperty = "newContactTitle";
   gEditCard.selectedAB = "";
 
   if ("arguments" in window && window.arguments[0]) {
     gEditCard.selectedAB = kPersonalAddressbookURI;
 
-    if ("selectedAB" in window.arguments[0] &&
-        (window.arguments[0].selectedAB != kAllDirectoryRoot + "?")) {
+    if (
+      "selectedAB" in window.arguments[0] &&
+      window.arguments[0].selectedAB != kAllDirectoryRoot + "?"
+    ) {
       // check if selected ab is a mailing list
       var abURI = window.arguments[0].selectedAB;
 
       var directory = GetDirectoryFromURI(abURI);
       if (directory.isMailList) {
         var parentURI = GetParentDirectoryFromMailingListURI(abURI);
-        if (parentURI)
+        if (parentURI) {
           gEditCard.selectedAB = parentURI;
+        }
       } else if (!directory.readOnly) {
         gEditCard.selectedAB = window.arguments[0].selectedAB;
       }
@@ -115,35 +131,44 @@ function OnLoadNewCard() {
 
     // we may have been given properties to pre-initialize the window with....
     // we'll fill these in here...
-    if ("primaryEmail" in window.arguments[0])
+    if ("primaryEmail" in window.arguments[0]) {
       gEditCard.card.primaryEmail = window.arguments[0].primaryEmail;
+    }
     if ("displayName" in window.arguments[0]) {
       gEditCard.card.displayName = window.arguments[0].displayName;
       // if we've got a display name, don't generate
       // a display name (and stomp on the existing display name)
       // when the user types a first or last name
-      if (gEditCard.card.displayName)
+      if (gEditCard.card.displayName) {
         gEditCard.generateDisplayName = false;
+      }
     }
-    if ("aimScreenName" in window.arguments[0])
-      gEditCard.card.setProperty("_AimScreenName",
-                                 window.arguments[0].aimScreenName);
+    if ("aimScreenName" in window.arguments[0]) {
+      gEditCard.card.setProperty(
+        "_AimScreenName",
+        window.arguments[0].aimScreenName
+      );
+    }
 
-    if ("okCallback" in window.arguments[0])
+    if ("okCallback" in window.arguments[0]) {
       gOkCallback = window.arguments[0].okCallback;
+    }
 
     if ("escapedVCardStr" in window.arguments[0]) {
       // hide non vcard values
       HideNonVcardFields();
-      gEditCard.card =
-        MailServices.ab.escapedVCardToAbCard(window.arguments[0].escapedVCardStr);
+      gEditCard.card = MailServices.ab.escapedVCardToAbCard(
+        window.arguments[0].escapedVCardStr
+      );
     }
 
-    if ("titleProperty" in window.arguments[0])
+    if ("titleProperty" in window.arguments[0]) {
       gEditCard.titleProperty = window.arguments[0].titleProperty;
+    }
 
-    if ("hideABPicker" in window.arguments[0])
+    if ("hideABPicker" in window.arguments[0]) {
       gHideABPicker = window.arguments[0].hideABPicker;
+    }
   }
 
   // set popup with address book names
@@ -163,11 +188,18 @@ function OnLoadNewCard() {
   // probably need to do the same in the addressing widget
 
   // focus on first or last name based on the pref
-  var focus = document.getElementById(gEditCard.displayLastNameFirst
-                                      ? "LastName" : "FirstName");
+  var focus = document.getElementById(
+    gEditCard.displayLastNameFirst ? "LastName" : "FirstName"
+  );
   if (focus) {
     // XXX Using the setTimeout hack until bug 103197 is fixed
-    setTimeout(function(firstTextBox) { firstTextBox.focus(); }, 0, focus);
+    setTimeout(
+      function(firstTextBox) {
+        firstTextBox.focus();
+      },
+      0,
+      focus
+    );
   }
 }
 
@@ -179,9 +211,10 @@ function getContainingDirectory() {
   // If the source directory is "All Address Books", find the parent
   // address book of the card being edited and reflect the changes in it.
   if (directory.URI == kAllDirectoryRoot + "?") {
-    let dirId =
-      gEditCard.card.directoryId
-                    .substring(0, gEditCard.card.directoryId.indexOf("&"));
+    let dirId = gEditCard.card.directoryId.substring(
+      0,
+      gEditCard.card.directoryId.indexOf("&")
+    );
     directory = MailServices.ab.getDirectoryFromId(dirId);
   }
   return directory;
@@ -189,7 +222,7 @@ function getContainingDirectory() {
 
 function EditCardOKButton(event) {
   if (!CheckCardRequiredDataPresence(document)) {
-    event.preventDefault();  // don't close window
+    event.preventDefault(); // don't close window
     return;
   }
 
@@ -209,18 +242,17 @@ function EditCardOKButton(event) {
 
   // create a list of mailing lists and the index where the card is at.
   for (let i = 0; i < listDirectoriesCount; i++) {
-    let subdir = directory.addressLists
-                          .queryElementAt(i, Ci.nsIAbDirectory);
+    let subdir = directory.addressLists.queryElementAt(i, Ci.nsIAbDirectory);
     if (subdir.isMailList) {
       // See if any card in this list is the one we edited.
       // Must compare card contents using .equals() instead of .indexOf()
       // because gEditCard is not really a member of the .addressLists array.
       let listCardsCount = subdir.addressLists.length;
       for (let index = 0; index < listCardsCount; index++) {
-        let card = subdir.addressLists
-                         .queryElementAt(index, Ci.nsIAbCard);
-        if (card.equals(gEditCard.card))
-          foundDirectories.push({directory: subdir, cardIndex: index});
+        let card = subdir.addressLists.queryElementAt(index, Ci.nsIAbCard);
+        if (card.equals(gEditCard.card)) {
+          foundDirectories.push({ directory: subdir, cardIndex: index });
+        }
       }
     }
   }
@@ -232,16 +264,18 @@ function EditCardOKButton(event) {
   while (foundDirectories.length) {
     // Update the addressLists item for this card
     let foundItem = foundDirectories.pop();
-    foundItem.directory
-             .addressLists
-             .replaceElementAt(gEditCard.card, foundItem.cardIndex);
+    foundItem.directory.addressLists.replaceElementAt(
+      gEditCard.card,
+      foundItem.cardIndex
+    );
   }
 
   NotifySaveListeners(directory);
 
   // callback to allow caller to update
-  if (gOkCallback)
+  if (gOkCallback) {
     gOkCallback();
+  }
 }
 
 function EditCardCancelButton() {
@@ -255,20 +289,26 @@ function OnLoadEditCard() {
   gEditCard.titleProperty = "editContactTitle";
 
   if (window.arguments && window.arguments[0]) {
-    if (window.arguments[0].card)
+    if (window.arguments[0].card) {
       gEditCard.card = window.arguments[0].card;
-    if (window.arguments[0].okCallback)
+    }
+    if (window.arguments[0].okCallback) {
       gOkCallback = window.arguments[0].okCallback;
-    if (window.arguments[0].abURI)
+    }
+    if (window.arguments[0].abURI) {
       gEditCard.abURI = window.arguments[0].abURI;
+    }
   }
 
   // set global state variables
   // if first or last name entered, disable generateDisplayName
-  if (gEditCard.generateDisplayName &&
-      (gEditCard.card.firstName.length +
-       gEditCard.card.lastName.length +
-       gEditCard.card.displayName.length > 0)) {
+  if (
+    gEditCard.generateDisplayName &&
+    gEditCard.card.firstName.length +
+      gEditCard.card.lastName.length +
+      gEditCard.card.displayName.length >
+      0
+  ) {
     gEditCard.generateDisplayName = false;
   }
 
@@ -296,12 +336,12 @@ function OnLoadEditCard() {
         document.getElementById("Age").readOnly = true;
 
         // the photo field and buttons
-        document.getElementById("PhotoType").disabled        = true;
+        document.getElementById("PhotoType").disabled = true;
         document.getElementById("GenericPhotoList").disabled = true;
-        document.getElementById("PhotoURI").disabled         = true;
-        document.getElementById("PhotoURI").placeholder      = "";
-        document.getElementById("BrowsePhoto").disabled      = true;
-        document.getElementById("UpdatePhoto").disabled      = true;
+        document.getElementById("PhotoURI").disabled = true;
+        document.getElementById("PhotoURI").placeholder = "";
+        document.getElementById("BrowsePhoto").disabled = true;
+        document.getElementById("UpdatePhoto").disabled = true;
 
         // And the phonetic fields
         document.getElementById(kPhoneticFields[0]).readOnly = true;
@@ -331,17 +371,20 @@ function RegisterLoadListener(aFunc) {
 
 function UnregisterLoadListener(aFunc) {
   var fIndex = gOnLoadListeners.indexOf(aFunc);
-  if (fIndex != -1)
+  if (fIndex != -1) {
     gOnLoadListeners.splice(fIndex, 1);
+  }
 }
 
 // Notifies load listeners that an nsIAbCard is being loaded.
 function NotifyLoadListeners(aCard, aDoc) {
-  if (!gOnLoadListeners.length)
+  if (!gOnLoadListeners.length) {
     return;
+  }
 
-  for (var i = 0; i < gOnLoadListeners.length; i++)
+  for (var i = 0; i < gOnLoadListeners.length; i++) {
     gOnLoadListeners[i](aCard, aDoc);
+  }
 }
 
 /* Registers functions that are called when saving the card
@@ -355,17 +398,20 @@ function RegisterSaveListener(func) {
 
 function UnregisterSaveListener(aFunc) {
   var fIndex = gOnSaveListeners.indexOf(aFunc);
-  if (fIndex != -1)
+  if (fIndex != -1) {
     gOnSaveListeners.splice(fIndex, 1);
+  }
 }
 
 // Notifies save listeners that an nsIAbCard is being saved.
 function NotifySaveListeners(directory) {
-  if (!gOnSaveListeners.length)
+  if (!gOnSaveListeners.length) {
     return;
+  }
 
-  for (var i = 0; i < gOnSaveListeners.length; i++)
+  for (var i = 0; i < gOnSaveListeners.length; i++) {
     gOnSaveListeners[i](gEditCard.card, document);
+  }
 
   // the save listeners might have tweaked the card
   // in which case we need to commit it.
@@ -373,9 +419,10 @@ function NotifySaveListeners(directory) {
 }
 
 function InitPhoneticFields() {
-  var showPhoneticFields =
-    Services.prefs.getComplexValue("mail.addr_book.show_phonetic_fields",
-      Ci.nsIPrefLocalizedString).data;
+  var showPhoneticFields = Services.prefs.getComplexValue(
+    "mail.addr_book.show_phonetic_fields",
+    Ci.nsIPrefLocalizedString
+  ).data;
 
   // show phonetic fields if indicated by the pref
   if (showPhoneticFields == "true") {
@@ -395,7 +442,10 @@ function InitBirthDateFields() {
     for (let m = 1; m <= 12; m++) {
       let menuitem = document.createXULElement("menuitem");
       menuitem.setAttribute("value", m);
-      menuitem.setAttribute("label", formatter.format(new Date(2000, m - 1, 2)));
+      menuitem.setAttribute(
+        "label",
+        formatter.format(new Date(2000, m - 1, 2))
+      );
       birthMonth.menupopup.appendChild(menuitem);
     }
 
@@ -418,16 +468,26 @@ function InitEditCard() {
   let nameField1Container = document.getElementById("NameField1Container");
   let nameField1 = nameField1Container.querySelector("textbox");
   if (nameField1.id != "FirstName" && nameField1.id != "LastName") {
-    nameField1Container.querySelector("label").setAttribute("control", "FirstName");
+    nameField1Container
+      .querySelector("label")
+      .setAttribute("control", "FirstName");
     nameField1.id = "FirstName";
-    nameField1Container.querySelector("textbox ~ label").setAttribute("control", "PhoneticFirstName");
-    nameField1Container.querySelector("textbox ~ textbox").id = "PhoneticFirstName";
+    nameField1Container
+      .querySelector("textbox ~ label")
+      .setAttribute("control", "PhoneticFirstName");
+    nameField1Container.querySelector("textbox ~ textbox").id =
+      "PhoneticFirstName";
 
     let nameField2Container = document.getElementById("NameField2Container");
-    nameField2Container.querySelector("label").setAttribute("control", "LastName");
+    nameField2Container
+      .querySelector("label")
+      .setAttribute("control", "LastName");
     nameField2Container.querySelector("textbox").id = "LastName";
-    nameField2Container.querySelector("textbox ~ label").setAttribute("control", "PhoneticLastName");
-    nameField2Container.querySelector("textbox ~ textbox").id = "PhoneticLastName";
+    nameField2Container
+      .querySelector("textbox ~ label")
+      .setAttribute("control", "PhoneticLastName");
+    nameField2Container.querySelector("textbox ~ textbox").id =
+      "PhoneticLastName";
   }
 
   InitPhoneticFields();
@@ -441,12 +501,14 @@ function InitEditCard() {
 
   // get specific prefs that gEditCard will need
   try {
-    var displayLastNameFirst =
-      Services.prefs.getComplexValue("mail.addr_book.displayName.lastnamefirst",
-        Ci.nsIPrefLocalizedString).data;
-    gEditCard.displayLastNameFirst = (displayLastNameFirst == "true");
-    gEditCard.generateDisplayName =
-      Services.prefs.getBoolPref("mail.addr_book.displayName.autoGeneration");
+    var displayLastNameFirst = Services.prefs.getComplexValue(
+      "mail.addr_book.displayName.lastnamefirst",
+      Ci.nsIPrefLocalizedString
+    ).data;
+    gEditCard.displayLastNameFirst = displayLastNameFirst == "true";
+    gEditCard.generateDisplayName = Services.prefs.getBoolPref(
+      "mail.addr_book.displayName.autoGeneration"
+    );
   } catch (ex) {
     dump("ex: failed to get pref" + ex + "\n");
   }
@@ -455,12 +517,12 @@ function InitEditCard() {
 function NewCardOKButton(event) {
   if (gOkCallback) {
     if (!CheckAndSetCardValues(gEditCard.card, document, true)) {
-      event.preventDefault();  // don't close window
+      event.preventDefault(); // don't close window
       return;
     }
 
     gOkCallback(gEditCard.card.translateTo("vcard"));
-    return;  // close the window
+    return; // close the window
   }
 
   var popup = document.getElementById("abPopup");
@@ -471,14 +533,14 @@ function NewCardOKButton(event) {
     // should be able to just remove this if we are not seeing blank lines in the ab popup
     if (!uri) {
       event.preventDefault();
-      return;  // don't close window
+      return; // don't close window
     }
     // -----
 
     if (gEditCard.card) {
       if (!CheckAndSetCardValues(gEditCard.card, document, true)) {
         event.preventDefault();
-        return;  // don't close window
+        return; // don't close window
       }
 
       // replace gEditCard.card with the card we added
@@ -498,16 +560,19 @@ function NewCardCancelButton() {
 
 // Move the data from the cardproperty to the dialog
 function GetCardValues(cardproperty, doc) {
-  if (!cardproperty)
+  if (!cardproperty) {
     return;
+  }
 
   // Pass the nsIAbCard and the Document through the listeners
   // to give extensions a chance to populate custom fields.
   NotifyLoadListeners(cardproperty, doc);
 
   for (var i = kVcardFields.length; i-- > 0;) {
-    doc.getElementById(kVcardFields[i][0]).value =
-      cardproperty.getProperty(kVcardFields[i][1], "");
+    doc.getElementById(kVcardFields[i][0]).value = cardproperty.getProperty(
+      kVcardFields[i][1],
+      ""
+    );
   }
 
   // Get the year first, so that the following month/day
@@ -525,8 +590,9 @@ function GetCardValues(cardproperty, doc) {
   if (month > 0 && month < 13) {
     birthMonth.value = month;
     setDisabledMonthDays();
-    if (day > 0 && day < 32)
+    if (day > 0 && day < 32) {
       birthDay.value = day;
+    }
   } else {
     birthMonth.value = -1;
   }
@@ -543,18 +609,29 @@ function GetCardValues(cardproperty, doc) {
   age.addEventListener("change", calculateYear);
 
   var popup = document.getElementById("PreferMailFormatPopup");
-  if (popup)
+  if (popup) {
     popup.value = cardproperty.getProperty("PreferMailFormat", "");
+  }
 
   var preferDisplayNameEl = document.getElementById("preferDisplayName");
-  if (preferDisplayNameEl)
+  if (preferDisplayNameEl) {
     // getProperty may return a "1" or "0" string, we want a boolean
-    preferDisplayNameEl.checked = !!cardproperty.getProperty("PreferDisplayName", true);
+    preferDisplayNameEl.checked = !!cardproperty.getProperty(
+      "PreferDisplayName",
+      true
+    );
+  }
 
   // get phonetic fields if exist
   try {
-    doc.getElementById("PhoneticFirstName").value = cardproperty.getProperty("PhoneticFirstName", "");
-    doc.getElementById("PhoneticLastName").value = cardproperty.getProperty("PhoneticLastName", "");
+    doc.getElementById("PhoneticFirstName").value = cardproperty.getProperty(
+      "PhoneticFirstName",
+      ""
+    );
+    doc.getElementById("PhoneticLastName").value = cardproperty.getProperty(
+      "PhoneticLastName",
+      ""
+    );
   } catch (ex) {}
 
   // Select the type if there is a valid value stored for that type, otherwise
@@ -585,15 +662,19 @@ function HideNonVcardFields() {
 //          true - Card values were set, or there is no card to set values on.
 function CheckAndSetCardValues(cardproperty, doc, check) {
   // If requested, check the required data presence.
-  if (check && !CheckCardRequiredDataPresence(document))
+  if (check && !CheckCardRequiredDataPresence(document)) {
     return false;
+  }
 
-  if (!cardproperty)
+  if (!cardproperty) {
     return true;
+  }
 
   for (var i = kVcardFields.length; i-- > 0;) {
-    cardproperty.setProperty(kVcardFields[i][1],
-      doc.getElementById(kVcardFields[i][0]).value);
+    cardproperty.setProperty(
+      kVcardFields[i][1],
+      doc.getElementById(kVcardFields[i][0]).value
+    );
   }
 
   // get the birthday information from the dialog
@@ -602,22 +683,30 @@ function CheckAndSetCardValues(cardproperty, doc, check) {
   var birthYear = doc.getElementById("BirthYear").value;
 
   // set the birth day, month, and year properties
-  cardproperty.setProperty("BirthDay", (birthDay == -1) ? null : birthDay);
-  cardproperty.setProperty("BirthMonth", (birthMonth == -1) ? null : birthMonth);
+  cardproperty.setProperty("BirthDay", birthDay == -1 ? null : birthDay);
+  cardproperty.setProperty("BirthMonth", birthMonth == -1 ? null : birthMonth);
   cardproperty.setProperty("BirthYear", birthYear);
 
   var popup = document.getElementById("PreferMailFormatPopup");
-  if (popup)
+  if (popup) {
     cardproperty.setProperty("PreferMailFormat", popup.value);
+  }
 
   var preferDisplayNameEl = document.getElementById("preferDisplayName");
-  if (preferDisplayNameEl)
+  if (preferDisplayNameEl) {
     cardproperty.setProperty("PreferDisplayName", preferDisplayNameEl.checked);
+  }
 
   // set phonetic fields if exist
   try {
-    cardproperty.setProperty("PhoneticFirstName", doc.getElementById("PhoneticFirstName").value);
-    cardproperty.setProperty("PhoneticLastName", doc.getElementById("PhoneticLastName").value);
+    cardproperty.setProperty(
+      "PhoneticFirstName",
+      doc.getElementById("PhoneticFirstName").value
+    );
+    cardproperty.setProperty(
+      "PhoneticLastName",
+      doc.getElementById("PhoneticLastName").value
+    );
   } catch (ex) {}
 
   let photoType = doc.getElementById("PhotoType").value;
@@ -638,11 +727,12 @@ function CleanUpWebPage(webPage) {
   // no :// yet so we should add something
   if (webPage.length && !webPage.includes("://")) {
     // check for missing / on http://
-    if (webPage.startsWith("http:/"))
-      return ("http://" + webPage.substr(6));
-    return ("http://" + webPage);
+    if (webPage.startsWith("http:/")) {
+      return "http://" + webPage.substr(6);
+    }
+    return "http://" + webPage;
   }
-  return (webPage);
+  return webPage;
 }
 
 // @Returns false - Some required data are missing;
@@ -652,15 +742,18 @@ function CheckCardRequiredDataPresence(doc) {
   // filled in: email address, first name, last name, display name,
   //            organization (company name).
   var primaryEmail = doc.getElementById("PrimaryEmail");
-  if (primaryEmail.textLength == 0 &&
+  if (
+    primaryEmail.textLength == 0 &&
     doc.getElementById("FirstName").textLength == 0 &&
     doc.getElementById("LastName").textLength == 0 &&
     doc.getElementById("DisplayName").textLength == 0 &&
-    doc.getElementById("Company").textLength == 0) {
+    doc.getElementById("Company").textLength == 0
+  ) {
     Services.prompt.alert(
       window,
       gAddressBookBundle.getString("cardRequiredDataMissingTitle"),
-      gAddressBookBundle.getString("cardRequiredDataMissingMessage"));
+      gAddressBookBundle.getString("cardRequiredDataMissingMessage")
+    );
 
     return false;
   }
@@ -672,7 +765,8 @@ function CheckCardRequiredDataPresence(doc) {
     Services.prompt.alert(
       window,
       gAddressBookBundle.getString("incorrectEmailAddressFormatTitle"),
-      gAddressBookBundle.getString("incorrectEmailAddressFormatMessage"));
+      gAddressBookBundle.getString("incorrectEmailAddressFormatMessage")
+    );
 
     // Focus the dialog field, to help the user.
     document.getElementById("abTabs").selectedIndex = 0;
@@ -685,17 +779,24 @@ function CheckCardRequiredDataPresence(doc) {
 }
 
 function GenerateDisplayName() {
-  if (!gEditCard.generateDisplayName)
+  if (!gEditCard.generateDisplayName) {
     return;
+  }
 
   var displayName;
 
   var firstNameValue = document.getElementById("FirstName").value;
   var lastNameValue = document.getElementById("LastName").value;
   if (lastNameValue && firstNameValue) {
-    displayName = (gEditCard.displayLastNameFirst)
-      ? gAddressBookBundle.getFormattedString("lastFirstFormat", [lastNameValue, firstNameValue])
-      : gAddressBookBundle.getFormattedString("firstLastFormat", [firstNameValue, lastNameValue]);
+    displayName = gEditCard.displayLastNameFirst
+      ? gAddressBookBundle.getFormattedString("lastFirstFormat", [
+          lastNameValue,
+          firstNameValue,
+        ])
+      : gAddressBookBundle.getFormattedString("firstLastFormat", [
+          firstNameValue,
+          lastNameValue,
+        ]);
   } else {
     // one (or both) of these is empty, so this works.
     displayName = firstNameValue + lastNameValue;
@@ -715,7 +816,10 @@ function DisplayNameChanged() {
 
 function SetCardDialogTitle(displayName) {
   document.title = displayName
-    ? gAddressBookBundle.getFormattedString(gEditCard.titleProperty + "WithDisplayName", [displayName])
+    ? gAddressBookBundle.getFormattedString(
+        gEditCard.titleProperty + "WithDisplayName",
+        [displayName]
+      )
     : gAddressBookBundle.getString(gEditCard.titleProperty);
 }
 
@@ -725,7 +829,7 @@ function setDisabledMonthDays() {
   let popup = document.getElementById("BirthDay").menupopup;
 
   if (!isNaN(birthYear) && birthYear >= kMinYear && birthYear <= kMaxYear) {
-    popup.children[29].disabled = (birthYear % 4 != 0) && birthMonth == "2";
+    popup.children[29].disabled = birthYear % 4 != 0 && birthMonth == "2";
   }
   popup.children[30].disabled = birthMonth == "2";
   popup.children[31].disabled = ["2", "4", "6", "9", "11"].includes(birthMonth);
@@ -774,16 +878,26 @@ function calculateYear() {
   setDisabledMonthDays();
 }
 
-var chatNameFieldIds =
-  ["Gtalk", "AIM", "Yahoo", "Skype", "QQ", "MSN", "ICQ", "XMPP", "IRC"];
+var chatNameFieldIds = [
+  "Gtalk",
+  "AIM",
+  "Yahoo",
+  "Skype",
+  "QQ",
+  "MSN",
+  "ICQ",
+  "XMPP",
+  "IRC",
+];
 
 /**
  * Show the 'Chat' tab and focus the first field that has a value, or
  * the first field if none of them has a value.
  */
 function showChat() {
-  document.getElementById("abTabPanels").parentNode.selectedTab =
-    document.getElementById("chatTabButton");
+  document.getElementById(
+    "abTabPanels"
+  ).parentNode.selectedTab = document.getElementById("chatTabButton");
   for (let id of chatNameFieldIds) {
     let elt = document.getElementById(id);
     if (elt.value) {
@@ -840,8 +954,9 @@ function loadPhoto(aCard) {
  * @param aEvent {Event}       The event object if used as an event handler
  */
 function onSwitchPhotoType(aPhotoType, aEvent) {
-  if (!gEditCard)
+  if (!gEditCard) {
     return;
+  }
 
   // Stop event propagation to the radiogroup command event in case that the
   // child button is pressed. Otherwise, the download is started twice in a row.
@@ -873,8 +988,9 @@ function onSwitchPhotoType(aPhotoType, aEvent) {
  * @return {boolean} True if the file was deleted, false otherwise.
  */
 function removePhoto(aName) {
-  if (!aName)
+  if (!aName) {
     return false;
+  }
   // Get the directory with all the photos
   var file = getPhotosDir();
   // Get the photo (throws an exception for invalid names)
@@ -895,7 +1011,7 @@ function purgeOldPhotos(aSaved = true) {
   // If photo was changed, the array contains at least one member, the original photo.
   while (gOldPhotos.length > 0) {
     let photoName = gOldPhotos.pop();
-    if (!aSaved && (gOldPhotos.length == 0)) {
+    if (!aSaved && gOldPhotos.length == 0) {
       // If the saving was cancelled, we want to keep the original photo of the card.
       break;
     }
@@ -922,12 +1038,16 @@ function purgeOldPhotos(aSaved = true) {
 function browsePhoto(aEvent) {
   // Stop event propagation to the radiogroup command event in case that the
   // child button is pressed. Otherwise, the download is started twice in a row.
-  if (aEvent)
+  if (aEvent) {
     aEvent.stopPropagation();
+  }
 
-  var fp = Cc["@mozilla.org/filepicker;1"]
-             .createInstance(Ci.nsIFilePicker);
-  fp.init(window, gAddressBookBundle.getString("browsePhoto"), Ci.nsIFilePicker.modeOpen);
+  var fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
+  fp.init(
+    window,
+    gAddressBookBundle.getString("browsePhoto"),
+    Ci.nsIFilePicker.modeOpen
+  );
 
   // Open the directory of the currently chosen photo (if any)
   let currentPhotoFile = document.getElementById("PhotoFile").file;
@@ -998,14 +1118,18 @@ var gPhotoDownloadUI = (function() {
   let elProgressContainer;
 
   window.addEventListener("load", function(event) {
-    if (!elProgressbar)
+    if (!elProgressbar) {
       elProgressbar = document.getElementById("PhotoDownloadProgress");
-    if (!elProgressLabel)
+    }
+    if (!elProgressLabel) {
       elProgressLabel = document.getElementById("PhotoStatus");
-    if (!elPhotoType)
+    }
+    if (!elPhotoType) {
       elPhotoType = document.getElementById("PhotoType");
-    if (!elProgressContainer)
+    }
+    if (!elProgressContainer) {
       elProgressContainer = document.getElementById("ProgressContainer");
+    }
   });
 
   function onStart() {
@@ -1101,8 +1225,7 @@ var genericPhotoHandler = {
   onShow(aCard, aDocument, aTargetID) {
     // XXX TODO: this ignores any other value from the generic photos
     // menulist than "default".
-    aDocument.getElementById(aTargetID)
-             .setAttribute("src", defaultPhotoURI);
+    aDocument.getElementById(aTargetID).setAttribute("src", defaultPhotoURI);
     return true;
   },
 
@@ -1132,13 +1255,12 @@ var filePhotoHandler = {
     let file;
     try {
       // The original file may not exist anymore, but we still display it.
-      file = Services.io.newURI(photoURI)
-                        .QueryInterface(Ci.nsIFileURL)
-                        .file;
+      file = Services.io.newURI(photoURI).QueryInterface(Ci.nsIFileURL).file;
     } catch (e) {}
 
-    if (!file)
+    if (!file) {
       return false;
+    }
 
     aDocument.getElementById("PhotoFile").file = file;
     this._showFilename(aCard, aDocument);
@@ -1155,12 +1277,14 @@ var filePhotoHandler = {
   onRead(aCard, aDocument) {
     let file = aDocument.getElementById("PhotoFile").file;
     filePhotoHandler._showFilename(aCard, aDocument);
-    if (!file)
+    if (!file) {
       return false;
+    }
 
     // If the local file has been removed/renamed, keep the current photo as is.
-    if (!file.exists() || !file.isFile())
+    if (!file.exists() || !file.isFile()) {
       return false;
+    }
 
     let photoURI = Services.io.newFileURI(file).spec;
 
@@ -1175,9 +1299,12 @@ var filePhotoHandler = {
       filePhotoHandler.onShow(aCard, aDocument, "photo");
     };
 
-    gImageDownloader.savePhoto(photoURI, cbSuccess,
-                               gPhotoDownloadUI.onError,
-                               gPhotoDownloadUI.onProgress);
+    gImageDownloader.savePhoto(
+      photoURI,
+      cbSuccess,
+      gPhotoDownloadUI.onError,
+      gPhotoDownloadUI.onProgress
+    );
     return true;
   },
 
@@ -1185,7 +1312,9 @@ var filePhotoHandler = {
     // Update contact
     if (gNewPhoto) {
       // The file may not be valid unless the photo has changed.
-      let photoURI = aDocument.getElementById("PhotoFile").getAttribute("PhotoURI");
+      let photoURI = aDocument
+        .getElementById("PhotoFile")
+        .getAttribute("PhotoURI");
       aCard.setProperty("PhotoName", gNewPhoto);
       aCard.setProperty("PhotoURI", photoURI);
     }
@@ -1195,11 +1324,13 @@ var filePhotoHandler = {
   _showFilename(aCard, aDocument) {
     let photoElem = aDocument.getElementById("PhotoFile");
     let photoFile = photoElem.file ? photoElem.file : null;
-    let photoSpec = Services.io.getProtocolHandler("file")
-                            .QueryInterface(Ci.nsIFileProtocolHandler)
-                            .getURLSpecFromFile(photoFile);
+    let photoSpec = Services.io
+      .getProtocolHandler("file")
+      .QueryInterface(Ci.nsIFileProtocolHandler)
+      .getURLSpecFromFile(photoFile);
     if (photoFile) {
-      photoElem.style.backgroundImage = "url(moz-icon://" + photoSpec + "?size=16)";
+      photoElem.style.backgroundImage =
+        "url(moz-icon://" + photoSpec + "?size=16)";
       photoElem.value = photoFile.leafName;
     } else {
       photoElem.value = "";
@@ -1211,8 +1342,9 @@ var webPhotoHandler = {
   onLoad(aCard, aDocument) {
     let photoURI = aCard.getProperty("PhotoURI", null);
 
-    if (!photoURI)
+    if (!photoURI) {
       return false;
+    }
 
     aDocument.getElementById("PhotoURI").value = photoURI;
     return true;
@@ -1220,8 +1352,9 @@ var webPhotoHandler = {
 
   onShow(aCard, aDocument, aTargetID) {
     let photoName = gNewPhoto || aCard.getProperty("PhotoName", null);
-    if (!photoName)
+    if (!photoName) {
       return false;
+    }
 
     let photoURI = getPhotoURI(photoName);
 
@@ -1231,8 +1364,9 @@ var webPhotoHandler = {
 
   onRead(aCard, aDocument) {
     let photoURI = aDocument.getElementById("PhotoURI").value;
-    if (!photoURI)
+    if (!photoURI) {
       return false;
+    }
 
     gPhotoDownloadUI.onStart();
 
@@ -1244,9 +1378,12 @@ var webPhotoHandler = {
       webPhotoHandler.onShow(aCard, aDocument, "photo");
     };
 
-    gImageDownloader.savePhoto(photoURI, cbSuccess,
-                               gPhotoDownloadUI.onError,
-                               gPhotoDownloadUI.onProgress);
+    gImageDownloader.savePhoto(
+      photoURI,
+      cbSuccess,
+      gPhotoDownloadUI.onError,
+      gPhotoDownloadUI.onProgress
+    );
     return true;
   },
 
@@ -1263,7 +1400,9 @@ var webPhotoHandler = {
 
 function newPhotoAdded(aPhotoName, aCard) {
   // If we had the photo saved locally, schedule it for removal if card is saved.
-  gOldPhotos.push(gNewPhoto !== null ? gNewPhoto : aCard.getProperty("PhotoName", null));
+  gOldPhotos.push(
+    gNewPhoto !== null ? gNewPhoto : aCard.getProperty("PhotoName", null)
+  );
   gNewPhoto = aPhotoName;
 }
 

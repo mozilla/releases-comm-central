@@ -2,9 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.defineModuleGetter(this, "MailServices", "resource:///modules/MailServices.jsm");
-ChromeUtils.defineModuleGetter(this, "fixIterator", "resource:///modules/iteratorUtils.jsm");
-ChromeUtils.defineModuleGetter(this, "toXPCOMArray", "resource:///modules/iteratorUtils.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "MailServices",
+  "resource:///modules/MailServices.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "fixIterator",
+  "resource:///modules/iteratorUtils.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "toXPCOMArray",
+  "resource:///modules/iteratorUtils.jsm"
+);
 
 function convertAccount(account) {
   account = account.QueryInterface(Ci.nsIMsgAccount);
@@ -36,7 +48,10 @@ this.accounts = class extends ExtensionAPI {
       accounts: {
         async list() {
           let accounts = [];
-          for (let account of fixIterator(MailServices.accounts.accounts, Ci.nsIMsgAccount)) {
+          for (let account of fixIterator(
+            MailServices.accounts.accounts,
+            Ci.nsIMsgAccount
+          )) {
             account = convertAccount(account);
             if (account) {
               accounts.push(account);

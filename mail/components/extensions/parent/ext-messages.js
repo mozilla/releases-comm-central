@@ -2,11 +2,31 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.defineModuleGetter(this, "Gloda", "resource:///modules/gloda/public.js");
-ChromeUtils.defineModuleGetter(this, "MailServices", "resource:///modules/MailServices.jsm");
-ChromeUtils.defineModuleGetter(this, "MessageArchiver", "resource:///modules/MessageArchiver.jsm");
-ChromeUtils.defineModuleGetter(this, "MsgHdrToMimeMessage", "resource:///modules/gloda/mimemsg.js");
-ChromeUtils.defineModuleGetter(this, "toXPCOMArray", "resource:///modules/iteratorUtils.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "Gloda",
+  "resource:///modules/gloda/public.js"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "MailServices",
+  "resource:///modules/MailServices.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "MessageArchiver",
+  "resource:///modules/MessageArchiver.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "MsgHdrToMimeMessage",
+  "resource:///modules/gloda/mimemsg.js"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "toXPCOMArray",
+  "resource:///modules/iteratorUtils.jsm"
+);
 
 var { DefaultMap } = ExtensionUtils;
 
@@ -16,7 +36,14 @@ var { DefaultMap } = ExtensionUtils;
  */
 function convertMessagePart(part) {
   let partObject = {};
-  for (let key of ["body", "contentType", "headers", "name", "partName", "size"]) {
+  for (let key of [
+    "body",
+    "contentType",
+    "headers",
+    "name",
+    "partName",
+    "size",
+  ]) {
     if (key in part) {
       partObject[key] = part[key];
     }
@@ -47,7 +74,9 @@ this.messages = class extends ExtensionAPI {
 
     async function moveOrCopyMessages(messageIds, { accountId, path }, isMove) {
       let destinationURI = folderPathToURI(accountId, path);
-      let destinationFolder = MailServices.folderLookup.getFolderForURL(destinationURI);
+      let destinationFolder = MailServices.folderLookup.getFolderForURL(
+        destinationURI
+      );
       let folderMap = collectMessagesInFolders(messageIds);
       let promises = [];
       for (let [sourceFolder, sourceSet] of folderMap.entries()) {
@@ -56,26 +85,31 @@ this.messages = class extends ExtensionAPI {
         }
 
         let messages = toXPCOMArray(sourceSet.values(), Ci.nsIMutableArray);
-        promises.push(new Promise((resolve, reject) => {
-          MailServices.copy.CopyMessages(
-            sourceFolder, messages, destinationFolder, isMove, {
-              OnStartCopy() {
+        promises.push(
+          new Promise((resolve, reject) => {
+            MailServices.copy.CopyMessages(
+              sourceFolder,
+              messages,
+              destinationFolder,
+              isMove,
+              {
+                OnStartCopy() {},
+                OnProgress(progress, progressMax) {},
+                SetMessageKey(key) {},
+                GetMessageId(messageId) {},
+                OnStopCopy(status) {
+                  if (status == Cr.NS_OK) {
+                    resolve();
+                  } else {
+                    reject(status);
+                  }
+                },
               },
-              OnProgress(progress, progressMax) {
-              },
-              SetMessageKey(key) {
-              },
-              GetMessageId(messageId) {
-              },
-              OnStopCopy(status) {
-                if (status == Cr.NS_OK) {
-                  resolve();
-                } else {
-                  reject(status);
-                }
-              },
-            }, /* msgWindow */ null, /* allowUndo */ true);
-        }));
+              /* msgWindow */ null,
+              /* allowUndo */ true
+            );
+          })
+        );
       }
       try {
         await Promise.all(promises);
@@ -94,13 +128,22 @@ this.messages = class extends ExtensionAPI {
           let uri = folderPathToURI(accountId, path);
           let folder = MailServices.folderLookup.getFolderForURL(uri);
 
-          return messageListTracker.startList(folder.messages, context.extension);
+          return messageListTracker.startList(
+            folder.messages,
+            context.extension
+          );
         },
         async continueList(messageListId) {
-          return messageListTracker.continueList(messageListId, context.extension);
+          return messageListTracker.continueList(
+            messageListId,
+            context.extension
+          );
         },
         async get(messageId) {
-          return convertMessage(messageTracker.getMessage(messageId), context.extension);
+          return convertMessage(
+            messageTracker.getMessage(messageId),
+            context.extension
+          );
         },
         async getFull(messageId) {
           return new Promise(resolve => {
@@ -144,24 +187,26 @@ this.messages = class extends ExtensionAPI {
             query.folder(folder);
           }
           if (queryInfo.fromDate || queryInfo.toDate) {
-              query.dateRange([queryInfo.fromDate, queryInfo.toDate]);
+            query.dateRange([queryInfo.fromDate, queryInfo.toDate]);
           }
 
-          let collectionArray = await new Promise((resolve) => {
+          let collectionArray = await new Promise(resolve => {
             query.getCollection({
-              onItemsAdded(items, collection) {
-              },
-              onItemsModified(items, collection) {
-              },
-              onItemsRemoved(items, collection) {
-              },
+              onItemsAdded(items, collection) {},
+              onItemsModified(items, collection) {},
+              onItemsRemoved(items, collection) {},
               onQueryCompleted(collection) {
-                resolve(collection.items.map(glodaMsg => glodaMsg.folderMessage));
+                resolve(
+                  collection.items.map(glodaMsg => glodaMsg.folderMessage)
+                );
               },
             });
           });
 
-          return messageListTracker.startList(collectionArray, context.extension);
+          return messageListTracker.startList(
+            collectionArray,
+            context.extension
+          );
         },
         async update(messageId, newProperties) {
           let msgHdr = messageTracker.getMessage(messageId);
@@ -175,7 +220,9 @@ this.messages = class extends ExtensionAPI {
             msgHdr.markFlagged(newProperties.flagged);
           }
           if (Array.isArray(newProperties.tags)) {
-            newProperties.tags = newProperties.tags.filter(MailServices.tags.isValidKey);
+            newProperties.tags = newProperties.tags.filter(
+              MailServices.tags.isValidKey
+            );
             msgHdr.setProperty("keywords", newProperties.tags.join(" "));
             for (let window of Services.wm.getEnumerator("mail:3pane")) {
               window.OnTagsChange();
@@ -192,40 +239,49 @@ this.messages = class extends ExtensionAPI {
           let folderMap = collectMessagesInFolders(messageIds);
           for (let sourceFolder of folderMap.keys()) {
             if (!sourceFolder.canDeleteMessages) {
-              throw new ExtensionError(`Unable to delete messages in "${sourceFolder.prettyName}"`);
+              throw new ExtensionError(
+                `Unable to delete messages in "${sourceFolder.prettyName}"`
+              );
             }
           }
           let promises = [];
           for (let [sourceFolder, sourceSet] of folderMap.entries()) {
-            promises.push(new Promise((resolve, reject) => {
-              let messages = toXPCOMArray(sourceSet.values(), Ci.nsIMutableArray);
-              sourceFolder.deleteMessages(
-                messages, /* msgWindow */ null, /* deleteStorage */ skipTrash,
-                /* isMove */ false, {
-                  OnStartCopy() {
+            promises.push(
+              new Promise((resolve, reject) => {
+                let messages = toXPCOMArray(
+                  sourceSet.values(),
+                  Ci.nsIMutableArray
+                );
+                sourceFolder.deleteMessages(
+                  messages,
+                  /* msgWindow */ null,
+                  /* deleteStorage */ skipTrash,
+                  /* isMove */ false,
+                  {
+                    OnStartCopy() {},
+                    OnProgress(progress, progressMax) {},
+                    SetMessageKey(key) {},
+                    GetMessageId(messageId) {},
+                    OnStopCopy(status) {
+                      if (status == Cr.NS_OK) {
+                        resolve();
+                      } else {
+                        reject(status);
+                      }
+                    },
                   },
-                  OnProgress(progress, progressMax) {
-                  },
-                  SetMessageKey(key) {
-                  },
-                  GetMessageId(messageId) {
-                  },
-                  OnStopCopy(status) {
-                    if (status == Cr.NS_OK) {
-                      resolve();
-                    } else {
-                      reject(status);
-                    }
-                  },
-                }, /* allowUndo */ true
-              );
-            }));
+                  /* allowUndo */ true
+                );
+              })
+            );
           }
           try {
             await Promise.all(promises);
           } catch (ex) {
             Cu.reportError(ex);
-            throw new ExtensionError(`Unexpected error deleting messages: ${ex}`);
+            throw new ExtensionError(
+              `Unexpected error deleting messages: ${ex}`
+            );
           }
         },
         async archive(messageIds) {
@@ -238,21 +294,23 @@ this.messages = class extends ExtensionAPI {
             messages.push(msgHdr);
           }
 
-          return new Promise((resolve) => {
+          return new Promise(resolve => {
             let archiver = new MessageArchiver();
             archiver.oncomplete = resolve;
             archiver.archiveMessages(messages);
           });
         },
         async listTags() {
-          return MailServices.tags.getAllTags({}).map(({ key, tag, color, ordinal }) => {
-            return {
-              key,
-              tag,
-              color,
-              ordinal,
-            };
-          });
+          return MailServices.tags
+            .getAllTags({})
+            .map(({ key, tag, color, ordinal }) => {
+              return {
+                key,
+                tag,
+                color,
+                ordinal,
+              };
+            });
         },
       },
     };

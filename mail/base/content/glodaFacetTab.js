@@ -2,18 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
+var { StringBundle } = ChromeUtils.import(
+  "resource:///modules/StringBundle.js"
+);
 
 var { FacetDriver } = ChromeUtils.import("resource:///modules/gloda/facet.js");
 // needed by search.xml to use us
-var { GlodaMsgSearcher } = ChromeUtils.import("resource:///modules/gloda/msg_search.js");
+var { GlodaMsgSearcher } = ChromeUtils.import(
+  "resource:///modules/gloda/msg_search.js"
+);
 
 var glodaFacetTabType = {
   name: "glodaFacet",
   perTabPanel: "vbox",
   lastTabId: 0,
-  strings:
-    new StringBundle("chrome://messenger/locale/glodaFacetView.properties"),
+  strings: new StringBundle(
+    "chrome://messenger/locale/glodaFacetView.properties"
+  ),
   modes: {
     glodaFacet: {
       // this is what get exposed on the tab for icon purposes
@@ -25,9 +30,7 @@ var glodaFacetTabType = {
     aTab.browser = null;
 
     // First clone the page and set up the basics.
-    let clone = document.getElementById("glodaTab")
-                        .firstChild
-                        .cloneNode(true);
+    let clone = document.getElementById("glodaTab").firstChild.cloneNode(true);
 
     aTab.panel.setAttribute("id", "glodaTab" + this.lastTabId);
     aTab.panel.appendChild(clone);
@@ -55,8 +58,9 @@ var glodaFacetTabType = {
 
       let searchString = aTab.searcher.searchString;
       aTab.searchInputValue = aTab.searchString = searchString;
-      aTab.title = searchString ? searchString
-                   : this.strings.get("glodaFacetView.tab.search.label");
+      aTab.title = searchString
+        ? searchString
+        : this.strings.get("glodaFacetView.tab.search.label");
     } else if ("collection" in aArgs) {
       aTab.collection = aArgs.collection;
 
@@ -67,18 +71,24 @@ var glodaFacetTabType = {
     function xulLoadHandler() {
       aTab.iframe.contentWindow.tab = aTab;
       aTab.browser = aTab.iframe.contentDocument.getElementById("browser");
-      aTab.browser.setAttribute("src",
-        "chrome://messenger/content/glodaFacetView.xhtml");
+      aTab.browser.setAttribute(
+        "src",
+        "chrome://messenger/content/glodaFacetView.xhtml"
+      );
     }
 
-    aTab.iframe.contentWindow.addEventListener("load", xulLoadHandler, {capture: false, once: true});
-    aTab.iframe.setAttribute("src",
-      "chrome://messenger/content/glodaFacetViewWrapper.xul");
+    aTab.iframe.contentWindow.addEventListener("load", xulLoadHandler, {
+      capture: false,
+      once: true,
+    });
+    aTab.iframe.setAttribute(
+      "src",
+      "chrome://messenger/content/glodaFacetViewWrapper.xul"
+    );
 
     this.lastTabId++;
   },
-  closeTab(aTab) {
-  },
+  closeTab(aTab) {},
   saveTabState(aTab) {
     // nothing to do; we are not multiplexed
   },
@@ -89,4 +99,3 @@ var glodaFacetTabType = {
     return aTab.browser;
   },
 };
-

@@ -6,10 +6,14 @@
 /* import-globals-from mailWindow.js */
 /* import-globals-from ../../extensions/mailviews/content/msgViewPickerOverlay.js */
 
-var {DBViewWrapper} = ChromeUtils.import("resource:///modules/DBViewWrapper.jsm");
-var { JSTreeSelection } = ChromeUtils.import("resource:///modules/jsTreeSelection.js");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { DBViewWrapper } = ChromeUtils.import(
+  "resource:///modules/DBViewWrapper.jsm"
+);
+var { JSTreeSelection } = ChromeUtils.import(
+  "resource:///modules/jsTreeSelection.js"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 var gFolderDisplay = null;
 var gMessageDisplay = null;
@@ -69,8 +73,9 @@ var FolderDisplayListenerManager = {
         try {
           listener[aEventName].apply(listener, aArgs);
         } catch (e) {
-          Cu.reportError(aEventName + " event listener FAILED; " +
-                         e + " at: " + e.stack);
+          Cu.reportError(
+            aEventName + " event listener FAILED; " + e + " at: " + e.stack
+          );
         }
       }
     }
@@ -202,8 +207,10 @@ FolderDisplayWidget.prototype = {
    *     offline.
    */
   get summarizeSelectionInFolder() {
-    return Services.prefs.getBoolPref("mail.operate_on_msgs_in_collapsed_threads") &&
-      !(this.displayedFolder instanceof Ci.nsIMsgNewsFolder);
+    return (
+      Services.prefs.getBoolPref("mail.operate_on_msgs_in_collapsed_threads") &&
+      !(this.displayedFolder instanceof Ci.nsIMsgNewsFolder)
+    );
   },
 
   /**
@@ -215,10 +222,12 @@ FolderDisplayWidget.prototype = {
   get treeSelection() {
     // If we haven't switched to this tab yet, dbView will exist but
     // dbView.selection won't, so use the fake tree selection instead.
-    if (this._fakeTreeSelection)
+    if (this._fakeTreeSelection) {
       return this._fakeTreeSelection;
-    if (this.view.dbView)
+    }
+    if (this.view.dbView) {
       return this.view.dbView.selection;
+    }
     return null;
   },
 
@@ -234,19 +243,20 @@ FolderDisplayWidget.prototype = {
    */
   get focusedPane() {
     let panes = ["threadTree", "folderTree", "messagepanebox"].map(id =>
-        document.getElementById(id));
+      document.getElementById(id)
+    );
 
     let currentNode = top.document.activeElement;
 
     while (currentNode) {
-      if (panes.includes(currentNode))
+      if (panes.includes(currentNode)) {
         return currentNode;
+      }
 
       currentNode = currentNode.parentNode;
     }
     return null;
   },
-
 
   /**
    * Number of headers to tell the message database to cache when we enter a
@@ -302,7 +312,9 @@ FolderDisplayWidget.prototype = {
    */
   _saveSelection() {
     this._savedSelection = {
-      messages: this.selectedMessages.map(msgHdr => ({messageId: msgHdr.messageId})),
+      messages: this.selectedMessages.map(msgHdr => ({
+        messageId: msgHdr.messageId,
+      })),
       forceSelect: false,
     };
   },
@@ -322,8 +334,9 @@ FolderDisplayWidget.prototype = {
    *     a selection, false if there was no selection (anymore).
    */
   _restoreSelection() {
-    if (!this._savedSelection || !this._active)
+    if (!this._savedSelection || !this._active) {
       return false;
+    }
 
     // translate message IDs back to messages.  this is O(s(m+n)) where:
     // - s is the number of messages saved in the selection
@@ -331,10 +344,9 @@ FolderDisplayWidget.prototype = {
     // - n is the number of messages in the underlying folders (from
     //   DBViewWrapper.getMsgHdrForMessageID).
     // which ends up being O(sn)
-    let messages =
-      this._savedSelection.messages.
-      map(savedInfo => this.view.getMsgHdrForMessageID(savedInfo.messageId)).
-      filter(msgHdr => !!msgHdr);
+    let messages = this._savedSelection.messages
+      .map(savedInfo => this.view.getMsgHdrForMessageID(savedInfo.messageId))
+      .filter(msgHdr => !!msgHdr);
 
     this.selectMessages(messages, this._savedSelection.forceSelect, true);
     this._savedSelection = null;
@@ -347,15 +359,22 @@ FolderDisplayWidget.prototype = {
    * views. Not all views respect viewFlags, ie single folder non-virtual.
    */
   restoreThreadState() {
-    if (!this._active || !this.tree || !this.view.dbView.viewFolder)
+    if (!this._active || !this.tree || !this.view.dbView.viewFolder) {
       return;
+    }
 
-    if (this.view._threadExpandAll &&
-        !(this.view.dbView.viewFlags & Ci.nsMsgViewFlagsType.kExpandAll))
+    if (
+      this.view._threadExpandAll &&
+      !(this.view.dbView.viewFlags & Ci.nsMsgViewFlagsType.kExpandAll)
+    ) {
       this.view.dbView.doCommand(Ci.nsMsgViewCommandType.expandAll);
-    if (!this.view._threadExpandAll &&
-        this.view.dbView.viewFlags & Ci.nsMsgViewFlagsType.kExpandAll)
+    }
+    if (
+      !this.view._threadExpandAll &&
+      this.view.dbView.viewFlags & Ci.nsMsgViewFlagsType.kExpandAll
+    ) {
       this.view.dbView.doCommand(Ci.nsMsgViewCommandType.collapseAll);
+    }
   },
   // @}
 
@@ -370,23 +389,23 @@ FolderDisplayWidget.prototype = {
    * match the column's xul <treecol> id.
    */
   COLUMNS_MAP: new Map([
-    ["accountCol",       "byAccount"],
-    ["attachmentCol",    "byAttachments"],
-    ["senderCol",        "byAuthor"],
+    ["accountCol", "byAccount"],
+    ["attachmentCol", "byAttachments"],
+    ["senderCol", "byAuthor"],
     ["correspondentCol", "byCorrespondent"],
-    ["dateCol",          "byDate"],
-    ["flaggedCol",       "byFlagged"],
-    ["idCol",            "byId"],
-    ["junkStatusCol",    "byJunkStatus"],
-    ["locationCol",      "byLocation"],
-    ["priorityCol",      "byPriority"],
-    ["receivedCol",      "byReceived"],
-    ["recipientCol",     "byRecipient"],
-    ["sizeCol",          "bySize"],
-    ["statusCol",        "byStatus"],
-    ["subjectCol",       "bySubject"],
-    ["tagsCol",          "byTags"],
-    ["threadCol",        "byThread"],
+    ["dateCol", "byDate"],
+    ["flaggedCol", "byFlagged"],
+    ["idCol", "byId"],
+    ["junkStatusCol", "byJunkStatus"],
+    ["locationCol", "byLocation"],
+    ["priorityCol", "byPriority"],
+    ["receivedCol", "byReceived"],
+    ["recipientCol", "byRecipient"],
+    ["sizeCol", "bySize"],
+    ["statusCol", "byStatus"],
+    ["subjectCol", "bySubject"],
+    ["tagsCol", "byTags"],
+    ["threadCol", "byThread"],
     ["unreadButtonColHeader", "byUnread"],
   ]),
 
@@ -394,9 +413,7 @@ FolderDisplayWidget.prototype = {
    * The map of stock non-sortable columns. The key must match the column's
    *  xul <treecol> id.
    */
-  COLUMNS_MAP_NOSORT: new Set([
-    "selectCol", "totalCol", "unreadCol",
-  ]),
+  COLUMNS_MAP_NOSORT: new Set(["selectCol", "totalCol", "unreadCol"]),
 
   /**
    * The set of potential default columns in their default display order.  Each
@@ -476,10 +493,12 @@ FolderDisplayWidget.prototype = {
    *     |_savedColumnStates| but we can't stop people from doing bad things.)
    */
   _depersistColumnStatesFromDbFolderInfo(aDbFolderInfo) {
-    let columnJsonString =
-      aDbFolderInfo.getCharProperty(this.PERSISTED_COLUMN_PROPERTY_NAME);
-    if (!columnJsonString)
+    let columnJsonString = aDbFolderInfo.getCharProperty(
+      this.PERSISTED_COLUMN_PROPERTY_NAME
+    );
+    if (!columnJsonString) {
       return null;
+    }
 
     return JSON.parse(columnJsonString);
   },
@@ -500,18 +519,22 @@ FolderDisplayWidget.prototype = {
   _persistColumnStates(aState) {
     if (this.view.isSynthetic) {
       let syntheticView = this.view._syntheticView;
-      if ("setPersistedSetting" in syntheticView)
+      if ("setPersistedSetting" in syntheticView) {
         syntheticView.setPersistedSetting("columns", aState);
+      }
       return;
     }
 
-    if (!this.view.displayedFolder || !this.view.displayedFolder.msgDatabase)
+    if (!this.view.displayedFolder || !this.view.displayedFolder.msgDatabase) {
       return;
+    }
 
     let msgDatabase = this.view.displayedFolder.msgDatabase;
     let dbFolderInfo = msgDatabase.dBFolderInfo;
-    dbFolderInfo.setCharProperty(this.PERSISTED_COLUMN_PROPERTY_NAME,
-                                 JSON.stringify(aState));
+    dbFolderInfo.setCharProperty(
+      this.PERSISTED_COLUMN_PROPERTY_NAME,
+      JSON.stringify(aState)
+    );
     msgDatabase.Commit(Ci.nsMsgDBCommitType.kLargeCommit);
   },
 
@@ -523,8 +546,9 @@ FolderDisplayWidget.prototype = {
    */
   hintColumnsChanged() {
     // ignore this if we are the ones doing things
-    if (this._touchingColumns)
+    if (this._touchingColumns) {
       return;
+    }
     this._persistColumnStates(this.getColumnStates());
   },
 
@@ -537,8 +561,9 @@ FolderDisplayWidget.prototype = {
     // fails, just return nothing, since most synthetic views don't care about
     // columns anyway.
     if (this.view.isSynthetic) {
-      if ("getDefaultSetting" in this.view._syntheticView)
+      if ("getDefaultSetting" in this.view._syntheticView) {
         return this.view._syntheticView.getDefaultSetting("columns");
+      }
       return {};
     }
 
@@ -554,7 +579,8 @@ FolderDisplayWidget.prototype = {
     //    (Although we could try and see if they have opened any other news
     //    folders in the same account.  But it's not all that important to us.)
     // - It's an inbox!
-    let doNotInherit = aDoNotInherit ||
+    let doNotInherit =
+      aDoNotInherit ||
       this.view.isOutgoingFolder ||
       this.view.isVirtual ||
       this.view.isMultiFolder ||
@@ -565,15 +591,18 @@ FolderDisplayWidget.prototype = {
     //  to, in which case we just won't inherit.  (It ends up the same since the
     //  inbox is obviously not customized in this case.)
     if (!doNotInherit) {
-      let inboxFolder =
-        this.displayedFolder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
+      let inboxFolder = this.displayedFolder.rootFolder.getFolderWithFlags(
+        Ci.nsMsgFolderFlags.Inbox
+      );
       if (inboxFolder) {
         let state = this._depersistColumnStatesFromDbFolderInfo(
-                      inboxFolder.msgDatabase.dBFolderInfo);
+          inboxFolder.msgDatabase.dBFolderInfo
+        );
         // inbox message databases don't get closed as a matter of policy.
 
-        if (state)
+        if (state) {
           return state;
+        }
       }
     }
 
@@ -591,7 +620,7 @@ FolderDisplayWidget.prototype = {
           Cu.reportError(ex);
         }
       }
-      state[colId] = {visible: shouldShowColumn};
+      state[colId] = { visible: shouldShowColumn };
     }
     return state;
   },
@@ -630,8 +659,9 @@ FolderDisplayWidget.prototype = {
 
       for (let iKid = 0; iKid < colChildren.length; iKid++) {
         let colChild = colChildren[iKid];
-        if (colChild == null)
+        if (colChild == null) {
           continue;
+        }
 
         // We only care about treecols.  The splitters do not need to be marked
         //  hidden or un-hidden.
@@ -641,18 +671,23 @@ FolderDisplayWidget.prototype = {
           // restore state
           if (colChild.id in aColumnStates) {
             let colState = aColumnStates[colChild.id];
-            if ("visible" in colState)
+            if ("visible" in colState) {
               shouldBeHidden = !colState.visible;
-            if (("ordinal" in colState) &&
-                colChild.getAttribute("ordinal") != colState.ordinal)
+            }
+            if (
+              "ordinal" in colState &&
+              colChild.getAttribute("ordinal") != colState.ordinal
+            ) {
               colChild.setAttribute("ordinal", colState.ordinal);
+            }
           }
           let isHidden = colChild.getAttribute("hidden") == "true";
           if (isHidden != shouldBeHidden) {
-            if (shouldBeHidden)
+            if (shouldBeHidden) {
               colChild.setAttribute("hidden", "true");
-            else
+            } else {
               colChild.removeAttribute("hidden");
+            }
           }
         }
       }
@@ -660,8 +695,9 @@ FolderDisplayWidget.prototype = {
       this._touchingColumns = false;
     }
 
-    if (aPersistChanges)
+    if (aPersistChanges) {
       this.hintColumnsChanged();
+    }
   },
 
   /**
@@ -681,8 +717,9 @@ FolderDisplayWidget.prototype = {
    * @public
    */
   getColumnStates() {
-    if (!this._active)
+    if (!this._active) {
       return this._savedColumnStates;
+    }
 
     let columnStates = {};
 
@@ -690,8 +727,9 @@ FolderDisplayWidget.prototype = {
     let colChildren = cols.children;
     for (let iKid = 0; iKid < colChildren.length; iKid++) {
       let colChild = colChildren[iKid];
-      if (colChild.tagName != "treecol")
+      if (colChild.tagName != "treecol") {
         continue;
+      }
       columnStates[colChild.id] = {
         visible: colChild.getAttribute("hidden") != "true",
         ordinal: colChild.getAttribute("ordinal"),
@@ -786,11 +824,13 @@ FolderDisplayWidget.prototype = {
       // it must be a synthetic view
       this.view.openSynthetic(aFolder);
     }
-    if (this._active)
+    if (this._active) {
       this.makeActive();
+    }
 
-    if (this._tabInfo)
+    if (this._tabInfo) {
       document.getElementById("tabmail").setTabTitle(this._tabInfo);
+    }
   },
 
   /**
@@ -801,8 +841,9 @@ FolderDisplayWidget.prototype = {
     // generate a view created notification; this will cause us to do the right
     //  thing in terms of associating the view with the tree and such.
     this.onCreatedView();
-    if (this._active)
+    if (this._active) {
       this.makeActive();
+    }
   },
 
   /**
@@ -857,9 +898,10 @@ FolderDisplayWidget.prototype = {
   get shouldDeferMessageDisplayUntilAfterServerConnect() {
     let passwordPromptRequired = false;
 
-    if (Services.prefs.getBoolPref("mail.password_protect_local_cache"))
-      passwordPromptRequired =
-        this.view.displayedFolder.server.passwordPromptRequired;
+    if (Services.prefs.getBoolPref("mail.password_protect_local_cache")) {
+      passwordPromptRequired = this.view.displayedFolder.server
+        .passwordPromptRequired;
+    }
 
     return passwordPromptRequired;
   },
@@ -871,8 +913,9 @@ FolderDisplayWidget.prototype = {
    * @return true if the preference is set for the folder's server type.
    */
   shouldMarkMessagesReadOnLeavingFolder(aMsgFolder) {
-      return Services.prefs.getBoolPref("mailnews.mark_message_read." +
-                                        aMsgFolder.server.type);
+    return Services.prefs.getBoolPref(
+      "mailnews.mark_message_read." + aMsgFolder.server.type
+    );
   },
 
   /**
@@ -883,12 +926,16 @@ FolderDisplayWidget.prototype = {
    *  change tabs.
    */
   onFolderLoading(aFolderLoading) {
-    if (this._tabInfo)
-      document.getElementById("tabmail").setTabBusy(this._tabInfo,
-                                                    aFolderLoading);
+    if (this._tabInfo) {
+      document
+        .getElementById("tabmail")
+        .setTabBusy(this._tabInfo, aFolderLoading);
+    }
 
-    FolderDisplayListenerManager._fireListeners("onFolderLoading",
-                                                [this, aFolderLoading]);
+    FolderDisplayListenerManager._fireListeners("onFolderLoading", [
+      this,
+      aFolderLoading,
+    ]);
   },
 
   /**
@@ -901,13 +948,18 @@ FolderDisplayWidget.prototype = {
   onSearching(aIsSearching) {
     if (this._tabInfo) {
       let searchBundle = document.getElementById("bundle_search");
-      document.getElementById("tabmail").setTabThinking(
-        this._tabInfo,
-        aIsSearching && searchBundle.getString("searchingMessage"));
+      document
+        .getElementById("tabmail")
+        .setTabThinking(
+          this._tabInfo,
+          aIsSearching && searchBundle.getString("searchingMessage")
+        );
     }
 
-    FolderDisplayListenerManager._fireListeners("onSearching",
-                                                [this, aIsSearching]);
+    FolderDisplayListenerManager._fireListeners("onSearching", [
+      this,
+      aIsSearching,
+    ]);
   },
 
   /**
@@ -922,8 +974,7 @@ FolderDisplayWidget.prototype = {
     this._allMessagesLoaded = false;
     this.messageDisplay.onCreatedView();
 
-    FolderDisplayListenerManager._fireListeners("onCreatedView",
-                                                [this]);
+    FolderDisplayListenerManager._fireListeners("onCreatedView", [this]);
 
     this._notifyWhenActive(this._activeCreatedView);
   },
@@ -935,11 +986,11 @@ FolderDisplayWidget.prototype = {
     this._updateThreadDisplay();
 
     // this creates a new selection object for the view.
-    if (this.tree)
+    if (this.tree) {
       this.tree.view = this.view.dbView;
+    }
 
-    FolderDisplayListenerManager._fireListeners("onActiveCreatedView",
-                                                [this]);
+    FolderDisplayListenerManager._fireListeners("onActiveCreatedView", [this]);
 
     // The data payload used to be viewType + ":" + viewFlags.  We no longer
     //  do this because we already have the implied contract that gDBView is
@@ -963,18 +1014,21 @@ FolderDisplayWidget.prototype = {
       try {
         // If a new selection is coming up, there's no point in trying to
         // persist any selections.
-        if (aFolderIsComingBack && !this._aboutToSelectMessage)
+        if (aFolderIsComingBack && !this._aboutToSelectMessage) {
           this._saveSelection();
-        else
+        } else {
           this._clearSavedSelection();
+        }
       } catch (ex) {
         logException(ex);
       }
       gDBView = null; // eslint-disable-line no-global-assign
     }
 
-    FolderDisplayListenerManager._fireListeners("onDestroyingView",
-                                                [this, aFolderIsComingBack]);
+    FolderDisplayListenerManager._fireListeners("onDestroyingView", [
+      this,
+      aFolderIsComingBack,
+    ]);
 
     // if we have no view, no messages could be loaded.
     this._allMessagesLoaded = false;
@@ -1003,11 +1057,14 @@ FolderDisplayWidget.prototype = {
    *  that case.
    */
   onLoadingFolder(aDbFolderInfo) {
-    this._savedColumnStates =
-      this._depersistColumnStatesFromDbFolderInfo(aDbFolderInfo);
+    this._savedColumnStates = this._depersistColumnStatesFromDbFolderInfo(
+      aDbFolderInfo
+    );
 
-    FolderDisplayListenerManager._fireListeners("onLoadingFolder",
-                                                [this, aDbFolderInfo]);
+    FolderDisplayListenerManager._fireListeners("onLoadingFolder", [
+      this,
+      aDbFolderInfo,
+    ]);
   },
 
   /**
@@ -1024,8 +1081,10 @@ FolderDisplayWidget.prototype = {
 
     // makeActive will restore the folder state
     if (!this._savedColumnStates) {
-      if (this.view.isSynthetic &&
-          "getPersistedSetting" in this.view._syntheticView) {
+      if (
+        this.view.isSynthetic &&
+        "getPersistedSetting" in this.view._syntheticView
+      ) {
         let columns = this.view._syntheticView.getPersistedSetting("columns");
         this._savedColumnStates = columns;
       } else {
@@ -1036,11 +1095,11 @@ FolderDisplayWidget.prototype = {
       }
     }
 
-    FolderDisplayListenerManager._fireListeners("onDisplayingFolder",
-                                                [this]);
+    FolderDisplayListenerManager._fireListeners("onDisplayingFolder", [this]);
 
-    if (this.active)
+    if (this.active) {
       this.makeActive();
+    }
   },
 
   /**
@@ -1049,14 +1108,14 @@ FolderDisplayWidget.prototype = {
    *  For example, user deletion of the folder or underlying folder closes it.
    */
   onLeavingFolder() {
-    FolderDisplayListenerManager._fireListeners("onLeavingFolder",
-                                                [this]);
+    FolderDisplayListenerManager._fireListeners("onLeavingFolder", [this]);
 
     // Keep the msgWindow's openFolder up-to-date; it powers nsMessenger's
     //  concept of history so that it can bring you back to the actual folder
     //  you were looking at, rather than just the underlying folder.
-    if (this._active)
+    if (this._active) {
       msgWindow.openFolder = null;
+    }
   },
 
   /**
@@ -1080,18 +1139,22 @@ FolderDisplayWidget.prototype = {
   onMessagesLoaded(aAll) {
     this._allMessagesLoaded = aAll;
 
-    FolderDisplayListenerManager._fireListeners("onMessagesLoaded",
-                                                [this, aAll]);
+    FolderDisplayListenerManager._fireListeners("onMessagesLoaded", [
+      this,
+      aAll,
+    ]);
 
     this._notifyWhenActive(this._activeMessagesLoaded);
   },
   _activeMessagesLoaded() {
-    FolderDisplayListenerManager._fireListeners("onActiveMessagesLoaded",
-                                                [this]);
+    FolderDisplayListenerManager._fireListeners("onActiveMessagesLoaded", [
+      this,
+    ]);
 
     // - if a selectMessage's coming up, get out of here
-    if (this._aboutToSelectMessage)
+    if (this._aboutToSelectMessage) {
       return;
+    }
 
     // - restore user's last expand/collapse choice.
     this.restoreThreadState();
@@ -1125,17 +1188,23 @@ FolderDisplayWidget.prototype = {
 
     // - new messages
     // if configured to scroll to new messages, try that
-    if (Services.prefs.getBoolPref("mailnews.scroll_to_new_message") &&
-        this.navigate(Ci.nsMsgNavigationType.firstNew, /* select */ false))
+    if (
+      Services.prefs.getBoolPref("mailnews.scroll_to_new_message") &&
+      this.navigate(Ci.nsMsgNavigationType.firstNew, /* select */ false)
+    ) {
       return;
+    }
 
     // - last selected message
     // if configured to load the last selected message (this is currently more
     //  persistent than our saveSelection/restoreSelection stuff), and the view
     //  is backed by a single underlying folder (the only way having just a
     //  message key works out), try that
-    if (Services.prefs.getBoolPref("mailnews.remember_selected_message") &&
-        this.view.isSingleFolder && this.view.displayedFolder) {
+    if (
+      Services.prefs.getBoolPref("mailnews.remember_selected_message") &&
+      this.view.isSingleFolder &&
+      this.view.displayedFolder
+    ) {
       // use the displayed folder; nsMsgDBView goes to the effort to save the
       //  state to the viewFolder, so this is the correct course of action.
       let lastLoadedMessageKey = this.view.displayedFolder.lastMessageLoaded;
@@ -1146,16 +1215,21 @@ FolderDisplayWidget.prototype = {
         //  active mail view or quick search, for example.
         if (this.view.dbView.numSelected > 0) {
           this.ensureRowIsVisible(
-            this.view.dbView.viewIndexForFirstSelectedMsg);
+            this.view.dbView.viewIndexForFirstSelectedMsg
+          );
           return;
         }
       }
     }
 
     // - towards the newest messages, but don't select
-    if (this.view.isSortedAscending && this.view.sortImpliesTemporalOrdering &&
-      this.navigate(Ci.nsMsgNavigationType.lastMessage, /* select */ false))
+    if (
+      this.view.isSortedAscending &&
+      this.view.sortImpliesTemporalOrdering &&
+      this.navigate(Ci.nsMsgNavigationType.lastMessage, /* select */ false)
+    ) {
       return;
+    }
 
     // - to the top, the coliseum
     this.ensureRowIsVisible(0);
@@ -1170,8 +1244,9 @@ FolderDisplayWidget.prototype = {
     //  always update the mail view whenever we are made active.
     if (this.active) {
       // you cannot cancel a view change!
-      window.dispatchEvent(new Event("MailViewChanged",
-        { bubbles: false, cancelable: false }));
+      window.dispatchEvent(
+        new Event("MailViewChanged", { bubbles: false, cancelable: false })
+      );
     }
   },
 
@@ -1180,12 +1255,14 @@ FolderDisplayWidget.prototype = {
    *  will not get this notification if the view was re-created, for example.
    */
   onSortChanged() {
-    if (this.active)
-      UpdateSortIndicators(this.view.primarySortType,
-                           this.view.primarySortOrder);
+    if (this.active) {
+      UpdateSortIndicators(
+        this.view.primarySortType,
+        this.view.primarySortOrder
+      );
+    }
 
-    FolderDisplayListenerManager._fireListeners("onSortChanged",
-                                                [this]);
+    FolderDisplayListenerManager._fireListeners("onSortChanged", [this]);
   },
 
   /**
@@ -1195,22 +1272,23 @@ FolderDisplayWidget.prototype = {
    * For the imap mark-as-deleted we won't know beforehand.
    */
   onMessagesRemoved() {
-    FolderDisplayListenerManager._fireListeners("onMessagesRemoved",
-                                                [this]);
+    FolderDisplayListenerManager._fireListeners("onMessagesRemoved", [this]);
 
     let handled = this.messageDisplay.onMessagesRemoved();
     this._deleteInProgress = false;
-    if (handled)
+    if (handled) {
       return;
+    }
 
     // - we saw this coming
     let rowCount = this.view.dbView.rowCount;
-    if (!this._massMoveActive && (this._nextViewIndexAfterDelete != null)) {
+    if (!this._massMoveActive && this._nextViewIndexAfterDelete != null) {
       // adjust the index if it is after the last row...
       // (this can happen if the "mail.delete_matches_sort_order" pref is not
       //  set and the message is the last message in the view.)
-      if (this._nextViewIndexAfterDelete >= rowCount)
+      if (this._nextViewIndexAfterDelete >= rowCount) {
         this._nextViewIndexAfterDelete = rowCount - 1;
+      }
       // just select the index and get on with our lives
       this.selectViewIndex(this._nextViewIndexAfterDelete);
       this._nextViewIndexAfterDelete = null;
@@ -1222,29 +1300,34 @@ FolderDisplayWidget.prototype = {
     // A deletion happened to our folder.
     let treeSelection = this.treeSelection;
     // we can't fix the selection if we have no selection
-    if (!treeSelection)
+    if (!treeSelection) {
       return;
+    }
 
     // For reasons unknown (but theoretically knowable), sometimes the selection
     //  object will be invalid.  At least, I've reliably seen a selection of
     //  [0, 0] with 0 rows.  If that happens, we need to fix up the selection
     //  here.
-    if (rowCount == 0 && treeSelection.count)
+    if (rowCount == 0 && treeSelection.count) {
       // nsTreeSelection doesn't generate an event if we use clearRange, so use
       //  that to avoid spurious events, given that we are going to definitely
       //  trigger a change notification below.
       treeSelection.clearRange(0, 0);
+    }
 
     // Check if we now no longer have a selection, but we had exactly one
     //  message selected previously.  If we did, then try and do some
     //  'persistence of having a thing selected'.
-    if (treeSelection.count == 0 &&
-        this._mostRecentSelectionCounts.length > 1 &&
-        this._mostRecentSelectionCounts[1] == 1 &&
-        this._mostRecentCurrentIndices[1] != -1) {
+    if (
+      treeSelection.count == 0 &&
+      this._mostRecentSelectionCounts.length > 1 &&
+      this._mostRecentSelectionCounts[1] == 1 &&
+      this._mostRecentCurrentIndices[1] != -1
+    ) {
       let targetIndex = this._mostRecentCurrentIndices[1];
-      if (targetIndex >= rowCount)
+      if (targetIndex >= rowCount) {
         targetIndex = rowCount - 1;
+      }
       this.selectViewIndex(targetIndex);
       return;
     }
@@ -1252,8 +1335,9 @@ FolderDisplayWidget.prototype = {
     // Otherwise, just tell the view that things have changed so it can update
     //  itself to the new state of things.
     // tell the view that things have changed so it can update itself suitably.
-    if (this.view.dbView)
+    if (this.view.dbView) {
       this.view.dbView.selectionChanged();
+    }
   },
 
   /**
@@ -1263,18 +1347,21 @@ FolderDisplayWidget.prototype = {
    */
   onMessageRemovalFailed() {
     this._nextViewIndexAfterDelete = null;
-    FolderDisplayListenerManager._fireListeners("onMessagesRemovalFailed",
-                                                [this]);
+    FolderDisplayListenerManager._fireListeners("onMessagesRemovalFailed", [
+      this,
+    ]);
   },
 
   /**
    * Update the status bar to reflect our exciting message counts.
    */
   onMessageCountsChanged() {
-    if (this.active)
+    if (this.active) {
       UpdateStatusMessageCounts(this.displayedFolder);
-    FolderDisplayListenerManager._fireListeners("onMessageCountsChanged",
-                                                [this]);
+    }
+    FolderDisplayListenerManager._fireListeners("onMessageCountsChanged", [
+      this,
+    ]);
   },
   // @}
   /* ===== End IDBViewWrapperListener ===== */
@@ -1297,8 +1384,9 @@ FolderDisplayWidget.prototype = {
   updateCommandStatus() {
     // Do this only if we're active. If we aren't, we're going to take care of
     // this when we switch back to the tab.
-    if (this._active)
+    if (this._active) {
       UpdateMailToolbar("FolderDisplayWidget command updater notification");
+    }
   },
 
   /**
@@ -1325,8 +1413,9 @@ FolderDisplayWidget.prototype = {
     // Hide previous stale message to prevent brief threadpane selection and
     // content displayed mismatch, on both folder and tab changes.
     let browser = getBrowser();
-    if (browser && browser.contentDocument && browser.contentDocument.body)
+    if (browser && browser.contentDocument && browser.contentDocument.body) {
       browser.contentDocument.body.hidden = true;
+    }
 
     UpdateMailToolbar("FolderDisplayWidget displayed message changed");
     let selected = this.view.dbView.getSelectedMsgHdrs();
@@ -1484,8 +1573,10 @@ FolderDisplayWidget.prototype = {
   _updateThreadDisplay() {
     if (this.active) {
       if (this.view.dbView) {
-        UpdateSortIndicators(this.view.dbView.sortType,
-                             this.view.dbView.sortOrder);
+        UpdateSortIndicators(
+          this.view.dbView.sortType,
+          this.view.dbView.sortOrder
+        );
         SetNewsFolderColumns();
         UpdateSelectCol();
       }
@@ -1529,7 +1620,9 @@ FolderDisplayWidget.prototype = {
   _notifyWhenActive(aNotificationFunc) {
     if (this._active) {
       aNotificationFunc.call(this);
-    } else if (!this._notificationsPendingActivation.includes(aNotificationFunc)) {
+    } else if (
+      !this._notificationsPendingActivation.includes(aNotificationFunc)
+    ) {
       this._notificationsPendingActivation.push(aNotificationFunc);
     }
   },
@@ -1541,8 +1634,9 @@ FolderDisplayWidget.prototype = {
    *  become active again.
    */
   _runNotificationsPendingActivation() {
-    if (!this._notificationsPendingActivation.length)
+    if (!this._notificationsPendingActivation.length) {
       return;
+    }
 
     let pendingNotifications = this._notificationsPendingActivation;
     this._notificationsPendingActivation = [];
@@ -1561,8 +1655,9 @@ FolderDisplayWidget.prototype = {
   get folderPaneVisible() {
     if (this._active) {
       let folderPaneBox = document.getElementById("folderPaneBox");
-      if (folderPaneBox)
+      if (folderPaneBox) {
         return !folderPaneBox.collapsed;
+      }
     } else {
       return this._folderPaneVisible;
     }
@@ -1612,8 +1707,10 @@ FolderDisplayWidget.prototype = {
     let fakeTreeSelection = this._fakeTreeSelection;
     this._fakeTreeSelection = null;
 
-    FolderDisplayListenerManager._fireListeners("onMakeActive",
-                                                [this, aWasInactive]);
+    FolderDisplayListenerManager._fireListeners("onMakeActive", [
+      this,
+      aWasInactive,
+    ]);
 
     // -- UI
 
@@ -1639,8 +1736,9 @@ FolderDisplayWidget.prototype = {
           // If we haven't done so, we're fine as selection would be null here
           //  anyway. (The fake tree selection should persist only till the
           //  first time the tab is switched to.)
-          if (fakeTreeSelection)
+          if (fakeTreeSelection) {
             this.view.dbView.selection = null;
+          }
 
           // Setting the 'view' attribute on treeBox results in the following
           //  effective calls, noting that in makeInactive we made sure to null
@@ -1659,8 +1757,9 @@ FolderDisplayWidget.prototype = {
             // which will try to reload the message, we shouldn't do the same.
             dontReloadMessage = true;
           }
-          if (this._savedFirstVisibleRow != null)
+          if (this._savedFirstVisibleRow != null) {
             this.tree.scrollToRow(this._savedFirstVisibleRow);
+          }
         }
       }
 
@@ -1670,10 +1769,12 @@ FolderDisplayWidget.prototype = {
 
       // the tab mode knows whether we are folder or message display, which
       //  impacts the legal modes
-      if (this._tabInfo)
-        mailTabType._setPaneStates(this._tabInfo.mode.legalPanes,
-          {folder: folderPaneVisible,
-           message: this.messageDisplay.visible});
+      if (this._tabInfo) {
+        mailTabType._setPaneStates(this._tabInfo.mode.legalPanes, {
+          folder: folderPaneVisible,
+          message: this.messageDisplay.visible,
+        });
+      }
 
       // update the columns and such that live inside the thread pane
       this._updateThreadDisplay();
@@ -1682,9 +1783,12 @@ FolderDisplayWidget.prototype = {
     } else {
       // account central stuff when we don't have a dbview
       this._showAccountCentral();
-      if (this._tabInfo)
-        mailTabType._setPaneStates(this._tabInfo.mode.accountCentralLegalPanes,
-          {folder: folderPaneVisible});
+      if (this._tabInfo) {
+        mailTabType._setPaneStates(
+          this._tabInfo.mode.accountCentralLegalPanes,
+          { folder: folderPaneVisible }
+        );
+      }
     }
 
     this._updateContextDisplay();
@@ -1694,8 +1798,9 @@ FolderDisplayWidget.prototype = {
    * Cause the displayDeck to display the thread pane.
    */
   _showThreadPane() {
-    document.getElementById("displayDeck").selectedPanel =
-      document.getElementById("threadPaneBox");
+    document.getElementById(
+      "displayDeck"
+    ).selectedPanel = document.getElementById("threadPaneBox");
   },
 
   /**
@@ -1706,9 +1811,10 @@ FolderDisplayWidget.prototype = {
     var accountBox = document.getElementById("accountCentralBox");
     document.getElementById("displayDeck").selectedPanel = accountBox;
     var prefName = "mailnews.account_central_page.url";
-    var acctCentralPage =
-      Services.prefs.getComplexValue(prefName,
-                                     Ci.nsIPrefLocalizedString).data;
+    var acctCentralPage = Services.prefs.getComplexValue(
+      prefName,
+      Ci.nsIPrefLocalizedString
+    ).data;
     // Prevent a second load if necessary.
     if (window.frames.accountCentralPane.location.href != acctCentralPage) {
       window.frames.accountCentralPane.location.href = acctCentralPage;
@@ -1731,16 +1837,18 @@ FolderDisplayWidget.prototype = {
 
     // - (everything after this point doesn't care that we are marked inactive)
     // save the folder pane's state always
-    this._folderPaneVisible =
-      !document.getElementById("folderPaneBox").collapsed;
+    this._folderPaneVisible = !document.getElementById("folderPaneBox")
+      .collapsed;
 
     if (this.view.dbView) {
-      if (this.tree)
+      if (this.tree) {
         this._savedFirstVisibleRow = this.tree.getFirstVisibleRow();
+      }
 
       // save the message pane's state only when it is potentially visible
-      this.messagePaneCollapsed =
-        document.getElementById("messagepaneboxwrapper").collapsed;
+      this.messagePaneCollapsed = document.getElementById(
+        "messagepaneboxwrapper"
+      ).collapsed;
 
       this.hookUpFakeTree(true);
     }
@@ -1769,8 +1877,9 @@ FolderDisplayWidget.prototype = {
     // if we want to, make the tree forget about the view right now so we can
     //  tell the db view about its selection object so it can try and keep it
     //  up-to-date even while hidden in the background
-    if (aNullRealTreeBoxView && this.tree)
+    if (aNullRealTreeBoxView && this.tree) {
       this.tree.view = null;
+    }
     // (and tell the db view about its selection again...)
     this.view.dbView.selection = treeSelection;
 
@@ -1792,9 +1901,11 @@ FolderDisplayWidget.prototype = {
    */
   getCommandStatus(aCommandType, aEnabledObj, aCheckStatusObj) {
     // no view means not enabled
-    if (!this.view.dbView)
+    if (!this.view.dbView) {
       return false;
-    let enabledObj = {}, checkStatusObj = {};
+    }
+    let enabledObj = {},
+      checkStatusObj = {};
     this.view.dbView.getCommandStatus(aCommandType, enabledObj, checkStatusObj);
     return enabledObj.value;
   },
@@ -1818,8 +1929,10 @@ FolderDisplayWidget.prototype = {
    * @param aFolder The folder context for the command.
    */
   doCommandWithFolder(aCommandName, aFolder) {
-    return this.view.dbView &&
-           this.view.dbView.doCommandWithFolder(aCommandName, aFolder);
+    return (
+      this.view.dbView &&
+      this.view.dbView.doCommandWithFolder(aCommandName, aFolder)
+    );
   },
   // @}
 
@@ -1828,7 +1941,7 @@ FolderDisplayWidget.prototype = {
    * @groupName Displayed
    */
   get isAccountCentralDisplayed() {
-    return (this.view.dbView == null);
+    return this.view.dbView == null;
   },
 
   /**
@@ -1851,9 +1964,12 @@ FolderDisplayWidget.prototype = {
    *     We will have navigated if true, we will have done nothing if false.
    */
   navigate(aNavType, aSelect) {
-    if (aSelect === undefined)
+    if (aSelect === undefined) {
       aSelect = true;
-    let resultKeyObj = {}, resultIndexObj = {}, threadIndexObj = {};
+    }
+    let resultKeyObj = {},
+      resultIndexObj = {},
+      threadIndexObj = {};
 
     let summarizeSelection = this.summarizeSelectionInFolder;
 
@@ -1864,12 +1980,13 @@ FolderDisplayWidget.prototype = {
     // if we're doing next unread, and a collapsed thread is selected, and
     // the top level message is unread, just set the result manually to
     // the top level message, without using viewNavigate.
-    if (summarizeSelection &&
-        aNavType == Ci.nsMsgNavigationType.nextUnreadMessage &&
-        currentIndex != -1 &&
-        this.view.isCollapsedThreadAtIndex(currentIndex) &&
-        !(this.view.dbView.getFlagsAt(currentIndex) &
-          Ci.nsMsgMessageFlags.Read)) {
+    if (
+      summarizeSelection &&
+      aNavType == Ci.nsMsgNavigationType.nextUnreadMessage &&
+      currentIndex != -1 &&
+      this.view.isCollapsedThreadAtIndex(currentIndex) &&
+      !(this.view.dbView.getFlagsAt(currentIndex) & Ci.nsMsgMessageFlags.Read)
+    ) {
       viewIndex = currentIndex;
     } else {
       // always 'wrap' because the start index is relative to the selection.
@@ -1877,26 +1994,33 @@ FolderDisplayWidget.prototype = {
       //  starting position or 'wrap' at all; for example, firstNew just finds
       //  the first new message.)
       // allegedly this does tree-expansion for us.
-      this.view.dbView.viewNavigate(aNavType, resultKeyObj, resultIndexObj,
-                                    threadIndexObj, true);
+      this.view.dbView.viewNavigate(
+        aNavType,
+        resultKeyObj,
+        resultIndexObj,
+        threadIndexObj,
+        true
+      );
       viewIndex = resultIndexObj.value;
     }
 
-    if (viewIndex == nsMsgViewIndex_None)
+    if (viewIndex == nsMsgViewIndex_None) {
       return false;
+    }
 
     // - Expand if required.
     // (The nsMsgDBView isn't really aware of the varying semantics of
     //  collapsed threads, so viewNavigate might tell us about the root message
     //  and leave it collapsed, not realizing that it needs to be expanded.)
-    if (summarizeSelection &&
-        this.view.isCollapsedThreadAtIndex(viewIndex))
+    if (summarizeSelection && this.view.isCollapsedThreadAtIndex(viewIndex)) {
       this.view.dbView.toggleOpenState(viewIndex);
+    }
 
-    if (aSelect)
+    if (aSelect) {
       this.selectViewIndex(viewIndex);
-    else
+    } else {
       this.ensureRowIsVisible(viewIndex);
+    }
     return true;
   },
 
@@ -1914,8 +2038,9 @@ FolderDisplayWidget.prototype = {
    *  this time.
    */
   navigateStatus(aNavType) {
-    if (!this.view.dbView)
+    if (!this.view.dbView) {
       return false;
+    }
     return this.view.dbView.navigateStatus(aNavType);
   },
   // @}
@@ -1942,9 +2067,11 @@ FolderDisplayWidget.prototype = {
     //  nsMsgDBView and nsMsgSearchDBView in whether they use currentIndex,
     //  do it ourselves.  (nsMsgDBView does not use currentIndex, search does.)
     let treeSelection = this.treeSelection;
-    if (!treeSelection || !treeSelection.count)
+    if (!treeSelection || !treeSelection.count) {
       return null;
-    let minObj = {}, maxObj = {};
+    }
+    let minObj = {},
+      maxObj = {};
     treeSelection.getRangeAt(0, minObj, maxObj);
     return this.view.dbView.getMsgHdrAt(minObj.value);
   },
@@ -1963,8 +2090,11 @@ FolderDisplayWidget.prototype = {
    */
   get selectedMessageIsImap() {
     let message = this.selectedMessage;
-    return Boolean(message && message.folder &&
-                   message.folder.flags & Ci.nsMsgFolderFlags.ImapBox);
+    return Boolean(
+      message &&
+        message.folder &&
+        message.folder.flags & Ci.nsMsgFolderFlags.ImapBox
+    );
   },
 
   /**
@@ -1973,8 +2103,11 @@ FolderDisplayWidget.prototype = {
    */
   get selectedMessageIsNews() {
     let message = this.selectedMessage;
-    return Boolean(message && message.folder &&
-                   (message.folder.flags & Ci.nsMsgFolderFlags.Newsgroup));
+    return Boolean(
+      message &&
+        message.folder &&
+        message.folder.flags & Ci.nsMsgFolderFlags.Newsgroup
+    );
   },
 
   /**
@@ -2000,8 +2133,11 @@ FolderDisplayWidget.prototype = {
    */
   get selectedMessageThreadIgnored() {
     let message = this.selectedMessage;
-    return Boolean(message && message.folder &&
-                   message.folder.msgDatabase.IsIgnored(message.messageKey));
+    return Boolean(
+      message &&
+        message.folder &&
+        message.folder.msgDatabase.IsIgnored(message.messageKey)
+    );
   },
 
   /**
@@ -2010,8 +2146,9 @@ FolderDisplayWidget.prototype = {
    */
   get selectedMessageSubthreadIgnored() {
     let message = this.selectedMessage;
-    return Boolean(message && message.folder &&
-                   (message.flags & Ci.nsMsgMessageFlags.Ignored));
+    return Boolean(
+      message && message.folder && message.flags & Ci.nsMsgMessageFlags.Ignored
+    );
   },
 
   /**
@@ -2020,8 +2157,11 @@ FolderDisplayWidget.prototype = {
    */
   get selectedMessageThreadWatched() {
     let message = this.selectedMessage;
-    return Boolean(message && message.folder &&
-                   message.folder.msgDatabase.IsWatched(message.messageKey));
+    return Boolean(
+      message &&
+        message.folder &&
+        message.folder.msgDatabase.IsWatched(message.messageKey)
+    );
   },
 
   /**
@@ -2047,8 +2187,9 @@ FolderDisplayWidget.prototype = {
    * @return a list of the view indices that are currently selected
    */
   get selectedIndices() {
-    if (!this.view.dbView)
+    if (!this.view.dbView) {
       return [];
+    }
 
     return this.view.dbView.getIndicesForSelection();
   },
@@ -2067,8 +2208,9 @@ FolderDisplayWidget.prototype = {
    *     If there are no selected messages, the result is an empty list.
    */
   get selectedMessages() {
-    if (!this.view.dbView)
+    if (!this.view.dbView) {
       return [];
+    }
     return this.view.dbView.getSelectedMsgHdrs();
   },
 
@@ -2082,8 +2224,9 @@ FolderDisplayWidget.prototype = {
    *  URI and not the selection prior to the right-click.
    */
   get selectedMessageUris() {
-    if (!this.view.dbView)
+    if (!this.view.dbView) {
       return null;
+    }
 
     let messageArray = this.view.dbView.getURIsForSelection();
     return messageArray.length ? messageArray : null;
@@ -2101,22 +2244,28 @@ FolderDisplayWidget.prototype = {
    * @return true if all the selected messages can be archived, false otherwise.
    */
   get canArchiveSelectedMessages() {
-    if (!this.view.dbView || this.messageDisplay.isDummy)
+    if (!this.view.dbView || this.messageDisplay.isDummy) {
       return false;
+    }
 
-    if (this.selectedCount == 0)
+    if (this.selectedCount == 0) {
       return false;
+    }
 
     // If we're looking at a single folder (i.e. not a cross-folder search), we
     // can just check to see if all the identities for this folder/server have
     // archives enabled (or disabled). This is way faster than checking every
     // message. Note: this may be slightly inaccurate if the identity for a
     // header is actually on another server.
-    if (this.selectedCount > this.MAX_COUNT_FOR_CAN_ARCHIVE_CHECK &&
-        this.view.isSingleFolder && this.displayedFolder) {
+    if (
+      this.selectedCount > this.MAX_COUNT_FOR_CAN_ARCHIVE_CHECK &&
+      this.view.isSingleFolder &&
+      this.displayedFolder
+    ) {
       let folderIdentity = this.displayedFolder.customIdentity;
-      if (folderIdentity)
+      if (folderIdentity) {
         return folderIdentity.archiveEnabled;
+      }
 
       if (this.displayedFolder.server) {
         let serverIdentities = MailServices.accounts.getIdentitiesForServer(
@@ -2133,8 +2282,9 @@ FolderDisplayWidget.prototype = {
             break;
           }
         }
-        if (allEnabled !== undefined)
+        if (allEnabled !== undefined) {
           return allEnabled;
+        }
       }
     }
 
@@ -2151,13 +2301,16 @@ FolderDisplayWidget.prototype = {
    * folders, false otherwise.
    */
   get canDeleteSelectedMessages() {
-    if (!this.view.dbView)
+    if (!this.view.dbView) {
       return false;
+    }
 
     let selectedMessages = this.selectedMessages;
     for (let i = 0; i < selectedMessages.length; ++i) {
-      if (selectedMessages[i].folder &&
-          !selectedMessages[i].folder.canDeleteMessages) {
+      if (
+        selectedMessages[i].folder &&
+        !selectedMessages[i].folder.canDeleteMessages
+      ) {
         return false;
       }
     }
@@ -2170,8 +2323,9 @@ FolderDisplayWidget.prototype = {
    */
   clearSelection() {
     let treeSelection = this.treeSelection; // potentially magic getter
-    if (!treeSelection)
+    if (!treeSelection) {
       return;
+    }
     treeSelection.clearSelection();
     this.messageDisplay.clearDisplay();
     this._updateContextDisplay();
@@ -2208,12 +2362,15 @@ FolderDisplayWidget.prototype = {
       this._savedSelection = null;
       this.selectViewIndex(viewIndex);
     } else {
-      this._savedSelection = {messages: [{messageId: aMsgHdr.messageId}],
-                              forceSelect: aForceSelect};
+      this._savedSelection = {
+        messages: [{ messageId: aMsgHdr.messageId }],
+        forceSelect: aForceSelect,
+      };
       // queue the selection to be restored once we become active if we are not
       //  active.
-      if (!this.active)
+      if (!this.active) {
         this._notifyWhenActive(this._restoreSelection);
+      }
     }
 
     // Do this here instead of at the beginning to prevent reentrancy issues
@@ -2243,7 +2400,8 @@ FolderDisplayWidget.prototype = {
     let treeSelection = this.treeSelection; // potentially magic getter
     let foundAll = true;
     if (treeSelection) {
-      let minRow = null, maxRow = null;
+      let minRow = null,
+        maxRow = null;
 
       treeSelection.selectEventsSuppressed = true;
       treeSelection.clearSelection();
@@ -2252,10 +2410,12 @@ FolderDisplayWidget.prototype = {
         let viewIndex = this.view.getViewIndexForMsgHdr(msgHdr, aForceSelect);
 
         if (viewIndex != nsMsgViewIndex_None) {
-          if (minRow == null || viewIndex < minRow)
+          if (minRow == null || viewIndex < minRow) {
             minRow = viewIndex;
-          if (maxRow == null || viewIndex > maxRow)
+          }
+          if (maxRow == null || viewIndex > maxRow) {
             maxRow = viewIndex;
+          }
           // nsTreeSelection is actually very clever about doing this
           //  efficiently.
           treeSelection.rangedSelect(viewIndex, viewIndex, true);
@@ -2264,8 +2424,9 @@ FolderDisplayWidget.prototype = {
         }
 
         // make sure the selection is as visible as possible
-        if (minRow != null)
+        if (minRow != null) {
           this.ensureRowRangeIsVisible(minRow, maxRow);
+        }
       }
 
       treeSelection.selectEventsSuppressed = false;
@@ -2284,11 +2445,12 @@ FolderDisplayWidget.prototype = {
     //    we didn't.
     if (!treeSelection || (!aDoNotNeedToFindAll && !foundAll)) {
       this._savedSelection = {
-        messages: aMessages.map(msgHdr => ({messageId: msgHdr.messageId})),
+        messages: aMessages.map(msgHdr => ({ messageId: msgHdr.messageId })),
         forceSelect: aForceSelect,
       };
-      if (!this.active)
+      if (!this.active) {
         this._notifyWhenActive(this._restoreSelection);
+      }
     }
   },
 
@@ -2302,11 +2464,15 @@ FolderDisplayWidget.prototype = {
   selectViewIndex(aViewIndex) {
     let treeSelection = this.treeSelection;
     // if we have no selection, we can't select something
-    if (!treeSelection)
+    if (!treeSelection) {
       return;
+    }
     let rowCount = this.view.dbView.rowCount;
-    if ((aViewIndex == nsMsgViewIndex_None) ||
-        (aViewIndex < 0) || (aViewIndex >= rowCount)) {
+    if (
+      aViewIndex == nsMsgViewIndex_None ||
+      aViewIndex < 0 ||
+      aViewIndex >= rowCount
+    ) {
       this.clearSelection();
       return;
     }
@@ -2320,9 +2486,11 @@ FolderDisplayWidget.prototype = {
     // So we want to generate a change notification if that is the case. (And
     //  we still want to call ensureRowIsVisible, as there may be padding
     //  required.)
-    if ((treeSelection.count == 1) &&
-        ((treeSelection.currentIndex == aViewIndex) ||
-         treeSelection.isSelected(aViewIndex))) {
+    if (
+      treeSelection.count == 1 &&
+      (treeSelection.currentIndex == aViewIndex ||
+        treeSelection.isSelected(aViewIndex))
+    ) {
       // Make sure the index we just selected is also the current index.
       //  This can happen when the tree selection adjusts itself as a result of
       //  changes to the tree as a result of deletion.  This will not trigger
@@ -2341,8 +2509,9 @@ FolderDisplayWidget.prototype = {
       treeSelection.select(aViewIndex);
     }
 
-    if (this._active)
+    if (this._active) {
       this.ensureRowIsVisible(aViewIndex);
+    }
 
     // The saved selection is invalidated, since we've got something newer
     this._savedSelection = null;
@@ -2351,8 +2520,9 @@ FolderDisplayWidget.prototype = {
     this._aboutToSelectMessage = false;
 
     let tabmail = document.getElementById("tabmail");
-    if (tabmail)
+    if (tabmail) {
       tabmail.setTabTitle(this._tabInfo);
+    }
   },
 
   /**
@@ -2364,8 +2534,9 @@ FolderDisplayWidget.prototype = {
    * We do nothing if we are not in a threaded display mode.
    */
   selectSelectedThreadRoots() {
-    if (!this.view.showThreaded)
+    if (!this.view.showThreaded) {
       return;
+    }
 
     // There are basically two implementation strategies available to us:
     // 1) For each selected view index with a level > 0, keep walking 'up'
@@ -2408,9 +2579,11 @@ FolderDisplayWidget.prototype = {
     //  percentages of that.
     if (this.tree) {
       let topPercentPadding = Services.prefs.getIntPref(
-                              "mail.threadpane.padding.top_percent");
+        "mail.threadpane.padding.top_percent"
+      );
       let bottomPercentPadding = Services.prefs.getIntPref(
-                                 "mail.threadpane.padding.bottom_percent");
+        "mail.threadpane.padding.bottom_percent"
+      );
 
       // Assume the bottom row is half-visible and should generally be ignored.
       // (We could actually do the legwork to see if there is a partial one...)
@@ -2423,17 +2596,17 @@ FolderDisplayWidget.prototype = {
       // We need one visible row not counted in either padding, for the actual
       //  target message. Also helps correct for rounding errors.
       if (topPadding + bottomPadding > paneHeight) {
-        if (topPadding > bottomPadding)
+        if (topPadding > bottomPadding) {
           topPadding--;
-        else
+        } else {
           bottomPadding--;
+        }
       }
     } else {
       // Something's gone wrong elsewhere, and we likely have bigger problems.
       topPadding = 0;
       bottomPadding = 0;
-      Cu.reportError(
-          "Unable to get height of folder pane (treeBox is null)");
+      Cu.reportError("Unable to get height of folder pane (treeBox is null)");
     }
 
     return [topPadding, bottomPadding];
@@ -2458,13 +2631,14 @@ FolderDisplayWidget.prototype = {
     if (!aBounced) {
       let dis = this;
       window.setTimeout(function() {
-          dis.ensureRowIsVisible(aViewIndex, true);
-        }, 0);
+        dis.ensureRowIsVisible(aViewIndex, true);
+      }, 0);
     }
 
     let tree = this.tree;
-    if (!tree || !tree.view)
+    if (!tree || !tree.view) {
       return;
+    }
 
     // try and trigger a reflow...
     tree.height;
@@ -2475,20 +2649,24 @@ FolderDisplayWidget.prototype = {
     // Assume the bottom row is half-visible and should generally be ignored.
     // (We could actually do the legwork to see if there is a partial one...)
     const halfVisible = 1;
-    let last  = tree.getLastVisibleRow() - halfVisible;
+    let last = tree.getLastVisibleRow() - halfVisible;
     let span = tree.getPageLength() - halfVisible;
     let [topPadding, bottomPadding] = this.visibleRowPadding;
 
     let target;
     // If the index is after the last visible guy (with padding), move down
     //  so that the target index is padded in 1 from the bottom.
-    if (aViewIndex >= (last - bottomPadding))
-      target = Math.min(maxIndex, (aViewIndex + bottomPadding)) - span;
+    if (aViewIndex >= last - bottomPadding) {
+      target = Math.min(maxIndex, aViewIndex + bottomPadding) - span;
+    }
     // If the index is before the first visible guy (with padding), move up
-    else if (aViewIndex <= (first + topPadding))  // move up
-      target = Math.max(0, (aViewIndex - topPadding));
-    else // it is already visible
+    else if (aViewIndex <= first + topPadding) {
+      // move up
+      target = Math.max(0, aViewIndex - topPadding);
+    } // it is already visible
+    else {
       return;
+    }
 
     // this sets the first visible row
     tree.scrollToRow(target);
@@ -2514,34 +2692,37 @@ FolderDisplayWidget.prototype = {
     if (!aBounced) {
       let dis = this;
       window.setTimeout(function() {
-          dis.ensureRowRangeIsVisible(aMinRow, aMaxRow, true);
-        }, 0);
+        dis.ensureRowRangeIsVisible(aMinRow, aMaxRow, true);
+      }, 0);
     }
 
     let tree = this.tree;
-    if (!tree)
+    if (!tree) {
       return;
+    }
     let first = tree.getFirstVisibleRow();
     const halfVisible = 1;
-    let last  = tree.getLastVisibleRow() - halfVisible;
+    let last = tree.getLastVisibleRow() - halfVisible;
     let span = tree.getPageLength() - halfVisible;
     let [topPadding, bottomPadding] = this.visibleRowPadding;
 
     // bail if the range is already visible with padding constraints handled
-    if (((first + topPadding) <= aMinRow) &&
-        ((last - bottomPadding) >= aMaxRow))
+    if (first + topPadding <= aMinRow && last - bottomPadding >= aMaxRow) {
       return;
+    }
 
     let target;
     // if the range is bigger than we can fit, optimize position for the min row
     //  with padding to make it obvious the range doesn't extend above the row.
     if (aMaxRow - aMinRow > span) {
-      target = Math.max(0, (aMinRow - topPadding));
+      target = Math.max(0, aMinRow - topPadding);
     } else {
       // So the range must fit, and it's a question of how we want to position
       //  it.  For now, the answer is we try and center it, why not.
       let rowSpan = aMaxRow - aMinRow + 1;
-      let halfSpare = Math.floor((span - rowSpan - topPadding - bottomPadding) / 2);
+      let halfSpare = Math.floor(
+        (span - rowSpan - topPadding - bottomPadding) / 2
+      );
       target = aMinRow - halfSpare - topPadding;
     }
     tree.scrollToRow(target);
@@ -2552,20 +2733,26 @@ FolderDisplayWidget.prototype = {
    */
   ensureSelectionIsVisible() {
     let treeSelection = this.treeSelection; // potentially magic getter
-    if (!treeSelection || !treeSelection.count)
+    if (!treeSelection || !treeSelection.count) {
       return;
+    }
 
-    let minRow = null, maxRow = null;
+    let minRow = null,
+      maxRow = null;
 
     let rangeCount = treeSelection.getRangeCount();
     for (let iRange = 0; iRange < rangeCount; iRange++) {
-      let rangeMinObj = {}, rangeMaxObj = {};
+      let rangeMinObj = {},
+        rangeMaxObj = {};
       treeSelection.getRangeAt(iRange, rangeMinObj, rangeMaxObj);
-      let rangeMin = rangeMinObj.value, rangeMax = rangeMaxObj.value;
-      if (minRow == null || rangeMin < minRow)
+      let rangeMin = rangeMinObj.value,
+        rangeMax = rangeMaxObj.value;
+      if (minRow == null || rangeMin < minRow) {
         minRow = rangeMin;
-      if (maxRow == null || rangeMax > maxRow)
+      }
+      if (maxRow == null || rangeMax > maxRow) {
         maxRow = rangeMax;
+      }
     }
 
     this.ensureRowRangeIsVisible(minRow, maxRow);

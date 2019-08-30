@@ -4,14 +4,17 @@
 
 var EXPORTED_SYMBOLS = ["MailUtils"];
 
-const {
-  fixIterator,
-  toXPCOMArray,
-} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-const {MailConsts} = ChromeUtils.import("resource:///modules/MailConsts.jsm");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+const { fixIterator, toXPCOMArray } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
+const { MailConsts } = ChromeUtils.import("resource:///modules/MailConsts.jsm");
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { PluralForm } = ChromeUtils.import(
+  "resource://gre/modules/PluralForm.jsm"
+);
 
 var MC = MailConsts;
 
@@ -34,8 +37,9 @@ var MailUtils = {
       try {
         server.rootFolder.subFolders;
       } catch (ex) {
-        Services.console.logStringMessage("Discovering folders for account failed with " +
-                                          "exception: " + ex);
+        Services.console.logStringMessage(
+          "Discovering folders for account failed with " + "exception: " + ex
+        );
       }
     }
   },
@@ -56,8 +60,9 @@ var MailUtils = {
     let folders = MailServices.accounts.allFolders;
 
     for (let folder of fixIterator(folders, Ci.nsIMsgFolder)) {
-      if (folder.filePath.equals(aFile))
+      if (folder.filePath.equals(aFile)) {
         return folder;
+      }
     }
     return null;
   },
@@ -70,8 +75,9 @@ var MailUtils = {
    *          the folder doesn't already exist.
    */
   getExistingFolder(aFolderURI) {
-    let fls = Cc["@mozilla.org/mail/folder-lookup;1"]
-                .getService(Ci.nsIFolderLookupService);
+    let fls = Cc["@mozilla.org/mail/folder-lookup;1"].getService(
+      Ci.nsIFolderLookupService
+    );
     return fls.getFolderForURL(aFolderURI);
   },
 
@@ -83,8 +89,9 @@ var MailUtils = {
    * @returns {nsIMsgFolder} Folder corresponding to this URI.
    */
   getOrCreateFolder(aFolderURI) {
-    let fls = Cc["@mozilla.org/mail/folder-lookup;1"]
-                .getService(Ci.nsIFolderLookupService);
+    let fls = Cc["@mozilla.org/mail/folder-lookup;1"].getService(
+      Ci.nsIFolderLookupService
+    );
     return fls.getOrCreateFolderForURL(aFolderURI);
   },
 
@@ -122,15 +129,18 @@ var MailUtils = {
    */
   confirmAction(aNumMessages, aConfirmTitle, aConfirmMsg, aLimitingPref) {
     let openWarning = Services.prefs.getIntPref(aLimitingPref);
-    if ((openWarning > 1) && (aNumMessages >= openWarning)) {
+    if (openWarning > 1 && aNumMessages >= openWarning) {
       let bundle = Services.strings.createBundle(
-        "chrome://messenger/locale/messenger.properties");
+        "chrome://messenger/locale/messenger.properties"
+      );
       let title = bundle.GetStringFromName(aConfirmTitle);
-      let message = PluralForm.get(aNumMessages,
-        bundle.GetStringFromName(aConfirmMsg))
-                .replace("#1", aNumMessages);
-      if (!Services.prompt.confirm(null, title, message))
+      let message = PluralForm.get(
+        aNumMessages,
+        bundle.GetStringFromName(aConfirmMsg)
+      ).replace("#1", aNumMessages);
+      if (!Services.prompt.confirm(null, title, message)) {
         return true;
+      }
     }
     return false;
   },
@@ -156,40 +166,54 @@ var MailUtils = {
    */
   displayMessages(aMsgHdrs, aViewWrapperToClone, aTabmail) {
     let openMessageBehavior = Services.prefs.getIntPref(
-                                  "mail.openMessageBehavior");
+      "mail.openMessageBehavior"
+    );
 
     if (openMessageBehavior == MC.OpenMessageBehavior.NEW_WINDOW) {
       this.openMessagesInNewWindows(aMsgHdrs, aViewWrapperToClone);
     } else if (openMessageBehavior == MC.OpenMessageBehavior.EXISTING_WINDOW) {
       // Try reusing an existing window. If we can't, fall back to opening new
       // windows
-      if (aMsgHdrs.length > 1 || !this.openMessageInExistingWindow(aMsgHdrs[0]))
+      if (
+        aMsgHdrs.length > 1 ||
+        !this.openMessageInExistingWindow(aMsgHdrs[0])
+      ) {
         this.openMessagesInNewWindows(aMsgHdrs, aViewWrapperToClone);
+      }
     } else if (openMessageBehavior == MC.OpenMessageBehavior.NEW_TAB) {
       let mail3PaneWindow = null;
       if (!aTabmail) {
         // Try opening new tabs in a 3pane window
         mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
-        if (mail3PaneWindow)
+        if (mail3PaneWindow) {
           aTabmail = mail3PaneWindow.document.getElementById("tabmail");
+        }
       }
 
       if (aTabmail) {
-        if (this.confirmAction(aMsgHdrs.length, "openTabWarningTitle",
-                               "openTabWarningConfirmation",
-                               "mailnews.open_tab_warning"))
+        if (
+          this.confirmAction(
+            aMsgHdrs.length,
+            "openTabWarningTitle",
+            "openTabWarningConfirmation",
+            "mailnews.open_tab_warning"
+          )
+        ) {
           return;
-        for (let [i, msgHdr] of aMsgHdrs.entries())
-          // Open all the tabs in the background, except for the last one
+        }
+        // Open all the tabs in the background, except for the last one
+        for (let [i, msgHdr] of aMsgHdrs.entries()) {
           aTabmail.openTab("message", {
             msgHdr,
             viewWrapperToClone: aViewWrapperToClone,
-            background: (i < (aMsgHdrs.length - 1)),
-            disregardOpener: (aMsgHdrs.length > 1),
+            background: i < aMsgHdrs.length - 1,
+            disregardOpener: aMsgHdrs.length > 1,
           });
+        }
 
-        if (mail3PaneWindow)
+        if (mail3PaneWindow) {
           mail3PaneWindow.focus();
+        }
       } else {
         // We still haven't found a tabmail, so we'll need to open new windows
         this.openMessagesInNewWindows(aMsgHdrs, aViewWrapperToClone);
@@ -224,12 +248,16 @@ var MailUtils = {
    */
   openMessageInNewWindow(aMsgHdr, aViewWrapperToClone) {
     // It sucks that we have to go through XPCOM for this
-    let args = {msgHdr: aMsgHdr, viewWrapperToClone: aViewWrapperToClone};
+    let args = { msgHdr: aMsgHdr, viewWrapperToClone: aViewWrapperToClone };
     args.wrappedJSObject = args;
 
-    Services.ww.openWindow(null,
-        "chrome://messenger/content/messageWindow.xul", "",
-        "all,chrome,dialog=no,status,toolbar", args);
+    Services.ww.openWindow(
+      null,
+      "chrome://messenger/content/messageWindow.xul",
+      "",
+      "all,chrome,dialog=no,status,toolbar",
+      args
+    );
   },
 
   /**
@@ -242,13 +270,20 @@ var MailUtils = {
    *                              window
    */
   openMessagesInNewWindows(aMsgHdrs, aViewWrapperToClone) {
-    if (this.confirmAction(aMsgHdrs.length, "openWindowWarningTitle",
-                           "openWindowWarningConfirmation",
-                           "mailnews.open_window_warning"))
+    if (
+      this.confirmAction(
+        aMsgHdrs.length,
+        "openWindowWarningTitle",
+        "openWindowWarningConfirmation",
+        "mailnews.open_window_warning"
+      )
+    ) {
       return;
+    }
 
-    for (let msgHdr of aMsgHdrs)
+    for (let msgHdr of aMsgHdrs) {
       this.openMessageInNewWindow(msgHdr, aViewWrapperToClone);
+    }
   },
 
   /**
@@ -264,11 +299,15 @@ var MailUtils = {
     if (mail3PaneWindow) {
       mail3PaneWindow.MsgDisplayMessageInFolderTab(aMsgHdr);
     } else {
-      let args = {msgHdr: aMsgHdr};
+      let args = { msgHdr: aMsgHdr };
       args.wrappedJSObject = args;
-      Services.ww.openWindow(null,
-          "chrome://messenger/content/", "",
-          "all,chrome,dialog=no,status,toolbar", args);
+      Services.ww.openWindow(
+        null,
+        "chrome://messenger/content/",
+        "",
+        "all,chrome,dialog=no,status,toolbar",
+        args
+      );
     }
   },
 
@@ -323,7 +362,12 @@ var MailUtils = {
    *     managed to set the values on all folders, false means we encountered a
    *     problem.
    */
-  setStringPropertyOnFolderAndDescendents(aPropertyName, aPropertyValue, aFolder, aCallback) {
+  setStringPropertyOnFolderAndDescendents(
+    aPropertyName,
+    aPropertyValue,
+    aFolder,
+    aCallback
+  ) {
     // We need to add the base folder as it does not get added by ListDescendants.
     let allFolders = toXPCOMArray([aFolder], Ci.nsIMutableArray);
     // - get all the descendants
@@ -333,8 +377,10 @@ var MailUtils = {
     function* folder_string_setter_worker() {
       for (let folder of fixIterator(allFolders, Ci.nsIMsgFolder)) {
         // set the property; this may open the database...
-        let value = (typeof aPropertyValue == "function" ?
-                     aPropertyValue(folder) : aPropertyValue);
+        let value =
+          typeof aPropertyValue == "function"
+            ? aPropertyValue(folder)
+            : aPropertyValue;
         folder.setStringProperty(aPropertyName, value);
         // force the reference to be forgotten.
         folder.msgDatabase = null;
@@ -349,20 +395,24 @@ var MailUtils = {
       try {
         if (worker.next().done) {
           timer.cancel();
-          if (aCallback)
+          if (aCallback) {
             aCallback(true);
+          }
         }
       } catch (ex) {
         // Any type of exception kills the generator.
         timer.cancel();
-        if (aCallback)
+        if (aCallback) {
           aCallback(false);
+        }
       }
     }
     // make sure there is at least 100 ms of not us between doing things.
-    timer.initWithCallback(folder_string_setter_driver,
-                           this.INTER_FOLDER_PROCESSING_DELAY_MS,
-                           Ci.nsITimer.TYPE_REPEATING_SLACK);
+    timer.initWithCallback(
+      folder_string_setter_driver,
+      this.INTER_FOLDER_PROCESSING_DELAY_MS,
+      Ci.nsITimer.TYPE_REPEATING_SLACK
+    );
   },
 
   /**
@@ -376,8 +426,9 @@ var MailUtils = {
    */
   getBestIdentity(identities, optionalHint, useDefault = false) {
     let identityCount = identities.length;
-    if (identityCount < 1)
+    if (identityCount < 1) {
       return null;
+    }
 
     // If we have more than one identity and a hint to help us pick one.
     if (identityCount > 1 && optionalHint) {
@@ -387,13 +438,16 @@ var MailUtils = {
       let hints = optionalHint.toLowerCase().split(",");
 
       for (let i = 0; i < hints.length; i++) {
-        for (let identity of fixIterator(identities,
-                                         Ci.nsIMsgIdentity)) {
-          if (!identity.email)
+        for (let identity of fixIterator(identities, Ci.nsIMsgIdentity)) {
+          if (!identity.email) {
             continue;
-          if (hints[i].trim() == identity.email.toLowerCase() ||
-              hints[i].includes("<" + identity.email.toLowerCase() + ">"))
+          }
+          if (
+            hints[i].trim() == identity.email.toLowerCase() ||
+            hints[i].includes("<" + identity.email.toLowerCase() + ">")
+          ) {
             return identity;
+          }
         }
       }
     }
@@ -401,8 +455,9 @@ var MailUtils = {
     // Still no matches? Give up and pick the default or the first one.
     if (useDefault) {
       let defaultAccount = MailServices.accounts.defaultAccount;
-      if (defaultAccount && defaultAccount.defaultIdentity)
+      if (defaultAccount && defaultAccount.defaultIdentity) {
         return defaultAccount.defaultIdentity;
+      }
     }
 
     return identities.queryElementAt(0, Ci.nsIMsgIdentity);
@@ -425,35 +480,45 @@ var MailUtils = {
     if (folder) {
       server = folder.server;
       identity = folder.customIdentity;
-      if (identity)
+      if (identity) {
         return identity;
+      }
     }
 
     if (!server) {
       let accountKey = hdr.accountKey;
       if (accountKey) {
         let account = MailServices.accounts.getAccount(accountKey);
-        if (account)
+        if (account) {
           server = account.incomingServer;
+        }
       }
     }
 
     let hintForIdentity = "";
-    if (type == Ci.nsIMsgCompType.ReplyToList)
+    if (type == Ci.nsIMsgCompType.ReplyToList) {
       hintForIdentity = hint;
-    else if (type == Ci.nsIMsgCompType.Template ||
-             type == Ci.nsIMsgCompType.EditTemplate ||
-             type == Ci.nsIMsgCompType.EditAsNew)
+    } else if (
+      type == Ci.nsIMsgCompType.Template ||
+      type == Ci.nsIMsgCompType.EditTemplate ||
+      type == Ci.nsIMsgCompType.EditAsNew
+    ) {
       hintForIdentity = hdr.author;
-    else
+    } else {
       hintForIdentity = hdr.recipients + "," + hdr.ccList + "," + hint;
+    }
 
-    if (server)
+    if (server) {
       identity = this.getIdentityForServer(server, hintForIdentity);
+    }
 
-    if (!identity)
-      identity = this.getBestIdentity(MailServices.accounts.allIdentities,
-                                      hintForIdentity, true);
+    if (!identity) {
+      identity = this.getBestIdentity(
+        MailServices.accounts.allIdentities,
+        hintForIdentity,
+        true
+      );
+    }
     return identity;
   },
 

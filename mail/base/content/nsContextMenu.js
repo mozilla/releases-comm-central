@@ -9,43 +9,53 @@
 /* import-globals-from messageDisplay.js */
 /* import-globals-from utilityOverlay.js */
 
-var {InlineSpellChecker, SpellCheckHelper} = ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
-var {PlacesUtils} = ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { InlineSpellChecker, SpellCheckHelper } = ChromeUtils.import(
+  "resource://gre/modules/InlineSpellChecker.jsm"
+);
+var { PlacesUtils } = ChromeUtils.import(
+  "resource://gre/modules/PlacesUtils.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "PageMenuParent", function() {
-  let {PageMenuParent} = ChromeUtils.import("resource://gre/modules/PageMenu.jsm");
+  let { PageMenuParent } = ChromeUtils.import(
+    "resource://gre/modules/PageMenu.jsm"
+  );
   return new PageMenuParent();
 });
 
 var gSpellChecker = new InlineSpellChecker();
 
 function nsContextMenu(aXulMenu, aIsShift) {
-  this.target         = null;
-  this.menu           = null;
-  this.onTextInput    = false;
+  this.target = null;
+  this.menu = null;
+  this.onTextInput = false;
   this.onEditableArea = false;
-  this.onImage        = false;
-  this.onLoadedImage  = false;
-  this.onCanvas       = false;
-  this.onVideo        = false;
-  this.onAudio        = false;
+  this.onImage = false;
+  this.onLoadedImage = false;
+  this.onCanvas = false;
+  this.onVideo = false;
+  this.onAudio = false;
   this.onPlayableMedia = false;
-  this.onLink         = false;
-  this.onMailtoLink   = false;
+  this.onLink = false;
+  this.onMailtoLink = false;
   this.onSaveableLink = false;
   this.onMetaDataItem = false;
-  this.onMathML       = false;
-  this.link           = false;
-  this.linkURL        = "";
-  this.linkURI        = null;
-  this.linkProtocol   = null;
-  this.mediaURL       = "";
+  this.onMathML = false;
+  this.link = false;
+  this.linkURL = "";
+  this.linkURI = null;
+  this.linkProtocol = null;
+  this.mediaURL = "";
   this.isContentSelected = false;
-  this.shouldDisplay  = true;
+  this.shouldDisplay = true;
 
   // Message Related Items
   this.inMessageArea = false;
@@ -86,8 +96,9 @@ nsContextMenu.prototype = {
 
       let subject = {
         menu: aPopup,
-        tab: document.getElementById("tabmail") ?
-             document.getElementById("tabmail").currentTabInfo : undefined,
+        tab: document.getElementById("tabmail")
+          ? document.getElementById("tabmail").currentTabInfo
+          : undefined,
         isContentSelected: this.isContentSelected,
         inFrame: this.inFrame,
         isTextSelected: this.isTextSelected,
@@ -101,7 +112,9 @@ nsContextMenu.prototype = {
         srcUrl: this.mediaURL,
         pageUrl: this.browser ? this.browser.currentURI.spec : undefined,
         linkUrl: this.linkURL,
-        selectionText: this.isTextSelected ? this.selectionInfo.text : undefined,
+        selectionText: this.isTextSelected
+          ? this.selectionInfo.text
+          : undefined,
       };
       if (document.popupNode.closest("tree") == gFolderDisplay.tree) {
         subject.displayedFolder = gFolderDisplay.view.displayedFolder;
@@ -118,8 +131,9 @@ nsContextMenu.prototype = {
     // so that the callers know to not even display the empty menu.
     let contextPopup = document.getElementById("mailContext");
     for (let item of contextPopup.children) {
-      if (!item.hidden)
+      if (!item.hidden) {
         return;
+      }
     }
     // All items must have been hidden.
     this.shouldDisplay = false;
@@ -144,10 +158,14 @@ nsContextMenu.prototype = {
     let canSpell = gSpellChecker.canSpellCheck;
     let onMisspelling = gSpellChecker.overMisspelling;
     this.showItem("mailContext-spell-check-enabled", canSpell);
-    this.showItem("mailContext-spell-separator", canSpell || this.onEditableArea);
+    this.showItem(
+      "mailContext-spell-separator",
+      canSpell || this.onEditableArea
+    );
     if (canSpell) {
-      document.getElementById("mailContext-spell-check-enabled")
-              .setAttribute("checked", gSpellChecker.enabled);
+      document
+        .getElementById("mailContext-spell-check-enabled")
+        .setAttribute("checked", gSpellChecker.enabled);
     }
 
     this.showItem("mailContext-spell-add-to-dictionary", onMisspelling);
@@ -155,11 +173,14 @@ nsContextMenu.prototype = {
     // suggestion list
     this.showItem("mailContext-spell-suggestions-separator", onMisspelling);
     if (onMisspelling) {
-      let addMenuItem =
-        document.getElementById("mailContext-spell-add-to-dictionary");
-      let suggestionCount =
-        gSpellChecker.addSuggestionsToMenu(addMenuItem.parentNode,
-                                           addMenuItem, 5);
+      let addMenuItem = document.getElementById(
+        "mailContext-spell-add-to-dictionary"
+      );
+      let suggestionCount = gSpellChecker.addSuggestionsToMenu(
+        addMenuItem.parentNode,
+        addMenuItem,
+        5
+      );
       this.showItem("mailContext-spell-no-suggestions", suggestionCount == 0);
     } else {
       this.showItem("mailContext-spell-no-suggestions", false);
@@ -168,8 +189,12 @@ nsContextMenu.prototype = {
     // dictionary list
     this.showItem("mailContext-spell-dictionaries", gSpellChecker.enabled);
     if (canSpell) {
-      let dictMenu = document.getElementById("mailContext-spell-dictionaries-menu");
-      let dictSep = document.getElementById("mailContext-spell-language-separator");
+      let dictMenu = document.getElementById(
+        "mailContext-spell-dictionaries-menu"
+      );
+      let dictSep = document.getElementById(
+        "mailContext-spell-language-separator"
+      );
       gSpellChecker.addDictionaryListToMenu(dictMenu, dictSep);
       this.showItem("mailContext-spell-add-dictionaries-main", false);
     } else if (this.onEditableArea) {
@@ -193,29 +218,43 @@ nsContextMenu.prototype = {
     goUpdateGlobalEditMenuItems();
 
     this.showItem("mailContext-cut", !this.inMessageArea && this.onTextInput);
-    this.showItem("mailContext-copy",
-                  !this.inThreadPane && !this.onPlayableMedia &&
-                  (this.isContentSelected || this.onTextInput));
+    this.showItem(
+      "mailContext-copy",
+      !this.inThreadPane &&
+        !this.onPlayableMedia &&
+        (this.isContentSelected || this.onTextInput)
+    );
     this.showItem("mailContext-paste", !this.inMessageArea && this.onTextInput);
 
     this.showItem("mailContext-undo", !this.inMessageArea && this.onTextInput);
     // Select all not available in the thread pane or on playable media.
-    this.showItem("mailContext-selectall", !this.inThreadPane && !this.onPlayableMedia);
+    this.showItem(
+      "mailContext-selectall",
+      !this.inThreadPane && !this.onPlayableMedia
+    );
     this.showItem("mailContext-copyemail", this.onMailtoLink);
     this.showItem("mailContext-copylink", this.onLink && !this.onMailtoLink);
     this.showItem("mailContext-copyimage", this.onImage);
 
-    this.showItem("mailContext-composeemailto", this.onMailtoLink && !this.inThreadPane);
-    this.showItem("mailContext-addemail", this.onMailtoLink && !this.inThreadPane);
-
+    this.showItem(
+      "mailContext-composeemailto",
+      this.onMailtoLink && !this.inThreadPane
+    );
+    this.showItem(
+      "mailContext-addemail",
+      this.onMailtoLink && !this.inThreadPane
+    );
 
     let searchTheWeb = document.getElementById("mailContext-searchTheWeb");
-    this.showItem(searchTheWeb, !this.inThreadPane && !this.onPlayableMedia &&
-                  this.isContentSelected);
+    this.showItem(
+      searchTheWeb,
+      !this.inThreadPane && !this.onPlayableMedia && this.isContentSelected
+    );
 
     if (!searchTheWeb.hidden) {
-      let selection = document.commandDispatcher.focusedWindow.getSelection()
-                              .toString();
+      let selection = document.commandDispatcher.focusedWindow
+        .getSelection()
+        .toString();
 
       let bundle = document.getElementById("bundle_messenger");
       let key = "openSearch.label";
@@ -228,7 +267,8 @@ nsContextMenu.prototype = {
       }
 
       searchTheWeb.label = bundle.getFormattedString(key, [
-        Services.search.defaultEngine.name, abbrSelection,
+        Services.search.defaultEngine.name,
+        abbrSelection,
       ]);
       searchTheWeb.value = selection;
     }
@@ -241,8 +281,9 @@ nsContextMenu.prototype = {
     this.showItem("mailContext-media-mute", onMedia && !this.target.muted);
     this.showItem("mailContext-media-unmute", onMedia && this.target.muted);
     if (onMedia) {
-      let hasError = this.target.error != null ||
-                     this.target.networkState == this.target.NETWORK_NO_SOURCE;
+      let hasError =
+        this.target.error != null ||
+        this.target.networkState == this.target.NETWORK_NO_SOURCE;
       this.setItemAttr("mailContext-media-play", "disabled", hasError);
       this.setItemAttr("mailContext-media-pause", "disabled", hasError);
       this.setItemAttr("mailContext-media-mute", "disabled", hasError);
@@ -252,9 +293,15 @@ nsContextMenu.prototype = {
   initBrowserItems() {
     // Work out if we are a context menu on a special item e.g. an image, link
     // etc.
-    let notOnSpecialItem = !(this.inMessageArea || this.isContentSelected ||
-                             this.onCanvas || this.onLink || this.onImage ||
-                             this.onPlayableMedia || this.onTextInput);
+    let notOnSpecialItem = !(
+      this.inMessageArea ||
+      this.isContentSelected ||
+      this.onCanvas ||
+      this.onLink ||
+      this.onImage ||
+      this.onPlayableMedia ||
+      this.onTextInput
+    );
     // Ensure these commands are updated with their current status.
     if (notOnSpecialItem) {
       goUpdateCommand("cmd_stop");
@@ -266,23 +313,31 @@ nsContextMenu.prototype = {
     this.showItem("mailContext-reload", notOnSpecialItem);
 
     let loadedProtocol = "";
-    if (this.target && this.target.ownerGlobal.top.location)
+    if (this.target && this.target.ownerGlobal.top.location) {
       loadedProtocol = this.target.ownerGlobal.top.location.protocol;
+    }
 
     // Only show open in browser if we're not on a special item and we're not
     // on an about: or chrome: protocol - for these protocols the browser is
     // unlikely to show the same thing as we do (if at all), so therefore don't
     // offer the option.
-    this.showItem("mailContext-openInBrowser",
-                  notOnSpecialItem &&
-                  loadedProtocol &&
-                  loadedProtocol != "about:" && loadedProtocol != "chrome:");
+    this.showItem(
+      "mailContext-openInBrowser",
+      notOnSpecialItem &&
+        loadedProtocol &&
+        loadedProtocol != "about:" &&
+        loadedProtocol != "chrome:"
+    );
 
     // Only show mailContext-openLinkInBrowser if we're on a link and it isn't
     // a mailto link.
-    this.showItem("mailContext-openLinkInBrowser",
-                  this.onLink && !this.onMailtoLink &&
-                  this.linkProtocol != "about" && this.linkProtocol != "chrome");
+    this.showItem(
+      "mailContext-openLinkInBrowser",
+      this.onLink &&
+        !this.onMailtoLink &&
+        this.linkProtocol != "about" &&
+        this.linkProtocol != "chrome"
+    );
   },
   /* eslint-disable complexity */
   initMessageItems() {
@@ -290,24 +345,41 @@ nsContextMenu.prototype = {
     // items as this simplifies the logic below.
     if (!this.inMessageArea) {
       const messageTabSpecificItems = [
-        "mailContext-openNewWindow", "threadPaneContext-openNewTab",
-        "mailContext-openConversation", "mailContext-openContainingFolder",
-        "mailContext-archive", "mailContext-replySender",
-        "mailContext-replyNewsgroup", "mailContext-replyAll",
-        "mailContext-replyList", "mailContext-forward",
-        "mailContext-forwardAsMenu", "mailContext-multiForwardAsAttachment",
-        "mailContext-editAsNew", "mailContext-editDraftMsg",
-        "mailContext-newMsgFromTemplate", "mailContext-editTemplateMsg",
-        "mailContext-copyMessageUrl", "mailContext-moveMenu",
-        "mailContext-copyMenu", "mailContext-moveToFolderAgain",
-        "mailContext-ignoreThread", "mailContext-ignoreSubthread",
+        "mailContext-openNewWindow",
+        "threadPaneContext-openNewTab",
+        "mailContext-openConversation",
+        "mailContext-openContainingFolder",
+        "mailContext-archive",
+        "mailContext-replySender",
+        "mailContext-replyNewsgroup",
+        "mailContext-replyAll",
+        "mailContext-replyList",
+        "mailContext-forward",
+        "mailContext-forwardAsMenu",
+        "mailContext-multiForwardAsAttachment",
+        "mailContext-editAsNew",
+        "mailContext-editDraftMsg",
+        "mailContext-newMsgFromTemplate",
+        "mailContext-editTemplateMsg",
+        "mailContext-copyMessageUrl",
+        "mailContext-moveMenu",
+        "mailContext-copyMenu",
+        "mailContext-moveToFolderAgain",
+        "mailContext-ignoreThread",
+        "mailContext-ignoreSubthread",
         "mailContext-watchThread",
-        "mailContext-tags", "mailContext-mark", "mailContext-saveAs",
-        "mailContext-printpreview", "mailContext-print", "mailContext-delete",
-        "downloadSelected", "mailContext-reportPhishingURL",
+        "mailContext-tags",
+        "mailContext-mark",
+        "mailContext-saveAs",
+        "mailContext-printpreview",
+        "mailContext-print",
+        "mailContext-delete",
+        "downloadSelected",
+        "mailContext-reportPhishingURL",
       ];
-      for (let i = 0; i < messageTabSpecificItems.length; ++i)
+      for (let i = 0; i < messageTabSpecificItems.length; ++i) {
         this.showItem(messageTabSpecificItems[i], false);
+      }
       return;
     }
 
@@ -315,17 +387,25 @@ nsContextMenu.prototype = {
 
     // Show the Open in New Window and New Tab options if there is exactly one
     // message selected.
-    this.showItem("mailContext-openNewWindow",
-                  this.numSelectedMessages == 1 && this.inThreadPane);
-    this.showItem("threadPaneContext-openNewTab",
-                  this.numSelectedMessages == 1 && this.inThreadPane);
+    this.showItem(
+      "mailContext-openNewWindow",
+      this.numSelectedMessages == 1 && this.inThreadPane
+    );
+    this.showItem(
+      "threadPaneContext-openNewTab",
+      this.numSelectedMessages == 1 && this.inThreadPane
+    );
 
-    this.showItem("mailContext-openConversation",
-                  this.numSelectedMessages == 1 && this.inThreadPane &&
-                  gConversationOpener.isSelectedMessageIndexed());
-    this.showItem("mailContext-openContainingFolder",
-                  !gFolderDisplay.folderPaneVisible &&
-                  this.numSelectedMessages == 1);
+    this.showItem(
+      "mailContext-openConversation",
+      this.numSelectedMessages == 1 &&
+        this.inThreadPane &&
+        gConversationOpener.isSelectedMessageIndexed()
+    );
+    this.showItem(
+      "mailContext-openContainingFolder",
+      !gFolderDisplay.folderPaneVisible && this.numSelectedMessages == 1
+    );
 
     this.setSingleSelection("mailContext-replySender");
     this.setSingleSelection("mailContext-replyNewsgroup", this.isNewsgroup);
@@ -334,45 +414,59 @@ nsContextMenu.prototype = {
     this.setSingleSelection("mailContext-forward");
     this.setSingleSelection("mailContext-forwardAsMenu");
     this.setSingleSelection("mailContext-editAsNew");
-    this.setSingleSelection("mailContext-editDraftMsg",
-                            document.getElementById("cmd_editDraftMsg")
-                                    .getAttribute("hidden") != "true");
-    this.setSingleSelection("mailContext-newMsgFromTemplate",
-                            document.getElementById("cmd_newMsgFromTemplate")
-                                    .getAttribute("hidden") != "true");
-    this.setSingleSelection("mailContext-editTemplateMsg",
-                            document.getElementById("cmd_editTemplateMsg")
-                                    .getAttribute("hidden") != "true");
+    this.setSingleSelection(
+      "mailContext-editDraftMsg",
+      document.getElementById("cmd_editDraftMsg").getAttribute("hidden") !=
+        "true"
+    );
+    this.setSingleSelection(
+      "mailContext-newMsgFromTemplate",
+      document
+        .getElementById("cmd_newMsgFromTemplate")
+        .getAttribute("hidden") != "true"
+    );
+    this.setSingleSelection(
+      "mailContext-editTemplateMsg",
+      document.getElementById("cmd_editTemplateMsg").getAttribute("hidden") !=
+        "true"
+    );
 
-    this.showItem("mailContext-multiForwardAsAttachment",
-                  this.numSelectedMessages > 1 && this.inThreadPane &&
-                  !this.hideMailItems);
+    this.showItem(
+      "mailContext-multiForwardAsAttachment",
+      this.numSelectedMessages > 1 && this.inThreadPane && !this.hideMailItems
+    );
 
     this.setSingleSelection("mailContext-copyMessageUrl", this.isNewsgroup);
 
-    let msgModifyItems = this.numSelectedMessages > 0 && !this.hideMailItems &&
+    let msgModifyItems =
+      this.numSelectedMessages > 0 &&
+      !this.hideMailItems &&
       !this.onPlayableMedia &&
       !(this.numSelectedMessages == 1 && gMessageDisplay.isDummy);
     let canArchive = gFolderDisplay.canArchiveSelectedMessages;
 
-    this.showItem("mailContext-archive", canMove && msgModifyItems &&
-                                         canArchive);
+    this.showItem(
+      "mailContext-archive",
+      canMove && msgModifyItems && canArchive
+    );
 
     // Set up the move menu. We can't move from newsgroups.
-    this.showItem("mailContext-moveMenu",
-                  msgModifyItems && !this.isNewsgroup);
+    this.showItem("mailContext-moveMenu", msgModifyItems && !this.isNewsgroup);
 
     // disable move if we can't delete message(s) from this folder
     this.enableItem("mailContext-moveMenu", canMove && !this.onPlayableMedia);
 
     // Copy is available as long as something is selected.
-    let canCopy = msgModifyItems || (gMessageDisplay.isDummy &&
-                                     window.arguments[0].scheme == "file");
+    let canCopy =
+      msgModifyItems ||
+      (gMessageDisplay.isDummy && window.arguments[0].scheme == "file");
     this.showItem("mailContext-copyMenu", canCopy);
 
     this.showItem("mailContext-moveToFolderAgain", msgModifyItems);
     if (msgModifyItems) {
-      initMoveToFolderAgainMenu(document.getElementById("mailContext-moveToFolderAgain"));
+      initMoveToFolderAgainMenu(
+        document.getElementById("mailContext-moveToFolderAgain")
+      );
       goUpdateCommand("cmd_moveToFolderAgain");
     }
 
@@ -380,40 +474,54 @@ nsContextMenu.prototype = {
 
     this.showItem("mailContext-mark", msgModifyItems);
 
-    this.showItem("mailContext-ignoreThread", !this.inStandaloneWindow &&
-                                              this.numSelectedMessages >= 1 &&
-                                              !this.hideMailItems &&
-                                              !this.onPlayableMedia);
+    this.showItem(
+      "mailContext-ignoreThread",
+      !this.inStandaloneWindow &&
+        this.numSelectedMessages >= 1 &&
+        !this.hideMailItems &&
+        !this.onPlayableMedia
+    );
 
-    this.showItem("mailContext-ignoreSubthread", !this.inStandaloneWindow &&
-                                                 this.numSelectedMessages >= 1 &&
-                                                 !this.hideMailItems &&
-                                                 !this.onPlayableMedia);
+    this.showItem(
+      "mailContext-ignoreSubthread",
+      !this.inStandaloneWindow &&
+        this.numSelectedMessages >= 1 &&
+        !this.hideMailItems &&
+        !this.onPlayableMedia
+    );
 
-    this.showItem("mailContext-watchThread", !this.inStandaloneWindow &&
-                                             this.numSelectedMessages > 0 &&
-                                             !this.hideMailItems &&
-                                             !this.onPlayableMedia);
+    this.showItem(
+      "mailContext-watchThread",
+      !this.inStandaloneWindow &&
+        this.numSelectedMessages > 0 &&
+        !this.hideMailItems &&
+        !this.onPlayableMedia
+    );
 
     this.showItem("mailContext-afterWatchThread", !this.inStandaloneWindow);
 
-    this.showItem("mailContext-saveAs", this.numSelectedMessages > 0 &&
-                                        !this.hideMailItems &&
-                                        !gMessageDisplay.isDummy &&
-                                        !this.onPlayableMedia);
+    this.showItem(
+      "mailContext-saveAs",
+      this.numSelectedMessages > 0 &&
+        !this.hideMailItems &&
+        !gMessageDisplay.isDummy &&
+        !this.onPlayableMedia
+    );
 
-
-    if (AppConstants.platform == "macosx")
+    if (AppConstants.platform == "macosx") {
       this.showItem("mailContext-printpreview", false);
-    else
+    } else {
       this.setSingleSelection("mailContext-printpreview");
+    }
 
     // XXX Not quite modifying the message, but the same rules apply at the
     // moment as we can't print non-message content from the message pane yet.
     this.showItem("mailContext-print", msgModifyItems);
 
-    this.showItem("mailContext-delete",
-                  msgModifyItems && (this.isNewsgroup || canMove));
+    this.showItem(
+      "mailContext-delete",
+      msgModifyItems && (this.isNewsgroup || canMove)
+    );
 
     // This function is needed for the case where a folder is just loaded (while
     // there isn't a message loaded in the message pane), a right-click is done
@@ -421,25 +529,39 @@ nsContextMenu.prototype = {
     // Message' menu item.
     goUpdateCommand("cmd_delete");
 
-    this.showItem("downloadSelected",
-                  this.numSelectedMessages > 1 && !this.hideMailItems);
+    this.showItem(
+      "downloadSelected",
+      this.numSelectedMessages > 1 && !this.hideMailItems
+    );
 
-    this.showItem("mailContext-reportPhishingURL",
-                  !this.inThreadPane && this.onLink && !this.onMailtoLink);
+    this.showItem(
+      "mailContext-reportPhishingURL",
+      !this.inThreadPane && this.onLink && !this.onMailtoLink
+    );
   },
   /* eslint-enable complexity */
   initSeparators() {
     const mailContextSeparators = [
-      "mailContext-sep-open-browser", "mailContext-sep-link",
-      "mailContext-sep-open", "mailContext-sep-open2",
-      "mailContext-sep-reply", "paneContext-afterMove",
-      "mailContext-sep-afterTagAddNew", "mailContext-sep-afterTagRemoveAll",
-      "mailContext-sep-afterMarkAllRead", "mailContext-sep-afterMarkFlagged",
-      "mailContext-sep-afterMarkMenu", "mailContext-afterWatchThread",
-      "mailContext-sep-edit", "mailContext-sep-editTemplate",
-      "mailContext-sep-copy", "mailContext-sep-reportPhishing",
-      "mailContext-sep-undo", "mailContext-sep-clipboard",
-      "mailContext-spell-suggestions-separator", "mailContext-spell-separator",
+      "mailContext-sep-open-browser",
+      "mailContext-sep-link",
+      "mailContext-sep-open",
+      "mailContext-sep-open2",
+      "mailContext-sep-reply",
+      "paneContext-afterMove",
+      "mailContext-sep-afterTagAddNew",
+      "mailContext-sep-afterTagRemoveAll",
+      "mailContext-sep-afterMarkAllRead",
+      "mailContext-sep-afterMarkFlagged",
+      "mailContext-sep-afterMarkMenu",
+      "mailContext-afterWatchThread",
+      "mailContext-sep-edit",
+      "mailContext-sep-editTemplate",
+      "mailContext-sep-copy",
+      "mailContext-sep-reportPhishing",
+      "mailContext-sep-undo",
+      "mailContext-sep-clipboard",
+      "mailContext-spell-suggestions-separator",
+      "mailContext-spell-separator",
     ];
     mailContextSeparators.forEach(this.hideIfAppropriate, this);
 
@@ -471,27 +593,31 @@ nsContextMenu.prototype = {
         // The column header was clicked, show the column picker.
         let treecols = aNode.parentNode;
         let treeColPicker = treecols.querySelector("treecolpicker");
-        let popup = document.getAnonymousElementByAttribute(treeColPicker, "anonid", "popup");
+        let popup = document.getAnonymousElementByAttribute(
+          treeColPicker,
+          "anonid",
+          "popup"
+        );
         treeColPicker.buildPopup(popup);
         popup.openPopup(aNode, "before_start", 0, 0, true);
         this.shouldDisplay = false;
       }
       return;
     }
-    this.onImage        = false;
-    this.onLoadedImage  = false;
+    this.onImage = false;
+    this.onLoadedImage = false;
     this.onMetaDataItem = false;
-    this.onTextInput    = false;
+    this.onTextInput = false;
     this.onEditableArea = false;
-    this.imageURL       = "";
-    this.onLink         = false;
-    this.onVideo        = false;
-    this.onAudio        = false;
-    this.mediaURL       = "";
-    this.linkURL        = "";
-    this.linkURI        = null;
-    this.linkProtocol   = null;
-    this.onMathML       = false;
+    this.imageURL = "";
+    this.onLink = false;
+    this.onVideo = false;
+    this.onAudio = false;
+    this.mediaURL = "";
+    this.linkURL = "";
+    this.linkURI = null;
+    this.linkProtocol = null;
+    this.onMathML = false;
 
     this.target = aNode;
 
@@ -502,31 +628,46 @@ nsContextMenu.prototype = {
 
     // First, do checks for nodes that never have children.
     if (this.target.nodeType == Node.ELEMENT_NODE) {
-      if (this.target instanceof Ci.nsIImageLoadingContent &&
-          this.target.currentURI) {
+      if (
+        this.target instanceof Ci.nsIImageLoadingContent &&
+        this.target.currentURI
+      ) {
         this.onImage = true;
         this.onMetaDataItem = true;
 
-        var request = this.target.getRequest(Ci.nsIImageLoadingContent.CURRENT_REQUEST);
-        if (request && (request.imageStatus & request.STATUS_SIZE_AVAILABLE))
+        var request = this.target.getRequest(
+          Ci.nsIImageLoadingContent.CURRENT_REQUEST
+        );
+        if (request && request.imageStatus & request.STATUS_SIZE_AVAILABLE) {
           this.onLoadedImage = true;
+        }
 
         this.imageURL = this.target.currentURI.spec;
       } else if (this.target instanceof HTMLInputElement) {
         this.onTextInput = this.isTargetATextBox(this.target);
-      } else if (editFlags & (SpellCheckHelper.INPUT | SpellCheckHelper.TEXTAREA)) {
+      } else if (
+        editFlags &
+        (SpellCheckHelper.INPUT | SpellCheckHelper.TEXTAREA)
+      ) {
         if (!this.target.readOnly) {
           this.onEditableArea = true;
           gSpellChecker.init(this.target.editor);
-          gSpellChecker.initFromEvent(document.popupRangeParent, document.popupRangeOffset);
+          gSpellChecker.initFromEvent(
+            document.popupRangeParent,
+            document.popupRangeOffset
+          );
         }
-      } else if (editFlags & (SpellCheckHelper.CONTENTEDITABLE)) {
+      } else if (editFlags & SpellCheckHelper.CONTENTEDITABLE) {
         let targetWin = this.target.ownerGlobal;
-        let editingSession = targetWin.getInterface(Ci.nsIWebNavigation)
-                                      .QueryInterface(Ci.nsIInterfaceRequestor)
-                                      .getInterface(Ci.nsIEditingSession);
+        let editingSession = targetWin
+          .getInterface(Ci.nsIWebNavigation)
+          .QueryInterface(Ci.nsIInterfaceRequestor)
+          .getInterface(Ci.nsIEditingSession);
         gSpellChecker.init(editingSession.getEditorForWindow(targetWin));
-        gSpellChecker.initFromEvent(document.popupRangeParent, document.popupRangeOffset);
+        gSpellChecker.initFromEvent(
+          document.popupRangeParent,
+          document.popupRangeOffset
+        );
       } else if (this.target instanceof HTMLCanvasElement) {
         this.onCanvas = true;
       } else if (this.target instanceof HTMLVideoElement) {
@@ -537,7 +678,7 @@ nsContextMenu.prototype = {
         this.onAudio = true;
         this.onPlayableMedia = true;
         this.mediaURL = this.target.currentSrc || this.target.src;
-      // Browser supports background images here but we don't need to.
+        // Browser supports background images here but we don't need to.
       }
     }
 
@@ -548,11 +689,14 @@ nsContextMenu.prototype = {
     while (elem) {
       if (elem.nodeType == Node.ELEMENT_NODE) {
         // Link?
-        if (!this.onLink &&
-            ((elem instanceof HTMLAnchorElement && elem.href) ||
-             elem instanceof HTMLAreaElement && elem.href ||
-             elem instanceof HTMLLinkElement ||
-             elem.getAttributeNS("http://www.w3.org/1999/xlink", "type") == "simple")) {
+        if (
+          !this.onLink &&
+          ((elem instanceof HTMLAnchorElement && elem.href) ||
+            (elem instanceof HTMLAreaElement && elem.href) ||
+            elem instanceof HTMLLinkElement ||
+            elem.getAttributeNS("http://www.w3.org/1999/xlink", "type") ==
+              "simple")
+        ) {
           // Target is a link or a descendant of a link.
           this.onLink = true;
           this.onMetaDataItem = true;
@@ -561,7 +705,7 @@ nsContextMenu.prototype = {
           this.linkURL = this.getLinkURL();
           this.linkURI = this.getLinkURI();
           this.linkProtocol = this.getLinkProtocol();
-          this.onMailtoLink = (this.linkProtocol == "mailto");
+          this.onMailtoLink = this.linkProtocol == "mailto";
           this.onSaveableLink = this.isLinkSaveable();
         }
 
@@ -572,13 +716,13 @@ nsContextMenu.prototype = {
 
         // Metadata item?
         if (!this.onMetaDataItem) {
-          if ((elem instanceof HTMLQuoteElement && elem.cite) ||
-              (elem instanceof HTMLTableElement && elem.summary) ||
-              (elem instanceof HTMLModElement &&
-                (elem.cite || elem.dateTime)) ||
-              (elem instanceof HTMLElement &&
-                (elem.title || elem.lang)) ||
-              (elem.getAttributeNS(XMLNS, "lang"))) {
+          if (
+            (elem instanceof HTMLQuoteElement && elem.cite) ||
+            (elem instanceof HTMLTableElement && elem.summary) ||
+            (elem instanceof HTMLModElement && (elem.cite || elem.dateTime)) ||
+            (elem instanceof HTMLElement && (elem.title || elem.lang)) ||
+            elem.getAttributeNS(XMLNS, "lang")
+          ) {
             this.onMetaDataItem = true;
           }
         }
@@ -590,10 +734,13 @@ nsContextMenu.prototype = {
 
     // See if the user clicked on MathML.
     const NS_MathML = "http://www.w3.org/1998/Math/MathML";
-    if ((this.target.nodeType == Node.TEXT_NODE &&
-         this.target.parentNode.namespaceURI == NS_MathML) ||
-        (this.target.namespaceURI == NS_MathML))
+    if (
+      (this.target.nodeType == Node.TEXT_NODE &&
+        this.target.parentNode.namespaceURI == NS_MathML) ||
+      this.target.namespaceURI == NS_MathML
+    ) {
       this.onMathML = true;
+    }
   },
   /* eslint-enable complexity */
 
@@ -621,14 +768,14 @@ nsContextMenu.prototype = {
     }
 
     this.inThreadPane = this.popupNodeIsInThreadPane(aNode);
-    this.messagepaneIsBlank = (document.getElementById("messagepane")
-      .contentWindow.location.href == "about:blank");
+    this.messagepaneIsBlank =
+      document.getElementById("messagepane").contentWindow.location.href ==
+      "about:blank";
 
     this.numSelectedMessages = gFolderDisplay.selectedCount;
     this.isNewsgroup = gFolderDisplay.selectedMessageIsNews;
     // Don't show mail items for links/images, just show related items.
-    this.hideMailItems = !this.inThreadPane &&
-                         (this.onImage || this.onLink);
+    this.hideMailItems = !this.inThreadPane && (this.onImage || this.onLink);
   },
 
   /**
@@ -651,10 +798,12 @@ nsContextMenu.prototype = {
    */
   isLinkSaveable() {
     try {
-      const nsIScriptSecurityManager =
-        Ci.nsIScriptSecurityManager;
-      Services.scriptSecurityManager.checkLoadURIWithPrincipal(this.target.nodePrincipal,
-          this.linkURI, nsIScriptSecurityManager.STANDARD);
+      const nsIScriptSecurityManager = Ci.nsIScriptSecurityManager;
+      Services.scriptSecurityManager.checkLoadURIWithPrincipal(
+        this.target.nodePrincipal,
+        this.linkURI,
+        nsIScriptSecurityManager.STANDARD
+      );
     } catch (e) {
       // Don't save things we can't link to.
       return false;
@@ -662,11 +811,15 @@ nsContextMenu.prototype = {
 
     // We don't do the Right Thing for news/snews yet, so turn them off
     // until we do.
-    return this.linkProtocol && !(
-             this.linkProtocol == "mailto" ||
-             this.linkProtocol == "javascript" ||
-             this.linkProtocol == "news" ||
-             this.linkProtocol == "snews");
+    return (
+      this.linkProtocol &&
+      !(
+        this.linkProtocol == "mailto" ||
+        this.linkProtocol == "javascript" ||
+        this.linkProtocol == "news" ||
+        this.linkProtocol == "snews"
+      )
+    );
   },
 
   /**
@@ -707,13 +860,17 @@ nsContextMenu.prototype = {
     // Let's try to unescape it using a character set.
     try {
       var characterSet = this.target.ownerDocument.characterSet;
-      addresses = Services.textToSubURI.unEscapeURIForUI(characterSet, addresses);
+      addresses = Services.textToSubURI.unEscapeURIForUI(
+        characterSet,
+        addresses
+      );
     } catch (ex) {
       // Do nothing.
     }
 
-    var clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"]
-                      .getService(Ci.nsIClipboardHelper);
+    var clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(
+      Ci.nsIClipboardHelper
+    );
     clipboard.copyString(addresses);
   },
 
@@ -729,7 +886,10 @@ nsContextMenu.prototype = {
    *        true to show, false to hide
    */
   showItem(aItemOrId, aShow) {
-    var item = aItemOrId.constructor == String ? document.getElementById(aItemOrId) : aItemOrId;
+    var item =
+      aItemOrId.constructor == String
+        ? document.getElementById(aItemOrId)
+        : aItemOrId;
     item.hidden = !aShow;
   },
 
@@ -741,7 +901,10 @@ nsContextMenu.prototype = {
    * @param aEnabled   True to enable the element, false to disable.
    */
   enableItem(aItemOrId, aEnabled) {
-    var item = aItemOrId.constructor == String ? document.getElementById(aItemOrId) : aItemOrId;
+    var item =
+      aItemOrId.constructor == String
+        ? document.getElementById(aItemOrId)
+        : aItemOrId;
     item.disabled = !aEnabled;
   },
 
@@ -756,9 +919,14 @@ nsContextMenu.prototype = {
    *              the item no matter what messages are selected.
    */
   setSingleSelection(aID, aShow) {
-    let show = (aShow != undefined) ? aShow : true;
-    this.showItem(aID, this.numSelectedMessages == 1 && !this.hideMailItems &&
-                  show && !this.onPlayableMedia);
+    let show = aShow != undefined ? aShow : true;
+    this.showItem(
+      aID,
+      this.numSelectedMessages == 1 &&
+        !this.hideMailItems &&
+        show &&
+        !this.onPlayableMedia
+    );
     this.enableItem(aID, this.numSelectedMessages == 1);
   },
 
@@ -796,9 +964,9 @@ nsContextMenu.prototype = {
       return this.link.href;
     }
     var href = this.link.getAttributeNS("http://www.w3.org/1999/xlink", "href");
-    if (!href || (href.trim() == "")) {
-       // Without this we try to save as the current doc,
-       // for example, HTML case also throws if empty.
+    if (!href || href.trim() == "") {
+      // Without this we try to save as the current doc,
+      // for example, HTML case also throws if empty.
       throw new Error("Empty href");
     }
     href = this.makeURLAbsolute(this.link.baseURI, href);
@@ -823,8 +991,9 @@ nsContextMenu.prototype = {
    * @return a scheme, possibly undefined, or null if there's no linkURI
    */
   getLinkProtocol() {
-    if (this.linkURI)
-      return this.linkURI.scheme; // can be |undefined|
+    if (this.linkURI) {
+      return this.linkURI.scheme;
+    } // can be |undefined|
 
     return null;
   },
@@ -835,15 +1004,18 @@ nsContextMenu.prototype = {
    */
   linkText() {
     var text = gatherTextUnder(this.link);
-    if (!text || (text.trim() == "")) {
+    if (!text || text.trim() == "") {
       text = this.link.getAttribute("title");
-      if (!text || (text.trim() == "")) {
+      if (!text || text.trim() == "") {
         text = this.link.getAttribute("alt");
-        if (!text || (text.trim() == "")) {
+        if (!text || text.trim() == "") {
           if (this.link.href) {
             text = this.link.href;
           } else {
-            text = this.link.getAttributeNS("http://www.w3.org/1999/xlink", "href");
+            text = this.link.getAttributeNS(
+              "http://www.w3.org/1999/xlink",
+              "href"
+            );
             if (text && !(text.trim() == "")) {
               text = this.makeURLAbsolute(this.link.baseURI, text);
             }
@@ -871,8 +1043,9 @@ nsContextMenu.prototype = {
   popupNodeIsInThreadPane(aNode) {
     var node = aNode;
     while (node) {
-      if (node.id == "threadTree")
+      if (node.id == "threadTree") {
         return true;
+      }
 
       node = node.parentNode;
     }
@@ -889,7 +1062,7 @@ nsContextMenu.prototype = {
    */
   makeURLAbsolute(aBase, aUrl) {
     // Construct nsIURL.
-    var baseURI  = Services.io.newURI(aBase);
+    var baseURI = Services.io.newURI(aBase);
 
     return Services.io.newURI(baseURI.resolve(aUrl)).spec;
   },
@@ -901,10 +1074,11 @@ nsContextMenu.prototype = {
    * @return true for textboxes, false for other elements
    */
   isTargetATextBox(aNode) {
-    if (aNode instanceof HTMLInputElement)
-      return (aNode.type == "text" || aNode.type == "password");
+    if (aNode instanceof HTMLInputElement) {
+      return aNode.type == "text" || aNode.type == "password";
+    }
 
-    return (aNode instanceof HTMLTextAreaElement);
+    return aNode instanceof HTMLTextAreaElement;
   },
 
   /**
@@ -929,8 +1103,9 @@ nsContextMenu.prototype = {
     if (separator) {
       var sibling = separator.previousSibling;
       while (sibling && sibling.localName != "menuseparator") {
-        if (sibling.getAttribute("hidden") != "true")
+        if (sibling.getAttribute("hidden") != "true") {
           return true;
+        }
         sibling = sibling.previousSibling;
       }
     }
@@ -960,24 +1135,32 @@ nsContextMenu.prototype = {
 
   openInBrowser() {
     let url = this.target.ownerGlobal.top.location.href;
-    PlacesUtils.history.insert({
-      url,
-      visits: [{
-        date: new Date(),
-      }],
-    }).catch(Cu.reportError);
+    PlacesUtils.history
+      .insert({
+        url,
+        visits: [
+          {
+            date: new Date(),
+          },
+        ],
+      })
+      .catch(Cu.reportError);
     Cc["@mozilla.org/uriloader/external-protocol-service;1"]
       .getService(Ci.nsIExternalProtocolService)
       .loadURI(Services.io.newURI(url));
   },
 
   openLinkInBrowser() {
-    PlacesUtils.history.insert({
-      url: this.linkURL,
-      visits: [{
-        date: new Date(),
-      }],
-    }).catch(Cu.reportError);
+    PlacesUtils.history
+      .insert({
+        url: this.linkURL,
+        visits: [
+          {
+            date: new Date(),
+          },
+        ],
+      })
+      .catch(Cu.reportError);
     Cc["@mozilla.org/uriloader/external-protocol-service;1"]
       .getService(Ci.nsIExternalProtocolService)
       .loadURI(this.linkURI);

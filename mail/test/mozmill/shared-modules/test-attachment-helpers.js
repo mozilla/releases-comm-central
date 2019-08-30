@@ -8,16 +8,20 @@ var MODULE_NAME = "attachment-helpers";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["mock-object-helpers"];
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
 var gMockFilePickReg;
 
 function setupModule(module) {
   let moh = collector.getModule("mock-object-helpers");
 
-  gMockFilePickReg = new moh.MockObjectReplacer("@mozilla.org/filepicker;1",
-                                                  MockFilePickerConstructor);
+  gMockFilePickReg = new moh.MockObjectReplacer(
+    "@mozilla.org/filepicker;1",
+    MockFilePickerConstructor
+  );
 }
 
 function installInto(module) {
@@ -54,8 +58,9 @@ var gMockFilePicker = {
   },
 
   get file() {
-    if (this.returnFiles.length >= 1)
+    if (this.returnFiles.length >= 1) {
       return this.returnFiles[0];
+    }
     return null;
   },
 
@@ -76,21 +81,17 @@ var gMockFilePicker = {
     };
   },
 
-  init: function gMFP_init(aParent, aTitle, aMode) {
-  },
+  init: function gMFP_init(aParent, aTitle, aMode) {},
 
-  appendFilters: function gMFP_appendFilters(aFilterMask) {
-  },
+  appendFilters: function gMFP_appendFilters(aFilterMask) {},
 
-  appendFilter: function gMFP_appendFilter(aTitle, aFilter) {
-  },
+  appendFilter: function gMFP_appendFilter(aTitle, aFilter) {},
 
   open(aFilePickerShownCallback) {
     aFilePickerShownCallback.done(Ci.nsIFilePicker.returnOK);
   },
 
-  set defaultString(aVal) {
-  },
+  set defaultString(aVal) {},
 };
 
 /**
@@ -102,21 +103,27 @@ var gMockFilePicker = {
  * @return an object suitable for passing as the |bodyPart| for create_message
  */
 function create_body_part(body, attachments, boundary) {
-  if (!boundary)
+  if (!boundary) {
     boundary = "------------CHOPCHOP";
+  }
 
   return {
-    contentTypeHeaderValue:
-      "multipart/mixed;\r\n boundary=\"" + boundary + "\"",
+    contentTypeHeaderValue: 'multipart/mixed;\r\n boundary="' + boundary + '"',
     toMessageString() {
-      let str = "This is a multi-part message in MIME format.\r\n" +
-                "--" + boundary + "\r\n" +
-                "Content-Type: text/plain; charset=ISO-8859-1; " +
-                  "format=flowed\r\n" +
-                "Content-Transfer-Encoding: 7bit\r\n\r\n" + body + "\r\n\r\n";
+      let str =
+        "This is a multi-part message in MIME format.\r\n" +
+        "--" +
+        boundary +
+        "\r\n" +
+        "Content-Type: text/plain; charset=ISO-8859-1; " +
+        "format=flowed\r\n" +
+        "Content-Transfer-Encoding: 7bit\r\n\r\n" +
+        body +
+        "\r\n\r\n";
 
-      for (let i = 0; i < attachments.length; i++)
+      for (let i = 0; i < attachments.length; i++) {
         str += "--" + boundary + "\r\n" + attachments[i] + "\r\n";
+      }
 
       str += "--" + boundary + "--";
       return str;
@@ -125,13 +132,21 @@ function create_body_part(body, attachments, boundary) {
 }
 
 function help_create_detached_deleted_attachment(filename, type) {
-  return "You deleted an attachment from this message. The original MIME " +
-           "headers for the attachment were:\r\n" +
-         "Content-Type: " + type + ";\r\n" +
-         " name=\"" + filename + "\"\r\n" +
-         "Content-Transfer-Encoding: 7bit\r\n" +
-         "Content-Disposition: attachment;\r\n" +
-         " filename=\"" + filename + "\"\r\n\r\n";
+  return (
+    "You deleted an attachment from this message. The original MIME " +
+    "headers for the attachment were:\r\n" +
+    "Content-Type: " +
+    type +
+    ";\r\n" +
+    ' name="' +
+    filename +
+    '"\r\n' +
+    "Content-Transfer-Encoding: 7bit\r\n" +
+    "Content-Disposition: attachment;\r\n" +
+    ' filename="' +
+    filename +
+    '"\r\n\r\n'
+  );
 }
 
 /**
@@ -142,17 +157,24 @@ function help_create_detached_deleted_attachment(filename, type) {
  * @return a string representing the attachment
  */
 function create_detached_attachment(file, type) {
-  let fileHandler = Services.io.getProtocolHandler("file")
-                            .QueryInterface(Ci.nsIFileProtocolHandler);
+  let fileHandler = Services.io
+    .getProtocolHandler("file")
+    .QueryInterface(Ci.nsIFileProtocolHandler);
   let url = fileHandler.getURLSpecFromFile(file);
   let filename = file.leafName;
 
-  let str = "Content-Type: text/plain;\r\n name=\"" + filename + "\"\r\n" +
-            "Content-Disposition: attachment; filename=\"" + filename +
-              "\"\r\n" +
-            "X-Mozilla-External-Attachment-URL: " + url + "\r\n" +
-            "X-Mozilla-Altered: AttachmentDetached; date=\"" +
-              "Wed Oct 06 17:28:24 2010\"\r\n\r\n";
+  let str =
+    'Content-Type: text/plain;\r\n name="' +
+    filename +
+    '"\r\n' +
+    'Content-Disposition: attachment; filename="' +
+    filename +
+    '"\r\n' +
+    "X-Mozilla-External-Attachment-URL: " +
+    url +
+    "\r\n" +
+    'X-Mozilla-Altered: AttachmentDetached; date="' +
+    'Wed Oct 06 17:28:24 2010"\r\n\r\n';
 
   str += help_create_detached_deleted_attachment(filename, type);
   return str;
@@ -166,13 +188,16 @@ function create_detached_attachment(file, type) {
  * @return a string representing the attachment
  */
 function create_deleted_attachment(filename, type) {
-  let str = "Content-Type: text/x-moz-deleted; name=\"Deleted: " + filename +
-              "\"\r\n" +
-            "Content-Transfer-Encoding: 8bit\r\n" +
-            "Content-Disposition: inline; filename=\"Deleted: " + filename +
-              "\"\r\n" +
-            "X-Mozilla-Altered: AttachmentDeleted; date=\"" +
-              "Wed Oct 06 17:28:24 2010\"\r\n\r\n";
+  let str =
+    'Content-Type: text/x-moz-deleted; name="Deleted: ' +
+    filename +
+    '"\r\n' +
+    "Content-Transfer-Encoding: 8bit\r\n" +
+    'Content-Disposition: inline; filename="Deleted: ' +
+    filename +
+    '"\r\n' +
+    'X-Mozilla-Altered: AttachmentDeleted; date="' +
+    'Wed Oct 06 17:28:24 2010"\r\n\r\n';
   str += help_create_detached_deleted_attachment(filename, type);
   return str;
 }
@@ -187,11 +212,21 @@ function create_deleted_attachment(filename, type) {
  * @return a string representing the attachment
  */
 function create_enclosure_attachment(filename, type, url, size) {
-  return "Content-Type: " + type + "; name=\"" + filename +
-           (size ? "\"; size=" + size : "\"") + "\r\n" +
-         "X-Mozilla-External-Attachment-URL: " + url + "\r\n" +
-         "Content-Disposition: attachment; filename=\"" + filename + "\"\r\n\r\n" +
-         "This MIME attachment is stored separately from the message.";
+  return (
+    "Content-Type: " +
+    type +
+    '; name="' +
+    filename +
+    (size ? '"; size=' + size : '"') +
+    "\r\n" +
+    "X-Mozilla-External-Attachment-URL: " +
+    url +
+    "\r\n" +
+    'Content-Disposition: attachment; filename="' +
+    filename +
+    '"\r\n\r\n' +
+    "This MIME attachment is stored separately from the message."
+  );
 }
 
 /**

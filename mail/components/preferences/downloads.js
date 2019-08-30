@@ -5,8 +5,8 @@
 
 /* import-globals-from preferences.js */
 
-var {Downloads} = ChromeUtils.import("resource://gre/modules/Downloads.jsm");
-var {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+var { Downloads } = ChromeUtils.import("resource://gre/modules/Downloads.jsm");
+var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 
 Preferences.addAll([
   { id: "browser.download.useDownloadDir", type: "bool" },
@@ -18,15 +18,15 @@ Preferences.addAll([
 
 var gDownloadDirSection = {
   async chooseFolder() {
-    var fp = Cc["@mozilla.org/filepicker;1"]
-               .createInstance(Ci.nsIFilePicker);
+    var fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
     var bundlePreferences = document.getElementById("bundlePreferences");
     var title = bundlePreferences.getString("chooseAttachmentsFolderTitle");
     fp.init(window, title, Ci.nsIFilePicker.modeGetFolder);
 
     var customDirPref = Preferences.get("browser.download.dir");
-    if (customDirPref.value)
+    if (customDirPref.value) {
       fp.displayDirectory = customDirPref.value;
+    }
     fp.appendFilters(Ci.nsIFilePicker.filterAll);
 
     let rv = await new Promise(resolve => fp.open(resolve));
@@ -52,19 +52,20 @@ var gDownloadDirSection = {
   },
 
   async _fileToIndex(aFile) {
-    if (!aFile || aFile.equals(await this._getDownloadsFolder("Desktop")))
+    if (!aFile || aFile.equals(await this._getDownloadsFolder("Desktop"))) {
       return 0;
-    else if (aFile.equals(await this._getDownloadsFolder("Downloads")))
+    } else if (aFile.equals(await this._getDownloadsFolder("Downloads"))) {
       return 1;
+    }
     return 2;
   },
 
   async _indexToFile(aIndex) {
     switch (aIndex) {
-    case 0:
-      return this._getDownloadsFolder("Desktop");
-    case 1:
-      return this._getDownloadsFolder("Downloads");
+      case 0:
+        return this._getDownloadsFolder("Desktop");
+      case 1:
+        return this._getDownloadsFolder("Downloads");
     }
     var customDirPref = Preferences.get("browser.download.dir");
     return customDirPref.value;
@@ -78,7 +79,9 @@ var gDownloadDirSection = {
         let downloadsDir = await Downloads.getSystemDownloadsDirectory();
         return new FileUtils.File(downloadsDir);
     }
-    throw new Error("ASSERTION FAILED: folder type should be 'Desktop' or 'Downloads'");
+    throw new Error(
+      "ASSERTION FAILED: folder type should be 'Desktop' or 'Downloads'"
+    );
   },
 
   async readDownloadDirPref() {
@@ -87,32 +90,44 @@ var gDownloadDirSection = {
     var downloadFolder = document.getElementById("downloadFolder");
 
     var customDirPref = Preferences.get("browser.download.dir");
-    var customIndex = customDirPref.value ? await this._fileToIndex(customDirPref.value) : 0;
-    if (customIndex == 0)
+    var customIndex = customDirPref.value
+      ? await this._fileToIndex(customDirPref.value)
+      : 0;
+    if (customIndex == 0) {
       downloadFolder.value = bundlePreferences.getString("desktopFolderName");
-    else if (customIndex == 1)
-      downloadFolder.value = bundlePreferences.getString("myDownloadsFolderName");
-    else
-      downloadFolder.value = customDirPref.value ? customDirPref.value.path : "";
+    } else if (customIndex == 1) {
+      downloadFolder.value = bundlePreferences.getString(
+        "myDownloadsFolderName"
+      );
+    } else {
+      downloadFolder.value = customDirPref.value
+        ? customDirPref.value.path
+        : "";
+    }
 
     var currentDirPref = Preferences.get("browser.download.downloadDir");
-    var downloadDir = currentDirPref.value || await this._indexToFile(folderListPref.value);
-    let urlSpec = Services.io.getProtocolHandler("file")
+    var downloadDir =
+      currentDirPref.value || (await this._indexToFile(folderListPref.value));
+    let urlSpec = Services.io
+      .getProtocolHandler("file")
       .QueryInterface(Ci.nsIFileProtocolHandler)
       .getURLSpecFromFile(downloadDir);
 
-    downloadFolder.style.backgroundImage = "url(moz-icon://" + urlSpec + "?size=16)";
+    downloadFolder.style.backgroundImage =
+      "url(moz-icon://" + urlSpec + "?size=16)";
 
     return undefined;
   },
 };
 
 Preferences.get("browser.download.dir").on(
-  "change", gDownloadDirSection.readDownloadDirPref.bind(gDownloadDirSection)
+  "change",
+  gDownloadDirSection.readDownloadDirPref.bind(gDownloadDirSection)
 );
 
-document.getElementById("paneCompose")
-        .addEventListener("paneload", () => {
-          Preferences.addSyncFromPrefListener(document.getElementById("saveWhere"),
-            () => gDownloadDirSection.onReadUseDownloadDir());
-        });
+document.getElementById("paneCompose").addEventListener("paneload", () => {
+  Preferences.addSyncFromPrefListener(
+    document.getElementById("saveWhere"),
+    () => gDownloadDirSection.onReadUseDownloadDir()
+  );
+});

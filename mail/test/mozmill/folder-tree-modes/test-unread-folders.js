@@ -33,14 +33,15 @@ function setupModule(module) {
   inboxSubfolder = inboxFolder.getChildNamed("UnreadFoldersA");
 
   trashFolder = inboxFolder.server.rootFolder.getFolderWithFlags(
-    Ci.nsMsgFolderFlags.Trash);
+    Ci.nsMsgFolderFlags.Trash
+  );
   trashFolder.createSubfolder("UnreadFoldersB", null);
   trashSubfolder = trashFolder.getChildNamed("UnreadFoldersB");
 
   // The message itself doesn't really matter, as long as there's at least one
   // in the folder.
-  [ inboxSet ] = make_new_sets_in_folder(inboxFolder, [{count: 1}]);
-  make_new_sets_in_folder(inboxSubfolder, [{count: 1}]);
+  [inboxSet] = make_new_sets_in_folder(inboxFolder, [{ count: 1 }]);
+  make_new_sets_in_folder(inboxSubfolder, [{ count: 1 }]);
 }
 
 /**
@@ -71,11 +72,14 @@ function test_folder_population() {
  * change the selected folder in unread folders mode.
  */
 function test_newly_added_folder() {
-  let [newSet] = make_new_sets_in_folder(trashFolder, [{count: 1}]);
+  let [newSet] = make_new_sets_in_folder(trashFolder, [{ count: 1 }]);
   assert_folder_visible(trashFolder);
-  if (mc.folderTreeView.getSelectedFolders()[0] != inboxFolder)
-    throw new Error("Inbox folder should be selected after new unread folder" +
-                    " added to unread view");
+  if (mc.folderTreeView.getSelectedFolders()[0] != inboxFolder) {
+    throw new Error(
+      "Inbox folder should be selected after new unread folder" +
+        " added to unread view"
+    );
+  }
   delete_message_set(newSet);
 }
 

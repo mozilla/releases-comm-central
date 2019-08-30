@@ -20,10 +20,14 @@ var MODULE_REQUIRES = [
   "prompt-helpers",
 ];
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 
 var user = {
   name: "Yamato Nadeshiko",
@@ -48,8 +52,9 @@ function remove_account_internal(amc, aAccount, aOutgoing) {
     let serverId = aAccount.incomingServer.serverURI;
     MailServices.accounts.removeAccount(aAccount);
     aAccount = null;
-    if (serverId in win.accountArray)
+    if (serverId in win.accountArray) {
       delete win.accountArray[serverId];
+    }
     win.selectServer(null, null);
 
     // Remove the outgoing server
@@ -87,9 +92,12 @@ function test_mail_account_setup() {
     awc.click(awc.eid("next_button"));
 
     // XXX: This should probably use a notification, once we fix bug 561143.
-    awc.waitFor(() => awc.window.gEmailConfigWizard._currentConfig != null,
-                "Timeout waiting for current config to become non-null",
-                8000, 600);
+    awc.waitFor(
+      () => awc.window.gEmailConfigWizard._currentConfig != null,
+      "Timeout waiting for current config to become non-null",
+      8000,
+      600
+    );
 
     // Register the prompt service to handle the confirm() dialog
     gMockPromptService.register();
@@ -110,8 +118,10 @@ function test_mail_account_setup() {
 }
 
 function subtest_verify_account(amc) {
-  amc.waitFor(() => amc.window.currentAccount != null,
-              "Timeout waiting for currentAccount to become non-null");
+  amc.waitFor(
+    () => amc.window.currentAccount != null,
+    "Timeout waiting for currentAccount to become non-null"
+  );
   let account = amc.window.currentAccount;
   let identity = account.defaultIdentity;
   let incoming = account.incomingServer;
@@ -119,18 +129,22 @@ function subtest_verify_account(amc) {
 
   let config = {
     "incoming server username": {
-      actual: incoming.username, expected: user.email.split("@")[0],
+      actual: incoming.username,
+      expected: user.email.split("@")[0],
     },
     "outgoing server username": {
-      actual: outgoing.username, expected: user.email,
+      actual: outgoing.username,
+      expected: user.email,
     },
     "incoming server hostname": {
       // Note: N in the hostName is uppercase
-      actual: incoming.hostName, expected: user.incomingHost,
+      actual: incoming.hostName,
+      expected: user.incomingHost,
     },
     "outgoing server hostname": {
       // And this is lowercase
-      actual: outgoing.hostname, expected: user.outgoingHost,
+      actual: outgoing.hostname,
+      expected: user.outgoingHost,
     },
     "user real name": { actual: identity.fullName, expected: user.name },
     "user email address": { actual: identity.email, expected: user.email },
@@ -139,8 +153,15 @@ function subtest_verify_account(amc) {
   try {
     for (let i in config) {
       if (config[i].actual != config[i].expected) {
-        throw new Error("Configured " + i + " is " + config[i].actual +
-                        ". It should be " + config[i].expected + ".");
+        throw new Error(
+          "Configured " +
+            i +
+            " is " +
+            config[i].actual +
+            ". It should be " +
+            config[i].expected +
+            "."
+        );
       }
     }
   } finally {
@@ -181,23 +202,41 @@ function test_bad_password_uses_old_settings() {
       // Load the autoconfig file from http://localhost:433**/autoconfig/example.com
       awc.e("next_button").click();
 
-      awc.waitFor(function() { return !this.disabled && !this.hidden; },
-                  "Timeout waiting for create button to be visible and active",
-                  8000, 600, awc.e("create_button"));
+      awc.waitFor(
+        function() {
+          return !this.disabled && !this.hidden;
+        },
+        "Timeout waiting for create button to be visible and active",
+        8000,
+        600,
+        awc.e("create_button")
+      );
       awc.e("create_button").click();
 
-      awc.waitFor(function() { return !this.disabled; },
-                  "Timeout waiting for create button to be visible and active",
-                  8000, 600, awc.e("create_button"));
+      awc.waitFor(
+        function() {
+          return !this.disabled;
+        },
+        "Timeout waiting for create button to be visible and active",
+        8000,
+        600,
+        awc.e("create_button")
+      );
       awc.e("create_button").click();
       awc.e("manual-edit_button").click();
 
       // Make sure all the values are the same as in the user object.
       awc.sleep(1000);
-      assert_equals(awc.e("outgoing_hostname").value, user.outgoingHost,
-                    "Outgoing server changed!");
-      assert_equals(awc.e("incoming_hostname").value, user.incomingHost,
-                    "incoming server changed!");
+      assert_equals(
+        awc.e("outgoing_hostname").value,
+        user.outgoingHost,
+        "Outgoing server changed!"
+      );
+      assert_equals(
+        awc.e("incoming_hostname").value,
+        user.incomingHost,
+        "incoming server changed!"
+      );
     } finally {
       // Clean up
       Services.prefs.clearUserPref(pref_name);
@@ -217,8 +256,10 @@ function test_remember_password() {
  */
 function remember_password_test(aPrefValue) {
   // save the pref for backup purpose
-  let rememberSignons_pref_save =
-      Services.prefs.getBoolPref("signon.rememberSignons", true);
+  let rememberSignons_pref_save = Services.prefs.getBoolPref(
+    "signon.rememberSignons",
+    true
+  );
 
   Services.prefs.setBoolPref("signon.rememberSignons", aPrefValue);
 
@@ -227,8 +268,10 @@ function remember_password_test(aPrefValue) {
   open_mail_account_setup_wizard(function(awc) {
     try {
       let password = new elementslib.ID(awc.window.document, "password");
-      let rememberPassword =
-          new elementslib.ID(awc.window.document, "remember_password");
+      let rememberPassword = new elementslib.ID(
+        awc.window.document,
+        "remember_password"
+      );
 
       // type something in the password field
       awc.e("password").focus();
@@ -245,11 +288,13 @@ function remember_password_test(aPrefValue) {
       delete_all_existing(awc, password);
 
       // restore the saved signon.rememberSignons value
-      Services.prefs.setBoolPref("signon.rememberSignons", rememberSignons_pref_save);
+      Services.prefs.setBoolPref(
+        "signon.rememberSignons",
+        rememberSignons_pref_save
+      );
     } finally {
       // close the wizard
       awc.e("cancel_button").click();
     }
   });
 }
-

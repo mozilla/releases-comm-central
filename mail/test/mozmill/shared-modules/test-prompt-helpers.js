@@ -8,8 +8,10 @@ var MODULE_NAME = "prompt-helpers";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["mock-object-helpers"];
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
 var kMockPromptServiceName = "Mock Prompt Service";
 var kPromptServiceContractID = "@mozilla.org/embedcomp/prompt-service;1";
@@ -19,8 +21,10 @@ var gMockAuthPromptReg;
 
 function setupModule() {
   let moh = collector.getModule("mock-object-helpers");
-  gMockAuthPromptReg = new moh.MockObjectReplacer("@mozilla.org/prompter;1",
-                                                  MockAuthPromptFactoryConstructor);
+  gMockAuthPromptReg = new moh.MockObjectReplacer(
+    "@mozilla.org/prompter;1",
+    MockAuthPromptFactoryConstructor
+  );
 }
 
 function installInto(module) {
@@ -42,7 +46,6 @@ var gMockAuthPromptFactory = {
     return gMockAuthPrompt.QueryInterface(aIID);
   },
 };
-
 
 var gMockAuthPrompt = {
   password: "",
@@ -85,8 +88,17 @@ var gMockPromptService = {
     return this._will_return;
   },
 
-  confirmEx(aParent, aDialogTitle, aText, aButtonFlags, aButton0Title, aButton1Title,
-            aButton2Title, aCheckMsg, aCheckState) {
+  confirmEx(
+    aParent,
+    aDialogTitle,
+    aText,
+    aButtonFlags,
+    aButton0Title,
+    aButton1Title,
+    aButton2Title,
+    aCheckMsg,
+    aCheckState
+  ) {
     this._promptState = {
       method: "confirmEx",
       parent: aParent,
@@ -118,8 +130,9 @@ var gMockPromptService = {
 
     this.fireCb();
 
-    if (this._inout_value != null)
+    if (this._inout_value != null) {
       aValue.value = this._inout_value;
+    }
 
     return this._will_return;
   },
@@ -145,8 +158,9 @@ var gMockPromptService = {
   },
 
   fireCb() {
-    if (typeof(this._promptCb) == "function")
+    if (typeof this._promptCb == "function") {
       this._promptCb.call();
+    }
   },
 
   /* Wipes out the prompt state and any return values.
@@ -168,23 +182,30 @@ var gMockPromptService = {
   CID: Components.ID("{404ebfa2-d8f4-4c94-8416-e65a55f9df5b}"),
 
   get registrar() {
-     delete this.registrar;
-     return this.registrar =
-       Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
-   },
+    delete this.registrar;
+    return (this.registrar = Components.manager.QueryInterface(
+      Ci.nsIComponentRegistrar
+    ));
+  },
 
   /* Registers the Mock Prompt Service, and stores the original Prompt Service.
    */
   register() {
     if (!this.originalCID) {
-      void Components.manager.getClassObject(Cc[kPromptServiceContractID],
-                                             Ci.nsIFactory);
+      void Components.manager.getClassObject(
+        Cc[kPromptServiceContractID],
+        Ci.nsIFactory
+      );
 
-      this.originalCID = this.registrar.contractIDToCID(kPromptServiceContractID);
-      this.registrar.registerFactory(this.CID,
-                                     kMockPromptServiceName,
-                                     kPromptServiceContractID,
-                                     gMockPromptServiceFactory);
+      this.originalCID = this.registrar.contractIDToCID(
+        kPromptServiceContractID
+      );
+      this.registrar.registerFactory(
+        this.CID,
+        kMockPromptServiceName,
+        kPromptServiceContractID,
+        gMockPromptServiceFactory
+      );
       this._resetServicesPrompt();
     }
   },
@@ -197,10 +218,12 @@ var gMockPromptService = {
       // Unregister the mock.
       this.registrar.unregisterFactory(this.CID, gMockPromptServiceFactory);
 
-      this.registrar.registerFactory(this.originalCID,
-                                     kPromptServiceName,
-                                     kPromptServiceContractID,
-                                     null);
+      this.registrar.registerFactory(
+        this.originalCID,
+        kPromptServiceName,
+        kPromptServiceContractID,
+        null
+      );
 
       delete this.originalCID;
       this._resetServicesPrompt();
@@ -208,19 +231,24 @@ var gMockPromptService = {
   },
 
   _resetServicesPrompt() {
-    XPCOMUtils.defineLazyServiceGetter(Services, "prompt",
-                                       kPromptServiceContractID,
-                                       "nsIPromptService");
+    XPCOMUtils.defineLazyServiceGetter(
+      Services,
+      "prompt",
+      kPromptServiceContractID,
+      "nsIPromptService"
+    );
   },
 };
 
 var gMockPromptServiceFactory = {
   createInstance(aOuter, aIID) {
-    if (aOuter != null)
+    if (aOuter != null) {
       throw Cr.NS_ERROR_NO_AGGREGATION;
+    }
 
-    if (!aIID.equals(Ci.nsIPromptService))
+    if (!aIID.equals(Ci.nsIPromptService)) {
       throw Cr.NS_ERROR_NO_INTERFACE;
+    }
 
     return gMockPromptService;
   },

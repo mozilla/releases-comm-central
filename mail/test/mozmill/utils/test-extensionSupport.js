@@ -12,9 +12,15 @@
 
 var MODULE_NAME = "test-extensionSupport";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "address-book-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "compose-helpers",
+  "address-book-helpers",
+];
 
-var {ExtensionSupport} = ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
+var { ExtensionSupport } = ChromeUtils.import(
+  "resource:///modules/ExtensionSupport.jsm"
+);
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
@@ -22,8 +28,7 @@ function setupModule(module) {
   }
 }
 
-function teardownModule(module) {
-}
+function teardownModule(module) {}
 
 /**
  * Bug 1450288
@@ -45,30 +50,39 @@ function test_windowListeners() {
   }
 
   function addonCount(aAddon, aEvent) {
-    if (!addonRunCount[aEvent].has(aAddon))
+    if (!addonRunCount[aEvent].has(aAddon)) {
       return 0;
+    }
 
     return addonRunCount[aEvent].get(aAddon);
   }
 
   // Extension listening to all windows and all events.
-  assert_true(ExtensionSupport.registerWindowListener(
-    "test-addon1",
-    {
-      onLoadWindow() { addonListener("test-addon1", "load"); },
-      onUnloadWindow() { addonListener("test-addon1", "unload"); },
+  assert_true(
+    ExtensionSupport.registerWindowListener("test-addon1", {
+      onLoadWindow() {
+        addonListener("test-addon1", "load");
+      },
+      onUnloadWindow() {
+        addonListener("test-addon1", "unload");
+      },
     })
   );
 
   assert_equals(addonCount("test-addon1", "load"), 1);
 
   // Extension listening to compose window only.
-  assert_true(ExtensionSupport.registerWindowListener(
-    "test-addon2",
-    {
-      chromeURLs: [ "chrome://messenger/content/messengercompose/messengercompose.xul" ],
-      onLoadWindow() { addonListener("test-addon2", "load"); },
-      onUnloadWindow() { addonListener("test-addon2", "unload"); },
+  assert_true(
+    ExtensionSupport.registerWindowListener("test-addon2", {
+      chromeURLs: [
+        "chrome://messenger/content/messengercompose/messengercompose.xul",
+      ],
+      onLoadWindow() {
+        addonListener("test-addon2", "load");
+      },
+      onUnloadWindow() {
+        addonListener("test-addon2", "unload");
+      },
     })
   );
 
@@ -78,10 +92,11 @@ function test_windowListeners() {
   assert_equals(addonCount("test-addon2", "load"), 1);
 
   // Extension listening to compose window once while it is already open.
-  assert_true(ExtensionSupport.registerWindowListener(
-    "test-addon3",
-    {
-      chromeURLs: [ "chrome://messenger/content/messengercompose/messengercompose.xul" ],
+  assert_true(
+    ExtensionSupport.registerWindowListener("test-addon3", {
+      chromeURLs: [
+        "chrome://messenger/content/messengercompose/messengercompose.xul",
+      ],
       onLoadWindow() {
         addonListener("test-addon3", "load");
         ExtensionSupport.unregisterWindowListener("test-addon3");
@@ -92,11 +107,14 @@ function test_windowListeners() {
   assert_equals(addonCount("test-addon3", "load"), 1);
 
   // Extension listening to compose window while it is already open.
-  assert_true(ExtensionSupport.registerWindowListener(
-    "test-addon4",
-    {
-      chromeURLs: [ "chrome://messenger/content/messengercompose/messengercompose.xul" ],
-      onLoadWindow() { addonListener("test-addon4", "load"); },
+  assert_true(
+    ExtensionSupport.registerWindowListener("test-addon4", {
+      chromeURLs: [
+        "chrome://messenger/content/messengercompose/messengercompose.xul",
+      ],
+      onLoadWindow() {
+        addonListener("test-addon4", "load");
+      },
       onUnloadWindow() {
         addonListener("test-addon4", "unload");
         ExtensionSupport.unregisterWindowListener("test-addon4");
@@ -126,7 +144,6 @@ function test_windowListeners() {
   assert_equals(addonCount("test-addon2", "unload"), 2);
   assert_equals(addonCount("test-addon3", "unload"), 0);
 
-
   let abc = open_address_book_window();
   // Only Addon1 listens to any window.
   assert_equals(addonCount("test-addon1", "load"), 4);
@@ -152,6 +169,8 @@ function test_windowListeners() {
   assert_true(ExtensionSupport.unregisterWindowListener("test-addon1"));
   assert_true(ExtensionSupport.unregisterWindowListener("test-addon2"));
   assert_false(ExtensionSupport.unregisterWindowListener("test-addon3"));
-  assert_equals(ExtensionSupport.registeredWindowListenerCount,
-                originalListenerCount);
+  assert_equals(
+    ExtensionSupport.registeredWindowListenerCount,
+    originalListenerCount
+  );
 }

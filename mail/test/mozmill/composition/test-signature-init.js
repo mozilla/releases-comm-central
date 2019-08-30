@@ -21,7 +21,7 @@ var kReplyOnTopPref = "mail.identity.default.reply_on_top";
 var kReplyOnTop = 1;
 var kSigBottomPref = "mail.identity.default.sig_bottom";
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function setupModule(module) {
   collector.getModule("folder-display-helpers").installInto(module);
@@ -47,8 +47,11 @@ function test_on_reply_above_signature_below_reply() {
   let mailBody = get_compose_body(cw);
 
   let node = mailBody.firstChild;
-  assert_equals(node.localName, "br",
-                "Expected a BR node to start the compose body.");
+  assert_equals(
+    node.localName,
+    "br",
+    "Expected a BR node to start the compose body."
+  );
 
   Services.prefs.setBoolPref(kHtmlPref, origHtml);
   Services.prefs.setIntPref(kReplyOnTopPref, origReplyOnTop);

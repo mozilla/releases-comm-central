@@ -38,7 +38,7 @@ function setupModule(module) {
   wh.installInto(module);
 
   folder = create_folder("OpeningMessagesA");
-  make_new_sets_in_folder(folder, [{count: 10}]);
+  make_new_sets_in_folder(folder, [{ count: 10 }]);
 }
 
 /**
@@ -96,9 +96,12 @@ function test_open_multiple_messages_in_tabs() {
 
   // Now check whether each of the NUM_MESSAGES_TO_OPEN tabs has the correct
   // title
-  for (let i = 0; i < NUM_MESSAGES_TO_OPEN; i++)
-    assert_tab_titled_from(mc.tabmail.tabInfo[preCount + i],
-                           selectedMessages[i]);
+  for (let i = 0; i < NUM_MESSAGES_TO_OPEN; i++) {
+    assert_tab_titled_from(
+      mc.tabmail.tabInfo[preCount + i],
+      selectedMessages[i]
+    );
+  }
 
   // Check whether each tab has the correct message and whether the message pane
   // is focused in each case, then close it to load the previous tab.
@@ -172,16 +175,26 @@ function test_open_message_in_existing_window() {
 function check_message_pane_in_tab_full_height() {
   let messagesBoxHeight = mc.e("messagesBox").getBoundingClientRect().height;
   let displayDeckHeight = mc.e("displayDeck").getBoundingClientRect().height;
-  let messagePaneBoxWrapperHeight = mc.e("messagepaneboxwrapper").getBoundingClientRect().height;
-  let notificationBoxHeight = mc.e("messenger-notification-footer").getBoundingClientRect().height;
+  let messagePaneBoxWrapperHeight = mc
+    .e("messagepaneboxwrapper")
+    .getBoundingClientRect().height;
+  let notificationBoxHeight = mc
+    .e("messenger-notification-footer")
+    .getBoundingClientRect().height;
 
-  assert_equals(messagesBoxHeight, displayDeckHeight +
-    messagePaneBoxWrapperHeight + notificationBoxHeight,
-      "messages box height (" + messagesBoxHeight +
-      ") not equal to the sum of displayDeck height (" + displayDeckHeight +
-      ") and message pane box wrapper height (" + messagePaneBoxWrapperHeight +
-      ") and message notification box height (" + notificationBoxHeight +
-      ")");
+  assert_equals(
+    messagesBoxHeight,
+    displayDeckHeight + messagePaneBoxWrapperHeight + notificationBoxHeight,
+    "messages box height (" +
+      messagesBoxHeight +
+      ") not equal to the sum of displayDeck height (" +
+      displayDeckHeight +
+      ") and message pane box wrapper height (" +
+      messagePaneBoxWrapperHeight +
+      ") and message notification box height (" +
+      notificationBoxHeight +
+      ")"
+  );
 }
 
 /**
@@ -190,7 +203,8 @@ function check_message_pane_in_tab_full_height() {
  */
 
 function check_message_pane_in_window_full_height(aWC) {
-  let messengerWindowHeight = aWC.e("messengerWindow").getBoundingClientRect().height;
+  let messengerWindowHeight = aWC.e("messengerWindow").getBoundingClientRect()
+    .height;
   let messengerChildren = aWC.e("messengerWindow").children;
   let childrenHeightsSum = 0;
   let childrenHeightsStr = "";
@@ -202,7 +216,10 @@ function check_message_pane_in_window_full_height(aWC) {
     } catch (ex) {}
   }
 
-  assert_equals(Math.round(messengerWindowHeight), Math.round(childrenHeightsSum),
+  assert_equals(
+    Math.round(messengerWindowHeight),
+    Math.round(childrenHeightsSum),
     "messenger window height not equal to the sum of children heights: " +
-    childrenHeightsStr);
+      childrenHeightsStr
+  );
 }

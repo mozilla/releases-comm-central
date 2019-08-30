@@ -3,7 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 function nsActivityManager() {}
@@ -21,8 +23,9 @@ nsActivityManager.prototype = {
   get processCount() {
     let count = 0;
     for (let value of this._activities.values()) {
-      if (value instanceof Ci.nsIActivityProcess)
+      if (value instanceof Ci.nsIActivityProcess) {
         count++;
+      }
     }
 
     return count;
@@ -31,9 +34,11 @@ nsActivityManager.prototype = {
   getProcessesByContext(aContextType, aContextObj) {
     let list = [];
     for (let activity of this._activities.values()) {
-      if (activity instanceof Ci.nsIActivityProcess &&
-          activity.contextType == aContextType &&
-          activity.contextObj == aContextObj) {
+      if (
+        activity instanceof Ci.nsIActivityProcess &&
+        activity.contextType == aContextType &&
+        activity.contextObj == aContextObj
+      ) {
         list.push(activity);
       }
     }
@@ -78,9 +83,12 @@ nsActivityManager.prototype = {
     let activity = this.getActivity(aID);
 
     // make sure that the activity is not in-progress state
-    if (activity instanceof Ci.nsIActivityProcess &&
-        activity.state == Ci.nsIActivityProcess.STATE_INPROGRESS)
+    if (
+      activity instanceof Ci.nsIActivityProcess &&
+      activity.state == Ci.nsIActivityProcess.STATE_INPROGRESS
+    ) {
       throw Cr.NS_ERROR_FAILURE;
+    }
 
     // remove the activity
     this._activities.delete(aID);
@@ -103,11 +111,14 @@ nsActivityManager.prototype = {
         // Note: The .state property will return undefined if you aren't in
         //       this if-instanceof block.
         let state = activity.state;
-        if (state != Ci.nsIActivityProcess.STATE_INPROGRESS &&
-            state != Ci.nsIActivityProcess.STATE_PAUSED &&
-            state != Ci.nsIActivityProcess.STATE_WAITINGFORINPUT &&
-            state != Ci.nsIActivityProcess.STATE_WAITINGFORRETRY)
+        if (
+          state != Ci.nsIActivityProcess.STATE_INPROGRESS &&
+          state != Ci.nsIActivityProcess.STATE_PAUSED &&
+          state != Ci.nsIActivityProcess.STATE_WAITINGFORINPUT &&
+          state != Ci.nsIActivityProcess.STATE_WAITINGFORRETRY
+        ) {
           this.removeActivity(id);
+        }
       } else {
         this.removeActivity(id);
       }
@@ -115,8 +126,9 @@ nsActivityManager.prototype = {
   },
 
   getActivity(aID) {
-    if (!this._activities.has(aID))
+    if (!this._activities.has(aID)) {
       throw Cr.NS_ERROR_NOT_AVAILABLE;
+    }
     return this._activities.get(aID);
   },
 
@@ -136,8 +148,9 @@ nsActivityManager.prototype = {
   removeListener(aListener) {
     this.log.info("removeListener\n");
     for (let i = 0; i < this._listeners.length; i++) {
-      if (this._listeners[i] == aListener)
+      if (this._listeners[i] == aListener) {
         this._listeners.splice(i, 1);
+      }
     }
   },
 

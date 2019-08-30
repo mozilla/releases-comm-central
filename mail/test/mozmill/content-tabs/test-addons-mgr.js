@@ -10,9 +10,15 @@
 
 var MODULE_NAME = "test-addons-mgr";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "content-tab-helpers", "window-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "content-tab-helpers",
+  "window-helpers",
+];
 
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
@@ -26,8 +32,10 @@ function test_open_addons_with_url() {
 
   let tab = mc.tabmail.currentTabInfo;
   wait_for_content_tab_load(tab, "about:addons", 10000);
-  assert_true(content_tab_e(tab, "category-theme").selected,
-              "Themes category should be selected!");
+  assert_true(
+    content_tab_e(tab, "category-theme").selected,
+    "Themes category should be selected!"
+  );
 
   mc.tabmail.switchToTab(0); // switch to 3pane
 
@@ -36,8 +44,10 @@ function test_open_addons_with_url() {
 
   tab = mc.tabmail.currentTabInfo;
   wait_for_content_tab_load(tab, "about:addons", 10000);
-  assert_true(content_tab_e(tab, "category-plugin").selected,
-              "Plugins category should be selected!");
+  assert_true(
+    content_tab_e(tab, "category-plugin").selected,
+    "Plugins category should be selected!"
+  );
 
   mc.tabmail.closeTab(tab);
 }
@@ -50,7 +60,7 @@ function test_open_addons_with_url() {
  */
 function test_addon_prefs() {
   // Open Add-on Options.
-  const subview = mc.click_through_appmenu([{id: "appmenu_addons"}]);
+  const subview = mc.click_through_appmenu([{ id: "appmenu_addons" }]);
 
   plan_for_modal_dialog("mozmill-prefs", function(controller) {
     // Add |mc.sleep(1000);| here to see the popup dialog.
@@ -60,9 +70,11 @@ function test_addon_prefs() {
   // MozMill add-on should be somewhere in the list. When found, click it.
   let foundAddon = false;
   for (let item of subview.children) {
-    if (item.tagName == "toolbarbutton" &&
-        item.getAttribute("collapsed") != "true" &&
-        item.label == "MozMill") {
+    if (
+      item.tagName == "toolbarbutton" &&
+      item.getAttribute("collapsed") != "true" &&
+      item.label == "MozMill"
+    ) {
       foundAddon = true;
       mc.click(new elib.Elem(item));
       break;

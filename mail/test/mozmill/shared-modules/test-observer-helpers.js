@@ -24,18 +24,21 @@ ObservationRecorder.prototype = {
    */
   observe: function OR_observe(aSubject, aTopic, aData) {
     if (this._topics.includes(aTopic)) {
-      if (!(aTopic in this.saw))
+      if (!(aTopic in this.saw)) {
         this.saw[aTopic] = 0;
+      }
 
       this.saw[aTopic] += 1;
 
-      if (!(aTopic in this.subject))
+      if (!(aTopic in this.subject)) {
         this.subject[aTopic] = [];
+      }
 
       this.subject[aTopic].push(aSubject);
 
-      if (!(aTopic in this.data))
+      if (!(aTopic in this.data)) {
         this.data[aTopic] = [];
+      }
 
       this.data[aTopic].push(aData);
     }
@@ -62,16 +65,20 @@ ObservationRecorder.prototype = {
    *           obs.resetTopic(["topic1", "topic2"]);
    */
   resetTopic: function OR_resetTopic(aTopics) {
-    if (!Array.isArray(aTopics))
+    if (!Array.isArray(aTopics)) {
       aTopics = [aTopics];
+    }
 
     for (let topic of aTopics.entries()) {
-      if (topic in this.saw)
+      if (topic in this.saw) {
         delete this.saw[topic];
-      if (topic in this.subject)
+      }
+      if (topic in this.subject) {
         delete this.subject[topic];
-      if (topic in this.data)
+      }
+      if (topic in this.data) {
         delete this.data[topic];
+      }
     }
   },
 
@@ -88,8 +95,9 @@ ObservationRecorder.prototype = {
    *           obs.planFor(["topic1", "topic2"]);
    */
   planFor: function OR_planFor(aTopics) {
-    if (!Array.isArray(aTopics))
+    if (!Array.isArray(aTopics)) {
       aTopics = [aTopics];
+    }
 
     this._topics = this._topics.concat(aTopics);
   },
@@ -107,14 +115,12 @@ ObservationRecorder.prototype = {
    *           obs.stopNoticing(["topic1", "topic2"]);
    */
   stopNoticing: function OR_stopNoticing(aTopics) {
-    if (!Array.isArray(aTopics))
+    if (!Array.isArray(aTopics)) {
       aTopics = [aTopics];
+    }
 
-    this._topics = this._topics.filter(
-      topic => !aTopics.includes(topic)
-    );
+    this._topics = this._topics.filter(topic => !aTopics.includes(topic));
   },
-
 
   /**
    * Returns true of a particular topic was observed at least once.
@@ -122,7 +128,7 @@ ObservationRecorder.prototype = {
    * @param aTopic the topic to check if the ObservationRecorder saw.
    */
   didSee: function OR_didSee(aTopic) {
-    return (aTopic in this.saw && this.saw[aTopic]);
+    return aTopic in this.saw && this.saw[aTopic];
   },
 
   /**
@@ -131,8 +137,9 @@ ObservationRecorder.prototype = {
    * @param aTopic the topic to count the number of observations of.
    */
   numSightings: function OR_numSightings(aTopic) {
-    if (!(aTopic in this.saw))
+    if (!(aTopic in this.saw)) {
       return 0;
+    }
 
     return this.saw[aTopic];
   },

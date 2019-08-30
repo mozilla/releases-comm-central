@@ -5,14 +5,14 @@
 /* import-globals-from ../../../../../toolkit/components/prompts/content/selectDialog.js */
 
 function cloudfileDialogOnLoad() {
-    dialogOnLoad();
+  dialogOnLoad();
 
-    let icons = gArgs.getProperty("icons");
-    let listItems = listBox.itemChildren;
-    for (let i = 0; i < listItems.length; i++) {
-        listItems[i].setAttribute("align", "center");
-        let image = document.createXULElement("image");
-        image.src = icons[i];
-        listItems[i].insertBefore(image, listItems[i].firstElementChild);
-    }
+  let icons = gArgs.getProperty("icons");
+  let listItems = listBox.itemChildren;
+  for (let i = 0; i < listItems.length; i++) {
+    listItems[i].setAttribute("align", "center");
+    let image = document.createXULElement("image");
+    image.src = icons[i];
+    listItems[i].insertBefore(image, listItems[i].firstElementChild);
+  }
 }

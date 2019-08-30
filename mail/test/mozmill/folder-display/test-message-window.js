@@ -37,7 +37,8 @@ function setupModule(module) {
   let msg3 = create_thread(1);
   let msg4 = create_thread(1);
   add_sets_to_folders([folderB], [msg3, msg4]);
-  folderA.msgDatabase.dBFolderInfo.viewFlags = Ci.nsMsgViewFlagsType.kThreadedDisplay;
+  folderA.msgDatabase.dBFolderInfo.viewFlags =
+    Ci.nsMsgViewFlagsType.kThreadedDisplay;
 }
 
 /** The message window controller. */
@@ -95,8 +96,9 @@ function test_delete_single_message() {
  */
 function test_del_collapsed_thread() {
   press_delete(msgc);
-  if (folderA.getTotalMessages(false) != 4)
+  if (folderA.getTotalMessages(false) != 4) {
     throw new Error("should have only deleted one message");
+  }
 }
 
 function subtest_say_yes(cwc) {

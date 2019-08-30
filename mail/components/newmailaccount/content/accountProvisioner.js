@@ -2,18 +2,30 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-var {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+var { PluralForm } = ChromeUtils.import(
+  "resource://gre/modules/PluralForm.jsm"
+);
+var { StringBundle } = ChromeUtils.import(
+  "resource:///modules/StringBundle.js"
+);
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 // Get a configured logger for this component.
 // To debug, set mail.provider.logging.dump (or .console)="All"
 var gLog = Log4Moz.getConfiguredLogger("mail.provider");
-var stringBundle = new StringBundle("chrome://messenger/locale/newmailaccount/accountProvisioner.properties");
+var stringBundle = new StringBundle(
+  "chrome://messenger/locale/newmailaccount/accountProvisioner.properties"
+);
 
 var RETRY_TIMEOUT = 5000; // 5 seconds
 var CONNECTION_TIMEOUT = 15000; // 15 seconds
@@ -28,8 +40,9 @@ var storedData = {};
 
 function splitName(str) {
   let i = str.lastIndexOf(" ");
-  if (i >= 1)
+  if (i >= 1) {
     return [str.substring(0, i), str.substring(i + 1)];
+  }
   return [str, ""];
 }
 
@@ -41,7 +54,12 @@ function splitName(str) {
  * @param aPlaceholder {String}  String to look for in aTextNode's textContent
  * @param aReplacement {Node}    DOM node to insert instead of the found replacement
  */
-function insertHTMLReplacement(aTextContainer, aTextNode, aPlaceholder, aReplacement) {
+function insertHTMLReplacement(
+  aTextContainer,
+  aTextNode,
+  aPlaceholder,
+  aReplacement
+) {
   if (aTextNode.textContent.includes(aPlaceholder)) {
     let placeIndex = aTextNode.textContent.indexOf(aPlaceholder);
     let restNode = aTextNode.splitText(placeIndex + aPlaceholder.length);
@@ -57,7 +75,6 @@ function insertHTMLReplacement(aTextContainer, aTextNode, aPlaceholder, aReplace
  * tracks / maintains window state throughout the Account Provisioner workflow.
  */
 var EmailAccountProvisioner = {
-
   _inited: false,
   _loadingProviders: false,
   _loadedProviders: false,
@@ -135,7 +152,9 @@ var EmailAccountProvisioner = {
    */
   showSuccessPage() {
     gLog.info("Showing the success page");
-    let engine = Services.search.getEngineByName(window.arguments[0].search_engine);
+    let engine = Services.search.getEngineByName(
+      window.arguments[0].search_engine
+    );
     let account = window.arguments[0].account;
 
     if (engine && Services.search.defaultEngine != engine) {
@@ -158,35 +177,53 @@ var EmailAccountProvisioner = {
       let b = document.createElement("b");
       b.appendChild(document.createTextNode(engine.name));
 
-      let searchStr = document.createTextNode(stringBundle.get("searchEngineDesc"));
+      let searchStr = document.createTextNode(
+        stringBundle.get("searchEngineDesc")
+      );
       let searchElem = document.getElementById("search_engine_desc");
       searchElem.textContent = "";
       searchElem.appendChild(searchStr);
       insertHTMLReplacement(searchElem, searchElem.firstChild, "%S", b);
     }
 
-    document.getElementById("success-compose").addEventListener("click", function() {
-      MailServices.compose.OpenComposeWindow(null, null, null,
-                                             Ci.nsIMsgCompType.New,
-                                             Ci.nsIMsgCompFormat.Default,
-                                             account.defaultIdentity, null);
-    });
+    document
+      .getElementById("success-compose")
+      .addEventListener("click", function() {
+        MailServices.compose.OpenComposeWindow(
+          null,
+          null,
+          null,
+          Ci.nsIMsgCompType.New,
+          Ci.nsIMsgCompFormat.Default,
+          account.defaultIdentity,
+          null
+        );
+      });
 
-    document.getElementById("success-addons").addEventListener("click", function() {
-      EmailAccountProvisioner.openAddonsMgr();
-    });
+    document
+      .getElementById("success-addons")
+      .addEventListener("click", function() {
+        EmailAccountProvisioner.openAddonsMgr();
+      });
 
-    document.getElementById("success-signature").addEventListener("click", function() {
-      var existingAccountManager =
-        Services.wm.getMostRecentWindow("mailnews:accountmanager");
+    document
+      .getElementById("success-signature")
+      .addEventListener("click", function() {
+        var existingAccountManager = Services.wm.getMostRecentWindow(
+          "mailnews:accountmanager"
+        );
 
-      if (existingAccountManager)
-        existingAccountManager.focus();
-      else
-        window.openDialog("chrome://messenger/content/AccountManager.xul",
-                          "AccountManager", "chrome,centerscreen,modal,titlebar",
-                          {server: account.incomingServer});
-    });
+        if (existingAccountManager) {
+          existingAccountManager.focus();
+        } else {
+          window.openDialog(
+            "chrome://messenger/content/AccountManager.xul",
+            "AccountManager",
+            "chrome,centerscreen,modal,titlebar",
+            { server: account.incomingServer }
+          );
+        }
+      });
 
     document.getElementById("window").style.display = "none";
     document.getElementById("successful_account").style.display = "block";
@@ -203,8 +240,9 @@ var EmailAccountProvisioner = {
 
   onSearchInputOrProvidersChanged(event) {
     let emptyName = document.getElementById("name").value == "";
-    EmailAccountProvisioner.searchButtonEnabled(!emptyName &&
-      EmailAccountProvisioner.someProvidersChecked);
+    EmailAccountProvisioner.searchButtonEnabled(
+      !emptyName && EmailAccountProvisioner.someProvidersChecked
+    );
   },
 
   /**
@@ -215,19 +253,20 @@ var EmailAccountProvisioner = {
    */
   init() {
     // We can only init once, so bail out if we've been called again.
-    if (EmailAccountProvisioner._inited)
+    if (EmailAccountProvisioner._inited) {
       return;
+    }
 
     gLog.info("Initializing Email Account Provisioner");
 
     // For any anchor element that gets the "external" class, make it so that
     // when we click on that element, instead of loading up the href in the
     // window itself, we open up the link in the default browser.
-    let opener = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-                           .getService(Ci.nsIExternalProtocolService);
+    let opener = Cc[
+      "@mozilla.org/uriloader/external-protocol-service;1"
+    ].getService(Ci.nsIExternalProtocolService);
     document.addEventListener("click", function(e) {
-      if (e.target.tagName == "a" &&
-          e.target.classList.contains("external")) {
+      if (e.target.tagName == "a" && e.target.classList.contains("external")) {
         e.preventDefault();
         let uri = e.target.getAttribute("href");
         opener.loadURI(Services.io.newURI(uri, "UTF-8"));
@@ -239,12 +278,17 @@ var EmailAccountProvisioner = {
     let commentary = document.querySelector(".commentary");
 
     let a = document.createElement("a");
-    a.setAttribute("href", "https://www.mozilla.org/thunderbird/legal/privacy/");
+    a.setAttribute(
+      "href",
+      "https://www.mozilla.org/thunderbird/legal/privacy/"
+    );
     a.setAttribute("class", "external");
     a.appendChild(document.createTextNode(stringBundle.get("privacyPolicy")));
 
     let span = document.createElement("span");
-    span.appendChild(document.createTextNode(stringBundle.get("privacyDisclaimer")));
+    span.appendChild(
+      document.createTextNode(stringBundle.get("privacyDisclaimer"))
+    );
     insertHTMLReplacement(span, span.firstChild, "#1", a);
 
     let placeHolder = document.createElement("span");
@@ -253,8 +297,9 @@ var EmailAccountProvisioner = {
     // Replace the other placeholder in whatever child it resides now.
     let children = span.childNodes;
     for (let i = 0; i < children.length; i++) {
-      if (children[i].nodeType == Node.TEXT_NODE)
+      if (children[i].nodeType == Node.TEXT_NODE) {
         insertHTMLReplacement(span, children[i], "#2", placeHolder);
+      }
     }
 
     commentary.appendChild(span);
@@ -264,12 +309,15 @@ var EmailAccountProvisioner = {
     // Link the keypress function to the name field so that we can enable and
     // disable the search button.
     let nameElement = document.getElementById("name");
-    nameElement.addEventListener("keyup",
-      EmailAccountProvisioner.onSearchInputOrProvidersChanged);
+    nameElement.addEventListener(
+      "keyup",
+      EmailAccountProvisioner.onSearchInputOrProvidersChanged
+    );
 
     // If we have a name stored, populate the search field with it.
-    let name = Services.prefs.getStringPref("mail.provider.realname") ||
-               nameElement.value;
+    let name =
+      Services.prefs.getStringPref("mail.provider.realname") ||
+      nameElement.value;
     if (!name && "@mozilla.org/userinfo;1" in Cc) {
       name = Cc["@mozilla.org/userinfo;1"].getService(Ci.nsIUserInfo).fullname;
     }
@@ -280,31 +328,38 @@ var EmailAccountProvisioner = {
     // initial enabled/disabled state of the search button.
     EmailAccountProvisioner.onSearchInputOrProvidersChanged();
 
-    document.getElementById("window").style.height = (window.innerHeight - 1) + "px";
+    document.getElementById("window").style.height =
+      window.innerHeight - 1 + "px";
 
-    document.querySelector("button.existing").addEventListener("click", function() {
-      EmailAccountProvisioner.saveName();
-      EmailAccountProvisioner.NewMailAccount(EmailAccountProvisioner.msgWindow,
-                                             null,
-                                             window.arguments[0]);
-      window.close();
-    });
+    document
+      .querySelector("button.existing")
+      .addEventListener("click", function() {
+        EmailAccountProvisioner.saveName();
+        EmailAccountProvisioner.NewMailAccount(
+          EmailAccountProvisioner.msgWindow,
+          null,
+          window.arguments[0]
+        );
+        window.close();
+      });
 
     // Handle Ctrl-W and Esc
     window.addEventListener("keypress", function(event) {
-      if ((event.which == "119" && isAccel(event))
-          || event.keyCode == 27) {
+      if ((event.which == "119" && isAccel(event)) || event.keyCode == 27) {
         window.close();
       }
     });
 
-    document.getElementById("search").addEventListener("submit",
-      EmailAccountProvisioner.onSearchSubmit);
+    document
+      .getElementById("search")
+      .addEventListener("submit", EmailAccountProvisioner.onSearchSubmit);
 
     let notifications = document.getElementById("notifications");
     notifications.addEventListener("click", function(event) {
-      if (event.target.tagName == "button" &&
-          event.target.classList.contains("create")) {
+      if (
+        event.target.tagName == "button" &&
+        event.target.classList.contains("create")
+      ) {
         EmailAccountProvisioner.onAddressSelected(event.target);
       }
     });
@@ -321,12 +376,14 @@ var EmailAccountProvisioner = {
         }
         resultsGroup = resultsGroup.parentElement;
       }
-      if (!resultsGroup)
+      if (!resultsGroup) {
         throw new Error("Unexpected error finding resultsGroup.");
+      }
 
       // Return if we're already expanded
-      if (resultsGroup.classList.contains("expanded"))
+      if (resultsGroup.classList.contains("expanded")) {
         return;
+      }
 
       for (let child of resultsGroup.parentElement.children) {
         if (child != resultsGroup) {
@@ -342,8 +399,9 @@ var EmailAccountProvisioner = {
           let more = child.querySelector(".more");
           let makeListener = (aNode, aMore) => {
             let listener = () => {
-              if (aMore)
+              if (aMore) {
                 aMore.style.display = "block";
+              }
               aNode.querySelector("button").disabled = true;
               aNode.removeEventListener("transitionend", listener);
             };
@@ -364,8 +422,9 @@ var EmailAccountProvisioner = {
           child.classList.add("expanded");
           // And show this box.
           let more = child.querySelector(".more");
-          if (more)
+          if (more) {
             more.style.display = "none";
+          }
           for (let node of child.querySelectorAll(".pricing")) {
             node.classList.remove("hideWithFade");
             node.classList.add("showWithFade");
@@ -393,7 +452,9 @@ var EmailAccountProvisioner = {
     window.addEventListener("unload", function() {
       let searchEngineCheck = document.getElementById("search_engine_check");
       if (window.arguments[0].search_engine && searchEngineCheck.checked) {
-        let engine = Services.search.getEngineByName(window.arguments[0].search_engine);
+        let engine = Services.search.getEngineByName(
+          window.arguments[0].search_engine
+        );
         Services.search.defaultEngine = engine;
       }
     });
@@ -401,7 +462,9 @@ var EmailAccountProvisioner = {
     if (window.arguments[0].success) {
       // Show the success page which lets a user compose mail, find add-ons,
       // set a signature, etc.
-      gLog.info("Looks like we just finished ordering an address - showing the success page...");
+      gLog.info(
+        "Looks like we just finished ordering an address - showing the success page..."
+      );
       EmailAccountProvisioner.showSuccessPage();
     } else {
       // The default mode, where we display the search input, providers, etc
@@ -444,16 +507,23 @@ var EmailAccountProvisioner = {
     EmailAccountProvisioner.searchEnabled(false);
     EmailAccountProvisioner.spinning(true);
     let [firstname, lastname] = splitName(name);
-    let selectedProviderList =
-      [...document.querySelectorAll(".provider input:checked")];
+    let selectedProviderList = [
+      ...document.querySelectorAll(".provider input:checked"),
+    ];
     let providerList = selectedProviderList.map(node => node.value).join(",");
 
     let request = new XMLHttpRequest();
-    request.open("GET", EmailAccountProvisioner.suggestFromName +
-      "?first_name=" + encodeURIComponent(firstname) +
-      "&last_name=" + encodeURIComponent(lastname) +
-      "&providers=" + encodeURIComponent(providerList) +
-      "&version=2");
+    request.open(
+      "GET",
+      EmailAccountProvisioner.suggestFromName +
+        "?first_name=" +
+        encodeURIComponent(firstname) +
+        "&last_name=" +
+        encodeURIComponent(lastname) +
+        "&providers=" +
+        encodeURIComponent(providerList) +
+        "&version=2"
+    );
     request.onload = function() {
       let data;
       try {
@@ -492,7 +562,9 @@ var EmailAccountProvisioner = {
 
     // Replace the variables in the url.
     let url = provider.api;
-    let [firstName, lastName] = splitName(document.getElementById("name").value.trim());
+    let [firstName, lastName] = splitName(
+      document.getElementById("name").value.trim()
+    );
     let email = aTarget.getAttribute("address");
     url = url.replace("{firstname}", firstName);
     url = url.replace("{lastname}", lastName);
@@ -502,8 +574,11 @@ var EmailAccountProvisioner = {
     let data = storedData[provider.id];
     delete data.provider;
     for (let name in data) {
-      url += (!url.includes("?") ? "?" : "&") +
-              name + "=" + encodeURIComponent(data[name]);
+      url +=
+        (!url.includes("?") ? "?" : "&") +
+        name +
+        "=" +
+        encodeURIComponent(data[name]);
     }
 
     gLog.info("Opening up a contentTab with the order form.");
@@ -523,7 +598,9 @@ var EmailAccountProvisioner = {
     // Wait for the handler to close us.
     EmailAccountProvisioner.spinning(true);
     EmailAccountProvisioner.searchEnabled(false);
-    for (let node of document.querySelectorAll("#notifications > :not(.spinner)")) {
+    for (let node of document.querySelectorAll(
+      "#notifications > :not(.spinner)"
+    )) {
       node.style.display = "none";
     }
   },
@@ -535,8 +612,9 @@ var EmailAccountProvisioner = {
   tryToPopulateProviderList() {
     // If we're already in the middle of getting the provider list, or
     // we already got it before, bail out.
-    if (this._loadingProviders || this._loadedProviders)
+    if (this._loadingProviders || this._loadedProviders) {
       return;
+    }
 
     gLog.info("Trying to populate provider list...");
 
@@ -549,7 +627,9 @@ var EmailAccountProvisioner = {
     this.searchEnabled(false);
     this.spinning(true);
 
-    let providerListUrl = Services.prefs.getCharPref("mail.provider.providerList");
+    let providerListUrl = Services.prefs.getCharPref(
+      "mail.provider.providerList"
+    );
 
     let request = new XMLHttpRequest();
     request.open("GET", providerListUrl);
@@ -564,13 +644,16 @@ var EmailAccountProvisioner = {
       // Ugh, we couldn't get the JSON file. Maybe we're not online. Or maybe
       // the server is down, or the file isn't being served. Regardless, if
       // we get here, none of this stuff is going to work.
-      EmailAccountProvisioner._loadProviderRetryId =
-        window.setTimeout(() => EmailAccountProvisioner.tryToPopulateProviderList(),
-                          RETRY_TIMEOUT);
+      EmailAccountProvisioner._loadProviderRetryId = window.setTimeout(
+        () => EmailAccountProvisioner.tryToPopulateProviderList(),
+        RETRY_TIMEOUT
+      );
       EmailAccountProvisioner._loadingProviders = false;
       EmailAccountProvisioner.beOffline();
-      gLog.error("Something went wrong loading the provider list JSON file. " +
-                 "Going into offline mode.");
+      gLog.error(
+        "Something went wrong loading the provider list JSON file. " +
+          "Going into offline mode."
+      );
     };
     request.onloadend = function() {
       EmailAccountProvisioner._loadingProviders = false;
@@ -591,16 +674,27 @@ var EmailAccountProvisioner = {
   providerHasCorrectFields(provider) {
     let result = true;
 
-    let required = ["id", "label", "paid", "languages", "api", "tos_url",
-                    "privacy_url"];
+    let required = [
+      "id",
+      "label",
+      "paid",
+      "languages",
+      "api",
+      "tos_url",
+      "privacy_url",
+    ];
 
     for (let aField of required) {
-      let fieldExists = (aField in provider);
+      let fieldExists = aField in provider;
       result &= fieldExists;
 
-      if (!fieldExists)
-        gLog.error("A provider did not have the field " + aField
-                   + ", and will be skipped.");
+      if (!fieldExists) {
+        gLog.error(
+          "A provider did not have the field " +
+            aField +
+            ", and will be skipped."
+        );
+      }
     }
 
     return result;
@@ -625,7 +719,7 @@ var EmailAccountProvisioner = {
     EmailAccountProvisioner.providers = {};
 
     data.forEach(function(provider) {
-      if (!(EmailAccountProvisioner.providerHasCorrectFields(provider))) {
+      if (!EmailAccountProvisioner.providerHasCorrectFields(provider)) {
         gLog.error("A provider had incorrect fields, and has been skipped");
         return;
       }
@@ -668,8 +762,10 @@ var EmailAccountProvisioner = {
       labelSpan.textContent = provider.label;
       providerEntry.appendChild(labelSpan);
 
-      providerCheckbox.addEventListener("change",
-        EmailAccountProvisioner.populateTermsAndPrivacyLinks);
+      providerCheckbox.addEventListener(
+        "change",
+        EmailAccountProvisioner.populateTermsAndPrivacyLinks
+      );
 
       if (supportsSomeUserLang) {
         providerCheckbox.setAttribute("checked", "true");
@@ -714,8 +810,9 @@ var EmailAccountProvisioner = {
     // Empty the Terms of Service and Privacy links placeholder.
     let placeholder = document.querySelector(".commentary .placeholder");
 
-    let selectedProviders =
-      [...document.querySelectorAll(".provider input:checked")];
+    let selectedProviders = [
+      ...document.querySelectorAll(".provider input:checked"),
+    ];
     let len = selectedProviders.length;
 
     EmailAccountProvisioner.someProvidersChecked = len > 0;
@@ -756,7 +853,9 @@ var EmailAccountProvisioner = {
       if (len != 1) {
         if (i < len - 2) {
           span = document.createElement("span");
-          span.appendChild(document.createTextNode(stringBundle.get("sepComma")));
+          span.appendChild(
+            document.createTextNode(stringBundle.get("sepComma"))
+          );
           providerList.appendChild(span);
         } else if (i == len - 2) {
           span = document.createElement("span");
@@ -807,8 +906,9 @@ var EmailAccountProvisioner = {
     // Get a list of the providers that the user checked - we'll
     // check against these to make sure the server didn't send any
     // back from a provider that the user did not select.
-    let selectedProviderList =
-      [...document.querySelectorAll(".provider input:checked")];
+    let selectedProviderList = [
+      ...document.querySelectorAll(".provider input:checked"),
+    ];
     let selectedProviders = selectedProviderList.map(node => node.value);
     gLog.info(selectedProviders.length + " selected providers.");
 
@@ -817,22 +917,33 @@ var EmailAccountProvisioner = {
       // We require that the search succeeded for a provider, that we
       // got at least one result, and that the provider is actually in
       // the list of providers that we care about.
-      let providerInList = (aResult.provider in EmailAccountProvisioner.providers);
+      let providerInList =
+        aResult.provider in EmailAccountProvisioner.providers;
 
-      if (!providerInList)
-        gLog.error("Got a result back for a provider that was not "
-                   + "in the original providerList: " + aResult.provider);
+      if (!providerInList) {
+        gLog.error(
+          "Got a result back for a provider that was not " +
+            "in the original providerList: " +
+            aResult.provider
+        );
+      }
 
       let providerSelected = selectedProviders.includes(aResult.provider);
 
-      if (!providerSelected)
-        gLog.error("Got a result back for a provider that the user did "
-                   + "not select: " + aResult.provider);
+      if (!providerSelected) {
+        gLog.error(
+          "Got a result back for a provider that the user did " +
+            "not select: " +
+            aResult.provider
+        );
+      }
 
-      return (aResult.succeeded
-              && aResult.addresses.length > 0
-              && providerInList
-              && providerSelected);
+      return (
+        aResult.succeeded &&
+        aResult.addresses.length > 0 &&
+        providerInList &&
+        providerSelected
+      );
     });
 
     if (returnedProviders.length == 0) {
@@ -850,15 +961,17 @@ var EmailAccountProvisioner = {
       header.classList.remove("displayNone");
       header.classList.add("selection");
 
-      let providerLabel =
-        document.createTextNode(EmailAccountProvisioner.providers[provider.provider].label);
+      let providerLabel = document.createTextNode(
+        EmailAccountProvisioner.providers[provider.provider].label
+      );
       header.querySelector(".provider").appendChild(providerLabel);
 
       let providerPrice;
-      if (provider.price && provider.price != "0")
+      if (provider.price && provider.price != "0") {
         providerPrice = document.createTextNode(provider.price);
-      else
+      } else {
         providerPrice = document.createTextNode(stringBundle.get("free"));
+      }
       header.querySelector(".price").appendChild(providerPrice);
 
       group.appendChild(header);
@@ -875,30 +988,39 @@ var EmailAccountProvisioner = {
         //   so if the provider's price is > 0, use that.
         //   Or if the provider's price is 0, use "Free".
         let priceStr;
-        if (address.price && address.price != "0")
+        if (address.price && address.price != "0") {
           priceStr = stringBundle.get("price", [address.price]);
-        else if (address.price && address.price == "0")
+        } else if (address.price && address.price == "0") {
           priceStr = stringBundle.get("free");
-        else if (provider.price && provider.price != "0")
+        } else if (provider.price && provider.price != "0") {
           priceStr = stringBundle.get("price", [provider.price]);
-        else
+        } else {
           priceStr = stringBundle.get("free");
+        }
 
         let templateElement = document.querySelector("#result_tmpl");
-        let result = document.importNode(templateElement.content, true).children[0];
+        let result = document.importNode(templateElement.content, true)
+          .children[0];
         let finalAddress = address.address ? address.address : address;
         function replacePlaceholders(elem) {
-          if (elem.childNodes.length > 0)
+          if (elem.childNodes.length > 0) {
             elem.childNodes.forEach(elem => replacePlaceholders(elem));
+          }
 
           if (elem.nodeType == elem.TEXT_NODE) {
-            if (elem.textContent == "${priceStr}")
+            if (elem.textContent == "${priceStr}") {
               elem.textContent = priceStr;
-            if (elem.textContent == "${address}")
+            }
+            if (elem.textContent == "${address}") {
               elem.textContent = finalAddress;
+            }
           }
-          if (elem.nodeType == elem.ELEMENT_NODE && elem.getAttribute("address") == "${address}")
-           elem.setAttribute("address", finalAddress);
+          if (
+            elem.nodeType == elem.ELEMENT_NODE &&
+            elem.getAttribute("address") == "${address}"
+          ) {
+            elem.setAttribute("address", finalAddress);
+          }
         }
         replacePlaceholders(result);
         group.appendChild(result);
@@ -913,13 +1035,23 @@ var EmailAccountProvisioner = {
           result.classList.add("slideUp");
         }
       }
-      gLog.info("Added " + renderedAddresses + " addresses, showing at most " +
-        MAX_SMALL_ADDRESSES + ".");
+      gLog.info(
+        "Added " +
+          renderedAddresses +
+          " addresses, showing at most " +
+          MAX_SMALL_ADDRESSES +
+          "."
+      );
 
       if (renderedAddresses > MAX_SMALL_ADDRESSES) {
         let more = renderedAddresses - MAX_SMALL_ADDRESSES;
-        let moreStr = PluralForm.get(more, stringBundle.get("moreOptions")).replace("#1", more);
-        let last = group.querySelector(".row:nth-child(" + (MAX_SMALL_ADDRESSES + 1) + ")");
+        let moreStr = PluralForm.get(
+          more,
+          stringBundle.get("moreOptions")
+        ).replace("#1", more);
+        let last = group.querySelector(
+          ".row:nth-child(" + (MAX_SMALL_ADDRESSES + 1) + ")"
+        );
         let div = document.createElement("div");
         div.setAttribute("class", "more");
         div.appendChild(document.createTextNode(moreStr));
@@ -981,8 +1113,9 @@ var EmailAccountProvisioner = {
   },
 };
 
-window.addEventListener("online",
-                        EmailAccountProvisioner.tryToPopulateProviderList);
+window.addEventListener(
+  "online",
+  EmailAccountProvisioner.tryToPopulateProviderList
+);
 
-document.addEventListener("DOMContentLoaded",
-                          EmailAccountProvisioner.init);
+document.addEventListener("DOMContentLoaded", EmailAccountProvisioner.init);

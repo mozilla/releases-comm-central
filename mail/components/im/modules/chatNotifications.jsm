@@ -5,10 +5,18 @@
 this.EXPORTED_SYMBOLS = ["Notifications"];
 
 const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
-const {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
-const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-const {clearTimeout, setTimeout} = ChromeUtils.import("resource://gre/modules/Timer.jsm");
+const { StringBundle } = ChromeUtils.import(
+  "resource:///modules/StringBundle.js"
+);
+const { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
+const { PluralForm } = ChromeUtils.import(
+  "resource://gre/modules/PluralForm.jsm"
+);
+const { clearTimeout, setTimeout } = ChromeUtils.import(
+  "resource://gre/modules/Timer.jsm"
+);
 
 // Time in seconds: it is the minimum time of inactivity
 // needed to show the bundled notification.
@@ -19,9 +27,10 @@ var Notifications = {
     let ellipsis = "[\u2026]";
 
     try {
-      ellipsis =
-        Services.prefs.getComplexValue("intl.ellipsis",
-                                       Ci.nsIPrefLocalizedString).data;
+      ellipsis = Services.prefs.getComplexValue(
+        "intl.ellipsis",
+        Ci.nsIPrefLocalizedString
+      ).data;
     } catch (e) {}
     return ellipsis;
   },
@@ -43,9 +52,12 @@ var Notifications = {
     // We are about to show the notification, so let's play the notification sound.
     // We play the sound if the user is away from TB window or even away from chat tab.
     let win = Services.wm.getMostRecentWindow("mail:3pane");
-    if (!Services.focus.activeWindow ||
-        win.document.getElementById("tabmail").currentTabInfo.mode.name != "chat")
+    if (
+      !Services.focus.activeWindow ||
+      win.document.getElementById("tabmail").currentTabInfo.mode.name != "chat"
+    ) {
       Services.obs.notifyObservers(aMessage, "play-chat-notification-sound");
+    }
 
     // If TB window has focus, there's no need to show the notification..
     if (win && win.document.hasFocus()) {
@@ -56,7 +68,9 @@ var Notifications = {
 
     let bundle = new StringBundle("chrome://messenger/locale/chat.properties");
     let messageText, icon, name;
-    let notificationContent = Services.prefs.getIntPref("mail.chat.notification_info");
+    let notificationContent = Services.prefs.getIntPref(
+      "mail.chat.notification_info"
+    );
     // 0 - show all the info,
     // 1 - show only the sender not the message,
     // 2 - show no details about the message being notified.
@@ -73,74 +87,102 @@ var Notifications = {
         // Crop the end of the text if needed.
         if (messageText.length > 50) {
           messageText = messageText.substr(0, 50);
-          if (aCounter == 0)
+          if (aCounter == 0) {
             messageText = messageText + this.ellipsis;
+          }
         }
 
         // If there are more messages being bundled, add the count string.
         // ellipsis is a part of bundledMessagePreview so we don't include it here.
         if (aCounter > 0) {
-          let bundledMessage = bundle.getFormattedString("bundledMessagePreview", [messageText], 1);
-          messageText = PluralForm.get(aCounter, bundledMessage).replace("#1", aCounter);
+          let bundledMessage = bundle.getFormattedString(
+            "bundledMessagePreview",
+            [messageText],
+            1
+          );
+          messageText = PluralForm.get(aCounter, bundledMessage).replace(
+            "#1",
+            aCounter
+          );
         }
-        // Falls through
+      // Falls through
       case 1:
         // Use the buddy icon if available for the icon of the notification.
         let conv = aMessage.conversation;
         if (!conv.isChat) {
           let buddy = conv.buddy;
-          if (buddy)
+          if (buddy) {
             icon = buddy.buddyIconFilename;
+          }
         }
 
         // Handle third person messages
         name = aMessage.alias || aMessage.who;
-        if (messageText && messageText.startsWith("/me "))
+        if (messageText && messageText.startsWith("/me ")) {
           messageText = messageText.replace(/^\/me/, name);
-        // Falls through
+        }
+      // Falls through
       case 2:
-        if (!icon)
+        if (!icon) {
           icon = "chrome://messenger/skin/icons/userIcon.svg";
+        }
 
         if (!messageText) {
-          let bundle = new StringBundle("chrome://messenger/locale/chat.properties");
+          let bundle = new StringBundle(
+            "chrome://messenger/locale/chat.properties"
+          );
           messageText = bundle.get("messagePreview");
         }
     }
 
     // Show the notification!
-    Cc["@mozilla.org/alerts-service;1"].getService(Ci.nsIAlertsService)
-      .showAlertNotification(icon, name, messageText, true, "",
-                             (subject, topic, data) => {
-      if (topic != "alertclickcallback")
-        return;
+    Cc["@mozilla.org/alerts-service;1"]
+      .getService(Ci.nsIAlertsService)
+      .showAlertNotification(
+        icon,
+        name,
+        messageText,
+        true,
+        "",
+        (subject, topic, data) => {
+          if (topic != "alertclickcallback") {
+            return;
+          }
 
-      // If there is a timeout set, clear it.
-      clearTimeout(this._timeoutId);
-      this._heldMessage = null;
-      this._msgCounter = 0;
-      this._lastMessageTime = 0;
-      this._lastMessageSender = null;
-      // Focus the conversation if the notification is clicked.
-      let uiConv = Services.conversations.getUIConversation(aMessage.conversation);
-      let mainWindow = Services.wm.getMostRecentWindow("mail:3pane");
-      if (mainWindow) {
-        mainWindow.focus();
-        mainWindow.showChatTab();
-        mainWindow.chatHandler.focusConversation(uiConv);
-      } else {
-        Services.appShell.hiddenDOMWindow
-                .openDialog("chrome://messenger/content/",
-                            "_blank", "chrome,dialog=no,all", null,
-                            {tabType: "chat",
-                             tabParams: {convType: "focus", conv: uiConv}});
-      }
-      if (AppConstants.platform == "macosx") {
-        Cc["@mozilla.org/widget/macdocksupport;1"]
-          .getService(Ci.nsIMacDockSupport)
-          .activateApplication(true);
-      }
-    });
+          // If there is a timeout set, clear it.
+          clearTimeout(this._timeoutId);
+          this._heldMessage = null;
+          this._msgCounter = 0;
+          this._lastMessageTime = 0;
+          this._lastMessageSender = null;
+          // Focus the conversation if the notification is clicked.
+          let uiConv = Services.conversations.getUIConversation(
+            aMessage.conversation
+          );
+          let mainWindow = Services.wm.getMostRecentWindow("mail:3pane");
+          if (mainWindow) {
+            mainWindow.focus();
+            mainWindow.showChatTab();
+            mainWindow.chatHandler.focusConversation(uiConv);
+          } else {
+            Services.appShell.hiddenDOMWindow.openDialog(
+              "chrome://messenger/content/",
+              "_blank",
+              "chrome,dialog=no,all",
+              null,
+              {
+                tabType: "chat",
+                tabParams: { convType: "focus", conv: uiConv },
+              }
+            );
+          }
+          if (AppConstants.platform == "macosx") {
+            Cc["@mozilla.org/widget/macdocksupport;1"]
+              .getService(Ci.nsIMacDockSupport)
+              .activateApplication(true);
+          }
+        }
+      );
 
     this._heldMessage = null;
     this._msgCounter = 0;
@@ -153,8 +195,10 @@ var Notifications = {
 
   _notificationPrefName: "mail.chat.show_desktop_notifications",
   observe(aSubject, aTopic, aData) {
-    if (aTopic == "new-directed-incoming-message" &&
-        Services.prefs.getBoolPref(this._notificationPrefName)) {
+    if (
+      aTopic == "new-directed-incoming-message" &&
+      Services.prefs.getBoolPref(this._notificationPrefName)
+    ) {
       // If this is the first message, we show the notification and
       // store the sender's name.
       let sender = aSubject.who || aSubject.alias;
@@ -162,8 +206,10 @@ var Notifications = {
         this._lastMessageSender = sender;
         this._lastMessageTime = aSubject.time;
         this._showMessageNotification(aSubject);
-      } else if ((this._lastMessageSender != sender) ||
-                 (aSubject.time > this._lastMessageTime + kTimeToWaitForMoreMsgs)) {
+      } else if (
+        this._lastMessageSender != sender ||
+        aSubject.time > this._lastMessageTime + kTimeToWaitForMoreMsgs
+      ) {
         // If the sender is not the same as the previous sender or the
         // time elapsed since the last message is greater than kTimeToWaitForMoreMsgs,
         // we show the held notification and set timeout for the message just arrived.
@@ -177,22 +223,27 @@ var Notifications = {
         this._lastMessageSender = sender;
         this._lastMessageTime = aSubject.time;
         this._showMessageNotification(aSubject);
-      } else if (this._lastMessageSender == sender &&
-                 this._lastMessageTime + kTimeToWaitForMoreMsgs >= aSubject.time) {
+      } else if (
+        this._lastMessageSender == sender &&
+        this._lastMessageTime + kTimeToWaitForMoreMsgs >= aSubject.time
+      ) {
         // If the sender is same as the previous sender and the time elapsed since the
         // last held message is less than kTimeToWaitForMoreMsgs, we increase the held messages
         // counter and update the last message's arrival time.
         this._lastMessageTime = aSubject.time;
-        if (!this._heldMessage)
+        if (!this._heldMessage) {
           this._heldMessage = aSubject;
-        else
+        } else {
           this._msgCounter++;
+        }
 
         clearTimeout(this._timeoutId);
         this._timeoutId = setTimeout(function() {
-            Notifications._showMessageNotification(Notifications._heldMessage,
-                                                   Notifications._msgCounter);
-          }, kTimeToWaitForMoreMsgs * 1000);
+          Notifications._showMessageNotification(
+            Notifications._heldMessage,
+            Notifications._msgCounter
+          );
+        }, kTimeToWaitForMoreMsgs * 1000);
       }
     }
   },

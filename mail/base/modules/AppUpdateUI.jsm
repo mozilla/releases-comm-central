@@ -7,11 +7,19 @@
 
 this.EXPORTED_SYMBOLS = ["AppUpdateUI"];
 
-const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-const {BrowserUtils} = ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
-const {clearTimeout, setTimeout} = ChromeUtils.import("resource://gre/modules/Timer.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+const { BrowserUtils } = ChromeUtils.import(
+  "resource://gre/modules/BrowserUtils.jsm"
+);
+const { clearTimeout, setTimeout } = ChromeUtils.import(
+  "resource://gre/modules/Timer.jsm"
+);
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { StringBundle } = ChromeUtils.import(
+  "resource:///modules/StringBundle.js"
+);
 
 const PREF_APP_UPDATE_UNSUPPORTED_URL = "app.update.unsupported.url";
 
@@ -44,10 +52,12 @@ const AppUpdateUI_Internal = {
   },
 
   addTimeout(time, callback) {
-    this._timeouts.push(setTimeout(() => {
-      this.clearCallbacks();
-      callback();
-    }, time));
+    this._timeouts.push(
+      setTimeout(() => {
+        this.clearCallbacks();
+        callback();
+      }, time)
+    );
   },
 
   getReleaseNotesURL(update) {
@@ -79,27 +89,48 @@ const AppUpdateUI_Internal = {
       hideClose: true,
     };
 
-    doc.getElementById("app-update-text").textContent =
-      appUpdateBundle.getFormattedString("updateRestartMessage", [appName]);
+    doc.getElementById(
+      "app-update-text"
+    ).textContent = appUpdateBundle.getFormattedString("updateRestartMessage", [
+      appName,
+    ]);
 
-    let messageString =
-      appUpdateBundle.getFormattedString("updateRestartTitle", [appName]);
+    let messageString = appUpdateBundle.getFormattedString(
+      "updateRestartTitle",
+      [appName]
+    );
 
     let action = {
-      label: appUpdateBundle.getFormattedString("updateRestartPrimaryButtonLabel", [appName]),
-      accessKey: appUpdateBundle.getString("updateRestartPrimaryButtonAccessKey"),
+      label: appUpdateBundle.getFormattedString(
+        "updateRestartPrimaryButtonLabel",
+        [appName]
+      ),
+      accessKey: appUpdateBundle.getString(
+        "updateRestartPrimaryButtonAccessKey"
+      ),
       callback: () => {
         BrowserUtils.restartApplication();
       },
     };
-    let secondaryActions = [{
-      label: appUpdateBundle.getString("updateRestartSecondaryButtonLabel"),
-      accessKey: appUpdateBundle.getString("updateRestartSecondaryButtonAccessKey"),
-      callback: () => {},
-    }];
+    let secondaryActions = [
+      {
+        label: appUpdateBundle.getString("updateRestartSecondaryButtonLabel"),
+        accessKey: appUpdateBundle.getString(
+          "updateRestartSecondaryButtonAccessKey"
+        ),
+        callback: () => {},
+      },
+    ];
 
-    this.showNotification(browser, NOTIFICATION_ID, messageString, ANCHOR_ID,
-                          action, secondaryActions, options);
+    this.showNotification(
+      browser,
+      NOTIFICATION_ID,
+      messageString,
+      ANCHOR_ID,
+      action,
+      secondaryActions,
+      options
+    );
   },
 
   showUpdateAvailableNotification(update) {
@@ -114,29 +145,48 @@ const AppUpdateUI_Internal = {
       learnMoreURL: this.getReleaseNotesURL(update),
     };
 
-    doc.getElementById("app-update-text").textContent =
-      appUpdateBundle.getFormattedString("updateAvailableMessage", [appName]);
+    doc.getElementById(
+      "app-update-text"
+    ).textContent = appUpdateBundle.getFormattedString(
+      "updateAvailableMessage",
+      [appName]
+    );
 
-    let messageString =
-      appUpdateBundle.getFormattedString("updateAvailableTitle", [appName]);
+    let messageString = appUpdateBundle.getFormattedString(
+      "updateAvailableTitle",
+      [appName]
+    );
 
     let action = {
       label: appUpdateBundle.getString("updateAvailablePrimaryButtonLabel"),
-      accessKey: appUpdateBundle.getString("updateAvailablePrimaryButtonAccessKey"),
+      accessKey: appUpdateBundle.getString(
+        "updateAvailablePrimaryButtonAccessKey"
+      ),
       callback: () => {
         Cc["@mozilla.org/updates/update-service;1"]
           .getService(Ci.nsIApplicationUpdateService)
           .downloadUpdate(update, true);
       },
     };
-    let secondaryActions = [{
-      label: appUpdateBundle.getString("updateAvailableSecondaryButtonLabel"),
-      accessKey: appUpdateBundle.getString("updateAvailableSecondaryButtonAccessKey"),
-      callback: () => {},
-    }];
+    let secondaryActions = [
+      {
+        label: appUpdateBundle.getString("updateAvailableSecondaryButtonLabel"),
+        accessKey: appUpdateBundle.getString(
+          "updateAvailableSecondaryButtonAccessKey"
+        ),
+        callback: () => {},
+      },
+    ];
 
-    this.showNotification(browser, NOTIFICATION_ID, messageString, ANCHOR_ID,
-                          action, secondaryActions, options);
+    this.showNotification(
+      browser,
+      NOTIFICATION_ID,
+      messageString,
+      ANCHOR_ID,
+      action,
+      secondaryActions,
+      options
+    );
   },
 
   showManualUpdateNotification(update) {
@@ -151,15 +201,25 @@ const AppUpdateUI_Internal = {
       learnMoreURL: this.getReleaseNotesURL(update),
     };
 
-    doc.getElementById("app-update-text").textContent =
-      appUpdateBundle.getFormattedString("updateManualMessage", [appName]);
+    doc.getElementById(
+      "app-update-text"
+    ).textContent = appUpdateBundle.getFormattedString("updateManualMessage", [
+      appName,
+    ]);
 
-    let messageString =
-      appUpdateBundle.getFormattedString("updateManualTitle", [appName]);
+    let messageString = appUpdateBundle.getFormattedString(
+      "updateManualTitle",
+      [appName]
+    );
 
     let action = {
-      label: appUpdateBundle.getFormattedString("updateManualPrimaryButtonLabel", [appName]),
-      accessKey: appUpdateBundle.getString("updateManualPrimaryButtonAccessKey"),
+      label: appUpdateBundle.getFormattedString(
+        "updateManualPrimaryButtonLabel",
+        [appName]
+      ),
+      accessKey: appUpdateBundle.getString(
+        "updateManualPrimaryButtonAccessKey"
+      ),
       callback: () => {
         let url = Services.urlFormatter.formatURLPref("app.update.url.manual");
         Cc["@mozilla.org/uriloader/external-protocol-service;1"]
@@ -167,20 +227,33 @@ const AppUpdateUI_Internal = {
           .loadURI(Services.io.newURI(url));
       },
     };
-    let secondaryActions = [{
-      label: appUpdateBundle.getString("updateManualSecondaryButtonLabel"),
-      accessKey: appUpdateBundle.getString("updateManualSecondaryButtonAccessKey"),
-      callback: () => {},
-    }];
+    let secondaryActions = [
+      {
+        label: appUpdateBundle.getString("updateManualSecondaryButtonLabel"),
+        accessKey: appUpdateBundle.getString(
+          "updateManualSecondaryButtonAccessKey"
+        ),
+        callback: () => {},
+      },
+    ];
 
-    this.showNotification(browser, NOTIFICATION_ID, messageString, ANCHOR_ID,
-                          action, secondaryActions, options);
+    this.showNotification(
+      browser,
+      NOTIFICATION_ID,
+      messageString,
+      ANCHOR_ID,
+      action,
+      secondaryActions,
+      options
+    );
   },
 
   showUnsupportedUpdateNotification(update) {
     if (!update || !update.detailsURL) {
-      Cu.reportError("The update for an unsupported notification must have a " +
-                     "detailsURL attribute.");
+      Cu.reportError(
+        "The update for an unsupported notification must have a " +
+          "detailsURL attribute."
+      );
       return;
     }
 
@@ -188,7 +261,9 @@ const AppUpdateUI_Internal = {
     // If the system unsupported notification has already been shown don't show
     // it again to avoid annoying users. The unsupported message will always be
     // displayed in the About dialog.
-    if (url == Services.prefs.getCharPref(PREF_APP_UPDATE_UNSUPPORTED_URL, null)) {
+    if (
+      url == Services.prefs.getCharPref(PREF_APP_UPDATE_UNSUPPORTED_URL, null)
+    ) {
       return;
     }
 
@@ -204,29 +279,51 @@ const AppUpdateUI_Internal = {
       popupIconClass: "updates-unsupported",
     };
 
-    doc.getElementById("app-update-text").textContent =
-      appUpdateBundle.getFormattedString("updateUnsupportedMessage", [appName]);
+    doc.getElementById(
+      "app-update-text"
+    ).textContent = appUpdateBundle.getFormattedString(
+      "updateUnsupportedMessage",
+      [appName]
+    );
 
-    let messageString =
-      appUpdateBundle.getFormattedString("updateUnsupportedTitle", [appName]);
+    let messageString = appUpdateBundle.getFormattedString(
+      "updateUnsupportedTitle",
+      [appName]
+    );
 
     let action = {
-      label: appUpdateBundle.getFormattedString("updateUnsupportedPrimaryButtonLabel", [appName]),
-      accessKey: appUpdateBundle.getString("updateUnsupportedPrimaryButtonAccessKey"),
+      label: appUpdateBundle.getFormattedString(
+        "updateUnsupportedPrimaryButtonLabel",
+        [appName]
+      ),
+      accessKey: appUpdateBundle.getString(
+        "updateUnsupportedPrimaryButtonAccessKey"
+      ),
       callback: () => {
         Cc["@mozilla.org/uriloader/external-protocol-service;1"]
           .getService(Ci.nsIExternalProtocolService)
           .loadURI(Services.io.newURI(url));
       },
     };
-    let secondaryActions = [{
-      label: appUpdateBundle.getString("updateManualSecondaryButtonLabel"),
-      accessKey: appUpdateBundle.getString("updateManualSecondaryButtonAccessKey"),
-      callback: () => {},
-    }];
+    let secondaryActions = [
+      {
+        label: appUpdateBundle.getString("updateManualSecondaryButtonLabel"),
+        accessKey: appUpdateBundle.getString(
+          "updateManualSecondaryButtonAccessKey"
+        ),
+        callback: () => {},
+      },
+    ];
 
-    this.showNotification(browser, NOTIFICATION_ID, messageString, ANCHOR_ID,
-                          action, secondaryActions, options);
+    this.showNotification(
+      browser,
+      NOTIFICATION_ID,
+      messageString,
+      ANCHOR_ID,
+      action,
+      secondaryActions,
+      options
+    );
   },
 
   handleUpdateError(update, status) {
@@ -269,7 +366,7 @@ const AppUpdateUI_Internal = {
         this.clearCallbacks();
 
         let doorhangerWaitTimeMs =
-          (update && update.promptWaitTime) ? (update.promptWaitTime * 1000) : 0;
+          update && update.promptWaitTime ? update.promptWaitTime * 1000 : 0;
         this.addTimeout(doorhangerWaitTimeMs, () => {
           this.showRestartNotification();
         });

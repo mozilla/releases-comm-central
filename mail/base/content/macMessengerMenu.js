@@ -5,21 +5,29 @@
 
 /* import-globals-from mailCore.js */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 // Load and add the menu item to the OS X Dock icon menu.
-addEventListener("load", function() {
-  let dockMenuElement = document.getElementById("menu_mac_dockmenu");
-  let nativeMenu = Cc["@mozilla.org/widget/standalonenativemenu;1"]
-                    .createInstance(Ci.nsIStandaloneNativeMenu);
+addEventListener(
+  "load",
+  function() {
+    let dockMenuElement = document.getElementById("menu_mac_dockmenu");
+    let nativeMenu = Cc[
+      "@mozilla.org/widget/standalonenativemenu;1"
+    ].createInstance(Ci.nsIStandaloneNativeMenu);
 
-  nativeMenu.init(dockMenuElement);
+    nativeMenu.init(dockMenuElement);
 
-  let dockSupport = Cc["@mozilla.org/widget/macdocksupport;1"]
-                     .getService(Ci.nsIMacDockSupport);
-  dockSupport.dockMenu = nativeMenu;
-}, false);
+    let dockSupport = Cc["@mozilla.org/widget/macdocksupport;1"].getService(
+      Ci.nsIMacDockSupport
+    );
+    dockSupport.dockMenu = nativeMenu;
+  },
+  false
+);
 
 /**
  * When the Preferences window is actually loaded, this Listener is called.
@@ -28,7 +36,9 @@ addEventListener("load", function() {
 function loadListener(event) {
   setTimeout(function() {
     let prefWin = Services.wm.getMostRecentWindow("Mail:Preferences");
-    prefWin.gSubDialog.open("chrome://messenger/content/preferences/dockoptions.xul");
+    prefWin.gSubDialog.open(
+      "chrome://messenger/content/preferences/dockoptions.xul"
+    );
   });
 }
 
@@ -39,7 +49,10 @@ function loadListener(event) {
 function PrefWindowObserver() {
   this.observe = function(aSubject, aTopic, aData) {
     if (aTopic == "domwindowopened") {
-      aSubject.addEventListener("load", loadListener, {capture: false, once: true});
+      aSubject.addEventListener("load", loadListener, {
+        capture: false,
+        once: true,
+      });
     }
     Services.ww.unregisterNotification(this);
   };
@@ -67,9 +80,15 @@ function openDockOptions() {
  */
 function writeNewMessageDock() {
   // Default identity will be used as sender for the new message.
-  MailServices.compose.OpenComposeWindow(null, null, null,
+  MailServices.compose.OpenComposeWindow(
+    null,
+    null,
+    null,
     Ci.nsIMsgCompType.New,
-    Ci.nsIMsgCompFormat.Default, null, null);
+    Ci.nsIMsgCompFormat.Default,
+    null,
+    null
+  );
 }
 
 /**
@@ -80,7 +99,12 @@ function openAddressBookDock() {
   if (win) {
     win.focus();
   } else {
-    Services.ww.openWindow(null, "chrome://messenger/content/addressbook/addressbook.xul", null,
-                           "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar", null);
+    Services.ww.openWindow(
+      null,
+      "chrome://messenger/content/addressbook/addressbook.xul",
+      null,
+      "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar",
+      null
+    );
   }
 }

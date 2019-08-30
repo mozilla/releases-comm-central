@@ -5,7 +5,9 @@
 
 /* import-globals-from mailWindow.js */
 
-var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 
 var ToolbarIconColor = {
   init() {
@@ -18,8 +20,9 @@ var ToolbarIconColor = {
     // If the window isn't active now, we assume that it has never been active
     // before and will soon become active such that inferFromText will be
     // called from the initial activate event.
-    if (Services.focus.activeWindow == window)
+    if (Services.focus.activeWindow == window) {
       this.inferFromText();
+    }
   },
 
   uninit() {
@@ -44,14 +47,17 @@ var ToolbarIconColor = {
       case "lightweight-theme-styling-update":
         // inferFromText needs to run after LightweightThemeConsumer.jsm's
         // lightweight-theme-styling-update observer.
-        setTimeout(() => { this.inferFromText(); }, 0);
+        setTimeout(() => {
+          this.inferFromText();
+        }, 0);
         break;
     }
   },
 
   inferFromText() {
-    if (!this._initialized)
+    if (!this._initialized) {
       return;
+    }
 
     function parseRGB(aColorString) {
       let rgb = aColorString.match(/^rgba?\((\d+), (\d+), (\d+)/);
@@ -68,10 +74,11 @@ var ToolbarIconColor = {
     for (let toolbar of document.querySelectorAll(toolbarSelector)) {
       let [r, g, b] = parseRGB(getComputedStyle(toolbar).color);
       let luminance = 0.2125 * r + 0.7154 * g + 0.0721 * b;
-      if (luminance <= 110)
+      if (luminance <= 110) {
         toolbar.removeAttribute("brighttext");
-      else
+      } else {
         toolbar.setAttribute("brighttext", "true");
+      }
     }
   },
 };

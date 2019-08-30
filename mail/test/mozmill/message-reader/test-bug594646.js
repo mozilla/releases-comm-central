@@ -25,7 +25,9 @@ var gReferenceTextContent;
 function setupModule(module) {
   collector.getModule("folder-display-helpers").installInto(module);
   collector.getModule("window-helpers").installInto(module);
-  gReferenceTextContent = extract_eml_body_textcontent("./bug594646_reference.eml");
+  gReferenceTextContent = extract_eml_body_textcontent(
+    "./bug594646_reference.eml"
+  );
 }
 
 function extract_eml_body_textcontent(eml) {
@@ -35,13 +37,9 @@ function extract_eml_body_textcontent(eml) {
   // Be sure to view message body as Original HTML
   msgc.window.MsgBodyAllowHTML();
 
-  let textContent = msgc.window
-                        .msgWindow
-                        .messageWindowDocShell
-                        .contentViewer
-                        .DOMDocument
-                        .documentElement
-                        .textContent;
+  let textContent =
+    msgc.window.msgWindow.messageWindowDocShell.contentViewer.DOMDocument
+      .documentElement.textContent;
 
   close_window(msgc);
   return textContent;
@@ -92,4 +90,3 @@ function test_original_html_characters_head_meta_content_charset_newline_httpEq(
   check_eml_textcontent("./bug594646_newline_httpequiv_qp.eml");
   check_eml_textcontent("./bug594646_newline_httpequiv_b64.eml");
 }
-

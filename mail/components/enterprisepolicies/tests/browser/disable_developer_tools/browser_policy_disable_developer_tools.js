@@ -4,16 +4,25 @@
 "use strict";
 
 add_task(async function test_updates_post_policy() {
-  is(Services.policies.isAllowed("devtools"), false,
-     "devtools should be disabled by policy.");
+  is(
+    Services.policies.isAllowed("devtools"),
+    false,
+    "devtools should be disabled by policy."
+  );
 
-  is(Services.prefs.getBoolPref("devtools.policy.disabled"), true,
-     "devtools dedicated disabled pref is set to true");
+  is(
+    Services.prefs.getBoolPref("devtools.policy.disabled"),
+    true,
+    "devtools dedicated disabled pref is set to true"
+  );
 
   Services.prefs.setBoolPref("devtools.policy.disabled", false);
 
-  is(Services.prefs.getBoolPref("devtools.policy.disabled"), true,
-     "devtools dedicated disabled pref can not be updated");
+  is(
+    Services.prefs.getBoolPref("devtools.policy.disabled"),
+    true,
+    "devtools dedicated disabled pref can not be updated"
+  );
 
   await checkBlockedPage("about:devtools", true);
   await checkBlockedPage("about:devtools-toolbox", true);
@@ -22,8 +31,13 @@ add_task(async function test_updates_post_policy() {
   info("Check that devtools menu items are hidden");
   let devtoolsMenu = window.document.getElementById("devtoolsMenu");
   ok(devtoolsMenu.hidden, "The Web Developer item of the tools menu is hidden");
-  let appmenu_devtoolsMenu = window.document.getElementById("appmenu_devtoolsMenu");
-  ok(appmenu_devtoolsMenu.hidden, "The Web Developer item of the hamburger menu is hidden");
+  let appmenu_devtoolsMenu = window.document.getElementById(
+    "appmenu_devtoolsMenu"
+  );
+  ok(
+    appmenu_devtoolsMenu.hidden,
+    "The Web Developer item of the hamburger menu is hidden"
+  );
 });
 
 async function checkBlockedPage(url, expectedBlocked) {

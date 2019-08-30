@@ -2,16 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {PlacesUtils} = ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
-var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { PlacesUtils } = ChromeUtils.import(
+  "resource://gre/modules/PlacesUtils.jsm"
+);
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 
 function Sanitizer() {}
 Sanitizer.prototype = {
   // warning to the caller: this one may raise an exception (e.g. bug #265028)
   clearItem(aItemName) {
-    if (this.items[aItemName].canClear)
+    if (this.items[aItemName].canClear) {
       this.items[aItemName].clear();
+    }
   },
 
   canClearItem(aItemName) {
@@ -35,10 +40,12 @@ Sanitizer.prototype = {
     var errors = null;
 
     // Cache the range of times to clear
-    if (this.ignoreTimespan)
-      var range = null;  // If we ignore timespan, clear everything
-    else
+    if (this.ignoreTimespan) {
+      var range = null;
+    } // If we ignore timespan, clear everything
+    else {
       range = this.range || Sanitizer.getClearRange();
+    }
 
     for (var itemName in this.items) {
       var item = this.items[itemName];
@@ -52,8 +59,9 @@ Sanitizer.prototype = {
         try {
           item.clear();
         } catch (er) {
-          if (!errors)
+          if (!errors) {
             errors = {};
+          }
           errors[itemName] = er;
           dump("Error sanitizing " + itemName + ": " + er + "\n");
         }
@@ -93,10 +101,16 @@ Sanitizer.prototype = {
           while (cookiesEnum.hasMoreElements()) {
             var cookie = cookiesEnum.getNext().QueryInterface(Ci.nsICookie);
 
-            if (cookie.creationTime > this.range[0])
+            if (cookie.creationTime > this.range[0]) {
               // This cookie was created after our cutoff, clear it
-              Services.cookies.remove(cookie.host, cookie.name, cookie.path,
-                                      false, cookie.originAttributes);
+              Services.cookies.remove(
+                cookie.host,
+                cookie.name,
+                cookie.path,
+                false,
+                cookie.originAttributes
+              );
+            }
           }
         } else {
           // Remove everything
@@ -112,8 +126,7 @@ Sanitizer.prototype = {
         // that this.range[1] is actually now, so we compute age range based
         // on the lower bound. If this.range results in a negative age, do
         // nothing.
-        let age = this.range ? (Date.now() / 1000 - this.range[0] / 1000000)
-                             : -1;
+        let age = this.range ? Date.now() / 1000 - this.range[0] / 1000000 : -1;
         if (!this.range || age >= 0) {
           let tags = ph.getPluginTags();
           for (let i = 0; i < tags.length; i++) {
@@ -121,8 +134,7 @@ Sanitizer.prototype = {
               ph.clearSiteData(tags[i], null, FLAG_CLEAR_ALL, age);
             } catch (e) {
               // If the plugin doesn't support clearing by age, clear everything.
-              if (e.result == Cr.
-                    NS_ERROR_PLUGIN_TIME_RANGE_NOT_SUPPORTED) {
+              if (e.result == Cr.NS_ERROR_PLUGIN_TIME_RANGE_NOT_SUPPORTED) {
                 try {
                   ph.clearSiteData(tags[i], null, FLAG_CLEAR_ALL, -1);
                 } catch (e) {
@@ -135,8 +147,8 @@ Sanitizer.prototype = {
 
         // clear any network geolocation provider sessions
         try {
-            var branch = Services.prefs.getBranch("geo.wifi.access_token.");
-            branch.deleteBranch("");
+          var branch = Services.prefs.getBranch("geo.wifi.access_token.");
+          branch.deleteBranch("");
         } catch (e) {}
       },
 
@@ -147,21 +159,23 @@ Sanitizer.prototype = {
 
     history: {
       clear() {
-        if (this.range)
+        if (this.range) {
           PlacesUtils.history.removeVisitsByFilter({
             beginDate: new Date(this.range[0]),
             endDate: new Date(this.range[1]),
           });
-        else
+        } else {
           PlacesUtils.history.clear();
+        }
 
         try {
           Services.obs.notifyObservers(null, "browser:purge-session-history");
         } catch (e) {}
 
         try {
-          var predictor = Cc["@mozilla.org/network/predictor;1"]
-                            .getService(Ci.nsINetworkPredictor);
+          var predictor = Cc["@mozilla.org/network/predictor;1"].getService(
+            Ci.nsINetworkPredictor
+          );
           predictor.reset();
         } catch (e) {}
       },
@@ -176,43 +190,45 @@ Sanitizer.prototype = {
 };
 
 // "Static" members
-Sanitizer.prefDomain          = "privacy.sanitize.";
-Sanitizer.prefShutdown        = "sanitizeOnShutdown";
-Sanitizer.prefDidShutdown     = "didShutdownSanitize";
+Sanitizer.prefDomain = "privacy.sanitize.";
+Sanitizer.prefShutdown = "sanitizeOnShutdown";
+Sanitizer.prefDidShutdown = "didShutdownSanitize";
 
 // Time span constants corresponding to values of the privacy.sanitize.timeSpan
 // pref.  Used to determine how much history to clear, for various items
 Sanitizer.TIMESPAN_EVERYTHING = 0;
-Sanitizer.TIMESPAN_HOUR       = 1;
-Sanitizer.TIMESPAN_2HOURS     = 2;
-Sanitizer.TIMESPAN_4HOURS     = 3;
-Sanitizer.TIMESPAN_TODAY      = 4;
+Sanitizer.TIMESPAN_HOUR = 1;
+Sanitizer.TIMESPAN_2HOURS = 2;
+Sanitizer.TIMESPAN_4HOURS = 3;
+Sanitizer.TIMESPAN_TODAY = 4;
 
 // Return a 2 element array representing the start and end times,
 // in the uSec-since-epoch format that PRTime likes.  If we should
 // clear everything, return null.  Use ts if it is defined; otherwise
 // use the timeSpan pref.
 Sanitizer.getClearRange = function(ts) {
-  if (ts === undefined)
+  if (ts === undefined) {
     ts = Sanitizer.prefs.getIntPref("timeSpan");
-  if (ts === Sanitizer.TIMESPAN_EVERYTHING)
+  }
+  if (ts === Sanitizer.TIMESPAN_EVERYTHING) {
     return null;
+  }
 
   // PRTime is microseconds while JS time is milliseconds
   var endDate = Date.now() * 1000;
   switch (ts) {
-    case Sanitizer.TIMESPAN_HOUR :
+    case Sanitizer.TIMESPAN_HOUR:
       var startDate = endDate - 3600000000; // 1*60*60*1000000
       break;
-    case Sanitizer.TIMESPAN_2HOURS :
+    case Sanitizer.TIMESPAN_2HOURS:
       startDate = endDate - 7200000000; // 2*60*60*1000000
       break;
-    case Sanitizer.TIMESPAN_4HOURS :
+    case Sanitizer.TIMESPAN_4HOURS:
       startDate = endDate - 14400000000; // 4*60*60*1000000
       break;
-    case Sanitizer.TIMESPAN_TODAY :
-      var d = new Date();  // Start with today
-      d.setHours(0);      // zero us back to midnight...
+    case Sanitizer.TIMESPAN_TODAY:
+      var d = new Date(); // Start with today
+      d.setHours(0); // zero us back to midnight...
       d.setMinutes(0);
       d.setSeconds(0);
       startDate = d.valueOf() * 1000; // convert to epoch usec
@@ -225,19 +241,20 @@ Sanitizer.getClearRange = function(ts) {
 
 Sanitizer._prefs = null;
 Sanitizer.__defineGetter__("prefs", function() {
-  return Sanitizer._prefs ? Sanitizer._prefs
-    : Sanitizer._prefs = Services.prefs
-                                 .getBranch(Sanitizer
-                                 .prefDomain);
+  return Sanitizer._prefs
+    ? Sanitizer._prefs
+    : (Sanitizer._prefs = Services.prefs.getBranch(Sanitizer.prefDomain));
 });
 
 // Shows sanitization UI
 Sanitizer.showUI = function(aParentWindow) {
-  Services.ww.openWindow(AppConstants.platform == "macosx" ? null : aParentWindow,
-                         "chrome://messenger/content/sanitize.xul",
-                         "Sanitize",
-                         "chrome,titlebar,dialog,centerscreen,modal",
-                         null);
+  Services.ww.openWindow(
+    AppConstants.platform == "macosx" ? null : aParentWindow,
+    "chrome://messenger/content/sanitize.xul",
+    "Sanitize",
+    "chrome,titlebar,dialog,centerscreen,modal",
+    null
+  );
 };
 
 /**
@@ -251,14 +268,13 @@ Sanitizer.sanitize = function(aParentWindow) {
 // this is called on startup and shutdown, to perform pending sanitizations
 Sanitizer._checkAndSanitize = function() {
   const prefs = Sanitizer.prefs;
-  if (prefs.getBoolPref(Sanitizer.prefShutdown) &&
-      !prefs.prefHasUserValue(Sanitizer.prefDidShutdown)) {
+  if (
+    prefs.getBoolPref(Sanitizer.prefShutdown) &&
+    !prefs.prefHasUserValue(Sanitizer.prefDidShutdown)
+  ) {
     // this is a shutdown or a startup after an unclean exit
     var s = new Sanitizer();
     s.prefDomain = "privacy.clearOnShutdown.";
-    s.sanitize() || // sanitize() returns null on full success
-      prefs.setBoolPref(Sanitizer.prefDidShutdown, true);
+    s.sanitize() || prefs.setBoolPref(Sanitizer.prefDidShutdown, true); // sanitize() returns null on full success
   }
 };
-
-

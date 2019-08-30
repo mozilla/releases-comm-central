@@ -14,9 +14,15 @@
 
 var MODULE_NAME = "test-address-widgets";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "compose-helpers",
+  "window-helpers",
+];
 
-var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var { fixIterator } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
 
 var cwc = null; // compose window controller
 var accountPOP3 = null;
@@ -30,15 +36,18 @@ function setupModule(module) {
 
   // Ensure we're in the tinderbox account as that has the right identities set
   // up for this test.
-  let server = MailServices.accounts.FindServer("tinderbox", FAKE_SERVER_HOSTNAME, "pop3");
+  let server = MailServices.accounts.FindServer(
+    "tinderbox",
+    FAKE_SERVER_HOSTNAME,
+    "pop3"
+  );
   accountPOP3 = MailServices.accounts.FindAccountForServer(server);
 
   // There may be pre-existing accounts from other tests.
   originalAccountCount = MailServices.accounts.allServers.length;
 }
 
-function teardownModule(module) {
-}
+function teardownModule(module) {}
 
 /**
  * Check if the address type items are in the wished state.
@@ -46,9 +55,14 @@ function teardownModule(module) {
  * @param aItemsEnabled  List of item values that should be enabled (uncollapsed).
  */
 function check_address_types_state(aItemsEnabled) {
-  let addr_types = cwc.e("addressingWidget").querySelectorAll("menuitem[value]");
-  for (let item of addr_types)
-    assert_true(item.collapsed != aItemsEnabled.includes(item.getAttribute("value")));
+  let addr_types = cwc
+    .e("addressingWidget")
+    .querySelectorAll("menuitem[value]");
+  for (let item of addr_types) {
+    assert_true(
+      item.collapsed != aItemsEnabled.includes(item.getAttribute("value"))
+    );
+  }
 
   // Even if the currently selected type is collaped,
   // the containing menulist should never be collapsed.
@@ -70,8 +84,14 @@ function check_mail_address_types() {
  * With a NNTP account, all address types should be enabled.
  */
 function check_nntp_address_types() {
-  check_address_types_state(["addr_to", "addr_cc", "addr_reply", "addr_bcc",
-                             "addr_newsgroups", "addr_followup"]);
+  check_address_types_state([
+    "addr_to",
+    "addr_cc",
+    "addr_reply",
+    "addr_bcc",
+    "addr_newsgroups",
+    "addr_followup",
+  ]);
 }
 
 function add_NNTP_account() {
@@ -87,7 +107,10 @@ function add_NNTP_account() {
   accountNNTP.incomingServer = nntpServer;
   accountNNTP.addIdentity(identity);
   // Now there should be 1 more account.
-  assert_equals(MailServices.accounts.allServers.length, originalAccountCount + 1);
+  assert_equals(
+    MailServices.accounts.allServers.length,
+    originalAccountCount + 1
+  );
 }
 
 function remove_NNTP_account() {
@@ -104,10 +127,15 @@ function remove_NNTP_account() {
  */
 function test_address_types() {
   // Be sure there is no NNTP account yet.
-  for (let account of fixIterator(MailServices.accounts.accounts,
-                                  Ci.nsIMsgAccount)) {
-    assert_not_equals(account.incomingServer.type, "nntp",
-                      "There is a NNTP account existing unexpectedly");
+  for (let account of fixIterator(
+    MailServices.accounts.accounts,
+    Ci.nsIMsgAccount
+  )) {
+    assert_not_equals(
+      account.incomingServer.type,
+      "nntp",
+      "There is a NNTP account existing unexpectedly"
+    );
   }
 
   // Open compose window on the existing POP3 account.
@@ -133,19 +161,24 @@ function test_address_types() {
 
   let NNTPidentity = accountNNTP.defaultIdentity.key;
   cwc.click(cwc.eid("msgIdentity"));
-  cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [ { identitykey: NNTPidentity } ]);
+  cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
+    { identitykey: NNTPidentity },
+  ]);
   check_nntp_address_types();
 
   // In a News account, choose "Newsgroup:" as the address type.
   cwc.click(cwc.eid("addressCol1#1"));
-  cwc.click_menus_in_sequence(cwc.e("addressCol1#1").menupopup,
-                              [ { value: "addr_newsgroups" } ]);
+  cwc.click_menus_in_sequence(cwc.e("addressCol1#1").menupopup, [
+    { value: "addr_newsgroups" },
+  ]);
   check_nntp_address_types();
 
   // And switch back to the POP3 account.
   let POP3identity = accountPOP3.defaultIdentity.key;
   cwc.click(cwc.eid("msgIdentity"));
-  cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [ { identitykey: POP3identity } ]);
+  cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
+    { identitykey: POP3identity },
+  ]);
   check_nntp_address_types();
 
   close_compose_window(cwc);

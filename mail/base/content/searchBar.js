@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
+var { StringBundle } = ChromeUtils.import(
+  "resource:///modules/StringBundle.js"
+);
 
 var gSearchBundle;
 
@@ -30,26 +32,27 @@ var gStatusBar = document.getElementById("statusbar-icon");
 var GlodaSearchBoxTabMonitor = {
   monitorName: "glodaSearchBox",
 
-  onTabTitleChanged() {
-  },
+  onTabTitleChanged() {},
 
   onTabOpened(aTab, aFirstTab, aOldTab) {
     aTab._ext.glodaSearchBox = {
-      value: (aTab.mode.name === "glodaFacet") ? aTab.searchString : "",
+      value: aTab.mode.name === "glodaFacet" ? aTab.searchString : "",
     };
 
     if (aTab.mode.name === "glodaFacet") {
-      let searchInput = aTab.panel
-                            .querySelector(".remote-gloda-search");
-      if (searchInput)
+      let searchInput = aTab.panel.querySelector(".remote-gloda-search");
+      if (searchInput) {
         searchInput.value = aTab.searchString;
+      }
     }
   },
 
   onTabSwitched(aTab, aOldTab) {
     let searchInput = document.getElementById("searchInput");
-    if (!searchInput) // customized out of the way
+    if (!searchInput) {
+      // customized out of the way
       return;
+    }
 
     // save the current search field value
     if (aOldTab) {
@@ -59,8 +62,8 @@ var GlodaSearchBoxTabMonitor = {
     // (We check first to avoid weird blank field / empty text transitions on
     // tab change.)
     let desiredValue = aTab._ext.glodaSearchBox.value || "";
-    if (searchInput.value != desiredValue)
+    if (searchInput.value != desiredValue) {
       searchInput.value = desiredValue;
+    }
   },
 };
-

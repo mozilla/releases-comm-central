@@ -3,37 +3,50 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 add_task(async () => {
-  await testCheckboxes("panePrivacy", "privacyCategory", {
-    checkboxID: "acceptRemoteContent",
-    pref: "mailnews.message_display.disable_remote_image",
-    prefValues: [true, false],
-  }, {
-    checkboxID: "keepHistory",
-    pref: "places.history.enabled",
-  }, {
-    checkboxID: "acceptCookies",
-    pref: "network.cookie.cookieBehavior",
-    prefValues: [2, 0],
-    enabledElements: ["#acceptThirdPartyMenu", "#keepCookiesUntil"],
-  }, {
-    checkboxID: "privacyDoNotTrackCheckbox",
-    pref: "privacy.donottrackheader.enabled",
-  });
+  await testCheckboxes(
+    "panePrivacy",
+    "privacyCategory",
+    {
+      checkboxID: "acceptRemoteContent",
+      pref: "mailnews.message_display.disable_remote_image",
+      prefValues: [true, false],
+    },
+    {
+      checkboxID: "keepHistory",
+      pref: "places.history.enabled",
+    },
+    {
+      checkboxID: "acceptCookies",
+      pref: "network.cookie.cookieBehavior",
+      prefValues: [2, 0],
+      enabledElements: ["#acceptThirdPartyMenu", "#keepCookiesUntil"],
+    },
+    {
+      checkboxID: "privacyDoNotTrackCheckbox",
+      pref: "privacy.donottrackheader.enabled",
+    }
+  );
 });
 
 add_task(async () => {
-  await testCheckboxes("panePrivacy", "privacyJunkCategory", {
-    checkboxID: "manualMark",
-    pref: "mail.spam.manualMark",
-    enabledElements: ["#manualMarkMode radio"],
-  }, {
-    checkboxID: "markAsReadOnSpam",
-    pref: "mail.spam.markAsReadOnSpam",
-  }, {
-    checkboxID: "enableJunkLogging",
-    pref: "mail.spam.logging.enabled",
-    enabledElements: ["#openJunkLogButton"],
-  });
+  await testCheckboxes(
+    "panePrivacy",
+    "privacyJunkCategory",
+    {
+      checkboxID: "manualMark",
+      pref: "mail.spam.manualMark",
+      enabledElements: ["#manualMarkMode radio"],
+    },
+    {
+      checkboxID: "markAsReadOnSpam",
+      pref: "mail.spam.markAsReadOnSpam",
+    },
+    {
+      checkboxID: "enableJunkLogging",
+      pref: "mail.spam.logging.enabled",
+      enabledElements: ["#openJunkLogButton"],
+    }
+  );
 
   await testCheckboxes("panePrivacy", "privacySecurityCategory", {
     checkboxID: "enablePhishingDetector",
@@ -51,13 +64,16 @@ add_task(async () => {
 
   await testRadioButtons("panePrivacy", "privacyJunkCategory", {
     pref: "mail.spam.manualMarkMode",
-    states: [{
-      id: "manualMarkMode0",
-      prefValue: 0,
-    }, {
-      id: "manualMarkMode1",
-      prefValue: 1,
-    }],
+    states: [
+      {
+        id: "manualMarkMode0",
+        prefValue: 0,
+      },
+      {
+        id: "manualMarkMode1",
+        prefValue: 1,
+      },
+    ],
   });
 });
 
@@ -79,12 +95,15 @@ add_task(async () => {
 add_task(async () => {
   await testRadioButtons("panePrivacy", "enableOCSP", {
     pref: "security.default_personal_cert",
-    states: [{
-      id: "certSelectionAuto",
-      prefValue: "Select Automatically",
-    }, {
-      id: "certSelectionAsk",
-      prefValue: "Ask Every Time",
-    }],
+    states: [
+      {
+        id: "certSelectionAuto",
+        prefValue: "Select Automatically",
+      },
+      {
+        id: "certSelectionAsk",
+        prefValue: "Ask Every Time",
+      },
+    ],
   });
 });

@@ -8,8 +8,10 @@ var MODULE_NAME = "address-book-helpers";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var ABMDB_PREFIX = "moz-abmdbdirectory://";
 var ABLDAP_PREFIX = "moz-abldapdirectory://";
@@ -28,8 +30,9 @@ function setupModule() {
   windowHelper = collector.getModule("window-helpers");
   // Ensure all the directories are initialised.
   MailServices.ab.directories;
-  collectedAddresses = MailServices.ab
-                       .getDirectory("moz-abmdbdirectory://history.mab");
+  collectedAddresses = MailServices.ab.getDirectory(
+    "moz-abmdbdirectory://history.mab"
+  );
 }
 
 function installInto(module) {
@@ -44,12 +47,10 @@ function installInto(module) {
   module.create_ldap_address_book = create_ldap_address_book;
   module.create_contact = create_contact;
   module.create_mailing_list = create_mailing_list;
-  module.get_mailing_list_from_address_book =
-      get_mailing_list_from_address_book;
+  module.get_mailing_list_from_address_book = get_mailing_list_from_address_book;
   module.load_contacts_into_address_book = load_contacts_into_address_book;
   module.load_contacts_into_mailing_list = load_contacts_into_mailing_list;
-  module.get_cards_in_all_address_books_for_email =
-      get_cards_in_all_address_books_for_email;
+  module.get_cards_in_all_address_books_for_email = get_cards_in_all_address_books_for_email;
   module.get_address_book_tree_view_index = get_address_book_tree_view_index;
   module.set_address_books_collapsed = set_address_books_collapsed;
   module.set_address_books_expanded = set_address_books_expanded;
@@ -89,8 +90,9 @@ function ensure_no_card_exists(emailAddress) {
     try {
       var card = ab.cardForEmailAddress(emailAddress);
       if (card) {
-        let cardArray = Cc["@mozilla.org/array;1"]
-                          .createInstance(Ci.nsIMutableArray);
+        let cardArray = Cc["@mozilla.org/array;1"].createInstance(
+          Ci.nsIMutableArray
+        );
         cardArray.appendElement(card);
         ab.deleteCards(cardArray);
       }
@@ -122,11 +124,12 @@ function get_cards_in_all_address_books_for_email(aEmailAddress) {
  * @returns a controller for the address book
  */
 function open_address_book_window(aController) {
-  if (aController === undefined)
+  if (aController === undefined) {
     aController = mc;
+  }
 
   windowHelper.plan_for_new_window("mail:addressbook");
-  aController.keypress(null, "b", {shiftKey: true, accelKey: true});
+  aController.keypress(null, "b", { shiftKey: true, accelKey: true });
 
   // XXX this should probably be changed to making callers pass in which address
   // book they want to work with, just like test-compose-helpers.
@@ -166,8 +169,9 @@ function create_mork_address_book(aName) {
  * @returns the nsIAbDirectory address book
  */
 function create_ldap_address_book(aName, aURI) {
-  if (!aURI)
+  if (!aURI) {
     aURI = "ldap://dummyldap/??sub?(objectclass=*)";
+  }
   let abPrefString = MailServices.ab.newAddressBook(aName, aURI, 0);
   return MailServices.ab.getDirectory(ABLDAP_PREFIX + abPrefString);
 }
@@ -180,8 +184,9 @@ function create_ldap_address_book(aName, aURI) {
  *                           override the header display name
  */
 function create_contact(aEmailAddress, aDisplayName, aPreferDisplayName) {
-  let card = Cc["@mozilla.org/addressbook/cardproperty;1"]
-               .createInstance(Ci.nsIAbCard);
+  let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+    Ci.nsIAbCard
+  );
   card.primaryEmail = aEmailAddress;
   card.displayName = aDisplayName;
   card.setProperty("PreferDisplayName", !!aPreferDisplayName);
@@ -192,8 +197,9 @@ function create_contact(aEmailAddress, aDisplayName, aPreferDisplayName) {
  * @param aMailingListName the display name for the new mailing list
  */
 function create_mailing_list(aMailingListName) {
-  var mailList = Cc["@mozilla.org/addressbook/directoryproperty;1"]
-                   .createInstance(Ci.nsIAbDirectory);
+  var mailList = Cc[
+    "@mozilla.org/addressbook/directoryproperty;1"
+  ].createInstance(Ci.nsIAbDirectory);
   mailList.isMailList = true;
   mailList.dirName = aMailingListName;
   return mailList;
@@ -209,8 +215,9 @@ function get_mailing_list_from_address_book(aAddressBook, aDirName) {
   while (mailingLists.hasMoreElements()) {
     let item = mailingLists.getNext();
     let list = item.QueryInterface(Ci.nsIAbDirectory);
-    if (list && list.dirName == aDirName)
+    if (list && list.dirName == aDirName) {
       return list;
+    }
   }
   throw Error("Could not find a mailing list with dirName " + aDirName);
 }
@@ -227,9 +234,9 @@ function get_mailing_list_from_address_book(aAddressBook, aDirName) {
  */
 function load_contacts_into_address_book(aAddressBook, aContacts) {
   for (let contact of aContacts) {
-    if (!(contact instanceof Ci.nsIAbCard))
-      contact = create_contact(contact.email,
-                               contact.displayName, true);
+    if (!(contact instanceof Ci.nsIAbCard)) {
+      contact = create_contact(contact.email, contact.displayName, true);
+    }
 
     aAddressBook.addCard(contact);
   }
@@ -263,8 +270,9 @@ function get_address_book_tree_view_index(aAddrBook) {
       return i;
     }
   }
-  throw Error("Could not find the index for the address book named "
-              + aAddrBook.dirName);
+  throw Error(
+    "Could not find the index for the address book named " + aAddrBook.dirName
+  );
 }
 
 /* Given some contact, return the row index for that contact in the
@@ -278,12 +286,13 @@ function get_contact_ab_view_index(aContact) {
   let contacts = abController.window.gAbView;
   for (let i = 0; i < contacts.rowCount; i++) {
     let contact = contacts.getCardFromRow(i);
-    if (contact.localId == aContact.localId &&
-        !contact.isMailList)
+    if (contact.localId == aContact.localId && !contact.isMailList) {
       return i;
+    }
   }
-  throw Error("Could not find the index for the contact named "
-              + aContact.displayName);
+  throw Error(
+    "Could not find the index for the contact named " + aContact.displayName
+  );
 }
 
 /* Determines whether or not an address book is collapsed in
@@ -313,14 +322,17 @@ function is_address_book_collapsible(aAddrbook) {
  *        address books
  */
 function set_address_books_expanded(aAddrBooks) {
-  if (!Array.isArray(aAddrBooks))
+  if (!Array.isArray(aAddrBooks)) {
     aAddrBooks = [aAddrBooks];
+  }
 
   for (let i = 0; i < aAddrBooks.length; i++) {
     let addrBook = aAddrBooks[i];
-    if (!is_address_book_collapsible(addrBook))
-      throw Error("Address book called " + addrBook.dirName
-                  + " cannot be expanded.");
+    if (!is_address_book_collapsible(addrBook)) {
+      throw Error(
+        "Address book called " + addrBook.dirName + " cannot be expanded."
+      );
+    }
     if (is_address_book_collapsed(addrBook)) {
       let aIndex = get_address_book_tree_view_index(addrBook);
       abController.window.gDirectoryTreeView.toggleOpenState(aIndex);
@@ -335,14 +347,17 @@ function set_address_books_expanded(aAddrBooks) {
  *        address books
  */
 function set_address_books_collapsed(aAddrBooks) {
-  if (!Array.isArray(aAddrBooks))
+  if (!Array.isArray(aAddrBooks)) {
     aAddrBooks = [aAddrBooks];
+  }
 
   for (let i = 0; i < aAddrBooks.length; i++) {
     let addrBook = aAddrBooks[i];
-    if (!is_address_book_collapsible(addrBook))
-      throw Error("Address book called " + addrBook.dirName
-                  + " cannot be collapsed.");
+    if (!is_address_book_collapsible(addrBook)) {
+      throw Error(
+        "Address book called " + addrBook.dirName + " cannot be collapsed."
+      );
+    }
     if (!is_address_book_collapsed(addrBook)) {
       let aIndex = get_address_book_tree_view_index(addrBook);
       abController.window.gDirectoryTreeView.toggleOpenState(aIndex);
@@ -378,8 +393,9 @@ function select_address_book(aAddrBook) {
  * multiple.
  */
 function select_contacts(aContacts) {
-  if (!Array.isArray(aContacts))
+  if (!Array.isArray(aContacts)) {
     aContacts = [aContacts];
+  }
 
   abController.window.gAbView.selection.clearSelection();
   for (let i = 0; i < aContacts.length; i++) {
@@ -411,8 +427,9 @@ function edit_selected_contact(aController, aFunction) {
  * @param aController the contact editing dialog controller to use.
  */
 function accept_contact_changes(aController) {
-  if (!aController.window.document.documentElement.acceptDialog())
+  if (!aController.window.document.documentElement.acceptDialog()) {
     throw new Error("Could not close the contact editing dialog!");
+  }
 }
 
 /**

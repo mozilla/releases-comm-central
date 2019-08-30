@@ -4,11 +4,15 @@
 
 "use strict";
 
-var {ExtensionTestUtils} = ChromeUtils.import("resource://testing-common/ExtensionXPCShellUtils.jsm");
+var { ExtensionTestUtils } = ChromeUtils.import(
+  "resource://testing-common/ExtensionXPCShellUtils.jsm"
+);
 ExtensionTestUtils.init(this);
 
-var {Gloda} = ChromeUtils.import("resource:///modules/gloda/public.js");
-var {GlodaIndexer} = ChromeUtils.import("resource:///modules/gloda/indexer.js");
+var { Gloda } = ChromeUtils.import("resource:///modules/gloda/public.js");
+var { GlodaIndexer } = ChromeUtils.import(
+  "resource:///modules/gloda/indexer.js"
+);
 
 // Create some folders and populate them.
 let account, rootFolder;
@@ -61,45 +65,71 @@ add_task(async function() {
       });
 
       // Check all messages are returned.
-      let {messages} = await browser.messages.query({});
+      let { messages } = await browser.messages.query({});
       browser.test.assertEq(18, messages.length);
 
       let folder = { accountId, path: "/test1" };
 
       // Query messages from test1. No messages from test2 should be returned.
       // We'll use these messages as a reference for further tests.
-      let {messages: referenceMessages} = await browser.messages.query({folder});
+      let { messages: referenceMessages } = await browser.messages.query({
+        folder,
+      });
       browser.test.assertEq(9, referenceMessages.length);
-      browser.test.assertTrue(referenceMessages.every(m => m.folder.path == "/test1"));
+      browser.test.assertTrue(
+        referenceMessages.every(m => m.folder.path == "/test1")
+      );
 
       // Dump the reference messages to the console for easier debugging.
       browser.test.log("Reference messages:");
       for (let m of referenceMessages) {
         let date = m.date.toISOString().substring(0, 10);
         let author = m.author.replace(/"(.*)".*/, "$1").padEnd(16, " ");
-        let recipients = m.recipients[0].replace(/(.*) <.*>/, "$1").padEnd(16, " ");
-        browser.test.log(`[${m.id}] ${date} From: ${author} To: ${recipients} Subject: ${m.subject}`);
+        let recipients = m.recipients[0]
+          .replace(/(.*) <.*>/, "$1")
+          .padEnd(16, " ");
+        browser.test.log(
+          `[${m.id}] ${date} From: ${author} To: ${recipients} Subject: ${
+            m.subject
+          }`
+        );
       }
 
       let subtest = async function(queryInfo, ...expectedMessageIndices) {
         browser.test.log("Testing " + JSON.stringify(queryInfo));
         queryInfo.folder = folder;
-        let {messages: actualMessages} = await browser.messages.query(queryInfo);
+        let { messages: actualMessages } = await browser.messages.query(
+          queryInfo
+        );
 
-        browser.test.assertEq(expectedMessageIndices.length, actualMessages.length, "Correct number of messages");
+        browser.test.assertEq(
+          expectedMessageIndices.length,
+          actualMessages.length,
+          "Correct number of messages"
+        );
         for (let index of expectedMessageIndices) {
           // browser.test.log(`Looking for message ${index}`);
           if (!actualMessages.some(am => am.id == index)) {
             browser.test.fail(`Message ${index} was not returned`);
-            browser.test.log("These messages were returned: " + actualMessages.map(am => am.id));
+            browser.test.log(
+              "These messages were returned: " + actualMessages.map(am => am.id)
+            );
           }
         }
       };
 
       // Date range query. The messages are 0 days old, 2 days old, 4 days old, etc..
       let today = new Date();
-      let date1 = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 5);
-      let date2 = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 11);
+      let date1 = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate() - 5
+      );
+      let date2 = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate() - 11
+      );
       await subtest({ fromDate: today });
       await subtest({ fromDate: date1 }, 1, 2, 3);
       await subtest({ fromDate: date2 }, 1, 2, 3, 4, 5, 6);
@@ -118,7 +148,7 @@ add_task(async function() {
       await subtest({ fullText: keyword }, 2);
 
       // Author query.
-      keyword = referenceMessages[2].author.replace("\"", "").split(" ")[0];
+      keyword = referenceMessages[2].author.replace('"', "").split(" ")[0];
       await subtest({ author: keyword }, 3);
       await subtest({ fullText: keyword }, 3);
 

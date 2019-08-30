@@ -4,7 +4,9 @@
 
 "use strict";
 
-var {ExtensionTestUtils} = ChromeUtils.import("resource://testing-common/ExtensionXPCShellUtils.jsm");
+var { ExtensionTestUtils } = ChromeUtils.import(
+  "resource://testing-common/ExtensionXPCShellUtils.jsm"
+);
 ExtensionTestUtils.init(this);
 
 let account, rootFolder, subFolders;
@@ -60,7 +62,10 @@ add_task(async function test_pagination() {
       browser.test.assertEq(10, numPages);
       browser.test.assertEq(99, numMessages);
 
-      browser.test.assertRejects(browser.messages.continueList(originalPageId), null);
+      browser.test.assertRejects(
+        browser.messages.continueList(originalPageId),
+        null
+      );
 
       await awaitMessage("setPref");
 
@@ -124,7 +129,9 @@ add_task(async function test_update() {
       await awaitMessage("tags1");
 
       // Test that setting two tags works.
-      await browser.messages.update(message.id, { tags: [tags[1].key, tags[2].key] });
+      await browser.messages.update(message.id, {
+        tags: [tags[1].key, tags[2].key],
+      });
       await awaitMessage("tags2");
 
       // Test that unspecified properties aren't changed.
@@ -132,7 +139,11 @@ add_task(async function test_update() {
       await awaitMessage("empty");
 
       // Test that clearing properties works.
-      await browser.messages.update(message.id, { flagged: false, read: false, tags: [] });
+      await browser.messages.update(message.id, {
+        flagged: false,
+        read: false,
+        tags: [],
+      });
       await awaitMessage("clear");
 
       browser.test.notifyPass("finished");
@@ -196,7 +207,7 @@ add_task(async function test_move_copy_delete() {
 
       async function checkMessagesInFolder(expectedIndices, folder) {
         let expectedSubjects = expectedIndices.map(i => subjects[i]);
-        let {messages: actualMessages} = await browser.messages.list(folder);
+        let { messages: actualMessages } = await browser.messages.list(folder);
 
         browser.test.assertEq(expectedSubjects.length, actualMessages.length);
         for (let m of actualMessages) {
@@ -210,13 +221,15 @@ add_task(async function test_move_copy_delete() {
       }
 
       let [accountId] = await awaitMessage();
-      let {folders} = await browser.accounts.get(accountId);
+      let { folders } = await browser.accounts.get(accountId);
       let testFolder1 = folders.find(f => f.name == "test1");
       let testFolder2 = folders.find(f => f.name == "test2");
       let testFolder3 = folders.find(f => f.name == "test3");
       let trashFolder = folders.find(f => f.name == "Trash");
 
-      let {messages: folder1Messages} = await browser.messages.list(testFolder1);
+      let { messages: folder1Messages } = await browser.messages.list(
+        testFolder1
+      );
       // Since the ID of a message changes when it is moved, track by subject.
       let ids = folder1Messages.map(m => m.id);
       let subjects = folder1Messages.map(m => m.subject);
@@ -276,7 +289,9 @@ add_task(async function test_move_copy_delete() {
       browser.test.log(ids.join(", ")); // 101, 109, 103, 110, 105
 
       // Move to a non-existent folder.
-      browser.test.assertRejects(browser.messages.move([ids[0]], {accountId, path: "/missing"}));
+      browser.test.assertRejects(
+        browser.messages.move([ids[0]], { accountId, path: "/missing" })
+      );
 
       // Put everything back where it was at the start of the test.
       await browser.messages.move(ids, testFolder1);
@@ -284,7 +299,9 @@ add_task(async function test_move_copy_delete() {
       // Copy one message to another folder.
       await browser.messages.copy([ids[4]], testFolder2);
       await checkMessagesInFolder([0, 1, 2, 3, 4], testFolder1);
-      let {messages: folder2Messages} = await browser.messages.list(testFolder2);
+      let { messages: folder2Messages } = await browser.messages.list(
+        testFolder2
+      );
       browser.test.assertEq(1, folder2Messages.length);
       browser.test.assertEq(subjects[4], folder2Messages[0].subject);
       browser.test.assertTrue(folder2Messages[0].id != ids[4]);
@@ -305,8 +322,12 @@ add_task(async function test_move_copy_delete() {
       await checkMessagesInFolder([], testFolder2);
       await checkMessagesInFolder([], testFolder3);
 
-      let {messages: trashFolderMessages} = await browser.messages.list(trashFolder);
-      browser.test.assertTrue(trashFolderMessages.find(m => m.subject == trashedMessage.subject));
+      let { messages: trashFolderMessages } = await browser.messages.list(
+        trashFolder
+      );
+      browser.test.assertTrue(
+        trashFolderMessages.find(m => m.subject == trashedMessage.subject)
+      );
       browser.test.log(ids.join(", ")); // 101, 102, 103, 104
 
       browser.test.notifyPass("finished");
@@ -358,7 +379,9 @@ add_task(async function test_archive() {
       browser.test.assertEq(3, accountBefore.folders.length);
       browser.test.assertEq("/test", accountBefore.folders[2].path);
 
-      let messagesBefore = await browser.messages.list(accountBefore.folders[2]);
+      let messagesBefore = await browser.messages.list(
+        accountBefore.folders[2]
+      );
       await browser.messages.archive(messagesBefore.messages.map(m => m.id));
 
       let accountAfter = await browser.accounts.get(accountId);

@@ -35,9 +35,14 @@
 //
 // ***** END LICENSE BLOCK *****
 
-var EXPORTED_SYMBOLS = ["listDirectory", "getFileForPath", "abspath", "getPlatform"];
+var EXPORTED_SYMBOLS = [
+  "listDirectory",
+  "getFileForPath",
+  "abspath",
+  "getPlatform",
+];
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function listDirectory(file) {
   // file is the given directory (nsIFile)

@@ -4,7 +4,9 @@
 
 "use strict";
 
-var {ExtensionTestUtils} = ChromeUtils.import("resource://testing-common/ExtensionXPCShellUtils.jsm");
+var { ExtensionTestUtils } = ChromeUtils.import(
+  "resource://testing-common/ExtensionXPCShellUtils.jsm"
+);
 ExtensionTestUtils.init(this);
 
 add_task(async function test_accounts() {
@@ -38,7 +40,10 @@ add_task(async function test_accounts() {
         browser.test.assertTrue(expectedKeys.length <= actualKeys.length);
 
         for (let key of expectedKeys) {
-          browser.test.assertTrue(actualKeys.includes(key), `Key ${key} exists`);
+          browser.test.assertTrue(
+            actualKeys.includes(key),
+            `Key ${key} exists`
+          );
           if (expected[key] === null) {
             browser.test.assertTrue(actual[key] === null);
             continue;
@@ -54,38 +59,49 @@ add_task(async function test_accounts() {
       let [account1Id] = await awaitMessage();
       let result1 = await browser.accounts.list();
       browser.test.assertEq(1, result1.length);
-      assertDeepEqual({
-        id: account1Id,
-        name: "Local Folders",
-        type: "none",
-        folders: [{
-          accountId: account1Id,
-          name: "Trash",
-          path: "/Trash",
-          type: "trash",
-        }, {
-          accountId: account1Id,
-          name: "Outbox",
-          path: "/Unsent Messages",
-          type: "outbox",
-        }],
-      }, result1[0]);
+      assertDeepEqual(
+        {
+          id: account1Id,
+          name: "Local Folders",
+          type: "none",
+          folders: [
+            {
+              accountId: account1Id,
+              name: "Trash",
+              path: "/Trash",
+              type: "trash",
+            },
+            {
+              accountId: account1Id,
+              name: "Outbox",
+              path: "/Unsent Messages",
+              type: "outbox",
+            },
+          ],
+        },
+        result1[0]
+      );
 
       let [account2Id] = await awaitMessage("create account 2");
       let result2 = await browser.accounts.list();
       browser.test.assertEq(2, result2.length);
       assertDeepEqual(result1[0], result2[0]);
-      assertDeepEqual({
-        id: account2Id,
-        name: "Mail for username@hostname",
-        type: "imap",
-        folders: [{
-          accountId: account2Id,
-          name: "Inbox",
-          path: "/INBOX",
-          type: "inbox",
-        }],
-      }, result2[1]);
+      assertDeepEqual(
+        {
+          id: account2Id,
+          name: "Mail for username@hostname",
+          type: "imap",
+          folders: [
+            {
+              accountId: account2Id,
+              name: "Inbox",
+              path: "/INBOX",
+              type: "inbox",
+            },
+          ],
+        },
+        result2[1]
+      );
 
       let result3 = await browser.accounts.get(account1Id);
       assertDeepEqual(result1[0], result3);
@@ -95,27 +111,35 @@ add_task(async function test_accounts() {
       await awaitMessage("create folders");
       let result5 = await browser.accounts.get(account1Id);
       let platformInfo = await browser.runtime.getPlatformInfo();
-      assertDeepEqual([{
-          accountId: account1Id,
-          name: "Trash",
-          path: "/Trash",
-          type: "trash",
-        }, {
-          accountId: account1Id,
-          name: "foo bar",
-          path: "/Trash/foo bar",
-        }, {
-          accountId: account1Id,
-          name: "Ϟ",
-          // This character is not supported on Windows, so it gets hashed,
-          // by NS_MsgHashIfNecessary.
-          path: platformInfo.os == "win" ? "/Trash/b52bc214" : "/Trash/Ϟ",
-        }, {
-          accountId: account1Id,
-          name: "Outbox",
-          path: "/Unsent Messages",
-          type: "outbox",
-        }], result5.folders);
+      assertDeepEqual(
+        [
+          {
+            accountId: account1Id,
+            name: "Trash",
+            path: "/Trash",
+            type: "trash",
+          },
+          {
+            accountId: account1Id,
+            name: "foo bar",
+            path: "/Trash/foo bar",
+          },
+          {
+            accountId: account1Id,
+            name: "Ϟ",
+            // This character is not supported on Windows, so it gets hashed,
+            // by NS_MsgHashIfNecessary.
+            path: platformInfo.os == "win" ? "/Trash/b52bc214" : "/Trash/Ϟ",
+          },
+          {
+            accountId: account1Id,
+            name: "Outbox",
+            path: "/Unsent Messages",
+            type: "outbox",
+          },
+        ],
+        result5.folders
+      );
 
       browser.test.notifyPass("finished");
     },
@@ -131,8 +155,11 @@ add_task(async function test_accounts() {
 
   await extension.awaitMessage("create account 2");
   let account2 = MailServices.accounts.createAccount();
-  account2.incomingServer =
-    MailServices.accounts.createIncomingServer("username", "hostname", "imap");
+  account2.incomingServer = MailServices.accounts.createIncomingServer(
+    "username",
+    "hostname",
+    "imap"
+  );
   extension.sendMessage(account2.key);
 
   await extension.awaitMessage("create folders");

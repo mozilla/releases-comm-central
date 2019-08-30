@@ -37,16 +37,37 @@
 //
 // ***** END LICENSE BLOCK *****
 
-var EXPORTED_SYMBOLS = ["openFile", "saveFile", "saveAsFile", "genBoiler",
-                        "getFile", "Copy", "getChromeWindow", "getWindows", "runEditor",
-                        "runFile", "getWindowByTitle", "getWindowByType", "getWindowId",
-                        "tempfile", "getMethodInWindows", "getPreference", "setPreference",
-                        "sleep", "assert", "unwrapNode", "TimeoutError", "waitFor"];
+var EXPORTED_SYMBOLS = [
+  "openFile",
+  "saveFile",
+  "saveAsFile",
+  "genBoiler",
+  "getFile",
+  "Copy",
+  "getChromeWindow",
+  "getWindows",
+  "runEditor",
+  "runFile",
+  "getWindowByTitle",
+  "getWindowByType",
+  "getWindowId",
+  "tempfile",
+  "getMethodInWindows",
+  "getPreference",
+  "setPreference",
+  "sleep",
+  "assert",
+  "unwrapNode",
+  "TimeoutError",
+  "waitFor",
+];
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var hwindow = Services.appShell.hiddenDOMWindow;
-var uuidgen = Cc["@mozilla.org/uuid-generator;1"].getService(Ci.nsIUUIDGenerator);
+var uuidgen = Cc["@mozilla.org/uuid-generator;1"].getService(
+  Ci.nsIUUIDGenerator
+);
 
 function Copy(obj) {
   for (var n in obj) {
@@ -79,7 +100,9 @@ function getMethodInWindows(methodName) {
       return w[methodName];
     }
   }
-  throw new Error("Method with name: '" + methodName + "' is not in any open window.");
+  throw new Error(
+    "Method with name: '" + methodName + "' is not in any open window."
+  );
 }
 
 function getWindowByTitle(title) {
@@ -113,7 +136,14 @@ function tempfile(appention) {
     appention = "mozmill.utils.tempfile";
   }
   var tempfile = Services.dirsvc.get("TmpD", Ci.nsIFile);
-  tempfile.append(uuidgen.generateUUID().toString().replace("-", "").replace("{", "").replace("}", ""));
+  tempfile.append(
+    uuidgen
+      .generateUUID()
+      .toString()
+      .replace("-", "")
+      .replace("{", "")
+      .replace("}", "")
+  );
   tempfile.create(Ci.nsIFile.DIRECTORY_TYPE, 0o777);
   tempfile.append(appention);
   tempfile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o666);
@@ -148,7 +178,9 @@ function saveFile(w, content, filename) {
   file.initWithPath(filename);
 
   // file is nsIFile, data is a string
-  var foStream = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(Ci.nsIFileOutputStream);
+  var foStream = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(
+    Ci.nsIFileOutputStream
+  );
 
   // use 0x02 | 0x10 to open file for appending.
   foStream.init(file, 0x02 | 0x08 | 0x20, 0o666, 0);
@@ -168,7 +200,10 @@ function saveAsFile(w, content) {
 
   return new Promise(resolve => {
     fp.open(rv => {
-      if ((rv != nsIFilePicker.returnOK && rv != nsIFilePicker.returnReplace) || !fp.file) {
+      if (
+        (rv != nsIFilePicker.returnOK && rv != nsIFilePicker.returnReplace) ||
+        !fp.file
+      ) {
         resolve(null);
         return;
       }
@@ -184,8 +219,9 @@ function saveAsFile(w, content) {
       }
 
       // file is nsIFile, data is a string
-      var foStream = Cc["@mozilla.org/network/file-output-stream;1"]
-                       .createInstance(Ci.nsIFileOutputStream);
+      var foStream = Cc[
+        "@mozilla.org/network/file-output-stream;1"
+      ].createInstance(Ci.nsIFileOutputStream);
 
       // use 0x02 | 0x10 to open file for appending.
       foStream.init(thefile, 0x02 | 0x08 | 0x20, 0o666, 0);
@@ -216,7 +252,7 @@ function openFile(w) {
       var thefile = fp.file;
       // create the paramObj with a files array attrib
       var data = getFile(thefile.path);
-      resolve({path: thefile.path, data});
+      resolve({ path: thefile.path, data });
     });
   });
 }
@@ -228,10 +264,12 @@ function getFile(path) {
   file.initWithPath(path);
   // define file stream interfaces
   var data = "";
-  var fstream = Cc["@mozilla.org/network/file-input-stream;1"]
-                  .createInstance(Ci.nsIFileInputStream);
-  var sstream = Cc["@mozilla.org/scriptableinputstream;1"]
-                  .createInstance(Ci.nsIScriptableInputStream);
+  var fstream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
+    Ci.nsIFileInputStream
+  );
+  var sstream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+    Ci.nsIScriptableInputStream
+  );
   fstream.init(file, -1, 0, 0);
   sstream.init(fstream);
 
@@ -263,11 +301,11 @@ function getFile(path) {
 function getPreference(aPrefName, aDefaultValue) {
   try {
     switch (typeof aDefaultValue) {
-      case ("boolean"):
+      case "boolean":
         return Services.prefs.getBoolPref(aPrefName);
-      case ("string"):
+      case "string":
         return Services.prefs.getCharPref(aPrefName);
-      case ("number"):
+      case "number":
         return Services.prefs.getIntPref(aPrefName);
       default:
         return Services.prefs.getComplexValue(aPrefName);
@@ -291,13 +329,13 @@ function getPreference(aPrefName, aDefaultValue) {
 function setPreference(aName, aValue) {
   try {
     switch (typeof aValue) {
-      case ("boolean"):
+      case "boolean":
         Services.prefs.setBoolPref(aName, aValue);
         break;
-      case ("string"):
+      case "string":
         Services.prefs.setCharPref(aName, aValue);
         break;
-      case ("number"):
+      case "number":
         Services.prefs.setIntPref(aName, aValue);
         break;
       default:
@@ -377,7 +415,7 @@ function waitFor(callback, message, timeout, interval, thisObject) {
   timeout = timeout || 5000;
   interval = interval || 100;
 
-  var self = {counter: 0, result: callback.call(thisObject)};
+  var self = { counter: 0, result: callback.call(thisObject) };
 
   function wait() {
     self.counter += interval;
@@ -387,7 +425,7 @@ function waitFor(callback, message, timeout, interval, thisObject) {
   var timeoutInterval = hwindow.setInterval(wait, interval);
   var thread = Services.tm.currentThread;
 
-  while (!self.result && (self.counter < timeout)) {
+  while (!self.result && self.counter < timeout) {
     thread.processNextEvent(true);
   }
 
@@ -396,10 +434,11 @@ function waitFor(callback, message, timeout, interval, thisObject) {
   if (self.counter >= timeout) {
     let messageText;
     if (message) {
-      if (typeof(message) === "function")
+      if (typeof message === "function") {
         messageText = message();
-      else
+      } else {
         messageText = message;
+      }
     } else {
       messageText = "waitFor: Timeout exceeded for '" + callback + "'";
     }

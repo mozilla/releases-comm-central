@@ -18,9 +18,15 @@ var MODULE_REQUIRES = [
   "keyboard-helpers",
 ];
 
-var mozmill = ChromeUtils.import("chrome://mozmill/content/modules/mozmill.jsm");
-var controller = ChromeUtils.import("chrome://mozmill/content/modules/controller.jsm");
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var mozmill = ChromeUtils.import(
+  "chrome://mozmill/content/modules/mozmill.jsm"
+);
+var controller = ChromeUtils.import(
+  "chrome://mozmill/content/modules/controller.jsm"
+);
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 
 var gOldWhiteList = null;
 var gKeyString = null;
@@ -35,8 +41,11 @@ function setupModule(module) {
   let amh = collector.getModule("account-manager-helpers");
   amh.installInto(module);
 
-  let server = MailServices.accounts
-                           .FindServer("tinderbox", FAKE_SERVER_HOSTNAME, "pop3");
+  let server = MailServices.accounts.FindServer(
+    "tinderbox",
+    FAKE_SERVER_HOSTNAME,
+    "pop3"
+  );
   gAccount = MailServices.accounts.FindAccountForServer(server);
   let serverKey = server.key;
 
@@ -64,8 +73,11 @@ function subtest_check_whitelist_init_and_save(amc) {
   // At this point, we shouldn't have anything checked, but we should have
   // the two default address books (Personal and Collected) displayed
   let list = doc.getElementById("whiteListAbURI");
-  assert_equals(2, list.getRowCount(),
-                "There was an unexpected number of address books");
+  assert_equals(
+    2,
+    list.getRowCount(),
+    "There was an unexpected number of address books"
+  );
 
   // Now we'll check both address books
   for (let i = 0; i < list.getRowCount(); i++) {
@@ -91,8 +103,11 @@ function subtest_check_whitelist_load_and_clear(amc) {
 
   for (let i = 0; i < list.getRowCount(); i++) {
     let abNode = list.getItemAtIndex(i);
-    assert_equals("true", abNode.firstChild.getAttribute("checked"),
-                  "Should have been checked");
+    assert_equals(
+      "true",
+      abNode.firstChild.getAttribute("checked"),
+      "Should have been checked"
+    );
     // Also ensure that the address book URI was properly saved in the
     // prefs
     assert_true(whiteListURIs.includes(abNode.getAttribute("value")));
@@ -119,15 +134,18 @@ function subtest_check_whitelist_load_cleared(amc) {
     whiteListURIs = Services.prefs.getCharPref(gKeyString);
     // We should have failed here, because the pref should have been cleared
     // out.
-    throw Error("The whitelist preference for this server wasn't properly "
-                + "cleared.");
-  } catch (e) {
-  }
+    throw Error(
+      "The whitelist preference for this server wasn't properly " + "cleared."
+    );
+  } catch (e) {}
 
   for (let i = 0; i < list.getRowCount(); i++) {
     let abNode = list.getItemAtIndex(i);
-    assert_equals("false", abNode.firstChild.getAttribute("checked"),
-                  "Should not have been checked");
+    assert_equals(
+      "false",
+      abNode.firstChild.getAttribute("checked"),
+      "Should not have been checked"
+    );
     // Also ensure that the address book URI was properly cleared in the
     // prefs
     assert_false(whiteListURIs.includes(abNode.getAttribute("value")));

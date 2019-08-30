@@ -6,9 +6,13 @@
 
 "use strict";
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { fixIterator } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Platform-specific includes
 var AboutSupportPlatform;
@@ -24,30 +28,33 @@ if ("@mozilla.org/windows-registry-key;1" in Cc) {
 }
 
 var gMessengerBundle = Services.strings.createBundle(
-  "chrome://messenger/locale/messenger.properties");
+  "chrome://messenger/locale/messenger.properties"
+);
 
 var gSocketTypes = {};
-for (let [str, index] of Object.entries(Ci.nsMsgSocketType))
+for (let [str, index] of Object.entries(Ci.nsMsgSocketType)) {
   gSocketTypes[index] = str;
+}
 
 var gAuthMethods = {};
-for (let [str, index] of Object.entries(Ci.nsMsgAuthMethod))
+for (let [str, index] of Object.entries(Ci.nsMsgAuthMethod)) {
   gAuthMethods[index] = str;
+}
 
 // l10n properties in messenger.properties corresponding to each auth method
 var gAuthMethodProperties = new Map([
-  [ 0,                                    "authNo" ], // Special value defined to be invalid.
-                                                      // Some accounts without auth report this.
-  [ Ci.nsMsgAuthMethod.none,              "authNo" ],
-  [ Ci.nsMsgAuthMethod.old,               "authOld" ],
-  [ Ci.nsMsgAuthMethod.passwordCleartext, "authPasswordCleartextViaSSL" ],
-  [ Ci.nsMsgAuthMethod.passwordEncrypted, "authPasswordEncrypted" ],
-  [ Ci.nsMsgAuthMethod.GSSAPI,            "authKerberos" ],
-  [ Ci.nsMsgAuthMethod.NTLM,              "authNTLM" ],
-  [ Ci.nsMsgAuthMethod.External,          "authExternal" ],
-  [ Ci.nsMsgAuthMethod.secure,            "authAnySecure" ],
-  [ Ci.nsMsgAuthMethod.anything,          "authAny" ],
-  [ Ci.nsMsgAuthMethod.OAuth2,            "authOAuth2" ],
+  [0, "authNo"], // Special value defined to be invalid.
+  // Some accounts without auth report this.
+  [Ci.nsMsgAuthMethod.none, "authNo"],
+  [Ci.nsMsgAuthMethod.old, "authOld"],
+  [Ci.nsMsgAuthMethod.passwordCleartext, "authPasswordCleartextViaSSL"],
+  [Ci.nsMsgAuthMethod.passwordEncrypted, "authPasswordEncrypted"],
+  [Ci.nsMsgAuthMethod.GSSAPI, "authKerberos"],
+  [Ci.nsMsgAuthMethod.NTLM, "authNTLM"],
+  [Ci.nsMsgAuthMethod.External, "authExternal"],
+  [Ci.nsMsgAuthMethod.secure, "authAnySecure"],
+  [Ci.nsMsgAuthMethod.anything, "authAny"],
+  [Ci.nsMsgAuthMethod.OAuth2, "authOAuth2"],
 ]);
 
 var AboutSupport = {
@@ -66,11 +73,13 @@ var AboutSupport = {
       let isDefault = identity == defaultIdentity;
       let smtpServer = {};
       MailServices.smtp.getServerByIdentity(identity, smtpServer);
-      smtpDetails.push({identityName: identity.identityName,
-                        name: smtpServer.value.displayname,
-                        authMethod: smtpServer.value.authMethod,
-                        socketType: smtpServer.value.socketType,
-                        isDefault});
+      smtpDetails.push({
+        identityName: identity.identityName,
+        name: smtpServer.value.displayname,
+        authMethod: smtpServer.value.authMethod,
+        socketType: smtpServer.value.socketType,
+        isDefault,
+      });
     }
 
     return smtpDetails;
@@ -88,8 +97,12 @@ var AboutSupport = {
       accountDetails.push({
         key: account.key,
         name: server.prettyName,
-        hostDetails: "(" + server.type + ") " + server.realHostName +
-                     (server.port != -1 ? (":" + server.port) : ""),
+        hostDetails:
+          "(" +
+          server.type +
+          ") " +
+          server.realHostName +
+          (server.port != -1 ? ":" + server.port : ""),
         socketType: server.socketType,
         authMethod: server.authMethod,
         smtpServers: this._getSMTPDetails(account),
@@ -123,12 +136,13 @@ var AboutSupport = {
    * returned as a record with "localized" and "neutral" entries.
    */
   getSocketTypeText(aIndex) {
-    let plainSocketType = (aIndex in gSocketTypes ?
-                           gSocketTypes[aIndex] : aIndex);
+    let plainSocketType =
+      aIndex in gSocketTypes ? gSocketTypes[aIndex] : aIndex;
     let prettySocketType;
     try {
       prettySocketType = gMessengerBundle.GetStringFromName(
-        "smtpServer-ConnectionSecurityType-" + aIndex);
+        "smtpServer-ConnectionSecurityType-" + aIndex
+      );
     } catch (e) {
       if (e.result == Cr.NS_ERROR_FAILURE) {
         // The string wasn't found in the bundle. Make do without it.
@@ -137,7 +151,7 @@ var AboutSupport = {
         throw e;
       }
     }
-    return {localized: prettySocketType, neutral: plainSocketType};
+    return { localized: prettySocketType, neutral: plainSocketType };
   },
 
   /**
@@ -146,15 +160,16 @@ var AboutSupport = {
    */
   getAuthMethodText(aIndex) {
     let prettyAuthMethod;
-    let plainAuthMethod = (aIndex in gAuthMethods ?
-                           gAuthMethods[aIndex] : aIndex);
+    let plainAuthMethod =
+      aIndex in gAuthMethods ? gAuthMethods[aIndex] : aIndex;
     if (gAuthMethodProperties.has(parseInt(aIndex))) {
-      prettyAuthMethod =
-        gMessengerBundle.GetStringFromName(gAuthMethodProperties.get(parseInt(aIndex)));
+      prettyAuthMethod = gMessengerBundle.GetStringFromName(
+        gAuthMethodProperties.get(parseInt(aIndex))
+      );
     } else {
       prettyAuthMethod = plainAuthMethod;
     }
-    return {localized: prettyAuthMethod, neutral: plainAuthMethod};
+    return { localized: prettyAuthMethod, neutral: plainAuthMethod };
   },
 };
 
@@ -165,8 +180,9 @@ function createParentElement(tagName, childElems) {
 }
 
 function createElement(tagName, textContent, opt_attributes, opt_copyData) {
-  if (opt_attributes == null)
+  if (opt_attributes == null) {
     opt_attributes = {};
+  }
   let elem = document.createElement(tagName);
   elem.textContent = textContent;
   for (let key in opt_attributes) {
@@ -181,8 +197,9 @@ function createElement(tagName, textContent, opt_attributes, opt_copyData) {
 }
 
 function appendChildren(parentElem, childNodes) {
-  for (let i = 0; i < childNodes.length; i++)
+  for (let i = 0; i < childNodes.length; i++) {
     parentElem.appendChild(childNodes[i]);
+  }
 }
 
 /**
@@ -196,7 +213,7 @@ function toStr(x) {
  * Marks x as private (see below).
  */
 function toPrivate(x) {
-  return {localized: x, neutral: x, isPrivate: true};
+  return { localized: x, neutral: x, isPrivate: true };
 }
 
 /**
@@ -238,11 +255,14 @@ function populateAccountsSection() {
   let trAccounts = [];
 
   function createTD(data, rowSpan) {
-    let text = (typeof data == "string") ? data : data.localized;
-    let copyData = (typeof data == "string") ? null : data.neutral;
-    let attributes = {rowspan: rowSpan};
-    if (typeof data == "object" && "isPrivate" in data)
-      attributes.class = data.isPrivate ? CLASS_DATA_PRIVATE : CLASS_DATA_PUBLIC;
+    let text = typeof data == "string" ? data : data.localized;
+    let copyData = typeof data == "string" ? null : data.neutral;
+    let attributes = { rowspan: rowSpan };
+    if (typeof data == "object" && "isPrivate" in data) {
+      attributes.class = data.isPrivate
+        ? CLASS_DATA_PRIVATE
+        : CLASS_DATA_PUBLIC;
+    }
 
     return createElement("td", text, attributes, copyData);
   }
@@ -252,17 +272,20 @@ function populateAccountsSection() {
     let rowSpan = account.smtpServers.length || 1;
     // incomingTDs is an array of TDs
     let incomingTDs = gIncomingDetails.map(([prop, fn]) =>
-                        createTD(fn(account[prop]), rowSpan));
+      createTD(fn(account[prop]), rowSpan)
+    );
     // outgoingTDs is an array of arrays of TDs
     let outgoingTDs = [];
     for (let smtp of account.smtpServers) {
-      outgoingTDs.push(gOutgoingDetails.map(([prop, fn]) =>
-                        createTD(fn(smtp[prop]), 1)));
+      outgoingTDs.push(
+        gOutgoingDetails.map(([prop, fn]) => createTD(fn(smtp[prop]), 1))
+      );
     }
 
     // If there are no SMTP servers, add a dummy element to make life easier below
-    if (outgoingTDs.length == 0)
+    if (outgoingTDs.length == 0) {
       outgoingTDs = [[]];
+    }
 
     // Add the first SMTP server to this tr.
     let tr = createParentElement("tr", incomingTDs.concat(outgoingTDs[0]));
@@ -284,10 +307,12 @@ function getAccountsText(aHidePrivateData, aIndent) {
 
   // Given a string or object, converts it into a language-neutral form
   function neutralizer(data) {
-    if (typeof data == "string")
+    if (typeof data == "string") {
       return data;
-    if ("isPrivate" in data && (aHidePrivateData == data.isPrivate))
+    }
+    if ("isPrivate" in data && aHidePrivateData == data.isPrivate) {
       return "";
+    }
     return data.neutral;
   }
 
@@ -295,18 +320,21 @@ function getAccountsText(aHidePrivateData, aIndent) {
     accumulator.push(aIndent + account.key + ":");
     // incomingData is an array of strings
     let incomingData = gIncomingDetails.map(([prop, fn]) =>
-                        neutralizer(fn(account[prop])));
+      neutralizer(fn(account[prop]))
+    );
     accumulator.push(aIndent + "  INCOMING: " + incomingData.join(", "));
 
     // outgoingData is an array of arrays of strings
     let outgoingData = [];
     for (let smtp of account.smtpServers) {
-      outgoingData.push(gOutgoingDetails.map(([prop, fn]) =>
-                        neutralizer(fn(smtp[prop]))));
+      outgoingData.push(
+        gOutgoingDetails.map(([prop, fn]) => neutralizer(fn(smtp[prop])))
+      );
     }
 
-    for (let data of outgoingData)
+    for (let data of outgoingData) {
       accumulator.push(aIndent + "  OUTGOING: " + data.join(", "));
+    }
 
     accumulator.push("");
   }

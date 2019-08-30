@@ -11,8 +11,8 @@
 
 var EXPORTED_SYMBOLS = ["MailMigrator"];
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.js");
 
 var MailMigrator = {
   /**
@@ -26,19 +26,21 @@ var MailMigrator = {
       let variableSizePref = "font.size.variable." + encoding;
       // This is expected to be one of sans-serif or serif, and determines what
       // we'll link the variable font size to.
-      let isSansDefault = Services.prefs.getCharPref("font.default." + encoding) ==
-                            "sans-serif";
+      let isSansDefault =
+        Services.prefs.getCharPref("font.default." + encoding) == "sans-serif";
 
       if (!Services.prefs.prefHasUserValue(serifPref)) {
         Services.prefs.setCharPref(serifPref, aFonts.serif);
-        if (!isSansDefault)
+        if (!isSansDefault) {
           Services.prefs.setIntPref(variableSizePref, aFonts.variableSize);
+        }
       }
 
       if (!Services.prefs.prefHasUserValue(sansPref)) {
         Services.prefs.setCharPref(sansPref, aFonts.sans);
-        if (isSansDefault)
+        if (isSansDefault) {
           Services.prefs.setIntPref(variableSizePref, aFonts.variableSize);
+        }
       }
 
       let monospacePref = "font.name.monospace." + encoding;
@@ -59,8 +61,9 @@ var MailMigrator = {
     if ("@mozilla.org/windows-registry-key;1" in Cc) {
       // Only migrate on Vista (Windows version 6.0) and above
       if (Services.sysinfo.getPropertyAsDouble("version") >= 6.0) {
-        let fontPrefVersion =
-          Services.prefs.getIntPref("mail.font.windows.version");
+        let fontPrefVersion = Services.prefs.getIntPref(
+          "mail.font.windows.version"
+        );
         if (fontPrefVersion < 2) {
           let fonts = {
             serif: "Cambria",
@@ -72,8 +75,9 @@ var MailMigrator = {
           // Encodings to switch to the new fonts.
           let encodings = [];
           // (Thunderbird 3.1)
-          if (fontPrefVersion < 1)
+          if (fontPrefVersion < 1) {
             encodings.push("x-unicode", "x-western");
+          }
           // (Thunderbird 3.2)
           encodings.push("x-cyrillic", "el");
 
@@ -95,21 +99,28 @@ var MailMigrator = {
     // mozilla/browser/components/nsBrowserGlue.js
     const UI_VERSION = 17;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xul";
-    const MESSENGERCOMPOSE_DOCURL = "chrome://messenger/content/messengercompose/messengercompose.xul";
+    const MESSENGERCOMPOSE_DOCURL =
+      "chrome://messenger/content/messengercompose/messengercompose.xul";
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = Services.prefs.getIntPref(UI_VERSION_PREF, 0);
 
-    if (currentUIVersion >= UI_VERSION)
+    if (currentUIVersion >= UI_VERSION) {
       return;
+    }
 
     let xulStore = Services.xulStore;
 
-    let newProfile = (currentUIVersion == 0);
+    let newProfile = currentUIVersion == 0;
     if (newProfile) {
       // Collapse the main menu by default if the override pref
       // "mail.main_menu.collapse_by_default" is set to true.
       if (Services.prefs.getBoolPref("mail.main_menu.collapse_by_default")) {
-        xulStore.setValue(MESSENGER_DOCURL, "mail-toolbar-menubar2", "autohide", "true");
+        xulStore.setValue(
+          MESSENGER_DOCURL,
+          "mail-toolbar-menubar2",
+          "autohide",
+          "true"
+        );
       }
 
       // Set to current version to skip all the migration below.
@@ -125,11 +136,20 @@ var MailMigrator = {
       // In UI version 6, we move the otherActionsButton button to the
       // header-view-toolbar.
       if (currentUIVersion < 6) {
-        let cs = xulStore.getValue(MESSENGER_DOCURL, "header-view-toolbar", "currentset");
+        let cs = xulStore.getValue(
+          MESSENGER_DOCURL,
+          "header-view-toolbar",
+          "currentset"
+        );
         if (cs && !cs.includes("otherActionsButton")) {
           // Put the otherActionsButton button at the end.
           cs = cs + ",otherActionsButton";
-          xulStore.setValue(MESSENGER_DOCURL, "header-view-toolbar", "currentset", cs);
+          xulStore.setValue(
+            MESSENGER_DOCURL,
+            "header-view-toolbar",
+            "currentset",
+            cs
+          );
         }
       }
 
@@ -138,8 +158,10 @@ var MailMigrator = {
       // track me" to the default "don't say anything".
       if (currentUIVersion < 7) {
         try {
-          if (Services.prefs.getBoolPref("privacy.donottrackheader.enabled") &&
-              Services.prefs.getIntPref("privacy.donottrackheader.value") != 1) {
+          if (
+            Services.prefs.getBoolPref("privacy.donottrackheader.enabled") &&
+            Services.prefs.getIntPref("privacy.donottrackheader.value") != 1
+          ) {
             Services.prefs.clearUserPref("privacy.donottrackheader.enabled");
             Services.prefs.clearUserPref("privacy.donottrackheader.value");
           }
@@ -150,8 +172,10 @@ var MailMigrator = {
       // to the tri-state browser.display.document_color_use.
       if (currentUIVersion < 8) {
         const kOldColorPref = "browser.display.use_document_colors";
-        if (Services.prefs.prefHasUserValue(kOldColorPref) &&
-            !Services.prefs.getBoolPref(kOldColorPref)) {
+        if (
+          Services.prefs.prefHasUserValue(kOldColorPref) &&
+          !Services.prefs.getBoolPref(kOldColorPref)
+        ) {
           Services.prefs.setIntPref("browser.display.document_color_use", 2);
         }
       }
@@ -160,13 +184,19 @@ var MailMigrator = {
       if (currentUIVersion < 9) {
         let detector = null;
         try {
-          detector = Services.prefs.getComplexValue("intl.charset.detector",
-                                                    Ci.nsIPrefLocalizedString).data;
+          detector = Services.prefs.getComplexValue(
+            "intl.charset.detector",
+            Ci.nsIPrefLocalizedString
+          ).data;
         } catch (ex) {}
-        if (!(detector == "" ||
-              detector == "ja_parallel_state_machine" ||
-              detector == "ruprob" ||
-              detector == "ukprob")) {
+        if (
+          !(
+            detector == "" ||
+            detector == "ja_parallel_state_machine" ||
+            detector == "ruprob" ||
+            detector == "ukprob"
+          )
+        ) {
           // If the encoding detector pref value is not reachable from the UI,
           // reset to default (varies by localization).
           Services.prefs.clearUserPref("intl.charset.detector");
@@ -187,7 +217,8 @@ var MailMigrator = {
           data = data.substring(1, data.length - 1);
         }
 
-        data = "[\"moz-abdirectory://?\"" + ((data.length > 0) ? ("," + data) : "") + "]";
+        data =
+          '["moz-abdirectory://?"' + (data.length > 0 ? "," + data : "") + "]";
 
         IOUtils.saveStringToFile(DIR_TREE_FILE, data);
       }
@@ -196,47 +227,60 @@ var MailMigrator = {
       if (currentUIVersion < 11) {
         let group = null;
         try {
-          group = Services.prefs.getComplexValue("font.language.group",
-                                                 Ci.nsIPrefLocalizedString);
+          group = Services.prefs.getComplexValue(
+            "font.language.group",
+            Ci.nsIPrefLocalizedString
+          );
         } catch (ex) {}
-        if (group &&
-            ["tr", "x-baltic", "x-central-euro"].some(g => g == group.data)) {
+        if (
+          group &&
+          ["tr", "x-baltic", "x-central-euro"].some(g => g == group.data)
+        ) {
           group.data = "x-western";
-          Services.prefs.setComplexValue("font.language.group",
-                                         Ci.nsIPrefLocalizedString, group);
+          Services.prefs.setComplexValue(
+            "font.language.group",
+            Ci.nsIPrefLocalizedString,
+            group
+          );
         }
       }
 
       // Untangled starting in Paragraph mode from Enter key preference
       if (currentUIVersion < 13) {
-        Services.prefs.setBoolPref("mail.compose.default_to_paragraph",
-          Services.prefs.getBoolPref("editor.CR_creates_new_p"));
+        Services.prefs.setBoolPref(
+          "mail.compose.default_to_paragraph",
+          Services.prefs.getBoolPref("editor.CR_creates_new_p")
+        );
         Services.prefs.clearUserPref("editor.CR_creates_new_p");
       }
 
       // Migrate remote content exceptions for email addresses which are
       // encoded as chrome URIs.
       if (currentUIVersion < 14) {
-        let permissionsDB =
-          Services.dirsvc.get("ProfD", Ci.nsIFile);
+        let permissionsDB = Services.dirsvc.get("ProfD", Ci.nsIFile);
         permissionsDB.append("permissions.sqlite");
         let db = Services.storage.openDatabase(permissionsDB);
 
         try {
           let statement = db.createStatement(
             "select origin,permission from moz_perms where " +
-            // Avoid 'like' here which needs to be escaped.
-            "substr(origin, 1, 28)='chrome://messenger/content/?';");
+              // Avoid 'like' here which needs to be escaped.
+              "substr(origin, 1, 28)='chrome://messenger/content/?';"
+          );
           try {
             while (statement.executeStep()) {
               let origin = statement.getUTF8String(0);
               let permission = statement.getInt32(1);
-              Services.perms.remove(
-                Services.io.newURI(origin), "image");
-              origin = origin.replace("chrome://messenger/content/?",
-                                      "chrome://messenger/content/");
+              Services.perms.remove(Services.io.newURI(origin), "image");
+              origin = origin.replace(
+                "chrome://messenger/content/?",
+                "chrome://messenger/content/"
+              );
               Services.perms.add(
-                Services.io.newURI(origin), "image", permission);
+                Services.io.newURI(origin),
+                "image",
+                permission
+              );
             }
           } finally {
             statement.finalize();
@@ -244,11 +288,14 @@ var MailMigrator = {
 
           // Sadly we still need to clear the database manually. Experiments
           // showed that the permissions manager deleted only one record.
-          db.defaultTransactionType = Ci.mozIStorageConnection.TRANSACTION_EXCLUSIVE;
+          db.defaultTransactionType =
+            Ci.mozIStorageConnection.TRANSACTION_EXCLUSIVE;
           db.beginTransaction();
           try {
-            db.executeSimpleSQL("delete from moz_perms where " +
-              "substr(origin, 1, 28)='chrome://messenger/content/?';");
+            db.executeSimpleSQL(
+              "delete from moz_perms where " +
+                "substr(origin, 1, 28)='chrome://messenger/content/?';"
+            );
             db.commitTransaction();
           } catch (ex) {
             db.rollbackTransaction();
@@ -261,14 +308,18 @@ var MailMigrator = {
 
       // Changed notification sound behaviour on OS X.
       if (currentUIVersion < 15) {
-        var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+        var { AppConstants } = ChromeUtils.import(
+          "resource://gre/modules/AppConstants.jsm"
+        );
         if (AppConstants.platform == "macosx") {
           // For people updating from versions < 52 who had "Play system sound"
           // selected for notifications. As TB no longer plays system sounds,
           // uncheck the pref to match the new behaviour.
           const soundPref = "mail.biff.play_sound";
-          if (Services.prefs.getBoolPref(soundPref) &&
-              Services.prefs.getIntPref(soundPref + ".type") == 0) {
+          if (
+            Services.prefs.getBoolPref(soundPref) &&
+            Services.prefs.getIntPref(soundPref + ".type") == 0
+          ) {
             Services.prefs.setBoolPref(soundPref, false);
           }
         }
@@ -279,17 +330,23 @@ var MailMigrator = {
         const SELECTED_LOCALE_PREF = "general.useragent.locale";
         const MATCHOS_LOCALE_PREF = "intl.locale.matchOS";
 
-        if (Services.prefs.prefHasUserValue(MATCHOS_LOCALE_PREF) ||
-            Services.prefs.prefHasUserValue(SELECTED_LOCALE_PREF)) {
+        if (
+          Services.prefs.prefHasUserValue(MATCHOS_LOCALE_PREF) ||
+          Services.prefs.prefHasUserValue(SELECTED_LOCALE_PREF)
+        ) {
           if (Services.prefs.getBoolPref(MATCHOS_LOCALE_PREF, false)) {
             Services.locale.requestedLocales = [];
           } else {
-            let locale = Services.prefs.getComplexValue(SELECTED_LOCALE_PREF,
-              Ci.nsIPrefLocalizedString);
+            let locale = Services.prefs.getComplexValue(
+              SELECTED_LOCALE_PREF,
+              Ci.nsIPrefLocalizedString
+            );
             if (locale) {
               try {
                 Services.locale.requestedLocales = [locale.data];
-              } catch (e) { /* Don't panic if the value is not a valid locale code. */ }
+              } catch (e) {
+                /* Don't panic if the value is not a valid locale code. */
+              }
             }
           }
           Services.prefs.clearUserPref(SELECTED_LOCALE_PREF);
@@ -302,8 +359,11 @@ var MailMigrator = {
         // Toolbar (unless the button was removed by user), so that it is
         // right above the attachment pane.
         // First, get value of currentset (string of comma-separated button ids).
-        let cs = xulStore.getValue(MESSENGERCOMPOSE_DOCURL, "composeToolbar2",
-                                   "currentset");
+        let cs = xulStore.getValue(
+          MESSENGERCOMPOSE_DOCURL,
+          "composeToolbar2",
+          "currentset"
+        );
         if (cs && cs.includes("button-attach")) {
           // Get array of button ids from currentset string.
           let csArray = cs.split(",");
@@ -323,17 +383,28 @@ var MailMigrator = {
           // Join array values back into comma-separated string.
           cs = csArray.join(",");
           // Apply changes to currentset.
-          xulStore.setValue(MESSENGERCOMPOSE_DOCURL, "composeToolbar2",
-                            "currentset", cs);
+          xulStore.setValue(
+            MESSENGERCOMPOSE_DOCURL,
+            "composeToolbar2",
+            "currentset",
+            cs
+          );
         }
       }
 
       // Update the migration version.
       Services.prefs.setIntPref(UI_VERSION_PREF, UI_VERSION);
     } catch (e) {
-      Cu.reportError("Migrating from UI version " + currentUIVersion + " to " +
-                     UI_VERSION + " failed. Error message was: " + e + " -- " +
-                     "Will reattempt on next start.");
+      Cu.reportError(
+        "Migrating from UI version " +
+          currentUIVersion +
+          " to " +
+          UI_VERSION +
+          " failed. Error message was: " +
+          e +
+          " -- " +
+          "Will reattempt on next start."
+      );
     }
   },
   /* eslint-enable complexity */

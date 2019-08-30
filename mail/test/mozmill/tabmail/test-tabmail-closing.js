@@ -24,7 +24,7 @@ function setupModule(module) {
   collector.getModule("window-helpers").installInto(module);
 
   gFolder = create_folder("test-tabmail-closing folder");
-  make_new_sets_in_folder(gFolder, [{msgsPerThread: MSGS_PER_THREAD}]);
+  make_new_sets_in_folder(gFolder, [{ msgsPerThread: MSGS_PER_THREAD }]);
 }
 
 /**
@@ -111,7 +111,10 @@ function test_opening_thread_in_tabs_closing_behaviour() {
   for (let i = MSGS_PER_THREAD; i > 0; --i) {
     let previousTab = mc.tabmail.tabContainer.getItemAtIndex(i - 1);
     mc.tabmail.closeTab(i);
-    assert_equals(previousTab, mc.tabmail.tabContainer.selectedItem,
-                  "Expected tab at index " + (i - 1) + " to be selected.");
+    assert_equals(
+      previousTab,
+      mc.tabmail.tabContainer.selectedItem,
+      "Expected tab at index " + (i - 1) + " to be selected."
+    );
   }
 }

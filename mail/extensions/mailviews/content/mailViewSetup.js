@@ -18,10 +18,12 @@ function mailViewOnLoad() {
 
   if ("arguments" in window && window.arguments[0]) {
     var args = window.arguments[0];
-    if ("mailView" in args)
+    if ("mailView" in args) {
       gMailView = window.arguments[0].mailView;
-    if ("onOkCallback" in args)
-      dialog.okCallback =  window.arguments[0].onOkCallback;
+    }
+    if ("onOkCallback" in args) {
+      dialog.okCallback = window.arguments[0].onOkCallback;
+    }
   }
 
   dialog.OKButton = document.documentElement.getButton("accept");
@@ -32,7 +34,10 @@ function mailViewOnLoad() {
 
   if (gMailView) {
     dialog.nameField.value = gMailView.prettyName;
-    initializeSearchRows(Ci.nsMsgSearchScope.offlineMail, gMailView.searchTerms);
+    initializeSearchRows(
+      Ci.nsMsgSearchScope.offlineMail,
+      gMailView.searchTerms
+    );
   } else {
     onMore(null);
   }
@@ -40,19 +45,21 @@ function mailViewOnLoad() {
   doEnabling();
 }
 
-function mailViewOnUnLoad() {
-}
+function mailViewOnUnLoad() {}
 
 function onOK() {
-  var mailViewList = Cc["@mozilla.org/messenger/mailviewlist;1"].getService(Ci.nsIMsgMailViewList);
+  var mailViewList = Cc["@mozilla.org/messenger/mailviewlist;1"].getService(
+    Ci.nsIMsgMailViewList
+  );
 
   // reflect the search widgets back into the search session
   var newMailView = null;
   if (gMailView) {
     saveSearchTerms(gMailView.searchTerms, gMailView);
     // if the name of the view has been changed...
-    if (gMailView.prettyName != dialog.nameField.value)
+    if (gMailView.prettyName != dialog.nameField.value) {
       gMailView.mailViewName = dialog.nameField.value;
+    }
   } else {
     // otherwise, create a new mail view
     newMailView = mailViewList.createMailView();
@@ -65,8 +72,9 @@ function onOK() {
 
   mailViewList.save();
 
-  if (dialog.okCallback)
+  if (dialog.okCallback) {
     dialog.okCallback(gMailView ? gMailView : newMailView);
+  }
 }
 
 function initializeMailViewOverrides() {
@@ -85,8 +93,9 @@ function UpdateAfterCustomHeaderChange() {
 
 function doEnabling() {
   if (dialog.nameField.value) {
-    if (dialog.OKButton.disabled)
+    if (dialog.OKButton.disabled) {
       dialog.OKButton.disabled = false;
+    }
   } else if (!dialog.OKButton.disabled) {
     dialog.OKButton.disabled = true;
   }

@@ -5,7 +5,7 @@
 
 /* import-globals-from ../../../../toolkit/content/preferencesBindings.js */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 Preferences.addAll([
   { id: "mailnews.sendformat.auto_downgrade", type: "bool" },
@@ -24,15 +24,23 @@ var gSendOptionsDialog = {
     this.mHTMLListBox = document.getElementById("html_domains");
     this.mPlainTextListBox = document.getElementById("plaintext_domains");
 
-    this.loadDomains(Preferences.get("mailnews.html_domains").value,
-                     this.mHTMLListBox);
-    this.loadDomains(Preferences.get("mailnews.plaintext_domains").value,
-                     this.mPlainTextListBox);
+    this.loadDomains(
+      Preferences.get("mailnews.html_domains").value,
+      this.mHTMLListBox
+    );
+    this.loadDomains(
+      Preferences.get("mailnews.plaintext_domains").value,
+      this.mPlainTextListBox
+    );
 
-    Preferences.addSyncToPrefListener(document.getElementById("html_domains"),
-      () => this.saveDomainPref(true));
-    Preferences.addSyncToPrefListener(document.getElementById("plaintext_domains"),
-      () => this.saveDomainPref(false));
+    Preferences.addSyncToPrefListener(
+      document.getElementById("html_domains"),
+      () => this.saveDomainPref(true)
+    );
+    Preferences.addSyncToPrefListener(
+      document.getElementById("plaintext_domains"),
+      () => this.saveDomainPref(false)
+    );
   },
 
   saveDomainPref(aHTML) {
@@ -46,10 +54,11 @@ var gSendOptionsDialog = {
         num_domains++;
 
         // Separate >1 domains by commas.
-        if (num_domains > 1)
+        if (num_domains > 1) {
           pref_string = pref_string + "," + domainid;
-        else
+        } else {
           pref_string = domainid;
+        }
       }
     }
 
@@ -69,8 +78,9 @@ var gSendOptionsDialog = {
     let listbox = aHTML ? this.mHTMLListBox : this.mPlainTextListBox;
 
     let selectedCount = listbox.selectedItems.length;
-    for (let i = selectedCount - 1; i >= 0; i--)
+    for (let i = selectedCount - 1; i >= 0; i--) {
       listbox.selectedItems[i].remove();
+    }
 
     Preferences.userChangedValue(listbox);
   },
@@ -79,10 +89,19 @@ var gSendOptionsDialog = {
     var listbox = aHTML ? this.mHTMLListBox : this.mPlainTextListBox;
 
     var domainName;
-    var result = {value: null};
-    if (Services.prompt.prompt(window, this.mPrefsBundle.getString(listbox.id + "AddDomainTitle"),
-                               this.mPrefsBundle.getString(listbox.id + "AddDomain"), result, null, {value: 0}))
+    var result = { value: null };
+    if (
+      Services.prompt.prompt(
+        window,
+        this.mPrefsBundle.getString(listbox.id + "AddDomainTitle"),
+        this.mPrefsBundle.getString(listbox.id + "AddDomain"),
+        result,
+        null,
+        { value: 0 }
+      )
+    ) {
       domainName = result.value.replace(/ /g, "");
+    }
 
     if (domainName && !this.domainAlreadyPresent(domainName)) {
       this.addItemToDomainList(listbox, domainName);
@@ -91,14 +110,24 @@ var gSendOptionsDialog = {
   },
 
   domainAlreadyPresent(aDomainName) {
-    let matchingDomains = this.mHTMLListBox.querySelectorAll('[value="' + aDomainName + '"]');
+    let matchingDomains = this.mHTMLListBox.querySelectorAll(
+      '[value="' + aDomainName + '"]'
+    );
 
-    if (!matchingDomains.length)
-      matchingDomains = this.mPlainTextListBox.querySelectorAll('[value="' + aDomainName + '"]');
+    if (!matchingDomains.length) {
+      matchingDomains = this.mPlainTextListBox.querySelectorAll(
+        '[value="' + aDomainName + '"]'
+      );
+    }
 
     if (matchingDomains.length) {
-      Services.prompt.alert(window, this.mPrefsBundle.getString("domainNameErrorTitle"),
-                            this.mPrefsBundle.getFormattedString("domainDuplicationError", [aDomainName]));
+      Services.prompt.alert(
+        window,
+        this.mPrefsBundle.getString("domainNameErrorTitle"),
+        this.mPrefsBundle.getFormattedString("domainDuplicationError", [
+          aDomainName,
+        ])
+      );
     }
 
     return matchingDomains.length;

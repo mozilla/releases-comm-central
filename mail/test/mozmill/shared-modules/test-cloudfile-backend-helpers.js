@@ -8,7 +8,9 @@ var MODULE_NAME = "cloudfile-backend-helpers";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["window-helpers"];
 
-var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm");
+var { cloudFileAccounts } = ChromeUtils.import(
+  "resource:///modules/cloudFileAccounts.jsm"
+);
 
 var kUserAuthRequested = "cloudfile:auth";
 var kUserDataRequested = "cloudfile:user";
@@ -49,10 +51,15 @@ SimpleRequestObserverManager.prototype = {
 
   check() {
     for (let observer of this._observers) {
-      if (!observer.success)
-        throw new Error("An observer named " + observer.name + " was leftover, "
-                        + "with its success attribute set to: "
-                        + observer.success);
+      if (!observer.success) {
+        throw new Error(
+          "An observer named " +
+            observer.name +
+            " was leftover, " +
+            "with its success attribute set to: " +
+            observer.success
+        );
+      }
     }
   },
 
@@ -75,8 +82,10 @@ SimpleRequestObserver.prototype = {
       this.success = false;
     }
   },
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIRequestObserver,
-                                          Ci.nsISupportsWeakReference]),
+  QueryInterface: ChromeUtils.generateQI([
+    Ci.nsIRequestObserver,
+    Ci.nsISupportsWeakReference,
+  ]),
 };
 
 /**
@@ -111,9 +120,11 @@ function assert_can_cancel_uploads(aController, aProvider, aFiles) {
   }
 
   aController.waitFor(function() {
-    return fileListenerMap.length == aFiles.length &&
-           fileListenerMap.every(function(aMapping) {
-             return aMapping.cancelled;
-           });
+    return (
+      fileListenerMap.length == aFiles.length &&
+      fileListenerMap.every(function(aMapping) {
+        return aMapping.cancelled;
+      })
+    );
   }, "Timed out waiting for cancellation to occur");
 }

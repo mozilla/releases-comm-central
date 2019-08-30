@@ -47,12 +47,13 @@ function setupModule(module) {
 
 function test_openComposeFromMailToLink() {
   // Open a content tab with the mailto link in it.
-    // To open a tab we're going to have to cheat and use tabmail so we can load
+  // To open a tab we're going to have to cheat and use tabmail so we can load
   // in the data of what we want.
   gPreCount = mc.tabmail.tabContainer.allTabs.length;
   gNewTab = open_content_tab_with_url(url + "mailtolink.html");
   gComposeWin = composeHelper.open_compose_with_element_click(
-    content_tab_eid(gNewTab, "mailtolink"));
+    content_tab_eid(gNewTab, "mailtolink")
+  );
 }
 
 function test_checkInsertImage() {
@@ -60,8 +61,7 @@ function test_checkInsertImage() {
   gComposeWin.e("content-frame").focus();
 
   // Now open the image window
-  windowHelper.plan_for_modal_dialog("imageDlg",
-  function insert_image(mwc) {
+  windowHelper.plan_for_modal_dialog("imageDlg", function insert_image(mwc) {
     // Insert the url of the image.
     let srcloc = mwc.window.document.getElementById("srcInput");
     srcloc.focus();
@@ -74,23 +74,31 @@ function test_checkInsertImage() {
 
     // Accept the dialog
     mwc.window.document.getElementById("imageDlg").acceptDialog();
-    });
+  });
   gComposeWin.click(gComposeWin.eid("insertImage"));
 
   windowHelper.wait_for_modal_dialog();
   wait_for_window_close();
 
-//  gComposeWin.sleep(500);
+  //  gComposeWin.sleep(500);
 
   // Test that the image load has not been denied
-  let childImages = gComposeWin.e("content-frame").contentDocument.getElementsByTagName("img");
+  let childImages = gComposeWin
+    .e("content-frame")
+    .contentDocument.getElementsByTagName("img");
 
-  if (childImages.length != 1)
-    throw new Error("Expecting one image in document, actually have " + childImages.length);
+  if (childImages.length != 1) {
+    throw new Error(
+      "Expecting one image in document, actually have " + childImages.length
+    );
+  }
 
   // Should be the only image, so just check the first.
-  if (childImages[0].imageBlockingStatus != Ci.nsIContentPolicy.ACCEPT)
-    throw new Error("Loading of image has been unexpectedly blocked in a mailto compose window");
+  if (childImages[0].imageBlockingStatus != Ci.nsIContentPolicy.ACCEPT) {
+    throw new Error(
+      "Loading of image has been unexpectedly blocked in a mailto compose window"
+    );
+  }
 }
 
 function test_closeComposeWindowAndTab() {
@@ -98,7 +106,7 @@ function test_closeComposeWindowAndTab() {
 
   mc.tabmail.closeTab(gNewTab);
 
-  if (mc.tabmail.tabContainer.allTabs.length != gPreCount)
+  if (mc.tabmail.tabContainer.allTabs.length != gPreCount) {
     throw new Error("The content tab didn't close");
+  }
 }
-

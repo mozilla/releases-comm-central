@@ -7,73 +7,73 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-class MozStatuspanel extends MozXULElement {
-  static get observedAttributes() {
-    return ["label", "mirror"];
-  }
-
-  connectedCallback() {
-    const hbox = document.createXULElement("hbox");
-    hbox.classList.add("statuspanel-inner");
-
-    const label = document.createXULElement("label");
-    label.classList.add("statuspanel-label");
-    label.setAttribute("flex", "1");
-    label.setAttribute("crop", "end");
-
-    hbox.appendChild(label);
-    this.appendChild(hbox);
-
-    this._labelElement = label;
-
-    this._updateAttributes();
-    this._setupEventListeners();
-  }
-
-  attributeChangedCallback() {
-    this._updateAttributes();
-  }
-
-  set label(val) {
-    if (!this.label) {
-      this.removeAttribute("mirror");
-    }
-    this.setAttribute("label", val);
-    return val;
-  }
-
-  get label() {
-    return this.getAttribute("label");
-  }
-
-  _updateAttributes() {
-    if (!this._labelElement) {
-      return;
+  class MozStatuspanel extends MozXULElement {
+    static get observedAttributes() {
+      return ["label", "mirror"];
     }
 
-    if (this.hasAttribute("label")) {
-      this._labelElement.setAttribute("value", this.getAttribute("label"));
-    } else {
-      this._labelElement.removeAttribute("value");
+    connectedCallback() {
+      const hbox = document.createXULElement("hbox");
+      hbox.classList.add("statuspanel-inner");
+
+      const label = document.createXULElement("label");
+      label.classList.add("statuspanel-label");
+      label.setAttribute("flex", "1");
+      label.setAttribute("crop", "end");
+
+      hbox.appendChild(label);
+      this.appendChild(hbox);
+
+      this._labelElement = label;
+
+      this._updateAttributes();
+      this._setupEventListeners();
     }
 
-    if (this.hasAttribute("mirror")) {
-      this._labelElement.setAttribute("mirror", this.getAttribute("mirror"));
-    } else {
-      this._labelElement.removeAttribute("mirror");
+    attributeChangedCallback() {
+      this._updateAttributes();
     }
-  }
 
-  _setupEventListeners() {
-    this.addEventListener("mouseover", event => {
-      if (this.hasAttribute("mirror")) {
+    set label(val) {
+      if (!this.label) {
         this.removeAttribute("mirror");
-      } else {
-        this.setAttribute("mirror", "true");
       }
-    });
-  }
-}
+      this.setAttribute("label", val);
+      return val;
+    }
 
-customElements.define("statuspanel", MozStatuspanel);
+    get label() {
+      return this.getAttribute("label");
+    }
+
+    _updateAttributes() {
+      if (!this._labelElement) {
+        return;
+      }
+
+      if (this.hasAttribute("label")) {
+        this._labelElement.setAttribute("value", this.getAttribute("label"));
+      } else {
+        this._labelElement.removeAttribute("value");
+      }
+
+      if (this.hasAttribute("mirror")) {
+        this._labelElement.setAttribute("mirror", this.getAttribute("mirror"));
+      } else {
+        this._labelElement.removeAttribute("mirror");
+      }
+    }
+
+    _setupEventListeners() {
+      this.addEventListener("mouseover", event => {
+        if (this.hasAttribute("mirror")) {
+          this.removeAttribute("mirror");
+        } else {
+          this.setAttribute("mirror", "true");
+        }
+      });
+    }
+  }
+
+  customElements.define("statuspanel", MozStatuspanel);
 }

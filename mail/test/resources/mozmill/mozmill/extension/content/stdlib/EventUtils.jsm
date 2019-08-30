@@ -6,7 +6,7 @@ var EXPORTED_SYMBOLS = [
   "synthesizeMouseExpectEvent",
 ];
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * Parse the key modifier flags from aEvent. Used to share code between
@@ -16,18 +16,23 @@ function _parseModifiers(aEvent) {
   var hwindow = Services.appShell.hiddenDOMWindow;
 
   var mval = 0;
-  if (aEvent.shiftKey)
+  if (aEvent.shiftKey) {
     mval |= Ci.nsIDOMWindowUtils.MODIFIER_SHIFT;
-  if (aEvent.ctrlKey)
+  }
+  if (aEvent.ctrlKey) {
     mval |= Ci.nsIDOMWindowUtils.MODIFIER_CONTROL;
-  if (aEvent.altKey)
+  }
+  if (aEvent.altKey) {
     mval |= Ci.nsIDOMWindowUtils.MODIFIER_ALT;
-  if (aEvent.metaKey)
+  }
+  if (aEvent.metaKey) {
     mval |= Ci.nsIDOMWindowUtils.MODIFIER_META;
-  if (aEvent.accelKey)
-    mval |= (hwindow.navigator.platform.includes("Mac")) ?
-      Ci.nsIDOMWindowUtils.MODIFIER_META :
-      Ci.nsIDOMWindowUtils.MODIFIER_CONTROL;
+  }
+  if (aEvent.accelKey) {
+    mval |= hwindow.navigator.platform.includes("Mac")
+      ? Ci.nsIDOMWindowUtils.MODIFIER_META
+      : Ci.nsIDOMWindowUtils.MODIFIER_CONTROL;
+  }
 
   return mval;
 }
@@ -57,10 +62,24 @@ function synthesizeMouse(aTarget, aOffsetX, aOffsetY, aEvent, aWindow) {
     var left = rect.left + aOffsetX;
     var top = rect.top + aOffsetY;
 
-    if (("type" in aEvent) && aEvent.type) {
-      utils.sendMouseEvent(aEvent.type, left, top, button, clickCount, modifiers);
+    if ("type" in aEvent && aEvent.type) {
+      utils.sendMouseEvent(
+        aEvent.type,
+        left,
+        top,
+        button,
+        clickCount,
+        modifiers
+      );
     } else {
-      utils.sendMouseEvent("mousedown", left, top, button, clickCount, modifiers);
+      utils.sendMouseEvent(
+        "mousedown",
+        left,
+        top,
+        button,
+        clickCount,
+        modifiers
+      );
       utils.sendMouseEvent("mouseup", left, top, button, clickCount, modifiers);
     }
   }
@@ -103,14 +122,21 @@ function synthesizeMouseScroll(aTarget, aOffsetX, aOffsetY, aEvent, aWindow) {
     var left = rect.left;
     var top = rect.top;
 
-    var type = (("type" in aEvent) && aEvent.type) || "DOMMouseScroll";
+    var type = ("type" in aEvent && aEvent.type) || "DOMMouseScroll";
     var axis = aEvent.axis || "vertical";
-    var scrollFlags = (axis == "horizontal") ? kIsHorizontal : kIsVertical;
+    var scrollFlags = axis == "horizontal" ? kIsHorizontal : kIsVertical;
     if (aEvent.hasPixels) {
       scrollFlags |= kHasPixels;
     }
-    utils.sendMouseScrollEvent(type, left + aOffsetX, top + aOffsetY, button,
-                               scrollFlags, aEvent.delta, modifiers);
+    utils.sendMouseScrollEvent(
+      type,
+      left + aOffsetX,
+      top + aOffsetY,
+      button,
+      scrollFlags,
+      aEvent.delta,
+      modifiers
+    );
   }
 }
 
@@ -193,19 +219,26 @@ var _gSeenEvent = false;
  * be fired.
  */
 function _expectEvent(aExpectedTarget, aExpectedEvent, aTestName) {
-  if (!aExpectedTarget || !aExpectedEvent)
+  if (!aExpectedTarget || !aExpectedEvent) {
     return null;
+  }
 
   _gSeenEvent = false;
 
-  var type = (aExpectedEvent.charAt(0) == "!") ?
-             aExpectedEvent.substring(1) : aExpectedEvent;
+  var type =
+    aExpectedEvent.charAt(0) == "!"
+      ? aExpectedEvent.substring(1)
+      : aExpectedEvent;
   var eventHandler = function(event) {
-    var epassed = (!_gSeenEvent && event.originalTarget == aExpectedTarget &&
-                   event.type == type);
-    if (!epassed)
-      throw new Error(aTestName + " " + type + " event target " +
-                      (_gSeenEvent ? "twice" : ""));
+    var epassed =
+      !_gSeenEvent &&
+      event.originalTarget == aExpectedTarget &&
+      event.type == type;
+    if (!epassed) {
+      throw new Error(
+        aTestName + " " + type + " event target " + (_gSeenEvent ? "twice" : "")
+      );
+    }
     _gSeenEvent = true;
   };
 
@@ -217,16 +250,23 @@ function _expectEvent(aExpectedTarget, aExpectedEvent, aTestName) {
  * Check if the event was fired or not. The event handler aEventHandler
  * will be removed.
  */
-function _checkExpectedEvent(aExpectedTarget, aExpectedEvent, aEventHandler, aTestName) {
+function _checkExpectedEvent(
+  aExpectedTarget,
+  aExpectedEvent,
+  aEventHandler,
+  aTestName
+) {
   if (aEventHandler) {
-    var expectEvent = (aExpectedEvent.charAt(0) != "!");
+    var expectEvent = aExpectedEvent.charAt(0) != "!";
     var type = expectEvent ? aExpectedEvent : aExpectedEvent.substring(1);
     aExpectedTarget.removeEventListener(type, aEventHandler);
     var desc = type + " event";
-    if (expectEvent)
+    if (expectEvent) {
       desc += " not";
-    if (_gSeenEvent != expectEvent)
+    }
+    if (_gSeenEvent != expectEvent) {
       throw new Error(aTestName + ": " + desc + " fired.");
+    }
   }
 
   _gSeenEvent = false;
@@ -246,9 +286,16 @@ function _checkExpectedEvent(aExpectedTarget, aExpectedEvent, aEventHandler, aTe
  *
  * aWindow is optional, and defaults to the current window object.
  */
-function synthesizeMouseExpectEvent(aTarget, aOffsetX, aOffsetY, aEvent,
-                                    aExpectedTarget, aExpectedEvent, aTestName,
-                                    aWindow) {
+function synthesizeMouseExpectEvent(
+  aTarget,
+  aOffsetX,
+  aOffsetY,
+  aEvent,
+  aExpectedTarget,
+  aExpectedEvent,
+  aTestName,
+  aWindow
+) {
   var eventHandler = _expectEvent(aExpectedTarget, aExpectedEvent, aTestName);
   synthesizeMouse(aTarget, aOffsetX, aOffsetY, aEvent, aWindow);
   _checkExpectedEvent(aExpectedTarget, aExpectedEvent, eventHandler, aTestName);
@@ -266,9 +313,9 @@ function _getTIP(aWindow, aCallback) {
   if (TIPMap.has(aWindow)) {
     tip = TIPMap.get(aWindow);
   } else {
-    tip =
-      Cc["@mozilla.org/text-input-processor;1"].
-        createInstance(Ci.nsITextInputProcessor);
+    tip = Cc["@mozilla.org/text-input-processor;1"].createInstance(
+      Ci.nsITextInputProcessor
+    );
     TIPMap.set(aWindow, tip);
   }
   if (!tip.beginInputTransactionForTests(aWindow, aCallback)) {
@@ -442,8 +489,9 @@ function _createKeyboardEventDictionary(aKey, aKeyEvent, aWindow) {
   var result = { dictionary: null, flags: 0 };
   var keyCodeIsDefined = "keyCode" in aKeyEvent;
   var keyCode =
-    (keyCodeIsDefined && aKeyEvent.keyCode >= 0 && aKeyEvent.keyCode <= 255) ?
-      aKeyEvent.keyCode : 0;
+    keyCodeIsDefined && aKeyEvent.keyCode >= 0 && aKeyEvent.keyCode <= 255
+      ? aKeyEvent.keyCode
+      : 0;
   var keyName = "Unidentified";
   if (aKey.indexOf("KEY_") == 0) {
     keyName = aKey.substr("KEY_".length);
@@ -487,21 +535,23 @@ function _emulateToActivateModifiers(aTIP, aKeyEvent, aWindow) {
 
   var modifiers = {
     normal: [
-      { key: "Alt",        attr: "altKey" },
-      { key: "AltGraph",   attr: "altGraphKey" },
-      { key: "Control",    attr: "ctrlKey" },
-      { key: "Fn",         attr: "fnKey" },
-      { key: "Meta",       attr: "metaKey" },
-      { key: "OS",         attr: "osKey" },
-      { key: "Shift",      attr: "shiftKey" },
-      { key: "Symbol",     attr: "symbolKey" },
-      { key: aWindow.navigator.platform.includes("Mac") ? "Meta" : "Control",
-                           attr: "accelKey" },
+      { key: "Alt", attr: "altKey" },
+      { key: "AltGraph", attr: "altGraphKey" },
+      { key: "Control", attr: "ctrlKey" },
+      { key: "Fn", attr: "fnKey" },
+      { key: "Meta", attr: "metaKey" },
+      { key: "OS", attr: "osKey" },
+      { key: "Shift", attr: "shiftKey" },
+      { key: "Symbol", attr: "symbolKey" },
+      {
+        key: aWindow.navigator.platform.includes("Mac") ? "Meta" : "Control",
+        attr: "accelKey",
+      },
     ],
     lockable: [
-      { key: "CapsLock",   attr: "capsLockKey" },
-      { key: "FnLock",     attr: "fnLockKey" },
-      { key: "NumLock",    attr: "numLockKey" },
+      { key: "CapsLock", attr: "capsLockKey" },
+      { key: "FnLock", attr: "fnLockKey" },
+      { key: "NumLock", attr: "numLockKey" },
       { key: "ScrollLock", attr: "scrollLockKey" },
       { key: "SymbolLock", attr: "symbolLockKey" },
     ],
@@ -515,8 +565,10 @@ function _emulateToActivateModifiers(aTIP, aKeyEvent, aWindow) {
       continue; // already activated.
     }
     let event = new KeyboardEvent("", { key: modifiers.normal[i].key });
-    aTIP.keydown(event,
-      aTIP.KEY_NON_PRINTABLE_KEY | aTIP.KEY_DONT_DISPATCH_MODIFIER_KEY_EVENT);
+    aTIP.keydown(
+      event,
+      aTIP.KEY_NON_PRINTABLE_KEY | aTIP.KEY_DONT_DISPATCH_MODIFIER_KEY_EVENT
+    );
     modifiers.normal[i].activated = true;
   }
   for (let i = 0; i < modifiers.lockable.length; i++) {
@@ -527,10 +579,14 @@ function _emulateToActivateModifiers(aTIP, aKeyEvent, aWindow) {
       continue; // already activated.
     }
     let event = new KeyboardEvent("", { key: modifiers.lockable[i].key });
-    aTIP.keydown(event,
-      aTIP.KEY_NON_PRINTABLE_KEY | aTIP.KEY_DONT_DISPATCH_MODIFIER_KEY_EVENT);
-    aTIP.keyup(event,
-      aTIP.KEY_NON_PRINTABLE_KEY | aTIP.KEY_DONT_DISPATCH_MODIFIER_KEY_EVENT);
+    aTIP.keydown(
+      event,
+      aTIP.KEY_NON_PRINTABLE_KEY | aTIP.KEY_DONT_DISPATCH_MODIFIER_KEY_EVENT
+    );
+    aTIP.keyup(
+      event,
+      aTIP.KEY_NON_PRINTABLE_KEY | aTIP.KEY_DONT_DISPATCH_MODIFIER_KEY_EVENT
+    );
     modifiers.lockable[i].activated = true;
   }
   return modifiers;
@@ -546,8 +602,10 @@ function _emulateToInactivateModifiers(aTIP, aModifiers, aWindow) {
       continue;
     }
     let event = new KeyboardEvent("", { key: aModifiers.normal[i].key });
-    aTIP.keyup(event,
-      aTIP.KEY_NON_PRINTABLE_KEY | aTIP.KEY_DONT_DISPATCH_MODIFIER_KEY_EVENT);
+    aTIP.keyup(
+      event,
+      aTIP.KEY_NON_PRINTABLE_KEY | aTIP.KEY_DONT_DISPATCH_MODIFIER_KEY_EVENT
+    );
   }
   for (let i = 0; i < aModifiers.lockable.length; i++) {
     if (!aModifiers.lockable[i].activated) {
@@ -557,10 +615,14 @@ function _emulateToInactivateModifiers(aTIP, aModifiers, aWindow) {
       continue; // who already inactivated this?
     }
     let event = new KeyboardEvent("", { key: aModifiers.lockable[i].key });
-    aTIP.keydown(event,
-      aTIP.KEY_NON_PRINTABLE_KEY | aTIP.KEY_DONT_DISPATCH_MODIFIER_KEY_EVENT);
-    aTIP.keyup(event,
-      aTIP.KEY_NON_PRINTABLE_KEY | aTIP.KEY_DONT_DISPATCH_MODIFIER_KEY_EVENT);
+    aTIP.keydown(
+      event,
+      aTIP.KEY_NON_PRINTABLE_KEY | aTIP.KEY_DONT_DISPATCH_MODIFIER_KEY_EVENT
+    );
+    aTIP.keyup(
+      event,
+      aTIP.KEY_NON_PRINTABLE_KEY | aTIP.KEY_DONT_DISPATCH_MODIFIER_KEY_EVENT
+    );
   }
 }
 

@@ -4,9 +4,13 @@
 
 "use strict";
 
-const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 
 XPCOMUtils.defineLazyServiceGetters(this, {
   gCertDB: ["@mozilla.org/security/x509certdb;1", "nsIX509CertDB"],
@@ -60,13 +64,13 @@ var EXPORTED_SYMBOLS = ["Policies"];
  * The callbacks will be bound to their parent policy object.
  */
 var Policies = {
-  "AppUpdateURL": {
+  AppUpdateURL: {
     onBeforeAddons(manager, param) {
       setDefaultPref("app.update.url", param.href);
     },
   },
 
-  "BlockAboutAddons": {
+  BlockAboutAddons: {
     onBeforeUIStartup(manager, param) {
       if (param) {
         blockAboutPage(manager, "about:addons", true);
@@ -74,7 +78,7 @@ var Policies = {
     },
   },
 
-  "BlockAboutConfig": {
+  BlockAboutConfig: {
     onBeforeUIStartup(manager, param) {
       if (param) {
         blockAboutPage(manager, "about:config");
@@ -83,7 +87,7 @@ var Policies = {
     },
   },
 
-  "BlockAboutProfiles": {
+  BlockAboutProfiles: {
     onBeforeUIStartup(manager, param) {
       if (param) {
         blockAboutPage(manager, "about:profiles");
@@ -91,7 +95,7 @@ var Policies = {
     },
   },
 
-  "BlockAboutSupport": {
+  BlockAboutSupport: {
     onBeforeUIStartup(manager, param) {
       if (param) {
         blockAboutPage(manager, "about:support");
@@ -99,10 +103,13 @@ var Policies = {
     },
   },
 
-  "Certificates": {
+  Certificates: {
     onBeforeAddons(manager, param) {
       if ("ImportEnterpriseRoots" in param) {
-        setAndLockPref("security.enterprise_roots.enabled", param.ImportEnterpriseRoots);
+        setAndLockPref(
+          "security.enterprise_roots.enabled",
+          param.ImportEnterpriseRoots
+        );
       }
       if ("Install" in param) {
         (async () => {
@@ -126,12 +133,16 @@ var Policies = {
           for (let certfilename of param.Install) {
             let certfile;
             try {
-              certfile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+              certfile = Cc["@mozilla.org/file/local;1"].createInstance(
+                Ci.nsIFile
+              );
               certfile.initWithPath(certfilename);
             } catch (e) {
               for (let dir of dirs) {
                 certfile = dir.clone();
-                certfile.append(platform == "linux" ? "certificates" : "Certificates");
+                certfile.append(
+                  platform == "linux" ? "certificates" : "Certificates"
+                );
                 certfile.append(certfilename);
                 if (certfile.exists()) {
                   break;
@@ -165,19 +176,28 @@ var Policies = {
               }
               let now = Date.now() / 1000;
               if (cert) {
-                gCertDB.asyncVerifyCertAtTime(cert, 0x0008 /* certificateUsageSSLCA */,
-                                              0, null, now, (aPRErrorCode, aVerifiedChain, aHasEVPolicy) => {
-                  if (aPRErrorCode == Cr.NS_OK) {
-                    // Certificate is already installed.
-                    return;
+                gCertDB.asyncVerifyCertAtTime(
+                  cert,
+                  0x0008 /* certificateUsageSSLCA */,
+                  0,
+                  null,
+                  now,
+                  (aPRErrorCode, aVerifiedChain, aHasEVPolicy) => {
+                    if (aPRErrorCode == Cr.NS_OK) {
+                      // Certificate is already installed.
+                      return;
+                    }
+                    try {
+                      gCertDB.addCert(certFile, "CT,CT,");
+                    } catch (e) {
+                      // It might be PEM instead of DER.
+                      gCertDB.addCertFromBase64(
+                        pemToBase64(certFile),
+                        "CT,CT,"
+                      );
+                    }
                   }
-                  try {
-                    gCertDB.addCert(certFile, "CT,CT,");
-                  } catch (e) {
-                    // It might be PEM instead of DER.
-                    gCertDB.addCertFromBase64(pemToBase64(certFile), "CT,CT,");
-                  }
-                });
+                );
               }
             };
             reader.readAsBinaryString(file);
@@ -187,7 +207,7 @@ var Policies = {
     },
   },
 
-  "DisableAppUpdate": {
+  DisableAppUpdate: {
     onBeforeAddons(manager, param) {
       if (param) {
         manager.disallowFeature("appUpdate");
@@ -195,7 +215,7 @@ var Policies = {
     },
   },
 
-  "DisableDeveloperTools": {
+  DisableDeveloperTools: {
     onBeforeAddons(manager, param) {
       if (param) {
         setAndLockPref("devtools.policy.disabled", true);
@@ -209,7 +229,7 @@ var Policies = {
     },
   },
 
-  "DisableMasterPasswordCreation": {
+  DisableMasterPasswordCreation: {
     onBeforeUIStartup(manager, param) {
       if (param) {
         manager.disallowFeature("createMasterPassword");
@@ -217,61 +237,77 @@ var Policies = {
     },
   },
 
-  "DisableSecurityBypass": {
+  DisableSecurityBypass: {
     onBeforeUIStartup(manager, param) {
       if ("InvalidCertificate" in param) {
-        setAndLockPref("security.certerror.hideAddException", param.InvalidCertificate);
+        setAndLockPref(
+          "security.certerror.hideAddException",
+          param.InvalidCertificate
+        );
       }
 
       if ("SafeBrowsing" in param) {
-        setAndLockPref("browser.safebrowsing.allowOverride", !param.SafeBrowsing);
+        setAndLockPref(
+          "browser.safebrowsing.allowOverride",
+          !param.SafeBrowsing
+        );
       }
     },
   },
 
-  "Extensions": {
+  Extensions: {
     onBeforeUIStartup(manager, param) {
       let uninstallingPromise = Promise.resolve();
       if ("Uninstall" in param) {
-        uninstallingPromise = runOncePerModification("extensionsUninstall", JSON.stringify(param.Uninstall), async () => {
-          // If we're uninstalling add-ons, re-run the extensionsInstall runOnce even if it hasn't
-          // changed, which will allow add-ons to be updated.
-          Services.prefs.clearUserPref("browser.policies.runOncePerModification.extensionsInstall");
-          let addons = await AddonManager.getAddonsByIDs(param.Uninstall);
-          for (let addon of addons) {
-            if (addon) {
-              try {
-                await addon.uninstall();
-              } catch (e) {
-                // This can fail for add-ons that can't be uninstalled.
-                log.debug(`Add-on ID (${addon.id}) couldn't be uninstalled.`);
+        uninstallingPromise = runOncePerModification(
+          "extensionsUninstall",
+          JSON.stringify(param.Uninstall),
+          async () => {
+            // If we're uninstalling add-ons, re-run the extensionsInstall runOnce even if it hasn't
+            // changed, which will allow add-ons to be updated.
+            Services.prefs.clearUserPref(
+              "browser.policies.runOncePerModification.extensionsInstall"
+            );
+            let addons = await AddonManager.getAddonsByIDs(param.Uninstall);
+            for (let addon of addons) {
+              if (addon) {
+                try {
+                  await addon.uninstall();
+                } catch (e) {
+                  // This can fail for add-ons that can't be uninstalled.
+                  log.debug(`Add-on ID (${addon.id}) couldn't be uninstalled.`);
+                }
               }
             }
           }
-        });
+        );
       }
       if ("Install" in param) {
-        runOncePerModification("extensionsInstall", JSON.stringify(param.Install), async () => {
-          await uninstallingPromise;
-          for (let location of param.Install) {
-            let uri;
-            try {
-              uri = Services.io.newURI(location);
-            } catch (e) {
-              // If it's not a URL, it's probably a file path.
-              // Assume location is a file path
-              // This is done for legacy support (old API)
+        runOncePerModification(
+          "extensionsInstall",
+          JSON.stringify(param.Install),
+          async () => {
+            await uninstallingPromise;
+            for (let location of param.Install) {
+              let uri;
               try {
-                let xpiFile = new FileUtils.File(location);
-                uri = Services.io.newFileURI(xpiFile);
-              } catch (ex) {
-                log.error(`Invalid extension path location - ${location}`);
-                return;
+                uri = Services.io.newURI(location);
+              } catch (e) {
+                // If it's not a URL, it's probably a file path.
+                // Assume location is a file path
+                // This is done for legacy support (old API)
+                try {
+                  let xpiFile = new FileUtils.File(location);
+                  uri = Services.io.newFileURI(xpiFile);
+                } catch (ex) {
+                  log.error(`Invalid extension path location - ${location}`);
+                  return;
+                }
               }
+              installAddonFromURL(uri.spec);
             }
-            installAddonFromURL(uri.spec);
           }
-        });
+        );
       }
       if ("Locked" in param) {
         for (let ID of param.Locked) {
@@ -282,13 +318,13 @@ var Policies = {
     },
   },
 
-  "ExtensionSettings": {
+  ExtensionSettings: {
     onBeforeAddons(manager, param) {
       manager.setExtensionSettings(param);
     },
   },
 
-  "ExtensionUpdate": {
+  ExtensionUpdate: {
     onBeforeAddons(manager, param) {
       if (!param) {
         setAndLockPref("extensions.update.enabled", param);
@@ -296,7 +332,7 @@ var Policies = {
     },
   },
 
-  "InstallAddonsPermission": {
+  InstallAddonsPermission: {
     onBeforeUIStartup(manager, param) {
       if ("Allow" in param) {
         addAllowDenyPermissions("install", param.Allow, null);
@@ -311,7 +347,7 @@ var Policies = {
     },
   },
 
-  "Preferences": {
+  Preferences: {
     onBeforeAddons(manager, param) {
       for (let preference in param) {
         setAndLockPref(preference, param[preference]);
@@ -319,7 +355,7 @@ var Policies = {
     },
   },
 
-  "Proxy": {
+  Proxy: {
     onBeforeAddons(manager, param) {
       if (param.Locked) {
         manager.disallowFeature("changeProxySettings");
@@ -330,7 +366,7 @@ var Policies = {
     },
   },
 
-  "RequestedLocales": {
+  RequestedLocales: {
     onBeforeAddons(manager, param) {
       if (Array.isArray(param)) {
         Services.locale.requestedLocales = param;
@@ -340,7 +376,7 @@ var Policies = {
     },
   },
 
-  "SSLVersionMax": {
+  SSLVersionMax: {
     onBeforeAddons(manager, param) {
       let tlsVersion;
       switch (param) {
@@ -361,7 +397,7 @@ var Policies = {
     },
   },
 
-  "SSLVersionMin": {
+  SSLVersionMin: {
     onBeforeAddons(manager, param) {
       let tlsVersion;
       switch (param) {
@@ -428,7 +464,7 @@ function setDefaultPref(prefName, prefValue, locked = false) {
 
   let defaults = Services.prefs.getDefaultBranch("");
 
-  switch (typeof(prefValue)) {
+  switch (typeof prefValue) {
     case "boolean":
       defaults.setBoolPref(prefName, prefValue);
       break;
@@ -470,10 +506,12 @@ function addAllowDenyPermissions(permissionName, allowList, blockList) {
 
   for (let origin of allowList) {
     try {
-      Services.perms.add(Services.io.newURI(origin.href),
-                         permissionName,
-                         Ci.nsIPermissionManager.ALLOW_ACTION,
-                         Ci.nsIPermissionManager.EXPIRE_POLICY);
+      Services.perms.add(
+        Services.io.newURI(origin.href),
+        permissionName,
+        Ci.nsIPermissionManager.ALLOW_ACTION,
+        Ci.nsIPermissionManager.EXPIRE_POLICY
+      );
     } catch (ex) {
       log.error(`Added by default for ${permissionName} permission in the permission
       manager - ${origin.href}`);
@@ -481,10 +519,12 @@ function addAllowDenyPermissions(permissionName, allowList, blockList) {
   }
 
   for (let origin of blockList) {
-    Services.perms.add(Services.io.newURI(origin.href),
-                       permissionName,
-                       Ci.nsIPermissionManager.DENY_ACTION,
-                       Ci.nsIPermissionManager.EXPIRE_POLICY);
+    Services.perms.add(
+      Services.io.newURI(origin.href),
+      permissionName,
+      Ci.nsIPermissionManager.DENY_ACTION,
+      Ci.nsIPermissionManager.EXPIRE_POLICY
+    );
   }
 }
 
@@ -498,11 +538,13 @@ function addAllowDenyPermissions(permissionName, allowList, blockList) {
  * @param {Functon} callback
  *        The callback to run only once.
  */
- // eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line no-unused-vars
 function runOnce(actionName, callback) {
   let prefName = `browser.policies.runonce.${actionName}`;
   if (Services.prefs.getBoolPref(prefName, false)) {
-    log.debug(`Not running action ${actionName} again because it has already run.`);
+    log.debug(
+      `Not running action ${actionName} again because it has already run.`
+    );
     return;
   }
   Services.prefs.setBoolPref(prefName, true);
@@ -537,7 +579,9 @@ async function runOncePerModification(actionName, policyValue, callback) {
   let prefName = `browser.policies.runOncePerModification.${actionName}`;
   let oldPolicyValue = Services.prefs.getStringPref(prefName, undefined);
   if (policyValue === oldPolicyValue) {
-    log.debug(`Not running action ${actionName} again because the policy's value is unchanged`);
+    log.debug(
+      `Not running action ${actionName} again because the policy's value is unchanged`
+    );
     return Promise.resolve();
   }
   Services.prefs.setStringPref(prefName, policyValue);
@@ -548,7 +592,7 @@ async function runOncePerModification(actionName, policyValue, callback) {
  * clearRunOnceModification
  *
  * Helper function that clears a runOnce policy.
-*/
+ */
 function clearRunOnceModification(actionName) {
   let prefName = `browser.policies.runOncePerModification.${actionName}`;
   Services.prefs.clearUserPref(prefName);
@@ -559,10 +603,10 @@ function clearRunOnceModification(actionName) {
  *
  * Helper function that installs an addon from a URL
  * and verifies that the addon ID matches.
-*/
+ */
 function installAddonFromURL(url, extensionID) {
   AddonManager.getInstallForURL(url, {
-    telemetryInfo: {source: "enterprise-policy"},
+    telemetryInfo: { source: "enterprise-policy" },
   }).then(install => {
     if (install.addon && install.addon.appDisabled) {
       log.error(`Incompatible add-on - ${location}`);
@@ -570,10 +614,14 @@ function installAddonFromURL(url, extensionID) {
       return;
     }
     let listener = {
-    /* eslint-disable-next-line no-shadow */
-      onDownloadEnded: (install) => {
+      /* eslint-disable-next-line no-shadow */
+      onDownloadEnded: install => {
         if (extensionID && install.addon.id != extensionID) {
-          log.error(`Add-on downloaded from ${url} had unexpected id (got ${install.addon.id} expected ${extensionID})`);
+          log.error(
+            `Add-on downloaded from ${url} had unexpected id (got ${
+              install.addon.id
+            } expected ${extensionID})`
+          );
           install.removeListener(listener);
           install.cancel();
         }
@@ -617,12 +665,14 @@ function blockAboutPage(manager, feature, neededOnContentProcess = false) {
 let ChromeURLBlockPolicy = {
   shouldLoad(contentLocation, loadInfo, mimeTypeGuess) {
     let contentType = loadInfo.externalContentPolicyType;
-    if (contentLocation.scheme == "chrome" &&
-        contentType == Ci.nsIContentPolicy.TYPE_DOCUMENT &&
-        loadInfo.loadingContext &&
-        loadInfo.loadingContext.baseURI == AppConstants.BROWSER_CHROME_URL &&
-        contentLocation.host != "mochitests" &&
-        contentLocation.host != "devtools") {
+    if (
+      contentLocation.scheme == "chrome" &&
+      contentType == Ci.nsIContentPolicy.TYPE_DOCUMENT &&
+      loadInfo.loadingContext &&
+      loadInfo.loadingContext.baseURI == AppConstants.BROWSER_CHROME_URL &&
+      contentLocation.host != "mochitests" &&
+      contentLocation.host != "devtools"
+    ) {
       return Ci.nsIContentPolicy.REJECT_REQUEST;
     }
     return Ci.nsIContentPolicy.ACCEPT;
@@ -639,21 +689,27 @@ let ChromeURLBlockPolicy = {
   },
 };
 
-
 function blockAllChromeURLs() {
   let registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
-  registrar.registerFactory(ChromeURLBlockPolicy.classID,
-                            ChromeURLBlockPolicy.classDescription,
-                            ChromeURLBlockPolicy.contractID,
-                            ChromeURLBlockPolicy);
+  registrar.registerFactory(
+    ChromeURLBlockPolicy.classID,
+    ChromeURLBlockPolicy.classDescription,
+    ChromeURLBlockPolicy.contractID,
+    ChromeURLBlockPolicy
+  );
 
-  Services.catMan.addCategoryEntry("content-policy",
-                                   ChromeURLBlockPolicy.contractID,
-                                   ChromeURLBlockPolicy.contractID, false, true);
+  Services.catMan.addCategoryEntry(
+    "content-policy",
+    ChromeURLBlockPolicy.contractID,
+    ChromeURLBlockPolicy.contractID,
+    false,
+    true
+  );
 }
 
 function pemToBase64(pem) {
-  return pem.replace(/-----BEGIN CERTIFICATE-----/, "")
-            .replace(/-----END CERTIFICATE-----/, "")
-            .replace(/[\r\n]/g, "");
+  return pem
+    .replace(/-----BEGIN CERTIFICATE-----/, "")
+    .replace(/-----END CERTIFICATE-----/, "")
+    .replace(/[\r\n]/g, "");
 }

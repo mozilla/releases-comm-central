@@ -29,6 +29,8 @@ BadCertHandler.prototype = {
   },
 
   // nsISupports
-  QueryInterface: ChromeUtils.generateQI(["nsIBadCertListener2",
-                                          "nsIInterfaceRequestor"]),
+  QueryInterface: ChromeUtils.generateQI([
+    "nsIBadCertListener2",
+    "nsIInterfaceRequestor",
+  ]),
 };

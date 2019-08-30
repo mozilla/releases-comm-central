@@ -3,7 +3,11 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 function getStoredLastSelected() {
-  return Services.xulStore.getValue("about:preferences", "MailPreferences", "lastSelected");
+  return Services.xulStore.getValue(
+    "about:preferences",
+    "MailPreferences",
+    "lastSelected"
+  );
 }
 
 add_task(async () => {

@@ -11,9 +11,13 @@ var MODULE_NAME = "test-notifications";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 // Our global folder variables...
 var gFolder = null;
@@ -33,7 +37,15 @@ var gMockAlertsService = {
 
   QueryInterface: ChromeUtils.generateQI([Ci.nsIAlertsService]),
 
-  showAlertNotification(imageUrl, title, text, textClickable, cookie, alertListener, name) {
+  showAlertNotification(
+    imageUrl,
+    title,
+    text,
+    textClickable,
+    cookie,
+    alertListener,
+    name
+  ) {
     // Setting the _doFail flag allows us to revert to the newmailalert.xul
     // notification
     if (this._doFail) {
@@ -62,8 +74,9 @@ var gMockAlertsService = {
 
   _reset() {
     // Tell any listeners that we're through
-    if (this._alertListener)
+    if (this._alertListener) {
       this._alertListener.observe(null, "alertfinished", this._cookie);
+    }
 
     this._didNotify = false;
     this._imageUrl = null;
@@ -78,11 +91,13 @@ var gMockAlertsService = {
 
 var gMockAlertsServiceFactory = {
   createInstance(aOuter, aIID) {
-    if (aOuter != null)
+    if (aOuter != null) {
       throw Cr.NS_ERROR_NO_AGGREGATION;
+    }
 
-    if (!aIID.equals(Ci.nsIAlertsService))
+    if (!aIID.equals(Ci.nsIAlertsService)) {
       throw Cr.NS_ERROR_NO_INTERFACE;
+    }
 
     return gMockAlertsService;
   },
@@ -96,21 +111,26 @@ function setupModule(module) {
   wh.installInto(module);
 
   // Register the mock alerts service
-  Components.manager.QueryInterface(Ci.nsIComponentRegistrar)
-            .registerFactory(Components
-                             .ID("{1bda6c33-b089-43df-a8fd-111907d6385a}"),
-                             "Mock Alerts Service",
-                             "@mozilla.org/system-alerts-service;1",
-                             gMockAlertsServiceFactory);
+  Components.manager
+    .QueryInterface(Ci.nsIComponentRegistrar)
+    .registerFactory(
+      Components.ID("{1bda6c33-b089-43df-a8fd-111907d6385a}"),
+      "Mock Alerts Service",
+      "@mozilla.org/system-alerts-service;1",
+      gMockAlertsServiceFactory
+    );
 
   // Ensure we have enabled new mail notifications
   remember_and_set_bool_pref("mail.biff.show_alert", true);
 
   // Ensure that system notifications are used (relevant for Linux only)
-  if (Services.appinfo.OS == "Linux" ||
-      ("@mozilla.org/gio-service;1" in Cc) ||
-      ("@mozilla.org/gnome-gconf-service;1" in Cc))
+  if (
+    Services.appinfo.OS == "Linux" ||
+    "@mozilla.org/gio-service;1" in Cc ||
+    "@mozilla.org/gnome-gconf-service;1" in Cc
+  ) {
     remember_and_set_bool_pref("mail.biff.use_system_alert", true);
+  }
 
   MailServices.accounts.localFoldersServer.performingBiff = true;
 
@@ -119,9 +139,11 @@ function setupModule(module) {
   var identity2 = MailServices.accounts.createIdentity();
   identity2.email = "new-account@foo.invalid";
 
-  var server = MailServices.accounts
-                           .createIncomingServer("nobody",
-                                                 "Test Local Folders", "pop3");
+  var server = MailServices.accounts.createIncomingServer(
+    "nobody",
+    "Test Local Folders",
+    "pop3"
+  );
 
   server.performingBiff = true;
 
@@ -137,8 +159,9 @@ function setupModule(module) {
 
 function teardownModule(module) {
   put_bool_prefs_back();
-  if (Services.appinfo.OS != "Darwin")
+  if (Services.appinfo.OS != "Darwin") {
     Services.prefs.setIntPref("alerts.totalOpenTime", gTotalOpenTime);
+  }
 }
 
 function setupTest(test) {
@@ -164,8 +187,9 @@ function put_bool_prefs_back() {
 }
 
 function remember_and_set_bool_pref(aPrefString, aBoolValue) {
-  if (!gOrigBoolPrefs[aPrefString])
+  if (!gOrigBoolPrefs[aPrefString]) {
     gOrigBoolPrefs[aPrefString] = Services.prefs.getBoolPref(aPrefString);
+  }
 
   Services.prefs.setBoolPref(aPrefString, aBoolValue);
 }
@@ -179,8 +203,9 @@ function remember_and_set_bool_pref(aPrefString, aBoolValue) {
 function make_gradually_newer_sets_in_folder(aFolder, aArgs) {
   gMsgMinutes -= 1;
   if (!aArgs.age) {
-    for (let arg of aArgs)
-      arg.age = {minutes: gMsgMinutes};
+    for (let arg of aArgs) {
+      arg.age = { minutes: gMsgMinutes };
+    }
   }
   make_new_sets_in_folder(aFolder, aArgs);
 }
@@ -196,7 +221,7 @@ function test_revert_to_newmailalert() {
 
   // We expect the newmailalert.xul window...
   plan_for_new_window("alert:alert");
-  make_gradually_newer_sets_in_folder(gFolder, [{count: 2}]);
+  make_gradually_newer_sets_in_folder(gFolder, [{ count: 2 }]);
   let controller = wait_for_new_window("alert:alert");
   plan_for_window_close(controller);
   wait_for_window_close();
@@ -207,17 +232,22 @@ test_revert_to_newmailalert.EXCLUDED_PLATFORMS = ["winnt", "darwin"];
  * Test that receiving new mail causes a notification to appear
  */
 function test_new_mail_received_causes_notification() {
-  make_gradually_newer_sets_in_folder(gFolder, [{count: 1}]);
-  assert_true(gMockAlertsService._didNotify,
-              "Did not show alert notification.");
+  make_gradually_newer_sets_in_folder(gFolder, [{ count: 1 }]);
+  assert_true(
+    gMockAlertsService._didNotify,
+    "Did not show alert notification."
+  );
 }
-test_new_mail_received_causes_notification.EXCLUDED_PLATFORMS = ["winnt", "darwin"];
+test_new_mail_received_causes_notification.EXCLUDED_PLATFORMS = [
+  "winnt",
+  "darwin",
+];
 
 /**
  * Test that if notification shows, we don't show newmailalert.xul
  */
 function test_dont_show_newmailalert() {
-  make_gradually_newer_sets_in_folder(gFolder, [{count: 1}]);
+  make_gradually_newer_sets_in_folder(gFolder, [{ count: 1 }]);
 
   // Wait for newmailalert.xul to show
   plan_for_new_window("alert:alert");
@@ -228,7 +258,10 @@ function test_dont_show_newmailalert() {
     // Correct behaviour - the window didn't show.
   }
 }
-test_new_mail_received_causes_notification.EXCLUDED_PLATFORMS = ["winnt", "darwin"];
+test_new_mail_received_causes_notification.EXCLUDED_PLATFORMS = [
+  "winnt",
+  "darwin",
+];
 
 /**
  * Test that we notify, showing the oldest new, unread message received
@@ -237,12 +270,14 @@ test_new_mail_received_causes_notification.EXCLUDED_PLATFORMS = ["winnt", "darwi
 function test_show_oldest_new_unread_since_last_notification() {
   let notifyFirst = "This should notify first";
   assert_false(gMockAlertsService._didNotify, "Should not have notified yet.");
-  make_gradually_newer_sets_in_folder(gFolder,
-                                      [{count: 1,
-                                        body: {body: notifyFirst}}]);
+  make_gradually_newer_sets_in_folder(gFolder, [
+    { count: 1, body: { body: notifyFirst } },
+  ]);
   assert_true(gMockAlertsService._didNotify, "Should have notified.");
-  assert_true(gMockAlertsService._text.includes(notifyFirst, 1),
-              "Should have notified for the first message");
+  assert_true(
+    gMockAlertsService._text.includes(notifyFirst, 1),
+    "Should have notified for the first message"
+  );
 
   be_in_folder(gFolder);
   gFolder.biffState = Ci.nsIMsgFolder.nsMsgBiffState_NoMail;
@@ -250,21 +285,26 @@ function test_show_oldest_new_unread_since_last_notification() {
 
   let notifySecond = "This should notify second";
   assert_false(gMockAlertsService._didNotify, "Should not have notified yet.");
-  make_gradually_newer_sets_in_folder(gFolder,
-                                      [{count: 1,
-                                        body: {body: notifySecond}}]);
+  make_gradually_newer_sets_in_folder(gFolder, [
+    { count: 1, body: { body: notifySecond } },
+  ]);
   assert_true(gMockAlertsService._didNotify, "Should have notified.");
-  assert_true(gMockAlertsService._text.includes(notifySecond, 1),
-              "Should have notified for the second message");
+  assert_true(
+    gMockAlertsService._text.includes(notifySecond, 1),
+    "Should have notified for the second message"
+  );
 }
-test_show_oldest_new_unread_since_last_notification.EXCLUDED_PLATFORMS = ["winnt", "darwin"];
+test_show_oldest_new_unread_since_last_notification.EXCLUDED_PLATFORMS = [
+  "winnt",
+  "darwin",
+];
 
 /**
  * Test that notifications work across different accounts.
  */
 function test_notification_works_across_accounts() {
   // Cause a notification in the first folder
-  make_gradually_newer_sets_in_folder(gFolder, [{count: 1}]);
+  make_gradually_newer_sets_in_folder(gFolder, [{ count: 1 }]);
   assert_true(gMockAlertsService._didNotify, "Should have notified.");
 
   gMockAlertsService._reset();
@@ -272,13 +312,15 @@ function test_notification_works_across_accounts() {
   // into the past.  That way, test_notification_independent_across_accounts
   // has an opportunity to send slightly newer messages that are older than
   // the messages sent to gFolder.
-  make_gradually_newer_sets_in_folder(gFolder2,
-                                      [{count: 2,
-                                        age: {minutes: gMsgMinutes + 20},
-                                       }]);
+  make_gradually_newer_sets_in_folder(gFolder2, [
+    { count: 2, age: { minutes: gMsgMinutes + 20 } },
+  ]);
   assert_true(gMockAlertsService._didNotify, "Should have notified.");
 }
-test_notification_works_across_accounts.EXCLUDED_PLATFORMS = ["winnt", "darwin"];
+test_notification_works_across_accounts.EXCLUDED_PLATFORMS = [
+  "winnt",
+  "darwin",
+];
 
 /* Test that notification timestamps are independent from account
  * to account.  This is for the scenario where we have two accounts, and
@@ -287,33 +329,34 @@ test_notification_works_across_accounts.EXCLUDED_PLATFORMS = ["winnt", "darwin"]
  * account's newest mail is older than the first account's newest mail.
  */
 function test_notifications_independent_across_accounts() {
-  make_gradually_newer_sets_in_folder(gFolder, [{count: 1}]);
+  make_gradually_newer_sets_in_folder(gFolder, [{ count: 1 }]);
   assert_true(gMockAlertsService._didNotify, "Should have notified.");
 
   gMockAlertsService._reset();
   // Next, let's make some mail arrive in the second folder, but
   // let's have that mail be slightly older than the mail that
   // landed in the first folder.  We should still notify.
-  make_gradually_newer_sets_in_folder(gFolder2,
-                                      [{count: 2,
-                                        age: {minutes: gMsgMinutes + 10},
-                                       }]);
+  make_gradually_newer_sets_in_folder(gFolder2, [
+    { count: 2, age: { minutes: gMsgMinutes + 10 } },
+  ]);
   assert_true(gMockAlertsService._didNotify, "Should have notified.");
 }
-test_notifications_independent_across_accounts.EXCLUDED_PLATFORMS = ["winnt", "darwin"];
+test_notifications_independent_across_accounts.EXCLUDED_PLATFORMS = [
+  "winnt",
+  "darwin",
+];
 
 /**
  * Test that we can show the message subject in the notification.
  */
 function test_show_subject() {
   let subject = "This should be displayed";
-  make_gradually_newer_sets_in_folder(gFolder,
-                                      [{count: 1,
-                                        subject,
-                                       }]);
+  make_gradually_newer_sets_in_folder(gFolder, [{ count: 1, subject }]);
   assert_true(gMockAlertsService._didNotify, "Should have notified");
-  assert_true(gMockAlertsService._text.includes(subject),
-              "Should have displayed the subject");
+  assert_true(
+    gMockAlertsService._text.includes(subject),
+    "Should have displayed the subject"
+  );
 }
 test_show_subject.EXCLUDED_PLATFORMS = ["winnt", "darwin"];
 
@@ -323,13 +366,12 @@ test_show_subject.EXCLUDED_PLATFORMS = ["winnt", "darwin"];
 function test_hide_subject() {
   Services.prefs.setBoolPref("mail.biff.alert.show_subject", false);
   let subject = "This should not be displayed";
-  make_gradually_newer_sets_in_folder(gFolder,
-                                      [{count: 1,
-                                        subject,
-                                       }]);
+  make_gradually_newer_sets_in_folder(gFolder, [{ count: 1, subject }]);
   assert_true(gMockAlertsService._didNotify, "Should have notified");
-  assert_true(!gMockAlertsService._text.includes(subject),
-                "Should not have displayed the subject");
+  assert_true(
+    !gMockAlertsService._text.includes(subject),
+    "Should not have displayed the subject"
+  );
 }
 test_hide_subject.EXCLUDED_PLATFORMS = ["winnt", "darwin"];
 
@@ -345,33 +387,36 @@ function test_show_only_subject() {
   let subject = "This should not be displayed";
   let messageBody = "My message preview";
 
-  make_gradually_newer_sets_in_folder(gFolder,
-                                      [{count: 1,
-                                        from: sender,
-                                        subject,
-                                        body: {body: messageBody}}]);
+  make_gradually_newer_sets_in_folder(gFolder, [
+    { count: 1, from: sender, subject, body: { body: messageBody } },
+  ]);
   assert_true(gMockAlertsService._didNotify, "Should have notified");
-  assert_true(gMockAlertsService._text.includes(subject),
-              "Should have displayed the subject");
-  assert_true(!gMockAlertsService._text.includes(messageBody),
-                "Should not have displayed the preview");
-  assert_true(!gMockAlertsService._text.includes(sender[0]),
-                "Should not have displayed the sender");
+  assert_true(
+    gMockAlertsService._text.includes(subject),
+    "Should have displayed the subject"
+  );
+  assert_true(
+    !gMockAlertsService._text.includes(messageBody),
+    "Should not have displayed the preview"
+  );
+  assert_true(
+    !gMockAlertsService._text.includes(sender[0]),
+    "Should not have displayed the sender"
+  );
 }
 test_show_only_subject.EXCLUDED_PLATFORMS = ["winnt", "darwin"];
-
 
 /**
  * Test that we can show the message sender in the notification.
  */
 function test_show_sender() {
   let sender = ["John Cleese", "john@cleese.invalid"];
-  make_gradually_newer_sets_in_folder(gFolder,
-                                      [{count: 1,
-                                        from: sender}]);
+  make_gradually_newer_sets_in_folder(gFolder, [{ count: 1, from: sender }]);
   assert_true(gMockAlertsService._didNotify, "Should have notified");
-  assert_true(gMockAlertsService._text.includes(sender[0]),
-              "Should have displayed the sender");
+  assert_true(
+    gMockAlertsService._text.includes(sender[0]),
+    "Should have displayed the sender"
+  );
 }
 test_show_sender.EXCLUDED_PLATFORMS = ["winnt", "darwin"];
 
@@ -381,12 +426,12 @@ test_show_sender.EXCLUDED_PLATFORMS = ["winnt", "darwin"];
 function test_hide_sender() {
   Services.prefs.setBoolPref("mail.biff.alert.show_sender", false);
   let sender = ["John Cleese", "john@cleese.invalid"];
-  make_gradually_newer_sets_in_folder(gFolder,
-                                      [{count: 1,
-                                        from: sender}]);
+  make_gradually_newer_sets_in_folder(gFolder, [{ count: 1, from: sender }]);
   assert_true(gMockAlertsService._didNotify, "Should have notified");
-  assert_true(!gMockAlertsService._text.includes(sender[0]),
-                "Should not have displayed the sender");
+  assert_true(
+    !gMockAlertsService._text.includes(sender[0]),
+    "Should not have displayed the sender"
+  );
 }
 test_hide_sender.EXCLUDED_PLATFORMS = ["winnt", "darwin"];
 
@@ -402,18 +447,22 @@ function test_show_only_sender() {
   let subject = "This should not be displayed";
   let messageBody = "My message preview";
 
-  make_gradually_newer_sets_in_folder(gFolder,
-                                      [{count: 1,
-                                        from: sender,
-                                        subject,
-                                        body: {body: messageBody}}]);
+  make_gradually_newer_sets_in_folder(gFolder, [
+    { count: 1, from: sender, subject, body: { body: messageBody } },
+  ]);
   assert_true(gMockAlertsService._didNotify, "Should have notified");
-  assert_true(gMockAlertsService._text.includes(sender[0]),
-              "Should have displayed the sender");
-  assert_true(!gMockAlertsService._text.includes(messageBody),
-                "Should not have displayed the preview");
-  assert_true(!gMockAlertsService._text.includes(subject),
-                "Should not have displayed the subject");
+  assert_true(
+    gMockAlertsService._text.includes(sender[0]),
+    "Should have displayed the sender"
+  );
+  assert_true(
+    !gMockAlertsService._text.includes(messageBody),
+    "Should not have displayed the preview"
+  );
+  assert_true(
+    !gMockAlertsService._text.includes(subject),
+    "Should not have displayed the subject"
+  );
 }
 test_show_only_sender.EXCLUDED_PLATFORMS = ["winnt", "darwin"];
 
@@ -423,12 +472,14 @@ test_show_only_sender.EXCLUDED_PLATFORMS = ["winnt", "darwin"];
 function test_show_preview() {
   Services.prefs.setBoolPref("mail.biff.alert.show_preview", true);
   let messageBody = "My message preview";
-  make_gradually_newer_sets_in_folder(gFolder,
-                                      [{count: 1,
-                                        body: {body: messageBody}}]);
+  make_gradually_newer_sets_in_folder(gFolder, [
+    { count: 1, body: { body: messageBody } },
+  ]);
   assert_true(gMockAlertsService._didNotify, "Should have notified");
-  assert_true(gMockAlertsService._text.includes(messageBody),
-              "Should have displayed the preview");
+  assert_true(
+    gMockAlertsService._text.includes(messageBody),
+    "Should have displayed the preview"
+  );
 }
 test_show_preview.EXCLUDED_PLATFORMS = ["winnt", "darwin"];
 
@@ -438,12 +489,14 @@ test_show_preview.EXCLUDED_PLATFORMS = ["winnt", "darwin"];
 function test_hide_preview() {
   Services.prefs.setBoolPref("mail.biff.alert.show_preview", false);
   let messageBody = "My message preview";
-  make_gradually_newer_sets_in_folder(gFolder,
-                                      [{count: 1,
-                                        body: {body: messageBody}}]);
+  make_gradually_newer_sets_in_folder(gFolder, [
+    { count: 1, body: { body: messageBody } },
+  ]);
   assert_true(gMockAlertsService._didNotify, "Should have notified");
-  assert_true(!gMockAlertsService._text.includes(messageBody),
-                "Should not have displayed the preview");
+  assert_true(
+    !gMockAlertsService._text.includes(messageBody),
+    "Should not have displayed the preview"
+  );
 }
 test_hide_preview.EXCLUDED_PLATFORMS = ["winnt", "darwin"];
 
@@ -458,18 +511,22 @@ function test_show_only_preview() {
   let sender = ["John Cleese", "john@cleese.invalid"];
   let subject = "This should not be displayed";
   let messageBody = "My message preview";
-  make_gradually_newer_sets_in_folder(gFolder,
-                                      [{count: 1,
-                                        from: sender,
-                                        subject,
-                                        body: {body: messageBody}}]);
+  make_gradually_newer_sets_in_folder(gFolder, [
+    { count: 1, from: sender, subject, body: { body: messageBody } },
+  ]);
   assert_true(gMockAlertsService._didNotify, "Should have notified");
-  assert_true(gMockAlertsService._text.includes(messageBody),
-              "Should have displayed the preview: " + gMockAlertsService._text);
-  assert_true(!gMockAlertsService._text.includes(sender[0]),
-                "Should not have displayed the sender");
-  assert_true(!gMockAlertsService._text.includes(subject),
-                "Should not have displayed the subject");
+  assert_true(
+    gMockAlertsService._text.includes(messageBody),
+    "Should have displayed the preview: " + gMockAlertsService._text
+  );
+  assert_true(
+    !gMockAlertsService._text.includes(sender[0]),
+    "Should not have displayed the sender"
+  );
+  assert_true(
+    !gMockAlertsService._text.includes(subject),
+    "Should not have displayed the subject"
+  );
 }
 test_show_only_preview.EXCLUDED_PLATFORMS = ["winnt", "darwin"];
 
@@ -488,7 +545,7 @@ function test_still_notify_with_unchanged_biff() {
   assert_false(gMockAlertsService._didNotify, "Should have notified.");
 
   for (let i = 0; i < HOW_MUCH_MAIL; i++) {
-    make_gradually_newer_sets_in_folder(gFolder, [{count: 1}]);
+    make_gradually_newer_sets_in_folder(gFolder, [{ count: 1 }]);
     assert_true(gMockAlertsService._didNotify, "Should have notified.");
     gMockAlertsService._reset();
   }
@@ -501,18 +558,19 @@ test_still_notify_with_unchanged_biff.EXCLUDED_PLATFORMS = ["winnt", "darwin"];
  */
 function test_no_notification_for_uninteresting_folders() {
   var someFolder = create_folder("Uninteresting Folder");
-  var uninterestingFlags = [Ci.nsMsgFolderFlags.Drafts,
-                            Ci.nsMsgFolderFlags.Queue,
-                            Ci.nsMsgFolderFlags.SentMail,
-                            Ci.nsMsgFolderFlags.Templates,
-                            Ci.nsMsgFolderFlags.Junk,
-                            Ci.nsMsgFolderFlags.Archive];
+  var uninterestingFlags = [
+    Ci.nsMsgFolderFlags.Drafts,
+    Ci.nsMsgFolderFlags.Queue,
+    Ci.nsMsgFolderFlags.SentMail,
+    Ci.nsMsgFolderFlags.Templates,
+    Ci.nsMsgFolderFlags.Junk,
+    Ci.nsMsgFolderFlags.Archive,
+  ];
 
   for (let i = 0; i < uninterestingFlags.length; i++) {
     someFolder.flags = uninterestingFlags[i];
-    make_gradually_newer_sets_in_folder(someFolder, [{count: 1}]);
-    assert_false(gMockAlertsService._didNotify,
-                "Showed alert notification.");
+    make_gradually_newer_sets_in_folder(someFolder, [{ count: 1 }]);
+    assert_false(gMockAlertsService._didNotify, "Showed alert notification.");
   }
 
   // However, we want to ensure that Inboxes *always* notify, even
@@ -521,10 +579,15 @@ function test_no_notification_for_uninteresting_folders() {
 
   for (let i = 0; i < uninterestingFlags.length; i++) {
     someFolder.flags |= uninterestingFlags[i];
-    make_gradually_newer_sets_in_folder(someFolder, [{count: 1}]);
-    assert_true(gMockAlertsService._didNotify,
-                "Did not show alert notification.");
+    make_gradually_newer_sets_in_folder(someFolder, [{ count: 1 }]);
+    assert_true(
+      gMockAlertsService._didNotify,
+      "Did not show alert notification."
+    );
     someFolder.flags = someFolder.flags & ~uninterestingFlags[i];
   }
 }
-test_no_notification_for_uninteresting_folders.EXCLUDED_PLATFORMS = ["winnt", "darwin"];
+test_no_notification_for_uninteresting_folders.EXCLUDED_PLATFORMS = [
+  "winnt",
+  "darwin",
+];

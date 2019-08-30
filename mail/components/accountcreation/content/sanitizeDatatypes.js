@@ -4,7 +4,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from emailWizard.js */
-var {cleanUpHostName, isLegalHostNameOrIP} = ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
+var { cleanUpHostName, isLegalHostNameOrIP } = ChromeUtils.import(
+  "resource:///modules/hostnameUtils.jsm"
+);
 
 /**
  * This is a generic input validation lib. Use it when you process
@@ -21,36 +23,43 @@ var {cleanUpHostName, isLegalHostNameOrIP} = ChromeUtils.import("resource:///mod
 
 var sanitize = {
   integer(unchecked) {
-    if (typeof(unchecked) == "number" && !isNaN(unchecked))
+    if (typeof unchecked == "number" && !isNaN(unchecked)) {
       return unchecked;
+    }
 
     var r = parseInt(unchecked);
-    if (isNaN(r))
+    if (isNaN(r)) {
       throw new MalformedException("no_number.error", unchecked);
+    }
 
     return r;
   },
 
   integerRange(unchecked, min, max) {
     var int = this.integer(unchecked);
-    if (int < min)
+    if (int < min) {
       throw new MalformedException("number_too_small.error", unchecked);
+    }
 
-    if (int > max)
+    if (int > max) {
       throw new MalformedException("number_too_large.error", unchecked);
+    }
 
     return int;
   },
 
   boolean(unchecked) {
-    if (typeof(unchecked) == "boolean")
+    if (typeof unchecked == "boolean") {
       return unchecked;
+    }
 
-    if (unchecked == "true")
+    if (unchecked == "true") {
       return true;
+    }
 
-    if (unchecked == "false")
+    if (unchecked == "false") {
       return false;
+    }
 
     throw new MalformedException("boolean.error", unchecked);
   },
@@ -60,8 +69,9 @@ var sanitize = {
   },
 
   nonemptystring(unchecked) {
-    if (!unchecked)
+    if (!unchecked) {
       throw new MalformedException("string_empty.error", unchecked);
+    }
 
     return this.string(unchecked);
   },
@@ -73,8 +83,9 @@ var sanitize = {
    */
   alphanumdash(unchecked) {
     var str = this.nonemptystring(unchecked);
-    if (!/^[a-zA-Z0-9\-\_]*$/.test(str))
+    if (!/^[a-zA-Z0-9\-\_]*$/.test(str)) {
       throw new MalformedException("alphanumdash.error", unchecked);
+    }
 
     return str;
   },
@@ -92,11 +103,13 @@ var sanitize = {
     // The regex is "anything, followed by one or more (placeholders than
     // anything)".  This doesn't catch the non-placeholder case, but that's
     // handled down below.
-    if (/^[a-zA-Z0-9\-\.]*(%[A-Z0-9]+%[a-zA-Z0-9\-\.]*)+$/.test(str))
+    if (/^[a-zA-Z0-9\-\.]*(%[A-Z0-9]+%[a-zA-Z0-9\-\.]*)+$/.test(str)) {
       return str;
+    }
 
-    if (!isLegalHostNameOrIP(str))
+    if (!isLegalHostNameOrIP(str)) {
       throw new MalformedException("hostname_syntax.error", unchecked);
+    }
 
     return str.toLowerCase();
   },
@@ -112,8 +125,10 @@ var sanitize = {
     // PNG and JPEG data: URLs are fine.  But SVG is again dangerous,
     // it can contain javascript, so it would create a critical security hole.
     // Talk to BenB or bz before relaxing *any* of the checks in this function.
-    if (str.startsWith("data:image/png;") ||
-        str.startsWith("data:image/jpeg;")) {
+    if (
+      str.startsWith("data:image/png;") ||
+      str.startsWith("data:image/jpeg;")
+    ) {
       return new URL(str).href;
     }
 
@@ -129,8 +144,9 @@ var sanitize = {
       throw new MalformedException("url_parsing.error", unchecked);
     }
 
-    if (uri.scheme != "http" && uri.scheme != "https")
+    if (uri.scheme != "http" && uri.scheme != "https") {
       throw new MalformedException("url_scheme.error", unchecked);
+    }
 
     return uri.spec;
   },
@@ -155,12 +171,14 @@ var sanitize = {
    */
   enum(unchecked, allowedValues, defaultValue) {
     for (let allowedValue of allowedValues) {
-      if (allowedValue == unchecked)
+      if (allowedValue == unchecked) {
         return allowedValue;
+      }
     }
     // value is bad
-    if (typeof(defaultValue) == "undefined")
+    if (typeof defaultValue == "undefined") {
       throw new MalformedException("allowed_value.error", unchecked);
+    }
     return defaultValue;
   },
 
@@ -183,24 +201,27 @@ var sanitize = {
    */
   translate(unchecked, mapping, defaultValue) {
     for (var inputValue in mapping) {
-      if (inputValue == unchecked)
+      if (inputValue == unchecked) {
         return mapping[inputValue];
+      }
     }
     // value is bad
-    if (typeof(defaultValue) == "undefined")
+    if (typeof defaultValue == "undefined") {
       throw new MalformedException("allowed_value.error", unchecked);
+    }
     return defaultValue;
   },
 };
 
 function MalformedException(msgID, uncheckedBadValue) {
   var stringBundle = getStringBundle(
-      "chrome://messenger/locale/accountCreationUtil.properties");
+    "chrome://messenger/locale/accountCreationUtil.properties"
+  );
   var msg = stringBundle.GetStringFromName(msgID);
-  if ((typeof(kDebug) != "undefined") && kDebug)
+  if (typeof kDebug != "undefined" && kDebug) {
     msg += " (bad value: " + uncheckedBadValue + ")";
+  }
   Exception.call(this, msg);
 }
 MalformedException.prototype = Object.create(Exception.prototype);
 MalformedException.prototype.constructor = MalformedException;
-

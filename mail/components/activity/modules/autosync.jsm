@@ -5,12 +5,18 @@
 
 this.EXPORTED_SYMBOLS = ["autosyncModule"];
 
-var nsActProcess = Components.Constructor("@mozilla.org/activity-process;1",
-                                            "nsIActivityProcess", "init");
-var nsActEvent = Components.Constructor("@mozilla.org/activity-event;1",
-                                          "nsIActivityEvent", "init");
+var nsActProcess = Components.Constructor(
+  "@mozilla.org/activity-process;1",
+  "nsIActivityProcess",
+  "init"
+);
+var nsActEvent = Components.Constructor(
+  "@mozilla.org/activity-event;1",
+  "nsIActivityEvent",
+  "init"
+);
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 var nsIAutoSyncMgrListener = Ci.nsIAutoSyncMgrListener;
@@ -33,25 +39,28 @@ var autosyncModule = {
 
   get log() {
     delete this.log;
-    return this.log = Log4Moz.getConfiguredLogger("autosyncActivities");
+    return (this.log = Log4Moz.getConfiguredLogger("autosyncActivities"));
   },
 
   get activityMgr() {
     delete this.activityMgr;
-    return this.activityMgr = Cc["@mozilla.org/activity-manager;1"]
-                                .getService(Ci.nsIActivityManager);
+    return (this.activityMgr = Cc["@mozilla.org/activity-manager;1"].getService(
+      Ci.nsIActivityManager
+    ));
   },
 
   get autoSyncManager() {
     delete this.autoSyncManager;
-    return this.autoSyncManager = Cc["@mozilla.org/imap/autosyncmgr;1"]
-                                    .getService(Ci.nsIAutoSyncManager);
+    return (this.autoSyncManager = Cc[
+      "@mozilla.org/imap/autosyncmgr;1"
+    ].getService(Ci.nsIAutoSyncManager));
   },
 
   get bundle() {
     delete this.bundle;
-    return this.bundle = Services.strings
-      .createBundle("chrome://messenger/locale/activity.properties");
+    return (this.bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/activity.properties"
+    ));
   },
 
   getString(stringName) {
@@ -66,17 +75,19 @@ var autosyncModule = {
   createSyncMailProcess(folder) {
     try {
       // create an activity process for this folder
-      let msg = this.bundle.formatStringFromName("autosyncProcessDisplayText",
-                                                 [folder.prettyName]);
+      let msg = this.bundle.formatStringFromName("autosyncProcessDisplayText", [
+        folder.prettyName,
+      ]);
       let process = new nsActProcess(msg, this.autoSyncManager);
       // we want to use default auto-sync icon
       process.iconClass = "syncMail";
       process.addSubject(folder);
       // group processes under folder's imap account
       process.contextType = "account";
-      process.contextDisplayText = this.bundle.formatStringFromName("autosyncContextDisplayText",
-                                        [folder.server.prettyName]);
-
+      process.contextDisplayText = this.bundle.formatStringFromName(
+        "autosyncContextDisplayText",
+        [folder.server.prettyName]
+      );
 
       process.contextObj = folder.server;
 
@@ -95,34 +106,46 @@ var autosyncModule = {
 
       // create an activity event
 
-      let msg = this.bundle.formatStringFromName("autosyncEventDisplayText",
-                                                 [folder.server.prettyName]);
+      let msg = this.bundle.formatStringFromName("autosyncEventDisplayText", [
+        folder.server.prettyName,
+      ]);
 
       let statusMsg;
-      let numOfMessages = this._syncInfoPerServer.get(folder.server).totalDownloads;
-      if (numOfMessages)
-        statusMsg = this.bundle.formatStringFromName("autosyncEventStatusText",
-                                                     [numOfMessages]);
-      else
+      let numOfMessages = this._syncInfoPerServer.get(folder.server)
+        .totalDownloads;
+      if (numOfMessages) {
+        statusMsg = this.bundle.formatStringFromName(
+          "autosyncEventStatusText",
+          [numOfMessages]
+        );
+      } else {
         statusMsg = this.getString("autosyncEventStatusTextNoMsgs");
+      }
 
-      let event = new nsActEvent(msg, this.autoSyncManager, statusMsg,
-                                 this._syncInfoPerServer.get(folder.server).startTime,
-                                 Date.now());               // completion time
+      let event = new nsActEvent(
+        msg,
+        this.autoSyncManager,
+        statusMsg,
+        this._syncInfoPerServer.get(folder.server).startTime,
+        Date.now()
+      ); // completion time
 
       // since auto-sync events do not have undo option by nature,
       // setting these values are informational only.
       event.contextType = process.contextType;
-      event.contextDisplayText = this.bundle.formatStringFromName("autosyncContextDisplayText",
-                                        [folder.server.prettyName]);
+      event.contextDisplayText = this.bundle.formatStringFromName(
+        "autosyncContextDisplayText",
+        [folder.server.prettyName]
+      );
       event.contextObj = process.contextObj;
       event.iconClass = "syncMail";
 
       // transfer all subjects.
       // same as above, not mandatory
       let subjects = process.getSubjects({});
-      for (let subject of subjects)
+      for (let subject of subjects) {
         event.addSubject(subject);
+      }
 
       return event;
     } catch (e) {
@@ -134,7 +157,9 @@ var autosyncModule = {
   onStateChanged(running) {
     try {
       this._running = running;
-      this.log.info("OnStatusChanged: " + (running ? "running" : "sleeping") + "\n");
+      this.log.info(
+        "OnStatusChanged: " + (running ? "running" : "sleeping") + "\n"
+      );
     } catch (e) {
       this.log.error("onStateChanged: " + e);
       throw e;
@@ -143,29 +168,39 @@ var autosyncModule = {
 
   onFolderAddedIntoQ(queue, folder) {
     try {
-      if (folder instanceof Ci.nsIMsgFolder &&
-          queue == nsIAutoSyncMgrListener.PriorityQueue) {
+      if (
+        folder instanceof Ci.nsIMsgFolder &&
+        queue == nsIAutoSyncMgrListener.PriorityQueue
+      ) {
         this._inQFolderList.push(folder);
-        this.log.info("Auto_Sync OnFolderAddedIntoQ [" + this._inQFolderList.length + "] " +
-                        folder.prettyName + " of " + folder.server.prettyName);
+        this.log.info(
+          "Auto_Sync OnFolderAddedIntoQ [" +
+            this._inQFolderList.length +
+            "] " +
+            folder.prettyName +
+            " of " +
+            folder.server.prettyName
+        );
         // create an activity process for this folder
         let process = this.createSyncMailProcess(folder);
 
         // create a sync object to keep track of the process of this folder
         let imapFolder = folder.QueryInterface(Ci.nsIMsgImapMailFolder);
-        let syncItem = { syncFolder: folder,
-                         activity: process,
-                         percentComplete: 0,
-                         totalDownloaded: 0,
-                         pendingMsgCount: imapFolder.autoSyncStateObj.pendingMessageCount,
-                       };
+        let syncItem = {
+          syncFolder: folder,
+          activity: process,
+          percentComplete: 0,
+          totalDownloaded: 0,
+          pendingMsgCount: imapFolder.autoSyncStateObj.pendingMessageCount,
+        };
 
         // if this is the first folder of this server in the queue, then set the sync start time
         // for activity event
         if (!this._syncInfoPerServer.has(folder.server)) {
-          this._syncInfoPerServer.set(folder.server, { startTime: Date.now(),
-                                                       totalDownloads: 0,
-                                                     });
+          this._syncInfoPerServer.set(folder.server, {
+            startTime: Date.now(),
+            totalDownloads: 0,
+          });
         }
 
         // associate the sync object with the folder in question
@@ -179,20 +214,30 @@ var autosyncModule = {
   },
   onFolderRemovedFromQ(queue, folder) {
     try {
-      if (folder instanceof Ci.nsIMsgFolder &&
-          queue == nsIAutoSyncMgrListener.PriorityQueue) {
+      if (
+        folder instanceof Ci.nsIMsgFolder &&
+        queue == nsIAutoSyncMgrListener.PriorityQueue
+      ) {
         let i = this._inQFolderList.indexOf(folder);
-        if (i > -1)
+        if (i > -1) {
           this._inQFolderList.splice(i, 1);
+        }
 
-        this.log.info("OnFolderRemovedFromQ [" + this._inQFolderList.length + "] " +
-                        folder.prettyName + " of " + folder.server.prettyName + "\n");
+        this.log.info(
+          "OnFolderRemovedFromQ [" +
+            this._inQFolderList.length +
+            "] " +
+            folder.prettyName +
+            " of " +
+            folder.server.prettyName +
+            "\n"
+        );
 
         let syncItem = this._syncInfoPerFolder.get(folder.URI);
         let process = syncItem.activity;
         let canceled = false;
         if (process instanceof Ci.nsIActivityProcess) {
-          canceled = (process.state == Ci.nsIActivityProcess.STATE_CANCELED);
+          canceled = process.state == Ci.nsIActivityProcess.STATE_CANCELED;
           process.state = Ci.nsIActivityProcess.STATE_COMPLETED;
 
           try {
@@ -220,16 +265,23 @@ var autosyncModule = {
             break;
           }
         }
-        this.log.info("Auto_Sync OnFolderRemovedFromQ Last folder of the server: " + !found);
+        this.log.info(
+          "Auto_Sync OnFolderRemovedFromQ Last folder of the server: " + !found
+        );
         if (!found) {
           // create an sync event for the completed process if it's not canceled
           if (!canceled) {
             let key = folder.server.prettyName;
-            if (this._lastMessage.has(key) &&
-                this.activityMgr.containsActivity(this._lastMessage.get(key)))
+            if (
+              this._lastMessage.has(key) &&
+              this.activityMgr.containsActivity(this._lastMessage.get(key))
+            ) {
               this.activityMgr.removeActivity(this._lastMessage.get(key));
-            this._lastMessage.set(key, this.activityMgr
-              .addActivity(this.createSyncMailEvent(syncItem)));
+            }
+            this._lastMessage.set(
+              key,
+              this.activityMgr.addActivity(this.createSyncMailEvent(syncItem))
+            );
           }
           this._syncInfoPerServer.delete(folder.server);
         }
@@ -242,8 +294,17 @@ var autosyncModule = {
   onDownloadStarted(folder, numOfMessages, totalPending) {
     try {
       if (folder instanceof Ci.nsIMsgFolder) {
-        this.log.info("OnDownloadStarted (" + numOfMessages + "/" + totalPending + "): " +
-                                folder.prettyName + " of " + folder.server.prettyName + "\n");
+        this.log.info(
+          "OnDownloadStarted (" +
+            numOfMessages +
+            "/" +
+            totalPending +
+            "): " +
+            folder.prettyName +
+            " of " +
+            folder.server.prettyName +
+            "\n"
+        );
 
         let syncItem = this._syncInfoPerFolder.get(folder.URI);
         let process = syncItem.activity;
@@ -251,32 +312,43 @@ var autosyncModule = {
         // Update the totalPending number. if new messages have been discovered in the folder
         // after we added the folder into the q, totalPending might be greater than what we have
         // initially set
-        if (totalPending > syncItem.pendingMsgCount)
+        if (totalPending > syncItem.pendingMsgCount) {
           syncItem.pendingMsgCount = totalPending;
+        }
 
         if (process instanceof Ci.nsIActivityProcess) {
           // if the process has not beed added to activity manager already, add now
           if (!this.activityMgr.containsActivity(process.id)) {
-            this.log.info("Auto_Sync OnDownloadStarted: No process, adding a new process");
+            this.log.info(
+              "Auto_Sync OnDownloadStarted: No process, adding a new process"
+            );
             this.activityMgr.addActivity(process);
           }
 
           syncItem.totalDownloaded += numOfMessages;
 
           process.state = Ci.nsIActivityProcess.STATE_INPROGRESS;
-          let percent = (syncItem.totalDownloaded / syncItem.pendingMsgCount) * 100;
-          if (percent > syncItem.percentComplete)
+          let percent =
+            (syncItem.totalDownloaded / syncItem.pendingMsgCount) * 100;
+          if (percent > syncItem.percentComplete) {
             syncItem.percentComplete = percent;
+          }
 
-          let msg = this.bundle.formatStringFromName("autosyncProcessProgress2",
-                                                 [syncItem.totalDownloaded,
-                                                  syncItem.pendingMsgCount,
-                                                  folder.prettyName,
-                                                  folder.server.prettyName]);
+          let msg = this.bundle.formatStringFromName(
+            "autosyncProcessProgress2",
+            [
+              syncItem.totalDownloaded,
+              syncItem.pendingMsgCount,
+              folder.prettyName,
+              folder.server.prettyName,
+            ]
+          );
 
           process.setProgress(msg, numOfMessages, totalPending);
 
-          let serverInfo = this._syncInfoPerServer.get(syncItem.syncFolder.server);
+          let serverInfo = this._syncInfoPerServer.get(
+            syncItem.syncFolder.server
+          );
           serverInfo.totalDownloads += numOfMessages;
           this._syncInfoPerServer.set(syncItem.syncFolder.server, serverInfo);
         }
@@ -290,13 +362,18 @@ var autosyncModule = {
   onDownloadCompleted(folder) {
     try {
       if (folder instanceof Ci.nsIMsgFolder) {
-        this.log.info("OnDownloadCompleted: " + folder.prettyName + " of " +
-                      folder.server.prettyName);
+        this.log.info(
+          "OnDownloadCompleted: " +
+            folder.prettyName +
+            " of " +
+            folder.server.prettyName
+        );
 
         let process = this._syncInfoPerFolder.get(folder.URI).activity;
-        if (process instanceof Ci.nsIActivityProcess &&
-           !this._running) {
-          this.log.info("OnDownloadCompleted: Auto-Sync Manager is paused, pausing the process");
+        if (process instanceof Ci.nsIActivityProcess && !this._running) {
+          this.log.info(
+            "OnDownloadCompleted: Auto-Sync Manager is paused, pausing the process"
+          );
           process.state = Ci.nsIActivityProcess.STATE_PAUSED;
         }
       }
@@ -308,25 +385,43 @@ var autosyncModule = {
 
   onDownloadError(folder) {
     if (folder instanceof Ci.nsIMsgFolder) {
-      this.log.error("OnDownloadError: " + folder.prettyName + " of " +
-                     folder.server.prettyName + "\n");
+      this.log.error(
+        "OnDownloadError: " +
+          folder.prettyName +
+          " of " +
+          folder.server.prettyName +
+          "\n"
+      );
     }
   },
 
   onDiscoveryQProcessed(folder, numOfHdrsProcessed, leftToProcess) {
-    this.log.info("onDiscoveryQProcessed: Processed " + numOfHdrsProcessed + "/" +
-                  (leftToProcess + numOfHdrsProcessed) + " of " + folder.prettyName + "\n");
+    this.log.info(
+      "onDiscoveryQProcessed: Processed " +
+        numOfHdrsProcessed +
+        "/" +
+        (leftToProcess + numOfHdrsProcessed) +
+        " of " +
+        folder.prettyName +
+        "\n"
+    );
   },
 
   onAutoSyncInitiated(folder) {
-      this.log.info("onAutoSyncInitiated: " + folder.prettyName + " of " +
-                    folder.server.prettyName + " has been updated.\n");
+    this.log.info(
+      "onAutoSyncInitiated: " +
+        folder.prettyName +
+        " of " +
+        folder.server.prettyName +
+        " has been updated.\n"
+    );
   },
 
   init() {
     // XXX when do we need to remove ourselves?
     this.log.info("initing");
     Cc["@mozilla.org/imap/autosyncmgr;1"]
-      .getService(Ci.nsIAutoSyncManager).addListener(this);
+      .getService(Ci.nsIAutoSyncManager)
+      .addListener(this);
   },
 };

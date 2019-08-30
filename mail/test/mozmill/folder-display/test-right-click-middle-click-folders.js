@@ -31,9 +31,9 @@ function setupModule(module) {
   // We aren't really interested in the messages the folders contain, but just
   // for appearance's sake, add a message to each folder
 
-  make_new_sets_in_folder(folderA, [{count: 1}]);
-  make_new_sets_in_folder(folderB, [{count: 1}]);
-  make_new_sets_in_folder(folderC, [{count: 1}]);
+  make_new_sets_in_folder(folderA, [{ count: 1 }]);
+  make_new_sets_in_folder(folderB, [{ count: 1 }]);
+  make_new_sets_in_folder(folderC, [{ count: 1 }]);
 }
 
 /**

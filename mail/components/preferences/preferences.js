@@ -6,25 +6,41 @@
 
 Preferences.forceEnableInstantApply();
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {ExtensionSupport} = ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { ExtensionSupport } = ChromeUtils.import(
+  "resource:///modules/ExtensionSupport.jsm"
+);
 
 var paneDeck = document.getElementById("paneDeck");
 var prefPanes = [...document.getElementsByTagName("prefpane")];
 var selector = document.getElementById("selector");
 
-ChromeUtils.defineModuleGetter(this, "AddonManager",
-                               "resource://gre/modules/AddonManager.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "AddonManager",
+  "resource://gre/modules/AddonManager.jsm"
+);
 
 (function() {
   for (let pane of prefPanes) {
-    if (pane.id == "paneChat" && !Services.prefs.getBoolPref("mail.chat.enabled")) {
+    if (
+      pane.id == "paneChat" &&
+      !Services.prefs.getBoolPref("mail.chat.enabled")
+    ) {
       continue;
     }
-    if (pane.id == "paneLightning" &&
-        !ExtensionSupport.loadedLegacyExtensions.has("{e2fda1a4-762b-4020-b5ad-a41df1933103}")) {
+    if (
+      pane.id == "paneLightning" &&
+      !ExtensionSupport.loadedLegacyExtensions.has(
+        "{e2fda1a4-762b-4020-b5ad-a41df1933103}"
+      )
+    ) {
       continue;
     }
 
@@ -41,7 +57,9 @@ ChromeUtils.defineModuleGetter(this, "AddonManager",
     radio.style.listStyleImage = pane.style.listStyleImage;
     selector.appendChild(radio);
 
-    setTimeout(function() { pane.dispatchEvent(new CustomEvent("paneload")); }, 1);
+    setTimeout(function() {
+      pane.dispatchEvent(new CustomEvent("paneload"));
+    }, 1);
   }
 
   if (prefPanes.length == 1) {
@@ -58,11 +76,13 @@ ChromeUtils.defineModuleGetter(this, "AddonManager",
   });
 
   document.documentElement.addEventListener("keydown", function(event) {
-    if (event.keyCode == KeyEvent.DOM_VK_TAB ||
-        event.keyCode == KeyEvent.DOM_VK_UP ||
-        event.keyCode == KeyEvent.DOM_VK_DOWN ||
-        event.keyCode == KeyEvent.DOM_VK_LEFT ||
-        event.keyCode == KeyEvent.DOM_VK_RIGHT) {
+    if (
+      event.keyCode == KeyEvent.DOM_VK_TAB ||
+      event.keyCode == KeyEvent.DOM_VK_UP ||
+      event.keyCode == KeyEvent.DOM_VK_DOWN ||
+      event.keyCode == KeyEvent.DOM_VK_LEFT ||
+      event.keyCode == KeyEvent.DOM_VK_RIGHT
+    ) {
       selector.setAttribute("keyboard-navigation", "true");
     }
   });
@@ -86,7 +106,9 @@ function showPane(paneID) {
     return;
   }
 
-  let currentlySelected = paneDeck.querySelector("#paneDeck > prefpane[selected]");
+  let currentlySelected = paneDeck.querySelector(
+    "#paneDeck > prefpane[selected]"
+  );
   if (currentlySelected) {
     if (currentlySelected == pane) {
       return;
@@ -118,7 +140,11 @@ function selectPrefPane(prefWindow, paneID, scrollPaneTo, otherArgs) {
       showPane(paneID);
     }
     if (scrollPaneTo) {
-      showTab(prefPane, scrollPaneTo, otherArgs ? otherArgs.subdialog : undefined);
+      showTab(
+        prefPane,
+        scrollPaneTo,
+        otherArgs ? otherArgs.subdialog : undefined
+      );
     }
   }
 }
@@ -147,7 +173,9 @@ function showTab(pane, scrollPaneTo, subdialogID) {
  * Get the ID of the current pane.
  */
 function getCurrentPaneID() {
-  let currentlySelected = paneDeck.querySelector("#paneDeck > prefpane[selected]");
+  let currentlySelected = paneDeck.querySelector(
+    "#paneDeck > prefpane[selected]"
+  );
   if (currentlySelected) {
     return currentlySelected.id;
   }
@@ -163,7 +191,7 @@ function getCurrentPaneID() {
  * to be installed, so if it isn't installed remove it from availableLocales.
  */
 async function getAvailableLocales() {
-  let {availableLocales, defaultLocale, lastFallbackLocale} = Services.locale;
+  let { availableLocales, defaultLocale, lastFallbackLocale } = Services.locale;
   // If defaultLocale isn't lastFallbackLocale, then we still need the langpack
   // for lastFallbackLocale for it to be useful.
   if (defaultLocale != lastFallbackLocale) {

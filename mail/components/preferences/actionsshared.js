@@ -3,12 +3,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var FILEACTION_SAVE_TO_DISK     = 1;
-var FILEACTION_OPEN_INTERNALLY  = 2;
-var FILEACTION_OPEN_DEFAULT     = 3;
-var FILEACTION_OPEN_CUSTOM      = 4;
-function FileAction() {
-}
+var FILEACTION_SAVE_TO_DISK = 1;
+var FILEACTION_OPEN_INTERNALLY = 2;
+var FILEACTION_OPEN_DEFAULT = 3;
+var FILEACTION_OPEN_CUSTOM = 4;
+function FileAction() {}
 FileAction.prototype = {
   type: "",
   extension: "",
@@ -22,5 +21,3 @@ FileAction.prototype = {
   customHandler: "",
   handleMode: false,
 };
-
-

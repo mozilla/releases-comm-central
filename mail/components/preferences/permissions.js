@@ -5,8 +5,10 @@
 // toolkit/content/treeUtils.js
 /* globals gTreeUtils */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 
 var nsIPermissionManager = Ci.nsIPermissionManager;
 var nsICookiePermission = Ci.nsICookiePermission;
@@ -41,27 +43,41 @@ var gPermissionManager = {
       return this._rowCount;
     },
     getCellText(aRow, aColumn) {
-      if (aColumn.id == "siteCol")
-        return gPermissionManager._permissions[aRow].origin
-          .replace(MAILURI_BASE, "");
-      else if (aColumn.id == "statusCol")
+      if (aColumn.id == "siteCol") {
+        return gPermissionManager._permissions[aRow].origin.replace(
+          MAILURI_BASE,
+          ""
+        );
+      } else if (aColumn.id == "statusCol") {
         return gPermissionManager._permissions[aRow].capability;
+      }
       return "";
     },
 
-    isSeparator(aIndex) { return false; },
-    isSorted() { return false; },
-    isContainer(aIndex) { return false; },
+    isSeparator(aIndex) {
+      return false;
+    },
+    isSorted() {
+      return false;
+    },
+    isContainer(aIndex) {
+      return false;
+    },
     setTree(aTree) {},
     getImageSrc(aRow, aColumn) {},
     getProgressMode(aRow, aColumn) {},
     getCellValue(aRow, aColumn) {},
     cycleHeader(column) {},
-    getRowProperties(row) { return ""; },
-    getColumnProperties(column) { return ""; },
+    getRowProperties(row) {
+      return "";
+    },
+    getColumnProperties(column) {
+      return "";
+    },
     getCellProperties(row, column) {
-      if (column.element.getAttribute("id") == "siteCol")
+      if (column.element.getAttribute("id") == "siteCol") {
         return "ltr";
+      }
       return "";
     },
   },
@@ -69,18 +85,18 @@ var gPermissionManager = {
   _getCapabilityString(aCapability) {
     var stringKey = null;
     switch (aCapability) {
-    case nsIPermissionManager.ALLOW_ACTION:
-      stringKey = "can";
-      break;
-    case nsIPermissionManager.DENY_ACTION:
-      stringKey = "cannot";
-      break;
-    case nsICookiePermission.ACCESS_ALLOW_FIRST_PARTY_ONLY:
-      stringKey = "canAccessFirstParty";
-      break;
-    case nsICookiePermission.ACCESS_SESSION:
-      stringKey = "canSession";
-      break;
+      case nsIPermissionManager.ALLOW_ACTION:
+        stringKey = "can";
+        break;
+      case nsIPermissionManager.DENY_ACTION:
+        stringKey = "cannot";
+        break;
+      case nsICookiePermission.ACCESS_ALLOW_FIRST_PARTY_ONLY:
+        stringKey = "canAccessFirstParty";
+        break;
+      case nsICookiePermission.ACCESS_SESSION:
+        stringKey = "canSession";
+        break;
     }
     return this._bundle.getString(stringKey);
   },
@@ -100,14 +116,22 @@ var gPermissionManager = {
       let uri;
       try {
         uri = Services.io.newURI(input_url);
-        principal = Services.scriptSecurityManager.createContentPrincipal(uri, {});
+        principal = Services.scriptSecurityManager.createContentPrincipal(
+          uri,
+          {}
+        );
         // If we have ended up with an unknown scheme, the following will throw.
         principal.origin;
       } catch (ex) {
-        let scheme = (this._type != "image" || !input_url.includes("@")) ?
-          "http://" : MAILURI_BASE;
+        let scheme =
+          this._type != "image" || !input_url.includes("@")
+            ? "http://"
+            : MAILURI_BASE;
         uri = Services.io.newURI(scheme + input_url);
-        principal = Services.scriptSecurityManager.createContentPrincipal(uri, {});
+        principal = Services.scriptSecurityManager.createContentPrincipal(
+          uri,
+          {}
+        );
         // If we have ended up with an unknown scheme, the following will throw.
         principal.origin;
       }
@@ -135,7 +159,11 @@ var gPermissionManager = {
       }
     }
 
-    let permissionParams = {principal, type: this._type, capability: aCapability};
+    let permissionParams = {
+      principal,
+      type: this._type,
+      capability: aCapability,
+    };
     if (!permissionExists) {
       this._permissionsToAdd.set(principal.origin, permissionParams);
       this._addPermission(permissionParams);
@@ -151,7 +179,8 @@ var gPermissionManager = {
     this.onHostInput(textbox);
 
     // enable "remove all" button as needed
-    document.getElementById("removeAllPermissions").disabled = this._permissions.length == 0;
+    document.getElementById("removeAllPermissions").disabled =
+      this._permissions.length == 0;
   },
 
   _removePermission(aPermission) {
@@ -160,7 +189,9 @@ var gPermissionManager = {
     // If this permission was added during this session, let's remove
     // it from the pending adds list to prevent calls to the
     // permission manager.
-    let isNewPermission = this._permissionsToAdd.delete(aPermission.principal.origin);
+    let isNewPermission = this._permissionsToAdd.delete(
+      aPermission.principal.origin
+    );
 
     if (!isNewPermission) {
       this._permissionsToDelete.set(aPermission.principal.origin, aPermission);
@@ -186,11 +217,15 @@ var gPermissionManager = {
   },
 
   _resortPermissions() {
-    gTreeUtils.sort(this._tree, this._view, this._permissions,
-                    this._lastPermissionSortColumn,
-                    this._permissionsComparator,
-                    this._lastPermissionSortColumn,
-                    !this._lastPermissionSortAscending); // keep sort direction
+    gTreeUtils.sort(
+      this._tree,
+      this._view,
+      this._permissions,
+      this._lastPermissionSortColumn,
+      this._permissionsComparator,
+      this._lastPermissionSortColumn,
+      !this._lastPermissionSortAscending
+    ); // keep sort direction
   },
 
   onHostInput(aSiteField) {
@@ -200,13 +235,15 @@ var gPermissionManager = {
   },
 
   onWindowKeyPress(aEvent) {
-    if (aEvent.keyCode == KeyEvent.DOM_VK_ESCAPE)
+    if (aEvent.keyCode == KeyEvent.DOM_VK_ESCAPE) {
       window.close();
+    }
   },
 
   onHostKeyPress(aEvent) {
-    if (aEvent.keyCode == KeyEvent.DOM_VK_RETURN)
+    if (aEvent.keyCode == KeyEvent.DOM_VK_RETURN) {
       document.getElementById("btnAllow").click();
+    }
   },
 
   onLoad() {
@@ -225,17 +262,19 @@ var gPermissionManager = {
     this._manageCapability = aParams.manageCapability;
 
     var permissionsText = document.getElementById("permissionsText");
-    while (permissionsText.hasChildNodes())
+    while (permissionsText.hasChildNodes()) {
       permissionsText.firstChild.remove();
+    }
     permissionsText.appendChild(document.createTextNode(aParams.introText));
 
     document.title = aParams.windowTitle;
 
-    document.getElementById("btnBlock").hidden    = !aParams.blockVisible;
-    document.getElementById("btnSession").hidden  = !aParams.sessionVisible;
-    document.getElementById("btnAllow").hidden    = !aParams.allowVisible;
+    document.getElementById("btnBlock").hidden = !aParams.blockVisible;
+    document.getElementById("btnSession").hidden = !aParams.sessionVisible;
+    document.getElementById("btnAllow").hidden = !aParams.allowVisible;
 
-    var urlFieldVisible = (aParams.blockVisible || aParams.sessionVisible || aParams.allowVisible);
+    var urlFieldVisible =
+      aParams.blockVisible || aParams.sessionVisible || aParams.allowVisible;
 
     var urlField = document.getElementById("url");
     urlField.value = aParams.prefilledHost;
@@ -260,7 +299,11 @@ var gPermissionManager = {
       gPermissionManager.onPermissionSort(sortField);
     });
 
-    Services.obs.notifyObservers(null, NOTIFICATION_FLUSH_PERMISSIONS, this._type);
+    Services.obs.notifyObservers(
+      null,
+      NOTIFICATION_FLUSH_PERMISSIONS,
+      this._type
+    );
     Services.obs.addObserver(this, "perm-changed");
 
     this._loadPermissions();
@@ -281,15 +324,18 @@ var gPermissionManager = {
       var permission = aSubject.QueryInterface(Ci.nsIPermission);
 
       // Ignore unrelated permission types.
-      if (permission.type != this._type)
+      if (permission.type != this._type) {
         return;
+      }
 
       if (aData == "added") {
         this._addPermission(permission);
       } else if (aData == "changed") {
         for (var i = 0; i < this._permissions.length; ++i) {
           if (permission.matches(this._permissions[i].principal, true)) {
-            this._permissions[i].capability = this._getCapabilityString(permission.capability);
+            this._permissions[i].capability = this._getCapabilityString(
+              permission.capability
+            );
             break;
           }
         }
@@ -303,28 +349,43 @@ var gPermissionManager = {
   onPermissionSelected() {
     var hasSelection = this._tree.view.selection.count > 0;
     var hasRows = this._tree.view.rowCount > 0;
-    document.getElementById("removePermission").disabled = !hasRows || !hasSelection;
+    document.getElementById("removePermission").disabled =
+      !hasRows || !hasSelection;
     document.getElementById("removeAllPermissions").disabled = !hasRows;
   },
 
   onPermissionDeleted() {
-    if (!this._view.rowCount)
+    if (!this._view.rowCount) {
       return;
+    }
     var removedPermissions = [];
-    gTreeUtils.deleteSelectedItems(this._tree, this._view, this._permissions, removedPermissions);
+    gTreeUtils.deleteSelectedItems(
+      this._tree,
+      this._view,
+      this._permissions,
+      removedPermissions
+    );
     for (var i = 0; i < removedPermissions.length; ++i) {
       var p = removedPermissions[i];
       this._removePermission(p);
     }
-    document.getElementById("removePermission").disabled = !this._permissions.length;
-    document.getElementById("removeAllPermissions").disabled = !this._permissions.length;
+    document.getElementById("removePermission").disabled = !this._permissions
+      .length;
+    document.getElementById("removeAllPermissions").disabled = !this
+      ._permissions.length;
   },
 
   onAllPermissionsDeleted() {
-    if (!this._view.rowCount)
+    if (!this._view.rowCount) {
       return;
+    }
     var removedPermissions = [];
-    gTreeUtils.deleteAll(this._tree, this._view, this._permissions, removedPermissions);
+    gTreeUtils.deleteAll(
+      this._tree,
+      this._view,
+      this._permissions,
+      removedPermissions
+    );
     for (var i = 0; i < removedPermissions.length; ++i) {
       var p = removedPermissions[i];
       this._removePermission(p);
@@ -334,10 +395,13 @@ var gPermissionManager = {
   },
 
   onPermissionKeyPress(aEvent) {
-    if (aEvent.keyCode == KeyEvent.DOM_VK_DELETE ||
-        ((AppConstants.platform == "macosx") &&
-         aEvent.keyCode == KeyEvent.DOM_VK_BACK_SPACE))
+    if (
+      aEvent.keyCode == KeyEvent.DOM_VK_DELETE ||
+      (AppConstants.platform == "macosx" &&
+        aEvent.keyCode == KeyEvent.DOM_VK_BACK_SPACE)
+    ) {
       this.onPermissionDeleted();
+    }
   },
 
   _lastPermissionSortColumn: "",
@@ -346,15 +410,16 @@ var gPermissionManager = {
     return a.toLowerCase().localeCompare(b.toLowerCase());
   },
 
-
   onPermissionSort(aColumn) {
-    this._lastPermissionSortAscending = gTreeUtils.sort(this._tree,
-                                                        this._view,
-                                                        this._permissions,
-                                                        aColumn,
-                                                        this._permissionsComparator,
-                                                        this._lastPermissionSortColumn,
-                                                        this._lastPermissionSortAscending);
+    this._lastPermissionSortAscending = gTreeUtils.sort(
+      this._tree,
+      this._view,
+      this._permissions,
+      aColumn,
+      this._permissionsComparator,
+      this._lastPermissionSortColumn,
+      this._lastPermissionSortAscending
+    );
     this._lastPermissionSortColumn = aColumn;
   },
 
@@ -365,7 +430,11 @@ var gPermissionManager = {
     this.uninit();
 
     for (let permissionParams of this._permissionsToAdd.values()) {
-      Services.perms.addFromPrincipal(permissionParams.principal, permissionParams.type, permissionParams.capability);
+      Services.perms.addFromPrincipal(
+        permissionParams.principal,
+        permissionParams.type,
+        permissionParams.capability
+      );
     }
 
     for (let p of this._permissionsToDelete.values()) {
@@ -382,7 +451,9 @@ var gPermissionManager = {
     // load permissions into a table
     var enumerator = Services.perms.enumerator;
     while (enumerator.hasMoreElements()) {
-      var nextPermission = enumerator.getNext().QueryInterface(Ci.nsIPermission);
+      var nextPermission = enumerator
+        .getNext()
+        .QueryInterface(Ci.nsIPermission);
       this._addPermissionToList(nextPermission);
     }
 
@@ -393,18 +464,19 @@ var gPermissionManager = {
     this.onPermissionSort("origin");
 
     // disable "remove all" button if there are none
-    document.getElementById("removeAllPermissions").disabled = this._permissions.length == 0;
+    document.getElementById("removeAllPermissions").disabled =
+      this._permissions.length == 0;
   },
 
   _addPermissionToList(aPermission) {
-    if (aPermission.type == this._type &&
-        (!this._manageCapability ||
-         (aPermission.capability == this._manageCapability))) {
+    if (
+      aPermission.type == this._type &&
+      (!this._manageCapability ||
+        aPermission.capability == this._manageCapability)
+    ) {
       var principal = aPermission.principal;
       var capabilityString = this._getCapabilityString(aPermission.capability);
-      var p = new Permission(principal,
-                             aPermission.type,
-                             capabilityString);
+      var p = new Permission(principal, aPermission.type, capabilityString);
       this._permissions.push(p);
     }
   },

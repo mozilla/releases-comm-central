@@ -6,12 +6,18 @@
 
 var MODULE_NAME = "window-helpers";
 
-var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-var {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { fixIterator } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
+var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var controller = ChromeUtils.import("chrome://mozmill/content/modules/controller.jsm");
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var controller = ChromeUtils.import(
+  "chrome://mozmill/content/modules/controller.jsm"
+);
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 var frame = ChromeUtils.import("chrome://mozmill/content/modules/frame.jsm");
 var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 
@@ -61,8 +67,11 @@ var normalize_for_json = function dummy_normalize_for_json() {};
  * This is used by test-folder-display-helpers to provide us with a reference
  * to logHelper's mark_action because of ugliness in the module system.
  */
-function hereIsMarkAction(mark_action_impl, mark_failure_impl,
-                          normalize_for_json_impl) {
+function hereIsMarkAction(
+  mark_action_impl,
+  mark_failure_impl,
+  normalize_for_json_impl
+) {
   mark_action = mark_action_impl;
   mark_failure = mark_failure_impl;
   normalize_for_json = normalize_for_json_impl;
@@ -94,8 +103,9 @@ function getWindowTypeOrId(aWindowElem) {
   let windowType = aWindowElem.getAttribute("windowtype");
   // Ignore types that start with "prompt:". This prefix gets added in
   // toolkit/components/prompts/src/CommonDialog.jsm since bug 1388238.
-  if (windowType && !windowType.startsWith("prompt:"))
+  if (windowType && !windowType.startsWith("prompt:")) {
     return windowType;
+  }
 
   return aWindowElem.getAttribute("id");
 }
@@ -108,36 +118,44 @@ function getWindowTypeForXulWindow(aXULWindow, aBusyOk) {
   // Sometimes we are given HTML windows, for which the logic below will
   //  bail.  So we use a fast-path here that should work for HTML and should
   //  maybe also work with XUL.  I'm not going to go into it...
-  if (aXULWindow.document &&
-      aXULWindow.document.documentElement &&
-      aXULWindow.document.documentElement.hasAttribute("windowtype"))
+  if (
+    aXULWindow.document &&
+    aXULWindow.document.documentElement &&
+    aXULWindow.document.documentElement.hasAttribute("windowtype")
+  ) {
     return getWindowTypeOrId(aXULWindow.document.documentElement);
+  }
 
   let docshell = aXULWindow.docShell;
   // we need the docshell to exist...
-  if (!docshell)
+  if (!docshell) {
     return null;
+  }
 
   // we can't know if it's the right document until it's not busy
-  if (!aBusyOk && docshell.busyFlags)
+  if (!aBusyOk && docshell.busyFlags) {
     return null;
+  }
 
   // it also needs to have content loaded (it starts out not busy with no
   //  content viewer.)
-  if (docshell.contentViewer == null)
+  if (docshell.contentViewer == null) {
     return null;
+  }
 
   // now we're cooking! let's get the document...
   let outerDoc = docshell.contentViewer.DOMDocument;
   // and make sure it's not blank.  that's also an intermediate state.
-  if (outerDoc.location.href == "about:blank")
+  if (outerDoc.location.href == "about:blank") {
     return null;
+  }
 
   // finally, we can now have a windowtype!
   let windowType = getWindowTypeOrId(outerDoc.documentElement);
 
-  if (windowType)
+  if (windowType) {
     return windowType;
+  }
 
   // As a last resort, use the name given to the DOM window.
   let domWindow = aXULWindow.docShell.domWindow;
@@ -151,34 +169,38 @@ function getWindowTypeForXulWindow(aXULWindow, aBusyOk) {
  */
 function getUniqueIdForXulWindow(aXULWindow) {
   // html case
-  if (aXULWindow.document &&
-      aXULWindow.document.documentElement) {
-    if (!(UNIQUE_WINDOW_ID_ATTR in aXULWindow.document.defaultView))
+  if (aXULWindow.document && aXULWindow.document.documentElement) {
+    if (!(UNIQUE_WINDOW_ID_ATTR in aXULWindow.document.defaultView)) {
       return "no attr html";
+    }
     return aXULWindow.document.defaultView[UNIQUE_WINDOW_ID_ATTR];
   }
 
   // XUL case
   let docshell = aXULWindow.docShell;
   // we need the docshell to exist...
-  if (!docshell)
+  if (!docshell) {
     return "no docshell";
+  }
 
   // it also needs to have content loaded (it starts out not busy with no
   //  content viewer.)
-  if (docshell.contentViewer == null)
+  if (docshell.contentViewer == null) {
     return "no contentViewer";
+  }
 
   // now we're cooking! let's get the document...
   let outerDoc = docshell.contentViewer.DOMDocument;
   // and make sure it's not blank.  that's also an intermediate state.
-  if (outerDoc.location.href == "about:blank")
+  if (outerDoc.location.href == "about:blank") {
     return "about:blank";
+  }
 
   // finally, we can now have a windowtype!
   let win = outerDoc.defaultView;
-  if (UNIQUE_WINDOW_ID_ATTR in win)
+  if (UNIQUE_WINDOW_ID_ATTR in win) {
     return win[UNIQUE_WINDOW_ID_ATTR];
+  }
   return "no attr xul";
 }
 
@@ -186,8 +208,9 @@ var WindowWatcher = {
   _inited: false,
   _firstWindowOpened: false,
   ensureInited: function WindowWatcher_ensureInited() {
-    if (this._inited)
+    if (this._inited) {
       return;
+    }
 
     // Add ourselves as an nsIWindowMediatorListener so we can here about when
     //  windows get registered with the window mediator.  Because this
@@ -221,18 +244,22 @@ var WindowWatcher = {
   /**
    * Like planForWindowOpen but we check for already-existing windows.
    */
-  planForAlreadyOpenWindow:
-      function WindowWatcher_planForAlreadyOpenWindow(aWindowType) {
+  planForAlreadyOpenWindow: function WindowWatcher_planForAlreadyOpenWindow(
+    aWindowType
+  ) {
     this.waitingList.set(aWindowType, null);
     // We need to iterate over all the XUL windows and consider them all.
     //  We can't pass the window type because the window might not have a
     //  window type yet.
     // because this iterates from old to new, this does the right thing in that
     //  side-effects of consider will pick the most recent window.
-    for (let xulWindow of fixIterator(Services.wm.getXULWindowEnumerator(null),
-                                      Ci.nsIXULWindow)) {
-      if (!this.consider(xulWindow))
+    for (let xulWindow of fixIterator(
+      Services.wm.getXULWindowEnumerator(null),
+      Ci.nsIXULWindow
+    )) {
+      if (!this.consider(xulWindow)) {
         this.monitoringList.push(xulWindow);
+      }
     }
   },
 
@@ -249,12 +276,16 @@ var WindowWatcher = {
    */
   waitForWindowOpen: function WindowWatcher_waitForWindowOpen(aWindowType) {
     this.waitingForOpen = aWindowType;
-    utils.waitFor(() => this.monitorizeOpen(),
-                  "Timed out waiting for window open!",
-                  this._firstWindowOpened ? WINDOW_OPEN_TIMEOUT_MS
-                    : FIRST_WINDOW_EVER_TIMEOUT_MS,
-                  this._firstWindowOpened ? WINDOW_OPEN_CHECK_INTERVAL_MS
-                    : FIRST_WINDOW_CHECK_INTERVAL_MS);
+    utils.waitFor(
+      () => this.monitorizeOpen(),
+      "Timed out waiting for window open!",
+      this._firstWindowOpened
+        ? WINDOW_OPEN_TIMEOUT_MS
+        : FIRST_WINDOW_EVER_TIMEOUT_MS,
+      this._firstWindowOpened
+        ? WINDOW_OPEN_CHECK_INTERVAL_MS
+        : FIRST_WINDOW_CHECK_INTERVAL_MS
+    );
 
     this.waitingForOpen = null;
     let xulWindow = this.waitingList.get(aWindowType);
@@ -286,17 +317,23 @@ var WindowWatcher = {
    * The test function to run when the modal dialog opens.
    */
   subTestFunc: null,
-  planForModalDialog: function WindowWatcher_planForModalDialog(aWindowType,
-                                                                aSubTestFunc) {
-    if (this._timer == null)
+  planForModalDialog: function WindowWatcher_planForModalDialog(
+    aWindowType,
+    aSubTestFunc
+  ) {
+    if (this._timer == null) {
       this._timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
+    }
     this.waitingForOpen = aWindowType;
     this.subTestFunc = aSubTestFunc;
     this.waitingList.set(aWindowType, null);
 
     this._timerRuntimeSoFar = 0;
-    this._timer.initWithCallback(this, WINDOW_OPEN_CHECK_INTERVAL_MS,
-                                 Ci.nsITimer.TYPE_REPEATING_SLACK);
+    this._timer.initWithCallback(
+      this,
+      WINDOW_OPEN_CHECK_INTERVAL_MS,
+      Ci.nsITimer.TYPE_REPEATING_SLACK
+    );
   },
 
   /**
@@ -335,14 +372,20 @@ var WindowWatcher = {
       }
 
       let targetFocusedWindow = {};
-      Services.focus.getFocusedElementForWindow(domWindow, true,
-                                                targetFocusedWindow);
+      Services.focus.getFocusedElementForWindow(
+        domWindow,
+        true,
+        targetFocusedWindow
+      );
       targetFocusedWindow = targetFocusedWindow.value;
 
       let focusedWindow = {};
       if (Services.focus.activeWindow) {
-        Services.focus.getFocusedElementForWindow(Services.focus.activeWindow, true,
-                                                  focusedWindow);
+        Services.focus.getFocusedElementForWindow(
+          Services.focus.activeWindow,
+          true,
+          focusedWindow
+        );
 
         focusedWindow = focusedWindow.value;
       }
@@ -353,7 +396,10 @@ var WindowWatcher = {
         function onFocus(event) {
           targetFocusedWindow.setTimeout(startTest, 0);
         }
-        targetFocusedWindow.addEventListener("focus", onFocus, {capture: true, once: true});
+        targetFocusedWindow.addEventListener("focus", onFocus, {
+          capture: true,
+          once: true,
+        });
         targetFocusedWindow.focus();
       }
     }
@@ -370,13 +416,19 @@ var WindowWatcher = {
    * Symmetry for planForModalDialog; conceptually provides the waiting.  In
    *  reality, all we do is potentially soak up the event loop a little to
    */
-  waitForModalDialog: function WindowWatcher_waitForModalDialog(aWindowType, aTimeout) {
+  waitForModalDialog: function WindowWatcher_waitForModalDialog(
+    aWindowType,
+    aTimeout
+  ) {
     // did the window already come and go?
-    if (this.subTestFunc == null)
+    if (this.subTestFunc == null) {
       return;
+    }
     // spin the event loop until we the window has come and gone.
     utils.waitFor(
-      () => { return this.waitingForOpen == null && this.monitorizeClose(); },
+      () => {
+        return this.waitingForOpen == null && this.monitorizeClose();
+      },
       "Timeout waiting for modal dialog to open.",
       aTimeout || WINDOW_OPEN_TIMEOUT_MS,
       WINDOW_OPEN_CHECK_INTERVAL_MS
@@ -396,16 +448,19 @@ var WindowWatcher = {
    */
   waitingForClose: null,
   waitForWindowClose: function WindowWatcher_waitForWindowClose() {
-    utils.waitFor(() => this.monitorizeClose(),
-                  "Timeout waiting for window to close!",
-                  WINDOW_CLOSE_TIMEOUT_MS,
-                  WINDOW_CLOSE_CHECK_INTERVAL_MS);
-    let didDisappear = (this.waitingList.get(this.waitingForClose) == null);
+    utils.waitFor(
+      () => this.monitorizeClose(),
+      "Timeout waiting for window to close!",
+      WINDOW_CLOSE_TIMEOUT_MS,
+      WINDOW_CLOSE_CHECK_INTERVAL_MS
+    );
+    let didDisappear = this.waitingList.get(this.waitingForClose) == null;
     let windowType = this.waitingForClose;
     this.waitingList.delete(windowType);
     this.waitingForClose = null;
-    if (!didDisappear)
+    if (!didDisappear) {
       throw new Error(windowType + " window did not disappear!");
+    }
   },
 
   /**
@@ -414,11 +469,17 @@ var WindowWatcher = {
    *  event driven with less polling (effort), but it is not to be.
    */
   onWindowTitleChange: function WindowWatcher_onWindowTitleChange(
-      aXULWindow, aNewTitle) {
-    mark_action("winhelp", "onWindowTitleChange",
-                [getWindowTypeForXulWindow(aXULWindow, true) +
-                   " (" + getUniqueIdForXulWindow(aXULWindow) + ")",
-                 "changed title to", aNewTitle]);
+    aXULWindow,
+    aNewTitle
+  ) {
+    mark_action("winhelp", "onWindowTitleChange", [
+      getWindowTypeForXulWindow(aXULWindow, true) +
+        " (" +
+        getUniqueIdForXulWindow(aXULWindow) +
+        ")",
+      "changed title to",
+      aNewTitle,
+    ]);
   },
 
   /**
@@ -430,12 +491,15 @@ var WindowWatcher = {
   monitorizeOpen() {
     for (let iWin = this.monitoringList.length - 1; iWin >= 0; iWin--) {
       let xulWindow = this.monitoringList[iWin];
-      if (this.consider(xulWindow))
+      if (this.consider(xulWindow)) {
         this.monitoringList.splice(iWin, 1);
+      }
     }
 
-    return this.waitingList.has(this.waitingForOpen) &&
-           (this.waitingList.get(this.waitingForOpen) != null);
+    return (
+      this.waitingList.has(this.waitingForOpen) &&
+      this.waitingList.get(this.waitingForOpen) != null
+    );
   },
 
   /**
@@ -476,13 +540,18 @@ var WindowWatcher = {
 
     // It would be great to be able to indicate if the window is modal or not,
     //  but nothing is really jumping out at me to enable that...
-    mark_action("winhelp", "onOpenWindow",
-                [getWindowTypeForXulWindow(aXULWindow, true) +
-                   " (" + getUniqueIdForXulWindow(aXULWindow) + ")",
-                   "active?", Services.focus.focusedWindow == aXULWindow]);
+    mark_action("winhelp", "onOpenWindow", [
+      getWindowTypeForXulWindow(aXULWindow, true) +
+        " (" +
+        getUniqueIdForXulWindow(aXULWindow) +
+        ")",
+      "active?",
+      Services.focus.focusedWindow == aXULWindow,
+    ]);
 
-    if (!this.consider(aXULWindow))
+    if (!this.consider(aXULWindow)) {
       this.monitorWindowLoad(aXULWindow);
+    }
   },
 
   /**
@@ -495,8 +564,9 @@ var WindowWatcher = {
    */
   consider(aXULWindow) {
     let windowType = getWindowTypeForXulWindow(aXULWindow);
-    if (windowType == null)
+    if (windowType == null) {
       return false;
+    }
 
     // stash the window if we were watching for it
     if (this.waitingList.has(windowType)) {
@@ -513,11 +583,15 @@ var WindowWatcher = {
   onCloseWindow: function WindowWatcher_onCloseWindow(aXULWindow) {
     let domWindow = aXULWindow.docShell.domWindow;
     let windowType = getWindowTypeOrId(domWindow.document.documentElement);
-    mark_action("winhelp", "onCloseWindow",
-                [getWindowTypeForXulWindow(aXULWindow, true) +
-                   " (" + getUniqueIdForXulWindow(aXULWindow) + ")"]);
-    if (this.waitingList.has(windowType))
+    mark_action("winhelp", "onCloseWindow", [
+      getWindowTypeForXulWindow(aXULWindow, true) +
+        " (" +
+        getUniqueIdForXulWindow(aXULWindow) +
+        ")",
+    ]);
+    if (this.waitingList.has(windowType)) {
       this.waitingList.set(windowType, null);
+    }
   },
 };
 
@@ -538,8 +612,10 @@ function wait_for_existing_window(aWindowType) {
   mark_action("fdh", "wait_for_existing_window", [aWindowType]);
   WindowWatcher.ensureInited();
   WindowWatcher.planForAlreadyOpenWindow(aWindowType);
-  return augment_controller(WindowWatcher.waitForWindowOpen(aWindowType),
-                            aWindowType);
+  return augment_controller(
+    WindowWatcher.waitForWindowOpen(aWindowType),
+    aWindowType
+  );
 }
 
 /**
@@ -561,7 +637,6 @@ function plan_for_new_window(aWindowType) {
   WindowWatcher.planForWindowOpen(aWindowType);
 }
 
-
 /**
  * Wait for the loading of the given window type to complete (that you
  *  previously told us about via |plan_for_new_window|), returning it wrapped
@@ -572,8 +647,10 @@ function plan_for_new_window(aWindowType) {
  */
 function wait_for_new_window(aWindowType) {
   mark_action("fdh", "wait_for_new_window", [aWindowType]);
-  let c = augment_controller(WindowWatcher.waitForWindowOpen(aWindowType),
-                             aWindowType);
+  let c = augment_controller(
+    WindowWatcher.waitForWindowOpen(aWindowType),
+    aWindowType
+  );
   // A nested event loop can get spun inside the Controller's constructor
   //  (which is arguably not a great idea), so it's important that we denote
   //  when we're actually leaving this function in case something crazy
@@ -622,8 +699,9 @@ function wait_for_modal_dialog(aWindowType, aTimeout) {
  *     wait_for_new_window, whose window should be disappearing.
  */
 function plan_for_window_close(aController) {
-  mark_action("fdh", "plan_for_window_close",
-              [getWindowTypeForXulWindow(aController.window, true)]);
+  mark_action("fdh", "plan_for_window_close", [
+    getWindowTypeForXulWindow(aController.window, true),
+  ]);
   WindowWatcher.ensureInited();
   WindowWatcher.planForWindowClose(aController.window);
 }
@@ -633,8 +711,9 @@ function plan_for_window_close(aController) {
  *  in plan_for_window_close.
  */
 function wait_for_window_close() {
-  mark_action("fdh", "wait_for_window_close",
-              ["(using window from plan_for_window_close)"]);
+  mark_action("fdh", "wait_for_window_close", [
+    "(using window from plan_for_window_close)",
+  ]);
   WindowWatcher.waitForWindowClose();
 }
 
@@ -657,14 +736,16 @@ function close_window(aController) {
 function wait_for_window_focused(aWindow) {
   let targetWindow = {};
 
-  Services.focus.getFocusedElementForWindow(aWindow, true,
-                                            targetWindow);
+  Services.focus.getFocusedElementForWindow(aWindow, true, targetWindow);
   targetWindow = targetWindow.value;
 
   let focusedWindow = {};
   if (Services.focus.activeWindow) {
-    Services.focus.getFocusedElementForWindow(Services.focus.activeWindow,
-                                              true, focusedWindow);
+    Services.focus.getFocusedElementForWindow(
+      Services.focus.activeWindow,
+      true,
+      focusedWindow
+    );
     focusedWindow = focusedWindow.value;
   }
 
@@ -672,13 +753,20 @@ function wait_for_window_focused(aWindow) {
   if (focusedWindow == targetWindow) {
     focused = true;
   } else {
-    targetWindow.addEventListener("focus", () => focused = true, {capture: true, once: true});
+    targetWindow.addEventListener("focus", () => (focused = true), {
+      capture: true,
+      once: true,
+    });
     targetWindow.focus();
   }
 
-  utils.waitFor(() => focused,
-      "Timeout waiting for window to be focused.",
-      WINDOW_FOCUS_TIMEOUT_MS, 100, this);
+  utils.waitFor(
+    () => focused,
+    "Timeout waiting for window to be focused.",
+    WINDOW_FOCUS_TIMEOUT_MS,
+    100,
+    this
+  );
 }
 
 /**
@@ -708,11 +796,15 @@ function wait_for_frame_load(aFrame, aURLOrPredicate) {
     // safest thing to do.
     get webProgress() {
       return aFrame.contentWindow
-                   .getInterface(Ci.nsIWebNavigation)
-                   .QueryInterface(Ci.nsIWebProgress);
+        .getInterface(Ci.nsIWebNavigation)
+        .QueryInterface(Ci.nsIWebProgress);
     },
-    get currentURI() { return NetUtil.newURI(aFrame.contentDocument.location); },
-    get contentWindow() { return aFrame.contentWindow; },
+    get currentURI() {
+      return NetUtil.newURI(aFrame.contentDocument.location);
+    },
+    get contentWindow() {
+      return aFrame.contentWindow;
+    },
   };
   return _wait_for_generic_load(details, aURLOrPredicate);
 }
@@ -734,8 +826,9 @@ function _wait_for_generic_load(aDetails, aURLOrPredicate) {
   }
 
   function isLoadedChecker() {
-    if (aDetails.webProgress.isLoadingDocument !== false)
+    if (aDetails.webProgress.isLoadingDocument !== false) {
       return false;
+    }
 
     return predicate(aDetails.currentURI);
   }
@@ -744,8 +837,10 @@ function _wait_for_generic_load(aDetails, aURLOrPredicate) {
     utils.waitFor(isLoadedChecker);
   } catch (e) {
     if (e instanceof utils.TimeoutError) {
-      mark_failure(["Timeout waiting for content page to load. Current URL is:",
-                    aDetails.currentURI.spec]);
+      mark_failure([
+        "Timeout waiting for content page to load. Current URL is:",
+        aDetails.currentURI.spec,
+      ]);
     } else {
       throw e;
     }
@@ -760,7 +855,6 @@ function _wait_for_generic_load(aDetails, aURLOrPredicate) {
   return augment_controller(cwc);
 }
 
-
 var observationWaitFuncs = {};
 var observationSaw = {};
 /**
@@ -771,12 +865,12 @@ var observationSaw = {};
 function plan_for_observable_event(aTopic) {
   mark_action("fdh", "plan_for_observable_event", [aTopic]);
   observationSaw[aTopic] = false;
-  let waiter = observationWaitFuncs[aTopic] = {
+  let waiter = (observationWaitFuncs[aTopic] = {
     observe() {
       mark_action("winhelp", "observed event", [aTopic]);
       observationSaw[aTopic] = true;
     },
-  };
+  });
   Services.obs.addObserver(waiter, aTopic);
 }
 
@@ -792,8 +886,10 @@ function wait_for_observable_event(aTopic) {
     function areWeThereYet() {
       return observationSaw[aTopic];
     }
-    utils.waitFor(areWeThereYet,
-                  "Timed out waiting for notification: " + aTopic);
+    utils.waitFor(
+      areWeThereYet,
+      "Timed out waiting for notification: " + aTopic
+    );
   } finally {
     Services.obs.removeObserver(observationWaitFuncs[aTopic], aTopic);
     delete observationWaitFuncs[aTopic];
@@ -815,15 +911,25 @@ function resize_to(aController, aWidth, aHeight) {
   // interacting window manager have its impact. This still may not be
   // sufficient.
   aController.sleep(0);
-  aController.waitFor(() => (aController.window.outerWidth == aWidth) &&
-                            (aController.window.outerHeight == aHeight),
-                      "Timeout waiting for resize (current screen size: " +
-                      aController.window.screen.availWidth + "X" +
-                      aController.window.screen.availHeight +
-                      "), Requested width " + aWidth + " but got " +
-                      aController.window.outerWidth + ", Request height " +
-                      aHeight + " but got " + aController.window.outerHeight,
-                      10000, 50);
+  aController.waitFor(
+    () =>
+      aController.window.outerWidth == aWidth &&
+      aController.window.outerHeight == aHeight,
+    "Timeout waiting for resize (current screen size: " +
+      aController.window.screen.availWidth +
+      "X" +
+      aController.window.screen.availHeight +
+      "), Requested width " +
+      aWidth +
+      " but got " +
+      aController.window.outerWidth +
+      ", Request height " +
+      aHeight +
+      " but got " +
+      aController.window.outerHeight,
+    10000,
+    50
+  );
 }
 
 /**
@@ -852,8 +958,9 @@ var AugmentEverybodyWith = {
       if (aQuery) {
         if (aQuery.tagName) {
           let elems = Array.from(elem.getElementsByTagName(aQuery.tagName));
-          if (aQuery.label)
+          if (aQuery.label) {
             elems = elems.filter(elem => elem.label == aQuery.label);
+          }
           elem = elems[0];
         }
       }
@@ -896,18 +1003,22 @@ var AugmentEverybodyWith = {
      *  anonymous sub-tree of the element with the given id.
      */
     a: function _get_anon_element_by_id_and_query(aId, aQuery) {
-      let realElem = (typeof(aId) == "string") ?
-                       this.window.document.getElementById(aId) : aId;
+      let realElem =
+        typeof aId == "string" ? this.window.document.getElementById(aId) : aId;
       if (aQuery.class) {
         return this.window.document.getAnonymousElementByAttribute(
-          realElem, "class", aQuery.class);
+          realElem,
+          "class",
+          aQuery.class
+        );
       } else if (aQuery.crazyDeck != null) {
         let anonNodes = this.window.document.getAnonymousNodes(realElem);
         let index;
-        if (realElem.hasAttribute("selectedIndex"))
+        if (realElem.hasAttribute("selectedIndex")) {
           index = parseInt(realElem.getAttribute("selectedIndex"));
-        else
+        } else {
           index = aQuery.crazyDeck;
+        }
         let elem = anonNodes[index];
         return elem;
       } else if (aQuery.tagName) {
@@ -915,8 +1026,9 @@ var AugmentEverybodyWith = {
         for (let iNode = 0; iNode < anonNodes.length; iNode++) {
           let node = anonNodes[iNode];
           let named = node.querySelector(aQuery.tagName);
-          if (named)
+          if (named) {
             return named;
+          }
         }
       } else {
         let msg = "Query constraint not implemented, query contained:";
@@ -949,8 +1061,8 @@ var AugmentEverybodyWith = {
     defer_click: function _augmented_defer_click(aWhatToClick) {
       let dis = this;
       dis.window.setTimeout(function() {
-                              dis.click(aWhatToClick);
-                            }, 1000);
+        dis.click(aWhatToClick);
+      }, 1000);
     },
 
     /**
@@ -967,8 +1079,9 @@ var AugmentEverybodyWith = {
       if (node.localName == "hbox" || node.localName == "vbox") {
         for (let i = 0; i < node.children.length; i++) {
           let childMatch = this.findMatch(node.children[i]);
-          if (childMatch)
+          if (childMatch) {
             return childMatch;
+          }
         }
         return null;
       }
@@ -1000,11 +1113,21 @@ var AugmentEverybodyWith = {
      * @return  An array of popup elements that were left open. It will be
      *          an empty array if aKeepOpen was set to false.
      */
-    click_menus_in_sequence: function _click_menus(aRootPopup, aActions, aKeepOpen) {
-      if (aRootPopup.state != "open") { // handle "showing"
-        utils.waitFor(() => aRootPopup.state == "open",
-                      () => ("Popup never opened! id=" + aRootPopup.id +
-                             ", state=" + aRootPopup.state));
+    click_menus_in_sequence: function _click_menus(
+      aRootPopup,
+      aActions,
+      aKeepOpen
+    ) {
+      if (aRootPopup.state != "open") {
+        // handle "showing"
+        utils.waitFor(
+          () => aRootPopup.state == "open",
+          () =>
+            "Popup never opened! id=" +
+            aRootPopup.id +
+            ", state=" +
+            aRootPopup.state
+        );
       }
       // These popups sadly do not close themselves, so we need to keep track
       // of them so we can make sure they end up closed.
@@ -1017,13 +1140,18 @@ var AugmentEverybodyWith = {
         for (let iKid = 0; iKid < kids.length; iKid++) {
           let node = kids[iKid];
           matchingNode = this.findMatch(node, actionObj);
-          if (matchingNode)
+          if (matchingNode) {
             break;
+          }
         }
 
         if (!matchingNode) {
-          throw new Error("Did not find matching menu item for action index " +
-                          iAction + ": " + JSON.stringify(actionObj));
+          throw new Error(
+            "Did not find matching menu item for action index " +
+              iAction +
+              ": " +
+              JSON.stringify(actionObj)
+          );
         }
 
         this.click(new elib.Elem(matchingNode));
@@ -1035,10 +1163,18 @@ var AugmentEverybodyWith = {
         if (newPopup) {
           curPopup = newPopup;
           closeStack.push(curPopup);
-          utils.waitFor(() => curPopup.state == "open",
-                        () => ("Popup never opened at action depth " + iAction +
-                               "; id=" + curPopup.id + ", state=" + curPopup.state),
-                        5000, 50);
+          utils.waitFor(
+            () => curPopup.state == "open",
+            () =>
+              "Popup never opened at action depth " +
+              iAction +
+              "; id=" +
+              curPopup.id +
+              ", state=" +
+              curPopup.state,
+            5000,
+            50
+          );
         }
       }
 
@@ -1059,11 +1195,19 @@ var AugmentEverybodyWith = {
     close_popup_sequence: function _close_popup_sequence(aCloseStack) {
       while (aCloseStack.length) {
         let curPopup = aCloseStack.pop();
-        if (curPopup.state == "open")
+        if (curPopup.state == "open") {
           this.keypress(new elib.Elem(curPopup), "VK_ESCAPE", {});
-        utils.waitFor(() => curPopup.state == "closed",
-                      () => ("Popup did not close! id=" + curPopup.id +
-                             ", state=" + curPopup.state), 5000, 50);
+        }
+        utils.waitFor(
+          () => curPopup.state == "closed",
+          () =>
+            "Popup did not close! id=" +
+            curPopup.id +
+            ", state=" +
+            curPopup.state,
+          5000,
+          50
+        );
       }
     },
 
@@ -1095,9 +1239,16 @@ var AugmentEverybodyWith = {
       function viewShownListener(navTargets, nonNavTarget, allDone, event) {
         // Set up the next listener if there are more navigation targets.
         if (navTargets.length > 0) {
-          rootPopup.addEventListener("ViewShown",
-            viewShownListener.bind(null, navTargets.slice(1), nonNavTarget, allDone),
-            {once: true});
+          rootPopup.addEventListener(
+            "ViewShown",
+            viewShownListener.bind(
+              null,
+              navTargets.slice(1),
+              nonNavTarget,
+              allDone
+            ),
+            { once: true }
+          );
         }
 
         const subview = event.target.querySelector(".panel-subview-body");
@@ -1112,8 +1263,10 @@ var AugmentEverybodyWith = {
           // Some views are dynamically populated after ViewShown, so we wait.
           utils.waitFor(
             () => kids.find(findFunction),
-            () => "Waited but did not find matching menu item for target: " +
-                  JSON.stringify(clickTarget));
+            () =>
+              "Waited but did not find matching menu item for target: " +
+              JSON.stringify(clickTarget)
+          );
 
           const foundNode = kids.find(findFunction);
 
@@ -1128,19 +1281,21 @@ var AugmentEverybodyWith = {
 
       let done = false;
       let subviewToReturn;
-      const allDone = (subview) => {
+      const allDone = subview => {
         subviewToReturn = subview;
         done = true;
       };
 
-      utils.waitFor(() => rootPopup.getAttribute("panelopen") == "true",
-        "Waited for the appmenu to open, but it never opened.");
+      utils.waitFor(
+        () => rootPopup.getAttribute("panelopen") == "true",
+        "Waited for the appmenu to open, but it never opened."
+      );
 
       // Because the appmenu button has already been clicked in the calling
       // code (to match click_menus_in_sequence), we have to call the first
       // viewShownListener manually, using a fake event argument, to start the
       // series of event listener calls.
-      const fakeEvent = {target: this.e("appMenu-mainView")};
+      const fakeEvent = { target: this.e("appMenu-mainView") };
       viewShownListener(navTargets, nonNavTarget, allDone, fakeEvent);
 
       utils.waitFor(() => done, "Timed out in click_appmenu_in_sequence.");
@@ -1174,20 +1329,27 @@ var AugmentEverybodyWith = {
     describeFocus() {
       let arr = [
         "in window:",
-        getWindowTypeForXulWindow(this.window) + " (" +
-          getUniqueIdForXulWindow(this.window) + ")"];
-      let focusedWinOut = {}, focusedElement, curWindow = this.window;
+        getWindowTypeForXulWindow(this.window) +
+          " (" +
+          getUniqueIdForXulWindow(this.window) +
+          ")",
+      ];
+      let focusedWinOut = {},
+        focusedElement,
+        curWindow = this.window;
       // Use the focus manager to walk down through focused sub-frames so
       //  in the event that there is no focused element but there is a focused
       //  sub-frame, we can know that.
       for (;;) {
-        focusedElement = Services.focus.getFocusedElementForWindow(curWindow,
-                                                                   false,
-                                                                   focusedWinOut);
+        focusedElement = Services.focus.getFocusedElementForWindow(
+          curWindow,
+          false,
+          focusedWinOut
+        );
         arr.push("focused kid:");
         arr.push(focusedElement);
 
-        if (focusedElement && ("contentWindow" in focusedElement)) {
+        if (focusedElement && "contentWindow" in focusedElement) {
           curWindow = focusedElement.contentWindow;
           continue;
         }
@@ -1200,8 +1362,11 @@ var AugmentEverybodyWith = {
   getters: {
     focusedElement() {
       let ignoredFocusedWindow = {};
-      return Services.focus.getFocusedElementForWindow(this.window, true,
-                                                       ignoredFocusedWindow);
+      return Services.focus.getFocusedElementForWindow(
+        this.window,
+        true,
+        ignoredFocusedWindow
+      );
     },
   },
 };
@@ -1212,8 +1377,14 @@ var AugmentEverybodyWith = {
  * perform the operations at the center when aLeft or aTop aren't passed in.
  */
 var MOUSE_OPS_TO_WRAP = [
-  "click", "doubleClick", "mouseDown", "mouseOut", "mouseOver", "mouseUp",
-  "middleClick", "rightClick",
+  "click",
+  "doubleClick",
+  "mouseDown",
+  "mouseOut",
+  "mouseOver",
+  "mouseUp",
+  "middleClick",
+  "rightClick",
 ];
 
 for (let mouseOp of MOUSE_OPS_TO_WRAP) {
@@ -1221,13 +1392,20 @@ for (let mouseOp of MOUSE_OPS_TO_WRAP) {
   let wrapperFunc = function(aElem, aLeft, aTop) {
     let el = aElem.getNode();
     let rect = el.getBoundingClientRect();
-    if (aLeft === undefined)
+    if (aLeft === undefined) {
       aLeft = rect.width / 2;
-    if (aTop === undefined)
+    }
+    if (aTop === undefined) {
       aTop = rect.height / 2;
+    }
     // claim to be folder-display-helper since this is an explicit action
-    mark_action("fdh", thisMouseOp,
-                [normalize_for_json(el), "x:", aLeft, "y:", aTop]);
+    mark_action("fdh", thisMouseOp, [
+      normalize_for_json(el),
+      "x:",
+      aLeft,
+      "y:",
+      aTop,
+    ]);
     // |this| refers to the window that gets augmented, which is what we want
     this.__proto__[thisMouseOp](aElem, aLeft, aTop);
   };
@@ -1296,8 +1474,7 @@ var PerWindowTypeAugmentations = {
       //  queue after performing anything that will summarize, but use of
       //  assert_selected_and_displayed in test-folder-display-helpers should
       //  handle that.
-      aController.window.MessageDisplayWidget.prototype
-                 .SUMMARIZATION_SELECTION_STABILITY_INTERVAL_MS = 0;
+      aController.window.MessageDisplayWidget.prototype.SUMMARIZATION_SELECTION_STABILITY_INTERVAL_MS = 0;
     },
 
     /**
@@ -1316,13 +1493,15 @@ var PerWindowTypeAugmentations = {
         method: "goDoCommand",
         onGlobal: true,
         doBefore(command) {
-          let controller = this.top.document
-                             .commandDispatcher
-                             .getControllerForCommand(command);
-          if (controller && !controller.isCommandEnabled(command))
-            mark_action("winhelp", "goDoCommand",
-                        ["about to ignore command because it's disabled:",
-                         command]);
+          let controller = this.top.document.commandDispatcher.getControllerForCommand(
+            command
+          );
+          if (controller && !controller.isCommandEnabled(command)) {
+            mark_action("winhelp", "goDoCommand", [
+              "about to ignore command because it's disabled:",
+              command,
+            ]);
+          }
         },
       },
       // DefaultController command gobbling notification
@@ -1330,10 +1509,12 @@ var PerWindowTypeAugmentations = {
         method: "doCommand",
         onObject: "DefaultController",
         doBefore(command) {
-          if (!this.isCommandEnabled(command))
-            mark_action("winhelp", "DC_doCommand",
-                        ["about to ignore command because it's disabled:",
-                         command]);
+          if (!this.isCommandEnabled(command)) {
+            mark_action("winhelp", "DC_doCommand", [
+              "about to ignore command because it's disabled:",
+              command,
+            ]);
+          }
         },
       },
       // FolderDisplayWidget command invocations
@@ -1352,16 +1533,20 @@ var PerWindowTypeAugmentations = {
         method: "onLoadStarted",
         onConstructor: "MessageDisplayWidget",
         doBefore() {
-          mark_action("winhelp", "MD_onLoadStarted",
-                      ["singleMessageDisplay?", this.singleMessageDisplay]);
+          mark_action("winhelp", "MD_onLoadStarted", [
+            "singleMessageDisplay?",
+            this.singleMessageDisplay,
+          ]);
         },
       },
       {
         method: "onLoadCompleted",
         onConstructor: "MessageDisplayWidget",
         doBefore() {
-          mark_action("winhelp", "MD_onLoadCompleted",
-                      ["singleMessageDisplay?", this.singleMessageDisplay]);
+          mark_action("winhelp", "MD_onLoadCompleted", [
+            "singleMessageDisplay?",
+            this.singleMessageDisplay,
+          ]);
         },
       },
       // Message summarization annotations
@@ -1436,8 +1621,7 @@ function _augment_helper(aController, aAugmentDef) {
   if (aAugmentDef.elementsIDsToExpose) {
     for (let key in aAugmentDef.elementIDsToExpose) {
       let value = aAugmentDef.elementIDsToExpose[key];
-      aController[key] = new elib.ID(
-                           aController.window.document, value);
+      aController[key] = new elib.ID(aController.window.document, value);
     }
   }
   if (aAugmentDef.globalsToExposeAtStartup) {
@@ -1451,8 +1635,8 @@ function _augment_helper(aController, aAugmentDef) {
       let value = aAugmentDef.globalsToExposeViaGetters[key];
       let globalName = value;
       aController.__defineGetter__(key, function() {
-          return this.window[globalName];
-        });
+        return this.window[globalName];
+      });
     }
   }
   if (aAugmentDef.getters) {
@@ -1482,18 +1666,20 @@ function _augment_helper(aController, aAugmentDef) {
       } else if (traceDef.hasOwnProperty("onObject")) {
         baseObj = win[traceDef.onObject];
         useThis = false;
-      } else { // ignore/bail if unsupported type
+      } else {
+        // ignore/bail if unsupported type
         continue;
       }
 
       // - compute/set the wrapped attr, bailing if it's already there
       let wrappedName = "__traceWrapped_" + traceDef.method;
       // bail if we/someone have already wrapped it.
-      if (baseObj.hasOwnProperty(wrappedName))
+      if (baseObj.hasOwnProperty(wrappedName)) {
         continue;
+      }
       let origFunc = baseObj[traceDef.method];
       let reportAs = traceDef.reportAs; // latch
-      let showArgs = ("showArgs" in traceDef) ? traceDef.showArgs : true;
+      let showArgs = "showArgs" in traceDef ? traceDef.showArgs : true;
       baseObj[wrappedName] = origFunc;
 
       // - create the trace func based on the definition and apply
@@ -1506,8 +1692,7 @@ function _augment_helper(aController, aAugmentDef) {
         };
       } else {
         traceFunc = function(...aArgs) {
-          mark_action("winhelp", reportAs,
-                      showArgs ? aArgs : []);
+          mark_action("winhelp", reportAs, showArgs ? aArgs : []);
           try {
             return origFunc.apply(this, aArgs);
           } catch (ex) {
@@ -1554,16 +1739,18 @@ function describeEventElementInHierarchy(aNode) {
   // DOM node ?
   if ("ownerDocument" in aNode) {
     arr.push(normalize_for_json(aNode));
-    if (aNode.ownerGlobal)
+    if (aNode.ownerGlobal) {
       win = aNode.ownerGlobal;
-    else
+    } else {
       win = aNode.defaultView;
+    }
   } else {
     // Otherwise this should be a window.
     win = aNode;
   }
-  let treeItem = win.getInterface(Ci.nsIWebNavigation)
-                    .QueryInterface(Ci.nsIDocShellTreeItem);
+  let treeItem = win
+    .getInterface(Ci.nsIWebNavigation)
+    .QueryInterface(Ci.nsIDocShellTreeItem);
   while (treeItem) {
     win = treeItem.domWindow;
     // capture the window itself
@@ -1597,13 +1784,15 @@ function _findFrameElementForWindowInWindow(win, parentWin) {
   for (let i = 0; i < elems.length; i++) {
     // (Must not use === because XPConnect uses wrapper identicality when
     //  we do that.)
-    if (elems[i].contentWindow == win)
+    if (elems[i].contentWindow == win) {
       return elems[i];
+    }
   }
   elems = parentWin.document.getElementsByTagName("browser");
   for (let i = 0; i < elems.length; i++) {
-    if (elems[i].contentWindow == win)
+    if (elems[i].contentWindow == win) {
       return elems[i];
+    }
   }
   return null;
 }
@@ -1620,59 +1809,80 @@ function _findFrameElementForWindowInWindow(win, parentWin) {
 function getWindowDescribeyFromEvent(event) {
   var target = event.target;
   // assume it's a window if there's no ownerDocument attribute
-  var win = ("ownerGlobal" in target) ? target.ownerGlobal : target;
+  var win = "ownerGlobal" in target ? target.ownerGlobal : target;
   var owningWin = win.docShell.rootTreeItem.domWindow;
   var docElem = owningWin.document.documentElement;
-  return (getWindowTypeOrId(docElem) || "mysterious") +
-         " (" + (UNIQUE_WINDOW_ID_ATTR in owningWin ?
-                   owningWin[UNIQUE_WINDOW_ID_ATTR] :
-                   "n/a") + ")";
+  return (
+    (getWindowTypeOrId(docElem) || "mysterious") +
+    " (" +
+    (UNIQUE_WINDOW_ID_ATTR in owningWin
+      ? owningWin[UNIQUE_WINDOW_ID_ATTR]
+      : "n/a") +
+    ")"
+  );
 }
 
 function __peek_activate_handler(event) {
-  mark_action("winhelp", event.type,
-              [getWindowDescribeyFromEvent(event)]);
+  mark_action("winhelp", event.type, [getWindowDescribeyFromEvent(event)]);
   return true;
 }
 
 function __peek_focus_handler(event) {
-  mark_action("winhelp", event.type,
-              describeEventElementInHierarchy(event.target));
+  mark_action(
+    "winhelp",
+    event.type,
+    describeEventElementInHierarchy(event.target)
+  );
   return true;
 }
 
 function __peek_click_handler(event) {
   var s;
-  if (event.button === 0)
+  if (event.button === 0) {
     s = "left";
-  else if (event.button === 1)
+  } else if (event.button === 1) {
     s = "middle";
-  else if (event.button === 2)
+  } else if (event.button === 2) {
     s = "right";
-  else
+  } else {
     s = "" + event.button;
-  if (event.shiftKey)
+  }
+  if (event.shiftKey) {
     s = "shift-" + s;
-  if (event.ctrlKey)
+  }
+  if (event.ctrlKey) {
     s = "ctrl-" + s;
-  if (event.altKey)
+  }
+  if (event.altKey) {
     s = "alt-" + s;
-  if (event.metaKey)
+  }
+  if (event.metaKey) {
     s = "meta-" + s;
-  mark_action("winhelp", event.type,
-              ["mouse button", s,
-               "target:", normalize_for_json(event.target),
-               "in", getWindowDescribeyFromEvent(event),
-               "original target:", normalize_for_json(event.originalTarget)]);
+  }
+  mark_action("winhelp", event.type, [
+    "mouse button",
+    s,
+    "target:",
+    normalize_for_json(event.target),
+    "in",
+    getWindowDescribeyFromEvent(event),
+    "original target:",
+    normalize_for_json(event.originalTarget),
+  ]);
   return true;
 }
 
 function __bubbled_click_handler(event) {
-  mark_action("winhelpb", "bubbled " + event.type,
-              ["mouse button", event.button,
-               "target:", normalize_for_json(event.target),
-               "in", getWindowDescribeyFromEvent(event),
-               "original target:", normalize_for_json(event.originalTarget)]);
+  mark_action("winhelpb", "bubbled " + event.type, [
+    "mouse button",
+    event.button,
+    "target:",
+    normalize_for_json(event.target),
+    "in",
+    getWindowDescribeyFromEvent(event),
+    "original target:",
+    normalize_for_json(event.originalTarget),
+  ]);
   return true;
 }
 
@@ -1680,8 +1890,9 @@ function describeKeyEvent(event) {
   let s;
   if (event.key && event.key != "") {
     s = event.key;
-    if (s.trim() == "")
+    if (s.trim() == "") {
       s = "'" + event.key + "'";
+    }
   } else if (event.charCode) {
     s = "'" + String.fromCharCode(event.charCode) + "'";
   } else if (event.keyCode) {
@@ -1690,64 +1901,85 @@ function describeKeyEvent(event) {
     s = "no key/keyCode/charCode?";
   }
 
-  if (event.shiftKey)
+  if (event.shiftKey) {
     s = "shift-" + s;
-  if (event.ctrlKey)
+  }
+  if (event.ctrlKey) {
     s = "ctrl-" + s;
-  if (event.altKey)
+  }
+  if (event.altKey) {
     s = "alt-" + s;
-  if (event.metaKey)
+  }
+  if (event.metaKey) {
     s = "meta-" + s;
+  }
 
   return s;
 }
 
 function __peek_keypress_handler(event) {
-  mark_action("winhelp", event.type,
-              [describeKeyEvent(event),
-               "target:", normalize_for_json(event.target),
-               "in", getWindowDescribeyFromEvent(event)]);
+  mark_action("winhelp", event.type, [
+    describeKeyEvent(event),
+    "target:",
+    normalize_for_json(event.target),
+    "in",
+    getWindowDescribeyFromEvent(event),
+  ]);
   return true;
 }
 
 function __bubbled_keypress_handler(event) {
-  mark_action("winhelpb", "bubbled " + event.type,
-              [describeKeyEvent(event),
-               "target:", normalize_for_json(event.target),
-               "in", getWindowDescribeyFromEvent(event)]);
+  mark_action("winhelpb", "bubbled " + event.type, [
+    describeKeyEvent(event),
+    "target:",
+    normalize_for_json(event.target),
+    "in",
+    getWindowDescribeyFromEvent(event),
+  ]);
   return true;
 }
 
-
 function __popup_showing(event) {
-  mark_action("winhelp", "popupShowing",
-              [this,
-               "target:", normalize_for_json(event.target),
-               "current target:", normalize_for_json(event.target)]);
+  mark_action("winhelp", "popupShowing", [
+    this,
+    "target:",
+    normalize_for_json(event.target),
+    "current target:",
+    normalize_for_json(event.target),
+  ]);
   return true;
 }
 
 function __popup_shown(event) {
-  mark_action("winhelp", "popupShown",
-              [this,
-               "target:", normalize_for_json(event.target),
-               "current target:", normalize_for_json(event.target)]);
+  mark_action("winhelp", "popupShown", [
+    this,
+    "target:",
+    normalize_for_json(event.target),
+    "current target:",
+    normalize_for_json(event.target),
+  ]);
   return true;
 }
 
 function __popup_hiding(event) {
-  mark_action("winhelp", "popupHiding",
-              [this,
-               "target:", normalize_for_json(event.target),
-               "current target:", normalize_for_json(event.target)]);
+  mark_action("winhelp", "popupHiding", [
+    this,
+    "target:",
+    normalize_for_json(event.target),
+    "current target:",
+    normalize_for_json(event.target),
+  ]);
   return true;
 }
 
 function __popup_hidden(event) {
-  mark_action("winhelp", "popupHidden",
-              [this,
-               "target:", normalize_for_json(event.target),
-               "current target:", normalize_for_json(event.target)]);
+  mark_action("winhelp", "popupHidden", [
+    this,
+    "target:",
+    normalize_for_json(event.target),
+    "current target:",
+    normalize_for_json(event.target),
+  ]);
   return true;
 }
 
@@ -1760,12 +1992,16 @@ var gNextOneUpUniqueID = 0;
  *  mechanism.
  */
 function augment_controller(aController, aWindowType) {
-  if (aWindowType === undefined)
-    aWindowType = getWindowTypeOrId(aController.window.document.documentElement);
+  if (aWindowType === undefined) {
+    aWindowType = getWindowTypeOrId(
+      aController.window.document.documentElement
+    );
+  }
 
   _augment_helper(aController, AugmentEverybodyWith);
-  if (PerWindowTypeAugmentations[aWindowType])
+  if (PerWindowTypeAugmentations[aWindowType]) {
     _augment_helper(aController, PerWindowTypeAugmentations[aWindowType]);
+  }
 
   // Add a bunch of listeners to generate mark_action events to provide
   //  context for what is actually going on.
@@ -1775,10 +2011,16 @@ function augment_controller(aController, aWindowType) {
     aController.window[UNIQUE_WINDOW_ID_ATTR] = gNextOneUpUniqueID++;
 
     // - window activation / deactivation
-    aController.window.addEventListener("activate", __peek_activate_handler,
-                                        true);
-    aController.window.addEventListener("deactivate", __peek_activate_handler,
-                                        true);
+    aController.window.addEventListener(
+      "activate",
+      __peek_activate_handler,
+      true
+    );
+    aController.window.addEventListener(
+      "deactivate",
+      __peek_activate_handler,
+      true
+    );
 
     // - capturing listeners
     // (so we can see the start of the event)
@@ -1834,7 +2076,6 @@ function augment_controller(aController, aWindowType) {
     dump("!!!! failure augmenting controller: " + ex + "\n" + ex.stack);
   }
 
-
   return aController;
 }
 
@@ -1863,8 +2104,7 @@ function screenshotToDataURL(aWindow) {
   // changed a while ago and we never noticed.
   //  DRAWWINDOW_DRAW_VIEW = 0x04
   //  DRAWWINDOW_USE_WIDGET_LAYERS = 0x08
-  ctx.drawWindow(win, 0, 0, width, height, "rgb(0,0,0)",
-                 0x04 | 0x08);
+  ctx.drawWindow(win, 0, 0, width, height, "rgb(0,0,0)", 0x04 | 0x08);
 
   // As per the note about flags above, we no longer appear to need to do
   // the following, so it is commented out.  It is left around rather than
@@ -1922,33 +2162,38 @@ function screenshotToBase64(aWindow) {
  */
 function captureWindowStatesForErrorReporting(normalizeForJsonFunc) {
   let info = {};
-  let windows = info.windows = [];
+  let windows = (info.windows = []);
 
   let enumerator = Services.wm.getEnumerator(null);
   let iWin = 0;
   while (enumerator.hasMoreElements()) {
     let win = enumerator.getNext();
 
-    let winId = getWindowTypeOrId(win.document.documentElement) ||
-                ("unnamed:" + iWin);
+    let winId =
+      getWindowTypeOrId(win.document.documentElement) || "unnamed:" + iWin;
 
-    let openPopups =
-      Array.from(win.document.documentElement.getElementsByTagName("menupopup"))
-           .filter(x => x.state != "closed")
-           .map(x => normalizeForJsonFunc(x));
+    let openPopups = Array.from(
+      win.document.documentElement.getElementsByTagName("menupopup")
+    )
+      .filter(x => x.state != "closed")
+      .map(x => normalizeForJsonFunc(x));
 
     let ignoredFocusedWindow = {};
     let winfo = {
       id: winId,
       title: win.document.title,
-      coords: {x: win.screenX, y: win.screenY},
-      dims: {width: win.outerWidth, height: win.outerHeight},
-      pageOffsets: {x: win.pageXOffset, y: win.pageYOffset},
+      coords: { x: win.screenX, y: win.screenY },
+      dims: { width: win.outerWidth, height: win.outerHeight },
+      pageOffsets: { x: win.pageXOffset, y: win.pageYOffset },
       screenshotDataUrl: screenshotToDataURL(win),
       isActive: Services.focus.activeWindow == win,
       focusedElem: normalizeForJsonFunc(
-        Services.focus.getFocusedElementForWindow(win, true,
-                                                  ignoredFocusedWindow)),
+        Services.focus.getFocusedElementForWindow(
+          win,
+          true,
+          ignoredFocusedWindow
+        )
+      ),
       openPopups,
     };
 

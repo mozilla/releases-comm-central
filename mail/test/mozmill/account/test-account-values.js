@@ -23,7 +23,9 @@ var MODULE_REQUIRES = [
   "keyboard-helpers",
 ];
 
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 
 var gPopAccount, gOriginalAccountCount;
 
@@ -48,7 +50,10 @@ function setupModule(module) {
   gPopAccount.addIdentity(identity);
 
   // Now there should be one more account.
-  assert_equals(MailServices.accounts.allServers.length, gOriginalAccountCount + 1);
+  assert_equals(
+    MailServices.accounts.allServers.length,
+    gOriginalAccountCount + 1
+  );
 }
 
 function teardownModule(module) {
@@ -81,7 +86,8 @@ function subtest_check_default_CC_address(amc) {
 
   let iframe = amc.window.document.getElementById("contentFrame");
 
-  let defaultAddress = iframe.contentDocument.getElementById("identity.email").value;
+  let defaultAddress = iframe.contentDocument.getElementById("identity.email")
+    .value;
   let ccCheck = iframe.contentDocument.getElementById("identity.doCc");
   let ccAddress = iframe.contentDocument.getElementById("identity.doCcList");
   // The CC checkbox is not enabled and the address value is empty.
@@ -122,7 +128,10 @@ function test_account_name() {
   nntpAccount.incomingServer = nntpServer;
   nntpAccount.addIdentity(identity);
 
-  assert_equals(gPopAccount.incomingServer.prettyName, "nobody on example.invalid");
+  assert_equals(
+    gPopAccount.incomingServer.prettyName,
+    "nobody on example.invalid"
+  );
   assert_equals(nntpAccount.incomingServer.prettyName, "example.nntp.invalid");
 
   // The automatic account name update works only if the name is
@@ -178,7 +187,10 @@ function test_account_name() {
   });
 
   // And the account name should not be touched.
-  assert_equals(gPopAccount.incomingServer.prettyName, newUser + "@example.invalid");
+  assert_equals(
+    gPopAccount.incomingServer.prettyName,
+    newUser + "@example.invalid"
+  );
 
   MailServices.accounts.removeAccount(nntpAccount);
 }
@@ -222,8 +234,9 @@ function subtest_check_account_name(aAccount, aNewHostname, aNewUsername, amc) {
   }
   // We really need to save the new values so click OK on the Account settings.
   amc.window.document.documentElement.acceptDialog();
-  if (aNewUsername)
+  if (aNewUsername) {
     wait_for_modal_dialog("commonDialog");
+  }
 }
 
 /**
@@ -232,7 +245,9 @@ function subtest_check_account_name(aAccount, aNewHostname, aNewUsername, amc) {
  */
 function test_invalid_junk_target() {
   // Set the junk target prefs to invalid values.
-  let branch = Services.prefs.getBranch("mail.server." + gPopAccount.incomingServer.key + ".");
+  let branch = Services.prefs.getBranch(
+    "mail.server." + gPopAccount.incomingServer.key + "."
+  );
   branch.setCharPref("spamActionTargetAccount", "some random non-existent URI");
   branch.setCharPref("spamActionTargetFolder", "some random non-existent URI");
   let moveOnSpam = true;
@@ -269,7 +284,9 @@ function subtest_check_invalid_junk_target(amc) {
  * Checks if invalid server hostnames are not accepted.
  */
 function test_invalid_hostname() {
-  let branch = Services.prefs.getBranch("mail.server." + gPopAccount.incomingServer.key + ".");
+  let branch = Services.prefs.getBranch(
+    "mail.server." + gPopAccount.incomingServer.key + "."
+  );
   let origHostname = branch.getCharPref("realhostname");
 
   open_advanced_settings(function(amc) {

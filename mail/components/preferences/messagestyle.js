@@ -6,23 +6,26 @@
 
 var jsProtoHelper = {};
 ChromeUtils.import("resource:///modules/jsProtoHelper.jsm", jsProtoHelper);
-var {
-  getThemeByName,
-  getThemeVariants,
-} = ChromeUtils.import("resource:///modules/imThemes.jsm");
+var { getThemeByName, getThemeVariants } = ChromeUtils.import(
+  "resource:///modules/imThemes.jsm"
+);
 
 function Conversation(aName) {
   this._name = aName;
   this._observers = [];
   let now = new Date();
-  this._date = new Date(now.getFullYear(), now.getMonth(), now.getDate(),
-                        10, 42, 22) * 1000;
+  this._date =
+    new Date(now.getFullYear(), now.getMonth(), now.getDate(), 10, 42, 22) *
+    1000;
 }
 Conversation.prototype = {
   __proto__: jsProtoHelper.GenericConvIMPrototype,
-  account: {protocol: {name: "Fake Protocol"},
-            alias: "", name: "Fake Account",
-            statusInfo: Services.core.globalUserStatus},
+  account: {
+    protocol: { name: "Fake Protocol" },
+    alias: "",
+    name: "Fake Account",
+    statusInfo: Services.core.globalUserStatus,
+  },
 };
 
 function Message(aWho, aMessage, aObject) {
@@ -30,11 +33,15 @@ function Message(aWho, aMessage, aObject) {
 }
 Message.prototype = {
   __proto__: jsProtoHelper.GenericMessagePrototype,
-  get displayMessage() { return this.originalMessage; },
+  get displayMessage() {
+    return this.originalMessage;
+  },
 };
 
 // Message style tooltips use this.
-function getBrowser() { return document.getElementById("previewbrowser"); }
+function getBrowser() {
+  return document.getElementById("previewbrowser");
+}
 
 var previewObserver = {
   _loaded: false,
@@ -42,28 +49,61 @@ var previewObserver = {
     let makeDate = function(aDateString) {
       let array = aDateString.split(":");
       let now = new Date();
-      return (new Date(now.getFullYear(), now.getMonth(), now.getDate(),
-                       array[0], array[1], array[2])) / 1000;
+      return (
+        new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          array[0],
+          array[1],
+          array[2]
+        ) / 1000
+      );
     };
     let bundle = document.getElementById("themesBundle");
     let msg = {};
-    ["nick1", "buddy1", "nick2", "buddy2",
-     "message1", "message2", "message3"].forEach(function(aText) {
+    [
+      "nick1",
+      "buddy1",
+      "nick2",
+      "buddy2",
+      "message1",
+      "message2",
+      "message3",
+    ].forEach(function(aText) {
       msg[aText] = bundle.getString(aText);
     });
     let conv = new Conversation(msg.nick2);
     conv.messages = [
-      new Message(msg.buddy1, msg.message1, {outgoing: true, _alias: msg.nick1, time: makeDate("10:42:22"), _conversation: conv}),
-      new Message(msg.buddy1, msg.message2, {outgoing: true, _alias: msg.nick1, time: makeDate("10:42:25"), _conversation: conv}),
-      new Message(msg.buddy2, msg.message3, {incoming: true, _alias: msg.nick2, time: makeDate("10:43:01"), _conversation: conv}),
+      new Message(msg.buddy1, msg.message1, {
+        outgoing: true,
+        _alias: msg.nick1,
+        time: makeDate("10:42:22"),
+        _conversation: conv,
+      }),
+      new Message(msg.buddy1, msg.message2, {
+        outgoing: true,
+        _alias: msg.nick1,
+        time: makeDate("10:42:25"),
+        _conversation: conv,
+      }),
+      new Message(msg.buddy2, msg.message3, {
+        incoming: true,
+        _alias: msg.nick2,
+        time: makeDate("10:43:01"),
+        _conversation: conv,
+      }),
     ];
     previewObserver.conv = conv;
 
     let themeName = document.getElementById("messagestyle-themename");
     previewObserver.browser = document.getElementById("previewbrowser");
-    document.getElementById("showHeaderCheckbox")
-            .addEventListener("CheckboxStateChange",
-                              previewObserver.showHeaderChanged);
+    document
+      .getElementById("showHeaderCheckbox")
+      .addEventListener(
+        "CheckboxStateChange",
+        previewObserver.showHeaderChanged
+      );
 
     // If the preferences tab is opened straight to the message styles,
     // loading the preview fails. Pushing this to back of the event queue
@@ -75,32 +115,37 @@ var previewObserver = {
   },
 
   showHeaderChanged() {
-    if (!previewObserver._loaded)
+    if (!previewObserver._loaded) {
       return;
+    }
 
     previewObserver.theme.showHeader = this.checked;
     previewObserver.reloadPreview();
   },
 
   currentThemeChanged() {
-    if (!this._loaded)
+    if (!this._loaded) {
       return;
+    }
 
     let currentTheme = document.getElementById("messagestyle-themename").value;
-    if (!currentTheme)
+    if (!currentTheme) {
       return;
+    }
 
     this.displayTheme(currentTheme);
   },
 
   _ignoreVariantChange: false,
   currentVariantChanged() {
-    if (!this._loaded || this._ignoreVariantChange)
+    if (!this._loaded || this._ignoreVariantChange) {
       return;
+    }
 
     let variant = document.getElementById("themevariant").value;
-    if (!variant)
+    if (!variant) {
       return;
+    }
 
     this.theme.variant = variant;
     this.reloadPreview();
@@ -115,22 +160,30 @@ var previewObserver = {
     }
 
     let menulist = document.getElementById("themevariant");
-    if (menulist.menupopup)
+    if (menulist.menupopup) {
       menulist.menupopup.remove();
+    }
     let popup = menulist.appendChild(document.createXULElement("menupopup"));
     let variants = getThemeVariants(this.theme);
 
     let defaultVariant = "";
-    if (("DefaultVariant" in this.theme.metadata) &&
-        variants.includes(this.theme.metadata.DefaultVariant))
+    if (
+      "DefaultVariant" in this.theme.metadata &&
+      variants.includes(this.theme.metadata.DefaultVariant)
+    ) {
       defaultVariant = this.theme.metadata.DefaultVariant.replace(/_/g, " ");
+    }
 
     let defaultText = defaultVariant;
-    if (!defaultText && ("DisplayNameForNoVariant" in this.theme.metadata))
+    if (!defaultText && "DisplayNameForNoVariant" in this.theme.metadata) {
       defaultText = this.theme.metadata.DisplayNameForNoVariant;
+    }
     // if the name in the metadata is 'Default', use the localized version
-    if (!defaultText || defaultText.toLowerCase() == "default")
-      defaultText = document.getElementById("themesBundle").getString("default");
+    if (!defaultText || defaultText.toLowerCase() == "default") {
+      defaultText = document
+        .getElementById("themesBundle")
+        .getString("default");
+    }
 
     let menuitem = document.createXULElement("menuitem");
     menuitem.setAttribute("label", defaultText);
@@ -158,11 +211,12 @@ var previewObserver = {
 
     // disable the variant menulist if there's no variant, or only one
     // which is the default
-    menulist.disabled = variants.length == 0 ||
-                        variants.length == 1 && defaultVariant;
+    menulist.disabled =
+      variants.length == 0 || (variants.length == 1 && defaultVariant);
 
-    document.getElementById("showHeaderCheckbox").disabled =
-      !this.theme.html.hasOwnProperty("header");
+    document.getElementById(
+      "showHeaderCheckbox"
+    ).disabled = !this.theme.html.hasOwnProperty("header");
 
     this.reloadPreview();
     document.getElementById("previewDeck").selectedIndex = 1;
@@ -175,8 +229,9 @@ var previewObserver = {
   },
 
   observe(aSubject, aTopic, aData) {
-    if (aTopic != "conversation-loaded" || aSubject != this.browser)
+    if (aTopic != "conversation-loaded" || aSubject != this.browser) {
       return;
+    }
 
     // We want to avoid the convbrowser trying to scroll to the last
     // added message, as that causes the entire pref pane to jump up
@@ -189,8 +244,9 @@ var previewObserver = {
     // Display all queued messages. Use a timeout so that message text
     // modifiers can be added with observers for this notification.
     setTimeout(function() {
-      for (let message of previewObserver.conv.messages)
+      for (let message of previewObserver.conv.messages) {
         aSubject.appendMessage(message, false);
+      }
     }, 0);
 
     Services.obs.removeObserver(this, "conversation-loaded");

@@ -15,7 +15,11 @@
 
 var MODULE_NAME = "test-sticky-filter-logic";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "quick-filter-bar-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "quick-filter-bar-helpers",
+];
 
 function setupModule(module) {
   let fdh = collector.getModule("folder-display-helpers");
@@ -31,13 +35,17 @@ function setupModule(module) {
  */
 function test_sticky_basics() {
   let folderOne = create_folder("QuickFilterBarStickyBasics1");
-  let [unreadOne, readOne] = make_new_sets_in_folder(folderOne,
-    [{count: 1}, {count: 1}]);
+  let [unreadOne, readOne] = make_new_sets_in_folder(folderOne, [
+    { count: 1 },
+    { count: 1 },
+  ]);
   readOne.setRead(true);
 
   let folderTwo = create_folder("QuickFilterBarStickyBasics2");
-  let [unreadTwo, readTwo] = make_new_sets_in_folder(folderTwo,
-    [{count: 1}, {count: 1}]);
+  let [unreadTwo, readTwo] = make_new_sets_in_folder(folderTwo, [
+    { count: 1 },
+    { count: 1 },
+  ]);
   readTwo.setRead(true);
 
   // -- setup
@@ -47,12 +55,12 @@ function test_sticky_basics() {
 
   // -- change folders
   be_in_folder(folderTwo);
-  assert_constraints_expressed({sticky: true, unread: true});
+  assert_constraints_expressed({ sticky: true, unread: true });
   assert_messages_in_view(unreadTwo);
 
   // -- inherit into a new folder
   let tabB = open_folder_in_new_tab(folderOne);
-  assert_constraints_expressed({sticky: true, unread: true});
+  assert_constraints_expressed({ sticky: true, unread: true });
   assert_messages_in_view(unreadOne);
 
   close_tab(tabB);
@@ -73,11 +81,19 @@ function test_sticky_basics() {
 function test_sticky_tags() {
   let folderOne = create_folder("QuickFilterBarStickyTags1");
   let folderTwo = create_folder("QuickFilterBarStickyTags2");
-  const tagA = "$label1", tagB = "$label2", tagC = "$label3";
-  let [, setTagA1, setTagB1] = make_new_sets_in_folder(
-    folderOne, [{count: 1}, {count: 1}, {count: 1}]);
-  let [, setTagA2, setTagC2] = make_new_sets_in_folder(
-    folderTwo, [{count: 1}, {count: 1}, {count: 1}]);
+  const tagA = "$label1",
+    tagB = "$label2",
+    tagC = "$label3";
+  let [, setTagA1, setTagB1] = make_new_sets_in_folder(folderOne, [
+    { count: 1 },
+    { count: 1 },
+    { count: 1 },
+  ]);
+  let [, setTagA2, setTagC2] = make_new_sets_in_folder(folderTwo, [
+    { count: 1 },
+    { count: 1 },
+    { count: 1 },
+  ]);
   setTagA1.addTag(tagA);
   setTagB1.addTag(tagB);
   setTagA2.addTag(tagA);

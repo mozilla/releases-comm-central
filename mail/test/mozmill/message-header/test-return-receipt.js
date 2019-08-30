@@ -14,7 +14,11 @@
 
 var MODULE_NAME = "test-return-receipt";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "notificationbox-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "notificationbox-helpers",
+];
 
 var folder;
 
@@ -29,10 +33,10 @@ function setupModule(module) {
   folder = create_folder("ReturnReceiptTest");
 
   // Create a message that requests a return receipt.
-  let msg0 = create_message(
-    {from: ["Ake", "ake@example.com"],
-      clobberHeaders: { "Disposition-Notification-To": "ake@example.com" },
-    });
+  let msg0 = create_message({
+    from: ["Ake", "ake@example.com"],
+    clobberHeaders: { "Disposition-Notification-To": "ake@example.com" },
+  });
   add_message_to_folder(folder, msg0);
 
   // ... and one that doesn't request a return receipt.
@@ -40,40 +44,42 @@ function setupModule(module) {
   add_message_to_folder(folder, msg1);
 
   // Create a message that requests a return receipt to a different address.
-  let msg2 = create_message(
-    {from: ["Mimi", "me@example.org"],
-      clobberHeaders: { "Disposition-Notification-To": "other@example.com" },
-    });
+  let msg2 = create_message({
+    from: ["Mimi", "me@example.org"],
+    clobberHeaders: { "Disposition-Notification-To": "other@example.com" },
+  });
   add_message_to_folder(folder, msg2);
 
   // Create a message that requests a return receipt to different addresses.
-  let msg3 = create_message(
-    {from: ["Bobby", "bob@example.org"],
-      clobberHeaders: { "Disposition-Notification-To": "ex1@example.com, ex2@example.com" },
-    });
+  let msg3 = create_message({
+    from: ["Bobby", "bob@example.org"],
+    clobberHeaders: {
+      "Disposition-Notification-To": "ex1@example.com, ex2@example.com",
+    },
+  });
   add_message_to_folder(folder, msg3);
 
   // Create a message that requests a return receipt using non-standard header.
-  let msg4 = create_message(
-    {from: ["Ake", "ake@example.com"],
-     clobberHeaders: { "Return-Receipt-To": "ake@example.com" },
-    });
+  let msg4 = create_message({
+    from: ["Ake", "ake@example.com"],
+    clobberHeaders: { "Return-Receipt-To": "ake@example.com" },
+  });
   add_message_to_folder(folder, msg4);
 
   // Create a message that requests a return receipt to a different address
   // using non-standard header.
-  let msg5 = create_message(
-    {from: ["Mimi", "me@example.org"],
-     clobberHeaders: { "Return-Receipt-To": "other@example.com" },
-    });
+  let msg5 = create_message({
+    from: ["Mimi", "me@example.org"],
+    clobberHeaders: { "Return-Receipt-To": "other@example.com" },
+  });
   add_message_to_folder(folder, msg5);
 
   // Create a message that requests a return receipt to different addresses
   // using non-standard header.
-  let msg6 = create_message(
-   {from: ["Bobby", "bob@example.org"],
-     clobberHeaders: { "Return-Receipt-To": "ex1@example.com, ex2@example.com" },
-   });
+  let msg6 = create_message({
+    from: ["Bobby", "bob@example.org"],
+    clobberHeaders: { "Return-Receipt-To": "ex1@example.com, ex2@example.com" },
+  });
   add_message_to_folder(folder, msg6);
 }
 
@@ -98,12 +104,22 @@ function assert_mdn_text_contains(text, shouldContain) {
   let nb = mc.window.document.getElementById(kBoxId);
   let box = nb.querySelector(".notificationbox-stack")._notificationBox;
   let notificationText = box.currentNotification.messageText.textContent;
-  if (shouldContain && !notificationText.includes(text))
-    throw new Error("mdnBar should contain text=" + text +
-                    "; notificationText=" + notificationText);
-  if (!shouldContain && notificationText.includes(text))
-    throw new Error("mdnBar shouldn't contain text=" + text +
-                    "; notificationText=" + notificationText);
+  if (shouldContain && !notificationText.includes(text)) {
+    throw new Error(
+      "mdnBar should contain text=" +
+        text +
+        "; notificationText=" +
+        notificationText
+    );
+  }
+  if (!shouldContain && notificationText.includes(text)) {
+    throw new Error(
+      "mdnBar shouldn't contain text=" +
+        text +
+        "; notificationText=" +
+        notificationText
+    );
+  }
 }
 
 /**
@@ -176,4 +192,3 @@ function test_mdn_when_disposition_to_multi_nonrfc() {
   assert_mdn_text_contains("ex1@example.com", true);
   assert_mdn_text_contains("ex2@example.com", true);
 }
-

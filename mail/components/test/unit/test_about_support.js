@@ -5,58 +5,69 @@
 // mail/components/about-support/content/accounts.js
 /* globals AboutSupport, AboutSupportPlatform */
 
-var {localAccountUtils} = ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
+var { localAccountUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/localAccountUtils.js"
+);
 
 /*
  * Test the about:support module.
  */
 
-var gAccountList = [{
-  type: "pop3",
-  port: 1234,
-  user: "pop3user",
-  password: "pop3password",
-  socketType: Ci.nsMsgSocketType.plain,
-  authMethod: Ci.nsMsgAuthMethod.old,
-  smtpServers: [],
-}, {
-  type: "imap",
-  port: 2345,
-  user: "imapuser",
-  password: "imappassword",
-  socketType: Ci.nsMsgSocketType.trySTARTTLS,
-  authMethod: Ci.nsMsgAuthMethod.passwordCleartext,
-  smtpServers: [{
-    port: 3456,
-    user: "imapout",
-    password: "imapoutpassword",
-    isDefault: true,
-    socketType: Ci.nsMsgSocketType.alwaysSTARTTLS,
-    authMethod: Ci.nsMsgAuthMethod.passwordEncrypted,
-  }],
-}, {
-  type: "nntp",
-  port: 4567,
-  user: null,
-  password: null,
-  socketType: Ci.nsMsgSocketType.SSL,
-  authMethod: Ci.nsMsgAuthMethod.GSSAPI,
-  smtpServers: [{
-    port: 5678,
-    user: "newsout1",
-    password: "newsoutpassword1",
-    isDefault: true,
+var gAccountList = [
+  {
+    type: "pop3",
+    port: 1234,
+    user: "pop3user",
+    password: "pop3password",
+    socketType: Ci.nsMsgSocketType.plain,
+    authMethod: Ci.nsMsgAuthMethod.old,
+    smtpServers: [],
+  },
+  {
+    type: "imap",
+    port: 2345,
+    user: "imapuser",
+    password: "imappassword",
+    socketType: Ci.nsMsgSocketType.trySTARTTLS,
+    authMethod: Ci.nsMsgAuthMethod.passwordCleartext,
+    smtpServers: [
+      {
+        port: 3456,
+        user: "imapout",
+        password: "imapoutpassword",
+        isDefault: true,
+        socketType: Ci.nsMsgSocketType.alwaysSTARTTLS,
+        authMethod: Ci.nsMsgAuthMethod.passwordEncrypted,
+      },
+    ],
+  },
+  {
+    type: "nntp",
+    port: 4567,
+    user: null,
+    password: null,
     socketType: Ci.nsMsgSocketType.SSL,
-    authMethod: Ci.nsMsgAuthMethod.NTLM,
-  }, {
-    port: 6789,
-    user: "newsout2",
-    password: "newsoutpassword2",
-    isDefault: false,
-    socketType: Ci.nsMsgSocketType.SSL,
-    authMethod: Ci.nsMsgAuthMethod.External,
-  }],
-}];
+    authMethod: Ci.nsMsgAuthMethod.GSSAPI,
+    smtpServers: [
+      {
+        port: 5678,
+        user: "newsout1",
+        password: "newsoutpassword1",
+        isDefault: true,
+        socketType: Ci.nsMsgSocketType.SSL,
+        authMethod: Ci.nsMsgAuthMethod.NTLM,
+      },
+      {
+        port: 6789,
+        user: "newsout2",
+        password: "newsoutpassword2",
+        isDefault: false,
+        socketType: Ci.nsMsgSocketType.SSL,
+        authMethod: Ci.nsMsgAuthMethod.External,
+      },
+    ],
+  },
+];
 
 // A map of account keys to servers. Populated by setup_accounts.
 var gAccountMap = new Map();
@@ -78,19 +89,29 @@ function setup_accounts() {
 
   // Now run through the details and set up accounts accordingly.
   for (let details of gAccountList) {
-    let server = localAccountUtils.create_incoming_server(details.type, details.port,
-                                                          details.user, details.password);
+    let server = localAccountUtils.create_incoming_server(
+      details.type,
+      details.port,
+      details.user,
+      details.password
+    );
     server.socketType = details.socketType;
     server.authMethod = details.authMethod;
     gSensitiveData.push(details.password);
     let account = MailServices.accounts.FindAccountForServer(server);
     for (let smtpDetails of details.smtpServers) {
-      let outgoing = localAccountUtils.create_outgoing_server(smtpDetails.port,
-                                                              smtpDetails.user,
-                                                              smtpDetails.password);
+      let outgoing = localAccountUtils.create_outgoing_server(
+        smtpDetails.port,
+        smtpDetails.user,
+        smtpDetails.password
+      );
       outgoing.socketType = smtpDetails.socketType;
       outgoing.authMethod = smtpDetails.authMethod;
-      localAccountUtils.associate_servers(account, outgoing, smtpDetails.isDefault);
+      localAccountUtils.associate_servers(
+        account,
+        outgoing,
+        smtpDetails.isDefault
+      );
       gSensitiveData.push(smtpDetails.password);
 
       // Add the SMTP server to our server name -> server map
@@ -108,14 +129,15 @@ function setup_accounts() {
 function verify_account_details(aDetails) {
   let expectedDetails = gAccountMap.get(aDetails.key);
   // All our servers are at localhost
-  let expectedHostDetails = "(" + expectedDetails.type + ") localhost:" +
-    expectedDetails.port;
+  let expectedHostDetails =
+    "(" + expectedDetails.type + ") localhost:" + expectedDetails.port;
   Assert.equal(aDetails.hostDetails, expectedHostDetails);
   Assert.equal(aDetails.socketType, expectedDetails.socketType);
   Assert.equal(aDetails.authMethod, expectedDetails.authMethod);
 
-  let smtpToSee = expectedDetails.smtpServers.map(smtpDetails =>
-                    "localhost:" + smtpDetails.port);
+  let smtpToSee = expectedDetails.smtpServers.map(
+    smtpDetails => "localhost:" + smtpDetails.port
+  );
 
   for (let smtpDetails of aDetails.smtpServers) {
     // Check that we're expecting to see this server
@@ -160,14 +182,16 @@ function test_get_account_details() {
   let accountsToSee = [...gAccountMap.keys()];
 
   // Our first check is to see that no sensitive data has crept in
-  for (let data of gSensitiveData)
+  for (let data of gSensitiveData) {
     Assert.ok(!accountDetailsText.includes(data));
+  }
 
   for (let details of accountDetails) {
     // We're going to make one exception: for the local folders server. We don't
     // care too much about its details.
-    if (details.key == localAccountUtils.msgAccount.key)
+    if (details.key == localAccountUtils.msgAccount.key) {
       continue;
+    }
 
     // Check that we're expecting to see this server
     let toSeeIndex = accountsToSee.indexOf(details.key);
@@ -180,16 +204,16 @@ function test_get_account_details() {
   Assert.equal(accountsToSee.length, 0);
 }
 
-var tests = [
-  test_get_file_system_type,
-  test_get_account_details,
-];
+var tests = [test_get_file_system_type, test_get_account_details];
 
 function run_test() {
-  Services.scriptloader.loadSubScript("chrome://messenger/content/about-support/accounts.js");
+  Services.scriptloader.loadSubScript(
+    "chrome://messenger/content/about-support/accounts.js"
+  );
 
   setup_accounts();
 
-  for (let test of tests)
+  for (let test of tests) {
     test();
+  }
 }

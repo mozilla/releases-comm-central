@@ -5,7 +5,7 @@
 var EXPORTED_SYMBOLS = ["AboutSupportPlatform"];
 
 // JS ctypes are needed to get at the data we need
-var {ctypes} = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
+var { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
 var GFile = ctypes.StructType("GFile");
 var GFileInfo = ctypes.StructType("GFileInfo");
 var GError = ctypes.StructType("GError");
@@ -47,35 +47,37 @@ var AboutSupportPlatform = {
    */
   getFileSystemType(aFile) {
     // Check if the libs exist.
-    if (!gLibsExist)
+    if (!gLibsExist) {
       return "unknown";
+    }
 
     try {
       // Given a UTF-8 string, converts it to the current Glib locale.
       let g_filename_from_utf8 = glib.declare(
         "g_filename_from_utf8",
         ctypes.default_abi,
-        ctypes.char.ptr,   // return type: glib locale string
-        ctypes.char.ptr,   // in: utf8string
-        ctypes.ssize_t,    // in: len
+        ctypes.char.ptr, // return type: glib locale string
+        ctypes.char.ptr, // in: utf8string
+        ctypes.ssize_t, // in: len
         ctypes.size_t.ptr, // out: bytes_read
         ctypes.size_t.ptr, // out: bytes_written
-        GError.ptr         // out: error
+        GError.ptr // out: error
       );
       // Yes, we want function scoping for variables we need to free in the
       // finally block. I think this is better than declaring lots of variables
       // on top.
       var filePath = g_filename_from_utf8(aFile.path, -1, null, null, null);
       if (filePath.isNull()) {
-        throw new Error("Unable to convert " + aFile.path +
-                        " into GLib encoding");
+        throw new Error(
+          "Unable to convert " + aFile.path + " into GLib encoding"
+        );
       }
 
       // Given a path, creates a new GFile for it.
       let g_file_new_for_path = gio.declare(
         "g_file_new_for_path",
         ctypes.default_abi,
-        GFile.ptr,      // return type: a newly-allocated GFile
+        GFile.ptr, // return type: a newly-allocated GFile
         ctypes.char.ptr // in: path
       );
       var glibFile = g_file_new_for_path(filePath);
@@ -85,38 +87,49 @@ var AboutSupportPlatform = {
       let g_file_query_filesystem_info = gio.declare(
         "g_file_query_filesystem_info",
         ctypes.default_abi,
-        GFileInfo.ptr,    // return type
-        GFile.ptr,        // in: file
-        ctypes.char.ptr,  // in: attributes
+        GFileInfo.ptr, // return type
+        GFile.ptr, // in: file
+        ctypes.char.ptr, // in: attributes
         GCancellable.ptr, // in: cancellable
-        GError.ptr        // out: error
+        GError.ptr // out: error
       );
       var glibFileInfo = g_file_query_filesystem_info(
-        glibFile, G_FILE_ATTRIBUTE_FILESYSTEM_TYPE, null, null);
-      if (glibFileInfo.isNull())
+        glibFile,
+        G_FILE_ATTRIBUTE_FILESYSTEM_TYPE,
+        null,
+        null
+      );
+      if (glibFileInfo.isNull()) {
         throw new Error("Unabled to retrieve GLib file info for " + aFile.path);
+      }
 
       let g_file_info_get_attribute_string = gio.declare(
         "g_file_info_get_attribute_string",
         ctypes.default_abi,
         ctypes.char.ptr, // return type: file system type (do not free)
-        GFileInfo.ptr,   // in: info
-        ctypes.char.ptr  // in: attribute
+        GFileInfo.ptr, // in: info
+        ctypes.char.ptr // in: attribute
       );
       let fsType = g_file_info_get_attribute_string(
-        glibFileInfo, G_FILE_ATTRIBUTE_FILESYSTEM_TYPE);
-      if (fsType.isNull())
+        glibFileInfo,
+        G_FILE_ATTRIBUTE_FILESYSTEM_TYPE
+      );
+      if (fsType.isNull()) {
         return "unknown";
-      else if (kNetworkFilesystems.includes(fsType.readString()))
+      } else if (kNetworkFilesystems.includes(fsType.readString())) {
         return "network";
+      }
       return "local";
     } finally {
-      if (filePath)
+      if (filePath) {
         g_free(filePath);
-      if (glibFile && !glibFile.isNull())
+      }
+      if (glibFile && !glibFile.isNull()) {
         g_object_unref(glibFile);
-      if (glibFileInfo && !glibFileInfo.isNull())
+      }
+      if (glibFileInfo && !glibFileInfo.isNull()) {
         g_object_unref(glibFileInfo);
+      }
     }
   },
 };

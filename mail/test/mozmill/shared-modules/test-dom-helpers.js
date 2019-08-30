@@ -8,7 +8,9 @@ var MODULE_NAME = "dom-helpers";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers"];
 
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 
 var NORMAL_TIMEOUT = 6000;
 var FAST_TIMEOUT = 1000;
@@ -77,17 +79,23 @@ function assert_element_visible(aElt, aWhy) {
  * @param aElem The element to be checked
  */
 function element_visible_recursive(aElem) {
-  if (aElem.hidden || aElem.collapsed)
+  if (aElem.hidden || aElem.collapsed) {
     return false;
+  }
   let parent = aElem.parentNode;
-  if (parent == null)
+  if (parent == null) {
     return true;
+  }
 
   // #tabpanelcontainer and its parent #tabmail-tabbox have the same selectedPanel.
   // Don't ask me why, it's just the way it is.
-  if (("selectedPanel" in parent) &&
-      parent.selectedPanel != aElem && aElem.id != "tabpanelcontainer")
+  if (
+    "selectedPanel" in parent &&
+    parent.selectedPanel != aElem &&
+    aElem.id != "tabpanelcontainer"
+  ) {
     return false;
+  }
   return element_visible_recursive(parent);
 }
 
@@ -110,7 +118,7 @@ function wait_for_element(aParent, aSelector) {
   let target = null;
   mc.waitFor(function() {
     target = aParent.querySelector(aSelector);
-    return (target != null);
+    return target != null;
   }, "Timed out waiting for a target for selector: " + aSelector);
 
   return target;
@@ -128,9 +136,15 @@ function assert_next_nodes(aNodeType, aStart, aNum) {
   let node = aStart;
   for (let i = 0; i < aNum; ++i) {
     node = node.nextSibling;
-    if (node.localName != aNodeType)
-      throw new Error("The node should be followed by " + aNum + " nodes of " +
-                      "type " + aNodeType);
+    if (node.localName != aNodeType) {
+      throw new Error(
+        "The node should be followed by " +
+          aNum +
+          " nodes of " +
+          "type " +
+          aNodeType
+      );
+    }
   }
   return node;
 }
@@ -147,9 +161,15 @@ function assert_previous_nodes(aNodeType, aStart, aNum) {
   let node = aStart;
   for (let i = 0; i < aNum; ++i) {
     node = node.previousSibling;
-    if (node.localName != aNodeType)
-      throw new Error("The node should be preceded by " + aNum + " nodes of " +
-                      "type " + aNodeType);
+    if (node.localName != aNodeType) {
+      throw new Error(
+        "The node should be preceded by " +
+          aNum +
+          " nodes of " +
+          "type " +
+          aNodeType
+      );
+    }
   }
   return node;
 }
@@ -163,26 +183,37 @@ function assert_previous_nodes(aNodeType, aStart, aNum) {
  * @param aEnabled whether or not the node should be enabled, or disabled.
  */
 function wait_for_element_enabled(aController, aElement, aEnabled) {
-  if (!("disabled" in aElement))
-    throw new Error("Element does not appear to have disabled property; id=" +
-                    aElement.id);
+  if (!("disabled" in aElement)) {
+    throw new Error(
+      "Element does not appear to have disabled property; id=" + aElement.id
+    );
+  }
 
-  aController.waitFor(() => aElement.disabled != aEnabled,
-                      "Element should have eventually been " +
-                      (aEnabled ? "enabled" : "disabled") +
-                      "; id=" + aElement.id);
+  aController.waitFor(
+    () => aElement.disabled != aEnabled,
+    "Element should have eventually been " +
+      (aEnabled ? "enabled" : "disabled") +
+      "; id=" +
+      aElement.id
+  );
 }
 
 function check_element_visible(aController, aId) {
   let element = aController.e(aId);
-  if (!element)
+  if (!element) {
     return false;
+  }
 
   while (element) {
-    if (element.hidden || element.collapsed ||
-        (element.clientWidth == 0) || (element.clientHeight == 0) ||
-         (aController.window.getComputedStyle(element).display == "none"))
+    if (
+      element.hidden ||
+      element.collapsed ||
+      element.clientWidth == 0 ||
+      element.clientHeight == 0 ||
+      aController.window.getComputedStyle(element).display == "none"
+    ) {
       return false;
+    }
     element = element.parentElement;
   }
   return true;
@@ -195,8 +226,9 @@ function check_element_visible(aController, aId) {
  * @param aId          id of the element to wait for
  */
 function wait_for_element_visible(aController, aId) {
-  mc.waitFor(function() { return check_element_visible(aController, aId); },
-             "Timed out waiting for element with ID=" + aId + " to become visible");
+  mc.waitFor(function() {
+    return check_element_visible(aController, aId);
+  }, "Timed out waiting for element with ID=" + aId + " to become visible");
 }
 
 /**
@@ -206,8 +238,9 @@ function wait_for_element_visible(aController, aId) {
  * @param aId          id of the element to wait for
  */
 function wait_for_element_invisible(aController, aId) {
-  mc.waitFor(function() { return !check_element_visible(aController, aId); },
-             "Timed out waiting for element with ID=" + aId + " to become invisible");
+  mc.waitFor(function() {
+    return !check_element_visible(aController, aId);
+  }, "Timed out waiting for element with ID=" + aId + " to become invisible");
 }
 
 /**

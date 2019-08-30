@@ -14,11 +14,19 @@
 
 var MODULE_NAME = "test-attachment";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "compose-helpers",
+  "window-helpers",
+];
 
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
-var EventUtils = ChromeUtils.import("chrome://mozmill/content/stdlib/EventUtils.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
+var EventUtils = ChromeUtils.import(
+  "chrome://mozmill/content/stdlib/EventUtils.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var folder;
 var messages;
@@ -43,9 +51,9 @@ function setupModule(module) {
 
   var attachedMessage = msgGen.makeMessage({
     body: { body: "I'm an attached email!" },
-    attachments: [{ body: textAttachment,
-                    filename: "inner attachment.txt",
-                    format: "" }],
+    attachments: [
+      { body: textAttachment, filename: "inner attachment.txt", format: "" },
+    ],
   });
 
   // create some messages that have various types of attachments
@@ -53,78 +61,108 @@ function setupModule(module) {
     // no attachment
     {},
     // text attachment
-    { attachments: [{ body: textAttachment,
-                      filename: "ubik.txt",
-                      format: "" }],
+    {
+      attachments: [{ body: textAttachment, filename: "ubik.txt", format: "" }],
     },
     // binary attachment; filename has 9 "1"s, which should be just within the
     // limit for showing the original name
-    { attachments: [{ body: binaryAttachment,
-                      contentType: "application/octet-stream",
-                      filename: "ubik-111111111.xxyyzz",
-                      format: "" }],
+    {
+      attachments: [
+        {
+          body: binaryAttachment,
+          contentType: "application/octet-stream",
+          filename: "ubik-111111111.xxyyzz",
+          format: "",
+        },
+      ],
     },
     // multiple attachments
-    { attachments: [{ body: textAttachment,
-                      filename: "ubik.txt",
-                      format: "" },
-                    { body: binaryAttachment,
-                      contentType: "application/octet-stream",
-                      filename: "ubik.xxyyzz",
-                      format: "" }],
+    {
+      attachments: [
+        { body: textAttachment, filename: "ubik.txt", format: "" },
+        {
+          body: binaryAttachment,
+          contentType: "application/octet-stream",
+          filename: "ubik.xxyyzz",
+          format: "",
+        },
+      ],
     },
     // attachment with a long name; the attachment bar should crop this
-    { attachments: [{ body: textAttachment,
-                      filename: "this-is-a-file-with-an-extremely-long-name-" +
-                                "that-seems-to-go-on-forever-seriously-you-" +
-                                "would-not-believe-how-long-this-name-is-it-" +
-                                "surely-exceeds-the-maximum-filename-length-" +
-                                "for-most-filesystems.txt",
-                      format: "" }],
+    {
+      attachments: [
+        {
+          body: textAttachment,
+          filename:
+            "this-is-a-file-with-an-extremely-long-name-" +
+            "that-seems-to-go-on-forever-seriously-you-" +
+            "would-not-believe-how-long-this-name-is-it-" +
+            "surely-exceeds-the-maximum-filename-length-" +
+            "for-most-filesystems.txt",
+          format: "",
+        },
+      ],
     },
     // a message with a text attachment and an email attachment, which in turn
     // has its own text attachment
     {
       bodyPart: new SyntheticPartMultiMixed([
         new SyntheticPartLeaf("I'm a message!"),
-        new SyntheticPartLeaf(textAttachment,
-                              { filename: "outer attachment.txt",
-                                contentType: "text/plain",
-                                format: "" }),
+        new SyntheticPartLeaf(textAttachment, {
+          filename: "outer attachment.txt",
+          contentType: "text/plain",
+          format: "",
+        }),
         attachedMessage,
       ]),
     },
     // evilly-named attachment; spaces should be collapsed and trimmed on the
     // ends
-    { attachments: [{ body: textAttachment,
-                      contentType: "application/octet-stream",
-                      filename: " ubik  .txt                            .evil ",
-                      sanitizedFilename: "ubik .txt .evil",
-                      format: "" }],
+    {
+      attachments: [
+        {
+          body: textAttachment,
+          contentType: "application/octet-stream",
+          filename: " ubik  .txt                            .evil ",
+          sanitizedFilename: "ubik .txt .evil",
+          format: "",
+        },
+      ],
     },
     // another evilly-named attachment; filename has 10 "_"s, which should be
     // just enough to trigger the sanitizer
-    { attachments: [{ body: textAttachment,
-                      contentType: "application/octet-stream",
-                      filename: "ubik.txt__________.evil",
-                      sanitizedFilename: "ubik.txt_…_.evil",
-                      format: "" }],
+    {
+      attachments: [
+        {
+          body: textAttachment,
+          contentType: "application/octet-stream",
+          filename: "ubik.txt__________.evil",
+          sanitizedFilename: "ubik.txt_…_.evil",
+          format: "",
+        },
+      ],
     },
   ];
 
   // Add another evilly-named attachment for Windows tests, to ensure that
   // trailing periods are stripped.
   if ("@mozilla.org/windows-registry-key;1" in Cc) {
-    messages.push({ attachments: [{ body: textAttachment,
-                                    contentType: "application/octet-stream",
-                                    filename: "ubik.evil. . . . . . . . . ....",
-                                    sanitizedFilename: "ubik.evil",
-                                    format: "" }],
-                  });
+    messages.push({
+      attachments: [
+        {
+          body: textAttachment,
+          contentType: "application/octet-stream",
+          filename: "ubik.evil. . . . . . . . . ....",
+          sanitizedFilename: "ubik.evil",
+          format: "",
+        },
+      ],
+    });
   }
 
-  for (let i = 0; i < messages.length; i++)
+  for (let i = 0; i < messages.length; i++) {
     add_message_to_folder(folder, create_message(messages[i]));
+  }
 }
 
 /**
@@ -134,7 +172,10 @@ function setupModule(module) {
  *        false otherwise
  */
 function ensure_starts_expanded(expand) {
-  Services.prefs.setBoolPref("mailnews.attachments.display.start_expanded", expand);
+  Services.prefs.setBoolPref(
+    "mailnews.attachments.display.start_expanded",
+    expand
+  );
 }
 
 function test_attachment_view_collapsed() {
@@ -143,8 +184,9 @@ function test_attachment_view_collapsed() {
   select_click_row(0);
   assert_selected_and_displayed(0);
 
-  if (!mc.e("attachmentView").collapsed)
+  if (!mc.e("attachmentView").collapsed) {
     throw new Error("Attachment pane expanded when it shouldn't be!");
+  }
 }
 
 function test_attachment_view_expanded() {
@@ -154,9 +196,11 @@ function test_attachment_view_expanded() {
     select_click_row(i);
     assert_selected_and_displayed(i);
 
-    if (mc.e("attachmentView").collapsed)
-      throw new Error("Attachment pane collapsed (on message #" + i +
-                      " when it shouldn't be!");
+    if (mc.e("attachmentView").collapsed) {
+      throw new Error(
+        "Attachment pane collapsed (on message #" + i + " when it shouldn't be!"
+      );
+    }
   }
 }
 
@@ -171,15 +215,19 @@ function test_attachment_name_sanitization() {
       assert_selected_and_displayed(i);
 
       let attachments = messages[i].attachments;
-      if (messages[i].attachments.length == 1)
-        assert_equals(mc.e("attachmentName").value,
-                      attachments[0].sanitizedFilename ||
-                      attachments[0].filename);
+      if (messages[i].attachments.length == 1) {
+        assert_equals(
+          mc.e("attachmentName").value,
+          attachments[0].sanitizedFilename || attachments[0].filename
+        );
+      }
 
-      for (let j = 0; j < attachments.length; j++)
-        assert_equals(attachmentList.getItemAtIndex(j).getAttribute("name"),
-                      attachments[j].sanitizedFilename ||
-                      attachments[j].filename);
+      for (let j = 0; j < attachments.length; j++) {
+        assert_equals(
+          attachmentList.getItemAtIndex(j).getAttribute("name"),
+          attachments[j].sanitizedFilename || attachments[j].filename
+        );
+      }
     }
   }
 }
@@ -193,8 +241,11 @@ function test_long_attachment_name() {
   let messagepaneBox = mc.e("messagepanebox");
   let attachmentBar = mc.e("attachmentBar");
 
-  assert_true(messagepaneBox.getBoundingClientRect().width >= attachmentBar.getBoundingClientRect().width,
-              "Attachment bar has expanded off the edge of the window!");
+  assert_true(
+    messagepaneBox.getBoundingClientRect().width >=
+      attachmentBar.getBoundingClientRect().width,
+    "Attachment bar has expanded off the edge of the window!"
+  );
 }
 
 /**
@@ -214,7 +265,9 @@ function test_attached_message_attachments() {
 
   // Open the attached email.
   plan_for_new_window("mail:messageWindow");
-  mc.e("attachmentList").getItemAtIndex(1).attachment.open();
+  mc.e("attachmentList")
+    .getItemAtIndex(1)
+    .attachment.open();
   let msgc = wait_for_new_window("mail:messageWindow");
   wait_for_message_display_completion(msgc, true);
 
@@ -233,16 +286,20 @@ function test_attachment_name_click() {
 
   let attachmentList = mc.e("attachmentList");
 
-  assert_true(attachmentList.collapsed, "Attachment list should start out " +
-              "collapsed!");
+  assert_true(
+    attachmentList.collapsed,
+    "Attachment list should start out " + "collapsed!"
+  );
 
   // Ensure the open dialog appears when clicking on the attachment name and
   // that the attachment list doesn't expand.
   plan_for_modal_dialog("unknownContentType", function() {});
   mc.click(mc.eid("attachmentName"));
   wait_for_modal_dialog("unknownContentType");
-  assert_true(attachmentList.collapsed, "Attachment list should not expand " +
-              "when clicking on attachmentName!");
+  assert_true(
+    attachmentList.collapsed,
+    "Attachment list should not expand " + "when clicking on attachmentName!"
+  );
 }
 
 /**
@@ -269,12 +326,18 @@ function test_attachment_right_click_single() {
   subtest_attachment_right_click("attachmentName", "attachmentItemContext");
   subtest_attachment_right_click("attachmentSize", "attachmentItemContext");
 
-  subtest_attachment_right_click("attachmentToggle",
-                                 "attachment-toolbar-context-menu");
-  subtest_attachment_right_click("attachmentSaveAllSingle",
-                                 "attachment-toolbar-context-menu");
-  subtest_attachment_right_click("attachmentBar",
-                                 "attachment-toolbar-context-menu");
+  subtest_attachment_right_click(
+    "attachmentToggle",
+    "attachment-toolbar-context-menu"
+  );
+  subtest_attachment_right_click(
+    "attachmentSaveAllSingle",
+    "attachment-toolbar-context-menu"
+  );
+  subtest_attachment_right_click(
+    "attachmentBar",
+    "attachment-toolbar-context-menu"
+  );
 }
 // Re-enable this test once Bug 617311 is fixed.
 test_attachment_right_click_single.EXCLUDED_PLATFORMS = ["linux"];
@@ -289,12 +352,18 @@ function test_attachment_right_click_multiple() {
   subtest_attachment_right_click("attachmentCount", "attachmentListContext");
   subtest_attachment_right_click("attachmentSize", "attachmentListContext");
 
-  subtest_attachment_right_click("attachmentToggle",
-                                 "attachment-toolbar-context-menu");
-  subtest_attachment_right_click("attachmentSaveAllMultiple",
-                                 "attachment-toolbar-context-menu");
-  subtest_attachment_right_click("attachmentBar",
-                                 "attachment-toolbar-context-menu");
+  subtest_attachment_right_click(
+    "attachmentToggle",
+    "attachment-toolbar-context-menu"
+  );
+  subtest_attachment_right_click(
+    "attachmentSaveAllMultiple",
+    "attachment-toolbar-context-menu"
+  );
+  subtest_attachment_right_click(
+    "attachmentBar",
+    "attachment-toolbar-context-menu"
+  );
 }
 // Re-enable this test once Bug 617311 is fixed.
 test_attachment_right_click_multiple.EXCLUDED_PLATFORMS = ["linux"];
@@ -310,13 +379,20 @@ function subtest_attachment_list_toggle(elementId) {
   let element = mc.eid(elementId);
 
   mc.click(element);
-  assert_true(!attachmentList.collapsed, "Attachment list should be expanded " +
-              "after clicking " + elementId + "!");
+  assert_true(
+    !attachmentList.collapsed,
+    "Attachment list should be expanded " + "after clicking " + elementId + "!"
+  );
   assert_attachment_list_focused();
 
   mc.click(element);
-  assert_true(attachmentList.collapsed, "Attachment list should be collapsed " +
-              "after clicking " + elementId + " again!");
+  assert_true(
+    attachmentList.collapsed,
+    "Attachment list should be collapsed " +
+      "after clicking " +
+      elementId +
+      " again!"
+  );
   assert_message_pane_focused();
 }
 
@@ -326,8 +402,10 @@ function test_attachment_list_expansion() {
   select_click_row(1);
   assert_selected_and_displayed(1);
 
-  assert_true(mc.e("attachmentList").collapsed, "Attachment list should " +
-              "start out collapsed!");
+  assert_true(
+    mc.e("attachmentList").collapsed,
+    "Attachment list should " + "start out collapsed!"
+  );
 
   subtest_attachment_list_toggle("attachmentToggle");
   subtest_attachment_list_toggle("attachmentIcon");
@@ -337,10 +415,17 @@ function test_attachment_list_expansion() {
 
   // Ensure that clicking the "Save All" button doesn't expand the attachment
   // list.
-  mc.click(new elementslib.Elem(mc.e("attachmentSaveAllSingle").
-    querySelector(".toolbarbutton-menubutton-dropmarker")));
-  assert_true(mc.e("attachmentList").collapsed, "Attachment list should be " +
-              "collapsed after clicking save button!");
+  mc.click(
+    new elementslib.Elem(
+      mc
+        .e("attachmentSaveAllSingle")
+        .querySelector(".toolbarbutton-menubutton-dropmarker")
+    )
+  );
+  assert_true(
+    mc.e("attachmentList").collapsed,
+    "Attachment list should be " + "collapsed after clicking save button!"
+  );
 }
 
 function test_attachment_list_starts_expanded() {
@@ -350,8 +435,10 @@ function test_attachment_list_starts_expanded() {
   select_click_row(2);
   assert_selected_and_displayed(2);
 
-  assert_true(!mc.e("attachmentList").collapsed,
-              "Attachment list should start out expanded!");
+  assert_true(
+    !mc.e("attachmentList").collapsed,
+    "Attachment list should start out expanded!"
+  );
 }
 
 function test_selected_attachments_are_cleared() {
@@ -365,18 +452,28 @@ function test_selected_attachments_are_cleared() {
 
   // Select both the attachments.
   let attachmentList = mc.e("attachmentList");
-  assert_equals(attachmentList.selectedItems.length, 1,
-                "On first load the first item should be selected");
+  assert_equals(
+    attachmentList.selectedItems.length,
+    1,
+    "On first load the first item should be selected"
+  );
 
   // We can just click on the first element, but the second one needs a
   // ctrl-click (or cmd-click for those Mac-heads among us).
   mc.click(new elib.Elem(attachmentList.children[0]), 5, 5);
-  EventUtils.synthesizeMouse(attachmentList.children[1], 5, 5,
-                             {accelKey: true}, mc.window);
+  EventUtils.synthesizeMouse(
+    attachmentList.children[1],
+    5,
+    5,
+    { accelKey: true },
+    mc.window
+  );
 
-  assert_equals(attachmentList.selectedItems.length, 2,
-                "We had the wrong number of selected items after selecting " +
-                "some!");
+  assert_equals(
+    attachmentList.selectedItems.length,
+    2,
+    "We had the wrong number of selected items after selecting " + "some!"
+  );
 
   // Switch to the message with one attachment, and make sure there are no
   // selected attachments.
@@ -385,8 +482,11 @@ function test_selected_attachments_are_cleared() {
   // Expand the attachment list again.
   mc.click(mc.eid("attachmentToggle"));
 
-  assert_equals(attachmentList.selectedItems.length, 1,
-                "After loading a new message the first item should be selected");
+  assert_equals(
+    attachmentList.selectedItems.length,
+    1,
+    "After loading a new message the first item should be selected"
+  );
 }
 
 function test_select_all_attachments_key() {
@@ -400,9 +500,12 @@ function test_select_all_attachments_key() {
   mc.click(mc.eid("attachmentToggle"));
 
   let attachmentList = mc.e("attachmentList");
-  mc.keypress(new elib.Elem(attachmentList), "a", {accelKey: true});
-  assert_equals(attachmentList.selectedItems.length, 2,
-                "Should have selected all attachments!");
+  mc.keypress(new elib.Elem(attachmentList), "a", { accelKey: true });
+  assert_equals(
+    attachmentList.selectedItems.length,
+    2,
+    "Should have selected all attachments!"
+  );
 }
 
 function test_delete_attachment_key() {
@@ -429,7 +532,7 @@ function test_delete_attachment_key() {
   plan_for_modal_dialog("commonDialog", function(cdc) {
     cdc.window.document.documentElement.cancelDialog();
   });
-  mc.keypress(firstAttachment, "VK_DELETE", {shiftKey: true});
+  mc.keypress(firstAttachment, "VK_DELETE", { shiftKey: true });
   wait_for_modal_dialog("commonDialog");
 }
 
@@ -473,31 +576,46 @@ function test_attachments_compose_menu() {
   // Click on a portion of the attachmentBucket that will focus it, but not
   // bring up the file picker
   force_focus("attachmentBucket");
-  assert_equals("Remove Attachments", cwc.e("cmd_delete").getAttribute("label"),
-                "attachmentBucket is focused!");
+  assert_equals(
+    "Remove Attachments",
+    cwc.e("cmd_delete").getAttribute("label"),
+    "attachmentBucket is focused!"
+  );
 
   // Select 1 attachment, and
   // focus the subject to see the label change and to execute isCommandEnabled
   attachment.selectedIndex = 0;
   force_focus("msgSubject");
-  assert_equals("Delete", cwc.e("cmd_delete").getAttribute("label"),
-                "attachmentBucket is not focused!");
+  assert_equals(
+    "Delete",
+    cwc.e("cmd_delete").getAttribute("label"),
+    "attachmentBucket is not focused!"
+  );
 
   // Focus back to the attachmentBucket
   force_focus("attachmentBucket");
-  assert_equals("Remove Attachment", cwc.e("cmd_delete").getAttribute("label"),
-                "Only 1 attachment is selected!");
+  assert_equals(
+    "Remove Attachment",
+    cwc.e("cmd_delete").getAttribute("label"),
+    "Only 1 attachment is selected!"
+  );
 
   // Select multiple attachments, and focus the identity for the same purpose
   attachment.selectAll();
   force_focus("msgIdentity");
-  assert_equals("Delete", cwc.e("cmd_delete").getAttribute("label"),
-                "attachmentBucket is not focused!");
+  assert_equals(
+    "Delete",
+    cwc.e("cmd_delete").getAttribute("label"),
+    "attachmentBucket is not focused!"
+  );
 
   // Focus back to the attachmentBucket
   force_focus("attachmentBucket");
-  assert_equals("Remove Attachments", cwc.e("cmd_delete").getAttribute("label"),
-                "Multiple attachments are selected!");
+  assert_equals(
+    "Remove Attachments",
+    cwc.e("cmd_delete").getAttribute("label"),
+    "Multiple attachments are selected!"
+  );
 
   close_compose_window(cwc);
 }

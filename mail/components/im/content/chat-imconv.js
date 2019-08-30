@@ -1,6 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
-  * License, v. 2.0. If a copy of the MPL was not distributed with this
-  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 "use strict";
 
@@ -8,17 +8,23 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const {Status} = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
-  const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-  const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+  const { Status } = ChromeUtils.import(
+    "resource:///modules/imStatusUtils.jsm"
+  );
+  const { AppConstants } = ChromeUtils.import(
+    "resource://gre/modules/AppConstants.jsm"
+  );
+  const { Services } = ChromeUtils.import(
+    "resource://gre/modules/Services.jsm"
+  );
 
   /**
-    * The MozChatConv widget displays opened conversation information from the
-    * contacts: i.e name and icon. It gets displayed under conversation expansion
-    * twisty in the contactlist richlistbox.
-    *
-    * @extends {MozElements.MozRichlistitem}
-    */
+   * The MozChatConv widget displays opened conversation information from the
+   * contacts: i.e name and icon. It gets displayed under conversation expansion
+   * twisty in the contactlist richlistbox.
+   *
+   * @extends {MozElements.MozRichlistitem}
+   */
   class MozChatConv extends MozElements.MozRichlistitem {
     static get inheritedAttributes() {
       return {
@@ -38,15 +44,23 @@
 
       this.setAttribute("is", "chat-imconv");
 
-      this.addEventListener("mousedown", (event) => {
-        if (event.originalTarget.classList.contains("closeConversationButton")) {
-          this.closeConversation();
-          event.stopPropagation();
-          event.preventDefault();
-        }
-      }, true);
+      this.addEventListener(
+        "mousedown",
+        event => {
+          if (
+            event.originalTarget.classList.contains("closeConversationButton")
+          ) {
+            this.closeConversation();
+            event.stopPropagation();
+            event.preventDefault();
+          }
+        },
+        true
+      );
 
-      this.appendChild(MozXULElement.parseXULToFragment(`
+      this.appendChild(
+        MozXULElement.parseXULToFragment(
+          `
         <vbox class="box-line"></vbox>
         <button class="closeConversationButton close-icon"
                 tooltiptext="&closeConversationButton.tooltip;"></button>
@@ -65,7 +79,10 @@
           </box>
           <spacer flex="1000000"></spacer>
         </hbox>
-      `, ["chrome://messenger/locale/chat.dtd"]));
+      `,
+          ["chrome://messenger/locale/chat.dtd"]
+        )
+      );
 
       this.convView = null;
 
@@ -85,21 +102,23 @@
       // @implements {nsIObserver}
       this.observer = {
         QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver]),
-        observe: (function(subject, topic, data) {
-          if (topic == "target-prpl-conversation-changed" ||
-              topic == "unread-message-count-changed" ||
-              topic == "update-conv-title" ||
-              topic == "update-buddy-status" ||
-              topic == "update-buddy-status" ||
-              topic == "update-conv-chatleft" ||
-              topic == "update-conv-chatjoining" ||
-              topic == "chat-update-topic") {
+        observe: function(subject, topic, data) {
+          if (
+            topic == "target-prpl-conversation-changed" ||
+            topic == "unread-message-count-changed" ||
+            topic == "update-conv-title" ||
+            topic == "update-buddy-status" ||
+            topic == "update-buddy-status" ||
+            topic == "update-conv-chatleft" ||
+            topic == "update-conv-chatjoining" ||
+            topic == "chat-update-topic"
+          ) {
             this.update();
           }
           if (topic == "update-conv-title") {
             this.group.updateContactPosition(this.conv);
           }
-        }).bind(this),
+        }.bind(this),
       };
 
       this.initializeAttributeInheritance();
@@ -110,8 +129,8 @@
     }
 
     /**
-      * This getter exists to provide compatibility with the imgroup sortComparator.
-      */
+     * This getter exists to provide compatibility with the imgroup sortComparator.
+     */
     get contact() {
       return this.conv;
     }
@@ -126,8 +145,11 @@
     }
 
     get selected() {
-      return gChatTab && gChatTab.tabNode.selected &&
-        this.getAttribute("selected") == "true";
+      return (
+        gChatTab &&
+        gChatTab.tabNode.selected &&
+        this.getAttribute("selected") == "true"
+      );
     }
 
     build(conv) {
@@ -140,8 +162,8 @@
       this.setAttribute("displayname", this.displayName);
       if (this.selected && document.hasFocus()) {
         if (this.convView && this.convView.loaded) {
-            this.conv.markAsRead();
-            this.directedUnreadCount = 0;
+          this.conv.markAsRead();
+          this.directedUnreadCount = 0;
           chatHandler.updateTitle();
           chatHandler.updateChatButtonState();
         }
@@ -169,8 +191,12 @@
           unreadCount = "(" + unreadCount + ")";
         }
         this.setAttribute("unreadCount", unreadCount);
-        if (Services.prefs.getBoolPref("messenger.options.getAttentionOnNewMessages") &&
-            directedMessages > parseInt(this.getAttribute("unreadTargetedCount"))) {
+        if (
+          Services.prefs.getBoolPref(
+            "messenger.options.getAttentionOnNewMessages"
+          ) &&
+          directedMessages > parseInt(this.getAttribute("unreadTargetedCount"))
+        ) {
           window.getAttention();
         }
         this.setAttribute("unreadTargetedCount", directedMessages);
@@ -195,8 +221,10 @@
         this.setAttribute("status", Status.toAttribute(statusType));
       }
 
-      this.setAttribute("iconPrpl",
-        this.conv.account.protocol.iconBaseURI + "icon.png");
+      this.setAttribute(
+        "iconPrpl",
+        this.conv.account.protocol.iconBaseURI + "icon.png"
+      );
     }
 
     destroy() {
@@ -248,12 +276,16 @@
         return;
       }
 
-      let accelKeyPressed = (AppConstants.platform == "macosx") ? event.metaKey : event.ctrlKey;
+      let accelKeyPressed =
+        AppConstants.platform == "macosx" ? event.metaKey : event.ctrlKey;
       // If a character was typed or the accel+v copy shortcut was used,
       // focus the input box and resend the key event.
-      if (event.charCode != 0 && !event.altKey &&
-          (accelKeyPressed && event.charCode == "v".charCodeAt(0) ||
-          !event.ctrlKey && !event.metaKey)) {
+      if (
+        event.charCode != 0 &&
+        !event.altKey &&
+        ((accelKeyPressed && event.charCode == "v".charCodeAt(0)) ||
+          (!event.ctrlKey && !event.metaKey))
+      ) {
         this.convView.focus();
 
         let clonedEvent = new KeyboardEvent("keypress", event);
@@ -269,9 +301,11 @@
     }
   }
 
-  MozXULElement.implementCustomInterface(
-    MozChatConv, [Ci.nsIDOMXULSelectControlItemElement]
-  );
+  MozXULElement.implementCustomInterface(MozChatConv, [
+    Ci.nsIDOMXULSelectControlItemElement,
+  ]);
 
-  customElements.define("chat-imconv", MozChatConv, { "extends": "richlistitem" });
+  customElements.define("chat-imconv", MozChatConv, {
+    extends: "richlistitem",
+  });
 }

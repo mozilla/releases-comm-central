@@ -8,8 +8,10 @@ var MODULE_NAME = "customization-helpers";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 
 var USE_SHEET_PREF = "toolbar.customization.usesheet";
 
@@ -43,7 +45,6 @@ function CustomizeDialogHelper(aToolbarId, aOpenElementId, aWindowType) {
   this._openInWindow = !Services.prefs.getBoolPref(USE_SHEET_PREF);
 }
 
-
 CustomizeDialogHelper.prototype = {
   /**
    * Open a customization dialog by clicking on a given XUL element.
@@ -58,8 +59,10 @@ CustomizeDialogHelper.prototype = {
     // Depending on preferences the customization dialog is
     // either a normal window or embedded into a sheet.
     if (!this._openInWindow) {
-      ctc = wh.wait_for_frame_load(aController.e("customizeToolbarSheetIFrame"),
-        "chrome://messenger/content/customizeToolbar.xul");
+      ctc = wh.wait_for_frame_load(
+        aController.e("customizeToolbarSheetIFrame"),
+        "chrome://messenger/content/customizeToolbar.xul"
+      );
     } else {
       ctc = wh.wait_for_existing_window(this._windowType);
     }
@@ -72,15 +75,19 @@ CustomizeDialogHelper.prototype = {
    *   the controller object of the customization dialog which should be closed
    */
   close: function CustomizeDialogHelper_close(aCtc) {
-    if (this._openInWindow)
+    if (this._openInWindow) {
       wh.plan_for_window_close(aCtc);
+    }
 
     aCtc.click(aCtc.eid("donebutton"));
     // XXX There should be an equivalent for testing the closure of
     // XXX the dialog embedded in a sheet, but I do not know how.
     if (this._openInWindow) {
       wh.wait_for_window_close();
-      fdh.assert_true(aCtc.window.closed, "The customization dialog is not closed.");
+      fdh.assert_true(
+        aCtc.window.closed,
+        "The customization dialog is not closed."
+      );
     }
   },
 
@@ -92,12 +99,13 @@ CustomizeDialogHelper.prototype = {
    *   the controller object of the window for which the customization
    *   dialog should be opened
    */
-  restoreDefaultButtons: function CustomizeDialogHelper_restoreDefaultButtons(aController) {
+  restoreDefaultButtons: function CustomizeDialogHelper_restoreDefaultButtons(
+    aController
+  ) {
     let ctc = this.open(aController);
-    let restoreButton = ctc.window
-                           .document
-                           .getElementById("main-box")
-                           .querySelector("[oncommand*='overlayRestoreDefaultSet();']");
+    let restoreButton = ctc.window.document
+      .getElementById("main-box")
+      .querySelector("[oncommand*='overlayRestoreDefaultSet();']");
 
     ctc.click(new elib.Elem(restoreButton));
 

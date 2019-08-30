@@ -16,12 +16,16 @@ var MODULE_NAME = "test-session-store";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
-var controller = ChromeUtils.import("chrome://mozmill/content/modules/controller.jsm");
+var controller = ChromeUtils.import(
+  "chrome://mozmill/content/modules/controller.jsm"
+);
 
-var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
-var {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
-var {SessionStoreManager} = ChromeUtils.import("resource:///modules/SessionStoreManager.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.js");
+var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+var { SessionStoreManager } = ChromeUtils.import(
+  "resource:///modules/SessionStoreManager.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var folderA, folderB;
 
@@ -39,8 +43,9 @@ var asyncFileWriteDelayMS = 3000;
 function readFile() {
   try {
     let data = IOUtils.loadFileToString(SessionStoreManager.sessionFile);
-    if (data)
+    if (data) {
       return JSON.parse(data);
+    }
   } catch (ex) {
     // fall through and return null if the session file cannot be read
     // or is bad
@@ -51,26 +56,34 @@ function readFile() {
 
 function waitForFileRefresh() {
   controller.sleep(kSaveDelayMs);
-  utils.waitFor(() => SessionStoreManager.sessionFile.exists(),
-                "session file should exist");
+  utils.waitFor(
+    () => SessionStoreManager.sessionFile.exists(),
+    "session file should exist"
+  );
   controller.sleep(asyncFileWriteDelayMS);
 }
 
 function open3PaneWindow() {
   plan_for_new_window("mail:3pane");
-  Services.ww.openWindow(null,
-                         "chrome://messenger/content/messenger.xul", "",
-                         "all,chrome,dialog=no,status,toolbar",
-                         null);
+  Services.ww.openWindow(
+    null,
+    "chrome://messenger/content/messenger.xul",
+    "",
+    "all,chrome,dialog=no,status,toolbar",
+    null
+  );
   return wait_for_new_window("mail:3pane");
 }
 
 function openAddressBook() {
   plan_for_new_window("mail:addressbook");
-  Services.ww.openWindow(null,
-                         "chrome://messenger/content/addressbook/addressbook.xul", "",
-                         "all,chrome,dialog=no,status,toolbar",
-                         null);
+  Services.ww.openWindow(
+    null,
+    "chrome://messenger/content/addressbook/addressbook.xul",
+    "",
+    "all,chrome,dialog=no,status,toolbar",
+    null
+  );
   return wait_for_new_window("mail:addressbook");
 }
 
@@ -82,10 +95,10 @@ function setupModule(module) {
   }
 
   folderA = create_folder("SessionStoreA");
-  make_new_sets_in_folder(folderA, [{count: 3}]);
+  make_new_sets_in_folder(folderA, [{ count: 3 }]);
 
   folderB = create_folder("SessionStoreB");
-  make_new_sets_in_folder(folderB, [{count: 3}]);
+  make_new_sets_in_folder(folderB, [{ count: 3 }]);
 
   SessionStoreManager.stopPeriodicSave();
 
@@ -103,11 +116,11 @@ function teardownModule(module) {
 function test_periodic_session_persistence_simple() {
   // delete the session file if it exists
   let sessionFile = SessionStoreManager.sessionFile;
-  if (sessionFile.exists())
+  if (sessionFile.exists()) {
     sessionFile.remove(false);
+  }
 
-  utils.waitFor(() => !sessionFile.exists(),
-                "session file should not exist");
+  utils.waitFor(() => !sessionFile.exists(), "session file should not exist");
 
   // change some state to guarantee the file will be recreated
   // if periodic session persistence works
@@ -135,8 +148,7 @@ function test_periodic_nondirty_session_persistence() {
   SessionStoreManager._saveState();
   controller.sleep(kSaveDelayMs + asyncFileWriteDelayMS);
 
-  utils.waitFor(() => !sessionFile.exists(),
-                "session file should not exist");
+  utils.waitFor(() => !sessionFile.exists(), "session file should not exist");
 }
 
 function test_single_3pane_periodic_session_persistence() {
@@ -156,8 +168,10 @@ function test_single_3pane_periodic_session_persistence() {
 
   // get the state object for the one and only one 3pane window
   let windowState = loadedState.windows[0];
-  assert_true(JSON.stringify(windowState) == JSON.stringify(state),
-              "saved state and loaded state should be equal");
+  assert_true(
+    JSON.stringify(windowState) == JSON.stringify(state),
+    "saved state and loaded state should be equal"
+  );
 }
 
 function test_restore_single_3pane_persistence() {
@@ -206,23 +220,35 @@ function test_message_pane_height_persistence() {
   let mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
 
   let oldHeight = mc.e("messagepaneboxwrapper").clientHeight;
-  let minHeight = Math.floor(mc.e("messagepaneboxwrapper").getAttribute("minheight"));
+  let minHeight = Math.floor(
+    mc.e("messagepaneboxwrapper").getAttribute("minheight")
+  );
   let newHeight = Math.floor((minHeight + oldHeight) / 2);
   let diffHeight = oldHeight - newHeight;
 
-  assert_not_equals(oldHeight, newHeight,
+  assert_not_equals(
+    oldHeight,
+    newHeight,
     "To really perform a test the new message pane height should be " +
-    "should be different from the old one but they are the same: " +
-    newHeight);
+      "should be different from the old one but they are the same: " +
+      newHeight
+  );
 
   _move_splitter(mc.e("threadpane-splitter"), 0, diffHeight);
 
   // Check that the moving of the threadpane-splitter resulted in the correct height.
   let actualHeight = mc.e("messagepaneboxwrapper").clientHeight;
 
-  assert_equals(newHeight, actualHeight,
-    "The message pane height should be " + newHeight + ", but is actually " +
-    actualHeight + ". The oldHeight was: " + oldHeight);
+  assert_equals(
+    newHeight,
+    actualHeight,
+    "The message pane height should be " +
+      newHeight +
+      ", but is actually " +
+      actualHeight +
+      ". The oldHeight was: " +
+      oldHeight
+  );
 
   // Make sure we have a different window open, so that we don't start shutting
   // down just because the last window was closed.
@@ -239,9 +265,16 @@ function test_message_pane_height_persistence() {
 
   actualHeight = mc.e("messagepaneboxwrapper").clientHeight;
 
-  assert_equals(newHeight, actualHeight,
-    "The message pane height should be " + newHeight + ", but is actually " +
-    actualHeight + ". The oldHeight was: " + oldHeight);
+  assert_equals(
+    newHeight,
+    actualHeight,
+    "The message pane height should be " +
+      newHeight +
+      ", but is actually " +
+      actualHeight +
+      ". The oldHeight was: " +
+      oldHeight
+  );
 
   // The old height is restored.
   _move_splitter(mc.e("threadpane-splitter"), 0, -diffHeight);
@@ -256,9 +289,14 @@ function test_message_pane_height_persistence() {
   assert_message_pane_visible();
 
   actualHeight = mc.e("messagepaneboxwrapper").clientHeight;
-  assert_equals(oldHeight, actualHeight,
-    "The message pane height should be " + oldHeight + ", but is actually " +
-    actualHeight);
+  assert_equals(
+    oldHeight,
+    actualHeight,
+    "The message pane height should be " +
+      oldHeight +
+      ", but is actually " +
+      actualHeight
+  );
 
   // We don't need the address book window any more.
   plan_for_window_close(abwc);
@@ -281,13 +319,19 @@ function test_message_pane_width_persistence() {
   let mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
 
   let oldWidth = mc.e("messagepaneboxwrapper").clientWidth;
-  let minWidth = Math.floor(mc.e("messagepaneboxwrapper").getAttribute("minwidth"));
+  let minWidth = Math.floor(
+    mc.e("messagepaneboxwrapper").getAttribute("minwidth")
+  );
   let newWidth = Math.floor((minWidth + oldWidth) / 2);
   let diffWidth = oldWidth - newWidth;
 
-  assert_not_equals(newWidth, oldWidth,
+  assert_not_equals(
+    newWidth,
+    oldWidth,
     "To really perform a test the new message pane width should be " +
-    "should be different from the old one but they are the same: " + newWidth);
+      "should be different from the old one but they are the same: " +
+      newWidth
+  );
 
   // We move the threadpane-splitter and not the folderpane_splitter because
   // we are in vertical layout.
@@ -299,9 +343,17 @@ function test_message_pane_width_persistence() {
   // But this test case is not for testing moving around a splitter but for
   // persistency. Therefore it is enough if the actual width is equal to the
   // the requested width plus/minus one pixel.
-  assert_equals_fuzzy(newWidth, actualWidth, 1,
-    "The message pane width should be " + newWidth + ", but is actually " +
-    actualWidth + ". The oldWidth was: " + oldWidth);
+  assert_equals_fuzzy(
+    newWidth,
+    actualWidth,
+    1,
+    "The message pane width should be " +
+      newWidth +
+      ", but is actually " +
+      actualWidth +
+      ". The oldWidth was: " +
+      oldWidth
+  );
   newWidth = actualWidth;
 
   // Make sure we have a different window open, so that we don't start shutting
@@ -319,8 +371,14 @@ function test_message_pane_width_persistence() {
   assert_pane_layout(kVerticalMailLayout);
 
   actualWidth = mc.e("messagepaneboxwrapper").clientWidth;
-  assert_equals(newWidth, actualWidth, "The message pane width should be " +
-    newWidth + ", but is actually " + actualWidth);
+  assert_equals(
+    newWidth,
+    actualWidth,
+    "The message pane width should be " +
+      newWidth +
+      ", but is actually " +
+      actualWidth
+  );
 
   // The old width is restored.
   _move_splitter(mc.e("threadpane-splitter"), -diffWidth, 0);
@@ -330,9 +388,15 @@ function test_message_pane_width_persistence() {
   // But this test case is not for testing moving around a splitter but for
   // persistency. Therefore it is enough if the actual width is equal to the
   // the requested width plus/minus two pixels.
-  assert_equals_fuzzy(oldWidth, actualWidth, 2,
-    "The message pane width should be " + oldWidth + ", but is actually " +
-    actualWidth);
+  assert_equals_fuzzy(
+    oldWidth,
+    actualWidth,
+    2,
+    "The message pane width should be " +
+      oldWidth +
+      ", but is actually " +
+      actualWidth
+  );
   oldWidth = actualWidth;
 
   // The 3pane window is closed.
@@ -346,8 +410,14 @@ function test_message_pane_width_persistence() {
   assert_pane_layout(kVerticalMailLayout);
 
   actualWidth = mc.e("messagepaneboxwrapper").clientWidth;
-  assert_equals(oldWidth, actualWidth, "The message pane width should be " +
-    oldWidth + ", but is actually " + actualWidth);
+  assert_equals(
+    oldWidth,
+    actualWidth,
+    "The message pane width should be " +
+      oldWidth +
+      ", but is actually " +
+      actualWidth
+  );
 
   // The layout is reset to classical mail layout.
   set_pane_layout(kClassicMailLayout);
@@ -361,14 +431,16 @@ function test_message_pane_width_persistence() {
 
 function test_multiple_3pane_periodic_session_persistence() {
   // open a few more 3pane windows
-  for (var i = 0; i < 3; ++i)
+  for (var i = 0; i < 3; ++i) {
     open3PaneWindow();
+  }
 
   // then get the state objects for each window
   let state = [];
   let enumerator = Services.wm.getEnumerator("mail:3pane");
-  while (enumerator.hasMoreElements())
+  while (enumerator.hasMoreElements()) {
     state.push(enumerator.getNext().getWindowStateForSessionPersistence());
+  }
 
   SessionStoreManager._saveState();
   waitForFileRefresh();
@@ -377,21 +449,26 @@ function test_multiple_3pane_periodic_session_persistence() {
   let loadedState = readFile();
   assert_true(loadedState, "previously saved state should be non-null");
 
-  assert_equals(loadedState.windows.length, state.length,
-          "number of windows in saved state and loaded state should be equal");
+  assert_equals(
+    loadedState.windows.length,
+    state.length,
+    "number of windows in saved state and loaded state should be equal"
+  );
 
   for (let i = 0; i < state.length; ++i) {
     assert_true(
       JSON.stringify(loadedState.windows[i]) == JSON.stringify(state[i]),
-      "saved state and loaded state should be equal");
+      "saved state and loaded state should be equal"
+    );
   }
 
   // close all but one 3pane window
   enumerator = Services.wm.getEnumerator("mail:3pane");
   while (enumerator.hasMoreElements()) {
     let window = enumerator.getNext();
-    if (enumerator.hasMoreElements())
+    if (enumerator.hasMoreElements()) {
       window.close();
+    }
   }
 }
 
@@ -409,12 +486,16 @@ async function test_bad_session_file_simple() {
 
   // since the session file is bad, the session store manager's state field
   // should be null
-  assert_false(SessionStoreManager._initialState,
-               "saved state is bad so state object should be null");
+  assert_false(
+    SessionStoreManager._initialState,
+    "saved state is bad so state object should be null"
+  );
 
   // The bad session file should now not exist.
-  utils.waitFor(() => !SessionStoreManager.sessionFile.exists(),
-                "session file should now not exist");
+  utils.waitFor(
+    () => !SessionStoreManager.sessionFile.exists(),
+    "session file should now not exist"
+  );
 }
 
 function test_clean_shutdown_session_persistence_simple() {
@@ -432,8 +513,9 @@ function test_clean_shutdown_session_persistence_simple() {
   let enumerator = Services.wm.getEnumerator("mail:3pane");
   while (enumerator.hasMoreElements()) {
     let window = enumerator.getNext();
-    if (!enumerator.hasMoreElements())
+    if (!enumerator.hasMoreElements()) {
       lastWindowState = window.getWindowStateForSessionPersistence();
+    }
 
     close_window(new mozmill.controller.MozMillController(window));
   }
@@ -446,13 +528,18 @@ function test_clean_shutdown_session_persistence_simple() {
   let loadedState = readFile();
   assert_true(loadedState, "previously saved state should be non-null");
 
-  assert_equals(loadedState.windows.length, 1,
-          "only the state of the last 3pane window should have been saved");
+  assert_equals(
+    loadedState.windows.length,
+    1,
+    "only the state of the last 3pane window should have been saved"
+  );
 
   // get the state object for the one and only one 3pane window
   let windowState = loadedState.windows[0];
-  assert_true(JSON.stringify(windowState) == JSON.stringify(lastWindowState),
-              "saved state and loaded state should be equal");
+  assert_true(
+    JSON.stringify(windowState) == JSON.stringify(lastWindowState),
+    "saved state and loaded state should be equal"
+  );
 
   open3PaneWindow();
 
@@ -472,12 +559,22 @@ function _move_splitter(aSplitter, aDiffX, aDiffY) {
   let rect = aSplitter.getBoundingClientRect();
   let middleX = Math.round(rect.width / 2);
   let middleY = Math.round(rect.height / 2);
-  EventUtils.synthesizeMouse(aSplitter, middleX, middleY, {type: "mousedown"},
-                             mc.window);
-  EventUtils.synthesizeMouse(aSplitter, aDiffX + middleX, aDiffY + middleY,
-                             {type: "mousemove"}, mc.window);
+  EventUtils.synthesizeMouse(
+    aSplitter,
+    middleX,
+    middleY,
+    { type: "mousedown" },
+    mc.window
+  );
+  EventUtils.synthesizeMouse(
+    aSplitter,
+    aDiffX + middleX,
+    aDiffY + middleY,
+    { type: "mousemove" },
+    mc.window
+  );
   // release the splitter
-  EventUtils.synthesizeMouse(aSplitter, 0, 0, {type: "mouseup"}, mc.window);
+  EventUtils.synthesizeMouse(aSplitter, 0, 0, { type: "mouseup" }, mc.window);
 }
 
 /**

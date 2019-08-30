@@ -5,7 +5,7 @@
 // chat/content/imAccountOptionsHelper.js
 /* globals accountOptionsHelper */
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.defineModuleGetter(this, "OTRUI", "resource:///modules/OTRUI.jsm");
 ChromeUtils.defineModuleGetter(this, "OTR", "resource:///modules/OTR.jsm");
 
@@ -33,7 +33,8 @@ var account = {
     this.account = aAccount;
     this.proto = this.account.protocol;
     document.getElementById("accountName").value = this.account.name;
-    document.getElementById("protocolName").value = this.proto.name || this.proto.id;
+    document.getElementById("protocolName").value =
+      this.proto.name || this.proto.id;
     document.getElementById("protocolIcon").src =
       this.proto.iconBaseURI + "icon48.png";
 
@@ -59,9 +60,15 @@ var account = {
 
     if (OTRUI.enabled) {
       document.getElementById("imTabOTR").hidden = false;
-      document.getElementById("server.otrAllowMsgLog").value = this.account.otrAllowMsgLog;
-      document.getElementById("server.otrVerifyNudge").value = this.account.otrVerifyNudge;
-      document.getElementById("server.otrRequireEncryption").value = this.account.otrRequireEncryption;
+      document.getElementById(
+        "server.otrAllowMsgLog"
+      ).value = this.account.otrAllowMsgLog;
+      document.getElementById(
+        "server.otrVerifyNudge"
+      ).value = this.account.otrVerifyNudge;
+      document.getElementById(
+        "server.otrRequireEncryption"
+      ).value = this.account.otrRequireEncryption;
 
       let fpa = this.account.normalizedName;
       let fpp = this.account.protocol.normalizedName;
@@ -73,47 +80,53 @@ var account = {
     }
 
     let protoId = this.proto.id;
-    let canAutoJoin = protoId == "prpl-irc" ||
-                      protoId == "prpl-jabber" ||
-                      protoId == "prpl-gtalk";
+    let canAutoJoin =
+      protoId == "prpl-irc" ||
+      protoId == "prpl-jabber" ||
+      protoId == "prpl-gtalk";
     document.getElementById("autojoinBox").hidden = !canAutoJoin;
     let autojoin = document.getElementById("server.autojoin");
-    if (canAutoJoin)
+    if (canAutoJoin) {
       autojoin.setAttribute("wsm_persist", "true");
-    else
+    } else {
       autojoin.removeAttribute("wsm_persist");
+    }
 
-    this.prefs = Services.prefs.getBranch("messenger.account." +
-                                          this.account.id + ".options.");
+    this.prefs = Services.prefs.getBranch(
+      "messenger.account." + this.account.id + ".options."
+    );
     this.populateProtoSpecificBox();
   },
 
-  * getProtoOptions() {
+  *getProtoOptions() {
     let options = this.proto.getOptions();
-    while (options.hasMoreElements())
+    while (options.hasMoreElements()) {
       yield options.getNext();
+    }
   },
 
   populateProtoSpecificBox() {
     let attributes = {};
     attributes[Ci.prplIPref.typeBool] = [
-      {name: "wsm_persist", value: "true"},
-      {name: "preftype", value: "bool"},
-      {name: "genericattr", value: "true"},
+      { name: "wsm_persist", value: "true" },
+      { name: "preftype", value: "bool" },
+      { name: "genericattr", value: "true" },
     ];
     attributes[Ci.prplIPref.typeInt] = [
-      {name: "wsm_persist", value: "true"},
-      {name: "preftype", value: "int"},
-      {name: "genericattr", value: "true"},
+      { name: "wsm_persist", value: "true" },
+      { name: "preftype", value: "int" },
+      { name: "genericattr", value: "true" },
     ];
     attributes[Ci.prplIPref.typeString] = attributes[Ci.prplIPref.typeList] = [
-      {name: "wsm_persist", value: "true"},
-      {name: "preftype", value: "wstring"},
-      {name: "genericattr", value: "true"},
+      { name: "wsm_persist", value: "true" },
+      { name: "preftype", value: "wstring" },
+      { name: "genericattr", value: "true" },
     ];
-    let haveOptions =
-      accountOptionsHelper.addOptions("server.", this.getProtoOptions(),
-                                      attributes);
+    let haveOptions = accountOptionsHelper.addOptions(
+      "server.",
+      this.getProtoOptions(),
+      attributes
+    );
     let advanced = document.getElementById("advanced");
     if (advanced.hidden && haveOptions) {
       advanced.hidden = false;
@@ -127,7 +140,11 @@ var account = {
   },
 
   viewFingerprintKeys() {
-    window.openDialog("chrome://chat/content/otr-finger.xul", "",
-                      "chrome,modal,titlebar,centerscreen", this.account);
+    window.openDialog(
+      "chrome://chat/content/otr-finger.xul",
+      "",
+      "chrome,modal,titlebar,centerscreen",
+      this.account
+    );
   },
 };

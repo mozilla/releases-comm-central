@@ -10,8 +10,10 @@
 /* import-globals-from mailWindow.js */
 /* import-globals-from messageDisplay.js */
 
-var { allAccountsSorted } = ChromeUtils.import("resource:///modules/folderUtils.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { allAccountsSorted } = ChromeUtils.import(
+  "resource:///modules/folderUtils.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function GetSubFoldersInFolderPaneOrder(folder) {
   var subFolders = folder.subFolders;
@@ -19,8 +21,9 @@ function GetSubFoldersInFolderPaneOrder(folder) {
 
   // get all the subfolders
   while (subFolders.hasMoreElements()) {
-    msgFolders[msgFolders.length] =
-      subFolders.getNext().QueryInterface(Ci.nsIMsgFolder);
+    msgFolders[msgFolders.length] = subFolders
+      .getNext()
+      .QueryInterface(Ci.nsIMsgFolder);
   }
 
   function compareFolderSortKey(folder1, folder2) {
@@ -43,24 +46,31 @@ function FindNextChildFolder(aParent, aAfter) {
     var folder = null;
 
     // Skip folders until after the specified child
-    while (folder != aAfter)
+    while (folder != aAfter) {
       folder = subFolders[i++];
+    }
 
-    let ignoreFlags = Ci.nsMsgFolderFlags.Trash | Ci.nsMsgFolderFlags.SentMail |
-                      Ci.nsMsgFolderFlags.Drafts | Ci.nsMsgFolderFlags.Queue |
-                      Ci.nsMsgFolderFlags.Templates | Ci.nsMsgFolderFlags.Junk;
+    let ignoreFlags =
+      Ci.nsMsgFolderFlags.Trash |
+      Ci.nsMsgFolderFlags.SentMail |
+      Ci.nsMsgFolderFlags.Drafts |
+      Ci.nsMsgFolderFlags.Queue |
+      Ci.nsMsgFolderFlags.Templates |
+      Ci.nsMsgFolderFlags.Junk;
     while (i < subFolders.length) {
       folder = subFolders[i++];
       // If there is unread mail in the trash, sent, drafts, unsent messages
       // templates or junk special folder,
       // we ignore it when doing cross folder "next" navigation.
       if (!folder.isSpecialFolder(ignoreFlags, true)) {
-        if (folder.getNumUnread(false) > 0)
+        if (folder.getNumUnread(false) > 0) {
           return folder;
+        }
 
         folder = FindNextChildFolder(folder, null);
-        if (folder)
+        if (folder) {
           return folder;
+        }
       }
     }
   }
@@ -74,8 +84,9 @@ function FindNextFolder() {
   // note use of gDBView restricts this function to message folders
   // otherwise you could go next unread from a server
   var folder = FindNextChildFolder(gDBView.msgFolder, null);
-  if (folder)
+  if (folder) {
     return folder;
+  }
 
   // didn't find folder in children
   // go up to the parent, and start at the folder after the current one
@@ -83,8 +94,9 @@ function FindNextFolder() {
   for (folder = gDBView.msgFolder; !folder.isServer;) {
     var parent = folder.parent;
     folder = FindNextChildFolder(parent, folder);
-    if (folder)
+    if (folder) {
       return folder;
+    }
 
     // none at this level after the current folder.  go up.
     folder = parent;
@@ -96,22 +108,25 @@ function FindNextFolder() {
   // start at the account after the current account
   var rootFolders = GetRootFoldersInFolderPaneOrder();
   for (var i = 0; i < rootFolders.length; i++) {
-    if (rootFolders[i].URI == gDBView.msgFolder.server.serverURI)
+    if (rootFolders[i].URI == gDBView.msgFolder.server.serverURI) {
       break;
+    }
   }
 
   for (var j = i + 1; j < rootFolders.length; j++) {
     folder = FindNextChildFolder(rootFolders[j], null);
-    if (folder)
+    if (folder) {
       return folder;
+    }
   }
 
   // if nothing from the current account down to the bottom
   // (of the folder pane), start again at the top.
   for (j = 0; j <= i; j++) {
     folder = FindNextChildFolder(rootFolders[j], null);
-    if (folder)
+    if (folder) {
       return folder;
+    }
   }
   return null;
 }
@@ -120,41 +135,59 @@ function GetRootFoldersInFolderPaneOrder() {
   let accounts = allAccountsSorted(false);
 
   let serversMsgFolders = [];
-  for (let account of accounts)
+  for (let account of accounts) {
     serversMsgFolders.push(account.incomingServer.rootMsgFolder);
+  }
 
   return serversMsgFolders;
 }
 
 function CrossFolderNavigation(type) {
   // do cross folder navigation for next unread message/thread and message history
-  if (type != Ci.nsMsgNavigationType.nextUnreadMessage &&
-      type != Ci.nsMsgNavigationType.nextUnreadThread &&
-      type != Ci.nsMsgNavigationType.forward &&
-      type != Ci.nsMsgNavigationType.back)
+  if (
+    type != Ci.nsMsgNavigationType.nextUnreadMessage &&
+    type != Ci.nsMsgNavigationType.nextUnreadThread &&
+    type != Ci.nsMsgNavigationType.forward &&
+    type != Ci.nsMsgNavigationType.back
+  ) {
     return;
+  }
 
-  if (type == Ci.nsMsgNavigationType.nextUnreadMessage ||
-      type == Ci.nsMsgNavigationType.nextUnreadThread) {
+  if (
+    type == Ci.nsMsgNavigationType.nextUnreadMessage ||
+    type == Ci.nsMsgNavigationType.nextUnreadThread
+  ) {
     var nextMode = Services.prefs.getIntPref("mailnews.nav_crosses_folders");
     // 0: "next" goes to the next folder, without prompting
     // 1: "next" goes to the next folder, and prompts (the default)
     // 2: "next" does nothing when there are no unread messages
 
     // not crossing folders, don't find next
-    if (nextMode == 2)
+    if (nextMode == 2) {
       return;
+    }
 
     var folder = FindNextFolder();
-    if (folder && (gDBView.msgFolder.URI != folder.URI)) {
+    if (folder && gDBView.msgFolder.URI != folder.URI) {
       if (nextMode == 1) {
-        let promptText = document.getElementById("bundle_messenger")
-                                 .getFormattedString("advanceNextPrompt",
-                                                     [folder.name], 1);
-        if (Services.prompt.confirmEx(window, null, promptText,
-                                      Services.prompt.STD_YES_NO_BUTTONS,
-                                      null, null, null, null, {}))
+        let promptText = document
+          .getElementById("bundle_messenger")
+          .getFormattedString("advanceNextPrompt", [folder.name], 1);
+        if (
+          Services.prompt.confirmEx(
+            window,
+            null,
+            promptText,
+            Services.prompt.STD_YES_NO_BUTTONS,
+            null,
+            null,
+            null,
+            null,
+            {}
+          )
+        ) {
           return;
+        }
       }
       gFolderDisplay.pushNavigation(type, true);
       SelectFolder(folder.URI);
@@ -177,9 +210,9 @@ function CrossFolderNavigation(type) {
 }
 
 function GoNextMessage(type, startFromBeginning) {
-  if (!gFolderDisplay.navigate(type))
+  if (!gFolderDisplay.navigate(type)) {
     CrossFolderNavigation(type);
+  }
 
   SetFocusThreadPaneIfNotOnMessagePane();
 }
-

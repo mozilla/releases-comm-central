@@ -1,6 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
-  * License, v. 2.0. If a copy of the MPL was not distributed with this
-  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 "use strict";
 
@@ -29,7 +29,8 @@
         return;
       }
       this.setAttribute("is", "toolbarbutton-badge-button");
-      this.appendChild(MozXULElement.parseXULToFragment(`
+      this.appendChild(
+        MozXULElement.parseXULToFragment(`
         <stack>
           <hbox>
             <image class="toolbarbutton-icon"></image>
@@ -39,7 +40,8 @@
           </box>
         </stack>
         <label class="toolbarbutton-text" crop="right" flex="1"></label>
-      `));
+      `)
+      );
 
       this._badgeCount = 0;
       this.initializeAttributeInheritance();
@@ -66,5 +68,7 @@
     }
   }
 
-  customElements.define("toolbarbutton-badge-button", MozBadgebutton, { extends: "toolbarbutton" });
+  customElements.define("toolbarbutton-badge-button", MozBadgebutton, {
+    extends: "toolbarbutton",
+  });
 }

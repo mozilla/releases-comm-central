@@ -17,7 +17,7 @@
 
 /* import-globals-from emailWizard.js */
 
-var {JXON} = ChromeUtils.import("resource:///modules/JXON.js");
+var { JXON } = ChromeUtils.import("resource:///modules/JXON.js");
 var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
 
 /**
@@ -84,8 +84,8 @@ var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
  *   This also applies to both https: to http: and http: to https: redirects.
  */
 function FetchHTTP(url, args, successCallback, errorCallback) {
-  assert(typeof(successCallback) == "function", "BUG: successCallback");
-  assert(typeof(errorCallback) == "function", "BUG: errorCallback");
+  assert(typeof successCallback == "function", "BUG: successCallback");
+  assert(typeof errorCallback == "function", "BUG: errorCallback");
   this._url = sanitize.string(url);
   if (!args) {
     args = {};
@@ -99,10 +99,13 @@ function FetchHTTP(url, args, successCallback, errorCallback) {
 
   this._args = args;
   this._args.post = sanitize.boolean(args.post || false); // default false
-  this._args.allowCache = "allowCache" in args ? sanitize.boolean(args.allowCache) : true; // default true
+  this._args.allowCache =
+    "allowCache" in args ? sanitize.boolean(args.allowCache) : true; // default true
   this._args.allowAuthPrompt = sanitize.boolean(args.allowAuthPrompt || false); // default false
-  this._args.requireSecureAuth = sanitize.boolean(args.requireSecureAuth || false); // default false
-  this._args.timeout = sanitize.integer(args.timeout || 5000);  // default 5 seconds
+  this._args.requireSecureAuth = sanitize.boolean(
+    args.requireSecureAuth || false
+  ); // default false
+  this._args.timeout = sanitize.integer(args.timeout || 5000); // default 5 seconds
   this._successCallback = successCallback;
   this._errorCallback = errorCallback;
   this._logger = Log4Moz.getConfiguredLogger("mail.setup");
@@ -120,18 +123,28 @@ FetchHTTP.prototype = {
   start() {
     let url = this._url;
     for (let name in this._args.urlArgs) {
-      url += (!url.includes("?") ? "?" : "&") +
-             name + "=" + encodeURIComponent(this._args.urlArgs[name]);
+      url +=
+        (!url.includes("?") ? "?" : "&") +
+        name +
+        "=" +
+        encodeURIComponent(this._args.urlArgs[name]);
     }
     this._request = new XMLHttpRequest();
     let request = this._request;
     request.mozBackgroundRequest = !this._args.allowAuthPrompt;
-    let username = null, password = null;
+    let username = null,
+      password = null;
     if (url.startsWith("https:") || !this._args.requireSecureAuth) {
       username = this._args.username;
       password = this._args.password;
     }
-    request.open(this._args.post ? "POST" : "GET", url, true, username, password);
+    request.open(
+      this._args.post ? "POST" : "GET",
+      url,
+      true,
+      username,
+      password
+    );
     request.channel.loadGroup = null;
     request.timeout = this._args.timeout;
     // needs bug 407190 patch v4 (or higher) - uncomment if that lands.
@@ -149,15 +162,15 @@ FetchHTTP.prototype = {
     // body
     let mimetype = null;
     let body = this._args.uploadBody;
-    if (typeof(body) == "object" && "nodeType" in body) {
+    if (typeof body == "object" && "nodeType" in body) {
       // XML
       mimetype = "text/xml; charset=UTF-8";
       body = new XMLSerializer().serializeToString(body);
-    } else if (typeof(body) == "object") {
+    } else if (typeof body == "object") {
       // JSON
       mimetype = "text/json; charset=UTF-8";
       body = JSON.stringify(body);
-    } else if (typeof(body) == "string") {
+    } else if (typeof body == "string") {
       // Plaintext
       // You can override the mimetype with { headers: {"Content-Type" : "text/foo" } }
       mimetype = "text/plain; charset=UTF-8";
@@ -166,8 +179,11 @@ FetchHTTP.prototype = {
       mimetype = "application/x-www-form-urlencoded; charset=UTF-8";
       body = "";
       for (let name in this._args.bodyFormArgs) {
-        body += (body ? "&" : "") + name + "=" +
-            encodeURIComponent(this._args.bodyFormArgs[name]);
+        body +=
+          (body ? "&" : "") +
+          name +
+          "=" +
+          encodeURIComponent(this._args.bodyFormArgs[name]);
       }
     }
 
@@ -177,7 +193,10 @@ FetchHTTP.prototype = {
     }
     if (username && password) {
       // workaround, because open(..., username, password) does not work.
-      request.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password));
+      request.setRequestHeader(
+        "Authorization",
+        "Basic " + btoa(username + ":" + password)
+      );
     }
     for (let name in this._args.headers) {
       request.setRequestHeader(name, this._args.headers[name]);
@@ -191,102 +210,127 @@ FetchHTTP.prototype = {
     }
 
     var me = this;
-    request.onload = function() { me._response(true); };
-    request.onerror = function() { me._response(false); };
-    request.ontimeout = function() { me._response(false); };
+    request.onload = function() {
+      me._response(true);
+    };
+    request.onerror = function() {
+      me._response(false);
+    };
+    request.ontimeout = function() {
+      me._response(false);
+    };
     request.send(body);
     // Store the original stack so we can use it if there is an exception
     this._callStack = Error().stack;
   },
   _response(success, exStored) {
     try {
-    var errorCode = null;
-    var errorStr = null;
+      var errorCode = null;
+      var errorStr = null;
 
-    if (success && this._request.status >= 200 &&
-        this._request.status < 300) { // HTTP level success
-      try {
-        // response
-        var mimetype = this._request.getResponseHeader("Content-Type");
-        if (!mimetype)
-          mimetype = "";
-        mimetype = mimetype.split(";")[0];
-        if (mimetype == "text/xml" ||
+      if (
+        success &&
+        this._request.status >= 200 &&
+        this._request.status < 300
+      ) {
+        // HTTP level success
+        try {
+          // response
+          var mimetype = this._request.getResponseHeader("Content-Type");
+          if (!mimetype) {
+            mimetype = "";
+          }
+          mimetype = mimetype.split(";")[0];
+          if (
+            mimetype == "text/xml" ||
             mimetype == "application/xml" ||
-            mimetype == "text/rdf") {
-          // XML
-          this.result = JXON.build(this._request.responseXML);
-        } else if (mimetype == "text/json" ||
-                   mimetype == "application/json") {
-          // JSON
-          this.result = JSON.parse(this._request.responseText);
-        } else {
-          // Plaintext (fallback)
-          // ddump("mimetype: " + mimetype + " only supported as text");
-          this.result = this._request.responseText;
+            mimetype == "text/rdf"
+          ) {
+            // XML
+            this.result = JXON.build(this._request.responseXML);
+          } else if (
+            mimetype == "text/json" ||
+            mimetype == "application/json"
+          ) {
+            // JSON
+            this.result = JSON.parse(this._request.responseText);
+          } else {
+            // Plaintext (fallback)
+            // ddump("mimetype: " + mimetype + " only supported as text");
+            this.result = this._request.responseText;
+          }
+        } catch (e) {
+          success = false;
+          errorStr = getStringBundle(
+            "chrome://messenger/locale/accountCreationUtil.properties"
+          ).GetStringFromName("bad_response_content.error");
+          errorCode = -4;
         }
-      } catch (e) {
+      } else if (
+        this._args.username &&
+        this._request.responseURL.replace(/\/\/.*@/, "//") != this._url &&
+        this._request.responseURL.startsWith(
+          this._args.requireSecureAuth ? "https" : "http"
+        ) &&
+        !this._isRetry
+      ) {
+        // Redirects lack auth, see <https://stackoverflow.com/a/28411170>
+        this._logger.info(
+          "Call to <" +
+            this._url +
+            "> was redirected to <" +
+            this._request.responseURL +
+            ">, and failed. Re-trying the new URL with authentication again."
+        );
+        this._url = this._request.responseURL;
+        this._isRetry = true;
+        this.start();
+        return;
+      } else {
         success = false;
-        errorStr = getStringBundle(
-                   "chrome://messenger/locale/accountCreationUtil.properties")
-                   .GetStringFromName("bad_response_content.error");
-        errorCode = -4;
+        try {
+          errorCode = this._request.status;
+          errorStr = this._request.statusText;
+        } catch (e) {
+          // In case .statusText throws (it's marked as [Throws] in the webidl),
+          // continue with empty errorStr.
+          console.error(e);
+        }
+        if (!errorStr) {
+          // If we can't resolve the hostname in DNS etc., .statusText is empty.
+          errorCode = -2;
+          errorStr = getStringBundle(
+            "chrome://messenger/locale/accountCreationUtil.properties"
+          ).GetStringFromName("cannot_contact_server.error");
+          ddump(errorStr);
+        }
       }
-    } else if (this._args.username &&
-               this._request.responseURL.replace(/\/\/.*@/, "//") != this._url &&
-               this._request.responseURL.startsWith(this._args.requireSecureAuth ? "https" : "http") &&
-               !this._isRetry) {
-      // Redirects lack auth, see <https://stackoverflow.com/a/28411170>
-      this._logger.info("Call to <" + this._url + "> was redirected to <" + this._request.responseURL + ">, and failed. Re-trying the new URL with authentication again.");
-      this._url = this._request.responseURL;
-      this._isRetry = true;
-      this.start();
-      return;
-    } else {
-      success = false;
-      try {
-        errorCode = this._request.status;
-        errorStr = this._request.statusText;
-      } catch (e) {
-        // In case .statusText throws (it's marked as [Throws] in the webidl),
-        // continue with empty errorStr.
-        console.error(e);
-      }
-      if (!errorStr) {
-        // If we can't resolve the hostname in DNS etc., .statusText is empty.
-        errorCode = -2;
-        errorStr = getStringBundle(
-                   "chrome://messenger/locale/accountCreationUtil.properties")
-                   .GetStringFromName("cannot_contact_server.error");
-        ddump(errorStr);
-      }
-    }
 
-    // Callbacks
-    if (success) {
-      try {
-        this._successCallback(this.result);
-      } catch (e) {
-        logException(e);
+      // Callbacks
+      if (success) {
+        try {
+          this._successCallback(this.result);
+        } catch (e) {
+          logException(e);
+          e.stack = this._callStack;
+          this._error(e);
+        }
+      } else if (exStored) {
+        this._error(exStored);
+      } else {
+        // Put the caller's stack into the exception
+        let e = new ServerException(errorStr, errorCode, this._url);
         e.stack = this._callStack;
         this._error(e);
       }
-    } else if (exStored) {
-      this._error(exStored);
-    } else {
-      // Put the caller's stack into the exception
-      let e = new ServerException(errorStr, errorCode, this._url);
-      e.stack = this._callStack;
-      this._error(e);
-    }
 
-    if (this._finishedCallback) {
-      try {
-        this._finishedCallback(this);
-      } catch (e) {
-        logException(e);
+      if (this._finishedCallback) {
+        try {
+          this._finishedCallback(this);
+        } catch (e) {
+          logException(e);
+        }
       }
-    }
     } catch (e) {
       // error in our fetchhttp._response() code
       logException(e);
@@ -333,8 +377,9 @@ CancelledException.prototype.constructor = CancelledException;
 function UserCancelledException(msg) {
   // The user knows they cancelled so I don't see a need
   // for a message to that effect.
-  if (!msg)
+  if (!msg) {
     msg = "User cancelled";
+  }
   CancelledException.call(this, msg);
 }
 UserCancelledException.prototype = Object.create(CancelledException.prototype);

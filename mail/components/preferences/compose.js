@@ -8,11 +8,15 @@
 /* import-globals-from preferences.js */
 /* import-globals-from subdialogs.js */
 
-var {InlineSpellChecker} = ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
+var { InlineSpellChecker } = ChromeUtils.import(
+  "resource://gre/modules/InlineSpellChecker.jsm"
+);
 
 // CloudFile account tools used by gCloudFile.
-var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { cloudFileAccounts } = ChromeUtils.import(
+  "resource:///modules/cloudFileAccounts.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 Preferences.addAll([
   { id: "mail.forward_message_mode", type: "int" },
@@ -40,8 +44,9 @@ Preferences.addAll([
   { id: "mail.compose.big_attachments.threshold_kb", type: "int" },
 ]);
 
-document.getElementById("paneCompose")
-        .addEventListener("paneload", function() { gComposePane.init(); });
+document.getElementById("paneCompose").addEventListener("paneload", function() {
+  gComposePane.init();
+});
 
 var gComposePane = {
   mSpellChecker: null,
@@ -83,8 +88,10 @@ var gComposePane = {
   },
 
   attachmentReminderOptionsDialog() {
-    gSubDialog.open("chrome://messenger/content/preferences/attachmentReminder.xul",
-                    "resizable=no");
+    gSubDialog.open(
+      "chrome://messenger/content/preferences/attachmentReminder.xul",
+      "resizable=no"
+    );
   },
 
   updateAutosave() {
@@ -95,18 +102,23 @@ var gComposePane = {
   },
 
   updateUseReaderDefaults() {
-    let useReaderDefaultsChecked = Preferences.get("msgcompose.default_colors").value;
+    let useReaderDefaultsChecked = Preferences.get("msgcompose.default_colors")
+      .value;
     gComposePane.enableElement(
-      document.getElementById("textColorLabel"), !useReaderDefaultsChecked
+      document.getElementById("textColorLabel"),
+      !useReaderDefaultsChecked
     );
     gComposePane.enableElement(
-      document.getElementById("backgroundColorLabel"), !useReaderDefaultsChecked
+      document.getElementById("backgroundColorLabel"),
+      !useReaderDefaultsChecked
     );
     gComposePane.enableElement(
-      document.getElementById("textColorButton"), !useReaderDefaultsChecked
+      document.getElementById("textColorButton"),
+      !useReaderDefaultsChecked
     );
     gComposePane.enableElement(
-      document.getElementById("backgroundColorButton"), !useReaderDefaultsChecked
+      document.getElementById("backgroundColorButton"),
+      !useReaderDefaultsChecked
     );
   },
 
@@ -132,30 +144,44 @@ var gComposePane = {
 
   enableAutocomplete() {
     let acLDAPPref = Preferences.get("ldap_2.autoComplete.useDirectory").value;
-    gComposePane.enableElement(document.getElementById("directoriesList"), acLDAPPref);
-    gComposePane.enableElement(document.getElementById("editButton"), acLDAPPref);
+    gComposePane.enableElement(
+      document.getElementById("directoriesList"),
+      acLDAPPref
+    );
+    gComposePane.enableElement(
+      document.getElementById("editButton"),
+      acLDAPPref
+    );
   },
 
   editDirectories() {
-    gSubDialog.open("chrome://messenger/content/addressbook/pref-editdirectories.xul");
+    gSubDialog.open(
+      "chrome://messenger/content/addressbook/pref-editdirectories.xul"
+    );
   },
 
   initAbDefaultStartupDir() {
-    if (!this.startupDirListener.inited)
+    if (!this.startupDirListener.inited) {
       this.startupDirListener.load();
+    }
 
     let dirList = document.getElementById("defaultStartupDirList");
     if (Services.prefs.getBoolPref("mail.addr_book.view.startupURIisDefault")) {
       // Some directory is the default.
-      let startupURI = Services.prefs.getCharPref("mail.addr_book.view.startupURI");
-      let dirItem = dirList.querySelector(`menupopup menuitem[value="${startupURI}"]`);
+      let startupURI = Services.prefs.getCharPref(
+        "mail.addr_book.view.startupURI"
+      );
+      let dirItem = dirList.querySelector(
+        `menupopup menuitem[value="${startupURI}"]`
+      );
       // It may happen that the stored URI is not in the list.
       // In that case select the "none" value and let the AB code clear out
       // the invalid value, unless the user selects something here.
-      if (dirItem)
+      if (dirItem) {
         dirList.selectedItem = dirItem;
-      else
+      } else {
         dirList.value = "";
+      }
     } else {
       // Choose item meaning there is no default startup directory any more.
       dirList.value = "";
@@ -163,10 +189,12 @@ var gComposePane = {
   },
 
   setButtonColors() {
-    document.getElementById("textColorButton").value =
-      Preferences.get("msgcompose.text_color").value;
-    document.getElementById("backgroundColorButton").value =
-      Preferences.get("msgcompose.background_color").value;
+    document.getElementById("textColorButton").value = Preferences.get(
+      "msgcompose.text_color"
+    ).value;
+    document.getElementById("backgroundColorButton").value = Preferences.get(
+      "msgcompose.background_color"
+    ).value;
   },
 
   setDefaultStartupDir(aDirURI) {
@@ -174,29 +202,38 @@ var gComposePane = {
       // Some AB directory was selected. Set prefs to make this directory
       // the default view when starting up the main AB.
       Services.prefs.setCharPref("mail.addr_book.view.startupURI", aDirURI);
-      Services.prefs.setBoolPref("mail.addr_book.view.startupURIisDefault", true);
+      Services.prefs.setBoolPref(
+        "mail.addr_book.view.startupURIisDefault",
+        true
+      );
     } else {
       // Set pref that there's no default startup view directory any more.
-      Services.prefs.setBoolPref("mail.addr_book.view.startupURIisDefault", false);
+      Services.prefs.setBoolPref(
+        "mail.addr_book.view.startupURIisDefault",
+        false
+      );
     }
   },
 
   initLanguageMenu() {
     var languageMenuList = document.getElementById("languageMenuList");
-    this.mSpellChecker = Cc["@mozilla.org/spellchecker/engine;1"].getService(Ci.mozISpellCheckingEngine);
+    this.mSpellChecker = Cc["@mozilla.org/spellchecker/engine;1"].getService(
+      Ci.mozISpellCheckingEngine
+    );
 
     // Get the list of dictionaries from
     // the spellchecker.
 
     var dictList = this.mSpellChecker.getDictionaryList();
-    var count    = dictList.length;
+    var count = dictList.length;
 
     // if we don't have any dictionaries installed, disable the menu list
     languageMenuList.disabled = !count;
 
     // If dictionary count hasn't changed then no need to update the menu.
-    if (this.mDictCount == count)
+    if (this.mDictCount == count) {
       return;
+    }
 
     // Store current dictionary count.
     this.mDictCount = count;
@@ -208,8 +245,12 @@ var gComposePane = {
     languageMenuList.removeAllItems();
 
     // append the dictionaries to the menu list...
-    for (var i = 0; i < count; i++)
-      languageMenuList.appendItem(sortedList[i].displayName, sortedList[i].localeCode);
+    for (var i = 0; i < count; i++) {
+      languageMenuList.appendItem(
+        sortedList[i].displayName,
+        sortedList[i].localeCode
+      );
+    }
 
     languageMenuList.setInitialSelection();
   },
@@ -217,54 +258,61 @@ var gComposePane = {
   populateFonts() {
     var fontsList = document.getElementById("FontSelect");
     try {
-      var enumerator = Cc["@mozilla.org/gfx/fontenumerator;1"]
-                         .getService(Ci.nsIFontEnumerator);
+      var enumerator = Cc["@mozilla.org/gfx/fontenumerator;1"].getService(
+        Ci.nsIFontEnumerator
+      );
       var localFonts = enumerator.EnumerateAllFonts();
       for (let i = 0; i < localFonts.length; ++i) {
         // Remove Linux system generic fonts that collide with CSS generic fonts.
-        if (localFonts[i] != "" && localFonts[i] != "serif" &&
-            localFonts[i] != "sans-serif" && localFonts[i] != "monospace")
+        if (
+          localFonts[i] != "" &&
+          localFonts[i] != "serif" &&
+          localFonts[i] != "sans-serif" &&
+          localFonts[i] != "monospace"
+        ) {
           fontsList.appendItem(localFonts[i], localFonts[i]);
+        }
       }
-    } catch (e) { }
+    } catch (e) {}
     // Choose the item after the list is completely generated.
     var preference = Preferences.get(fontsList.getAttribute("preference"));
     fontsList.value = preference.value;
   },
 
-   restoreHTMLDefaults() {
-     // reset throws an exception if the pref value is already the default so
-     // work around that with some try/catch exception handling
-     try {
-       Preferences.get("msgcompose.font_face").reset();
-     } catch (ex) {}
+  restoreHTMLDefaults() {
+    // reset throws an exception if the pref value is already the default so
+    // work around that with some try/catch exception handling
+    try {
+      Preferences.get("msgcompose.font_face").reset();
+    } catch (ex) {}
 
-     try {
-       Preferences.get("msgcompose.font_size").reset();
-     } catch (ex) {}
+    try {
+      Preferences.get("msgcompose.font_size").reset();
+    } catch (ex) {}
 
-     try {
-       Preferences.get("msgcompose.text_color").reset();
-     } catch (ex) {}
+    try {
+      Preferences.get("msgcompose.text_color").reset();
+    } catch (ex) {}
 
-     try {
-       Preferences.get("msgcompose.background_color").reset();
-     } catch (ex) {}
+    try {
+      Preferences.get("msgcompose.background_color").reset();
+    } catch (ex) {}
 
-     try {
-       Preferences.get("msgcompose.default_colors").reset();
-     } catch (ex) {}
+    try {
+      Preferences.get("msgcompose.default_colors").reset();
+    } catch (ex) {}
 
-     this.updateUseReaderDefaults();
-     this.setButtonColors();
+    this.updateUseReaderDefaults();
+    this.setButtonColors();
   },
 
   startupDirListener: {
     inited: false,
     domain: "mail.addr_book.view.startupURI",
     observe(subject, topic, prefName) {
-      if (topic != "nsPref:changed")
+      if (topic != "nsPref:changed") {
         return;
+      }
 
       // If the default startup directory prefs have changed,
       // reinitialize the default startup dir picker to show the new value.
@@ -279,8 +327,10 @@ var gComposePane = {
     },
 
     unload(event) {
-      Services.prefs.removeObserver(gComposePane.startupDirListener.domain,
-                                    gComposePane.startupDirListener);
+      Services.prefs.removeObserver(
+        gComposePane.startupDirListener.domain,
+        gComposePane.startupDirListener
+      );
     },
   },
 };
@@ -297,24 +347,33 @@ var gCloudFile = {
   _defaultPanel: null,
 
   get _strings() {
-    return Services.strings
-                   .createBundle("chrome://messenger/locale/preferences/applications.properties");
+    return Services.strings.createBundle(
+      "chrome://messenger/locale/preferences/applications.properties"
+    );
   },
 
   init() {
     this._list = document.getElementById("cloudFileView");
-    this._buttonContainer = document.getElementById("addCloudFileAccountButtons");
+    this._buttonContainer = document.getElementById(
+      "addCloudFileAccountButtons"
+    );
     this._addAccountButton = document.getElementById("addCloudFileAccount");
-    this._listContainer = document.getElementById("addCloudFileAccountListItems");
-    this._removeAccountButton = document.getElementById("removeCloudFileAccount");
+    this._listContainer = document.getElementById(
+      "addCloudFileAccountListItems"
+    );
+    this._removeAccountButton = document.getElementById(
+      "removeCloudFileAccount"
+    );
     this._settingsDeck = document.getElementById("cloudFileSettingsDeck");
     this._defaultPanel = document.getElementById("cloudFileDefaultPanel");
-    this._settingsPanelWrap = document.getElementById("cloudFileSettingsWrapper");
+    this._settingsPanelWrap = document.getElementById(
+      "cloudFileSettingsWrapper"
+    );
 
     this.updateThreshold();
     this.rebuildView();
 
-    window.addEventListener("unload", this, {capture: false, once: true});
+    window.addEventListener("unload", this, { capture: false, once: true });
 
     this._onAccountConfigured = this._onAccountConfigured.bind(this);
     this._onProviderRegistered = this._onProviderRegistered.bind(this);
@@ -340,7 +399,8 @@ var gCloudFile = {
   _onAccountConfigured(event, account) {
     for (let item of this._list.children) {
       if (item.value == account.accountKey) {
-        item.querySelector("image.configuredWarning").hidden = account.configured;
+        item.querySelector("image.configuredWarning").hidden =
+          account.configured;
       }
     }
   },
@@ -400,8 +460,9 @@ var gCloudFile = {
     rli.setAttribute("class", "cloudfileAccount");
     rli.setAttribute("value", aAccount.accountKey);
 
-    if (aAccount.iconURL)
+    if (aAccount.iconURL) {
       rli.style.listStyleImage = "url('" + aAccount.iconURL + "')";
+    }
 
     let icon = document.createXULElement("image");
     icon.setAttribute("class", "typeIcon");
@@ -410,7 +471,10 @@ var gCloudFile = {
     let label = document.createXULElement("label");
     label.setAttribute("crop", "end");
     label.setAttribute("flex", "1");
-    label.setAttribute("value", cloudFileAccounts.getDisplayName(aAccount.accountKey));
+    label.setAttribute(
+      "value",
+      cloudFileAccounts.getDisplayName(aAccount.accountKey)
+    );
     label.addEventListener("click", this, true);
     rli.appendChild(label);
 
@@ -424,7 +488,10 @@ var gCloudFile = {
     let warningIcon = document.createXULElement("image");
     warningIcon.setAttribute("class", "configuredWarning typeIcon");
     warningIcon.setAttribute("src", "chrome://global/skin/icons/warning.svg");
-    warningIcon.setAttribute("tooltiptext", this._strings.GetStringFromName("notConfiguredYet"));
+    warningIcon.setAttribute(
+      "tooltiptext",
+      this._strings.GetStringFromName("notConfiguredYet")
+    );
     if (aAccount.configured) {
       warningIcon.hidden = true;
     }
@@ -437,9 +504,13 @@ var gCloudFile = {
     let button = document.createXULElement("button");
     button.setAttribute("value", provider.type);
     button.setAttribute(
-      "label", this._strings.formatStringFromName("addProvider", [provider.displayName])
+      "label",
+      this._strings.formatStringFromName("addProvider", [provider.displayName])
     );
-    button.setAttribute("oncommand", `gCloudFile.addCloudFileAccount("${provider.type}")`);
+    button.setAttribute(
+      "oncommand",
+      `gCloudFile.addCloudFileAccount("${provider.type}")`
+    );
     button.style.listStyleImage = `url("${provider.iconURL}")`;
     return button;
   },
@@ -462,8 +533,9 @@ var gCloudFile = {
 
   rebuildView() {
     // Clear the list of entries.
-    while (this._list.hasChildNodes())
+    while (this._list.hasChildNodes()) {
       this._list.lastChild.remove();
+    }
 
     let accounts = cloudFileAccounts.accounts;
     accounts.sort(this._sortDisplayNames);
@@ -473,8 +545,9 @@ var gCloudFile = {
       this._list.appendChild(rli);
     }
 
-    while (this._buttonContainer.hasChildNodes())
+    while (this._buttonContainer.hasChildNodes()) {
       this._buttonContainer.lastChild.remove();
+    }
 
     let providers = cloudFileAccounts.providers;
     providers.sort(this._sortDisplayNames);
@@ -537,15 +610,17 @@ var gCloudFile = {
 
   addCloudFileAccount(aType) {
     let account = cloudFileAccounts.createAccount(aType);
-    if (!account)
+    if (!account) {
       return;
+    }
 
     let rli = this.makeRichListItemForAccount(account);
     this._list.appendChild(rli);
     this._list.selectItem(rli);
     this._addAccountButton.removeAttribute("image");
     this._addAccountButton.setAttribute(
-      "label", this._addAccountButton.getAttribute("defaultlabel")
+      "label",
+      this._addAccountButton.getAttribute("defaultlabel")
     );
     this._removeAccountButton.disabled = false;
   },
@@ -553,20 +628,24 @@ var gCloudFile = {
   removeCloudFileAccount() {
     // Get the selected account key
     let selection = this._list.selectedItem;
-    if (!selection)
+    if (!selection) {
       return;
+    }
 
     let accountKey = selection.value;
     let accountName = cloudFileAccounts.getDisplayName(accountKey);
     // Does the user really want to remove this account?
-    let confirmMessage = this._strings
-                             .formatStringFromName("dialog_removeAccount",
-                                                   [accountName]);
+    let confirmMessage = this._strings.formatStringFromName(
+      "dialog_removeAccount",
+      [accountName]
+    );
 
     if (Services.prompt.confirm(null, "", confirmMessage)) {
       this._list.clearSelection();
       cloudFileAccounts.removeAccount(accountKey);
-      let rli = this._list.querySelector("richlistitem[value='" + accountKey + "']");
+      let rli = this._list.querySelector(
+        "richlistitem[value='" + accountKey + "']"
+      );
       rli.remove();
       this._settingsDeck.selectedPanel = this._defaultPanel;
       if (this._settings) {
@@ -640,14 +719,33 @@ var gCloudFile = {
   },
 
   updateThreshold() {
-    document.getElementById("cloudFileThreshold").disabled =
-      !Preferences.get("mail.compose.big_attachments.notify").value;
+    document.getElementById("cloudFileThreshold").disabled = !Preferences.get(
+      "mail.compose.big_attachments.notify"
+    ).value;
   },
 };
 
-Preferences.get("mail.compose.autosave").on("change", gComposePane.updateAutosave);
-Preferences.get("mail.compose.attachment_reminder").on("change", gComposePane.updateAttachmentCheck);
-Preferences.get("msgcompose.default_colors").on("change", gComposePane.updateUseReaderDefaults);
-Preferences.get("ldap_2.autoComplete.useDirectory").on("change", gComposePane.enableAutocomplete);
-Preferences.get("mail.collect_email_address_outgoing").on("change", gComposePane.updateEmailCollection);
-Preferences.get("mail.compose.big_attachments.notify").on("change", gCloudFile.updateThreshold);
+Preferences.get("mail.compose.autosave").on(
+  "change",
+  gComposePane.updateAutosave
+);
+Preferences.get("mail.compose.attachment_reminder").on(
+  "change",
+  gComposePane.updateAttachmentCheck
+);
+Preferences.get("msgcompose.default_colors").on(
+  "change",
+  gComposePane.updateUseReaderDefaults
+);
+Preferences.get("ldap_2.autoComplete.useDirectory").on(
+  "change",
+  gComposePane.enableAutocomplete
+);
+Preferences.get("mail.collect_email_address_outgoing").on(
+  "change",
+  gComposePane.updateEmailCollection
+);
+Preferences.get("mail.compose.big_attachments.notify").on(
+  "change",
+  gCloudFile.updateThreshold
+);

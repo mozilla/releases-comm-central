@@ -8,7 +8,7 @@
 load("resources/viewWrapperTestUtils.js");
 initViewWrapperTestUtils();
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /* ===== Real Folder, no features ===== */
 
@@ -84,8 +84,9 @@ function* test_real_folder_threading_unthreaded() {
 
   // create a single maximally nested thread.
   const count = 10;
-  let messageSet =
-    new SyntheticMessageSet(gMessageScenarioFactory.directReply(count));
+  let messageSet = new SyntheticMessageSet(
+    gMessageScenarioFactory.directReply(count)
+  );
   add_sets_to_folder(folder, [messageSet]);
 
   // verify that we are not threaded (or grouped)
@@ -93,14 +94,18 @@ function* test_real_folder_threading_unthreaded() {
   viewWrapper.beginViewUpdate();
   viewWrapper.showUnthreaded = true;
   // whitebox test view flags (we've gotten them wrong before...)
-  assert_bit_not_set(viewWrapper._viewFlags,
-                     Ci.nsMsgViewFlagsType.kThreadedDisplay,
-                     "View threaded bit should not be set.");
-  assert_bit_not_set(viewWrapper._viewFlags,
-                     Ci.nsMsgViewFlagsType.kGroupBySort,
-                     "View group-by-sort bit should not be set.");
+  assert_bit_not_set(
+    viewWrapper._viewFlags,
+    Ci.nsMsgViewFlagsType.kThreadedDisplay,
+    "View threaded bit should not be set."
+  );
+  assert_bit_not_set(
+    viewWrapper._viewFlags,
+    Ci.nsMsgViewFlagsType.kGroupBySort,
+    "View group-by-sort bit should not be set."
+  );
   yield async_view_end_update(viewWrapper);
-  verify_view_level_histogram({0: count}, viewWrapper);
+  verify_view_level_histogram({ 0: count }, viewWrapper);
 }
 
 function* test_real_folder_threading_threaded() {
@@ -109,8 +114,9 @@ function* test_real_folder_threading_threaded() {
 
   // create a single maximally nested thread.
   const count = 10;
-  let messageSet =
-    new SyntheticMessageSet(gMessageScenarioFactory.directReply(count));
+  let messageSet = new SyntheticMessageSet(
+    gMessageScenarioFactory.directReply(count)
+  );
   add_sets_to_folder(folder, [messageSet]);
 
   // verify that we are threaded (in such a way that we can't be grouped)
@@ -118,12 +124,16 @@ function* test_real_folder_threading_threaded() {
   viewWrapper.beginViewUpdate();
   viewWrapper.showThreaded = true;
   // whitebox test view flags (we've gotten them wrong before...)
-  assert_bit_set(viewWrapper._viewFlags,
-                 Ci.nsMsgViewFlagsType.kThreadedDisplay,
-                 "View threaded bit should be set.");
-  assert_bit_not_set(viewWrapper._viewFlags,
-                     Ci.nsMsgViewFlagsType.kGroupBySort,
-                     "View group-by-sort bit should not be set.");
+  assert_bit_set(
+    viewWrapper._viewFlags,
+    Ci.nsMsgViewFlagsType.kThreadedDisplay,
+    "View threaded bit should be set."
+  );
+  assert_bit_not_set(
+    viewWrapper._viewFlags,
+    Ci.nsMsgViewFlagsType.kGroupBySort,
+    "View group-by-sort bit should not be set."
+  );
   // expand everything so our logic below works.
   view_expand_all(viewWrapper);
   yield async_view_end_update(viewWrapper);
@@ -131,8 +141,9 @@ function* test_real_folder_threading_threaded() {
   verify_view_row_at_index_is_container(viewWrapper, 0);
   // do the histogram test to verify threading...
   let expectedHisto = {};
-  for (let i = 0; i < count; i++)
+  for (let i = 0; i < count; i++) {
     expectedHisto[i] = 1;
+  }
   verify_view_level_histogram(expectedHisto, viewWrapper);
 }
 
@@ -142,27 +153,35 @@ function* test_real_folder_threading_grouped_by_sort() {
   // create some messages that belong to the 'in this week' bucket when sorting
   //  by date and grouping by date.
   const count = 5;
-  let [folder] = make_folder_with_sets([{count, age: {days: 2}, age_incr: {mins: 1}}]);
+  let [folder] = make_folder_with_sets([
+    { count, age: { days: 2 }, age_incr: { mins: 1 } },
+  ]);
 
   // group-by-sort sorted by date
   yield async_view_open(viewWrapper, folder);
   viewWrapper.beginViewUpdate();
   viewWrapper.showGroupedBySort = true;
   // whitebox test view flags (we've gotten them wrong before...)
-  assert_bit_set(viewWrapper._viewFlags,
-                 Ci.nsMsgViewFlagsType.kThreadedDisplay,
-                 "View threaded bit should be set.");
-  assert_bit_set(viewWrapper._viewFlags,
-                 Ci.nsMsgViewFlagsType.kGroupBySort,
-                 "View group-by-sort bit should be set.");
-  viewWrapper.sort(Ci.nsMsgViewSortType.byDate,
-                   Ci.nsMsgViewSortOrder.ascending);
+  assert_bit_set(
+    viewWrapper._viewFlags,
+    Ci.nsMsgViewFlagsType.kThreadedDisplay,
+    "View threaded bit should be set."
+  );
+  assert_bit_set(
+    viewWrapper._viewFlags,
+    Ci.nsMsgViewFlagsType.kGroupBySort,
+    "View group-by-sort bit should be set."
+  );
+  viewWrapper.sort(
+    Ci.nsMsgViewSortType.byDate,
+    Ci.nsMsgViewSortOrder.ascending
+  );
   // expand everyone
   view_expand_all(viewWrapper);
   yield async_view_end_update(viewWrapper);
 
   // make sure the level depths are correct
-  verify_view_level_histogram({0: 1, 1: count}, viewWrapper);
+  verify_view_level_histogram({ 0: 1, 1: count }, viewWrapper);
   // and make sure the first dude is a dummy
   verify_view_row_at_index_is_dummy(viewWrapper, 0);
 }
@@ -177,20 +196,25 @@ function* test_real_folder_threading_persistence() {
 
   // create a single maximally nested thread.
   const count = 10;
-  let messageSet =
-    new SyntheticMessageSet(gMessageScenarioFactory.directReply(count));
+  let messageSet = new SyntheticMessageSet(
+    gMessageScenarioFactory.directReply(count)
+  );
   add_sets_to_folder(folder, [messageSet]);
 
   // open the folder, set threaded mode, close it
   yield async_view_open(viewWrapper, folder);
   viewWrapper.showThreaded = true; // should be instantaneous
   verify_view_row_at_index_is_container(viewWrapper, 0);
-  assert_bit_set(viewWrapper._viewFlags,
-                 Ci.nsMsgViewFlagsType.kThreadedDisplay,
-                 "View threaded bit should be set.");
-  assert_bit_not_set(viewWrapper._viewFlags,
-                     Ci.nsMsgViewFlagsType.kGroupBySort,
-                     "View group-by-sort bit should not be set.");
+  assert_bit_set(
+    viewWrapper._viewFlags,
+    Ci.nsMsgViewFlagsType.kThreadedDisplay,
+    "View threaded bit should be set."
+  );
+  assert_bit_not_set(
+    viewWrapper._viewFlags,
+    Ci.nsMsgViewFlagsType.kGroupBySort,
+    "View group-by-sort bit should not be set."
+  );
   viewWrapper.close();
 
   // open it again, make sure we're threaded, go unthreaded, close
@@ -199,20 +223,28 @@ function* test_real_folder_threading_persistence() {
   assert_false(viewWrapper.showUnthreaded, "view is lying about threading");
   assert_false(viewWrapper.showGroupedBySort, "view is lying about threading");
   verify_view_row_at_index_is_container(viewWrapper, 0);
-  assert_bit_set(viewWrapper._viewFlags,
-                 Ci.nsMsgViewFlagsType.kThreadedDisplay,
-                 "View threaded bit should be set.");
-  assert_bit_not_set(viewWrapper._viewFlags,
-                     Ci.nsMsgViewFlagsType.kGroupBySort,
-                     "View group-by-sort bit should not be set.");
+  assert_bit_set(
+    viewWrapper._viewFlags,
+    Ci.nsMsgViewFlagsType.kThreadedDisplay,
+    "View threaded bit should be set."
+  );
+  assert_bit_not_set(
+    viewWrapper._viewFlags,
+    Ci.nsMsgViewFlagsType.kGroupBySort,
+    "View group-by-sort bit should not be set."
+  );
 
   viewWrapper.showUnthreaded = true;
-  assert_bit_not_set(viewWrapper._viewFlags,
-                     Ci.nsMsgViewFlagsType.kThreadedDisplay,
-                     "View threaded bit should not be set.");
-  assert_bit_not_set(viewWrapper._viewFlags,
-                     Ci.nsMsgViewFlagsType.kGroupBySort,
-                     "View group-by-sort bit should not be set.");
+  assert_bit_not_set(
+    viewWrapper._viewFlags,
+    Ci.nsMsgViewFlagsType.kThreadedDisplay,
+    "View threaded bit should not be set."
+  );
+  assert_bit_not_set(
+    viewWrapper._viewFlags,
+    Ci.nsMsgViewFlagsType.kGroupBySort,
+    "View group-by-sort bit should not be set."
+  );
   viewWrapper.close();
 
   // open it again, make sure we're unthreaded, go grouped, close
@@ -220,19 +252,28 @@ function* test_real_folder_threading_persistence() {
   assert_true(viewWrapper.showUnthreaded, "view should be unthreaded");
   assert_false(viewWrapper.showThreaded, "view is lying about threading");
   assert_false(viewWrapper.showGroupedBySort, "view is lying about threading");
-  assert_bit_not_set(viewWrapper._viewFlags,
-                     Ci.nsMsgViewFlagsType.kThreadedDisplay,
-                     "View threaded bit should not be set.");
-  assert_bit_not_set(viewWrapper._viewFlags,
-                     Ci.nsMsgViewFlagsType.kGroupBySort,
-                     "View group-by-sort bit should not be set.");
+  assert_bit_not_set(
+    viewWrapper._viewFlags,
+    Ci.nsMsgViewFlagsType.kThreadedDisplay,
+    "View threaded bit should not be set."
+  );
+  assert_bit_not_set(
+    viewWrapper._viewFlags,
+    Ci.nsMsgViewFlagsType.kGroupBySort,
+    "View group-by-sort bit should not be set."
+  );
 
   viewWrapper.showGroupedBySort = true;
-  assert_bit_set(viewWrapper._viewFlags,
-                 Ci.nsMsgViewFlagsType.kThreadedDisplay,
-                 "View threaded bit should be set.");
-  assert_bit_set(viewWrapper._viewFlags, Ci.nsMsgViewFlagsType.kGroupBySort,
-                 "View group-by-sort bit should be set.");
+  assert_bit_set(
+    viewWrapper._viewFlags,
+    Ci.nsMsgViewFlagsType.kThreadedDisplay,
+    "View threaded bit should be set."
+  );
+  assert_bit_set(
+    viewWrapper._viewFlags,
+    Ci.nsMsgViewFlagsType.kGroupBySort,
+    "View group-by-sort bit should be set."
+  );
   viewWrapper.close();
 
   // open it again, make sure we're grouped.
@@ -240,11 +281,16 @@ function* test_real_folder_threading_persistence() {
   assert_true(viewWrapper.showGroupedBySort, "view should be grouped");
   assert_false(viewWrapper.showThreaded, "view is lying about threading");
   assert_false(viewWrapper.showUnthreaded, "view is lying about threading");
-  assert_bit_set(viewWrapper._viewFlags,
-                 Ci.nsMsgViewFlagsType.kThreadedDisplay,
-                 "View threaded bit should be set.");
-  assert_bit_set(viewWrapper._viewFlags, Ci.nsMsgViewFlagsType.kGroupBySort,
-                 "View group-by-sort bit should be set.");
+  assert_bit_set(
+    viewWrapper._viewFlags,
+    Ci.nsMsgViewFlagsType.kThreadedDisplay,
+    "View threaded bit should be set."
+  );
+  assert_bit_set(
+    viewWrapper._viewFlags,
+    Ci.nsMsgViewFlagsType.kGroupBySort,
+    "View group-by-sort bit should be set."
+  );
 }
 
 /* ===== Real Folder, View Flags ===== */
@@ -287,7 +333,6 @@ function* test_real_folder_flags_show_unread() {
   verify_messages_in_view([setOne, setTwo, setThree], viewWrapper);
 }
 
-
 /* ===== Real Folder, Mail Views ===== */
 
 /*
@@ -313,7 +358,10 @@ function* test_real_folder_mail_views_unread() {
 
   // everything is unread to start with! #1
   yield async_view_open(viewWrapper, folder);
-  yield async_view_set_mail_view(viewWrapper, MailViewConstants.kViewItemUnread);
+  yield async_view_set_mail_view(
+    viewWrapper,
+    MailViewConstants.kViewItemUnread
+  );
   verify_messages_in_view([setOne, setTwo], viewWrapper);
 
   // add some more things (unread!), make sure they appear. #2
@@ -340,7 +388,11 @@ function* test_real_folder_mail_views_tags() {
 
   // open, apply mail view constraint, see those messages
   yield async_view_open(viewWrapper, folder);
-  yield async_view_set_mail_view(viewWrapper, MailViewConstants.kViewItemTags, "$label1");
+  yield async_view_set_mail_view(
+    viewWrapper,
+    MailViewConstants.kViewItemTags,
+    "$label1"
+  );
   verify_messages_in_view(setOne, viewWrapper);
 
   // add some more with the tag
@@ -376,8 +428,8 @@ function* test_real_folder_mail_views_custom_recent_mail() {
 
   // create a set that meets the threshold and a set that does not
   let [folder, setRecent] = make_folder_with_sets([
-    {age: {mins: 0}},
-    {age: {days: 2}, age_incr: {mins: 1}},
+    { age: { mins: 0 } },
+    { age: { days: 2 }, age_incr: { mins: 1 } },
   ]);
 
   // open the folder, ensure only the recent guys show. #1
@@ -387,8 +439,8 @@ function* test_real_folder_mail_views_custom_recent_mail() {
 
   // add two more sets, one that meets, and one that doesn't. #2
   let [setMoreRecent] = make_new_sets_in_folder(folder, [
-    {age: {mins: 0}},
-    {age: {days: 2, hours: 1}, age_incr: {mins: 1}},
+    { age: { mins: 0 } },
+    { age: { days: 2, hours: 1 }, age_incr: { mins: 1 } },
   ]);
   // make sure that all we see is our previous recent set and our new recent set
   verify_messages_in_view([setRecent, setMoreRecent], viewWrapper);
@@ -403,8 +455,8 @@ function* test_real_folder_mail_views_custom_last_5_days() {
 
   // create a set that meets the threshold and a set that does not
   let [folder, setRecent] = make_folder_with_sets([
-    {age: {days: 2}, age_incr: {mins: 1}},
-    {age: {days: 6}, age_incr: {mins: 1}},
+    { age: { days: 2 }, age_incr: { mins: 1 } },
+    { age: { days: 6 }, age_incr: { mins: 1 } },
   ]);
 
   // open the folder, ensure only the recent guys show. #1
@@ -414,8 +466,8 @@ function* test_real_folder_mail_views_custom_last_5_days() {
 
   // add two more sets, one that meets, and one that doesn't. #2
   let [setMoreRecent] = make_new_sets_in_folder(folder, [
-    {age: {mins: 0}},
-    {age: {days: 5, hours: 1}, age_incr: {mins: 1}},
+    { age: { mins: 0 } },
+    { age: { days: 5, hours: 1 }, age_incr: { mins: 1 } },
   ]);
   // make sure that all we see is our previous recent set and our new recent set
   verify_messages_in_view([setRecent, setMoreRecent], viewWrapper);
@@ -452,18 +504,32 @@ function* test_real_folder_mail_views_custom_not_junk() {
 function* test_real_folder_mail_views_custom_has_attachments() {
   let viewWrapper = make_view_wrapper();
 
-  let attachSetDef = {attachments: [{filename: "foo.png",
-                                     contentType: "image/png",
-                                     encoding: "base64", charset: null,
-                                     body: "YWJj\n", format: null}]};
+  let attachSetDef = {
+    attachments: [
+      {
+        filename: "foo.png",
+        contentType: "image/png",
+        encoding: "base64",
+        charset: null,
+        body: "YWJj\n",
+        format: null,
+      },
+    ],
+  };
   let noAttachSetDef = {};
 
-  let [folder, , setAttach] = make_folder_with_sets([noAttachSetDef, attachSetDef]);
+  let [folder, , setAttach] = make_folder_with_sets([
+    noAttachSetDef,
+    attachSetDef,
+  ]);
   yield async_view_open(viewWrapper, folder);
   yield async_view_set_mail_view(viewWrapper, "Has Attachments");
   verify_messages_in_view(setAttach, viewWrapper);
 
-  let [setMoreAttach] = make_new_sets_in_folder(folder, [attachSetDef, noAttachSetDef]);
+  let [setMoreAttach] = make_new_sets_in_folder(folder, [
+    attachSetDef,
+    noAttachSetDef,
+  ]);
   verify_messages_in_view([setAttach, setMoreAttach], viewWrapper);
 }
 
@@ -475,10 +541,12 @@ function* test_real_folder_special_views_threads_with_unread() {
 
   // create two maximally nested threads and add them to the folder.
   const count = 10;
-  let setThreadOne =
-    new SyntheticMessageSet(gMessageScenarioFactory.directReply(count));
-  let setThreadTwo =
-    new SyntheticMessageSet(gMessageScenarioFactory.directReply(count));
+  let setThreadOne = new SyntheticMessageSet(
+    gMessageScenarioFactory.directReply(count)
+  );
+  let setThreadTwo = new SyntheticMessageSet(
+    gMessageScenarioFactory.directReply(count)
+  );
   add_sets_to_folder(folder, [setThreadOne, setThreadTwo]);
 
   // open the view, set it to this special view
@@ -526,8 +594,10 @@ function* test_real_folder_special_views_persist() {
   viewWrapper.close();
 
   yield async_view_open(viewWrapper, folder);
-  assert_true(viewWrapper.specialViewThreadsWithUnread,
-              "We should be in threads-with-unread special view mode.");
+  assert_true(
+    viewWrapper.specialViewThreadsWithUnread,
+    "We should be in threads-with-unread special view mode."
+  );
 }
 
 function* test_real_folder_mark_read_on_exit() {
@@ -543,13 +613,19 @@ function* test_real_folder_mark_read_on_exit() {
   let [setOne] = make_new_sets_in_folder(folder, 1);
   setOne.setRead(false);
   // verify that we have unread messages.
-  assert_equals(folder.getNumUnread(false), setOne.synMessages.length,
-                "all messages should have been added as unread");
+  assert_equals(
+    folder.getNumUnread(false),
+    setOne.synMessages.length,
+    "all messages should have been added as unread"
+  );
   viewWrapper.close(false);
   // verify that closing the view does the expected marking of the messages
   // as read.
-  assert_equals(folder.getNumUnread(false), 0,
-                "messages should have been marked read on view close");
+  assert_equals(
+    folder.getNumUnread(false),
+    0,
+    "messages should have been marked read on view close"
+  );
   Services.prefs.clearUserPref("mailnews.mark_message_read.none");
 }
 

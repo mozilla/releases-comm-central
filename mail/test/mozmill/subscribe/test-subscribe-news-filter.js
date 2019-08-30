@@ -12,7 +12,11 @@
 
 var MODULE_NAME = "test-subscribe-news-filter";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "nntp-helpers", "subscribe-window-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "nntp-helpers",
+  "subscribe-window-helpers",
+];
 
 function setupModule(module) {
   collector.getModule("folder-display-helpers").installInto(module);
@@ -40,10 +44,16 @@ function test_subscribe_newsgroup_filter() {
  */
 function filter_test_helper(swc) {
   enter_text_in_search_box(swc, "subscribe empty");
-  utils.waitFor(() => check_newsgroup_displayed(swc, "test.subscribe.empty"),
-    "test.subscribe.empty not in the list");
-  utils.waitFor(() => !check_newsgroup_displayed(swc, "test.empty"),
-    "test.empty is in the list, but should not be");
-  utils.waitFor(() => !check_newsgroup_displayed(swc, "test.subscribe.simple"),
-    "test.subscribe.simple is in the list, but should not be");
+  utils.waitFor(
+    () => check_newsgroup_displayed(swc, "test.subscribe.empty"),
+    "test.subscribe.empty not in the list"
+  );
+  utils.waitFor(
+    () => !check_newsgroup_displayed(swc, "test.empty"),
+    "test.empty is in the list, but should not be"
+  );
+  utils.waitFor(
+    () => !check_newsgroup_displayed(swc, "test.subscribe.simple"),
+    "test.subscribe.simple is in the list, but should not be"
+  );
 }

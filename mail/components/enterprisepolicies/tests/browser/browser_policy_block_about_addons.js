@@ -4,13 +4,16 @@
 
 add_task(async function test_about_addons() {
   await setupPolicyEngineWithJson({
-    "policies": {
-      "BlockAboutAddons": true,
+    policies: {
+      BlockAboutAddons: true,
     },
   });
 
-  is(Services.policies.isAllowed("about:addons"), false,
-     "Policy Engine should report about:addons as not allowed");
+  is(
+    Services.policies.isAllowed("about:addons"),
+    false,
+    "Policy Engine should report about:addons as not allowed"
+  );
 
   await checkBlockedPage("about:addons", true);
 });

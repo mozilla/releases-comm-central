@@ -4,13 +4,16 @@
 
 add_task(async function test_about_profiles() {
   await setupPolicyEngineWithJson({
-    "policies": {
-      "BlockAboutProfiles": true,
+    policies: {
+      BlockAboutProfiles: true,
     },
   });
 
-  is(Services.policies.isAllowed("about:profiles"), false,
-     "Policy Engine should report about:profiles as not allowed");
+  is(
+    Services.policies.isAllowed("about:profiles"),
+    false,
+    "Policy Engine should report about:profiles as not allowed"
+  );
 
   await checkBlockedPage("about:profiles", true);
 });

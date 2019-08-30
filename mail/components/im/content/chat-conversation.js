@@ -8,12 +8,22 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
-  const {Status} = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
-  const {MessageFormat} = ChromeUtils.import("resource:///modules/imTextboxUtils.jsm");
-  const {TextboxSize} = ChromeUtils.import("resource:///modules/imTextboxUtils.jsm");
-  const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-  const {InlineSpellChecker} = ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
+  const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+  const { Status } = ChromeUtils.import(
+    "resource:///modules/imStatusUtils.jsm"
+  );
+  const { MessageFormat } = ChromeUtils.import(
+    "resource:///modules/imTextboxUtils.jsm"
+  );
+  const { TextboxSize } = ChromeUtils.import(
+    "resource:///modules/imTextboxUtils.jsm"
+  );
+  const { AppConstants } = ChromeUtils.import(
+    "resource://gre/modules/AppConstants.jsm"
+  );
+  const { InlineSpellChecker } = ChromeUtils.import(
+    "resource://gre/modules/InlineSpellChecker.jsm"
+  );
 
   /**
    * The MozChatConversation widget displays the entire chat conversation
@@ -24,7 +34,7 @@
   class MozChatConversation extends MozXULElement {
     static get inheritedAttributes() {
       return {
-        "browser": "autoscrollpopup",
+        browser: "autoscrollpopup",
       };
     }
 
@@ -105,7 +115,10 @@
               subject.QueryInterface(Ci.nsISimpleEnumerator);
               if (!this._isConversationSelected) {
                 while (subject.hasMoreElements()) {
-                  let name = subject.getNext().QueryInterface(Ci.nsISupportsString).toString();
+                  let name = subject
+                    .getNext()
+                    .QueryInterface(Ci.nsISupportsString)
+                    .toString();
                   if (this._isBuddyActive(name)) {
                     delete this._activeBuddies[name];
                   }
@@ -131,7 +144,10 @@
               break;
           }
         },
-        QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver, Ci.nsISupportsWeakReference]),
+        QueryInterface: ChromeUtils.generateQI([
+          Ci.nsIObserver,
+          Ci.nsISupportsWeakReference,
+        ]),
       };
     }
 
@@ -170,13 +186,16 @@
       let nbox = document.createXULElement("vbox");
       nbox.setAttribute("flex", "1");
 
-      this.convBrowser = document.createXULElement("browser",
-        { is: "conversation-browser" });
+      this.convBrowser = document.createXULElement("browser", {
+        is: "conversation-browser",
+      });
       this.convBrowser.setAttribute("flex", "1");
       this.convBrowser.setAttribute("type", "content");
 
-      this.progressBar = document.createElementNS("http://www.w3.org/1999/xhtml",
-        "progress");
+      this.progressBar = document.createElementNS(
+        "http://www.w3.org/1999/xhtml",
+        "progress"
+      );
       this.progressBar.setAttribute("hidden", "hidden");
 
       this.findbar = document.createXULElement("findbar");
@@ -206,8 +225,10 @@
       this.convBottom = document.createXULElement("stack");
       this.convBottom.classList.add("conv-bottom");
 
-      this.inputBox = document.createElementNS("http://www.w3.org/1999/xhtml",
-        "textarea");
+      this.inputBox = document.createElementNS(
+        "http://www.w3.org/1999/xhtml",
+        "textarea"
+      );
       this.inputBox.classList.add("conv-textbox");
 
       this.charCounter = document.createXULElement("description");
@@ -224,25 +245,44 @@
       this.appendChild(this.convBottom);
 
       this.inputBox.addEventListener("keypress", this.inputKeyPress.bind(this));
-      this.inputBox.addEventListener("input", this.inputValueChanged.bind(this));
-      this.inputBox.addEventListener("overflow", this.inputExpand.bind(this), true);
-      this.inputBox.addEventListener("underflow", this._onTextboxUnderflow, true);
+      this.inputBox.addEventListener(
+        "input",
+        this.inputValueChanged.bind(this)
+      );
+      this.inputBox.addEventListener(
+        "overflow",
+        this.inputExpand.bind(this),
+        true
+      );
+      this.inputBox.addEventListener(
+        "underflow",
+        this._onTextboxUnderflow,
+        true
+      );
 
-      new MutationObserver(function(aMutations) {
-        for (let mutation of aMutations) {
-          if (mutation.oldValue == "dragging") {
-            this._onSplitterChange();
-            break;
+      new MutationObserver(
+        function(aMutations) {
+          for (let mutation of aMutations) {
+            if (mutation.oldValue == "dragging") {
+              this._onSplitterChange();
+              break;
+            }
           }
-        }
-      }.bind(this)).observe(this.splitter, {
+        }.bind(this)
+      ).observe(this.splitter, {
         attributes: true,
         attributeOldValue: true,
         attributeFilter: ["state"],
       });
 
-      this.convBrowser.addEventListener("keypress", this.browserKeyPress.bind(this));
-      this.convBrowser.addEventListener("dblclick", this.browserDblClick.bind(this));
+      this.convBrowser.addEventListener(
+        "keypress",
+        this.browserKeyPress.bind(this)
+      );
+      this.convBrowser.addEventListener(
+        "dblclick",
+        this.browserDblClick.bind(this)
+      );
       Services.obs.addObserver(this.observer, "conversation-loaded");
 
       // @implements {nsIObserver}
@@ -269,7 +309,7 @@
         this.notification.append(element);
       });
 
-      return this.msgNotificationBar = newNotificationBox;
+      return (this.msgNotificationBar = newNotificationBox);
     }
 
     destroy() {
@@ -280,7 +320,10 @@
       if ("MessageFormat" in window) {
         MessageFormat.unregisterTextbox(this.inputBox);
       }
-      Services.prefs.removeObserver("mail.spellcheck.inline", this.prefObserver);
+      Services.prefs.removeObserver(
+        "mail.spellcheck.inline",
+        this.prefObserver
+      );
     }
 
     _forgetConv(shouldClose) {
@@ -348,19 +391,24 @@
       let isUnreadMessage = !read && aMsg.incoming && !aMsg.system;
       let isTabFocused = this.tab && this.tab.selected && document.hasFocus();
       let shouldSetUnreadFlag = this.tab && isUnreadMessage && !isTabFocused;
-      let firstUnread = this.tab && !this.tab.hasAttribute("unread") &&
-        isUnreadMessage && this._isAfterFirstRealMessage &&
+      let firstUnread =
+        this.tab &&
+        !this.tab.hasAttribute("unread") &&
+        isUnreadMessage &&
+        this._isAfterFirstRealMessage &&
         (!isTabFocused || this._writingContextMessages);
 
       // Since the unread flag won't be set if the tab is focused,
       // we need the following when showing the first messages to stop
       // firstUnread being set for subsequent messages.
-      if (firstUnread)
+      if (firstUnread) {
         delete this._writingContextMessages;
+      }
 
       this.convBrowser.appendMessage(aMsg, read, firstUnread);
-      if (!aMsg.system)
+      if (!aMsg.system) {
         this._isAfterFirstRealMessage = true;
+      }
 
       if (read) {
         --this._readCount;
@@ -385,8 +433,9 @@
       }
 
       if (shouldSetUnreadFlag) {
-        if (conv.isChat && aMsg.containsNick)
+        if (conv.isChat && aMsg.containsNick) {
           this.tab.setAttribute("attention", "true");
+        }
         this.tab.setAttribute("unread", "true");
       }
     }
@@ -411,8 +460,9 @@
 
         if (aMsg.match(/^\/(?:say)? .*/)) {
           aMsg = aMsg.slice(aMsg.indexOf(" ") + 1);
-        } else if (Services.cmd.executeCommand(aMsg, this._conv.target,
-          convToFocus)) {
+        } else if (
+          Services.cmd.executeCommand(aMsg, this._conv.target, convToFocus)
+        ) {
           this._conv.sendTyping("");
           this.resetInput();
           if (convToFocus.value) {
@@ -426,7 +476,8 @@
           if (cmd && cmd != "/me") {
             this._conv.systemMessage(
               this.bundle.formatStringFromName("unknownCommand", [cmd], 1),
-              true);
+              true
+            );
             return;
           }
         }
@@ -442,49 +493,64 @@
           let style = MessageFormat.getMessageStyle();
           let proto = this._conv.account.protocol.id;
           if (proto == "prpl-msn") {
-            if ("color" in style)
-              msg = "<font color=\"" + style.color + "\">" + msg + "</font>";
-            if ("fontFamily" in style)
-              msg = "<font face=\"" + style.fontFamily + "\">" + msg + "</font>";
+            if ("color" in style) {
+              msg = '<font color="' + style.color + '">' + msg + "</font>";
+            }
+            if ("fontFamily" in style) {
+              msg = '<font face="' + style.fontFamily + '">' + msg + "</font>";
+            }
             // MSN doesn't support font size info in messages...
           } else if (proto == "prpl-aim" || proto == "prpl-icq") {
             let styleAttributes = "";
-            if ("color" in style)
-              styleAttributes += " color=\"" + style.color + "\"";
-            if ("fontFamily" in style)
-              styleAttributes += " face=\"" + style.fontFamily + "\"";
+            if ("color" in style) {
+              styleAttributes += ' color="' + style.color + '"';
+            }
+            if ("fontFamily" in style) {
+              styleAttributes += ' face="' + style.fontFamily + '"';
+            }
             if ("fontSize" in style) {
               let size = style.fontSize - style.defaultFontSize;
-              if (size < -4)
+              if (size < -4) {
                 size = 1;
-              else if (size < 0)
+              } else if (size < 0) {
                 size = 2;
-              else if (size < 3)
+              } else if (size < 3) {
                 size = 3;
-              else if (size < 7)
+              } else if (size < 7) {
                 size = 4;
-              else if (size < 15)
+              } else if (size < 15) {
                 size = 5;
-              else if (size < 25)
+              } else if (size < 25) {
                 size = 6;
-              else
+              } else {
                 size = 7;
-              styleAttributes += " size=\"" + size + "\""
-                + " style=\"font-size: " + style.fontSize + "px;\"";
+              }
+              styleAttributes +=
+                ' size="' +
+                size +
+                '"' +
+                ' style="font-size: ' +
+                style.fontSize +
+                'px;"';
             }
-            if (styleAttributes)
+            if (styleAttributes) {
               msg = "<font" + styleAttributes + ">" + msg + "</font>";
+            }
           } else {
             let styleProperties = [];
-            if ("color" in style)
+            if ("color" in style) {
               styleProperties.push("color: " + style.color);
-            if ("fontFamily" in style)
+            }
+            if ("fontFamily" in style) {
               styleProperties.push("font-family: " + style.fontFamily);
-            if ("fontSize" in style)
+            }
+            if ("fontSize" in style) {
               styleProperties.push("font-size: " + style.fontSize + "px");
+            }
             style = styleProperties.join("; ");
-            if (style)
-              msg = "<span style=\"" + style + "\">" + msg + "</span>";
+            if (style) {
+              msg = '<span style="' + style + '">' + msg + "</span>";
+            }
           }
         }
         this._conv.sendMsg(msg);
@@ -505,12 +571,15 @@
 
     _onSplitterChange() {
       // set the default height as the deck height (modified by the splitter)
-      this.inputBox.defaultHeight = parseInt(this.inputBox.parentNode.height) -
+      this.inputBox.defaultHeight =
+        parseInt(this.inputBox.parentNode.height) -
         this._TEXTBOX_VERTICAL_OVERHEAD;
     }
 
     calculateTextboxDefaultHeight() {
-      let totalSpace = parseInt(window.getComputedStyle(this).getPropertyValue("height"));
+      let totalSpace = parseInt(
+        window.getComputedStyle(this).getPropertyValue("height")
+      );
       let textboxStyle = window.getComputedStyle(this.inputBox);
       let lineHeight = textboxStyle.lineHeight;
       if (lineHeight == "normal") {
@@ -525,13 +594,16 @@
       this._TEXTBOX_VERTICAL_OVERHEAD = deckHeight - textboxHeight;
 
       // Calculate the number of lines to display.
-      let numberOfLines = Math.round(totalSpace * this._TEXTBOX_RATIO / lineHeight);
+      let numberOfLines = Math.round(
+        (totalSpace * this._TEXTBOX_RATIO) / lineHeight
+      );
       if (numberOfLines <= 0) {
         numberOfLines = 1;
       }
       if (!this._maxEmptyLines) {
-        this._maxEmptyLines =
-          Services.prefs.getIntPref("messenger.conversations.textbox.defaultMaxLines");
+        this._maxEmptyLines = Services.prefs.getIntPref(
+          "messenger.conversations.textbox.defaultMaxLines"
+        );
       }
 
       if (numberOfLines > this._maxEmptyLines) {
@@ -540,7 +612,8 @@
       this.inputBox.defaultHeight = numberOfLines * lineHeight;
 
       // set minimum height (in case the user moves the splitter)
-      this.inputBox.parentNode.minHeight = lineHeight + this._TEXTBOX_VERTICAL_OVERHEAD;
+      this.inputBox.parentNode.minHeight =
+        lineHeight + this._TEXTBOX_VERTICAL_OVERHEAD;
     }
 
     initTextboxFormat() {
@@ -548,8 +621,8 @@
 
       // Init the textbox size
       this.calculateTextboxDefaultHeight();
-      this.inputBox.parentNode.height = this.inputBox.defaultHeight +
-        this._TEXTBOX_VERTICAL_OVERHEAD;
+      this.inputBox.parentNode.height =
+        this.inputBox.defaultHeight + this._TEXTBOX_VERTICAL_OVERHEAD;
       this.inputBox.style.overflowY = "hidden";
 
       this.spellchecker = new InlineSpellChecker(this.inputBox);
@@ -566,19 +639,36 @@
     inputKeyPress(event) {
       let text = this.inputBox.value;
 
-      const navKeyCodes = [KeyEvent.DOM_VK_PAGE_UP, KeyEvent.DOM_VK_PAGE_DOWN,
-                           KeyEvent.DOM_VK_HOME, KeyEvent.DOM_VK_END,
-                           KeyEvent.DOM_VK_UP, KeyEvent.DOM_VK_DOWN];
+      const navKeyCodes = [
+        KeyEvent.DOM_VK_PAGE_UP,
+        KeyEvent.DOM_VK_PAGE_DOWN,
+        KeyEvent.DOM_VK_HOME,
+        KeyEvent.DOM_VK_END,
+        KeyEvent.DOM_VK_UP,
+        KeyEvent.DOM_VK_DOWN,
+      ];
 
       // Pass navigation keys to the browser if
       // 1) the textbox is empty or 2) it's an IB-specific key combination
-      if ((!text && navKeyCodes.includes(event.keyCode)) ||
-        ((event.shiftKey || event.altKey) && (event.keyCode == KeyEvent.DOM_VK_PAGE_UP ||
-          event.keyCode == KeyEvent.DOM_VK_PAGE_DOWN))) {
+      if (
+        (!text && navKeyCodes.includes(event.keyCode)) ||
+        ((event.shiftKey || event.altKey) &&
+          (event.keyCode == KeyEvent.DOM_VK_PAGE_UP ||
+            event.keyCode == KeyEvent.DOM_VK_PAGE_DOWN))
+      ) {
         let newEvent = document.createEvent("KeyboardEvent");
-        newEvent.initKeyEvent("keypress", event.bubbles, event.cancelable, null,
-          event.ctrlKey, event.altKey, event.shiftKey, event.metaKey,
-          event.keyCode, event.charCode);
+        newEvent.initKeyEvent(
+          "keypress",
+          event.bubbles,
+          event.cancelable,
+          null,
+          event.ctrlKey,
+          event.altKey,
+          event.shiftKey,
+          event.metaKey,
+          event.keyCode,
+          event.charCode
+        );
         event.preventDefault();
         event.stopPropagation();
         // Keyboard events must be sent to the focused element for bubbling to work.
@@ -591,10 +681,12 @@
       // When attempting to copy an empty selection, copy the
       // browser selection instead (see bug 693).
       // The 'C' won't be lowercase if caps lock is enabled.
-      if ((event.charCode == 99 /* 'c' */ ||
-        (event.charCode == 67 /* 'C' */ && !event.shiftKey)) &&
+      if (
+        (event.charCode == 99 /* 'c' */ ||
+          (event.charCode == 67 /* 'C' */ && !event.shiftKey)) &&
         (navigator.platform.includes("Mac") ? event.metaKey : event.ctrlKey) &&
-        this.inputBox.selectionStart == this.inputBox.selectionEnd) {
+        this.inputBox.selectionStart == this.inputBox.selectionEnd
+      ) {
         this.convBrowser.doCommand();
         return;
       }
@@ -602,12 +694,20 @@
       // We don't want to enable tab completion if the user has selected
       // some text, as it's not clear what the user would expect
       // to happen in that case.
-      let noSelection = !(this.inputBox.selectionEnd - this.inputBox.selectionStart);
+      let noSelection = !(
+        this.inputBox.selectionEnd - this.inputBox.selectionStart
+      );
 
       // Undo tab complete.
-      if (noSelection && this._completions &&
+      if (
+        noSelection &&
+        this._completions &&
         event.keyCode == KeyEvent.DOM_VK_BACK_SPACE &&
-        !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+        !event.altKey &&
+        !event.ctrlKey &&
+        !event.metaKey &&
+        !event.shiftKey
+      ) {
         if (text == this._beforeTabComplete) {
           // Nothing to undo, so let backspace act normally.
           delete this._completions;
@@ -621,23 +721,29 @@
           //   "nick1: " -> "nick1"
           let pos = this.inputBox.selectionStart;
           const suffix = ": ";
-          if (pos > suffix.length &&
-            text.substring(pos - suffix.length, pos) == suffix) {
+          if (
+            pos > suffix.length &&
+            text.substring(pos - suffix.length, pos) == suffix
+          ) {
             let completions = Array.from(this.buddies.keys());
             // Check if the preceding words are a sequence of nick completions.
             let preceding = text.substring(0, pos - suffix.length).split(", ");
             if (preceding.every(n => completions.includes(n))) {
               let s = preceding.pop();
-              if (preceding.length)
+              if (preceding.length) {
                 s = suffix + s;
+              }
               this.inputBox.selectionStart -= s.length + suffix.length;
               this.addString(s);
               if (this._completions[0].slice(-suffix.length) == suffix) {
-                this._completions =
-                  this._completions.map(c => c.slice(0, -suffix.length));
+                this._completions = this._completions.map(c =>
+                  c.slice(0, -suffix.length)
+                );
               }
-              if (this._completions.length == 1 &&
-                this.inputBox.value == this._beforeTabComplete) {
+              if (
+                this._completions.length == 1 &&
+                this.inputBox.value == this._beforeTabComplete
+              ) {
                 // Nothing left to undo or to cycle through.
                 delete this._completions;
               }
@@ -656,16 +762,22 @@
       // Tab complete.
       // Keep the default behavior of the tab key if the input box
       // is empty or a modifier is used.
-      if (event.keyCode == KeyEvent.DOM_VK_TAB &&
-        text.length != 0 && noSelection &&
-        !event.altKey && !event.ctrlKey && !event.metaKey &&
-        (!event.shiftKey || this._completions)) {
+      if (
+        event.keyCode == KeyEvent.DOM_VK_TAB &&
+        text.length != 0 &&
+        noSelection &&
+        !event.altKey &&
+        !event.ctrlKey &&
+        !event.metaKey &&
+        (!event.shiftKey || this._completions)
+      ) {
         event.preventDefault();
 
         if (this._completions) {
           // Tab has been pressed more than once.
-          if (this._completions.length == 1)
+          if (this._completions.length == 1) {
             return;
+          }
           if (this._shouldListCompletionsLater) {
             this._conv.systemMessage(this._shouldListCompletionsLater);
             delete this._shouldListCompletionsLater;
@@ -675,8 +787,9 @@
           if (event.shiftKey) {
             // Reverse cycle completions.
             this._completionsIndex -= 2;
-            if (this._completionsIndex < 0)
+            if (this._completionsIndex < 0) {
               this._completionsIndex += this._completions.length;
+            }
           }
           this.addString(this._completions[this._completionsIndex++]);
           this._completionsIndex %= this._completions.length;
@@ -688,7 +801,10 @@
         let secondNick = false;
 
         // Second regex result will contain word without leading special characters.
-        this._beforeTabComplete = text.substring(0, this.inputBox.selectionStart);
+        this._beforeTabComplete = text.substring(
+          0,
+          this.inputBox.selectionStart
+        );
         let words = this._beforeTabComplete.match(/\S*?([\w-]+)?$/);
         let word = words[0];
         if (!word) {
@@ -699,12 +815,15 @@
         // Check if we are completing a command.
         let completingCommand = isFirstWord && word[0] == "/";
         if (completingCommand) {
-          for (let cmd of Services.cmd.listCommandsForConversation(this._conv)) {
+          for (let cmd of Services.cmd.listCommandsForConversation(
+            this._conv
+          )) {
             // It's possible to have a global and a protocol specific command
             // with the same name. Avoid duplicates in the |completions| array.
             let name = "/" + cmd.name;
-            if (!completions.includes(name))
+            if (!completions.includes(name)) {
               completions.push(name);
+            }
           }
         } else {
           // If it's not a command, the only thing we can complete is a nick.
@@ -728,8 +847,7 @@
                 secondNick = true;
                 isFirstWord = true;
                 // Remove preceding completions from possible completions.
-                completions = completions.filter(c =>
-                  !preceding.includes(c));
+                completions = completions.filter(c => !preceding.includes(c));
               }
             }
           }
@@ -755,13 +873,17 @@
 
         // If the cursor is in the middle of a word, and the word is a nick,
         // there is no need to complete - just jump to the end of the nick.
-        let wholeWord = text.substring(this.inputBox.selectionStart - word.length);
+        let wholeWord = text.substring(
+          this.inputBox.selectionStart - word.length
+        );
         for (let completion of matchingCompletions) {
           if (wholeWord.lastIndexOf(completion, 0) == 0) {
             let moveCursor = completion.length - word.length;
             this.inputBox.selectionStart += moveCursor;
-            let separator = text.substring(this.inputBox.selectionStart,
-              this.inputBox.selectionStart + 2);
+            let separator = text.substring(
+              this.inputBox.selectionStart,
+              this.inputBox.selectionStart + 2
+            );
             if (separator == ": " || separator == ", ") {
               this.inputBox.selectionStart += 2;
             } else if (!moveCursor) {
@@ -787,11 +909,14 @@
         let preferredNick = false;
         if (this._conv.isChat && !completingCommand) {
           // If there are active nicks, prefer those.
-          let activeCompletions = this._completions.filter(c =>
-            this.buddies.has(c) &&
-            !this.buddies.get(c).hasAttribute("inactive"));
-          if (activeCompletions.length == 1)
+          let activeCompletions = this._completions.filter(
+            c =>
+              this.buddies.has(c) &&
+              !this.buddies.get(c).hasAttribute("inactive")
+          );
+          if (activeCompletions.length == 1) {
             preferredNick = true;
+          }
           if (activeCompletions.length) {
             // Move active nicks to the front of the queue.
             activeCompletions.reverse();
@@ -803,9 +928,12 @@
 
           // If one of the completions is the sender of the last ping,
           // take it, if it was less than an hour ago.
-          if (this._lastPing && this.buddies.has(this._lastPing) &&
+          if (
+            this._lastPing &&
+            this.buddies.has(this._lastPing) &&
             this._completions.includes(this._lastPing) &&
-            (Date.now() / 1000 - this._lastPingTime) < 3600) {
+            Date.now() / 1000 - this._lastPingTime < 3600
+          ) {
             preferredNick = true;
             this._completionsIndex = this._completions.indexOf(this._lastPing);
           }
@@ -825,7 +953,7 @@
           }
         }
 
-        let suffix = (isFirstWord ? firstWordSuffix : "");
+        let suffix = isFirstWord ? firstWordSuffix : "";
         this._completions = this._completions.map(c => c + suffix);
 
         let completion;
@@ -835,10 +963,14 @@
           this._completionsIndex %= this._completions.length;
         } else {
           // We have several possible completions, attempt to find a common prefix.
-          let maxLength = Math.min(firstCompletion.length, lastCompletion.length);
+          let maxLength = Math.min(
+            firstCompletion.length,
+            lastCompletion.length
+          );
           let i = 0;
-          while (i < maxLength && firstCompletion[i] == lastCompletion[i])
+          while (i < maxLength && firstCompletion[i] == lastCompletion[i]) {
             ++i;
+          }
 
           if (i) {
             completion = firstCompletion.substring(0, i);
@@ -889,8 +1021,10 @@
       }
 
       this._pendingValueChangedCall = true;
-      Services.tm.mainThread.dispatch(this.delayedInputValueChanged.bind(this),
-        Ci.nsIEventTarget.DISPATCH_NORMAL);
+      Services.tm.mainThread.dispatch(
+        this.delayedInputValueChanged.bind(this),
+        Ci.nsIEventTarget.DISPATCH_NORMAL
+      );
     }
 
     delayedInputValueChanged() {
@@ -922,7 +1056,7 @@
         this.inputBox.removeAttribute("invalidInput");
       } else {
         // 200 is a 'magic' constant to avoid showing big numbers.
-        this.charCounter.setAttribute("value", (left < 200 ? left : ""));
+        this.charCounter.setAttribute("value", left < 200 ? left : "");
 
         if (left >= 0) {
           this.inputBox.removeAttribute("invalidInput");
@@ -942,11 +1076,15 @@
 
       if (TextboxSize.autoResize) {
         let currHeight = parseInt(this.inputBox.parentNode.height);
-        if (this.inputBox.defaultHeight + this._TEXTBOX_VERTICAL_OVERHEAD > currHeight) {
-          this.inputBox.defaultHeight = currHeight - this._TEXTBOX_VERTICAL_OVERHEAD;
+        if (
+          this.inputBox.defaultHeight + this._TEXTBOX_VERTICAL_OVERHEAD >
+          currHeight
+        ) {
+          this.inputBox.defaultHeight =
+            currHeight - this._TEXTBOX_VERTICAL_OVERHEAD;
         }
-        this.convBottom.height = this.inputBox.defaultHeight +
-          this._TEXTBOX_VERTICAL_OVERHEAD;
+        this.convBottom.height =
+          this.inputBox.defaultHeight + this._TEXTBOX_VERTICAL_OVERHEAD;
         this.inputBox.style.overflowY = "hidden";
       }
     }
@@ -954,8 +1092,10 @@
     inputExpand(event) {
       // This feature has been disabled, or the user is currently dragging
       // the splitter and the textbox has received an overflow event
-      if (!TextboxSize.autoResize ||
-        this.splitter.getAttribute("state") == "dragging") {
+      if (
+        !TextboxSize.autoResize ||
+        this.splitter.getAttribute("state") == "dragging"
+      ) {
         this.inputBox.style.overflowY = "";
         return;
       }
@@ -984,20 +1124,24 @@
     onConvResize() {
       if (!this.splitter.hasAttribute("state")) {
         this.calculateTextboxDefaultHeight();
-        this.inputBox.parentNode.height = this.inputBox.defaultHeight +
-          this._TEXTBOX_VERTICAL_OVERHEAD;
+        this.inputBox.parentNode.height =
+          this.inputBox.defaultHeight + this._TEXTBOX_VERTICAL_OVERHEAD;
       } else {
         // Used in case the browser is already on its min-height, resize the
         // textbox to avoid hiding the status bar.
         let convTopStyle = window.getComputedStyle(this.convTop);
         let convTopHeight = parseInt(convTopStyle.getPropertyValue("height"));
-        let convTopMinHeight =
-          parseInt(convTopStyle.getPropertyValue("min-height"));
+        let convTopMinHeight = parseInt(
+          convTopStyle.getPropertyValue("min-height")
+        );
 
         if (convTopHeight == convTopMinHeight) {
-          this.inputBox.parentNode.height = parseInt(this.inputBox.parentNode.minHeight);
+          this.inputBox.parentNode.height = parseInt(
+            this.inputBox.parentNode.minHeight
+          );
           convTopHeight = parseInt(convTopStyle.getPropertyValue("height"));
-          this.inputBox.parentNode.height = parseInt(this.inputBox.parentNode.minHeight) +
+          this.inputBox.parentNode.height =
+            parseInt(this.inputBox.parentNode.minHeight) +
             (convTopHeight - convTopMinHeight);
         }
       }
@@ -1013,22 +1157,31 @@
     }
 
     browserKeyPress(event) {
-      let accelKeyPressed = AppConstants.platform == "macosx" ? event.metaKey : event.ctrlKey;
+      let accelKeyPressed =
+        AppConstants.platform == "macosx" ? event.metaKey : event.ctrlKey;
 
       // 118 is the decimal code for "v" character, 13 keyCode for "return" key
-      if (((accelKeyPressed && event.charCode != 118) || event.altKey) &&
-        event.keyCode != 13) {
+      if (
+        ((accelKeyPressed && event.charCode != 118) || event.altKey) &&
+        event.keyCode != 13
+      ) {
         return;
       }
 
-      if (event.charCode == 0 &&    // it's not a character, it's a command key
-          (event.keyCode != 13 &&   // Return
-            event.keyCode != 8 &&   // Backspace
-            event.keyCode != 46)) { // Delete
+      if (
+        event.charCode == 0 && // it's not a character, it's a command key
+        (event.keyCode != 13 && // Return
+        event.keyCode != 8 && // Backspace
+          event.keyCode != 46)
+      ) {
+        // Delete
         return;
       }
 
-      if (accelKeyPressed || !Services.prefs.getBoolPref("accessibility.typeaheadfind")) {
+      if (
+        accelKeyPressed ||
+        !Services.prefs.getBoolPref("accessibility.typeaheadfind")
+      ) {
         this.inputBox.focus();
 
         // A common use case is to click somewhere in the conversation and
@@ -1050,8 +1203,13 @@
     }
 
     browserDblClick(event) {
-      if (!Services.prefs.getBoolPref("messenger.conversations.doubleClickToReply"))
+      if (
+        !Services.prefs.getBoolPref(
+          "messenger.conversations.doubleClickToReply"
+        )
+      ) {
         return;
+      }
 
       for (let node = event.target; node; node = node.parentNode) {
         if (node._originalMsg) {
@@ -1061,8 +1219,13 @@
             actions[0].run();
             return;
           }
-          if (msg.system || msg.outgoing || !msg.incoming || msg.error ||
-              !this._conv.isChat) {
+          if (
+            msg.system ||
+            msg.outgoing ||
+            !msg.incoming ||
+            msg.error ||
+            !this._conv.isChat
+          ) {
             return;
           }
           this.addPrompt(msg.who + ": ");
@@ -1079,7 +1242,9 @@
     addString(aString) {
       let cursorPosition = this.inputBox.selectionStart + aString.length;
 
-      this.inputBox.value = this.inputBox.value.substr(0, this.inputBox.selectionStart) + aString +
+      this.inputBox.value =
+        this.inputBox.value.substr(0, this.inputBox.selectionStart) +
+        aString +
         this.inputBox.value.substr(this.inputBox.selectionEnd);
       this.inputBox.selectionStart = this.inputBox.selectionEnd = cursorPosition;
       this.inputValueChanged();
@@ -1122,7 +1287,10 @@
         }
       }
       if (image) {
-        aItem.firstChild.setAttribute("src", "chrome://messenger/skin/" + image + ".png");
+        aItem.firstChild.setAttribute(
+          "src",
+          "chrome://messenger/skin/" + image + ".png"
+        );
       } else {
         aItem.firstChild.removeAttribute("src");
       }
@@ -1136,7 +1304,7 @@
     _computeColor(aName) {
       // Compute the color based on the nick
       let nick = aName.match(/[a-zA-Z0-9]+/);
-      nick = nick ? nick[0].toLowerCase() : nick = aName;
+      nick = nick ? nick[0].toLowerCase() : (nick = aName);
       // We compute a hue value (between 0 and 359) based on the
       // characters of the nick.
       // The first character weights kInitialWeight, each following
@@ -1159,7 +1327,10 @@
     }
 
     _isBuddyActive(aBuddyName) {
-      return Object.prototype.hasOwnProperty.call(this._activeBuddies, aBuddyName);
+      return Object.prototype.hasOwnProperty.call(
+        this._activeBuddies,
+        aBuddyName
+      );
     }
 
     /**
@@ -1219,8 +1390,13 @@
       let end = nicklist.itemCount;
       while (start < end) {
         let middle = start + Math.floor((end - start) / 2);
-        if (nick < nicklist.getItemAtIndex(middle).firstChild.nextSibling
-                          .getAttribute("value").toLowerCase()) {
+        if (
+          nick <
+          nicklist
+            .getItemAtIndex(middle)
+            .firstChild.nextSibling.getAttribute("value")
+            .toLowerCase()
+        ) {
           end = middle;
         } else {
           start = middle + 1;
@@ -1268,11 +1444,15 @@
 
       // Is aOldName is not null, then we are renaming the buddy
       if (!this.buddies.has(aOldName)) {
-        throw new Error("Updating a chat buddy that does not exist: " + aOldName);
+        throw new Error(
+          "Updating a chat buddy that does not exist: " + aOldName
+        );
       }
 
       if (this.buddies.has(name)) {
-        throw new Error("Updating a chat buddy to an already existing one: " + name);
+        throw new Error(
+          "Updating a chat buddy to an already existing one: " + name
+        );
       }
 
       let item = this.buddies.get(aOldName);
@@ -1305,7 +1485,7 @@
     }
 
     getShowNickModifier() {
-      return (function(aNode) {
+      return function(aNode) {
         if (!("_showNickRegExp" in this)) {
           if (!("_showNickList" in this)) {
             this._showNickList = {};
@@ -1316,7 +1496,10 @@
 
           // The reverse sort ensures that if we have "foo" and "foobar",
           // "foobar" will be matched first by the regexp.
-          let nicks = Object.keys(this._showNickList).sort().reverse().join("|");
+          let nicks = Object.keys(this._showNickList)
+            .sort()
+            .reverse()
+            .join("|");
           if (nicks) {
             // We use \W to match for word-boundaries, as \b will not match the
             // nick if it starts/ends with \W characters.
@@ -1359,7 +1542,7 @@
           result += 2;
         }
         return result;
-      }).bind(this);
+      }.bind(this);
     }
 
     updateTopic() {
@@ -1409,20 +1592,30 @@
       }
       if (typingState == Ci.prplIConvIM.TYPING) {
         cti.setAttribute("typing", "active");
-        let typingMsg = this.bundle.formatStringFromName("chat.contactIsTyping",
-          [name], 1);
+        let typingMsg = this.bundle.formatStringFromName(
+          "chat.contactIsTyping",
+          [name],
+          1
+        );
         cti.setAttribute("statusTypeTooltiptext", typingMsg);
         cti.setAttribute("statusTooltiptext", typingMsg);
-        cti.setAttribute("statusMessage",
-          this.bundle.GetStringFromName("chat.isTyping"));
+        cti.setAttribute(
+          "statusMessage",
+          this.bundle.GetStringFromName("chat.isTyping")
+        );
       } else if (typingState == Ci.prplIConvIM.TYPED) {
         cti.setAttribute("typing", "paused");
-        let typedMsg = this.bundle.formatStringFromName("chat.contactHasStoppedTyping",
-          [name], 1);
+        let typedMsg = this.bundle.formatStringFromName(
+          "chat.contactHasStoppedTyping",
+          [name],
+          1
+        );
         cti.setAttribute("statusTypeTooltiptext", typedMsg);
         cti.setAttribute("statusTooltiptext", typedMsg);
-        cti.setAttribute("statusMessage",
-          this.bundle.GetStringFromName("chat.hasStoppedTyping"));
+        cti.setAttribute(
+          "statusMessage",
+          this.bundle.GetStringFromName("chat.hasStoppedTyping")
+        );
       }
     }
 
@@ -1464,8 +1657,10 @@
 
     updateConvStatus() {
       let cti = document.getElementById("conv-top-info");
-      cti.setAttribute("prplIcon",
-        this._conv.account.protocol.iconBaseURI + "icon.png");
+      cti.setAttribute(
+        "prplIcon",
+        this._conv.account.protocol.iconBaseURI + "icon.png"
+      );
 
       if (this._conv.isChat) {
         this.updateTopic();
@@ -1510,11 +1705,14 @@
         }
         // Populate the nicklist
         this.buddies = new Map();
-        for (let n of this.conv.getParticipants())
+        for (let n of this.conv.getParticipants()) {
           this.createBuddy(n);
-        nicklist.append(...Array.from(this.buddies.keys())
-          .sort((a, b) => a.localeCompare(b))
-          .map(nick => this.buddies.get(nick)));
+        }
+        nicklist.append(
+          ...Array.from(this.buddies.keys())
+            .sort((a, b) => a.localeCompare(b))
+            .map(nick => this.buddies.get(nick))
+        );
         this.updateParticipantCount();
       }
     }
@@ -1553,7 +1751,7 @@
       // selected one, i.e if it has to maintain the participant list.
       // The JS property this.tab.selected is always false when the chat tab
       // is inactive, so we need to double-check to be sure.
-      return (this.tab.selected || this.tab.hasAttribute("selected"));
+      return this.tab.selected || this.tab.hasAttribute("selected");
     }
 
     get convId() {
@@ -1588,8 +1786,9 @@
 
     get bundle() {
       if (!this._bundle) {
-        this._bundle =
-          Services.strings.createBundle("chrome://messenger/locale/chat.properties");
+        this._bundle = Services.strings.createBundle(
+          "chrome://messenger/locale/chat.properties"
+        );
       }
       return this._bundle;
     }

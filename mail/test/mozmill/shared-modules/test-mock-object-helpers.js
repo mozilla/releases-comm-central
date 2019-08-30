@@ -1,6 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
-  * You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 "use strict";
 
@@ -8,10 +8,15 @@ var MODULE_NAME = "mock-object-helpers";
 
 var Cm = Components.manager;
 
-const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-XPCOMUtils.defineLazyServiceGetter(this, "UUIDGen",
-                                   "@mozilla.org/uuid-generator;1",
-                                   "nsIUUIDGenerator");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+XPCOMUtils.defineLazyServiceGetter(
+  this,
+  "UUIDGen",
+  "@mozilla.org/uuid-generator;1",
+  "nsIUUIDGenerator"
+);
 
 function installInto(module) {
   module.MockObjectReplacer = MockObjectReplacer;
@@ -29,25 +34,27 @@ MockObjectRegisterer.prototype = {
     let providedConstructor = this._component;
     this._mockFactory = {
       createInstance: function MF_createInstance(aOuter, aIid) {
-        if (aOuter != null)
+        if (aOuter != null) {
           throw Cr.NS_ERROR_NO_AGGREGATION;
+        }
         return new providedConstructor().QueryInterface(aIid);
       },
     };
 
-   let componentRegistrar = Cm.QueryInterface(Ci.nsIComponentRegistrar);
+    let componentRegistrar = Cm.QueryInterface(Ci.nsIComponentRegistrar);
 
-   componentRegistrar.registerFactory(this._cid,
-        "",
-        this._contractID,
-        this._mockFactory);
+    componentRegistrar.registerFactory(
+      this._cid,
+      "",
+      this._contractID,
+      this._mockFactory
+    );
   },
 
   unregister: function MOR_unregister() {
     let componentRegistrar = Cm.QueryInterface(Ci.nsIComponentRegistrar);
 
-    componentRegistrar.unregisterFactory(this._cid,
-        this._mockFactory);
+    componentRegistrar.unregisterFactory(this._cid, this._mockFactory);
   },
 };
 
@@ -83,20 +90,27 @@ MockObjectReplacer.prototype = {
    * to ensure that unregister() is called.
    */
   register() {
-    if (this._cid)
+    if (this._cid) {
       throw Error("Invalid object state when calling register()");
+    }
 
     // Define a factory that creates a new object using the given constructor.
     var providedConstructor = this._replacementCtor;
     this._mockFactory = {
       createInstance(aOuter, aIid) {
-        if (aOuter != null)
+        if (aOuter != null) {
           throw Cr.NS_ERROR_NO_AGGREGATION;
+        }
         return new providedConstructor().QueryInterface(aIid);
       },
     };
 
-    var retVal = swapFactoryRegistration(this._cid, this._originalCID, this._contractID, this._mockFactory);
+    var retVal = swapFactoryRegistration(
+      this._cid,
+      this._originalCID,
+      this._contractID,
+      this._mockFactory
+    );
     if ("error" in retVal) {
       throw new Error("ERROR: " + retVal.error);
     } else {
@@ -109,11 +123,17 @@ MockObjectReplacer.prototype = {
    * Restores the original factory.
    */
   unregister() {
-    if (!this._cid)
+    if (!this._cid) {
       throw Error("Invalid object state when calling unregister()");
+    }
 
     // Free references to the mock factory.
-    swapFactoryRegistration(this._cid, this._originalCID, this._contractID, this._mockFactory);
+    swapFactoryRegistration(
+      this._cid,
+      this._originalCID,
+      this._contractID,
+      this._mockFactory
+    );
 
     // Allow registering a mock factory again later.
     this._cid = null;
@@ -145,23 +165,18 @@ function swapFactoryRegistration(CID, originalCID, contractID, newFactory) {
       originalCID = componentRegistrar.contractIDToCID(contractID);
       void Cm.getClassObject(Cc[contractID], Ci.nsIFactory);
     } else {
-      return {"error": "trying to register a new contract ID: Missing contractID"};
+      return {
+        error: "trying to register a new contract ID: Missing contractID",
+      };
     }
     CID = UUIDGen.generateUUID();
 
-    componentRegistrar.registerFactory(CID,
-      "",
-      contractID,
-      newFactory);
+    componentRegistrar.registerFactory(CID, "", contractID, newFactory);
   } else {
     componentRegistrar.unregisterFactory(CID, newFactory);
     // Restore the original factory.
-    componentRegistrar.registerFactory(originalCID,
-      "",
-      contractID,
-      null);
+    componentRegistrar.registerFactory(originalCID, "", contractID, null);
   }
 
-  return {cid: CID, originalCID};
+  return { cid: CID, originalCID };
 }
-

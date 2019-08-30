@@ -7,7 +7,9 @@ createParentElement, getAccountsText, getLoadContext, MailServices, Services */
 
 "use strict";
 
-var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 
 /**
  * Create warning text to add to any private data.
@@ -15,7 +17,8 @@ var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm
  */
 function createWarning() {
   let bundle = Services.strings.createBundle(
-    "chrome://messenger/locale/aboutSupportMail.properties");
+    "chrome://messenger/locale/aboutSupportMail.properties"
+  );
   return createParentElement("p", [
     createElement("strong", bundle.GetStringFromName("warningLabel")),
     // Add some whitespace between the label and the text
@@ -26,7 +29,8 @@ function createWarning() {
 
 function getClipboardTransferable() {
   // Get the HTML and text representations for the important part of the page.
-  let hidePrivateData = !document.getElementById("check-show-private-data").checked;
+  let hidePrivateData = !document.getElementById("check-show-private-data")
+    .checked;
   let contentsDiv = createCleanedUpContents(hidePrivateData);
   let dataHtml = contentsDiv.innerHTML;
   let dataText = createTextForElement(contentsDiv, hidePrivateData);
@@ -36,8 +40,9 @@ function getClipboardTransferable() {
   let ssHtml = supportsStringClass.createInstance(Ci.nsISupportsString);
   let ssText = supportsStringClass.createInstance(Ci.nsISupportsString);
 
-  let transferable = Cc["@mozilla.org/widget/transferable;1"]
-                       .createInstance(Ci.nsITransferable);
+  let transferable = Cc["@mozilla.org/widget/transferable;1"].createInstance(
+    Ci.nsITransferable
+  );
   transferable.init(getLoadContext());
 
   // Add the HTML flavor.
@@ -58,12 +63,17 @@ function getClipboardTransferable() {
 function copyContentsToClipboard() {
   let transferable = getClipboardTransferable();
   // Store the data into the clipboard.
-  Services.clipboard.setData(transferable, null, Services.clipboard.kGlobalClipboard);
+  Services.clipboard.setData(
+    transferable,
+    null,
+    Services.clipboard.kGlobalClipboard
+  );
 }
 
 function sendViaEmail() {
   // Get the HTML representation for the important part of the page.
-  let hidePrivateData = !document.getElementById("check-show-private-data").checked;
+  let hidePrivateData = !document.getElementById("check-show-private-data")
+    .checked;
   let contentsDiv = createCleanedUpContents(hidePrivateData);
   let dataHtml = contentsDiv.innerHTML;
   // The editor considers whitespace to be significant, so replace all
@@ -71,13 +81,15 @@ function sendViaEmail() {
   dataHtml = dataHtml.replace(/\s+/g, " ");
 
   // Set up parameters and fields to use for the compose window.
-  let params = Cc["@mozilla.org/messengercompose/composeparams;1"]
-                 .createInstance(Ci.nsIMsgComposeParams);
+  let params = Cc[
+    "@mozilla.org/messengercompose/composeparams;1"
+  ].createInstance(Ci.nsIMsgComposeParams);
   params.type = Ci.nsIMsgCompType.New;
   params.format = Ci.nsIMsgCompFormat.HTML;
 
-  let fields = Cc["@mozilla.org/messengercompose/composefields;1"]
-                 .createInstance(Ci.nsIMsgCompFields);
+  let fields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
   fields.forcePlainText = false;
   fields.body = dataHtml;
   // In general we can have non-ASCII characters, and compose's charset
@@ -100,8 +112,9 @@ function createCleanedUpContents(aHidePrivateData) {
   // (this mutates the cloned node)
   cleanUpText(clonedDiv, aHidePrivateData);
   // Insert a warning if we need to
-  if (!aHidePrivateData)
+  if (!aHidePrivateData) {
     clonedDiv.insertBefore(createWarning(), clonedDiv.firstChild);
+  }
   return clonedDiv;
 }
 
@@ -112,17 +125,28 @@ function cleanUpText(aElem, aHidePrivateData) {
   while (node) {
     let classList = "classList" in node && node.classList;
     // Delete uionly and no-copy nodes.
-    if (classList && (classList.contains(CLASS_DATA_UIONLY) || classList.contains("no-copy"))) {
+    if (
+      classList &&
+      (classList.contains(CLASS_DATA_UIONLY) || classList.contains("no-copy"))
+    ) {
       // Advance to the next node before removing the current node, since
       // node.nextSibling is null after remove()
       let nextNode = node.nextSibling;
       node.remove();
       node = nextNode;
       continue;
-    } else if (aHidePrivateData && classList && classList.contains(CLASS_DATA_PRIVATE)) {
+    } else if (
+      aHidePrivateData &&
+      classList &&
+      classList.contains(CLASS_DATA_PRIVATE)
+    ) {
       // Replace private data with a blank string.
       node.textContent = "";
-    } else if (!aHidePrivateData && classList && classList.contains(CLASS_DATA_PUBLIC)) {
+    } else if (
+      !aHidePrivateData &&
+      classList &&
+      classList.contains(CLASS_DATA_PUBLIC)
+    ) {
       // Replace public data with a blank string.
       node.textContent = "";
     } else if (copyData != null) {
@@ -131,8 +155,9 @@ function cleanUpText(aElem, aHidePrivateData) {
       copyData = null;
     }
 
-    if (node.nodeType == Node.ELEMENT_NODE)
+    if (node.nodeType == Node.ELEMENT_NODE) {
       cleanUpText(node, aHidePrivateData);
+    }
 
     // Advance!
     node = node.nextSibling;
@@ -153,8 +178,9 @@ function createTextForElement(elem, aHidePrivateData) {
   text = text.replace(/\n{3,}/g, "\n\n");
 
   // Actual CR/LF pairs are needed for some Windows text editors.
-  if ("@mozilla.org/windows-registry-key;1" in Cc)
+  if ("@mozilla.org/windows-registry-key;1" in Cc) {
     text = text.replace(/\n/g, "\r\n");
+  }
 
   return text;
 }
@@ -168,11 +194,16 @@ var gElementsToReplace = {
   "accounts-table": getAccountsText,
 };
 
-function generateTextForElement(elem, aHidePrivateData, indent,
-                                textFragmentAccumulator) {
+function generateTextForElement(
+  elem,
+  aHidePrivateData,
+  indent,
+  textFragmentAccumulator
+) {
   // Add a little extra spacing around most elements.
-  if (!["td", "th", "span", "a"].includes(elem.tagName))
+  if (!["td", "th", "span", "a"].includes(elem.tagName)) {
     textFragmentAccumulator.push("\n");
+  }
 
   // If this element is one of our elements to replace with text, do it.
   if (elem.id in gElementsToReplace) {
@@ -194,8 +225,11 @@ function generateTextForElement(elem, aHidePrivateData, indent,
   // handle that separately.
   if (elem.tagName == "tr" && childCount == 2) {
     textFragmentAccumulator.push(indent);
-    textFragmentAccumulator.push(elem.children[0].textContent.trim() + ": " +
-                                 elem.children[1].textContent.trim());
+    textFragmentAccumulator.push(
+      elem.children[0].textContent.trim() +
+        ": " +
+        elem.children[1].textContent.trim()
+    );
     return;
   }
 
@@ -208,9 +242,12 @@ function generateTextForElement(elem, aHidePrivateData, indent,
     } else if (node.nodeType == Node.ELEMENT_NODE) {
       // Recurse on the child element with an extra level of indentation (but
       // only if there's more than one child).
-      generateTextForElement(node, aHidePrivateData,
-                             indent + (childCount > 1 ? "  " : ""),
-                             textFragmentAccumulator);
+      generateTextForElement(
+        node,
+        aHidePrivateData,
+        indent + (childCount > 1 ? "  " : ""),
+        textFragmentAccumulator
+      );
     }
     // Advance!
     node = node.nextSibling;
@@ -221,8 +258,9 @@ function generateTextForTextNode(node, indent, textFragmentAccumulator) {
   // If the text node is the first of a run of text nodes, then start
   // a new line and add the initial indentation.
   let prevNode = node.previousSibling;
-  if (!prevNode || prevNode.nodeType == Node.TEXT_NODE)
+  if (!prevNode || prevNode.nodeType == Node.TEXT_NODE) {
     textFragmentAccumulator.push("\n" + indent);
+  }
 
   // Trim the text node's text content and add proper indentation after
   // any internal line breaks.
@@ -239,8 +277,12 @@ function getCrashesText(aIndent) {
   let recentCrashesSubmitted = document.querySelectorAll("#crashes-tbody > tr");
   for (let i = 0; i < recentCrashesSubmitted.length; i++) {
     let tds = recentCrashesSubmitted.item(i).querySelectorAll("td");
-    crashesData += aIndent.repeat(2) + tds.item(0).firstChild.href +
-                   " (" + tds.item(1).textContent + ")\n";
+    crashesData +=
+      aIndent.repeat(2) +
+      tds.item(0).firstChild.href +
+      " (" +
+      tds.item(1).textContent +
+      ")\n";
   }
   return crashesData;
 }

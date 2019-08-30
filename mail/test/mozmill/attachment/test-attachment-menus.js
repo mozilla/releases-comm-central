@@ -10,15 +10,23 @@
 
 var MODULE_NAME = "test-attachment-menus";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "attachment-helpers"];
+var MODULE_REQUIRES = [
+  "folder-display-helpers",
+  "window-helpers",
+  "attachment-helpers",
+];
 
 var folder;
 var messenger;
 var epsilon;
 
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
-var controller = ChromeUtils.import("chrome://mozmill/content/modules/controller.jsm");
+var controller = ChromeUtils.import(
+  "chrome://mozmill/content/modules/controller.jsm"
+);
 
 var textAttachment =
   "Can't make the frug contest, Helen; stomach's upset. I'll fix you, " +
@@ -32,110 +40,136 @@ var deletedName = "deleted.txt";
 
 // create some messages that have various types of attachments
 var messages = [
-  { name: "regular_attachment",
-    attachments: [{ body: textAttachment,
-                    filename: "ubik.txt",
-                    format: "" }],
+  {
+    name: "regular_attachment",
+    attachments: [{ body: textAttachment, filename: "ubik.txt", format: "" }],
     menuStates: [{ open: true, save: true, detach: true, delete_: true }],
     allMenuStates: { open: true, save: true, detach: true, delete_: true },
   },
-  { name: "detached_attachment",
+  {
+    name: "detached_attachment",
     bodyPart: null,
     menuStates: [{ open: true, save: true, detach: false, delete_: false }],
     allMenuStates: { open: true, save: true, detach: false, delete_: false },
   },
-  { name: "detached_attachment_with_missing_file",
+  {
+    name: "detached_attachment_with_missing_file",
     bodyPart: null,
     menuStates: [{ open: false, save: false, detach: false, delete_: false }],
     allMenuStates: { open: false, save: false, detach: false, delete_: false },
   },
-  { name: "deleted_attachment",
+  {
+    name: "deleted_attachment",
     bodyPart: null,
     menuStates: [{ open: false, save: false, detach: false, delete_: false }],
     allMenuStates: { open: false, save: false, detach: false, delete_: false },
   },
-  { name: "multiple_attachments",
-    attachments: [{ body: textAttachment,
-                    filename: "ubik.txt",
-                    format: "" },
-                  { body: textAttachment,
-                    filename: "ubik2.txt",
-                    format: "" }],
-    menuStates: [{ open: true, save: true, detach: true, delete_: true },
-                 { open: true, save: true, detach: true, delete_: true }],
+  {
+    name: "multiple_attachments",
+    attachments: [
+      { body: textAttachment, filename: "ubik.txt", format: "" },
+      { body: textAttachment, filename: "ubik2.txt", format: "" },
+    ],
+    menuStates: [
+      { open: true, save: true, detach: true, delete_: true },
+      { open: true, save: true, detach: true, delete_: true },
+    ],
     allMenuStates: { open: true, save: true, detach: true, delete_: true },
   },
-  { name: "multiple_attachments_one_detached",
+  {
+    name: "multiple_attachments_one_detached",
     bodyPart: null,
-    attachments: [{ body: textAttachment,
-                    filename: "ubik.txt",
-                    format: "" }],
-    menuStates: [{ open: true, save: true, detach: false, delete_: false },
-                 { open: true, save: true, detach: true, delete_: true }],
+    attachments: [{ body: textAttachment, filename: "ubik.txt", format: "" }],
+    menuStates: [
+      { open: true, save: true, detach: false, delete_: false },
+      { open: true, save: true, detach: true, delete_: true },
+    ],
     allMenuStates: { open: true, save: true, detach: true, delete_: true },
   },
-  { name: "multiple_attachments_one_detached_with_missing_file",
+  {
+    name: "multiple_attachments_one_detached_with_missing_file",
     bodyPart: null,
-    attachments: [{ body: textAttachment,
-                    filename: "ubik.txt",
-                    format: "" }],
-    menuStates: [{ open: false, save: false, detach: false, delete_: false },
-                 { open: true, save: true, detach: true, delete_: true }],
+    attachments: [{ body: textAttachment, filename: "ubik.txt", format: "" }],
+    menuStates: [
+      { open: false, save: false, detach: false, delete_: false },
+      { open: true, save: true, detach: true, delete_: true },
+    ],
     allMenuStates: { open: true, save: true, detach: true, delete_: true },
   },
-  { name: "multiple_attachments_one_deleted",
+  {
+    name: "multiple_attachments_one_deleted",
     bodyPart: null,
-    attachments: [{ body: textAttachment,
-                    filename: "ubik.txt",
-                    format: "" }],
-    menuStates: [{ open: false, save: false, detach: false, delete_: false },
-                 { open: true, save: true, detach: true, delete_: true }],
+    attachments: [{ body: textAttachment, filename: "ubik.txt", format: "" }],
+    menuStates: [
+      { open: false, save: false, detach: false, delete_: false },
+      { open: true, save: true, detach: true, delete_: true },
+    ],
     allMenuStates: { open: true, save: true, detach: true, delete_: true },
   },
-  { name: "multiple_attachments_all_detached",
+  {
+    name: "multiple_attachments_all_detached",
     bodyPart: null,
-    menuStates: [{ open: true, save: true, detach: false, delete_: false },
-                 { open: true, save: true, detach: false, delete_: false }],
+    menuStates: [
+      { open: true, save: true, detach: false, delete_: false },
+      { open: true, save: true, detach: false, delete_: false },
+    ],
     allMenuStates: { open: true, save: true, detach: false, delete_: false },
   },
-  { name: "multiple_attachments_all_detached_with_missing_files",
+  {
+    name: "multiple_attachments_all_detached_with_missing_files",
     bodyPart: null,
-    menuStates: [{ open: false, save: false, detach: false, delete_: false },
-                 { open: false, save: false, detach: false, delete_: false }],
+    menuStates: [
+      { open: false, save: false, detach: false, delete_: false },
+      { open: false, save: false, detach: false, delete_: false },
+    ],
     allMenuStates: { open: false, save: false, detach: false, delete_: false },
   },
-  { name: "multiple_attachments_all_deleted",
+  {
+    name: "multiple_attachments_all_deleted",
     bodyPart: null,
-    menuStates: [{ open: false, save: false, detach: false, delete_: false },
-                 { open: false, save: false, detach: false, delete_: false }],
+    menuStates: [
+      { open: false, save: false, detach: false, delete_: false },
+      { open: false, save: false, detach: false, delete_: false },
+    ],
     allMenuStates: { open: false, save: false, detach: false, delete_: false },
   },
-  { name: "link_enclosure_valid",
+  {
+    name: "link_enclosure_valid",
     bodyPart: null,
     menuStates: [{ open: true, save: true, detach: false, delete_: false }],
     allMenuStates: { open: true, save: true, detach: false, delete_: false },
   },
-  { name: "link_enclosure_invalid",
+  {
+    name: "link_enclosure_invalid",
     bodyPart: null,
     menuStates: [{ open: false, save: false, detach: false, delete_: false }],
     allMenuStates: { open: false, save: false, detach: false, delete_: false },
   },
-  { name: "link_multiple_enclosures",
+  {
+    name: "link_multiple_enclosures",
     bodyPart: null,
-    menuStates: [{ open: true, save: true, detach: false, delete_: false },
-                 { open: true, save: true, detach: false, delete_: false }],
+    menuStates: [
+      { open: true, save: true, detach: false, delete_: false },
+      { open: true, save: true, detach: false, delete_: false },
+    ],
     allMenuStates: { open: true, save: true, detach: false, delete_: false },
   },
-  { name: "link_multiple_enclosures_one_invalid",
+  {
+    name: "link_multiple_enclosures_one_invalid",
     bodyPart: null,
-    menuStates: [{ open: true, save: true, detach: false, delete_: false },
-                 { open: false, save: false, detach: false, delete_: false }],
+    menuStates: [
+      { open: true, save: true, detach: false, delete_: false },
+      { open: false, save: false, detach: false, delete_: false },
+    ],
     allMenuStates: { open: true, save: true, detach: false, delete_: false },
   },
-  { name: "link_multiple_enclosures_all_invalid",
+  {
+    name: "link_multiple_enclosures_all_invalid",
     bodyPart: null,
-    menuStates: [{ open: false, save: false, detach: false, delete_: false },
-                 { open: false, save: false, detach: false, delete_: false }],
+    menuStates: [
+      { open: false, save: false, detach: false, delete_: false },
+      { open: false, save: false, detach: false, delete_: false },
+    ],
     allMenuStates: { open: false, save: false, detach: false, delete_: false },
   },
 ];
@@ -148,8 +182,7 @@ function setupModule(module) {
   let ah = collector.getModule("attachment-helpers");
   ah.installInto(module);
 
-  messenger = Cc["@mozilla.org/messenger;1"]
-                .createInstance(Ci.nsIMessenger);
+  messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
   /* Today's gory details (thanks to Jonathan Protzenko): libmime somehow
    * counts the trailing newline for an attachment MIME part. Most of the time,
@@ -158,21 +191,19 @@ function setupModule(module) {
    * holds. However, on Windows, if the attachment is not encoded (that is, is
    * inline text), libmime will return N + 2 bytes.
    */
-  epsilon = ("@mozilla.org/windows-registry-key;1" in Cc) ? 2 : 1;
+  epsilon = "@mozilla.org/windows-registry-key;1" in Cc ? 2 : 1;
 
   // set up our detached/deleted attachments
   var thisFilePath = os.getFileForPath(__file__);
 
   var detachedFile = os.getFileForPath(os.abspath(detachedName, thisFilePath));
-  var detached = create_body_part(
-    "Here is a file",
-    [create_detached_attachment(detachedFile, "text/plain")]
-  );
-  var multiple_detached = create_body_part(
-    "Here are some files",
-    [create_detached_attachment(detachedFile, "text/plain"),
-     create_detached_attachment(detachedFile, "text/plain")]
-  );
+  var detached = create_body_part("Here is a file", [
+    create_detached_attachment(detachedFile, "text/plain"),
+  ]);
+  var multiple_detached = create_body_part("Here are some files", [
+    create_detached_attachment(detachedFile, "text/plain"),
+    create_detached_attachment(detachedFile, "text/plain"),
+  ]);
 
   var missingFile = os.getFileForPath(os.abspath(missingName, thisFilePath));
   var missing = create_body_part(
@@ -181,42 +212,88 @@ function setupModule(module) {
   );
   var multiple_missing = create_body_part(
     "Here are some files (but you deleted the external files, you silly oaf!)",
-    [create_detached_attachment(missingFile, "text/plain"),
-     create_detached_attachment(missingFile, "text/plain")]
+    [
+      create_detached_attachment(missingFile, "text/plain"),
+      create_detached_attachment(missingFile, "text/plain"),
+    ]
   );
 
-  var deleted = create_body_part(
-    "Here is a file that you deleted",
-    [create_deleted_attachment(deletedName, "text/plain")]
-  );
+  var deleted = create_body_part("Here is a file that you deleted", [
+    create_deleted_attachment(deletedName, "text/plain"),
+  ]);
   var multiple_deleted = create_body_part(
     "Here are some files that you deleted",
-    [create_deleted_attachment(deletedName, "text/plain"),
-     create_deleted_attachment(deletedName, "text/plain")]
+    [
+      create_deleted_attachment(deletedName, "text/plain"),
+      create_deleted_attachment(deletedName, "text/plain"),
+    ]
   );
 
-  var enclosure_valid_url = create_body_part(
-    "My blog has the best enclosure",
-    [create_enclosure_attachment("purr.mp3", "audio/mpeg", "http://example.com", 12345678)]
-  );
+  var enclosure_valid_url = create_body_part("My blog has the best enclosure", [
+    create_enclosure_attachment(
+      "purr.mp3",
+      "audio/mpeg",
+      "http://example.com",
+      12345678
+    ),
+  ]);
   var enclosure_invalid_url = create_body_part(
     "My blog has the best enclosure with a dead link",
-    [create_enclosure_attachment("meow.mp3", "audio/mpeg", "http://example.com/invalid")]
+    [
+      create_enclosure_attachment(
+        "meow.mp3",
+        "audio/mpeg",
+        "http://example.com/invalid"
+      ),
+    ]
   );
   var multiple_enclosures = create_body_part(
     "My blog has the best 2 cat sound enclosures",
-    [create_enclosure_attachment("purr.mp3", "audio/mpeg", "http://example.com", 1234567),
-     create_enclosure_attachment("meow.mp3", "audio/mpeg", "http://example.com", 987654321)]
+    [
+      create_enclosure_attachment(
+        "purr.mp3",
+        "audio/mpeg",
+        "http://example.com",
+        1234567
+      ),
+      create_enclosure_attachment(
+        "meow.mp3",
+        "audio/mpeg",
+        "http://example.com",
+        987654321
+      ),
+    ]
   );
   var multiple_enclosures_one_link_invalid = create_body_part(
     "My blog has the best 2 cat sound enclosures but one is invalid",
-    [create_enclosure_attachment("purr.mp3", "audio/mpeg", "http://example.com", 1234567),
-     create_enclosure_attachment("meow.mp3", "audio/mpeg", "http://example.com/invalid")]
+    [
+      create_enclosure_attachment(
+        "purr.mp3",
+        "audio/mpeg",
+        "http://example.com",
+        1234567
+      ),
+      create_enclosure_attachment(
+        "meow.mp3",
+        "audio/mpeg",
+        "http://example.com/invalid"
+      ),
+    ]
   );
   var multiple_enclosures_all_links_invalid = create_body_part(
     "My blog has 2 enclosures with 2 bad links",
-    [create_enclosure_attachment("purr.mp3", "audio/mpeg", "http://example.com/invalid"),
-     create_enclosure_attachment("meow.mp3", "audio/mpeg", "http://example.com/invalid")]
+    [
+      create_enclosure_attachment(
+        "purr.mp3",
+        "audio/mpeg",
+        "http://example.com/invalid"
+      ),
+      create_enclosure_attachment(
+        "meow.mp3",
+        "audio/mpeg",
+        "http://example.com/invalid"
+      ),
+    ]
   );
 
   folder = create_folder("AttachmentMenusA");
@@ -272,9 +349,11 @@ function setupModule(module) {
  * @param visible true if the element should be visible, false otherwise
  */
 function assert_shown(id, visible) {
-  if (mc.e(id).hidden == visible)
-    throw new Error('"' + id + '" should be ' +
-                    (visible ? "visible" : "hidden"));
+  if (mc.e(id).hidden == visible) {
+    throw new Error(
+      '"' + id + '" should be ' + (visible ? "visible" : "hidden")
+    );
+  }
 }
 
 /**
@@ -284,9 +363,11 @@ function assert_shown(id, visible) {
  * @param enabled true if the element should be enabled, false otherwise
  */
 function assert_enabled(id, enabled) {
-  if (mc.e(id).disabled == enabled)
-    throw new Error('"' + id + '" should be ' +
-                    (enabled ? "enabled" : "disabled"));
+  if (mc.e(id).disabled == enabled) {
+    throw new Error(
+      '"' + id + '" should be ' + (enabled ? "enabled" : "disabled")
+    );
+  }
 }
 
 /**
@@ -302,8 +383,13 @@ function check_toolbar_menu_states_single(expected) {
     assert_enabled("attachmentSaveAllSingle", false);
   } else {
     assert_enabled("attachmentSaveAllSingle", true);
-    mc.click(new elementslib.Elem(mc.e("attachmentSaveAllSingle").
-      querySelector(".toolbarbutton-menubutton-dropmarker")));
+    mc.click(
+      new elementslib.Elem(
+        mc
+          .e("attachmentSaveAllSingle")
+          .querySelector(".toolbarbutton-menubutton-dropmarker")
+      )
+    );
     wait_for_popup_to_open(mc.e("attachmentSaveAllSingleMenu"));
 
     try {
@@ -330,8 +416,13 @@ function check_toolbar_menu_states_multiple(expected) {
     assert_enabled("attachmentSaveAllMultiple", false);
   } else {
     assert_enabled("attachmentSaveAllMultiple", true);
-    mc.click(new elementslib.Elem(mc.e("attachmentSaveAllMultiple").
-      querySelector(".toolbarbutton-menubutton-dropmarker")));
+    mc.click(
+      new elementslib.Elem(
+        mc
+          .e("attachmentSaveAllMultiple")
+          .querySelector(".toolbarbutton-menubutton-dropmarker")
+      )
+    );
     wait_for_popup_to_open(mc.e("attachmentSaveAllMultipleMenu"));
 
     try {
@@ -421,14 +512,16 @@ function help_test_attachment_menus(index) {
   // force serial execution of each test. Wait here for the fetch() to complete.
   controller.sleep(1000);
 
-  if (expectedStates.length == 1)
+  if (expectedStates.length == 1) {
     check_toolbar_menu_states_single(messages[index].allMenuStates);
-  else
+  } else {
     check_toolbar_menu_states_multiple(messages[index].allMenuStates);
+  }
 
   check_menu_states_all(messages[index].allMenuStates);
-  for (let i = 0; i < expectedStates.length; i++)
+  for (let i = 0; i < expectedStates.length; i++) {
     check_menu_states_single(i, expectedStates[i]);
+  }
 }
 
 // Generate a test for each message in |messages|.

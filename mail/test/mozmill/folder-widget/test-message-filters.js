@@ -24,7 +24,9 @@ var MODULE_REQUIRES = [
   "prompt-helpers",
 ];
 
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 var folderA;
 
 function setupModule(module) {
@@ -36,7 +38,7 @@ function setupModule(module) {
 
   folderA = create_folder("FolderToolbarA");
   // we need one message to select and open
-  make_new_sets_in_folder(folderA, [{count: 1}]);
+  make_new_sets_in_folder(folderA, [{ count: 1 }]);
 
   setupLocalServer(NNTP_PORT);
 }
@@ -74,8 +76,11 @@ function test_message_filter_shows_newsgroup_server() {
 
   // This one initializes the menuitems, but it's kinda hacky.
   nntp.node.menupopup._ensureInitialized();
-  assert_equals(nntp.node.itemCount, 5,
-                "Incorrect number of children for the NNTP server");
+  assert_equals(
+    nntp.node.itemCount,
+    5,
+    "Incorrect number of children for the NNTP server"
+  );
   close_window(filterc);
 }
 
@@ -92,11 +97,16 @@ function test_customize_toolbar_doesnt_double_get_mail_menu() {
   function check_getAllNewMsgMenu() {
     wait_for_window_focused(mc.window);
 
-    const subview = mc.click_through_appmenu(
-      [{id: "appmenu_File"}, {id: "appmenu_getNewMsgFor"}]);
+    const subview = mc.click_through_appmenu([
+      { id: "appmenu_File" },
+      { id: "appmenu_getNewMsgFor" },
+    ]);
 
-    assert_equals(subview.children.length, 5,
-                  "Incorrect number of items for GetNewMessages before customization");
+    assert_equals(
+      subview.children.length,
+      5,
+      "Incorrect number of items for GetNewMessages before customization"
+    );
 
     // Close the appmenu.
     mc.click(mc.eid("button-appmenu"));
@@ -118,7 +128,9 @@ function test_customize_toolbar_doesnt_double_get_mail_menu() {
 
   check_getAllNewMsgMenu();
 }
-test_customize_toolbar_doesnt_double_get_mail_menu.EXCLUDED_PLATFORMS = ["darwin"];
+test_customize_toolbar_doesnt_double_get_mail_menu.EXCLUDED_PLATFORMS = [
+  "darwin",
+];
 
 /* A helper function that opens up the new filter dialog (assuming that the
  * main filters dialog is already open), creates a simple filter, and then
@@ -195,8 +207,12 @@ function test_address_books_appear_in_message_filter_dropdown() {
     // We should have 2 address books here - one for the Personal Address
     // Book, and one for Collected Addresses.  The LDAP address book should
     // not be shown, since it isn't a local address book.
-    assert_equals(2, abList.itemCount, "Did not display the correct number "
-                  + "of address books in the filter menu list.");
+    assert_equals(
+      2,
+      abList.itemCount,
+      "Did not display the correct number " +
+        "of address books in the filter menu list."
+    );
   }
 
   // Let's open the filter editor.
@@ -219,11 +235,11 @@ function test_can_cancel_quit_on_filter_changes() {
 
   let filterc = wait_for_existing_window("mailnews:filterlist");
   let runButton = filterc.e("runFiltersButton");
-  runButton.setAttribute("label",
-                         runButton.getAttribute("stoplabel"));
+  runButton.setAttribute("label", runButton.getAttribute("stoplabel"));
 
-  let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"]
-                 .createInstance(Ci.nsISupportsPRBool);
+  let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
+    Ci.nsISupportsPRBool
+  );
 
   // Set the Mock Prompt Service to return false, so that we
   // cancel the quit.
@@ -260,11 +276,11 @@ function test_can_quit_on_filter_changes() {
   assert_equals(filterCount, 1);
 
   let runButton = filterc.e("runFiltersButton");
-  runButton.setAttribute("label",
-                         runButton.getAttribute("stoplabel"));
+  runButton.setAttribute("label", runButton.getAttribute("stoplabel"));
 
-  let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"]
-                     .createInstance(Ci.nsISupportsPRBool);
+  let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
+    Ci.nsISupportsPRBool
+  );
 
   // Set the Mock Prompt Service to return true, so that we
   // allow the quit.

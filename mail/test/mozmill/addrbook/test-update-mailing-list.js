@@ -16,7 +16,9 @@ var MODULE_NAME = "test-update-mailing-list";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["address-book-helpers", "folder-display-helpers"];
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 function setupModule(module) {
   collector.getModule("folder-display-helpers").installInto(module);
@@ -59,8 +61,11 @@ function test_contact_in_mailing_list_updated() {
 
   // Ensure that the primary email address for the contact changed
   // in the mailing list as well.
-  assert_equals(1, ml.addressLists.length,
-                "There should only be one contact in the mailing list");
+  assert_equals(
+    1,
+    ml.addressLists.length,
+    "There should only be one contact in the mailing list"
+  );
   let mlContact = ml.addressLists.queryElementAt(0, Ci.nsIAbCard);
   assert_equals(kNewAddress, mlContact.primaryEmail);
 

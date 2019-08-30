@@ -24,13 +24,16 @@ function setupModule(module) {
 }
 
 function test_base64_display() {
-  let file = os.getFileForPath(os.abspath("./base64-with-whitespace.eml",
-                               os.getFileForPath(__file__)));
+  let file = os.getFileForPath(
+    os.abspath("./base64-with-whitespace.eml", os.getFileForPath(__file__))
+  );
   let msgc = open_message_from_file(file);
-  let bodyText = msgc.e("messagepane").contentDocument
-                     .querySelector("body").textContent;
+  let bodyText = msgc.e("messagepane").contentDocument.querySelector("body")
+    .textContent;
   close_window(msgc);
 
-  assert_true(bodyText.includes("abcdefghijklmnopqrstuvwxyz"),
-              "Decoded base64 text not found in message.");
+  assert_true(
+    bodyText.includes("abcdefghijklmnopqrstuvwxyz"),
+    "Decoded base64 text not found in message."
+  );
 }

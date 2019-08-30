@@ -5,8 +5,10 @@
 
 /* import-globals-from emailWizard.js */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 /* eslint-disable complexity */
 /**
@@ -19,14 +21,16 @@ var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 function createAccountInBackend(config) {
   // incoming server
   let inServer = MailServices.accounts.createIncomingServer(
-      config.incoming.username,
-      config.incoming.hostname,
-      config.incoming.type);
+    config.incoming.username,
+    config.incoming.hostname,
+    config.incoming.type
+  );
   inServer.port = config.incoming.port;
   inServer.authMethod = config.incoming.auth;
   inServer.password = config.incoming.password;
-  if (config.rememberPassword && config.incoming.password.length)
+  if (config.rememberPassword && config.incoming.password.length) {
     rememberPassword(inServer, config.incoming.password);
+  }
 
   if (inServer.authMethod == Ci.nsMsgAuthMethod.OAuth2) {
     inServer.setCharValue("oauth2.scope", config.oauthSettings.scope);
@@ -34,12 +38,16 @@ function createAccountInBackend(config) {
   }
 
   // SSL
-  if (config.incoming.socketType == 1) // plain
+  if (config.incoming.socketType == 1) {
+    // plain
     inServer.socketType = Ci.nsMsgSocketType.plain;
-  else if (config.incoming.socketType == 2) // SSL / TLS
+  } else if (config.incoming.socketType == 2) {
+    // SSL / TLS
     inServer.socketType = Ci.nsMsgSocketType.SSL;
-  else if (config.incoming.socketType == 3) // STARTTLS
+  } else if (config.incoming.socketType == 3) {
+    // STARTTLS
     inServer.socketType = Ci.nsMsgSocketType.alwaysSTARTTLS;
+  }
   // inServer.prettyName = config.displayName;
   inServer.prettyName = config.identity.emailAddress;
 
@@ -47,16 +55,23 @@ function createAccountInBackend(config) {
   inServer.biffMinutes = config.incoming.checkInterval;
   inServer.setBoolValue("login_at_startup", config.incoming.loginAtStartup);
   if (config.incoming.type == "pop3") {
-    inServer.setBoolValue("leave_on_server",
-      config.incoming.leaveMessagesOnServer);
-    inServer.setIntValue("num_days_to_leave_on_server",
-      config.incoming.daysToLeaveMessagesOnServer);
-    inServer.setBoolValue("delete_mail_left_on_server",
-      config.incoming.deleteOnServerWhenLocalDelete);
-    inServer.setBoolValue("delete_by_age_from_server",
-      config.incoming.deleteByAgeFromServer);
-    inServer.setBoolValue("download_on_biff",
-      config.incoming.downloadOnBiff);
+    inServer.setBoolValue(
+      "leave_on_server",
+      config.incoming.leaveMessagesOnServer
+    );
+    inServer.setIntValue(
+      "num_days_to_leave_on_server",
+      config.incoming.daysToLeaveMessagesOnServer
+    );
+    inServer.setBoolValue(
+      "delete_mail_left_on_server",
+      config.incoming.deleteOnServerWhenLocalDelete
+    );
+    inServer.setBoolValue(
+      "delete_by_age_from_server",
+      config.incoming.deleteByAgeFromServer
+    );
+    inServer.setBoolValue("download_on_biff", config.incoming.downloadOnBiff);
   }
   if (config.incoming.owaURL) {
     inServer.setUnicharValue("owa_url", config.incoming.owaURL);
@@ -70,11 +85,16 @@ function createAccountInBackend(config) {
   inServer.valid = true;
 
   let username = config.outgoing.auth > 1 ? config.outgoing.username : null;
-  let outServer = MailServices.smtp.findServer(username, config.outgoing.hostname);
-  assert(config.outgoing.addThisServer ||
-         config.outgoing.useGlobalPreferredServer ||
-         config.outgoing.existingServerKey,
-         "No SMTP server: inconsistent flags");
+  let outServer = MailServices.smtp.findServer(
+    username,
+    config.outgoing.hostname
+  );
+  assert(
+    config.outgoing.addThisServer ||
+      config.outgoing.useGlobalPreferredServer ||
+      config.outgoing.existingServerKey,
+    "No SMTP server: inconsistent flags"
+  );
 
   if (config.outgoing.addThisServer && !outServer) {
     outServer = MailServices.smtp.createServer();
@@ -84,34 +104,47 @@ function createAccountInBackend(config) {
     if (config.outgoing.auth > 1) {
       outServer.username = username;
       outServer.password = config.incoming.password;
-      if (config.rememberPassword && config.incoming.password.length)
+      if (config.rememberPassword && config.incoming.password.length) {
         rememberPassword(outServer, config.incoming.password);
+      }
     }
 
     if (outServer.authMethod == Ci.nsMsgAuthMethod.OAuth2) {
       let prefBranch = "mail.smtpserver." + outServer.key + ".";
-      Services.prefs.setCharPref(prefBranch + "oauth2.scope",
-                                 config.oauthSettings.scope);
-      Services.prefs.setCharPref(prefBranch + "oauth2.issuer",
-                                 config.oauthSettings.issuer);
+      Services.prefs.setCharPref(
+        prefBranch + "oauth2.scope",
+        config.oauthSettings.scope
+      );
+      Services.prefs.setCharPref(
+        prefBranch + "oauth2.issuer",
+        config.oauthSettings.issuer
+      );
     }
 
-    if (config.outgoing.socketType == 1) // no SSL
+    if (config.outgoing.socketType == 1) {
+      // no SSL
       outServer.socketType = Ci.nsMsgSocketType.plain;
-    else if (config.outgoing.socketType == 2) // SSL / TLS
+    } else if (config.outgoing.socketType == 2) {
+      // SSL / TLS
       outServer.socketType = Ci.nsMsgSocketType.SSL;
-    else if (config.outgoing.socketType == 3) // STARTTLS
+    } else if (config.outgoing.socketType == 3) {
+      // STARTTLS
       outServer.socketType = Ci.nsMsgSocketType.alwaysSTARTTLS;
+    }
 
     // API problem: <http://mxr.mozilla.org/seamonkey/source/mailnews/compose/public/nsISmtpServer.idl#93>
     outServer.description = config.displayName;
-    if (config.password)
+    if (config.password) {
       outServer.password = config.outgoing.password;
+    }
 
     // If this is the first SMTP server, set it as default
-    if (!MailServices.smtp.defaultServer ||
-        !MailServices.smtp.defaultServer.hostname)
+    if (
+      !MailServices.smtp.defaultServer ||
+      !MailServices.smtp.defaultServer.hostname
+    ) {
       MailServices.smtp.defaultServer = outServer;
+    }
   }
 
   // identity
@@ -126,12 +159,17 @@ function createAccountInBackend(config) {
     identity.replyOnTop = 1;
     // identity.sigBottom = false; // don't set this until Bug 218346 is fixed
 
-    if (MailServices.accounts.accounts.length &&
-        MailServices.accounts.defaultAccount) {
+    if (
+      MailServices.accounts.accounts.length &&
+      MailServices.accounts.defaultAccount
+    ) {
       let defAccount = MailServices.accounts.defaultAccount;
       let defIdentity = defAccount.defaultIdentity;
-      if (defAccount.incomingServer.canBeDefaultServer &&
-          defIdentity && defIdentity.valid) {
+      if (
+        defAccount.incomingServer.canBeDefaultServer &&
+        defIdentity &&
+        defIdentity.valid
+      ) {
         identity.replyOnTop = defIdentity.replyOnTop;
         identity.sigBottom = defIdentity.sigBottom;
       }
@@ -139,15 +177,17 @@ function createAccountInBackend(config) {
   }
 
   // due to accepted conventions, news accounts should default to plain text
-  if (config.incoming.type == "nntp")
+  if (config.incoming.type == "nntp") {
     identity.composeHtml = false;
+  }
 
   identity.valid = true;
 
-  if (config.outgoing.existingServerKey)
+  if (config.outgoing.existingServerKey) {
     identity.smtpServerKey = config.outgoing.existingServerKey;
-  else if (!config.outgoing.useGlobalPreferredServer)
+  } else if (!config.outgoing.useGlobalPreferredServer) {
     identity.smtpServerKey = outServer.key;
+  }
 
   // account and hook up
   // Note: Setting incomingServer will cause the AccountManager to refresh
@@ -157,10 +197,13 @@ function createAccountInBackend(config) {
   let account = MailServices.accounts.createAccount();
   account.addIdentity(identity);
   account.incomingServer = inServer;
-  if (inServer.canBeDefaultServer && (!MailServices.accounts.defaultAccount ||
-                                      !MailServices.accounts.defaultAccount
-                                       .incomingServer.canBeDefaultServer))
+  if (
+    inServer.canBeDefaultServer &&
+    (!MailServices.accounts.defaultAccount ||
+      !MailServices.accounts.defaultAccount.incomingServer.canBeDefaultServer)
+  ) {
     MailServices.accounts.defaultAccount = account;
+  }
 
   verifyLocalFoldersAccount(MailServices.accounts);
   setFolders(identity, inServer);
@@ -201,15 +244,17 @@ function setFolders(identity, server) {
 
 function rememberPassword(server, password) {
   let passwordURI;
-  if (server instanceof Ci.nsIMsgIncomingServer)
+  if (server instanceof Ci.nsIMsgIncomingServer) {
     passwordURI = server.localStoreType + "://" + server.hostName;
-  else if (server instanceof Ci.nsISmtpServer)
+  } else if (server instanceof Ci.nsISmtpServer) {
     passwordURI = "smtp://" + server.hostname;
-  else
+  } else {
     throw new NotReached("Server type not supported");
+  }
 
-  let login = Cc["@mozilla.org/login-manager/loginInfo;1"]
-              .createInstance(Ci.nsILoginInfo);
+  let login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
+    Ci.nsILoginInfo
+  );
   login.init(passwordURI, null, passwordURI, server.username, password, "", "");
   try {
     Services.logins.addLogin(login);
@@ -236,18 +281,23 @@ function rememberPassword(server, password) {
 function checkIncomingServerAlreadyExists(config) {
   assert(config instanceof AccountConfig);
   let incoming = config.incoming;
-  let existing = MailServices.accounts.findRealServer(incoming.username,
-        incoming.hostname,
-        incoming.type,
-        incoming.port);
+  let existing = MailServices.accounts.findRealServer(
+    incoming.username,
+    incoming.hostname,
+    incoming.type,
+    incoming.port
+  );
 
   // if username does not have an '@', also check the e-mail
   // address form of the name.
-  if (!existing && !incoming.username.includes("@"))
-    existing = MailServices.accounts.findRealServer(config.identity.emailAddress,
-          incoming.hostname,
-          incoming.type,
-          incoming.port);
+  if (!existing && !incoming.username.includes("@")) {
+    existing = MailServices.accounts.findRealServer(
+      config.identity.emailAddress,
+      incoming.hostname,
+      incoming.type,
+      incoming.port
+    );
+  }
   return existing;
 }
 
@@ -265,13 +315,15 @@ function checkOutgoingServerAlreadyExists(config) {
   assert(config instanceof AccountConfig);
   let smtpServers = MailServices.smtp.servers;
   while (smtpServers.hasMoreElements()) {
-    let existingServer = smtpServers.getNext()
-        .QueryInterface(Ci.nsISmtpServer);
+    let existingServer = smtpServers.getNext().QueryInterface(Ci.nsISmtpServer);
     // TODO check username with full email address, too, like for incoming
-    if (existingServer.hostname == config.outgoing.hostname &&
-        existingServer.port == config.outgoing.port &&
-        existingServer.username == config.outgoing.username)
+    if (
+      existingServer.hostname == config.outgoing.hostname &&
+      existingServer.port == config.outgoing.port &&
+      existingServer.username == config.outgoing.username
+    ) {
       return existingServer;
+    }
   }
   return null;
 }
@@ -295,9 +347,13 @@ function verifyLocalFoldersAccount(am) {
       try {
         localMailServer = am.localFoldersServer;
       } catch (ex) {
-        ddump("Error! we should have found the local mail server " +
-              "after we created it.");
+        ddump(
+          "Error! we should have found the local mail server " +
+            "after we created it."
+        );
       }
     }
-  } catch (ex) { ddump("Error in verifyLocalFoldersAccount " + ex); }
+  } catch (ex) {
+    ddump("Error in verifyLocalFoldersAccount " + ex);
+  }
 }

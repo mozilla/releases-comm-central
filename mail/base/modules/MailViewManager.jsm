@@ -34,8 +34,9 @@ var MailViewConstants = {
  */
 var MailViewManager = {
   _views: {},
-  _customMailViews: Cc["@mozilla.org/messenger/mailviewlist;1"]
-                      .getService(Ci.nsIMsgMailViewList),
+  _customMailViews: Cc["@mozilla.org/messenger/mailviewlist;1"].getService(
+    Ci.nsIMsgMailViewList
+  ),
 
   /**
    * Define one of the built-in mail-views.  If you want to define your own
@@ -75,8 +76,9 @@ var MailViewManager = {
     let count = this._customMailViews.mailViewCount;
     for (let i = 0; i < count; i++) {
       let mailView = this._customMailViews.getMailViewAt(i);
-      if (mailView.mailViewName == aName)
+      if (mailView.mailViewName == aName) {
         return this._wrapCustomView(i);
+      }
     }
     throw new Error("No custom view with name: " + aName);
   },
@@ -92,11 +94,15 @@ var MailViewManager = {
    *      purposes.
    */
   getMailViewByIndex(aViewIndex) {
-    if (typeof(aViewIndex) == "string")
+    if (typeof aViewIndex == "string") {
       return this._findCustomViewByName(aViewIndex);
-    if (aViewIndex < MailViewConstants.kViewItemFirstCustom)
+    }
+    if (aViewIndex < MailViewConstants.kViewItemFirstCustom) {
       return this._views[aViewIndex];
-    return this._wrapCustomView(aViewIndex - MailViewConstants.kViewItemFirstCustom);
+    }
+    return this._wrapCustomView(
+      aViewIndex - MailViewConstants.kViewItemFirstCustom
+    );
   },
 };
 

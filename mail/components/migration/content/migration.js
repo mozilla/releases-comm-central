@@ -2,40 +2,71 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var kIMig = Ci.nsIMailProfileMigrator;
 var kIPStartup = Ci.nsIProfileStartup;
-var kProfileMigratorContractIDPrefix = "@mozilla.org/profile/migrator;1?app=mail&type=";
+var kProfileMigratorContractIDPrefix =
+  "@mozilla.org/profile/migrator;1?app=mail&type=";
 var nsISupportsString = Ci.nsISupportsString;
 
 var MigrationWizard = {
-  _source: "",                  // Source Profile Migrator ContractID suffix
-  _itemsFlags: kIMig.ALL,       // Selected Import Data Sources (16-bit bitfield)
-  _selectedProfile: null,       // Selected Profile name to import from
+  _source: "", // Source Profile Migrator ContractID suffix
+  _itemsFlags: kIMig.ALL, // Selected Import Data Sources (16-bit bitfield)
+  _selectedProfile: null, // Selected Profile name to import from
   _wiz: null,
   _migrator: null,
   _autoMigrate: null,
 
   init() {
-    document.documentElement.addEventListener("wizardback", this.onBack.bind(this));
-    document.documentElement.addEventListener("wizardcancel", this.onCancel.bind(this));
+    document.documentElement.addEventListener(
+      "wizardback",
+      this.onBack.bind(this)
+    );
+    document.documentElement.addEventListener(
+      "wizardcancel",
+      this.onCancel.bind(this)
+    );
 
     let importSourcePage = document.getElementById("importSource");
-    importSourcePage.addEventListener("pageadvanced", this.onImportSourcePageAdvanced.bind(this));
+    importSourcePage.addEventListener(
+      "pageadvanced",
+      this.onImportSourcePageAdvanced.bind(this)
+    );
 
     let selectProfilePage = document.getElementById("selectProfile");
-    selectProfilePage.addEventListener("pageshow", this.onSelectProfilePageShow.bind(this));
-    selectProfilePage.addEventListener("pagerewound", this.onSelectProfilePageRewound.bind(this));
-    selectProfilePage.addEventListener("pageadvanced", this.onSelectProfilePageAdvanced.bind(this));
+    selectProfilePage.addEventListener(
+      "pageshow",
+      this.onSelectProfilePageShow.bind(this)
+    );
+    selectProfilePage.addEventListener(
+      "pagerewound",
+      this.onSelectProfilePageRewound.bind(this)
+    );
+    selectProfilePage.addEventListener(
+      "pageadvanced",
+      this.onSelectProfilePageAdvanced.bind(this)
+    );
 
     let importItemsPage = document.getElementById("importItems");
-    importItemsPage.addEventListener("pageshow", this.onImportItemsPageShow.bind(this));
-    importItemsPage.addEventListener("pagerewound", this.onImportItemsPageAdvanced.bind(this));
-    importItemsPage.addEventListener("pageadvanced", this.onImportItemsPageAdvanced.bind(this));
+    importItemsPage.addEventListener(
+      "pageshow",
+      this.onImportItemsPageShow.bind(this)
+    );
+    importItemsPage.addEventListener(
+      "pagerewound",
+      this.onImportItemsPageAdvanced.bind(this)
+    );
+    importItemsPage.addEventListener(
+      "pageadvanced",
+      this.onImportItemsPageAdvanced.bind(this)
+    );
 
     let migratingPage = document.getElementById("migrating");
-    migratingPage.addEventListener("pageshow", this.onMigratingPageShow.bind(this));
+    migratingPage.addEventListener(
+      "pageshow",
+      this.onMigratingPageShow.bind(this)
+    );
 
     let donePage = document.getElementById("done");
     donePage.addEventListener("pageshow", this.onDonePageShow.bind(this));
@@ -48,9 +79,11 @@ var MigrationWizard = {
 
     this._wiz = document.documentElement;
 
-    if (("arguments" in window) && !window.arguments[3]) {
+    if ("arguments" in window && !window.arguments[3]) {
       this._source = window.arguments[0];
-      this._migrator = window.arguments[1] ? window.arguments[1].QueryInterface(kIMig) : null;
+      this._migrator = window.arguments[1]
+        ? window.arguments[1].QueryInterface(kIMig)
+        : null;
       this._autoMigrate = window.arguments[2].QueryInterface(kIPStartup);
 
       // Show the "nothing" option in the automigrate case to provide an
@@ -69,8 +102,10 @@ var MigrationWizard = {
         this._wiz.goTo("selectProfile");
       } else {
         var sourceProfiles = this._migrator.sourceProfiles;
-        this._selectedProfile = sourceProfiles
-          .queryElementAt(0, nsISupportsString).data;
+        this._selectedProfile = sourceProfiles.queryElementAt(
+          0,
+          nsISupportsString
+        ).data;
         this._wiz.goTo("migrating");
       }
     }
@@ -98,7 +133,9 @@ var MigrationWizard = {
         var migrator = Cc[contractID].createInstance(kIMig);
         if (!migrator.sourceExists) {
           childNode.hidden = true;
-          if (this._source == suffix) this._source = null;
+          if (this._source == suffix) {
+            this._source = null;
+          }
         }
       }
     }
@@ -110,7 +147,10 @@ var MigrationWizard = {
         break;
       }
     }
-    group.selectedItem = this._source == "" ? firstNonDisabled : document.getElementById(this._source);
+    group.selectedItem =
+      this._source == ""
+        ? firstNonDisabled
+        : document.getElementById(this._source);
 
     if (firstNonDisabled) {
       this._wiz.canAdvance = true;
@@ -123,14 +163,15 @@ var MigrationWizard = {
   },
 
   onImportSourcePageAdvanced() {
-    var newSource = document.getElementById("importSourceGroup").selectedItem.id;
+    var newSource = document.getElementById("importSourceGroup").selectedItem
+      .id;
 
     if (newSource == "nothing") {
       document.documentElement.cancel();
       return;
     }
 
-    if (!this._migrator || (newSource != this._source)) {
+    if (!this._migrator || newSource != this._source) {
       // Create the migrator for the selected source.
       var contractID = kProfileMigratorContractIDPrefix + newSource;
       this._migrator = Cc[contractID].createInstance(kIMig);
@@ -139,7 +180,7 @@ var MigrationWizard = {
       this._selectedProfile = null;
     }
 
-      this._source = newSource;
+    this._source = newSource;
 
     // check for more than one source profile
     if (this._migrator.sourceHasMultipleProfiles) {
@@ -147,11 +188,14 @@ var MigrationWizard = {
     } else {
       this._wiz.currentPage.next = "migrating";
       var sourceProfiles = this._migrator.sourceProfiles;
-      if (sourceProfiles && sourceProfiles.length == 1)
-        this._selectedProfile =
-          sourceProfiles.queryElementAt(0, nsISupportsString).data;
-      else
+      if (sourceProfiles && sourceProfiles.length == 1) {
+        this._selectedProfile = sourceProfiles.queryElementAt(
+          0,
+          nsISupportsString
+        ).data;
+      } else {
         this._selectedProfile = "";
+      }
     }
   },
 
@@ -163,8 +207,9 @@ var MigrationWizard = {
     //   document.documentElement.getButton("back").disabled = true;
 
     var profiles = document.getElementById("profiles");
-    while (profiles.hasChildNodes())
+    while (profiles.hasChildNodes()) {
       profiles.lastChild.remove();
+    }
 
     if (!this._migrator) {
       return;
@@ -178,7 +223,9 @@ var MigrationWizard = {
       profiles.appendChild(item);
     }
 
-    profiles.selectedItem = this._selectedProfile ? document.getElementById(this._selectedProfile) : profiles.firstChild;
+    profiles.selectedItem = this._selectedProfile
+      ? document.getElementById(this._selectedProfile)
+      : profiles.firstChild;
   },
 
   onSelectProfilePageRewound() {
@@ -191,28 +238,37 @@ var MigrationWizard = {
     this._selectedProfile = profiles.selectedItem.id;
 
     // If we're automigrating, don't show the item selection page, just grab everything.
-    if (this._autoMigrate)
+    if (this._autoMigrate) {
       this._wiz.currentPage.next = "migrating";
+    }
   },
 
   // 3 - ImportItems
   onImportItemsPageShow() {
     var dataSources = document.getElementById("dataSources");
-    while (dataSources.hasChildNodes())
+    while (dataSources.hasChildNodes()) {
       dataSources.lastChild.remove();
+    }
 
     var bundle = document.getElementById("bundle");
 
-    var items = this._migrator.getMigrateData(this._selectedProfile, this._autoMigrate);
+    var items = this._migrator.getMigrateData(
+      this._selectedProfile,
+      this._autoMigrate
+    );
     for (var i = 0; i < 16; ++i) {
       var itemID = (items >> i) & 0x1 ? Math.pow(2, i) : 0;
       if (itemID > 0) {
         var checkbox = document.createXULElement("checkbox");
         checkbox.id = itemID;
-        checkbox.setAttribute("label", bundle.getString(itemID + "_" + this._source));
+        checkbox.setAttribute(
+          "label",
+          bundle.getString(itemID + "_" + this._source)
+        );
         dataSources.appendChild(checkbox);
-        if (!this._itemsFlags || this._itemsFlags & itemID)
+        if (!this._itemsFlags || this._itemsFlags & itemID) {
           checkbox.checked = true;
+        }
       }
     }
   },
@@ -222,8 +278,9 @@ var MigrationWizard = {
     this._itemsFlags = 0;
     for (var i = 0; i < dataSources.childNodes.length; ++i) {
       var checkbox = dataSources.childNodes[i];
-      if (checkbox.localName == "checkbox" && checkbox.checked)
+      if (checkbox.localName == "checkbox" && checkbox.checked) {
         this._itemsFlags |= parseInt(checkbox.id);
+      }
     }
   },
 
@@ -250,22 +307,30 @@ var MigrationWizard = {
 
     // When automigrating or migrating all, show all of the data that can
     // be received from this source.
-    if (this._autoMigrate || this._itemsFlags == kIMig.ALL)
-      this._itemsFlags = this._migrator.getMigrateData(this._selectedProfile,
-                                                       this._autoMigrate);
+    if (this._autoMigrate || this._itemsFlags == kIMig.ALL) {
+      this._itemsFlags = this._migrator.getMigrateData(
+        this._selectedProfile,
+        this._autoMigrate
+      );
+    }
 
     this._listItems("migratingItems");
     setTimeout(this.onMigratingMigrate, 0, this);
   },
 
   onMigratingMigrate(aOuter) {
-    aOuter._migrator.migrate(aOuter._itemsFlags, aOuter._autoMigrate, aOuter._selectedProfile);
+    aOuter._migrator.migrate(
+      aOuter._itemsFlags,
+      aOuter._autoMigrate,
+      aOuter._selectedProfile
+    );
   },
 
   _listItems(aID) {
     var items = document.getElementById(aID);
-    while (items.hasChildNodes())
+    while (items.hasChildNodes()) {
       items.lastChild.remove();
+    }
 
     var bundle = document.getElementById("bundle");
     for (var i = 0; i < 16; ++i) {
@@ -274,7 +339,10 @@ var MigrationWizard = {
         var label = document.createXULElement("label");
         label.id = itemID + "_migrated";
         try {
-          label.setAttribute("value", "- " + bundle.getString(itemID + "_" + this._source));
+          label.setAttribute(
+            "value",
+            "- " + bundle.getString(itemID + "_" + this._source)
+          );
           items.appendChild(label);
         } catch (e) {
           // if the block above throws, we've enumerated all the import data types we
@@ -287,39 +355,41 @@ var MigrationWizard = {
 
   observe(aSubject, aTopic, aData) {
     switch (aTopic) {
-    case "Migration:Started":
-      dump("*** started\n");
-      break;
-    case "Migration:ItemBeforeMigrate": {
-      dump("*** before " + aData + "\n");
-      let label = document.getElementById(aData + "_migrated");
-      if (label)
-        label.setAttribute("style", "font-weight: bold");
-      break;
-    }
-    case "Migration:ItemAfterMigrate": {
-      dump("*** after " + aData + "\n");
-      let label = document.getElementById(aData + "_migrated");
-      if (label)
-        label.removeAttribute("style");
-      break;
-    }
-    case "Migration:Ended":
-      dump("*** done\n");
-      if (this._autoMigrate) {
-        // We're done now.
-        this._wiz.canAdvance = true;
-        this._wiz.advance();
-        setTimeout(window.close, 5000);
-      } else {
-        this._wiz.canAdvance = true;
-        var nextButton = this._wiz.getButton("next");
-        nextButton.click();
+      case "Migration:Started":
+        dump("*** started\n");
+        break;
+      case "Migration:ItemBeforeMigrate": {
+        dump("*** before " + aData + "\n");
+        let label = document.getElementById(aData + "_migrated");
+        if (label) {
+          label.setAttribute("style", "font-weight: bold");
+        }
+        break;
       }
-      break;
-    case "Migration:Progress":
-      document.getElementById("progressBar").value = aData;
-      break;
+      case "Migration:ItemAfterMigrate": {
+        dump("*** after " + aData + "\n");
+        let label = document.getElementById(aData + "_migrated");
+        if (label) {
+          label.removeAttribute("style");
+        }
+        break;
+      }
+      case "Migration:Ended":
+        dump("*** done\n");
+        if (this._autoMigrate) {
+          // We're done now.
+          this._wiz.canAdvance = true;
+          this._wiz.advance();
+          setTimeout(window.close, 5000);
+        } else {
+          this._wiz.canAdvance = true;
+          var nextButton = this._wiz.getButton("next");
+          nextButton.click();
+        }
+        break;
+      case "Migration:Progress":
+        document.getElementById("progressBar").value = aData;
+        break;
     }
   },
 
@@ -331,8 +401,9 @@ var MigrationWizard = {
 
   onBack() {
     if (this._wiz.onFirstPage) {
-      if (window.arguments[3])
+      if (window.arguments[3]) {
         window.arguments[3].closeMigration = false;
+      }
       this._wiz.cancel();
     } else {
       this._wiz.rewind();
@@ -342,8 +413,12 @@ var MigrationWizard = {
   onCancel() {
     // If .closeMigration is false, the user clicked Back button,
     // then do not change its value.
-    if (window.arguments[3] && ("closeMigration" in window.arguments[3]) &&
-        (window.arguments[3].closeMigration !== false))
+    if (
+      window.arguments[3] &&
+      "closeMigration" in window.arguments[3] &&
+      window.arguments[3].closeMigration !== false
+    ) {
       window.arguments[3].closeMigration = true;
+    }
   },
 };
