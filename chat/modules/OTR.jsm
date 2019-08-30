@@ -142,7 +142,8 @@ var OTR = {
     const pluck_time = 1 * 60 * 1000;
     this._pluck_timer = setInterval(() => {
       let buf = this._buffer;
-      for (let i = 0; i < buf.length;) {
+      let i = 0;
+      while (i < buf.length) {
         if (Date.now() - buf[i].time > pluck_time) {
           this.log("dropping an old message: " + buf[i].display);
           buf.splice(i, 1);

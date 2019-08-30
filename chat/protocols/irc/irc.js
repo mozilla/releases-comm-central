@@ -848,8 +848,8 @@ ircSocket.prototype = {
     // \020 with a \0, \n, \r or \020, respectively. Any other character is
     // replaced with itself.
     const lowDequote = { "0": "\0", n: "\n", r: "\r", "\x10": "\x10" };
-    // eslint-disable-next-line no-control-regex
     let dequotedMessage = aRawMessage.replace(
+      // eslint-disable-next-line no-control-regex
       /\x10./g,
       aStr => lowDequote[aStr[1]] || aStr[1]
     );

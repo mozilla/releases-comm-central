@@ -807,7 +807,7 @@ Contact.prototype = {
     }
 
     let statement = DBConn.createStatement(
-      "UPDATE buddies SET position = :position " + "WHERE id = :buddyId"
+      "UPDATE buddies SET position = :position WHERE id = :buddyId"
     );
     for (let i = aIndexBegin; i <= aIndexEnd; ++i) {
       statement.params.position = i;
@@ -1420,7 +1420,7 @@ Buddy.prototype = {
           this._srvAlias =
             this.displayName != this.userName ? this.displayName : "";
           let statement = DBConn.createStatement(
-            "UPDATE buddies SET srv_alias = :srvAlias " + "WHERE id = :buddyId"
+            "UPDATE buddies SET srv_alias = :srvAlias WHERE id = :buddyId"
           );
           statement.params.buddyId = this.id;
           statement.params.srvAlias = this._srvAlias;
@@ -1819,7 +1819,7 @@ ContactsService.prototype = {
     // removing the account from the accounts table is not enough,
     // we need to remove all the associated account_buddy entries too
     statement = DBConn.createStatement(
-      "DELETE FROM account_buddy " + "WHERE account_id = :accountId"
+      "DELETE FROM account_buddy WHERE account_id = :accountId"
     );
     try {
       statement.params.accountId = aId;

@@ -41,7 +41,7 @@ var ircHandlers = {
     if (!("commands" in aHandler)) {
       Cu.reportError(
         new Error(
-          'IRC handlers must have a "commands" ' + "property: " + aHandler.name
+          'IRC handlers must have a "commands" property: ' + aHandler.name
         )
       );
       return false;
@@ -49,7 +49,7 @@ var ircHandlers = {
     if (!("isEnabled" in aHandler)) {
       Cu.reportError(
         new Error(
-          'IRC handlers must have a "isEnabled" ' + "property: " + aHandler.name
+          'IRC handlers must have a "isEnabled" property: ' + aHandler.name
         )
       );
       return false;

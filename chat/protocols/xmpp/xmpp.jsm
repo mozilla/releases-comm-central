@@ -1965,7 +1965,7 @@ var XMPPAccountPrototype = {
     if (!condition) {
       // RFC 6120 Section 8.3.2.
       this.WARN(
-        "Nonstandard or missing defined-condition element in " + "error stanza."
+        "Nonstandard or missing defined-condition element in error stanza."
       );
       condition = "undefined-condition";
     }
