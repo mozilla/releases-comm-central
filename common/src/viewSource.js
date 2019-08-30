@@ -6,28 +6,37 @@
 
 /* globals internalSave, goDoCommand */
 
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {ViewSourceBrowser} = ChromeUtils.import("resource://gre/modules/ViewSourceBrowser.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+var { ViewSourceBrowser } = ChromeUtils.import(
+  "resource://gre/modules/ViewSourceBrowser.jsm"
+);
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {CharsetMenu} = ChromeUtils.import("resource://gre/modules/CharsetMenu.jsm");
-var {Deprecated} = ChromeUtils.import("resource://gre/modules/Deprecated.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { CharsetMenu } = ChromeUtils.import(
+  "resource://gre/modules/CharsetMenu.jsm"
+);
+var { Deprecated } = ChromeUtils.import(
+  "resource://gre/modules/Deprecated.jsm"
+);
 
 /* global gBrowser, gViewSourceBundle, gContextMenu */
 [
-  ["gBrowser",          "content"],
+  ["gBrowser", "content"],
   ["gViewSourceBundle", "viewSourceBundle"],
-  ["gContextMenu",      "viewSourceContextMenu"],
+  ["gContextMenu", "viewSourceContextMenu"],
 ].forEach(function([name, id]) {
   Object.defineProperty(window, name, {
     configurable: true,
     enumerable: true,
     get() {
       var element = document.getElementById(id);
-      if (!element)
+      if (!element) {
         return null;
+      }
       delete window[name];
-      return window[name] = element;
+      return (window[name] = element);
     },
   });
 });
@@ -81,11 +90,15 @@ ViewSourceChrome.prototype = {
    * DOM content has not yet loaded.
    */
   init() {
-    this.mm.loadFrameScript("chrome://global/content/viewSource-content.js", true);
+    this.mm.loadFrameScript(
+      "chrome://global/content/viewSource-content.js",
+      true
+    );
 
     this.shouldWrap = Services.prefs.getBoolPref("view_source.wrap_long_lines");
-    this.shouldHighlight =
-      Services.prefs.getBoolPref("view_source.syntax_highlight");
+    this.shouldHighlight = Services.prefs.getBoolPref(
+      "view_source.syntax_highlight"
+    );
 
     addEventListener("load", this);
     addEventListener("unload", this);
@@ -109,8 +122,12 @@ ViewSourceChrome.prototype = {
     removeEventListener("MozSwipeGesture", this, true);
     gContextMenu.removeEventListener("popupshowing", this);
     gContextMenu.removeEventListener("popuphidden", this);
-    Services.els.removeSystemEventListener(this.browser, "dragover", this,
-                                           true);
+    Services.els.removeSystemEventListener(
+      this.browser,
+      "dragover",
+      this,
+      true
+    );
     Services.els.removeSystemEventListener(this.browser, "drop", this, true);
   },
 
@@ -325,9 +342,11 @@ ViewSourceChrome.prototype = {
    */
   // NOT WORKING ANYMORE AFTER REMOVAL OF THE "ViewSource:LoadSourceDeprecated" MESSAGE IN BUG 1443371.
   _loadViewSourceDeprecated(aArguments) {
-    Deprecated.warning("The arguments you're passing to viewSource.xul " +
-                       "are using an out-of-date API.",
-                       "https://developer.mozilla.org/en-US/Add-ons/Code_snippets/View_Source_for_XUL_Applications");
+    Deprecated.warning(
+      "The arguments you're passing to viewSource.xul " +
+        "are using an out-of-date API.",
+      "https://developer.mozilla.org/en-US/Add-ons/Code_snippets/View_Source_for_XUL_Applications"
+    );
     // Parse the 'arguments' supplied with the dialog.
     //    arg[0] - URL string.
     //    arg[1] - Charset value in the form 'charset=xxx'.
@@ -338,12 +357,16 @@ ViewSourceChrome.prototype = {
     if (aArguments[2]) {
       let pageDescriptor = aArguments[2];
       if (Cu.isCrossProcessWrapper(pageDescriptor)) {
-        throw new Error("Cannot pass a CPOW as the page descriptor to viewSource.xul.");
+        throw new Error(
+          "Cannot pass a CPOW as the page descriptor to viewSource.xul."
+        );
       }
     }
 
     if (this.browser.isRemoteBrowser) {
-      throw new Error("Deprecated view source API should not use a remote browser.");
+      throw new Error(
+        "Deprecated view source API should not use a remote browser."
+      );
     }
 
     let forcedCharSet;
@@ -351,13 +374,17 @@ ViewSourceChrome.prototype = {
       forcedCharSet = aArguments[1].split("=")[1];
     }
 
-    this.sendAsyncMessage("ViewSource:LoadSourceDeprecated", {
-      URL: aArguments[0],
-      lineNumber: aArguments[3],
-      forcedCharSet,
-    }, {
-      pageDescriptor: aArguments[2],
-    });
+    this.sendAsyncMessage(
+      "ViewSource:LoadSourceDeprecated",
+      {
+        URL: aArguments[0],
+        lineNumber: aArguments[3],
+        forcedCharSet,
+      },
+      {
+        pageDescriptor: aArguments[2],
+      }
+    );
   },
 
   /**
@@ -442,8 +469,9 @@ ViewSourceChrome.prototype = {
         charset = "Shift_JIS";
       }
       this.browser.docShell.charset = charset;
-      this.browser
-          .reloadWithFlags(Ci.nsIWebNavigation.LOAD_FLAGS_CHARSET_CHANGE);
+      this.browser.reloadWithFlags(
+        Ci.nsIWebNavigation.LOAD_FLAGS_CHARSET_CHANGE
+      );
     }
   },
 
@@ -486,8 +514,9 @@ ViewSourceChrome.prototype = {
       return;
     }
 
-    let clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"]
-                      .getService(Ci.nsIClipboardHelper);
+    let clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(
+      Ci.nsIClipboardHelper
+    );
     clipboard.copyString(this.contextMenuData.href);
   },
 
@@ -510,10 +539,13 @@ ViewSourceChrome.prototype = {
     // set the dropEffect to 'none'. This prevents the drop even if some
     // other listener cancelled the event.
     let types = event.dataTransfer.types;
-    if (types.includes("text/x-moz-text-internal") && !types.includes("text/plain")) {
-        event.dataTransfer.dropEffect = "none";
-        event.stopPropagation();
-        event.preventDefault();
+    if (
+      types.includes("text/x-moz-text-internal") &&
+      !types.includes("text/plain")
+    ) {
+      event.dataTransfer.dropEffect = "none";
+      event.stopPropagation();
+      event.preventDefault();
     }
 
     if (Services.droppedLinkHandler.canDropLink(event, false)) {
@@ -525,10 +557,11 @@ ViewSourceChrome.prototype = {
    * Called twhen the user drops something onto the content browser.
    */
   onDrop(event) {
-    if (event.defaultPrevented)
+    if (event.defaultPrevented) {
       return;
+    }
 
-    let name = { };
+    let name = {};
     let uri;
     try {
       // Pass true to prevent the dropping of javascript:/data: URIs
@@ -598,8 +631,10 @@ ViewSourceChrome.prototype = {
    * Reloads the browser, bypassing the network cache.
    */
   reload() {
-    this.browser.reloadWithFlags(Ci.nsIWebNavigation.LOAD_FLAGS_BYPASS_PROXY |
-                                 Ci.nsIWebNavigation.LOAD_FLAGS_BYPASS_CACHE);
+    this.browser.reloadWithFlags(
+      Ci.nsIWebNavigation.LOAD_FLAGS_BYPASS_PROXY |
+        Ci.nsIWebNavigation.LOAD_FLAGS_BYPASS_CACHE
+    );
   },
 
   /**
@@ -640,8 +675,10 @@ ViewSourceChrome.prototype = {
    *        The type of remote browser process.
    */
   updateBrowserRemoteness(shouldBeRemote, remoteType) {
-    if (this.browser.isRemoteBrowser == shouldBeRemote &&
-        this.browser.remoteType == remoteType) {
+    if (
+      this.browser.isRemoteBrowser == shouldBeRemote &&
+      this.browser.remoteType == remoteType
+    ) {
       return;
     }
 
@@ -707,8 +744,9 @@ var PrintPreviewListener = {
     }
 
     let findBar = document.getElementById("FindToolbar");
-    document.getElementById("appcontent")
-            .insertBefore(this._ppBrowser, findBar);
+    document
+      .getElementById("appcontent")
+      .insertBefore(this._ppBrowser, findBar);
 
     return this._ppBrowser;
   },
@@ -748,22 +786,34 @@ Object.defineProperty(this, "gPageLoader", {
   enumerable: true,
   get() {
     var webnav = viewSourceChrome.webNav;
-    if (!webnav)
+    if (!webnav) {
       return null;
+    }
     delete this.gPageLoader;
-    this.gPageLoader = (webnav instanceof Ci.nsIWebPageDescriptor) ? webnav
-                                                                   : null;
+    this.gPageLoader =
+      webnav instanceof Ci.nsIWebPageDescriptor ? webnav : null;
     return this.gPageLoader;
   },
 });
 
 // Strips the |view-source:| for internalSave()
 function ViewSourceSavePage() {
-  internalSave(gBrowser.currentURI.spec.replace(/^view-source:/i, ""),
-               null, null, null, null, null, "SaveLinkTitle",
-               null, null, gBrowser.contentDocument, null,
-               gPageLoader, null,
-               Services.scriptSecurityManager.getSystemPrincipal());
+  internalSave(
+    gBrowser.currentURI.spec.replace(/^view-source:/i, ""),
+    null,
+    null,
+    null,
+    null,
+    null,
+    "SaveLinkTitle",
+    null,
+    null,
+    gBrowser.contentDocument,
+    null,
+    gPageLoader,
+    null,
+    Services.scriptSecurityManager.getSystemPrincipal()
+  );
 }
 
 // Below are old deprecated functions and variables left behind for
@@ -773,45 +823,57 @@ Object.defineProperty(this, "gLastLineFound", {
   configurable: true,
   enumerable: true,
   get() {
-    Deprecated.warning("gLastLineFound is deprecated - please use " +
-                       "viewSourceChrome.lastLineFound instead.",
-                       "https://developer.mozilla.org/en-US/Add-ons/Code_snippets/View_Source_for_XUL_Applications");
+    Deprecated.warning(
+      "gLastLineFound is deprecated - please use " +
+        "viewSourceChrome.lastLineFound instead.",
+      "https://developer.mozilla.org/en-US/Add-ons/Code_snippets/View_Source_for_XUL_Applications"
+    );
     return viewSourceChrome.lastLineFound;
   },
 });
 
 function onLoadViewSource() {
-  Deprecated.warning("onLoadViewSource() is deprecated - please use " +
-                     "viewSourceChrome.onXULLoaded() instead.",
-                     "https://developer.mozilla.org/en-US/Add-ons/Code_snippets/View_Source_for_XUL_Applications");
+  Deprecated.warning(
+    "onLoadViewSource() is deprecated - please use " +
+      "viewSourceChrome.onXULLoaded() instead.",
+    "https://developer.mozilla.org/en-US/Add-ons/Code_snippets/View_Source_for_XUL_Applications"
+  );
   viewSourceChrome.onXULLoaded();
 }
 
 function isHistoryEnabled() {
-  Deprecated.warning("isHistoryEnabled() is deprecated - please use " +
-                     "viewSourceChrome.historyEnabled instead.",
-                     "https://developer.mozilla.org/en-US/Add-ons/Code_snippets/View_Source_for_XUL_Applications");
+  Deprecated.warning(
+    "isHistoryEnabled() is deprecated - please use " +
+      "viewSourceChrome.historyEnabled instead.",
+    "https://developer.mozilla.org/en-US/Add-ons/Code_snippets/View_Source_for_XUL_Applications"
+  );
   return viewSourceChrome.historyEnabled;
 }
 
 function ViewSourceClose() {
-  Deprecated.warning("ViewSourceClose() is deprecated - please use " +
-                     "viewSourceChrome.close() instead.",
-                     "https://developer.mozilla.org/en-US/Add-ons/Code_snippets/View_Source_for_XUL_Applications");
+  Deprecated.warning(
+    "ViewSourceClose() is deprecated - please use " +
+      "viewSourceChrome.close() instead.",
+    "https://developer.mozilla.org/en-US/Add-ons/Code_snippets/View_Source_for_XUL_Applications"
+  );
   viewSourceChrome.close();
 }
 
 function ViewSourceReload() {
-  Deprecated.warning("ViewSourceReload() is deprecated - please use " +
-                     "viewSourceChrome.reload() instead.",
-                     "https://developer.mozilla.org/en-US/Add-ons/Code_snippets/View_Source_for_XUL_Applications");
+  Deprecated.warning(
+    "ViewSourceReload() is deprecated - please use " +
+      "viewSourceChrome.reload() instead.",
+    "https://developer.mozilla.org/en-US/Add-ons/Code_snippets/View_Source_for_XUL_Applications"
+  );
   viewSourceChrome.reload();
 }
 
 function getWebNavigation() {
-  Deprecated.warning("getWebNavigation() is deprecated - please use " +
-                     "viewSourceChrome.webNav instead.",
-                     "https://developer.mozilla.org/en-US/Add-ons/Code_snippets/View_Source_for_XUL_Applications");
+  Deprecated.warning(
+    "getWebNavigation() is deprecated - please use " +
+      "viewSourceChrome.webNav instead.",
+    "https://developer.mozilla.org/en-US/Add-ons/Code_snippets/View_Source_for_XUL_Applications"
+  );
   // The original implementation returned null if anything threw during
   // the getting of the webNavigation.
   try {
@@ -822,43 +884,55 @@ function getWebNavigation() {
 }
 
 function viewSource(url) {
-  Deprecated.warning("viewSource() is deprecated - please use " +
-                     "viewSourceChrome.loadURL() instead.",
-                     "https://developer.mozilla.org/en-US/Add-ons/Code_snippets/View_Source_for_XUL_Applications");
+  Deprecated.warning(
+    "viewSource() is deprecated - please use " +
+      "viewSourceChrome.loadURL() instead.",
+    "https://developer.mozilla.org/en-US/Add-ons/Code_snippets/View_Source_for_XUL_Applications"
+  );
   viewSourceChrome.loadURL(url);
 }
 
 function ViewSourceGoToLine() {
-  Deprecated.warning("ViewSourceGoToLine() is deprecated - please use " +
-                     "viewSourceChrome.promptAndGoToLine() instead.",
-                     "https://developer.mozilla.org/en-US/Add-ons/Code_snippets/View_Source_for_XUL_Applications");
+  Deprecated.warning(
+    "ViewSourceGoToLine() is deprecated - please use " +
+      "viewSourceChrome.promptAndGoToLine() instead.",
+    "https://developer.mozilla.org/en-US/Add-ons/Code_snippets/View_Source_for_XUL_Applications"
+  );
   viewSourceChrome.promptAndGoToLine();
 }
 
 function goToLine(line) {
-  Deprecated.warning("goToLine() is deprecated - please use " +
-                     "viewSourceChrome.goToLine() instead.",
-                     "https://developer.mozilla.org/en-US/Add-ons/Code_snippets/View_Source_for_XUL_Applications");
+  Deprecated.warning(
+    "goToLine() is deprecated - please use " +
+      "viewSourceChrome.goToLine() instead.",
+    "https://developer.mozilla.org/en-US/Add-ons/Code_snippets/View_Source_for_XUL_Applications"
+  );
   viewSourceChrome.goToLine(line);
 }
 
 function BrowserForward(aEvent) {
-  Deprecated.warning("BrowserForward() is deprecated - please use " +
-                     "viewSourceChrome.goForward() instead.",
-                     "https://developer.mozilla.org/en-US/Add-ons/Code_snippets/View_Source_for_XUL_Applications");
+  Deprecated.warning(
+    "BrowserForward() is deprecated - please use " +
+      "viewSourceChrome.goForward() instead.",
+    "https://developer.mozilla.org/en-US/Add-ons/Code_snippets/View_Source_for_XUL_Applications"
+  );
   viewSourceChrome.goForward();
 }
 
 function BrowserBack(aEvent) {
-  Deprecated.warning("BrowserBack() is deprecated - please use " +
-                     "viewSourceChrome.goBack() instead.",
-                     "https://developer.mozilla.org/en-US/Add-ons/Code_snippets/View_Source_for_XUL_Applications");
+  Deprecated.warning(
+    "BrowserBack() is deprecated - please use " +
+      "viewSourceChrome.goBack() instead.",
+    "https://developer.mozilla.org/en-US/Add-ons/Code_snippets/View_Source_for_XUL_Applications"
+  );
   viewSourceChrome.goBack();
 }
 
 function UpdateBackForwardCommands() {
-  Deprecated.warning("UpdateBackForwardCommands() is deprecated - please use " +
-                     "viewSourceChrome.updateCommands() instead.",
-                     "https://developer.mozilla.org/en-US/Add-ons/Code_snippets/View_Source_for_XUL_Applications");
+  Deprecated.warning(
+    "UpdateBackForwardCommands() is deprecated - please use " +
+      "viewSourceChrome.updateCommands() instead.",
+    "https://developer.mozilla.org/en-US/Add-ons/Code_snippets/View_Source_for_XUL_Applications"
+  );
   viewSourceChrome.updateCommands();
 }

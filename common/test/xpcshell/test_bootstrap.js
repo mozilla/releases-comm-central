@@ -2,24 +2,26 @@
  * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
-const APP_STARTUP                     = 1;
-const APP_SHUTDOWN                    = 2;
-const ADDON_ENABLE                    = 3;
-const ADDON_DISABLE                   = 4;
-const ADDON_INSTALL                   = 5;
-const ADDON_UNINSTALL                 = 6;
-const ADDON_UPGRADE                   = 7;
-const ADDON_DOWNGRADE                 = 8;
+const APP_STARTUP = 1;
+const APP_SHUTDOWN = 2;
+const ADDON_ENABLE = 3;
+const ADDON_DISABLE = 4;
+const ADDON_INSTALL = 5;
+const ADDON_UNINSTALL = 6;
+const ADDON_UPGRADE = 7;
+const ADDON_DOWNGRADE = 8;
 
 const ID1 = "bootstrap1@tests.mozilla.org";
 const ID2 = "bootstrap2@tests.mozilla.org";
 
 // This verifies that bootstrappable add-ons can be used without restarts.
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Enable loading extensions from the user scopes
-Services.prefs.setIntPref("extensions.enabledScopes",
-                          AddonManager.SCOPE_PROFILE + AddonManager.SCOPE_USER);
+Services.prefs.setIntPref(
+  "extensions.enabledScopes",
+  AddonManager.SCOPE_PROFILE + AddonManager.SCOPE_USER
+);
 
 BootstrapMonitor.init();
 
@@ -82,18 +84,21 @@ const ADDONS = {
 
       name: "Test Bootstrap 1",
 
-      targetApplications: [{
-        applications: {
-          gecko: {
-            id: "undefined",
+      targetApplications: [
+        {
+          applications: {
+            gecko: {
+              id: "undefined",
+            },
           },
+          legacy: {
+            type: "bootstrap",
+          },
+          manifest_version: 2,
+          minVersion: "1",
+          maxVersion: "1",
         },
-        legacy: {
-          type: "bootstrap",
-        },
-        manifest_version: 2,
-        minVersion: "1",
-        maxVersion: "1"}],
+      ],
     }),
     "bootstrap.js": BOOTSTRAP_MONITOR_BOOTSTRAP_JS,
   },
@@ -126,14 +131,13 @@ var startupCacheMonitor = {
 };
 Services.obs.addObserver(startupCacheMonitor, "startupcache-invalidate");
 
-var testserver = AddonTestUtils.createHttpServer({hosts: ["example.com"]});
+var testserver = AddonTestUtils.createHttpServer({ hosts: ["example.com"] });
 
 const XPIS = {};
 for (let [name, addon] of Object.entries(ADDONS)) {
   XPIS[name] = AddonTestUtils.createTempXPIFile(addon);
   testserver.registerFile(`/addons/${name}.xpi`, XPIS[name]);
 }
-
 
 function getStartupReason() {
   let info = BootstrapMonitor.started.get(ID1);
@@ -176,7 +180,10 @@ function getUninstallNewVersion() {
 }
 
 async function checkBootstrappedPref() {
-  let XPIScope = ChromeUtils.import("resource://gre/modules/addons/XPIProvider.jsm", null);
+  let XPIScope = ChromeUtils.import(
+    "resource://gre/modules/addons/XPIProvider.jsm",
+    null
+  );
 
   let data = new Map();
   for (let entry of XPIScope.XPIStates.enabledAddons()) {
@@ -185,12 +192,17 @@ async function checkBootstrappedPref() {
 
   let addons = await AddonManager.getAddonsByTypes(["extension"]);
   for (let addon of addons) {
-    if (!addon.id.endsWith("@tests.mozilla.org"))
+    if (!addon.id.endsWith("@tests.mozilla.org")) {
       continue;
-    if (!addon.isActive)
+    }
+    if (!addon.isActive) {
       continue;
-    if (addon.operationsRequiringRestart != AddonManager.OP_NEEDS_RESTART_NONE)
+    }
+    if (
+      addon.operationsRequiringRestart != AddonManager.OP_NEEDS_RESTART_NONE
+    ) {
       continue;
+    }
 
     ok(data.has(addon.id));
     let addonData = data.get(addon.id);
@@ -218,9 +230,7 @@ add_task(async function run_test() {
 
 // Tests that installing doesn't require a restart
 add_task(async function test_1() {
-  prepare_test({}, [
-    "onNewInstall",
-  ]);
+  prepare_test({}, ["onNewInstall"]);
 
   let install = await AddonManager.getInstallForFile(XPIS.test_bootstrap1_1);
   ensure_test_completed();
@@ -231,8 +241,11 @@ add_task(async function test_1() {
   equal(install.name, "Test Bootstrap 1");
   equal(install.state, AddonManager.STATE_DOWNLOADED);
   notEqual(install.addon.syncGUID, null);
-  equal(install.addon.operationsRequiringRestart &
-               AddonManager.OP_NEEDS_RESTART_INSTALL, 0);
+  equal(
+    install.addon.operationsRequiringRestart &
+      AddonManager.OP_NEEDS_RESTART_INSTALL,
+    0
+  );
   do_check_not_in_crash_annotation(ID1, "1.0");
 
   let addon = install.addon;
@@ -240,19 +253,17 @@ add_task(async function test_1() {
   await Promise.all([
     BootstrapMonitor.promiseAddonStartup(ID1),
     new Promise(resolve => {
-      prepare_test({
-        [ID1]: [
-          ["onInstalling", false],
-          "onInstalled",
-        ],
-      }, [
-        "onInstallStarted",
-        "onInstallEnded",
-      ], function() {
-        // startup should not have been called yet.
-        BootstrapMonitor.checkAddonNotStarted(ID1);
-        resolve();
-      });
+      prepare_test(
+        {
+          [ID1]: [["onInstalling", false], "onInstalled"],
+        },
+        ["onInstallStarted", "onInstallEnded"],
+        function() {
+          // startup should not have been called yet.
+          BootstrapMonitor.checkAddonNotStarted(ID1);
+          resolve();
+        }
+      );
       install.install();
     }),
   ]);
@@ -290,14 +301,13 @@ add_task(async function test_1() {
 add_task(async function test_2() {
   let b1 = await AddonManager.getAddonByID(ID1);
   prepare_test({
-    [ID1]: [
-      ["onDisabling", false],
-      "onDisabled",
-    ],
+    [ID1]: [["onDisabling", false], "onDisabled"],
   });
 
-  equal(b1.operationsRequiringRestart &
-        AddonManager.OP_NEEDS_RESTART_DISABLE, 0);
+  equal(
+    b1.operationsRequiringRestart & AddonManager.OP_NEEDS_RESTART_DISABLE,
+    0
+  );
   await b1.disable();
   ensure_test_completed();
 
@@ -359,14 +369,13 @@ add_task(async function test_3() {
 add_task(async function test_4() {
   let b1 = await AddonManager.getAddonByID(ID1);
   prepare_test({
-    [ID1]: [
-      ["onEnabling", false],
-      "onEnabled",
-    ],
+    [ID1]: [["onEnabling", false], "onEnabled"],
   });
 
-  equal(b1.operationsRequiringRestart &
-               AddonManager.OP_NEEDS_RESTART_ENABLE, 0);
+  equal(
+    b1.operationsRequiringRestart & AddonManager.OP_NEEDS_RESTART_ENABLE,
+    0
+  );
   await b1.enable();
   ensure_test_completed();
 
@@ -425,9 +434,7 @@ add_task(async function test_5() {
 
 // Tests that installing an upgrade doesn't require a restart
 add_task(async function test_6() {
-  prepare_test({}, [
-    "onNewInstall",
-  ]);
+  prepare_test({}, ["onNewInstall"]);
 
   let install = await AddonManager.getInstallForFile(XPIS.test_bootstrap1_2);
   ensure_test_completed();
@@ -441,15 +448,13 @@ add_task(async function test_6() {
   await Promise.all([
     BootstrapMonitor.promiseAddonStartup(ID1),
     new Promise(resolve => {
-      prepare_test({
-        [ID1]: [
-          ["onInstalling", false],
-          "onInstalled",
-        ],
-      }, [
-        "onInstallStarted",
-        "onInstallEnded",
-      ], resolve);
+      prepare_test(
+        {
+          [ID1]: [["onInstalling", false], "onInstalled"],
+        },
+        ["onInstallStarted", "onInstallEnded"],
+        resolve
+      );
       install.install();
     }),
   ]);
@@ -481,14 +486,13 @@ add_task(async function test_6() {
 add_task(async function test_7() {
   let b1 = await AddonManager.getAddonByID(ID1);
   prepare_test({
-    [ID1]: [
-      ["onUninstalling", false],
-      "onUninstalled",
-    ],
+    [ID1]: [["onUninstalling", false], "onUninstalled"],
   });
 
-  equal(b1.operationsRequiringRestart &
-        AddonManager.OP_NEEDS_RESTART_UNINSTALL, 0);
+  equal(
+    b1.operationsRequiringRestart & AddonManager.OP_NEEDS_RESTART_UNINSTALL,
+    0
+  );
   await b1.uninstall();
 
   await checkBootstrappedPref();
@@ -556,12 +560,9 @@ add_task(async function test_9() {
   startupCacheMonitor.check(false);
 });
 
-
 // Tests that installing a downgrade sends the right reason
 add_task(async function test_10() {
-  prepare_test({}, [
-    "onNewInstall",
-  ]);
+  prepare_test({}, ["onNewInstall"]);
 
   let install = await AddonManager.getInstallForFile(XPIS.test_bootstrap1_2);
   ensure_test_completed();
@@ -576,15 +577,13 @@ add_task(async function test_10() {
   await Promise.all([
     BootstrapMonitor.promiseAddonStartup(ID1),
     new Promise(resolve => {
-      prepare_test({
-        [ID1]: [
-          ["onInstalling", false],
-          "onInstalled",
-        ],
-      }, [
-        "onInstallStarted",
-        "onInstallEnded",
-      ], resolve);
+      prepare_test(
+        {
+          [ID1]: [["onInstalling", false], "onInstalled"],
+        },
+        ["onInstallStarted", "onInstallEnded"],
+        resolve
+      );
       install.install();
     }),
   ]);
@@ -604,9 +603,7 @@ add_task(async function test_10() {
   equal(getStartupOldVersion(), undefined);
   do_check_in_crash_annotation(ID1, "2.0");
 
-  prepare_test({}, [
-    "onNewInstall",
-  ]);
+  prepare_test({}, ["onNewInstall"]);
 
   install = await AddonManager.getInstallForFile(XPIS.test_bootstrap1_1);
   ensure_test_completed();
@@ -620,15 +617,13 @@ add_task(async function test_10() {
   await Promise.all([
     BootstrapMonitor.promiseAddonStartup(ID1),
     new Promise(resolve => {
-      prepare_test({
-        [ID1]: [
-          ["onInstalling", false],
-          "onInstalled",
-        ],
-      }, [
-        "onInstallStarted",
-        "onInstallEnded",
-      ], resolve);
+      prepare_test(
+        {
+          [ID1]: [["onInstalling", false], "onInstalled"],
+        },
+        ["onInstallStarted", "onInstallEnded"],
+        resolve
+      );
       install.install();
     }),
   ]);
@@ -775,14 +770,18 @@ add_task(async function test_19() {
   let b1 = await AddonManager.getAddonByID(ID1);
   // The revealed add-on gets activated asynchronously
   await new Promise(resolve => {
-    prepare_test({
-      [ID1]: [
-        ["onUninstalling", false],
-        "onUninstalled",
-        ["onInstalling", false],
-        "onInstalled",
-      ],
-    }, [], resolve);
+    prepare_test(
+      {
+        [ID1]: [
+          ["onUninstalling", false],
+          "onUninstalled",
+          ["onInstalling", false],
+          "onInstalled",
+        ],
+      },
+      [],
+      resolve
+    );
 
     b1.uninstall();
   });

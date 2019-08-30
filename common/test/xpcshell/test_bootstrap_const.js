@@ -19,7 +19,8 @@ const ADDONS = {
       name: "Test Bootstrap 1",
       version: "1.0",
     }),
-    "bootstrap.js": "var {Services} = ChromeUtils.import(\"resource://gre/modules/Services.jsm\");\n\nconst install = function() {\n  Services.obs.notifyObservers(null, \"addon-install\");\n};\n",
+    "bootstrap.js":
+      'var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");\n\nconst install = function() {\n  Services.obs.notifyObservers(null, "addon-install");\n};\n',
   },
 };
 

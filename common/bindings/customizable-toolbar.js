@@ -1,6 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
-  * License, v. 2.0. If a copy of the MPL was not distributed with this
-  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 "use strict";
 
@@ -50,8 +50,8 @@
       }
 
       // Build up our contents from the palette.
-      let currentSet = this.getAttribute("currentset") ||
-        this.getAttribute("defaultset");
+      let currentSet =
+        this.getAttribute("currentset") || this.getAttribute("defaultset");
 
       if (currentSet) {
         this.currentSet = currentSet;
@@ -72,18 +72,24 @@
       if (toolboxId) {
         let toolbox = document.getElementById(toolboxId);
         if (!toolbox) {
-          let tbName = this.hasAttribute("toolbarname") ?
-            ` (${this.getAttribute("toolbarname")})` : "";
+          let tbName = this.hasAttribute("toolbarname")
+            ? ` (${this.getAttribute("toolbarname")})`
+            : "";
 
-          throw new Error(`toolbar ID ${this.id}${tbName}: toolboxid attribute '${toolboxId}' points to a toolbox that doesn't exist`);
+          throw new Error(
+            `toolbar ID ${
+              this.id
+            }${tbName}: toolboxid attribute '${toolboxId}' points to a toolbox that doesn't exist`
+          );
         }
         this._toolbox = toolbox;
         return this._toolbox;
       }
 
-      this._toolbox = (this.parentNode &&
-          this.parentNode.localName == "toolbox") ?
-        this.parentNode : null;
+      this._toolbox =
+        this.parentNode && this.parentNode.localName == "toolbox"
+          ? this.parentNode
+          : null;
 
       return this._toolbox;
     }
@@ -109,7 +115,7 @@
         paletteItems[item.id] = item;
       }
 
-      let ids = (val == "__empty") ? [] : val.split(",");
+      let ids = val == "__empty" ? [] : val.split(",");
       let children = this.childNodes;
       let nodeidx = 0;
       let added = {};
@@ -199,9 +205,9 @@
         return "";
       }
       const specialItems = {
-        "toolbarseparator": "separator",
-        "toolbarspring": "spring",
-        "toolbarspacer": "spacer",
+        toolbarseparator: "separator",
+        toolbarspring: "spring",
+        toolbarspacer: "spacer",
       };
       return specialItems[node.localName] || node.id;
     }
@@ -219,7 +225,7 @@
         // Due to timers resolution Date.now() can be the same for
         // elements created in small timeframes.  So ids are
         // differentiated through a unique count suffix.
-        newItem.id = id + Date.now() + (++this._newElementCount);
+        newItem.id = id + Date.now() + ++this._newElementCount;
         if (id == "spring") {
           newItem.flex = 1;
         }
@@ -234,9 +240,12 @@
       // Look for an item with the same id, as the item may be
       // in a different toolbar.
       let item = document.getElementById(id);
-      if (item && item.parentNode &&
-          item.parentNode.localName == "toolbar" &&
-          item.parentNode.toolbox == toolbox) {
+      if (
+        item &&
+        item.parentNode &&
+        item.parentNode.localName == "toolbar" &&
+        item.parentNode.toolbox == toolbox
+      ) {
         return item;
       }
 
@@ -302,11 +311,13 @@
         .split(",")
         .concat(["separator", "spacer", "spring"]);
 
-      return currentSet.split(",")
+      return currentSet
+        .split(",")
         .some(item => !defaultOrNoninteractive.includes(item));
     }
   }
 
-  customElements.define("customizable-toolbar", CustomizableToolbar,
-    { extends: "toolbar" });
+  customElements.define("customizable-toolbar", CustomizableToolbar, {
+    extends: "toolbar",
+  });
 }

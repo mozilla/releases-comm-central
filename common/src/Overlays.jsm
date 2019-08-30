@@ -11,8 +11,16 @@
 this.EXPORTED_SYMBOLS = ["Overlays"];
 
 const { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm");
-ChromeUtils.defineModuleGetter(this, "Services", "resource://gre/modules/Services.jsm");
-ChromeUtils.defineModuleGetter(this, "setTimeout", "resource://gre/modules/Timer.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "Services",
+  "resource://gre/modules/Services.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "setTimeout",
+  "resource://gre/modules/Timer.jsm"
+);
 
 let oconsole = new ConsoleAPI({
   prefix: "Overlays.jsm",
@@ -96,7 +104,13 @@ class Overlays {
       oconsole.debug(`Applying ${url} to ${this.location}`);
 
       // clean the document a bit
-      let emptyNodes = doc.evaluate("//text()[normalize-space(.) = '']", doc, null, 7, null);
+      let emptyNodes = doc.evaluate(
+        "//text()[normalize-space(.) = '']",
+        doc,
+        null,
+        7,
+        null
+      );
       for (let i = 0, len = emptyNodes.snapshotLength; i < len; ++i) {
         let node = emptyNodes.snapshotItem(i);
         node.remove();
@@ -113,7 +127,7 @@ class Overlays {
       let styledNodes = doc.evaluate("//*[@style]", doc, null, 7, null);
       for (let i = 0, len = styledNodes.snapshotLength; i < len; ++i) {
         let node = styledNodes.snapshotItem(i);
-        node.style.display = node.style.display;  // eslint-disable-line no-self-assign
+        node.style.display = node.style.display; // eslint-disable-line no-self-assign
       }
 
       // Load css styles from the registry
@@ -122,7 +136,13 @@ class Overlays {
       }
 
       // Load css processing instructions from the overlay
-      let stylesheets = doc.evaluate("/processing-instruction('xml-stylesheet')", doc, null, 7, null);
+      let stylesheets = doc.evaluate(
+        "/processing-instruction('xml-stylesheet')",
+        doc,
+        null,
+        7,
+        null
+      );
       for (let i = 0, len = stylesheets.snapshotLength; i < len; ++i) {
         let node = stylesheets.snapshotItem(i);
         let match = node.nodeValue.match(/href=["']([^"']*)["']/);
@@ -172,7 +192,10 @@ class Overlays {
     }
 
     if (forwardReferences.length) {
-      oconsole.warn(`Could not resolve ${forwardReferences.length} references`, forwardReferences);
+      oconsole.warn(
+        `Could not resolve ${forwardReferences.length} references`,
+        forwardReferences
+      );
     }
 
     // Loading the sheets now to avoid race conditions with xbl bindings
@@ -222,7 +245,11 @@ class Overlays {
         }
       });
     } else {
-      this.document.defaultView.addEventListener("load", this._finish.bind(this), { once: true });
+      this.document.defaultView.addEventListener(
+        "load",
+        this._finish.bind(this),
+        { once: true }
+      );
     }
   }
 
@@ -232,7 +259,11 @@ class Overlays {
     }
 
     for (let bar of this._toolbarsToResolve) {
-      let currentset = Services.xulStore.getValue(this.location, bar.id, "currentset");
+      let currentset = Services.xulStore.getValue(
+        this.location,
+        bar.id,
+        "currentset"
+      );
       if (currentset) {
         bar.currentSet = currentset;
       } else if (bar.getAttribute("defaultset")) {
@@ -249,7 +280,13 @@ class Overlays {
    */
   _collectOverlays(doc) {
     let urls = [];
-    let instructions = doc.evaluate("/processing-instruction('xul-overlay')", doc, null, 7, null);
+    let instructions = doc.evaluate(
+      "/processing-instruction('xul-overlay')",
+      doc,
+      null,
+      7,
+      null
+    );
     for (let i = 0, len = instructions.snapshotLength; i < len; ++i) {
       let node = instructions.snapshotItem(i);
       let match = node.nodeValue.match(/href=["']([^"']*)["']/);
@@ -298,22 +335,30 @@ class Overlays {
           let palette = box ? box.palette : null;
 
           if (!palette) {
-            oconsole.debug(`The palette for ${node.id} could not be found, deferring to later`);
+            oconsole.debug(
+              `The palette for ${
+                node.id
+              } could not be found, deferring to later`
+            );
             return false;
           }
 
           target = palette;
         }
 
-        this._toolbarsToResolve.push(...box.querySelectorAll("toolbar:not([type=\"menubar\"])"));
+        this._toolbarsToResolve.push(
+          ...box.querySelectorAll('toolbar:not([type="menubar"])')
+        );
       } else if (!target) {
-        oconsole.debug(`The node ${node.id} could not be found, deferring to later`);
+        oconsole.debug(
+          `The node ${node.id} could not be found, deferring to later`
+        );
         return false;
       }
 
       this._mergeElement(target, node);
     } else {
-       this._insertElement(this.document.documentElement, node);
+      this._insertElement(this.document.documentElement, node);
     }
     return true;
   }
@@ -329,7 +374,10 @@ class Overlays {
     // the document, or bad things happen.
     for (let element of node.querySelectorAll("menulist")) {
       if (element.id && this.persistedIDs.has(element.id)) {
-        element.setAttribute("value", Services.xulStore.getValue(this.location, element.id, "value"));
+        element.setAttribute(
+          "value",
+          Services.xulStore.getValue(this.location, element.id, "value")
+        );
       }
     }
 
@@ -346,7 +394,10 @@ class Overlays {
       for (let id of pos.split(",")) {
         let targetchild = this.document.getElementById(id);
         if (targetchild && targetchild.parentNode == parent) {
-          parent.insertBefore(node, after ? targetchild.nextSibling : targetchild);
+          parent.insertBefore(
+            node,
+            after ? targetchild.nextSibling : targetchild
+          );
           wasInserted = true;
           break;
         }
@@ -356,7 +407,7 @@ class Overlays {
     if (!wasInserted) {
       // position is 1-based
       let position = parseInt(node.getAttribute("position"), 10);
-      if (position > 0 && (position - 1) <= parent.childNodes.length) {
+      if (position > 0 && position - 1 <= parent.childNodes.length) {
         parent.insertBefore(node, parent.childNodes[position - 1]);
         wasInserted = true;
       }
@@ -386,14 +437,20 @@ class Overlays {
         return;
       }
 
-      target.setAttributeNS(attribute.namespaceURI, attribute.name, attribute.value);
+      target.setAttributeNS(
+        attribute.namespaceURI,
+        attribute.name,
+        attribute.value
+      );
     }
 
     for (let i = 0, len = node.childElementCount; i < len; i++) {
       let child = node.firstElementChild;
       child.remove();
 
-      let elementInDocument = child.id ? this.document.getElementById(child.id) : null;
+      let elementInDocument = child.id
+        ? this.document.getElementById(child.id)
+        : null;
       let parentId = elementInDocument ? elementInDocument.parentNode.id : null;
 
       if (parentId && parentId == target.id) {
@@ -413,7 +470,9 @@ class Overlays {
    */
   fetchOverlay(srcUrl) {
     if (!srcUrl.startsWith("chrome://") && !srcUrl.startsWith("resource://")) {
-      throw new Error("May only load overlays from chrome:// or resource:// uris");
+      throw new Error(
+        "May only load overlays from chrome:// or resource:// uris"
+      );
     }
 
     let xhr = new XMLHttpRequest();
@@ -425,7 +484,9 @@ class Overlays {
     try {
       xhr.channel.owner = Services.scriptSecurityManager.getSystemPrincipal();
     } catch (ex) {
-      oconsole.error("Failed to set system principal while fetching overlay " + srcUrl);
+      oconsole.error(
+        "Failed to set system principal while fetching overlay " + srcUrl
+      );
       xhr.close();
       throw new Error("Failed to set system principal");
     }
@@ -448,7 +509,12 @@ class Overlays {
 
     let oldAddEventListener = this.window.addEventListener;
     if (this.document.readyState == "complete") {
-      this.window.addEventListener = function(type, listener, useCapture, ...args) {
+      this.window.addEventListener = function(
+        type,
+        listener,
+        useCapture,
+        ...args
+      ) {
         if (type == "load") {
           if (typeof useCapture == "object") {
             useCapture = useCapture.capture;
@@ -460,7 +526,13 @@ class Overlays {
           deferredLoad.push({ listener, useCapture });
           return null;
         }
-        return oldAddEventListener.call(this, type, listener, useCapture, ...args);
+        return oldAddEventListener.call(
+          this,
+          type,
+          listener,
+          useCapture,
+          ...args
+        );
       };
     }
 
@@ -475,7 +547,8 @@ class Overlays {
     } else if (node.textContent) {
       oconsole.debug(`Loading eval'd script into ${this.window.location}`);
       try {
-        let dataURL = "data:application/javascript," + encodeURIComponent(node.textContent);
+        let dataURL =
+          "data:application/javascript," + encodeURIComponent(node.textContent);
         // It would be great if we could have script errors show the right url, but for now
         // loadSubScript will have to do.
         Services.scriptloader.loadSubScript(dataURL, this.window);
@@ -504,7 +577,10 @@ class Overlays {
 
     // domWindowUtils.loadSheetUsingURIString doesn't record the sheet in document.styleSheets,
     // adding a html link element seems to do so.
-    let link = this.document.createElementNS("http://www.w3.org/1999/xhtml", "link");
+    let link = this.document.createElementNS(
+      "http://www.w3.org/1999/xhtml",
+      "link"
+    );
     link.setAttribute("rel", "stylesheet");
     link.setAttribute("type", "text/css");
     link.setAttribute("href", url);

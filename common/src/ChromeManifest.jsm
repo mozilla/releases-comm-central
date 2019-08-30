@@ -4,7 +4,7 @@
 
 this.EXPORTED_SYMBOLS = ["ChromeManifest"];
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * A parser for chrome.manifest files. Implements a subset of
@@ -39,7 +39,6 @@ class ChromeManifest {
     this.override = new Map();
   }
 
-
   /**
    * Parse the given file.
    *
@@ -68,18 +67,38 @@ class ChromeManifest {
         case "manifest":
           extraManifests.push(this._parseManifest(base, ...parts));
           break;
-        case "component": this._parseComponent(...parts); break;
-        case "contract": this._parseContract(...parts); break;
+        case "component":
+          this._parseComponent(...parts);
+          break;
+        case "contract":
+          this._parseContract(...parts);
+          break;
 
-        case "category": this._parseCategory(...parts); break;
-        case "content": this._parseContent(...parts); break;
-        case "locale": this._parseLocale(...parts); break;
-        case "skin": this._parseSkin(...parts); break;
-        case "resource": this._parseResource(...parts); break;
+        case "category":
+          this._parseCategory(...parts);
+          break;
+        case "content":
+          this._parseContent(...parts);
+          break;
+        case "locale":
+          this._parseLocale(...parts);
+          break;
+        case "skin":
+          this._parseSkin(...parts);
+          break;
+        case "resource":
+          this._parseResource(...parts);
+          break;
 
-        case "overlay": this._parseOverlay(...parts); break;
-        case "style": this._parseStyle(...parts); break;
-        case "override": this._parseOverride(...parts); break;
+        case "overlay":
+          this._parseOverlay(...parts);
+          break;
+        case "style":
+          this._parseStyle(...parts);
+          break;
+        case "override":
+          this._parseOverride(...parts);
+          break;
       }
     }
 
@@ -99,7 +118,9 @@ class ChromeManifest {
 
     let matchString = (a, sign, b) => {
       if (sign != "=") {
-        console.warn(`Invalid sign ${sign} in ${a}${sign}${b}, dropping manifest instruction`);
+        console.warn(
+          `Invalid sign ${sign} in ${a}${sign}${b}, dropping manifest instruction`
+        );
         return false;
       }
       return a == b;
@@ -107,19 +128,29 @@ class ChromeManifest {
 
     let matchVersion = (a, sign, b) => {
       switch (sign) {
-        case "=": return Services.vc.compare(a, b) == 0;
-        case ">": return Services.vc.compare(a, b) > 0;
-        case "<": return Services.vc.compare(a, b) < 0;
-        case ">=": return Services.vc.compare(a, b) >= 0;
-        case "<=": return Services.vc.compare(a, b) <= 0;
+        case "=":
+          return Services.vc.compare(a, b) == 0;
+        case ">":
+          return Services.vc.compare(a, b) > 0;
+        case "<":
+          return Services.vc.compare(a, b) < 0;
+        case ">=":
+          return Services.vc.compare(a, b) >= 0;
+        case "<=":
+          return Services.vc.compare(a, b) <= 0;
         default:
-          console.warn(`Invalid sign ${sign} in ${a}${sign}${b}, dropping manifest instruction`);
+          console.warn(
+            `Invalid sign ${sign} in ${a}${sign}${b}, dropping manifest instruction`
+          );
           return false;
       }
     };
 
     let flagMatches = (key, typeMatch) => {
-      return !flagdata.has(key) || flagdata.get(key).some(val => typeMatch(this.options[key], ...val));
+      return (
+        !flagdata.has(key) ||
+        flagdata.get(key).some(val => typeMatch(this.options[key], ...val))
+      );
     };
 
     let flagdata = new DefaultMap(() => []);
@@ -133,12 +164,14 @@ class ChromeManifest {
       }
     }
 
-    return flagMatches("application", matchString) &&
-           flagMatches("appversion", matchVersion) &&
-           flagMatches("platformversion", matchVersion) &&
-           flagMatches("os", matchString) &&
-           flagMatches("osversion", matchVersion) &&
-           flagMatches("abi", matchString);
+    return (
+      flagMatches("application", matchString) &&
+      flagMatches("appversion", matchVersion) &&
+      flagMatches("platformversion", matchVersion) &&
+      flagMatches("os", matchString) &&
+      flagMatches("osversion", matchVersion) &&
+      flagMatches("abi", matchString)
+    );
   }
 
   /**

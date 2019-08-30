@@ -3,7 +3,7 @@
  */
 
 // This verifies that bootstrap.js has the expected globals defined
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 createAppInfo("xpcshell@tests.mozilla.org", "XPCShell", "1", "1");
 
@@ -48,10 +48,7 @@ function uninstall(data, reason) {}
   },
 };
 
-
-const EXPECTED_GLOBALS = [
-  ["console", "object"],
-];
+const EXPECTED_GLOBALS = [["console", "object"]];
 
 async function run_test() {
   do_test_pending();
@@ -63,8 +60,9 @@ async function run_test() {
   }, "bootstrap-request-globals");
 
   Services.obs.addObserver(function({ wrappedJSObject: seenGlobals }) {
-    for (let [name ] of EXPECTED_GLOBALS)
+    for (let [name] of EXPECTED_GLOBALS) {
       Assert.ok(seenGlobals.has(name));
+    }
 
     sawGlobals = true;
   }, "bootstrap-seen-globals");

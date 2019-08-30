@@ -28,7 +28,10 @@ add_task(async function run_test() {
 function checkActive(expected) {
   let target = { active: false };
   let load = () => {
-    Services.scriptloader.loadSubScript("chrome://bug675371/content/test.js", target);
+    Services.scriptloader.loadSubScript(
+      "chrome://bug675371/content/test.js",
+      target
+    );
   };
 
   if (expected) {
@@ -40,7 +43,7 @@ function checkActive(expected) {
 }
 
 add_task(async function test() {
-  let {addon} = await AddonTestUtils.promiseInstallXPI(ADDON);
+  let { addon } = await AddonTestUtils.promiseInstallXPI(ADDON);
 
   Assert.ok(addon.isActive);
 

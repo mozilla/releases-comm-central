@@ -2,14 +2,15 @@
  * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
-const PREF_EM_CHECK_UPDATE_SECURITY   = "extensions.checkUpdateSecurity";
-const PREF_EM_STRICT_COMPATIBILITY    = "extensions.strictCompatibility";
-const PREF_GETADDONS_BYIDS               = "extensions.getAddons.get.url";
-const PREF_COMPAT_OVERRIDES              = "extensions.getAddons.compatOverides.url";
-const PREF_XPI_SIGNATURES_REQUIRED    = "xpinstall.signatures.required";
+const PREF_EM_CHECK_UPDATE_SECURITY = "extensions.checkUpdateSecurity";
+const PREF_EM_STRICT_COMPATIBILITY = "extensions.strictCompatibility";
+const PREF_GETADDONS_BYIDS = "extensions.getAddons.get.url";
+const PREF_COMPAT_OVERRIDES = "extensions.getAddons.compatOverides.url";
+const PREF_XPI_SIGNATURES_REQUIRED = "xpinstall.signatures.required";
 
-const PREF_DISABLE_SECURITY = ("security.turn_off_all_security_so_that_" +
-                               "viruses_can_take_over_this_computer");
+const PREF_DISABLE_SECURITY =
+  "security.turn_off_all_security_so_that_" +
+  "viruses_can_take_over_this_computer";
 
 // Maximum error in file modification times. Some file systems don't store
 // modification times exactly. As long as we are closer than this then it
@@ -20,38 +21,76 @@ const MAX_TIME_DIFFERENCE = 3000;
 // times are modified (10 hours old).
 const MAKE_FILE_OLD_DIFFERENCE = 10 * 3600 * 1000;
 
-var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-var {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
-var {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {AddonRepository} = ChromeUtils.import("resource://gre/modules/addons/AddonRepository.jsm");
-var {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
+var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+var { AddonRepository } = ChromeUtils.import(
+  "resource://gre/modules/addons/AddonRepository.jsm"
+);
+var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 
-var {AddonTestUtils, MockAsyncShutdown} = ChromeUtils.import("resource://testing-common/AddonTestUtils.jsm");
+var { AddonTestUtils, MockAsyncShutdown } = ChromeUtils.import(
+  "resource://testing-common/AddonTestUtils.jsm"
+);
 
-ChromeUtils.defineModuleGetter(this, "Blocklist",
-                               "resource://gre/modules/Blocklist.jsm");
-ChromeUtils.defineModuleGetter(this, "Extension",
-                               "resource://gre/modules/Extension.jsm");
-ChromeUtils.defineModuleGetter(this, "ExtensionTestUtils",
-                               "resource://testing-common/ExtensionXPCShellUtils.jsm");
-ChromeUtils.defineModuleGetter(this, "ExtensionTestCommon",
-                               "resource://testing-common/ExtensionTestCommon.jsm");
-ChromeUtils.defineModuleGetter(this, "HttpServer",
-                               "resource://testing-common/httpd.js");
-ChromeUtils.defineModuleGetter(this, "MockRegistrar",
-                               "resource://testing-common/MockRegistrar.jsm");
-ChromeUtils.defineModuleGetter(this, "MockRegistry",
-                               "resource://testing-common/MockRegistry.jsm");
-ChromeUtils.defineModuleGetter(this, "PromiseTestUtils",
-                               "resource://testing-common/PromiseTestUtils.jsm");
-ChromeUtils.defineModuleGetter(this, "TestUtils",
-                               "resource://testing-common/TestUtils.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "Blocklist",
+  "resource://gre/modules/Blocklist.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "Extension",
+  "resource://gre/modules/Extension.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "ExtensionTestUtils",
+  "resource://testing-common/ExtensionXPCShellUtils.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "ExtensionTestCommon",
+  "resource://testing-common/ExtensionTestCommon.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "HttpServer",
+  "resource://testing-common/httpd.js"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "MockRegistrar",
+  "resource://testing-common/MockRegistrar.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "MockRegistry",
+  "resource://testing-common/MockRegistry.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "PromiseTestUtils",
+  "resource://testing-common/PromiseTestUtils.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "TestUtils",
+  "resource://testing-common/TestUtils.jsm"
+);
 
-XPCOMUtils.defineLazyServiceGetter(this, "aomStartup",
-                                   "@mozilla.org/addons/addon-manager-startup;1",
-                                   "amIAddonManagerStartup");
+XPCOMUtils.defineLazyServiceGetter(
+  this,
+  "aomStartup",
+  "@mozilla.org/addons/addon-manager-startup;1",
+  "amIAddonManagerStartup"
+);
 
 const {
   createAppInfo,
@@ -85,8 +124,11 @@ ExtensionTestUtils.init(this);
 AddonTestUtils.init(this, false);
 AddonTestUtils.overrideCertDB();
 
-XPCOMUtils.defineLazyGetter(this, "BOOTSTRAP_REASONS",
-                            () => AddonManagerPrivate.BOOTSTRAP_REASONS);
+XPCOMUtils.defineLazyGetter(
+  this,
+  "BOOTSTRAP_REASONS",
+  () => AddonManagerPrivate.BOOTSTRAP_REASONS
+);
 
 function getReasonName(reason) {
   for (let key of Object.keys(BOOTSTRAP_REASONS)) {
@@ -96,7 +138,6 @@ function getReasonName(reason) {
   }
   throw new Error("This shouldn't happen.");
 }
-
 
 Object.defineProperty(this, "gAppInfo", {
   get() {
@@ -112,7 +153,9 @@ Object.defineProperty(this, "gAddonStartup", {
 
 Object.defineProperty(this, "gInternalManager", {
   get() {
-    return AddonTestUtils.addonIntegrationService.QueryInterface(Ci.nsITimerCallback);
+    return AddonTestUtils.addonIntegrationService.QueryInterface(
+      Ci.nsITimerCallback
+    );
   },
 });
 
@@ -133,7 +176,7 @@ Object.defineProperty(this, "gUseRealCertChecks", {
     return AddonTestUtils.useRealCertChecks;
   },
   set(val) {
-   return AddonTestUtils.useRealCertChecks = val;
+    return (AddonTestUtils.useRealCertChecks = val);
   },
 });
 
@@ -142,12 +185,15 @@ Object.defineProperty(this, "TEST_UNPACKED", {
     return AddonTestUtils.testUnpacked;
   },
   set(val) {
-   return AddonTestUtils.testUnpacked = val;
+    return (AddonTestUtils.testUnpacked = val);
   },
 });
 
 // We need some internal bits of AddonManager
-var AMscope = ChromeUtils.import("resource://gre/modules/AddonManager.jsm", null);
+var AMscope = ChromeUtils.import(
+  "resource://gre/modules/AddonManager.jsm",
+  null
+);
 var { AddonManager, AddonManagerInternal, AddonManagerPrivate } = AMscope;
 
 const promiseAddonByID = AddonManager.getAddonByID;
@@ -157,8 +203,9 @@ var gPort = null;
 var gUrlToFileMap = {};
 
 // Map resource://xpcshell-data/ to the data directory
-var resHandler = Services.io.getProtocolHandler("resource")
-                         .QueryInterface(Ci.nsISubstitutingProtocolHandler);
+var resHandler = Services.io
+  .getProtocolHandler("resource")
+  .QueryInterface(Ci.nsISubstitutingProtocolHandler);
 // Allow non-existent files because of bug 1207735
 var dataURI = NetUtil.newURI(do_get_file("data", true));
 resHandler.setSubstitution("xpcshell-data", dataURI);
@@ -178,8 +225,9 @@ function isManifestRegistered(file) {
       continue;
     }
 
-    if (manifest.equals(file))
+    if (manifest.equals(file)) {
       return true;
+    }
   }
   return false;
 }
@@ -213,8 +261,9 @@ this.BootstrapMonitor = {
   },
 
   shutdownCheck() {
-    if (!this.inited)
+    if (!this.inited) {
       return;
+    }
 
     Assert.equal(this.started.size, 0);
   },
@@ -242,15 +291,22 @@ this.BootstrapMonitor = {
     Assert.notEqual(cached, undefined);
     Assert.equal(current.data.version, cached.data.version);
     Assert.equal(current.data.installPath, cached.data.installPath);
-    Assert.ok(Services.io.newURI(current.data.resourceURI).equals(Services.io.newURI(cached.data.resourceURI)),
-              `Resource URIs match: "${current.data.resourceURI}" == "${cached.data.resourceURI}"`);
+    Assert.ok(
+      Services.io
+        .newURI(current.data.resourceURI)
+        .equals(Services.io.newURI(cached.data.resourceURI)),
+      `Resource URIs match: "${current.data.resourceURI}" == "${
+        cached.data.resourceURI
+      }"`
+    );
   },
 
   checkAddonStarted(id, version = undefined) {
     let started = this.started.get(id);
     Assert.notEqual(started, undefined);
-    if (version != undefined)
+    if (version != undefined) {
       Assert.equal(started.data.version, version);
+    }
 
     // Chrome should be registered by now
     // Get the install path from the resource URI, since it is not passed any longer.
@@ -304,8 +360,9 @@ this.BootstrapMonitor = {
 
       this.installed.set(id, info);
 
-      for (let resolve of this.installPromises)
+      for (let resolve of this.installPromises) {
         resolve();
+      }
       this.installPromises = [];
     } else {
       this.checkMatches(this.installed.get(id), info);
@@ -325,8 +382,9 @@ this.BootstrapMonitor = {
       // XPIProvider doesn't bother unregistering chrome on app shutdown but
       // since we simulate restarts we must do so manually to keep the registry
       // consistent.
-      if (info.reason == 2 /* APP_SHUTDOWN */)
+      if (info.reason == 2 /* APP_SHUTDOWN */) {
         Components.manager.removeBootstrappedManifestLocation(installPath);
+      }
     } else {
       this.checkAddonNotStarted(id);
     }
@@ -349,8 +407,9 @@ this.BootstrapMonitor = {
       let isRegistered = isManifestRegistered(installPath);
       Assert.ok(isRegistered);
 
-      for (let resolve of this.startupPromises)
+      for (let resolve of this.startupPromises) {
         resolve();
+      }
       this.startupPromises = [];
     }
   },
@@ -375,8 +434,11 @@ var SlightlyLessDodgyBootstrapMonitor = {
   },
 
   shutdownCheck() {
-    equal(this.started.size, 0,
-          "Should have no add-ons that were started but not shutdown");
+    equal(
+      this.started.size,
+      0,
+      "Should have no add-ons that were started but not shutdown"
+    );
   },
 
   onEvent(msg, data) {
@@ -391,9 +453,11 @@ var SlightlyLessDodgyBootstrapMonitor = {
   },
 
   onBootstrapMethod(method, params, reason) {
-    let {id} = params;
+    let { id } = params;
 
-    info(`Bootstrap method ${method} for ${params.id} version ${params.version}`);
+    info(
+      `Bootstrap method ${method} for ${params.id} version ${params.version}`
+    );
 
     if (method !== "install") {
       this.checkInstalled(id);
@@ -402,28 +466,33 @@ var SlightlyLessDodgyBootstrapMonitor = {
     switch (method) {
       case "install":
         this.checkNotInstalled(id);
-        this.installed.set(id, {reason, params});
+        this.installed.set(id, { reason, params });
         this.uninstalled.delete(id);
         break;
       case "startup":
         this.checkNotStarted(id);
-        this.started.set(id, {reason, params});
+        this.started.set(id, { reason, params });
         this.stopped.delete(id);
         break;
       case "shutdown":
         this.checkMatches("shutdown", "startup", params, this.started.get(id));
         this.checkStarted(id);
-        this.stopped.set(id, {reason, params});
+        this.stopped.set(id, { reason, params });
         this.started.delete(id);
         break;
       case "uninstall":
-        this.checkMatches("uninstall", "install", params, this.installed.get(id));
-        this.uninstalled.set(id, {reason, params});
+        this.checkMatches(
+          "uninstall",
+          "install",
+          params,
+          this.installed.get(id)
+        );
+        this.uninstalled.set(id, { reason, params });
         this.installed.delete(id);
         break;
       case "update":
         this.checkMatches("update", "install", params, this.installed.get(id));
-        this.installed.set(id, {reason, params});
+        this.installed.set(id, { reason, params });
         break;
     }
   },
@@ -435,24 +504,41 @@ var SlightlyLessDodgyBootstrapMonitor = {
     this.uninstalled.delete(id);
   },
 
-  checkMatches(method, lastMethod, params, {params: lastParams} = {}) {
-    ok(lastParams,
-       `Expecting matching ${lastMethod} call for add-on ${params.id} ${method} call`);
+  checkMatches(method, lastMethod, params, { params: lastParams } = {}) {
+    ok(
+      lastParams,
+      `Expecting matching ${lastMethod} call for add-on ${
+        params.id
+      } ${method} call`
+    );
 
     if (method == "update") {
-      equal(params.oldVersion, lastParams.version,
-            "params.version should match last call");
+      equal(
+        params.oldVersion,
+        lastParams.version,
+        "params.version should match last call"
+      );
     } else {
-      equal(params.version, lastParams.version,
-            "params.version should match last call");
+      equal(
+        params.version,
+        lastParams.version,
+        "params.version should match last call"
+      );
     }
 
     if (method !== "update" && method !== "uninstall") {
-      equal(params.installPath.path, lastParams.installPath.path,
-            `params.installPath should match last call`);
+      equal(
+        params.installPath.path,
+        lastParams.installPath.path,
+        `params.installPath should match last call`
+      );
 
-      ok(params.resourceURI.equals(lastParams.resourceURI),
-         `params.resourceURI should match: "${params.resourceURI.spec}" == "${lastParams.resourceURI.spec}"`);
+      ok(
+        params.resourceURI.equals(lastParams.resourceURI),
+        `params.resourceURI should match: "${params.resourceURI.spec}" == "${
+          lastParams.resourceURI.spec
+        }"`
+      );
     }
   },
 
@@ -460,39 +546,47 @@ var SlightlyLessDodgyBootstrapMonitor = {
     let started = this.started.get(id);
     ok(started, `Should have seen startup method call for ${id}`);
 
-    if (version !== undefined)
-      equal(started.params.version, version,
-            "Expected version number");
+    if (version !== undefined) {
+      equal(started.params.version, version, "Expected version number");
+    }
   },
 
   checkNotStarted(id) {
-    ok(!this.started.has(id),
-       `Should not have seen startup method call for ${id}`);
+    ok(
+      !this.started.has(id),
+      `Should not have seen startup method call for ${id}`
+    );
   },
 
   checkInstalled(id, version = undefined) {
     const installed = this.installed.get(id);
     ok(installed, `Should have seen install call for ${id}`);
 
-    if (version !== undefined)
-      equal(installed.params.version, version,
-            "Expected version number");
+    if (version !== undefined) {
+      equal(installed.params.version, version, "Expected version number");
+    }
 
     return installed;
   },
 
   checkNotInstalled(id) {
-    ok(!this.installed.has(id),
-       `Should not have seen install method call for ${id}`);
+    ok(
+      !this.installed.has(id),
+      `Should not have seen install method call for ${id}`
+    );
   },
 };
 
 function isNightlyChannel() {
   var channel = Services.prefs.getCharPref("app.update.channel", "default");
 
-  return channel != "aurora" && channel != "beta" && channel != "release" && channel != "esr";
+  return (
+    channel != "aurora" &&
+    channel != "beta" &&
+    channel != "release" &&
+    channel != "esr"
+  );
 }
-
 
 async function restartWithLocales(locales) {
   Services.locale.requestedLocales = locales;
@@ -540,7 +634,11 @@ function checkAddon(id, addon, expected) {
     ok(addon, `Addon ${id} should exist`);
     for (let [key, value] of Object.entries(expected)) {
       if (value instanceof Ci.nsIURI) {
-        equal(addon[key] && addon[key].spec, value.spec, `Expected value of addon.${key}`);
+        equal(
+          addon[key] && addon[key].spec,
+          value.spec,
+          `Expected value of addon.${key}`
+        );
       } else {
         deepEqual(addon[key], value, `Expected value of addon.${key}`);
       }
@@ -568,7 +666,11 @@ function do_check_in_crash_annotation(aId, aVersion) {
   }
 
   let addons = gAppInfo.annotations["Add-ons"].split(",");
-  Assert.ok(addons.includes(`${encodeURIComponent(aId)}:${encodeURIComponent(aVersion)}`));
+  Assert.ok(
+    addons.includes(
+      `${encodeURIComponent(aId)}:${encodeURIComponent(aVersion)}`
+    )
+  );
 }
 
 /**
@@ -591,18 +693,25 @@ function do_check_not_in_crash_annotation(aId, aVersion) {
   }
 
   let addons = gAppInfo.annotations["Add-ons"].split(",");
-  Assert.ok(!addons.includes(`${encodeURIComponent(aId)}:${encodeURIComponent(aVersion)}`));
+  Assert.ok(
+    !addons.includes(
+      `${encodeURIComponent(aId)}:${encodeURIComponent(aVersion)}`
+    )
+  );
 }
 
 function do_get_file_hash(aFile, aAlgorithm) {
-  if (!aAlgorithm)
+  if (!aAlgorithm) {
     aAlgorithm = "sha1";
+  }
 
-  let crypto = Cc["@mozilla.org/security/hash;1"].
-               createInstance(Ci.nsICryptoHash);
+  let crypto = Cc["@mozilla.org/security/hash;1"].createInstance(
+    Ci.nsICryptoHash
+  );
   crypto.initWithString(aAlgorithm);
-  let fis = Cc["@mozilla.org/network/file-input-stream;1"].
-            createInstance(Ci.nsIFileInputStream);
+  let fis = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
+    Ci.nsIFileInputStream
+  );
   fis.init(aFile, -1, -1, false);
   crypto.updateFromStream(fis, aFile.fileSize);
 
@@ -632,8 +741,9 @@ function do_get_addon_root_uri(aProfileDir, aId) {
 }
 
 function do_get_expected_addon_name(aId) {
-  if (TEST_UNPACKED)
+  if (TEST_UNPACKED) {
     return aId;
+  }
   return aId + ".xpi";
 }
 
@@ -651,8 +761,9 @@ function do_get_expected_addon_name(aId) {
 function do_check_addons(aActualAddons, aExpectedAddons, aProperties) {
   Assert.notEqual(aActualAddons, null);
   Assert.equal(aActualAddons.length, aExpectedAddons.length);
-  for (let i = 0; i < aActualAddons.length; i++)
+  for (let i = 0; i < aActualAddons.length; i++) {
     do_check_addon(aActualAddons[i], aExpectedAddons[i], aProperties);
+  }
 }
 
 /**
@@ -675,16 +786,28 @@ function do_check_addon(aActualAddon, aExpectedAddon, aProperties) {
     // Check that all undefined expected properties are null on actual add-on
     if (!(aProperty in aExpectedAddon)) {
       if (actualValue !== undefined && actualValue !== null) {
-        do_throw("Unexpected defined/non-null property for add-on " +
-                 aExpectedAddon.id + " (addon[" + aProperty + "] = " +
-                 actualValue.toSource() + ")");
+        do_throw(
+          "Unexpected defined/non-null property for add-on " +
+            aExpectedAddon.id +
+            " (addon[" +
+            aProperty +
+            "] = " +
+            actualValue.toSource() +
+            ")"
+        );
       }
 
       return;
     }
     if (expectedValue && !actualValue) {
-      do_throw("Missing property for add-on " + aExpectedAddon.id +
-        ": expected addon[" + aProperty + "] = " + expectedValue);
+      do_throw(
+        "Missing property for add-on " +
+          aExpectedAddon.id +
+          ": expected addon[" +
+          aProperty +
+          "] = " +
+          expectedValue
+      );
       return;
     }
 
@@ -695,14 +818,16 @@ function do_check_addon(aActualAddon, aExpectedAddon, aProperties) {
 
       case "developers":
         Assert.equal(actualValue.length, expectedValue.length);
-        for (let i = 0; i < actualValue.length; i++)
+        for (let i = 0; i < actualValue.length; i++) {
           do_check_author(actualValue[i], expectedValue[i]);
+        }
         break;
 
       case "screenshots":
         Assert.equal(actualValue.length, expectedValue.length);
-        for (let i = 0; i < actualValue.length; i++)
+        for (let i = 0; i < actualValue.length; i++) {
           do_check_screenshot(actualValue[i], expectedValue[i]);
+        }
         break;
 
       case "sourceURI":
@@ -715,8 +840,9 @@ function do_check_addon(aActualAddon, aExpectedAddon, aProperties) {
 
       case "compatibilityOverrides":
         Assert.equal(actualValue.length, expectedValue.length);
-        for (let i = 0; i < actualValue.length; i++)
+        for (let i = 0; i < actualValue.length; i++) {
           do_check_compatibilityoverride(actualValue[i], expectedValue[i]);
+        }
         break;
 
       case "icons":
@@ -724,9 +850,19 @@ function do_check_addon(aActualAddon, aExpectedAddon, aProperties) {
         break;
 
       default:
-        if (actualValue !== expectedValue)
-          do_throw("Failed for " + aProperty + " for add-on " + aExpectedAddon.id +
-                   " (" + actualValue + " === " + expectedValue + ")");
+        if (actualValue !== expectedValue) {
+          do_throw(
+            "Failed for " +
+              aProperty +
+              " for add-on " +
+              aExpectedAddon.id +
+              " (" +
+              actualValue +
+              " === " +
+              expectedValue +
+              ")"
+          );
+        }
     }
   });
 }
@@ -808,7 +944,11 @@ function isExtensionInBootstrappedList(aDir, aId) {
  *          An optional string to override the default installation aId
  * @return  A file pointing to where the extension was installed
  */
-function promiseWriteWebManifestForExtension(aData, aDir, aId = aData.applications.gecko.id) {
+function promiseWriteWebManifestForExtension(
+  aData,
+  aDir,
+  aId = aData.applications.gecko.id
+) {
   let files = {
     "manifest.json": JSON.stringify(aData),
   };
@@ -827,10 +967,11 @@ function createTempXPIFile(aData, aExtraFile) {
   let files = {
     "install.rdf": aData,
   };
-  if (typeof aExtraFile == "object")
+  if (typeof aExtraFile == "object") {
     Object.assign(files, aExtraFile);
-  else if (aExtraFile)
+  } else if (aExtraFile) {
     files[aExtraFile] = "";
+  }
 
   return AddonTestUtils.createTempXPIFile(files);
 }
@@ -840,26 +981,33 @@ var gExpectedInstalls = [];
 var gNext = null;
 
 function getExpectedEvent(aId) {
-  if (!(aId in gExpectedEvents))
+  if (!(aId in gExpectedEvents)) {
     do_throw("Wasn't expecting events for " + aId);
-  if (gExpectedEvents[aId].length == 0)
+  }
+  if (gExpectedEvents[aId].length == 0) {
     do_throw("Too many events for " + aId);
+  }
   let event = gExpectedEvents[aId].shift();
-  if (event instanceof Array)
+  if (event instanceof Array) {
     return event;
+  }
   return [event, true];
 }
 
 function getExpectedInstall(aAddon) {
-  if (gExpectedInstalls instanceof Array)
+  if (gExpectedInstalls instanceof Array) {
     return gExpectedInstalls.shift();
-  if (!aAddon || !aAddon.id)
+  }
+  if (!aAddon || !aAddon.id) {
     return gExpectedInstalls.NO_ID.shift();
+  }
   let id = aAddon.id;
-  if (!(id in gExpectedInstalls) || !(gExpectedInstalls[id] instanceof Array))
+  if (!(id in gExpectedInstalls) || !(gExpectedInstalls[id] instanceof Array)) {
     do_throw("Wasn't expecting events for " + id);
-  if (gExpectedInstalls[id].length == 0)
+  }
+  if (gExpectedInstalls[id].length == 0) {
     do_throw("Too many events for " + id);
+  }
   return gExpectedInstalls[id].shift();
 }
 
@@ -872,8 +1020,9 @@ const AddonListener = {
     properties.forEach(function(aProperty) {
       // Only test that the expected properties are listed, having additional
       // properties listed is not necessary a problem
-      if (!aProperties.includes(aProperty))
+      if (!aProperties.includes(aProperty)) {
         do_throw("Did not see property change for " + aProperty);
+      }
     });
     return check_test_completed(arguments);
   },
@@ -883,8 +1032,9 @@ const AddonListener = {
     let [event, expectedRestart] = getExpectedEvent(aAddon.id);
     Assert.equal("onEnabling", event);
     Assert.equal(aRequiresRestart, expectedRestart);
-    if (expectedRestart)
+    if (expectedRestart) {
       Assert.ok(hasFlag(aAddon.pendingOperations, AddonManager.PENDING_ENABLE));
+    }
     Assert.ok(!hasFlag(aAddon.permissions, AddonManager.PERM_CAN_ENABLE));
     return check_test_completed(arguments);
   },
@@ -902,8 +1052,11 @@ const AddonListener = {
     let [event, expectedRestart] = getExpectedEvent(aAddon.id);
     Assert.equal("onDisabling", event);
     Assert.equal(aRequiresRestart, expectedRestart);
-    if (expectedRestart)
-      Assert.ok(hasFlag(aAddon.pendingOperations, AddonManager.PENDING_DISABLE));
+    if (expectedRestart) {
+      Assert.ok(
+        hasFlag(aAddon.pendingOperations, AddonManager.PENDING_DISABLE)
+      );
+    }
     Assert.ok(!hasFlag(aAddon.permissions, AddonManager.PERM_CAN_DISABLE));
     return check_test_completed(arguments);
   },
@@ -921,8 +1074,11 @@ const AddonListener = {
     let [event, expectedRestart] = getExpectedEvent(aAddon.id);
     Assert.equal("onInstalling", event);
     Assert.equal(aRequiresRestart, expectedRestart);
-    if (expectedRestart)
-      Assert.ok(hasFlag(aAddon.pendingOperations, AddonManager.PENDING_INSTALL));
+    if (expectedRestart) {
+      Assert.ok(
+        hasFlag(aAddon.pendingOperations, AddonManager.PENDING_INSTALL)
+      );
+    }
     return check_test_completed(arguments);
   },
 
@@ -938,8 +1094,11 @@ const AddonListener = {
     let [event, expectedRestart] = getExpectedEvent(aAddon.id);
     Assert.equal("onUninstalling", event);
     Assert.equal(aRequiresRestart, expectedRestart);
-    if (expectedRestart)
-      Assert.ok(hasFlag(aAddon.pendingOperations, AddonManager.PENDING_UNINSTALL));
+    if (expectedRestart) {
+      Assert.ok(
+        hasFlag(aAddon.pendingOperations, AddonManager.PENDING_UNINSTALL)
+      );
+    }
     return check_test_completed(arguments);
   },
 
@@ -960,14 +1119,18 @@ const AddonListener = {
 
 const InstallListener = {
   onNewInstall(install) {
-    if (install.state != AddonManager.STATE_DOWNLOADED &&
-        install.state != AddonManager.STATE_DOWNLOAD_FAILED &&
-        install.state != AddonManager.STATE_AVAILABLE)
+    if (
+      install.state != AddonManager.STATE_DOWNLOADED &&
+      install.state != AddonManager.STATE_DOWNLOAD_FAILED &&
+      install.state != AddonManager.STATE_AVAILABLE
+    ) {
       do_throw("Bad install state " + install.state);
-    if (install.state != AddonManager.STATE_DOWNLOAD_FAILED)
+    }
+    if (install.state != AddonManager.STATE_DOWNLOAD_FAILED) {
       Assert.equal(install.error, 0);
-    else
+    } else {
       Assert.notEqual(install.error, 0);
+    }
     Assert.equal("onNewInstall", getExpectedInstall());
     return check_test_completed(arguments);
   },
@@ -1022,8 +1185,10 @@ const InstallListener = {
   onInstallCancelled(install) {
     // If the install was cancelled by a listener returning false from
     // onInstallStarted, then the state will revert to STATE_DOWNLOADED.
-    let possibleStates = [AddonManager.STATE_CANCELLED,
-                          AddonManager.STATE_DOWNLOADED];
+    let possibleStates = [
+      AddonManager.STATE_CANCELLED,
+      AddonManager.STATE_DOWNLOADED,
+    ];
     Assert.ok(possibleStates.includes(install.state));
     Assert.equal(install.error, 0);
     Assert.equal("onInstallCancelled", getExpectedInstall(install.addon));
@@ -1062,22 +1227,25 @@ function end_test() {
 
 // Checks if all expected events have been seen and if so calls the callback.
 function check_test_completed(aArgs) {
-  if (!gNext)
+  if (!gNext) {
     return undefined;
+  }
 
-  if (gExpectedInstalls instanceof Array &&
-      gExpectedInstalls.length > 0)
+  if (gExpectedInstalls instanceof Array && gExpectedInstalls.length > 0) {
     return undefined;
+  }
 
   for (let id in gExpectedInstalls) {
     let installList = gExpectedInstalls[id];
-    if (installList.length > 0)
+    if (installList.length > 0) {
       return undefined;
+    }
   }
 
   for (let id in gExpectedEvents) {
-    if (gExpectedEvents[id].length > 0)
+    if (gExpectedEvents[id].length > 0) {
       return undefined;
+    }
   }
 
   return gNext.apply(null, aArgs);
@@ -1086,12 +1254,18 @@ function check_test_completed(aArgs) {
 // Verifies that all the expected events for all add-ons were seen.
 function ensure_test_completed() {
   for (let i in gExpectedEvents) {
-    if (gExpectedEvents[i].length > 0)
-      do_throw(`Didn't see all the expected events for ${i}: Still expecting ${gExpectedEvents[i]}`);
+    if (gExpectedEvents[i].length > 0) {
+      do_throw(
+        `Didn't see all the expected events for ${i}: Still expecting ${
+          gExpectedEvents[i]
+        }`
+      );
+    }
   }
   gExpectedEvents = {};
-  if (gExpectedInstalls)
+  if (gExpectedInstalls) {
     Assert.equal(gExpectedInstalls.length, 0);
+  }
 }
 
 /**
@@ -1130,7 +1304,7 @@ gExtensionsJSON.append(EXTENSIONS_DB);
 async function promiseInstallWebExtension(aData) {
   let addonFile = createTempWebExtensionFile(aData);
 
-  let {addon} = await promiseInstallFile(addonFile);
+  let { addon } = await promiseInstallFile(addonFile);
   return addon;
 }
 
@@ -1146,8 +1320,9 @@ Services.prefs.setBoolPref("extensions.legacy.enabled", true);
 function copyBlocklistToProfile(blocklistFile) {
   var dest = gProfD.clone();
   dest.append("blocklist.xml");
-  if (dest.exists())
+  if (dest.exists()) {
     dest.remove(false);
+  }
   blocklistFile.copyTo(gProfD, "blocklist.xml");
   dest.lastModifiedTime = Date.now();
 }
@@ -1201,7 +1376,10 @@ async function loadJSON(aFile) {
  */
 async function saveJSON(aData, aFile) {
   info("Starting to save JSON file " + aFile);
-  await OS.File.writeAtomic(aFile, new TextEncoder().encode(JSON.stringify(aData, null, 2)));
+  await OS.File.writeAtomic(
+    aFile,
+    new TextEncoder().encode(JSON.stringify(aData, null, 2))
+  );
   info("Done saving JSON file " + aFile.path);
 }
 
@@ -1210,20 +1388,27 @@ async function saveJSON(aData, aFile) {
  */
 function callback_soon(aFunction) {
   return function(...args) {
-    executeSoon(function() {
-      aFunction.apply(null, args);
-    }, aFunction.name ? "delayed callback " + aFunction.name : "delayed callback");
+    executeSoon(
+      function() {
+        aFunction.apply(null, args);
+      },
+      aFunction.name ? "delayed callback " + aFunction.name : "delayed callback"
+    );
   };
 }
 
-XPCOMUtils.defineLazyServiceGetter(this, "pluginHost",
-                                  "@mozilla.org/plugin/host;1", "nsIPluginHost");
+XPCOMUtils.defineLazyServiceGetter(
+  this,
+  "pluginHost",
+  "@mozilla.org/plugin/host;1",
+  "nsIPluginHost"
+);
 
 class MockPluginTag {
   constructor(opts, enabledState = Ci.nsIPluginTag.STATE_ENABLED) {
     this.pluginTag = pluginHost.createFakePlugin({
       handlerURI: "resource://fake-plugin/${Math.random()}.xhtml",
-      mimeEntries: [{type: "application/x-fake-plugin"}],
+      mimeEntries: [{ type: "application/x-fake-plugin" }],
       fileName: `${opts.name}.so`,
       ...opts,
     });
@@ -1240,7 +1425,8 @@ class MockPluginTag {
     return this.pluginTag.enabledState == Ci.nsIPluginTag.STATE_DISABLED;
   }
   set disabled(val) {
-    this.enabledState = Ci.nsIPluginTag[val ? "STATE_DISABLED" : "STATE_ENABLED"];
+    this.enabledState =
+      Ci.nsIPluginTag[val ? "STATE_DISABLED" : "STATE_ENABLED"];
   }
   get enabledState() {
     return this.pluginTag.enabledState;
@@ -1279,7 +1465,13 @@ async function setInitialState(addon, initialState) {
  * @returns {string} The escaped string.
  */
 function escapeXML(str) {
-  let replacements = {"&": "&amp;", '"': "&quot;", "'": "&apos;", "<": "&lt;", ">": "&gt;"};
+  let replacements = {
+    "&": "&amp;",
+    '"': "&quot;",
+    "'": "&apos;",
+    "<": "&lt;",
+    ">": "&gt;",
+  };
   return String(str).replace(/[&"''<>]/g, m => replacements[m]);
 }
 
@@ -1311,8 +1503,9 @@ function escaped(strings, ...values) {
 function _writeProps(obj, props, indent = "  ") {
   let items = [];
   for (let prop of props) {
-    if (obj[prop] !== undefined)
+    if (obj[prop] !== undefined) {
       items.push(escaped`${indent}<em:${prop}>${obj[prop]}</em:${prop}>\n`);
+    }
   }
   return items.join("");
 }
@@ -1320,8 +1513,9 @@ function _writeProps(obj, props, indent = "  ") {
 function _writeArrayProps(obj, props, indent = "  ") {
   let items = [];
   for (let prop of props) {
-    for (let val of obj[prop] || [])
+    for (let val of obj[prop] || []) {
       items.push(escaped`${indent}<em:${prop}>${val}</em:${prop}>\n`);
+    }
   }
   return items.join("");
 }
@@ -1329,8 +1523,12 @@ function _writeArrayProps(obj, props, indent = "  ") {
 function _writeLocaleStrings(data) {
   let items = [];
 
-  items.push(this._writeProps(data, ["name", "description", "creator", "homepageURL"]));
-  items.push(this._writeArrayProps(data, ["developer", "translator", "contributor"]));
+  items.push(
+    this._writeProps(data, ["name", "description", "creator", "homepageURL"])
+  );
+  items.push(
+    this._writeArrayProps(data, ["developer", "translator", "contributor"])
+  );
 
   return items.join("");
 }
