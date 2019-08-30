@@ -214,3 +214,17 @@ function openWebLinkIn(url, where, params) {
 function openUILinkIn(url, where, options) {
   openLinkExternally(url);
 }
+
+function openTrustedLinkIn(url, where, aParams) {
+  var params = aParams;
+
+  if (!params) {
+    params = {};
+  }
+
+  if (!params.triggeringPrincipal) {
+    params.triggeringPrincipal = Services.scriptSecurityManager.getSystemPrincipal();
+  }
+
+  openUILinkIn(url, where, params);
+}
