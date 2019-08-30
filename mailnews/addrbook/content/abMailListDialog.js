@@ -368,13 +368,20 @@ function awInputElementName() {
   return inputElementType;
 }
 
+/**
+ * Append a new row.
+ *
+ * @param {boolean} setFocus  Whether to set the focus on the new row.
+ * @return {Element?}         The input element from the new row.
+ */
 function awAppendNewRow(setFocus) {
-  var body = document.getElementById("addressingWidget");
-  var listitem1 = awGetListItem(1);
+  let body = document.getElementById("addressingWidget");
+  let listitem1 = awGetListItem(1);
+  let input;
 
   if (body && listitem1) {
-    var nextDummy = awGetNextDummyRow();
-    var newNode = listitem1.cloneNode(true);
+    let nextDummy = awGetNextDummyRow();
+    let newNode = listitem1.cloneNode(true);
     if (nextDummy)
       body.replaceChild(newNode, nextDummy);
     else
@@ -382,7 +389,7 @@ function awAppendNewRow(setFocus) {
 
     top.MAX_RECIPIENTS++;
 
-    var input = newNode.getElementsByTagName(awInputElementName());
+    input = newNode.getElementsByTagName(awInputElementName());
     if (input && input.length == 1) {
       input[0].setAttribute("value", "");
       input[0].setAttribute("id", "addressCol1#" + top.MAX_RECIPIENTS);
@@ -394,6 +401,7 @@ function awAppendNewRow(setFocus) {
     if (setFocus && input)
       awSetFocusTo(input[0]);
   }
+  return input ? input[0] : null;
 }
 
 

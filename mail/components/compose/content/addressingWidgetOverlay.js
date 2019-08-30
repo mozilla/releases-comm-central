@@ -784,11 +784,56 @@ function awRecipientOnFocus(inputElement) {
 function awAbRecipientKeyPress(event, element) {
   // Only add new row when enter was hit (not for tab/autocomplete select).
   if (event.key == "Enter") {
-    // Prevent dialogs from closing.
-    if (element.value != "") {
+    let inputElement = element;
+
+    if (element.value) {
+      // Prevent the dialog from closing.
       event.preventDefault();
+
+      let originalRow = awGetRowByInputElement(element);
+      let row;
+      let addresses = MailServices.headerParser
+                                  .makeFromDisplayAddress(element.value);
+
+      if (addresses.length > 1) {
+        // Collect any existing addresses from the following rows so we don't
+        // simply overwrite them.
+        row = originalRow + 1;
+        inputElement = awGetInputElement(row);
+
+        while (inputElement) {
+          if (inputElement.value) {
+            addresses.push(inputElement.value);
+            inputElement.value = "";
+          }
+          row += 1;
+          inputElement = awGetInputElement(row);
+        }
+      }
+
+      // Insert the addresses, adding new rows if needed.
+      row = originalRow;
+      let needNewRows = false;
+
+      for (let address of addresses) {
+        if (needNewRows) {
+          inputElement = awAppendNewRow(false);
+        } else {
+          inputElement = awGetInputElement(row);
+          if (!inputElement) {
+            needNewRows = true;
+            inputElement = awAppendNewRow(false);
+          }
+        }
+
+        if (inputElement) {
+          inputElement.value = address;
+        }
+        row += 1;
+      }
     }
-    awReturnHit(element);
+
+    awReturnHit(inputElement);
   }
 }
 
