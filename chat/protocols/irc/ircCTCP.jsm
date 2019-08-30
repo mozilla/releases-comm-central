@@ -10,9 +10,11 @@
 
 this.EXPORTED_SYMBOLS = ["ircCTCP", "ctcpBase"];
 
-const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
-const {ircHandlers} = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
-var {_} = ChromeUtils.import("resource:///modules/ircUtils.jsm");
+const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+const { ircHandlers } = ChromeUtils.import(
+  "resource:///modules/ircHandlers.jsm"
+);
+var { _ } = ChromeUtils.import("resource:///modules/ircUtils.jsm");
 
 // Split into a CTCP message which is a single command and a single parameter:
 //   <command> " " <parameter>
@@ -25,12 +27,15 @@ function CTCPMessage(aMessage, aRawCTCPMessage) {
   // High/CTCP level dequote: replace the quote char \134 followed by a or \134
   // with \001 or \134, respectively. Any other character after \134 is replaced
   // with itself.
-  let dequotedCTCPMessage = message.ctcp.rawMessage.replace(/\\(.|$)/g,
+  let dequotedCTCPMessage = message.ctcp.rawMessage.replace(
+    /\\(.|$)/g,
     aStr => {
-      if (aStr[1])
+      if (aStr[1]) {
         return aStr[1] == "a" ? "\x01" : aStr[1];
+      }
       return "";
-    });
+    }
+  );
 
   let separator = dequotedCTCPMessage.indexOf(" ");
   // If there's no space, then only a command is given.
@@ -38,14 +43,12 @@ function CTCPMessage(aMessage, aRawCTCPMessage) {
   if (separator == -1) {
     message.ctcp.command = dequotedCTCPMessage;
     message.ctcp.param = "";
-  }
-  else {
+  } else {
     message.ctcp.command = dequotedCTCPMessage.slice(0, separator);
     message.ctcp.param = dequotedCTCPMessage.slice(separator + 1);
   }
   return message;
 }
-
 
 // This is the CTCP handler for IRC protocol, it will call each CTCP handler.
 var ircCTCP = {
@@ -56,15 +59,16 @@ var ircCTCP = {
 
   // CTCP uses only PRIVMSG and NOTICE commands.
   commands: {
-    "PRIVMSG": ctcpHandleMessage,
-    "NOTICE": ctcpHandleMessage,
+    PRIVMSG: ctcpHandleMessage,
+    NOTICE: ctcpHandleMessage,
   },
 };
 // Parse the message and call all CTCP handlers on the message.
 function ctcpHandleMessage(aMessage) {
   // If there are no CTCP handlers, then don't parse the CTCP message.
-  if (!ircHandlers.hasCTCPHandlers)
+  if (!ircHandlers.hasCTCPHandlers) {
     return false;
+  }
 
   // The raw CTCP message is in the last parameter of the IRC message.
   let rawCTCPParam = aMessage.params.slice(-1)[0];
@@ -73,16 +77,20 @@ function ctcpHandleMessage(aMessage) {
   // command and parameters.
   let ctcpMessages = [];
   // eslint-disable-next-line no-control-regex
-  let otherMessage = rawCTCPParam.replace(/\x01([^\x01]*)\x01/g,
-    function(aMatch, aMsg) {
-      if (aMsg)
-        ctcpMessages.push(new CTCPMessage(aMessage, aMsg));
-      return "";
-    });
+  let otherMessage = rawCTCPParam.replace(/\x01([^\x01]*)\x01/g, function(
+    aMatch,
+    aMsg
+  ) {
+    if (aMsg) {
+      ctcpMessages.push(new CTCPMessage(aMessage, aMsg));
+    }
+    return "";
+  });
 
   // If no CTCP messages were found, return false.
-  if (!ctcpMessages.length)
+  if (!ctcpMessages.length) {
     return false;
+  }
 
   // If there's some message left, send it back through the IRC handlers after
   // stripping out the CTCP information. I highly doubt this will ever happen,
@@ -97,12 +105,18 @@ function ctcpHandleMessage(aMessage) {
   // Loop over each raw CTCP message.
   for (let message of ctcpMessages) {
     if (!ircHandlers.handleCTCPMessage(this, message)) {
-      this.WARN("Unhandled CTCP message: " + message.ctcp.rawMessage +
-                "\nin IRC message: " + message.rawMessage);
+      this.WARN(
+        "Unhandled CTCP message: " +
+          message.ctcp.rawMessage +
+          "\nin IRC message: " +
+          message.rawMessage
+      );
       // For unhandled CTCP message, respond with a NOTICE ERRMSG that echoes
       // back the original command.
-      this.sendCTCPMessage(message.origin, true, "ERRMSG",
-                           [message.ctcp.rawMessage, ":Unhandled CTCP command"]);
+      this.sendCTCPMessage(message.origin, true, "ERRMSG", [
+        message.ctcp.rawMessage,
+        ":Unhandled CTCP command",
+      ]);
     }
   }
 
@@ -119,20 +133,27 @@ var ctcpBase = {
 
   // These represent CTCP commands.
   commands: {
-    "ACTION": function(aMessage) {
+    ACTION(aMessage) {
       // ACTION <text>
       // Display message in conversation
-      this.getConversation(this.isMUCName(aMessage.params[0]) ?
-                             aMessage.params[0] : aMessage.origin)
-          .writeMessage(aMessage.origin, "/me " + aMessage.ctcp.param,
-                        {incoming: true, tags: aMessage.tags});
+      this.getConversation(
+        this.isMUCName(aMessage.params[0])
+          ? aMessage.params[0]
+          : aMessage.origin
+      ).writeMessage(aMessage.origin, "/me " + aMessage.ctcp.param, {
+        incoming: true,
+        tags: aMessage.tags,
+      });
       return true;
     },
 
     // Used when an error needs to be replied with.
-    "ERRMSG": function(aMessage) {
-      this.WARN(aMessage.origin + " failed to handle CTCP message: " +
-                aMessage.ctcp.param);
+    ERRMSG(aMessage) {
+      this.WARN(
+        aMessage.origin +
+          " failed to handle CTCP message: " +
+          aMessage.ctcp.param
+      );
       return true;
     },
 
@@ -143,40 +164,54 @@ var ctcpBase = {
     // "FINGER": function(aMessage) { return false; },
 
     // Dynamic master index of what a client knows.
-    "CLIENTINFO": function(aMessage) {
+    CLIENTINFO(aMessage) {
       if (aMessage.command == "PRIVMSG") {
         // Received a CLIENTINFO request, respond with the support CTCP
         // messages.
         let info = new Set();
         for (let handler of ircHandlers._ctcpHandlers) {
-          for (let command in handler.commands)
+          for (let command in handler.commands) {
             info.add(command);
+          }
         }
 
         let supportedCtcp = [...info].join(" ");
-        this.LOG("Reporting support for the following CTCP messages: " +
-                 supportedCtcp);
-        this.sendCTCPMessage(aMessage.origin, true, "CLIENTINFO",
-                             supportedCtcp);
-      }
-      else {
+        this.LOG(
+          "Reporting support for the following CTCP messages: " + supportedCtcp
+        );
+        this.sendCTCPMessage(
+          aMessage.origin,
+          true,
+          "CLIENTINFO",
+          supportedCtcp
+        );
+      } else {
         // Received a CLIENTINFO response, store the information for future
         // use.
         let info = aMessage.ctcp.param.split(" ");
-        this.setWhois(aMessage.origin, {clientInfo: info});
+        this.setWhois(aMessage.origin, { clientInfo: info });
       }
       return true;
     },
 
     // Used to measure the delay of the IRC network between clients.
-    "PING": function(aMessage) {
+    PING(aMessage) {
       // PING timestamp
       if (aMessage.command == "PRIVMSG") {
         // Received PING request, send PING response.
-        this.LOG("Received PING request from " + aMessage.origin +
-                 ". Sending PING response: \"" + aMessage.ctcp.param + "\".");
-        this.sendCTCPMessage(aMessage.origin, true, "PING",
-                             aMessage.ctcp.param);
+        this.LOG(
+          "Received PING request from " +
+            aMessage.origin +
+            '. Sending PING response: "' +
+            aMessage.ctcp.param +
+            '".'
+        );
+        this.sendCTCPMessage(
+          aMessage.origin,
+          true,
+          "PING",
+          aMessage.ctcp.param
+        );
         return true;
       }
       return this.handlePingReply(aMessage.origin, aMessage.ctcp.param);
@@ -192,24 +227,29 @@ var ctcpBase = {
     // "SOURCE": function(aMessage) { return false; },
 
     // Gets the local date and time from other clients.
-    "TIME": function(aMessage) {
+    TIME(aMessage) {
       if (aMessage.command == "PRIVMSG") {
         // TIME
         // Received a TIME request, send a human readable response.
-        let now = (new Date()).toString();
-        this.LOG("Received TIME request from " + aMessage.origin +
-                 ". Sending TIME response: \"" + now + "\".");
+        let now = new Date().toString();
+        this.LOG(
+          "Received TIME request from " +
+            aMessage.origin +
+            '. Sending TIME response: "' +
+            now +
+            '".'
+        );
         this.sendCTCPMessage(aMessage.origin, true, "TIME", ":" + now);
-      }
-      else {
+      } else {
         // TIME :<human-readable-time-string>
         // Received a TIME reply, display it.
         // Remove the : prefix, if it exists and display the result.
         let time = aMessage.ctcp.param.slice(aMessage.ctcp.param[0] == ":");
-        this.getConversation(aMessage.origin)
-            .writeMessage(aMessage.origin,
-                          _("ctcp.time", aMessage.origin, time),
-                          {system: true, tags: aMessage.tags});
+        this.getConversation(aMessage.origin).writeMessage(
+          aMessage.origin,
+          _("ctcp.time", aMessage.origin, time),
+          { system: true, tags: aMessage.tags }
+        );
       }
       return true;
     },
@@ -221,23 +261,28 @@ var ctcpBase = {
     // "USERINFO": function(aMessage) { return false; },
 
     // The version and type of the client.
-    "VERSION": function(aMessage) {
+    VERSION(aMessage) {
       if (aMessage.command == "PRIVMSG") {
         // VERSION
         // Received VERSION request, send VERSION response.
         let version = Services.appinfo.name + " " + Services.appinfo.version;
-        this.LOG("Received VERSION request from " + aMessage.origin +
-                 ". Sending VERSION response: \"" + version + "\".");
+        this.LOG(
+          "Received VERSION request from " +
+            aMessage.origin +
+            '. Sending VERSION response: "' +
+            version +
+            '".'
+        );
         this.sendCTCPMessage(aMessage.origin, true, "VERSION", version);
-      }
-      else if (aMessage.command == "NOTICE" && aMessage.ctcp.param.length) {
+      } else if (aMessage.command == "NOTICE" && aMessage.ctcp.param.length) {
         // VERSION #:#:#
         // Received VERSION response, display to the user.
-        let response = _("ctcp.version", aMessage.origin,
-                         aMessage.ctcp.param);
-        this.getConversation(aMessage.origin)
-            .writeMessage(aMessage.origin, response,
-                          {system: true, tags: aMessage.tags});
+        let response = _("ctcp.version", aMessage.origin, aMessage.ctcp.param);
+        this.getConversation(aMessage.origin).writeMessage(
+          aMessage.origin,
+          response,
+          { system: true, tags: aMessage.tags }
+        );
       }
       return true;
     },

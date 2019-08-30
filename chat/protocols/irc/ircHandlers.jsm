@@ -39,13 +39,19 @@ var ircHandlers = {
   _registerHandler(aArray, aHandler) {
     // Protect ourselves from adding broken handlers.
     if (!("commands" in aHandler)) {
-      Cu.reportError(new Error("IRC handlers must have a \"commands\" " +
-                               "property: " + aHandler.name));
+      Cu.reportError(
+        new Error(
+          'IRC handlers must have a "commands" ' + "property: " + aHandler.name
+        )
+      );
       return false;
     }
     if (!("isEnabled" in aHandler)) {
-      Cu.reportError(new Error("IRC handlers must have a \"isEnabled\" " +
-                               "property: " + aHandler.name));
+      Cu.reportError(
+        new Error(
+          'IRC handlers must have a "isEnabled" ' + "property: " + aHandler.name
+        )
+      );
       return false;
     }
 
@@ -69,8 +75,10 @@ var ircHandlers = {
     return this._registerHandler(this._isupportHandlers, aHandler);
   },
   unregisterISUPPORTHandler(aHandler) {
-    this._isupportHandlers = this._unregisterHandler(this._isupportHandlers,
-                                                     aHandler);
+    this._isupportHandlers = this._unregisterHandler(
+      this._isupportHandlers,
+      aHandler
+    );
   },
 
   registerCAPHandler(aHandler) {
@@ -98,8 +106,10 @@ var ircHandlers = {
     return this._registerHandler(this._servicesHandlers, aHandler);
   },
   unregisterServicesHandler(aHandler) {
-    this._servicesHandlers = this._unregisterHandler(this._servicesHandlers,
-                                                     aHandler);
+    this._servicesHandlers = this._unregisterHandler(
+      this._servicesHandlers,
+      aHandler
+    );
   },
 
   registerTagHandler(aHandler) {
@@ -117,14 +127,25 @@ var ircHandlers = {
         // Attempt to execute the command, by checking if the handler has the
         // command.
         // Parse the command with the JavaScript account object as "this".
-        if (handler.isEnabled.call(aAccount) && aCommand in handler.commands &&
-            handler.commands[aCommand].call(aAccount, aMessage))
+        if (
+          handler.isEnabled.call(aAccount) &&
+          aCommand in handler.commands &&
+          handler.commands[aCommand].call(aAccount, aMessage)
+        ) {
           return true;
+        }
       } catch (e) {
         // We want to catch an error here because one of our handlers are
         // broken, if we don't catch the error, the whole IRC plug-in will die.
-        aAccount.ERROR("Error running command " + aCommand + " with handler " +
-                       handler.name + ":\n" + JSON.stringify(aMessage), e);
+        aAccount.ERROR(
+          "Error running command " +
+            aCommand +
+            " with handler " +
+            handler.name +
+            ":\n" +
+            JSON.stringify(aMessage),
+          e
+        );
       }
     }
 
@@ -132,55 +153,103 @@ var ircHandlers = {
   },
 
   handleMessage(aAccount, aMessage) {
-    return this._handleMessage(this._ircHandlers, aAccount, aMessage,
-                               aMessage.command.toUpperCase());
+    return this._handleMessage(
+      this._ircHandlers,
+      aAccount,
+      aMessage,
+      aMessage.command.toUpperCase()
+    );
   },
 
   handleISUPPORTMessage(aAccount, aMessage) {
-    return this._handleMessage(this._isupportHandlers, aAccount, aMessage,
-                               aMessage.isupport.parameter);
+    return this._handleMessage(
+      this._isupportHandlers,
+      aAccount,
+      aMessage,
+      aMessage.isupport.parameter
+    );
   },
 
   handleCAPMessage(aAccount, aMessage) {
-    return this._handleMessage(this._capHandlers, aAccount, aMessage,
-                               aMessage.cap.parameter);
+    return this._handleMessage(
+      this._capHandlers,
+      aAccount,
+      aMessage,
+      aMessage.cap.parameter
+    );
   },
 
   // aMessage is a CTCP Message, which inherits from an IRC Message.
   handleCTCPMessage(aAccount, aMessage) {
-    return this._handleMessage(this._ctcpHandlers, aAccount, aMessage,
-                               aMessage.ctcp.command);
+    return this._handleMessage(
+      this._ctcpHandlers,
+      aAccount,
+      aMessage,
+      aMessage.ctcp.command
+    );
   },
 
   // aMessage is a DCC Message, which inherits from a CTCP Message.
   handleDCCMessage(aAccount, aMessage) {
-    return this._handleMessage(this._dccHandlers, aAccount, aMessage,
-                               aMessage.ctcp.dcc.type);
+    return this._handleMessage(
+      this._dccHandlers,
+      aAccount,
+      aMessage,
+      aMessage.ctcp.dcc.type
+    );
   },
 
   // aMessage is a Services Message.
   handleServicesMessage(aAccount, aMessage) {
-    return this._handleMessage(this._servicesHandlers, aAccount, aMessage,
-                               aMessage.serviceName);
+    return this._handleMessage(
+      this._servicesHandlers,
+      aAccount,
+      aMessage,
+      aMessage.serviceName
+    );
   },
 
   // aMessage is a Tag Message.
   handleTag(aAccount, aMessage) {
-    return this._handleMessage(this._tagHandlers, aAccount, aMessage,
-                               aMessage.tagName);
+    return this._handleMessage(
+      this._tagHandlers,
+      aAccount,
+      aMessage,
+      aMessage.tagName
+    );
   },
 
   // Checking if handlers exist.
-  get hasHandlers() { return this._ircHandlers.length > 0; },
-  get hasISUPPORTHandlers() { return this._isupportHandlers.length > 0; },
-  get hasCAPHandlers() { return this._capHandlers.length > 0; },
-  get hasCTCPHandlers() { return this._ctcpHandlers.length > 0; },
-  get hasDCCHandlers() { return this._dccHandlers.length > 0; },
-  get hasServicesHandlers() { return this._servicesHandlers.length > 0; },
-  get hasTagHandlers() { return this._tagHandlers.length > 0; },
+  get hasHandlers() {
+    return this._ircHandlers.length > 0;
+  },
+  get hasISUPPORTHandlers() {
+    return this._isupportHandlers.length > 0;
+  },
+  get hasCAPHandlers() {
+    return this._capHandlers.length > 0;
+  },
+  get hasCTCPHandlers() {
+    return this._ctcpHandlers.length > 0;
+  },
+  get hasDCCHandlers() {
+    return this._dccHandlers.length > 0;
+  },
+  get hasServicesHandlers() {
+    return this._servicesHandlers.length > 0;
+  },
+  get hasTagHandlers() {
+    return this._tagHandlers.length > 0;
+  },
 
   // Some constant priorities.
-  get LOW_PRIORITY() { return -100; },
-  get DEFAULT_PRIORITY() { return 0; },
-  get HIGH_PRIORITY() { return 100; },
+  get LOW_PRIORITY() {
+    return -100;
+  },
+  get DEFAULT_PRIORITY() {
+    return 0;
+  },
+  get HIGH_PRIORITY() {
+    return 100;
+  },
 };

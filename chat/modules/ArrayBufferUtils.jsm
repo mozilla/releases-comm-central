@@ -7,9 +7,15 @@
  * provided by this module.
  */
 
-this.EXPORTED_SYMBOLS = ["copyBytes", "ArrayBufferToBytes",
-  "BytesToArrayBuffer", "StringToBytes", "StringToArrayBuffer",
-  "ArrayBufferToString", "ArrayBufferToHexString"];
+this.EXPORTED_SYMBOLS = [
+  "copyBytes",
+  "ArrayBufferToBytes",
+  "BytesToArrayBuffer",
+  "StringToBytes",
+  "StringToArrayBuffer",
+  "ArrayBufferToString",
+  "ArrayBufferToHexString",
+];
 
 /*
  * aTarget / aSource are ArrayBuffers.
@@ -17,8 +23,13 @@ this.EXPORTED_SYMBOLS = ["copyBytes", "ArrayBufferToBytes",
  * Note that this is very similar to ArrayBuffer.slice except that it allows
  * for an offset in the target as well as the source.
  */
-function copyBytes(aTarget, aSource, aTargetOffset = 0, aSourceOffset = 0,
-                   aLength = aSource.byteLength) {
+function copyBytes(
+  aTarget,
+  aSource,
+  aTargetOffset = 0,
+  aSourceOffset = 0,
+  aLength = aSource.byteLength
+) {
   // The rest just gets the data copied into it.
   let view = new Uint8Array(aTarget, aTargetOffset);
   view.set(new Uint8Array(aSource, aSourceOffset, aLength));
@@ -48,9 +59,16 @@ function StringToArrayBuffer(aString) {
 }
 
 function ArrayBufferToString(aData) {
-  return Array.from(new Uint8Array(aData)).map(b => String.fromCharCode(b)).join("");
+  return Array.from(new Uint8Array(aData))
+    .map(b => String.fromCharCode(b))
+    .join("");
 }
 
 function ArrayBufferToHexString(aData) {
-  return "0x" + Array.from(new Uint8Array(aData)).map(b => ("0" + b.toString(16)).slice(-2)).join(" ");
+  return (
+    "0x" +
+    Array.from(new Uint8Array(aData))
+      .map(b => ("0" + b.toString(16)).slice(-2))
+      .join(" ")
+  );
 }

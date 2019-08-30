@@ -1,8 +1,10 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var {XMPPAccountPrototype} = ChromeUtils.import("resource:///modules/xmpp.jsm");
-var {XMPPParser} = ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
+var { XMPPAccountPrototype } = ChromeUtils.import(
+  "resource:///modules/xmpp.jsm"
+);
+var { XMPPParser } = ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
 
 /*
  * Open an input stream, instantiate an XMPP parser, and feed the input string
@@ -22,8 +24,9 @@ function _test_vcard(aInput, aExpectedResult) {
     },
   };
   let parser = new XMPPParser(listener);
-  let istream = Cc["@mozilla.org/io/string-input-stream;1"]
-                  .createInstance(Ci.nsIStringInputStream);
+  let istream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(
+    Ci.nsIStringInputStream
+  );
   istream.setData(aInput, aInput.length);
   parser.onDataAvailable(istream, 0, aInput.length);
   parser.destroy();
@@ -33,7 +36,8 @@ function _test_vcard(aInput, aExpectedResult) {
  * Test parsing of the example vCard from XEP-0054 section 3.1, example 2.
  */
 function test_standard_vcard() {
-  const standard_vcard = "<iq xmlns='jabber:client'\
+  const standard_vcard =
+    "<iq xmlns='jabber:client'\
     id='v1'\
     to='stpeter@jabber.org/roundabout'\
     type='result'>\
@@ -115,7 +119,8 @@ function test_standard_vcard() {
  * 4. This can be used instead of returning an error stanza.
  */
 function test_empty_vcard() {
-  const empty_vcard = "<iq xmlns='jabber:client'\
+  const empty_vcard =
+    "<iq xmlns='jabber:client'\
     id='v1'\
     to='stpeter@jabber.org/roundabout'\
     type='result'>\

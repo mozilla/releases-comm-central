@@ -1,10 +1,12 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var irc = {};
 Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
-const {ircNonStandard} = ChromeUtils.import("resource:///modules/ircNonStandard.jsm");
+const { ircNonStandard } = ChromeUtils.import(
+  "resource:///modules/ircNonStandard.jsm"
+);
 
 // The function that is under test here.
 var NOTICE = ircNonStandard.commands.NOTICE;

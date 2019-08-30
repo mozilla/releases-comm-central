@@ -1,11 +1,10 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var irc = {};
 Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
 Services.conversations.initConversations();
-
 
 function FakeAccount() {
   this.normalizeNick = irc.ircAccount.prototype.normalizeNick.bind(this);

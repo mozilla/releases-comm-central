@@ -4,10 +4,9 @@
 
 this.EXPORTED_SYMBOLS = ["commands"];
 
-var {
-  XPCOMUtils,
-  l10nHelper,
-} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
+  "resource:///modules/imXPCOMUtils.jsm"
+);
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/xmpp.properties")
@@ -26,9 +25,11 @@ function getAccount(aConv) {
 function getMUC(aConv) {
   let conv = getConv(aConv);
   if (conv.left) {
-    conv.writeMessage(conv.name,
-                      _("conversation.error.commandFailedNotInRoom"),
-                      {system: true});
+    conv.writeMessage(
+      conv.name,
+      _("conversation.error.commandFailedNotInRoom"),
+      { system: true }
+    );
     return null;
   }
   return conv;
@@ -38,17 +39,18 @@ function getMUC(aConv) {
 // if there is one. Returns the non-empty parts in an array.
 function splitInput(aString) {
   let params = aString.trim();
-  if (!params)
+  if (!params) {
     return [];
+  }
 
   let splitParams = [];
   let offset = params.indexOf(" ");
   if (offset != -1) {
     splitParams.push(params.slice(0, offset));
     splitParams.push(params.slice(offset + 1).trimLeft());
-  }
-  else
+  } else {
     splitParams.push(params);
+  }
   return splitParams;
 }
 
@@ -57,22 +59,28 @@ function splitInput(aString) {
 // participants. Returns the non-empty parts in an array.
 function splitByNick(aString, aConv) {
   let params = aString.trim();
-  if (!params)
+  if (!params) {
     return [];
+  }
 
   // Match trimmed-string with the longest prefix of participant's nickname.
   let nickName = "";
   for (let participant of aConv._participants.keys()) {
-    if (params.startsWith(participant + " ") &&
-        participant.length > nickName.length)
+    if (
+      params.startsWith(participant + " ") &&
+      participant.length > nickName.length
+    ) {
       nickName = participant;
+    }
   }
   if (!nickName) {
     let offset = params.indexOf(" ");
     let expectedNickName = offset != -1 ? params.slice(0, offset) : params;
-    aConv.writeMessage(aConv.name,
-                      _("conversation.error.nickNotInRoom", expectedNickName),
-                      {system: true});
+    aConv.writeMessage(
+      aConv.name,
+      _("conversation.error.nickNotInRoom", expectedNickName),
+      { system: true }
+    );
     return [];
   }
 
@@ -80,8 +88,9 @@ function splitByNick(aString, aConv) {
   splitParams.push(nickName);
 
   let msg = params.substring(nickName.length);
-  if (msg)
+  if (msg) {
     splitParams.push(msg.trimLeft());
+  }
   return splitParams;
 }
 
@@ -90,16 +99,19 @@ function splitByNick(aString, aConv) {
 // Returns false if aMsg is empty, otherwise returns true.
 function invite(aMsg, aConv) {
   let params = splitInput(aMsg);
-  if (!params.length)
+  if (!params.length) {
     return false;
+  }
 
   // Check user's jid is valid.
   let account = getAccount(aConv);
   let jid = account._parseJID(params[0]);
   if (!jid) {
-    aConv.writeMessage(aConv.name,
-                      _("conversation.error.invalidJID", params[0]),
-                      {system: true});
+    aConv.writeMessage(
+      aConv.name,
+      _("conversation.error.invalidJID", params[0]),
+      { system: true }
+    );
     return true;
   }
 
@@ -110,7 +122,9 @@ function invite(aMsg, aConv) {
 var commands = [
   {
     name: "join",
-    get helpString() { return _("command.join3", "join"); },
+    get helpString() {
+      return _("command.join3", "join");
+    },
     run(aMsg, aConv, aReturnedConv) {
       let account = getAccount(aConv);
       let params = aMsg.trim();
@@ -118,10 +132,12 @@ var commands = [
 
       if (!params) {
         conv = getConv(aConv);
-        if (!conv.isChat)
+        if (!conv.isChat) {
           return false;
-        if (!conv.left)
+        }
+        if (!conv.left) {
           return true;
+        }
 
         // Rejoin the current conversation. If the conversation was explicitly
         // parted by the user, chatRoomFields will have been deleted.
@@ -136,91 +152,114 @@ var commands = [
       let chatRoomFields = account.getChatRoomDefaultFieldValues(params);
       conv = account.joinChat(chatRoomFields);
 
-      if (aReturnedConv)
+      if (aReturnedConv) {
         aReturnedConv.value = conv;
+      }
       return true;
     },
   },
   {
     name: "part",
-    get helpString() { return _("command.part2", "part"); },
+    get helpString() {
+      return _("command.part2", "part");
+    },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run(aMsg, aConv) {
       let conv = getConv(aConv);
-      if (!conv.left)
+      if (!conv.left) {
         conv.part(aMsg);
+      }
       return true;
     },
   },
   {
     name: "topic",
-    get helpString() { return _("command.topic", "topic"); },
+    get helpString() {
+      return _("command.topic", "topic");
+    },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run(aMsg, aConv) {
       let conv = getMUC(aConv);
-      if (!conv)
+      if (!conv) {
         return true;
+      }
       conv.topic = aMsg;
       return true;
     },
   },
   {
     name: "ban",
-    get helpString() { return _("command.ban", "ban"); },
+    get helpString() {
+      return _("command.ban", "ban");
+    },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run(aMsg, aConv) {
       let params = splitInput(aMsg);
-      if (!params.length)
+      if (!params.length) {
         return false;
+      }
 
       let conv = getMUC(aConv);
-      if (conv)
+      if (conv) {
         conv.ban(...params);
+      }
       return true;
     },
   },
   {
     name: "kick",
-    get helpString() { return _("command.kick", "kick"); },
+    get helpString() {
+      return _("command.kick", "kick");
+    },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run(aMsg, aConv) {
       let conv = getMUC(aConv);
-      if (!conv)
+      if (!conv) {
         return true;
+      }
 
       let params = splitByNick(aMsg, conv);
-      if (!params.length)
+      if (!params.length) {
         return false;
+      }
       conv.kick(...params);
       return true;
     },
   },
   {
     name: "invite",
-    get helpString() { return _("command.invite", "invite"); },
+    get helpString() {
+      return _("command.invite", "invite");
+    },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run(aMsg, aConv) {
       let conv = getMUC(aConv);
-      if (!conv)
+      if (!conv) {
         return true;
+      }
 
       return invite(aMsg, conv);
     },
   },
   {
     name: "inviteto",
-    get helpString() { return _("command.inviteto", "inviteto"); },
+    get helpString() {
+      return _("command.inviteto", "inviteto");
+    },
     usageContext: Ci.imICommand.CMD_CONTEXT_IM,
     run: (aMsg, aConv) => invite(aMsg, getConv(aConv)),
   },
   {
     name: "me",
-    get helpString() { return _("command.me", "me"); },
+    get helpString() {
+      return _("command.me", "me");
+    },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run(aMsg, aConv) {
       let params = aMsg.trim();
-      if (!params)
+      if (!params) {
         return false;
+      }
 
       // XEP-0245: The /me Command.
       // We need to append "/me " in the first four characters of the message
@@ -233,58 +272,73 @@ var commands = [
   },
   {
     name: "nick",
-    get helpString() { return _("command.nick", "nick"); },
+    get helpString() {
+      return _("command.nick", "nick");
+    },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run(aMsg, aConv) {
       let params = aMsg.trim().split(/\s+/);
-      if (!params[0])
+      if (!params[0]) {
         return false;
+      }
 
       let conv = getMUC(aConv);
-      if (conv)
+      if (conv) {
         conv.setNick(params[0]);
+      }
       return true;
     },
   },
   {
     name: "msg",
-    get helpString() { return _("command.msg", "msg"); },
+    get helpString() {
+      return _("command.msg", "msg");
+    },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run(aMsg, aConv, aReturnedConv) {
       let conv = getMUC(aConv);
-      if (!conv)
+      if (!conv) {
         return true;
+      }
 
       let params = splitByNick(aMsg, conv);
-      if (params.length != 2)
+      if (params.length != 2) {
         return false;
+      }
       let [nickName, msg] = params;
 
       let account = getAccount(aConv);
       let privateConv = account.createConversation(conv.name + "/" + nickName);
-      if (!privateConv)
+      if (!privateConv) {
         return true;
+      }
       privateConv.sendMsg(msg.trim());
 
-      if (aReturnedConv)
+      if (aReturnedConv) {
         aReturnedConv.value = privateConv;
+      }
       return true;
     },
   },
   {
     name: "version",
-    get helpString() { return _("command.version", "version"); },
+    get helpString() {
+      return _("command.version", "version");
+    },
     usageContext: Ci.imICommand.CMD_CONTEXT_IM,
     run(aMsg, aConv, aReturnedConv) {
       let conv = getConv(aConv);
-      if (conv.left)
+      if (conv.left) {
         return true;
+      }
 
       // We do not have user's resource.
       if (!conv._targetResource) {
-        conv.writeMessage(conv.name,
-                          _("conversation.error.resourceNotAvailable", conv.shortName),
-                          {system: true});
+        conv.writeMessage(
+          conv.name,
+          _("conversation.error.resourceNotAvailable", conv.shortName),
+          { system: true }
+        );
         return true;
       }
 

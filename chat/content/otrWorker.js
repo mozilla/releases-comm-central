@@ -16,15 +16,21 @@ Funcs.generateKey = function(path, otrl_version, address) {
 
   // Initialize the OTR library. Pass the version of the API you are using.
   let otrl_init = libotr.declare(
-    "otrl_init", abi, gcry_error_t,
-    ctypes.unsigned_int, ctypes.unsigned_int, ctypes.unsigned_int
+    "otrl_init",
+    abi,
+    gcry_error_t,
+    ctypes.unsigned_int,
+    ctypes.unsigned_int,
+    ctypes.unsigned_int
   );
 
   // Do the private key generation calculation. You may call this from a
   // background thread.  When it completes, call
   // otrl_privkey_generate_finish from the _main_ thread.
   let otrl_privkey_generate_calculate = libotr.declare(
-    "otrl_privkey_generate_calculate", abi, gcry_error_t,
+    "otrl_privkey_generate_calculate",
+    abi,
+    gcry_error_t,
     ctypes.void_t.ptr
   );
 
@@ -33,8 +39,9 @@ Funcs.generateKey = function(path, otrl_version, address) {
   let newkey = ctypes.voidptr_t(ctypes.UInt64("0x" + address));
   let err = otrl_privkey_generate_calculate(newkey);
   libotr.close();
-  if (err)
+  if (err) {
     throw new Error("otrl_privkey_generate_calculate (" + err + ")");
+  }
 };
 
 var worker = new PromiseWorker.AbstractWorker();

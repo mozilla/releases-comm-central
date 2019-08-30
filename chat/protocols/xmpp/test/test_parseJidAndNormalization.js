@@ -1,7 +1,7 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var xmpp = {};
 Services.scriptloader.loadSubScript("resource:///components/xmpp.js", xmpp);
@@ -55,7 +55,7 @@ var TEST_DATA = {
     jid: "abdelrhman@host/instant/Bird",
     normalized: "abdelrhman@host",
   },
-  "instantbird": {
+  instantbird: {
     domain: "instantbird",
     jid: "instantbird",
     normalized: "instantbird",
@@ -75,15 +75,23 @@ function testParseJID() {
 }
 
 function testNormalize() {
-  for (let currentJID in TEST_DATA)
-    equal(xmpp.XMPPAccount.prototype.normalize(currentJID), TEST_DATA[currentJID].normalized);
+  for (let currentJID in TEST_DATA) {
+    equal(
+      xmpp.XMPPAccount.prototype.normalize(currentJID),
+      TEST_DATA[currentJID].normalized
+    );
+  }
 
   run_next_test();
 }
 
 function testNormalizeFullJid() {
-  for (let currentJID in TEST_DATA)
-    equal(xmpp.XMPPAccount.prototype.normalizeFullJid(currentJID), TEST_DATA[currentJID].jid);
+  for (let currentJID in TEST_DATA) {
+    equal(
+      xmpp.XMPPAccount.prototype.normalizeFullJid(currentJID),
+      TEST_DATA[currentJID].jid
+    );
+  }
 
   run_next_test();
 }

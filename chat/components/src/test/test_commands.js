@@ -2,26 +2,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 // We don't load the command service via Services as we want to access
 // _findCommands in order to avoid having to intercept command execution.
 var imCommands = {};
-Services.scriptloader.loadSubScript("resource:///components/imCommands.js", imCommands);
+Services.scriptloader.loadSubScript(
+  "resource:///components/imCommands.js",
+  imCommands
+);
 
 var kPrplId = "green";
 var kPrplId2 = "red";
 
 var fakeAccount = {
   connected: true,
-  protocol: {id: kPrplId},
+  protocol: { id: kPrplId },
 };
 var fakeDisconnectedAccount = {
   connected: false,
-  protocol: {id: kPrplId},
+  protocol: { id: kPrplId },
 };
 var fakeAccount2 = {
   connected: true,
-  protocol: {id: kPrplId2},
+  protocol: { id: kPrplId2 },
 };
 
 var fakeConversation = {
@@ -31,11 +34,14 @@ var fakeConversation = {
 
 function fakeCommand(aName, aUsageContext) {
   this.name = aName;
-  if (aUsageContext)
+  if (aUsageContext) {
     this.usageContext = aUsageContext;
+  }
 }
 fakeCommand.prototype = {
-  get helpString() { return ""; },
+  get helpString() {
+    return "";
+  },
   usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
   priority: Ci.imICommand.CMD_PRIORITY_PRPL,
   run: (aMsg, aConv) => true,
@@ -50,9 +56,10 @@ function run_test() {
   cmdserv.registerCommand(new fakeCommand("baloney"), kPrplId2);
 
   // MUC-only command.
-  cmdserv.registerCommand(new fakeCommand("balderdash",
-                                          Ci.imICommand.CMD_CONTEXT_CHAT),
-                          kPrplId);
+  cmdserv.registerCommand(
+    new fakeCommand("balderdash", Ci.imICommand.CMD_CONTEXT_CHAT),
+    kPrplId
+  );
 
   // Name clashes with global command.
   cmdserv.registerCommand(new fakeCommand("offline"), kPrplId);
@@ -64,7 +71,17 @@ function run_test() {
   cmdserv.registerCommand(new fakeCommand("r9kbeta"), kPrplId);
 
   // Array of (possibly partial) command names as entered by the user.
-  let testCmds = ["x", "b", "ba", "bal", "back", "hel", "help", "off", "offline"];
+  let testCmds = [
+    "x",
+    "b",
+    "ba",
+    "bal",
+    "back",
+    "hel",
+    "help",
+    "off",
+    "offline",
+  ];
 
   // We test an array of different possible conversations.
   // cmdlist lists all the available commands for the given conversation.
@@ -78,23 +95,55 @@ function run_test() {
     {
       desc: "No conversation argument.",
       cmdlist: "away, back, busy, dnd, help, offline, raw, say",
-      results: [[], [], ["back"], [], ["back"], ["help"], ["help"], ["offline"], ["offline"]],
+      results: [
+        [],
+        [],
+        ["back"],
+        [],
+        ["back"],
+        ["help"],
+        ["help"],
+        ["offline"],
+        ["offline"],
+      ],
     },
     {
       desc: "Disconnected conversation with fakeAccount.",
       conv: {
         account: fakeDisconnectedAccount,
       },
-      cmdlist: "away, back, busy, dnd, help, helpme, offline, offline, r9kbeta, raw, say",
-      results: [[], [], ["back"], [], ["back"], ["help"], ["help"], ["offline"], ["offline"]],
+      cmdlist:
+        "away, back, busy, dnd, help, helpme, offline, offline, r9kbeta, raw, say",
+      results: [
+        [],
+        [],
+        ["back"],
+        [],
+        ["back"],
+        ["help"],
+        ["help"],
+        ["offline"],
+        ["offline"],
+      ],
     },
     {
       desc: "Conversation with fakeAccount.",
       conv: {
         account: fakeAccount,
       },
-      cmdlist: "away, back, busy, dnd, help, helpme, offline, offline, r9kbeta, raw, say",
-      results: [[], [], ["back"], [], ["back"], [], ["help"], ["offline"], ["offline"]],
+      cmdlist:
+        "away, back, busy, dnd, help, helpme, offline, offline, r9kbeta, raw, say",
+      results: [
+        [],
+        [],
+        ["back"],
+        [],
+        ["back"],
+        [],
+        ["help"],
+        ["offline"],
+        ["offline"],
+      ],
     },
     {
       desc: "MUC with fakeAccount.",
@@ -102,16 +151,38 @@ function run_test() {
         account: fakeAccount,
         isChat: true,
       },
-      cmdlist: "away, back, balderdash, busy, dnd, help, helpme, offline, offline, r9kbeta, raw, say",
-      results: [[], [], [], ["balderdash", true], ["back"], [], ["help"], ["offline"], ["offline"]],
+      cmdlist:
+        "away, back, balderdash, busy, dnd, help, helpme, offline, offline, r9kbeta, raw, say",
+      results: [
+        [],
+        [],
+        [],
+        ["balderdash", true],
+        ["back"],
+        [],
+        ["help"],
+        ["offline"],
+        ["offline"],
+      ],
     },
     {
       desc: "Conversation with fakeAccount2.",
       conv: {
         account: fakeAccount2,
       },
-      cmdlist: "away, back, baloney, banana, busy, dnd, help, offline, raw, say",
-      results: [[], [], [], ["baloney", true], ["back"], ["help"], ["help"], ["offline"], ["offline"]],
+      cmdlist:
+        "away, back, baloney, banana, busy, dnd, help, offline, raw, say",
+      results: [
+        [],
+        [],
+        [],
+        ["baloney", true],
+        ["back"],
+        ["help"],
+        ["help"],
+        ["offline"],
+        ["offline"],
+      ],
     },
     {
       desc: "MUC with fakeAccount2.",
@@ -119,8 +190,19 @@ function run_test() {
         account: fakeAccount2,
         isChat: true,
       },
-      cmdlist: "away, back, baloney, banana, busy, dnd, help, offline, raw, say",
-      results: [[], [], [], ["baloney", true], ["back"], ["help"], ["help"], ["offline"], ["offline"]],
+      cmdlist:
+        "away, back, baloney, banana, busy, dnd, help, offline, raw, say",
+      results: [
+        [],
+        [],
+        [],
+        ["baloney", true],
+        ["back"],
+        ["help"],
+        ["help"],
+        ["offline"],
+        ["offline"],
+      ],
     },
   ];
 
@@ -128,8 +210,11 @@ function run_test() {
     info("The following tests are with: " + test.desc);
 
     // Check which commands are available in which context.
-    let cmdlist = cmdserv.listCommandsForConversation(test.conv, {})
-                         .map(aCmd => aCmd.name).sort().join(", ");
+    let cmdlist = cmdserv
+      .listCommandsForConversation(test.conv, {})
+      .map(aCmd => aCmd.name)
+      .sort()
+      .join(", ");
     Assert.equal(cmdlist, test.cmdlist);
 
     for (let testCmd of testCmds) {
@@ -141,8 +226,10 @@ function run_test() {
       if (cmdArray.length) {
         // Check if the right command was returned.
         Assert.equal(cmdArray[0].name, expectedResult[0]);
-        Assert.equal(cmdArray[0].priority == Ci.imICommand.CMD_PRIORITY_PRPL,
-                     !!expectedResult[1]);
+        Assert.equal(
+          cmdArray[0].priority == Ci.imICommand.CMD_PRIORITY_PRPL,
+          !!expectedResult[1]
+        );
       }
     }
   }
@@ -174,7 +261,10 @@ function run_test() {
   // Test command execution.
   for (let executionTest of testMessages) {
     info("Testing command execution for '" + executionTest.message + "'");
-    Assert.equal(cmdserv.executeCommand(executionTest.message, fakeConversation), executionTest.result);
+    Assert.equal(
+      cmdserv.executeCommand(executionTest.message, fakeConversation),
+      executionTest.result
+    );
   }
 
   cmdserv.unInitCommands();

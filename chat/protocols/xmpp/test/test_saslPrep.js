@@ -1,11 +1,13 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var xmppAuth = {};
-Services.scriptloader.loadSubScript("resource:///modules/xmpp-authmechs.jsm",
-                                    xmppAuth);
+Services.scriptloader.loadSubScript(
+  "resource:///modules/xmpp-authmechs.jsm",
+  xmppAuth
+);
 
 // RFC 4013 3.Examples
 var TEST_DATA = [

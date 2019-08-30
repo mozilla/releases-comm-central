@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var {
   XPCOMUtils,
   ClassInfo,
@@ -10,33 +10,37 @@ var {
   nsSimpleEnumerator,
 } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 
-XPCOMUtils.defineLazyServiceGetter(this, "categoryManager",
-                                   "@mozilla.org/categorymanager;1",
-                                   "nsICategoryManager");
+XPCOMUtils.defineLazyServiceGetter(
+  this,
+  "categoryManager",
+  "@mozilla.org/categorymanager;1",
+  "nsICategoryManager"
+);
 
 var kQuitApplicationGranted = "quit-application-granted";
 var kProtocolPluginCategory = "im-protocol-plugin";
 
-var kPrefReportIdle =        "messenger.status.reportIdle";
-var kPrefUserIconFilename =  "messenger.status.userIconFileName";
-var kPrefUserDisplayname =   "messenger.status.userDisplayName";
-var kPrefTimeBeforeIdle =    "messenger.status.timeBeforeIdle";
-var kPrefAwayWhenIdle =      "messenger.status.awayWhenIdle";
-var kPrefDefaultMessage =    "messenger.status.defaultIdleAwayMessage";
+var kPrefReportIdle = "messenger.status.reportIdle";
+var kPrefUserIconFilename = "messenger.status.userIconFileName";
+var kPrefUserDisplayname = "messenger.status.userDisplayName";
+var kPrefTimeBeforeIdle = "messenger.status.timeBeforeIdle";
+var kPrefAwayWhenIdle = "messenger.status.awayWhenIdle";
+var kPrefDefaultMessage = "messenger.status.defaultIdleAwayMessage";
 
 var NS_IOSERVICE_GOING_OFFLINE_TOPIC = "network:offline-about-to-go-offline";
 var NS_IOSERVICE_OFFLINE_STATUS_TOPIC = "network:offline-status-changed";
 
-function UserStatus()
-{
+function UserStatus() {
   this._observers = [];
 
-  if (Services.prefs.getBoolPref(kPrefReportIdle))
+  if (Services.prefs.getBoolPref(kPrefReportIdle)) {
     this._addIdleObserver();
+  }
   Services.prefs.addObserver(kPrefReportIdle, this);
 
-  if (Services.io.offline)
+  if (Services.io.offline) {
     this._offlineStatusType = Ci.imIStatusInfo.STATUS_OFFLINE;
+  }
   Services.obs.addObserver(this, NS_IOSERVICE_GOING_OFFLINE_TOPIC);
   Services.obs.addObserver(this, NS_IOSERVICE_OFFLINE_STATUS_TOPIC);
 }
@@ -46,28 +50,33 @@ UserStatus.prototype = {
   unInit() {
     this._observers = [];
     Services.prefs.removeObserver(kPrefReportIdle, this);
-    if (this._observingIdleness)
+    if (this._observingIdleness) {
       this._removeIdleObserver();
+    }
     Services.obs.removeObserver(this, NS_IOSERVICE_GOING_OFFLINE_TOPIC);
     Services.obs.removeObserver(this, NS_IOSERVICE_OFFLINE_STATUS_TOPIC);
   },
   _observingIdleness: false,
   _addIdleObserver() {
     this._observingIdleness = true;
-    this._idleService =
-      Cc["@mozilla.org/widget/idleservice;1"].getService(Ci.nsIIdleService);
+    this._idleService = Cc["@mozilla.org/widget/idleservice;1"].getService(
+      Ci.nsIIdleService
+    );
     Services.obs.addObserver(this, "im-sent");
 
     this._timeBeforeIdle = Services.prefs.getIntPref(kPrefTimeBeforeIdle);
-    if (this._timeBeforeIdle < 0)
+    if (this._timeBeforeIdle < 0) {
       this._timeBeforeIdle = 0;
+    }
     Services.prefs.addObserver(kPrefTimeBeforeIdle, this);
-    if (this._timeBeforeIdle)
+    if (this._timeBeforeIdle) {
       this._idleService.addIdleObserver(this, this._timeBeforeIdle);
+    }
   },
   _removeIdleObserver() {
-    if (this._timeBeforeIdle)
+    if (this._timeBeforeIdle) {
       this._idleService.removeIdleObserver(this, this._timeBeforeIdle);
+    }
 
     Services.prefs.removeObserver(kPrefTimeBeforeIdle, this);
     delete this._timeBeforeIdle;
@@ -81,46 +90,55 @@ UserStatus.prototype = {
     if (aTopic == "nsPref:changed") {
       if (aData == kPrefReportIdle) {
         let reportIdle = Services.prefs.getBoolPref(kPrefReportIdle);
-        if (reportIdle && !this._observingIdleness)
+        if (reportIdle && !this._observingIdleness) {
           this._addIdleObserver();
-        else if (!reportIdle && this._observingIdleness)
-        this._removeIdleObserver();
-      }
-      else if (aData == kPrefTimeBeforeIdle) {
+        } else if (!reportIdle && this._observingIdleness) {
+          this._removeIdleObserver();
+        }
+      } else if (aData == kPrefTimeBeforeIdle) {
         let timeBeforeIdle = Services.prefs.getIntPref(kPrefTimeBeforeIdle);
         if (timeBeforeIdle != this._timeBeforeIdle) {
-          if (this._timeBeforeIdle)
+          if (this._timeBeforeIdle) {
             this._idleService.removeIdleObserver(this, this._timeBeforeIdle);
+          }
           this._timeBeforeIdle = timeBeforeIdle;
-          if (this._timeBeforeIdle)
+          if (this._timeBeforeIdle) {
             this._idleService.addIdleObserver(this, this._timeBeforeIdle);
+          }
         }
-      }
-      else
+      } else {
         throw Cr.NS_ERROR_UNEXPECTED;
-    }
-    else if (aTopic == NS_IOSERVICE_GOING_OFFLINE_TOPIC)
+      }
+    } else if (aTopic == NS_IOSERVICE_GOING_OFFLINE_TOPIC) {
       this.offline = true;
-    else if (aTopic == NS_IOSERVICE_OFFLINE_STATUS_TOPIC && aData == "online")
+    } else if (
+      aTopic == NS_IOSERVICE_OFFLINE_STATUS_TOPIC &&
+      aData == "online"
+    ) {
       this.offline = false;
-    else
+    } else {
       this._checkIdle();
+    }
   },
 
   _offlineStatusType: Ci.imIStatusInfo.STATUS_AVAILABLE,
   set offline(aOffline) {
     let statusType = this.statusType;
     let statusText = this.statusText;
-    if (aOffline)
+    if (aOffline) {
       this._offlineStatusType = Ci.imIStatusInfo.STATUS_OFFLINE;
-    else
+    } else {
       delete this._offlineStatusType;
-    if (this.statusType != statusType || this.statusText != statusText)
+    }
+    if (this.statusType != statusType || this.statusText != statusText) {
       this._notifyObservers("status-changed", this.statusText);
+    }
   },
 
   _idleTime: 0,
-  get idleTime() { return this._idleTime; },
+  get idleTime() {
+    return this._idleTime;
+  },
   set idleTime(aIdleTime) {
     this._idleTime = aIdleTime;
     this._notifyObservers("idle-time-changed", aIdleTime);
@@ -131,8 +149,9 @@ UserStatus.prototype = {
   _checkIdle() {
     let idleTime = Math.floor(this._idleService.idleTime / 1000);
     let idle = this._timeBeforeIdle && idleTime >= this._timeBeforeIdle;
-    if (idle == this._idle)
+    if (idle == this._idle) {
       return;
+    }
 
     let statusType = this.statusType;
     let statusText = this.statusText;
@@ -141,29 +160,40 @@ UserStatus.prototype = {
       this.idleTime = idleTime;
       if (Services.prefs.getBoolPref(kPrefAwayWhenIdle)) {
         this._idleStatusType = Ci.imIStatusInfo.STATUS_AWAY;
-        this._idleStatusText =
-          Services.prefs.getComplexValue(kPrefDefaultMessage,
-                                         Ci.nsIPrefLocalizedString).data;
+        this._idleStatusText = Services.prefs.getComplexValue(
+          kPrefDefaultMessage,
+          Ci.nsIPrefLocalizedString
+        ).data;
       }
-    }
-    else {
+    } else {
       this.idleTime = 0;
       delete this._idleStatusType;
       delete this._idleStatusText;
     }
-    if (this.statusType != statusType || this.statusText != statusText)
+    if (this.statusType != statusType || this.statusText != statusText) {
       this._notifyObservers("status-changed", this.statusText);
+    }
   },
 
   _statusText: "",
-  get statusText() { return this._statusText || this._idleStatusText; },
+  get statusText() {
+    return this._statusText || this._idleStatusText;
+  },
   _statusType: Ci.imIStatusInfo.STATUS_AVAILABLE,
-  get statusType() { return Math.min(this._statusType, this._idleStatusType, this._offlineStatusType); },
+  get statusType() {
+    return Math.min(
+      this._statusType,
+      this._idleStatusType,
+      this._offlineStatusType
+    );
+  },
   setStatus(aStatus, aMessage) {
-    if (aStatus != Ci.imIStatusInfo.STATUS_UNKNOWN)
+    if (aStatus != Ci.imIStatusInfo.STATUS_UNKNOWN) {
       this._statusType = aStatus;
-    if (aStatus != Ci.imIStatusInfo.STATUS_OFFLINE)
+    }
+    if (aStatus != Ci.imIStatusInfo.STATUS_OFFLINE) {
       this._statusText = aMessage;
+    }
     this._notifyObservers("status-changed", aMessage);
   },
 
@@ -192,8 +222,9 @@ UserStatus.prototype = {
     try {
       if (oldFileName) {
         folder.append(oldFileName);
-        if (folder.exists())
+        if (folder.exists()) {
           folder.remove(false);
+        }
       }
     } catch (e) {
       Cu.reportError(e);
@@ -203,8 +234,9 @@ UserStatus.prototype = {
   },
   getUserIcon() {
     let filename = Services.prefs.getCharPref(kPrefUserIconFilename);
-    if (!filename)
-      return null; // No icon has been set.
+    if (!filename) {
+      return null;
+    } // No icon has been set.
 
     let file = this._getProfileDir();
     file.append(filename);
@@ -226,28 +258,35 @@ UserStatus.prototype = {
   },
 
   addObserver(aObserver) {
-    if (!this._observers.includes(aObserver))
+    if (!this._observers.includes(aObserver)) {
       this._observers.push(aObserver);
+    }
   },
   removeObserver(aObserver) {
     this._observers = this._observers.filter(o => o !== aObserver);
   },
   _notifyObservers(aTopic, aData) {
-    for (let observer of this._observers)
+    for (let observer of this._observers) {
       observer.observe(this, aTopic, aData);
+    }
   },
 };
 
 var gCoreService;
-function CoreService() { gCoreService = this; }
+function CoreService() {
+  gCoreService = this;
+}
 CoreService.prototype = {
   globalUserStatus: null,
 
   _initialized: false,
-  get initialized() { return this._initialized; },
+  get initialized() {
+    return this._initialized;
+  },
   init() {
-    if (this._initialized)
+    if (this._initialized) {
       return;
+    }
 
     initLogModule("core", this);
 
@@ -279,12 +318,14 @@ CoreService.prototype = {
     }
   },
   observe(aObject, aTopic, aData) {
-    if (aTopic == kQuitApplicationGranted)
+    if (aTopic == kQuitApplicationGranted) {
       this.quit();
+    }
   },
   quit() {
-    if (!this._initialized)
+    if (!this._initialized) {
       throw Cr.NS_ERROR_NOT_INITIALIZED;
+    }
 
     Services.obs.removeObserver(this, kQuitApplicationGranted);
     Services.obs.notifyObservers(this, "prpl-quit");
@@ -301,8 +342,9 @@ CoreService.prototype = {
   },
 
   getProtocols() {
-    if (!this._initialized)
+    if (!this._initialized) {
       throw Cr.NS_ERROR_NOT_INITIALIZED;
+    }
 
     let protocols = [];
     let entries = categoryManager.enumerateCategory(kProtocolPluginCategory);
@@ -312,25 +354,30 @@ CoreService.prototype = {
       // If the preference is set to disable this prpl, don't show it in the
       // full list of protocols.
       let pref = "chat.prpls." + id + ".disable";
-      if (Services.prefs.getPrefType(pref) == Services.prefs.PREF_BOOL &&
-          Services.prefs.getBoolPref(pref)) {
+      if (
+        Services.prefs.getPrefType(pref) == Services.prefs.PREF_BOOL &&
+        Services.prefs.getBoolPref(pref)
+      ) {
         this.LOG("Disabling prpl: " + id);
         continue;
       }
 
       let proto = this.getProtocolById(id);
-      if (proto)
+      if (proto) {
         protocols.push(proto);
+      }
     }
     return new nsSimpleEnumerator(protocols);
   },
 
   getProtocolById(aPrplId) {
-    if (!this._initialized)
+    if (!this._initialized) {
       throw Cr.NS_ERROR_NOT_INITIALIZED;
+    }
 
-    if (this._protos.hasOwnProperty(aPrplId))
+    if (this._protos.hasOwnProperty(aPrplId)) {
       return this._protos[aPrplId];
+    }
 
     let cid;
     try {
@@ -348,8 +395,9 @@ CoreService.prototype = {
       dump(error + "\n");
       Cu.reportError(error);
     }
-    if (!proto)
+    if (!proto) {
       return null;
+    }
 
     try {
       proto.init(aPrplId);

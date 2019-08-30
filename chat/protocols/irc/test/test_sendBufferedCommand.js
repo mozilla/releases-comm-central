@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var irc = {};
 Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
 
@@ -15,7 +15,7 @@ FakeAccount.prototype = {
   maxMessageLength: 60,
   callbacks: [],
   sendMessage(aCommand, aParams) {
-    (this.callbacks.shift())(aCommand, aParams);
+    this.callbacks.shift()(aCommand, aParams);
   },
 };
 
@@ -31,11 +31,11 @@ function test_parameterCollect() {
   // Individual tests, data consisting of [channel, key] pairs.
   let tests = [
     {
-      data: [["one"], ["one"]],  // also tests deduplication
+      data: [["one"], ["one"]], // also tests deduplication
       result: "JOIN one",
     },
     {
-      data: [["one", ""]],  // explicit empty password string
+      data: [["one", ""]], // explicit empty password string
       result: "JOIN one",
     },
     {
@@ -47,8 +47,12 @@ function test_parameterCollect() {
       result: "JOIN two,one,three password",
     },
     {
-      data: [["one"], ["two", "password"], ["three"],
-             ["four", "anotherpassword"]],
+      data: [
+        ["one"],
+        ["two", "password"],
+        ["three"],
+        ["four", "anotherpassword"],
+      ],
       result: "JOIN two,four,one,three password,anotherpassword",
     },
   ];
@@ -57,7 +61,7 @@ function test_parameterCollect() {
     let timeout;
     // Destructure test to local variables so each function
     // generated here gets the correct value in its scope.
-    let {data, result} = test;
+    let { data, result } = test;
     account.callbacks.push((aCommand, aParams) => {
       let msg = account.buildMessage(aCommand, aParams);
       equal(msg, result, "Test buffering of parameters");
@@ -73,8 +77,9 @@ function test_parameterCollect() {
         ok(false, "test_parameterCollect failed after timeout.");
         run_next_test();
       }, 2000);
-      for (let [channel, key] of data)
+      for (let [channel, key] of data) {
         account.sendBufferedCommand("JOIN", channel, key);
+      }
     });
   }
 
@@ -83,7 +88,7 @@ function test_parameterCollect() {
   account._lastCommandSendTime = 0;
   for (let test of tests) {
     let timeout;
-    let {data, result} = test;
+    let { data, result } = test;
     account.callbacks.push((aCommand, aParams) => {
       let msg = account.buildMessage(aCommand, aParams);
       equal(msg, result, "Test buffering with setTimeout");
@@ -113,9 +118,17 @@ function test_parameterCollect() {
 function test_maxLength() {
   let tests = [
     {
-      data: [["applecustard"], ["pearpie"], ["strawberryfield"],
-        ["blueberrypancake"], ["mangojuice"], ["raspberryberet"],
-        ["pineapplesoup"], ["limejelly"], ["lemonsorbet"]],
+      data: [
+        ["applecustard"],
+        ["pearpie"],
+        ["strawberryfield"],
+        ["blueberrypancake"],
+        ["mangojuice"],
+        ["raspberryberet"],
+        ["pineapplesoup"],
+        ["limejelly"],
+        ["lemonsorbet"],
+      ],
       results: [
         "JOIN applecustard,pearpie,strawberryfield,blueberrypancake",
         "JOIN mangojuice,raspberryberet,pineapplesoup,limejelly",
@@ -123,9 +136,17 @@ function test_maxLength() {
       ],
     },
     {
-      data: [["applecustard"], ["pearpie"], ["strawberryfield", "password1"],
-        ["blueberrypancake"], ["mangojuice"], ["raspberryberet"],
-        ["pineapplesoup"], ["limejelly", "password2"], ["lemonsorbet"]],
+      data: [
+        ["applecustard"],
+        ["pearpie"],
+        ["strawberryfield", "password1"],
+        ["blueberrypancake"],
+        ["mangojuice"],
+        ["raspberryberet"],
+        ["pineapplesoup"],
+        ["limejelly", "password2"],
+        ["lemonsorbet"],
+      ],
       results: [
         "JOIN strawberryfield,applecustard,pearpie password1",
         "JOIN blueberrypancake,mangojuice,raspberryberet",
@@ -139,7 +160,7 @@ function test_maxLength() {
     let timeout;
     // Destructure test to local variables so each function
     // generated here gets the correct value in its scope.
-    let {data, results} = test;
+    let { data, results } = test;
     for (let r of results) {
       let result = r;
       account.callbacks.push((aCommand, aParams) => {
@@ -160,8 +181,9 @@ function test_maxLength() {
         ok(false, "test_maxLength failed after timeout.");
         run_next_test();
       }, 2000);
-      for (let [channel, key] of data)
+      for (let [channel, key] of data) {
         account.sendBufferedCommand("JOIN", channel, key);
+      }
     });
   }
 }

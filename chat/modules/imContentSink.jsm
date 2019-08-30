@@ -2,18 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
+const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 
 this.EXPORTED_SYMBOLS = [
   "cleanupImMarkup", // used to clean up incoming IMs.
-                     // This will use the global ruleset of acceptable stuff
-                     // except if another (custom one) is provided
+  // This will use the global ruleset of acceptable stuff
+  // except if another (custom one) is provided
   "createDerivedRuleset", // used to create a ruleset that inherits from the
-                          // default one
-                          // useful if you want to allow or forbid
-                          // an additional thing in a specific
-                          // conversation but take into account all
-                          // the other global settings.
+  // default one
+  // useful if you want to allow or forbid
+  // an additional thing in a specific
+  // conversation but take into account all
+  // the other global settings.
   "addGlobalAllowedTag",
   "removeGlobalAllowedTag",
   "addGlobalAllowedAttribute",
@@ -43,10 +43,10 @@ this.EXPORTED_SYMBOLS = [
  */
 
 var kAllowedURLs = aValue => /^(https?|ftp|mailto):/.test(aValue);
-var kAllowedMozClasses =
-  aClassName => aClassName == "moz-txt-underscore" ||
-                aClassName == "moz-txt-tag" ||
-                aClassName == "ib-person";
+var kAllowedMozClasses = aClassName =>
+  aClassName == "moz-txt-underscore" ||
+  aClassName == "moz-txt-tag" ||
+  aClassName == "ib-person";
 var kAllowedAnchorClasses = aClassName => aClassName == "ib-person";
 
 /* Tags whose content should be fully removed, and reported in the Error Console. */
@@ -57,50 +57,50 @@ var kForbiddenTags = {
 
 // in strict mode, remove all formatings. Keep only links and line breaks.
 var kStrictMode = {
-  attrs: { },
+  attrs: {},
 
   tags: {
-    "a": {
-      "title": true,
-      "href": kAllowedURLs,
-      "class": kAllowedAnchorClasses,
+    a: {
+      title: true,
+      href: kAllowedURLs,
+      class: kAllowedAnchorClasses,
     },
-    "br": true,
-    "p": true,
+    br: true,
+    p: true,
   },
 
-  styles: { },
+  styles: {},
 };
 
 // standard mode allows basic formattings (bold, italic, underlined)
 var kStandardMode = {
   attrs: {
-    "style": true,
+    style: true,
   },
 
   tags: {
-    "div": true,
-    "a": {
-      "title": true,
-      "href": kAllowedURLs,
-      "class": kAllowedAnchorClasses,
+    div: true,
+    a: {
+      title: true,
+      href: kAllowedURLs,
+      class: kAllowedAnchorClasses,
     },
-    "em": true,
-    "strong": true,
-    "b": true,
-    "i": true,
-    "u": true,
-    "span": {
-      "class": kAllowedMozClasses,
+    em: true,
+    strong: true,
+    b: true,
+    i: true,
+    u: true,
+    span: {
+      class: kAllowedMozClasses,
     },
-    "br": true,
-    "code": true,
-    "ul": true,
-    "li": true,
-    "ol": true,
-    "cite": true,
-    "blockquote": true,
-    "p": true,
+    br: true,
+    code: true,
+    ul: true,
+    li: true,
+    ol: true,
+    cite: true,
+    blockquote: true,
+    p: true,
   },
 
   styles: {
@@ -113,44 +113,44 @@ var kStandardMode = {
 // permissive mode allows about anything that isn't going to mess up the chat window
 var kPermissiveMode = {
   attrs: {
-    "style": true,
+    style: true,
   },
 
   tags: {
-    "div": true,
-    "a": {
-      "title": true,
-      "href": kAllowedURLs,
-      "class": kAllowedAnchorClasses,
+    div: true,
+    a: {
+      title: true,
+      href: kAllowedURLs,
+      class: kAllowedAnchorClasses,
     },
-    "font": {
-      "face": true,
-      "color": true,
-      "size": true,
+    font: {
+      face: true,
+      color: true,
+      size: true,
     },
-    "em": true,
-    "strong": true,
-    "b": true,
-    "i": true,
-    "u": true,
-    "span": {
-      "class": kAllowedMozClasses,
+    em: true,
+    strong: true,
+    b: true,
+    i: true,
+    u: true,
+    span: {
+      class: kAllowedMozClasses,
     },
-    "br": true,
-    "hr": true,
-    "code": true,
-    "ul": true,
-    "li": true,
-    "ol": true,
-    "cite": true,
-    "blockquote": true,
-    "p": true,
+    br: true,
+    hr: true,
+    code: true,
+    ul: true,
+    li: true,
+    ol: true,
+    cite: true,
+    blockquote: true,
+    p: true,
   },
 
   // FIXME: should be possible to use functions to filter values
   styles: {
-    "color": true,
-    "font": true,
+    color: true,
+    font: true,
     "font-family": true,
     "font-size": true,
     "font-style": true,
@@ -166,8 +166,7 @@ var kModes = [kStrictMode, kStandardMode, kPermissiveMode];
 
 var gGlobalRuleset = null;
 
-function initGlobalRuleset()
-{
+function initGlobalRuleset() {
   gGlobalRuleset = newRuleset();
 
   Services.prefs.addObserver(kModePref, styleObserver);
@@ -175,33 +174,34 @@ function initGlobalRuleset()
 
 var styleObserver = {
   observe(aObject, aTopic, aMsg) {
-    if (aTopic != "nsPref:changed" || aMsg != kModePref)
+    if (aTopic != "nsPref:changed" || aMsg != kModePref) {
       throw new Error("bad notification");
+    }
 
-    if (!gGlobalRuleset)
+    if (!gGlobalRuleset) {
       throw new Error("gGlobalRuleset not initialized");
+    }
 
     setBaseRuleset(getModePref(), gGlobalRuleset);
   },
 };
 
-function getModePref()
-{
+function getModePref() {
   let baseNum = Services.prefs.getIntPref(kModePref);
-  if (baseNum < 0 || baseNum > 2)
+  if (baseNum < 0 || baseNum > 2) {
     baseNum = 1;
+  }
 
   return kModes[baseNum];
 }
 
-function setBaseRuleset(aBase, aResult)
-{
-  for (let property in aBase)
+function setBaseRuleset(aBase, aResult) {
+  for (let property in aBase) {
     aResult[property] = Object.create(aBase[property], aResult[property]);
+  }
 }
 
-function newRuleset(aBase)
-{
+function newRuleset(aBase) {
   let result = {
     tags: {},
     attrs: {},
@@ -211,57 +211,53 @@ function newRuleset(aBase)
   return result;
 }
 
-function createDerivedRuleset()
-{
-  if (!gGlobalRuleset)
+function createDerivedRuleset() {
+  if (!gGlobalRuleset) {
     initGlobalRuleset();
+  }
   return newRuleset(gGlobalRuleset);
 }
 
-function addGlobalAllowedTag(aTag, aAttrs = true)
-{
+function addGlobalAllowedTag(aTag, aAttrs = true) {
   gGlobalRuleset.tags[aTag] = aAttrs;
 }
-function removeGlobalAllowedTag(aTag)
-{
+function removeGlobalAllowedTag(aTag) {
   delete gGlobalRuleset.tags[aTag];
 }
 
-function addGlobalAllowedAttribute(aAttr, aRule = true)
-{
+function addGlobalAllowedAttribute(aAttr, aRule = true) {
   gGlobalRuleset.attrs[aAttr] = aRule;
 }
-function removeGlobalAllowedAttribute(aAttr)
-{
+function removeGlobalAllowedAttribute(aAttr) {
   delete gGlobalRuleset.attrs[aAttr];
 }
 
-function addGlobalAllowedStyleRule(aStyle, aRule = true)
-{
+function addGlobalAllowedStyleRule(aStyle, aRule = true) {
   gGlobalRuleset.styles[aStyle] = aRule;
 }
-function removeGlobalAllowedStyleRule(aStyle)
-{
+function removeGlobalAllowedStyleRule(aStyle) {
   delete gGlobalRuleset.styles[aStyle];
 }
 
-function cleanupNode(aNode, aRules, aTextModifiers)
-{
+function cleanupNode(aNode, aRules, aTextModifiers) {
   for (let i = 0; i < aNode.childNodes.length; ++i) {
     let node = aNode.childNodes[i];
-    if (node.nodeType == node.ELEMENT_NODE &&
-        node.namespaceURI == "http://www.w3.org/1999/xhtml") {
+    if (
+      node.nodeType == node.ELEMENT_NODE &&
+      node.namespaceURI == "http://www.w3.org/1999/xhtml"
+    ) {
       // check if node allowed
       let nodeName = node.localName;
       if (!(nodeName in aRules.tags)) {
         if (nodeName in kForbiddenTags) {
-          Cu.reportError("removing a " + nodeName +
-                         " tag from a message before display");
-        }
-        else {
+          Cu.reportError(
+            "removing a " + nodeName + " tag from a message before display"
+          );
+        } else {
           // this node is not allowed, replace it with its children
-          while (node.hasChildNodes())
+          while (node.hasChildNodes()) {
             aNode.insertBefore(node.firstChild, node);
+          }
         }
         aNode.removeChild(node);
         // We want to process again the node at the index i which is
@@ -279,18 +275,23 @@ function cleanupNode(aNode, aRules, aTextModifiers)
         // an attribute is always accepted if its rule is true, or conditionally
         // accepted if its rule is a function that evaluates to true
         // if its rule does not exist, it is refused
-          let localName = aAttr.localName;
-          let rule = localName in aAttrRules && aAttrRules[localName];
-          return (rule === true ||
-                  (typeof rule == "function" && rule(aAttr.value)));
+        let localName = aAttr.localName;
+        let rule = localName in aAttrRules && aAttrRules[localName];
+        return (
+          rule === true || (typeof rule == "function" && rule(aAttr.value))
+        );
       };
       for (let j = 0; j < attrs.length; ++j) {
         let attr = attrs[j];
         // we check both the list of accepted attributes for all tags
         // and the list of accepted attributes for this specific tag.
-        if (!(acceptFunction(aRules.attrs, attr) ||
-              ((typeof aRules.tags[nodeName] == "object") &&
-               acceptFunction(aRules.tags[nodeName], attr)))) {
+        if (
+          !(
+            acceptFunction(aRules.attrs, attr) ||
+            (typeof aRules.tags[nodeName] == "object" &&
+              acceptFunction(aRules.tags[nodeName], attr))
+          )
+        ) {
           node.removeAttribute(attr.name);
           --j;
         }
@@ -308,8 +309,9 @@ function cleanupNode(aNode, aRules, aTextModifiers)
       // style attribute won't be re-generated, so it may still contain
       // unsupported or unparsable CSS. Let's drop "style" attributes that
       // don't contain any supported CSS.
-      if (!style.length)
+      if (!style.length) {
         node.removeAttribute("style");
+      }
 
       // Sort the style attributes for easier checking/comparing later.
       if (node.hasAttribute("style")) {
@@ -321,10 +323,12 @@ function cleanupNode(aNode, aRules, aTextModifiers)
         }
         attrs = attrs.split(";").map(a => a.trim());
         attrs.sort();
-        node.setAttribute("style", attrs.join("; ") + (trailingSemi ? ";" : ""));
+        node.setAttribute(
+          "style",
+          attrs.join("; ") + (trailingSemi ? ";" : "")
+        );
       }
-    }
-    else {
+    } else {
       // We are on a text node, we need to apply the functions
       // provided in the aTextModifiers array.
 
@@ -340,21 +344,25 @@ function cleanupNode(aNode, aRules, aTextModifiers)
       // are created, the next text modifier functions have more nodes
       // to process.
       let textNodeCount = 1;
-      for (let modifier of aTextModifiers)
+      for (let modifier of aTextModifiers) {
         for (let n = 0; n < textNodeCount; ++n) {
           let textNode = aNode.childNodes[i + n];
 
           // If we are processing nodes created by one of the previous
           // text modifier function, some of the nodes are likely not
           // text node, skip them.
-          if (textNode.nodeType != textNode.TEXT_NODE &&
-              textNode.nodeType != textNode.CDATA_SECTION_NODE)
+          if (
+            textNode.nodeType != textNode.TEXT_NODE &&
+            textNode.nodeType != textNode.CDATA_SECTION_NODE
+          ) {
             continue;
+          }
 
           let result = modifier(textNode);
           textNodeCount += result;
           n += result;
         }
+      }
 
       // newly created nodes should not be filtered, be sure we skip them!
       i += textNodeCount - 1;
@@ -362,10 +370,10 @@ function cleanupNode(aNode, aRules, aTextModifiers)
   }
 }
 
-function cleanupImMarkup(aText, aRuleset, aTextModifiers = [])
-{
-  if (!gGlobalRuleset)
+function cleanupImMarkup(aText, aRuleset, aTextModifiers = []) {
+  if (!gGlobalRuleset) {
     initGlobalRuleset();
+  }
 
   let parser = new DOMParser();
   // Wrap the text to be parsed in a <span> to avoid losing leading whitespace.

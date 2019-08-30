@@ -4,27 +4,50 @@
 
 this.EXPORTED_SYMBOLS = ["Services"];
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
-XPCOMUtils.defineLazyServiceGetter(Services, "accounts",
-                                   "@mozilla.org/chat/accounts-service;1",
-                                   "imIAccountsService");
-XPCOMUtils.defineLazyServiceGetter(Services, "core",
-                                   "@mozilla.org/chat/core-service;1",
-                                   "imICoreService");
-XPCOMUtils.defineLazyServiceGetter(Services, "cmd",
-                                   "@mozilla.org/chat/commands-service;1",
-                                   "imICommandsService");
-XPCOMUtils.defineLazyServiceGetter(Services, "contacts",
-                                   "@mozilla.org/chat/contacts-service;1",
-                                   "imIContactsService");
-XPCOMUtils.defineLazyServiceGetter(Services, "conversations",
-                                   "@mozilla.org/chat/conversations-service;1",
-                                   "imIConversationsService");
-XPCOMUtils.defineLazyServiceGetter(Services, "tags",
-                                   "@mozilla.org/chat/tags-service;1",
-                                   "imITagsService");
-XPCOMUtils.defineLazyServiceGetter(Services, "logs",
-                                   "@mozilla.org/chat/logger;1",
-                                   "imILogger");
+XPCOMUtils.defineLazyServiceGetter(
+  Services,
+  "accounts",
+  "@mozilla.org/chat/accounts-service;1",
+  "imIAccountsService"
+);
+XPCOMUtils.defineLazyServiceGetter(
+  Services,
+  "core",
+  "@mozilla.org/chat/core-service;1",
+  "imICoreService"
+);
+XPCOMUtils.defineLazyServiceGetter(
+  Services,
+  "cmd",
+  "@mozilla.org/chat/commands-service;1",
+  "imICommandsService"
+);
+XPCOMUtils.defineLazyServiceGetter(
+  Services,
+  "contacts",
+  "@mozilla.org/chat/contacts-service;1",
+  "imIContactsService"
+);
+XPCOMUtils.defineLazyServiceGetter(
+  Services,
+  "conversations",
+  "@mozilla.org/chat/conversations-service;1",
+  "imIConversationsService"
+);
+XPCOMUtils.defineLazyServiceGetter(
+  Services,
+  "tags",
+  "@mozilla.org/chat/tags-service;1",
+  "imITagsService"
+);
+XPCOMUtils.defineLazyServiceGetter(
+  Services,
+  "logs",
+  "@mozilla.org/chat/logger;1",
+  "imILogger"
+);

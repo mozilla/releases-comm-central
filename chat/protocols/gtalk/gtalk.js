@@ -31,15 +31,12 @@ var {
   XMPPAccountBuddyPrototype,
   XMPPAccountPrototype,
 } = ChromeUtils.import("resource:///modules/xmpp.jsm");
-var {
-  XMPPSession,
-  XMPPDefaultResource,
-} = ChromeUtils.import("resource:///modules/xmpp-session.jsm");
-var {
-  Stanza,
-  XMPPParser,
-  SupportedFeatures,
-} = ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
+var { XMPPSession, XMPPDefaultResource } = ChromeUtils.import(
+  "resource:///modules/xmpp-session.jsm"
+);
+var { Stanza, XMPPParser, SupportedFeatures } = ChromeUtils.import(
+  "resource:///modules/xmpp-xml.jsm"
+);
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/xmpp.properties")
@@ -59,11 +56,13 @@ function* PlainFullBindAuth(aUsername, aPassword, aDomain) {
   };
   let stanza = yield {
     send: Stanza.node("auth", Stanza.NS.sasl, attrs, key),
-    log: "<auth.../> (PlainFullBindAuth base64 encoded username and password not logged)",
+    log:
+      "<auth.../> (PlainFullBindAuth base64 encoded username and password not logged)",
   };
 
-  if (stanza.localName != "success")
+  if (stanza.localName != "success") {
     throw new Error("Didn't receive the expected auth success stanza.");
+  }
 }
 
 function GTalkAccount(aProtoInstance, aImAccount) {
@@ -83,7 +82,7 @@ GTalkAccount.prototype = {
       // Talk server that we will use the full bind result.
       this._jid.node = this._jid.domain;
       this._jid.domain = "gmail.com";
-      this.authMechanisms = {PLAIN: PlainFullBindAuth};
+      this.authMechanisms = { PLAIN: PlainFullBindAuth };
     }
 
     // For the resource, if the user has edited the option, always use that.
@@ -92,10 +91,14 @@ GTalkAccount.prototype = {
       this._jid = this._setJID(this._jid.domain, this._jid.node, resource);
     }
 
-    this._connection =
-      new XMPPSession("talk.google.com", 443,
-                      "require_tls", this._jid,
-                      this.imAccount.password, this);
+    this._connection = new XMPPSession(
+      "talk.google.com",
+      443,
+      "require_tls",
+      this._jid,
+      this.imAccount.password,
+      this
+    );
   },
 };
 
@@ -105,15 +108,32 @@ function GTalkProtocol() {
 }
 GTalkProtocol.prototype = {
   __proto__: GenericProtocolPrototype,
-  get normalizedName() { return "gtalk"; },
-  get name() { return _("gtalk.protocolName"); },
-  get iconBaseURI() { return "chrome://prpl-gtalk/skin/"; },
-  get usernameEmptyText() { return _("gtalk.usernameHint"); },
-  getAccount(aImAccount) { return new GTalkAccount(this, aImAccount); },
-  options: {
-    resource: {get label() { return _("options.resource"); }, default: ""},
+  get normalizedName() {
+    return "gtalk";
   },
-  get chatHasTopic() { return true; },
+  get name() {
+    return _("gtalk.protocolName");
+  },
+  get iconBaseURI() {
+    return "chrome://prpl-gtalk/skin/";
+  },
+  get usernameEmptyText() {
+    return _("gtalk.usernameHint");
+  },
+  getAccount(aImAccount) {
+    return new GTalkAccount(this, aImAccount);
+  },
+  options: {
+    resource: {
+      get label() {
+        return _("options.resource");
+      },
+      default: "",
+    },
+  },
+  get chatHasTopic() {
+    return true;
+  },
   classID: Components.ID("{38a224c1-6748-49a9-8ab2-efc362b1000d}"),
 };
 

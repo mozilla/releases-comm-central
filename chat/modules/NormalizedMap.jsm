@@ -17,8 +17,9 @@ this.EXPORTED_SYMBOLS = ["NormalizedMap"];
  */
 class NormalizedMap extends Map {
   constructor(aNormalize, aIterable = []) {
-    if (typeof(aNormalize) != "function")
+    if (typeof aNormalize != "function") {
       throw new Error("NormalizedMap must have a normalize function!");
+    }
     // Create the wrapped Map; use the provided iterable after normalizing the
     // keys.
     let entries = [...aIterable].map(([key, val]) => [aNormalize(key), val]);
@@ -28,12 +29,20 @@ class NormalizedMap extends Map {
   }
 
   // Dummy normalize function.
-  _normalize(aKey) { return aKey; }
+  _normalize(aKey) {
+    return aKey;
+  }
 
   // Anything that accepts a key as an input needs to be manually overridden.
-  delete(key) { return super.delete(this._normalize(key)); }
-  get(key) { return super.get(this._normalize(key)); }
-  has(key) { return super.has(this._normalize(key)); }
+  delete(key) {
+    return super.delete(this._normalize(key));
+  }
+  get(key) {
+    return super.get(this._normalize(key));
+  }
+  has(key) {
+    return super.has(this._normalize(key));
+  }
   set(key, val) {
     super.set(this._normalize(key), val);
     return this;

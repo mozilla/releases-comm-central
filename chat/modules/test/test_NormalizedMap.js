@@ -1,7 +1,9 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-const {NormalizedMap} = ChromeUtils.import("resource:///modules/NormalizedMap.jsm");
+const { NormalizedMap } = ChromeUtils.import(
+  "resource:///modules/NormalizedMap.jsm"
+);
 
 function test_setter_getter() {
   let m = new NormalizedMap(aStr => aStr.toLowerCase());

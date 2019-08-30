@@ -14,16 +14,18 @@ function do_check_arraybuffer_eq(a, b) {
   let viewB = new Uint8Array(b);
 
   let res = a.byteLength == b.byteLength;
-  for (let i = 0; i < viewA.byteLength; ++i)
+  for (let i = 0; i < viewA.byteLength; ++i) {
     res = res && viewA[i] == viewB[i];
+  }
 
   Assert.ok(res);
 }
 
 function do_check_array_eq(a, b) {
   let res = a.length == b.length;
-  for (let i = 0; i < a.length; ++i)
+  for (let i = 0; i < a.length; ++i) {
     res = res && a[i] == b[i];
+  }
 
   Assert.ok(res);
 }
@@ -72,8 +74,9 @@ function test_ArrayBufferToString() {
 
   let buf = new ArrayBuffer(byteString.length);
   let view = new DataView(buf);
-  for (let i = 0; i < byteString.length; ++i)
+  for (let i = 0; i < byteString.length; ++i) {
     view.setUint8(i, byteString[i]);
+  }
 
   let str = ArrayBufferToString(buf);
   Assert.equal(str, testString);

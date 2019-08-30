@@ -9,7 +9,9 @@
 
 this.EXPORTED_SYMBOLS = ["capServerTime", "tagServerTime"];
 
-const {ircHandlers} = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
+const { ircHandlers } = ChromeUtils.import(
+  "resource:///modules/ircHandlers.jsm"
+);
 
 function handleServerTimeTag(aMsg) {
   if (aMsg.tagValue) {
@@ -26,7 +28,7 @@ var tagServerTime = {
   isEnabled: () => true,
 
   commands: {
-    "time": handleServerTimeTag,
+    time: handleServerTimeTag,
     "znc.in/server-time-iso": handleServerTimeTag,
   },
 };

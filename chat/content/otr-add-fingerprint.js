@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {l10nHelper} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-var {OTR} = ChromeUtils.import("resource:///modules/OTR.jsm");
+var { l10nHelper } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var { OTR } = ChromeUtils.import("resource:///modules/OTR.jsm");
 
 var otrAddFinger = {
   async onload() {
@@ -14,14 +14,17 @@ var otrAddFinger = {
     this.keyCount = document.getElementById("keyCount");
 
     let description = await document.l10n.formatValue(
-      "otr-add-finger-description", { name: args.screenname });
+      "otr-add-finger-description",
+      { name: args.screenname }
+    );
     document.getElementById("otrDescription").textContent = description;
 
-    let warningTooltip =
-      await document.l10n.formatValue("otr-add-finger-tooltip-error");
+    let warningTooltip = await document.l10n.formatValue(
+      "otr-add-finger-tooltip-error"
+    );
     this.fingerWarning.setAttribute("tooltiptext", warningTooltip);
 
-    document.addEventListener("dialogaccept", (event) => {
+    document.addEventListener("dialogaccept", event => {
       let hex = document.getElementById("fingerprint").value;
       let context = OTR.getContextFromRecipient(
         args.account,
@@ -47,13 +50,17 @@ var otrAddFinger = {
   },
 
   addBlankSpace(value) {
-    return value.replace(/\s/g, "").trim().replace(/(.{8})/g, "$1 ").trim();
+    return value
+      .replace(/\s/g, "")
+      .trim()
+      .replace(/(.{8})/g, "$1 ")
+      .trim();
   },
 
   oninput(input) {
     let hex = input.value.replace(/\s/g, "");
 
-    if ((/[^0-9A-F]/gi).test(hex)) {
+    if (/[^0-9A-F]/gi.test(hex)) {
       this.keyCount.hidden = true;
       this.fingerWarning.hidden = false;
       this.fingerError.hidden = false;

@@ -9,9 +9,11 @@
  *     http://www.irchelp.org/irchelp/rfc/dccspec.html
  */
 
-this.EXPORTED_SYMBOLS = ["ctcpDCC"/* , "dccBase"*/];
+this.EXPORTED_SYMBOLS = ["ctcpDCC" /* , "dccBase"*/];
 
-const {ircHandlers} = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
+const { ircHandlers } = ChromeUtils.import(
+  "resource:///modules/ircHandlers.jsm"
+);
 
 // Parse a CTCP message into a DCC message. A DCC message is a CTCP message of
 // the form:
@@ -37,8 +39,9 @@ function DCCMessage(aMessage, aAccount) {
       furtherArguments: params.length > 5 ? params.slice(5) : [],
     };
   } catch (e) {
-    aAccount.ERROR("Error parsing DCC parameters:\n" +
-                   JSON.stringify(aMessage));
+    aAccount.ERROR(
+      "Error parsing DCC parameters:\n" + JSON.stringify(aMessage)
+    );
     return null;
   }
 
@@ -54,10 +57,11 @@ var ctcpDCC = {
 
   commands: {
     // Handle a DCC message by parsing the message and executing any handlers.
-    "DCC": function(aMessage) {
+    DCC(aMessage) {
       // If there are no DCC handlers, then don't parse the DCC message.
-      if (!ircHandlers.hasDCCHandlers)
+      if (!ircHandlers.hasDCCHandlers) {
         return false;
+      }
 
       // Parse the message and attempt to handle it.
       return ircHandlers.handleDCCMessage(this, DCCMessage(aMessage, this));

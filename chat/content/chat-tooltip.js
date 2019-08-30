@@ -9,15 +9,15 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  let {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-  let {Status} = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
+  let { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+  let { Status } = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
 
   /**
-  * The MozChatTooltip widget implements a custom tooltip for chat. This tooltip
-  * is used to display a rich tooltip when you mouse over contacts, channels
-  * etc. in the chat view.
-  * @extends {MozXULElement}
-  */
+   * The MozChatTooltip widget implements a custom tooltip for chat. This tooltip
+   * is used to display a rich tooltip when you mouse over contacts, channels
+   * etc. in the chat view.
+   * @extends {MozXULElement}
+   */
   class MozChatTooltip extends MozXULElement {
     static get inheritedAttributes() {
       return {
@@ -37,27 +37,36 @@
       this.observer = {
         // @see {nsIObserver}
         observe: (subject, topic, data) => {
-          if (subject == this.buddy &&
-              (topic == "account-buddy-status-changed" ||
-               topic == "account-buddy-status-detail-changed" ||
-               topic == "account-buddy-display-name-changed" ||
-               topic == "account-buddy-icon-changed")) {
+          if (
+            subject == this.buddy &&
+            (topic == "account-buddy-status-changed" ||
+              topic == "account-buddy-status-detail-changed" ||
+              topic == "account-buddy-display-name-changed" ||
+              topic == "account-buddy-icon-changed")
+          ) {
             this.updateTooltipFromBuddy(this.buddy);
-          } else if (topic == "user-info-received" &&
-                     data == this.observedUserInfo) {
-            this.updateTooltipInfo(subject.QueryInterface(Ci.nsISimpleEnumerator));
+          } else if (
+            topic == "user-info-received" &&
+            data == this.observedUserInfo
+          ) {
+            this.updateTooltipInfo(
+              subject.QueryInterface(Ci.nsISimpleEnumerator)
+            );
           }
         },
-        QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver, Ci.nsISupportsWeakReference]),
+        QueryInterface: ChromeUtils.generateQI([
+          Ci.nsIObserver,
+          Ci.nsISupportsWeakReference,
+        ]),
       };
 
-      this.addEventListener("popupshowing", (event) => {
+      this.addEventListener("popupshowing", event => {
         if (!this._onPopupShowing()) {
           event.preventDefault();
         }
       });
 
-      this.addEventListener("popuphiding", (event) => {
+      this.addEventListener("popuphiding", event => {
         this.buddy = null;
         this.removeAttribute("noTopic");
         this.removeAttribute("left");
@@ -87,30 +96,46 @@
 
       let localName = elt.localName;
 
-      if (localName == "richlistitem" && elt.getAttribute("is") == "chat-group") {
+      if (
+        localName == "richlistitem" &&
+        elt.getAttribute("is") == "chat-group"
+      ) {
         return false;
       }
 
-      if (localName == "richlistitem" &&
-          elt.getAttribute("is") == "chat-imconv" && elt.conv) {
+      if (
+        localName == "richlistitem" &&
+        elt.getAttribute("is") == "chat-imconv" &&
+        elt.conv
+      ) {
         return this.updateTooltipFromConversation(elt.conv);
       }
 
-      if (localName == "richlistitem" && elt.getAttribute("is") == "chat-contact") {
-        return this.updateTooltipFromBuddy(elt.contact.preferredBuddy.preferredAccountBuddy);
+      if (
+        localName == "richlistitem" &&
+        elt.getAttribute("is") == "chat-contact"
+      ) {
+        return this.updateTooltipFromBuddy(
+          elt.contact.preferredBuddy.preferredAccountBuddy
+        );
       }
 
       if (localName == "richlistitem") {
         let contactlistbox = document.getElementById("contactlistbox");
         let conv = contactlistbox.selectedItem.conv;
-        return this.updateTooltipFromParticipant(elt.chatBuddy.name, conv,
-          elt.chatBuddy);
+        return this.updateTooltipFromParticipant(
+          elt.chatBuddy.name,
+          conv,
+          elt.chatBuddy
+        );
       }
 
       let classList = elt.classList;
-      if (classList.contains("ib-nick") ||
-          classList.contains("ib-sender") ||
-          classList.contains("ib-person")) {
+      if (
+        classList.contains("ib-nick") ||
+        classList.contains("ib-sender") ||
+        classList.contains("ib-person")
+      ) {
         let conv = getBrowser()._conv;
         if (conv.isChat) {
           return this.updateTooltipFromParticipant(elt.textContent, conv);
@@ -128,16 +153,22 @@
         // It's a message, so add a date/time tooltip.
         let date = new Date(node._originalMsg.time * 1000);
         let text;
-        if ((new Date()).toDateString() == date.toDateString()) {
-          const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
-            timeStyle: "medium",
-          });
+        if (new Date().toDateString() == date.toDateString()) {
+          const dateTimeFormatter = new Services.intl.DateTimeFormat(
+            undefined,
+            {
+              timeStyle: "medium",
+            }
+          );
           text = dateTimeFormatter.format(date);
         } else {
-          const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
-            dateStyle: "short",
-            timeStyle: "medium",
-          });
+          const dateTimeFormatter = new Services.intl.DateTimeFormat(
+            undefined,
+            {
+              dateStyle: "short",
+              timeStyle: "medium",
+            }
+          );
           text = dateTimeFormatter.format(date);
         }
         // Setting the attribute on this node means that if the element
@@ -157,7 +188,8 @@
         return;
       }
       this.textContent = "";
-      this.appendChild(MozXULElement.parseXULToFragment(`
+      this.appendChild(
+        MozXULElement.parseXULToFragment(`
         <vbox class="largeTooltip">
           <hbox align="start" crop="end" flex="1">
             <vbox flex="1">
@@ -189,14 +221,16 @@
             <rows class="tooltipRows"></rows>
           </grid>
         </vbox>
-      `));
+      `)
+      );
       this.initializeAttributeInheritance();
     }
 
     get bundle() {
       if (!this._bundle) {
-        this._bundle =
-          Services.strings.createBundle("chrome://chat/locale/imtooltip.properties");
+        this._bundle = Services.strings.createBundle(
+          "chrome://chat/locale/imtooltip.properties"
+        );
       }
       return this._bundle;
     }
@@ -393,9 +427,10 @@
       // contact, we require at least that the normalizedChatBuddyName of
       // the nick is normalized like a normalizedName for contacts.
       if (normalizedNick == account.normalize(normalizedNick)) {
-        let accountBuddy =
-          Services.contacts.getAccountBuddyByNameAndAccount(normalizedNick,
-            account);
+        let accountBuddy = Services.contacts.getAccountBuddyByNameAndAccount(
+          normalizedNick,
+          account
+        );
         if (accountBuddy) {
           return this.updateTooltipFromBuddy(accountBuddy);
         }

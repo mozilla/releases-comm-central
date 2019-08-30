@@ -1,7 +1,7 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var irc = {};
 Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
 
@@ -133,15 +133,18 @@ function testRFC2812Messages() {
     // Pass in an empty default origin in order to check this below.
     let message = irc.ircMessage(expectedStringMessage, "");
 
-    let stringMessage =
-      irc.ircAccount.prototype.buildMessage(message.command, message.params);
+    let stringMessage = irc.ircAccount.prototype.buildMessage(
+      message.command,
+      message.params
+    );
 
     // Let's do a little dance here...we don't rebuild the "source" of the
     // message (the server does that), so when comparing our output message, we
     // need to avoid comparing to that part.
     if (message.origin) {
-      expectedStringMessage =
-        expectedStringMessage.slice(expectedStringMessage.indexOf(" ") + 1);
+      expectedStringMessage = expectedStringMessage.slice(
+        expectedStringMessage.indexOf(" ") + 1
+      );
     }
 
     equal(stringMessage, expectedStringMessage);
@@ -156,7 +159,8 @@ function testBrokenUnrealMessages() {
   let messages = {
     // Two spaces after command.
     ":gravel.mozilla.org 432  #momo :Erroneous Nickname: Illegal characters": {
-      rawMessage: ":gravel.mozilla.org 432  #momo :Erroneous Nickname: Illegal characters",
+      rawMessage:
+        ":gravel.mozilla.org 432  #momo :Erroneous Nickname: Illegal characters",
       command: "432",
       params: ["", "#momo", "Erroneous Nickname: Illegal characters"],
       origin: "gravel.mozilla.org",
@@ -189,8 +193,9 @@ function testBrokenUnrealMessages() {
     },
   };
 
-  for (let messageStr in messages)
+  for (let messageStr in messages) {
     deepEqual(messages[messageStr], irc.ircMessage(messageStr, ""));
+  }
 
   run_next_test();
 }
@@ -200,7 +205,8 @@ function testBrokenUnrealMessages() {
 function testNewLinesInMessages() {
   let messages = {
     ":test!Instantbir@host PRIVMSG #instantbird :First line\nSecond line": {
-      rawMessage: ":test!Instantbir@host PRIVMSG #instantbird :First line\nSecond line",
+      rawMessage:
+        ":test!Instantbir@host PRIVMSG #instantbird :First line\nSecond line",
       command: "PRIVMSG",
       params: ["#instantbird", "First line\nSecond line"],
       origin: "test",
@@ -210,7 +216,8 @@ function testNewLinesInMessages() {
       source: "Instantbir@host",
     },
     ":test!Instantbir@host PRIVMSG #instantbird :First line\r\nSecond line": {
-      rawMessage: ":test!Instantbir@host PRIVMSG #instantbird :First line\r\nSecond line",
+      rawMessage:
+        ":test!Instantbir@host PRIVMSG #instantbird :First line\r\nSecond line",
       command: "PRIVMSG",
       params: ["#instantbird", "First line\r\nSecond line"],
       origin: "test",
@@ -221,8 +228,9 @@ function testNewLinesInMessages() {
     },
   };
 
-  for (let messageStr in messages)
+  for (let messageStr in messages) {
     deepEqual(messages[messageStr], irc.ircMessage(messageStr));
+  }
 
   run_next_test();
 }
@@ -233,7 +241,8 @@ function testNewLinesInMessages() {
 function testLocalhost() {
   let messages = {
     ":localhost 001 clokep :Welcome to the BitlBee gateway, clokep": {
-      rawMessage: ":localhost 001 clokep :Welcome to the BitlBee gateway, clokep",
+      rawMessage:
+        ":localhost 001 clokep :Welcome to the BitlBee gateway, clokep",
       command: "001",
       params: ["clokep", "Welcome to the BitlBee gateway, clokep"],
       origin: "localhost",
@@ -244,8 +253,9 @@ function testLocalhost() {
     },
   };
 
-  for (let messageStr in messages)
+  for (let messageStr in messages) {
     deepEqual(messages[messageStr], irc.ircMessage(messageStr));
+  }
 
   run_next_test();
 }
@@ -253,7 +263,8 @@ function testLocalhost() {
 function testTags() {
   let messages = {
     "@aaa=bBb;ccc;example.com/ddd=eee :nick!ident@host.com PRIVMSG me :Hello": {
-      rawMessage: "@aaa=bBb;ccc;example.com/ddd=eee :nick!ident@host.com PRIVMSG me :Hello",
+      rawMessage:
+        "@aaa=bBb;ccc;example.com/ddd=eee :nick!ident@host.com PRIVMSG me :Hello",
       command: "PRIVMSG",
       params: ["me", "Hello"],
       origin: "nick",
@@ -275,9 +286,7 @@ function testTags() {
       // for host/source.
       user: "host.com",
       host: undefined,
-      tags: new Map([
-        ["xn--e1afmkfd.org/foo", undefined],
-      ]),
+      tags: new Map([["xn--e1afmkfd.org/foo", undefined]]),
       source: "host.com@undefined",
     },
     "@aaa=\\\\n\\:\\n\\r\\s :nick@host.com PRIVMSG it :Yes": {
@@ -289,9 +298,7 @@ function testTags() {
       // for host/source.
       user: "host.com",
       host: undefined,
-      tags: new Map([
-        ["aaa", "\\n;\n\r "],
-      ]),
+      tags: new Map([["aaa", "\\n;\n\r "]]),
       source: "host.com@undefined",
     },
     "@c;h=;a=b :quux ab cd": {
@@ -301,29 +308,25 @@ function testTags() {
       origin: "quux",
       user: undefined,
       host: undefined,
-      tags: new Map([
-        ["c", undefined],
-        ["h", ""],
-        ["a", "b"],
-      ]),
+      tags: new Map([["c", undefined], ["h", ""], ["a", "b"]]),
       source: "",
     },
     "@time=2012-06-30T23:59:60.419Z :John!~john@1.2.3.4 JOIN #chan": {
-      rawMessage: "@time=2012-06-30T23:59:60.419Z :John!~john@1.2.3.4 JOIN #chan",
+      rawMessage:
+        "@time=2012-06-30T23:59:60.419Z :John!~john@1.2.3.4 JOIN #chan",
       command: "JOIN",
       params: ["#chan"],
       origin: "John",
       user: "~john",
       host: "1.2.3.4",
-      tags: new Map([
-        ["time", "2012-06-30T23:59:60.419Z"],
-      ]),
+      tags: new Map([["time", "2012-06-30T23:59:60.419Z"]]),
       source: "~john@1.2.3.4",
     },
   };
 
-  for (let messageStr in messages)
+  for (let messageStr in messages) {
     deepEqual(messages[messageStr], irc.ircMessage(messageStr, ""));
+  }
 
   run_next_test();
 }

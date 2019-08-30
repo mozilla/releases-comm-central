@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
-const {OTR} = ChromeUtils.import("resource:///modules/OTR.jsm");
-const {Localization} = ChromeUtils.import("resource://gre/modules/Localization.jsm");
+const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+const { OTR } = ChromeUtils.import("resource:///modules/OTR.jsm");
+const { Localization } = ChromeUtils.import(
+  "resource://gre/modules/Localization.jsm"
+);
 
-const syncL10n = new Localization([
-  "messenger/otr/finger.ftl",
-], true);
+const syncL10n = new Localization(["messenger/otr/finger.ftl"], true);
 
 var [account] = window.arguments;
 
@@ -31,13 +31,25 @@ var fingerTreeView = {
         return finger[column.id] || "";
     }
   },
-  isSeparator(index) { return false; },
-  isSorted() { return false; },
-  isContainer(index) { return false; },
+  isSeparator(index) {
+    return false;
+  },
+  isSorted() {
+    return false;
+  },
+  isContainer(index) {
+    return false;
+  },
   cycleHeader(column) {},
-  getRowProperties(row) { return ""; },
-  getColumnProperties(column) { return ""; },
-  getCellProperties(row, column) { return ""; },
+  getRowProperties(row) {
+    return "";
+  },
+  getColumnProperties(column) {
+    return "";
+  },
+  getCellProperties(row, column) {
+    return "";
+  },
 };
 
 function getSelections(tree) {
@@ -50,8 +62,9 @@ function getSelections(tree) {
     for (let i = 0; i < count; i++) {
       selection.getRangeAt(i, min, max);
       for (let k = min.value; k <= max.value; k++) {
-        if (k != -1)
+        if (k != -1) {
           selections[selections.length] = k;
+        }
       }
     }
   }
@@ -85,12 +98,19 @@ var otrFinger = {
     let confirmAllTitle = syncL10n.formatValueSync("finger-remove-all-title");
     let confirmAllText = syncL10n.formatValueSync("finger-remove-all-message");
 
-    let buttonPressed =
-      Services.prompt.confirmEx(window, confirmAllTitle, confirmAllText,
-        Services.prompt.BUTTON_POS_1_DEFAULT +
-          Services.prompt.STD_OK_CANCEL_BUTTONS +
-          Services.prompt.BUTTON_DELAY_ENABLE,
-        0, 0, 0, null, {});
+    let buttonPressed = Services.prompt.confirmEx(
+      window,
+      confirmAllTitle,
+      confirmAllText,
+      Services.prompt.BUTTON_POS_1_DEFAULT +
+        Services.prompt.STD_OK_CANCEL_BUTTONS +
+        Services.prompt.BUTTON_DELAY_ENABLE,
+      0,
+      0,
+      0,
+      null,
+      {}
+    );
     if (buttonPressed != 0) {
       return;
     }
@@ -112,7 +132,7 @@ var otrFinger = {
         }
         gFingers.splice(j, k - j);
         fingerTreeView.rowCount -= k - j;
-        fingerTree.rowCountChanged(j, j - k);  // negative
+        fingerTree.rowCountChanged(j, j - k); // negative
       }
     }
     fingerTreeView.selection.selectEventsSuppressed = false;

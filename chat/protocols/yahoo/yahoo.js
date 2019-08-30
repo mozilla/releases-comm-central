@@ -30,19 +30,22 @@ XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/yahoo.properties")
 );
 
-function YahooAccount(aProtoInstance, aImAccount)
-{
+function YahooAccount(aProtoInstance, aImAccount) {
   this._init(aProtoInstance, aImAccount);
 }
 YahooAccount.prototype = {
   __proto__: GenericAccountPrototype,
 
   connect() {
-    this.WARN("The legacy versions of Yahoo Messenger was disabled on August " +
-              "5, 2016. It is currently not possible to connect to Yahoo " +
-              "Messenger. See bug 1316000");
-    this.reportDisconnecting(Ci.prplIAccount.ERROR_OTHER_ERROR,
-                             _("yahoo.disabled"));
+    this.WARN(
+      "The legacy versions of Yahoo Messenger was disabled on August " +
+        "5, 2016. It is currently not possible to connect to Yahoo " +
+        "Messenger. See bug 1316000"
+    );
+    this.reportDisconnecting(
+      Ci.prplIAccount.ERROR_OTHER_ERROR,
+      _("yahoo.disabled")
+    );
     this.reportDisconnected();
   },
 };
@@ -50,10 +53,18 @@ YahooAccount.prototype = {
 function YahooProtocol() {}
 YahooProtocol.prototype = {
   __proto__: GenericProtocolPrototype,
-  get id() { return "prpl-yahoo"; },
-  get name() { return "Yahoo"; },
-  get iconBaseURI() { return "chrome://prpl-yahoo/skin/"; },
-  getAccount(aImAccount) { return new YahooAccount(this, aImAccount); },
+  get id() {
+    return "prpl-yahoo";
+  },
+  get name() {
+    return "Yahoo";
+  },
+  get iconBaseURI() {
+    return "chrome://prpl-yahoo/skin/";
+  },
+  getAccount(aImAccount) {
+    return new YahooAccount(this, aImAccount);
+  },
   classID: Components.ID("{50ea817e-5d79-4657-91ae-aa0a52bdb98c}"),
 };
 

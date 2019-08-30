@@ -1,10 +1,13 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var xmppXml = {};
-Services.scriptloader.loadSubScript("resource:///modules/xmpp-xml.jsm", xmppXml);
+Services.scriptloader.loadSubScript(
+  "resource:///modules/xmpp-xml.jsm",
+  xmppXml
+);
 
 var TEST_DATA = [
   {
@@ -76,11 +79,18 @@ var TEST_DATA = [
 function testXMLNode() {
   for (let current of TEST_DATA) {
     try {
-      let result =
-        xmppXml.Stanza.node(current.input.name, current.input.namespace,
-                            current.input.attributes, current.input.data);
+      let result = xmppXml.Stanza.node(
+        current.input.name,
+        current.input.namespace,
+        current.input.attributes,
+        current.input.data
+      );
       equal(result.getXML(), current.XmlOutput, current.description);
-      equal(result.convertToString(), current.stringOutput, current.description);
+      equal(
+        result.convertToString(),
+        current.stringOutput,
+        current.description
+      );
       equal(current.isError, false);
     } catch (e) {
       equal(current.isError, true, current.description);
@@ -89,7 +99,6 @@ function testXMLNode() {
 
   run_next_test();
 }
-
 
 function run_test() {
   add_test(testXMLNode);

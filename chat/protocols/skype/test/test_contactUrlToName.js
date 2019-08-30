@@ -1,7 +1,7 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var skype = {};
 Services.scriptloader.loadSubScript("resource:///components/skype.js", skype);
 
@@ -19,8 +19,9 @@ function run_test() {
 }
 
 function test_contactUrlToName() {
-  for (let input in data)
+  for (let input in data) {
     equal(data[input], skype.contactUrlToName(input));
+  }
 
   run_next_test();
 }

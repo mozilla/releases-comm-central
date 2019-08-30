@@ -14,9 +14,13 @@ this.EXPORTED_SYMBOLS = [
   "serializeSelection",
 ];
 
-const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
-const {DownloadUtils} = ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
-const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+const { DownloadUtils } = ChromeUtils.import(
+  "resource://gre/modules/DownloadUtils.jsm"
+);
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
 var kMessagesStylePrefBranch = "messenger.options.messagesStyle.";
 var kThemePref = "theme";
@@ -47,35 +51,43 @@ XPCOMUtils.defineLazyGetter(this, "gTimeFormatter", () => {
   });
 });
 
-ChromeUtils.defineModuleGetter(this,
-  "ToLocaleFormat", "resource:///modules/ToLocaleFormat.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "ToLocaleFormat",
+  "resource:///modules/ToLocaleFormat.jsm"
+);
 
 var gCurrentTheme = null;
 
-function getChromeFile(aURI)
-{
+function getChromeFile(aURI) {
   try {
-    let channel = Services.io.newChannel(aURI, null, null, null,
-                                         Services.scriptSecurityManager.getSystemPrincipal(),
-                                         null,
-                                         Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                         Ci.nsIContentPolicy.TYPE_OTHER);
+    let channel = Services.io.newChannel(
+      aURI,
+      null,
+      null,
+      null,
+      Services.scriptSecurityManager.getSystemPrincipal(),
+      null,
+      Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+      Ci.nsIContentPolicy.TYPE_OTHER
+    );
     let stream = channel.open();
-    let sstream = Cc["@mozilla.org/scriptableinputstream;1"]
-                    .createInstance(Ci.nsIScriptableInputStream);
+    let sstream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+      Ci.nsIScriptableInputStream
+    );
     sstream.init(stream);
     let text = sstream.read(sstream.available());
     sstream.close();
     return text;
   } catch (e) {
-    if (e.result != Cr.NS_ERROR_FILE_NOT_FOUND)
+    if (e.result != Cr.NS_ERROR_FILE_NOT_FOUND) {
       dump("Getting " + aURI + ": " + e + "\n");
+    }
     return null;
   }
 }
 
-function HTMLTheme(aBaseURI)
-{
+function HTMLTheme(aBaseURI) {
   let files = {
     footer: "Footer.html",
     header: "Header.html",
@@ -93,33 +105,60 @@ function HTMLTheme(aBaseURI)
 
   for (let id in files) {
     let html = getChromeFile(aBaseURI + files[id]);
-    if (html)
-      Object.defineProperty(this, id, {value: html});
+    if (html) {
+      Object.defineProperty(this, id, { value: html });
+    }
   }
 
-  if (!("incomingContent" in files))
+  if (!("incomingContent" in files)) {
     throw new Error("Invalid theme: Incoming/Content.html is missing!");
+  }
 }
 
 HTMLTheme.prototype = {
-  get footer() { return ""; },
-  get header() { return ""; },
-  get status() { return this.incomingContent; },
-  get statusNext() { return this.status; },
+  get footer() {
+    return "";
+  },
+  get header() {
+    return "";
+  },
+  get status() {
+    return this.incomingContent;
+  },
+  get statusNext() {
+    return this.status;
+  },
   get incomingContent() {
     throw new Error("Incoming/Content.html is a required file");
   },
-  get incomingNextContent() { return this.incomingContent; },
-  get outgoingContent() { return this.incomingContent; },
-  get outgoingNextContent() { return this.incomingNextContent; },
-  get incomingContext() { return this.incomingContent; },
-  get incomingNextContext() { return this.incomingNextContent; },
-  get outgoingContext() { return this.hasOwnProperty("outgoingContent") ? this.outgoingContent : this.incomingContext; },
-  get outgoingNextContext() { return this.hasOwnProperty("outgoingNextContent") ? this.outgoingNextContent : this.incomingNextContext; },
+  get incomingNextContent() {
+    return this.incomingContent;
+  },
+  get outgoingContent() {
+    return this.incomingContent;
+  },
+  get outgoingNextContent() {
+    return this.incomingNextContent;
+  },
+  get incomingContext() {
+    return this.incomingContent;
+  },
+  get incomingNextContext() {
+    return this.incomingNextContent;
+  },
+  get outgoingContext() {
+    return this.hasOwnProperty("outgoingContent")
+      ? this.outgoingContent
+      : this.incomingContext;
+  },
+  get outgoingNextContext() {
+    return this.hasOwnProperty("outgoingNextContent")
+      ? this.outgoingNextContent
+      : this.incomingNextContext;
+  },
 };
 
-function plistToJSON(aElt)
-{
+function plistToJSON(aElt) {
   switch (aElt.localName) {
     case "true":
       return true;
@@ -140,8 +179,9 @@ function plistToJSON(aElt)
         if (nodes[i].nodeName == "key") {
           let key = nodes[i].textContent;
           ++i;
-          while (!Element.isInstance(nodes[i]))
+          while (!Element.isInstance(nodes[i])) {
             ++i;
+          }
           res[key] = plistToJSON(nodes[i]);
         }
       }
@@ -151,8 +191,9 @@ function plistToJSON(aElt)
       let array = [];
       nodes = aElt.childNodes;
       for (let i = 0; i < nodes.length; ++i) {
-        if (Element.isInstance(nodes[i]))
+        if (Element.isInstance(nodes[i])) {
           array.push(plistToJSON(nodes[i]));
+        }
       }
       return array;
 
@@ -161,24 +202,36 @@ function plistToJSON(aElt)
   }
 }
 
-function getInfoPlistContent(aBaseURI)
-{
+function getInfoPlistContent(aBaseURI) {
   try {
-    let channel = Services.io.newChannel(aBaseURI + "Info.plist", null, null, null,
-                                         Services.scriptSecurityManager.getSystemPrincipal(),
-                                         null,
-                                         Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                         Ci.nsIContentPolicy.TYPE_OTHER);
+    let channel = Services.io.newChannel(
+      aBaseURI + "Info.plist",
+      null,
+      null,
+      null,
+      Services.scriptSecurityManager.getSystemPrincipal(),
+      null,
+      Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+      Ci.nsIContentPolicy.TYPE_OTHER
+    );
     let stream = channel.open();
     let parser = new DOMParser();
-    let doc = parser.parseFromStream(stream, null, stream.available(), "text/xml");
-    if (doc.documentElement.localName != "plist")
+    let doc = parser.parseFromStream(
+      stream,
+      null,
+      stream.available(),
+      "text/xml"
+    );
+    if (doc.documentElement.localName != "plist") {
       throw new Error("Invalid Info.plist file");
+    }
     let node = doc.documentElement.firstChild;
-    while (node && !Element.isInstance(node))
+    while (node && !Element.isInstance(node)) {
       node = node.nextSibling;
-    if (!node || node.localName != "dict")
+    }
+    if (!node || node.localName != "dict") {
       throw new Error("Empty or invalid Info.plist file");
+    }
     return plistToJSON(node);
   } catch (e) {
     Cu.reportError(e);
@@ -186,19 +239,19 @@ function getInfoPlistContent(aBaseURI)
   }
 }
 
-function getChromeBaseURI(aThemeName)
-{
-  if (DEFAULT_THEMES.includes(aThemeName))
+function getChromeBaseURI(aThemeName) {
+  if (DEFAULT_THEMES.includes(aThemeName)) {
     return "chrome://messenger-messagestyles/skin/" + aThemeName + "/";
+  }
   return "chrome://" + aThemeName + "/skin/";
 }
 
-function getThemeByName(aName)
-{
+function getThemeByName(aName) {
   let baseURI = getChromeBaseURI(aName);
   let metadata = getInfoPlistContent(baseURI);
-  if (!metadata)
+  if (!metadata) {
     throw new Error("Cannot load theme " + aName);
+  }
 
   return {
     name: aName,
@@ -208,17 +261,22 @@ function getThemeByName(aName)
     html: new HTMLTheme(baseURI),
     showHeader: gPrefBranch.getBoolPref(kShowHeaderPref),
     combineConsecutive: gPrefBranch.getBoolPref(kCombineConsecutivePref),
-    combineConsecutiveInterval: gPrefBranch.getIntPref(kCombineConsecutiveIntervalPref),
+    combineConsecutiveInterval: gPrefBranch.getIntPref(
+      kCombineConsecutiveIntervalPref
+    ),
   };
 }
 
-function getCurrentTheme()
-{
+function getCurrentTheme() {
   let name = gPrefBranch.getCharPref(kThemePref);
   let variant = gPrefBranch.getCharPref(kVariantPref);
-  if (gCurrentTheme && gCurrentTheme.name == name &&
-      gCurrentTheme.variant == variant)
+  if (
+    gCurrentTheme &&
+    gCurrentTheme.name == name &&
+    gCurrentTheme.variant == variant
+  ) {
     return gCurrentTheme;
+  }
 
   try {
     gCurrentTheme = getThemeByName(name);
@@ -232,14 +290,15 @@ function getCurrentTheme()
   return gCurrentTheme;
 }
 
-function getDirectoryEntries(aDir)
-{
+function getDirectoryEntries(aDir) {
   let ios = Services.io;
   let uri = ios.newURI(aDir);
-  let cr = Cc["@mozilla.org/chrome/chrome-registry;1"]
-             .getService(Ci.nsIXULChromeRegistry);
-  while (uri.scheme == "chrome")
+  let cr = Cc["@mozilla.org/chrome/chrome-registry;1"].getService(
+    Ci.nsIXULChromeRegistry
+  );
+  while (uri.scheme == "chrome") {
     uri = cr.convertChromeURL(uri);
+  }
 
   // remove any trailing file name added by convertChromeURL
   let spec = uri.spec.replace(/[^\/]+$/, "");
@@ -249,20 +308,23 @@ function getDirectoryEntries(aDir)
   if (uri.scheme == "jar") {
     uri.QueryInterface(Ci.nsIJARURI);
     let strEntry = uri.JAREntry;
-    if (!strEntry)
+    if (!strEntry) {
       return [];
+    }
 
-    let zr = Cc["@mozilla.org/libjar/zip-reader;1"]
-               .createInstance(Ci.nsIZipReader);
+    let zr = Cc["@mozilla.org/libjar/zip-reader;1"].createInstance(
+      Ci.nsIZipReader
+    );
     let jarFile = uri.JARFile;
     if (jarFile instanceof Ci.nsIJARURI) {
-      let innerZr = Cc["@mozilla.org/libjar/zip-reader;1"]
-                      .createInstance(Ci.nsIZipReader);
+      let innerZr = Cc["@mozilla.org/libjar/zip-reader;1"].createInstance(
+        Ci.nsIZipReader
+      );
       innerZr.open(jarFile.JARFile.QueryInterface(Ci.nsIFileURL).file);
       zr.openInner(innerZr, jarFile.JAREntry);
-    }
-    else
+    } else {
       zr.open(jarFile.QueryInterface(Ci.nsIFileURL).file);
+    }
 
     if (!zr.hasEntry(strEntry) || !zr.getEntry(strEntry).isDirectory) {
       zr.close();
@@ -274,16 +336,17 @@ function getDirectoryEntries(aDir)
     let entries = zr.findEntries(filter);
 
     let parentLength = strEntry.length;
-    while (entries.hasMore())
+    while (entries.hasMore()) {
       results.push(entries.getNext().substring(parentLength));
+    }
     zr.close();
-  }
-  else if (uri.scheme == "file") {
+  } else if (uri.scheme == "file") {
     uri.QueryInterface(Ci.nsIFileURL);
     let dir = uri.file;
 
-    if (!dir.exists() || !dir.isDirectory())
+    if (!dir.exists() || !dir.isDirectory()) {
       return [];
+    }
 
     let children = dir.directoryEntries;
     while (children.hasMoreElements()) {
@@ -295,37 +358,37 @@ function getDirectoryEntries(aDir)
   return results;
 }
 
-function getThemeVariants(aTheme)
-{
+function getThemeVariants(aTheme) {
   let variants = getDirectoryEntries(aTheme.baseURI + "Variants/");
-  return variants.filter(v => v.endsWith(".css"))
-                 .map(v => v.substring(0, v.length - 4));
+  return variants
+    .filter(v => v.endsWith(".css"))
+    .map(v => v.substring(0, v.length - 4));
 }
 
 /* helper function for replacements in messages */
-function getBuddyFromMessage(aMsg)
-{
+function getBuddyFromMessage(aMsg) {
   if (aMsg.incoming) {
     let conv = aMsg.conversation;
-    if (!conv.isChat)
+    if (!conv.isChat) {
       return conv.buddy;
+    }
   }
 
   return null;
 }
 
-function getStatusIconFromBuddy(aBuddy)
-{
+function getStatusIconFromBuddy(aBuddy) {
   let status = "unknown";
   if (aBuddy) {
-    if (!aBuddy.online)
+    if (!aBuddy.online) {
       status = "offline";
-    else if (aBuddy.idle)
+    } else if (aBuddy.idle) {
       status = "idle";
-    else if (!aBuddy.available)
+    } else if (!aBuddy.available) {
       status = "away";
-    else
+    } else {
       status = "available";
+    }
   }
 
   return "chrome://chat/skin/" + status + "-16.png";
@@ -338,32 +401,37 @@ var headerFooterReplacements = {
   destinationDisplayName: aConv => TXTToHTML(aConv.title),
   incomingIconPath(aConv) {
     let buddy;
-    return (!aConv.isChat && (buddy = aConv.buddy) &&
-            buddy.buddyIconFilename) || "incoming_icon.png";
+    return (
+      (!aConv.isChat && (buddy = aConv.buddy) && buddy.buddyIconFilename) ||
+      "incoming_icon.png"
+    );
   },
   outgoingIconPath: aConv => "outgoing_icon.png",
   timeOpened(aConv, aFormat) {
     let date = new Date(aConv.startDate / 1000);
-    if (aFormat)
+    if (aFormat) {
       return ToLocaleFormat(aFormat, date);
+    }
     return gTimeFormatter.format(date);
   },
 };
 
 function formatAutoResponce(aTxt) {
   return Services.strings
-                 .createBundle("chrome://chat/locale/conversations.properties")
-                 .formatStringFromName("autoReply", [aTxt]);
+    .createBundle("chrome://chat/locale/conversations.properties")
+    .formatStringFromName("autoReply", [aTxt]);
 }
 
 var statusMessageReplacements = {
-  message: aMsg => "<span class=\"ib-msg-txt\">" +
-                   (aMsg.autoResponse ? formatAutoResponce(aMsg.message) : aMsg.message) +
-                   "</span>",
+  message: aMsg =>
+    '<span class="ib-msg-txt">' +
+    (aMsg.autoResponse ? formatAutoResponce(aMsg.message) : aMsg.message) +
+    "</span>",
   time(aMsg, aFormat) {
     let date = new Date(aMsg.time * 1000);
-    if (aFormat)
+    if (aFormat) {
       return ToLocaleFormat(aFormat, date);
+    }
     return gTimeFormatter.format(date);
   },
   timestamp: aMsg => aMsg.time,
@@ -373,53 +441,63 @@ var statusMessageReplacements = {
   messageClasses(aMsg) {
     let msgClass = [];
 
-    if (aMsg.system)
+    if (aMsg.system) {
       msgClass.push("event");
-    else {
+    } else {
       msgClass.push("message");
 
-      if (aMsg.incoming)
+      if (aMsg.incoming) {
         msgClass.push("incoming");
-      else if (aMsg.outgoing)
+      } else if (aMsg.outgoing) {
         msgClass.push("outgoing");
+      }
 
-      if (/^(<[^>]+>)*\/me /.test(aMsg.displayMessage))
+      if (/^(<[^>]+>)*\/me /.test(aMsg.displayMessage)) {
         msgClass.push("action");
+      }
 
-      if (aMsg.autoResponse)
+      if (aMsg.autoResponse) {
         msgClass.push("autoreply");
+      }
     }
 
-    if (aMsg.containsNick)
+    if (aMsg.containsNick) {
       msgClass.push("nick");
-    if (aMsg.error)
+    }
+    if (aMsg.error) {
       msgClass.push("error");
-    if (aMsg.delayed)
+    }
+    if (aMsg.delayed) {
       msgClass.push("delayed");
-    if (aMsg.notification)
+    }
+    if (aMsg.notification) {
       msgClass.push("notification");
-    if (aMsg.noFormat)
+    }
+    if (aMsg.noFormat) {
       msgClass.push("monospaced");
+    }
 
     return msgClass.join(" ");
   },
 };
 
 function formatSender(aName) {
-  return "<span class=\"ib-sender\">" + TXTToHTML(aName) + "</span>";
+  return '<span class="ib-sender">' + TXTToHTML(aName) + "</span>";
 }
 var messageReplacements = {
   userIconPath(aMsg) {
     // If the protocol plugin provides an icon for the message, use it.
     let iconURL = aMsg.iconURL;
-    if (iconURL)
+    if (iconURL) {
       return iconURL;
+    }
 
     // For outgoing messages, use the current user icon.
     if (aMsg.outgoing) {
       iconURL = aMsg.conversation.account.statusInfo.getUserIcon();
-      if (iconURL)
+      if (iconURL) {
         return iconURL.spec;
+      }
     }
 
     // Fallback to the theme's default icons.
@@ -443,8 +521,9 @@ var statusReplacements = {
   statusIcon(aMsg) {
     let conv = aMsg.conversation;
     let buddy = null;
-    if (!conv.isChat)
+    if (!conv.isChat) {
       buddy = conv.buddy;
+    }
     return getStatusIconFromBuddy(buddy);
   },
   __proto__: statusMessageReplacements,
@@ -452,19 +531,20 @@ var statusReplacements = {
 
 var kReplacementRegExp = /%([a-zA-Z]*)(\{([^\}]*)\})?%/g;
 
-function replaceKeywordsInHTML(aHTML, aReplacements, aReplacementArg)
-{
+function replaceKeywordsInHTML(aHTML, aReplacements, aReplacementArg) {
   kReplacementRegExp.lastIndex = 0;
   let previousIndex = 0;
   let result = "";
   let match;
   while ((match = kReplacementRegExp.exec(aHTML))) {
     let content = "";
-    if (match[1] in aReplacements)
+    if (match[1] in aReplacements) {
       content = aReplacements[match[1]](aReplacementArg, match[3]);
-    else
-      Cu.reportError("Unknown replacement string %" +
-                     match[1] + "% in message styles.");
+    } else {
+      Cu.reportError(
+        "Unknown replacement string %" + match[1] + "% in message styles."
+      );
+    }
     result += aHTML.substring(previousIndex, match.index) + content;
     previousIndex = kReplacementRegExp.lastIndex;
   }
@@ -472,40 +552,47 @@ function replaceKeywordsInHTML(aHTML, aReplacements, aReplacementArg)
   return result + aHTML.slice(previousIndex);
 }
 
-function isNextMessage(aTheme, aMsg, aPreviousMsg)
-{
-  if (!aTheme.combineConsecutive ||
-      (hasMetadataKey(aTheme, "DisableCombineConsecutive") &&
-       getMetadata(aTheme, "DisableCombineConsecutive")))
+function isNextMessage(aTheme, aMsg, aPreviousMsg) {
+  if (
+    !aTheme.combineConsecutive ||
+    (hasMetadataKey(aTheme, "DisableCombineConsecutive") &&
+      getMetadata(aTheme, "DisableCombineConsecutive"))
+  ) {
     return false;
+  }
 
-  if (!aPreviousMsg)
+  if (!aPreviousMsg) {
     return false;
+  }
 
-  if (aMsg.system && aPreviousMsg.system)
+  if (aMsg.system && aPreviousMsg.system) {
     return true;
+  }
 
-  if (aMsg.who != aPreviousMsg.who ||
-      aMsg.outgoing != aPreviousMsg.outgoing ||
-      aMsg.incoming != aPreviousMsg.incoming)
+  if (
+    aMsg.who != aPreviousMsg.who ||
+    aMsg.outgoing != aPreviousMsg.outgoing ||
+    aMsg.incoming != aPreviousMsg.incoming
+  ) {
     return false;
+  }
 
   let timeDifference = aMsg.time - aPreviousMsg.time;
-  return (timeDifference >= 0 &&
-          timeDifference <= aTheme.combineConsecutiveInterval);
+  return (
+    timeDifference >= 0 && timeDifference <= aTheme.combineConsecutiveInterval
+  );
 }
 
-function getHTMLForMessage(aMsg, aTheme, aIsNext, aIsContext)
-{
+function getHTMLForMessage(aMsg, aTheme, aIsNext, aIsContext) {
   let html, replacements;
   if (aMsg.system) {
     html = aIsNext ? aTheme.html.statusNext : aTheme.html.status;
     replacements = statusReplacements;
-  }
-  else {
+  } else {
     html = aMsg.incoming ? "incoming" : "outgoing";
-    if (aIsNext)
+    if (aIsNext) {
       html += "Next";
+    }
     html += aIsContext ? "Context" : "Content";
     html = aTheme.html[html];
     replacements = messageReplacements;
@@ -517,8 +604,9 @@ function getHTMLForMessage(aMsg, aTheme, aIsNext, aIsContext)
     if (meRegExp.test(aMsg.displayMessage)) {
       aMsg.message = aMsg.message.replace(meRegExp, "$1");
       let actionMessageTemplate = "* %message% *";
-      if (hasMetadataKey(aTheme, "ActionMessageTemplate"))
+      if (hasMetadataKey(aTheme, "ActionMessageTemplate")) {
         actionMessageTemplate = getMetadata(aTheme, "ActionMessageTemplate");
+      }
       html = html.replace(/%message%/g, actionMessageTemplate);
     }
   }
@@ -526,8 +614,7 @@ function getHTMLForMessage(aMsg, aTheme, aIsNext, aIsContext)
   return replaceKeywordsInHTML(html, replacements, aMsg);
 }
 
-function insertHTMLForMessage(aMsg, aHTML, aDoc, aIsNext)
-{
+function insertHTMLForMessage(aMsg, aHTML, aDoc, aIsNext) {
   let insert = aDoc.getElementById("insert");
   if (insert && !aIsNext) {
     insert.remove();
@@ -545,87 +632,108 @@ function insertHTMLForMessage(aMsg, aHTML, aDoc, aIsNext)
   // will be inserted into the document, so that selection code can
   // retrieve the message by just looking at the parent node until it
   // finds something.
-  for (let root = result; root; root = root.nextSibling)
+  for (let root = result; root; root = root.nextSibling) {
     root._originalMsg = aMsg;
+  }
 
   // make sure the result is an HTMLElement and not some text (whitespace)...
-  while (result &&
-         !(result.nodeType == result.ELEMENT_NODE &&
-           result.namespaceURI == "http://www.w3.org/1999/xhtml"))
+  while (
+    result &&
+    !(
+      result.nodeType == result.ELEMENT_NODE &&
+      result.namespaceURI == "http://www.w3.org/1999/xhtml"
+    )
+  ) {
     result = result.nextSibling;
-  if (insert)
+  }
+  if (insert) {
     parent.replaceChild(documentFragment, insert);
-  else
+  } else {
     parent.appendChild(documentFragment);
+  }
   return result;
 }
 
-function hasMetadataKey(aTheme, aKey)
-{
-  return (aKey in aTheme.metadata) ||
-         ((aTheme.variant != "default") &&
-          (aKey + ":" + aTheme.variant) in aTheme.metadata) ||
-         (("DefaultVariant" in aTheme.metadata) &&
-          ((aKey + ":" + aTheme.metadata.DefaultVariant) in aTheme.metadata));
+function hasMetadataKey(aTheme, aKey) {
+  return (
+    aKey in aTheme.metadata ||
+    (aTheme.variant != "default" &&
+      aKey + ":" + aTheme.variant in aTheme.metadata) ||
+    ("DefaultVariant" in aTheme.metadata &&
+      aKey + ":" + aTheme.metadata.DefaultVariant in aTheme.metadata)
+  );
 }
 
-function getMetadata(aTheme, aKey)
-{
-  if ((aTheme.variant != "default") &&
-      (aKey + ":" + aTheme.variant) in aTheme.metadata)
+function getMetadata(aTheme, aKey) {
+  if (
+    aTheme.variant != "default" &&
+    aKey + ":" + aTheme.variant in aTheme.metadata
+  ) {
     return aTheme.metadata[aKey + ":" + aTheme.variant];
+  }
 
-  if (("DefaultVariant" in aTheme.metadata) &&
-      ((aKey + ":" + aTheme.metadata.DefaultVariant) in aTheme.metadata))
+  if (
+    "DefaultVariant" in aTheme.metadata &&
+    aKey + ":" + aTheme.metadata.DefaultVariant in aTheme.metadata
+  ) {
     return aTheme.metadata[aKey + ":" + aTheme.metadata.DefaultVariant];
+  }
 
   return aTheme.metadata[aKey];
 }
 
-function initHTMLDocument(aConv, aTheme, aDoc)
-{
-  let HTML = "<html><head><base href=\"" + aTheme.baseURI + "\"/>";
+function initHTMLDocument(aConv, aTheme, aDoc) {
+  let HTML = '<html><head><base href="' + aTheme.baseURI + '"/>';
 
   // Screen readers may read the title of the document, so provide one
   // to avoid an ugly fallback to the URL (see bug 1165).
   HTML += "<title>" + aConv.title + "</title>";
 
-  function addCSS(aHref)
-  {
-    HTML += "<link rel=\"stylesheet\" href=\"" + aHref + "\" type=\"text/css\"/>";
+  function addCSS(aHref) {
+    HTML += '<link rel="stylesheet" href="' + aHref + '" type="text/css"/>';
   }
   addCSS("chrome://chat/skin/conv.css");
 
   // add css to handle DefaultFontFamily and DefaultFontSize
   let cssText = "";
-  if (hasMetadataKey(aTheme, "DefaultFontFamily"))
+  if (hasMetadataKey(aTheme, "DefaultFontFamily")) {
     cssText += "font-family: " + getMetadata(aTheme, "DefaultFontFamily") + ";";
-  if (hasMetadataKey(aTheme, "DefaultFontSize"))
+  }
+  if (hasMetadataKey(aTheme, "DefaultFontSize")) {
     cssText += "font-size: " + getMetadata(aTheme, "DefaultFontSize") + ";";
-  if (cssText)
+  }
+  if (cssText) {
     addCSS("data:text/css,*{ " + cssText + " }");
+  }
 
   // add the main CSS file of the theme
-  if (aTheme.metadata.MessageViewVersion >= 3 || aTheme.variant == "default")
+  if (aTheme.metadata.MessageViewVersion >= 3 || aTheme.variant == "default") {
     addCSS("main.css");
+  }
 
   // add the CSS file of the variant
-  if (aTheme.variant != "default")
+  if (aTheme.variant != "default") {
     addCSS("Variants/" + aTheme.variant + ".css");
-  else
-    if ("DefaultVariant" in aTheme.metadata)
-      addCSS("Variants/" + aTheme.metadata.DefaultVariant + ".css");
+  } else if ("DefaultVariant" in aTheme.metadata) {
+    addCSS("Variants/" + aTheme.metadata.DefaultVariant + ".css");
+  }
 
-  HTML += "</head><body id=\"ibcontent\">";
+  HTML += '</head><body id="ibcontent">';
 
   // We insert the whole content of body: header, chat div, footer
   if (aTheme.showHeader) {
-    HTML += replaceKeywordsInHTML(aTheme.html.header,
-                                  headerFooterReplacements, aConv);
+    HTML += replaceKeywordsInHTML(
+      aTheme.html.header,
+      headerFooterReplacements,
+      aConv
+    );
   }
-  HTML += "<div id=\"Chat\" aria-live=\"polite\"></div>";
-  HTML += replaceKeywordsInHTML(aTheme.html.footer,
-                                headerFooterReplacements, aConv);
+  HTML += '<div id="Chat" aria-live="polite"></div>';
+  HTML += replaceKeywordsInHTML(
+    aTheme.html.footer,
+    headerFooterReplacements,
+    aConv
+  );
   aDoc.open();
   aDoc.write(HTML + "</body></html>");
   aDoc.close();
@@ -633,21 +741,19 @@ function initHTMLDocument(aConv, aTheme, aDoc)
 }
 
 /* Selection stuff */
-function getEllipsis()
-{
+function getEllipsis() {
   let ellipsis = "[\u2026]";
 
   try {
-    ellipsis =
-      Services.prefs
-              .getComplexValue("messenger.conversations.selections.ellipsis",
-                               Ci.nsIPrefLocalizedString).data;
-  } catch (e) { }
+    ellipsis = Services.prefs.getComplexValue(
+      "messenger.conversations.selections.ellipsis",
+      Ci.nsIPrefLocalizedString
+    ).data;
+  } catch (e) {}
   return ellipsis;
 }
 
-function _serializeDOMObject(aDocument, aInitFunction)
-{
+function _serializeDOMObject(aDocument, aInitFunction) {
   // This shouldn't really be a constant, as we want to support
   // text/html too in the future.
   const type = "text/plain";
@@ -659,21 +765,22 @@ function _serializeDOMObject(aDocument, aInitFunction)
   return result;
 }
 
-function serializeRange(aRange)
-{
-  return _serializeDOMObject(aRange.startContainer.ownerDocument,
-                             function(aEncoder) { aEncoder.setRange(aRange); });
+function serializeRange(aRange) {
+  return _serializeDOMObject(aRange.startContainer.ownerDocument, function(
+    aEncoder
+  ) {
+    aEncoder.setRange(aRange);
+  });
 }
 
-function serializeNode(aNode)
-{
-  return _serializeDOMObject(aNode.ownerDocument,
-                             function(aEncoder) { aEncoder.setNode(aNode); });
+function serializeNode(aNode) {
+  return _serializeDOMObject(aNode.ownerDocument, function(aEncoder) {
+    aEncoder.setNode(aNode);
+  });
 }
 
 /* This function is used to pretty print a selection inside a conversation area */
-function serializeSelection(aSelection)
-{
+function serializeSelection(aSelection) {
   // We have two kinds of selection serialization:
   //  - The short version, used when only a part of message is
   //    selected, or if nothing interesting is selected
@@ -706,63 +813,72 @@ function serializeSelection(aSelection)
     // remove from the selection all the messages that have no text
     // selected
     let testFunction = msg => msg.isTextSelected();
-    if (messages.some(testFunction))
+    if (messages.some(testFunction)) {
       messages = messages.filter(testFunction);
+    }
 
     if (!messages.length) {
       // Do it only if it wouldn't override a better already found selection
-      if (!shortSelection)
+      if (!shortSelection) {
         shortSelection = serializeRange(range);
+      }
       continue;
     }
 
-    if (shortVersionPossible && messages.length == 1 &&
-        (!messages[0].isTextSelected() || messages[0].onlyTextSelected()) &&
-        (!lastMessage || lastMessage.msg == messages[0].msg ||
-         lastMessage.msg.who == messages[0].msg.who)) {
+    if (
+      shortVersionPossible &&
+      messages.length == 1 &&
+      (!messages[0].isTextSelected() || messages[0].onlyTextSelected()) &&
+      (!lastMessage ||
+        lastMessage.msg == messages[0].msg ||
+        lastMessage.msg.who == messages[0].msg.who)
+    ) {
       if (shortSelection) {
         if (lastMessage.msg != messages[0].msg) {
           // Add the ellipsis only if the previous message was cut
-          if (lastMessage.cutEnd)
+          if (lastMessage.cutEnd) {
             shortSelection += " " + getEllipsis();
+          }
           shortSelection += kLineBreak;
-        }
-        else
+        } else {
           shortSelection += " " + getEllipsis() + " ";
+        }
       }
       shortSelection += serializeRange(range);
       longSelection.push(messages[0].getFormattedMessage());
-    }
-    else {
+    } else {
       shortVersionPossible = false;
       for (let m = 0; m < messages.length; ++m) {
         let message = messages[m];
         if (m == 0 && lastMessage && lastMessage.msg == message.msg) {
           let text = message.getSelectedText();
-          if (message.cutEnd)
+          if (message.cutEnd) {
             text += " " + getEllipsis();
+          }
           longSelection[longSelection.length - 1] += " " + text;
-        }
-        else
+        } else {
           longSelection.push(message.getFormattedMessage());
+        }
       }
     }
     lastMessage = messages[messages.length - 1];
   }
 
-  if (shortVersionPossible)
+  if (shortVersionPossible) {
     return shortSelection || aSelection.toString();
+  }
   return longSelection.join(kLineBreak);
 }
 
-function SelectedMessage(aRootNode, aRange)
-{
+function SelectedMessage(aRootNode, aRange) {
   this._rootNodes = [aRootNode];
   this._range = aRange;
 }
 
 SelectedMessage.prototype = {
-  get msg() { return this._rootNodes[0]._originalMsg; },
+  get msg() {
+    return this._rootNodes[0]._originalMsg;
+  },
   addRoot(aRootNode) {
     this._rootNodes.push(aRootNode);
   },
@@ -771,17 +887,24 @@ SelectedMessage.prototype = {
   // ib-msg-text under the rootNodes of the selected message.
   _getSpanNode() {
     // first use the cached value if any
-    if (this._spanNode)
+    if (this._spanNode) {
       return this._spanNode;
+    }
 
     let spanNode = null;
     // If we could use NodeFilter.webidl, we wouldn't have to make up our own
     // object. FILTER_REJECT is not used here, but included for completeness.
-    const NodeFilter = { SHOW_ELEMENT: 0x1, FILTER_ACCEPT: 1, FILTER_REJECT: 2, FILTER_SKIP: 3 };
+    const NodeFilter = {
+      SHOW_ELEMENT: 0x1,
+      FILTER_ACCEPT: 1,
+      FILTER_REJECT: 2,
+      FILTER_SKIP: 3,
+    };
     // helper filter function for the tree walker
     let filter = function(node) {
-      return node.className == "ib-msg-txt" ? NodeFilter.FILTER_ACCEPT
-                                            : NodeFilter.FILTER_SKIP;
+      return node.className == "ib-msg-txt"
+        ? NodeFilter.FILTER_ACCEPT
+        : NodeFilter.FILTER_SKIP;
     };
     // walk the DOM subtrees of each root, keep the first correct span node
     for (let i = 0; !spanNode && i < this._rootNodes.length; ++i) {
@@ -791,10 +914,12 @@ SelectedMessage.prototype = {
         spanNode = rootNode;
         break;
       }
-      let treeWalker =
-        rootNode.ownerDocument.createTreeWalker(rootNode,
-                                                NodeFilter.SHOW_ELEMENT,
-                                                {acceptNode: filter}, false);
+      let treeWalker = rootNode.ownerDocument.createTreeWalker(
+        rootNode,
+        NodeFilter.SHOW_ELEMENT,
+        { acceptNode: filter },
+        false
+      );
       spanNode = treeWalker.nextNode();
     }
 
@@ -804,8 +929,9 @@ SelectedMessage.prototype = {
   // Initialize _textSelected and _otherSelected; if _textSelected is true,
   // also initialize _selectedText and _cutBegin/End.
   _initSelectedText() {
-    if ("_textSelected" in this)
-      return; // already initialized
+    if ("_textSelected" in this) {
+      return;
+    } // already initialized
 
     let spanNode = this._getSpanNode();
     if (!spanNode) {
@@ -816,22 +942,26 @@ SelectedMessage.prototype = {
       return;
     }
     let startPoint = this._range.comparePoint(spanNode, 0);
-    let endPoint = this._range.comparePoint(spanNode,
-                                            spanNode.childNodes.length);
+    let endPoint = this._range.comparePoint(
+      spanNode,
+      spanNode.childNodes.length
+    );
     if (startPoint <= 0 && endPoint >= 0) {
       let range = this._range.cloneRange();
-      if (startPoint >= 0)
+      if (startPoint >= 0) {
         range.setStart(spanNode, 0);
-      if (endPoint <= 0)
+      }
+      if (endPoint <= 0) {
         range.setEnd(spanNode, spanNode.childNodes.length);
+      }
       this._selectedText = serializeRange(range);
 
       // if the selected text is empty, set _selectedText to false
       // this happens if the carret is at the offset 0 in the span node
       this._textSelected = this._selectedText != "";
-    }
-    else
+    } else {
       this._textSelected = false;
+    }
     if (this._textSelected) {
       // to check if the start or end is cut, the result of
       // comparePoint is not enough because the selection range may
@@ -842,23 +972,23 @@ SelectedMessage.prototype = {
         range.setStart(spanNode, 0);
         range.setEnd(this._range.startContainer, this._range.startOffset);
         this._cutBegin = serializeRange(range) != "";
-      }
-      else
+      } else {
         this._cutBegin = false;
+      }
 
       if (endPoint == 1) {
         let range = spanNode.ownerDocument.createRange();
         range.setStart(this._range.endContainer, this._range.endOffset);
         range.setEnd(spanNode, spanNode.childNodes.length);
         this._cutEnd = !/^(\r?\n)?$/.test(serializeRange(range));
-      }
-      else
+      } else {
         this._cutEnd = false;
+      }
     }
     this._otherSelected =
       (startPoint >= 0 || endPoint <= 0) && // eliminate most negative cases
       (!this._textSelected ||
-       serializeRange(this._range).length > this._selectedText.length);
+        serializeRange(this._range).length > this._selectedText.length);
   },
   get cutBegin() {
     this._initSelectedText();
@@ -887,24 +1017,27 @@ SelectedMessage.prototype = {
     let text;
     if (this._textSelected) {
       // Add ellipsis is needed
-      text = (this._cutBegin ? getEllipsis() + " " : "") +
-             this._selectedText +
-             (this._cutEnd ? " " + getEllipsis() : "");
-    }
-    else {
+      text =
+        (this._cutBegin ? getEllipsis() + " " : "") +
+        this._selectedText +
+        (this._cutEnd ? " " + getEllipsis() : "");
+    } else {
       let div = this._rootNodes[0].ownerDocument.createElement("div");
       // eslint-disable-next-line no-unsanitized/property
-      div.innerHTML = msg.autoResponse ? formatAutoResponce(msg.message) : msg.message;
+      div.innerHTML = msg.autoResponse
+        ? formatAutoResponce(msg.message)
+        : msg.message;
       text = serializeNode(div);
     }
 
     // then get the suitable replacements and templates for this message
     let getLocalizedPrefWithDefault = function(aName, aDefault) {
       try {
-        let prefBranch =
-          Services.prefs.getBranch("messenger.conversations.selections.");
-        return prefBranch.getComplexValue(aName,
-                                          Ci.nsIPrefLocalizedString).data;
+        let prefBranch = Services.prefs.getBranch(
+          "messenger.conversations.selections."
+        );
+        return prefBranch.getComplexValue(aName, Ci.nsIPrefLocalizedString)
+          .data;
       } catch (e) {
         return aDefault;
       }
@@ -912,18 +1045,22 @@ SelectedMessage.prototype = {
     let html, replacements;
     if (msg.system) {
       replacements = statusReplacements;
-      html = getLocalizedPrefWithDefault("systemMessagesTemplate",
-                                         "%time% - %message%");
-    }
-    else {
+      html = getLocalizedPrefWithDefault(
+        "systemMessagesTemplate",
+        "%time% - %message%"
+      );
+    } else {
       replacements = messageReplacements;
       if (/^(<[^>]+>)*\/me /.test(msg.displayMessage)) {
-        html = getLocalizedPrefWithDefault("actionMessagesTemplate",
-                                           "%time% * %sender% %message%");
-      }
-      else {
-        html = getLocalizedPrefWithDefault("contentMessagesTemplate",
-                                           "%time% - %sender%: %message%");
+        html = getLocalizedPrefWithDefault(
+          "actionMessagesTemplate",
+          "%time% * %sender% %message%"
+        );
+      } else {
+        html = getLocalizedPrefWithDefault(
+          "contentMessagesTemplate",
+          "%time% - %sender%: %message%"
+        );
       }
     }
 
@@ -942,8 +1079,7 @@ SelectedMessage.prototype = {
   },
 };
 
-function getMessagesForRange(aRange)
-{
+function getMessagesForRange(aRange) {
   let result = []; // will hold the final result
   let messages = {}; // used to prevent duplicate messages in the result array
 
@@ -962,31 +1098,37 @@ function getMessagesForRange(aRange)
         let newMessage = new SelectedMessage(aNode, aRange);
         messages[aNode._originalMsg.id] = newMessage;
         result.push(newMessage);
-      }
-      else {
+      } else {
         // we've found another root of an already known message
         messages[aNode._originalMsg.id].addRoot(aNode);
       }
     }
 
     // check if we have reached the end node
-    if (aNode == endNode)
+    if (aNode == endNode) {
       return true;
+    }
 
     // recurse through children
-    if (aNode.nodeType == aNode.ELEMENT_NODE &&
-        aNode.namespaceURI == "http://www.w3.org/1999/xhtml") {
-      for (let i = 0; i < aNode.childNodes.length; ++i)
-        if (processSubtree(aNode.childNodes[i]))
+    if (
+      aNode.nodeType == aNode.ELEMENT_NODE &&
+      aNode.namespaceURI == "http://www.w3.org/1999/xhtml"
+    ) {
+      for (let i = 0; i < aNode.childNodes.length; ++i) {
+        if (processSubtree(aNode.childNodes[i])) {
           return true;
+        }
+      }
     }
 
     return false;
   };
 
   let currentNode = aRange.commonAncestorContainer;
-  if (currentNode.nodeType == currentNode.ELEMENT_NODE &&
-      currentNode.namespaceURI == "http://www.w3.org/1999/xhtml") {
+  if (
+    currentNode.nodeType == currentNode.ELEMENT_NODE &&
+    currentNode.namespaceURI == "http://www.w3.org/1999/xhtml"
+  ) {
     // Determine the index of the first and last children of currentNode
     // that we should process.
     let found = false;
@@ -995,28 +1137,31 @@ function getMessagesForRange(aRange)
       // we want to process all children
       found = true;
       start = aRange.startOffset;
-    }
-    else {
+    } else {
       // startNode needs to be a direct child of currentNode
-      while (startNode.parentNode != currentNode)
+      while (startNode.parentNode != currentNode) {
         startNode = startNode.parentNode;
+      }
     }
     let end;
-    if (currentNode == endNode)
+    if (currentNode == endNode) {
       end = aRange.endOffset;
-    else
+    } else {
       end = currentNode.childNodes.length;
+    }
 
     for (let i = start; i < end; ++i) {
       let node = currentNode.childNodes[i];
 
       // don't do anything until we find the startNode
       found = found || node == startNode;
-      if (!found)
+      if (!found) {
         continue;
+      }
 
-      if (processSubtree(node))
+      if (processSubtree(node)) {
         break;
+      }
     }
   }
 
@@ -1025,10 +1170,12 @@ function getMessagesForRange(aRange)
   // couldn't give us the first message. Make sure we actually have
   // the message in which the range starts.
   let firstRoot = aRange.startContainer;
-  while (firstRoot && !firstRoot._originalMsg)
+  while (firstRoot && !firstRoot._originalMsg) {
     firstRoot = firstRoot.parentNode;
-  if (firstRoot && !(firstRoot._originalMsg.id in messages))
+  }
+  if (firstRoot && !(firstRoot._originalMsg.id in messages)) {
     result.unshift(new SelectedMessage(firstRoot, aRange));
+  }
 
   return result;
 }

@@ -10,7 +10,9 @@
 
 this.EXPORTED_SYMBOLS = ["ircSASL", "capSASL"];
 
-const {ircHandlers} = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
+const { ircHandlers } = ChromeUtils.import(
+  "resource:///modules/ircHandlers.jsm"
+);
 
 var ircSASL = {
   name: "SASL AUTHENTICATE",
@@ -18,23 +20,32 @@ var ircSASL = {
   isEnabled: () => true,
 
   commands: {
-    "AUTHENTICATE": function(aMessage) {
+    AUTHENTICATE(aMessage) {
       // Expect an empty response, if something different is received abort.
       if (aMessage.params[0] != "+") {
         this.sendMessage("AUTHENTICATE", "*");
-        this.WARN("Aborting SASL authentication, unexpected message " +
-                  "received:\n" + aMessage.rawMessage);
+        this.WARN(
+          "Aborting SASL authentication, unexpected message " +
+            "received:\n" +
+            aMessage.rawMessage
+        );
         return true;
       }
 
       // An authentication identity, authorization identity and password are
       // used, separated by null.
-      let data = [this._requestedNickname, this._requestedNickname,
-                  this.imAccount.password].join("\0");
+      let data = [
+        this._requestedNickname,
+        this._requestedNickname,
+        this.imAccount.password,
+      ].join("\0");
       // btoa for Unicode, see https://developer.mozilla.org/en-US/docs/DOM/window.btoa
       let base64Data = btoa(unescape(encodeURIComponent(data)));
-      this.sendMessage("AUTHENTICATE", base64Data,
-                       "AUTHENTICATE <base64 encoded nick, user and password not logged>");
+      this.sendMessage(
+        "AUTHENTICATE",
+        base64Data,
+        "AUTHENTICATE <base64 encoded nick, user and password not logged>"
+      );
       return true;
     },
 
@@ -57,7 +68,9 @@ var ircSASL = {
       // ERR_NICKLOCKED
       // Authentication failed because the account is currently locked out,
       // held, or otherwise administratively made unavailable.
-      this.WARN("You must use a nick assigned to you. SASL authentication failed.");
+      this.WARN(
+        "You must use a nick assigned to you. SASL authentication failed."
+      );
       this.removeCAP("sasl");
       return true;
     },
@@ -69,8 +82,9 @@ var ircSASL = {
       this.LOG("SASL authentication successful.");
       // We may receive this again while already connected if the user manually
       // identifies with Nickserv.
-      if (!this.connected)
+      if (!this.connected) {
         this.removeCAP("sasl");
+      }
       return true;
     },
 
@@ -96,7 +110,9 @@ var ircSASL = {
       // ERR_SASLABORTED
       // The client completed registration before SASL authentication completed,
       // or because we sent `AUTHENTICATE` with `*` as the parameter.
-      this.ERROR("Registration completed before SASL authentication completed.");
+      this.ERROR(
+        "Registration completed before SASL authentication completed."
+      );
       this.removeCAP("sasl");
       return true;
     },
@@ -126,13 +142,12 @@ var capSASL = {
   isEnabled: () => true,
 
   commands: {
-    "sasl": function(aMessage) {
+    sasl(aMessage) {
       if (aMessage.cap.subcommand == "LS" && this.imAccount.password) {
         // If it supports SASL, let the server know we're requiring SASL.
         this.sendMessage("CAP", ["REQ", "sasl"]);
         this.addCAP("sasl");
-      }
-      else if (aMessage.cap.subcommand == "ACK") {
+      } else if (aMessage.cap.subcommand == "ACK") {
         // The server acknowledges our choice to use SASL, send the first
         // message.
         this.sendMessage("AUTHENTICATE", "PLAIN");

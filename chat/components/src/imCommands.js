@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var {
   XPCOMUtils,
   setTimeout,
@@ -19,7 +19,7 @@ XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/commands.properties")
 );
 
-function CommandsService() { }
+function CommandsService() {}
 CommandsService.prototype = {
   initCommands() {
     this._commands = {};
@@ -28,7 +28,9 @@ CommandsService.prototype = {
     // using the /help command).
     this.registerCommand({
       name: "say",
-      get helpString() { return _("sayHelpString"); },
+      get helpString() {
+        return _("sayHelpString");
+      },
       usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
       priority: Ci.imICommand.CMD_PRIORITY_HIGH,
       run(aMsg, aConv) {
@@ -38,13 +40,16 @@ CommandsService.prototype = {
 
     this.registerCommand({
       name: "raw",
-      get helpString() { return _("rawHelpString"); },
+      get helpString() {
+        return _("rawHelpString");
+      },
       usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
       priority: Ci.imICommand.CMD_PRIORITY_DEFAULT,
       run(aMsg, aConv) {
         let conv = Services.conversations.getUIConversation(aConv);
-        if (!conv)
+        if (!conv) {
           return false;
+        }
         conv.sendMsg(aMsg);
         return true;
       },
@@ -56,24 +61,31 @@ CommandsService.prototype = {
       cmdSrv: this,
 
       name: "help",
-      get helpString() { return _("helpHelpString"); },
+      get helpString() {
+        return _("helpHelpString");
+      },
       usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
       priority: Ci.imICommand.CMD_PRIORITY_DEFAULT,
       run(aMsg, aConv) {
         aMsg = aMsg.trim();
         let conv = Services.conversations.getUIConversation(aConv);
-        if (!conv)
+        if (!conv) {
           return false;
+        }
 
         // Handle when no command is given, list all possible commands that are
         // available for this conversation (alphabetically).
         if (!aMsg) {
           let commands = this.cmdSrv.listCommandsForConversation(aConv, {});
-          if (!commands.length)
+          if (!commands.length) {
             return false;
+          }
 
           // Concatenate the command names (separated by a comma and space).
-          let cmds = commands.map(aCmd => aCmd.name).sort().join(", ");
+          let cmds = commands
+            .map(aCmd => aCmd.name)
+            .sort()
+            .join(", ");
           let message = _("commands", cmds);
 
           // Display the message
@@ -95,8 +107,9 @@ CommandsService.prototype = {
         let cmd = cmdArray[0];
 
         let text = cmd.helpString;
-        if (!text)
+        if (!text) {
           text = _("noHelp", cmd.name);
+        }
 
         // Display the message.
         conv.systemMessage(text);
@@ -116,7 +129,9 @@ CommandsService.prototype = {
       let statusValue = Ci.imIStatusInfo["STATUS_" + status[cmd]];
       this.registerCommand({
         name: cmd,
-        get helpString() { return _("statusCommand", this.name, _(this.name)); },
+        get helpString() {
+          return _("statusCommand", this.name, _(this.name));
+        },
         usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
         priority: Ci.imICommand.CMD_PRIORITY_HIGH,
         run(aMsg) {
@@ -132,21 +147,25 @@ CommandsService.prototype = {
 
   registerCommand(aCommand, aPrplId) {
     let name = aCommand.name;
-    if (!name)
+    if (!name) {
       throw Cr.NS_ERROR_INVALID_ARG;
+    }
 
-    if (!(this._commands.hasOwnProperty(name)))
+    if (!this._commands.hasOwnProperty(name)) {
       this._commands[name] = {};
+    }
     this._commands[name][aPrplId || ""] = aCommand;
   },
   unregisterCommand(aCommandName, aPrplId) {
     if (this._commands.hasOwnProperty(aCommandName)) {
       let prplId = aPrplId || "";
       let commands = this._commands[aCommandName];
-      if (commands.hasOwnProperty(prplId))
+      if (commands.hasOwnProperty(prplId)) {
         delete commands[prplId];
-      if (!Object.keys(commands).length)
+      }
+      if (!Object.keys(commands).length) {
         delete this._commands[aCommandName];
+      }
     }
   },
   listCommandsForConversation(aConversation, commandCount) {
@@ -154,26 +173,31 @@ CommandsService.prototype = {
     let prplId = aConversation && aConversation.account.protocol.id;
     for (let name in this._commands) {
       let commands = this._commands[name];
-      if (commands.hasOwnProperty(""))
+      if (commands.hasOwnProperty("")) {
         result.push(commands[""]);
-      if (prplId && commands.hasOwnProperty(prplId))
+      }
+      if (prplId && commands.hasOwnProperty(prplId)) {
         result.push(commands[prplId]);
+      }
     }
-    if (aConversation)
+    if (aConversation) {
       result = result.filter(this._usageContextFilter(aConversation));
+    }
     commandCount.value = result.length;
     return result;
   },
   // List only the commands for a protocol (excluding the global commands).
   listCommandsForProtocol(aPrplId, commandCount) {
-    if (!aPrplId)
+    if (!aPrplId) {
       throw new Error("You must provide a prpl ID.");
+    }
 
     let result = [];
     for (let name in this._commands) {
       let commands = this._commands[name];
-      if (commands.hasOwnProperty(aPrplId))
+      if (commands.hasOwnProperty(aPrplId)) {
         result.push(commands[aPrplId]);
+      }
     }
     commandCount.value = result.length;
     return result;
@@ -187,19 +211,22 @@ CommandsService.prototype = {
     let prplId = null;
     if (aConversation) {
       let account = aConversation.account;
-      if (account.connected)
+      if (account.connected) {
         prplId = account.protocol.id;
+      }
     }
 
     let commandNames;
     // If there is an exact match for the given command name,
     // don't look at any other commands.
-    if (this._commands.hasOwnProperty(aName))
+    if (this._commands.hasOwnProperty(aName)) {
       commandNames = [aName];
+    }
     // Otherwise, check if there is a partial match.
     else {
-      commandNames = Object.keys(this._commands)
-                           .filter(command => command.startsWith(aName));
+      commandNames = Object.keys(this._commands).filter(command =>
+        command.startsWith(aName)
+      );
     }
 
     // If a single full command name matches the given (partial)
@@ -211,21 +238,26 @@ CommandsService.prototype = {
 
       // Get the 2 possible commands (the global and the proto specific).
       let commands = this._commands[commandName];
-      if (commands.hasOwnProperty(""))
+      if (commands.hasOwnProperty("")) {
         matches.push(commands[""]);
-      if (prplId && commands.hasOwnProperty(prplId))
+      }
+      if (prplId && commands.hasOwnProperty(prplId)) {
         matches.push(commands[prplId]);
+      }
 
       // Remove the commands that can't apply in this context.
-      if (aConversation)
+      if (aConversation) {
         matches = matches.filter(this._usageContextFilter(aConversation));
+      }
 
-      if (!matches.length)
+      if (!matches.length) {
         continue;
+      }
 
       // If we have found a second matching command name, return the empty array.
-      if (cmdArray.length)
+      if (cmdArray.length) {
         return [];
+      }
 
       cmdArray = matches;
     }
@@ -234,19 +266,24 @@ CommandsService.prototype = {
     return cmdArray.sort((a, b) => b.priority - a.priority);
   },
   executeCommand(aMessage, aConversation, aReturnedConv) {
-    if (!aMessage)
+    if (!aMessage) {
       throw Cr.NS_ERROR_INVALID_ARG;
+    }
 
     let matchResult;
-    if (aMessage[0] != "/" ||
-        !(matchResult = /^\/([a-z0-9]+)(?: |$)([\s\S]*)/.exec(aMessage)))
+    if (
+      aMessage[0] != "/" ||
+      !(matchResult = /^\/([a-z0-9]+)(?: |$)([\s\S]*)/.exec(aMessage))
+    ) {
       return false;
+    }
 
     let [, name, args] = matchResult;
 
     let cmdArray = this._findCommands(aConversation, name);
-    if (!cmdArray.length)
+    if (!cmdArray.length) {
       return false;
+    }
 
     // cmdArray contains commands sorted by priority, attempt to apply
     // them in order until one succeeds.

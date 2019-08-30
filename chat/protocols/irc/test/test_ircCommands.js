@@ -1,8 +1,8 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
-var {commands} = ChromeUtils.import("resource:///modules/ircCommands.jsm");
+var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { commands } = ChromeUtils.import("resource:///modules/ircCommands.jsm");
 
 var irc = {};
 Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
@@ -119,11 +119,12 @@ function testModeCommand() {
     },
   ];
 
-  let account = new irc.ircAccount(fakeProto,
-                                   {name: "defaultnick@instantbird.org"});
+  let account = new irc.ircAccount(fakeProto, {
+    name: "defaultnick@instantbird.org",
+  });
 
   // check if the message being sent is same as expected message.
-  account.sendRawMessage = (aMessage) => {
+  account.sendRawMessage = aMessage => {
     equal(aMessage, account._expectedMessage);
   };
 
@@ -172,13 +173,14 @@ function testUserModeCommand() {
     },
   ];
 
-  let account = new irc.ircAccount(fakeProto,
-                                   {name: "test_nick@instantbird.org"});
+  let account = new irc.ircAccount(fakeProto, {
+    name: "test_nick@instantbird.org",
+  });
   account._nickname = "test_nick";
   let conv = new irc.ircConversation(account, "newconv");
 
   // check if the message being sent is same as expected message.
-  account.sendRawMessage = (aMessage) => {
+  account.sendRawMessage = aMessage => {
     equal(aMessage, account._expectedMessage);
   };
 
@@ -196,8 +198,9 @@ function testUserModeCommand() {
 // Fetch the run() of a named command.
 function _getRunCommand(aCommandName) {
   for (let command of commands) {
-    if (command.name == aCommandName)
+    if (command.name == aCommandName) {
       return command.run;
+    }
   }
 
   // Fail if no command was found.

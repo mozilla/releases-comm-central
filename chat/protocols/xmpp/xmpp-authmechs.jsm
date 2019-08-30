@@ -12,10 +12,16 @@
 
 this.EXPORTED_SYMBOLS = ["XMPPAuthMechanisms"];
 
-const {CommonUtils} = ChromeUtils.import("resource://services-common/utils.js");
-const {CryptoUtils} = ChromeUtils.import("resource://services-crypto/utils.js");
-const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {Stanza} = ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
+const { CommonUtils } = ChromeUtils.import(
+  "resource://services-common/utils.js"
+);
+const { CryptoUtils } = ChromeUtils.import(
+  "resource://services-crypto/utils.js"
+);
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+var { Stanza } = ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
 XPCOMUtils.defineLazyGlobalGetters(this, ["crypto"]);
 
 // Handle PLAIN authorization mechanism.
@@ -26,18 +32,25 @@ function* PlainAuth(aUsername, aPassword, aDomain) {
   let base64Data = btoa(unescape(encodeURIComponent(data)));
 
   let stanza = yield {
-    send: Stanza.node("auth", Stanza.NS.sasl, {mechanism: "PLAIN"},
-                      base64Data),
-    log: '<auth mechanism:="PLAIN"/> (base64 encoded username and password not logged)',
+    send: Stanza.node(
+      "auth",
+      Stanza.NS.sasl,
+      { mechanism: "PLAIN" },
+      base64Data
+    ),
+    log:
+      '<auth mechanism:="PLAIN"/> (base64 encoded username and password not logged)',
   };
 
-  if (stanza.localName != "success")
+  if (stanza.localName != "success") {
     throw new Error("Didn't receive the expected auth success stanza.");
+  }
 }
 
 // Handle SCRAM-SHA-1 authorization mechanism.
 const RFC3454 = {
-  A1: "\u0221|[\u0234-\u024f]|[\u02ae-\u02af]|[\u02ef-\u02ff]|\
+  A1:
+    "\u0221|[\u0234-\u024f]|[\u02ae-\u02af]|[\u02ef-\u02ff]|\
 [\u0350-\u035f]|[\u0370-\u0373]|[\u0376-\u0379]|[\u037b-\u037d]|\
 [\u037f-\u0383]|\u038b|\u038d|\u03a2|\u03cf|[\u03f7-\u03ff]|\u0487|\
 \u04cf|[\u04f6-\u04f7]|[\u04fa-\u04ff]|[\u0510-\u0530]|\
@@ -120,14 +133,17 @@ const RFC3454 = {
 [\u{80000}-\u{8fffd}]|[\u{90000}-\u{9fffd}]|[\u{a0000}-\u{afffd}]|\
 [\u{b0000}-\u{bfffd}]|[\u{c0000}-\u{cfffd}]|[\u{d0000}-\u{dfffd}]|\
 \u{e0000}|[\u{e0002}-\u{e001f}]|[\u{e0080}-\u{efffd}]",
-  B1: "\u00ad|\u034f|\u1806|[\u180b-\u180d]|[\u200b-\u200d]|\u2060|\
+  B1:
+    "\u00ad|\u034f|\u1806|[\u180b-\u180d]|[\u200b-\u200d]|\u2060|\
 [\ufe00-\ufe0f]|\ufeff",
   C12: "\u00a0|\u1680|[\u2000-\u200b]|\u202f|\u205f|\u3000",
   C21: "[\u0000-\u001f]|\u007f",
-  C22: "[\u0080-\u009f]|\u06dd|\u070f|\u180e|\u200c|\u200d|\u2028|\u2029|\
+  C22:
+    "[\u0080-\u009f]|\u06dd|\u070f|\u180e|\u200c|\u200d|\u2028|\u2029|\
 [\u2060-\u2063]|[\u206a-\u206f]|\ufeff|[\ufff9-\ufffc]",
   C3: "[\ue000-\uf8ff]|[\u{f0000}-\u{ffffd}]|[\u{100000}-\u{10fffd}]",
-  C4: "[\ufdd0-\ufdef]|[\ufffe-\uffff]|[\u{1fffe}-\u{1ffff}]|\
+  C4:
+    "[\ufdd0-\ufdef]|[\ufffe-\uffff]|[\u{1fffe}-\u{1ffff}]|\
 [\u{2fffe}-\u{2ffff}]|[\u{3fffe}-\u{3ffff}]|[\u{4fffe}-\u{4ffff}]|\
 [\u{5fffe}-\u{5ffff}]|[\u{6fffe}-\u{6ffff}]|[\u{7fffe}-\u{7ffff}]|\
 [\u{8fffe}-\u{8ffff}]|[\u{9fffe}-\u{9ffff}]|[\u{afffe}-\u{affff}]|\
@@ -138,14 +154,16 @@ const RFC3454 = {
   C7: "[\u2ff0-\u2ffb]",
   C8: "\u0340|\u0341|\u200e|\u200f|[\u202a-\u202e]|[\u206a-\u206f]",
   C9: "\u{e0001}|[\u{e0020}-\u{e007f}]",
-  D1: "\u05be|\u05c0|\u05c3|[\u05d0-\u05ea]|[\u05f0-\u05f4]|\u061b|\u061f|\
+  D1:
+    "\u05be|\u05c0|\u05c3|[\u05d0-\u05ea]|[\u05f0-\u05f4]|\u061b|\u061f|\
 [\u0621-\u063a]|[\u0640-\u064a]|[\u066d-\u066f]|[\u0671-\u06d5]|\
 \u06dd|[\u06e5-\u06e6]|[\u06fa-\u06fe]|[\u0700-\u070d]|\u0710|\
 [\u0712-\u072c]|[\u0780-\u07a5]|\u07b1|\u200f|\ufb1d|[\ufb1f-\ufb28]|\
 [\ufb2a-\ufb36]|[\ufb38-\ufb3c]|\ufb3e|[\ufb40-\ufb41]|\
 [\ufb43-\ufb44]|[\ufb46-\ufbb1]|[\ufbd3-\ufd3d]|[\ufd50-\ufd8f]|\
 [\ufd92-\ufdc7]|[\ufdf0-\ufdfc]|[\ufe70-\ufe74]|[\ufe76-\ufefc]",
-  D2: "[\u0041-\u005a]|[\u0061-\u007a]|\u00aa|\u00b5|\u00ba|[\u00c0-\u00d6]|\
+  D2:
+    "[\u0041-\u005a]|[\u0061-\u007a]|\u00aa|\u00b5|\u00ba|[\u00c0-\u00d6]|\
 [\u00d8-\u00f6]|[\u00f8-\u0220]|[\u0222-\u0233]|[\u0250-\u02ad]|\
 [\u02b0-\u02b8]|[\u02bb-\u02c1]|[\u02d0-\u02d1]|[\u02e0-\u02e4]|\
 \u02ee|\u037a|\u0386|[\u0388-\u038a]|\u038c|[\u038e-\u03a1]|\
@@ -246,9 +264,10 @@ function createNonce(aLength) {
 function parseChallenge(aChallenge) {
   let attributes = {};
   aChallenge.split(",").forEach(value => {
-    let match =  /^(\w)=([\s\S]*)$/.exec(value);
-    if (match)
+    let match = /^(\w)=([\s\S]*)$/.exec(value);
+    if (match) {
       attributes[match[1]] = match[2];
+    }
   });
   return attributes;
 }
@@ -267,23 +286,47 @@ function saslPrep(aString) {
 
   // RFC 4013 2.3: Prohibited Output and 2.5: Unassigned Code Points.
   let matchStr =
-    RFC3454.C12 + "|" + RFC3454.C21 + "|" + RFC3454.C22 + "|" + RFC3454.C3 +
-    "|" + RFC3454.C4 + "|" + RFC3454.C5 + "|" + RFC3454.C6 + "|" + RFC3454.C7 +
-    "|" + RFC3454.C8 + "|" + RFC3454.C9 + "|" + RFC3454.A1;
+    RFC3454.C12 +
+    "|" +
+    RFC3454.C21 +
+    "|" +
+    RFC3454.C22 +
+    "|" +
+    RFC3454.C3 +
+    "|" +
+    RFC3454.C4 +
+    "|" +
+    RFC3454.C5 +
+    "|" +
+    RFC3454.C6 +
+    "|" +
+    RFC3454.C7 +
+    "|" +
+    RFC3454.C8 +
+    "|" +
+    RFC3454.C9 +
+    "|" +
+    RFC3454.A1;
   let match = new RegExp(matchStr, "u").test(retVal);
-  if (match)
+  if (match) {
     throw new Error("String contains prohibited characters");
+  }
 
   // RFC 4013 2.4: Bidirectional Characters.
   let r = new RegExp(RFC3454.D1, "u").test(retVal);
   let l = new RegExp(RFC3454.D2, "u").test(retVal);
-  if (l && r)
-    throw new Error("String must not contain LCat and RandALCat characters together");
-  else if (r) {
+  if (l && r) {
+    throw new Error(
+      "String must not contain LCat and RandALCat characters together"
+    );
+  } else if (r) {
     let matchFirst = new RegExp("^(" + RFC3454.D1 + ")", "u").test(retVal);
     let matchLast = new RegExp("(" + RFC3454.D1 + ")$", "u").test(retVal);
-    if (!matchFirst || !matchLast)
-      throw new Error("A RandALCat character must be the first and the last character");
+    if (!matchFirst || !matchLast) {
+      throw new Error(
+        "A RandALCat character must be the first and the last character"
+      );
+    }
   }
 
   return retVal;
@@ -294,17 +337,21 @@ function saslName(aName) {
   // RFC 5802 (5.1): the client SHOULD prepare the username using the "SASLprep".
   // The characters ’,’ or ’=’ in usernames are sent as ’=2C’ and
   // ’=3D’ respectively.
-  let saslName = saslPrep(aName).replace(/=/g, "=3D").replace(/,/g, "=2C");
-  if (!saslName)
+  let saslName = saslPrep(aName)
+    .replace(/=/g, "=3D")
+    .replace(/,/g, "=2C");
+  if (!saslName) {
     throw new Error("Name is not valid");
+  }
 
   return saslName;
 }
 
 // Converts aMessage to array of bytes then apply SHA-1 hashing.
 function bytesAndSHA1(aMessage) {
-  let hasher =
-    Cc["@mozilla.org/security/hash;1"].createInstance(Ci.nsICryptoHash);
+  let hasher = Cc["@mozilla.org/security/hash;1"].createInstance(
+    Ci.nsICryptoHash
+  );
   hasher.init(hasher.SHA1);
 
   return CryptoUtils.digestBytes(aMessage, hasher);
@@ -321,16 +368,26 @@ function bytesAndSHA1(aMessage) {
  * @param {string} iterations Number of iterations, a positive integer.
  * @param {string} len Desired output length in bytes.
  */
- async function pbkdf2Generate(passphrase, salt, iterations, len) {
+async function pbkdf2Generate(passphrase, salt, iterations, len) {
   passphrase = CommonUtils.byteStringToArrayBuffer(passphrase);
   salt = CommonUtils.byteStringToArrayBuffer(salt);
-  const key = await crypto.subtle.importKey("raw", passphrase, {name: "PBKDF2"}, false, ["deriveBits"]);
-  const output = await crypto.subtle.deriveBits({
+  const key = await crypto.subtle.importKey(
+    "raw",
+    passphrase,
+    { name: "PBKDF2" },
+    false,
+    ["deriveBits"]
+  );
+  const output = await crypto.subtle.deriveBits(
+    {
       name: "PBKDF2",
       hash: "SHA-1",
       salt,
       iterations,
-  }, key, len * 8);
+    },
+    key,
+    len * 8
+  );
   return CommonUtils.arrayBufferToByteString(new Uint8Array(output));
 }
 
@@ -340,17 +397,21 @@ function* scramSHA1Auth(aUsername, aPassword, aDomain, aNonce) {
   // If a hard-coded nonce was given (e.g. for testing), use it.
   let cNonce = aNonce ? aNonce : createNonce(32);
 
-  let clientFirstMessageBare =
-    "n=" + saslName(aUsername) + ",r=" + cNonce;
+  let clientFirstMessageBare = "n=" + saslName(aUsername) + ",r=" + cNonce;
   let clientFirstMessage = gs2Header + clientFirstMessageBare;
 
   let receivedStanza = yield {
-    send: Stanza.node("auth", Stanza.NS.sasl, {mechanism: "SCRAM-SHA-1"},
-                      btoa(clientFirstMessage)),
+    send: Stanza.node(
+      "auth",
+      Stanza.NS.sasl,
+      { mechanism: "SCRAM-SHA-1" },
+      btoa(clientFirstMessage)
+    ),
   };
 
-  if (receivedStanza.localName != "challenge")
+  if (receivedStanza.localName != "challenge") {
     throw new Error("Not authorized");
+  }
 
   // RFC 5802 (3): SCRAM Algorithm Overview.
   let decodedChallenge = atob(receivedStanza.innerText);
@@ -359,15 +420,18 @@ function* scramSHA1Auth(aUsername, aPassword, aDomain, aNonce) {
   // salt (s), and the server appends its own nonce to the client-specified
   // one (r).
   let attributes = parseChallenge(decodedChallenge);
-  if (attributes.hasOwnProperty("e"))
+  if (attributes.hasOwnProperty("e")) {
     throw new Error("Authentication failed: " + attributes.e);
-  else if (!attributes.hasOwnProperty("i") ||
-           !attributes.hasOwnProperty("s") ||
-           !attributes.hasOwnProperty("r")) {
+  } else if (
+    !attributes.hasOwnProperty("i") ||
+    !attributes.hasOwnProperty("s") ||
+    !attributes.hasOwnProperty("r")
+  ) {
     throw new Error("Unexpected response: " + decodedChallenge);
   }
-  if (!attributes.r.startsWith(cNonce))
+  if (!attributes.r.startsWith(cNonce)) {
     throw new Error("Nonce is not correct");
+  }
 
   let clientFinalMessageWithoutProof =
     "c=" + btoa(gs2Header) + ",r=" + attributes.r;
@@ -377,31 +441,40 @@ function* scramSHA1Auth(aUsername, aPassword, aDomain, aNonce) {
   // SaltedPassword := Hi(Normalize(password), salt, i)
   // Normalize using saslPrep.
   // dkLen MUST be equal to the SHA-1 digest size.
-  let passwordPromise = pbkdf2Generate(saslPrep(aPassword), atob(attributes.s),
-                                       parseInt(attributes.i), 20);
+  let passwordPromise = pbkdf2Generate(
+    saslPrep(aPassword),
+    atob(attributes.s),
+    parseInt(attributes.i),
+    20
+  );
 
   // The server signature is calculated below, but needs to escape back to the main scope.
   let serverSignature;
 
   // Once the promise resolves, continue with the handshake..
-  receivedStanza = yield passwordPromise.then((saltedPassword) => {
+  receivedStanza = yield passwordPromise.then(saltedPassword => {
     // ClientKey := HMAC(SaltedPassword, "Client Key")
-    let saltedPasswordHasher =
-      CryptoUtils.makeHMACHasher(Ci.nsICryptoHMAC.SHA1,
-                                 CryptoUtils.makeHMACKey(saltedPassword));
+    let saltedPasswordHasher = CryptoUtils.makeHMACHasher(
+      Ci.nsICryptoHMAC.SHA1,
+      CryptoUtils.makeHMACKey(saltedPassword)
+    );
     let clientKey = CryptoUtils.digestBytes("Client Key", saltedPasswordHasher);
 
     // StoredKey := H(ClientKey)
     let storedKey = bytesAndSHA1(clientKey);
 
     let authMessage =
-      clientFirstMessageBare + "," + decodedChallenge + "," +
+      clientFirstMessageBare +
+      "," +
+      decodedChallenge +
+      "," +
       clientFinalMessageWithoutProof;
 
     // ClientSignature := HMAC(StoredKey, AuthMessage)
-    let storedKeyHasher =
-      CryptoUtils.makeHMACHasher(Ci.nsICryptoHMAC.SHA1,
-                                 CryptoUtils.makeHMACKey(storedKey));
+    let storedKeyHasher = CryptoUtils.makeHMACHasher(
+      Ci.nsICryptoHMAC.SHA1,
+      CryptoUtils.makeHMACKey(storedKey)
+    );
     let clientSignature = CryptoUtils.digestBytes(authMessage, storedKeyHasher);
 
     // ClientProof := ClientKey XOR ClientSignature
@@ -413,36 +486,46 @@ function* scramSHA1Auth(aUsername, aPassword, aDomain, aNonce) {
     let serverKey = CryptoUtils.digestBytes("Server Key", saltedPasswordHasher);
 
     // ServerSignature := HMAC(ServerKey, AuthMessage)
-    let serverKeyHasher =
-      CryptoUtils.makeHMACHasher(Ci.nsICryptoHMAC.SHA1,
-                                 CryptoUtils.makeHMACKey(serverKey));
+    let serverKeyHasher = CryptoUtils.makeHMACHasher(
+      Ci.nsICryptoHMAC.SHA1,
+      CryptoUtils.makeHMACKey(serverKey)
+    );
     serverSignature = CryptoUtils.digestBytes(authMessage, serverKeyHasher);
 
     let clientFinalMessage =
       clientFinalMessageWithoutProof + ",p=" + btoa(clientProof);
 
     return {
-      send: Stanza.node("response", Stanza.NS.sasl, null, btoa(clientFinalMessage)),
-      log: "<response/> (base64 encoded SCRAM response containing password not logged)",
+      send: Stanza.node(
+        "response",
+        Stanza.NS.sasl,
+        null,
+        btoa(clientFinalMessage)
+      ),
+      log:
+        "<response/> (base64 encoded SCRAM response containing password not logged)",
     };
   });
 
   // Only check server signature if we succeed to authenticate.
-  if (receivedStanza.localName != "success")
+  if (receivedStanza.localName != "success") {
     throw new Error("Didn't receive the expected auth success stanza.");
+  }
 
   let decodedResponse = atob(receivedStanza.innerText);
 
   // Expected to contain a base64-encoded ServerSignature (v).
   attributes = parseChallenge(decodedResponse);
-  if (!attributes.hasOwnProperty("v"))
+  if (!attributes.hasOwnProperty("v")) {
     throw new Error("Unexpected response: " + decodedResponse);
+  }
 
   // Compare ServerSignature with our ServerSignature which we calculated in
   // _generateResponse.
   let serverSignatureResponse = atob(attributes.v);
-  if (serverSignature != serverSignatureResponse)
+  if (serverSignature != serverSignatureResponse) {
     throw new Error("Server signature does not match");
+  }
 }
 
-var XMPPAuthMechanisms = {"PLAIN": PlainAuth, "SCRAM-SHA-1": scramSHA1Auth};
+var XMPPAuthMechanisms = { PLAIN: PlainAuth, "SCRAM-SHA-1": scramSHA1Auth };

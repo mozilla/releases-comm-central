@@ -19,7 +19,9 @@
 
 this.EXPORTED_SYMBOLS = ["ircCAP"];
 
-const {ircHandlers} = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
+const { ircHandlers } = ChromeUtils.import(
+  "resource:///modules/ircHandlers.jsm"
+);
 
 /*
  * Parses a CAP message of the form:
@@ -30,7 +32,10 @@ const {ircHandlers} = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
  */
 function capMessage(aMessage) {
   // The CAP parameters are space separated as the last parameter.
-  let parameters = aMessage.params.slice(-1)[0].trim().split(" ");
+  let parameters = aMessage.params
+    .slice(-1)[0]
+    .trim()
+    .split(" ");
   // The subcommand is the second parameter...although sometimes it's the first
   // parameter.
   aMessage.cap = {
@@ -47,8 +52,9 @@ function capMessage(aMessage) {
     if ("-=~".includes(aParameter[0])) {
       message.cap.modifier = aParameter[0];
       aParameter = aParameter.substr(1);
-    } else
+    } else {
       message.cap.modifier = undefined;
+    }
 
     // The names are case insensitive, arbitrarily choose lowercase.
     message.cap.parameter = aParameter.toLowerCase();
@@ -67,27 +73,35 @@ var ircCAP = {
   isEnabled: () => true,
 
   commands: {
-    "CAP": function(aMessage) {
+    CAP(aMessage) {
       // [* | <nick>] <subcommand> :<parameters>
       let messages = capMessage(aMessage);
 
-      messages = messages.filter(aMessage =>
-        !ircHandlers.handleCAPMessage(this, aMessage));
+      messages = messages.filter(
+        aMessage => !ircHandlers.handleCAPMessage(this, aMessage)
+      );
       if (messages.length) {
         // Display the list of unhandled CAP messages.
-        let unhandledMessages =
-          messages.map(aMsg => aMsg.cap.parameter).join(" ");
-        this.LOG("Unhandled CAP messages: " + unhandledMessages +
-                 "\nRaw message: " + aMessage.rawMessage);
+        let unhandledMessages = messages
+          .map(aMsg => aMsg.cap.parameter)
+          .join(" ");
+        this.LOG(
+          "Unhandled CAP messages: " +
+            unhandledMessages +
+            "\nRaw message: " +
+            aMessage.rawMessage
+        );
       }
 
       // If no CAP handlers were added, just tell the server we're done.
-      if (aMessage.cap.subcommand == "LS" && !this._caps.size)
+      if (aMessage.cap.subcommand == "LS" && !this._caps.size) {
         this.sendMessage("CAP", "END");
+      }
       return true;
     },
 
-    "410": function(aMessage) { // ERR_INVALIDCAPCMD
+    "410": function(aMessage) {
+      // ERR_INVALIDCAPCMD
       // <unrecognized subcommand> :Invalid CAP subcommand
       this.WARN("Invalid subcommand: " + aMessage.params[1]);
       return true;

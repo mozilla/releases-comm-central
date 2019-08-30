@@ -15,8 +15,10 @@ var accountOptionsHelper = {
     container.appendChild(label);
 
     let hbox = document.createXULElement("hbox");
-    let textbox = (aType != "number") ? document.createXULElement("textbox") :
-      document.createElementNS("http://www.w3.org/1999/xhtml", "input");
+    let textbox =
+      aType != "number"
+        ? document.createXULElement("textbox")
+        : document.createElementNS("http://www.w3.org/1999/xhtml", "input");
     if (aType == "number") {
       textbox.style.width = "100%";
     }
@@ -87,10 +89,14 @@ var accountOptionsHelper = {
           vbox.appendChild(hbox);
           break;
         case Ci.prplIPref.typeInt:
-          vbox.appendChild(this.createTextbox("number", opt.getInt(), text, name));
+          vbox.appendChild(
+            this.createTextbox("number", opt.getInt(), text, name)
+          );
           break;
         case Ci.prplIPref.typeString:
-          vbox.appendChild(this.createTextbox(null, opt.getString(), text, name));
+          vbox.appendChild(
+            this.createTextbox(null, opt.getString(), text, name)
+          );
           break;
         case Ci.prplIPref.typeList:
           vbox.appendChild(this.createMenulist(opt.getList(), text, name));
@@ -101,8 +107,9 @@ var accountOptionsHelper = {
       }
       if (aAttributes && aAttributes[opt.type]) {
         let element = document.getElementById(name);
-        for (let attr of aAttributes[opt.type])
+        for (let attr of aAttributes[opt.type]) {
           element.setAttribute(attr.name, attr.value);
+        }
       }
       haveOptions = true;
     }

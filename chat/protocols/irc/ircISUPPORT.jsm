@@ -14,7 +14,9 @@
 
 this.EXPORTED_SYMBOLS = ["ircISUPPORT", "isupportBase"];
 
-const {ircHandlers} = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
+const { ircHandlers } = ChromeUtils.import(
+  "resource:///modules/ircHandlers.jsm"
+);
 
 /*
  * Parses an ircMessage into an ISUPPORT message for each token of the form:
@@ -35,8 +37,10 @@ function isupportMessage(aMessage) {
   return tokens.map(function(aToken) {
     let newMessage = JSON.parse(JSON.stringify(message));
     newMessage.isupport.useDefault = aToken[0] == "-";
-    let token =
-      (newMessage.isupport.useDefault ? aToken.slice(1) : aToken).split("=");
+    let token = (newMessage.isupport.useDefault
+      ? aToken.slice(1)
+      : aToken
+    ).split("=");
     newMessage.isupport.parameter = token[0];
     newMessage.isupport.value = token[1] || null;
     return newMessage;
@@ -55,14 +59,20 @@ var ircISUPPORT = {
     "005": function(aMessage) {
       let messages = isupportMessage(aMessage);
 
-      messages = messages.filter(aMessage =>
-        !ircHandlers.handleISUPPORTMessage(this, aMessage));
+      messages = messages.filter(
+        aMessage => !ircHandlers.handleISUPPORTMessage(this, aMessage)
+      );
       if (messages.length) {
         // Display the list of unhandled ISUPPORT messages.
-        let unhandledMessages =
-          messages.map(aMsg => aMsg.isupport.parameter).join(" ");
-        this.LOG("Unhandled ISUPPORT messages: " + unhandledMessages +
-                 "\nRaw message: " + aMessage.rawMessage);
+        let unhandledMessages = messages
+          .map(aMsg => aMsg.isupport.parameter)
+          .join(" ");
+        this.LOG(
+          "Unhandled ISUPPORT messages: " +
+            unhandledMessages +
+            "\nRaw message: " +
+            aMessage.rawMessage
+        );
       }
 
       return true;
@@ -71,15 +81,17 @@ var ircISUPPORT = {
 };
 
 function setSimpleNumber(aAccount, aField, aMessage, aDefaultValue) {
-  let value =
-    aMessage.isupport.value ? Number(aMessage.isupport.value) : null;
-  aAccount[aField] = (value && !isNaN(value)) ? value : aDefaultValue;
+  let value = aMessage.isupport.value ? Number(aMessage.isupport.value) : null;
+  aAccount[aField] = value && !isNaN(value) ? value : aDefaultValue;
   return true;
 }
 
 // Generates an expression to search for the ASCII range of a-b.
 function generateNormalize(a, b) {
-  return new RegExp("[\\x" + a.toString(16) + "-\\x" + b.toString(16) + "]", "g");
+  return new RegExp(
+    "[\\x" + a.toString(16) + "-\\x" + b.toString(16) + "]",
+    "g"
+  );
 }
 
 var isupportBase = {
@@ -88,14 +100,15 @@ var isupportBase = {
   isEnabled: () => true,
 
   commands: {
-    "CASEMAPPING": function(aMessage) {
+    CASEMAPPING(aMessage) {
       // CASEMAPPING=<mapping>
       // Allows the server to specify which method it uses to compare equality
       // of case-insensitive strings.
 
       // By default, use rfc1459 type case mapping.
-      let value = aMessage.isupport.useDefault ?
-        "rfc1493" : aMessage.isupport.value;
+      let value = aMessage.isupport.useDefault
+        ? "rfc1493"
+        : aMessage.isupport.value;
 
       // Set the normalize function of the account to use the proper case
       // mapping.
@@ -103,20 +116,18 @@ var isupportBase = {
         // The ASCII characters 97 to 122 (decimal) are the lower-case
         // characters of ASCII 65 to 90 (decimal).
         this.normalizeExpression = generateNormalize(65, 90);
-      }
-      else if (value == "rfc1493") {
+      } else if (value == "rfc1493") {
         // The ASCII characters 97 to 126 (decimal) are the lower-case
         // characters of ASCII 65 to 94 (decimal).
         this.normalizeExpression = generateNormalize(65, 94);
-      }
-      else if (value == "strict-rfc1459") {
+      } else if (value == "strict-rfc1459") {
         // The ASCII characters 97 to 125 (decimal) are the lower-case
         // characters of ASCII 65 to 93 (decimal).
         this.normalizeExpression = generateNormalize(65, 93);
       }
       return true;
     },
-    "CHANLIMIT": function(aMessage) {
+    CHANLIMIT(aMessage) {
       // CHANLIMIT=<prefix>:<number>[,<prefix>:<number>]*
       // Note that each <prefix> can actually contain multiple prefixes, this
       // means the sum of those prefixes is given.
@@ -129,43 +140,45 @@ var isupportBase = {
       }
       return true;
     },
-    "CHANMODES": aMessage => false,
-    "CHANNELLEN": function(aMessage) {
+    CHANMODES: aMessage => false,
+    CHANNELLEN(aMessage) {
       // CHANNELLEN=<number>
       // Default is from RFC 1493.
       return setSimpleNumber(this, "maxChannelLength", aMessage, 200);
     },
-    "CHANTYPES": function(aMessage) {
+    CHANTYPES(aMessage) {
       // CHANTYPES=[<channel prefix>]*
       let value = aMessage.isupport.useDefault ? "#&" : aMessage.isupport.value;
       this.channelPrefixes = value.split("");
       return true;
     },
-    "EXCEPTS": aMessage => false,
-    "IDCHAN": aMessage => false,
-    "INVEX": aMessage => false,
-    "KICKLEN": function(aMessage) {
+    EXCEPTS: aMessage => false,
+    IDCHAN: aMessage => false,
+    INVEX: aMessage => false,
+    KICKLEN(aMessage) {
       // KICKLEN=<number>
       // Default value is Infinity.
       return setSimpleNumber(this, "maxKickLength", aMessage, Infinity);
     },
-    "MAXLIST": aMessage => false,
-    "MODES": aMessage => false,
-    "NETWORK": aMessage => false,
-    "NICKLEN": function(aMessage) {
+    MAXLIST: aMessage => false,
+    MODES: aMessage => false,
+    NETWORK: aMessage => false,
+    NICKLEN(aMessage) {
       // NICKLEN=<number>
       // Default value is from RFC 1493.
       return setSimpleNumber(this, "maxNicknameLength", aMessage, 9);
     },
-    "PREFIX": function(aMessage) {
+    PREFIX(aMessage) {
       // PREFIX=[(<mode character>*)<prefix>*]
-      let value =
-        aMessage.isupport.useDefault ? "(ov)@+" : aMessage.isupport.value;
+      let value = aMessage.isupport.useDefault
+        ? "(ov)@+"
+        : aMessage.isupport.value;
 
       this.userPrefixToModeMap = {};
       // A null value specifier indicates that no prefixes are supported.
-      if (!value.length)
+      if (!value.length) {
         return true;
+      }
 
       let matches = /\(([a-z]*)\)(.*)/i.exec(value);
       if (!matches) {
@@ -174,31 +187,34 @@ var isupportBase = {
         return false;
       }
       if (matches[1].length != matches[2].length) {
-        this.WARN("Invalid PREFIX value, does not provide one-to-one mapping:" +
-                  value);
+        this.WARN(
+          "Invalid PREFIX value, does not provide one-to-one mapping:" + value
+        );
         return false;
       }
 
-      for (let i = 0; i < matches[2].length; i++)
+      for (let i = 0; i < matches[2].length; i++) {
         this.userPrefixToModeMap[matches[2][i]] = matches[1][i];
+      }
       return true;
     },
     // SAFELIST allows the client to request the server buffer LIST responses to
     // avoid flooding the client. This is not an issue for us, so just ignore
     // it.
-    "SAFELIST": aMessage => true,
+    SAFELIST: aMessage => true,
     // SECURELIST tells us that the server won't send LIST data directly after
     // connection. Unfortunately, the exact time the client has to wait is
     // configurable, so we can't do anything with this information.
-    "SECURELIST": aMessage => true,
-    "STATUSMSG": aMessage => false,
-    "STD": function(aMessage) {
+    SECURELIST: aMessage => true,
+    STATUSMSG: aMessage => false,
+    STD(aMessage) {
       // This was never updated as the RFC was never formalized.
-      if (aMessage.isupport.value != "rfcnnnn")
+      if (aMessage.isupport.value != "rfcnnnn") {
         this.WARN("Unknown ISUPPORT numeric form: " + aMessage.isupport.value);
+      }
       return true;
     },
-    "TARGMAX": function(aMessage) {
+    TARGMAX(aMessage) {
       // TARGMAX=<command>:<max targets>[,<command>:<max targets>]*
       if (aMessage.isupport.useDefault) {
         this.maxTargets = 1;
@@ -218,17 +234,17 @@ var isupportBase = {
       }
       return true;
     },
-    "TOPICLEN": function(aMessage) {
+    TOPICLEN(aMessage) {
       // TOPICLEN=<number>
       // Default value is Infinity.
       return setSimpleNumber(this, "maxTopicLength", aMessage, Infinity);
     },
 
     // The following are considered "obsolete" by the RFC, but are still in use.
-    "CHARSET": aMessage => false,
-    "MAXBANS": aMessage => false,
-    "MAXCHANNELS": aMessage => false,
-    "MAXTARGETS": function(aMessage) {
+    CHARSET: aMessage => false,
+    MAXBANS: aMessage => false,
+    MAXCHANNELS: aMessage => false,
+    MAXTARGETS(aMessage) {
       return setSimpleNumber(this, "maxTargets", aMessage, 1);
     },
   },

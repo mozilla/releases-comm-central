@@ -2,8 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
-const {updateAppInfo} = ChromeUtils.import("resource://testing-common/AppInfo.jsm");
+var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+const { updateAppInfo } = ChromeUtils.import(
+  "resource://testing-common/AppInfo.jsm"
+);
 
 function run_test() {
   do_get_profile();
@@ -28,7 +30,10 @@ function run_test() {
     Assert.equal(account.name, kAccountName);
     Assert.equal(account.normalizedName, kAccountName);
     Assert.equal(account.protocol.id, kPrplId);
-    Assert.equal(account.connectionErrorReason, Ci.imIAccount.ERROR_UNKNOWN_PRPL);
+    Assert.equal(
+      account.connectionErrorReason,
+      Ci.imIAccount.ERROR_UNKNOWN_PRPL
+    );
   } finally {
     Services.core.quit();
 

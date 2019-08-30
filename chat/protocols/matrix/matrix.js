@@ -30,7 +30,11 @@ XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/matrix.properties")
 );
 
-ChromeUtils.defineModuleGetter(this, "MatrixSDK", "resource:///modules/matrix-sdk.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "MatrixSDK",
+  "resource:///modules/matrix-sdk.jsm"
+);
 
 function MatrixParticipant(aRoomMember) {
   // FIXME: Should probably use aRoomMember.name, but it's not unique id?
@@ -39,7 +43,9 @@ function MatrixParticipant(aRoomMember) {
 }
 MatrixParticipant.prototype = {
   __proto__: GenericConvChatBuddyPrototype,
-  get alias() { return this._roomMember.name; },
+  get alias() {
+    return this._roomMember.name;
+  },
 };
 
 /*
@@ -50,8 +56,7 @@ MatrixParticipant.prototype = {
  *  setPowerLevel
  *  setRoomTopic
  */
-function MatrixConversation(aAccount, aName, aNick)
-{
+function MatrixConversation(aAccount, aName, aNick) {
   this._init(aAccount, aName, aNick);
 }
 MatrixConversation.prototype = {
@@ -59,15 +64,20 @@ MatrixConversation.prototype = {
   sendMsg(aMsg) {
     this._account._client.sendTextMessage(this._roomId, aMsg);
   },
-  get room() { return this._account._client.getRoom(this._roomId); },
+  get room() {
+    return this._account._client.getRoom(this._roomId);
+  },
   addParticipant(aRoomMember) {
-    if (this._participants.has(aRoomMember.userId))
+    if (this._participants.has(aRoomMember.userId)) {
       return;
+    }
 
     let participant = new MatrixParticipant(aRoomMember);
     this._participants.set(aRoomMember.userId, participant);
-    this.notifyObservers(new nsSimpleEnumerator([participant]),
-                         "chat-buddy-add");
+    this.notifyObservers(
+      new nsSimpleEnumerator([participant]),
+      "chat-buddy-add"
+    );
   },
   initListOfParticipants() {
     let conv = this;
@@ -79,9 +89,12 @@ MatrixConversation.prototype = {
         conv._participants.set(aRoomMember.userId, participant);
       }
     });
-    if (participants.length)
-      this.notifyObservers(new nsSimpleEnumerator(participants),
-                           "chat-buddy-add");
+    if (participants.length) {
+      this.notifyObservers(
+        new nsSimpleEnumerator(participants),
+        "chat-buddy-add"
+      );
+    }
   },
 };
 
@@ -98,15 +111,18 @@ MatrixConversation.prototype = {
  *  setPassword
  *  setPresence
  */
-function MatrixAccount(aProtocol, aImAccount)
-{
+function MatrixAccount(aProtocol, aImAccount) {
   this._init(aProtocol, aImAccount);
 }
 MatrixAccount.prototype = {
   __proto__: GenericAccountPrototype,
   observe(aSubject, aTopic, aData) {},
-  remove() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-  unInit() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
+  remove() {
+    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+  },
+  unInit() {
+    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+  },
   connect() {
     this.reportConnecting();
     let baseURL = this.getString("server") + ":" + this.getInt("port");
@@ -119,19 +135,25 @@ MatrixAccount.prototype = {
       .then(function(data) {
         // TODO: Check data.errcode to pass more accurate value as the first
         // parameter of reportDisconnecting.
-        if (data.error)
+        if (data.error) {
           throw new Error(data.error);
+        }
         account._client = MatrixSDK.createClient({
           baseUrl: baseURL,
           accessToken: data.access_token,
           userId: data.user_id,
         });
         account.startClient();
-      }).catch(function(error) {
-        account.reportDisconnecting(Ci.prplIAccount.ERROR_OTHER_ERROR, error.message);
+      })
+      .catch(function(error) {
+        account.reportDisconnecting(
+          Ci.prplIAccount.ERROR_OTHER_ERROR,
+          error.message
+        );
         account._client = null;
         account.reportDisconnected();
-      }).done();
+      })
+      .done();
   },
   /*
    * Hook up the Matrix Client to callbacks to handle various events.
@@ -145,30 +167,36 @@ MatrixAccount.prototype = {
       switch (state) {
         case "PREPARED":
           account.reportConnected();
-        break;
+          break;
         case "STOPPED":
           // XXX Report disconnecting here?
           account._client.logout().done(function() {
             account.reportDisconnected();
             account._client = null;
           });
-        break;
+          break;
         // TODO: Handle other states (RECONNECTING, ERROR, SYNCING).
       }
     });
-    this._client.on("RoomMember.membership", function(event, member, oldMembership) {
+    this._client.on("RoomMember.membership", function(
+      event,
+      member,
+      oldMembership
+    ) {
       if (member.roomId in account._roomList) {
         var room = account._roomList[member.roomId];
-        if (member.membership === "join")
+        if (member.membership === "join") {
           room.addParticipant(member);
-        else
+        } else {
           room.removeParticipant(member.userId);
+        }
       }
     });
     this._client.on("Room.timeline", function(event, room, toStartOfTimeline) {
       // TODO: Better handle messages!
-      if (toStartOfTimeline)
+      if (toStartOfTimeline) {
         return;
+      }
       if (room.roomId in account._roomList) {
         let body;
         if (event.getType() === "m.room.message") {
@@ -176,8 +204,9 @@ MatrixAccount.prototype = {
         } else {
           body = JSON.stringify(event.getContent());
         }
-        account._roomList[room.roomId].
-          writeMessage(event.getSender(), body, { incoming: true });
+        account._roomList[room.roomId].writeMessage(event.getSender(), body, {
+          incoming: true,
+        });
       }
     });
 
@@ -199,15 +228,20 @@ MatrixAccount.prototype = {
     this._client.startClient();
   },
   disconnect() {
-    if (this._client)
+    if (this._client) {
       this._client.stopClient();
+    }
   },
 
-  get canJoinChat() { return true; },
+  get canJoinChat() {
+    return true;
+  },
   chatRoomFields: {
     // XXX Does it make sense to split up the server into a separate field?
     roomIdOrAlias: {
-      get label() { return _("chatRoomField.room"); },
+      get label() {
+        return _("chatRoomField.room");
+      },
       required: true,
     },
   },
@@ -224,21 +258,26 @@ MatrixAccount.prototype = {
     // For the format of room id and alias, see the matrix documentation:
     // https://matrix.org/docs/spec/intro.html#room-structure
     // https://matrix.org/docs/spec/intro.html#room-aliases
-    if (!roomIdOrAlias.endsWith(":" + domain))
+    if (!roomIdOrAlias.endsWith(":" + domain)) {
       roomIdOrAlias += ":" + domain;
-    if (!roomIdOrAlias.match("^[!#]"))
+    }
+    if (!roomIdOrAlias.match("^[!#]")) {
       roomIdOrAlias = "#" + roomIdOrAlias;
+    }
 
     // TODO: Use getRoom to find existing conversation?
     let conv = new MatrixConversation(this, roomIdOrAlias, this.userId);
     conv.joining = true;
     let account = this;
-    this._client.joinRoom(roomIdOrAlias).then(function(room) {
-      conv._roomId = room.roomId;
-      account._roomList[room.roomId] = conv;
-      conv.initListOfParticipants();
-      conv.joining = false;
-    }).catch(function(error) {
+    this._client
+      .joinRoom(roomIdOrAlias)
+      .then(function(room) {
+        conv._roomId = room.roomId;
+        account._roomList[room.roomId] = conv;
+        conv.initListOfParticipants();
+        conv.joining = false;
+      })
+      .catch(function(error) {
         // TODO: Handle errors?
         // XXX We probably want to display an error in the open conversation
         //     window and leave it as unjoined.
@@ -246,38 +285,56 @@ MatrixAccount.prototype = {
         conv.close();
 
         // TODO Perhaps we should call createRoom if the room doesn't exist.
-    }).done();
+      })
+      .done();
     return conv;
   },
-  createConversation(aName) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
+  createConversation(aName) {
+    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+  },
 
-  get userId() { return this._client.credentials.userId; },
+  get userId() {
+    return this._client.credentials.userId;
+  },
   _client: null,
   _roomList: new Map(),
 };
 
-function MatrixProtocol() {
-}
+function MatrixProtocol() {}
 MatrixProtocol.prototype = {
   __proto__: GenericProtocolPrototype,
-  get normalizedName() { return "matrix"; },
-  get name() { return "Matrix"; },
-  get iconBaseURI() { return "chrome://prpl-matrix/skin/"; },
-  getAccount(aImAccount) { return new MatrixAccount(this, aImAccount); },
+  get normalizedName() {
+    return "matrix";
+  },
+  get name() {
+    return "Matrix";
+  },
+  get iconBaseURI() {
+    return "chrome://prpl-matrix/skin/";
+  },
+  getAccount(aImAccount) {
+    return new MatrixAccount(this, aImAccount);
+  },
 
   options: {
     // XXX Default to matrix.org once we support connection as guest?
     server: {
-      get label() { return _("options.connectServer"); },
+      get label() {
+        return _("options.connectServer");
+      },
       default: "https://",
     },
     port: {
-      get label() { return _("options.connectPort"); },
+      get label() {
+        return _("options.connectPort");
+      },
       default: 443,
     },
   },
 
-  get chatHasTopic() { return true; },
+  get chatHasTopic() {
+    return true;
+  },
 
   classID: Components.ID("{e9653ac6-a671-11e6-bf84-60a44c717042}"),
 };

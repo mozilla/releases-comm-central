@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {ctypes} = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
-const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
+const { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
+const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 
 var OS = Services.appinfo.OS.toLowerCase();
 
@@ -19,24 +19,24 @@ var strdup = "strdup";
 var fopen = "fopen";
 
 switch (OS) {
-case "win32":
-case "winnt":
-  libcAbi = ctypes.winapi_abi;
-  libcPath = ctypes.libraryName("msvcrt");
-  strdup = "_strdup";
-  fopen = "_wfopen";
-  fname_t = wchar_t.ptr;
-  break;
-case "darwin":
-  libcAbi = ctypes.default_abi;
-  libcPath = ctypes.libraryName("c");
-  break;
-case "linux":
-  libcAbi = ctypes.default_abi;
-  libcPath = "libc.so.6";
-  break;
-default:
-  throw new Error("Unknown OS");
+  case "win32":
+  case "winnt":
+    libcAbi = ctypes.winapi_abi;
+    libcPath = ctypes.libraryName("msvcrt");
+    strdup = "_strdup";
+    fopen = "_wfopen";
+    fname_t = wchar_t.ptr;
+    break;
+  case "darwin":
+    libcAbi = ctypes.default_abi;
+    libcPath = ctypes.libraryName("c");
+    break;
+  case "linux":
+    libcAbi = ctypes.default_abi;
+    libcPath = "libc.so.6";
+    break;
+  default:
+    throw new Error("Unknown OS");
 }
 
 var libc = ctypes.open(libcPath);
@@ -44,30 +44,18 @@ var libc = ctypes.open(libcPath);
 var CLib = {
   FILE,
   memcmp: libc.declare(
-    "memcmp", libcAbi, ctypes.int,
+    "memcmp",
+    libcAbi,
+    ctypes.int,
     ctypes.void_t.ptr,
     ctypes.void_t.ptr,
     ctypes.size_t
   ),
-  free: libc.declare(
-    "free", libcAbi, ctypes.void_t,
-    ctypes.void_t.ptr
-  ),
-  strdup: libc.declare(
-    strdup, libcAbi, ctypes.char.ptr,
-    ctypes.char.ptr
-  ),
-  fclose: libc.declare(
-    "fclose", libcAbi, ctypes.int,
-    FILE.ptr
-  ),
-  fopen: libc.declare(
-    fopen, libcAbi, FILE.ptr,
-    fname_t,
-    fname_t
-  ),
+  free: libc.declare("free", libcAbi, ctypes.void_t, ctypes.void_t.ptr),
+  strdup: libc.declare(strdup, libcAbi, ctypes.char.ptr, ctypes.char.ptr),
+  fclose: libc.declare("fclose", libcAbi, ctypes.int, FILE.ptr),
+  fopen: libc.declare(fopen, libcAbi, FILE.ptr, fname_t, fname_t),
 };
-
 
 // exports
 

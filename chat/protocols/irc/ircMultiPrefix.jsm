@@ -17,7 +17,9 @@
 
 this.EXPORTED_SYMBOLS = ["isupportNAMESX", "capMultiPrefix"];
 
-const {ircHandlers} = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
+const { ircHandlers } = ChromeUtils.import(
+  "resource:///modules/ircHandlers.jsm"
+);
 
 var isupportNAMESX = {
   name: "ISUPPORT NAMESX",
@@ -26,7 +28,7 @@ var isupportNAMESX = {
   isEnabled: () => true,
 
   commands: {
-    "NAMESX": function(aMessage) {
+    NAMESX(aMessage) {
       this.sendMessage("PROTOCTL", "NAMESX");
       return true;
     },
@@ -45,11 +47,11 @@ var capMultiPrefix = {
       if (aMessage.cap.subcommand == "LS") {
         this.addCAP("multi-prefix");
         this.sendMessage("CAP", ["REQ", "multi-prefix"]);
-      }
-      else if (aMessage.cap.subcommand == "ACK")
+      } else if (aMessage.cap.subcommand == "ACK") {
         this.removeCAP("multi-prefix");
-      else
+      } else {
         return false;
+      }
       return true;
     },
   },

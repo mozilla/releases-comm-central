@@ -12,28 +12,37 @@
  *     http://www.stack.nl/~jilles/cgi-bin/hgwebdir.cgi/irc-documentation-jilles/raw-file/tip/reference/draft-meglio-irc-watch-00.txt
  */
 
-this.EXPORTED_SYMBOLS = ["ircWATCH", "isupportWATCH", "ircMONITOR",
-                          "isupportMONITOR"];
+this.EXPORTED_SYMBOLS = [
+  "ircWATCH",
+  "isupportWATCH",
+  "ircMONITOR",
+  "isupportMONITOR",
+];
 
-var {clearTimeout} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-const {ircHandlers} = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
+var { clearTimeout } = ChromeUtils.import(
+  "resource:///modules/imXPCOMUtils.jsm"
+);
+const { ircHandlers } = ChromeUtils.import(
+  "resource:///modules/ircHandlers.jsm"
+);
 
 function setStatus(aAccount, aNick, aStatus) {
-  if (!aAccount.watchEnabled && !aAccount.monitorEnabled)
+  if (!aAccount.watchEnabled && !aAccount.monitorEnabled) {
     return false;
+  }
 
   if (aStatus == "AWAY") {
     // We need to request the away message.
     aAccount.requestCurrentWhois(aNick);
-  }
-  else {
+  } else {
     // Clear the WHOIS information.
     aAccount.removeBuddyInfo(aNick);
   }
 
   let buddy = aAccount.buddies.get(aNick);
-  if (!buddy)
+  if (!buddy) {
     return false;
+  }
   buddy.setStatus(Ci.imIStatusInfo["STATUS_" + aStatus], "");
   return true;
 }
@@ -49,13 +58,19 @@ function trackBuddyWatch(aNicks) {
   }
 
   let nicks = aNicks.map(aNick => "+" + aNick);
-  if (!nicks.length)
+  if (!nicks.length) {
     return;
+  }
 
   let newWatchLength = this.watchLength + nicks.length;
   if (newWatchLength > this.maxWatchLength) {
-    this.WARN("Attempting to WATCH " + newWatchLength +
-              " nicks; maximum size is " + this.maxWatchLength + ".");
+    this.WARN(
+      "Attempting to WATCH " +
+        newWatchLength +
+        " nicks; maximum size is " +
+        this.maxWatchLength +
+        "."
+    );
     // TODO We should trim the list and add the extra users to an ISON queue,
     // but that's not currently implemented, so just hope the server doesn't
     // enforce it's own limit.
@@ -64,18 +79,22 @@ function trackBuddyWatch(aNicks) {
 
   // Watch away as well as online.
   let params = [];
-  if (this.watchAwayEnabled)
+  if (this.watchAwayEnabled) {
     params.push("A");
-  let maxLength = this.maxMessageLength - 2 -
-                  this.countBytes(this.buildMessage("WATCH", params));
+  }
+  let maxLength =
+    this.maxMessageLength -
+    2 -
+    this.countBytes(this.buildMessage("WATCH", params));
   for (let nick of nicks) {
     if (this.countBytes(params + " " + nick) >= maxLength) {
       // If the message would be too long, first send this message.
       this.sendMessage("WATCH", params);
       // Reset for the next message.
       params = [];
-      if (this.watchAwayEnabled)
+      if (this.watchAwayEnabled) {
         params.push("A");
+      }
     }
     params.push(nick);
   }
@@ -94,13 +113,14 @@ var isupportWATCH = {
   isEnabled: () => true,
 
   commands: {
-    "WATCH": function(aMessage) {
-      if (!aMessage.isupport.useDefault)
+    WATCH(aMessage) {
+      if (!aMessage.isupport.useDefault) {
         this.maxWatchLength = 128;
-      else {
+      } else {
         let size = parseInt(aMessage.isupport.value, 10);
-        if (isNaN(size))
+        if (isNaN(size)) {
           return false;
+        }
         this.maxWatchLength = size;
       }
 
@@ -116,16 +136,17 @@ var isupportWATCH = {
       return true;
     },
 
-    "WATCHOPTS": function(aMessage) {
+    WATCHOPTS(aMessage) {
       const watchOptToOption = {
-        "H": "watchMasksEnabled",
-        "A": "watchAwayEnabled",
+        H: "watchMasksEnabled",
+        A: "watchAwayEnabled",
       };
 
       // For each option, mark it as supported.
       aMessage.isupport.value.split("").forEach(function(aWatchOpt) {
-        if (watchOptToOption.hasOwnProperty(aWatchOpt))
+        if (watchOptToOption.hasOwnProperty(aWatchOpt)) {
           this[watchOptToOption[aWatchOpt]] = true;
+        }
       }, this);
 
       return true;
@@ -138,10 +159,13 @@ var ircWATCH = {
   // Slightly above default IRC priority.
   priority: ircHandlers.DEFAULT_PRIORITY + 10,
   // Use WATCH if it is supported.
-  isEnabled() { return !!this.watchEnabled; },
+  isEnabled() {
+    return !!this.watchEnabled;
+  },
 
   commands: {
-    "251": function(aMessage) { // RPL_LUSERCLIENT
+    "251": function(aMessage) {
+      // RPL_LUSERCLIENT
       // ":There are <integer> users and <integer> services on <integer> servers"
       // Assume that this will always be sent after the 005 handler on
       // connection registration. If WATCH is enabled, then set the new function
@@ -160,101 +184,127 @@ var ircWATCH = {
       return false;
     },
 
-    "301": function(aMessage) { // RPL_AWAY
+    "301": function(aMessage) {
+      // RPL_AWAY
       // <nick> :<away message>
       // Set the received away message.
       let buddy = this.buddies.get(aMessage.params[1]);
-      if (buddy)
+      if (buddy) {
         buddy.setStatus(Ci.imIStatusInfo.STATUS_AWAY, aMessage.params[2]);
+      }
 
       // Fall through to the other implementations after setting the status
       // message.
       return false;
     },
 
-    "303": function(aMessage) { // RPL_ISON
+    "303": function(aMessage) {
+      // RPL_ISON
       // :*1<nick> *( " " <nick> )
       // We don't want ircBase to interfere with us, so override the ISON
       // handler to do nothing.
       return true;
     },
 
-    "512": function(aMessage) { // ERR_TOOMANYWATCH
+    "512": function(aMessage) {
+      // ERR_TOOMANYWATCH
       // Maximum size for WATCH-list is <watchlimit> entries
-      this.ERROR("Maximum size for WATCH list exceeded (" + this.watchLength +
-                 ").");
+      this.ERROR(
+        "Maximum size for WATCH list exceeded (" + this.watchLength + ")."
+      );
       return true;
     },
 
-    "597": function(aMessage) { // RPL_REAWAY
+    "597": function(aMessage) {
+      // RPL_REAWAY
       // <nickname> <username> <hostname> <awaysince> :<away reason>
       return setStatus(this, aMessage.params[1], "AWAY");
     },
 
-    "598": function(aMessage) { // RPL_GONEAWAY
+    "598": function(aMessage) {
+      // RPL_GONEAWAY
       // <nickname> <username> <hostname> <awaysince> :<away reason>
       // We use a negative index as inspircd versions < 2.0.18 don't send
       // the user's nick as the first parameter (see bug 1078223).
-      return setStatus(this, aMessage.params[aMessage.params.length - 5], "AWAY");
+      return setStatus(
+        this,
+        aMessage.params[aMessage.params.length - 5],
+        "AWAY"
+      );
     },
 
-    "599": function(aMessage) { // RPL_NOTAWAY
+    "599": function(aMessage) {
+      // RPL_NOTAWAY
       // <nickname> <username> <hostname> <awaysince> :is no longer away
       // We use a negative index as inspircd versions < 2.0.18 don't send
       // the user's nick as the first parameter (see bug 1078223).
-      return setStatus(this, aMessage.params[aMessage.params.length - 5], "AVAILABLE");
+      return setStatus(
+        this,
+        aMessage.params[aMessage.params.length - 5],
+        "AVAILABLE"
+      );
     },
 
-    "600": function(aMessage) { // RPL_LOGON
+    "600": function(aMessage) {
+      // RPL_LOGON
       // <nickname> <username> <hostname> <signontime> :logged on
       return setStatus(this, aMessage.params[1], "AVAILABLE");
     },
 
-    "601": function(aMessage) { // RPL_LOGOFF
+    "601": function(aMessage) {
+      // RPL_LOGOFF
       // <nickname> <username> <hostname> <lastnickchange> :logged off
       return setStatus(this, aMessage.params[1], "OFFLINE");
     },
 
-    "602": function(aMessage) { // RPL_WATCHOFF
+    "602": function(aMessage) {
+      // RPL_WATCHOFF
       // <nickname> <username> <hostname> <lastnickchange> :stopped watching
       return true;
     },
 
-    "603": function(aMessage) { // RPL_WATCHSTAT
+    "603": function(aMessage) {
+      // RPL_WATCHSTAT
       // You have <entrycount> and are on <onlistcount> WATCH entries
       // TODO I don't think we really need to care about this.
       return false;
     },
 
-    "604": function(aMessage) { // RPL_NOWON
+    "604": function(aMessage) {
+      // RPL_NOWON
       // <nickname> <username> <hostname> <lastnickchange> :is online
       return setStatus(this, aMessage.params[1], "AVAILABLE");
     },
 
-    "605": function(aMessage) { // RPL_NOWOFF
+    "605": function(aMessage) {
+      // RPL_NOWOFF
       // <nickname> <username> <hostname> <lastnickchange> :is offline
       return setStatus(this, aMessage.params[1], "OFFLINE");
     },
 
-    "606": function(aMessage) { // RPL_WATCHLIST
+    "606": function(aMessage) {
+      // RPL_WATCHLIST
       // <entrylist>
       // TODO
       return false;
     },
 
-    "607": function(aMessage) { // RPL_ENDOFWATCHLIST
+    "607": function(aMessage) {
+      // RPL_ENDOFWATCHLIST
       // End of WATCH <parameter>
       // TODO
       return false;
     },
 
-    "608": function(aMessage) { // RPL_CLEARWATCH
+    "608": function(aMessage) {
+      // RPL_CLEARWATCH
       // Your WATCH list is now empty
       // Note that this is optional for servers to send, so ignore it.
       return true;
     },
 
-    "609": function(aMessage) { // RPL_NOWISAWAY
+    "609": function(aMessage) {
+      // RPL_NOWISAWAY
       // <nickname> <username> <hostname> <awaysince> :<away reason>
       return setStatus(this, aMessage.params[1], "AWAY");
     },
@@ -268,13 +318,14 @@ var isupportMONITOR = {
   isEnabled: () => true,
 
   commands: {
-    "MONITOR": function(aMessage) {
-      if (!aMessage.isupport.useDefault)
+    MONITOR(aMessage) {
+      if (!aMessage.isupport.useDefault) {
         this.maxMonitorLength = Infinity;
-      else {
+      } else {
         let size = parseInt(aMessage.isupport.value, 10);
-        if (isNaN(size))
+        if (isNaN(size)) {
           return false;
+        }
         this.maxMonitorLength = size;
       }
 
@@ -303,13 +354,19 @@ function trackBuddyMonitor(aNicks) {
   }
 
   let nicks = aNicks;
-  if (!nicks.length)
+  if (!nicks.length) {
     return;
+  }
 
   let newMonitorLength = this.monitorLength + nicks.length;
   if (newMonitorLength > this.maxMonitorLength) {
-    this.WARN("Attempting to MONITOR " + newMonitorLength +
-              " nicks; maximum size is " + this.maxMonitorLength + ".");
+    this.WARN(
+      "Attempting to MONITOR " +
+        newMonitorLength +
+        " nicks; maximum size is " +
+        this.maxMonitorLength +
+        "."
+    );
     // TODO We should trim the list and add the extra users to an ISON queue,
     // but that's not currently implemented, so just hope the server doesn't
     // enforce it's own limit.
@@ -317,8 +374,10 @@ function trackBuddyMonitor(aNicks) {
   this.monitorLength = newMonitorLength;
 
   let params = [];
-  let maxLength = this.maxMessageLength - 2 -
-                  this.countBytes(this.buildMessage("MONITOR", "+"));
+  let maxLength =
+    this.maxMessageLength -
+    2 -
+    this.countBytes(this.buildMessage("MONITOR", "+"));
   for (let nick of nicks) {
     if (this.countBytes(params + " " + nick) >= maxLength) {
       // If the message would be too long, first send this message.
@@ -342,10 +401,13 @@ var ircMONITOR = {
   priority: ircHandlers.DEFAULT_PRIORITY + 10,
   // Use MONITOR only if MONITOR is enabled and WATCH is not enabled, as WATCH
   // supports more features.
-  isEnabled() { return this.monitorEnabled && !this.watchEnabled; },
+  isEnabled() {
+    return this.monitorEnabled && !this.watchEnabled;
+  },
 
   commands: {
-    "251": function(aMessage) { // RPL_LUSERCLIENT
+    "251": function(aMessage) {
+      // RPL_LUSERCLIENT
       // ":There are <integer> users and <integer> services on <integer> servers"
       // Assume that this will always be sent after the 005 handler on
       // connection registration. If MONITOR is enabled, then set the new
@@ -365,45 +427,51 @@ var ircMONITOR = {
       return false;
     },
 
-    "303": function(aMessage) { // RPL_ISON
+    "303": function(aMessage) {
+      // RPL_ISON
       // :*1<nick> *( " " <nick> )
       // We don't want ircBase to interfere with us, so override the ISON
       // handler to do nothing if we're using MONITOR.
       return true;
     },
 
-    "730": function(aMessage) { // RPL_MONONLINE
+    "730": function(aMessage) {
+      // RPL_MONONLINE
       // :<server> 730 <nick> :nick!user@host[,nick!user@host]*
       // Mark each nick as online.
-      return aMessage.params[1].split(",")
-                               .map(aNick =>
-                                      setStatus(this, aNick.split("!", 1)[0],
-                                                "AVAILABLE"))
-                               .every(aResult => aResult);
+      return aMessage.params[1]
+        .split(",")
+        .map(aNick => setStatus(this, aNick.split("!", 1)[0], "AVAILABLE"))
+        .every(aResult => aResult);
     },
 
-    "731": function(aMessage) { // RPL_MONOFFLINE
+    "731": function(aMessage) {
+      // RPL_MONOFFLINE
       // :<server> 731 <nick> :nick[,nick1]*
-      return aMessage.params[1].split(",")
-                               .map(aNick =>
-                                      setStatus(this, aNick, "OFFLINE"))
-                               .every(aResult => aResult);
+      return aMessage.params[1]
+        .split(",")
+        .map(aNick => setStatus(this, aNick, "OFFLINE"))
+        .every(aResult => aResult);
     },
 
-    "732": function(aMessage) { // RPL_MONLIST
+    "732": function(aMessage) {
+      // RPL_MONLIST
       // :<server> 732 <nick> :nick[,nick1]*
       return false;
     },
 
-    "733": function(aMessage) { // RPL_ENDOFMONLIST
+    "733": function(aMessage) {
+      // RPL_ENDOFMONLIST
       // :<server> 733 <nick> :End of MONITOR list
       return false;
     },
 
-    "734": function(aMessage) { // ERR_MONLISTFULL
+    "734": function(aMessage) {
+      // ERR_MONLISTFULL
       // :<server> 734 <nick> <limit> <nicks> :Monitor list is full.
-      this.ERROR("Maximum size for MONITOR list exceeded (" + this.params[1] +
-                 ").");
+      this.ERROR(
+        "Maximum size for MONITOR list exceeded (" + this.params[1] + ")."
+      );
       return true;
     },
   },

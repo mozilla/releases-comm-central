@@ -1,15 +1,15 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
-var {
-  GenericConvIMPrototype,
-  Message,
-} = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
+var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { GenericConvIMPrototype, Message } = ChromeUtils.import(
+  "resource:///modules/jsProtoHelper.jsm"
+);
 
 var imConversations = {};
 Services.scriptloader.loadSubScript(
-  "resource:///components/imConversations.js", imConversations
+  "resource:///components/imConversations.js",
+  imConversations
 );
 
 // Fake prplConversation
@@ -24,16 +24,19 @@ Conversation.prototype = {
   __proto__: GenericConvIMPrototype,
   _account: {
     imAccount: {
-      protocol: {name: "Fake Protocol"},
+      protocol: { name: "Fake Protocol" },
       alias: "",
       name: "Fake Account",
     },
-    ERROR(e) { throw e; },
+    ERROR(e) {
+      throw e;
+    },
     DEBUG() {},
   },
   addObserver(aObserver) {
-    if (!(aObserver instanceof Ci.nsIObserver))
-      aObserver = {observe: aObserver};
+    if (!(aObserver instanceof Ci.nsIObserver)) {
+      aObserver = { observe: aObserver };
+    }
     GenericConvIMPrototype.addObserver.call(this, aObserver);
   },
 };
@@ -44,20 +47,32 @@ Conversation.prototype = {
 var test_null_message = function() {
   let originalMessage = "Hi!";
   let pMsg = new Message("buddy", originalMessage, {
-    outgoing: true, _alias: "buddy", time: Date.now(),
+    outgoing: true,
+    _alias: "buddy",
+    time: Date.now(),
   });
   let iMsg = new imConversations.imMessage(pMsg);
   equal(iMsg.message, originalMessage, "Expected the original message.");
   // Setting the message should prevent a fallback to the original.
   iMsg.message = "";
-  equal(iMsg.message, "", "Expected an empty string; not the original message.");
-  equal(iMsg.originalMessage, originalMessage, "Expected the original message.");
+  equal(
+    iMsg.message,
+    "",
+    "Expected an empty string; not the original message."
+  );
+  equal(
+    iMsg.originalMessage,
+    originalMessage,
+    "Expected the original message."
+  );
 };
 
 // ROT13, used as an example transformation.
 function rot13(aString) {
   return aString.replace(/[a-zA-Z]/g, function(c) {
-    return String.fromCharCode(c.charCodeAt(0) + (c.toLowerCase() < "n" ? 1 : -1) * 13);
+    return String.fromCharCode(
+      c.charCodeAt(0) + (c.toLowerCase() < "n" ? 1 : -1) * 13
+    );
   });
 }
 
@@ -86,28 +101,42 @@ function rot13(aString) {
 var test_message_transformation = function() {
   let conv = new Conversation();
   conv.sendMsg = function(aMsg) {
-    this.writeMessage("user", aMsg, {outgoing: true});
+    this.writeMessage("user", aMsg, { outgoing: true });
   };
 
   let uiConv = new imConversations.UIConversation(conv);
   let message = "Hello!";
-  let receivedMsg = false, newTxt = false;
+  let receivedMsg = false,
+    newTxt = false;
 
   uiConv.addObserver({
     observe(aObject, aTopic, aMsg) {
       switch (aTopic) {
         case "sending-message":
           ok(!newTxt, "sending-message should fire before new-text.");
-          ok(!receivedMsg, "sending-message should fire before received-message.");
-          ok(aObject.QueryInterface(Ci.imIOutgoingMessage), "Wrong message type.");
+          ok(
+            !receivedMsg,
+            "sending-message should fire before received-message."
+          );
+          ok(
+            aObject.QueryInterface(Ci.imIOutgoingMessage),
+            "Wrong message type."
+          );
           aObject.message = rot13(aObject.message);
           break;
         case "received-message":
           ok(!newTxt, "received-message should fire before new-text.");
-          ok(!receivedMsg, "Sanity check that receive-message hasn't fired yet.");
+          ok(
+            !receivedMsg,
+            "Sanity check that receive-message hasn't fired yet."
+          );
           ok(aObject.outgoing, "Expected an outgoing message.");
           ok(aObject.QueryInterface(Ci.imIMessage), "Wrong message type.");
-          equal(aObject.displayMessage, rot13(message), "Expected to have been rotated while sending-message.");
+          equal(
+            aObject.displayMessage,
+            rot13(message),
+            "Expected to have been rotated while sending-message."
+          );
           aObject.displayMessage = rot13(aObject.displayMessage);
           receivedMsg = true;
           break;
@@ -116,7 +145,11 @@ var test_message_transformation = function() {
           ok(receivedMsg, "Expected received-message to have fired.");
           ok(aObject.outgoing, "Expected an outgoing message.");
           ok(aObject.QueryInterface(Ci.imIMessage), "Wrong message type.");
-          equal(aObject.displayMessage, message, "Expected to have been rotated back to msg in received-message.");
+          equal(
+            aObject.displayMessage,
+            message,
+            "Expected to have been rotated back to msg in received-message."
+          );
           newTxt = true;
           break;
       }
@@ -131,7 +164,10 @@ var test_message_transformation = function() {
 var test_cancel_send_message = function() {
   let conv = new Conversation();
   conv.sendMsg = function(aMsg) {
-    ok(false, "The message should have been halted in the conversation service.");
+    ok(
+      false,
+      "The message should have been halted in the conversation service."
+    );
   };
 
   let sending = false;
@@ -140,13 +176,19 @@ var test_cancel_send_message = function() {
     observe(aObject, aTopic, aMsg) {
       switch (aTopic) {
         case "sending-message":
-          ok(aObject.QueryInterface(Ci.imIOutgoingMessage), "Wrong message type.");
+          ok(
+            aObject.QueryInterface(Ci.imIOutgoingMessage),
+            "Wrong message type."
+          );
           aObject.cancelled = true;
           sending = true;
           break;
         case "received-message":
         case "new-text":
-          ok(false, "No other notification should be fired for a cancelled message.");
+          ok(
+            false,
+            "No other notification should be fired for a cancelled message."
+          );
           break;
       }
     },
@@ -159,7 +201,7 @@ var test_cancel_send_message = function() {
 var test_cancel_display_message = function() {
   let conv = new Conversation();
   conv.sendMsg = function(aMsg) {
-    this.writeMessage("user", aMsg, {outgoing: true});
+    this.writeMessage("user", aMsg, { outgoing: true });
   };
 
   let received = false;
@@ -188,7 +230,7 @@ var test_cancel_display_message = function() {
 var test_prpl_message_prep = function() {
   let conv = new Conversation();
   conv.sendMsg = function(aMsg) {
-    this.writeMessage("user", aMsg, {outgoing: true});
+    this.writeMessage("user", aMsg, { outgoing: true });
   };
 
   let msg = "Hi!";

@@ -18,11 +18,12 @@
 
 this.EXPORTED_SYMBOLS = ["ircServices", "servicesBase"];
 
-var {
-  setTimeout,
-  clearTimeout,
-} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-const {ircHandlers} = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
+var { setTimeout, clearTimeout } = ChromeUtils.import(
+  "resource:///modules/imXPCOMUtils.jsm"
+);
+const { ircHandlers } = ChromeUtils.import(
+  "resource:///modules/ircHandlers.jsm"
+);
 
 /*
  * If a service is found, an extra field (serviceName) is added with the
@@ -36,15 +37,16 @@ function ServiceMessage(aAccount, aMessage) {
   // map "bar": "NickServ"). Note that the keys of this map should be
   // normalized.
   let nicknameToServiceName = {
-    "chanserv": "ChanServ",
-    "infoserv": "InfoServ",
-    "nickserv": "NickServ",
+    chanserv: "ChanServ",
+    infoserv: "InfoServ",
+    nickserv: "NickServ",
     "freenode-connect": "freenode-connect",
   };
 
   let nickname = aAccount.normalize(aMessage.origin);
-  if (nicknameToServiceName.hasOwnProperty(nickname))
+  if (nicknameToServiceName.hasOwnProperty(nickname)) {
     aMessage.serviceName = nicknameToServiceName[nickname];
+  }
 
   return aMessage;
 }
@@ -54,46 +56,57 @@ var ircServices = {
   priority: ircHandlers.HIGH_PRIORITY,
   isEnabled: () => true,
   sendIdentify(aAccount) {
-    if (aAccount.imAccount.password && aAccount.shouldAuthenticate &&
-        !aAccount.isAuthenticated) {
-      aAccount.sendMessage("IDENTIFY", aAccount.imAccount.password,
-                           "IDENTIFY <password not logged>");
+    if (
+      aAccount.imAccount.password &&
+      aAccount.shouldAuthenticate &&
+      !aAccount.isAuthenticated
+    ) {
+      aAccount.sendMessage(
+        "IDENTIFY",
+        aAccount.imAccount.password,
+        "IDENTIFY <password not logged>"
+      );
     }
   },
 
   commands: {
     // If we automatically reply to a NOTICE message this does not abide by RFC
     // 2812. Oh well.
-    "NOTICE": function(aMessage) {
-      if (!ircHandlers.hasServicesHandlers)
+    NOTICE(aMessage) {
+      if (!ircHandlers.hasServicesHandlers) {
         return false;
+      }
 
       let message = ServiceMessage(this, aMessage);
 
       // If no service was found, return early.
-      if (!message.hasOwnProperty("serviceName"))
+      if (!message.hasOwnProperty("serviceName")) {
         return false;
+      }
 
       // If the name is recognized as a service name, add the service name field
       // and run it through the handlers.
       return ircHandlers.handleServicesMessage(this, message);
     },
 
-    "NICK": function(aMessage) {
+    NICK(aMessage) {
       let newNick = aMessage.params[0];
       // We only auto-authenticate for the account nickname.
-      if (this.normalize(newNick) != this.normalize(this._accountNickname))
+      if (this.normalize(newNick) != this.normalize(this._accountNickname)) {
         return false;
+      }
 
       // If we're not identified already, try to identify.
-      if (!this.isAuthenticated)
+      if (!this.isAuthenticated) {
         ircServices.sendIdentify(this);
+      }
 
       // We always want the RFC 2812 handler to handle NICK, so return false.
       return false;
     },
 
-    "001": function(aMessage) { // RPL_WELCOME
+    "001": function(aMessage) {
+      // RPL_WELCOME
       // If SASL authentication failed, attempt IDENTIFY.
       ircServices.sendIdentify(this);
 
@@ -101,13 +114,21 @@ var ircServices = {
       return false;
     },
 
-    "421": function(aMessage) { // ERR_UNKNOWNCOMMAND
+    "421": function(aMessage) {
+      // ERR_UNKNOWNCOMMAND
       // <command> :Unknown command
       // IDENTIFY failed, try NICKSERV IDENTIFY.
-      if (aMessage.params[1] == "IDENTIFY" && this.imAccount.password &&
-          this.shouldAuthenticate && !this.isAuthenticated) {
-        this.sendMessage("NICKSERV", ["IDENTIFY", this.imAccount.password],
-                         "NICKSERV IDENTIFY <password not logged>");
+      if (
+        aMessage.params[1] == "IDENTIFY" &&
+        this.imAccount.password &&
+        this.shouldAuthenticate &&
+        !this.isAuthenticated
+      ) {
+        this.sendMessage(
+          "NICKSERV",
+          ["IDENTIFY", this.imAccount.password],
+          "NICKSERV IDENTIFY <password not logged>"
+        );
         return true;
       }
       if (aMessage.params[1] == "NICKSERV") {
@@ -125,49 +146,55 @@ var servicesBase = {
   isEnabled: () => true,
 
   commands: {
-    "ChanServ": function(aMessage) {
+    ChanServ(aMessage) {
       // [<channel name>] <message>
       let channel = aMessage.params[1].split(" ", 1)[0];
-      if (!channel || channel[0] != "[" || channel.slice(-1)[0] != "]")
+      if (!channel || channel[0] != "[" || channel.slice(-1)[0] != "]") {
         return false;
+      }
 
       // Remove the [ and ].
       channel = channel.slice(1, -1);
       // If it isn't a channel or doesn't exist, return early.
-      if (!this.isMUCName(channel) || !this.conversations.has(channel))
+      if (!this.isMUCName(channel) || !this.conversations.has(channel)) {
         return false;
+      }
 
       // Otherwise, display the message in that conversation.
-      let params = {incoming: true};
-      if (aMessage.command == "NOTICE")
+      let params = { incoming: true };
+      if (aMessage.command == "NOTICE") {
         params.notification = true;
+      }
 
       // The message starts after the channel name, plus [, ] and a space.
       let message = aMessage.params[1].slice(channel.length + 3);
-      this.getConversation(channel)
-          .writeMessage(aMessage.origin, message, params);
+      this.getConversation(channel).writeMessage(
+        aMessage.origin,
+        message,
+        params
+      );
       return true;
     },
 
-    "InfoServ": function(aMessage) {
+    InfoServ(aMessage) {
       let text = aMessage.params[1];
 
       // Show the message of the day in the server tab.
       if (text == "*** \u0002Message(s) of the Day\u0002 ***") {
         this._infoServMotd = [text];
         return true;
-      }
-      else if (text == "*** \u0002End of Message(s) of the Day\u0002 ***") {
+      } else if (text == "*** \u0002End of Message(s) of the Day\u0002 ***") {
         if (this._showServerTab && this._infoServMotd) {
           this._infoServMotd.push(text);
-          this.getConversation(aMessage.origin)
-              .writeMessage(aMessage.origin, this._infoServMotd.join("\n"),
-                            {incoming: true});
+          this.getConversation(aMessage.origin).writeMessage(
+            aMessage.origin,
+            this._infoServMotd.join("\n"),
+            { incoming: true }
+          );
           delete this._infoServMotd;
         }
         return true;
-      }
-      else if (this.hasOwnProperty("_infoServMotd")) {
+      } else if (this.hasOwnProperty("_infoServMotd")) {
         this._infoServMotd.push(text);
         return true;
       }
@@ -175,19 +202,23 @@ var servicesBase = {
       return false;
     },
 
-    "NickServ": function(aMessage) {
+    NickServ(aMessage) {
       let text = aMessage.params[1];
 
       // Since we feed the messages back through the system at the end of the
       // timeout when waiting for a log-in, we need to NOT try to handle them
       // here and let them fall through to the default handler.
-      if (this.isHandlingQueuedMessages)
+      if (this.isHandlingQueuedMessages) {
         return false;
+      }
 
       // If we have a queue of messages, we're waiting for authentication.
       if (this.nickservMessageQueue) {
-        if (text == "Password accepted - you are now recognized." || // Anope.
-            text.slice(0, 28) == "You are now identified for \x02") { // Atheme.
+        if (
+          text == "Password accepted - you are now recognized." || // Anope.
+          text.slice(0, 28) == "You are now identified for \x02"
+        ) {
+          // Atheme.
           // Password successfully accepted by NickServ, don't display the
           // queued messages.
           this.LOG("Successfully authenticated with NickServ.");
@@ -195,8 +226,7 @@ var servicesBase = {
           clearTimeout(this.nickservAuthTimeout);
           delete this.nickservAuthTimeout;
           delete this.nickservMessageQueue;
-        }
-        else {
+        } else {
           // Queue any other messages that occur during the timeout so they
           // appear in the proper order.
           this.nickservMessageQueue.push(aMessage);
@@ -205,27 +235,38 @@ var servicesBase = {
       }
 
       // NickServ wants us to identify.
-      if (text == "This nick is owned by someone else.  Please choose another." || // Anope.
-          text == "This nickname is registered and protected.  If it is your" || // Anope (SECURE enabled).
-          text == "This nickname is registered. Please choose a different nickname, or identify via \x02/msg NickServ identify <password>\x02.") { // Atheme.
+      if (
+        text == "This nick is owned by someone else.  Please choose another." || // Anope.
+        text == "This nickname is registered and protected.  If it is your" || // Anope (SECURE enabled).
+        text ==
+          "This nickname is registered. Please choose a different nickname, or identify via \x02/msg NickServ identify <password>\x02."
+      ) {
+        // Atheme.
         this.LOG("Authentication requested by NickServ.");
 
         // Wait one second before showing the message to the user (giving the
         // the server time to process the log-in).
         this.nickservMessageQueue = [aMessage];
-        this.nickservAuthTimeout = setTimeout(function() {
-          this.isHandlingQueuedMessages = true;
-          this.nickservMessageQueue.every(aMessage =>
-            ircHandlers.handleMessage(this, aMessage));
-          delete this.isHandlingQueuedMessages;
-          delete this.nickservMessageQueue;
-        }.bind(this), 10000);
+        this.nickservAuthTimeout = setTimeout(
+          function() {
+            this.isHandlingQueuedMessages = true;
+            this.nickservMessageQueue.every(aMessage =>
+              ircHandlers.handleMessage(this, aMessage)
+            );
+            delete this.isHandlingQueuedMessages;
+            delete this.nickservMessageQueue;
+          }.bind(this),
+          10000
+        );
         return true;
       }
 
-      if (!this.isAuthenticated &&
-          (text == "You are already identified." || // Anope.
-           text.slice(0, 30) == "You are already logged in as \x02")) { // Atheme.
+      if (
+        !this.isAuthenticated &&
+        (text == "You are already identified." || // Anope.
+          text.slice(0, 30) == "You are already logged in as \x02")
+      ) {
+        // Atheme.
         // Do not show the message if caused by the automatic reauthentication.
         this.isAuthenticated = true;
         return true;
@@ -242,13 +283,18 @@ var servicesBase = {
     "freenode-connect": function(aMessage) {
       // If the user would like to see server messages, fall through to the
       // standard handler.
-      if (this._showServerTab)
+      if (this._showServerTab) {
         return false;
+      }
 
       // Only ignore the message notifying of scanning (and include additional
       // checking of the hostname).
-      return (aMessage.host.startsWith("freenode/utility-bot/") &&
-              aMessage.params[1].includes("connections will be scanned for vulnerabilities"));
+      return (
+        aMessage.host.startsWith("freenode/utility-bot/") &&
+        aMessage.params[1].includes(
+          "connections will be scanned for vulnerabilities"
+        )
+      );
     },
   },
 };

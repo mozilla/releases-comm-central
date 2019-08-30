@@ -2,24 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
-const {
-  XPCOMUtils,
-  l10nHelper,
-} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-const {OTR} = ChromeUtils.import("resource:///modules/OTR.jsm");
+const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+const { XPCOMUtils, l10nHelper } = ChromeUtils.import(
+  "resource:///modules/imXPCOMUtils.jsm"
+);
+const { OTR } = ChromeUtils.import("resource:///modules/OTR.jsm");
 
 var [mode, uiConv, contactInfo] = window.arguments;
 
 function showSection(selected, hideMenu) {
   document.getElementById("how").hidden = !!hideMenu;
-  [ "questionAndAnswer",
-    "sharedSecret",
-    "manualVerification",
-    "ask",
-  ].forEach(function(key) {
-    document.getElementById(key).hidden = (key !== selected);
-  });
+  ["questionAndAnswer", "sharedSecret", "manualVerification", "ask"].forEach(
+    function(key) {
+      document.getElementById(key).hidden = key !== selected;
+    }
+  );
   window.sizeToContent();
 }
 
@@ -30,20 +27,27 @@ function startSMP(context, answer, question) {
 
 function manualVerification(fingerprint, context) {
   let opts = document.getElementById("verifiedOption");
-  let trust = (opts.selectedItem.value === "yes");
+  let trust = opts.selectedItem.value === "yes";
   OTR.setTrust(fingerprint, trust, context);
 }
 
 async function populateFingers(context, theirs, trust) {
   let yours = OTR.privateKeyFingerprint(context.account, context.protocol);
-  if (!yours)
+  if (!yours) {
     throw new Error("Fingerprint should already be generated.");
+  }
 
-  document.getElementById("yourFPLabel").value =
-    await document.l10n.formatValue("auth-your-fp-value", {own_name: context.account});
+  document.getElementById(
+    "yourFPLabel"
+  ).value = await document.l10n.formatValue("auth-your-fp-value", {
+    own_name: context.account,
+  });
 
-  document.getElementById("theirFPLabel").value =
-    await document.l10n.formatValue("auth-their-fp-value", {their_name: context.username});
+  document.getElementById(
+    "theirFPLabel"
+  ).value = await document.l10n.formatValue("auth-their-fp-value", {
+    their_name: context.username,
+  });
 
   document.getElementById("yourFPValue").value = yours;
   document.getElementById("theirFPValue").value = theirs;
@@ -68,9 +72,10 @@ var otrAuth = {
     // we there might be no uiConv active currently, so we fall back.
 
     let nameSource =
-      (mode === "pref") ? contactInfo.screenname : uiConv.normalizedName;
-    let title = await document.l10n.formatValue(
-      "auth-title", {name: nameSource});
+      mode === "pref" ? contactInfo.screenname : uiConv.normalizedName;
+    let title = await document.l10n.formatValue("auth-title", {
+      name: nameSource,
+    });
     document.title = title;
 
     document.addEventListener("dialogaccept", () => {
@@ -105,23 +110,22 @@ var otrAuth = {
         this.oninput({ value: true });
         break;
       case "ask":
-        let receivedQuestionLabel =
-          document.getElementById("receivedQuestionLabel");
-        let receivedQuestionDisplay =
-          document.getElementById("receivedQuestion");
-        let responseLabel =
-          document.getElementById("responseLabel");
+        let receivedQuestionLabel = document.getElementById(
+          "receivedQuestionLabel"
+        );
+        let receivedQuestionDisplay = document.getElementById(
+          "receivedQuestion"
+        );
+        let responseLabel = document.getElementById("responseLabel");
         if (contactInfo.question) {
           receivedQuestionLabel.hidden = false;
           receivedQuestionDisplay.hidden = false;
           receivedQuestionDisplay.value = contactInfo.question;
-          responseLabel.value =
-            await document.l10n.formatValue("auth-answer");
+          responseLabel.value = await document.l10n.formatValue("auth-answer");
         } else {
           receivedQuestionLabel.hidden = true;
           receivedQuestionDisplay.hidden = true;
-          responseLabel.value =
-            await document.l10n.formatValue("auth-secret");
+          responseLabel.value = await document.l10n.formatValue("auth-secret");
         }
         showSection("ask", true);
         break;
@@ -175,15 +179,15 @@ var otrAuth = {
   how() {
     let how = document.getElementById("howOption").selectedItem.value;
     switch (how) {
-    case "questionAndAnswer":
-      this.oninput(document.getElementById("answer"));
-      break;
-    case "sharedSecret":
-      this.oninput(document.getElementById("secret"));
-      break;
-    case "manualVerification":
-      this.oninput({ value: true });
-      break;
+      case "questionAndAnswer":
+        this.oninput(document.getElementById("answer"));
+        break;
+      case "sharedSecret":
+        this.oninput(document.getElementById("secret"));
+        break;
+      case "manualVerification":
+        this.oninput({ value: true });
+        break;
     }
     showSection(how);
   },

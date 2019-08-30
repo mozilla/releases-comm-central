@@ -2,13 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ["_", "ctcpFormatToText", "ctcpFormatToHTML",
-                          "conversationErrorMessage", "kListRefreshInterval"];
+this.EXPORTED_SYMBOLS = [
+  "_",
+  "ctcpFormatToText",
+  "ctcpFormatToHTML",
+  "conversationErrorMessage",
+  "kListRefreshInterval",
+];
 
-var {
-  XPCOMUtils,
-  l10nHelper,
-} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
+  "resource:///modules/imXPCOMUtils.jsm"
+);
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/irc.properties")
@@ -51,19 +55,21 @@ var CTCP_TAGS_EXP = new RegExp("[" + Object.keys(CTCP_TAGS).join("") + "]");
 // Remove all CTCP formatting characters.
 function ctcpFormatToText(aString) {
   let next,
-      input = aString,
-      output = "",
-      length;
+    input = aString,
+    output = "",
+    length;
 
   while ((next = CTCP_TAGS_EXP.exec(input))) {
-    if (next.index > 0)
+    if (next.index > 0) {
       output += input.substr(0, next.index);
+    }
     // We assume one character will be stripped.
     length = 1;
     let tag = CTCP_TAGS[input[next.index]];
     // If the tag is a function, calculate how many characters are handled.
-    if (typeof tag == "function")
+    if (typeof tag == "function") {
       [, , length] = tag([], input.substr(next.index));
+    }
 
     // Avoid infinite loops.
     length = Math.max(1, length);
@@ -80,7 +86,10 @@ function openStack(aStack) {
 
 // Close the tags in the opposite order they were opened.
 function closeStack(aStack) {
-  return aStack.reverse().map(aTag => "</" + aTag.split(" ", 1) + ">").join("");
+  return aStack
+    .reverse()
+    .map(aTag => "</" + aTag.split(" ", 1) + ">")
+    .join("");
 }
 
 /**
@@ -90,34 +99,32 @@ function closeStack(aStack) {
  */
 function ctcpFormatToHTML(aString) {
   let next,
-      stack = [],
-      input = TXTToHTML(aString),
-      output = "",
-      newOutput,
-      length;
+    stack = [],
+    input = TXTToHTML(aString),
+    output = "",
+    newOutput,
+    length;
 
   while ((next = CTCP_TAGS_EXP.exec(input))) {
-    if (next.index > 0)
+    if (next.index > 0) {
       output += input.substr(0, next.index);
+    }
     length = 1;
     let tag = CTCP_TAGS[input[next.index]];
     if (tag === null) {
       // Clear all formatting.
       output += closeStack(stack);
       stack = [];
-    }
-    else if (typeof tag == "function") {
+    } else if (typeof tag == "function") {
       [stack, newOutput, length] = tag(stack, input.substr(next.index));
       output += newOutput;
-    }
-    else {
+    } else {
       let offset = stack.indexOf(tag);
       if (offset == -1) {
         // Tag not found; open new tag.
         output += "<" + tag + ">";
         stack.push(tag);
-      }
-      else {
+      } else {
         // Tag found; close existing tag (and all tags after it).
         output += closeStack(stack.slice(offset));
         // Reopen the tags that came after it.
@@ -164,20 +171,22 @@ function mIRCColoring(aStack, aInput) {
   function getColor(aKey) {
     let key = aKey;
     // Single digit numbers can (must?) be prefixed by a zero.
-    if (key.length == 2 && key[0] == "0")
+    if (key.length == 2 && key[0] == "0") {
       key = key[1];
+    }
 
-    if (M_IRC_COLOR_MAP.hasOwnProperty(key))
+    if (M_IRC_COLOR_MAP.hasOwnProperty(key)) {
       return M_IRC_COLOR_MAP[key];
+    }
 
     return null;
   }
 
   let matches,
-      stack = aStack,
-      input = aInput,
-      output = "",
-      length = 1;
+    stack = aStack,
+    input = aInput,
+    output = "",
+    length = 1;
 
   if ((matches = M_IRC_COLORS_EXP.exec(input))) {
     let format = ["font"];
@@ -186,8 +195,7 @@ function mIRCColoring(aStack, aInput) {
     // first open font tag.
     if (!matches[1]) {
       // Find the first font tag.
-      let offset = stack.map(aTag => aTag.indexOf("font") === 0)
-                        .indexOf(true);
+      let offset = stack.map(aTag => aTag.indexOf("font") === 0).indexOf(true);
 
       // Close all tags from the first font tag on.
       output = closeStack(stack.slice(offset));
@@ -195,19 +203,20 @@ function mIRCColoring(aStack, aInput) {
       stack = stack.filter(aTag => aTag.indexOf("font"));
       // Reopen the other tags.
       output += openStack(stack.slice(offset));
-    }
-    else {
+    } else {
       // Otherwise we have a match and are setting new colors.
       // The foreground color.
       let color = getColor(matches[1]);
-      if (color)
-        format.push("color=\"" + color + "\"");
+      if (color) {
+        format.push('color="' + color + '"');
+      }
 
       // The background color.
       if (matches[2]) {
         let color = getColor(matches[2]);
-        if (color)
-          format.push("background=\"" + color + "\"");
+        if (color) {
+          format.push('background="' + color + '"');
+        }
       }
 
       if (format.length > 1) {
@@ -224,23 +233,32 @@ function mIRCColoring(aStack, aInput) {
 
 // Print an error message into a conversation, optionally mark the conversation
 // as not joined and/or not rejoinable.
-function conversationErrorMessage(aAccount, aMessage, aError,
-                                  aJoinFailed = false, aRejoinable = true) {
+function conversationErrorMessage(
+  aAccount,
+  aMessage,
+  aError,
+  aJoinFailed = false,
+  aRejoinable = true
+) {
   let conv = aAccount.getConversation(aMessage.params[1]);
-  conv.writeMessage(aMessage.origin, _(aError, aMessage.params[1],
-                                       aMessage.params[2] || undefined),
-                    {error: true, system: true});
+  conv.writeMessage(
+    aMessage.origin,
+    _(aError, aMessage.params[1], aMessage.params[2] || undefined),
+    { error: true, system: true }
+  );
   delete conv._pendingMessage;
 
   // Channels have a couple extra things that can be done to them.
   if (aAccount.isMUCName(aMessage.params[1])) {
     // If a value for joining is explicitly given, mark it.
-    if (aJoinFailed)
+    if (aJoinFailed) {
       conv.joining = false;
+    }
     // If the conversation cannot be rejoined automatically, delete
     // chatRoomFields.
-    if (!aRejoinable)
+    if (!aRejoinable) {
       delete conv.chatRoomFields;
+    }
   }
 
   return true;

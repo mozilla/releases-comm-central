@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {httpRequest} = ChromeUtils.import("resource://gre/modules/Http.jsm");
+var { httpRequest } = ChromeUtils.import("resource://gre/modules/Http.jsm");
 var {
   copyBytes,
   ArrayBufferToBytes,
@@ -12,8 +12,8 @@ var {
   ArrayBufferToString,
   ArrayBufferToHexString,
 } = ChromeUtils.import("resource:///modules/ArrayBufferUtils.jsm");
-var {bigInt} = ChromeUtils.import("resource:///modules/BigInteger.jsm");
-var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { bigInt } = ChromeUtils.import("resource:///modules/BigInteger.jsm");
+var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var {
   EmptyEnumerator,
   XPCOMUtils,
@@ -39,7 +39,8 @@ var {
 var kLockAndKeyAppId = "msmsgs@msnmsgr.com";
 var kLockAndKeySecret = "Q1P7W2E4J9R8U3S5";
 var kClientId = "578134";
-var kClientInfo = "os=Windows; osVer=8.1; proc=Win32; lcid=en-us; " +
+var kClientInfo =
+  "os=Windows; osVer=8.1; proc=Win32; lcid=en-us; " +
   "deviceType=1; country=n/a; clientName=swx-skype.com; clientVer=908/1.0.0.20";
 
 var kLoginHost = "login.skype.com";
@@ -48,11 +49,11 @@ var kMessagesHost = "client-s.gateway.messenger.live.com";
 
 // Map from strings returned by the SkypeWeb API to statuses.
 var kStatusMap = {
-  "Online": "AVAILABLE",
-  "Offline": "OFFLINE",
-  "Idle": "IDLE",
-  "Away": "AWAY",
-  "Hidden": "INVISIBLE",
+  Online: "AVAILABLE",
+  Offline: "OFFLINE",
+  Idle: "IDLE",
+  Away: "AWAY",
+  Hidden: "INVISIBLE",
 };
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
@@ -71,14 +72,16 @@ XPCOMUtils.defineLazyGetter(this, "_", () =>
  */
 function contactUrlToName(aUrl) {
   let start = aUrl.indexOf("/8:");
-  if (start == -1)
+  if (start == -1) {
     return null;
+  }
   // Skip over the separator.
   start += "/8:".length;
 
   let end = aUrl.indexOf("/", start);
-  if (end == -1)
+  if (end == -1) {
     end = undefined;
+  }
 
   return aUrl.slice(start, end);
 }
@@ -92,19 +95,24 @@ SkypeConversation.prototype = {
   _account: null,
 
   sendMsg(aMessage) {
-    if (!aMessage.length)
+    if (!aMessage.length) {
       return;
+    }
 
     let target = "8:" + this.name;
-    let url = "https://" + kMessagesHost + "/v1/users/ME/conversations/" +
-              target + "/messages";
+    let url =
+      "https://" +
+      kMessagesHost +
+      "/v1/users/ME/conversations/" +
+      target +
+      "/messages";
 
     let clientMessageId = Date.now().toString();
     let message = {
-      "clientmessageid": clientMessageId,
-      "content": aMessage,
-      "messagetype": "RichText",
-      "contenttype": "text",
+      clientmessageid: clientMessageId,
+      content: aMessage,
+      messagetype: "RichText",
+      contenttype: "text",
     };
     let options = {
       onLoad: (aResponse, aXhr) => {
@@ -132,25 +140,30 @@ SkypeAccountBuddy.prototype = {
   mood: null,
 
   // Called when the user wants to chat with the buddy.
-  createConversation() { return this._account.createConversation(this.userName); },
+  createConversation() {
+    return this._account.createConversation(this.userName);
+  },
 
   // Returns a list of imITooltipInfo objects to be displayed when the user
   // hovers over the buddy.
   getTooltipInfo() {
-    if (!this._info)
+    if (!this._info) {
       return EmptyEnumerator;
+    }
 
     let tooltipInfo = [];
     for (let info in this._info) {
       // If there's no value, skip the element.
-      if (!this._info[info])
+      if (!this._info[info]) {
         continue;
+      }
 
       // TODO Put real labels on here.
       tooltipInfo.push(new TooltipInfo(info, this._info[info]));
     }
-    if (this.mood)
+    if (this.mood) {
       tooltipInfo.push(new TooltipInfo("Mood", this.mood));
+    }
 
     return new nsSimpleEnumerator(tooltipInfo);
   },
@@ -168,12 +181,14 @@ SkypeAccountBuddy.prototype = {
 function extractString(aStr, aStart, aEnd) {
   // First find the start index, then offset by the string length.
   let startIndex = aStr.indexOf(aStart) + aStart.length;
-  if (startIndex == -1)
+  if (startIndex == -1) {
     return "";
+  }
   // Now find the next occurrence of end after the start.
   let endIndex = aStr.indexOf(aEnd, startIndex);
-  if (endIndex == -1)
+  if (endIndex == -1) {
     return "";
+  }
 
   return aStr.slice(startIndex, endIndex);
 }
@@ -189,14 +204,16 @@ function magicSha256(aInput) {
   let productId = kLockAndKeyAppId;
 
   // Create a SHA 256 hash.
-  let converter = Cc["@mozilla.org/intl/scriptableunicodeconverter"]
-                    .createInstance(Ci.nsIScriptableUnicodeConverter);
+  let converter = Cc[
+    "@mozilla.org/intl/scriptableunicodeconverter"
+  ].createInstance(Ci.nsIScriptableUnicodeConverter);
   converter.charset = "UTF-8";
   let data = converter.convertToByteArray(aInput);
   let productKey = converter.convertToByteArray(kLockAndKeySecret);
 
-  let hash =
-    Cc["@mozilla.org/security/hash;1"].createInstance(Ci.nsICryptoHash);
+  let hash = Cc["@mozilla.org/security/hash;1"].createInstance(
+    Ci.nsICryptoHash
+  );
   hash.init(hash.SHA256);
   hash.update(data, data.length);
   hash.update(productKey, productKey.length);
@@ -215,7 +232,7 @@ function magicSha256(aInput) {
     sha256Parts.push(view.getUint32(i * 4, true));
 
     newHashParts.push(sha256Parts[i]);
-    sha256Parts[i] &= 0x7FFFFFFF;
+    sha256Parts[i] &= 0x7fffffff;
   }
 
   // Make a new string and pad with '0' to a length that's a multiple of 8.
@@ -234,19 +251,33 @@ function magicSha256(aInput) {
   // This is magic.
   let nHigh = bigInt(0);
   let nLow = bigInt(0);
-  for (let i = 0; i < (len / 4); i += 2) {
-    let temp = bigInt(0x0E79A9C1).times(view.getUint32(i * 4, true))
-                                 .divmod(0x7FFFFFFF).remainder;
-    temp = temp.plus(nLow).times(sha256Parts[0]).plus(sha256Parts[1])
-                                                .divmod(0x7FFFFFFF).remainder;
+  for (let i = 0; i < len / 4; i += 2) {
+    let temp = bigInt(0x0e79a9c1)
+      .times(view.getUint32(i * 4, true))
+      .divmod(0x7fffffff).remainder;
+    temp = temp
+      .plus(nLow)
+      .times(sha256Parts[0])
+      .plus(sha256Parts[1])
+      .divmod(0x7fffffff).remainder;
     nHigh = nHigh.plus(temp);
 
-    temp = temp.plus(view.getUint32((i + 1) * 4, true)).divmod(0x7FFFFFFF).remainder;
-    nLow = temp.times(sha256Parts[2]).plus(sha256Parts[3]).divmod(0x7FFFFFFF).remainder;
+    temp = temp.plus(view.getUint32((i + 1) * 4, true)).divmod(0x7fffffff)
+      .remainder;
+    nLow = temp
+      .times(sha256Parts[2])
+      .plus(sha256Parts[3])
+      .divmod(0x7fffffff).remainder;
     nHigh = nHigh.plus(nLow);
   }
-  nLow = nLow.plus(sha256Parts[1]).divmod(0x7FFFFFFF).remainder.toJSNumber();
-  nHigh = nHigh.plus(sha256Parts[3]).divmod(0x7FFFFFFF).remainder.toJSNumber();
+  nLow = nLow
+    .plus(sha256Parts[1])
+    .divmod(0x7fffffff)
+    .remainder.toJSNumber();
+  nHigh = nHigh
+    .plus(sha256Parts[3])
+    .divmod(0x7fffffff)
+    .remainder.toJSNumber();
 
   newHashParts[0] ^= nLow;
   newHashParts[1] ^= nHigh;
@@ -258,13 +289,17 @@ function magicSha256(aInput) {
   for (let i = 0; i < 4; ++i) {
     let part = newHashParts[i];
     // Adjust to little-endianness.
-    part = ((part & 0xFF) << 24) | ((part & 0xFF00) << 8) |
-           ((part >> 8) & 0xFF00) | ((part >> 24) & 0xFF);
+    part =
+      ((part & 0xff) << 24) |
+      ((part & 0xff00) << 8) |
+      ((part >> 8) & 0xff00) |
+      ((part >> 24) & 0xff);
 
     // JavaScript likes to use signed numbers, force this to give us the
     // unsigned representation.
-    if (part < 0)
-      part += 0xFFFFFFFF + 1;
+    if (part < 0) {
+      part += 0xffffffff + 1;
+    }
 
     let hexPart = part.toString(16);
     // Ensure that the string has 8 characters (4 bytes).
@@ -285,8 +320,12 @@ function getTimezone() {
     let nLen = nStr.length;
 
     if (nLen > aLen) {
-      throw new Error("Can't zero-pad when longer than expected length: " + nStr +
-        ".length > " + aLen);
+      throw new Error(
+        "Can't zero-pad when longer than expected length: " +
+          nStr +
+          ".length > " +
+          aLen
+      );
     }
 
     return "0".repeat(aLen - nLen) + nStr;
@@ -295,8 +334,9 @@ function getTimezone() {
   // Invert the sign of the timezone from JavaScript's date object.
   let sign = "+";
   let timezone = new Date().getTimezoneOffset() * -1;
-  if (timezone < 0)
+  if (timezone < 0) {
     sign = "-";
+  }
   timezone = Math.abs(timezone);
 
   // Separate the timezone into hours and minutes.
@@ -319,7 +359,7 @@ function SkypeAccount(aProtoInstance, aImAccount) {
   this._conversations = new Map();
   this._chats = new Map();
 
-  this._logger = {log: this.LOG.bind(this), debug: this.DEBUG.bind(this)};
+  this._logger = { log: this.LOG.bind(this), debug: this.DEBUG.bind(this) };
 }
 SkypeAccount.prototype = {
   __proto__: GenericAccountPrototype,
@@ -342,8 +382,9 @@ SkypeAccount.prototype = {
   _logger: null,
 
   mapStatusString(aStatus) {
-    if (aStatus in kStatusMap)
+    if (aStatus in kStatusMap) {
       return Ci.imIStatusInfo["STATUS_" + kStatusMap[aStatus]];
+    }
 
     // Uh-oh, we got something not in the map.
     this.WARN("Received unknown status type: " + aStatus);
@@ -387,22 +428,24 @@ SkypeAccount.prototype = {
     // Parse the pie/etm and do the actual login.
     let loginUrl = "https://" + kLoginHost + "/login";
 
-    let params = [["client_id", kClientId],
-                  ["redirect_uri", "https://web.skype.com"]];
-    loginUrl += "?" +
-      params.map(p => p.map(encodeURIComponent).join("=")).join("&");
+    let params = [
+      ["client_id", kClientId],
+      ["redirect_uri", "https://web.skype.com"],
+    ];
+    loginUrl +=
+      "?" + params.map(p => p.map(encodeURIComponent).join("=")).join("&");
 
     this.LOG("Received PIE response:\n" + aResponse);
 
     // Note that the response is really just an HTML page with some JavaScript
     // and forms that these values are being pulled from.
-    let pie = extractString(aResponse, "=\"pie\" value=\"", "\"");
+    let pie = extractString(aResponse, '="pie" value="', '"');
     if (!pie) {
       this.ERROR("pie value not found.");
       this._disconnectWithAuthFailure();
       return;
     }
-    let etm = extractString(aResponse, "=\"etm\" value=\"", "\"");
+    let etm = extractString(aResponse, '="etm" value="', '"');
     if (!etm) {
       this.ERROR("etm value not found.");
       this._disconnectWithAuthFailure();
@@ -412,20 +455,24 @@ SkypeAccount.prototype = {
     let options = {
       onLoad: this._onLoginResponse.bind(this),
       onError: this._onHttpFailure("requesting skypetoken"),
-      postData: [["username", this.name],
-                 ["password", this.imAccount.password],
-                 ["timezone_field", getTimezone()],
-                 ["pie", pie],
-                 ["etm", etm],
-                 ["js_time", Date.now()],
-                 ["client_id", kClientId],
-                 ["redirect_uri", "https://web.skype.com/"]],
-      headers: [["Connection", "close"],
-                // BehaviorOverride is a custom microsoft header. It stops the
-                // response from doing a 302 Found Location redirect, since
-                // there are important headers that need to be plucked before
-                // the redirect happens.
-                ["BehaviorOverride", "redirectAs404"]],
+      postData: [
+        ["username", this.name],
+        ["password", this.imAccount.password],
+        ["timezone_field", getTimezone()],
+        ["pie", pie],
+        ["etm", etm],
+        ["js_time", Date.now()],
+        ["client_id", kClientId],
+        ["redirect_uri", "https://web.skype.com/"],
+      ],
+      headers: [
+        ["Connection", "close"],
+        // BehaviorOverride is a custom microsoft header. It stops the
+        // response from doing a 302 Found Location redirect, since
+        // there are important headers that need to be plucked before
+        // the redirect happens.
+        ["BehaviorOverride", "redirectAs404"],
+      ],
       logger: this._logger,
     };
     httpRequest(loginUrl, options);
@@ -433,8 +480,7 @@ SkypeAccount.prototype = {
   _onLoginResponse(aResponse, aXhr) {
     this.LOG("Received LOGIN response:\n" + aResponse);
 
-    let refreshToken =
-      extractString(aResponse, "=\"skypetoken\" value=\"", "\"");
+    let refreshToken = extractString(aResponse, '="skypetoken" value="', '"');
     if (!refreshToken) {
       this.ERROR("skypetoken value not found.");
       this._disconnectWithAuthFailure();
@@ -461,22 +507,31 @@ SkypeAccount.prototype = {
     let options = {
       onLoad: this._onRegistrationTokenReceived.bind(this),
       onError: (aError, aResponse, aXhr) => {
-        this.ERROR("HTTP failure occurred: requesting registration token\n" +
-                   aError);
+        this.ERROR(
+          "HTTP failure occurred: requesting registration token\n" + aError
+        );
         this._disconnectWithAuthFailure("error.registrationToken");
       },
       postData: "{}", // Empty JSON object.
-      headers: [["Connection", "close"],
-                // BehaviorOverride is a custom microsoft header. It stops the
-                // response from doing a 302 Found Location redirect, since
-                // there are important headers that need to be plucked before
-                // the redirect happens.
-                ["BehaviorOverride", "redirectAs404"],
-                ["LockAndKey", "appId=" + kLockAndKeyAppId +
-                               "; time=" + curTime +
-                               "; lockAndKeyResponse=" + response],
-                ["ClientInfo", kClientInfo],
-                ["Authentication", "skypetoken=" + this._skypeToken]],
+      headers: [
+        ["Connection", "close"],
+        // BehaviorOverride is a custom microsoft header. It stops the
+        // response from doing a 302 Found Location redirect, since
+        // there are important headers that need to be plucked before
+        // the redirect happens.
+        ["BehaviorOverride", "redirectAs404"],
+        [
+          "LockAndKey",
+          "appId=" +
+            kLockAndKeyAppId +
+            "; time=" +
+            curTime +
+            "; lockAndKeyResponse=" +
+            response,
+        ],
+        ["ClientInfo", kClientInfo],
+        ["Authentication", "skypetoken=" + this._skypeToken],
+      ],
       logger: this._logger,
     };
     httpRequest(messagesUrl, options);
@@ -505,12 +560,14 @@ SkypeAccount.prototype = {
       "https://" + kMessagesHost + "/v1/users/ME/endpoints/SELF/subscriptions";
     // The endpoints to subscribe to.
     let subscriptions = {
-      "interestedResources": ["/v1/users/ME/conversations/ALL/properties",
-                              "/v1/users/ME/conversations/ALL/messages",
-                              "/v1/users/ME/contacts/ALL",
-                              "/v1/threads/ALL"],
-      "template": "raw",
-      "channelType": "httpLongPoll",
+      interestedResources: [
+        "/v1/users/ME/conversations/ALL/properties",
+        "/v1/users/ME/conversations/ALL/messages",
+        "/v1/users/ME/contacts/ALL",
+        "/v1/threads/ALL",
+      ],
+      template: "raw",
+      channelType: "httpLongPoll",
     };
     let options = {
       onLoad: this._onSubscription.bind(this),
@@ -550,8 +607,9 @@ SkypeAccount.prototype = {
     }
 
     // You have no friends. :( Nothing to do, just move along.
-    if (!buddies.length)
+    if (!buddies.length) {
       return;
+    }
 
     // This gets a little confusing, buddyObj refers to the JSON that was parsed
     // and returned from the server, buddy refers to the prplIAccountBuddy.
@@ -559,7 +617,11 @@ SkypeAccount.prototype = {
       let buddy = this._buddies.get(buddyObj.skypename);
       if (!buddy) {
         buddy = new SkypeAccountBuddy(
-          this, null, Services.tags.defaultTag, buddyObj.skypename);
+          this,
+          null,
+          Services.tags.defaultTag,
+          buddyObj.skypename
+        );
 
         // Store the buddy for later.
         this._buddies.set(buddyObj.skypename, buddy);
@@ -572,8 +634,9 @@ SkypeAccount.prototype = {
       // Note that display_name is the public alias that the buddy has set for
       // themselves, skypename is the buddy's unique ID name, fullname is their
       // real name.
-      if (buddyObj.display_name)
+      if (buddyObj.display_name) {
         buddy.serverAlias = buddyObj.display_name;
+      }
       // Store the buddy info into the object for tooltips.
       buddy._info = buddyObj;
 
@@ -585,7 +648,7 @@ SkypeAccount.prototype = {
     let profilesUrl =
       "https://" + kContactsHost + "/users/self/contacts/profiles";
     let options = {
-      postData: buddies.map((b) => ["contacts[]", b.skypename]),
+      postData: buddies.map(b => ["contacts[]", b.skypename]),
       onLoad: this._onProfiles.bind(this),
       onError: this._onHttpError.bind(this),
       logger: this._logger,
@@ -595,11 +658,11 @@ SkypeAccount.prototype = {
 
     // Subscribe to user statuses.
     let contactsUrl = "https://" + kMessagesHost + "/v1/users/ME/contacts";
-    let contacts = buddies.map((b) => {
-      return {"id": "8:" + b.skypename};
+    let contacts = buddies.map(b => {
+      return { id: "8:" + b.skypename };
     });
     options = {
-      postData: JSON.stringify({"contacts": contacts}),
+      postData: JSON.stringify({ contacts }),
       onLoad: (aResponse, aXhr) =>
         this.LOG("Successfully subscribed to contacts."),
       onError: this._onHttpError.bind(this),
@@ -620,8 +683,9 @@ SkypeAccount.prototype = {
       let username = skypeContact.username;
 
       let buddy = this._buddies.get(username);
-      if (!buddy)
+      if (!buddy) {
         continue;
+      }
 
       // Set some properties on the buddy.
       buddy.serverAlias = skypeContact.displayname;
@@ -631,7 +695,11 @@ SkypeAccount.prototype = {
       // TODO Download the file and store it in the profile.
       let avatarUrl = skypeContact.avatarUrl;
       if (!avatarUrl) {
-        avatarUrl = "https://" + kContactsHost + "/users/" + buddy.userName +
+        avatarUrl =
+          "https://" +
+          kContactsHost +
+          "/users/" +
+          buddy.userName +
           "/profile/avatar";
       }
       buddy.buddyIconFilename = skypeContact.avatarUrl;
@@ -642,7 +710,9 @@ SkypeAccount.prototype = {
    * Download the actual messages, this will recurse through its callback.
    */
   _getMessages() {
-    let messagesUrl = "https://" + kMessagesHost +
+    let messagesUrl =
+      "https://" +
+      kMessagesHost +
       "/v1/users/ME/endpoints/SELF/subscriptions/0/poll";
     let options = {
       method: "POST",
@@ -661,8 +731,9 @@ SkypeAccount.prototype = {
     this._poller = setTimeout(this._getMessages.bind(this), 1000);
 
     // Empty responses are received as keep alives.
-    if (!aResponse)
+    if (!aResponse) {
       return;
+    }
 
     // Otherwise, parse the response as JSON.
     let obj = JSON.parse(aResponse);
@@ -672,8 +743,9 @@ SkypeAccount.prototype = {
     }
 
     // If no messages, nothing to do.
-    if (!("eventMessages" in obj))
+    if (!("eventMessages" in obj)) {
       return;
+    }
 
     for (let message of obj.eventMessages) {
       // The type of message (e.g. new message, new status).
@@ -687,8 +759,10 @@ SkypeAccount.prototype = {
         let messageType = resource.messagetype;
         let from = contactUrlToName(resource.from);
         if (!from) {
-          this.WARN("Received a message without a parseable from field: " +
-                    resource.from);
+          this.WARN(
+            "Received a message without a parseable from field: " +
+              resource.from
+          );
           return;
         }
 
@@ -711,38 +785,44 @@ SkypeAccount.prototype = {
         if (messageTypeParts[0] == "Control" && conv) {
           let typingState = null;
           // NotTyping or Typing.
-          if (messageTypeParts[1] == "Typing")
+          if (messageTypeParts[1] == "Typing") {
             typingState = Ci.prplIConvIM.TYPING;
-          else if (messageTypeParts[1] == "ClearTyping")
+          } else if (messageTypeParts[1] == "ClearTyping") {
             typingState = Ci.prplIConvIM.NOT_TYPING;
-          if (typingState !== null)
+          }
+          if (typingState !== null) {
             conv.updateTyping(typingState);
+          }
           // TODO There doesn't seem to be a "typed" state.
         } else if (messageType == "RichText" || messageType == "Text") {
           // Create a conversation if it doesn't exist.
-          if (!conv)
+          if (!conv) {
             conv = this.createConversation(conversationName);
+          }
 
           // TODO Handle RichText vs. Text.
 
           // Put the message into the conversation.
           let options = {};
-          if (from == this.name)
+          if (from == this.name) {
             options.outgoing = true;
-          else
+          } else {
             options.incoming = true;
+          }
           conv.writeMessage(from, resource.content, options);
         }
       } else if (resourceType == "UserPresence") {
         // Ignore our own statuses.
         let from = contactUrlToName(resource.selfLink);
-        if (!from)
+        if (!from) {
           continue;
+        }
 
         // Get the buddy and update the status.
         let buddy = this._buddies.get(from);
-        if (buddy)
+        if (buddy) {
           buddy.setStatus(this.mapStatusString(resource.status), "");
+        }
       } else if (resourceType == "EndpointPresence") {
         // Nothing to do.
       } else if (resourceType == "ConversationUpdate") {
@@ -799,25 +879,30 @@ SkypeAccount.prototype = {
 
   // Helper function to disconnect with authentication failed.
   _disconnectWithAuthFailure(aMessageId = "error.auth") {
-    this.reportDisconnecting(Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED,
-                             _(aMessageId));
+    this.reportDisconnecting(
+      Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED,
+      _(aMessageId)
+    );
     this.reportDisconnected();
   },
 
   disconnect() {
-    if (this.disconnected || this.disconnecting)
+    if (this.disconnected || this.disconnecting) {
       return;
+    }
 
     clearTimeout(this._poller);
-    if (this._request)
+    if (this._request) {
       this._request.abort();
+    }
 
     this._request = null;
     this._poller = null;
 
     // Mark all contacts on the account as having an unknown status.
     this._buddies.forEach(aBuddy =>
-      aBuddy.setStatus(Ci.imIStatusInfo.STATUS_UNKNOWN, ""));
+      aBuddy.setStatus(Ci.imIStatusInfo.STATUS_UNKNOWN, "")
+    );
 
     this.reportDisconnected();
   },
@@ -854,7 +939,9 @@ SkypeAccount.prototype = {
   },
 
   // TODO Add support for MUCs.
-  get canJoinChat() { return false; },
+  get canJoinChat() {
+    return false;
+  },
   chatRoomFields: {},
   joinChat(aComponents) {},
 };
@@ -862,13 +949,23 @@ SkypeAccount.prototype = {
 function SkypeProtocol() {}
 SkypeProtocol.prototype = {
   __proto__: GenericProtocolPrototype,
-  get name() { return "Skype"; },
-  get iconBaseURI() { return "chrome://prpl-skype/skin/"; },
-  get baseId() { return "prpl-skype"; },
+  get name() {
+    return "Skype";
+  },
+  get iconBaseURI() {
+    return "chrome://prpl-skype/skin/";
+  },
+  get baseId() {
+    return "prpl-skype";
+  },
 
-  get passwordOptional() { return false; },
+  get passwordOptional() {
+    return false;
+  },
 
-  getAccount(aImAccount) { return new SkypeAccount(this, aImAccount); },
+  getAccount(aImAccount) {
+    return new SkypeAccount(this, aImAccount);
+  },
   classID: Components.ID("{8446c0f6-9f59-4710-844e-eaa6c1f49d35}"),
 };
 
