@@ -29,10 +29,6 @@ module.exports = {
     // Enforce curly brace conventions for all control statements.
     curly: 2,
 
-    // Enforce the spacing around the * in generator functions.
-    // Turned off to override comm/.eslintrc.js and let Prettier handle it.
-    "generator-star-spacing": "off",
-
     // Require space before/after arrow function's arrow
     "arrow-spacing": [2, { before: true, after: true }],
 
