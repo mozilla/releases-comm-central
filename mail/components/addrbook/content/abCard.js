@@ -325,7 +325,7 @@ function OnLoadEditCard() {
 
       if (directory.readOnly) {
         // Set all the editable vcard fields to read only
-        for (var i = kVcardFields.length; i-- > 0;) {
+        for (let i = kVcardFields.length - 1; i >= 0; i--) {
           document.getElementById(kVcardFields[i][0]).readOnly = true;
         }
 
@@ -426,7 +426,7 @@ function InitPhoneticFields() {
 
   // show phonetic fields if indicated by the pref
   if (showPhoneticFields == "true") {
-    for (var i = kPhoneticFields.length; i-- > 0;) {
+    for (var i = kPhoneticFields.length - 1; i >= 0; i--) {
       document.getElementById(kPhoneticFields[i]).hidden = false;
     }
   }
@@ -568,7 +568,7 @@ function GetCardValues(cardproperty, doc) {
   // to give extensions a chance to populate custom fields.
   NotifyLoadListeners(cardproperty, doc);
 
-  for (var i = kVcardFields.length; i-- > 0;) {
+  for (var i = kVcardFields.length - 1; i >= 0; i--) {
     doc.getElementById(kVcardFields[i][0]).value = cardproperty.getProperty(
       kVcardFields[i][1],
       ""
@@ -649,10 +649,10 @@ function HideNonVcardFields() {
   document.getElementById("chatTabButton").hidden = true;
   document.getElementById("photoTabButton").hidden = true;
   var i;
-  for (i = kNonVcardFields.length; i-- > 0;) {
+  for (i = kNonVcardFields.length - 1; i >= 0; i--) {
     document.getElementById(kNonVcardFields[i]).collapsed = true;
   }
-  for (i = kPhoneticFields.length; i-- > 0;) {
+  for (i = kPhoneticFields.length - 1; i >= 0; i--) {
     document.getElementById(kPhoneticFields[i]).collapsed = true;
   }
 }
@@ -670,7 +670,7 @@ function CheckAndSetCardValues(cardproperty, doc, check) {
     return true;
   }
 
-  for (var i = kVcardFields.length; i-- > 0;) {
+  for (var i = kVcardFields.length - 1; i >= 0; i--) {
     cardproperty.setProperty(
       kVcardFields[i][1],
       doc.getElementById(kVcardFields[i][0]).value

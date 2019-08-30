@@ -721,7 +721,8 @@
 
       setTimeout(() => {
         for (let modeName of Object.keys(aTabType.modes)) {
-          for (let i = 0; i < this.unrestoredTabs.length;) {
+          let i = 0;
+          while (i < this.unrestoredTabs.length) {
             let state = this.unrestoredTabs[i];
             if (state.mode == modeName) {
               this.restoreTab(state);
