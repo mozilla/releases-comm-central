@@ -38,7 +38,7 @@ var MailUtils = {
         server.rootFolder.subFolders;
       } catch (ex) {
         Services.console.logStringMessage(
-          "Discovering folders for account failed with " + "exception: " + ex
+          "Discovering folders for account failed with exception: " + ex
         );
       }
     }

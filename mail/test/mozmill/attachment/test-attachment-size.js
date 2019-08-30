@@ -299,7 +299,7 @@ function check_no_attachment_size(index) {
 
   if (node.attachment.size != -1) {
     throw new Error(
-      "attachmentSize attribute of deleted attachment should " + "be -1!"
+      "attachmentSize attribute of deleted attachment should be -1!"
     );
   }
 

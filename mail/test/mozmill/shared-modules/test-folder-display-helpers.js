@@ -2198,7 +2198,7 @@ var assert_message_not_in_view = assert_messages_not_in_view;
 function assert_message_pane_visible(aThreadPaneIllegal) {
   if (!mc.messageDisplay.visible) {
     throw new Error(
-      "The message display does not think it is visible, but " + "it should!"
+      "The message display does not think it is visible, but it should!"
     );
   }
 
@@ -2243,7 +2243,7 @@ function assert_message_pane_hidden(aMessagePaneIllegal) {
     mc.messageDisplay.visible
   ) {
     throw new Error(
-      "The message display thinks it is visible, but it should " + "not!"
+      "The message display thinks it is visible, but it should not!"
     );
   }
 
@@ -2446,7 +2446,7 @@ function _internal_assert_displayed(trustSelection, troller, desiredIndices) {
     // folder summary is not landed yet, just verify there is no message.
     if (troller.messageDisplay.displayedMessage != null) {
       throw new Error(
-        "Message display should not think it is displaying a " + "message."
+        "Message display should not think it is displaying a message."
       );
     }
     // make sure the content pane is pointed at about:blank
@@ -3198,7 +3198,7 @@ function assert_showing_unread_only() {
   wait_for_message_display_completion();
   if (!mc.folderDisplay.view.showUnreadOnly) {
     throw new Error(
-      "The view should be showing unread messages only, but it " + "isn't."
+      "The view should be showing unread messages only, but it isn't."
     );
   }
 }
@@ -3210,7 +3210,7 @@ function assert_not_showing_unread_only() {
   wait_for_message_display_completion();
   if (mc.folderDisplay.view.showUnreadOnly) {
     throw new Error(
-      "The view should not be showing unread messages only, " + "but it is."
+      "The view should not be showing unread messages only, but it is."
     );
   }
 }

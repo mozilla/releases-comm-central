@@ -169,7 +169,7 @@ function OpenBrowserWithMessageId(messageId) {
     messenger.launchExternalURL(browserURL);
   } catch (ex) {
     Cu.reportError(
-      "Failed to open message-id in browser; " + "browserURL=" + browserURL
+      "Failed to open message-id in browser; browserURL=" + browserURL
     );
   }
 }
@@ -321,7 +321,7 @@ function CheckForMessageIdInFolder(folder, messageId) {
     messageHeader = messageDatabase.getMsgHdrForMessageID(messageId);
   } catch (ex) {
     Cu.reportError(
-      "Failed to find message-id in folder; " + "messageId=" + messageId
+      "Failed to find message-id in folder; messageId=" + messageId
     );
   }
 

@@ -155,7 +155,7 @@ function test_control_shift_k_shows_quick_filter_bar() {
   mc.keypress(null, "k", { accelKey: true, shiftKey: true });
   if (dispatcha.focusedElement != qfbTextbox.inputField) {
     throw new Error(
-      "second control-shift-k did not keep focus on filter " + "textbox"
+      "second control-shift-k did not keep focus on filter textbox"
     );
   }
   if (
@@ -163,7 +163,7 @@ function test_control_shift_k_shows_quick_filter_bar() {
     qfbTextbox.inputField.selectionEnd != qfbTextbox.inputField.textLength
   ) {
     throw new Error(
-      "second control-shift-k did not select text in filter " + "textbox"
+      "second control-shift-k did not select text in filter textbox"
     );
   }
 

@@ -269,7 +269,7 @@ function subtest_inserts_linebreak_on_empty_compose() {
   assert_equals(
     br.localName,
     "br",
-    "The attachment URL containment node should be preceded by " + "a linebreak"
+    "The attachment URL containment node should be preceded by a linebreak"
   );
 
   let mailBody = get_compose_body(cw);
@@ -423,7 +423,7 @@ function subtest_adding_filelinks_to_written_message() {
   assert_equals(
     br.localName,
     "br",
-    "The attachment URL containment node should be preceded by " + "a linebreak"
+    "The attachment URL containment node should be preceded by a linebreak"
   );
   br = br.previousSibling;
   assert_equals(
@@ -609,7 +609,7 @@ function subtest_adding_filelinks_to_reply_below(aText, aWithSig) {
   assert_equals(
     br.localName,
     "br",
-    "The attachment URL containment node should be followed by " + " a br"
+    "The attachment URL containment node should be followed by a br"
   );
 
   let blockquote;

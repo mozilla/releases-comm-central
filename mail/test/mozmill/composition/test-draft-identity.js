@@ -89,7 +89,9 @@ function create_draft(aFrom, aIdKey) {
     "X-Mozilla-Keys:                                                                                 \n" +
     "FCC: mailbox://nobody@Local%20Folders/Sent\n" +
     (aIdKey
-      ? `X-Identity-Key: ${aIdKey}\n` + `X-Account-Key: ${gAccount.key}\n`
+      ? // prettier-ignore
+        `X-Identity-Key: ${aIdKey}\n` +
+        `X-Account-Key: ${gAccount.key}\n`
       : "") +
     `From: ${aFrom}\n` +
     "To: nobody@example.invalid\n" +

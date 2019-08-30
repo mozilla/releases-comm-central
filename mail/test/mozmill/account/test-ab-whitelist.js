@@ -135,7 +135,7 @@ function subtest_check_whitelist_load_cleared(amc) {
     // We should have failed here, because the pref should have been cleared
     // out.
     throw Error(
-      "The whitelist preference for this server wasn't properly " + "cleared."
+      "The whitelist preference for this server wasn't properly cleared."
     );
   } catch (e) {}
 

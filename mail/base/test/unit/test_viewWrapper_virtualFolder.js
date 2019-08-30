@@ -32,7 +32,7 @@ function* test_virtual_folder_single_load_no_pred() {
   assert_equals(
     gMockViewWrapperListener.allMessagesLoadedEventCount,
     1,
-    "Should only have received a single all messages loaded" + " notification!"
+    "Should only have received a single all messages loaded notification!"
   );
 
   verify_messages_in_view(setOne, viewWrapper);
