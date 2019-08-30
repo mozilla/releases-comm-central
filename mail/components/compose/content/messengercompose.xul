@@ -609,7 +609,7 @@
 </panel>
 
 <menupopup id="msgComposeContext"
-           onpopupshowing="if (event.target != this) return true; openEditorContextMenu(this);">
+           onpopupshowing="if (event.target != this) { return true; } openEditorContextMenu(this);">
 
   <!-- Spellchecking menu items -->
   <menuitem id="spellCheckNoSuggestions" label="&spellNoSuggestions.label;" disabled="true"/>
@@ -1122,8 +1122,9 @@
                 label="&fontfaceMenu.label;" accesskey="&fontfaceMenu.accesskey;"
                 position="1">
             <menupopup id="fontFaceMenuPopup"
-                       oncommand="if (event.target.localName == 'menuitem')
-                                    doStatefulCommand('cmd_fontFace', event.target.getAttribute('value'));"
+                       oncommand="if (event.target.localName == 'menuitem') {
+                                    doStatefulCommand('cmd_fontFace', event.target.getAttribute('value'));
+                                  }"
                        onpopupshowing="initFontFaceMenu(this);">
               <menuitem id="menu_fontFaceVarWidth"
                         label="&fontVarWidth.label;"

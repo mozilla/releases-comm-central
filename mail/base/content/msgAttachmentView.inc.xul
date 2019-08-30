@@ -6,7 +6,7 @@
      can be toggled into a slim or an expanded view -->
                         <hbox align="center" id="attachmentBar"
                               context="attachment-toolbar-context-menu"
-                              onclick="if (event.button == 0) toggleAttachmentList(undefined, true);">
+                              onclick="if (event.button == 0) { toggleAttachmentList(undefined, true); }">
                           <button type="checkbox" id="attachmentToggle"
                                   onmousedown="event.preventDefault();"
                                   onclick="event.stopPropagation();"

@@ -411,7 +411,7 @@
 
   <menupopup id="folderPaneContext"
              onpopupshowing="return fillFolderPaneContextMenu(event);"
-             onpopuphiding="if (event.target == this) folderPaneOnPopupHiding();">
+             onpopuphiding="if (event.target == this) { folderPaneOnPopupHiding(); }">
     <menuitem id="folderPaneContext-getMessages"
               label="&folderContextGetMessages.label;"
               accesskey="&folderContextGetMessages.accesskey;"

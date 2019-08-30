@@ -5,7 +5,7 @@
   <tooltip is="chat-tooltip" id="imTooltip"/>
 
   <menupopup id="buddyListContextMenu"
-             onpopupshowing="if (event.target != this) return true; gBuddyListContextMenu = new buddyListContextMenu(this); return gBuddyListContextMenu.shouldDisplay;"
+             onpopupshowing="if (event.target != this) { return true; } gBuddyListContextMenu = new buddyListContextMenu(this); return gBuddyListContextMenu.shouldDisplay;"
              onpopuphiding="if (event.target == this) { gBuddyListContextMenu = null; }">
     <menuitem id="context-openconversation"
               label="&openConversationCmd.label;"
@@ -27,7 +27,7 @@
   </menupopup>
 
   <menupopup id="chatConversationContextMenu"
-             onpopupshowing="if (event.target != this) return true; gChatContextMenu = new imContextMenu(this); return gChatContextMenu.shouldDisplay;"
+             onpopupshowing="if (event.target != this) { return true; } gChatContextMenu = new imContextMenu(this); return gChatContextMenu.shouldDisplay;"
              onpopuphiding="if (event.target == this &amp;&amp; gChatContextMenu) { gChatContextMenu.cleanup(); gChatContextMenu = null; }">
     <menuitem id="context-openlink"
               label="&openLinkCmd.label;"
@@ -62,7 +62,7 @@
   </menupopup>
 
   <menupopup id="chatContextMenu"
-             onpopupshowing="if (event.target != this) return true; openChatContextMenu(this);"
+             onpopupshowing="if (event.target != this) { return true; } openChatContextMenu(this);"
              onpopuphiding="if (event.target == this) { clearChatContextMenu(this); }">
 
     <!-- Spellchecking menu items -->
