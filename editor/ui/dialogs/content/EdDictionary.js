@@ -15,8 +15,9 @@ function Startup() {
     return;
   }
   // Get the SpellChecker shell
-  if ("gSpellChecker" in window.opener && window.opener.gSpellChecker)
+  if ("gSpellChecker" in window.opener && window.opener.gSpellChecker) {
     gSpellChecker = window.opener.gSpellChecker;
+  }
 
   if (!gSpellChecker) {
     dump("SpellChecker not found!!!\n");
@@ -42,7 +43,7 @@ function ValidateWordToAdd() {
   if (gWordToAdd.length > 0) {
     return true;
   }
-    return false;
+  return false;
 }
 
 function SelectWordToAddInList() {
@@ -60,7 +61,9 @@ function AddWord() {
     try {
       gSpellChecker.AddWordToDictionary(gWordToAdd);
     } catch (e) {
-      dump("Exception occurred in gSpellChecker.AddWordToDictionary\nWord to add probably already existed\n");
+      dump(
+        "Exception occurred in gSpellChecker.AddWordToDictionary\nWord to add probably already existed\n"
+      );
     }
 
     // Rebuild the dialog list
@@ -138,21 +141,24 @@ function FillDictionaryList() {
 
   // XXX: BUG 74467: If list is empty, it doesn't layout to full height correctly
   //     (ignores "rows" attribute) (bug is latered, so we are fixing here for now)
-  if (!haveList)
-      gDialog.DictionaryList.appendItem("", "");
+  if (!haveList) {
+    gDialog.DictionaryList.appendItem("", "");
+  }
 
   ResetSelectedItem(selIndex);
 }
 
 function ResetSelectedItem(index) {
   var lastIndex = gDialog.DictionaryList.getRowCount() - 1;
-  if (index > lastIndex)
+  if (index > lastIndex) {
     index = lastIndex;
+  }
 
   // If we didn't have a selected item,
   //  set it to the first item
-  if (index == -1 && lastIndex >= 0)
+  if (index == -1 && lastIndex >= 0) {
     index = 0;
+  }
 
   gDialog.DictionaryList.selectedIndex = index;
 }

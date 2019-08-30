@@ -22,20 +22,23 @@ function BuildJSEAttributeNameList() {
       //  simply remove the JS tab to not allow adding JS events
       if (attNames[0] == "noJSEvents") {
         var tab = document.getElementById("tabJSE");
-        if (tab)
+        if (tab) {
           tab.remove();
+        }
 
         return;
       }
 
-      for (i = 0; i < attNames.length; i++)
+      for (i = 0; i < attNames.length; i++) {
         gDialog.AddJSEAttributeNameList.appendItem(attNames[i], attNames[i]);
+      }
 
       popup = gDialog.AddJSEAttributeNameList.firstChild;
       if (popup) {
         sep = document.createXULElement("menuseparator");
-        if (sep)
+        if (sep) {
           popup.appendChild(sep);
+        }
       }
     }
   }
@@ -43,15 +46,20 @@ function BuildJSEAttributeNameList() {
   // Always add core JS events unless we aborted above
   for (i = 0; i < gCoreJSEvents.length; i++) {
     if (gCoreJSEvents[i] == "-") {
-      if (!popup)
+      if (!popup) {
         popup = gDialog.AddJSEAttributeNameList.firstChild;
+      }
 
       sep = document.createXULElement("menuseparator");
 
-      if (popup && sep)
+      if (popup && sep) {
         popup.appendChild(sep);
+      }
     } else {
-      gDialog.AddJSEAttributeNameList.appendItem(gCoreJSEvents[i], gCoreJSEvents[i]);
+      gDialog.AddJSEAttributeNameList.appendItem(
+        gCoreJSEvents[i],
+        gCoreJSEvents[i]
+      );
     }
   }
 
@@ -68,38 +76,50 @@ function BuildJSEAttributeTable() {
     var added = false;
     for (var i = 0; i < nodeMap.length; i++) {
       let name = nodeMap[i].nodeName.toLowerCase();
-      if (CheckAttributeNameSimilarity(nodeMap[i].nodeName, JSEAttrs))
-        continue;   // repeated or non-JS handler, ignore this one and go to next
-      if (!name.startsWith("on"))
-        continue; // attribute isn't an event handler.
+      if (CheckAttributeNameSimilarity(nodeMap[i].nodeName, JSEAttrs)) {
+        continue;
+      } // repeated or non-JS handler, ignore this one and go to next
+      if (!name.startsWith("on")) {
+        continue;
+      } // attribute isn't an event handler.
       var value = gElement.getAttribute(nodeMap[i].nodeName);
-      if (AddTreeItem(name, value, "JSEAList", JSEAttrs)) // add item to tree
+      if (AddTreeItem(name, value, "JSEAList", JSEAttrs)) {
+        // add item to tree
         added = true;
+      }
     }
 
     // Select first item
-    if (added)
+    if (added) {
       gDialog.AddJSEAttributeTree.selectedIndex = 0;
+    }
   }
 }
 
 function onSelectJSEAttribute() {
-  if (!gDoOnSelectTree)
+  if (!gDoOnSelectTree) {
     return;
+  }
 
-  gDialog.AddJSEAttributeValueInput.value =
-      GetAndSelectExistingAttributeValue(gDialog.AddJSEAttributeNameList.label, "JSEAList");
+  gDialog.AddJSEAttributeValueInput.value = GetAndSelectExistingAttributeValue(
+    gDialog.AddJSEAttributeNameList.label,
+    "JSEAList"
+  );
 }
 
 function onSelectJSETreeItem() {
   var tree = gDialog.AddJSEAttributeTree;
   if (tree && tree.view.selection.count) {
     // Select attribute name in list
-    gDialog.AddJSEAttributeNameList.value = GetTreeItemAttributeStr(getSelectedItem(tree));
+    gDialog.AddJSEAttributeNameList.value = GetTreeItemAttributeStr(
+      getSelectedItem(tree)
+    );
 
     // Set value input to that in tree (no need to update this in the tree)
     gUpdateTreeValue = false;
-    gDialog.AddJSEAttributeValueInput.value =  GetTreeItemValueStr(getSelectedItem(tree));
+    gDialog.AddJSEAttributeValueInput.value = GetTreeItemValueStr(
+      getSelectedItem(tree)
+    );
     gUpdateTreeValue = true;
   }
 }
@@ -112,14 +132,16 @@ function onInputJSEAttributeValue() {
     // Update value in the tree list
     // Since we have a non-editable menulist,
     //   we MUST automatically add the event attribute if it doesn't exist
-    if (!UpdateExistingAttribute(name, value, "JSEAList") && value)
+    if (!UpdateExistingAttribute(name, value, "JSEAList") && value) {
       AddTreeItem(name, value, "JSEAList", JSEAttrs);
+    }
   }
 }
 
 function editJSEAttributeValue(targetCell) {
-  if (IsNotTreeHeader(targetCell))
+  if (IsNotTreeHeader(targetCell)) {
     gDialog.AddJSEAttributeValueInput.inputField.select();
+  }
 }
 
 function UpdateJSEAttributes() {
@@ -130,8 +152,9 @@ function UpdateJSEAttributes() {
   for (i = 0; i < JSERAttrs.length; i++) {
     var name = JSERAttrs[i];
 
-    if (gElement.hasAttribute(name))
+    if (gElement.hasAttribute(name)) {
       doRemoveAttribute(name);
+    }
   }
 
   // Add events
@@ -158,8 +181,9 @@ function RemoveJSEAttribute() {
     var attr = GetTreeItemAttributeStr(item);
 
     // remove the item from the attribute array
-    if (newIndex >= (JSEAttrs.length - 1))
+    if (newIndex >= JSEAttrs.length - 1) {
       newIndex--;
+    }
 
     // remove the item from the attribute array
     JSERAttrs[JSERAttrs.length] = attr;

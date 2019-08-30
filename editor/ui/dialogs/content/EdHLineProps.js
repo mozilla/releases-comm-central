@@ -41,7 +41,9 @@ function Startup() {
   gDialog.rightAlign = document.getElementById("rightAlign");
   gDialog.alignGroup = gDialog.rightAlign.radioGroup;
   gDialog.shading = document.getElementById("3dShading");
-  gDialog.pixelOrPercentMenulist = document.getElementById("pixelOrPercentMenulist");
+  gDialog.pixelOrPercentMenulist = document.getElementById(
+    "pixelOrPercentMenulist"
+  );
 
   // Make a copy to use for AdvancedEdit and onSaveDefault
   globalElement = gHLineElement.cloneNode(false);
@@ -77,14 +79,28 @@ function InitDialog() {
 
   // Get the width attribute of the element, stripping out "%"
   // This sets contents of menulist (adds pixel and percent menuitems elements)
-  gDialog.widthInput.value = InitPixelOrPercentMenulist(globalElement, gHLineElement, "width", "pixelOrPercentMenulist");
+  gDialog.widthInput.value = InitPixelOrPercentMenulist(
+    globalElement,
+    gHLineElement,
+    "width",
+    "pixelOrPercentMenulist"
+  );
 
-  var marginLeft  = GetHTMLOrCSSStyleValue(globalElement, "align", "margin-left").toLowerCase();
-  var marginRight = GetHTMLOrCSSStyleValue(globalElement, "align", "margin-right").toLowerCase();
+  var marginLeft = GetHTMLOrCSSStyleValue(
+    globalElement,
+    "align",
+    "margin-left"
+  ).toLowerCase();
+  var marginRight = GetHTMLOrCSSStyleValue(
+    globalElement,
+    "align",
+    "margin-right"
+  ).toLowerCase();
   align = marginLeft + " " + marginRight;
-  gDialog.leftAlign.checked   = (align == "left left" || align == "0px auto");
-  gDialog.centerAlign.checked = (align == "center center" || align == "auto auto" || align == " ");
-  gDialog.rightAlign.checked  = (align == "right right" || align == "auto 0px");
+  gDialog.leftAlign.checked = align == "left left" || align == "0px auto";
+  gDialog.centerAlign.checked =
+    align == "center center" || align == "auto auto" || align == " ";
+  gDialog.rightAlign.checked = align == "right right" || align == "auto 0px";
 
   if (gDialog.centerAlign.checked) {
     gDialog.alignGroup.selectedItem = gDialog.centerAlign;
@@ -144,15 +160,31 @@ function onSaveDefault() {
 // Set attributes on globalElement so they can be accessed by AdvancedEdit()
 function ValidateData() {
   // Height is always pixels
-  height = ValidateNumber(gDialog.heightInput, null, 1, gMaxHRSize,
-                          globalElement, "size", false);
-  if (gValidationError)
+  height = ValidateNumber(
+    gDialog.heightInput,
+    null,
+    1,
+    gMaxHRSize,
+    globalElement,
+    "size",
+    false
+  );
+  if (gValidationError) {
     return false;
+  }
 
-  width = ValidateNumber(gDialog.widthInput, gDialog.pixelOrPercentMenulist, 1, gMaxPixels,
-                         globalElement, "width", false);
-  if (gValidationError)
+  width = ValidateNumber(
+    gDialog.widthInput,
+    gDialog.pixelOrPercentMenulist,
+    1,
+    gMaxPixels,
+    globalElement,
+    "width",
+    false
+  );
+  if (gValidationError) {
     return false;
+  }
 
   align = "left";
   if (gDialog.centerAlign.selected) {
@@ -161,12 +193,17 @@ function ValidateData() {
   } else if (gDialog.rightAlign.selected) {
     align = "right";
   }
-  if (align)
+  if (align) {
     globalElement.setAttribute("align", align);
-  else
+  } else {
     try {
-      GetCurrentEditor().removeAttributeOrEquivalent(globalElement, "align", true);
+      GetCurrentEditor().removeAttributeOrEquivalent(
+        globalElement,
+        "align",
+        true
+      );
     } catch (e) {}
+  }
 
   if (gDialog.shading.checked) {
     shading = true;

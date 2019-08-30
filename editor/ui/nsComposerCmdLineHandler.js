@@ -2,12 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
 const nsICommandLineHandler = Ci.nsICommandLineHandler;
-const nsISupportsString     = Ci.nsISupportsString;
-const nsIWindowWatcher      = Ci.nsIWindowWatcher;
+const nsISupportsString = Ci.nsISupportsString;
+const nsIWindowWatcher = Ci.nsIWindowWatcher;
 
 function nsComposerCmdLineHandler() {}
 nsComposerCmdLineHandler.prototype = {
@@ -20,15 +22,17 @@ nsComposerCmdLineHandler.prototype = {
 
   /* nsICommandLineHandler */
   handle(cmdLine) {
-    var args = Cc["@mozilla.org/supports-string;1"]
-                 .createInstance(nsISupportsString);
+    var args = Cc["@mozilla.org/supports-string;1"].createInstance(
+      nsISupportsString
+    );
     try {
       var uristr = cmdLine.handleFlagWithParam("edit", false);
       if (uristr == null) {
         // Try the editor flag (used for general.startup.* prefs)
         uristr = cmdLine.handleFlagWithParam("editor", false);
-        if (uristr == null)
+        if (uristr == null) {
           return;
+        }
       }
 
       try {
@@ -41,8 +45,13 @@ nsComposerCmdLineHandler.prototype = {
       args.data = "about:blank";
     }
 
-    Services.ww.openWindow(null, "chrome://editor/content", "_blank",
-                           "chrome,dialog=no,all", args);
+    Services.ww.openWindow(
+      null,
+      "chrome://editor/content",
+      "_blank",
+      "chrome,dialog=no,all",
+      args
+    );
     cmdLine.preventDefault = true;
   },
 

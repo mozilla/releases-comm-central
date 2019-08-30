@@ -29,10 +29,10 @@ function Startup() {
     return;
   }
 
-  gDialog.PageLocation     = document.getElementById("PageLocation");
-  gDialog.PageModDate      = document.getElementById("PageModDate");
-  gDialog.TitleInput       = document.getElementById("TitleInput");
-  gDialog.AuthorInput      = document.getElementById("AuthorInput");
+  gDialog.PageLocation = document.getElementById("PageLocation");
+  gDialog.PageModDate = document.getElementById("PageModDate");
+  gDialog.TitleInput = document.getElementById("TitleInput");
+  gDialog.AuthorInput = document.getElementById("AuthorInput");
   gDialog.DescriptionInput = document.getElementById("DescriptionInput");
 
   // Default string for new page is set from DTD string in XUL,
@@ -48,13 +48,14 @@ function Startup() {
     // TODO: Convert this to local time?
     var lastmod;
     try {
-      lastmod = editor.document.lastModified;  // get string of last modified date
+      lastmod = editor.document.lastModified; // get string of last modified date
     } catch (e) {}
     // Convert modified string to date (0 = unknown date or January 1, 1970 GMT)
     if (Date.parse(lastmod)) {
       try {
         const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
-          dateStyle: "long", timeStyle: "short",
+          dateStyle: "long",
+          timeStyle: "short",
         });
 
         var lastModDate = new Date();
@@ -78,8 +79,9 @@ function Startup() {
   gDescriptionElement = GetMetaElementByAttribute("name", "description");
   if (!gDescriptionElement) {
     gDescriptionElement = CreateMetaElementWithAttribute("name", "description");
-    if (!gDescriptionElement)
+    if (!gDescriptionElement) {
       window.close();
+    }
 
     gInsertNewDescription = true;
   }
@@ -131,14 +133,22 @@ function onAccept(event) {
 
     // Set title contents even if string is empty
     //  because TITLE is a required HTML element
-    if (gTitleWasEdited)
+    if (gTitleWasEdited) {
       SetDocumentTitle(gNewTitle);
+    }
 
-    if (gAuthorWasEdited)
+    if (gAuthorWasEdited) {
       SetMetaElementContent(gAuthorElement, gAuthor, gInsertNewAuthor, false);
+    }
 
-    if (gDescWasEdited)
-      SetMetaElementContent(gDescriptionElement, gDescription, gInsertNewDescription, false);
+    if (gDescWasEdited) {
+      SetMetaElementContent(
+        gDescriptionElement,
+        gDescription,
+        gInsertNewDescription,
+        false
+      );
+    }
 
     editor.endTransaction();
 
@@ -147,4 +157,3 @@ function onAccept(event) {
   }
   event.preventDefault();
 }
-

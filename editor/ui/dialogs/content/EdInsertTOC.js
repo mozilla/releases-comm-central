@@ -19,11 +19,11 @@ var readonly = false;
 var orderedList = true;
 
 // constants
-const kMozToc                  = "mozToc";
-const kMozTocLength            = 6;
-const kMozTocIdPrefix          = "mozTocId";
-const kMozTocIdPrefixLength    = 8;
-const kMozTocClassPrefix       = "mozToc";
+const kMozToc = "mozToc";
+const kMozTocLength = 6;
+const kMozTocIdPrefix = "mozTocId";
+const kMozTocIdPrefixLength = 8;
+const kMozTocClassPrefix = "mozToc";
 const kMozTocClassPrefixLength = 6;
 
 document.addEventListener("dialogaccept", () => BuildTOC(true));
@@ -38,14 +38,15 @@ function Startup() {
 
   var i;
   // clean the table of tag/class pairs we look for
-  for (i = 0; i < 6; ++i)
-    tocHeadersArray[i] = [ "", "" ];
+  for (i = 0; i < 6; ++i) {
+    tocHeadersArray[i] = ["", ""];
+  }
 
   // reset all settings
   for (i = 1; i < 7; ++i) {
     var menulist = document.getElementById("header" + i + "Menulist");
     var menuitem = document.getElementById("header" + i + "none");
-    var textbox  = document.getElementById("header" + i + "Class");
+    var textbox = document.getElementById("header" + i + "Class");
     menulist.selectedItem = menuitem;
     textbox.setAttribute("disabled", "true");
   }
@@ -72,18 +73,24 @@ function Startup() {
     }
 
     // let's see if it's an OL or an UL
-    orderedList = (toc.nodeName.toLowerCase() == "ol");
+    orderedList = toc.nodeName.toLowerCase() == "ol";
     orderedListCheckbox.checked = orderedList;
 
     var nodeList = toc.childNodes;
     // let's look at the children of the TOC ; if we find a comment beginning
     // with "mozToc", it contains the TOC definition
     for (i = 0; i < nodeList.length; ++i) {
-      if (nodeList.item(i).nodeType == Node.COMMENT_NODE &&
-          nodeList.item(i).data.startsWith(kMozToc)) {
+      if (
+        nodeList.item(i).nodeType == Node.COMMENT_NODE &&
+        nodeList.item(i).data.startsWith(kMozToc)
+      ) {
         // yep, there is already a definition here; parse it !
-        headers = nodeList.item(i).data.substr(kMozTocLength + 1,
-                                    nodeList.item(i).length - kMozTocLength - 1);
+        headers = nodeList
+          .item(i)
+          .data.substr(
+            kMozTocLength + 1,
+            nodeList.item(i).length - kMozTocLength - 1
+          );
         break;
       }
     }
@@ -93,7 +100,8 @@ function Startup() {
   var headersArray = headers.split(" ");
 
   for (i = 0; i < headersArray.length; i += 2) {
-    var tag = headersArray[i], className = "";
+    var tag = headersArray[i],
+      className = "";
     var index = headersArray[i + 1];
     menulist = document.getElementById("header" + index + "Menulist");
     if (menulist) {
@@ -101,15 +109,14 @@ function Startup() {
       if (sep != -1) {
         // the tag variable contains in fact "tag.className", let's parse
         // the class and get the real tag name
-        var tmp   = tag.substr(0, sep);
+        var tmp = tag.substr(0, sep);
         className = tag.substr(sep + 1, tag.length - sep - 1);
         tag = tmp;
       }
 
       // update the dialog
-      menuitem = document.getElementById("header" + index +
-                                         tag.toUpperCase());
-      textbox  = document.getElementById("header" + index + "Class");
+      menuitem = document.getElementById("header" + index + tag.toUpperCase());
+      textbox = document.getElementById("header" + index + "Class");
       menulist.selectedItem = menuitem;
       if (tag != "") {
         textbox.removeAttribute("disabled");
@@ -117,11 +124,10 @@ function Startup() {
       if (className != "") {
         textbox.value = className;
       }
-      tocHeadersArray[index - 1] = [ tag, className ];
+      tocHeadersArray[index - 1] = [tag, className];
     }
   }
 }
-
 
 function BuildTOC(update) {
   // controlClass() is a node filter that accepts a node if
@@ -172,10 +178,12 @@ function BuildTOC(update) {
   var editor = GetCurrentEditor();
   var theDocument = editor.document;
   // let's create a TreeWalker to look for our nodes
-  var treeWalker = theDocument.createTreeWalker(theDocument.documentElement,
-                                                NodeFilter.SHOW_ELEMENT,
-                                                acceptNode,
-                                                true);
+  var treeWalker = theDocument.createTreeWalker(
+    theDocument.documentElement,
+    NodeFilter.SHOW_ELEMENT,
+    acceptNode,
+    true
+  );
   // we need an array to store all TOC entries we find in the document
   var tocArray = [];
   if (treeWalker) {
@@ -184,21 +192,27 @@ function BuildTOC(update) {
       var headerIndex = currentHeaderLevel;
 
       // we have a node, we need to get all its textual contents
-      var textTreeWalker = theDocument.createTreeWalker(tocSourceNode,
-                                                        NodeFilter.SHOW_TEXT,
-                                                        null,
-                                                        true);
-      var textNode = textTreeWalker.nextNode(), headerText = "";
+      var textTreeWalker = theDocument.createTreeWalker(
+        tocSourceNode,
+        NodeFilter.SHOW_TEXT,
+        null,
+        true
+      );
+      var textNode = textTreeWalker.nextNode(),
+        headerText = "";
       while (textNode) {
         headerText += textNode.data;
         textNode = textTreeWalker.nextNode();
       }
 
-      var anchor = tocSourceNode.firstChild, id;
+      var anchor = tocSourceNode.firstChild,
+        id;
       // do we have a named anchor as 1st child of our node ?
-      if (anchor.nodeName.toLowerCase() == "a" &&
-          anchor.hasAttribute("name") &&
-          anchor.getAttribute("name").startsWith(kMozTocIdPrefix)) {
+      if (
+        anchor.nodeName.toLowerCase() == "a" &&
+        anchor.hasAttribute("name") &&
+        anchor.getAttribute("name").startsWith(kMozTocIdPrefix)
+      ) {
         // yep, get its name
         id = anchor.getAttribute("name");
       } else {
@@ -209,8 +223,10 @@ function BuildTOC(update) {
         var c = 1000000 * Math.random();
         id = kMozTocIdPrefix + Math.round(c);
         anchor.setAttribute("name", id);
-        anchor.setAttribute("class", kMozTocClassPrefix +
-                                     tocSourceNode.nodeName.toUpperCase());
+        anchor.setAttribute(
+          "class",
+          kMozTocClassPrefix + tocSourceNode.nodeName.toUpperCase()
+        );
       }
       // and store that new entry in our array
       tocArray.push(headerIndex, headerText, id);
@@ -228,7 +244,9 @@ function BuildTOC(update) {
       toc = theDocument.getElementById(kMozToc);
       if (!toc || !update) {
         // we need to create a list container for the table of contents
-        toc = GetCurrentEditor().createElementWithDefaults(orderedList ? "ol" : "ul");
+        toc = GetCurrentEditor().createElementWithDefaults(
+          orderedList ? "ol" : "ul"
+        );
         // grrr, we need to create a LI inside the list otherwise
         // Composer will refuse an empty list and will remove it !
         var pit = theDocument.createElement("li");
@@ -243,7 +261,9 @@ function BuildTOC(update) {
         // desired type (ordered or not) ?
 
         // nope, we have to recreate the list
-        var newToc = GetCurrentEditor().createElementWithDefaults(orderedList ? "ol" : "ul");
+        var newToc = GetCurrentEditor().createElementWithDefaults(
+          orderedList ? "ol" : "ul"
+        );
         toc.parentNode.insertBefore(newToc, toc);
         // and remove the old one
         toc.remove();
@@ -251,8 +271,9 @@ function BuildTOC(update) {
         toc.setAttribute("id", kMozToc);
       } else {
         // we can keep the list itself but let's get rid of the TOC entries
-        while (toc.hasChildNodes())
+        while (toc.hasChildNodes()) {
           toc.lastChild.remove();
+        }
       }
 
       var commentText = "mozToc ";

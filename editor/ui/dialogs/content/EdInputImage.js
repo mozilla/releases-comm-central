@@ -19,9 +19,9 @@ function Startup() {
   }
 
   gDialog = {
-    inputName:      document.getElementById("InputName"),
-    inputDisabled:  document.getElementById("InputDisabled"),
-    inputTabIndex:  document.getElementById("InputTabIndex"),
+    inputName: document.getElementById("InputName"),
+    inputDisabled: document.getElementById("InputDisabled"),
+    inputTabIndex: document.getElementById("InputTabIndex"),
   };
 
   ImageStartup();
@@ -56,9 +56,24 @@ function Startup() {
 
     if (imgElement) {
       // We found an image element, convert it to an input type="image"
-      var attributes = ["src", "alt", "width", "height", "hspace", "vspace", "border", "align", "usemap", "ismap"];
-      for (let i in attributes)
-        imageElement.setAttribute(attributes[i], imgElement.getAttribute(attributes[i]));
+      var attributes = [
+        "src",
+        "alt",
+        "width",
+        "height",
+        "hspace",
+        "vspace",
+        "border",
+        "align",
+        "usemap",
+        "ismap",
+      ];
+      for (let i in attributes) {
+        imageElement.setAttribute(
+          attributes[i],
+          imgElement.getAttribute(attributes[i])
+        );
+      }
     }
   }
 
@@ -86,25 +101,32 @@ function Startup() {
 function InitDialog() {
   InitImage();
   gDialog.inputName.value = globalElement.getAttribute("name");
-  gDialog.inputDisabled.setAttribute("checked", globalElement.hasAttribute("disabled"));
+  gDialog.inputDisabled.setAttribute(
+    "checked",
+    globalElement.hasAttribute("disabled")
+  );
   gDialog.inputTabIndex.value = globalElement.getAttribute("tabindex");
 }
 
 function ValidateData() {
-  if (!ValidateImage())
+  if (!ValidateImage()) {
     return false;
-  if (gDialog.inputName.value)
+  }
+  if (gDialog.inputName.value) {
     globalElement.setAttribute("name", gDialog.inputName.value);
-  else
+  } else {
     globalElement.removeAttribute("name");
-  if (gDialog.inputTabIndex.value)
+  }
+  if (gDialog.inputTabIndex.value) {
     globalElement.setAttribute("tabindex", gDialog.inputTabIndex.value);
-  else
+  } else {
     globalElement.removeAttribute("tabindex");
-  if (gDialog.inputDisabled.checked)
+  }
+  if (gDialog.inputDisabled.checked) {
     globalElement.setAttribute("disabled", "");
-  else
+  } else {
     globalElement.removeAttribute("disabled");
+  }
   globalElement.setAttribute("type", "image");
   return true;
 }
@@ -132,9 +154,10 @@ function onAccept(event) {
         // Assign to map if there is one
         var mapName = gImageMap.getAttribute("name");
         if (mapName != "") {
-          globalElement.setAttribute("usemap", ("#" + mapName));
-          if (globalElement.getAttribute("border") == "")
+          globalElement.setAttribute("usemap", "#" + mapName);
+          if (globalElement.getAttribute("border") == "") {
             globalElement.setAttribute("border", 0);
+          }
         }
       }
 
@@ -164,4 +187,3 @@ function onAccept(event) {
   }
   event.preventDefault();
 }
-

@@ -22,7 +22,7 @@ function Startup() {
     return;
   }
 
-  gDialog.OkButton  = document.documentElement.getButton("accept");
+  gDialog.OkButton = document.documentElement.getButton("accept");
   gDialog.NameInput = document.getElementById("nameInput");
 
   // Get a single selected element of the desired type
@@ -47,8 +47,9 @@ function Startup() {
       //  replace whitespace with "_" and strip non-word characters
       name = ConvertToCDATAString(TruncateStringAtWordEnd(name, 40, false));
       // Be sure the name is unique to the document
-      if (AnchorNameExists(name))
+      if (AnchorNameExists(name)) {
         name += "_";
+      }
 
       // Make a copy to use for AdvancedEdit
       globalElement = gAnchorElement.cloneNode(false);
@@ -96,8 +97,9 @@ function AnchorNameExists(name) {
 
   if (anchorList) {
     for (var i = 0; i < anchorList.length; i++) {
-      if (anchorList[i].name == name)
+      if (anchorList[i].name == name) {
         return true;
+      }
     }
   }
   return false;
@@ -108,21 +110,23 @@ function AnchorNameExists(name) {
 function ValidateData() {
   var name = TrimString(gDialog.NameInput.value);
   if (!name) {
-      ShowInputErrorMessage(GetString("MissingAnchorNameError"));
-      SetTextboxFocus(gDialog.NameInput);
-      return false;
+    ShowInputErrorMessage(GetString("MissingAnchorNameError"));
+    SetTextboxFocus(gDialog.NameInput);
+    return false;
   }
-    // Replace spaces with "_" and strip other characters
-    // Note: we could use ConvertAndEscape, but then we'd
-    //  have to UnConverAndEscape beforehand - too messy!
-    name = ConvertToCDATAString(name);
+  // Replace spaces with "_" and strip other characters
+  // Note: we could use ConvertAndEscape, but then we'd
+  //  have to UnConverAndEscape beforehand - too messy!
+  name = ConvertToCDATAString(name);
 
-    if (gOriginalName != name && AnchorNameExists(name)) {
-      ShowInputErrorMessage(GetString("DuplicateAnchorNameError").replace(/%name%/, name));
-      SetTextboxFocus(gDialog.NameInput);
-      return false;
-    }
-    globalElement.name = name;
+  if (gOriginalName != name && AnchorNameExists(name)) {
+    ShowInputErrorMessage(
+      GetString("DuplicateAnchorNameError").replace(/%name%/, name)
+    );
+    SetTextboxFocus(gDialog.NameInput);
+    return false;
+  }
+  globalElement.name = name;
 
   return true;
 }

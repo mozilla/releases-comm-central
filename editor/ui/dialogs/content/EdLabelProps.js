@@ -40,9 +40,16 @@ function Startup() {
     gDialog.editText.checked = false;
     gDialog.editText.disabled = false;
     gDialog.labelText.disabled = true;
-    gDialog.editText.addEventListener("command",
-      () => Services.prompt.alert(window, GetString("Alert"), GetString("EditTextWarning")),
-      {capture: false, once: true});
+    gDialog.editText.addEventListener(
+      "command",
+      () =>
+        Services.prompt.alert(
+          window,
+          GetString("Alert"),
+          GetString("EditTextWarning")
+        ),
+      { capture: false, once: true }
+    );
     SetTextboxFocus(gDialog.labelFor);
   } else {
     SetTextboxFocus(gDialog.labelText);
@@ -63,14 +70,16 @@ function RemoveLabel() {
 }
 
 function ValidateData() {
-  if (gDialog.labelFor.value)
+  if (gDialog.labelFor.value) {
     globalElement.setAttribute("for", gDialog.labelFor.value);
-  else
+  } else {
     globalElement.removeAttribute("for");
-  if (gDialog.labelAccessKey.value)
+  }
+  if (gDialog.labelAccessKey.value) {
     globalElement.setAttribute("accesskey", gDialog.labelAccessKey.value);
-  else
+  } else {
     globalElement.removeAttribute("accesskey");
+  }
   return true;
 }
 
@@ -86,10 +95,16 @@ function onAccept() {
     if (gDialog.editText.checked) {
       editor.setShouldTxnSetSelection(false);
 
-      while (labelElement.firstChild)
+      while (labelElement.firstChild) {
         editor.deleteNode(labelElement.firstChild);
-      if (gDialog.labelText.value)
-        editor.insertNode(editor.document.createTextNode(gDialog.labelText.value), labelElement, 0);
+      }
+      if (gDialog.labelText.value) {
+        editor.insertNode(
+          editor.document.createTextNode(gDialog.labelText.value),
+          labelElement,
+          0
+        );
+      }
 
       editor.setShouldTxnSetSelection(true);
     }
@@ -101,4 +116,3 @@ function onAccept() {
 
   SaveWindowLocation();
 }
-

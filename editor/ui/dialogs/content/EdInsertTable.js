@@ -34,18 +34,23 @@ function Startup() {
     window.close();
     return;
   }
-  gDialog.rowsInput    = document.getElementById("rowsInput");
+  gDialog.rowsInput = document.getElementById("rowsInput");
   gDialog.columnsInput = document.getElementById("columnsInput");
   gDialog.widthInput = document.getElementById("widthInput");
   gDialog.borderInput = document.getElementById("borderInput");
-  gDialog.widthPixelOrPercentMenulist = document.getElementById("widthPixelOrPercentMenulist");
+  gDialog.widthPixelOrPercentMenulist = document.getElementById(
+    "widthPixelOrPercentMenulist"
+  );
   gDialog.OkButton = document.documentElement.getButton("accept");
 
   // Make a copy to use for AdvancedEdit
   globalElement = gTableElement.cloneNode(false);
   try {
-    if (Services.prefs.getBoolPref("editor.use_css") && IsHTMLEditor()
-        && !(gActiveEditor.flags & Ci.nsIPlaintextEditor.eEditorMailMask)) {
+    if (
+      Services.prefs.getBoolPref("editor.use_css") &&
+      IsHTMLEditor() &&
+      !(gActiveEditor.flags & Ci.nsIPlaintextEditor.eEditorMailMask)
+    ) {
       // only for Composer and not for htmlmail
       globalElement.setAttribute("style", "text-align: left;");
     }
@@ -81,7 +86,13 @@ function InitDialog() {
   // Get the width attribute of the element, stripping out "%"
   // This sets contents of menu combobox list
   // 2nd param = null: Use current selection to find if parent is table cell or window
-  gDialog.widthInput.value = InitPixelOrPercentMenulist(globalElement, null, "width", "widthPixelOrPercentMenulist", gPercent);
+  gDialog.widthInput.value = InitPixelOrPercentMenulist(
+    globalElement,
+    null,
+    "width",
+    "widthPixelOrPercentMenulist",
+    gPercent
+  );
   gDialog.borderInput.value = globalElement.getAttribute("border");
 }
 
@@ -90,40 +101,75 @@ function ChangeRowOrColumn(id) {
   forceInteger(id);
 
   // Enable OK only if both rows and columns have a value > 0
-  var enable = gDialog.rowsInput.value.length > 0 &&
-                              gDialog.rowsInput.value > 0 &&
-                              gDialog.columnsInput.value.length > 0 &&
-                              gDialog.columnsInput.value > 0;
+  var enable =
+    gDialog.rowsInput.value.length > 0 &&
+    gDialog.rowsInput.value > 0 &&
+    gDialog.columnsInput.value.length > 0 &&
+    gDialog.columnsInput.value > 0;
 
   SetElementEnabled(gDialog.OkButton, enable);
   SetElementEnabledById("AdvancedEditButton1", enable);
 }
 
-
 // Get and validate data from widgets.
 // Set attributes on globalElement so they can be accessed by AdvancedEdit()
 function ValidateData() {
-  gRows = ValidateNumber(gDialog.rowsInput, null, 1, gMaxRows, null, null, true);
-  if (gValidationError)
+  gRows = ValidateNumber(
+    gDialog.rowsInput,
+    null,
+    1,
+    gMaxRows,
+    null,
+    null,
+    true
+  );
+  if (gValidationError) {
     return false;
+  }
 
-  gColumns = ValidateNumber(gDialog.columnsInput, null, 1, gMaxColumns, null, null, true);
-  if (gValidationError)
+  gColumns = ValidateNumber(
+    gDialog.columnsInput,
+    null,
+    1,
+    gMaxColumns,
+    null,
+    null,
+    true
+  );
+  if (gValidationError) {
     return false;
+  }
 
   // Set attributes: NOTE: These may be empty strings (last param = false)
-  ValidateNumber(gDialog.borderInput, null, 0, gMaxPixels, globalElement, "border", false);
+  ValidateNumber(
+    gDialog.borderInput,
+    null,
+    0,
+    gMaxPixels,
+    globalElement,
+    "border",
+    false
+  );
   // TODO: Deal with "BORDER" without value issue
-  if (gValidationError) return false;
-
-  ValidateNumber(gDialog.widthInput, gDialog.widthPixelOrPercentMenulist,
-                 1, gMaxTableSize, globalElement, "width", false);
-  if (gValidationError)
+  if (gValidationError) {
     return false;
+  }
+
+  ValidateNumber(
+    gDialog.widthInput,
+    gDialog.widthPixelOrPercentMenulist,
+    1,
+    gMaxTableSize,
+    globalElement,
+    "width",
+    false
+  );
+  if (gValidationError) {
+    return false;
+  }
 
   return true;
 }
-
 
 function onAccept(event) {
   if (ValidateData()) {
@@ -151,10 +197,13 @@ function onAccept(event) {
         }
       }
       // Detect when entire cells are selected:
-        // Get number of cells selected
+      // Get number of cells selected
       var tagNameObj = { value: "" };
       var countObj = { value: 0 };
-      var element = gActiveEditor.getSelectedOrParentTableElement(tagNameObj, countObj);
+      var element = gActiveEditor.getSelectedOrParentTableElement(
+        tagNameObj,
+        countObj
+      );
       var deletePlaceholder = false;
 
       if (tagNameObj.value == "table") {

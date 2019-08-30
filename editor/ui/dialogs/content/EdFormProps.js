@@ -22,11 +22,11 @@ function Startup() {
   }
 
   gForm = {
-    Name:     document.getElementById("FormName"),
-    Action:   document.getElementById("FormAction"),
-    Method:   document.getElementById("FormMethod"),
-    EncType:  document.getElementById("FormEncType"),
-    Target:   document.getElementById("FormTarget"),
+    Name: document.getElementById("FormName"),
+    Action: document.getElementById("FormAction"),
+    Method: document.getElementById("FormMethod"),
+    EncType: document.getElementById("FormEncType"),
+    Target: document.getElementById("FormTarget"),
   };
   gDialog.MoreSection = document.getElementById("MoreSection");
   gDialog.MoreFewerButton = document.getElementById("MoreFewerButton");
@@ -36,10 +36,18 @@ function Startup() {
   const kTagName = "form";
   try {
     formElement = editor.getSelectedElement(kTagName);
-    if (!formElement)
-      formElement = editor.getElementOrParentByTagName(kTagName, editor.selection.anchorNode);
-    if (!formElement)
-      formElement = editor.getElementOrParentByTagName(kTagName, editor.selection.focusNode);
+    if (!formElement) {
+      formElement = editor.getElementOrParentByTagName(
+        kTagName,
+        editor.selection.anchorNode
+      );
+    }
+    if (!formElement) {
+      formElement = editor.getElementOrParentByTagName(
+        kTagName,
+        editor.selection.focusNode
+      );
+    }
   } catch (e) {}
 
   if (formElement) {
@@ -78,8 +86,9 @@ function Startup() {
 }
 
 function InitDialog() {
-  for (var attribute in gForm)
+  for (var attribute in gForm) {
     gForm[attribute].value = globalElement.getAttribute(attribute);
+  }
 }
 
 function RemoveForm() {
@@ -90,17 +99,22 @@ function RemoveForm() {
 
 function ValidateData() {
   for (var attribute in gForm) {
-    if (gForm[attribute].value)
+    if (gForm[attribute].value) {
       globalElement.setAttribute(attribute, gForm[attribute].value);
-    else
+    } else {
       globalElement.removeAttribute(attribute);
+    }
   }
   return true;
 }
 
 function onAccept(event) {
   if (formActionWarning && !gForm.Action.value) {
-    Services.prompt.alert(window, GetString("Alert"), GetString("NoFormAction"));
+    Services.prompt.alert(
+      window,
+      GetString("Alert"),
+      GetString("NoFormAction")
+    );
     gForm.Action.focus();
     formActionWarning = false;
     event.preventDefault();
@@ -114,8 +128,9 @@ function onAccept(event) {
 
   editor.cloneAttributes(formElement, globalElement);
 
-  if (insertNew)
+  if (insertNew) {
     InsertElementAroundSelection(formElement);
+  }
 
   SaveWindowLocation();
 }

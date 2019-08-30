@@ -24,11 +24,11 @@ function Startup() {
   }
 
   ImageStartup();
-  gDialog.hrefInput        = document.getElementById("hrefInput");
+  gDialog.hrefInput = document.getElementById("hrefInput");
   gDialog.makeRelativeLink = document.getElementById("MakeRelativeLink");
-  gDialog.showLinkBorder   = document.getElementById("showLinkBorder");
-  gDialog.linkTab          = document.getElementById("imageLinkTab");
-  gDialog.linkAdvanced     = document.getElementById("LinkAdvancedEditButton");
+  gDialog.showLinkBorder = document.getElementById("showLinkBorder");
+  gDialog.linkTab = document.getElementById("imageLinkTab");
+  gDialog.linkAdvanced = document.getElementById("LinkAdvancedEditButton");
 
   // Get a single selected image element
   var tagName = "img";
@@ -45,8 +45,12 @@ function Startup() {
       if (!imageElement || imageElement.getAttribute("type") != "image") {
         // Get a single selected image element
         imageElement = editor.getSelectedElement(tagName);
-        if (imageElement)
-          gAnchorElement = editor.getElementOrParentByTagName("href", imageElement);
+        if (imageElement) {
+          gAnchorElement = editor.getElementOrParentByTagName(
+            "href",
+            imageElement
+          );
+        }
       }
     } catch (e) {}
   }
@@ -55,7 +59,7 @@ function Startup() {
     // We found an element and don't need to insert one
     if (imageElement.hasAttribute("src")) {
       gInsertNewImage = false;
-      gActualWidth  = imageElement.naturalWidth;
+      gActualWidth = imageElement.naturalWidth;
       gActualHeight = imageElement.naturalHeight;
     }
   } else {
@@ -135,8 +139,9 @@ function ChangeLinkLocation() {
 function ToggleShowLinkBorder() {
   if (gDialog.showLinkBorder.checked) {
     var border = TrimString(gDialog.border.value);
-    if (!border || border == "0")
+    if (!border || border == "0") {
       gDialog.border.value = "2";
+    }
   } else {
     gDialog.border.value = "0";
   }
@@ -185,9 +190,10 @@ function onAccept(event) {
         // Assign to map if there is one
         var mapName = gImageMap.getAttribute("name");
         if (mapName != "") {
-          globalElement.setAttribute("usemap", ("#" + mapName));
-          if (globalElement.getAttribute("border") == "")
+          globalElement.setAttribute("usemap", "#" + mapName);
+          if (globalElement.getAttribute("border") == "") {
             globalElement.setAttribute("border", 0);
+          }
         }
       }
 
@@ -197,8 +203,12 @@ function onAccept(event) {
         if (href && !gInsertNewImage) {
           EditorSetTextProperty("a", "href", href);
           // gAnchorElement is needed for cloning attributes later.
-          if (!gAnchorElement)
-            gAnchorElement = editor.getElementOrParentByTagName("href", imageElement);
+          if (!gAnchorElement) {
+            gAnchorElement = editor.getElementOrParentByTagName(
+              "href",
+              imageElement
+            );
+          }
         } else {
           EditorRemoveTextProperty("href", "");
         }
@@ -208,8 +218,9 @@ function onAccept(event) {
       if (href) {
         if (gDialog.showLinkBorder.checked) {
           // Use default = 2 if border attribute is empty
-          if (!globalElement.hasAttribute("border"))
+          if (!globalElement.hasAttribute("border")) {
             globalElement.setAttribute("border", "2");
+          }
         } else {
           globalElement.setAttribute("border", "0");
         }
@@ -238,8 +249,9 @@ function onAccept(event) {
       // All values are valid - copy to actual element in doc or
       //   element we just inserted
       editor.cloneAttributes(imageElement, globalElement);
-      if (gAnchorElement)
+      if (gAnchorElement) {
         editor.cloneAttributes(gAnchorElement, gLinkElement);
+      }
 
       // If document is empty, the map element won't insert,
       //  so always insert the image first
@@ -267,10 +279,15 @@ function onAccept(event) {
 
 function onLinkAdvancedEdit() {
   window.AdvancedEditOK = false;
-  window.openDialog("chrome://editor/content/EdAdvancedEdit.xul", "_blank",
-                    "chrome,close,titlebar,modal,resizable=yes", "",
-                    gLinkElement);
+  window.openDialog(
+    "chrome://editor/content/EdAdvancedEdit.xul",
+    "_blank",
+    "chrome,close,titlebar,modal,resizable=yes",
+    "",
+    gLinkElement
+  );
   window.focus();
-  if (window.AdvancedEditOK)
+  if (window.AdvancedEditOK) {
     gDialog.hrefInput.value = gLinkElement.getAttribute("href");
+  }
 }

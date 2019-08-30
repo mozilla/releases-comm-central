@@ -22,18 +22,18 @@ function Startup() {
   }
 
   gDialog = {
-    accept:             document.documentElement.getButton("accept"),
-    textareaName:       document.getElementById("TextAreaName"),
-    textareaRows:       document.getElementById("TextAreaRows"),
-    textareaCols:       document.getElementById("TextAreaCols"),
-    textareaWrap:       document.getElementById("TextAreaWrap"),
-    textareaReadOnly:   document.getElementById("TextAreaReadOnly"),
-    textareaDisabled:   document.getElementById("TextAreaDisabled"),
-    textareaTabIndex:   document.getElementById("TextAreaTabIndex"),
-    textareaAccessKey:  document.getElementById("TextAreaAccessKey"),
-    textareaValue:      document.getElementById("TextAreaValue"),
-    MoreSection:        document.getElementById("MoreSection"),
-    MoreFewerButton:    document.getElementById("MoreFewerButton"),
+    accept: document.documentElement.getButton("accept"),
+    textareaName: document.getElementById("TextAreaName"),
+    textareaRows: document.getElementById("TextAreaRows"),
+    textareaCols: document.getElementById("TextAreaCols"),
+    textareaWrap: document.getElementById("TextAreaWrap"),
+    textareaReadOnly: document.getElementById("TextAreaReadOnly"),
+    textareaDisabled: document.getElementById("TextAreaDisabled"),
+    textareaTabIndex: document.getElementById("TextAreaTabIndex"),
+    textareaAccessKey: document.getElementById("TextAreaAccessKey"),
+    textareaValue: document.getElementById("TextAreaValue"),
+    MoreSection: document.getElementById("MoreSection"),
+    MoreFewerButton: document.getElementById("MoreFewerButton"),
   };
 
   // Get a single selected text area element
@@ -80,7 +80,11 @@ function InitDialog() {
   gDialog.textareaName.value = globalElement.getAttribute("name");
   gDialog.textareaRows.value = globalElement.getAttribute("rows");
   gDialog.textareaCols.value = globalElement.getAttribute("cols");
-  gDialog.textareaWrap.value = GetHTMLOrCSSStyleValue(globalElement, "wrap", "white-space");
+  gDialog.textareaWrap.value = GetHTMLOrCSSStyleValue(
+    globalElement,
+    "wrap",
+    "white-space"
+  );
   gDialog.textareaReadOnly.checked = globalElement.hasAttribute("readonly");
   gDialog.textareaDisabled.checked = globalElement.hasAttribute("disabled");
   gDialog.textareaTabIndex.value = globalElement.getAttribute("tabindex");
@@ -89,9 +93,13 @@ function InitDialog() {
 }
 
 function onInput() {
-  var disabled = !gDialog.textareaName.value || !gDialog.textareaRows.value || !gDialog.textareaCols.value;
-  if (gDialog.accept.disabled != disabled)
+  var disabled =
+    !gDialog.textareaName.value ||
+    !gDialog.textareaRows.value ||
+    !gDialog.textareaCols.value;
+  if (gDialog.accept.disabled != disabled) {
     gDialog.accept.disabled = disabled;
+  }
 }
 
 function ValidateData() {
@@ -108,16 +116,18 @@ function ValidateData() {
     disabled: gDialog.textareaDisabled.checked,
   };
   for (var a in attributes) {
-    if (attributes[a])
+    if (attributes[a]) {
       globalElement.setAttribute(a, attributes[a]);
-    else
+    } else {
       globalElement.removeAttribute(a);
+    }
   }
   for (var f in flags) {
-    if (flags[f])
+    if (flags[f]) {
       globalElement.setAttribute(f, "");
-    else
+    } else {
       globalElement.removeAttribute(f);
+    }
   }
   return true;
 }
@@ -134,16 +144,18 @@ function onAccept() {
   try {
     editor.cloneAttributes(textareaElement, globalElement);
 
-    if (insertNew)
+    if (insertNew) {
       editor.insertElementAtSelection(textareaElement, true);
+    }
 
     // undoably set value
     var initialText = gDialog.textareaValue.value;
     if (initialText != textareaElement.value) {
       editor.setShouldTxnSetSelection(false);
 
-      while (textareaElement.hasChildNodes())
+      while (textareaElement.hasChildNodes()) {
         editor.deleteNode(textareaElement.lastChild);
+      }
       if (initialText) {
         var textNode = editor.document.createTextNode(initialText);
         editor.insertNode(textNode, textareaElement, 0);
@@ -157,4 +169,3 @@ function onAccept() {
 
   SaveWindowLocation();
 }
-

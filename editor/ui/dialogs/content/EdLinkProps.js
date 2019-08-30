@@ -37,11 +37,11 @@ function Startup() {
     return;
   }
   // Message was wrapped in a <label> or <div>, so actual text is a child text node
-  gDialog.linkTextCaption     = document.getElementById("linkTextCaption");
-  gDialog.linkTextMessage     = document.getElementById("linkTextMessage");
-  gDialog.linkTextInput       = document.getElementById("linkTextInput");
-  gDialog.hrefInput           = document.getElementById("hrefInput");
-  gDialog.makeRelativeLink    = document.getElementById("MakeRelativeLink");
+  gDialog.linkTextCaption = document.getElementById("linkTextCaption");
+  gDialog.linkTextMessage = document.getElementById("linkTextMessage");
+  gDialog.linkTextInput = document.getElementById("linkTextInput");
+  gDialog.hrefInput = document.getElementById("hrefInput");
+  gDialog.makeRelativeLink = document.getElementById("MakeRelativeLink");
   gDialog.AdvancedEditSection = document.getElementById("AdvancedEdit");
 
   // See if we have a single selected image
@@ -49,7 +49,10 @@ function Startup() {
 
   if (imageElement) {
     // Get the parent link if it exists -- more efficient than GetSelectedElement()
-    anchorElement = gActiveEditor.getElementOrParentByTagName("href", imageElement);
+    anchorElement = gActiveEditor.getElementOrParentByTagName(
+      "href",
+      imageElement
+    );
     if (anchorElement) {
       if (anchorElement.childNodes.length > 1) {
         // If there are other children, then we want to break
@@ -76,9 +79,16 @@ function Startup() {
       //   link and making 2 links.
       // Note that this isn't a problem with images, handled above
 
-      anchorElement = gActiveEditor.getElementOrParentByTagName("href", gActiveEditor.selection.anchorNode);
-      if (!anchorElement)
-        anchorElement = gActiveEditor.getElementOrParentByTagName("href", gActiveEditor.selection.focusNode);
+      anchorElement = gActiveEditor.getElementOrParentByTagName(
+        "href",
+        gActiveEditor.selection.anchorNode
+      );
+      if (!anchorElement) {
+        anchorElement = gActiveEditor.getElementOrParentByTagName(
+          "href",
+          gActiveEditor.selection.focusNode
+        );
+      }
 
       if (anchorElement) {
         // But clone it for reinserting/merging around existing
@@ -113,7 +123,10 @@ function Startup() {
 
     // Message above input field:
     gDialog.linkTextMessage.setAttribute("value", GetString("EnterLinkText"));
-    gDialog.linkTextMessage.setAttribute("accesskey", GetString("EnterLinkTextAccessKey"));
+    gDialog.linkTextMessage.setAttribute(
+      "accesskey",
+      GetString("EnterLinkTextAccessKey")
+    );
   } else {
     if (!imageElement) {
       // We get here if selection is exactly around a link node
@@ -143,9 +156,19 @@ function Startup() {
       gDialog.linkTextCaption.setAttribute("label", GetString("LinkText"));
       if (selectedText) {
         // Use just the first 60 characters and add "..."
-        gDialog.linkTextMessage.setAttribute("value", TruncateStringAtWordEnd(ReplaceWhitespace(selectedText, " "), 60, true));
+        gDialog.linkTextMessage.setAttribute(
+          "value",
+          TruncateStringAtWordEnd(
+            ReplaceWhitespace(selectedText, " "),
+            60,
+            true
+          )
+        );
       } else {
-        gDialog.linkTextMessage.setAttribute("value", GetString("MixedSelection"));
+        gDialog.linkTextMessage.setAttribute(
+          "value",
+          GetString("MixedSelection")
+        );
       }
     }
   }
@@ -165,8 +188,9 @@ function Startup() {
   // Search for a URI pattern in the selected text
   //  as candidate href
   selectedText = TrimString(selectedText);
-  if (!gDialog.hrefInput.value && TextIsURI(selectedText))
-      gDialog.hrefInput.value = selectedText;
+  if (!gDialog.hrefInput.value && TextIsURI(selectedText)) {
+    gDialog.hrefInput.value = selectedText;
+  }
 
   // Set initial focus
   if (insertLinkAtCaret) {
@@ -200,7 +224,9 @@ function InitDialog() {
 
 function doEnabling() {
   // We disable Ok button when there's no href text only if inserting a new link
-  var enable = insertNew ? (TrimString(gDialog.hrefInput.value).length > 0) : true;
+  var enable = insertNew
+    ? TrimString(gDialog.hrefInput.value).length > 0
+    : true;
 
   // anon. content, so can't use SetElementEnabledById here
   var dialogNode = document.getElementById("linkDlg");
@@ -260,8 +286,9 @@ function onAccept(event) {
         // Append the link text as the last child node
         //   of the anchor node
         var textNode = gActiveEditor.document.createTextNode(newLinkText);
-        if (textNode)
+        if (textNode) {
           anchorElement.appendChild(textNode);
+        }
         try {
           gActiveEditor.insertElementAtSelection(anchorElement, false);
         } catch (e) {

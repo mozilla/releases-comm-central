@@ -17,10 +17,10 @@ var gValidationError = false;
 const gPixel = 0;
 const gPercent = 1;
 
-const gMaxPixels  = 100000; // Used for image size, borders, spacing, and padding
+const gMaxPixels = 100000; // Used for image size, borders, spacing, and padding
 // Gecko code uses 1000 for maximum rowspan, colspan
 // Also, editing performance is really bad above this
-const gMaxRows    = 1000;
+const gMaxRows = 1000;
 const gMaxColumns = 1000;
 const gMaxTableSize = 1000000; // Width or height of table or cells
 
@@ -56,7 +56,16 @@ var globalElement;
  *  Returns the "value" as a string, or "" if error or input contents are empty
  *  The global "gValidationError" variable is set true if error was found
  */
-function ValidateNumber(inputWidget, listWidget, minVal, maxVal, element, attName, mustHaveValue, mustShowMoreSection) {
+function ValidateNumber(
+  inputWidget,
+  listWidget,
+  minVal,
+  maxVal,
+  element,
+  attName,
+  mustHaveValue,
+  mustShowMoreSection
+) {
   if (!inputWidget) {
     gValidationError = true;
     return "";
@@ -69,10 +78,12 @@ function ValidateNumber(inputWidget, listWidget, minVal, maxVal, element, attNam
 
   var numString = TrimString(inputWidget.value);
   if (numString || mustHaveValue) {
-    if (listWidget)
-      isPercent = (listWidget.selectedIndex == 1);
-    if (isPercent)
+    if (listWidget) {
+      isPercent = listWidget.selectedIndex == 1;
+    }
+    if (isPercent) {
       maxLimit = 100;
+    }
 
     // This method puts up the error message
     numString = ValidateNumberRange(numString, minVal, maxLimit, mustHaveValue);
@@ -81,20 +92,32 @@ function ValidateNumber(inputWidget, listWidget, minVal, maxVal, element, attNam
       SwitchToValidatePanel();
 
       // or expand dialog for users of "More / Fewer" button
-      if ("dialog" in window && window.dialog &&
-           "MoreSection" in gDialog && gDialog.MoreSection) {
-        if (!SeeMore)
+      if (
+        "dialog" in window &&
+        window.dialog &&
+        "MoreSection" in gDialog &&
+        gDialog.MoreSection
+      ) {
+        if (!SeeMore) {
           onMoreFewer();
+        }
       }
 
       // Error - shift to offending input widget
       SetTextboxFocus(inputWidget);
       gValidationError = true;
     } else {
-      if (isPercent)
+      if (isPercent) {
         numString += "%";
-      if (element)
-        GetCurrentEditor().setAttributeOrEquivalent(element, attName, numString, true);
+      }
+      if (element) {
+        GetCurrentEditor().setAttributeOrEquivalent(
+          element,
+          attName,
+          numString,
+          true
+        );
+      }
     }
   } else if (element) {
     GetCurrentEditor().removeAttributeOrEquivalent(element, attName, true);
@@ -124,8 +147,9 @@ function ValidateNumberRange(value, minValue, maxValue, mustHaveValue) {
   value = TrimString(String(value));
 
   // We don't show error for empty string unless caller wants to
-  if (!value && !mustHaveValue)
+  if (!value && !mustHaveValue) {
     return "";
+  }
 
   var numberStr = "";
 
@@ -166,7 +190,14 @@ function SetTextboxFocus(textbox) {
   if (textbox) {
     // XXX Using the setTimeout is hacky workaround for bug 103197
     // Must create a new function to keep "textbox" in scope
-    setTimeout(function(textbox) { textbox.focus(); textbox.select(); }, 0, textbox);
+    setTimeout(
+      function(textbox) {
+        textbox.focus();
+        textbox.select();
+      },
+      0,
+      textbox
+    );
   }
 }
 
@@ -184,12 +215,14 @@ function GetAppropriatePercentString(elementForAtt, elementInDoc) {
   var editor = GetCurrentEditor();
   try {
     var name = elementForAtt.nodeName.toLowerCase();
-    if (name == "td" || name == "th")
+    if (name == "td" || name == "th") {
       return GetString("PercentOfTable");
+    }
 
     // Check if element is within a table cell
-    if (editor.getElementOrParentByTagName("td", elementInDoc))
+    if (editor.getElementOrParentByTagName("td", elementInDoc)) {
       return GetString("PercentOfCell");
+    }
     return GetString("PercentOfWindow");
   } catch (e) {
     return "";
@@ -199,30 +232,43 @@ function GetAppropriatePercentString(elementForAtt, elementInDoc) {
 function ClearListbox(listbox) {
   if (listbox) {
     listbox.clearSelection();
-    while (listbox.hasChildNodes())
+    while (listbox.hasChildNodes()) {
       listbox.lastChild.remove();
+    }
   }
 }
 
 function forceInteger(elementID) {
   var editField = document.getElementById(elementID);
-  if (!editField)
+  if (!editField) {
     return;
+  }
 
   var stringIn = editField.value;
   if (stringIn && stringIn.length > 0) {
     // Strip out all nonnumeric characters
     stringIn = stringIn.replace(/\D+/g, "");
-    if (!stringIn) stringIn = "";
+    if (!stringIn) {
+      stringIn = "";
+    }
 
     // Write back only if changed
-    if (stringIn != editField.value)
+    if (stringIn != editField.value) {
       editField.value = stringIn;
+    }
   }
 }
 
-function InitPixelOrPercentMenulist(elementForAtt, elementInDoc, attribute, menulistID, defaultIndex) {
-  if (!defaultIndex) defaultIndex = gPixel;
+function InitPixelOrPercentMenulist(
+  elementForAtt,
+  elementInDoc,
+  attribute,
+  menulistID,
+  defaultIndex
+) {
+  if (!defaultIndex) {
+    defaultIndex = gPixel;
+  }
 
   // var size  = elementForAtt.getAttribute(attribute);
   var size = GetHTMLOrCSSStyleValue(elementForAtt, attribute, attribute);
@@ -238,20 +284,26 @@ function InitPixelOrPercentMenulist(elementForAtt, elementInDoc, attribute, menu
   menulist.removeAllItems();
   pixelItem = menulist.appendItem(GetString("Pixels"));
 
-  if (!pixelItem) return 0;
+  if (!pixelItem) {
+    return 0;
+  }
 
-  percentItem = menulist.appendItem(GetAppropriatePercentString(elementForAtt, elementInDoc));
+  percentItem = menulist.appendItem(
+    GetAppropriatePercentString(elementForAtt, elementInDoc)
+  );
   if (size && size.length > 0) {
     // Search for a "%" or "px"
     if (size.includes("%")) {
       // Strip out the %
       size = size.substr(0, size.indexOf("%"));
-      if (percentItem)
+      if (percentItem) {
         menulist.selectedItem = percentItem;
+      }
     } else {
-      if (size.includes("px"))
+      if (size.includes("px")) {
         // Strip out the px
         size = size.substr(0, size.indexOf("px"));
+      }
       menulist.selectedItem = pixelItem;
     }
   } else {
@@ -268,7 +320,13 @@ function onAdvancedEdit() {
     window.AdvancedEditOK = false;
     // Open the AdvancedEdit dialog, passing in the element to be edited
     //  (the copy named "globalElement")
-    window.openDialog("chrome://editor/content/EdAdvancedEdit.xul", "_blank", "chrome,close,titlebar,modal,resizable=yes", "", globalElement);
+    window.openDialog(
+      "chrome://editor/content/EdAdvancedEdit.xul",
+      "_blank",
+      "chrome,close,titlebar,modal,resizable=yes",
+      "",
+      globalElement
+    );
     window.focus();
     if (window.AdvancedEditOK) {
       // Copy edited attributes to the dialog widgets:
@@ -283,8 +341,9 @@ function getColor(ColorPickerID) {
   if (colorPicker) {
     // Extract color from colorPicker and assign to colorWell.
     color = colorPicker.getAttribute("color");
-    if (color && color == "")
+    if (color && color == "") {
       return null;
+    }
     // Clear color so next if it's called again before
     //  color picker is actually used, we dedect the "don't set color" state
     colorPicker.setAttribute("color", "");
@@ -322,9 +381,12 @@ function InitMoreFewer() {
   //   which is automatically saved by using the 'persist="more"'
   //   attribute on the gDialog.MoreFewerButton button
   //   onMoreFewer will toggle it and redraw the dialog
-  SeeMore = (gDialog.MoreFewerButton.getAttribute("more") != "1");
+  SeeMore = gDialog.MoreFewerButton.getAttribute("more") != "1";
   onMoreFewer();
-  gDialog.MoreFewerButton.setAttribute("accesskey", GetString("PropertiesAccessKey"));
+  gDialog.MoreFewerButton.setAttribute(
+    "accesskey",
+    GetString("PropertiesAccessKey")
+  );
 }
 
 function onMoreFewer() {
@@ -371,8 +433,9 @@ function GetLocalFileURL(filterType) {
     fp.appendFilters(nsIFilePicker.filterText);
 
     // Link dialog also allows linking to images
-    if (filterType.includes("img", 1))
+    if (filterType.includes("img", 1)) {
       fp.appendFilters(nsIFilePicker.filterImages);
+    }
   }
   // Default or last filter is "All Files"
   fp.appendFilters(nsIFilePicker.filterAll);
@@ -397,7 +460,9 @@ function GetMetaElementByAttribute(name, value) {
     name = name.toLowerCase();
     let editor = GetCurrentEditor();
     try {
-      return editor.document.querySelector("meta[" + name + '="' + value + '"]');
+      return editor.document.querySelector(
+        "meta[" + name + '="' + value + '"]'
+      );
     } catch (e) {}
   }
   return null;
@@ -423,14 +488,16 @@ function SetMetaElementContent(metaElement, content, insertNew, prepend) {
     var editor = GetCurrentEditor();
     try {
       if (!content || content == "") {
-        if (!insertNew)
+        if (!insertNew) {
           editor.deleteNode(metaElement);
+        }
       } else if (insertNew) {
         metaElement.setAttribute("content", content);
-        if (prepend)
+        if (prepend) {
           PrependHeadElement(metaElement);
-        else
+        } else {
           AppendHeadElement(metaElement);
+        }
       } else {
         editor.setAttribute(metaElement, "content", content);
       }
@@ -463,8 +530,9 @@ function AppendHeadElement(element) {
   var head = GetHeadElement();
   if (head) {
     var position = 0;
-    if (head.hasChildNodes())
+    if (head.hasChildNodes()) {
       position = head.childNodes.length;
+    }
 
     var editor = GetCurrentEditor();
     try {
@@ -478,10 +546,20 @@ function AppendHeadElement(element) {
 function SetWindowLocation() {
   gLocation = document.getElementById("location");
   if (gLocation) {
-    window.screenX = Math.max(0, Math.min(window.opener.screenX + Number(gLocation.getAttribute("offsetX")),
-                                          screen.availWidth - window.outerWidth));
-    window.screenY = Math.max(0, Math.min(window.opener.screenY + Number(gLocation.getAttribute("offsetY")),
-                                          screen.availHeight - window.outerHeight));
+    window.screenX = Math.max(
+      0,
+      Math.min(
+        window.opener.screenX + Number(gLocation.getAttribute("offsetX")),
+        screen.availWidth - window.outerWidth
+      )
+    );
+    window.screenY = Math.max(
+      0,
+      Math.min(
+        window.opener.screenY + Number(gLocation.getAttribute("offsetY")),
+        screen.availHeight - window.outerHeight
+      )
+    );
   }
 }
 
@@ -499,20 +577,22 @@ function onCancel() {
 function SetRelativeCheckbox(checkbox) {
   if (!checkbox) {
     checkbox = document.getElementById("MakeRelativeCheckbox");
-    if (!checkbox)
+    if (!checkbox) {
       return;
+    }
   }
 
   var editor = GetCurrentEditor();
   // Mail never allows relative URLs, so hide the checkbox
-  if (editor && (editor.flags & Ci.nsIPlaintextEditor.eEditorMailMask)) {
+  if (editor && editor.flags & Ci.nsIPlaintextEditor.eEditorMailMask) {
     checkbox.collapsed = true;
     return;
   }
 
-  var input =  document.getElementById(checkbox.getAttribute("for"));
-  if (!input)
+  var input = document.getElementById(checkbox.getAttribute("for"));
+  if (!input) {
     return;
+  }
 
   var url = TrimString(input.value);
   var urlScheme = GetScheme(url);
@@ -531,8 +611,9 @@ function SetRelativeCheckbox(checkbox) {
       // Url is absolute
       // If we can make a relative URL, then enable must be true!
       // (this lets the smarts of MakeRelativeUrl do all the hard work)
-      enable = (GetScheme(MakeRelativeUrl(url)).length == 0);
-    } else if (url[0] == "#") { // Url is relative
+      enable = GetScheme(MakeRelativeUrl(url)).length == 0;
+    } else if (url[0] == "#") {
+      // Url is relative
       // Check if url is a named anchor
       //  but document doesn't have a filename
       // (it's probably "index.html" or "index.htm",
@@ -551,9 +632,10 @@ function SetRelativeCheckbox(checkbox) {
 
 // oncommand handler for the Relativize checkbox in EditorOverlay.xul
 function MakeInputValueRelativeOrAbsolute(checkbox) {
-  var input =  document.getElementById(checkbox.getAttribute("for"));
-  if (!input)
+  var input = document.getElementById(checkbox.getAttribute("for"));
+  if (!input) {
     return;
+  }
 
   var docUrl = GetDocumentBaseUrl();
   if (!docUrl) {
@@ -564,10 +646,11 @@ function MakeInputValueRelativeOrAbsolute(checkbox) {
   } else {
     // Note that "checked" is opposite of its last state,
     //  which determines what we want to do here
-    if (checkbox.checked)
+    if (checkbox.checked) {
       input.value = MakeRelativeUrl(input.value);
-    else
+    } else {
       input.value = MakeAbsoluteUrl(input.value);
+    }
 
     // Reset checkbox to reflect url state
     SetRelativeCheckbox(checkbox);
@@ -628,29 +711,40 @@ function InsertElementAroundSelection(element) {
     }
 
     // Flatten the selection to child nodes of the common ancestor
-    while (range.startContainer != range.commonAncestorContainer)
+    while (range.startContainer != range.commonAncestorContainer) {
       range.setStartBefore(range.startContainer);
-    while (range.endContainer != range.commonAncestorContainer)
+    }
+    while (range.endContainer != range.commonAncestorContainer) {
       range.setEndAfter(range.endContainer);
+    }
 
     if (editor.nodeIsBlock(element)) {
       // Block element parent must be a valid block
-      while (!IsBlockParent.includes(range.commonAncestorContainer.localName))
+      while (!IsBlockParent.includes(range.commonAncestorContainer.localName)) {
         range.selectNode(range.commonAncestorContainer);
+      }
     } else if (!nodeIsBreak(editor, range.commonAncestorContainer)) {
       // Fail if we're not inserting a block (use setInlineProperty instead)
       return false;
-    } else if (NotAnInlineParent.includes(range.commonAncestorContainer.localName)) {
+    } else if (
+      NotAnInlineParent.includes(range.commonAncestorContainer.localName)
+    ) {
       // Inline element parent must not be an invalid block
-      do range.selectNode(range.commonAncestorContainer);
-      while (NotAnInlineParent.includes(range.commonAncestorContainer.localName));
+      do {
+        range.selectNode(range.commonAncestorContainer);
+      } while (
+        NotAnInlineParent.includes(range.commonAncestorContainer.localName)
+      );
     } else {
       // Further insert block check
       for (var i = range.startOffset; ; i++) {
-        if (i == range.endOffset)
+        if (i == range.endOffset) {
           return false;
-        else if (nodeIsBreak(editor, range.commonAncestorContainer.childNodes[i]))
+        } else if (
+          nodeIsBreak(editor, range.commonAncestorContainer.childNodes[i])
+        ) {
           break;
+        }
       }
     }
 
@@ -665,15 +759,17 @@ function InsertElementAroundSelection(element) {
     }
     end = range.endContainer.childNodes[range.endOffset];
     if (end && !nodeIsBreak(editor, end.previousSibling)) {
-      while (!nodeIsBreak(editor, end))
+      while (!nodeIsBreak(editor, end)) {
         end = end.nextSibling;
+      }
     }
 
     // Now insert the node
     editor.insertNode(element, range.commonAncestorContainer, offset, true);
     offset = element.childNodes.length;
-    if (!editor.nodeIsBlock(element))
+    if (!editor.nodeIsBlock(element)) {
       editor.setShouldTxnSetSelection(false);
+    }
 
     // Move all the old child nodes to the element
     var empty = true;
@@ -695,8 +791,13 @@ function InsertElementAroundSelection(element) {
         empty = false;
       }
       // Still nothing? Insert a <br> so the node is not empty
-      if (empty)
-        editor.insertNode(editor.createElementWithDefaults("br"), element, element.childNodes.length);
+      if (empty) {
+        editor.insertNode(
+          editor.createElementWithDefaults("br"),
+          element,
+          element.childNodes.length
+        );
+      }
 
       // Hack to set the selection just inside the element
       editor.insertNode(editor.document.createTextNode(""), element, offset);
@@ -713,14 +814,16 @@ function nodeIsBlank(node) {
 }
 
 function nodeBeginsBlock(editor, node) {
-  while (nodeIsBlank(node))
+  while (nodeIsBlank(node)) {
     node = node.nextSibling;
+  }
   return nodeIsBreak(editor, node);
 }
 
 function nodeEndsBlock(editor, node) {
-  while (nodeIsBlank(node))
+  while (nodeIsBlank(node)) {
     node = node.previousSibling;
+  }
   return nodeIsBreak(editor, node);
 }
 
@@ -736,21 +839,40 @@ function RemoveBlockContainer(element) {
     var parent = element.parentNode;
 
     // May need to insert a break after the removed element
-    if (!nodeBeginsBlock(editor, element.nextSibling) &&
-        !nodeEndsBlock(editor, element.lastChild))
-      editor.insertNode(editor.createElementWithDefaults("br"), parent, range.endOffset);
+    if (
+      !nodeBeginsBlock(editor, element.nextSibling) &&
+      !nodeEndsBlock(editor, element.lastChild)
+    ) {
+      editor.insertNode(
+        editor.createElementWithDefaults("br"),
+        parent,
+        range.endOffset
+      );
+    }
 
     // May need to insert a break before the removed element, or if it was empty
-    if (!nodeEndsBlock(editor, element.previousSibling) &&
-        !nodeBeginsBlock(editor, element.firstChild || element.nextSibling))
-      editor.insertNode(editor.createElementWithDefaults("br"), parent, offset++);
+    if (
+      !nodeEndsBlock(editor, element.previousSibling) &&
+      !nodeBeginsBlock(editor, element.firstChild || element.nextSibling)
+    ) {
+      editor.insertNode(
+        editor.createElementWithDefaults("br"),
+        parent,
+        offset++
+      );
+    }
 
     // Now remove the element
     editor.deleteNode(element);
 
     // Need to copy the contained nodes?
-    for (var i = 0; i < element.childNodes.length; i++)
-      editor.insertNode(element.childNodes[i].cloneNode(true), parent, offset++);
+    for (var i = 0; i < element.childNodes.length; i++) {
+      editor.insertNode(
+        element.childNodes[i].cloneNode(true),
+        parent,
+        offset++
+      );
+    }
   } finally {
     editor.endTransaction();
   }
@@ -769,7 +891,11 @@ function RemoveContainer(element) {
     // so we need to copy the contained nodes
     for (var i = 0; i < element.childNodes.length; i++) {
       range.selectNode(element);
-      editor.insertNode(element.childNodes[i].cloneNode(true), parent, range.startOffset);
+      editor.insertNode(
+        element.childNodes[i].cloneNode(true),
+        parent,
+        range.startOffset
+      );
     }
     // Now remove the element
     editor.deleteNode(element);
@@ -782,26 +908,42 @@ function FillLinkMenulist(linkMenulist, headingsArray) {
   var menupopup = linkMenulist.firstChild;
   var editor = GetCurrentEditor();
   try {
-    var treeWalker = editor.document.createTreeWalker(editor.document, 1, null, true);
+    var treeWalker = editor.document.createTreeWalker(
+      editor.document,
+      1,
+      null,
+      true
+    );
     var headingList = [];
     var anchorList = []; // for sorting
-    var anchorMap  = {}; // for weeding out duplicates and making heading anchors unique
+    var anchorMap = {}; // for weeding out duplicates and making heading anchors unique
     var anchor;
     var i;
-    for (var element = treeWalker.nextNode(); element; element = treeWalker.nextNode()) {
+    for (
+      var element = treeWalker.nextNode();
+      element;
+      element = treeWalker.nextNode()
+    ) {
       // grab headings
       // Skip headings that already have a named anchor as their first child
       //  (this may miss nearby anchors, but at least we don't insert another
       //   under the same heading)
-      if (element instanceof HTMLHeadingElement && element.textContent &&
-          !(element.firstChild instanceof HTMLAnchorElement && element.firstChild.name))
+      if (
+        element instanceof HTMLHeadingElement &&
+        element.textContent &&
+        !(
+          element.firstChild instanceof HTMLAnchorElement &&
+          element.firstChild.name
+        )
+      ) {
         headingList.push(element);
+      }
 
       // grab named anchors
       if (element instanceof HTMLAnchorElement && element.name) {
         anchor = "#" + element.name;
         if (!(anchor in anchorMap)) {
-          anchorList.push({anchor, sortkey: anchor.toLowerCase()});
+          anchorList.push({ anchor, sortkey: anchor.toLowerCase() });
           anchorMap[anchor] = true;
         }
       }
@@ -810,7 +952,7 @@ function FillLinkMenulist(linkMenulist, headingsArray) {
       if (element.id) {
         anchor = "#" + element.id;
         if (!(anchor in anchorMap)) {
-          anchorList.push({anchor, sortkey: anchor.toLowerCase()});
+          anchorList.push({ anchor, sortkey: anchor.toLowerCase() });
           anchorMap[anchor] = true;
         }
       }
@@ -821,12 +963,17 @@ function FillLinkMenulist(linkMenulist, headingsArray) {
 
       // Use just first 40 characters, don't add "...",
       //  and replace whitespace with "_" and strip non-word characters
-      anchor = "#" + ConvertToCDATAString(TruncateStringAtWordEnd(heading.textContent, 40, false));
+      anchor =
+        "#" +
+        ConvertToCDATAString(
+          TruncateStringAtWordEnd(heading.textContent, 40, false)
+        );
 
       // Append "_" to any name already in the list
-      while (anchor in anchorMap)
+      while (anchor in anchorMap) {
         anchor += "_";
-      anchorList.push({anchor, sortkey: anchor.toLowerCase()});
+      }
+      anchorList.push({ anchor, sortkey: anchor.toLowerCase() });
       anchorMap[anchor] = true;
 
       // Save nodes in an array so we can create anchor node under it later
@@ -835,21 +982,29 @@ function FillLinkMenulist(linkMenulist, headingsArray) {
     if (anchorList.length) {
       // case insensitive sort
       anchorList.sort((a, b) => {
-        if (a.sortkey < b.sortkey) return -1;
-        if (a.sortkey > b.sortkey) return 1;
+        if (a.sortkey < b.sortkey) {
+          return -1;
+        }
+        if (a.sortkey > b.sortkey) {
+          return 1;
+        }
         return 0;
       });
 
-      for (i = 0; i < anchorList.length; i++)
+      for (i = 0; i < anchorList.length; i++) {
         createMenuItem(menupopup, anchorList[i].anchor);
+      }
     } else {
       // Don't bother with named anchors in Mail.
-      if (editor && (editor.flags & Ci.nsIPlaintextEditor.eEditorMailMask)) {
+      if (editor && editor.flags & Ci.nsIPlaintextEditor.eEditorMailMask) {
         menupopup.remove();
         linkMenulist.removeAttribute("enablehistory");
         return;
       }
-      var item = createMenuItem(menupopup, GetString("NoNamedAnchorsOrHeadings"));
+      var item = createMenuItem(
+        menupopup,
+        GetString("NoNamedAnchorsOrHeadings")
+      );
       item.setAttribute("disabled", "true");
     }
   } catch (e) {}
@@ -866,8 +1021,9 @@ function createMenuItem(aMenuPopup, aLabel) {
 function chooseLinkFile() {
   GetLocalFileURL("html, img").then(fileURL => {
     // Always try to relativize local file URLs
-    if (gHaveDocumentUrl)
+    if (gHaveDocumentUrl) {
       fileURL = MakeRelativeUrl(fileURL);
+    }
 
     gDialog.hrefInput.value = fileURL;
 
@@ -876,4 +1032,3 @@ function chooseLinkFile() {
     ChangeLinkLocation();
   });
 }
-

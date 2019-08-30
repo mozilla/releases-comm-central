@@ -10,7 +10,7 @@
 var SBase = 0xac00;
 var LBase = 0x1100;
 var VBase = 0x1161;
-var TBase = 0x11A7;
+var TBase = 0x11a7;
 var LCount = 19;
 var VCount = 21;
 var TCount = 28;
@@ -53,8 +53,9 @@ function onAccept() {
 // Don't allow inserting in HTML Source Mode
 function onFocus() {
   var enable = true;
-  if ("gEditorDisplayMode" in window.opener)
+  if ("gEditorDisplayMode" in window.opener) {
     enable = !window.opener.IsInHTMLSourceMode();
+  }
 
   SetElementEnabled(document.documentElement.getButton("accept"), enable);
 }
@@ -88,24 +89,25 @@ function StartupLatin() {
   LatinL_Label = document.getElementById("LatinL_Label");
   LatinM_Label = document.getElementById("LatinM_Label");
 
-  var Symbol      = document.getElementById("Symbol");
+  var Symbol = document.getElementById("Symbol");
   var AccentUpper = document.getElementById("AccentUpper");
   var AccentLower = document.getElementById("AccentLower");
-  var Upper       = document.getElementById("Upper");
-  var Lower       = document.getElementById("Lower");
-  CategoryGroup   = document.getElementById("CatGrp");
+  var Upper = document.getElementById("Upper");
+  var Lower = document.getElementById("Lower");
+  CategoryGroup = document.getElementById("CatGrp");
 
   // Initialize which radio button is set from persistent attribute...
   var category = CategoryGroup.getAttribute("category");
 
   // ...as well as indexes into the letter and character lists
   var index = Number(CategoryGroup.getAttribute("letter_index"));
-  if (index && index >= 0)
+  if (index && index >= 0) {
     indexL = index;
+  }
   index = Number(CategoryGroup.getAttribute("char_index"));
-  if (index && index >= 0)
+  if (index && index >= 0) {
     indexM = index;
-
+  }
 
   switch (category) {
     case "AccentUpper": // Uppercase Diacritical
@@ -174,9 +176,13 @@ function UpdateLatinL() {
   if (category == "AccentUpper" || category == "AccentLower") {
     DisableLatinL(false);
     // No Q or q
-    var alphabet = category == "AccentUpper" ? "ABCDEFGHIJKLMNOPRSTUVWXYZ" : "abcdefghijklmnoprstuvwxyz";
-    for (var letter = 0; letter < alphabet.length; letter++)
+    var alphabet =
+      category == "AccentUpper"
+        ? "ABCDEFGHIJKLMNOPRSTUVWXYZ"
+        : "abcdefghijklmnoprstuvwxyz";
+    for (var letter = 0; letter < alphabet.length; letter++) {
       LatinL.appendItem(alphabet.charAt(letter));
+    }
 
     LatinL.selectedIndex = indexL;
   } else {
@@ -192,58 +198,68 @@ function UpdateLatinM() {
   switch (category) {
     case "AccentUpper": // Uppercase Diacritical
       accent = upper[indexL];
-      for (i = 0; i < accent.length; i++)
+      for (i = 0; i < accent.length; i++) {
         LatinM.appendItem(accent.charAt(i));
+      }
 
-      if (indexM_AU < accent.length)
+      if (indexM_AU < accent.length) {
         indexM = indexM_AU;
-      else
+      } else {
         indexM = accent.length - 1;
+      }
       indexM_AU = indexM;
       break;
 
     case "AccentLower": // Lowercase Diacritical
       accent = lower[indexL];
-      for (i = 0; i < accent.length; i++)
+      for (i = 0; i < accent.length; i++) {
         LatinM.appendItem(accent.charAt(i));
+      }
 
-      if (indexM_AL < accent.length)
+      if (indexM_AL < accent.length) {
         indexM = indexM_AL;
-      else
+      } else {
         indexM = lower[indexL].length - 1;
+      }
       indexM_AL = indexM;
       break;
 
     case "Upper": // Uppercase w/o Diacritical
-      for (i = 0; i < otherupper.length; i++)
+      for (i = 0; i < otherupper.length; i++) {
         LatinM.appendItem(otherupper.charAt(i));
+      }
 
-      if (indexM_U < otherupper.length)
+      if (indexM_U < otherupper.length) {
         indexM = indexM_U;
-      else
+      } else {
         indexM = otherupper.length - 1;
+      }
       indexM_U = indexM;
       break;
 
     case "Lower": // Lowercase w/o Diacritical
-      for (i = 0; i < otherlower.length; i++)
+      for (i = 0; i < otherlower.length; i++) {
         LatinM.appendItem(otherlower.charAt(i));
+      }
 
-      if (indexM_L < otherlower.length)
+      if (indexM_L < otherlower.length) {
         indexM = indexM_L;
-      else
+      } else {
         indexM = otherlower.length - 1;
+      }
       indexM_L = indexM;
       break;
 
     case "Symbol": // Symbol
-      for (i = 0; i < symbol.length; i++)
+      for (i = 0; i < symbol.length; i++) {
         LatinM.appendItem(symbol.charAt(i));
+      }
 
-      if (indexM_S < symbol.length)
+      if (indexM_S < symbol.length) {
         indexM = indexM_S;
-      else
+      } else {
         indexM = symbol.length - 1;
+      }
       indexM_S = indexM;
       break;
   }
@@ -270,7 +286,7 @@ function UpdateCharacter() {
       indexM_S = indexM;
       break;
   }
-// dump("Letter Index="+indexL+", Character Index="+indexM+", Character = "+LatinM.label+"\n");
+  // dump("Letter Index="+indexL+", Character Index="+indexM+", Character = "+LatinM.label+"\n");
 }
 
 const upper = [
@@ -381,9 +397,11 @@ const lower = [
   "\u017a\u017c\u017e\u0225\u1e91\u1e93\u1e95",
 ];
 
+const symbol =
+  "\u00a1\u00a2\u00a3\u00a4\u00a5\u20ac\u00a6\u00a7\u00a8\u00a9\u00aa\u00ab\u00ac\u00ae\u00af\u00b0\u00b1\u00b2\u00b3\u00b4\u00b5\u00b6\u00b7\u00b8\u00b9\u00ba\u00bb\u00bc\u00bd\u00be\u00bf\u00d7\u00f7";
 
-const symbol = "\u00a1\u00a2\u00a3\u00a4\u00a5\u20ac\u00a6\u00a7\u00a8\u00a9\u00aa\u00ab\u00ac\u00ae\u00af\u00b0\u00b1\u00b2\u00b3\u00b4\u00b5\u00b6\u00b7\u00b8\u00b9\u00ba\u00bb\u00bc\u00bd\u00be\u00bf\u00d7\u00f7";
+const otherupper =
+  "\u00c6\u00d0\u00d8\u00de\u0132\u0152\u0186\u01c4\u01c5\u01c7\u01c8\u01ca\u01cb\u01F1\u01f2";
 
-const otherupper = "\u00c6\u00d0\u00d8\u00de\u0132\u0152\u0186\u01c4\u01c5\u01c7\u01c8\u01ca\u01cb\u01F1\u01f2";
-
-const otherlower = "\u00e6\u00f0\u00f8\u00fe\u00df\u0133\u0153\u01c6\u01c9\u01cc\u01f3";
+const otherlower =
+  "\u00e6\u00f0\u00f8\u00fe\u00df\u0133\u0153\u01c6\u01c9\u01cc\u01f3";

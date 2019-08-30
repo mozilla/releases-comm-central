@@ -8,14 +8,9 @@ var gHTMLAttr = {};
 // JS Events Attributes object for "Name" menulist
 var gJSAttr = {};
 
-
 // Core HTML attribute values //
 // This is appended to Name menulist when "_core" is attribute name
-var gCoreHTMLAttr = [
-  "^id",
-  "class",
-  "title",
-];
+var gCoreHTMLAttr = ["^id", "class", "title"];
 
 // Core event attribute values //
 // This is appended to all JS menulists
@@ -57,40 +52,15 @@ var gHTMLColors = [
   "Yellow",
 ];
 
-var gHAlign = [
-  "left",
-  "center",
-  "right",
-];
+var gHAlign = ["left", "center", "right"];
 
-var gHAlignJustify = [
-  "left",
-  "center",
-  "right",
-  "justify",
-];
+var gHAlignJustify = ["left", "center", "right", "justify"];
 
-var gHAlignTableContent = [
-  "left",
-  "center",
-  "right",
-  "justify",
-  "char",
-];
+var gHAlignTableContent = ["left", "center", "right", "justify", "char"];
 
-var gVAlignTable = [
-  "top",
-  "middle",
-  "bottom",
-  "baseline",
-];
+var gVAlignTable = ["top", "middle", "bottom", "baseline"];
 
-var gTarget = [
-  "_blank",
-  "_self",
-  "_parent",
-  "_top",
-];
+var gTarget = ["_blank", "_self", "_parent", "_top"];
 
 // ================ HTML Attributes ================ //
 /* For each element, there is an array of attributes,
@@ -116,11 +86,7 @@ var gTarget = [
    for all elements instead of specifying
    separately for each element
 */
-gHTMLAttr.all_dir = [
-  "ltr",
-  "rtl",
-];
-
+gHTMLAttr.all_dir = ["ltr", "rtl"];
 
 gHTMLAttr.a = [
   "charset",
@@ -132,8 +98,8 @@ gHTMLAttr.a = [
   "rel",
   "rev",
   "!accesskey",
-  "shape",   // with imagemap //
-  "coords",  // with imagemap //
+  "shape", // with imagemap //
+  "coords", // with imagemap //
   "#tabindex",
   "-",
   "_core",
@@ -180,33 +146,13 @@ gHTMLAttr.a_rev = [
   "bookmark",
 ];
 
-gHTMLAttr.a_shape = [
-  "rect",
-  "circle",
-  "poly",
-  "default",
-];
+gHTMLAttr.a_shape = ["rect", "circle", "poly", "default"];
 
-gHTMLAttr.abbr = [
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.abbr = ["_core", "-", "^lang", "dir"];
 
-gHTMLAttr.acronym = [
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.acronym = ["_core", "-", "^lang", "dir"];
 
-gHTMLAttr.address = [
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.address = ["_core", "-", "^lang", "dir"];
 
 // this is deprecated //
 gHTMLAttr.applet = [
@@ -225,13 +171,7 @@ gHTMLAttr.applet = [
   "_core",
 ];
 
-gHTMLAttr.applet_align = [
-  "top",
-  "middle",
-  "bottom",
-  "left",
-  "right",
-];
+gHTMLAttr.applet_align = ["top", "middle", "bottom", "left", "right"];
 
 gHTMLAttr.area = [
   "shape",
@@ -251,68 +191,28 @@ gHTMLAttr.area = [
 
 gHTMLAttr.area_target = gTarget;
 
-gHTMLAttr.area_shape = [
-  "rect",
-  "circle",
-  "poly",
-  "default",
-];
+gHTMLAttr.area_shape = ["rect", "circle", "poly", "default"];
 
-gHTMLAttr.area_nohref = [
-  "nohref",
-];
+gHTMLAttr.area_nohref = ["nohref"];
 
-gHTMLAttr.b = [
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.b = ["_core", "-", "^lang", "dir"];
 
-gHTMLAttr.base = [
-  "href",
-  "target",
-];
+gHTMLAttr.base = ["href", "target"];
 
 gHTMLAttr.base_target = gTarget;
 
 // this is deprecated //
-gHTMLAttr.basefont = [
-  "^id",
-  "$size",
-  "color",
-  "face",
-];
+gHTMLAttr.basefont = ["^id", "$size", "color", "face"];
 
 gHTMLAttr.basefont_color = gHTMLColors;
 
-gHTMLAttr.bdo = [
-  "_core",
-  "-",
-  "^lang",
-  "$dir",
-];
+gHTMLAttr.bdo = ["_core", "-", "^lang", "$dir"];
 
-gHTMLAttr.bdo_dir = [
-  "ltr",
-  "rtl",
-];
+gHTMLAttr.bdo_dir = ["ltr", "rtl"];
 
-gHTMLAttr.big = [
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.big = ["_core", "-", "^lang", "dir"];
 
-gHTMLAttr.blockquote = [
-  "cite",
-  "-",
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.blockquote = ["cite", "-", "_core", "-", "^lang", "dir"];
 
 gHTMLAttr.body = [
   "background",
@@ -338,18 +238,9 @@ gHTMLAttr.body_vlink = gHTMLColors;
 
 gHTMLAttr.body_alink = gHTMLColors;
 
-gHTMLAttr.br = [
-  "clear",
-  "-",
-  "_core",
-];
+gHTMLAttr.br = ["clear", "-", "_core"];
 
-gHTMLAttr.br_clear = [
-  "none",
-  "left",
-  "all",
-  "right",
-];
+gHTMLAttr.br_clear = ["none", "left", "all", "right"];
 
 gHTMLAttr.button = [
   "name",
@@ -365,54 +256,20 @@ gHTMLAttr.button = [
   "dir",
 ];
 
-gHTMLAttr.button_type = [
-  "submit",
-  "button",
-  "reset",
-];
+gHTMLAttr.button_type = ["submit", "button", "reset"];
 
-gHTMLAttr.button_disabled = [
-  "disabled",
-];
+gHTMLAttr.button_disabled = ["disabled"];
 
-gHTMLAttr.caption = [
-  "align",
-  "-",
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.caption = ["align", "-", "_core", "-", "^lang", "dir"];
 
-gHTMLAttr.caption_align = [
-  "top",
-  "bottom",
-  "left",
-  "right",
-];
-
+gHTMLAttr.caption_align = ["top", "bottom", "left", "right"];
 
 // this is deprecated //
-gHTMLAttr.center = [
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.center = ["_core", "-", "^lang", "dir"];
 
-gHTMLAttr.cite = [
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.cite = ["_core", "-", "^lang", "dir"];
 
-gHTMLAttr.code = [
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.code = ["_core", "-", "^lang", "dir"];
 
 gHTMLAttr.col = [
   "#$span",
@@ -430,18 +287,12 @@ gHTMLAttr.col = [
 ];
 
 gHTMLAttr.col_span = [
-  "1",  // default
+  "1", // default
 ];
 
 gHTMLAttr.col_align = gHAlignTableContent;
 
-gHTMLAttr.col_valign = [
-  "top",
-  "middle",
-  "bottom",
-  "baseline",
-];
-
+gHTMLAttr.col_valign = ["top", "middle", "bottom", "baseline"];
 
 gHTMLAttr.colgroup = [
   "#$span",
@@ -463,107 +314,35 @@ gHTMLAttr.colgroup_span = [
 
 gHTMLAttr.colgroup_align = gHAlignTableContent;
 
-gHTMLAttr.colgroup_valign = [
-  "top",
-  "middle",
-  "bottom",
-  "baseline",
-];
+gHTMLAttr.colgroup_valign = ["top", "middle", "bottom", "baseline"];
 
-gHTMLAttr.dd = [
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.dd = ["_core", "-", "^lang", "dir"];
 
-gHTMLAttr.del = [
-  "cite",
-  "datetime",
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.del = ["cite", "datetime", "_core", "-", "^lang", "dir"];
 
-gHTMLAttr.dfn = [
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.dfn = ["_core", "-", "^lang", "dir"];
 
 // this is deprecated //
-gHTMLAttr.dir = [
-  "compact",
-  "-",
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.dir = ["compact", "-", "_core", "-", "^lang", "dir"];
 
-gHTMLAttr.dir_compact = [
-  "compact",
-];
+gHTMLAttr.dir_compact = ["compact"];
 
-gHTMLAttr.div = [
-  "align",
-  "-",
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.div = ["align", "-", "_core", "-", "^lang", "dir"];
 
 gHTMLAttr.div_align = gHAlignJustify;
 
-gHTMLAttr.dl = [
-  "compact",
-  "-",
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.dl = ["compact", "-", "_core", "-", "^lang", "dir"];
 
-gHTMLAttr.dl_compact = [
-  "compact",
-];
+gHTMLAttr.dl_compact = ["compact"];
 
+gHTMLAttr.dt = ["_core", "-", "^lang", "dir"];
 
-gHTMLAttr.dt = [
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.em = ["_core", "-", "^lang", "dir"];
 
-gHTMLAttr.em = [
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
-
-gHTMLAttr.fieldset = [
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.fieldset = ["_core", "-", "^lang", "dir"];
 
 // this is deprecated //
-gHTMLAttr.font = [
-  "+size",
-  "color",
-  "face",
-  "-",
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.font = ["+size", "color", "face", "-", "_core", "-", "^lang", "dir"];
 
 gHTMLAttr.font_color = gHTMLColors;
 
@@ -582,14 +361,9 @@ gHTMLAttr.form = [
   "dir",
 ];
 
-gHTMLAttr.form_method = [
-  "get",
-  "post",
-];
+gHTMLAttr.form_method = ["get", "post"];
 
-gHTMLAttr.form_enctype = [
-  "application/x-www-form-urlencoded",
-];
+gHTMLAttr.form_enctype = ["application/x-www-form-urlencoded"];
 
 gHTMLAttr.form_target = gTarget;
 
@@ -604,102 +378,39 @@ gHTMLAttr.frame = [
   "$scrolling",
 ];
 
-gHTMLAttr.frame_frameborder = [
-  "1",
-  "0",
-];
+gHTMLAttr.frame_frameborder = ["1", "0"];
 
-gHTMLAttr.frame_noresize = [
-  "noresize",
-];
+gHTMLAttr.frame_noresize = ["noresize"];
 
-gHTMLAttr.frame_scrolling = [
-  "auto",
-  "yes",
-  "no",
-];
+gHTMLAttr.frame_scrolling = ["auto", "yes", "no"];
 
+gHTMLAttr.frameset = ["rows", "cols", "-", "_core"];
 
-gHTMLAttr.frameset = [
-  "rows",
-  "cols",
-  "-",
-  "_core",
-];
-
-gHTMLAttr.h1 = [
-  "align",
-  "-",
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.h1 = ["align", "-", "_core", "-", "^lang", "dir"];
 
 gHTMLAttr.h1_align = gHAlignJustify;
 
-gHTMLAttr.h2 = [
-  "align",
-  "-",
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.h2 = ["align", "-", "_core", "-", "^lang", "dir"];
 
 gHTMLAttr.h2_align = gHAlignJustify;
 
-gHTMLAttr.h3 = [
-  "align",
-  "-",
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.h3 = ["align", "-", "_core", "-", "^lang", "dir"];
 
-gHTMLAttr.h3_align =  gHAlignJustify;
+gHTMLAttr.h3_align = gHAlignJustify;
 
-gHTMLAttr.h4 = [
-  "align",
-  "-",
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.h4 = ["align", "-", "_core", "-", "^lang", "dir"];
 
 gHTMLAttr.h4_align = gHAlignJustify;
 
-
-gHTMLAttr.h5 = [
-  "align",
-  "-",
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.h5 = ["align", "-", "_core", "-", "^lang", "dir"];
 
 gHTMLAttr.h5_align = gHAlignJustify;
 
-gHTMLAttr.h6 = [
-  "align",
-  "-",
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.h6 = ["align", "-", "_core", "-", "^lang", "dir"];
 
 gHTMLAttr.h6_align = gHAlignJustify;
 
-gHTMLAttr.head = [
-  "profile",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.head = ["profile", "-", "^lang", "dir"];
 
 gHTMLAttr.hr = [
   "align",
@@ -715,24 +426,11 @@ gHTMLAttr.hr = [
 
 gHTMLAttr.hr_align = gHAlign;
 
-gHTMLAttr.hr_noshade = [
-  "noshade",
-];
+gHTMLAttr.hr_noshade = ["noshade"];
 
+gHTMLAttr.html = ["version", "-", "^lang", "dir"];
 
-gHTMLAttr.html = [
-  "version",
-  "-",
-  "^lang",
-  "dir",
-];
-
-gHTMLAttr.i = [
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.i = ["_core", "-", "^lang", "dir"];
 
 gHTMLAttr.iframe = [
   "longdesc",
@@ -749,24 +447,11 @@ gHTMLAttr.iframe = [
   "_core",
 ];
 
-gHTMLAttr.iframe_frameborder = [
-  "1",
-  "0",
-];
+gHTMLAttr.iframe_frameborder = ["1", "0"];
 
-gHTMLAttr.iframe_scrolling = [
-  "auto",
-  "yes",
-  "no",
-];
+gHTMLAttr.iframe_scrolling = ["auto", "yes", "no"];
 
-gHTMLAttr.iframe_align = [
-  "top",
-  "middle",
-  "bottom",
-  "left",
-  "right",
-];
+gHTMLAttr.iframe_align = ["top", "middle", "bottom", "left", "right"];
 
 gHTMLAttr.img = [
   "$src",
@@ -788,17 +473,9 @@ gHTMLAttr.img = [
   "dir",
 ];
 
-gHTMLAttr.img_ismap = [
-  "ismap",
-];
+gHTMLAttr.img_ismap = ["ismap"];
 
-gHTMLAttr.img_align = [
-  "top",
-  "middle",
-  "bottom",
-  "left",
-  "right",
-];
+gHTMLAttr.img_align = ["top", "middle", "bottom", "left", "right"];
 
 gHTMLAttr.input = [
   "$type",
@@ -837,106 +514,31 @@ gHTMLAttr.input_type = [
   "button",
 ];
 
-gHTMLAttr.input_checked = [
-  "checked",
-];
+gHTMLAttr.input_checked = ["checked"];
 
-gHTMLAttr.input_disabled = [
-  "disabled",
-];
+gHTMLAttr.input_disabled = ["disabled"];
 
-gHTMLAttr.input_readonly = [
-  "readonly",
-];
+gHTMLAttr.input_readonly = ["readonly"];
 
+gHTMLAttr.input_ismap = ["ismap"];
 
-gHTMLAttr.input_ismap = [
-  "ismap",
-];
+gHTMLAttr.input_align = ["top", "middle", "bottom", "left", "right"];
 
+gHTMLAttr.ins = ["cite", "datetime", "-", "_core", "-", "^lang", "dir"];
 
-gHTMLAttr.input_align = [
-  "top",
-  "middle",
-  "bottom",
-  "left",
-  "right",
-];
+gHTMLAttr.isindex = ["prompt", "-", "_core", "-", "^lang", "dir"];
 
-gHTMLAttr.ins = [
-  "cite",
-  "datetime",
-  "-",
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.kbd = ["_core", "-", "^lang", "dir"];
 
-gHTMLAttr.isindex = [
-  "prompt",
-  "-",
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.label = ["for", "!accesskey", "-", "_core", "-", "^lang", "dir"];
 
-gHTMLAttr.kbd = [
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.legend = ["!accesskey", "align", "-", "_core", "-", "^lang", "dir"];
 
-gHTMLAttr.label = [
-  "for",
-  "!accesskey",
-  "-",
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.legend_align = ["top", "bottom", "left", "right"];
 
-gHTMLAttr.legend = [
-  "!accesskey",
-  "align",
-  "-",
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.li = ["type", "#value", "-", "_core", "-", "^lang", "dir"];
 
-gHTMLAttr.legend_align = [
-  "top",
-  "bottom",
-  "left",
-  "right",
-];
-
-gHTMLAttr.li = [
-  "type",
-  "#value",
-  "-",
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
-
-gHTMLAttr.li_type = [
-  "disc",
-  "square",
-  "circle",
-  "-",
-  "1",
-  "a",
-  "A",
-  "i",
-  "I",
-];
+gHTMLAttr.li_type = ["disc", "square", "circle", "-", "1", "a", "A", "i", "I"];
 
 gHTMLAttr.link = [
   "charset",
@@ -992,27 +594,11 @@ gHTMLAttr.link_rev = [
   "bookmark",
 ];
 
-gHTMLAttr.map = [
-  "$name",
-  "-",
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.map = ["$name", "-", "_core", "-", "^lang", "dir"];
 
-gHTMLAttr.menu = [
-  "compact",
-  "-",
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.menu = ["compact", "-", "_core", "-", "^lang", "dir"];
 
-gHTMLAttr.menu_compact = [
-  "compact",
-];
+gHTMLAttr.menu_compact = ["compact"];
 
 gHTMLAttr.meta = [
   "http-equiv",
@@ -1024,19 +610,9 @@ gHTMLAttr.meta = [
   "dir",
 ];
 
-gHTMLAttr.noframes = [
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.noframes = ["_core", "-", "^lang", "dir"];
 
-gHTMLAttr.noscript = [
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.noscript = ["_core", "-", "^lang", "dir"];
 
 gHTMLAttr.object = [
   "declare",
@@ -1063,56 +639,19 @@ gHTMLAttr.object = [
   "dir",
 ];
 
-gHTMLAttr.object_declare = [
-  "declare",
-];
+gHTMLAttr.object_declare = ["declare"];
 
-gHTMLAttr.object_align = [
-  "top",
-  "middle",
-  "bottom",
-  "left",
-  "right",
-];
+gHTMLAttr.object_align = ["top", "middle", "bottom", "left", "right"];
 
-gHTMLAttr.ol = [
-  "type",
-  "compact",
-  "#start",
-  "-",
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.ol = ["type", "compact", "#start", "-", "_core", "-", "^lang", "dir"];
 
-gHTMLAttr.ol_type = [
-  "1",
-  "a",
-  "A",
-  "i",
-  "I",
-];
+gHTMLAttr.ol_type = ["1", "a", "A", "i", "I"];
 
-gHTMLAttr.ol_compact = [
-  "compact",
-];
+gHTMLAttr.ol_compact = ["compact"];
 
+gHTMLAttr.optgroup = ["disabled", "$label", "-", "_core", "-", "^lang", "dir"];
 
-gHTMLAttr.optgroup = [
-  "disabled",
-  "$label",
-  "-",
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
-
-gHTMLAttr.optgroup_disabled = [
-  "disabled",
-];
-
+gHTMLAttr.optgroup_disabled = ["disabled"];
 
 gHTMLAttr.option = [
   "selected",
@@ -1126,85 +665,29 @@ gHTMLAttr.option = [
   "dir",
 ];
 
-gHTMLAttr.option_selected = [
-  "selected",
-];
+gHTMLAttr.option_selected = ["selected"];
 
-gHTMLAttr.option_disabled = [
-  "disabled",
-];
+gHTMLAttr.option_disabled = ["disabled"];
 
-
-gHTMLAttr.p = [
-  "align",
-  "-",
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.p = ["align", "-", "_core", "-", "^lang", "dir"];
 
 gHTMLAttr.p_align = gHAlignJustify;
 
-gHTMLAttr.param = [
-  "^id",
-  "$name",
-  "value",
-  "$valuetype",
-  "type",
-];
+gHTMLAttr.param = ["^id", "$name", "value", "$valuetype", "type"];
 
-gHTMLAttr.param_valuetype = [
-  "data",
-  "ref",
-  "object",
-];
+gHTMLAttr.param_valuetype = ["data", "ref", "object"];
 
+gHTMLAttr.pre = ["%width", "-", "_core", "-", "^lang", "dir"];
 
-gHTMLAttr.pre = [
-  "%width",
-  "-",
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.q = ["cite", "-", "_core", "-", "^lang", "dir"];
 
-gHTMLAttr.q = [
-  "cite",
-  "-",
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.s = ["_core", "-", "^lang", "dir"];
 
-gHTMLAttr.s = [
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.samp = ["_core", "-", "^lang", "dir"];
 
-gHTMLAttr.samp = [
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.script = ["charset", "$type", "language", "src", "defer"];
 
-gHTMLAttr.script = [
-  "charset",
-  "$type",
-  "language",
-  "src",
-  "defer",
-];
-
-gHTMLAttr.script_defer = [
-  "defer",
-];
-
+gHTMLAttr.script_defer = ["defer"];
 
 gHTMLAttr.select = [
   "name",
@@ -1219,64 +702,23 @@ gHTMLAttr.select = [
   "dir",
 ];
 
-gHTMLAttr.select_multiple = [
-  "multiple",
-];
+gHTMLAttr.select_multiple = ["multiple"];
 
-gHTMLAttr.select_disabled = [
-  "disabled",
-];
+gHTMLAttr.select_disabled = ["disabled"];
 
-gHTMLAttr.small = [
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.small = ["_core", "-", "^lang", "dir"];
 
-gHTMLAttr.span = [
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.span = ["_core", "-", "^lang", "dir"];
 
-gHTMLAttr.strike = [
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.strike = ["_core", "-", "^lang", "dir"];
 
-gHTMLAttr.strong = [
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.strong = ["_core", "-", "^lang", "dir"];
 
-gHTMLAttr.style = [
-  "$type",
-  "media",
-  "title",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.style = ["$type", "media", "title", "-", "^lang", "dir"];
 
-gHTMLAttr.sub = [
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.sub = ["_core", "-", "^lang", "dir"];
 
-gHTMLAttr.sup = [
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.sup = ["_core", "-", "^lang", "dir"];
 
 gHTMLAttr.table = [
   "summary",
@@ -1307,13 +749,7 @@ gHTMLAttr.table_frame = [
   "border",
 ];
 
-gHTMLAttr.table_rules = [
-  "none",
-  "groups",
-  "rows",
-  "cols",
-  "all",
-];
+gHTMLAttr.table_rules = ["none", "groups", "rows", "cols", "all"];
 
 // Note; This is alignment of the table,
 //  not table contents, like all other table child elements
@@ -1359,12 +795,7 @@ gHTMLAttr.td = [
   "dir",
 ];
 
-gHTMLAttr.td_scope = [
-  "row",
-  "col",
-  "rowgroup",
-  "colgroup",
-];
+gHTMLAttr.td_scope = ["row", "col", "rowgroup", "colgroup"];
 
 gHTMLAttr.td_rowspan = [
   "1", // default
@@ -1378,9 +809,7 @@ gHTMLAttr.td_align = gHAlignTableContent;
 
 gHTMLAttr.td_valign = gVAlignTable;
 
-gHTMLAttr.td_nowrap = [
-  "nowrap",
-];
+gHTMLAttr.td_nowrap = ["nowrap"];
 
 gHTMLAttr.td_bgcolor = gHTMLColors;
 
@@ -1399,14 +828,9 @@ gHTMLAttr.textarea = [
   "dir",
 ];
 
-gHTMLAttr.textarea_disabled = [
-  "disabled",
-];
+gHTMLAttr.textarea_disabled = ["disabled"];
 
-gHTMLAttr.textarea_readonly = [
-  "readonly",
-];
-
+gHTMLAttr.textarea_readonly = ["readonly"];
 
 gHTMLAttr.tfoot = [
   "align",
@@ -1446,12 +870,7 @@ gHTMLAttr.th = [
   "dir",
 ];
 
-gHTMLAttr.th_scope = [
-  "row",
-  "col",
-  "rowgroup",
-  "colgroup",
-];
+gHTMLAttr.th_scope = ["row", "col", "rowgroup", "colgroup"];
 
 gHTMLAttr.th_rowspan = [
   "1", // default
@@ -1465,9 +884,7 @@ gHTMLAttr.th_align = gHAlignTableContent;
 
 gHTMLAttr.th_valign = gVAlignTable;
 
-gHTMLAttr.th_nowrap = [
-  "nowrap",
-];
+gHTMLAttr.th_nowrap = ["nowrap"];
 
 gHTMLAttr.th_bgcolor = gHTMLColors;
 
@@ -1487,10 +904,7 @@ gHTMLAttr.thead_align = gHAlignTableContent;
 
 gHTMLAttr.thead_valign = gVAlignTable;
 
-gHTMLAttr.title = [
-  "^lang",
-  "dir",
-];
+gHTMLAttr.title = ["^lang", "dir"];
 
 gHTMLAttr.tr = [
   "align",
@@ -1511,47 +925,17 @@ gHTMLAttr.tr_valign = gVAlignTable;
 
 gHTMLAttr.tr_bgcolor = gHTMLColors;
 
-gHTMLAttr.tt = [
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.tt = ["_core", "-", "^lang", "dir"];
 
-gHTMLAttr.u = [
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
-gHTMLAttr.ul = [
-  "type",
-  "compact",
-  "-",
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr.u = ["_core", "-", "^lang", "dir"];
+gHTMLAttr.ul = ["type", "compact", "-", "_core", "-", "^lang", "dir"];
 
-gHTMLAttr.ul_type = [
-  "disc",
-  "square",
-  "circle",
-];
+gHTMLAttr.ul_type = ["disc", "square", "circle"];
 
-gHTMLAttr.ul_compact = [
-  "compact",
-];
-
+gHTMLAttr.ul_compact = ["compact"];
 
 // Prefix with "_" since this is reserved (it's stripped out)
-gHTMLAttr._var = [
-  "_core",
-  "-",
-  "^lang",
-  "dir",
-];
+gHTMLAttr._var = ["_core", "-", "^lang", "dir"];
 
 // ================ JS Attributes ================ //
 // These are element specific even handlers.
@@ -1559,75 +943,31 @@ gHTMLAttr._var = [
    are assumed except for those listed here with "noEvents"
 */
 
-gJSAttr.a = [
-  "onfocus",
-  "onblur",
-];
+gJSAttr.a = ["onfocus", "onblur"];
 
-gJSAttr.area = [
-  "onfocus",
-  "onblur",
-];
+gJSAttr.area = ["onfocus", "onblur"];
 
-gJSAttr.body = [
-  "onload",
-  "onupload",
-];
+gJSAttr.body = ["onload", "onupload"];
 
-gJSAttr.button = [
-  "onfocus",
-  "onblur",
-];
+gJSAttr.button = ["onfocus", "onblur"];
 
-gJSAttr.form = [
-  "onsubmit",
-  "onreset",
-];
+gJSAttr.form = ["onsubmit", "onreset"];
 
-gJSAttr.frameset = [
-  "onload",
-  "onunload",
-];
+gJSAttr.frameset = ["onload", "onunload"];
 
-gJSAttr.input = [
-  "onfocus",
-  "onblur",
-  "onselect",
-  "onchange",
-];
+gJSAttr.input = ["onfocus", "onblur", "onselect", "onchange"];
 
-gJSAttr.label = [
-  "onfocus",
-  "onblur",
-];
+gJSAttr.label = ["onfocus", "onblur"];
 
-gJSAttr.select = [
-  "onfocus",
-  "onblur",
-  "onchange",
-];
+gJSAttr.select = ["onfocus", "onblur", "onchange"];
 
-gJSAttr.textarea = [
-  "onfocus",
-  "onblur",
-  "onselect",
-  "onchange",
-];
+gJSAttr.textarea = ["onfocus", "onblur", "onselect", "onchange"];
 
 // Elements that don't have JSEvents:
-gJSAttr.font = [
-  "noJSEvents",
-];
+gJSAttr.font = ["noJSEvents"];
 
-gJSAttr.applet = [
-  "noJSEvents",
-];
+gJSAttr.applet = ["noJSEvents"];
 
-gJSAttr.isindex = [
-  "noJSEvents",
-];
+gJSAttr.isindex = ["noJSEvents"];
 
-gJSAttr.iframe = [
-  "noJSEvents",
-];
-
+gJSAttr.iframe = ["noJSEvents"];

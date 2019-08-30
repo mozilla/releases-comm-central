@@ -7,12 +7,12 @@
 /* import-globals-from ../../composer/content/editorUtilities.js */
 /* import-globals-from EdDialogCommon.js */
 
-var gReplaceDialog;      // Quick access to document/form elements.
-var gFindInst;           // nsIWebBrowserFind that we're going to use
-var gFindService;        // Global service which remembers find params
-var gEditor;             // the editor we're using
+var gReplaceDialog; // Quick access to document/form elements.
+var gFindInst; // nsIWebBrowserFind that we're going to use
+var gFindService; // Global service which remembers find params
+var gEditor; // the editor we're using
 
-document.addEventListener("dialogaccept", (event) => {
+document.addEventListener("dialogaccept", event => {
   onFindNext();
   event.preventDefault();
 });
@@ -20,34 +20,38 @@ document.addEventListener("dialogaccept", (event) => {
 function initDialogObject() {
   // Create gReplaceDialog object and initialize.
   gReplaceDialog = {};
-  gReplaceDialog.findInput       = document.getElementById("dialog.findInput");
-  gReplaceDialog.replaceInput    = document.getElementById("dialog.replaceInput");
-  gReplaceDialog.caseSensitive   = document.getElementById("dialog.caseSensitive");
-  gReplaceDialog.wrap            = document.getElementById("dialog.wrap");
-  gReplaceDialog.searchBackwards = document.getElementById("dialog.searchBackwards");
-  gReplaceDialog.findNext        = document.getElementById("findNext");
-  gReplaceDialog.replace         = document.getElementById("replace");
-  gReplaceDialog.replaceAndFind  = document.getElementById("replaceAndFind");
-  gReplaceDialog.replaceAll      = document.getElementById("replaceAll");
+  gReplaceDialog.findInput = document.getElementById("dialog.findInput");
+  gReplaceDialog.replaceInput = document.getElementById("dialog.replaceInput");
+  gReplaceDialog.caseSensitive = document.getElementById(
+    "dialog.caseSensitive"
+  );
+  gReplaceDialog.wrap = document.getElementById("dialog.wrap");
+  gReplaceDialog.searchBackwards = document.getElementById(
+    "dialog.searchBackwards"
+  );
+  gReplaceDialog.findNext = document.getElementById("findNext");
+  gReplaceDialog.replace = document.getElementById("replace");
+  gReplaceDialog.replaceAndFind = document.getElementById("replaceAndFind");
+  gReplaceDialog.replaceAll = document.getElementById("replaceAll");
 }
 
 function loadDialog() {
   // Set initial dialog field contents.
   // Set initial dialog field contents. Use the gFindInst attributes first,
   // this is necessary for window.find()
-  gReplaceDialog.findInput.value         = (gFindInst.searchString
-                                            ? gFindInst.searchString
-                                            : gFindService.searchString);
+  gReplaceDialog.findInput.value = gFindInst.searchString
+    ? gFindInst.searchString
+    : gFindService.searchString;
   gReplaceDialog.replaceInput.value = gFindService.replaceString;
-  gReplaceDialog.caseSensitive.checked   = (gFindInst.matchCase
-                                            ? gFindInst.matchCase
-                                            : gFindService.matchCase);
-  gReplaceDialog.wrap.checked            = (gFindInst.wrapFind
-                                            ? gFindInst.wrapFind
-                                            : gFindService.wrapFind);
-  gReplaceDialog.searchBackwards.checked = (gFindInst.findBackwards
-                                            ? gFindInst.findBackwards
-                                            : gFindService.findBackwards);
+  gReplaceDialog.caseSensitive.checked = gFindInst.matchCase
+    ? gFindInst.matchCase
+    : gFindService.matchCase;
+  gReplaceDialog.wrap.checked = gFindInst.wrapFind
+    ? gFindInst.wrapFind
+    : gFindService.wrapFind;
+  gReplaceDialog.searchBackwards.checked = gFindInst.findBackwards
+    ? gFindInst.findBackwards
+    : gFindService.findBackwards;
 
   doEnabling();
 }
@@ -67,9 +71,10 @@ function onLoad() {
   gFindInst = editorElement.webBrowserFind;
 
   try {
-  // get the find service, which stores global find state
-    gFindService = Cc["@mozilla.org/find/find_service;1"]
-                         .getService(Ci.nsIFindService);
+    // get the find service, which stores global find state
+    gFindService = Cc["@mozilla.org/find/find_service;1"].getService(
+      Ci.nsIFindService
+    );
   } catch (e) {
     dump("No find service!\n");
     gFindService = 0;
@@ -84,26 +89,27 @@ function onLoad() {
   // Fill dialog.
   loadDialog();
 
-  if (gReplaceDialog.findInput.value)
+  if (gReplaceDialog.findInput.value) {
     gReplaceDialog.findInput.select();
-  else
+  } else {
     gReplaceDialog.findInput.focus();
+  }
 }
 
 function saveFindData() {
   // Set data attributes per user input.
   if (gFindService) {
-    gFindService.searchString  = gReplaceDialog.findInput.value;
-    gFindService.matchCase     = gReplaceDialog.caseSensitive.checked;
-    gFindService.wrapFind      = gReplaceDialog.wrap.checked;
+    gFindService.searchString = gReplaceDialog.findInput.value;
+    gFindService.matchCase = gReplaceDialog.caseSensitive.checked;
+    gFindService.wrapFind = gReplaceDialog.wrap.checked;
     gFindService.findBackwards = gReplaceDialog.searchBackwards.checked;
   }
 }
 
 function setUpFindInst() {
-  gFindInst.searchString  = gReplaceDialog.findInput.value;
-  gFindInst.matchCase     = gReplaceDialog.caseSensitive.checked;
-  gFindInst.wrapFind      = gReplaceDialog.wrap.checked;
+  gFindInst.searchString = gReplaceDialog.findInput.value;
+  gFindInst.matchCase = gReplaceDialog.caseSensitive.checked;
+  gFindInst.wrapFind = gReplaceDialog.wrap.checked;
   gFindInst.findBackwards = gReplaceDialog.searchBackwards.checked;
 }
 
@@ -118,7 +124,11 @@ function onFindNext() {
 
   if (!result) {
     var bundle = document.getElementById("findBundle");
-    Services.prompt.alert(window, GetString("Alert"), bundle.getString("notFoundWarning"));
+    Services.prompt.alert(
+      window,
+      GetString("Alert"),
+      bundle.getString("notFoundWarning")
+    );
     SetTextboxFocus(gReplaceDialog.findInput);
     gReplaceDialog.findInput.select();
     gReplaceDialog.findInput.focus();
@@ -128,8 +138,9 @@ function onFindNext() {
 }
 
 function onReplace() {
-  if (!gEditor)
+  if (!gEditor) {
     return false;
+  }
 
   // Does the current selection match the find string?
   var selection = gEditor.selection;
@@ -175,8 +186,9 @@ function onReplace() {
   // then we want to find the next match, but not do the replace.
   // That's what most other apps seem to do.
   // So here, just return.
-  if (!matches)
+  if (!matches) {
     return false;
+  }
 
   // Transfer dialog contents to the find service.
   saveFindData();
@@ -192,10 +204,11 @@ function onReplace() {
   // nsPlaintextEditor::InsertText fails if the string is empty,
   // so make that a special case:
   var replStr = gReplaceDialog.replaceInput.value;
-  if (replStr == "")
+  if (replStr == "") {
     gEditor.deleteSelection(gEditor.eNone, gEditor.eStrip);
-  else
+  } else {
     gEditor.insertText(replStr);
+  }
 
   // For reverse finds, need to move caret just before the replaced text
   if (gReplaceDialog.searchBackwards.checked && newRange) {
@@ -207,8 +220,9 @@ function onReplace() {
 }
 
 function onReplaceAll() {
-  if (!gEditor)
+  if (!gEditor) {
     return;
+  }
 
   var findStr = gReplaceDialog.findInput.value;
   var repStr = gReplaceDialog.replaceInput.value;
@@ -216,7 +230,9 @@ function onReplaceAll() {
   // Transfer dialog contents to the find service.
   saveFindData();
 
-  var finder = Cc["@mozilla.org/embedcomp/rangefind;1"].createInstance().QueryInterface(Ci.nsIFind);
+  var finder = Cc["@mozilla.org/embedcomp/rangefind;1"]
+    .createInstance()
+    .QueryInterface(Ci.nsIFind);
 
   finder.caseSensitive = gReplaceDialog.caseSensitive.checked;
   finder.findBackwards = gReplaceDialog.searchBackwards.checked;
@@ -231,8 +247,9 @@ function onReplaceAll() {
     // so we don't go past it when we wrap.
     var selection = gEditor.selection;
     var selecRange;
-    if (selection.rangeCount > 0)
+    if (selection.rangeCount > 0) {
       selecRange = selection.getRangeAt(0);
+    }
     var origRange = selecRange.cloneRange();
 
     // We'll need a range for the whole document:
@@ -254,8 +271,10 @@ function onReplaceAll() {
     // Find and replace from here to end (start) of document:
     var foundRange;
     var searchRange = wholeDocRange.cloneRange();
-    while ((foundRange = finder.Find(findStr, searchRange,
-                                     selecRange, endPt)) != null) {
+    while (
+      (foundRange = finder.Find(findStr, searchRange, selecRange, endPt)) !=
+      null
+    ) {
       gEditor.selection.removeAllRanges();
       gEditor.selection.addRange(foundRange);
 
@@ -269,10 +288,11 @@ function onReplaceAll() {
 
       // nsPlaintextEditor::InsertText fails if the string is empty,
       // so make that a special case:
-      if (repStr == "")
+      if (repStr == "") {
         gEditor.deleteSelection(gEditor.eNone, gEditor.eStrip);
-      else
+      } else {
         gEditor.insertText(repStr);
+      }
 
       // If we're going forward, we didn't save selecRange before, so do it now:
       if (!gReplaceDialog.searchBackwards.checked) {
@@ -302,13 +322,24 @@ function onReplaceAll() {
       // Collapse origRange to start
       origRange.setEnd(origRange.startContainer, origRange.startOffset);
       // Set current position to document start
-      selecRange.setStart(wholeDocRange.startContainer,
-                          wholeDocRange.startOffset);
-      selecRange.setEnd(wholeDocRange.startContainer, wholeDocRange.startOffset);
+      selecRange.setStart(
+        wholeDocRange.startContainer,
+        wholeDocRange.startOffset
+      );
+      selecRange.setEnd(
+        wholeDocRange.startContainer,
+        wholeDocRange.startOffset
+      );
     }
 
-    while ((foundRange = finder.Find(findStr, wholeDocRange,
-                                     selecRange, origRange)) != null) {
+    while (
+      (foundRange = finder.Find(
+        findStr,
+        wholeDocRange,
+        selecRange,
+        origRange
+      )) != null
+    ) {
       gEditor.selection.removeAllRanges();
       gEditor.selection.addRange(foundRange);
 
@@ -320,10 +351,11 @@ function onReplaceAll() {
 
       // nsPlaintextEditor::InsertText fails if the string is empty,
       // so make that a special case:
-      if (repStr == "")
+      if (repStr == "") {
         gEditor.deleteSelection(gEditor.eNone, gEditor.eStrip);
-      else
+      } else {
         gEditor.insertText(repStr);
+      }
 
       // Get insert point for forward case
       if (!gReplaceDialog.searchBackwards.checked) {

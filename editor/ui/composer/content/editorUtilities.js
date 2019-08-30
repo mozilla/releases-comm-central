@@ -4,8 +4,10 @@
 
 /* import-globals-from editor.js */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 
 // Each editor window must include this file
 // Variables  shared by all dialogs:
@@ -13,9 +15,11 @@ var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm
 // Object to attach commonly-used widgets (all dialogs should use this)
 var gDialog = {};
 
-var kOutputEncodeBasicEntities = Ci.nsIDocumentEncoder.OutputEncodeBasicEntities;
+var kOutputEncodeBasicEntities =
+  Ci.nsIDocumentEncoder.OutputEncodeBasicEntities;
 var kOutputEncodeHTMLEntities = Ci.nsIDocumentEncoder.OutputEncodeHTMLEntities;
-var kOutputEncodeLatin1Entities = Ci.nsIDocumentEncoder.OutputEncodeLatin1Entities;
+var kOutputEncodeLatin1Entities =
+  Ci.nsIDocumentEncoder.OutputEncodeLatin1Entities;
 var kOutputEncodeW3CEntities = Ci.nsIDocumentEncoder.OutputEncodeW3CEntities;
 var kOutputFormatted = Ci.nsIDocumentEncoder.OutputFormatted;
 var kOutputLFLineBreak = Ci.nsIDocumentEncoder.OutputLFLineBreak;
@@ -29,13 +33,27 @@ var gFilePickerDirectory;
 
 // Optional: Caller may supply text to substitute for "Ok" and/or "Cancel"
 function ConfirmWithTitle(title, message, okButtonText, cancelButtonText) {
-  let okFlag = okButtonText ? Services.prompt.BUTTON_TITLE_IS_STRING : Services.prompt.BUTTON_TITLE_OK;
-  let cancelFlag = cancelButtonText ? Services.prompt.BUTTON_TITLE_IS_STRING : Services.prompt.BUTTON_TITLE_CANCEL;
+  let okFlag = okButtonText
+    ? Services.prompt.BUTTON_TITLE_IS_STRING
+    : Services.prompt.BUTTON_TITLE_OK;
+  let cancelFlag = cancelButtonText
+    ? Services.prompt.BUTTON_TITLE_IS_STRING
+    : Services.prompt.BUTTON_TITLE_CANCEL;
 
-  return Services.prompt.confirmEx(window, title, message,
-                                   (okFlag * Services.prompt.BUTTON_POS_0) +
-                                   (cancelFlag * Services.prompt.BUTTON_POS_1),
-                                   okButtonText, cancelButtonText, null, null, {value: 0}) == 0;
+  return (
+    Services.prompt.confirmEx(
+      window,
+      title,
+      message,
+      okFlag * Services.prompt.BUTTON_POS_0 +
+        cancelFlag * Services.prompt.BUTTON_POS_1,
+      okButtonText,
+      cancelButtonText,
+      null,
+      null,
+      { value: 0 }
+    ) == 0
+  );
 }
 
 /** *********** String Utilities ***************/
@@ -43,7 +61,9 @@ function ConfirmWithTitle(title, message, okButtonText, cancelButtonText) {
 function GetString(name) {
   if (!gStringBundle) {
     try {
-      gStringBundle = Services.strings.createBundle("chrome://editor/locale/editor.properties");
+      gStringBundle = Services.strings.createBundle(
+        "chrome://editor/locale/editor.properties"
+      );
     } catch (ex) {}
   }
   if (gStringBundle) {
@@ -57,7 +77,9 @@ function GetString(name) {
 function GetFormattedString(aName, aVal) {
   if (!gStringBundle) {
     try {
-      gStringBundle = Services.strings.createBundle("chrome://editor/locale/editor.properties");
+      gStringBundle = Services.strings.createBundle(
+        "chrome://editor/locale/editor.properties"
+      );
     } catch (ex) {}
   }
   if (gStringBundle) {
@@ -69,44 +91,52 @@ function GetFormattedString(aName, aVal) {
 }
 
 function TrimStringLeft(string) {
-  if (!string)
+  if (!string) {
     return "";
+  }
   return string.trimLeft();
 }
 
 function TrimStringRight(string) {
-  if (!string)
+  if (!string) {
     return "";
+  }
   return string.trimRight();
 }
 
 // Remove whitespace from both ends of a string
 function TrimString(string) {
-  if (!string)
+  if (!string) {
     return "";
+  }
   return string.trim();
 }
 
 function TruncateStringAtWordEnd(string, maxLength, addEllipses) {
   // Return empty if string is null, undefined, or the empty string
-  if (!string)
+  if (!string) {
     return "";
+  }
 
   // We assume they probably don't want whitespace at the beginning
   string = string.trimLeft();
-  if (string.length <= maxLength)
+  if (string.length <= maxLength) {
     return string;
+  }
 
   // We need to truncate the string to maxLength or fewer chars
-  if (addEllipses)
+  if (addEllipses) {
     maxLength -= 3;
+  }
   string = string.replace(RegExp("(.{0," + maxLength + "})\\s.*"), "$1");
 
-  if (string.length > maxLength)
+  if (string.length > maxLength) {
     string = string.slice(0, maxLength);
+  }
 
-  if (addEllipses)
+  if (addEllipses) {
     string += "...";
+  }
   return string;
 }
 
@@ -121,17 +151,21 @@ function ReplaceWhitespace(string, charReplace) {
 //   characters: "a"-"z","A"-"Z","0"-"9", "_", ":", "-", ".",
 //   and characters above ASCII 127
 function ConvertToCDATAString(string) {
-  return string.replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_\.\-\:\u0080-\uFFFF]+/g, "");
+  return string
+    .replace(/\s+/g, "_")
+    .replace(/[^a-zA-Z0-9_\.\-\:\u0080-\uFFFF]+/g, "");
 }
 
 function GetSelectionAsText() {
   try {
-    return GetCurrentEditor().outputToString("text/plain", kOutputSelectionOnly);
+    return GetCurrentEditor().outputToString(
+      "text/plain",
+      kOutputSelectionOnly
+    );
   } catch (e) {}
 
   return "";
 }
-
 
 /** *********** Get Current Editor and associated interfaces or info ***************/
 const nsIPlaintextEditor = Ci.nsIPlaintextEditor;
@@ -164,7 +198,7 @@ function GetCurrentEditor() {
 
 function GetCurrentTableEditor() {
   var editor = GetCurrentEditor();
-  return (editor && (editor instanceof nsITableEditor)) ? editor : null;
+  return editor && editor instanceof nsITableEditor ? editor : null;
 }
 
 function GetCurrentEditorElement() {
@@ -175,12 +209,12 @@ function GetCurrentEditorElement() {
     let editorItem = tmpWindow.document.querySelector("editor");
 
     // This will change if we support > 1 editor element
-    if (editorItem)
+    if (editorItem) {
       return editorItem;
+    }
 
     tmpWindow = tmpWindow.opener;
-  }
-  while (tmpWindow);
+  } while (tmpWindow);
 
   return null;
 }
@@ -207,22 +241,23 @@ function GetCurrentEditorType() {
 
 function IsHTMLEditor() {
   // We don't have an editorElement, just return false
-  if (!GetCurrentEditorElement())
+  if (!GetCurrentEditorElement()) {
     return false;
+  }
 
   var editortype = GetCurrentEditorType();
   switch (editortype) {
-      case "html":
-      case "htmlmail":
-        return true;
+    case "html":
+    case "htmlmail":
+      return true;
 
-      case "text":
-      case "textmail":
-        return false;
+    case "text":
+    case "textmail":
+      return false;
 
-      default:
-        dump("INVALID EDITOR TYPE: " + editortype + "\n");
-        break;
+    default:
+      dump("INVALID EDITOR TYPE: " + editortype + "\n");
+      break;
   }
   return false;
 }
@@ -232,11 +267,11 @@ function PageIsEmptyAndUntouched() {
 }
 
 function IsInHTMLSourceMode() {
-  return (gEditorDisplayMode == kDisplayModeSource);
+  return gEditorDisplayMode == kDisplayModeSource;
 }
 
 function IsInPreviewMode() {
-  return (gEditorDisplayMode == kDisplayModePreview);
+  return gEditorDisplayMode == kDisplayModePreview;
 }
 
 // are we editing HTML (i.e. neither in HTML source mode, nor editing a text file)
@@ -298,31 +333,47 @@ function SetDocumentTitle(title) {
     GetCurrentEditorElement().contentDocument.title = title;
 
     // Update window title (doesn't work if called from a dialog)
-    if ("UpdateWindowTitle" in window)
+    if ("UpdateWindowTitle" in window) {
       window.UpdateWindowTitle();
+    }
   } catch (e) {}
 }
 
-function EditorGetTextProperty(property, attribute, value, firstHas, anyHas, allHas) {
+function EditorGetTextProperty(
+  property,
+  attribute,
+  value,
+  firstHas,
+  anyHas,
+  allHas
+) {
   try {
-    return GetCurrentEditor().getInlinePropertyWithAttrValue(property,
-                                attribute, value, firstHas, anyHas, allHas);
+    return GetCurrentEditor().getInlinePropertyWithAttrValue(
+      property,
+      attribute,
+      value,
+      firstHas,
+      anyHas,
+      allHas
+    );
   } catch (e) {}
 }
 
 function EditorSetTextProperty(property, attribute, value) {
   try {
     GetCurrentEditor().setInlineProperty(property, attribute, value);
-    if ("gContentWindow" in window)
+    if ("gContentWindow" in window) {
       window.gContentWindow.focus();
+    }
   } catch (e) {}
 }
 
 function EditorRemoveTextProperty(property, attribute) {
   try {
     GetCurrentEditor().removeInlineProperty(property, attribute);
-    if ("gContentWindow" in window)
+    if ("gContentWindow" in window) {
       window.gContentWindow.focus();
+    }
   } catch (e) {}
 }
 
@@ -337,10 +388,11 @@ function SetElementEnabledById(elementID, doEnable) {
 
 function SetElementEnabled(element, doEnable) {
   if (element) {
-    if (doEnable)
+    if (doEnable) {
       element.removeAttribute("disabled");
-    else
+    } else {
       element.setAttribute("disabled", "true");
+    }
   } else {
     dump("Element  not found in SetElementEnabled\n");
   }
@@ -366,10 +418,13 @@ function SetFilePickerDirectory(filePicker, fileType) {
       // Save current directory so we can reset it in SaveFilePickerDirectory
       gFilePickerDirectory = filePicker.displayDirectory;
 
-      let location = Services.prefs.getComplexValue("editor.lastFileLocation." + fileType,
-                                                    Ci.nsIFile);
-      if (location)
+      let location = Services.prefs.getComplexValue(
+        "editor.lastFileLocation." + fileType,
+        Ci.nsIFile
+      );
+      if (location) {
         filePicker.displayDirectory = location;
+      }
     } catch (e) {}
   }
 }
@@ -379,38 +434,60 @@ function SaveFilePickerDirectory(filePicker, fileType) {
   if (filePicker && filePicker.file) {
     try {
       var fileDir;
-      if (filePicker.file.parent)
+      if (filePicker.file.parent) {
         fileDir = filePicker.file.parent.QueryInterface(Ci.nsIFile);
+      }
 
-        Services.prefs.setComplexValue("editor.lastFileLocation." + fileType,
-                                       Ci.nsIFile, fileDir);
+      Services.prefs.setComplexValue(
+        "editor.lastFileLocation." + fileType,
+        Ci.nsIFile,
+        fileDir
+      );
 
-        Services.prefs.savePrefFile(null);
+      Services.prefs.savePrefFile(null);
     } catch (e) {}
   }
 
   // Restore the directory used before SetFilePickerDirectory was called;
   // This reduces interference with Browser and other module directory defaults
-  if (gFilePickerDirectory)
+  if (gFilePickerDirectory) {
     filePicker.displayDirectory = gFilePickerDirectory;
+  }
 
   gFilePickerDirectory = null;
 }
 
 function GetDefaultBrowserColors() {
-  var colors = { TextColor: 0, BackgroundColor: 0, LinkColor: 0, ActiveLinkColor: 0, VisitedLinkColor: 0 };
-  var useSysColors = Services.prefs.getBoolPref("browser.display.use_system_colors", false);
+  var colors = {
+    TextColor: 0,
+    BackgroundColor: 0,
+    LinkColor: 0,
+    ActiveLinkColor: 0,
+    VisitedLinkColor: 0,
+  };
+  var useSysColors = Services.prefs.getBoolPref(
+    "browser.display.use_system_colors",
+    false
+  );
 
   if (!useSysColors) {
-    colors.TextColor = Services.prefs.getCharPref("browser.display.foreground_color", 0);
-    colors.BackgroundColor = Services.prefs.getCharPref("browser.display.background_color", 0);
+    colors.TextColor = Services.prefs.getCharPref(
+      "browser.display.foreground_color",
+      0
+    );
+    colors.BackgroundColor = Services.prefs.getCharPref(
+      "browser.display.background_color",
+      0
+    );
   }
   // Use OS colors for text and background if explicitly asked or pref is not set
-  if (!colors.TextColor)
+  if (!colors.TextColor) {
     colors.TextColor = "windowtext";
+  }
 
-  if (!colors.BackgroundColor)
+  if (!colors.BackgroundColor) {
     colors.BackgroundColor = "window";
+  }
 
   colors.LinkColor = Services.prefs.getCharPref("browser.anchor_color");
   colors.ActiveLinkColor = Services.prefs.getCharPref("browser.active_color");
@@ -422,17 +499,23 @@ function GetDefaultBrowserColors() {
 /** *********** URL handling ***************/
 
 function TextIsURI(selectedText) {
-  return selectedText && /^http:\/\/|^https:\/\/|^file:\/\/|^ftp:\/\/|^about:|^mailto:|^news:|^snews:|^telnet:|^ldap:|^ldaps:|^gopher:|^finger:|^javascript:/i.test(selectedText);
+  return (
+    selectedText &&
+    /^http:\/\/|^https:\/\/|^file:\/\/|^ftp:\/\/|^about:|^mailto:|^news:|^snews:|^telnet:|^ldap:|^ldaps:|^gopher:|^finger:|^javascript:/i.test(
+      selectedText
+    )
+  );
 }
 
 function IsUrlAboutBlank(urlString) {
-  return (urlString == "about:blank");
+  return urlString == "about:blank";
 }
 
 function MakeRelativeUrl(url) {
   let inputUrl = url.trim();
-  if (!inputUrl)
+  if (!inputUrl) {
     return inputUrl;
+  }
 
   // Get the filespec relative to current document's location
   // NOTE: Can't do this if file isn't saved yet!
@@ -440,33 +523,41 @@ function MakeRelativeUrl(url) {
   var docScheme = GetScheme(docUrl);
 
   // Can't relativize if no doc scheme (page hasn't been saved)
-  if (!docScheme)
+  if (!docScheme) {
     return inputUrl;
+  }
 
   var urlScheme = GetScheme(inputUrl);
 
   // Do nothing if not the same scheme or url is already relativized
-  if (docScheme != urlScheme)
+  if (docScheme != urlScheme) {
     return inputUrl;
+  }
 
   // Host must be the same
   var docHost = GetHost(docUrl);
   var urlHost = GetHost(inputUrl);
-  if (docHost != urlHost)
+  if (docHost != urlHost) {
     return inputUrl;
-
+  }
 
   // Get just the file path part of the urls
   // XXX Should we use GetCurrentEditor().documentCharacterSet for 2nd param ?
-  let docPath = Services.io.newURI(docUrl, GetCurrentEditor().documentCharacterSet).pathQueryRef;
-  let urlPath = Services.io.newURI(inputUrl, GetCurrentEditor().documentCharacterSet).pathQueryRef;
+  let docPath = Services.io.newURI(
+    docUrl,
+    GetCurrentEditor().documentCharacterSet
+  ).pathQueryRef;
+  let urlPath = Services.io.newURI(
+    inputUrl,
+    GetCurrentEditor().documentCharacterSet
+  ).pathQueryRef;
 
   // We only return "urlPath", so we can convert the entire docPath for
   // case-insensitive comparisons.
-  var doCaseInsensitive = (docScheme == "file" &&
-                           AppConstants.platform == "win");
-  if (doCaseInsensitive)
+  var doCaseInsensitive = docScheme == "file" && AppConstants.platform == "win";
+  if (doCaseInsensitive) {
     docPath = docPath.toLowerCase();
+  }
 
   // Get document filename before we start chopping up the docPath
   var docFilename = GetFilename(docPath);
@@ -482,8 +573,8 @@ function MakeRelativeUrl(url) {
 
   // Remove all matching subdirs common to both doc and input urls
   do {
-    nextDocSlash = docPath.indexOf("\/");
-    var nextUrlSlash = urlPath.indexOf("\/");
+    nextDocSlash = docPath.indexOf("/");
+    var nextUrlSlash = urlPath.indexOf("/");
 
     if (nextUrlSlash == -1) {
       // We're done matching and all dirs in url
@@ -496,16 +587,18 @@ function MakeRelativeUrl(url) {
         if (anchorIndex > 0) {
           var urlFilename = doCaseInsensitive ? urlPath.toLowerCase() : urlPath;
 
-          if (urlFilename.startsWith(docFilename))
+          if (urlFilename.startsWith(docFilename)) {
             urlPath = urlPath.slice(anchorIndex);
+          }
         }
       }
     } else if (nextDocSlash >= 0) {
       // Test for matching subdir
       var docDir = docPath.slice(0, nextDocSlash);
       var urlDir = urlPath.slice(0, nextUrlSlash);
-      if (doCaseInsensitive)
+      if (doCaseInsensitive) {
         urlDir = urlDir.toLowerCase();
+      }
 
       if (urlDir == docDir) {
         // Remove matching dir+"/" from each path
@@ -521,47 +614,57 @@ function MakeRelativeUrl(url) {
         //   relativize to different drives/volumes.
         // UNIX doesn't have volumes, so we must not do this else
         // the first directory will be misinterpreted as a volume name.
-        if (firstDirTest && docScheme == "file" &&
-            AppConstants.platform != "unix")
+        if (
+          firstDirTest &&
+          docScheme == "file" &&
+          AppConstants.platform != "unix"
+        ) {
           return inputUrl;
+        }
       }
-    } else { // No more doc dirs left, we're done
+    } else {
+      // No more doc dirs left, we're done
       done = true;
     }
 
     firstDirTest = false;
-  }
-  while (!done);
+  } while (!done);
 
   // Add "../" for each dir left in docPath
   while (nextDocSlash > 0) {
     urlPath = "../" + urlPath;
-    nextDocSlash = docPath.indexOf("\/", nextDocSlash + 1);
+    nextDocSlash = docPath.indexOf("/", nextDocSlash + 1);
   }
   return urlPath;
 }
 
 function MakeAbsoluteUrl(url) {
   let resultUrl = TrimString(url);
-  if (!resultUrl)
+  if (!resultUrl) {
     return resultUrl;
+  }
 
   // Check if URL is already absolute, i.e., it has a scheme
   let urlScheme = GetScheme(resultUrl);
 
-  if (urlScheme)
+  if (urlScheme) {
     return resultUrl;
+  }
 
   let docUrl = GetDocumentBaseUrl();
   let docScheme = GetScheme(docUrl);
 
   // Can't relativize if no doc scheme (page hasn't been saved)
-  if (!docScheme)
+  if (!docScheme) {
     return resultUrl;
+  }
 
   // Make a URI object to use its "resolve" method
   let absoluteUrl = resultUrl;
-  let docUri = Services.io.newURI(docUrl, GetCurrentEditor().documentCharacterSet);
+  let docUri = Services.io.newURI(
+    docUrl,
+    GetCurrentEditor().documentCharacterSet
+  );
 
   try {
     absoluteUrl = docUri.resolve(resultUrl);
@@ -581,13 +684,16 @@ function GetDocumentBaseUrl() {
 
     // if document supplies a <base> tag, use that URL instead
     let base = GetCurrentEditor().document.querySelector("base");
-    if (base)
+    if (base) {
       docUrl = base.getAttribute("href");
-    if (!docUrl)
+    }
+    if (!docUrl) {
       docUrl = GetDocumentUrl();
+    }
 
-    if (!IsUrlAboutBlank(docUrl))
+    if (!IsUrlAboutBlank(docUrl)) {
       return docUrl;
+    }
   } catch (e) {}
   return "";
 }
@@ -603,8 +709,9 @@ function GetDocumentUrl() {
 function GetScheme(urlspec) {
   var resultUrl = TrimString(urlspec);
   // Unsaved document URL has no acceptable scheme yet
-  if (!resultUrl || IsUrlAboutBlank(resultUrl))
+  if (!resultUrl || IsUrlAboutBlank(resultUrl)) {
     return "";
+  }
 
   var scheme = "";
   try {
@@ -616,20 +723,22 @@ function GetScheme(urlspec) {
 }
 
 function GetHost(urlspec) {
-  if (!urlspec)
+  if (!urlspec) {
     return "";
+  }
 
   var host = "";
   try {
     host = Services.io.newURI(urlspec).host;
-   } catch (e) {}
+  } catch (e) {}
 
   return host;
 }
 
 function GetUsername(urlspec) {
-  if (!urlspec)
+  if (!urlspec) {
     return "";
+  }
 
   var username = "";
   try {
@@ -640,8 +749,9 @@ function GetUsername(urlspec) {
 }
 
 function GetFilename(urlspec) {
-  if (!urlspec || IsUrlAboutBlank(urlspec))
+  if (!urlspec || IsUrlAboutBlank(urlspec)) {
     return "";
+  }
 
   var filename;
 
@@ -649,8 +759,9 @@ function GetFilename(urlspec) {
     let uri = Services.io.newURI(urlspec);
     if (uri) {
       let url = uri.QueryInterface(Ci.nsIURL);
-      if (url)
+      if (url) {
         filename = url.fileName;
+      }
     }
   } catch (e) {}
 
@@ -662,13 +773,16 @@ function GetFilename(urlspec) {
 // This uses just string routines via nsIIOServices
 function StripUsernamePassword(urlspec, usernameObj, passwordObj) {
   urlspec = TrimString(urlspec);
-  if (!urlspec || IsUrlAboutBlank(urlspec))
+  if (!urlspec || IsUrlAboutBlank(urlspec)) {
     return urlspec;
+  }
 
-  if (usernameObj)
+  if (usernameObj) {
     usernameObj.value = "";
-  if (passwordObj)
+  }
+  if (passwordObj) {
     passwordObj.value = "";
+  }
 
   // "@" must exist else we will never detect username or password
   var atIndex = urlspec.indexOf("@");
@@ -678,14 +792,17 @@ function StripUsernamePassword(urlspec, usernameObj, passwordObj) {
       let username = uri.username;
       let password = uri.password;
 
-      if (usernameObj && username)
+      if (usernameObj && username) {
         usernameObj.value = username;
-      if (passwordObj && password)
+      }
+      if (passwordObj && password) {
         passwordObj.value = password;
+      }
       if (username) {
         let usernameStart = urlspec.indexOf(username);
-        if (usernameStart != -1)
+        if (usernameStart != -1) {
           return urlspec.slice(0, usernameStart) + urlspec.slice(atIndex + 1);
+        }
       }
     } catch (e) {}
   }
@@ -694,11 +811,13 @@ function StripUsernamePassword(urlspec, usernameObj, passwordObj) {
 
 function StripPassword(urlspec, passwordObj) {
   urlspec = TrimString(urlspec);
-  if (!urlspec || IsUrlAboutBlank(urlspec))
+  if (!urlspec || IsUrlAboutBlank(urlspec)) {
     return urlspec;
+  }
 
-  if (passwordObj)
+  if (passwordObj) {
     passwordObj.value = "";
+  }
 
   // "@" must exist else we will never detect password
   var atIndex = urlspec.indexOf("@");
@@ -706,8 +825,9 @@ function StripPassword(urlspec, passwordObj) {
     try {
       let password = Services.io.newURI(urlspec).password;
 
-      if (passwordObj && password)
+      if (passwordObj && password) {
         passwordObj.value = password;
+      }
       if (password) {
         // Find last ":" before "@"
         let colon = urlspec.lastIndexOf(":", atIndex);
@@ -730,7 +850,8 @@ function StripUsernamePasswordFromURI(uri) {
       var userPass = uri.userPass;
       if (userPass) {
         let start = urlspec.indexOf(userPass);
-        urlspec = urlspec.slice(0, start) + urlspec.slice(start + userPass.length + 1);
+        urlspec =
+          urlspec.slice(0, start) + urlspec.slice(start + userPass.length + 1);
       }
     } catch (e) {}
   }
@@ -738,11 +859,15 @@ function StripUsernamePasswordFromURI(uri) {
 }
 
 function InsertUsernameIntoUrl(urlspec, username) {
-  if (!urlspec || !username)
+  if (!urlspec || !username) {
     return urlspec;
+  }
 
   try {
-    let URI = Services.io.newURI(urlspec, GetCurrentEditor().documentCharacterSet);
+    let URI = Services.io.newURI(
+      urlspec,
+      GetCurrentEditor().documentCharacterSet
+    );
     URI.username = username;
     return URI.spec;
   } catch (e) {}
@@ -753,29 +878,38 @@ function InsertUsernameIntoUrl(urlspec, username) {
 function ConvertRGBColorIntoHEXColor(color) {
   if (/rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/.test(color)) {
     var r = Number(RegExp.$1).toString(16);
-    if (r.length == 1) r = "0" + r;
+    if (r.length == 1) {
+      r = "0" + r;
+    }
     var g = Number(RegExp.$2).toString(16);
-    if (g.length == 1) g = "0" + g;
+    if (g.length == 1) {
+      g = "0" + g;
+    }
     var b = Number(RegExp.$3).toString(16);
-    if (b.length == 1) b = "0" + b;
+    if (b.length == 1) {
+      b = "0" + b;
+    }
     return "#" + r + g + b;
   }
 
-    return color;
+  return color;
 }
 
 /** *********** CSS ***************/
 
 function GetHTMLOrCSSStyleValue(element, attrName, cssPropertyName) {
   var value;
-  if (Services.prefs.getBoolPref("editor.use_css") && IsHTMLEditor())
+  if (Services.prefs.getBoolPref("editor.use_css") && IsHTMLEditor()) {
     value = element.style.getPropertyValue(cssPropertyName);
+  }
 
-  if (!value)
+  if (!value) {
     value = element.getAttribute(attrName);
+  }
 
-  if (!value)
+  if (!value) {
     return "";
+  }
 
   return value;
 }
@@ -785,10 +919,11 @@ function GetHTMLOrCSSStyleValue(element, attrName, cssPropertyName) {
 function Clone(obj) {
   var clone = {};
   for (var i in obj) {
-    if (typeof obj[i] == "object")
+    if (typeof obj[i] == "object") {
       clone[i] = Clone(obj[i]);
-    else
+    } else {
       clone[i] = obj[i];
+    }
   }
   return clone;
 }
@@ -802,7 +937,7 @@ function Clone(obj) {
  * @return {bool}
  */
 function isImageDataShortened(aImageData) {
-  return (/^data:/i.test(aImageData) && aImageData.includes("…"));
+  return /^data:/i.test(aImageData) && aImageData.includes("…");
 }
 
 /**
@@ -814,8 +949,9 @@ function onCopyOrCutShortened(aEvent) {
   // is a shortened data URI.
   let field = aEvent.target;
   let startPos = field.selectionStart;
-  if (startPos == undefined)
+  if (startPos == undefined) {
     return;
+  }
   let endPos = field.selectionEnd;
   let selection = field.value.substring(startPos, endPos).trim();
 
@@ -845,20 +981,28 @@ function onCopyOrCutShortened(aEvent) {
  */
 function shortenImageData(aImageData, aDialogField) {
   let shortened = false;
-  aDialogField.value = aImageData.replace(/^(data:.+;base64,)(.*)/i,
-    function(match, nonDataPart, dataPart) {
-      if (dataPart.length <= 35)
-        return match;
+  aDialogField.value = aImageData.replace(/^(data:.+;base64,)(.*)/i, function(
+    match,
+    nonDataPart,
+    dataPart
+  ) {
+    if (dataPart.length <= 35) {
+      return match;
+    }
 
-      shortened = true;
-      aDialogField.addEventListener("copy", onCopyOrCutShortened);
-      aDialogField.addEventListener("cut", onCopyOrCutShortened);
-      aDialogField.fullDataURI = aImageData;
-      aDialogField.removeAttribute("tooltiptext");
-      aDialogField.setAttribute("tooltip", "shortenedDataURI");
-      return nonDataPart + dataPart.substring(0, 5) + "…" +
-                           dataPart.substring(dataPart.length - 30);
-    });
+    shortened = true;
+    aDialogField.addEventListener("copy", onCopyOrCutShortened);
+    aDialogField.addEventListener("cut", onCopyOrCutShortened);
+    aDialogField.fullDataURI = aImageData;
+    aDialogField.removeAttribute("tooltiptext");
+    aDialogField.setAttribute("tooltip", "shortenedDataURI");
+    return (
+      nonDataPart +
+      dataPart.substring(0, 5) +
+      "…" +
+      dataPart.substring(dataPart.length - 30)
+    );
+  });
   return shortened;
 }
 

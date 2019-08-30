@@ -7,7 +7,9 @@
 /* import-globals-from ../../composer/content/editorUtilities.js */
 /* import-globals-from EdDialogCommon.js */
 
-var {InlineSpellChecker} = ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
+var { InlineSpellChecker } = ChromeUtils.import(
+  "resource://gre/modules/InlineSpellChecker.jsm"
+);
 
 var gMisspelledWord;
 var gSpellChecker = null;
@@ -40,10 +42,16 @@ function Startup() {
     var skipBlockQuotes = window.arguments[1];
     var enableSelectionChecking = window.arguments[2];
 
-    gSpellChecker.setFilterType(skipBlockQuotes ?
-                                Ci.nsIEditorSpellCheck.FILTERTYPE_MAIL :
-                                Ci.nsIEditorSpellCheck.FILTERTYPE_NORMAL);
-    gSpellChecker.InitSpellChecker(editor, enableSelectionChecking, spellCheckStarted);
+    gSpellChecker.setFilterType(
+      skipBlockQuotes
+        ? Ci.nsIEditorSpellCheck.FILTERTYPE_MAIL
+        : Ci.nsIEditorSpellCheck.FILTERTYPE_NORMAL
+    );
+    gSpellChecker.InitSpellChecker(
+      editor,
+      enableSelectionChecking,
+      spellCheckStarted
+    );
   } catch (ex) {
     dump("*** Exception error: InitSpellChecker\n");
     window.close();
@@ -52,14 +60,14 @@ function Startup() {
 
 function spellCheckStarted() {
   gDialog.MisspelledWordLabel = document.getElementById("MisspelledWordLabel");
-  gDialog.MisspelledWord      = document.getElementById("MisspelledWord");
-  gDialog.ReplaceButton       = document.getElementById("Replace");
-  gDialog.IgnoreButton        = document.getElementById("Ignore");
-  gDialog.StopButton          = document.getElementById("Stop");
-  gDialog.CloseButton         = document.getElementById("Close");
-  gDialog.ReplaceWordInput    = document.getElementById("ReplaceWordInput");
-  gDialog.SuggestedList       = document.getElementById("SuggestedList");
-  gDialog.LanguageMenulist    = document.getElementById("LanguageMenulist");
+  gDialog.MisspelledWord = document.getElementById("MisspelledWord");
+  gDialog.ReplaceButton = document.getElementById("Replace");
+  gDialog.IgnoreButton = document.getElementById("Ignore");
+  gDialog.StopButton = document.getElementById("Stop");
+  gDialog.CloseButton = document.getElementById("Close");
+  gDialog.ReplaceWordInput = document.getElementById("ReplaceWordInput");
+  gDialog.SuggestedList = document.getElementById("SuggestedList");
+  gDialog.LanguageMenulist = document.getElementById("LanguageMenulist");
 
   // Fill in the language menulist and sync it up
   // with the spellchecker's current language.
@@ -119,8 +127,9 @@ function InitLanguageMenu(aCurLang) {
 
   // If we're not just starting up and dictionary count
   // hasn't changed then no need to update the menu.
-  if (gDictCount == dictList.length)
+  if (gDictCount == dictList.length) {
     return;
+  }
 
   // Store current dictionary count.
   gDictCount = dictList.length;
@@ -130,8 +139,9 @@ function InitLanguageMenu(aCurLang) {
 
   // Remove any languages from the list.
   var languageMenuPopup = gDialog.LanguageMenulist.menupopup;
-  while (languageMenuPopup.firstChild.localName != "menuseparator")
+  while (languageMenuPopup.firstChild.localName != "menuseparator") {
     languageMenuPopup.firstChild.remove();
+  }
 
   var defaultItem = null;
 
@@ -142,8 +152,9 @@ function InitLanguageMenu(aCurLang) {
     let beforeItem = gDialog.LanguageMenulist.getItemAtIndex(i);
     languageMenuPopup.insertBefore(item, beforeItem);
 
-    if (aCurLang && sortedList[i].localeCode == aCurLang)
+    if (aCurLang && sortedList[i].localeCode == aCurLang) {
       defaultItem = item;
+    }
   }
 
   // Now make sure the correct item in the menu list is selected.
@@ -156,7 +167,10 @@ function InitLanguageMenu(aCurLang) {
 function DoEnabling() {
   if (!gMisspelledWord) {
     // No more misspelled words
-    gDialog.MisspelledWord.setAttribute("value", GetString(gFirstTime ? "NoMisspelledWord" : "CheckSpellingDone"));
+    gDialog.MisspelledWord.setAttribute(
+      "value",
+      GetString(gFirstTime ? "NoMisspelledWord" : "CheckSpellingDone")
+    );
 
     gDialog.ReplaceButton.removeAttribute("default");
     gDialog.IgnoreButton.removeAttribute("default");
@@ -200,7 +214,6 @@ function NextWord() {
 function SetWidgetsForMisspelledWord() {
   gDialog.MisspelledWord.setAttribute("value", gMisspelledWord);
 
-
   // Initial replace word is misspelled word
   gDialog.ReplaceWordInput.value = gMisspelledWord;
   gPreviousReplaceWord = gMisspelledWord;
@@ -210,8 +223,9 @@ function SetWidgetsForMisspelledWord() {
 
   DoEnabling();
 
-  if (gMisspelledWord)
+  if (gMisspelledWord) {
     SetTextboxFocus(gDialog.ReplaceWordInput);
+  }
 }
 
 function CheckWord() {
@@ -222,8 +236,13 @@ function CheckWord() {
       SetReplaceEnable();
     } else {
       ClearListbox(gDialog.SuggestedList);
-      var item = gDialog.SuggestedList.appendItem(GetString("CorrectSpelling"), "");
-      if (item) item.setAttribute("disabled", "true");
+      var item = gDialog.SuggestedList.appendItem(
+        GetString("CorrectSpelling"),
+        ""
+      );
+      if (item) {
+        item.setAttribute("disabled", "true");
+      }
       // Suppress being able to select the message text
       gAllowSelectWord = false;
     }
@@ -283,8 +302,9 @@ function IgnoreAll() {
 }
 
 function Replace(newWord) {
-  if (!newWord)
+  if (!newWord) {
     return;
+  }
 
   if (gMisspelledWord && gMisspelledWord != newWord) {
     var editor = GetCurrentEditor();
@@ -318,7 +338,13 @@ function AddToDictionary() {
 }
 
 function EditDictionary() {
-  window.openDialog("chrome://editor/content/EdDictionary.xul", "_blank", "chrome,close,titlebar,modal", "", gMisspelledWord);
+  window.openDialog(
+    "chrome://editor/content/EdDictionary.xul",
+    "_blank",
+    "chrome,close,titlebar,modal",
+    "",
+    gMisspelledWord
+  );
 }
 
 function SelectLanguage() {
@@ -339,8 +365,9 @@ function SelectLanguage() {
   } else {
     openDictionaryList();
 
-    if (gLastSelectedLang)
+    if (gLastSelectedLang) {
       gDialog.LanguageMenulist.selectedItem = gLastSelectedLang;
+    }
   }
 }
 
@@ -389,7 +416,9 @@ function FillSuggestedList(misspelledWord) {
     if (count == 0) {
       // No suggestions - show a message but don't let user select it
       item = list.appendItem(GetString("NoSuggestedWords"));
-      if (item) item.setAttribute("disabled", "true");
+      if (item) {
+        item.setAttribute("disabled", "true");
+      }
       gAllowSelectWord = false;
     } else {
       gAllowSelectWord = true;
@@ -398,8 +427,9 @@ function FillSuggestedList(misspelledWord) {
     }
   } else {
     item = list.appendItem("", "");
-    if (item)
+    if (item) {
       item.setAttribute("disabled", "true");
+    }
   }
 }
 
@@ -419,12 +449,13 @@ function SetReplaceEnable() {
 }
 
 function doDefault(event) {
-  if (gDialog.ReplaceButton.getAttribute("default") == "true")
+  if (gDialog.ReplaceButton.getAttribute("default") == "true") {
     Replace(gDialog.ReplaceWordInput.value);
-  else if (gDialog.IgnoreButton.getAttribute("default") == "true")
+  } else if (gDialog.IgnoreButton.getAttribute("default") == "true") {
     Ignore();
-  else if (gDialog.CloseButton.getAttribute("default") == "true")
+  } else if (gDialog.CloseButton.getAttribute("default") == "true") {
     onClose();
+  }
 
   event.preventDefault();
 }
@@ -435,9 +466,14 @@ function ExitSpellChecker() {
       gSpellChecker.UninitSpellChecker();
       // now check the document over again with the new dictionary
       // if we have an inline spellchecker
-      if (("InlineSpellCheckerUI" in window.opener) &&
-          window.opener.InlineSpellCheckerUI.enabled)
-        window.opener.InlineSpellCheckerUI.mInlineSpellChecker.spellCheckRange(null);
+      if (
+        "InlineSpellCheckerUI" in window.opener &&
+        window.opener.InlineSpellCheckerUI.enabled
+      ) {
+        window.opener.InlineSpellCheckerUI.mInlineSpellChecker.spellCheckRange(
+          null
+        );
+      }
     } finally {
       gSpellChecker = null;
     }

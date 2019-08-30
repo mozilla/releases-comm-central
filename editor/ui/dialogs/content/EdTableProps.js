@@ -13,14 +13,14 @@ var gTableCaptionElement;
 var globalCellElement;
 var globalTableElement;
 var gValidateTab;
-const defHAlign =   "left";
-const centerStr =   "center";  // Index=1
-const rightStr =    "right";   // 2
-const justifyStr =  "justify"; // 3
-const charStr =     "char";    // 4
-const defVAlign =   "middle";
-const topStr =      "top";
-const bottomStr =   "bottom";
+const defHAlign = "left";
+const centerStr = "center"; // Index=1
+const rightStr = "right"; // 2
+const justifyStr = "justify"; // 3
+const charStr = "char"; // 4
+const defVAlign = "middle";
+const topStr = "top";
+const bottomStr = "bottom";
 const bgcolor = "bgcolor";
 var gTableColor;
 var gCellColor;
@@ -41,9 +41,16 @@ const SELECT_CELL = 1;
 const SELECT_ROW = 2;
 const SELECT_COLUMN = 3;
 const RESET_SELECTION = 0;
-var gCellData = { value: null, startRowIndex: 0, startColIndex: 0, rowSpan: 0, colSpan: 0,
-                 actualRowSpan: 0, actualColSpan: 0, isSelected: false,
-               };
+var gCellData = {
+  value: null,
+  startRowIndex: 0,
+  startColIndex: 0,
+  rowSpan: 0,
+  colSpan: 0,
+  actualRowSpan: 0,
+  actualColSpan: 0,
+  isSelected: false,
+};
 var gAdvancedEditUsed;
 var gAlignWasChar = false;
 
@@ -82,7 +89,9 @@ function Startup() {
   try {
     gSelection = gActiveEditor.selection;
   } catch (e) {}
-  if (!gSelection) return;
+  if (!gSelection) {
+    return;
+  }
 
   // Get dialog widgets - Table Panel
   gDialog.TableRowsInput = document.getElementById("TableRowsInput");
@@ -92,7 +101,10 @@ function Startup() {
   gDialog.TableHeightInput = document.getElementById("TableHeightInput");
   gDialog.TableHeightUnits = document.getElementById("TableHeightUnits");
   try {
-    if (!Services.prefs.getBoolPref("editor.use_css") || (gActiveEditor.flags & 1)) {
+    if (
+      !Services.prefs.getBoolPref("editor.use_css") ||
+      gActiveEditor.flags & 1
+    ) {
       gUseCSS = false;
       var tableHeightLabel = document.getElementById("TableHeightLabel");
       tableHeightLabel.remove();
@@ -106,7 +118,7 @@ function Startup() {
   gDialog.TableAlignList = document.getElementById("TableAlignList");
   gDialog.TableCaptionList = document.getElementById("TableCaptionList");
   gDialog.TableInheritColor = document.getElementById("TableInheritColor");
-  gDialog.TabBox =  document.getElementById("TabBox");
+  gDialog.TabBox = document.getElementById("TabBox");
 
   // Cell Panel
   gDialog.SelectionList = document.getElementById("SelectionList");
@@ -141,7 +153,9 @@ function Startup() {
   gDialog.CellTab = document.getElementById("CellTab");
   gDialog.AdvancedEditCell = document.getElementById("AdvancedEditButton2");
   // Save "normal" tooltip message for Advanced Edit button
-  gDialog.AdvancedEditCellToolTipText = gDialog.AdvancedEditCell.getAttribute("tooltiptext");
+  gDialog.AdvancedEditCellToolTipText = gDialog.AdvancedEditCell.getAttribute(
+    "tooltiptext"
+  );
 
   try {
     gTableElement = gActiveEditor.getElementOrParentByTagName("table", null);
@@ -157,7 +171,10 @@ function Startup() {
   var countObj = { value: 0 };
   var tableOrCellElement;
   try {
-   tableOrCellElement = gActiveEditor.getSelectedOrParentTableElement(tagNameObj, countObj);
+    tableOrCellElement = gActiveEditor.getSelectedOrParentTableElement(
+      tagNameObj,
+      countObj
+    );
   } catch (e) {}
 
   if (tagNameObj.value == "td") {
@@ -172,13 +189,18 @@ function Startup() {
     } catch (e) {}
 
     // Ignore types except Cell, Row, and Column
-    if (gSelectedCellsType < SELECT_CELL || gSelectedCellsType > SELECT_COLUMN)
+    if (
+      gSelectedCellsType < SELECT_CELL ||
+      gSelectedCellsType > SELECT_COLUMN
+    ) {
       gSelectedCellsType = SELECT_CELL;
+    }
 
     // Be sure at least 1 cell is selected.
     // (If the count is 0, then we were inside the cell.)
-    if (gSelectedCellCount == 0)
+    if (gSelectedCellCount == 0) {
       DoCellSelection();
+    }
 
     // Get location in the cell map
     var rowIndexObj = { value: 0 };
@@ -191,12 +213,14 @@ function Startup() {
 
     // We save the current colspan to quickly
     //  move selection from from cell to cell
-    if (GetCellData(gCurRowIndex, gCurColIndex))
+    if (GetCellData(gCurRowIndex, gCurColIndex)) {
       gCurColSpan = gCellData.colSpan;
+    }
 
     // Starting TabPanel name is passed in
-    if (window.arguments[1] == "CellPanel")
+    if (window.arguments[1] == "CellPanel") {
       gDialog.TabBox.selectedTab = gDialog.CellTab;
+    }
   }
 
   if (gDialog.TabBox.selectedTab == gDialog.TableTab) {
@@ -224,13 +248,13 @@ function Startup() {
   gColCount = colCountObj.value;
   gLastColIndex = gColCount - 1;
 
-
   // Set appropriate icons and enable state for the Previous/Next buttons
   SetSelectionButtons();
 
   // If only one cell in table, disable change-selection widgets
-  if (gRowCount == 1 && gColCount == 1)
+  if (gRowCount == 1 && gColCount == 1) {
     gDialog.SelectionList.setAttribute("disabled", "true");
+  }
 
   // User can change these via textboxes
   gNewRowCount = gRowCount;
@@ -249,40 +273,69 @@ function Startup() {
   SetWindowLocation();
 }
 
-
 function InitDialog() {
   // Get Table attributes
   gDialog.TableRowsInput.value = gRowCount;
   gDialog.TableColumnsInput.value = gColCount;
-  gDialog.TableWidthInput.value = InitPixelOrPercentMenulist(globalTableElement, gTableElement, "width", "TableWidthUnits", gPercent);
+  gDialog.TableWidthInput.value = InitPixelOrPercentMenulist(
+    globalTableElement,
+    gTableElement,
+    "width",
+    "TableWidthUnits",
+    gPercent
+  );
   if (gUseCSS) {
-    gDialog.TableHeightInput.value = InitPixelOrPercentMenulist(globalTableElement, gTableElement, "height",
-                                                                "TableHeightUnits", gPercent);
+    gDialog.TableHeightInput.value = InitPixelOrPercentMenulist(
+      globalTableElement,
+      gTableElement,
+      "height",
+      "TableHeightUnits",
+      gPercent
+    );
   }
   gDialog.BorderWidthInput.value = globalTableElement.border;
   gDialog.SpacingInput.value = globalTableElement.cellSpacing;
   gDialog.PaddingInput.value = globalTableElement.cellPadding;
 
-  var marginLeft  = GetHTMLOrCSSStyleValue(globalTableElement, "align", "margin-left");
-  var marginRight = GetHTMLOrCSSStyleValue(globalTableElement, "align", "margin-right");
+  var marginLeft = GetHTMLOrCSSStyleValue(
+    globalTableElement,
+    "align",
+    "margin-left"
+  );
+  var marginRight = GetHTMLOrCSSStyleValue(
+    globalTableElement,
+    "align",
+    "margin-right"
+  );
   var halign = marginLeft.toLowerCase() + " " + marginRight.toLowerCase();
-  if (halign == "center center" || halign == "auto auto")
+  if (halign == "center center" || halign == "auto auto") {
     gDialog.TableAlignList.value = "center";
-  else if (halign == "right right" || halign == "auto 0px")
+  } else if (halign == "right right" || halign == "auto 0px") {
     gDialog.TableAlignList.value = "right";
-  else // Default = left
+  } // Default = left
+  else {
     gDialog.TableAlignList.value = "left";
+  }
 
   // Be sure to get caption from table in doc, not the copied "globalTableElement"
   gTableCaptionElement = gTableElement.caption;
   if (gTableCaptionElement) {
-    var align = GetHTMLOrCSSStyleValue(gTableCaptionElement, "align", "caption-side");
-    if (align != "bottom" && align != "left" && align != "right")
+    var align = GetHTMLOrCSSStyleValue(
+      gTableCaptionElement,
+      "align",
+      "caption-side"
+    );
+    if (align != "bottom" && align != "left" && align != "right") {
       align = "top";
+    }
     gDialog.TableCaptionList.value = align;
   }
 
-  gTableColor = GetHTMLOrCSSStyleValue(globalTableElement, bgcolor, cssBackgroundColorStr);
+  gTableColor = GetHTMLOrCSSStyleValue(
+    globalTableElement,
+    bgcolor,
+    cssBackgroundColorStr
+  );
   gTableColor = ConvertRGBColorIntoHEXColor(gTableColor);
   SetColor("tableBackgroundCW", gTableColor);
 
@@ -296,27 +349,53 @@ function InitCellPanel() {
     gDialog.SelectionList.value = gSelectedCellsType;
 
     var previousValue = gDialog.CellHeightInput.value;
-    gDialog.CellHeightInput.value = InitPixelOrPercentMenulist(globalCellElement, gCellElement, "height", "CellHeightUnits", gPixel);
-    gDialog.CellHeightCheckbox.checked = gAdvancedEditUsed && previousValue != gDialog.CellHeightInput.value;
+    gDialog.CellHeightInput.value = InitPixelOrPercentMenulist(
+      globalCellElement,
+      gCellElement,
+      "height",
+      "CellHeightUnits",
+      gPixel
+    );
+    gDialog.CellHeightCheckbox.checked =
+      gAdvancedEditUsed && previousValue != gDialog.CellHeightInput.value;
 
     previousValue = gDialog.CellWidthInput.value;
-    gDialog.CellWidthInput.value = InitPixelOrPercentMenulist(globalCellElement, gCellElement, "width", "CellWidthUnits", gPixel);
-    gDialog.CellWidthCheckbox.checked = gAdvancedEditUsed && previousValue != gDialog.CellWidthInput.value;
+    gDialog.CellWidthInput.value = InitPixelOrPercentMenulist(
+      globalCellElement,
+      gCellElement,
+      "width",
+      "CellWidthUnits",
+      gPixel
+    );
+    gDialog.CellWidthCheckbox.checked =
+      gAdvancedEditUsed && previousValue != gDialog.CellWidthInput.value;
 
     var previousIndex = gDialog.CellVAlignList.selectedIndex;
-    var valign = GetHTMLOrCSSStyleValue(globalCellElement, "valign", "vertical-align").toLowerCase();
-    if (valign == topStr || valign == bottomStr)
+    var valign = GetHTMLOrCSSStyleValue(
+      globalCellElement,
+      "valign",
+      "vertical-align"
+    ).toLowerCase();
+    if (valign == topStr || valign == bottomStr) {
       gDialog.CellVAlignList.value = valign;
-    else // Default = middle
+    } // Default = middle
+    else {
       gDialog.CellVAlignList.value = defVAlign;
+    }
 
-    gDialog.CellVAlignCheckbox.checked = gAdvancedEditUsed && previousIndex != gDialog.CellVAlignList.selectedIndex;
+    gDialog.CellVAlignCheckbox.checked =
+      gAdvancedEditUsed &&
+      previousIndex != gDialog.CellVAlignList.selectedIndex;
 
     previousIndex = gDialog.CellHAlignList.selectedIndex;
 
     gAlignWasChar = false;
 
-    var halign = GetHTMLOrCSSStyleValue(globalCellElement, "align", "text-align").toLowerCase();
+    var halign = GetHTMLOrCSSStyleValue(
+      globalCellElement,
+      "align",
+      "text-align"
+    ).toLowerCase();
     switch (halign) {
       case centerStr:
       case rightStr:
@@ -328,33 +407,45 @@ function InitCellPanel() {
         // Remember that's what they had so we don't change it
         //  unless they change the alignment by using the menulist
         gAlignWasChar = true;
-        // Fall through to use show default alignment in menu
+      // Fall through to use show default alignment in menu
       default:
         // Default depends on cell type (TH is "center", TD is "left")
         gDialog.CellHAlignList.value =
-          (globalCellElement.nodeName.toLowerCase() == "th") ? "center" : "left";
+          globalCellElement.nodeName.toLowerCase() == "th" ? "center" : "left";
         break;
     }
 
-    gDialog.CellHAlignCheckbox.checked = gAdvancedEditUsed &&
+    gDialog.CellHAlignCheckbox.checked =
+      gAdvancedEditUsed &&
       previousIndex != gDialog.CellHAlignList.selectedIndex;
 
     previousIndex = gDialog.CellStyleList.selectedIndex;
     gDialog.CellStyleList.value = globalCellElement.nodeName.toLowerCase();
-    gDialog.CellStyleCheckbox.checked = gAdvancedEditUsed && previousIndex != gDialog.CellStyleList.selectedIndex;
+    gDialog.CellStyleCheckbox.checked =
+      gAdvancedEditUsed && previousIndex != gDialog.CellStyleList.selectedIndex;
 
     previousIndex = gDialog.TextWrapList.selectedIndex;
-    if (GetHTMLOrCSSStyleValue(globalCellElement, "nowrap", "white-space") == "nowrap")
+    if (
+      GetHTMLOrCSSStyleValue(globalCellElement, "nowrap", "white-space") ==
+      "nowrap"
+    ) {
       gDialog.TextWrapList.value = "nowrap";
-    else
+    } else {
       gDialog.TextWrapList.value = "wrap";
-    gDialog.TextWrapCheckbox.checked = gAdvancedEditUsed && previousIndex != gDialog.TextWrapList.selectedIndex;
+    }
+    gDialog.TextWrapCheckbox.checked =
+      gAdvancedEditUsed && previousIndex != gDialog.TextWrapList.selectedIndex;
 
     previousValue = gCellColor;
-    gCellColor = GetHTMLOrCSSStyleValue(globalCellElement, bgcolor, cssBackgroundColorStr);
+    gCellColor = GetHTMLOrCSSStyleValue(
+      globalCellElement,
+      bgcolor,
+      cssBackgroundColorStr
+    );
     gCellColor = ConvertRGBColorIntoHEXColor(gCellColor);
     SetColor("cellBackgroundCW", gCellColor);
-    gDialog.CellColorCheckbox.checked = gAdvancedEditUsed && previousValue != gCellColor;
+    gDialog.CellColorCheckbox.checked =
+      gAdvancedEditUsed && previousValue != gCellColor;
 
     // We want to set this true in case changes came
     //   from Advanced Edit dialog session (must assume something changed)
@@ -373,13 +464,23 @@ function GetCellData(rowIndex, colIndex) {
   var isSelectedObj = { value: false };
 
   try {
-    gActiveEditor.getCellDataAt(gTableElement, rowIndex, colIndex,
-                         gCellData,
-                         startRowIndexObj, startColIndexObj,
-                         rowSpanObj, colSpanObj,
-                         actualRowSpanObj, actualColSpanObj, isSelectedObj);
+    gActiveEditor.getCellDataAt(
+      gTableElement,
+      rowIndex,
+      colIndex,
+      gCellData,
+      startRowIndexObj,
+      startColIndexObj,
+      rowSpanObj,
+      colSpanObj,
+      actualRowSpanObj,
+      actualColSpanObj,
+      isSelectedObj
+    );
     // We didn't find a cell
-    if (!gCellData.value) return false;
+    if (!gCellData.value) {
+      return false;
+    }
   } catch (ex) {
     return false;
   }
@@ -403,9 +504,18 @@ function SelectCellHAlign() {
 
 function GetColorAndUpdate(ColorWellID) {
   var colorWell = document.getElementById(ColorWellID);
-  if (!colorWell) return;
+  if (!colorWell) {
+    return;
+  }
 
-  var colorObj = { Type: "", TableColor: 0, CellColor: 0, NoDefault: false, Cancel: false, BackgroundColor: 0 };
+  var colorObj = {
+    Type: "",
+    TableColor: 0,
+    CellColor: 0,
+    NoDefault: false,
+    Cancel: false,
+    BackgroundColor: 0,
+  };
 
   switch (ColorWellID) {
     case "tableBackgroundCW":
@@ -417,11 +527,18 @@ function GetColorAndUpdate(ColorWellID) {
       colorObj.CellColor = gCellColor;
       break;
   }
-  window.openDialog("chrome://editor/content/EdColorPicker.xul", "_blank", "chrome,close,titlebar,modal", "", colorObj);
+  window.openDialog(
+    "chrome://editor/content/EdColorPicker.xul",
+    "_blank",
+    "chrome,close,titlebar,modal",
+    "",
+    colorObj
+  );
 
   // User canceled the dialog
-  if (colorObj.Cancel)
+  if (colorObj.Cancel) {
     return;
+  }
 
   switch (ColorWellID) {
     case "tableBackgroundCW":
@@ -441,13 +558,21 @@ function SetColor(ColorWellID, color) {
   if (ColorWellID == "cellBackgroundCW") {
     if (color) {
       try {
-        gActiveEditor.setAttributeOrEquivalent(globalCellElement, bgcolor,
-                                               color, true);
+        gActiveEditor.setAttributeOrEquivalent(
+          globalCellElement,
+          bgcolor,
+          color,
+          true
+        );
       } catch (e) {}
       gDialog.CellInheritColor.collapsed = true;
     } else {
       try {
-        gActiveEditor.removeAttributeOrEquivalent(globalCellElement, bgcolor, true);
+        gActiveEditor.removeAttributeOrEquivalent(
+          globalCellElement,
+          bgcolor,
+          true
+        );
       } catch (e) {}
       // Reveal addition message explaining "default" color
       gDialog.CellInheritColor.collapsed = false;
@@ -455,13 +580,21 @@ function SetColor(ColorWellID, color) {
   } else {
     if (color) {
       try {
-        gActiveEditor.setAttributeOrEquivalent(globalTableElement, bgcolor,
-                                               color, true);
+        gActiveEditor.setAttributeOrEquivalent(
+          globalTableElement,
+          bgcolor,
+          color,
+          true
+        );
       } catch (e) {}
       gDialog.TableInheritColor.collapsed = true;
     } else {
       try {
-        gActiveEditor.removeAttributeOrEquivalent(globalTableElement, bgcolor, true);
+        gActiveEditor.removeAttributeOrEquivalent(
+          globalTableElement,
+          bgcolor,
+          true
+        );
       } catch (e) {}
       gDialog.TableInheritColor.collapsed = false;
     }
@@ -487,14 +620,16 @@ function ChangeSelectionToFirstCell() {
 function ChangeSelection(newType) {
   newType = Number(newType);
 
-  if (gSelectedCellsType == newType)
+  if (gSelectedCellsType == newType) {
     return;
+  }
 
-  if (newType == RESET_SELECTION)
+  if (newType == RESET_SELECTION) {
     // Restore selection to existing focus cell
     gSelection.collapse(gCellElement, 0);
-  else
+  } else {
     gSelectedCellsType = newType;
+  }
 
   // Keep the same focus gCellElement, just change the type
   DoCellSelection();
@@ -509,34 +644,39 @@ function MoveSelection(forward) {
   var inRow = false;
 
   if (gSelectedCellsType == SELECT_ROW) {
-    newRowIndex += (forward ? 1 : -1);
+    newRowIndex += forward ? 1 : -1;
 
     // Wrap around if before first or after last row
-    if (newRowIndex < 0)
+    if (newRowIndex < 0) {
       newRowIndex = gLastRowIndex;
-    else if (newRowIndex > gLastRowIndex)
+    } else if (newRowIndex > gLastRowIndex) {
       newRowIndex = 0;
+    }
     inRow = true;
 
     // Use first cell in row for focus cell
     newColIndex = 0;
   } else {
     // Cell or column:
-    if (!forward)
+    if (!forward) {
       newColIndex--;
+    }
 
     if (gSelectedCellsType == SELECT_CELL) {
       // Skip to next cell
-      if (forward)
+      if (forward) {
         newColIndex += gCurColSpan;
-    } else { // SELECT_COLUMN
+      }
+    } else {
+      // SELECT_COLUMN
       // Use first cell in column for focus cell
       newRowIndex = 0;
 
       // Don't skip by colspan,
       //  but find first cell in next cellmap column
-      if (forward)
+      if (forward) {
         newColIndex++;
+      }
     }
 
     if (newColIndex < 0) {
@@ -547,11 +687,13 @@ function MoveSelection(forward) {
 
       if (gSelectedCellsType == SELECT_CELL) {
         // If moving by cell, also wrap to previous...
-        if (newRowIndex > 0)
+        if (newRowIndex > 0) {
           newRowIndex -= 1;
-        else
-          // ...or the last row
+        }
+        // ...or the last row
+        else {
           newRowIndex = gLastRowIndex;
+        }
 
         inRow = true;
       }
@@ -563,11 +705,13 @@ function MoveSelection(forward) {
 
       if (gSelectedCellsType == SELECT_CELL) {
         // If moving by cell, also wrap to next...
-        if (newRowIndex < gLastRowIndex)
+        if (newRowIndex < gLastRowIndex) {
           newRowIndex++;
-        else
-          // ...or the first row
+        }
+        // ...or the first row
+        else {
           newRowIndex = 0;
+        }
 
         inRow = true;
       }
@@ -581,24 +725,27 @@ function MoveSelection(forward) {
       return;
     }
     if (inRow) {
-      if (gCellData.startRowIndex == newRowIndex)
+      if (gCellData.startRowIndex == newRowIndex) {
         break;
-      else
-        // Cell spans from a row above, look for the next cell in row
+      }
+      // Cell spans from a row above, look for the next cell in row
+      else {
         newRowIndex += gCellData.actualRowSpan;
+      }
     } else if (gCellData.startColIndex == newColIndex) {
       break;
     } else {
       // Cell spans from a Col above, look for the next cell in column
       newColIndex += gCellData.actualColSpan;
     }
-  }
-  while (true);
+  } while (true);
 
   // Save data for current selection before changing
-  if (gCellDataChanged) { // && gDialog.ApplyBeforeMove.checked)
-    if (!ValidateCellData())
+  if (gCellDataChanged) {
+    // && gDialog.ApplyBeforeMove.checked)
+    if (!ValidateCellData()) {
       return;
+    }
 
     gActiveEditor.beginTransaction();
     // Apply changes to all selected cells
@@ -627,17 +774,20 @@ function MoveSelection(forward) {
   //    the point to bring into view.
   try {
     var selectionController = gActiveEditor.selectionController;
-    selectionController.scrollSelectionIntoView(selectionController.SELECTION_NORMAL, selectionController.SELECTION_ANCHOR_REGION, true);
+    selectionController.scrollSelectionIntoView(
+      selectionController.SELECTION_NORMAL,
+      selectionController.SELECTION_ANCHOR_REGION,
+      true
+    );
   } catch (e) {}
 
   // Reinitialize dialog using new cell
-//  if (!gDialog.KeepCurrentData.checked)
+  //  if (!gDialog.KeepCurrentData.checked)
   // Setting this false unchecks all "set attributes" checkboxes
   gAdvancedEditUsed = false;
   InitCellPanel();
   gAdvancedEditUsed = true;
 }
-
 
 function DoCellSelection() {
   // Collapse selection into to the focus cell
@@ -662,18 +812,22 @@ function DoCellSelection() {
     gActiveEditor.getSelectedOrParentTableElement(tagNameObj, countObj);
   } catch (e) {}
 
-  if (tagNameObj.value == "td")
+  if (tagNameObj.value == "td") {
     gSelectedCellCount = countObj.value;
-  else
+  } else {
     gSelectedCellCount = 0;
+  }
 
   // Currently, we can only allow advanced editing on ONE cell element at a time
   //   else we ignore CSS, JS, and HTML attributes not already in dialog
   SetElementEnabled(gDialog.AdvancedEditCell, gSelectedCellCount == 1);
 
-  gDialog.AdvancedEditCell.setAttribute("tooltiptext",
-    gSelectedCellCount > 1 ? GetString("AdvancedEditForCellMsg") :
-                             gDialog.AdvancedEditCellToolTipText);
+  gDialog.AdvancedEditCell.setAttribute(
+    "tooltiptext",
+    gSelectedCellCount > 1
+      ? GetString("AdvancedEditForCellMsg")
+      : gDialog.AdvancedEditCellToolTipText
+  );
 }
 
 function SetSelectionButtons() {
@@ -686,9 +840,11 @@ function SetSelectionButtons() {
     gDialog.PreviousButton.setAttribute("type", "col");
     gDialog.NextButton.setAttribute("type", "col");
   }
-  DisableSelectionButtons((gSelectedCellsType == SELECT_ROW && gRowCount == 1) ||
-                          (gSelectedCellsType == SELECT_COLUMN && gColCount == 1) ||
-                          (gRowCount == 1 && gColCount == 1));
+  DisableSelectionButtons(
+    (gSelectedCellsType == SELECT_ROW && gRowCount == 1) ||
+      (gSelectedCellsType == SELECT_COLUMN && gColCount == 1) ||
+      (gRowCount == 1 && gColCount == 1)
+  );
 }
 
 function DisableSelectionButtons(disable) {
@@ -697,8 +853,9 @@ function DisableSelectionButtons(disable) {
 }
 
 function SwitchToValidatePanel() {
-  if (gDialog.TabBox.selectedTab != gValidateTab)
+  if (gDialog.TabBox.selectedTab != gValidateTab) {
     gDialog.TabBox.selectedTab = gValidateTab;
+  }
 }
 
 function SetAlign(listID, defaultValue, element, attName) {
@@ -716,46 +873,111 @@ function SetAlign(listID, defaultValue, element, attName) {
 
 function ValidateTableData() {
   gValidateTab = gDialog.TableTab;
-  gNewRowCount = Number(ValidateNumber(gDialog.TableRowsInput, null, 1, gMaxRows, null, true, true));
-  if (gValidationError) return false;
+  gNewRowCount = Number(
+    ValidateNumber(gDialog.TableRowsInput, null, 1, gMaxRows, null, true, true)
+  );
+  if (gValidationError) {
+    return false;
+  }
 
-  gNewColCount = Number(ValidateNumber(gDialog.TableColumnsInput, null, 1, gMaxColumns, null, true, true));
-  if (gValidationError) return false;
+  gNewColCount = Number(
+    ValidateNumber(
+      gDialog.TableColumnsInput,
+      null,
+      1,
+      gMaxColumns,
+      null,
+      true,
+      true
+    )
+  );
+  if (gValidationError) {
+    return false;
+  }
 
   // If user is deleting any cells, get confirmation
   // (This is a global to the dialog and we ask only once per dialog session)
-  if (!gCanDelete &&
-        (gNewRowCount < gRowCount ||
-         gNewColCount < gColCount)) {
-    if (ConfirmWithTitle(GetString("DeleteTableTitle"),
-                         GetString("DeleteTableMsg"),
-                         GetString("DeleteCells"))) {
+  if (!gCanDelete && (gNewRowCount < gRowCount || gNewColCount < gColCount)) {
+    if (
+      ConfirmWithTitle(
+        GetString("DeleteTableTitle"),
+        GetString("DeleteTableMsg"),
+        GetString("DeleteCells")
+      )
+    ) {
       gCanDelete = true;
     } else {
-      SetTextboxFocus(gNewRowCount < gRowCount ? gDialog.TableRowsInput : gDialog.TableColumnsInput);
+      SetTextboxFocus(
+        gNewRowCount < gRowCount
+          ? gDialog.TableRowsInput
+          : gDialog.TableColumnsInput
+      );
       return false;
     }
   }
 
-  ValidateNumber(gDialog.TableWidthInput, gDialog.TableWidthUnits,
-                 1, gMaxTableSize, globalTableElement, "width");
-  if (gValidationError) return false;
-
-  if (gUseCSS) {
-    ValidateNumber(gDialog.TableHeightInput, gDialog.TableHeightUnits,
-                   1, gMaxTableSize, globalTableElement, "height");
-    if (gValidationError) return false;
+  ValidateNumber(
+    gDialog.TableWidthInput,
+    gDialog.TableWidthUnits,
+    1,
+    gMaxTableSize,
+    globalTableElement,
+    "width"
+  );
+  if (gValidationError) {
+    return false;
   }
 
-  ValidateNumber(gDialog.BorderWidthInput, null, 0, gMaxPixels, globalTableElement, "border");
+  if (gUseCSS) {
+    ValidateNumber(
+      gDialog.TableHeightInput,
+      gDialog.TableHeightUnits,
+      1,
+      gMaxTableSize,
+      globalTableElement,
+      "height"
+    );
+    if (gValidationError) {
+      return false;
+    }
+  }
+
+  ValidateNumber(
+    gDialog.BorderWidthInput,
+    null,
+    0,
+    gMaxPixels,
+    globalTableElement,
+    "border"
+  );
   // TODO: Deal with "BORDER" without value issue
-  if (gValidationError) return false;
+  if (gValidationError) {
+    return false;
+  }
 
-  ValidateNumber(gDialog.SpacingInput, null, 0, gMaxPixels, globalTableElement, "cellspacing");
-  if (gValidationError) return false;
+  ValidateNumber(
+    gDialog.SpacingInput,
+    null,
+    0,
+    gMaxPixels,
+    globalTableElement,
+    "cellspacing"
+  );
+  if (gValidationError) {
+    return false;
+  }
 
-  ValidateNumber(gDialog.PaddingInput, null, 0, gMaxPixels, globalTableElement, "cellpadding");
-  if (gValidationError) return false;
+  ValidateNumber(
+    gDialog.PaddingInput,
+    null,
+    0,
+    gMaxPixels,
+    globalTableElement,
+    "cellpadding"
+  );
+  if (gValidationError) {
+    return false;
+  }
 
   SetAlign("TableAlignList", defHAlign, globalTableElement, "align");
 
@@ -767,15 +989,31 @@ function ValidateCellData() {
   gValidateTab = gDialog.CellTab;
 
   if (gDialog.CellHeightCheckbox.checked) {
-    ValidateNumber(gDialog.CellHeightInput, gDialog.CellHeightUnits,
-                    1, gMaxTableSize, globalCellElement, "height");
-    if (gValidationError) return false;
+    ValidateNumber(
+      gDialog.CellHeightInput,
+      gDialog.CellHeightUnits,
+      1,
+      gMaxTableSize,
+      globalCellElement,
+      "height"
+    );
+    if (gValidationError) {
+      return false;
+    }
   }
 
   if (gDialog.CellWidthCheckbox.checked) {
-    ValidateNumber(gDialog.CellWidthInput, gDialog.CellWidthUnits,
-                   1, gMaxTableSize, globalCellElement, "width");
-    if (gValidationError) return false;
+    ValidateNumber(
+      gDialog.CellWidthInput,
+      gDialog.CellWidthUnits,
+      1,
+      gMaxTableSize,
+      globalCellElement,
+      "width"
+    );
+    if (gValidationError) {
+      return false;
+    }
   }
 
   if (gDialog.CellHAlignCheckbox.checked) {
@@ -801,15 +1039,24 @@ function ValidateCellData() {
   }
 
   if (gDialog.TextWrapCheckbox.checked) {
-    if (gDialog.TextWrapList.value == "nowrap")
+    if (gDialog.TextWrapList.value == "nowrap") {
       try {
-        gActiveEditor.setAttributeOrEquivalent(globalCellElement, "nowrap",
-                                               "nowrap", true);
+        gActiveEditor.setAttributeOrEquivalent(
+          globalCellElement,
+          "nowrap",
+          "nowrap",
+          true
+        );
       } catch (e) {}
-    else
+    } else {
       try {
-        gActiveEditor.removeAttributeOrEquivalent(globalCellElement, "nowrap", true);
+        gActiveEditor.removeAttributeOrEquivalent(
+          globalCellElement,
+          "nowrap",
+          true
+        );
       } catch (e) {}
+    }
   }
 
   return true;
@@ -821,20 +1068,25 @@ function ValidateData() {
   // Validate current panel first
   if (gDialog.TabBox.selectedTab == gDialog.TableTab) {
     result = ValidateTableData();
-    if (result)
+    if (result) {
       result = ValidateCellData();
+    }
   } else {
     result = ValidateCellData();
-    if (result)
+    if (result) {
       result = ValidateTableData();
+    }
   }
-  if (!result) return false;
+  if (!result) {
+    return false;
+  }
 
   // Set global element for AdvancedEdit
-  if (gDialog.TabBox.selectedTab == gDialog.TableTab)
+  if (gDialog.TabBox.selectedTab == gDialog.TableTab) {
     globalElement = globalTableElement;
-  else
+  } else {
     globalElement = globalCellElement;
+  }
 
   return true;
 }
@@ -843,8 +1095,9 @@ function ChangeCellTextbox(textboxID) {
   // Filter input for just integers
   forceInteger(textboxID);
 
-  if (gDialog.TabBox.selectedTab == gDialog.CellTab)
+  if (gDialog.TabBox.selectedTab == gDialog.CellTab) {
     gCellDataChanged = true;
+  }
 }
 
 // Call this when a textbox or menulist is changed
@@ -871,23 +1124,32 @@ function CloneAttribute(destElement, srcElement, attr) {
   //  modifying a table in the document and
   //  we need transaction system for undo
   try {
-    if (!value || value.length == 0)
+    if (!value || value.length == 0) {
       gActiveEditor.removeAttributeOrEquivalent(destElement, attr, false);
-    else
+    } else {
       gActiveEditor.setAttributeOrEquivalent(destElement, attr, value, false);
+    }
   } catch (e) {}
 }
 
 /* eslint-disable complexity */
 function ApplyTableAttributes() {
   var newAlign = gDialog.TableCaptionList.value;
-  if (!newAlign) newAlign = "";
+  if (!newAlign) {
+    newAlign = "";
+  }
 
   if (gTableCaptionElement) {
     // Get current alignment
-    var align = GetHTMLOrCSSStyleValue(gTableCaptionElement, "align", "caption-side").toLowerCase();
+    var align = GetHTMLOrCSSStyleValue(
+      gTableCaptionElement,
+      "align",
+      "caption-side"
+    ).toLowerCase();
     // This is the default
-    if (!align) align = "top";
+    if (!align) {
+      align = "top";
+    }
 
     if (newAlign == "") {
       // Remove existing caption
@@ -897,10 +1159,21 @@ function ApplyTableAttributes() {
       gTableCaptionElement = null;
     } else if (newAlign != align) {
       try {
-        if (newAlign == "top") // This is default, so don't explicitly set it
-          gActiveEditor.removeAttributeOrEquivalent(gTableCaptionElement, "align", false);
-        else
-          gActiveEditor.setAttributeOrEquivalent(gTableCaptionElement, "align", newAlign, false);
+        if (newAlign == "top") {
+          // This is default, so don't explicitly set it
+          gActiveEditor.removeAttributeOrEquivalent(
+            gTableCaptionElement,
+            "align",
+            false
+          );
+        } else {
+          gActiveEditor.setAttributeOrEquivalent(
+            gTableCaptionElement,
+            "align",
+            newAlign,
+            false
+          );
+        }
       } catch (e) {}
     }
   } else if (newAlign != "") {
@@ -909,8 +1182,9 @@ function ApplyTableAttributes() {
       gTableCaptionElement = gActiveEditor.createElementWithDefaults("caption");
     } catch (e) {}
     if (gTableCaptionElement) {
-      if (newAlign != "top")
+      if (newAlign != "top") {
         gTableCaptionElement.setAttribute("align", newAlign);
+      }
 
       // Insert it into the table - caption is always inserted as first child
       try {
@@ -945,13 +1219,15 @@ function ApplyTableAttributes() {
           dump("FAILED TO FIND FIRST CELL IN LAST ROW\n");
         }
       }
-    } else if (gCanDelete) { // Delete rows
+    } else if (gCanDelete) {
+      // Delete rows
       // Find first cell starting in first row we delete
       var firstDeleteRow = gRowCount + countDelta;
       foundCell = false;
       for (i = 0; i <= gLastColIndex; i++) {
-        if (!GetCellData(firstDeleteRow, i))
-          break; // We failed to find a cell
+        if (!GetCellData(firstDeleteRow, i)) {
+          break;
+        } // We failed to find a cell
 
         if (gCellData.startRowIndex == firstDeleteRow) {
           foundCell = true;
@@ -965,13 +1241,15 @@ function ApplyTableAttributes() {
           gActiveEditor.deleteTableRow(-countDelta);
           gRowCount = gNewRowCount;
           gLastRowIndex = gRowCount - 1;
-          if (gCurRowIndex > gLastRowIndex)
+          if (gCurRowIndex > gLastRowIndex) {
             // We are deleting our selection
             // move it to start of table
             ChangeSelectionToFirstCell();
-          else
-            // Put selection back where it was
+          }
+          // Put selection back where it was
+          else {
             ChangeSelection(RESET_SELECTION);
+          }
         } catch (ex) {
           dump("FAILED TO FIND FIRST CELL IN LAST ROW\n");
         }
@@ -998,13 +1276,15 @@ function ApplyTableAttributes() {
           dump("FAILED TO FIND FIRST CELL IN LAST COLUMN\n");
         }
       }
-    } else if (gCanDelete) { // Delete columns
+    } else if (gCanDelete) {
+      // Delete columns
       var firstDeleteCol = gColCount + countDelta;
       foundCell = false;
       for (i = 0; i <= gLastRowIndex; i++) {
         // Find first cell starting in first column we delete
-        if (!GetCellData(i, firstDeleteCol))
-          break; // We failed to find a cell
+        if (!GetCellData(i, firstDeleteCol)) {
+          break;
+        } // We failed to find a cell
 
         if (gCellData.startColIndex == firstDeleteCol) {
           foundCell = true;
@@ -1018,10 +1298,11 @@ function ApplyTableAttributes() {
           gActiveEditor.deleteTableColumn(-countDelta);
           gColCount = gNewColCount;
           gLastColIndex = gColCount - 1;
-          if (gCurColIndex > gLastColIndex)
+          if (gCurColIndex > gLastColIndex) {
             ChangeSelectionToFirstCell();
-          else
+          } else {
             ChangeSelection(RESET_SELECTION);
+          }
         } catch (ex) {
           dump("FAILED TO FIND FIRST CELL IN LAST ROW\n");
         }
@@ -1044,8 +1325,9 @@ function ApplyCellAttributes() {
     selectedCell = gActiveEditor.getFirstSelectedCell(rangeObj);
   } catch (e) {}
 
-  if (!selectedCell)
+  if (!selectedCell) {
     return;
+  }
 
   if (gSelectedCellCount == 1) {
     // When only one cell is selected, simply clone entire element,
@@ -1055,7 +1337,8 @@ function ApplyCellAttributes() {
     } catch (e) {}
 
     if (gDialog.CellStyleCheckbox.checked) {
-      var currentStyleIndex = (selectedCell.nodeName.toLowerCase() == "th") ? 1 : 0;
+      var currentStyleIndex =
+        selectedCell.nodeName.toLowerCase() == "th" ? 1 : 0;
       if (gDialog.CellStyleList.selectedIndex != currentStyleIndex) {
         // Switch cell types
         // (replaces with new cell and copies attributes and contents)
@@ -1078,26 +1361,30 @@ function ApplyCellAttributes() {
 }
 
 function ApplyAttributesToOneCell(destElement) {
-  if (gDialog.CellHeightCheckbox.checked)
+  if (gDialog.CellHeightCheckbox.checked) {
     CloneAttribute(destElement, globalCellElement, "height");
+  }
 
-  if (gDialog.CellWidthCheckbox.checked)
+  if (gDialog.CellWidthCheckbox.checked) {
     CloneAttribute(destElement, globalCellElement, "width");
+  }
 
   if (gDialog.CellHAlignCheckbox.checked) {
     CloneAttribute(destElement, globalCellElement, "align");
     CloneAttribute(destElement, globalCellElement, charStr);
   }
 
-  if (gDialog.CellVAlignCheckbox.checked)
+  if (gDialog.CellVAlignCheckbox.checked) {
     CloneAttribute(destElement, globalCellElement, "valign");
+  }
 
-  if (gDialog.TextWrapCheckbox.checked)
+  if (gDialog.TextWrapCheckbox.checked) {
     CloneAttribute(destElement, globalCellElement, "nowrap");
+  }
 
   if (gDialog.CellStyleCheckbox.checked) {
     var newStyleIndex = gDialog.CellStyleList.selectedIndex;
-    var currentStyleIndex = (destElement.nodeName.toLowerCase() == "th") ? 1 : 0;
+    var currentStyleIndex = destElement.nodeName.toLowerCase() == "th" ? 1 : 0;
 
     if (newStyleIndex != currentStyleIndex) {
       // Switch cell types
@@ -1108,15 +1395,18 @@ function ApplyAttributesToOneCell(destElement) {
     }
   }
 
-  if (gDialog.CellColorCheckbox.checked)
+  if (gDialog.CellColorCheckbox.checked) {
     CloneAttribute(destElement, globalCellElement, "bgcolor");
+  }
 }
 
 function SetCloseButton() {
   // Change text on "Cancel" button after Apply is used
   if (!gApplyUsed) {
-    document.documentElement.setAttribute("buttonlabelcancel",
-      document.documentElement.getAttribute("buttonlabelclose"));
+    document.documentElement.setAttribute(
+      "buttonlabelcancel",
+      document.documentElement.getAttribute("buttonlabelclose")
+    );
     gApplyUsed = true;
   }
 }
@@ -1128,8 +1418,9 @@ function Apply() {
     ApplyTableAttributes();
 
     // We may have just a table, so check for cell element
-    if (globalCellElement)
+    if (globalCellElement) {
       ApplyCellAttributes();
+    }
 
     gActiveEditor.endTransaction();
 

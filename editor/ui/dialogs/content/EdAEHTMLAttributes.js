@@ -38,8 +38,9 @@ function BuildHTMLAttributeNameList() {
         var popup = gDialog.AddHTMLAttributeNameInput.menupopup;
         if (popup) {
           var sep = document.createXULElement("menuseparator");
-          if (sep)
+          if (sep) {
             popup.appendChild(sep);
+          }
         }
       } else {
         // Get information about value filtering
@@ -47,7 +48,7 @@ function BuildHTMLAttributeNameList() {
         let forceInteger = name.includes("#");
         let forceSignedInteger = name.includes("+");
         let forceIntOrPercent = name.includes("%");
-        let limitFirstChar = name.includes("\^");
+        let limitFirstChar = name.includes("^");
         // let required = name.includes("$");
 
         // Strip flag characters
@@ -62,16 +63,21 @@ function BuildHTMLAttributeNameList() {
           //  menuitem.setAttribute("class", "menuitem-highlight-1");
 
           // Set flags to filter value input
-          if (forceOneChar)
+          if (forceOneChar) {
             menuitem.setAttribute("forceOneChar", "true");
-          if (limitFirstChar)
+          }
+          if (limitFirstChar) {
             menuitem.setAttribute("limitFirstChar", "true");
-          if (forceInteger)
+          }
+          if (forceInteger) {
             menuitem.setAttribute("forceInteger", "true");
-          if (forceSignedInteger)
+          }
+          if (forceSignedInteger) {
             menuitem.setAttribute("forceSignedInteger", "true");
-          if (forceIntOrPercent)
+          }
+          if (forceIntOrPercent) {
             menuitem.setAttribute("forceIntOrPercent", "true");
+          }
         }
       }
     }
@@ -86,18 +92,24 @@ function BuildHTMLAttributeTable() {
     var added = false;
     for (i = 0; i < nodeMap.length; i++) {
       let name = nodeMap[i].name.trim().toLowerCase();
-      if (CheckAttributeNameSimilarity(nodeMap[i].nodeName, HTMLAttrs) ||
-           name.startsWith("on") || name == "style") {
-        continue;   // repeated or non-HTML attribute, ignore this one and go to next
+      if (
+        CheckAttributeNameSimilarity(nodeMap[i].nodeName, HTMLAttrs) ||
+        name.startsWith("on") ||
+        name == "style"
+      ) {
+        continue; // repeated or non-HTML attribute, ignore this one and go to next
       }
-      if (!name.startsWith("_moz") &&
-          AddTreeItem(name, nodeMap[i].value, "HTMLAList", HTMLAttrs)) {
+      if (
+        !name.startsWith("_moz") &&
+        AddTreeItem(name, nodeMap[i].value, "HTMLAList", HTMLAttrs)
+      ) {
         added = true;
       }
     }
 
-    if (added)
+    if (added) {
       SelectHTMLTree(0);
+    }
   }
 }
 
@@ -109,18 +121,23 @@ function ClearHTMLInputWidgets() {
 }
 
 function onSelectHTMLTreeItem() {
-  if (!gDoOnSelectTree)
+  if (!gDoOnSelectTree) {
     return;
+  }
 
   var tree = gDialog.AddHTMLAttributeTree;
   if (tree && tree.view.selection.count) {
-    var inputName = TrimString(gDialog.AddHTMLAttributeNameInput.value).toLowerCase();
+    var inputName = TrimString(
+      gDialog.AddHTMLAttributeNameInput.value
+    ).toLowerCase();
     var selectedItem = getSelectedItem(tree);
     var selectedName = selectedItem.firstChild.firstChild.getAttribute("label");
 
     if (inputName == selectedName) {
       // Already editing selected name - just update the value input
-      gDialog.AddHTMLAttributeValueInput.value = GetTreeItemValueStr(selectedItem);
+      gDialog.AddHTMLAttributeValueInput.value = GetTreeItemValueStr(
+        selectedItem
+      );
     } else {
       gDialog.AddHTMLAttributeNameInput.value = selectedName;
 
@@ -145,27 +162,32 @@ function onInputHTMLAttributeName() {
     // Most elements have the "dir" attribute,
     //   so we have just one array for the allowed values instead
     //   requiring duplicate entries for each element in EdAEAttributes.js
-    if (attName == "dir")
+    if (attName == "dir") {
       valueListName = "all_dir";
-    else
+    } else {
       valueListName = gElement.localName + "_" + attName;
+    }
 
     // Strip off leading "_" we sometimes use (when element name is reserved word)
-    if (valueListName.startsWith("_"))
+    if (valueListName.startsWith("_")) {
       valueListName = valueListName.slice(1);
+    }
 
     var newValue = "";
     var listLen = 0;
 
     // Index to which widget we were using to edit the value
-    var deckIndex = gDialog.AddHTMLAttributeValueDeck.getAttribute("selectedIndex");
+    var deckIndex = gDialog.AddHTMLAttributeValueDeck.getAttribute(
+      "selectedIndex"
+    );
 
     if (valueListName in gHTMLAttr) {
       var valueList = gHTMLAttr[valueListName];
 
       listLen = valueList.length;
-      if (listLen == 1)
+      if (listLen == 1) {
         newValue = valueList[0];
+      }
 
       // Note: For case where "value list" is actually just
       // one (default) item, don't use menulist for that
@@ -174,7 +196,8 @@ function onInputHTMLAttributeName() {
 
         if (deckIndex != "1") {
           // Switch to using editable menulist
-          gDialog.AddHTMLAttributeValueInput = gDialog.AddHTMLAttributeValueMenulist;
+          gDialog.AddHTMLAttributeValueInput =
+            gDialog.AddHTMLAttributeValueMenulist;
           gDialog.AddHTMLAttributeValueDeck.setAttribute("selectedIndex", "1");
         }
         // Rebuild the list
@@ -184,11 +207,15 @@ function onInputHTMLAttributeName() {
             var popup = gDialog.AddHTMLAttributeValueInput.menupopup;
             if (popup) {
               var sep = document.createXULElement("menuseparator");
-              if (sep)
+              if (sep) {
                 popup.appendChild(sep);
+              }
             }
           } else {
-            gDialog.AddHTMLAttributeValueMenulist.appendItem(valueList[i], valueList[i]);
+            gDialog.AddHTMLAttributeValueMenulist.appendItem(
+              valueList[i],
+              valueList[i]
+            );
           }
         }
       }
@@ -202,24 +229,31 @@ function onInputHTMLAttributeName() {
 
     // If attribute already exists in tree, use associated value,
     //  else use default found above
-    var existingValue = GetAndSelectExistingAttributeValue(attName, "HTMLAList");
-    if (existingValue)
+    var existingValue = GetAndSelectExistingAttributeValue(
+      attName,
+      "HTMLAList"
+    );
+    if (existingValue) {
       newValue = existingValue;
+    }
 
     gDialog.AddHTMLAttributeValueInput.value = newValue;
 
-    if (!existingValue)
+    if (!existingValue) {
       onInputHTMLAttributeValue();
+    }
   }
 }
 
 function onInputHTMLAttributeValue() {
-  if (!gUpdateTreeValue)
+  if (!gUpdateTreeValue) {
     return;
+  }
 
   var name = TrimString(gDialog.AddHTMLAttributeNameInput.value);
-  if (!name)
+  if (!name) {
     return;
+  }
 
   // Trim spaces only from left since we must allow spaces within the string
   //  (we always reset the input field's value below)
@@ -231,50 +265,59 @@ function onInputHTMLAttributeValue() {
     var selectedItem = gDialog.AddHTMLAttributeNameInput.selectedItem;
 
     if (selectedItem) {
-      if (selectedItem.getAttribute("forceOneChar") == "true" &&
-           value.length > 1)
+      if (
+        selectedItem.getAttribute("forceOneChar") == "true" &&
+        value.length > 1
+      ) {
         value = value.slice(0, 1);
+      }
 
       if (selectedItem.getAttribute("forceIntOrPercent") == "true") {
         // Allow integer with optional "%" as last character
         var percent = TrimStringRight(value).slice(-1);
         value = value.replace(/\D+/g, "");
-        if (percent == "%")
+        if (percent == "%") {
           value += percent;
+        }
       } else if (selectedItem.getAttribute("forceInteger") == "true") {
         value = value.replace(/\D+/g, "");
       } else if (selectedItem.getAttribute("forceSignedInteger") == "true") {
         // Allow integer with optional "+" or "-" as first character
         var sign = value[0];
         value = value.replace(/\D+/g, "");
-        if (sign == "+" || sign == "-")
+        if (sign == "+" || sign == "-") {
           value = sign + value;
+        }
       }
 
       // Special case attributes
       if (selectedItem.getAttribute("limitFirstChar") == "true") {
         // Limit first character to letter, and all others to
         //  letters, numbers, and a few others
-        value = value.replace(/^[^a-zA-Z\u0080-\uFFFF]/, "").replace(/[^a-zA-Z0-9_\.\-\:\u0080-\uFFFF]+/g, "");
+        value = value
+          .replace(/^[^a-zA-Z\u0080-\uFFFF]/, "")
+          .replace(/[^a-zA-Z0-9_\.\-\:\u0080-\uFFFF]+/g, "");
       }
 
       // Update once only if it changed
-      if (value != gDialog.AddHTMLAttributeValueInput.value)
+      if (value != gDialog.AddHTMLAttributeValueInput.value) {
         gDialog.AddHTMLAttributeValueInput.value = value;
+      }
     }
   }
 
   // Update value in the tree list
   // If not found, add new attribute
-  if (!UpdateExistingAttribute(name, value, "HTMLAList") && value)
+  if (!UpdateExistingAttribute(name, value, "HTMLAList") && value) {
     AddTreeItem(name, value, "HTMLAList", HTMLAttrs);
+  }
 }
 
 function editHTMLAttributeValue(targetCell) {
-  if (IsNotTreeHeader(targetCell))
+  if (IsNotTreeHeader(targetCell)) {
     gDialog.AddHTMLAttributeValueInput.select();
+  }
 }
-
 
 // update the object with added and removed attributes
 function UpdateHTMLAttributes() {
@@ -285,8 +328,9 @@ function UpdateHTMLAttributes() {
   for (i = 0; i < HTMLRAttrs.length; i++) {
     var name = HTMLRAttrs[i];
 
-    if (gElement.hasAttribute(name))
+    if (gElement.hasAttribute(name)) {
       doRemoveAttribute(name);
+    }
   }
 
   // Set added or changed attributes

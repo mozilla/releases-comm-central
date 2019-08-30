@@ -22,26 +22,26 @@ function Startup() {
   }
 
   gDialog = {
-    accept:             document.documentElement.getButton("accept"),
-    inputType:          document.getElementById("InputType"),
-    inputNameDeck:      document.getElementById("InputNameDeck"),
-    inputName:          document.getElementById("InputName"),
-    inputValueDeck:     document.getElementById("InputValueDeck"),
-    inputValue:         document.getElementById("InputValue"),
-    inputDeck:          document.getElementById("InputDeck"),
-    inputChecked:       document.getElementById("InputChecked"),
-    inputSelected:      document.getElementById("InputSelected"),
-    inputReadOnly:      document.getElementById("InputReadOnly"),
-    inputDisabled:      document.getElementById("InputDisabled"),
-    inputTabIndex:      document.getElementById("InputTabIndex"),
-    inputAccessKey:     document.getElementById("InputAccessKey"),
-    inputSize:          document.getElementById("InputSize"),
-    inputMaxLength:     document.getElementById("InputMaxLength"),
-    inputAccept:        document.getElementById("InputAccept"),
-    MoreSection:        document.getElementById("MoreSection"),
-    MoreFewerButton:    document.getElementById("MoreFewerButton"),
+    accept: document.documentElement.getButton("accept"),
+    inputType: document.getElementById("InputType"),
+    inputNameDeck: document.getElementById("InputNameDeck"),
+    inputName: document.getElementById("InputName"),
+    inputValueDeck: document.getElementById("InputValueDeck"),
+    inputValue: document.getElementById("InputValue"),
+    inputDeck: document.getElementById("InputDeck"),
+    inputChecked: document.getElementById("InputChecked"),
+    inputSelected: document.getElementById("InputSelected"),
+    inputReadOnly: document.getElementById("InputReadOnly"),
+    inputDisabled: document.getElementById("InputDisabled"),
+    inputTabIndex: document.getElementById("InputTabIndex"),
+    inputAccessKey: document.getElementById("InputAccessKey"),
+    inputSize: document.getElementById("InputSize"),
+    inputMaxLength: document.getElementById("InputMaxLength"),
+    inputAccept: document.getElementById("InputAccept"),
+    MoreSection: document.getElementById("MoreSection"),
+    MoreFewerButton: document.getElementById("MoreFewerButton"),
     AdvancedEditButton: document.getElementById("AdvancedEditButton"),
-    AdvancedEditDeck:   document.getElementById("AdvancedEditDeck"),
+    AdvancedEditDeck: document.getElementById("AdvancedEditDeck"),
   };
 
   // Get a single selected input element
@@ -73,9 +73,22 @@ function Startup() {
       // We found an image element, convert it to an input type="image"
       inputElement.setAttribute("type", "image");
 
-      var attributes = ["src", "alt", "width", "height", "hspace", "vspace", "border", "align"];
-      for (let i in attributes)
-        inputElement.setAttribute(attributes[i], imgElement.getAttribute(attributes[i]));
+      var attributes = [
+        "src",
+        "alt",
+        "width",
+        "height",
+        "hspace",
+        "vspace",
+        "border",
+        "align",
+      ];
+      for (let i in attributes) {
+        inputElement.setAttribute(
+          attributes[i],
+          imgElement.getAttribute(attributes[i])
+        );
+      }
     } else {
       inputElement.setAttribute("value", GetSelectionAsText());
     }
@@ -128,10 +141,22 @@ function InitDialog() {
   gDialog.inputType.selectedIndex = index;
   gDialog.inputName.value = globalElement.getAttribute("name");
   gDialog.inputValue.value = globalElement.getAttribute("value");
-  gDialog.inputChecked.setAttribute("checked", globalElement.hasAttribute("checked"));
-  gDialog.inputSelected.setAttribute("checked", globalElement.hasAttribute("checked"));
-  gDialog.inputReadOnly.setAttribute("checked", globalElement.hasAttribute("readonly"));
-  gDialog.inputDisabled.setAttribute("checked", globalElement.hasAttribute("disabled"));
+  gDialog.inputChecked.setAttribute(
+    "checked",
+    globalElement.hasAttribute("checked")
+  );
+  gDialog.inputSelected.setAttribute(
+    "checked",
+    globalElement.hasAttribute("checked")
+  );
+  gDialog.inputReadOnly.setAttribute(
+    "checked",
+    globalElement.hasAttribute("readonly")
+  );
+  gDialog.inputDisabled.setAttribute(
+    "checked",
+    globalElement.hasAttribute("disabled")
+  );
   gDialog.inputTabIndex.value = globalElement.getAttribute("tabindex");
   gDialog.inputAccessKey.value = globalElement.getAttribute("accesskey");
   gDialog.inputSize.value = globalElement.getAttribute("size");
@@ -186,18 +211,18 @@ function SelectInputType() {
 function onInput() {
   var disabled = false;
   switch (gDialog.inputType.selectedIndex) {
-  case 3:
-    disabled = disabled || !gDialog.inputValue.value;
-    break;
-  case 4:
-  case 5:
-    break;
-  case 8:
-    disabled = !globalElement.hasAttribute("src");
-    break;
-  default:
-    disabled = !gDialog.inputName.value;
-    break;
+    case 3:
+      disabled = disabled || !gDialog.inputValue.value;
+      break;
+    case 4:
+    case 5:
+      break;
+    case 8:
+      disabled = !globalElement.hasAttribute("src");
+      break;
+    default:
+      disabled = !gDialog.inputName.value;
+      break;
   }
   if (gDialog.accept.disabled != disabled) {
     gDialog.accept.disabled = disabled;
@@ -206,8 +231,12 @@ function onInput() {
 }
 
 function doImageProperties() {
-  window.openDialog("chrome://editor/content/EdImageProps.xul",
-                    "_blank", "chrome,close,titlebar,modal", globalElement);
+  window.openDialog(
+    "chrome://editor/content/EdImageProps.xul",
+    "_blank",
+    "chrome,close,titlebar,modal",
+    globalElement
+  );
   window.focus();
   onInput();
 }
@@ -232,7 +261,7 @@ function ValidateData() {
   switch (index) {
     case 1:
       attributes.type = "password";
-      // Falls through
+    // Falls through
     case 0:
       flags.readonly = gDialog.inputReadOnly.checked;
       attributes.size = gDialog.inputSize.value;
@@ -273,16 +302,18 @@ function ValidateData() {
       break;
   }
   for (var a in attributes) {
-    if (attributes[a])
+    if (attributes[a]) {
       globalElement.setAttribute(a, attributes[a]);
-    else
+    } else {
       globalElement.removeAttribute(a);
+    }
   }
   for (var f in flags) {
-    if (flags[f])
+    if (flags[f]) {
       globalElement.setAttribute(f, "");
-    else
+    } else {
       globalElement.removeAttribute(f);
+    }
   }
   return true;
 }
@@ -312,4 +343,3 @@ function onAccept(event) {
   }
   event.preventDefault();
 }
-

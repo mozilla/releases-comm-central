@@ -34,57 +34,65 @@ function Startup() {
   // window.TeXZilla, so we have to specify the charset parameter but don't
   // need to worry about the targetObj parameter.
   /* globals TeXZilla */
-  Services.scriptloader.loadSubScript("chrome://editor/content/TeXZilla.js", {}, "UTF-8");
+  Services.scriptloader.loadSubScript(
+    "chrome://editor/content/TeXZilla.js",
+    {},
+    "UTF-8"
+  );
 
   // Verify if the selection is on a <math> and initialize the dialog.
   gDialog.oldMath = editor.getElementOrParentByTagName("math", null);
   if (gDialog.oldMath) {
     // When these attributes are absent or invalid, they default to "inline" and "ltr" respectively.
-    gDialog.mode.selectedIndex = gDialog.oldMath.getAttribute("display") == "block" ? 1 : 0;
-    gDialog.direction.selectedIndex = gDialog.oldMath.getAttribute("dir") == "rtl" ? 1 : 0;
+    gDialog.mode.selectedIndex =
+      gDialog.oldMath.getAttribute("display") == "block" ? 1 : 0;
+    gDialog.direction.selectedIndex =
+      gDialog.oldMath.getAttribute("dir") == "rtl" ? 1 : 0;
     gDialog.input.value = TeXZilla.getTeXSource(gDialog.oldMath);
   }
 
   // Create the tabbox with LaTeX commands.
   createCommandPanel({
-    "√⅗²": ["{⋯}^{⋯}",
-            "{⋯}_{⋯}",
-            "{⋯}_{⋯}^{⋯}",
-            "\\underset{⋯}{⋯}",
-            "\\overset{⋯}{⋯}",
-            "\\underoverset{⋯}{⋯}{⋯}",
-            "\\left(⋯\\right)",
-            "\\left[⋯\\right]",
-            "\\frac{⋯}{⋯}",
-            "\\binom{⋯}{⋯}",
-            "\\sqrt{⋯}",
-            "\\sqrt[⋯]{⋯}",
-            "\\cos\\left({⋯}\\right)",
-            "\\sin\\left({⋯}\\right)",
-            "\\tan\\left({⋯}\\right)",
-            "\\exp\\left({⋯}\\right)",
-            "\\ln\\left({⋯}\\right)",
-            "\\underbrace{⋯}",
-            "\\underline{⋯}",
-            "\\overbrace{⋯}",
-            "\\widevec{⋯}",
-            "\\widetilde{⋯}",
-            "\\widehat{⋯}",
-            "\\widecheck{⋯}",
-            "\\widebar{⋯}",
-            "\\dot{⋯}",
-            "\\ddot{⋯}",
-            "\\boxed{⋯}",
-            "\\slash{⋯}",
+    "√⅗²": [
+      "{⋯}^{⋯}",
+      "{⋯}_{⋯}",
+      "{⋯}_{⋯}^{⋯}",
+      "\\underset{⋯}{⋯}",
+      "\\overset{⋯}{⋯}",
+      "\\underoverset{⋯}{⋯}{⋯}",
+      "\\left(⋯\\right)",
+      "\\left[⋯\\right]",
+      "\\frac{⋯}{⋯}",
+      "\\binom{⋯}{⋯}",
+      "\\sqrt{⋯}",
+      "\\sqrt[⋯]{⋯}",
+      "\\cos\\left({⋯}\\right)",
+      "\\sin\\left({⋯}\\right)",
+      "\\tan\\left({⋯}\\right)",
+      "\\exp\\left({⋯}\\right)",
+      "\\ln\\left({⋯}\\right)",
+      "\\underbrace{⋯}",
+      "\\underline{⋯}",
+      "\\overbrace{⋯}",
+      "\\widevec{⋯}",
+      "\\widetilde{⋯}",
+      "\\widehat{⋯}",
+      "\\widecheck{⋯}",
+      "\\widebar{⋯}",
+      "\\dot{⋯}",
+      "\\ddot{⋯}",
+      "\\boxed{⋯}",
+      "\\slash{⋯}",
     ],
-    "(▦)": ["\\begin{matrix} ⋯ & ⋯ \\\\ ⋯ & ⋯ \\end{matrix}",
-            "\\begin{pmatrix} ⋯ & ⋯ \\\\ ⋯ & ⋯ \\end{pmatrix}",
-            "\\begin{bmatrix} ⋯ & ⋯ \\\\ ⋯ & ⋯ \\end{bmatrix}",
-            "\\begin{Bmatrix} ⋯ & ⋯ \\\\ ⋯ & ⋯ \\end{Bmatrix}",
-            "\\begin{vmatrix} ⋯ & ⋯ \\\\ ⋯ & ⋯ \\end{vmatrix}",
-            "\\begin{Vmatrix} ⋯ & ⋯ \\\\ ⋯ & ⋯ \\end{Vmatrix}",
-            "\\begin{cases} ⋯ \\\\ ⋯  \\end{cases}",
-            "\\begin{aligned} ⋯ &= ⋯ \\\\ ⋯ &= ⋯ \\end{aligned}",
+    "(▦)": [
+      "\\begin{matrix} ⋯ & ⋯ \\\\ ⋯ & ⋯ \\end{matrix}",
+      "\\begin{pmatrix} ⋯ & ⋯ \\\\ ⋯ & ⋯ \\end{pmatrix}",
+      "\\begin{bmatrix} ⋯ & ⋯ \\\\ ⋯ & ⋯ \\end{bmatrix}",
+      "\\begin{Bmatrix} ⋯ & ⋯ \\\\ ⋯ & ⋯ \\end{Bmatrix}",
+      "\\begin{vmatrix} ⋯ & ⋯ \\\\ ⋯ & ⋯ \\end{vmatrix}",
+      "\\begin{Vmatrix} ⋯ & ⋯ \\\\ ⋯ & ⋯ \\end{Vmatrix}",
+      "\\begin{cases} ⋯ \\\\ ⋯  \\end{cases}",
+      "\\begin{aligned} ⋯ &= ⋯ \\\\ ⋯ &= ⋯ \\end{aligned}",
     ],
   });
   createSymbolPanels([
@@ -111,7 +119,9 @@ function insertLaTeXCommand(aButton) {
 
   // For a single math symbol, just use the insertText command.
   if (aButton.label) {
-    gDialog.input.editor.QueryInterface(Ci.nsIPlaintextEditor).insertText(aButton.label);
+    gDialog.input.editor
+      .QueryInterface(Ci.nsIPlaintextEditor)
+      .insertText(aButton.label);
     return;
   }
 
@@ -128,7 +138,8 @@ function insertLaTeXCommand(aButton) {
   }
 
   // Try and move to the next position.
-  var latexNewStart = latex.indexOf("⋯"), latexNewEnd;
+  var latexNewStart = latex.indexOf("⋯"),
+    latexNewEnd;
   if (latexNewStart == -1) {
     // This is a unary function and the selection was used as an argument above.
     // We select the expression again so that one can choose to apply further
@@ -142,8 +153,10 @@ function insertLaTeXCommand(aButton) {
 
   // Update the input text and selection.
   gDialog.input.editor.QueryInterface(Ci.nsIPlaintextEditor).insertText(latex);
-  gDialog.input.setSelectionRange(selectionStart + latexNewStart,
-                                  selectionStart + latexNewEnd);
+  gDialog.input.setSelectionRange(
+    selectionStart + latexNewStart,
+    selectionStart + latexNewEnd
+  );
 
   updateMath();
 }
@@ -157,7 +170,8 @@ function createCommandPanel(aCommandPanelList) {
     // Create a <rows> element with some LaTeX commands.
     var rows = document.createXULElement("rows");
 
-    var i = 0, row;
+    var i = 0,
+      row;
     for (var command of commands) {
       if (i % columnCount == 0) {
         // Create a new row.
@@ -198,12 +212,15 @@ function createCommandPanel(aCommandPanelList) {
 }
 
 function createSymbolPanels(aSymbolPanelList) {
-  const columnCount = 13, tabLabelLength = 3;
+  const columnCount = 13,
+    tabLabelLength = 3;
 
   for (var symbols of aSymbolPanelList) {
     // Create a <rows> element with the symbols of the i-th panel.
     var rows = document.createXULElement("rows");
-    var i = 0, tabLabel = "", row;
+    var i = 0,
+      tabLabel = "",
+      row;
     for (var symbol of symbols) {
       if (i % columnCount == 0) {
         // Create a new row.
@@ -275,28 +292,41 @@ function onAccept(event) {
 
 function updateMath() {
   // Remove the preview, if any.
-  if (gDialog.output.firstChild)
+  if (gDialog.output.firstChild) {
     gDialog.output.firstChild.remove();
+  }
 
   // Try to convert the LaTeX source into MathML using TeXZilla.
   // We use the placeholder text if no input is provided.
   try {
     var input = gDialog.input.value || gDialog.input.placeholder;
-    var newMath = TeXZilla.toMathML(input, gDialog.mode.selectedIndex, gDialog.direction.selectedIndex, true);
+    var newMath = TeXZilla.toMathML(
+      input,
+      gDialog.mode.selectedIndex,
+      gDialog.direction.selectedIndex,
+      true
+    );
     gDialog.output.appendChild(document.importNode(newMath, true));
-    gDialog.output.style.opacity = gDialog.input.value ? 1 : .5;
-  } catch (e) {
-  }
+    gDialog.output.style.opacity = gDialog.input.value ? 1 : 0.5;
+  } catch (e) {}
   // Disable the accept button if parsing fails or when the placeholder is used.
   gDialog.accept.disabled = !gDialog.input.value || !gDialog.output.firstChild;
 }
 
 function updateMode() {
-  if (gDialog.output.firstChild)
-    gDialog.output.firstChild.setAttribute("display", gDialog.mode.selectedIndex ? "block" : "inline");
+  if (gDialog.output.firstChild) {
+    gDialog.output.firstChild.setAttribute(
+      "display",
+      gDialog.mode.selectedIndex ? "block" : "inline"
+    );
+  }
 }
 
 function updateDirection() {
-  if (gDialog.output.firstChild)
-    gDialog.output.firstChild.setAttribute("dir", gDialog.direction.selectedIndex ? "rtl" : "ltr");
+  if (gDialog.output.firstChild) {
+    gDialog.output.firstChild.setAttribute(
+      "dir",
+      gDialog.direction.selectedIndex ? "rtl" : "ltr"
+    );
+  }
 }

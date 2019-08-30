@@ -21,15 +21,15 @@ function Startup() {
   }
 
   gDialog = {
-    buttonType:       document.getElementById("ButtonType"),
-    buttonName:       document.getElementById("ButtonName"),
-    buttonValue:      document.getElementById("ButtonValue"),
-    buttonDisabled:   document.getElementById("ButtonDisabled"),
-    buttonTabIndex:   document.getElementById("ButtonTabIndex"),
-    buttonAccessKey:  document.getElementById("ButtonAccessKey"),
-    MoreSection:      document.getElementById("MoreSection"),
-    MoreFewerButton:  document.getElementById("MoreFewerButton"),
-    RemoveButton:     document.getElementById("RemoveButton"),
+    buttonType: document.getElementById("ButtonType"),
+    buttonName: document.getElementById("ButtonName"),
+    buttonValue: document.getElementById("ButtonValue"),
+    buttonDisabled: document.getElementById("ButtonDisabled"),
+    buttonTabIndex: document.getElementById("ButtonTabIndex"),
+    buttonAccessKey: document.getElementById("ButtonAccessKey"),
+    MoreSection: document.getElementById("MoreSection"),
+    MoreFewerButton: document.getElementById("MoreFewerButton"),
+    RemoveButton: document.getElementById("RemoveButton"),
   };
 
   // Get a single selected button element
@@ -85,7 +85,10 @@ function InitDialog() {
   gDialog.buttonType.selectedIndex = index;
   gDialog.buttonName.value = globalElement.getAttribute("name");
   gDialog.buttonValue.value = globalElement.getAttribute("value");
-  gDialog.buttonDisabled.setAttribute("checked", globalElement.hasAttribute("disabled"));
+  gDialog.buttonDisabled.setAttribute(
+    "checked",
+    globalElement.hasAttribute("disabled")
+  );
   gDialog.buttonTabIndex.value = globalElement.getAttribute("tabindex");
   gDialog.buttonAccessKey.value = globalElement.getAttribute("accesskey");
 }
@@ -105,15 +108,17 @@ function ValidateData() {
     accesskey: gDialog.buttonAccessKey.value,
   };
   for (var a in attributes) {
-    if (attributes[a])
+    if (attributes[a]) {
       globalElement.setAttribute(a, attributes[a]);
-    else
+    } else {
       globalElement.removeAttribute(a);
+    }
   }
-  if (gDialog.buttonDisabled.checked)
+  if (gDialog.buttonDisabled.checked) {
     globalElement.setAttribute("disabled", "");
-  else
+  } else {
     globalElement.removeAttribute("disabled");
+  }
   return true;
 }
 
@@ -129,11 +134,13 @@ function onAccept() {
   if (insertNew) {
     if (!InsertElementAroundSelection(buttonElement)) {
       /* eslint-disable-next-line no-unsanitized/property */
-      buttonElement.innerHTML = editor.outputToString("text/html", kOutputSelectionOnly);
+      buttonElement.innerHTML = editor.outputToString(
+        "text/html",
+        kOutputSelectionOnly
+      );
       editor.insertElementAtSelection(buttonElement, true);
     }
   }
 
   SaveWindowLocation();
 }
-

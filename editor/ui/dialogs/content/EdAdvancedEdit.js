@@ -10,14 +10,14 @@
 /* import-globals-from EdDialogCommon.js */
 
 /** ************         GLOBALS         **************/
-var gElement    = null; // handle to actual element edited
+var gElement = null; // handle to actual element edited
 
-var HTMLAttrs   = [];   // html attributes
-var CSSAttrs    = [];   // css attributes
-var JSEAttrs    = [];   // js events
+var HTMLAttrs = []; // html attributes
+var CSSAttrs = []; // css attributes
+var JSEAttrs = []; // js events
 
-var HTMLRAttrs  = [];   // removed html attributes
-var JSERAttrs   = [];   // removed js events
+var HTMLRAttrs = []; // removed html attributes
+var JSERAttrs = []; // removed js events
 
 /* Set false to allow changing selection in tree
    without doing "onselect" handler actions
@@ -54,25 +54,41 @@ function Startup() {
 
   // place the tag name in the header
   var tagLabel = document.getElementById("tagLabel");
-  tagLabel.setAttribute("value", ("<" + gElement.localName + ">"));
+  tagLabel.setAttribute("value", "<" + gElement.localName + ">");
 
   // Create dialog object to store controls for easy access
-  gDialog.AddHTMLAttributeNameInput  = document.getElementById("AddHTMLAttributeNameInput");
+  gDialog.AddHTMLAttributeNameInput = document.getElementById(
+    "AddHTMLAttributeNameInput"
+  );
 
   // We use a <deck> to switch between editable menulist and textbox
-  gDialog.AddHTMLAttributeValueDeck     = document.getElementById("AddHTMLAttributeValueDeck");
-  gDialog.AddHTMLAttributeValueMenulist = document.getElementById("AddHTMLAttributeValueMenulist");
-  gDialog.AddHTMLAttributeValueTextbox  = document.getElementById("AddHTMLAttributeValueTextbox");
-  gDialog.AddHTMLAttributeValueInput    = gDialog.AddHTMLAttributeValueTextbox;
+  gDialog.AddHTMLAttributeValueDeck = document.getElementById(
+    "AddHTMLAttributeValueDeck"
+  );
+  gDialog.AddHTMLAttributeValueMenulist = document.getElementById(
+    "AddHTMLAttributeValueMenulist"
+  );
+  gDialog.AddHTMLAttributeValueTextbox = document.getElementById(
+    "AddHTMLAttributeValueTextbox"
+  );
+  gDialog.AddHTMLAttributeValueInput = gDialog.AddHTMLAttributeValueTextbox;
 
-  gDialog.AddHTMLAttributeTree          = document.getElementById("HTMLATree");
-  gDialog.AddCSSAttributeNameInput      = document.getElementById("AddCSSAttributeNameInput");
-  gDialog.AddCSSAttributeValueInput     = document.getElementById("AddCSSAttributeValueInput");
-  gDialog.AddCSSAttributeTree           = document.getElementById("CSSATree");
-  gDialog.AddJSEAttributeNameList       = document.getElementById("AddJSEAttributeNameList");
-  gDialog.AddJSEAttributeValueInput     = document.getElementById("AddJSEAttributeValueInput");
-  gDialog.AddJSEAttributeTree           = document.getElementById("JSEATree");
-  gDialog.okButton                      = document.documentElement.getButton("accept");
+  gDialog.AddHTMLAttributeTree = document.getElementById("HTMLATree");
+  gDialog.AddCSSAttributeNameInput = document.getElementById(
+    "AddCSSAttributeNameInput"
+  );
+  gDialog.AddCSSAttributeValueInput = document.getElementById(
+    "AddCSSAttributeValueInput"
+  );
+  gDialog.AddCSSAttributeTree = document.getElementById("CSSATree");
+  gDialog.AddJSEAttributeNameList = document.getElementById(
+    "AddJSEAttributeNameList"
+  );
+  gDialog.AddJSEAttributeValueInput = document.getElementById(
+    "AddJSEAttributeValueInput"
+  );
+  gDialog.AddJSEAttributeTree = document.getElementById("JSEATree");
+  gDialog.okButton = document.documentElement.getButton("accept");
 
   // build the attribute trees
   BuildHTMLAttributeTable();
@@ -122,20 +138,22 @@ function onAccept() {
 function doRemoveAttribute(attrib) {
   try {
     var editor = GetCurrentEditor();
-    if (gElement.parentNode)
+    if (gElement.parentNode) {
       editor.removeAttribute(gElement, attrib);
-    else
+    } else {
       gElement.removeAttribute(attrib);
+    }
   } catch (ex) {}
 }
 
 function doSetAttribute(attrib, value) {
   try {
     var editor = GetCurrentEditor();
-    if (gElement.parentNode)
+    if (gElement.parentNode) {
       editor.setAttribute(gElement, attrib, value);
-    else
+    } else {
       gElement.setAttribute(attrib, value);
+    }
   } catch (ex) {}
 }
 
@@ -148,8 +166,9 @@ function doSetAttribute(attrib, value) {
  **/
 function CheckAttributeNameSimilarity(attName, attArray) {
   for (var i = 0; i < attArray.length; i++) {
-    if (attName.toLowerCase() == attArray[i].toLowerCase())
+    if (attName.toLowerCase() == attArray[i].toLowerCase()) {
       return true;
+    }
   }
   return false;
 }
@@ -163,8 +182,9 @@ function CheckAttributeNameSimilarity(attName, attArray) {
  **/
 function UpdateExistingAttribute(attName, attValue, treeChildrenId) {
   var treeChildren = document.getElementById(treeChildrenId);
-  if (!treeChildren)
+  if (!treeChildren) {
     return false;
+  }
 
   var name;
   var i;
@@ -198,8 +218,9 @@ function UpdateExistingAttribute(attName, attValue, treeChildrenId) {
  * returns    : value in from the tree or empty string if name not found
  **/
 function GetAndSelectExistingAttributeValue(attName, treeChildrenId) {
-  if (!attName)
+  if (!attName) {
     return "";
+  }
 
   var treeChildren = document.getElementById(treeChildrenId);
   var name;
@@ -239,27 +260,31 @@ function GetAndSelectExistingAttributeValue(attName, treeChildrenId) {
       <treeCell  // Value Cell
 */
 function GetTreeItemAttributeStr(treeItem) {
-  if (treeItem)
+  if (treeItem) {
     return TrimString(treeItem.firstChild.firstChild.getAttribute("label"));
+  }
 
   return "";
 }
 
 function GetTreeItemValueStr(treeItem) {
-  if (treeItem)
+  if (treeItem) {
     return TrimString(treeItem.firstChild.lastChild.getAttribute("label"));
+  }
 
   return "";
 }
 
 function SetTreeItemValueStr(treeItem, value) {
-  if (treeItem && GetTreeItemValueStr(treeItem) != value)
+  if (treeItem && GetTreeItemValueStr(treeItem) != value) {
     treeItem.firstChild.lastChild.setAttribute("label", value);
+  }
 }
 
 function IsNotTreeHeader(treeCell) {
-  if (treeCell)
-    return (treeCell.parentNode.parentNode.nodeName != "treehead");
+  if (treeCell) {
+    return treeCell.parentNode.parentNode.nodeName != "treehead";
+  }
 
   return false;
 }
@@ -310,7 +335,8 @@ function selectTreeItem(treeChildren, item) {
 }
 
 function getSelectedItem(tree) {
-  if (tree.view.selection.count == 1)
+  if (tree.view.selection.count == 1) {
     return tree.view.getItemAtIndex(tree.currentIndex);
+  }
   return null;
 }

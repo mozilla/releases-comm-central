@@ -15,8 +15,9 @@ var gComposerJSCommandControllerID = 0;
 
 function SetupHTMLEditorCommands() {
   var commandTable = GetComposerCommandTable();
-  if (!commandTable)
+  if (!commandTable) {
     return;
+  }
 
   // Include everything a text editor does
   SetupTextEditorCommands();
@@ -32,9 +33,18 @@ function SetupHTMLEditorCommands() {
   commandTable.registerCommand("cmd_colorProperties", nsColorPropertiesCommand);
   commandTable.registerCommand("cmd_increaseFontStep", nsIncreaseFontCommand);
   commandTable.registerCommand("cmd_decreaseFontStep", nsDecreaseFontCommand);
-  commandTable.registerCommand("cmd_advancedProperties", nsAdvancedPropertiesCommand);
-  commandTable.registerCommand("cmd_objectProperties", nsObjectPropertiesCommand);
-  commandTable.registerCommand("cmd_removeNamedAnchors", nsRemoveNamedAnchorsCommand);
+  commandTable.registerCommand(
+    "cmd_advancedProperties",
+    nsAdvancedPropertiesCommand
+  );
+  commandTable.registerCommand(
+    "cmd_objectProperties",
+    nsObjectPropertiesCommand
+  );
+  commandTable.registerCommand(
+    "cmd_removeNamedAnchors",
+    nsRemoveNamedAnchorsCommand
+  );
   commandTable.registerCommand("cmd_editLink", nsEditLinkCommand);
 
   commandTable.registerCommand("cmd_form", nsFormCommand);
@@ -50,8 +60,14 @@ function SetupHTMLEditorCommands() {
   commandTable.registerCommand("cmd_hline", nsHLineCommand);
   commandTable.registerCommand("cmd_link", nsLinkCommand);
   commandTable.registerCommand("cmd_anchor", nsAnchorCommand);
-  commandTable.registerCommand("cmd_insertHTMLWithDialog", nsInsertHTMLWithDialogCommand);
-  commandTable.registerCommand("cmd_insertMathWithDialog", nsInsertMathWithDialogCommand);
+  commandTable.registerCommand(
+    "cmd_insertHTMLWithDialog",
+    nsInsertHTMLWithDialogCommand
+  );
+  commandTable.registerCommand(
+    "cmd_insertMathWithDialog",
+    nsInsertMathWithDialogCommand
+  );
   commandTable.registerCommand("cmd_insertBreak", nsInsertBreakCommand);
   commandTable.registerCommand("cmd_insertBreakAll", nsInsertBreakAllCommand);
 
@@ -61,22 +77,49 @@ function SetupHTMLEditorCommands() {
   commandTable.registerCommand("cmd_SelectRow", nsSelectTableRowCommand);
   commandTable.registerCommand("cmd_SelectColumn", nsSelectTableColumnCommand);
   commandTable.registerCommand("cmd_SelectCell", nsSelectTableCellCommand);
-  commandTable.registerCommand("cmd_SelectAllCells", nsSelectAllTableCellsCommand);
+  commandTable.registerCommand(
+    "cmd_SelectAllCells",
+    nsSelectAllTableCellsCommand
+  );
   commandTable.registerCommand("cmd_InsertTable", nsInsertTableCommand);
-  commandTable.registerCommand("cmd_InsertRowAbove", nsInsertTableRowAboveCommand);
-  commandTable.registerCommand("cmd_InsertRowBelow", nsInsertTableRowBelowCommand);
-  commandTable.registerCommand("cmd_InsertColumnBefore", nsInsertTableColumnBeforeCommand);
-  commandTable.registerCommand("cmd_InsertColumnAfter", nsInsertTableColumnAfterCommand);
-  commandTable.registerCommand("cmd_InsertCellBefore", nsInsertTableCellBeforeCommand);
-  commandTable.registerCommand("cmd_InsertCellAfter", nsInsertTableCellAfterCommand);
+  commandTable.registerCommand(
+    "cmd_InsertRowAbove",
+    nsInsertTableRowAboveCommand
+  );
+  commandTable.registerCommand(
+    "cmd_InsertRowBelow",
+    nsInsertTableRowBelowCommand
+  );
+  commandTable.registerCommand(
+    "cmd_InsertColumnBefore",
+    nsInsertTableColumnBeforeCommand
+  );
+  commandTable.registerCommand(
+    "cmd_InsertColumnAfter",
+    nsInsertTableColumnAfterCommand
+  );
+  commandTable.registerCommand(
+    "cmd_InsertCellBefore",
+    nsInsertTableCellBeforeCommand
+  );
+  commandTable.registerCommand(
+    "cmd_InsertCellAfter",
+    nsInsertTableCellAfterCommand
+  );
   commandTable.registerCommand("cmd_DeleteTable", nsDeleteTableCommand);
   commandTable.registerCommand("cmd_DeleteRow", nsDeleteTableRowCommand);
   commandTable.registerCommand("cmd_DeleteColumn", nsDeleteTableColumnCommand);
   commandTable.registerCommand("cmd_DeleteCell", nsDeleteTableCellCommand);
-  commandTable.registerCommand("cmd_DeleteCellContents", nsDeleteTableCellContentsCommand);
+  commandTable.registerCommand(
+    "cmd_DeleteCellContents",
+    nsDeleteTableCellContentsCommand
+  );
   commandTable.registerCommand("cmd_JoinTableCells", nsJoinTableCellsCommand);
   commandTable.registerCommand("cmd_SplitTableCell", nsSplitTableCellCommand);
-  commandTable.registerCommand("cmd_TableOrCellColor", nsTableOrCellColorCommand);
+  commandTable.registerCommand(
+    "cmd_TableOrCellColor",
+    nsTableOrCellColorCommand
+  );
   commandTable.registerCommand("cmd_NormalizeTable", nsNormalizeTableCommand);
   commandTable.registerCommand("cmd_smiley", nsSetSmiley);
   commandTable.registerCommand("cmd_ConvertToTable", nsConvertToTable);
@@ -84,8 +127,9 @@ function SetupHTMLEditorCommands() {
 
 function SetupTextEditorCommands() {
   var commandTable = GetComposerCommandTable();
-  if (!commandTable)
+  if (!commandTable) {
     return;
+  }
 
   // dump("Registering plain text editor commands\n");
 
@@ -101,8 +145,9 @@ function SetupTextEditorCommands() {
 
 function SetupComposerWindowCommands() {
   // Don't need to do this if already done
-  if (gComposerWindowControllerID)
+  if (gComposerWindowControllerID) {
     return;
+  }
 
   // Create a command controller and register commands
   //   specific to Web Composer window (file-related commands, HTML Source...)
@@ -114,24 +159,33 @@ function SetupComposerWindowCommands() {
 
   var windowControllers = window.controllers;
 
-  if (!windowControllers) return;
+  if (!windowControllers) {
+    return;
+  }
 
   var commandTable;
   var composerController;
   var editorController;
   try {
-    composerController = Cc["@mozilla.org/embedcomp/base-command-controller;1"].createInstance();
+    composerController = Cc[
+      "@mozilla.org/embedcomp/base-command-controller;1"
+    ].createInstance();
 
-    editorController = composerController.QueryInterface(Ci.nsIControllerContext);
+    editorController = composerController.QueryInterface(
+      Ci.nsIControllerContext
+    );
 
     // Get the nsIControllerCommandTable interface we need to register commands
-    var interfaceRequestor = composerController.QueryInterface(Ci.nsIInterfaceRequestor);
-    commandTable = interfaceRequestor.getInterface(Ci.nsIControllerCommandTable);
+    var interfaceRequestor = composerController.QueryInterface(
+      Ci.nsIInterfaceRequestor
+    );
+    commandTable = interfaceRequestor.getInterface(
+      Ci.nsIControllerCommandTable
+    );
   } catch (e) {
     dump("Failed to create composerController\n");
     return;
   }
-
 
   if (!commandTable) {
     dump("Failed to get interface for nsIControllerCommandManager\n");
@@ -143,7 +197,10 @@ function SetupComposerWindowCommands() {
   commandTable.registerCommand("cmd_save", nsSaveCommand);
   commandTable.registerCommand("cmd_saveAs", nsSaveAsCommand);
   commandTable.registerCommand("cmd_exportToText", nsExportToTextCommand);
-  commandTable.registerCommand("cmd_saveAndChangeEncoding", nsSaveAndChangeEncodingCommand);
+  commandTable.registerCommand(
+    "cmd_saveAndChangeEncoding",
+    nsSaveAndChangeEncodingCommand
+  );
   commandTable.registerCommand("cmd_publish", nsPublishCommand);
   commandTable.registerCommand("cmd_publishAs", nsPublishAsCommand);
   commandTable.registerCommand("cmd_publishSettings", nsPublishSettingsCommand);
@@ -165,36 +222,49 @@ function SetupComposerWindowCommands() {
     commandTable.registerCommand("cmd_PreviewMode", nsPreviewModeCommand);
     commandTable.registerCommand("cmd_FinishHTMLSource", nsFinishHTMLSource);
     commandTable.registerCommand("cmd_CancelHTMLSource", nsCancelHTMLSource);
-    commandTable.registerCommand("cmd_updateStructToolbar", nsUpdateStructToolbarCommand);
+    commandTable.registerCommand(
+      "cmd_updateStructToolbar",
+      nsUpdateStructToolbarCommand
+    );
   }
 
   windowControllers.insertControllerAt(0, editorController);
 
   // Store the controller ID so we can be sure to get the right one later
-  gComposerWindowControllerID = windowControllers.getControllerId(editorController);
+  gComposerWindowControllerID = windowControllers.getControllerId(
+    editorController
+  );
 }
 
 function GetComposerCommandTable() {
   var controller;
   if (gComposerJSCommandControllerID) {
     try {
-      controller = window.content.controllers.getControllerById(gComposerJSCommandControllerID);
+      controller = window.content.controllers.getControllerById(
+        gComposerJSCommandControllerID
+      );
     } catch (e) {}
   }
   if (!controller) {
     // create it
-    controller = Cc["@mozilla.org/embedcomp/base-command-controller;1"].createInstance();
+    controller = Cc[
+      "@mozilla.org/embedcomp/base-command-controller;1"
+    ].createInstance();
 
     var editorController = controller.QueryInterface(Ci.nsIControllerContext);
     editorController.setCommandContext(GetCurrentEditorElement());
     window.content.controllers.insertControllerAt(0, controller);
 
     // Store the controller ID so we can be sure to get the right one later
-    gComposerJSCommandControllerID = window.content.controllers.getControllerId(controller);
+    gComposerJSCommandControllerID = window.content.controllers.getControllerId(
+      controller
+    );
   }
 
   if (controller) {
-    var interfaceRequestor = controller.QueryInterface(Ci.nsIInterfaceRequestor);
+    var interfaceRequestor = controller.QueryInterface(
+      Ci.nsIInterfaceRequestor
+    );
     return interfaceRequestor.getInterface(Ci.nsIControllerCommandTable);
   }
   return null;
@@ -203,12 +273,17 @@ function GetComposerCommandTable() {
 /* eslint-disable complexity */
 function goUpdateCommandState(command) {
   try {
-    var controller = top.document.commandDispatcher.getControllerForCommand(command);
-    if (!(controller instanceof Ci.nsICommandController))
+    var controller = top.document.commandDispatcher.getControllerForCommand(
+      command
+    );
+    if (!(controller instanceof Ci.nsICommandController)) {
       return;
+    }
 
     var params = newCommandParams();
-    if (!params) return;
+    if (!params) {
+      return;
+    }
 
     controller.getCommandStateWithParams(command, params);
 
@@ -257,10 +332,13 @@ function goUpdateCommandState(command) {
       case "cmd_smiley":
         break;
 
-      default: dump("no update for command: " + command + "\n");
+      default:
+        dump("no update for command: " + command + "\n");
     }
   } catch (e) {
-    dump("An error occurred updating the " + command + " command: \n" + e + "\n");
+    dump(
+      "An error occurred updating the " + command + " command: \n" + e + "\n"
+    );
   }
 }
 /* eslint-enable complexity */
@@ -272,23 +350,27 @@ function goUpdateComposerMenuItems(commandset) {
     var commandNode = commandset.childNodes[i];
     var commandID = commandNode.id;
     if (commandID) {
-      goUpdateCommand(commandID);  // enable or disable
-      if (commandNode.hasAttribute("state"))
+      goUpdateCommand(commandID); // enable or disable
+      if (commandNode.hasAttribute("state")) {
         goUpdateCommandState(commandID);
+      }
     }
   }
 }
 
 function goDoCommandParams(command, params) {
   try {
-    var controller = top.document.commandDispatcher.getControllerForCommand(command);
+    var controller = top.document.commandDispatcher.getControllerForCommand(
+      command
+    );
     if (controller && controller.isCommandEnabled(command)) {
       if (controller instanceof Ci.nsICommandController) {
         controller.doCommandWithParams(command, params);
 
         // the following two lines should be removed when we implement observers
-        if (params)
+        if (params) {
           controller.getCommandStateWithParams(command, params);
+        }
       } else {
         controller.doCommand(command);
       }
@@ -302,10 +384,11 @@ function goDoCommandParams(command, params) {
 function pokeStyleUI(uiID, aDesiredState) {
   try {
     var commandNode = top.document.getElementById(uiID);
-    if (!commandNode)
+    if (!commandNode) {
       return;
+    }
 
-    var uiState = ("true" == commandNode.getAttribute("state"));
+    var uiState = "true" == commandNode.getAttribute("state");
     if (aDesiredState != uiState) {
       commandNode.setAttribute("state", aDesiredState ? "true" : "false");
     }
@@ -318,8 +401,9 @@ function doStyleUICommand(cmdStr) {
   try {
     var cmdParams = newCommandParams();
     goDoCommandParams(cmdStr, cmdParams);
-    if (cmdParams)
+    if (cmdParams) {
       pokeStyleUI(cmdStr, cmdParams.getBooleanValue("state_all"));
+    }
 
     ResetStructToolbar();
   } catch (e) {}
@@ -337,8 +421,9 @@ function stringToTypedArray(buffer) {
 function pokeMultiStateUI(uiID, cmdParams) {
   try {
     var commandNode = document.getElementById(uiID);
-    if (!commandNode)
+    if (!commandNode) {
       return;
+    }
 
     var isMixed = cmdParams.getBooleanValue("state_mixed");
     var desiredAttrib;
@@ -349,7 +434,9 @@ function pokeMultiStateUI(uiID, cmdParams) {
       if (valuetype == Ci.nsICommandParams.eStringType) {
         desiredAttrib = cmdParams.getCStringValue("state_attribute");
         // Decode UTF-8, for example for font names in Japanese.
-        desiredAttrib = new TextDecoder("UTF-8").decode(stringToTypedArray(desiredAttrib));
+        desiredAttrib = new TextDecoder("UTF-8").decode(
+          stringToTypedArray(desiredAttrib)
+        );
       } else {
         desiredAttrib = cmdParams.getStringValue("state_attribute");
       }
@@ -364,13 +451,16 @@ function pokeMultiStateUI(uiID, cmdParams) {
 
 function doStatefulCommand(commandID, newState) {
   var commandNode = document.getElementById(commandID);
-  if (commandNode)
-      commandNode.setAttribute("state", newState);
-  gContentWindow.focus();   // needed for command dispatch to work
+  if (commandNode) {
+    commandNode.setAttribute("state", newState);
+  }
+  gContentWindow.focus(); // needed for command dispatch to work
 
   try {
     var cmdParams = newCommandParams();
-    if (!cmdParams) return;
+    if (!cmdParams) {
+      return;
+    }
 
     cmdParams.setStringValue("state_attribute", newState);
     goDoCommandParams(commandID, cmdParams);
@@ -387,12 +477,13 @@ function PrintObject(obj) {
   dump("-----" + obj + "------\n");
   var names = "";
   for (var i in obj) {
-    if (i == "value")
+    if (i == "value") {
       names += i + ": " + obj.value + "\n";
-    else if (i == "id")
+    } else if (i == "id") {
       names += i + ": " + obj.id + "\n";
-    else
+    } else {
       names += i + "\n";
+    }
   }
 
   dump(names + "-----------\n");
@@ -404,7 +495,7 @@ function PrintNodeID(id) {
 
 var nsDummyHTMLCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() && IsEditingRenderedHTML());
+    return IsDocumentEditable() && IsEditingRenderedHTML();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -414,7 +505,6 @@ var nsDummyHTMLCommand = {
     // do nothing
     dump("Hey, who's calling the dummy command?\n");
   },
-
 };
 
 /* eslint-disable */
@@ -478,9 +568,13 @@ var nsSaveCommand = {
     //  when you first open a remote file.
     try {
       var docUrl = GetDocumentUrl();
-      return IsDocumentEditable() &&
-        (IsDocumentModified() || IsHTMLSourceChanged() ||
-         IsUrlAboutBlank(docUrl) || GetScheme(docUrl) != "file");
+      return (
+        IsDocumentEditable() &&
+        (IsDocumentModified() ||
+          IsHTMLSourceChanged() ||
+          IsUrlAboutBlank(docUrl) ||
+          GetScheme(docUrl) != "file")
+      );
     } catch (e) {
       return false;
     }
@@ -492,16 +586,21 @@ var nsSaveCommand = {
   doCommand(aCommand) {
     var editor = GetCurrentEditor();
     if (editor) {
-      if (IsHTMLEditor())
+      if (IsHTMLEditor()) {
         SetEditMode(gPreviousNonSourceDisplayMode);
-      SaveDocument(IsUrlAboutBlank(GetDocumentUrl()), false, editor.contentsMIMEType);
+      }
+      SaveDocument(
+        IsUrlAboutBlank(GetDocumentUrl()),
+        false,
+        editor.contentsMIMEType
+      );
     }
   },
 };
 
 var nsSaveAsCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable());
+    return IsDocumentEditable();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -510,8 +609,9 @@ var nsSaveAsCommand = {
   doCommand(aCommand) {
     var editor = GetCurrentEditor();
     if (editor) {
-      if (IsHTMLEditor())
+      if (IsHTMLEditor()) {
         SetEditMode(gPreviousNonSourceDisplayMode);
+      }
       SaveDocument(true, false, editor.contentsMIMEType);
     }
   },
@@ -519,7 +619,7 @@ var nsSaveAsCommand = {
 
 var nsExportToTextCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable());
+    return IsDocumentEditable();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -535,7 +635,7 @@ var nsExportToTextCommand = {
 
 var nsSaveAndChangeEncodingCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable());
+    return IsDocumentEditable();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -546,10 +646,15 @@ var nsSaveAndChangeEncodingCommand = {
     window.ok = false;
     window.exportToText = false;
     var oldTitle = GetDocumentTitle();
-    window.openDialog("chrome://editor/content/EditorSaveAsCharset.xul", "_blank", "chrome,close,titlebar,modal,resizable=yes");
+    window.openDialog(
+      "chrome://editor/content/EditorSaveAsCharset.xul",
+      "_blank",
+      "chrome,close,titlebar,modal,resizable=yes"
+    );
 
-    if (GetDocumentTitle() != oldTitle)
+    if (GetDocumentTitle() != oldTitle) {
       UpdateWindowTitle();
+    }
 
     if (window.ok) {
       if (window.exportToText) {
@@ -626,7 +731,7 @@ var nsPublishCommand = {
 
 var nsPublishAsCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable());
+    return IsDocumentEditable();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -639,13 +744,21 @@ var nsPublishAsCommand = {
       window.ok = false;
       var publishData = {};
       var oldTitle = GetDocumentTitle();
-      window.openDialog("chrome://editor/content/EditorPublish.xul", "_blank",
-                        "chrome,close,titlebar,modal", "", "", publishData);
-      if (GetDocumentTitle() != oldTitle)
+      window.openDialog(
+        "chrome://editor/content/EditorPublish.xul",
+        "_blank",
+        "chrome,close,titlebar,modal",
+        "",
+        "",
+        publishData
+      );
+      if (GetDocumentTitle() != oldTitle) {
         UpdateWindowTitle();
+      }
 
-      if (window.ok)
+      if (window.ok) {
         return Publish(publishData);
+      }
     }
     return false;
   },
@@ -657,15 +770,15 @@ var nsPublishAsCommand = {
 function GetExtensionBasedOnMimeType(aMIMEType) {
   try {
     var mimeService = null;
-    mimeService = Cc["@mozilla.org/mime;1"]
-                    .getService(Ci.nsIMIMEService);
+    mimeService = Cc["@mozilla.org/mime;1"].getService(Ci.nsIMIMEService);
 
     var fileExtension = mimeService.getPrimaryExtension(aMIMEType, null);
 
     // the MIME service likes to give back ".htm" for text/html files,
     // so do a special-case fix here.
-    if (fileExtension == "htm")
+    if (fileExtension == "htm") {
       fileExtension = "html";
+    }
 
     return fileExtension;
   } catch (e) {}
@@ -674,34 +787,44 @@ function GetExtensionBasedOnMimeType(aMIMEType) {
 
 function GetSuggestedFileName(aDocumentURLString, aMIMEType) {
   var extension = GetExtensionBasedOnMimeType(aMIMEType);
-  if (extension)
+  if (extension) {
     extension = "." + extension;
+  }
 
   // check for existing file name we can use
   if (aDocumentURLString && !IsUrlAboutBlank(aDocumentURLString)) {
     try {
-      let docURI = Services.io.newURI(aDocumentURLString,
-        GetCurrentEditor().documentCharacterSet);
+      let docURI = Services.io.newURI(
+        aDocumentURLString,
+        GetCurrentEditor().documentCharacterSet
+      );
       docURI = docURI.QueryInterface(Ci.nsIURL);
 
       // grab the file name
       let url = validateFileName(decodeURIComponent(docURI.fileBaseName));
-      if (url)
+      if (url) {
         return url + extension;
+      }
     } catch (e) {}
   }
 
   // Check if there is a title we can use to generate a valid filename,
   // if we can't, use the default filename.
-  var title = validateFileName(GetDocumentTitle()) ||
-              GetString("untitledDefaultFilename");
+  var title =
+    validateFileName(GetDocumentTitle()) ||
+    GetString("untitledDefaultFilename");
   return title + extension;
 }
 
 /**
  * @return {Promise} dialogResult
  */
-function PromptForSaveLocation(aDoSaveAsText, aEditorType, aMIMEType, aDocumentURLString) {
+function PromptForSaveLocation(
+  aDoSaveAsText,
+  aEditorType,
+  aMIMEType,
+  aDocumentURLString
+) {
   var dialogResult = {};
   dialogResult.filepickerClick = nsIFilePicker.returnCancel;
   dialogResult.resultingURI = "";
@@ -711,28 +834,33 @@ function PromptForSaveLocation(aDoSaveAsText, aEditorType, aMIMEType, aDocumentU
   try {
     fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
   } catch (e) {}
-  if (!fp) return dialogResult;
+  if (!fp) {
+    return dialogResult;
+  }
 
   // determine prompt string based on type of saving we'll do
   var promptString;
-  if (aDoSaveAsText || aEditorType == "text")
+  if (aDoSaveAsText || aEditorType == "text") {
     promptString = GetString("SaveTextAs");
-  else
+  } else {
     promptString = GetString("SaveDocumentAs");
+  }
 
   fp.init(window, promptString, nsIFilePicker.modeSave);
 
   // Set filters according to the type of output
-  if (aDoSaveAsText)
+  if (aDoSaveAsText) {
     fp.appendFilters(nsIFilePicker.filterText);
-  else
+  } else {
     fp.appendFilters(nsIFilePicker.filterHTML);
+  }
   fp.appendFilters(nsIFilePicker.filterAll);
 
   // now let's actually set the filepicker's suggested filename
   var suggestedFileName = GetSuggestedFileName(aDocumentURLString, aMIMEType);
-  if (suggestedFileName)
+  if (suggestedFileName) {
     fp.defaultString = suggestedFileName;
+  }
 
   // set the file picker's current directory
   // assuming we have information needed (like prior saved location)
@@ -741,7 +869,10 @@ function PromptForSaveLocation(aDoSaveAsText, aEditorType, aMIMEType, aDocumentU
 
     var isLocalFile = true;
     try {
-      let docURI = Services.io.newURI(aDocumentURLString, GetCurrentEditor().documentCharacterSet);
+      let docURI = Services.io.newURI(
+        aDocumentURLString,
+        GetCurrentEditor().documentCharacterSet
+      );
       isLocalFile = docURI.schemeIs("file");
     } catch (e) {}
 
@@ -752,8 +883,9 @@ function PromptForSaveLocation(aDoSaveAsText, aEditorType, aMIMEType, aDocumentU
     }
     if (parentLocation) {
       // Save current filepicker's default location
-      if ("gFilePickerDirectory" in window)
+      if ("gFilePickerDirectory" in window) {
         gFilePickerDirectory = fp.displayDirectory;
+      }
 
       fp.displayDirectory = parentLocation;
     } else {
@@ -765,9 +897,12 @@ function PromptForSaveLocation(aDoSaveAsText, aEditorType, aMIMEType, aDocumentU
   return new Promise(resolve => {
     fp.open(rv => {
       dialogResult.filepickerClick = rv;
-      if (rv != nsIFilePicker.returnCancel && fp.file) { // Allow OK and replace.
+      if (rv != nsIFilePicker.returnCancel && fp.file) {
+        // Allow OK and replace.
         // reset urlstring to new save location
-        dialogResult.resultingURIString = fileHandler.getURLSpecFromFile(fp.file);
+        dialogResult.resultingURIString = fileHandler.getURLSpecFromFile(
+          fp.file
+        );
         dialogResult.resultingLocalFile = fp.file;
         SaveFilePickerDirectory(fp, aEditorType);
         resolve(dialogResult);
@@ -786,15 +921,25 @@ function PromptForSaveLocation(aDoSaveAsText, aEditorType, aMIMEType, aDocumentU
  *         false if the user cancelled the title prompt
  */
 function PromptAndSetTitleIfNone() {
-  if (GetDocumentTitle()) // we have a title; no need to prompt!
+  if (GetDocumentTitle()) {
+    // we have a title; no need to prompt!
     return true;
+  }
 
-  let result = {value: null};
+  let result = { value: null };
   let captionStr = GetString("DocumentTitle");
   let msgStr = GetString("NeedDocTitle") + "\n" + GetString("DocTitleHelp");
-  let confirmed = Services.prompt.prompt(window, captionStr, msgStr, result, null, {value: 0});
-  if (confirmed)
+  let confirmed = Services.prompt.prompt(
+    window,
+    captionStr,
+    msgStr,
+    result,
+    null,
+    { value: 0 }
+  );
+  if (confirmed) {
     SetDocumentTitle(TrimString(result.value));
+  }
 
   return confirmed;
 }
@@ -808,10 +953,15 @@ var gPersistObj;
 //    UpdateWindowTitle();
 //    if (!aSaveCopy)
 //      editor.resetModificationCount();
-      // this should cause notification to listeners that document has changed
+// this should cause notification to listeners that document has changed
 
 const webPersist = Ci.nsIWebBrowserPersist;
-function OutputFileWithPersistAPI(editorDoc, aDestinationLocation, aRelatedFilesParentDir, aMimeType) {
+function OutputFileWithPersistAPI(
+  editorDoc,
+  aDestinationLocation,
+  aRelatedFilesParentDir,
+  aMimeType
+) {
   gPersistObj = null;
   var editor = GetCurrentEditor();
   try {
@@ -831,7 +981,9 @@ function OutputFileWithPersistAPI(editorDoc, aDestinationLocation, aRelatedFiles
 
   try {
     // we should supply a parent directory if/when we turn on functionality to save related documents
-    var persistObj = Cc["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"].createInstance(webPersist);
+    var persistObj = Cc[
+      "@mozilla.org/embedding/browser/nsWebBrowserPersist;1"
+    ].createInstance(webPersist);
     persistObj.progressListener = gEditorOutputProgressListener;
 
     var wrapColumn = GetWrapColumn();
@@ -839,26 +991,37 @@ function OutputFileWithPersistAPI(editorDoc, aDestinationLocation, aRelatedFiles
 
     // for 4.x parity as well as improving readability of file locally on server
     // this will always send crlf for upload (http/ftp)
-    if (!isLocalFile) { // if we aren't saving locally then send both cr and lf
-      outputFlags |= webPersist.ENCODE_FLAGS_CR_LINEBREAKS | webPersist.ENCODE_FLAGS_LF_LINEBREAKS;
+    if (!isLocalFile) {
+      // if we aren't saving locally then send both cr and lf
+      outputFlags |=
+        webPersist.ENCODE_FLAGS_CR_LINEBREAKS |
+        webPersist.ENCODE_FLAGS_LF_LINEBREAKS;
 
       // we want to serialize the output for all remote publishing
       // some servers can handle only one connection at a time
       // some day perhaps we can make this user-configurable per site?
-      persistObj.persistFlags = persistObj.persistFlags | webPersist.PERSIST_FLAGS_SERIALIZE_OUTPUT;
+      persistObj.persistFlags =
+        persistObj.persistFlags | webPersist.PERSIST_FLAGS_SERIALIZE_OUTPUT;
     }
 
     // note: we always want to set the replace existing files flag since we have
     // already given user the chance to not replace an existing file (file picker)
     // or the user picked an option where the file is implicitly being replaced (save)
-    persistObj.persistFlags = persistObj.persistFlags
-                            | webPersist.PERSIST_FLAGS_NO_BASE_TAG_MODIFICATIONS
-                            | webPersist.PERSIST_FLAGS_REPLACE_EXISTING_FILES
-                            | webPersist.PERSIST_FLAGS_DONT_FIXUP_LINKS
-                            | webPersist.PERSIST_FLAGS_DONT_CHANGE_FILENAMES
-                            | webPersist.PERSIST_FLAGS_FIXUP_ORIGINAL_DOM;
-    persistObj.saveDocument(editorDoc, aDestinationLocation, aRelatedFilesParentDir,
-                            aMimeType, outputFlags, wrapColumn);
+    persistObj.persistFlags =
+      persistObj.persistFlags |
+      webPersist.PERSIST_FLAGS_NO_BASE_TAG_MODIFICATIONS |
+      webPersist.PERSIST_FLAGS_REPLACE_EXISTING_FILES |
+      webPersist.PERSIST_FLAGS_DONT_FIXUP_LINKS |
+      webPersist.PERSIST_FLAGS_DONT_CHANGE_FILENAMES |
+      webPersist.PERSIST_FLAGS_FIXUP_ORIGINAL_DOM;
+    persistObj.saveDocument(
+      editorDoc,
+      aDestinationLocation,
+      aRelatedFilesParentDir,
+      aMimeType,
+      outputFlags,
+      wrapColumn
+    );
     gPersistObj = persistObj;
   } catch (e) {
     dump("caught an error, bail\n");
@@ -872,31 +1035,42 @@ function OutputFileWithPersistAPI(editorDoc, aDestinationLocation, aRelatedFiles
 function GetOutputFlags(aMimeType, aWrapColumn) {
   var outputFlags = 0;
   var editor = GetCurrentEditor();
-  var outputEntity = (editor && editor.documentCharacterSet == "ISO-8859-1")
-    ? webPersist.ENCODE_FLAGS_ENCODE_LATIN1_ENTITIES
-    : webPersist.ENCODE_FLAGS_ENCODE_BASIC_ENTITIES;
+  var outputEntity =
+    editor && editor.documentCharacterSet == "ISO-8859-1"
+      ? webPersist.ENCODE_FLAGS_ENCODE_LATIN1_ENTITIES
+      : webPersist.ENCODE_FLAGS_ENCODE_BASIC_ENTITIES;
   if (aMimeType == "text/plain") {
     // When saving in "text/plain" format, always do formatting
     outputFlags |= webPersist.ENCODE_FLAGS_FORMATTED;
   } else {
     // Should we prettyprint? Check the pref
-    if (Services.prefs.getBoolPref("editor.prettyprint"))
+    if (Services.prefs.getBoolPref("editor.prettyprint")) {
       outputFlags |= webPersist.ENCODE_FLAGS_FORMATTED;
+    }
 
     try {
       // How much entity names should we output? Check the pref
       switch (Services.prefs.getCharPref("editor.encode_entity")) {
-        case "basic" : outputEntity = webPersist.ENCODE_FLAGS_ENCODE_BASIC_ENTITIES; break;
-        case "latin1" : outputEntity = webPersist.ENCODE_FLAGS_ENCODE_LATIN1_ENTITIES; break;
-        case "html" : outputEntity = webPersist.ENCODE_FLAGS_ENCODE_HTML_ENTITIES; break;
-        case "none" : outputEntity = 0; break;
+        case "basic":
+          outputEntity = webPersist.ENCODE_FLAGS_ENCODE_BASIC_ENTITIES;
+          break;
+        case "latin1":
+          outputEntity = webPersist.ENCODE_FLAGS_ENCODE_LATIN1_ENTITIES;
+          break;
+        case "html":
+          outputEntity = webPersist.ENCODE_FLAGS_ENCODE_HTML_ENTITIES;
+          break;
+        case "none":
+          outputEntity = 0;
+          break;
       }
     } catch (e) {}
   }
   outputFlags |= outputEntity;
 
-  if (aWrapColumn > 0)
+  if (aWrapColumn > 0) {
     outputFlags |= webPersist.ENCODE_FLAGS_WRAP;
+  }
 
   return outputFlags;
 }
@@ -1299,27 +1473,41 @@ var gEditorOutputProgressListener = {
 function PromptUsernameAndPassword(dlgTitle, text, savePW, userObj, pwObj) {
   // HTTP prompts us twice even if user Cancels from 1st attempt!
   // So never put up dialog if there's no publish data
-  if (!gPublishData)
+  if (!gPublishData) {
     return false;
+  }
 
   var ret = false;
   try {
-    var savePWObj = {value: savePW};
+    var savePWObj = { value: savePW };
 
     // Initialize with user's previous preference for this site
     if (gPublishData) {
       // HTTP put uses this dialog if either username or password is bad,
       //   so prefill username input field with the previous value for modification
       savePWObj.value = gPublishData.savePassword;
-      if (!userObj.value)
+      if (!userObj.value) {
         userObj.value = gPublishData.username;
+      }
     }
 
-    ret = Services.prompt.promptUsernameAndPassword(gProgressDialog ? gProgressDialog : window,
-                                                    dlgTitle, text, userObj, pwObj,
-                                                    GetString("SavePassword"), savePWObj);
-    if (ret && gPublishData)
-      UpdateUsernamePasswordFromPrompt(gPublishData, userObj.value, pwObj.value, savePWObj.value);
+    ret = Services.prompt.promptUsernameAndPassword(
+      gProgressDialog ? gProgressDialog : window,
+      dlgTitle,
+      text,
+      userObj,
+      pwObj,
+      GetString("SavePassword"),
+      savePWObj
+    );
+    if (ret && gPublishData) {
+      UpdateUsernamePasswordFromPrompt(
+        gPublishData,
+        userObj.value,
+        pwObj.value,
+        savePWObj.value
+      );
+    }
   } catch (e) {}
 
   return ret;
@@ -1329,92 +1517,115 @@ function PromptUsernameAndPassword(dlgTitle, text, savePW, userObj, pwObj) {
 function DumpDebugStatus(aStatus) {
   // see nsError.h and netCore.h and ftpCore.h
 
-  if (aStatus == kErrorBindingAborted)
+  if (aStatus == kErrorBindingAborted) {
     dump("***** status is NS_BINDING_ABORTED\n");
-  else if (aStatus == kErrorBindingRedirected)
+  } else if (aStatus == kErrorBindingRedirected) {
     dump("***** status is NS_BINDING_REDIRECTED\n");
-  else if (aStatus == 2152398859) // in netCore.h 11
+  } else if (aStatus == 2152398859) {
+    // in netCore.h 11
     dump("***** status is ALREADY_CONNECTED\n");
-  else if (aStatus == 2152398860) // in netCore.h 12
+  } else if (aStatus == 2152398860) {
+    // in netCore.h 12
     dump("***** status is NOT_CONNECTED\n");
-  else if (aStatus == 2152398861) //  in nsISocketTransportService.idl 13
+  } else if (aStatus == 2152398861) {
+    //  in nsISocketTransportService.idl 13
     dump("***** status is CONNECTION_REFUSED\n");
-  else if (aStatus == 2152398862) // in nsISocketTransportService.idl 14
+  } else if (aStatus == 2152398862) {
+    // in nsISocketTransportService.idl 14
     dump("***** status is NET_TIMEOUT\n");
-  else if (aStatus == 2152398863) // in netCore.h 15
+  } else if (aStatus == 2152398863) {
+    // in netCore.h 15
     dump("***** status is IN_PROGRESS\n");
-  else if (aStatus == 2152398864) // 0x804b0010 in netCore.h 16
+  } else if (aStatus == 2152398864) {
+    // 0x804b0010 in netCore.h 16
     dump("***** status is OFFLINE\n");
-  else if (aStatus == 2152398865) // in netCore.h 17
+  } else if (aStatus == 2152398865) {
+    // in netCore.h 17
     dump("***** status is NO_CONTENT\n");
-  else if (aStatus == 2152398866) // in netCore.h 18
+  } else if (aStatus == 2152398866) {
+    // in netCore.h 18
     dump("***** status is UNKNOWN_PROTOCOL\n");
-  else if (aStatus == 2152398867) // in netCore.h 19
+  } else if (aStatus == 2152398867) {
+    // in netCore.h 19
     dump("***** status is PORT_ACCESS_NOT_ALLOWED\n");
-  else if (aStatus == 2152398868) // in nsISocketTransportService.idl 20
+  } else if (aStatus == 2152398868) {
+    // in nsISocketTransportService.idl 20
     dump("***** status is NET_RESET\n");
-  else if (aStatus == 2152398869) // in ftpCore.h 21
+  } else if (aStatus == 2152398869) {
+    // in ftpCore.h 21
     dump("***** status is FTP_LOGIN\n");
-  else if (aStatus == 2152398870) // in ftpCore.h 22
+  } else if (aStatus == 2152398870) {
+    // in ftpCore.h 22
     dump("***** status is FTP_CWD\n");
-  else if (aStatus == 2152398871) // in ftpCore.h 23
+  } else if (aStatus == 2152398871) {
+    // in ftpCore.h 23
     dump("***** status is FTP_PASV\n");
-  else if (aStatus == 2152398872) // in ftpCore.h 24
+  } else if (aStatus == 2152398872) {
+    // in ftpCore.h 24
     dump("***** status is FTP_PWD\n");
-  else if (aStatus == 2152857601)
+  } else if (aStatus == 2152857601) {
     dump("***** status is UNRECOGNIZED_PATH\n");
-  else if (aStatus == 2152857602)
+  } else if (aStatus == 2152857602) {
     dump("***** status is UNRESOLABLE SYMLINK\n");
-  else if (aStatus == 2152857604)
+  } else if (aStatus == 2152857604) {
     dump("***** status is UNKNOWN_TYPE\n");
-  else if (aStatus == 2152857605)
+  } else if (aStatus == 2152857605) {
     dump("***** status is DESTINATION_NOT_DIR\n");
-  else if (aStatus == 2152857606)
+  } else if (aStatus == 2152857606) {
     dump("***** status is TARGET_DOES_NOT_EXIST\n");
-  else if (aStatus == 2152857608)
+  } else if (aStatus == 2152857608) {
     dump("***** status is ALREADY_EXISTS\n");
-  else if (aStatus == 2152857609)
+  } else if (aStatus == 2152857609) {
     dump("***** status is INVALID_PATH\n");
-  else if (aStatus == 2152857610)
+  } else if (aStatus == 2152857610) {
     dump("***** status is DISK_FULL\n");
-  else if (aStatus == 2152857612)
+  } else if (aStatus == 2152857612) {
     dump("***** status is NOT_DIRECTORY\n");
-  else if (aStatus == 2152857613)
+  } else if (aStatus == 2152857613) {
     dump("***** status is IS_DIRECTORY\n");
-  else if (aStatus == 2152857614)
+  } else if (aStatus == 2152857614) {
     dump("***** status is IS_LOCKED\n");
-  else if (aStatus == 2152857615)
+  } else if (aStatus == 2152857615) {
     dump("***** status is TOO_BIG\n");
-  else if (aStatus == 2152857616)
+  } else if (aStatus == 2152857616) {
     dump("***** status is NO_DEVICE_SPACE\n");
-  else if (aStatus == 2152857617)
+  } else if (aStatus == 2152857617) {
     dump("***** status is NAME_TOO_LONG\n");
-  else if (aStatus == 2152857618) // 80520012
+  } else if (aStatus == 2152857618) {
+    // 80520012
     dump("***** status is FILE_NOT_FOUND\n");
-  else if (aStatus == 2152857619)
+  } else if (aStatus == 2152857619) {
     dump("***** status is READ_ONLY\n");
-  else if (aStatus == 2152857620)
+  } else if (aStatus == 2152857620) {
     dump("***** status is DIR_NOT_EMPTY\n");
-  else if (aStatus == 2152857621)
+  } else if (aStatus == 2152857621) {
     dump("***** status is ACCESS_DENIED\n");
-  else if (aStatus == 2152398878)
+  } else if (aStatus == 2152398878) {
     dump("***** status is ? (No connection or time out?)\n");
-  else
+  } else {
     dump("***** status is " + aStatus + "\n");
+  }
 }
 /* eslint-enable complexity */
 
 // Update any data that the user supplied in a prompt dialog
-function UpdateUsernamePasswordFromPrompt(publishData, username, password, savePassword) {
-  if (!publishData)
+function UpdateUsernamePasswordFromPrompt(
+  publishData,
+  username,
+  password,
+  savePassword
+) {
+  if (!publishData) {
     return;
+  }
 
   // Set flag to save publish data after publishing if it changed in dialog
   //  and the "SavePassword" checkbox was checked
   //  or we already had site data for this site
   // (Thus we don't automatically create a site until user brings up Publish As dialog)
-  publishData.savePublishData = (gPublishData.username != username || gPublishData.password != password)
-                                && (savePassword || !publishData.notInSiteData);
+  publishData.savePublishData =
+    (gPublishData.username != username || gPublishData.password != password) &&
+    (savePassword || !publishData.notInSiteData);
 
   publishData.username = username;
   publishData.password = password;
@@ -1437,8 +1648,9 @@ const kSupportedTextMimeTypes = [
 
 function IsSupportedTextMimeType(aMimeType) {
   for (var i = 0; i < kSupportedTextMimeTypes.length; i++) {
-    if (kSupportedTextMimeTypes[i] == aMimeType)
+    if (kSupportedTextMimeTypes[i] == aMimeType) {
       return true;
+    }
   }
   return false;
 }
@@ -1609,8 +1821,9 @@ var gCommandAfterPublishing = null;
 var gRestoreDocumentSource;
 
 function Publish(publishData) {
-  if (!publishData)
+  if (!publishData) {
     return false;
+  }
 
   // Set data in global for username password requests
   //  and to do "post saving" actions after monitoring nsIWebProgressListener messages
@@ -1619,20 +1832,41 @@ function Publish(publishData) {
 
   gPublishData.docURI = CreateURIFromPublishData(publishData, true);
   if (!gPublishData.docURI) {
-    Services.prompt.alert(window, GetString("Publish"), GetString("PublishFailed"));
+    Services.prompt.alert(
+      window,
+      GetString("Publish"),
+      GetString("PublishFailed")
+    );
     return false;
   }
 
-  if (gPublishData.publishOtherFiles)
+  if (gPublishData.publishOtherFiles) {
     gPublishData.otherFilesURI = CreateURIFromPublishData(publishData, false);
-  else
+  } else {
     gPublishData.otherFilesURI = null;
+  }
 
   if (gShowDebugOutputStateChange) {
-    dump("\n *** publishData: PublishUrl=" + publishData.publishUrl + ", BrowseUrl=" + publishData.browseUrl +
-      ", Username=" + publishData.username + ", Dir=" + publishData.docDir +
-      ", Filename=" + publishData.filename + "\n");
-    dump(" * gPublishData.docURI.spec w/o pass=" + StripPassword(gPublishData.docURI.spec) + ", PublishOtherFiles=" + gPublishData.publishOtherFiles + "\n");
+    dump(
+      "\n *** publishData: PublishUrl=" +
+        publishData.publishUrl +
+        ", BrowseUrl=" +
+        publishData.browseUrl +
+        ", Username=" +
+        publishData.username +
+        ", Dir=" +
+        publishData.docDir +
+        ", Filename=" +
+        publishData.filename +
+        "\n"
+    );
+    dump(
+      " * gPublishData.docURI.spec w/o pass=" +
+        StripPassword(gPublishData.docURI.spec) +
+        ", PublishOtherFiles=" +
+        gPublishData.publishOtherFiles +
+        "\n"
+    );
   }
 
   // XXX Missing username will make FTP fail
@@ -1640,12 +1874,24 @@ function Publish(publishData) {
   // (It does prompt if just password is missing)
   // So we should do the prompt ourselves before trying to publish
   if (GetScheme(publishData.publishUrl) == "ftp" && !publishData.username) {
-    var message = GetString("PromptFTPUsernamePassword").replace(/%host%/, GetHost(publishData.publishUrl));
-    var savePWobj = {value: publishData.savePassword};
-    var userObj = {value: publishData.username};
-    var pwObj = {value: publishData.password};
-    if (!PromptUsernameAndPassword(GetString("Prompt"), message, savePWobj, userObj, pwObj))
-      return false; // User canceled out of dialog
+    var message = GetString("PromptFTPUsernamePassword").replace(
+      /%host%/,
+      GetHost(publishData.publishUrl)
+    );
+    var savePWobj = { value: publishData.savePassword };
+    var userObj = { value: publishData.username };
+    var pwObj = { value: publishData.password };
+    if (
+      !PromptUsernameAndPassword(
+        GetString("Prompt"),
+        message,
+        savePWobj,
+        userObj,
+        pwObj
+      )
+    ) {
+      return false;
+    } // User canceled out of dialog
 
     // Reset data in URI objects
     gPublishData.docURI.username = publishData.username;
@@ -1663,9 +1909,13 @@ function Publish(publishData) {
     SetDocumentEditable(false);
 
     // Start progress monitoring
-    gProgressDialog =
-      window.openDialog("chrome://editor/content/EditorPublishProgress.xul", "_blank",
-                        "chrome,dependent,titlebar", gPublishData, gPersistObj);
+    gProgressDialog = window.openDialog(
+      "chrome://editor/content/EditorPublishProgress.xul",
+      "_blank",
+      "chrome,dependent,titlebar",
+      gPublishData,
+      gPersistObj
+    );
   } catch (e) {}
 
   // Network transfer is often too quick for the progress dialog to be initialized
@@ -1684,14 +1934,19 @@ function StartPublishing() {
     // but we only need to do this if publishing images and other related files
     if (gPublishData.otherFilesURI) {
       try {
-        gRestoreDocumentSource =
-          editor.outputToString(editor.contentsMIMEType, kOutputEncodeW3CEntities);
+        gRestoreDocumentSource = editor.outputToString(
+          editor.contentsMIMEType,
+          kOutputEncodeW3CEntities
+        );
       } catch (e) {}
     }
 
-    OutputFileWithPersistAPI(editor.document,
-                             gPublishData.docURI, gPublishData.otherFilesURI,
-                             editor.contentsMIMEType);
+    OutputFileWithPersistAPI(
+      editor.document,
+      gPublishData.docURI,
+      gPublishData.otherFilesURI,
+      editor.contentsMIMEType
+    );
     return gPersistObj;
   }
   return null;
@@ -1790,9 +2045,9 @@ function SetDocumentEditable(isDocEditable) {
   if (editor && editor.document) {
     try {
       var flags = editor.flags;
-      editor.flags = isDocEditable ?
-            flags &= ~nsIPlaintextEditor.eEditorReadonlyMask :
-            flags | nsIPlaintextEditor.eEditorReadonlyMask;
+      editor.flags = isDocEditable
+        ? (flags &= ~nsIPlaintextEditor.eEditorReadonlyMask)
+        : flags | nsIPlaintextEditor.eEditorReadonlyMask;
     } catch (e) {}
 
     // update all commands
@@ -1804,7 +2059,7 @@ function SetDocumentEditable(isDocEditable) {
 
 var nsPublishSettingsCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable());
+    return IsDocumentEditable();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -1814,7 +2069,12 @@ var nsPublishSettingsCommand = {
     if (GetCurrentEditor()) {
       // Launch Publish Settings dialog
 
-      window.ok = window.openDialog("chrome://editor/content/EditorPublishSettings.xul", "_blank", "chrome,close,titlebar,modal", "");
+      window.ok = window.openDialog(
+        "chrome://editor/content/EditorPublishSettings.xul",
+        "_blank",
+        "chrome,close,titlebar,modal",
+        ""
+      );
       return window.ok;
     }
     return false;
@@ -1823,9 +2083,11 @@ var nsPublishSettingsCommand = {
 
 var nsRevertCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() &&
-            IsDocumentModified() &&
-            !IsUrlAboutBlank(GetDocumentUrl()));
+    return (
+      IsDocumentEditable() &&
+      IsDocumentModified() &&
+      !IsUrlAboutBlank(GetDocumentUrl())
+    );
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -1837,10 +2099,18 @@ var nsRevertCommand = {
     let title = GetDocumentTitle();
     let msg = GetString("AbandonChanges").replace(/%title%/, title);
 
-    let result = Services.prompt.confirmEx(window, GetString("RevertCaption"), msg,
-                   (Services.prompt.BUTTON_TITLE_REVERT * Services.prompt.BUTTON_POS_0) +
-                   (Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1),
-                   null, null, null, null, {value: 0});
+    let result = Services.prompt.confirmEx(
+      window,
+      GetString("RevertCaption"),
+      msg,
+      Services.prompt.BUTTON_TITLE_REVERT * Services.prompt.BUTTON_POS_0 +
+        Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1,
+      null,
+      null,
+      null,
+      null,
+      { value: 0 }
+    );
 
     // Reload page if first button (Revert) was pressed
     if (result == 0) {
@@ -1867,15 +2137,16 @@ async function CloseWindow() {
   // Check to make sure document is saved. "true" means allow "Don't Save" button,
   //   so user can choose to close without saving
   if (await CheckAndSaveDocument("cmd_close", true)) {
-    if (window.InsertCharWindow)
+    if (window.InsertCharWindow) {
       SwitchInsertCharToAnotherEditorOrClose();
+    }
 
     try {
-      var basewin = window.getInterface(Ci.nsIWebNavigation)
-                          .QueryInterface(Ci.nsIDocShellTreeItem)
-                          .treeOwner
-                          .QueryInterface(Ci.nsIInterfaceRequestor)
-                          .getInterface(Ci.nsIBaseWindow);
+      var basewin = window
+        .getInterface(Ci.nsIWebNavigation)
+        .QueryInterface(Ci.nsIDocShellTreeItem)
+        .treeOwner.QueryInterface(Ci.nsIInterfaceRequestor)
+        .getInterface(Ci.nsIBaseWindow);
       basewin.destroy();
     } catch (e) {}
   }
@@ -1923,9 +2194,11 @@ var nsOpenRemoteCommand = {
 
 var nsPreviewCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() &&
-            IsHTMLEditor() &&
-            (DocumentHasBeenSaved() || IsDocumentModified()));
+    return (
+      IsDocumentEditable() &&
+      IsHTMLEditor() &&
+      (DocumentHasBeenSaved() || IsDocumentModified())
+    );
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -1934,8 +2207,9 @@ var nsPreviewCommand = {
   async doCommand(aCommand) {
     // Don't continue if user canceled during prompt for saving
     // DocumentHasBeenSaved will test if we have a URL and suppress "Don't Save" button if not
-    if (!(await CheckAndSaveDocument("cmd_preview", DocumentHasBeenSaved())))
+    if (!(await CheckAndSaveDocument("cmd_preview", DocumentHasBeenSaved()))) {
       return;
+    }
 
     // Check if we saved again just in case?
     if (DocumentHasBeenSaved()) {
@@ -1947,9 +2221,13 @@ var nsPreviewCommand = {
         var documentURI = GetDocumentUrl();
         while (enumerator.hasMoreElements()) {
           browser = enumerator.getNext();
-          if (browser && !browser.closed &&
-              (documentURI == browser.getBrowser().currentURI.spec))
+          if (
+            browser &&
+            !browser.closed &&
+            documentURI == browser.getBrowser().currentURI.spec
+          ) {
             break;
+          }
 
           browser = null;
         }
@@ -1957,7 +2235,12 @@ var nsPreviewCommand = {
 
       // If none found, open a new browser
       if (!browser) {
-        browser = window.openDialog(getBrowserURL(), "_blank", "chrome,all,dialog=no", documentURI);
+        browser = window.openDialog(
+          getBrowserURL(),
+          "_blank",
+          "chrome,all,dialog=no",
+          documentURI
+        );
       } else {
         try {
           browser.BrowserReloadSkipCache();
@@ -1999,7 +2282,7 @@ var nsSendPageCommand = {
 
 var nsPrintCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return true;    // we can always do this
+    return true; // we can always do this
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -2036,7 +2319,7 @@ var nsPrintPreviewCommand = {
 
 var nsPrintSetupCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return true;    // we can always do this
+    return true; // we can always do this
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -2058,8 +2341,12 @@ var nsFindReplaceCommand = {
   doCommandParams(aCommand, aParams, editorElement) {},
 
   doCommand(aCommand, editorElement) {
-    window.openDialog("chrome://editor/content/EdReplace.xul", "_blank",
-                      "chrome,modal,titlebar", editorElement);
+    window.openDialog(
+      "chrome://editor/content/EdReplace.xul",
+      "_blank",
+      "chrome,modal,titlebar",
+      editorElement
+    );
   },
 };
 
@@ -2087,29 +2374,35 @@ var nsFindAgainCommand = {
   doCommandParams(aCommand, aParams, editorElement) {},
 
   doCommand(aCommand, editorElement) {
-    let findPrev = (aCommand == "cmd_findPrev");
+    let findPrev = aCommand == "cmd_findPrev";
     document.getElementById("FindToolbar").onFindAgainCommand(findPrev);
   },
 };
 
 var nsRewrapCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() && !IsInHTMLSourceMode() &&
-            GetCurrentEditor() instanceof Ci.nsIEditorMailSupport);
+    return (
+      IsDocumentEditable() &&
+      !IsInHTMLSourceMode() &&
+      GetCurrentEditor() instanceof Ci.nsIEditorMailSupport
+    );
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
   doCommandParams(aCommand, aParams, aRefCon) {},
 
   doCommand(aCommand) {
-    GetCurrentEditor().QueryInterface(Ci.nsIEditorMailSupport).rewrap(false);
+    GetCurrentEditor()
+      .QueryInterface(Ci.nsIEditorMailSupport)
+      .rewrap(false);
   },
 };
 
 var nsSpellingCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() &&
-            !IsInHTMLSourceMode() && IsSpellCheckerInstalled());
+    return (
+      IsDocumentEditable() && !IsInHTMLSourceMode() && IsSpellCheckerInstalled()
+    );
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -2118,9 +2411,17 @@ var nsSpellingCommand = {
   doCommand(aCommand) {
     window.cancelSendMessage = false;
     try {
-      var skipBlockQuotes = (window.document.documentElement.getAttribute("windowtype") == "msgcompose");
-      window.openDialog("chrome://editor/content/EdSpellCheck.xul", "_blank",
-              "dialog,close,titlebar,modal,resizable", false, skipBlockQuotes, true);
+      var skipBlockQuotes =
+        window.document.documentElement.getAttribute("windowtype") ==
+        "msgcompose";
+      window.openDialog(
+        "chrome://editor/content/EdSpellCheck.xul",
+        "_blank",
+        "dialog,close,titlebar,modal,resizable",
+        false,
+        skipBlockQuotes,
+        true
+      );
     } catch (ex) {}
   },
 };
@@ -2139,12 +2440,15 @@ var nsValidateCommand = {
     // If the document hasn't been modified,
     // then just validate the current url.
     if (IsDocumentModified() || IsHTMLSourceChanged()) {
-      if (!(await CheckAndSaveDocument("cmd_validate", false)))
+      if (!(await CheckAndSaveDocument("cmd_validate", false))) {
         return;
+      }
 
       // Check if we saved again just in case?
-      if (!DocumentHasBeenSaved())    // user hit cancel?
+      if (!DocumentHasBeenSaved()) {
+        // user hit cancel?
         return;
+      }
     }
 
     URL2Validate = GetDocumentUrl();
@@ -2159,13 +2463,17 @@ var nsValidateCommand = {
     }
     if (ifile) {
       URL2Validate = ifile.path;
-      var vwin = window.open("http://validator.w3.org/file-upload.html",
-                             "EditorValidate");
+      var vwin = window.open(
+        "http://validator.w3.org/file-upload.html",
+        "EditorValidate"
+      );
       // Window loads asynchronously, so pass control to the load listener:
       vwin.addEventListener("load", this.validateFilePageLoaded);
     } else {
-      window.open(`http://validator.w3.org/check?uri=${URL2Validate}&doctype=Inline`,
-                  "EditorValidate");
+      window.open(
+        `http://validator.w3.org/check?uri=${URL2Validate}&doctype=Inline`,
+        "EditorValidate"
+      );
       // This does the validation, no need to wait for page loaded.
     }
   },
@@ -2176,85 +2484,109 @@ var nsValidateCommand = {
 
 var nsFormCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() && IsEditingRenderedHTML());
+    return IsDocumentEditable() && IsEditingRenderedHTML();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
   doCommandParams(aCommand, aParams, aRefCon) {},
 
   doCommand(aCommand) {
-    window.openDialog("chrome://editor/content/EdFormProps.xul", "_blank", "chrome,close,titlebar,modal");
+    window.openDialog(
+      "chrome://editor/content/EdFormProps.xul",
+      "_blank",
+      "chrome,close,titlebar,modal"
+    );
   },
 };
 
 var nsInputTagCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() && IsEditingRenderedHTML());
+    return IsDocumentEditable() && IsEditingRenderedHTML();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
   doCommandParams(aCommand, aParams, aRefCon) {},
 
   doCommand(aCommand) {
-    window.openDialog("chrome://editor/content/EdInputProps.xul", "_blank", "chrome,close,titlebar,modal");
+    window.openDialog(
+      "chrome://editor/content/EdInputProps.xul",
+      "_blank",
+      "chrome,close,titlebar,modal"
+    );
   },
 };
 
 var nsInputImageCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() && IsEditingRenderedHTML());
+    return IsDocumentEditable() && IsEditingRenderedHTML();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
   doCommandParams(aCommand, aParams, aRefCon) {},
 
   doCommand(aCommand) {
-    window.openDialog("chrome://editor/content/EdInputImage.xul", "_blank", "chrome,close,titlebar,modal");
+    window.openDialog(
+      "chrome://editor/content/EdInputImage.xul",
+      "_blank",
+      "chrome,close,titlebar,modal"
+    );
   },
 };
 
 var nsTextAreaCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() && IsEditingRenderedHTML());
+    return IsDocumentEditable() && IsEditingRenderedHTML();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
   doCommandParams(aCommand, aParams, aRefCon) {},
 
   doCommand(aCommand) {
-    window.openDialog("chrome://editor/content/EdTextAreaProps.xul", "_blank", "chrome,close,titlebar,modal");
+    window.openDialog(
+      "chrome://editor/content/EdTextAreaProps.xul",
+      "_blank",
+      "chrome,close,titlebar,modal"
+    );
   },
 };
 
 var nsSelectCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() && IsEditingRenderedHTML());
+    return IsDocumentEditable() && IsEditingRenderedHTML();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
   doCommandParams(aCommand, aParams, aRefCon) {},
 
   doCommand(aCommand) {
-    window.openDialog("chrome://editor/content/EdSelectProps.xul", "_blank", "chrome,close,titlebar,modal");
+    window.openDialog(
+      "chrome://editor/content/EdSelectProps.xul",
+      "_blank",
+      "chrome,close,titlebar,modal"
+    );
   },
 };
 
 var nsButtonCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() && IsEditingRenderedHTML());
+    return IsDocumentEditable() && IsEditingRenderedHTML();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
   doCommandParams(aCommand, aParams, aRefCon) {},
 
   doCommand(aCommand) {
-    window.openDialog("chrome://editor/content/EdButtonProps.xul", "_blank", "chrome,close,titlebar,modal");
+    window.openDialog(
+      "chrome://editor/content/EdButtonProps.xul",
+      "_blank",
+      "chrome,close,titlebar,modal"
+    );
   },
 };
 
 var nsLabelCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() && IsEditingRenderedHTML());
+    return IsDocumentEditable() && IsEditingRenderedHTML();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -2266,13 +2598,26 @@ var nsLabelCommand = {
       var editor = GetCurrentEditor();
       // Find selected label or if start/end of selection is in label
       var labelElement = editor.getSelectedElement(tagName);
-      if (!labelElement)
-        labelElement = editor.getElementOrParentByTagName(tagName, editor.selection.anchorNode);
-      if (!labelElement)
-        labelElement = editor.getElementOrParentByTagName(tagName, editor.selection.focusNode);
+      if (!labelElement) {
+        labelElement = editor.getElementOrParentByTagName(
+          tagName,
+          editor.selection.anchorNode
+        );
+      }
+      if (!labelElement) {
+        labelElement = editor.getElementOrParentByTagName(
+          tagName,
+          editor.selection.focusNode
+        );
+      }
       if (labelElement) {
         // We only open the dialog for an existing label
-        window.openDialog("chrome://editor/content/EdLabelProps.xul", "_blank", "chrome,close,titlebar,modal", labelElement);
+        window.openDialog(
+          "chrome://editor/content/EdLabelProps.xul",
+          "_blank",
+          "chrome,close,titlebar,modal",
+          labelElement
+        );
       } else {
         EditorSetTextProperty(tagName, "", "");
       }
@@ -2282,20 +2627,24 @@ var nsLabelCommand = {
 
 var nsFieldSetCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() && IsEditingRenderedHTML());
+    return IsDocumentEditable() && IsEditingRenderedHTML();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
   doCommandParams(aCommand, aParams, aRefCon) {},
 
   doCommand(aCommand) {
-    window.openDialog("chrome://editor/content/EdFieldSetProps.xul", "_blank", "chrome,close,titlebar,modal");
+    window.openDialog(
+      "chrome://editor/content/EdFieldSetProps.xul",
+      "_blank",
+      "chrome,close,titlebar,modal"
+    );
   },
 };
 
 var nsIsIndexCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() && IsEditingRenderedHTML());
+    return IsDocumentEditable() && IsEditingRenderedHTML();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -2305,7 +2654,10 @@ var nsIsIndexCommand = {
     try {
       var editor = GetCurrentEditor();
       var isindexElement = editor.createElementWithDefaults("isindex");
-      isindexElement.setAttribute("prompt", editor.outputToString("text/plain", kOutputSelectionOnly));
+      isindexElement.setAttribute(
+        "prompt",
+        editor.outputToString("text/plain", kOutputSelectionOnly)
+      );
       editor.insertElementAtSelection(isindexElement, true);
     } catch (e) {}
   },
@@ -2313,20 +2665,24 @@ var nsIsIndexCommand = {
 
 var nsImageCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() && IsEditingRenderedHTML());
+    return IsDocumentEditable() && IsEditingRenderedHTML();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
   doCommandParams(aCommand, aParams, aRefCon) {},
 
   doCommand(aCommand) {
-    window.openDialog("chrome://editor/content/EdImageProps.xul", "_blank", "chrome,close,titlebar,modal");
+    window.openDialog(
+      "chrome://editor/content/EdImageProps.xul",
+      "_blank",
+      "chrome,close,titlebar,modal"
+    );
   },
 };
 
 var nsHLineCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() && IsEditingRenderedHTML());
+    return IsDocumentEditable() && IsEditingRenderedHTML();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -2349,33 +2705,40 @@ var nsHLineCommand = {
 
     if (hLine) {
       // We only open the dialog for an existing HRule
-      window.openDialog("chrome://editor/content/EdHLineProps.xul", "_blank", "chrome,close,titlebar,modal");
+      window.openDialog(
+        "chrome://editor/content/EdHLineProps.xul",
+        "_blank",
+        "chrome,close,titlebar,modal"
+      );
     } else {
       try {
         hLine = editor.createElementWithDefaults(tagName);
 
         // We change the default attributes to those saved in the user prefs
         let align = Services.prefs.getIntPref("editor.hrule.align");
-        if (align == 0)
+        if (align == 0) {
           editor.setAttributeOrEquivalent(hLine, "align", "left", true);
-        else if (align == 2)
+        } else if (align == 2) {
           editor.setAttributeOrEquivalent(hLine, "align", "right", true);
+        }
 
         // Note: Default is center (don't write attribute)
 
         let width = Services.prefs.getIntPref("editor.hrule.width");
-        if (Services.prefs.getBoolPref("editor.hrule.width_percent"))
+        if (Services.prefs.getBoolPref("editor.hrule.width_percent")) {
           width = width + "%";
+        }
 
         editor.setAttributeOrEquivalent(hLine, "width", width, true);
 
         let height = Services.prefs.getIntPref("editor.hrule.height");
         editor.setAttributeOrEquivalent(hLine, "size", String(height), true);
 
-        if (Services.prefs.getBoolPref("editor.hrule.shading"))
+        if (Services.prefs.getBoolPref("editor.hrule.shading")) {
           hLine.removeAttribute("noshade");
-        else
+        } else {
           hLine.setAttribute("noshade", "noshade");
+        }
 
         editor.insertElementAtSelection(hLine, true);
       } catch (e) {}
@@ -2385,7 +2748,7 @@ var nsHLineCommand = {
 
 var nsLinkCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() && IsEditingRenderedHTML());
+    return IsDocumentEditable() && IsEditingRenderedHTML();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -2395,55 +2758,81 @@ var nsLinkCommand = {
     // If selected element is an image, launch that dialog instead
     // since last tab panel handles link around an image
     var element = GetObjectForProperties();
-    if (element && element.nodeName.toLowerCase() == "img")
-      window.openDialog("chrome://editor/content/EdImageProps.xul", "_blank", "chrome,close,titlebar,modal", null, true);
-    else
-      window.openDialog("chrome://editor/content/EdLinkProps.xul", "_blank", "chrome,close,titlebar,modal");
+    if (element && element.nodeName.toLowerCase() == "img") {
+      window.openDialog(
+        "chrome://editor/content/EdImageProps.xul",
+        "_blank",
+        "chrome,close,titlebar,modal",
+        null,
+        true
+      );
+    } else {
+      window.openDialog(
+        "chrome://editor/content/EdLinkProps.xul",
+        "_blank",
+        "chrome,close,titlebar,modal"
+      );
+    }
   },
 };
 
 var nsAnchorCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() && IsEditingRenderedHTML());
+    return IsDocumentEditable() && IsEditingRenderedHTML();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
   doCommandParams(aCommand, aParams, aRefCon) {},
 
   doCommand(aCommand) {
-    window.openDialog("chrome://editor/content/EdNamedAnchorProps.xul", "_blank", "chrome,close,titlebar,modal", "");
+    window.openDialog(
+      "chrome://editor/content/EdNamedAnchorProps.xul",
+      "_blank",
+      "chrome,close,titlebar,modal",
+      ""
+    );
   },
 };
 
 var nsInsertHTMLWithDialogCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() && IsEditingRenderedHTML());
+    return IsDocumentEditable() && IsEditingRenderedHTML();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
   doCommandParams(aCommand, aParams, aRefCon) {},
 
   doCommand(aCommand) {
-    window.openDialog("chrome://editor/content/EdInsSrc.xul", "_blank", "chrome,close,titlebar,modal,resizable", "");
+    window.openDialog(
+      "chrome://editor/content/EdInsSrc.xul",
+      "_blank",
+      "chrome,close,titlebar,modal,resizable",
+      ""
+    );
   },
 };
 
 var nsInsertMathWithDialogCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() && IsEditingRenderedHTML());
+    return IsDocumentEditable() && IsEditingRenderedHTML();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
   doCommandParams(aCommand, aParams, aRefCon) {},
 
   doCommand(aCommand) {
-    window.openDialog("chrome://editor/content/EdInsertMath.xul", "_blank", "chrome,close,titlebar,modal,resizable", "");
+    window.openDialog(
+      "chrome://editor/content/EdInsertMath.xul",
+      "_blank",
+      "chrome,close,titlebar,modal,resizable",
+      ""
+    );
   },
 };
 
 var nsInsertCharsCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable());
+    return IsDocumentEditable();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -2456,7 +2845,7 @@ var nsInsertCharsCommand = {
 
 var nsInsertBreakCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() && IsEditingRenderedHTML());
+    return IsDocumentEditable() && IsEditingRenderedHTML();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -2471,7 +2860,7 @@ var nsInsertBreakCommand = {
 
 var nsInsertBreakAllCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() && IsEditingRenderedHTML());
+    return IsDocumentEditable() && IsEditingRenderedHTML();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -2486,33 +2875,41 @@ var nsInsertBreakAllCommand = {
 
 var nsGridCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() && IsEditingRenderedHTML());
+    return IsDocumentEditable() && IsEditingRenderedHTML();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
   doCommandParams(aCommand, aParams, aRefCon) {},
 
   doCommand(aCommand) {
-    window.openDialog("chrome://editor/content/EdSnapToGrid.xul", "_blank", "chrome,close,titlebar,modal");
+    window.openDialog(
+      "chrome://editor/content/EdSnapToGrid.xul",
+      "_blank",
+      "chrome,close,titlebar,modal"
+    );
   },
 };
 
 var nsListPropertiesCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() && IsEditingRenderedHTML());
+    return IsDocumentEditable() && IsEditingRenderedHTML();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
   doCommandParams(aCommand, aParams, aRefCon) {},
 
   doCommand(aCommand) {
-    window.openDialog("chrome://editor/content/EdListProps.xul", "_blank", "chrome,close,titlebar,modal");
+    window.openDialog(
+      "chrome://editor/content/EdListProps.xul",
+      "_blank",
+      "chrome,close,titlebar,modal"
+    );
   },
 };
 
 var nsPagePropertiesCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() && IsEditingRenderedHTML());
+    return IsDocumentEditable() && IsEditingRenderedHTML();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -2520,12 +2917,18 @@ var nsPagePropertiesCommand = {
 
   doCommand(aCommand) {
     var oldTitle = GetDocumentTitle();
-    window.openDialog("chrome://editor/content/EdPageProps.xul", "_blank", "chrome,close,titlebar,modal", "");
+    window.openDialog(
+      "chrome://editor/content/EdPageProps.xul",
+      "_blank",
+      "chrome,close,titlebar,modal",
+      ""
+    );
 
     // Update main window title and
     // recent menu data in prefs if doc title changed
-    if (GetDocumentTitle() != oldTitle)
+    if (GetDocumentTitle() != oldTitle) {
       UpdateWindowTitle();
+    }
   },
 };
 
@@ -2533,8 +2936,9 @@ var nsObjectPropertiesCommand = {
   isCommandEnabled(aCommand, dummy) {
     var isEnabled = false;
     if (IsDocumentEditable() && IsEditingRenderedHTML()) {
-      isEnabled = (GetObjectForProperties() != null ||
-                   GetCurrentEditor().getSelectedElement("href") != null);
+      isEnabled =
+        GetObjectForProperties() != null ||
+        GetCurrentEditor().getSelectedElement("href") != null;
     }
     return isEnabled;
   },
@@ -2559,10 +2963,11 @@ var nsObjectPropertiesCommand = {
           break;
         case "input":
           var type = element.getAttribute("type");
-          if (type && type.toLowerCase() == "image")
+          if (type && type.toLowerCase() == "image") {
             goDoCommand("cmd_inputimage");
-          else
+          } else {
             goDoCommand("cmd_inputtag");
+          }
           break;
         case "textarea":
           goDoCommand("cmd_textarea");
@@ -2611,15 +3016,16 @@ var nsObjectPropertiesCommand = {
       try {
         element = GetCurrentEditor().getSelectedElement("href");
       } catch (e) {}
-      if (element)
+      if (element) {
         goDoCommand("cmd_link");
+      }
     }
   },
 };
 
 var nsSetSmiley = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() && IsEditingRenderedHTML());
+    return IsDocumentEditable() && IsEditingRenderedHTML();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -2628,48 +3034,65 @@ var nsSetSmiley = {
 
     var strSml;
     switch (smileyCode) {
-        case ":-)": strSml = "s1";
+      case ":-)":
+        strSml = "s1";
         break;
-        case ":-(": strSml = "s2";
+      case ":-(":
+        strSml = "s2";
         break;
-        case ";-)": strSml = "s3";
+      case ";-)":
+        strSml = "s3";
         break;
-        case ":-P":
-        case ":-p":
-        case ":-b": strSml = "s4";
+      case ":-P":
+      case ":-p":
+      case ":-b":
+        strSml = "s4";
         break;
-        case ":-D": strSml = "s5";
+      case ":-D":
+        strSml = "s5";
         break;
-        case ":-[": strSml = "s6";
+      case ":-[":
+        strSml = "s6";
         break;
-        case ":-/":
-        case ":/":
-        case ":-\\":
-        case ":\\": strSml = "s7";
+      case ":-/":
+      case ":/":
+      case ":-\\":
+      case ":\\":
+        strSml = "s7";
         break;
-        case "=-O":
-        case "=-o": strSml = "s8";
+      case "=-O":
+      case "=-o":
+        strSml = "s8";
         break;
-        case ":-*": strSml = "s9";
+      case ":-*":
+        strSml = "s9";
         break;
-        case ">:o":
-        case ">:-o": strSml = "s10";
+      case ">:o":
+      case ">:-o":
+        strSml = "s10";
         break;
-        case "8-)": strSml = "s11";
+      case "8-)":
+        strSml = "s11";
         break;
-        case ":-$": strSml = "s12";
+      case ":-$":
+        strSml = "s12";
         break;
-        case ":-!": strSml = "s13";
+      case ":-!":
+        strSml = "s13";
         break;
-        case "O:-)":
-        case "o:-)": strSml = "s14";
+      case "O:-)":
+      case "o:-)":
+        strSml = "s14";
         break;
-        case ":'(": strSml = "s15";
+      case ":'(":
+        strSml = "s15";
         break;
-        case ":-X":
-        case ":-x": strSml = "s16";
+      case ":-X":
+      case ":-x":
+        strSml = "s16";
         break;
-        default: strSml = "";
+      default:
+        strSml = "";
         break;
     }
 
@@ -2679,21 +3102,22 @@ var nsSetSmiley = {
       extElement.setAttribute("class", "moz-smiley-" + strSml);
 
       var intElement = editor.createElementWithDefaults("span");
-      if (!intElement)
+      if (!intElement) {
         return;
+      }
 
-      var txtElement =  editor.document.createTextNode(smileyCode);
-      if (!txtElement)
+      var txtElement = editor.document.createTextNode(smileyCode);
+      if (!txtElement) {
         return;
+      }
 
       intElement.appendChild(txtElement);
       extElement.appendChild(intElement);
 
-
       editor.insertElementAtSelection(extElement, true);
       window.content.focus();
     } catch (e) {
-        dump("Exception occurred in smiley InsertElementAtSelection\n");
+      dump("Exception occurred in smiley InsertElementAtSelection\n");
     }
   },
   // This is now deprecated in favor of "doCommandParams"
@@ -2702,13 +3126,19 @@ var nsSetSmiley = {
 
 function doAdvancedProperties(element) {
   if (element) {
-    window.openDialog("chrome://editor/content/EdAdvancedEdit.xul", "_blank", "chrome,close,titlebar,modal,resizable=yes", "", element);
+    window.openDialog(
+      "chrome://editor/content/EdAdvancedEdit.xul",
+      "_blank",
+      "chrome,close,titlebar,modal,resizable=yes",
+      "",
+      element
+    );
   }
 }
 
 var nsAdvancedPropertiesCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() && IsEditingRenderedHTML());
+    return IsDocumentEditable() && IsEditingRenderedHTML();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -2725,24 +3155,30 @@ var nsAdvancedPropertiesCommand = {
 
 var nsColorPropertiesCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() && IsEditingRenderedHTML());
+    return IsDocumentEditable() && IsEditingRenderedHTML();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
   doCommandParams(aCommand, aParams, aRefCon) {},
 
   doCommand(aCommand) {
-    window.openDialog("chrome://editor/content/EdColorProps.xul", "_blank", "chrome,close,titlebar,modal", "");
+    window.openDialog(
+      "chrome://editor/content/EdColorProps.xul",
+      "_blank",
+      "chrome,close,titlebar,modal",
+      ""
+    );
     UpdateDefaultColors();
   },
 };
 
 var nsIncreaseFontCommand = {
   isCommandEnabled(aCommand, dummy) {
-    if (!(IsDocumentEditable() && IsEditingRenderedHTML()))
+    if (!(IsDocumentEditable() && IsEditingRenderedHTML())) {
       return false;
+    }
     var setIndex = getFontSizeIndex();
-    return (setIndex >= 0 && setIndex < 5);
+    return setIndex >= 0 && setIndex < 5;
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -2750,19 +3186,21 @@ var nsIncreaseFontCommand = {
 
   doCommand(aCommand) {
     var setIndex = getFontSizeIndex();
-    if (setIndex < 0 || setIndex >= 5)
+    if (setIndex < 0 || setIndex >= 5) {
       return;
-    var sizes = ["x-small", "small", "medium", "large", "x-large", "xx-large" ];
+    }
+    var sizes = ["x-small", "small", "medium", "large", "x-large", "xx-large"];
     EditorSetFontSize(sizes[setIndex + 1]);
   },
 };
 
 var nsDecreaseFontCommand = {
   isCommandEnabled(aCommand, dummy) {
-    if (!(IsDocumentEditable() && IsEditingRenderedHTML()))
+    if (!(IsDocumentEditable() && IsEditingRenderedHTML())) {
       return false;
+    }
     var setIndex = getFontSizeIndex();
-    return (setIndex > 0);
+    return setIndex > 0;
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -2770,9 +3208,10 @@ var nsDecreaseFontCommand = {
 
   doCommand(aCommand) {
     var setIndex = getFontSizeIndex();
-    if (setIndex <= 0)
+    if (setIndex <= 0) {
       return;
-    var sizes = ["x-small", "small", "medium", "large", "x-large", "xx-large" ];
+    }
+    var sizes = ["x-small", "small", "medium", "large", "x-large", "xx-large"];
     EditorSetFontSize(sizes[setIndex - 1]);
   },
 };
@@ -2780,7 +3219,7 @@ var nsDecreaseFontCommand = {
 var nsRemoveNamedAnchorsCommand = {
   isCommandEnabled(aCommand, dummy) {
     // We could see if there's any link in selection, but it doesn't seem worth the work!
-    return (IsDocumentEditable() && IsEditingRenderedHTML());
+    return IsDocumentEditable() && IsEditingRenderedHTML();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -2828,7 +3267,7 @@ var nsNormalModeCommand = {
 
 var nsAllTagsModeCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() && IsHTMLEditor());
+    return IsDocumentEditable() && IsHTMLEditor();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -2841,7 +3280,7 @@ var nsAllTagsModeCommand = {
 
 var nsHTMLSourceModeCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() && IsHTMLEditor());
+    return IsDocumentEditable() && IsHTMLEditor();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -2854,7 +3293,7 @@ var nsHTMLSourceModeCommand = {
 
 var nsPreviewModeCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() && IsHTMLEditor());
+    return IsDocumentEditable() && IsHTMLEditor();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -2867,17 +3306,18 @@ var nsPreviewModeCommand = {
 
 var nsInsertOrEditTableCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() && IsEditingRenderedHTML());
+    return IsDocumentEditable() && IsEditingRenderedHTML();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
   doCommandParams(aCommand, aParams, aRefCon) {},
 
   doCommand(aCommand) {
-    if (IsInTableCell())
+    if (IsInTableCell()) {
       EditorTableCellProperties();
-    else
+    } else {
       EditorInsertOrEditTable(true);
+    }
   },
 };
 
@@ -3110,8 +3550,9 @@ var nsDeleteTableRowCommand = {
   doCommand(aCommand) {
     var rows = GetNumberOfContiguousSelectedRows();
     // Delete at least one row
-    if (rows == 0)
+    if (rows == 0) {
       rows = 1;
+    }
 
     try {
       var editor = GetCurrentTableEditor();
@@ -3140,8 +3581,9 @@ var nsDeleteTableColumnCommand = {
   doCommand(aCommand) {
     var columns = GetNumberOfContiguousSelectedColumns();
     // Delete at least one column
-    if (columns == 0)
+    if (columns == 0) {
       columns = 1;
+    }
 
     try {
       var editor = GetCurrentTableEditor();
@@ -3221,18 +3663,21 @@ var nsJoinTableCellsCommand = {
         //  (this cell may originate in a row spanned from above current row)
         // Note that editor returns "td" for "th" also.
         // (this is a pain! Editor and gecko use lowercase tagNames, JS uses uppercase!)
-        if (cell && (tagNameObj.value == "td")) {
+        if (cell && tagNameObj.value == "td") {
           // Selected cells
-          if (countObj.value > 1) return true;
+          if (countObj.value > 1) {
+            return true;
+          }
 
           var colSpan = cell.getAttribute("colspan");
 
           // getAttribute returns string, we need number
           // no attribute means colspan = 1
-          if (!colSpan)
+          if (!colSpan) {
             colSpan = Number(1);
-          else
+          } else {
             colSpan = Number(colSpan);
+          }
 
           var rowObj = { value: 0 };
           var colObj = { value: 0 };
@@ -3241,8 +3686,10 @@ var nsJoinTableCellsCommand = {
           // Test if cell exists to the right of current cell
           // (cells with 0 span should never have cells to the right
           //  if there is, user can select the 2 cells to join them)
-          return (colSpan && editor.getCellAt(null, rowObj.value,
-                                              colObj.value + colSpan));
+          return (
+            colSpan &&
+            editor.getCellAt(null, rowObj.value, colObj.value + colSpan)
+          );
         }
       } catch (e) {}
     }
@@ -3268,20 +3715,29 @@ var nsSplitTableCellCommand = {
       var countObj = { value: 0 };
       var cell;
       try {
-        cell = GetCurrentTableEditor().getSelectedOrParentTableElement(tagNameObj, countObj);
+        cell = GetCurrentTableEditor().getSelectedOrParentTableElement(
+          tagNameObj,
+          countObj
+        );
       } catch (e) {}
 
       // We need a cell parent and there's just 1 selected cell
       // or selection is entirely inside 1 cell
-      if (cell && (tagNameObj.value == "td") &&
-           countObj.value <= 1 &&
-           IsSelectionInOneCell()) {
+      if (
+        cell &&
+        tagNameObj.value == "td" &&
+        countObj.value <= 1 &&
+        IsSelectionInOneCell()
+      ) {
         var colSpan = cell.getAttribute("colspan");
         var rowSpan = cell.getAttribute("rowspan");
-        if (!colSpan) colSpan = 1;
-        if (!rowSpan) rowSpan = 1;
-        return (colSpan > 1 || rowSpan > 1 ||
-                colSpan == 0 || rowSpan == 0);
+        if (!colSpan) {
+          colSpan = 1;
+        }
+        if (!rowSpan) {
+          rowSpan = 1;
+        }
+        return colSpan > 1 || rowSpan > 1 || colSpan == 0 || rowSpan == 0;
       }
     }
     return false;
@@ -3370,18 +3826,24 @@ var nsConvertToTable = {
         } catch (e) {}
         if (element) {
           var name = element.nodeName.toLowerCase();
-          if (name == "td" ||
-              name == "th" ||
-              name == "caption" ||
-              name == "table")
+          if (
+            name == "td" ||
+            name == "th" ||
+            name == "caption" ||
+            name == "table"
+          ) {
             return false;
+          }
         }
 
         // Selection start and end must be in the same cell
         //   in same cell or both are NOT in a cell
-        if (GetParentTableCell(selection.focusNode) !=
-             GetParentTableCell(selection.anchorNode))
+        if (
+          GetParentTableCell(selection.focusNode) !=
+          GetParentTableCell(selection.anchorNode)
+        ) {
           return false;
+        }
 
         return true;
       }
@@ -3394,8 +3856,11 @@ var nsConvertToTable = {
 
   doCommand(aCommand) {
     if (this.isCommandEnabled()) {
-      window.openDialog("chrome://editor/content/EdConvertToTable.xul", "_blank", "chrome,close,titlebar,modal");
+      window.openDialog(
+        "chrome://editor/content/EdConvertToTable.xul",
+        "_blank",
+        "chrome,close,titlebar,modal"
+      );
     }
   },
 };
-

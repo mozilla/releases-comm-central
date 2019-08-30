@@ -20,13 +20,15 @@ function Startup() {
     return;
   }
 
-  gDialog.sepRadioGroup      = document.getElementById("SepRadioGroup");
-  gDialog.sepCharacterInput  = document.getElementById("SepCharacterInput");
+  gDialog.sepRadioGroup = document.getElementById("SepRadioGroup");
+  gDialog.sepCharacterInput = document.getElementById("SepCharacterInput");
   gDialog.deleteSepCharacter = document.getElementById("DeleteSepCharacter");
-  gDialog.collapseSpaces     = document.getElementById("CollapseSpaces");
+  gDialog.collapseSpaces = document.getElementById("CollapseSpaces");
 
   // We persist the user's separator character
-  gDialog.sepCharacterInput.value = gDialog.sepRadioGroup.getAttribute("character");
+  gDialog.sepCharacterInput.value = gDialog.sepRadioGroup.getAttribute(
+    "character"
+  );
 
   gIndex = gDialog.sepRadioGroup.getAttribute("index");
 
@@ -53,12 +55,14 @@ function InputSepCharacter() {
   var str = gDialog.sepCharacterInput.value;
 
   // Limit input to 1 character
-  if (str.length > 1)
+  if (str.length > 1) {
     str = str.slice(0, 1);
+  }
 
   // We can never allow tag or entity delimiters for separator character
-  if (str == "<" || str == ">" || str == "&" || str == ";" || str == " ")
+  if (str == "<" || str == ">" || str == "&" || str == ";" || str == " ") {
     str = "";
+  }
 
   gDialog.sepCharacterInput.value = str;
 }
@@ -87,7 +91,10 @@ function onAccept() {
   var editor = GetCurrentEditor();
   var str;
   try {
-    str = editor.outputToString("text/html", kOutputLFLineBreak | kOutputSelectionOnly);
+    str = editor.outputToString(
+      "text/html",
+      kOutputLFLineBreak | kOutputSelectionOnly
+    );
   } catch (e) {}
   if (!str) {
     SaveWindowLocation();
@@ -141,21 +148,24 @@ function onAccept() {
           //  Replace list tag with <BR> to start new row
           //   at beginning of second or greater list tag
           str = str.slice(0, start) + listSeparator + str.slice(end + 1);
-          if (listSeparator == "")
+          if (listSeparator == "") {
             listSeparator = "<br>";
+          }
 
           // Reset for list item separation into cells
           listItemSeparator = "";
         } else if (/^li|^dt|^dd/.test(tagContent)) {
           // Start a new row if this is first item after the ending the last list
-          if (endList)
+          if (endList) {
             listItemSeparator = "<br>";
+          }
 
           // Start new cell at beginning of second or greater list items
           str = str.slice(0, start) + listItemSeparator + str.slice(end + 1);
 
-          if (endList || listItemSeparator == "")
+          if (endList || listItemSeparator == "") {
             listItemSeparator = sepCharacter;
+          }
 
           endList = false;
         } else {
@@ -192,17 +202,19 @@ function onAccept() {
 
   if (sepCharacter.length > 0) {
     var tempStr = sepCharacter;
-    var regExpChars = ".!@#$%^&*-+[]{}()\|\\\/";
-    if (regExpChars.includes(sepCharacter))
+    var regExpChars = ".!@#$%^&*-+[]{}()|\\/";
+    if (regExpChars.includes(sepCharacter)) {
       tempStr = "\\" + sepCharacter;
+    }
 
     if (gIndex == gSpaceIndex) {
       // If checkbox is checked,
       //   one or more adjacent spaces are one separator
-      if (gDialog.collapseSpaces.checked)
-          tempStr = "\\s+";
-        else
-          tempStr = "\\s";
+      if (gDialog.collapseSpaces.checked) {
+        tempStr = "\\s+";
+      } else {
+        tempStr = "\\s";
+      }
     }
     var pattern = new RegExp(tempStr, "g");
     str = str.replace(pattern, replaceString);
@@ -227,7 +239,10 @@ function onAccept() {
   // Add the table tags and the opening and closing tr/td tags
   // Default table attributes should be same as those used in nsHTMLEditor::CreateElementWithDefaults()
   // (Default width="100%" is used in EdInsertTable.js)
-  str = "<table border=\"1\" width=\"100%\" cellpadding=\"2\" cellspacing=\"2\">\n<tr><td>" + str + "</tr>\n</table>\n";
+  str =
+    '<table border="1" width="100%" cellpadding="2" cellspacing="2">\n<tr><td>' +
+    str +
+    "</tr>\n</table>\n";
 
   editor.beginTransaction();
 
@@ -245,8 +260,9 @@ function onAccept() {
       nodeAfterTable = anchorNodeBeforeInsert;
     } else {
       // Table should be inserted right after node pointed to by selection
-      if (offset > 0)
+      if (offset > 0) {
         nodeBeforeTable = anchorNodeBeforeInsert.childNodes.item(offset - 1);
+      }
 
       nodeAfterTable = anchorNodeBeforeInsert.childNodes.item(offset);
     }
@@ -257,21 +273,24 @@ function onAccept() {
   var table = null;
   if (nodeAfterTable) {
     var previous = nodeAfterTable.previousSibling;
-    if (previous && previous.nodeName.toLowerCase() == "table")
+    if (previous && previous.nodeName.toLowerCase() == "table") {
       table = previous;
+    }
   }
   if (!table && nodeBeforeTable) {
     var next = nodeBeforeTable.nextSibling;
-    if (next && next.nodeName.toLowerCase() == "table")
+    if (next && next.nodeName.toLowerCase() == "table") {
       table = next;
+    }
   }
 
   if (table) {
     // Fixup table only if pref is set
     var firstRow;
     try {
-      if (Services.prefs.getBoolPref("editor.table.maintain_structure"))
+      if (Services.prefs.getBoolPref("editor.table.maintain_structure")) {
         editor.normalizeTable(table);
+      }
 
       firstRow = editor.getFirstRow(table);
     } catch (e) {}
@@ -280,8 +299,10 @@ function onAccept() {
     if (firstRow) {
       var node2 = firstRow.firstChild;
       do {
-        if (node2.nodeName.toLowerCase() == "td" ||
-            node2.nodeName.toLowerCase() == "th") {
+        if (
+          node2.nodeName.toLowerCase() == "td" ||
+          node2.nodeName.toLowerCase() == "th"
+        ) {
           try {
             editor.selection.collapse(node2, 0);
           } catch (e) {}
@@ -296,8 +317,9 @@ function onAccept() {
 
   // Save persisted attributes
   gDialog.sepRadioGroup.setAttribute("index", gIndex);
-  if (gIndex == gOtherIndex)
+  if (gIndex == gOtherIndex) {
     gDialog.sepRadioGroup.setAttribute("character", sepCharacter);
+  }
 
   SaveWindowLocation();
 }

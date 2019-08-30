@@ -30,17 +30,17 @@ var defaultLinkColor = "#000099";
 var defaultActiveColor = "#000099";
 var defaultVisitedColor = "#990099";
 var defaultBackgroundColor = "#FFFFFF";
-const styleStr =       "style";
-const textStr =        "text";
-const linkStr =        "link";
-const vlinkStr =       "vlink";
-const alinkStr =       "alink";
-const bgcolorStr =     "bgcolor";
-const backgroundStr =  "background";
+const styleStr = "style";
+const textStr = "text";
+const linkStr = "link";
+const vlinkStr = "vlink";
+const alinkStr = "alink";
+const bgcolorStr = "bgcolor";
+const backgroundStr = "background";
 const cssColorStr = "color";
 const cssBackgroundColorStr = "background-color";
 const cssBackgroundImageStr = "background-image";
-const colorStyle =     cssColorStr + ": ";
+const colorStyle = cssColorStr + ": ";
 const backColorStyle = cssBackgroundColorStr + ": ";
 const backImageStyle = "; " + cssBackgroundImageStr + ": url(";
 
@@ -67,7 +67,9 @@ function Startup() {
   gDialog.PageColorGroup = document.getElementById("PageColorGroup");
   gDialog.DefaultColorsRadio = document.getElementById("DefaultColorsRadio");
   gDialog.CustomColorsRadio = document.getElementById("CustomColorsRadio");
-  gDialog.BackgroundImageInput = document.getElementById("BackgroundImageInput");
+  gDialog.BackgroundImageInput = document.getElementById(
+    "BackgroundImageInput"
+  );
 
   try {
     gBodyElement = editor.rootElement;
@@ -88,8 +90,8 @@ function Startup() {
     defaultTextColor = browserColors.TextColor;
     defaultLinkColor = browserColors.LinkColor;
     defaultActiveColor = browserColors.ActiveLinkColor;
-    defaultVisitedColor =  browserColors.VisitedLinkColor;
-    defaultBackgroundColor =  browserColors.BackgroundColor;
+    defaultVisitedColor = browserColors.VisitedLinkColor;
+    defaultBackgroundColor = browserColors.BackgroundColor;
   }
 
   // We only need to test for this once per dialog load
@@ -104,43 +106,65 @@ function Startup() {
 
 function InitDialog() {
   // Get image from document
-  gBackgroundImage = GetHTMLOrCSSStyleValue(globalElement, backgroundStr, cssBackgroundImageStr);
-  if (/url\((.*)\)/.test(gBackgroundImage))
+  gBackgroundImage = GetHTMLOrCSSStyleValue(
+    globalElement,
+    backgroundStr,
+    cssBackgroundImageStr
+  );
+  if (/url\((.*)\)/.test(gBackgroundImage)) {
     gBackgroundImage = RegExp.$1;
+  }
 
   if (gBackgroundImage) {
     // Shorten data URIs for display.
     shortenImageData(gBackgroundImage, gDialog.BackgroundImageInput);
-    gDialog.ColorPreview.setAttribute(styleStr, backImageStyle + gBackgroundImage + ");");
+    gDialog.ColorPreview.setAttribute(
+      styleStr,
+      backImageStyle + gBackgroundImage + ");"
+    );
   }
 
   SetRelativeCheckbox();
 
-  customTextColor        = GetHTMLOrCSSStyleValue(globalElement, textStr, cssColorStr);
-  customTextColor        = ConvertRGBColorIntoHEXColor(customTextColor);
-  customLinkColor        = globalElement.getAttribute(linkStr);
-  customActiveColor      = globalElement.getAttribute(alinkStr);
-  customVisitedColor     = globalElement.getAttribute(vlinkStr);
-  customBackgroundColor  = GetHTMLOrCSSStyleValue(globalElement, bgcolorStr, cssBackgroundColorStr);
-  customBackgroundColor  = ConvertRGBColorIntoHEXColor(customBackgroundColor);
+  customTextColor = GetHTMLOrCSSStyleValue(globalElement, textStr, cssColorStr);
+  customTextColor = ConvertRGBColorIntoHEXColor(customTextColor);
+  customLinkColor = globalElement.getAttribute(linkStr);
+  customActiveColor = globalElement.getAttribute(alinkStr);
+  customVisitedColor = globalElement.getAttribute(vlinkStr);
+  customBackgroundColor = GetHTMLOrCSSStyleValue(
+    globalElement,
+    bgcolorStr,
+    cssBackgroundColorStr
+  );
+  customBackgroundColor = ConvertRGBColorIntoHEXColor(customBackgroundColor);
 
   var haveCustomColor =
-        customTextColor ||
-        customLinkColor ||
-        customVisitedColor ||
-        customActiveColor ||
-        customBackgroundColor;
+    customTextColor ||
+    customLinkColor ||
+    customVisitedColor ||
+    customActiveColor ||
+    customBackgroundColor;
 
   // Set default color explicitly for any that are missing
   // PROBLEM: We are using "windowtext" and "window" for the Windows OS
   //   default color values. This works with CSS in preview window,
   //   but we should NOT use these as values for HTML attributes!
 
-  if (!customTextColor) customTextColor = defaultTextColor;
-  if (!customLinkColor) customLinkColor = defaultLinkColor;
-  if (!customActiveColor) customActiveColor = defaultActiveColor;
-  if (!customVisitedColor) customVisitedColor = defaultVisitedColor;
-  if (!customBackgroundColor) customBackgroundColor = defaultBackgroundColor;
+  if (!customTextColor) {
+    customTextColor = defaultTextColor;
+  }
+  if (!customLinkColor) {
+    customLinkColor = defaultLinkColor;
+  }
+  if (!customActiveColor) {
+    customActiveColor = defaultActiveColor;
+  }
+  if (!customVisitedColor) {
+    customVisitedColor = defaultVisitedColor;
+  }
+  if (!customBackgroundColor) {
+    customBackgroundColor = defaultBackgroundColor;
+  }
 
   if (haveCustomColor) {
     // If any colors are set, then check the "Custom" radio button
@@ -154,13 +178,23 @@ function InitDialog() {
 
 function GetColorAndUpdate(ColorWellID) {
   // Only allow selecting when in custom mode
-  if (!gDialog.CustomColorsRadio.selected) return;
+  if (!gDialog.CustomColorsRadio.selected) {
+    return;
+  }
 
   var colorWell = document.getElementById(ColorWellID);
-  if (!colorWell) return;
+  if (!colorWell) {
+    return;
+  }
 
   // Don't allow a blank color, i.e., using the "default"
-  var colorObj = { NoDefault: true, Type: "", TextColor: 0, PageColor: 0, Cancel: false };
+  var colorObj = {
+    NoDefault: true,
+    Type: "",
+    TextColor: 0,
+    PageColor: 0,
+    Cancel: false,
+  };
 
   switch (ColorWellID) {
     case "textCW":
@@ -185,11 +219,18 @@ function GetColorAndUpdate(ColorWellID) {
       break;
   }
 
-  window.openDialog("chrome://editor/content/EdColorPicker.xul", "_blank", "chrome,close,titlebar,modal", "", colorObj);
+  window.openDialog(
+    "chrome://editor/content/EdColorPicker.xul",
+    "_blank",
+    "chrome,close,titlebar,modal",
+    "",
+    colorObj
+  );
 
   // User canceled the dialog
-  if (colorObj.Cancel)
+  if (colorObj.Cancel) {
     return;
+  }
 
   var color = "";
   switch (ColorWellID) {
@@ -231,8 +272,9 @@ function SetColorPreview(ColorWellID, color) {
     case "backgroundCW":
       // Must combine background color and image style values
       var styleValue = backColorStyle + color;
-      if (gBackgroundImage)
+      if (gBackgroundImage) {
         styleValue += ";" + backImageStyle + gBackgroundImage + ");";
+      }
 
       gDialog.ColorPreview.setAttribute(styleStr, styleValue);
       previewBGColor = color;
@@ -296,8 +338,9 @@ function chooseFile() {
   // Get a local image file, converted into URL format
   GetLocalFileURL("img").then(fileURL => {
     // Always try to relativize local file URLs
-    if (gHaveDocumentUrl)
+    if (gHaveDocumentUrl) {
       fileURL = MakeRelativeUrl(fileURL);
+    }
 
     gDialog.BackgroundImageInput.value = fileURL;
 
@@ -355,17 +398,28 @@ function ValidateData() {
       // Problem: We really should try to get the actual color values
       //  from windows, but I don't know how to do that!
       var tmpColor = customTextColor.toLowerCase();
-      if (tmpColor != "windowtext")
-        editor.setAttributeOrEquivalent(globalElement, textStr,
-                                        customTextColor, true);
-      else
+      if (tmpColor != "windowtext") {
+        editor.setAttributeOrEquivalent(
+          globalElement,
+          textStr,
+          customTextColor,
+          true
+        );
+      } else {
         editor.removeAttributeOrEquivalent(globalElement, textStr, true);
+      }
 
       tmpColor = customBackgroundColor.toLowerCase();
-      if (tmpColor != "window")
-        editor.setAttributeOrEquivalent(globalElement, bgcolorStr, customBackgroundColor, true);
-      else
+      if (tmpColor != "window") {
+        editor.setAttributeOrEquivalent(
+          globalElement,
+          bgcolorStr,
+          customBackgroundColor,
+          true
+        );
+      } else {
         editor.removeAttributeOrEquivalent(globalElement, bgcolorStr, true);
+      }
 
       globalElement.setAttribute(linkStr, customLinkColor);
       globalElement.setAttribute(vlinkStr, customVisitedColor);
@@ -374,10 +428,11 @@ function ValidateData() {
 
     if (ValidateAndPreviewImage(true)) {
       // A valid image may be null for no image
-      if (gBackgroundImage)
+      if (gBackgroundImage) {
         globalElement.setAttribute(backgroundStr, gBackgroundImage);
-      else
+      } else {
         editor.removeAttributeOrEquivalent(globalElement, backgroundStr, true);
+      }
 
       return true;
     }
@@ -388,7 +443,8 @@ function ValidateData() {
 function onAccept(event) {
   // If it's a file, convert to a data URL.
   if (gBackgroundImage && /^file:/i.test(gBackgroundImage)) {
-    let nsFile = Services.io.newURI(gBackgroundImage)
+    let nsFile = Services.io
+      .newURI(gBackgroundImage)
       .QueryInterface(Ci.nsIFileURL).file;
     if (nsFile.exists()) {
       let reader = new FileReader();

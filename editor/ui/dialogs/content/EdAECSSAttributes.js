@@ -37,15 +37,17 @@ function BuildCSSAttributeTable() {
 
 function onChangeCSSAttribute() {
   var name = TrimString(gDialog.AddCSSAttributeNameInput.value);
-  if (!name)
+  if (!name) {
     return;
+  }
 
   var value = TrimString(gDialog.AddCSSAttributeValueInput.value);
 
   // First try to update existing attribute
   // If not found, add new attribute
-  if (!UpdateExistingAttribute(name, value, "CSSAList") && value)
+  if (!UpdateExistingAttribute(name, value, "CSSAList") && value) {
     AddTreeItem(name, value, "CSSAList", CSSAttrs);
+  }
 }
 
 function ClearCSSInputWidgets() {
@@ -56,30 +58,39 @@ function ClearCSSInputWidgets() {
 }
 
 function onSelectCSSTreeItem() {
-  if (!gDoOnSelectTree)
+  if (!gDoOnSelectTree) {
     return;
+  }
 
   var tree = gDialog.AddCSSAttributeTree;
   if (tree && tree.view.selection.count) {
-    gDialog.AddCSSAttributeNameInput.value = GetTreeItemAttributeStr(getSelectedItem(tree));
-    gDialog.AddCSSAttributeValueInput.value = GetTreeItemValueStr(getSelectedItem(tree));
+    gDialog.AddCSSAttributeNameInput.value = GetTreeItemAttributeStr(
+      getSelectedItem(tree)
+    );
+    gDialog.AddCSSAttributeValueInput.value = GetTreeItemValueStr(
+      getSelectedItem(tree)
+    );
   }
 }
 
 function onInputCSSAttributeName() {
-  var attName = TrimString(gDialog.AddCSSAttributeNameInput.value).toLowerCase();
+  var attName = TrimString(
+    gDialog.AddCSSAttributeNameInput.value
+  ).toLowerCase();
   var newValue = "";
 
   var existingValue = GetAndSelectExistingAttributeValue(attName, "CSSAList");
-  if (existingValue)
+  if (existingValue) {
     newValue = existingValue;
+  }
 
   gDialog.AddCSSAttributeValueInput.value = newValue;
 }
 
 function editCSSAttributeValue(targetCell) {
-  if (IsNotTreeHeader(targetCell))
+  if (IsNotTreeHeader(targetCell)) {
     gDialog.AddCSSAttributeValueInput.inputField.select();
+  }
 }
 
 function UpdateCSSAttributes() {
@@ -92,19 +103,23 @@ function UpdateCSSAttributes() {
     // this code allows users to be sloppy in typing in values, and enter
     // things like "foo: " and "bar;". This will trim off everything after the
     // respective character.
-    if (name.includes(":"))
+    if (name.includes(":")) {
       name = name.substring(0, name.lastIndexOf(":"));
-    if (value.includes(";"))
+    }
+    if (value.includes(";")) {
       value = value.substring(0, value.lastIndexOf(";"));
-    if (i == (CSSAList.childNodes.length - 1))
-      styleString += name + ": " + value + ";";   // last property
-    else
+    }
+    if (i == CSSAList.childNodes.length - 1) {
+      styleString += name + ": " + value + ";";
+    } // last property
+    else {
       styleString += name + ": " + value + "; ";
+    }
   }
   if (styleString) {
     // Use editor transactions if modifying the element directly in the document
     doRemoveAttribute("style");
-    doSetAttribute("style", styleString);  // NOTE BUG 18894!!!
+    doSetAttribute("style", styleString); // NOTE BUG 18894!!!
   } else if (gElement.getAttribute("style")) {
     doRemoveAttribute("style");
   }
