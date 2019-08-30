@@ -15,7 +15,6 @@ if (!isDummyDocument) {
     "chrome://chat/content/conversation-browser.js",
     "chrome://chat/content/chat-tooltip.js",
     "chrome://messenger/content/mailWidgets.js",
-    "chrome://messenger/content/generalBindings.js",
     "chrome://messenger/content/statuspanel.js",
     "chrome://messenger/content/foldersummary.js",
     "chrome://messenger/content/addressbook/menulist-addrbooks.js",

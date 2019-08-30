@@ -574,7 +574,7 @@ var progressListener = {
       gSaveOperationInProgress = false;
       document.getElementById("compose-progressmeter").value = 0;
       document.getElementById("statusbar-progresspanel").collapsed = true;
-      document.getElementById("statusText").setAttribute("label", "");
+      document.getElementById("statusText").setAttribute("value", "");
     }
   },
 
@@ -604,7 +604,7 @@ var progressListener = {
     try {
       let statusText = document.getElementById("statusText");
       if (statusText)
-        statusText.setAttribute("label", aMessage);
+        statusText.setAttribute("value", aMessage);
     } catch (ex) {}
   },
 
@@ -3975,7 +3975,7 @@ function updateEncodingInStatusBar() {
   }
 
   // Update status display; no status display for default text encoding.
-  encodingStatusPanel.collapsed = !(encodingStatusPanel.label = encodingUIString);
+  encodingStatusPanel.collapsed = !(encodingStatusPanel.value = encodingUIString);
 }
 
 function ToggleReturnReceipt(target) {

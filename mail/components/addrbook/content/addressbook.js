@@ -483,7 +483,7 @@ function SetStatusText(total) {
           [getSelectedDirectory().dirName, total]);
     }
 
-    gStatusText.setAttribute("label", statusText);
+    gStatusText.setAttribute("value", statusText);
   } catch (ex) {
     Cu.reportError("ERROR: failed to set status text: " + ex);
   }

@@ -33,11 +33,11 @@
   </hbox>
   <browser type="content" src="about:blank" id="requestFrame" flex="1"/>
   <hbox class="statusbar">
-    <statusbarpanel id="security-display" crop="end" flex="1"/>
-    <statusbarpanel id="security-status" crop="end" collapsed="true"/>
+    <label id="security-display" class="statusbarpanel" crop="end" flex="1"/>
+    <label id="security-status" class="statusbarpanel" crop="end" collapsed="true"/>
     <hbox id="statusbar-status" class="statusbarpanel statusbarpanel-progress" collapsed="true">
       <html:progress class="progressmeter-statusbar" id="statusbar-icon" value="0" max="100"/>
     </hbox>
-    <statusbarpanel id="security-button" class="statusbarpanel-iconic"/>
+    <label id="security-button" class="statusbarpanel statusbarpanel-iconic"/>
   </hbox>
 </window>

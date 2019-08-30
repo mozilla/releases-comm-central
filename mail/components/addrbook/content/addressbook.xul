@@ -935,6 +935,6 @@
   </panel>
 
   <statusbar id="status-bar" class="statusbar chromeclass-status">
-    <statusbarpanel id="statusText" flex="1" value="&statusText.label;"/>
+    <label id="statusText" class="statusbarpanel" flex="1" value="&statusText.label;"/>
   </statusbar>
 </window>

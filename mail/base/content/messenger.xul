@@ -754,11 +754,11 @@
   <hbox id="messenger-notification-bottom">
       <!-- notificationbox will be added here lazily. -->
   </hbox>
-  <statuspanel id="statusbar-display"/>
+  <label id="statusbar-display" class="statusbarpanel"/>
   <hbox id="status-bar" class="statusbar chromeclass-status">
 #include mainStatusbar.inc.xul
-    <statusbarpanel id="unreadMessageCount"/>
-    <statusbarpanel id="totalMessageCount"/>
+    <label id="unreadMessageCount" class="statusbarpanel"/>
+    <label id="totalMessageCount" class="statusbarpanel"/>
   </hbox>
 </window>
 

@@ -60,7 +60,7 @@ var reporterListener = {
   onLocationChange(/* in nsIWebProgress */ aWebProgress,
                    /* in nsIRequest */ aRequest,
                    /* in nsIURI */ aLocation) {
-    this.securityDisplay.setAttribute("label", aLocation.host);
+    this.securityDisplay.setAttribute("value", aLocation.host);
   },
 
   onStatusChange(/* in nsIWebProgress */ aWebProgress,
@@ -89,7 +89,7 @@ var reporterListener = {
     if (level) {
       this.securityButton.setAttribute("level", level);
       this.securityButton.hidden = false;
-      this.securityLabel.setAttribute("label", browser.securityUI.tooltipText);
+      this.securityLabel.setAttribute("value", browser.securityUI.tooltipText);
     } else {
       this.securityButton.hidden = true;
       this.securityButton.removeAttribute("level");

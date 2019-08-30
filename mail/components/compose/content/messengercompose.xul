@@ -2169,7 +2169,7 @@
   </hbox>
 
   <hbox id="status-bar" class="statusbar chromeclass-status">
-    <statusbarpanel id="statusText" flex="1"/>
+    <label id="statusText" class="statusbarpanel" flex="1"/>
     <hbox id="statusbar-progresspanel"
           class="statusbarpanel statusbarpanel-progress"
           collapsed="true">
@@ -2187,7 +2187,7 @@
           oncommand="showMessageComposeSecurityStatus();">
       <image/>
     </hbox>
-    <statusbarpanel id="encodingStatusPanel" tooltiptext="&encodingStatusPanel.tooltip;"/>
+    <label id="encodingStatusPanel" class="statusbarpanel" tooltiptext="&encodingStatusPanel.tooltip;"/>
     <hbox id="spellCheckStatusPanel" class="statusbarpanel">
       <toolbarbutton id="languageStatusButton"
                      tooltiptext="&languageStatusButton.tooltip;"

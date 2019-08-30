@@ -152,9 +152,10 @@
     </vbox>
     <hbox>
       <hbox id="statusContainerBox" flex="1">
-        <statusbarpanel id="statusText"
-                        crop="right"
-                        flex="1"/>
+        <label id="statusText"
+               class="statusbarpanel"
+               crop="right"
+               flex="1"/>
         <hbox id="statusbar-progresspanel"
               class="statusbarpanel statusbarpanel-progress"
               collapsed="true"

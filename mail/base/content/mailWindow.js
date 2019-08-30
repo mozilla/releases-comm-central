@@ -294,11 +294,11 @@ nsMsgStatusFeedback.prototype = {
     }
 
     if (!document.getElementById("status-bar").hidden) {
-      this._statusText.label = url;
+      this._statusText.value = url;
     } else {
       // Statusbar invisible: Show link in statuspanel instead.
       // TODO: consider porting the Firefox implementation of LinkTargetDisplay.
-      this._statusPanel.label = url;
+      this._statusPanel.value = url;
     }
   },
 
@@ -319,13 +319,13 @@ nsMsgStatusFeedback.prototype = {
       statusText = this._defaultStatusText;
     else
       this._defaultStatusText = "";
-    this._statusText.label = statusText;
+    this._statusText.value = statusText;
   },
 
   setStatusString(status) {
     if (status.length > 0) {
       this._defaultStatusText = status;
-      this._statusText.label = status;
+      this._statusText.value = status;
     }
   },
 
