@@ -1,8 +1,8 @@
 "use strict";
 
 module.exports = {
-  "rules": {
+  rules: {
     // The following rules will not be enabled currently.
-    "complexity": "off",
+    complexity: "off",
   },
 };

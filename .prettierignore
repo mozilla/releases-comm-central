@@ -7,8 +7,5 @@
 *.xul
 *.xml
 
-# Ignore .eslintrc.js for now.
-.eslintrc.js
-
 # Ignore SeaMonkey files.
 suite/**

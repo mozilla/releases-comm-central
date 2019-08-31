@@ -1,13 +1,13 @@
 "use strict";
 
 module.exports = {
-  "extends": "plugin:mozilla/browser-test",
+  extends: "plugin:mozilla/browser-test",
 
-  "env": {
-    "webextensions": true,
+  env: {
+    webextensions: true,
   },
 
-  "rules": {
+  rules: {
     "func-names": "off",
     "mozilla/import-headjs-globals": "error",
   },

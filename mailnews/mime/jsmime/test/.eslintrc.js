@@ -1,14 +1,17 @@
 "use strict";
 
 module.exports = {
-  "extends": "plugin:mozilla/xpcshell-test",
+  extends: "plugin:mozilla/xpcshell-test",
 
-  "rules": {
+  rules: {
     "func-names": "off",
     "mozilla/import-headjs-globals": "error",
-    "no-unused-vars": ["error", {
-      "args": "none",
-      "vars": "all",
-    }],
+    "no-unused-vars": [
+      "error",
+      {
+        args: "none",
+        vars: "all",
+      },
+    ],
   },
 };
