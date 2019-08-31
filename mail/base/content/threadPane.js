@@ -307,9 +307,8 @@ function MsgReverseSortThreadPane() {
     if (gFolderDisplay.view.isSingleFolder) {
       if (gFolderDisplay.view.isVirtual) {
         gFolderDisplay.view.showGroupedBySort = false;
-      }
-      // Must ensure rows are collapsed and kExpandAll is unset.
-      else {
+      } else {
+        // Must ensure rows are collapsed and kExpandAll is unset.
         gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.collapseAll);
       }
     }

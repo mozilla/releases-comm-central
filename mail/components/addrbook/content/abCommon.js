@@ -748,9 +748,8 @@ function ChangeDirectoryByURI(uri = kPersonalAddressbookURI) {
   // in the results list.
   if (gAbView && gAbView.getCardFromRow(0)) {
     gAbView.selection.clearSelection();
-  }
-  // the selection changes if we were switching directories.
-  else {
+  } else {
+    // The selection changes if we were switching directories.
     ResultsPaneSelectionChanged();
   }
 }

@@ -257,9 +257,8 @@ SearchSpec.prototype = {
   set viewTerms(aViewTerms) {
     if (aViewTerms) {
       this._viewTerms = this._groupifyTerms(aViewTerms);
-    }
-    // if they are nulling out already null values, do not apply view changes!
-    else if (this._viewTerms === null) {
+    } else if (this._viewTerms === null) {
+      // If they are nulling out already null values, do not apply view changes!
       return;
     } else {
       this._viewTerms = null;
@@ -284,9 +283,8 @@ SearchSpec.prototype = {
       // we need to clone virtual folder terms because they are pulled from a
       //  persistent location rather than created on demand
       this._virtualFolderTerms = this._groupifyTerms(aVirtualFolderTerms, true);
-    }
-    // if they are nulling out already null values, do not apply view changes!
-    else if (this._virtualFolderTerms === null) {
+    } else if (this._virtualFolderTerms === null) {
+      // If they are nulling out already null values, do not apply view changes!
       return;
     } else {
       this._virtualFolderTerms = null;
@@ -310,9 +308,8 @@ SearchSpec.prototype = {
   set userTerms(aUserTerms) {
     if (aUserTerms) {
       this._userTerms = this._groupifyTerms(aUserTerms);
-    }
-    // if they are nulling out already null values, do not apply view changes!
-    else if (this._userTerms === null) {
+    } else if (this._userTerms === null) {
+      // If they are nulling out already null values, do not apply view changes!
       return;
     } else {
       this._userTerms = null;
@@ -426,10 +423,9 @@ SearchSpec.prototype = {
         let offlineScope;
         if (folder.flags & Ci.nsMsgFolderFlags.Offline) {
           offlineScope = Ci.nsMsgSearchScope.offlineMail;
-        }
-        // The onlineManual table is used for local search when there is no
-        //  body available.
-        else {
+        } else {
+          // The onlineManual table is used for local search when there is no
+          // body available.
           offlineScope = Ci.nsMsgSearchScope.onlineManual;
         }
 
@@ -469,12 +465,11 @@ SearchSpec.prototype = {
           }
         }
         // If both scopes work, honor the onlineSearch request, unless we're
-        // filtering (quick search and/or a view selected)
+        // filtering (quick search and/or a view selected).
+        // If only one works, use it. Otherwise, default to offline
         if (onlineAvailable && offlineAvailable) {
           scope = !filtering && this.onlineSearch ? serverScope : offlineScope;
-        }
-        // If only one works, use it. Otherwise, default to offline
-        else if (onlineAvailable) {
+        } else if (onlineAvailable) {
           scope = serverScope;
         } else {
           scope = offlineScope;

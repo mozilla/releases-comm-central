@@ -75,11 +75,10 @@
     // We're being loaded from a chrome-privileged document, so
     // use its URL as the parent string.
     parentChromeURIString = baseURI.spec;
-  }
-  // We're being loaded from a chrome-privileged JS module or
-  // SecurableModule, so use its filename (which may itself
-  // contain a reference to a parent).
-  else {
+  } else {
+    // We're being loaded from a chrome-privileged JS module or
+    // SecurableModule, so use its filename (which may itself
+    // contain a reference to a parent).
     parentChromeURIString = Components.stack.filename;
   }
 

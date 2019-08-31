@@ -2863,8 +2863,8 @@ var gFolderTreeController = {
       let rootMsgFolder = folder.server.rootMsgFolder;
       if (rootMsgFolder.canCreateSubfolders) {
         folder = rootMsgFolder;
-      } // just use the default account
-      else {
+      } else {
+        // Just use the default account.
         folder = GetDefaultAccountRootFolder();
       }
     }

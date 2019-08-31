@@ -789,12 +789,11 @@ function AbIMSelected() {
 
   let selectedContact;
 
-  // If we have any contacts in the online group, we'll take the first one.
   if (online.length) {
+    // We have contacts in the online group, take the first one.
     selectedContact = online[0];
-  }
-  // If not, we'll take the first contact in the offline group.
-  else if (offline.length) {
+  } else if (offline.length) {
+    // Else take the first contact in the offline group.
     selectedContact = offline[0];
   }
 

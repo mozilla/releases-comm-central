@@ -499,10 +499,9 @@ var SearchSupport = {
     // it's going to take to stream any particular message.
     if (this._currentFolderToIndex) {
       msgHdrAndReindexTime = this._findNextHdrToIndex();
-    }
-    // we've cycled through all the folders, we should take a break
-    // from indexing of existing messages
-    else {
+    } else {
+      // We've cycled through all the folders. We should take a break
+      // from indexing of existing messages.
       this.__backgroundIndexingDone = true;
     }
 

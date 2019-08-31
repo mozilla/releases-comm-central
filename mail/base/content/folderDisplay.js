@@ -2654,17 +2654,15 @@ FolderDisplayWidget.prototype = {
     let [topPadding, bottomPadding] = this.visibleRowPadding;
 
     let target;
-    // If the index is after the last visible guy (with padding), move down
-    //  so that the target index is padded in 1 from the bottom.
     if (aViewIndex >= last - bottomPadding) {
+      // The index is after the last visible guy (with padding),
+      // move down so that the target index is padded in 1 from the bottom.
       target = Math.min(maxIndex, aViewIndex + bottomPadding) - span;
-    }
-    // If the index is before the first visible guy (with padding), move up
-    else if (aViewIndex <= first + topPadding) {
-      // move up
+    } else if (aViewIndex <= first + topPadding) {
+      // The index is before the first visible guy (with padding), move up.
       target = Math.max(0, aViewIndex - topPadding);
-    } // it is already visible
-    else {
+    } else {
+      // It is already visible.
       return;
     }
 

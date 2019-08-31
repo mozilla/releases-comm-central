@@ -159,12 +159,11 @@ function scoreOffsets(aMessage, aContext) {
 
   for (let iColumn = 0; iColumn < COLUMN_ALL_MATCH_SCORES.length; iColumn++) {
     let termIncidence = columnTermIncidence[iColumn];
-    // bestow all match credit
     if (termIncidence.every(identityFunc)) {
+      // Bestow all match credit.
       score += COLUMN_ALL_MATCH_SCORES[iColumn];
-    }
-    // bestow partial match credit
-    else if (termIncidence.some(identityFunc)) {
+    } else if (termIncidence.some(identityFunc)) {
+      // Bestow partial match credit.
       score += Math.min(
         COLUMN_ALL_MATCH_SCORES[iColumn],
         COLUMN_PARTIAL_PER_MATCH_SCORES[iColumn] *
@@ -281,11 +280,9 @@ GlodaIMSearcher.prototype = {
       //  NEAR.
       if (/^NEAR(\/\d+)?$/.test(term)) {
         fulltextQueryString += term;
-      }
-      // Check if this is a single-character CJK search query.  If so, we want
-      //  to add a wildcard.
-      // Our tokenizer treats anything at/above 0x2000 as CJK for now.
-      else if (term.length == 1 && term.charCodeAt(0) >= 0x2000) {
+      } else if (term.length == 1 && term.charCodeAt(0) >= 0x2000) {
+        // This is a single-character CJK search query, so add a wildcard.
+        // Our tokenizer treats anything at/above 0x2000 as CJK for now.
         fulltextQueryString += term + "*";
       } else if (
         (term.length == 2 &&

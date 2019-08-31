@@ -213,8 +213,8 @@ function setupModule(module) {
   if (epsilon == 4) {
     // Windows
     attachedMessageLength = attachedMessage.toMessageString().length;
-  } // Mac/Linux
-  else {
+  } else {
+    // Mac/Linux
     attachedMessageLength = attachedMessage
       .toMessageString()
       .replace(/\r\n/g, "\n").length;

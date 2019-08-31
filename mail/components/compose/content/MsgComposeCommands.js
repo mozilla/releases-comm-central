@@ -4959,15 +4959,14 @@ function AddAttachments(aAttachments, aCallback, aContentChanged = true) {
     // For security reasons, don't allow *-message:// uris to leak out.
     // We don't want to reveal the .slt path (for mailbox://), or the username
     // or hostname.
+    // Don't allow file or mail/news protocol uris to leak out either.
     if (
       /^mailbox-message:|^imap-message:|^news-message:/i.test(attachment.name)
     ) {
       attachment.name = getComposeBundle().getString(
         "messageAttachmentSafeName"
       );
-    }
-    // Don't allow file or mail/news protocol uris to leak out either.
-    else if (/^file:|^mailbox:|^imap:|^s?news:/i.test(attachment.name)) {
+    } else if (/^file:|^mailbox:|^imap:|^s?news:/i.test(attachment.name)) {
       attachment.name = getComposeBundle().getString("partAttachmentSafeName");
     }
 

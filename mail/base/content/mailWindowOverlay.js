@@ -2202,11 +2202,12 @@ function MsgSubscribe() {
   var preselectedFolder = GetFirstSelectedMsgFolder();
 
   if (FeedMessageHandler.isFeedFolder(preselectedFolder)) {
+    // Open feed subscription dialog.
     openSubscriptionsDialog(preselectedFolder);
-  } // open feed subscription dialog
-  else {
+  } else {
+    // Open IMAP/NNTP subscription dialog.
     Subscribe(preselectedFolder);
-  } // open imap/nntp subscription dialog
+  }
 }
 
 /**

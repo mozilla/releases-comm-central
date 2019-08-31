@@ -1845,9 +1845,8 @@ DBViewWrapper.prototype = {
       let viewFlags = this._viewFlags;
       if (aShowThreaded) {
         viewFlags |= Ci.nsMsgViewFlagsType.kThreadedDisplay;
-      }
-      // maybe we shouldn't do anything in this case?
-      else {
+      } else {
+        // Maybe we shouldn't do anything in this case?
         viewFlags &= ~Ci.nsMsgViewFlagsType.kThreadedDisplay;
       }
       // lose the group bit...
@@ -1880,9 +1879,8 @@ DBViewWrapper.prototype = {
           Ci.nsMsgViewFlagsType.kGroupBySort |
           Ci.nsMsgViewFlagsType.kThreadedDisplay
         );
-      }
-      // maybe we shouldn't do anything in this case?
-      else {
+      } else {
+        // Maybe we shouldn't do anything in this case?
         this._viewFlags =
           (this._viewFlags & ~Ci.nsMsgViewFlagsType.kGroupBySort) |
           Ci.nsMsgViewFlagsType.kThreadedDisplay;

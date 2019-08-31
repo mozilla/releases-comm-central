@@ -863,8 +863,8 @@ function SetTagHeader() {
 
   if (msgKeys) {
     currentHeaderData.tags = { headerName: "tags", headerValue: msgKeys };
-  } // no more tags, so clear out the header field
-  else {
+  } else {
+    // No more tags, so clear out the header field.
     delete currentHeaderData.tags;
   }
 }

@@ -41,9 +41,9 @@ Sanitizer.prototype = {
 
     // Cache the range of times to clear
     if (this.ignoreTimespan) {
+      // If we ignore timespan, clear everything.
       var range = null;
-    } // If we ignore timespan, clear everything
-    else {
+    } else {
       range = this.range || Sanitizer.getClearRange();
     }
 

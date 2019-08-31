@@ -205,13 +205,8 @@ function DisplayCardViewPane(realCard) {
   // Contact photo
   displayPhoto(card, cvData.cvPhoto);
 
-  var titleString;
-  if (generatedName == "") {
-    titleString = card.primaryEmail;
-  } // if no generatedName, use email
-  else {
-    titleString = generatedName;
-  }
+  // If no generatedName, use email.
+  let titleString = generatedName == "" ? card.primaryEmail : generatedName;
 
   // set fields in card view pane
   if (card.isMailList) {

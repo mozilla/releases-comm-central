@@ -149,9 +149,8 @@ function contentAreaClick(aEvent) {
         if (target.hasAttribute("shrinktofit")) {
           // Currently shrunk to fit, so unshrink it.
           target.removeAttribute("shrinktofit");
-        }
-        // User wants to shrink now.
-        else {
+        } else {
+          // User wants to shrink now.
           target.setAttribute("shrinktofit", true);
         }
 

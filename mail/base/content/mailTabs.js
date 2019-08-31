@@ -117,31 +117,27 @@ var mailTabType = {
 
         // - figure out whether to show the folder pane
         let folderPaneShouldBeVisible;
-        // explicitly told to us?
         if ("folderPaneVisible" in aArgs) {
+          // Explicitly told to us.
           folderPaneShouldBeVisible = aArgs.folderPaneVisible;
-        }
-        // inherit from the previous tab (if we've got one)
-        else if (modelTab) {
+        } else if (modelTab) {
+          // Inherit from the previous tab (if we've got one).
           folderPaneShouldBeVisible = modelTab.folderDisplay.folderPaneVisible;
-        }
-        // who doesn't love a folder pane?
-        else {
+        } else {
+          // Who doesn't love a folder pane?
           folderPaneShouldBeVisible = true;
         }
 
         // - figure out whether to show the message pane
         let messagePaneShouldBeVisible;
-        // explicitly told to us?
         if ("messagePaneVisible" in aArgs) {
+          // Explicitly told to us?
           messagePaneShouldBeVisible = aArgs.messagePaneVisible;
-        }
-        // inherit from the previous tab (if we've got one)
-        else if (modelTab) {
+        } else if (modelTab) {
+          // Inherit from the previous tab (if we've got one).
           messagePaneShouldBeVisible = modelTab.messageDisplay.visible;
-        }
-        // who doesn't love a message pane?
-        else {
+        } else {
+          // Who doesn't love a message pane?
           messagePaneShouldBeVisible = true;
         }
 
@@ -726,10 +722,9 @@ var mailTabType = {
       document.getElementById(
         "threadContentArea"
       ).collapsed = !displayDeckLegal;
-    }
-    // whereas in the default view, the displayDeck is the one next to the
-    //  message pane and its splitter
-    else {
+    } else {
+      // Whereas in the default view, the displayDeck is the one next to the
+      // message pane and its splitter.
       document.getElementById("displayDeck").collapsed = !displayDeckLegal;
     }
 
