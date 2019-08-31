@@ -226,7 +226,8 @@ NS_IMETHODIMP nsAbBSDirectory::DeleteDirectory(nsIAbDirectory *directory) {
 
   if (!server) return NS_ERROR_FAILURE;
 
-  nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+  nsCOMPtr<nsIAbManager> abManager =
+      do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsISimpleEnumerator> dirEnumerator;

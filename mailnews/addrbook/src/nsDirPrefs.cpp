@@ -586,8 +586,7 @@ nsresult DIR_DeleteServerFromList(DIR_Server *server) {
     // which can never be deleted.  There was a bug where we would slap in
     // "abook.mab" as the file name for LDAP directories, which would cause a
     // crash on delete of LDAP directories.  this is just extra protection.
-    if (server->fileName &&
-        server->dirType != JSDirectory &&
+    if (server->fileName && server->dirType != JSDirectory &&
         strcmp(server->fileName, kPersonalAddressbook) &&
         strcmp(server->fileName, kCollectedAddressbook)) {
       nsCOMPtr<nsIAddrDatabase> database;
