@@ -15,9 +15,11 @@ load("../../../resources/logHelper.js");
 load("../../../resources/alertTestUtils.js");
 load("../../../resources/asyncTestUtils.js");
 
-var gGotAlert = false; // to asyncTestUtils.js
+var gGotAlert = false;
 
-/* exported alert */ function alert(aDialogTitle, aText) {
+/* exported alert */
+// to asyncTestUtils.js
+function alert(aDialogTitle, aText) {
   Assert.ok(aText.startsWith("Server localhost has disconnected"));
   gGotAlert = true;
 }

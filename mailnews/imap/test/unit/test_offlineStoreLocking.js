@@ -20,9 +20,11 @@ var { MailServices } = ChromeUtils.import(
 // Globals
 var gIMAPTrashFolder, gMsgImapInboxFolder;
 var gGotAlert = false;
-var gMovedMsgId; // to alertTestUtils.js
+var gMovedMsgId;
 
-/* exported alert */ function alert(aDialogTitle, aText) {
+/* exported alert */
+// to alertTestUtils.js
+function alert(aDialogTitle, aText) {
   // do_check_true(aText.startsWith("Connection to server Mail for  timed out."));
   gGotAlert = true;
 }

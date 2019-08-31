@@ -19,9 +19,11 @@ var kToValid = "to@v\u00E4lid.foo.invalid";
 var kToValidACE = "to@xn--vlid-loa.foo.invalid";
 var kToInvalid = "b\u00F8rken.to@invalid.foo.invalid";
 var kToInvalidWithoutDomain = "b\u00F8rken.to";
-var NS_ERROR_BUT_DONT_SHOW_ALERT = 0x805530ef; // for alertTestUtils.js
+var NS_ERROR_BUT_DONT_SHOW_ALERT = 0x805530ef;
 
-/* exported alert */ function alert(aDialogText, aText) {
+/* exported alert */
+// for alertTestUtils.js
+function alert(aDialogText, aText) {
   // ignore without domain situation (this is crash test)
   if (test == kToInvalidWithoutDomain) {
     return;

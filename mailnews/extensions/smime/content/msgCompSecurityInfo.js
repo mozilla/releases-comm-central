@@ -298,9 +298,11 @@ function viewSelectedCert() {
   if (!gViewButton.disabled) {
     viewCertHelper(window, certForRow(gListBox.selectedIndex));
   }
-} // Suite only.
+}
 
-/* globals openHelp */ function doHelpButton() {
+/* globals openHelp */
+// Suite only.
+function doHelpButton() {
   openHelp(
     "compose_security",
     "chrome://communicator/locale/help/suitehelp.rdf"

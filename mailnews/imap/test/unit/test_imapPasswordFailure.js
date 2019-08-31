@@ -21,9 +21,11 @@ var kInvalidPassword = "imaptest";
 var kValidPassword = "password";
 
 var incomingServer, server;
-var attempt = 0; // to alertTestUtils.js
+var attempt = 0;
 
-/* exported confirmEx, promptPasswordPS */ function confirmEx(
+/* exported confirmEx, promptPasswordPS */
+// to alertTestUtils.js
+function confirmEx(
   aDialogTitle,
   aText,
   aButtonFlags,

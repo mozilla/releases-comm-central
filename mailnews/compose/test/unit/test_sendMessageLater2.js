@@ -119,9 +119,14 @@ msll.prototype = {
     // call async_driver.
     do_timeout(0, async_driver);
   },
-}; // for head_compose.js // This function is used to find out when the copying of the message to the // unsent message folder is completed, and hence can fire off the actual // sending of the message.
+};
 
-/* exported OnStopCopy */ function OnStopCopy(aStatus) {
+/* exported OnStopCopy */
+// for head_compose.js
+// This function is used to find out when the copying of the message to the
+// unsent message folder is completed, and hence can fire off the actual
+// sending of the message.
+function OnStopCopy(aStatus) {
   Assert.equal(aStatus, 0);
 
   // Check this is false before we start sending

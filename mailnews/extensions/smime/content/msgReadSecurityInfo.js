@@ -233,8 +233,10 @@ function viewEncryptionCert() {
   if (gEncryptionCert) {
     viewCertHelper(window, gEncryptionCert);
   }
-} // Suite only.
+}
 
-/* globals openHelp */ function doHelpButton() {
+/* globals openHelp */
+// Suite only.
+function doHelpButton() {
   openHelp("received_security");
 }

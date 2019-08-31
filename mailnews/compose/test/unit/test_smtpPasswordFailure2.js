@@ -30,12 +30,11 @@ var kUsername = "testsmtp";
 // Password needs to match the login information stored in the signons json
 // file.
 var kInvalidPassword = "smtptest";
-var kValidPassword = "smtptest1"; // for alertTestUtils.js
+var kValidPassword = "smtptest1";
 
-/* exported alert, confirmEx, promptPasswordPS */ function alert(
-  aDialogText,
-  aText
-) {
+/* exported alert, confirmEx, promptPasswordPS */
+// for alertTestUtils.js
+function alert(aDialogText, aText) {
   // The first few attempts may prompt about the password problem, the last
   // attempt shouldn't.
   Assert.ok(attempt < 4);

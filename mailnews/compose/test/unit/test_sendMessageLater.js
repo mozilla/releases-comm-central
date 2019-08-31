@@ -100,9 +100,11 @@ msll.prototype = {
       }
     }
   },
-}; // for head_compose.js
+};
 
-/* exported OnStopCopy */ function OnStopCopy(aStatus) {
+/* exported OnStopCopy */
+// for head_compose.js
+function OnStopCopy(aStatus) {
   dump("OnStopCopy()\n");
 
   try {

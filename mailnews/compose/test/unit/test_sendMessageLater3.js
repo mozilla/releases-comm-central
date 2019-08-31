@@ -24,9 +24,11 @@ var kTo = "to@foo.invalid";
 
 var msgSendLater = Cc["@mozilla.org/messengercompose/sendlater;1"].getService(
   Ci.nsIMsgSendLater
-); // for alertTestUtils.js
+);
 
-/* exported alert */ function alert(aDialogTitle, aText) {
+/* exported alert */
+// for alertTestUtils.js
+function alert(aDialogTitle, aText) {
   dump("Hiding Alert {\n" + aText + "\n} End Alert\n");
 }
 
@@ -73,9 +75,11 @@ msll.prototype = {
 
     do_test_finished();
   },
-}; // for head_compose.js
+};
 
-/* exported OnStopCopy */ function OnStopCopy(aStatus) {
+/* exported OnStopCopy */
+// for head_compose.js
+function OnStopCopy(aStatus) {
   Assert.equal(aStatus, 0);
 
   // Check this is false before we start sending

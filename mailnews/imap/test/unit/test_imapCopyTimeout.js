@@ -27,9 +27,11 @@ var { MailServices } = ChromeUtils.import(
 setupIMAPPump();
 
 var gGotAlert = false;
-var gGotMsgAdded = false; // to alertTestUtils.js
+var gGotMsgAdded = false;
 
-/* exported alert */ function alert(aDialogTitle, aText) {
+/* exported alert */
+// to alertTestUtils.js
+function alert(aDialogTitle, aText) {
   Assert.ok(aText.startsWith("Connection to server localhost timed out."));
   gGotAlert = true;
   async_driver();

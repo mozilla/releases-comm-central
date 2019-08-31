@@ -98,9 +98,11 @@ function createExpectedTemporaryFile() {
   expectedFile.remove(false);
 
   return expectedFile;
-} // for head_compose.js
+}
 
-/* exported OnStopCopy */ function OnStopCopy(aStatus) {
+/* exported OnStopCopy */
+// for head_compose.js
+function OnStopCopy(aStatus) {
   msgSend.abort();
 
   Assert.ok(!expectedTemporaryFile.exists());

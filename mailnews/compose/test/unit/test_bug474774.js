@@ -92,9 +92,11 @@ msll.prototype = {
     }
     do_test_finished();
   },
-}; // for head_compose.js
+};
 
-/* exported OnStopCopy */ function OnStopCopy(aStatus) {
+/* exported OnStopCopy */
+// for head_compose.js
+function OnStopCopy(aStatus) {
   do_test_finished();
 
   try {

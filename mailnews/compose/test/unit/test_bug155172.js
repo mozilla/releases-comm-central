@@ -12,9 +12,11 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-var gNewPassword = null; // for alertTestUtils.js
+var gNewPassword = null;
 
-/* exported confirmEx, promptPasswordPS */ function confirmEx(
+/* exported confirmEx, promptPasswordPS */
+// for alertTestUtils.js
+function confirmEx(
   aDialogTitle,
   aText,
   aButtonFlags,
