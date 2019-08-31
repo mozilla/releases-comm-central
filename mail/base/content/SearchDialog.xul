@@ -40,6 +40,7 @@
   <script src="chrome://messenger/content/folderDisplay.js"/>
   <script src="chrome://messenger/content/messageDisplay.js"/>
   <script src="chrome://messenger/content/threadPane.js"/>
+  <script src="chrome://communicator/content/utilityOverlay.js"/>
   <script src="chrome://messenger/content/msgMail3PaneWindow.js"/>
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://messenger/content/mailCommands.js"/>

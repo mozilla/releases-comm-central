@@ -713,6 +713,9 @@
         tab = tab.parentNode;
       }
 
+      if (!tab)
+        return null;
+
       if ((event.type != "drop") && (event.type != "dragover"))
         return tab;
 

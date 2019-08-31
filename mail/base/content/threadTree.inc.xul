@@ -205,6 +205,6 @@
                                   ondragover="ThreadPaneOnDragOver(event);"
                                   ondrop="ThreadPaneOnDrop(event);"/>
 #else
-                    <treechildren/>
+                    <treechildren ondragstart="ThreadPaneOnDragStart(event);"/>
 #endif
                   </tree>
