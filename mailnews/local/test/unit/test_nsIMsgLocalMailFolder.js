@@ -303,7 +303,8 @@ function run_all_tests(aHostName) {
 
 function run_test() {
   let hostName = "Local Folders";
-  for (let index = 0; index < gPluggableStores.length;) {
+  let index = 0;
+  while (index < gPluggableStores.length) {
     Services.prefs.setCharPref(
       "mail.serverDefaultStoreContractID",
       gPluggableStores[index]

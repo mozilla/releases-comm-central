@@ -87,7 +87,8 @@ function setupNNTPDaemon() {
     sstream.init(fstream);
 
     var post = "";
-    for (let part = sstream.read(4096); part.length > 0;) {
+    let part = sstream.read(4096);
+    while (part.length > 0) {
       post += part;
       part = sstream.read(4096);
     }
@@ -233,7 +234,8 @@ function make_article(file) {
   sstream.init(fstream);
 
   var post = "";
-  for (let part = sstream.read(4096); part.length > 0;) {
+  let part = sstream.read(4096);
+  while (part.length > 0) {
     post += part;
     part = sstream.read(4096);
   }

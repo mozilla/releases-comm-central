@@ -110,7 +110,7 @@
     }
 
     _needsAlternateEmphasis(aText) {
-      for (let i = aText.length; --i >= 0;) {
+      for (let i = aText.length - 1; i >= 0; i--) {
         let charCode = aText.charCodeAt(i);
         // Arabic, Syriac, Indic languages are likely to have ligatures
         // that are broken when using the main emphasis styling.
