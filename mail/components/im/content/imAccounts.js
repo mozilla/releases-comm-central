@@ -226,8 +226,9 @@ var gAccountManager = {
       if (aTopic in stateEvents) {
         let elt = document.getElementById(aObject.id);
         if (!elt) {
+          // Probably disconnecting a removed account.
           return;
-        } // probably disconnecting a removed account.
+        }
 
         if (aTopic == "account-connecting") {
           elt.removeAttribute("error");

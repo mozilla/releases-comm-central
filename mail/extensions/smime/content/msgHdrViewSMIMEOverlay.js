@@ -98,12 +98,14 @@ var smimeHeaderSink = {
    */
   showSenderIfSigner() {
     if (!("sender" in currentHeaderData)) {
+      // Sender not set, or same as From (so no longer present).
       return;
-    } // Sender not set, or same as From (so no longer present).
+    }
 
     if (Services.prefs.getBoolPref("mailnews.headers.showSender")) {
+      // Sender header will be show due to pref - nothing more to do.
       return;
-    } // Sender header will be show due to pref - nothing more to do.
+    }
 
     let fromMailboxes = MailServices.headerParser
       .extractHeaderAddressMailboxes(currentHeaderData.from.headerValue)

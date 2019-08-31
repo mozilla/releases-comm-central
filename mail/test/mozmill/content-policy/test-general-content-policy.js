@@ -454,8 +454,9 @@ function checkAllowForHostsWithPerms(test) {
   let src = mc.window.content.document.getElementById("testelement").src;
 
   if (!src.startsWith("http")) {
+    // Just test http in this test.
     return;
-  } // just test http in this test
+  }
 
   let uri = Services.io.newURI(src);
   Services.perms.add(uri, "image", Services.perms.ALLOW_ACTION);

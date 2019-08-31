@@ -182,8 +182,9 @@ MessageArchiver.prototype = {
     }
 
     if (moveArray.length == 0) {
+      // Continue processing.
       this.processNextBatch();
-    } // continue processing
+    }
 
     // For folders on some servers (e.g. IMAP), we need to create the
     // sub-folders asynchronously, so we chain the urls using the listener
@@ -194,8 +195,9 @@ MessageArchiver.prototype = {
       archiveFolder.setFlag(Ci.nsMsgFolderFlags.Archive);
       archiveFolder.createStorageIfMissing(this);
       if (isAsync) {
+        // Continues with OnStopRunningUrl.
         return;
-      } // continues with OnStopRunningUrl
+      }
     }
 
     let granularity = batch.granularity;
@@ -216,8 +218,9 @@ MessageArchiver.prototype = {
       if (!dstFolder.parent) {
         dstFolder.createStorageIfMissing(this);
         if (isAsync) {
+          // Continues with OnStopRunningUrl.
           return;
-        } // continues with OnStopRunningUrl
+        }
       }
     }
     if (granularity >= Ci.nsIMsgIdentity.perMonthArchiveFolders) {
@@ -226,8 +229,9 @@ MessageArchiver.prototype = {
       if (!dstFolder.parent) {
         dstFolder.createStorageIfMissing(this);
         if (isAsync) {
+          // Continues with OnStopRunningUrl.
           return;
-        } // continues with OnStopRunningUrl
+        }
       }
     }
 
@@ -257,8 +261,9 @@ MessageArchiver.prototype = {
           }
           dstFolder.createSubfolder(folderName, this.msgWindow);
           if (isAsync) {
+            // Continues with folderAdded.
             return;
-          } // continues with folderAdded
+          }
         }
         dstFolder = dstFolder.getChildNamed(folderName);
       }

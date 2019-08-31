@@ -828,8 +828,9 @@ var TagFacetingFilter = {
       return null;
     }
     if (this.isSimple(aOld)) {
+      // Could be an object, need to convert.
       return !!aOld;
-    } // could be an object, need to convert.
+    }
     return shallowObjCopy(aOld);
   },
 

@@ -319,8 +319,9 @@ function readFromXML(clientConfigXML) {
       d.inputFields.push(fieldset);
     } catch (e) {
       logException(e);
-    } // for now, don't throw,
-    // because we don't support custom fields yet anyways.
+      // For now, don't throw,
+      // because we don't support custom fields yet anyways.
+    }
   }
 
   return d;

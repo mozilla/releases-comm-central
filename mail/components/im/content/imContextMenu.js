@@ -273,8 +273,8 @@ imContextMenu.prototype = {
 
   getLinkProtocol() {
     if (this.linkURI) {
-      return this.linkURI.scheme;
-    } // can be |undefined|
+      return this.linkURI.scheme; // Can be |undefined|.
+    }
 
     return null;
   },

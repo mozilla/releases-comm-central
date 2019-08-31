@@ -550,8 +550,9 @@ var chatHandler = {
 
     let status = target.getAttribute("status");
     if (!status) {
+      // Can status really be null? Maybe because of an add-on...
       return;
-    } // Can status really be null? Maybe because of an add-on...
+    }
 
     let us = imServices.core.globalUserStatus;
     us.setStatus(Status.toFlag(status), us.statusText);

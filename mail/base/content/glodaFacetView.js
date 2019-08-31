@@ -95,8 +95,9 @@ const QueryExplanation = {
       let constraintStrings = [];
       for (let constraint of msgQuery._constraints) {
         if (constraint[0] != 1) {
+          // No idea what this is about.
           return;
-        } // no idea what this is about
+        }
         if (constraint[1].attributeName == "involves") {
           let involvesLabel = glodaFacetStrings.get(
             "glodaFacetView.constraints.query.involves.label"
@@ -722,11 +723,11 @@ var FacetContext = {
     results.setMessages(this._activeSet.slice(0, numMessageToShow));
 
     let showLoading = document.getElementById("showLoading");
-    showLoading.style.display = "none"; /* hide spinner, we're done thinking */
+    showLoading.style.display = "none"; // Hide spinner, we're done thinking.
 
     let showEmpty = document.getElementById("showEmpty");
     let dateToggle = document.getElementById("date-toggle");
-    /* check for no messages at all */
+    // Check for no messages at all.
     if (this._activeSet.length == 0) {
       showEmpty.style.display = "block";
       dateToggle.style.display = "none";

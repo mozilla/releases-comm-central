@@ -322,7 +322,8 @@ MultiMessageSummary.prototype = {
         null,
         function(aMsgHdr, aMimeMsg) {
           if (aMimeMsg == null) {
-            /* shouldn't happen, but sometimes does? */ return;
+            // Shouldn't happen, but sometimes does?
+            return;
           }
           let [text, meta] = mimeMsgToContentSnippetAndMeta(
             aMimeMsg,
@@ -421,7 +422,8 @@ MultiMessageSummary.prototype = {
     let numBytes = 0;
     for (let msgHdr of aMessages) {
       numBytes += msgHdr.messageSize;
-    } // XXX do something about news?
+      // XXX do something about news?
+    }
 
     let format = aMessages.limited
       ? "messagesTotalSizeMoreThan"

@@ -542,8 +542,9 @@ HostDetector.prototype = {
           function(wiredata) {
             // result callback
             if (me._cancel) {
+              // Don't use response anymore.
               return;
-            } // don't use response anymore
+            }
             me.mProgressCallback(thisTry);
             me._processResult(thisTry, wiredata);
             me._checkFinished();
@@ -551,8 +552,9 @@ HostDetector.prototype = {
           function(e) {
             // error callback
             if (me._cancel) {
+              // Who set cancel to true already called mErrorCallback().
               return;
-            } // who set cancel to true already called mErrorCallback()
+            }
             me._log.warn(thisTry.desc + ": " + e);
             thisTry.status = kFailed;
             me._checkFinished();

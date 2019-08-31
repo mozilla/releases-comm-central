@@ -194,10 +194,11 @@ var editContactInlineUI = {
 
   deleteContact() {
     if (this._cardDetails.book.readOnly) {
+      // Double check we can delete this.
       return;
-    } /* double check we can delete this */
+    }
 
-    /* hide before the dialog or the panel takes the first click */
+    // Hide before the dialog or the panel takes the first click.
     this.panel.hidePopup();
 
     var bundle = document.getElementById("bundle_editContact");
@@ -208,8 +209,9 @@ var editContactInlineUI = {
         bundle.getString("deleteContactMessage")
       )
     ) {
+      // XXX Would be nice to bring the popup back up here.
       return;
-    } /* XXX would be nice to bring the popup back up here */
+    }
 
     let cardArray = Cc["@mozilla.org/array;1"].createInstance(
       Ci.nsIMutableArray

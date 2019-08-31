@@ -7,7 +7,7 @@
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-top.MAX_RECIPIENTS = 1; /* for the initial listitem created in the XUL */
+top.MAX_RECIPIENTS = 1; // For the initial listitem created in the XUL.
 
 var inputElementType = "";
 var selectElementType = "";
@@ -36,8 +36,9 @@ function awGetNumberOfCols() {
     var listCols = listbox.getElementsByTagName("treecol");
     gNumberOfCols = listCols.length;
     if (!gNumberOfCols) {
+      // If no cols defined, that means we have only one!
       gNumberOfCols = 1;
-    } /* if no cols defined, that means we have only one! */
+    }
   }
 
   return gNumberOfCols;
@@ -490,7 +491,7 @@ function awTestRowSequence() {
     return true;
   }
 
-  /* debug code to verify the sequence still good */
+  // Debug code to verify the sequence is still good.
 
   let listbox = document.getElementById("addressingWidget");
   let listitems = listbox.itemChildren;
@@ -1267,8 +1268,9 @@ AutomatedAutoCompleteHandler.prototype = {
       */
 
         if (!this.numSessionsToSearch) {
+          // LDAP and ab are turned off, so leave text alone.
           this.processAllResults();
-        } // ldap and ab are turned off, so leave text alone.
+        }
       }
     } else {
       this.finish();
@@ -1286,8 +1288,9 @@ AutomatedAutoCompleteHandler.prototype = {
     this.numSessionsSearched++; // bump our counter
 
     if (this.numSessionsToSearch <= this.numSessionsSearched) {
+      // We are all done.
       setTimeout(gAutomatedAutoCompleteListener.processAllResults, 0);
-    } // we are all done
+    }
   },
 
   processAllResults() {
