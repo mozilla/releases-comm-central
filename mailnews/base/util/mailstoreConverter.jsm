@@ -211,7 +211,7 @@ function installNewRoot(server, dir, newStoreTypeID) {
   // exists in "parentPath". If yes, remove it.
   let lastSlash = accountRootFolder.path.lastIndexOf("/");
   let parentPath = accountRootFolder.parent.path;
-  log.info("Path to parent folder of account root" + " folder: " + parentPath);
+  log.info("Path to parent folder of account root folder: " + parentPath);
 
   let parent = new FileUtils.File(parentPath);
   log.info("Path to parent folder of account root folder: " + parent.path);

@@ -630,7 +630,7 @@ async function testSentMessage() {
       {
         "Content-Type": "application/octet-stream",
         "X-Mozilla-Cloud-Part":
-          "cloudFile; url=http://localhost.invalid/; " + "name=attachment.html",
+          "cloudFile; url=http://localhost.invalid/; name=attachment.html",
       },
       "2"
     );

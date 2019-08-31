@@ -621,7 +621,7 @@ var _indexMessageState = {
       this.expectedFailedToRecoverCount != this._workerFailedToRecoverCount
     ) {
       mark_failure([
-        "Expected worker-failed-to-recover count did not match " + "actual!",
+        "Expected worker-failed-to-recover count did not match actual!",
         "Expected",
         this.expectedFailedToRecoverCount,
         "actual",

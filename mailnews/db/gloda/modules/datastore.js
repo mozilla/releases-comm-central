@@ -1318,7 +1318,7 @@ var GlodaDatastore = {
       this.asyncConnection.asyncClose();
     } catch (ex) {
       this._log.debug(
-        "Potentially expected exception during connection " + "closure: " + ex
+        "Potentially expected exception during connection closure: " + ex
       );
     }
 

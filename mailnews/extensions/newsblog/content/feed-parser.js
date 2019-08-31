@@ -522,7 +522,7 @@ FeedParser.prototype = {
 
     if (!aFeed.title) {
       FeedUtils.log.error(
-        "FeedParser.parseAsAtom: missing mandatory element " + "<title>"
+        "FeedParser.parseAsAtom: missing mandatory element <title>"
       );
       aFeed.onParseError(aFeed);
       return [];
@@ -726,7 +726,7 @@ FeedParser.prototype = {
 
     if (!aFeed.title) {
       FeedUtils.log.error(
-        "FeedParser.parseAsAtomIETF: missing mandatory element " + "<title>"
+        "FeedParser.parseAsAtomIETF: missing mandatory element <title>"
       );
       aFeed.onParseError(aFeed);
       return [];

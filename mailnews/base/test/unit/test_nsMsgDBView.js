@@ -483,9 +483,7 @@ function ensure_view_ordering(
     if (inGroup) {
       let groupValue = groupValueGetter(msgHdr);
       if (groupValue in previouslySeenGroupValues) {
-        do_throw(
-          "Group value " + groupValue + " observed in more than one " + "group!"
-        );
+        do_throw(`Group value ${groupValue} observed in more than one group!`);
       }
       if (curGroupValue == null) {
         curGroupValue = groupValue;

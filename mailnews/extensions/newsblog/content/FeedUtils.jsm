@@ -1661,7 +1661,7 @@ var FeedUtils = {
     let ds = this.rdf.GetDataSourceBlocking(url);
     if (!ds) {
       throw new Error(
-        "FeedUtils.getItemsDS: can't get feed items " + "data source - " + url
+        "FeedUtils.getItemsDS: can't get feed items data source - " + url
       );
     }
     // Note that it this point the datasource may not be loaded yet.

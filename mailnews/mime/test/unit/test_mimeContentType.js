@@ -41,7 +41,7 @@ function run_test() {
       result: "",
     },
     {
-      header: "Content-Type:\r\n" + "\r\n",
+      header: "Content-Type:\r\n\r\n",
       result: "",
     },
     {
