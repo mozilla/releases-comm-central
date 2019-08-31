@@ -1,4 +1,6 @@
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 // used by checkProgress to periodically check the progress of the import
 var gGenericImportHelper;
@@ -19,8 +21,9 @@ var gGenericImportHelper;
  */
 function GenericImportHelper(aModuleType, aModuleSearchString, aFile) {
   gGenericImportHelper = null;
-  if (!["addressbook", "mail", "settings", "filters"].includes(aModuleType))
+  if (!["addressbook", "mail", "settings", "filters"].includes(aModuleType)) {
     do_throw("Unexpected type passed to the GenericImportHelper constructor");
+  }
   this.mModuleType = aModuleType;
   this.mModuleSearchString = aModuleSearchString;
   this.mInterface = this._findInterface();
@@ -39,10 +42,11 @@ GenericImportHelper.prototype = {
   beginImport() {
     Assert.ok(this.mFile instanceof Ci.nsIFile && this.mFile.exists());
 
-    if (this.mModuleType == "addressbook")
+    if (this.mModuleType == "addressbook") {
       this.mInterface.SetData("addressLocation", this.mFile);
-    else if (this.mModuleType == "mail")
+    } else if (this.mModuleType == "mail") {
       this.mInterface.SetData("mailLocation", this.mFile);
+    }
 
     Assert.ok(this.mInterface.WantsProgress());
     Assert.ok(this.mInterface.BeginImport(null, null));
@@ -59,18 +63,24 @@ GenericImportHelper.prototype = {
   },
 
   _findInterface() {
-    var importService = Cc["@mozilla.org/import/import-service;1"]
-                        .getService(Ci.nsIImportService);
+    var importService = Cc["@mozilla.org/import/import-service;1"].getService(
+      Ci.nsIImportService
+    );
     var count = importService.GetModuleCount(this.mModuleType);
 
     // Iterate through each import module until the one being searched for is
     // found and then return the ImportInterface of that module
     for (var i = 0; i < count; i++) {
       // Check if the current module fits the search string gets the interface
-      if (importService.GetModuleName(this.mModuleType, i).includes(this.mModuleSearchString)) {
-        return importService.GetModule(this.mModuleType, i)
-                            .GetImportInterface(this.mModuleType)
-                            .QueryInterface(this.interfaceType);
+      if (
+        importService
+          .GetModuleName(this.mModuleType, i)
+          .includes(this.mModuleSearchString)
+      ) {
+        return importService
+          .GetModule(this.mModuleType, i)
+          .GetImportInterface(this.mModuleType)
+          .QueryInterface(this.interfaceType);
       }
     }
     return null; // it wasn't found
@@ -82,15 +92,19 @@ GenericImportHelper.prototype = {
    * otherwise evaluates the optional command, or calls do_test_finished().
    */
   checkProgress() {
-    Assert.ok(this.mInterface &&
-              this.mInterface instanceof Ci.nsIImportGeneric);
+    Assert.ok(
+      this.mInterface && this.mInterface instanceof Ci.nsIImportGeneric
+    );
     Assert.ok(this.mInterface.ContinueImport());
     // if the import isn't done, check again in 200 milliseconds.
     if (this.mInterface.GetProgress() != 100) {
       // use the helper object to check the progress of the import after 200 ms
       gGenericImportHelper = this;
-      do_timeout(200, function() { gGenericImportHelper.checkProgress(); });
-    } else { // if it is done, check the results or finish the test.
+      do_timeout(200, function() {
+        gGenericImportHelper.checkProgress();
+      });
+    } else {
+      // if it is done, check the results or finish the test.
       this.checkResults();
       do_test_finished();
     }
@@ -101,8 +115,7 @@ GenericImportHelper.prototype = {
    * Checks the results of the import.
    * Child class should implement this method.
    */
-  checkResults() {
-  },
+  checkResults() {},
 };
 
 /**
@@ -135,19 +148,52 @@ function AbImportHelper(aFile, aModuleSearchString, aAbName, aJsonName) {
    * The following are not supported: anniversaryYear, anniversaryMonth,
    * anniversaryDay, popularityIndex, isMailList, mailListURI, lastModifiedDate.
    */
-  var supportedAttributes =
-    ["FirstName", "LastName", "DisplayName", "NickName", "PrimaryEmail",
-     "SecondEmail", "WorkPhone", "HomePhone", "FaxNumber", "PagerNumber",
-     "CellularNumber", "HomeAddress", "HomeAddress2", "HomeCity", "HomeState",
-     "HomeZipCode", "HomeCountry", "WorkAddress", "WorkAddress2", "WorkCity",
-     "WorkState", "WorkZipCode", "WorkCountry", "JobTitle", "Department",
-     "Company", "BirthYear", "BirthMonth", "BirthDay", "WebPage1", "WebPage2",
-     "Custom1", "Custom2", "Custom3", "Custom4", "Notes", "_AimScreenName"];
+  var supportedAttributes = [
+    "FirstName",
+    "LastName",
+    "DisplayName",
+    "NickName",
+    "PrimaryEmail",
+    "SecondEmail",
+    "WorkPhone",
+    "HomePhone",
+    "FaxNumber",
+    "PagerNumber",
+    "CellularNumber",
+    "HomeAddress",
+    "HomeAddress2",
+    "HomeCity",
+    "HomeState",
+    "HomeZipCode",
+    "HomeCountry",
+    "WorkAddress",
+    "WorkAddress2",
+    "WorkCity",
+    "WorkState",
+    "WorkZipCode",
+    "WorkCountry",
+    "JobTitle",
+    "Department",
+    "Company",
+    "BirthYear",
+    "BirthMonth",
+    "BirthDay",
+    "WebPage1",
+    "WebPage2",
+    "Custom1",
+    "Custom2",
+    "Custom3",
+    "Custom4",
+    "Notes",
+    "_AimScreenName",
+  ];
 
   // get the extra attributes supported for the given type of import
   if (this.mFile.leafName.toLowerCase().endsWith(".ldif")) {
     // LDIF: add PreferMailFormat
-    this.mSupportedAttributes = supportedAttributes.concat(["PreferMailFormat"]);
+    this.mSupportedAttributes = supportedAttributes.concat([
+      "PreferMailFormat",
+    ]);
   } else if (this.mFile.leafName.toLowerCase().endsWith(".csv")) {
     this.mSupportedAttributes = supportedAttributes;
     this.setFieldMap(this.getDefaultFieldMap(true));
@@ -156,8 +202,9 @@ function AbImportHelper(aFile, aModuleSearchString, aAbName, aJsonName) {
   }
 
   // get the "cards" from the JSON file, if necessary
-  if (aJsonName)
+  if (aJsonName) {
     this.mJsonCards = this.getJsonCards(aJsonName);
+  }
 }
 
 AbImportHelper.prototype = {
@@ -171,8 +218,9 @@ AbImportHelper.prototype = {
    * @return A default field map.
    */
   getDefaultFieldMap(aSkipFirstRecord) {
-    var importService = Cc["@mozilla.org/import/import-service;1"]
-                         .getService(Ci.nsIImportService);
+    var importService = Cc["@mozilla.org/import/import-service;1"].getService(
+      Ci.nsIImportService
+    );
     var fieldMap = importService.CreateNewFieldMap();
 
     fieldMap.DefaultFieldMap(fieldMap.numMozFields);
@@ -220,8 +268,9 @@ AbImportHelper.prototype = {
    * Calls do_test_finished() when done
    */
   checkResults() {
-    if (!this.mJsonCards)
+    if (!this.mJsonCards) {
       do_throw("The address book must be setup before checking results");
+    }
     // When do_test_pending() was called and there is an error the test hangs.
     // This try/catch block will catch any errors and call do_throw() with the
     // error to throw the error and avoid the hang.
@@ -229,8 +278,10 @@ AbImportHelper.prototype = {
       // make sure an address book was created
       var newAb = this.getAbByName(this.mAbName);
       Assert.ok(newAb !== null);
-      Assert.ok(newAb instanceof Ci.nsIAbDirectory &&
-                newAb.childCards instanceof Ci.nsISimpleEnumerator);
+      Assert.ok(
+        newAb instanceof Ci.nsIAbDirectory &&
+          newAb.childCards instanceof Ci.nsISimpleEnumerator
+      );
       // get the imported card(s) and check each one
       var iter = newAb.childCards;
       var count = 0;
@@ -261,9 +312,11 @@ AbImportHelper.prototype = {
     var data = null;
     while (iter.hasMoreElements()) {
       data = iter.getNext();
-      if (data instanceof Ci.nsIAbDirectory)
-        if (data.dirName == aName)
+      if (data instanceof Ci.nsIAbDirectory) {
+        if (data.dirName == aName) {
           return data;
+        }
+      }
     }
     return null;
   },
@@ -276,9 +329,11 @@ AbImportHelper.prototype = {
    * @param aCard     The imported card to compare with.
    */
   compareCards(aJsonCard, aCard) {
-    for (var i in aJsonCard)
-      if (this.mSupportedAttributes.includes(i))
+    for (var i in aJsonCard) {
+      if (this.mSupportedAttributes.includes(i)) {
         Assert.equal(aJsonCard[i], aCard.getProperty(i, "BAD"));
+      }
+    }
   },
   /**
    * AbImportHelper.getJsonCards
@@ -292,25 +347,30 @@ AbImportHelper.prototype = {
    * @return An array of "cards".
    */
   getJsonCards(aName) {
-    if (!aName)
+    if (!aName) {
       do_throw("Error - getJSONAb requires an address book name");
+    }
     var file = do_get_file("resources/addressbook.json");
-    if (!file || !file.exists() || !file.isFile())
+    if (!file || !file.exists() || !file.isFile()) {
       do_throw("Unable to get JSON file");
+    }
 
-    var fis = Cc["@mozilla.org/network/file-input-stream;1"]
-               .createInstance(Ci.nsIFileInputStream);
+    var fis = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
+      Ci.nsIFileInputStream
+    );
     fis.init(file, 0x01, 0o444, 0);
-    var istream = Cc["@mozilla.org/intl/converter-input-stream;1"]
-                   .createInstance(Ci.nsIConverterInputStream);
-    var replacementChar = Ci.nsIConverterInputStream
-                            .DEFAULT_REPLACEMENT_CHARACTER;
+    var istream = Cc[
+      "@mozilla.org/intl/converter-input-stream;1"
+    ].createInstance(Ci.nsIConverterInputStream);
+    var replacementChar =
+      Ci.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER;
     istream.init(fis, "UTF-8", 1024, replacementChar);
     var json = "";
     var str = {};
     // get the entire file into the json string
-    while (istream.readString(4096, str) != 0)
+    while (istream.readString(4096, str) != 0) {
       json += str.value;
+    }
     // close the input streams
     istream.close();
     fis.close();
@@ -365,7 +425,9 @@ MailImportHelper.prototype = {
     let actualEnumerator = actualFolder.subFolders;
     for (let i = 0; i < expectedSubFolderCount; i++) {
       let expectedSubFolder = expectedSubFolders[i];
-      let actualSubFolder = actualEnumerator.getNext().QueryInterface(Ci.nsIMsgFolder);
+      let actualSubFolder = actualEnumerator
+        .getNext()
+        .QueryInterface(Ci.nsIMsgFolder);
       this._checkEqualFolder(expectedSubFolder, actualSubFolder);
     }
   },
@@ -409,10 +471,11 @@ SettingsImportHelper.prototype = {
    */
   beginImport() {
     this._ensureNoAccounts();
-    if (this.mFile)
+    if (this.mFile) {
       this.mInterface.SetLocation(this.mFile);
-    else
+    } else {
       Assert.equal(true, this.mInterface.AutoLocate({}, {}));
+    }
     Assert.equal(true, this.mInterface.Import({}));
     this.checkResults();
   },
@@ -442,9 +505,15 @@ SettingsImportHelper.prototype = {
 
   _checkPop3IncomingServer(expected, actual) {
     Assert.equal(expected.leaveMessagesOnServer, actual.leaveMessagesOnServer);
-    Assert.equal(expected.deleteMailLeftOnServer, actual.deleteMailLeftOnServer);
+    Assert.equal(
+      expected.deleteMailLeftOnServer,
+      actual.deleteMailLeftOnServer
+    );
     Assert.equal(expected.deleteByAgeFromServer, actual.deleteByAgeFromServer);
-    Assert.equal(expected.numDaysToLeaveOnServer, actual.numDaysToLeaveOnServer);
+    Assert.equal(
+      expected.numDaysToLeaveOnServer,
+      actual.numDaysToLeaveOnServer
+    );
   },
 
   _checkIncomingServer(expected, actual) {
@@ -459,8 +528,12 @@ SettingsImportHelper.prototype = {
     Assert.equal(expected.doBiff, actual.doBiff);
     Assert.equal(expected.biffMinutes, actual.biffMinutes);
 
-    if (expected.type == "pop3")
-      this._checkPop3IncomingServer(expected, actual.QueryInterface(Ci.nsIPop3IncomingServer));
+    if (expected.type == "pop3") {
+      this._checkPop3IncomingServer(
+        expected,
+        actual.QueryInterface(Ci.nsIPop3IncomingServer)
+      );
+    }
   },
 
   _checkAccount(expected, actual) {
@@ -471,22 +544,30 @@ SettingsImportHelper.prototype = {
     this._checkIdentity(expected.identity, actualIdentity);
 
     if (expected.incomingServer.type != "nntp") {
-      let actualSmtpServer = MailServices.smtp.getServerByKey(actualIdentity.smtpServerKey);
+      let actualSmtpServer = MailServices.smtp.getServerByKey(
+        actualIdentity.smtpServerKey
+      );
       this._checkSmtpServer(expected.smtpServer, actualSmtpServer);
     }
   },
 
   _isLocalMailAccount(account) {
-    return (account.incomingServer.type == "none" &&
-            account.incomingServer.username == "nobody" &&
-            account.incomingServer.hostName == "Local Folders");
+    return (
+      account.incomingServer.type == "none" &&
+      account.incomingServer.username == "nobody" &&
+      account.incomingServer.hostName == "Local Folders"
+    );
   },
 
   _findExpectedAccount(account) {
     return this.mExpected.filter(function(expectedAccount) {
-      return (expectedAccount.incomingServer.type == account.incomingServer.type &&
-              expectedAccount.incomingServer.username == account.incomingServer.username &&
-              expectedAccount.incomingServer.hostName == account.incomingServer.hostName);
+      return (
+        expectedAccount.incomingServer.type == account.incomingServer.type &&
+        expectedAccount.incomingServer.username ==
+          account.incomingServer.username &&
+        expectedAccount.incomingServer.hostName ==
+          account.incomingServer.hostName
+      );
     });
   },
 
@@ -494,8 +575,9 @@ SettingsImportHelper.prototype = {
     let accounts = MailServices.accounts.accounts;
     for (let i = 0; i < accounts.length - 1; i++) {
       let actualAccount = accounts.queryElementAt(i, Ci.nsIMsgAccount);
-      if (this._isLocalMailAccount(actualAccount))
+      if (this._isLocalMailAccount(actualAccount)) {
         continue;
+      }
       let expectedAccounts = this._findExpectedAccount(actualAccount);
       Assert.notEqual(null, expectedAccounts);
       Assert.equal(1, expectedAccounts.length);
@@ -532,10 +614,11 @@ FiltersImportHelper.prototype = {
    * and compare the import results with the expected array.
    */
   beginImport() {
-    if (this.mFile)
+    if (this.mFile) {
       this.mInterface.SetLocation(this.mFile);
-    else
+    } else {
       Assert.equal(true, this.mInterface.AutoLocate({}, {}));
+    }
     Assert.equal(true, this.mInterface.Import({}));
     this.checkResults();
   },
@@ -544,8 +627,9 @@ FiltersImportHelper.prototype = {
     let result = 0;
     for (let i = 0; i < aFilterList.filterCount; i++) {
       let filter = aFilterList.getFilterAt(i);
-      if (aCondition(filter))
+      if (aCondition(filter)) {
         result++;
+      }
     }
     return result;
   },
@@ -554,22 +638,34 @@ FiltersImportHelper.prototype = {
     let expected = this.mExpected;
     let server = MailServices.accounts.localFoldersServer;
     let filterList = server.getFilterList(null);
-    if ("count" in expected)
+    if ("count" in expected) {
       Assert.equal(filterList.filterCount, expected.count);
-    if ("enabled" in expected)
-      Assert.equal(this._loopOverFilters(filterList, f => f.enabled), expected.enabled);
+    }
+    if ("enabled" in expected) {
+      Assert.equal(
+        this._loopOverFilters(filterList, f => f.enabled),
+        expected.enabled
+      );
+    }
     if ("incoming" in expected) {
-      Assert.equal(this._loopOverFilters(filterList,
-                                         f => (f.filterType & Ci.nsMsgFilterType.InboxRule)),
-                                         expected.incoming);
+      Assert.equal(
+        this._loopOverFilters(
+          filterList,
+          f => f.filterType & Ci.nsMsgFilterType.InboxRule
+        ),
+        expected.incoming
+      );
     }
     if ("outgoing" in expected) {
-      Assert.equal(this._loopOverFilters(filterList,
-                                         f => (f.filterType & Ci.nsMsgFilterType.PostOutgoing)),
-                                         expected.outgoing);
+      Assert.equal(
+        this._loopOverFilters(
+          filterList,
+          f => f.filterType & Ci.nsMsgFilterType.PostOutgoing
+        ),
+        expected.outgoing
+      );
     }
   },
 };
-
 
 do_load_manifest("resources/TestMailImporter.manifest");

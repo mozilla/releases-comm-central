@@ -21,9 +21,11 @@
  */
 
 // Services
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 // MailServices
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 // Import the main scripts that mailnews tests need to set up and tear down
 /* import-globals-from ../../../../../test/resources/abSetup.js */
@@ -47,11 +49,11 @@ registerFolderEventLogHelper();
 
 /* exported scenarios */
 // Create a message generator
-var msgGen = gMessageGenerator = new MessageGenerator();
+var msgGen = (gMessageGenerator = new MessageGenerator());
 // Create a message scenario generator using that message generator
 var scenarios = new MessageScenarioFactory(msgGen);
 
-var {logObject} = ChromeUtils.import("resource:///modules/errUtils.js");
+var { logObject } = ChromeUtils.import("resource:///modules/errUtils.js");
 
 /**
  * Create a 'me' identity of "me@localhost" for the benefit of Gloda.  At the
@@ -69,11 +71,12 @@ createMeIdentity();
 
 // -- Set the gloda prefs
 // yes to indexing
-Services.prefs.setBoolPref("mailnews.database.global.indexer.enabled",
-                           true);
+Services.prefs.setBoolPref("mailnews.database.global.indexer.enabled", true);
 // no to a sweep we don't control
-Services.prefs.setBoolPref("mailnews.database.global.indexer.perform_initial_sweep",
-                           false);
+Services.prefs.setBoolPref(
+  "mailnews.database.global.indexer.perform_initial_sweep",
+  false
+);
 // yes to debug output
 Services.prefs.setBoolPref("mailnews.database.global.logging.dump", true);
 
@@ -85,34 +88,40 @@ var ENVIRON_MAPPINGS = [
 ];
 
 // -- Propagate environment variables to prefs as appropriate:
-var environ = Cc["@mozilla.org/process/environment;1"]
-                .getService(Ci.nsIEnvironment);
-for (let {envVar, prefName} of ENVIRON_MAPPINGS) {
- if (environ.exists(envVar)) {
-   Services.prefs.setCharPref(prefName, environ.get(envVar));
- }
+var environ = Cc["@mozilla.org/process/environment;1"].getService(
+  Ci.nsIEnvironment
+);
+for (let { envVar, prefName } of ENVIRON_MAPPINGS) {
+  if (environ.exists(envVar)) {
+    Services.prefs.setCharPref(prefName, environ.get(envVar));
+  }
 }
 
 /* exported IndexingJob, GlodaFolder, TagNoun */
 // -- Import our modules
-var {Gloda} = ChromeUtils.import("resource:///modules/gloda/public.js");
-var {GlodaIndexer, IndexingJob} = ChromeUtils.import("resource:///modules/gloda/indexer.js");
-var {GlodaMsgIndexer} = ChromeUtils.import("resource:///modules/gloda/index_msg.js");
-var {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
-var {
-  GlodaCollectionManager,
-} = ChromeUtils.import("resource:///modules/gloda/collection.js");
-var {
-  GlodaFolder,
-  GlodaMessage,
-} = ChromeUtils.import("resource:///modules/gloda/datamodel.js");
-var {TagNoun} = ChromeUtils.import("resource:///modules/gloda/noun_tag.js");
-var {
-  MsgHdrToMimeMessage,
-} = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
+var { Gloda } = ChromeUtils.import("resource:///modules/gloda/public.js");
+var { GlodaIndexer, IndexingJob } = ChromeUtils.import(
+  "resource:///modules/gloda/indexer.js"
+);
+var { GlodaMsgIndexer } = ChromeUtils.import(
+  "resource:///modules/gloda/index_msg.js"
+);
+var { GlodaDatastore } = ChromeUtils.import(
+  "resource:///modules/gloda/datastore.js"
+);
+var { GlodaCollectionManager } = ChromeUtils.import(
+  "resource:///modules/gloda/collection.js"
+);
+var { GlodaFolder, GlodaMessage } = ChromeUtils.import(
+  "resource:///modules/gloda/datamodel.js"
+);
+var { TagNoun } = ChromeUtils.import("resource:///modules/gloda/noun_tag.js");
+var { MsgHdrToMimeMessage } = ChromeUtils.import(
+  "resource:///modules/gloda/mimemsg.js"
+);
 
 // -- Add a logger listener that throws when we give it a warning/error.
-var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 var throwingAppender = new Log4Moz.ThrowingAppender(do_throw);
 throwingAppender.level = Log4Moz.Level.Warn;
 Log4Moz.repository.rootLogger.addAppender(throwingAppender);
@@ -153,15 +162,15 @@ register_message_injection_listener({
    *  the ramification that we should expect a msgsClassified event because
    *  the destination will see the header get added at some point.
    */
-  onMovingMessagesWithoutDestHeaders:
-      function gth_onMovingMessagesWithoutDestHeaders() {
+  onMovingMessagesWithoutDestHeaders: function gth_onMovingMessagesWithoutDestHeaders() {
     _indexMessageState.interestingEvents.push("msgsClassified");
   },
 });
 
 function _prepareIndexerForTesting() {
-  if (!GlodaIndexer.enabled)
+  if (!GlodaIndexer.enabled) {
     do_throw("The gloda indexer is somehow not enabled.  This is problematic.");
+  }
 
   // Make the indexer be more verbose about indexing for us...
   GlodaIndexer._unitTestSuperVerbose = true;
@@ -174,8 +183,10 @@ function _prepareIndexerForTesting() {
   // The indexer already registered for the idle service; we must remove this
   //  or "idle" notifications will still get sent via the observer mechanism.
   let realIdleService = GlodaIndexer._idleService;
-  realIdleService.removeIdleObserver(GlodaIndexer,
-                                     GlodaIndexer._indexIdleThresholdSecs);
+  realIdleService.removeIdleObserver(
+    GlodaIndexer,
+    GlodaIndexer._indexIdleThresholdSecs
+  );
   // pretend we are always idle
   GlodaIndexer._idleService = {
     idleTime: 1000,
@@ -183,8 +194,7 @@ function _prepareIndexerForTesting() {
       // There is no actual need to register with the idle observer, and if
       //  we do, the stupid "idle" notification will trigger commits.
     },
-    removeIdleObserver() {
-    },
+    removeIdleObserver() {},
   };
 
   // We want the event-driven indexer to always handle indexing and never spill
@@ -240,15 +250,26 @@ if (logHelperHasInterestedListeners) {
 
   let orig_updateMessageLocations = GlodaDatastore.updateMessageLocations;
   GlodaDatastore.updateMessageLocations = function(...aArgs) {
-    mark_action("glodaWrapped", "updateMessageLocations",
-                ["ids", aArgs[0], "keys", aArgs[1], "dest folder",
-                 aArgs[2], "do not notify?", aArgs[3]]);
+    mark_action("glodaWrapped", "updateMessageLocations", [
+      "ids",
+      aArgs[0],
+      "keys",
+      aArgs[1],
+      "dest folder",
+      aArgs[2],
+      "do not notify?",
+      aArgs[3],
+    ]);
     orig_updateMessageLocations.apply(GlodaDatastore, aArgs);
   };
   let orig_updateMessageKeys = GlodaDatastore.updateMessageKeys;
   GlodaDatastore.updateMessageKeys = function(...aArgs) {
-    mark_action("glodaWrapped", "updateMessageKeys",
-                ["ids", aArgs[0], "keys", aArgs[1]]);
+    mark_action("glodaWrapped", "updateMessageKeys", [
+      "ids",
+      aArgs[0],
+      "keys",
+      aArgs[1],
+    ]);
     orig_updateMessageKeys.apply(GlodaDatastore, aArgs);
   };
 
@@ -313,24 +334,27 @@ var _wait_for_gloda_indexer_defaults = {
 function wait_for_gloda_indexer(aSynMessageSets, aConfig) {
   let ims = _indexMessageState;
 
-  if (aSynMessageSets == null)
+  if (aSynMessageSets == null) {
     aSynMessageSets = [];
-  else if (!Array.isArray(aSynMessageSets))
+  } else if (!Array.isArray(aSynMessageSets)) {
     aSynMessageSets = [aSynMessageSets];
+  }
 
   ims.synMessageSets = aSynMessageSets;
 
   function get_val(aKey) {
-    if (aConfig && (aKey in aConfig))
+    if (aConfig && aKey in aConfig) {
       return aConfig[aKey];
+    }
     return _wait_for_gloda_indexer_defaults[aKey];
   }
 
   ims.verifier = get_val("verifier");
   ims.augmentSynSets = get_val("augment");
   ims.deletionSynSets = get_val("deleted");
-  if (ims.deletionSynSets && !Array.isArray(ims.deletionSynSets))
+  if (ims.deletionSynSets && !Array.isArray(ims.deletionSynSets)) {
     ims.deletionSynSets = [ims.deletionSynSets];
+  }
 
   ims.expectedWorkerRecoveredCount = get_val("recovered");
   ims.expectedFailedToRecoverCount = get_val("failedToRecover");
@@ -364,8 +388,9 @@ var _indexMessageState = {
   _inited: false,
 
   _init: function _indexMessageState_init() {
-    if (this._inited)
+    if (this._inited) {
       return;
+    }
 
     Gloda.addIndexerListener(this.onIndexNotification);
     this.catchAllCollection = Gloda._wildcardCollection(Gloda.NOUN_MESSAGE);
@@ -379,8 +404,10 @@ var _indexMessageState = {
     // waitingForEvents support
     // (we want this to happen after gloda registers its own listener, and it
     //  does.)
-    MailServices.mfn.addListener(this,
-      Ci.nsIMsgFolderNotificationService.msgsClassified);
+    MailServices.mfn.addListener(
+      this,
+      Ci.nsIMsgFolderNotificationService.msgsClassified
+    );
 
     this._inited = true;
   },
@@ -444,31 +471,39 @@ var _indexMessageState = {
   },
 
   _testHookRecover(aRecoverResult, aOriginEx, aActiveJob, aCallbackHandle) {
-    mark_action("glodaEvent", "indexer recovery hook fired",
-                ["recover result:", aRecoverResult,
-                 "originating exception:", aOriginEx,
-                 "active job:", aActiveJob,
-                 "callbackHandle:",
-                 _indexMessageState._jsonifyCallbackHandleState(
-                   aCallbackHandle)]);
-    if (aRecoverResult)
+    mark_action("glodaEvent", "indexer recovery hook fired", [
+      "recover result:",
+      aRecoverResult,
+      "originating exception:",
+      aOriginEx,
+      "active job:",
+      aActiveJob,
+      "callbackHandle:",
+      _indexMessageState._jsonifyCallbackHandleState(aCallbackHandle),
+    ]);
+    if (aRecoverResult) {
       _indexMessageState._workerRecoveredCount++;
-    else
+    } else {
       _indexMessageState._workerFailedToRecoverCount++;
+    }
   },
 
   _testHookCleanup(aHadCleanupFunc, aOriginEx, aActiveJob, aCallbackHandle) {
-    mark_action("glodaEvent", "indexer cleanup hook fired",
-                ["had cleanup?", aHadCleanupFunc,
-                 "originating exception:", aOriginEx,
-                 "active job:", aActiveJob,
-                 "callbackHandle",
-                 _indexMessageState._jsonifyCallbackHandleState(
-                   aCallbackHandle)]);
-    if (aHadCleanupFunc)
+    mark_action("glodaEvent", "indexer cleanup hook fired", [
+      "had cleanup?",
+      aHadCleanupFunc,
+      "originating exception:",
+      aOriginEx,
+      "active job:",
+      aActiveJob,
+      "callbackHandle",
+      _indexMessageState._jsonifyCallbackHandleState(aCallbackHandle),
+    ]);
+    if (aHadCleanupFunc) {
       _indexMessageState._workerCleanedUpCount++;
-    else
+    } else {
       _indexMessageState._workerHadNoCleanUpCount++;
+    }
   },
 
   /**
@@ -477,26 +512,31 @@ var _indexMessageState = {
   _glodaMessagesByMessageId: {},
   _glodaDeletionsByMessageId: {},
 
-  assertExpectedMessagesIndexed:
-      function _indexMessageState_assertExpectedMessagesIndexed() {
+  assertExpectedMessagesIndexed: function _indexMessageState_assertExpectedMessagesIndexed() {
     let verifier = this.verifier;
     let previousValue = undefined;
 
     // - Check we have a gloda message for every syn message and verify
     for (let msgSet of this.synMessageSets) {
-      if (this.augmentSynSets)
+      if (this.augmentSynSets) {
         msgSet.glodaMessages = [];
+      }
       for (let [iSynMsg, synMsg] of msgSet.synMessages.entries()) {
         if (!(synMsg.messageId in this._glodaMessagesByMessageId)) {
           let msgHdr = msgSet.getMsgHdr(iSynMsg);
-          mark_failure(
-            ["Header", msgHdr, "in folder", msgHdr ? msgHdr.folder : "no header?",
-             "should have been indexed."]);
+          mark_failure([
+            "Header",
+            msgHdr,
+            "in folder",
+            msgHdr ? msgHdr.folder : "no header?",
+            "should have been indexed.",
+          ]);
         }
 
         let glodaMsg = this._glodaMessagesByMessageId[synMsg.messageId];
-        if (this.augmentSynSets)
+        if (this.augmentSynSets) {
           msgSet.glodaMessages.push(glodaMsg);
+        }
 
         this._glodaMessagesByMessageId[synMsg.messageId] = null;
         if (verifier) {
@@ -509,9 +549,14 @@ var _indexMessageState = {
             // logObject(glodaMsg, "glodaMsg");
             dump("synMsg: " + synMsg + "\n");
             dump("glodaMsg: " + glodaMsg + "\n");
-            mark_failure(
-              ["Verification failure:", synMsg, "is not close enough to",
-                glodaMsg, "; basing this on exception:", ex]);
+            mark_failure([
+              "Verification failure:",
+              synMsg,
+              "is not close enough to",
+              glodaMsg,
+              "; basing this on exception:",
+              ex,
+            ]);
           }
         }
       }
@@ -523,9 +568,13 @@ var _indexMessageState = {
       if (glodaMsg != null) {
         // logObject is too verbose right now
         dump("gloda message: " + glodaMsg + "\n");
-        mark_failure(
-          ["Gloda message", glodaMsg, "should not have been indexed.",
-           "Source header:", glodaMsg.folderMessage]);
+        mark_failure([
+          "Gloda message",
+          glodaMsg,
+          "should not have been indexed.",
+          "Source header:",
+          glodaMsg.folderMessage,
+        ]);
       }
     }
 
@@ -546,38 +595,76 @@ var _indexMessageState = {
       let glodaMsg = this._glodaDeletionsByMessageId[messageId];
       if (glodaMsg != null) {
         logObject(glodaMsg, "glodaMsg");
-        do_throw("Gloda message with message id " + messageId + " was " +
-                 "unexpectedly deleted!");
+        do_throw(
+          "Gloda message with message id " +
+            messageId +
+            " was " +
+            "unexpectedly deleted!"
+        );
       }
     }
 
-    if (this.expectedWorkerRecoveredCount != null &&
-        this.expectedWorkerRecoveredCount != this._workerRecoveredCount)
-      mark_failure(["Expected worker-recovered count did not match actual!",
-                    "Expected", this.expectedWorkerRecoveredCount,
-                    "actual", this._workerRecoveredCount]);
-    if (this.expectedFailedToRecoverCount != null &&
-        this.expectedFailedToRecoverCount != this._workerFailedToRecoverCount)
-      mark_failure(["Expected worker-failed-to-recover count did not match " +
-                     "actual!",
-                    "Expected", this.expectedFailedToRecoverCount,
-                    "actual", this._workerFailedToRecoverCount]);
-    if (this.expectedCleanedUpCount != null &&
-        this.expectedCleanedUpCount != this._workerCleanedUpCount)
-      mark_failure(["Expected worker-cleaned-up count did not match actual!",
-                    "Expected", this.expectedCleanedUpCount,
-                    "actual", this._workerCleanedUpCount]);
-    if (this.expectedHadNoCleanUpCount != null &&
-        this.expectedHadNoCleanUpCount != this._workerHadNoCleanUpCount)
-      mark_failure(["Expected worker-had-no-cleanup count did not match actual!",
-                    "Expected", this.expectedHadNoCleanUpCount,
-                    "actual", this._workerHadNoCleanUpCount]);
+    if (
+      this.expectedWorkerRecoveredCount != null &&
+      this.expectedWorkerRecoveredCount != this._workerRecoveredCount
+    ) {
+      mark_failure([
+        "Expected worker-recovered count did not match actual!",
+        "Expected",
+        this.expectedWorkerRecoveredCount,
+        "actual",
+        this._workerRecoveredCount,
+      ]);
+    }
+    if (
+      this.expectedFailedToRecoverCount != null &&
+      this.expectedFailedToRecoverCount != this._workerFailedToRecoverCount
+    ) {
+      mark_failure([
+        "Expected worker-failed-to-recover count did not match " + "actual!",
+        "Expected",
+        this.expectedFailedToRecoverCount,
+        "actual",
+        this._workerFailedToRecoverCount,
+      ]);
+    }
+    if (
+      this.expectedCleanedUpCount != null &&
+      this.expectedCleanedUpCount != this._workerCleanedUpCount
+    ) {
+      mark_failure([
+        "Expected worker-cleaned-up count did not match actual!",
+        "Expected",
+        this.expectedCleanedUpCount,
+        "actual",
+        this._workerCleanedUpCount,
+      ]);
+    }
+    if (
+      this.expectedHadNoCleanUpCount != null &&
+      this.expectedHadNoCleanUpCount != this._workerHadNoCleanUpCount
+    ) {
+      mark_failure([
+        "Expected worker-had-no-cleanup count did not match actual!",
+        "Expected",
+        this.expectedHadNoCleanUpCount,
+        "actual",
+        this._workerHadNoCleanUpCount,
+      ]);
+    }
 
-    if (this.expectedNumFullIndexed != null &&
-        this.expectedNumFullIndexed != this._numFullIndexed)
-      mark_failure(["Expected number of fully indexed messages did not match.",
-                    "Expected", this.expectedNumFullIndexed,
-                    "actual", this._numFullIndexed]);
+    if (
+      this.expectedNumFullIndexed != null &&
+      this.expectedNumFullIndexed != this._numFullIndexed
+    ) {
+      mark_failure([
+        "Expected number of fully indexed messages did not match.",
+        "Expected",
+        this.expectedNumFullIndexed,
+        "actual",
+        this._numFullIndexed,
+      ]);
+    }
 
     this._glodaMessagesByMessageId = {};
     this._glodaDeletionsByMessageId = {};
@@ -590,7 +677,11 @@ var _indexMessageState = {
     this._numFullIndexed = 0;
 
     // make sure xpcshell head.js knows we tested something
-    do_report_result(true, "Expected messages were indexed.", Components.stack.caller);
+    do_report_result(
+      true,
+      "Expected messages were indexed.",
+      Components.stack.caller
+    );
   },
 
   /*
@@ -616,18 +707,23 @@ var _indexMessageState = {
 
     // simulate some other activity clearing out the the current folder's
     // cached database, which used to kill the indexer's enumerator.
-    if (++this._numItemsAdded == 3)
+    if (++this._numItemsAdded == 3) {
       GlodaMsgIndexer._indexingFolder.msgDatabase = null;
+    }
   },
 
   onItemsModified(aItems) {
     mark_action("glodaEvent", "itemsModified", aItems);
 
     for (let item of aItems) {
-      if (item.headerMessageID in this._glodaMessagesByMessageId)
-        mark_failure(
-          ["Gloda message", item, "already indexed once since the last" +
-            "wait_for_gloda_indexer call!"]);
+      if (item.headerMessageID in this._glodaMessagesByMessageId) {
+        mark_failure([
+          "Gloda message",
+          item,
+          "already indexed once since the last" +
+            "wait_for_gloda_indexer call!",
+        ]);
+      }
 
       this._glodaMessagesByMessageId[item.headerMessageID] = item;
     }
@@ -637,10 +733,14 @@ var _indexMessageState = {
     mark_action("glodaEvent", "removed", aItems);
 
     for (let item of aItems) {
-      if (item.headerMessageID in this._glodaDeletionsByMessageId)
-        mark_failure(
-          ["Gloda message", item, "already deleted once since the last" +
-            "wait_for_gloda_indexer call!"]);
+      if (item.headerMessageID in this._glodaDeletionsByMessageId) {
+        mark_failure([
+          "Gloda message",
+          item,
+          "already deleted once since the last" +
+            "wait_for_gloda_indexer call!",
+        ]);
+      }
 
       this._glodaDeletionsByMessageId[item.headerMessageID] = item;
     }
@@ -657,7 +757,7 @@ var _indexMessageState = {
    * Fake attribute provider processing function so we can distinguish
    *  between fully reindexed messages and fast-path modified messages.
    */
-  * process(aItem, aRawReps, aIsConceptuallyNew, aCallbackHandle) {
+  *process(aItem, aRawReps, aIsConceptuallyNew, aCallbackHandle) {
     this._numFullIndexed++;
 
     yield Gloda.kWorkDone;
@@ -670,16 +770,31 @@ var _indexMessageState = {
    *  completed so that we can try and process all the things that should have
    *  been processed.
    */
-  onIndexNotification(aStatus, aPrettyName, aJobIndex, aJobItemIndex, aJobItemGoal) {
+  onIndexNotification(
+    aStatus,
+    aPrettyName,
+    aJobIndex,
+    aJobItemIndex,
+    aJobItemGoal
+  ) {
     let ims = _indexMessageState;
-    let waiting = ims.waitingForIndexingCompletion ?
-                  ims.waitingForIndexingCompletion : false;
-    LOG.debug("((( Index listener notified! aStatus = " + aStatus +
-              " waiting: " + waiting + "\n");
+    let waiting = ims.waitingForIndexingCompletion
+      ? ims.waitingForIndexingCompletion
+      : false;
+    LOG.debug(
+      "((( Index listener notified! aStatus = " +
+        aStatus +
+        " waiting: " +
+        waiting +
+        "\n"
+    );
 
     // we only care if indexing has just completed and we're waiting
-    if (aStatus == Gloda.kIndexerIdle && !GlodaIndexer.indexing &&
-        ims.waitingForIndexingCompletion) {
+    if (
+      aStatus == Gloda.kIndexerIdle &&
+      !GlodaIndexer.indexing &&
+      ims.waitingForIndexingCompletion
+    ) {
       ims.assertExpectedMessagesIndexed();
       ims.waitingForIndexingCompletion = false;
       LOG.debug("  kicking driver...\n");
@@ -704,13 +819,21 @@ var _indexMessageState = {
         this.waitingForEvents = false;
         if (GlodaIndexer.indexing) {
           this.waitingForIndexingCompletion = true;
-          mark_action("glodaTestHelper", "saw last interesting event, " +
-                      "waiting for indexer asynchronously", []);
+          mark_action(
+            "glodaTestHelper",
+            "saw last interesting event, " +
+              "waiting for indexer asynchronously",
+            []
+          );
           return;
         }
 
-        mark_action("glodaTestHelper", "saw last interesting event, " +
-                    "indexing believed already completed", []);
+        mark_action(
+          "glodaTestHelper",
+          "saw last interesting event, " +
+            "indexing believed already completed",
+          []
+        );
         this.assertExpectedMessagesIndexed();
         async_driver();
       }
@@ -737,8 +860,10 @@ var _indexMessageState = {
  *   argument for wait_for_gloda_indexer (who we internally end up calling).
  */
 function indexAndPermuteMessages(aScenarioMaker, aVerifier) {
-  return async_run({func: _runPermutations,
-                    args: [aScenarioMaker, aVerifier]});
+  return async_run({
+    func: _runPermutations,
+    args: [aScenarioMaker, aVerifier],
+  });
 }
 
 /**
@@ -753,12 +878,15 @@ function* _runPermutations(aScenarioMaker, aVerifier) {
   let scenarioMessages = aScenarioMaker();
   let numPermutations = Math.min(factorial(scenarioMessages.length), 32);
   for (let iPermutation = 0; iPermutation < numPermutations; iPermutation++) {
-    mark_sub_test_start("Permutation",
-                        (iPermutation + 1) + "/" + numPermutations,
-                        true);
+    mark_sub_test_start(
+      "Permutation",
+      iPermutation + 1 + "/" + numPermutations,
+      true
+    );
     // if this is not the first time through, we need to create a new set
-    if (iPermutation)
+    if (iPermutation) {
       scenarioMessages = aScenarioMaker();
+    }
     scenarioMessages = permute(scenarioMessages, iPermutation);
     let scenarioSet = new SyntheticMessageSet(scenarioMessages);
     yield add_sets_to_folders(folder, [scenarioSet]);
@@ -773,8 +901,9 @@ function* _runPermutations(aScenarioMaker, aVerifier) {
  *  possible for a given set of messages.
  */
 function factorial(i, rv) {
-  if (i <= 1)
+  if (i <= 1) {
     return rv || 1;
+  }
   return factorial(i - 1, (rv || 1) * i); // tail-call capable
 }
 
@@ -829,8 +958,12 @@ function expectExtract_default_toString(aThing) {
 }
 
 // see {queryExpect} for info on what we do
-function QueryExpectationListener(aExpectedSet, aGlodaExtractor,
-                                  aOrderVerifier, aCallerStackFrame) {
+function QueryExpectationListener(
+  aExpectedSet,
+  aGlodaExtractor,
+  aOrderVerifier,
+  aCallerStackFrame
+) {
   this.expectedSet = aExpectedSet;
   this.glodaExtractor = aGlodaExtractor;
   this.orderVerifier = aOrderVerifier;
@@ -848,17 +981,27 @@ QueryExpectationListener.prototype = {
       try {
         glodaStringRep = this.glodaExtractor(item);
       } catch (ex) {
-        do_throw("Gloda extractor threw during query expectation for item: " +
-                 item + " exception: " + ex);
+        do_throw(
+          "Gloda extractor threw during query expectation for item: " +
+            item +
+            " exception: " +
+            ex
+        );
       }
 
       // make sure we were expecting this guy
-      if (glodaStringRep in this.expectedSet)
+      if (glodaStringRep in this.expectedSet) {
         delete this.expectedSet[glodaStringRep];
-      else
-        mark_failure(["Query returned unexpected result!", item,
-                      "expected set", this.expectedSet,
-                      "caller", this.callerStackFrame]);
+      } else {
+        mark_failure([
+          "Query returned unexpected result!",
+          item,
+          "expected set",
+          this.expectedSet,
+          "caller",
+          this.callerStackFrame,
+        ]);
+      }
 
       if (this.orderVerifier) {
         try {
@@ -868,10 +1011,15 @@ QueryExpectationListener.prototype = {
           //  we actually got...
           dump("!!! ORDER PROBLEM, SO ORDER DUMP!\n");
           for (let [iThing, thing] of aItems.entries()) {
-            dump(iThing + ": " + thing +
-                 (aCollection.stashedColumns ?
-                  (". " + aCollection.stashedColumns[thing.id].join(", ")) :
-                  "") + "\n");
+            dump(
+              iThing +
+                ": " +
+                thing +
+                (aCollection.stashedColumns
+                  ? ". " + aCollection.stashedColumns[thing.id].join(", ")
+                  : "") +
+                "\n"
+            );
           }
           throw ex;
         }
@@ -881,17 +1029,24 @@ QueryExpectationListener.prototype = {
       // make sure the query's test method agrees with the database about this
       if (!aCollection.query.test(item)) {
         logObject(item);
-        do_throw("Query test returned false when it should have been true on " +
-                 "extracted: " + glodaStringRep + " item: " + item);
+        do_throw(
+          "Query test returned false when it should have been true on " +
+            "extracted: " +
+            glodaStringRep +
+            " item: " +
+            item
+        );
       }
     }
   },
-  onItemsModified: function query_expectation_onItemsModified(aItems,
-      aCollection) {
-  },
-  onItemsRemoved: function query_expectation_onItemsRemoved(aItems,
-      aCollection) {
-  },
+  onItemsModified: function query_expectation_onItemsModified(
+    aItems,
+    aCollection
+  ) {},
+  onItemsRemoved: function query_expectation_onItemsRemoved(
+    aItems,
+    aCollection
+  ) {},
   onQueryCompleted: function query_expectation_onQueryCompleted(aCollection) {
     // we may continue to match newly added items if we leave our query as it
     //  is, so let's become explicit to avoid related troubles.
@@ -954,27 +1109,40 @@ QueryExpectationListener.prototype = {
  *     aItem, aCollectionResultIsFor).
  * @returns The collection created from the query.
  */
-function queryExpect(aQuery, aExpectedSet, aGlodaExtractor,
-                     aExpectedExtractor, aOrderVerifier) {
-  if (aQuery.test)
-    aQuery = {queryFunc: aQuery.getCollection, queryThis: aQuery, args: [],
-              nounId: aQuery._nounDef.id};
+function queryExpect(
+  aQuery,
+  aExpectedSet,
+  aGlodaExtractor,
+  aExpectedExtractor,
+  aOrderVerifier
+) {
+  if (aQuery.test) {
+    aQuery = {
+      queryFunc: aQuery.getCollection,
+      queryThis: aQuery,
+      args: [],
+      nounId: aQuery._nounDef.id,
+    };
+  }
 
-  if ("synMessages" in aExpectedSet)
+  if ("synMessages" in aExpectedSet) {
     aExpectedSet = aExpectedSet.synMessages;
+  }
 
   // - set extractor functions to defaults if omitted
   if (aGlodaExtractor == null) {
-    if (_defaultExpectationExtractors[aQuery.nounId] !== undefined)
+    if (_defaultExpectationExtractors[aQuery.nounId] !== undefined) {
       aGlodaExtractor = _defaultExpectationExtractors[aQuery.nounId][0];
-    else
+    } else {
       aGlodaExtractor = expectExtract_default_toString;
+    }
   }
   if (aExpectedExtractor == null) {
-    if (_defaultExpectationExtractors[aQuery.nounId] !== undefined)
+    if (_defaultExpectationExtractors[aQuery.nounId] !== undefined) {
       aExpectedExtractor = _defaultExpectationExtractors[aQuery.nounId][1];
-    else
+    } else {
       aExpectedExtractor = expectExtract_default_toString;
+    }
   }
 
   // - build the expected set
@@ -983,17 +1151,25 @@ function queryExpect(aQuery, aExpectedSet, aGlodaExtractor,
     try {
       expectedSet[aExpectedExtractor(item)] = item;
     } catch (ex) {
-      do_throw("Expected extractor threw during query expectation for item: " +
-               item + " exception: " + ex);
+      do_throw(
+        "Expected extractor threw during query expectation for item: " +
+          item +
+          " exception: " +
+          ex
+      );
     }
   }
   mark_action("glodaTestHelper", "expecting", [expectedSet]);
 
   // - create the listener...
-  aQuery.args.push(new QueryExpectationListener(expectedSet,
-                                                aGlodaExtractor,
-                                                aOrderVerifier,
-                                                Components.stack.caller));
+  aQuery.args.push(
+    new QueryExpectationListener(
+      expectedSet,
+      aGlodaExtractor,
+      aOrderVerifier,
+      Components.stack.caller
+    )
+  );
   return aQuery.queryFunc.apply(aQuery.queryThis, aQuery.args);
 }
 
@@ -1015,8 +1191,9 @@ function sqlExpectCount(aExpectedCount, aSQLString, ...params) {
 
   let desc = [aSQLString, ...params];
   mark_action("glodaTestHelper", "running SQL count", desc);
-  stmt.executeAsync(new _SqlExpectationListener(aExpectedCount, desc,
-                                                Components.stack.caller));
+  stmt.executeAsync(
+    new _SqlExpectationListener(aExpectedCount, desc, Components.stack.caller)
+  );
   // we don't need the statement anymore
   stmt.finalize();
 
@@ -1032,23 +1209,41 @@ function _SqlExpectationListener(aExpectedCount, aDesc, aCallerStackFrame) {
 _SqlExpectationListener.prototype = {
   handleResult: function sel_handleResult(aResultSet) {
     let row = aResultSet.getNextRow();
-    if (!row)
-      mark_failure(["No result row returned from caller", this.callerStackFrame,
-                    "SQL:", this.sqlDesc]);
+    if (!row) {
+      mark_failure([
+        "No result row returned from caller",
+        this.callerStackFrame,
+        "SQL:",
+        this.sqlDesc,
+      ]);
+    }
     this.actualCount = row.getInt64(0);
   },
 
   handleError: function sel_handleError(aError) {
-    mark_failure(["SQL error from caller", this.callerStackFrame,
-                  "result", aError, "SQL: ", this.sqlDesc]);
+    mark_failure([
+      "SQL error from caller",
+      this.callerStackFrame,
+      "result",
+      aError,
+      "SQL: ",
+      this.sqlDesc,
+    ]);
   },
 
   handleCompletion: function sel_handleCompletion(aReason) {
-    if (this.actualCount != this.expectedCount)
-      mark_failure(["Actual count of", this.actualCount,
-                    "does not match expected count of", this.expectedCount,
-                    "from caller", this.callerStackFrame,
-                    "SQL", this.sqlDesc]);
+    if (this.actualCount != this.expectedCount) {
+      mark_failure([
+        "Actual count of",
+        this.actualCount,
+        "does not match expected count of",
+        this.expectedCount,
+        "from caller",
+        this.callerStackFrame,
+        "SQL",
+        this.sqlDesc,
+      ]);
+    }
     async_driver();
   },
 };
@@ -1062,13 +1257,15 @@ _SqlExpectationListener.prototype = {
  */
 function sqlRun(sql) {
   let conn = GlodaDatastore.asyncConnection;
-  let stmt = conn.createAsyncStatement(sql), rows = null;
+  let stmt = conn.createAsyncStatement(sql),
+    rows = null;
 
   mark_action("glodaTestHelper", "running SQL", [sql]);
   stmt.executeAsync({
     handleResult(aResultSet) {
-      if (!rows)
+      if (!rows) {
         rows = [];
+      }
       let row;
       while ((row = aResultSet.getNextRow())) {
         rows.push(row);
@@ -1097,14 +1294,16 @@ function wait_for_gloda_db_flush() {
   // we already have a mechanism to do this by forcing a commit.  arguably,
   //  it would be better to use a mechanism that does not induce an fsync.
   var savedDepth = GlodaDatastore._transactionDepth;
-  if (!savedDepth)
+  if (!savedDepth) {
     GlodaDatastore._beginTransaction();
+  }
   GlodaDatastore.runPostCommit(async_driver);
   // we don't actually need to run things to zero... we can just wait for the
   //  outer transaction to close itself...
   GlodaDatastore._commitTransaction();
-  if (savedDepth)
+  if (savedDepth) {
     GlodaDatastore._beginTransaction();
+  }
   return false;
 }
 
@@ -1113,8 +1312,9 @@ var _gloda_simulate_hang_waiting_for_hang = false;
 
 function _simulate_hang_on_MsgHdrToMimeMessage(...aArgs) {
   _gloda_simulate_hang_data = [MsgHdrToMimeMessage, null, aArgs];
-  if (_gloda_simulate_hang_waiting_for_hang)
+  if (_gloda_simulate_hang_waiting_for_hang) {
     async_driver();
+  }
 }
 
 /* exported wait_for_indexing_hang */
@@ -1125,8 +1325,9 @@ function _simulate_hang_on_MsgHdrToMimeMessage(...aArgs) {
  */
 function wait_for_indexing_hang() {
   // if we already hit the hang, no need to do anything async...
-  if (_gloda_simulate_hang_data != null)
+  if (_gloda_simulate_hang_data != null) {
     return true;
+  }
   _gloda_simulate_hang_waiting_for_hang = true;
   return false;
 }
@@ -1169,40 +1370,45 @@ function _inject_failure_on_MsgHdrToMimeMessage() {
  *     appropriate exception.  You must omit hangWhile if you use injectFaultIn.
  */
 function configure_gloda_indexing(aArgs) {
-  let shouldSuppress = ("event" in aArgs) ? !aArgs.event : false;
+  let shouldSuppress = "event" in aArgs ? !aArgs.event : false;
   if (shouldSuppress != GlodaIndexer.suppressIndexing) {
-    mark_action("glodaTestHelper",
-                "setting suppress indexing to " + shouldSuppress, []);
+    mark_action(
+      "glodaTestHelper",
+      "setting suppress indexing to " + shouldSuppress,
+      []
+    );
     GlodaIndexer.suppressIndexing = shouldSuppress;
   }
 
   if ("hangWhile" in aArgs) {
-    mark_action("glodaTestHelper", "enabling hang injection in",
-                [aArgs.hangWhile]);
+    mark_action("glodaTestHelper", "enabling hang injection in", [
+      aArgs.hangWhile,
+    ]);
     switch (aArgs.hangWhile) {
       case "streaming":
-        GlodaMsgIndexer._MsgHdrToMimeMessageFunc =
-          _simulate_hang_on_MsgHdrToMimeMessage;
+        GlodaMsgIndexer._MsgHdrToMimeMessageFunc = _simulate_hang_on_MsgHdrToMimeMessage;
         break;
       default:
-        mark_failure([aArgs.hangWhile,
-                      "is not a legal choice for hangWhile"]);
+        mark_failure([aArgs.hangWhile, "is not a legal choice for hangWhile"]);
     }
   } else if ("injectFaultIn" in aArgs) {
-    mark_action("glodaTestHelper", "enabling fault injection in",
-                [aArgs.hangWhile]);
+    mark_action("glodaTestHelper", "enabling fault injection in", [
+      aArgs.hangWhile,
+    ]);
     switch (aArgs.injectFaultIn) {
       case "streaming":
-        GlodaMsgIndexer._MsgHdrToMimeMessageFunc =
-          _inject_failure_on_MsgHdrToMimeMessage;
+        GlodaMsgIndexer._MsgHdrToMimeMessageFunc = _inject_failure_on_MsgHdrToMimeMessage;
         break;
       default:
-        mark_failure([aArgs.injectFaultIn,
-                      "is not a legal choice for injectFaultIn"]);
+        mark_failure([
+          aArgs.injectFaultIn,
+          "is not a legal choice for injectFaultIn",
+        ]);
     }
   } else {
-    if (GlodaMsgIndexer._MsgHdrToMimeMessageFunc != MsgHdrToMimeMessage)
+    if (GlodaMsgIndexer._MsgHdrToMimeMessageFunc != MsgHdrToMimeMessage) {
       mark_action("glodaTestHelper", "clearing hang/fault injection", []);
+    }
     GlodaMsgIndexer._MsgHdrToMimeMessageFunc = MsgHdrToMimeMessage;
   }
 }
@@ -1221,15 +1427,19 @@ function configure_gloda_indexing(aArgs) {
  */
 function resume_from_simulated_hang(aJustResumeExecution) {
   if (aJustResumeExecution) {
-    mark_action("glodaTestHelper",
-                "resuming from simulated hang with direct wrapper callback",
-                []);
+    mark_action(
+      "glodaTestHelper",
+      "resuming from simulated hang with direct wrapper callback",
+      []
+    );
     GlodaIndexer._wrapCallbackDriver();
   } else {
     let [func, dis, args] = _gloda_simulate_hang_data;
-    mark_action("glodaTestHelper",
-                "resuming from simulated hang with call to: " + func.name,
-                []);
+    mark_action(
+      "glodaTestHelper",
+      "resuming from simulated hang with call to: " + func.name,
+      []
+    );
     func.apply(dis, args);
   }
 }
@@ -1247,9 +1457,9 @@ function glodaHelperRunTests(aTests, aNounID) {
   //  point we probably want to just completely generalize the indexing state.
   //  That point is likely when our testing infrastructure needs the support
   //  provided by _indexMessageState for things other than messages.
-  if (aNounID === undefined ||
-      aNounID == Gloda.NOUN_MESSAGE)
+  if (aNounID === undefined || aNounID == Gloda.NOUN_MESSAGE) {
     _indexMessageState._init();
+  }
 
   _prepareIndexerForTesting();
 
@@ -1274,13 +1484,18 @@ function nukeGlodaCachesAndCollections() {
   //  should.  (I am reluctant to put this logic in there, especially because
   //  knowledge of the Gloda contact/identity collections simply can't be known
   //  by the colleciton manager.)
-  if ((GlodaCollectionManager._collectionsByNoun === undefined) ||
-      (GlodaCollectionManager._cachesByNoun === undefined))
+  if (
+    GlodaCollectionManager._collectionsByNoun === undefined ||
+    GlodaCollectionManager._cachesByNoun === undefined
+  ) {
     // we don't check the Gloda contact/identities things because they might not
     //  get initialized if there are no identities, which is the case for our
     //  unit tests right now...
-    do_throw("Try and remember to update the testing infrastructure when you " +
-             "change things!");
+    do_throw(
+      "Try and remember to update the testing infrastructure when you " +
+        "change things!"
+    );
+  }
 
   // we can just blow away the known collections
   GlodaCollectionManager._collectionsByNoun = {};
@@ -1295,7 +1510,8 @@ function nukeGlodaCachesAndCollections() {
     _indexMessageState.catchAllCollection.clear();
     // and now we can register it
     GlodaCollectionManager.registerCollection(
-        _indexMessageState.catchAllCollection);
+      _indexMessageState.catchAllCollection
+    );
   }
 
   // caches aren't intended to be cleared, but we also don't want to lose our
@@ -1322,14 +1538,18 @@ function makeABCardForAddressPair(nameAndAddress) {
   // kPABData is from abSetup.js
   let addressBook = MailServices.ab.getDirectory(kPABData.URI);
 
-  let card = Cc["@mozilla.org/addressbook/cardproperty;1"]
-               .createInstance(Ci.nsIAbCard);
+  let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+    Ci.nsIAbCard
+  );
   card.displayName = nameAndAddress[0];
   card.primaryEmail = nameAndAddress[1];
 
   // Just save the new node straight away.
   addressBook.addCard(card);
 
-  mark_action("glodaTestHelper",
-              "adding address book card for:", nameAndAddress);
+  mark_action(
+    "glodaTestHelper",
+    "adding address book card for:",
+    nameAndAddress
+  );
 }

@@ -12,15 +12,21 @@
 
 this.EXPORTED_SYMBOLS = ["GlodaIndexer", "IndexingJob"];
 
-const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
-const {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
-const {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
-const {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
-const {GlodaCollectionManager} = ChromeUtils.import("resource:///modules/gloda/collection.js");
+const { GlodaUtils } = ChromeUtils.import("resource:///modules/gloda/utils.js");
+const { GlodaDatastore } = ChromeUtils.import(
+  "resource:///modules/gloda/datastore.js"
+);
+const { Gloda } = ChromeUtils.import("resource:///modules/gloda/gloda.js");
+const { GlodaCollectionManager } = ChromeUtils.import(
+  "resource:///modules/gloda/collection.js"
+);
 
 /**
  * @class Capture the indexing batch concept explicitly.
@@ -47,7 +53,7 @@ const {GlodaCollectionManager} = ChromeUtils.import("resource:///modules/gloda/c
 function IndexingJob(aJobType, aID, aItems) {
   this.jobType = aJobType;
   this.id = aID;
-  this.items = (aItems != null) ? aItems : [];
+  this.items = aItems != null ? aItems : [];
   this.offset = 0;
   this.goal = null;
   this.callback = null;
@@ -59,8 +65,9 @@ IndexingJob.prototype = {
    *  received by this function to the callback function.
    */
   safelyInvokeCallback(...aArgs) {
-    if (!this.callback)
+    if (!this.callback) {
       return;
+    }
     try {
       this.callback.apply(this.callbackThis, aArgs);
     } catch (ex) {
@@ -68,9 +75,19 @@ IndexingJob.prototype = {
     }
   },
   toString() {
-    return "[job:" + this.jobType +
-      " id:" + this.id + " items:" + (this.items ? this.items.length : "no") +
-      " offset:" + this.offset + " goal:" + this.goal + "]";
+    return (
+      "[job:" +
+      this.jobType +
+      " id:" +
+      this.id +
+      " items:" +
+      (this.items ? this.items.length : "no") +
+      " offset:" +
+      this.offset +
+      " goal:" +
+      this.goal +
+      "]"
+    );
   },
 };
 
@@ -294,30 +311,35 @@ var GlodaIndexer = {
    * Initialize the indexer.
    */
   _init() {
-    if (this._inited)
+    if (this._inited) {
       return;
+    }
 
     this._inited = true;
 
     this._callbackHandle.init();
 
-    if (Services.io.offline)
+    if (Services.io.offline) {
       this._suppressIndexing = true;
+    }
 
     // create the timer that drives our intermittent indexing
     this._timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
     // create the timer for larger offsets independent of indexing
     this._longTimer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
 
-    this._idleService = Cc["@mozilla.org/widget/idleservice;1"]
-                          .getService(Ci.nsIIdleService);
+    this._idleService = Cc["@mozilla.org/widget/idleservice;1"].getService(
+      Ci.nsIIdleService
+    );
 
     // create our performance stopwatches
     try {
-      this._perfIndexStopwatch = Cc["@mozilla.org/stopwatch;1"]
-                                   .createInstance(Ci.nsIStopwatch);
-      this._perfPauseStopwatch = Cc["@mozilla.org/stopwatch;1"]
-                                   .createInstance(Ci.nsIStopwatch);
+      this._perfIndexStopwatch = Cc["@mozilla.org/stopwatch;1"].createInstance(
+        Ci.nsIStopwatch
+      );
+      this._perfPauseStopwatch = Cc["@mozilla.org/stopwatch;1"].createInstance(
+        Ci.nsIStopwatch
+      );
     } catch (ex) {
       this._log.error("problem creating stopwatch!: " + ex);
     }
@@ -330,8 +352,9 @@ var GlodaIndexer = {
     let eventDrivenEnabled = branch.getBoolPref("enabled", false);
     let performInitialSweep = branch.getBoolPref("perform_initial_sweep", true);
     // pretend we have already performed an initial sweep...
-    if (!performInitialSweep)
+    if (!performInitialSweep) {
       this._initialSweepPerformed = true;
+    }
 
     this.enabled = eventDrivenEnabled;
   },
@@ -367,8 +390,9 @@ var GlodaIndexer = {
 
     this._indexerIsShutdown = true;
 
-    if (this.enabled)
+    if (this.enabled) {
       this._log.info("Shutting Down");
+    }
 
     // don't let anything try and convince us to start indexing again
     this.suppressIndexing = true;
@@ -377,8 +401,9 @@ var GlodaIndexer = {
     if (this._curIndexingJob) {
       let workerDef = this._curIndexingJob._workerDef;
       try {
-        if (workerDef.cleanup)
+        if (workerDef.cleanup) {
           workerDef.cleanup.call(workerDef.indexer, this._curIndexingJob);
+        }
       } catch (ex) {
         this._log.error("problem during worker cleanup during shutdown.");
       }
@@ -438,14 +463,18 @@ var GlodaIndexer = {
         workerDef.name = workerCode;
         workerDef.indexer = aIndexer;
         this._indexerWorkerDefs[workerCode] = workerDef;
-        if (!("recover" in workerDef))
+        if (!("recover" in workerDef)) {
           workerDef.recover = null;
-        if (!("cleanup" in workerDef))
+        }
+        if (!("cleanup" in workerDef)) {
           workerDef.cleanup = null;
-        if (!("onSchedule" in workerDef))
+        }
+        if (!("onSchedule" in workerDef)) {
           workerDef.onSchedule = null;
-        if (!("jobCanceled" in workerDef))
+        }
+        if (!("jobCanceled" in workerDef)) {
           workerDef.jobCanceled = null;
+        }
       }
     } catch (ex) {
       this._log.warn("Helper indexer threw exception on worker enum.");
@@ -464,7 +493,9 @@ var GlodaIndexer = {
    * Are we enabled, read: are we processing change events?
    */
   _enabled: false,
-  get enabled() { return this._enabled; },
+  get enabled() {
+    return this._enabled;
+  },
   set enabled(aEnable) {
     if (!this._enabled && aEnable) {
       // register for offline notifications
@@ -491,8 +522,11 @@ var GlodaIndexer = {
 
       // if we have not done an initial sweep, schedule scheduling one.
       if (!this._initialSweepPerformed) {
-        this._longTimer.initWithCallback(this._scheduleInitialSweep,
-          this._INITIAL_SWEEP_DELAY, Ci.nsITimer.TYPE_ONE_SHOT);
+        this._longTimer.initWithCallback(
+          this._scheduleInitialSweep,
+          this._INITIAL_SWEEP_DELAY,
+          Ci.nsITimer.TYPE_ONE_SHOT
+        );
       }
     } else if (this._enabled && !aEnable) {
       for (let indexer of this._indexers) {
@@ -545,9 +579,11 @@ var GlodaIndexer = {
       if (this.enabled && !this._indexingActive && !this._suppressIndexing) {
         this._log.info("+++ Indexing Queue Processing Commencing");
         this._indexingActive = true;
-        this._timer.initWithCallback(this._timerCallbackDriver,
-                                     this._INDEX_KICKOFF_DELAY,
-                                     Ci.nsITimer.TYPE_ONE_SHOT);
+        this._timer.initWithCallback(
+          this._timerCallbackDriver,
+          this._INDEX_KICKOFF_DELAY,
+          Ci.nsITimer.TYPE_ONE_SHOT
+        );
       }
     }
   },
@@ -565,13 +601,18 @@ var GlodaIndexer = {
 
     // re-start processing if we are no longer suppressing, there is work yet
     //  to do, and the indexing process had actually stopped.
-    if (!this._suppressIndexing && this._indexingDesired &&
-        !this._indexingActive) {
-        this._log.info("+++ Indexing Queue Processing Resuming");
-        this._indexingActive = true;
-        this._timer.initWithCallback(this._timerCallbackDriver,
-                                     this._INDEX_KICKOFF_DELAY,
-                                     Ci.nsITimer.TYPE_ONE_SHOT);
+    if (
+      !this._suppressIndexing &&
+      this._indexingDesired &&
+      !this._indexingActive
+    ) {
+      this._log.info("+++ Indexing Queue Processing Resuming");
+      this._indexingActive = true;
+      this._timer.initWithCallback(
+        this._timerCallbackDriver,
+        this._INDEX_KICKOFF_DELAY,
+        Ci.nsITimer.TYPE_ONE_SHOT
+      );
     }
   },
 
@@ -590,8 +631,9 @@ var GlodaIndexer = {
    *  because the indexingSweepNeeded takes care of that.
    */
   _scheduleInitialSweep() {
-    if (GlodaIndexer._initialSweepPerformed)
+    if (GlodaIndexer._initialSweepPerformed) {
       return;
+    }
     GlodaIndexer._initialSweepPerformed = true;
     for (let indexer of GlodaIndexer._indexers) {
       indexer.initialSweep();
@@ -647,12 +689,14 @@ var GlodaIndexer = {
    */
   addListener(aListener) {
     // should we weakify?
-    if (!this._indexListeners.includes(aListener))
+    if (!this._indexListeners.includes(aListener)) {
       this._indexListeners.push(aListener);
+    }
     // if we aren't indexing, give them an idle indicator, otherwise they can
     //  just be happy when we hit the next actual status point.
-    if (!this.indexing)
+    if (!this.indexing) {
       aListener(Gloda.kIndexerIdle, null, 0, 0, 1);
+    }
     return aListener;
   },
   /**
@@ -661,8 +705,9 @@ var GlodaIndexer = {
    */
   removeListener(aListener) {
     let index = this._indexListeners.indexOf(aListener);
-    if (index != -1)
+    if (index != -1) {
       this._indexListeners.splice(index, 1);
+    }
   },
   /**
    * Helper method to tell listeners what we're up to.  For code simplicity,
@@ -682,15 +727,18 @@ var GlodaIndexer = {
       status = Gloda.kIndexerIndexing;
 
       let indexer = this._indexerWorkerDefs[job.jobType].indexer;
-      if ("_indexingFolder" in indexer)
-        prettyName = (indexer._indexingFolder != null) ?
-                     indexer._indexingFolder.prettyName : null;
-      else
+      if ("_indexingFolder" in indexer) {
+        prettyName =
+          indexer._indexingFolder != null
+            ? indexer._indexingFolder.prettyName
+            : null;
+      } else {
         prettyName = null;
+      }
 
       jobIndex = this._indexingJobCount - 1;
       jobItemIndex = job.offset;
-      jobItemGoal  = job.goal;
+      jobItemGoal = job.goal;
       jobType = job.jobType;
     } else {
       status = Gloda.kIndexerIdle;
@@ -703,15 +751,25 @@ var GlodaIndexer = {
 
     // Some people ascribe to the belief that the most you can give is 100%.
     // We know better, but let's humor them.
-    if (jobItemIndex > jobItemGoal)
+    if (jobItemIndex > jobItemGoal) {
       jobItemGoal = jobItemIndex;
+    }
 
-    for (let iListener = this._indexListeners.length - 1; iListener >= 0;
-         iListener--) {
+    for (
+      let iListener = this._indexListeners.length - 1;
+      iListener >= 0;
+      iListener--
+    ) {
       let listener = this._indexListeners[iListener];
       try {
-        listener(status, prettyName, jobIndex, jobItemIndex, jobItemGoal,
-                 jobType);
+        listener(
+          status,
+          prettyName,
+          jobIndex,
+          jobItemIndex,
+          jobItemGoal,
+          jobType
+        );
       } catch (ex) {
         this._log.error(ex);
       }
@@ -752,8 +810,9 @@ var GlodaIndexer = {
    */
   callbackDriver(...aArgs) {
     // just bail if we are shutdown
-    if (this._indexerIsShutdown)
+    if (this._indexerIsShutdown) {
       return;
+    }
 
     // it is conceivable that someone we call will call something that in some
     //  cases might be asynchronous, and in other cases immediately generate
@@ -767,16 +826,19 @@ var GlodaIndexer = {
     //  have been doing, but save the
     if (this._inCallback) {
       this._savedCallbackArgs = aArgs;
-      this._timer.initWithCallback(this._timerCallbackDriver,
-                                   0,
-                                   Ci.nsITimer.TYPE_ONE_SHOT);
+      this._timer.initWithCallback(
+        this._timerCallbackDriver,
+        0,
+        Ci.nsITimer.TYPE_ONE_SHOT
+      );
       return;
     }
     this._inCallback = true;
 
     try {
-      if (this._batch === null)
+      if (this._batch === null) {
         this._batch = this.workBatch();
+      }
 
       // kWorkAsync, kWorkDone, kWorkPause are allowed out; kWorkSync is not
       // On kWorkDone, we want to schedule another timer to fire on us if we are
@@ -792,12 +854,14 @@ var GlodaIndexer = {
       }
 
       let result;
-      if (args.length == 0)
+      if (args.length == 0) {
         result = this._batch.next().value;
-      else if (args.length == 1)
+      } else if (args.length == 1) {
         result = this._batch.next(args[0]).value;
-      else // arguments works with destructuring assignment
+      } // arguments works with destructuring assignment
+      else {
         result = this._batch.next(args).value;
+      }
       switch (result) {
         // job's done, close the batch and re-schedule ourselves if there's more
         //  to do.
@@ -808,10 +872,13 @@ var GlodaIndexer = {
         // (intentional fall-through to re-scheduling logic)
         case this.kWorkPause:
           if (this.indexing) {
-            this._timer.initWithCallback(this._timerCallbackDriver,
-                                         this._INDEX_INTERVAL,
-                                         Ci.nsITimer.TYPE_ONE_SHOT);
-          } else { // it's important to indicate no more callbacks are in flight
+            this._timer.initWithCallback(
+              this._timerCallbackDriver,
+              this._INDEX_INTERVAL,
+              Ci.nsITimer.TYPE_ONE_SHOT
+            );
+          } else {
+            // it's important to indicate no more callbacks are in flight
             this._indexingActive = false;
           }
           break;
@@ -871,10 +938,11 @@ var GlodaIndexer = {
       this.activeIterator.return();
       this.activeStack.pop();
       this.contextStack.pop();
-      if (this.activeStack.length)
+      if (this.activeStack.length) {
         this.activeIterator = this.activeStack[this.activeStack.length - 1];
-      else
+      } else {
         this.activeIterator = null;
+      }
     },
     /**
      * Someone propagated an exception and we need to clean-up all the active
@@ -885,8 +953,9 @@ var GlodaIndexer = {
      *     Pass 1 to leave just the top-level generator intact.
      */
     cleanup(aOptionalStopAtDepth) {
-      if (aOptionalStopAtDepth === undefined)
+      if (aOptionalStopAtDepth === undefined) {
         aOptionalStopAtDepth = 0;
+      }
       while (this.activeStack.length > aOptionalStopAtDepth) {
         this.pop();
       }
@@ -938,13 +1007,15 @@ var GlodaIndexer = {
    *  encounters a kWorkAsync (which workBatch will yield to callbackDriver), or
    *  it runs out of tokens and yields a kWorkPause or kWorkDone.
    */
-  * workBatch() {
+  *workBatch() {
     // Do we still have an open transaction? If not, start a new one.
-    if (!this._idleToCommit)
+    if (!this._idleToCommit) {
       GlodaDatastore._beginTransaction();
-    else
-      // We'll manage commit ourself while this routine is active.
+    }
+    // We'll manage commit ourself while this routine is active.
+    else {
       this._idleToCommit = false;
+    }
 
     this._perfIndexStopwatch.start();
     let batchCount;
@@ -986,8 +1057,10 @@ var GlodaIndexer = {
       this._indexedMessageCount = 0;
       batchCount = 0;
       while (batchCount < this._indexTokens) {
-        if ((this._callbackHandle.activeIterator === null) &&
-            !this._hireJobWorker()) {
+        if (
+          this._callbackHandle.activeIterator === null &&
+          !this._hireJobWorker()
+        ) {
           haveMoreWork = false;
           break;
         }
@@ -998,8 +1071,9 @@ var GlodaIndexer = {
         //  if we left the loop due to an exception (without consuming all the
         //  tokens.)
         try {
-          switch (this._callbackHandle
-                      .activeIterator.next(this._workBatchData).value) {
+          switch (
+            this._callbackHandle.activeIterator.next(this._workBatchData).value
+          ) {
             case this.kWorkSync:
               this._workBatchData = undefined;
               break;
@@ -1022,19 +1096,28 @@ var GlodaIndexer = {
           if (workerDef.recover) {
             let recoverToDepth;
             try {
-              recoverToDepth =
-              workerDef.recover.call(workerDef.indexer,
-                                     this._curIndexingJob,
-                                       this._callbackHandle.contextStack,
-                                       ex);
+              recoverToDepth = workerDef.recover.call(
+                workerDef.indexer,
+                this._curIndexingJob,
+                this._callbackHandle.contextStack,
+                ex
+              );
             } catch (ex2) {
-              this._log.error("Worker '" + workerDef.name +
-                              "' recovery function itself failed:", ex2);
+              this._log.error(
+                "Worker '" +
+                  workerDef.name +
+                  "' recovery function itself failed:",
+                ex2
+              );
             }
-            if (this._unitTestHookRecover)
-              this._unitTestHookRecover(recoverToDepth, ex,
-                                        this._curIndexingJob,
-                                        this._callbackHandle);
+            if (this._unitTestHookRecover) {
+              this._unitTestHookRecover(
+                recoverToDepth,
+                ex,
+                this._curIndexingJob,
+                this._callbackHandle
+              );
+            }
 
             if (recoverToDepth) {
               this._callbackHandle.cleanup(recoverToDepth);
@@ -1045,17 +1128,30 @@ var GlodaIndexer = {
           // call the cleanup helper if there is one
           if (workerDef.cleanup) {
             try {
-            workerDef.cleanup.call(workerDef.indexer, this._curIndexingJob);
+              workerDef.cleanup.call(workerDef.indexer, this._curIndexingJob);
             } catch (ex2) {
-              this._log.error("Worker '" + workerDef.name +
-                              "' cleanup function itself failed:", ex2);
+              this._log.error(
+                "Worker '" +
+                  workerDef.name +
+                  "' cleanup function itself failed:",
+                ex2
+              );
             }
-            if (this._unitTestHookCleanup)
-              this._unitTestHookCleanup(true, ex, this._curIndexingJob,
-                                        this._callbackHandle);
+            if (this._unitTestHookCleanup) {
+              this._unitTestHookCleanup(
+                true,
+                ex,
+                this._curIndexingJob,
+                this._callbackHandle
+              );
+            }
           } else if (this._unitTestHookCleanup) {
-            this._unitTestHookCleanup(false, ex, this._curIndexingJob,
-                                      this._callbackHandle);
+            this._unitTestHookCleanup(
+              false,
+              ex,
+              this._curIndexingJob,
+              this._callbackHandle
+            );
           }
 
           // Clean out everything on the async stack, warn about the job, kill.
@@ -1064,8 +1160,10 @@ var GlodaIndexer = {
           //  recovery function or the cleanup logic should be extended to
           //  indicate that the failure is acceptable.
           this._callbackHandle.cleanup();
-          this._log.warn("Problem during " + this._curIndexingJob +
-            ", bailing:", ex);
+          this._log.warn(
+            "Problem during " + this._curIndexingJob + ", bailing:",
+            ex
+          );
           this._curIndexingJob = null;
           // the data must now be invalid
           this._workBatchData = undefined;
@@ -1094,12 +1192,15 @@ var GlodaIndexer = {
       //  future, but only if we're going to perform another loop iteration.
       if (haveMoreWork) {
         notifyDecimator = (notifyDecimator + 1) % 32;
-        if (!notifyDecimator)
+        if (!notifyDecimator) {
           this._notifyListeners();
+        }
 
-        for (let pauseCount = 0;
-             pauseCount < this._PAUSE_REPEAT_LIMIT;
-             pauseCount++) {
+        for (
+          let pauseCount = 0;
+          pauseCount < this._PAUSE_REPEAT_LIMIT;
+          pauseCount++
+        ) {
           this._perfPauseStopwatch.start();
 
           yield this.kWorkPause;
@@ -1109,11 +1210,15 @@ var GlodaIndexer = {
           //  we expected, or if it used a significant amount
           //  of cpu, either of which indicate significant other
           //  activity.
-          if ((this._perfPauseStopwatch.cpuTimeSeconds * 1000 <
-               this._CPU_IS_BUSY_TIME) &&
-              (this._perfPauseStopwatch.realTimeSeconds * 1000 -
-               this._INDEX_INTERVAL < this._PAUSE_LATE_IS_BUSY_TIME))
+          if (
+            this._perfPauseStopwatch.cpuTimeSeconds * 1000 <
+              this._CPU_IS_BUSY_TIME &&
+            this._perfPauseStopwatch.realTimeSeconds * 1000 -
+              this._INDEX_INTERVAL <
+              this._PAUSE_LATE_IS_BUSY_TIME
+          ) {
             break;
+          }
         }
       }
 
@@ -1124,8 +1229,9 @@ var GlodaIndexer = {
         let delta = (Date.now() - t0) / 1000; // in seconds
         let v = Math.round(this._indexedMessageCount / delta);
         try {
-          let h = Services.telemetry
-            .getHistogramById("THUNDERBIRD_INDEXING_RATE_MSG_PER_S");
+          let h = Services.telemetry.getHistogramById(
+            "THUNDERBIRD_INDEXING_RATE_MSG_PER_S"
+          );
           h.add(v);
         } catch (e) {
           this._log.warn("Couldn't report telemetry", e, v);
@@ -1138,19 +1244,25 @@ var GlodaIndexer = {
         // Damp the average time since it is a rough estimate only.
         this._cpuAverageTimePerToken =
           (totalTime +
-           this._CPU_AVERAGE_TIME_DAMPING * this._cpuAverageTimePerToken) /
+            this._CPU_AVERAGE_TIME_DAMPING * this._cpuAverageTimePerToken) /
           (batchCount + this._CPU_AVERAGE_TIME_DAMPING);
         // We use the larger of the recent or the average time per token, so
         //  that we can respond quickly to slow down indexing if there
         //  is a sudden increase in time per token.
-        let bestTimePerToken =
-            Math.max(timePerToken, this._cpuAverageTimePerToken);
+        let bestTimePerToken = Math.max(
+          timePerToken,
+          this._cpuAverageTimePerToken
+        );
         // Always index at least one token!
-        this._indexTokens =
-            Math.max(1, this._cpuTargetIndexTime / bestTimePerToken);
+        this._indexTokens = Math.max(
+          1,
+          this._cpuTargetIndexTime / bestTimePerToken
+        );
         // But no more than the a maximum limit, just for sanity's sake.
-        this._indexTokens = Math.min(this._CPU_MAX_TOKENS_PER_BATCH,
-                                     this._indexTokens);
+        this._indexTokens = Math.min(
+          this._CPU_MAX_TOKENS_PER_BATCH,
+          this._indexTokens
+        );
         this._indexTokens = Math.ceil(this._indexTokens);
       }
 
@@ -1159,10 +1271,10 @@ var GlodaIndexer = {
       // Commit tends to cause a brief UI pause, so we try to delay it (but not
       //  forever) if the user is active. If we're done and idling, we'll also
       //  commit, otherwise we'll let the idle callback do it.
-      let doCommit = transactionToCommit &&
-                     ((elapsed > this._MAXIMUM_COMMIT_TIME) ||
-                      (inIdle &&
-                       (elapsed > this._MINIMUM_COMMIT_TIME || !haveMoreWork)));
+      let doCommit =
+        transactionToCommit &&
+        (elapsed > this._MAXIMUM_COMMIT_TIME ||
+          (inIdle && (elapsed > this._MINIMUM_COMMIT_TIME || !haveMoreWork)));
       if (doCommit) {
         GlodaCollectionManager.cacheCommitDirty();
         // Set up an async notification to happen after the commit completes so
@@ -1178,10 +1290,11 @@ var GlodaIndexer = {
         GlodaUtils.forceGarbageCollection(false);
         this._lastCommitTime = Date.now();
         // Restart the transaction if we still have work.
-        if (haveMoreWork)
+        if (haveMoreWork) {
           GlodaDatastore._beginTransaction();
-        else
+        } else {
           transactionToCommit = false;
+        }
       }
     }
 
@@ -1189,8 +1302,9 @@ var GlodaIndexer = {
 
     // If we still have a transaction to commit, tell idle to do the commit
     //  when it gets around to it.
-    if (transactionToCommit)
+    if (transactionToCommit) {
       this._idleToCommit = true;
+    }
 
     yield this.kWorkDone;
   },
@@ -1225,7 +1339,7 @@ var GlodaIndexer = {
       return false;
     }
 
-    let job = this._curIndexingJob = this._indexQueue.shift();
+    let job = (this._curIndexingJob = this._indexQueue.shift());
     this._indexingJobCount++;
 
     let generator = null;
@@ -1239,11 +1353,15 @@ var GlodaIndexer = {
       //  initial use case is event-driven message indexing that accumulates
       //  a list of messages to index but wants it locked down once we start
       //  processing the list.
-      if (workerDef.onSchedule)
+      if (workerDef.onSchedule) {
         workerDef.onSchedule.call(workerDef.indexer, job);
+      }
 
-      generator = workerDef.worker.call(workerDef.indexer, job,
-                                        this._callbackHandle);
+      generator = workerDef.worker.call(
+        workerDef.indexer,
+        job,
+        this._callbackHandle
+      );
     } else {
       // Nothing we can do about this.  Be loud about it and try to schedule
       //  something else.
@@ -1251,8 +1369,9 @@ var GlodaIndexer = {
       return this._hireJobWorker();
     }
 
-    if (this._unitTestSuperVerbose)
+    if (this._unitTestSuperVerbose) {
       this._log.debug("Hired job of type: " + job.jobType);
+    }
 
     this._notifyListeners();
 
@@ -1293,21 +1412,27 @@ var GlodaIndexer = {
    */
   killActiveJob() {
     // There is nothing to do if we have no job
-    if (!this._curIndexingJob)
+    if (!this._curIndexingJob) {
       return;
+    }
 
     // -- Blow away the stack with cleanup.
     let workerDef = this._curIndexingJob._workerDef;
-    if (this._unitTestSuperVerbose)
+    if (this._unitTestSuperVerbose) {
       this._log.debug("Killing job of type: " + this._curIndexingJob.jobType);
-    if (this._unitTestHookCleanup)
-      this._unitTestHookCleanup(!!workerDef.cleanup,
-                                "no exception, this was killActiveJob",
-                                this._curIndexingJob,
-                                this._callbackHandle);
+    }
+    if (this._unitTestHookCleanup) {
+      this._unitTestHookCleanup(
+        !!workerDef.cleanup,
+        "no exception, this was killActiveJob",
+        this._curIndexingJob,
+        this._callbackHandle
+      );
+    }
     this._callbackHandle.cleanup();
-    if (workerDef.cleanup)
+    if (workerDef.cleanup) {
       workerDef.cleanup.call(workerDef.indexer, this._curIndexingJob);
+    }
 
     // Eliminate the job.
     this._curIndexingJob = null;
@@ -1330,12 +1455,14 @@ var GlodaIndexer = {
       // If the filter says to, splice the job out of existence (and make sure
       //  to fixup iJob to compensate.)
       if (aFilterElimFunc(job)) {
-        if (this._unitTestSuperVerbose)
+        if (this._unitTestSuperVerbose) {
           this._log.debug("Purging job of type: " + job.jobType);
+        }
         this._indexQueue.splice(iJob--, 1);
         let workerDef = this._indexerWorkerDefs[job.jobType];
-        if (workerDef.jobCanceled)
+        if (workerDef.jobCanceled) {
           workerDef.jobCanceled.call(workerDef.indexer, job);
+        }
       }
     }
   },
@@ -1352,18 +1479,19 @@ var GlodaIndexer = {
         this._lastCommitTime = Date.now();
         this._notifyListeners();
       }
-    } else if (aTopic == "network:offline-status-changed") { // offline status
+    } else if (aTopic == "network:offline-status-changed") {
+      // offline status
       if (aData == "offline") {
         this.suppressIndexing = true;
-      } else { // online
+      } else {
+        // online
         this.suppressIndexing = false;
       }
-    } else if (aTopic == "quit-application") { // shutdown fallback
+    } else if (aTopic == "quit-application") {
+      // shutdown fallback
       this._shutdown();
     }
   },
-
-
 };
 // we used to initialize here; now we have public.js do it for us after the
 //  indexers register themselves so we know about all our built-in indexers

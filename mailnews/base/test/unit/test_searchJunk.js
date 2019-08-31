@@ -7,7 +7,9 @@
 /* import-globals-from ../../../test/resources/searchTestUtils.js */
 load("../../../resources/searchTestUtils.js");
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var IsGreaterThan = Ci.nsMsgSearchOp.IsGreaterThan;
 var IsLessThan = Ci.nsMsgSearchOp.IsLessThan;
@@ -46,13 +48,15 @@ var Tests = [
     attrib: JunkStatus,
     op: IsEmpty,
     count: 1,
-  }, {
+  },
+  {
     junkScore: false,
     testValue: 90,
     attrib: JunkStatus,
     op: IsntEmpty,
     count: 0,
-  }, {
+  },
+  {
     junkScore: "0",
     junkScoreOrigin: "plugin",
     junkPercent: "10",
@@ -60,7 +64,8 @@ var Tests = [
     attrib: JunkStatus,
     op: IsntEmpty,
     count: 1,
-  }, {
+  },
+  {
     junkScore: "0",
     junkScoreOrigin: "plugin",
     junkPercent: "10",
@@ -68,7 +73,8 @@ var Tests = [
     attrib: JunkStatus,
     op: IsEmpty,
     count: 0,
-  }, {
+  },
+  {
     junkScore: "100",
     junkScoreOrigin: "plugin",
     junkPercent: "10",
@@ -76,7 +82,8 @@ var Tests = [
     attrib: JunkStatus,
     op: IsntEmpty,
     count: 1,
-  }, {
+  },
+  {
     junkScore: "100",
     junkScoreOrigin: "plugin",
     junkPercent: "10",
@@ -84,7 +91,8 @@ var Tests = [
     attrib: JunkStatus,
     op: IsEmpty,
     count: 0,
-  }, {
+  },
+  {
     // Use junkpercent from database
     junkScore: "0",
     junkScoreOrigin: "plugin",
@@ -93,7 +101,8 @@ var Tests = [
     attrib: JunkPercent,
     op: IsGreaterThan,
     count: 0,
-  }, {
+  },
+  {
     junkScore: "0",
     junkScoreOrigin: "plugin",
     junkPercent: "10",
@@ -101,7 +110,8 @@ var Tests = [
     attrib: JunkPercent,
     op: IsLessThan,
     count: 1,
-  }, {
+  },
+  {
     junkScore: "0",
     junkScoreOrigin: "plugin",
     junkPercent: "10",
@@ -109,7 +119,8 @@ var Tests = [
     attrib: JunkPercent,
     op: Is,
     count: 0,
-  }, {
+  },
+  {
     junkScore: "0",
     junkScoreOrigin: "plugin",
     junkPercent: "90",
@@ -117,7 +128,8 @@ var Tests = [
     attrib: JunkPercent,
     op: IsGreaterThan,
     count: 1,
-  }, {
+  },
+  {
     junkScore: "0",
     junkScoreOrigin: "plugin",
     junkPercent: "90",
@@ -125,7 +137,8 @@ var Tests = [
     attrib: JunkPercent,
     op: IsLessThan,
     count: 0,
-  }, {
+  },
+  {
     junkScore: "0",
     junkScoreOrigin: "plugin",
     junkPercent: "10",
@@ -133,7 +146,8 @@ var Tests = [
     attrib: JunkPercent,
     op: Is,
     count: 1,
-  }, {
+  },
+  {
     // values set by user, use junkscore not junkpercent
     junkScore: "0",
     junkScoreOrigin: "user",
@@ -142,7 +156,8 @@ var Tests = [
     attrib: JunkPercent,
     op: IsGreaterThan,
     count: 0,
-  }, {
+  },
+  {
     junkScore: "0",
     junkScoreOrigin: "user",
     junkPercent: "90",
@@ -150,7 +165,8 @@ var Tests = [
     attrib: JunkPercent,
     op: IsLessThan,
     count: 1,
-  }, {
+  },
+  {
     junkScore: "0",
     junkScoreOrigin: "user",
     junkPercent: "90",
@@ -158,7 +174,8 @@ var Tests = [
     attrib: JunkPercent,
     op: Is,
     count: 0,
-  }, {
+  },
+  {
     junkScore: "100",
     junkScoreOrigin: "user",
     junkPercent: "10",
@@ -166,7 +183,8 @@ var Tests = [
     attrib: JunkPercent,
     op: IsGreaterThan,
     count: 1,
-  }, {
+  },
+  {
     junkScore: "100",
     junkScoreOrigin: "user",
     junkPercent: "10",
@@ -174,7 +192,8 @@ var Tests = [
     attrib: JunkPercent,
     op: IsLessThan,
     count: 0,
-  }, {
+  },
+  {
     junkScore: "0",
     junkScoreOrigin: "user",
     junkPercent: "90",
@@ -182,7 +201,8 @@ var Tests = [
     attrib: JunkPercent,
     op: Is,
     count: 1,
-  }, {
+  },
+  {
     // default to 0 when nothing set
     junkScore: "",
     junkScoreOrigin: "",
@@ -191,7 +211,8 @@ var Tests = [
     attrib: JunkPercent,
     op: Is,
     count: 1,
-  }, {
+  },
+  {
     // junkscoreorigin search tests
     junkScore: "0",
     junkScoreOrigin: "plugin",
@@ -200,7 +221,8 @@ var Tests = [
     attrib: JunkScoreOrigin,
     op: Is,
     count: 1,
-  }, {
+  },
+  {
     junkScore: "0",
     junkScoreOrigin: "plugin",
     junkPercent: "50",
@@ -208,7 +230,8 @@ var Tests = [
     attrib: JunkScoreOrigin,
     op: Isnt,
     count: 0,
-  }, {
+  },
+  {
     junkScore: "0",
     junkScoreOrigin: "filter",
     junkPercent: "50",
@@ -216,7 +239,8 @@ var Tests = [
     attrib: JunkScoreOrigin,
     op: Is,
     count: 0,
-  }, {
+  },
+  {
     junkScore: "0",
     junkScoreOrigin: "filter",
     junkPercent: "50",
@@ -246,8 +270,16 @@ function run_test() {
   // Get a message into the local filestore. function testJunkSearch() continues the testing after the copy.
   do_test_pending();
   var file = do_get_file(fileName);
-  MailServices.copy.CopyFileMessage(file, localAccountUtils.inboxFolder, null, false, 0,
-                                    "", copyListener, null);
+  MailServices.copy.CopyFileMessage(
+    file,
+    localAccountUtils.inboxFolder,
+    null,
+    false,
+    0,
+    "",
+    copyListener,
+    null
+  );
   return true;
 }
 
@@ -255,9 +287,13 @@ var hdr;
 var copyListener = {
   OnStartCopy() {},
   OnProgress(aProgress, aProgressMax) {},
-  SetMessageKey(aKey) { hdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey); },
+  SetMessageKey(aKey) {
+    hdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
+  },
   SetMessageId(aMessageId) {},
-  OnStopCopy(aStatus) { testJunkSearch(); },
+  OnStopCopy(aStatus) {
+    testJunkSearch();
+  },
 };
 
 // Runs at completion of each copy
@@ -271,12 +307,14 @@ function testJunkSearch() {
       hdr.setStringProperty("junkscore", test.junkScore);
     }
 
-    new TestSearch(localAccountUtils.inboxFolder,
-                   test.testValue,
-                   test.attrib,
-                   test.op,
-                   test.count,
-                   testJunkSearch);
+    new TestSearch(
+      localAccountUtils.inboxFolder,
+      test.testValue,
+      test.attrib,
+      test.op,
+      test.count,
+      testJunkSearch
+    );
   } else {
     hdr = null;
     do_test_finished();

@@ -122,11 +122,13 @@ var expectedDonHallImapAccount = {
   },
 };
 
-var expectedAccounts = [expectedPop3TestTestAccount,
-                        expectedNewsMozillaOrgAccount,
-                        expectedMicrosoftCommunitiesAccount,
-                        expectedDonHallNntpAccount,
-                        expectedDonHallImapAccount];
+var expectedAccounts = [
+  expectedPop3TestTestAccount,
+  expectedNewsMozillaOrgAccount,
+  expectedMicrosoftCommunitiesAccount,
+  expectedDonHallNntpAccount,
+  expectedDonHallImapAccount,
+];
 
 function WinLiveMailRegistry(rootPath) {
   this._rootPath = rootPath;
@@ -138,7 +140,7 @@ WinLiveMailRegistry.prototype = {
       "Default Mail Account": "fill in mail account",
       "Default News Account": "fill in news account",
       "Store Root": this._rootPath,
-      "mail":  {
+      mail: {
         "Poll For Mail": 120000,
       },
     };
@@ -148,7 +150,11 @@ WinLiveMailRegistry.prototype = {
 function _test(registry) {
   try {
     setup_mock_registry(registry);
-    new SettingsImportHelper(null, "Windows Live Mail", expectedAccounts).beginImport();
+    new SettingsImportHelper(
+      null,
+      "Windows Live Mail",
+      expectedAccounts
+    ).beginImport();
   } catch (e) {
     teardown();
     do_throw(e);

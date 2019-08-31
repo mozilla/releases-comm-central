@@ -8,7 +8,9 @@ var DIR_TYPE = kPABData.dirType;
 var FILE_NAME = DIR_TYPE == 101 ? "abook-2.sqlite" : "abook-1.mab";
 var SCHEME = DIR_TYPE == 101 ? "jsaddrbook" : "moz-abmdbdirectory";
 
-var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var book, contact, list, listCard;
@@ -36,21 +38,34 @@ var observer = {
     this.events.push(["onItemRemoved", parent, item]);
   },
   onItemPropertyChanged(item, property, oldValue, newValue) {
-    this.events.push(["onItemPropertyChanged", item, property, oldValue, newValue]);
+    this.events.push([
+      "onItemPropertyChanged",
+      item,
+      property,
+      oldValue,
+      newValue,
+    ]);
   },
   observe(subject, topic, data) {
     this.events.push([topic, subject, data]);
   },
   checkEvents(...events) {
-    info("Actual events: " + JSON.stringify(observer.events.map(e => e.map(a => {
-      if (a instanceof Ci.nsIAbDirectory) {
-        return `[nsIAbDirectory]`;
-      }
-      if (a instanceof Ci.nsIAbCard) {
-        return `[nsIAbCard]`;
-      }
-      return a;
-    }))));
+    info(
+      "Actual events: " +
+        JSON.stringify(
+          observer.events.map(e =>
+            e.map(a => {
+              if (a instanceof Ci.nsIAbDirectory) {
+                return `[nsIAbDirectory]`;
+              }
+              if (a instanceof Ci.nsIAbCard) {
+                return `[nsIAbCard]`;
+              }
+              return a;
+            })
+          )
+        )
+    );
     equal(observer.events.length, events.length);
 
     for (let expectedEvent of events) {
@@ -107,22 +122,39 @@ add_task(async function createAddressBook() {
   equal(Array.from(book.childCards).length, 0);
 
   // Check prefs.
-  equal(Services.prefs.getStringPref("ldap_2.servers.newbook.description"), "new book");
+  equal(
+    Services.prefs.getStringPref("ldap_2.servers.newbook.description"),
+    "new book"
+  );
   equal(Services.prefs.getIntPref("ldap_2.servers.newbook.dirType"), DIR_TYPE);
-  equal(Services.prefs.getStringPref("ldap_2.servers.newbook.filename"), FILE_NAME);
+  equal(
+    Services.prefs.getStringPref("ldap_2.servers.newbook.filename"),
+    FILE_NAME
+  );
   equal(Services.prefs.getStringPref("ldap_2.servers.newbook.uid"), book.UID);
   equal([...MailServices.ab.directories].length, DIR_TYPE == 101 ? 5 : 3);
 });
 
 add_task(async function editAddressBook() {
   book.dirName = "updated book";
-  observer.checkEvents(["onItemPropertyChanged", book, "DirName", "new book", "updated book"]);
+  observer.checkEvents([
+    "onItemPropertyChanged",
+    book,
+    "DirName",
+    "new book",
+    "updated book",
+  ]);
   equal(book.dirName, "updated book");
-  equal(Services.prefs.getStringPref("ldap_2.servers.newbook.description"), "updated book");
+  equal(
+    Services.prefs.getStringPref("ldap_2.servers.newbook.description"),
+    "updated book"
+  );
 });
 
 add_task(async function createContact() {
-  contact = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(Ci.nsIAbCard);
+  contact = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+    Ci.nsIAbCard
+  );
   contact.displayName = "a new contact";
   contact.firstName = "new";
   contact.lastName = "contact";
@@ -134,7 +166,9 @@ add_task(async function createContact() {
   );
 
   // Check enumerations.
-  let childCards = Array.from(book.childCards, cc => cc.QueryInterface(Ci.nsIAbCard));
+  let childCards = Array.from(book.childCards, cc =>
+    cc.QueryInterface(Ci.nsIAbCard)
+  );
   equal(childCards.length, 1);
   ok(childCards[0].equals(contact));
 
@@ -142,9 +176,18 @@ add_task(async function createContact() {
   equal(contact.uuid, "ldap_2.servers.newbook&updated book#1");
 
   // Check nsIAbItem methods.
-  equal(contact.generateName(Ci.nsIAbItem.GENERATE_DISPLAY_NAME), "a new contact");
-  equal(contact.generateName(Ci.nsIAbItem.GENERATE_LAST_FIRST_ORDER), "contact, new");
-  equal(contact.generateName(Ci.nsIAbItem.GENERATE_FIRST_LAST_ORDER), "new contact");
+  equal(
+    contact.generateName(Ci.nsIAbItem.GENERATE_DISPLAY_NAME),
+    "a new contact"
+  );
+  equal(
+    contact.generateName(Ci.nsIAbItem.GENERATE_LAST_FIRST_ORDER),
+    "contact, new"
+  );
+  equal(
+    contact.generateName(Ci.nsIAbItem.GENERATE_FIRST_LAST_ORDER),
+    "new contact"
+  );
 
   // Check nsIAbCard properties.
   equal(contact.directoryId, book.uuid);
@@ -164,27 +207,35 @@ add_task(async function editContact() {
   observer.checkEvents(
     // TODO MDB has three null args but we can do better than that.
     ["onItemPropertyChanged", contact],
-    ["addrbook-contact-updated", contact, book.UID],
+    ["addrbook-contact-updated", contact, book.UID]
   );
   equal(contact.firstName, "updated");
   equal(contact.lastName, "contact");
 });
 
 add_task(async function createMailingList() {
-  list = Cc["@mozilla.org/addressbook/directoryproperty;1"].createInstance(Ci.nsIAbDirectory);
+  list = Cc["@mozilla.org/addressbook/directoryproperty;1"].createInstance(
+    Ci.nsIAbDirectory
+  );
   list.isMailList = true;
   list.dirName = "new list";
   list = book.addMailList(list);
   // Skip checking events temporarily, until listCard is defined.
 
   // Check enumerations.
-  let addressLists = Array.from(book.addressLists.enumerate(), al => al.QueryInterface(Ci.nsIAbDirectory));
+  let addressLists = Array.from(book.addressLists.enumerate(), al =>
+    al.QueryInterface(Ci.nsIAbDirectory)
+  );
   equal(addressLists.length, 1);
   equal(addressLists[0].UID, list.UID); // TODO Object equality doesn't work because of XPCOM.
-  let childNodes = Array.from(book.childNodes, cn => cn.QueryInterface(Ci.nsIAbDirectory));
+  let childNodes = Array.from(book.childNodes, cn =>
+    cn.QueryInterface(Ci.nsIAbDirectory)
+  );
   equal(childNodes.length, 1);
   equal(childNodes[0].UID, list.UID); // TODO Object equality doesn't work because of XPCOM.
-  let childCards = Array.from(book.childCards, cc => cc.QueryInterface(Ci.nsIAbCard));
+  let childCards = Array.from(book.childCards, cc =>
+    cc.QueryInterface(Ci.nsIAbCard)
+  );
   equal(childCards.length, 2);
   if (childCards[0].isMailList) {
     listCard = childCards[0];
@@ -234,17 +285,21 @@ add_task(async function addMailingListMember() {
     ["onItemPropertyChanged", contact, null, null, null],
     ["onItemPropertyChanged", contact, null, null, null],
     ["onItemAdded", book, contact],
-    ["onItemAdded", list, contact],
+    ["onItemAdded", list, contact]
     // ["addrbook-list-member-added", contact, list.UID] // MDB fires this on dropcard but not addcard?!
   );
   equal(1, list.addressLists.Count());
 
   // Check list enumerations.
-  let addressLists = Array.from(list.addressLists.enumerate(), al => al.QueryInterface(Ci.nsIAbCard));
+  let addressLists = Array.from(list.addressLists.enumerate(), al =>
+    al.QueryInterface(Ci.nsIAbCard)
+  );
   equal(addressLists.length, 1);
   ok(addressLists[0].equals(contact));
   equal(Array.from(list.childNodes).length, 0);
-  let childCards = Array.from(list.childCards, cc => cc.QueryInterface(Ci.nsIAbCard));
+  let childCards = Array.from(list.childCards, cc =>
+    cc.QueryInterface(Ci.nsIAbCard)
+  );
   equal(childCards.length, 1);
   ok(childCards[0].equals(contact));
 });
@@ -295,7 +350,10 @@ add_task(async function deleteAddressBook() {
   ok(!dbFile.exists());
   equal([...MailServices.ab.directories].length, DIR_TYPE == 101 ? 4 : 2);
   if (DIR_TYPE == 101) {
-    throws(() => MailServices.ab.getDirectory(`${SCHEME}://${FILE_NAME}`), /.*/);
+    throws(
+      () => MailServices.ab.getDirectory(`${SCHEME}://${FILE_NAME}`),
+      /.*/
+    );
   }
 });
 

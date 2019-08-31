@@ -3,7 +3,9 @@
  * Tests sending a message in the background (checks auto-send works).
  */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var server;
 var originalData;
@@ -21,8 +23,7 @@ var gMsgSendLater;
 
 // This listener handles the post-sending of the actual message and checks the
 // sequence and ensures the data is correct.
-function msll() {
-}
+function msll() {}
 
 msll.prototype = {
   _initialTotal: 0,
@@ -33,13 +34,22 @@ msll.prototype = {
     Assert.equal(gMsgSendLater.sendingMessages, true);
     Assert.equal(aTotal, 1);
   },
-  onMessageStartSending(aCurrentMessage, aTotalMessageCount, aMessageHeader, aIdentity) {
-  },
-  onMessageSendProgress(aCurrentMessage, aTotalMessageCount,
-                        aMessageSendPercent, aMessageCopyPercent) {
-  },
+  onMessageStartSending(
+    aCurrentMessage,
+    aTotalMessageCount,
+    aMessageHeader,
+    aIdentity
+  ) {},
+  onMessageSendProgress(
+    aCurrentMessage,
+    aTotalMessageCount,
+    aMessageSendPercent,
+    aMessageCopyPercent
+  ) {},
   onMessageSendError(aCurrentMessage, aMessageHeader, aStatus, aMsg) {
-    do_throw("onMessageSendError should not have been called, status: " + aStatus);
+    do_throw(
+      "onMessageSendError should not have been called, status: " + aStatus
+    );
   },
   onStopSending(aStatus, aMsg, aTotalTried, aSuccessful) {
     do_test_finished();
@@ -51,19 +61,24 @@ msll.prototype = {
       Assert.equal(this._initialTotal, 1);
       Assert.equal(gMsgSendLater.sendingMessages, false);
 
-      do_check_transaction(server.playTransaction(),
-                           ["EHLO test",
-                            "MAIL FROM:<" + kTestFile1Sender +
-                            "> BODY=8BITMIME SIZE=" + originalData.length,
-                            "RCPT TO:<" + kTestFile1Recipient + ">",
-                            "DATA"]);
+      do_check_transaction(server.playTransaction(), [
+        "EHLO test",
+        "MAIL FROM:<" +
+          kTestFile1Sender +
+          "> BODY=8BITMIME SIZE=" +
+          originalData.length,
+        "RCPT TO:<" + kTestFile1Recipient + ">",
+        "DATA",
+      ]);
 
       // Compare data file to what the server received
       Assert.equal(originalData, server._daemon.post);
 
       // check there's still one message left in the folder
-      Assert.equal(gMsgSendLater.getUnsentMessagesFolder(null)
-                                .getTotalMessages(false), 1);
+      Assert.equal(
+        gMsgSendLater.getUnsentMessagesFolder(null).getTotalMessages(false),
+        1
+      );
 
       finished = true;
     } catch (e) {
@@ -72,12 +87,12 @@ msll.prototype = {
       server.stop();
 
       var thread = gThreadManager.currentThread;
-      while (thread.hasPendingEvents())
+      while (thread.hasPendingEvents()) {
         thread.processNextEvent(true);
+      }
     }
   },
 };
-
 
 function run_test() {
   // The point of this test - send in background.
@@ -88,8 +103,9 @@ function run_test() {
   localAccountUtils.loadLocalMailAccount();
 
   // Now load (and internally initialize) the send later service
-  gMsgSendLater = Cc["@mozilla.org/messengercompose/sendlater;1"]
-                    .getService(Ci.nsIMsgSendLater);
+  gMsgSendLater = Cc["@mozilla.org/messengercompose/sendlater;1"].getService(
+    Ci.nsIMsgSendLater
+  );
 
   // Test file - for bug 429891
   originalData = IOUtils.loadFileToString(testFile1);
@@ -100,7 +116,11 @@ function run_test() {
   MailServices.accounts.setSpecialFolders();
 
   let account = MailServices.accounts.createAccount();
-  let incomingServer = MailServices.accounts.createIncomingServer("test", "localhost", "pop3");
+  let incomingServer = MailServices.accounts.createIncomingServer(
+    "test",
+    "localhost",
+    "pop3"
+  );
 
   // Start the fake SMTP server
   server = setupServerDaemon();
@@ -120,8 +140,9 @@ function run_test() {
   // Now prepare to actually "send" the message later, i.e. dump it in the
   // unsent messages folder.
 
-  var compFields = Cc["@mozilla.org/messengercompose/composefields;1"]
-                     .createInstance(Ci.nsIMsgCompFields);
+  var compFields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
 
   // Setting the compFields sender and recipient to any value is required to
   // survive mime_sanity_check_fields in nsMsgCompUtils.cpp.
@@ -130,8 +151,9 @@ function run_test() {
   compFields.from = "irrelevant@foo.invalid";
   compFields.to = "irrelevant@foo.invalid";
 
-  var msgSend = Cc["@mozilla.org/messengercompose/send;1"]
-                  .createInstance(Ci.nsIMsgSend);
+  var msgSend = Cc["@mozilla.org/messengercompose/send;1"].createInstance(
+    Ci.nsIMsgSend
+  );
 
   // Handle the server in a try/catch/finally loop so that we always will stop
   // the server if something fails.
@@ -145,22 +167,43 @@ function run_test() {
     gMsgSendLater.addListener(messageListener);
 
     // Send this message later - it shouldn't get sent
-    msgSend.sendMessageFile(identity, "", compFields, testFile2,
-                            false, false, Ci.nsIMsgSend.nsMsgQueueForLater,
-                            null, null, null, null);
+    msgSend.sendMessageFile(
+      identity,
+      "",
+      compFields,
+      testFile2,
+      false,
+      false,
+      Ci.nsIMsgSend.nsMsgQueueForLater,
+      null,
+      null,
+      null,
+      null
+    );
 
     // Send the unsent message in the background, because we have
     // mailnews.sendInBackground set, nsMsgSendLater should just send it for
     // us.
-    msgSend.sendMessageFile(identity, "", compFields, testFile1,
-                            false, false, Ci.nsIMsgSend.nsMsgDeliverBackground,
-                            null, null, null, null);
+    msgSend.sendMessageFile(
+      identity,
+      "",
+      compFields,
+      testFile1,
+      false,
+      false,
+      Ci.nsIMsgSend.nsMsgDeliverBackground,
+      null,
+      null,
+      null,
+      null
+    );
 
     server.performTest();
 
     do_timeout(10000, function() {
-      if (!finished)
+      if (!finished) {
         do_throw("Notifications of message send/copy not received");
+      }
     });
 
     do_test_pending();
@@ -170,7 +213,8 @@ function run_test() {
     server.stop();
 
     var thread = gThreadManager.currentThread;
-    while (thread.hasPendingEvents())
+    while (thread.hasPendingEvents()) {
       thread.processNextEvent(true);
+    }
   }
 }

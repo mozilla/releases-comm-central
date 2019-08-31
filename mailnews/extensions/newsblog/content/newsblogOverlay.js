@@ -3,9 +3,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MsgHdrToMimeMessage} = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MsgHdrToMimeMessage } = ChromeUtils.import(
+  "resource:///modules/gloda/mimemsg.js"
+);
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 // This global is for SeaMonkey compatibility.
 var gShowFeedSummary;
@@ -13,13 +17,13 @@ var gShowFeedSummary;
 var FeedMessageHandler = {
   gShowSummary: true,
   gToggle: false,
-  kSelectOverrideWebPage:   0,
-  kSelectOverrideSummary:   1,
-  kSelectFeedDefault:       2,
-  kOpenWebPage:             0,
-  kOpenSummary:             1,
+  kSelectOverrideWebPage: 0,
+  kSelectOverrideSummary: 1,
+  kSelectFeedDefault: 2,
+  kOpenWebPage: 0,
+  kOpenSummary: 1,
   kOpenToggleInMessagePane: 2,
-  kOpenLoadInBrowser:       3,
+  kOpenLoadInBrowser: 3,
 
   FeedAccountTypes: ["rss"],
 
@@ -63,9 +67,11 @@ var FeedMessageHandler = {
    * @returns {Boolean} - true if message is a feed, false if not.
    */
   isFeedMessage(aMsgHdr) {
-    return Boolean(aMsgHdr instanceof Ci.nsIMsgDBHdr &&
-                   (aMsgHdr.flags & Ci.nsMsgMessageFlags.FeedMsg ||
-                    this.isFeedFolder(aMsgHdr.folder)));
+    return Boolean(
+      aMsgHdr instanceof Ci.nsIMsgDBHdr &&
+        (aMsgHdr.flags & Ci.nsMsgMessageFlags.FeedMsg ||
+          this.isFeedFolder(aMsgHdr.folder))
+    );
   },
 
   /**
@@ -78,8 +84,10 @@ var FeedMessageHandler = {
    *                      false if not.
    */
   isFeedFolder(aFolder) {
-    return Boolean(aFolder instanceof Ci.nsIMsgFolder &&
-                   this.FeedAccountTypes.includes(aFolder.server.type));
+    return Boolean(
+      aFolder instanceof Ci.nsIMsgFolder &&
+        this.FeedAccountTypes.includes(aFolder.server.type)
+    );
   },
 
   /**
@@ -110,7 +118,9 @@ var FeedMessageHandler = {
     // a summary - notify user.
     let browser = getBrowser();
     let contentDoc = browser ? browser.contentDocument : null;
-    let rssIframe = contentDoc ? contentDoc.getElementById("_mailrssiframe") : null;
+    let rssIframe = contentDoc
+      ? contentDoc.getElementById("_mailrssiframe")
+      : null;
     if (rssIframe) {
       if (this.gToggle || this.onSelectPref == this.kSelectOverrideSummary) {
         this.gToggle = false;
@@ -121,7 +131,7 @@ var FeedMessageHandler = {
 
     if (aToggle) {
       // Toggle mode, flip value.
-      return gShowFeedSummary = this.gShowSummary = !this.gShowSummary;
+      return (gShowFeedSummary = this.gShowSummary = !this.gShowSummary);
     }
 
     let wintype = document.documentElement.getAttribute("windowtype");
@@ -144,18 +154,25 @@ var FeedMessageHandler = {
         // For the former, toggle or global override is necessary; for the
         // latter, a show summary checkbox toggle in Subscribe dialog will set
         // one on the path to bliss.
-        let folder = aMsgHdr.folder, targetRes;
+        let folder = aMsgHdr.folder,
+          targetRes;
         try {
           targetRes = FeedUtils.getParentTargetForChildResource(
-                        folder.URI, FeedUtils.FZ_QUICKMODE, folder.server);
+            folder.URI,
+            FeedUtils.FZ_QUICKMODE,
+            folder.server
+          );
         } catch (ex) {
           // Not in a feed account folder or other error.
-          FeedUtils.log.info("FeedMessageHandler.shouldShowSummary: could not " +
-                             "get summary pref for this folder");
+          FeedUtils.log.info(
+            "FeedMessageHandler.shouldShowSummary: could not " +
+              "get summary pref for this folder"
+          );
         }
 
-        showSummary = targetRes && targetRes.QueryInterface(Ci.nsIRDFLiteral).
-                                             Value != "false";
+        showSummary =
+          targetRes &&
+          targetRes.QueryInterface(Ci.nsIRDFLiteral).Value != "false";
         break;
     }
 
@@ -182,7 +199,9 @@ var FeedMessageHandler = {
     // Auto load web page in browser on select, per pref; shouldShowSummary() is
     // always called first to 1)test if feed, 2)get summary pref, so do it here.
     if (this.loadWebPageOnSelectPref) {
-      setTimeout(FeedMessageHandler.loadWebPage, 20, aMsgHdr, {browser: true});
+      setTimeout(FeedMessageHandler.loadWebPage, 20, aMsgHdr, {
+        browser: true,
+      });
     }
 
     return showSummary;
@@ -202,9 +221,13 @@ var FeedMessageHandler = {
    */
   loadWebPage(aMessageHdr, aWhere) {
     MsgHdrToMimeMessage(aMessageHdr, null, function(aMsgHdr, aMimeMsg) {
-      if (aMimeMsg && aMimeMsg.headers["content-base"] &&
-          aMimeMsg.headers["content-base"][0]) {
-        let url = aMimeMsg.headers["content-base"], uri;
+      if (
+        aMimeMsg &&
+        aMimeMsg.headers["content-base"] &&
+        aMimeMsg.headers["content-base"][0]
+      ) {
+        let url = aMimeMsg.headers["content-base"],
+          uri;
         try {
           // The message and headers are stored as a string of UTF-8 bytes
           // and we need to convert that cpp |string| to js UTF-16 explicitly
@@ -212,8 +235,11 @@ var FeedMessageHandler = {
           url = decodeURIComponent(escape(url));
           uri = Services.io.newURI(url);
         } catch (ex) {
-          FeedUtils.log.info("FeedMessageHandler.loadWebPage: " +
-                             "invalid Content-Base header url - " + url);
+          FeedUtils.log.info(
+            "FeedMessageHandler.loadWebPage: " +
+              "invalid Content-Base header url - " +
+              url
+          );
           return;
         }
         if (aWhere.browser) {
@@ -231,8 +257,10 @@ var FeedMessageHandler = {
           openContentTab(url, "window", "^");
         }
       } else {
-        FeedUtils.log.info("FeedMessageHandler.loadWebPage: could not get " +
-                           "Content-Base header url for this message");
+        FeedUtils.log.info(
+          "FeedMessageHandler.loadWebPage: could not get " +
+            "Content-Base header url for this message"
+        );
       }
     });
   },
@@ -261,7 +289,7 @@ var FeedMessageHandler = {
       // page load, as it doesn't apply.
       gMessageNotificationBar.clearMsgNotifications();
 
-      this.loadWebPage(aMsgHdr, {messagepane: true});
+      this.loadWebPage(aMsgHdr, { messagepane: true });
       this.gToggle = false;
     }
   },
@@ -269,21 +297,26 @@ var FeedMessageHandler = {
 
 function openSubscriptionsDialog(aFolder) {
   // Check for an existing feed subscriptions window and focus it.
-  let subscriptionsWindow =
-    Services.wm.getMostRecentWindow("Mail:News-BlogSubscriptions");
+  let subscriptionsWindow = Services.wm.getMostRecentWindow(
+    "Mail:News-BlogSubscriptions"
+  );
 
   if (subscriptionsWindow) {
     if (aFolder) {
       subscriptionsWindow.FeedSubscriptions.selectFolder(aFolder);
       subscriptionsWindow.FeedSubscriptions.mView.tree.ensureRowIsVisible(
-        subscriptionsWindow.FeedSubscriptions.mView.selection.currentIndex);
+        subscriptionsWindow.FeedSubscriptions.mView.selection.currentIndex
+      );
     }
 
     subscriptionsWindow.focus();
   } else {
-    window.openDialog("chrome://messenger-newsblog/content/feed-subscriptions.xul",
-                      "", "centerscreen,chrome,dialog=no,resizable",
-                      { folder: aFolder});
+    window.openDialog(
+      "chrome://messenger-newsblog/content/feed-subscriptions.xul",
+      "",
+      "centerscreen,chrome,dialog=no,resizable",
+      { folder: aFolder }
+    );
   }
 }
 
@@ -293,19 +326,37 @@ function openSubscriptionsDialog(aFolder) {
 // summaries loaded, as viewing web pages only happened in an rss account.
 // The user may choose whether to load a summary or web page link by ensuring
 // the current feed message is being viewed as either a summary or web page.
-function openComposeWindowForRSSArticle(aMsgComposeWindow, aMsgHdr, aMessageUri,
-                                        aType, aFormat, aIdentity, aMsgWindow) {
+function openComposeWindowForRSSArticle(
+  aMsgComposeWindow,
+  aMsgHdr,
+  aMessageUri,
+  aType,
+  aFormat,
+  aIdentity,
+  aMsgWindow
+) {
   // Ensure right content is handled for web pages in window/tab.
   let tabmail = document.getElementById("tabmail");
-  let is3pane = tabmail && tabmail.selectedTab && tabmail.selectedTab.mode ?
-                  tabmail.selectedTab.mode.type == "folder" : false;
-  let showingwebpage = ("FeedMessageHandler" in window) && !is3pane &&
-                       FeedMessageHandler.onOpenPref == FeedMessageHandler.kOpenWebPage;
+  let is3pane =
+    tabmail && tabmail.selectedTab && tabmail.selectedTab.mode
+      ? tabmail.selectedTab.mode.type == "folder"
+      : false;
+  let showingwebpage =
+    "FeedMessageHandler" in window &&
+    !is3pane &&
+    FeedMessageHandler.onOpenPref == FeedMessageHandler.kOpenWebPage;
 
   if (gShowFeedSummary && !showingwebpage) {
     // The user is viewing the summary.
-    MailServices.compose.OpenComposeWindow(aMsgComposeWindow, aMsgHdr, aMessageUri,
-                                           aType, aFormat, aIdentity, aMsgWindow);
+    MailServices.compose.OpenComposeWindow(
+      aMsgComposeWindow,
+      aMsgHdr,
+      aMessageUri,
+      aType,
+      aFormat,
+      aIdentity,
+      aMsgWindow
+    );
   } else {
     // Set up the compose message and get the feed message's web page link.
     let msgHdr = aMsgHdr;
@@ -315,20 +366,26 @@ function openComposeWindowForRSSArticle(aMsgComposeWindow, aMsgHdr, aMessageUri,
     let fwdPrefix = Services.prefs.getCharPref("mail.forward_subject_prefix");
     fwdPrefix = fwdPrefix ? fwdPrefix + ": " : "";
 
-    let params = Cc["@mozilla.org/messengercompose/composeparams;1"]
-                   .createInstance(Ci.nsIMsgComposeParams);
+    let params = Cc[
+      "@mozilla.org/messengercompose/composeparams;1"
+    ].createInstance(Ci.nsIMsgComposeParams);
 
-    let composeFields = Cc["@mozilla.org/messengercompose/composefields;1"]
-                          .createInstance(Ci.nsIMsgCompFields);
+    let composeFields = Cc[
+      "@mozilla.org/messengercompose/composefields;1"
+    ].createInstance(Ci.nsIMsgCompFields);
 
-    if (type == msgComposeType.Reply ||
-        type == msgComposeType.ReplyAll ||
-        type == msgComposeType.ReplyToSender ||
-        type == msgComposeType.ReplyToGroup ||
-        type == msgComposeType.ReplyToSenderAndGroup) {
+    if (
+      type == msgComposeType.Reply ||
+      type == msgComposeType.ReplyAll ||
+      type == msgComposeType.ReplyToSender ||
+      type == msgComposeType.ReplyToGroup ||
+      type == msgComposeType.ReplyToSenderAndGroup
+    ) {
       subject = "Re: " + subject;
-    } else if (type == msgComposeType.ForwardInline ||
-               type == msgComposeType.ForwardAsAttachment) {
+    } else if (
+      type == msgComposeType.ForwardInline ||
+      type == msgComposeType.ForwardAsAttachment
+    ) {
       subject = fwdPrefix + subject;
     }
 
@@ -341,23 +398,48 @@ function openComposeWindowForRSSArticle(aMsgComposeWindow, aMsgHdr, aMessageUri,
 
     try {
       // The feed's web page url is stored in the Content-Base header.
-      MsgHdrToMimeMessage(msgHdr, null, function(aMsgHdr, aMimeMsg) {
-        if (aMimeMsg && aMimeMsg.headers["content-base"] &&
-            aMimeMsg.headers["content-base"][0]) {
-          let url = decodeURIComponent(escape(aMimeMsg.headers["content-base"]));
-          params.composeFields.body = url;
-          params.bodyIsLink = true;
-          MailServices.compose.OpenComposeWindowWithParams(null, params);
-        } else {
-          // No content-base url, use the summary.
-          MailServices.compose.OpenComposeWindow(aMsgComposeWindow, aMsgHdr, aMessageUri,
-                                                 aType, aFormat, aIdentity, aMsgWindow);
-        }
-      }, false, {saneBodySize: true});
+      MsgHdrToMimeMessage(
+        msgHdr,
+        null,
+        function(aMsgHdr, aMimeMsg) {
+          if (
+            aMimeMsg &&
+            aMimeMsg.headers["content-base"] &&
+            aMimeMsg.headers["content-base"][0]
+          ) {
+            let url = decodeURIComponent(
+              escape(aMimeMsg.headers["content-base"])
+            );
+            params.composeFields.body = url;
+            params.bodyIsLink = true;
+            MailServices.compose.OpenComposeWindowWithParams(null, params);
+          } else {
+            // No content-base url, use the summary.
+            MailServices.compose.OpenComposeWindow(
+              aMsgComposeWindow,
+              aMsgHdr,
+              aMessageUri,
+              aType,
+              aFormat,
+              aIdentity,
+              aMsgWindow
+            );
+          }
+        },
+        false,
+        { saneBodySize: true }
+      );
     } catch (ex) {
       // Error getting header, use the summary.
-      MailServices.compose.OpenComposeWindow(aMsgComposeWindow, aMsgHdr, aMessageUri,
-                                             aType, aFormat, aIdentity, aMsgWindow);
+      MailServices.compose.OpenComposeWindow(
+        aMsgComposeWindow,
+        aMsgHdr,
+        aMessageUri,
+        aType,
+        aFormat,
+        aIdentity,
+        aMsgWindow
+      );
     }
   }
 }

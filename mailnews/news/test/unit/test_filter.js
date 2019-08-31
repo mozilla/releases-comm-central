@@ -39,14 +39,17 @@ function testAttrib(handler, daemon, localserver) {
   // Get the folder and force filters to run
   var folder = localserver.rootFolder.getChildNamed("test.filter");
   folder.getNewMessages(null, {
-    OnStopRunningUrl() { localserver.closeCachedConnections(); },
+    OnStopRunningUrl() {
+      localserver.closeCachedConnections();
+    },
   });
   server.performTest();
 
   var headerEnum = folder.messages;
   var headers = [];
-  while (headerEnum.hasMoreElements())
+  while (headerEnum.hasMoreElements()) {
     headers.push(headerEnum.getNext().QueryInterface(Ci.nsIMsgDBHdr));
+  }
 
   try {
     Assert.equal(headers.length, 8);
@@ -96,24 +99,28 @@ function testAction(handler, daemon, localserver) {
   // Get the folder and force filters to run
   var folder = localserver.rootFolder.getChildNamed("test.filter");
   folder.getNewMessages(null, {
-    OnStopRunningUrl() { localserver.closeCachedConnections(); },
+    OnStopRunningUrl() {
+      localserver.closeCachedConnections();
+    },
   });
   server.performTest();
 
   var headerEnum = folder.messages;
   var headers = [];
-  while (headerEnum.hasMoreElements())
+  while (headerEnum.hasMoreElements()) {
     headers.push(headerEnum.getNext().QueryInterface(Ci.nsIMsgDBHdr));
+  }
 
   try {
     Assert.equal(headers.length, 7);
     for (var header of headers) {
       var id = header.messageId;
       dump("Testing message " + id + "\n");
-      if (actionResults[id] instanceof Array)
+      if (actionResults[id] instanceof Array) {
         Assert.equal(header[actionResults[id][0]], actionResults[id][1]);
-      else
+      } else {
         Assert.ok(actionResults[id](header, folder));
+      }
     }
   } catch (e) {
     print(server.playTransaction().them);
@@ -126,8 +133,11 @@ function testAction(handler, daemon, localserver) {
 }
 
 // These are the various server handlers
-var handlers = [NNTP_RFC977_handler, NNTP_Giganews_handler,
-                NNTP_RFC2980_handler];
+var handlers = [
+  NNTP_RFC977_handler,
+  NNTP_Giganews_handler,
+  NNTP_RFC2980_handler,
+];
 function run_test() {
   // Set up the server and add in filters
   var daemon = setupNNTPDaemon();
@@ -150,8 +160,9 @@ function run_test() {
 
   // Now we test folder-filters... and actions
   // Clear out the server filters
-  while (serverFilters.filterCount > 0)
+  while (serverFilters.filterCount > 0) {
     serverFilters.removeFilterAt(0);
+  }
   localserver.setFilterList(serverFilters);
 
   var folder = localserver.rootFolder.getChildNamed("test.filter");

@@ -5,13 +5,17 @@
  */
 
 var MsgComposeContractID = "@mozilla.org/messengercompose/compose;1";
-var MsgComposeParamsContractID = "@mozilla.org/messengercompose/composeparams;1";
-var MsgComposeFieldsContractID = "@mozilla.org/messengercompose/composefields;1";
+var MsgComposeParamsContractID =
+  "@mozilla.org/messengercompose/composeparams;1";
+var MsgComposeFieldsContractID =
+  "@mozilla.org/messengercompose/composefields;1";
 var nsIMsgCompose = Ci.nsIMsgCompose;
 var nsIMsgComposeParams = Ci.nsIMsgComposeParams;
 var nsIMsgCompFields = Ci.nsIMsgCompFields;
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 /**
  * Helper to check population worked as expected.
@@ -19,18 +23,17 @@ var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
  * @param aCheckTo - the expected To addresses (after possible list population)
  */
 function checkPopulate(aTo, aCheckTo) {
-  let msgCompose = Cc[MsgComposeContractID]
-                     .createInstance(nsIMsgCompose);
+  let msgCompose = Cc[MsgComposeContractID].createInstance(nsIMsgCompose);
 
   // Set up some basic fields for compose.
-  let fields = Cc[MsgComposeFieldsContractID]
-                 .createInstance(nsIMsgCompFields);
+  let fields = Cc[MsgComposeFieldsContractID].createInstance(nsIMsgCompFields);
 
   fields.to = aTo;
 
   // Set up some params
-  let params = Cc[MsgComposeParamsContractID]
-                 .createInstance(nsIMsgComposeParams);
+  let params = Cc[MsgComposeParamsContractID].createInstance(
+    nsIMsgComposeParams
+  );
 
   params.composeFields = fields;
 
@@ -52,10 +55,16 @@ function run_test() {
   MailServices.ab.directories;
 
   // Test expansion of list with no description.
-  checkPopulate("simpson <simpson>", "Simpson <homer@example.com>, Marge <marge@example.com>, Bart <bart@foobar.invalid>, \"lisa@example.com\" <lisa@example.com>");
+  checkPopulate(
+    "simpson <simpson>",
+    'Simpson <homer@example.com>, Marge <marge@example.com>, Bart <bart@foobar.invalid>, "lisa@example.com" <lisa@example.com>'
+  );
 
   // Test expansion fo list with description.
-  checkPopulate("marge <marges own list>", "Simpson <homer@example.com>, Marge <marge@example.com>");
+  checkPopulate(
+    "marge <marges own list>",
+    "Simpson <homer@example.com>, Marge <marge@example.com>"
+  );
 
   // Special tests for bug 1287726: Lists in list. This is what the data looks like:
   // 1) family (list) = parents (list) + kids (list).
@@ -64,23 +73,47 @@ function run_test() {
   // 4) older-kids (list) = bart + lisa.
   // 5) bad-kids (list) = older-kids + bad-younger-kids (list).
   // 6) bad-younger-kids (list) = maggie + bad-kids (list recursion).
-  checkPopulate("family <family>", "Simpson <homer@example.com>, Marge <marge@example.com>, " +
-    "\"lisa@example.com\" <lisa@example.com>, Bart <bart@foobar.invalid>, Maggie <maggie@example.com>");
-  checkPopulate("parents <parents>", "Simpson <homer@example.com>, Marge <marge@example.com>");
-  checkPopulate("kids <kids>", "\"lisa@example.com\" <lisa@example.com>, Bart <bart@foobar.invalid>, " +
-    "Maggie <maggie@example.com>");
-  checkPopulate("older-kids <older-kids>", "\"lisa@example.com\" <lisa@example.com>, Bart <bart@foobar.invalid>");
-  checkPopulate("bad-kids <bad-kids>", "\"lisa@example.com\" <lisa@example.com>, Bart <bart@foobar.invalid>, " +
-    "Maggie <maggie@example.com>");
-  checkPopulate("bad-younger-kids <bad-younger-kids>", "Maggie <maggie@example.com>, " +
-    "\"lisa@example.com\" <lisa@example.com>, Bart <bart@foobar.invalid>");
+  checkPopulate(
+    "family <family>",
+    "Simpson <homer@example.com>, Marge <marge@example.com>, " +
+      '"lisa@example.com" <lisa@example.com>, Bart <bart@foobar.invalid>, Maggie <maggie@example.com>'
+  );
+  checkPopulate(
+    "parents <parents>",
+    "Simpson <homer@example.com>, Marge <marge@example.com>"
+  );
+  checkPopulate(
+    "kids <kids>",
+    '"lisa@example.com" <lisa@example.com>, Bart <bart@foobar.invalid>, ' +
+      "Maggie <maggie@example.com>"
+  );
+  checkPopulate(
+    "older-kids <older-kids>",
+    '"lisa@example.com" <lisa@example.com>, Bart <bart@foobar.invalid>'
+  );
+  checkPopulate(
+    "bad-kids <bad-kids>",
+    '"lisa@example.com" <lisa@example.com>, Bart <bart@foobar.invalid>, ' +
+      "Maggie <maggie@example.com>"
+  );
+  checkPopulate(
+    "bad-younger-kids <bad-younger-kids>",
+    "Maggie <maggie@example.com>, " +
+      '"lisa@example.com" <lisa@example.com>, Bart <bart@foobar.invalid>'
+  );
 
   // Test we don't mistake an email address for a list, with a few variations.
   checkPopulate("Simpson <homer@example.com>", "Simpson <homer@example.com>");
   checkPopulate("simpson <homer@example.com>", "simpson <homer@example.com>");
-  checkPopulate("simpson <homer@not-in-ab.invalid>", "simpson <homer@not-in-ab.invalid>");
+  checkPopulate(
+    "simpson <homer@not-in-ab.invalid>",
+    "simpson <homer@not-in-ab.invalid>"
+  );
 
   checkPopulate("Marge <marge@example.com>", "Marge <marge@example.com>");
   checkPopulate("marge <marge@example.com>", "marge <marge@example.com>");
-  checkPopulate("marge <marge@not-in-ab.invalid>", "marge <marge@not-in-ab.invalid>");
+  checkPopulate(
+    "marge <marge@not-in-ab.invalid>",
+    "marge <marge@not-in-ab.invalid>"
+  );
 }

@@ -52,20 +52,51 @@ function maildirToMBox(maildir, mboxFilename, progressFn) {
   // eg "Thu Jan 18 12:34:56 2018"
   let fmtUTC = function(d) {
     const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const monthNames = ["Jan", "Feb", "Mar", "Apr",
-      "May", "Jun", "Jul", "Aug",
-      "Sep", "Oct", "Nov", "Dec"];
-    return dayNames[d.getUTCDay()] +
-      " " + monthNames[d.getUTCMonth()] +
-      " " + d.getUTCDate().toString().padStart(2) +
-      " " + d.getUTCHours().toString().padStart(2, "0") +
-      ":" + d.getUTCMinutes().toString().padStart(2, "0") +
-      ":" + d.getUTCSeconds().toString().padStart(2, "0") +
-      " " + d.getUTCFullYear();
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    return (
+      dayNames[d.getUTCDay()] +
+      " " +
+      monthNames[d.getUTCMonth()] +
+      " " +
+      d
+        .getUTCDate()
+        .toString()
+        .padStart(2) +
+      " " +
+      d
+        .getUTCHours()
+        .toString()
+        .padStart(2, "0") +
+      ":" +
+      d
+        .getUTCMinutes()
+        .toString()
+        .padStart(2, "0") +
+      ":" +
+      d
+        .getUTCSeconds()
+        .toString()
+        .padStart(2, "0") +
+      " " +
+      d.getUTCFullYear()
+    );
   };
 
   let encoder = new TextEncoder();
-  let mboxFile = OS.File.open(mboxFilename, {write: true, create: true}, {});
+  let mboxFile = OS.File.open(mboxFilename, { write: true, create: true }, {});
 
   // Iterate over all the message files in "cur".
   let curPath = OS.Path.join(maildir, "cur");
@@ -76,18 +107,21 @@ function maildirToMBox(maildir, mboxFilename, progressFn) {
       // Under Windows, additional information allow us to sort files immediately
       // without having to perform additional I/O.
       it.forEach(function(ent) {
-        files.push({path: ent.path, creationDate: ent.winCreationDate});
+        files.push({ path: ent.path, creationDate: ent.winCreationDate });
       });
     } else {
       // Under other OSes, we need to call OS.File.stat
       it.forEach(function(ent) {
-        files.push({path: ent.path, creationDate: OS.File.stat(ent.path).creationDate});
+        files.push({
+          path: ent.path,
+          creationDate: OS.File.stat(ent.path).creationDate,
+        });
       });
     }
     // We write out the mbox messages ordered by creation time.
     // Not ideal, but best we can do without parsing message.
     files.sort(function(a, b) {
-        return a.creationDate - b.creationDate;
+      return a.creationDate - b.creationDate;
     });
 
     for (let ent of files) {
@@ -166,7 +200,7 @@ function mboxToMaildir(mboxPath, maildirPath, progressFn) {
     if (!outFile) {
       let outPath = OS.Path.join(curDirPath, ident.toString() + ".eml");
       ident += 1;
-      outFile = OS.File.open(outPath, {write: true, create: true}, {});
+      outFile = OS.File.open(outPath, { write: true, create: true }, {});
     }
     let raw = encoder.encode(text);
     outFile.write(raw);
@@ -187,10 +221,10 @@ function mboxToMaildir(mboxPath, maildirPath, progressFn) {
   while (!eof) {
     let raw = mboxFile.read(CHUNK_SIZE);
     buf = buf + decoder.decode(raw);
-    eof = (raw.byteLength < CHUNK_SIZE);
+    eof = raw.byteLength < CHUNK_SIZE;
 
     let pos = 0;
-    sepRE.lastIndex = 0;  // start at beginning of buf
+    sepRE.lastIndex = 0; // start at beginning of buf
     let m = null;
     while ((m = sepRE.exec(buf)) !== null) {
       // Output everything up to the line separator.
@@ -198,7 +232,7 @@ function mboxToMaildir(mboxPath, maildirPath, progressFn) {
         writeToMsg(buf.substring(pos, m.index));
       }
       pos = m.index;
-      pos += m[1].length;  // skip the "From " line
+      pos += m[1].length; // skip the "From " line
       closeExistingMsg();
     }
 
@@ -294,7 +328,9 @@ function countMaildirMsgs(maildir) {
   let it = new OS.File.DirectoryIterator(cur);
   let count = 0;
   try {
-    it.forEach(function(ent) { count++; });
+    it.forEach(function(ent) {
+      count++;
+    });
   } finally {
     it.close();
   }
@@ -430,47 +466,46 @@ function convertTreeMaildirToMBox(srcPath, destPath, progressFn) {
 }
 
 self.addEventListener("message", function(e) {
-    // Unpack the request params from the main thread.
-    let srcType = e.data.srcType;
-    let destType = e.data.destType;
-    let srcRoot = e.data.srcRoot;
-    let destRoot = e.data.destRoot;
-    // destRoot will be a temporary dir, so if it all goes pear-shaped
-    // we can just bail out without cleaning up.
+  // Unpack the request params from the main thread.
+  let srcType = e.data.srcType;
+  let destType = e.data.destType;
+  let srcRoot = e.data.srcRoot;
+  let destRoot = e.data.destRoot;
+  // destRoot will be a temporary dir, so if it all goes pear-shaped
+  // we can just bail out without cleaning up.
 
-    // Configure the conversion.
-    let costFn = null;
-    let convertFn = null;
-    if (srcType == "maildir" && destType == "mbox") {
-      costFn = calcMaildirCost;
-      convertFn = convertTreeMaildirToMBox;
-    } else if (srcType == "mbox" && destType == "maildir") {
-      costFn = calcMBoxCost;
-      convertFn = convertTreeMBoxToMaildir;
-    } else {
-      throw new Error(`Unsupported conversion: ${srcType} => ${destType}`);
-    }
+  // Configure the conversion.
+  let costFn = null;
+  let convertFn = null;
+  if (srcType == "maildir" && destType == "mbox") {
+    costFn = calcMaildirCost;
+    convertFn = convertTreeMaildirToMBox;
+  } else if (srcType == "mbox" && destType == "maildir") {
+    costFn = calcMBoxCost;
+    convertFn = convertTreeMBoxToMaildir;
+  } else {
+    throw new Error(`Unsupported conversion: ${srcType} => ${destType}`);
+  }
 
-    // Go!
-    let totalCost = costFn(srcRoot);
-    let v = 0;
-    let progressFn = function(n) {
-      v += n;
-      self.postMessage({"msg": "progress", "val": v, "total": totalCost});
-    };
-    convertFn(srcRoot, destRoot, progressFn);
+  // Go!
+  let totalCost = costFn(srcRoot);
+  let v = 0;
+  let progressFn = function(n) {
+    v += n;
+    self.postMessage({ msg: "progress", val: v, total: totalCost });
+  };
+  convertFn(srcRoot, destRoot, progressFn);
 
-    // We fake a final progress update, with exactly 100% completed.
-    // Our byte-counting on mbox->maildir conversion will fall slightly short:
-    // The total is estimated from the mbox filesize, but progress is tracked
-    // by counting bytes as they are written out - and the mbox "From " lines
-    // are _not_ written out to the maildir files.
-    // This is still accurate enough to provide progress to the user, but we
-    // don't want the GUI left showing "progress 97% - conversion complete!"
-    // or anything silly like that.
-    self.postMessage({"msg": "progress", "val": totalCost, "total": totalCost});
+  // We fake a final progress update, with exactly 100% completed.
+  // Our byte-counting on mbox->maildir conversion will fall slightly short:
+  // The total is estimated from the mbox filesize, but progress is tracked
+  // by counting bytes as they are written out - and the mbox "From " lines
+  // are _not_ written out to the maildir files.
+  // This is still accurate enough to provide progress to the user, but we
+  // don't want the GUI left showing "progress 97% - conversion complete!"
+  // or anything silly like that.
+  self.postMessage({ msg: "progress", val: totalCost, total: totalCost });
 
-    // Let the main thread know we succeeded.
-    self.postMessage({"msg": "success"});
+  // Let the main thread know we succeeded.
+  self.postMessage({ msg: "success" });
 });
-

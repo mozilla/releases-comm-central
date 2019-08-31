@@ -11,7 +11,9 @@
  * by allowUndo == true in CopyMessages).
  */
 
-var {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 /* import-globals-from ../../../test/resources/logHelper.js */
 load("../../../resources/logHelper.js");
@@ -31,7 +33,9 @@ var gFolder1;
 function addMessagesToServer(messages, mailbox) {
   // For every message we have, we need to convert it to a file:/// URI
   messages.forEach(function(message) {
-    let URI = Services.io.newFileURI(message.file).QueryInterface(Ci.nsIFileURL);
+    let URI = Services.io
+      .newFileURI(message.file)
+      .QueryInterface(Ci.nsIFileURL);
     // Create the imapMessage and store it on the mailbox.
     mailbox.addMessage(new imapMessage(URI.spec, mailbox.uidnext++, []));
   });
@@ -44,7 +48,10 @@ var tests = [
     // (i.e. The fetching process will be invoked after OnStopCopy)
     // It will cause crash with an assertion
     // (ASSERTION: tried to add duplicate listener: 'index == -1') on teardown.
-    Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
+    Services.prefs.setBoolPref(
+      "mail.server.default.autosync_offline_stores",
+      false
+    );
 
     setupIMAPPump();
 
@@ -64,10 +71,13 @@ var tests = [
 
     // Add messages to the INBOX
     // this is synchronous, afaik
-    addMessagesToServer([{file: gMsgFile1, messageId: gMsgId1},
-                         {file: gMsgFile2, messageId: gMsgId2},
-                        ],
-                        IMAPPump.daemon.getMailbox("INBOX"));
+    addMessagesToServer(
+      [
+        { file: gMsgFile1, messageId: gMsgId1 },
+        { file: gMsgFile2, messageId: gMsgId2 },
+      ],
+      IMAPPump.daemon.getMailbox("INBOX")
+    );
   },
   async function updateFolder() {
     let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
@@ -75,19 +85,35 @@ var tests = [
     await promiseUrlListener.promise;
   },
   async function downloadAllForOffline() {
-     let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-     IMAPPump.inbox.downloadAllForOffline(promiseUrlListener, null);
-     await promiseUrlListener.promise;
+    let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+    IMAPPump.inbox.downloadAllForOffline(promiseUrlListener, null);
+    await promiseUrlListener.promise;
   },
   async function copyMessagesToInbox() {
     let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
-    MailServices.copy.CopyFileMessage(gMsgFile3, IMAPPump.inbox, null, false, 0,
-                                      "", promiseCopyListener, null);
+    MailServices.copy.CopyFileMessage(
+      gMsgFile3,
+      IMAPPump.inbox,
+      null,
+      false,
+      0,
+      "",
+      promiseCopyListener,
+      null
+    );
     await promiseCopyListener.promise;
 
     promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
-    MailServices.copy.CopyFileMessage(gMsgFile4, IMAPPump.inbox, null, false, 0,
-                                      "", promiseCopyListener, null);
+    MailServices.copy.CopyFileMessage(
+      gMsgFile4,
+      IMAPPump.inbox,
+      null,
+      false,
+      0,
+      "",
+      promiseCopyListener,
+      null
+    );
     await promiseCopyListener.promise;
 
     let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
@@ -103,15 +129,25 @@ var tests = [
       count++;
       var message = enumerator.getNext();
       message instanceof Ci.nsIMsgDBHdr;
-      dump("message <" + message.subject +
-           "> storeToken: <" + message.getStringProperty("storeToken") +
-           "> offset: <" + message.messageOffset +
-           "> id: <" + message.messageId +
-           ">\n");
+      dump(
+        "message <" +
+          message.subject +
+          "> storeToken: <" +
+          message.getStringProperty("storeToken") +
+          "> offset: <" +
+          message.messageOffset +
+          "> id: <" +
+          message.messageId +
+          ">\n"
+      );
       // This fails for file copies in bug 790912. Without  this, messages that
       //  are copied are not visible in pre-pluggableStores versions of TB (pre TB 12)
-      if (IMAPPump.inbox.msgStore.storeType == "mbox")
-        Assert.equal(message.messageOffset, parseInt(message.getStringProperty("storeToken")));
+      if (IMAPPump.inbox.msgStore.storeType == "mbox") {
+        Assert.equal(
+          message.messageOffset,
+          parseInt(message.getStringProperty("storeToken"))
+        );
+      }
     }
     Assert.equal(count, 4);
   },
@@ -119,19 +155,35 @@ var tests = [
     //  a message created from IMAP download
     let db = IMAPPump.inbox.msgDatabase;
     let msg1 = db.getMsgHdrForMessageID(gMsgId1);
-    let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+    let messages = Cc["@mozilla.org/array;1"].createInstance(
+      Ci.nsIMutableArray
+    );
     messages.appendElement(msg1);
     // this is sync, I believe?
-    MailServices.copy.CopyMessages(IMAPPump.inbox, messages, gFolder1, false,
-                                   null, null, true);
+    MailServices.copy.CopyMessages(
+      IMAPPump.inbox,
+      messages,
+      gFolder1,
+      false,
+      null,
+      null,
+      true
+    );
 
     // two messages originally created from file copies (like in Send)
     let msg3 = db.getMsgHdrForMessageID(gMsg3Id);
     Assert.ok(msg3 instanceof Ci.nsIMsgDBHdr);
     messages.clear();
     messages.appendElement(msg3);
-    MailServices.copy.CopyMessages(IMAPPump.inbox, messages, gFolder1, false,
-                                   null, null, true);
+    MailServices.copy.CopyMessages(
+      IMAPPump.inbox,
+      messages,
+      gFolder1,
+      false,
+      null,
+      null,
+      true
+    );
 
     let msg4 = db.getMsgHdrForMessageID(gMsg4Id);
     Assert.ok(msg4 instanceof Ci.nsIMsgDBHdr);
@@ -141,8 +193,15 @@ var tests = [
     msg4.messageOffset = 0;
     messages.clear();
     messages.appendElement(msg4);
-    MailServices.copy.CopyMessages(IMAPPump.inbox, messages, gFolder1, false,
-                                   null, null, true);
+    MailServices.copy.CopyMessages(
+      IMAPPump.inbox,
+      messages,
+      gFolder1,
+      false,
+      null,
+      null,
+      true
+    );
 
     // test the db headers in folder1
     db = gFolder1.msgDatabase;
@@ -152,13 +211,23 @@ var tests = [
       count++;
       var message = enumerator.getNext();
       message instanceof Ci.nsIMsgDBHdr;
-      dump("message <" + message.subject +
-           "> storeToken: <" + message.getStringProperty("storeToken") +
-           "> offset: <" + message.messageOffset +
-           "> id: <" + message.messageId +
-           ">\n");
-      if (gFolder1.msgStore.storeType == "mbox")
-        Assert.equal(message.messageOffset, parseInt(message.getStringProperty("storeToken")));
+      dump(
+        "message <" +
+          message.subject +
+          "> storeToken: <" +
+          message.getStringProperty("storeToken") +
+          "> offset: <" +
+          message.messageOffset +
+          "> id: <" +
+          message.messageId +
+          ">\n"
+      );
+      if (gFolder1.msgStore.storeType == "mbox") {
+        Assert.equal(
+          message.messageOffset,
+          parseInt(message.getStringProperty("storeToken"))
+        );
+      }
     }
     Assert.equal(count, 3);
   },
@@ -168,7 +237,9 @@ var tests = [
       let newMsgHdr = gFolder1.msgDatabase.getMsgHdrForMessageID(msgId);
       Assert.ok(newMsgHdr.flags & Ci.nsMsgMessageFlags.Offline);
       let msgURI = newMsgHdr.folder.getUriForMsg(newMsgHdr);
-      let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+      let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+        Ci.nsIMessenger
+      );
       let msgServ = messenger.messageServiceFromURI(msgURI);
       let promiseStreamListener = new PromiseTestUtils.PromiseStreamListener();
       msgServ.streamHeaders(msgURI, promiseStreamListener, null, true);
@@ -181,12 +252,22 @@ var tests = [
     let db = IMAPPump.inbox.msgDatabase;
     let enumerator = db.EnumerateMessages();
     Assert.ok(enumerator.hasMoreElements());
-    let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-    while (enumerator.hasMoreElements())
+    let messages = Cc["@mozilla.org/array;1"].createInstance(
+      Ci.nsIMutableArray
+    );
+    while (enumerator.hasMoreElements()) {
       messages.appendElement(enumerator.getNext());
+    }
     // this is sync, I believe?
-    MailServices.copy.CopyMessages(IMAPPump.inbox, messages, gFolder1, true,
-                                   null, null, true);
+    MailServices.copy.CopyMessages(
+      IMAPPump.inbox,
+      messages,
+      gFolder1,
+      true,
+      null,
+      null,
+      true
+    );
 
     // the inbox should now be empty
     enumerator = db.EnumerateMessages();

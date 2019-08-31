@@ -2,21 +2,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 
 var MAPI_STARTUP_ARG = "MapiStartup";
 var MESSAGE_ID_PARAM = "?messageid=";
 
-var CMDLINEHANDLER_CID = Components.ID("{2f86d554-f9d9-4e76-8eb7-243f047333ee}");
-var CMDLINEHANDLER_CONTRACTID = "@mozilla.org/commandlinehandler/general-startup;1?type=mail";
+var CMDLINEHANDLER_CID = Components.ID(
+  "{2f86d554-f9d9-4e76-8eb7-243f047333ee}"
+);
+var CMDLINEHANDLER_CONTRACTID =
+  "@mozilla.org/commandlinehandler/general-startup;1?type=mail";
 
 var nsMailNewsCommandLineHandler = {
   get _messenger() {
     delete this._messenger;
-    return this._messenger = Cc["@mozilla.org/messenger;1"]
-                               .createInstance(Ci.nsIMessenger);
+    return (this._messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+      Ci.nsIMessenger
+    ));
   },
 
   /* nsICommandLineHandler */
@@ -29,7 +37,7 @@ var nsMailNewsCommandLineHandler = {
    */
   handle(aCommandLine) {
     // Do this here because xpcshell isn't too happy with this at startup
-    var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+    var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
     // -mail <URL>
     let mailURL = null;
     try {
@@ -47,17 +55,21 @@ var nsMailNewsCommandLineHandler = {
         if (messageIDIndex != -1) {
           // messageID parameter
           // Convert the message URI into a folder URI
-          let folderURI = mailURL.slice(0, messageIDIndex)
-                                 .replace("-message", "");
+          let folderURI = mailURL
+            .slice(0, messageIDIndex)
+            .replace("-message", "");
           // Get the message ID
-          let messageID = mailURL.slice(messageIDIndex + MESSAGE_ID_PARAM.length);
+          let messageID = mailURL.slice(
+            messageIDIndex + MESSAGE_ID_PARAM.length
+          );
           // Make sure the folder tree is initialized
           MailUtils.discoverFolders();
 
           let folder = MailUtils.getExistingFolder(folderURI);
           // The folder might not exist, so guard against that
-          if (folder && messageID.length > 0)
+          if (folder && messageID.length > 0) {
             msgHdr = folder.msgDatabase.getMsgHdrForMessageID(messageID);
+          }
         } else {
           // message URI
           msgHdr = this._messenger.msgHdrFromURI(mailURL);
@@ -71,31 +83,41 @@ var nsMailNewsCommandLineHandler = {
           // We failed to convert the URI. Oh well.
         }
 
-        if (neckoURL instanceof Ci.nsIMsgMessageUrl)
+        if (neckoURL instanceof Ci.nsIMsgMessageUrl) {
           msgHdr = neckoURL.messageHeader;
+        }
       }
 
       if (msgHdr) {
         aCommandLine.preventDefault = true;
         MailUtils.displayMessage(msgHdr);
-      } else if (AppConstants.MOZ_APP_NAME == "seamonkey" && /\.(eml|msg)$/i.test(mailURL)) {
+      } else if (
+        AppConstants.MOZ_APP_NAME == "seamonkey" &&
+        /\.(eml|msg)$/i.test(mailURL)
+      ) {
         try {
           let file = aCommandLine.resolveFile(mailURL);
           // No point in trying to open a file if it doesn't exist or is empty
           if (file.exists() && file.fileSize > 0) {
             // Get the URL for this file
-            let fileURL = Services.io.newFileURI(file)
-                                  .QueryInterface(Ci.nsIFileURL);
-            fileURL = fileURL.mutate().setQuery("type=application/x-message-display").finalize();
+            let fileURL = Services.io
+              .newFileURI(file)
+              .QueryInterface(Ci.nsIFileURL);
+            fileURL = fileURL
+              .mutate()
+              .setQuery("type=application/x-message-display")
+              .finalize();
             // Open this file in a new message window.
-            Services.ww.openWindow(null,
-                                   "chrome://messenger/content/messageWindow.xul",
-                                   "_blank", "all,chrome,dialog=no,status,toolbar",
-                                   fileURL);
+            Services.ww.openWindow(
+              null,
+              "chrome://messenger/content/messageWindow.xul",
+              "_blank",
+              "all,chrome,dialog=no,status,toolbar",
+              fileURL
+            );
             aCommandLine.preventDefault = true;
           }
-        } catch (e) {
-        }
+        } catch (e) {}
       } else {
         dump("Unrecognized URL: " + mailURL + "\n");
         Services.console.logStringMessage("Unrecognized URL: " + mailURL);
@@ -110,9 +132,13 @@ var nsMailNewsCommandLineHandler = {
       if (mail3PaneWindow) {
         mail3PaneWindow.focus();
       } else {
-        Services.ww.openWindow(null, "chrome://messenger/content/", "_blank",
-            "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar,dialog=no",
-            null);
+        Services.ww.openWindow(
+          null,
+          "chrome://messenger/content/",
+          "_blank",
+          "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar,dialog=no",
+          null
+        );
       }
       aCommandLine.preventDefault = true;
     }
@@ -121,19 +147,23 @@ var nsMailNewsCommandLineHandler = {
     aCommandLine.handleFlag(MAPI_STARTUP_ARG, false);
   },
 
-  helpInfo: "  -mail              Open the mail folder view.\n" +
-            "  -mail <URL>        Open the message specified by this URL.\n",
+  helpInfo:
+    "  -mail              Open the mail folder view.\n" +
+    "  -mail <URL>        Open the message specified by this URL.\n",
 
   /* nsIFactory */
   createInstance(outer, iid) {
-    if (outer != null)
+    if (outer != null) {
       throw Cr.NS_ERROR_NO_AGGREGATION;
+    }
 
     return this.QueryInterface(iid);
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsICommandLineHandler,
-                                          Ci.nsIFactory]),
+  QueryInterface: ChromeUtils.generateQI([
+    Ci.nsICommandLineHandler,
+    Ci.nsIFactory,
+  ]),
 };
 
 function mailNewsCommandLineHandlerModule() {}

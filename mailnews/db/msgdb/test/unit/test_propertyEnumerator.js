@@ -2,9 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
- // tests propertyEnumerator in nsIMsgDBHdr;
+// tests propertyEnumerator in nsIMsgDBHdr;
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var gHdr;
 
@@ -14,16 +16,28 @@ function run_test() {
   // Function continue_test() continues the testing after the copy.
   var bugmail1 = do_get_file("../../../../data/bugmail1");
   do_test_pending();
-  MailServices.copy.CopyFileMessage(bugmail1, localAccountUtils.inboxFolder, null,
-                                    false, 0, "", copyListener, null);
+  MailServices.copy.CopyFileMessage(
+    bugmail1,
+    localAccountUtils.inboxFolder,
+    null,
+    false,
+    0,
+    "",
+    copyListener,
+    null
+  );
 }
 
 var copyListener = {
   OnStartCopy() {},
   OnProgress(aProgress, aProgressMax) {},
-  SetMessageKey(aKey) { gHdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey); },
+  SetMessageKey(aKey) {
+    gHdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
+  },
   SetMessageId(aMessageId) {},
-  OnStopCopy(aStatus) { continue_test(); },
+  OnStopCopy(aStatus) {
+    continue_test();
+  },
 };
 
 function continue_test() {

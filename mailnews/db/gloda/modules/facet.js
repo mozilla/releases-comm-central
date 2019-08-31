@@ -8,7 +8,7 @@
 
 var EXPORTED_SYMBOLS = ["FacetDriver", "FacetUtils"];
 
-const {Gloda} = ChromeUtils.import("resource:///modules/gloda/public.js");
+const { Gloda } = ChromeUtils.import("resource:///modules/gloda/public.js");
 
 /**
  * Decides the appropriate faceters for the noun type and drives the faceting
@@ -33,16 +33,17 @@ FacetDriver.prototype = {
    *  definition associated with this instance.
    */
   _makeFaceters() {
-    let faceters = this.faceters = [];
+    let faceters = (this.faceters = []);
 
     function makeFaceter(aAttrDef, aFacetDef) {
       let facetType = aFacetDef.type;
 
       if (aAttrDef.singular) {
-        if (facetType == "date")
+        if (facetType == "date") {
           faceters.push(new DateFaceter(aAttrDef, aFacetDef));
-        else
+        } else {
           faceters.push(new DiscreteFaceter(aAttrDef, aFacetDef));
+        }
       } else if (facetType == "nonempty?") {
         faceters.push(new NonEmptySetFaceter(aAttrDef, aFacetDef));
       } else {
@@ -53,8 +54,9 @@ FacetDriver.prototype = {
     for (let key in this.nounDef.attribsByBoundName) {
       let attrDef = this.nounDef.attribsByBoundName[key];
       // ignore attributes that do not want to be faceted
-      if (!attrDef.facet)
+      if (!attrDef.facet) {
         continue;
+      }
 
       makeFaceter(attrDef, attrDef.facet);
 
@@ -94,9 +96,11 @@ FacetDriver.prototype = {
 
       let delta = Date.now() - start;
       if (delta > this._MAX_FACETING_TIMESLICE_MS) {
-        this._window.setTimeout(this._driveWrapper,
-                                this._FACETING_YIELD_DURATION_MS,
-                                this);
+        this._window.setTimeout(
+          this._driveWrapper,
+          this._FACETING_YIELD_DURATION_MS,
+          this
+        );
         return;
       }
     }
@@ -156,8 +160,9 @@ DiscreteFaceter.prototype = {
    * Facet the given set of items, deferring to the appropriate helper method
    */
   facetItems(aItems) {
-    if (this.attrDef.objectNounDef.isPrimitive)
+    if (this.attrDef.objectNounDef.isPrimitive) {
       return this.facetPrimitiveItems(aItems);
+    }
     return this.facetComplexItems(aItems);
   },
   /**
@@ -169,17 +174,19 @@ DiscreteFaceter.prototype = {
     let filter = this.facetDef.filter;
 
     let valStrToVal = {};
-    let groups = this.groups = {};
+    let groups = (this.groups = {});
     this.groupCount = 0;
 
     for (let item of aItems) {
-      let val = (attrKey in item) ? item[attrKey] : null;
-      if (val === Gloda.IGNORE_FACET)
+      let val = attrKey in item ? item[attrKey] : null;
+      if (val === Gloda.IGNORE_FACET) {
         continue;
+      }
 
       // skip items the filter tells us to ignore
-      if (filter && !filter(val))
+      if (filter && !filter(val)) {
         continue;
+      }
 
       // We need to use hasOwnProperty because we cannot guarantee that the
       //  contents of val won't collide with the attributes in Object.prototype.
@@ -192,8 +199,10 @@ DiscreteFaceter.prototype = {
       }
     }
 
-    let orderedGroups = Object.keys(groups).
-      map(key => [valStrToVal[key], groups[key]]);
+    let orderedGroups = Object.keys(groups).map(key => [
+      valStrToVal[key],
+      groups[key],
+    ]);
     let comparator = this.facetDef.groupComparator;
     function comparatorHelper(a, b) {
       return comparator(a[0], b[0]);
@@ -211,20 +220,22 @@ DiscreteFaceter.prototype = {
     let filter = this.facetDef.filter;
     let idAttr = this.facetDef.groupIdAttr;
 
-    let groups = this.groups = {};
-    let groupMap = this.groupMap = {};
+    let groups = (this.groups = {});
+    let groupMap = (this.groupMap = {});
     this.groupCount = 0;
 
     for (let item of aItems) {
-      let val = (attrKey in item) ? item[attrKey] : null;
-      if (val === Gloda.IGNORE_FACET)
+      let val = attrKey in item ? item[attrKey] : null;
+      if (val === Gloda.IGNORE_FACET) {
         continue;
+      }
 
       // skip items the filter tells us to ignore
-      if (filter && !filter(val))
+      if (filter && !filter(val)) {
         continue;
+      }
 
-      let valId = (val == null) ? null : val[idAttr];
+      let valId = val == null ? null : val[idAttr];
       // We need to use hasOwnProperty because tag nouns are complex objects
       //  with id's that are non-numeric and so can collide with the contents
       //  of Object.prototype.  (Note: the "tags" attribute is actually handled
@@ -238,8 +249,10 @@ DiscreteFaceter.prototype = {
       }
     }
 
-    let orderedGroups = Object.keys(groups).
-      map(key => [groupMap[key], groups[key]]);
+    let orderedGroups = Object.keys(groups).map(key => [
+      groupMap[key],
+      groups[key],
+    ]);
     let comparator = this.facetDef.groupComparator;
     function comparatorHelper(a, b) {
       return comparator(a[0], b[0]);
@@ -267,8 +280,9 @@ DiscreteSetFaceter.prototype = {
    * Facet the given set of items, deferring to the appropriate helper method
    */
   facetItems(aItems) {
-    if (this.attrDef.objectNounDef.isPrimitive)
+    if (this.attrDef.objectNounDef.isPrimitive) {
       return this.facetPrimitiveItems(aItems);
+    }
     return this.facetComplexItems(aItems);
   },
   /**
@@ -279,22 +293,24 @@ DiscreteSetFaceter.prototype = {
     let attrKey = this.attrDef.boundName;
     let filter = this.facetDef.filter;
 
-    let groups = this.groups = {};
+    let groups = (this.groups = {});
     let valStrToVal = {};
     this.groupCount = 0;
 
     for (let item of aItems) {
-      let vals = (attrKey in item) ? item[attrKey] : null;
-      if (vals === Gloda.IGNORE_FACET)
+      let vals = attrKey in item ? item[attrKey] : null;
+      if (vals === Gloda.IGNORE_FACET) {
         continue;
+      }
 
       if (vals == null || vals.length == 0) {
         vals = [null];
       }
       for (let val of vals) {
         // skip items the filter tells us to ignore
-        if (filter && !filter(val))
+        if (filter && !filter(val)) {
           continue;
+        }
 
         // We need to use hasOwnProperty because we cannot guarantee that the
         //  contents of val won't collide with the attributes in
@@ -309,8 +325,10 @@ DiscreteSetFaceter.prototype = {
       }
     }
 
-    let orderedGroups = Object.keys(groups).
-      map(key => [valStrToVal[key], groups[key]]);
+    let orderedGroups = Object.keys(groups).map(key => [
+      valStrToVal[key],
+      groups[key],
+    ]);
     let comparator = this.facetDef.groupComparator;
     function comparatorHelper(a, b) {
       return comparator(a[0], b[0]);
@@ -328,24 +346,26 @@ DiscreteSetFaceter.prototype = {
     let filter = this.facetDef.filter;
     let idAttr = this.facetDef.groupIdAttr;
 
-    let groups = this.groups = {};
-    let groupMap = this.groupMap = {};
+    let groups = (this.groups = {});
+    let groupMap = (this.groupMap = {});
     this.groupCount = 0;
 
     for (let item of aItems) {
-      let vals = (attrKey in item) ? item[attrKey] : null;
-      if (vals === Gloda.IGNORE_FACET)
+      let vals = attrKey in item ? item[attrKey] : null;
+      if (vals === Gloda.IGNORE_FACET) {
         continue;
+      }
 
       if (vals == null || vals.length == 0) {
         vals = [null];
       }
       for (let val of vals) {
         // skip items the filter tells us to ignore
-        if (filter && !filter(val))
+        if (filter && !filter(val)) {
           continue;
+        }
 
-        let valId = (val == null) ? null : val[idAttr];
+        let valId = val == null ? null : val[idAttr];
         // We need to use hasOwnProperty because tag nouns are complex objects
         //  with id's that are non-numeric and so can collide with the contents
         //  of Object.prototype.
@@ -359,8 +379,10 @@ DiscreteSetFaceter.prototype = {
       }
     }
 
-    let orderedGroups = Object.keys(groups).
-      map(key => [groupMap[key], groups[key]]);
+    let orderedGroups = Object.keys(groups).map(key => [
+      groupMap[key],
+      groups[key],
+    ]);
     let comparator = this.facetDef.groupComparator;
     function comparatorHelper(a, b) {
       return comparator(a[0], b[0]);
@@ -392,22 +414,25 @@ NonEmptySetFaceter.prototype = {
     this.groupCount = 0;
 
     for (let item of aItems) {
-      let vals = (attrKey in item) ? item[attrKey] : null;
-      if (vals == null || vals.length == 0)
+      let vals = attrKey in item ? item[attrKey] : null;
+      if (vals == null || vals.length == 0) {
         falseValues.push(item);
-      else
+      } else {
         trueValues.push(item);
+      }
     }
 
     this.orderedGroups = [];
-    if (trueValues.length)
+    if (trueValues.length) {
       this.orderedGroups.push([true, trueValues]);
-    if (falseValues.length)
+    }
+    if (falseValues.length) {
       this.orderedGroups.push([false, falseValues]);
+    }
     this.groupCount = this.orderedGroups.length;
   },
   makeQuery(aGroupValues, aInclusive) {
-    let query = this.query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
+    let query = (this.query = Gloda.newQuery(Gloda.NOUN_MESSAGE));
 
     let constraintFunc = query[this.attrDef.boundName];
     constraintFunc.call(query);
@@ -419,7 +444,6 @@ NonEmptySetFaceter.prototype = {
     return [query, invert];
   },
 };
-
 
 /**
  * Facet dates.  We build a hierarchical nested structure of year, month, and
@@ -443,9 +467,10 @@ DateFaceter.prototype = {
   facetItems(aItems) {
     let attrKey = this.attrDef.boundName;
 
-    let years = this.years = {_subCount: 0};
+    let years = (this.years = { _subCount: 0 });
     // generally track the time range
-    let oldest = null, newest = null;
+    let oldest = null,
+      newest = null;
 
     this.validItems = [];
 
@@ -473,7 +498,7 @@ DateFaceter.prototype = {
     let tooNew = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
 
     for (let item of aItems) {
-      let val = (attrKey in item) ? item[attrKey] : null;
+      let val = attrKey in item ? item[attrKey] : null;
       // -- missing
       if (val == null) {
         this.missing++;
@@ -489,16 +514,18 @@ DateFaceter.prototype = {
       this.validItems.push(item);
 
       // -- time range
-      if (oldest == null)
+      if (oldest == null) {
         oldest = newest = val;
-      else if (val < oldest)
+      } else if (val < oldest) {
         oldest = val;
-      else if (val > newest)
+      } else if (val > newest) {
         newest = val;
+      }
 
       // -- bucket
       // - year
-      let year, valYear = val.getYear();
+      let year,
+        valYear = val.getYear();
       if (valYear in years) {
         year = years[valYear];
         year._dateCount++;
@@ -511,7 +538,8 @@ DateFaceter.prototype = {
       }
 
       // - month
-      let month, valMonth = val.getMonth();
+      let month,
+        valMonth = val.getMonth();
       if (valMonth in year) {
         month = year[valMonth];
         month._dateCount++;
@@ -540,8 +568,9 @@ DateFaceter.prototype = {
     let dayItemLists = [];
     for (let key in aMonthObj) {
       let dayItemList = aMonthObj[key];
-      if (typeof(key) == "string" && key.startsWith("_"))
+      if (typeof key == "string" && key.startsWith("_")) {
         continue;
+      }
       dayItemLists.push(dayItemList);
     }
     return dayItemLists;
@@ -551,8 +580,9 @@ DateFaceter.prototype = {
     let monthItemLists = [];
     for (let key in aYearObj) {
       let monthObj = aYearObj[key];
-      if (typeof(key) == "string" && key.startsWith("_"))
+      if (typeof key == "string" && key.startsWith("_")) {
         continue;
+      }
       monthItemLists.push(this._unionMonth(monthObj));
     }
     return monthItemLists;

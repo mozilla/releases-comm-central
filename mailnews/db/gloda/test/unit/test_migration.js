@@ -24,25 +24,30 @@ function* test_fix_missing_contacts_and_fallout() {
   // - Create 4 e-mail addresses, 2 of which are in the address book.  (We want
   //    to make sure we have to iterate, hence >1).
   let abPeeps = gMessageGenerator.makeNamesAndAddresses(2),
-      nonAbPeeps = gMessageGenerator.makeNamesAndAddresses(2);
+    nonAbPeeps = gMessageGenerator.makeNamesAndAddresses(2);
   makeABCardForAddressPair(abPeeps[0]);
   makeABCardForAddressPair(abPeeps[1]);
 
   // - Create messages of the genres [from, to]: [inAB, inAB], [inAB, !inAB],
   //    [!inAB, inAB], [!inAB, !inAB].  The permutations are black box overkill.
   // smear the messages over multiple folders for realism
-  let [, yesyesMsgSet, yesnoMsgSet, noyesMsgSet, nonoMsgSet] =
-    make_folders_with_sets(3, [
-      { count: 2, from: abPeeps[0], to: [abPeeps[1]] },
-      { count: 2, from: abPeeps[1], to: nonAbPeeps },
-      { count: 2, from: nonAbPeeps[0], to: abPeeps },
-      { count: 2, from: nonAbPeeps[1], to: [nonAbPeeps[0]] },
-      ]);
+  let [
+    ,
+    yesyesMsgSet,
+    yesnoMsgSet,
+    noyesMsgSet,
+    nonoMsgSet,
+  ] = make_folders_with_sets(3, [
+    { count: 2, from: abPeeps[0], to: [abPeeps[1]] },
+    { count: 2, from: abPeeps[1], to: nonAbPeeps },
+    { count: 2, from: nonAbPeeps[0], to: abPeeps },
+    { count: 2, from: nonAbPeeps[1], to: [nonAbPeeps[0]] },
+  ]);
 
   yield wait_for_message_injection();
   // union the yeses together; we don't care about their composition
   let yesMsgSet = yesyesMsgSet.union(yesnoMsgSet).union(noyesMsgSet),
-      noMsgSet = nonoMsgSet;
+    noMsgSet = nonoMsgSet;
 
   // - Let gloda index the messages so the identities get created.
   yield wait_for_gloda_indexer([yesMsgSet, noMsgSet], { augment: true });
@@ -57,9 +62,13 @@ function* test_fix_missing_contacts_and_fallout() {
   yield wait_for_gloda_db_flush();
 
   // - delete the contact records for the people in the address book.
-  yield sqlRun("DELETE FROM contacts WHERE id IN (" +
-               yesMsgSet.glodaMessages[0].from.contact.id + ", " +
-               yesMsgSet.glodaMessages[0].to[0].contact.id + ")");
+  yield sqlRun(
+    "DELETE FROM contacts WHERE id IN (" +
+      yesMsgSet.glodaMessages[0].from.contact.id +
+      ", " +
+      yesMsgSet.glodaMessages[0].to[0].contact.id +
+      ")"
+  );
 
   // - Nuke the gloda caches so we totally forget those contact records.
   nukeGlodaCachesAndCollections();
@@ -73,14 +82,15 @@ function* test_fix_missing_contacts_and_fallout() {
   // - mark the db schema version to the version with the bug (26)
   // sanity check that gloda actually populates the value with the current
   //  version correctly...
-  Assert.equal(GlodaDatastore._actualSchemaVersion,
-               GlodaDatastore._schemaVersion);
+  Assert.equal(
+    GlodaDatastore._actualSchemaVersion,
+    GlodaDatastore._schemaVersion
+  );
   GlodaDatastore._actualSchemaVersion = 26;
   yield sqlRun("PRAGMA user_version = 26");
   // make sure that took, since we check it below as a success indicator.
   let verRows = yield sqlRun("PRAGMA user_version");
   Assert.equal(verRows[0].getInt64(0), 26);
-
 
   // -- test
   // - trigger the migration logic and request an indexing sweep
@@ -102,15 +112,15 @@ function* test_fix_missing_contacts_and_fallout() {
   //    the db's perspective
   verRows = yield sqlRun("PRAGMA user_version");
   Assert.equal(verRows[0].getInt64(0), GlodaDatastore._schemaVersion);
-  Assert.equal(GlodaDatastore._actualSchemaVersion,
-               GlodaDatastore._schemaVersion);
+  Assert.equal(
+    GlodaDatastore._actualSchemaVersion,
+    GlodaDatastore._schemaVersion
+  );
 }
 
-var tests = [
-  test_fix_missing_contacts_and_fallout,
-];
+var tests = [test_fix_missing_contacts_and_fallout];
 
 function run_test() {
-  configure_message_injection({mode: "local"});
+  configure_message_injection({ mode: "local" });
   glodaHelperRunTests(tests);
 }

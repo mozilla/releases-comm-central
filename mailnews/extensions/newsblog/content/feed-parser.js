@@ -34,8 +34,8 @@ FeedParser.prototype = {
     let doc = aDOM.documentElement;
     if (doc.namespaceURI == FeedUtils.MOZ_PARSERERROR_NS) {
       // Gecko caught a basic parsing error.
-      let errStr = doc.firstChild.textContent + "\n" +
-                   doc.firstElementChild.textContent;
+      let errStr =
+        doc.firstChild.textContent + "\n" + doc.firstElementChild.textContent;
       FeedUtils.log.info("FeedParser.parseFeed: - " + errStr);
       aFeed.onParseError(aFeed);
       return [];
@@ -48,27 +48,45 @@ FeedParser.prototype = {
 
       aFeed.onParseError(aFeed);
       return [];
-    } else if (doc.namespaceURI == FeedUtils.RDF_SYNTAX_NS &&
-               doc.getElementsByTagNameNS(FeedUtils.RSS_NS, "channel")[0]) {
+    } else if (
+      doc.namespaceURI == FeedUtils.RDF_SYNTAX_NS &&
+      doc.getElementsByTagNameNS(FeedUtils.RSS_NS, "channel")[0]
+    ) {
       aFeed.mFeedType = "RSS_1.xRDF";
-      FeedUtils.log.debug("FeedParser.parseFeed: type:url - " +
-                          aFeed.mFeedType + " : " + aFeed.url);
+      FeedUtils.log.debug(
+        "FeedParser.parseFeed: type:url - " +
+          aFeed.mFeedType +
+          " : " +
+          aFeed.url
+      );
 
       return this.parseAsRSS1(aFeed, aDOM);
     } else if (doc.namespaceURI == FeedUtils.ATOM_03_NS) {
       aFeed.mFeedType = "ATOM_0.3";
-      FeedUtils.log.debug("FeedParser.parseFeed: type:url - " +
-                          aFeed.mFeedType + " : " + aFeed.url);
+      FeedUtils.log.debug(
+        "FeedParser.parseFeed: type:url - " +
+          aFeed.mFeedType +
+          " : " +
+          aFeed.url
+      );
       return this.parseAsAtom(aFeed, aDOM);
     } else if (doc.namespaceURI == FeedUtils.ATOM_IETF_NS) {
       aFeed.mFeedType = "ATOM_IETF";
-      FeedUtils.log.debug("FeedParser.parseFeed: type:url - " +
-                          aFeed.mFeedType + " : " + aFeed.url);
+      FeedUtils.log.debug(
+        "FeedParser.parseFeed: type:url - " +
+          aFeed.mFeedType +
+          " : " +
+          aFeed.url
+      );
       return this.parseAsAtomIETF(aFeed, aDOM);
     } else if (doc.getElementsByTagNameNS(FeedUtils.RSS_090_NS, "channel")[0]) {
       aFeed.mFeedType = "RSS_0.90";
-      FeedUtils.log.debug("FeedParser.parseFeed: type:url - " +
-                          aFeed.mFeedType + " : " + aFeed.url);
+      FeedUtils.log.debug(
+        "FeedParser.parseFeed: type:url - " +
+          aFeed.mFeedType +
+          " : " +
+          aFeed.url
+      );
       return this.parseAsRSS2(aFeed, aDOM);
     }
 
@@ -80,8 +98,9 @@ FeedParser.prototype = {
     } else {
       aFeed.mFeedType = "RSS_0.9x?";
     }
-    FeedUtils.log.debug("FeedParser.parseFeed: type:url - " +
-                        aFeed.mFeedType + " : " + aFeed.url);
+    FeedUtils.log.debug(
+      "FeedParser.parseFeed: type:url - " + aFeed.mFeedType + " : " + aFeed.url
+    );
     return this.parseAsRSS2(aFeed, aDOM);
   },
 
@@ -108,8 +127,10 @@ FeedParser.prototype = {
     aFeed.link = this.validLink(this.getNodeValue(tags ? tags[0] : null));
 
     if (!(aFeed.title || aFeed.description) || !aFeed.link) {
-      FeedUtils.log.error("FeedParser.parseAsRSS2: missing mandatory element " +
-                          "<title> and <description>, or <link>");
+      FeedUtils.log.error(
+        "FeedParser.parseAsRSS2: missing mandatory element " +
+          "<title> and <description>, or <link>"
+      );
       aFeed.onParseError(aFeed);
       return [];
     }
@@ -125,8 +146,9 @@ FeedParser.prototype = {
     // better, but RSS .90 is still with us.
     let itemNodes = aDOM.getElementsByTagNameNS(nsURI, "item");
     itemNodes = itemNodes ? itemNodes : [];
-    FeedUtils.log.debug("FeedParser.parseAsRSS2: items to parse - " +
-                        itemNodes.length);
+    FeedUtils.log.debug(
+      "FeedParser.parseAsRSS2: items to parse - " + itemNodes.length
+    );
 
     for (let itemNode of itemNodes) {
       if (!itemNode.childElementCount) {
@@ -138,7 +160,11 @@ FeedParser.prototype = {
       item.enclosures = [];
       item.keywords = [];
 
-      tags = this.childrenByTagNameNS(itemNode, FeedUtils.FEEDBURNER_NS, "origLink");
+      tags = this.childrenByTagNameNS(
+        itemNode,
+        FeedUtils.FEEDBURNER_NS,
+        "origLink"
+      );
       let link = this.validLink(this.getNodeValue(tags ? tags[0] : null));
       if (!link) {
         tags = this.childrenByTagNameNS(itemNode, nsURI, "link");
@@ -154,8 +180,10 @@ FeedParser.prototype = {
         // isPermaLink is true if the value is "true" or if the attribute is
         // not present; all other values, including "false" and "False" and
         // for that matter "TRuE" and "meatcake" are false.
-        if (!guidNode.hasAttribute("isPermaLink") ||
-            guidNode.getAttribute("isPermaLink") == "true") {
+        if (
+          !guidNode.hasAttribute("isPermaLink") ||
+          guidNode.getAttribute("isPermaLink") == "true"
+        ) {
           isPermaLink = true;
         }
         // If attribute isPermaLink is missing, it is good to check the validity
@@ -188,8 +216,10 @@ FeedParser.prototype = {
       tags = this.childrenByTagNameNS(itemNode, nsURI, "title");
       item.title = this.getNodeValue(tags ? tags[0] : null);
       if (!(item.title || item.description)) {
-        FeedUtils.log.info("FeedParser.parseAsRSS2: <item> missing mandatory " +
-                           "element, either <title> or <description>; skipping");
+        FeedUtils.log.info(
+          "FeedParser.parseAsRSS2: <item> missing mandatory " +
+            "element, either <title> or <description>; skipping"
+        );
         continue;
       }
 
@@ -198,10 +228,14 @@ FeedParser.prototype = {
         // by any of link or date (optional) or title (optional unless there
         // is no description). Use a big chunk of description; minimize dupes
         // with url and title if present.
-        item.id = (item.url || item.feed.url) + "#" + item.title + "#" +
-                  (this.stripTags(item.description ?
-                                    item.description.substr(0, 150) : null) ||
-                   item.title);
+        item.id =
+          (item.url || item.feed.url) +
+          "#" +
+          item.title +
+          "#" +
+          (this.stripTags(
+            item.description ? item.description.substr(0, 150) : null
+          ) || item.title);
         item.id = item.id.replace(/[\n\r\t\s]+/g, " ");
       }
 
@@ -223,8 +257,7 @@ FeedParser.prototype = {
       if (!tags) {
         tags = this.childrenByTagNameNS(itemNode, FeedUtils.DC_NS, "creator");
       }
-      let author = this.getNodeValue(tags ? tags[0] : null) ||
-                   aFeed.title;
+      let author = this.getNodeValue(tags ? tags[0] : null) || aFeed.title;
       author = this.cleanAuthorName(author);
       item.author = author ? ["<" + author + ">"] : item.author;
 
@@ -245,7 +278,11 @@ FeedParser.prototype = {
         }
       }
 
-      tags = this.childrenByTagNameNS(itemNode, FeedUtils.RSS_CONTENT_NS, "encoded");
+      tags = this.childrenByTagNameNS(
+        itemNode,
+        FeedUtils.RSS_CONTENT_NS,
+        "encoded"
+      );
       item.content = this.getNodeValueFormatted(tags ? tags[0] : null);
 
       // Handle <enclosures> and <media:content>, which may be in a
@@ -257,7 +294,9 @@ FeedParser.prototype = {
           let url = this.validLink(tag.getAttribute("url"));
           if (url && !encUrls.includes(url)) {
             let type = this.removeUnprintableASCII(tag.getAttribute("type"));
-            let length = this.removeUnprintableASCII(tag.getAttribute("length"));
+            let length = this.removeUnprintableASCII(
+              tag.getAttribute("length")
+            );
             item.enclosures.push(new FeedEnclosure(url, type, length));
             encUrls.push(url);
           }
@@ -270,7 +309,9 @@ FeedParser.prototype = {
           let url = this.validLink(tag.getAttribute("url"));
           if (url && !encUrls.includes(url)) {
             let type = this.removeUnprintableASCII(tag.getAttribute("type"));
-            let fileSize = this.removeUnprintableASCII(tag.getAttribute("fileSize"));
+            let fileSize = this.removeUnprintableASCII(
+              tag.getAttribute("fileSize")
+            );
             item.enclosures.push(new FeedEnclosure(url, type, fileSize));
           }
         }
@@ -283,7 +324,11 @@ FeedParser.prototype = {
       // the specified enclosure tags for 1 enclosure. Thus, we will replace the
       // first enclosure's, if found, url with the first <origEnclosureLink>
       // url only or else add the <origEnclosureLink> url.
-      tags = this.childrenByTagNameNS(itemNode, FeedUtils.FEEDBURNER_NS, "origEnclosureLink");
+      tags = this.childrenByTagNameNS(
+        itemNode,
+        FeedUtils.FEEDBURNER_NS,
+        "origEnclosureLink"
+      );
       let origEncUrl = this.validLink(this.getNodeValue(tags ? tags[0] : null));
       if (origEncUrl) {
         if (item.enclosures.length) {
@@ -341,15 +386,21 @@ FeedParser.prototype = {
     // If user entered a title manually, retain it.
     feed.title = feed.title || this.getNodeValue(titleNode) || feed.url;
 
-    let descNode = this.childByTagNameNS(channel, FeedUtils.RSS_NS, "description");
+    let descNode = this.childByTagNameNS(
+      channel,
+      FeedUtils.RSS_NS,
+      "description"
+    );
     feed.description = this.getNodeValueFormatted(descNode) || "";
 
     let linkNode = this.childByTagNameNS(channel, FeedUtils.RSS_NS, "link");
     feed.link = this.validLink(this.getNodeValue(linkNode)) || feed.url;
 
     if (!(feed.title || feed.description) || !feed.link) {
-      FeedUtils.log.error("FeedParser.parseAsRSS1: missing mandatory element " +
-                          "<title> and <description>, or <link>");
+      FeedUtils.log.error(
+        "FeedParser.parseAsRSS1: missing mandatory element " +
+          "<title> and <description>, or <link>"
+      );
       feed.onParseError(feed);
       return [];
     }
@@ -379,43 +430,71 @@ FeedParser.prototype = {
       item.id = this.getNodeValue(linkNode) || itemURI;
       item.url = this.validLink(item.id);
 
-      let descNode = this.childByTagNameNS(itemNode, FeedUtils.RSS_NS, "description");
+      let descNode = this.childByTagNameNS(
+        itemNode,
+        FeedUtils.RSS_NS,
+        "description"
+      );
       item.description = this.getNodeValueFormatted(descNode);
 
-      let titleNode = this.childByTagNameNS(itemNode, FeedUtils.RSS_NS, "title");
-      let subjectNode = this.childByTagNameNS(itemNode, FeedUtils.DC_NS, "subject");
+      let titleNode = this.childByTagNameNS(
+        itemNode,
+        FeedUtils.RSS_NS,
+        "title"
+      );
+      let subjectNode = this.childByTagNameNS(
+        itemNode,
+        FeedUtils.DC_NS,
+        "subject"
+      );
 
-      item.title = this.getNodeValue(titleNode) || this.getNodeValue(subjectNode);
+      item.title =
+        this.getNodeValue(titleNode) || this.getNodeValue(subjectNode);
       if (!item.title && item.description) {
         item.title = this.stripTags(item.description).substr(0, 150);
       }
       if (!item.url || !item.title) {
-        FeedUtils.log.info("FeedParser.parseAsRSS1: <item> missing mandatory " +
-                           "element <item rdf:about> and <link>, or <title> and " +
-                           "no <description>; skipping");
+        FeedUtils.log.info(
+          "FeedParser.parseAsRSS1: <item> missing mandatory " +
+            "element <item rdf:about> and <link>, or <title> and " +
+            "no <description>; skipping"
+        );
         continue;
       }
 
-
       // TODO XXX: ignores multiple authors.
-      let authorNode = this.childByTagNameNS(itemNode, FeedUtils.DC_NS, "creator");
-      let channelCreatorNode = this.childByTagNameNS(channel, FeedUtils.DC_NS, "creator");
-      let author = this.getNodeValue(authorNode) ||
-                   this.getNodeValue(channelCreatorNode) ||
-                   feed.title;
+      let authorNode = this.childByTagNameNS(
+        itemNode,
+        FeedUtils.DC_NS,
+        "creator"
+      );
+      let channelCreatorNode = this.childByTagNameNS(
+        channel,
+        FeedUtils.DC_NS,
+        "creator"
+      );
+      let author =
+        this.getNodeValue(authorNode) ||
+        this.getNodeValue(channelCreatorNode) ||
+        feed.title;
       author = this.cleanAuthorName(author);
       item.author = author ? ["<" + author + ">"] : item.author;
 
       let dateNode = this.childByTagNameNS(itemNode, FeedUtils.DC_NS, "date");
       item.date = this.getNodeValue(dateNode) || item.date;
 
-      let contentNode = this.childByTagNameNS(itemNode, FeedUtils.RSS_CONTENT_NS, "encoded");
+      let contentNode = this.childByTagNameNS(
+        itemNode,
+        FeedUtils.RSS_CONTENT_NS,
+        "encoded"
+      );
       item.content = this.getNodeValueFormatted(contentNode);
 
       this.parsedItems.push(item);
     }
-    FeedUtils.log.debug("FeedParser.parseAsRSS1: items parsed - " +
-                        this.parsedItems.length);
+    FeedUtils.log.debug(
+      "FeedParser.parseAsRSS1: items parsed - " + this.parsedItems.length
+    );
 
     return this.parsedItems;
   },
@@ -434,16 +513,17 @@ FeedParser.prototype = {
     }
 
     let tags = this.childrenByTagNameNS(channel, FeedUtils.ATOM_03_NS, "title");
-    aFeed.title = aFeed.title ||
-                  this.stripTags(this.getNodeValue(tags ? tags[0] : null));
+    aFeed.title =
+      aFeed.title || this.stripTags(this.getNodeValue(tags ? tags[0] : null));
     tags = this.childrenByTagNameNS(channel, FeedUtils.ATOM_03_NS, "tagline");
     aFeed.description = this.getNodeValueFormatted(tags ? tags[0] : null);
     tags = this.childrenByTagNameNS(channel, FeedUtils.ATOM_03_NS, "link");
     aFeed.link = this.validLink(this.findAtomLink("alternate", tags));
 
     if (!aFeed.title) {
-      FeedUtils.log.error("FeedParser.parseAsAtom: missing mandatory element " +
-                          "<title>");
+      FeedUtils.log.error(
+        "FeedParser.parseAsAtom: missing mandatory element " + "<title>"
+      );
       aFeed.onParseError(aFeed);
       return [];
     }
@@ -455,10 +535,15 @@ FeedParser.prototype = {
     this.findSyUpdateTags(aFeed, channel);
 
     aFeed.invalidateItems();
-    let items = this.childrenByTagNameNS(channel, FeedUtils.ATOM_03_NS, "entry");
+    let items = this.childrenByTagNameNS(
+      channel,
+      FeedUtils.ATOM_03_NS,
+      "entry"
+    );
     items = items ? items : [];
-    FeedUtils.log.debug("FeedParser.parseAsAtom: items to parse - " +
-                        items.length);
+    FeedUtils.log.debug(
+      "FeedParser.parseAsAtom: items to parse - " + items.length
+    );
 
     for (let itemNode of items) {
       if (!itemNode.childElementCount) {
@@ -473,24 +558,39 @@ FeedParser.prototype = {
 
       tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_03_NS, "id");
       item.id = this.getNodeValue(tags ? tags[0] : null);
-      tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_03_NS, "summary");
+      tags = this.childrenByTagNameNS(
+        itemNode,
+        FeedUtils.ATOM_03_NS,
+        "summary"
+      );
       item.description = this.getNodeValueFormatted(tags ? tags[0] : null);
       tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_03_NS, "title");
-      item.title = this.getNodeValue(tags ? tags[0] : null) ||
-                   (item.description ? item.description.substr(0, 150) : null);
+      item.title =
+        this.getNodeValue(tags ? tags[0] : null) ||
+        (item.description ? item.description.substr(0, 150) : null);
       if (!item.title || !item.id) {
         // We're lenient about other mandatory tags, but insist on these.
-        FeedUtils.log.info("FeedParser.parseAsAtom: <entry> missing mandatory " +
-                           "element <id>, or <title> and no <summary>; skipping");
+        FeedUtils.log.info(
+          "FeedParser.parseAsAtom: <entry> missing mandatory " +
+            "element <id>, or <title> and no <summary>; skipping"
+        );
         continue;
       }
 
       tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_03_NS, "author");
       if (!tags) {
-        tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_03_NS, "contributor");
+        tags = this.childrenByTagNameNS(
+          itemNode,
+          FeedUtils.ATOM_03_NS,
+          "contributor"
+        );
       }
       if (!tags) {
-        tags = this.childrenByTagNameNS(channel, FeedUtils.ATOM_03_NS, "author");
+        tags = this.childrenByTagNameNS(
+          channel,
+          FeedUtils.ATOM_03_NS,
+          "author"
+        );
       }
 
       let authorEl = tags ? tags[0] : null;
@@ -499,7 +599,11 @@ FeedParser.prototype = {
       if (authorEl) {
         tags = this.childrenByTagNameNS(authorEl, FeedUtils.ATOM_03_NS, "name");
         let name = this.getNodeValue(tags ? tags[0] : null);
-        tags = this.childrenByTagNameNS(authorEl, FeedUtils.ATOM_03_NS, "email");
+        tags = this.childrenByTagNameNS(
+          authorEl,
+          FeedUtils.ATOM_03_NS,
+          "email"
+        );
         let email = this.getNodeValue(tags ? tags[0] : null);
         if (name) {
           author = name + (email ? " <" + email + ">" : "");
@@ -510,12 +614,24 @@ FeedParser.prototype = {
 
       item.author = author || item.author || aFeed.title;
 
-      tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_03_NS, "modified");
+      tags = this.childrenByTagNameNS(
+        itemNode,
+        FeedUtils.ATOM_03_NS,
+        "modified"
+      );
       if (!tags || !this.getNodeValue(tags[0])) {
-        tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_03_NS, "issued");
+        tags = this.childrenByTagNameNS(
+          itemNode,
+          FeedUtils.ATOM_03_NS,
+          "issued"
+        );
       }
       if (!tags || !this.getNodeValue(tags[0])) {
-        tags = this.childrenByTagNameNS(channel, FeedUtils.ATOM_03_NS, "created");
+        tags = this.childrenByTagNameNS(
+          channel,
+          FeedUtils.ATOM_03_NS,
+          "created"
+        );
       }
 
       item.date = this.getNodeValue(tags ? tags[0] : null) || item.date;
@@ -528,7 +644,11 @@ FeedParser.prototype = {
       // a namespace to identify the tags as HTML; and a few are buggy and put
       // HTML tags in without declaring their namespace so they look like Atom.
       // We deal with the first two but not the third.
-      tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_03_NS, "content");
+      tags = this.childrenByTagNameNS(
+        itemNode,
+        FeedUtils.ATOM_03_NS,
+        "content"
+      );
       let contentNode = tags ? tags[0] : null;
 
       let content;
@@ -562,7 +682,11 @@ FeedParser.prototype = {
 
   parseAsAtomIETF(aFeed, aDOM) {
     // Get the first channel (assuming there is only one per Atom File).
-    let channel = this.childrenByTagNameNS(aDOM, FeedUtils.ATOM_IETF_NS, "feed")[0];
+    let channel = this.childrenByTagNameNS(
+      aDOM,
+      FeedUtils.ATOM_IETF_NS,
+      "feed"
+    )[0];
     if (!channel) {
       aFeed.onParseError(aFeed);
       return [];
@@ -574,25 +698,36 @@ FeedParser.prototype = {
 
     let contentBase = channel.getAttribute("xml:base");
 
-    let tags = this.childrenByTagNameNS(channel, FeedUtils.ATOM_IETF_NS, "title");
-    aFeed.title = aFeed.title ||
-                  this.stripTags(this.serializeTextConstruct(tags ? tags[0] : null));
+    let tags = this.childrenByTagNameNS(
+      channel,
+      FeedUtils.ATOM_IETF_NS,
+      "title"
+    );
+    aFeed.title =
+      aFeed.title ||
+      this.stripTags(this.serializeTextConstruct(tags ? tags[0] : null));
 
-    tags = this.childrenByTagNameNS(channel, FeedUtils.ATOM_IETF_NS, "subtitle");
+    tags = this.childrenByTagNameNS(
+      channel,
+      FeedUtils.ATOM_IETF_NS,
+      "subtitle"
+    );
     aFeed.description = this.serializeTextConstruct(tags ? tags[0] : null);
 
     // Per spec, aFeed.link and contentBase may both end up null here.
     tags = this.childrenByTagNameNS(channel, FeedUtils.ATOM_IETF_NS, "link");
-    aFeed.link = this.findAtomLink("self", tags, contentBase) ||
-                 this.findAtomLink("alternate", tags, contentBase);
+    aFeed.link =
+      this.findAtomLink("self", tags, contentBase) ||
+      this.findAtomLink("alternate", tags, contentBase);
     aFeed.link = this.validLink(aFeed.link);
     if (!contentBase) {
       contentBase = aFeed.link;
     }
 
     if (!aFeed.title) {
-      FeedUtils.log.error("FeedParser.parseAsAtomIETF: missing mandatory element " +
-                          "<title>");
+      FeedUtils.log.error(
+        "FeedParser.parseAsAtomIETF: missing mandatory element " + "<title>"
+      );
       aFeed.onParseError(aFeed);
       return [];
     }
@@ -604,10 +739,15 @@ FeedParser.prototype = {
     this.findSyUpdateTags(aFeed, channel);
 
     aFeed.invalidateItems();
-    let items = this.childrenByTagNameNS(channel, FeedUtils.ATOM_IETF_NS, "entry");
+    let items = this.childrenByTagNameNS(
+      channel,
+      FeedUtils.ATOM_IETF_NS,
+      "entry"
+    );
     items = items ? items : [];
-    FeedUtils.log.debug("FeedParser.parseAsAtomIETF: items to parse - " +
-                        items.length);
+    FeedUtils.log.debug(
+      "FeedParser.parseAsAtomIETF: items to parse - " + items.length
+    );
 
     for (let itemNode of items) {
       if (!itemNode.childElementCount) {
@@ -621,18 +761,31 @@ FeedParser.prototype = {
 
       contentBase = itemNode.getAttribute("xml:base") || contentBase;
 
-      tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "source");
+      tags = this.childrenByTagNameNS(
+        itemNode,
+        FeedUtils.ATOM_IETF_NS,
+        "source"
+      );
       let source = tags ? tags[0] : null;
 
       // Per spec, item.link and contentBase may both end up null here.
       // If <content> is also not present, then <link rel="alternate"> is MUST
       // but we're lenient.
-      tags = this.childrenByTagNameNS(itemNode, FeedUtils.FEEDBURNER_NS, "origLink");
+      tags = this.childrenByTagNameNS(
+        itemNode,
+        FeedUtils.FEEDBURNER_NS,
+        "origLink"
+      );
       item.url = this.validLink(this.getNodeValue(tags ? tags[0] : null));
       if (!item.url) {
-        tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "link");
-        item.url = this.validLink(this.findAtomLink("alternate", tags, contentBase)) ||
-                   aFeed.link;
+        tags = this.childrenByTagNameNS(
+          itemNode,
+          FeedUtils.ATOM_IETF_NS,
+          "link"
+        );
+        item.url =
+          this.validLink(this.findAtomLink("alternate", tags, contentBase)) ||
+          aFeed.link;
       }
       if (!contentBase) {
         contentBase = item.url;
@@ -640,38 +793,73 @@ FeedParser.prototype = {
 
       tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "id");
       item.id = this.getNodeValue(tags ? tags[0] : null);
-      tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "summary");
+      tags = this.childrenByTagNameNS(
+        itemNode,
+        FeedUtils.ATOM_IETF_NS,
+        "summary"
+      );
       item.description = this.serializeTextConstruct(tags ? tags[0] : null);
-      tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "title");
+      tags = this.childrenByTagNameNS(
+        itemNode,
+        FeedUtils.ATOM_IETF_NS,
+        "title"
+      );
       if (!tags || !this.getNodeValue(tags[0])) {
-        tags = this.childrenByTagNameNS(source, FeedUtils.ATOM_IETF_NS, "title");
+        tags = this.childrenByTagNameNS(
+          source,
+          FeedUtils.ATOM_IETF_NS,
+          "title"
+        );
       }
-      item.title = this.stripTags(this.serializeTextConstruct(tags ? tags[0] : null) ||
-                                  (item.description ?
-                                     item.description.substr(0, 150) : null));
+      item.title = this.stripTags(
+        this.serializeTextConstruct(tags ? tags[0] : null) ||
+          (item.description ? item.description.substr(0, 150) : null)
+      );
       if (!item.title || !item.id) {
         // We're lenient about other mandatory tags, but insist on these.
-        FeedUtils.log.info("FeedParser.parseAsAtomIETF: <entry> missing mandatory " +
-                           "element <id>, or <title> and no <summary>; skipping");
+        FeedUtils.log.info(
+          "FeedParser.parseAsAtomIETF: <entry> missing mandatory " +
+            "element <id>, or <title> and no <summary>; skipping"
+        );
         continue;
       }
 
       // Support multiple authors.
-      tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "author");
+      tags = this.childrenByTagNameNS(
+        itemNode,
+        FeedUtils.ATOM_IETF_NS,
+        "author"
+      );
       if (!tags) {
-        tags = this.childrenByTagNameNS(source, FeedUtils.ATOM_IETF_NS, "author");
+        tags = this.childrenByTagNameNS(
+          source,
+          FeedUtils.ATOM_IETF_NS,
+          "author"
+        );
       }
       if (!tags) {
-        tags = this.childrenByTagNameNS(channel, FeedUtils.ATOM_IETF_NS, "author");
+        tags = this.childrenByTagNameNS(
+          channel,
+          FeedUtils.ATOM_IETF_NS,
+          "author"
+        );
       }
 
       let authorTags = tags || [];
       let authors = [];
       for (let authorTag of authorTags) {
         let author = "";
-        tags = this.childrenByTagNameNS(authorTag, FeedUtils.ATOM_IETF_NS, "name");
+        tags = this.childrenByTagNameNS(
+          authorTag,
+          FeedUtils.ATOM_IETF_NS,
+          "name"
+        );
         let name = this.getNodeValue(tags ? tags[0] : null);
-        tags = this.childrenByTagNameNS(authorTag, FeedUtils.ATOM_IETF_NS, "email");
+        tags = this.childrenByTagNameNS(
+          authorTag,
+          FeedUtils.ATOM_IETF_NS,
+          "email"
+        );
         let email = this.getNodeValue(tags ? tags[0] : null);
         if (name) {
           name = this.cleanAuthorName(name);
@@ -694,37 +882,58 @@ FeedParser.prototype = {
 
       if (authors.length == 0) {
         tags = this.childrenByTagNameNS(channel, FeedUtils.DC_NS, "publisher");
-        let author = this.getNodeValue(tags ? tags[0] : null) ||
-                     aFeed.title;
+        let author = this.getNodeValue(tags ? tags[0] : null) || aFeed.title;
         author = this.cleanAuthorName(author);
         item.author = author ? ["<" + author + ">"] : item.author;
       } else {
         item.author = authors;
       }
-      FeedUtils.log.trace("FeedParser.parseAsAtomIETF: author(s) - " + item.author);
+      FeedUtils.log.trace(
+        "FeedParser.parseAsAtomIETF: author(s) - " + item.author
+      );
 
-      tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "updated");
+      tags = this.childrenByTagNameNS(
+        itemNode,
+        FeedUtils.ATOM_IETF_NS,
+        "updated"
+      );
       if (!tags || !this.getNodeValue(tags[0])) {
-        tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "published");
+        tags = this.childrenByTagNameNS(
+          itemNode,
+          FeedUtils.ATOM_IETF_NS,
+          "published"
+        );
       }
       if (!tags || !this.getNodeValue(tags[0])) {
-        tags = this.childrenByTagNameNS(source, FeedUtils.ATOM_IETF_NS, "published");
+        tags = this.childrenByTagNameNS(
+          source,
+          FeedUtils.ATOM_IETF_NS,
+          "published"
+        );
       }
       item.date = this.getNodeValue(tags ? tags[0] : null) || item.date;
 
-      tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "content");
+      tags = this.childrenByTagNameNS(
+        itemNode,
+        FeedUtils.ATOM_IETF_NS,
+        "content"
+      );
       item.content = this.serializeTextConstruct(tags ? tags[0] : null);
 
       // Ensure relative links can be resolved and Content-Base set to an
       // absolute url for the entry. But it's not mandatory that a url is found
       // for Content-Base, per spec.
       if (item.content) {
-        item.xmlContentBase = (tags && tags[0].getAttribute("xml:base")) ||
-                              contentBase;
+        item.xmlContentBase =
+          (tags && tags[0].getAttribute("xml:base")) || contentBase;
       } else if (item.description) {
-        tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "summary");
-        item.xmlContentBase = (tags && tags[0].getAttribute("xml:base")) ||
-                              contentBase;
+        tags = this.childrenByTagNameNS(
+          itemNode,
+          FeedUtils.ATOM_IETF_NS,
+          "summary"
+        );
+        item.xmlContentBase =
+          (tags && tags[0].getAttribute("xml:base")) || contentBase;
       } else {
         item.xmlContentBase = contentBase;
       }
@@ -736,12 +945,16 @@ FeedParser.prototype = {
       let encUrls = [];
       if (tags) {
         for (let tag of tags) {
-          let url = tag.getAttribute("rel") == "enclosure" ?
-                      (tag.getAttribute("href") || "").trim() : null;
+          let url =
+            tag.getAttribute("rel") == "enclosure"
+              ? (tag.getAttribute("href") || "").trim()
+              : null;
           url = this.validLink(url);
           if (url && !encUrls.includes(url)) {
             let type = this.removeUnprintableASCII(tag.getAttribute("type"));
-            let length = this.removeUnprintableASCII(tag.getAttribute("length"));
+            let length = this.removeUnprintableASCII(
+              tag.getAttribute("length")
+            );
             let title = this.removeUnprintableASCII(tag.getAttribute("title"));
             item.enclosures.push(new FeedEnclosure(url, type, length, title));
             encUrls.push(url);
@@ -749,7 +962,11 @@ FeedParser.prototype = {
         }
       }
 
-      tags = this.childrenByTagNameNS(itemNode, FeedUtils.FEEDBURNER_NS, "origEnclosureLink");
+      tags = this.childrenByTagNameNS(
+        itemNode,
+        FeedUtils.FEEDBURNER_NS,
+        "origEnclosureLink"
+      );
       let origEncUrl = this.validLink(this.getNodeValue(tags ? tags[0] : null));
       if (origEncUrl) {
         if (item.enclosures.length) {
@@ -762,7 +979,11 @@ FeedParser.prototype = {
       // Handle atom threading extension, RFC4685.  There may be 1 or more tags,
       // and each must contain a ref attribute with 1 Message-Id equivalent
       // value.  This is the only attr of interest in the spec for presentation.
-      tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_THREAD_NS, "in-reply-to");
+      tags = this.childrenByTagNameNS(
+        itemNode,
+        FeedUtils.ATOM_THREAD_NS,
+        "in-reply-to"
+      );
       if (tags) {
         for (let tag of tags) {
           let ref = this.removeUnprintableASCII(tag.getAttribute("ref"));
@@ -774,7 +995,11 @@ FeedParser.prototype = {
       }
 
       // Support <category> and autotagging.
-      tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "category");
+      tags = this.childrenByTagNameNS(
+        itemNode,
+        FeedUtils.ATOM_IETF_NS,
+        "category"
+      );
       if (tags) {
         for (let tag of tags) {
           let term = this.removeUnprintableASCII(tag.getAttribute("term"));
@@ -810,16 +1035,31 @@ FeedParser.prototype = {
     // Check for <itunes:new-feed-url> tag.
     if (aFeedChannel) {
       tagName = "new-feed-url";
-      tags = this.childrenByTagNameNS(aFeedChannel, FeedUtils.ITUNES_NS, tagName);
+      tags = this.childrenByTagNameNS(
+        aFeedChannel,
+        FeedUtils.ITUNES_NS,
+        tagName
+      );
       newUrl = this.getNodeValue(tags ? tags[0] : null);
       tagName = "itunes:" + tagName;
     }
 
-    if (newUrl && newUrl != oldUrl && FeedUtils.isValidScheme(newUrl) &&
-        FeedUtils.changeUrlForFeed(aFeed, newUrl)) {
-      FeedUtils.log.info("FeedParser.isPermanentRedirect: found <" + tagName +
-                         "> tag; updated feed url from: " + oldUrl + " to: " + newUrl +
-                         " in folder: " + FeedUtils.getFolderPrettyPath(aFeed.folder));
+    if (
+      newUrl &&
+      newUrl != oldUrl &&
+      FeedUtils.isValidScheme(newUrl) &&
+      FeedUtils.changeUrlForFeed(aFeed, newUrl)
+    ) {
+      FeedUtils.log.info(
+        "FeedParser.isPermanentRedirect: found <" +
+          tagName +
+          "> tag; updated feed url from: " +
+          oldUrl +
+          " to: " +
+          newUrl +
+          " in folder: " +
+          FeedUtils.getFolderPrettyPath(aFeed.folder)
+      );
       aFeed.onUrlChange(aFeed, oldUrl);
       return true;
     }
@@ -872,9 +1112,10 @@ FeedParser.prototype = {
       return "";
     }
     FeedUtils.log.trace("FeedParser.cleanAuthor: author1 - " + authorString);
-    let author = authorString.replace(/[\n\r\t]+/g, " ")
-                             .replace(/"/g, '\\"')
-                             .trim();
+    let author = authorString
+      .replace(/[\n\r\t]+/g, " ")
+      .replace(/"/g, '\\"')
+      .trim();
     // If the name contains special chars, quote it.
     if (author.match(/[<>@,"]/)) {
       author = '"' + author + '"';
@@ -1019,12 +1260,14 @@ FeedParser.prototype = {
 
     // XXX Need to check for MIME type and hreflang.
     for (let alink of linkElements) {
-      if (alink &&
-          // If there's a link rel.
-          ((alink.getAttribute("rel") && alink.getAttribute("rel") == linkRel) ||
-           // If there isn't, assume 'alternate'.
-           (!alink.getAttribute("rel") && (linkRel == "alternate"))) &&
-          alink.getAttribute("href")) {
+      if (
+        alink &&
+        // If there's a link rel.
+        ((alink.getAttribute("rel") && alink.getAttribute("rel") == linkRel) ||
+          // If there isn't, assume 'alternate'.
+          (!alink.getAttribute("rel") && linkRel == "alternate")) &&
+        alink.getAttribute("href")
+      ) {
         // Atom links are interpreted relative to xml:base.
         let href = alink.getAttribute("href");
         baseURI = alink.getAttribute("xml:base") || baseURI || href;
@@ -1047,14 +1290,26 @@ FeedParser.prototype = {
    */
   findSyUpdateTags(aFeed, aChannel) {
     let tag, updatePeriod, updateFrequency, updateBase;
-    tag = this.childrenByTagNameNS(aChannel, FeedUtils.RSS_SY_NS, "updatePeriod");
+    tag = this.childrenByTagNameNS(
+      aChannel,
+      FeedUtils.RSS_SY_NS,
+      "updatePeriod"
+    );
     updatePeriod = this.getNodeValue(tag ? tag[0] : null) || "";
-    tag = this.childrenByTagNameNS(aChannel, FeedUtils.RSS_SY_NS, "updateFrequency");
+    tag = this.childrenByTagNameNS(
+      aChannel,
+      FeedUtils.RSS_SY_NS,
+      "updateFrequency"
+    );
     updateFrequency = this.getNodeValue(tag ? tag[0] : null) || "";
     tag = this.childrenByTagNameNS(aChannel, FeedUtils.RSS_SY_NS, "updateBase");
     updateBase = this.getNodeValue(tag ? tag[0] : null) || "";
-    FeedUtils.log.debug("FeedParser.findSyUpdateTags: updatePeriod:updateFrequency - " +
-                        updatePeriod + ":" + updateFrequency);
+    FeedUtils.log.debug(
+      "FeedParser.findSyUpdateTags: updatePeriod:updateFrequency - " +
+        updatePeriod +
+        ":" +
+        updateFrequency
+    );
 
     if (updatePeriod) {
       if (FeedUtils.RSS_SY_UNITS.includes(updatePeriod.toLowerCase())) {
@@ -1067,9 +1322,11 @@ FeedParser.prototype = {
     updateFrequency = isNaN(updateFrequency) ? 1 : updateFrequency;
 
     let options = aFeed.options;
-    if (options.updates.updatePeriod == updatePeriod &&
-        options.updates.updateFrequency == updateFrequency &&
-        options.updates.updateBase == updateBase) {
+    if (
+      options.updates.updatePeriod == updatePeriod &&
+      options.updates.updateFrequency == updateFrequency &&
+      options.updates.updateBase == updateBase
+    ) {
       return;
     }
 
@@ -1126,8 +1383,12 @@ FeedParser.prototype = {
       let d = new Date(parseInt(dateString) * 1000);
       let now = new Date();
       let yeardiff = now.getFullYear() - d.getFullYear();
-      FeedUtils.log.trace("FeedParser.dateRescue: Rescue Timestamp date - " +
-                          d.toString() + " ,year diff - " + yeardiff);
+      FeedUtils.log.trace(
+        "FeedParser.dateRescue: Rescue Timestamp date - " +
+          d.toString() +
+          " ,year diff - " +
+          yeardiff
+      );
       if (yeardiff >= 0 && yeardiff < 3) {
         // It's quite likely the correct date.
         return d.toString();

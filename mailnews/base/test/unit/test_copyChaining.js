@@ -7,7 +7,9 @@
 /* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/messageGenerator.js");
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var gCopySource;
 var gCopyDest;
@@ -34,12 +36,20 @@ var gTestArray = [
 
 function CopyNextMessage() {
   if (gMsgEnumerator.hasMoreElements()) {
-    let msgHdr = gMsgEnumerator.getNext().QueryInterface(
-      Ci.nsIMsgDBHdr);
-    var messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+    let msgHdr = gMsgEnumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+    var messages = Cc["@mozilla.org/array;1"].createInstance(
+      Ci.nsIMutableArray
+    );
     messages.appendElement(msgHdr);
-    MailServices.copy.CopyMessages(gCopySource, messages, gCopyDest, true,
-                                   copyListener, null, false);
+    MailServices.copy.CopyMessages(
+      gCopySource,
+      messages,
+      gCopyDest,
+      true,
+      copyListener,
+      null,
+      false
+    );
   } else {
     do_throw("TEST FAILED - out of messages");
   }
@@ -101,4 +111,3 @@ var copyListener = {
     doTest();
   },
 };
-

@@ -6,10 +6,13 @@
  * Demonstrates and tests the use of grouped boolean expressions in search terms
  */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
-var gSearchSession = Cc["@mozilla.org/messenger/searchSession;1"]
-                        .createInstance(Ci.nsIMsgSearchSession);
+var gSearchSession = Cc[
+  "@mozilla.org/messenger/searchSession;1"
+].createInstance(Ci.nsIMsgSearchSession);
 
 var gHdr; // the message header for the one mailbox message
 
@@ -20,91 +23,106 @@ var Tests = [
     C: false,
     D: false,
     matches: false,
-  }, {
+  },
+  {
     A: false,
     B: false,
     C: false,
     D: true,
     matches: false,
-  }, {
+  },
+  {
     A: false,
     B: false,
     C: true,
     D: false,
     matches: false,
-  }, {
+  },
+  {
     A: false,
     B: false,
     C: true,
     D: true,
     matches: false,
-  }, {
+  },
+  {
     A: false,
     B: true,
     C: false,
     D: false,
     matches: false,
-  }, {
+  },
+  {
     A: false,
     B: true,
     C: false,
     D: true,
     matches: true,
-  }, {
+  },
+  {
     A: false,
     B: true,
     C: true,
     D: false,
     matches: true,
-  }, {
+  },
+  {
     A: false,
     B: true,
     C: true,
     D: true,
     matches: true,
-  }, {
+  },
+  {
     A: true,
     B: false,
     C: false,
     D: false,
     matches: false,
-  }, {
+  },
+  {
     A: true,
     B: false,
     C: false,
     D: true,
     matches: true,
-  }, {
+  },
+  {
     A: true,
     B: false,
     C: true,
     D: false,
     matches: true,
-  }, {
+  },
+  {
     A: true,
     B: false,
     C: true,
     D: true,
     matches: true,
-  }, {
+  },
+  {
     A: true,
     B: true,
     C: false,
     D: false,
     matches: false,
-  }, {
+  },
+  {
     A: true,
     B: true,
     C: false,
     D: true,
     matches: true,
-  }, {
+  },
+  {
     A: true,
     B: true,
     C: true,
     D: false,
     matches: true,
-  }, {
+  },
+  {
     A: true,
     B: true,
     C: true,
@@ -115,11 +133,15 @@ var Tests = [
 
 var gHitCount = 0;
 var searchListener = {
-  onSearchHit(dbHdr, folder) { gHitCount++; },
+  onSearchHit(dbHdr, folder) {
+    gHitCount++;
+  },
   onSearchDone(status) {
     testSearch();
   },
-  onNewSearch() { gHitCount = 0; },
+  onNewSearch() {
+    gHitCount = 0;
+  },
 };
 
 function run_test() {
@@ -153,13 +175,15 @@ function run_test() {
     gSearchSession.appendTerm(searchTerm);
   }
 
-  gSearchSession.addScopeTerm(Ci.nsMsgSearchScope.offlineMail,
-                              localAccountUtils.inboxFolder);
+  gSearchSession.addScopeTerm(
+    Ci.nsMsgSearchScope.offlineMail,
+    localAccountUtils.inboxFolder
+  );
   gSearchSession.registerListener(searchListener);
   // I tried using capital "A" but something makes it lower case internally, so it failed
-  addSearchTerm("a", true, false, true);  // "(A"
+  addSearchTerm("a", true, false, true); // "(A"
   addSearchTerm("b", false, true, false); // " || B)"
-  addSearchTerm("c", true, false, true);  // " && (C"
+  addSearchTerm("c", true, false, true); // " && (C"
   addSearchTerm("d", false, true, false); // " || D)"
 
   var copyListener = {
@@ -169,23 +193,34 @@ function run_test() {
       gHdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
     },
     SetMessageId(aMessageId) {},
-    OnStopCopy(aStatus) { testSearch(); },
+    OnStopCopy(aStatus) {
+      testSearch();
+    },
   };
 
   // Get a message into the local filestore. function testSearch() continues
   // the testing after the copy.
   var bugmail1 = do_get_file("../../../data/bugmail1");
   do_test_pending();
-  MailServices.copy.CopyFileMessage(bugmail1, localAccountUtils.inboxFolder, null,
-                                    false, 0, "", copyListener, null);
+  MailServices.copy.CopyFileMessage(
+    bugmail1,
+    localAccountUtils.inboxFolder,
+    null,
+    false,
+    0,
+    "",
+    copyListener,
+    null
+  );
 }
 
 var gTest = null;
 // process each test from queue, calls itself upon completion of each search
 function testSearch() {
   // tests the previous search
-  if (gTest)
+  if (gTest) {
     Assert.equal(gHitCount, gTest.matches ? 1 : 0);
+  }
   gTest = Tests.shift();
   if (gTest) {
     gHdr.setStringProperty("a", gTest.A ? "T" : "F");

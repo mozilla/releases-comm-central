@@ -17,7 +17,7 @@ var kInvalidPassword = "pop3test";
 var kValidPassword = "testpop3";
 
 function verifyPop3Logon(validPassword) {
-  incomingServer.password = (validPassword) ? kValidPassword : kInvalidPassword;
+  incomingServer.password = validPassword ? kValidPassword : kInvalidPassword;
   urlListener.expectSuccess = validPassword;
   let uri = incomingServer.verifyLogon(urlListener, gDummyMsgWindow);
   // clear msgWindow so url won't prompt for passwords.
@@ -29,8 +29,7 @@ function verifyPop3Logon(validPassword) {
 
 var urlListener = {
   expectSucess: false,
-  OnStartRunningUrl(url) {
-  },
+  OnStartRunningUrl(url) {},
   OnStopRunningUrl(url, aResult) {
     Assert.equal(Components.isSuccessCode(aResult), this.expectSuccess);
   },
@@ -81,7 +80,11 @@ function run_test() {
   // it from the signons json file in which the login information is stored).
   localAccountUtils.loadLocalMailAccount();
 
-  incomingServer = MailServices.accounts.createIncomingServer(kUserName, "localhost", "pop3");
+  incomingServer = MailServices.accounts.createIncomingServer(
+    kUserName,
+    "localhost",
+    "pop3"
+  );
   incomingServer.port = server.port;
 
   do_test_pending();

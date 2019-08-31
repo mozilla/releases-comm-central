@@ -9,7 +9,9 @@
 /* import-globals-from ../../../test/resources/searchTestUtils.js */
 load("../../../resources/searchTestUtils.js");
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var Isnt = Ci.nsMsgSearchOp.Isnt;
 var Is = Ci.nsMsgSearchOp.Is;
@@ -23,7 +25,8 @@ var Tests = [
     op: Is,
     value: 1,
     count: 0,
-  }, {
+  },
+  {
     hdrProperty: "idonotexist",
     op: Isnt,
     value: 1,
@@ -33,44 +36,55 @@ var Tests = [
   {
     setup: function setupProperty() {
       let enumerator = localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages();
-      while (enumerator.hasMoreElements())
-        enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr).setUint32Property("iam23", 23);
+      while (enumerator.hasMoreElements()) {
+        enumerator
+          .getNext()
+          .QueryInterface(Ci.nsIMsgDBHdr)
+          .setUint32Property("iam23", 23);
+      }
     },
     hdrProperty: "iam23",
     op: Is,
     value: 23,
     count: 1,
-  }, {
+  },
+  {
     hdrProperty: "iam23",
     op: Isnt,
     value: 23,
     count: 0,
-  }, {
+  },
+  {
     hdrProperty: "iam23",
     op: Is,
     value: 17,
     count: 0,
-  }, {
+  },
+  {
     hdrProperty: "iam23",
     op: Isnt,
     value: 17,
     count: 1,
-  }, {
+  },
+  {
     hdrProperty: "iam23",
     op: IsGreaterThan,
     value: 25,
     count: 0,
-  }, {
+  },
+  {
     hdrProperty: "iam23",
     op: IsLessThan,
     value: 25,
     count: 1,
-  }, {
+  },
+  {
     hdrProperty: "iam23",
     op: IsGreaterThan,
     value: 17,
     count: 1,
-  }, {
+  },
+  {
     hdrProperty: "iam23",
     op: IsLessThan,
     value: 17,
@@ -86,32 +100,45 @@ function run_test() {
     OnProgress(aProgress, aProgressMax) {},
     SetMessageKey(aKey) {},
     SetMessageId(aMessageId) {},
-    OnStopCopy(aStatus) { testSearch(); },
+    OnStopCopy(aStatus) {
+      testSearch();
+    },
   };
 
   // Get a message into the local filestore. function testSearch() continues
   // the testing after the copy.
   var bugmail1 = do_get_file("../../../data/bugmail1");
   do_test_pending();
-  MailServices.copy.CopyFileMessage(bugmail1, localAccountUtils.inboxFolder, null,
-                                    false, 0, "", copyListener, null);
+  MailServices.copy.CopyFileMessage(
+    bugmail1,
+    localAccountUtils.inboxFolder,
+    null,
+    false,
+    0,
+    "",
+    copyListener,
+    null
+  );
 }
 
 // process each test from queue, calls itself upon completion of each search
 function testSearch() {
   var test = Tests.shift();
   if (test) {
-    if (test.setup)
+    if (test.setup) {
       test.setup();
-    new TestSearch(localAccountUtils.inboxFolder,
-                   test.value,
-                   Ci.nsMsgSearchAttrib.Uint32HdrProperty,
-                   test.op,
-                   test.count,
-                   testSearch,
-                   null,
-                   null,
-                   test.hdrProperty);
+    }
+    new TestSearch(
+      localAccountUtils.inboxFolder,
+      test.value,
+      Ci.nsMsgSearchAttrib.Uint32HdrProperty,
+      test.op,
+      test.count,
+      testSearch,
+      null,
+      null,
+      test.hdrProperty
+    );
   } else {
     do_test_finished();
   }

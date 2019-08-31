@@ -8,7 +8,9 @@
 
 /* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/POP3pump.js");
-const {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
+const { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 var gFiles = ["../../../data/bugmail10", "../../../data/bugmail11"];
 
@@ -22,8 +24,10 @@ var gPluggableStores = [
 
 // Map subject to previews using subject as the key.
 var previews = {
-  "[Bug 436880] IMAP itemDeleted and itemMoveCopyCompleted notifications quite broken": "Do not reply to this email. You can add comments to this bug at https://bugzilla.mozilla.org/show_bug.cgi?id=436880 -- Configure bugmail: https://bugzilla.mozilla.org/userprefs.cgi?tab=email ------- You are receiving this mail because: -----",
-  "Bugzilla: confirm account creation": "Bugzilla has received a request to create a user account using your email address (example@example.org). To confirm that you want to create an account using that email address, visit the following link: https://bugzilla.mozilla.org/token.cgi?t=xxx",
+  "[Bug 436880] IMAP itemDeleted and itemMoveCopyCompleted notifications quite broken":
+    "Do not reply to this email. You can add comments to this bug at https://bugzilla.mozilla.org/show_bug.cgi?id=436880 -- Configure bugmail: https://bugzilla.mozilla.org/userprefs.cgi?tab=email ------- You are receiving this mail because: -----",
+  "Bugzilla: confirm account creation":
+    "Bugzilla has received a request to create a user account using your email address (example@example.org). To confirm that you want to create an account using that email address, visit the following link: https://bugzilla.mozilla.org/token.cgi?t=xxx",
 };
 
 var gFilter; // the test filter
@@ -64,8 +68,10 @@ var gTestArray = [
     localAccountUtils.inboxFolder.ForceDBClosed();
     let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
     try {
-      localAccountUtils.inboxFolder
-                       .getDatabaseWithReparse(promiseUrlListener, null);
+      localAccountUtils.inboxFolder.getDatabaseWithReparse(
+        promiseUrlListener,
+        null
+      );
     } catch (ex) {
       await promiseUrlListener.promise;
       Assert.ok(ex.result == Cr.NS_ERROR_NOT_INITIALIZED);
@@ -78,26 +84,34 @@ var gTestArray = [
   function verifyMessages() {
     let hdrs = [];
     let keys = [];
-    let enumerator = localAccountUtils.inboxFolder.msgDatabase
-                                                  .EnumerateMessages();
+    let enumerator = localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages();
     while (enumerator.hasMoreElements()) {
       let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
       keys.push(hdr.messageKey);
       hdrs.push(hdr);
     }
-    Assert.ok(!localAccountUtils.inboxFolder
-                                .fetchMsgPreviewText(keys, keys.length,
-                                                     false, null));
+    Assert.ok(
+      !localAccountUtils.inboxFolder.fetchMsgPreviewText(
+        keys,
+        keys.length,
+        false,
+        null
+      )
+    );
     let preview1 = hdrs[0].getStringProperty("preview");
     let preview2 = hdrs[1].getStringProperty("preview");
     Assert.equal(preview1, previews[hdrs[0].subject]);
     Assert.equal(preview2, previews[hdrs[1].subject]);
     Assert.equal(hdrs[0].getStringProperty("keywords"), "TheTag");
     Assert.equal(hdrs[1].getStringProperty("keywords"), "TheTag");
-    Assert.equal(hdrs[0].flags, Ci.nsMsgMessageFlags.Read |
-                                Ci.nsMsgMessageFlags.Marked);
-    Assert.equal(hdrs[1].flags, Ci.nsMsgMessageFlags.Read |
-                                Ci.nsMsgMessageFlags.Marked);
+    Assert.equal(
+      hdrs[0].flags,
+      Ci.nsMsgMessageFlags.Read | Ci.nsMsgMessageFlags.Marked
+    );
+    Assert.equal(
+      hdrs[1].flags,
+      Ci.nsMsgMessageFlags.Read | Ci.nsMsgMessageFlags.Marked
+    );
   },
 ];
 
@@ -117,14 +131,14 @@ function setup_store(storeID) {
     gPOP3Pump.resetPluggableStore(storeID);
 
     // Set the default mailbox store.
-    Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
-                               storeID);
+    Services.prefs.setCharPref("mail.serverDefaultStoreContractID", storeID);
 
     // Make sure we're not quarantining messages
     Services.prefs.setBoolPref("mailnews.downloadToTempFile", false);
 
-    if (!localAccountUtils.inboxFolder)
+    if (!localAccountUtils.inboxFolder) {
       localAccountUtils.loadLocalMailAccount();
+    }
   };
 }
 

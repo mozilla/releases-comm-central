@@ -24,11 +24,14 @@ function onLoad() {
   // pre select the folderPicker, based on what they selected in the folder pane
   dialog.folder = windowArgs.folder;
   try {
-    document.getElementById("MsgNewFolderPopup").selectFolder(windowArgs.folder);
+    document
+      .getElementById("MsgNewFolderPopup")
+      .selectFolder(windowArgs.folder);
   } catch (ex) {
     // selected a child folder
-      document.getElementById("msgNewFolderPicker")
-          .setAttribute("label", windowArgs.folder.prettyName);
+    document
+      .getElementById("msgNewFolderPicker")
+      .setAttribute("label", windowArgs.folder.prettyName);
   }
 
   // can folders contain both folders and messages?
@@ -48,8 +51,9 @@ function onLoad() {
 
 function onFolderSelect(event) {
   dialog.folder = event.target._folder;
-  document.getElementById("msgNewFolderPicker")
-          .setAttribute("label", dialog.folder.prettyName);
+  document
+    .getElementById("msgNewFolderPicker")
+    .setAttribute("label", dialog.folder.prettyName);
 }
 
 function onOK() {
@@ -58,10 +62,11 @@ function onOK() {
   // do name validity check?
 
   // make sure name ends in  "/" if folder to create can only contain folders
-  if ((dialog.folderType == FOLDERS) && !name.endsWith("/"))
+  if (dialog.folderType == FOLDERS && !name.endsWith("/")) {
     dialog.okCallback(name + "/", dialog.folder);
-  else
+  } else {
     dialog.okCallback(name, dialog.folder);
+  }
 }
 
 function onFoldersOnly() {
@@ -73,6 +78,6 @@ function onMessagesOnly() {
 }
 
 function doEnabling() {
-  document.documentElement.getButton("accept").disabled = !dialog.nameField.value;
+  document.documentElement.getButton("accept").disabled = !dialog.nameField
+    .value;
 }
-

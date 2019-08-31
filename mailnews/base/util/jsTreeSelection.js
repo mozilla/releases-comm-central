@@ -4,7 +4,9 @@
 
 this.EXPORTED_SYMBOLS = ["JSTreeSelection"];
 
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
 /**
  * Partial nsITreeSelection implementation so that we can have nsMsgDBViews that
@@ -118,8 +120,9 @@ JSTreeSelection.prototype = {
 
   isSelected(aViewIndex) {
     for (let [low, high] of this._ranges) {
-      if (aViewIndex >= low && aViewIndex <= high)
+      if (aViewIndex >= low && aViewIndex <= high) {
         return true;
+      }
     }
     return false;
   },
@@ -132,14 +135,16 @@ JSTreeSelection.prototype = {
     this._shiftSelectPivot = null;
     this.currentIndex = aViewIndex;
 
-    if (this._count == 1 && this._ranges[0][0] == aViewIndex)
+    if (this._count == 1 && this._ranges[0][0] == aViewIndex) {
       return;
+    }
 
     this._count = 1;
     this._ranges = [[aViewIndex, aViewIndex]];
 
-    if (this._tree)
+    if (this._tree) {
       this._tree.invalidate();
+    }
 
     this._fireSelectionChanged();
   },
@@ -174,17 +179,26 @@ JSTreeSelection.prototype = {
         if (aIndex >= low && aIndex <= high) {
           this._count--;
           // nuke
-          if (aIndex == low && aIndex == high)
+          if (aIndex == low && aIndex == high) {
             this._ranges.splice(iTupe, 1);
+          }
           // lower shrink
-          else if (aIndex == low)
+          else if (aIndex == low) {
             this._ranges[iTupe][0] = aIndex + 1;
+          }
           // upper shrink
-          else if (aIndex == high)
+          else if (aIndex == high) {
             this._ranges[iTupe][1] = aIndex - 1;
+          }
           // split
-          else
-            this._ranges.splice(iTupe, 1, [low, aIndex - 1], [aIndex + 1, high]);
+          else {
+            this._ranges.splice(
+              iTupe,
+              1,
+              [low, aIndex - 1],
+              [aIndex + 1, high]
+            );
+          }
           break;
         }
         // just above the range?  fuse into the range, and possibly the next
@@ -193,8 +207,10 @@ JSTreeSelection.prototype = {
           this._count++;
           // see if there is another range and there was just a gap of one between
           //  the two ranges.
-          if ((iTupe + 1 < this._ranges.length) &&
-              (this._ranges[iTupe + 1][0] == aIndex + 1)) {
+          if (
+            iTupe + 1 < this._ranges.length &&
+            this._ranges[iTupe + 1][0] == aIndex + 1
+          ) {
             // yes, merge the ranges
             this._ranges.splice(iTupe, 2, [low, this._ranges[iTupe + 1][1]]);
             break;
@@ -207,8 +223,9 @@ JSTreeSelection.prototype = {
       }
     }
 
-    if (this._tree)
+    if (this._tree) {
       this._tree.invalidateRow(aIndex);
+    }
     this._fireSelectionChanged();
   },
 
@@ -223,27 +240,30 @@ JSTreeSelection.prototype = {
    */
   rangedSelect(aRangeStart, aRangeEnd, aAugment) {
     if (aRangeStart == -1) {
-      if (this._shiftSelectPivot != null)
+      if (this._shiftSelectPivot != null) {
         aRangeStart = this._shiftSelectPivot;
-      else if (this._currentIndex != null)
+      } else if (this._currentIndex != null) {
         aRangeStart = this._currentIndex;
-      else
+      } else {
         aRangeStart = aRangeEnd;
+      }
     }
 
     this._shiftSelectPivot = aRangeStart;
     this.currentIndex = aRangeEnd;
 
     // enforce our ordering constraint for our ranges
-    if (aRangeStart > aRangeEnd)
+    if (aRangeStart > aRangeEnd) {
       [aRangeStart, aRangeEnd] = [aRangeEnd, aRangeStart];
+    }
 
     // if we're not augmenting, then this is really easy.
     if (!aAugment) {
       this._count = aRangeEnd - aRangeStart + 1;
       this._ranges = [[aRangeStart, aRangeEnd]];
-      if (this._tree)
+      if (this._tree) {
         this._tree.invalidate();
+      }
       this._fireSelectionChanged();
       return;
     }
@@ -259,19 +279,26 @@ JSTreeSelection.prototype = {
     for (let [iTupe, [low, high]] of this._ranges.entries()) {
       // If it's completely include the range, it should be nuked
       if (aRangeStart <= low && aRangeEnd >= high) {
-        if (lowNuke == null) // only the first one we see is the low one
+        if (lowNuke == null) {
+          // only the first one we see is the low one
           lowNuke = iTupe;
+        }
         highNuke = iTupe;
       }
       // If our new range start is inside a range or is adjacent, it's overlap
-      if (aRangeStart >= low - 1 && aRangeStart <= high + 1 &&
-          lowOverlap == null)
+      if (
+        aRangeStart >= low - 1 &&
+        aRangeStart <= high + 1 &&
+        lowOverlap == null
+      ) {
         lowOverlap = lowNuke = highNuke = iTupe;
+      }
       // If our new range ends inside a range or is adjacent, it's overlap
       if (aRangeEnd >= low - 1 && aRangeEnd <= high + 1) {
         highOverlap = highNuke = iTupe;
-        if (lowNuke == null)
+        if (lowNuke == null) {
           lowNuke = iTupe;
+        }
       }
 
       // we're done when no more overlap is possible
@@ -281,19 +308,25 @@ JSTreeSelection.prototype = {
       }
     }
 
-    if (lowOverlap != null)
+    if (lowOverlap != null) {
       aRangeStart = Math.min(aRangeStart, this._ranges[lowOverlap][0]);
-    if (highOverlap != null)
+    }
+    if (highOverlap != null) {
       aRangeEnd = Math.max(aRangeEnd, this._ranges[highOverlap][1]);
-    if (lowNuke != null)
-      this._ranges.splice(lowNuke, highNuke - lowNuke + 1,
-                          [aRangeStart, aRangeEnd]);
-    else
+    }
+    if (lowNuke != null) {
+      this._ranges.splice(lowNuke, highNuke - lowNuke + 1, [
+        aRangeStart,
+        aRangeEnd,
+      ]);
+    } else {
       this._ranges.splice(insertionPoint, 0, [aRangeStart, aRangeEnd]);
+    }
 
     this._updateCount();
-    if (this._tree)
+    if (this._tree) {
       this._tree.invalidate();
+    }
     this._fireSelectionChanged();
   },
 
@@ -312,44 +345,54 @@ JSTreeSelection.prototype = {
     for (let [iTupe, [low, high]] of this._ranges.entries()) {
       // If we completely include the range, it should be nuked
       if (aRangeStart <= low && aRangeEnd >= high) {
-        if (lowNuke == null) // only the first one we see is the low one
+        if (lowNuke == null) {
+          // only the first one we see is the low one
           lowNuke = iTupe;
+        }
         highNuke = iTupe;
       }
       // If our new range start is inside a range, it's nuke and maybe overlap
       if (aRangeStart >= low && aRangeStart <= high && lowNuke == null) {
         lowNuke = highNuke = iTupe;
         // it's only overlap if we don't match at the low end
-        if (aRangeStart > low)
+        if (aRangeStart > low) {
           lowOverlap = iTupe;
+        }
       }
       // If our new range ends inside a range, it's nuke and maybe overlap
       if (aRangeEnd >= low && aRangeEnd <= high) {
         highNuke = iTupe;
         // it's only overlap if we don't match at the high end
-        if (aRangeEnd < high)
+        if (aRangeEnd < high) {
           highOverlap = iTupe;
-        if (lowNuke == null)
+        }
+        if (lowNuke == null) {
           lowNuke = iTupe;
+        }
       }
 
       // we're done when no more overlap is possible
-      if (aRangeEnd < low)
+      if (aRangeEnd < low) {
         break;
+      }
     }
     // nothing to do since there's nothing to nuke
-    if (lowNuke == null)
+    if (lowNuke == null) {
       return;
+    }
     let args = [lowNuke, highNuke - lowNuke + 1];
-    if (lowOverlap != null)
+    if (lowOverlap != null) {
       args.push([this._ranges[lowOverlap][0], aRangeStart - 1]);
-    if (highOverlap != null)
+    }
+    if (highOverlap != null) {
       args.push([aRangeEnd + 1, this._ranges[highOverlap][1]]);
+    }
     this._ranges.splice.apply(this._ranges, args);
 
     this._updateCount();
-    if (this._tree)
+    if (this._tree) {
       this._tree.invalidate();
+    }
     // note! nsTreeSelection doesn't fire a selection changed event, so neither
     //  do we, but it seems like we should
   },
@@ -362,8 +405,9 @@ JSTreeSelection.prototype = {
     this._shiftSelectPivot = null;
     this._count = 0;
     this._ranges = [];
-    if (this._tree)
+    if (this._tree) {
       this._tree.invalidate();
+    }
     this._fireSelectionChanged();
   },
 
@@ -378,21 +422,24 @@ JSTreeSelection.prototype = {
    * Select all with no rows is a no-op, otherwise we select all and notify.
    */
   selectAll() {
-    if (!this._view)
+    if (!this._view) {
       return;
+    }
 
     let view = this._view;
     let rowCount = view.rowCount;
 
     // no-ops-ville
-    if (!rowCount)
+    if (!rowCount) {
       return;
+    }
 
     this._count = rowCount;
     this._ranges = [[0, rowCount - 1]];
 
-    if (this._tree)
+    if (this._tree) {
       this._tree.invalidate();
+    }
     this._fireSelectionChanged();
   },
 
@@ -400,14 +447,16 @@ JSTreeSelection.prototype = {
     return this._ranges.length;
   },
   getRangeAt(aRangeIndex, aMinObj, aMaxObj) {
-    if (aRangeIndex < 0 || aRangeIndex > this._ranges.length)
+    if (aRangeIndex < 0 || aRangeIndex > this._ranges.length) {
       throw new Error("Try a real range index next time.");
+    }
     [aMinObj.value, aMaxObj.value] = this._ranges[aRangeIndex];
   },
 
   invalidateSelection() {
-    if (this._tree)
+    if (this._tree) {
       this._tree.invalidate();
+    }
   },
 
   /**
@@ -419,14 +468,17 @@ JSTreeSelection.prototype = {
    */
   _adjustPoint(aPoint, aDeltaAt, aDelta) {
     // if there is no point, no change
-    if (aPoint == null)
+    if (aPoint == null) {
       return aPoint;
+    }
     // if the point is before the change, no change
-    if (aPoint < aDeltaAt)
+    if (aPoint < aDeltaAt) {
       return aPoint;
+    }
     // if it's a deletion and it includes the point, clear it
-    if (aDelta < 0 && aPoint >= aDeltaAt && (aPoint + aDelta < aDeltaAt))
+    if (aDelta < 0 && aPoint >= aDeltaAt && aPoint + aDelta < aDeltaAt) {
       return null;
+    }
     // (else) the point is at/after the change, compensate
     return aPoint + aDelta;
   },
@@ -439,14 +491,15 @@ JSTreeSelection.prototype = {
    */
   _findRangeContainingRow(aIndex) {
     for (let [iTupe, [low, high]] of this._ranges.entries()) {
-      if (aIndex >= low && aIndex <= high)
+      if (aIndex >= low && aIndex <= high) {
         return [iTupe, iTupe];
-      if (aIndex < low)
+      }
+      if (aIndex < low) {
         return [null, iTupe];
+      }
     }
     return [null, this._ranges.length];
   },
-
 
   /**
    * When present, a list of calls made to adjustSelection.  See
@@ -486,15 +539,20 @@ JSTreeSelection.prototype = {
 
   adjustSelection(aIndex, aCount) {
     // nothing to do if there is no actual change
-    if (!aCount)
+    if (!aCount) {
       return;
+    }
 
-    if (this._adjustSelectionLog)
+    if (this._adjustSelectionLog) {
       this._adjustSelectionLog.push([aIndex, aCount]);
+    }
 
     // adjust our points
-    this._shiftSelectPivot = this._adjustPoint(this._shiftSelectPivot,
-                                               aIndex, aCount);
+    this._shiftSelectPivot = this._adjustPoint(
+      this._shiftSelectPivot,
+      aIndex,
+      aCount
+    );
     this._currentIndex = this._adjustPoint(this._currentIndex, aIndex, aCount);
 
     // If we are adding rows, we want to split any range at aIndex and then
@@ -518,8 +576,9 @@ JSTreeSelection.prototype = {
         this._ranges[iTrans] = [low + aCount, high + aCount];
       }
       // invalidate and fire selection change notice
-      if (this._tree)
+      if (this._tree) {
         this._tree.invalidate();
+      }
       this._fireSelectionChanged();
       return;
     }
@@ -537,19 +596,25 @@ JSTreeSelection.prototype = {
       let [low, high] = this._ranges[iTrans];
       // for the first range, low may be below the index, in which case it
       //  should not get translated
-      this._ranges[iTrans] = [(low >= aIndex) ? low + aCount : low,
-                              high + aCount];
+      this._ranges[iTrans] = [
+        low >= aIndex ? low + aCount : low,
+        high + aCount,
+      ];
     }
     // we may have to merge the lowest translated block because it may now be
     //  adjacent to the previous block
-    if (iTrans > 0 && iTrans < this._ranges.length &&
-        this._ranges[iTrans - 1][1] == this._ranges[iTrans][0]) {
+    if (
+      iTrans > 0 &&
+      iTrans < this._ranges.length &&
+      this._ranges[iTrans - 1][1] == this._ranges[iTrans][0]
+    ) {
       this._ranges[iTrans - 1][1] = this._ranges[iTrans][1];
       this._ranges.splice(iTrans, 1);
     }
 
-    if (this._tree)
+    if (this._tree) {
       this._tree.invalidate();
+    }
     this.selectEventsSuppressed = saveSuppress;
   },
 
@@ -563,8 +628,9 @@ JSTreeSelection.prototype = {
    */
   set selectEventsSuppressed(aSuppress) {
     this._selectEventsSuppressed = aSuppress;
-    if (!aSuppress)
+    if (!aSuppress) {
       this._fireSelectionChanged();
+    }
   },
 
   /**
@@ -574,13 +640,15 @@ JSTreeSelection.prototype = {
    */
   _fireSelectionChanged() {
     // don't fire if we are suppressed; we will fire when un-suppressed
-    if (this.selectEventsSuppressed)
+    if (this.selectEventsSuppressed) {
       return;
+    }
     let view;
-    if (this._tree && this._tree.view)
+    if (this._tree && this._tree.view) {
       view = this._tree.view;
-    else
+    } else {
       view = this._view;
+    }
 
     // We might not have a view if we're in the middle of setting up things
     if (view) {
@@ -589,8 +657,9 @@ JSTreeSelection.prototype = {
   },
 
   get currentIndex() {
-    if (this._currentIndex == null)
+    if (this._currentIndex == null) {
       return -1;
+    }
     return this._currentIndex;
   },
   /**
@@ -599,12 +668,14 @@ JSTreeSelection.prototype = {
    * The real selection object would send a DOM event we don't care about.
    */
   set currentIndex(aIndex) {
-    if (aIndex == this.currentIndex)
+    if (aIndex == this.currentIndex) {
       return;
+    }
 
-    this._currentIndex = (aIndex != -1) ? aIndex : null;
-    if (this._tree)
+    this._currentIndex = aIndex != -1 ? aIndex : null;
+    if (this._tree) {
       this._tree.invalidateRow(aIndex);
+    }
   },
 
   currentColumn: null,
@@ -613,8 +684,7 @@ JSTreeSelection.prototype = {
     return this._shiftSelectPivot != null ? this._shiftSelectPivot : -1;
   },
 
-  QueryInterface: ChromeUtils.generateQI(
-    [Ci.nsITreeSelection]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsITreeSelection]),
 
   /*
    * Functions after this aren't part of the nsITreeSelection interface.
@@ -633,8 +703,9 @@ JSTreeSelection.prototype = {
   duplicateSelection(aSelection) {
     aSelection.selectEventsSuppressed = true;
     aSelection.clearSelection();
-    for (let [iTupe, [low, high]] of this._ranges.entries())
+    for (let [iTupe, [low, high]] of this._ranges.entries()) {
       aSelection.rangedSelect(low, high, iTupe > 0);
+    }
 
     aSelection.currentIndex = this.currentIndex;
     // This will fire a selectionChanged event

@@ -9,7 +9,9 @@
 
 this.EXPORTED_SYMBOLS = ["PromiseTestUtils"];
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 /**
  * Url listener that can wrap another listener and trigger a callback.
@@ -29,23 +31,27 @@ PromiseTestUtils.PromiseUrlListener = function(aWrapped) {
 };
 
 PromiseTestUtils.PromiseUrlListener.prototype = {
-  QueryInterface:   ChromeUtils.generateQI([Ci.nsIUrlListener]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIUrlListener]),
 
   OnStartRunningUrl(aUrl) {
-    if (this.wrapped && this.wrapped.OnStartRunningUrl)
+    if (this.wrapped && this.wrapped.OnStartRunningUrl) {
       this.wrapped.OnStartRunningUrl(aUrl);
+    }
   },
   OnStopRunningUrl(aUrl, aExitCode) {
-    if (this.wrapped && this.wrapped.OnStopRunningUrl)
+    if (this.wrapped && this.wrapped.OnStopRunningUrl) {
       this.wrapped.OnStopRunningUrl(aUrl, aExitCode);
-    if (aExitCode == Cr.NS_OK)
+    }
+    if (aExitCode == Cr.NS_OK) {
       this._resolve();
-    else
+    } else {
       this._reject(aExitCode);
+    }
   },
-  get promise() { return this._promise; },
+  get promise() {
+    return this._promise;
+  },
 };
-
 
 /**
  * Copy listener that can wrap another listener and trigger a callback.
@@ -65,35 +71,43 @@ PromiseTestUtils.PromiseCopyListener = function(aWrapped) {
 PromiseTestUtils.PromiseCopyListener.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgCopyServiceListener]),
   OnStartCopy() {
-    if (this.wrapped && this.wrapped.OnStartCopy)
+    if (this.wrapped && this.wrapped.OnStartCopy) {
       this.wrapped.OnStartCopy();
+    }
   },
   OnProgress(aProgress, aProgressMax) {
-    if (this.wrapped && this.wrapped.OnProgress)
+    if (this.wrapped && this.wrapped.OnProgress) {
       this.wrapped.OnProgress(aProgress, aProgressMax);
+    }
   },
   SetMessageKey(aKey) {
-    if (this.wrapped && this.wrapped.SetMessageKey)
+    if (this.wrapped && this.wrapped.SetMessageKey) {
       this.wrapped.SetMessageKey(aKey);
+    }
 
     this._result.messageKeys.push(aKey);
   },
   SetMessageId(aMessageId) {
-    if (this.wrapped && this.wrapped.SetMessageId)
+    if (this.wrapped && this.wrapped.SetMessageId) {
       this.wrapped.SetMessageId(aMessageId);
+    }
 
     this._result.messageIds.push(aMessageId);
   },
   OnStopCopy(aStatus) {
-    if (this.wrapped && this.wrapped.OnStopCopy)
+    if (this.wrapped && this.wrapped.OnStopCopy) {
       this.wrapped.OnStopCopy(aStatus);
+    }
 
-    if (aStatus == Cr.NS_OK)
+    if (aStatus == Cr.NS_OK) {
       this._resolve(this._result);
-    else
+    } else {
       this._reject(aStatus);
+    }
   },
-  get promise() { return this._promise; },
+  get promise() {
+    return this._promise;
+  },
 };
 
 /**
@@ -116,33 +130,40 @@ PromiseTestUtils.PromiseStreamListener.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
 
   onStartRequest(aRequest) {
-    if (this.wrapped && this.wrapped.onStartRequest)
+    if (this.wrapped && this.wrapped.onStartRequest) {
       this.wrapped.onStartRequest(aRequest);
+    }
     this._data = "";
     this._stream = null;
   },
 
   onStopRequest(aRequest, aStatusCode) {
-    if (this.wrapped && this.wrapped.onStopRequest)
+    if (this.wrapped && this.wrapped.onStopRequest) {
       this.wrapped.onStopRequest(aRequest, aStatusCode);
-    if (aStatusCode == Cr.NS_OK)
+    }
+    if (aStatusCode == Cr.NS_OK) {
       this._resolve(this._data);
-    else
+    } else {
       this._reject(aStatusCode);
+    }
   },
 
   onDataAvailable(aRequest, aInputStream, aOff, aCount) {
-    if (this.wrapped && this.wrapped.onDataAvailable)
+    if (this.wrapped && this.wrapped.onDataAvailable) {
       this.wrapped.onDataAvailable(aRequest, aInputStream, aOff, aCount);
+    }
     if (!this._stream) {
-      this._stream = Cc["@mozilla.org/scriptableinputstream;1"]
-                     .createInstance(Ci.nsIScriptableInputStream);
+      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+        Ci.nsIScriptableInputStream
+      );
       this._stream.init(aInputStream);
     }
     this._data += this._stream.read(aCount);
   },
 
-  get promise() { return this._promise; },
+  get promise() {
+    return this._promise;
+  },
 };
 
 /**
@@ -158,14 +179,16 @@ PromiseTestUtils.promiseFolderEvent = function(folder, event) {
     let folderListener = {
       QueryInterface: ChromeUtils.generateQI([Ci.nsIFolderListener]),
       OnItemEvent(aEventFolder, aEvent) {
-        if (folder === aEventFolder &&
-            event == aEvent) {
+        if (folder === aEventFolder && event == aEvent) {
           MailServices.mailSession.RemoveFolderListener(folderListener);
           resolve();
         }
       },
     };
-    MailServices.mailSession.AddFolderListener(folderListener, Ci.nsIFolderListener.event);
+    MailServices.mailSession.AddFolderListener(
+      folderListener,
+      Ci.nsIFolderListener.event
+    );
   });
 };
 
@@ -200,7 +223,9 @@ PromiseTestUtils.promiseFolderNotification = function(folder, listenerMethod) {
       }
     };
     MailServices.mfn.addListener(
-      mfnListener, Ci.nsIMsgFolderNotificationService[listenerMethod]);
+      mfnListener,
+      Ci.nsIMsgFolderNotificationService[listenerMethod]
+    );
   });
 };
 
@@ -216,15 +241,17 @@ PromiseTestUtils.promiseFolderNotification = function(folder, listenerMethod) {
 PromiseTestUtils.promiseFolderAdded = function(folderName) {
   return new Promise((resolve, reject) => {
     var listener = {
-       folderAdded: aFolder => {
-         if (aFolder.name == folderName) {
-           MailServices.mfn.removeListener(listener);
-           resolve(aFolder);
-         }
-       },
+      folderAdded: aFolder => {
+        if (aFolder.name == folderName) {
+          MailServices.mfn.removeListener(listener);
+          resolve(aFolder);
+        }
+      },
     };
-    MailServices.mfn.addListener(listener,
-      Ci.nsIMsgFolderNotificationService.folderAdded);
+    MailServices.mfn.addListener(
+      listener,
+      Ci.nsIMsgFolderNotificationService.folderAdded
+    );
   });
 };
 
@@ -263,20 +290,24 @@ PromiseTestUtils.PromiseSearchNotify = function(aSearchSession, aWrapped) {
 PromiseTestUtils.PromiseSearchNotify.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgSearchNotify]),
   onSearchHit(aHeader, aFolder) {
-    if (this.wrapped && this.wrapped.onSearchHit)
+    if (this.wrapped && this.wrapped.onSearchHit) {
       this.wrapped.onSearchHit(aHeader, aFolder);
+    }
   },
   onSearchDone(aResult) {
     this._searchSession.unregisterListener(this);
-    if (this.wrapped && this.wrapped.onSearchDone)
+    if (this.wrapped && this.wrapped.onSearchDone) {
       this.wrapped.onSearchDone(aResult);
-    if (aResult == Cr.NS_OK)
+    }
+    if (aResult == Cr.NS_OK) {
       this._resolve();
-    else
+    } else {
       this._reject(aResult);
+    }
   },
   onNewSearch() {
-    if (this.wrapped && this.wrapped.onNewSearch)
+    if (this.wrapped && this.wrapped.onNewSearch) {
       this.wrapped.onNewSearch();
+    }
   },
 };

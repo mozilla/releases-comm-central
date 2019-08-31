@@ -2,8 +2,12 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 // Tests that SMTP over a SOCKS proxy works.
 
-const {NetworkTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/NetworkTestUtils.jsm");
-const {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
+const { NetworkTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/NetworkTestUtils.jsm"
+);
+const { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 const PORT = 25;
 var daemon, localserver, server;
@@ -21,10 +25,19 @@ add_task(async function sendMessage() {
   let identity = getSmtpIdentity("test@tinderbox.invalid", localserver);
   var testFile = do_get_file("data/message1.eml");
   var urlListener = new PromiseTestUtils.PromiseUrlListener();
-  MailServices.smtp.sendMailMessage(testFile, "somebody@example.org", identity,
-                                    "me@example.org",
-                                    null, urlListener, null, null,
-                                    false, {}, {});
+  MailServices.smtp.sendMailMessage(
+    testFile,
+    "somebody@example.org",
+    identity,
+    "me@example.org",
+    null,
+    urlListener,
+    null,
+    null,
+    false,
+    {},
+    {}
+  );
   await urlListener.promise;
   notEqual(daemon.post, "");
 });
@@ -37,4 +50,3 @@ function run_test() {
   localAccountUtils.loadLocalMailAccount();
   run_next_test();
 }
-

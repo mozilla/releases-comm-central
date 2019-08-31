@@ -2,13 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {jsmime} = ChromeUtils.import("resource:///modules/jsmime.jsm");
-var {MimeParser} = ChromeUtils.import("resource:///modules/mimeParser.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
+var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
 function HeaderHandler() {
   this.value = "";
-  this.deliverData = function(str) { this.value += str; };
+  this.deliverData = function(str) {
+    this.value += str;
+  };
   this.deliverEOF = function() {};
 }
 
@@ -22,8 +26,9 @@ StringEnumerator.prototype = {
     return this._iterator;
   },
   _setNext() {
-    if (this._next !== undefined)
+    if (this._next !== undefined) {
       return;
+    }
     this._next = this._iterator.next();
   },
   hasMore() {
@@ -34,8 +39,9 @@ StringEnumerator.prototype = {
     this._setNext();
     let result = this._next;
     this._next = undefined;
-    if (result.done)
+    if (result.done) {
       throw Cr.NS_ERROR_UNEXPECTED;
+    }
     return result.value;
   },
 };
@@ -46,15 +52,19 @@ StringEnumerator.prototype = {
  * the addresses into the form that jsmime expects.
  */
 function fixXpconnectAddresses(addrs) {
-  return addrs.map((addr) => {
+  return addrs.map(addr => {
     // This is ideally !addr.group, but that causes a JS strict warning, if
     // group is not in addr, since that's enabled in all chrome code now.
     if (!("group" in addr) || addr.group === undefined || addr.group === null) {
-      return MimeAddressParser.prototype.makeMailboxObject(addr.name,
-        addr.email);
+      return MimeAddressParser.prototype.makeMailboxObject(
+        addr.name,
+        addr.email
+      );
     }
-    return MimeAddressParser.prototype.makeGroupObject(addr.name,
-      fixXpconnectAddresses(addr.group));
+    return MimeAddressParser.prototype.makeGroupObject(
+      addr.name,
+      fixXpconnectAddresses(addr.group)
+    );
   });
 }
 
@@ -62,8 +72,7 @@ function fixXpconnectAddresses(addrs) {
  * This is a base handler for supporting msgIStructuredHeaders, since we have
  * two implementations that need the readable aspects of the interface.
  */
-function MimeStructuredHeaders() {
-}
+function MimeStructuredHeaders() {}
 MimeStructuredHeaders.prototype = {
   getHeader(aHeaderName) {
     let name = aHeaderName.toLowerCase();
@@ -76,8 +85,9 @@ MimeStructuredHeaders.prototype = {
 
   getUnstructuredHeader(aHeaderName) {
     let result = this.getHeader(aHeaderName);
-    if (result === undefined || typeof result == "string")
+    if (result === undefined || typeof result == "string") {
       return result;
+    }
     throw Cr.NS_ERROR_ILLEGAL_VALUE;
   },
 
@@ -93,11 +103,15 @@ MimeStructuredHeaders.prototype = {
 
   getRawHeader(aHeaderName) {
     let result = this.getHeader(aHeaderName);
-    if (result === undefined)
+    if (result === undefined) {
       return result;
+    }
 
-    let value = jsmime.headeremitter.emitStructuredHeader(aHeaderName,
-      result, {});
+    let value = jsmime.headeremitter.emitStructuredHeader(
+      aHeaderName,
+      result,
+      {}
+    );
     // Strip off the header name and trailing whitespace before returning...
     value = value.substring(aHeaderName.length + 2).trim();
     // ... as well as embedded newlines.
@@ -125,31 +139,34 @@ MimeStructuredHeaders.prototype = {
   },
 };
 
-
-function MimeHeaders() {
-}
+function MimeHeaders() {}
 MimeHeaders.prototype = {
   __proto__: MimeStructuredHeaders.prototype,
   classDescription: "Mime headers implementation",
   classID: Components.ID("d1258011-f391-44fd-992e-c6f4b461a42f"),
   contractID: "@mozilla.org/messenger/mimeheaders;1",
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMimeHeaders,
-    Ci.msgIStructuredHeaders]),
+  QueryInterface: ChromeUtils.generateQI([
+    Ci.nsIMimeHeaders,
+    Ci.msgIStructuredHeaders,
+  ]),
 
   initialize(allHeaders) {
     this._headers = MimeParser.extractHeaders(allHeaders);
   },
 
   extractHeader(header, getAll) {
-    if (!this._headers)
+    if (!this._headers) {
       throw Cr.NS_ERROR_NOT_INITIALIZED;
+    }
     // Canonicalized to lower-case form
     header = header.toLowerCase();
-    if (!this._headers.has(header))
+    if (!this._headers.has(header)) {
       return null;
+    }
     var values = this._headers.getRawHeader(header);
-    if (getAll)
+    if (getAll) {
       return values.join(",\r\n\t");
+    }
     return values[0];
   },
 
@@ -166,7 +183,8 @@ MimeWritableStructuredHeaders.prototype = {
   classID: Components.ID("c560806a-425f-4f0f-bf69-397c58c599a7"),
   QueryInterface: ChromeUtils.generateQI([
     Ci.msgIStructuredHeaders,
-    Ci.msgIWritableStructuredHeaders]),
+    Ci.msgIWritableStructuredHeaders,
+  ]),
 
   setHeader(aHeaderName, aValue) {
     this._headers.set(aHeaderName.toLowerCase(), aValue);
@@ -193,8 +211,10 @@ MimeWritableStructuredHeaders.prototype = {
   setRawHeader(aHeaderName, aValue, aCharset) {
     aValue = jsmime.headerparser.convert8BitHeader(aValue, aCharset);
     try {
-      this.setHeader(aHeaderName,
-        jsmime.headerparser.parseStructuredHeader(aHeaderName, aValue));
+      this.setHeader(
+        aHeaderName,
+        jsmime.headerparser.parseStructuredHeader(aHeaderName, aValue)
+      );
     } catch (e) {
       // This means we don't have a structured encoder. Just assume it's a raw
       // string value then.
@@ -240,40 +260,46 @@ function fixArray(addresses, preserveGroups, count) {
       element.group = element.group.map(e => resetPrototype(e, Mailbox));
 
       // Add to the output array
-      if (preserveGroups)
+      if (preserveGroups) {
         outputArray.push(element);
-      else
+      } else {
         outputArray = outputArray.concat(element.group);
+      }
     } else {
       element = resetPrototype(element, Mailbox);
       outputArray.push(element);
     }
   }
 
-  if (count)
+  if (count) {
     count.value = outputArray.length;
+  }
   return outputArray;
 }
 
-function MimeAddressParser() {
-}
+function MimeAddressParser() {}
 MimeAddressParser.prototype = {
   classID: Components.ID("96bd8769-2d0e-4440-963d-22b97fb3ba77"),
   QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgHeaderParser]),
 
   parseEncodedHeader(aHeader, aCharset, aPreserveGroups, count) {
     aHeader = aHeader || "";
-    let value = MimeParser.parseHeaderField(aHeader,
-      MimeParser.HEADER_ADDRESS | MimeParser.HEADER_OPTION_ALL_I18N, aCharset);
+    let value = MimeParser.parseHeaderField(
+      aHeader,
+      MimeParser.HEADER_ADDRESS | MimeParser.HEADER_OPTION_ALL_I18N,
+      aCharset
+    );
     return fixArray(value, aPreserveGroups, count);
   },
   parseEncodedHeaderW(aHeader, count) {
     aHeader = aHeader || "";
-    let value = MimeParser.parseHeaderField(aHeader,
+    let value = MimeParser.parseHeaderField(
+      aHeader,
       MimeParser.HEADER_ADDRESS |
-      MimeParser.HEADER_OPTION_DECODE_2231 |
-      MimeParser.HEADER_OPTION_DECODE_2047,
-      undefined);
+        MimeParser.HEADER_OPTION_DECODE_2231 |
+        MimeParser.HEADER_OPTION_DECODE_2047,
+      undefined
+    );
     return fixArray(value, false, count);
   },
   parseDecodedHeader(aHeader, aPreserveGroups, count) {
@@ -292,8 +318,10 @@ MimeAddressParser.prototype = {
       useASCII: false, // We don't want RFC 2047 encoding here.
     };
     let handler = new HeaderHandler();
-    let emitter = new jsmime.headeremitter.makeStreamingEmitter(handler,
-      options);
+    let emitter = new jsmime.headeremitter.makeStreamingEmitter(
+      handler,
+      options
+    );
     emitter.addAddresses(addresses);
     emitter.finish(true);
     return handler.value.replace(/\r\n( |$)/g, "");
@@ -301,7 +329,7 @@ MimeAddressParser.prototype = {
 
   extractFirstName(aHeader) {
     let addresses = this.parseDecodedHeader(aHeader, false);
-    return (addresses.length > 0) ? (addresses[0].name || addresses[0].email) : "";
+    return addresses.length > 0 ? addresses[0].name || addresses[0].email : "";
   },
 
   removeDuplicateAddresses(aAddrs, aOtherAddrs) {
@@ -323,8 +351,9 @@ MimeAddressParser.prototype = {
         // If we've seen the address, don't keep this one; otherwise, add it to
         // the list.
         let key = normalize(e.email);
-        if (allAddresses.has(key))
+        if (allAddresses.has(key)) {
           return false;
+        }
         allAddresses.add(key);
       } else {
         // Groups -> filter out all the member addresses.
@@ -375,8 +404,9 @@ MimeAddressParser.prototype = {
       }
       output.push(this._makeSingleAddress(addr.trimLeft()));
     }
-    if (count)
+    if (count) {
       count.value = output.length;
+    }
     return output;
   },
 
@@ -387,7 +417,8 @@ MimeAddressParser.prototype = {
       let rbracket = aDisplayName.lastIndexOf(">");
       return this.makeMailboxObject(
         lbracket == 0 ? "" : aDisplayName.slice(0, lbracket).trim(),
-        aDisplayName.slice(lbracket + 1, rbracket));
+        aDisplayName.slice(lbracket + 1, rbracket)
+      );
     }
     return this.makeMailboxObject("", aDisplayName);
   },
@@ -395,12 +426,15 @@ MimeAddressParser.prototype = {
   // What follows is the deprecated API that will be removed shortly.
 
   parseHeadersWithArray(aHeader, aAddrs, aNames, aFullNames) {
-    let addrs = [], names = [], fullNames = [];
+    let addrs = [],
+      names = [],
+      fullNames = [];
     let allAddresses = this.parseEncodedHeader(aHeader, undefined, false);
 
     // Don't index the dummy empty address.
-    if (aHeader.trim() == "")
+    if (aHeader.trim() == "") {
       allAddresses = [];
+    }
     for (let address of allAddresses) {
       addrs.push(address.email);
       names.push(address.name || null);
@@ -414,7 +448,9 @@ MimeAddressParser.prototype = {
   },
 
   extractHeaderAddressMailboxes(aLine) {
-    return this.parseDecodedHeader(aLine).map(addr => addr.email).join(", ");
+    return this.parseDecodedHeader(aLine)
+      .map(addr => addr.email)
+      .join(", ");
   },
 
   makeMimeAddress(aName, aEmail) {
@@ -423,14 +459,12 @@ MimeAddressParser.prototype = {
   },
 };
 
-function MimeConverter() {
-}
+function MimeConverter() {}
 MimeConverter.prototype = {
   classID: Components.ID("93f8c049-80ed-4dda-9000-94ad8daba44c"),
   QueryInterface: ChromeUtils.generateQI([Ci.nsIMimeConverter]),
 
-  encodeMimePartIIStr_UTF8(aHeader, aStructured,
-      aFieldNameLen, aLineLength) {
+  encodeMimePartIIStr_UTF8(aHeader, aStructured, aFieldNameLen, aLineLength) {
     // Compute the encoding options. The way our API is structured in this
     // method is really horrendous and does not align with the way that JSMime
     // handles it. Instead, we'll need to create a fake header to take into
@@ -441,20 +475,27 @@ MimeConverter.prototype = {
       useASCII: true,
     };
     let handler = new HeaderHandler();
-    let emitter = new jsmime.headeremitter.makeStreamingEmitter(handler,
-      options);
+    let emitter = new jsmime.headeremitter.makeStreamingEmitter(
+      handler,
+      options
+    );
 
     // Add the text to the be encoded.
     emitter.addHeaderName(fakeHeader);
     if (aStructured) {
       // Structured really means "this is an addressing header"
-      let addresses = MimeParser.parseHeaderField(aHeader,
-        MimeParser.HEADER_ADDRESS | MimeParser.HEADER_OPTION_DECODE_2047);
+      let addresses = MimeParser.parseHeaderField(
+        aHeader,
+        MimeParser.HEADER_ADDRESS | MimeParser.HEADER_OPTION_DECODE_2047
+      );
       // This happens in one of our tests if there is a "bare" email but no
       // @ sign. Without it, the result disappears since our emission code
       // assumes that an empty email is not worth emitting.
-      if (addresses.length === 1 && addresses[0].email === "" &&
-          addresses[0].name !== "") {
+      if (
+        addresses.length === 1 &&
+        addresses[0].email === "" &&
+        addresses[0].name !== ""
+      ) {
         addresses[0].email = addresses[0].name;
         addresses[0].name = "";
       }
@@ -472,12 +513,13 @@ MimeConverter.prototype = {
   },
 
   decodeMimeHeader(aHeader, aDefaultCharset, aOverride, aUnfold) {
-    let value = MimeParser.parseHeaderField(aHeader,
+    let value = MimeParser.parseHeaderField(
+      aHeader,
       MimeParser.HEADER_UNSTRUCTURED | MimeParser.HEADER_OPTION_ALL_I18N,
-      aDefaultCharset);
+      aDefaultCharset
+    );
     if (aUnfold) {
-      value = value.replace(/[\r\n]\t/g, " ")
-                   .replace(/[\r\n]/g, "");
+      value = value.replace(/[\r\n]\t/g, " ").replace(/[\r\n]/g, "");
     }
     return value;
   },
@@ -489,6 +531,10 @@ MimeConverter.prototype = {
   },
 };
 
-var components = [MimeHeaders, MimeWritableStructuredHeaders, MimeAddressParser,
-  MimeConverter];
+var components = [
+  MimeHeaders,
+  MimeWritableStructuredHeaders,
+  MimeAddressParser,
+  MimeConverter,
+];
 var NSGetFactory = XPCOMUtils.generateNSGetFactory(components);

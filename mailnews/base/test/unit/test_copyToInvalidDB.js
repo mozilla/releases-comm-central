@@ -15,7 +15,9 @@ load("../../../resources/messageGenerator.js");
 load("../../../resources/messageModifier.js");
 load("../../../resources/messageInjection.js");
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var gMsg1;
 var gMsgId1;
@@ -25,7 +27,7 @@ var gTestFolder, gTestFolder2;
 function* setup_globals(aNextFunc) {
   var messageGenerator = new MessageGenerator();
   gMsg1 = messageGenerator.makeMessage();
-  let msg2 = messageGenerator.makeMessage({inReplyTo: gMsg1});
+  let msg2 = messageGenerator.makeMessage({ inReplyTo: gMsg1 });
 
   let messages = [];
   messages = messages.concat([gMsg1, msg2]);
@@ -41,13 +43,13 @@ function* setup_globals(aNextFunc) {
 }
 
 function run_test() {
-  configure_message_injection({mode: "local"});
+  configure_message_injection({ mode: "local" });
   do_test_pending();
-  async_run({func: actually_run_test});
+  async_run({ func: actually_run_test });
 }
 
 function* actually_run_test() {
-  yield async_run({func: setup_globals});
+  yield async_run({ func: setup_globals });
   gTestFolder2.msgDatabase.summaryValid = false;
   gTestFolder2.msgDatabase = null;
   gTestFolder2.ForceDBClosed();
@@ -60,8 +62,15 @@ function* actually_run_test() {
   let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   gMsgId1 = msgHdr.messageId;
   messages.appendElement(msgHdr);
-  MailServices.copy.CopyMessages(gTestFolder, messages, gTestFolder2, true,
-                           asyncCopyListener, null, false);
+  MailServices.copy.CopyMessages(
+    gTestFolder,
+    messages,
+    gTestFolder2,
+    true,
+    asyncCopyListener,
+    null,
+    false
+  );
   yield false;
   try {
     gTestFolder2.getDatabaseWithReparse(asyncUrlListener, null);

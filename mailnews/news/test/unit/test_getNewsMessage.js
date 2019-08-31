@@ -6,7 +6,9 @@
  *   - Downloading a single message and checking content in stream is correct.
  */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 // The basic daemon to use for testing nntpd.js implementations
 var daemon = setupNNTPDaemon();
@@ -17,12 +19,13 @@ var localserver;
 var streamListener = {
   _data: "",
 
-  QueryInterface:
-    ChromeUtils.generateQI([Ci.nsIStreamListener, Ci.nsIRequestObserver]),
+  QueryInterface: ChromeUtils.generateQI([
+    Ci.nsIStreamListener,
+    Ci.nsIRequestObserver,
+  ]),
 
   // nsIRequestObserver
-  onStartRequest(aRequest) {
-  },
+  onStartRequest(aRequest) {},
   onStopRequest(aRequest, aStatusCode) {
     Assert.equal(aStatusCode, 0);
 
@@ -38,8 +41,9 @@ var streamListener = {
 
   // nsIStreamListener
   onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
-    let scriptStream = Cc["@mozilla.org/scriptableinputstream;1"]
-                         .createInstance(Ci.nsIScriptableInputStream);
+    let scriptStream = Cc[
+      "@mozilla.org/scriptableinputstream;1"
+    ].createInstance(Ci.nsIScriptableInputStream);
 
     scriptStream.init(aInputStream);
 
@@ -48,15 +52,16 @@ var streamListener = {
 };
 
 function doTestFinished() {
-    localserver.closeCachedConnections();
+  localserver.closeCachedConnections();
 
-    server.stop();
+  server.stop();
 
-    var thread = gThreadManager.currentThread;
-    while (thread.hasPendingEvents())
-      thread.processNextEvent(true);
+  var thread = gThreadManager.currentThread;
+  while (thread.hasPendingEvents()) {
+    thread.processNextEvent(true);
+  }
 
-    do_test_finished();
+  do_test_finished();
 }
 
 function run_test() {
@@ -69,7 +74,9 @@ function run_test() {
     var folder = localserver.rootFolder.getChildNamed("test.subscribe.simple");
     folder.clearFlag(Ci.nsMsgFolderFlags.Offline);
     folder.getNewMessages(null, {
-      OnStopRunningUrl() { localserver.closeCachedConnections(); },
+      OnStopRunningUrl() {
+        localserver.closeCachedConnections();
+      },
     });
     server.performTest();
 
@@ -86,7 +93,14 @@ function run_test() {
 
     do_test_pending();
 
-    nntpService.DisplayMessage(messageUri, streamListener, null, null, null, {});
+    nntpService.DisplayMessage(
+      messageUri,
+      streamListener,
+      null,
+      null,
+      null,
+      {}
+    );
   } catch (e) {
     server.stop();
     do_throw(e);

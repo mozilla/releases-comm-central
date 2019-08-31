@@ -32,8 +32,9 @@ var gMessageSubject = "Hello, did you receive my bugmail?";
 var gMessageInBody = "an HTML message";
 
 // various object references
-var gDbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"]
-                             .getService(Ci.nsIMsgDBService);
+var gDbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"].getService(
+  Ci.nsIMsgDBService
+);
 
 // Definition of tests. The test function name is the filter action
 // being tested, with "Body" appended to tests that use delayed
@@ -312,7 +313,6 @@ var gTestArray = [
   },
   /**/
   endTest,
-
 ];
 
 function run_test() {
@@ -355,7 +355,10 @@ function setupFilters() {
 
   gSubfolder = localAccountUtils.rootFolder.createLocalSubfolder("Subfolder");
 
-  MailServices.mailSession.AddFolderListener(FolderListener, Ci.nsIFolderListener.event);
+  MailServices.mailSession.AddFolderListener(
+    FolderListener,
+    Ci.nsIFolderListener.event
+  );
   gPreviousUnread = 0;
 
   // When a message body is not downloaded, and then later a filter is
@@ -372,8 +375,9 @@ function setupFilters() {
 // basic preparation done for each test
 async function setupTest(aFilter, aAction) {
   let filterList = IMAPPump.incomingServer.getFilterList(null);
-  while (filterList.filterCount)
+  while (filterList.filterCount) {
     filterList.removeFilterAt(0);
+  }
   if (aFilter) {
     aFilter.clearActionList();
     if (aAction) {
@@ -381,15 +385,17 @@ async function setupTest(aFilter, aAction) {
       filterList.insertFilterAt(0, aFilter);
     }
   }
-  if (gInboxListener)
+  if (gInboxListener) {
     gDbService.unregisterPendingListener(gInboxListener);
+  }
 
   IMAPPump.inbox.clearNewMessages();
 
   gInboxListener = new DBListener();
   gDbService.registerPendingListener(IMAPPump.inbox, gInboxListener);
-  IMAPPump.mailbox.addMessage(new imapMessage(specForFileName(gMessage),
-                          IMAPPump.mailbox.uidnext++, []));
+  IMAPPump.mailbox.addMessage(
+    new imapMessage(specForFileName(gMessage), IMAPPump.mailbox.uidnext++, [])
+  );
   let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
   await promiseUrlListener.promise;
@@ -399,8 +405,9 @@ async function setupTest(aFilter, aAction) {
 // Cleanup, null out everything, close all cached connections and stop the
 // server
 function endTest() {
-  if (gInboxListener)
+  if (gInboxListener) {
     gDbService.unregisterPendingListener(gInboxListener);
+  }
   gInboxListener = null;
   MailServices.mailSession.RemoveFolderListener(FolderListener);
   teardownIMAPPump();
@@ -413,9 +420,9 @@ function endTest() {
 // nsIFolderListener implementation
 var FolderListener = {
   OnItemEvent(aEventFolder, aEvent) {
-    dump("received folder event " + aEvent +
-         " folder " + aEventFolder.name +
-         "\n");
+    dump(
+      "received folder event " + aEvent + " folder " + aEventFolder.name + "\n"
+    );
   },
 };
 
@@ -537,12 +544,19 @@ function testCounts(aHasNew, aUnreadDelta, aFolderNewDelta, aDbNewDelta) {
     let arrayOut = {};
     db().getNewList(countOut, arrayOut);
     let dbNew = countOut.value ? countOut.value : 0;
-    dump(" hasNew: " + hasNew +
-         " unread: " + unread +
-         " folderNew: " + folderNew +
-         " dbNew: " + dbNew +
-         " prevUnread " + gPreviousUnread +
-         "\n");
+    dump(
+      " hasNew: " +
+        hasNew +
+        " unread: " +
+        unread +
+        " folderNew: " +
+        folderNew +
+        " dbNew: " +
+        dbNew +
+        " prevUnread " +
+        gPreviousUnread +
+        "\n"
+    );
     Assert.equal(aHasNew, hasNew);
     Assert.equal(aUnreadDelta, unread - gPreviousUnread);
     gPreviousUnread = unread;

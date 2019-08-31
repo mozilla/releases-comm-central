@@ -11,28 +11,36 @@
 
 const EXPORTED_SYMBOLS = ["PeriodicFilterManager"];
 
-const {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { fixIterator } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
+const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-const log = Log4Moz.getConfiguredLogger("mail.periodicFilterManager",
-                                        Log4Moz.Level.Warn,
-                                        Log4Moz.Level.Warn,
-                                        Log4Moz.Level.Warn);
+const log = Log4Moz.getConfiguredLogger(
+  "mail.periodicFilterManager",
+  Log4Moz.Level.Warn,
+  Log4Moz.Level.Warn,
+  Log4Moz.Level.Warn
+);
 
 var PeriodicFilterManager = {
   _timer: null,
   _checkRateMilliseconds: 60000, // How often do we check if servers are ready to run?
-  _defaultFilterRateMinutes: Services.prefs.getDefaultBranch("")
-                               .getIntPref("mail.server.default.periodicFilterRateMinutes"),
+  _defaultFilterRateMinutes: Services.prefs
+    .getDefaultBranch("")
+    .getIntPref("mail.server.default.periodicFilterRateMinutes"),
   _initialized: false, // Has this been initialized?
-  _running: false,  // Are we executing filters already?
+  _running: false, // Are we executing filters already?
 
   // Initial call to begin startup.
   setupFiltering() {
-    if (this._initialized)
+    if (this._initialized) {
       return;
+    }
 
     this._initialized = true;
     Services.obs.addObserver(this, "mail-startup-done");
@@ -48,16 +56,20 @@ var PeriodicFilterManager = {
       // Make sure that the last filter time of all servers was in the past.
       let lastFilterTime = server.getIntValue("lastFilterTime");
       // Schedule next filter run.
-      let nextFilterTime = lastFilterTime < nowTime ?
-                             lastFilterTime + this.getServerPeriod(server) :
-                             nowTime;
+      let nextFilterTime =
+        lastFilterTime < nowTime
+          ? lastFilterTime + this.getServerPeriod(server)
+          : nowTime;
       server.setIntValue("nextFilterTime", nextFilterTime);
     }
 
     // kickoff the timer to run periodic filters
     this._timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
-    this._timer.initWithCallback(this, this._checkRateMilliseconds,
-                                 Ci.nsITimer.TYPE_REPEATING_SLACK);
+    this._timer.initWithCallback(
+      this,
+      this._checkRateMilliseconds,
+      Ci.nsITimer.TYPE_REPEATING_SLACK
+    );
     Services.obs.addObserver(this, "quit-application-granted");
   },
 
@@ -80,21 +92,29 @@ var PeriodicFilterManager = {
     let servers = MailServices.accounts.allServers;
     let nowTime = parseInt(Date.now() / 60000);
     for (let server of fixIterator(servers, Ci.nsIMsgIncomingServer)) {
-      if (!server.canHaveFilters)
+      if (!server.canHaveFilters) {
         continue;
-      if (server.getIntValue("nextFilterTime") > nowTime)
+      }
+      if (server.getIntValue("nextFilterTime") > nowTime) {
         continue;
-      if (server.serverBusy)
+      }
+      if (server.serverBusy) {
         continue;
+      }
 
       // Schedule next time this account's filters should be run.
-      server.setIntValue("nextFilterTime", nowTime + this.getServerPeriod(server));
+      server.setIntValue(
+        "nextFilterTime",
+        nowTime + this.getServerPeriod(server)
+      );
       server.setIntValue("lastFilterTime", nowTime);
 
       // Build a temporary list of periodic filters.
       // XXX TODO: make applyFiltersToFolders() take a filterType instead (bug 1551043).
       let curFilterList = server.getFilterList(null);
-      let tempFilterList = MailServices.filters.getTempFilterList(server.rootFolder);
+      let tempFilterList = MailServices.filters.getTempFilterList(
+        server.rootFolder
+      );
       let numFilters = curFilterList.filterCount;
       tempFilterList.logStream = curFilterList.logStream;
       tempFilterList.loggingEnabled = curFilterList.loggingEnabled;
@@ -102,20 +122,34 @@ var PeriodicFilterManager = {
       for (let i = 0; i < numFilters; i++) {
         let curFilter = curFilterList.getFilterAt(i);
         // Only add enabled, UI visible filters that are of the Periodic type.
-        if (curFilter.enabled && !curFilter.temporary &&
-            (curFilter.filterType & Ci.nsMsgFilterType.Periodic)) {
+        if (
+          curFilter.enabled &&
+          !curFilter.temporary &&
+          curFilter.filterType & Ci.nsMsgFilterType.Periodic
+        ) {
           tempFilterList.insertFilterAt(newFilterIndex, curFilter);
           newFilterIndex++;
         }
       }
-      if (newFilterIndex == 0)
+      if (newFilterIndex == 0) {
         continue;
-      let foldersToFilter = server.rootFolder.getFoldersWithFlags(Ci.nsMsgFolderFlags.Inbox);
-      if (foldersToFilter.length == 0)
+      }
+      let foldersToFilter = server.rootFolder.getFoldersWithFlags(
+        Ci.nsMsgFolderFlags.Inbox
+      );
+      if (foldersToFilter.length == 0) {
         continue;
+      }
 
-      log.debug("PeriodicFilterManager apply periodic filters to server " + server.prettyName);
-      MailServices.filters.applyFiltersToFolders(tempFilterList, foldersToFilter, null);
+      log.debug(
+        "PeriodicFilterManager apply periodic filters to server " +
+          server.prettyName
+      );
+      MailServices.filters.applyFiltersToFolders(
+        tempFilterList,
+        foldersToFilter,
+        null
+      );
     }
     this._running = false;
   },
@@ -132,13 +166,24 @@ var PeriodicFilterManager = {
     // Check if period is too short.
     if (serverRateMinutes < minimumPeriodMinutes) {
       // If the server.default pref is too low, clear that one first.
-      if (Services.prefs.getIntPref("mail.server.default.periodicFilterRateMinutes")
-          == serverRateMinutes) {
-        Services.prefs.clearUserPref("mail.server.default.periodicFilterRateMinutes");
+      if (
+        Services.prefs.getIntPref(
+          "mail.server.default.periodicFilterRateMinutes"
+        ) == serverRateMinutes
+      ) {
+        Services.prefs.clearUserPref(
+          "mail.server.default.periodicFilterRateMinutes"
+        );
       }
       // If the server still has its own specific value and it is still too low, sanitize it.
-      if (server.getIntValue("periodicFilterRateMinutes") < minimumPeriodMinutes)
-        server.setIntValue("periodicFilterRateMinutes", this._defaultFilterRateMinutes);
+      if (
+        server.getIntValue("periodicFilterRateMinutes") < minimumPeriodMinutes
+      ) {
+        server.setIntValue(
+          "periodicFilterRateMinutes",
+          this._defaultFilterRateMinutes
+        );
+      }
 
       return this._defaultFilterRateMinutes;
     }
@@ -148,10 +193,11 @@ var PeriodicFilterManager = {
 
   observe(subject, topic, data) {
     Services.obs.removeObserver(this, topic);
-    if (topic == "mail-startup-done")
+    if (topic == "mail-startup-done") {
       this.init();
-    else if (topic == "quit-application-granted")
+    } else if (topic == "quit-application-granted") {
       this.shutdown();
+    }
   },
 
   shutdown() {

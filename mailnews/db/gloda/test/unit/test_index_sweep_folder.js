@@ -28,8 +28,9 @@ GlodaMsgIndexer._original_indexerGetEnumerator =
  * Wrapper for GlodaMsgIndexer._indexerGetEnumerator to cause explosions.
  */
 GlodaMsgIndexer._indexerGetEnumerator = function(...aArgs) {
-  if (explode_enumeration_after && !(--explode_enumeration_after))
+  if (explode_enumeration_after && !--explode_enumeration_after) {
     throw asyncExpectedEarlyAbort;
+  }
 
   return GlodaMsgIndexer._original_indexerGetEnumerator(...aArgs);
 };
@@ -39,8 +40,7 @@ GlodaMsgIndexer._indexerGetEnumerator = function(...aArgs) {
  * run it until completion.
  */
 function spin_folder_indexer(...aArgs) {
-  return async_run({func: _spin_folder_indexer_gen,
-                    args: aArgs});
+  return async_run({ func: _spin_folder_indexer_gen, args: aArgs });
 }
 function* _spin_folder_indexer_gen(aFolderHandle, aExpectedJobGoal) {
   let msgFolder = get_real_injection_folder(aFolderHandle);
@@ -59,8 +59,9 @@ function* _spin_folder_indexer_gen(aFolderHandle, aExpectedJobGoal) {
     do_throw(ex);
   }
 
-  if (aExpectedJobGoal !== undefined)
+  if (aExpectedJobGoal !== undefined) {
     Assert.equal(job.goal, aExpectedJobGoal);
+  }
 }
 
 /**
@@ -75,7 +76,7 @@ var arbitraryGlodaId = 4096;
  */
 function* test_propagate_filthy_from_folder_to_messages() {
   // mark the folder as filthy
-  let [folder, msgSet] = make_folder_with_sets([{count: 3}]);
+  let [folder, msgSet] = make_folder_with_sets([{ count: 3 }]);
   let glodaFolder = Gloda.getFolderForFolder(folder);
   glodaFolder._dirtyStatus = glodaFolder.kFolderFilthy;
 
@@ -86,9 +87,13 @@ function* test_propagate_filthy_from_folder_to_messages() {
 
   // force the database to see it as filthy so we can verify it changes
   glodaFolder._datastore.updateFolderDirtyStatus(glodaFolder);
-  yield sqlExpectCount(1,
+  yield sqlExpectCount(
+    1,
     "SELECT COUNT(*) FROM folderLocations WHERE id = ? " +
-      "AND dirtyStatus = ?", glodaFolder.id, glodaFolder.kFolderFilthy);
+      "AND dirtyStatus = ?",
+    glodaFolder.id,
+    glodaFolder.kFolderFilthy
+  );
 
   // index the folder, aborting at the second get enumerator request
   explode_enumeration_after = 2;
@@ -97,25 +102,30 @@ function* test_propagate_filthy_from_folder_to_messages() {
   // the folder should only be dirty
   Assert.equal(glodaFolder.dirtyStatus, glodaFolder.kFolderDirty);
   // make sure the database sees it as dirty
-  yield sqlExpectCount(1,
+  yield sqlExpectCount(
+    1,
     "SELECT COUNT(*) FROM folderLocations WHERE id = ? " +
-      "AND dirtyStatus = ?", glodaFolder.id, glodaFolder.kFolderDirty);
+      "AND dirtyStatus = ?",
+    glodaFolder.id,
+    glodaFolder.kFolderDirty
+  );
 
   // The messages should be filthy per the headers (we force a commit of the
   //  database.)
   for (let msgHdr of msgSet.msgHdrs()) {
-    Assert.equal(msgHdr.getUint32Property("gloda-dirty"),
-                 GlodaMsgIndexer.kMessageFilthy);
+    Assert.equal(
+      msgHdr.getUint32Property("gloda-dirty"),
+      GlodaMsgIndexer.kMessageFilthy
+    );
   }
 }
-
 
 /**
  * Make sure our counting pass and our indexing passes gets it right.  We test
  *  with 0,1,2 messages matching.
  */
 function* test_count_pass() {
-  let [folder, msgSet] = make_folder_with_sets([{count: 2}]);
+  let [folder, msgSet] = make_folder_with_sets([{ count: 2 }]);
   yield wait_for_message_injection();
 
   let hdrs = msgSet.msgHdrList;
@@ -146,14 +156,11 @@ function* test_count_pass() {
   yield spin_folder_indexer(folder, 2);
 }
 
-var tests = [
-  test_propagate_filthy_from_folder_to_messages,
-  test_count_pass,
-];
+var tests = [test_propagate_filthy_from_folder_to_messages, test_count_pass];
 
 function run_test() {
-  configure_message_injection({mode: "local"});
+  configure_message_injection({ mode: "local" });
   // we do not want the event-driven indexer crimping our style
-  configure_gloda_indexing({event: false});
+  configure_gloda_indexing({ event: false });
   glodaHelperRunTests(tests);
 }

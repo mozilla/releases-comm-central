@@ -6,7 +6,9 @@ this.EXPORTED_SYMBOLS = ["GlodaQueryClassFactory"];
 
 // GlodaDatastore has some constants we need, and oddly enough, there was no
 //  load dependency preventing us from doing this.
-const {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
+const { GlodaDatastore } = ChromeUtils.import(
+  "resource:///modules/gloda/datastore.js"
+);
 
 /**
  * @class Query class core; each noun gets its own sub-class where attributes
@@ -47,7 +49,7 @@ const {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore
  *     mechanism.
  */
 function GlodaQueryClass(aOptions) {
-  this.options = (aOptions != null) ? aOptions : {};
+  this.options = aOptions != null ? aOptions : {};
 
   // if we are an 'or' clause, who is our parent whom other 'or' clauses should
   //  spawn from...
@@ -110,9 +112,14 @@ GlodaQueryClass.prototype = {
    */
   getCollection(aListener, aData, aArgs) {
     this.completed = false;
-    return this._nounDef.datastore.queryFromQuery(this, aListener, aData,
-             /* aExistingCollection */ null, /* aMasterCollection */ null,
-             aArgs);
+    return this._nounDef.datastore.queryFromQuery(
+      this,
+      aListener,
+      aData,
+      /* aExistingCollection */ null,
+      /* aMasterCollection */ null,
+      aArgs
+    );
   },
 
   /* eslint-disable complexity */
@@ -131,13 +138,18 @@ GlodaQueryClass.prototype = {
 
       // assume success until a specific (or) constraint proves us wrong
       let querySatisfied = true;
-      for (let iConstraint = 0; iConstraint < curQuery._constraints.length;
-           iConstraint++) {
+      for (
+        let iConstraint = 0;
+        iConstraint < curQuery._constraints.length;
+        iConstraint++
+      ) {
         let constraint = curQuery._constraints[iConstraint];
         let [constraintType, attrDef] = constraint;
         let boundName = attrDef ? attrDef.boundName : "id";
-        if ((boundName in aObj) &&
-            aObj[boundName] === GlodaDatastore.IGNORE_FACET) {
+        if (
+          boundName in aObj &&
+          aObj[boundName] === GlodaDatastore.IGNORE_FACET
+        ) {
           querySatisfied = false;
           break;
         }
@@ -149,8 +161,10 @@ GlodaQueryClass.prototype = {
             querySatisfied = false;
             break;
           }
-        } else if ((constraintType === GlodaDatastore.kConstraintIn) ||
-                   (constraintType === GlodaDatastore.kConstraintEquals)) {
+        } else if (
+          constraintType === GlodaDatastore.kConstraintIn ||
+          constraintType === GlodaDatastore.kConstraintEquals
+        ) {
           // @testpoint gloda.query.test.kConstraintIn
           let objectNounDef = attrDef.objectNounDef;
 
@@ -160,18 +174,23 @@ GlodaQueryClass.prototype = {
           //  code complexity costs...)
           if (objectNounDef.equals) {
             let testValues;
-            if (!(boundName in aObj))
+            if (!(boundName in aObj)) {
               testValues = [];
-            else if (attrDef.singular)
+            } else if (attrDef.singular) {
               testValues = [aObj[boundName]];
-            else
+            } else {
               testValues = aObj[boundName];
+            }
 
             // If there are no constraints, then we are just testing for there
             //  being a value.  Succeed (continue) in that case.
-            if (constraintValues.length == 0 && testValues.length &&
-                testValues[0] != null)
+            if (
+              constraintValues.length == 0 &&
+              testValues.length &&
+              testValues[0] != null
+            ) {
               continue;
+            }
 
             // If there are no test values and the empty set is significant,
             //  then check if any of the constraint values are null (our
@@ -184,8 +203,9 @@ GlodaQueryClass.prototype = {
                   break;
                 }
               }
-              if (foundEmptySetSignifier)
+              if (foundEmptySetSignifier) {
                 continue;
+              }
             }
 
             let foundMatch = false;
@@ -196,8 +216,9 @@ GlodaQueryClass.prototype = {
                   break;
                 }
               }
-              if (foundMatch)
+              if (foundMatch) {
                 break;
+              }
             }
             if (!foundMatch) {
               querySatisfied = false;
@@ -210,18 +231,23 @@ GlodaQueryClass.prototype = {
             //  what we did in the prior case but exploding values using
             //  toParamAndValue, and then comparing.
             let testValues;
-            if (!(boundName in aObj))
+            if (!(boundName in aObj)) {
               testValues = [];
-            else if (attrDef.singular)
+            } else if (attrDef.singular) {
               testValues = [aObj[boundName]];
-            else
+            } else {
               testValues = aObj[boundName];
+            }
 
             // If there are no constraints, then we are just testing for there
             //  being a value.  Succeed (continue) in that case.
-            if (constraintValues.length == 0 && testValues.length &&
-                testValues[0] != null)
+            if (
+              constraintValues.length == 0 &&
+              testValues.length &&
+              testValues[0] != null
+            ) {
               continue;
+            }
             // If there are no test values and the empty set is significant,
             //  then check if any of the constraint values are null (our
             //  empty indicator.)
@@ -233,8 +259,9 @@ GlodaQueryClass.prototype = {
                   break;
                 }
               }
-              if (foundEmptySetSignifier)
+              if (foundEmptySetSignifier) {
                 continue;
+              }
             }
 
             let foundMatch = false;
@@ -242,16 +269,18 @@ GlodaQueryClass.prototype = {
               let [aParam, aValue] = objectNounDef.toParamAndValue(testValue);
               for (let value of constraintValues) {
                 // skip empty set check sentinel values
-                if (value == null && attrDef.emptySetIsSignificant)
+                if (value == null && attrDef.emptySetIsSignificant) {
                   continue;
+                }
                 let [bParam, bValue] = objectNounDef.toParamAndValue(value);
                 if (aParam == bParam && aValue == bValue) {
                   foundMatch = true;
                   break;
                 }
               }
-              if (foundMatch)
+              if (foundMatch) {
                 break;
+              }
             }
             if (!foundMatch) {
               querySatisfied = false;
@@ -263,12 +292,13 @@ GlodaQueryClass.prototype = {
           let objectNounDef = attrDef.objectNounDef;
 
           let testValues;
-          if (!(boundName in aObj))
-              testValues = [];
-          else if (attrDef.singular)
+          if (!(boundName in aObj)) {
+            testValues = [];
+          } else if (attrDef.singular) {
             testValues = [aObj[boundName]];
-          else
+          } else {
             testValues = aObj[boundName];
+          }
 
           let foundMatch = false;
           for (let testValue of testValues) {
@@ -276,33 +306,43 @@ GlodaQueryClass.prototype = {
             for (let rangeTuple of constraintValues) {
               let [lowerRValue, upperRValue] = rangeTuple;
               if (lowerRValue == null) {
-                let [upperParam, upperValue] =
-                  objectNounDef.toParamAndValue(upperRValue);
+                let [upperParam, upperValue] = objectNounDef.toParamAndValue(
+                  upperRValue
+                );
                 if (tParam == upperParam && tValue <= upperValue) {
                   foundMatch = true;
                   break;
                 }
               } else if (upperRValue == null) {
-                let [lowerParam, lowerValue] =
-                  objectNounDef.toParamAndValue(lowerRValue);
+                let [lowerParam, lowerValue] = objectNounDef.toParamAndValue(
+                  lowerRValue
+                );
                 if (tParam == lowerParam && tValue >= lowerValue) {
                   foundMatch = true;
                   break;
                 }
-              } else { // no one is null
-                let [upperParam, upperValue] =
-                  objectNounDef.toParamAndValue(upperRValue);
-                let [lowerParam, lowerValue] =
-                  objectNounDef.toParamAndValue(lowerRValue);
-                if ((tParam == lowerParam) && (tValue >= lowerValue) &&
-                    (tParam == upperParam) && (tValue <= upperValue)) {
+              } else {
+                // no one is null
+                let [upperParam, upperValue] = objectNounDef.toParamAndValue(
+                  upperRValue
+                );
+                let [lowerParam, lowerValue] = objectNounDef.toParamAndValue(
+                  lowerRValue
+                );
+                if (
+                  tParam == lowerParam &&
+                  tValue >= lowerValue &&
+                  tParam == upperParam &&
+                  tValue <= upperValue
+                ) {
                   foundMatch = true;
                   break;
                 }
               }
             }
-            if (foundMatch)
+            if (foundMatch) {
               break;
+            }
           }
           if (!foundMatch) {
             querySatisfied = false;
@@ -311,7 +351,7 @@ GlodaQueryClass.prototype = {
         } else if (constraintType === GlodaDatastore.kConstraintStringLike) {
           // @testpoint gloda.query.test.kConstraintStringLike
           let curIndex = 0;
-          let value = (boundName in aObj) ? aObj[boundName] : "";
+          let value = boundName in aObj ? aObj[boundName] : "";
           // the attribute must be singular, we don't support arrays of strings.
           for (let valuePart of constraintValues) {
             if (typeof valuePart == "string") {
@@ -319,24 +359,28 @@ GlodaQueryClass.prototype = {
               // if curIndex is null, we just need any match
               // if it's not null, it must match the offset of our found match
               if (curIndex === null) {
-                if (index == -1)
+                if (index == -1) {
                   querySatisfied = false;
-                else
+                } else {
                   curIndex = index + valuePart.length;
+                }
               } else if (index != curIndex) {
                 querySatisfied = false;
               } else {
                 curIndex = index + valuePart.length;
               }
-              if (!querySatisfied)
+              if (!querySatisfied) {
                 break;
-            } else { // wild!
+              }
+            } else {
+              // wild!
               curIndex = null;
             }
           }
           // curIndex must be null or equal to the length of the string
-          if (querySatisfied && curIndex !== null && curIndex != value.length)
+          if (querySatisfied && curIndex !== null && curIndex != value.length) {
             querySatisfied = false;
+          }
         } else if (constraintType === GlodaDatastore.kConstraintFulltext) {
           // @testpoint gloda.query.test.kConstraintFulltext
           // this is beyond our powers. Even if we have the fulltext content in
@@ -345,16 +389,19 @@ GlodaQueryClass.prototype = {
           // so, let's fail if the item is not already in the collection, and
           //  let the testing continue if it is.  (some other constraint may no
           //  longer apply...)
-          if (!(aObj.id in this.collection._idMap))
+          if (!(aObj.id in this.collection._idMap)) {
             querySatisfied = false;
+          }
         }
 
-        if (!querySatisfied)
+        if (!querySatisfied) {
           break;
+        }
       }
 
-      if (querySatisfied)
+      if (querySatisfied) {
         return true;
+      }
     }
     return false;
   },
@@ -368,8 +415,7 @@ GlodaQueryClass.prototype = {
    * @protected
    */
   _inConstraintHelper(aAttrDef, aValues) {
-    let constraint =
-      [GlodaDatastore.kConstraintIn, aAttrDef].concat(aValues);
+    let constraint = [GlodaDatastore.kConstraintIn, aAttrDef].concat(aValues);
     this._constraints.push(constraint);
     return this;
   },
@@ -383,8 +429,9 @@ GlodaQueryClass.prototype = {
    * @protected
    */
   _rangedConstraintHelper(aAttrDef, aRanges) {
-    let constraint =
-      [GlodaDatastore.kConstraintRanges, aAttrDef].concat(aRanges);
+    let constraint = [GlodaDatastore.kConstraintRanges, aAttrDef].concat(
+      aRanges
+    );
     this._constraints.push(constraint);
     return this;
   },
@@ -410,8 +457,7 @@ GlodaQueryClass.prototype = {
  *  receives an itemsAdded event, a GlodaExplicitQueryClass would result in
  *  an item added notification in that case, which would wildly not be desired.
  */
-function GlodaNullQueryClass() {
-}
+function GlodaNullQueryClass() {}
 
 GlodaNullQueryClass.prototype = {
   /**
@@ -526,7 +572,7 @@ GlodaExplicitQueryClass.prototype = {
    *     false.
    */
   test(aObj) {
-    return (aObj.id in this.collection._idMap);
+    return aObj.id in this.collection._idMap;
   },
 };
 
@@ -534,8 +580,7 @@ GlodaExplicitQueryClass.prototype = {
  * @class A query that 'tests' true for everything.  Intended for debugging purposes
  *  only.
  */
-function GlodaWildcardQueryClass() {
-}
+function GlodaWildcardQueryClass() {}
 
 GlodaWildcardQueryClass.prototype = {
   /**
@@ -544,10 +589,14 @@ GlodaWildcardQueryClass.prototype = {
   options: {},
 
   // don't let people try and mess with us
-  or() { return null; },
+  or() {
+    return null;
+  },
   // don't let people try and query on us (until we have a real use case for
   //  that...)
-  getCollection() { return null; },
+  getCollection() {
+    return null;
+  },
   /**
    * Everybody wins!
    */

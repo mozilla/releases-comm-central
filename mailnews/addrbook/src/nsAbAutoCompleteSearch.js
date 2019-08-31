@@ -2,15 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 var {
   getSearchTokens,
   getModelQuery,
   modelQueryHasUserValue,
   generateQueryURI,
 } = ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
 var ACR = Ci.nsIAutoCompleteResult;
 var nsIAbAutoCompleteResult = Ci.nsIAbAutoCompleteResult;
@@ -20,12 +24,14 @@ function nsAbAutoCompleteResult(aSearchString) {
   // all instances
   this._searchResults = []; // final results
   this.searchString = aSearchString;
-  this._collectedValues = new Map();  // temporary unsorted results
+  this._collectedValues = new Map(); // temporary unsorted results
   // Get model query from pref; this will return mail.addr_book.autocompletequery.format.phonetic
   // if mail.addr_book.show_phonetic_fields == true
   this.modelQuery = getModelQuery("mail.addr_book.autocompletequery.format");
   // check if the currently active model query has been modified by user
-  this._modelQueryHasUserValue = modelQueryHasUserValue("mail.addr_book.autocompletequery.format");
+  this._modelQueryHasUserValue = modelQueryHasUserValue(
+    "mail.addr_book.autocompletequery.format"
+  );
 }
 
 nsAbAutoCompleteResult.prototype = {
@@ -67,8 +73,7 @@ nsAbAutoCompleteResult.prototype = {
     return this.getValueAt(aIndex);
   },
 
-  removeValueAt(aRowIndex, aRemoveFromDB) {
-  },
+  removeValueAt(aRowIndex, aRemoveFromDB) {},
 
   // nsIAbAutoCompleteResult
 
@@ -119,8 +124,9 @@ nsAbAutoCompleteSearch.prototype = {
       popularityIndex = parseInt(popularityValue, 16);
 
       // If its still NaN, just give up, we shouldn't ever get here.
-      if (isNaN(popularityIndex))
+      if (isNaN(popularityIndex)) {
         popularityIndex = 0;
+      }
 
       // Now store this change so that we're not changing it each time around.
       if (!aDirectory.readOnly) {
@@ -152,28 +158,35 @@ nsAbAutoCompleteSearch.prototype = {
     // is the nick name for the card or at least in the beginning of it.
     let nick = aCard.getProperty("NickName", "").toLocaleLowerCase();
     aSearchString = aSearchString.toLocaleLowerCase();
-    if (nick == aSearchString)
+    if (nick == aSearchString) {
       return BEST + 1;
-    if (nick.indexOf(aSearchString) == 0)
+    }
+    if (nick.indexOf(aSearchString) == 0) {
       return BEST;
+    }
 
     // We'll do this case-insensitively and ignore the domain.
     let atIdx = aAddress.lastIndexOf("@");
-    if (atIdx != -1) // mail lists don't have an @
+    if (atIdx != -1) {
+      // mail lists don't have an @
       aAddress = aAddress.substr(0, atIdx);
+    }
     let idx = aAddress.indexOf(aSearchString);
-    if (idx == 0)
+    if (idx == 0) {
       return BEST;
-    if (idx == -1)
+    }
+    if (idx == -1) {
       return 0;
+    }
 
     // We want to treat firstname, lastname and word boundary(ish) parts of
     // the email address the same. E.g. for "John Doe (:xx) <jd.who@example.com>"
     // all of these should score the same: "John", "Doe", "xx",
     // ":xx", "jd", "who".
     let prevCh = aAddress.charAt(idx - 1);
-    if (/[ :."'(\-_<&]/.test(prevCh))
+    if (/[ :."'(\-_<&]/.test(prevCh)) {
       return BEST;
+    }
 
     // The match was inside a word -> we don't care about the position.
     return 0;
@@ -191,9 +204,12 @@ nsAbAutoCompleteSearch.prototype = {
   _searchCards(searchQuery, directory, result) {
     let childCards;
     try {
-      childCards = this._abManager.getDirectory(directory.URI + searchQuery).childCards;
+      childCards = this._abManager.getDirectory(directory.URI + searchQuery)
+        .childCards;
     } catch (e) {
-      Cu.reportError("Error running addressbook query '" + searchQuery + "': " + e);
+      Cu.reportError(
+        "Error running addressbook query '" + searchQuery + "': " + e
+      );
       return;
     }
 
@@ -209,12 +225,28 @@ nsAbAutoCompleteSearch.prototype = {
           this._addToResult(commentColumn, directory, card, "", true, result);
         } else {
           let email = card.primaryEmail;
-          if (email)
-            this._addToResult(commentColumn, directory, card, email, true, result);
+          if (email) {
+            this._addToResult(
+              commentColumn,
+              directory,
+              card,
+              email,
+              true,
+              result
+            );
+          }
 
           email = card.getProperty("SecondEmail", "");
-          if (email)
-            this._addToResult(commentColumn, directory, card, email, false, result);
+          if (email) {
+            this._addToResult(
+              commentColumn,
+              directory,
+              card,
+              email,
+              false,
+              result
+            );
+          }
         }
       }
     }
@@ -241,17 +273,22 @@ nsAbAutoCompleteSearch.prototype = {
     // but for now we hard-code the default value equivalent of the pref here
     // or else bail out before and reconstruct the full c++ query if the pref
     // has been customized (modelQueryHasUserValue), so that we won't get here.
-    let cumulativeFieldText = aCard.displayName + " " +
-                              aCard.firstName + " " +
-                              aCard.lastName + " " +
-                              aEmailToUse + " " +
-                              aCard.getProperty("NickName", "");
-    if (aCard.isMailList)
+    let cumulativeFieldText =
+      aCard.displayName +
+      " " +
+      aCard.firstName +
+      " " +
+      aCard.lastName +
+      " " +
+      aEmailToUse +
+      " " +
+      aCard.getProperty("NickName", "");
+    if (aCard.isMailList) {
       cumulativeFieldText += " " + aCard.getProperty("Notes", "");
+    }
     cumulativeFieldText = cumulativeFieldText.toLocaleLowerCase();
 
-    return aSearchWords.every(String.prototype.includes,
-                              cumulativeFieldText);
+    return aSearchWords.every(String.prototype.includes, cumulativeFieldText);
   },
 
   /**
@@ -268,8 +305,9 @@ nsAbAutoCompleteSearch.prototype = {
    */
   _checkDuplicate(directory, card, lcEmailAddress, currentResults) {
     let existingResult = currentResults._collectedValues.get(lcEmailAddress);
-    if (!existingResult)
+    if (!existingResult) {
       return false;
+    }
 
     let popIndex = this._getPopularityIndex(directory, card);
     // It's a duplicate, is the new one more popular?
@@ -298,20 +336,32 @@ nsAbAutoCompleteSearch.prototype = {
    *                       it is the case. For mailing lists set it to true.
    * @param result         The result to add the new entry to.
    */
-  _addToResult(commentColumn, directory, card, emailToUse, isPrimaryEmail, result) {
-    let mbox = this._parser.makeMailboxObject(card.displayName,
-      card.isMailList ? card.getProperty("Notes", "") || card.displayName :
-                        emailToUse);
-    if (!mbox.email)
+  _addToResult(
+    commentColumn,
+    directory,
+    card,
+    emailToUse,
+    isPrimaryEmail,
+    result
+  ) {
+    let mbox = this._parser.makeMailboxObject(
+      card.displayName,
+      card.isMailList
+        ? card.getProperty("Notes", "") || card.displayName
+        : emailToUse
+    );
+    if (!mbox.email) {
       return;
+    }
 
     let emailAddress = mbox.toString();
     let lcEmailAddress = emailAddress.toLocaleLowerCase();
 
     // If it is a duplicate, then just return and don't add it. The
     // _checkDuplicate function deals with it all for us.
-    if (this._checkDuplicate(directory, card, lcEmailAddress, result))
+    if (this._checkDuplicate(directory, card, lcEmailAddress, result)) {
       return;
+    }
 
     result._collectedValues.set(lcEmailAddress, {
       value: emailAddress,
@@ -337,7 +387,7 @@ nsAbAutoCompleteSearch.prototype = {
   startSearch(aSearchString, aSearchParam, aPreviousResult, aListener) {
     let params = aSearchParam ? JSON.parse(aSearchParam) : {};
     var result = new nsAbAutoCompleteResult(aSearchString);
-    if (("type" in params) && !this.applicableHeaders.has(params.type)) {
+    if ("type" in params && !this.applicableHeaders.has(params.type)) {
       result.searchResult = ACR.RESULT_IGNORED;
       aListener.onSearchResult(this, result);
       return;
@@ -362,13 +412,18 @@ nsAbAutoCompleteSearch.prototype = {
     let searchWords = getSearchTokens(fullString);
 
     // Find out about the comment column
-    this._commentColumn = Services.prefs.getIntPref("mail.autoComplete.commentColumn", 0);
+    this._commentColumn = Services.prefs.getIntPref(
+      "mail.autoComplete.commentColumn",
+      0
+    );
 
-    if (aPreviousResult instanceof nsIAbAutoCompleteResult &&
-        aSearchString.startsWith(aPreviousResult.searchString) &&
-        aPreviousResult.searchResult == ACR.RESULT_SUCCESS &&
-        !result._modelQueryHasUserValue &&
-        result.modelQuery == aPreviousResult.modelQuery) {
+    if (
+      aPreviousResult instanceof nsIAbAutoCompleteResult &&
+      aSearchString.startsWith(aPreviousResult.searchString) &&
+      aPreviousResult.searchResult == ACR.RESULT_SUCCESS &&
+      !result._modelQueryHasUserValue &&
+      result.modelQuery == aPreviousResult.modelQuery
+    ) {
       // We have successful previous matches, and model query has not changed since
       // previous search, therefore just iterate through the list of previous result
       // entries and reduce as appropriate (via _checkEntry function).
@@ -389,12 +444,14 @@ nsAbAutoCompleteSearch.prototype = {
             value: aPreviousResult.getValueAt(i),
             comment: aPreviousResult.getCommentAt(i),
             card,
-            isPrimaryEmail: (card.primaryEmail == email),
+            isPrimaryEmail: card.primaryEmail == email,
             emailToUse: email,
             popularity: parseInt(card.getProperty("PopularityIndex", "0")),
-            score: this._getScore(card,
+            score: this._getScore(
+              card,
               aPreviousResult.getValueAt(i).toLocaleLowerCase(),
-              fullString),
+              fullString
+            ),
           });
         }
       }
@@ -420,8 +477,10 @@ nsAbAutoCompleteSearch.prototype = {
       // just going to find duplicates.
       while (allABs.hasMoreElements()) {
         let dir = allABs.getNext();
-        if (dir instanceof Ci.nsIAbDirectory &&
-            dir.useForAutocomplete(("idKey" in params) ? params.idKey : null)) {
+        if (
+          dir instanceof Ci.nsIAbDirectory &&
+          dir.useForAutocomplete("idKey" in params ? params.idKey : null)
+        ) {
           this._searchCards(searchQuery, dir, result);
         }
       }
@@ -435,10 +494,12 @@ nsAbAutoCompleteSearch.prototype = {
       // Order by 1) descending score, then 2) descending popularity,
       // then 3) primary email before secondary for the same card, then
       // 4) by emails sorted alphabetically.
-      return (b.score - a.score) ||
-             (b.popularity - a.popularity) ||
-             ((a.card == b.card && a.isPrimaryEmail) ? -1 : 0) ||
-             a.value.localeCompare(b.value);
+      return (
+        b.score - a.score ||
+        b.popularity - a.popularity ||
+        (a.card == b.card && a.isPrimaryEmail ? -1 : 0) ||
+        a.value.localeCompare(b.value)
+      );
     });
 
     if (result.matchCount) {
@@ -449,8 +510,7 @@ nsAbAutoCompleteSearch.prototype = {
     aListener.onSearchResult(this, result);
   },
 
-  stopSearch() {
-  },
+  stopSearch() {},
 
   // nsISupports
 

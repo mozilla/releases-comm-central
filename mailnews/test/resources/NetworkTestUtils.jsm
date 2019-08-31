@@ -11,15 +11,19 @@ this.EXPORTED_SYMBOLS = ["NetworkTestUtils"];
 
 var CC = Components.Constructor;
 
-const {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-const ServerSocket = CC("@mozilla.org/network/server-socket;1",
-                        "nsIServerSocket",
-                        "init");
-const BinaryInputStream = CC("@mozilla.org/binaryinputstream;1",
-                             "nsIBinaryInputStream",
-                             "setInputStream");
+const ServerSocket = CC(
+  "@mozilla.org/network/server-socket;1",
+  "nsIServerSocket",
+  "init"
+);
+const BinaryInputStream = CC(
+  "@mozilla.org/binaryinputstream;1",
+  "nsIBinaryInputStream",
+  "setInputStream"
+);
 
 // The following code is adapted from network/test/unit/test_socks.js, in order
 // to provide a SOCKS proxy server for our testing code.
@@ -64,8 +68,9 @@ SocksClient.prototype = {
         break;
     }
 
-    if (!this.sub_transport)
+    if (!this.sub_transport) {
       this.waitRead(input);
+    }
   },
 
   // Listen on the input for the next packet
@@ -80,8 +85,9 @@ SocksClient.prototype = {
 
   // Handle the first SOCKSv5 client message
   handleGreeting() {
-    if (this.inbuf.length == 0)
+    if (this.inbuf.length == 0) {
       return;
+    }
 
     if (this.inbuf[0] != 5) {
       dump("Unknown protocol version: " + this.inbuf[0] + "\n");
@@ -90,11 +96,13 @@ SocksClient.prototype = {
     }
 
     // Some quality checks to make sure we've read the entire greeting.
-    if (this.inbuf.length < 2)
+    if (this.inbuf.length < 2) {
       return;
+    }
     var nmethods = this.inbuf[1];
-    if (this.inbuf.length < 2 + nmethods)
+    if (this.inbuf.length < 2 + nmethods) {
       return;
+    }
     this.inbuf = [];
 
     // Tell them that we don't log into this SOCKS server.
@@ -104,24 +112,31 @@ SocksClient.prototype = {
 
   // Handle the second SOCKSv5 message
   handleSocks5Request() {
-    if (this.inbuf.length < 4)
+    if (this.inbuf.length < 4) {
       return;
+    }
 
     // Find the address:port requested.
     var atype = this.inbuf[3];
     var len, addr;
-    if (atype == 0x01) { // IPv4 Address
+    if (atype == 0x01) {
+      // IPv4 Address
       len = 4;
       addr = this.inbuf.slice(4, 8).join(".");
-    } else if (atype == 0x03) { // Domain name
+    } else if (atype == 0x03) {
+      // Domain name
       len = this.inbuf[4];
       addr = String.fromCharCode.apply(null, this.inbuf.slice(5, 5 + len));
       len = len + 1;
-    } else if (atype == 0x04) { // IPv6 address
+    } else if (atype == 0x04) {
+      // IPv6 address
       len = 16;
-      addr = this.inbuf.slice(4, 20).map(i => i.toString(16)).join(":");
+      addr = this.inbuf
+        .slice(4, 20)
+        .map(i => i.toString(16))
+        .join(":");
     }
-    var port = this.inbuf[4 + len] << 8 | this.inbuf[5 + len];
+    var port = (this.inbuf[4 + len] << 8) | this.inbuf[5 + len];
     dump("Requesting " + addr + ":" + port + "\n");
 
     // Map that data to the port we report.
@@ -129,15 +144,22 @@ SocksClient.prototype = {
     dump("This was mapped to " + foundPort + "\n");
 
     if (foundPort !== undefined) {
-      this.write("\x05\x00\x00" + // Header for response
-          "\x04" + "\x00".repeat(15) + "\x01" + // IPv6 address ::1
+      this.write(
+        "\x05\x00\x00" + // Header for response
+        "\x04" +
+        "\x00".repeat(15) +
+        "\x01" + // IPv6 address ::1
           String.fromCharCode(foundPort >> 8) +
           String.fromCharCode(foundPort & 0xff) // Port number
       );
     } else {
-      this.write("\x05\x05\x00" + // Header for failed response
-          "\x04" + "\x00".repeat(15) + "\x01" + // IPv6 address ::1
-          "\x00\x00");
+      this.write(
+        "\x05\x05\x00" + // Header for failed response
+        "\x04" +
+        "\x00".repeat(15) +
+        "\x01" + // IPv6 address ::1
+          "\x00\x00"
+      );
       this.close();
       return;
     }
@@ -145,8 +167,9 @@ SocksClient.prototype = {
     // At this point, we contact the local server on that port and then we feed
     // the data back and forth. Easiest way to do that is to open the connection
     // and use the async copy to do it in a background thread.
-    let sts = Cc["@mozilla.org/network/socket-transport-service;1"]
-                .getService(Ci.nsISocketTransportService);
+    let sts = Cc["@mozilla.org/network/socket-transport-service;1"].getService(
+      Ci.nsISocketTransportService
+    );
     let trans = sts.createTransport([], "localhost", foundPort, null);
     let tunnelInput = trans.openInputStream(0, 1024, 1024);
     let tunnelOutput = trans.openOutputStream(0, 1024, 1024);
@@ -158,8 +181,9 @@ SocksClient.prototype = {
   close() {
     this.client_in.close();
     this.client_out.close();
-    if (this.sub_transport)
+    if (this.sub_transport) {
       this.sub_transport.close(Cr.NS_OK);
+    }
   },
 };
 
@@ -181,11 +205,12 @@ SocksTestServer.prototype = {
     this.client_connections.push(client);
   },
 
-  onStopListening(socket) { },
+  onStopListening(socket) {},
 
   close() {
-    for (let client of this.client_connections)
+    for (let client of this.client_connections) {
       client.close();
+    }
     this.client_connections = [];
     if (this.listener) {
       this.listener.close();
@@ -229,14 +254,25 @@ var NetworkTestUtils = {
       */
 
       // Until then, we'll serve the actual proxy via a proxy filter.
-      let pps = Cc["@mozilla.org/network/protocol-proxy-service;1"]
-                  .getService(Ci.nsIProtocolProxyService);
+      let pps = Cc["@mozilla.org/network/protocol-proxy-service;1"].getService(
+        Ci.nsIProtocolProxyService
+      );
       let filter = {
         QueryInterface: ChromeUtils.generateQI([Ci.nsIProtocolProxyFilter]),
         applyFilter(aProxyService, aURI, aProxyInfo, aCallback) {
           if (aURI.host != "localhost" && aURI.host != "127.0.0.1") {
-            aCallback.onProxyFilterResult(pps.newProxyInfo("socks", "localhost", gSocksServer.port,
-              "", "", Ci.nsIProxyInfo.TRANSPARENT_PROXY_RESOLVES_HOST, 0, null));
+            aCallback.onProxyFilterResult(
+              pps.newProxyInfo(
+                "socks",
+                "localhost",
+                gSocksServer.port,
+                "",
+                "",
+                Ci.nsIProxyInfo.TRANSPARENT_PROXY_RESOLVES_HOST,
+                0,
+                null
+              )
+            );
             return;
           }
           aCallback.onProxyFilterResult(aProxyInfo);
@@ -252,7 +288,8 @@ var NetworkTestUtils = {
    * Turn off any servers started by this file (e.g., the SOCKS proxy server).
    */
   shutdownServers() {
-    if (gSocksServer)
+    if (gSocksServer) {
       gSocksServer.close();
+    }
   },
 };

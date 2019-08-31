@@ -5,7 +5,9 @@
  * Test code <copied from="test_pop3AuthMethods.js">
  */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var server;
 var kAuthSchemes;
@@ -24,41 +26,51 @@ var AUTHPLAIN = "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kPassword);
 
 var tests = [
   {
-    title: "Cleartext password, with server supporting AUTH PLAIN, LOGIN, and CRAM",
+    title:
+      "Cleartext password, with server supporting AUTH PLAIN, LOGIN, and CRAM",
     clientAuthMethod: Ci.nsMsgAuthMethod.passwordCleartext,
-    serverAuthMethods: [ "PLAIN", "LOGIN", "CRAM-MD5" ],
+    serverAuthMethods: ["PLAIN", "LOGIN", "CRAM-MD5"],
     expectSuccess: true,
-    transaction: [ "EHLO test", AUTHPLAIN, MAILFROM, RCPTTO, "DATA" ],
-  }, {
+    transaction: ["EHLO test", AUTHPLAIN, MAILFROM, RCPTTO, "DATA"],
+  },
+  {
     title: "Cleartext password, with server only supporting AUTH LOGIN",
     clientAuthMethod: Ci.nsMsgAuthMethod.passwordCleartext,
-    serverAuthMethods: [ "LOGIN" ],
+    serverAuthMethods: ["LOGIN"],
     expectSuccess: true,
-    transaction: [ "EHLO test", "AUTH LOGIN", MAILFROM, RCPTTO, "DATA" ],
-  }, {
-    title: "Encrypted password, with server supporting AUTH PLAIN, LOGIN and CRAM",
+    transaction: ["EHLO test", "AUTH LOGIN", MAILFROM, RCPTTO, "DATA"],
+  },
+  {
+    title:
+      "Encrypted password, with server supporting AUTH PLAIN, LOGIN and CRAM",
     clientAuthMethod: Ci.nsMsgAuthMethod.passwordEncrypted,
-    serverAuthMethods: [ "PLAIN", "LOGIN", "CRAM-MD5" ],
+    serverAuthMethods: ["PLAIN", "LOGIN", "CRAM-MD5"],
     expectSuccess: true,
-    transaction: [ "EHLO test", "AUTH CRAM-MD5", MAILFROM, RCPTTO, "DATA" ],
-  }, {
-    title: "Encrypted password, with server only supporting AUTH PLAIN (must fail)",
+    transaction: ["EHLO test", "AUTH CRAM-MD5", MAILFROM, RCPTTO, "DATA"],
+  },
+  {
+    title:
+      "Encrypted password, with server only supporting AUTH PLAIN (must fail)",
     clientAuthMethod: Ci.nsMsgAuthMethod.passwordEncrypted,
-    serverAuthMethods: [ "PLAIN" ],
+    serverAuthMethods: ["PLAIN"],
     expectSuccess: false,
-    transaction: [ "EHLO test"],
-  }, {
-    title: "Any secure method, with server supporting AUTH PLAIN, LOGIN and CRAM",
+    transaction: ["EHLO test"],
+  },
+  {
+    title:
+      "Any secure method, with server supporting AUTH PLAIN, LOGIN and CRAM",
     clientAuthMethod: Ci.nsMsgAuthMethod.secure,
-    serverAuthMethods: [ "PLAIN", "LOGIN", "CRAM-MD5" ],
+    serverAuthMethods: ["PLAIN", "LOGIN", "CRAM-MD5"],
     expectSuccess: true,
-    transaction: [ "EHLO test", "AUTH CRAM-MD5", MAILFROM, RCPTTO, "DATA" ],
-  }, {
-    title: "Any secure method, with server only supporting AUTH PLAIN (must fail)",
+    transaction: ["EHLO test", "AUTH CRAM-MD5", MAILFROM, RCPTTO, "DATA"],
+  },
+  {
+    title:
+      "Any secure method, with server only supporting AUTH PLAIN (must fail)",
     clientAuthMethod: Ci.nsMsgAuthMethod.secure,
-    serverAuthMethods: [ "PLAIN" ],
+    serverAuthMethods: ["PLAIN"],
     expectSuccess: false,
-    transaction: [ "EHLO test" ],
+    transaction: ["EHLO test"],
   },
 ];
 
@@ -73,15 +85,24 @@ function nextTest() {
   test = curTest.title;
   dump("NEXT test: " + curTest.title + "\n");
 
-
   // Adapt to curTest
   kAuthSchemes = curTest.serverAuthMethods;
   smtpServer.authMethod = curTest.clientAuthMethod;
 
   // Run test
-  MailServices.smtp.sendMailMessage(testFile, kTo, identity, kSender,
-                                    null, null, null, null,
-                                    false, {}, {});
+  MailServices.smtp.sendMailMessage(
+    testFile,
+    kTo,
+    identity,
+    kSender,
+    null,
+    null,
+    null,
+    null,
+    false,
+    {},
+    {}
+  );
   server.performTest();
 
   do_check_transaction(server.playTransaction(), curTest.transaction);
@@ -123,13 +144,13 @@ function run_test() {
 }
 
 function endTest() {
-    dump("endTest()\n");
-    server.stop();
+  dump("endTest()\n");
+  server.stop();
 
-    dump("emptying event loop\n");
-    var thread = gThreadManager.currentThread;
-    while (thread.hasPendingEvents()) {
-        dump("next event\n");
-      thread.processNextEvent(true);
-    }
+  dump("emptying event loop\n");
+  var thread = gThreadManager.currentThread;
+  while (thread.hasPendingEvents()) {
+    dump("next event\n");
+    thread.processNextEvent(true);
+  }
 }

@@ -14,13 +14,16 @@ load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/POP3pump.js");
 
-var {fixIterator, toXPCOMArray} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { fixIterator, toXPCOMArray } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var gEmptyLocal1, gEmptyLocal2;
 var gMessages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-var gFiles = ["../../../data/bugmail1",
-              "../../../data/draft1"];
+var gFiles = ["../../../data/bugmail1", "../../../data/draft1"];
 
 var tests = [
   setup,
@@ -29,7 +32,13 @@ var tests = [
     let folders = [];
     folders.push(gEmptyLocal1.QueryInterface(Ci.nsIMsgFolder));
     let array = toXPCOMArray(folders, Ci.nsIMutableArray);
-    MailServices.copy.CopyFolders(array, IMAPPump.inbox, false, CopyListener, null);
+    MailServices.copy.CopyFolders(
+      array,
+      IMAPPump.inbox,
+      false,
+      CopyListener,
+      null
+    );
     yield false;
   },
   function* copyFolder2() {
@@ -37,7 +46,13 @@ var tests = [
     let folders = [];
     folders.push(gEmptyLocal2);
     let array = toXPCOMArray(folders, Ci.nsIMutableArray);
-    MailServices.copy.CopyFolders(array, IMAPPump.inbox, false, CopyListener, null);
+    MailServices.copy.CopyFolders(
+      array,
+      IMAPPump.inbox,
+      false,
+      CopyListener,
+      null
+    );
     yield false;
   },
   function* getLocalMessages() {
@@ -64,12 +79,16 @@ var tests = [
     yield false;
   },
   function* update1() {
-    let folder1 = IMAPPump.inbox.getChildNamed("empty 1").QueryInterface(Ci.nsIMsgImapMailFolder);
+    let folder1 = IMAPPump.inbox
+      .getChildNamed("empty 1")
+      .QueryInterface(Ci.nsIMsgImapMailFolder);
     folder1.updateFolderWithListener(null, asyncUrlListener);
     yield false;
   },
   function* update2() {
-    let folder2 = IMAPPump.inbox.getChildNamed("empty 2").QueryInterface(Ci.nsIMsgImapMailFolder);
+    let folder2 = IMAPPump.inbox
+      .getChildNamed("empty 2")
+      .QueryInterface(Ci.nsIMsgImapMailFolder);
     folder2.updateFolderWithListener(null, asyncUrlListener);
     yield false;
   },

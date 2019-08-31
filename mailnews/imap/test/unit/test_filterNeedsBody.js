@@ -55,8 +55,9 @@ function setup() {
 // basic preparation done for each test
 async function runFilterAction() {
   let filterList = IMAPPump.incomingServer.getFilterList(null);
-  while (filterList.filterCount)
+  while (filterList.filterCount) {
     filterList.removeFilterAt(0);
+  }
   if (gFilter) {
     gFilter.clearActionList();
     if (gAction) {
@@ -64,8 +65,9 @@ async function runFilterAction() {
       filterList.insertFilterAt(0, gFilter);
     }
   }
-  IMAPPump.mailbox.addMessage(new imapMessage(specForFileName(gMessage),
-                              IMAPPump.mailbox.uidnext++, []));
+  IMAPPump.mailbox.addMessage(
+    new imapMessage(specForFileName(gMessage), IMAPPump.mailbox.uidnext++, [])
+  );
   let listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
   await listener.promise;
@@ -87,9 +89,13 @@ var actionTestOffline = {
       Assert.equal(!!isOffline, aActionValue == "true");
     }
   },
-  isValidForType(type, scope) { return true; },
+  isValidForType(type, scope) {
+    return true;
+  },
 
-  validateActionValue(value, folder, type) { return null; },
+  validateActionValue(value, folder, type) {
+    return null;
+  },
 
   allowDuplicates: false,
 

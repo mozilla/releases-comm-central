@@ -9,8 +9,9 @@ this.EXPORTED_SYMBOLS = ["SuffixTree", "MultiSuffixTree"];
  *  correspond to, build a suffix tree.
  */
 function MultiSuffixTree(aStrings, aItems) {
-  if (aStrings.length != aItems.length)
+  if (aStrings.length != aItems.length) {
     throw new Error("Array lengths need to be the same.");
+  }
 
   let s = "";
   let offsetsToItems = [];
@@ -53,11 +54,11 @@ if (dump === undefined) {
 State.prototype = {
   get isExplicit() {
     // our end is not inclusive...
-    return (this.end <= this.start);
+    return this.end <= this.start;
   },
   get isImplicit() {
     // our end is not inclusive...
-    return (this.end > this.start);
+    return this.end > this.start;
   },
 
   get length() {
@@ -65,8 +66,13 @@ State.prototype = {
   },
 
   toString() {
-    return "[Start: " + this.start + " End: " + this.end +
-           (this.suffix ? " non-null suffix]" : " null suffix]");
+    return (
+      "[Start: " +
+      this.start +
+      " End: " +
+      this.end +
+      (this.suffix ? " non-null suffix]" : " null suffix]")
+    );
   },
 };
 
@@ -93,16 +99,18 @@ SuffixTree.prototype = {
     while (index < end) {
       state = state[aSubstring[index]];
       // bail if there was no edge
-      if (state === undefined)
+      if (state === undefined) {
         return results;
+      }
       // bail if the portion of the edge we traversed is not equal to that
       //  portion of our pattern
-      let actualTraverseLength = Math.min(state.length,
-                                          end - index);
-      if (this._str.substring(state.start,
-                              state.start + actualTraverseLength) !=
-          aSubstring.substring(index, index + actualTraverseLength))
+      let actualTraverseLength = Math.min(state.length, end - index);
+      if (
+        this._str.substring(state.start, state.start + actualTraverseLength) !=
+        aSubstring.substring(index, index + actualTraverseLength)
+      ) {
         return results;
+      }
       index += state.length;
     }
 
@@ -127,7 +135,14 @@ SuffixTree.prototype = {
     return results;
   },
 
-  _resultGather(aState, aResults, aPresence, aPatLength, aDelta, alreadyAdjusted) {
+  _resultGather(
+    aState,
+    aResults,
+    aPresence,
+    aPatLength,
+    aDelta,
+    alreadyAdjusted
+  ) {
     // find the item that this state originated from based on the state's
     //  start character.  offsetToItem holds [string start index, string end
     //  index (exclusive), item reference].  So we want to binary search to
@@ -163,20 +178,20 @@ SuffixTree.prototype = {
     //   serving as a unique terminal.
     // - The
 
-  let patternFirst = patternLast - (aPatLength - 1);
+    let patternFirst = patternLast - (aPatLength - 1);
 
-  if (patternFirst >= stringStart) {
-    if (!(stringStart in aPresence)) {
-      aPresence[stringStart] = true;
-      aResults.push(this._offsetsToItems[mid * 3 + 2]);
+    if (patternFirst >= stringStart) {
+      if (!(stringStart in aPresence)) {
+        aPresence[stringStart] = true;
+        aResults.push(this._offsetsToItems[mid * 3 + 2]);
+      }
     }
-  }
 
     // bail if we had it coming OR
     // if the result terminates at/part-way through this state, meaning any
     //  of its children are not going to be actual results, just hangers
     //  on.
-/*
+    /*
     if (bail || (end <= aState.end)) {
 dump("  bailing! (bail was: " + bail + ")\n");
       return;
@@ -187,9 +202,14 @@ dump("  bailing! (bail was: " + bail + ")\n");
       // edges have attributes of length 1...
       if (key.length == 1) {
         let statePrime = aState[key];
-        this._resultGather(statePrime, aResults, aPresence, aPatLength,
-                           aDelta + aState.length, // (alreadyAdjusted ? 0 : aState.length),
-                           false);
+        this._resultGather(
+          statePrime,
+          aResults,
+          aPresence,
+          aPatLength,
+          aDelta + aState.length, // (alreadyAdjusted ? 0 : aState.length),
+          false
+        );
       }
     }
   },
@@ -213,11 +233,13 @@ dump("  bailing! (bail was: " + bail + ")\n");
     // we treat an aState of null as 'bottom', which has transitions for every
     //  letter in the alphabet to 'root'.  rather than create all those
     //  transitions, we special-case here.
-    if (aState === null)
+    if (aState === null) {
       statePrime = this._root;
-    else
+    } else {
       statePrime = aState[this._str[aStart]];
-    while (statePrime.length <= aEnd - aStart) { // (no 1 adjustment required)
+    }
+    while (statePrime.length <= aEnd - aStart) {
+      // (no 1 adjustment required)
       aStart += statePrime.length;
       aState = statePrime;
       if (aStart < aEnd) {
@@ -236,7 +258,8 @@ dump("  bailing! (bail was: " + bail + ")\n");
    *    new explicit state.
    */
   _testAndSplit(aState, aStart, aEnd, aChar) {
-    if (aStart < aEnd) { // it's not explicit
+    if (aStart < aEnd) {
+      // it's not explicit
       let statePrime = aState[this._str[aStart]];
       let length = aEnd - aStart;
       if (aChar == this._str[statePrime.start + length]) {
@@ -252,10 +275,11 @@ dump("  bailing! (bail was: " + bail + ")\n");
     }
 
     // it's already explicit
-    if (aState === null) { // bottom case... shouldn't happen, but hey.
+    if (aState === null) {
+      // bottom case... shouldn't happen, but hey.
       return [true, aState];
     }
-    return [(aChar in aState), aState];
+    return [aChar in aState, aState];
   },
 
   _update(aState, aStart, aIndex) {
@@ -263,20 +287,30 @@ dump("  bailing! (bail was: " + bail + ")\n");
     let textAtIndex = this._str[aIndex]; // T sub i (0-based corrected...)
     // because of the way we store the 'end' value as a one-past form, we do
     //  not need to subtract 1 off of aIndex.
-    let [endPoint, rState] = this._testAndSplit(aState, aStart, aIndex, // no -1
-                                                textAtIndex);
+    let [endPoint, rState] = this._testAndSplit(
+      aState,
+      aStart,
+      aIndex, // no -1
+      textAtIndex
+    );
     while (!endPoint) {
       let rPrime = new State(aIndex, this._infinity);
       rState[textAtIndex] = rPrime;
-      if (oldR !== this._root)
+      if (oldR !== this._root) {
         oldR.suffix = rState;
+      }
       oldR = rState;
       [aState, aStart] = this._canonize(aState.suffix, aStart, aIndex); // no -1
-      [endPoint, rState] = this._testAndSplit(aState, aStart, aIndex, // no -1
-                                              textAtIndex);
+      [endPoint, rState] = this._testAndSplit(
+        aState,
+        aStart,
+        aIndex, // no -1
+        textAtIndex
+      );
     }
-    if (oldR !== this._root)
+    if (oldR !== this._root) {
       oldR.suffix = aState;
+    }
 
     return [aState, aStart];
   },
@@ -298,8 +332,9 @@ dump("  bailing! (bail was: " + bail + ")\n");
   },
 
   dump(aState, aIndent, aKey) {
-    if (aState === undefined)
+    if (aState === undefined) {
       aState = this._root;
+    }
     if (aIndent === undefined) {
       aIndent = "";
       aKey = ".";
@@ -308,16 +343,38 @@ dump("  bailing! (bail was: " + bail + ")\n");
     if (aState.isImplicit) {
       let snip;
       if (aState.length > 10) {
-        snip = this._str.slice(aState.start,
-                               Math.min(aState.start + 10, this._str.length)) + "...";
+        snip =
+          this._str.slice(
+            aState.start,
+            Math.min(aState.start + 10, this._str.length)
+          ) + "...";
       } else {
-        snip =  this._str.slice(aState.start,
-                                Math.min(aState.end, this._str.length));
+        snip = this._str.slice(
+          aState.start,
+          Math.min(aState.end, this._str.length)
+        );
       }
-      dump(aIndent + aKey + ":" + snip + "(" +
-           aState.start + ":" + aState.end + ")\n");
+      dump(
+        aIndent +
+          aKey +
+          ":" +
+          snip +
+          "(" +
+          aState.start +
+          ":" +
+          aState.end +
+          ")\n"
+      );
     } else {
-      dump(aIndent + aKey + ": (explicit:" + aState.start + ":" + aState.end + ")\n");
+      dump(
+        aIndent +
+          aKey +
+          ": (explicit:" +
+          aState.start +
+          ":" +
+          aState.end +
+          ")\n"
+      );
     }
     let nextIndent = aIndent + "  ";
     let keys = Object.keys(aState).filter(c => c.length == 1);
@@ -329,9 +386,18 @@ dump("  bailing! (bail was: " + bail + ")\n");
 MultiSuffixTree.prototype = SuffixTree.prototype;
 
 function examplar() {
-  let names = ["AndrewSmith", "AndrewJones", "MarkSmith", "BryanClark",
-               "MarthaJones", "DavidAscher", "DanMosedale", "DavidBienvenu",
-               "JanetDavis", "JosephBryant"];
+  let names = [
+    "AndrewSmith",
+    "AndrewJones",
+    "MarkSmith",
+    "BryanClark",
+    "MarthaJones",
+    "DavidAscher",
+    "DanMosedale",
+    "DavidBienvenu",
+    "JanetDavis",
+    "JosephBryant",
+  ];
   let b = new MultiSuffixTree(names, names);
   b.dump();
   dump(b.findMatches("rya") + "\n");

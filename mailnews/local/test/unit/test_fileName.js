@@ -40,35 +40,42 @@ function run_test() {
   // contents of the Local Folders dir we've already pre-populated.
   Services.prefs.setCharPref("mail.account.account1.server", "server1");
   Services.prefs.setCharPref("mail.account.account2.server", "server2");
-  Services.prefs.setCharPref("mail.accountmanager.accounts",
-                             "account1,account2");
-  Services.prefs.setCharPref("mail.accountmanager.localfoldersserver",
-                             "server1");
-  Services.prefs.setCharPref("mail.accountmanager.defaultaccount",
-                             "account1");
-  Services.prefs.setCharPref("mail.server.server1.directory-rel",
-                             "[ProfD]Mail/Local Folders");
-  Services.prefs.setCharPref("mail.server.server1.hostname",
-                             "Local Folders");
+  Services.prefs.setCharPref(
+    "mail.accountmanager.accounts",
+    "account1,account2"
+  );
+  Services.prefs.setCharPref(
+    "mail.accountmanager.localfoldersserver",
+    "server1"
+  );
+  Services.prefs.setCharPref("mail.accountmanager.defaultaccount", "account1");
+  Services.prefs.setCharPref(
+    "mail.server.server1.directory-rel",
+    "[ProfD]Mail/Local Folders"
+  );
+  Services.prefs.setCharPref("mail.server.server1.hostname", "Local Folders");
   Services.prefs.setCharPref("mail.server.server1.name", "Local Folders");
   Services.prefs.setCharPref("mail.server.server1.type", "none");
   Services.prefs.setCharPref("mail.server.server1.userName", "nobody");
-  Services.prefs.setCharPref("mail.server.server2.directory-rel",
-                             "[ProfD]Mail/poptest");
+  Services.prefs.setCharPref(
+    "mail.server.server2.directory-rel",
+    "[ProfD]Mail/poptest"
+  );
   Services.prefs.setCharPref("mail.server.server2.hostname", "poptest");
   Services.prefs.setCharPref("mail.server.server2.name", "poptest");
   Services.prefs.setCharPref("mail.server.server2.type", "pop3");
   Services.prefs.setCharPref("mail.server.server2.userName", "user");
   // This basically says to ignore the time stamp in the .msf file
-  Services.prefs.setIntPref("mail.db_timestamp_leeway", 0x7FFFFFFF);
+  Services.prefs.setIntPref("mail.db_timestamp_leeway", 0x7fffffff);
 
   localAccountUtils.incomingServer = MailServices.accounts.localFoldersServer;
   // force load of accounts.
   MailServices.accounts.defaultAccount;
 
   let pop3Server = MailServices.accounts.FindServer("user", "poptest", "pop3");
-  let rootFolder = localAccountUtils.incomingServer.rootMsgFolder
-                                    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  let rootFolder = localAccountUtils.incomingServer.rootMsgFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
   let pop3Root = pop3Server.rootMsgFolder;
 
   // Note: Inbox is not created automatically when there is no deferred server,

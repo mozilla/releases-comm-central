@@ -19,107 +19,134 @@ document.addEventListener("dialogcancel", onCancel);
 
 // all progress notifications are done through the nsIWebProgressListener implementation...
 var progressListener = {
-    onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
-      if (aStateFlags & Ci.nsIWebProgressListener.STATE_START) {
-        // Set no value to progress meter when undetermined.
-        dialog.progress.removeAttribute("value");
-      }
+  onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
+    if (aStateFlags & Ci.nsIWebProgressListener.STATE_START) {
+      // Set no value to progress meter when undetermined.
+      dialog.progress.removeAttribute("value");
+    }
 
-      if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
-        // we are done sending/saving the message...
-        // Indicate completion in status area.
-        var msg;
-        if (itsASaveOperation)
-          msg = gSendProgressStringBundle.getString("messageSaved");
-        else
-          msg = gSendProgressStringBundle.getString("messageSent");
-        dialog.status.setAttribute("value", msg);
-
-        // Put progress meter at 100%.
-        dialog.progress.setAttribute("value", 100);
-        var percentMsg = gSendProgressStringBundle.getFormattedString("percentMsg", [100]);
-        dialog.progressText.setAttribute("value", percentMsg);
-
-        window.close();
-      }
-    },
-
-    onProgressChange(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) {
-      // Calculate percentage.
-      var percent;
-      if (aMaxTotalProgress > 0) {
-        percent = Math.round(aCurTotalProgress / aMaxTotalProgress * 100);
-        if (percent > 100)
-          percent = 100;
-
-        // Advance progress meter.
-        dialog.progress.value = percent;
-
-        // Update percentage label on progress meter.
-        var percentMsg = gSendProgressStringBundle.getFormattedString("percentMsg", [percent]);
-        dialog.progressText.value = percentMsg;
+    if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
+      // we are done sending/saving the message...
+      // Indicate completion in status area.
+      var msg;
+      if (itsASaveOperation) {
+        msg = gSendProgressStringBundle.getString("messageSaved");
       } else {
-        // Progress meter should show no value in this case.
-        dialog.progress.removeAttribute("value");
+        msg = gSendProgressStringBundle.getString("messageSent");
       }
-    },
+      dialog.status.setAttribute("value", msg);
 
-    onLocationChange(aWebProgress, aRequest, aLocation, aFlags) {
-      // we can ignore this notification
-    },
+      // Put progress meter at 100%.
+      dialog.progress.setAttribute("value", 100);
+      var percentMsg = gSendProgressStringBundle.getFormattedString(
+        "percentMsg",
+        [100]
+      );
+      dialog.progressText.setAttribute("value", percentMsg);
 
-    onStatusChange(aWebProgress, aRequest, aStatus, aMessage) {
-      if (aMessage != "")
-        dialog.status.setAttribute("value", aMessage);
-    },
+      window.close();
+    }
+  },
 
-    onSecurityChange(aWebProgress, aRequest, state) {
-      // we can ignore this notification
-    },
+  onProgressChange(
+    aWebProgress,
+    aRequest,
+    aCurSelfProgress,
+    aMaxSelfProgress,
+    aCurTotalProgress,
+    aMaxTotalProgress
+  ) {
+    // Calculate percentage.
+    var percent;
+    if (aMaxTotalProgress > 0) {
+      percent = Math.round((aCurTotalProgress / aMaxTotalProgress) * 100);
+      if (percent > 100) {
+        percent = 100;
+      }
 
-    onContentBlockingEvent(aWebProgress, aRequest, aEvent) {
-      // we can ignore this notification
-    },
+      // Advance progress meter.
+      dialog.progress.value = percent;
 
-    QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener",
-                                            "nsISupportsWeakReference"]),
+      // Update percentage label on progress meter.
+      var percentMsg = gSendProgressStringBundle.getFormattedString(
+        "percentMsg",
+        [percent]
+      );
+      dialog.progressText.value = percentMsg;
+    } else {
+      // Progress meter should show no value in this case.
+      dialog.progress.removeAttribute("value");
+    }
+  },
+
+  onLocationChange(aWebProgress, aRequest, aLocation, aFlags) {
+    // we can ignore this notification
+  },
+
+  onStatusChange(aWebProgress, aRequest, aStatus, aMessage) {
+    if (aMessage != "") {
+      dialog.status.setAttribute("value", aMessage);
+    }
+  },
+
+  onSecurityChange(aWebProgress, aRequest, state) {
+    // we can ignore this notification
+  },
+
+  onContentBlockingEvent(aWebProgress, aRequest, aEvent) {
+    // we can ignore this notification
+  },
+
+  QueryInterface: ChromeUtils.generateQI([
+    "nsIWebProgressListener",
+    "nsISupportsWeakReference",
+  ]),
 };
 
 function onLoad() {
-    // Set global variables.
-    let subject = "";
-    gSendProgressStringBundle = document.getElementById("sendProgressStringBundle");
+  // Set global variables.
+  let subject = "";
+  gSendProgressStringBundle = document.getElementById(
+    "sendProgressStringBundle"
+  );
 
-    msgProgress = window.arguments[0];
-    if (!msgProgress) {
-      Cu.reportError("Invalid argument to sendProgress.xul.");
-      window.close();
-      return;
+  msgProgress = window.arguments[0];
+  if (!msgProgress) {
+    Cu.reportError("Invalid argument to sendProgress.xul.");
+    window.close();
+    return;
+  }
+
+  if (window.arguments[1]) {
+    let progressParams = window.arguments[1].QueryInterface(
+      Ci.nsIMsgComposeProgressParams
+    );
+    if (progressParams) {
+      itsASaveOperation =
+        progressParams.deliveryMode != nsIMsgCompDeliverMode.Now;
+      subject = progressParams.subject;
     }
+  }
 
-    if (window.arguments[1]) {
-      let progressParams = window.arguments[1].QueryInterface(Ci.nsIMsgComposeProgressParams);
-      if (progressParams) {
-        itsASaveOperation = (progressParams.deliveryMode != nsIMsgCompDeliverMode.Now);
-        subject = progressParams.subject;
-      }
-    }
+  if (subject) {
+    let title = itsASaveOperation
+      ? "titleSaveMsgSubject"
+      : "titleSendMsgSubject";
+    document.title = gSendProgressStringBundle.getFormattedString(title, [
+      subject,
+    ]);
+  } else {
+    let title = itsASaveOperation ? "titleSaveMsg" : "titleSendMsg";
+    document.title = gSendProgressStringBundle.getString(title);
+  }
 
-    if (subject) {
-      let title = itsASaveOperation ? "titleSaveMsgSubject" : "titleSendMsgSubject";
-      document.title = gSendProgressStringBundle.getFormattedString(title, [subject]);
-    } else {
-      let title = itsASaveOperation ? "titleSaveMsg" : "titleSendMsg";
-      document.title = gSendProgressStringBundle.getString(title);
-    }
+  dialog = {};
+  dialog.status = document.getElementById("dialog.status");
+  dialog.progress = document.getElementById("dialog.progress");
+  dialog.progressText = document.getElementById("dialog.progressText");
 
-    dialog = {};
-    dialog.status       = document.getElementById("dialog.status");
-    dialog.progress     = document.getElementById("dialog.progress");
-    dialog.progressText = document.getElementById("dialog.progressText");
-
-    // set our web progress listener on the helper app launcher
-    msgProgress.registerListener(progressListener);
+  // set our web progress listener on the helper app launcher
+  msgProgress.registerListener(progressListener);
 }
 
 function onUnload() {

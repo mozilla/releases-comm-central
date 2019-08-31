@@ -3,8 +3,10 @@
  * Test for bug 235432
  */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var testmail = do_get_file("data/message1.eml");
 var expectedTemporaryFile;
@@ -12,8 +14,9 @@ var expectedTemporaryFile;
 var kSender = "from@foo.invalid";
 var kTo = "to@foo.invalid";
 
-var msgSend = Cc["@mozilla.org/messengercompose/send;1"]
-                .createInstance(Ci.nsIMsgSend);
+var msgSend = Cc["@mozilla.org/messengercompose/send;1"].createInstance(
+  Ci.nsIMsgSend
+);
 
 var gCopyListener = {
   callbackFunction: null,
@@ -30,9 +33,10 @@ var gCopyListener = {
   GetMessageId(aMessageId) {},
   OnStopCopy(aStatus) {
     if (this.callbackFunction) {
-      mailTestUtils.do_timeout_function(0, this.callbackFunction,
-                                        null,
-                                        [ this.copiedMessageHeaderKeys, aStatus ]);
+      mailTestUtils.do_timeout_function(0, this.callbackFunction, null, [
+        this.copiedMessageHeaderKeys,
+        aStatus,
+      ]);
     }
   },
 };
@@ -51,23 +55,28 @@ var gCopyListener = {
  * @param aCallback        Callback function which will be invoked after
  *                         message is copied
  */
-function copyFileMessageInLocalFolder(aMessageFile,
-                                      aMessageFlags,
-                                      aMessageKeywords,
-                                      aMessageWindow,
-                                      aCallback) {
+function copyFileMessageInLocalFolder(
+  aMessageFile,
+  aMessageFlags,
+  aMessageKeywords,
+  aMessageWindow,
+  aCallback
+) {
   // Set up local folders
   localAccountUtils.loadLocalMailAccount();
 
   gCopyListener.callbackFunction = aCallback;
   // Copy a message into the local folder
-  MailServices.copy.CopyFileMessage(aMessageFile,
-                                    localAccountUtils.inboxFolder,
-                                    null, false,
-                                    aMessageFlags,
-                                    aMessageKeywords,
-                                    gCopyListener,
-                                    aMessageWindow);
+  MailServices.copy.CopyFileMessage(
+    aMessageFile,
+    localAccountUtils.inboxFolder,
+    null,
+    false,
+    aMessageFlags,
+    aMessageKeywords,
+    gCopyListener,
+    aMessageWindow
+  );
 }
 
 // The attachment file can not be obtained from js test,
@@ -89,10 +98,9 @@ function createExpectedTemporaryFile() {
   expectedFile.remove(false);
 
   return expectedFile;
-}
+} // for head_compose.js
 
-/* exported OnStopCopy */// for head_compose.js
-function OnStopCopy(aStatus) {
+/* exported OnStopCopy */ function OnStopCopy(aStatus) {
   msgSend.abort();
 
   Assert.ok(!expectedTemporaryFile.exists());
@@ -106,10 +114,12 @@ function run_test() {
 }
 
 function send_message_later(aMessageHeaderKeys, aStatus) {
-  let compFields = Cc["@mozilla.org/messengercompose/composefields;1"]
-                     .createInstance(Ci.nsIMsgCompFields);
-  let params = Cc["@mozilla.org/messengercompose/composeparams;1"]
-                 .createInstance(Ci.nsIMsgComposeParams);
+  let compFields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
+  let params = Cc[
+    "@mozilla.org/messengercompose/composeparams;1"
+  ].createInstance(Ci.nsIMsgComposeParams);
   params.composeFields = compFields;
   localAccountUtils.rootFolder.createLocalSubfolder("Drafts");
 
@@ -119,34 +129,39 @@ function send_message_later(aMessageHeaderKeys, aStatus) {
   compFields.from = identity.email;
   compFields.to = kTo;
 
-  let msgHdr = localAccountUtils.inboxFolder.GetMessageHeader(aMessageHeaderKeys[0]);
+  let msgHdr = localAccountUtils.inboxFolder.GetMessageHeader(
+    aMessageHeaderKeys[0]
+  );
   let messageUri = localAccountUtils.inboxFolder.getUriForMsg(msgHdr);
 
-  let attachment = Cc["@mozilla.org/messengercompose/attachment;1"]
-                     .createInstance(Ci.nsIMsgAttachment);
+  let attachment = Cc[
+    "@mozilla.org/messengercompose/attachment;1"
+  ].createInstance(Ci.nsIMsgAttachment);
   attachment.url = messageUri;
   attachment.contentType = "message/rfc822";
   attachment.name = "Attachment e-mail";
   compFields.addAttachment(attachment);
 
   expectedTemporaryFile = createExpectedTemporaryFile();
-  msgSend.createAndSendMessage(null,
-                               identity,
-                               "",
-                               compFields,
-                               false,
-                               false,
-                               Ci.nsIMsgSend.nsMsgQueueForLater,
-                               null,
-                               "text/plain",
-                               "bodyText\n",
-                               null,
-                               null,
-                               null,
-                               null,
-                               copyListener,
-                               null,
-                               "",
-                               Ci.nsIMsgCompType.New);
+  msgSend.createAndSendMessage(
+    null,
+    identity,
+    "",
+    compFields,
+    false,
+    false,
+    Ci.nsIMsgSend.nsMsgQueueForLater,
+    null,
+    "text/plain",
+    "bodyText\n",
+    null,
+    null,
+    null,
+    null,
+    copyListener,
+    null,
+    "",
+    Ci.nsIMsgCompType.New
+  );
   Assert.ok(expectedTemporaryFile.exists());
 }

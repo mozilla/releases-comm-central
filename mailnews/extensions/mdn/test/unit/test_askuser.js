@@ -1,8 +1,8 @@
-
 localAccountUtils.loadLocalMailAccount();
 
-var localAccount = MailServices.accounts
-                               .FindAccountForServer(localAccountUtils.incomingServer);
+var localAccount = MailServices.accounts.FindAccountForServer(
+  localAccountUtils.incomingServer
+);
 var identity = MailServices.accounts.createIdentity();
 identity.email = "bob@t2.example.net";
 localAccount.addIdentity(identity);
@@ -15,14 +15,17 @@ function run_test() {
     "return-path: alice@t1.example.com\r\n" +
     "Disposition-Notification-To: alice@t1.example.com\r\n";
 
-  let mimeHdr = Cc["@mozilla.org/messenger/mimeheaders;1"]
-                  .createInstance(Ci.nsIMimeHeaders);
+  let mimeHdr = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
+    Ci.nsIMimeHeaders
+  );
   mimeHdr.initialize(headers);
   let receivedHeader = mimeHdr.extractHeader("To", false);
   dump(receivedHeader + "\n");
 
   localAccountUtils.inboxFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
-  localAccountUtils.inboxFolder.addMessage("From \r\n" + headers + "\r\nhello\r\n");
+  localAccountUtils.inboxFolder.addMessage(
+    "From \r\n" + headers + "\r\nhello\r\n"
+  );
   // Need to setup some prefs
   Services.prefs.setBoolPref("mail.mdn.report.enabled", true);
   Services.prefs.setIntPref("mail.mdn.report.not_in_to_cc", 2);
@@ -36,16 +39,29 @@ function run_test() {
   var msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
 
   // Everything looks good so far, let's generate the MDN response.
-  var mdnGenerator = Cc["@mozilla.org/messenger-mdn/generator;1"]
-                       .createInstance(Ci.nsIMsgMdnGenerator);
+  var mdnGenerator = Cc[
+    "@mozilla.org/messenger-mdn/generator;1"
+  ].createInstance(Ci.nsIMsgMdnGenerator);
 
   Services.prefs.setIntPref("mail.mdn.report.outside_domain", 1);
-  var askUser = mdnGenerator.process(Ci.nsIMsgMdnGenerator.eDisplayed, msgWindow, msgFolder,
-                                     msgHdr.messageKey, mimeHdr, false);
+  var askUser = mdnGenerator.process(
+    Ci.nsIMsgMdnGenerator.eDisplayed,
+    msgWindow,
+    msgFolder,
+    msgHdr.messageKey,
+    mimeHdr,
+    false
+  );
   Assert.ok(!askUser);
 
   Services.prefs.setIntPref("mail.mdn.report.outside_domain", 2);
-  askUser = mdnGenerator.process(Ci.nsIMsgMdnGenerator.eDisplayed, msgWindow, msgFolder,
-                                 msgHdr.messageKey, mimeHdr, false);
+  askUser = mdnGenerator.process(
+    Ci.nsIMsgMdnGenerator.eDisplayed,
+    msgWindow,
+    msgFolder,
+    msgHdr.messageKey,
+    mimeHdr,
+    false
+  );
   Assert.ok(askUser);
 }

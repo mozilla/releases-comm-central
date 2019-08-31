@@ -40,8 +40,10 @@ function testRFC977() {
     setupProtocolTest(NNTP_PORT, prefix + "test.subscribe.empty");
     server.performTest();
     transaction = server.playTransaction();
-    do_check_transaction(transaction, ["MODE READER",
-      "GROUP test.subscribe.empty"]);
+    do_check_transaction(transaction, [
+      "MODE READER",
+      "GROUP test.subscribe.empty",
+    ]);
 
     // Test - getting an article
     test = "news:MESSAGE_ID";
@@ -49,8 +51,10 @@ function testRFC977() {
     setupProtocolTest(NNTP_PORT, prefix + "TSS1@nntp.invalid");
     server.performTest();
     transaction = server.playTransaction();
-    do_check_transaction(transaction, ["MODE READER",
-        "ARTICLE <TSS1@nntp.invalid>"]);
+    do_check_transaction(transaction, [
+      "MODE READER",
+      "ARTICLE <TSS1@nntp.invalid>",
+    ]);
 
     // Test - news expiration
     test = "news:GROUP?list-ids";
@@ -58,8 +62,7 @@ function testRFC977() {
     setupProtocolTest(NNTP_PORT, prefix + "test.filter?list-ids");
     server.performTest();
     transaction = server.playTransaction();
-    do_check_transaction(transaction, ["MODE READER",
-        "listgroup test.filter"]);
+    do_check_transaction(transaction, ["MODE READER", "listgroup test.filter"]);
 
     // Test - posting
     test = "news with post";
@@ -73,16 +76,18 @@ function testRFC977() {
     dump("NNTP Protocol test " + test + " failed for type RFC 977:\n");
     try {
       var trans = server.playTransaction();
-     if (trans)
+      if (trans) {
         dump("Commands called: " + trans.them + "\n");
+      }
     } catch (exp) {}
     do_throw(e);
   }
   server.stop();
 
   var thread = gThreadManager.currentThread;
-  while (thread.hasPendingEvents())
+  while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
+  }
 }
 
 function testConnectionLimit() {
@@ -106,8 +111,9 @@ function testConnectionLimit() {
   server.stop();
 
   var thread = gThreadManager.currentThread;
-  while (thread.hasPendingEvents())
+  while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
+  }
 }
 
 function testReentrantClose() {
@@ -121,23 +127,30 @@ function testReentrantClose() {
     OnStopRunningUrl(url, rv) {
       // Spin the event loop (entering nsNNTPProtocol::ProcessProtocolState)
       let thread = gThreadManager.currentThread;
-      while (thread.hasPendingEvents())
+      while (thread.hasPendingEvents()) {
         thread.processNextEvent(true);
+      }
     },
   };
   // Nice multi-step command--we can close while executing this URL if we are
   // careful.
-  var url = Services.io.newURI("news://localhost:" + NNTP_PORT +
-    "/test.filter");
+  var url = Services.io.newURI(
+    "news://localhost:" + NNTP_PORT + "/test.filter"
+  );
   url.QueryInterface(Ci.nsIMsgMailNewsUrl);
   url.RegisterListener(listener);
 
   _server.loadNewsUrl(url, null, null);
   server.performTest("GROUP");
   dump("Stopping server\n");
-  gThreadManager.currentThread.dispatch({
-    run() { _server.closeCachedConnections(); },
-  }, Ci.nsIEventTarget.DISPATCH_NORMAL);
+  gThreadManager.currentThread.dispatch(
+    {
+      run() {
+        _server.closeCachedConnections();
+      },
+    },
+    Ci.nsIEventTarget.DISPATCH_NORMAL
+  );
   server.performTest();
   server.stop();
 
@@ -155,14 +168,17 @@ function testManyConnections() {
     ran: 0,
     OnStartRunningUrl(url) {},
     OnStopRunningUrl(url, rv) {
-      if (--(this.ran) == 0)
+      if (--this.ran == 0) {
         _server.closeCachedConnections();
+      }
     },
   };
   let groups = _server.rootFolder.subFolders;
   while (groups.hasMoreElements()) {
-    groups.getNext().QueryInterface(Ci.nsIMsgFolder).getNewMessages(null,
-      listener);
+    groups
+      .getNext()
+      .QueryInterface(Ci.nsIMsgFolder)
+      .getNewMessages(null, listener);
     listener.ran++;
   }
   server.performTest();

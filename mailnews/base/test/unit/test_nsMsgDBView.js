@@ -23,7 +23,9 @@ load("../../../resources/messageGenerator.js");
 load("../../../resources/messageModifier.js");
 load("../../../resources/messageInjection.js");
 
-const {JSTreeSelection} = ChromeUtils.import("resource:///modules/jsTreeSelection.js");
+const { JSTreeSelection } = ChromeUtils.import(
+  "resource:///modules/jsTreeSelection.js"
+);
 
 // Items used to add messages to the folder
 var gMessageGenerator = new MessageGenerator();
@@ -57,14 +59,16 @@ function setup_globals(aNextFunc) {
   //     4
   //    3
   let msg1 = gMessageGenerator.makeMessage();
-  let msg2 = gMessageGenerator.makeMessage({inReplyTo: msg1});
-  let msg3 = gMessageGenerator.makeMessage({inReplyTo: msg1});
-  let msg4 = gMessageGenerator.makeMessage({inReplyTo: msg2});
+  let msg2 = gMessageGenerator.makeMessage({ inReplyTo: msg1 });
+  let msg3 = gMessageGenerator.makeMessage({ inReplyTo: msg1 });
+  let msg4 = gMessageGenerator.makeMessage({ inReplyTo: msg2 });
   messages = messages.concat([msg1, msg2, msg3, msg4]);
 
   // test bug 600140, make a thread that Reply message has smaller MsgKey
   let msgBiggerKey = gMessageGenerator.makeMessage();
-  let msgSmallerKey = gMessageGenerator.makeMessage({inReplyTo: msgBiggerKey});
+  let msgSmallerKey = gMessageGenerator.makeMessage({
+    inReplyTo: msgBiggerKey,
+  });
   messages = messages.concat([msgSmallerKey, msgBiggerKey]);
   let msgSet = new SyntheticMessageSet(messages);
 
@@ -78,12 +82,12 @@ var gCommandUpdater = {
     // when the # of items in the selection has actually changed.
   },
 
-  displayMessageChanged(aFolder, aSubject, aKeywords) {
-  },
+  displayMessageChanged(aFolder, aSubject, aKeywords) {},
 
-  updateNextMessageAfterDelete() {
+  updateNextMessageAfterDelete() {},
+  summarizeSelection() {
+    return false;
   },
-  summarizeSelection() { return false; },
 };
 
 /**
@@ -114,12 +118,14 @@ function dump_view_contents() {
     let flags = gDBView.getFlagsAt(iViewIndex);
 
     let s = WHITESPACE.substr(0, level * 2);
-    if (gTreeView.isContainer(iViewIndex))
+    if (gTreeView.isContainer(iViewIndex)) {
       s += gTreeView.isContainerOpen(iViewIndex) ? "- " : "+ ";
-    else
+    } else {
       s += ". ";
-    if (flags & MSG_VIEW_FLAG_DUMMY)
+    }
+    if (flags & MSG_VIEW_FLAG_DUMMY) {
       s += "dummy: ";
+    }
     s += gDBView.cellTextForColumn(iViewIndex, "subject");
     dump(s + "\n");
   }
@@ -135,18 +141,28 @@ function view_throw(why) {
  * Throw if gDBView has any rows.
  */
 function assert_view_empty() {
-  if (gTreeView.rowCount != 0)
-    view_throw("Expected view to be empty, but it was not! (" +
-             gTreeView.rowCount + " rows)");
+  if (gTreeView.rowCount != 0) {
+    view_throw(
+      "Expected view to be empty, but it was not! (" +
+        gTreeView.rowCount +
+        " rows)"
+    );
+  }
 }
 
 /**
  * Throw if gDBView does not have aCount rows.
  */
 function assert_view_row_count(aCount) {
-  if (gTreeView.rowCount != aCount)
-    view_throw("Expected view to have " + aCount + " rows, but it had " +
-             gTreeView.rowCount + " rows!");
+  if (gTreeView.rowCount != aCount) {
+    view_throw(
+      "Expected view to have " +
+        aCount +
+        " rows, but it had " +
+        gTreeView.rowCount +
+        " rows!"
+    );
+  }
 }
 
 /**
@@ -156,8 +172,9 @@ function assert_view_row_count(aCount) {
 function assert_view_index_is_dummy(...aArgs) {
   for (let viewIndex of aArgs) {
     let flags = gDBView.getFlagsAt(viewIndex);
-    if (!(flags & MSG_VIEW_FLAG_DUMMY))
+    if (!(flags & MSG_VIEW_FLAG_DUMMY)) {
       view_throw("Expected index " + viewIndex + " to be a dummy!");
+    }
   }
 }
 
@@ -168,14 +185,23 @@ function assert_view_index_is_dummy(...aArgs) {
 function assert_view_index_is_not_dummy(...aArgs) {
   for (let viewIndex of aArgs) {
     let flags = gDBView.getFlagsAt(viewIndex);
-    if (flags & MSG_VIEW_FLAG_DUMMY)
+    if (flags & MSG_VIEW_FLAG_DUMMY) {
       view_throw("Expected index " + viewIndex + " to not be a dummy!");
+    }
   }
 }
 
 function assert_view_level_is(index, level) {
-  if (gDBView.getLevel(index) != level)
-    view_throw("Expected index " + index + " to be level " + level + " not " + gDBView.getLevel(index));
+  if (gDBView.getLevel(index) != level) {
+    view_throw(
+      "Expected index " +
+        index +
+        " to be level " +
+        level +
+        " not " +
+        gDBView.getLevel(index)
+    );
+  }
 }
 
 /**
@@ -189,14 +215,21 @@ function assert_view_level_is(index, level) {
 function assert_view_message_at_indices(...aArgs) {
   let curHdr;
   for (let thing of aArgs) {
-    if (typeof(thing) == "number") {
+    if (typeof thing == "number") {
       let hdrAt = gDBView.getMsgHdrAt(thing);
       if (curHdr != hdrAt) {
-        view_throw("Expected hdr at " + thing + " to be " +
-                  curHdr.messageKey + ":" +
-                   curHdr.mime2DecodedSubject.substr(0, 30) + " not " +
-                  hdrAt.messageKey + ":" +
-                    hdrAt.mime2DecodedSubject.substr(0, 30));
+        view_throw(
+          "Expected hdr at " +
+            thing +
+            " to be " +
+            curHdr.messageKey +
+            ":" +
+            curHdr.mime2DecodedSubject.substr(0, 30) +
+            " not " +
+            hdrAt.messageKey +
+            ":" +
+            hdrAt.mime2DecodedSubject.substr(0, 30)
+        );
       }
     } else {
       // synthetic message, get the header...
@@ -218,10 +251,18 @@ var authorFirstLetterCustomColumn = {
     return true;
   },
 
-  getCellProperties(row, col) { return ""; },
-  getRowProperties(row) { return ""; },
-  getImageSrc(row, col) { return null; },
-  getSortLongForRow(hdr) { return 0; },
+  getCellProperties(row, col) {
+    return "";
+  },
+  getRowProperties(row) {
+    return "";
+  },
+  getImageSrc(row, col) {
+    return null;
+  },
+  getSortLongForRow(hdr) {
+    return 0;
+  },
 };
 
 var gDBView;
@@ -239,39 +280,46 @@ var gFakeSelection = new JSTreeSelection(null);
 function setup_view(aViewType, aViewFlags, aTestFolder) {
   let dbviewContractId = "@mozilla.org/messenger/msgdbview;1?type=" + aViewType;
 
-  if (aTestFolder == null)
+  if (aTestFolder == null) {
     aTestFolder = gTestFolder;
+  }
 
   // always start out fully expanded
   aViewFlags |= ViewFlags.kExpandAll;
 
-  gDBView = Cc[dbviewContractId]
-              .createInstance(Ci.nsIMsgDBView);
+  gDBView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
   gDBView.init(null, null, gCommandUpdater);
   var outCount = {};
-  gDBView.open(aViewType != "search" ? aTestFolder : null,
-               SortType.byDate,
-               aViewType != "search" ? SortOrder.ascending : SortOrder.descending,
-               aViewFlags, outCount);
+  gDBView.open(
+    aViewType != "search" ? aTestFolder : null,
+    SortType.byDate,
+    aViewType != "search" ? SortOrder.ascending : SortOrder.descending,
+    aViewFlags,
+    outCount
+  );
   // outCount is 0 if byCustom; view is built by addColumnHandler()
   dump("  View Out Count: " + outCount.value + "\n");
 
   // we need to cram messages into the search via nsIMsgSearchNotify interface
-  if (aViewType == "search" || aViewType == "quicksearch" || aViewType == "xfvf") {
-    let searchNotify = gDBView.QueryInterface(
-      Ci.nsIMsgSearchNotify);
+  if (
+    aViewType == "search" ||
+    aViewType == "quicksearch" ||
+    aViewType == "xfvf"
+  ) {
+    let searchNotify = gDBView.QueryInterface(Ci.nsIMsgSearchNotify);
     searchNotify.onNewSearch();
     let enumerator = aTestFolder.msgDatabase.EnumerateMessages();
     while (enumerator.hasMoreElements()) {
-      let msgHdr = enumerator.getNext().QueryInterface(
-        Ci.nsIMsgDBHdr);
+      let msgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
       searchNotify.onSearchHit(msgHdr, msgHdr.folder);
     }
     searchNotify.onSearchDone(Cr.NS_OK);
   }
 
-  gDBView.addColumnHandler("authorFirstLetterCol",
-                           authorFirstLetterCustomColumn);
+  gDBView.addColumnHandler(
+    "authorFirstLetterCol",
+    authorFirstLetterCustomColumn
+  );
   // XXX this sets the custom column to use for sorting by the custom column.
   // It has been argued (and is generally accepted) that this should not be
   // so limited.
@@ -285,22 +333,23 @@ function setup_view(aViewType, aViewFlags, aTestFolder) {
 function setup_group_view(aSortType, aSortOrder, aTestFolder) {
   let dbviewContractId = "@mozilla.org/messenger/msgdbview;1?type=group";
 
-  if (aTestFolder == null)
+  if (aTestFolder == null) {
     aTestFolder = gTestFolder;
+  }
 
   // grouped view uses these flags
-  let viewFlags = ViewFlags.kGroupBySort |
-                  ViewFlags.kExpandAll |
-                  ViewFlags.kThreadedDisplay;
+  let viewFlags =
+    ViewFlags.kGroupBySort | ViewFlags.kExpandAll | ViewFlags.kThreadedDisplay;
 
-  gDBView = Cc[dbviewContractId]
-              .createInstance(Ci.nsIMsgDBView);
+  gDBView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
   gDBView.init(null, null, gCommandUpdater);
   var outCount = {};
   gDBView.open(aTestFolder, aSortType, aSortOrder, viewFlags, outCount);
 
-  gDBView.addColumnHandler("authorFirstLetterCol",
-                           authorFirstLetterCustomColumn);
+  gDBView.addColumnHandler(
+    "authorFirstLetterCol",
+    authorFirstLetterCustomColumn
+  );
   gDBView.curCustomColumn = "authorFirstLetterCol";
 
   gTreeView = gDBView.QueryInterface(Ci.nsITreeView);
@@ -312,10 +361,11 @@ function setup_group_view(aSortType, aSortOrder, aTestFolder) {
  * Comparison func for built-in types (including strings, so no subtraction.)
  */
 function generalCmp(a, b) {
-  if (a < b)
+  if (a < b) {
     return -1;
-  else if (a > b)
+  } else if (a > b) {
     return 1;
+  }
   return 0;
 }
 
@@ -342,12 +392,22 @@ function generalCmp(a, b) {
  *     returns the grouping value for the header.  If omitted, it is assumed
  *     that the sort value is the grouping value.
  */
-function ensure_view_ordering(aSortBy, aDirection, aKeyOrValueGetter,
-    aGetGroupValue) {
-  if (!gTreeView.rowCount)
+function ensure_view_ordering(
+  aSortBy,
+  aDirection,
+  aKeyOrValueGetter,
+  aGetGroupValue
+) {
+  if (!gTreeView.rowCount) {
     do_throw("There are no rows in my folder! I can't test anything!");
-  dump("  Ensuring sort order for " + aSortBy + " (Row count: "
-       + gTreeView.rowCount + ")\n");
+  }
+  dump(
+    "  Ensuring sort order for " +
+      aSortBy +
+      " (Row count: " +
+      gTreeView.rowCount +
+      ")\n"
+  );
   dump("    cur view flags: " + gDBView.viewFlags + "\n");
 
   // standard grouping doesn't re-group when you sort.  so we need to actually
@@ -355,8 +415,10 @@ function ensure_view_ordering(aSortBy, aDirection, aKeyOrValueGetter,
   // but search mode is special and does the right thing because asuth didn't
   //  realize that it shouldn't do the right thing, so it can just change the
   //  sort.  (of course, under the hood, it is actually creating a new view...)
-  if ((gDBView.viewFlags & ViewFlags.kGroupBySort) &&
-      (gDBView.viewType != ViewType.eShowSearch)) {
+  if (
+    gDBView.viewFlags & ViewFlags.kGroupBySort &&
+    gDBView.viewType != ViewType.eShowSearch
+  ) {
     // we must close to re-open (or we could just use a new view)
     let msgFolder = gDBView.msgFolder;
     gDBView.close();
@@ -366,13 +428,18 @@ function ensure_view_ordering(aSortBy, aDirection, aKeyOrValueGetter,
   }
 
   let comparisonValuesByLevel = [];
-  let expectedLevel0CmpResult = (aDirection == SortOrder.ascending ? 1 : -1);
+  let expectedLevel0CmpResult = aDirection == SortOrder.ascending ? 1 : -1;
   let comparator = generalCmp;
 
-  let dummyCount = 0, emptyDummyCount = 0;
+  let dummyCount = 0,
+    emptyDummyCount = 0;
 
-  let valueGetter = (typeof(aKeyOrValueGetter) == "string") ?
-    function(msgHdr) { return msgHdr[aKeyOrValueGetter]; } : aKeyOrValueGetter;
+  let valueGetter =
+    typeof aKeyOrValueGetter == "string"
+      ? function(msgHdr) {
+          return msgHdr[aKeyOrValueGetter];
+        }
+      : aKeyOrValueGetter;
   let groupValueGetter = aGetGroupValue || valueGetter;
 
   // don't do group testing until we see a dummy header (which we will see
@@ -392,11 +459,13 @@ function ensure_view_ordering(aSortBy, aDirection, aKeyOrValueGetter,
 
     // ignore dummy headers; testing grouping logic happens elsewhere
     if (msgViewFlags & MSG_VIEW_FLAG_DUMMY) {
-      if (dummyCount && curGroupValue == null)
+      if (dummyCount && curGroupValue == null) {
         emptyDummyCount++;
+      }
       dummyCount++;
-      if (curGroupValue != null)
+      if (curGroupValue != null) {
         previouslySeenGroupValues[curGroupValue] = true;
+      }
       curGroupValue = null;
       inGroup = true;
       continue;
@@ -405,67 +474,105 @@ function ensure_view_ordering(aSortBy, aDirection, aKeyOrValueGetter,
     // level is 0-based
     let level = gTreeView.getLevel(iViewIndex);
     // nuke existing comparison levels
-    if (level < comparisonValuesByLevel.length - 1)
+    if (level < comparisonValuesByLevel.length - 1) {
       comparisonValuesByLevel.splice(level);
+    }
 
     // get the value for comparison
     let curValue = valueGetter(msgHdr);
     if (inGroup) {
       let groupValue = groupValueGetter(msgHdr);
-      if (groupValue in previouslySeenGroupValues)
-        do_throw("Group value " + groupValue + " observed in more than one " +
-                 "group!");
-      if (curGroupValue == null)
+      if (groupValue in previouslySeenGroupValues) {
+        do_throw(
+          "Group value " + groupValue + " observed in more than one " + "group!"
+        );
+      }
+      if (curGroupValue == null) {
         curGroupValue = groupValue;
-      else if (curGroupValue != groupValue)
-        do_throw("Inconsistent grouping! " + groupValue + " != " +
-                 curGroupValue);
+      } else if (curGroupValue != groupValue) {
+        do_throw(
+          "Inconsistent grouping! " + groupValue + " != " + curGroupValue
+        );
+      }
     }
 
     // is this level new to our comparisons?  then track it...
     if (level >= comparisonValuesByLevel.length) {
       // null-fill any gaps (due to, say, dummy nodes)
-      while (comparisonValuesByLevel.length <= level)
+      while (comparisonValuesByLevel.length <= level) {
         comparisonValuesByLevel.push(null);
+      }
       comparisonValuesByLevel.push(curValue);
-    } else { // otherwise compare it
+    } else {
+      // otherwise compare it
       let prevValue = comparisonValuesByLevel[level - 1];
       let cmpResult = comparator(curValue, prevValue);
-      let expectedCmpResult = (level > 0) ? 1 : expectedLevel0CmpResult;
-      if (cmpResult && cmpResult != expectedCmpResult)
-        do_throw("Ordering failure on key " + msgHdr.messageKey + ". " +
-                 curValue + " should have been " +
-                 (expectedCmpResult == 1 ? ">=" : "<=") + " " +
-                 prevValue + " but was not.");
+      let expectedCmpResult = level > 0 ? 1 : expectedLevel0CmpResult;
+      if (cmpResult && cmpResult != expectedCmpResult) {
+        do_throw(
+          "Ordering failure on key " +
+            msgHdr.messageKey +
+            ". " +
+            curValue +
+            " should have been " +
+            (expectedCmpResult == 1 ? ">=" : "<=") +
+            " " +
+            prevValue +
+            " but was not."
+        );
+      }
     }
   }
 
-  if (inGroup && curGroupValue == null)
+  if (inGroup && curGroupValue == null) {
     emptyDummyCount++;
-  if (dummyCount)
-    dump("  saw " + dummyCount + " dummy headers (" + emptyDummyCount +
-         " empty).\n");
+  }
+  if (dummyCount) {
+    dump(
+      "  saw " +
+        dummyCount +
+        " dummy headers (" +
+        emptyDummyCount +
+        " empty).\n"
+    );
+  }
 }
 
 /**
  * Test sorting functionality.
  */
 function test_sort_columns() {
-  ensure_view_ordering(SortType.byDate, SortOrder.descending, "date",
+  ensure_view_ordering(
+    SortType.byDate,
+    SortOrder.descending,
+    "date",
     function getDateAgeBucket(msgHdr) {
       // so, this is a cop-out, but we know that the date age bucket for our
       //  generated messages is always more than 2-weeks ago!
       return 5;
-    });
-  ensure_view_ordering(SortType.byDate, SortOrder.ascending, "date",
+    }
+  );
+  ensure_view_ordering(
+    SortType.byDate,
+    SortOrder.ascending,
+    "date",
     function getDateAgeBucket(msgHdr) {
       // so, this is a cop-out, but we know that the date age bucket for our
       //  generated messages is always more than 2-weeks ago!
       return 5;
-    });
+    }
+  );
   // (note, subject doesn't use dummy groups and so won't have grouping tested)
-  ensure_view_ordering(SortType.bySubject, SortOrder.ascending, "mime2DecodedSubject");
-  ensure_view_ordering(SortType.byAuthor, SortOrder.ascending, "mime2DecodedAuthor");
+  ensure_view_ordering(
+    SortType.bySubject,
+    SortOrder.ascending,
+    "mime2DecodedSubject"
+  );
+  ensure_view_ordering(
+    SortType.byAuthor,
+    SortOrder.ascending,
+    "mime2DecodedAuthor"
+  );
   // Id
   // Thread
   // Priority
@@ -473,39 +580,59 @@ function test_sort_columns() {
   // Size
   // Flagged
   // Unread
-  ensure_view_ordering(SortType.byRecipient, SortOrder.ascending, "mime2DecodedRecipients");
+  ensure_view_ordering(
+    SortType.byRecipient,
+    SortOrder.ascending,
+    "mime2DecodedRecipients"
+  );
   // Location
   // Tags
   // JunkStatus
   // Attachments
   // Account
   // Custom
-  ensure_view_ordering(SortType.byCustom, SortOrder.ascending,
-    function(msgHdr) {
-      return authorFirstLetterCustomColumn.getSortStringForRow(msgHdr);
-    });
+  ensure_view_ordering(SortType.byCustom, SortOrder.ascending, function(
+    msgHdr
+  ) {
+    return authorFirstLetterCustomColumn.getSortStringForRow(msgHdr);
+  });
   // Received
 }
 
 function test_number_of_messages() {
   // Bug 574799
-  if (gDBView.numMsgsInView != gTestFolder.getTotalMessages(false))
-    do_throw("numMsgsInView is " + gDBView.numMsgsInView + " but should be " +
-             gTestFolder.getTotalMessages(false) + "\n");
+  if (gDBView.numMsgsInView != gTestFolder.getTotalMessages(false)) {
+    do_throw(
+      "numMsgsInView is " +
+        gDBView.numMsgsInView +
+        " but should be " +
+        gTestFolder.getTotalMessages(false) +
+        "\n"
+    );
+  }
   // Bug 600140
   // Maybe elided so open it, now only consider the first one
-  if (gDBView.isContainer(0) && !gDBView.isContainerOpen(0))
+  if (gDBView.isContainer(0) && !gDBView.isContainerOpen(0)) {
     gDBView.toggleOpenState(0);
+  }
   let numMsgInTree = gTreeView.rowCount;
-  if ((gDBView.viewFlags & ViewFlags.kGroupBySort))
+  if (gDBView.viewFlags & ViewFlags.kGroupBySort) {
     for (let iViewIndex = 0; iViewIndex < gTreeView.rowCount; iViewIndex++) {
       let flags = gDBView.getFlagsAt(iViewIndex);
-      if (flags & MSG_VIEW_FLAG_DUMMY)
+      if (flags & MSG_VIEW_FLAG_DUMMY) {
         numMsgInTree--;
+      }
     }
-  if (gDBView.numMsgsInView != numMsgInTree)
-    view_throw("message in tree is " + numMsgInTree + " but should be " +
-             gDBView.numMsgsInView + "\n");
+  }
+  if (gDBView.numMsgsInView != numMsgInTree) {
+    view_throw(
+      "message in tree is " +
+        numMsgInTree +
+        " but should be " +
+        gDBView.numMsgsInView +
+        "\n"
+    );
+  }
 }
 
 function test_selected_messages() {
@@ -515,32 +642,58 @@ function test_selected_messages() {
   gTreeView.selection.select(1);
   let selectedMessages = gDBView.getSelectedMsgHdrs();
 
-  if (selectedMessages.length != 1)
-    do_throw("getSelectedMsgHdrs.length is " + selectedMessages.length +
-             " but should be 1\n");
+  if (selectedMessages.length != 1) {
+    do_throw(
+      "getSelectedMsgHdrs.length is " +
+        selectedMessages.length +
+        " but should be 1\n"
+    );
+  }
 
   let firstSelectedMsg = gDBView.hdrForFirstSelectedMessage;
-  if (selectedMessages[0] != firstSelectedMsg)
-    do_throw("getSelectedMsgHdrs[0] is " + selectedMessages[0].messageKey +
-             " but should be " + firstSelectedMsg.messageKey + "\n");
+  if (selectedMessages[0] != firstSelectedMsg) {
+    do_throw(
+      "getSelectedMsgHdrs[0] is " +
+        selectedMessages[0].messageKey +
+        " but should be " +
+        firstSelectedMsg.messageKey +
+        "\n"
+    );
+  }
 
   // Select all messages
   gTreeView.selection.selectAll();
-  if (gDBView.numSelected != gTreeView.rowCount)
-    do_throw("numSelected is " + gDBView.numSelected + " but should be " +
-             gTreeView.rowCount + "\n");
+  if (gDBView.numSelected != gTreeView.rowCount) {
+    do_throw(
+      "numSelected is " +
+        gDBView.numSelected +
+        " but should be " +
+        gTreeView.rowCount +
+        "\n"
+    );
+  }
 
   selectedMessages = gDBView.getSelectedMsgHdrs();
-  if (selectedMessages.length != gTestFolder.getTotalMessages(false))
-    do_throw("getSelectedMsgHdrs.length is " + selectedMessages.length +
-             " but should be " + gTestFolder.getTotalMessages(false) + "\n");
+  if (selectedMessages.length != gTestFolder.getTotalMessages(false)) {
+    do_throw(
+      "getSelectedMsgHdrs.length is " +
+        selectedMessages.length +
+        " but should be " +
+        gTestFolder.getTotalMessages(false) +
+        "\n"
+    );
+  }
 
   for (let i = 0; i < selectedMessages.length; i++) {
     let expectedHdr = gDBView.getMsgHdrAt(i);
     if (!selectedMessages.includes(expectedHdr)) {
-      view_throw("Expected " + expectedHdr.messageKey + ":" +
-                 expectedHdr.mime2DecodedSubject.substr(0, 30) +
-                 " to be selected, but it wasn't\n");
+      view_throw(
+        "Expected " +
+          expectedHdr.messageKey +
+          ":" +
+          expectedHdr.mime2DecodedSubject.substr(0, 30) +
+          " to be selected, but it wasn't\n"
+      );
     }
   }
 
@@ -556,16 +709,19 @@ function test_insert_remove_view_rows() {
   let flags = 0;
   let level = 0;
   let folder = null;
-  let xfview = gDBView.viewType == ViewType.eShowSearch ||
-               gDBView.viewType == ViewType.eShowVirtualFolderResults;
-  if (xfview)
+  let xfview =
+    gDBView.viewType == ViewType.eShowSearch ||
+    gDBView.viewType == ViewType.eShowVirtualFolderResults;
+  if (xfview) {
     folder = gDBView.getFolderForViewIndex(index);
+  }
 
   gDBView.insertTreeRows(index, rows, msgKey, flags, level, folder);
   assert_view_row_count(startCount + rows);
   let key = gDBView.getKeyAt(rows - 1);
-  if (key != msgKey)
+  if (key != msgKey) {
     view_throw("msgKey is " + key + " but should be " + msgKey + "\n");
+  }
   gDBView.removeTreeRows(index, rows);
   assert_view_row_count(startCount);
 
@@ -581,11 +737,14 @@ function test_insert_remove_view_rows() {
   } catch (ex) {
     gDBView.removeTreeRows(index, rows);
   }
-  if (xfview)
+  if (xfview) {
     try {
       gDBView.insertTreeRows(index, rows, msgKey, flags, level, null);
-      view_throw("expected exception not caught; folder required for xfvf view \n");
+      view_throw(
+        "expected exception not caught; folder required for xfvf view \n"
+      );
     } catch (ex) {}
+  }
 }
 
 function test_msg_added_to_search_view() {
@@ -594,9 +753,12 @@ function test_msg_added_to_search_view() {
   if (!(gDBView.viewFlags & ViewFlags.kGroupBySort)) {
     gDBView.sort(SortType.byDate, SortOrder.descending);
     let [synMsg] = make_and_add_message();
-    let msgHdr = gTestFolder.msgDatabase.getMsgHdrForMessageID(synMsg.messageId);
-    gDBView.QueryInterface(Ci.nsIMsgSearchNotify)
-            .onSearchHit(msgHdr, msgHdr.folder);
+    let msgHdr = gTestFolder.msgDatabase.getMsgHdrForMessageID(
+      synMsg.messageId
+    );
+    gDBView
+      .QueryInterface(Ci.nsIMsgSearchNotify)
+      .onSearchHit(msgHdr, msgHdr.folder);
     assert_view_message_at_indices(synMsg, 0);
   }
 }
@@ -605,8 +767,9 @@ function IsHdrChildOf(possibleParent, possibleChild) {
   let parentHdrId = possibleParent.messageId;
   let numRefs = possibleChild.numReferences;
   for (let refIndex = 0; refIndex < numRefs; refIndex++) {
-    if (parentHdrId == possibleChild.getStringReference(refIndex))
+    if (parentHdrId == possibleChild.getStringReference(refIndex)) {
       return true;
+    }
   }
   return false;
 }
@@ -614,12 +777,16 @@ function IsHdrChildOf(possibleParent, possibleChild) {
 // This could be part of ensure_view_ordering() but I don't want to make that
 // function any harder to read.
 function test_threading_levels() {
-  if (!gTreeView.rowCount)
+  if (!gTreeView.rowCount) {
     do_throw("There are no rows in my folder! I can't test anything!");
+  }
   // only look at threaded, non-grouped views.
-  if ((gDBView.viewFlags & ViewFlags.kGroupBySort) ||
-      !(gDBView.viewFlags & ViewFlags.kThreadedDisplay))
+  if (
+    gDBView.viewFlags & ViewFlags.kGroupBySort ||
+    !(gDBView.viewFlags & ViewFlags.kThreadedDisplay)
+  ) {
     return;
+  }
 
   let prevLevel = 1;
   let prevMsgHdr;
@@ -627,8 +794,9 @@ function test_threading_levels() {
     let msgHdr = gDBView.getMsgHdrAt(iViewIndex);
     let level = gTreeView.getLevel(iViewIndex);
     if (level > prevLevel && msgHdr.subject != gSiblingsMissingParentsSubject) {
-      if (!IsHdrChildOf(prevMsgHdr, msgHdr))
+      if (!IsHdrChildOf(prevMsgHdr, msgHdr)) {
         view_throw("indented message not child of parent");
+      }
     }
     prevLevel = level;
     prevMsgHdr = msgHdr;
@@ -639,30 +807,36 @@ function test_expand_collapse() {
   let oldRowCount = gDBView.rowCount;
   let thirdChild = gDBView.getMsgHdrAt(3);
   gDBView.toggleOpenState(0);
-  if (gDBView.rowCount != oldRowCount - 9)
+  if (gDBView.rowCount != oldRowCount - 9) {
     view_throw("collapsing first item should have removed 9 items");
+  }
 
   // test that expand/collapse works with killed sub-thread.
   oldRowCount = gDBView.rowCount;
   gTestFolder.msgDatabase.MarkHeaderKilled(thirdChild, true, null);
   gDBView.toggleOpenState(0);
-  if (gDBView.rowCount != oldRowCount + 2)
+  if (gDBView.rowCount != oldRowCount + 2) {
     view_throw("expanding first item should have aded 2 items");
+  }
   gTestFolder.msgDatabase.MarkHeaderKilled(thirdChild, false, null);
   oldRowCount = gDBView.rowCount;
   gDBView.toggleOpenState(0);
-  if (gDBView.rowCount != oldRowCount - 2)
+  if (gDBView.rowCount != oldRowCount - 2) {
     view_throw("collapsing first item should have removed 2 items");
+  }
 }
 
 function test_qs_results() {
   // This just tests that bug 505967 hasn't regressed.
-  if (gTreeView.getLevel(0) != 0)
+  if (gTreeView.getLevel(0) != 0) {
     view_throw("first message should be at level 0");
-  if (gTreeView.getLevel(1) != 1)
+  }
+  if (gTreeView.getLevel(1) != 1) {
     view_throw("second message should be at level 1");
-  if (gTreeView.getLevel(2) != 2)
+  }
+  if (gTreeView.getLevel(2) != 2) {
     view_throw("third message should be at level 2");
+  }
   test_threading_levels();
 }
 
@@ -680,14 +854,15 @@ function test_group_sort_collapseAll_expandAll_threading() {
   // msg1: from A, custom column val A, to be starred
   // msg2: from A, custom column val A
   // msg3: from B, custom column val B
-  let [smsg1] = make_and_add_message({from: ["A", "A@a.invalid"]});
-  make_and_add_message({from: ["A", "A@a.invalid"]});
-  let [smsg3] = make_and_add_message({from: ["B", "B@b.invalid"]});
+  let [smsg1] = make_and_add_message({ from: ["A", "A@a.invalid"] });
+  make_and_add_message({ from: ["A", "A@a.invalid"] });
+  let [smsg3] = make_and_add_message({ from: ["B", "B@b.invalid"] });
 
   assert_view_row_count(3);
   gDBView.getMsgHdrAt(0).markFlagged(true);
-  if (!gDBView.getMsgHdrAt(0).isFlagged)
+  if (!gDBView.getMsgHdrAt(0).isFlagged) {
     view_throw("Expected smsg1 to be flagged");
+  }
 
   // - create grouped view; open folder in byFlagged AZ sort
   setup_group_view(SortType.byFlagged, SortOrder.ascending, gTestFolder);
@@ -697,8 +872,9 @@ function test_group_sort_collapseAll_expandAll_threading() {
   assert_view_index_is_dummy(0);
   assert_view_index_is_not_dummy(1);
   assert_view_message_at_indices(smsg1, 1);
-  if (!gDBView.getMsgHdrAt(1).isFlagged)
+  if (!gDBView.getMsgHdrAt(1).isFlagged) {
     view_throw("Expected grouped smsg1 to be flagged");
+  }
   assert_view_index_is_dummy(2);
   assert_view_index_is_not_dummy(3);
   assert_view_index_is_not_dummy(4);
@@ -726,8 +902,9 @@ function test_group_sort_collapseAll_expandAll_threading() {
   assert_view_index_is_dummy(3);
   assert_view_index_is_not_dummy(4);
   assert_view_message_at_indices(smsg1, 4);
-  if (!gDBView.getMsgHdrAt(4).isFlagged)
+  if (!gDBView.getMsgHdrAt(4).isFlagged) {
     view_throw("Expected reverse sorted grouped smsg1 to be flagged");
+  }
 
   // - test grouped by custom column; the custCol is first letter of author
   // - create grouped view; open folder in byCustom ZA sort
@@ -739,13 +916,25 @@ function test_group_sort_collapseAll_expandAll_threading() {
   assert_view_index_is_dummy(0);
   assert_view_index_is_not_dummy(1);
   assert_view_message_at_indices(smsg3, 1);
-  if (authorFirstLetterCustomColumn.getSortStringForRow(gDBView.getMsgHdrAt(1)) != "B")
-    view_throw("Expected grouped by custom column, ZA sortOrder smsg3 value to be B");
+  if (
+    authorFirstLetterCustomColumn.getSortStringForRow(gDBView.getMsgHdrAt(1)) !=
+    "B"
+  ) {
+    view_throw(
+      "Expected grouped by custom column, ZA sortOrder smsg3 value to be B"
+    );
+  }
   assert_view_index_is_dummy(2);
   assert_view_index_is_not_dummy(3);
   assert_view_index_is_not_dummy(4);
-  if (authorFirstLetterCustomColumn.getSortStringForRow(gDBView.getMsgHdrAt(4)) != "A")
-    view_throw("Expected grouped by custom column, ZA sortOrder smsg2 value to be A");
+  if (
+    authorFirstLetterCustomColumn.getSortStringForRow(gDBView.getMsgHdrAt(4)) !=
+    "A"
+  ) {
+    view_throw(
+      "Expected grouped by custom column, ZA sortOrder smsg2 value to be A"
+    );
+  }
 }
 
 function* test_group_dummies_under_mutation_by_date() {
@@ -765,7 +954,7 @@ function* test_group_dummies_under_mutation_by_date() {
   //  either. bucket 1 is same day, bucket 2 is yesterday, bucket 3 is last
   //  week, so 2 days ago or older is always last week, even if we roll over
   //  and it becomes 3 days ago.)
-  let [smsg, synSet] = make_and_add_message({age: {days: 2, hours: 1}});
+  let [smsg, synSet] = make_and_add_message({ age: { days: 2, hours: 1 } });
 
   // - make sure the message and a dummy appear
   assert_view_row_count(2);
@@ -774,8 +963,9 @@ function* test_group_dummies_under_mutation_by_date() {
   assert_view_message_at_indices(smsg, 0, 1);
 
   // we used to display total in tag column - make sure we don't do that.
-  if (gDBView.cellTextForColumn(0, "tags") != "")
+  if (gDBView.cellTextForColumn(0, "tags") != "") {
     view_throw("tag column shouldn't display total count in group view");
+  }
 
   // - move the messages to the trash
   yield async_trash_messages(synSet);
@@ -784,8 +974,8 @@ function* test_group_dummies_under_mutation_by_date() {
   assert_view_empty();
 
   // - add two messages from this week (same date bucket concerns)
-  let [newer, newerSet] = make_and_add_message({age: {days: 2, hours: 1}});
-  let [older] = make_and_add_message({age: {days: 2, hours: 2}});
+  let [newer, newerSet] = make_and_add_message({ age: { days: 2, hours: 1 } });
+  let [older] = make_and_add_message({ age: { days: 2, hours: 2 } });
 
   // - sanity check addition
   assert_view_row_count(3); // 2 messages + 1 dummy
@@ -821,11 +1011,23 @@ function test_xfvf_threading() {
   //     4
   //      2
   //     5
-  let msg3 = gMessageGenerator.makeMessage({age: {days: 2, hours: 5}});
-  let msg1 = gMessageGenerator.makeMessage({age: {days: 2, hours: 4}, inReplyTo: msg3});
-  let msg4 = gMessageGenerator.makeMessage({age: {days: 2, hours: 3}, inReplyTo: msg1});
-  let msg2 = gMessageGenerator.makeMessage({age: {days: 2, hours: 1}, inReplyTo: msg4});
-  let msg5 = gMessageGenerator.makeMessage({age: {days: 2, hours: 2}, inReplyTo: msg1});
+  let msg3 = gMessageGenerator.makeMessage({ age: { days: 2, hours: 5 } });
+  let msg1 = gMessageGenerator.makeMessage({
+    age: { days: 2, hours: 4 },
+    inReplyTo: msg3,
+  });
+  let msg4 = gMessageGenerator.makeMessage({
+    age: { days: 2, hours: 3 },
+    inReplyTo: msg1,
+  });
+  let msg2 = gMessageGenerator.makeMessage({
+    age: { days: 2, hours: 1 },
+    inReplyTo: msg4,
+  });
+  let msg5 = gMessageGenerator.makeMessage({
+    age: { days: 2, hours: 2 },
+    inReplyTo: msg1,
+  });
   messages = messages.concat([msg1, msg2, msg3, msg4, msg5]);
 
   let msgSet = new SyntheticMessageSet(messages);
@@ -856,7 +1058,7 @@ function test_xfvf_threading() {
  * Tests the sorting order of collapsed threads, not of messages within
  * threads. Currently limited to testing the sort-threads-by-date case,
  * sorting both by thread root and by newest message.
-*/
+ */
 function test_thread_sorting() {
   let save_gTestFolder = gTestFolder;
   gTestFolder = make_empty_folder();
@@ -867,11 +1069,17 @@ function test_thread_sorting() {
   //  2
   //   5
   //  3
-  let msg1 = gMessageGenerator.makeMessage({age: {days: 1, hours: 10}});
-  let msg2 = gMessageGenerator.makeMessage({age: {days: 1, hours: 9}});
-  let msg3 = gMessageGenerator.makeMessage({age: {days: 1, hours: 8}});
-  let msg4 = gMessageGenerator.makeMessage({age: {days: 1, hours: 7}, inReplyTo: msg1});
-  let msg5 = gMessageGenerator.makeMessage({age: {days: 1, hours: 6}, inReplyTo: msg2});
+  let msg1 = gMessageGenerator.makeMessage({ age: { days: 1, hours: 10 } });
+  let msg2 = gMessageGenerator.makeMessage({ age: { days: 1, hours: 9 } });
+  let msg3 = gMessageGenerator.makeMessage({ age: { days: 1, hours: 8 } });
+  let msg4 = gMessageGenerator.makeMessage({
+    age: { days: 1, hours: 7 },
+    inReplyTo: msg1,
+  });
+  let msg5 = gMessageGenerator.makeMessage({
+    age: { days: 1, hours: 6 },
+    inReplyTo: msg2,
+  });
   messages = messages.concat([msg1, msg2, msg3, msg4, msg5]);
 
   let msgSet = new SyntheticMessageSet(messages);
@@ -881,7 +1089,13 @@ function test_thread_sorting() {
   // test the non-default pref state first, so the pref gets left with its
   // default value at the end
   Services.prefs.setBoolPref("mailnews.sort_threads_by_root", true);
-  gDBView.open(gTestFolder, SortType.byDate, SortOrder.ascending, ViewFlags.kThreadedDisplay, {});
+  gDBView.open(
+    gTestFolder,
+    SortType.byDate,
+    SortOrder.ascending,
+    ViewFlags.kThreadedDisplay,
+    {}
+  );
 
   assert_view_row_count(3);
   assert_view_message_at_indices(msg1, 0);
@@ -894,7 +1108,13 @@ function test_thread_sorting() {
   assert_view_message_at_indices(msg1, 2);
 
   Services.prefs.clearUserPref("mailnews.sort_threads_by_root");
-  gDBView.open(gTestFolder, SortType.byDate, SortOrder.ascending, ViewFlags.kThreadedDisplay, {});
+  gDBView.open(
+    gTestFolder,
+    SortType.byDate,
+    SortOrder.ascending,
+    ViewFlags.kThreadedDisplay,
+    {}
+  );
 
   assert_view_row_count(3);
   assert_view_message_at_indices(msg3, 0);
@@ -916,7 +1136,7 @@ var view_types = [
   ["search", ViewFlags.kThreadedDisplay],
   ["search", ViewFlags.kGroupBySort],
   ["xfvf", ViewFlags.kNone],
-   // group does unspeakable things to gTestFolder, so put it last.
+  // group does unspeakable things to gTestFolder, so put it last.
   ["group", ViewFlags.kGroupBySort],
 ];
 
@@ -932,37 +1152,31 @@ var tests_for_specific_views = {
     test_group_sort_collapseAll_expandAll_threading,
     test_group_dummies_under_mutation_by_date,
   ],
-  threaded: [
-    test_expand_collapse,
-    test_thread_sorting,
-  ],
-  search: [
-    test_msg_added_to_search_view,
-  ],
-  quicksearch: [
-    test_qs_results,
-  ],
-  xfvf: [
-    test_xfvf_threading,
-  ],
+  threaded: [test_expand_collapse, test_thread_sorting],
+  search: [test_msg_added_to_search_view],
+  quicksearch: [test_qs_results],
+  xfvf: [test_xfvf_threading],
 };
 
 function run_test() {
-  configure_message_injection({mode: "local"});
+  configure_message_injection({ mode: "local" });
   do_test_pending();
-  async_run({func: actually_run_test});
+  async_run({ func: actually_run_test });
 }
 
 function* actually_run_test() {
   dump("in actually_run_test\n");
-  yield async_run({func: setup_globals});
-  dump("Num Messages: " + gTestFolder.msgDatabase.dBFolderInfo.numMessages + "\n");
+  yield async_run({ func: setup_globals });
+  dump(
+    "Num Messages: " + gTestFolder.msgDatabase.dBFolderInfo.numMessages + "\n"
+  );
 
   // for each view type...
   for (let view_type_and_flags of view_types) {
     let [view_type, view_flags] = view_type_and_flags;
-    dump("===== Testing View Type: " + view_type + " flags: " + view_flags +
-         "\n");
+    dump(
+      "===== Testing View Type: " + view_type + " flags: " + view_flags + "\n"
+    );
 
     let save_gTestFolder = gTestFolder;
     // ... run each test
@@ -970,13 +1184,13 @@ function* actually_run_test() {
 
     for (let testFunc of tests_for_all_views) {
       dump("=== Running generic test: " + testFunc.name + "\n");
-      yield async_run({func: testFunc});
+      yield async_run({ func: testFunc });
     }
 
     if (tests_for_specific_views[view_type]) {
       for (let testFunc of tests_for_specific_views[view_type]) {
         dump("=== Running view-specific test: " + testFunc.name + "\n");
-        yield async_run({func: testFunc});
+        yield async_run({ func: testFunc });
       }
     }
     gTestFolder = save_gTestFolder;

@@ -9,7 +9,9 @@
 /* import-globals-from ../../../test/resources/searchTestUtils.js */
 load("../../../resources/searchTestUtils.js");
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var kCustomId = "xpcomtest@mozilla.org#test";
 var gHdr;
@@ -20,7 +22,8 @@ var Tests = [
     testValue: "iamnotgood",
     op: Ci.nsMsgSearchOp.Is,
     count: 0,
-  }, {
+  },
+  {
     setValue: "iamgood",
     testValue: "iamgood",
     op: Ci.nsMsgSearchOp.Is,
@@ -33,22 +36,25 @@ var customTerm = {
   id: kCustomId,
   name: "term name",
   getEnabled(scope, op) {
-    return scope == Ci.nsMsgSearchScope.offlineMail &&
-           op == Ci.nsMsgSearchOp.Is;
+    return (
+      scope == Ci.nsMsgSearchScope.offlineMail && op == Ci.nsMsgSearchOp.Is
+    );
   },
   getAvailable(scope, op) {
-    return scope == Ci.nsMsgSearchScope.offlineMail &&
-           op == Ci.nsMsgSearchOp.Is;
+    return (
+      scope == Ci.nsMsgSearchScope.offlineMail && op == Ci.nsMsgSearchOp.Is
+    );
   },
   getAvailableOperators(scope, length) {
-     length.value = 1;
-     return [Ci.nsMsgSearchOp.Is];
+    length.value = 1;
+    return [Ci.nsMsgSearchOp.Is];
   },
   match(msgHdr, searchValue, searchOp) {
     switch (searchOp) {
       case Ci.nsMsgSearchOp.Is:
-        if (msgHdr.getProperty("theTestProperty") == searchValue)
+        if (msgHdr.getProperty("theTestProperty") == searchValue) {
           return true;
+        }
     }
     return false;
   },
@@ -65,7 +71,9 @@ function run_test() {
       gHdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
     },
     SetMessageId(aMessageId) {},
-    OnStopCopy(aStatus) { doTest(); },
+    OnStopCopy(aStatus) {
+      doTest();
+    },
   };
 
   // Get a message into the local filestore.
@@ -73,24 +81,33 @@ function run_test() {
   let bugmail1 = do_get_file("../../../data/bugmail1");
   do_test_pending();
 
-  MailServices.copy.CopyFileMessage(bugmail1, localAccountUtils.inboxFolder, null,
-                                    false, 0, "", copyListener, null);
+  MailServices.copy.CopyFileMessage(
+    bugmail1,
+    localAccountUtils.inboxFolder,
+    null,
+    false,
+    0,
+    "",
+    copyListener,
+    null
+  );
 }
 
 function doTest() {
   let test = Tests.shift();
   if (test) {
     gHdr.setStringProperty("theTestProperty", test.setValue);
-    new TestSearch(localAccountUtils.inboxFolder,
-                   test.testValue,
-                   Ci.nsMsgSearchAttrib.Custom,
-                   test.op,
-                   test.count,
-                   doTest,
-                   kCustomId);
+    new TestSearch(
+      localAccountUtils.inboxFolder,
+      test.testValue,
+      Ci.nsMsgSearchAttrib.Custom,
+      test.op,
+      test.count,
+      doTest,
+      kCustomId
+    );
   } else {
     gHdr = null;
     do_test_finished();
   }
 }
-

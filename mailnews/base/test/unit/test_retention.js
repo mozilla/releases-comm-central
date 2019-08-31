@@ -34,18 +34,19 @@ function setup_globals(aNextFunc) {
 }
 
 function run_test() {
-  configure_message_injection({mode: "local"});
+  configure_message_injection({ mode: "local" });
   do_test_pending();
-  async_run({func: actually_run_test});
+  async_run({ func: actually_run_test });
 }
 
 function* actually_run_test() {
-  yield async_run({func: setup_globals});
+  yield async_run({ func: setup_globals });
   let numMessages = 10;
   gTestFolder.msgDatabase = null;
   gTestFolder.applyRetentionSettings();
-  const gDbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"]
-                       .getService(Ci.nsIMsgDBService);
+  const gDbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"].getService(
+    Ci.nsIMsgDBService
+  );
   // adding messages leaves some headers around as garbage - make sure
   // those are cleaned up so the db will get closed.
   Cu.forceGC();
@@ -54,14 +55,16 @@ function* actually_run_test() {
   // no retention settings, so we should have the same number of messages.
   Assert.equal(numMessages, gTestFolder.msgDatabase.dBFolderInfo.numMessages);
   let serverSettings = gTestFolder.server.retentionSettings;
-  serverSettings.retainByPreference = Ci.nsIMsgRetentionSettings.nsMsgRetainByNumHeaders;
+  serverSettings.retainByPreference =
+    Ci.nsIMsgRetentionSettings.nsMsgRetainByNumHeaders;
   serverSettings.numHeadersToKeep = 9;
   gTestFolder.server.retentionSettings = serverSettings;
   gTestFolder.applyRetentionSettings();
   // no retention settings, so we should have the same number of messages.
   Assert.equal(9, gTestFolder.msgDatabase.dBFolderInfo.numMessages);
   let folderSettings = gTestFolder.retentionSettings;
-  folderSettings.retainByPreference = Ci.nsIMsgRetentionSettings.nsMsgRetainByNumHeaders;
+  folderSettings.retainByPreference =
+    Ci.nsIMsgRetentionSettings.nsMsgRetainByNumHeaders;
   folderSettings.numHeadersToKeep = 8;
   folderSettings.useServerDefaults = false;
   gTestFolder.retentionSettings = folderSettings;

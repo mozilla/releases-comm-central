@@ -11,7 +11,7 @@ load("base_index_messages.js");
  */
 function* test_reparse_of_local_folder_works() {
   // index a folder
-  let [folder, msgSet] = make_folder_with_sets([{count: 1}]);
+  let [folder, msgSet] = make_folder_with_sets([{ count: 1 }]);
   yield wait_for_message_injection();
   yield wait_for_gloda_indexer(msgSet);
 
@@ -41,9 +41,9 @@ tests.unshift(test_reparse_of_local_folder_works);
  */
 function* test_fromjson_of_removed_tag() {
   // -- inject
-  let [, msgSet] = make_folder_with_sets([{count: 1}]);
+  let [, msgSet] = make_folder_with_sets([{ count: 1 }]);
   yield wait_for_message_injection();
-  yield wait_for_gloda_indexer(msgSet, {augment: true});
+  yield wait_for_gloda_indexer(msgSet, { augment: true });
   let gmsg = msgSet.glodaMessages[0];
 
   // -- tag
@@ -58,7 +58,9 @@ function* test_fromjson_of_removed_tag() {
   // this also means we have to replace the tag service with a liar.
   let realTagService = TagNoun._msgTagService;
   TagNoun._msgTagService = {
-    isValidKey() { return false; }, // lies!
+    isValidKey() {
+      return false;
+    }, // lies!
   };
 
   // -- forget about the message, gloda!
@@ -95,6 +97,6 @@ function test_nountag_does_not_think_it_has_watch_tag_when_it_does_not() {
 tests.unshift(test_nountag_does_not_think_it_has_watch_tag_when_it_does_not);
 
 function run_test() {
-  configure_message_injection({mode: "local"});
+  configure_message_injection({ mode: "local" });
   glodaHelperRunTests(tests);
 }

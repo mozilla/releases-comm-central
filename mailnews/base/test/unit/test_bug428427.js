@@ -4,7 +4,9 @@
 
 // Test of message count changes in virtual folder views
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var bugmail1 = do_get_file("../../../data/bugmail1");
 // main test
@@ -26,8 +28,16 @@ function run_test() {
   do_test_pending();
 
   // function setupVirtualFolder() continues the testing after CopyFileMessage.
-  MailServices.copy.CopyFileMessage(bugmail1, localAccountUtils.inboxFolder, null, false,
-                                    0, "", copyListener, null);
+  MailServices.copy.CopyFileMessage(
+    bugmail1,
+    localAccountUtils.inboxFolder,
+    null,
+    false,
+    0,
+    "",
+    copyListener,
+    null
+  );
   return true;
 }
 
@@ -41,8 +51,16 @@ var copyListener = {
   SetMessageId(aMessageId) {},
   OnStopCopy(aStatus) {
     if (--messageCount) {
-      MailServices.copy.CopyFileMessage(bugmail1, localAccountUtils.inboxFolder, null,
-                                        false, 0, "", copyListener, null);
+      MailServices.copy.CopyFileMessage(
+        bugmail1,
+        localAccountUtils.inboxFolder,
+        null,
+        false,
+        0,
+        "",
+        copyListener,
+        null
+      );
     } else {
       try {
         setupVirtualFolder();
@@ -63,38 +81,59 @@ function setupVirtualFolder() {
   MailServices.tags.addTagForKey(tag1, tag1, null, null);
 
   // add tag1 to 4 messages
-  var messages0to3 = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  for (var i = 0; i <= 3; i++)
+  var messages0to3 = Cc["@mozilla.org/array;1"].createInstance(
+    Ci.nsIMutableArray
+  );
+  for (var i = 0; i <= 3; i++) {
     messages0to3.appendElement(hdrs[i]);
+  }
   localAccountUtils.inboxFolder.addKeywordsToMessages(messages0to3, tag1);
 
   // set 3 messages unread, 2 messages read
-  var messages0to2 = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  for (i = 0; i <= 2; i++)
+  var messages0to2 = Cc["@mozilla.org/array;1"].createInstance(
+    Ci.nsIMutableArray
+  );
+  for (i = 0; i <= 2; i++) {
     messages0to2.appendElement(hdrs[i]);
+  }
   localAccountUtils.inboxFolder.markMessagesRead(messages0to2, false);
 
-  var messages3to4 = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  for (i = 3; i <= 4; i++)
+  var messages3to4 = Cc["@mozilla.org/array;1"].createInstance(
+    Ci.nsIMutableArray
+  );
+  for (i = 3; i <= 4; i++) {
     messages3to4.appendElement(hdrs[i]);
+  }
   localAccountUtils.inboxFolder.markMessagesRead(messages3to4, true);
 
   // search will look for tag tag1 in the inbox folder
-  var searchTerm = makeSearchTerm(localAccountUtils.inboxFolder, tag1,
-    Ci.nsMsgSearchAttrib.Keywords, Ci.nsMsgSearchOp.Contains);
+  var searchTerm = makeSearchTerm(
+    localAccountUtils.inboxFolder,
+    tag1,
+    Ci.nsMsgSearchAttrib.Keywords,
+    Ci.nsMsgSearchOp.Contains
+  );
 
   dump("creating virtual folder\n");
   var rootFolder = localAccountUtils.incomingServer.rootMsgFolder;
-  virtualFolder = CreateVirtualFolder("VfTest", rootFolder,
-                                      localAccountUtils.inboxFolder.URI, searchTerm, false);
+  virtualFolder = CreateVirtualFolder(
+    "VfTest",
+    rootFolder,
+    localAccountUtils.inboxFolder.URI,
+    searchTerm,
+    false
+  );
 
   // Setup search session. Execution continues with testVirtualFolder()
   // after search is done.
 
-  var searchSession = Cc["@mozilla.org/messenger/searchSession;1"]
-                        .createInstance(Ci.nsIMsgSearchSession);
-  searchSession.addScopeTerm(Ci.nsMsgSearchScope.offlineMail,
-                             localAccountUtils.inboxFolder);
+  var searchSession = Cc[
+    "@mozilla.org/messenger/searchSession;1"
+  ].createInstance(Ci.nsIMsgSearchSession);
+  searchSession.addScopeTerm(
+    Ci.nsMsgSearchScope.offlineMail,
+    localAccountUtils.inboxFolder
+  );
   searchSession.appendTerm(searchTerm, false);
   searchSession.registerListener(searchListener);
   dump("starting search of vf\n");
@@ -112,8 +151,9 @@ var searchListener = {
   onSearchHit(dbHdr, folder) {
     print("Search hit, isRead is " + dbHdr.isRead);
     numTotalMessages++;
-    if (!dbHdr.isRead)
+    if (!dbHdr.isRead) {
       numUnreadMessages++;
+    }
   },
   onSearchDone(status) {
     print("Finished search hitCount = " + numTotalMessages);
@@ -165,7 +205,13 @@ function testVirtualFolder() {
 // helper functions
 
 // adapted from commandglue.js
-function CreateVirtualFolder(newName, parentFolder, searchFolderURIs, searchTerm, searchOnline) {
+function CreateVirtualFolder(
+  newName,
+  parentFolder,
+  searchFolderURIs,
+  searchTerm,
+  searchOnline
+) {
   var newFolder = parentFolder.addSubfolder(newName);
   newFolder.setFlag(Ci.nsMsgFolderFlags.Virtual);
   var vfdb = newFolder.msgDatabase;
@@ -190,12 +236,14 @@ function CreateVirtualFolder(newName, parentFolder, searchFolderURIs, searchTerm
 function getSearchTermString(term) {
   var condition = "";
 
-  if (condition.length > 1)
+  if (condition.length > 1) {
     condition += " ";
+  }
 
-  if (term.matchAll)
+  if (term.matchAll) {
     condition = "ALL";
-  condition += (term.booleanAnd) ? "AND (" : "OR (";
+  }
+  condition += term.booleanAnd ? "AND (" : "OR (";
   condition += term.termAsString + ")";
   return condition;
 }
@@ -204,8 +252,9 @@ function getSearchTermString(term) {
 //   using aAttrib, aOp, and string aStrValue
 function makeSearchTerm(aFolder, aStrValue, aAttrib, aOp) {
   // use a temporary search session
-  var searchSession = Cc["@mozilla.org/messenger/searchSession;1"]
-                        .createInstance(Ci.nsIMsgSearchSession);
+  var searchSession = Cc[
+    "@mozilla.org/messenger/searchSession;1"
+  ].createInstance(Ci.nsIMsgSearchSession);
   searchSession.addScopeTerm(Ci.nsMsgSearchScope.offlineMail, aFolder);
   var searchTerm = searchSession.createTerm();
   var value = searchTerm.value;

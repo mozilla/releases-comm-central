@@ -26,15 +26,15 @@
 var server;
 var daemon;
 var incomingServer;
-test = "Server which advertises CRAM-MD5, but closes the connection when it's tried";
+test =
+  "Server which advertises CRAM-MD5, but closes the connection when it's tried";
 // that's how it currently looks like (we fail to log in):
 var expectedTransaction = ["AUTH", "CAPA", "AUTH CRAM-MD5"];
 // TODO that's how it should look like (we start a new connection and try another scheme):
 // const expectedTransaction = ["AUTH", "CAPA", "AUTH CRAM-MD5", "CAPA", "AUTH PLAIN", "STAT"];
 
 var urlListener = {
-  OnStartRunningUrl(url) {
-  },
+  OnStartRunningUrl(url) {},
   OnStopRunningUrl(url, result) {
     try {
       // We should be getting an error here, because we couldn't log in.
@@ -47,8 +47,9 @@ var urlListener = {
     } catch (e) {
       server.stop();
       var thread = gThreadManager.currentThread;
-      while (thread.hasPendingEvents())
+      while (thread.hasPendingEvents()) {
         thread.processNextEvent(true);
+      }
 
       do_throw(e);
     }
@@ -60,8 +61,9 @@ function endTest() {
   server.stop();
 
   var thread = gThreadManager.currentThread;
-  while (thread.hasPendingEvents())
+  while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
+  }
 
   do_test_finished();
 }
@@ -105,8 +107,12 @@ function run_test() {
     // check that login works after we fell back.
     msgServer.authMethod = Ci.nsMsgAuthMethod.anything;
 
-    MailServices.pop3.GetNewMail(null, urlListener, localAccountUtils.inboxFolder,
-                                 incomingServer);
+    MailServices.pop3.GetNewMail(
+      null,
+      urlListener,
+      localAccountUtils.inboxFolder,
+      incomingServer
+    );
     server.performTest();
   } catch (e) {
     server.stop();
@@ -114,7 +120,8 @@ function run_test() {
     do_throw(e);
   } finally {
     var thread = gThreadManager.currentThread;
-    while (thread.hasPendingEvents())
+    while (thread.hasPendingEvents()) {
       thread.processNextEvent(true);
+    }
   }
 }

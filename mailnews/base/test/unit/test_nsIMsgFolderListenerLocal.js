@@ -6,18 +6,18 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
- /*
-  * Test suite for nsIMsgFolderListener events due to local mail folder
-  * operations.
-  *
-  * Currently tested:
-  * - Adding new folders
-  * - Copy messages from files into the db
-  * - Moving and copying one or more messages from one local folder to another
-  * - Moving folders, with and without subfolders
-  * - Renaming folders
-  * - Deleting messages and folders, to trash and from trash (permanently)
-  */
+/*
+ * Test suite for nsIMsgFolderListener events due to local mail folder
+ * operations.
+ *
+ * Currently tested:
+ * - Adding new folders
+ * - Copy messages from files into the db
+ * - Moving and copying one or more messages from one local folder to another
+ * - Moving folders, with and without subfolders
+ * - Renaming folders
+ * - Deleting messages and folders, to trash and from trash (permanently)
+ */
 
 /* import-globals-from ../../../test/resources/msgFolderListenerSetup.js */
 load("../../../resources/msgFolderListenerSetup.js");
@@ -31,13 +31,16 @@ var gLocalTrashFolder;
 
 // storeIn takes a string containing the variable to store the new folder in
 function addFolder(parent, folderName, storeIn) {
-  gExpectedEvents = [[MailServices.mfn.folderAdded, parent, folderName, storeIn]];
+  gExpectedEvents = [
+    [MailServices.mfn.folderAdded, parent, folderName, storeIn],
+  ];
   // We won't receive a copy listener notification for this
   gCurrStatus |= kStatus.onStopCopyDone;
   parent.createSubfolder(folderName, null);
   gCurrStatus |= kStatus.functionCallDone;
-  if (gCurrStatus == kStatus.everythingDone)
+  if (gCurrStatus == kStatus.everythingDone) {
     resetStatusAndProceed();
+  }
 }
 
 /**
@@ -48,13 +51,24 @@ function addFolder(parent, folderName, storeIn) {
  */
 function copyFileMessage(file, destFolder, isDraftOrTemplate) {
   copyListener.mFolderStoredIn = destFolder;
-  gExpectedEvents = [[MailServices.mfn.msgAdded, gHdrsReceived],
-                     [MailServices.mfn.msgsClassified, gHdrsReceived, false, false]];
-  MailServices.copy.CopyFileMessage(file, destFolder, null, isDraftOrTemplate, 0, "",
-                                    copyListener, null);
+  gExpectedEvents = [
+    [MailServices.mfn.msgAdded, gHdrsReceived],
+    [MailServices.mfn.msgsClassified, gHdrsReceived, false, false],
+  ];
+  MailServices.copy.CopyFileMessage(
+    file,
+    destFolder,
+    null,
+    isDraftOrTemplate,
+    0,
+    "",
+    copyListener,
+    null
+  );
   gCurrStatus |= kStatus.functionCallDone;
-  if (gCurrStatus == kStatus.everythingDone)
+  if (gCurrStatus == kStatus.everythingDone) {
     resetStatusAndProceed();
+  }
 }
 
 function copyMessages(items, isMove, srcFolder, destFolder) {
@@ -63,12 +77,21 @@ function copyMessages(items, isMove, srcFolder, destFolder) {
     array.appendElement(item);
   });
   gExpectedEvents = [
-    [MailServices.mfn.msgsMoveCopyCompleted, isMove, items, destFolder, true]];
-  MailServices.copy.CopyMessages(srcFolder, array, destFolder, isMove, copyListener,
-                                 null, true);
+    [MailServices.mfn.msgsMoveCopyCompleted, isMove, items, destFolder, true],
+  ];
+  MailServices.copy.CopyMessages(
+    srcFolder,
+    array,
+    destFolder,
+    isMove,
+    copyListener,
+    null,
+    true
+  );
   gCurrStatus |= kStatus.functionCallDone;
-  if (gCurrStatus == kStatus.everythingDone)
+  if (gCurrStatus == kStatus.everythingDone) {
     resetStatusAndProceed();
+  }
 }
 
 function copyFolders(items, isMove, destFolder) {
@@ -76,11 +99,14 @@ function copyFolders(items, isMove, destFolder) {
   items.forEach(function(item) {
     array.appendElement(item);
   });
-  gExpectedEvents = [[MailServices.mfn.folderMoveCopyCompleted, isMove, items, destFolder]];
+  gExpectedEvents = [
+    [MailServices.mfn.folderMoveCopyCompleted, isMove, items, destFolder],
+  ];
   MailServices.copy.CopyFolders(array, destFolder, isMove, copyListener, null);
   gCurrStatus |= kStatus.functionCallDone;
-  if (gCurrStatus == kStatus.everythingDone)
+  if (gCurrStatus == kStatus.everythingDone) {
     resetStatusAndProceed();
+  }
 }
 
 function deleteMessages(srcFolder, items, deleteStorage, isMove) {
@@ -97,14 +123,29 @@ function deleteMessages(srcFolder, items, deleteStorage, isMove) {
     gExpectedEvents = [[MailServices.mfn.msgsDeleted, items]];
   } else {
     // We have to be getting a move notification, even if isMove is false
-    gExpectedEvents = [[MailServices.mfn.msgsMoveCopyCompleted, true, items,
-                        gLocalTrashFolder, true]];
+    gExpectedEvents = [
+      [
+        MailServices.mfn.msgsMoveCopyCompleted,
+        true,
+        items,
+        gLocalTrashFolder,
+        true,
+      ],
+    ];
   }
 
-  srcFolder.deleteMessages(array, null, deleteStorage, isMove, copyListener, true);
+  srcFolder.deleteMessages(
+    array,
+    null,
+    deleteStorage,
+    isMove,
+    copyListener,
+    true
+  );
   gCurrStatus |= kStatus.functionCallDone;
-  if (gCurrStatus == kStatus.everythingDone)
+  if (gCurrStatus == kStatus.everythingDone) {
     resetStatusAndProceed();
+  }
 }
 
 function renameFolder(folder, newName) {
@@ -112,13 +153,13 @@ function renameFolder(folder, newName) {
   gCurrStatus = kStatus.onStopCopyDone;
   folder.rename(newName, null);
   gCurrStatus |= kStatus.functionCallDone;
-  if (gCurrStatus == kStatus.everythingDone)
+  if (gCurrStatus == kStatus.everythingDone) {
     resetStatusAndProceed();
+  }
 }
 
 function deleteFolder(folder, child) {
-  var array = Cc["@mozilla.org/array;1"]
-                .createInstance(Ci.nsIMutableArray);
+  var array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   array.appendElement(folder);
   // We won't be getting any OnStopCopy notification at all
   // XXX delete to trash should get one, but we'll need to pass the listener
@@ -126,31 +167,45 @@ function deleteFolder(folder, child) {
   gCurrStatus = kStatus.onStopCopyDone;
   // If ancestor is trash, expect a folderDeleted, otherwise expect
   // a folderMoveCopyCompleted.
-  if (gLocalTrashFolder.isAncestorOf(folder))
-    if (child)
-      gExpectedEvents = [[MailServices.mfn.folderDeleted, [child]],
-                         [MailServices.mfn.folderDeleted, [folder]]];
-    else
+  if (gLocalTrashFolder.isAncestorOf(folder)) {
+    if (child) {
+      gExpectedEvents = [
+        [MailServices.mfn.folderDeleted, [child]],
+        [MailServices.mfn.folderDeleted, [folder]],
+      ];
+    } else {
       gExpectedEvents = [[MailServices.mfn.folderDeleted, [folder]]];
-  else
-    gExpectedEvents = [[MailServices.mfn.folderMoveCopyCompleted, true,
-                        [folder], gLocalTrashFolder]];
+    }
+  } else {
+    gExpectedEvents = [
+      [
+        MailServices.mfn.folderMoveCopyCompleted,
+        true,
+        [folder],
+        gLocalTrashFolder,
+      ],
+    ];
+  }
 
   folder.parent.deleteSubFolders(array, null);
   gCurrStatus |= kStatus.functionCallDone;
-  if (gCurrStatus == kStatus.everythingDone)
+  if (gCurrStatus == kStatus.everythingDone) {
     resetStatusAndProceed();
+  }
 }
 
 function compactFolder(folder) {
-  gExpectedEvents = [[MailServices.mfn.itemEvent, folder, "FolderCompactStart"],
-                     [MailServices.mfn.itemEvent, folder, "FolderCompactFinish"]];
+  gExpectedEvents = [
+    [MailServices.mfn.itemEvent, folder, "FolderCompactStart"],
+    [MailServices.mfn.itemEvent, folder, "FolderCompactFinish"],
+  ];
   // We won't receive a copy listener notification for this
   gCurrStatus |= kStatus.onStopCopyDone;
   folder.compact(null, null);
   gCurrStatus |= kStatus.functionCallDone;
-  if (gCurrStatus == kStatus.everythingDone)
+  if (gCurrStatus == kStatus.everythingDone) {
     resetStatusAndProceed();
+  }
 }
 
 /*
@@ -162,11 +217,15 @@ var gTestArray = [
   // Adding folders
   // Create another folder to move and copy messages around, and force initialization.
   function addFolder1() {
-    addFolder(gRootFolder, "folder2", function(folder) { gLocalFolder2 = folder; });
+    addFolder(gRootFolder, "folder2", function(folder) {
+      gLocalFolder2 = folder;
+    });
   },
   // Create a third folder for more testing.
   function addFolder2() {
-    addFolder(gRootFolder, "folder3", function(folder) { gLocalFolder3 = folder; });
+    addFolder(gRootFolder, "folder3", function(folder) {
+      gLocalFolder3 = folder;
+    });
   },
   // Folder structure is now
   // Inbox
@@ -187,26 +246,49 @@ var gTestArray = [
 
   // Moving/copying messages
   function testCopyMessages1() {
-    copyMessages([gMsgHdrs[0].hdr], false, localAccountUtils.inboxFolder, gLocalFolder2);
+    copyMessages(
+      [gMsgHdrs[0].hdr],
+      false,
+      localAccountUtils.inboxFolder,
+      gLocalFolder2
+    );
   },
   function testCopyMessages2() {
-    copyMessages([gMsgHdrs[1].hdr, gMsgHdrs[2].hdr], false, localAccountUtils.inboxFolder, gLocalFolder2);
+    copyMessages(
+      [gMsgHdrs[1].hdr, gMsgHdrs[2].hdr],
+      false,
+      localAccountUtils.inboxFolder,
+      gLocalFolder2
+    );
   },
   function testMoveMessages1() {
-    copyMessages([gMsgHdrs[0].hdr, gMsgHdrs[1].hdr], true, localAccountUtils.inboxFolder, gLocalFolder3);
+    copyMessages(
+      [gMsgHdrs[0].hdr, gMsgHdrs[1].hdr],
+      true,
+      localAccountUtils.inboxFolder,
+      gLocalFolder3
+    );
   },
   function testMoveMessages2() {
-    copyMessages([gMsgHdrs[2].hdr], true, localAccountUtils.inboxFolder, gLocalTrashFolder);
+    copyMessages(
+      [gMsgHdrs[2].hdr],
+      true,
+      localAccountUtils.inboxFolder,
+      gLocalTrashFolder
+    );
   },
   function testMoveMessages3() {
     // This is to test whether the notification is correct for moving from trash
-    gMsgHdrs[2].hdr = gLocalTrashFolder.msgDatabase
-                                       .getMsgHdrForMessageID(gMsgHdrs[2].ID);
+    gMsgHdrs[2].hdr = gLocalTrashFolder.msgDatabase.getMsgHdrForMessageID(
+      gMsgHdrs[2].ID
+    );
     copyMessages([gMsgHdrs[2].hdr], true, gLocalTrashFolder, gLocalFolder3);
   },
 
   // Moving/copying folders
-  function testCopyFolder1() { copyFolders([gLocalFolder3], false, gLocalFolder2); },
+  function testCopyFolder1() {
+    copyFolders([gLocalFolder3], false, gLocalFolder2);
+  },
   function testMoveFolder1() {
     copyFolders([gLocalFolder3], true, localAccountUtils.inboxFolder);
   },
@@ -221,34 +303,56 @@ var gTestArray = [
   // Trash
 
   // Deleting messages
-  function testDeleteMessages1() { // delete to trash
+  function testDeleteMessages1() {
+    // delete to trash
     // Let's take a moment to re-initialize stuff that got moved
     gLocalFolder2 = localAccountUtils.inboxFolder.getChildNamed("folder2");
     gLocalFolder3 = gLocalFolder2.getChildNamed("folder3");
     var folder3DB = gLocalFolder3.msgDatabase;
-    for (var i = 0; i < gMsgHdrs.length; i++)
+    for (var i = 0; i < gMsgHdrs.length; i++) {
       gMsgHdrs[i].hdr = folder3DB.getMsgHdrForMessageID(gMsgHdrs[i].ID);
+    }
 
     // Now delete the message
-    deleteMessages(gLocalFolder3, [gMsgHdrs[0].hdr, gMsgHdrs[1].hdr], false, false);
+    deleteMessages(
+      gLocalFolder3,
+      [gMsgHdrs[0].hdr, gMsgHdrs[1].hdr],
+      false,
+      false
+    );
   },
   // shift delete
-  function testDeleteMessages2() { deleteMessages(gLocalFolder3, [gMsgHdrs[2].hdr], true, false); },
-  function testDeleteMessages3() { // normal delete from trash
+  function testDeleteMessages2() {
+    deleteMessages(gLocalFolder3, [gMsgHdrs[2].hdr], true, false);
+  },
+  function testDeleteMessages3() {
+    // normal delete from trash
     var trashDB = gLocalTrashFolder.msgDatabase;
-    for (var i = 0; i < gMsgHdrs.length; i++)
+    for (var i = 0; i < gMsgHdrs.length; i++) {
       gMsgHdrs[i].hdr = trashDB.getMsgHdrForMessageID(gMsgHdrs[i].ID);
+    }
     deleteMessages(gLocalTrashFolder, [gMsgHdrs[0].hdr], false, false);
   },
   // shift delete from trash
-  function testDeleteMessages4() { deleteMessages(gLocalTrashFolder, [gMsgHdrs[1].hdr], true, false); },
+  function testDeleteMessages4() {
+    deleteMessages(gLocalTrashFolder, [gMsgHdrs[1].hdr], true, false);
+  },
 
   // Renaming folders
-  function testRename1() { renameFolder(gLocalFolder3, "folder4"); },
-  function testRename2() { renameFolder(gLocalFolder2.getChildNamed("folder4"), "folder3"); },
-  function testRename3() { renameFolder(gLocalFolder2, "folder4"); },
+  function testRename1() {
+    renameFolder(gLocalFolder3, "folder4");
+  },
+  function testRename2() {
+    renameFolder(gLocalFolder2.getChildNamed("folder4"), "folder3");
+  },
+  function testRename3() {
+    renameFolder(gLocalFolder2, "folder4");
+  },
   function testRename4() {
-    renameFolder(localAccountUtils.inboxFolder.getChildNamed("folder4"), "folder2");
+    renameFolder(
+      localAccountUtils.inboxFolder.getChildNamed("folder4"),
+      "folder2"
+    );
   },
 
   // Folder structure should still be
@@ -292,15 +396,16 @@ var gTestArray = [
     deleteFolder(gLocalFolder2, gLocalFolder3);
   },
   function compactInbox() {
-    if (localAccountUtils.inboxFolder.msgStore.supportsCompaction)
+    if (localAccountUtils.inboxFolder.msgStore.supportsCompaction) {
       compactFolder(localAccountUtils.inboxFolder);
-    else
+    } else {
       doTest(++gTest);
+    }
   },
 ];
-  // Folder structure should just be
-  // Inbox
-  // Trash
+// Folder structure should just be
+// Inbox
+// Trash
 
 function run_test() {
   localAccountUtils.loadLocalMailAccount();
@@ -329,11 +434,15 @@ function doTest(test) {
     var testFn = gTestArray[test - 1];
     // Set a limit of 10 seconds; if the notifications haven't arrived by then there's a problem.
     do_timeout(10000, function() {
-        if (gTest == test)
-          do_throw("Notifications not received in 10000 ms for operation " + testFn.name +
-            ", current status is " + gCurrStatus);
-        }
-      );
+      if (gTest == test) {
+        do_throw(
+          "Notifications not received in 10000 ms for operation " +
+            testFn.name +
+            ", current status is " +
+            gCurrStatus
+        );
+      }
+    });
     dump("=== Test: " + testFn.name + "\n");
     testFn();
   } else {

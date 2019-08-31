@@ -1,16 +1,18 @@
 var CC = Components.Constructor;
 
 function CreateScriptableConverter() {
-  var ScriptableUnicodeConverter =
-    CC("@mozilla.org/intl/scriptableunicodeconverter",
-       "nsIScriptableUnicodeConverter");
+  var ScriptableUnicodeConverter = CC(
+    "@mozilla.org/intl/scriptableunicodeconverter",
+    "nsIScriptableUnicodeConverter"
+  );
 
   return new ScriptableUnicodeConverter();
 }
 
 function checkDecode(converter, charset, inText, expectedText) {
-  let manager = Cc["@mozilla.org/charset-converter-manager;1"]
-                  .getService(Ci.nsICharsetConverterManager);
+  let manager = Cc["@mozilla.org/charset-converter-manager;1"].getService(
+    Ci.nsICharsetConverterManager
+  );
 
   try {
     converter.charset = manager.getCharsetAlias(charset);
@@ -28,8 +30,9 @@ function checkDecode(converter, charset, inText, expectedText) {
 }
 
 function checkEncode(converter, charset, inText, expectedText) {
-  let manager = Cc["@mozilla.org/charset-converter-manager;1"]
-                  .getService(Ci.nsICharsetConverterManager);
+  let manager = Cc["@mozilla.org/charset-converter-manager;1"].getService(
+    Ci.nsICharsetConverterManager
+  );
 
   try {
     converter.charset = manager.getCharsetAlias(charset);

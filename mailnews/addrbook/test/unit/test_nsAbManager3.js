@@ -8,8 +8,7 @@
 
 var gAbListener;
 
-function abListener() {
-}
+function abListener() {}
 
 abListener.prototype = {
   mReceived: 0,
@@ -62,7 +61,10 @@ function removeDirectory(directory) {
   MailServices.ab.deleteAddressBook(directory.URI);
 
   Assert.equal(gAbListener.mReceived, Ci.nsIAbListener.directoryRemoved);
-  Assert.equal(gAbListener.mDirectory, directory.QueryInterface(Ci.nsIAbDirectory));
+  Assert.equal(
+    gAbListener.mDirectory,
+    directory.QueryInterface(Ci.nsIAbDirectory)
+  );
 
   gAbListener.reset();
 }

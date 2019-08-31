@@ -1,4 +1,6 @@
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 /* import-globals-from resources/mock_windows_reg_factory.js */
 load("resources/mock_windows_reg_factory.js");
@@ -126,4 +128,3 @@ function run_test() {
   _test(new Outlook98Registry(new POP3Account()), expectedPop3Account);
   _test(new Outlook98Registry(new IMAPAccount()), expectedImapAccount);
 }
-

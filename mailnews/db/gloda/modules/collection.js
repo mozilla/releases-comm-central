@@ -4,7 +4,7 @@
 
 this.EXPORTED_SYMBOLS = ["GlodaCollection", "GlodaCollectionManager"];
 
-const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 var LOG = Log4Moz.repository.getLogger("gloda.collection");
 
@@ -38,15 +38,16 @@ var GlodaCollectionManager = {
       collections = this._collectionsByNoun[nounID] = [];
     } else {
       // purge dead weak references while we're at it
-      collections = this._collectionsByNoun[nounID].filter((aRef) => aRef.get());
+      collections = this._collectionsByNoun[nounID].filter(aRef => aRef.get());
       this._collectionsByNoun[nounID] = collections;
     }
     collections.push(Cu.getWeakReference(aCollection));
   },
 
   getCollectionsForNounID(aNounID) {
-    if (!(aNounID in this._collectionsByNoun))
+    if (!(aNounID in this._collectionsByNoun)) {
       return [];
+    }
 
     // generator would be nice, but I suspect get() is too expensive to use
     //  twice (guard/predicate and value)
@@ -54,15 +55,18 @@ var GlodaCollectionManager = {
     let collections = [];
     for (let iColl = 0; iColl < weakCollections.length; iColl++) {
       let collection = weakCollections[iColl].get();
-      if (collection)
+      if (collection) {
         collections.push(collection);
+      }
     }
     return collections;
   },
 
   defineCache(aNounDef, aCacheSize) {
-    this._cachesByNoun[aNounDef.id] = new GlodaLRUCacheCollection(aNounDef,
-                                                                   aCacheSize);
+    this._cachesByNoun[aNounDef.id] = new GlodaLRUCacheCollection(
+      aNounDef,
+      aCacheSize
+    );
   },
 
   /**
@@ -80,14 +84,16 @@ var GlodaCollectionManager = {
       }
     }
 
-    if (aDoCache === false)
+    if (aDoCache === false) {
       cache = null;
+    }
 
     for (let collection of this.getCollectionsForNounID(aNounID)) {
       if (aID in collection._idMap) {
         let item = collection._idMap[aID];
-        if (cache)
+        if (cache) {
           cache.add([item]);
+        }
         return item;
       }
     }
@@ -114,7 +120,9 @@ var GlodaCollectionManager = {
    *          were not found.]
    */
   cacheLookupMany(aNounID, aIDMap, aTargetMap, aDoCache) {
-    let foundCount = 0, notFoundCount = 0, notFound = {};
+    let foundCount = 0,
+      notFoundCount = 0,
+      notFound = {};
 
     let cache = this._cachesByNoun[aNounID];
 
@@ -132,8 +140,9 @@ var GlodaCollectionManager = {
       }
     }
 
-    if (aDoCache === false)
+    if (aDoCache === false) {
       cache = null;
+    }
 
     for (let collection of this.getCollectionsForNounID(aNounID)) {
       for (let key in notFound) {
@@ -143,8 +152,9 @@ var GlodaCollectionManager = {
           delete notFound[key];
           foundCount++;
           notFoundCount--;
-          if (cache)
+          if (cache) {
             cache.add([collValue]);
+          }
         }
       }
     }
@@ -160,7 +170,8 @@ var GlodaCollectionManager = {
    *  to tweak what is in memory.
    */
   cacheLookupManyList(aNounID, aIds) {
-    let checkMap = {}, targetMap = {};
+    let checkMap = {},
+      targetMap = {};
     for (let id of aIds) {
       checkMap[id] = null;
     }
@@ -184,14 +195,16 @@ var GlodaCollectionManager = {
       }
     }
 
-    if (aDoCache === false)
+    if (aDoCache === false) {
       cache = null;
+    }
 
     for (let collection of this.getCollectionsForNounID(aNounID)) {
       if (aUniqueValue in collection._uniqueValueMap) {
         let item = collection._uniqueValueMap[aUniqueValue];
-        if (cache)
+        if (cache) {
           cache.add([item]);
+        }
         return item;
       }
     }
@@ -220,8 +233,9 @@ var GlodaCollectionManager = {
    */
   cacheLoadUnify(aNounID, aItems, aCacheIfMissing) {
     let cache = this._cachesByNoun[aNounID];
-    if (aCacheIfMissing === undefined)
+    if (aCacheIfMissing === undefined) {
       aCacheIfMissing = true;
+    }
 
     // track the items we haven't yet found in a cache/collection (value) and
     //  their index in aItems (key).  We're somewhat abusing the dictionary
@@ -248,8 +262,9 @@ var GlodaCollectionManager = {
       }
 
       // we're done if everyone was a hit.
-      if (numUnresolved == 0)
+      if (numUnresolved == 0) {
         return;
+      }
     } else {
       for (let iItem = 0; iItem < aItems.length; iItem++) {
         unresolvedIndexToItem[iItem] = aItems[iItem];
@@ -270,8 +285,9 @@ var GlodaCollectionManager = {
           // we no longer need to resolve this item...
           delete unresolvedIndexToItem[iItem];
           // stop checking collections if we got everybody
-          if (--numUnresolved == 0)
+          if (--numUnresolved == 0) {
             break;
+          }
         }
       }
     }
@@ -279,8 +295,13 @@ var GlodaCollectionManager = {
     // anything left in unresolvedIndexToItem should be added to the cache
     //  unless !aCacheIfMissing.  plus, we already have 'needToCache'
     if (cache && aCacheIfMissing) {
-      cache.add(needToCache.concat(Object.keys(unresolvedIndexToItem).
-                                   map(key => unresolvedIndexToItem[key])));
+      cache.add(
+        needToCache.concat(
+          Object.keys(unresolvedIndexToItem).map(
+            key => unresolvedIndexToItem[key]
+          )
+        )
+      );
     }
   },
 
@@ -328,8 +349,9 @@ var GlodaCollectionManager = {
 
     for (let collection of this.getCollectionsForNounID(aNounID)) {
       let addItems = aItems.filter(item => collection.query.test(item));
-      if (addItems.length)
+      if (addItems.length) {
         collection._onItemsAdded(addItems);
+      }
     }
   },
   /**
@@ -345,7 +367,9 @@ var GlodaCollectionManager = {
    */
   itemsModified(aNounID, aItems) {
     for (let collection of this.getCollectionsForNounID(aNounID)) {
-      let added = [], modified = [], removed = [];
+      let added = [],
+        modified = [],
+        removed = [];
       for (let item of aItems) {
         if (item.id in collection._idMap) {
           // currently in... but should it still be there?
@@ -358,16 +382,20 @@ var GlodaCollectionManager = {
             //  frozen attribute to this end.
             removed.push(item); // no, bin it
           }
-        } else if (collection.query.test(item)) { // not in, should it be?
+        } else if (collection.query.test(item)) {
+          // not in, should it be?
           added.push(item); // yep, add it
         }
       }
-      if (added.length)
+      if (added.length) {
         collection._onItemsAdded(added);
-      if (modified.length)
+      }
+      if (modified.length) {
         collection._onItemsModified(modified);
-      if (removed.length)
+      }
+      if (removed.length) {
         collection._onItemsRemoved(removed);
+      }
     }
   },
   /**
@@ -386,17 +414,20 @@ var GlodaCollectionManager = {
     let cache = this._cachesByNoun[aNounID];
     if (cache) {
       for (let itemId of aItemIds) {
-        if (itemId in cache._idMap)
+        if (itemId in cache._idMap) {
           cache.deleted(cache._idMap[itemId]);
+        }
       }
     }
 
     // collections
     for (let collection of this.getCollectionsForNounID(aNounID)) {
-      let removeItems = aItemIds.filter(itemId => itemId in collection._idMap).
-        map(itemId => collection._idMap[itemId]);
-      if (removeItems.length)
+      let removeItems = aItemIds
+        .filter(itemId => itemId in collection._idMap)
+        .map(itemId => collection._idMap[itemId]);
+      if (removeItems.length) {
         collection._onItemsRemoved(removeItems);
+      }
     }
   },
   /**
@@ -422,16 +453,18 @@ var GlodaCollectionManager = {
     if (cache) {
       for (let id in cache._idMap) {
         let item = cache._idMap[id];
-        if (aFilter(item))
+        if (aFilter(item)) {
           cache.deleted(item);
+        }
       }
     }
 
     // collections
     for (let collection of this.getCollectionsForNounID(aNounID)) {
       let removeItems = collection.items.filter(aFilter);
-      if (removeItems.length)
+      if (removeItems.length) {
         collection._onItemsRemoved(removeItems);
+      }
     }
   },
 };
@@ -445,16 +478,23 @@ var GlodaCollectionManager = {
  *  because it is exposing those attributes).
  * @constructor
  */
-function GlodaCollection(aNounDef, aItems, aQuery, aListener,
-      aMasterCollection) {
+function GlodaCollection(
+  aNounDef,
+  aItems,
+  aQuery,
+  aListener,
+  aMasterCollection
+) {
   // if aNounDef is null, we are just being invoked for subclassing
-  if (aNounDef === undefined)
+  if (aNounDef === undefined) {
     return;
+  }
 
   this._nounDef = aNounDef;
   // should we also maintain a unique value mapping...
-  if (this._nounDef.usesUniqueValue)
+  if (this._nounDef.usesUniqueValue) {
     this._uniqueValueMap = {};
+  }
 
   this.pendingItems = [];
   this._pendingIdMap = {};
@@ -464,14 +504,16 @@ function GlodaCollection(aNounDef, aItems, aQuery, aListener,
   // force the listener to null for our call to _onItemsAdded; no events for
   //  the initial load-out.
   this._listener = null;
-  if (aItems && aItems.length)
+  if (aItems && aItems.length) {
     this._onItemsAdded(aItems);
+  }
 
   this.query = aQuery || null;
   if (this.query) {
     this.query.collection = this;
-    if (this.query.options.stashColumns)
+    if (this.query.options.stashColumns) {
       this.stashedColumns = {};
+    }
   }
   this._listener = aListener || null;
 
@@ -503,8 +545,12 @@ function GlodaCollection(aNounDef, aItems, aQuery, aListener,
 }
 
 GlodaCollection.prototype = {
-  get listener() { return this._listener; },
-  set listener(aListener) { this._listener = aListener; },
+  get listener() {
+    return this._listener;
+  },
+  set listener(aListener) {
+    this._listener = aListener;
+  },
 
   /**
    * If this collection still has a query associated with it, drop the query
@@ -530,8 +576,9 @@ GlodaCollection.prototype = {
    */
   clear() {
     this._idMap = {};
-    if (this._uniqueValueMap)
+    if (this._uniqueValueMap) {
       this._uniqueValueMap = {};
+    }
     this.items = [];
   },
 
@@ -551,8 +598,14 @@ GlodaCollection.prototype = {
       try {
         this._listener.onItemsAdded(aItems, this);
       } catch (ex) {
-        LOG.error("caught exception from listener in onItemsAdded: " +
-            ex.fileName + ":" + ex.lineNumber + ": " + ex);
+        LOG.error(
+          "caught exception from listener in onItemsAdded: " +
+            ex.fileName +
+            ":" +
+            ex.lineNumber +
+            ": " +
+            ex
+        );
       }
     }
   },
@@ -562,8 +615,14 @@ GlodaCollection.prototype = {
       try {
         this._listener.onItemsModified(aItems, this);
       } catch (ex) {
-        LOG.error("caught exception from listener in onItemsModified: " +
-            ex.fileName + ":" + ex.lineNumber + ": " + ex);
+        LOG.error(
+          "caught exception from listener in onItemsModified: " +
+            ex.fileName +
+            ":" +
+            ex.lineNumber +
+            ": " +
+            ex
+        );
       }
     }
   },
@@ -582,16 +641,18 @@ GlodaCollection.prototype = {
     for (let item of aItems) {
       deleteMap[item.id] = true;
       delete this._idMap[item.id];
-      if (this._uniqueValueMap)
+      if (this._uniqueValueMap) {
         delete this._uniqueValueMap[item.uniqueValue];
+      }
     }
     let items = this.items;
     // in-place filter.  probably needless optimization.
     let iWrite = 0;
     for (let iRead = 0; iRead < items.length; iRead++) {
       let item = items[iRead];
-      if (!(item.id in deleteMap))
+      if (!(item.id in deleteMap)) {
         items[iWrite++] = item;
+      }
     }
     items.splice(iWrite);
 
@@ -599,16 +660,23 @@ GlodaCollection.prototype = {
       try {
         this._listener.onItemsRemoved(aItems, this);
       } catch (ex) {
-        LOG.error("caught exception from listener in onItemsRemoved: " +
-            ex.fileName + ":" + ex.lineNumber + ": " + ex);
+        LOG.error(
+          "caught exception from listener in onItemsRemoved: " +
+            ex.fileName +
+            ":" +
+            ex.lineNumber +
+            ": " +
+            ex
+        );
       }
     }
   },
 
   _onQueryCompleted() {
     this.query.completed = true;
-    if (this._listener && this._listener.onQueryCompleted)
+    if (this._listener && this._listener.onQueryCompleted) {
       this._listener.onQueryCompleted(this);
+    }
   },
 };
 
@@ -623,8 +691,9 @@ function GlodaLRUCacheCollection(aNounDef, aCacheSize) {
   this._tail = null; // aka newest!
   this._size = 0;
   // let's keep things sane, and simplify our logic a little...
-  if (aCacheSize < 32)
+  if (aCacheSize < 32) {
     aCacheSize = 32;
+  }
   this._maxCacheSize = aCacheSize;
 }
 /**
@@ -634,7 +703,7 @@ function GlodaLRUCacheCollection(aNounDef, aCacheSize) {
  *  cached objects.
  * @augments GlodaCollection
  */
-GlodaLRUCacheCollection.prototype = new GlodaCollection;
+GlodaLRUCacheCollection.prototype = new GlodaCollection();
 GlodaLRUCacheCollection.prototype.add = function(aItems) {
   for (let item of aItems) {
     if (item.id in this._idMap) {
@@ -643,16 +712,18 @@ GlodaLRUCacheCollection.prototype.add = function(aItems) {
       continue;
     }
     this._idMap[item.id] = item;
-    if (this._uniqueValueMap)
+    if (this._uniqueValueMap) {
       this._uniqueValueMap[item.uniqueValue] = item;
+    }
 
     item._lruPrev = this._tail;
     // we do have to make sure that we will set _head the first time we insert
     //  something
-    if (this._tail !== null)
+    if (this._tail !== null) {
       this._tail._lruNext = item;
-    else
+    } else {
       this._head = item;
+    }
     item._lruNext = null;
     this._tail = item;
 
@@ -672,8 +743,9 @@ GlodaLRUCacheCollection.prototype.add = function(aItems) {
 
     // nuke from our id map
     delete this._idMap[item.id];
-    if (this._uniqueValueMap)
+    if (this._uniqueValueMap) {
       delete this._uniqueValueMap[item.uniqueValue];
+    }
 
     // flush dirty items to disk (they may not have this attribute, in which
     //  case, this returns false, which is fine.)
@@ -689,14 +761,16 @@ GlodaLRUCacheCollection.prototype.add = function(aItems) {
 GlodaLRUCacheCollection.prototype.hit = function(aItem) {
   // don't do anything in the 0 or 1 items case, or if we're already
   //  the last item
-  if ((this._head === this._tail) || (this._tail === aItem))
+  if (this._head === this._tail || this._tail === aItem) {
     return aItem;
+  }
 
   // - unlink the item
-  if (aItem._lruPrev !== null)
+  if (aItem._lruPrev !== null) {
     aItem._lruPrev._lruNext = aItem._lruNext;
-  else
+  } else {
     this._head = aItem._lruNext;
+  }
   // (_lruNext cannot be null)
   aItem._lruNext._lruPrev = aItem._lruPrev;
   // - link it in to the end
@@ -711,14 +785,16 @@ GlodaLRUCacheCollection.prototype.hit = function(aItem) {
 
 GlodaLRUCacheCollection.prototype.deleted = function(aItem) {
   // unlink the item
-  if (aItem._lruPrev !== null)
+  if (aItem._lruPrev !== null) {
     aItem._lruPrev._lruNext = aItem._lruNext;
-  else
+  } else {
     this._head = aItem._lruNext;
-  if (aItem._lruNext !== null)
+  }
+  if (aItem._lruNext !== null) {
     aItem._lruNext._lruPrev = aItem._lruPrev;
-  else
+  } else {
     this._tail = aItem._lruPrev;
+  }
 
   // (because we are nice, we will delete the properties...)
   delete aItem._lruNext;
@@ -726,8 +802,9 @@ GlodaLRUCacheCollection.prototype.deleted = function(aItem) {
 
   // nuke from our id map
   delete this._idMap[aItem.id];
-  if (this._uniqueValueMap)
+  if (this._uniqueValueMap) {
     delete this._uniqueValueMap[aItem.uniqueValue];
+  }
 
   this._size--;
 };
@@ -738,8 +815,9 @@ GlodaLRUCacheCollection.prototype.deleted = function(aItem) {
  */
 GlodaLRUCacheCollection.prototype.commitDirty = function() {
   // we can only do this if there is an update method available...
-  if (!this._nounDef.objUpdate)
+  if (!this._nounDef.objUpdate) {
     return;
+  }
 
   for (let iItem in this._idMap) {
     let item = this._idMap[iItem];

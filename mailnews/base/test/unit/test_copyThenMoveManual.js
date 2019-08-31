@@ -8,8 +8,12 @@
 /* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/POP3pump.js");
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+const { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 var gFiles = ["../../../data/bugmail1"];
 var gCopyFolder;
@@ -43,14 +47,20 @@ var gTestArray = [
   },
   // test applying filters to a message header
   async function applyFilters() {
-    let messages = Cc["@mozilla.org/array;1"]
-                     .createInstance(Ci.nsIMutableArray);
+    let messages = Cc["@mozilla.org/array;1"].createInstance(
+      Ci.nsIMutableArray
+    );
     messages.appendElement(localAccountUtils.inboxFolder.firstNewMessage);
-    let promiseFolderEvent =
-      PromiseTestUtils.promiseFolderEvent(localAccountUtils.inboxFolder,
-                                          "DeleteOrMoveMsgCompleted");
-    MailServices.filters.applyFilters(Ci.nsMsgFilterType.Manual,
-                                      messages, localAccountUtils.inboxFolder, null);
+    let promiseFolderEvent = PromiseTestUtils.promiseFolderEvent(
+      localAccountUtils.inboxFolder,
+      "DeleteOrMoveMsgCompleted"
+    );
+    MailServices.filters.applyFilters(
+      Ci.nsMsgFilterType.Manual,
+      messages,
+      localAccountUtils.inboxFolder,
+      null
+    );
     await promiseFolderEvent;
   },
   function verifyFolders1() {
@@ -68,12 +78,12 @@ var gTestArray = [
   },
   // use the alternate call into the filter service
   async function applyFiltersToFolders() {
-    let folders = Cc["@mozilla.org/array;1"]
-                    .createInstance(Ci.nsIMutableArray);
+    let folders = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
     folders.appendElement(localAccountUtils.inboxFolder);
-    let promiseFolderEvent =
-      PromiseTestUtils.promiseFolderEvent(localAccountUtils.inboxFolder,
-                                          "DeleteOrMoveMsgCompleted");
+    let promiseFolderEvent = PromiseTestUtils.promiseFolderEvent(
+      localAccountUtils.inboxFolder,
+      "DeleteOrMoveMsgCompleted"
+    );
     MailServices.filters.applyFiltersToFolders(gFilterList, folders, null);
     await promiseFolderEvent;
   },
@@ -104,8 +114,9 @@ function folderCount(folder) {
 }
 
 function run_test() {
-  if (!localAccountUtils.inboxFolder)
+  if (!localAccountUtils.inboxFolder) {
     localAccountUtils.loadLocalMailAccount();
+  }
 
   gCopyFolder = localAccountUtils.rootFolder.createLocalSubfolder("CopyFolder");
   gMoveFolder = localAccountUtils.rootFolder.createLocalSubfolder("MoveFolder");

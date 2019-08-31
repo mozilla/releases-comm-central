@@ -6,27 +6,37 @@
 /* import-globals-from am-prefs.js */
 /* import-globals-from amUtils.js */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { fixIterator } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 var gDeferredToAccount = "";
 
 function onInit(aPageId, aServerId) {
   // manually adjust several pref UI elements
-  document.getElementById("server.spamLevel.visible").setAttribute("checked",
-    document.getElementById("server.spamLevel").value > 0);
+  document
+    .getElementById("server.spamLevel.visible")
+    .setAttribute(
+      "checked",
+      document.getElementById("server.spamLevel").value > 0
+    );
 
   let deferredToURI = null;
-  if (gDeferredToAccount)
-    deferredToURI = MailServices.accounts
-                                .getAccount(gDeferredToAccount)
-                                .incomingServer.serverURI;
+  if (gDeferredToAccount) {
+    deferredToURI = MailServices.accounts.getAccount(gDeferredToAccount)
+      .incomingServer.serverURI;
+  }
 
-  let spamActionTargetAccountElement =
-    document.getElementById("server.spamActionTargetAccount");
-  let spamActionTargetFolderElement =
-    document.getElementById("server.spamActionTargetFolder");
+  let spamActionTargetAccountElement = document.getElementById(
+    "server.spamActionTargetAccount"
+  );
+  let spamActionTargetFolderElement = document.getElementById(
+    "server.spamActionTargetFolder"
+  );
 
   let spamActionTargetAccount = spamActionTargetAccountElement.value;
   let spamActionTargetFolder = spamActionTargetFolderElement.value;
@@ -35,13 +45,18 @@ function onInit(aPageId, aServerId) {
   let moveOnSpamValue = moveOnSpamCheckbox.checked;
 
   // Check if there are any invalid junk targets and fix them.
-  [ spamActionTargetAccount, spamActionTargetFolder, moveOnSpamValue ] =
-    sanitizeJunkTargets(spamActionTargetAccount,
-                        spamActionTargetFolder,
-                        deferredToURI || aServerId,
-                        document.getElementById("server.moveTargetMode").value,
-                        MailUtils.getOrCreateFolder(aServerId).server.spamSettings,
-                        moveOnSpamValue);
+  [
+    spamActionTargetAccount,
+    spamActionTargetFolder,
+    moveOnSpamValue,
+  ] = sanitizeJunkTargets(
+    spamActionTargetAccount,
+    spamActionTargetFolder,
+    deferredToURI || aServerId,
+    document.getElementById("server.moveTargetMode").value,
+    MailUtils.getOrCreateFolder(aServerId).server.spamSettings,
+    moveOnSpamValue
+  );
 
   spamActionTargetAccountElement.value = spamActionTargetAccount;
   spamActionTargetFolderElement.value = spamActionTargetFolder;
@@ -54,8 +69,11 @@ function onInit(aPageId, aServerId) {
   document.getElementById("actionFolderPopup").selectFolder(folder);
 
   var currentArray = [];
-  if (document.getElementById("server.useWhiteList").checked)
-    currentArray = document.getElementById("server.whiteListAbURI").value.split(" ");
+  if (document.getElementById("server.useWhiteList").checked) {
+    currentArray = document
+      .getElementById("server.whiteListAbURI")
+      .value.split(" ");
+  }
 
   // set up the whitelist UI
   var wList = document.getElementById("whiteListAbURI");
@@ -66,11 +84,11 @@ function onInit(aPageId, aServerId) {
 
   // Populate the listbox with address books
   let abItems = [];
-  for (let ab of fixIterator(MailServices.ab.directories,
-                             Ci.nsIAbDirectory)) {
+  for (let ab of fixIterator(MailServices.ab.directories, Ci.nsIAbDirectory)) {
     // We skip mailing lists and remote address books.
-    if (ab.isMailList || ab.isRemote)
+    if (ab.isMailList || ab.isRemote) {
       continue;
+    }
 
     abItems.push({ label: ab.dirName, URI: ab.URI });
   }
@@ -98,10 +116,12 @@ function onInit(aPageId, aServerId) {
 
   // set up trusted IP headers
   var serverFilterList = document.getElementById("useServerFilterList");
-  serverFilterList.value =
-    document.getElementById("server.serverFilterName").value;
-  if (!serverFilterList.selectedItem)
+  serverFilterList.value = document.getElementById(
+    "server.serverFilterName"
+  ).value;
+  if (!serverFilterList.selectedItem) {
     serverFilterList.selectedIndex = 0;
+  }
 
   // enable or disable the useServerFilter checkbox
   onCheckItem("useServerFilterList", ["server.useServerFilter"]);
@@ -110,10 +130,25 @@ function onInit(aPageId, aServerId) {
 }
 
 function onPreInit(account, accountValues) {
-  if (top.getAccountValue(account, accountValues, "server", "type", null, false) == "pop3")
-    gDeferredToAccount = top.getAccountValue(account, accountValues,
-                                             "pop3", "deferredToAccount",
-                                             null, false);
+  if (
+    top.getAccountValue(
+      account,
+      accountValues,
+      "server",
+      "type",
+      null,
+      false
+    ) == "pop3"
+  ) {
+    gDeferredToAccount = top.getAccountValue(
+      account,
+      accountValues,
+      "pop3",
+      "deferredToAccount",
+      null,
+      false
+    );
+  }
 
   buildServerFilterMenuList();
 }
@@ -134,8 +169,9 @@ function updateSpamLevel(aValue) {
  * our hidden wsm element.
  */
 function onServerFilterListChange() {
-  document.getElementById("server.serverFilterName").value =
-    document.getElementById("useServerFilterList").value;
+  document.getElementById(
+    "server.serverFilterName"
+  ).value = document.getElementById("useServerFilterList").value;
 }
 
 /**
@@ -166,8 +202,9 @@ function updateJunkTargetsAndRetention() {
   onCheckItem("server.moveTargetMode", ["server.moveOnSpam"]);
   updateJunkTargets();
   onCheckItem("server.purgeSpam", ["server.moveOnSpam"]);
-  document.getElementById("purgeLabel").disabled =
-    document.getElementById("server.purgeSpam").disabled;
+  document.getElementById("purgeLabel").disabled = document.getElementById(
+    "server.purgeSpam"
+  ).disabled;
   updateJunkRetention();
 }
 
@@ -184,7 +221,10 @@ function updateJunkTargets() {
  * of the controlling checkbox.
  */
 function updateJunkRetention() {
-  onCheckItem("server.purgeSpamInterval", ["server.purgeSpam", "server.moveOnSpam"]);
+  onCheckItem("server.purgeSpamInterval", [
+    "server.purgeSpam",
+    "server.moveOnSpam",
+  ]);
 }
 
 function onSave() {
@@ -210,8 +250,10 @@ function onSaveWhiteList() {
     }
   }
   var wlValue = wlArray.join(" ");
-  document.getElementById("server.whiteListAbURI").setAttribute("value", wlValue);
-  document.getElementById("server.useWhiteList").checked = (wlValue != "");
+  document
+    .getElementById("server.whiteListAbURI")
+    .setAttribute("value", wlValue);
+  document.getElementById("server.useWhiteList").checked = wlValue != "";
 }
 
 /**
@@ -236,15 +278,20 @@ function buildServerFilterMenuList() {
   ispHeaderList.removeAllItems();
 
   // Now walk through the isp directories looking for sfd files.
-  let ispDirectories = Services.dirsvc.get(KEY_ISP_DIRECTORY_LIST,
-                                           Ci.nsISimpleEnumerator);
+  let ispDirectories = Services.dirsvc.get(
+    KEY_ISP_DIRECTORY_LIST,
+    Ci.nsISimpleEnumerator
+  );
 
   let menuEntries = [];
   while (ispDirectories.hasMoreElements()) {
-    let ispDirectory = ispDirectories.getNext()
-                                     .QueryInterface(Ci.nsIFile);
-    if (ispDirectory)
-      menuEntries.push.apply(menuEntries, buildServerFilterListFromDir(ispDirectory, menuEntries));
+    let ispDirectory = ispDirectories.getNext().QueryInterface(Ci.nsIFile);
+    if (ispDirectory) {
+      menuEntries.push.apply(
+        menuEntries,
+        buildServerFilterListFromDir(ispDirectory, menuEntries)
+      );
+    }
   }
 
   menuEntries.sort((a, b) => a.localeCompare(b));
@@ -265,8 +312,7 @@ function buildServerFilterListFromDir(aDir, aExistingEntries) {
   let newEntries = [];
   // Now iterate over each file in the directory looking for .sfd files.
   const kSuffix = ".sfd";
-  let entries = aDir.directoryEntries
-                    .QueryInterface(Ci.nsIDirectoryEnumerator);
+  let entries = aDir.directoryEntries.QueryInterface(Ci.nsIDirectoryEnumerator);
 
   while (entries.hasMoreElements()) {
     let entry = entries.nextFile;
@@ -274,8 +320,9 @@ function buildServerFilterListFromDir(aDir, aExistingEntries) {
     if (entry.isFile() && entry.leafName.endsWith(kSuffix)) {
       let fileName = entry.leafName.slice(0, -kSuffix.length);
       // If we've already added an item with this name, then don't add it again.
-      if (!aExistingEntries.includes(fileName))
+      if (!aExistingEntries.includes(fileName)) {
         newEntries.push(fileName);
+      }
     }
   }
   return newEntries;
@@ -285,5 +332,10 @@ function buildServerFilterListFromDir(aDir, aExistingEntries) {
  * Open the Preferences dialog on the Junk settings tab.
  */
 function showGlobalJunkPrefs() {
-  openPrefsFromAccountManager("panePrivacy", "privacyJunkCategory", null, "junk_pane");
+  openPrefsFromAccountManager(
+    "panePrivacy",
+    "privacyJunkCategory",
+    null,
+    "junk_pane"
+  );
 }

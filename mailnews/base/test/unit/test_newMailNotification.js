@@ -6,7 +6,9 @@
 /* Tests for platform-independent code to count new and unread messages and pass the
  * information to platform-specific notification modules */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var iNMNS = Ci.mozINewMailNotificationService;
 
@@ -16,7 +18,7 @@ var iNMNS = Ci.mozINewMailNotificationService;
  */
 add_test(function testListeners() {
   let notif = MailServices.newMailNotification.wrappedJSObject;
-  let listener = {a: 1};
+  let listener = { a: 1 };
 
   notif.addListener(listener, iNMNS.count);
   let list = notif._listenersForFlag(iNMNS.count);
@@ -39,10 +41,10 @@ add_test(function testListeners() {
  */
 add_test(function testMultiListeners() {
   let notif = MailServices.newMailNotification.wrappedJSObject;
-  let l1 = {a: 1};
-  let l2 = {b: 2};
+  let l1 = { a: 1 };
+  let l2 = { b: 2 };
 
-  notif.addListener(l1, (iNMNS.count | iNMNS.messages));
+  notif.addListener(l1, iNMNS.count | iNMNS.messages);
   // do_check_eq(notif._listeners.length, 1);
   notif.addListener(l2, iNMNS.messages);
   // do_check_eq(notif._listeners.length, 2);
@@ -70,7 +72,9 @@ var countInboxesPref = "mail.notification.count.inbox_only";
 add_test(function testNotifyInbox() {
   let notified = false;
   let mockListener = {
-    onCountChanged: function TNU_onCountChanged(count) { notified = true; },
+    onCountChanged: function TNU_onCountChanged(count) {
+      notified = true;
+    },
   };
   let folder = {
     URI: "Test Inbox",

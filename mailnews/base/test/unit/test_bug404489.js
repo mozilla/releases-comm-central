@@ -4,7 +4,9 @@
 
 // Tests that custom headers like "Sender" work (bug 404489)
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var Contains = Ci.nsMsgSearchOp.Contains;
 var gArrayHdrs = ["X-Bugzilla-Who", "Sender"];
@@ -22,7 +24,8 @@ var Tests = [
     attrib: gFirstHeader,
     op: Contains,
     count: 1,
-  }, {
+  },
+  {
     testValue: "ThisIsNotThere",
     attrib: gFirstHeader,
     op: Contains,
@@ -51,7 +54,8 @@ var Tests = [
     attrib: gFirstHeader + 1,
     op: Contains,
     count: 0,
-  }, {
+  },
+  {
     testValue: "bugzilla",
     attrib: Ci.nsMsgSearchAttrib.Sender,
     op: Contains,
@@ -65,26 +69,37 @@ function run_test() {
   // add the custom headers into the preferences file, ":" delimited
 
   var hdrs;
-  if (gArrayHdrs.length == 1)
+  if (gArrayHdrs.length == 1) {
     hdrs = gArrayHdrs;
-  else
+  } else {
     hdrs = gArrayHdrs.join(": ");
+  }
   Services.prefs.setCharPref("mailnews.customHeaders", hdrs);
 
   // Get a message into the local filestore. function continue_test() continues the testing after the copy.
   do_test_pending();
   var file = do_get_file(fileName);
-  MailServices.copy.CopyFileMessage(file, localAccountUtils.inboxFolder, null, false, 0,
-                                    "", copyListener, null);
+  MailServices.copy.CopyFileMessage(
+    file,
+    localAccountUtils.inboxFolder,
+    null,
+    false,
+    0,
+    "",
+    copyListener,
+    null
+  );
   return true;
 }
 
 var copyListener = {
   OnStartCopy() {},
   OnProgress(aProgress, aProgressMax) {},
-  SetMessageKey(aKey) { },
+  SetMessageKey(aKey) {},
   SetMessageId(aMessageId) {},
-  OnStopCopy(aStatus) { continue_test(); },
+  OnStopCopy(aStatus) {
+    continue_test();
+  },
 };
 
 // Runs at completion of each copy
@@ -92,12 +107,14 @@ var copyListener = {
 function continue_test() {
   var test = Tests.shift();
   if (test) {
-    new TestSearchx(localAccountUtils.inboxFolder,
-                    test.testValue,
-                    test.attrib,
-                    test.op,
-                    test.count,
-                    continue_test);
+    new TestSearchx(
+      localAccountUtils.inboxFolder,
+      test.testValue,
+      test.attrib,
+      test.op,
+      test.count,
+      continue_test
+    );
   } else {
     do_test_finished();
   }
@@ -122,22 +139,28 @@ function continue_test() {
 
 function TestSearchx(aFolder, aValue, aAttrib, aOp, aHitCount, onDone) {
   var searchListener = {
-    onSearchHit(dbHdr, folder) { hitCount++; },
+    onSearchHit(dbHdr, folder) {
+      hitCount++;
+    },
     onSearchDone(status) {
       print("Finished search does " + aHitCount + " equal " + hitCount + "?");
       searchSession = null;
       Assert.equal(aHitCount, hitCount);
-      if (onDone)
+      if (onDone) {
         onDone();
+      }
     },
-    onNewSearch() { hitCount = 0; },
+    onNewSearch() {
+      hitCount = 0;
+    },
   };
 
   // define and initiate the search session
 
   var hitCount;
-  var searchSession = Cc["@mozilla.org/messenger/searchSession;1"]
-                        .createInstance(Ci.nsIMsgSearchSession);
+  var searchSession = Cc[
+    "@mozilla.org/messenger/searchSession;1"
+  ].createInstance(Ci.nsIMsgSearchSession);
   searchSession.addScopeTerm(Ci.nsMsgSearchScope.offlineMail, aFolder);
   var searchTerm = searchSession.createTerm();
   searchTerm.attrib = aAttrib;
@@ -145,37 +168,39 @@ function TestSearchx(aFolder, aValue, aAttrib, aOp, aHitCount, onDone) {
   var value = searchTerm.value;
   // This is tricky - value.attrib must be set before actual values
   value.attrib = aAttrib;
-  if (aAttrib == Ci.nsMsgSearchAttrib.JunkPercent)
+  if (aAttrib == Ci.nsMsgSearchAttrib.JunkPercent) {
     value.junkPercent = aValue;
-  else if (aAttrib == Ci.nsMsgSearchAttrib.Priority)
+  } else if (aAttrib == Ci.nsMsgSearchAttrib.Priority) {
     value.priority = aValue;
-  else if (aAttrib == Ci.nsMsgSearchAttrib.Date)
+  } else if (aAttrib == Ci.nsMsgSearchAttrib.Date) {
     value.date = aValue;
-  else if (aAttrib == Ci.nsMsgSearchAttrib.MsgStatus)
+  } else if (aAttrib == Ci.nsMsgSearchAttrib.MsgStatus) {
     value.status = aValue;
-  else if (aAttrib == Ci.nsMsgSearchAttrib.MessageKey)
+  } else if (aAttrib == Ci.nsMsgSearchAttrib.MessageKey) {
     value.msgKey = aValue;
-  else if (aAttrib == Ci.nsMsgSearchAttrib.Size)
+  } else if (aAttrib == Ci.nsMsgSearchAttrib.Size) {
     value.size = aValue;
-  else if (aAttrib == Ci.nsMsgSearchAttrib.AgeInDays)
+  } else if (aAttrib == Ci.nsMsgSearchAttrib.AgeInDays) {
     value.age = aValue;
-  else if (aAttrib == Ci.nsMsgSearchAttrib.Size)
+  } else if (aAttrib == Ci.nsMsgSearchAttrib.Size) {
     value.size = aValue;
-  else if (aAttrib == Ci.nsMsgSearchAttrib.Label)
+  } else if (aAttrib == Ci.nsMsgSearchAttrib.Label) {
     value.label = aValue;
-  else if (aAttrib == Ci.nsMsgSearchAttrib.JunkStatus)
+  } else if (aAttrib == Ci.nsMsgSearchAttrib.JunkStatus) {
     value.junkStatus = aValue;
-  else if (aAttrib == Ci.nsMsgSearchAttrib.HasAttachmentStatus)
+  } else if (aAttrib == Ci.nsMsgSearchAttrib.HasAttachmentStatus) {
     value.status = Ci.nsMsgMessageFlags.Attachment;
-  else
+  } else {
     value.str = aValue;
+  }
   searchTerm.value = value;
-  if (aAttrib > Ci.nsMsgSearchAttrib.OtherHeader)
-    searchTerm.arbitraryHeader = gArrayHdrs[aAttrib - 1 - Ci.nsMsgSearchAttrib.OtherHeader];
+  if (aAttrib > Ci.nsMsgSearchAttrib.OtherHeader) {
+    searchTerm.arbitraryHeader =
+      gArrayHdrs[aAttrib - 1 - Ci.nsMsgSearchAttrib.OtherHeader];
+  }
   searchTerm.op = aOp;
   searchTerm.booleanAnd = false;
   searchSession.appendTerm(searchTerm);
   searchSession.registerListener(searchListener);
   searchSession.search(null);
 }
-

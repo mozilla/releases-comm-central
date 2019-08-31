@@ -2,8 +2,12 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 // Test that POP3 over a proxy works.
 
-const {NetworkTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/NetworkTestUtils.jsm");
-const {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
+const { NetworkTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/NetworkTestUtils.jsm"
+);
+const { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 const PORT = 110;
 
@@ -21,7 +25,10 @@ add_task(async function setup() {
   NetworkTestUtils.configureProxy("pop.tinderbox.invalid", PORT, server.port);
 
   // Set up the basic accounts and folders
-  incomingServer = createPop3ServerAndLocalFolders(PORT, "pop.tinderbox.invalid");
+  incomingServer = createPop3ServerAndLocalFolders(
+    PORT,
+    "pop.tinderbox.invalid"
+  );
 
   // Add a message to download
   daemon.setMessages(["message1.eml"]);
@@ -34,8 +41,12 @@ add_task(async function downloadEmail() {
 
   // Now get the mail
   let urlListener = new PromiseTestUtils.PromiseUrlListener();
-  MailServices.pop3.GetNewMail(null, urlListener, localAccountUtils.inboxFolder,
-                               incomingServer);
+  MailServices.pop3.GetNewMail(
+    null,
+    urlListener,
+    localAccountUtils.inboxFolder,
+    incomingServer
+  );
   await urlListener.promise;
 
   // We downloaded a message, so it works!

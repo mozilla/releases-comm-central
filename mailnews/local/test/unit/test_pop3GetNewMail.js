@@ -7,31 +7,44 @@ var daemon;
 var incomingServer;
 var thisTest;
 
-var tests = [{
-  title: "Get New Mail, No Messages",
-  messages: [],
-  transaction: ["AUTH", "CAPA", "AUTH PLAIN", "STAT"],
-}, {
-  title: "Get New Mail, No Messages 2",
-  messages: [],
-  transaction: ["CAPA", "AUTH PLAIN", "STAT"],
-}, {
-  title: "Get New Mail, One Message",
-  messages: ["message1.eml"],
-  transaction: ["CAPA", "AUTH PLAIN", "STAT", "LIST", "UIDL", "RETR 1", "DELE 1"],
-}];
+var tests = [
+  {
+    title: "Get New Mail, No Messages",
+    messages: [],
+    transaction: ["AUTH", "CAPA", "AUTH PLAIN", "STAT"],
+  },
+  {
+    title: "Get New Mail, No Messages 2",
+    messages: [],
+    transaction: ["CAPA", "AUTH PLAIN", "STAT"],
+  },
+  {
+    title: "Get New Mail, One Message",
+    messages: ["message1.eml"],
+    transaction: [
+      "CAPA",
+      "AUTH PLAIN",
+      "STAT",
+      "LIST",
+      "UIDL",
+      "RETR 1",
+      "DELE 1",
+    ],
+  },
+];
 
 var urlListener = {
-  OnStartRunningUrl(url) {
-  },
+  OnStartRunningUrl(url) {},
   OnStopRunningUrl(url, result) {
     try {
       var transaction = server.playTransaction();
 
       do_check_transaction(transaction, thisTest.transaction);
 
-      Assert.equal(localAccountUtils.inboxFolder.getTotalMessages(false),
-                   thisTest.messages.length);
+      Assert.equal(
+        localAccountUtils.inboxFolder.getTotalMessages(false),
+        thisTest.messages.length
+      );
 
       Assert.equal(result, 0);
     } catch (e) {
@@ -39,8 +52,9 @@ var urlListener = {
       server.stop();
 
       var thread = gThreadManager.currentThread;
-      while (thread.hasPendingEvents())
+      while (thread.hasPendingEvents()) {
         thread.processNextEvent(true);
+      }
 
       do_throw(e);
     }
@@ -58,17 +72,20 @@ function checkBusy() {
     server.stop();
 
     var thread = gThreadManager.currentThread;
-    while (thread.hasPendingEvents())
+    while (thread.hasPendingEvents()) {
       thread.processNextEvent(true);
+    }
 
     do_test_finished();
     return;
   }
 
   // If the server hasn't quite finished, just delay a little longer.
-  if (incomingServer.serverBusy ||
-      (incomingServer instanceof Ci.nsIPop3IncomingServer &&
-       incomingServer.runningProtocol)) {
+  if (
+    incomingServer.serverBusy ||
+    (incomingServer instanceof Ci.nsIPop3IncomingServer &&
+      incomingServer.runningProtocol)
+  ) {
     do_timeout(20, checkBusy);
     return;
   }
@@ -89,8 +106,12 @@ function testNext() {
     daemon.setMessages(thisTest.messages);
 
     // Now get the mail
-    MailServices.pop3.GetNewMail(null, urlListener, localAccountUtils.inboxFolder,
-                                 incomingServer);
+    MailServices.pop3.GetNewMail(
+      null,
+      urlListener,
+      localAccountUtils.inboxFolder,
+      incomingServer
+    );
 
     server.performTest();
   } catch (e) {
@@ -99,8 +120,9 @@ function testNext() {
     do_throw(e);
   } finally {
     var thread = gThreadManager.currentThread;
-    while (thread.hasPendingEvents())
+    while (thread.hasPendingEvents()) {
       thread.processNextEvent(true);
+    }
   }
 }
 

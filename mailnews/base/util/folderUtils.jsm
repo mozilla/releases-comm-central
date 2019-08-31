@@ -6,11 +6,20 @@
  * This file contains helper methods for dealing with nsIMsgFolders.
  */
 
-this.EXPORTED_SYMBOLS = ["getFolderProperties", "getSpecialFolderString",
-                         "allAccountsSorted", "getMostRecentFolders", "folderNameCompare"];
+this.EXPORTED_SYMBOLS = [
+  "getFolderProperties",
+  "getSpecialFolderString",
+  "allAccountsSorted",
+  "getMostRecentFolders",
+  "folderNameCompare",
+];
 
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {fixIterator, toArray} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+const { fixIterator, toArray } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
 
 /**
  * Returns a string representation of a folder's "special" type.
@@ -19,24 +28,33 @@ const {fixIterator, toArray} = ChromeUtils.import("resource:///modules/iteratorU
  */
 function getSpecialFolderString(aFolder) {
   let flags = aFolder.flags;
-  if (flags & Ci.nsMsgFolderFlags.Inbox)
+  if (flags & Ci.nsMsgFolderFlags.Inbox) {
     return "Inbox";
-  if (flags & Ci.nsMsgFolderFlags.Trash)
+  }
+  if (flags & Ci.nsMsgFolderFlags.Trash) {
     return "Trash";
-  if (flags & Ci.nsMsgFolderFlags.Queue)
+  }
+  if (flags & Ci.nsMsgFolderFlags.Queue) {
     return "Outbox";
-  if (flags & Ci.nsMsgFolderFlags.SentMail)
+  }
+  if (flags & Ci.nsMsgFolderFlags.SentMail) {
     return "Sent";
-  if (flags & Ci.nsMsgFolderFlags.Drafts)
+  }
+  if (flags & Ci.nsMsgFolderFlags.Drafts) {
     return "Drafts";
-  if (flags & Ci.nsMsgFolderFlags.Templates)
+  }
+  if (flags & Ci.nsMsgFolderFlags.Templates) {
     return "Templates";
-  if (flags & Ci.nsMsgFolderFlags.Junk)
+  }
+  if (flags & Ci.nsMsgFolderFlags.Junk) {
     return "Junk";
-  if (flags & Ci.nsMsgFolderFlags.Archive)
+  }
+  if (flags & Ci.nsMsgFolderFlags.Archive) {
     return "Archive";
-  if (flags & Ci.nsMsgFolderFlags.Virtual)
+  }
+  if (flags & Ci.nsMsgFolderFlags.Virtual) {
     return "Virtual";
+  }
   return "none";
 }
 
@@ -76,9 +94,12 @@ function getFolderProperties(aFolder, aOpen) {
   properties.push("isSecure-" + aFolder.server.isSecure);
 
   // A folder has new messages, or a closed folder or any subfolder has new messages.
-  if (aFolder.hasNewMessages ||
-      (!aOpen && aFolder.hasSubFolders && aFolder.hasFolderOrSubfolderNewMessages))
+  if (
+    aFolder.hasNewMessages ||
+    (!aOpen && aFolder.hasSubFolders && aFolder.hasFolderOrSubfolderNewMessages)
+  ) {
     properties.push("newMessages-true");
+  }
 
   if (aFolder.isServer) {
     properties.push("isServer-true");
@@ -92,8 +113,9 @@ function getFolderProperties(aFolder, aOpen) {
       shallowUnread = 0;
     }
     let deepUnread = aFolder.getNumUnread(true);
-    if (deepUnread - shallowUnread > 0)
+    if (deepUnread - shallowUnread > 0) {
       properties.push("subfoldersHaveUnreadMessages-true");
+    }
   }
 
   properties.push("noSelect-" + aFolder.noSelect);
@@ -113,8 +135,9 @@ function getFolderProperties(aFolder, aOpen) {
  */
 function getServerSortOrder(aServer) {
   // If there is no server sort this object to the end.
-  if (!aServer)
+  if (!aServer) {
     return 999999999;
+  }
 
   // Otherwise get the server sort order from the Account manager.
   return MailServices.accounts.getSortOrder(aServer);
@@ -124,8 +147,10 @@ function getServerSortOrder(aServer) {
  * Compares the passed in accounts according to their precedence.
  */
 function compareAccounts(aAccount1, aAccount2) {
-  return getServerSortOrder(aAccount1.incomingServer)
-           - getServerSortOrder(aAccount2.incomingServer);
+  return (
+    getServerSortOrder(aAccount1.incomingServer) -
+    getServerSortOrder(aAccount2.incomingServer)
+  );
 }
 
 /**
@@ -135,17 +160,18 @@ function compareAccounts(aAccount1, aAccount2) {
  */
 function allAccountsSorted(aExcludeIMAccounts) {
   // Get the account list, and add the proper items.
-  let accountList = toArray(fixIterator(MailServices.accounts.accounts,
-                                        Ci.nsIMsgAccount));
+  let accountList = toArray(
+    fixIterator(MailServices.accounts.accounts, Ci.nsIMsgAccount)
+  );
 
   // This is a HACK to work around bug 41133. If we have one of the
   // dummy "news" accounts there, that account won't have an
   // incomingServer attached to it, and everything will blow up.
-  accountList = accountList.filter((a) => a.incomingServer);
+  accountList = accountList.filter(a => a.incomingServer);
 
   // Remove IM servers.
   if (aExcludeIMAccounts) {
-    accountList = accountList.filter((a) => a.incomingServer.type != "im");
+    accountList = accountList.filter(a => a.incomingServer.type != "im");
   }
 
   return accountList.sort(compareAccounts);
@@ -177,8 +203,9 @@ function getMostRecentFolders(aFolderList, aMaxHits, aTimeProperty) {
     try {
       time = Number(aFolder.getStringProperty(aTimeProperty)) || 0;
     } catch (e) {}
-    if (time <= oldestTime)
+    if (time <= oldestTime) {
       return;
+    }
 
     if (recentFolders.length == aMaxHits) {
       recentFolders.sort((a, b) => a.time < b.time);
@@ -192,7 +219,7 @@ function getMostRecentFolders(aFolderList, aMaxHits, aTimeProperty) {
     addIfRecent(folder);
   }
 
-  return recentFolders.map((f) => f.folder);
+  return recentFolders.map(f => f.folder);
 }
 
 /**
@@ -206,6 +233,7 @@ function getMostRecentFolders(aFolderList, aMaxHits, aTimeProperty) {
  */
 function folderNameCompare(aString1, aString2) {
   // TODO: improve this as described in bug 992651.
-  return aString1.toLocaleLowerCase()
-                 .localeCompare(aString2.toLocaleLowerCase());
+  return aString1
+    .toLocaleLowerCase()
+    .localeCompare(aString2.toLocaleLowerCase());
 }

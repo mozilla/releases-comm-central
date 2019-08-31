@@ -7,8 +7,13 @@
  * exception objects, dumping DOM nodes, Events, and generic object dumps.
  */
 
-this.EXPORTED_SYMBOLS = ["logObject", "logException", "logElement", "logEvent",
-                          "errorWithDebug"];
+this.EXPORTED_SYMBOLS = [
+  "logObject",
+  "logException",
+  "logElement",
+  "logEvent",
+  "errorWithDebug",
+];
 
 /**
  * Report on an object to stdout.
@@ -30,12 +35,14 @@ function logObject(aObj, aName) {
 function logException(aException, aRethrow, aMsg) {
   stringifier.dumpException(aException, aMsg);
 
-  if (aMsg)
+  if (aMsg) {
     Cu.reportError(aMsg);
+  }
   Cu.reportError(aException);
 
-  if (aRethrow)
+  if (aRethrow) {
     throw aException;
+  }
 }
 
 /**
@@ -94,8 +101,9 @@ Stringifier.prototype = {
   dumpException(exc, message) {
     dump(exc + "\n");
     this._reset();
-    if (message)
+    if (message) {
       this._append("Exception (" + message + ")\n");
+    }
 
     this._append("-- Exception object --\n");
     this._append(this.objectTreeAsString(exc));
@@ -121,10 +129,12 @@ Stringifier.prototype = {
   },
 
   getStack(skipCount) {
-    if (typeof Components != "object" || typeof Cc != "object")
+    if (typeof Components != "object" || typeof Cc != "object") {
       return "No stack trace available.";
-    if (typeof(skipCount) === undefined)
+    }
+    if (typeof skipCount === undefined) {
       skipCount = 0;
+    }
 
     let frame = Components.stack.caller;
     let str = "<top>";
@@ -145,21 +155,25 @@ Stringifier.prototype = {
 
   objectTreeAsString(o, recurse, compress, level) {
     let s = "";
-    if (recurse === undefined)
+    if (recurse === undefined) {
       recurse = 0;
-    if (level === undefined)
+    }
+    if (level === undefined) {
       level = 0;
-    if (compress === undefined)
+    }
+    if (compress === undefined) {
       compress = true;
+    }
     let pfx = "";
 
-    for (var junk = 0; junk < level; junk++)
-      pfx += (compress) ? "| " : "|  ";
+    for (var junk = 0; junk < level; junk++) {
+      pfx += compress ? "| " : "|  ";
+    }
 
-    let tee = (compress) ? "+ " : "+- ";
+    let tee = compress ? "+ " : "+- ";
 
-    if (typeof(o) != "object") {
-      s += pfx + tee + " (" + typeof(o) + ") " + o + "\n";
+    if (typeof o != "object") {
+      s += pfx + tee + " (" + typeof o + ") " + o + "\n";
     } else {
       for (let i in o) {
         try {
@@ -167,25 +181,33 @@ Stringifier.prototype = {
           switch (t) {
             case "function":
               let sfunc = String(o[i]).split("\n");
-              if (sfunc[2] == "    [native code]")
+              if (sfunc[2] == "    [native code]") {
                 sfunc = "[native code]";
-              else
+              } else {
                 sfunc = sfunc.length + " lines";
+              }
               s += pfx + tee + i + " (function) " + sfunc + "\n";
               break;
             case "object":
               s += pfx + tee + i + " (object) " + o[i] + "\n";
-              if (!compress)
+              if (!compress) {
                 s += pfx + "|\n";
-              if ((i != "parent") && (recurse))
-                s += this.objectTreeAsString(o[i], recurse - 1,
-                                             compress, level + 1);
+              }
+              if (i != "parent" && recurse) {
+                s += this.objectTreeAsString(
+                  o[i],
+                  recurse - 1,
+                  compress,
+                  level + 1
+                );
+              }
               break;
             case "string":
-              if (o[i].length > 200)
+              if (o[i].length > 200) {
                 s += pfx + tee + i + " (" + t + ") " + o[i].length + " chars\n";
-              else
+              } else {
                 s += pfx + tee + i + " (" + t + ") '" + o[i] + "'\n";
+              }
               break;
             default:
               s += pfx + tee + i + " (" + t + ") " + o[i] + "\n";
@@ -193,8 +215,9 @@ Stringifier.prototype = {
         } catch (ex) {
           s += pfx + tee + " (exception) " + ex + "\n";
         }
-        if (!compress)
+        if (!compress) {
           s += pfx + "|\n";
+        }
       }
     }
     s += pfx + "*\n";
@@ -203,35 +226,47 @@ Stringifier.prototype = {
 
   _repeatStr(str, aCount) {
     let res = "";
-    while (--aCount >= 0)
+    while (--aCount >= 0) {
       res += str;
+    }
     return res;
   },
 
   DOMNodeAsString(node, level, recursive) {
-    if (level === undefined)
+    if (level === undefined) {
       level = 0;
-    if (recursive === undefined)
+    }
+    if (recursive === undefined) {
       recursive = true;
+    }
     this._append(this._repeatStr(" ", 2 * level) + "<" + node.nodeName + "\n");
 
     if (node.nodeType == 3) {
-      this._append(this._repeatStr(" ", (2 * level) + 4) + node.nodeValue + "'\n");
+      this._append(
+        this._repeatStr(" ", 2 * level + 4) + node.nodeValue + "'\n"
+      );
     } else {
       if (node.attributes) {
         for (let i = 0; i < node.attributes.length; i++) {
-          this._append(this._repeatStr(" ", (2 * level) + 4) +
-                       node.attributes[i].nodeName + "='" + node.attributes[i].nodeValue + "'\n");
+          this._append(
+            this._repeatStr(" ", 2 * level + 4) +
+              node.attributes[i].nodeName +
+              "='" +
+              node.attributes[i].nodeValue +
+              "'\n"
+          );
         }
       }
       if (node.childNodes.length == 0) {
-        this._append(this._repeatStr(" ", (2 * level)) + "/>\n");
+        this._append(this._repeatStr(" ", 2 * level) + "/>\n");
       } else if (recursive) {
-        this._append(this._repeatStr(" ", (2 * level)) + ">\n");
+        this._append(this._repeatStr(" ", 2 * level) + ">\n");
         for (let i = 0; i < node.childNodes.length; i++) {
           this._append(this.DOMNodeAsString(node.childNodes[i], level + 1));
         }
-        this._append(this._repeatStr(" ", 2 * level) + "</" + node.nodeName + ">\n");
+        this._append(
+          this._repeatStr(" ", 2 * level) + "</" + node.nodeName + ">\n"
+        );
       }
     }
     return this._asString();
@@ -244,29 +279,46 @@ Stringifier.prototype = {
     this._append("eventPhase:     " + event.eventPhase + "\n");
     if ("charCode" in event) {
       this._append("charCode: " + event.charCode + "\n");
-      if ("name" in event)
-        this._append("str(charCode):  '" + String.fromCharCode(event.charCode) + "'\n");
+      if ("name" in event) {
+        this._append(
+          "str(charCode):  '" + String.fromCharCode(event.charCode) + "'\n"
+        );
+      }
     }
-    if (("target" in event) && event.target) {
+    if ("target" in event && event.target) {
       this._append("target: " + event.target + "\n");
-      if ("nodeName" in event.target)
+      if ("nodeName" in event.target) {
         this._append("target.nodeName: " + event.target.nodeName + "\n");
-      if ("getAttribute" in event.target)
+      }
+      if ("getAttribute" in event.target) {
         this._append("target.id: " + event.target.getAttribute("id") + "\n");
+      }
     }
-    if (("currentTarget" in event) && event.currentTarget) {
+    if ("currentTarget" in event && event.currentTarget) {
       this._append("currentTarget: " + event.currentTarget + "\n");
-      if ("nodeName" in event.currentTarget)
-        this._append("currentTarget.nodeName: " + event.currentTarget.nodeName + "\n");
-      if ("getAttribute" in event.currentTarget)
-        this._append("currentTarget.id: " + event.currentTarget.getAttribute("id") + "\n");
+      if ("nodeName" in event.currentTarget) {
+        this._append(
+          "currentTarget.nodeName: " + event.currentTarget.nodeName + "\n"
+        );
+      }
+      if ("getAttribute" in event.currentTarget) {
+        this._append(
+          "currentTarget.id: " + event.currentTarget.getAttribute("id") + "\n"
+        );
+      }
     }
-    if (("originalTarget" in event) && event.originalTarget) {
+    if ("originalTarget" in event && event.originalTarget) {
       this._append("originalTarget: " + event.originalTarget + "\n");
-      if ("nodeName" in event.originalTarget)
-        this._append("originalTarget.nodeName: " + event.originalTarget.nodeName + "\n");
-      if ("getAttribute" in event.originalTarget)
-        this._append("originalTarget.id: " + event.originalTarget.getAttribute("id") + "\n");
+      if ("nodeName" in event.originalTarget) {
+        this._append(
+          "originalTarget.nodeName: " + event.originalTarget.nodeName + "\n"
+        );
+      }
+      if ("getAttribute" in event.originalTarget) {
+        this._append(
+          "originalTarget.id: " + event.originalTarget.getAttribute("id") + "\n"
+        );
+      }
     }
     let names = [
       "bubbles",
@@ -292,8 +344,9 @@ Stringifier.prototype = {
       "originalTargetXPath",
     ];
     for (let name of names) {
-      if (name in event)
+      if (name in event) {
         this._append(name + ": " + event[name] + "\n");
+      }
     }
     this._append("-------------------------------------\n");
     return this._asString();

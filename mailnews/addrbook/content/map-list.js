@@ -1,6 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
-  * License, v. 2.0. If a copy of the MPL was not distributed with this
-  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 "use strict";
 
@@ -8,7 +8,9 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+  const { Services } = ChromeUtils.import(
+    "resource://gre/modules/Services.jsm"
+  );
 
   /**
    * The MozMapList widget behaves as a popup menu showing available map options
@@ -23,12 +25,12 @@
       }
       this.setAttribute("is", "map-list");
 
-      this.addEventListener("command", (event) => {
+      this.addEventListener("command", event => {
         this._chooseMapService(event.target);
         event.stopPropagation();
       });
 
-      this.addEventListener("popupshowing", (event) => {
+      this.addEventListener("popupshowing", event => {
         this._listMapServices();
       });
 
@@ -77,13 +79,17 @@
     _getMapURLPref(index = 0) {
       let url = null;
       if (!index) {
-        url = Services.prefs.getComplexValue("mail.addr_book.mapit_url.format",
-          Ci.nsIPrefLocalizedString).data;
+        url = Services.prefs.getComplexValue(
+          "mail.addr_book.mapit_url.format",
+          Ci.nsIPrefLocalizedString
+        ).data;
       } else {
         try {
-          url = Services.prefs.getComplexValue("mail.addr_book.mapit_url." + index + ".format",
-            Ci.nsIPrefLocalizedString).data;
-        } catch (e) { }
+          url = Services.prefs.getComplexValue(
+            "mail.addr_book.mapit_url." + index + ".format",
+            Ci.nsIPrefLocalizedString
+          ).data;
+        } catch (e) {}
       }
 
       return url;
@@ -132,8 +138,10 @@
         } else {
           // Name is not mandatory, generate one if not found.
           try {
-            urlName = Services.prefs.getComplexValue("mail.addr_book.mapit_url." + index + ".name",
-              Ci.nsIPrefLocalizedString).data;
+            urlName = Services.prefs.getComplexValue(
+              "mail.addr_book.mapit_url." + index + ".name",
+              Ci.nsIPrefLocalizedString
+            ).data;
           } catch (e) {
             urlName = generateName(urlTemplate);
           }
@@ -141,8 +149,9 @@
         if (itemFound) {
           addMapService(urlTemplate, urlName);
           index++;
-          if (urlTemplate == defaultUrl)
+          if (urlTemplate == defaultUrl) {
             defaultFound = true;
+          }
         } else if (index < kUserIndex) {
           // After iterating the base region provided urls, check for user defined ones.
           index = kUserIndex;
@@ -155,10 +164,14 @@
         // 'index' now points to the first unused entry in prefs.
         let defaultName = generateName(defaultUrl);
         addMapService(defaultUrl, defaultName);
-        Services.prefs.setCharPref("mail.addr_book.mapit_url." + index + ".format",
-          defaultUrl);
-        Services.prefs.setCharPref("mail.addr_book.mapit_url." + index + ".name",
-          defaultName);
+        Services.prefs.setCharPref(
+          "mail.addr_book.mapit_url." + index + ".format",
+          defaultUrl
+        );
+        Services.prefs.setCharPref(
+          "mail.addr_book.mapit_url." + index + ".name",
+          defaultName
+        );
       }
     }
 
@@ -168,11 +181,15 @@
      */
     _chooseMapService(item) {
       // Save selected URL as the default.
-      let defaultUrl = Cc["@mozilla.org/pref-localizedstring;1"]
-        .createInstance(Ci.nsIPrefLocalizedString);
+      let defaultUrl = Cc["@mozilla.org/pref-localizedstring;1"].createInstance(
+        Ci.nsIPrefLocalizedString
+      );
       defaultUrl.data = item.getAttribute("url");
-      Services.prefs.setComplexValue("mail.addr_book.mapit_url.format",
-        Ci.nsIPrefLocalizedString, defaultUrl);
+      Services.prefs.setComplexValue(
+        "mail.addr_book.mapit_url.format",
+        Ci.nsIPrefLocalizedString,
+        defaultUrl
+      );
     }
 
     /**
@@ -196,5 +213,5 @@
     }
   }
 
-  customElements.define("map-list", MozMapList, { "extends": "menupopup" });
+  customElements.define("map-list", MozMapList, { extends: "menupopup" });
 }

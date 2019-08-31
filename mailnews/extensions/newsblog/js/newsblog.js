@@ -3,10 +3,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {FeedUtils} = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
-function FeedDownloader() { }
+function FeedDownloader() {}
 FeedDownloader.prototype = {
   downloadFeed(aFolder, aUrlListener, aIsBiff, aMsgWindow) {
     FeedUtils.downloadFeed(aFolder, aUrlListener, aIsBiff, aMsgWindow);
@@ -22,7 +24,7 @@ FeedDownloader.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsINewsBlogFeedDownloader]),
 };
 
-function FeedAcctMgrExtension() { }
+function FeedAcctMgrExtension() {}
 FeedAcctMgrExtension.prototype = {
   name: "newsblog",
   chromePackageName: "messenger-newsblog",

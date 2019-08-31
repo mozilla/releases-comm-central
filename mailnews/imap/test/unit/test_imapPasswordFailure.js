@@ -9,7 +9,7 @@
  *     we get a new password prompt and can enter the password.
  */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /* import-globals-from ../../../test/resources/alertTestUtils.js */
 /* import-globals-from ../../../test/resources/passwordStorage.js */
@@ -21,11 +21,18 @@ var kInvalidPassword = "imaptest";
 var kValidPassword = "password";
 
 var incomingServer, server;
-var attempt = 0;
+var attempt = 0; // to alertTestUtils.js
 
-/* exported confirmEx, promptPasswordPS */// to alertTestUtils.js
-function confirmEx(aDialogTitle, aText, aButtonFlags, aButton0Title,
-                   aButton1Title, aButton2Title, aCheckMsg, aCheckState) {
+/* exported confirmEx, promptPasswordPS */ function confirmEx(
+  aDialogTitle,
+  aText,
+  aButtonFlags,
+  aButton0Title,
+  aButton1Title,
+  aButton2Title,
+  aCheckMsg,
+  aCheckState
+) {
   switch (++attempt) {
     // First attempt, retry.
     case 1:
@@ -49,8 +56,14 @@ function confirmEx(aDialogTitle, aText, aButtonFlags, aButton0Title,
   }
 }
 
-function promptPasswordPS(aParent, aDialogTitle, aText, aPassword, aCheckMsg,
-                          aCheckState) {
+function promptPasswordPS(
+  aParent,
+  aDialogTitle,
+  aText,
+  aPassword,
+  aCheckMsg,
+  aCheckState
+) {
   if (attempt == 4) {
     aPassword.value = kValidPassword;
     aCheckState.value = true;
@@ -68,14 +81,14 @@ add_task(async function() {
   registerAlertTestUtils();
 
   let daemon = new imapDaemon();
-  daemon.createMailbox("Subscribed", {subscribed: true});
+  daemon.createMailbox("Subscribed", { subscribed: true });
   server = makeServer(daemon, "", {
     // Make username of server match the singons.txt file
     // (pw there is intentionally invalid)
     kUsername: kUserName,
-    kPassword: kValidPassword});
+    kPassword: kValidPassword,
+  });
   server.setDebugLevel(fsDebugAll);
-
 
   incomingServer = createLocalIMAPServer(server.port);
 
@@ -84,8 +97,12 @@ add_task(async function() {
   // out of the signons file (first removing the value that
   // createLocalIMAPServer puts in there).
   incomingServer.password = "";
-  let password = incomingServer.getPasswordWithUI("Prompt Message",
-                                                  "Prompt Title", null, {});
+  let password = incomingServer.getPasswordWithUI(
+    "Prompt Message",
+    "Prompt Title",
+    null,
+    {}
+  );
 
   // The fake server expects one password, but we're feeding it an invalid one
   // initially so that we can check what happens when password is denied.
@@ -107,7 +124,11 @@ add_task(async function() {
   Assert.ok(!rootFolder.containsChildNamed("Subscribed"));
 
   // Check that we haven't forgotten the login even though we've retried and cancelled.
-  let logins = Services.logins.findLogins("imap://localhost", null, "imap://localhost");
+  let logins = Services.logins.findLogins(
+    "imap://localhost",
+    null,
+    "imap://localhost"
+  );
 
   Assert.equal(logins.length, 1);
   Assert.equal(logins[0].username, kUserName);
@@ -126,7 +147,11 @@ add_task(async function() {
   Assert.ok(rootFolder.containsChildNamed("Subscribed"));
 
   // Now check the new one has been saved.
-  logins = Services.logins.findLogins("imap://localhost", null, "imap://localhost");
+  logins = Services.logins.findLogins(
+    "imap://localhost",
+    null,
+    "imap://localhost"
+  );
 
   Assert.equal(logins.length, 1);
   Assert.equal(logins[0].username, kUserName);
@@ -134,7 +159,11 @@ add_task(async function() {
 
   // Remove the login via the incoming server.
   incomingServer.forgetPassword();
-  logins = Services.logins.findLogins("imap://localhost", null, "imap://localhost");
+  logins = Services.logins.findLogins(
+    "imap://localhost",
+    null,
+    "imap://localhost"
+  );
 
   Assert.equal(logins.length, 0);
 
@@ -146,8 +175,9 @@ function endTest() {
   server.stop();
 
   var thread = gThreadManager.currentThread;
-  while (thread.hasPendingEvents())
+  while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
+  }
 
   do_test_finished();
 }

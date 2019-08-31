@@ -5,7 +5,9 @@
  * adapted from test_imapFilterActions.js
  */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var Is = Ci.nsMsgSearchOp.Is;
 var Subject = Ci.nsMsgSearchAttrib.Subject;
@@ -24,8 +26,9 @@ var gMessage = "draft1"; // message file used as the test message
 var gMessageSubject = "Hello, did you receive my bugmail?";
 
 // various object references
-var gDbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"]
-                             .getService(Ci.nsIMsgDBService);
+var gDbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"].getService(
+  Ci.nsIMsgDBService
+);
 
 // Definition of tests. The test function name is the filter action
 // being tested, with "Body" appended to tests that use delayed
@@ -56,7 +59,7 @@ var gTestArray = [
 
     testCounts(false, 0, 0, 0);
     Assert.equal(gSubfolderCount + 1, folderCount(gSubfolder));
-  // no net messages were added to the inbox
+    // no net messages were added to the inbox
     Assert.equal(gInboxCount, folderCount(IMAPPump.inbox));
   },
   async function MarkRead() {
@@ -163,13 +166,16 @@ var gTestArray = [
 ];
 
 function run_test() {
-  Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
+  Services.prefs.setBoolPref(
+    "mail.server.default.autosync_offline_stores",
+    false
+  );
   gTestArray.forEach(x => add_task(x));
   run_next_test();
 }
 
 function setupFilters() {
-// Create a non-body filter.
+  // Create a non-body filter.
   let filterList = IMAPPump.incomingServer.getFilterList(null);
   gFilter = filterList.createFilter("subject");
   let searchTerm = gFilter.createTerm();
@@ -188,7 +194,10 @@ function setupFilters() {
   gAction = gFilter.createAction();
 
   MailServices.filters.addCustomAction(actionTestOffline);
-  MailServices.mailSession.AddFolderListener(FolderListener, Ci.nsIFolderListener.event);
+  MailServices.mailSession.AddFolderListener(
+    FolderListener,
+    Ci.nsIFolderListener.event
+  );
   gSubfolder = localAccountUtils.rootFolder.createLocalSubfolder("Subfolder");
   gPreviousUnread = 0;
 }
@@ -200,8 +209,9 @@ function setupFilters() {
 // basic preparation done for each test
 async function setupTest(aFilter, aAction) {
   let filterList = IMAPPump.incomingServer.getFilterList(null);
-  while (filterList.filterCount)
+  while (filterList.filterCount) {
     filterList.removeFilterAt(0);
+  }
   if (aFilter) {
     aFilter.clearActionList();
     if (aAction) {
@@ -209,13 +219,15 @@ async function setupTest(aFilter, aAction) {
       filterList.insertFilterAt(0, aFilter);
     }
   }
-  if (gInboxListener)
+  if (gInboxListener) {
     gDbService.unregisterPendingListener(gInboxListener);
+  }
 
   gInboxListener = new DBListener();
   gDbService.registerPendingListener(IMAPPump.inbox, gInboxListener);
-  IMAPPump.mailbox.addMessage(new imapMessage(specForFileName(gMessage),
-                          IMAPPump.mailbox.uidnext++, []));
+  IMAPPump.mailbox.addMessage(
+    new imapMessage(specForFileName(gMessage), IMAPPump.mailbox.uidnext++, [])
+  );
   let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
   await promiseUrlListener.promise;
@@ -225,8 +237,9 @@ async function setupTest(aFilter, aAction) {
 // Cleanup, null out everything, close all cached connections and stop the
 // server
 function endTest() {
-  if (gInboxListener)
+  if (gInboxListener) {
     gDbService.unregisterPendingListener(gInboxListener);
+  }
   gInboxListener = null;
   MailServices.mailSession.RemoveFolderListener(FolderListener);
   teardownIMAPPump();
@@ -239,9 +252,9 @@ function endTest() {
 // nsIFolderListener implementation
 var FolderListener = {
   OnItemEvent(aEventFolder, aEvent) {
-    dump("received folder event " + aEvent +
-         " folder " + aEventFolder.name +
-         "\n");
+    dump(
+      "received folder event " + aEvent + " folder " + aEventFolder.name + "\n"
+    );
   },
 };
 
@@ -356,32 +369,39 @@ var gPreviousUnread;
 //
 function testCounts(aHasNew, aUnreadDelta, aFolderNewDelta, aDbNewDelta) {
   try {
-  let folderNew = IMAPPump.inbox.getNumNewMessages(false);
-  let hasNew = IMAPPump.inbox.hasNewMessages;
-  let unread = IMAPPump.inbox.getNumUnread(false);
-  let countOut = {};
-  let arrayOut = {};
-  db().getNewList(countOut, arrayOut);
-  let dbNew = countOut.value ? countOut.value : 0;
-  dump(" hasNew: " + hasNew +
-       " unread: " + unread +
-       " folderNew: " + folderNew +
-       " dbNew: " + dbNew +
-       " prevUnread " + gPreviousUnread +
-       "\n");
-  // Assert.equal(aHasNew, hasNew);
-  Assert.equal(aUnreadDelta, unread - gPreviousUnread);
-  gPreviousUnread = unread;
-  // This seems to be reset for each folder update.
-  //
-  // This check seems to be failing in SeaMonkey builds, yet I can see no ill
-  // effects of this in the actual program. Fixing this is complex because of
-  // the messiness of new count management (see bug 507638 for a
-  // refactoring proposal, and attachment 398899 on bug 514801 for one possible
-  // fix to this particular test). So I am disabling this.
-  // Assert.equal(aFolderNewDelta, folderNew);
-  // Assert.equal(aDbNewDelta, dbNew - gPreviousDbNew);
-  // gPreviousDbNew = dbNew;
+    let folderNew = IMAPPump.inbox.getNumNewMessages(false);
+    let hasNew = IMAPPump.inbox.hasNewMessages;
+    let unread = IMAPPump.inbox.getNumUnread(false);
+    let countOut = {};
+    let arrayOut = {};
+    db().getNewList(countOut, arrayOut);
+    let dbNew = countOut.value ? countOut.value : 0;
+    dump(
+      " hasNew: " +
+        hasNew +
+        " unread: " +
+        unread +
+        " folderNew: " +
+        folderNew +
+        " dbNew: " +
+        dbNew +
+        " prevUnread " +
+        gPreviousUnread +
+        "\n"
+    );
+    // Assert.equal(aHasNew, hasNew);
+    Assert.equal(aUnreadDelta, unread - gPreviousUnread);
+    gPreviousUnread = unread;
+    // This seems to be reset for each folder update.
+    //
+    // This check seems to be failing in SeaMonkey builds, yet I can see no ill
+    // effects of this in the actual program. Fixing this is complex because of
+    // the messiness of new count management (see bug 507638 for a
+    // refactoring proposal, and attachment 398899 on bug 514801 for one possible
+    // fix to this particular test). So I am disabling this.
+    // Assert.equal(aFolderNewDelta, folderNew);
+    // Assert.equal(aDbNewDelta, dbNew - gPreviousDbNew);
+    // gPreviousDbNew = dbNew;
   } catch (e) {
     dump(e);
   }
@@ -395,18 +415,27 @@ var actionTestOffline = {
     for (let i = 0; i < aMsgHdrs.length; i++) {
       var msgHdr = aMsgHdrs.queryElementAt(i, Ci.nsIMsgDBHdr);
       let isOffline = !!(msgHdr.flags & Ci.nsMsgMessageFlags.Offline);
-      dump("in actionTestOffline, flags are " + msgHdr.flags +
-            " subject is " + msgHdr.subject +
-            " isOffline is " + isOffline +
-            "\n");
+      dump(
+        "in actionTestOffline, flags are " +
+          msgHdr.flags +
+          " subject is " +
+          msgHdr.subject +
+          " isOffline is " +
+          isOffline +
+          "\n"
+      );
       // XXX TODO: the offline flag is not set here when it should be in postplugin filters
       // Assert.equal(isOffline, aActionValue == 'true');
       Assert.equal(msgHdr.subject, gMessageSubject);
     }
   },
-  isValidForType(type, scope) { return true; },
+  isValidForType(type, scope) {
+    return true;
+  },
 
-  validateActionValue(value, folder, type) { return null; },
+  validateActionValue(value, folder, type) {
+    return null;
+  },
 
   allowDuplicates: false,
 

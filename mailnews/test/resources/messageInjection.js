@@ -15,9 +15,13 @@
 // Assume whatever test loaded this file already has mailTestUtils.
 /* globals mailTestUtils */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {toXPCOMArray} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { toXPCOMArray } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
 
 var imapMessage;
 try {
@@ -32,8 +36,9 @@ var gMessageGenerator, gMessageScenarioFactory;
 
 // We can be executed from multiple depths
 // Provide understandable error message
-if (typeof gDEPTH == "undefined")
+if (typeof gDEPTH == "undefined") {
   do_throw("gDEPTH must be defined when using messageInjection.js");
+}
 
 /*
  * IMAP port is 1167
@@ -57,10 +62,8 @@ function configure_message_injection(aInjectionConfig) {
   Services.prefs.setBoolPref("mail.biff.show_tray_icon", false);
   Services.prefs.setBoolPref("mail.biff.animate_dock_icon", false);
 
-
   // we need to pull in the notification service so we get events?
   mis.mfnService = MailServices.mfn;
-
 
   if (mis.injectionConfig.mode == "pop") {
     // -- Pull in the POP3 fake-server / local account helper code
@@ -89,7 +92,9 @@ function configure_message_injection(aInjectionConfig) {
       //  case.
     }
 
-    let localAccount = MailServices.accounts.FindAccountForServer(MailServices.accounts.localFoldersServer);
+    let localAccount = MailServices.accounts.FindAccountForServer(
+      MailServices.accounts.localFoldersServer
+    );
 
     // We need an identity or we get angry warnings.
     let identity = MailServices.accounts.createIdentity();
@@ -108,8 +113,9 @@ function configure_message_injection(aInjectionConfig) {
     // a local inbox should have a Mail flag!
     mis.inboxFolder.setFlag(Ci.nsMsgFolderFlags.Mail);
     mis.inboxFolder.setFlag(Ci.nsMsgFolderFlags.Inbox);
-    _messageInjectionSetup.notifyListeners("onRealFolderCreated",
-                                           [mis.inboxFolder]);
+    _messageInjectionSetup.notifyListeners("onRealFolderCreated", [
+      mis.inboxFolder,
+    ]);
 
     // Force an initialization of the Inbox folder database.
     mis.inboxFolder.prettyName;
@@ -119,18 +125,21 @@ function configure_message_injection(aInjectionConfig) {
     //  didn't do this we got tripped up by the semaphore being in use and
     //  concern over inability to hang a listener off of the completion of the
     //  download.  (Although I'm sure there are various ways we could do it.)
-    Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores",
-                               false);
+    Services.prefs.setBoolPref(
+      "mail.server.default.autosync_offline_stores",
+      false
+    );
     // Set the offline property based on the configured setting.  This will
     //  affect newly created folders.
-    Services.prefs.setBoolPref("mail.server.default.offline_download",
-                               mis.injectionConfig.offline);
+    Services.prefs.setBoolPref(
+      "mail.server.default.offline_download",
+      mis.injectionConfig.offline
+    );
 
     // Pull in the IMAP fake server code
-    let {
-      IMAPPump,
-      setupIMAPPump,
-    } = ChromeUtils.import("resource://testing-common/mailnews/IMAPpump.js");
+    let { IMAPPump, setupIMAPPump } = ChromeUtils.import(
+      "resource://testing-common/mailnews/IMAPpump.js"
+    );
 
     // set up IMAP fakeserver and incoming server
     setupIMAPPump("");
@@ -159,20 +168,23 @@ function configure_message_injection(aInjectionConfig) {
     mis.inboxFolder = mis.rootFolder.getChildNamed("Inbox");
     // make sure the inbox's offline state is correct. (may be excessive now
     //  that we set the pref above?)
-    if (mis.injectionConfig.offline)
+    if (mis.injectionConfig.offline) {
       mis.inboxFolder.setFlag(Ci.nsMsgFolderFlags.Offline);
-    else
+    } else {
       mis.inboxFolder.clearFlag(Ci.nsMsgFolderFlags.Offline);
-    _messageInjectionSetup.notifyListeners("onRealFolderCreated",
-                                           [mis.inboxFolder]);
+    }
+    _messageInjectionSetup.notifyListeners("onRealFolderCreated", [
+      mis.inboxFolder,
+    ]);
 
     mis.imapService = MailServices.imap;
 
     mis.handleUriToRealFolder = {};
     mis.handleUriToFakeFolder = {};
     mis.realUriToFakeFolder = {};
-    mis.realUriToFakeFolder[mis.inboxFolder.URI] =
-      mis.daemon.getMailbox("INBOX");
+    mis.realUriToFakeFolder[mis.inboxFolder.URI] = mis.daemon.getMailbox(
+      "INBOX"
+    );
   } else {
     do_throw("Illegal injection config option: " + mis.injectionConfig.mode);
   }
@@ -195,8 +207,7 @@ async_test_runner_register_final_cleanup_helper(_cleanup_message_injection);
 function _cleanup_message_injection() {
   let mis = _messageInjectionSetup;
 
-  if (mis.injectionConfig.mode == "pop" ||
-      mis.injectionConfig.mode == "imap") {
+  if (mis.injectionConfig.mode == "pop" || mis.injectionConfig.mode == "imap") {
     mis.incomingServer.closeCachedConnections();
 
     // No more tests, let everything finish.
@@ -206,8 +217,9 @@ function _cleanup_message_injection() {
 
   // Clean out mis; we don't just null the global because it's conceivable we
   //  might still have some closures floating about.
-  for (let key in mis)
+  for (let key in mis) {
     delete mis[key];
+  }
 }
 
 var _messageInjectionSetup = {
@@ -219,8 +231,9 @@ var _messageInjectionSetup = {
   listeners: [],
   notifyListeners(aHandlerName, aArgs) {
     for (let listener of this.listeners) {
-      if (aHandlerName in listener)
+      if (aHandlerName in listener) {
         listener[aHandlerName].apply(listener, aArgs);
+      }
     }
   },
 
@@ -266,10 +279,11 @@ function register_message_injection_listener(aListener) {
  *  POP3 fakeserver.
  */
 function _synthMessagesToFakeRep(aSynthMessages) {
-  return aSynthMessages.
-    map(msg => ({fileData: msg.toMessageString(), size: -1}));
+  return aSynthMessages.map(msg => ({
+    fileData: msg.toMessageString(),
+    size: -1,
+  }));
 }
-
 
 var SEARCH_TERM_MAP_HELPER = {
   subject: Ci.nsMsgSearchAttrib.Subject,
@@ -299,8 +313,9 @@ var SEARCH_TERM_MAP_HELPER = {
  *     expect actual folders.
  */
 function make_empty_folder(aFolderName, aSpecialFlags) {
-  if (aFolderName == null)
+  if (aFolderName == null) {
     aFolderName = "gabba" + _messageInjectionSetup._nextUniqueFolderId++;
+  }
   let testFolder;
 
   let mis = _messageInjectionSetup;
@@ -315,8 +330,7 @@ function make_empty_folder(aFolderName, aSpecialFlags) {
         testFolder.setFlag(flag);
       }
     }
-    _messageInjectionSetup.notifyListeners("onRealFolderCreated",
-                                           [testFolder]);
+    _messageInjectionSetup.notifyListeners("onRealFolderCreated", [testFolder]);
   } else if (mis.injectionConfig.mode == "imap") {
     let promise_completed = async_create_promise();
 
@@ -327,33 +341,39 @@ function make_empty_folder(aFolderName, aSpecialFlags) {
     mis.imapService.createFolder(
       mis.rootFolder,
       aFolderName,
-      new AsyncUrlListener(mis.rootFolder, function() {
-        // get the newly created nsIMsgFolder folder
-        let msgFolder = mis.rootFolder.getChildNamed(aFolderName);
+      new AsyncUrlListener(
+        mis.rootFolder,
+        function() {
+          // get the newly created nsIMsgFolder folder
+          let msgFolder = mis.rootFolder.getChildNamed(aFolderName);
 
-        // XXX there is a bug that causes folders to be reported as ImapPublic
-        //  when there is no namespace support by the IMAP server.  This is
-        //  a temporary workaround.
-        msgFolder.clearFlag(Ci.nsMsgFolderFlags.ImapPublic);
-        msgFolder.setFlag(Ci.nsMsgFolderFlags.ImapPersonal);
+          // XXX there is a bug that causes folders to be reported as ImapPublic
+          //  when there is no namespace support by the IMAP server.  This is
+          //  a temporary workaround.
+          msgFolder.clearFlag(Ci.nsMsgFolderFlags.ImapPublic);
+          msgFolder.setFlag(Ci.nsMsgFolderFlags.ImapPersonal);
 
-        if (aSpecialFlags) {
-          for (let flag of aSpecialFlags) {
-            msgFolder.setFlag(flag);
+          if (aSpecialFlags) {
+            for (let flag of aSpecialFlags) {
+              msgFolder.setFlag(flag);
+            }
           }
-        }
 
-        // get a reference to the fake server folder
-        let fakeFolder = mis.daemon.getMailbox(aFolderName);
-        // establish the mapping
-        mis.handleUriToRealFolder[testFolder] = msgFolder;
-        mis.handleUriToFakeFolder[testFolder] = fakeFolder;
-        mis.realUriToFakeFolder[msgFolder.URI] = fakeFolder;
+          // get a reference to the fake server folder
+          let fakeFolder = mis.daemon.getMailbox(aFolderName);
+          // establish the mapping
+          mis.handleUriToRealFolder[testFolder] = msgFolder;
+          mis.handleUriToFakeFolder[testFolder] = fakeFolder;
+          mis.realUriToFakeFolder[msgFolder.URI] = fakeFolder;
 
-        // notify listeners
-        _messageInjectionSetup.notifyListeners("onRealFolderCreated",
-                                               [msgFolder]);
-      }, promise_completed));
+          // notify listeners
+          _messageInjectionSetup.notifyListeners("onRealFolderCreated", [
+            msgFolder,
+          ]);
+        },
+        promise_completed
+      )
+    );
   } else if (_messageInjectionSetup.injectionConfig.mode == "pop") {
     throw new Error("You cannot create new folders for POP, I assume.\n");
   }
@@ -365,16 +385,22 @@ function make_empty_folder(aFolderName, aSpecialFlags) {
 function move_folder(aSource, aTarget) {
   let array = toXPCOMArray([get_nsIMsgFolder(aSource)], Ci.nsIMutableArray);
   // we're doing a true move
-  MailServices.copy.CopyFolders(array, get_nsIMsgFolder(aTarget), true, {
-    /* nsIMsgCopyServiceListener implementation */
-    OnStartCopy() {},
-    OnProgress(aProgress, aProgressMax) {},
-    SetMessageKey(aKey) {},
-    SetMessageId(aMessageId) {},
-    OnStopCopy(aStatus) {
-      async_driver();
+  MailServices.copy.CopyFolders(
+    array,
+    get_nsIMsgFolder(aTarget),
+    true,
+    {
+      /* nsIMsgCopyServiceListener implementation */
+      OnStartCopy() {},
+      OnProgress(aProgress, aProgressMax) {},
+      SetMessageKey(aKey) {},
+      SetMessageId(aMessageId) {},
+      OnStopCopy(aStatus) {
+        async_driver();
+      },
     },
-  }, null);
+    null
+  );
 
   // Wait for the call above to async_driver to be issued
   return false;
@@ -387,8 +413,9 @@ function move_folder(aSource, aTarget) {
 function get_junk_folder() {
   let mis = _messageInjectionSetup;
 
-  if (!mis.junkHandle)
+  if (!mis.junkHandle) {
     mis.junkHandle = make_empty_folder("Junk", [Ci.nsMsgFolderFlags.Junk]);
+  }
 
   return mis.junkHandle;
 }
@@ -403,7 +430,8 @@ function get_trash_folder() {
   if (!mis.trashHandle) {
     // the folder may have been created and already known...
     mis.trashFolder = mis.rootFolder.getFolderWithFlags(
-                        Ci.nsMsgFolderFlags.Trash);
+      Ci.nsMsgFolderFlags.Trash
+    );
     if (mis.trashFolder) {
       mis.trashHandle = mis.rootFolder.URI + "/Trash";
       let fakeFolder = mis.daemon.getMailbox("Trash");
@@ -433,14 +461,21 @@ function make_virtual_folder(aFolders, aSearchDef, aBooleanAnd, aName) {
   let mis = _messageInjectionSetup;
   let name = aName ? aName : "virt" + mis._nextUniqueFolderId++;
 
-  mark_action("messageInjection", "make_virtual_folder",
-              ["creating folder named", name,
-               "from folders", aFolders, "anding?", aBooleanAnd,
-               "using search def", aSearchDef]);
+  mark_action("messageInjection", "make_virtual_folder", [
+    "creating folder named",
+    name,
+    "from folders",
+    aFolders,
+    "anding?",
+    aBooleanAnd,
+    "using search def",
+    aSearchDef,
+  ]);
 
   let terms = [];
-  let termCreator = Cc["@mozilla.org/messenger/searchSession;1"]
-                      .createInstance(Ci.nsIMsgSearchSession);
+  let termCreator = Cc["@mozilla.org/messenger/searchSession;1"].createInstance(
+    Ci.nsIMsgSearchSession
+  );
   for (let key in aSearchDef) {
     let val = aSearchDef[key];
     let term = termCreator.createTerm();
@@ -448,8 +483,9 @@ function make_virtual_folder(aFolders, aSearchDef, aBooleanAnd, aName) {
     value.str = val;
     term.value = value;
     term.attrib = SEARCH_TERM_MAP_HELPER[key];
-    if (term.attrib == Ci.nsMsgSearchAttrib.Custom)
+    if (term.attrib == Ci.nsMsgSearchAttrib.Custom) {
       term.customId = "mailnews@mozilla.org#test";
+    }
     term.op = Ci.nsMsgSearchOp.Contains;
     term.booleanAnd = Boolean(aBooleanAnd);
     terms.push(term);
@@ -461,12 +497,19 @@ function make_virtual_folder(aFolders, aSearchDef, aBooleanAnd, aName) {
     terms.push(term);
   }
 
-  let {VirtualFolderHelper} = ChromeUtils.import("resource:///modules/virtualFolderWrapper.js");
+  let { VirtualFolderHelper } = ChromeUtils.import(
+    "resource:///modules/virtualFolderWrapper.js"
+  );
   let wrapped = VirtualFolderHelper.createNewVirtualFolder(
-    name, mis.rootFolder, aFolders, terms,
-    /* online */ false);
-  _messageInjectionSetup.notifyListeners("onVirtualFolderCreated",
-                                         [wrapped.virtualFolder]);
+    name,
+    mis.rootFolder,
+    aFolders,
+    terms,
+    /* online */ false
+  );
+  _messageInjectionSetup.notifyListeners("onVirtualFolderCreated", [
+    wrapped.virtualFolder,
+  ]);
   return wrapped.virtualFolder;
 }
 
@@ -477,8 +520,9 @@ function make_virtual_folder(aFolders, aSearchDef, aBooleanAnd, aName) {
  */
 function make_folder_and_contents_offline(aFolderHandle) {
   let mis = _messageInjectionSetup;
-  if (mis.injectionConfig.mode != "imap")
+  if (mis.injectionConfig.mode != "imap") {
     return true;
+  }
 
   let msgFolder = get_real_injection_folder(aFolderHandle);
   msgFolder.setFlag(Ci.nsMsgFolderFlags.Offline);
@@ -527,8 +571,9 @@ function make_folder_with_sets(aSynSetDefs) {
  */
 function make_folders_with_sets(aFolderCount, aSynSetDefs) {
   let msgFolders = [];
-  for (let i = 0; i < aFolderCount; i++)
+  for (let i = 0; i < aFolderCount; i++) {
     msgFolders.push(make_empty_folder());
+  }
   let results = make_new_sets_in_folders(msgFolders, aSynSetDefs);
   // results may be referenced by add_sets_to_folders in an async fashion, so
   //  don't change it.
@@ -555,11 +600,12 @@ function make_folders_with_sets(aFolderCount, aSynSetDefs) {
  */
 function make_new_sets_in_folders(aMsgFolders, aSynSetDefs, aDoNotForceUpdate) {
   // is it just a count of the number of plain vanilla sets to create?
-  if (typeof(aSynSetDefs) == "number") {
+  if (typeof aSynSetDefs == "number") {
     let setCount = aSynSetDefs;
     aSynSetDefs = [];
-    for (let iSet = 0; iSet < setCount; iSet++)
+    for (let iSet = 0; iSet < setCount; iSet++) {
       aSynSetDefs.push({});
+    }
   }
   // now it must be a list of set descriptors
 
@@ -584,10 +630,12 @@ var make_new_sets_in_folder = make_new_sets_in_folders;
  *  1, 2, 3, ...].  For use by add_sets_across_folders.
  */
 function* _looperator(aList) {
-  if (aList.length == 0)
+  if (aList.length == 0) {
     throw new Error("aList must have at least one item!");
+  }
 
-  let i = 0, length = aList.length;
+  let i = 0,
+    length = aList.length;
   while (true) {
     yield aList[i];
     i = (i + 1) % length;
@@ -629,8 +677,9 @@ function* _looperator(aList) {
  *     we are done.  This is consistent with asyncTestUtils support.
  */
 function add_sets_to_folders(aMsgFolders, aMessageSets, aDoNotForceUpdate) {
-  if ((typeof(aMsgFolders) == "string") || !("length" in aMsgFolders))
+  if (typeof aMsgFolders == "string" || !("length" in aMsgFolders)) {
     aMsgFolders = [aMsgFolders];
+  }
 
   let mis = _messageInjectionSetup;
 
@@ -642,16 +691,18 @@ function add_sets_to_folders(aMsgFolders, aMessageSets, aDoNotForceUpdate) {
   // -- Pre-loop
   if (mis.injectionConfig.mode == "local") {
     for (let folder of aMsgFolders) {
-      if (!(folder instanceof Ci.nsIMsgLocalMailFolder))
+      if (!(folder instanceof Ci.nsIMsgLocalMailFolder)) {
         throw new Error("All folders in aMsgFolders must be local folders!");
+      }
     }
   } else if (mis.injectionConfig.mode == "imap") {
     // no protection is possible because of our dependency on promises,
     //  although we could check that the fake URL is one we handed out.
   } else if (mis.injectionConfig.mode == "pop") {
     for (let folder of aMsgFolders) {
-      if (folder.URI != mis.inboxFolder.URI)
+      if (folder.URI != mis.inboxFolder.URI) {
         throw new Error("We only support the Inbox for POP injection");
+      }
     }
 
     // ugh, so this is really a degenerate case where everything we do is
@@ -666,9 +717,12 @@ function add_sets_to_folders(aMsgFolders, aMessageSets, aDoNotForceUpdate) {
     //  approach.  In the first pass we just allocate messages to the folder
     //  we are going to insert them into.  In the second pass we insert the
     //  messages into folders in batches and perform any mutations.
-    let folderBatches = aMsgFolders.map(folder => { return {folder, messages: []}; });
+    let folderBatches = aMsgFolders.map(folder => {
+      return { folder, messages: [] };
+    });
     iterFolders = _looperator([...folderBatches.keys()]);
-    let iPerSet = 0, folderNext = iterFolders.next();
+    let iPerSet = 0,
+      folderNext = iterFolders.next();
 
     // - allocate messages to folders
     // loop, incrementing our subscript until all message sets are out of messages
@@ -678,9 +732,15 @@ function add_sets_to_folders(aMsgFolders, aMessageSets, aDoNotForceUpdate) {
       // for each message set, if it is not out of messages, add the message
       for (let messageSet of aMessageSets) {
         if (iPerSet < messageSet.synMessages.length) {
-          let synMsg = messageSet._trackMessageAddition(folderBatches[folderNext.value].folder,
-                                                        iPerSet);
-          folderBatches[folderNext.value].messages.push({ messageSet, synMsg, index: iPerSet });
+          let synMsg = messageSet._trackMessageAddition(
+            folderBatches[folderNext.value].folder,
+            iPerSet
+          );
+          folderBatches[folderNext.value].messages.push({
+            messageSet,
+            synMsg,
+            index: iPerSet,
+          });
           didSomething = true;
         }
       }
@@ -691,38 +751,47 @@ function add_sets_to_folders(aMsgFolders, aMessageSets, aDoNotForceUpdate) {
     // - inject messages
     for (let folderBatch of folderBatches) {
       // it is conceivable some folders might not get any messages, skip them.
-      if (!folderBatch.messages.length)
+      if (!folderBatch.messages.length) {
         continue;
+      }
 
       let folder = folderBatch.folder;
       folder.gettingNewMessages = true;
       let messageStrings = folderBatch.messages.map(message =>
-                             message.synMsg.toMboxString());
+        message.synMsg.toMboxString()
+      );
       folder.addMessageBatch(messageStrings.length, messageStrings);
 
       for (let message of folderBatch.messages) {
         let synMsgState = message.synMsg.metaState;
         // If we need to mark the message as junk grab the header and do so.
         if (synMsgState.junk) {
-          message.messageSet.setJunk(true,
-            message.messageSet.getMsgHdr(message.index));
+          message.messageSet.setJunk(
+            true,
+            message.messageSet.getMsgHdr(message.index)
+          );
         }
         if (synMsgState.read) {
           // XXX this will generate an event; I'm not sure if we should be
           //  trying to avoid that or not.  This case is really only added
           //  for IMAP where this makes more sense.
-          message.messageSet.setRead(true,
-            message.messageSet.getMsgHdr(message.index));
+          message.messageSet.setRead(
+            true,
+            message.messageSet.getMsgHdr(message.index)
+          );
         }
       }
       if (folderBatch.messages.length) {
-        let lastMRUTime = Math.floor(Number(folderBatch.messages[0].synMsg.date) / 1000);
+        let lastMRUTime = Math.floor(
+          Number(folderBatch.messages[0].synMsg.date) / 1000
+        );
         folder.setStringProperty("MRUTime", lastMRUTime);
       }
       folder.gettingNewMessages = false;
       folder.hasNewMessages = true;
-      folder.setNumNewMessages(folder.getNumNewMessages(false)
-                               + messageStrings.length);
+      folder.setNumNewMessages(
+        folder.getNumNewMessages(false) + messageStrings.length
+      );
       folder.biffState = Ci.nsIMsgFolder.nsMsgBiffState_NewMail;
     }
 
@@ -737,63 +806,77 @@ function add_sets_to_folders(aMsgFolders, aMessageSets, aDoNotForceUpdate) {
     iterFolders = _looperator(aMsgFolders);
     // we need to call updateFolder on all the folders, not just the first
     //  one...
-    return async_run({* func() {
-      yield wait_for_async_promises();
+    return async_run({
+      *func() {
+        yield wait_for_async_promises();
 
-      let iPerSet = 0, folder = iterFolders.next();
-      let didSomething;
-      do {
-        didSomething = false;
-        for (let messageSet of aMessageSets) {
-          if (iPerSet < messageSet.synMessages.length) {
-            didSomething = true;
+        let iPerSet = 0,
+          folder = iterFolders.next();
+        let didSomething;
+        do {
+          didSomething = false;
+          for (let messageSet of aMessageSets) {
+            if (iPerSet < messageSet.synMessages.length) {
+              didSomething = true;
 
-            let realFolder = mis.handleUriToRealFolder[folder.value];
-            let fakeFolder = mis.handleUriToFakeFolder[folder.value];
-            let synMsg = messageSet._trackMessageAddition(realFolder, iPerSet);
-            let msgURI =
-              Services.io.newURI("data:text/plain;base64," +
-                                 btoa(synMsg.toMessageString()));
-            let imapMsg = new imapMessage(msgURI.spec, fakeFolder.uidnext++, []);
-            // If the message's meta-state indicates it is junk, set that flag.
-            // There is also a NotJunk flag, but we're not playing with that
-            //  right now; as long as nothing is ever marked as junk, the junk
-            //  classifier won't run, so it's moot for now.
-            if (synMsg.metaState.junk)
-              imapMsg.setFlag("Junk");
-            if (synMsg.metaState.read)
-              imapMsg.setFlag("\\Seen");
-            fakeFolder.addMessage(imapMsg);
+              let realFolder = mis.handleUriToRealFolder[folder.value];
+              let fakeFolder = mis.handleUriToFakeFolder[folder.value];
+              let synMsg = messageSet._trackMessageAddition(
+                realFolder,
+                iPerSet
+              );
+              let msgURI = Services.io.newURI(
+                "data:text/plain;base64," + btoa(synMsg.toMessageString())
+              );
+              let imapMsg = new imapMessage(
+                msgURI.spec,
+                fakeFolder.uidnext++,
+                []
+              );
+              // If the message's meta-state indicates it is junk, set that flag.
+              // There is also a NotJunk flag, but we're not playing with that
+              //  right now; as long as nothing is ever marked as junk, the junk
+              //  classifier won't run, so it's moot for now.
+              if (synMsg.metaState.junk) {
+                imapMsg.setFlag("Junk");
+              }
+              if (synMsg.metaState.read) {
+                imapMsg.setFlag("\\Seen");
+              }
+              fakeFolder.addMessage(imapMsg);
+            }
+          }
+          iPerSet++;
+          folder = iterFolders.next();
+        } while (didSomething);
+
+        // We have nothing more to do if we aren't support to force the update.
+        if (aDoNotForceUpdate) {
+          return;
+        }
+
+        for (let iFolder = 0; iFolder < aMsgFolders.length; iFolder++) {
+          let realFolder = mis.handleUriToRealFolder[aMsgFolders[iFolder]];
+          mark_action("messageInjection", "forcing update of folder", [
+            realFolder,
+          ]);
+          mailTestUtils.updateFolderAndNotify(realFolder, async_driver);
+          yield false;
+
+          // compel download of the messages if appropriate
+          if (realFolder.flags & Ci.nsMsgFolderFlags.Offline) {
+            mark_action("messageInjection", "offlining messages", [realFolder]);
+            realFolder.downloadAllForOffline(asyncUrlListener, null);
+            yield false;
           }
         }
-        iPerSet++;
-        folder = iterFolders.next();
-      } while (didSomething);
-
-
-      // We have nothing more to do if we aren't support to force the update.
-      if (aDoNotForceUpdate)
-        return;
-
-      for (let iFolder = 0; iFolder < aMsgFolders.length; iFolder++) {
-        let realFolder = mis.handleUriToRealFolder[aMsgFolders[iFolder]];
-        mark_action("messageInjection", "forcing update of folder",
-                    [realFolder]);
-        mailTestUtils.updateFolderAndNotify(realFolder, async_driver);
-        yield false;
-
-        // compel download of the messages if appropriate
-        if (realFolder.flags & Ci.nsMsgFolderFlags.Offline) {
-          mark_action("messageInjection", "offlining messages", [realFolder]);
-          realFolder.downloadAllForOffline(asyncUrlListener, null);
-          yield false;
-        }
-      }
-    }});
+      },
+    });
   } else if (mis.injectionConfig.mode == "pop") {
     iterFolders = _looperator(aMsgFolders);
 
-    let iPerSet = 0, folder = iterFolders.next();
+    let iPerSet = 0,
+      folder = iterFolders.next();
     // loop, incrementing our subscript until all message sets are out of messages
     let didSomething;
     do {
@@ -801,7 +884,9 @@ function add_sets_to_folders(aMsgFolders, aMessageSets, aDoNotForceUpdate) {
       // for each message set, if it is not out of messages, add the message
       for (let messageSet of aMessageSets) {
         if (iPerSet < messageSet.synMessages.length) {
-          popMessages.push(messageSet._trackMessageAddition(folder.value, iPerSet));
+          popMessages.push(
+            messageSet._trackMessageAddition(folder.value, iPerSet)
+          );
           didSomething = true;
         }
       }
@@ -810,10 +895,15 @@ function add_sets_to_folders(aMsgFolders, aMessageSets, aDoNotForceUpdate) {
     } while (didSomething);
 
     ims.daemon.setMessages(_synthMessagesToFakeRep(popMessages));
-    if (aDoNotForceUpdate)
+    if (aDoNotForceUpdate) {
       return true;
-    ims.pop3Service.GetNewMail(null, asyncUrlListener, mis.inboxFolder,
-                               mis.incomingServer);
+    }
+    ims.pop3Service.GetNewMail(
+      null,
+      asyncUrlListener,
+      mis.inboxFolder,
+      mis.incomingServer
+    );
     return false; // wait for the url listener to be notified
   }
 
@@ -842,9 +932,9 @@ function get_real_injection_folder(aFolderHandle) {
  */
 function wait_for_message_injection() {
   let mis = _messageInjectionSetup;
-  if (mis.injectionConfig.mode == "imap" ||
-      mis.injectionConfig.mode == "pop")
+  if (mis.injectionConfig.mode == "imap" || mis.injectionConfig.mode == "pop") {
     return false;
+  }
   return true;
 }
 
@@ -867,52 +957,71 @@ function wait_for_message_injection() {
  */
 function async_move_messages(aSynMessageSet, aDestFolder, aAllowUndo) {
   mark_action("messageInjection", "moving messages", aSynMessageSet.msgHdrList);
-  return async_run({* func() {
+  return async_run({
+    *func() {
       // we need to make sure all folder promises are fulfilled
       yield wait_for_async_promises();
       // and then we can make sure we have the actual folder
       let realDestFolder = get_real_injection_folder(aDestFolder);
 
-      for (let [folder, xpcomHdrArray] of
-           aSynMessageSet.foldersWithXpcomHdrArrays()) {
-        mark_action("messageInjection",
-                    "moving messages",
-                    ["from", folder, "to", realDestFolder]);
+      for (let [
+        folder,
+        xpcomHdrArray,
+      ] of aSynMessageSet.foldersWithXpcomHdrArrays()) {
+        mark_action("messageInjection", "moving messages", [
+          "from",
+          folder,
+          "to",
+          realDestFolder,
+        ]);
 
         // In the IMAP case tell listeners we are moving messages without
         //  destination headers.
-        if (!message_injection_is_local())
+        if (!message_injection_is_local()) {
           _messageInjectionSetup.notifyListeners(
-            "onMovingMessagesWithoutDestHeaders", [realDestFolder]);
+            "onMovingMessagesWithoutDestHeaders",
+            [realDestFolder]
+          );
+        }
 
-        MailServices.copy.CopyMessages(folder, xpcomHdrArray,
-                                       realDestFolder, /* move */ true,
-                                       asyncCopyListener, null,
-                                       Boolean(aAllowUndo));
+        MailServices.copy.CopyMessages(
+          folder,
+          xpcomHdrArray,
+          realDestFolder,
+          /* move */ true,
+          asyncCopyListener,
+          null,
+          Boolean(aAllowUndo)
+        );
         // update the synthetic message set's folder entry...
         aSynMessageSet._folderSwap(folder, realDestFolder);
         yield false;
 
         // IMAP special case per function doc...
         if (!message_injection_is_local()) {
-          mark_action("messageInjection",
-                      "forcing update of folder so IMAP move issued",
-                      [folder]);
+          mark_action(
+            "messageInjection",
+            "forcing update of folder so IMAP move issued",
+            [folder]
+          );
           // update the source folder to force it to issue the move
           mailTestUtils.updateFolderAndNotify(folder, async_driver);
           yield false;
 
-          mark_action("messageInjection",
-                      "forcing update of folder so IMAP moved header seen",
-                      [realDestFolder]);
+          mark_action(
+            "messageInjection",
+            "forcing update of folder so IMAP moved header seen",
+            [realDestFolder]
+          );
           // update the dest folder to see the new header.
           mailTestUtils.updateFolderAndNotify(realDestFolder, async_driver);
           yield false;
 
           // compel download of messages in dest folder if appropriate
           if (realDestFolder.flags & Ci.nsMsgFolderFlags.Offline) {
-            mark_action("messageInjection", "offlining messages",
-                        [realDestFolder]);
+            mark_action("messageInjection", "offlining messages", [
+              realDestFolder,
+            ]);
             realDestFolder.downloadAllForOffline(asyncUrlListener, null);
             yield false;
           }
@@ -931,28 +1040,45 @@ function async_move_messages(aSynMessageSet, aDestFolder, aAllowUndo) {
  *     folder if they are not.
  */
 function async_trash_messages(aSynMessageSet) {
-  mark_action("messageInjection", "trashing messages",
-              aSynMessageSet.msgHdrList);
-  return async_run({* func() {
-      for (let [folder, xpcomHdrArray] of
-           aSynMessageSet.foldersWithXpcomHdrArrays()) {
-        mark_action("messageInjection", "trashing messages in folder",
-                    [folder]);
+  mark_action(
+    "messageInjection",
+    "trashing messages",
+    aSynMessageSet.msgHdrList
+  );
+  return async_run({
+    *func() {
+      for (let [
+        folder,
+        xpcomHdrArray,
+      ] of aSynMessageSet.foldersWithXpcomHdrArrays()) {
+        mark_action("messageInjection", "trashing messages in folder", [
+          folder,
+        ]);
         // In the IMAP case tell listeners we are moving messages without
         //  destination headers, since that's what trashing amounts to.
-        if (!message_injection_is_local())
+        if (!message_injection_is_local()) {
           _messageInjectionSetup.notifyListeners(
-            "onMovingMessagesWithoutDestHeaders", []);
-        folder.deleteMessages(xpcomHdrArray, null, false, true,
-                              asyncCopyListener,
-                              /* do not allow undo, currently leaks */ false);
+            "onMovingMessagesWithoutDestHeaders",
+            []
+          );
+        }
+        folder.deleteMessages(
+          xpcomHdrArray,
+          null,
+          false,
+          true,
+          asyncCopyListener,
+          /* do not allow undo, currently leaks */ false
+        );
         yield false;
 
         // just like the move case we need to force updateFolder calls for IMAP
         if (!message_injection_is_local()) {
-          mark_action("messageInjection",
-                      "forcing update of folder so IMAP move issued",
-                      [folder]);
+          mark_action(
+            "messageInjection",
+            "forcing update of folder so IMAP move issued",
+            [folder]
+          );
           // update the source folder to force it to issue the move
           mailTestUtils.updateFolderAndNotify(folder, async_driver);
           yield false;
@@ -961,17 +1087,20 @@ function async_trash_messages(aSynMessageSet) {
           //  will have created it.
           let trashFolder = get_real_injection_folder(get_trash_folder());
 
-          mark_action("messageInjection",
-                      "forcing update of folder so IMAP moved header seen",
-                      [trashFolder]);
+          mark_action(
+            "messageInjection",
+            "forcing update of folder so IMAP moved header seen",
+            [trashFolder]
+          );
           // update the dest folder to see the new header.
           mailTestUtils.updateFolderAndNotify(trashFolder, async_driver);
           yield false;
 
           // compel download of messages in dest folder if appropriate
           if (trashFolder.flags & Ci.nsMsgFolderFlags.Offline) {
-            mark_action("messageInjection", "offlining messages",
-                        [trashFolder]);
+            mark_action("messageInjection", "offlining messages", [
+              trashFolder,
+            ]);
             trashFolder.downloadAllForOffline(asyncUrlListener, null);
             yield false;
           }
@@ -992,17 +1121,24 @@ function async_trash_messages(aSynMessageSet) {
  *     folder if they are not.
  */
 function async_delete_messages(aSynMessageSet) {
-  mark_action("messageInjection", "deleting messages",
-              aSynMessageSet.msgHdrList);
-  for (let [folder, xpcomHdrArray] of
-       aSynMessageSet.foldersWithXpcomHdrArrays()) {
-    mark_action("messageInjection", "deleting messages in folder",
-                [folder]);
-    folder.deleteMessages(xpcomHdrArray, null,
-                          /* delete storage */ true,
-                          /* is move? */ false,
-                          null,
-                          /* do not allow undo, currently leaks */ false);
+  mark_action(
+    "messageInjection",
+    "deleting messages",
+    aSynMessageSet.msgHdrList
+  );
+  for (let [
+    folder,
+    xpcomHdrArray,
+  ] of aSynMessageSet.foldersWithXpcomHdrArrays()) {
+    mark_action("messageInjection", "deleting messages in folder", [folder]);
+    folder.deleteMessages(
+      xpcomHdrArray,
+      null,
+      /* delete storage */ true,
+      /* is move? */ false,
+      null,
+      /* do not allow undo, currently leaks */ false
+    );
   }
   return true;
 }
@@ -1011,13 +1147,15 @@ function async_delete_messages(aSynMessageSet) {
  * Empty the trash.
  */
 function async_empty_trash() {
-  return async_run({* func() {
-    let trashHandle = get_trash_folder();
-    yield wait_for_async_promises();
-    let trashFolder = get_real_injection_folder(trashHandle);
-    trashFolder.emptyTrash(null, asyncUrlListener);
-    yield false;
-  }});
+  return async_run({
+    *func() {
+      let trashHandle = get_trash_folder();
+      yield wait_for_async_promises();
+      let trashFolder = get_real_injection_folder(trashHandle);
+      trashFolder.emptyTrash(null, asyncUrlListener);
+      yield false;
+    },
+  });
 }
 
 /**

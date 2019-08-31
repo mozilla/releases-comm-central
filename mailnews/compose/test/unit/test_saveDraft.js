@@ -13,4 +13,3 @@ function run_test() {
   localAccountUtils.loadLocalMailAccount();
   run_next_test();
 }
-

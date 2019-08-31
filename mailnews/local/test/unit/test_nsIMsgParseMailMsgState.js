@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
+var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.js");
 
 var MSG_LINEBREAK = "\r\n";
 
@@ -17,8 +17,9 @@ function run_test() {
 function test_parse_headers_without_crash(eml) {
   let file = do_get_file(eml);
 
-  let parser = Cc["@mozilla.org/messenger/messagestateparser;1"]
-                 .createInstance(Ci.nsIMsgParseMailMsgState);
+  let parser = Cc["@mozilla.org/messenger/messagestateparser;1"].createInstance(
+    Ci.nsIMsgParseMailMsgState
+  );
 
   parser.SetMailDB(localAccountUtils.inboxFolder.getDatabaseWOReparse());
   parser.state = Ci.nsIMsgParseMailMsgState.ParseHeadersState;
@@ -27,6 +28,9 @@ function test_parse_headers_without_crash(eml) {
   let lines = mailData.split(MSG_LINEBREAK);
 
   for (let line = 0; line < lines.length; line++) {
-    parser.ParseAFolderLine(lines[line] + MSG_LINEBREAK, lines[line].length + 2);
+    parser.ParseAFolderLine(
+      lines[line] + MSG_LINEBREAK,
+      lines[line].length + 2
+    );
   }
 }

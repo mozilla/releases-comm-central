@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 var gMessengerBundle;
 
@@ -23,7 +23,9 @@ function MsgFolderPickerOnLoad(pickerID) {
     // pre-flight the menu with is valid for this
     // picker type
     var msgfolder = MailUtils.getExistingFolder(uri);
-          if (!msgfolder) return;
+    if (!msgfolder) {
+      return;
+    }
 
     var verifyFunction = null;
 
@@ -53,8 +55,9 @@ function PickedMsgFolder(selection, pickerID) {
 function SetFolderPickerElement(uri, picker) {
   var msgfolder = MailUtils.getExistingFolder(uri);
 
-  if (!msgfolder)
+  if (!msgfolder) {
     return;
+  }
 
   var selectedValue = null;
   var serverName;
@@ -65,8 +68,8 @@ function SetFolderPickerElement(uri, picker) {
     if (msgfolder.server) {
       serverName = msgfolder.server.prettyName;
     } else {
-     dump("Can't find server for " + uri + "\n");
-     serverName = "???";
+      dump("Can't find server for " + uri + "\n");
+      serverName = "???";
     }
 
     switch (picker.id) {
@@ -77,10 +80,13 @@ function SetFolderPickerElement(uri, picker) {
         selectedValue = msgfolder.name;
         break;
       default:
-        if (!gMessengerBundle)
+        if (!gMessengerBundle) {
           gMessengerBundle = document.getElementById("bundle_messenger");
-        selectedValue = gMessengerBundle.getFormattedString("verboseFolderFormat",
-          [msgfolder.name, serverName]);
+        }
+        selectedValue = gMessengerBundle.getFormattedString(
+          "verboseFolderFormat",
+          [msgfolder.name, serverName]
+        );
         break;
     }
   }

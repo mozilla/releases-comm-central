@@ -4,8 +4,10 @@
  * and returns success.
  */
 
-Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
-                           "@mozilla.org/msgstore/berkeleystore;1");
+Services.prefs.setCharPref(
+  "mail.serverDefaultStoreContractID",
+  "@mozilla.org/msgstore/berkeleystore;1"
+);
 
 /* import-globals-from ../../../test/resources/logHelper.js */
 /* import-globals-from ../../../test/resources/asyncTestUtils.js */
@@ -37,7 +39,9 @@ var gMsgId5 = "bugmail6.m47LtAEf007542@mrapp51.mozilla.org";
 function addMessagesToServer(messages, mailbox) {
   // For every message we have, we need to convert it to a file:/// URI
   messages.forEach(function(message) {
-    let URI = Services.io.newFileURI(message.file).QueryInterface(Ci.nsIFileURL);
+    let URI = Services.io
+      .newFileURI(message.file)
+      .QueryInterface(Ci.nsIFileURL);
     // Create the imapMessage and store it on the mailbox.
     mailbox.addMessage(new imapMessage(URI.spec, mailbox.uidnext++, []));
   });
@@ -46,12 +50,12 @@ function addMessagesToServer(messages, mailbox) {
 function addGeneratedMessagesToServer(messages, mailbox) {
   // Create the imapMessages and store them on the mailbox
   messages.forEach(function(message) {
-    let dataUri = Services.io.newURI("data:text/plain;base64," +
-                                     btoa(message.toMessageString()));
+    let dataUri = Services.io.newURI(
+      "data:text/plain;base64," + btoa(message.toMessageString())
+    );
     mailbox.addMessage(new imapMessage(dataUri.spec, mailbox.uidnext++, []));
   });
 }
-
 
 function checkOfflineStore(prevOfflineStoreSize) {
   dump("checking offline store\n");
@@ -63,9 +67,14 @@ function checkOfflineStore(prevOfflineStoreSize) {
       let header = enumerator.getNext();
       // this will verify that the message in the offline store
       // starts with "From " - otherwise, it returns an error.
-      if (header instanceof Ci.nsIMsgDBHdr &&
-         (header.flags & Ci.nsMsgMessageFlags.Offline))
-        IMAPPump.inbox.getOfflineFileStream(header.messageKey, offset, size).close();
+      if (
+        header instanceof Ci.nsIMsgDBHdr &&
+        header.flags & Ci.nsMsgMessageFlags.Offline
+      ) {
+        IMAPPump.inbox
+          .getOfflineFileStream(header.messageKey, offset, size)
+          .close();
+      }
     }
   }
   // check that the offline store shrunk by at least 100 bytes.
@@ -88,7 +97,13 @@ var tests = [
     let array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
     array.appendElement(msgHdr);
     // store the deleted flag
-    IMAPPump.inbox.storeImapFlags(0x0008, true, [msgHdr.messageKey], 1, asyncUrlListener);
+    IMAPPump.inbox.storeImapFlags(
+      0x0008,
+      true,
+      [msgHdr.messageKey],
+      1,
+      asyncUrlListener
+    );
     yield false;
   },
   function* compactOneFolder() {
@@ -109,7 +124,14 @@ var tests = [
     let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId1);
     let array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
     array.appendElement(msgHdr);
-    IMAPPump.inbox.deleteMessages(array, null, false, true, CopyListener, false);
+    IMAPPump.inbox.deleteMessages(
+      array,
+      null,
+      false,
+      true,
+      CopyListener,
+      false
+    );
     let trashFolder = gRootFolder.getChildNamed("Trash");
     // hack to force uid validity to get initialized for trash.
     trashFolder.updateFolder(null);
@@ -159,18 +181,23 @@ function setup() {
 
   let messageGenerator = new MessageGenerator();
   let messages = [];
-  for (let i = 0; i < 50; i++)
+  for (let i = 0; i < 50; i++) {
     messages = messages.concat(messageGenerator.makeMessage());
+  }
 
   addGeneratedMessagesToServer(messages, IMAPPump.daemon.getMailbox("INBOX"));
 
   // Add a couple of messages to the INBOX
   // this is synchronous, afaik
-  addMessagesToServer([{file: gMsgFile1, messageId: gMsgId1},
-                       {file: gMsgFile4, messageId: gMsgId4},
-                       {file: gMsgFile2, messageId: gMsgId2},
-                       {file: gMsgFile5, messageId: gMsgId5}],
-                      IMAPPump.daemon.getMailbox("INBOX"));
+  addMessagesToServer(
+    [
+      { file: gMsgFile1, messageId: gMsgId1 },
+      { file: gMsgFile4, messageId: gMsgId4 },
+      { file: gMsgFile2, messageId: gMsgId2 },
+      { file: gMsgFile5, messageId: gMsgId5 },
+    ],
+    IMAPPump.daemon.getMailbox("INBOX")
+  );
 }
 
 // nsIMsgCopyServiceListener implementation - runs next test when copy

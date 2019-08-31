@@ -9,21 +9,25 @@
   added to JaIncomingServer.cpp that are not in nsMsgDBFolder.cpp
  */
 
-const EXPORTED_SYMBOLS = ["JaBaseIncomingServerProperties", "JaBaseIncomingServer"];
+const EXPORTED_SYMBOLS = [
+  "JaBaseIncomingServerProperties",
+  "JaBaseIncomingServer",
+];
 
 // A partial JavaScript implementation of the base server methods.
 
 const JaBaseIncomingServerProperties = {
-  baseContractID:     "@mozilla.org/jacppincomingserverdelegator;1",
-  baseInterfaces:     [ Ci.nsISupports,
-                        Ci.nsIMsgIncomingServer,
-                        Ci.nsIInterfaceRequestor,
-                        Ci.msgIOverride,
-                        Ci.nsISupportsWeakReference,
-                      ],
-  delegateInterfaces: [ Ci.nsIMsgIncomingServer ],
-  contractID:         "@mozilla.org/messenger/server;1?type=testja",
-  classID:            Components.ID("{0eec03cd-da67-4949-ab2d-5fa4bdc68135}"),
+  baseContractID: "@mozilla.org/jacppincomingserverdelegator;1",
+  baseInterfaces: [
+    Ci.nsISupports,
+    Ci.nsIMsgIncomingServer,
+    Ci.nsIInterfaceRequestor,
+    Ci.msgIOverride,
+    Ci.nsISupportsWeakReference,
+  ],
+  delegateInterfaces: [Ci.nsIMsgIncomingServer],
+  contractID: "@mozilla.org/messenger/server;1?type=testja",
+  classID: Components.ID("{0eec03cd-da67-4949-ab2d-5fa4bdc68135}"),
 };
 
 function JaBaseIncomingServer(aDelegator, aBaseInterfaces) {
@@ -48,7 +52,9 @@ JaBaseIncomingServer.prototype = {
   _JsPrototypeToDelegate: true,
 
   // QI to the (partially implemented only) interfaces.
-  QueryInterface: ChromeUtils.generateQI(JaBaseIncomingServerProperties.delegateInterfaces),
+  QueryInterface: ChromeUtils.generateQI(
+    JaBaseIncomingServerProperties.delegateInterfaces
+  ),
 
   // Used to access an instance as JS, bypassing XPCOM.
   get wrappedJSObject() {
@@ -59,6 +65,10 @@ JaBaseIncomingServer.prototype = {
   delegateList: null,
 
   // nsIMsgIncomingServer overrides.
-  get localStoreType() { return "testja"; },
-  get localDatabaseType() { return "mailbox"; },
+  get localStoreType() {
+    return "testja";
+  },
+  get localDatabaseType() {
+    return "mailbox";
+  },
 };

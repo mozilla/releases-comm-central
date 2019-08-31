@@ -22,16 +22,14 @@ load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/alertTestUtils.js");
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var daemon, localserver, server;
 var highWater = 0;
 
-var tests = [
-  test_newMsgs,
-  trigger_bug,
-  cleanUp,
-];
+var tests = [test_newMsgs, trigger_bug, cleanUp];
 
 function* test_newMsgs() {
   // Start by initializing the folder, and mark some messages as read.
@@ -39,13 +37,13 @@ function* test_newMsgs() {
   Assert.equal(folder.getTotalMessages(false), 0);
   folder.getNewMessages(null, asyncUrlListener);
   // Do another folder to use up both connections
-  localserver.rootFolder.getChildNamed("test.subscribe.simple")
-                        .getNewMessages(null, asyncUrlListener);
+  localserver.rootFolder
+    .getChildNamed("test.subscribe.simple")
+    .getNewMessages(null, asyncUrlListener);
   // Two things to listen for -- yield twice
   yield false;
   yield false;
-  folder.QueryInterface(Ci.nsIMsgNewsFolder)
-        .setReadSetFromStr("1-3");
+  folder.QueryInterface(Ci.nsIMsgNewsFolder).setReadSetFromStr("1-3");
   Assert.equal(folder.getTotalMessages(false) - folder.getNumUnread(false), 3);
   highWater = folder.getTotalMessages(false);
   Assert.equal(folder.msgDatabase.dBFolderInfo.highWater, highWater);
@@ -68,8 +66,10 @@ function* trigger_bug() {
   let folderListener = {
     OnItemEvent(item, event) {
       dump(event + " triggered for " + item.prettyName + "!\n\n\n");
-      if (event == "FolderLoaded" &&
-          item.prettyName == "test.subscribe.simple") {
+      if (
+        event == "FolderLoaded" &&
+        item.prettyName == "test.subscribe.simple"
+      ) {
         folder.getNewMessages(null, asyncUrlListener);
       } else if (event == "FolderLoaded" && item == folder) {
         async_driver();
@@ -77,7 +77,10 @@ function* trigger_bug() {
     },
     QueryInterface: ChromeUtils.generateQI([Ci.nsIFolderListener]),
   };
-  MailServices.mailSession.AddFolderListener(folderListener, Ci.nsIFolderListener.event);
+  MailServices.mailSession.AddFolderListener(
+    folderListener,
+    Ci.nsIFolderListener.event
+  );
   // Again, two things will need to be listened for
   yield false;
   yield false;
@@ -106,4 +109,3 @@ function run_test() {
 
   async_run_tests(tests);
 }
-

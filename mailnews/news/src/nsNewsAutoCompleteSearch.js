@@ -3,8 +3,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
 var kACR = Ci.nsIAutoCompleteResult;
 var kSupportedTypes = new Set(["addr_newsgroups", "addr_followup"]);
@@ -54,8 +58,7 @@ nsNewsAutoCompleteResult.prototype = {
     return this.getValueAt(aIndex);
   },
 
-  removeValueAt(aRowIndex, aRemoveFromDB) {
-  },
+  removeValueAt(aRowIndex, aRemoveFromDB) {},
 
   // nsISupports
 
@@ -81,8 +84,9 @@ nsNewsAutoCompleteSearch.prototype = {
   _findServer(accountKey) {
     let account = MailServices.accounts.getAccount(accountKey);
 
-    if (account.incomingServer.type == "nntp")
+    if (account.incomingServer.type == "nntp") {
       return account.incomingServer;
+    }
     return null;
   },
 
@@ -90,15 +94,18 @@ nsNewsAutoCompleteSearch.prototype = {
   startSearch(aSearchString, aSearchParam, aPreviousResult, aListener) {
     let params = aSearchParam ? JSON.parse(aSearchParam) : {};
     let result = new nsNewsAutoCompleteResult(aSearchString);
-    if (!("type" in params) || !("accountKey" in params) ||
-        !kSupportedTypes.has(params.type)) {
+    if (
+      !("type" in params) ||
+      !("accountKey" in params) ||
+      !kSupportedTypes.has(params.type)
+    ) {
       result.searchResult = kACR.RESULT_IGNORED;
       aListener.onSearchResult(this, result);
       return;
     }
 
-    if (("accountKey" in params) && (params.accountKey != this.cachedAccountKey)) {
-      this.cachedAccountKey  = params.accountKey;
+    if ("accountKey" in params && params.accountKey != this.cachedAccountKey) {
+      this.cachedAccountKey = params.accountKey;
       this.cachedServer = this._findServer(params.accountKey);
     }
 
@@ -123,8 +130,7 @@ nsNewsAutoCompleteSearch.prototype = {
     aListener.onSearchResult(this, result);
   },
 
-  stopSearch() {
-  },
+  stopSearch() {},
 
   // nsISupports
 

@@ -3,8 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var gServer;
 var gDialog;
@@ -17,8 +19,9 @@ function onLoad(event) {
   gDialog = document.documentElement;
 
   let bundle = document.getElementById("bundle_removeAccount");
-  let removeQuestion = bundle.getFormattedString("removeQuestion",
-                                                 [gServer.prettyName]);
+  let removeQuestion = bundle.getFormattedString("removeQuestion", [
+    gServer.prettyName,
+  ]);
   document.getElementById("accountName").textContent = removeQuestion;
 
   // Allow to remove account data if it has a local storage.
@@ -32,10 +35,12 @@ function onLoad(event) {
 
     // TODO: bug 77652, decide what to do for deferred accounts.
     // And inform the user if the account localPath is outside the profile.
-    if ((gServer.isDeferredTo ||
-        (gServer instanceof Ci.nsIPop3IncomingServer &&
-         gServer.deferredToAccount)) ||
-         !profilePath.contains(localDirectory)) {
+    if (
+      gServer.isDeferredTo ||
+      (gServer instanceof Ci.nsIPop3IncomingServer &&
+        gServer.deferredToAccount) ||
+      !profilePath.contains(localDirectory)
+    ) {
       document.getElementById("removeData").disabled = true;
     }
   } else {
@@ -54,16 +59,19 @@ function onLoad(event) {
 
 function enableRemove() {
   gDialog.getButton("accept").disabled =
-    (!document.getElementById("removeAccount").checked &&
-     !document.getElementById("removeData").checked);
+    !document.getElementById("removeAccount").checked &&
+    !document.getElementById("removeData").checked;
 }
 
 /**
  * Show the local directory.
  */
 function openLocalDirectory() {
-  let nsLocalFile = Components.Constructor("@mozilla.org/file/local;1",
-                                           "nsIFile", "initWithPath");
+  let nsLocalFile = Components.Constructor(
+    "@mozilla.org/file/local;1",
+    "nsIFile",
+    "initWithPath"
+  );
   let localDir = gServer.localPath.path;
   try {
     new nsLocalFile(localDir).reveal();
@@ -104,7 +112,9 @@ function removeAccount() {
       try {
         // Remove password information first.
         account.incomingServer.forgetPassword();
-      } catch (e) { /* It is OK if this fails. */ }
+      } catch (e) {
+        /* It is OK if this fails. */
+      }
       // Remove account
       MailServices.accounts.removeAccount(account, removeData);
       account = null;
@@ -117,11 +127,13 @@ function removeAccount() {
       window.arguments[0].result = false;
     }
 
-    document.getElementById("status").selectedPanel =
-      document.getElementById("success");
+    document.getElementById("status").selectedPanel = document.getElementById(
+      "success"
+    );
   } catch (ex) {
-    document.getElementById("status").selectedPanel =
-      document.getElementById("failure");
+    document.getElementById("status").selectedPanel = document.getElementById(
+      "failure"
+    );
     Cu.reportError("Failure to remove account: " + ex);
     window.arguments[0].result = false;
   }
@@ -130,8 +142,9 @@ function removeAccount() {
 function onAccept(event) {
   // If Cancel is disabled, we already tried to remove the account
   // and can only close the dialog.
-  if (gDialog.getButton("cancel").disabled)
+  if (gDialog.getButton("cancel").disabled) {
     return;
+  }
 
   gDialog.getButton("accept").disabled = true;
   gDialog.getButton("cancel").disabled = true;

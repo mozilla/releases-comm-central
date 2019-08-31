@@ -14,8 +14,10 @@
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 // IMAP pump
 
@@ -48,8 +50,9 @@ function* goOffline() {
 
   IMAPPump.incomingServer.closeCachedConnections();
   let thread = gThreadManager.currentThread;
-  while (thread.hasPendingEvents())
+  while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
+  }
 
   do_timeout(2000, async_driver);
   yield false;
@@ -59,12 +62,15 @@ function* goOffline() {
 }
 
 function* saveDraft() {
-  let msgCompose = Cc["@mozilla.org/messengercompose/compose;1"]
-                     .createInstance(Ci.nsIMsgCompose);
-  let fields = Cc["@mozilla.org/messengercompose/composefields;1"]
-                 .createInstance(Ci.nsIMsgCompFields);
-  let params = Cc["@mozilla.org/messengercompose/composeparams;1"]
-                 .createInstance(Ci.nsIMsgComposeParams);
+  let msgCompose = Cc["@mozilla.org/messengercompose/compose;1"].createInstance(
+    Ci.nsIMsgCompose
+  );
+  let fields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
+  let params = Cc[
+    "@mozilla.org/messengercompose/composeparams;1"
+  ].createInstance(Ci.nsIMsgComposeParams);
   params.composeFields = fields;
   msgCompose.initialize(params);
 
@@ -72,19 +78,26 @@ function* saveDraft() {
   let identity = MailServices.accounts.createIdentity();
   identity.draftFolder = gDraftsFolder.URI;
 
-  let progress = Cc["@mozilla.org/messenger/progress;1"]
-                   .createInstance(Ci.nsIMsgProgress);
+  let progress = Cc["@mozilla.org/messenger/progress;1"].createInstance(
+    Ci.nsIMsgProgress
+  );
   progress.registerListener(progressListener);
-  msgCompose.SendMsg(Ci.nsIMsgSend.nsMsgSaveAsDraft, identity, "", null,
-                     progress);
+  msgCompose.SendMsg(
+    Ci.nsIMsgSend.nsMsgSaveAsDraft,
+    identity,
+    "",
+    null,
+    progress
+  );
   yield false;
   // verify that message is not on the server yet
   Assert.equal(IMAPPump.daemon.getMailbox("Drafts")._messages.length, 0);
 }
 
 function* goOnline() {
-  let offlineManager = Cc["@mozilla.org/messenger/offline-manager;1"]
-                       .getService(Ci.nsIMsgOfflineManager);
+  let offlineManager = Cc[
+    "@mozilla.org/messenger/offline-manager;1"
+  ].getService(Ci.nsIMsgOfflineManager);
   IMAPPump.daemon.closing = false;
   Services.io.offline = false;
 
@@ -92,10 +105,11 @@ function* goOnline() {
   offlineManager.inProgress = true;
   offlineManager.goOnline(false, true, null);
   let waitForNotInProgress = function() {
-    if (offlineManager.inProgress)
+    if (offlineManager.inProgress) {
       do_timeout(250, waitForNotInProgress);
-    else
+    } else {
       async_driver();
+    }
   };
   waitForNotInProgress();
   yield false;
@@ -113,15 +127,18 @@ function* endTest() {
 }
 
 function run_test() {
-  Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
+  Services.prefs.setBoolPref(
+    "mail.server.default.autosync_offline_stores",
+    false
+  );
 
   // Add folder listeners that will capture async events
   const nsIMFNService = Ci.nsIMsgFolderNotificationService;
 
   let flags =
-        nsIMFNService.msgsMoveCopyCompleted |
-        nsIMFNService.folderAdded |
-        nsIMFNService.msgAdded;
+    nsIMFNService.msgsMoveCopyCompleted |
+    nsIMFNService.folderAdded |
+    nsIMFNService.msgAdded;
   MailServices.mfn.addListener(mfnListener, flags);
 
   // start first test
@@ -136,8 +153,9 @@ var mfnListener = {
   folderAdded(aFolder) {
     dl("folderAdded <" + aFolder.name + ">");
     // we are only using async add on the Junk folder
-    if (aFolder.name == "Drafts")
+    if (aFolder.name == "Drafts") {
       async_driver();
+    }
   },
 
   msgAdded(aMsg) {
@@ -153,15 +171,23 @@ var progressListener = {
     }
   },
 
-  onProgressChange(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress,
-                   aCurTotalProgress, aMaxTotalProgress) {},
+  onProgressChange(
+    aWebProgress,
+    aRequest,
+    aCurSelfProgress,
+    aMaxSelfProgress,
+    aCurTotalProgress,
+    aMaxTotalProgress
+  ) {},
   onLocationChange(aWebProgress, aRequest, aLocation, aFlags) {},
   onStatusChange(aWebProgress, aRequest, aStatus, aMessage) {},
   onSecurityChange(aWebProgress, aRequest, state) {},
   onContentBlockingEvent(aWebProgress, aRequest, aEvent) {},
 
-  QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener",
-                                          "nsISupportsWeakReference"]),
+  QueryInterface: ChromeUtils.generateQI([
+    "nsIWebProgressListener",
+    "nsISupportsWeakReference",
+  ]),
 };
 
 /*

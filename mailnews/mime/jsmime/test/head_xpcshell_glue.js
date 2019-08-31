@@ -1,15 +1,15 @@
 // This file needs to contain glue to rephrase the Mocha testsuite framework in
 // a way that the xpcshell test suite can understand.
 
-var {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {Assert} = ChromeUtils.import("resource://testing-common/Assert.jsm");
+var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 var requireCache = new Map();
 
 // Preload an assert module
 var assert = new Assert();
 assert.doesNotThrow = function(block, message) {
-  message = (message ? " " + message : ".");
+  message = message ? " " + message : ".";
   try {
     block();
   } catch (e) {
@@ -28,7 +28,7 @@ var fs = {
 
     // Convert according to encoding. For the moment, we don't support this
     // node.js feature in the shim since we don't need to.
-    var translator = (contents => contents);
+    var translator = contents => contents;
     if (options !== undefined && "encoding" in options) {
       translator = function() {
         throw new Error("I can't do this!");
@@ -36,19 +36,20 @@ var fs = {
     }
 
     Promise.resolve(filename)
-           .then(do_get_file)
-           .then(file => OS.File.read(file.path))
-           .then(translator)
-           .then(contents => callback(undefined, contents), callback);
+      .then(do_get_file)
+      .then(file => OS.File.read(file.path))
+      .then(translator)
+      .then(contents => callback(undefined, contents), callback);
   },
 };
 requireCache.set("fs", fs);
-var {jsmime} = ChromeUtils.import("resource:///modules/jsmime.jsm");
+var { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
 requireCache.set("jsmime", jsmime);
 
 function require(path) {
-  if (requireCache.has(path))
+  if (requireCache.has(path)) {
     return requireCache.get(path);
+  }
 
   let file;
   if (path.startsWith("test/")) {
@@ -66,11 +67,13 @@ function require(path) {
 }
 
 function innerDefine(moduleName, dfn) {
-  if (typeof dfn !== "function")
+  if (typeof dfn !== "function") {
     throw new Error("What is going on here?");
+  }
   function resolvingRequire(path) {
-    if (path.startsWith("./"))
+    if (path.startsWith("./")) {
       path = path.substring(2);
+    }
     return require(path);
   }
   var result = dfn(resolvingRequire);
@@ -122,10 +125,11 @@ MochaSuite.prototype.runSuite = function() {
 function runFunction(fn) {
   let completed = new Promise(function(resolve, reject) {
     function onEnd(error) {
-      if (error !== undefined)
+      if (error !== undefined) {
         reject(error);
-      else
+      } else {
         resolve();
+      }
     }
     // If the function is expecting an argument, that argument is the callback
     // above. If it's not, then it may be returning a promise.
@@ -144,8 +148,9 @@ function runFunction(fn) {
 var currentSuite = new MochaSuite("");
 function suite(name, tests) {
   name = name.toString();
-  if (/[\x80-]/.exec(name))
+  if (/[\x80-]/.exec(name)) {
     name = "<unprintable name>";
+  }
   let suiteParent = currentSuite;
   currentSuite = new MochaSuite(name);
   suiteParent.suites.push(currentSuite);
@@ -154,9 +159,10 @@ function suite(name, tests) {
 }
 function test(name, block) {
   name = name.toString();
-  if (/[\x80-]/.exec(name))
+  if (/[\x80-]/.exec(name)) {
     name = "<unprintable name>";
-  currentSuite.tests.push({name, test: block});
+  }
+  currentSuite.tests.push({ name, test: block });
 }
 function setup(block) {
   currentSuite.setup.push(block);

@@ -3,11 +3,13 @@
  * Most of this test was copied from test_messageHeaders.js.
  */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {MimeParser} = ChromeUtils.import("resource:///modules/mimeParser.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 
-var CompFields = CC("@mozilla.org/messengercompose/composefields;1",
-                    Ci.nsIMsgCompFields);
+var CompFields = CC(
+  "@mozilla.org/messengercompose/composefields;1",
+  Ci.nsIMsgCompFields
+);
 
 // Copied from jsmime.js.
 function stringToTypedArray(buffer) {
@@ -18,9 +20,15 @@ function stringToTypedArray(buffer) {
   return typedarray;
 }
 
-function checkDraftHeadersAndBody(expectedHeaders, expectedBody, charset = "UTF-8") {
-  let msgData = mailTestUtils
-    .loadMessageToString(gDraftFolder, mailTestUtils.firstMsgHdr(gDraftFolder));
+function checkDraftHeadersAndBody(
+  expectedHeaders,
+  expectedBody,
+  charset = "UTF-8"
+) {
+  let msgData = mailTestUtils.loadMessageToString(
+    gDraftFolder,
+    mailTestUtils.firstMsgHdr(gDraftFolder)
+  );
   checkMessageHeaders(msgData, expectedHeaders);
 
   // Get the message body, decode from base64 and check.
@@ -28,18 +36,22 @@ function checkDraftHeadersAndBody(expectedHeaders, expectedBody, charset = "UTF-
   let body = msgData.slice(endOfHeaders + 4);
   let endOfBody = body.indexOf("\r\n\r\n");
 
-  if (endOfBody > 0)
+  if (endOfBody > 0) {
     body = body.slice(0, endOfBody);
-  else
+  } else {
     body = body.slice(0, body.length);
+  }
 
   // Remove line breaks and decode from base64 if required.
-  if (expectedHeaders["Content-Transfer-Encoding"] == "base64")
+  if (expectedHeaders["Content-Transfer-Encoding"] == "base64") {
     body = atob(body.replace(/\r\n/g, ""));
+  }
 
   if (charset == "UTF-8") {
-    let expectedBinary = String.fromCharCode.apply(undefined,
-      new TextEncoder("UTF-8").encode(expectedBody));
+    let expectedBinary = String.fromCharCode.apply(
+      undefined,
+      new TextEncoder("UTF-8").encode(expectedBody)
+    );
     Assert.equal(body, expectedBinary);
   } else {
     let strView = stringToTypedArray(body);
@@ -52,8 +64,9 @@ function checkMessageHeaders(msgData, expectedHeaders, partNum = "") {
   let seen = false;
   let handler = {
     startPart(part, headers) {
-      if (part != partNum)
+      if (part != partNum) {
         return;
+      }
       seen = true;
       for (let header in expectedHeaders) {
         let expected = expectedHeaders[header];
@@ -99,17 +112,22 @@ async function testBodyWithLongLine() {
   }
 
   let fields = new CompFields();
-  let identity = getSmtpIdentity("from@tinderbox.invalid",
-    getBasicSmtpServer());
+  let identity = getSmtpIdentity(
+    "from@tinderbox.invalid",
+    getBasicSmtpServer()
+  );
   identity.fullName = "Me";
   identity.organization = "World Destruction Committee";
   fields.from = "Nobody <nobody@tinderbox.invalid>";
   fields.to = "Nobody <nobody@tinderbox.invalid>";
   fields.subject = "Message with 1200 byte line in body";
   fields.characterSet = "UTF-8";
-  let htmlMessage = "<html><head>" +
-    "<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\">" +
-    "</head><body>" + longMultibyteLine + "</body></html>";
+  let htmlMessage =
+    "<html><head>" +
+    '<meta http-equiv="content-type" content="text/html; charset=utf-8">' +
+    "</head><body>" +
+    longMultibyteLine +
+    "</body></html>";
   fields.body = htmlMessage;
   await richCreateMessage(fields, [], identity);
   checkDraftHeadersAndBody(
@@ -135,9 +153,12 @@ async function testBodyWithLongLine() {
 
   // Now CJK.
   fields.forcePlainText = false;
-  htmlMessage = "<html><head>" +
-    "<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\">" +
-    "</head><body>" + longMultibyteLineCJK + "</body></html>";
+  htmlMessage =
+    "<html><head>" +
+    '<meta http-equiv="content-type" content="text/html; charset=utf-8">' +
+    "</head><body>" +
+    longMultibyteLineCJK +
+    "</body></html>";
   fields.body = htmlMessage;
   await richCreateMessage(fields, [], identity);
   checkDraftHeadersAndBody(
@@ -165,9 +186,12 @@ async function testBodyWithLongLine() {
   fields.characterSet = "ISO-2022-JP";
 
   fields.forcePlainText = false;
-  htmlMessage = "<html><head>" +
-    "<meta http-equiv=\"content-type\" content=\"text/html; charset=ISO-2022-JP\">" +
-    "</head><body>" + longMultibyteLineJapanese + "</body></html>";
+  htmlMessage =
+    "<html><head>" +
+    '<meta http-equiv="content-type" content="text/html; charset=ISO-2022-JP">' +
+    "</head><body>" +
+    longMultibyteLineJapanese +
+    "</body></html>";
   fields.body = htmlMessage;
   await richCreateMessage(fields, [], identity);
   checkDraftHeadersAndBody(
@@ -190,14 +214,16 @@ async function testBodyWithLongLine() {
   let expectedBody = "";
   let lastIndex = 0;
   for (let i = 0; i + 36 < longMultibyteLineJapanese.length; i = i + 36) {
-    expectedBody = expectedBody + longMultibyteLineJapanese.substr(i, 36) + " \r\n";
+    expectedBody =
+      expectedBody + longMultibyteLineJapanese.substr(i, 36) + " \r\n";
     lastIndex = i + 36;
   }
   expectedBody += longMultibyteLineJapanese.substr(lastIndex) + "\r\n";
 
   checkDraftHeadersAndBody(
     {
-      "Content-Type": "text/plain; charset=ISO-2022-JP; format=flowed; delsp=yes",
+      "Content-Type":
+        "text/plain; charset=ISO-2022-JP; format=flowed; delsp=yes",
       "Content-Transfer-Encoding": "7bit",
     },
     expectedBody,
@@ -219,9 +245,7 @@ async function testBodyWithLongLine() {
   );
 }
 
-var tests = [
-  testBodyWithLongLine,
-];
+var tests = [testBodyWithLongLine];
 
 function run_test() {
   // Ensure we have at least one mail account

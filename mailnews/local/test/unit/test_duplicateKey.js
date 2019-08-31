@@ -8,14 +8,18 @@
 
 /* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/POP3pump.js");
-const {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
+const { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 add_task(async function runPump() {
-  gPOP3Pump.files = ["../../../data/bugmail1",
-                     "../../../data/bugmail1",
-                     "../../../data/bugmail1",
-                     "../../../data/bugmail1",
-                     "../../../data/bugmail1"];
+  gPOP3Pump.files = [
+    "../../../data/bugmail1",
+    "../../../data/bugmail1",
+    "../../../data/bugmail1",
+    "../../../data/bugmail1",
+    "../../../data/bugmail1",
+  ];
   await gPOP3Pump.run();
 
   // get message headers for the inbox folder
@@ -29,13 +33,14 @@ add_task(async function runPump() {
 
   // Note the listener won't work because this is a sync delete,
   // but it should!
-  localAccountUtils.inboxFolder
-                   .deleteMessages(deletes, // in nsIArray messages,
-                                   null, // in nsIMsgWindow msgWindow,
-                                   true, // in boolean deleteStorage,
-                                   true, // in boolean isMove,
-                                   null, // in nsIMsgCopyServiceListener,
-                                   false); // in boolean allowUndo
+  localAccountUtils.inboxFolder.deleteMessages(
+    deletes, // in nsIArray messages,
+    null, // in nsIMsgWindow msgWindow,
+    true, // in boolean deleteStorage,
+    true, // in boolean isMove,
+    null, // in nsIMsgCopyServiceListener,
+    false
+  ); // in boolean allowUndo
 
   dump("Messages after delete\n");
   hdrs = showMessages(localAccountUtils.inboxFolder);
@@ -67,7 +72,13 @@ function showMessages(folder) {
   var hdrs = [];
   while (enumerator.hasMoreElements()) {
     hdrs.push(enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr));
-    dump("key " + (hdrs.length - 1) + " is " + hdrs[hdrs.length - 1].messageKey + "\n");
+    dump(
+      "key " +
+        (hdrs.length - 1) +
+        " is " +
+        hdrs[hdrs.length - 1].messageKey +
+        "\n"
+    );
   }
   return hdrs;
 }

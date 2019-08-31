@@ -3,7 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 // vim:set ts=2 sw=2 sts=2 et ft=javascript:
 
-const {jsmime} = ChromeUtils.import("resource:///modules/jsmime.jsm");
+const { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
 
 var EXPORTED_SYMBOLS = ["MimeParser"];
 
@@ -20,8 +20,9 @@ var ExtractHeadersAndBodyEmitter = {
   body: "",
   startPart: ExtractHeadersEmitter.startPart,
   deliverPartData(partNum, data) {
-    if (partNum == "")
+    if (partNum == "") {
       this.body += data;
+    }
   },
 };
 
@@ -52,8 +53,9 @@ var MimeParser = {
     }
 
     // We need a pump for the listener
-    var pump = Cc["@mozilla.org/network/input-stream-pump;1"]
-                 .createInstance(Ci.nsIInputStreamPump);
+    var pump = Cc["@mozilla.org/network/input-stream-pump;1"].createInstance(
+      Ci.nsIInputStreamPump
+    );
     pump.init(input, 0, 0, true);
 
     // Make a stream listener with the given emitter and use it to read from
@@ -98,26 +100,31 @@ var MimeParser = {
     var StreamListener = {
       onStartRequest(aRequest) {
         try {
-          if ("onStartRequest" in emitter)
+          if ("onStartRequest" in emitter) {
             emitter.onStartRequest(aRequest);
+          }
         } finally {
           this._parser.resetParser();
         }
       },
       onStopRequest(aRequest, aStatus) {
         this._parser.deliverEOF();
-        if ("onStopRequest" in emitter)
+        if ("onStopRequest" in emitter) {
           emitter.onStopRequest(aRequest, aStatus);
+        }
       },
       onDataAvailable(aRequest, aStream, aOffset, aCount) {
-        var scriptIn = Cc["@mozilla.org/scriptableinputstream;1"]
-                         .createInstance(Ci.nsIScriptableInputStream);
+        var scriptIn = Cc[
+          "@mozilla.org/scriptableinputstream;1"
+        ].createInstance(Ci.nsIScriptableInputStream);
         scriptIn.init(aStream);
         // Use readBytes instead of read to handle embedded NULs properly.
         this._parser.deliverData(scriptIn.readBytes(aCount));
       },
-      QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener,
-        Ci.nsIRequestObserver]),
+      QueryInterface: ChromeUtils.generateQI([
+        Ci.nsIStreamListener,
+        Ci.nsIRequestObserver,
+      ]),
     };
     setDefaultParserOptions(opts);
     StreamListener._parser = new jsmime.MimeParser(emitter, opts);
@@ -150,7 +157,7 @@ var MimeParser = {
    */
   extractHeaders(input) {
     var emitter = Object.create(ExtractHeadersEmitter);
-    MimeParser.parseSync(input, emitter, {pruneat: "", bodyformat: "none"});
+    MimeParser.parseSync(input, emitter, { pruneat: "", bodyformat: "none" });
     return emitter.headers;
   },
 
@@ -165,7 +172,7 @@ var MimeParser = {
    */
   extractHeadersAndBody(input) {
     var emitter = Object.create(ExtractHeadersAndBodyEmitter);
-    MimeParser.parseSync(input, emitter, {pruneat: "", bodyformat: "raw"});
+    MimeParser.parseSync(input, emitter, { pruneat: "", bodyformat: "raw" });
     return [emitter.headers, emitter.body];
   },
 
@@ -177,18 +184,18 @@ var MimeParser = {
    * This results in the same string if no other options are specified. If other
    * options are specified, this causes the string to be modified appropriately.
    */
-  HEADER_UNSTRUCTURED:       0x00,
+  HEADER_UNSTRUCTURED: 0x00,
   /**
    * Parse the header as if it were in the form text; attr=val; attr=val.
    *
    * Such headers include Content-Type, Content-Disposition, and most other
    * headers used by MIME as opposed to messages.
    */
-  HEADER_PARAMETER:          0x02,
+  HEADER_PARAMETER: 0x02,
   /**
    * Parse the header as if it were a sequence of mailboxes.
    */
-  HEADER_ADDRESS:            0x03,
+  HEADER_ADDRESS: 0x03,
 
   /**
    * This decodes parameter values according to RFC 2231.
@@ -203,10 +210,10 @@ var MimeParser = {
   /**
    * This converts the header from a raw string to proper Unicode.
    */
-  HEADER_OPTION_ALLOW_RAW:   0x40,
+  HEADER_OPTION_ALLOW_RAW: 0x40,
 
   // Convenience for all three of the above.
-  HEADER_OPTION_ALL_I18N:    0x70,
+  HEADER_OPTION_ALL_I18N: 0x70,
 
   /**
    * Parse a header field according to the specification given by flags.
@@ -227,25 +234,31 @@ var MimeParser = {
    */
   parseHeaderField(text, flags, charset) {
     // If we have a raw string, convert it to Unicode first
-    if (flags & MimeParser.HEADER_OPTION_ALLOW_RAW)
+    if (flags & MimeParser.HEADER_OPTION_ALLOW_RAW) {
       text = jsmime.headerparser.convert8BitHeader(text, charset);
+    }
 
     // The low 4 bits indicate the type of the header we are parsing. All of the
     // higher-order bits are flags.
     switch (flags & 0x0f) {
-    case MimeParser.HEADER_UNSTRUCTURED:
-      if (flags & MimeParser.HEADER_OPTION_DECODE_2047)
-        text = jsmime.headerparser.decodeRFC2047Words(text);
-      return text;
-    case MimeParser.HEADER_PARAMETER:
-      return jsmime.headerparser.parseParameterHeader(text,
-        (flags & MimeParser.HEADER_OPTION_DECODE_2047) != 0,
-        (flags & MimeParser.HEADER_OPTION_DECODE_2231) != 0);
-    case MimeParser.HEADER_ADDRESS:
-      return jsmime.headerparser.parseAddressingHeader(text,
-        (flags & MimeParser.HEADER_OPTION_DECODE_2047) != 0);
-    default:
-      throw new Error("Illegal type of header field");
+      case MimeParser.HEADER_UNSTRUCTURED:
+        if (flags & MimeParser.HEADER_OPTION_DECODE_2047) {
+          text = jsmime.headerparser.decodeRFC2047Words(text);
+        }
+        return text;
+      case MimeParser.HEADER_PARAMETER:
+        return jsmime.headerparser.parseParameterHeader(
+          text,
+          (flags & MimeParser.HEADER_OPTION_DECODE_2047) != 0,
+          (flags & MimeParser.HEADER_OPTION_DECODE_2231) != 0
+        );
+      case MimeParser.HEADER_ADDRESS:
+        return jsmime.headerparser.parseAddressingHeader(
+          text,
+          (flags & MimeParser.HEADER_OPTION_DECODE_2047) != 0
+        );
+      default:
+        throw new Error("Illegal type of header field");
     }
   },
 };

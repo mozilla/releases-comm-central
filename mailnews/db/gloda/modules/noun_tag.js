@@ -4,9 +4,11 @@
 
 this.EXPORTED_SYMBOLS = ["TagNoun"];
 
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
-const {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
+const { Gloda } = ChromeUtils.import("resource:///modules/gloda/gloda.js");
 
 /**
  * @namespace Tag noun provider.
@@ -27,14 +29,15 @@ var TagNoun = {
   },
 
   getAllTags() {
-    if (this._tagList == null)
+    if (this._tagList == null) {
       this._updateTagMap();
+    }
     return this._tagList;
   },
 
   _updateTagMap() {
     this._tagMap = {};
-    let tagArray = this._tagList = this._msgTagService.getAllTags({});
+    let tagArray = (this._tagList = this._msgTagService.getAllTags({}));
     for (let iTag = 0; iTag < tagArray.length; iTag++) {
       let tag = tagArray[iTag];
       this._tagMap[tag.key] = tag;
@@ -43,8 +46,9 @@ var TagNoun = {
 
   comparator(a, b) {
     if (a == null) {
-      if (b == null)
+      if (b == null) {
         return 0;
+      }
       return 1;
     } else if (b == null) {
       return -1;
@@ -64,12 +68,13 @@ var TagNoun = {
     return aTag.key;
   },
   fromJSON(aTagKey, aIgnored) {
-    let tag = this._tagMap.hasOwnProperty(aTagKey) ? this._tagMap[aTagKey]
-                : undefined;
+    let tag = this._tagMap.hasOwnProperty(aTagKey)
+      ? this._tagMap[aTagKey]
+      : undefined;
     // you will note that if a tag is removed, we are unable to aggressively
     //  deal with this.  we are okay with this, but it would be nice to be able
     //  to listen to the message tag service to know when we should rebuild.
-    if ((tag === undefined) && this._msgTagService.isValidKey(aTagKey)) {
+    if (tag === undefined && this._msgTagService.isValidKey(aTagKey)) {
       this._updateTagMap();
       tag = this._tagMap[aTagKey];
     }

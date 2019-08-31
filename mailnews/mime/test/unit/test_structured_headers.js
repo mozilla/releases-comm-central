@@ -5,7 +5,7 @@
 // This tests the msgIStructuredHeaders and msgIWritableStructuredHeaders
 // interfaces.
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Verify that a specific XPCOM error code is thrown.
 function verifyError(block, errorCode) {
@@ -18,12 +18,14 @@ function verifyError(block, errorCode) {
   Assert.equal(caught, errorCode);
 }
 
-var StructuredHeaders = CC("@mozilla.org/messenger/structuredheaders;1",
-                           Ci.msgIWritableStructuredHeaders);
+var StructuredHeaders = CC(
+  "@mozilla.org/messenger/structuredheaders;1",
+  Ci.msgIWritableStructuredHeaders
+);
 
 add_task(async function check_addressing() {
   let headers = new StructuredHeaders();
-  headers.setHeader("To", [{name: "undisclosed-recipients", group: []}]);
+  headers.setHeader("To", [{ name: "undisclosed-recipients", group: [] }]);
   Assert.ok(Array.isArray(headers.getHeader("To")));
   let flat = headers.getAddressingHeader("To", false);
   Assert.ok(Array.isArray(flat));
@@ -35,13 +37,17 @@ add_task(async function check_addressing() {
   Assert.ok(Array.isArray(full[0].group));
   Assert.equal(headers.getRawHeader("To"), "undisclosed-recipients: ;");
 
-  headers.setHeader("To", [{name: "\u00D3", email: "test@foo.invalid"}]);
-  Assert.equal(headers.getRawHeader("To"),
-    "=?UTF-8?B?w5M=?= <test@foo.invalid>");
-  headers.setAddressingHeader("To",
-    [{name: "Comma, Name", email: "test@foo.invalid"}], 1);
-  Assert.equal(headers.getRawHeader("To"),
-    "\"Comma, Name\" <test@foo.invalid>");
+  headers.setHeader("To", [{ name: "\u00D3", email: "test@foo.invalid" }]);
+  Assert.equal(
+    headers.getRawHeader("To"),
+    "=?UTF-8?B?w5M=?= <test@foo.invalid>"
+  );
+  headers.setAddressingHeader(
+    "To",
+    [{ name: "Comma, Name", email: "test@foo.invalid" }],
+    1
+  );
+  Assert.equal(headers.getRawHeader("To"), '"Comma, Name" <test@foo.invalid>');
 });
 
 add_task(async function check_custom_header() {
@@ -56,8 +62,13 @@ add_task(async function check_custom_header() {
     }
     Services.obs.addObserver(observer, "xpcom-category-entry-added");
   });
-  Services.catMan
-          .addCategoryEntry("custom-mime-encoder", "X-Unusual", url, false, true);
+  Services.catMan.addCategoryEntry(
+    "custom-mime-encoder",
+    "X-Unusual",
+    url,
+    false,
+    true
+  );
   // The category manager doesn't fire until a later timestep.
   await promise;
   let headers = new StructuredHeaders();
@@ -76,36 +87,53 @@ add_task(async function check_raw() {
   Assert.ok(headers.hasHeader("date"));
   Assert.equal(headers.getHeader("Date"), day);
   Assert.equal(headers.getHeader("date"), day);
-  verifyError(() => headers.getUnstructuredHeader("Date"),
-    Cr.NS_ERROR_ILLEGAL_VALUE);
-  verifyError(() => headers.getAddressingHeader("Date"),
-    Cr.NS_ERROR_ILLEGAL_VALUE);
+  verifyError(
+    () => headers.getUnstructuredHeader("Date"),
+    Cr.NS_ERROR_ILLEGAL_VALUE
+  );
+  verifyError(
+    () => headers.getAddressingHeader("Date"),
+    Cr.NS_ERROR_ILLEGAL_VALUE
+  );
   // This is easier than trying to match the actual value for the Date header,
   // since that depends on the current timezone.
   Assert.equal(new Date(headers.getRawHeader("Date")).getTime(), day.getTime());
 
   // Otherwise, the string values should work.
   headers.setRawHeader("Custom-Date", "1 Jan 2000 00:00:00 +0000", null);
-  Assert.equal(headers.getRawHeader("Custom-Date"), "1 Jan 2000 00:00:00 +0000");
+  Assert.equal(
+    headers.getRawHeader("Custom-Date"),
+    "1 Jan 2000 00:00:00 +0000"
+  );
   headers.deleteHeader("Custom-Date");
 
   headers.setUnstructuredHeader("Content-Description", "A description!");
   Assert.equal(headers.getHeader("Content-Description"), "A description!");
-  Assert.equal(headers.getUnstructuredHeader("Content-Description"),
-    "A description!");
-  verifyError(() => headers.getAddressingHeader("Content-Description"),
-    Cr.NS_ERROR_ILLEGAL_VALUE);
-  Assert.equal(headers.getRawHeader("Content-Description"),
-    "A description!");
+  Assert.equal(
+    headers.getUnstructuredHeader("Content-Description"),
+    "A description!"
+  );
+  verifyError(
+    () => headers.getAddressingHeader("Content-Description"),
+    Cr.NS_ERROR_ILLEGAL_VALUE
+  );
+  Assert.equal(headers.getRawHeader("Content-Description"), "A description!");
 
   Assert.ok(!headers.hasHeader("Subject"));
   Assert.ok(headers.getUnstructuredHeader("Subject") === null);
-  headers.setRawHeader("Subject", "=?UTF-8?B?56eB44Gv5Lu25ZCN5Y2I5YmN?=",
-    "US-ASCII");
-  Assert.equal(headers.getHeader("Subject"),
-    "\u79c1\u306f\u4ef6\u540d\u5348\u524d");
-  Assert.equal(headers.getRawHeader("Subject"),
-    "=?UTF-8?B?56eB44Gv5Lu25ZCN5Y2I5YmN?=");
+  headers.setRawHeader(
+    "Subject",
+    "=?UTF-8?B?56eB44Gv5Lu25ZCN5Y2I5YmN?=",
+    "US-ASCII"
+  );
+  Assert.equal(
+    headers.getHeader("Subject"),
+    "\u79c1\u306f\u4ef6\u540d\u5348\u524d"
+  );
+  Assert.equal(
+    headers.getRawHeader("Subject"),
+    "=?UTF-8?B?56eB44Gv5Lu25ZCN5Y2I5YmN?="
+  );
 
   // Multiple found headers
   Assert.equal(headers.getHeader("Not-Found-Anywhere"), undefined);
@@ -118,8 +146,12 @@ add_task(async function check_raw() {
 
   // Check the enumeration of header values.
   headers.setHeader("unabashed-random-header", false);
-  let headerList = ["Date", "Content-Description", "Subject",
-    "Unabashed-Random-Header"];
+  let headerList = [
+    "Date",
+    "Content-Description",
+    "Subject",
+    "Unabashed-Random-Header",
+  ];
   for (let value of headers.headerNames) {
     Assert.equal(value.toLowerCase(), headerList.shift().toLowerCase());
   }
@@ -135,21 +167,37 @@ add_task(async function check_raw() {
 });
 
 add_task(async function check_nsIMimeHeaders() {
-  let headers = Cc["@mozilla.org/messenger/mimeheaders;1"]
-                  .createInstance(Ci.nsIMimeHeaders);
+  let headers = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
+    Ci.nsIMimeHeaders
+  );
   Assert.ok(headers instanceof Ci.msgIStructuredHeaders);
   Assert.equal(false, headers instanceof Ci.msgIWritableStructuredHeaders);
-  headers.initialize(mailTestUtils.loadFileToString(
-    do_get_file("../../../data/draft1")));
+  headers.initialize(
+    mailTestUtils.loadFileToString(do_get_file("../../../data/draft1"))
+  );
   Assert.equal(headers.getHeader("To").length, 1);
   Assert.equal(headers.getHeader("To")[0].email, "bugmail@example.org");
   Assert.equal(headers.getAddressingHeader("To").length, 1);
   Assert.equal(headers.getHeader("Content-Type").type, "text/html");
 
-  let headerList = ["X-Mozilla-Status", "X-Mozilla-Status2", "X-Mozilla-Keys",
-    "FCC", "BCC", "X-Identity-Key", "Message-ID", "Date", "From",
-    "X-Mozilla-Draft-Info", "User-Agent", "MIME-Version", "To", "Subject",
-    "Content-Type", "Content-Transfer-Encoding"];
+  let headerList = [
+    "X-Mozilla-Status",
+    "X-Mozilla-Status2",
+    "X-Mozilla-Keys",
+    "FCC",
+    "BCC",
+    "X-Identity-Key",
+    "Message-ID",
+    "Date",
+    "From",
+    "X-Mozilla-Draft-Info",
+    "User-Agent",
+    "MIME-Version",
+    "To",
+    "Subject",
+    "Content-Type",
+    "Content-Transfer-Encoding",
+  ];
   for (let value of headers.headerNames) {
     Assert.equal(value.toLowerCase(), headerList.shift().toLowerCase());
   }
@@ -157,25 +205,34 @@ add_task(async function check_nsIMimeHeaders() {
 
 add_task(async function checkBuildMimeText() {
   let headers = new StructuredHeaders();
-  headers.setHeader("To", [{name: "François Smith", email: "user@☃.invalid"}]);
-  headers.setHeader("From", [{name: "John Doe", email: "jdoe@test.invalid"}]);
-  headers.setHeader("Subject", "A subject that spans a distance quite in " +
-    "excess of 80 characters so as to force an intermediary CRLF");
-  headers.setHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:40.0) Gecko/20100101 Thunderbird/40.0a1");
+  headers.setHeader("To", [
+    { name: "François Smith", email: "user@☃.invalid" },
+  ]);
+  headers.setHeader("From", [{ name: "John Doe", email: "jdoe@test.invalid" }]);
+  headers.setHeader(
+    "Subject",
+    "A subject that spans a distance quite in " +
+      "excess of 80 characters so as to force an intermediary CRLF"
+  );
+  headers.setHeader(
+    "User-Agent",
+    "Mozilla/5.0 (X11; Linux x86_64; rv:40.0) Gecko/20100101 Thunderbird/40.0a1"
+  );
   let mimeText =
     "To: =?UTF-8?Q?Fran=c3=a7ois_Smith?= <user@☃.invalid>\r\n" +
     "From: John Doe <jdoe@test.invalid>\r\n" +
     "Subject: A subject that spans a distance quite in excess of 80 characters so\r\n" +
-      " as to force an intermediary CRLF\r\n" +
+    " as to force an intermediary CRLF\r\n" +
     "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:40.0) Gecko/20100101\r\n" +
-      " Thunderbird/40.0a1\r\n";
+    " Thunderbird/40.0a1\r\n";
   Assert.equal(headers.buildMimeText(), mimeText);
 
   // Check the version used for the nsIMimeHeaders implementation. This requires
   // initializing with a UTF-8 version.
   let utf8Text = mimeText.replace("☃", "\xe2\x98\x83");
-  let mimeHeaders = Cc["@mozilla.org/messenger/mimeheaders;1"]
-                      .createInstance(Ci.nsIMimeHeaders);
+  let mimeHeaders = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
+    Ci.nsIMimeHeaders
+  );
   mimeHeaders.initialize(utf8Text);
   Assert.equal(mimeHeaders.getHeader("To")[0].email, "user@☃.invalid");
   Assert.equal(mimeHeaders.buildMimeText(), mimeText);

@@ -2,18 +2,22 @@
 // Tests if a multi-line MIME header is parsed even if it violates RFC 2047
 //
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 function run_test() {
   const headers = [
     {
       // Bug 833028
-      encoded: "Subject: AAA =?UTF-8?Q?bbb?= CCC =?UTF-8?Q?ddd?= EEE =?UTF-8?Q?fff?= GGG",
+      encoded:
+        "Subject: AAA =?UTF-8?Q?bbb?= CCC =?UTF-8?Q?ddd?= EEE =?UTF-8?Q?fff?= GGG",
       defaultCharset: "UTF-8",
       overrideCharset: false,
       eatContinuation: false,
       decoded: "Subject: AAA bbb CCC ddd EEE fff GGG",
-    }, {
+    },
+    {
       // Bug 493544
       encoded:
         "Subject: =?UTF-8?B?4oiAICDiiIEgIOKIgiAg4oiDICDiiIQgIOKIhSAg4oiGICDiiIcgIOKIiCAg?=\n" +
@@ -22,7 +26,8 @@ function run_test() {
       overrideCharset: false,
       eatContinuation: false,
       decoded: "Subject: ∀  ∁  ∂  ∃  ∄  ∅  ∆  ∇  ∈  ∉  ∊  ∋  ∌  ∍  ∎  ∏",
-    }, {
+    },
+    {
       // Bug 476741
       encoded:
         "Subject: =?utf-8?Q?=E2=88=80__=E2=88=81__=E2=88=82__=E2=88=83__=E2=88=84__=E2?=\n" +
@@ -32,7 +37,8 @@ function run_test() {
       overrideCharset: false,
       eatContinuation: false,
       decoded: "Subject: ∀  ∁  ∂  ∃  ∄  ∅  ∆  ∇  ∈  ∉  ∊  ∋  ∌  ∍  ∎  ∏",
-    }, {
+    },
+    {
       // Normal case
       encoded:
         "Subject: =?UTF-8?B?4oiAICDiiIEgIOKIgiAg4oiDICDiiIQgIOKIhSAg4oiGICDiiIcgIOKIiA==?=\n" +
@@ -41,7 +47,8 @@ function run_test() {
       overrideCharset: false,
       eatContinuation: false,
       decoded: "Subject: ∀  ∁  ∂  ∃  ∄  ∅  ∆  ∇  ∈  ∉  ∊  ∋  ∌  ∍  ∎  ∏",
-    }, {
+    },
+    {
       // Normal case with the encoding character in lower case
       encoded:
         "Subject: =?UTF-8?b?4oiAICDiiIEgIOKIgiAg4oiDICDiiIQgIOKIhSAg4oiGICDiiIcgIOKIiA==?=\n" +
@@ -50,7 +57,8 @@ function run_test() {
       overrideCharset: false,
       eatContinuation: false,
       decoded: "Subject: ∀  ∁  ∂  ∃  ∄  ∅  ∆  ∇  ∈  ∉  ∊  ∋  ∌  ∍  ∎  ∏",
-    }, {
+    },
+    {
       // Normal case
       encoded:
         "Subject: =?utf-8?Q?=E2=88=80__=E2=88=81__=E2=88=82__=E2=88=83__=E2=88=84__?=\n" +
@@ -61,7 +69,8 @@ function run_test() {
       overrideCharset: false,
       eatContinuation: false,
       decoded: "Subject: ∀  ∁  ∂  ∃  ∄  ∅  ∆  ∇  ∈  ∉  ∊  ∋  ∌  ∍  ∎  ∏",
-    }, {
+    },
+    {
       // Normal case with the encoding character in lower case
       encoded:
         "Subject: =?utf-8?q?=E2=88=80__=E2=88=81__=E2=88=82__=E2=88=83__=E2=88=84__?=\n" +
@@ -72,7 +81,8 @@ function run_test() {
       overrideCharset: false,
       eatContinuation: false,
       decoded: "Subject: ∀  ∁  ∂  ∃  ∄  ∅  ∆  ∇  ∈  ∉  ∊  ∋  ∌  ∍  ∎  ∏",
-    }, {
+    },
+    {
       // Regression test for bug 227290
       encoded:
         "Subject: =?UTF-8?B?4oiAICDiiIEgIOKIgiAg4oiDICDiiIQgIOKIhSAg4oiGICDiiIcgIOKIiA===?=\n" +
@@ -85,10 +95,12 @@ function run_test() {
   ];
 
   for (let i = 0; i < headers.length; ++i) {
-    let decoded = MailServices.mimeConverter.decodeMimeHeader(headers[i].encoded,
-                                                              headers[i].defaultCharset,
-                                                              headers[i].overrideCharset,
-                                                              headers[i].eatContinuation);
+    let decoded = MailServices.mimeConverter.decodeMimeHeader(
+      headers[i].encoded,
+      headers[i].defaultCharset,
+      headers[i].overrideCharset,
+      headers[i].eatContinuation
+    );
     Assert.equal(decoded, headers[i].decoded);
   }
 }

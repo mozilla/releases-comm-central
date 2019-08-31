@@ -10,7 +10,9 @@ function setupGlobals() {
   localAccountUtils.loadLocalMailAccount();
   // Create a message generator
   let messageGenerator = new MessageGenerator();
-  let localInbox = localAccountUtils.inboxFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  let localInbox = localAccountUtils.inboxFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
 
   for (let i = 0; i < kSetCount; i++) {
     let message = messageGenerator.makeMessage();
@@ -33,12 +35,17 @@ function run_test() {
   msgHdr5.setUint32Property("gloda-id", 5555);
   // set up a search term array that will give us the array of messages
   // that gloda should index, as defined by this function:
-  let searchSession = Cc["@mozilla.org/messenger/searchSession;1"]
-                        .createInstance(Ci.nsIMsgSearchSession);
-  let searchTerms = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+  let searchSession = Cc[
+    "@mozilla.org/messenger/searchSession;1"
+  ].createInstance(Ci.nsIMsgSearchSession);
+  let searchTerms = Cc["@mozilla.org/array;1"].createInstance(
+    Ci.nsIMutableArray
+  );
 
-  searchSession.addScopeTerm(Ci.nsMsgSearchScope.offlineMail,
-                             localAccountUtils.inboxFolder);
+  searchSession.addScopeTerm(
+    Ci.nsMsgSearchScope.offlineMail,
+    localAccountUtils.inboxFolder
+  );
   let searchTerm = searchSession.createTerm();
 
   // Create the following search term:
@@ -79,15 +86,28 @@ function run_test() {
 
   let filterEnumerator = inboxDB.getFilterEnumerator(searchTerms);
   let numMatches = {};
-  let keepGoing = inboxDB.nextMatchingHdrs(filterEnumerator, 100, 100, null, numMatches);
+  let keepGoing = inboxDB.nextMatchingHdrs(
+    filterEnumerator,
+    100,
+    100,
+    null,
+    numMatches
+  );
   Assert.equal(kNumExpectedMatches, numMatches.value);
   Assert.ok(!keepGoing);
   filterEnumerator = inboxDB.getFilterEnumerator(searchTerms);
-  let matchingHdrs = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+  let matchingHdrs = Cc["@mozilla.org/array;1"].createInstance(
+    Ci.nsIMutableArray
+  );
   do {
-    keepGoing = inboxDB.nextMatchingHdrs(filterEnumerator, 5, 5, matchingHdrs, numMatches);
-  }
-  while (keepGoing);
+    keepGoing = inboxDB.nextMatchingHdrs(
+      filterEnumerator,
+      5,
+      5,
+      matchingHdrs,
+      numMatches
+    );
+  } while (keepGoing);
   Assert.equal(kNumExpectedMatches, matchingHdrs.length);
   let firstMatch = matchingHdrs.queryElementAt(0, Ci.nsIMsgDBHdr);
   Assert.equal(firstMatch.messageId, gMessages[1].messageId);
@@ -98,9 +118,14 @@ function run_test() {
   filterEnumerator = inboxDB.getFilterEnumerator(searchTerms, true);
   matchingHdrs.clear();
   do {
-    keepGoing = inboxDB.nextMatchingHdrs(filterEnumerator, 5, 5, matchingHdrs, numMatches);
-  }
-  while (keepGoing);
+    keepGoing = inboxDB.nextMatchingHdrs(
+      filterEnumerator,
+      5,
+      5,
+      matchingHdrs,
+      numMatches
+    );
+  } while (keepGoing);
   Assert.equal(kNumExpectedMatches, matchingHdrs.length);
   firstMatch = matchingHdrs.queryElementAt(0, Ci.nsIMsgDBHdr);
   Assert.equal(firstMatch.messageId, gMessages[12].messageId);

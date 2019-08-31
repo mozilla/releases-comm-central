@@ -6,7 +6,8 @@
 
 var nsMsgCompFields = Components.Constructor(
   "@mozilla.org/messengercompose/composefields;1",
-  Ci.nsIMsgCompFields);
+  Ci.nsIMsgCompFields
+);
 
 function check_headers(enumerator, container) {
   let checkValues = new Set(container.map(header => header.toLowerCase()));
@@ -19,7 +20,7 @@ function check_headers(enumerator, container) {
 }
 
 function run_test() {
-  let fields = new nsMsgCompFields;
+  let fields = new nsMsgCompFields();
   Assert.ok(fields instanceof Ci.nsIMsgCompFields);
   Assert.ok(fields instanceof Ci.msgIStructuredHeaders);
   Assert.ok(fields instanceof Ci.msgIWritableStructuredHeaders);
@@ -27,7 +28,7 @@ function run_test() {
   Assert.ok(!fields.hasRecipients);
 
   // Try some basic headers
-  fields.setHeader("From", [{name: "", email: "a@test.invalid"}]);
+  fields.setHeader("From", [{ name: "", email: "a@test.invalid" }]);
   let from = fields.getHeader("from");
   Assert.equal(from.length, 1);
   Assert.equal(from[0].email, "a@test.invalid");
@@ -35,7 +36,7 @@ function run_test() {
   Assert.ok(!fields.hasRecipients);
 
   // Add a To header
-  fields.setHeader("To", [{name: "", email: "b@test.invalid"}]);
+  fields.setHeader("To", [{ name: "", email: "b@test.invalid" }]);
   check_headers(fields.headerNames, ["From", "To"]);
   Assert.ok(fields.hasRecipients);
 
@@ -47,8 +48,10 @@ function run_test() {
   // Subject should work and not convert to RFC 2047.
   fields.subject = "\u79c1\u306f\u4ef6\u540d\u5348\u524d";
   Assert.equal(fields.subject, "\u79c1\u306f\u4ef6\u540d\u5348\u524d");
-  Assert.equal(fields.getHeader("Subject"),
-    "\u79c1\u306f\u4ef6\u540d\u5348\u524d");
+  Assert.equal(
+    fields.getHeader("Subject"),
+    "\u79c1\u306f\u4ef6\u540d\u5348\u524d"
+  );
 
   // Check header synchronization.
   fields.from = "a@test.invalid";

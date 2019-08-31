@@ -12,30 +12,29 @@ load("../../../resources/messageGenerator.js");
 var gFileName = "bug460636";
 var gMsgFile = do_get_file("../../../data/" + gFileName);
 
-var tests = [
-  setup,
-  downloadAllForOffline,
-  verifyDownloaded,
-  teardownIMAPPump,
-];
+var tests = [setup, downloadAllForOffline, verifyDownloaded, teardownIMAPPump];
 
 async function setup() {
   setupIMAPPump();
 
- /*
+  /*
    * Ok, prelude done. Read the original message from disk
    * (through a file URI), and add it to the Inbox.
    */
-  let msgfileuri =
-    Services.io.newFileURI(gMsgFile).QueryInterface(Ci.nsIFileURL);
+  let msgfileuri = Services.io
+    .newFileURI(gMsgFile)
+    .QueryInterface(Ci.nsIFileURL);
 
-  IMAPPump.mailbox.addMessage(new imapMessage(msgfileuri.spec, IMAPPump.mailbox.uidnext++, []));
+  IMAPPump.mailbox.addMessage(
+    new imapMessage(msgfileuri.spec, IMAPPump.mailbox.uidnext++, [])
+  );
 
   let messages = [];
   let gMessageGenerator = new MessageGenerator();
   messages = messages.concat(gMessageGenerator.makeMessage());
-  let dataUri = Services.io.newURI("data:text/plain;base64," +
-                                   btoa(messages[0].toMessageString()));
+  let dataUri = Services.io.newURI(
+    "data:text/plain;base64," + btoa(messages[0].toMessageString())
+  );
   let imapMsg = new imapMessage(dataUri.spec, IMAPPump.mailbox.uidnext++, []);
   imapMsg.setSize(5000);
   IMAPPump.mailbox.addMessage(imapMsg);
@@ -60,11 +59,16 @@ function verifyDownloaded() {
   while (msgEnumerator.hasMoreElements()) {
     let header = msgEnumerator.getNext();
     // Verify that each message has been downloaded and looks OK.
-    if (header instanceof Ci.nsIMsgDBHdr &&
-        (header.flags & Ci.nsMsgMessageFlags.Offline))
-      IMAPPump.inbox.getOfflineFileStream(header.messageKey, offset, size).close();
-    else
+    if (
+      header instanceof Ci.nsIMsgDBHdr &&
+      header.flags & Ci.nsMsgMessageFlags.Offline
+    ) {
+      IMAPPump.inbox
+        .getOfflineFileStream(header.messageKey, offset, size)
+        .close();
+    } else {
       do_throw("Message not downloaded for offline use");
+    }
   }
 }
 

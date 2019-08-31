@@ -4,8 +4,10 @@
 
 // This tests that we use IMAP move if the IMAP server supports it.
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 /* import-globals-from ../../../test/resources/logHelper.js */
 /* import-globals-from ../../../test/resources/messageGenerator.js */
@@ -14,17 +16,14 @@ load("../../../resources/messageGenerator.js");
 
 var gFolder1;
 
-var tests = [
-  setupCUSTOM1,
-  startTest,
-  doMove,
-  testMove,
-  teardownIMAPPump,
-];
+var tests = [setupCUSTOM1, startTest, doMove, testMove, teardownIMAPPump];
 
 function setupCUSTOM1() {
   setupIMAPPump("CUSTOM1");
-  Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
+  Services.prefs.setBoolPref(
+    "mail.server.default.autosync_offline_stores",
+    false
+  );
 }
 
 async function startTest() {
@@ -45,14 +44,24 @@ async function startTest() {
 async function doMove() {
   var messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   let rootFolder = IMAPPump.incomingServer.rootFolder;
-  gFolder1 = rootFolder.getChildNamed("folder 1")
-                       .QueryInterface(Ci.nsIMsgImapMailFolder);
-  let msg = IMAPPump.inbox.msgDatabase.GetMsgHdrForKey(IMAPPump.mailbox.uidnext - 1);
+  gFolder1 = rootFolder
+    .getChildNamed("folder 1")
+    .QueryInterface(Ci.nsIMsgImapMailFolder);
+  let msg = IMAPPump.inbox.msgDatabase.GetMsgHdrForKey(
+    IMAPPump.mailbox.uidnext - 1
+  );
   messages.appendElement(msg);
   IMAPPump.server._test = true;
   let listener = new PromiseTestUtils.PromiseCopyListener();
-  MailServices.copy.CopyMessages(IMAPPump.inbox, messages, gFolder1, true,
-                                 listener, null, false);
+  MailServices.copy.CopyMessages(
+    IMAPPump.inbox,
+    messages,
+    gFolder1,
+    true,
+    listener,
+    null,
+    false
+  );
   IMAPPump.server.performTest("UID MOVE");
   await listener.promise;
 }

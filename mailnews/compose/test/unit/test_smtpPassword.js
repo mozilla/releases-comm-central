@@ -3,7 +3,9 @@
  * Authentication tests for SMTP.
  */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 /* import-globals-from ../../../test/resources/passwordStorage.js */
 load("../../../resources/passwordStorage.js");
@@ -54,25 +56,38 @@ add_task(async function() {
     smtpServer.socketType = Ci.nsMsgSocketType.plain;
     smtpServer.username = kUsername;
 
-    MailServices.smtp.sendMailMessage(testFile, kTo, identity, kSender,
-                                      null, null, null, null,
-                                      false, {}, {});
+    MailServices.smtp.sendMailMessage(
+      testFile,
+      kTo,
+      identity,
+      kSender,
+      null,
+      null,
+      null,
+      null,
+      false,
+      {},
+      {}
+    );
 
     server.performTest();
 
     var transaction = server.playTransaction();
-    do_check_transaction(transaction, ["EHLO test",
-                                       "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kPassword),
-                                       "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=159",
-                                       "RCPT TO:<" + kTo + ">",
-                                       "DATA"]);
+    do_check_transaction(transaction, [
+      "EHLO test",
+      "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kPassword),
+      "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=159",
+      "RCPT TO:<" + kTo + ">",
+      "DATA",
+    ]);
   } catch (e) {
     do_throw(e);
   } finally {
     server.stop();
 
     var thread = gThreadManager.currentThread;
-    while (thread.hasPendingEvents())
+    while (thread.hasPendingEvents()) {
       thread.processNextEvent(true);
+    }
   }
 });

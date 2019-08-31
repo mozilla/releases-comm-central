@@ -38,7 +38,10 @@ function check_sub_folders(expected, actual) {
     pluggableStore.discoverSubFolders(actualFolder, true);
     Assert.equal(!!expected[index].subFolders, actualFolder.hasSubFolders);
     if (actualFolder.hasSubFolders) {
-      Assert.equal(expected[index].subFolders.length, actualFolder.numSubFolders);
+      Assert.equal(
+        expected[index].subFolders.length,
+        actualFolder.numSubFolders
+      );
       check_sub_folders(expected[index].subFolders, actualFolder.subFolders);
     }
   }
@@ -65,15 +68,17 @@ function test_default_mailbox(expected, type) {
  */
 function add_sub_folders(aFolderArray, aParentFolder) {
   for (let msgFolder of aFolderArray) {
-    if (!aParentFolder.containsChildNamed(msgFolder.name))
+    if (!aParentFolder.containsChildNamed(msgFolder.name)) {
       aParentFolder.createSubfolder(msgFolder.name, null);
+    }
     if (msgFolder.subFolders) {
-      add_sub_folders(msgFolder.subFolders,
-                      aParentFolder.getChildNamed(msgFolder.name));
+      add_sub_folders(
+        msgFolder.subFolders,
+        aParentFolder.getChildNamed(msgFolder.name)
+      );
     }
   }
 }
-
 
 /**
  * Create a server with folders and subfolders from the
@@ -95,41 +100,66 @@ function run_all_tests() {
 
   // Assuming that the order of the folders returned from the actual folder
   // discovery is independent and un-important for this test.
-  test_mailbox([{
-    name: "Inbox",
-    subFolders: [{
-      name: "sub4",
-    }],
-  }, {
-    name: "Trash",
-  }], "pop3");
+  test_mailbox(
+    [
+      {
+        name: "Inbox",
+        subFolders: [
+          {
+            name: "sub4",
+          },
+        ],
+      },
+      {
+        name: "Trash",
+      },
+    ],
+    "pop3"
+  );
 
-  test_mailbox([{
-    name: "Inbox",
-    subFolders: [{
-      name: "inbox-sub1",
-      subFolders: [{
-        name: "inbox-sub-sub1",
-      }, {
-        name: "inbox-sub-sub2",
-      }],
-    }, {
-      name: "inbox-sub2",
-    }],
-  }, {
-    name: "Trash",
-  }, {
-    name: "Outbox",
-    subFolders: [{
-      name: "outbox-sub1",
-    }],
-  }], "pop3");
+  test_mailbox(
+    [
+      {
+        name: "Inbox",
+        subFolders: [
+          {
+            name: "inbox-sub1",
+            subFolders: [
+              {
+                name: "inbox-sub-sub1",
+              },
+              {
+                name: "inbox-sub-sub2",
+              },
+            ],
+          },
+          {
+            name: "inbox-sub2",
+          },
+        ],
+      },
+      {
+        name: "Trash",
+      },
+      {
+        name: "Outbox",
+        subFolders: [
+          {
+            name: "outbox-sub1",
+          },
+        ],
+      },
+    ],
+    "pop3"
+  );
 }
 
 function run_test() {
   for (let store in gPluggableStores) {
-    Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
-                               gPluggableStores[store]);
+    Services.prefs.setCharPref(
+      "mail.serverDefaultStoreContractID",
+      gPluggableStores[store]
+    );
     run_all_tests();
   }
 }

@@ -6,25 +6,35 @@
  * Test that temporary files for draft are surely removed.
  */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gMsgCompose;
 var gExpectedFiles;
 
 var progressListener = {
   onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
-    if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP)
+    if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
       do_timeout(0, check_result);
+    }
   },
 
-  onProgressChange(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) {},
+  onProgressChange(
+    aWebProgress,
+    aRequest,
+    aCurSelfProgress,
+    aMaxSelfProgress,
+    aCurTotalProgress,
+    aMaxTotalProgress
+  ) {},
   onLocationChange(aWebProgress, aRequest, aLocation, aFlags) {},
   onStatusChange(aWebProgress, aRequest, aStatus, aMessage) {},
   onSecurityChange(aWebProgress, aRequest, state) {},
   onContentBlockingEvent(aWebProgress, aRequest, aEvent) {},
 
-  QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener",
-                                          "nsISupportsWeakReference"]),
+  QueryInterface: ChromeUtils.generateQI([
+    "nsIWebProgressListener",
+    "nsISupportsWeakReference",
+  ]),
 };
 
 function get_temporary_files_for(name) {
@@ -64,20 +74,24 @@ function run_test() {
   gExpectedFiles = collect_expected_temporary_files();
   registerCleanupFunction(function() {
     gExpectedFiles.forEach(function(file) {
-      if (file.exists())
+      if (file.exists()) {
         file.remove(false);
+      }
     });
   });
 
   // Ensure we have at least one mail account
   localAccountUtils.loadLocalMailAccount();
 
-  gMsgCompose = Cc["@mozilla.org/messengercompose/compose;1"]
-                  .createInstance(Ci.nsIMsgCompose);
-  let fields = Cc["@mozilla.org/messengercompose/composefields;1"]
-                 .createInstance(Ci.nsIMsgCompFields);
-  let params = Cc["@mozilla.org/messengercompose/composeparams;1"]
-                 .createInstance(Ci.nsIMsgComposeParams);
+  gMsgCompose = Cc["@mozilla.org/messengercompose/compose;1"].createInstance(
+    Ci.nsIMsgCompose
+  );
+  let fields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
+  let params = Cc[
+    "@mozilla.org/messengercompose/composeparams;1"
+  ].createInstance(Ci.nsIMsgComposeParams);
 
   fields.body = "body text";
   // set multipart for nsemail.html
@@ -92,13 +106,18 @@ function run_test() {
 
   localAccountUtils.rootFolder.createLocalSubfolder("Drafts");
 
-  let progress = Cc["@mozilla.org/messenger/progress;1"]
-                   .createInstance(Ci.nsIMsgProgress);
+  let progress = Cc["@mozilla.org/messenger/progress;1"].createInstance(
+    Ci.nsIMsgProgress
+  );
   progress.registerListener(progressListener);
 
   do_test_pending();
 
-  gMsgCompose.SendMsg(Ci.nsIMsgSend.nsMsgSaveAsDraft, identity, "", null,
-                      progress);
+  gMsgCompose.SendMsg(
+    Ci.nsIMsgSend.nsMsgSaveAsDraft,
+    identity,
+    "",
+    null,
+    progress
+  );
 }
-

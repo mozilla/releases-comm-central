@@ -10,31 +10,39 @@
  *  for now.
  */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { fixIterator } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
 
 function registerFolderEventLogHelper() {
   // Bail if there's no one on the other end who cares about our very
   //  expensive log additions.
   // This stuff might be useful for straight console debugging, but it'll
   //  be costly in the success case, so no go for now.
-  if (!logHelperHasInterestedListeners())
+  if (!logHelperHasInterestedListeners()) {
     return;
+  }
 
-  MailServices.mailSession.AddFolderListener(_folderEventLogHelper_folderListener,
-                                             Ci.nsIFolderListener.propertyFlagChanged |
-                                             Ci.nsIFolderListener.event);
-  MailServices.mfn.addListener(_folderEventLogHelper_msgFolderListener,
-        Ci.nsIMsgFolderNotificationService.msgAdded |
-        Ci.nsIMsgFolderNotificationService.msgsClassified |
-        Ci.nsIMsgFolderNotificationService.msgsDeleted |
-        Ci.nsIMsgFolderNotificationService.msgsMoveCopyCompleted |
-        Ci.nsIMsgFolderNotificationService.msgKeyChanged |
-        Ci.nsIMsgFolderNotificationService.folderAdded |
-        Ci.nsIMsgFolderNotificationService.folderDeleted |
-        Ci.nsIMsgFolderNotificationService.folderMoveCopyCompleted |
-        Ci.nsIMsgFolderNotificationService.folderRenamed |
-        Ci.nsIMsgFolderNotificationService.itemEvent);
+  MailServices.mailSession.AddFolderListener(
+    _folderEventLogHelper_folderListener,
+    Ci.nsIFolderListener.propertyFlagChanged | Ci.nsIFolderListener.event
+  );
+  MailServices.mfn.addListener(
+    _folderEventLogHelper_msgFolderListener,
+    Ci.nsIMsgFolderNotificationService.msgAdded |
+      Ci.nsIMsgFolderNotificationService.msgsClassified |
+      Ci.nsIMsgFolderNotificationService.msgsDeleted |
+      Ci.nsIMsgFolderNotificationService.msgsMoveCopyCompleted |
+      Ci.nsIMsgFolderNotificationService.msgKeyChanged |
+      Ci.nsIMsgFolderNotificationService.folderAdded |
+      Ci.nsIMsgFolderNotificationService.folderDeleted |
+      Ci.nsIMsgFolderNotificationService.folderMoveCopyCompleted |
+      Ci.nsIMsgFolderNotificationService.folderRenamed |
+      Ci.nsIMsgFolderNotificationService.itemEvent
+  );
 }
 
 /**
@@ -95,9 +103,12 @@ var _folderEventLogHelper_msgFolderListener = {
   },
 
   folderMoveCopyCompleted(aMove, aSrcFolder, aDestFolder) {
-    mark_action("msgEvent", "folderMoveCopyCompleted",
-                [aMove ? "move" : "copy",
-                 aSrcFolder, "to", aDestFolder]);
+    mark_action("msgEvent", "folderMoveCopyCompleted", [
+      aMove ? "move" : "copy",
+      aSrcFolder,
+      "to",
+      aDestFolder,
+    ]);
   },
 
   folderRenamed(aOrigFolder, aNewFolder) {
@@ -109,34 +120,30 @@ var _folderEventLogHelper_msgFolderListener = {
   },
 };
 
-
 /**
  * nsIFolderListener implementation to logHelper stuff that gloda cares about.
  */
 var _folderEventLogHelper_folderListener = {
-  OnItemAdded(aParentItem, aItem) {
-  },
-  OnItemRemoved(aParentItem, aItem) {
-  },
-  OnItemPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {
-  },
-  OnItemIntPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {
-  },
-  OnItemBoolPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {
-  },
-  OnItemUnicharPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {
-  },
+  OnItemAdded(aParentItem, aItem) {},
+  OnItemRemoved(aParentItem, aItem) {},
+  OnItemPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {},
+  OnItemIntPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {},
+  OnItemBoolPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {},
+  OnItemUnicharPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {},
   /**
    * Notice when user activity adds/removes tags or changes a message's
    *  status.
    */
   OnItemPropertyFlagChanged(aMsgHdr, aProperty, aOldValue, aNewValue) {
-    mark_action("msgEvent", "OnItemPropertyFlagChanged",
-                ["Header", aMsgHdr,
-                 "had property " + aProperty + " have the " +
-                 "following bits change: " +
-                 _explode_flags(aOldValue ^ aNewValue,
-                                Ci.nsMsgMessageFlags)]);
+    mark_action("msgEvent", "OnItemPropertyFlagChanged", [
+      "Header",
+      aMsgHdr,
+      "had property " +
+        aProperty +
+        " have the " +
+        "following bits change: " +
+        _explode_flags(aOldValue ^ aNewValue, Ci.nsMsgMessageFlags),
+    ]);
   },
 
   /**
@@ -144,8 +151,6 @@ var _folderEventLogHelper_folderListener = {
    *  (asynchronous) processing before they could be opened.
    */
   OnItemEvent(aFolder, aEvent) {
-    mark_action("msgEvent", "OnItemEvent",
-                [aFolder, aEvent]);
+    mark_action("msgEvent", "OnItemEvent", [aFolder, aEvent]);
   },
 };
-

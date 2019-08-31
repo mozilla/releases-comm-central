@@ -20,7 +20,9 @@ load("../../../resources/asyncTestUtils.js");
 // IMAP pump
 
 // Globals
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var gMessage = "SpamAssassinYes"; // message file used as the test message
 
@@ -54,8 +56,9 @@ function* createJunkFolder() {
  *  SpamAssassin-marked junk message to junk folder
  */
 function* loadImapMessage() {
-  IMAPPump.mailbox.addMessage(new imapMessage(specForFileName(gMessage),
-                          IMAPPump.mailbox.uidnext++, []));
+  IMAPPump.mailbox.addMessage(
+    new imapMessage(specForFileName(gMessage), IMAPPump.mailbox.uidnext++, [])
+  );
   /*
    * The message matched the SpamAssassin header, so it moved
    *  to the junk folder
@@ -85,15 +88,14 @@ function* markMessageAsGood() {
   let msgHdr = mailTestUtils.firstMsgHdr(gJunkFolder);
   msgHdr.setStringProperty("junkscoreorigin", "user");
   msgHdr.setStringProperty("junkpercent", "0"); // good percent
-  msgHdr.setStringProperty("junkscore", "0");   // good score
+  msgHdr.setStringProperty("junkscore", "0"); // good score
 
   /*
    * Now move this message to the inbox. In bug 540385, the message just
    *  gets moved back to the junk folder again. We'll test that we
    *  are now preventing that.
    */
-  let messages = Cc["@mozilla.org/array;1"]
-                   .createInstance(Ci.nsIMutableArray);
+  let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   messages.appendElement(msgHdr);
   /*
   void CopyMessages(in nsIMsgFolder srcFolder,
@@ -105,8 +107,15 @@ function* markMessageAsGood() {
                     in boolean allowUndo);
   */
 
-  MailServices.copy.CopyMessages(gJunkFolder, messages, IMAPPump.inbox, true,
-                                 null, null, false);
+  MailServices.copy.CopyMessages(
+    gJunkFolder,
+    messages,
+    IMAPPump.inbox,
+    true,
+    null,
+    null,
+    false
+  );
   dl("wait for msgsMoveCopyCompleted");
   yield false;
 }
@@ -133,9 +142,15 @@ function run_test() {
   let spamSettings = server.spamSettings;
   server.setBoolValue("useServerFilter", true);
   server.setCharValue("serverFilterName", "SpamAssassin");
-  server.setIntValue("serverFilterTrustFlags", Ci.nsISpamSettings.TRUST_POSITIVES);
+  server.setIntValue(
+    "serverFilterTrustFlags",
+    Ci.nsISpamSettings.TRUST_POSITIVES
+  );
   server.setBoolValue("moveOnSpam", true);
-  server.setIntValue("moveTargetMode", Ci.nsISpamSettings.MOVE_TARGET_MODE_ACCOUNT);
+  server.setIntValue(
+    "moveTargetMode",
+    Ci.nsISpamSettings.MOVE_TARGET_MODE_ACCOUNT
+  );
   server.setCharValue("spamActionTargetAccount", server.serverURI);
 
   spamSettings.initialize(server);
@@ -144,9 +159,9 @@ function run_test() {
   const nsIMFNService = Ci.nsIMsgFolderNotificationService;
 
   let flags =
-        nsIMFNService.msgsMoveCopyCompleted |
-        nsIMFNService.folderAdded |
-        nsIMFNService.msgAdded;
+    nsIMFNService.msgsMoveCopyCompleted |
+    nsIMFNService.folderAdded |
+    nsIMFNService.msgAdded;
   MailServices.mfn.addListener(mfnListener, flags);
 
   // start first test
@@ -162,8 +177,9 @@ var mfnListener = {
   folderAdded(aFolder) {
     dl("folderAdded <" + aFolder.name + ">");
     // we are only using async add on the Junk folder
-    if (aFolder.name == "Junk")
+    if (aFolder.name == "Junk") {
       async_driver();
+    }
   },
 
   msgAdded(aMsg) {

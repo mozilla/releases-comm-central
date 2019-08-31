@@ -7,10 +7,10 @@
 
 /* import-globals-from ../../../../toolkit/components/printing/content/printUtils.js */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /* globals for a particular window */
-var printEngineContractID      = "@mozilla.org/messenger/msgPrintEngine;1";
+var printEngineContractID = "@mozilla.org/messenger/msgPrintEngine;1";
 var printEngineWindow;
 var printEngine;
 var printSettings = null;
@@ -82,8 +82,9 @@ var gStartupPPObserver = {
 };
 
 function ReplaceWithSelection() {
-  if (!printOpener.content)
+  if (!printOpener.content) {
     return;
+  }
 
   var selection = printOpener.content.getSelection();
 
@@ -108,7 +109,9 @@ function InitPrintEngineWindow() {
   /* Register the event listener to be able to replace the document
    * content with the user selection when loading is finished.
    */
-  document.getElementById("content").addEventListener("load", ReplaceWithSelection, true);
+  document
+    .getElementById("content")
+    .addEventListener("load", ReplaceWithSelection, true);
 
   /* Tell the nsIPrintEngine object what window is rendering the email */
   printEngine.setWindow(window);
@@ -156,8 +159,9 @@ function InitPrintEngineWindow() {
 }
 
 function ClearPrintEnginePane() {
-  if (window.frames.content.location.href != "about:blank")
+  if (window.frames.content.location.href != "about:blank") {
     window.frames.content.location.href = "about:blank";
+  }
 }
 
 function StopUrls() {
@@ -165,9 +169,19 @@ function StopUrls() {
 }
 
 function PrintEnginePrint() {
-  printEngineWindow = window.openDialog("chrome://messenger/content/msgPrintEngine.xul", "", "chrome,dialog=no,all,centerscreen", false);
+  printEngineWindow = window.openDialog(
+    "chrome://messenger/content/msgPrintEngine.xul",
+    "",
+    "chrome,dialog=no,all,centerscreen",
+    false
+  );
 }
 
 function PrintEnginePrintPreview() {
-  printEngineWindow = window.openDialog("chrome://messenger/content/msgPrintEngine.xul", "", "chrome,dialog=no,all,centerscreen", true);
+  printEngineWindow = window.openDialog(
+    "chrome://messenger/content/msgPrintEngine.xul",
+    "",
+    "chrome,dialog=no,all,centerscreen",
+    true
+  );
 }

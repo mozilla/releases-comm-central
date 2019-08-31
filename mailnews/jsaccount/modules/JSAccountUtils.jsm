@@ -33,8 +33,8 @@
 const EXPORTED_SYMBOLS = ["JSAccountUtils"];
 var JSAccountUtils = {};
 
-const {Log} = ChromeUtils.import("resource://gre/modules/Log.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { Log } = ChromeUtils.import("resource://gre/modules/Log.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Logger definitions.
 const LOGGER_NAME = "JsAccount";
@@ -86,18 +86,23 @@ JSAccountUtils.jaFactory = function(aProperties, aJsDelegateConstructor) {
   factory.lockFactory = function() {};
 
   factory.createInstance = function(outer, iid) {
-    if (outer != null)
+    if (outer != null) {
       throw Cr.NS_ERROR_NO_AGGREGATION;
+    }
 
     // C++ delegator class.
-    let delegator = Cc[aProperties.baseContractID]
-                      .createInstance(Ci.msgIOverride);
+    let delegator = Cc[aProperties.baseContractID].createInstance(
+      Ci.msgIOverride
+    );
 
     // Make sure the delegator JS wrapper knows its interfaces.
     aProperties.baseInterfaces.forEach(iface => delegator instanceof iface);
 
     // JavaScript overrides of base class functions.
-    let jsDelegate = new aJsDelegateConstructor(delegator, aProperties.baseInterfaces);
+    let jsDelegate = new aJsDelegateConstructor(
+      delegator,
+      aProperties.baseInterfaces
+    );
     delegator.jsDelegate = jsDelegate;
 
     // Get the delegate list for this current class. Use OwnProperty in case it
@@ -111,23 +116,34 @@ JSAccountUtils.jaFactory = function(aProperties, aJsDelegateConstructor) {
       delegator.methodsToDelegate = delegateList;
     } else {
       // Lazily create and populate the list of methods to delegate.
-      log.info("creating delegate list for contractID " + aProperties.contractID);
+      log.info(
+        "creating delegate list for contractID " + aProperties.contractID
+      );
       let delegateList = delegator.methodsToDelegate;
-      Object.keys(delegator).forEach(name => { log.debug("delegator has key " + name); });
+      Object.keys(delegator).forEach(name => {
+        log.debug("delegator has key " + name);
+      });
 
       // jsMethods contains the methods that may be targets of the C++ delegation to JS.
       let jsMethods = Object.getPrototypeOf(jsDelegate);
       for (let name in jsMethods) {
         log.debug("processing jsDelegate method: " + name);
-        if (name[0] == "_") { // don't bother with methods explicitly marked as internal.
+        if (name[0] == "_") {
+          // don't bother with methods explicitly marked as internal.
           log.debug("skipping " + name);
           continue;
         }
         // Other methods to skip.
-        if (["QueryInterface",  // nsISupports
-             "methodsToDelegate", "jsDelegate", "cppBase", // msgIOverride
-             "delegateList", "wrappedJSObject", // non-XPCOM methods to skip
-            ].includes(name)) {
+        if (
+          [
+            "QueryInterface", // nsISupports
+            "methodsToDelegate",
+            "jsDelegate",
+            "cppBase", // msgIOverride
+            "delegateList",
+            "wrappedJSObject", // non-XPCOM methods to skip
+          ].includes(name)
+        ) {
           log.debug("skipping " + name);
           continue;
         }
@@ -164,11 +180,12 @@ JSAccountUtils.jaFactory = function(aProperties, aJsDelegateConstructor) {
       Object.getPrototypeOf(jsDelegate).delegateList = delegateList;
     }
 
-    for (let iface of aProperties.baseInterfaces)
+    for (let iface of aProperties.baseInterfaces) {
       if (iid.equals(iface)) {
         log.debug("Successfully returning delegator " + delegator);
         return delegator;
       }
+    }
     throw Cr.NS_ERROR_NO_INTERFACE;
   };
 
@@ -190,12 +207,21 @@ JSAccountUtils.makeCppDelegator = function(aProperties) {
   let cppDelegator = {};
   let cppDummy = Cc[aProperties.baseContractID].createInstance(Ci.nsISupports);
   // Add methods from all interfaces.
-  for (let iface of aProperties.baseInterfaces)
+  for (let iface of aProperties.baseInterfaces) {
     cppDummy instanceof Ci[iface];
+  }
 
   for (let method in cppDummy) {
     // skip nsISupports and msgIOverride methods
-    if (["QueryInterface", "methodsToDelegate", "jsDelegate", "cppBase", "getInterface"].includes(method)) {
+    if (
+      [
+        "QueryInterface",
+        "methodsToDelegate",
+        "jsDelegate",
+        "cppBase",
+        "getInterface",
+      ].includes(method)
+    ) {
       log.config("Skipping " + method + "\n");
       continue;
     }
@@ -206,27 +232,27 @@ JSAccountUtils.makeCppDelegator = function(aProperties) {
     // a closure containing just the last value it was set to.
     if ("value" in descriptor) {
       log.debug("Adding value for " + method);
-      property.value = function(aMethod) {
+      property.value = (function(aMethod) {
         return function(...args) {
           return Reflect.apply(this.cppBase[aMethod], undefined, args);
         };
-      }(method);
+      })(method);
     }
     if (descriptor.set) {
       log.debug("Adding setter for " + method);
-      property.set = function(aMethod) {
+      property.set = (function(aMethod) {
         return function(aVal) {
           this.cppBase[aMethod] = aVal;
         };
-      }(method);
+      })(method);
     }
     if (descriptor.get) {
       log.debug("Adding getter for " + method);
-      property.get = function(aMethod) {
+      property.get = (function(aMethod) {
         return function() {
           return this.cppBase[aMethod];
         };
-      }(method);
+      })(method);
     }
     Object.defineProperty(cppDelegator, method, property);
   }
@@ -242,10 +268,11 @@ function getPropertyDescriptor(obj, name) {
   // Eventually we will hit an object that will delegate JS calls to a CPP
   // object, which are not JS overrides of CPP methods. Locate this item, and
   // skip, because it will not have _JsPrototypeToDelegate defined.
-  while (obj && ("_JsPrototypeToDelegate" in obj)) {
+  while (obj && "_JsPrototypeToDelegate" in obj) {
     descriptor = Object.getOwnPropertyDescriptor(obj, name);
-    if (descriptor)
+    if (descriptor) {
       break;
+    }
     obj = Object.getPrototypeOf(obj);
   }
   return descriptor;
@@ -260,7 +287,8 @@ function configureLogging() {
   log.addAppender(consoleAppender);
 
   // Make sure the logger keeps up with the logging level preference.
-  log.level = Log.Level[Services.prefs.getStringPref(PREF_LOG_LEVEL, LOG_LEVEL_DEFAULT)];
+  log.level =
+    Log.Level[Services.prefs.getStringPref(PREF_LOG_LEVEL, LOG_LEVEL_DEFAULT)];
 
   // If enabled in the preferences, add a dump appender.
   let logDumping = Services.prefs.getBoolPref(PREF_LOG_DUMP, LOG_DUMP_DEFAULT);

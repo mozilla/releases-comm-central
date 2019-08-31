@@ -4,10 +4,13 @@
 
 /* import-globals-from ../../../test/resources/logHelper.js */
 load("../../../resources/logHelper.js");
-var {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
-var gIMAPService = Cc["@mozilla.org/messenger/messageservice;1?type=imap"]
-                       .getService(Ci.nsIMsgMessageService);
+var gIMAPService = Cc[
+  "@mozilla.org/messenger/messageservice;1?type=imap"
+].getService(Ci.nsIMsgMessageService);
 
 var gFileName1 = "image-attach-test";
 var gMsgFile1 = do_get_file("../../../data/" + gFileName1);
@@ -27,20 +30,22 @@ var gUidValidity;
 var streamListener = {
   _data: "",
 
-  QueryInterface:
-    ChromeUtils.generateQI([Ci.nsIStreamListener, Ci.nsIRequestObserver]),
+  QueryInterface: ChromeUtils.generateQI([
+    Ci.nsIStreamListener,
+    Ci.nsIRequestObserver,
+  ]),
 
   // nsIRequestObserver
-  onStartRequest(aRequest) {
-  },
+  onStartRequest(aRequest) {},
   onStopRequest(aRequest, aStatusCode) {
     Assert.equal(aStatusCode, Cr.NS_OK);
   },
 
   // nsIStreamListener
   onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
-    let scriptStream = Cc["@mozilla.org/scriptableinputstream;1"]
-                         .createInstance(Ci.nsIScriptableInputStream);
+    let scriptStream = Cc[
+      "@mozilla.org/scriptableinputstream;1"
+    ].createInstance(Ci.nsIScriptableInputStream);
 
     scriptStream.init(aInputStream);
 
@@ -75,9 +80,13 @@ async function setup() {
    */
   var msgfileuri;
   msgfileuri = Services.io.newFileURI(gMsgFile1).QueryInterface(Ci.nsIFileURL);
-  IMAPPump.mailbox.addMessage(new imapMessage(msgfileuri.spec, IMAPPump.mailbox.uidnext++, []));
+  IMAPPump.mailbox.addMessage(
+    new imapMessage(msgfileuri.spec, IMAPPump.mailbox.uidnext++, [])
+  );
   msgfileuri = Services.io.newFileURI(gMsgFile2).QueryInterface(Ci.nsIFileURL);
-  IMAPPump.mailbox.addMessage(new imapMessage(msgfileuri.spec, IMAPPump.mailbox.uidnext++, []));
+  IMAPPump.mailbox.addMessage(
+    new imapMessage(msgfileuri.spec, IMAPPump.mailbox.uidnext++, [])
+  );
 
   let listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
@@ -87,20 +96,24 @@ async function setup() {
 async function displayMessage1() {
   // We postpone creating the imap service until after we've set the prefs
   // that it reads on its startup.
-  gIMAPService = Cc["@mozilla.org/messenger/messageservice;1?type=imap"]
-                   .getService(Ci.nsIMsgMessageService);
+  gIMAPService = Cc[
+    "@mozilla.org/messenger/messageservice;1?type=imap"
+  ].getService(Ci.nsIMsgMessageService);
 
   let db = IMAPPump.inbox.msgDatabase;
   let msg = db.getMsgHdrForMessageID(gMsgId1);
-  gUidValidity = msg.folder.QueryInterface(Ci.nsIImapMailFolderSink).uidValidity;
+  gUidValidity = msg.folder.QueryInterface(Ci.nsIImapMailFolderSink)
+    .uidValidity;
   let listener = new PromiseTestUtils.PromiseUrlListener();
   let url = {};
-  gIMAPService.DisplayMessage(IMAPPump.inbox.getUriForMsg(msg),
-                              streamListener,
-                              null,
-                              listener,
-                              null,
-                              url);
+  gIMAPService.DisplayMessage(
+    IMAPPump.inbox.getUriForMsg(msg),
+    streamListener,
+    null,
+    listener,
+    null,
+    url
+  );
   gMsgURL1 = url.value;
   await listener.promise;
 }
@@ -110,12 +123,14 @@ async function displayPart1() {
   let msg = db.getMsgHdrForMessageID(gMsgId1);
   let url = {};
   let listener = new PromiseTestUtils.PromiseUrlListener();
-  gIMAPService.DisplayMessage(IMAPPump.inbox.getUriForMsg(msg) + "?part=1.2&filename=check.gif",
-                              streamListener,
-                              null,
-                              listener,
-                              null,
-                              url);
+  gIMAPService.DisplayMessage(
+    IMAPPump.inbox.getUriForMsg(msg) + "?part=1.2&filename=check.gif",
+    streamListener,
+    null,
+    listener,
+    null,
+    url
+  );
   gMsgPartURL1 = url.value;
   await listener.promise;
 }
@@ -125,12 +140,14 @@ async function displayMessage2() {
   let msg = db.getMsgHdrForMessageID(gMsgId2);
   let url = {};
   let listener = new PromiseTestUtils.PromiseUrlListener();
-  gIMAPService.DisplayMessage(IMAPPump.inbox.getUriForMsg(msg),
-                              streamListener,
-                              null,
-                              listener,
-                              null,
-                              url);
+  gIMAPService.DisplayMessage(
+    IMAPPump.inbox.getUriForMsg(msg),
+    streamListener,
+    null,
+    listener,
+    null,
+    url
+  );
   gMsgURL2 = url.value;
   await listener.promise;
 }
@@ -143,11 +160,16 @@ function hackMetadata() {
   let extension = gUidValidity.toString(16);
 
   MailServices.imap.cacheStorage.asyncOpenURI(
-    gMsgURL2, extension, Ci.nsICacheStorage.OPEN_NORMALLY,
+    gMsgURL2,
+    extension,
+    Ci.nsICacheStorage.OPEN_NORMALLY,
     {
       onCacheEntryAvailable(cacheEntry, isNew, appCache, status) {
         Assert.equal(status, Cr.NS_OK);
-        cacheEntry.setMetaDataElement("ContentModified", "Modified View As Link");
+        cacheEntry.setMetaDataElement(
+          "ContentModified",
+          "Modified View As Link"
+        );
       },
       onCacheEntryCheck(cacheEntry, appCache) {
         return Ci.nsICacheEntryOpenCallback.ENTRY_WANTED;
@@ -161,12 +183,14 @@ async function displayPart2() {
   let msg = db.getMsgHdrForMessageID(gMsgId2);
   let url = {};
   let listener = new PromiseTestUtils.PromiseUrlListener();
-  gIMAPService.DisplayMessage(IMAPPump.inbox.getUriForMsg(msg) + "?part=1.2&filename=check.pdf",
-                              streamListener,
-                              null,
-                              listener,
-                              null,
-                              url);
+  gIMAPService.DisplayMessage(
+    IMAPPump.inbox.getUriForMsg(msg) + "?part=1.2&filename=check.pdf",
+    streamListener,
+    null,
+    listener,
+    null,
+    url
+  );
   gMsgPartURL2 = url.value;
   await listener.promise;
 }
@@ -174,25 +198,17 @@ async function displayPart2() {
 function checkCache() {
   let extension = gUidValidity.toString(16);
   // Entire message should be in the cache.
-  Assert.ok(
-    MailServices.imap.cacheStorage.exists(gMsgURL1, extension)
-  );
+  Assert.ok(MailServices.imap.cacheStorage.exists(gMsgURL1, extension));
   // Part of inline message should NOT be cached separately.
-  Assert.ok(
-    !MailServices.imap.cacheStorage.exists(gMsgPartURL1, extension)
-  );
+  Assert.ok(!MailServices.imap.cacheStorage.exists(gMsgPartURL1, extension));
 
   // Message which isn't cached entirely due to non-inline parts should cache
   // parts separately.
 
   // Message should be in the cache.
-  Assert.ok(
-    MailServices.imap.cacheStorage.exists(gMsgURL2, extension)
-  );
+  Assert.ok(MailServices.imap.cacheStorage.exists(gMsgURL2, extension));
   // Non-inline part should be cached separately.
-  Assert.ok(
-    MailServices.imap.cacheStorage.exists(gMsgPartURL2, extension)
-  );
+  Assert.ok(MailServices.imap.cacheStorage.exists(gMsgPartURL2, extension));
 }
 
 function teardown() {

@@ -3,26 +3,31 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { fixIterator } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
 
 function BrowseForLocalFolders() {
   const nsIFilePicker = Ci.nsIFilePicker;
   const nsIFile = Ci.nsIFile;
 
   var currentFolderTextBox = document.getElementById("server.localPath");
-  var fp = Cc["@mozilla.org/filepicker;1"]
-             .createInstance(nsIFilePicker);
+  var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
 
-  fp.init(window,
-          document.getElementById("browseForLocalFolder")
-                  .getAttribute("filepickertitle"),
-          nsIFilePicker.modeGetFolder);
+  fp.init(
+    window,
+    document
+      .getElementById("browseForLocalFolder")
+      .getAttribute("filepickertitle"),
+    nsIFilePicker.modeGetFolder
+  );
 
-  var currentFolder = Cc["@mozilla.org/file/local;1"]
-                        .createInstance(nsIFile);
+  var currentFolder = Cc["@mozilla.org/file/local;1"].createInstance(nsIFile);
   currentFolder.initWithPath(currentFolderTextBox.value);
   fp.displayDirectory = currentFolder;
 
@@ -34,8 +39,9 @@ function BrowseForLocalFolders() {
     let selectedFolder = fp.file;
 
     // Check if the folder can be used for mail storage.
-    if (!top.checkDirectoryIsUsable(selectedFolder))
+    if (!top.checkDirectoryIsUsable(selectedFolder)) {
       return;
+    }
 
     currentFolderTextBox.value = selectedFolder.path;
   });
@@ -49,13 +55,16 @@ function BrowseForLocalFolders() {
  *                       Otherwise return the name as "<foldername> on <servername>".
  */
 function prettyFolderName(aTargetFolder) {
-  if (aTargetFolder.isServer)
+  if (aTargetFolder.isServer) {
     return aTargetFolder.prettyName;
+  }
 
-  return document.getElementById("bundle_messenger")
-                 .getFormattedString("verboseFolderFormat",
-                                     [aTargetFolder.prettyName,
-                                      aTargetFolder.server.prettyName]);
+  return document
+    .getElementById("bundle_messenger")
+    .getFormattedString("verboseFolderFormat", [
+      aTargetFolder.prettyName,
+      aTargetFolder.server.prettyName,
+    ]);
 }
 
 /**
@@ -77,8 +86,9 @@ function checkJunkTargetFolder(aTargetURI, aIsServer) {
     }
 
     // If the target server has deferred storage, Junk can't be stored into it.
-    if (targetServer.rootFolder != targetServer.rootMsgFolder)
+    if (targetServer.rootFolder != targetServer.rootMsgFolder) {
       return null;
+    }
   } catch (e) {
     return null;
   }
@@ -100,12 +110,17 @@ function chooseJunkTargetFolder(aTargetURI, aIsServer) {
 
   if (aTargetURI) {
     server = MailUtils.getOrCreateFolder(aTargetURI).server;
-    if (!server.canCreateFoldersOnServer || !server.canSearchMessages ||
-        (server.rootFolder != server.rootMsgFolder))
+    if (
+      !server.canCreateFoldersOnServer ||
+      !server.canSearchMessages ||
+      server.rootFolder != server.rootMsgFolder
+    ) {
       server = null;
+    }
   }
-  if (!server)
+  if (!server) {
     server = MailServices.accounts.localFoldersServer;
+  }
 
   return server.serverURI + (!aIsServer ? "/Junk" : "");
 }
@@ -128,36 +143,46 @@ function chooseJunkTargetFolder(aTargetURI, aIsServer) {
  *          newTargetAccount new safe junk target folder
  *          newMoveOnSpam    new moveOnSpam value
  */
-function sanitizeJunkTargets(aSpamActionTargetAccount,
-                             aSpamActionTargetFolder,
-                             aProposedTarget,
-                             aMoveTargetModeValue,
-                             aServerSpamSettings,
-                             aMoveOnSpam) {
+function sanitizeJunkTargets(
+  aSpamActionTargetAccount,
+  aSpamActionTargetFolder,
+  aProposedTarget,
+  aMoveTargetModeValue,
+  aServerSpamSettings,
+  aMoveOnSpam
+) {
   // Check if folder targets are valid.
-  aSpamActionTargetAccount = checkJunkTargetFolder(aSpamActionTargetAccount, true);
+  aSpamActionTargetAccount = checkJunkTargetFolder(
+    aSpamActionTargetAccount,
+    true
+  );
   if (!aSpamActionTargetAccount) {
     // If aSpamActionTargetAccount is not valid,
     // reset to default behavior to NOT move junk messages...
-    if (aMoveTargetModeValue == aServerSpamSettings.MOVE_TARGET_MODE_ACCOUNT)
+    if (aMoveTargetModeValue == aServerSpamSettings.MOVE_TARGET_MODE_ACCOUNT) {
       aMoveOnSpam = false;
+    }
 
     // ... and find a good default target.
     aSpamActionTargetAccount = chooseJunkTargetFolder(aProposedTarget, true);
   }
 
-  aSpamActionTargetFolder = checkJunkTargetFolder(aSpamActionTargetFolder, false);
+  aSpamActionTargetFolder = checkJunkTargetFolder(
+    aSpamActionTargetFolder,
+    false
+  );
   if (!aSpamActionTargetFolder) {
     // If aSpamActionTargetFolder is not valid,
     // reset to default behavior to NOT move junk messages...
-    if (aMoveTargetModeValue == aServerSpamSettings.MOVE_TARGET_MODE_FOLDER)
+    if (aMoveTargetModeValue == aServerSpamSettings.MOVE_TARGET_MODE_FOLDER) {
       aMoveOnSpam = false;
+    }
 
     // ... and find a good default target.
     aSpamActionTargetFolder = chooseJunkTargetFolder(aProposedTarget, false);
   }
 
-  return [ aSpamActionTargetAccount, aSpamActionTargetFolder, aMoveOnSpam ];
+  return [aSpamActionTargetAccount, aSpamActionTargetFolder, aMoveOnSpam];
 }
 
 /**
@@ -169,19 +194,28 @@ function sanitizeJunkTargets(aSpamActionTargetAccount,
  * @param aTBOtherArgs    Other arguments to send to the pref tab.
  * @param aSMPaneId       Seamonkey pref pane to open.
  */
-function openPrefsFromAccountManager(aTBPaneId, aTBScrollPaneTo, aTBOtherArgs, aSMPaneId) {
-  let win = Services.wm.getMostRecentWindow("mail:3pane") ||
-            Services.wm.getMostRecentWindow("mail:messageWindow") ||
-            Services.wm.getMostRecentWindow("msgcompose");
-  if (!win)
+function openPrefsFromAccountManager(
+  aTBPaneId,
+  aTBScrollPaneTo,
+  aTBOtherArgs,
+  aSMPaneId
+) {
+  let win =
+    Services.wm.getMostRecentWindow("mail:3pane") ||
+    Services.wm.getMostRecentWindow("mail:messageWindow") ||
+    Services.wm.getMostRecentWindow("msgcompose");
+  if (!win) {
     return;
+  }
 
   // If openOptionsDialog() exists, we are in Thunderbird.
-  if (typeof win.openOptionsDialog == "function")
+  if (typeof win.openOptionsDialog == "function") {
     win.openOptionsDialog(aTBPaneId, aTBScrollPaneTo, aTBOtherArgs);
+  }
   // If goPreferences() exists, we are in Seamonkey.
-  if (typeof win.goPreferences == "function")
+  if (typeof win.goPreferences == "function") {
     win.goPreferences(aSMPaneId);
+  }
 }
 
 /**
@@ -192,10 +226,15 @@ function openPrefsFromAccountManager(aTBPaneId, aTBScrollPaneTo, aTBOtherArgs, a
  *                      searching the name. If unset, do not skip any account.
  */
 function accountNameExists(aAccountName, aAccountKey) {
-  for (let account of fixIterator(MailServices.accounts.accounts,
-                                  Ci.nsIMsgAccount)) {
-    if (account.key != aAccountKey && account.incomingServer &&
-        aAccountName == account.incomingServer.prettyName) {
+  for (let account of fixIterator(
+    MailServices.accounts.accounts,
+    Ci.nsIMsgAccount
+  )) {
+    if (
+      account.key != aAccountKey &&
+      account.incomingServer &&
+      aAccountName == account.incomingServer.prettyName
+    ) {
       return true;
     }
   }
@@ -211,12 +250,14 @@ function accountNameExists(aAccountName, aAccountKey) {
  *                                 was clicked and addSmtpServer with key of newly created server.
  */
 function editSMTPServer(aServer) {
-  let args = { server: aServer,
-               result: false,
-               addSmtpServer: "" };
+  let args = { server: aServer, result: false, addSmtpServer: "" };
 
-  window.openDialog("chrome://messenger/content/SmtpServerEdit.xul",
-                    "smtpEdit", "chrome,titlebar,modal,centerscreen", args);
+  window.openDialog(
+    "chrome://messenger/content/SmtpServerEdit.xul",
+    "smtpEdit",
+    "chrome,titlebar,modal,centerscreen",
+    args
+  );
 
   return args;
 }

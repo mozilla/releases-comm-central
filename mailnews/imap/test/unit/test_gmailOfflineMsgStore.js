@@ -16,14 +16,12 @@
  * Original Author: Atul Jangra<atuljangra66@gmail.com>
  */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /* import-globals-from ../../../test/resources/logHelper.js */
 /* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
-
-
 
 // Messages to load must have CRLF line endings, that is Windows style
 
@@ -31,15 +29,15 @@ var gMessage1 = "bugmail10"; // message file used as the test message for Inbox 
 var gXGmMsgid1 = "1278455344230334865";
 var gXGmThrid1 = "1266894439832287888";
 // We need to have different X-GM-LABELS for different folders. I am doing it here manually, but this issue will be tackled in Bug 781443.
-var gXGmLabels11 = '( \"\\\\Sent\" foo bar)'; // for message in Inbox
-var gXGmLabels12 = '(\"\\\\Inbox\" \"\\\\Sent\" bar)'; // for message in fooFolder
+var gXGmLabels11 = '( "\\\\Sent" foo bar)'; // for message in Inbox
+var gXGmLabels12 = '("\\\\Inbox" "\\\\Sent" bar)'; // for message in fooFolder
 var gMsgId1 = "200806061706.m56H6RWT004933@mrapp54.mozilla.org";
 
 var gMessage2 = "bugmail11"; // message file used as the test message for fooFolder
 var gMsgId2 = "200804111417.m3BEHTk4030129@mrapp51.mozilla.org";
 var gXGmMsgid2 = "1278455345230334555";
 var gXGmThrid2 = "1266894639832287111";
-var gXGmLabels2 = '(\"\\\\Sent\")';
+var gXGmLabels2 = '("\\\\Sent")';
 
 var fooBox;
 var fooFolder;
@@ -66,7 +64,10 @@ var tests = [
 
 function setup() {
   // We aren't interested in downloading messages automatically
-  Services.prefs.setBoolPref("mail.server.server1.autosync_offline_stores", false);
+  Services.prefs.setBoolPref(
+    "mail.server.server1.autosync_offline_stores",
+    false
+  );
   Services.prefs.setBoolPref("mail.server.server1.offline_download", true);
   Services.prefs.setBoolPref("mail.biff.alert.show_preview", false);
 
@@ -76,19 +77,22 @@ function setup() {
   IMAPPump.mailbox.subscribed = true;
 
   // need all mail folder to identify this as gmail server.
-  IMAPPump.daemon.createMailbox("[Gmail]", {flags: ["\\NoSelect"] });
+  IMAPPump.daemon.createMailbox("[Gmail]", { flags: ["\\NoSelect"] });
   IMAPPump.daemon.createMailbox("[Gmail]/All Mail", {
     subscribed: true,
     specialUseFlag: "\\AllMail",
   });
 
   // Creating the mailbox "foo"
-  IMAPPump.daemon.createMailbox("foo", {subscribed: true});
+  IMAPPump.daemon.createMailbox("foo", { subscribed: true });
   fooBox = IMAPPump.daemon.getMailbox("foo");
 
   // Add message1 to inbox.
-  let message = new imapMessage(specForFileName(gMessage1),
-                            IMAPPump.mailbox.uidnext++, []);
+  let message = new imapMessage(
+    specForFileName(gMessage1),
+    IMAPPump.mailbox.uidnext++,
+    []
+  );
   message.messageId = gMsgId1;
   message.xGmMsgid = gXGmMsgid1;
   message.xGmThrid = gXGmThrid1;
@@ -103,13 +107,20 @@ function* updateFolder() {
 
 function* selectInboxMsg() {
   // Select mesasage1 from inbox which makes message1 available in offline store.
-  let imapService = Cc["@mozilla.org/messenger/messageservice;1?type=imap"]
-                        .getService(Ci.nsIMsgMessageService);
+  let imapService = Cc[
+    "@mozilla.org/messenger/messageservice;1?type=imap"
+  ].getService(Ci.nsIMsgMessageService);
   let db = IMAPPump.inbox.msgDatabase;
   let msg1 = db.getMsgHdrForMessageID(gMsgId1);
   let url = {};
-  imapService.DisplayMessage(IMAPPump.inbox.getUriForMsg(msg1), streamListener,
-                             null, asyncUrlListener, null, url);
+  imapService.DisplayMessage(
+    IMAPPump.inbox.getUriForMsg(msg1),
+    streamListener,
+    null,
+    asyncUrlListener,
+    null,
+    url
+  );
   yield false;
 }
 
@@ -117,7 +128,9 @@ function* StreamMessageInbox() {
   // Stream message1 from inbox
   let newMsgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId1);
   let msgURI = newMsgHdr.folder.getUriForMsg(newMsgHdr);
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+    Ci.nsIMessenger
+  );
   let msgServ = messenger.messageServiceFromURI(msgURI);
   msgServ.streamMessage(msgURI, gStreamListener, null, null, false, "", false);
   gImapInboxOfflineStoreSizeInitial = IMAPPump.inbox.filePath.fileSize; // Initial Size of Inbox
@@ -126,23 +139,31 @@ function* StreamMessageInbox() {
 
 function* createAndUpdate() {
   let rootFolder = IMAPPump.incomingServer.rootFolder;
-  fooFolder =  rootFolder.getChildNamed("foo").QueryInterface(Ci.nsIMsgImapMailFolder); // We have created the mailbox earlier.
+  fooFolder = rootFolder
+    .getChildNamed("foo")
+    .QueryInterface(Ci.nsIMsgImapMailFolder); // We have created the mailbox earlier.
   fooFolder.updateFolderWithListener(null, asyncUrlListener);
   yield false;
 }
 
 function addFoo() {
   // Adding our test message
-  let message = new imapMessage(specForFileName(gMessage1),
-                                fooBox.uidnext++, []);
+  let message = new imapMessage(
+    specForFileName(gMessage1),
+    fooBox.uidnext++,
+    []
+  );
   message.messageId = gMsgId1;
   message.xGmMsgid = gXGmMsgid1;
   message.xGmThrid = gXGmThrid1;
   message.xGmLabels = gXGmLabels12; // With labels excluding "foo"
   fooBox.addMessage(message);
   // Adding another message so that fooFolder behaves as LocalFolder while calculating it's size.
-  let message1 = new imapMessage(specForFileName(gMessage2),
-                                 fooBox.uidnext++, []);
+  let message1 = new imapMessage(
+    specForFileName(gMessage2),
+    fooBox.uidnext++,
+    []
+  );
   message1.messageId = gMsgId2;
   message1.xGmMsgid = gXGmMsgid2;
   message1.xGmThrid = gXGmThrid2;
@@ -157,12 +178,19 @@ function* updateFoo() {
 
 function* selectFooMsg() {
   // Select message2 from fooFolder, which makes fooFolder a local folder.
-  let imapService = Cc["@mozilla.org/messenger/messageservice;1?type=imap"]
-                       .getService(Ci.nsIMsgMessageService);
+  let imapService = Cc[
+    "@mozilla.org/messenger/messageservice;1?type=imap"
+  ].getService(Ci.nsIMsgMessageService);
   let msg1 = fooFolder.msgDatabase.getMsgHdrForMessageID(gMsgId2);
   let url = {};
-  imapService.DisplayMessage(fooFolder.getUriForMsg(msg1), streamListener,
-                             null, asyncUrlListener, null, url);
+  imapService.DisplayMessage(
+    fooFolder.getUriForMsg(msg1),
+    streamListener,
+    null,
+    asyncUrlListener,
+    null,
+    url
+  );
   yield false;
 }
 
@@ -170,7 +198,9 @@ function* StreamMessageFoo() {
   // Stream message2 from fooFolder
   let newMsgHdr = fooFolder.msgDatabase.getMsgHdrForMessageID(gMsgId2);
   let msgURI = newMsgHdr.folder.getUriForMsg(newMsgHdr);
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+    Ci.nsIMessenger
+  );
   let msgServ = messenger.messageServiceFromURI(msgURI);
   msgServ.streamMessage(msgURI, gStreamListener, null, null, false, "", false);
   gFooOfflineStoreSizeInitial = fooFolder.filePath.fileSize;
@@ -188,14 +218,19 @@ function* crossStreaming() {
   let msg2 = fooFolder.msgDatabase.getMsgHdrForMessageID(gMsgId1);
   Assert.ok(msg2 !== null);
   let msgURI = fooFolder.getUriForMsg(msg2);
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+    Ci.nsIMessenger
+  );
   let msgServ = messenger.messageServiceFromURI(msgURI);
   // pass true for aLocalOnly since message should be in offline store of Inbox.
   msgServ.streamMessage(msgURI, gStreamListener, null, null, false, "", true);
   gFooOfflineStoreSizeFinal = fooFolder.filePath.fileSize;
   gImapInboxOfflineStoreSizeFinal = IMAPPump.inbox.filePath.fileSize;
   Assert.equal(gFooOfflineStoreSizeFinal, gFooOfflineStoreSizeInitial);
-  Assert.equal(gImapInboxOfflineStoreSizeFinal, gImapInboxOfflineStoreSizeInitial);
+  Assert.equal(
+    gImapInboxOfflineStoreSizeFinal,
+    gImapInboxOfflineStoreSizeInitial
+  );
   yield false;
 }
 
@@ -215,24 +250,26 @@ asyncUrlListener.callback = function(aUrl, aExitCode) {
   Assert.equal(aExitCode, 0);
 };
 
- // We use this as a display consumer
+// We use this as a display consumer
 var streamListener = {
   _data: "",
 
-  QueryInterface:
-    ChromeUtils.generateQI([Ci.nsIStreamListener, Ci.nsIRequestObserver]),
+  QueryInterface: ChromeUtils.generateQI([
+    Ci.nsIStreamListener,
+    Ci.nsIRequestObserver,
+  ]),
 
   // nsIRequestObserver
-  onStartRequest(aRequest) {
-  },
+  onStartRequest(aRequest) {},
   onStopRequest(aRequest, aStatusCode) {
     Assert.equal(aStatusCode, 0);
   },
 
   // nsIStreamListener
   onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
-    let scriptStream = Cc["@mozilla.org/scriptableinputstream;1"]
-                         .createInstance(Ci.nsIScriptableInputStream);
+    let scriptStream = Cc[
+      "@mozilla.org/scriptableinputstream;1"
+    ].createInstance(Ci.nsIScriptableInputStream);
 
     scriptStream.init(aInputStream);
 
@@ -253,7 +290,9 @@ var gStreamListener = {
   },
   onDataAvailable(aRequest, aInputStream, aOff, aCount) {
     if (this._stream == null) {
-      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(Ci.nsIScriptableInputStream);
+      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+        Ci.nsIScriptableInputStream
+      );
       this._stream.init(aInputStream);
     }
     this._data += this._stream.read(aCount);
@@ -266,4 +305,3 @@ function specForFileName(aFileName) {
   let msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
   return msgfileuri.spec;
 }
-

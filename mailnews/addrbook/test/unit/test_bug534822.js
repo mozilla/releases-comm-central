@@ -36,5 +36,7 @@ function run_test() {
     }
   }
 
-  results.forEach(function(result) { Assert.ok(result.result); });
+  results.forEach(function(result) {
+    Assert.ok(result.result);
+  });
 }

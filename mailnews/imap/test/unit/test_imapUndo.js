@@ -6,13 +6,14 @@
 //
 // Original Author: David Bienvenu <bienvenu@nventure.com>
 
-
 /* import-globals-from ../../../test/resources/logHelper.js */
 /* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var gRootFolder;
 var gMessages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
@@ -31,13 +32,13 @@ var gMsgId2 = "200804111417.m3BEHTk4030129@mrapp51.mozilla.org";
 var gMsgId4 = "bugmail7.m47LtAEf007542@mrapp51.mozilla.org";
 var gMsgId5 = "bugmail6.m47LtAEf007542@mrapp51.mozilla.org";
 
-
-
 // Adds some messages directly to a mailbox (eg new mail)
 function addMessagesToServer(messages, mailbox) {
   // For every message we have, we need to convert it to a file:/// URI
   messages.forEach(function(message) {
-    let URI = Services.io.newFileURI(message.file).QueryInterface(Ci.nsIFileURL);
+    let URI = Services.io
+      .newFileURI(message.file)
+      .QueryInterface(Ci.nsIFileURL);
     // Create the imapMessage and store it on the mailbox.
     mailbox.addMessage(new imapMessage(URI.spec, mailbox.uidnext++, []));
   });
@@ -46,8 +47,7 @@ function addMessagesToServer(messages, mailbox) {
 function alertListener() {}
 
 alertListener.prototype = {
-  reset() {
-  },
+  reset() {},
 
   onAlert(aMessage, aMsgWindow) {
     dump("got alert " + aMessage + "\n");
@@ -64,7 +64,14 @@ var tests = [
   function* deleteMessage() {
     let msgToDelete = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId1);
     gMessages.appendElement(msgToDelete);
-    IMAPPump.inbox.deleteMessages(gMessages, gMsgWindow, false, true, asyncCopyListener, true);
+    IMAPPump.inbox.deleteMessages(
+      gMessages,
+      gMsgWindow,
+      false,
+      true,
+      asyncCopyListener,
+      true
+    );
     yield false;
   },
   function* expunge() {
@@ -80,8 +87,9 @@ var tests = [
     // up with the server, and clear out the effects of having done the
     // delete offline.
     let trash = gRootFolder.getChildNamed("Trash");
-    trash.QueryInterface(Ci.nsIMsgImapMailFolder)
-         .updateFolderWithListener(null, asyncUrlListener);
+    trash
+      .QueryInterface(Ci.nsIMsgImapMailFolder)
+      .updateFolderWithListener(null, asyncUrlListener);
     yield false;
   },
   function* goBackToInbox() {
@@ -103,11 +111,15 @@ function setup() {
 
   MailServices.mailSession.addUserFeedbackListener(listener1);
 
-  Services.prefs.setBoolPref("mail.server.server1.autosync_offline_stores", false);
+  Services.prefs.setBoolPref(
+    "mail.server.server1.autosync_offline_stores",
+    false
+  );
   Services.prefs.setBoolPref("mail.server.server1.offline_download", false);
 
-  gMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
-                  .createInstance(Ci.nsIMsgWindow);
+  gMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
+    Ci.nsIMsgWindow
+  );
 
   gRootFolder = IMAPPump.incomingServer.rootFolder;
   // these hacks are required because we've created the inbox before
@@ -117,14 +129,17 @@ function setup() {
   IMAPPump.inbox.hierarchyDelimiter = "/";
   IMAPPump.inbox.verifiedAsOnlineFolder = true;
 
-
   // Add a couple of messages to the INBOX
   // this is synchronous, afaik
-  addMessagesToServer([{file: gMsgFile1, messageId: gMsgId1},
-                       {file: gMsgFile4, messageId: gMsgId4},
-                       {file: gMsgFile5, messageId: gMsgId5},
-                       {file: gMsgFile2, messageId: gMsgId2}],
-                      IMAPPump.mailbox);
+  addMessagesToServer(
+    [
+      { file: gMsgFile1, messageId: gMsgId1 },
+      { file: gMsgFile4, messageId: gMsgId4 },
+      { file: gMsgFile5, messageId: gMsgId5 },
+      { file: gMsgFile2, messageId: gMsgId2 },
+    ],
+    IMAPPump.mailbox
+  );
 }
 
 asyncUrlListener.callback = function(aUrl, aExitCode) {

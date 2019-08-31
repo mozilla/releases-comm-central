@@ -4,8 +4,16 @@
 
 this.EXPORTED_SYMBOLS = ["AddrBookCard"];
 
-ChromeUtils.defineModuleGetter(this, "MailServices", "resource:///modules/MailServices.jsm");
-ChromeUtils.defineModuleGetter(this, "newUID", "resource:///modules/AddrBookUtils.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "MailServices",
+  "resource:///modules/MailServices.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "newUID",
+  "resource:///modules/AddrBookUtils.jsm"
+);
 
 /**
  * Prototype for nsIAbCard objects that are not mailing lists.
@@ -33,11 +41,17 @@ AddrBookCard.prototype = {
       case Ci.nsIAbItem.GENERATE_DISPLAY_NAME:
         return this.displayName;
       case Ci.nsIAbItem.GENERATE_LAST_FIRST_ORDER:
-        format = bundle ? bundle.GetStringFromName("lastFirstFormat") : "%S, %S";
-        return format.replace("%S", this.lastName).replace("%S", this.firstName);
+        format = bundle
+          ? bundle.GetStringFromName("lastFirstFormat")
+          : "%S, %S";
+        return format
+          .replace("%S", this.lastName)
+          .replace("%S", this.firstName);
       case Ci.nsIAbItem.GENERATE_FIRST_LAST_ORDER:
         format = bundle ? bundle.GetStringFromName("firstLastFormat") : "%S %S";
-        return format.replace("%S", this.firstName).replace("%S", this.lastName);
+        return format
+          .replace("%S", this.firstName)
+          .replace("%S", this.lastName);
     }
 
     return "";
@@ -49,13 +63,13 @@ AddrBookCard.prototype = {
     return this._directoryId;
   },
   set directoryId(value) {
-    return this._directoryId = value;
+    return (this._directoryId = value);
   },
   get localId() {
     return this._localId;
   },
   set localId(value) {
-    return this._localId = value;
+    return (this._localId = value);
   },
   get UID() {
     if (!this._uid) {
@@ -90,7 +104,7 @@ AddrBookCard.prototype = {
           QueryInterface: ChromeUtils.generateQI([Ci.nsIProperty]),
         };
       },
-      * [Symbol.iterator]() {
+      *[Symbol.iterator]() {
         while (this.hasMoreElements()) {
           yield this.getNext();
         }

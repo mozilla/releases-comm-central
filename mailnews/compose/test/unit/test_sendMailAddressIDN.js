@@ -13,25 +13,24 @@ var sentFolder;
 var originalData;
 var expectedAlertMessage;
 
-var kSender     = "from@foo.invalid";
-var kToASCII    = "to@foo.invalid";
-var kToValid    = "to@v\u00E4lid.foo.invalid";
+var kSender = "from@foo.invalid";
+var kToASCII = "to@foo.invalid";
+var kToValid = "to@v\u00E4lid.foo.invalid";
 var kToValidACE = "to@xn--vlid-loa.foo.invalid";
-var kToInvalid  = "b\u00F8rken.to@invalid.foo.invalid";
+var kToInvalid = "b\u00F8rken.to@invalid.foo.invalid";
 var kToInvalidWithoutDomain = "b\u00F8rken.to";
-var NS_ERROR_BUT_DONT_SHOW_ALERT = 0x805530ef;
+var NS_ERROR_BUT_DONT_SHOW_ALERT = 0x805530ef; // for alertTestUtils.js
 
-/* exported alert */// for alertTestUtils.js
-function alert(aDialogText, aText) {
+/* exported alert */ function alert(aDialogText, aText) {
   // ignore without domain situation (this is crash test)
-  if (test == kToInvalidWithoutDomain)
+  if (test == kToInvalidWithoutDomain) {
     return;
+  }
 
   // we should only get here for the kToInvalid test case
   Assert.equal(test, kToInvalid);
   Assert.equal(aText, expectedAlertMessage);
 }
-
 
 // message listener implementations
 function msgListener(aRecipient) {
@@ -46,11 +45,12 @@ msgListener.prototype = {
   onStopSending(aMsgID, aStatus, aMsg, aReturnFile) {
     try {
       Assert.equal(aStatus, 0);
-      do_check_transaction(server.playTransaction(),
-                           ["EHLO test",
-                            "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=" + originalData.length,
-                            "RCPT TO:<" + this.rcpt + ">",
-                            "DATA"]);
+      do_check_transaction(server.playTransaction(), [
+        "EHLO test",
+        "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=" + originalData.length,
+        "RCPT TO:<" + this.rcpt + ">",
+        "DATA",
+      ]);
       // Compare data file to what the server received
       Assert.equal(originalData, server._daemon.post);
     } catch (e) {
@@ -58,8 +58,9 @@ msgListener.prototype = {
     } finally {
       server.stop();
       var thread = gThreadManager.currentThread;
-      while (thread.hasPendingEvents())
+      while (thread.hasPendingEvents()) {
         thread.processNextEvent(false);
+      }
     }
   },
   onGetDraftFolderURI(aFolderURI) {},
@@ -74,8 +75,10 @@ msgListener.prototype = {
     Assert.equal(aStatus, 0);
     try {
       // Now do a comparison of what is in the sent mail folder
-      let msgData = mailTestUtils
-        .loadMessageToString(sentFolder, mailTestUtils.firstMsgHdr(sentFolder));
+      let msgData = mailTestUtils.loadMessageToString(
+        sentFolder,
+        mailTestUtils.firstMsgHdr(sentFolder)
+      );
       // Skip the headers etc that mailnews adds
       var pos = msgData.indexOf("From:");
       Assert.notEqual(pos, -1);
@@ -90,10 +93,11 @@ msgListener.prototype = {
   },
 
   // QueryInterface
-  QueryInterface: ChromeUtils.generateQI(["nsIMsgSendListener",
-                                          "nsIMsgCopyServiceListener"]),
+  QueryInterface: ChromeUtils.generateQI([
+    "nsIMsgSendListener",
+    "nsIMsgCopyServiceListener",
+  ]),
 };
-
 
 function DoSendTest(aRecipient, aRecipientExpected, aExceptionExpected) {
   server = setupServerDaemon();
@@ -110,22 +114,35 @@ function DoSendTest(aRecipient, aRecipientExpected, aExceptionExpected) {
   // the server if something fails.
   var exceptionCaught = 0;
   try {
-    var compFields = Cc["@mozilla.org/messengercompose/composefields;1"]
-                       .createInstance(Ci.nsIMsgCompFields);
+    var compFields = Cc[
+      "@mozilla.org/messengercompose/composefields;1"
+    ].createInstance(Ci.nsIMsgCompFields);
     compFields.from = identity.email;
     compFields.to = aRecipient;
 
-    var msgSend = Cc["@mozilla.org/messengercompose/send;1"]
-                    .createInstance(Ci.nsIMsgSend);
-    msgSend.sendMessageFile(identity, "", compFields, testFile,
-                            false, false, Ci.nsIMsgSend.nsMsgDeliverNow,
-                            null, new msgListener(aRecipientExpected), null, null);
+    var msgSend = Cc["@mozilla.org/messengercompose/send;1"].createInstance(
+      Ci.nsIMsgSend
+    );
+    msgSend.sendMessageFile(
+      identity,
+      "",
+      compFields,
+      testFile,
+      false,
+      false,
+      Ci.nsIMsgSend.nsMsgDeliverNow,
+      null,
+      new msgListener(aRecipientExpected),
+      null,
+      null
+    );
 
     server.performTest();
 
     do_timeout(10000, function() {
-      if (!finished)
+      if (!finished) {
         do_throw("Notifications of message send/copy not received");
+      }
     });
     do_test_pending();
   } catch (e) {
@@ -133,18 +150,21 @@ function DoSendTest(aRecipient, aRecipientExpected, aExceptionExpected) {
   } finally {
     server.stop();
     var thread = gThreadManager.currentThread;
-    while (thread.hasPendingEvents())
+    while (thread.hasPendingEvents()) {
       thread.processNextEvent(true);
+    }
   }
   Assert.equal(exceptionCaught, aExceptionExpected);
 }
 
-
 function run_test() {
   registerAlertTestUtils();
-  var composeProps = Services.strings.createBundle("chrome://messenger/locale/messengercompose/composeMsgs.properties");
-  expectedAlertMessage = composeProps.GetStringFromName("errorIllegalLocalPart")
-                                     .replace("%s", kToInvalid);
+  var composeProps = Services.strings.createBundle(
+    "chrome://messenger/locale/messengercompose/composeMsgs.properties"
+  );
+  expectedAlertMessage = composeProps
+    .GetStringFromName("errorIllegalLocalPart")
+    .replace("%s", kToInvalid);
 
   // Ensure we have at least one mail account
   localAccountUtils.loadLocalMailAccount();
@@ -178,5 +198,9 @@ function run_test() {
   // Test 4:
   // Bug 856506. invalid char without '@' causes crash.
   test = kToInvalidWithoutDomain;
-  DoSendTest(kToInvalidWithoutDomain, kToInvalidWithoutDomain, NS_ERROR_BUT_DONT_SHOW_ALERT);
+  DoSendTest(
+    kToInvalidWithoutDomain,
+    kToInvalidWithoutDomain,
+    NS_ERROR_BUT_DONT_SHOW_ALERT
+  );
 }

@@ -5,10 +5,14 @@
 
 /* import-globals-from searchTerm.js */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-var {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { PluralForm } = ChromeUtils.import(
+  "resource://gre/modules/PluralForm.jsm"
+);
 
 // The actual filter that we're editing if it is a _saved_ filter or prefill;
 // void otherwise.
@@ -25,12 +29,28 @@ var gCustomActions = null;
 var gFilterType;
 var gFilterPosition = 0;
 
-var gFilterActionStrings = ["none", "movemessage", "setpriorityto", "deletemessage",
-                            "markasread", "ignorethread", "watchthread", "markasflagged",
-                            "label", "replytomessage", "forwardmessage", "stopexecution",
-                            "deletefrompopserver",  "leaveonpopserver", "setjunkscore",
-                            "fetchfrompopserver", "copymessage", "addtagtomessage",
-                            "ignoresubthread", "markasunread"];
+var gFilterActionStrings = [
+  "none",
+  "movemessage",
+  "setpriorityto",
+  "deletemessage",
+  "markasread",
+  "ignorethread",
+  "watchthread",
+  "markasflagged",
+  "label",
+  "replytomessage",
+  "forwardmessage",
+  "stopexecution",
+  "deletefrompopserver",
+  "leaveonpopserver",
+  "setjunkscore",
+  "fetchfrompopserver",
+  "copymessage",
+  "addtagtomessage",
+  "ignoresubthread",
+  "markasunread",
+];
 
 // A temporary filter with the current state of actions in the UI.
 var gTempFilter = null;
@@ -40,9 +60,9 @@ var gActionListOrdered = null;
 var gFilterEditorMsgWindow = null;
 
 var nsMsgFilterAction = Ci.nsMsgFilterAction;
-var nsMsgFilterType   = Ci.nsMsgFilterType;
-var nsIMsgRuleAction  = Ci.nsIMsgRuleAction;
-var nsMsgSearchScope  = Ci.nsMsgSearchScope;
+var nsMsgFilterType = Ci.nsMsgFilterType;
+var nsIMsgRuleAction = Ci.nsIMsgRuleAction;
+var nsMsgSearchScope = Ci.nsMsgSearchScope;
 
 document.addEventListener("dialogaccept", onAccept);
 
@@ -61,8 +81,9 @@ function filterEditorOnLoad() {
       // the postPlugin filters cannot be applied to servers that are
       // deferred, (you must define them on the deferredTo server instead).
       let server = gFilterList.folder.server;
-      if (server.rootFolder != server.rootMsgFolder)
+      if (server.rootFolder != server.rootMsgFolder) {
         gFilterTypeSelector.disableDeferredAccount();
+      }
     }
 
     if ("filterPosition" in args) {
@@ -74,8 +95,9 @@ function filterEditorOnLoad() {
       gFilter = window.arguments[0].filter;
       initializeDialog(gFilter);
     } else {
-      if (gFilterList)
-          setSearchScope(getScopeFromFilterList(gFilterList));
+      if (gFilterList) {
+        setSearchScope(getScopeFromFilterList(gFilterList));
+      }
       // if doing prefill filter create a new filter and populate it.
       if ("filterName" in args) {
         gPreFillName = args.filterName;
@@ -87,15 +109,18 @@ function filterEditorOnLoad() {
         var term = gFilter.createTerm();
 
         term.attrib = Ci.nsMsgSearchAttrib.Default;
-        if (("fieldName" in args) && args.fieldName) {
+        if ("fieldName" in args && args.fieldName) {
           // fieldName should contain the name of the field in which to search,
           // from nsMsgSearchTerm.cpp::SearchAttribEntryTable, e.g. "to" or "cc"
           try {
             term.attrib = term.getAttributeFromString(args.fieldName);
-          } catch (e) { /* Invalid string is fine, just ignore it. */ }
+          } catch (e) {
+            /* Invalid string is fine, just ignore it. */
+          }
         }
-        if (term.attrib == Ci.nsMsgSearchAttrib.Default)
+        if (term.attrib == Ci.nsMsgSearchAttrib.Default) {
           term.attrib = Ci.nsMsgSearchAttrib.Sender;
+        }
 
         term.op = Ci.nsMsgSearchOp.Is;
         term.booleanAnd = gSearchBooleanRadiogroup.value == "and";
@@ -111,16 +136,19 @@ function filterEditorOnLoad() {
         // the default action for news filters is Delete
         // for everything else, it's MoveToFolder
         var filterAction = gFilter.createAction();
-        filterAction.type = (getScopeFromFilterList(gFilterList) ==
-            nsMsgSearchScope.newsFilter) ?
-            nsMsgFilterAction.Delete : nsMsgFilterAction.MoveToFolder;
+        filterAction.type =
+          getScopeFromFilterList(gFilterList) == nsMsgSearchScope.newsFilter
+            ? nsMsgFilterAction.Delete
+            : nsMsgFilterAction.MoveToFolder;
         gFilter.appendAction(filterAction);
         initializeDialog(gFilter);
       } else if ("copiedFilter" in args) {
         // we are copying a filter
         let copiedFilter = args.copiedFilter;
-        let copiedName = gFilterBundle.getFormattedString("copyToNewFilterName",
-          [copiedFilter.filterName]);
+        let copiedName = gFilterBundle.getFormattedString(
+          "copyToNewFilterName",
+          [copiedFilter.filterName]
+        );
         let newFilter = gFilterList.createFilter(copiedName);
 
         // copy the actions
@@ -131,8 +159,10 @@ function filterEditorOnLoad() {
 
         // copy the search terms
         for (let i = 0; i < copiedFilter.searchTerms.length; i++) {
-          let searchTerm = copiedFilter.searchTerms.queryElementAt(i,
-            Ci.nsIMsgSearchTerm);
+          let searchTerm = copiedFilter.searchTerms.queryElementAt(
+            i,
+            Ci.nsIMsgSearchTerm
+          );
 
           let newTerm = newFilter.createTerm();
           newTerm.attrib = searchTerm.attrib;
@@ -162,7 +192,9 @@ function filterEditorOnLoad() {
 
   if (!gFilter) {
     // This is a new filter. Set to both Incoming and Manual contexts.
-    gFilterTypeSelector.setType(nsMsgFilterType.Incoming | nsMsgFilterType.Manual);
+    gFilterTypeSelector.setType(
+      nsMsgFilterType.Incoming | nsMsgFilterType.Manual
+    );
   }
 
   // in the case of a new filter, we may not have an action row yet.
@@ -204,10 +236,13 @@ function onAccept(event) {
 }
 
 function duplicateFilterNameExists(filterName) {
-  if (gFilterList)
-    for (var i = 0; i < gFilterList.filterCount; i++)
-      if (filterName == gFilterList.getFilterAt(i).filterName)
+  if (gFilterList) {
+    for (var i = 0; i < gFilterList.filterCount; i++) {
+      if (filterName == gFilterList.getFilterAt(i).filterName) {
         return true;
+      }
+    }
+  }
   return false;
 }
 
@@ -254,27 +289,33 @@ function initializeFilterTypeSelector() {
     getType() {
       let type = nsMsgFilterType.None;
 
-      if (this.checkBoxManual.checked)
+      if (this.checkBoxManual.checked) {
         type |= nsMsgFilterType.Manual;
+      }
 
       if (this.checkBoxIncoming.checked) {
         if (this.menulistIncoming.selectedItem == this.menuitemAfterPlugins) {
           type |= nsMsgFilterType.PostPlugin;
-        } else if (getScopeFromFilterList(gFilterList) == nsMsgSearchScope.newsFilter) {
+        } else if (
+          getScopeFromFilterList(gFilterList) == nsMsgSearchScope.newsFilter
+        ) {
           type |= nsMsgFilterType.NewsRule;
         } else {
           type |= nsMsgFilterType.InboxRule;
         }
       }
 
-      if (this.checkBoxArchive.checked)
+      if (this.checkBoxArchive.checked) {
         type |= nsMsgFilterType.Archive;
+      }
 
-      if (this.checkBoxOutgoing.checked)
+      if (this.checkBoxOutgoing.checked) {
         type |= nsMsgFilterType.PostOutgoing;
+      }
 
-      if (this.checkBoxPeriodic.checked)
+      if (this.checkBoxPeriodic.checked) {
         type |= nsMsgFilterType.Periodic;
+      }
 
       return type;
     },
@@ -287,26 +328,32 @@ function initializeFilterTypeSelector() {
      */
     setType(aType) {
       // If there is no type (event) requested, force "when manually run"
-      if (aType == nsMsgFilterType.None)
+      if (aType == nsMsgFilterType.None) {
         aType = nsMsgFilterType.Manual;
+      }
 
-      this.checkBoxManual.checked   = aType & nsMsgFilterType.Manual;
+      this.checkBoxManual.checked = aType & nsMsgFilterType.Manual;
 
-      this.checkBoxIncoming.checked = aType & (nsMsgFilterType.PostPlugin |
-                                               nsMsgFilterType.Incoming);
+      this.checkBoxIncoming.checked =
+        aType & (nsMsgFilterType.PostPlugin | nsMsgFilterType.Incoming);
 
-      this.menulistIncoming.selectedItem = aType & nsMsgFilterType.PostPlugin ?
-        this.menuitemAfterPlugins : this.menuitemBeforePlugins;
+      this.menulistIncoming.selectedItem =
+        aType & nsMsgFilterType.PostPlugin
+          ? this.menuitemAfterPlugins
+          : this.menuitemBeforePlugins;
 
-      this.checkBoxArchive.checked  = aType & nsMsgFilterType.Archive;
+      this.checkBoxArchive.checked = aType & nsMsgFilterType.Archive;
 
       this.checkBoxOutgoing.checked = aType & nsMsgFilterType.PostOutgoing;
 
       this.checkBoxPeriodic.checked = aType & nsMsgFilterType.Periodic;
-      const periodMinutes = gFilterList.folder.server.getIntValue("periodicFilterRateMinutes");
-      document.getElementById("runPeriodic").label =
-        PluralForm.get(periodMinutes, gFilterBundle.getString("contextPeriodic.label"))
-                  .replace("#1", periodMinutes);
+      const periodMinutes = gFilterList.folder.server.getIntValue(
+        "periodicFilterRateMinutes"
+      );
+      document.getElementById("runPeriodic").label = PluralForm.get(
+        periodMinutes,
+        gFilterBundle.getString("contextPeriodic.label")
+      ).replace("#1", periodMinutes);
 
       this.updateClassificationMenu();
     },
@@ -338,17 +385,26 @@ function initializeDialog(filter) {
   for (let actionIndex = 0; actionIndex < numActions; actionIndex++) {
     let filterAction = filter.getActionAt(actionIndex);
 
-    let newActionRow = document.createXULElement("richlistitem", { "is": "ruleaction-richlistitem" });
+    let newActionRow = document.createXULElement("richlistitem", {
+      is: "ruleaction-richlistitem",
+    });
     newActionRow.setAttribute("initialActionIndex", actionIndex);
     newActionRow.className = "ruleaction";
     gFilterActionList.appendChild(newActionRow);
-    newActionRow.setAttribute("value",
-        filterAction.type == nsMsgFilterAction.Custom ?
-        filterAction.customId : gFilterActionStrings[filterAction.type]);
+    newActionRow.setAttribute(
+      "value",
+      filterAction.type == nsMsgFilterAction.Custom
+        ? filterAction.customId
+        : gFilterActionStrings[filterAction.type]
+    );
     newActionRow.setAttribute("onfocus", "this.storeFocus();");
   }
 
-  var gSearchScope = getFilterScope(getScope(filter), filter.filterType, filter.filterList);
+  var gSearchScope = getFilterScope(
+    getScope(filter),
+    filter.filterType,
+    filter.filterList
+  );
   initializeSearchRows(gSearchScope, filter.searchTerms);
   setFilterScope(filter.filterType, filter.filterList);
 }
@@ -356,7 +412,9 @@ function initializeDialog(filter) {
 function ensureActionRow() {
   // make sure we have at least one action row visible to the user
   if (!gFilterActionList.getRowCount()) {
-    let newActionRow = document.createXULElement("richlistitem", { "is": "ruleaction-richlistitem" });
+    let newActionRow = document.createXULElement("richlistitem", {
+      is: "ruleaction-richlistitem",
+    });
     newActionRow.className = "ruleaction";
     gFilterActionList.appendChild(newActionRow);
     newActionRow.mRemoveButton.disabled = true;
@@ -367,9 +425,11 @@ function ensureActionRow() {
 function saveFilter() {
   // See if at least one filter type (activation event) is selected.
   if (gFilterType == nsMsgFilterType.None) {
-    Services.prompt.alert(window,
-                          gFilterBundle.getString("mustHaveFilterTypeTitle"),
-                          gFilterBundle.getString("mustHaveFilterTypeMessage"));
+    Services.prompt.alert(
+      window,
+      gFilterBundle.getString("mustHaveFilterTypeTitle"),
+      gFilterBundle.getString("mustHaveFilterTypeMessage")
+    );
     return false;
   }
 
@@ -378,60 +438,103 @@ function saveFilter() {
   // have an original filter name (i.e. we are editing a filter), then
   // we must check that the original is not the current as that is what
   // the duplicateFilterNameExists function will have picked up.
-  if ((!gFilter || gFilter.filterName != filterName) && duplicateFilterNameExists(filterName)) {
-    Services.prompt.alert(window,
-                          gFilterBundle.getString("cannotHaveDuplicateFilterTitle"),
-                          gFilterBundle.getString("cannotHaveDuplicateFilterMessage"));
+  if (
+    (!gFilter || gFilter.filterName != filterName) &&
+    duplicateFilterNameExists(filterName)
+  ) {
+    Services.prompt.alert(
+      window,
+      gFilterBundle.getString("cannotHaveDuplicateFilterTitle"),
+      gFilterBundle.getString("cannotHaveDuplicateFilterMessage")
+    );
     return false;
   }
 
   // Check that all of the search attributes and operators are valid.
   function rule_desc(index, obj) {
-    return (index + 1) + " (" + obj.searchattribute.label + ", " + obj.searchoperator.label + ")";
+    return (
+      index +
+      1 +
+      " (" +
+      obj.searchattribute.label +
+      ", " +
+      obj.searchoperator.label +
+      ")"
+    );
   }
 
   let invalidRule = false;
   for (let index = 0; index < gSearchTerms.length; index++) {
     let obj = gSearchTerms[index].obj;
     // We don't need to check validity of matchAll terms
-    if (obj.matchAll)
+    if (obj.matchAll) {
       continue;
+    }
 
     // the term might be an offscreen one that we haven't initialized yet
     let searchTerm = obj.searchTerm;
-    if (!searchTerm && !gSearchTerms[index].initialized)
+    if (!searchTerm && !gSearchTerms[index].initialized) {
       continue;
+    }
 
-    if (isNaN(obj.searchattribute.value)) { // is this a custom term?
-      let customTerm = MailServices.filters.getCustomTerm(obj.searchattribute.value);
+    if (isNaN(obj.searchattribute.value)) {
+      // is this a custom term?
+      let customTerm = MailServices.filters.getCustomTerm(
+        obj.searchattribute.value
+      );
       if (!customTerm) {
         invalidRule = true;
-        Cu.reportError("Filter not saved because custom search term '" +
-                       obj.searchattribute.value + "' in rule " + rule_desc(index, obj) + " not found");
-      } else if (!customTerm.getAvailable(obj.searchScope, obj.searchattribute.value)) {
-          invalidRule = true;
-          Cu.reportError("Filter not saved because custom search term '" +
-                         customTerm.name + "' in rule " + rule_desc(index, obj) + " not available");
-        }
+        Cu.reportError(
+          "Filter not saved because custom search term '" +
+            obj.searchattribute.value +
+            "' in rule " +
+            rule_desc(index, obj) +
+            " not found"
+        );
+      } else if (
+        !customTerm.getAvailable(obj.searchScope, obj.searchattribute.value)
+      ) {
+        invalidRule = true;
+        Cu.reportError(
+          "Filter not saved because custom search term '" +
+            customTerm.name +
+            "' in rule " +
+            rule_desc(index, obj) +
+            " not available"
+        );
+      }
     } else {
       let otherHeader = Ci.nsMsgSearchAttrib.OtherHeader;
-      let attribValue = (obj.searchattribute.value > otherHeader) ?
-        otherHeader : obj.searchattribute.value;
-      if (!obj.searchattribute
-              .validityTable
-              .getAvailable(attribValue, obj.searchoperator.value)) {
+      let attribValue =
+        obj.searchattribute.value > otherHeader
+          ? otherHeader
+          : obj.searchattribute.value;
+      if (
+        !obj.searchattribute.validityTable.getAvailable(
+          attribValue,
+          obj.searchoperator.value
+        )
+      ) {
         invalidRule = true;
-        Cu.reportError("Filter not saved because standard search term '" +
-                       attribValue + "' in rule " + rule_desc(index, obj) + " not available in this context");
+        Cu.reportError(
+          "Filter not saved because standard search term '" +
+            attribValue +
+            "' in rule " +
+            rule_desc(index, obj) +
+            " not available in this context"
+        );
       }
     }
 
     if (invalidRule) {
-      Services.prompt.alert(window,
-                            gFilterBundle.getString("searchTermsInvalidTitle"),
-                            gFilterBundle.getFormattedString("searchTermsInvalidRule",
-                                                             [obj.searchattribute.label,
-                                                              obj.searchoperator.label]));
+      Services.prompt.alert(
+        window,
+        gFilterBundle.getString("searchTermsInvalidTitle"),
+        gFilterBundle.getFormattedString("searchTermsInvalidRule", [
+          obj.searchattribute.label,
+          obj.searchoperator.label,
+        ])
+      );
       return false;
     }
   }
@@ -440,8 +543,9 @@ function saveFilter() {
   // if any of the actions is invalid...
   for (let index = 0; index < gFilterActionList.itemCount; index++) {
     var listItem = gFilterActionList.getItemAtIndex(index);
-    if (!listItem.validateAction())
+    if (!listItem.validateAction()) {
       return false;
+    }
   }
 
   // if we made it here, all of the actions are valid, so go ahead and save the filter
@@ -467,12 +571,14 @@ function saveFilter() {
   }
 
   // add each filteraction to the filter
-  for (let index = 0; index < gFilterActionList.itemCount; index++)
+  for (let index = 0; index < gFilterActionList.itemCount; index++) {
     gFilterActionList.getItemAtIndex(index).saveToFilter(gFilter);
+  }
 
   // If we do not have a filter name at this point, generate one.
-  if (!gFilter.filterName)
+  if (!gFilter.filterName) {
     AssignMeaningfulName();
+  }
 
   gFilter.filterType = gFilterType;
   saveSearchTerms(gFilter.searchTerms, gFilter);
@@ -501,13 +607,15 @@ function checkActionsReorder() {
  */
 function _checkActionsReorder() {
   // Create a temporary disposable filter and add current actions to it.
-  if (!gTempFilter)
+  if (!gTempFilter) {
     gTempFilter = gFilterList.createFilter("");
-  else
+  } else {
     gTempFilter.clearActionList();
+  }
 
-  for (let index = 0; index < gFilterActionList.itemCount; index++)
+  for (let index = 0; index < gFilterActionList.itemCount; index++) {
     gFilterActionList.getItemAtIndex(index).saveToFilter(gTempFilter);
+  }
 
   // Now get the actions out of the filter in the order they will be executed in.
   gActionListOrdered = gTempFilter.sortedActionList;
@@ -515,8 +623,12 @@ function _checkActionsReorder() {
   // Compare the two lists.
   let statusBar = document.getElementById("statusbar");
   for (let index = 0; index < gActionListOrdered.length; index++) {
-    if (index != gTempFilter.getActionIndex(
-        gActionListOrdered.queryElementAt(index, nsIMsgRuleAction))) {
+    if (
+      index !=
+      gTempFilter.getActionIndex(
+        gActionListOrdered.queryElementAt(index, nsIMsgRuleAction)
+      )
+    ) {
       // If the lists are not the same unhide the status bar and show warning.
       statusBar.style.visibility = "visible";
       return;
@@ -559,16 +671,27 @@ function showActionsOrder() {
   let actionList = gFilterBundle.getString("filterActionOrderExplanation");
   for (let i = 0; i < gActionListOrdered.length; i++) {
     let actionIndex = gTempFilter.getActionIndex(
-      gActionListOrdered.queryElementAt(i, nsIMsgRuleAction));
+      gActionListOrdered.queryElementAt(i, nsIMsgRuleAction)
+    );
     let action = actionStrings[actionIndex];
-    actionList += gFilterBundle.getFormattedString("filterActionItem",
-      [(i + 1), action.label, action.argument]);
+    actionList += gFilterBundle.getFormattedString("filterActionItem", [
+      i + 1,
+      action.label,
+      action.argument,
+    ]);
   }
 
-  Services.prompt.confirmEx(window,
-                            gFilterBundle.getString("filterActionOrderTitle"),
-                            actionList, Services.prompt.BUTTON_TITLE_OK,
-                            null, null, null, null, {value: false});
+  Services.prompt.confirmEx(
+    window,
+    gFilterBundle.getString("filterActionOrderTitle"),
+    actionList,
+    Services.prompt.BUTTON_TITLE_OK,
+    null,
+    null,
+    null,
+    null,
+    { value: false }
+  );
 }
 
 function AssignMeaningfulName() {
@@ -604,10 +727,11 @@ function AssignMeaningfulName() {
       case attribs.HasAttachmentStatus:
       case attribs.JunkStatus:
       case attribs.JunkScoreOrigin:
-        if (activeItem)
+        if (activeItem) {
           value = activeItem.label;
-        else
+        } else {
           value = "";
+        }
         break;
 
       default:
@@ -625,8 +749,13 @@ function AssignMeaningfulName() {
     // If at this point stub is empty, we know that this is not a Match All Filter
     // and is not an "untitledFilterName" Filter, so assign it a name using
     // a string format from the Filter Bundle.
-    if (!stub)
-      stub = gFilterBundle.getFormattedString("filterAutoNameStr", [term, operator, value]);
+    if (!stub) {
+      stub = gFilterBundle.getFormattedString("filterAutoNameStr", [
+        term,
+        operator,
+        value,
+      ]);
+    }
   }
 
   // Whatever name we have used, 'uniquify' it.
@@ -648,7 +777,9 @@ function GetFilterEditorMsgWindow() {
   if (!gFilterEditorMsgWindow) {
     var msgWindowContractID = "@mozilla.org/messenger/msgwindow;1";
     var nsIMsgWindow = Ci.nsIMsgWindow;
-    gFilterEditorMsgWindow = Cc[msgWindowContractID].createInstance(nsIMsgWindow);
+    gFilterEditorMsgWindow = Cc[msgWindowContractID].createInstance(
+      nsIMsgWindow
+    );
     gFilterEditorMsgWindow.domWindow = window;
     gFilterEditorMsgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
   }
@@ -661,15 +792,15 @@ function SetBusyCursor(window, enable) {
   // is a non-chrome window, so check if this window has a
   // setCursor method
   if ("setCursor" in window) {
-    if (enable)
-        window.setCursor("wait");
-    else
-        window.setCursor("auto");
+    if (enable) {
+      window.setCursor("wait");
+    } else {
+      window.setCursor("auto");
+    }
   }
-}
+} // suite/components/helpviewer/content/contextHelp.js
 
-/* globals openHelp */// suite/components/helpviewer/content/contextHelp.js
-function doHelpButton() {
+/* globals openHelp */ function doHelpButton() {
   openHelp("mail-filters");
 }
 
@@ -677,9 +808,11 @@ function getCustomActions() {
   if (!gCustomActions) {
     gCustomActions = [];
     let customActionsEnum = MailServices.filters.getCustomActions();
-    while (customActionsEnum.hasMoreElements())
-      gCustomActions.push(customActionsEnum.getNext().QueryInterface(
-                           Ci.nsIMsgFilterCustomAction));
+    while (customActionsEnum.hasMoreElements()) {
+      gCustomActions.push(
+        customActionsEnum.getNext().QueryInterface(Ci.nsIMsgFilterCustomAction)
+      );
+    }
   }
 }
 
@@ -688,15 +821,22 @@ function updateFilterType() {
   setFilterScope(gFilterType, gFilterList);
 
   // set valid actions
-  var ruleActions = gFilterActionList.getElementsByAttribute("class", "ruleaction");
-  for (var i = 0; i < ruleActions.length; i++)
+  var ruleActions = gFilterActionList.getElementsByAttribute(
+    "class",
+    "ruleaction"
+  );
+  for (var i = 0; i < ruleActions.length; i++) {
     ruleActions[i].mRuleActionType.hideInvalidActions();
+  }
 }
 
 // Given a filter type, set the global search scope to the filter scope
 function setFilterScope(aFilterType, aFilterList) {
-  let filterScope = getFilterScope(getScopeFromFilterList(aFilterList),
-                                   aFilterType, aFilterList);
+  let filterScope = getFilterScope(
+    getScopeFromFilterList(aFilterList),
+    aFilterType,
+    aFilterList
+  );
   setSearchScope(filterScope);
 }
 
@@ -706,13 +846,15 @@ function setFilterScope(aFilterType, aFilterList) {
 // hierarchy of contexts, with incoming the most restrictive,
 // followed by manual and post-plugin.
 function getFilterScope(aServerFilterScope, aFilterType, aFilterList) {
-  if (aFilterType & nsMsgFilterType.Incoming)
+  if (aFilterType & nsMsgFilterType.Incoming) {
     return aServerFilterScope;
+  }
 
   // Manual or PostPlugin
   // local mail allows body and junk types
-  if (aServerFilterScope == nsMsgSearchScope.offlineMailFilter)
+  if (aServerFilterScope == nsMsgSearchScope.offlineMailFilter) {
     return nsMsgSearchScope.offlineMail;
+  }
   // IMAP and NEWS online don't allow body
   return nsMsgSearchScope.onlineManual;
 }
@@ -722,10 +864,12 @@ function getFilterScope(aServerFilterScope, aFilterType, aFilterList) {
  */
 function setLastActionFocus() {
   let lastAction = gFilterActionList.getAttribute("focusedAction");
-  if (!lastAction || lastAction < 0)
+  if (!lastAction || lastAction < 0) {
     lastAction = 0;
-  if (lastAction >= gFilterActionList.itemCount)
+  }
+  if (lastAction >= gFilterActionList.itemCount) {
     lastAction = gFilterActionList.itemCount - 1;
+  }
 
   gFilterActionList.getItemAtIndex(lastAction).mRuleActionType.focus();
 }

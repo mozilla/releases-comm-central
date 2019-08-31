@@ -3,14 +3,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
 var ACR = Ci.nsIAutoCompleteResult;
 var nsIAbAutoCompleteResult = Ci.nsIAbAutoCompleteResult;
-var nsIAbDirectoryQueryResultListener =
-  Ci.nsIAbDirectoryQueryResultListener;
+var nsIAbDirectoryQueryResultListener = Ci.nsIAbDirectoryQueryResultListener;
 
 // nsAbLDAPAutoCompleteResult
 // Derived from nsIAbAutoCompleteResult, provides a LDAP specific result
@@ -51,8 +54,9 @@ nsAbLDAPAutoCompleteResult.prototype = {
   },
 
   getStyleAt(aIndex) {
-    return this.searchResult == ACR.RESULT_FAILURE ? "remote-err" :
-                                                     "remote-abook";
+    return this.searchResult == ACR.RESULT_FAILURE
+      ? "remote-err"
+      : "remote-abook";
   },
 
   getImageAt(aIndex) {
@@ -63,8 +67,7 @@ nsAbLDAPAutoCompleteResult.prototype = {
     return this.getValueAt(aIndex);
   },
 
-  removeValueAt(aRowIndex, aRemoveFromDB) {
-  },
+  removeValueAt(aRowIndex, aRemoveFromDB) {},
 
   // nsIAbAutoCompleteResult
 
@@ -79,8 +82,7 @@ nsAbLDAPAutoCompleteResult.prototype = {
 
 function nsAbLDAPAutoCompleteSearch() {
   Services.obs.addObserver(this, "quit-application");
-  this._timer = Cc["@mozilla.org/timer;1"]
-                  .createInstance(Ci.nsITimer);
+  this._timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
 }
 
 nsAbLDAPAutoCompleteSearch.prototype = {
@@ -118,26 +120,34 @@ nsAbLDAPAutoCompleteSearch.prototype = {
   },
 
   _addToResult(card) {
-    let mbox = this._parser.makeMailboxObject(card.displayName,
-      card.isMailList ? card.getProperty("Notes", "") || card.displayName :
-                        card.primaryEmail);
-    if (!mbox.email)
+    let mbox = this._parser.makeMailboxObject(
+      card.displayName,
+      card.isMailList
+        ? card.getProperty("Notes", "") || card.displayName
+        : card.primaryEmail
+    );
+    if (!mbox.email) {
       return;
+    }
 
     let emailAddress = mbox.toString();
 
     // If it is a duplicate, then just return and don't add it. The
     // _checkDuplicate function deals with it all for us.
-    if (this._checkDuplicate(card, emailAddress))
+    if (this._checkDuplicate(card, emailAddress)) {
       return;
+    }
 
     // Find out where to insert the card.
     var insertPosition = 0;
 
     // Next sort on full address
-    while (insertPosition < this._result._searchResults.length &&
-           emailAddress > this._result._searchResults[insertPosition].value)
+    while (
+      insertPosition < this._result._searchResults.length &&
+      emailAddress > this._result._searchResults[insertPosition].value
+    ) {
       ++insertPosition;
+    }
 
     this._result._searchResults.splice(insertPosition, 0, {
       value: emailAddress,
@@ -167,7 +177,8 @@ nsAbLDAPAutoCompleteSearch.prototype = {
 
   startSearch(aSearchString, aParam, aPreviousResult, aListener) {
     let params = JSON.parse(aParam) || {};
-    let applicable = !("type" in params) || this.applicableHeaders.has(params.type);
+    let applicable =
+      !("type" in params) || this.applicableHeaders.has(params.type);
 
     this._result = new nsAbLDAPAutoCompleteResult(aSearchString);
     aSearchString = aSearchString.toLocaleLowerCase();
@@ -192,8 +203,10 @@ nsAbLDAPAutoCompleteSearch.prototype = {
       try {
         identity = MailServices.accounts.getIdentity(params.idKey);
       } catch (ex) {
-        Cu.reportError("Couldn't get specified identity, " +
-                       "falling back to global settings");
+        Cu.reportError(
+          "Couldn't get specified identity, " +
+            "falling back to global settings"
+        );
       }
     }
 
@@ -202,7 +215,9 @@ nsAbLDAPAutoCompleteSearch.prototype = {
       acDirURI = identity.directoryServer;
     } else if (Services.prefs.getBoolPref("ldap_2.autoComplete.useDirectory")) {
       // Try the global one
-      acDirURI = Services.prefs.getCharPref("ldap_2.autoComplete.directoryServer");
+      acDirURI = Services.prefs.getCharPref(
+        "ldap_2.autoComplete.directoryServer"
+      );
     }
 
     if (!acDirURI || Services.io.offline) {
@@ -216,49 +231,76 @@ nsAbLDAPAutoCompleteSearch.prototype = {
     // If we don't already have a cached query for this URI, build a new one.
     acDirURI = "moz-abldapdirectory://" + acDirURI;
     if (!this._book || this._book.URI != acDirURI) {
-      this._query =
-        Cc["@mozilla.org/addressbook/ldap-directory-query;1"]
-          .createInstance(Ci.nsIAbDirectoryQuery);
-      this._book = MailServices.ab.getDirectory(acDirURI)
-                                  .QueryInterface(Ci.nsIAbLDAPDirectory);
+      this._query = Cc[
+        "@mozilla.org/addressbook/ldap-directory-query;1"
+      ].createInstance(Ci.nsIAbDirectoryQuery);
+      this._book = MailServices.ab
+        .getDirectory(acDirURI)
+        .QueryInterface(Ci.nsIAbLDAPDirectory);
 
       // Create a minimal map just for the display name and primary email.
-      this._attributes =
-        Cc["@mozilla.org/addressbook/ldap-attribute-map;1"]
-          .createInstance(Ci.nsIAbLDAPAttributeMap);
-      this._attributes.setAttributeList("DisplayName",
-        this._book.attributeMap.getAttributeList("DisplayName", {}), true);
-      this._attributes.setAttributeList("PrimaryEmail",
-        this._book.attributeMap.getAttributeList("PrimaryEmail", {}), true);
+      this._attributes = Cc[
+        "@mozilla.org/addressbook/ldap-attribute-map;1"
+      ].createInstance(Ci.nsIAbLDAPAttributeMap);
+      this._attributes.setAttributeList(
+        "DisplayName",
+        this._book.attributeMap.getAttributeList("DisplayName", {}),
+        true
+      );
+      this._attributes.setAttributeList(
+        "PrimaryEmail",
+        this._book.attributeMap.getAttributeList("PrimaryEmail", {}),
+        true
+      );
     }
 
     this._result._commentColumn = this._book.dirName;
     this._listener = aListener;
     this._timer.init(this, 60000, Ci.nsITimer.TYPE_ONE_SHOT);
 
-    var args =
-      Cc["@mozilla.org/addressbook/directory/query-arguments;1"]
-        .createInstance(Ci.nsIAbDirectoryQueryArguments);
+    var args = Cc[
+      "@mozilla.org/addressbook/directory/query-arguments;1"
+    ].createInstance(Ci.nsIAbDirectoryQueryArguments);
 
-    var filterTemplate = this._book.getStringValue("autoComplete.filterTemplate", "");
+    var filterTemplate = this._book.getStringValue(
+      "autoComplete.filterTemplate",
+      ""
+    );
 
     // Use default value when preference is not set or it contains empty string
-    if (!filterTemplate)
+    if (!filterTemplate) {
       filterTemplate = "(|(cn=%v1*%v2-*)(mail=%v1*%v2-*)(sn=%v1*%v2-*))";
+    }
 
     // Create filter from filter template and search string
-    var ldapSvc = Cc["@mozilla.org/network/ldap-service;1"]
-                    .getService(Ci.nsILDAPService);
-    var filter = ldapSvc.createFilter(1024, filterTemplate, "", "", "", aSearchString);
-    if (!filter)
-      throw new Error("Filter string is empty, check if filterTemplate variable is valid in prefs.js.");
+    var ldapSvc = Cc["@mozilla.org/network/ldap-service;1"].getService(
+      Ci.nsILDAPService
+    );
+    var filter = ldapSvc.createFilter(
+      1024,
+      filterTemplate,
+      "",
+      "",
+      "",
+      aSearchString
+    );
+    if (!filter) {
+      throw new Error(
+        "Filter string is empty, check if filterTemplate variable is valid in prefs.js."
+      );
+    }
     args.typeSpecificArg = this._attributes;
     args.querySubDirectories = true;
     args.filter = filter;
 
     // Start the actual search
-    this._context =
-      this._query.doQuery(this._book, args, this, this._book.maxHits, 0);
+    this._context = this._query.doQuery(
+      this._book,
+      args,
+      this,
+      this._book.maxHits,
+      0
+    );
   },
 
   stopSearch() {
@@ -271,8 +313,9 @@ nsAbLDAPAutoCompleteSearch.prototype = {
   // nsIAbDirSearchListener
 
   onSearchFinished(aResult, aErrorMsg) {
-    if (!this._listener)
+    if (!this._listener) {
       return;
+    }
 
     if (aResult == nsIAbDirectoryQueryResultListener.queryResultComplete) {
       if (this._result.matchCount) {
@@ -292,8 +335,9 @@ nsAbLDAPAutoCompleteSearch.prototype = {
   },
 
   onSearchFoundCard(aCard) {
-    if (!this._listener)
+    if (!this._listener) {
       return;
+    }
 
     this._addToResult(aCard);
 
@@ -309,11 +353,15 @@ nsAbLDAPAutoCompleteSearch.prototype = {
 
   // nsISupports
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver,
-                                          Ci.nsIAutoCompleteSearch,
-                                          Ci.nsIAbDirSearchListener]),
+  QueryInterface: ChromeUtils.generateQI([
+    Ci.nsIObserver,
+    Ci.nsIAutoCompleteSearch,
+    Ci.nsIAbDirSearchListener,
+  ]),
 };
 
 // Module
 
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([nsAbLDAPAutoCompleteSearch]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([
+  nsAbLDAPAutoCompleteSearch,
+]);

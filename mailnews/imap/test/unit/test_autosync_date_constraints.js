@@ -35,14 +35,15 @@ var tests = [
     if (enumerator) {
       let now = new Date();
       let dateInSeconds = now.getSeconds();
-      let cutOffDateInSeconds = dateInSeconds - (5 * 60 * 24);
+      let cutOffDateInSeconds = dateInSeconds - 5 * 60 * 24;
       while (enumerator.hasMoreElements()) {
         let header = enumerator.getNext();
         if (header instanceof Ci.nsIMsgDBHdr) {
-          if (header.dateInSeconds < cutOffDateInSeconds)
+          if (header.dateInSeconds < cutOffDateInSeconds) {
             Assert.equal(header.getStringProperty("pendingRemoval"), "1");
-          else
+          } else {
             Assert.equal(header.getStringProperty("pendingRemoval"), "");
+          }
         }
       }
     }
@@ -63,16 +64,21 @@ function setup() {
   gMsgImapInboxFolder.hierarchyDelimiter = "/";
   gMsgImapInboxFolder.verifiedAsOnlineFolder = true;
 
-
   // Add a couple of messages to the INBOX
   // this is synchronous, afaik
   let messageGenerator = new MessageGenerator();
 
   // build up a diverse list of messages
   let messages = [];
-  messages = messages.concat(messageGenerator.makeMessage({age: {days: 2, hours: 1}}));
-  messages = messages.concat(messageGenerator.makeMessage({age: {days: 8, hours: 1}}));
-  messages = messages.concat(messageGenerator.makeMessage({age: {days: 10, hours: 1}}));
+  messages = messages.concat(
+    messageGenerator.makeMessage({ age: { days: 2, hours: 1 } })
+  );
+  messages = messages.concat(
+    messageGenerator.makeMessage({ age: { days: 8, hours: 1 } })
+  );
+  messages = messages.concat(
+    messageGenerator.makeMessage({ age: { days: 10, hours: 1 } })
+  );
 
   addMessagesToServer(messages, IMAPPump.daemon.getMailbox("INBOX"));
 }

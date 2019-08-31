@@ -3,8 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {BrowserUtils} = ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { BrowserUtils } = ChromeUtils.import(
+  "resource://gre/modules/BrowserUtils.jsm"
+);
 
 var gAccount;
 var gOriginalStoreType;
@@ -23,10 +25,14 @@ function clickStoreTypeMenu(aStoreTypeElement) {
   // otherwise 'response.newRootFolder' will be null.
   let response = { newRootFolder: null };
   // Send 'response' as an argument to converterDialog.xhtml.
-  window.openDialog("converterDialog.xhtml", "mailnews:mailstoreconverter",
-                    "modal,centerscreen,resizable=no,width=700,height=130",
-                    gAccount.incomingServer,
-                    aStoreTypeElement.value, response);
+  window.openDialog(
+    "converterDialog.xhtml",
+    "mailnews:mailstoreconverter",
+    "modal,centerscreen,resizable=no,width=700,height=130",
+    gAccount.incomingServer,
+    aStoreTypeElement.value,
+    response
+  );
   changeStoreType(response);
 }
 
@@ -43,13 +49,14 @@ function changeStoreType(aResponse) {
     // in 'aResponse.newRootFolder'.
     document.getElementById("server.localPath").value = aResponse.newRootFolder;
     gOriginalStoreType = document.getElementById("server.storeTypeMenulist")
-                                 .value;
+      .value;
     BrowserUtils.restartApplication();
   } else {
     // The conversion failed or was cancelled.
     // Restore selected item to what was selected before conversion.
-    document.getElementById("server.storeTypeMenulist").value =
-      gOriginalStoreType;
+    document.getElementById(
+      "server.storeTypeMenulist"
+    ).value = gOriginalStoreType;
   }
 }
 
@@ -57,14 +64,21 @@ function onInit(aPageId, aServerId) {
   // UI for account store type
   let storeTypeElement = document.getElementById("server.storeTypeMenulist");
   // set the menuitem to match the account
-  let currentStoreID = document.getElementById("server.storeContractID")
-                               .getAttribute("value");
-  let targetItem = storeTypeElement.getElementsByAttribute("value", currentStoreID);
+  let currentStoreID = document
+    .getElementById("server.storeContractID")
+    .getAttribute("value");
+  let targetItem = storeTypeElement.getElementsByAttribute(
+    "value",
+    currentStoreID
+  );
   storeTypeElement.selectedItem = targetItem[0];
   // Disable store type change if store has not been used yet.
-  storeTypeElement.setAttribute("disabled",
-    gAccount.incomingServer.getBoolValue("canChangeStoreType") ?
-      "false" : !Services.prefs.getBoolPref("mail.store_conversion_enabled"));
+  storeTypeElement.setAttribute(
+    "disabled",
+    gAccount.incomingServer.getBoolValue("canChangeStoreType")
+      ? "false"
+      : !Services.prefs.getBoolPref("mail.store_conversion_enabled")
+  );
   // Initialise 'gOriginalStoreType' to the item that was originally selected.
   gOriginalStoreType = storeTypeElement.value;
 }
@@ -75,9 +89,8 @@ function onPreInit(account, accountValues) {
 
 function onSave() {
   let storeContractID = document.getElementById("server.storeTypeMenulist")
-                                .selectedItem
-                                .value;
-  document.getElementById("server.storeContractID")
-          .setAttribute("value", storeContractID);
+    .selectedItem.value;
+  document
+    .getElementById("server.storeContractID")
+    .setAttribute("value", storeContractID);
 }
-

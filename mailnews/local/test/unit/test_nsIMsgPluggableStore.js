@@ -23,8 +23,10 @@ function run_all_tests() {
 
 function run_test() {
   for (let store in gPluggableStores) {
-    Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
-                               gPluggableStores[store]);
+    Services.prefs.setCharPref(
+      "mail.serverDefaultStoreContractID",
+      gPluggableStores[store]
+    );
     run_all_tests();
   }
 }

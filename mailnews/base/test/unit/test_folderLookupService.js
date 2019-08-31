@@ -8,15 +8,18 @@
 var kRootURI = "mailbox://nobody@Local%20Folders";
 
 function run_test() {
-  let fls = Cc["@mozilla.org/mail/folder-lookup;1"]
-              .getService(Ci.nsIFolderLookupService);
+  let fls = Cc["@mozilla.org/mail/folder-lookup;1"].getService(
+    Ci.nsIFolderLookupService
+  );
 
   // Make sure that the local mail account exists.
   localAccountUtils.loadLocalMailAccount();
 
   // There should exist an inbox.
-  Assert.equal(fls.getFolderForURL(kRootURI + "/Inbox"),
-    localAccountUtils.inboxFolder);
+  Assert.equal(
+    fls.getFolderForURL(kRootURI + "/Inbox"),
+    localAccountUtils.inboxFolder
+  );
 
   // Can we get the root folder?
   let root = localAccountUtils.rootFolder;
@@ -28,18 +31,24 @@ function run_test() {
 
   // Create the folder, and then it should exist.
   root.createSubfolder("Child", null);
-  Assert.equal(fls.getFolderForURL(kRootURI + "/Child"),
-    root.getChildNamed("Child"));
+  Assert.equal(
+    fls.getFolderForURL(kRootURI + "/Child"),
+    root.getChildNamed("Child")
+  );
 
   // Try it again... it should load from cache this time.
-  Assert.equal(fls.getFolderForURL(kRootURI + "/Child"),
-    root.getChildNamed("Child"));
+  Assert.equal(
+    fls.getFolderForURL(kRootURI + "/Child"),
+    root.getChildNamed("Child")
+  );
 
   // Now delete the folder; we should be unable to find it
   root.propagateDelete(root.getChildNamed("Child"), true, null);
   Assert.equal(fls.getFolderForURL(kRootURI + "/Child"), null);
 
   Assert.equal(fls.getFolderForURL(kRootURI + "/"), null);
-  Assert.equal(fls.getFolderForURL("mailbox://idonotexist@Local%20Folders"),
-    null);
+  Assert.equal(
+    fls.getFolderForURL("mailbox://idonotexist@Local%20Folders"),
+    null
+  );
 }

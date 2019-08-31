@@ -1,12 +1,20 @@
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {localAccountUtils} = ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+var { localAccountUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/localAccountUtils.js"
+);
 
 var test = null;
 
 // WebApps.jsm called by ProxyAutoConfig (PAC) requires a valid nsIXULAppInfo.
-var {getAppInfo, newAppInfo, updateAppInfo} = ChromeUtils.import("resource://testing-common/AppInfo.jsm");
+var { getAppInfo, newAppInfo, updateAppInfo } = ChromeUtils.import(
+  "resource://testing-common/AppInfo.jsm"
+);
 updateAppInfo();
 
 // Ensure the profile directory is set up
@@ -15,11 +23,9 @@ do_get_profile();
 var gDEPTH = "../../../../";
 
 // Import the servers
-var {
-  fsDebugAll,
-  gThreadManager,
-  nsMailServer,
-} = ChromeUtils.import("resource://testing-common/mailnews/maild.js");
+var { fsDebugAll, gThreadManager, nsMailServer } = ChromeUtils.import(
+  "resource://testing-common/mailnews/maild.js"
+);
 var {
   newsArticle,
   NNTP_Giganews_handler,
@@ -59,30 +65,35 @@ function setupNNTPDaemon() {
   var auto_add = do_get_file("postings/auto-add/");
   var files = [];
   var enumerator = auto_add.directoryEntries;
-  while (enumerator.hasMoreElements())
+  while (enumerator.hasMoreElements()) {
     files.push(enumerator.nextFile);
+  }
 
   files.sort(function(a, b) {
-    if (a.leafName == b.leafName) return 0;
+    if (a.leafName == b.leafName) {
+      return 0;
+    }
     return a.leafName < b.leafName ? -1 : 1;
   });
 
   files.forEach(function(file) {
-      var fstream = Cc["@mozilla.org/network/file-input-stream;1"]
-                      .createInstance(Ci.nsIFileInputStream);
-      var sstream = Cc["@mozilla.org/scriptableinputstream;1"]
-                      .createInstance(Ci.nsIScriptableInputStream);
-      fstream.init(file, -1, 0, 0);
-      sstream.init(fstream);
+    var fstream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
+      Ci.nsIFileInputStream
+    );
+    var sstream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+      Ci.nsIScriptableInputStream
+    );
+    fstream.init(file, -1, 0, 0);
+    sstream.init(fstream);
 
-      var post = "";
-      for (let part = sstream.read(4096); part.length > 0;) {
-        post += part;
-        part = sstream.read(4096);
-      }
-      sstream.close();
-      fstream.close();
-      daemon.addArticle(new newsArticle(post));
+    var post = "";
+    for (let part = sstream.read(4096); part.length > 0;) {
+      post += part;
+      part = sstream.read(4096);
+    }
+    sstream.close();
+    fstream.close();
+    daemon.addArticle(new newsArticle(post));
   });
 
   var article = new newsArticle(kSimpleNewsArticle);
@@ -101,7 +112,6 @@ function makeServer(handler, daemon) {
 // Enable strict threading
 Services.prefs.setBoolPref("mail.strict_threading", true);
 
-
 // Make sure we don't try to use a protected port. I like adding 1024 to the
 // default port when doing so...
 var NNTP_PORT = 1024 + 119;
@@ -113,20 +123,26 @@ function subscribeServer(incomingServer) {
   // Subscribe to newsgroups
   incomingServer.QueryInterface(Ci.nsINntpIncomingServer);
   groups.forEach(function(element) {
-      if (element[1])
-        incomingServer.subscribeToNewsgroup(element[0]);
-    });
+    if (element[1]) {
+      incomingServer.subscribeToNewsgroup(element[0]);
+    }
+  });
   // Only allow one connection
   incomingServer.maximumConnectionsNumber = 1;
 }
 
 // Sets up the client-side portion of fakeserver
 function setupLocalServer(port, host = "localhost") {
-  if (_server != null)
+  if (_server != null) {
     return _server;
-  let serverAndAccount =
-    localAccountUtils.create_incoming_server_and_account("nntp", port, null,
-      null, host);
+  }
+  let serverAndAccount = localAccountUtils.create_incoming_server_and_account(
+    "nntp",
+    port,
+    null,
+    null,
+    host
+  );
   let server = serverAndAccount.server;
   subscribeServer(server);
 
@@ -146,8 +162,9 @@ function setupProtocolTest(port, newsUrl, incomingServer) {
   }
 
   var newsServer = incomingServer;
-  if (!newsServer)
+  if (!newsServer) {
     newsServer = setupLocalServer(port);
+  }
 
   var listener = {
     onStartRequest() {},
@@ -169,8 +186,9 @@ function create_post(baseURL, file) {
   var url = Services.io.newURI(baseURL);
   url.QueryInterface(Ci.nsINntpUrl);
 
-  var post = Cc["@mozilla.org/messenger/nntpnewsgrouppost;1"]
-               .createInstance(Ci.nsINNTPNewsgroupPost);
+  var post = Cc["@mozilla.org/messenger/nntpnewsgrouppost;1"].createInstance(
+    Ci.nsINNTPNewsgroupPost
+  );
   post.postMessageFile = do_get_file(file);
   url.messageToPost = post;
   return url;
@@ -179,8 +197,9 @@ function create_post(baseURL, file) {
 function resetFolder(folder) {
   var headerEnum = folder.messages;
   var headers = [];
-  while (headerEnum.hasMoreElements())
+  while (headerEnum.hasMoreElements()) {
     headers.push(headerEnum.getNext().QueryInterface(Ci.nsIMsgDBHdr));
+  }
 
   var db = folder.msgDatabase;
   db.dBFolderInfo.knownArtsSet = "";
@@ -195,18 +214,21 @@ function do_check_transaction(real, expected) {
   // real.them may have an extra QUIT on the end, where the stream is only
   // closed after we have a chance to process it and not them. We therefore
   // excise this from the list
-  if (real.them[real.them.length - 1] == "QUIT")
+  if (real.them[real.them.length - 1] == "QUIT") {
     real.them.pop();
+  }
 
   Assert.equal(real.them.join(","), expected.join(","));
   dump("Passed test " + test + "\n");
 }
 
 function make_article(file) {
-  var fstream = Cc["@mozilla.org/network/file-input-stream;1"]
-                  .createInstance(Ci.nsIFileInputStream);
-  var sstream = Cc["@mozilla.org/scriptableinputstream;1"]
-                  .createInstance(Ci.nsIScriptableInputStream);
+  var fstream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
+    Ci.nsIFileInputStream
+  );
+  var sstream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+    Ci.nsIScriptableInputStream
+  );
   fstream.init(file, -1, 0, 0);
   sstream.init(fstream);
 
@@ -224,12 +246,13 @@ var articleTextListener = {
   data: "",
   finished: false,
 
-  QueryInterface:
-    ChromeUtils.generateQI([Ci.nsIStreamListener, Ci.nsIRequestObserver]),
+  QueryInterface: ChromeUtils.generateQI([
+    Ci.nsIStreamListener,
+    Ci.nsIRequestObserver,
+  ]),
 
   // nsIRequestObserver
-  onStartRequest(aRequest) {
-  },
+  onStartRequest(aRequest) {},
   onStopRequest(aRequest, aStatusCode) {
     Assert.equal(aStatusCode, 0);
 
@@ -241,8 +264,9 @@ var articleTextListener = {
 
   // nsIStreamListener
   onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
-    let scriptStream = Cc["@mozilla.org/scriptableinputstream;1"]
-                         .createInstance(Ci.nsIScriptableInputStream);
+    let scriptStream = Cc[
+      "@mozilla.org/scriptableinputstream;1"
+    ].createInstance(Ci.nsIScriptableInputStream);
 
     scriptStream.init(aInputStream);
 
@@ -253,4 +277,3 @@ var articleTextListener = {
 registerCleanupFunction(function() {
   load("../../../resources/mailShutdown.js");
 });
-

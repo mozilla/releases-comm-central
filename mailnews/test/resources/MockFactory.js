@@ -4,7 +4,9 @@
 
 this.EXPORTED_SYMBOLS = ["MockFactory"];
 
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
 var Cm = Components.manager;
 
@@ -24,23 +26,25 @@ var MockFactory = {
    */
   register(contractID, mock, args) {
     let uuid = Cc["@mozilla.org/uuid-generator;1"]
-                 .getService(Ci.nsIUUIDGenerator)
-                 .generateUUID()
-                 .toString();
+      .getService(Ci.nsIUUIDGenerator)
+      .generateUUID()
+      .toString();
 
     let originalCID = Cm.nsIComponentRegistrar.contractIDToCID(contractID);
     let originalFactory = Cm.getClassObject(Cc[contractID], Ci.nsIFactory);
 
     let factory = {
       createInstance(outer, iid) {
-        if (outer)
+        if (outer) {
           do_throw(Cr.NS_ERROR_NO_AGGREGATION);
+        }
 
         let wrappedMock;
-        if (mock.prototype && mock.prototype.constructor)
-          wrappedMock = new (mock.bind(null, args));
-        else
+        if (mock.prototype && mock.prototype.constructor) {
+          wrappedMock = new (mock.bind(null, args))();
+        } else {
           wrappedMock = mock;
+        }
 
         /*
          * Some interfaces fail to be created an instance since
@@ -59,10 +63,12 @@ var MockFactory = {
       QueryInterface: ChromeUtils.generateQI([Ci.nsIFactory]),
     };
 
-    Cm.QueryInterface(Ci.nsIComponentRegistrar)
-      .registerFactory(Components.ID(uuid),
-                       "A Mock for " + contractID,
-                       contractID, factory);
+    Cm.QueryInterface(Ci.nsIComponentRegistrar).registerFactory(
+      Components.ID(uuid),
+      "A Mock for " + contractID,
+      contractID,
+      factory
+    );
 
     this._registeredComponents[uuid] = {
       contractID,
@@ -79,21 +85,27 @@ var MockFactory = {
    * @param uuid The UUID of the mock.
    */
   unregister(uuid) {
-    if (!this._registeredComponents[uuid])
+    if (!this._registeredComponents[uuid]) {
       return;
+    }
 
-    Cm.QueryInterface(Ci.nsIComponentRegistrar)
-      .unregisterFactory(Components.ID(uuid),
-                         this._registeredComponents[uuid].factory);
-    Cm.QueryInterface(Ci.nsIComponentRegistrar)
-      .registerFactory(this._registeredComponents[uuid].originalCID, "",
-                       this._registeredComponents[uuid].contractID, null);
+    Cm.QueryInterface(Ci.nsIComponentRegistrar).unregisterFactory(
+      Components.ID(uuid),
+      this._registeredComponents[uuid].factory
+    );
+    Cm.QueryInterface(Ci.nsIComponentRegistrar).registerFactory(
+      this._registeredComponents[uuid].originalCID,
+      "",
+      this._registeredComponents[uuid].contractID,
+      null
+    );
 
     delete this._registeredComponents[uuid];
   },
 
   unregisterAll() {
-    for (let uuid in this._registeredComponents)
+    for (let uuid in this._registeredComponents) {
       this.unregister(uuid);
+    }
   },
 };

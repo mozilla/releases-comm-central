@@ -5,7 +5,7 @@
 // service class to manipulate the junk training.dat file
 //  code is adapted from Mnehy Thunderbird Extension
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /* exported TrainingData */
 function TrainingData() {
@@ -30,7 +30,11 @@ function TrainingData() {
 
   function getJunkStatFile() {
     var sBaseDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
-    var CFileByFile = new CC("@mozilla.org/file/local;1", "nsIFile", "initWithFile");
+    var CFileByFile = new CC(
+      "@mozilla.org/file/local;1",
+      "nsIFile",
+      "initWithFile"
+    );
     var oFile = new CFileByFile(sBaseDir);
     oFile.append("training.dat");
     return oFile;
@@ -40,20 +44,24 @@ function TrainingData() {
     if (oFile && oFile.exists()) {
       var oUri = Services.io.newFileURI(oFile);
       // open stream (channel)
-      let channel = Services.io.newChannelFromURI(oUri,
-                                                  null,
-                                                  Services.scriptSecurityManager.getSystemPrincipal(),
-                                                  null,
-                                                  Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                  Ci.nsIContentPolicy.TYPE_OTHER);
+      let channel = Services.io.newChannelFromURI(
+        oUri,
+        null,
+        Services.scriptSecurityManager.getSystemPrincipal(),
+        null,
+        Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+        Ci.nsIContentPolicy.TYPE_OTHER
+      );
       var oStream = channel.open();
       // buffer it
-      var oBufStream = Cc["@mozilla.org/network/buffered-input-stream;1"].
-        createInstance(Ci.nsIBufferedInputStream);
+      var oBufStream = Cc[
+        "@mozilla.org/network/buffered-input-stream;1"
+      ].createInstance(Ci.nsIBufferedInputStream);
       oBufStream.init(oStream, oFile.fileSize);
       // read as binary
-      var oBinStream = Cc["@mozilla.org/binaryinputstream;1"].
-        createInstance(Ci.nsIBinaryInputStream);
+      var oBinStream = Cc["@mozilla.org/binaryinputstream;1"].createInstance(
+        Ci.nsIBinaryInputStream
+      );
       oBinStream.setInputStream(oBufStream);
       // return it
       return oBinStream;
@@ -73,7 +81,7 @@ function TrainingData() {
 
     // check magic number
     var iMagicNumber = fileStream.read32();
-    Assert.equal(iMagicNumber, 0xFEEDFACE);
+    Assert.equal(iMagicNumber, 0xfeedface);
 
     // get ham'n'spam numbers
     this.mGoodMessages = fileStream.read32();
@@ -83,18 +91,19 @@ function TrainingData() {
     this.mGoodTokens = fileStream.read32();
     var iRefCount, iTokenLen, sToken;
     for (let i = 0; i < this.mGoodTokens; ++i) {
-      iRefCount  = fileStream.read32();
-      iTokenLen  = fileStream.read32();
-      sToken     = fileStream.readBytes(iTokenLen);
+      iRefCount = fileStream.read32();
+      iTokenLen = fileStream.read32();
+      sToken = fileStream.readBytes(iTokenLen);
       this.mGoodCounts[sToken] = iRefCount;
     }
 
     // we have no further good tokens, so read junk tokens
     this.mJunkTokens = fileStream.read32();
-    for (let i = 0; i < this.mJunkTokens; i++) { // read token data
-      iRefCount  = fileStream.read32();
-      iTokenLen  = fileStream.read32();
-      sToken     = fileStream.readBytes(iTokenLen);
+    for (let i = 0; i < this.mJunkTokens; i++) {
+      // read token data
+      iRefCount = fileStream.read32();
+      iTokenLen = fileStream.read32();
+      sToken = fileStream.readBytes(iTokenLen);
       this.mJunkCounts[sToken] = iRefCount;
     }
   }

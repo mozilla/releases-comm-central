@@ -8,19 +8,34 @@
 load("../../../resources/alertTestUtils.js");
 load("../../../resources/passwordStorage.js");
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
-var gNewPassword = null;
+var gNewPassword = null; // for alertTestUtils.js
 
-/* exported confirmEx, promptPasswordPS */// for alertTestUtils.js
-function confirmEx(aDialogTitle, aText, aButtonFlags, aButton0Title,
-                   aButton1Title, aButton2Title, aCheckMsg, aCheckState) {
+/* exported confirmEx, promptPasswordPS */ function confirmEx(
+  aDialogTitle,
+  aText,
+  aButtonFlags,
+  aButton0Title,
+  aButton1Title,
+  aButton2Title,
+  aCheckMsg,
+  aCheckState
+) {
   // Just return 2 which will is pressing button 2 - enter a new password.
   return 2;
 }
 
-function promptPasswordPS(aParent, aDialogTitle, aText, aPassword,
-                          aCheckMsg, aCheckState) {
+function promptPasswordPS(
+  aParent,
+  aDialogTitle,
+  aText,
+  aPassword,
+  aCheckMsg,
+  aCheckState
+) {
   aPassword.value = gNewPassword;
   return true;
 }
@@ -46,7 +61,7 @@ add_task(async function() {
     handler.kUsername = kUsername;
     handler.kPassword = kPasswordWrong;
     handler.kAuthRequired = true;
-    handler.kAuthSchemes = [ "PLAIN", "LOGIN" ]; // make match expected transaction below
+    handler.kAuthSchemes = ["PLAIN", "LOGIN"]; // make match expected transaction below
     return handler;
   }
 
@@ -77,9 +92,19 @@ add_task(async function() {
     smtpServer.socketType = Ci.nsMsgSocketType.plain;
     smtpServer.username = kUsername;
 
-    MailServices.smtp.sendMailMessage(testFile, kTo, identity, kSender,
-                                      null, null, null, null,
-                                      false, {}, {});
+    MailServices.smtp.sendMailMessage(
+      testFile,
+      kTo,
+      identity,
+      kSender,
+      null,
+      null,
+      null,
+      null,
+      false,
+      {},
+      {}
+    );
 
     // Set the new password for when we get a prompt
     gNewPassword = kPasswordWrong;
@@ -87,20 +112,23 @@ add_task(async function() {
     server.performTest();
 
     var transaction = server.playTransaction();
-    do_check_transaction(transaction, ["EHLO test",
-                                       "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kPasswordSaved),
-                                       "AUTH LOGIN",
-                                       "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kPasswordWrong),
-                                       "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=159",
-                                       "RCPT TO:<" + kTo + ">",
-                                       "DATA"]);
+    do_check_transaction(transaction, [
+      "EHLO test",
+      "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kPasswordSaved),
+      "AUTH LOGIN",
+      "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kPasswordWrong),
+      "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=159",
+      "RCPT TO:<" + kTo + ">",
+      "DATA",
+    ]);
   } catch (e) {
     do_throw(e);
   } finally {
     server.stop();
 
     var thread = gThreadManager.currentThread;
-    while (thread.hasPendingEvents())
+    while (thread.hasPendingEvents()) {
       thread.processNextEvent(true);
+    }
   }
 });

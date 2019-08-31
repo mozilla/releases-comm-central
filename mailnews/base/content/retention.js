@@ -4,27 +4,40 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals gLockedPref */// From either folderProps.js or am-offline.js.
+/* globals gLockedPref */ // From either folderProps.js or am-offline.js.
 
 function initCommonRetentionSettings(retentionSettings) {
-  document.getElementById("retention.keepMsg").value = retentionSettings.retainByPreference;
+  document.getElementById("retention.keepMsg").value =
+    retentionSettings.retainByPreference;
   document.getElementById("retention.keepOldMsgMin").value =
-    (retentionSettings.daysToKeepHdrs > 0) ? retentionSettings.daysToKeepHdrs : 30;
+    retentionSettings.daysToKeepHdrs > 0
+      ? retentionSettings.daysToKeepHdrs
+      : 30;
   document.getElementById("retention.keepNewMsgMin").value =
-    (retentionSettings.numHeadersToKeep > 0) ? retentionSettings.numHeadersToKeep : 2000;
+    retentionSettings.numHeadersToKeep > 0
+      ? retentionSettings.numHeadersToKeep
+      : 2000;
 
-  document.getElementById("retention.applyToFlagged").checked =
-    !retentionSettings.applyToFlaggedMessages;
+  document.getElementById(
+    "retention.applyToFlagged"
+  ).checked = !retentionSettings.applyToFlaggedMessages;
 }
 
 function saveCommonRetentionSettings(aRetentionSettings) {
-  aRetentionSettings.retainByPreference = document.getElementById("retention.keepMsg").value;
+  aRetentionSettings.retainByPreference = document.getElementById(
+    "retention.keepMsg"
+  ).value;
 
-  aRetentionSettings.daysToKeepHdrs = document.getElementById("retention.keepOldMsgMin").value;
-  aRetentionSettings.numHeadersToKeep = document.getElementById("retention.keepNewMsgMin").value;
+  aRetentionSettings.daysToKeepHdrs = document.getElementById(
+    "retention.keepOldMsgMin"
+  ).value;
+  aRetentionSettings.numHeadersToKeep = document.getElementById(
+    "retention.keepNewMsgMin"
+  ).value;
 
-  aRetentionSettings.applyToFlaggedMessages =
-    !document.getElementById("retention.applyToFlagged").checked;
+  aRetentionSettings.applyToFlaggedMessages = !document.getElementById(
+    "retention.applyToFlagged"
+  ).checked;
 
   return aRetentionSettings;
 }

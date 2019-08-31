@@ -7,13 +7,19 @@
 
 /* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/POP3pump.js");
-const {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
+const { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
-var testSubjects = ["[Bug 397009] A filter will let me tag, but not untag",
-                    "Hello, did you receive my bugmail?"];
+var testSubjects = [
+  "[Bug 397009] A filter will let me tag, but not untag",
+  "Hello, did you receive my bugmail?",
+];
 
-Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
-                           "@mozilla.org/msgstore/maildirstore;1");
+Services.prefs.setCharPref(
+  "mail.serverDefaultStoreContractID",
+  "@mozilla.org/msgstore/maildirstore;1"
+);
 
 add_task(async function runPump() {
   // Test for multiple message copy for maildir.
@@ -25,14 +31,13 @@ add_task(async function runPump() {
   // We want to test cross-server copy, so don't defer.
   gPOP3Pump.fakeServer.deferredToAccount = "";
 
-  gPOP3Pump.files = ["../../../data/bugmail1",
-                     "../../../data/draft1"];
+  gPOP3Pump.files = ["../../../data/bugmail1", "../../../data/draft1"];
   await gPOP3Pump.run();
 
   // get message headers for the inbox folder
-  let inbox = gPOP3Pump.fakeServer
-                       .rootMsgFolder
-                       .getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
+  let inbox = gPOP3Pump.fakeServer.rootMsgFolder.getFolderWithFlags(
+    Ci.nsMsgFolderFlags.Inbox
+  );
   dump("inbox is at " + inbox.filePath.path + "\n");
 
   // Accumulate messages to copy.
@@ -49,14 +54,21 @@ add_task(async function runPump() {
 
   // Create a test folder on the Local Folders account.
   let testFolder = localAccountUtils.rootFolder
-                                    .QueryInterface(Ci.nsIMsgLocalMailFolder)
-                                    .createLocalSubfolder("test");
+    .QueryInterface(Ci.nsIMsgLocalMailFolder)
+    .createLocalSubfolder("test");
   dump("testFolder is at " + testFolder.filePath.path + "\n");
 
   // Copy messages to that folder.
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
-  MailServices.copy.CopyMessages(inbox, messages, testFolder, false,
-                                 promiseCopyListener, null, false);
+  MailServices.copy.CopyMessages(
+    inbox,
+    messages,
+    testFolder,
+    false,
+    promiseCopyListener,
+    null,
+    false
+  );
   await promiseCopyListener.promise;
 
   // Check the destination headers.

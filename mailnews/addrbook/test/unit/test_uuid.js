@@ -13,8 +13,9 @@ function check_directory(directory) {
 
   var testModification = !directory.readOnly;
   dump("Testing " + prefId);
-  if (testModification)
+  if (testModification) {
     dump(" (with modifications)");
+  }
   dump("...\n");
 
   // Question 1: Is the UUID the preference ID?
@@ -22,7 +23,8 @@ function check_directory(directory) {
 
   // Now we need to run through the cards, checking that each card meets the
   // requirements.
-  var seenIds = [], cards = [];
+  var seenIds = [],
+    cards = [];
   var enumerator = directory.childCards;
   while (enumerator.hasMoreElements()) {
     let card = enumerator.getNext().QueryInterface(Ci.nsIAbCard);
@@ -60,12 +62,14 @@ function check_directory(directory) {
   }
 
   // The remaining tests deal with modification of address books.
-  if (!testModification)
+  if (!testModification) {
     return;
+  }
 
   // Question 4: Does adding a new card properly set the UUID?
-  var newCard = Cc["@mozilla.org/addressbook/cardproperty;1"]
-                  .createInstance(Ci.nsIAbCard);
+  var newCard = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+    Ci.nsIAbCard
+  );
   newCard.displayName = "Test User";
   newCard.primaryEmail = "user1@test.invalid";
   newCard.firstName = "Test";
@@ -103,8 +107,9 @@ function run_test() {
   loadABFile("data/cardForEmail", kPABData.fileName);
 
   // Step 1: What is the ID of an empty card?
-  var newCard = Cc["@mozilla.org/addressbook/cardproperty;1"]
-                  .createInstance(Ci.nsIAbCard);
+  var newCard = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+    Ci.nsIAbCard
+  );
   Assert.equal(newCard.uuid, "");
   Assert.equal(newCard.directoryId, "");
   Assert.equal(newCard.localId, "");

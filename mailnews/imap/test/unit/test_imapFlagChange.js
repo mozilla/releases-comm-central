@@ -19,8 +19,9 @@ var tests = [
   setup,
   function* switchAwayFromInbox() {
     let rootFolder = IMAPPump.incomingServer.rootFolder;
-    gSecondFolder =  rootFolder.getChildNamed("secondFolder")
-                           .QueryInterface(Ci.nsIMsgImapMailFolder);
+    gSecondFolder = rootFolder
+      .getChildNamed("secondFolder")
+      .QueryInterface(Ci.nsIMsgImapMailFolder);
 
     // Selecting the second folder will close the cached connection
     // on the inbox because fake server only supports one connection at a time.
@@ -37,9 +38,13 @@ var tests = [
     yield false;
   },
   function* checkForwardedFlagSet() {
-    let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gSynthMessage.messageId);
-    Assert.equal(msgHdr.flags & Ci.nsMsgMessageFlags.Forwarded,
-      Ci.nsMsgMessageFlags.Forwarded);
+    let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
+      gSynthMessage.messageId
+    );
+    Assert.equal(
+      msgHdr.flags & Ci.nsMsgMessageFlags.Forwarded,
+      Ci.nsMsgMessageFlags.Forwarded
+    );
     gSecondFolder.updateFolderWithListener(null, asyncUrlListener);
     yield false;
   },
@@ -49,7 +54,9 @@ var tests = [
     yield false;
   },
   function* checkForwardedFlagCleared() {
-    let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gSynthMessage.messageId);
+    let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
+      gSynthMessage.messageId
+    );
     Assert.equal(msgHdr.flags & Ci.nsMsgMessageFlags.Forwarded, 0);
     gSecondFolder.updateFolderWithListener(null, asyncUrlListener);
     yield false;
@@ -60,9 +67,13 @@ var tests = [
     yield false;
   },
   function* checkSeenFlagSet() {
-    let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gSynthMessage.messageId);
-    Assert.equal(msgHdr.flags & Ci.nsMsgMessageFlags.Read,
-                 Ci.nsMsgMessageFlags.Read);
+    let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
+      gSynthMessage.messageId
+    );
+    Assert.equal(
+      msgHdr.flags & Ci.nsMsgMessageFlags.Read,
+      Ci.nsMsgMessageFlags.Read
+    );
     gSecondFolder.updateFolderWithListener(null, asyncUrlListener);
     yield false;
   },
@@ -72,9 +83,13 @@ var tests = [
     yield false;
   },
   function* checkRepliedFlagSet() {
-    let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gSynthMessage.messageId);
-    Assert.equal(msgHdr.flags & Ci.nsMsgMessageFlags.Replied,
-      Ci.nsMsgMessageFlags.Replied);
+    let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
+      gSynthMessage.messageId
+    );
+    Assert.equal(
+      msgHdr.flags & Ci.nsMsgMessageFlags.Replied,
+      Ci.nsMsgMessageFlags.Replied
+    );
     gSecondFolder.updateFolderWithListener(null, asyncUrlListener);
     yield false;
   },
@@ -84,7 +99,9 @@ var tests = [
     yield false;
   },
   function* checkTagSet() {
-    let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gSynthMessage.messageId);
+    let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
+      gSynthMessage.messageId
+    );
     let keywords = msgHdr.getStringProperty("keywords");
     Assert.ok(keywords.includes("randomtag"));
     gSecondFolder.updateFolderWithListener(null, asyncUrlListener);
@@ -96,7 +113,9 @@ var tests = [
     yield false;
   },
   function checkTagCleared() {
-    let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gSynthMessage.messageId);
+    let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
+      gSynthMessage.messageId
+    );
     let keywords = msgHdr.getStringProperty("keywords");
     Assert.ok(!keywords.includes("randomtag"));
   },
@@ -104,11 +123,14 @@ var tests = [
 ];
 
 function* setup() {
-  Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
+  Services.prefs.setBoolPref(
+    "mail.server.default.autosync_offline_stores",
+    false
+  );
 
   setupIMAPPump();
 
-  IMAPPump.daemon.createMailbox("secondFolder", {subscribed: true});
+  IMAPPump.daemon.createMailbox("secondFolder", { subscribed: true });
 
   // build up a diverse list of messages
   let messages = [];
@@ -116,9 +138,9 @@ function* setup() {
   messages = messages.concat(gMessageGenerator.makeMessage());
   gSynthMessage = messages[0];
 
-  let msgURI =
-    Services.io.newURI("data:text/plain;base64," +
-                       btoa(gSynthMessage.toMessageString()));
+  let msgURI = Services.io.newURI(
+    "data:text/plain;base64," + btoa(gSynthMessage.toMessageString())
+  );
   gMessage = new imapMessage(msgURI.spec, IMAPPump.mailbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(gMessage);
 

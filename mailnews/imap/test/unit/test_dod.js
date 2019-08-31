@@ -7,20 +7,17 @@
  * See current test files for examples.
  */
 
- // async support
+// async support
 /* import-globals-from ../../../test/resources/logHelper.js */
 /* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gServer, gIMAPIncomingServer, gIMAPDaemon;
 
-var tests = [
-  streamMessages,
-  endTest,
-];
+var tests = [streamMessages, endTest];
 
 function run_test() {
   gIMAPDaemon = new imapDaemon();
@@ -40,7 +37,10 @@ function run_test() {
   Services.prefs.setIntPref("mail.imap.mime_parts_on_demand_threshold", 1);
   Services.prefs.setIntPref("mailnews.display.disallow_mime_handlers", 0);
   Services.prefs.setBoolPref("mail.server.default.fetch_by_chunks", false);
-  Services.prefs.setBoolPref("mail.server.server1.autosync_offline_stores", false);
+  Services.prefs.setBoolPref(
+    "mail.server.server1.autosync_offline_stores",
+    false
+  );
 
   gServer = makeServer(gIMAPDaemon, "");
   gIMAPIncomingServer = createLocalIMAPServer(gServer.port);
@@ -51,14 +51,14 @@ function run_test() {
 
 function* streamMessages() {
   let inbox = gIMAPDaemon.getMailbox("INBOX");
-  let imapS = Cc["@mozilla.org/messenger/messageservice;1?type=imap"]
-                .getService(Ci.nsIMsgMessageService);
+  let imapS = Cc[
+    "@mozilla.org/messenger/messageservice;1?type=imap"
+  ].getService(Ci.nsIMsgMessageService);
   let fileNames = [];
   let msgFiles = do_get_file("../../../data/").directoryEntries;
   while (msgFiles.hasMoreElements()) {
     let file = msgFiles.nextFile;
-    let msgfileuri =
-      Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
+    let msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
     if (msgfileuri.fileName.toLowerCase().startsWith("bodystructure")) {
       inbox.addMessage(new imapMessage(msgfileuri.spec, inbox.uidnext++, []));
       fileNames.push(msgfileuri.fileName);
@@ -73,28 +73,40 @@ function* streamMessages() {
     Services.prefs.setIntPref("mailnews.display.html_as", isPlain ? 1 : 0);
     Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", isPlain);
     let marker;
-    if (isPlain)
+    if (isPlain) {
       marker = "thisplaintextneedstodisplaytopasstest";
-    else
+    } else {
       marker = "thishtmltextneedstodisplaytopasstest";
+    }
 
     for (let i = 1; i < inbox.uidnext; i++) {
       let uri = {};
       imapS.GetUrlForUri("imap-message://user@localhost/INBOX#" + i, uri, null);
-      let channel = Services.io.newChannelFromURI(uri.value,
-                                                  null,
-                                                  Services.scriptSecurityManager.getSystemPrincipal(),
-                                                  null,
-                                                  Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                  Ci.nsIContentPolicy.TYPE_OTHER);
+      let channel = Services.io.newChannelFromURI(
+        uri.value,
+        null,
+        Services.scriptSecurityManager.getSystemPrincipal(),
+        null,
+        Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+        Ci.nsIContentPolicy.TYPE_OTHER
+      );
       channel.asyncOpen(gStreamListener, null);
       yield false;
       let buf = gStreamListener._data;
-      dump("##########\nTesting--->" + fileNames[i - 1] +
-           "; 'prefer plain text': " + isPlain + "\n" +
-           buf + "\n" +
-           "##########\nTesting--->" + fileNames[i - 1] +
-           "; 'prefer plain text': " + isPlain + "\n");
+      dump(
+        "##########\nTesting--->" +
+          fileNames[i - 1] +
+          "; 'prefer plain text': " +
+          isPlain +
+          "\n" +
+          buf +
+          "\n" +
+          "##########\nTesting--->" +
+          fileNames[i - 1] +
+          "; 'prefer plain text': " +
+          isPlain +
+          "\n"
+      );
       try {
         Assert.ok(buf.includes(marker));
       } catch (e) {}
@@ -116,7 +128,9 @@ var gStreamListener = {
   },
   onDataAvailable(aRequest, aInputStream, aOff, aCount) {
     if (this._stream == null) {
-      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(Ci.nsIScriptableInputStream);
+      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+        Ci.nsIScriptableInputStream
+      );
       this._stream.init(aInputStream);
     }
     this._data += this._stream.read(aCount);
@@ -127,8 +141,8 @@ function* endTest() {
   gIMAPIncomingServer.closeCachedConnections();
   gServer.stop();
   let thread = Services.tm.currentThread;
-  while (thread.hasPendingEvents())
+  while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
+  }
   yield true;
 }
-

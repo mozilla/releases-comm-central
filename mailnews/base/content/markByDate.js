@@ -5,8 +5,8 @@
 
 /* import-globals-from dateFormat.js */
 
-var MILLISECONDS_PER_HOUR   = 60 * 60 * 1000;
-var MICROSECONDS_PER_DAY    = 1000 * MILLISECONDS_PER_HOUR * 24;
+var MILLISECONDS_PER_HOUR = 60 * 60 * 1000;
+var MICROSECONDS_PER_DAY = 1000 * MILLISECONDS_PER_HOUR * 24;
 
 document.addEventListener("dialogaccept", onAccept);
 
@@ -20,10 +20,10 @@ function onLoad() {
   var initialDate = new Date();
   initialDate.setHours(0);
   initialDate.setTime(initialDate.getTime() - MILLISECONDS_PER_HOUR);
-    // note that this is sufficient - though it is at the end of the previous day,
-    // we convert it to a date string, and then the time part is truncated
+  // note that this is sufficient - though it is at the end of the previous day,
+  // we convert it to a date string, and then the time part is truncated
   upperDateBox.value = convertDateToString(initialDate);
-  upperDateBox.select();  // allows to start overwriting immediately
+  upperDateBox.select(); // allows to start overwriting immediately
 }
 
 function onAccept() {
@@ -82,8 +82,12 @@ function markInDatabase(lower, upper) {
 
   // the headers which are going to be marked
   var headers = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  var searchSession = Cc["@mozilla.org/messenger/searchSession;1"].createInstance(Ci.nsIMsgSearchSession);
-  var searchTerms = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+  var searchSession = Cc[
+    "@mozilla.org/messenger/searchSession;1"
+  ].createInstance(Ci.nsIMsgSearchSession);
+  var searchTerms = Cc["@mozilla.org/array;1"].createInstance(
+    Ci.nsIMutableArray
+  );
   searchSession.addScopeTerm(Ci.nsMsgSearchScope.offlineMail, messageFolder);
 
   const nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
@@ -116,11 +120,17 @@ function markInDatabase(lower, upper) {
     var keepGoing;
     var numMatches = {};
     do {
-      keepGoing = messageDatabase.nextMatchingHdrs(filterEnumerator, 0, 0, headers, numMatches);
-    }
-    while (keepGoing);
+      keepGoing = messageDatabase.nextMatchingHdrs(
+        filterEnumerator,
+        0,
+        0,
+        headers,
+        numMatches
+      );
+    } while (keepGoing);
   }
 
-  if (headers.length)
+  if (headers.length) {
     messageFolder.markMessagesRead(headers, true);
+  }
 }

@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var ts = Cc["@mozilla.org/msg-trait-service;1"]
-             .getService(Ci.nsIMsgTraitService);
+var ts = Cc["@mozilla.org/msg-trait-service;1"].getService(
+  Ci.nsIMsgTraitService
+);
 
 // junk-related traits set by default
 var kJunkId = "mailnews@mozilla.org#junk";
@@ -21,13 +22,21 @@ function run_test() {
   Assert.equal(ts.lastIndex, 1000);
 
   // basic junk as traits should be setup automatically
-  Assert.equal(kGoodId,
-               Services.prefs.getCharPref("mailnews.traits.id." + kGoodIndex));
-  Assert.equal(kJunkId,
-               Services.prefs.getCharPref("mailnews.traits.id." + kJunkIndex));
-  Assert.equal(kGoodId,
-               Services.prefs.getCharPref("mailnews.traits.antiId." + kJunkIndex));
-  Assert.ok(Services.prefs.getBoolPref("mailnews.traits.enabled." + kJunkIndex));
+  Assert.equal(
+    kGoodId,
+    Services.prefs.getCharPref("mailnews.traits.id." + kGoodIndex)
+  );
+  Assert.equal(
+    kJunkId,
+    Services.prefs.getCharPref("mailnews.traits.id." + kJunkIndex)
+  );
+  Assert.equal(
+    kGoodId,
+    Services.prefs.getCharPref("mailnews.traits.antiId." + kJunkIndex)
+  );
+  Assert.ok(
+    Services.prefs.getBoolPref("mailnews.traits.enabled." + kJunkIndex)
+  );
 
   // add the pro and anti test traits
   Assert.ok(!ts.isRegistered(proId));
@@ -81,13 +90,19 @@ function run_test() {
   Assert.equal(aliases[1], 601);
 
   // now let's make sure this got saved in preferences
-  Assert.equal(proId,
-               Services.prefs.getCharPref("mailnews.traits.id." + proIndex));
-  Assert.equal(proName,
-               Services.prefs.getCharPref("mailnews.traits.name." + proIndex));
+  Assert.equal(
+    proId,
+    Services.prefs.getCharPref("mailnews.traits.id." + proIndex)
+  );
+  Assert.equal(
+    proName,
+    Services.prefs.getCharPref("mailnews.traits.name." + proIndex)
+  );
   Assert.ok(Services.prefs.getBoolPref("mailnews.traits.enabled." + proIndex));
-  Assert.equal(antiId,
-               Services.prefs.getCharPref("mailnews.traits.antiId." + proIndex));
+  Assert.equal(
+    antiId,
+    Services.prefs.getCharPref("mailnews.traits.antiId." + proIndex)
+  );
 
   // remove the pro trait
   ts.unRegisterTrait(proId);

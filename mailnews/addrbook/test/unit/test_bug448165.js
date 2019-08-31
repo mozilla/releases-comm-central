@@ -8,7 +8,9 @@ function run_test() {
   Assert.ok(pab instanceof Ci.nsIAbDirectory);
   try {
     pab.deleteCards(null); // this should throw an error
-    do_throw("Error, deleteCards should throw an error when null is passed to it");
+    do_throw(
+      "Error, deleteCards should throw an error when null is passed to it"
+    );
   } catch (e) {
     // make sure the correct error message was thrown
     Assert.equal(e.result, Cr.NS_ERROR_INVALID_POINTER);

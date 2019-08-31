@@ -19,7 +19,9 @@ function run_test() {
 function test_keywords(aMessageHeaderKeys, aStatus) {
   let headerKeys = aMessageHeaderKeys;
   Assert.notEqual(headerKeys, null);
-  let copiedMessage = localAccountUtils.inboxFolder.GetMessageHeader(headerKeys[0]);
+  let copiedMessage = localAccountUtils.inboxFolder.GetMessageHeader(
+    headerKeys[0]
+  );
   Assert.equal(copiedMessage.getStringProperty("keywords"), tag1);
   do_test_finished();
 }

@@ -11,7 +11,9 @@
  * - removeIncomingServer(..., true); (cleanup files) fails.
  */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 /* import-globals-from ../../../test/resources/alertTestUtils.js */
 load("../../../resources/alertTestUtils.js");
 
@@ -26,50 +28,61 @@ var tests = [
     clientAuthMethod: Ci.nsMsgAuthMethod.passwordCleartext,
     serverAuthMethods: [],
     expectSuccess: true,
-    transaction: [ "capability", "login", "lsub" ],
-  }, {
+    transaction: ["capability", "login", "lsub"],
+  },
+  {
     // Just to make sure we clean up properly - in the test and in TB, e.g. don't cache stuff
-    title: "Second time Cleartext password, with server only supporting old-style login",
+    title:
+      "Second time Cleartext password, with server only supporting old-style login",
     clientAuthMethod: Ci.nsMsgAuthMethod.passwordCleartext,
     serverAuthMethods: [],
     expectSuccess: true,
-    transaction: [ "capability", "login", "lsub" ],
-  }, {
-    title: "Cleartext password, with server supporting AUTH PLAIN, LOGIN and CRAM",
+    transaction: ["capability", "login", "lsub"],
+  },
+  {
+    title:
+      "Cleartext password, with server supporting AUTH PLAIN, LOGIN and CRAM",
     clientAuthMethod: Ci.nsMsgAuthMethod.passwordCleartext,
-    serverAuthMethods: [ "PLAIN", "LOGIN", "CRAM-MD5" ],
+    serverAuthMethods: ["PLAIN", "LOGIN", "CRAM-MD5"],
     expectSuccess: true,
-    transaction: [ "capability", "authenticate PLAIN", "lsub" ],
-  }, {
+    transaction: ["capability", "authenticate PLAIN", "lsub"],
+  },
+  {
     title: "Cleartext password, with server supporting only AUTH LOGIN",
     clientAuthMethod: Ci.nsMsgAuthMethod.passwordCleartext,
-    serverAuthMethods: [ "LOGIN" ],
+    serverAuthMethods: ["LOGIN"],
     expectSuccess: true,
-    transaction: [ "capability", "authenticate LOGIN", "lsub" ],
-  }, {
+    transaction: ["capability", "authenticate LOGIN", "lsub"],
+  },
+  {
     title: "Encrypted password, with server supporting PLAIN and CRAM",
     clientAuthMethod: Ci.nsMsgAuthMethod.passwordEncrypted,
-    serverAuthMethods: [ "PLAIN", "LOGIN", "CRAM-MD5" ],
+    serverAuthMethods: ["PLAIN", "LOGIN", "CRAM-MD5"],
     expectSuccess: true,
-    transaction: [ "capability", "authenticate CRAM-MD5", "lsub" ],
-  }, {
-    title: "Encrypted password, with server only supporting AUTH PLAIN and LOGIN (must fail)",
+    transaction: ["capability", "authenticate CRAM-MD5", "lsub"],
+  },
+  {
+    title:
+      "Encrypted password, with server only supporting AUTH PLAIN and LOGIN (must fail)",
     clientAuthMethod: Ci.nsMsgAuthMethod.passwordEncrypted,
-    serverAuthMethods: [ "PLAIN", "LOGIN" ],
+    serverAuthMethods: ["PLAIN", "LOGIN"],
     expectSuccess: false,
-    transaction: [ "capability" ],
-  }, {
+    transaction: ["capability"],
+  },
+  {
     title: "Any secure method, with server supporting AUTH PLAIN and CRAM",
     clientAuthMethod: Ci.nsMsgAuthMethod.secure,
-    serverAuthMethods: [ "PLAIN", "LOGIN", "CRAM-MD5" ],
+    serverAuthMethods: ["PLAIN", "LOGIN", "CRAM-MD5"],
     expectSuccess: true,
-    transaction: [ "capability", "authenticate CRAM-MD5", "lsub" ],
-  }, {
-    title: "Any secure method, with server only supporting AUTH PLAIN and LOGIN (must fail)",
+    transaction: ["capability", "authenticate CRAM-MD5", "lsub"],
+  },
+  {
+    title:
+      "Any secure method, with server only supporting AUTH PLAIN and LOGIN (must fail)",
     clientAuthMethod: Ci.nsMsgAuthMethod.secure,
-    serverAuthMethods: [ "PLAIN" ],
+    serverAuthMethods: ["PLAIN"],
     expectSuccess: false,
-    transaction: [ "capability" ],
+    transaction: ["capability"],
   },
 ];
 
@@ -77,8 +90,8 @@ function nextTest() {
   try {
     thisTest = tests.shift();
     if (!thisTest) {
-        endTest();
-        return;
+      endTest();
+      return;
     }
     /* doesn't work, hangs on first performTest(...)
     {
@@ -92,8 +105,9 @@ function nextTest() {
 
     // (re)create fake server
     var daemon = new imapDaemon();
-    var server = makeServer(daemon, "",
-      {kAuthSchemes: thisTest.serverAuthMethods});
+    var server = makeServer(daemon, "", {
+      kAuthSchemes: thisTest.serverAuthMethods,
+    });
     server.setDebugLevel(fsDebugAll);
 
     // If Mailnews ever caches server capabilities, delete and re-create the incomingServer here
@@ -136,12 +150,15 @@ function nextTest() {
 }
 
 function deleteIMAPServer(incomingServer) {
-  if (!incomingServer)
+  if (!incomingServer) {
     return;
+  }
   // MailServices.accounts.removeIncomingServer(incomingServer, false);  // TODO cleanup files = true fails
-  MailServices.accounts.removeAccount(MailServices.accounts.defaultAccount, true);
+  MailServices.accounts.removeAccount(
+    MailServices.accounts.defaultAccount,
+    true
+  );
 }
-
 
 function run_test() {
   do_test_pending();
@@ -153,8 +170,9 @@ function run_test() {
 
 function endTest() {
   var thread = gThreadManager.currentThread;
-  while (thread.hasPendingEvents())
+  while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
+  }
 
   do_test_finished();
 }

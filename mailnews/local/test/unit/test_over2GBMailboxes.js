@@ -6,8 +6,10 @@
 load("../../../resources/messageGenerator.js");
 var bugmail10 = do_get_file("../../../data/bugmail10");
 
-Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
-                           "@mozilla.org/msgstore/berkeleystore;1");
+Services.prefs.setCharPref(
+  "mail.serverDefaultStoreContractID",
+  "@mozilla.org/msgstore/berkeleystore;1"
+);
 
 var gLocalInboxSize;
 var gLocalTrashFolder;
@@ -25,8 +27,11 @@ function run_test() {
   let freeDiskSpace = inboxFile.diskSpaceAvailable;
   info("Free disk space = " + mailTestUtils.toMiBString(freeDiskSpace));
   if (freeDiskSpace < neededFreeSpace) {
-    info("This test needs " + mailTestUtils.toMiBString(neededFreeSpace) +
-         " free space to run. Aborting.");
+    info(
+      "This test needs " +
+        mailTestUtils.toMiBString(neededFreeSpace) +
+        " free space to run. Aborting."
+    );
     todo_check_true(false);
 
     endTest();
@@ -34,13 +39,14 @@ function run_test() {
   }
 
   // "Trash" folder
-  gLocalTrashFolder = localAccountUtils.incomingServer
-                                       .rootMsgFolder.getChildNamed("Trash");
+  gLocalTrashFolder = localAccountUtils.incomingServer.rootMsgFolder.getChildNamed(
+    "Trash"
+  );
 
   // Extend local folder to over 2 GiB.
   let outputStream = Cc["@mozilla.org/network/file-output-stream;1"]
-                       .createInstance(Ci.nsIFileOutputStream)
-                       .QueryInterface(Ci.nsISeekableStream);
+    .createInstance(Ci.nsIFileOutputStream)
+    .QueryInterface(Ci.nsISeekableStream);
   // Open in write-only mode, no truncate.
   outputStream.init(inboxFile, 0x02, -1, 0);
   // seek past 2GB.
@@ -51,8 +57,10 @@ function run_test() {
 
   // Save initial file size.
   gLocalInboxSize = localAccountUtils.inboxFolder.filePath.fileSize;
-  info("Local inbox size (before copyFileMessageInLocalFolder()) = " +
-       gLocalInboxSize);
+  info(
+    "Local inbox size (before copyFileMessageInLocalFolder()) = " +
+      gLocalInboxSize
+  );
 
   // Append mail data to over 2 GiB position for over 2 GiB msgkey.
   copyFileMessageInLocalFolder(bugmail10, 0, "", null, copyMessages);
@@ -75,16 +83,24 @@ function getMessageHdr() {
 function copyMessages() {
   // Make sure inbox file grew (i.e., we were not writing over data).
   let localInboxSize = localAccountUtils.inboxFolder.filePath.fileSize;
-  info("Local inbox size (after copyFileMessageInLocalFolder()) = " +
-       localInboxSize);
+  info(
+    "Local inbox size (after copyFileMessageInLocalFolder()) = " +
+      localInboxSize
+  );
   Assert.ok(localInboxSize > gLocalInboxSize);
 
   // Copy the message into the subfolder.
   let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   messages.appendElement(getMessageHdr());
-  MailServices.copy.CopyMessages(localAccountUtils.inboxFolder, messages,
-                                 gLocalTrashFolder,
-                                 false, copyListener2, null, false);
+  MailServices.copy.CopyMessages(
+    localAccountUtils.inboxFolder,
+    messages,
+    gLocalTrashFolder,
+    false,
+    copyListener2,
+    null,
+    false
+  );
 }
 
 var copyListener2 = {
@@ -100,7 +116,9 @@ var copyListener2 = {
 
 // streamMessage() test by over 2 GiB mail offset.
 function accessOver2GBMsg() {
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+    Ci.nsIMessenger
+  );
   let msghdr = getMessageHdr();
   let msgURI = msghdr.folder.getUriForMsg(msghdr);
   let msgServ = messenger.messageServiceFromURI(msgURI);
@@ -115,10 +133,12 @@ var gStreamListener = {
     this._data = "";
   },
   onStopRequest(aRequest, aStatusCode) {
-    let fstream = Cc["@mozilla.org/network/file-input-stream;1"]
-                    .createInstance(Ci.nsIFileInputStream);
-    let stream = Cc["@mozilla.org/scriptableinputstream;1"]
-                   .createInstance(Ci.nsIScriptableInputStream);
+    let fstream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
+      Ci.nsIFileInputStream
+    );
+    let stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+      Ci.nsIScriptableInputStream
+    );
 
     fstream.init(bugmail10, -1, 0, 0);
     stream.init(fstream);
@@ -129,7 +149,9 @@ var gStreamListener = {
   },
   onDataAvailable(aRequest, aInputStream, aOff, aCount) {
     if (this._stream == null) {
-      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(Ci.nsIScriptableInputStream);
+      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+        Ci.nsIScriptableInputStream
+      );
       this._stream.init(aInputStream);
     }
     this._data += this._stream.read(aCount);

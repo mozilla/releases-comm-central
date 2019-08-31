@@ -15,7 +15,10 @@ function check_correct_card(card) {
   Assert.equal(card.lastName, "LastName1");
   Assert.equal(card.displayName, "DisplayName1");
   Assert.equal(card.primaryEmail, "PrimaryEmail1@test.invalid");
-  Assert.equal(card.getProperty("SecondEmail", "BAD"), "SecondEmail1\u00D0@test.invalid");
+  Assert.equal(
+    card.getProperty("SecondEmail", "BAD"),
+    "SecondEmail1\u00D0@test.invalid"
+  );
 }
 
 function run_test() {
@@ -76,7 +79,7 @@ function run_test() {
 
   cards = AB.getCardsFromProperty("LastName", "Doe", true);
   var i = 0;
-  var data = [ "John", "Jane" ];
+  var data = ["John", "Jane"];
 
   while (cards.hasMoreElements()) {
     i++;

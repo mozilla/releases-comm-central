@@ -13,10 +13,11 @@ function onInit(aPageId, aServerId) {
   var defaultTitle = title.getAttribute("defaultTitle");
   var titleValue;
 
-  if (accountName.value)
+  if (accountName.value) {
     titleValue = defaultTitle + " - <" + accountName.value + ">";
-  else
+  } else {
     titleValue = defaultTitle;
+  }
 
   title.setAttribute("value", titleValue);
   document.title = titleValue;
@@ -34,8 +35,9 @@ function manageIdentities() {
   // UI. This ensures that the changes are reflected in the identity list dialog
   // onSave();
 
-  if (!gAccount)
+  if (!gAccount) {
     return;
+  }
 
   var accountName = document.getElementById("server.prettyName").value;
 
@@ -46,7 +48,12 @@ function manageIdentities() {
   var identity = gAccount.defaultIdentity;
   saveIdentitySettings(identity);
 
-  window.openDialog("am-identities-list.xul", "", "chrome,modal,resizable=no,centerscreen", args);
+  window.openDialog(
+    "am-identities-list.xul",
+    "",
+    "chrome,modal,resizable=no,centerscreen",
+    args
+  );
 
   if (args.result) {
     // now re-initialize the default identity settings in case they changed

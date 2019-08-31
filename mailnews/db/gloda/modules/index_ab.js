@@ -4,28 +4,40 @@
 
 this.EXPORTED_SYMBOLS = ["GlodaABIndexer", "GlodaABAttrs"];
 
-const {GlodaCollectionManager} = ChromeUtils.import("resource:///modules/gloda/collection.js");
-const {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
-const {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
-const {GlodaIndexer, IndexingJob} = ChromeUtils.import("resource:///modules/gloda/indexer.js");
-const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
-const {FreeTagNoun} = ChromeUtils.import("resource:///modules/gloda/noun_freetag.js");
-const {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-
+const { GlodaCollectionManager } = ChromeUtils.import(
+  "resource:///modules/gloda/collection.js"
+);
+const { GlodaDatastore } = ChromeUtils.import(
+  "resource:///modules/gloda/datastore.js"
+);
+const { Gloda } = ChromeUtils.import("resource:///modules/gloda/gloda.js");
+const { GlodaIndexer, IndexingJob } = ChromeUtils.import(
+  "resource:///modules/gloda/indexer.js"
+);
+const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const { FreeTagNoun } = ChromeUtils.import(
+  "resource:///modules/gloda/noun_freetag.js"
+);
+const { GlodaUtils } = ChromeUtils.import("resource:///modules/gloda/utils.js");
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var GlodaABIndexer = {
   _log: null,
 
   name: "index_ab",
   enable() {
-    if (this._log == null)
-      this._log =  Log4Moz.repository.getLogger("gloda.index_ab");
+    if (this._log == null) {
+      this._log = Log4Moz.repository.getLogger("gloda.index_ab");
+    }
 
-    MailServices.ab.addAddressBookListener(this,
-                                           Ci.nsIAbListener.itemAdded |
-                                           Ci.nsIAbListener.itemChanged |
-                                           Ci.nsIAbListener.directoryItemRemoved);
+    MailServices.ab.addAddressBookListener(
+      this,
+      Ci.nsIAbListener.itemAdded |
+        Ci.nsIAbListener.itemChanged |
+        Ci.nsIAbListener.directoryItemRemoved
+    );
   },
 
   disable() {
@@ -35,13 +47,16 @@ var GlodaABIndexer = {
   // it's a getter so we can reference 'this'
   get workers() {
     return [
-      ["ab-card", {
-         worker: this._worker_index_card,
-       }],
+      [
+        "ab-card",
+        {
+          worker: this._worker_index_card,
+        },
+      ],
     ];
   },
 
-  * _worker_index_card(aJob, aCallbackHandle) {
+  *_worker_index_card(aJob, aCallbackHandle) {
     let card = aJob.id;
 
     if (card.primaryEmail) {
@@ -60,8 +75,14 @@ var GlodaABIndexer = {
 
         this._log.debug("Found identity, processing card.");
         yield aCallbackHandle.pushAndGo(
-          Gloda.grokNounItem(identity.contact, {card}, false, false,
-                             aCallbackHandle));
+          Gloda.grokNounItem(
+            identity.contact,
+            { card },
+            false,
+            false,
+            aCallbackHandle
+          )
+        );
         this._log.debug("Done processing card.");
       }
     }
@@ -69,8 +90,7 @@ var GlodaABIndexer = {
     yield GlodaIndexer.kWorkDone;
   },
 
-  initialSweep() {
-  },
+  initialSweep() {},
 
   /* ------ nsIAbListener ------ */
   /**
@@ -78,28 +98,36 @@ var GlodaABIndexer = {
    *  object's cached idea of whether the identity has an ab card.
    */
   onItemAdded(aParentDir, aItem) {
-    if (!(aItem instanceof Ci.nsIAbCard))
+    if (!(aItem instanceof Ci.nsIAbCard)) {
       return;
+    }
 
     this._log.debug("Received Card Add Notification");
     let identity = GlodaCollectionManager.cacheLookupOneByUniqueValue(
-      Gloda.NOUN_IDENTITY, "email@" + aItem.primaryEmail.toLowerCase());
-    if (identity)
+      Gloda.NOUN_IDENTITY,
+      "email@" + aItem.primaryEmail.toLowerCase()
+    );
+    if (identity) {
       identity._hasAddressBookCard = true;
+    }
   },
   /**
    * When an address book card is added, update the cached GlodaIdentity
    *  object's cached idea of whether the identity has an ab card.
    */
   onItemRemoved(aParentDir, aItem) {
-    if (!(aItem instanceof Ci.nsIAbCard))
+    if (!(aItem instanceof Ci.nsIAbCard)) {
       return;
+    }
 
     this._log.debug("Received Card Removal Notification");
     let identity = GlodaCollectionManager.cacheLookupOneByUniqueValue(
-      Gloda.NOUN_IDENTITY, "email@" + aItem.primaryEmail.toLowerCase());
-    if (identity)
+      Gloda.NOUN_IDENTITY,
+      "email@" + aItem.primaryEmail.toLowerCase()
+    );
+    if (identity) {
       identity._hasAddressBookCard = false;
+    }
   },
   onItemPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {
     if (aProperty == null && aItem instanceof Ci.nsIAbCard) {
@@ -118,7 +146,7 @@ var GlodaABAttrs = {
   _log: null,
 
   init() {
-    this._log =  Log4Moz.repository.getLogger("gloda.abattrs");
+    this._log = Log4Moz.repository.getLogger("gloda.abattrs");
 
     try {
       this.defineAttributes();
@@ -141,7 +169,7 @@ var GlodaABAttrs = {
       storageAttributeName: "_identities",
       subjectNouns: [Gloda.NOUN_CONTACT],
       objectNoun: Gloda.NOUN_IDENTITY,
-      }); // tested-by: test_attributes_fundamental
+    }); // tested-by: test_attributes_fundamental
     this._attrContactName = Gloda.defineAttribute({
       provider: this,
       extensionName: Gloda.BUILT_IN,
@@ -153,7 +181,7 @@ var GlodaABAttrs = {
       subjectNouns: [Gloda.NOUN_CONTACT],
       objectNoun: Gloda.NOUN_STRING,
       canQuery: true,
-      }); // tested-by: test_attributes_fundamental
+    }); // tested-by: test_attributes_fundamental
     this._attrContactPopularity = Gloda.defineAttribute({
       provider: this,
       extensionName: Gloda.BUILT_IN,
@@ -165,7 +193,7 @@ var GlodaABAttrs = {
       subjectNouns: [Gloda.NOUN_CONTACT],
       objectNoun: Gloda.NOUN_NUMBER,
       canQuery: true,
-      }); // not-tested
+    }); // not-tested
     this._attrContactFrecency = Gloda.defineAttribute({
       provider: this,
       extensionName: Gloda.BUILT_IN,
@@ -177,7 +205,7 @@ var GlodaABAttrs = {
       subjectNouns: [Gloda.NOUN_CONTACT],
       objectNoun: Gloda.NOUN_NUMBER,
       canQuery: true,
-      }); // not-tested
+    }); // not-tested
 
     /* ***** Identities ***** */
     this._attrIdentityContact = Gloda.defineAttribute({
@@ -193,7 +221,7 @@ var GlodaABAttrs = {
       subjectNouns: [Gloda.NOUN_IDENTITY],
       objectNoun: Gloda.NOUN_CONTACT,
       canQuery: true,
-      }); // tested-by: test_attributes_fundamental
+    }); // tested-by: test_attributes_fundamental
     this._attrIdentityKind = Gloda.defineAttribute({
       provider: this,
       extensionName: Gloda.BUILT_IN,
@@ -205,7 +233,7 @@ var GlodaABAttrs = {
       subjectNouns: [Gloda.NOUN_IDENTITY],
       objectNoun: Gloda.NOUN_STRING,
       canQuery: true,
-      }); // tested-by: test_attributes_fundamental
+    }); // tested-by: test_attributes_fundamental
     this._attrIdentityValue = Gloda.defineAttribute({
       provider: this,
       extensionName: Gloda.BUILT_IN,
@@ -217,7 +245,7 @@ var GlodaABAttrs = {
       subjectNouns: [Gloda.NOUN_IDENTITY],
       objectNoun: Gloda.NOUN_STRING,
       canQuery: true,
-      }); // tested-by: test_attributes_fundamental
+    }); // tested-by: test_attributes_fundamental
 
     /* ***** Contact Meta ***** */
     // Freeform tags; not explicit like thunderbird's fundamental tags.
@@ -235,7 +263,7 @@ var GlodaABAttrs = {
       objectNoun: Gloda.lookupNoun("freetag"),
       parameterNoun: null,
       canQuery: true,
-      }); // not-tested
+    }); // not-tested
     // we need to find any existing bound freetag attributes, and use them to
     //  populate to FreeTagNoun's understanding
     if ("parameterBindings" in this._attrFreeTag) {
@@ -246,7 +274,7 @@ var GlodaABAttrs = {
     }
   },
 
-  * process(aContact, aRawReps, aIsNew, aCallbackHandle) {
+  *process(aContact, aRawReps, aIsNew, aCallbackHandle) {
     let card = aRawReps.card;
     if (aContact.NOUN_ID != Gloda.NOUN_CONTACT) {
       this._log.warn("Somehow got a non-contact: " + aContact);
@@ -254,8 +282,9 @@ var GlodaABAttrs = {
     }
 
     // update the name
-    if (card.displayName && card.displayName != aContact.name)
+    if (card.displayName && card.displayName != aContact.name) {
       aContact.name = card.displayName;
+    }
 
     aContact.freeTags = [];
 

@@ -3,8 +3,9 @@ function run_test() {
   var helper = new AbImportHelper(file, "Text file");
   var genericInterface = helper.getInterface();
   Assert.notEqual(genericInterface, null);
-  let abInterface = genericInterface.GetData("addressInterface")
-                     .QueryInterface(Ci.nsIImportAddressBooks);
+  let abInterface = genericInterface
+    .GetData("addressInterface")
+    .QueryInterface(Ci.nsIImportAddressBooks);
   abInterface.SetSampleLocation(file);
   let recordExists = {};
 
@@ -12,4 +13,3 @@ function run_test() {
   Assert.ok(recordExists.value);
   Assert.equal(sampleData, "4\n4\n4\n4\n4@host.invalid");
 }
-

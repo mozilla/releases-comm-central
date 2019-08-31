@@ -17,7 +17,9 @@
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var server = null;
 var smtpServer;
@@ -27,14 +29,8 @@ var gMsgFile = [
   do_get_file("data/message1.eml"),
   do_get_file("data/429891_testcase.eml"),
 ];
-var kTestFileSender = [
-  "from_B@foo.invalid",
-  "from_A@foo.invalid",
-];
-var kTestFileRecipient = [
-  "to_B@foo.invalid",
-  "to_A@foo.invalid",
-];
+var kTestFileSender = ["from_B@foo.invalid", "from_A@foo.invalid"];
+var kTestFileRecipient = ["to_B@foo.invalid", "to_A@foo.invalid"];
 
 var gMsgFileData = [];
 var gMsgOrder = [];
@@ -42,24 +38,31 @@ var gLastSentMessage = 0;
 
 var kIdentityMail = "identity@foo.invalid";
 
-var msgSendLater = Cc["@mozilla.org/messengercompose/sendlater;1"]
-                     .getService(Ci.nsIMsgSendLater);
+var msgSendLater = Cc["@mozilla.org/messengercompose/sendlater;1"].getService(
+  Ci.nsIMsgSendLater
+);
 
 // This listener handles the post-sending of the actual message and checks the
 // sequence and ensures the data is correct.
-function msll() {
-}
+function msll() {}
 
 msll.prototype = {
   checkMessageSend(aCurrentMessage) {
-    do_check_transaction(server.playTransaction(),
-                         ["EHLO test",
-                          "MAIL FROM:<" + kTestFileSender[gMsgOrder[aCurrentMessage - 1]] + "> BODY=8BITMIME SIZE=" + gMsgFileData[gMsgOrder[aCurrentMessage - 1]].length,
-                          "RCPT TO:<" + kTestFileRecipient[gMsgOrder[aCurrentMessage - 1]] + ">",
-                          "DATA"]);
+    do_check_transaction(server.playTransaction(), [
+      "EHLO test",
+      "MAIL FROM:<" +
+        kTestFileSender[gMsgOrder[aCurrentMessage - 1]] +
+        "> BODY=8BITMIME SIZE=" +
+        gMsgFileData[gMsgOrder[aCurrentMessage - 1]].length,
+      "RCPT TO:<" + kTestFileRecipient[gMsgOrder[aCurrentMessage - 1]] + ">",
+      "DATA",
+    ]);
 
     // Compare data file to what the server received
-    Assert.equal(gMsgFileData[gMsgOrder[aCurrentMessage - 1]], server._daemon.post);
+    Assert.equal(
+      gMsgFileData[gMsgOrder[aCurrentMessage - 1]],
+      server._daemon.post
+    );
   },
 
   // nsIMsgSendLaterListener
@@ -67,20 +70,32 @@ msll.prototype = {
     Assert.equal(aTotalMessageCount, gMsgOrder.length);
     Assert.equal(msgSendLater.sendingMessages, true);
   },
-  onMessageStartSending(aCurrentMessage, aTotalMessageCount, aMessageHeader, aIdentity) {
-    if (gLastSentMessage > 0)
+  onMessageStartSending(
+    aCurrentMessage,
+    aTotalMessageCount,
+    aMessageHeader,
+    aIdentity
+  ) {
+    if (gLastSentMessage > 0) {
       this.checkMessageSend(aCurrentMessage);
+    }
     Assert.equal(gLastSentMessage + 1, aCurrentMessage);
     gLastSentMessage = aCurrentMessage;
   },
-  onMessageSendProgress(aCurrentMessage, aTotalMessageCount,
-                        aMessageSendPercent, aMessageCopyPercent) {
+  onMessageSendProgress(
+    aCurrentMessage,
+    aTotalMessageCount,
+    aMessageSendPercent,
+    aMessageCopyPercent
+  ) {
     Assert.equal(aTotalMessageCount, gMsgOrder.length);
     Assert.equal(gLastSentMessage, aCurrentMessage);
     Assert.equal(msgSendLater.sendingMessages, true);
   },
   onMessageSendError(aCurrentMessage, aMessageHeader, aStatus, aMsg) {
-    do_throw("onMessageSendError should not have been called, status: " + aStatus);
+    do_throw(
+      "onMessageSendError should not have been called, status: " + aStatus
+    );
   },
   onStopSending(aStatus, aMsg, aTotalTried, aSuccessful) {
     try {
@@ -104,13 +119,9 @@ msll.prototype = {
     // call async_driver.
     do_timeout(0, async_driver);
   },
-};
+}; // for head_compose.js // This function is used to find out when the copying of the message to the // unsent message folder is completed, and hence can fire off the actual // sending of the message.
 
-/* exported OnStopCopy */// for head_compose.js
-// This function is used to find out when the copying of the message to the
-// unsent message folder is completed, and hence can fire off the actual
-// sending of the message.
-function OnStopCopy(aStatus) {
+/* exported OnStopCopy */ function OnStopCopy(aStatus) {
   Assert.equal(aStatus, 0);
 
   // Check this is false before we start sending
@@ -133,8 +144,9 @@ function sendMessageLater(aTestFileIndex) {
   // Prepare to actually "send" the message later, i.e. dump it in the
   // unsent messages folder.
 
-  var compFields = Cc["@mozilla.org/messengercompose/composefields;1"]
-                     .createInstance(Ci.nsIMsgCompFields);
+  var compFields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
 
   // Setting the compFields sender and recipient to any value is required to
   // survive mime_sanity_check_fields in nsMsgCompUtils.cpp.
@@ -143,12 +155,23 @@ function sendMessageLater(aTestFileIndex) {
   compFields.from = "irrelevant@foo.invalid";
   compFields.to = "irrelevant@foo.invalid";
 
-  var msgSend = Cc["@mozilla.org/messengercompose/send;1"]
-                  .createInstance(Ci.nsIMsgSend);
+  var msgSend = Cc["@mozilla.org/messengercompose/send;1"].createInstance(
+    Ci.nsIMsgSend
+  );
 
-  msgSend.sendMessageFile(identity, "", compFields, gMsgFile[aTestFileIndex],
-                          false, false, Ci.nsIMsgSend.nsMsgQueueForLater,
-                          null, copyListener, null, null);
+  msgSend.sendMessageFile(
+    identity,
+    "",
+    compFields,
+    gMsgFile[aTestFileIndex],
+    false,
+    false,
+    Ci.nsIMsgSend.nsMsgQueueForLater,
+    null,
+    copyListener,
+    null,
+    null
+  );
   return false;
 }
 
@@ -179,10 +202,10 @@ function* actually_run_test() {
   dump("in actually_run_test\n");
 
   dump("Copy Message from file to folder\n");
-  yield async_run({func: sendMessageLater, args: [0]});
+  yield async_run({ func: sendMessageLater, args: [0] });
 
   dump("Send unsent message\n");
-  yield async_run({func: sendUnsentMessages});
+  yield async_run({ func: sendUnsentMessages });
 
   // Check sent folder is now empty.
   Assert.equal(gSentFolder.getTotalMessages(false), 0);
@@ -195,14 +218,14 @@ function* actually_run_test() {
   resetCounts();
 
   dump("Copy more messages\n");
-  yield async_run({func: sendMessageLater, args: [1]});
+  yield async_run({ func: sendMessageLater, args: [1] });
 
   // XXX Only do one the second time round, as described at the start of the
   // file.
   // yield async_run({func: sendMessageLater, args: [0]});
 
   dump("Test send again\n");
-  yield async_run({func: sendUnsentMessages});
+  yield async_run({ func: sendUnsentMessages });
 
   do_test_finished();
 }
@@ -223,7 +246,11 @@ function run_test() {
   MailServices.accounts.setSpecialFolders();
 
   let account = MailServices.accounts.createAccount();
-  let incomingServer = MailServices.accounts.createIncomingServer("test", "localhost", "pop3");
+  let incomingServer = MailServices.accounts.createIncomingServer(
+    "test",
+    "localhost",
+    "pop3"
+  );
 
   smtpServer = getBasicSmtpServer(1);
   identity = getSmtpIdentity(kIdentityMail, smtpServer);
@@ -254,5 +281,5 @@ function run_test() {
   do_test_pending();
 
   // Do the test
-  async_run({func: actually_run_test});
+  async_run({ func: actually_run_test });
 }

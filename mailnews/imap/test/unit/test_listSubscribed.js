@@ -22,7 +22,7 @@ load("../../../resources/alertTestUtils.js");
 
 // IMAP pump
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Globals
 
@@ -41,9 +41,18 @@ var tests = [
 // setup the mailboxes that will be used for this test
 function* setupMailboxes() {
   IMAPPump.mailbox.subscribed = true;
-  IMAPPump.daemon.createMailbox("folder1", {subscribed: true, flags: ["\\Noselect"]});
-  IMAPPump.daemon.createMailbox("folder1/folder11", {subscribed: true, flags: ["\\Noinferiors"]});
-  IMAPPump.daemon.createMailbox("folder2", {subscribed: true, nonExistent: true});
+  IMAPPump.daemon.createMailbox("folder1", {
+    subscribed: true,
+    flags: ["\\Noselect"],
+  });
+  IMAPPump.daemon.createMailbox("folder1/folder11", {
+    subscribed: true,
+    flags: ["\\Noinferiors"],
+  });
+  IMAPPump.daemon.createMailbox("folder2", {
+    subscribed: true,
+    nonExistent: true,
+  });
   IMAPPump.daemon.createMailbox("folder3", {});
 
   // select the inbox to force folder discovery, etc.
@@ -84,19 +93,24 @@ function* testZimbraServerVersions() {
   // older versions of Zimbra can crash if we send LIST (SUBSCRIBED) so we want
   // to make sure that we are checking for versions
 
-  let testValues = [ { version: "6.3.1_GA_2790", expectedResult: false },
-                     { version: "7.2.2_GA_2790", expectedResult: false },
-                     { version: "7.2.3_GA_2790", expectedResult: true },
-                     { version: "8.0.2_GA_2790", expectedResult: false },
-                     { version: "8.0.3_GA_2790", expectedResult: true },
-                     { version: "9.0.0_GA_2790", expectedResult: true } ];
+  let testValues = [
+    { version: "6.3.1_GA_2790", expectedResult: false },
+    { version: "7.2.2_GA_2790", expectedResult: false },
+    { version: "7.2.3_GA_2790", expectedResult: true },
+    { version: "8.0.2_GA_2790", expectedResult: false },
+    { version: "8.0.3_GA_2790", expectedResult: true },
+    { version: "9.0.0_GA_2790", expectedResult: true },
+  ];
 
   for (let i = 0; i < testValues.length; i++) {
-    IMAPPump.daemon.idResponse = '("NAME" "Zimbra" ' +
-                             '"VERSION" "' + testValues[i].version + '" ' +
-                             '"RELEASE" "20120815212257" ' +
-                             '"USER" "user@domain.com" ' +
-                             '"SERVER" "14b63305-d002-4f1b-bcd9-23d402d4ef40")';
+    IMAPPump.daemon.idResponse =
+      '("NAME" "Zimbra" ' +
+      '"VERSION" "' +
+      testValues[i].version +
+      '" ' +
+      '"RELEASE" "20120815212257" ' +
+      '"USER" "user@domain.com" ' +
+      '"SERVER" "14b63305-d002-4f1b-bcd9-23d402d4ef40")';
     IMAPPump.incomingServer.closeCachedConnections();
     IMAPPump.incomingServer.performExpand(null);
     // select inbox is just to wait on performExpand since performExpand does not have listener
@@ -105,8 +119,10 @@ function* testZimbraServerVersions() {
     // if we send LSUB instead of LIST(SUBSCRIBED), then we should not have \NoSelect flag
     let rootFolder = IMAPPump.incomingServer.rootFolder;
     let folder1 = rootFolder.getChildNamed("folder1");
-    Assert.equal(folder1.getFlag(Ci.nsMsgFolderFlags.ImapNoselect),
-                 testValues[i].expectedResult);
+    Assert.equal(
+      folder1.getFlag(Ci.nsMsgFolderFlags.ImapNoselect),
+      testValues[i].expectedResult
+    );
   }
 }
 
@@ -116,6 +132,9 @@ function endTest() {
 }
 
 function run_test() {
-  Services.prefs.setBoolPref("mail.server.server1.autosync_offline_stores", false);
+  Services.prefs.setBoolPref(
+    "mail.server.server1.autosync_offline_stores",
+    false
+  );
   async_run_tests(tests);
 }

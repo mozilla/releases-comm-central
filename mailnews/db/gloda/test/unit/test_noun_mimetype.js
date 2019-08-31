@@ -12,7 +12,9 @@
 /* import-globals-from resources/glodaTestHelper.js */
 load("resources/glodaTestHelper.js");
 
-var {MimeTypeNoun} = ChromeUtils.import("resource:///modules/gloda/noun_mimetype.js");
+var { MimeTypeNoun } = ChromeUtils.import(
+  "resource:///modules/gloda/noun_mimetype.js"
+);
 
 /* ===== Tests ===== */
 
@@ -46,8 +48,9 @@ function test_basics() {
   // if this is not the first pass, check for python before other things to
   //  make sure we're not just relying on consistent logic rather than actual
   //  persistence
-  if (passResults.length)
+  if (passResults.length) {
     python = MimeTypeNoun.getMimeType("text/x-python");
+  }
 
   let jpeg = MimeTypeNoun.getMimeType("image/jpeg");
   curPassResults.push(jpeg);
@@ -62,12 +65,12 @@ function test_basics() {
   curPassResults.push(plain);
 
   // if this is for the first time, check for python now (see above)
-  if (!passResults.length)
+  if (!passResults.length) {
     python = MimeTypeNoun.getMimeType("text/x-python");
+  }
   // but always add it to the results now, as we need consistent ordering
   //  since we use a list.
   curPassResults.push(python);
-
 
   // sanity-checking the parsing
   Assert.equal(jpeg.type, "image");
@@ -77,13 +80,19 @@ function test_basics() {
   //  the right thing!
   const BLOCK_SIZE = MimeTypeNoun.TYPE_BLOCK_SIZE;
   // same blocks
-  Assert.equal(Math.floor(jpeg.id / BLOCK_SIZE),
-               Math.floor(png.id / BLOCK_SIZE));
-  Assert.equal(Math.floor(html.id / BLOCK_SIZE),
-               Math.floor(plain.id / BLOCK_SIZE));
+  Assert.equal(
+    Math.floor(jpeg.id / BLOCK_SIZE),
+    Math.floor(png.id / BLOCK_SIZE)
+  );
+  Assert.equal(
+    Math.floor(html.id / BLOCK_SIZE),
+    Math.floor(plain.id / BLOCK_SIZE)
+  );
   // different blocks
-  Assert.notEqual(Math.floor(jpeg.id / BLOCK_SIZE),
-                  Math.floor(html.id / BLOCK_SIZE));
+  Assert.notEqual(
+    Math.floor(jpeg.id / BLOCK_SIZE),
+    Math.floor(html.id / BLOCK_SIZE)
+  );
 }
 
 function test_parameters() {
@@ -95,8 +104,7 @@ function verify_passes_are_the_same() {
   var firstPassResults = passResults[0];
   for (let iType = 0; iType < curPassResults.length; iType++) {
     for (let iPass = 1; iPass < passResults.length; iPass++) {
-      Assert.equal(firstPassResults[iType].id,
-                   passResults[iPass][iType].id);
+      Assert.equal(firstPassResults[iType].id, passResults[iPass][iType].id);
     }
   }
 }
@@ -113,7 +121,6 @@ var tests = [
   verify_passes_are_the_same,
 
   test_parameters,
-
 ];
 
 function run_test() {

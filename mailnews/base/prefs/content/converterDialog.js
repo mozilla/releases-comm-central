@@ -7,12 +7,16 @@
  * type conversion.
  */
 
-var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
-var {Log} = ChromeUtils.import("resource://gre/modules/Log.jsm");
-var {allAccountsSorted} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
-var MailstoreConverter = ChromeUtils.import("resource:///modules/mailstoreConverter.jsm");
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+var { Log } = ChromeUtils.import("resource://gre/modules/Log.jsm");
+var { allAccountsSorted } = ChromeUtils.import(
+  "resource:///modules/folderUtils.jsm"
+);
+var MailstoreConverter = ChromeUtils.import(
+  "resource:///modules/mailstoreConverter.jsm"
+);
 
 var log = Log.repository.getLogger("MailStoreConverter");
 // {nsIMsgIncomingServer} server for the account to be migrated.
@@ -35,8 +39,9 @@ var gOriginalOffline;
 function placeAccountName(aServer) {
   gOriginalOffline = Services.io.offline;
 
-  let bundle = Services.strings
-    .createBundle("chrome://messenger/locale/converterDialog.properties");
+  let bundle = Services.strings.createBundle(
+    "chrome://messenger/locale/converterDialog.properties"
+  );
 
   let brandShortName = Services.strings
     .createBundle("chrome://branding/locale/brand.properties")
@@ -53,12 +58,14 @@ function placeAccountName(aServer) {
   let accounts = allAccountsSorted(true);
 
   for (let account of accounts) {
-    if (account.incomingServer.rootFolder.filePath.path ==
-        deferredToRootFolder) {
+    if (
+      account.incomingServer.rootFolder.filePath.path == deferredToRootFolder
+    ) {
       // Other accounts may be deferred to this account.
       deferredToAccount = account;
-    } else if (account.incomingServer.rootMsgFolder.filePath.path ==
-               deferredToRootFolder) {
+    } else if (
+      account.incomingServer.rootMsgFolder.filePath.path == deferredToRootFolder
+    ) {
       // This is a deferred account.
       gDeferredAccounts.push(account);
     }
@@ -71,8 +78,10 @@ function placeAccountName(aServer) {
     // Add account names to 'accountsToConvert' and 'deferredAccountsString'.
     for (let i = 0; i < gDeferredAccounts.length; i++) {
       if (i < gDeferredAccounts.length - 1) {
-        accountsToConvert += gDeferredAccounts[i].incomingServer.username + ", ";
-        deferredAccountsString += gDeferredAccounts[i].incomingServer.username + ", ";
+        accountsToConvert +=
+          gDeferredAccounts[i].incomingServer.username + ", ";
+        deferredAccountsString +=
+          gDeferredAccounts[i].incomingServer.username + ", ";
       } else {
         accountsToConvert += gDeferredAccounts[i].incomingServer.username;
         deferredAccountsString += gDeferredAccounts[i].incomingServer.username;
@@ -88,8 +97,9 @@ function placeAccountName(aServer) {
       accountsToConvert += ", " + deferredToAccount.incomingServer.prettyName;
     }
     log.info(accountsToConvert + " will be converted");
-    let storeContractId = Services.prefs.getCharPref("mail.server." +
-      deferredToAccount.incomingServer.key + ".storeContractID");
+    let storeContractId = Services.prefs.getCharPref(
+      "mail.server." + deferredToAccount.incomingServer.key + ".storeContractID"
+    );
 
     if (storeContractId == "@mozilla.org/msgstore/berkeleystore;1") {
       storeContractId = "maildir";
@@ -106,29 +116,47 @@ function placeAccountName(aServer) {
     }
 
     if (aServer.rootFolder.filePath.path != deferredToRootFolder) {
-      document.getElementById("warningSpan").textContent =
-        bundle.formatStringFromName(
-          "converterDialog.warningForDeferredAccount",
-          [aServer.username, deferredToAccountName, deferredToAccountName,
+      document.getElementById(
+        "warningSpan"
+      ).textContent = bundle.formatStringFromName(
+        "converterDialog.warningForDeferredAccount",
+        [
+          aServer.username,
+          deferredToAccountName,
+          deferredToAccountName,
           deferredAccountsString,
-          accountsToConvert, storeContractId, brandShortName]);
+          accountsToConvert,
+          storeContractId,
+          brandShortName,
+        ]
+      );
     } else {
-      document.getElementById("warningSpan").textContent =
-        bundle.formatStringFromName(
-          "converterDialog.warningForDeferredToAccount",
-          [deferredToAccountName,
+      document.getElementById(
+        "warningSpan"
+      ).textContent = bundle.formatStringFromName(
+        "converterDialog.warningForDeferredToAccount",
+        [
+          deferredToAccountName,
           deferredAccountsString,
-          accountsToConvert, storeContractId, brandShortName]);
+          accountsToConvert,
+          storeContractId,
+          brandShortName,
+        ]
+      );
     }
 
-    document.getElementById("messageSpan").textContent =
-      bundle.formatStringFromName("converterDialog.messageForDeferredAccount",
-                                  [accountsToConvert, storeContractId]);
+    document.getElementById(
+      "messageSpan"
+    ).textContent = bundle.formatStringFromName(
+      "converterDialog.messageForDeferredAccount",
+      [accountsToConvert, storeContractId]
+    );
     gServer = deferredToAccount.incomingServer;
   } else {
     // No account is deferred.
     let storeContractId = Services.prefs.getCharPref(
-      "mail.server." + aServer.key + ".storeContractID");
+      "mail.server." + aServer.key + ".storeContractID"
+    );
     if (storeContractId == "@mozilla.org/msgstore/berkeleystore;1") {
       storeContractId = "maildir";
     } else {
@@ -142,12 +170,19 @@ function placeAccountName(aServer) {
       tempName = aServer.hostName;
     }
 
-    document.getElementById("warningSpan").textContent =
-      bundle.formatStringFromName("converterDialog.warning",
-                                  [tempName, storeContractId, brandShortName]);
-    document.getElementById("messageSpan").textContent =
-      bundle.formatStringFromName("converterDialog.message",
-                                  [tempName, storeContractId]);
+    document.getElementById(
+      "warningSpan"
+    ).textContent = bundle.formatStringFromName("converterDialog.warning", [
+      tempName,
+      storeContractId,
+      brandShortName,
+    ]);
+    document.getElementById(
+      "messageSpan"
+    ).textContent = bundle.formatStringFromName("converterDialog.message", [
+      tempName,
+      storeContractId,
+    ]);
     gServer = aServer;
   }
 
@@ -164,13 +199,17 @@ function startContinue(aSelectedStoreType, aResponse) {
   gResponse = aResponse;
   gFolder = gServer.rootFolder.filePath;
 
-  let bundle = Services.strings
-    .createBundle("chrome://messenger/locale/converterDialog.properties");
+  let bundle = Services.strings.createBundle(
+    "chrome://messenger/locale/converterDialog.properties"
+  );
 
   document.getElementById("progress").addEventListener("progress", function(e) {
-   document.getElementById("progress").value = e.detail;
-   document.getElementById("progressPrcnt").textContent =
-     bundle.formatStringFromName("converterDialog.percentDone", [e.detail]);
+    document.getElementById("progress").value = e.detail;
+    document.getElementById(
+      "progressPrcnt"
+    ).textContent = bundle.formatStringFromName("converterDialog.percentDone", [
+      e.detail,
+    ]);
   });
 
   document.getElementById("warning").setAttribute("hidden", "hidden");
@@ -204,7 +243,7 @@ function startContinue(aSelectedStoreType, aResponse) {
     document.getElementById("messageSpan").style.display = "none";
 
     document.getElementById("errorSpan").style.display = "block";
-      gResponse.newRootFolder = null;
+    gResponse.newRootFolder = null;
 
     // Revert prefs.
     Services.prefs.setCharPref(p1, originalDirectoryPref);
@@ -215,8 +254,9 @@ function startContinue(aSelectedStoreType, aResponse) {
     }
     Services.prefs.setCharPref(p5, originalStoreContractID);
     Services.prefs.savePrefFile(null);
-    if (gServer.rootFolder.filePath.path != originalRootFolderPath)
+    if (gServer.rootFolder.filePath.path != originalRootFolderPath) {
       gServer.rootFolder.filePath = new FileUtils.File(originalRootFolderPath);
+    }
     Services.io.offline = gOriginalOffline;
   }
 
@@ -232,8 +272,10 @@ function startContinue(aSelectedStoreType, aResponse) {
     for (let deferredAccount of gDeferredAccounts) {
       let defServer = deferredAccount.incomingServer;
       defServer.rootMsgFolder.filePath = new FileUtils.File(aVal);
-      Services.prefs.setCharPref("mail.server." + defServer.key +
-        ".storeContractID", aSelectedStoreType);
+      Services.prefs.setCharPref(
+        "mail.server." + defServer.key + ".storeContractID",
+        aSelectedStoreType
+      );
     }
 
     Services.io.offline = gOriginalOffline;
@@ -248,13 +290,15 @@ function startContinue(aSelectedStoreType, aResponse) {
    * @param {nsIMsgFolder} aFolder - mbox folder that is to be checked.
    */
   function canCompact(aFolder) {
-    if (aFolder.expungedBytes != 0)
+    if (aFolder.expungedBytes != 0) {
       return true;
+    }
     if (aFolder.hasSubFolders) {
       let subFolders = aFolder.subFolders;
       while (subFolders.hasMoreElements()) {
-        if (canCompact(subFolders.getNext().QueryInterface(Ci.nsIMsgFolder)))
+        if (canCompact(subFolders.getNext().QueryInterface(Ci.nsIMsgFolder))) {
           return true;
+        }
       }
     }
     return false;
@@ -266,32 +310,45 @@ function startContinue(aSelectedStoreType, aResponse) {
   //   2. Messages are moved out of some descendant folder of the folder.
   // If the account root folder can be compacted, start the conversion after
   // compacting it.
-  if (originalStoreContractID == "@mozilla.org/msgstore/berkeleystore;1"
-    &&
-    canCompact(gServer.rootFolder)) {
+  if (
+    originalStoreContractID == "@mozilla.org/msgstore/berkeleystore;1" &&
+    canCompact(gServer.rootFolder)
+  ) {
     let urlListener = {
-      OnStartRunningUrl(aUrl) {
-      },
+      OnStartRunningUrl(aUrl) {},
       OnStopRunningUrl(aUrl, aExitCode) {
-        let pConvert = MailstoreConverter.convertMailStoreTo(originalStoreContractID,
-          gServer, document.getElementById("progress"));
-        pConvert.then(function(val) {
-          promiseResolved(val);
-        }).catch(function(reason) {
-          promiseRejected(reason);
-        });
+        let pConvert = MailstoreConverter.convertMailStoreTo(
+          originalStoreContractID,
+          gServer,
+          document.getElementById("progress")
+        );
+        pConvert
+          .then(function(val) {
+            promiseResolved(val);
+          })
+          .catch(function(reason) {
+            promiseRejected(reason);
+          });
       },
     };
-    gServer.rootFolder.compactAll(urlListener, null, gServer.type == "imap" ||
-      gServer.type == "nntp");
+    gServer.rootFolder.compactAll(
+      urlListener,
+      null,
+      gServer.type == "imap" || gServer.type == "nntp"
+    );
   } else {
-    let pConvert = MailstoreConverter.convertMailStoreTo(originalStoreContractID,
-      gServer, document.getElementById("progress"));
-    pConvert.then(function(val) {
-      promiseResolved(val);
-    }).catch(function(reason) {
-      promiseRejected(reason);
-    });
+    let pConvert = MailstoreConverter.convertMailStoreTo(
+      originalStoreContractID,
+      gServer,
+      document.getElementById("progress")
+    );
+    pConvert
+      .then(function(val) {
+        promiseResolved(val);
+      })
+      .catch(function(reason) {
+        promiseRejected(reason);
+      });
   }
 }
 

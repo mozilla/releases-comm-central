@@ -2,12 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
 // local static variables
 
-var _lastIndex = 0;  // the first index will be one
+var _lastIndex = 0; // the first index will be one
 var _traits = {};
 
 var traitsBranch = Services.prefs.getBranch("mailnews.traits.");
@@ -36,8 +38,9 @@ nsMsgTraitService.prototype = {
   },
 
   registerTrait(aId) {
-    if (_traits[aId])
-      return 0;  // meaning already registered
+    if (_traits[aId]) {
+      return 0;
+    } // meaning already registered
     _registerTrait(aId, ++_lastIndex);
     traitsBranch.setBoolPref("enabled." + _lastIndex, false);
     traitsBranch.setCharPref("id." + _lastIndex, aId);
@@ -73,9 +76,11 @@ nsMsgTraitService.prototype = {
   },
 
   getId(aIndex) {
-    for (let id in _traits)
-      if (_traits[id].index == aIndex)
+    for (let id in _traits) {
+      if (_traits[id].index == aIndex) {
         return id;
+      }
+    }
     return null;
   },
 
@@ -100,11 +105,12 @@ nsMsgTraitService.prototype = {
   getEnabledIndices(aCount, aProIndices, aAntiIndices) {
     let proIndices = [];
     let antiIndices = [];
-    for (let id in _traits)
+    for (let id in _traits) {
       if (_traits[id].enabled) {
         proIndices.push(_traits[id].index);
         antiIndices.push(_traits[_traits[id].antiId].index);
       }
+    }
     aCount.value = proIndices.length;
     aProIndices.value = proIndices;
     aAntiIndices.value = antiIndices;
@@ -113,10 +119,11 @@ nsMsgTraitService.prototype = {
   addAlias(aTraitIndex, aTraitAliasIndex) {
     let aliasesString = traitsBranch.getCharPref("aliases." + aTraitIndex, "");
     let aliases;
-    if (aliasesString.length)
+    if (aliasesString.length) {
       aliases = aliasesString.split(",");
-    else
+    } else {
       aliases = [];
+    }
     if (!aliases.includes(aTraitAliasIndex.toString())) {
       aliases.push(aTraitAliasIndex);
       traitsBranch.setCharPref("aliases." + aTraitIndex, aliases.join());
@@ -126,10 +133,11 @@ nsMsgTraitService.prototype = {
   removeAlias(aTraitIndex, aTraitAliasIndex) {
     let aliasesString = traitsBranch.getCharPref("aliases." + aTraitIndex, "");
     let aliases;
-    if (aliasesString.length)
+    if (aliasesString.length) {
       aliases = aliasesString.split(",");
-    else
+    } else {
       aliases = [];
+    }
     let location = aliases.indexOf(aTraitAliasIndex.toString());
     if (location != -1) {
       aliases.splice(location, 1);
@@ -140,10 +148,11 @@ nsMsgTraitService.prototype = {
   getAliases(aTraitIndex, aLength) {
     let aliasesString = traitsBranch.getCharPref("aliases." + aTraitIndex, "");
     let aliases;
-    if (aliasesString.length)
+    if (aliasesString.length) {
       aliases = aliasesString.split(",");
-    else
+    } else {
       aliases = [];
+    }
     aLength.value = aliases.length;
     return aliases;
   },
@@ -159,7 +168,9 @@ function _init() {
   var nameBranch = Services.prefs.getBranch("mailnews.traits.name.");
   var enabledBranch = Services.prefs.getBranch("mailnews.traits.enabled.");
   var antiIdBranch = Services.prefs.getBranch("mailnews.traits.antiId.");
-  _lastIndex = Services.prefs.getBranch("mailnews.traits.").getIntPref("lastIndex");
+  _lastIndex = Services.prefs
+    .getBranch("mailnews.traits.")
+    .getIntPref("lastIndex");
   var ids = idBranch.getChildList("");
   for (let i = 0; i < ids.length; i++) {
     var id = idBranch.getCharPref(ids[i]);
@@ -176,8 +187,9 @@ function _init() {
       _traits[id].antiId = antiIdBranch.getCharPref(ids[i]);
     }
 
-    if (_lastIndex < index)
+    if (_lastIndex < index) {
       _lastIndex = index;
+    }
   }
 
   // for (traitId in _traits)

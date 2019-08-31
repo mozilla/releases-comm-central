@@ -18,12 +18,12 @@ load("../../../../resources/messageGenerator.js");
 load("../../../../resources/messageModifier.js");
 load("../../../../resources/messageInjection.js");
 
-var msgGen = gMessageGenerator = new MessageGenerator();
+var msgGen = (gMessageGenerator = new MessageGenerator());
 
-var {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
-var {
-  MsgHdrToMimeMessage,
-} = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
+var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+var { MsgHdrToMimeMessage } = ChromeUtils.import(
+  "resource:///modules/gloda/mimemsg.js"
+);
 
 function initNSS() {
   // Copy the NSS database files over.
@@ -54,49 +54,58 @@ function* test_smime_mimemsg() {
   let msgHdr = synSet.getMsgHdr(0);
 
   // Make sure by default, MimeMessages do not include encrypted parts
-  MsgHdrToMimeMessage(msgHdr, null, function(aMsgHdr, aMimeMsg) {
-    // First make sure the MIME structure is as we expect it to be.
-    Assert.equal(aMimeMsg.parts.length, 1);
-    // Then, make sure the MimeUnknown part there has the encrypted flag
-    Assert.ok(aMimeMsg.parts[0].isEncrypted);
-    // And that we can't "see through" the MimeUnknown container
-    Assert.equal(aMimeMsg.parts[0].parts.length, 0);
-    // Make sure we can't see the attachment
-    Assert.equal(aMimeMsg.allUserAttachments.length, 0);
-    async_driver();
-  }, true, {
-  });
+  MsgHdrToMimeMessage(
+    msgHdr,
+    null,
+    function(aMsgHdr, aMimeMsg) {
+      // First make sure the MIME structure is as we expect it to be.
+      Assert.equal(aMimeMsg.parts.length, 1);
+      // Then, make sure the MimeUnknown part there has the encrypted flag
+      Assert.ok(aMimeMsg.parts[0].isEncrypted);
+      // And that we can't "see through" the MimeUnknown container
+      Assert.equal(aMimeMsg.parts[0].parts.length, 0);
+      // Make sure we can't see the attachment
+      Assert.equal(aMimeMsg.allUserAttachments.length, 0);
+      async_driver();
+    },
+    true,
+    {}
+  );
 
   yield false;
 
   // Now what about we specifically ask to "see" the encrypted parts?
-  MsgHdrToMimeMessage(msgHdr, null, function(aMsgHdr, aMimeMsg) {
-    // First make sure the MIME structure is as we expect it to be.
-    Assert.equal(aMimeMsg.parts.length, 1);
-    // Then, make sure the MimeUnknown part there has the encrypted flag
-    Assert.ok(aMimeMsg.parts[0].isEncrypted);
-    // And that we can "see through" the MimeUnknown container
-    Assert.equal(aMimeMsg.parts[0].parts.length, 1);
-    Assert.equal(aMimeMsg.parts[0].parts[0].parts.length, 1);
-    Assert.equal(aMimeMsg.parts[0].parts[0].parts[0].parts.length, 2);
-    // Make sure we can see the attachment
-    Assert.equal(aMimeMsg.allUserAttachments.length, 1);
-    Assert.equal(aMimeMsg.allUserAttachments[0].contentType, "image/jpeg");
-    async_driver();
-    // Extra little bit of testing
-  }, true, {
-    examineEncryptedParts: true,
-  });
+  MsgHdrToMimeMessage(
+    msgHdr,
+    null,
+    function(aMsgHdr, aMimeMsg) {
+      // First make sure the MIME structure is as we expect it to be.
+      Assert.equal(aMimeMsg.parts.length, 1);
+      // Then, make sure the MimeUnknown part there has the encrypted flag
+      Assert.ok(aMimeMsg.parts[0].isEncrypted);
+      // And that we can "see through" the MimeUnknown container
+      Assert.equal(aMimeMsg.parts[0].parts.length, 1);
+      Assert.equal(aMimeMsg.parts[0].parts[0].parts.length, 1);
+      Assert.equal(aMimeMsg.parts[0].parts[0].parts[0].parts.length, 2);
+      // Make sure we can see the attachment
+      Assert.equal(aMimeMsg.allUserAttachments.length, 1);
+      Assert.equal(aMimeMsg.allUserAttachments[0].contentType, "image/jpeg");
+      async_driver();
+      // Extra little bit of testing
+    },
+    true,
+    {
+      examineEncryptedParts: true,
+    }
+  );
   yield false;
 }
 
-var tests = [
-  test_smime_mimemsg,
-];
+var tests = [test_smime_mimemsg];
 
 function run_test() {
   initNSS();
-  gInbox = configure_message_injection({mode: "local"});
+  gInbox = configure_message_injection({ mode: "local" });
   async_run_tests(tests);
 }
 

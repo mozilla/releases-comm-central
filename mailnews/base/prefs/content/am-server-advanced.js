@@ -3,8 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 document.addEventListener("dialogaccept", onOk);
 
@@ -16,23 +18,26 @@ var gFirstDeferredAccount;
 
 var gControls;
 function getControls() {
-  if (!gControls)
+  if (!gControls) {
     gControls = document.getElementsByAttribute("amsa_persist", "true");
+  }
   return gControls;
 }
 
 function getLocalFoldersAccount() {
-  return MailServices.accounts
-    .FindAccountForServer(MailServices.accounts.localFoldersServer);
+  return MailServices.accounts.FindAccountForServer(
+    MailServices.accounts.localFoldersServer
+  );
 }
 
 function onLoad() {
   var prettyName = gServerSettings.serverPrettyName;
 
-  if (prettyName)
-    document.getElementById("serverPrettyName").value =
-      document.getElementById("bundle_prefs")
-              .getFormattedString("forAccount", [prettyName]);
+  if (prettyName) {
+    document.getElementById("serverPrettyName").value = document
+      .getElementById("bundle_prefs")
+      .getFormattedString("forAccount", [prettyName]);
+  }
 
   if (gServerSettings.serverType == "imap") {
     document.getElementById("pop3Panel").hidden = true;
@@ -46,8 +51,10 @@ function onLoad() {
     // The current account should not be shown in the folder picker
     // of the "other account" option.
     folderPopup._teardown();
-    folderPopup.setAttribute("excludeServers",
-                             gServerSettings.account.incomingServer.key);
+    folderPopup.setAttribute(
+      "excludeServers",
+      gServerSettings.account.incomingServer.key
+    );
     folderPopup._ensureInitialized();
 
     if (gFirstDeferredAccount.length) {
@@ -77,10 +84,11 @@ function onLoad() {
   for (let i = 0; i < controls.length; i++) {
     var slot = controls[i].id;
     if (slot in gServerSettings) {
-      if (controls[i].localName == "checkbox")
+      if (controls[i].localName == "checkbox") {
         controls[i].checked = gServerSettings[slot];
-      else
+      } else {
         controls[i].value = gServerSettings[slot];
+      }
     }
   }
 }
@@ -95,11 +103,13 @@ function onOk(event) {
     // This account wasn't previously deferred, but is now deferred.
     if (radioGroup.value != "currentAccount" && !gFirstDeferredAccount.length) {
       // If the user hasn't selected a folder, keep the default.
-      if (!picker.selectedItem)
+      if (!picker.selectedItem) {
         return;
+      }
 
-      var confirmDeferAccount =
-        gPrefsBundle.getString("confirmDeferAccountWarning");
+      var confirmDeferAccount = gPrefsBundle.getString(
+        "confirmDeferAccountWarning"
+      );
 
       var confirmTitle = gPrefsBundle.getString("confirmDeferAccountTitle");
 
@@ -125,17 +135,19 @@ function onOk(event) {
   for (let i = 0; i < controls.length; i++) {
     var slot = controls[i].id;
     if (slot in gServerSettings) {
-      if (controls[i].localName == "checkbox")
+      if (controls[i].localName == "checkbox") {
         gServerSettings[slot] = controls[i].checked;
-      else
+      } else {
         gServerSettings[slot] = controls[i].value;
+      }
     }
   }
 }
 
-
 // Set radio element choices and picker states
 function updateInboxAccount(enablePicker) {
-  document.getElementById("deferredServerFolderPicker").disabled = !enablePicker;
+  document.getElementById(
+    "deferredServerFolderPicker"
+  ).disabled = !enablePicker;
   document.getElementById("deferGetNewMail").disabled = !enablePicker;
 }

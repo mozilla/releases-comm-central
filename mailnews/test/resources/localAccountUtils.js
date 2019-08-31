@@ -5,8 +5,10 @@
 this.EXPORTED_SYMBOLS = ["localAccountUtils"];
 
 // MailServices
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 // Local Mail Folders. Requires prior setup of profile directory
 
@@ -19,13 +21,16 @@ var localAccountUtils = {
   _localAccountInitialized: false,
   _mailboxStoreContractID: undefined,
 
-  pluggableStores: ["@mozilla.org/msgstore/berkeleystore;1",
-                    "@mozilla.org/msgstore/maildirstore;1"],
+  pluggableStores: [
+    "@mozilla.org/msgstore/berkeleystore;1",
+    "@mozilla.org/msgstore/maildirstore;1",
+  ],
 
   clearAll() {
     this._localAccountInitialized = false;
-    if (this.msgAccount)
+    if (this.msgAccount) {
       MailServices.accounts.removeAccount(this.msgAccount);
+    }
     this.incomingServer = undefined;
     this.msgAccount = undefined;
     this.inboxFolder = undefined;
@@ -33,29 +38,35 @@ var localAccountUtils = {
   },
 
   loadLocalMailAccount(storeID) {
-    if ((storeID && storeID == this._mailboxStoreContractID) ||
-        (!storeID && this._localAccountInitialized))
+    if (
+      (storeID && storeID == this._mailboxStoreContractID) ||
+      (!storeID && this._localAccountInitialized)
+    ) {
       return;
+    }
 
     this.clearAll();
-    if (storeID)
-      Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
-                                 storeID);
+    if (storeID) {
+      Services.prefs.setCharPref("mail.serverDefaultStoreContractID", storeID);
+    }
 
     this._mailboxStoreContractID = storeID;
     MailServices.accounts.createLocalMailAccount();
 
     this.incomingServer = MailServices.accounts.localFoldersServer;
     this.msgAccount = MailServices.accounts.FindAccountForServer(
-      this.incomingServer);
+      this.incomingServer
+    );
 
-    this.rootFolder = this.incomingServer.rootMsgFolder
-                        .QueryInterface(Ci.nsIMsgLocalMailFolder);
+    this.rootFolder = this.incomingServer.rootMsgFolder.QueryInterface(
+      Ci.nsIMsgLocalMailFolder
+    );
 
     // Note: Inbox is not created automatically when there is no deferred server,
     // so we need to create it.
-    this.inboxFolder = this.rootFolder.createLocalSubfolder("Inbox")
-                         .QueryInterface(Ci.nsIMsgLocalMailFolder);
+    this.inboxFolder = this.rootFolder
+      .createLocalSubfolder("Inbox")
+      .QueryInterface(Ci.nsIMsgLocalMailFolder);
     // a local inbox should have a Mail flag!
     this.inboxFolder.setFlag(Ci.nsMsgFolderFlags.Mail);
 
@@ -75,9 +86,20 @@ var localAccountUtils = {
    * @param aHostname The hostname for the server (defaults to localhost).
    * @return The newly-created nsIMsgIncomingServer.
    */
-  create_incoming_server(aType, aPort, aUsername, aPassword, aHostname = "localhost") {
-    let serverAndAccount = localAccountUtils.
-      create_incoming_server_and_account(aType, aPort, aUsername, aPassword, aHostname);
+  create_incoming_server(
+    aType,
+    aPort,
+    aUsername,
+    aPassword,
+    aHostname = "localhost"
+  ) {
+    let serverAndAccount = localAccountUtils.create_incoming_server_and_account(
+      aType,
+      aPort,
+      aUsername,
+      aPassword,
+      aHostname
+    );
     return serverAndAccount.server;
   },
 
@@ -94,13 +116,25 @@ var localAccountUtils = {
              "server" property and the newly-created nsIMsgAccount as the
              "account" property.
    */
-  create_incoming_server_and_account(aType, aPort, aUsername, aPassword, aHostname = "localhost") {
-    let server = MailServices.accounts.createIncomingServer(aUsername, aHostname, aType);
+  create_incoming_server_and_account(
+    aType,
+    aPort,
+    aUsername,
+    aPassword,
+    aHostname = "localhost"
+  ) {
+    let server = MailServices.accounts.createIncomingServer(
+      aUsername,
+      aHostname,
+      aType
+    );
     server.port = aPort;
-    if (aUsername != null)
+    if (aUsername != null) {
       server.username = aUsername;
-    if (aPassword != null)
+    }
+    if (aPassword != null) {
       server.password = aPassword;
+    }
 
     server.valid = false;
 
@@ -115,7 +149,7 @@ var localAccountUtils = {
     }
     server.valid = true;
 
-    return {server, account};
+    return { server, account };
   },
 
   /**
@@ -146,15 +180,17 @@ var localAccountUtils = {
    *                              the account.
    */
   associate_servers(aIncoming, aOutgoingServer, aSetAsDefault = false) {
-    if (!(aIncoming instanceof Ci.nsIMsgAccount))
+    if (!(aIncoming instanceof Ci.nsIMsgAccount)) {
       throw new Error("aIncoming isn't an account");
+    }
 
     let identity = MailServices.accounts.createIdentity();
     identity.smtpServerKey = aOutgoingServer.key;
 
     aIncoming.addIdentity(identity);
 
-    if (aSetAsDefault)
+    if (aSetAsDefault) {
       aIncoming.defaultIdentity = identity;
+    }
   },
 };

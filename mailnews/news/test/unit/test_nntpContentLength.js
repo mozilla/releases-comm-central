@@ -27,7 +27,9 @@ function run_test() {
     let folder = localserver.rootFolder.getChildNamed("test.subscribe.simple");
     folder.clearFlag(Ci.nsMsgFolderFlags.Offline);
     folder.getNewMessages(null, {
-      OnStopRunningUrl() { localserver.closeCachedConnections(); },
+      OnStopRunningUrl() {
+        localserver.closeCachedConnections();
+      },
     });
     server.performTest();
 
@@ -40,7 +42,9 @@ function run_test() {
     let msgHdr = folder.firstNewMessage;
     let messageUri = folder.getUriForMsg(msgHdr);
     // Convert this to a URI that necko can run
-    let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+    let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+      Ci.nsIMessenger
+    );
     let neckoURL = {};
     let messageService = messenger.messageServiceFromURI(messageUri);
     messageService.GetUrlForUri(messageUri, neckoURL, null);
@@ -49,23 +53,27 @@ function run_test() {
     let urlToRun = Services.io.newURI(neckoURL.value.spec);
 
     // Get a channel from this URI, and check its content length
-    let channel = Services.io.newChannelFromURI(urlToRun,
-                                                null,
-                                                Services.scriptSecurityManager.getSystemPrincipal(),
-                                                null,
-                                                Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                Ci.nsIContentPolicy.TYPE_OTHER);
+    let channel = Services.io.newChannelFromURI(
+      urlToRun,
+      null,
+      Services.scriptSecurityManager.getSystemPrincipal(),
+      null,
+      Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+      Ci.nsIContentPolicy.TYPE_OTHER
+    );
     Assert.equal(channel.contentLength, kSimpleNewsArticle.length);
 
     // Now try an attachment. &part=1.2
     // XXX the message doesn't really have an attachment
     let attachmentURL = Services.io.newURI(neckoURL.value.spec + "&part=1.2");
-    Services.io.newChannelFromURI(attachmentURL,
-                                  null,
-                                  Services.scriptSecurityManager.getSystemPrincipal(),
-                                  null,
-                                  Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                  Ci.nsIContentPolicy.TYPE_OTHER);
+    Services.io.newChannelFromURI(
+      attachmentURL,
+      null,
+      Services.scriptSecurityManager.getSystemPrincipal(),
+      null,
+      Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+      Ci.nsIContentPolicy.TYPE_OTHER
+    );
     // Currently attachments have their content length set to the length of the
     // entire message
     Assert.equal(channel.contentLength, kSimpleNewsArticle.length);

@@ -14,20 +14,18 @@ load("../../../resources/messageGenerator.js");
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
-var tests = [
-  checkStatSelect,
-  checkStatNoSelect,
-  endTest,
-];
+var tests = [checkStatSelect, checkStatNoSelect, endTest];
 
 function run_test() {
   var daemon = new imapDaemon();
-  daemon.createMailbox("folder 1", {subscribed: true});
+  daemon.createMailbox("folder 1", { subscribed: true });
   let folder1Mailbox = daemon.getMailbox("folder 1");
   folder1Mailbox.flags.push("\\Noselect");
-  daemon.createMailbox("folder 2", {subscribed: true});
+  daemon.createMailbox("folder 2", { subscribed: true });
   gFolder2Mailbox = daemon.getMailbox("folder 2");
   addMessageToFolder(gFolder2Mailbox);
   gServer = makeServer(daemon, "");
@@ -100,8 +98,10 @@ function* checkStatNoSelect() {
   // we've cleared the ImapNoselect flag, so we will attempt to STAT folder 1,
   // which will fail. So we verify that we go on and STAT folder 2, and that
   // it picks up the message we added to it above.
-  MailServices.mailSession.AddFolderListener(gFolderListener,
-                                             Ci.nsIFolderListener.boolPropertyChanged);
+  MailServices.mailSession.AddFolderListener(
+    gFolderListener,
+    Ci.nsIFolderListener.boolPropertyChanged
+  );
   gIMAPInbox.getNewMessages(null, null);
   // Wait for the folder listener to get told about new messages.
   yield false;
@@ -113,9 +113,9 @@ function addMessageToFolder(mbox) {
   let gMessageGenerator = new MessageGenerator();
   messages = messages.concat(gMessageGenerator.makeMessage());
 
-  let msgURI =
-    Services.io.newURI("data:text/plain;base64," +
-                       btoa(messages[0].toMessageString()));
+  let msgURI = Services.io.newURI(
+    "data:text/plain;base64," + btoa(messages[0].toMessageString())
+  );
   let message = new imapMessage(msgURI.spec, mbox.uidnext++);
   mbox.addMessage(message);
 }
@@ -133,7 +133,8 @@ function* endTest() {
 var gFolderListener = {
   OnItemBoolPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {
     // This means that the STAT on "folder 2" has finished.
-    if (aProperty == "NewMessages" && aNewValue)
+    if (aProperty == "NewMessages" && aNewValue) {
       async_driver();
+    }
   },
 };

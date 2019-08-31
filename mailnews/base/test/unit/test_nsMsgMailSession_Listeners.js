@@ -3,11 +3,15 @@
  * Test suite for nsMsgMailSession functions relating to listeners.
  */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var numListenerFunctions = 8;
 
-var gMailSessionNotifier = MailServices.mailSession.QueryInterface(Ci.nsIFolderListener);
+var gMailSessionNotifier = MailServices.mailSession.QueryInterface(
+  Ci.nsIFolderListener
+);
 
 var gFLAll;
 var gFLSingle = new Array(numListenerFunctions);
@@ -20,55 +24,63 @@ fL.prototype = {
 
   OnItemAdded(parentItem, item) {
     this.mReceived |= Ci.nsIFolderListener.added;
-    if (this.mAutoRemoveItem)
+    if (this.mAutoRemoveItem) {
       MailServices.mailSession.RemoveFolderListener(this);
+    }
   },
   OnItemRemoved(parentItem, item) {
     this.mReceived |= Ci.nsIFolderListener.removed;
-    if (this.mAutoRemoveItem)
+    if (this.mAutoRemoveItem) {
       MailServices.mailSession.RemoveFolderListener(this);
+    }
   },
   OnItemPropertyChanged(item, property, oldValue, newValue) {
     this.mReceived |= Ci.nsIFolderListener.propertyChanged;
-    if (this.mAutoRemoveItem)
+    if (this.mAutoRemoveItem) {
       MailServices.mailSession.RemoveFolderListener(this);
+    }
   },
   OnItemIntPropertyChanged(item, property, oldValue, newValue) {
     this.mReceived |= Ci.nsIFolderListener.intPropertyChanged;
-    if (this.mAutoRemoveItem)
+    if (this.mAutoRemoveItem) {
       MailServices.mailSession.RemoveFolderListener(this);
+    }
   },
   OnItemBoolPropertyChanged(item, property, oldValue, newValue) {
     this.mReceived |= Ci.nsIFolderListener.boolPropertyChanged;
-    if (this.mAutoRemoveItem)
+    if (this.mAutoRemoveItem) {
       MailServices.mailSession.RemoveFolderListener(this);
+    }
   },
   OnItemUnicharPropertyChanged(item, property, oldValue, newValue) {
     this.mReceived |= Ci.nsIFolderListener.unicharPropertyChanged;
-    if (this.mAutoRemoveItem)
+    if (this.mAutoRemoveItem) {
       MailServices.mailSession.RemoveFolderListener(this);
+    }
   },
   OnItemPropertyFlagChanged(item, property, oldValue, newValue) {
     this.mReceived |= Ci.nsIFolderListener.propertyFlagChanged;
-    if (this.mAutoRemoveItem)
+    if (this.mAutoRemoveItem) {
       MailServices.mailSession.RemoveFolderListener(this);
+    }
   },
   OnItemEvent(parentItem, item) {
     this.mReceived |= Ci.nsIFolderListener.event;
-    if (this.mAutoRemoveItem)
+    if (this.mAutoRemoveItem) {
       MailServices.mailSession.RemoveFolderListener(this);
+    }
   },
 };
 
 function NotifyMailSession() {
-    gMailSessionNotifier.OnItemAdded(null, null);
-    gMailSessionNotifier.OnItemRemoved(null, null);
-    gMailSessionNotifier.OnItemPropertyChanged(null, null, null, null);
-    gMailSessionNotifier.OnItemIntPropertyChanged(null, null, null, null);
-    gMailSessionNotifier.OnItemBoolPropertyChanged(null, null, null, null);
-    gMailSessionNotifier.OnItemUnicharPropertyChanged(null, null, null, null);
-    gMailSessionNotifier.OnItemPropertyFlagChanged(null, null, null, null);
-    gMailSessionNotifier.OnItemEvent(null, null);
+  gMailSessionNotifier.OnItemAdded(null, null);
+  gMailSessionNotifier.OnItemRemoved(null, null);
+  gMailSessionNotifier.OnItemPropertyChanged(null, null, null, null);
+  gMailSessionNotifier.OnItemIntPropertyChanged(null, null, null, null);
+  gMailSessionNotifier.OnItemBoolPropertyChanged(null, null, null, null);
+  gMailSessionNotifier.OnItemUnicharPropertyChanged(null, null, null, null);
+  gMailSessionNotifier.OnItemPropertyFlagChanged(null, null, null, null);
+  gMailSessionNotifier.OnItemEvent(null, null);
 }
 
 function run_test() {
@@ -78,12 +90,12 @@ function run_test() {
 
   // Test - Add a listener
 
-  gFLAll = new fL;
+  gFLAll = new fL();
 
   MailServices.mailSession.AddFolderListener(gFLAll, Ci.nsIFolderListener.all);
 
   for (i = 0; i < numListenerFunctions; ++i) {
-    gFLSingle[i] = new fL;
+    gFLSingle[i] = new fL();
     MailServices.mailSession.AddFolderListener(gFLSingle[i], Math.pow(2, i));
   }
 
@@ -123,8 +135,9 @@ function run_test() {
   Assert.equal(gFLAll.mReceived, Math.pow(2, numListenerFunctions) - 1);
   gFLAll.mReceived = 0;
 
-  for (i = 0; i < numListenerFunctions; ++i)
+  for (i = 0; i < numListenerFunctions; ++i) {
     Assert.equal(gFLSingle[i].mReceived, 0);
+  }
 
   // Test - Remove main listener
 

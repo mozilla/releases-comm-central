@@ -6,7 +6,9 @@
  * advertises it AND if mail.strictly_mime doesn't force us to send 7bit.
  * It does not check the data of the message on either side of the link.
  */
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var server;
 
@@ -31,24 +33,42 @@ function test_8bitmime(aStrictMime, aServer8bit) {
   // Handle the server in a try/catch/finally loop so that we always will stop
   // the server if something fails.
   try {
-    test = "Strictly MIME" + (aStrictMime ? "on (7bit" : "off (8bit") +
-             ", 8BITMIME " + (aServer8bit ? "" : "not ") + "advertised)";
+    test =
+      "Strictly MIME" +
+      (aStrictMime ? "on (7bit" : "off (8bit") +
+      ", 8BITMIME " +
+      (aServer8bit ? "" : "not ") +
+      "advertised)";
 
     Services.prefs.setBoolPref("mail.strictly_mime", aStrictMime);
 
-    MailServices.smtp.sendMailMessage(testFile, kTo, identity, kSender,
-                                      null, null, null, null,
-                                      false, {}, {});
+    MailServices.smtp.sendMailMessage(
+      testFile,
+      kTo,
+      identity,
+      kSender,
+      null,
+      null,
+      null,
+      null,
+      false,
+      {},
+      {}
+    );
 
     server.performTest();
 
     var transaction = server.playTransaction();
-    do_check_transaction(transaction, ["EHLO test",
-                                       "MAIL FROM:<" + kSender +
-                                         (!aStrictMime && aServer8bit ?
-                                           "> BODY=8BITMIME SIZE=159" : "> SIZE=159"),
-                                       "RCPT TO:<" + kTo + ">",
-                                       "DATA"]);
+    do_check_transaction(transaction, [
+      "EHLO test",
+      "MAIL FROM:<" +
+        kSender +
+        (!aStrictMime && aServer8bit
+          ? "> BODY=8BITMIME SIZE=159"
+          : "> SIZE=159"),
+      "RCPT TO:<" + kTo + ">",
+      "DATA",
+    ]);
 
     server.resetTest();
   } catch (e) {
@@ -57,8 +77,9 @@ function test_8bitmime(aStrictMime, aServer8bit) {
     server.stop();
 
     var thread = gThreadManager.currentThread;
-    while (thread.hasPendingEvents())
+    while (thread.hasPendingEvents()) {
       thread.processNextEvent(true);
+    }
   }
 }
 
@@ -71,7 +92,7 @@ function run_test() {
   // Now we need a server which does not advertise 8BITMIME capability.
   function createHandler(d) {
     var handler = new SMTP_RFC2821_handler(d);
-    handler.kCapabilities = [ "SIZE" ];
+    handler.kCapabilities = ["SIZE"];
     return handler;
   }
   server = setupServerDaemon(createHandler);

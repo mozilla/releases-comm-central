@@ -24,48 +24,54 @@ var authSchemes;
 var incomingServer;
 var thisTest;
 
-var tests = [{
-  title: "GSSAPI auth, server with GSSAPI only",
-  clientAuthMethod: Ci.nsMsgAuthMethod.GSSAPI,
-  serverAuthMethods: ["GSSAPI"],
-  expectSuccess: false,
-  transaction: ["AUTH", "CAPA"],
-}, {
-  // First GSSAPI step happens and fails out of band, thus no "AUTH GSSAPI"
-  title: "GSSAPI auth, server with GSSAPI and CRAM-MD5",
-  clientAuthMethod: Ci.nsMsgAuthMethod.GSSAPI,
-  serverAuthMethods: ["GSSAPI", "CRAM-MD5"],
-  expectSuccess: false,
-  transaction: ["AUTH", "CAPA"],
-}, {
-  title: "Any secure auth, server with GSSAPI only",
-  clientAuthMethod: Ci.nsMsgAuthMethod.secure,
-  serverAuthMethods: ["GSSAPI"],
-  expectSuccess: false,
-  transaction: ["AUTH", "CAPA"],
-}, {
-  title: "Any secure auth, server with GSSAPI and CRAM-MD5",
-  clientAuthMethod: Ci.nsMsgAuthMethod.secure,
-  serverAuthMethods: ["GSSAPI", "CRAM-MD5"],
-  expectSuccess: true,
-  transaction: ["AUTH", "CAPA", "AUTH CRAM-MD5", "STAT"],
-}, {
-  title: "Encrypted password, server with GSSAPI and CRAM-MD5",
-  clientAuthMethod: Ci.nsMsgAuthMethod.passwordEncrypted,
-  serverAuthMethods: ["GSSAPI", "CRAM-MD5"],
-  expectSuccess: true,
-  transaction: ["AUTH", "CAPA", "AUTH CRAM-MD5", "STAT"],
-}];
+var tests = [
+  {
+    title: "GSSAPI auth, server with GSSAPI only",
+    clientAuthMethod: Ci.nsMsgAuthMethod.GSSAPI,
+    serverAuthMethods: ["GSSAPI"],
+    expectSuccess: false,
+    transaction: ["AUTH", "CAPA"],
+  },
+  {
+    // First GSSAPI step happens and fails out of band, thus no "AUTH GSSAPI"
+    title: "GSSAPI auth, server with GSSAPI and CRAM-MD5",
+    clientAuthMethod: Ci.nsMsgAuthMethod.GSSAPI,
+    serverAuthMethods: ["GSSAPI", "CRAM-MD5"],
+    expectSuccess: false,
+    transaction: ["AUTH", "CAPA"],
+  },
+  {
+    title: "Any secure auth, server with GSSAPI only",
+    clientAuthMethod: Ci.nsMsgAuthMethod.secure,
+    serverAuthMethods: ["GSSAPI"],
+    expectSuccess: false,
+    transaction: ["AUTH", "CAPA"],
+  },
+  {
+    title: "Any secure auth, server with GSSAPI and CRAM-MD5",
+    clientAuthMethod: Ci.nsMsgAuthMethod.secure,
+    serverAuthMethods: ["GSSAPI", "CRAM-MD5"],
+    expectSuccess: true,
+    transaction: ["AUTH", "CAPA", "AUTH CRAM-MD5", "STAT"],
+  },
+  {
+    title: "Encrypted password, server with GSSAPI and CRAM-MD5",
+    clientAuthMethod: Ci.nsMsgAuthMethod.passwordEncrypted,
+    serverAuthMethods: ["GSSAPI", "CRAM-MD5"],
+    expectSuccess: true,
+    transaction: ["AUTH", "CAPA", "AUTH CRAM-MD5", "STAT"],
+  },
+];
 
 var urlListener = {
-  OnStartRunningUrl(url) {
-  },
+  OnStartRunningUrl(url) {},
   OnStopRunningUrl(url, result) {
     try {
-      if (thisTest.expectSuccess)
+      if (thisTest.expectSuccess) {
         Assert.equal(result, 0);
-      else
+      } else {
         Assert.notEqual(result, 0);
+      }
 
       var transaction = server.playTransaction();
       do_check_transaction(transaction, thisTest.transaction);
@@ -74,8 +80,9 @@ var urlListener = {
     } catch (e) {
       server.stop();
       var thread = gThreadManager.currentThread;
-      while (thread.hasPendingEvents())
+      while (thread.hasPendingEvents()) {
         thread.processNextEvent(true);
+      }
 
       do_throw(e);
     }
@@ -90,17 +97,20 @@ function checkBusy() {
     server.stop();
 
     var thread = gThreadManager.currentThread;
-    while (thread.hasPendingEvents())
+    while (thread.hasPendingEvents()) {
       thread.processNextEvent(true);
+    }
 
     do_test_finished();
     return;
   }
 
   // If the server hasn't quite finished, just delay a little longer.
-  if (incomingServer.serverBusy ||
-      (incomingServer instanceof Ci.nsIPop3IncomingServer &&
-       incomingServer.runningProtocol)) {
+  if (
+    incomingServer.serverBusy ||
+    (incomingServer instanceof Ci.nsIPop3IncomingServer &&
+      incomingServer.runningProtocol)
+  ) {
     do_timeout(20, checkBusy);
     return;
   }
@@ -129,8 +139,12 @@ function testNext() {
     msgServer.QueryInterface(Ci.nsIMsgIncomingServer);
     msgServer.authMethod = thisTest.clientAuthMethod;
 
-    MailServices.pop3.GetNewMail(null, urlListener, localAccountUtils.inboxFolder,
-                                 incomingServer);
+    MailServices.pop3.GetNewMail(
+      null,
+      urlListener,
+      localAccountUtils.inboxFolder,
+      incomingServer
+    );
     server.performTest();
   } catch (e) {
     server.stop();
@@ -140,7 +154,11 @@ function testNext() {
 
 // <copied from="head_maillocal.js::createPop3ServerAndLocalFolders()">
 function createPop3Server() {
-  let incoming = MailServices.accounts.createIncomingServer("fred", "localhost", "pop3");
+  let incoming = MailServices.accounts.createIncomingServer(
+    "fred",
+    "localhost",
+    "pop3"
+  );
   incoming.port = server.port;
   incoming.password = "wilma";
   return incoming;
@@ -148,8 +166,9 @@ function createPop3Server() {
 // </copied>
 
 function deletePop3Server() {
-  if (!incomingServer)
+  if (!incomingServer) {
     return;
+  }
   MailServices.accounts.removeIncomingServer(incomingServer, true);
   incomingServer = null;
 }
@@ -178,8 +197,9 @@ GSSAPIFail_handler.prototype = {
       return "-ERR hm.... shall I allow you? hm... NO.";
     }
 
-    if (POP3_RFC5034_handler.prototype.onMultiline)
-      return POP3_RFC5034_handler.prototype.onMultiline.call(this, line); // call parent
+    if (POP3_RFC5034_handler.prototype.onMultiline) {
+      return POP3_RFC5034_handler.prototype.onMultiline.call(this, line);
+    } // call parent
     return undefined;
   },
 };

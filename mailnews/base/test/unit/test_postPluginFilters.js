@@ -11,12 +11,13 @@ load("../../../resources/POP3pump.js");
 
 // Globals
 
-var gDbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"]
-                     .getService(Ci.nsIMsgDBService);
+var gDbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"].getService(
+  Ci.nsIMsgDBService
+);
 
 // command functions for test data
-var kTrain = 0;  // train a file as a trait
-var kClass = 1;  // classify files with traits
+var kTrain = 0; // train a file as a trait
+var kClass = 1; // classify files with traits
 
 var gTest; // currently active test
 var gMsgHdr; // current message header
@@ -34,18 +35,21 @@ var gTests = [
     command: kTrain,
     fileName: kGoodFile,
     traitId: MailServices.junk.GOOD_TRAIT,
-  }, {
+  },
+  {
     command: kTrain,
     fileName: kJunkFile,
     traitId: MailServices.junk.JUNK_TRAIT,
-  }, {
+  },
+  {
     // test a filter that acts on GOOD messages
     command: kClass,
     fileName: kGoodFile,
     test() {
       Assert.equal(kPriorityHigh, gMsgHdr.priority);
     },
-  }, {
+  },
+  {
     // test a filter that acts on JUNK messages
     command: kClass,
     fileName: kJunkFile,
@@ -103,7 +107,10 @@ function run_test() {
   // setup a db listener to grab the message headers. There's probably an
   // easier way, but this works.
   gInboxListener = new DBListener();
-  gDbService.registerPendingListener(localAccountUtils.inboxFolder, gInboxListener);
+  gDbService.registerPendingListener(
+    localAccountUtils.inboxFolder,
+    gInboxListener
+  );
 
   do_test_pending();
 
@@ -113,8 +120,9 @@ function run_test() {
 function endTest() {
   // Cleanup
   dump(" Exiting mail tests\n");
-  if (gInboxListener)
+  if (gInboxListener) {
     gDbService.unregisterPendingListener(gInboxListener);
+  }
 
   gPOP3Pump = null;
 
@@ -125,30 +133,27 @@ var classifyListener = {
   // nsIMsgTraitClassificationListener implementation
   onMessageTraitsClassified(aMsgURI, aTraitCount, aTraits, aPercents) {
     // print("Message URI is " + aMsgURI);
-    if (!aMsgURI)
-      return; // ignore end-of-batch signal
+    if (!aMsgURI) {
+      return;
+    } // ignore end-of-batch signal
 
     startCommand();
   },
 };
 
 // nsIDBChangeListener implementation.
-function DBListener() {
-}
+function DBListener() {}
 
 DBListener.prototype = {
-  onHdrFlagsChanged(aHdrChanged, aOldFlags, aNewFlags, aInstigator) {
-  },
+  onHdrFlagsChanged(aHdrChanged, aOldFlags, aNewFlags, aInstigator) {},
 
-  onHdrDeleted(aHdrChanged, aParentKey, Flags, aInstigator) {
-  },
+  onHdrDeleted(aHdrChanged, aParentKey, Flags, aInstigator) {},
 
   onHdrAdded(aHdrChanged, aParentKey, aFlags, aInstigator) {
     gMsgHdr = aHdrChanged;
   },
 
-  onParentChanged(aKeyChanged, oldParent, newParent, aInstigator) {
-  },
+  onParentChanged(aKeyChanged, oldParent, newParent, aInstigator) {},
 
   onAnnouncerGoingAway(instigator) {
     if (gInboxListener) {
@@ -160,16 +165,12 @@ DBListener.prototype = {
     }
   },
 
-  onReadChanged(aInstigator) {
-  },
+  onReadChanged(aInstigator) {},
 
-  onJunkScoreChanged(aInstigator) {
-  },
+  onJunkScoreChanged(aInstigator) {},
 
-  onHdrPropertyChanged(aHdrToChange, aPreChange, aStatus, aInstigator) {
-  },
-  onEvent(aDB, aEvent) {
-  },
+  onHdrPropertyChanged(aHdrToChange, aPreChange, aStatus, aInstigator) {},
+  onEvent(aDB, aEvent) {},
 };
 
 // start the next test command
@@ -178,7 +179,8 @@ function startCommand() {
     dump("doing test " + gTest.test.name + "\n");
     gTest.test();
   }
-  if (!gTests.length) { // Do we have more commands?
+  if (!gTests.length) {
+    // Do we have more commands?
     // no, all done
     endTest();
     return;
@@ -194,18 +196,21 @@ function startCommand() {
       MailServices.junk.setMsgTraitClassification(
         getSpec(gTest.fileName), // in string aMsgURI
         0,
-        null,         // in nsIArray aOldTraits
+        null, // in nsIArray aOldTraits
         proArray.length,
-        proArray,     // in nsIArray aNewTraits
-        classifyListener); // [optional] in nsIMsgTraitClassificationListener aTraitListener
-        // null,      // [optional] in nsIMsgWindow aMsgWindow
-        // null,      // [optional] in nsIJunkMailClassificationListener aJunkListener
+        proArray, // in nsIArray aNewTraits
+        classifyListener
+      ); // [optional] in nsIMsgTraitClassificationListener aTraitListener
+      // null,      // [optional] in nsIMsgWindow aMsgWindow
+      // null,      // [optional] in nsIJunkMailClassificationListener aJunkListener
       break;
 
     case kClass:
       // classify message
       gPOP3Pump.files = [gTest.fileName];
-      gPOP3Pump.onDone = function() { do_timeout(100, startCommand); };
+      gPOP3Pump.onDone = function() {
+        do_timeout(100, startCommand);
+      };
       gPOP3Pump.run();
       break;
   }
@@ -214,6 +219,9 @@ function startCommand() {
 function getSpec(aFileName) {
   var file = do_get_file(aFileName);
   var uri = Services.io.newFileURI(file).QueryInterface(Ci.nsIURL);
-  uri = uri.mutate().setQuery("type=application/x-message-display").finalize();
+  uri = uri
+    .mutate()
+    .setQuery("type=application/x-message-display")
+    .finalize();
   return uri.spec;
 }

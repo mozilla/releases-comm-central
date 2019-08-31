@@ -49,8 +49,10 @@ var okCallback = null;
    (server vs. newsserver)
 */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var contentWindow;
 
@@ -121,12 +123,16 @@ function onAccountWizardLoad() {
 
   // Set default value for global inbox checkbox
   var checkGlobalInbox = document.getElementById("deferStorage");
-  checkGlobalInbox.checked = Services.prefs.getBoolPref("mail.accountwizard.deferstorage", false);
+  checkGlobalInbox.checked = Services.prefs.getBoolPref(
+    "mail.accountwizard.deferstorage",
+    false
+  );
 }
 
 function onCancel() {
-  if ("ActivationOnCancel" in this && this.ActivationOnCancel())
+  if ("ActivationOnCancel" in this && this.ActivationOnCancel()) {
     return false;
+  }
   var firstInvalidAccount = getFirstInvalidAccount();
   var closeWizard = true;
 
@@ -156,15 +162,22 @@ function onCancel() {
     if (MailServices.accounts.accounts.length < 1) {
       let confirmMsg = gPrefsBundle.getString("cancelWizard");
       let confirmTitle = gPrefsBundle.getString("accountWizard");
-      let result = Services.prompt.confirmEx(window, confirmTitle, confirmMsg,
-        (Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0) +
-        (Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_1),
+      let result = Services.prompt.confirmEx(
+        window,
+        confirmTitle,
+        confirmMsg,
+        Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0 +
+          Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_1,
         gPrefsBundle.getString("WizardExit"),
         gPrefsBundle.getString("WizardContinue"),
-        null, null, {value: 0});
+        null,
+        null,
+        { value: 0 }
+      );
 
-      if (result == 1)
+      if (result == 1) {
         closeWizard = false;
+      }
     }
 
     if (top.okCallback && closeWizard) {
@@ -181,8 +194,9 @@ function FinishAccount() {
 
     var accountData = gCurrentAccountData;
 
-    if (!accountData)
+    if (!accountData) {
       accountData = {};
+    }
 
     // we may need local folders before account is "Finished"
     // if it's a pop3 account which defers to Local Folders.
@@ -193,16 +207,22 @@ function FinishAccount() {
     FixupAccountDataForIsp(accountData);
 
     // we might be simply finishing another account
-    if (!gCurrentAccount)
+    if (!gCurrentAccount) {
       gCurrentAccount = createAccount(accountData);
+    }
 
     // transfer all attributes from the accountdata
     finishAccount(gCurrentAccount, accountData);
 
-    setupCopiesAndFoldersServer(gCurrentAccount, getCurrentServerIsDeferred(pageData), accountData);
+    setupCopiesAndFoldersServer(
+      gCurrentAccount,
+      getCurrentServerIsDeferred(pageData),
+      accountData
+    );
 
-    if (gCurrentAccount.incomingServer.canBeDefaultServer)
+    if (gCurrentAccount.incomingServer.canBeDefaultServer) {
       EnableCheckMailAtStartUpIfNeeded(gCurrentAccount);
+    }
 
     if (!document.getElementById("downloadMsgs").hidden) {
       // skip the default biff, we will load messages manually if needed
@@ -298,16 +318,21 @@ function AccountDataToPageData(accountData, pageData) {
 // take data from each page of pageData and dump it into accountData
 // use: to put results of wizard into a account-oriented object
 function PageDataToAccountData(pageData, accountData) {
-  if (!accountData.identity)
+  if (!accountData.identity) {
     accountData.identity = {};
-  if (!accountData.incomingServer)
+  }
+  if (!accountData.incomingServer) {
     accountData.incomingServer = {};
-  if (!accountData.smtp)
+  }
+  if (!accountData.smtp) {
     accountData.smtp = {};
-  if (!accountData.pop3)
+  }
+  if (!accountData.pop3) {
     accountData.pop3 = {};
-  if (!accountData.imap)
+  }
+  if (!accountData.imap) {
     accountData.imap = {};
+  }
 
   var identity = accountData.identity;
   var server = accountData.incomingServer;
@@ -315,17 +340,21 @@ function PageDataToAccountData(pageData, accountData) {
   var pop3 = accountData.pop3;
   var imap = accountData.imap;
 
-  if (pageData.identity.email)
+  if (pageData.identity.email) {
     identity.email = pageData.identity.email.value;
-  if (pageData.identity.fullName)
+  }
+  if (pageData.identity.fullName) {
     identity.fullName = pageData.identity.fullName.value;
+  }
 
   server.type = getCurrentServerType(pageData);
   server.hostName = getCurrentHostname(pageData);
   if (getCurrentServerIsDeferred(pageData)) {
     try {
       let localFoldersServer = MailServices.accounts.localFoldersServer;
-      let localFoldersAccount = MailServices.accounts.FindAccountForServer(localFoldersServer);
+      let localFoldersAccount = MailServices.accounts.FindAccountForServer(
+        localFoldersServer
+      );
       pop3.deferredToAccount = localFoldersAccount.key;
       pop3.deferGetNewMail = true;
       server["ServerType-pop3"] = pop3;
@@ -338,23 +367,31 @@ function PageDataToAccountData(pageData, accountData) {
     dump("not setting username/password/etc\n");
   } else {
     if (pageData.login) {
-      if (pageData.login.username)
+      if (pageData.login.username) {
         server.username = pageData.login.username.value;
-      if (pageData.login.password)
+      }
+      if (pageData.login.password) {
         server.password = pageData.login.password.value;
-      if (pageData.login.smtpusername)
+      }
+      if (pageData.login.smtpusername) {
         smtp.username = pageData.login.smtpusername.value;
+      }
     }
 
     dump("pageData.server = " + pageData.server + "\n");
     if (pageData.server) {
-      dump("pageData.server.smtphostname.value = " + pageData.server.smtphostname + "\n");
-      if (pageData.server.smtphostname &&
-          pageData.server.smtphostname.value)
+      dump(
+        "pageData.server.smtphostname.value = " +
+          pageData.server.smtphostname +
+          "\n"
+      );
+      if (pageData.server.smtphostname && pageData.server.smtphostname.value) {
         smtp.hostname = pageData.server.smtphostname.value;
+      }
     }
-    if (pageData.identity && pageData.identity.smtpServerKey)
+    if (pageData.identity && pageData.identity.smtpServerKey) {
       identity.smtpServerKey = pageData.identity.smtpServerKey.value;
+    }
 
     if (pageData.server.port && pageData.server.port.value) {
       if (server.type == "imap") {
@@ -366,16 +403,19 @@ function PageDataToAccountData(pageData, accountData) {
       }
     }
 
-    if (pageData.server.leaveMessagesOnServer &&
-        pageData.server.leaveMessagesOnServer.value) {
+    if (
+      pageData.server.leaveMessagesOnServer &&
+      pageData.server.leaveMessagesOnServer.value
+    ) {
       pop3.leaveMessagesOnServer = pageData.server.leaveMessagesOnServer.value;
       server["ServerType-pop3"] = pop3;
     }
   }
 
   if (pageData.accname) {
-    if (pageData.accname.prettyName)
+    if (pageData.accname.prettyName) {
       server.prettyName = pageData.accname.prettyName.value;
+    }
   }
 }
 
@@ -386,11 +426,22 @@ function createAccount(accountData) {
   var server = accountData.incomingServer;
 
   // for news, username is always null
-  var username = (server.type == "nntp") ? null : server.username;
-  dump("MailServices.accounts.createIncomingServer(" +
-       username + ", " + server.hostName + ", " + server.type + ")\n");
+  var username = server.type == "nntp" ? null : server.username;
+  dump(
+    "MailServices.accounts.createIncomingServer(" +
+      username +
+      ", " +
+      server.hostName +
+      ", " +
+      server.type +
+      ")\n"
+  );
   // Create a (actual) server.
-  server = MailServices.accounts.createIncomingServer(username, server.hostName, server.type);
+  server = MailServices.accounts.createIncomingServer(
+    username,
+    server.hostName,
+    server.type
+  );
 
   dump("MailServices.accounts.createAccount()\n");
   // Create an account.
@@ -405,8 +456,9 @@ function createAccount(accountData) {
 
     // New nntp identities should use plain text by default;
     // we want that GNKSA (The Good Net-Keeping Seal of Approval).
-    if (server.type == "nntp")
+    if (server.type == "nntp") {
       identity.composeHtml = false;
+    }
 
     account.addIdentity(identity);
   }
@@ -433,8 +485,8 @@ function finishAccount(account, accountData) {
     // If so, we use the type to get the IID, QueryInterface
     // as appropriate, then copy the data over.
     const typeProperty = "ServerType-" + srcServer.type;
-    let serverAttrs = (typeProperty in srcServer) ?
-                      srcServer[typeProperty] : null;
+    let serverAttrs =
+      typeProperty in srcServer ? srcServer[typeProperty] : null;
     dump(`srcServer.${typeProperty} = ${serverAttrs}\n`);
     if (serverAttrs) {
       // handle server-specific stuff
@@ -460,65 +512,65 @@ function finishAccount(account, accountData) {
   }
 
   // copy identity info
-  var destIdentity = account.identities.length ?
-                     account.identities.queryElementAt(0, nsIMsgIdentity) :
-                     null;
+  var destIdentity = account.identities.length
+    ? account.identities.queryElementAt(0, nsIMsgIdentity)
+    : null;
 
-  if (destIdentity) { // does this account have an identity?
-      if (accountData.identity && accountData.identity.email) {
-          // fixup the email address if we have a default domain
-          let emailArray = accountData.identity.email.split("@");
-          if (emailArray.length < 2 && accountData.domain) {
-              accountData.identity.email += "@" + accountData.domain;
-          }
-
-          copyObjectToInterface(destIdentity, accountData.identity, true);
-          destIdentity.valid = true;
+  if (destIdentity) {
+    // does this account have an identity?
+    if (accountData.identity && accountData.identity.email) {
+      // fixup the email address if we have a default domain
+      let emailArray = accountData.identity.email.split("@");
+      if (emailArray.length < 2 && accountData.domain) {
+        accountData.identity.email += "@" + accountData.domain;
       }
 
-      /**
-       * If signature file need to be set, get the path to the signature file.
-       * Signature files, if exist, are placed under default location. Get
-       * default files location for messenger using directory service. Signature
-       * file name should be extracted from the account data to build the complete
-       * path for signature file. Once the path is built, set the identity's signature pref.
-       */
-      if (destIdentity.attachSignature) {
-          var sigFileName = accountData.signatureFileName;
-          let sigFile = MailServices.mailSession.getDataFilesDir("messenger");
-          sigFile.append(sigFileName);
-          destIdentity.signature = sigFile;
+      copyObjectToInterface(destIdentity, accountData.identity, true);
+      destIdentity.valid = true;
+    }
+
+    /**
+     * If signature file need to be set, get the path to the signature file.
+     * Signature files, if exist, are placed under default location. Get
+     * default files location for messenger using directory service. Signature
+     * file name should be extracted from the account data to build the complete
+     * path for signature file. Once the path is built, set the identity's signature pref.
+     */
+    if (destIdentity.attachSignature) {
+      var sigFileName = accountData.signatureFileName;
+      let sigFile = MailServices.mailSession.getDataFilesDir("messenger");
+      sigFile.append(sigFileName);
+      destIdentity.signature = sigFile;
+    }
+
+    if (accountData.smtp.hostname && !destIdentity.smtpServerKey) {
+      // hostname + no key => create a new SMTP server.
+
+      let smtpServer = MailServices.smtp.createServer();
+      var isDefaultSmtpServer;
+      if (!MailServices.smtp.defaultServer.hostname) {
+        MailServices.smtp.defaultServer = smtpServer;
+        isDefaultSmtpServer = true;
       }
 
-      if (accountData.smtp.hostname && !destIdentity.smtpServerKey) {
-          // hostname + no key => create a new SMTP server.
+      copyObjectToInterface(smtpServer, accountData.smtp, false);
 
-          let smtpServer = MailServices.smtp.createServer();
-          var isDefaultSmtpServer;
-          if (!MailServices.smtp.defaultServer.hostname) {
-            MailServices.smtp.defaultServer = smtpServer;
-            isDefaultSmtpServer = true;
-          }
+      // If it's the default server we created, make the identity use
+      // "Use Default" by default.
+      destIdentity.smtpServerKey = isDefaultSmtpServer ? "" : smtpServer.key;
+    }
+  } // if the account has an identity...
 
-          copyObjectToInterface(smtpServer, accountData.smtp, false);
-
-          // If it's the default server we created, make the identity use
-          // "Use Default" by default.
-          destIdentity.smtpServerKey =
-            (isDefaultSmtpServer) ? "" : smtpServer.key;
-       }
-   } // if the account has an identity...
-
-   if (this.FinishAccountHook != undefined) {
-       this.FinishAccountHook(accountData.domain);
-   }
+  if (this.FinishAccountHook != undefined) {
+    this.FinishAccountHook(accountData.domain);
+  }
 }
 
 // Helper method used by copyObjectToInterface which attempts to set dest[attribute] as a generic
 // attribute on the xpconnect object, src.
 // This routine skips any attribute that begins with ServerType-
 function setGenericAttribute(dest, src, attribute) {
-  if (!(attribute.toLowerCase().startsWith("servertype-")) && src[attribute]) {
+  if (!attribute.toLowerCase().startsWith("servertype-") && src[attribute]) {
     switch (typeof src[attribute]) {
       case "string":
         dest.setUnicharAttribute(attribute, src[attribute]);
@@ -530,7 +582,13 @@ function setGenericAttribute(dest, src, attribute) {
         dest.setIntAttribute(attribute, src[attribute]);
         break;
       default:
-        dump("Error: No Generic attribute " + attribute + " found for: " + dest + "\n");
+        dump(
+          "Error: No Generic attribute " +
+            attribute +
+            " found for: " +
+            dest +
+            "\n"
+        );
         break;
     }
   }
@@ -542,15 +600,21 @@ function setGenericAttribute(dest, src, attribute) {
 //        and try setting it generically. This assumes that src supports setIntAttribute, setUnicharAttribute
 //        and setBoolAttribute.
 function copyObjectToInterface(dest, src, useGenericFallback) {
-  if (!dest) return;
-  if (!src) return;
+  if (!dest) {
+    return;
+  }
+  if (!src) {
+    return;
+  }
 
   var attribute;
   for (attribute in src) {
     if (dest.__lookupSetter__(attribute)) {
-      if (dest[attribute] != src[attribute])
+      if (dest[attribute] != src[attribute]) {
         dest[attribute] = src[attribute];
-    } else if (useGenericFallback) { // fall back to setting the attribute generically
+      }
+    } else if (useGenericFallback) {
+      // fall back to setting the attribute generically
       setGenericAttribute(dest, src, attribute);
     }
   } // for each attribute in src we want to copy
@@ -563,7 +627,7 @@ function verifyLocalFoldersAccount() {
   try {
     localMailServer = MailServices.accounts.localFoldersServer;
   } catch (ex) {
-         // dump("exception in findserver: " + ex + "\n");
+    // dump("exception in findserver: " + ex + "\n");
     localMailServer = null;
   }
 
@@ -575,7 +639,9 @@ function verifyLocalFoldersAccount() {
       try {
         localMailServer = MailServices.accounts.localFoldersServer;
       } catch (ex) {
-        dump("error!  we should have found the local mail server after we created it.\n");
+        dump(
+          "error!  we should have found the local mail server after we created it.\n"
+        );
         localMailServer = null;
       }
     }
@@ -590,12 +656,14 @@ function setupCopiesAndFoldersServer(account, accountIsDeferred, accountData) {
 
     // This function sets up the default send preferences. The send preferences
     // go on identities, so there is no need to continue without any identities.
-    if (server.type == "rss" || account.identities.length == 0)
+    if (server.type == "rss" || account.identities.length == 0) {
       return false;
+    }
     let identity = account.identities.queryElementAt(0, Ci.nsIMsgIdentity);
     // For this server, do we default the folder prefs to this server, or to the "Local Folders" server
     // If it's deferred, we use the local folders account.
-    var defaultCopiesAndFoldersPrefsToServer = !accountIsDeferred && server.defaultCopiesAndFoldersPrefsToServer;
+    var defaultCopiesAndFoldersPrefsToServer =
+      !accountIsDeferred && server.defaultCopiesAndFoldersPrefsToServer;
 
     var copiesAndFoldersServer = null;
     if (defaultCopiesAndFoldersPrefsToServer) {
@@ -608,7 +676,11 @@ function setupCopiesAndFoldersServer(account, accountIsDeferred, accountData) {
       copiesAndFoldersServer = MailServices.accounts.localFoldersServer;
     }
 
-    setDefaultCopiesAndFoldersPrefs(identity, copiesAndFoldersServer, accountData);
+    setDefaultCopiesAndFoldersPrefs(
+      identity,
+      copiesAndFoldersServer,
+      accountData
+    );
   } catch (ex) {
     // return false (meaning we did not setupCopiesAndFoldersServer)
     // on any error
@@ -655,35 +727,54 @@ function setDefaultCopiesAndFoldersPrefs(identity, server, accountData) {
      otherwise we use internal names known to everyone like Sent, Templates and Drafts */
 
   // Note the capital F, D and S!
-  var draftFolder = (accountData.identity && accountData.identity.DraftFolder ?
-    accountData.identity.DraftFolder : "Drafts");
-  var stationeryFolder = (accountData.identity && accountData.identity.StationeryFolder ?
-    accountData.identity.StationeryFolder : "Templates");
-  var fccFolder = (accountData.identity && accountData.identity.FccFolder ?
-    accountData.identity.FccFolder : "Sent");
+  var draftFolder =
+    accountData.identity && accountData.identity.DraftFolder
+      ? accountData.identity.DraftFolder
+      : "Drafts";
+  var stationeryFolder =
+    accountData.identity && accountData.identity.StationeryFolder
+      ? accountData.identity.StationeryFolder
+      : "Templates";
+  var fccFolder =
+    accountData.identity && accountData.identity.FccFolder
+      ? accountData.identity.FccFolder
+      : "Sent";
 
   identity.draftFolder = msgFolder.server.serverURI + folderDelim + draftFolder;
-  identity.stationeryFolder = msgFolder.server.serverURI + folderDelim + stationeryFolder;
+  identity.stationeryFolder =
+    msgFolder.server.serverURI + folderDelim + stationeryFolder;
   identity.fccFolder = msgFolder.server.serverURI + folderDelim + fccFolder;
 
   // Note the capital F, D and S!
-  identity.fccFolderPickerMode = (accountData.identity &&
-    accountData.identity.FccFolder ? 1 : gDefaultSpecialFolderPickerMode);
-  identity.draftsFolderPickerMode = (accountData.identity &&
-    accountData.identity.DraftFolder ? 1 : gDefaultSpecialFolderPickerMode);
-  identity.tmplFolderPickerMode = (accountData.identity &&
-    accountData.identity.StationeryFolder ? 1 : gDefaultSpecialFolderPickerMode);
+  identity.fccFolderPickerMode =
+    accountData.identity && accountData.identity.FccFolder
+      ? 1
+      : gDefaultSpecialFolderPickerMode;
+  identity.draftsFolderPickerMode =
+    accountData.identity && accountData.identity.DraftFolder
+      ? 1
+      : gDefaultSpecialFolderPickerMode;
+  identity.tmplFolderPickerMode =
+    accountData.identity && accountData.identity.StationeryFolder
+      ? 1
+      : gDefaultSpecialFolderPickerMode;
 }
 
 function AccountExists(userName, hostName, serverType) {
-  return MailServices.accounts.findRealServer(userName, hostName, serverType, 0);
+  return MailServices.accounts.findRealServer(
+    userName,
+    hostName,
+    serverType,
+    0
+  );
 }
 
 function getFirstInvalidAccount() {
   let invalidAccounts = getInvalidAccounts(MailServices.accounts.accounts);
 
-  if (invalidAccounts.length > 0)
+  if (invalidAccounts.length > 0) {
     return invalidAccounts[0];
+  }
   return null;
 }
 
@@ -692,13 +783,19 @@ function checkForInvalidAccounts() {
 
   if (firstInvalidAccount) {
     var pageData = GetPageData();
-    dump("We have an invalid account, " + firstInvalidAccount + ", let's use that!\n");
+    dump(
+      "We have an invalid account, " +
+        firstInvalidAccount +
+        ", let's use that!\n"
+    );
     gCurrentAccount = firstInvalidAccount;
 
     var accountData = {};
     accountData.incomingServer = firstInvalidAccount.incomingServer;
-    accountData.identity = firstInvalidAccount.identities.queryElementAt(0,
-      nsIMsgIdentity);
+    accountData.identity = firstInvalidAccount.identities.queryElementAt(
+      0,
+      nsIMsgIdentity
+    );
     accountData.smtp = MailServices.smtp.defaultServer;
     AccountDataToPageData(accountData, pageData);
 
@@ -712,14 +809,20 @@ function checkForInvalidAccounts() {
 
 // sets the page data, automatically creating the arrays as necessary
 function setPageData(pageData, tag, slot, value) {
-  if (!pageData[tag]) pageData[tag] = [];
+  if (!pageData[tag]) {
+    pageData[tag] = [];
+  }
 
   if (value == undefined) {
     // clear out this slot
-    if (pageData[tag][slot]) delete pageData[tag][slot];
+    if (pageData[tag][slot]) {
+      delete pageData[tag][slot];
+    }
   } else {
     // pre-fill this slot
-    if (!pageData[tag][slot]) pageData[tag][slot] = [];
+    if (!pageData[tag][slot]) {
+      pageData[tag][slot] = [];
+    }
     pageData[tag][slot].id = slot;
     pageData[tag][slot].value = value;
   }
@@ -727,8 +830,9 @@ function setPageData(pageData, tag, slot, value) {
 
 // value of checkbox on the first page
 function serverIsNntp(pageData) {
-  if (pageData.accounttype.newsaccount)
+  if (pageData.accounttype.newsaccount) {
     return pageData.accounttype.newsaccount.value;
+  }
   return false;
 }
 
@@ -753,31 +857,39 @@ function getCurrentUserName(pageData) {
 }
 
 function getCurrentServerType(pageData) {
-  var servertype = "pop3";    // hopefully don't resort to default!
-  if (serverIsNntp(pageData))
+  var servertype = "pop3"; // hopefully don't resort to default!
+  if (serverIsNntp(pageData)) {
     servertype = "nntp";
-  else if (pageData.server && pageData.server.servertype)
+  } else if (pageData.server && pageData.server.servertype) {
     servertype = pageData.server.servertype.value;
+  }
   return servertype;
 }
 
 function getCurrentServerIsDeferred(pageData) {
   var serverDeferred = false;
-  if (getCurrentServerType(pageData) == "pop3" && pageData.server && pageData.server.deferStorage)
+  if (
+    getCurrentServerType(pageData) == "pop3" &&
+    pageData.server &&
+    pageData.server.deferStorage
+  ) {
     serverDeferred = pageData.server.deferStorage.value;
+  }
 
   return serverDeferred;
 }
 
 function getCurrentHostname(pageData) {
-  if (serverIsNntp(pageData))
+  if (serverIsNntp(pageData)) {
     return pageData.newsserver.hostname.value;
+  }
   return pageData.server.hostname.value;
 }
 
 function GetPageData() {
-  if (!gPageData)
+  if (!gPageData) {
     gPageData = {};
+  }
 
   return gPageData;
 }
@@ -789,28 +901,32 @@ function FixupAccountDataForIsp(accountData) {
   // no fixup for news
   // setting the username does bad things
   // see bugs #42105 and #154213
-  if (accountData.incomingServer.type == "nntp")
+  if (accountData.incomingServer.type == "nntp") {
     return;
+  }
 
   var email = accountData.identity.email;
 
   // The identity might not have an email address, which is what the rest of
   // this function is looking for.
-  if (!email)
+  if (!email) {
     return;
+  }
 
   // fix up the username
-  if (!accountData.incomingServer.username)
+  if (!accountData.incomingServer.username) {
     accountData.incomingServer.username = getUsernameFromEmail(email);
+  }
 
   if (!accountData.smtp.username) {
     // fix for bug #107953
     // if incoming hostname is same as smtp hostname
     // use the server username (instead of the email username)
-    if (accountData.smtp.hostname == accountData.incomingServer.hostName)
+    if (accountData.smtp.hostname == accountData.incomingServer.hostName) {
       accountData.smtp.username = accountData.incomingServer.username;
-    else
+    } else {
       accountData.smtp.username = getUsernameFromEmail(email);
+    }
   }
 }
 
@@ -821,9 +937,9 @@ function onFlush() {
 }
 
 /** If there are no default accounts..
-  * this is will be the new default, so enable
-  * check for mail at startup
-  */
+ * this is will be the new default, so enable
+ * check for mail at startup
+ */
 function EnableCheckMailAtStartUpIfNeeded(newAccount) {
   // Check if default account existed.
   // If no such account, make this one the default account

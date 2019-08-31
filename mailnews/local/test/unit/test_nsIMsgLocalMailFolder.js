@@ -6,7 +6,9 @@
 /* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/messageGenerator.js");
 
-var { toXPCOMArray } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var { toXPCOMArray } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
 
 /**
  * Bug 66763
@@ -42,7 +44,9 @@ function subtest_folder_deletion(root) {
   folder = root.createLocalSubfolder("folder");
 
   // But now with another subfolder
-  folder.QueryInterface(Ci.nsIMsgLocalMailFolder).createLocalSubfolder("subfolder");
+  folder
+    .QueryInterface(Ci.nsIMsgLocalMailFolder)
+    .createLocalSubfolder("subfolder");
 
   // Delete folder into Trash again
   folderArray = toXPCOMArray([folder], Ci.nsIMutableArray);
@@ -88,7 +92,9 @@ function subtest_folder_operations(root) {
   // Get the current number of folders
   var numSubFolders = root.numSubFolders;
 
-  var folder = root.createLocalSubfolder("folder1").QueryInterface(Ci.nsIMsgLocalMailFolder);
+  var folder = root
+    .createLocalSubfolder("folder1")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
 
   Assert.ok(root.hasSubFolders);
   Assert.equal(root.numSubFolders, numSubFolders + 1);
@@ -151,8 +157,7 @@ function subtest_folder_operations(root) {
   folder.setFlag(Ci.nsMsgFolderFlags.CheckNew);
   folder2.setFlag(Ci.nsMsgFolderFlags.Offline);
 
-  Assert.equal(root.getFolderWithFlags(Ci.nsMsgFolderFlags.CheckNew),
-               folder);
+  Assert.equal(root.getFolderWithFlags(Ci.nsMsgFolderFlags.CheckNew), folder);
 
   // Test - Move folders around
 
@@ -182,11 +187,13 @@ function subtest_folder_operations(root) {
 
   Assert.ok(thrown);
 
-  if (folder.filePath.exists())
+  if (folder.filePath.exists()) {
     dump("shouldn't exist - folder file path " + folder.URI + "\n");
+  }
   Assert.ok(!folder.filePath.exists());
-  if (folder2.filePath.exists())
+  if (folder2.filePath.exists()) {
     dump("shouldn't exist - folder2 file path " + folder2.URI + "\n");
+  }
   Assert.ok(!folder2.filePath.exists());
 
   // make sure getting the db doesn't throw an exception
@@ -234,13 +241,15 @@ function subtest_folder_operations(root) {
 }
 
 function test_store_rename(root) {
-  let folder1 = root.createLocalSubfolder("newfolder1")
-                    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  let folder1 = root
+    .createLocalSubfolder("newfolder1")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
   Assert.ok(root.hasSubFolders);
   Assert.ok(!folder1.hasSubFolders);
   let folder2 = folder1.createLocalSubfolder("newfolder1-sub");
-  let folder3 = root.createLocalSubfolder("newfolder3")
-                    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  let folder3 = root
+    .createLocalSubfolder("newfolder3")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folder3.createLocalSubfolder("newfolder3-sub");
 
   Assert.ok(folder1.hasSubFolders);
@@ -262,8 +271,9 @@ function test_store_rename(root) {
   folder3 = root.getChildNamed("newfolder3");
   root.propagateDelete(folder3, true, null);
   Assert.ok(!root.containsChildNamed("newfolder3"));
-  folder3 = root.createLocalSubfolder("newfolder3")
-                .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  folder3 = root
+    .createLocalSubfolder("newfolder3")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folder3.createLocalSubfolder("newfolder3-sub");
   folder3.rename("folder3", null);
 
@@ -277,8 +287,11 @@ var gPluggableStores = [
 ];
 
 function run_all_tests(aHostName) {
-  let server = MailServices.accounts.createIncomingServer("nobody", aHostName,
-                                                          "none");
+  let server = MailServices.accounts.createIncomingServer(
+    "nobody",
+    aHostName,
+    "none"
+  );
   let account = MailServices.accounts.createAccount();
   account.incomingServer = server;
 
@@ -291,8 +304,10 @@ function run_all_tests(aHostName) {
 function run_test() {
   let hostName = "Local Folders";
   for (let index = 0; index < gPluggableStores.length;) {
-    Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
-                               gPluggableStores[index]);
+    Services.prefs.setCharPref(
+      "mail.serverDefaultStoreContractID",
+      gPluggableStores[index]
+    );
     run_all_tests(hostName);
     hostName += "-" + ++index;
   }

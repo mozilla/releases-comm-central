@@ -12,7 +12,9 @@ load("../../../resources/searchTestUtils.js");
 /* import-globals-from ../../../test/resources/abSetup.js */
 load("../../../resources/abSetup.js");
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var ABUri = kPABData.URI;
 
@@ -61,87 +63,104 @@ var Tests = [
     attrib: Sender,
     op: IsInAB,
     count: 3,
-  }, {
+  },
+  {
     value: ABUri,
     attrib: To,
     op: IsInAB,
     count: 4,
-  }, {
+  },
+  {
     value: ABUri,
     attrib: ToOrCC,
     op: IsInAB,
     count: 6,
-  }, {
+  },
+  {
     value: ABUri,
     attrib: AllAddresses,
     op: IsInAB,
     count: 8,
-  }, {
+  },
+  {
     value: ABUri,
     attrib: CCopy,
     op: IsInAB,
     count: 5,
-  }, {
+  },
+  {
     value: ABUri,
     attrib: Sender,
     op: IsntInAB,
     count: 5,
-  }, {
+  },
+  {
     value: ABUri,
     attrib: To,
     op: IsntInAB,
     count: 5,
-  }, {
+  },
+  {
     value: ABUri,
     attrib: ToOrCC,
     op: IsntInAB,
     count: 6,
-  }, {
+  },
+  {
     value: ABUri,
     attrib: AllAddresses,
     op: IsntInAB,
     count: 7,
-  }, {
+  },
+  {
     value: ABUri,
     attrib: CCopy,
     op: IsntInAB,
     count: 4,
-  }, {
+  },
+  {
     value: "PrimaryEmail1@test.invalid",
     attrib: AllAddresses,
     op: Is,
     count: 8,
-  }, {
+  },
+  {
     value: "PrimaryEmail1@test.invalid",
     attrib: AllAddresses,
     op: Isnt,
     count: 0,
-  }, {
+  },
+  {
     value: "invalid@example.com",
     attrib: AllAddresses,
     op: Is,
     count: 7,
-  }, {
+  },
+  {
     value: "invalid@example.com",
     attrib: AllAddresses,
     op: Isnt,
     count: 1,
-  }, {
+  },
+  {
     value: "PrimaryEmail1@test.invalid",
     attrib: ToOrCC,
     op: Is,
     count: 6,
-  }, {
+  },
+  {
     value: "PrimaryEmail1@test.invalid",
     attrib: ToOrCC,
     op: Isnt,
     count: 2,
-  }, {
+  },
+  {
     value: "invalid@example.com",
     attrib: ToOrCC,
     op: Is,
     count: 6,
-  }, {
+  },
+  {
     value: "invalid@example.com",
     attrib: ToOrCC,
     op: Isnt,
@@ -164,7 +183,7 @@ function run_test() {
   // Setup local mail accounts.
   localAccountUtils.loadLocalMailAccount();
 
-    // Test setup - copy the data file into place
+  // Test setup - copy the data file into place
   var testAB = do_get_file("../../../addrbook/test/unit/data/cardForEmail.mab");
 
   // Copy the file to the profile directory for a PAB
@@ -282,8 +301,16 @@ var copyListener = {
     var fileName = Files.shift();
     if (fileName) {
       var file = do_get_file(fileName);
-      MailServices.copy.CopyFileMessage(file, localAccountUtils.inboxFolder, null,
-                                        false, 0, "", copyListener, null);
+      MailServices.copy.CopyFileMessage(
+        file,
+        localAccountUtils.inboxFolder,
+        null,
+        false,
+        0,
+        "",
+        copyListener,
+        null
+      );
     } else {
       testAbSearch();
     }
@@ -297,12 +324,14 @@ function testAbSearch() {
   print("Test AbSearch");
   var test = Tests.shift();
   if (test) {
-    new TestSearch(localAccountUtils.inboxFolder,
-                   test.value,
-                   test.attrib,
-                   test.op,
-                   test.count,
-                   testAbSearch);
+    new TestSearch(
+      localAccountUtils.inboxFolder,
+      test.value,
+      test.attrib,
+      test.op,
+      test.count,
+      testAbSearch
+    );
   } else {
     do_test_finished();
   }

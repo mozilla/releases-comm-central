@@ -44,6 +44,6 @@ var tests = [
 function run_test() {
   // Tests in this file assume that returned folders are nsIMsgFolders and not
   //  handles which currently only local injection supports.
-  configure_message_injection({mode: "local"});
+  configure_message_injection({ mode: "local" });
   glodaHelperRunTests(tests);
 }

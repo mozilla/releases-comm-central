@@ -1,11 +1,21 @@
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {mailTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/mailTestUtils.js");
-var {localAccountUtils} = ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+var { mailTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/mailTestUtils.js"
+);
+var { localAccountUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/localAccountUtils.js"
+);
 
-let {Feed, FeedItem, FeedParser, FeedUtils} = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
-let {HttpServer} = ChromeUtils.import("resource://testing-common/httpd.js");
+let { Feed, FeedItem, FeedParser, FeedUtils } = ChromeUtils.import(
+  "resource:///modules/FeedUtils.jsm"
+);
+let { HttpServer } = ChromeUtils.import("resource://testing-common/httpd.js");
 
 // Set up local web server to serve up test files.
 // We run it on a random port so that other tests can run concurrently

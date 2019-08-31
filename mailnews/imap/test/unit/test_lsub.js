@@ -17,26 +17,30 @@ load("../../../resources/alertTestUtils.js");
 
 // IMAP pump
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Globals
-
 
 setupIMAPPump();
 
 // Definition of tests
-var tests = [
-  setupMailboxes,
-  testLsub,
-  endTest,
-];
+var tests = [setupMailboxes, testLsub, endTest];
 
 // setup the mailboxes that will be used for this test
 function* setupMailboxes() {
   IMAPPump.mailbox.subscribed = true;
-  IMAPPump.daemon.createMailbox("folder1", {subscribed: true, flags: ["\\Noselect"]});
-  IMAPPump.daemon.createMailbox("folder1/folder11", {subscribed: true, flags: ["\\Noinferiors"]});
-  IMAPPump.daemon.createMailbox("folder2", {subscribed: true, nonExistent: true});
+  IMAPPump.daemon.createMailbox("folder1", {
+    subscribed: true,
+    flags: ["\\Noselect"],
+  });
+  IMAPPump.daemon.createMailbox("folder1/folder11", {
+    subscribed: true,
+    flags: ["\\Noinferiors"],
+  });
+  IMAPPump.daemon.createMailbox("folder2", {
+    subscribed: true,
+    nonExistent: true,
+  });
   IMAPPump.daemon.createMailbox("folder3", {});
 
   // select the inbox to force folder discovery, etc.
@@ -79,6 +83,9 @@ function endTest() {
 }
 
 function run_test() {
-  Services.prefs.setBoolPref("mail.server.server1.autosync_offline_stores", false);
+  Services.prefs.setBoolPref(
+    "mail.server.server1.autosync_offline_stores",
+    false
+  );
   async_run_tests(tests);
 }

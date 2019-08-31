@@ -18,8 +18,7 @@ load("../../../resources/messageGenerator.js");
 load("../../../resources/messageModifier.js");
 load("../../../resources/messageInjection.js");
 
-var gMessenger = Cc["@mozilla.org/messenger;1"]
-                   .createInstance(Ci.nsIMessenger);
+var gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
 // Create a message generator
 var gMessageGenerator = new MessageGenerator();
@@ -32,106 +31,130 @@ var messages = [
 
   {
     // inline-able attachment with a name
-    attachments: [{
-      body: "attachment",
-      filename: "ubik.txt",
-      disposition: "attachment",
-      format: "",
-      shouldShow: true,
-    }],
-  }, {
+    attachments: [
+      {
+        body: "attachment",
+        filename: "ubik.txt",
+        disposition: "attachment",
+        format: "",
+        shouldShow: true,
+      },
+    ],
+  },
+  {
     // inline-able attachment with no name
-    attachments: [{
-      body: "attachment",
-      filename: "",
-      disposition: "attachment",
-      format: "",
-      shouldShow: true,
-    }],
-  }, {
+    attachments: [
+      {
+        body: "attachment",
+        filename: "",
+        disposition: "attachment",
+        format: "",
+        shouldShow: true,
+      },
+    ],
+  },
+  {
     // non-inline-able attachment with a name
-    attachments: [{
-      body: "attachment",
-      filename: "ubik.ubk",
-      disposition: "attachment",
-      contentType: "application/x-ubik",
-      format: "",
-      shouldShow: true,
-    }],
-  }, {
+    attachments: [
+      {
+        body: "attachment",
+        filename: "ubik.ubk",
+        disposition: "attachment",
+        contentType: "application/x-ubik",
+        format: "",
+        shouldShow: true,
+      },
+    ],
+  },
+  {
     // non-inline-able attachment with no name
-    attachments: [{
-      body: "attachment",
-      filename: "",
-      disposition: "attachment",
-      contentType: "application/x-ubik",
-      format: "",
-      shouldShow: true,
-    }],
+    attachments: [
+      {
+        body: "attachment",
+        filename: "",
+        disposition: "attachment",
+        contentType: "application/x-ubik",
+        format: "",
+        shouldShow: true,
+      },
+    ],
   },
 
   /* Attachments with Content-Disposition: inline */
 
   {
     // inline-able attachment with a name
-    attachments: [{
-      body: "attachment",
-      filename: "ubik.txt",
-      disposition: "inline",
-      format: "",
-      shouldShow: true,
-    }],
-  }, {
+    attachments: [
+      {
+        body: "attachment",
+        filename: "ubik.txt",
+        disposition: "inline",
+        format: "",
+        shouldShow: true,
+      },
+    ],
+  },
+  {
     // inline-able attachment with no name
-    attachments: [{
-      body: "attachment",
-      filename: "",
-      disposition: "inline",
-      format: "",
-      shouldShow: false,
-    }],
-  }, {
+    attachments: [
+      {
+        body: "attachment",
+        filename: "",
+        disposition: "inline",
+        format: "",
+        shouldShow: false,
+      },
+    ],
+  },
+  {
     // non-inline-able attachment with a name
-    attachments: [{
-      body: "attachment",
-      filename: "ubik.ubk",
-      disposition: "inline",
-      contentType: "application/x-ubik",
-      format: "",
-      shouldShow: true,
-    }],
-  }, {
+    attachments: [
+      {
+        body: "attachment",
+        filename: "ubik.ubk",
+        disposition: "inline",
+        contentType: "application/x-ubik",
+        format: "",
+        shouldShow: true,
+      },
+    ],
+  },
+  {
     // non-inline-able attachment with no name
-    attachments: [{
-      body: "attachment",
-      filename: "",
-      disposition: "inline",
-      contentType: "application/x-ubik",
-      format: "",
-      shouldShow: true,
-    }],
+    attachments: [
+      {
+        body: "attachment",
+        filename: "",
+        disposition: "inline",
+        contentType: "application/x-ubik",
+        format: "",
+        shouldShow: true,
+      },
+    ],
   },
 ];
-
 
 var gStreamListener = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
 
   // nsIRequestObserver part
-  onStartRequest(aRequest) {
-  },
+  onStartRequest(aRequest) {},
   onStopRequest(aRequest, aStatusCode) {
-    let expectedAttachments = this.allAttachments.filter(i => i.shouldShow).
-      map(i => i.filename);
-    Assert.equal(expectedAttachments.length,
-                 gMessageHeaderSink.attachments.length);
+    let expectedAttachments = this.allAttachments
+      .filter(i => i.shouldShow)
+      .map(i => i.filename);
+    Assert.equal(
+      expectedAttachments.length,
+      gMessageHeaderSink.attachments.length
+    );
 
     for (let i = 0; i < gMessageHeaderSink.attachments.length; i++) {
       // If the expected attachment's name is empty, we probably generated a
       // name like "Part 1.2", so don't bother checking that the names match
       // (they won't).
-      if (expectedAttachments[i])
+      if (expectedAttachments[i]) {
         Assert.equal(expectedAttachments[i], gMessageHeaderSink.attachments[i]);
+      }
     }
     this._stream = null;
 
@@ -143,8 +166,9 @@ var gStreamListener = {
 
   onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
     if (this._stream === null) {
-      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].
-                    createInstance(Ci.nsIScriptableInputStream);
+      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+        Ci.nsIScriptableInputStream
+      );
       this._stream.init(aInputStream);
     }
     this._stream.read(aCount);
@@ -155,7 +179,13 @@ var gMessageHeaderSink = {
   onEndMsgHeaders(aUrl) {
     this.attachments = [];
   },
-  handleAttachment(aContentType, aUrl, aDisplayName, aUri, aIsExternalAttachment) {
+  handleAttachment(
+    aContentType,
+    aUrl,
+    aDisplayName,
+    aUri,
+    aIsExternalAttachment
+  ) {
     this.attachments.push(aDisplayName);
   },
 
@@ -173,8 +203,9 @@ var gMessageHeaderSink = {
   resetProperties() {},
 };
 
-var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
-                  .createInstance(Ci.nsIMsgWindow);
+var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
+  Ci.nsIMsgWindow
+);
 msgWindow.msgHeaderSink = gMessageHeaderSink;
 
 function* test_message_attachments(info) {
@@ -202,14 +233,12 @@ function* test_message_attachments(info) {
 
 /* ===== Driver ===== */
 
-var tests = [
-  parameterizeTest(test_message_attachments, messages),
-];
+var tests = [parameterizeTest(test_message_attachments, messages)];
 
 var gInbox;
 
 function run_test() {
   // use mbox injection because the fake server chokes sometimes right now
-  gInbox = configure_message_injection({mode: "local"});
+  gInbox = configure_message_injection({ mode: "local" });
   async_run_tests(tests);
 }

@@ -7,10 +7,9 @@
  * just check roundtrips, against static values etc..
  */
 
-var {
-  AuthPLAIN,
-  AuthCRAM,
-} = ChromeUtils.import("resource://testing-common/mailnews/auth.js");
+var { AuthPLAIN, AuthCRAM } = ChromeUtils.import(
+  "resource://testing-common/mailnews/auth.js"
+);
 
 var kUsername = "fred1";
 var kPassword = "wilma2";
@@ -41,7 +40,8 @@ function authPLAIN() {
 function authCRAMMD5() {
   // AuthCRAM.createChallenge() creates a different challenge each time
   var hardcodedChallenge = btoa("<123@fake.invalid>");
-  var hardcodedResponse = "ZnJlZDEgOTA5YjgwMmM3NTI5NTJlYzI2NjgyMTNmYTdjNWU0ZjQ=";
+  var hardcodedResponse =
+    "ZnJlZDEgOTA5YjgwMmM3NTI5NTJlYzI2NjgyMTNmYTdjNWU0ZjQ=";
 
   // correct encoding
   var req = AuthCRAM.decodeLine(hardcodedResponse);

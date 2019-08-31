@@ -15,20 +15,25 @@ load("../../../resources/asyncTestUtils.js");
 // javascript mime emitter functions
 var mimeMsg = {};
 ChromeUtils.import("resource:///modules/gloda/mimemsg.js", mimeMsg);
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
-var tests = [
-  startCopy,
-  startMime,
-  startDetach,
-  testDetach,
-];
+var tests = [startCopy, startMime, startDetach, testDetach];
 
 function* startCopy() {
   // Get a message into the local filestore.
   let mailFile = do_get_file("../../../data/multipartmalt-detach");
-  MailServices.copy.CopyFileMessage(mailFile, localAccountUtils.inboxFolder, null,
-                                    false, 0, "", asyncCopyListener, null);
+  MailServices.copy.CopyFileMessage(
+    mailFile,
+    localAccountUtils.inboxFolder,
+    null,
+    false,
+    0,
+    "",
+    asyncCopyListener,
+    null
+  );
   yield false;
 }
 
@@ -36,8 +41,12 @@ function* startCopy() {
 function* startMime() {
   let msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
 
-  mimeMsg.MsgHdrToMimeMessage(msgHdr, gCallbackObject, gCallbackObject.callback,
-                              true /* allowDownload */);
+  mimeMsg.MsgHdrToMimeMessage(
+    msgHdr,
+    gCallbackObject,
+    gCallbackObject.callback,
+    true /* allowDownload */
+  );
   yield false;
 }
 
@@ -46,12 +55,20 @@ function* startDetach() {
   let msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
   let msgURI = msgHdr.folder.generateMessageURI(msgHdr.messageKey);
 
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+    Ci.nsIMessenger
+  );
   let attachment = gCallbackObject.attachments[0];
 
-  messenger.detachAttachmentsWOPrompts(do_get_profile(), 1,
-                                       [attachment.contentType], [attachment.url],
-                                       [attachment.name], [msgURI], asyncUrlListener);
+  messenger.detachAttachmentsWOPrompts(
+    do_get_profile(),
+    1,
+    [attachment.contentType],
+    [attachment.url],
+    [attachment.name],
+    [msgURI],
+    asyncUrlListener
+  );
   yield false;
 }
 
@@ -92,8 +109,9 @@ SaveAttachmentCallback.prototype = {
 var gCallbackObject = new SaveAttachmentCallback();
 
 function run_test() {
-  if (!localAccountUtils.inboxFolder)
+  if (!localAccountUtils.inboxFolder) {
     localAccountUtils.loadLocalMailAccount();
+  }
   async_run_tests(tests);
 }
 
@@ -108,19 +126,18 @@ function getContentFromMessage(aMsgHdr) {
   let msgFolder = aMsgHdr.folder;
   let msgUri = msgFolder.getUriForMsg(aMsgHdr);
 
-  let messenger = Cc["@mozilla.org/messenger;1"]
-                    .createInstance(Ci.nsIMessenger);
-  let streamListener = Cc["@mozilla.org/network/sync-stream-listener;1"]
-                         .createInstance(Ci.nsISyncStreamListener);
-  messenger.messageServiceFromURI(msgUri).streamMessage(msgUri,
-                                                        streamListener,
-                                                        null,
-                                                        null,
-                                                        false,
-                                                        "",
-                                                        false);
-  let sis = Cc["@mozilla.org/scriptableinputstream;1"]
-              .createInstance(Ci.nsIScriptableInputStream);
+  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+    Ci.nsIMessenger
+  );
+  let streamListener = Cc[
+    "@mozilla.org/network/sync-stream-listener;1"
+  ].createInstance(Ci.nsISyncStreamListener);
+  messenger
+    .messageServiceFromURI(msgUri)
+    .streamMessage(msgUri, streamListener, null, null, false, "", false);
+  let sis = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+    Ci.nsIScriptableInputStream
+  );
   sis.init(streamListener.inputStream);
   let content = sis.read(MAX_MESSAGE_LENGTH);
   sis.close();

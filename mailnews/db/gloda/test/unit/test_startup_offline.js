@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /*
  * Test gloda starts up with indexing suppressed when offline at startup.
@@ -22,7 +22,7 @@ load("resources/glodaTestHelper.js");
  */
 function* test_gloda_offline_startup() {
   // Set up a folder for indexing and check the message doesn't get indexed.
-  let [, msgSet] = make_folder_with_sets([{count: 1}]);
+  let [, msgSet] = make_folder_with_sets([{ count: 1 }]);
   yield wait_for_message_injection();
   yield wait_for_gloda_indexer();
 
@@ -33,11 +33,9 @@ function* test_gloda_offline_startup() {
   yield wait_for_gloda_indexer(msgSet);
 }
 
-var tests = [
-  test_gloda_offline_startup,
-];
+var tests = [test_gloda_offline_startup];
 
 function run_test() {
-  configure_message_injection({mode: "local"});
+  configure_message_injection({ mode: "local" });
   glodaHelperRunTests(tests);
 }

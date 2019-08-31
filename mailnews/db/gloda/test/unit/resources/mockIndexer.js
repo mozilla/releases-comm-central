@@ -30,7 +30,7 @@ var MockIndexer = {
     GlodaIndexer.callbackDriver();
   },
   /* implementation */
-  * _worker_index_forever(aJob, aCallbackHandle) {
+  *_worker_index_forever(aJob, aCallbackHandle) {
     // pretend that something async is happening, but nothing is really
     //  happening!  muahahaha!
     //

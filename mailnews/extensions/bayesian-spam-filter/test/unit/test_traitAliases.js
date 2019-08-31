@@ -37,10 +37,13 @@
  * alias3.eml        50             53
  */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
-var traitService = Cc["@mozilla.org/msg-trait-service;1"]
-                       .getService(Ci.nsIMsgTraitService);
+var traitService = Cc["@mozilla.org/msg-trait-service;1"].getService(
+  Ci.nsIMsgTraitService
+);
 var kProTrait = 1001;
 var kAntiTrait = 1005;
 var kProAlias = 1007;
@@ -62,27 +65,32 @@ var tests = [
     proAliases: [],
     antiAliases: [],
     percent: 92,
-  }, {
+  },
+  {
     fileName: "aliases2.eml",
     proAliases: [],
     antiAliases: [],
     percent: 8,
-  }, {
+  },
+  {
     fileName: "aliases3.eml",
     proAliases: [],
     antiAliases: [],
     percent: 50,
-  }, {
+  },
+  {
     fileName: "aliases1.eml",
     proAliases: [kProAlias],
     antiAliases: [kAntiAlias],
     percent: 98,
-  }, {
+  },
+  {
     fileName: "aliases2.eml",
     proAliases: [kProAlias],
     antiAliases: [kAntiAlias],
     percent: 3,
-  }, {
+  },
+  {
     fileName: "aliases3.eml",
     proAliases: [kProAlias],
     antiAliases: [kAntiAlias],
@@ -95,8 +103,9 @@ function run_test() {
   localAccountUtils.loadLocalMailAccount();
 
   // load in the aliases trait testing file
-  MailServices.junk.QueryInterface(Ci.nsIMsgCorpus)
-                   .updateData(do_get_file("resources/aliases.dat"), true);
+  MailServices.junk
+    .QueryInterface(Ci.nsIMsgCorpus)
+    .updateData(do_get_file("resources/aliases.dat"), true);
   do_test_pending();
 
   startCommand();
@@ -106,8 +115,9 @@ var listener = {
   // nsIMsgTraitClassificationListener implementation
   onMessageTraitsClassified(aMsgURI, aTraitCount, aTraits, aPercents) {
     // print("Message URI is " + aMsgURI);
-    if (!aMsgURI)
-      return; // ignore end-of-batch signal
+    if (!aMsgURI) {
+      return;
+    } // ignore end-of-batch signal
 
     Assert.equal(aPercents[0], gTest.percent);
     // All done, start the next test
@@ -117,7 +127,8 @@ var listener = {
 
 // start the next test command
 function startCommand() {
-  if (!tests.length) { // Do we have more commands?
+  if (!tests.length) {
+    // Do we have more commands?
     // no, all done
     do_test_finished();
     return;
@@ -134,23 +145,28 @@ function startCommand() {
   let antiAliases = traitService.getAliases(kAntiTrait, {});
   let proAlias;
   let antiAlias;
-  while ((proAlias = proAliases.pop()))
+  while ((proAlias = proAliases.pop())) {
     traitService.removeAlias(kProTrait, proAlias);
-  while ((antiAlias = antiAliases.pop()))
+  }
+  while ((antiAlias = antiAliases.pop())) {
     traitService.removeAlias(kAntiTrait, antiAlias);
+  }
 
   // add new aliases
-  while ((proAlias = gTest.proAliases.pop()))
+  while ((proAlias = gTest.proAliases.pop())) {
     traitService.addAlias(kProTrait, proAlias);
-  while ((antiAlias = gTest.antiAliases.pop()))
+  }
+  while ((antiAlias = gTest.antiAliases.pop())) {
     traitService.addAlias(kAntiTrait, antiAlias);
+  }
 
   MailServices.junk.classifyTraitsInMessage(
     getSpec(gTest.fileName), // in string aMsgURI
     proArray.length, // length of traits arrays
-    proArray,    // in array aProTraits,
-    antiArray,   // in array aAntiTraits
-    listener);   // in nsIMsgTraitClassificationListener aTraitListener
-    // null,      // [optional] in nsIMsgWindow aMsgWindow
-    // null,      // [optional] in nsIJunkMailClassificationListener aJunkListener
+    proArray, // in array aProTraits,
+    antiArray, // in array aAntiTraits
+    listener
+  ); // in nsIMsgTraitClassificationListener aTraitListener
+  // null,      // [optional] in nsIMsgWindow aMsgWindow
+  // null,      // [optional] in nsIJunkMailClassificationListener aJunkListener
 }

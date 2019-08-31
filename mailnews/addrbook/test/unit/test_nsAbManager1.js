@@ -12,25 +12,29 @@ var gAblSingle = new Array(numListenerOptions);
 function abL() {}
 
 abL.prototype = {
- mReceived: 0,
- mAutoRemoveItem: false,
+  mReceived: 0,
+  mAutoRemoveItem: false,
 
   onItemAdded(parentItem, item) {
     this.mReceived |= nsIAbListener.itemAdded;
-    if (this.mAutoRemoveItem)
+    if (this.mAutoRemoveItem) {
       MailServices.ab.removeAddressBookListener(this);
+    }
   },
   onItemRemoved(parentItem, item) {
     this.mReceived |=
-      (item == MailServices.ab ? nsIAbListener.directoryRemoved :
-                                 nsIAbListener.directoryItemRemoved);
-    if (this.mAutoRemoveItem)
+      item == MailServices.ab
+        ? nsIAbListener.directoryRemoved
+        : nsIAbListener.directoryItemRemoved;
+    if (this.mAutoRemoveItem) {
       MailServices.ab.removeAddressBookListener(this);
+    }
   },
   onItemPropertyChanged(item, property, oldValue, newValue) {
     this.mReceived |= nsIAbListener.itemChanged;
-    if (this.mAutoRemoveItem)
+    if (this.mAutoRemoveItem) {
       MailServices.ab.removeAddressBookListener(this);
+    }
   },
 };
 
@@ -48,12 +52,12 @@ function run_test() {
 
   // Test - Add a listener
 
-  gAblAll = new abL;
+  gAblAll = new abL();
 
   MailServices.ab.addAddressBookListener(gAblAll, nsIAbListener.all);
 
   for (i = 0; i < numListenerOptions; ++i) {
-    gAblSingle[i] = new abL;
+    gAblSingle[i] = new abL();
     MailServices.ab.addAddressBookListener(gAblSingle[i], 1 << i);
   }
 

@@ -33,7 +33,10 @@ var FeedCache = {
     try {
       let normalizedUrl = Services.io.newURI(aUrl);
       let newHost = normalizedUrl.host.toLowerCase();
-      normalizedUrl = normalizedUrl.mutate().setHost(newHost).finalize();
+      normalizedUrl = normalizedUrl
+        .mutate()
+        .setHost(newHost)
+        .finalize();
       return normalizedUrl.spec;
     } catch (ex) {
       return aUrl;
@@ -52,8 +55,9 @@ var FeedCache = {
  *                                     subscription.
  */
 function Feed(aFeedUrl, aFolder) {
-  this.resource = FeedUtils.rdf.GetResource(aFeedUrl)
-                               .QueryInterface(Ci.nsIRDFResource);
+  this.resource = FeedUtils.rdf
+    .GetResource(aFeedUrl)
+    .QueryInterface(Ci.nsIRDFResource);
   this.server = aFolder.server;
   if (!aFolder.isServer) {
     this.mFolder = aFolder;
@@ -99,14 +103,16 @@ Feed.prototype = {
     // these are mandatory by spec. Length of 80 is plenty.
     let folderName = (this.title || this.description || "").substr(0, 80);
     let defaultName = FeedUtils.strings.GetStringFromName("ImportFeedsNew");
-    return this.mFolderName = FeedUtils.getSanitizedFolderName(this.server.rootMsgFolder,
-                                                               folderName,
-                                                               defaultName,
-                                                               true);
+    return (this.mFolderName = FeedUtils.getSanitizedFolderName(
+      this.server.rootMsgFolder,
+      folderName,
+      defaultName,
+      true
+    ));
   },
 
   download(aParseItems, aCallback) {
-     // May be null.
+    // May be null.
     this.downloadCallback = aCallback;
 
     // Whether or not to parse items when downloading and parsing the feed.
@@ -118,7 +124,7 @@ Feed.prototype = {
     // a sanity check so we don't try opening mailto urls, imap urls, etc. that
     // the user may have tried to subscribe to as an rss feed.
     if (!FeedUtils.isValidScheme(this.url)) {
-       // Simulate an invalid feed error.
+      // Simulate an invalid feed error.
       FeedUtils.log.info("Feed.download: invalid protocol for - " + this.url);
       this.onParseError(this);
       return;
@@ -151,8 +157,8 @@ Feed.prototype = {
     // Must set onProgress before calling open.
     this.request.onprogress = this.onProgress;
     this.request.open("GET", this.url, true);
-    this.request.channel.loadFlags |= Ci.nsIRequest.LOAD_BYPASS_CACHE |
-                                      Ci.nsIRequest.INHIBIT_CACHING;
+    this.request.channel.loadFlags |=
+      Ci.nsIRequest.LOAD_BYPASS_CACHE | Ci.nsIRequest.INHIBIT_CACHING;
 
     // Some servers, if sent If-Modified-Since, will send 304 if subsequently
     // not sent If-Modified-Since, as in the case of an unsubscribe and new
@@ -192,11 +198,17 @@ Feed.prototype = {
       return;
     }
 
-    FeedUtils.log.debug("Feed.onDownloaded: got a download, fileSize:url - " +
-                        aEvent.loaded + " : " + url);
+    FeedUtils.log.debug(
+      "Feed.onDownloaded: got a download, fileSize:url - " +
+        aEvent.loaded +
+        " : " +
+        url
+    );
     let feed = FeedCache.getFeed(url);
     if (!feed) {
-      throw new Error("Feed.onDownloaded: error - couldn't retrieve feed from cache");
+      throw new Error(
+        "Feed.onDownloaded: error - couldn't retrieve feed from cache"
+      );
     }
 
     // If the server sends a Last-Modified header, store the property on the
@@ -206,8 +218,8 @@ Feed.prototype = {
     // Save the response and persist it only upon successful completion of the
     // refresh cycle (i.e. not if the request is cancelled).
     let lastModifiedHeader = request.getResponseHeader("Last-Modified");
-    feed.mLastModified = (lastModifiedHeader && feed.parseItems) ?
-                           lastModifiedHeader : null;
+    feed.mLastModified =
+      lastModifiedHeader && feed.parseItems ? lastModifiedHeader : null;
 
     feed.fileSize = aEvent.loaded;
 
@@ -221,8 +233,12 @@ Feed.prototype = {
     let feed = FeedCache.getFeed(url);
 
     if (feed.downloadCallback) {
-      feed.downloadCallback.onProgress(feed, aEvent.loaded, aEvent.total,
-                                       aEvent.lengthComputable);
+      feed.downloadCallback.onProgress(
+        feed,
+        aEvent.loaded,
+        aEvent.total,
+        aEvent.lengthComputable
+      );
     }
   },
 
@@ -242,8 +258,14 @@ Feed.prototype = {
         error = FeedUtils.kNewsBlogNoNewItems;
       } else {
         let [errType, errName] = FeedUtils.createTCPErrorFromFailedXHR(request);
-        FeedUtils.log.info("Feed.onDownloaded: request errType:errName:statusCode - " +
-                           errType + ":" + errName + ":" + request.status);
+        FeedUtils.log.info(
+          "Feed.onDownloaded: request errType:errName:statusCode - " +
+            errType +
+            ":" +
+            errName +
+            ":" +
+            request.status
+        );
         if (errType == "SecurityCertificate") {
           // This is the code for nsINSSErrorsService.ERROR_CLASS_BAD_CERT
           // overrideable security certificate errors.
@@ -255,9 +277,11 @@ Feed.prototype = {
           error = FeedUtils.kNewsBlogNoAuthError;
         }
 
-        if (request.status != 0 ||
-            error == FeedUtils.kNewsBlogBadCertError ||
-            errName == "DomainNotFoundError") {
+        if (
+          request.status != 0 ||
+          error == FeedUtils.kNewsBlogBadCertError ||
+          errName == "DomainNotFoundError"
+        ) {
           disable = true;
         }
       }
@@ -275,7 +299,11 @@ Feed.prototype = {
 
     aFeed.mInvalidFeed = true;
     if (aFeed.downloadCallback) {
-      aFeed.downloadCallback.downloaded(aFeed, FeedUtils.kNewsBlogInvalidFeed, true);
+      aFeed.downloadCallback.downloaded(
+        aFeed,
+        FeedUtils.kNewsBlogInvalidFeed,
+        true
+      );
     }
 
     FeedCache.removeFeed(aFeed.url);
@@ -296,15 +324,25 @@ Feed.prototype = {
   },
 
   // nsIUrlListener methods for getDatabaseWithReparse().
-  OnStartRunningUrl(aUrl) { },
+  OnStartRunningUrl(aUrl) {},
   OnStopRunningUrl(aUrl, aExitCode) {
     if (Components.isSuccessCode(aExitCode)) {
-      FeedUtils.log.debug("Feed.OnStopRunningUrl: rebuilt msgDatabase for " +
-                          this.folder.name + " - " + this.folder.filePath.path);
+      FeedUtils.log.debug(
+        "Feed.OnStopRunningUrl: rebuilt msgDatabase for " +
+          this.folder.name +
+          " - " +
+          this.folder.filePath.path
+      );
     } else {
-      FeedUtils.log.error("Feed.OnStopRunningUrl: rebuild msgDatabase failed, " +
-                          "error " + aExitCode + ", for " +
-                          this.folder.name + " - " + this.folder.filePath.path);
+      FeedUtils.log.error(
+        "Feed.OnStopRunningUrl: rebuild msgDatabase failed, " +
+          "error " +
+          aExitCode +
+          ", for " +
+          this.folder.name +
+          " - " +
+          this.folder.filePath.path
+      );
     }
     // Continue.
     this.storeNextItem();
@@ -341,17 +379,19 @@ Feed.prototype = {
     aNewTitle = FeedUtils.rdf.GetLiteral(aNewTitle);
     let old_title = ds.GetTarget(this.resource, FeedUtils.DC_TITLE, true);
     if (old_title) {
-        ds.Change(this.resource, FeedUtils.DC_TITLE, old_title, aNewTitle);
+      ds.Change(this.resource, FeedUtils.DC_TITLE, old_title, aNewTitle);
     } else {
-        ds.Assert(this.resource, FeedUtils.DC_TITLE, aNewTitle, true);
+      ds.Assert(this.resource, FeedUtils.DC_TITLE, aNewTitle, true);
     }
   },
 
   get lastModified() {
     let ds = FeedUtils.getSubscriptionsDS(this.server);
-    let lastModified = ds.GetTarget(this.resource,
-                                    FeedUtils.DC_LASTMODIFIED,
-                                    true);
+    let lastModified = ds.GetTarget(
+      this.resource,
+      FeedUtils.DC_LASTMODIFIED,
+      true
+    );
     if (lastModified) {
       lastModified = lastModified.QueryInterface(Ci.nsIRDFLiteral).Value;
     }
@@ -362,12 +402,18 @@ Feed.prototype = {
   set lastModified(aLastModified) {
     let ds = FeedUtils.getSubscriptionsDS(this.server);
     aLastModified = FeedUtils.rdf.GetLiteral(aLastModified);
-    let old_lastmodified = ds.GetTarget(this.resource,
-                                        FeedUtils.DC_LASTMODIFIED,
-                                        true);
+    let old_lastmodified = ds.GetTarget(
+      this.resource,
+      FeedUtils.DC_LASTMODIFIED,
+      true
+    );
     if (old_lastmodified) {
-      ds.Change(this.resource, FeedUtils.DC_LASTMODIFIED,
-                old_lastmodified, aLastModified);
+      ds.Change(
+        this.resource,
+        FeedUtils.DC_LASTMODIFIED,
+        old_lastmodified,
+        aLastModified
+      );
     } else {
       ds.Assert(this.resource, FeedUtils.DC_LASTMODIFIED, aLastModified, true);
     }
@@ -387,23 +433,29 @@ Feed.prototype = {
   set quickMode(aNewQuickMode) {
     let ds = FeedUtils.getSubscriptionsDS(this.server);
     aNewQuickMode = FeedUtils.rdf.GetLiteral(aNewQuickMode);
-    let old_quickMode = ds.GetTarget(this.resource,
-                                     FeedUtils.FZ_QUICKMODE,
-                                     true);
+    let old_quickMode = ds.GetTarget(
+      this.resource,
+      FeedUtils.FZ_QUICKMODE,
+      true
+    );
     if (old_quickMode) {
-      ds.Change(this.resource, FeedUtils.FZ_QUICKMODE,
-                old_quickMode, aNewQuickMode);
+      ds.Change(
+        this.resource,
+        FeedUtils.FZ_QUICKMODE,
+        old_quickMode,
+        aNewQuickMode
+      );
     } else {
-      ds.Assert(this.resource, FeedUtils.FZ_QUICKMODE,
-                aNewQuickMode, true);
+      ds.Assert(this.resource, FeedUtils.FZ_QUICKMODE, aNewQuickMode, true);
     }
   },
 
   get options() {
     let ds = FeedUtils.getSubscriptionsDS(this.server);
     let options = ds.GetTarget(this.resource, FeedUtils.FZ_OPTIONS, true);
-    options = options ? JSON.parse(options.QueryInterface(Ci.nsIRDFLiteral).Value) :
-                        null;
+    options = options
+      ? JSON.parse(options.QueryInterface(Ci.nsIRDFLiteral).Value)
+      : null;
     if (options && options.version == FeedUtils._optionsDefault.version) {
       return options;
     }
@@ -469,8 +521,11 @@ Feed.prototype = {
     // folder, ensure the folder's msgDatabase is openable for new message
     // processing. If not, reparse with an async nsIUrlListener |this| to
     // continue once the reparse is complete.
-    if (this.itemsToStore.length > 0 && this.folder &&
-        !FeedUtils.isMsgDatabaseOpenable(this.folder, true, this)) {
+    if (
+      this.itemsToStore.length > 0 &&
+      this.folder &&
+      !FeedUtils.isMsgDatabaseOpenable(this.folder, true, this)
+    ) {
       return;
     }
 
@@ -506,20 +561,34 @@ Feed.prototype = {
       item = items.getNext();
       item = item.QueryInterface(Ci.nsIRDFResource);
 
-      if (ds.HasAssertion(item, FeedUtils.FZ_VALID,
-                          FeedUtils.RDF_LITERAL_TRUE, true)) {
+      if (
+        ds.HasAssertion(
+          item,
+          FeedUtils.FZ_VALID,
+          FeedUtils.RDF_LITERAL_TRUE,
+          true
+        )
+      ) {
         continue;
       }
 
-      let lastSeenTime = ds.GetTarget(item, FeedUtils.FZ_LAST_SEEN_TIMESTAMP, true);
+      let lastSeenTime = ds.GetTarget(
+        item,
+        FeedUtils.FZ_LAST_SEEN_TIMESTAMP,
+        true
+      );
       if (lastSeenTime) {
-        lastSeenTime = parseInt(lastSeenTime.QueryInterface(Ci.nsIRDFLiteral).Value);
+        lastSeenTime = parseInt(
+          lastSeenTime.QueryInterface(Ci.nsIRDFLiteral).Value
+        );
       } else {
         lastSeenTime = 0;
       }
 
-      if ((currentTime - lastSeenTime) < FeedUtils.INVALID_ITEM_PURGE_DELAY &&
-          !aDeleteFeed) {
+      if (
+        currentTime - lastSeenTime < FeedUtils.INVALID_ITEM_PURGE_DELAY &&
+        !aDeleteFeed
+      ) {
         // Don't immediately purge items in active feeds; do so for deleted feeds.
         continue;
       }
@@ -527,9 +596,12 @@ Feed.prototype = {
       FeedUtils.log.trace("Feed.removeInvalidItems: item - " + item.Value);
       ds.Unassert(item, FeedUtils.FZ_FEED, this.resource, true);
       if (ds.hasArcOut(item, FeedUtils.FZ_FEED)) {
-        FeedUtils.log.debug("Feed.removeInvalidItems: " + item.Value +
-                            " is from more than one feed; only the reference to" +
-                            " this feed removed");
+        FeedUtils.log.debug(
+          "Feed.removeInvalidItems: " +
+            item.Value +
+            " is from more than one feed; only the reference to" +
+            " this feed removed"
+        );
       } else {
         FeedUtils.removeAssertions(ds, item);
       }
@@ -543,13 +615,18 @@ Feed.prototype = {
 
     try {
       this.folder = this.server.rootMsgFolder
-                               .QueryInterface(Ci.nsIMsgLocalMailFolder)
-                               .createLocalSubfolder(this.folderName);
+        .QueryInterface(Ci.nsIMsgLocalMailFolder)
+        .createLocalSubfolder(this.folderName);
     } catch (ex) {
       // An error creating.
-      FeedUtils.log.info("Feed.createFolder: error creating folder - '" +
-                          this.folderName + "' in parent folder " +
-                          this.server.rootMsgFolder.filePath.path + " -- " + ex);
+      FeedUtils.log.info(
+        "Feed.createFolder: error creating folder - '" +
+          this.folderName +
+          "' in parent folder " +
+          this.server.rootMsgFolder.filePath.path +
+          " -- " +
+          ex
+      );
       // But its remnants are still there, clean up.
       let xfolder = this.server.rootMsgFolder.getChildNamed(this.folderName);
       this.server.rootMsgFolder.propagateDelete(xfolder, true, null);
@@ -591,21 +668,31 @@ Feed.prototype = {
     this.itemsToStoreIndex++;
 
     // If the listener is tracking progress for each item, report it here.
-    if (item.feed.downloadCallback && item.feed.downloadCallback.onFeedItemStored) {
-      item.feed.downloadCallback.onFeedItemStored(item.feed,
-                                                  this.itemsToStoreIndex,
-                                                  this.itemsToStore.length);
+    if (
+      item.feed.downloadCallback &&
+      item.feed.downloadCallback.onFeedItemStored
+    ) {
+      item.feed.downloadCallback.onFeedItemStored(
+        item.feed,
+        this.itemsToStoreIndex,
+        this.itemsToStore.length
+      );
     }
 
     // Eventually we'll report individual progress here.
 
     if (this.itemsToStoreIndex < this.itemsToStore.length) {
       if (!this.storeItemsTimer) {
-        this.storeItemsTimer = Cc["@mozilla.org/timer;1"].
-                               createInstance(Ci.nsITimer);
+        this.storeItemsTimer = Cc["@mozilla.org/timer;1"].createInstance(
+          Ci.nsITimer
+        );
       }
 
-      this.storeItemsTimer.initWithCallback(this, 50, Ci.nsITimer.TYPE_ONE_SHOT);
+      this.storeItemsTimer.initWithCallback(
+        this,
+        50,
+        Ci.nsITimer.TYPE_ONE_SHOT
+      );
     } else {
       // We have just finished downloading one or more feed items into the
       // destination folder; if the folder is still listed as having new
@@ -636,7 +723,9 @@ Feed.prototype = {
       // Flush any feed item changes to disk.
       let ds = FeedUtils.getItemsDS(aFeed.server);
       ds.Flush();
-      FeedUtils.log.debug("Feed.cleanupParsingState: items stored - " + this.itemsStored);
+      FeedUtils.log.debug(
+        "Feed.cleanupParsingState: items stored - " + this.itemsStored
+      );
     }
 
     // Force the xml http request to go away.  This helps reduce some nasty

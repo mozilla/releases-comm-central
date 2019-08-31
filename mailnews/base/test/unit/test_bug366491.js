@@ -9,7 +9,9 @@
 // only needed during debug
 // do_import_script("mailnews/extensions/bayesian-spam-filter/test/resources/trainingfile.js");
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 // local constants
 var kUnclassified = MailServices.junk.UNCLASSIFIED;
@@ -28,7 +30,8 @@ var tests = [
   {
     fileName: "ham2.eml",
     junkPercent: 8,
-  }, {
+  },
+  {
     fileName: "spam2.eml",
     junkPercent: 81,
   },
@@ -38,7 +41,8 @@ var emails = [
   {
     fileName: "ham1.eml",
     classification: kGood,
-  }, {
+  },
+  {
     fileName: "spam1.eml",
     classification: kJunk,
   },
@@ -58,13 +62,19 @@ var doTestingListener = {
     // Do we have more training emails? If so, train
     var email = emails.shift();
     if (email) {
-      MailServices.junk.setMessageClassification(getSpec(email.fileName),
-        kUnclassified, email.classification, null, doTestingListener);
+      MailServices.junk.setMessageClassification(
+        getSpec(email.fileName),
+        kUnclassified,
+        email.classification,
+        null,
+        doTestingListener
+      );
       return;
     }
 
-    if (!aMsgURI)
-      return; // ignore end of batch
+    if (!aMsgURI) {
+      return;
+    } // ignore end of batch
 
     // Have we completed a classification? If so, test
     if (haveClassification) {
@@ -76,8 +86,11 @@ var doTestingListener = {
     // Do we have more classifications to do? Then classify the first one.
     if (tests.length) {
       haveClassification = true;
-      MailServices.junk.classifyMessage(getSpec(tests[0].fileName),
-        null, doTestingListener);
+      MailServices.junk.classifyMessage(
+        getSpec(tests[0].fileName),
+        null,
+        doTestingListener
+      );
     } else {
       do_test_finished();
     }
@@ -87,8 +100,13 @@ var doTestingListener = {
 // helper functions
 
 function getSpec(aFileName) {
-  var file = do_get_file("../../../extensions/bayesian-spam-filter/test/unit/resources/" + aFileName);
+  var file = do_get_file(
+    "../../../extensions/bayesian-spam-filter/test/unit/resources/" + aFileName
+  );
   var uri = Services.io.newFileURI(file).QueryInterface(Ci.nsIURL);
-  uri = uri.mutate().setQuery("type=application/x-message-display").finalize();
+  uri = uri
+    .mutate()
+    .setQuery("type=application/x-message-display")
+    .finalize();
   return uri.spec;
 }

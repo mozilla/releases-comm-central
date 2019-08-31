@@ -11,33 +11,37 @@
  *  then.
  */
 
-var EXPORTED_SYMBOLS = [
-  "IMAPPump",
-  "setupIMAPPump",
-  "teardownIMAPPump",
-];
+var EXPORTED_SYMBOLS = ["IMAPPump", "setupIMAPPump", "teardownIMAPPump"];
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {localAccountUtils} = ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
-var {gThreadManager, nsMailServer} = ChromeUtils.import("resource://testing-common/mailnews/maild.js");
-var {
-  AuthPLAIN,
-  AuthLOGIN,
-  AuthCRAM,
-} = ChromeUtils.import("resource://testing-common/mailnews/auth.js");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+var { localAccountUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/localAccountUtils.js"
+);
+var { gThreadManager, nsMailServer } = ChromeUtils.import(
+  "resource://testing-common/mailnews/maild.js"
+);
+var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.import(
+  "resource://testing-common/mailnews/auth.js"
+);
 var imapd = {};
 ChromeUtils.import("resource://testing-common/mailnews/imapd.js", imapd);
-var {updateAppInfo} = ChromeUtils.import("resource://testing-common/AppInfo.jsm");
+var { updateAppInfo } = ChromeUtils.import(
+  "resource://testing-common/AppInfo.jsm"
+);
 
 // define globals
 var IMAPPump = {
-  daemon: null,         // the imap fake server daemon
-  server: null,         // the imap fake server
+  daemon: null, // the imap fake server daemon
+  server: null, // the imap fake server
   incomingServer: null, // nsIMsgIncomingServer for the imap server
-  inbox: null,          // nsIMsgFolder/nsIMsgImapMailFolder for imap inbox
-  mailbox: null,        // imap fake server mailbox
+  inbox: null, // nsIMsgFolder/nsIMsgImapMailFolder for imap inbox
+  mailbox: null, // imap fake server mailbox
 };
 
 function setupIMAPPump(extensions) {
@@ -47,13 +51,15 @@ function setupIMAPPump(extensions) {
   // These are copied from imap's head_server.js to here so we can run
   //   this from any directory.
   function makeServer(daemon, infoString) {
-    if (infoString in imapd.configurations)
+    if (infoString in imapd.configurations) {
       return makeServer(daemon, imapd.configurations[infoString].join(","));
+    }
 
     function createHandler(d) {
       var handler = new imapd.IMAP_RFC3501_handler(d);
-      if (!infoString)
+      if (!infoString) {
         infoString = "RFC2195";
+      }
 
       var parts = infoString.split(/ *, */);
       for (var part of parts) {
@@ -67,8 +73,12 @@ function setupIMAPPump(extensions) {
   }
 
   function createLocalIMAPServer() {
-    let server = localAccountUtils.create_incoming_server("imap",
-      IMAPPump.server.port, "user", "password");
+    let server = localAccountUtils.create_incoming_server(
+      "imap",
+      IMAPPump.server.port,
+      "user",
+      "password"
+    );
     server.QueryInterface(Ci.nsIImapIncomingServer);
     return server;
   }
@@ -80,8 +90,9 @@ function setupIMAPPump(extensions) {
 
   IMAPPump.incomingServer = createLocalIMAPServer();
 
-  if (!localAccountUtils.inboxFolder)
+  if (!localAccountUtils.inboxFolder) {
     localAccountUtils.loadLocalMailAccount();
+  }
 
   // We need an identity so that updateFolder doesn't fail
   let localAccount = MailServices.accounts.createAccount();
@@ -118,12 +129,15 @@ function setupIMAPPump(extensions) {
 function teardownIMAPPump() {
   // try to finish any pending operations
   let thread = gThreadManager.currentThread;
-  while (thread.hasPendingEvents())
+  while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
+  }
 
   IMAPPump.inbox = null;
   try {
-    let serverSink = IMAPPump.incomingServer.QueryInterface(Ci.nsIImapServerSink);
+    let serverSink = IMAPPump.incomingServer.QueryInterface(
+      Ci.nsIImapServerSink
+    );
     serverSink.abortQueuedUrls();
     IMAPPump.incomingServer.closeCachedConnections();
     IMAPPump.server.resetTest();
@@ -131,5 +145,7 @@ function teardownIMAPPump() {
     MailServices.accounts.removeIncomingServer(IMAPPump.incomingServer, false);
     IMAPPump.incomingServer = null;
     localAccountUtils.clearAll();
-  } catch (ex) { dump(ex); }
+  } catch (ex) {
+    dump(ex);
+  }
 }

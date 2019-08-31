@@ -28,21 +28,27 @@ add_task(async function() {
     setupProtocolTest(server.port, prefix + "*");
     server.performTest();
     transaction = server.playTransaction();
-    do_check_transaction(transaction, ["MODE READER", "LIST",
-                                       "AUTHINFO user testnews",
-                                       "AUTHINFO pass newstest", "LIST"]);
+    do_check_transaction(transaction, [
+      "MODE READER",
+      "LIST",
+      "AUTHINFO user testnews",
+      "AUTHINFO pass newstest",
+      "LIST",
+    ]);
   } catch (e) {
     dump("NNTP Protocol test " + test + " failed for type RFC 977:\n");
     try {
       var trans = server.playTransaction();
-      if (trans)
+      if (trans) {
         dump("Commands called: " + trans.them + "\n");
+      }
     } catch (exp) {}
     do_throw(e);
   }
   server.stop();
 
   var thread = gThreadManager.currentThread;
-  while (thread.hasPendingEvents())
+  while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
+  }
 });

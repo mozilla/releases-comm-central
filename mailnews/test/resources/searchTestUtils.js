@@ -24,25 +24,40 @@
  *
  */
 
-function TestSearch(aFolder, aValue, aAttrib, aOp, aHitCount, onDone, aCustomId,
-                    aArbitraryHeader, aHdrProperty) {
+function TestSearch(
+  aFolder,
+  aValue,
+  aAttrib,
+  aOp,
+  aHitCount,
+  onDone,
+  aCustomId,
+  aArbitraryHeader,
+  aHdrProperty
+) {
   var searchListener = {
-    onSearchHit(dbHdr, folder) { hitCount++; },
+    onSearchHit(dbHdr, folder) {
+      hitCount++;
+    },
     onSearchDone(status) {
       print("Finished search does " + aHitCount + " equal " + hitCount + "?");
       searchSession = null;
       Assert.equal(aHitCount, hitCount);
-      if (onDone)
+      if (onDone) {
         onDone();
+      }
     },
-    onNewSearch() { hitCount = 0; },
+    onNewSearch() {
+      hitCount = 0;
+    },
   };
 
   // define and initiate the search session
 
   var hitCount;
-  var searchSession = Cc["@mozilla.org/messenger/searchSession;1"]
-                        .createInstance(Ci.nsIMsgSearchSession);
+  var searchSession = Cc[
+    "@mozilla.org/messenger/searchSession;1"
+  ].createInstance(Ci.nsIMsgSearchSession);
   searchSession.addScopeTerm(Ci.nsMsgSearchScope.offlineMail, aFolder);
   var searchTerm = searchSession.createTerm();
   searchTerm.attrib = aAttrib;
@@ -50,42 +65,48 @@ function TestSearch(aFolder, aValue, aAttrib, aOp, aHitCount, onDone, aCustomId,
   var value = searchTerm.value;
   // This is tricky - value.attrib must be set before actual values
   value.attrib = aAttrib;
-  if (aAttrib == Ci.nsMsgSearchAttrib.JunkPercent)
+  if (aAttrib == Ci.nsMsgSearchAttrib.JunkPercent) {
     value.junkPercent = aValue;
-  else if (aAttrib == Ci.nsMsgSearchAttrib.Priority)
+  } else if (aAttrib == Ci.nsMsgSearchAttrib.Priority) {
     value.priority = aValue;
-  else if (aAttrib == Ci.nsMsgSearchAttrib.Date)
+  } else if (aAttrib == Ci.nsMsgSearchAttrib.Date) {
     value.date = aValue;
-  else if (aAttrib == Ci.nsMsgSearchAttrib.MsgStatus ||
-           aAttrib == Ci.nsMsgSearchAttrib.FolderFlag ||
-           aAttrib == Ci.nsMsgSearchAttrib.Uint32HdrProperty)
+  } else if (
+    aAttrib == Ci.nsMsgSearchAttrib.MsgStatus ||
+    aAttrib == Ci.nsMsgSearchAttrib.FolderFlag ||
+    aAttrib == Ci.nsMsgSearchAttrib.Uint32HdrProperty
+  ) {
     value.status = aValue;
-  else if (aAttrib == Ci.nsMsgSearchAttrib.MessageKey)
+  } else if (aAttrib == Ci.nsMsgSearchAttrib.MessageKey) {
     value.msgKey = aValue;
-  else if (aAttrib == Ci.nsMsgSearchAttrib.Size)
+  } else if (aAttrib == Ci.nsMsgSearchAttrib.Size) {
     value.size = aValue;
-  else if (aAttrib == Ci.nsMsgSearchAttrib.AgeInDays)
+  } else if (aAttrib == Ci.nsMsgSearchAttrib.AgeInDays) {
     value.age = aValue;
-  else if (aAttrib == Ci.nsMsgSearchAttrib.Size)
+  } else if (aAttrib == Ci.nsMsgSearchAttrib.Size) {
     value.size = aValue;
-  else if (aAttrib == Ci.nsMsgSearchAttrib.Label)
+  } else if (aAttrib == Ci.nsMsgSearchAttrib.Label) {
     value.label = aValue;
-  else if (aAttrib == Ci.nsMsgSearchAttrib.JunkStatus)
+  } else if (aAttrib == Ci.nsMsgSearchAttrib.JunkStatus) {
     value.junkStatus = aValue;
-  else if (aAttrib == Ci.nsMsgSearchAttrib.HasAttachmentStatus)
+  } else if (aAttrib == Ci.nsMsgSearchAttrib.HasAttachmentStatus) {
     value.status = Ci.nsMsgMessageFlags.Attachment;
-  else
+  } else {
     value.str = aValue;
+  }
   searchTerm.value = value;
   searchTerm.op = aOp;
   searchTerm.booleanAnd = false;
-  if (aAttrib == Ci.nsMsgSearchAttrib.Custom)
+  if (aAttrib == Ci.nsMsgSearchAttrib.Custom) {
     searchTerm.customId = aCustomId;
-  else if (aAttrib == Ci.nsMsgSearchAttrib.OtherHeader)
+  } else if (aAttrib == Ci.nsMsgSearchAttrib.OtherHeader) {
     searchTerm.arbitraryHeader = aArbitraryHeader;
-  else if (aAttrib == Ci.nsMsgSearchAttrib.HdrProperty ||
-           aAttrib == Ci.nsMsgSearchAttrib.Uint32HdrProperty)
+  } else if (
+    aAttrib == Ci.nsMsgSearchAttrib.HdrProperty ||
+    aAttrib == Ci.nsMsgSearchAttrib.Uint32HdrProperty
+  ) {
     searchTerm.hdrProperty = aHdrProperty;
+  }
 
   searchSession.appendTerm(searchTerm);
   searchSession.registerListener(searchListener);
@@ -100,8 +121,9 @@ function TestSearch(aFolder, aValue, aAttrib, aOp, aHitCount, onDone, aCustomId,
  * @param aAttrib: search attribute (Ci.nsMsgSearchAttrib.Size, etc.)
  * @param aValue:  expected value (true/false) for Available and Enabled
  */
- const gValidityManager = Cc["@mozilla.org/mail/search/validityManager;1"]
-                            .getService(Ci.nsIMsgSearchValidityManager);
+const gValidityManager = Cc[
+  "@mozilla.org/mail/search/validityManager;1"
+].getService(Ci.nsIMsgSearchValidityManager);
 
 function testValidityTable(aScope, aOp, aAttrib, aValue) {
   var validityTable = gValidityManager.getTable(aScope);

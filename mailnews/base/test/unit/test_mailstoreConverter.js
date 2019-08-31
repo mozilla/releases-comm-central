@@ -2,11 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
-var {convertMailStoreTo} = ChromeUtils.import("resource:///modules/mailstoreConverter.jsm");
+const { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
+var { convertMailStoreTo } = ChromeUtils.import(
+  "resource:///modules/mailstoreConverter.jsm"
+);
 
-Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
-                           "@mozilla.org/msgstore/berkeleystore;1");
+Services.prefs.setCharPref(
+  "mail.serverDefaultStoreContractID",
+  "@mozilla.org/msgstore/berkeleystore;1"
+);
 
 // Test data for round-trip test.
 let testEmails = [
@@ -30,23 +34,23 @@ let testEmails = [
   "../../../data/13-HTML.eml",
   "../../../data/14-HTML+attachment.eml",
   "../../../data/15-HTML+embedded-image.eml",
-  "../../../data/16-plaintext+HMTL.eml",                   // text part is base64 encoded
-  "../../../data/17-plaintext+(HTML+embedded-image).eml",  // HTML part is base64 encoded
+  "../../../data/16-plaintext+HMTL.eml", // text part is base64 encoded
+  "../../../data/17-plaintext+(HTML+embedded-image).eml", // HTML part is base64 encoded
   "../../../data/18-plaintext+HTML+attachment.eml",
   "../../../data/19-(HTML+embedded-image)+attachment.eml",
   // "../../../data/20-plaintext+(HTML+embedded-image)+attachment.eml",  // using windows-1252
 
   // Bodies with non-ASCII characters in UTF-8 and other charsets, all encoded with quoted printable.
   "../../../data/21-plaintext.eml",
-  "../../../data/22-plaintext+attachment.eml",  // using ISO-8859-7 (Greek)
+  "../../../data/22-plaintext+attachment.eml", // using ISO-8859-7 (Greek)
   "../../../data/23-HTML.eml",
   "../../../data/24-HTML+attachment.eml",
   "../../../data/25-HTML+embedded-image.eml",
-  "../../../data/26-plaintext+HMTL.eml",                   // text part is base64 encoded
-  "../../../data/27-plaintext+(HTML+embedded-image).eml",  // HTML part is base64 encoded
+  "../../../data/26-plaintext+HMTL.eml", // text part is base64 encoded
+  "../../../data/27-plaintext+(HTML+embedded-image).eml", // HTML part is base64 encoded
   "../../../data/28-plaintext+HTML+attachment.eml",
   "../../../data/29-(HTML+embedded-image)+attachment.eml",
-  "../../../data/30-plaintext+(HTML+embedded-image)+attachment.eml",  // using windows-1252
+  "../../../data/30-plaintext+(HTML+embedded-image)+attachment.eml", // using windows-1252
 ];
 
 function run_test() {
@@ -78,15 +82,19 @@ function run_test() {
  */
 function setupServer(srvName, mboxFilename) {
   // {nsIMsgIncomingServer} pop server for the test.
-  let server = MailServices.accounts.createIncomingServer(srvName, "localhost",
-                                                          "pop3");
+  let server = MailServices.accounts.createIncomingServer(
+    srvName,
+    "localhost",
+    "pop3"
+  );
   let account = MailServices.accounts.createAccount();
   account.incomingServer = server;
   server.QueryInterface(Ci.nsIPop3IncomingServer);
   server.valid = true;
 
-  let inbox = account.incomingServer.rootFolder
-    .getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
+  let inbox = account.incomingServer.rootFolder.getFolderWithFlags(
+    Ci.nsMsgFolderFlags.Inbox
+  );
 
   // install the mbox file
   let mboxFile = do_get_file(mboxFilename);
@@ -110,15 +118,15 @@ async function doMboxTest(srvName, mboxFilename, expectCnt) {
   let server = setupServer(srvName, mboxFilename);
 
   let mailstoreContractId = Services.prefs.getCharPref(
-    "mail.server." + server.key + ".storeContractID");
+    "mail.server." + server.key + ".storeContractID"
+  );
 
   await convertMailStoreTo(mailstoreContractId, server, new EventTarget());
 
   // Converted. Now find resulting Inbox/cur directory so
   // we can count the messages there.
 
-  let inbox = server.rootFolder
-    .getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
+  let inbox = server.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
   // NOTE: the conversion updates the path of the root folder,
   // but _not_ the path of the inbox...
   // Ideally, we'd just use inbox.filePath here, but
@@ -139,7 +147,11 @@ async function doMboxTest(srvName, mboxFilename, expectCnt) {
     cnt++;
   }
 
-  Assert.equal(cnt, expectCnt, "expected number of messages (" + mboxFilename + ")");
+  Assert.equal(
+    cnt,
+    expectCnt,
+    "expected number of messages (" + mboxFilename + ")"
+  );
 }
 
 /**
@@ -158,7 +170,7 @@ async function tempDir(prefix) {
     let name = prefix + Math.floor(Math.random() * 0xffffffff).toString(16);
     let fullPath = OS.Path.join(tmpDir, name);
     try {
-      await OS.File.makeDir(fullPath, {ignoreExisting: false});
+      await OS.File.makeDir(fullPath, { ignoreExisting: false });
       return fullPath;
     } catch (e) {
       // If directory already exists, try another name. Else bail out.
@@ -228,13 +240,15 @@ function doConvert(srcType, srcRoot, destType, destRoot) {
         resolve();
       }
     });
-    worker.addEventListener("error", function(ev) { reject(ev.message); });
+    worker.addEventListener("error", function(ev) {
+      reject(ev.message);
+    });
     // Go.
     worker.postMessage({
-      "srcType": srcType,
-      "destType": destType,
-      "srcRoot": srcRoot,
-      "destRoot": destRoot,
+      srcType,
+      destType,
+      srcRoot,
+      destRoot,
     });
   });
 }
@@ -284,8 +298,9 @@ async function scanMaildir(maildir) {
   // Calculate checksums for them all.
   let checksums = [];
   for (let f of files) {
-    let md5 = Cc["@mozilla.org/security/hash;1"]
-      .createInstance(Ci.nsICryptoHash);
+    let md5 = Cc["@mozilla.org/security/hash;1"].createInstance(
+      Ci.nsICryptoHash
+    );
     md5.init(Ci.nsICryptoHash.MD5);
     let raw = await OS.File.read(f);
     md5.update(raw, raw.byteLength);
@@ -324,17 +339,18 @@ async function recursiveMaildirCompare(rootA, rootB) {
     let checksumsA = await scanMaildir(OS.Path.join(rootA, name));
     let checksumsB = await scanMaildir(OS.Path.join(rootB, name));
 
-    let match = (checksumsA.length == checksumsB.length);
+    let match = checksumsA.length == checksumsB.length;
     for (let i = 0; match && i < checksumsA.length; i++) {
-      match = (checksumsA[i] == checksumsB[i]);
+      match = checksumsA[i] == checksumsB[i];
     }
     Assert.ok(match, "roundtrip preserves messages in maildir " + name);
   }
 
   // Recurse down into .sbd dirs.
   for (let name of subdirs) {
-    await recursiveMaildirCompare(OS.Path.join(rootA, name),
-      OS.Path.join(rootB, name));
+    await recursiveMaildirCompare(
+      OS.Path.join(rootA, name),
+      OS.Path.join(rootB, name)
+    );
   }
 }
-

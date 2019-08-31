@@ -4,11 +4,13 @@
 
 this.EXPORTED_SYMBOLS = ["MimeType", "MimeTypeNoun"];
 
-const {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
-const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const { StringBundle } = ChromeUtils.import(
+  "resource:///modules/StringBundle.js"
+);
+const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 var LOG = Log4Moz.repository.getLogger("gloda.noun.mimetype");
 
-const {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
+const { Gloda } = ChromeUtils.import("resource:///modules/gloda/gloda.js");
 
 var CategoryStringMap = {};
 
@@ -34,27 +36,37 @@ MimeType.prototype = {
    *  database can use this without fear.  Things not persisted in the database
    *  should use the actual string mime type, retrieval via |fullType|.
    */
-  get id() { return this._id; },
+  get id() {
+    return this._id;
+  },
   /**
    * The first part of the MIME type; "text/plain" gets you "text".
    */
-  get type() { return this._type; },
+  get type() {
+    return this._type;
+  },
   set fullType(aFullType) {
     if (!this._fullType) {
       this._fullType = aFullType;
       [this._type, this._subType] = this._fullType.split("/");
-      this._category =
-        MimeTypeNoun._getCategoryForMimeType(aFullType, this._type);
+      this._category = MimeTypeNoun._getCategoryForMimeType(
+        aFullType,
+        this._type
+      );
     }
   },
   /**
    * If the |fullType| is "text/plain", subType is "plain".
    */
-  get subType() { return this._subType; },
+  get subType() {
+    return this._subType;
+  },
   /**
    * The full MIME type; "text/plain" returns "text/plain".
    */
-  get fullType() { return this._fullType; },
+  get fullType() {
+    return this._fullType;
+  },
   toString() {
     return this.fullType;
   },
@@ -109,8 +121,10 @@ var MimeTypeNoun = {
   //  created for us, plus some helper methods that we simply don't use.
   schema: {
     name: "mimeTypes",
-    columns: [["id", "INTEGER PRIMARY KEY", "_id"],
-              ["mimeType", "TEXT", "fullType"]],
+    columns: [
+      ["id", "INTEGER PRIMARY KEY", "_id"],
+      ["mimeType", "TEXT", "fullType"],
+    ],
   },
 
   _init() {
@@ -127,9 +141,9 @@ var MimeTypeNoun = {
    * Load the contents of mimeTypeCategories.js and populate
    */
   _loadCategoryMapping() {
-    let {
-      MimeCategoryMapping,
-    } = ChromeUtils.import("resource:///modules/gloda/mimeTypeCategories.js");
+    let { MimeCategoryMapping } = ChromeUtils.import(
+      "resource:///modules/gloda/mimeTypeCategories.js"
+    );
 
     let mimeTypeToCategory = this._mimeTypeToCategory;
 
@@ -142,9 +156,9 @@ var MimeTypeNoun = {
         categories.push(key);
 
         if (categories.length == 1) {
-          CategoryStringMap[key] =
-            MimeTypeNoun._strings.get(
-              "gloda.mimetype.category." + key + ".label");
+          CategoryStringMap[key] = MimeTypeNoun._strings.get(
+            "gloda.mimetype.category." + key + ".label"
+          );
         }
 
         // Is it an array? If so, just process this depth
@@ -152,7 +166,8 @@ var MimeTypeNoun = {
           for (let mimeTypeStr of value) {
             mimeTypeToCategory[mimeTypeStr] = categories;
           }
-        } else { // it's yet another sub-tree branch
+        } else {
+          // it's yet another sub-tree branch
           procMapObj(value, categories);
         }
       }
@@ -166,11 +181,13 @@ var MimeTypeNoun = {
    *  type.  (So, "foo/bar" and "foo" for "foo/bar".)
    */
   _getCategoryForMimeType(aFullType, aType) {
-    if (aFullType in this._mimeTypeToCategory)
+    if (aFullType in this._mimeTypeToCategory) {
       return this._mimeTypeToCategory[aFullType][0];
+    }
     let wildType = aType + "/*";
-    if (wildType in this._mimeTypeToCategory)
+    if (wildType in this._mimeTypeToCategory) {
       return this._mimeTypeToCategory[wildType][0];
+    }
     return this._mimeTypeToCategory["*"][0];
   },
 
@@ -192,13 +209,17 @@ var MimeTypeNoun = {
     // get all the existing mime types!
     let query = Gloda.newQuery(this.id);
     let nullFunc = function() {};
-    this._universalCollection = query.getCollection({
-      onItemsAdded: nullFunc, onItemsModified: nullFunc,
-      onItemsRemoved: nullFunc,
-      onQueryCompleted(aCollection) {
-        MimeTypeNoun._processMimeTypes(aCollection.items);
+    this._universalCollection = query.getCollection(
+      {
+        onItemsAdded: nullFunc,
+        onItemsModified: nullFunc,
+        onItemsRemoved: nullFunc,
+        onQueryCompleted(aCollection) {
+          MimeTypeNoun._processMimeTypes(aCollection.items);
+        },
       },
-    }, null);
+      null
+    );
   },
 
   /**
@@ -216,27 +237,42 @@ var MimeTypeNoun = {
     let blockBottom = aId - (aId % this.TYPE_BLOCK_SIZE);
     let blockTop = blockBottom + this.TYPE_BLOCK_SIZE - 1;
     this._mimeTypeRangeDummyObjects[aCategory] = [
-      new MimeType(blockBottom, "!category-dummy!", aCategory,
-                   "!category-dummy!/" + aCategory, aCategory),
-      new MimeType(blockTop, "!category-dummy!", aCategory,
-                   "!category-dummy!/" + aCategory, aCategory),
+      new MimeType(
+        blockBottom,
+        "!category-dummy!",
+        aCategory,
+        "!category-dummy!/" + aCategory,
+        aCategory
+      ),
+      new MimeType(
+        blockTop,
+        "!category-dummy!",
+        aCategory,
+        "!category-dummy!/" + aCategory,
+        aCategory
+      ),
     ];
   },
 
   _processMimeTypes(aMimeTypes) {
     for (let mimeType of aMimeTypes) {
-      if (mimeType.id > this._highID)
+      if (mimeType.id > this._highID) {
         this._highID = mimeType.id;
+      }
       this._mimeTypes[mimeType] = mimeType;
       this._mimeTypesByID[mimeType.id] = mimeType;
 
-      let blockHighID = (mimeType.category in this._mimeTypeHighID) ?
-                          this._mimeTypeHighID[mimeType.category] : undefined;
+      let blockHighID =
+        mimeType.category in this._mimeTypeHighID
+          ? this._mimeTypeHighID[mimeType.category]
+          : undefined;
       // create the dummy range objects
-      if (blockHighID === undefined)
+      if (blockHighID === undefined) {
         this._createCategoryDummies(mimeType.id, mimeType.category);
-      if ((blockHighID === undefined) || mimeType.id > blockHighID)
+      }
+      if (blockHighID === undefined || mimeType.id > blockHighID) {
         this._mimeTypeHighID[mimeType.category] = mimeType.id;
+      }
     }
   },
 
@@ -245,7 +281,9 @@ var MimeTypeNoun = {
     let category = this._getCategoryForMimeType(aMimeTypeName, typeName);
 
     if (!(category in this._mimeTypeHighID)) {
-      let nextID = this._highID - (this._highID % this.TYPE_BLOCK_SIZE) +
+      let nextID =
+        this._highID -
+        (this._highID % this.TYPE_BLOCK_SIZE) +
         this.TYPE_BLOCK_SIZE;
       this._mimeTypeHighID[category] = nextID;
       this._createCategoryDummies(nextID, category);
@@ -253,10 +291,16 @@ var MimeTypeNoun = {
 
     let nextID = ++this._mimeTypeHighID[category];
 
-    let mimeType = new MimeType(nextID, typeName, subTypeName, aMimeTypeName,
-                                category);
-    if (mimeType.id > this._highID)
+    let mimeType = new MimeType(
+      nextID,
+      typeName,
+      subTypeName,
+      aMimeTypeName,
+      category
+    );
+    if (mimeType.id > this._highID) {
       this._highID = mimeType.id;
+    }
 
     this._mimeTypes[aMimeTypeName] = mimeType;
     this._mimeTypesByID[nextID] = mimeType;
@@ -283,12 +327,14 @@ var MimeTypeNoun = {
   getMimeType(aMimeTypeName) {
     // first, lose any parameters
     let semiIndex = aMimeTypeName.indexOf(";");
-    if (semiIndex >= 0)
+    if (semiIndex >= 0) {
       aMimeTypeName = aMimeTypeName.substring(0, semiIndex);
+    }
     aMimeTypeName = aMimeTypeName.trim().toLowerCase();
 
-    if (aMimeTypeName in this._mimeTypes)
+    if (aMimeTypeName in this._mimeTypes) {
       return this._mimeTypes[aMimeTypeName];
+    }
     return this._addNewMimeType(aMimeTypeName);
   },
 
@@ -311,8 +357,9 @@ var MimeTypeNoun = {
       let rangePairs = [];
       // If there are no arguments then we want to fall back to the 'in'
       //  constraint which matches on any attachment.
-      if (!aArguments || aArguments.length == 0)
+      if (!aArguments || aArguments.length == 0) {
         return this._inConstraintHelper(aAttrDef, []);
+      }
 
       for (let iArg = 0; iArg < aArguments.length; iArg++) {
         let arg = aArguments[iArg];
@@ -324,8 +371,9 @@ var MimeTypeNoun = {
 
   comparator(a, b) {
     if (a == null) {
-      if (b == null)
+      if (b == null) {
         return 0;
+      }
       return 1;
     } else if (b == null) {
       return -1;
@@ -345,7 +393,9 @@ var MimeTypeNoun = {
 };
 Gloda.defineNoun(MimeTypeNoun, Gloda.NOUN_MIME_TYPE);
 try {
-MimeTypeNoun._init();
+  MimeTypeNoun._init();
 } catch (ex) {
-  LOG.error("problem init-ing: " + ex.fileName + ":" + ex.lineNumber + ": " + ex);
+  LOG.error(
+    "problem init-ing: " + ex.fileName + ":" + ex.lineNumber + ": " + ex
+  );
 }

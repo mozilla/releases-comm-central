@@ -4,15 +4,51 @@
 
 this.EXPORTED_SYMBOLS = ["AddrBookDirectory", "closeConnectionTo"];
 
-ChromeUtils.defineModuleGetter(this, "FileUtils", "resource://gre/modules/FileUtils.jsm");
-ChromeUtils.defineModuleGetter(this, "MailServices", "resource:///modules/MailServices.jsm");
-ChromeUtils.defineModuleGetter(this, "Services", "resource://gre/modules/Services.jsm");
-ChromeUtils.defineModuleGetter(this, "SimpleEnumerator", "resource:///modules/AddrBookUtils.jsm");
-ChromeUtils.defineModuleGetter(this, "fixIterator", "resource:///modules/iteratorUtils.jsm");
-ChromeUtils.defineModuleGetter(this, "AddrBookCard", "resource:///modules/AddrBookCard.jsm");
-ChromeUtils.defineModuleGetter(this, "AddrBookMailingList", "resource:///modules/AddrBookMailingList.jsm");
-ChromeUtils.defineModuleGetter(this, "newUID", "resource:///modules/AddrBookUtils.jsm");
-ChromeUtils.defineModuleGetter(this, "toXPCOMArray", "resource:///modules/iteratorUtils.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "FileUtils",
+  "resource://gre/modules/FileUtils.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "MailServices",
+  "resource:///modules/MailServices.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "Services",
+  "resource://gre/modules/Services.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "SimpleEnumerator",
+  "resource:///modules/AddrBookUtils.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "fixIterator",
+  "resource:///modules/iteratorUtils.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "AddrBookCard",
+  "resource:///modules/AddrBookCard.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "AddrBookMailingList",
+  "resource:///modules/AddrBookMailingList.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "newUID",
+  "resource:///modules/AddrBookUtils.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "toXPCOMArray",
+  "resource:///modules/iteratorUtils.jsm"
+);
 
 /* This is where the address book manager creates an nsIAbDirectory. We want
  * to do things differently depending on whether or not the directory is a
@@ -22,8 +58,7 @@ ChromeUtils.defineModuleGetter(this, "toXPCOMArray", "resource:///modules/iterat
  * directory and calling addressLists on it. This will make more sense and be
  * a lot neater once we stop using one XPCOM interface for two jobs. */
 
-function AddrBookDirectory() {
-}
+function AddrBookDirectory() {}
 AddrBookDirectory.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIAbDirectory]),
   classID: Components.ID("{e96ee804-0bd3-472f-81a6-8a9d65277ad3}"),
@@ -37,7 +72,9 @@ AddrBookDirectory.prototype = {
       uri = uri.substring(0, index);
     }
     if (/\/MailList\d+$/.test(uri)) {
-      let parent = MailServices.ab.getDirectory(uri.substring(0, uri.lastIndexOf("/")));
+      let parent = MailServices.ab.getDirectory(
+        uri.substring(0, uri.lastIndexOf("/"))
+      );
       for (let list of parent.addressLists.enumerate()) {
         list.QueryInterface(Ci.nsIAbDirectory);
         if (list.URI == uri) {
@@ -54,8 +91,14 @@ AddrBookDirectory.prototype = {
     if (!this.dirPrefId) {
       let filename = uri.substring("jsaddrbook://".length);
       for (let child of Services.prefs.getChildList("ldap_2.servers.")) {
-        if (child.endsWith(".filename") && Services.prefs.getStringPref(child) == filename) {
-          this.dirPrefId = child.substring(0, child.length - ".filename".length);
+        if (
+          child.endsWith(".filename") &&
+          Services.prefs.getStringPref(child) == filename
+        ) {
+          this.dirPrefId = child.substring(
+            0,
+            child.length - ".filename".length
+          );
           break;
         }
       }
@@ -113,13 +156,17 @@ var bookPrototype = {
       if (connection.schemaVersion == 0) {
         connection.executeSimpleSQL("PRAGMA journal_mode=WAL");
         connection.executeSimpleSQL(
-          "CREATE TABLE cards (uid TEXT PRIMARY KEY, localId INTEGER)");
+          "CREATE TABLE cards (uid TEXT PRIMARY KEY, localId INTEGER)"
+        );
         connection.executeSimpleSQL(
-          "CREATE TABLE properties (card TEXT, name TEXT, value TEXT)");
+          "CREATE TABLE properties (card TEXT, name TEXT, value TEXT)"
+        );
         connection.executeSimpleSQL(
-          "CREATE TABLE lists (uid TEXT PRIMARY KEY, localId INTEGER, name TEXT, nickName TEXT, description TEXT)");
+          "CREATE TABLE lists (uid TEXT PRIMARY KEY, localId INTEGER, name TEXT, nickName TEXT, description TEXT)"
+        );
         connection.executeSimpleSQL(
-          "CREATE TABLE list_cards (list TEXT, card TEXT, PRIMARY KEY(list, card))");
+          "CREATE TABLE list_cards (list TEXT, card TEXT, PRIMARY KEY(list, card))"
+        );
         connection.schemaVersion = 1;
       }
       connections.set(file.path, connection);
@@ -135,7 +182,8 @@ var bookPrototype = {
   },
   get _lists() {
     let selectStatement = this._dbConnection.createStatement(
-      "SELECT uid, localId, name, nickName, description FROM lists");
+      "SELECT uid, localId, name, nickName, description FROM lists"
+    );
     let results = new Map();
     while (selectStatement.executeStep()) {
       results.set(selectStatement.row.uid, {
@@ -151,7 +199,8 @@ var bookPrototype = {
   },
   get _cards() {
     let cardStatement = this._dbConnection.createStatement(
-      "SELECT uid, localId FROM cards");
+      "SELECT uid, localId FROM cards"
+    );
     let results = new Map();
     while (cardStatement.executeStep()) {
       results.set(cardStatement.row.uid, {
@@ -167,7 +216,8 @@ var bookPrototype = {
     if (this._nextCardId === null) {
       let value = 1;
       let selectStatement = this._dbConnection.createStatement(
-        "SELECT MAX(localId) AS localId FROM cards");
+        "SELECT MAX(localId) AS localId FROM cards"
+      );
       if (selectStatement.executeStep()) {
         value = selectStatement.row.localId + 1;
       }
@@ -180,7 +230,8 @@ var bookPrototype = {
     if (this._nextListId === null) {
       let value = 1;
       let selectStatement = this._dbConnection.createStatement(
-        "SELECT MAX(localId) AS localId FROM lists");
+        "SELECT MAX(localId) AS localId FROM lists"
+      );
       if (selectStatement.executeStep()) {
         value = selectStatement.row.localId + 1;
       }
@@ -200,7 +251,8 @@ var bookPrototype = {
   _loadCardProperties(uid) {
     let properties = new Map();
     let propertyStatement = this._dbConnection.createStatement(
-      "SELECT name, value FROM properties WHERE card = :card");
+      "SELECT name, value FROM properties WHERE card = :card"
+    );
     propertyStatement.params.card = uid;
     while (propertyStatement.executeStep()) {
       properties.set(propertyStatement.row.name, propertyStatement.row.value);
@@ -211,11 +263,13 @@ var bookPrototype = {
   _saveCardProperties(card) {
     this._dbConnection.beginTransaction();
     let deleteStatement = this._dbConnection.createStatement(
-      "DELETE FROM properties WHERE card = :card");
+      "DELETE FROM properties WHERE card = :card"
+    );
     deleteStatement.params.card = card.UID;
     deleteStatement.execute();
     let insertStatement = this._dbConnection.createStatement(
-      "INSERT INTO properties VALUES (:card, :name, :value)");
+      "INSERT INTO properties VALUES (:card, :name, :value)"
+    );
     for (let { name, value } of fixIterator(card.properties, Ci.nsIProperty)) {
       if (value !== null && value !== undefined && value !== "") {
         insertStatement.params.card = card.UID;
@@ -232,7 +286,8 @@ var bookPrototype = {
   _saveList(list) {
     let replaceStatement = this._dbConnection.createStatement(
       "REPLACE INTO lists (uid, localId, name, nickName, description) " +
-      "VALUES (:uid, :localId, :name, :nickName, :description)");
+        "VALUES (:uid, :localId, :name, :nickName, :description)"
+    );
     replaceStatement.params.uid = list._uid;
     replaceStatement.params.localId = list._localId;
     replaceStatement.params.name = list._name;
@@ -254,13 +309,15 @@ var bookPrototype = {
     return false;
   },
   cardForEmailAddress(emailAddress) {
-    return this.getCardFromProperty("PrimaryEmail", emailAddress, false) ||
-      this.getCardFromProperty("SecondEmail", emailAddress, false);
+    return (
+      this.getCardFromProperty("PrimaryEmail", emailAddress, false) ||
+      this.getCardFromProperty("SecondEmail", emailAddress, false)
+    );
   },
   getCardFromProperty(property, value, caseSensitive) {
-    let sql = caseSensitive ?
-      "SELECT card FROM properties WHERE name = :name AND value = :value LIMIT 1" :
-      "SELECT card FROM properties WHERE name = :name AND LOWER(value) = LOWER(:value) LIMIT 1";
+    let sql = caseSensitive
+      ? "SELECT card FROM properties WHERE name = :name AND value = :value LIMIT 1"
+      : "SELECT card FROM properties WHERE name = :name AND LOWER(value) = LOWER(:value) LIMIT 1";
     let selectStatement = this._dbConnection.createStatement(sql);
     selectStatement.params.name = property;
     selectStatement.params.value = value;
@@ -271,9 +328,9 @@ var bookPrototype = {
     return null;
   },
   getCardsFromProperty(property, value, caseSensitive) {
-    let sql = caseSensitive ?
-      "SELECT card FROM properties WHERE name = :name AND value = :value" :
-      "SELECT card FROM properties WHERE name = :name AND LOWER(value) = LOWER(:value)";
+    let sql = caseSensitive
+      ? "SELECT card FROM properties WHERE name = :name AND value = :value"
+      : "SELECT card FROM properties WHERE name = :name AND LOWER(value) = LOWER(:value)";
     let selectStatement = this._dbConnection.createStatement(sql);
     selectStatement.params.name = property;
     selectStatement.params.value = value;
@@ -330,28 +387,31 @@ var bookPrototype = {
   get childNodes() {
     let lists = Array.from(
       this._lists.values(),
-      list => new AddrBookMailingList(list.uid,
-                                      this,
-                                      list.localId,
-                                      list.name,
-                                      list.nickName,
-                                      list.description).asDirectory
+      list =>
+        new AddrBookMailingList(
+          list.uid,
+          this,
+          list.localId,
+          list.name,
+          list.nickName,
+          list.description
+        ).asDirectory
     );
     return new SimpleEnumerator(lists);
   },
   get childCards() {
     let results = Array.from(
       this._lists.values(),
-      list => new AddrBookMailingList(list.uid,
-                                      this,
-                                      list.localId,
-                                      list.name,
-                                      list.nickName,
-                                      list.description).asCard
-    ).concat(Array.from(
-      this._cards.values(),
-      card => this._getCard(card))
-    );
+      list =>
+        new AddrBookMailingList(
+          list.uid,
+          this,
+          list.localId,
+          list.name,
+          list.nickName,
+          list.description
+        ).asCard
+    ).concat(Array.from(this._cards.values(), card => this._getCard(card)));
 
     if (this._query) {
       if (!this._processedQuery) {
@@ -400,7 +460,7 @@ var bookPrototype = {
         } else {
           properties = this._loadCardProperties(card.UID);
         }
-        let matches = (b) => {
+        let matches = b => {
           if (typeof b == "string") {
             let [name, condition, value] = b.split(",");
             if (name == "IsMailList" && condition == "=") {
@@ -432,7 +492,7 @@ var bookPrototype = {
               case "c":
                 return cardValue.includes(value);
               case "!c":
-                return !(cardValue.includes(value));
+                return !cardValue.includes(value);
               case "~=":
               case "regex":
               default:
@@ -465,12 +525,15 @@ var bookPrototype = {
   get addressLists() {
     let lists = Array.from(
       this._lists.values(),
-      list => new AddrBookMailingList(list.uid,
-                                      this,
-                                      list.localId,
-                                      list.name,
-                                      list.nickName,
-                                      list.description).asDirectory
+      list =>
+        new AddrBookMailingList(
+          list.uid,
+          this,
+          list.localId,
+          list.name,
+          list.nickName,
+          list.description
+        ).asDirectory
     );
     return toXPCOMArray(lists, Ci.nsIMutableArray);
   },
@@ -480,21 +543,25 @@ var bookPrototype = {
   },
   deleteDirectory(directory) {
     let list = this._lists.get(directory.UID);
-    list = new AddrBookMailingList(list.uid,
-                                   this,
-                                   list.localId,
-                                   list.name,
-                                   list.nickName,
-                                   list.description);
+    list = new AddrBookMailingList(
+      list.uid,
+      this,
+      list.localId,
+      list.name,
+      list.nickName,
+      list.description
+    );
 
     let deleteListStatement = this._dbConnection.createStatement(
-      "DELETE FROM lists WHERE uid = :uid");
+      "DELETE FROM lists WHERE uid = :uid"
+    );
     deleteListStatement.params.uid = directory.UID;
     deleteListStatement.execute();
     deleteListStatement.finalize();
 
     this._dbConnection.executeSimpleSQL(
-      "DELETE FROM list_cards WHERE list NOT IN (SELECT DISTINCT uid FROM lists)");
+      "DELETE FROM list_cards WHERE list NOT IN (SELECT DISTINCT uid FROM lists)"
+    );
     MailServices.ab.notifyDirectoryItemDeleted(this, list.asCard);
     MailServices.ab.notifyDirectoryItemDeleted(list.asDirectory, list.asCard);
     MailServices.ab.notifyDirectoryDeleted(this, directory);
@@ -543,9 +610,11 @@ var bookPrototype = {
     }
 
     let deleteCardStatement = this._dbConnection.createStatement(
-      "DELETE FROM cards WHERE uid = :uid");
+      "DELETE FROM cards WHERE uid = :uid"
+    );
     let selectListCardStatement = this._dbConnection.createStatement(
-      "SELECT list FROM list_cards WHERE card = :card");
+      "SELECT list FROM list_cards WHERE card = :card"
+    );
     for (let card of cards.enumerate(Ci.nsIAbCard)) {
       deleteCardStatement.params.uid = card.UID;
       deleteCardStatement.execute();
@@ -554,13 +623,17 @@ var bookPrototype = {
 
       selectListCardStatement.params.card = card.UID;
       while (selectListCardStatement.executeStep()) {
-        let list = new AddrBookMailingList(selectListCardStatement.row.list, this);
+        let list = new AddrBookMailingList(
+          selectListCardStatement.row.list,
+          this
+        );
         list.asDirectory.deleteCards(toXPCOMArray([card], Ci.nsIMutableArray));
       }
     }
 
     this._dbConnection.executeSimpleSQL(
-      "DELETE FROM properties WHERE card NOT IN (SELECT DISTINCT uid FROM cards)");
+      "DELETE FROM properties WHERE card NOT IN (SELECT DISTINCT uid FROM cards)"
+    );
 
     deleteCardStatement.finalize();
     selectListCardStatement.finalize();
@@ -569,10 +642,11 @@ var bookPrototype = {
     let newCard = new AddrBookCard();
     newCard.directoryId = this.uuid;
     newCard.localId = this._getNextCardId().toString();
-    newCard._uid = (needToCopyCard || !card.UID) ? newUID() : card.UID;
+    newCard._uid = needToCopyCard || !card.UID ? newUID() : card.UID;
 
     let insertStatement = this._dbConnection.createStatement(
-      "INSERT INTO cards (uid, localId) VALUES (:uid, :localId)");
+      "INSERT INTO cards (uid, localId) VALUES (:uid, :localId)"
+    );
     insertStatement.params.uid = newCard.UID;
     insertStatement.params.localId = newCard.localId;
     insertStatement.execute();
@@ -596,12 +670,14 @@ var bookPrototype = {
       throw Cr.NS_ERROR_UNEXPECTED;
     }
 
-    let newList = new AddrBookMailingList(newUID(),
-                                          this,
-                                          this._getNextListId(),
-                                          list.dirName || "",
-                                          list.listNickName || "",
-                                          list.description || "");
+    let newList = new AddrBookMailingList(
+      newUID(),
+      this,
+      this._getNextListId(),
+      list.dirName || "",
+      list.listNickName || "",
+      list.description || ""
+    );
     this._saveList(newList);
 
     let newListDirectory = newList.asDirectory;
@@ -637,7 +713,8 @@ var bookPrototype = {
     if (this._prefBranch.getPrefType(name) == Ci.nsIPrefBranch.PREF_INVALID) {
       return defaultValue;
     }
-    return this._prefBranch.getComplexValue(name, Ci.nsIPrefLocalizedString).value;
+    return this._prefBranch.getComplexValue(name, Ci.nsIPrefLocalizedString)
+      .value;
   },
   setIntValue(name, value) {
     this._prefBranch.setIntPref(name, value);

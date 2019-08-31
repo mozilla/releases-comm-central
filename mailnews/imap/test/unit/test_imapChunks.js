@@ -3,12 +3,13 @@
  * server lies about rfc822.size (known to happen for Exchange and gmail)
  */
 
-var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
+var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.js");
 
 var gIMAPDaemon, gServer, gIMAPIncomingServer, gSavedMsgFile;
 
-var gIMAPService = Cc["@mozilla.org/messenger/messageservice;1?type=imap"]
-                       .getService(Ci.nsIMsgMessageService);
+var gIMAPService = Cc[
+  "@mozilla.org/messenger/messageservice;1?type=imap"
+].getService(Ci.nsIMsgMessageService);
 
 var gFileName = "bug92111";
 var gMsgFile = do_get_file("../../../data/" + gFileName);
@@ -23,7 +24,10 @@ function run_test() {
   gIMAPIncomingServer = createLocalIMAPServer(gServer.port);
 
   // pref tuning: one connection only, turn off notifications
-  Services.prefs.setBoolPref("mail.server.server1.autosync_offline_stores", false);
+  Services.prefs.setBoolPref(
+    "mail.server.server1.autosync_offline_stores",
+    false
+  );
   Services.prefs.setIntPref("mail.server.server1.max_cached_connections", 1);
   Services.prefs.setBoolPref("mail.biff.play_sound", false);
   Services.prefs.setBoolPref("mail.biff.show_alert", false);
@@ -42,8 +46,9 @@ function run_test() {
    * Ok, prelude done. Read the original message from disk
    * (through a file URI), and add it to the Inbox.
    */
-  var msgfileuri =
-    Services.io.newFileURI(gMsgFile).QueryInterface(Ci.nsIFileURL);
+  var msgfileuri = Services.io
+    .newFileURI(gMsgFile)
+    .QueryInterface(Ci.nsIFileURL);
 
   let message = new imapMessage(msgfileuri.spec, inbox.uidnext++, []);
   // report an artificially low size, like gmail and Exchange do
@@ -61,10 +66,11 @@ function run_test() {
 
   do_test_pending();
   do_timeout(10000, function() {
-    do_throw("SaveMessageToDisk did not complete within 10 seconds" +
-      "(incorrect messageURI?). ABORTING.");
-    }
-  );
+    do_throw(
+      "SaveMessageToDisk did not complete within 10 seconds" +
+        "(incorrect messageURI?). ABORTING."
+    );
+  });
 
   /*
    * From nsIMsgMessageService.idl:
@@ -76,17 +82,24 @@ function run_test() {
    * Enforcing canonicalLineEnding (i.e., CRLF) makes sure that the
    * test also runs successfully on platforms not using CRLF by default.
    */
-  gIMAPService.SaveMessageToDisk("imap-message://user@localhost/INBOX#"
-                                 + (inbox.uidnext - 1), gSavedMsgFile,
-                                 false, UrlListener, {}, true, null);
+  gIMAPService.SaveMessageToDisk(
+    "imap-message://user@localhost/INBOX#" + (inbox.uidnext - 1),
+    gSavedMsgFile,
+    false,
+    UrlListener,
+    {},
+    true,
+    null
+  );
 }
 
 function endTest() {
   gIMAPIncomingServer.closeCachedConnections();
   gServer.stop();
   var thread = gThreadManager.currentThread;
-  while (thread.hasPendingEvents())
+  while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
+  }
 
   try {
     gSavedMsgFile.remove(false);
@@ -104,8 +117,10 @@ var UrlListener = {
     Assert.equal(rc, 0);
 
     // File contents were not modified
-    Assert.equal(IOUtils.loadFileToString(gMsgFile),
-                 IOUtils.loadFileToString(gSavedMsgFile));
+    Assert.equal(
+      IOUtils.loadFileToString(gMsgFile),
+      IOUtils.loadFileToString(gSavedMsgFile)
+    );
 
     // The file doesn't get closed straight away, but does after a little bit.
     // So wait, and then remove it. We need to test this to ensure we don't

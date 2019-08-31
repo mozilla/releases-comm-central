@@ -4,9 +4,9 @@
 
 this.EXPORTED_SYMBOLS = ["FreeTag", "FreeTagNoun"];
 
-const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
-const {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
+const { Gloda } = ChromeUtils.import("resource:///modules/gloda/gloda.js");
 
 function FreeTag(aTagName) {
   this.name = aTagName;
@@ -36,8 +36,9 @@ var FreeTagNoun = {
   },
   removeListener(aListener) {
     let index = this._listeners.indexOf(aListener);
-    if (index >= 0)
+    if (index >= 0) {
       this._listeners.splice(index, 1);
+    }
   },
 
   populateKnownFreeTags() {
@@ -54,16 +55,18 @@ var FreeTagNoun = {
     let tag = this.knownFreeTags[aTagName];
     if (!tag) {
       tag = this.knownFreeTags[aTagName] = new FreeTag(aTagName);
-      for (let listener of this._listeners)
+      for (let listener of this._listeners) {
         listener.onFreeTagAdded(tag);
+      }
     }
     return tag;
   },
 
   comparator(a, b) {
     if (a == null) {
-      if (b == null)
+      if (b == null) {
         return 0;
+      }
       return 1;
     } else if (b == null) {
       return -1;

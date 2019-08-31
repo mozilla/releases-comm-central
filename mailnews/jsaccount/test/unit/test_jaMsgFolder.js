@@ -8,19 +8,27 @@
 // delegator class directly, instead we use a JS component as a demo of
 // JS override classes.
 
-var {
-  JaBaseMsgFolderProperties,
-} = ChromeUtils.import("resource://testing-common/mailnews/testJaBaseMsgFolder.jsm");
-var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { JaBaseMsgFolderProperties } = ChromeUtils.import(
+  "resource://testing-common/mailnews/testJaBaseMsgFolder.jsm"
+);
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 function run_test() {
-  let server = MailServices.accounts.createIncomingServer("foouser", "foohost", "testja");
+  let server = MailServices.accounts.createIncomingServer(
+    "foouser",
+    "foohost",
+    "testja"
+  );
   Assert.ok(server instanceof Ci.msgIOverride);
 
   // If you create a folder object directly, it will complain about not being registered.
   // Use folder-lookup-service instead.
-  let testJaMsgFolder = MailUtils.getOrCreateFolder("testja://foouser@foohost/somefolder");
+  let testJaMsgFolder = MailUtils.getOrCreateFolder(
+    "testja://foouser@foohost/somefolder"
+  );
   // let testJaMsgFolder = Cc[JaBaseMsgFolderProperties.contractID]
   //                        .createInstance(Ci.msgIOverride);
   Assert.ok(testJaMsgFolder instanceof Ci.nsIMsgFolder);
@@ -36,7 +44,10 @@ function run_test() {
   // Make sure the DB actually works.
   let dbFolder = db.folder;
   Assert.ok(dbFolder instanceof Ci.nsIMsgFolder);
-  Assert.equal(dbFolder.QueryInterface(Ci.nsIRDFResource).Value, "testja://foouser@foohost/somefolder");
+  Assert.equal(
+    dbFolder.QueryInterface(Ci.nsIRDFResource).Value,
+    "testja://foouser@foohost/somefolder"
+  );
   let fi = db.dBFolderInfo;
   Assert.ok(fi instanceof Ci.nsIDBFolderInfo);
   fi.setCharProperty("testProperty", "foobar");

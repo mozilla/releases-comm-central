@@ -11,16 +11,14 @@ load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
 
-Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
-                           "@mozilla.org/msgstore/berkeleystore;1");
+Services.prefs.setCharPref(
+  "mail.serverDefaultStoreContractID",
+  "@mozilla.org/msgstore/berkeleystore;1"
+);
 
 var gOfflineStoreSize;
 
-var tests = [
-  setup,
-  check_result,
-  teardown,
-];
+var tests = [setup, check_result, teardown];
 
 function run_test() {
   setupIMAPPump();
@@ -28,26 +26,36 @@ function run_test() {
   // Figure out the name of the IMAP inbox
   let inboxFile = IMAPPump.incomingServer.rootMsgFolder.filePath;
   inboxFile.append("INBOX");
-  if (!inboxFile.exists())
+  if (!inboxFile.exists()) {
     inboxFile.create(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt("0644", 8));
+  }
 
   let neededFreeSpace = 0x200000000;
   // On Windows, check whether the drive is NTFS. If it is, mark the file as
   // sparse. If it isn't, then bail out now, because in all probability it is
   // FAT32, which doesn't support file sizes greater than 4 GB.
-  if ("@mozilla.org/windows-registry-key;1" in Cc &&
-      mailTestUtils.get_file_system(inboxFile) != "NTFS") {
+  if (
+    "@mozilla.org/windows-registry-key;1" in Cc &&
+    mailTestUtils.get_file_system(inboxFile) != "NTFS"
+  ) {
     dump("On Windows, this test only works on NTFS volumes.\n");
     teardown();
     return;
   }
 
-  let isFileSparse = mailTestUtils.mark_file_region_sparse(inboxFile, 0, 0x10000000f);
+  let isFileSparse = mailTestUtils.mark_file_region_sparse(
+    inboxFile,
+    0,
+    0x10000000f
+  );
   let freeDiskSpace = inboxFile.diskSpaceAvailable;
   info("Free disk space = " + mailTestUtils.toMiBString(freeDiskSpace));
   if (!isFileSparse && freeDiskSpace < neededFreeSpace) {
-    info("This test needs " + mailTestUtils.toMiBString(neededFreeSpace) +
-         " free space to run. Aborting.");
+    info(
+      "This test needs " +
+        mailTestUtils.toMiBString(neededFreeSpace) +
+        " free space to run. Aborting."
+    );
     todo_check_true(false);
 
     teardown();
@@ -64,20 +72,22 @@ function* setup() {
   let scenarioFactory = new MessageScenarioFactory(messageGenerator);
 
   messages = messages.concat(scenarioFactory.directReply(2));
-  let dataUri = Services.io.newURI("data:text/plain;base64," +
-                                   btoa(messages[0].toMessageString()));
+  let dataUri = Services.io.newURI(
+    "data:text/plain;base64," + btoa(messages[0].toMessageString())
+  );
   let imapMsg = new imapMessage(dataUri.spec, IMAPPump.mailbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(imapMsg);
 
-  dataUri = Services.io.newURI("data:text/plain;base64," +
-                               btoa(messages[1].toMessageString()));
+  dataUri = Services.io.newURI(
+    "data:text/plain;base64," + btoa(messages[1].toMessageString())
+  );
   imapMsg = new imapMessage(dataUri.spec, IMAPPump.mailbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(imapMsg);
 
   // Extend local IMAP inbox to over 4 GiB.
   let outputStream = Cc["@mozilla.org/network/file-output-stream;1"]
-                       .createInstance(Ci.nsIFileOutputStream)
-                       .QueryInterface(Ci.nsISeekableStream);
+    .createInstance(Ci.nsIFileOutputStream)
+    .QueryInterface(Ci.nsISeekableStream);
   // Open in write-only mode, no truncate.
   outputStream.init(IMAPPump.inbox.filePath, 0x02, -1, 0);
   // seek to 15 bytes past 4GB.
@@ -88,8 +98,10 @@ function* setup() {
 
   // Save initial file size.
   gOfflineStoreSize = IMAPPump.inbox.filePath.fileSize;
-  info("Offline store size (before 1st downloadAllForOffline()) = " +
-       gOfflineStoreSize);
+  info(
+    "Offline store size (before 1st downloadAllForOffline()) = " +
+      gOfflineStoreSize
+  );
 
   // Download for offline use, to append created messages to local IMAP inbox.
   IMAPPump.inbox.downloadAllForOffline(asyncUrlListener, null);
@@ -103,8 +115,11 @@ function* check_result() {
 
   // Make sure offline store grew (i.e., we were not writing over data).
   let offlineStoreSize = IMAPPump.inbox.filePath.fileSize;
-  info("Offline store size (after 2nd downloadAllForOffline()) = " +
-       offlineStoreSize + ". (Msg hdr offsets should be close to it.)");
+  info(
+    "Offline store size (after 2nd downloadAllForOffline()) = " +
+      offlineStoreSize +
+      ". (Msg hdr offsets should be close to it.)"
+  );
   Assert.ok(offlineStoreSize > gOfflineStoreSize);
 
   // Verify that the message headers have the offline flag set.
@@ -114,11 +129,18 @@ function* check_result() {
   while (msgEnumerator.hasMoreElements()) {
     let header = msgEnumerator.getNext();
     // Verify that each message has been downloaded and looks OK.
-    if (!(header instanceof Ci.nsIMsgDBHdr &&
-          (header.flags & Ci.nsMsgMessageFlags.Offline)))
+    if (
+      !(
+        header instanceof Ci.nsIMsgDBHdr &&
+        header.flags & Ci.nsMsgMessageFlags.Offline
+      )
+    ) {
       do_throw("Message not downloaded for offline use");
+    }
 
-    IMAPPump.inbox.getOfflineFileStream(header.messageKey, offset, size).close();
+    IMAPPump.inbox
+      .getOfflineFileStream(header.messageKey, offset, size)
+      .close();
     info("Msg hdr offset = " + offset.value);
   }
 }
@@ -126,8 +148,9 @@ function* check_result() {
 function teardown() {
   // Free up disk space - if you want to look at the file after running
   // this test, comment out this line.
-  if (IMAPPump.inbox)
+  if (IMAPPump.inbox) {
     IMAPPump.inbox.filePath.remove(false);
+  }
 
   teardownIMAPPump();
 }

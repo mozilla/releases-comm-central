@@ -4,17 +4,40 @@
 
 this.EXPORTED_SYMBOLS = ["AddrBookMailingList"];
 
-ChromeUtils.defineModuleGetter(this, "MailServices", "resource:///modules/MailServices.jsm");
-ChromeUtils.defineModuleGetter(this, "Services", "resource://gre/modules/Services.jsm");
-ChromeUtils.defineModuleGetter(this, "SimpleEnumerator", "resource:///modules/AddrBookUtils.jsm");
-ChromeUtils.defineModuleGetter(this, "toXPCOMArray", "resource:///modules/iteratorUtils.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "MailServices",
+  "resource:///modules/MailServices.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "Services",
+  "resource://gre/modules/Services.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "SimpleEnumerator",
+  "resource:///modules/AddrBookUtils.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "toXPCOMArray",
+  "resource:///modules/iteratorUtils.jsm"
+);
 
 /* Prototype for mailing lists. A mailing list can appear as nsIAbDirectory
  * or as nsIAbCard. Here we keep all relevant information in the class itself
  * and fulfill each interface on demand. This will make more sense and be
  * a lot neater once we stop using two XPCOM interfaces for one job. */
 
-function AddrBookMailingList(uid, parent, localId, name, nickName, description) {
+function AddrBookMailingList(
+  uid,
+  parent,
+  localId,
+  name,
+  nickName,
+  description
+) {
   this._uid = uid;
   this._parent = parent;
   this._localId = localId;
@@ -47,9 +70,19 @@ AddrBookMailingList.prototype = {
       set dirName(value) {
         let oldValue = self._name;
         self._name = value;
-        MailServices.ab.notifyItemPropertyChanged(this, "DirName", oldValue, value);
+        MailServices.ab.notifyItemPropertyChanged(
+          this,
+          "DirName",
+          oldValue,
+          value
+        );
         // Fired twice for compatibility.
-        MailServices.ab.notifyItemPropertyChanged(this, "DirName", oldValue, value);
+        MailServices.ab.notifyItemPropertyChanged(
+          this,
+          "DirName",
+          oldValue,
+          value
+        );
       },
       get listNickName() {
         return self._nickName;
@@ -71,11 +104,14 @@ AddrBookMailingList.prototype = {
       },
       get childCards() {
         let selectStatement = self._parent._dbConnection.createStatement(
-          "SELECT card FROM list_cards WHERE list = :list ORDER BY oid");
+          "SELECT card FROM list_cards WHERE list = :list ORDER BY oid"
+        );
         selectStatement.params.list = self._uid;
         let results = [];
         while (selectStatement.executeStep()) {
-          results.push(self._parent._getCard({ uid: selectStatement.row.card }));
+          results.push(
+            self._parent._getCard({ uid: selectStatement.row.card })
+          );
         }
         selectStatement.finalize();
         return new SimpleEnumerator(results);
@@ -85,11 +121,14 @@ AddrBookMailingList.prototype = {
       },
       get addressLists() {
         let selectStatement = self._parent._dbConnection.createStatement(
-          "SELECT card FROM list_cards WHERE list = :list ORDER BY oid");
+          "SELECT card FROM list_cards WHERE list = :list ORDER BY oid"
+        );
         selectStatement.params.list = self._uid;
         let results = [];
         while (selectStatement.executeStep()) {
-          results.push(self._parent._getCard({ uid: selectStatement.row.card }));
+          results.push(
+            self._parent._getCard({ uid: selectStatement.row.card })
+          );
         }
         selectStatement.finalize();
         return toXPCOMArray(results, Ci.nsIMutableArray);
@@ -100,7 +139,8 @@ AddrBookMailingList.prototype = {
           return card;
         }
         let insertStatement = self._parent._dbConnection.createStatement(
-          "REPLACE INTO list_cards (list, card) VALUES (:list, :card)");
+          "REPLACE INTO list_cards (list, card) VALUES (:list, :card)"
+        );
         insertStatement.params.list = self._uid;
         insertStatement.params.card = card.UID;
         insertStatement.execute();
@@ -114,14 +154,19 @@ AddrBookMailingList.prototype = {
       },
       deleteCards(cards) {
         let deleteCardStatement = self._parent._dbConnection.createStatement(
-          "DELETE FROM list_cards WHERE list = :list AND card = :card");
+          "DELETE FROM list_cards WHERE list = :list AND card = :card"
+        );
         for (let card of cards.enumerate()) {
           deleteCardStatement.params.list = self._uid;
           deleteCardStatement.params.card = card.UID;
           deleteCardStatement.execute();
           deleteCardStatement.reset();
           MailServices.ab.notifyDirectoryItemDeleted(this, card);
-          Services.obs.notifyObservers(card, "addrbook-list-member-removed", self._uid);
+          Services.obs.notifyObservers(
+            card,
+            "addrbook-list-member-removed",
+            self._uid
+          );
         }
         deleteCardStatement.finalize();
       },
@@ -130,7 +175,11 @@ AddrBookMailingList.prototype = {
           card = this._parent.dropCard(card, true);
         }
         this.addCard(card);
-        Services.obs.notifyObservers(card, "addrbook-list-member-added", self._uid);
+        Services.obs.notifyObservers(
+          card,
+          "addrbook-list-member-added",
+          self._uid
+        );
       },
       editMailListToDatabase(listCard) {
         self._parent._saveList(self);

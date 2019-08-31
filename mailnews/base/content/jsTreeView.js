@@ -73,10 +73,12 @@ PROTO_TREE_VIEW.prototype = {
   hasNextSibling(aIndex, aNextIndex) {
     let targetLevel = this._rowMap[aIndex].level;
     for (let i = aNextIndex + 1; i < this._rowMap.length; i++) {
-      if (this._rowMap[i].level == targetLevel)
+      if (this._rowMap[i].level == targetLevel) {
         return true;
-      if (this._rowMap[i].level < targetLevel)
+      }
+      if (this._rowMap[i].level < targetLevel) {
         return false;
+      }
     }
     return false;
   },
@@ -157,8 +159,9 @@ PROTO_TREE_VIEW.prototype = {
 
       // Remove us from the persist map
       let index = this._persistOpenMap.indexOf(this._rowMap[aIndex].id);
-      if (index != -1)
+      if (index != -1) {
         this._persistOpenMap.splice(index, 1);
+      }
 
       // Notify the tree of changes
       if (this._tree) {
@@ -174,17 +177,20 @@ PROTO_TREE_VIEW.prototype = {
 
       // Add this container to the persist map
       let id = this._rowMap[aIndex].id;
-      if (!this._persistOpenMap.includes(id))
+      if (!this._persistOpenMap.includes(id)) {
         this._persistOpenMap.push(id);
+      }
 
       // Notify the tree of changes
-      if (this._tree)
+      if (this._tree) {
         this._tree.rowCountChanged(aIndex + 1, this._rowMap.length - oldCount);
+      }
     }
 
     // Invalidate the toggled row, so that the open/closed marker changes
-    if (this._tree)
+    if (this._tree) {
       this._tree.invalidateRow(aIndex);
+    }
   },
 
   // We don't implement any of these at the moment
@@ -194,7 +200,9 @@ PROTO_TREE_VIEW.prototype = {
   setCellText(aRow, aCol, aValue) {},
   setCellValue(aRow, aCol, aValue) {},
   getCellValue(aRow, aCol) {},
-  getColumnProperties(aCol) { return ""; },
+  getColumnProperties(aCol) {
+    return "";
+  },
   getImageSrc(aRow, aCol) {},
   getProgressMode(aRow, aCol) {},
   cycleCell(aRow, aCol) {},
@@ -216,8 +224,9 @@ PROTO_TREE_VIEW.prototype = {
   _restoreOpenStates() {
     // Note that as we iterate through here, .length may grow
     for (let i = 0; i < this._rowMap.length; i++) {
-      if (this._persistOpenMap.includes(this._rowMap[i].id))
+      if (this._persistOpenMap.includes(this._rowMap[i].id)) {
         this.toggleOpenState(i);
+      }
     }
   },
 

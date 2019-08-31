@@ -13,7 +13,7 @@
   When all searches are finished, close the dialog.
 */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var nsIX509CertDB = Ci.nsIX509CertDB;
 var nsX509CertDB = "@mozilla.org/security/x509certdb;1";
@@ -52,14 +52,19 @@ function search() {
   try {
     let url = Services.prefs.getCharPref(gDirectoryPref + ".uri");
 
-    gLdapServerURL = Services.io
-      .newURI(url).QueryInterface(Ci.nsILDAPURL);
+    gLdapServerURL = Services.io.newURI(url).QueryInterface(Ci.nsILDAPURL);
 
     gLdapConnection = Cc["@mozilla.org/network/ldap-connection;1"]
-      .createInstance().QueryInterface(Ci.nsILDAPConnection);
+      .createInstance()
+      .QueryInterface(Ci.nsILDAPConnection);
 
-    gLdapConnection.init(gLdapServerURL, gLogin, new boundListener(),
-      null, Ci.nsILDAPConnection.VERSION3);
+    gLdapConnection.init(
+      gLdapServerURL,
+      gLogin,
+      new boundListener(),
+      null,
+      Ci.nsILDAPConnection.VERSION3
+    );
   } catch (ex) {
     dump(ex);
     dump(" exception creating ldap connection\n");
@@ -71,8 +76,7 @@ function stopFetching() {
   if (gLdapOperation) {
     try {
       gLdapOperation.abandon();
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 }
 
@@ -90,12 +94,11 @@ function importCert(ber_value) {
 }
 
 function getLDAPOperation() {
-  gLdapOperation = Cc["@mozilla.org/network/ldap-operation;1"]
-                     .createInstance(Ci.nsILDAPOperation);
+  gLdapOperation = Cc["@mozilla.org/network/ldap-operation;1"].createInstance(
+    Ci.nsILDAPOperation
+  );
 
-  gLdapOperation.init(gLdapConnection,
-                      new ldapMessageListener(),
-                      null);
+  gLdapOperation.init(gLdapConnection, new ldapMessageListener(), null);
 }
 
 function getPassword() {
@@ -107,12 +110,19 @@ function getPassword() {
 
     // nsLDAPAutocompleteSession uses asciiHost instead of host for the prompt text, I think we should be
     // consistent.
-    if (authPrompter.promptPassword(strBundle.getString("authPromptTitle"),
-                                     strBundle.getFormattedString("authPromptText", [gLdapServerURL.asciiHost]),
-                                     gLdapServerURL.spec,
-                                     authPrompter.SAVE_PASSWORD_PERMANENTLY,
-                                     password))
+    if (
+      authPrompter.promptPassword(
+        strBundle.getString("authPromptTitle"),
+        strBundle.getFormattedString("authPromptText", [
+          gLdapServerURL.asciiHost,
+        ]),
+        gLdapServerURL.spec,
+        authPrompter.SAVE_PASSWORD_PERMANENTLY,
+        password
+      )
+    ) {
       return password.value;
+    }
   }
 
   return null;
@@ -134,7 +144,11 @@ function kickOffSearch() {
 
     var urlFilter = gLdapServerURL.filter;
 
-    if (urlFilter != null && urlFilter.length > 0 && urlFilter != "(objectclass=*)") {
+    if (
+      urlFilter != null &&
+      urlFilter.length > 0 &&
+      urlFilter != "(objectclass=*)"
+    ) {
       if (urlFilter.startsWith("(")) {
         prefix1 = "(&" + urlFilter;
       } else {
@@ -171,19 +185,24 @@ function kickOffSearch() {
     var maxEntriesWanted = gEmailAddresses.length * 2;
 
     getLDAPOperation();
-    gLdapOperation.searchExt(gLdapServerURL.dn, gLdapServerURL.scope,
-                             filter, wanted_attributes, 0, maxEntriesWanted);
+    gLdapOperation.searchExt(
+      gLdapServerURL.dn,
+      gLdapServerURL.scope,
+      filter,
+      wanted_attributes,
+      0,
+      maxEntriesWanted
+    );
   } catch (e) {
     window.close();
   }
 }
 
+function boundListener() {}
 
-function boundListener() {
-}
-
-boundListener.prototype.QueryInterface =
-  ChromeUtils.generateQI(["nsILDAPMessageListener"]);
+boundListener.prototype.QueryInterface = ChromeUtils.generateQI([
+  "nsILDAPMessageListener",
+]);
 
 boundListener.prototype.onLDAPMessage = function(aMessage) {};
 
@@ -191,42 +210,37 @@ boundListener.prototype.onLDAPInit = function(aConn, aStatus) {
   kickOffBind();
 };
 
+function ldapMessageListener() {}
 
-function ldapMessageListener() {
-}
+ldapMessageListener.prototype.QueryInterface = ChromeUtils.generateQI([
+  "nsILDAPMessageListener",
+]);
 
-ldapMessageListener.prototype.QueryInterface =
-  ChromeUtils.generateQI(["nsILDAPMessageListener"]);
+ldapMessageListener.prototype.onLDAPMessage = function(aMessage) {
+  if (Ci.nsILDAPMessage.RES_SEARCH_RESULT == aMessage.type) {
+    window.close();
+    return;
+  }
 
-ldapMessageListener.prototype.onLDAPMessage =
-  function(aMessage) {
-    if (Ci.nsILDAPMessage.RES_SEARCH_RESULT == aMessage.type) {
+  if (Ci.nsILDAPMessage.RES_BIND == aMessage.type) {
+    if (Ci.nsILDAPErrors.SUCCESS != aMessage.errorCode) {
       window.close();
-      return;
+    } else {
+      kickOffSearch();
     }
+    return;
+  }
 
-    if (Ci.nsILDAPMessage.RES_BIND == aMessage.type) {
-      if (Ci.nsILDAPErrors.SUCCESS != aMessage.errorCode) {
-        window.close();
-      } else {
-        kickOffSearch();
+  if (Ci.nsILDAPMessage.RES_SEARCH_ENTRY == aMessage.type) {
+    var outSize = {};
+    try {
+      var outBinValues = aMessage.getBinaryValues(CertAttribute, outSize);
+
+      for (let i = 0; i < outSize.value; ++i) {
+        importCert(outBinValues[i]);
       }
-      return;
-    }
+    } catch (e) {}
+  }
+};
 
-    if (Ci.nsILDAPMessage.RES_SEARCH_ENTRY == aMessage.type) {
-      var outSize = {};
-      try {
-        var outBinValues = aMessage.getBinaryValues(CertAttribute, outSize);
-
-        for (let i = 0; i < outSize.value; ++i) {
-          importCert(outBinValues[i]);
-        }
-      } catch (e) {
-      }
-    }
-  };
-
-ldapMessageListener.prototype.onLDAPInit =
-  function(aConn, aStatus) {
-  };
+ldapMessageListener.prototype.onLDAPInit = function(aConn, aStatus) {};

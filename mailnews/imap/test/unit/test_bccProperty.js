@@ -15,12 +15,7 @@ load("../../../resources/asyncTestUtils.js");
 var gFileName = "draft1";
 var gMsgFile = do_get_file("../../../data/" + gFileName);
 
-var tests = [
-  setup,
-  downloadAllForOffline,
-  checkBccs,
-  teardown,
-];
+var tests = [setup, downloadAllForOffline, checkBccs, teardown];
 
 function* setup() {
   setupIMAPPump();
@@ -29,11 +24,13 @@ function* setup() {
    * Ok, prelude done. Read the original message from disk
    * (through a file URI), and add it to the Inbox.
    */
-  let msgfileuri =
-    Services.io.newFileURI(gMsgFile).QueryInterface(Ci.nsIFileURL);
+  let msgfileuri = Services.io
+    .newFileURI(gMsgFile)
+    .QueryInterface(Ci.nsIFileURL);
 
-  IMAPPump.mailbox.addMessage(new imapMessage(msgfileuri.spec,
-                                          IMAPPump.mailbox.uidnext++, []));
+  IMAPPump.mailbox.addMessage(
+    new imapMessage(msgfileuri.spec, IMAPPump.mailbox.uidnext++, [])
+  );
 
   // ...and download for offline use.
   IMAPPump.inbox.downloadAllForOffline(asyncUrlListener, null);
@@ -63,4 +60,3 @@ function teardown() {
 function run_test() {
   async_run_tests(tests);
 }
-

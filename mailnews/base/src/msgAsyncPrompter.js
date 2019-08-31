@@ -2,10 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Deprecated} = ChromeUtils.import("resource://gre/modules/Deprecated.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var { Deprecated } = ChromeUtils.import(
+  "resource://gre/modules/Deprecated.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 function runnablePrompter(asyncPrompter, hashKey) {
   this._asyncPrompter = asyncPrompter;
@@ -23,8 +27,10 @@ runnablePrompter.prototype = {
       } catch (e) {
         if (e.result == Cr.NS_ERROR_XPC_JSOBJECT_HAS_NO_FUNCTION_NAMED) {
           // Fall back to onPromptStart, for add-ons compat
-          Deprecated.warning("onPromptStart has been replaced by onPromptStartAsync",
-                             "https://bugzilla.mozilla.org/show_bug.cgi?id=1176399");
+          Deprecated.warning(
+            "onPromptStart has been replaced by onPromptStartAsync",
+            "https://bugzilla.mozilla.org/show_bug.cgi?id=1176399"
+          );
           let ok = listener.onPromptStart();
           resolve(ok);
         } else {
@@ -57,12 +63,18 @@ runnablePrompter.prototype = {
         }
       } catch (ex) {
         // Log the error for extension devs and others to pick up.
-        Cu.reportError("runnablePrompter:run: consumer.onPrompt* reported an exception: " + ex + "\n");
+        Cu.reportError(
+          "runnablePrompter:run: consumer.onPrompt* reported an exception: " +
+            ex +
+            "\n"
+        );
       }
     }
     this._asyncPrompter._asyncPromptInProgress--;
 
-    this._asyncPrompter._log.debug("Finished running prompter for " + this._hashKey);
+    this._asyncPrompter._log.debug(
+      "Finished running prompter for " + this._hashKey
+    );
     this._asyncPrompter._doAsyncAuthPrompt();
   },
 };
@@ -75,9 +87,11 @@ function msgAsyncPrompter() {
   //   msgAsyncPrompter.logging.dump
   // To change this up.  Values should be one of:
   //   Fatal/Error/Warn/Info/Config/Debug/Trace/All
-  this._log = Log4Moz.getConfiguredLogger("msgAsyncPrompter",
-                                          Log4Moz.Level.Warn,
-                                          Log4Moz.Level.Warn);
+  this._log = Log4Moz.getConfiguredLogger(
+    "msgAsyncPrompter",
+    Log4Moz.Level.Warn,
+    Log4Moz.Level.Warn
+  );
 }
 
 msgAsyncPrompter.prototype = {
@@ -90,7 +104,9 @@ msgAsyncPrompter.prototype = {
 
   queueAsyncAuthPrompt(aKey, aJumpQueue, aCaller) {
     if (aKey in this._pendingPrompts) {
-      this._log.debug("Prompt bound to an existing one in the queue, key: " + aKey);
+      this._log.debug(
+        "Prompt bound to an existing one in the queue, key: " + aKey
+      );
       this._pendingPrompts[aKey].consumers.push(aCaller);
       return;
     }
@@ -116,17 +132,21 @@ msgAsyncPrompter.prototype = {
 
   _doAsyncAuthPrompt() {
     if (this._asyncPromptInProgress > 0) {
-      this._log.debug("_doAsyncAuthPrompt bypassed - prompt already in progress");
+      this._log.debug(
+        "_doAsyncAuthPrompt bypassed - prompt already in progress"
+      );
       return;
     }
 
     // Find the first prompt key we have in the queue.
     let hashKey = null;
-    for (hashKey in this._pendingPrompts)
+    for (hashKey in this._pendingPrompts) {
       break;
+    }
 
-    if (!hashKey)
+    if (!hashKey) {
       return;
+    }
 
     this._asyncPromptInProgress++;
 

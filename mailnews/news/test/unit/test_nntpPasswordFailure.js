@@ -9,7 +9,7 @@
  *     we get a new password prompt and can enter the password.
  */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 /* import-globals-from ../../../test/resources/logHelper.js */
 /* import-globals-from ../../../test/resources/asyncTestUtils.js */
 /* import-globals-from ../../../test/resources/alertTestUtils.js */
@@ -42,8 +42,16 @@ function alert(aDialogText, aText) {
   dump("Alert Title: " + aDialogText + "\nAlert Text: " + aText + "\n");
 }
 
-function confirmEx(aDialogTitle, aText, aButtonFlags, aButton0Title,
-                   aButton1Title, aButton2Title, aCheckMsg, aCheckState) {
+function confirmEx(
+  aDialogTitle,
+  aText,
+  aButtonFlags,
+  aButton0Title,
+  aButton1Title,
+  aButton2Title,
+  aCheckMsg,
+  aCheckState
+) {
   switch (++attempt) {
     // First attempt, retry.
     case 1:
@@ -67,8 +75,15 @@ function confirmEx(aDialogTitle, aText, aButtonFlags, aButton0Title,
   }
 }
 
-function promptUsernameAndPasswordPS(aParent, aDialogTitle, aText, aUsername,
-                                     aPassword, aCheckMsg, aCheckState) {
+function promptUsernameAndPasswordPS(
+  aParent,
+  aDialogTitle,
+  aText,
+  aUsername,
+  aPassword,
+  aCheckMsg,
+  aCheckState
+) {
   if (attempt == 4) {
     aUsername.value = kUserName;
     aPassword.value = kValidPassword;
@@ -83,13 +98,11 @@ function getMail() {
 }
 
 var urlListener = {
-  OnStartRunningUrl(url) {
-  },
+  OnStartRunningUrl(url) {},
   OnStopRunningUrl(url, result) {
     try {
       // On the last attempt, we should have successfully got one mail.
-      Assert.equal(folder.getTotalMessages(false),
-                   attempt == 4 ? 1 : 0);
+      Assert.equal(folder.getTotalMessages(false), attempt == 4 ? 1 : 0);
 
       // If we've just cancelled, expect failure rather than success
       // because the server dropped the connection.
@@ -101,8 +114,9 @@ var urlListener = {
       server.stop();
 
       var thread = gThreadManager.currentThread;
-      while (thread.hasPendingEvents())
+      while (thread.hasPendingEvents()) {
         thread.processNextEvent(true);
+      }
 
       do_throw(e);
     }
@@ -110,11 +124,7 @@ var urlListener = {
 };
 
 // Definition of tests
-var tests = [
-  getMail1,
-  getMail2,
-  endTest,
-];
+var tests = [getMail1, getMail2, endTest];
 
 function* getMail1() {
   dump("\nGet Mail 1\n");
@@ -127,7 +137,11 @@ function* getMail1() {
   Assert.equal(attempt, 2);
 
   // Check that we haven't forgotten the login even though we've retried and cancelled.
-  logins = Services.logins.findLogins("news://localhost", null, "news://localhost");
+  logins = Services.logins.findLogins(
+    "news://localhost",
+    null,
+    "news://localhost"
+  );
 
   Assert.equal(logins.length, 1);
   Assert.equal(logins[0].username, kUserName);
@@ -148,7 +162,11 @@ function* getMail2() {
 
 function* endTest() {
   // Now check the new one has been saved.
-  logins = Services.logins.findLogins("news://localhost", null, "news://localhost");
+  logins = Services.logins.findLogins(
+    "news://localhost",
+    null,
+    "news://localhost"
+  );
 
   Assert.equal(logins.length, 1);
   Assert.equal(logins[0].username, kUserName);

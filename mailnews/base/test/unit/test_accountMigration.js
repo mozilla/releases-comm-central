@@ -7,7 +7,9 @@
  * preference every time we run the migration code, and other migration stuff
  */
 
-var {migrateMailnews} = ChromeUtils.import("resource:///modules/mailnewsMigrator.js");
+var { migrateMailnews } = ChromeUtils.import(
+  "resource:///modules/mailnewsMigrator.js"
+);
 
 /* import-globals-from ../../../test/resources/abSetup.js */
 load("../../../resources/abSetup.js");
@@ -23,8 +25,10 @@ function run_test() {
   // Server2 has useSecAuth set to true, auth_login unset
   Services.prefs.setBoolPref("mail.server.server2.useSecAuth", true);
 
-  Services.prefs.setCharPref("mail.accountmanager.accounts",
-                             "account1,account2");
+  Services.prefs.setCharPref(
+    "mail.accountmanager.accounts",
+    "account1,account2"
+  );
 
   let testAB = do_get_file("data/remoteContent.mab");
 
@@ -32,30 +36,46 @@ function run_test() {
   testAB.copyTo(do_get_profile(), kPABData.fileName);
 
   let uriAllowed = Services.io.newURI(
-    "chrome://messenger/content/email=yes@test.invalid");
+    "chrome://messenger/content/email=yes@test.invalid"
+  );
   let uriAllowed2 = Services.io.newURI(
-    "chrome://messenger/content/email=yes2@test.invalid");
+    "chrome://messenger/content/email=yes2@test.invalid"
+  );
   let uriDisallowed = Services.io.newURI(
-    "chrome://messenger/content/email=no@test.invalid");
+    "chrome://messenger/content/email=no@test.invalid"
+  );
 
   // Check that this email that according to the ab data has (had!)
   // remote content premissions, has no premissions pre migration.
-  Assert.equal(Services.perms.testPermission(uriAllowed, "image"),
-               Services.perms.UNKNOWN_ACTION);
-  Assert.equal(Services.perms.testPermission(uriAllowed2, "image"),
-               Services.perms.UNKNOWN_ACTION);
-  Assert.equal(Services.perms.testPermission(uriDisallowed, "image"),
-               Services.perms.UNKNOWN_ACTION);
+  Assert.equal(
+    Services.perms.testPermission(uriAllowed, "image"),
+    Services.perms.UNKNOWN_ACTION
+  );
+  Assert.equal(
+    Services.perms.testPermission(uriAllowed2, "image"),
+    Services.perms.UNKNOWN_ACTION
+  );
+  Assert.equal(
+    Services.perms.testPermission(uriDisallowed, "image"),
+    Services.perms.UNKNOWN_ACTION
+  );
 
   // Set default charsets to an encoding no longer supported: VISCII.
-  let charset = Cc["@mozilla.org/pref-localizedstring;1"]
-                .createInstance(Ci.nsIPrefLocalizedString);
+  let charset = Cc["@mozilla.org/pref-localizedstring;1"].createInstance(
+    Ci.nsIPrefLocalizedString
+  );
   charset.data = "VISCII";
-  Services.prefs.setComplexValue("mailnews.send_default_charset",
-        Ci.nsIPrefLocalizedString, charset);
+  Services.prefs.setComplexValue(
+    "mailnews.send_default_charset",
+    Ci.nsIPrefLocalizedString,
+    charset
+  );
   Assert.ok(Services.prefs.prefHasUserValue("mailnews.send_default_charset"));
-  Services.prefs.setComplexValue("mailnews.view_default_charset",
-        Ci.nsIPrefLocalizedString, charset);
+  Services.prefs.setComplexValue(
+    "mailnews.view_default_charset",
+    Ci.nsIPrefLocalizedString,
+    charset
+  );
   Assert.ok(Services.prefs.prefHasUserValue("mailnews.view_default_charset"));
 
   // Now migrate the prefs.
@@ -64,8 +84,10 @@ function run_test() {
   // Check what has been set.
   Assert.ok(!Services.prefs.prefHasUserValue("mail.server.server1.authMethod"));
   Assert.ok(Services.prefs.prefHasUserValue("mail.server.server2.authMethod"));
-  Assert.equal(Services.prefs.getIntPref("mail.server.server2.authMethod"),
-               Ci.nsMsgAuthMethod.secure);
+  Assert.equal(
+    Services.prefs.getIntPref("mail.server.server2.authMethod"),
+    Ci.nsMsgAuthMethod.secure
+  );
 
   // Now clear the authMethod for set for server2. This simulates the user
   // setting the value back to "3", i.e. Ci.nsMsgAuthMethod.passwordCleartext.
@@ -77,7 +99,6 @@ function run_test() {
   // This time around, both of these should not be set.
   Assert.ok(!Services.prefs.prefHasUserValue("mail.server.server1.authMethod"));
   Assert.ok(!Services.prefs.prefHasUserValue("mail.server.server2.authMethod"));
-
 
   //
   // Now check SMTP
@@ -93,12 +114,18 @@ function run_test() {
   // Migration should now have added permissions for the address that had them
   // and not for the one that didn't have them.
   Assert.ok(Services.prefs.getIntPref("mail.ab_remote_content.migrated") > 0);
-  Assert.equal(Services.perms.testPermission(uriAllowed, "image"),
-               Services.perms.ALLOW_ACTION);
-  Assert.equal(Services.perms.testPermission(uriAllowed2, "image"),
-               Services.perms.ALLOW_ACTION);
-  Assert.equal(Services.perms.testPermission(uriDisallowed, "image"),
-               Services.perms.UNKNOWN_ACTION);
+  Assert.equal(
+    Services.perms.testPermission(uriAllowed, "image"),
+    Services.perms.ALLOW_ACTION
+  );
+  Assert.equal(
+    Services.perms.testPermission(uriAllowed2, "image"),
+    Services.perms.ALLOW_ACTION
+  );
+  Assert.equal(
+    Services.perms.testPermission(uriDisallowed, "image"),
+    Services.perms.UNKNOWN_ACTION
+  );
 
   // Migration should have cleared the charset user pref values.
   Assert.ok(Services.prefs.getIntPref("mail.default_charsets.migrated") > 0);
@@ -108,12 +135,18 @@ function run_test() {
   // Now migrate the prefs
   migrateMailnews();
 
-  Assert.ok(!Services.prefs.prefHasUserValue("mail.smtpserver.smtp1.authMethod"));
-  Assert.ok(Services.prefs.prefHasUserValue("mail.smtpserver.smtp2.authMethod"));
-  Assert.equal(Services.prefs.getIntPref("mail.smtpserver.smtp2.authMethod"),
-               Ci.nsMsgAuthMethod.secure);
+  Assert.ok(
+    !Services.prefs.prefHasUserValue("mail.smtpserver.smtp1.authMethod")
+  );
+  Assert.ok(
+    Services.prefs.prefHasUserValue("mail.smtpserver.smtp2.authMethod")
+  );
+  Assert.equal(
+    Services.prefs.getIntPref("mail.smtpserver.smtp2.authMethod"),
+    Ci.nsMsgAuthMethod.secure
+  );
 
-    // Now clear the authMethod for set for smtp2. This simulates the user
+  // Now clear the authMethod for set for smtp2. This simulates the user
   // setting the value back to "3", i.e. Ci.nsMsgAuthMethod.passwordCleartext.
   Services.prefs.clearUserPref("mail.smtpserver.smtp2.authMethod");
 
@@ -121,6 +154,10 @@ function run_test() {
   migrateMailnews();
 
   // This time around, both of these should not be set.
-  Assert.ok(!Services.prefs.prefHasUserValue("mail.smtpserver.smtp1.authMethod"));
-  Assert.ok(!Services.prefs.prefHasUserValue("mail.smtpserver.smtp2.authMethod"));
+  Assert.ok(
+    !Services.prefs.prefHasUserValue("mail.smtpserver.smtp1.authMethod")
+  );
+  Assert.ok(
+    !Services.prefs.prefHasUserValue("mail.smtpserver.smtp2.authMethod")
+  );
 }

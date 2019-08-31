@@ -8,7 +8,9 @@
  *   -Bug 182128: Edit Card, Notes on several lines appear on one after
  *                export/import in text format *(only tests the import).
  */
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 function run_test() {
   // Due to the import code using nsIAbManager off the main thread, we need
@@ -16,6 +18,10 @@ function run_test() {
   MailServices.ab;
 
   var file = do_get_file("resources/basic_ldif_addressbook.ldif");
-  new AbImportHelper(file, "Text file", "basic_ldif_addressbook",
-                     "basic_addressbook").beginImport();
+  new AbImportHelper(
+    file,
+    "Text file",
+    "basic_ldif_addressbook",
+    "basic_addressbook"
+  ).beginImport();
 }

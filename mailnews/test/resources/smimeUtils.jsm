@@ -6,11 +6,11 @@
  * This file provides some utilities for helping run S/MIME tests.
  */
 
-var EXPORTED_SYMBOLS = [
-  "SmimeUtils",
-];
+var EXPORTED_SYMBOLS = ["SmimeUtils"];
 
-var {MockFactory} = ChromeUtils.import("resource://testing-common/mailnews/MockFactory.js");
+var { MockFactory } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MockFactory.js"
+);
 
 const gCertDialogs = {
   confirmDownloadCACert: (ctx, cert, trust) => {
@@ -39,8 +39,9 @@ var SmimeUtils = {
     // Set up the internal key token so that subsequent code doesn't fail. If
     // this isn't done, we'll fail to work if the NSS databases didn't already
     // exist.
-    let keydb = Cc["@mozilla.org/security/pk11tokendb;1"]
-                  .getService(Ci.nsIPK11TokenDB);
+    let keydb = Cc["@mozilla.org/security/pk11tokendb;1"].getService(
+      Ci.nsIPK11TokenDB
+    );
     try {
       keydb.getInternalKeyToken().initPassword("");
     } catch (e) {
@@ -54,15 +55,17 @@ var SmimeUtils = {
 
   loadPEMCertificate(file, certType, loadKey = false) {
     dump("Loading certificate from " + file.path + "\n");
-    let certDB = Cc["@mozilla.org/security/x509certdb;1"]
-                   .getService(Ci.nsIX509CertDB);
+    let certDB = Cc["@mozilla.org/security/x509certdb;1"].getService(
+      Ci.nsIX509CertDB
+    );
     certDB.importCertsFromFile(file, certType);
   },
 
   loadCertificateAndKey(file) {
     dump("Loading key from " + file.path + "\n");
-    let certDB = Cc["@mozilla.org/security/x509certdb;1"]
-                   .getService(Ci.nsIX509CertDB);
+    let certDB = Cc["@mozilla.org/security/x509certdb;1"].getService(
+      Ci.nsIX509CertDB
+    );
     certDB.importPKCS12File(file, "");
   },
 };

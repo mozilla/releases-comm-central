@@ -4,9 +4,13 @@
 
 var EXPORTED_SYMBOLS = ["PluralStringFormatter", "makeFriendlyDateAgo"];
 
-var {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
+var { PluralForm } = ChromeUtils.import(
+  "resource://gre/modules/PluralForm.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { StringBundle } = ChromeUtils.import(
+  "resource:///modules/StringBundle.js"
+);
 
 function PluralStringFormatter(aBundleURI) {
   this._bundle = new StringBundle(aBundleURI);
@@ -15,29 +19,35 @@ function PluralStringFormatter(aBundleURI) {
 PluralStringFormatter.prototype = {
   get(aStringName, aReplacements, aPluralCount) {
     let str = this._bundle.get(aStringName);
-    if (aPluralCount !== undefined)
+    if (aPluralCount !== undefined) {
       str = PluralForm.get(aPluralCount, str);
+    }
     if (aReplacements !== undefined) {
-      for (let i = 0; i < aReplacements.length; i++)
+      for (let i = 0; i < aReplacements.length; i++) {
         str = str.replace("#" + (i + 1), aReplacements[i]);
+      }
     }
     return str;
   },
 };
 
-
 var gTemplateUtilsStrings = new PluralStringFormatter(
   "chrome://messenger/locale/templateUtils.properties"
 );
 
-const _dateFormatter = new Services.intl.DateTimeFormat(undefined,
-  { dateStyle: "short" });
-const _dayMonthFormatter = new Services.intl.DateTimeFormat(undefined,
-  { month: "long", day: "numeric" });
-const _timeFormatter = new Services.intl.DateTimeFormat(undefined,
-  { timeStyle: "short" });
-const _weekdayFormatter = new Services.intl.DateTimeFormat(undefined,
-  { weekday: "long" });
+const _dateFormatter = new Services.intl.DateTimeFormat(undefined, {
+  dateStyle: "short",
+});
+const _dayMonthFormatter = new Services.intl.DateTimeFormat(undefined, {
+  month: "long",
+  day: "numeric",
+});
+const _timeFormatter = new Services.intl.DateTimeFormat(undefined, {
+  timeStyle: "short",
+});
+const _weekdayFormatter = new Services.intl.DateTimeFormat(undefined, {
+  weekday: "long",
+});
 
 /**
  * Helper function to generate a localized "friendly" representation of
@@ -54,8 +64,7 @@ const _weekdayFormatter = new Services.intl.DateTimeFormat(undefined,
 function makeFriendlyDateAgo(time) {
   // Figure out when today begins
   let now = new Date();
-  let today = new Date(now.getFullYear(), now.getMonth(),
-                       now.getDate());
+  let today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   // Get the end time to display
   let end = time;

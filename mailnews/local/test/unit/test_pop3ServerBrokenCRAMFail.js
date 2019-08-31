@@ -8,13 +8,18 @@ var server;
 var daemon;
 var incomingServer;
 test = "Server which advertises CRAM-MD5, but fails when it's tried";
-var expectedTransaction = ["AUTH", "CAPA", "AUTH CRAM-MD5", "AUTH PLAIN", "STAT"];
+var expectedTransaction = [
+  "AUTH",
+  "CAPA",
+  "AUTH CRAM-MD5",
+  "AUTH PLAIN",
+  "STAT",
+];
 
 const kStateAuthNeeded = 1; // the same value as in pop3d.js
 
 var urlListener = {
-  OnStartRunningUrl(url) {
-  },
+  OnStartRunningUrl(url) {},
   OnStopRunningUrl(url, result) {
     try {
       Assert.equal(result, 0);
@@ -26,8 +31,9 @@ var urlListener = {
     } catch (e) {
       server.stop();
       var thread = gThreadManager.currentThread;
-      while (thread.hasPendingEvents())
+      while (thread.hasPendingEvents()) {
         thread.processNextEvent(true);
+      }
 
       do_throw(e);
     }
@@ -36,9 +42,11 @@ var urlListener = {
 
 function checkBusy() {
   // If the server hasn't quite finished, just delay a little longer.
-  if (incomingServer.serverBusy ||
-      (incomingServer instanceof Ci.nsIPop3IncomingServer &&
-       incomingServer.runningProtocol)) {
+  if (
+    incomingServer.serverBusy ||
+    (incomingServer instanceof Ci.nsIPop3IncomingServer &&
+      incomingServer.runningProtocol)
+  ) {
     do_timeout(20, checkBusy);
     return;
   }
@@ -53,8 +61,9 @@ function endTest() {
   server.stop();
 
   var thread = gThreadManager.currentThread;
-  while (thread.hasPendingEvents())
+  while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
+  }
 
   do_test_finished();
 }
@@ -99,8 +108,12 @@ function run_test() {
     // check that login works after we fell back.
     msgServer.authMethod = Ci.nsMsgAuthMethod.anything;
 
-    MailServices.pop3.GetNewMail(null, urlListener, localAccountUtils.inboxFolder,
-                                 incomingServer);
+    MailServices.pop3.GetNewMail(
+      null,
+      urlListener,
+      localAccountUtils.inboxFolder,
+      incomingServer
+    );
     server.performTest();
   } catch (e) {
     server.stop();
@@ -108,7 +121,8 @@ function run_test() {
     do_throw(e);
   } finally {
     var thread = gThreadManager.currentThread;
-    while (thread.hasPendingEvents())
+    while (thread.hasPendingEvents()) {
       thread.processNextEvent(true);
+    }
   }
 }

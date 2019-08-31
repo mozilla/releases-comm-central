@@ -3,7 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var markreadElement = null;
 var numberElement = null;
@@ -18,21 +20,21 @@ function OnLoad() {
   let newsBundle = document.getElementById("bundle_news");
 
   if ("arguments" in window && window.arguments[0]) {
-    args = window.arguments[0]
-                 .QueryInterface(Ci.nsINewsDownloadDialogArgs);
+    args = window.arguments[0].QueryInterface(Ci.nsINewsDownloadDialogArgs);
     /* by default, act like the user hit cancel */
     args.hitOK = false;
     /* by default, act like the user did not select download all */
     args.downloadAll = false;
 
-
-    nntpServer = MailServices.accounts.getIncomingServer(args.serverKey)
-               .QueryInterface(Ci.nsINntpIncomingServer);
+    nntpServer = MailServices.accounts
+      .getIncomingServer(args.serverKey)
+      .QueryInterface(Ci.nsINntpIncomingServer);
 
     document.title = newsBundle.getString("downloadHeadersTitlePrefix");
 
-    let infotext = newsBundle.getFormattedString("downloadHeadersInfoText",
-                                                 [args.articleCount]);
+    let infotext = newsBundle.getFormattedString("downloadHeadersInfoText", [
+      args.articleCount,
+    ]);
     setText("info", infotext);
     let okButtonText = newsBundle.getString("okButtonText");
     let okbutton = document.documentElement.getButton("accept");
@@ -52,11 +54,13 @@ function OnLoad() {
 
 function setText(id, value) {
   let element = document.getElementById(id);
-  if (!element)
+  if (!element) {
     return;
+  }
 
-  if (element.hasChildNodes())
+  if (element.hasChildNodes()) {
     element.firstChild.remove();
+  }
   let textNode = document.createTextNode(value);
   element.appendChild(textNode);
 }
@@ -66,8 +70,9 @@ function OkButtonCallback() {
   nntpServer.markOldRead = markreadElement.checked;
 
   let radio = document.getElementById("all");
-  if (radio)
+  if (radio) {
     args.downloadAll = radio.selected;
+  }
 
   args.hitOK = true;
 }

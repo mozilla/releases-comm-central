@@ -13,11 +13,7 @@
  * @author Ben Bucksch <ben.bucksch beonex.com>
  */
 
-var EXPORTED_SYMBOLS = [
-  "AuthPLAIN",
-  "AuthLOGIN",
-  "AuthCRAM",
-];
+var EXPORTED_SYMBOLS = ["AuthPLAIN", "AuthLOGIN", "AuthCRAM"];
 
 /**
  * Implements AUTH PLAIN
@@ -35,8 +31,9 @@ var AuthPLAIN = {
     dump("AUTH PLAIN line -" + line + "-\n");
     line = atob(line); // base64 decode
     let aap = line.split("\u0000"); // 0-charater is delimiter
-    if (aap.length != 3)
+    if (aap.length != 3) {
       throw new Error("Expected three parts");
+    }
     /* aap is: authorize-id, authenticate-id, password.
        Generally, authorize-id = authenticate-id = username.
        authorize-id may thus be empty and then defaults to authenticate-id. */
@@ -44,9 +41,20 @@ var AuthPLAIN = {
     var authzid = aap[0];
     result.username = aap[1];
     result.password = aap[2];
-    dump("authorize-id: -" + authzid + "-, username: -" + result.username + "-, password: -" + result.password + "-\n");
-    if (authzid && authzid != result.username)
-      throw new Error("Expecting a authorize-id that's either the same as authenticate-id or empty");
+    dump(
+      "authorize-id: -" +
+        authzid +
+        "-, username: -" +
+        result.username +
+        "-, password: -" +
+        result.password +
+        "-\n"
+    );
+    if (authzid && authzid != result.username) {
+      throw new Error(
+        "Expecting a authorize-id that's either the same as authenticate-id or empty"
+      );
+    }
     return result;
   },
 
@@ -78,9 +86,9 @@ var AuthLOGIN = {
 };
 
 /**
-  * Implements AUTH CRAM-MD5
-  * @see RFC 2195, RFC 2104
-  */
+ * Implements AUTH CRAM-MD5
+ * @see RFC 2195, RFC 2104
+ */
 var AuthCRAM = {
   /**
    * First part of CRAM exchange is that the server sends
@@ -117,8 +125,9 @@ var AuthCRAM = {
     line = atob(line);
     dump("base64 decoded -" + line + "-\n");
     var sp = line.split(" ");
-    if (sp.length != 2)
+    if (sp.length != 2) {
       throw new Error("Expected one space");
+    }
     var result = {};
     result.username = sp[0];
     result.digest = sp[1];
@@ -135,50 +144,59 @@ var AuthCRAM = {
     const kInputLen = 64;
     // const kHashLen = 16;
     const kInnerPad = 0x36; // per spec
-    const kOuterPad = 0x5C;
+    const kOuterPad = 0x5c;
 
     key = this.textToNumberArray(key);
     text = this.textToNumberArray(text);
     // Make sure key is exactly kDigestLen bytes long. Algo per spec.
-    if (key.length > kInputLen)
-      key = this.md5(key); // (results in kHashLen)
-    while (key.length < kInputLen)
-      key.push(0); // fill up with zeros
+    if (key.length > kInputLen) {
+      key = this.md5(key);
+    } // (results in kHashLen)
+    while (key.length < kInputLen) {
+      key.push(0);
+    } // fill up with zeros
 
     // MD5((key XOR outerpad) + MD5((key XOR innerpad) + text)) , per spec
-    var digest = this.md5(this.xor(key, kOuterPad)
-         .concat(this.md5(this.xor(key, kInnerPad)
-         .concat(text))));
+    var digest = this.md5(
+      this.xor(key, kOuterPad).concat(
+        this.md5(this.xor(key, kInnerPad).concat(text))
+      )
+    );
     return this.arrayToHexString(digest);
   },
   // Utils
   xor(binary, value) {
     var result = [];
-    for (var i = 0; i < binary.length; i++)
+    for (var i = 0; i < binary.length; i++) {
       result.push(binary[i] ^ value);
+    }
     return result;
   },
   md5(binary) {
-    var md5 = Cc["@mozilla.org/security/hash;1"]
-        .createInstance(Ci.nsICryptoHash);
+    var md5 = Cc["@mozilla.org/security/hash;1"].createInstance(
+      Ci.nsICryptoHash
+    );
     md5.init(Ci.nsICryptoHash.MD5);
     md5.update(binary, binary.length);
     return this.textToNumberArray(md5.finish(false));
   },
   textToNumberArray(text) {
     var array = [];
-    for (var i = 0; i < text.length; i++)
-      array.push(text.charCodeAt(i) & 0xFF); // convert string (only lower byte) to array
+    for (var i = 0; i < text.length; i++) {
+      array.push(text.charCodeAt(i) & 0xff);
+    } // convert string (only lower byte) to array
     return array;
   },
   arrayToHexString(binary) {
     var result = "";
     for (var i = 0; i < binary.length; i++) {
-      if (binary[i] > 255)
+      if (binary[i] > 255) {
         throw new Error("unexpected that value > 255");
+      }
       let hex = binary[i].toString(16);
-      if (hex.length < 2)
+      if (hex.length < 2) {
         hex = "0" + hex;
+      }
       result += hex;
     }
     return result;

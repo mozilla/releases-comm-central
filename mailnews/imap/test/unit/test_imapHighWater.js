@@ -4,8 +4,10 @@
  * marks.
  */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 /* import-globals-from ../../../test/resources/logHelper.js */
 /* import-globals-from ../../../test/resources/alertTestUtils.js */
 /* import-globals-from ../../../test/resources/asyncTestUtils.js */
@@ -24,8 +26,9 @@ var gFolder1, gRootFolder;
 function addMessagesToServer(messages, mailbox) {
   // Create the imapMessages and store them on the mailbox
   messages.forEach(function(message) {
-    let dataUri = Services.io.newURI("data:text/plain;base64," +
-                                      btoa(message.toMessageString()));
+    let dataUri = Services.io.newURI(
+      "data:text/plain;base64," + btoa(message.toMessageString())
+    );
     mailbox.addMessage(new imapMessage(dataUri.spec, mailbox.uidnext++, []));
   });
 }
@@ -38,7 +41,7 @@ function run_test() {
    */
   gIMAPDaemon = new imapDaemon();
   gServer = makeServer(gIMAPDaemon, "");
-  gIMAPDaemon.createMailbox("folder 1", {subscribed: true});
+  gIMAPDaemon.createMailbox("folder 1", { subscribed: true });
   gIMAPIncomingServer = createLocalIMAPServer(gServer.port);
   gIMAPIncomingServer.maximumConnectionsNumber = 1;
 
@@ -61,7 +64,10 @@ function run_test() {
   Services.prefs.setBoolPref("mail.biff.show_alert", false);
   Services.prefs.setBoolPref("mail.biff.show_tray_icon", false);
   Services.prefs.setBoolPref("mail.biff.animate_dock_icon", false);
-  Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
+  Services.prefs.setBoolPref(
+    "mail.server.default.autosync_offline_stores",
+    false
+  );
   // Don't prompt about offline download when going offline
   Services.prefs.setIntPref("offline.download.download_messages", 2);
   actually_run_test();
@@ -86,8 +92,9 @@ function* setupFolders() {
 
   // Get the IMAP inbox...
   gRootFolder = gIMAPIncomingServer.rootFolder;
-  gIMAPInbox = gRootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox)
-                         .QueryInterface(Ci.nsIMsgImapMailFolder);
+  gIMAPInbox = gRootFolder
+    .getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox)
+    .QueryInterface(Ci.nsIMsgImapMailFolder);
   yield true;
 }
 
@@ -95,22 +102,30 @@ function* doMoves() {
   // update folders to download headers.
   gIMAPInbox.updateFolderWithListener(null, UrlListener);
   yield false;
-  gFolder1 = gRootFolder.getChildNamed("folder 1")
-               .QueryInterface(Ci.nsIMsgImapMailFolder);
+  gFolder1 = gRootFolder
+    .getChildNamed("folder 1")
+    .QueryInterface(Ci.nsIMsgImapMailFolder);
   gFolder1.updateFolderWithListener(null, UrlListener);
   yield false;
   // get five messages to move from Inbox to folder 1.
-  let headers1 = Cc["@mozilla.org/array;1"]
-                   .createInstance(Ci.nsIMutableArray);
+  let headers1 = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   let msgEnumerator = gIMAPInbox.msgDatabase.EnumerateMessages();
   for (let i = 0; i < 5 && msgEnumerator.hasMoreElements(); i++) {
     let header = msgEnumerator.getNext();
-    if (header instanceof Ci.nsIMsgDBHdr)
+    if (header instanceof Ci.nsIMsgDBHdr) {
       headers1.appendElement(header);
+    }
   }
   // this will add dummy headers with keys > 0xffffff80
-  MailServices.copy.CopyMessages(gIMAPInbox, headers1, gFolder1, true,
-                                 CopyListener, gDummyMsgWindow, true);
+  MailServices.copy.CopyMessages(
+    gIMAPInbox,
+    headers1,
+    gFolder1,
+    true,
+    CopyListener,
+    gDummyMsgWindow,
+    true
+  );
   yield false;
   gIMAPInbox.updateFolderWithListener(null, UrlListener);
   yield false;
@@ -119,20 +134,27 @@ function* doMoves() {
   // Check that playing back offline events gets rid of dummy
   // headers, and thus highWater is recalculated.
   Assert.equal(gFolder1.msgDatabase.dBFolderInfo.highWater, 6);
-  headers1 = Cc["@mozilla.org/array;1"]
-                .createInstance(Ci.nsIMutableArray);
+  headers1 = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   msgEnumerator = gIMAPInbox.msgDatabase.EnumerateMessages();
   for (let i = 0; i < 5 && msgEnumerator.hasMoreElements(); i++) {
     let header = msgEnumerator.getNext();
-    if (header instanceof Ci.nsIMsgDBHdr)
+    if (header instanceof Ci.nsIMsgDBHdr) {
       headers1.appendElement(header);
+    }
   }
   // Check that CopyMessages will handle having a high highwater mark.
   // It will thrown an exception if it can't.
   let msgHdr = gFolder1.msgDatabase.CreateNewHdr(0xfffffffd);
   gFolder1.msgDatabase.AddNewHdrToDB(msgHdr, false);
-  MailServices.copy.CopyMessages(gIMAPInbox, headers1, gFolder1, true,
-                                 CopyListener, gDummyMsgWindow, true);
+  MailServices.copy.CopyMessages(
+    gIMAPInbox,
+    headers1,
+    gFolder1,
+    true,
+    CopyListener,
+    gDummyMsgWindow,
+    true
+  );
   yield false;
   gServer.performTest("UID COPY");
 
@@ -168,11 +190,7 @@ var CopyListener = {
 };
 
 // Definition of tests
-var tests = [
-  setupFolders,
-  doMoves,
-  endTest,
-];
+var tests = [setupFolders, doMoves, endTest];
 
 function actually_run_test() {
   async_run_tests(tests);
@@ -181,10 +199,11 @@ function actually_run_test() {
 function* endTest() {
   Services.io.offline = true;
   gServer.performTest("LOGOUT");
-//  gIMAPIncomingServer.closeCachedConnections();
+  //  gIMAPIncomingServer.closeCachedConnections();
   gServer.stop();
   let thread = gThreadManager.currentThread;
-  while (thread.hasPendingEvents())
+  while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
+  }
   yield true;
 }

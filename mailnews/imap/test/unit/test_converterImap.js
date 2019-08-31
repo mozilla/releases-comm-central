@@ -2,12 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
-var {convertMailStoreTo} = ChromeUtils.import("resource:///modules/mailstoreConverter.jsm");
-var {Log} = ChromeUtils.import("resource://gre/modules/Log.jsm");
+var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
+var { convertMailStoreTo } = ChromeUtils.import(
+  "resource:///modules/mailstoreConverter.jsm"
+);
+var { Log } = ChromeUtils.import("resource://gre/modules/Log.jsm");
 
-Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
-                           "@mozilla.org/msgstore/berkeleystore;1");
+Services.prefs.setCharPref(
+  "mail.serverDefaultStoreContractID",
+  "@mozilla.org/msgstore/berkeleystore;1"
+);
 
 /* import-globals-from ../../../test/resources/logHelper.js */
 /* import-globals-from ../../../test/resources/asyncTestUtils.js */
@@ -20,7 +24,7 @@ load("../../../resources/alertTestUtils.js");
 
 var log = Log.repository.getLogger("MailStoreConverter");
 
-var {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 
 // Globals
 var gMsgFile1 = do_get_file("../../../data/bugmail10");
@@ -39,7 +43,9 @@ function checkConversion(aSource, aTarget) {
     let sourceContent = sourceContents.nextFile;
     let sourceContentName = sourceContent.leafName;
     let ext = sourceContentName.slice(-4);
-    let targetFile = FileUtils.File(OS.Path.join(aTarget.path, sourceContentName));
+    let targetFile = FileUtils.File(
+      OS.Path.join(aTarget.path, sourceContentName)
+    );
     log.debug("Checking path: " + targetFile.path);
 
     if (ext == ".msf" || ext == ".dat") {
@@ -78,8 +84,9 @@ var EventTarget = function() {
 function addMessagesToServer(aMessages, aMailbox) {
   // For every message we have, we need to convert it to a file:/// URI
   aMessages.forEach(function(message) {
-    let URI =
-      Services.io.newFileURI(message.file).QueryInterface(Ci.nsIFileURL);
+    let URI = Services.io
+      .newFileURI(message.file)
+      .QueryInterface(Ci.nsIFileURL);
     message.spec = URI.spec;
   });
 
@@ -101,11 +108,16 @@ function setup() {
 
   // Add a couple of messages to the INBOX.
   // This is synchronous.
-  addMessagesToServer([{file: gMsgFile1, messageId: gMsgId1},
-                       {file: gMsgFile1, messageId: gMsgId4},
-                       {file: gMsgFile1, messageId: gMsgId2},
-                       {file: gMsgFile1, messageId: gMsgId5}],
-                       IMAPPump.daemon.getMailbox("INBOX"), IMAPPump.inbox);
+  addMessagesToServer(
+    [
+      { file: gMsgFile1, messageId: gMsgId1 },
+      { file: gMsgFile1, messageId: gMsgId4 },
+      { file: gMsgFile1, messageId: gMsgId2 },
+      { file: gMsgFile1, messageId: gMsgId5 },
+    ],
+    IMAPPump.daemon.getMailbox("INBOX"),
+    IMAPPump.inbox
+  );
 }
 
 async function downloadForOffline() {
@@ -128,23 +140,28 @@ add_task(async function convert() {
   await downloadForOffline();
 
   let mailstoreContractId = Services.prefs.getCharPref(
-  "mail.server." + IMAPPump.incomingServer.key + ".storeContractID");
+    "mail.server." + IMAPPump.incomingServer.key + ".storeContractID"
+  );
   let eventTarget = new EventTarget();
-  let pConverted = convertMailStoreTo(mailstoreContractId,
-    IMAPPump.incomingServer, eventTarget);
+  let pConverted = convertMailStoreTo(
+    mailstoreContractId,
+    IMAPPump.incomingServer,
+    eventTarget
+  );
   do_test_pending();
   let originalRootFolder = IMAPPump.incomingServer.rootFolder.filePath;
-  pConverted.then(function(val) {
-    log.debug("Conversion done: " + originalRootFolder.path + " => " + val);
-    let newRootFolder = IMAPPump.incomingServer.rootFolder.filePath;
-    checkConversion(originalRootFolder, newRootFolder);
-    let newRootFolderMsf = FileUtils.File(newRootFolder.path + ".msf");
-    Assert.ok(newRootFolderMsf.exists());
-    do_test_finished();
-  }).catch(function(reason) {
-    log.error("Conversion Failed: " + reason);
-    Assert.ok(false);
-    do_test_finished();
-  });
+  pConverted
+    .then(function(val) {
+      log.debug("Conversion done: " + originalRootFolder.path + " => " + val);
+      let newRootFolder = IMAPPump.incomingServer.rootFolder.filePath;
+      checkConversion(originalRootFolder, newRootFolder);
+      let newRootFolderMsf = FileUtils.File(newRootFolder.path + ".msf");
+      Assert.ok(newRootFolderMsf.exists());
+      do_test_finished();
+    })
+    .catch(function(reason) {
+      log.error("Conversion Failed: " + reason);
+      Assert.ok(false);
+      do_test_finished();
+    });
 });
-

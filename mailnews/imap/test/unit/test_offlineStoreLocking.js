@@ -13,15 +13,16 @@ load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
 load("../../../resources/alertTestUtils.js");
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 // Globals
 var gIMAPTrashFolder, gMsgImapInboxFolder;
 var gGotAlert = false;
-var gMovedMsgId;
+var gMovedMsgId; // to alertTestUtils.js
 
-/* exported alert */// to alertTestUtils.js
-function alert(aDialogTitle, aText) {
+/* exported alert */ function alert(aDialogTitle, aText) {
   // do_check_true(aText.startsWith("Connection to server Mail for  timed out."));
   gGotAlert = true;
 }
@@ -29,8 +30,9 @@ function alert(aDialogTitle, aText) {
 function addGeneratedMessagesToServer(messages, mailbox) {
   // Create the imapMessages and store them on the mailbox
   messages.forEach(function(message) {
-    let dataUri = Services.io.newURI("data:text/plain;base64," +
-                                     btoa(message.toMessageString()));
+    let dataUri = Services.io.newURI(
+      "data:text/plain;base64," + btoa(message.toMessageString())
+    );
     mailbox.addMessage(new imapMessage(dataUri.spec, mailbox.uidnext++, []));
   });
 }
@@ -50,7 +52,14 @@ var tests = [
     let msgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     let array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
     array.appendElement(msgHdr);
-    IMAPPump.inbox.deleteMessages(array, null, false, true, CopyListener, false);
+    IMAPPump.inbox.deleteMessages(
+      array,
+      null,
+      false,
+      true,
+      CopyListener,
+      false
+    );
     yield false;
   },
   function* compactOneFolder() {
@@ -64,7 +73,9 @@ var tests = [
     // lock the offline store.
     IMAPPump.inbox.msgDatabase.MarkOffline(msgHdr.messageKey, false, null);
     let msgURI = msgHdr.folder.getUriForMsg(msgHdr);
-    let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+    let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+      Ci.nsIMessenger
+    );
     let msgServ = messenger.messageServiceFromURI(msgURI);
     // UrlListener will get called when both expunge and offline store
     // compaction are finished. dummyMsgWindow is required to make the backend
@@ -72,7 +83,15 @@ var tests = [
     IMAPPump.inbox.compact(asyncUrlListener, gDummyMsgWindow);
     // Stream the message w/o a stream listener in an attempt to get the url
     // started more quickly, while the compact is still going on.
-    msgServ.streamMessage(msgURI, null, null, asyncUrlListener, false, "", false);
+    msgServ.streamMessage(
+      msgURI,
+      null,
+      null,
+      asyncUrlListener,
+      false,
+      "",
+      false
+    );
     yield false;
 
     // Because we're streaming the message while compaction is going on,
@@ -86,12 +105,20 @@ var tests = [
     let msgHdr = enumerator.getNext();
     let array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
     array.appendElement(msgHdr);
-    IMAPPump.inbox.deleteMessages(array, null, false, true, CopyListener, false);
+    IMAPPump.inbox.deleteMessages(
+      array,
+      null,
+      false,
+      true,
+      CopyListener,
+      false
+    );
     yield false;
   },
   function* updateTrash() {
-    gIMAPTrashFolder = IMAPPump.incomingServer.rootFolder.getChildNamed("Trash")
-                         .QueryInterface(Ci.nsIMsgImapMailFolder);
+    gIMAPTrashFolder = IMAPPump.incomingServer.rootFolder
+      .getChildNamed("Trash")
+      .QueryInterface(Ci.nsIMsgImapMailFolder);
     // hack to force uid validity to get initialized for trash.
     gIMAPTrashFolder.updateFolderWithListener(null, asyncUrlListener);
     yield false;
@@ -115,12 +142,21 @@ var tests = [
     let array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
     array.appendElement(msgHdr);
     IMAPPump.inbox.compact(asyncUrlListener, gDummyMsgWindow);
-    MailServices.copy.CopyMessages(gIMAPTrashFolder, array, IMAPPump.inbox, true,
-                                   CopyListener, null, true);
+    MailServices.copy.CopyMessages(
+      gIMAPTrashFolder,
+      array,
+      IMAPPump.inbox,
+      true,
+      CopyListener,
+      null,
+      true
+    );
   },
   function* verifyNoOfflineMsg() {
     try {
-      let movedMsg = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMovedMsgId);
+      let movedMsg = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
+        gMovedMsgId
+      );
       Assert.equal(false, movedMsg.flags & Ci.nsMsgMessageFlags.Offline);
     } catch (ex) {
       dump(ex);
@@ -136,7 +172,10 @@ function run_test() {
 }
 
 function setup() {
-  Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
+  Services.prefs.setBoolPref(
+    "mail.server.default.autosync_offline_stores",
+    false
+  );
 
   setupIMAPPump();
 
@@ -151,11 +190,18 @@ function setup() {
   let messageGenerator = new MessageGenerator();
   let messages = [];
   let bodyString = "";
-  for (let i = 0; i < 100; i++)
-    bodyString += "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\r\n";
+  for (let i = 0; i < 100; i++) {
+    bodyString +=
+      "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\r\n";
+  }
 
-  for (let i = 0; i < 50; i++)
-    messages = messages.concat(messageGenerator.makeMessage({body: {body: bodyString, contentType: "text/plain"}}));
+  for (let i = 0; i < 50; i++) {
+    messages = messages.concat(
+      messageGenerator.makeMessage({
+        body: { body: bodyString, contentType: "text/plain" },
+      })
+    );
+  }
 
   addGeneratedMessagesToServer(messages, IMAPPump.daemon.getMailbox("INBOX"));
 }
@@ -183,12 +229,15 @@ function teardown() {
   IMAPPump.inbox = null;
   try {
     IMAPPump.incomingServer.closeCachedConnections();
-    let serverSink = IMAPPump.incomingServer.QueryInterface(Ci.nsIImapServerSink);
+    let serverSink = IMAPPump.incomingServer.QueryInterface(
+      Ci.nsIImapServerSink
+    );
     serverSink.abortQueuedUrls();
   } catch (ex) {
     dump(ex);
   }
   let thread = gThreadManager.currentThread;
-  while (thread.hasPendingEvents())
+  while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
+  }
 }

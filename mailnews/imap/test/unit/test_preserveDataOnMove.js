@@ -14,7 +14,9 @@ load("../../../resources/asyncTestUtils.js");
 // IMAP pump
 
 // Globals
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var gMessage = "bugmail10"; // message file used as the test message
 
@@ -43,8 +45,9 @@ function* createSubfolder() {
 
 // load and update a message in the imap fake server
 function* loadImapMessage() {
-  IMAPPump.mailbox.addMessage(new imapMessage(specForFileName(gMessage),
-                          IMAPPump.mailbox.uidnext++, []));
+  IMAPPump.mailbox.addMessage(
+    new imapMessage(specForFileName(gMessage), IMAPPump.mailbox.uidnext++, [])
+  );
   IMAPPump.inbox.updateFolder(null);
   dl("wait for msgAdded notification");
   yield false;
@@ -62,8 +65,7 @@ function* moveMessageToSubfolder() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
 
   // Now move this message to the subfolder.
-  var messages = Cc["@mozilla.org/array;1"]
-                   .createInstance(Ci.nsIMutableArray);
+  var messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   messages.appendElement(msgHdr);
   /*
   void CopyMessages(in nsIMsgFolder srcFolder,
@@ -75,8 +77,15 @@ function* moveMessageToSubfolder() {
                     in boolean allowUndo);
   */
 
-  MailServices.copy.CopyMessages(IMAPPump.inbox, messages, gSubfolder, true,
-                                 asyncCopyListener, null, false);
+  MailServices.copy.CopyMessages(
+    IMAPPump.inbox,
+    messages,
+    gSubfolder,
+    true,
+    asyncCopyListener,
+    null,
+    false
+  );
   dl("wait for OnStopCopy");
   yield false;
 }
@@ -103,24 +112,25 @@ var mfnListener = {
   folderAdded(aFolder) {
     dl("folderAdded <" + aFolder.name + ">");
     // we are only using async yield on the Subfolder add
-    if (aFolder.name == "Subfolder")
+    if (aFolder.name == "Subfolder") {
       async_driver();
+    }
   },
 
   msgAdded(aMsg) {
     dl("msgAdded with subject <" + aMsg.subject + ">");
     async_driver();
   },
-
 };
 
 function run_test() {
-  Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
+  Services.prefs.setBoolPref(
+    "mail.server.default.autosync_offline_stores",
+    false
+  );
   // Add folder listeners that will capture async events
   const nsIMFNService = Ci.nsIMsgFolderNotificationService;
-  let flags =
-        nsIMFNService.folderAdded |
-        nsIMFNService.msgAdded;
+  let flags = nsIMFNService.folderAdded | nsIMFNService.msgAdded;
   MailServices.mfn.addListener(mfnListener, flags);
   async_run_tests(tests);
 }

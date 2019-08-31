@@ -4,8 +4,10 @@
 
 // This tests that renaming non-ASCII name folder works.
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 /* import-globals-from ../../../test/resources/logHelper.js */
 /* import-globals-from ../../../test/resources/asyncTestUtils.js */
@@ -14,13 +16,13 @@ load("../../../resources/asyncTestUtils.js");
 
 setupIMAPPump();
 
-var tests = [
-  setup,
-  test_rename,
-];
+var tests = [setup, test_rename];
 
 function* setup() {
-  Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
+  Services.prefs.setBoolPref(
+    "mail.server.default.autosync_offline_stores",
+    false
+  );
   // Add folder listeners that will capture async events
   MailServices.mfn.addListener(mfnListener, MailServices.mfn.folderAdded);
 
@@ -52,12 +54,12 @@ function* test_rename() {
 var mfnListener = {
   folderAdded(aFolder) {
     // we are only using async yield on the target folder add
-    if (aFolder.name == "folder 1")
+    if (aFolder.name == "folder 1") {
       async_driver();
+    }
   },
 };
 
 function run_test() {
   async_run_tests(tests);
 }
-

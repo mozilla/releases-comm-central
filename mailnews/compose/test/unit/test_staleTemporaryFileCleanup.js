@@ -7,7 +7,7 @@
  * is initialized.
  */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gExpectedFiles;
 
@@ -43,8 +43,9 @@ function run_test() {
   gExpectedFiles = collect_expected_temporary_files();
   registerCleanupFunction(function() {
     gExpectedFiles.forEach(function(file) {
-      if (file.exists())
+      if (file.exists()) {
         file.remove(false);
+      }
     });
   });
 
@@ -55,4 +56,3 @@ function run_test() {
   check_files_not_exist(gExpectedFiles);
   do_test_finished();
 }
-

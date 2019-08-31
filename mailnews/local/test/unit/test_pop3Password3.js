@@ -22,11 +22,17 @@ add_task(async function() {
   // it from the signons json file in which the login information is stored).
   localAccountUtils.loadLocalMailAccount();
 
-  let incomingServer1 = MailServices.accounts.createIncomingServer(kUser1, kHostname,
-                                                                   kProtocol);
+  let incomingServer1 = MailServices.accounts.createIncomingServer(
+    kUser1,
+    kHostname,
+    kProtocol
+  );
 
-  let incomingServer2 = MailServices.accounts.createIncomingServer(kUser2, kHostname,
-                                                                   kProtocol);
+  let incomingServer2 = MailServices.accounts.createIncomingServer(
+    kUser2,
+    kHostname,
+    kProtocol
+  );
 
   // Test - Check there are two logins to begin with.
   var logins = Services.logins.findLogins(kServerUrl, null, kServerUrl);

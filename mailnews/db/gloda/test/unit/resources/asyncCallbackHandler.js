@@ -20,7 +20,8 @@ var asyncCallbackHandle = {
   pushAndGo: function asyncCallbackHandle_push(aIterator, aContext) {
     asyncGeneratorStack.push([
       _asyncCallbackHandle_glodaWorkerAdapter(aIterator),
-      "callbackHandler pushAndGo"]);
+      "callbackHandler pushAndGo",
+    ]);
     return async_driver();
   },
 };

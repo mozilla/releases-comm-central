@@ -42,8 +42,16 @@ function alert(aDialogText, aText) {
   dump("Alert Title: " + aDialogText + "\nAlert Text: " + aText + "\n");
 }
 
-function confirmEx(aDialogTitle, aText, aButtonFlags, aButton0Title,
-                   aButton1Title, aButton2Title, aCheckMsg, aCheckState) {
+function confirmEx(
+  aDialogTitle,
+  aText,
+  aButtonFlags,
+  aButton0Title,
+  aButton1Title,
+  aButton2Title,
+  aCheckMsg,
+  aCheckState
+) {
   switch (++attempt) {
     // First attempt, retry.
     case 1:
@@ -67,8 +75,14 @@ function confirmEx(aDialogTitle, aText, aButtonFlags, aButton0Title,
   }
 }
 
-function promptPasswordPS(aParent, aDialogTitle, aText, aPassword, aCheckMsg,
-                          aCheckState) {
+function promptPasswordPS(
+  aParent,
+  aDialogTitle,
+  aText,
+  aPassword,
+  aCheckMsg,
+  aCheckState
+) {
   if (attempt == 4) {
     aPassword.value = kValidPassword;
     aCheckState.value = true;
@@ -78,18 +92,23 @@ function promptPasswordPS(aParent, aDialogTitle, aText, aPassword, aCheckMsg,
 }
 
 function getPopMail() {
-  MailServices.pop3.GetNewMail(gDummyMsgWindow, urlListener, localAccountUtils.inboxFolder,
-                               incomingServer);
+  MailServices.pop3.GetNewMail(
+    gDummyMsgWindow,
+    urlListener,
+    localAccountUtils.inboxFolder,
+    incomingServer
+  );
 }
 
 var urlListener = {
-  OnStartRunningUrl(url) {
-  },
+  OnStartRunningUrl(url) {},
   OnStopRunningUrl(url, result) {
     try {
       // On the last attempt, we should have successfully got one mail.
-      Assert.equal(localAccountUtils.inboxFolder.getTotalMessages(false),
-                   attempt == 4 ? 1 : 0);
+      Assert.equal(
+        localAccountUtils.inboxFolder.getTotalMessages(false),
+        attempt == 4 ? 1 : 0
+      );
 
       // If we've just cancelled, expect failure rather than success
       // because the server dropped the connection.
@@ -101,8 +120,9 @@ var urlListener = {
       server.stop();
 
       var thread = gThreadManager.currentThread;
-      while (thread.hasPendingEvents())
+      while (thread.hasPendingEvents()) {
         thread.processNextEvent(true);
+      }
 
       do_throw(e);
     }
@@ -110,11 +130,7 @@ var urlListener = {
 };
 
 // Definition of tests
-var tests = [
-  getMail1,
-  getMail2,
-  endTest,
-];
+var tests = [getMail1, getMail2, endTest];
 
 function actually_run_test() {
   daemon.setMessages(["message1.eml"]);
@@ -132,7 +148,11 @@ function* getMail1() {
   Assert.equal(attempt, 2);
 
   // Check that we haven't forgetton the login even though we've retried and cancelled.
-  logins = Services.logins.findLogins("mailbox://localhost", null, "mailbox://localhost");
+  logins = Services.logins.findLogins(
+    "mailbox://localhost",
+    null,
+    "mailbox://localhost"
+  );
 
   Assert.equal(logins.length, 1);
   Assert.equal(logins[0].username, kUserName);
@@ -153,7 +173,11 @@ function* getMail2() {
 
 function* endTest() {
   // Now check the new one has been saved.
-  logins = Services.logins.findLogins("mailbox://localhost", null, "mailbox://localhost");
+  logins = Services.logins.findLogins(
+    "mailbox://localhost",
+    null,
+    "mailbox://localhost"
+  );
 
   Assert.equal(logins.length, 1);
   Assert.equal(logins[0].username, kUserName);
@@ -193,8 +217,11 @@ function run_test() {
   // it from the signons json file in which the login information is stored).
   localAccountUtils.loadLocalMailAccount();
 
-  incomingServer = MailServices.accounts
-                    .createIncomingServer(kUserName, "localhost", "pop3");
+  incomingServer = MailServices.accounts.createIncomingServer(
+    kUserName,
+    "localhost",
+    "pop3"
+  );
   incomingServer.port = server.port;
 
   // Check that we haven't got any messages in the folder, if we have its a test

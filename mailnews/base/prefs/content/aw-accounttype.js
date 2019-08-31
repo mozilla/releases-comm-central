@@ -20,9 +20,9 @@ function setAccountTypeData() {
 }
 
 function acctTypePageUnload() {
-    setAccountTypeData();
-    setupWizardPanels();
-    return true;
+  setAccountTypeData();
+  setupWizardPanels();
+  return true;
 }
 
 function setupWizardPanels() {
@@ -40,10 +40,16 @@ function setupWizardPanels() {
   let isMailAccount = pageData.accounttype.mailaccount;
   let isNewsAccount = pageData.accounttype.newsaccount;
   if (isMailAccount && isMailAccount.value) {
-    wizardPanels = ["identitypage", "incomingpage", "outgoingpage", "accnamepage"];
+    wizardPanels = [
+      "identitypage",
+      "incomingpage",
+      "outgoingpage",
+      "accnamepage",
+    ];
   } else if (isNewsAccount && isNewsAccount.value) {
     wizardPanels = ["identitypage", "newsserver", "accnamepage"];
-  } else { // An account created by an extension and XUL overlays
+  } else {
+    // An account created by an extension and XUL overlays
     let pages = document.getElementById("acctyperadio").selectedItem.value;
     if (pages == "movemail") {
       wizardPanels = ["identitypage", "outgoingpage", "accnamepage"];
@@ -57,11 +63,11 @@ function setupWizardPanels() {
   wizardPanels.push("done");
 
   // Set up order of panels
-  for (let i = 0; i < (wizardPanels.length - 1); i++)
+  for (let i = 0; i < wizardPanels.length - 1; i++) {
     setNextPage(wizardPanels[i], wizardPanels[i + 1]);
+  }
 
   // make the account type page go to the very first of our approved wizard panels...this is usually going to
   // be accounttype --> identitypage unless we were configured to skip the identity page
   setNextPage("accounttype", wizardPanels[0]);
 }
-

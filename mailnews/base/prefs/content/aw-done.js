@@ -5,7 +5,9 @@
 
 /* import-globals-from AccountWizard.js */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var gPrefsBundle;
 
@@ -14,8 +16,8 @@ function donePageInit() {
   gPrefsBundle = document.getElementById("bundle_prefs");
 
   // Find out if we need to hide details for incoming servers
-  var hideIncoming = pageData.server &&
-    pageData.server.servertype.value == "movemail";
+  var hideIncoming =
+    pageData.server && pageData.server.servertype.value == "movemail";
 
   var email = "";
   if (pageData.identity && pageData.identity.email) {
@@ -25,20 +27,24 @@ function donePageInit() {
   setDivTextFromForm("identity.email", email);
 
   let userName = "";
-  if (pageData.login && pageData.login.username)
+  if (pageData.login && pageData.login.username) {
     userName = pageData.login.username.value;
-  if (!userName && email)
+  }
+  if (!userName && email) {
     userName = getUsernameFromEmail(email);
+  }
 
   // Hide the "username" field if we don't want to show information
   // on the incoming server.
   setDivTextFromForm("server.username", hideIncoming ? null : userName);
 
   let smtpUserName = "";
-  if (pageData.login && pageData.login.smtpusername)
+  if (pageData.login && pageData.login.smtpusername) {
     smtpUserName = pageData.login.smtpusername.value;
-  if (!smtpUserName && email)
+  }
+  if (!smtpUserName && email) {
     smtpUserName = getUsernameFromEmail(email);
+  }
   setDivTextFromForm("smtpServer.username", smtpUserName);
 
   if (pageData.accname && pageData.accname.prettyName) {
@@ -57,7 +63,10 @@ function donePageInit() {
     // Hide the incoming server name field if the user specified
     // wizardHideIncoming in the ISP defaults file
     setDivTextFromForm("server.name", hideIncoming ? null : incomingServerName);
-    setDivTextFromForm("server.port", pageData.server.port ? pageData.server.port.value : null);
+    setDivTextFromForm(
+      "server.port",
+      pageData.server.port ? pageData.server.port.value : null
+    );
     let incomingServerType = "";
     if (pageData.server && pageData.server.servertype) {
       incomingServerType = pageData.server.servertype.value;
@@ -68,8 +77,9 @@ function donePageInit() {
     if (pageData.server && pageData.server.smtphostname) {
       let smtpServer = MailServices.smtp.defaultServer;
       smtpServerName = pageData.server.smtphostname.value;
-      if (!smtpServerName && smtpServer && smtpServer.hostname)
-          smtpServerName = smtpServer.hostname;
+      if (!smtpServerName && smtpServer && smtpServer.hostname) {
+        smtpServerName = smtpServer.hostname;
+      }
     }
     setDivTextFromForm("smtpServer.name", smtpServerName);
   } else {
@@ -81,8 +91,9 @@ function donePageInit() {
 
   if (serverIsNntp(pageData)) {
     let newsServerName = "";
-    if (pageData.newsserver && pageData.newsserver.hostname)
+    if (pageData.newsserver && pageData.newsserver.hostname) {
       newsServerName = pageData.newsserver.hostname.value;
+    }
     if (newsServerName) {
       // No need to show username for news account
       setDivTextFromForm("server.username", null);
@@ -95,7 +106,7 @@ function donePageInit() {
 
   var isPop = false;
   if (pageData.server && pageData.server.servertype) {
-    isPop = (pageData.server.servertype.value == "pop3");
+    isPop = pageData.server.servertype.value == "pop3";
   }
 
   hideShowDownloadMsgsUI(isPop);
@@ -108,7 +119,10 @@ function hideShowDownloadMsgsUI(isPop) {
   var downloadMsgs = document.getElementById("downloadMsgs");
   if (isPop) {
     if (!Services.io.offline) {
-      if (window.opener.location.href == "chrome://messenger/content/messenger.xul") {
+      if (
+        window.opener.location.href ==
+        "chrome://messenger/content/messenger.xul"
+      ) {
         downloadMsgs.hidden = false;
         return;
       }
@@ -131,8 +145,9 @@ function setDivTextFromForm(divid, value) {
 
   // otherwise fill in the .text element
   div = document.getElementById(divid + ".text");
-  if (!div)
+  if (!div) {
     return;
+  }
 
   // set the value
   div.setAttribute("value", value);

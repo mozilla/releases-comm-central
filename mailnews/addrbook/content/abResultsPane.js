@@ -64,24 +64,31 @@ function SetAbView(aURI) {
     sortColumn = gAbView.sortColumn;
     sortDirection = gAbView.sortDirection;
   } else {
-    if (gAbResultsTree.hasAttribute("sortCol"))
+    if (gAbResultsTree.hasAttribute("sortCol")) {
       sortColumn = gAbResultsTree.getAttribute("sortCol");
+    }
     var sortColumnNode = document.getElementById(sortColumn);
-    if (sortColumnNode && sortColumnNode.hasAttribute("sortDirection"))
+    if (sortColumnNode && sortColumnNode.hasAttribute("sortDirection")) {
       sortDirection = sortColumnNode.getAttribute("sortDirection");
+    }
   }
 
   var directory = GetDirectoryFromURI(aURI);
 
-  if (!gAbView)
-    gAbView = Cc["@mozilla.org/addressbook/abview;1"]
-                .createInstance(Ci.nsIAbView);
+  if (!gAbView) {
+    gAbView = Cc["@mozilla.org/addressbook/abview;1"].createInstance(
+      Ci.nsIAbView
+    );
+  }
 
-  var actualSortColumn = gAbView.setView(directory, GetAbViewListener(),
-                                         sortColumn, sortDirection);
+  var actualSortColumn = gAbView.setView(
+    directory,
+    GetAbViewListener(),
+    sortColumn,
+    sortDirection
+  );
 
-  gAbResultsTree.view =
-    gAbView.QueryInterface(Ci.nsITreeView);
+  gAbResultsTree.view = gAbView.QueryInterface(Ci.nsITreeView);
 
   UpdateSortIndicators(actualSortColumn, sortDirection);
 
@@ -89,31 +96,40 @@ function SetAbView(aURI) {
   // inform the user of the empty results pane.
   let abResultsTree = document.getElementById("abResultsTree");
   let cardViewOuterBox = document.getElementById("CardViewOuterBox");
-  let blankResultsPaneMessageBox = document.getElementById("blankResultsPaneMessageBox");
+  let blankResultsPaneMessageBox = document.getElementById(
+    "blankResultsPaneMessageBox"
+  );
   if (aURI.startsWith("moz-abldapdirectory://") && !aURI.includes("?")) {
-    if (abResultsTree)
+    if (abResultsTree) {
       abResultsTree.hidden = true;
-    if (cardViewOuterBox)
+    }
+    if (cardViewOuterBox) {
       cardViewOuterBox.hidden = true;
-    if (blankResultsPaneMessageBox)
+    }
+    if (blankResultsPaneMessageBox) {
       blankResultsPaneMessageBox.hidden = false;
+    }
   } else {
-    if (abResultsTree)
+    if (abResultsTree) {
       abResultsTree.hidden = false;
-    if (cardViewOuterBox)
+    }
+    if (cardViewOuterBox) {
       cardViewOuterBox.hidden = false;
-    if (blankResultsPaneMessageBox)
+    }
+    if (blankResultsPaneMessageBox) {
       blankResultsPaneMessageBox.hidden = true;
+    }
   }
 }
 
 function CloseAbView() {
-  if (gAbView)
+  if (gAbView) {
     gAbView.clearView();
+  }
 }
 
 function GetOneOrMoreCardsSelected() {
-  return (gAbView && (gAbView.selection.getRangeCount() > 0));
+  return gAbView && gAbView.selection.getRangeCount() > 0;
 }
 
 function GetSelectedAddresses() {
@@ -121,13 +137,12 @@ function GetSelectedAddresses() {
 }
 
 function GetNumSelectedCards() {
- try {
-   return gAbView.selection.count;
- } catch (ex) {
- }
+  try {
+    return gAbView.selection.count;
+  } catch (ex) {}
 
- // if something went wrong, return 0 for the count.
- return 0;
+  // if something went wrong, return 0 for the count.
+  return 0;
 }
 
 function GetSelectedCardTypes() {
@@ -137,17 +152,19 @@ function GetSelectedCardTypes() {
     return kNothingSelected; // no view
   }
   var count = cards.length;
-  if (count == 0)
-    return kNothingSelected;  // nothing selected
+  if (count == 0) {
+    return kNothingSelected;
+  } // nothing selected
 
   var mailingListCnt = 0;
   var cardCnt = 0;
   for (let i = 0; i < count; i++) {
     // We can assume no values from GetSelectedAbCards will be null.
-    if (cards[i].isMailList)
+    if (cards[i].isMailList) {
       mailingListCnt++;
-    else
+    } else {
       cardCnt++;
+    }
   }
 
   if (mailingListCnt == 0) {
@@ -164,16 +181,18 @@ function GetSelectedCardTypes() {
 
 // NOTE, will return -1 if more than one card selected, or no cards selected.
 function GetSelectedCardIndex() {
-  if (!gAbView)
+  if (!gAbView) {
     return -1;
+  }
 
   var treeSelection = gAbView.selection;
   if (treeSelection.getRangeCount() == 1) {
     var start = {};
     var end = {};
     treeSelection.getRangeAt(0, start, end);
-    if (start.value == end.value)
+    if (start.value == end.value) {
       return start.value;
+    }
   }
 
   return -1;
@@ -182,7 +201,7 @@ function GetSelectedCardIndex() {
 // NOTE, returns the card if exactly one card is selected, null otherwise
 function GetSelectedCard() {
   var index = GetSelectedCardIndex();
-  return (index == -1) ? null : gAbView.getCardFromRow(index);
+  return index == -1 ? null : gAbView.getCardFromRow(index);
 }
 
 /**
@@ -198,14 +217,19 @@ function GetSelectedAbCards() {
   if (document.getElementById("sidebar-box")) {
     const abPanelUrl =
       "chrome://messenger/content/addressbook/addressbook-panel.xul";
-    if (gCurFrame &&
-        gCurFrame.getAttribute("src") == abPanelUrl &&
-        document.commandDispatcher.focusedWindow == gCurFrame.contentDocument.defaultView)
+    if (
+      gCurFrame &&
+      gCurFrame.getAttribute("src") == abPanelUrl &&
+      document.commandDispatcher.focusedWindow ==
+        gCurFrame.contentDocument.defaultView
+    ) {
       abView = gCurFrame.contentDocument.defaultView.gAbView;
+    }
   }
 
-  if (!abView)
+  if (!abView) {
     return [];
+  }
 
   let cards = [];
   var count = abView.selection.getRangeCount();
@@ -233,8 +257,9 @@ function GetSelectedAbCards() {
 function GetSelectedRows() {
   var selectedRows = "";
 
-  if (!gAbView)
+  if (!gAbView) {
     return selectedRows;
+  }
 
   var rangeCount = gAbView.selection.getRangeCount();
   for (let i = 0; i < rangeCount; ++i) {
@@ -242,8 +267,9 @@ function GetSelectedRows() {
     var end = {};
     gAbView.selection.getRangeAt(i, start, end);
     for (let j = start.value; j <= end.value; ++j) {
-      if (selectedRows)
+      if (selectedRows) {
         selectedRows += ",";
+      }
       selectedRows += j;
     }
   }
@@ -252,8 +278,9 @@ function GetSelectedRows() {
 }
 
 function AbSwapFirstNameLastName() {
-  if (gAbView)
+  if (gAbView) {
     gAbView.swapFirstNameLastName();
+  }
 }
 
 function AbEditSelectedCard() {
@@ -262,7 +289,9 @@ function AbEditSelectedCard() {
 
 function AbResultsPaneOnClick(event) {
   // we only care about button 0 (left click) events
-  if (event.button != 0) return;
+  if (event.button != 0) {
+    return;
+  }
 
   // all we need to worry about here is double clicks
   // and column header clicks.
@@ -278,18 +307,22 @@ function AbResultsPaneOnClick(event) {
     var currentDirection = t.getAttribute("sortDirection");
 
     // Revert the sort order. If none is set, use Ascending.
-    sortDirection = currentDirection == kDefaultAscending ?
-                                        kDefaultDescending : kDefaultAscending;
+    sortDirection =
+      currentDirection == kDefaultAscending
+        ? kDefaultDescending
+        : kDefaultAscending;
 
     SortAndUpdateIndicators(t.id, sortDirection);
   } else if (t.localName == "treechildren") {
     // figure out what row the click was in
     var row = gAbResultsTree.getRowAt(event.clientX, event.clientY);
-    if (row == -1)
+    if (row == -1) {
       return;
+    }
 
-    if (event.detail == 2)
+    if (event.detail == 2) {
       AbResultsPaneDoubleClick(gAbView.getCardFromRow(row));
+    }
   }
 }
 
@@ -305,8 +338,9 @@ function AbSortDescending() {
 
 function SortResultPane(sortColumn) {
   var sortDirection = kDefaultAscending;
-  if (gAbView)
-     sortDirection = gAbView.sortDirection;
+  if (gAbView) {
+    sortDirection = gAbView.sortDirection;
+  }
 
   SortAndUpdateIndicators(sortColumn, sortDirection);
 }
@@ -314,8 +348,9 @@ function SortResultPane(sortColumn) {
 function SortAndUpdateIndicators(sortColumn, sortDirection) {
   UpdateSortIndicators(sortColumn, sortDirection);
 
-  if (gAbView)
+  if (gAbView) {
     gAbView.sortBy(sortColumn, sortDirection);
+  }
 }
 
 function UpdateSortIndicators(colID, sortDirection) {
@@ -334,15 +369,17 @@ function UpdateSortIndicators(colID, sortDirection) {
   // except the one we are sorted by
   var currCol = gAbResultsTree.firstChild.firstChild;
   while (currCol) {
-    if (currCol != sortedColumn && currCol.localName == "treecol")
+    if (currCol != sortedColumn && currCol.localName == "treecol") {
       currCol.removeAttribute("sortDirection");
+    }
     currCol = currCol.nextSibling;
   }
 }
 
 function InvalidateResultsPane() {
-  if (gAbResultsTree)
+  if (gAbResultsTree) {
     gAbResultsTree.invalidate();
+  }
 }
 
 // Controller object for Results Pane
@@ -372,13 +409,14 @@ var ResultsPaneController = {
         let numSelected;
         let enabled = false;
         if (gAbView && gAbView.selection) {
-          if (gAbView.directory)
+          if (gAbView.directory) {
             enabled = !gAbView.directory.readOnly;
+          }
           numSelected = gAbView.selection.count;
         } else {
           numSelected = 0;
         }
-        enabled = enabled && (numSelected > 0);
+        enabled = enabled && numSelected > 0;
 
         let labelAttr = null;
         if (command == "cmd_delete") {
@@ -394,7 +432,7 @@ var ResultsPaneController = {
               break;
             case kCardsOnly:
             default:
-              labelAttr = (numSelected < 2) ? "valueCard" : "valueCards";
+              labelAttr = numSelected < 2 ? "valueCard" : "valueCards";
           }
         }
         document.querySelectorAll(`[command=${command}]`).forEach(e => {
@@ -407,7 +445,7 @@ var ResultsPaneController = {
       }
       case "cmd_printcardpreview":
       case "cmd_printcard":
-        return (GetNumSelectedCards() > 0);
+        return GetNumSelectedCards() > 0;
       case "cmd_properties": {
         let attrs = {
           label: "valueGeneric",
@@ -435,7 +473,7 @@ var ResultsPaneController = {
             break;
         }
 
-        let enabled = (GetNumSelectedCards() == 1);
+        let enabled = GetNumSelectedCards() == 1;
         document.querySelectorAll("[command=cmd_properties]").forEach(e => {
           e.disabled = !enabled;
           for (let [attr, name] of Object.entries(attrs)) {
@@ -457,8 +495,9 @@ var ResultsPaneController = {
   doCommand(command) {
     switch (command) {
       case "cmd_selectAll":
-        if (gAbView)
+        if (gAbView) {
           gAbView.selectAll();
+        }
         break;
       case "cmd_delete":
       case "button_delete":
@@ -478,12 +517,14 @@ var ResultsPaneController = {
 
   onEvent(event) {
     // on blur events set the menu item texts back to the normal values
-    if (event == "blur")
+    if (event == "blur") {
       goSetMenuValue("cmd_delete", "valueDefault");
+    }
   },
 };
 
 function SelectFirstCard() {
-  if (gAbView && gAbView.selection && (gAbView.selection.count > 0))
+  if (gAbView && gAbView.selection && gAbView.selection.count > 0) {
     gAbView.selection.select(0);
+  }
 }

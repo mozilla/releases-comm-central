@@ -13,8 +13,9 @@ var kNumTestMessages = 10;
 
 var gTestArray = [
   function test_db_open() {
-    dbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"]
-                            .getService(Ci.nsIMsgDBService);
+    dbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"].getService(
+      Ci.nsIMsgDBService
+    );
     // Get the root folder
     let root = localAccountUtils.incomingServer.rootFolder;
     root.createSubfolder("dbTest", null);
@@ -68,8 +69,11 @@ function doTest(test) {
     var testFn = gTestArray[test - 1];
     // Set a limit of 10 seconds; if the notifications haven't arrived by then there's a problem.
     do_timeout(10000, function() {
-      if (gCurTestNum == test)
-        do_throw("Notifications not received in 10000 ms for operation " + testFn.name);
+      if (gCurTestNum == test) {
+        do_throw(
+          "Notifications not received in 10000 ms for operation " + testFn.name
+        );
+      }
     });
     try {
       testFn();
@@ -80,7 +84,6 @@ function doTest(test) {
     do_test_finished(); // for the one in run_test()
   }
 }
-
 
 function run_test() {
   localAccountUtils.loadLocalMailAccount();
@@ -114,9 +117,9 @@ function openMoreAsync(db) {
     doTest(++gCurTestNum);
     return;
   }
-  if (!done)
+  if (!done) {
     mailTestUtils.do_timeout_function(0, openMoreAsync, null, [db]);
-  else
+  } else {
     throw new Error("Should have got an exception opening out of date db");
+  }
 }
-

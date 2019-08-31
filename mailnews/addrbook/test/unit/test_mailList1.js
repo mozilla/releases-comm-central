@@ -10,14 +10,18 @@
 function checkLists(childNodes, number) {
   var mailListArray = new Array(number);
 
-  for (var i = 0; i < number; ++i)
+  for (var i = 0; i < number; ++i) {
     mailListArray[i] = null;
+  }
 
   // See comment above for matching requirements
   while (childNodes.hasMoreElements()) {
     var list = childNodes.getNext();
-    if (list instanceof Ci.nsIAbDirectory &&
-        list.isMailList && list.dirName.startsWith("TestList")) {
+    if (
+      list instanceof Ci.nsIAbDirectory &&
+      list.isMailList &&
+      list.dirName.startsWith("TestList")
+    ) {
       var index = list.dirName.substr(8, list.dirName.length - 8);
       Assert.equal(mailListArray[index - 1], null);
       Assert.equal(list.URI, kPABData.URI + "/MailList" + index);
@@ -26,7 +30,9 @@ function checkLists(childNodes, number) {
     }
   }
 
-  mailListArray.forEach(function(value) { Assert.notEqual(value, null); });
+  mailListArray.forEach(function(value) {
+    Assert.notEqual(value, null);
+  });
 }
 
 function run_test() {
@@ -47,8 +53,9 @@ function run_test() {
 
   // Test - Add a new list.
 
-  var mailList = Cc["@mozilla.org/addressbook/directoryproperty;1"]
-                   .createInstance(Ci.nsIAbDirectory);
+  var mailList = Cc[
+    "@mozilla.org/addressbook/directoryproperty;1"
+  ].createInstance(Ci.nsIAbDirectory);
 
   mailList.isMailList = true;
   mailList.dirName = "TestList4";

@@ -3,26 +3,34 @@ function run_test() {
   MailServices.ab.directories;
   let book = MailServices.ab.getDirectory(kPABData.URI);
 
-  let list = Cc["@mozilla.org/addressbook/directoryproperty;1"].createInstance(Ci.nsIAbDirectory);
+  let list = Cc["@mozilla.org/addressbook/directoryproperty;1"].createInstance(
+    Ci.nsIAbDirectory
+  );
   list.isMailList = true;
   list.dirName = "list";
   list = book.addMailList(list);
 
-  let contact1 = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(Ci.nsIAbCard);
+  let contact1 = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+    Ci.nsIAbCard
+  );
   contact1.firstName = "contact";
   contact1.lastName = "1";
   contact1.primaryEmail = "contact1@invalid";
   contact1 = book.addCard(contact1);
   list.addCard(contact1);
 
-  let contact2 = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(Ci.nsIAbCard);
+  let contact2 = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+    Ci.nsIAbCard
+  );
   contact2.firstName = "contact";
   contact2.lastName = "2";
   // No email address!
   contact2 = book.addCard(contact2);
   list.addCard(contact2);
 
-  let contact3 = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(Ci.nsIAbCard);
+  let contact3 = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+    Ci.nsIAbCard
+  );
   contact3.firstName = "contact";
   contact3.lastName = "3";
   contact3.primaryEmail = "contact3@invalid";
@@ -65,7 +73,9 @@ function run_test() {
 
   // For some unknown reason this is necessary for book.addressLists to be populated.
   if (kPABData.dirType == 2) {
-    book.QueryInterface(Ci.nsIAbMDBDirectory).database.getMailingListsFromDB(book);
+    book
+      .QueryInterface(Ci.nsIAbMDBDirectory)
+      .database.getMailingListsFromDB(book);
     equal(1, book.addressLists.Count());
   }
   list = book.addressLists.GetElementAt(0).QueryInterface(Ci.nsIAbDirectory);

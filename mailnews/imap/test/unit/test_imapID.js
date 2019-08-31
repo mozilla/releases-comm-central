@@ -6,9 +6,12 @@
 /* import-globals-from ../../../test/resources/logHelper.js */
 load("../../../resources/logHelper.js");
 
-var {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
-var kIDResponse = "(\"name\" \"GImap\" \"vendor\" \"Google, Inc.\" \"support-url\" \"http://mail.google.com/support\")";
+var kIDResponse =
+  '("name" "GImap" "vendor" "Google, Inc." "support-url" "http://mail.google.com/support")';
 
 add_task(async function setup() {
   setupIMAPPump("GMail");
@@ -27,7 +30,7 @@ add_task(async function updateInbox() {
 });
 
 add_task(function checkIDHandling() {
-  Assert.equal(IMAPPump.daemon.clientID, "(\"name\" \"xpcshell\" \"version\" \"1\")");
+  Assert.equal(IMAPPump.daemon.clientID, '("name" "xpcshell" "version" "1")');
   Assert.equal(IMAPPump.incomingServer.serverIDPref, kIDResponse);
 });
 

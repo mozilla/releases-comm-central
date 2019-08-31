@@ -1,6 +1,9 @@
-
-const {toXPCOMArray} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-const {MockFactory} = ChromeUtils.import("resource://testing-common/mailnews/MockFactory.js");
+const { toXPCOMArray } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
+const { MockFactory } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MockFactory.js"
+);
 
 /* import-globals-from ../../../test/resources/logHelper.js */
 /* import-globals-from ../../../test/resources/asyncTestUtils.js */
@@ -9,8 +12,10 @@ load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
 
-Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
-                           "@mozilla.org/msgstore/berkeleystore;1");
+Services.prefs.setCharPref(
+  "mail.serverDefaultStoreContractID",
+  "@mozilla.org/msgstore/berkeleystore;1"
+);
 
 var gTargetFolder;
 var gUuid;
@@ -19,8 +24,7 @@ var gUuid;
 logHelperAllowedErrors.push(Cr.NS_ERROR_FILE_IS_LOCKED);
 logHelperAllowedErrors.push(Cr.NS_ERROR_FILE_TARGET_DOES_NOT_EXIST);
 
-function LockedFileOutputStream() {
-}
+function LockedFileOutputStream() {}
 
 LockedFileOutputStream.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIFileOutputStream]),
@@ -34,9 +38,15 @@ var MsgDBServiceFailure = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgDBService]),
 
   openMailDBFromFile(file, folder, create, leaveInvalidDB) {
-    if (folder.name == "ShouldFail")
+    if (folder.name == "ShouldFail") {
       throw Cr.NS_ERROR_FILE_TARGET_DOES_NOT_EXIST;
-    return this._genuine.openMailDBFromFile(file, folder, create, leaveInvalidDB);
+    }
+    return this._genuine.openMailDBFromFile(
+      file,
+      folder,
+      create,
+      leaveInvalidDB
+    );
   },
 
   openFolderDB(folder, leaveInvalidDB) {
@@ -66,8 +76,10 @@ var MsgDBServiceFailure = {
 };
 
 function setup_output_stream_stub() {
-  gUuid = MockFactory.register("@mozilla.org/network/file-output-stream;1",
-                              LockedFileOutputStream);
+  gUuid = MockFactory.register(
+    "@mozilla.org/network/file-output-stream;1",
+    LockedFileOutputStream
+  );
 }
 
 function teardown_output_stream_stub() {
@@ -75,8 +87,10 @@ function teardown_output_stream_stub() {
 }
 
 function setup_db_service_mock() {
-  gUuid = MockFactory.register("@mozilla.org/msgDatabase/msgDBService;1",
-                               MsgDBServiceFailure);
+  gUuid = MockFactory.register(
+    "@mozilla.org/msgDatabase/msgDBService;1",
+    MsgDBServiceFailure
+  );
 }
 
 function teardown_db_service_mock() {
@@ -100,7 +114,9 @@ function* setup_target_folder() {
 }
 
 function* setup_open_failure_folder() {
-  gTargetFolder = localAccountUtils.rootFolder.createLocalSubfolder("ShouldFail");
+  gTargetFolder = localAccountUtils.rootFolder.createLocalSubfolder(
+    "ShouldFail"
+  );
   addMessagesToFolder(generate_messages(), gTargetFolder);
 
   mailTestUtils.updateFolderAndNotify(gTargetFolder, async_driver);
@@ -110,18 +126,27 @@ function* setup_open_failure_folder() {
 function* delete_all_messages() {
   let enumerator = gTargetFolder.messages;
   let headers = [];
-  while (enumerator.hasMoreElements())
+  while (enumerator.hasMoreElements()) {
     headers.push(enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr));
+  }
 
   let array = toXPCOMArray(headers, Ci.nsIMutableArray);
 
-  gTargetFolder.deleteMessages(array, null, false, true, asyncCopyListener, false);
+  gTargetFolder.deleteMessages(
+    array,
+    null,
+    false,
+    true,
+    asyncCopyListener,
+    false
+  );
   yield false;
 }
 
 function compact_with_exception(expectedException) {
-  let compactor = Cc["@mozilla.org/messenger/localfoldercompactor;1"]
-                    .createInstance(Ci.nsIMsgFolderCompactor);
+  let compactor = Cc[
+    "@mozilla.org/messenger/localfoldercompactor;1"
+  ].createInstance(Ci.nsIMsgFolderCompactor);
   let listener = new AsyncUrlListener(null, function(url, exitCode) {
     do_throw("This listener should not be called back.");
   });

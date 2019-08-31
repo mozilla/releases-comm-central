@@ -18,24 +18,24 @@ load("../../../resources/messageGenerator.js");
 load("../../../resources/messageModifier.js");
 load("../../../resources/messageInjection.js");
 
-var gMessenger = Cc["@mozilla.org/messenger;1"]
-                   .createInstance(Ci.nsIMessenger);
+var gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
 // Create a message generator
 var gMessageGenerator = new MessageGenerator();
 
-var textAttachment =
-  "inline text attachment";
+var textAttachment = "inline text attachment";
 
 // create a message with a text attachment
 var messages = [
   {
     // text attachment
-    attachments: [{
-      body: textAttachment,
-      filename: "test.txt",
-      format: "",
-    }],
+    attachments: [
+      {
+        body: textAttachment,
+        filename: "test.txt",
+        format: "",
+      },
+    ],
   },
 ];
 
@@ -62,16 +62,18 @@ var gStreamListener = {
 
   onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
     if (this._stream === null) {
-      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].
-                    createInstance(Ci.nsIScriptableInputStream);
+      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+        Ci.nsIScriptableInputStream
+      );
       this._stream.init(aInputStream);
     }
     this._str += this._stream.read(aCount);
   },
 };
 
-var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
-                  .createInstance(Ci.nsIMsgWindow);
+var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
+  Ci.nsIMsgWindow
+);
 
 function* test_message_attachments(info, inline, inline_text) {
   Services.prefs.setBoolPref("mail.inline_attachments", inline);
@@ -91,7 +93,8 @@ function* test_message_attachments(info, inline, inline_text) {
     true, // have them create the converter
     // additional uri payload, note that "header=" is prepended automatically
     "filter",
-    false);
+    false
+  );
 
   yield false;
 }
@@ -114,6 +117,6 @@ var tests = [
 var gInbox;
 
 function run_test() {
-  gInbox = configure_message_injection({mode: "local"});
+  gInbox = configure_message_injection({ mode: "local" });
   async_run_tests(tests);
 }

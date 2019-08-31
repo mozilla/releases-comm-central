@@ -4,7 +4,9 @@
 /* import-globals-from ../../../test/resources/filterTestUtils.js */
 load("../../../resources/filterTestUtils.js");
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 function run_test() {
   // Set up the server and add in filters
@@ -17,8 +19,9 @@ function run_test() {
   let enumerator = rootFolder.subFolders;
   while (enumerator.hasMoreElements()) {
     let folder = enumerator.getNext().QueryInterface(Ci.nsIMsgFolder);
-    if (folder.name != "test.filter")
+    if (folder.name != "test.filter") {
       rootFolder.propagateDelete(folder, true, null);
+    }
   }
 
   // Create a filter to mark one message read.
@@ -30,14 +33,19 @@ function run_test() {
   // This is a bit hackish, but we don't have any really functional callbacks
   // for biff. Instead, we use the notifier to look for all 7 messages to be
   // added and take that as our sign that the download is finished.
-  let expectCount = 7, seen = 0;
+  let expectCount = 7,
+    seen = 0;
   let listener = {
     msgAdded() {
-      if (++seen == expectCount)
+      if (++seen == expectCount) {
         localserver.closeCachedConnections();
+      }
     },
   };
-  MailServices.mfn.addListener(listener, Ci.nsIMsgFolderNotificationService.msgAdded);
+  MailServices.mfn.addListener(
+    listener,
+    Ci.nsIMsgFolderNotificationService.msgAdded
+  );
   localserver.performBiff(null);
   server.performTest();
   MailServices.mfn.removeListener(listener);

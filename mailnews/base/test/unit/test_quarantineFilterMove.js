@@ -9,8 +9,12 @@
  * adapted from test_copyThenMoveManual.js
  */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+const { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 /* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/POP3pump.js");
@@ -38,7 +42,10 @@ var gTestArray = [
   // just get a message into the local folder
   async function getLocalMessages1() {
     gPOP3Pump.files = gFiles;
-    let promise1 = PromiseTestUtils.promiseFolderNotification(gMoveFolder, "msgsClassified");
+    let promise1 = PromiseTestUtils.promiseFolderNotification(
+      gMoveFolder,
+      "msgsClassified"
+    );
     let promise2 = gPOP3Pump.run();
     await Promise.all([promise1, promise2]);
   },
@@ -53,22 +60,39 @@ var gTestArray = [
     let secondMsgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     // Check that the messages have content
     let messageContent = getContentFromMessage(firstMsgHdr);
-    Assert.ok(messageContent.includes("Some User <bugmail@example.org> changed"));
+    Assert.ok(
+      messageContent.includes("Some User <bugmail@example.org> changed")
+    );
     messageContent = getContentFromMessage(secondMsgHdr);
-    Assert.ok(messageContent.includes("https://bugzilla.mozilla.org/show_bug.cgi?id=436880"));
+    Assert.ok(
+      messageContent.includes(
+        "https://bugzilla.mozilla.org/show_bug.cgi?id=436880"
+      )
+    );
   },
   async function copyMovedMessages() {
-    let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+    let messages = Cc["@mozilla.org/array;1"].createInstance(
+      Ci.nsIMutableArray
+    );
     let enumerator = gMoveFolder.msgDatabase.EnumerateMessages();
     let firstMsgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     let secondMsgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     messages.appendElement(firstMsgHdr);
     messages.appendElement(secondMsgHdr);
     let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
-    MailServices.copy.CopyMessages(gMoveFolder, messages, gMoveFolder2, false,
-                                   promiseCopyListener, null, false);
-    let promiseMoveMsg =
-      PromiseTestUtils.promiseFolderEvent(gMoveFolder, "DeleteOrMoveMsgCompleted");
+    MailServices.copy.CopyMessages(
+      gMoveFolder,
+      messages,
+      gMoveFolder2,
+      false,
+      promiseCopyListener,
+      null,
+      false
+    );
+    let promiseMoveMsg = PromiseTestUtils.promiseFolderEvent(
+      gMoveFolder,
+      "DeleteOrMoveMsgCompleted"
+    );
     await Promise.all([promiseCopyListener.promise, promiseMoveMsg]);
   },
   function verifyFolders2() {
@@ -79,9 +103,15 @@ var gTestArray = [
     let secondMsgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     // Check that the messages have content
     let messageContent = getContentFromMessage(firstMsgHdr);
-    Assert.ok(messageContent.includes("Some User <bugmail@example.org> changed"));
+    Assert.ok(
+      messageContent.includes("Some User <bugmail@example.org> changed")
+    );
     messageContent = getContentFromMessage(secondMsgHdr);
-    Assert.ok(messageContent.includes("https://bugzilla.mozilla.org/show_bug.cgi?id=436880"));
+    Assert.ok(
+      messageContent.includes(
+        "https://bugzilla.mozilla.org/show_bug.cgi?id=436880"
+      )
+    );
   },
   function endTest() {
     dump("Exiting mail tests\n");
@@ -106,11 +136,14 @@ function run_test() {
   /**/
   // quarantine messages
   Services.prefs.setBoolPref("mailnews.downloadToTempFile", true);
-  if (!localAccountUtils.inboxFolder)
+  if (!localAccountUtils.inboxFolder) {
     localAccountUtils.loadLocalMailAccount();
+  }
 
   gMoveFolder = localAccountUtils.rootFolder.createLocalSubfolder("MoveFolder");
-  gMoveFolder2 = localAccountUtils.rootFolder.createLocalSubfolder("MoveFolder2");
+  gMoveFolder2 = localAccountUtils.rootFolder.createLocalSubfolder(
+    "MoveFolder2"
+  );
 
   gTestArray.forEach(x => add_task(x));
   run_next_test();
@@ -127,19 +160,18 @@ function getContentFromMessage(aMsgHdr) {
   let msgFolder = aMsgHdr.folder;
   let msgUri = msgFolder.getUriForMsg(aMsgHdr);
 
-  let messenger = Cc["@mozilla.org/messenger;1"]
-                    .createInstance(Ci.nsIMessenger);
-  let streamListener = Cc["@mozilla.org/network/sync-stream-listener;1"]
-                         .createInstance(Ci.nsISyncStreamListener);
-  messenger.messageServiceFromURI(msgUri).streamMessage(msgUri,
-                                                        streamListener,
-                                                        null,
-                                                        null,
-                                                        false,
-                                                        "",
-                                                        false);
-  let sis = Cc["@mozilla.org/scriptableinputstream;1"]
-              .createInstance(Ci.nsIScriptableInputStream);
+  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+    Ci.nsIMessenger
+  );
+  let streamListener = Cc[
+    "@mozilla.org/network/sync-stream-listener;1"
+  ].createInstance(Ci.nsISyncStreamListener);
+  messenger
+    .messageServiceFromURI(msgUri)
+    .streamMessage(msgUri, streamListener, null, null, false, "", false);
+  let sis = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+    Ci.nsIScriptableInputStream
+  );
   sis.init(streamListener.inputStream);
   let content = sis.read(MAX_MESSAGE_LENGTH);
   sis.close();

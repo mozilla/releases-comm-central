@@ -4,7 +4,9 @@
  * it drop the connection when it's attempted.
  */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 /* import-globals-from ../../../test/resources/logHelper.js */
 /* import-globals-from ../../../test/resources/alertTestUtils.js */
@@ -13,24 +15,19 @@ load("../../../resources/logHelper.js");
 load("../../../resources/alertTestUtils.js");
 load("../../../resources/asyncTestUtils.js");
 
-var gGotAlert = false;
+var gGotAlert = false; // to asyncTestUtils.js
 
-/* exported alert */// to asyncTestUtils.js
-function alert(aDialogTitle, aText) {
+/* exported alert */ function alert(aDialogTitle, aText) {
   Assert.ok(aText.startsWith("Server localhost has disconnected"));
   gGotAlert = true;
 }
 
-var tests = [
-  setup,
-  check_alert,
-  teardown,
-];
+var tests = [setup, check_alert, teardown];
 
 function* setup() {
   // set up IMAP fakeserver and incoming server
   IMAPPump.daemon = new imapDaemon();
-  IMAPPump.server = makeServer(IMAPPump.daemon, "", {dropOnStartTLS: true});
+  IMAPPump.server = makeServer(IMAPPump.daemon, "", { dropOnStartTLS: true });
   IMAPPump.incomingServer = createLocalIMAPServer(IMAPPump.server.port);
   IMAPPump.incomingServer.socketType = Ci.nsMsgSocketType.alwaysSTARTTLS;
 
@@ -50,8 +47,9 @@ function* setup() {
   // We aren't interested in downloading messages automatically
   Services.prefs.setBoolPref("mail.server.server1.download_on_biff", false);
 
-  IMAPPump.inbox = IMAPPump.incomingServer.rootFolder.getChildNamed("Inbox")
-                                  .QueryInterface(Ci.nsIMsgImapMailFolder);
+  IMAPPump.inbox = IMAPPump.incomingServer.rootFolder
+    .getChildNamed("Inbox")
+    .QueryInterface(Ci.nsIMsgImapMailFolder);
 
   registerAlertTestUtils();
 
@@ -72,8 +70,9 @@ function teardown() {
   IMAPPump.server.stop();
 
   var thread = gThreadManager.currentThread;
-  while (thread.hasPendingEvents())
+  while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
+  }
 }
 
 function run_test() {

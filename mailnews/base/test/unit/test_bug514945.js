@@ -7,10 +7,13 @@
  */
 
 function run_test() {
-  const kValidityManager = Cc["@mozilla.org/mail/search/validityManager;1"]
-                             .getService(Ci.nsIMsgSearchValidityManager);
+  const kValidityManager = Cc[
+    "@mozilla.org/mail/search/validityManager;1"
+  ].getService(Ci.nsIMsgSearchValidityManager);
 
-  let validityTable = kValidityManager.getTable(Ci.nsMsgSearchScope.offlineMail);
+  let validityTable = kValidityManager.getTable(
+    Ci.nsMsgSearchScope.offlineMail
+  );
 
   // When we try to access a bad value of getAvailable, it should give an error,
   //  not crash.
@@ -29,8 +32,9 @@ function run_test() {
   // initialized, resulting in random values of the operator. Make sure that is
   // fixed.
 
-  const kSearchSession = Cc["@mozilla.org/messenger/searchSession;1"]
-                        .createInstance(Ci.nsIMsgSearchSession);
+  const kSearchSession = Cc[
+    "@mozilla.org/messenger/searchSession;1"
+  ].createInstance(Ci.nsIMsgSearchSession);
   let searchTerm = kSearchSession.createTerm();
   Assert.equal(searchTerm.op, Ci.nsMsgSearchOp.Contains);
 }

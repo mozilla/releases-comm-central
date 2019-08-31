@@ -26,22 +26,19 @@ load("../../../../resources/messageInjection.js");
 
 /* exported scenarios */
 // Create a message generator
-var msgGen = gMessageGenerator = new MessageGenerator();
+var msgGen = (gMessageGenerator = new MessageGenerator());
 // Create a message scenario generator using that message generator
 var scenarios = new MessageScenarioFactory(msgGen);
 
-var {
-  MsgHdrToMimeMessage,
-} = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
+var { MsgHdrToMimeMessage } = ChromeUtils.import(
+  "resource:///modules/gloda/mimemsg.js"
+);
 
 var htmlText = "<html><head></head><body>I am HTML! Woo! </body></html>";
 
-var partHtml = new SyntheticPartLeaf(
-  htmlText,
-  {
-    contentType: "text/html",
-  }
-);
+var partHtml = new SyntheticPartLeaf(htmlText, {
+  contentType: "text/html",
+});
 
 // This text is 168 characters long, and occupies 173 bytes when encoded in
 // UTF-8. (We make sure it occupies 173 bytes in run_test below). Note that
@@ -67,7 +64,7 @@ var qpText =
 
 var uuText =
   "begin 666 -\n" +
-  "M3&]N9W1E;7!S+\"!J92!M92!S=6ES(&-O=6-HPZD@9&4@8F]N;F4@:&5U<F4N\n" +
+  'M3&]N9W1E;7!S+"!J92!M92!S=6ES(&-O=6-HPZD@9&4@8F]N;F4@:&5U<F4N\n' +
   "M(%!A<F9O:7,L(,.@('!E:6YE(&UA(&)O=6=I92##J71E:6YT92P@;65S('EE\n" +
   "M=7@@<V4@9F5R;6%I96YT('-I('9I=&4@<75E(&IE(&XG879A:7,@<&%S(&QE\n" +
   "G('1E;7!S(&1E(&UE(&1I<F4@.B#\"JR!*92!M)V5N9&]R<RX@PKL*\n" +
@@ -93,49 +90,86 @@ var yencText =
 
 // that completely exotic encoding is only detected if there is no content type
 // on the message, which is usually the case in newsgroups. I hate you yencode!
-new SyntheticPartLeaf("I am text! Woo!\n\n" + yencText,
-  { contentType: "", charset: "", format: "" });
+new SyntheticPartLeaf("I am text! Woo!\n\n" + yencText, {
+  contentType: "",
+  charset: "",
+  format: "",
+});
 
 var partUUText = new SyntheticPartLeaf(
   "I am text! With uuencode... noes...\n\n" + uuText,
-  { contentType: "", charset: "", format: "" });
+  { contentType: "", charset: "", format: "" }
+);
 
-var tachText = {filename: "bob.txt", body: qpText,
-                charset: "utf-8", encoding: "quoted-printable"};
+var tachText = {
+  filename: "bob.txt",
+  body: qpText,
+  charset: "utf-8",
+  encoding: "quoted-printable",
+};
 
-var tachInlineText = {filename: "foo.txt", body: qpText,
-                      format: null, charset: "utf-8",
-                      encoding: "quoted-printable",
-                      disposition: "inline"};
+var tachInlineText = {
+  filename: "foo.txt",
+  body: qpText,
+  format: null,
+  charset: "utf-8",
+  encoding: "quoted-printable",
+  disposition: "inline",
+};
 
 // images have a different behavior than other attachments: they are displayed
 // inline most of the time, so there are two different code paths that need to
 // enable streaming and byte counting to the JS mime emitter
 
-var tachImage = {filename: "bob.png", contentType: "image/png",
-                 encoding: "base64", charset: null, format: null,
-                 body: b64Text};
+var tachImage = {
+  filename: "bob.png",
+  contentType: "image/png",
+  encoding: "base64",
+  charset: null,
+  format: null,
+  body: b64Text,
+};
 
-var tachPdf = {filename: "bob.pdf", contentType: "application/pdf",
-               encoding: "base64", charset: null, format: null,
-               body: b64Text};
+var tachPdf = {
+  filename: "bob.pdf",
+  contentType: "application/pdf",
+  encoding: "base64",
+  charset: null,
+  format: null,
+  body: b64Text,
+};
 
-var tachUU = {filename: "john.doe", contentType: "application/x-uuencode",
-              encoding: "uuencode", charset: null, format: null,
-              body: uuText};
+var tachUU = {
+  filename: "john.doe",
+  contentType: "application/x-uuencode",
+  encoding: "uuencode",
+  charset: null,
+  format: null,
+  body: uuText,
+};
 
-var tachApplication = {filename: "funky.funk",
-                       contentType: "application/x-funky",
-                       encoding: "base64",
-                       body: b64Text};
+var tachApplication = {
+  filename: "funky.funk",
+  contentType: "application/x-funky",
+  encoding: "base64",
+  body: b64Text,
+};
 
-var relImage = {contentType: "image/png",
-                encoding: "base64", charset: null, format: null,
-                contentId: "part1.foo@bar.invalid",
-                body: b64Text};
+var relImage = {
+  contentType: "image/png",
+  encoding: "base64",
+  charset: null,
+  format: null,
+  contentId: "part1.foo@bar.invalid",
+  body: b64Text,
+};
 
-var tachVCard = {filename: "bob.vcf", contentType: "text/x-vcard",
-                 encoding: "7bit", body: "begin:vcard\nfn:Bob\nend:vcard\n"};
+var tachVCard = {
+  filename: "bob.vcf",
+  contentType: "text/x-vcard",
+  encoding: "7bit",
+  body: "begin:vcard\nfn:Bob\nend:vcard\n",
+};
 var partTachVCard = new SyntheticPartLeaf(tachVCard.body, tachVCard);
 
 new SyntheticPartLeaf(relImage.body, relImage);
@@ -180,15 +214,22 @@ var messageInfos = [
   {
     name: 'all sorts of "real" attachments',
     bodyPart: partHtml,
-    attachments: [tachImage, tachPdf, tachUU,
-      tachApplication, tachText, tachInlineText],
+    attachments: [
+      tachImage,
+      tachPdf,
+      tachUU,
+      tachApplication,
+      tachText,
+      tachInlineText,
+    ],
     epsilon: 2,
   },
 ];
 
 function check_attachments(aMimeMsg, epsilon, checkTotalSize) {
-  if (aMimeMsg == null)
+  if (aMimeMsg == null) {
     do_throw("We really should have gotten a result!");
+  }
 
   // dump(aMimeMsg.prettyString()+"\n");
 
@@ -222,7 +263,9 @@ function check_attachments(aMimeMsg, epsilon, checkTotalSize) {
 
   // undefined means true
   if (checkTotalSize !== false) {
-    dump("*** Total size comparison: " + totalSize + " vs " + aMimeMsg.size + "\n");
+    dump(
+      "*** Total size comparison: " + totalSize + " vs " + aMimeMsg.size + "\n"
+    );
     Assert.ok(Math.abs(aMimeMsg.size - totalSize) <= epsilon);
   }
 
@@ -239,8 +282,11 @@ function* test_message_attachments(info) {
 
   MsgHdrToMimeMessage(msgHdr, null, function(aMsgHdr, aMimeMsg) {
     try {
-      check_attachments(aMimeMsg, info.epsilon,
-                        "checkTotalSize" in info ? info.checkTotalSize : undefined);
+      check_attachments(
+        aMimeMsg,
+        info.epsilon,
+        "checkTotalSize" in info ? info.checkTotalSize : undefined
+      );
     } catch (e) {
       do_throw(e);
     }
@@ -267,9 +313,9 @@ var bogusMessageInfos = [
     name: ".eml attachment with inner MimeUnknown",
     bodyPart: new SyntheticPartMultiMixed([
       partHtml,
-      msgGen.makeMessage({ // <--- M
-        bodyPart:
-        new SyntheticPartMultiMixed([
+      msgGen.makeMessage({
+        // <--- M
+        bodyPart: new SyntheticPartMultiMixed([
           new SyntheticPartMultiRelated([
             partHtml,
             new SyntheticPartLeaf(htmlText, { contentType: "woooooo" }),
@@ -283,14 +329,15 @@ var bogusMessageInfos = [
 ];
 
 function check_bogus_parts(aMimeMsg, { epsilon, checkSize }) {
-  if (aMimeMsg == null)
+  if (aMimeMsg == null) {
     do_throw("We really should have gotten a result!");
+  }
 
   // First make sure the size is computed properly
   let x = parseInt(aMimeMsg.size);
   Assert.ok(!isNaN(x));
 
-  let sep = ("@mozilla.org/windows-registry-key;1" in Cc) ? "\r\n" : "\n";
+  let sep = "@mozilla.org/windows-registry-key;1" in Cc ? "\r\n" : "\n";
 
   // dump(aMimeMsg.prettyString()+"\n");
 
@@ -375,12 +422,16 @@ var gInbox;
 
 function run_test() {
   // Sanity check: figure out how many bytes the original text occupies in UTF-8 encoding
-  let converter = Cc["@mozilla.org/intl/scriptableunicodeconverter"]
-                    .createInstance(Ci.nsIScriptableUnicodeConverter);
+  let converter = Cc[
+    "@mozilla.org/intl/scriptableunicodeconverter"
+  ].createInstance(Ci.nsIScriptableUnicodeConverter);
   converter.charset = "UTF-8";
-  Assert.equal(converter.ConvertFromUnicode(originalText).length, originalTextByteCount);
+  Assert.equal(
+    converter.ConvertFromUnicode(originalText).length,
+    originalTextByteCount
+  );
 
   // use mbox injection because the fake server chokes sometimes right now
-  gInbox = configure_message_injection({mode: "local"});
+  gInbox = configure_message_injection({ mode: "local" });
   async_run_tests(tests);
 }

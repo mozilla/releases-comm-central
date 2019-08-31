@@ -40,7 +40,9 @@ add_task(async function existingContactUID() {
 add_task(async function newContactUID() {
   let book = newAddressBookFile();
 
-  let contact = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(Ci.nsIAbCard);
+  let contact = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+    Ci.nsIAbCard
+  );
   let newContact = book.addCard(contact);
   equal(36, newContact.UID.length, "New contact has a UID");
 
@@ -59,7 +61,9 @@ add_task(async function newContactUID() {
 add_task(async function newContactWithUID() {
   let book = newAddressBookFile();
 
-  let contact = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(Ci.nsIAbCard);
+  let contact = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+    Ci.nsIAbCard
+  );
   contact.UID = "I'm a UID!";
   let newContact = book.addCard(contact);
   equal("I'm a UID!", newContact.UID, "New contact has the UID we set");
@@ -85,7 +89,11 @@ add_task(async function existingListUID1() {
   let directory = MailServices.ab.getDirectory(card.mailListURI);
   equal(36, directory.UID.length, "Existing list's directory has a UID");
 
-  equal(card.UID, directory.UID, "Existing list's card and directory UIDs match");
+  equal(
+    card.UID,
+    directory.UID,
+    "Existing list's card and directory UIDs match"
+  );
 
   await checkFileForUID(card.UID, book.fileName);
 });
@@ -100,7 +108,11 @@ add_task(async function existingListUID2() {
   let card = [...book.childCards].find(c => c.isMailList);
   equal(36, card.UID.length, "Existing list's card has a UID");
 
-  equal(card.UID, directory.UID, "Existing list's card and directory UIDs match");
+  equal(
+    card.UID,
+    directory.UID,
+    "Existing list's card and directory UIDs match"
+  );
 
   await checkFileForUID(card.UID, book.fileName);
 });
@@ -109,14 +121,25 @@ add_task(async function existingListUID2() {
 add_task(async function newListUID() {
   let book = newAddressBookFile();
 
-  let list = Cc["@mozilla.org/addressbook/directoryproperty;1"].createInstance(Ci.nsIAbDirectory);
+  let list = Cc["@mozilla.org/addressbook/directoryproperty;1"].createInstance(
+    Ci.nsIAbDirectory
+  );
   list = book.addMailList(list);
 
   equal(36, list.UID.length, "New list's directory has a UID");
-  equal(list.UID, MailServices.ab.getDirectory(list.URI).UID, "New reference to list's directory has the same UID");
+  equal(
+    list.UID,
+    MailServices.ab.getDirectory(list.URI).UID,
+    "New reference to list's directory has the same UID"
+  );
 
   let bookCards = [...book.childNodes];
-  ok(!!bookCards.find(c => c.UID == list.UID, "New reference to list has the same UID"));
+  ok(
+    !!bookCards.find(
+      c => c.UID == list.UID,
+      "New reference to list has the same UID"
+    )
+  );
 
   await checkFileForUID(list.UID, book.fileName);
 });
@@ -124,14 +147,23 @@ add_task(async function newListUID() {
 // 3 seems to be the lowest number that works here. I don't know why.
 var count = 3;
 function newAddressBookFile() {
-  MailServices.ab.newAddressBook(`book${count}`, `moz-abmdbdirectory://abook-${count}.mab`, 2);
+  MailServices.ab.newAddressBook(
+    `book${count}`,
+    `moz-abmdbdirectory://abook-${count}.mab`,
+    2
+  );
 
   let testAB = do_get_file("data/existing.mab");
   testAB.copyTo(profD, `abook-${count}.mab`);
 
-  Services.prefs.setCharPref(`ldap_2.servers.book${count}.filename`, `abook-${count}.mab`);
+  Services.prefs.setCharPref(
+    `ldap_2.servers.book${count}.filename`,
+    `abook-${count}.mab`
+  );
 
-  let book = MailServices.ab.getDirectory(`moz-abmdbdirectory://abook-${count}.mab`);
+  let book = MailServices.ab.getDirectory(
+    `moz-abmdbdirectory://abook-${count}.mab`
+  );
   equal(2, [...book.childCards].length);
 
   count++;

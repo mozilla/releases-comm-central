@@ -4,9 +4,21 @@
 
 this.EXPORTED_SYMBOLS = ["AddrBookFactory"];
 
-ChromeUtils.defineModuleGetter(this, "FileUtils", "resource://gre/modules/FileUtils.jsm");
-ChromeUtils.defineModuleGetter(this, "MailServices", "resource:///modules/MailServices.jsm");
-ChromeUtils.defineModuleGetter(this, "closeConnectionTo", "resource:///modules/AddrBookDirectory.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "FileUtils",
+  "resource://gre/modules/FileUtils.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "MailServices",
+  "resource:///modules/MailServices.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "closeConnectionTo",
+  "resource:///modules/AddrBookDirectory.jsm"
+);
 
 /**
  * Address book factory. This looks like it should be a useful for keeping
@@ -15,8 +27,7 @@ ChromeUtils.defineModuleGetter(this, "closeConnectionTo", "resource:///modules/A
  *
  * @implements {nsIAbDirFactory}
  */
-function AddrBookFactory() {
-}
+function AddrBookFactory() {}
 AddrBookFactory.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIAbDirFactory]),
   classID: Components.ID("{567c1f22-bae5-4bc9-9951-885678dc14a5}"),
@@ -40,7 +51,7 @@ AddrBookFactory.prototype = {
         throw Cr.NS_ERROR_NOT_AVAILABLE;
       },
       QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
-      * [Symbol.iterator]() {
+      *[Symbol.iterator]() {
         while (this.hasMoreElements()) {
           yield this.getNext();
         }

@@ -1,13 +1,23 @@
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {mailTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/mailTestUtils.js");
-var {localAccountUtils} = ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+var { mailTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/mailTestUtils.js"
+);
+var { localAccountUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/localAccountUtils.js"
+);
 
 var test = null;
 
 // WebApps.jsm called by ProxyAutoConfig (PAC) requires a valid nsIXULAppInfo.
-var {getAppInfo, newAppInfo, updateAppInfo} = ChromeUtils.import("resource://testing-common/AppInfo.jsm");
+var { getAppInfo, newAppInfo, updateAppInfo } = ChromeUtils.import(
+  "resource://testing-common/AppInfo.jsm"
+);
 updateAppInfo();
 
 // Ensure the profile directory is set up
@@ -27,11 +37,9 @@ var {
   fsDebugRecv,
   fsDebugRecvSend,
 } = ChromeUtils.import("resource://testing-common/mailnews/maild.js");
-var {
-  AuthPLAIN,
-  AuthLOGIN,
-  AuthCRAM,
-} = ChromeUtils.import("resource://testing-common/mailnews/auth.js");
+var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.import(
+  "resource://testing-common/mailnews/auth.js"
+);
 var {
   pop3Daemon,
   POP3_RFC1939_handler,
@@ -52,15 +60,21 @@ function setupServerDaemon(debugOption) {
     return handler;
   }
   var server = new nsMailServer(createHandler, daemon);
-  if (debugOption)
+  if (debugOption) {
     server.setDebugLevel(debugOption);
+  }
   return [daemon, server, extraProps];
 }
 
 function createPop3ServerAndLocalFolders(port, hostname = "localhost") {
   localAccountUtils.loadLocalMailAccount();
-  let server = localAccountUtils.create_incoming_server("pop3", port,
-    "fred", "wilma", hostname);
+  let server = localAccountUtils.create_incoming_server(
+    "pop3",
+    port,
+    "fred",
+    "wilma",
+    hostname
+  );
   return server;
 }
 
@@ -79,9 +93,10 @@ var gCopyListener = {
   GetMessageId(aMessageId) {},
   OnStopCopy(aStatus) {
     if (this.callbackFunction) {
-      mailTestUtils.do_timeout_function(0, this.callbackFunction,
-                                        null,
-                                        [this.copiedMessageHeaderKeys, aStatus]);
+      mailTestUtils.do_timeout_function(0, this.callbackFunction, null, [
+        this.copiedMessageHeaderKeys,
+        aStatus,
+      ]);
     }
   },
 };
@@ -100,36 +115,43 @@ var gCopyListener = {
  * @param aCallback        Callback function which will be invoked after
  *                         message is copied
  */
-function copyFileMessageInLocalFolder(aMessageFile,
-                                      aMessageFlags,
-                                      aMessageKeywords,
-                                      aMessageWindow,
-                                      aCallback) {
+function copyFileMessageInLocalFolder(
+  aMessageFile,
+  aMessageFlags,
+  aMessageKeywords,
+  aMessageWindow,
+  aCallback
+) {
   // Set up local folders
   localAccountUtils.loadLocalMailAccount();
 
   gCopyListener.callbackFunction = aCallback;
   // Copy a message into the local folder
-  MailServices.copy.CopyFileMessage(aMessageFile,
-                                    localAccountUtils.inboxFolder,
-                                    null, false,
-                                    aMessageFlags,
-                                    aMessageKeywords,
-                                    gCopyListener,
-                                    aMessageWindow);
+  MailServices.copy.CopyFileMessage(
+    aMessageFile,
+    localAccountUtils.inboxFolder,
+    null,
+    false,
+    aMessageFlags,
+    aMessageKeywords,
+    gCopyListener,
+    aMessageWindow
+  );
 }
 
 function do_check_transaction(real, expected) {
   // If we don't spin the event loop before starting the next test, the readers
   // aren't expired. In this case, the "real" real transaction is the last one.
-  if (real instanceof Array)
+  if (real instanceof Array) {
     real = real[real.length - 1];
+  }
 
   // real.them may have an extra QUIT on the end, where the stream is only
   // closed after we have a chance to process it and not them. We therefore
   // excise this from the list
-  if (real.them[real.them.length - 1] == "QUIT")
+  if (real.them[real.them.length - 1] == "QUIT") {
     real.them.pop();
+  }
 
   Assert.equal(real.them.join(","), expected.join(","));
   dump("Passed test " + test + "\n");
@@ -150,8 +172,9 @@ function create_sub_folders(parent, subFolders) {
     let subFolder = parent.clone();
     subFolder.append(subFolders[folder].name);
     subFolder.create(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt("0600", 8));
-    if (subFolders[folder].subFolders)
+    if (subFolders[folder].subFolders) {
       create_sub_folders(subFolder, subFolders[folder].subFolders);
+    }
   }
 }
 
@@ -159,8 +182,9 @@ function create_mail_directory(subFolders) {
   let root = create_temporary_directory();
 
   for (let folder in subFolders) {
-    if (!subFolders[folder].subFolders)
+    if (!subFolders[folder].subFolders) {
       continue;
+    }
     let directory = root.clone();
     directory.append(subFolders[folder].name);
     create_sub_folders(directory, subFolders[folder].subFolders);
@@ -171,10 +195,14 @@ function create_mail_directory(subFolders) {
 
 function setup_mailbox(type, mailboxPath) {
   let user = Cc["@mozilla.org/uuid-generator;1"]
-               .getService(Ci.nsIUUIDGenerator)
-               .generateUUID().toString();
-  let incomingServer =
-    MailServices.accounts.createIncomingServer(user, "Local Folder", type);
+    .getService(Ci.nsIUUIDGenerator)
+    .generateUUID()
+    .toString();
+  let incomingServer = MailServices.accounts.createIncomingServer(
+    user,
+    "Local Folder",
+    type
+  );
   incomingServer.localPath = mailboxPath;
 
   return incomingServer.rootFolder;

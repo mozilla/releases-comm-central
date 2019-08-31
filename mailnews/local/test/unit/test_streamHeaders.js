@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
- /**
+/**
  * This mainly tests that streamHeaders does not result in the crash
  * of bug 752768
  *
@@ -21,11 +21,7 @@ load("../../../resources/alertTestUtils.js");
 load("../../../resources/POP3pump.js");
 
 var testSubjects = ["Hello, did you receive my bugmail?"];
-var tests = [
-  loadMessages,
-  goodStreaming,
-  badStreaming,
-];
+var tests = [loadMessages, goodStreaming, badStreaming];
 
 function run_test() {
   async_run_tests(tests);
@@ -53,15 +49,24 @@ function* loadMessages() {
 function* goodStreaming() {
   // try to stream the headers of the last message
   let uri = gHdr.folder.getUriForMsg(gHdr);
-  let messageService = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger)
-                                                     .messageServiceFromURI(uri);
-  messageService.streamHeaders(uri, createStreamListener(
-    function theString(k) {
+  let messageService = Cc["@mozilla.org/messenger;1"]
+    .createInstance(Ci.nsIMessenger)
+    .messageServiceFromURI(uri);
+  messageService.streamHeaders(
+    uri,
+    createStreamListener(function theString(k) {
       dump("the string:\n" + k + "\n");
       // The message contains this header
-      Assert.ok(k.includes("X-Mozilla-Draft-Info: internal/draft; vcard=0; receipt=0; DSN=0; uuencode=0"));
+      Assert.ok(
+        k.includes(
+          "X-Mozilla-Draft-Info: internal/draft; vcard=0; receipt=0; DSN=0; uuencode=0"
+        )
+      );
       async_driver();
-    }), null, true);
+    }),
+    null,
+    true
+  );
   yield false;
 }
 
@@ -77,12 +82,17 @@ function badStreaming() {
   dbFile.remove(false);
   folder.msgDatabase = null;
 
-  let messageService = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger)
-                                                     .messageServiceFromURI(uri);
+  let messageService = Cc["@mozilla.org/messenger;1"]
+    .createInstance(Ci.nsIMessenger)
+    .messageServiceFromURI(uri);
   let haveError = false;
   try {
-    messageService.streamHeaders(uri, createStreamListener(
-      function theString(k) {}), null, true);
+    messageService.streamHeaders(
+      uri,
+      createStreamListener(function theString(k) {}),
+      null,
+      true
+    );
   } catch (e) {
     haveError = true;
   }
@@ -100,12 +110,13 @@ function createStreamListener(k) {
     _data: "",
     _stream: null,
 
-    QueryInterface:
-      ChromeUtils.generateQI([Ci.nsIStreamListener, Ci.nsIRequestObserver]),
+    QueryInterface: ChromeUtils.generateQI([
+      Ci.nsIStreamListener,
+      Ci.nsIRequestObserver,
+    ]),
 
     // nsIRequestObserver
-    onStartRequest(aRequest) {
-    },
+    onStartRequest(aRequest) {},
     onStopRequest(aRequest, aStatusCode) {
       k(this._data);
     },
@@ -113,7 +124,9 @@ function createStreamListener(k) {
     // nsIStreamListener
     onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
       if (this._stream == null) {
-        this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(Ci.nsIScriptableInputStream);
+        this._stream = Cc[
+          "@mozilla.org/scriptableinputstream;1"
+        ].createInstance(Ci.nsIScriptableInputStream);
         this._stream.init(aInputStream);
       }
       this._data += this._stream.read(aCount);

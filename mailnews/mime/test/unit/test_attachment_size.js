@@ -19,14 +19,15 @@ load("../../../resources/messageModifier.js");
 load("../../../resources/messageInjection.js");
 
 // Somehow we hit the blocklist service, and that needs appInfo defined
-const {updateAppInfo} = ChromeUtils.import("resource://testing-common/AppInfo.jsm");
+const { updateAppInfo } = ChromeUtils.import(
+  "resource://testing-common/AppInfo.jsm"
+);
 updateAppInfo();
 
-var gMessenger = Cc["@mozilla.org/messenger;1"]
-                   .createInstance(Ci.nsIMessenger);
+var gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
 // Create a message generator
-var msgGen = gMessageGenerator = new MessageGenerator();
+var msgGen = (gMessageGenerator = new MessageGenerator());
 
 /* Today's gory details (thanks to Jonathan Protzenko): libmime somehow
  * counts the trailing newline for an attachment MIME part. Most of the time,
@@ -35,7 +36,7 @@ var msgGen = gMessageGenerator = new MessageGenerator();
  * holds. However, on Windows, if the attachment is not encoded (that is, is
  * inline text), libmime will return N + 2 bytes.
  */
-var epsilon = ("@mozilla.org/windows-registry-key;1" in Cc) ? 4 : 2;
+var epsilon = "@mozilla.org/windows-registry-key;1" in Cc ? 4 : 2;
 
 var textAttachment =
   "Can't make the frug contest, Helen; stomach's upset. I'll fix you, " +
@@ -55,10 +56,10 @@ var imageSize = 188;
 var uuAttachment =
   "begin 644 /home/jvporter/Desktop/out.txt\n" +
   'M0V%N)W0@;6%K92!T:&4@9G)U9R!C;VYT97-T+"!(96QE;CL@<W1O;6%C:"=S\n' +
-  'M(\'5P<V5T+B!))VQL(&9I>"!Y;W4L(%5B:6LA(%5B:6L@9\')O<\',@>6]U(&)A\n' +
+  "M('5P<V5T+B!))VQL(&9I>\"!Y;W4L(%5B:6LA(%5B:6L@9')O<',@>6]U(&)A\n" +
   "M8VL@:6X@=&AE('1H:6-K(&]F('1H:6YG<R!F87-T+B!486ME;B!A<R!D:7)E\n" +
-  'M8W1E9"P@56)I:R!S<&5E9\',@<F5L:65F(\'1O(&AE860@86YD(\'-T;VUA8V@N\n' +
-  'M(%)E;65M8F5R.B!58FEK(&ES(&]N;\'D@<V5C;VYD<R!A=V%Y+B!!=F]I9"!P\n' +
+  "M8W1E9\"P@56)I:R!S<&5E9',@<F5L:65F('1O(&AE860@86YD('-T;VUA8V@N\n" +
+  "M(%)E;65M8F5R.B!58FEK(&ES(&]N;'D@<V5C;VYD<R!A=V%Y+B!!=F]I9\"!P\n" +
   ".<F]L;VYG960@=7-E+@H`\n" +
   "`\n" +
   "end";
@@ -89,13 +90,15 @@ var partHtml = new SyntheticPartLeaf(
 var attachedMessage1 = msgGen.makeMessage({ body: { body: textAttachment } });
 var attachedMessage2 = msgGen.makeMessage({
   body: { body: textAttachment },
-  attachments: [{
-    body: imageAttachment,
-    contentType: "application/x-ubik",
-    filename: "ubik",
-    encoding: "base64",
-    format: "",
-  }],
+  attachments: [
+    {
+      body: imageAttachment,
+      contentType: "application/x-ubik",
+      filename: "ubik",
+      encoding: "base64",
+      format: "",
+    },
+  ],
 });
 
 /**
@@ -108,8 +111,10 @@ var attachedMessage2 = msgGen.makeMessage({
  */
 function get_message_size(message) {
   let messageString = message.toMessageString();
-  if (epsilon == 4) // Windows
+  if (epsilon == 4) {
+    // Windows
     return messageString.length;
+  }
   return messageString.replace(/\r\n/g, "\n").length;
 }
 
@@ -117,107 +122,126 @@ function get_message_size(message) {
 var messages = [
   {
     // text attachment
-    attachments: [{
-      body: textAttachment,
-      filename: "ubik.txt",
-      format: "",
-    }],
+    attachments: [
+      {
+        body: textAttachment,
+        filename: "ubik.txt",
+        format: "",
+      },
+    ],
     size: textAttachment.length,
-  }, {
+  },
+  {
     // (inline) image attachment
-    attachments: [{
-      body: imageAttachment,
-      contentType: "image/png",
-      filename: "lines.png",
-      encoding: "base64",
-      format: "",
-    }],
+    attachments: [
+      {
+        body: imageAttachment,
+        contentType: "image/png",
+        filename: "lines.png",
+        encoding: "base64",
+        format: "",
+      },
+    ],
     size: imageSize,
-  }, {
+  },
+  {
     // binary attachment, no encoding
-    attachments: [{
-      body: binaryAttachment,
-      contentType: "application/x-ubik",
-      filename: "ubik",
-      format: "",
-    }],
+    attachments: [
+      {
+        body: binaryAttachment,
+        contentType: "application/x-ubik",
+        filename: "ubik",
+        format: "",
+      },
+    ],
     size: binaryAttachment.length,
-  }, {
+  },
+  {
     // binary attachment, b64 encoding
-    attachments: [{
-      body: imageAttachment,
-      contentType: "application/x-ubik",
-      filename: "ubik",
-      encoding: "base64",
-      format: "",
-    }],
+    attachments: [
+      {
+        body: imageAttachment,
+        contentType: "application/x-ubik",
+        filename: "ubik",
+        encoding: "base64",
+        format: "",
+      },
+    ],
     size: imageSize,
-  }, {
+  },
+  {
     // uuencoded attachment
-    attachments: [{
-      body: uuAttachment,
-      contentType: "application/x-uuencode",
-      filename: "ubik",
-      format: "",
-      encoding: "uuencode",
-    }],
+    attachments: [
+      {
+        body: uuAttachment,
+        contentType: "application/x-uuencode",
+        filename: "ubik",
+        format: "",
+        encoding: "uuencode",
+      },
+    ],
     size: textAttachment.length,
-  }, {
+  },
+  {
     // yencoded attachment
-    bodyPart: new SyntheticPartLeaf("I am text! Woo!\n\n" + yencText,
-                                    { contentType: "" }),
-    subject: "yEnc-Prefix: \"jane\" 174 yEnc bytes - yEnc test (1)",
+    bodyPart: new SyntheticPartLeaf("I am text! Woo!\n\n" + yencText, {
+      contentType: "",
+    }),
+    subject: 'yEnc-Prefix: "jane" 174 yEnc bytes - yEnc test (1)',
     size: yencSize,
-  }, {
+  },
+  {
     // an attached eml that used to return a size that's -1
-    bodyPart: new SyntheticPartMultiMixed([
-      partHtml,
-      attachedMessage1,
-    ]),
+    bodyPart: new SyntheticPartMultiMixed([partHtml, attachedMessage1]),
     size: get_message_size(attachedMessage1),
-  }, {
+  },
+  {
     // this is an attached message that itself has an attachment
-    bodyPart: new SyntheticPartMultiMixed([
-      partHtml,
-      attachedMessage2,
-    ]),
+    bodyPart: new SyntheticPartMultiMixed([partHtml, attachedMessage2]),
     size: get_message_size(attachedMessage2),
-  }, {
+  },
+  {
     // an "attachment" that's really the body of the message
     body: {
       body: textAttachment,
       contentType: "application/x-ubik; name=attachment.ubik",
     },
     size: textAttachment.length,
-  }, {
+  },
+  {
     // a message/rfc822 "attachment" that's really the body of the message
     bodyPart: attachedMessage1,
     size: get_message_size(attachedMessage1),
-  }, {
+  },
+  {
     // an external http link attachment (as constructed for feed enclosures) - no 'size' parm.
-    attachments: [{
-      body: "This MIME attachment is stored separately from the message.",
-      contentType: 'application/unknown; name="somefile"',
-      extraHeaders: {
-        "X-Mozilla-External-Attachment-URL": "http://myblog.com/somefile",
+    attachments: [
+      {
+        body: "This MIME attachment is stored separately from the message.",
+        contentType: 'application/unknown; name="somefile"',
+        extraHeaders: {
+          "X-Mozilla-External-Attachment-URL": "http://myblog.com/somefile",
+        },
+        disposition: 'attachment; filename="somefile"',
       },
-      disposition: 'attachment; filename="somefile"',
-    }],
+    ],
     size: -1,
-  }, {
+  },
+  {
     // an external http link attachment (as constructed for feed enclosures) - file with 'size' parm.
-    attachments: [{
-      body: "This MIME attachment is stored separately from the message.",
-      contentType: 'audio/mpeg; name="file.mp3"; size=123456789',
-      extraHeaders: {
-        "X-Mozilla-External-Attachment-URL": "https://myblog.com/file.mp3",
+    attachments: [
+      {
+        body: "This MIME attachment is stored separately from the message.",
+        contentType: 'audio/mpeg; name="file.mp3"; size=123456789',
+        extraHeaders: {
+          "X-Mozilla-External-Attachment-URL": "https://myblog.com/file.mp3",
+        },
+        disposition: 'attachment; name="file.mp3"',
       },
-      disposition: 'attachment; name="file.mp3"',
-    }],
+    ],
     size: 123456789,
   },
 ];
-
 
 var gStreamListener = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
@@ -233,7 +257,13 @@ var gStreamListener = {
     gMessageHeaderSink.size = null;
   },
   onStopRequest(aRequest, aStatusCode) {
-    dump("*** Size is " + gMessageHeaderSink.size + " (expecting " + this.expectedSize + ")\n\n");
+    dump(
+      "*** Size is " +
+        gMessageHeaderSink.size +
+        " (expecting " +
+        this.expectedSize +
+        ")\n\n"
+    );
     Assert.ok(Math.abs(gMessageHeaderSink.size - this.expectedSize) <= epsilon);
     this._stream = null;
     async_driver();
@@ -244,8 +274,9 @@ var gStreamListener = {
 
   onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
     if (this._stream === null) {
-      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].
-                    createInstance(Ci.nsIScriptableInputStream);
+      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+        Ci.nsIScriptableInputStream
+      );
       this._stream.init(aInputStream);
     }
     this._stream.read(aCount);
@@ -253,13 +284,18 @@ var gStreamListener = {
 };
 
 var gMessageHeaderSink = {
-  handleAttachment(aContentType, aUrl, aDisplayName, aUri,
-                             aIsExternalAttachment) {
-  },
+  handleAttachment(
+    aContentType,
+    aUrl,
+    aDisplayName,
+    aUri,
+    aIsExternalAttachment
+  ) {},
   addAttachmentField(aName, aValue) {
     // Only record the information for the first attachment.
-    if (aName == "X-Mozilla-PartSize" && (this.size == null))
+    if (aName == "X-Mozilla-PartSize" && this.size == null) {
       this.size = parseInt(aValue);
+    }
   },
 
   // stub functions from nsIMsgHeaderSink
@@ -276,8 +312,9 @@ var gMessageHeaderSink = {
   resetProperties() {},
 };
 
-var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
-                  .createInstance(Ci.nsIMsgWindow);
+var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
+  Ci.nsIMsgWindow
+);
 msgWindow.msgHeaderSink = gMessageHeaderSink;
 
 function* test_message_attachments(info) {
@@ -305,14 +342,12 @@ function* test_message_attachments(info) {
 
 /* ===== Driver ===== */
 
-var tests = [
-  parameterizeTest(test_message_attachments, messages),
-];
+var tests = [parameterizeTest(test_message_attachments, messages)];
 
 var gInbox;
 
 function run_test() {
   // use mbox injection because the fake server chokes sometimes right now
-  gInbox = configure_message_injection({mode: "local"});
+  gInbox = configure_message_injection({ mode: "local" });
   async_run_tests(tests);
 }

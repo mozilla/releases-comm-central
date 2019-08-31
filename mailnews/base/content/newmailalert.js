@@ -2,9 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+var { fixIterator } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { PluralForm } = ChromeUtils.import(
+  "resource://gre/modules/PluralForm.jsm"
+);
 
 // Copied from nsILookAndFeel.h, see comments on eMetric_AlertNotificationOrigin
 var NS_ALERT_HORIZONTAL = 1;
@@ -34,19 +38,22 @@ function prefillAlertInfo() {
   // For now just grab the first folder which should be a root folder
   // for the account that has new mail. If we can't find a folder, just
   // return to avoid the exception and empty dialog in upper left-hand corner.
-  if (!foldersWithNewMail || foldersWithNewMail.length < 1)
+  if (!foldersWithNewMail || foldersWithNewMail.length < 1) {
     return;
-  let rootFolder = foldersWithNewMail.queryElementAt(0, Ci.nsIWeakReference)
-                                     .QueryReferent(Ci.nsIMsgFolder);
+  }
+  let rootFolder = foldersWithNewMail
+    .queryElementAt(0, Ci.nsIWeakReference)
+    .QueryReferent(Ci.nsIMsgFolder);
 
   // Generate an account label string based on the root folder.
   var label = document.getElementById("alertTitle");
   var totalNumNewMessages = rootFolder.getNumNewMessages(true);
-  let message = document.getElementById("bundle_messenger")
-                        .getString("newMailAlert_message");
+  let message = document
+    .getElementById("bundle_messenger")
+    .getString("newMailAlert_message");
   label.value = PluralForm.get(totalNumNewMessages, message)
-                          .replace("#1", rootFolder.prettyName)
-                          .replace("#2", totalNumNewMessages);
+    .replace("#1", rootFolder.prettyName)
+    .replace("#2", totalNumNewMessages);
 
   // This is really the root folder and we have to walk through the list to
   // find the real folder that has new mail in it...:(
@@ -60,13 +67,21 @@ function prefillAlertInfo() {
         folder.getFlag(Ci.nsMsgFolderFlags.Inbox) ||
         // any non-special or non-virtual folder. In other words, we don't
         // notify for Drafts|Trash|SentMail|Templates|Junk|Archive|Queue or virtual.
-        !(folder.flags & (Ci.nsMsgFolderFlags.SpecialUse | Ci.nsMsgFolderFlags.Virtual));
+        !(
+          folder.flags &
+          (Ci.nsMsgFolderFlags.SpecialUse | Ci.nsMsgFolderFlags.Virtual)
+        );
 
       if (notify) {
         var asyncFetch = {};
-        folderSummaryInfoEl.parseFolder(folder, new urlListener(folder), asyncFetch);
-        if (asyncFetch.value)
+        folderSummaryInfoEl.parseFolder(
+          folder,
+          new urlListener(folder),
+          asyncFetch
+        );
+        if (asyncFetch.value) {
           gPendingPreviewFetchRequests++;
+        }
       }
     }
   }
@@ -77,8 +92,7 @@ function urlListener(aFolder) {
 }
 
 urlListener.prototype = {
-  OnStartRunningUrl(aUrl) {
-  },
+  OnStartRunningUrl(aUrl) {},
 
   OnStopRunningUrl(aUrl, aExitCode) {
     let folderSummaryInfoEl = document.getElementById("folderSummaryInfo");
@@ -87,8 +101,9 @@ urlListener.prototype = {
 
     // when we are done running all of our urls for fetching the preview text,
     // start the alert.
-    if (!gPendingPreviewFetchRequests)
+    if (!gPendingPreviewFetchRequests) {
       showAlert();
+    }
   },
 };
 
@@ -102,9 +117,10 @@ function onAlertLoad() {
 
   // if we aren't waiting to fetch preview text, then go ahead and
   // start showing the alert.
-  if (!gPendingPreviewFetchRequests)
-    setTimeout(showAlert, 0); // let the JS thread unwind, to give layout
-                              // a chance to recompute the styles and widths for our alert text.
+  if (!gPendingPreviewFetchRequests) {
+    setTimeout(showAlert, 0);
+  } // let the JS thread unwind, to give layout
+  // a chance to recompute the styles and widths for our alert text.
 }
 
 // If the user initiated the alert, show it right away, otherwise start opening the alert with
@@ -120,8 +136,10 @@ function showAlert() {
 
   var alertContainer = document.getElementById("alertContainer");
   // Don't fade in if the user opened the alert or the pref is true.
-  if (gUserInitiated ||
-      !Services.prefs.getBoolPref("toolkit.cosmeticAnimations.enabled")) {
+  if (
+    gUserInitiated ||
+    !Services.prefs.getBoolPref("toolkit.cosmeticAnimations.enabled")
+  ) {
     alertContainer.setAttribute("noanimation", true);
     setTimeout(closeAlert, gOpenTime);
     return;
@@ -145,14 +163,19 @@ function resizeAlert(aMoveOffScreen) {
   sizeToContent();
 
   // leftover hack to get the window properly hidden when we first open it
-  if (aMoveOffScreen)
+  if (aMoveOffScreen) {
     window.outerHeight = 1;
+  }
 
   // Determine position
-  var x = gOrigin & NS_ALERT_LEFT ? screen.availLeft :
-          screen.availLeft + screen.availWidth - window.outerWidth;
-  var y = gOrigin & NS_ALERT_TOP ? screen.availTop :
-          screen.availTop + screen.availHeight - window.outerHeight;
+  var x =
+    gOrigin & NS_ALERT_LEFT
+      ? screen.availLeft
+      : screen.availLeft + screen.availWidth - window.outerWidth;
+  var y =
+    gOrigin & NS_ALERT_TOP
+      ? screen.availTop
+      : screen.availTop + screen.availHeight - window.outerHeight;
 
   // Offset the alert by 10 pixels from the edge of the screen
   y += gOrigin & NS_ALERT_TOP ? 10 : -10;
@@ -173,7 +196,8 @@ function fadeOutAlert() {
 }
 
 function closeAlert() {
-  if (gAlertListener)
+  if (gAlertListener) {
     gAlertListener.observe(null, "alertfinished", "");
+  }
   window.close();
 }

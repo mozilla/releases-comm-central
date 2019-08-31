@@ -20,15 +20,16 @@ load("../../../resources/messageGenerator.js");
 // IMAP pump
 
 // Globals
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 setupIMAPPump();
 
 var gGotAlert = false;
-var gGotMsgAdded = false;
+var gGotMsgAdded = false; // to alertTestUtils.js
 
-/* exported alert */// to alertTestUtils.js
-function alert(aDialogTitle, aText) {
+/* exported alert */ function alert(aDialogTitle, aText) {
   Assert.ok(aText.startsWith("Connection to server localhost timed out."));
   gGotAlert = true;
   async_driver();
@@ -59,7 +60,9 @@ function* createTargetFolder() {
   IMAPPump.daemon.copySleep = 5000;
   IMAPPump.incomingServer.rootFolder.createSubfolder("targetFolder", null);
   yield false;
-  gTargetFolder = IMAPPump.incomingServer.rootFolder.getChildNamed("targetFolder");
+  gTargetFolder = IMAPPump.incomingServer.rootFolder.getChildNamed(
+    "targetFolder"
+  );
   Assert.ok(gTargetFolder instanceof Ci.nsIMsgImapMailFolder);
   gTargetFolder.updateFolderWithListener(null, asyncUrlListener);
   yield false;
@@ -71,9 +74,9 @@ function* loadImapMessage() {
   let gMessageGenerator = new MessageGenerator();
   messages = messages.concat(gMessageGenerator.makeMessage());
 
-  let msgURI =
-    Services.io.newURI("data:text/plain;base64," +
-                       btoa(messages[0].toMessageString()));
+  let msgURI = Services.io.newURI(
+    "data:text/plain;base64," + btoa(messages[0].toMessageString())
+  );
   let imapInbox = IMAPPump.daemon.getMailbox("INBOX");
   var gMessage = new imapMessage(msgURI.spec, imapInbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(gMessage);
@@ -91,13 +94,19 @@ function* moveMessageToTargetFolder() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
 
   // Now move this message to the target folder.
-  var messages = Cc["@mozilla.org/array;1"]
-                   .createInstance(Ci.nsIMutableArray);
+  var messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   messages.appendElement(msgHdr);
   // This should cause the move to be done as an offline imap operation
   // that's played back immediately.
-  MailServices.copy.CopyMessages(IMAPPump.inbox, messages, gTargetFolder, true,
-                                 CopyListener, gDummyMsgWindow, true);
+  MailServices.copy.CopyMessages(
+    IMAPPump.inbox,
+    messages,
+    gTargetFolder,
+    true,
+    CopyListener,
+    gDummyMsgWindow,
+    true
+  );
   yield false;
 }
 
@@ -133,25 +142,27 @@ function endTest() {
 var mfnListener = {
   folderAdded(aFolder) {
     // we are only using async yield on the target folder add
-    if (aFolder.name == "targetFolder")
+    if (aFolder.name == "targetFolder") {
       async_driver();
+    }
   },
 
   msgAdded(aMsg) {
-    if (!gGotMsgAdded)
+    if (!gGotMsgAdded) {
       async_driver();
+    }
     gGotMsgAdded = true;
   },
-
 };
 
 function run_test() {
-  Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
+  Services.prefs.setBoolPref(
+    "mail.server.default.autosync_offline_stores",
+    false
+  );
   // Add folder listeners that will capture async events
   const nsIMFNService = Ci.nsIMsgFolderNotificationService;
-  let flags =
-        nsIMFNService.folderAdded |
-        nsIMFNService.msgAdded;
+  let flags = nsIMFNService.folderAdded | nsIMFNService.msgAdded;
   MailServices.mfn.addListener(mfnListener, flags);
   async_run_tests(tests);
 }

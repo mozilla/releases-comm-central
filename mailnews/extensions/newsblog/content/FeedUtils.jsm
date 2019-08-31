@@ -6,17 +6,29 @@
 this.EXPORTED_SYMBOLS = ["Feed", "FeedItem", "FeedParser", "FeedUtils"];
 
 /* eslint-disable-next-line no-unused-vars */
-const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-const {jsmime} = ChromeUtils.import("resource:///modules/jsmime.jsm");
-const {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+const { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
+const { FileUtils } = ChromeUtils.import(
+  "resource://gre/modules/FileUtils.jsm"
+);
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
-Services.scriptloader.loadSubScript("chrome://messenger-newsblog/content/Feed.js");
-Services.scriptloader.loadSubScript("chrome://messenger-newsblog/content/FeedItem.js");
-Services.scriptloader.loadSubScript("chrome://messenger-newsblog/content/feed-parser.js");
+Services.scriptloader.loadSubScript(
+  "chrome://messenger-newsblog/content/Feed.js"
+);
+Services.scriptloader.loadSubScript(
+  "chrome://messenger-newsblog/content/FeedItem.js"
+);
+Services.scriptloader.loadSubScript(
+  "chrome://messenger-newsblog/content/feed-parser.js"
+);
 
 var FeedUtils = {
   MOZ_PARSERERROR_NS: "http://www.mozilla.org/newlayout/xml/parsererror.xml",
@@ -24,17 +36,31 @@ var FeedUtils = {
   /* eslint-disable no-multi-spaces */
   RDF_SYNTAX_NS: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
   RDF_SYNTAX_TYPE: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-  get RDF_TYPE() { return this.rdf.GetResource(this.RDF_SYNTAX_TYPE); },
+  get RDF_TYPE() {
+    return this.rdf.GetResource(this.RDF_SYNTAX_TYPE);
+  },
 
   RSS_090_NS: "http://my.netscape.com/rdf/simple/0.9/",
 
   RSS_NS: "http://purl.org/rss/1.0/",
-  get RSS_CHANNEL()     { return this.rdf.GetResource(this.RSS_NS + "channel"); },
-  get RSS_TITLE()       { return this.rdf.GetResource(this.RSS_NS + "title"); },
-  get RSS_DESCRIPTION() { return this.rdf.GetResource(this.RSS_NS + "description"); },
-  get RSS_ITEMS()       { return this.rdf.GetResource(this.RSS_NS + "items"); },
-  get RSS_ITEM()        { return this.rdf.GetResource(this.RSS_NS + "item"); },
-  get RSS_LINK()        { return this.rdf.GetResource(this.RSS_NS + "link"); },
+  get RSS_CHANNEL() {
+    return this.rdf.GetResource(this.RSS_NS + "channel");
+  },
+  get RSS_TITLE() {
+    return this.rdf.GetResource(this.RSS_NS + "title");
+  },
+  get RSS_DESCRIPTION() {
+    return this.rdf.GetResource(this.RSS_NS + "description");
+  },
+  get RSS_ITEMS() {
+    return this.rdf.GetResource(this.RSS_NS + "items");
+  },
+  get RSS_ITEM() {
+    return this.rdf.GetResource(this.RSS_NS + "item");
+  },
+  get RSS_LINK() {
+    return this.rdf.GetResource(this.RSS_NS + "link");
+  },
 
   RSS_CONTENT_NS: "http://purl.org/rss/1.0/modules/content/",
   get RSS_CONTENT_ENCODED() {
@@ -42,18 +68,32 @@ var FeedUtils = {
   },
 
   RSS_SY_NS: "http://purl.org/rss/1.0/modules/syndication/",
-  RSS_SY_UNITS:      ["hourly", "daily", "weekly", "monthly", "yearly"],
+  RSS_SY_UNITS: ["hourly", "daily", "weekly", "monthly", "yearly"],
   kBiffUnitsMinutes: "min",
-  kBiffUnitsDays:    "d",
+  kBiffUnitsDays: "d",
 
   DC_NS: "http://purl.org/dc/elements/1.1/",
-  get DC_PUBLISHER()    { return this.rdf.GetResource(this.DC_NS + "publisher"); },
-  get DC_CREATOR()      { return this.rdf.GetResource(this.DC_NS + "creator"); },
-  get DC_SUBJECT()      { return this.rdf.GetResource(this.DC_NS + "subject"); },
-  get DC_DATE()         { return this.rdf.GetResource(this.DC_NS + "date"); },
-  get DC_TITLE()        { return this.rdf.GetResource(this.DC_NS + "title"); },
-  get DC_LASTMODIFIED() { return this.rdf.GetResource(this.DC_NS + "lastModified"); },
-  get DC_IDENTIFIER()   { return this.rdf.GetResource(this.DC_NS + "identifier"); },
+  get DC_PUBLISHER() {
+    return this.rdf.GetResource(this.DC_NS + "publisher");
+  },
+  get DC_CREATOR() {
+    return this.rdf.GetResource(this.DC_NS + "creator");
+  },
+  get DC_SUBJECT() {
+    return this.rdf.GetResource(this.DC_NS + "subject");
+  },
+  get DC_DATE() {
+    return this.rdf.GetResource(this.DC_NS + "date");
+  },
+  get DC_TITLE() {
+    return this.rdf.GetResource(this.DC_NS + "title");
+  },
+  get DC_LASTMODIFIED() {
+    return this.rdf.GetResource(this.DC_NS + "lastModified");
+  },
+  get DC_IDENTIFIER() {
+    return this.rdf.GetResource(this.DC_NS + "identifier");
+  },
 
   MRSS_NS: "http://search.yahoo.com/mrss/",
   FEEDBURNER_NS: "http://rssnamespace.org/feedburner/ext/1.0",
@@ -61,20 +101,40 @@ var FeedUtils = {
 
   FZ_NS: "urn:forumzilla:",
   FZ_ITEM_NS: "urn:feeditem:",
-  get FZ_ROOT()       { return this.rdf.GetResource(this.FZ_NS + "root"); },
-  get FZ_FEEDS()      { return this.rdf.GetResource(this.FZ_NS + "feeds"); },
-  get FZ_FEED()       { return this.rdf.GetResource(this.FZ_NS + "feed"); },
-  get FZ_QUICKMODE()  { return this.rdf.GetResource(this.FZ_NS + "quickMode"); },
-  get FZ_DESTFOLDER() { return this.rdf.GetResource(this.FZ_NS + "destFolder"); },
-  get FZ_STORED()     { return this.rdf.GetResource(this.FZ_NS + "stored"); },
-  get FZ_VALID()      { return this.rdf.GetResource(this.FZ_NS + "valid"); },
-  get FZ_OPTIONS()    { return this.rdf.GetResource(this.FZ_NS + "options"); },
+  get FZ_ROOT() {
+    return this.rdf.GetResource(this.FZ_NS + "root");
+  },
+  get FZ_FEEDS() {
+    return this.rdf.GetResource(this.FZ_NS + "feeds");
+  },
+  get FZ_FEED() {
+    return this.rdf.GetResource(this.FZ_NS + "feed");
+  },
+  get FZ_QUICKMODE() {
+    return this.rdf.GetResource(this.FZ_NS + "quickMode");
+  },
+  get FZ_DESTFOLDER() {
+    return this.rdf.GetResource(this.FZ_NS + "destFolder");
+  },
+  get FZ_STORED() {
+    return this.rdf.GetResource(this.FZ_NS + "stored");
+  },
+  get FZ_VALID() {
+    return this.rdf.GetResource(this.FZ_NS + "valid");
+  },
+  get FZ_OPTIONS() {
+    return this.rdf.GetResource(this.FZ_NS + "options");
+  },
   get FZ_LAST_SEEN_TIMESTAMP() {
     return this.rdf.GetResource(this.FZ_NS + "last-seen-timestamp");
   },
 
-  get RDF_LITERAL_TRUE()  { return this.rdf.GetLiteral("true"); },
-  get RDF_LITERAL_FALSE() { return this.rdf.GetLiteral("false"); },
+  get RDF_LITERAL_TRUE() {
+    return this.rdf.GetLiteral("true");
+  },
+  get RDF_LITERAL_FALSE() {
+    return this.rdf.GetLiteral("false");
+  },
   /* eslint-enable no-multi-spaces */
 
   // Atom constants
@@ -83,11 +143,12 @@ var FeedUtils = {
   ATOM_THREAD_NS: "http://purl.org/syndication/thread/1.0",
 
   // Accept content mimetype preferences for feeds.
-  REQUEST_ACCEPT: "application/atom+xml," +
-                  "application/rss+xml;q=0.9," +
-                  "application/rdf+xml;q=0.8," +
-                  "application/xml;q=0.7,text/xml;q=0.7," +
-                  "*/*;q=0.1",
+  REQUEST_ACCEPT:
+    "application/atom+xml," +
+    "application/rss+xml;q=0.9," +
+    "application/rdf+xml;q=0.8," +
+    "application/xml;q=0.7,text/xml;q=0.7," +
+    "*/*;q=0.1",
   // Timeout for nonresponse to request, 30 seconds.
   REQUEST_TIMEOUT: 30 * 1000,
 
@@ -156,7 +217,9 @@ var FeedUtils = {
 
     // By default, Tb sorts by hostname, ie Feeds, Feeds-1, and not by alpha
     // prettyName.  Do the same as a stock install to match folderpane order.
-    rssRootFolders.sort(function(a, b) { return a.hostname > b.hostname; });
+    rssRootFolders.sort(function(a, b) {
+      return a.hostname > b.hostname;
+    });
 
     return rssRootFolders;
   },
@@ -175,12 +238,18 @@ var FeedUtils = {
     let serverType = "rss";
     let defaultName = FeedUtils.strings.GetStringFromName("feeds-accountname");
     let i = 2;
-    while (MailServices.accounts.findRealServer(userName, hostName, serverType, 0)) {
+    while (
+      MailServices.accounts.findRealServer(userName, hostName, serverType, 0)
+    ) {
       // If "Feeds" exists, try "Feeds-2", then "Feeds-3", etc.
       hostName = hostNamePref + "-" + i++;
     }
 
-    server = MailServices.accounts.createIncomingServer(userName, hostName, serverType);
+    server = MailServices.accounts.createIncomingServer(
+      userName,
+      hostName,
+      serverType
+    );
     server.biffMinutes = FeedUtils.kBiffPollMinutes;
     server.prettyName = aName ? aName : defaultName;
     server.valid = true;
@@ -208,11 +277,15 @@ var FeedUtils = {
     try {
       MailServices.accounts.saveAccountInfo();
     } catch (ex) {
-      this.log.error("FeedUtils.createRssAccount: error on saveAccountInfo - " + ex);
+      this.log.error(
+        "FeedUtils.createRssAccount: error on saveAccountInfo - " + ex
+      );
     }
 
-    this.log.debug("FeedUtils.createRssAccount: " +
-                   account.incomingServer.rootFolder.prettyName);
+    this.log.debug(
+      "FeedUtils.createRssAccount: " +
+        account.incomingServer.rootFolder.prettyName
+    );
 
     return account;
   },
@@ -234,10 +307,15 @@ var FeedUtils = {
       return false;
     }
 
-    let folder = ds.GetTarget(resource, FeedUtils.FZ_DESTFOLDER, true)
-                   .QueryInterface(Ci.nsIRDFResource).ValueUTF8;
-    this.log.info("FeedUtils.feedAlreadyExists: feed url " + aUrl +
-                  " subscribed in folder url " + decodeURI(folder));
+    let folder = ds
+      .GetTarget(resource, FeedUtils.FZ_DESTFOLDER, true)
+      .QueryInterface(Ci.nsIRDFResource).ValueUTF8;
+    this.log.info(
+      "FeedUtils.feedAlreadyExists: feed url " +
+        aUrl +
+        " subscribed in folder url " +
+        decodeURI(folder)
+    );
 
     return true;
   },
@@ -253,8 +331,12 @@ var FeedUtils = {
    * @returns {void}
    */
   downloadFeed(aFolder, aUrlListener, aIsBiff, aMsgWindow) {
-    FeedUtils.log.debug("downloadFeed: account isBiff:isOffline - " +
-                        aIsBiff + " : " + Services.io.offline);
+    FeedUtils.log.debug(
+      "downloadFeed: account isBiff:isOffline - " +
+        aIsBiff +
+        " : " +
+        Services.io.offline
+    );
     // User set.
     if (Services.io.offline) {
       return;
@@ -273,8 +355,10 @@ var FeedUtils = {
     // in the middle of subscribing to a feed. For now, abort the check for
     // new feeds.
     if (FeedUtils.progressNotifier.mSubscribeMode) {
-      FeedUtils.log.warn("downloadFeed: Aborting RSS New Mail Check. " +
-                         "Feed subscription in progress\n");
+      FeedUtils.log.warn(
+        "downloadFeed: Aborting RSS New Mail Check. " +
+          "Feed subscription in progress\n"
+      );
       return;
     }
 
@@ -292,7 +376,9 @@ var FeedUtils = {
       FeedUtils.setStatus(aFolder, aFolder.URI, "lastUpdateTime", Date.now());
     }
 
-    let allFolders = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+    let allFolders = Cc["@mozilla.org/array;1"].createInstance(
+      Ci.nsIMutableArray
+    );
     if (!aFolder.isServer) {
       // Add the base folder; it does not get returned by ListDescendants. Do not
       // add the account folder as it doesn't have the feedUrl property or even
@@ -307,9 +393,16 @@ var FeedUtils = {
       let numFolders = allFolders.length;
       for (let i = 0; i < numFolders; i++) {
         folder = allFolders.queryElementAt(i, Ci.nsIMsgFolder);
-        FeedUtils.log.debug("downloadFeed: START x/# folderName:folderPath - " +
-                            (i + 1) + "/" + numFolders + " " +
-                            folder.name + " : " + folder.filePath.path);
+        FeedUtils.log.debug(
+          "downloadFeed: START x/# folderName:folderPath - " +
+            (i + 1) +
+            "/" +
+            numFolders +
+            " " +
+            folder.name +
+            " : " +
+            folder.filePath.path
+        );
 
         let feedUrlArray = FeedUtils.getFeedUrlsInFolder(folder);
         // Continue if there are no feedUrls for the folder in the feeds
@@ -318,8 +411,12 @@ var FeedUtils = {
           continue;
         }
 
-        FeedUtils.log.debug("downloadFeed: CONTINUE foldername:urlArray - " +
-                            folder.name + " : " + feedUrlArray);
+        FeedUtils.log.debug(
+          "downloadFeed: CONTINUE foldername:urlArray - " +
+            folder.name +
+            " : " +
+            feedUrlArray
+        );
 
         // We need to kick off a download for each feed.
         let now = Date.now();
@@ -330,14 +427,22 @@ var FeedUtils = {
             let status = FeedUtils.getStatus(folder, url);
             // Also skip if user paused, or error paused (but not inStartup;
             // go check the feed again), or update interval hasn't expired.
-            if (status.enabled === false ||
-                (status.enabled === null && !inStartup) ||
-                (now - status.lastUpdateTime < status.updateMinutes * 60000)) {
-              FeedUtils.log.debug("downloadFeed: SKIP feed, " +
-                                  "aIsBiff:enabled:minsSinceLastUpdate::url - " +
-                                  aIsBiff + " : " + status.enabled + " : " +
-                                  (Math.round((now - status.lastUpdateTime) / 60) / 1000) + " :: " +
-                                  url);
+            if (
+              status.enabled === false ||
+              (status.enabled === null && !inStartup) ||
+              now - status.lastUpdateTime < status.updateMinutes * 60000
+            ) {
+              FeedUtils.log.debug(
+                "downloadFeed: SKIP feed, " +
+                  "aIsBiff:enabled:minsSinceLastUpdate::url - " +
+                  aIsBiff +
+                  " : " +
+                  status.enabled +
+                  " : " +
+                  Math.round((now - status.lastUpdateTime) / 60) / 1000 +
+                  " :: " +
+                  url
+              );
               continue;
             }
           }
@@ -358,17 +463,31 @@ var FeedUtils = {
           // If the current active count exceeds the max desired, exit from
           // the current poll cycle. Only throttle for a background biff; for
           // a user manual get messages, do them all.
-          if (aIsBiff && FeedUtils.progressNotifier.mNumPendingFeedDownloads >
-                         FeedUtils.MAX_CONCURRENT_FEEDS) {
-            FeedUtils.log.debug("downloadFeed: RETURN active feeds count is greater " +
-                                "than the max - " + FeedUtils.MAX_CONCURRENT_FEEDS);
-            FeedUtils.progressNotifier.downloaded(feed, FeedUtils.kNewsBlogFeedIsBusy);
+          if (
+            aIsBiff &&
+            FeedUtils.progressNotifier.mNumPendingFeedDownloads >
+              FeedUtils.MAX_CONCURRENT_FEEDS
+          ) {
+            FeedUtils.log.debug(
+              "downloadFeed: RETURN active feeds count is greater " +
+                "than the max - " +
+                FeedUtils.MAX_CONCURRENT_FEEDS
+            );
+            FeedUtils.progressNotifier.downloaded(
+              feed,
+              FeedUtils.kNewsBlogFeedIsBusy
+            );
             return;
           }
 
           // Set status info and download.
           FeedUtils.log.debug("downloadFeed: DOWNLOAD feed url - " + url);
-          FeedUtils.setStatus(folder, url, "code", FeedUtils.kNewsBlogFeedIsBusy);
+          FeedUtils.setStatus(
+            folder,
+            url,
+            "code",
+            FeedUtils.kNewsBlogFeedIsBusy
+          );
           feed.download(true, FeedUtils.progressNotifier);
 
           Services.tm.mainThread.dispatch(function() {
@@ -376,14 +495,18 @@ var FeedUtils = {
               let done = getFeed.next().done;
               if (done) {
                 // Finished with all feeds in base aFolder and its subfolders.
-                FeedUtils.log.debug("downloadFeed: Finished with folder - " +
-                                    aFolder.name);
+                FeedUtils.log.debug(
+                  "downloadFeed: Finished with folder - " + aFolder.name
+                );
                 folder = null;
                 allFolders = null;
               }
             } catch (ex) {
               FeedUtils.log.error("downloadFeed: error - " + ex);
-              FeedUtils.progressNotifier.downloaded(feed, FeedUtils.kNewsBlogFeedIsBusy);
+              FeedUtils.progressNotifier.downloaded(
+                feed,
+                FeedUtils.kNewsBlogFeedIsBusy
+              );
             }
           }, Ci.nsIThread.DISPATCH_NORMAL);
 
@@ -397,15 +520,18 @@ var FeedUtils = {
       let done = getFeed.next().done;
       if (done) {
         // Nothing to do.
-        FeedUtils.log.debug("downloadFeed: Nothing to do in folder - " +
-                            aFolder.name);
+        FeedUtils.log.debug(
+          "downloadFeed: Nothing to do in folder - " + aFolder.name
+        );
         folder = null;
         allFolders = null;
       }
     } catch (ex) {
       FeedUtils.log.error("downloadFeed: error - " + ex);
-      FeedUtils.progressNotifier.downloaded({folder: aFolder, url: ""},
-                                            FeedUtils.kNewsBlogFeedIsBusy);
+      FeedUtils.progressNotifier.downloaded(
+        { folder: aFolder, url: "" },
+        FeedUtils.kNewsBlogFeedIsBusy
+      );
     }
   },
 
@@ -423,8 +549,10 @@ var FeedUtils = {
     // For now, abort the subscription if we are already in the middle of
     // subscribing to a feed via drag and drop.
     if (FeedUtils.progressNotifier.mNumPendingFeedDownloads > 0) {
-      FeedUtils.log.warn("subscribeToFeed: Aborting RSS subscription. " +
-                         "Feed downloads already in progress\n");
+      FeedUtils.log.warn(
+        "subscribeToFeed: Aborting RSS subscription. " +
+          "Feed downloads already in progress\n"
+      );
       return;
     }
 
@@ -447,11 +575,17 @@ var FeedUtils = {
       } else {
         // If there are no open windows, open one, pass it the URL, and
         // during opening it will subscribe to the feed.
-        let arg = Cc["@mozilla.org/supports-string;1"].
-                  createInstance(Ci.nsISupportsString);
+        let arg = Cc["@mozilla.org/supports-string;1"].createInstance(
+          Ci.nsISupportsString
+        );
         arg.data = aUrl;
-        Services.ww.openWindow(null, "chrome://messenger/content/",
-                               "_blank", "chrome,dialog=no,all", arg);
+        Services.ww.openWindow(
+          null,
+          "chrome://messenger/content/",
+          "_blank",
+          "chrome,dialog=no,all",
+          arg
+        );
         return;
       }
     }
@@ -467,7 +601,8 @@ var FeedUtils = {
     // to subscribe to it.
     if (FeedUtils.feedAlreadyExists(aUrl, aFolder.server)) {
       aMsgWindow.statusFeedback.showStatusString(
-        FeedUtils.strings.GetStringFromName("subscribe-feedAlreadySubscribed"));
+        FeedUtils.strings.GetStringFromName("subscribe-feedAlreadySubscribed")
+      );
       return;
     }
 
@@ -481,17 +616,17 @@ var FeedUtils = {
     feed.download(true, FeedUtils.progressNotifier);
   },
 
-/**
- * Enable or disable updates for all subscriptions in a folder, or all
- * subscriptions in an account if the folder is the account folder.
- * A folder's subfolders' feeds are not included.
- *
- * @param {nsIMsgFolder} aFolder     - Folder or account folder (server).
- * @param {Boolean} aPause           - To pause or not to pause.
- * @param {Boolean} aBiffNow         - If aPause is false, and aBiffNow is true
- *                                     do the biff immediately.
- * @returns {void}
- */
+  /**
+   * Enable or disable updates for all subscriptions in a folder, or all
+   * subscriptions in an account if the folder is the account folder.
+   * A folder's subfolders' feeds are not included.
+   *
+   * @param {nsIMsgFolder} aFolder     - Folder or account folder (server).
+   * @param {Boolean} aPause           - To pause or not to pause.
+   * @param {Boolean} aBiffNow         - If aPause is false, and aBiffNow is true
+   *                                     do the biff immediately.
+   * @returns {void}
+   */
   pauseFeedFolderUpdates(aFolder, aPause, aBiffNow) {
     if (aFolder.isServer) {
       let serverFolder = aFolder.server.rootFolder;
@@ -522,8 +657,9 @@ var FeedUtils = {
       options.updates.enabled = !aPause;
       feed.options = options;
       FeedUtils.setStatus(aFolder, feedUrl, "enabled", !aPause);
-      FeedUtils.log.debug("pauseFeedFolderUpdates: enabled:url " +
-                          !aPause + ": " + feedUrl);
+      FeedUtils.log.debug(
+        "pauseFeedFolderUpdates: enabled:url " + !aPause + ": " + feedUrl
+      );
     }
 
     let win = Services.wm.getMostRecentWindow("Mail:News-BlogSubscriptions");
@@ -561,17 +697,30 @@ var FeedUtils = {
     }
 
     if (i == 1000) {
-      throw new Error("FeedUtils.addFeed: couldn't generate a unique ID " +
-                      "for feed " + aFeed.url);
+      throw new Error(
+        "FeedUtils.addFeed: couldn't generate a unique ID " +
+          "for feed " +
+          aFeed.url
+      );
     }
 
     // Add the feed to the list.
     let feedResource = this.rdf.GetResource(id);
     feeds.AppendElement(feedResource);
     ds.Assert(feedResource, this.RDF_TYPE, this.FZ_FEED, true);
-    ds.Assert(feedResource, this.DC_IDENTIFIER, this.rdf.GetLiteral(aFeed.url), true);
+    ds.Assert(
+      feedResource,
+      this.DC_IDENTIFIER,
+      this.rdf.GetLiteral(aFeed.url),
+      true
+    );
     if (aFeed.title) {
-      ds.Assert(feedResource, this.DC_TITLE, this.rdf.GetLiteral(aFeed.title), true);
+      ds.Assert(
+        feedResource,
+        this.DC_TITLE,
+        this.rdf.GetLiteral(aFeed.title),
+        true
+      );
     }
 
     ds.Assert(feedResource, this.FZ_DESTFOLDER, aFeed.folder, true);
@@ -630,8 +779,12 @@ var FeedUtils = {
     }
 
     if (this.feedAlreadyExists(aNewUrl, aFeed.server)) {
-      this.log.info("FeedUtils.changeUrlForFeed: new feed url " + aNewUrl +
-                    " already subscribed in account " + aFeed.server.prettyName);
+      this.log.info(
+        "FeedUtils.changeUrlForFeed: new feed url " +
+          aNewUrl +
+          " already subscribed in account " +
+          aFeed.server.prettyName
+      );
       return false;
     }
 
@@ -641,7 +794,9 @@ var FeedUtils = {
     let options = aFeed.options;
 
     this.deleteFeed(aFeed);
-    aFeed.resource = this.rdf.GetResource(aNewUrl).QueryInterface(Ci.nsIRDFResource);
+    aFeed.resource = this.rdf
+      .GetResource(aNewUrl)
+      .QueryInterface(Ci.nsIRDFResource);
     aFeed.title = title;
     aFeed.link = link;
     aFeed.quickMode = quickMode;
@@ -665,10 +820,14 @@ var FeedUtils = {
    * @returns {String}[]           - Array of urls, or null if none.
    */
   getFeedUrlsInFolder(aFolder) {
-    if (!aFolder || aFolder.isServer || aFolder.server.type != "rss" ||
-        aFolder.getFlag(Ci.nsMsgFolderFlags.Trash) ||
-        aFolder.getFlag(Ci.nsMsgFolderFlags.Virtual) ||
-        !aFolder.filePath.exists()) {
+    if (
+      !aFolder ||
+      aFolder.isServer ||
+      aFolder.server.type != "rss" ||
+      aFolder.getFlag(Ci.nsMsgFolderFlags.Trash) ||
+      aFolder.getFlag(Ci.nsMsgFolderFlags.Virtual) ||
+      !aFolder.filePath.exists()
+    ) {
       // There are never any feedUrls in the account/non-feed/trash/virtual
       // folders or in a ghost folder (nonexistent on disk yet found in
       // aFolder.subFolders).
@@ -688,8 +847,12 @@ var FeedUtils = {
       }
     } catch (ex) {
       this.log.error("getFeedUrlsInFolder: feeds.rdf db error - " + ex);
-      this.log.error("getFeedUrlsInFolder: feeds.rdf db error for account - " +
-                     aFolder.server.serverURI + " : " + aFolder.server.prettyName);
+      this.log.error(
+        "getFeedUrlsInFolder: feeds.rdf db error for account - " +
+          aFolder.server.serverURI +
+          " : " +
+          aFolder.server.prettyName
+      );
     }
 
     return feedUrlArray.length ? feedUrlArray : null;
@@ -708,7 +871,8 @@ var FeedUtils = {
     let msgDb;
     try {
       msgDb = Cc["@mozilla.org/msgDatabase/msgDBService;1"]
-                .getService(Ci.nsIMsgDBService).openFolderDB(aFolder, true);
+        .getService(Ci.nsIMsgDBService)
+        .openFolderDB(aFolder, true);
     } catch (ex) {}
 
     if (msgDb) {
@@ -720,12 +884,17 @@ var FeedUtils = {
     }
 
     // Force a reparse.
-    FeedUtils.log.debug("checkMsgDb: rebuild msgDatabase for " +
-                        aFolder.name + " - " + aFolder.filePath.path);
+    FeedUtils.log.debug(
+      "checkMsgDb: rebuild msgDatabase for " +
+        aFolder.name +
+        " - " +
+        aFolder.filePath.path
+    );
     try {
       // Ignore error returns.
-      aFolder.QueryInterface(Ci.nsIMsgLocalMailFolder)
-             .getDatabaseWithReparse(aUrlListener, null);
+      aFolder
+        .QueryInterface(Ci.nsIMsgLocalMailFolder)
+        .getDatabaseWithReparse(aUrlListener, null);
     } catch (ex) {}
 
     return false;
@@ -747,20 +916,26 @@ var FeedUtils = {
       return "";
     }
 
-    let serverEnabled = this.getStatus(folder.server.rootFolder,
-                                       folder.server.rootFolder.URI).enabled;
+    let serverEnabled = this.getStatus(
+      folder.server.rootFolder,
+      folder.server.rootFolder.URI
+    ).enabled;
     if (folder.isServer) {
       return !serverEnabled ? " serverIsPaused" : "";
     }
 
     let properties = aFeedUrl ? " isFeed-true" : " isFeedFolder-true";
-    let hasError, isBusy, numPaused = 0;
+    let hasError,
+      isBusy,
+      numPaused = 0;
     for (let feedUrl of feedUrls) {
       let feedStatus = this.getStatus(folder, feedUrl);
-      if (feedStatus.code == FeedUtils.kNewsBlogInvalidFeed ||
-          feedStatus.code == FeedUtils.kNewsBlogRequestFailure ||
-          feedStatus.code == FeedUtils.kNewsBlogBadCertError ||
-          feedStatus.code == FeedUtils.kNewsBlogNoAuthError) {
+      if (
+        feedStatus.code == FeedUtils.kNewsBlogInvalidFeed ||
+        feedStatus.code == FeedUtils.kNewsBlogRequestFailure ||
+        feedStatus.code == FeedUtils.kNewsBlogBadCertError ||
+        feedStatus.code == FeedUtils.kNewsBlogNoAuthError
+      ) {
         hasError = true;
       }
       if (feedStatus.code == FeedUtils.kNewsBlogFeedIsBusy) {
@@ -832,8 +1007,7 @@ var FeedUtils = {
       if (FeedUtils.isValidScheme(aUrl)) {
         // Seed persisted status properties for feed urls.
         let feed = new Feed(aUrl, aFolder);
-        this[serverKey][aUrl].status.enabled =
-          feed.options.updates.enabled;
+        this[serverKey][aUrl].status.enabled = feed.options.updates.enabled;
         this[serverKey][aUrl].status.updateMinutes =
           feed.options.updates.updateMinutes;
         this[serverKey][aUrl].status.lastUpdateTime =
@@ -865,8 +1039,10 @@ var FeedUtils = {
       return;
     }
 
-    if (!this[aFolder.server.serverURI] ||
-        !this[aFolder.server.serverURI][aUrl]) {
+    if (
+      !this[aFolder.server.serverURI] ||
+      !this[aFolder.server.serverURI][aUrl]
+    ) {
       // Not yet seeded, so do it.
       this.getStatus(aFolder, aUrl);
     }
@@ -905,16 +1081,18 @@ var FeedUtils = {
   getFavicon(aFolder, aUrl, aIconUrl, aWindow, aCallback) {
     // On any error, cache an empty string to show the default favicon, and
     // don't try anymore in this session.
-    let useDefaultFavicon = (() => {
+    let useDefaultFavicon = () => {
       if (aCallback) {
         aCallback("");
       }
 
       return "";
-    });
+    };
 
-    if (!Services.prefs.getBoolPref("browser.chrome.site_icons") ||
-        !Services.prefs.getBoolPref("browser.chrome.favicons")) {
+    if (
+      !Services.prefs.getBoolPref("browser.chrome.site_icons") ||
+      !Services.prefs.getBoolPref("browser.chrome.favicons")
+    ) {
       return useDefaultFavicon();
     }
 
@@ -922,23 +1100,27 @@ var FeedUtils = {
       return aIconUrl;
     }
 
-    let onLoadSuccess = (aEvent => {
+    let onLoadSuccess = aEvent => {
       let iconUri = Services.io.newURI(aEvent.target.src);
       aWindow.specialTabs.mFaviconService.setAndFetchFaviconForPage(
-        uri, iconUri, false,
+        uri,
+        iconUri,
+        false,
         aWindow.specialTabs.mFaviconService.FAVICON_LOAD_NON_PRIVATE,
-        null, Services.scriptSecurityManager.getSystemPrincipal());
+        null,
+        Services.scriptSecurityManager.getSystemPrincipal()
+      );
 
       if (aCallback) {
         aCallback(iconUri.spec);
       }
-    });
+    };
 
-    let onLoadError = (aEvent => {
+    let onLoadError = aEvent => {
       useDefaultFavicon();
       let url = aEvent.target.src;
       aWindow.specialTabs.getFaviconFromPage(url, aCallback);
-    });
+    };
 
     let url = aUrl;
     if (!url) {
@@ -972,8 +1154,11 @@ var FeedUtils = {
       return iconUri.spec;
     }
 
-    aWindow.specialTabs.loadFaviconImageNode(onLoadSuccess, onLoadError,
-                                             iconUri.spec);
+    aWindow.specialTabs.loadFaviconImageNode(
+      onLoadSuccess,
+      onLoadError,
+      iconUri.spec
+    );
     // Cache the favicon url initially.
     if (aCallback) {
       aCallback(iconUri.spec);
@@ -993,10 +1178,15 @@ var FeedUtils = {
    * @returns {void}
    */
   updateSubscriptionsDS(aFolder, aOrigFolder, aAction) {
-    this.log.debug("FeedUtils.updateSubscriptionsDS: " +
-                   "\nfolder changed - " + aAction +
-                   "\nnew folder  - " + aFolder.filePath.path +
-                   "\norig folder - " + aOrigFolder.filePath.path);
+    this.log.debug(
+      "FeedUtils.updateSubscriptionsDS: " +
+        "\nfolder changed - " +
+        aAction +
+        "\nnew folder  - " +
+        aFolder.filePath.path +
+        "\norig folder - " +
+        aOrigFolder.filePath.path
+    );
 
     if (aFolder.server.type != "rss" || FeedUtils.isInTrash(aOrigFolder)) {
       // Target not a feed account folder; nothing to do, or move/rename in
@@ -1010,20 +1200,27 @@ var FeedUtils = {
     if (aAction == "move" || aAction == "copy") {
       // Get the new folder. Don't process the entire parent (new dest folder)!
       newFolder = aFolder.getChildNamed(aOrigFolder.name);
-      origParentURI = aOrigFolder.parent ? aOrigFolder.parent.URI :
-                                           aOrigFolder.rootFolder.URI;
+      origParentURI = aOrigFolder.parent
+        ? aOrigFolder.parent.URI
+        : aOrigFolder.rootFolder.URI;
     }
 
     this.updateFolderChangeInFeedsDS(newFolder, aOrigFolder, null, null);
 
     // There may be subfolders, but we only get a single notification; iterate
     // over all descendent folders of the folder whose location has changed.
-    let newSubFolders = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+    let newSubFolders = Cc["@mozilla.org/array;1"].createInstance(
+      Ci.nsIMutableArray
+    );
     newFolder.ListDescendants(newSubFolders);
     for (let i = 0; i < newSubFolders.length; i++) {
       let newSubFolder = newSubFolders.queryElementAt(i, Ci.nsIMsgFolder);
-      FeedUtils.updateFolderChangeInFeedsDS(newSubFolder, aOrigFolder,
-                                            newParentURI, origParentURI);
+      FeedUtils.updateFolderChangeInFeedsDS(
+        newSubFolder,
+        aOrigFolder,
+        newParentURI,
+        origParentURI
+      );
     }
   },
 
@@ -1041,33 +1238,53 @@ var FeedUtils = {
    *
    * @returns {void}
    */
-  updateFolderChangeInFeedsDS(aFolder, aOrigFolder, aNewAncestorURI, aOrigAncestorURI) {
-    this.log.debug("updateFolderChangeInFeedsDS: " +
-                   "\naFolder       - " + aFolder.URI +
-                   "\naOrigFolder   - " + aOrigFolder.URI +
-                   "\naOrigAncestor - " + aOrigAncestorURI +
-                   "\naNewAncestor  - " + aNewAncestorURI);
+  updateFolderChangeInFeedsDS(
+    aFolder,
+    aOrigFolder,
+    aNewAncestorURI,
+    aOrigAncestorURI
+  ) {
+    this.log.debug(
+      "updateFolderChangeInFeedsDS: " +
+        "\naFolder       - " +
+        aFolder.URI +
+        "\naOrigFolder   - " +
+        aOrigFolder.URI +
+        "\naOrigAncestor - " +
+        aOrigAncestorURI +
+        "\naNewAncestor  - " +
+        aNewAncestorURI
+    );
 
     // Get the original folder's URI.
     let folderURI = aFolder.URI;
-    let origURI = aNewAncestorURI && aOrigAncestorURI ?
-                    folderURI.replace(aNewAncestorURI, aOrigAncestorURI) :
-                    aOrigFolder.URI;
+    let origURI =
+      aNewAncestorURI && aOrigAncestorURI
+        ? folderURI.replace(aNewAncestorURI, aOrigAncestorURI)
+        : aOrigFolder.URI;
     let origFolderRes = this.rdf.GetResource(origURI);
     this.log.debug("updateFolderChangeInFeedsDS: urls origURI  - " + origURI);
     // Get the original folder's url list from the feeds database.
     let feedUrlArray = [];
     let dsSrc = this.getSubscriptionsDS(aOrigFolder.server);
     try {
-      let enumerator = dsSrc.GetSources(this.FZ_DESTFOLDER, origFolderRes, true);
+      let enumerator = dsSrc.GetSources(
+        this.FZ_DESTFOLDER,
+        origFolderRes,
+        true
+      );
       while (enumerator.hasMoreElements()) {
         let containerArc = enumerator.getNext();
         let uri = containerArc.QueryInterface(Ci.nsIRDFResource).ValueUTF8;
         feedUrlArray.push(uri);
       }
     } catch (ex) {
-      this.log.error("updateFolderChangeInFeedsDS: feeds.rdf db error for account - " +
-                     aOrigFolder.server.prettyName + " : " + ex);
+      this.log.error(
+        "updateFolderChangeInFeedsDS: feeds.rdf db error for account - " +
+          aOrigFolder.server.prettyName +
+          " : " +
+          ex
+      );
     }
 
     if (!feedUrlArray.length) {
@@ -1095,13 +1312,19 @@ var FeedUtils = {
           // available. Otherwise use the new folder's name and default server
           // quickMode; preserve link and options.
           let feedTitle = dsSrc.GetTarget(feed.resource, this.DC_TITLE, true);
-          feedTitle = feedTitle ? feedTitle.QueryInterface(Ci.nsIRDFLiteral).Value :
-                                  folderResource.name;
+          feedTitle = feedTitle
+            ? feedTitle.QueryInterface(Ci.nsIRDFLiteral).Value
+            : folderResource.name;
           let link = dsSrc.GetTarget(feed.resource, FeedUtils.RSS_LINK, true);
           link = link ? link.QueryInterface(Ci.nsIRDFLiteral).Value : "";
-          let quickMode = dsSrc.GetTarget(feed.resource, this.FZ_QUICKMODE, true);
-          quickMode = quickMode ? quickMode.QueryInterface(Ci.nsIRDFLiteral).Value :
-                                  null;
+          let quickMode = dsSrc.GetTarget(
+            feed.resource,
+            this.FZ_QUICKMODE,
+            true
+          );
+          quickMode = quickMode
+            ? quickMode.QueryInterface(Ci.nsIRDFLiteral).Value
+            : null;
           if (quickMode == "true") {
             quickMode = true;
           } else if (quickMode == "false") {
@@ -1111,8 +1334,9 @@ var FeedUtils = {
           }
 
           let options = dsSrc.GetTarget(feed.resource, this.FZ_OPTIONS, true);
-          options = options ? JSON.parse(options.QueryInterface(Ci.nsIRDFLiteral).Value) :
-                              this.optionsTemplate;
+          options = options
+            ? JSON.parse(options.QueryInterface(Ci.nsIRDFLiteral).Value)
+            : this.optionsTemplate;
           // Update the feedUrl feed properties.
           feed.title = feedTitle;
           feed.link = link;
@@ -1149,20 +1373,25 @@ var FeedUtils = {
     // 4) Remove all '.' as starting/ending with one is trouble on osx/win.
     // 5) No leading/trailing spaces.
     /* eslint-disable no-control-regex */
-    let folderName = aProposedName.replace(/[\n\r\t]+/g, " ")
-                                  .replace(/[\x00-\x1F]+/g, "")
-                                  .replace(/[*|\\\/:<>?"]+/g, "")
-                                  .replace(/[\.]+/g, "")
-                                  .trim();
+    let folderName = aProposedName
+      .replace(/[\n\r\t]+/g, " ")
+      .replace(/[\x00-\x1F]+/g, "")
+      .replace(/[*|\\\/:<>?"]+/g, "")
+      .replace(/[\.]+/g, "")
+      .trim();
     /* eslint-enable no-control-regex */
 
     // Prefix with __ if name is:
     // 1) a reserved win filename.
     // 2) an undeletable/unrenameable special folder name (bug 259184).
-    if (folderName.toUpperCase()
-                  .match(/^COM\d$|^LPT\d$|^CON$|PRN$|^AUX$|^NUL$|^CLOCK\$/) ||
-        folderName.toUpperCase()
-                  .match(/^INBOX$|^OUTBOX$|^UNSENT MESSAGES$|^TRASH$/)) {
+    if (
+      folderName
+        .toUpperCase()
+        .match(/^COM\d$|^LPT\d$|^CON$|PRN$|^AUX$|^NUL$|^CLOCK\$/) ||
+      folderName
+        .toUpperCase()
+        .match(/^INBOX$|^OUTBOX$|^UNSENT MESSAGES$|^TRASH$/)
+    ) {
       folderName = "__" + folderName;
     }
 
@@ -1284,8 +1513,10 @@ var FeedUtils = {
     let serverPrefStr = "mail.server." + aServer.key;
     // System polling interval. Effective after current interval expires on
     // change; no user facing ui.
-    Services.prefs.setIntPref(serverPrefStr + ".check_time",
-                              FeedUtils.kBiffPollMinutes);
+    Services.prefs.setIntPref(
+      serverPrefStr + ".check_time",
+      FeedUtils.kBiffPollMinutes
+    );
 
     // If this pref is false, polling on biff is disabled and account updates
     // are paused; ui in account server settings and folderpane context menu
@@ -1293,7 +1524,9 @@ var FeedUtils = {
     // effect immediately. Here on startup, we just ensure the polling interval
     // above is reset immediately.
     let doBiff = Services.prefs.getBoolPref(serverPrefStr + ".check_new_mail");
-    FeedUtils.log.debug("initAcct: " + aServer.prettyName + " doBiff - " + doBiff);
+    FeedUtils.log.debug(
+      "initAcct: " + aServer.prettyName + " doBiff - " + doBiff
+    );
     this.pauseFeedFolderUpdates(aServer.rootFolder, !doBiff, false);
   },
 
@@ -1319,8 +1552,10 @@ var FeedUtils = {
       function meldin(source, target, keep, replace) {
         for (let attribute in source) {
           // Recurse for objects.
-          if (typeof source[attribute] == "object" &&
-              typeof target[attribute] == "object") {
+          if (
+            typeof source[attribute] == "object" &&
+            typeof target[attribute] == "object"
+          ) {
             meldin(source[attribute], target[attribute], keep, replace);
           } else {
             // Use attribute values from source for the target, unless
@@ -1353,24 +1588,29 @@ var FeedUtils = {
     }
 
     let file = this.getSubscriptionsFile(aServer);
-    let url = Services.io.getProtocolHandler("file").
-                          QueryInterface(Ci.nsIFileProtocolHandler).
-                          getURLSpecFromFile(file);
+    let url = Services.io
+      .getProtocolHandler("file")
+      .QueryInterface(Ci.nsIFileProtocolHandler)
+      .getURLSpecFromFile(file);
 
     // GetDataSourceBlocking has a cache, so it's cheap to do this again
     // once we've already done it once.
     let ds = this.rdf.GetDataSourceBlocking(url);
 
     if (!ds) {
-      throw new Error("FeedUtils.getSubscriptionsDS: can't get feed " +
-                      "subscriptions data source - " + url);
+      throw new Error(
+        "FeedUtils.getSubscriptionsDS: can't get feed " +
+          "subscriptions data source - " +
+          url
+      );
     }
     if (!this[aServer.serverURI]) {
       this[aServer.serverURI] = {};
     }
 
-    return this[aServer.serverURI].FeedsDS =
-             ds.QueryInterface(Ci.nsIRDFRemoteDataSource);
+    return (this[aServer.serverURI].FeedsDS = ds.QueryInterface(
+      Ci.nsIRDFRemoteDataSource
+    ));
   },
 
   getSubscriptionsList(aDataSource) {
@@ -1392,11 +1632,12 @@ var FeedUtils = {
     return file;
   },
 
-  FEEDS_TEMPLATE: "<?xml version=\"1.0\"?>\n" +
-    "<RDF:RDF xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n" +
-    "         xmlns:fz=\"urn:forumzilla:\"\n" +
-    "         xmlns:RDF=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n" +
-    "  <RDF:Description about=\"urn:forumzilla:root\">\n" +
+  FEEDS_TEMPLATE:
+    '<?xml version="1.0"?>\n' +
+    '<RDF:RDF xmlns:dc="http://purl.org/dc/elements/1.1/"\n' +
+    '         xmlns:fz="urn:forumzilla:"\n' +
+    '         xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">\n' +
+    '  <RDF:Description about="urn:forumzilla:root">\n' +
     "    <fz:feeds>\n" +
     "      <RDF:Seq>\n" +
     "      </RDF:Seq>\n" +
@@ -1410,16 +1651,18 @@ var FeedUtils = {
     }
 
     let file = this.getItemsFile(aServer);
-    let url = Services.io.getProtocolHandler("file").
-                          QueryInterface(Ci.nsIFileProtocolHandler).
-                          getURLSpecFromFile(file);
+    let url = Services.io
+      .getProtocolHandler("file")
+      .QueryInterface(Ci.nsIFileProtocolHandler)
+      .getURLSpecFromFile(file);
 
     // GetDataSourceBlocking has a cache, so it's cheap to do this again
     // once we've already done it once.
     let ds = this.rdf.GetDataSourceBlocking(url);
     if (!ds) {
-      throw new Error("FeedUtils.getItemsDS: can't get feed items " +
-                      "data source - " + url);
+      throw new Error(
+        "FeedUtils.getItemsDS: can't get feed items " + "data source - " + url
+      );
     }
     // Note that it this point the datasource may not be loaded yet.
     // You have to QueryInterface it to nsIRDFRemoteDataSource and check
@@ -1429,8 +1672,9 @@ var FeedUtils = {
       this[aServer.serverURI] = {};
     }
 
-    return this[aServer.serverURI].FeedItemsDS =
-             ds.QueryInterface(Ci.nsIRDFRemoteDataSource);
+    return (this[aServer.serverURI].FeedItemsDS = ds.QueryInterface(
+      Ci.nsIRDFRemoteDataSource
+    ));
   },
 
   getItemsFile(aServer) {
@@ -1446,37 +1690,45 @@ var FeedUtils = {
     // If feeditems.rdf is not sane, duplicate messages will occur repeatedly
     // until the file is corrected; check that the file is valid XML. This is
     // done lazily only once in a session.
-    let fileUrl = Services.io.getProtocolHandler("file")
-                             .QueryInterface(Ci.nsIFileProtocolHandler)
-                             .getURLSpecFromFile(file);
+    let fileUrl = Services.io
+      .getProtocolHandler("file")
+      .QueryInterface(Ci.nsIFileProtocolHandler)
+      .getURLSpecFromFile(file);
     let request = new XMLHttpRequest();
     request.open("GET", fileUrl, false);
     request.responseType = "document";
     request.send();
     let dom = request.responseXML;
-    if ((ChromeUtils.getClassName(dom) === "XMLDocument") &&
-        dom.documentElement.namespaceURI != this.MOZ_PARSERERROR_NS) {
+    if (
+      ChromeUtils.getClassName(dom) === "XMLDocument" &&
+      dom.documentElement.namespaceURI != this.MOZ_PARSERERROR_NS
+    ) {
       return file;
     }
 
     // Error on the file. Rename it and create a new one.
     this.log.debug("FeedUtils.getItemsFile: error in feeditems.rdf");
-    let errName = "feeditems_error_" +
-                  (new Date().toISOString()).replace(/\D/g, "") + ".rdf";
+    let errName =
+      "feeditems_error_" + new Date().toISOString().replace(/\D/g, "") + ".rdf";
     file.moveTo(file.parent, errName);
     file = aServer.feedItemsDataSourcePath;
     this.createFile(file, this.FEEDITEMS_TEMPLATE);
-    this.log.error("FeedUtils.getItemsFile: error in feeditems.rdf in account '" +
-                   aServer.prettyName + "'; the file has been moved to " +
-                   errName + " and a new file has been created. Recent messages " +
-                   "may be duplicated.");
+    this.log.error(
+      "FeedUtils.getItemsFile: error in feeditems.rdf in account '" +
+        aServer.prettyName +
+        "'; the file has been moved to " +
+        errName +
+        " and a new file has been created. Recent messages " +
+        "may be duplicated."
+    );
     return file;
   },
 
-  FEEDITEMS_TEMPLATE: "<?xml version=\"1.0\"?>\n" +
-    "<RDF:RDF xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n" +
-    "         xmlns:fz=\"urn:forumzilla:\"\n" +
-    "         xmlns:RDF=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n" +
+  FEEDITEMS_TEMPLATE:
+    '<?xml version="1.0"?>\n' +
+    '<RDF:RDF xmlns:dc="http://purl.org/dc/elements/1.1/"\n' +
+    '         xmlns:fz="urn:forumzilla:"\n' +
+    '         xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">\n' +
     "</RDF:RDF>\n",
 
   createFile(aFile, aTemplate) {
@@ -1543,20 +1795,40 @@ var FeedUtils = {
       // The url is the data.
       uri = Services.io.newURI(dt.mozGetDataAt(types[0], 0));
       validUri = this.isValidScheme(uri);
-      this.log.trace("getFeedUriFromDataTransfer: dropEffect:type:value - " +
-                     dt.dropEffect + " : " + types[0] + " : " + uri.spec);
+      this.log.trace(
+        "getFeedUriFromDataTransfer: dropEffect:type:value - " +
+          dt.dropEffect +
+          " : " +
+          types[0] +
+          " : " +
+          uri.spec
+      );
     } else if (dt.getData(types[1])) {
       // The url is the first part of the data, the second part is random.
       uri = Services.io.newURI(dt.mozGetDataAt(types[1], 0).split("\n")[0]);
       validUri = this.isValidScheme(uri);
-      this.log.trace("getFeedUriFromDataTransfer: dropEffect:type:value - " +
-                     dt.dropEffect + " : " + types[0] + " : " + uri.spec);
+      this.log.trace(
+        "getFeedUriFromDataTransfer: dropEffect:type:value - " +
+          dt.dropEffect +
+          " : " +
+          types[0] +
+          " : " +
+          uri.spec
+      );
     } else {
       // Go through the types and see if there's a url; get the first one.
       for (let i = 0; i < dt.types.length; i++) {
         let spec = dt.mozGetDataAt(dt.types[i], 0);
-        this.log.trace("getFeedUriFromDataTransfer: dropEffect:index:type:value - " +
-                       dt.dropEffect + " : " + i + " : " + dt.types[i] + " : " + spec);
+        this.log.trace(
+          "getFeedUriFromDataTransfer: dropEffect:index:type:value - " +
+            dt.dropEffect +
+            " : " +
+            i +
+            " : " +
+            dt.types[i] +
+            " : " +
+            spec
+        );
         try {
           uri = Services.io.newURI(spec);
           validUri = this.isValidScheme(uri);
@@ -1587,8 +1859,9 @@ var FeedUtils = {
     if ((status & 0xff0000) === 0x5a0000) {
       // Security module.
       const nsINSSErrorsService = Ci.nsINSSErrorsService;
-      let nssErrorsService = Cc["@mozilla.org/nss_errors_service;1"]
-                               .getService(nsINSSErrorsService);
+      let nssErrorsService = Cc["@mozilla.org/nss_errors_service;1"].getService(
+        nsINSSErrorsService
+      );
       let errorClass;
 
       // getErrorClass()) will throw a generic NS_ERROR_FAILURE if the error
@@ -1607,10 +1880,14 @@ var FeedUtils = {
       }
 
       // NSS_SEC errors (happen below the base value because of negative vals).
-      if ((status & 0xffff) < Math.abs(nsINSSErrorsService.NSS_SEC_ERROR_BASE)) {
+      if (
+        (status & 0xffff) <
+        Math.abs(nsINSSErrorsService.NSS_SEC_ERROR_BASE)
+      ) {
         // The bases are actually negative, so in our positive numeric space,
         // we need to subtract the base off our value.
-        let nssErr = Math.abs(nsINSSErrorsService.NSS_SEC_ERROR_BASE) - (status & 0xffff);
+        let nssErr =
+          Math.abs(nsINSSErrorsService.NSS_SEC_ERROR_BASE) - (status & 0xffff);
 
         switch (nssErr) {
           case 11: // SEC_ERROR_EXPIRED_CERTIFICATE, sec(11)
@@ -1640,7 +1917,8 @@ var FeedUtils = {
         }
       } else {
         // Calculating the difference.
-        let sslErr = Math.abs(nsINSSErrorsService.NSS_SSL_ERROR_BASE) - (status & 0xffff);
+        let sslErr =
+          Math.abs(nsINSSErrorsService.NSS_SSL_ERROR_BASE) - (status & 0xffff);
 
         switch (sslErr) {
           case 3: // SSL_ERROR_NO_CERTIFICATE, ssl(3)
@@ -1667,18 +1945,18 @@ var FeedUtils = {
       errType = "Network";
       switch (status) {
         // Connect to host:port failed.
-        case 0x804B000C: // NS_ERROR_CONNECTION_REFUSED, network(13)
+        case 0x804b000c: // NS_ERROR_CONNECTION_REFUSED, network(13)
           errName = "ConnectionRefusedError";
           break;
         // network timeout error.
-        case 0x804B000E: // NS_ERROR_NET_TIMEOUT, network(14)
+        case 0x804b000e: // NS_ERROR_NET_TIMEOUT, network(14)
           errName = "NetworkTimeoutError";
           break;
         // Hostname lookup failed.
-        case 0x804B001E: // NS_ERROR_UNKNOWN_HOST, network(30)
+        case 0x804b001e: // NS_ERROR_UNKNOWN_HOST, network(30)
           errName = "DomainNotFoundError";
           break;
-        case 0x804B0047: // NS_ERROR_NET_INTERRUPT, network(71)
+        case 0x804b0047: // NS_ERROR_NET_INTERRUPT, network(71)
           errName = "NetworkInterruptError";
           break;
         default:
@@ -1718,9 +1996,13 @@ var FeedUtils = {
    * @returns {Boolean}              - true if folder is Trash else false.
    */
   isInTrash(aFolder) {
-    let trashFolder = aFolder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
-    if (trashFolder &&
-        (trashFolder == aFolder || trashFolder.isAncestorOf(aFolder))) {
+    let trashFolder = aFolder.rootFolder.getFolderWithFlags(
+      Ci.nsMsgFolderFlags.Trash
+    );
+    if (
+      trashFolder &&
+      (trashFolder == aFolder || trashFolder.isAncestorOf(aFolder))
+    ) {
       return true;
     }
 
@@ -1771,10 +2053,11 @@ var FeedUtils = {
    * @returns {Boolean}      - true if passes regex test, false if not.
    */
   isValidRFC822Date(aDate) {
-    const FZ_RFC822_RE = "^(((Mon)|(Tue)|(Wed)|(Thu)|(Fri)|(Sat)|(Sun)), *)?\\d\\d?" +
-    " +((Jan)|(Feb)|(Mar)|(Apr)|(May)|(Jun)|(Jul)|(Aug)|(Sep)|(Oct)|(Nov)|(Dec))" +
-    " +\\d\\d(\\d\\d)? +\\d\\d:\\d\\d(:\\d\\d)? +(([+-]?\\d\\d\\d\\d)|(UT)|(GMT)" +
-    "|(EST)|(EDT)|(CST)|(CDT)|(MST)|(MDT)|(PST)|(PDT)|\\w)$";
+    const FZ_RFC822_RE =
+      "^(((Mon)|(Tue)|(Wed)|(Thu)|(Fri)|(Sat)|(Sun)), *)?\\d\\d?" +
+      " +((Jan)|(Feb)|(Mar)|(Apr)|(May)|(Jun)|(Jul)|(Aug)|(Sep)|(Oct)|(Nov)|(Dec))" +
+      " +\\d\\d(\\d\\d)? +\\d\\d:\\d\\d(:\\d\\d)? +(([+-]?\\d\\d\\d\\d)|(UT)|(GMT)" +
+      "|(EST)|(EDT)|(CST)|(CDT)|(MST)|(MDT)|(PST)|(PDT)|\\w)$";
     let regex = new RegExp(FZ_RFC822_RE);
     return regex.test(aDate);
   },
@@ -1790,7 +2073,10 @@ var FeedUtils = {
   getValidRFC5322Date(aDateString) {
     let d = new Date(aDateString || new Date().getTime());
     d = isNaN(d.getTime()) ? new Date() : d;
-    return jsmime.headeremitter.emitStructuredHeader("Date", d, {}).substring(6).trim();
+    return jsmime.headeremitter
+      .emitStructuredHeader("Date", d, {})
+      .substring(6)
+      .trim();
   },
 
   /**
@@ -1819,8 +2105,11 @@ var FeedUtils = {
           this.mStatusFeedback.startMeteors();
           this.mStatusFeedback.showStatusString(
             FeedUtils.strings.GetStringFromName(
-              aSubscribeMode ? "subscribe-validating-feed" :
-                               "newsblog-getNewMsgsCheck"));
+              aSubscribeMode
+                ? "subscribe-validating-feed"
+                : "newsblog-getNewMsgsCheck"
+            )
+          );
         }
       }
     },
@@ -1840,12 +2129,19 @@ var FeedUtils = {
      * @returns {void}
      */
     downloaded(feed, aErrorCode, aDisable) {
-      let folderName = feed.folder ? feed.folder.name :
-                                     feed.server.rootFolder.prettyName;
-      FeedUtils.log.debug("downloaded: " +
-                          (this.mSubscribeMode ? "Subscribe " : "Update ") +
-                          "errorCode:folderName:feedUrl - " +
-                          aErrorCode + " : " + folderName + " : " + feed.url);
+      let folderName = feed.folder
+        ? feed.folder.name
+        : feed.server.rootFolder.prettyName;
+      FeedUtils.log.debug(
+        "downloaded: " +
+          (this.mSubscribeMode ? "Subscribe " : "Update ") +
+          "errorCode:folderName:feedUrl - " +
+          aErrorCode +
+          " : " +
+          folderName +
+          " : " +
+          feed.url
+      );
       if (this.mSubscribeMode) {
         if (aErrorCode == FeedUtils.kNewsBlogSuccess) {
           // Add the feed to the databases.
@@ -1857,11 +2153,13 @@ var FeedUtils = {
           this.mMsgWindow.windowCommands.selectFolder(feed.folder.URI);
 
           // Check for an existing feed subscriptions window and update it.
-          let subscriptionsWindow =
-              Services.wm.getMostRecentWindow("Mail:News-BlogSubscriptions");
+          let subscriptionsWindow = Services.wm.getMostRecentWindow(
+            "Mail:News-BlogSubscriptions"
+          );
           if (subscriptionsWindow) {
-            subscriptionsWindow.FeedSubscriptions.
-                                FolderListener.folderAdded(feed.folder);
+            subscriptionsWindow.FeedSubscriptions.FolderListener.folderAdded(
+              feed.folder
+            );
           }
         } else if (feed && feed.url && feed.server) {
           // Non success.  Remove intermediate traces from the feeds database.
@@ -1870,8 +2168,10 @@ var FeedUtils = {
       }
 
       if (aErrorCode != FeedUtils.kNewsBlogFeedIsBusy) {
-        if (aErrorCode == FeedUtils.kNewsBlogSuccess ||
-            aErrorCode == FeedUtils.kNewsBlogNoNewItems) {
+        if (
+          aErrorCode == FeedUtils.kNewsBlogSuccess ||
+          aErrorCode == FeedUtils.kNewsBlogNoNewItems
+        ) {
           // Update lastUpdateTime only if successful normal processing.
           let options = feed.options;
           let now = Date.now();
@@ -1900,22 +2200,29 @@ var FeedUtils = {
 
           feed.options = options;
           FeedUtils.setStatus(feed.folder, feed.url, "enabled", false);
-          FeedUtils.log.warn("downloaded: updates disabled due to error, " +
-                             "check the url - " + feed.url);
+          FeedUtils.log.warn(
+            "downloaded: updates disabled due to error, " +
+              "check the url - " +
+              feed.url
+          );
         }
 
         if (!this.mSubscribeMode) {
           FeedUtils.setStatus(feed.folder, feed.url, "code", aErrorCode);
 
-          if (feed.folder &&
-              !FeedUtils.getFolderProperties(feed.folder).includes("isBusy")) {
+          if (
+            feed.folder &&
+            !FeedUtils.getFolderProperties(feed.folder).includes("isBusy")
+          ) {
             // Free msgDatabase after new mail biff is set; if busy let the next
             // result do the freeing.  Otherwise new messages won't be indicated.
             // This feed may belong to a folder with multiple other feeds, some
             // of which may not yet be finished, so free only if the folder is
             // no longer busy.
             feed.folder.msgDatabase = null;
-            FeedUtils.log.debug("downloaded: msgDatabase freed - " + feed.folder.name);
+            FeedUtils.log.debug(
+              "downloaded: msgDatabase freed - " + feed.folder.name
+            );
           }
         }
       }
@@ -1927,39 +2234,55 @@ var FeedUtils = {
           message = "";
           break;
         case FeedUtils.kNewsBlogNoNewItems:
-          message = feed.url + ". " +
-                    FeedUtils.strings.GetStringFromName(
-                      "newsblog-noNewArticlesForFeed");
+          message =
+            feed.url +
+            ". " +
+            FeedUtils.strings.GetStringFromName(
+              "newsblog-noNewArticlesForFeed"
+            );
           break;
         case FeedUtils.kNewsBlogInvalidFeed:
           message = FeedUtils.strings.formatStringFromName(
-                      "newsblog-feedNotValid", [feed.url]);
+            "newsblog-feedNotValid",
+            [feed.url]
+          );
           break;
         case FeedUtils.kNewsBlogRequestFailure:
           message = FeedUtils.strings.formatStringFromName(
-                      "newsblog-networkError", [feed.url]);
+            "newsblog-networkError",
+            [feed.url]
+          );
           break;
         case FeedUtils.kNewsBlogFileError:
           message = FeedUtils.strings.GetStringFromName(
-                      "subscribe-errorOpeningFile");
+            "subscribe-errorOpeningFile"
+          );
           break;
         case FeedUtils.kNewsBlogBadCertError:
           let host = Services.io.newURI(feed.url).host;
           message = FeedUtils.strings.formatStringFromName(
-                      "newsblog-badCertError", [host]);
+            "newsblog-badCertError",
+            [host]
+          );
           break;
         case FeedUtils.kNewsBlogNoAuthError:
           message = FeedUtils.strings.formatStringFromName(
-                      "newsblog-noAuthError", [feed.url]);
+            "newsblog-noAuthError",
+            [feed.url]
+          );
           break;
       }
 
       if (message) {
-        let location = FeedUtils.getFolderPrettyPath(feed.folder ||
-                                                     feed.server.rootFolder) + " -> ";
-        FeedUtils.log.info("downloaded: " +
-                           (this.mSubscribeMode ? "Subscribe: " : "Update: ") +
-                           location + message);
+        let location =
+          FeedUtils.getFolderPrettyPath(feed.folder || feed.server.rootFolder) +
+          " -> ";
+        FeedUtils.log.info(
+          "downloaded: " +
+            (this.mSubscribeMode ? "Subscribe: " : "Update: ") +
+            location +
+            message
+        );
       }
 
       if (this.mStatusFeedback) {
@@ -2009,8 +2332,11 @@ var FeedUtils = {
       if (this.mSubscribeMode && this.mStatusFeedback) {
         // If we are subscribing to a feed, show feed download progress.
         this.mStatusFeedback.showStatusString(
-          FeedUtils.strings.formatStringFromName("subscribe-gettingFeedItems",
-                                                 [aCurrentFeedItems, aMaxFeedItems]));
+          FeedUtils.strings.formatStringFromName("subscribe-gettingFeedItems", [
+            aCurrentFeedItems,
+            aMaxFeedItems,
+          ])
+        );
         this.onProgress(feed, aCurrentFeedItems, aMaxFeedItems);
       }
     },
@@ -2020,8 +2346,10 @@ var FeedUtils = {
         // Have we already seen this feed?
         this.mFeeds[feed.url].currentProgress = aProgress;
       } else {
-        this.mFeeds[feed.url] = {currentProgress: aProgress,
-                                 maxProgress: aProgressMax};
+        this.mFeeds[feed.url] = {
+          currentProgress: aProgress,
+          maxProgress: aProgressMax,
+        };
       }
 
       this.updateProgressBar();
@@ -2056,20 +2384,22 @@ XPCOMUtils.defineLazyGetter(FeedUtils, "log", function() {
 
 XPCOMUtils.defineLazyGetter(FeedUtils, "strings", function() {
   return Services.strings.createBundle(
-    "chrome://messenger-newsblog/locale/newsblog.properties");
+    "chrome://messenger-newsblog/locale/newsblog.properties"
+  );
 });
 
 XPCOMUtils.defineLazyGetter(FeedUtils, "stringsPrefs", function() {
   return Services.strings.createBundle(
-    "chrome://messenger/locale/prefs.properties");
+    "chrome://messenger/locale/prefs.properties"
+  );
 });
 
 XPCOMUtils.defineLazyGetter(FeedUtils, "rdf", function() {
-  return Cc["@mozilla.org/rdf/rdf-service;1"].
-         getService(Ci.nsIRDFService);
+  return Cc["@mozilla.org/rdf/rdf-service;1"].getService(Ci.nsIRDFService);
 });
 
 XPCOMUtils.defineLazyGetter(FeedUtils, "rdfContainerUtils", function() {
-  return Cc["@mozilla.org/rdf/container-utils;1"].
-         getService(Ci.nsIRDFContainerUtils);
+  return Cc["@mozilla.org/rdf/container-utils;1"].getService(
+    Ci.nsIRDFContainerUtils
+  );
 });

@@ -4,10 +4,17 @@
 
 this.EXPORTED_SYMBOLS = ["newUID", "SimpleEnumerator"];
 
-ChromeUtils.defineModuleGetter(this, "XPCOMUtils", "resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "XPCOMUtils",
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
 XPCOMUtils.defineLazyServiceGetter(
-  this, "uuidGenerator", "@mozilla.org/uuid-generator;1", "nsIUUIDGenerator"
+  this,
+  "uuidGenerator",
+  "@mozilla.org/uuid-generator;1",
+  "nsIUUIDGenerator"
 );
 
 function SimpleEnumerator(elements) {
@@ -25,7 +32,7 @@ SimpleEnumerator.prototype = {
     throw Cr.NS_ERROR_NOT_AVAILABLE;
   },
   QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
-  * [Symbol.iterator]() {
+  *[Symbol.iterator]() {
     while (this.hasMoreElements()) {
       yield this.getNext();
     }
@@ -33,5 +40,8 @@ SimpleEnumerator.prototype = {
 };
 
 function newUID() {
-  return uuidGenerator.generateUUID().toString().substring(1, 37);
+  return uuidGenerator
+    .generateUUID()
+    .toString()
+    .substring(1, 37);
 }

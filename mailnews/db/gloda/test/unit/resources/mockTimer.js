@@ -4,8 +4,9 @@
  *  you do that, too!
  */
 function MockTimer(aObj, aAttrName) {
-  if (aObj && aAttrName)
+  if (aObj && aAttrName) {
     this.clobber(aObj, aAttrName);
+  }
 }
 MockTimer.prototype = {
   /* public interface */
@@ -13,10 +14,16 @@ MockTimer.prototype = {
   TYPE_REPEATING_SLACK: 1,
   TYPE_REPEATING_PRECISE: 2,
   initWithCallback(aCallback, aDelay, aType) {
-    if (aCallback instanceof Ci.nsITimerCallback)
+    if (aCallback instanceof Ci.nsITimerCallback) {
       this.callback = aCallback;
-    else // it was just a function that we need to dress up.
-      this.callback = {notify() { aCallback(); }};
+    } // it was just a function that we need to dress up.
+    else {
+      this.callback = {
+        notify() {
+          aCallback();
+        },
+      };
+    }
     this.delay = aDelay;
     this.type = aType;
   },
@@ -59,18 +66,20 @@ MockTimer.prototype = {
   fireNow() {
     if (this._callback) {
       this._activeCallback = this._callback;
-      if (this.oneShot)
+      if (this.oneShot) {
         this._callback = null;
+      }
       this._activeCallback.notify();
       this._activeCallback = null;
     } else if (this.observer) {
       let observer = this.observer;
-      if (this.oneShot)
+      if (this.oneShot) {
         this.observer = null;
+      }
       observer.observe(this, "timer-callback", null);
     }
   },
   get active() {
-    return (this.callback != null) || (this.observer != null);
+    return this.callback != null || this.observer != null;
   },
 };

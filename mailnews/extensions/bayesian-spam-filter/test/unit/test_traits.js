@@ -6,14 +6,14 @@
 
 // I make this an instance so that I know I can reset and get
 // a completely new component. Should be getService in production code.
-var nsIJunkMailPlugin =
-  Cc["@mozilla.org/messenger/filter-plugin;1?name=bayesianfilter"]
-    .createInstance(Ci.nsIJunkMailPlugin);
+var nsIJunkMailPlugin = Cc[
+  "@mozilla.org/messenger/filter-plugin;1?name=bayesianfilter"
+].createInstance(Ci.nsIJunkMailPlugin);
 
 // command functions for test data
-var kTrain = 0;  // train a file as a trait
-var kClass = 1;  // classify files with traits
-var kReset = 2;  // reload plugin, reading in data from disk
+var kTrain = 0; // train a file as a trait
+var kClass = 1; // classify files with traits
+var kReset = 2; // reload plugin, reading in data from disk
 var kDetail = 3; // test details
 
 var gTest; // currently active test
@@ -34,11 +34,13 @@ var tests = [
     command: kTrain,
     fileName: "ham1.eml",
     traitIds: [3, 6],
-  }, {
+  },
+  {
     command: kTrain,
     fileName: "spam1.eml",
     traitIds: [4],
-  }, {
+  },
+  {
     command: kTrain,
     fileName: "spam4.eml",
     traitIds: [5],
@@ -51,14 +53,16 @@ var tests = [
     traitAntiIds: [3, 5],
     // ham1 is trained "anti" for first test, "pro" for second
     percents: [[0, 100]],
-  }, {
+  },
+  {
     command: kClass,
     fileName: "ham2.eml",
     traitIds: [4, 6],
     traitAntiIds: [3, 5],
     // these are partial percents for an untrained message. ham2 is similar to ham1
     percents: [[8, 95]],
-  }, {
+  },
+  {
     command: kDetail,
     fileName: "spam2.eml",
     traitIds: [4],
@@ -70,7 +74,8 @@ var tests = [
       your: 16,
     },
     runnings: [84, 92, 95, 81],
-  }, {
+  },
+  {
     command: kClass,
     fileName: "spam1.eml,spam2.eml,spam3.eml,spam4.eml",
     traitIds: [4, 6],
@@ -84,19 +89,22 @@ var tests = [
   // this tests the trait file writing
   {
     command: kReset,
-  }, {
+  },
+  {
     command: kClass,
     fileName: "ham1.eml",
     traitIds: [4, 6],
     traitAntiIds: [3, 5],
     percents: [[0, 100]],
-  }, {
+  },
+  {
     command: kClass,
     fileName: "ham2.eml",
     traitIds: [4, 6],
     traitAntiIds: [3, 5],
     percents: [[8, 95]],
-  }, {
+  },
+  {
     command: kClass,
     fileName: "spam1.eml,spam2.eml,spam3.eml,spam4.eml",
     traitIds: [4, 6],
@@ -117,8 +125,9 @@ var listener = {
   // nsIMsgTraitClassificationListener implementation
   onMessageTraitsClassified(aMsgURI, aTraitCount, aTraits, aPercents) {
     // print("Message URI is " + aMsgURI);
-    if (!aMsgURI)
-      return; // ignore end-of-batch signal
+    if (!aMsgURI) {
+      return;
+    } // ignore end-of-batch signal
 
     switch (gTest.command) {
       case kClass:
@@ -132,21 +141,33 @@ var listener = {
         gTest.currentIndex++;
         break;
 
-      case kTrain:  // We tested this some in test_junkAsTraits.js, so let's not bother
+      case kTrain: // We tested this some in test_junkAsTraits.js, so let's not bother
       default:
         break;
     }
-    if (!--gTest.callbacks)
+    if (!--gTest.callbacks) {
       // All done, start the next test
       startCommand();
+    }
   },
-  onMessageTraitDetails(aMsgURI, aProTrait, aTokenCount, aTokenString,
-                        aTokenPercents, aRunningPercents) {
+  onMessageTraitDetails(
+    aMsgURI,
+    aProTrait,
+    aTokenCount,
+    aTokenString,
+    aTokenPercents,
+    aRunningPercents
+  ) {
     print("Details for " + aMsgURI);
     for (let i = 0; i < aTokenString.length; i++) {
-      print("Percent " + aTokenPercents[i] +
-            " Running " + aRunningPercents[i] +
-            " Token " + aTokenString[i]);
+      print(
+        "Percent " +
+          aTokenPercents[i] +
+          " Running " +
+          aRunningPercents[i] +
+          " Token " +
+          aTokenString[i]
+      );
       Assert.ok(aTokenString[i] in gTest.percents);
 
       Assert.equal(gTest.percents[aTokenString[i]], aTokenPercents[i]);
@@ -154,39 +175,48 @@ var listener = {
       delete gTest.percents[aTokenString[i]];
     }
     Assert.equal(Object.keys(gTest.percents).length, 0);
-    if (gTest.command == kClass)
+    if (gTest.command == kClass) {
       gTest.currentIndex++;
+    }
     startCommand();
   },
 };
 
 // start the next test command
 function startCommand() {
-  if (!tests.length) { // Do we have more commands?
+  if (!tests.length) {
+    // Do we have more commands?
     // no, all done
     do_test_finished();
     return;
   }
 
   gTest = tests.shift();
-  print("StartCommand command = " + gTest.command + ", remaining tests " + tests.length);
+  print(
+    "StartCommand command = " +
+      gTest.command +
+      ", remaining tests " +
+      tests.length
+  );
   switch (gTest.command) {
     case kTrain: {
       // train message
       let proArray = [];
-      for (let i = 0; i < gTest.traitIds.length; i++)
+      for (let i = 0; i < gTest.traitIds.length; i++) {
         proArray.push(gTest.traitIds[i]);
+      }
       gTest.callbacks = 1;
 
       nsIJunkMailPlugin.setMsgTraitClassification(
         getSpec(gTest.fileName), // in string aMsgURI
         0,
-        null,         // in nsIArray aOldTraits
+        null, // in nsIArray aOldTraits
         proArray.length,
-        proArray,     // in nsIArray aNewTraits
-        listener);    // [optional] in nsIMsgTraitClassificationListener aTraitListener
-        // null,      // [optional] in nsIMsgWindow aMsgWindow
-        // null,      // [optional] in nsIJunkMailClassificationListener aJunkListener
+        proArray, // in nsIArray aNewTraits
+        listener
+      ); // [optional] in nsIMsgTraitClassificationListener aTraitListener
+      // null,      // [optional] in nsIMsgWindow aMsgWindow
+      // null,      // [optional] in nsIJunkMailClassificationListener aJunkListener
       break;
     }
     case kClass: {
@@ -200,29 +230,32 @@ function startCommand() {
       gTest.files = gTest.fileName.split(",");
       gTest.callbacks = gTest.files.length;
       gTest.currentIndex = 0;
-      for (let i = 0; i < gTest.files.length; i++)
+      for (let i = 0; i < gTest.files.length; i++) {
         gTest.files[i] = getSpec(gTest.files[i]);
+      }
       if (gTest.files.length == 1) {
         // use the singular classifier
         nsIJunkMailPlugin.classifyTraitsInMessage(
           getSpec(gTest.fileName), // in string aMsgURI
           proArray.length, // length of traits arrays
-          proArray,    // in array aProTraits,
-          antiArray,   // in array aAntiTraits
-          listener);   // in nsIMsgTraitClassificationListener aTraitListener
-          // null,      // [optional] in nsIMsgWindow aMsgWindow
-          // null,      // [optional] in nsIJunkMailClassificationListener aJunkListener
+          proArray, // in array aProTraits,
+          antiArray, // in array aAntiTraits
+          listener
+        ); // in nsIMsgTraitClassificationListener aTraitListener
+        // null,      // [optional] in nsIMsgWindow aMsgWindow
+        // null,      // [optional] in nsIJunkMailClassificationListener aJunkListener
       } else {
         // use the plural classifier
         nsIJunkMailPlugin.classifyTraitsInMessages(
           gTest.files.length, // in unsigned long aCount,
           gTest.files, // [array, size_is(aCount)] in string aMsgURIs,
           proArray.length, // length of traits arrays
-          proArray,    // in array aProTraits,
-          antiArray,   // in array aAntiTraits
-          listener);   // in nsIMsgTraitClassificationListener aTraitListener
-          // null,      // [optional] in nsIMsgWindow aMsgWindow
-          // null,      // [optional] in nsIJunkMailClassificationListener aJunkListener
+          proArray, // in array aProTraits,
+          antiArray, // in array aAntiTraits
+          listener
+        ); // in nsIMsgTraitClassificationListener aTraitListener
+        // null,      // [optional] in nsIMsgWindow aMsgWindow
+        // null,      // [optional] in nsIJunkMailClassificationListener aJunkListener
       }
       break;
     }
@@ -231,16 +264,17 @@ function startCommand() {
       nsIJunkMailPlugin.detailMessage(
         getSpec(gTest.fileName), // in string aMsgURI
         gTest.traitIds[0], // proTrait
-        gTest.traitAntiIds[0],   // antiTrait
-        listener);   // in nsIMsgTraitDetailListener aDetailListener
+        gTest.traitAntiIds[0], // antiTrait
+        listener
+      ); // in nsIMsgTraitDetailListener aDetailListener
       break;
     case kReset:
       // reload a new nsIJunkMailPlugin, reading file in the process
       nsIJunkMailPlugin.shutdown(); // writes files
       nsIJunkMailPlugin = null;
-      nsIJunkMailPlugin =
-        Cc["@mozilla.org/messenger/filter-plugin;1?name=bayesianfilter"]
-          .createInstance(Ci.nsIJunkMailPlugin);
+      nsIJunkMailPlugin = Cc[
+        "@mozilla.org/messenger/filter-plugin;1?name=bayesianfilter"
+      ].createInstance(Ci.nsIJunkMailPlugin);
       // does not do a callback, so we must restart next command
       startCommand();
       break;

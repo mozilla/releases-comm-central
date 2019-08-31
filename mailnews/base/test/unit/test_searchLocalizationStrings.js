@@ -2,15 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
- // tests that localization strings added in bug 484147 are defined in preferences
+// tests that localization strings added in bug 484147 are defined in preferences
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var gValidityManager = Cc["@mozilla.org/mail/search/validityManager;1"]
-                           .getService(Ci.nsIMsgSearchValidityManager);
+var gValidityManager = Cc[
+  "@mozilla.org/mail/search/validityManager;1"
+].getService(Ci.nsIMsgSearchValidityManager);
 
-var gStringBundle = Services.strings
-                              .createBundle("chrome://messenger/locale/search-attributes.properties");
+var gStringBundle = Services.strings.createBundle(
+  "chrome://messenger/locale/search-attributes.properties"
+);
 
 // The following table of valid table scopes matches the allowable table
 // scopes in nsMsgSearchValidityManager::GetTable
@@ -44,11 +46,17 @@ function run_test() {
       } catch (e) {
         dump("\n" + e);
       }
-      valid = valid && localizedString && (localizedString.length > 0);
-      if (!valid)
-        dump("\nNo valid property for scope = " + scope
-              + " attribute = " + attribute
-              + " property = " + property);
+      valid = valid && localizedString && localizedString.length > 0;
+      if (!valid) {
+        dump(
+          "\nNo valid property for scope = " +
+            scope +
+            " attribute = " +
+            attribute +
+            " property = " +
+            property
+        );
+      }
       Assert.ok(valid);
     }
   }

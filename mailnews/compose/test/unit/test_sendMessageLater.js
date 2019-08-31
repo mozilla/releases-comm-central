@@ -11,7 +11,9 @@
  * mangling the message.
  */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var server;
 var smtpServer;
@@ -24,13 +26,13 @@ var kTestFileRecipient = "to_A@foo.invalid";
 
 var kIdentityMail = "identity@foo.invalid";
 
-var msgSendLater = Cc["@mozilla.org/messengercompose/sendlater;1"]
-  .getService(Ci.nsIMsgSendLater);
+var msgSendLater = Cc["@mozilla.org/messengercompose/sendlater;1"].getService(
+  Ci.nsIMsgSendLater
+);
 
 // This listener handles the post-sending of the actual message and checks the
 // sequence and ensures the data is correct.
-function msll() {
-}
+function msll() {}
 
 msll.prototype = {
   _initialTotal: 0,
@@ -41,15 +43,26 @@ msll.prototype = {
     this._initialTotal = 1;
     Assert.equal(msgSendLater.sendingMessages, true);
   },
-  onMessageStartSending(aCurrentMessage, aTotalMessageCount, aMessageHeader, aIdentity) {
+  onMessageStartSending(
+    aCurrentMessage,
+    aTotalMessageCount,
+    aMessageHeader,
+    aIdentity
+  ) {
     this._startedSending = true;
   },
-  onMessageSendProgress(aCurrentMessage, aTotalMessageCount,
-                        aMessageSendPercent, aMessageCopyPercent) {
+  onMessageSendProgress(
+    aCurrentMessage,
+    aTotalMessageCount,
+    aMessageSendPercent,
+    aMessageCopyPercent
+  ) {
     // XXX Enable this function
   },
   onMessageSendError(aCurrentMessage, aMessageHeader, aStatus, aMsg) {
-    do_throw("onMessageSendError should not have been called, status: " + aStatus);
+    do_throw(
+      "onMessageSendError should not have been called, status: " + aStatus
+    );
   },
   onStopSending(aStatus, aMsg, aTotalTried, aSuccessful) {
     do_test_finished();
@@ -62,12 +75,15 @@ msll.prototype = {
       Assert.equal(this._initialTotal, 1);
       Assert.equal(msgSendLater.sendingMessages, false);
 
-      do_check_transaction(server.playTransaction(),
-                           ["EHLO test",
-                            "MAIL FROM:<" + kTestFileSender +
-                            "> BODY=8BITMIME SIZE=" + originalData.length,
-                            "RCPT TO:<" + kTestFileRecipient + ">",
-                            "DATA"]);
+      do_check_transaction(server.playTransaction(), [
+        "EHLO test",
+        "MAIL FROM:<" +
+          kTestFileSender +
+          "> BODY=8BITMIME SIZE=" +
+          originalData.length,
+        "RCPT TO:<" + kTestFileRecipient + ">",
+        "DATA",
+      ]);
 
       // Compare data file to what the server received
       Assert.equal(originalData, server._daemon.post);
@@ -79,14 +95,14 @@ msll.prototype = {
       server.stop();
 
       var thread = gThreadManager.currentThread;
-      while (thread.hasPendingEvents())
+      while (thread.hasPendingEvents()) {
         thread.processNextEvent(true);
+      }
     }
   },
-};
+}; // for head_compose.js
 
-/* exported OnStopCopy */// for head_compose.js
-function OnStopCopy(aStatus) {
+/* exported OnStopCopy */ function OnStopCopy(aStatus) {
   dump("OnStopCopy()\n");
 
   try {
@@ -104,8 +120,10 @@ function OnStopCopy(aStatus) {
     Assert.equal(msgSendLater.hasUnsentMessages(identity), true);
 
     // Now do a comparison of what is in the sent mail folder
-    let msgData = mailTestUtils
-      .loadMessageToString(folder, mailTestUtils.firstMsgHdr(folder));
+    let msgData = mailTestUtils.loadMessageToString(
+      folder,
+      mailTestUtils.firstMsgHdr(folder)
+    );
     // Skip the headers etc that mailnews adds
     var pos = msgData.indexOf("From:");
     Assert.notEqual(pos, -1);
@@ -122,8 +140,9 @@ function OnStopCopy(aStatus) {
     server.stop();
 
     var thread = gThreadManager.currentThread;
-    while (thread.hasPendingEvents())
+    while (thread.hasPendingEvents()) {
       thread.processNextEvent(true);
+    }
 
     finished = true;
   }
@@ -155,8 +174,9 @@ function sendMessageLater() {
     server.performTest();
 
     do_timeout(10000, function() {
-      if (!finished)
+      if (!finished) {
         do_throw("Notifications of message send/copy not received");
+      }
     });
   } catch (e) {
     do_throw(e);
@@ -164,8 +184,9 @@ function sendMessageLater() {
     server.stop();
 
     var thread = gThreadManager.currentThread;
-    while (thread.hasPendingEvents())
+    while (thread.hasPendingEvents()) {
       thread.processNextEvent(true);
+    }
   }
 }
 
@@ -183,7 +204,11 @@ function run_test() {
   MailServices.accounts.setSpecialFolders();
 
   let account = MailServices.accounts.createAccount();
-  let incomingServer = MailServices.accounts.createIncomingServer("test", "localhost", "pop3");
+  let incomingServer = MailServices.accounts.createIncomingServer(
+    "test",
+    "localhost",
+    "pop3"
+  );
 
   smtpServer = getBasicSmtpServer(1);
   identity = getSmtpIdentity(kIdentityMail, smtpServer);
@@ -200,8 +225,9 @@ function run_test() {
   // Now prepare to actually "send" the message later, i.e. dump it in the
   // unsent messages folder.
 
-  var compFields = Cc["@mozilla.org/messengercompose/composefields;1"]
-                     .createInstance(Ci.nsIMsgCompFields);
+  var compFields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
 
   // Setting the compFields sender and recipient to any value is required to
   // survive mime_sanity_check_fields in nsMsgCompUtils.cpp.
@@ -210,12 +236,23 @@ function run_test() {
   compFields.from = "irrelevant@foo.invalid";
   compFields.to = "irrelevant@foo.invalid";
 
-  var msgSend = Cc["@mozilla.org/messengercompose/send;1"]
-                  .createInstance(Ci.nsIMsgSend);
+  var msgSend = Cc["@mozilla.org/messengercompose/send;1"].createInstance(
+    Ci.nsIMsgSend
+  );
 
-  msgSend.sendMessageFile(identity, "", compFields, testFile,
-                          false, false, Ci.nsIMsgSend.nsMsgQueueForLater,
-                          null, copyListener, null, null);
+  msgSend.sendMessageFile(
+    identity,
+    "",
+    compFields,
+    testFile,
+    false,
+    false,
+    Ci.nsIMsgSend.nsMsgQueueForLater,
+    null,
+    copyListener,
+    null,
+    null
+  );
 
   // Now we wait till we get copy notification of completion.
   do_test_pending();

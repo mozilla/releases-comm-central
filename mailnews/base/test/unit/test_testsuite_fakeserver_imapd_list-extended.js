@@ -14,16 +14,13 @@ load("../../../resources/asyncTestUtils.js");
 load("../../../resources/alertTestUtils.js");
 
 // IMAP pump
-var {
-  IMAPPump,
-  setupIMAPPump,
-  teardownIMAPPump,
-} = ChromeUtils.import("resource://testing-common/mailnews/IMAPpump.js");
+var { IMAPPump, setupIMAPPump, teardownIMAPPump } = ChromeUtils.import(
+  "resource://testing-common/mailnews/IMAPpump.js"
+);
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Globals
-
 
 // Dovecot is one of the servers that supports LIST-EXTENDED
 setupIMAPPump("Dovecot");
@@ -48,11 +45,14 @@ function* setupMailboxes() {
   IMAPPump.mailbox.subscribed = true;
   IMAPPump.daemon.createMailbox("Fruit", {});
   IMAPPump.daemon.createMailbox("Fruit/Apple", {});
-  IMAPPump.daemon.createMailbox("Fruit/Banana", {subscribed: true});
-  IMAPPump.daemon.createMailbox("Fruit/Peach", {nonExistent: true, subscribed: true});
+  IMAPPump.daemon.createMailbox("Fruit/Banana", { subscribed: true });
+  IMAPPump.daemon.createMailbox("Fruit/Peach", {
+    nonExistent: true,
+    subscribed: true,
+  });
   IMAPPump.daemon.createMailbox("Tofu", {});
-  IMAPPump.daemon.createMailbox("Vegetable", {subscribed: true});
-  IMAPPump.daemon.createMailbox("Vegetable/Broccoli", {subscribed: true});
+  IMAPPump.daemon.createMailbox("Vegetable", { subscribed: true });
+  IMAPPump.daemon.createMailbox("Vegetable/Broccoli", { subscribed: true });
   IMAPPump.daemon.createMailbox("Vegetable/Corn", {});
 
   handler = IMAPPump.server._handlerCreator(IMAPPump.daemon);
@@ -84,11 +84,19 @@ function* testList() {
 function* testListSelectSubscribed() {
   let response = handler.onError("3", 'LIST (SUBSCRIBED) "" "*"');
 
-  Assert.ok(response.includes('* LIST (\\Marked \\NoInferiors \\Subscribed) "/" "INBOX"'));
+  Assert.ok(
+    response.includes(
+      '* LIST (\\Marked \\NoInferiors \\Subscribed) "/" "INBOX"'
+    )
+  );
   Assert.ok(response.includes('* LIST (\\Subscribed) "/" "Fruit/Banana"'));
-  Assert.ok(response.includes('* LIST (\\Subscribed \\NonExistent) "/" "Fruit/Peach"'));
+  Assert.ok(
+    response.includes('* LIST (\\Subscribed \\NonExistent) "/" "Fruit/Peach"')
+  );
   Assert.ok(response.includes('* LIST (\\Subscribed) "/" "Vegetable"'));
-  Assert.ok(response.includes('* LIST (\\Subscribed) "/" "Vegetable/Broccoli"'));
+  Assert.ok(
+    response.includes('* LIST (\\Subscribed) "/" "Vegetable/Broccoli"')
+  );
   Assert.ok(!response.includes('"Fruit"'));
   Assert.ok(!response.includes("Apple"));
   Assert.ok(!response.includes("Tofu"));
@@ -118,13 +126,19 @@ function* testListReturnChilderen() {
 function* testListReturnSubscribed() {
   let response = handler.onError("5", 'LIST "" "*" RETURN (SUBSCRIBED)');
 
-  Assert.ok(response.includes('* LIST (\\Marked \\NoInferiors \\Subscribed) "/" "INBOX"'));
+  Assert.ok(
+    response.includes(
+      '* LIST (\\Marked \\NoInferiors \\Subscribed) "/" "INBOX"'
+    )
+  );
   Assert.ok(response.includes('* LIST () "/" "Fruit"'));
   Assert.ok(response.includes('* LIST () "/" "Fruit/Apple"'));
   Assert.ok(response.includes('* LIST (\\Subscribed) "/" "Fruit/Banana"'));
   Assert.ok(response.includes('* LIST () "/" "Tofu"'));
   Assert.ok(response.includes('* LIST (\\Subscribed) "/" "Vegetable"'));
-  Assert.ok(response.includes('* LIST (\\Subscribed) "/" "Vegetable/Broccoli"'));
+  Assert.ok(
+    response.includes('* LIST (\\Subscribed) "/" "Vegetable/Broccoli"')
+  );
   Assert.ok(response.includes('* LIST () "/" "Vegetable/Corn"'));
   Assert.ok(!response.includes("Peach"));
 
@@ -133,7 +147,10 @@ function* testListReturnSubscribed() {
 
 // test that 'LIST "" ("INBOX" "Tofu" "Vegetable/%")' returns the proper responses
 function* testListSelectMultiple() {
-  let response = handler._dispatchCommand("LIST", ["", '("INBOX" "Tofu" "Vegetable/%")']);
+  let response = handler._dispatchCommand("LIST", [
+    "",
+    '("INBOX" "Tofu" "Vegetable/%")',
+  ]);
 
   Assert.ok(response.includes('* LIST (\\Marked \\NoInferiors) "/" "INBOX"'));
   Assert.ok(response.includes('* LIST () "/" "Tofu"'));
@@ -153,6 +170,9 @@ function endTest() {
 }
 
 function run_test() {
-  Services.prefs.setBoolPref("mail.server.server1.autosync_offline_stores", false);
+  Services.prefs.setBoolPref(
+    "mail.server.server1.autosync_offline_stores",
+    false
+  );
   async_run_tests(tests);
 }

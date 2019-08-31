@@ -6,28 +6,32 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
- /*
-  * Test for https://bugzilla.mozilla.org/show_bug.cgi?id=710056
-  * custom column header settings lost after folder compact
-  * adapted from test_folderCompact.js
-  *
-  * Basic test procedure:
-  *   Open mail account
-  *   create sub-folder named "folder2"
-  *   Set custom column headings on folder2
-  *   Copy in two messages
-  *   Remove one message
-  *   Compact folder2
-  *   Close folder2
-  *   Reopen folder2
-  *   Check whether custom column headings are still there
-  *
-  */
+/*
+ * Test for https://bugzilla.mozilla.org/show_bug.cgi?id=710056
+ * custom column header settings lost after folder compact
+ * adapted from test_folderCompact.js
+ *
+ * Basic test procedure:
+ *   Open mail account
+ *   create sub-folder named "folder2"
+ *   Set custom column headings on folder2
+ *   Copy in two messages
+ *   Remove one message
+ *   Compact folder2
+ *   Close folder2
+ *   Reopen folder2
+ *   Check whether custom column headings are still there
+ *
+ */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
-Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
-                           "@mozilla.org/msgstore/berkeleystore;1");
+Services.prefs.setCharPref(
+  "mail.serverDefaultStoreContractID",
+  "@mozilla.org/msgstore/berkeleystore;1"
+);
 
 // Globals
 var gMsgFile1, gMsgFile2, gMsgFile3;
@@ -38,7 +42,8 @@ var gCurTestNum;
 var gMsgHdrs = [];
 
 var PERSISTED_COLUMN_PROPERTY_NAME = "columnStates";
-var columnJSON = '{"threadCol":{"visible":true,"ordinal":"1"},"flaggedCol":{"visible":true,"ordinal":"4"},"attachmentCol":{"visible":true,"ordinal":"5"},"subjectCol":{"visible":true,"ordinal":"7"},"unreadButtonColHeader":{"visible":true,"ordinal":"9"},"senderCol":{"visible":true,"ordinal":"11"},"recipientCol":{"visible":false,"ordinal":"13"},"junkStatusCol":{"visible":true,"ordinal":"15"},"receivedCol":{"visible":true,"ordinal":"17"},"dateCol":{"visible":true,"ordinal":"19"},"statusCol":{"visible":false,"ordinal":"21"},"sizeCol":{"visible":true,"ordinal":"23"},"tagsCol":{"visible":false,"ordinal":"25"},"accountCol":{"visible":false,"ordinal":"27"},"priorityCol":{"visible":false,"ordinal":"29"},"unreadCol":{"visible":false,"ordinal":"31"},"totalCol":{"visible":false,"ordinal":"33"},"locationCol":{"visible":false,"ordinal":"35"},"idCol":{"visible":false,"ordinal":"37"}}';
+var columnJSON =
+  '{"threadCol":{"visible":true,"ordinal":"1"},"flaggedCol":{"visible":true,"ordinal":"4"},"attachmentCol":{"visible":true,"ordinal":"5"},"subjectCol":{"visible":true,"ordinal":"7"},"unreadButtonColHeader":{"visible":true,"ordinal":"9"},"senderCol":{"visible":true,"ordinal":"11"},"recipientCol":{"visible":false,"ordinal":"13"},"junkStatusCol":{"visible":true,"ordinal":"15"},"receivedCol":{"visible":true,"ordinal":"17"},"dateCol":{"visible":true,"ordinal":"19"},"statusCol":{"visible":false,"ordinal":"21"},"sizeCol":{"visible":true,"ordinal":"23"},"tagsCol":{"visible":false,"ordinal":"25"},"accountCol":{"visible":false,"ordinal":"27"},"priorityCol":{"visible":false,"ordinal":"29"},"unreadCol":{"visible":false,"ordinal":"31"},"totalCol":{"visible":false,"ordinal":"33"},"locationCol":{"visible":false,"ordinal":"35"},"idCol":{"visible":false,"ordinal":"37"}}';
 
 function setColumnStates(folder) {
   let msgDatabase = folder.msgDatabase;
@@ -52,9 +57,10 @@ function checkPersistentState(folder) {
   let dbFolderInfo = msgDatabase.dBFolderInfo;
   let state = dbFolderInfo.getCharProperty(PERSISTED_COLUMN_PROPERTY_NAME);
   Assert.equal(state, columnJSON);
-  do_timeout(0, function() { doTest(++gCurTestNum); });
+  do_timeout(0, function() {
+    doTest(++gCurTestNum);
+  });
 }
-
 
 // nsIMsgCopyServiceListener implementation
 var copyListener = {
@@ -63,7 +69,7 @@ var copyListener = {
   SetMessageKey(aKey) {
     try {
       let hdr = gLocalFolder2.GetMessageHeader(aKey);
-      gMsgHdrs.push({hdr, ID: hdr.messageId});
+      gMsgHdrs.push({ hdr, ID: hdr.messageId });
     } catch (e) {
       dump("SetMessageKey failed: " + e + "\n");
     }
@@ -76,13 +82,14 @@ var copyListener = {
     // This can happen with a bunch of synchronous functions grouped together, and
     // can even cause tests to fail because they're still waiting for the listener
     // to return
-    do_timeout(0, function() { doTest(++gCurTestNum); });
+    do_timeout(0, function() {
+      doTest(++gCurTestNum);
+    });
   },
 };
 
 var urlListener = {
-  OnStartRunningUrl(aUrl) {
-  },
+  OnStartRunningUrl(aUrl) {},
   OnStopRunningUrl(aUrl, aExitCode) {
     // Check: message successfully copied.
     Assert.equal(aExitCode, 0);
@@ -90,12 +97,23 @@ var urlListener = {
     // This can happen with a bunch of synchronous functions grouped together, and
     // can even cause tests to fail because they're still waiting for the listener
     // to return
-    do_timeout(0, function() { doTest(++gCurTestNum); });
+    do_timeout(0, function() {
+      doTest(++gCurTestNum);
+    });
   },
 };
 
 function copyFileMessage(file, destFolder, isDraftOrTemplate) {
-  MailServices.copy.CopyFileMessage(file, destFolder, null, isDraftOrTemplate, 0, "", copyListener, null);
+  MailServices.copy.CopyFileMessage(
+    file,
+    destFolder,
+    null,
+    isDraftOrTemplate,
+    0,
+    "",
+    copyListener,
+    null
+  );
 }
 
 function deleteMessages(srcFolder, items) {
@@ -114,12 +132,19 @@ function deleteMessages(srcFolder, items) {
 // Beware before commenting out a test -- later tests might just depend on earlier ones
 var gTestArray = [
   // Copying messages from files
-  function testCopyFileMessage1() { copyFileMessage(gMsgFile1, gLocalFolder2, false); },
-  function testCopyFileMessage2() { copyFileMessage(gMsgFile2, gLocalFolder2, false); },
-  function testCopyFileMessage3() { copyFileMessage(gMsgFile3, gLocalFolder2, true); },
+  function testCopyFileMessage1() {
+    copyFileMessage(gMsgFile1, gLocalFolder2, false);
+  },
+  function testCopyFileMessage2() {
+    copyFileMessage(gMsgFile2, gLocalFolder2, false);
+  },
+  function testCopyFileMessage3() {
+    copyFileMessage(gMsgFile3, gLocalFolder2, true);
+  },
 
   // Deleting messages
-  function testDeleteMessages1() { // delete to trash
+  function testDeleteMessages1() {
+    // delete to trash
     deleteMessages(gLocalFolder2, [gMsgHdrs[0].hdr], false, false);
   },
   function checkBeforeCompact() {
@@ -147,7 +172,7 @@ function run_test() {
   // "Master" do_test_pending(), paired with a do_test_finished() at the end of all the operations.
   do_test_pending();
 
-//  do_test_finished();
+  //  do_test_finished();
   // Do the test.
   doTest(1);
 }
@@ -159,8 +184,11 @@ function doTest(test) {
     // Set a limit of 10 seconds; if the notifications haven't arrived by
     // then, there's a problem.
     do_timeout(10000, function() {
-      if (gCurTestNum == test)
-        do_throw("Notifications not received in 10000 ms for operation " + testFn.name);
+      if (gCurTestNum == test) {
+        do_throw(
+          "Notifications not received in 10000 ms for operation " + testFn.name
+        );
+      }
     });
     try {
       testFn();

@@ -8,7 +8,9 @@
  * mail.accountmanager.accounts list, and removing duplicate accounts with
  * the same server.
  */
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 function run_test() {
   // Create account prefs with both kinds of duplication.
@@ -23,40 +25,46 @@ function run_test() {
   Services.prefs.setCharPref("mail.account.account5.server", "server5");
   Services.prefs.setCharPref("mail.account.account6.identities", "id3");
   Services.prefs.setCharPref("mail.account.account6.server", "server5");
-  Services.prefs.setCharPref("mail.server.server1.hostname",
-                             "Local Folders");
+  Services.prefs.setCharPref("mail.server.server1.hostname", "Local Folders");
   Services.prefs.setCharPref("mail.server.server1.type", "none");
   Services.prefs.setCharPref("mail.server.server1.userName", "nobody");
-  Services.prefs.setCharPref("mail.server.server1.directory-rel",
-                             "[ProfD]Mail/Local Folders");
-  Services.prefs.setCharPref("mail.server.server2.hostname",
-                             "Local Folders");
+  Services.prefs.setCharPref(
+    "mail.server.server1.directory-rel",
+    "[ProfD]Mail/Local Folders"
+  );
+  Services.prefs.setCharPref("mail.server.server2.hostname", "Local Folders");
   Services.prefs.setCharPref("mail.server.server2.type", "none");
   Services.prefs.setCharPref("mail.server.server2.userName", "nobody");
-  Services.prefs.setCharPref("mail.server.server2.directory-rel",
-                             "[ProfD]Mail/Local Folders-1");
-  Services.prefs.setCharPref("mail.server.server4.hostname",
-                             "mail.host4.org");
+  Services.prefs.setCharPref(
+    "mail.server.server2.directory-rel",
+    "[ProfD]Mail/Local Folders-1"
+  );
+  Services.prefs.setCharPref("mail.server.server4.hostname", "mail.host4.org");
   Services.prefs.setCharPref("mail.server.server4.type", "pop3");
-  Services.prefs.setCharPref("mail.server.server5.hostname",
-                             "pop3.host.org");
+  Services.prefs.setCharPref("mail.server.server5.hostname", "pop3.host.org");
   Services.prefs.setCharPref("mail.server.server5.type", "pop3");
-  Services.prefs.setCharPref("mail.server.server5.deferred_to_account",
-                             "account2");
+  Services.prefs.setCharPref(
+    "mail.server.server5.deferred_to_account",
+    "account2"
+  );
 
-  Services.prefs.setCharPref("mail.accountmanager.accounts",
-                             "account1,account2,account4,account5,account5,account6");
+  Services.prefs.setCharPref(
+    "mail.accountmanager.accounts",
+    "account1,account2,account4,account5,account5,account6"
+  );
   // Set the default account to one we're going to get rid of. The account
   //  manager should recover relatively gracefully.
-  Services.prefs.setCharPref("mail.accountmanager.defaultaccount",
-                             "account6");
+  Services.prefs.setCharPref("mail.accountmanager.defaultaccount", "account6");
 
   // This will force the load of the accounts setup above.
   Assert.equal(MailServices.accounts.accounts.length, 3);
-  Assert.equal(Services.prefs.getCharPref("mail.accountmanager.accounts"),
-               "account1,account4,account5");
-  let server5 = MailServices.accounts.getIncomingServer("server5")
-                  .QueryInterface(Ci.nsIPop3IncomingServer);
+  Assert.equal(
+    Services.prefs.getCharPref("mail.accountmanager.accounts"),
+    "account1,account4,account5"
+  );
+  let server5 = MailServices.accounts
+    .getIncomingServer("server5")
+    .QueryInterface(Ci.nsIPop3IncomingServer);
   Assert.equal(server5.deferredToAccount, "account1");
 
   // Just make sure this doesn't throw an exception, because we did remove the
@@ -72,13 +80,21 @@ function run_test() {
   // not completely initialized...
   server.rootFolder.flags;
 
-  MailServices.accounts.removeAccount(MailServices.accounts.FindAccountForServer(server));
+  MailServices.accounts.removeAccount(
+    MailServices.accounts.FindAccountForServer(server)
+  );
   Assert.equal(MailServices.accounts.accounts.length, 2);
-  Assert.equal(Services.prefs.getCharPref("mail.accountmanager.accounts"),
-               "account1,account5");
+  Assert.equal(
+    Services.prefs.getCharPref("mail.accountmanager.accounts"),
+    "account1,account5"
+  );
   // make sure cleaning up duplicate accounts didn't hork accounts
-  Assert.equal(Services.prefs.getCharPref("mail.account.account1.server"),
-               "server1");
-  Assert.equal(Services.prefs.getCharPref("mail.account.account5.server"),
-               "server5");
+  Assert.equal(
+    Services.prefs.getCharPref("mail.account.account1.server"),
+    "server1"
+  );
+  Assert.equal(
+    Services.prefs.getCharPref("mail.account.account5.server"),
+    "server5"
+  );
 }

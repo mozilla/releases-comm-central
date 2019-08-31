@@ -9,7 +9,9 @@
 /* import-globals-from resources/trainingfile.js */
 load("resources/trainingfile.js");
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 // before shrink, the trained messages have 76 tokens. Force shrink.
 Services.prefs.setIntPref("mailnews.bayesian_spam_filter.junk_maxtokens", 75);
@@ -19,10 +21,15 @@ var kUnclassified = MailServices.junk.UNCLASSIFIED;
 var kJunk = MailServices.junk.JUNK;
 var kGood = MailServices.junk.GOOD;
 
-var emails =          [ "ham1.eml",  "ham2.eml",  "spam1.eml",
-                        "spam2.eml", "spam3.eml", "spam4.eml" ];
-var classifications = [ kGood,       kGood,       kJunk,
-                        kJunk,       kJunk,       kJunk ];
+var emails = [
+  "ham1.eml",
+  "ham2.eml",
+  "spam1.eml",
+  "spam2.eml",
+  "spam3.eml",
+  "spam4.eml",
+];
+var classifications = [kGood, kGood, kJunk, kJunk, kJunk, kJunk];
 var trainingData;
 
 // main test
@@ -35,19 +42,30 @@ function run_test() {
   var email = emails.shift();
   var classification = classifications.shift();
   // additional calls to setMessageClassifiaction are done in the callback
-  MailServices.junk.setMessageClassification(getSpec(email),
-    kUnclassified, classification, null, doTestingListener);
+  MailServices.junk.setMessageClassification(
+    getSpec(email),
+    kUnclassified,
+    classification,
+    null,
+    doTestingListener
+  );
 }
 
 var doTestingListener = {
   onMessageClassified(aMsgURI, aClassification, aJunkPercent) {
-    if (!aMsgURI)
-      return; // ignore end-of-batch signal
+    if (!aMsgURI) {
+      return;
+    } // ignore end-of-batch signal
     var email = emails.shift();
     var classification = classifications.shift();
     if (email) {
-      MailServices.junk.setMessageClassification(getSpec(email),
-          kUnclassified, classification, null, doTestingListener);
+      MailServices.junk.setMessageClassification(
+        getSpec(email),
+        kUnclassified,
+        classification,
+        null,
+        doTestingListener
+      );
       return;
     }
 
@@ -90,8 +108,8 @@ var doTestingListener = {
 
     Assert.equal(trainingData.mGoodMessages, 1); //  2/2
     Assert.equal(trainingData.mJunkMessages, 2); //  4/2
-    checkToken("money", 0, 2);  // (0/2, 4/2)
-    checkToken("subject:report", 0, 0);  // (1/2, 0/2)
+    checkToken("money", 0, 2); // (0/2, 4/2)
+    checkToken("subject:report", 0, 0); // (1/2, 0/2)
     checkToken("to:careful reader <reader@example.org>", 1, 2); // (2/2, 4/2)
     checkToken("make", 0, 1); // (0/2, 3/2)
     checkToken("important", 1, 0); // (2/2, 0/2)
@@ -106,8 +124,12 @@ function checkToken(aToken, aGoodCount, aJunkCount) {
   print(" checking " + aToken);
   var goodCount = trainingData.mGoodCounts[aToken];
   var junkCount = trainingData.mJunkCounts[aToken];
-  if (!goodCount) goodCount = 0;
-  if (!junkCount) junkCount = 0;
+  if (!goodCount) {
+    goodCount = 0;
+  }
+  if (!junkCount) {
+    junkCount = 0;
+  }
   Assert.equal(goodCount, aGoodCount);
   Assert.equal(junkCount, aJunkCount);
 }

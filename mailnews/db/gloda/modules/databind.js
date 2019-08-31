@@ -4,7 +4,7 @@
 
 this.EXPORTED_SYMBOLS = ["GlodaDatabind"];
 
-const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 var DBC_LOG = Log4Moz.repository.getLogger("gloda.ds.dbc");
 
@@ -18,10 +18,12 @@ function GlodaDatabind(aNounDef, aDatastore) {
   // process the column definitions and make sure they have an attribute mapping
   for (let [iColDef, coldef] of this._tableDef.columns.entries()) {
     // default to the other dude's thing.
-    if (coldef.length < 3)
+    if (coldef.length < 3) {
       coldef[2] = coldef[0];
-    if (coldef[0] == "id")
+    }
+    if (coldef[0] == "id") {
       this._idAttr = coldef[2];
+    }
     // colDef[3] is the index of us in our SQL bindings, storage-numbering
     coldef[3] = iColDef;
   }
@@ -37,8 +39,11 @@ function GlodaDatabind(aNounDef, aDatastore) {
   //  because of that scan.
   this._nextId = 1;
   let stmt = this._datastore._createSyncStatement(
-    "SELECT MAX(id) FROM " + this._tableName, true);
-  if (stmt.executeStep()) {  // no chance of this SQLITE_BUSY on this call
+    "SELECT MAX(id) FROM " + this._tableName,
+    true
+  );
+  if (stmt.executeStep()) {
+    // no chance of this SQLITE_BUSY on this call
     this._nextId = stmt.getInt64(0) + 1;
   }
   stmt.finalize();
@@ -56,20 +61,31 @@ function GlodaDatabind(aNounDef, aDatastore) {
     }
   }
 
-  let insertSql = "INSERT INTO " + this._tableName + " (" +
-    insertColumns.join(", ") + ") VALUES (" + insertValues.join(", ") + ")";
+  let insertSql =
+    "INSERT INTO " +
+    this._tableName +
+    " (" +
+    insertColumns.join(", ") +
+    ") VALUES (" +
+    insertValues.join(", ") +
+    ")";
 
   // For the update, we want the 'id' to be a constraint and not a value
   //  that gets set...
-  let updateSql = "UPDATE " + this._tableName + " SET " +
-    updateItems.join(", ") + " WHERE id = ?1";
+  let updateSql =
+    "UPDATE " +
+    this._tableName +
+    " SET " +
+    updateItems.join(", ") +
+    " WHERE id = ?1";
   this._insertStmt = aDatastore._createAsyncStatement(insertSql);
   this._updateStmt = aDatastore._createAsyncStatement(updateSql);
 
   if (this._tableDef.fulltextColumns) {
     for (let [iColDef, coldef] of this._tableDef.fulltextColumns.entries()) {
-      if (coldef.length < 3)
+      if (coldef.length < 3) {
         coldef[2] = coldef[0];
+      }
       // colDef[3] is the index of us in our SQL bindings, storage-numbering
       coldef[3] = iColDef + 1;
     }
@@ -88,19 +104,30 @@ function GlodaDatabind(aNounDef, aDatastore) {
       }
     }
 
-    let insertFulltextSql = "INSERT INTO " + this._tableName + "Text (docid," +
-      insertColumns.join(", ") + ") VALUES (?1," + insertValues.join(", ") +
+    let insertFulltextSql =
+      "INSERT INTO " +
+      this._tableName +
+      "Text (docid," +
+      insertColumns.join(", ") +
+      ") VALUES (?1," +
+      insertValues.join(", ") +
       ")";
 
     // For the update, we want the 'id' to be a constraint and not a value
     //  that gets set...
-    let updateFulltextSql = "UPDATE " + this._tableName + "Text SET " +
-      updateItems.join(", ") + " WHERE docid = ?1";
+    let updateFulltextSql =
+      "UPDATE " +
+      this._tableName +
+      "Text SET " +
+      updateItems.join(", ") +
+      " WHERE docid = ?1";
 
-    this._insertFulltextStmt =
-      aDatastore._createAsyncStatement(insertFulltextSql);
-    this._updateFulltextStmt =
-      aDatastore._createAsyncStatement(updateFulltextSql);
+    this._insertFulltextStmt = aDatastore._createAsyncStatement(
+      insertFulltextSql
+    );
+    this._updateFulltextStmt = aDatastore._createAsyncStatement(
+      updateFulltextSql
+    );
   }
 }
 
@@ -128,8 +155,9 @@ GlodaDatabind.prototype = {
 
   objInsert(aThing) {
     let bindByType = this.bindByType;
-    if (!aThing[this._idAttr])
+    if (!aThing[this._idAttr]) {
       aThing[this._idAttr] = this._nextId++;
+    }
 
     let stmt = this._insertStmt;
     for (let colDef of this._tableDef.columns) {

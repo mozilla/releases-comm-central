@@ -12,9 +12,9 @@ function run_test() {
   // Test - Get the address collecter
 
   // Get the actual collecter
-  var addressCollect =
-    Cc["@mozilla.org/addressbook/services/addressCollector;1"]
-      .getService(Ci.nsIAbAddressCollector);
+  var addressCollect = Cc[
+    "@mozilla.org/addressbook/services/addressCollector;1"
+  ].getService(Ci.nsIAbAddressCollector);
 
   // Set the new pref afterwards to ensure we change correctly
   Services.prefs.setCharPref("mail.collect_addressbook", kCABData.URI);
@@ -25,8 +25,11 @@ function run_test() {
   // address collecter can't currently create ABs itself (bug 314448).
   MailServices.ab.directories;
 
-  addressCollect.collectAddress("Other Book <other@book.invalid>", true,
-                                nsIAbPMF.unknown);
+  addressCollect.collectAddress(
+    "Other Book <other@book.invalid>",
+    true,
+    nsIAbPMF.unknown
+  );
 
   let PAB = MailServices.ab.getDirectory(kPABData.URI);
 

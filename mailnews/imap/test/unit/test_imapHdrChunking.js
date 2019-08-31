@@ -13,8 +13,10 @@ load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 // javascript mime emitter functions
 
 // IMAP pump
@@ -24,15 +26,19 @@ setupIMAPPump();
 // Dummy message window so we can say the inbox is open in a window.
 var dummyMsgWindow = {
   openFolder: IMAPPump.inbox,
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgWindow,
-                                          Ci.nsISupportsWeakReference]),
+  QueryInterface: ChromeUtils.generateQI([
+    Ci.nsIMsgWindow,
+    Ci.nsISupportsWeakReference,
+  ]),
 };
 
 var gFolderListener = {
   _gotNewMailBiff: false,
   OnItemIntPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {
-    if (aProperty == "BiffState" &&
-        aNewValue == Ci.nsIMsgFolder.nsMsgBiffState_NewMail) {
+    if (
+      aProperty == "BiffState" &&
+      aNewValue == Ci.nsIMsgFolder.nsMsgBiffState_NewMail
+    ) {
       this._gotNewMailBiff = true;
       async_driver();
     }
@@ -60,9 +66,12 @@ function* uploadImapMessages() {
   let imapInbox = IMAPPump.daemon.getMailbox("INBOX");
   // Create the imapMessages and store them on the mailbox
   messages.forEach(function(message) {
-    let dataUri = Services.io.newURI("data:text/plain;base64," +
-                                     btoa(message.toMessageString()));
-    imapInbox.addMessage(new imapMessage(dataUri.spec, imapInbox.uidnext++, []));
+    let dataUri = Services.io.newURI(
+      "data:text/plain;base64," + btoa(message.toMessageString())
+    );
+    imapInbox.addMessage(
+      new imapMessage(dataUri.spec, imapInbox.uidnext++, [])
+    );
   });
   // updateFolderWithListener with null for nsIMsgWindow makes biff notify.
   IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
@@ -94,16 +103,20 @@ function run_test() {
   // We need to register the dummyMsgWindow so that we'll think the
   // Inbox is open in a folder and fetch headers in chunks.
   MailServices.mailSession.AddMsgWindow(dummyMsgWindow);
-  MailServices.mailSession.AddFolderListener(gFolderListener,
-                                             Ci.nsIFolderListener.intPropertyChanged);
+  MailServices.mailSession.AddFolderListener(
+    gFolderListener,
+    Ci.nsIFolderListener.intPropertyChanged
+  );
 
   // Set chunk size to 3, so we'll have to chain 4 requests to get
   // 10 headers.
   Services.prefs.setIntPref("mail.imap.hdr_chunk_size", 3);
   // Turn off offline sync to avoid complications in verifying that we can
   // run a url after the first header chunk.
-  Services.prefs.setBoolPref("mail.server.server1.autosync_offline_stores", false);
+  Services.prefs.setBoolPref(
+    "mail.server.server1.autosync_offline_stores",
+    false
+  );
 
   async_run_tests(tests);
 }
-

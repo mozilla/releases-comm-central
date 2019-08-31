@@ -12,7 +12,7 @@
  * the nuke path! oh the irony!) so we don't need to get all hardcore.
  **/
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * The DB version to use.  We set this as a non-const variable so that
@@ -42,11 +42,12 @@ function make_out_of_date_database() {
 // some copied and pasted preference setup from glodaTestHelper that is
 // appropriate here.
 // yes to indexing
-Services.prefs.setBoolPref("mailnews.database.global.indexer.enabled",
-                           true);
+Services.prefs.setBoolPref("mailnews.database.global.indexer.enabled", true);
 // no to a sweep we don't control
-Services.prefs.setBoolPref("mailnews.database.global.indexer.perform_initial_sweep",
-                           false);
+Services.prefs.setBoolPref(
+  "mailnews.database.global.indexer.perform_initial_sweep",
+  false
+);
 // yes to debug output
 Services.prefs.setBoolPref("mailnews.database.global.logging.dump", true);
 
@@ -57,7 +58,9 @@ function run_test() {
   // - tickle gloda
   // public.js loads gloda.js which self-initializes and initializes the datastore
   ChromeUtils.import("resource:///modules/gloda/public.js");
-  let {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
+  let { GlodaDatastore } = ChromeUtils.import(
+    "resource:///modules/gloda/datastore.js"
+  );
 
   Assert.notEqual(GlodaDatastore.asyncConnection, null);
 }

@@ -10,10 +10,14 @@
  *
  */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
-Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
-                           "@mozilla.org/msgstore/berkeleystore;1");
+Services.prefs.setCharPref(
+  "mail.serverDefaultStoreContractID",
+  "@mozilla.org/msgstore/berkeleystore;1"
+);
 
 /* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/POP3pump.js");
@@ -112,8 +116,7 @@ function* updateSubfolderAndTest() {
 }
 
 function* get2Messages() {
-  gPOP3Pump.files = ["../../../data/bugmail10",
-                     "../../../data/draft1"];
+  gPOP3Pump.files = ["../../../data/bugmail10", "../../../data/draft1"];
   gPOP3Pump.onDone = function() {
     dump("POP3Pump done\n");
     async_driver();
@@ -160,14 +163,20 @@ var mfnListener = {
   folderAdded(aFolder) {
     dl("folderAdded <" + aFolder.name + ">");
     // we are only using async yield on the Subfolder add
-    if (aFolder.name == "subfolder")
+    if (aFolder.name == "subfolder") {
       async_driver();
+    }
   },
 
   msgAdded(aMsg) {
-    dl("msgAdded to folder <" + aMsg.folder.name + "> subject <" + aMsg.subject + ">");
+    dl(
+      "msgAdded to folder <" +
+        aMsg.folder.name +
+        "> subject <" +
+        aMsg.subject +
+        ">"
+    );
   },
-
 };
 
 var urlListener = {
@@ -189,9 +198,7 @@ function run_test() {
 
   // Add folder listeners that will capture async events
   const nsIMFNService = Ci.nsIMsgFolderNotificationService;
-  let flags =
-        nsIMFNService.folderAdded |
-        nsIMFNService.msgAdded;
+  let flags = nsIMFNService.folderAdded | nsIMFNService.msgAdded;
   MailServices.mfn.addListener(mfnListener, flags);
 
   // start first test
@@ -227,4 +234,3 @@ function listMessages(folder) {
 function dl(text) {
   dump(text + "\n");
 }
-

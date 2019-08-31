@@ -32,15 +32,18 @@ var uniqueCounter = 0;
  */
 function unique_string() {
   let uval = uniqueCounter++;
-  let s = String.fromCharCode(97 + Math.floor(uval / (26 * 26))) +
-          String.fromCharCode(97 + (Math.floor(uval / 26) % 26)) +
-          String.fromCharCode(97 + (uval % 26)) +
-          "aa";
+  let s =
+    String.fromCharCode(97 + Math.floor(uval / (26 * 26))) +
+    String.fromCharCode(97 + (Math.floor(uval / 26) % 26)) +
+    String.fromCharCode(97 + (uval % 26)) +
+    "aa";
   return s;
 }
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {GlodaMsgSearcher} = ChromeUtils.import("resource:///modules/gloda/msg_search.js");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { GlodaMsgSearcher } = ChromeUtils.import(
+  "resource:///modules/gloda/msg_search.js"
+);
 
 /**
  * Wrap the construction of a GlodaMsgSearcher with a limit of 1 and feed it to
@@ -69,8 +72,10 @@ function asyncMsgSearcherExpect(aFulltextStr, aExpectedSet, aLimit) {
  */
 function* test_fulltext_weighting_by_column() {
   let ustr = unique_string();
-  let [, subjSet, bodySet] = make_folder_with_sets(
-    [{count: 1, subject: ustr}, {count: 1, body: {body: ustr}}]);
+  let [, subjSet, bodySet] = make_folder_with_sets([
+    { count: 1, subject: ustr },
+    { count: 1, body: { body: ustr } },
+  ]);
   yield wait_for_gloda_indexer([subjSet, bodySet]);
   yield asyncMsgSearcherExpect(ustr, subjSet);
 }
@@ -84,8 +89,10 @@ function* test_fulltext_weighting_saturation() {
   let ustr = unique_string();
   let double_ustr = ustr + " " + ustr;
   let thrice_ustr = ustr + " " + ustr + " " + ustr;
-  let [, subjSet, bodySet] = make_folder_with_sets(
-    [{count: 1, subject: double_ustr}, {count: 1, body: {body: thrice_ustr}}]);
+  let [, subjSet, bodySet] = make_folder_with_sets([
+    { count: 1, subject: double_ustr },
+    { count: 1, body: { body: thrice_ustr } },
+  ]);
   yield wait_for_gloda_indexer([subjSet, bodySet]);
   yield asyncMsgSearcherExpect(ustr, bodySet);
 }
@@ -97,8 +104,10 @@ function* test_fulltext_weighting_saturation() {
  */
 function* test_static_interestingness_boost_works() {
   let ustr = unique_string();
-  let [, starred, notStarred] = make_folder_with_sets(
-    [{count: 1, subject: ustr}, {count: 1, subject: ustr}]);
+  let [, starred, notStarred] = make_folder_with_sets([
+    { count: 1, subject: ustr },
+    { count: 1, subject: ustr },
+  ]);
   // index in their native state
   yield wait_for_gloda_indexer([starred, notStarred]);
   // star and index
@@ -113,7 +122,7 @@ function* test_static_interestingness_boost_works() {
  */
 function* test_joins_do_not_return_everybody() {
   let ustr = unique_string();
-  let [, subjSet] = make_folder_with_sets([{count: 1, subject: ustr}]);
+  let [, subjSet] = make_folder_with_sets([{ count: 1, subject: ustr }]);
   yield wait_for_gloda_indexer([subjSet]);
   yield asyncMsgSearcherExpect(ustr, subjSet, 2);
 }
@@ -127,6 +136,6 @@ var tests = [
 
 function run_test() {
   // use mbox injection because the fake server chokes sometimes right now
-  configure_message_injection({mode: "local"});
+  configure_message_injection({ mode: "local" });
   glodaHelperRunTests(tests);
 }

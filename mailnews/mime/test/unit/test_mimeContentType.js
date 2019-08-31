@@ -6,70 +6,76 @@ function run_test() {
   const headers = [
     {
       header:
-      "Content-Type: text/plain\r\n" +
-      "Content-Disposition: inline\r\n" +
-      "\r\n",
-      result:
-      "text/plain",
-    }, {
+        "Content-Type: text/plain\r\n" +
+        "Content-Disposition: inline\r\n" +
+        "\r\n",
+      result: "text/plain",
+    },
+    {
       header:
-      "Content-Type:\r\n" +
-      "\tapplication/vnd.openxmlformats-officedocument.spreadsheetml.sheet\r\n" +
-      "Content-Transfer-Encoding: base64\r\n" +
-      "Content-Disposition: attachment; filename=\"List.xlsx\"\r\n" +
-      "\r\n",
+        "Content-Type:\r\n" +
+        "\tapplication/vnd.openxmlformats-officedocument.spreadsheetml.sheet\r\n" +
+        "Content-Transfer-Encoding: base64\r\n" +
+        'Content-Disposition: attachment; filename="List.xlsx"\r\n' +
+        "\r\n",
       result:
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    }, {
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    },
+    {
       header:
-      "Content-Type: \r\n" +
-      " application/vnd.openxmlformats-officedocument.presentationml.presentation;\r\n" +
-      " name=\"Presentation.pptx\"\r\n" +
-      "\r\n",
+        "Content-Type: \r\n" +
+        " application/vnd.openxmlformats-officedocument.presentationml.presentation;\r\n" +
+        ' name="Presentation.pptx"\r\n' +
+        "\r\n",
       result:
-      "application/vnd.openxmlformats-officedocument.presentationml.presentation;" +
-      " name=\"Presentation.pptx\"",
-    }, {
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation;" +
+        ' name="Presentation.pptx"',
+    },
+    {
       header:
-      "Content-Type:\r\n" +
-      "text/plain; charset=utf-8\r\n" +
-      "Content-Transfer-Encoding: quoted-printable\r\n" +
-      "Content-Disposition: inline\r\n" +
-      "\r\n",
-      result:
-      "",
-    }, {
-      header:
-      "Content-Type:\r\n" +
-      "\r\n",
-      result:
-      "",
-    }, {
+        "Content-Type:\r\n" +
+        "text/plain; charset=utf-8\r\n" +
+        "Content-Transfer-Encoding: quoted-printable\r\n" +
+        "Content-Disposition: inline\r\n" +
+        "\r\n",
+      result: "",
+    },
+    {
+      header: "Content-Type:\r\n" + "\r\n",
+      result: "",
+    },
+    {
       /* possible crash case for Bug 574961 */
       header:
-      "Content-Type: \r\n" +
-      "                                " +
-      "                                " +
-      "                                " +
-      "                                " +
-      "                                " +
-      "                                " +
-      "                                " +
-      "                                " +
-      "              \r\n",
-      result:
-      "",
+        "Content-Type: \r\n" +
+        "                                " +
+        "                                " +
+        "                                " +
+        "                                " +
+        "                                " +
+        "                                " +
+        "                                " +
+        "                                " +
+        "              \r\n",
+      result: "",
     },
   ];
 
-  let mimeHdr = Cc["@mozilla.org/messenger/mimeheaders;1"]
-                  .createInstance(Ci.nsIMimeHeaders);
+  let mimeHdr = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
+    Ci.nsIMimeHeaders
+  );
 
   for (let i = 0; i < headers.length; i++) {
     mimeHdr.initialize(headers[i].header);
     let receivedHeader = mimeHdr.extractHeader("Content-Type", false);
 
-    dump("\nTesting Content-Type: " + receivedHeader + " == " + headers[i].result + "\n");
+    dump(
+      "\nTesting Content-Type: " +
+        receivedHeader +
+        " == " +
+        headers[i].result +
+        "\n"
+    );
 
     Assert.equal(receivedHeader, headers[i].result);
   }

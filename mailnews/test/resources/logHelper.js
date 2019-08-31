@@ -12,9 +12,9 @@
  *  or not.
  */
 
-var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.js");
 // eslint-disable-next-line mozilla/reject-importGlobalProperties
 Cu.importGlobalProperties(["Element", "Node"]);
 
@@ -69,8 +69,10 @@ var _errorConsoleTunnel = {
     try {
       // meh, let's just use mark_failure for now.
       // and let's avoid feedback loops (happens in mozmill)
-      if ((aMessage instanceof Ci.nsIScriptError) &&
-          (!aMessage.errorMessage.includes("Error console says"))) {
+      if (
+        aMessage instanceof Ci.nsIScriptError &&
+        !aMessage.errorMessage.includes("Error console says")
+      ) {
         // Unfortunately changes to mozilla-central are throwing lots
         // of console errors during testing, so disable (we hope temporarily)
         // failing on XPCOM console errors (see bug 1014350).
@@ -88,8 +90,9 @@ var _errorConsoleTunnel = {
           }
           let message = XPCOMresult || aMessage;
           if (logHelperAllowedErrors.some(e => e == matches[1])) {
-            if (XPCOMresult)
+            if (XPCOMresult) {
               info("Ignoring XPCOM error: " + message);
+            }
             return;
           }
           info("Found XPCOM error: " + message);
@@ -155,8 +158,9 @@ function _init_log_helper() {
   _errorConsoleTunnel.initialize();
 
   if (_logHelperInterestedListeners) {
-    if (!_do_not_wrap_xpcshell)
+    if (!_do_not_wrap_xpcshell) {
       _wrap_xpcshell_functions();
+    }
 
     // Send a message telling the listeners about the test file being run.
     _xpcshellLogger.info({
@@ -173,8 +177,9 @@ _init_log_helper();
 function _cleanup_log_helper() {
   let rootLogger = Log4Moz.repository.rootLogger;
   for (let appender of rootLogger.appenders) {
-    if ("closeStream" in appender)
+    if ("closeStream" in appender) {
       appender.closeStream();
+    }
   }
   rootLogger._appenders = [];
 }
@@ -188,13 +193,14 @@ function _cleanup_log_helper() {
  *  asyncTestUtils.js.  However, |mark_sub_test_start| is for user test code.
  */
 function mark_test_start(aName, aParameter, aDepth) {
-  if (aDepth == null)
+  if (aDepth == null) {
     aDepth = 0;
+  }
 
   // clear out any existing contexts
   mark_test_end(aDepth);
 
-  let term = (aDepth == 0) ? "test" : "subtest";
+  let term = aDepth == 0 ? "test" : "subtest";
   _testLoggerActiveContext = _mailnewsTestLogger.newContext({
     type: term,
     name: aName,
@@ -207,23 +213,31 @@ function mark_test_start(aName, aParameter, aDepth) {
   }
   _testLoggerContexts.push(_testLoggerActiveContext);
 
-  _mailnewsTestLogger.info(_testLoggerActiveContext,
-                           "Starting " + term + ": " + aName +
-                           (aParameter ? (", " + aParameter) : ""));
+  _mailnewsTestLogger.info(
+    _testLoggerActiveContext,
+    "Starting " + term + ": " + aName + (aParameter ? ", " + aParameter : "")
+  );
 }
 
 /**
  * Mark the end of a test started by |mark_test_start|.
  */
 function mark_test_end(aPopTo) {
-  if (aPopTo === undefined)
+  if (aPopTo === undefined) {
     aPopTo = 0;
+  }
   // clear out any existing contexts
   while (_testLoggerContexts.length > aPopTo) {
     let context = _testLoggerContexts.pop();
     context.finish();
-    _mailnewsTestLogger.info(context, "Finished " + context.type + ": " + context.name +
-                             (context.parameter ? (", " + context.parameter) : ""));
+    _mailnewsTestLogger.info(
+      context,
+      "Finished " +
+        context.type +
+        ": " +
+        context.name +
+        (context.parameter ? ", " + context.parameter : "")
+    );
   }
 }
 
@@ -249,8 +263,9 @@ function mark_sub_test_start(aName, aParameter, aNest) {
  *  there is no ambiguity about what sub-test we are closing out.
  */
 function mark_sub_test_end() {
-  if (_testLoggerContexts.length <= 1)
+  if (_testLoggerContexts.length <= 1) {
     return;
+  }
   mark_test_end(_testLoggerContexts.length - 1);
 }
 
@@ -281,8 +296,9 @@ function _explode_flags(aFlagWord, aFlagDefs) {
 
   for (let flagName in aFlagDefs) {
     let flagVal = aFlagDefs[flagName];
-    if (flagVal & aFlagWord)
+    if (flagVal & aFlagWord) {
       flagList.push(flagName);
+    }
   }
 
   return flagList;
@@ -294,8 +310,9 @@ var _registered_json_normalizers = [];
  * Copy natives or objects, deferring to _normalize_for_json for objects.
  */
 function __value_copy(aObj, aDepthAllowed) {
-  if (aObj == null || typeof(aObj) != "object")
+  if (aObj == null || typeof aObj != "object") {
     return aObj;
+  }
   return _normalize_for_json(aObj, aDepthAllowed, true);
 }
 
@@ -320,7 +337,7 @@ function __simple_obj_copy(aObj, aDepthAllowed) {
 
     if (value == null) {
       oot[key] = null;
-    } else if (typeof(value) != "object") {
+    } else if (typeof value != "object") {
       oot[key] = value;
     } else if (!aDepthAllowed) {
       // steal control flow if no more depth is allowed
@@ -344,12 +361,11 @@ function __simple_obj_copy(aObj, aDepthAllowed) {
 var _INTERESTING_MESSAGE_HEADER_PROPERTIES = {
   "gloda-id": 0,
   "gloda-dirty": 0,
-  "junkscore": "",
-  "junkscoreorigin": "",
-  "msgOffset": 0,
-  "offlineMsgSize": 0,
+  junkscore: "",
+  junkscoreorigin: "",
+  msgOffset: 0,
+  offlineMsgSize: 0,
 };
-
 
 /**
  * Given an object, attempt to normalize it into an interesting JSON
@@ -360,18 +376,21 @@ var _INTERESTING_MESSAGE_HEADER_PROPERTIES = {
  * - nsIMsgDBHdr
  */
 function _normalize_for_json(aObj, aDepthAllowed, aJsonMeNotNeeded) {
-  if (aDepthAllowed === undefined)
+  if (aDepthAllowed === undefined) {
     aDepthAllowed = 2;
+  }
 
   // if it's a simple type just return it direct
-  if (typeof(aObj) != "object")
+  if (typeof aObj != "object") {
     return aObj;
-  else if (aObj == null)
+  } else if (aObj == null) {
     return aObj;
+  }
 
   // recursively transform arrays outright
-  if (Array.isArray(aObj))
-      return aObj.map(v => __value_copy(v, aDepthAllowed - 1));
+  if (Array.isArray(aObj)) {
+    return aObj.map(v => __value_copy(v, aDepthAllowed - 1));
+  }
 
   // === Mail Specific ===
   // (but common and few enough to not split out)
@@ -380,18 +399,20 @@ function _normalize_for_json(aObj, aDepthAllowed, aJsonMeNotNeeded) {
       type: "folder",
       name: aObj.prettyName,
       uri: aObj.URI,
-      flags: _explode_flags(aObj.flags,
-                            Ci.nsMsgFolderFlags),
+      flags: _explode_flags(aObj.flags, Ci.nsMsgFolderFlags),
     };
   } else if (aObj instanceof Ci.nsIMsgDBHdr) {
     let properties = {};
     for (let name in _INTERESTING_MESSAGE_HEADER_PROPERTIES) {
       let propType = _INTERESTING_MESSAGE_HEADER_PROPERTIES[name];
-      if (propType === 0)
-        properties[name] = (aObj.getStringProperty(name) != "") ?
-                             aObj.getUint32Property(name) : null;
-      else
+      if (propType === 0) {
+        properties[name] =
+          aObj.getStringProperty(name) != ""
+            ? aObj.getUint32Property(name)
+            : null;
+      } else {
         properties[name] = aObj.getStringProperty(name);
+      }
     }
     return {
       type: "msgHdr",
@@ -401,8 +422,7 @@ function _normalize_for_json(aObj, aDepthAllowed, aJsonMeNotNeeded) {
       to: aObj.mime2DecodedRecipients,
       messageKey: aObj.messageKey,
       messageId: aObj.messageId,
-      flags: _explode_flags(aObj.flags,
-                            Ci.nsMsgMessageFlags),
+      flags: _explode_flags(aObj.flags, Ci.nsMsgMessageFlags),
       interestingProperties: properties,
     };
   } else if (Node.isInstance(aObj)) {
@@ -411,8 +431,9 @@ function _normalize_for_json(aObj, aDepthAllowed, aJsonMeNotNeeded) {
     let name = aObj.nodeName;
     let objAttrs = {};
 
-    if (Element.isInstance(aObj))
+    if (Element.isInstance(aObj)) {
       name += "#" + aObj.getAttribute("id");
+    }
 
     if ("attributes" in aObj) {
       let nodeAttrs = aObj.attributes;
@@ -422,8 +443,9 @@ function _normalize_for_json(aObj, aDepthAllowed, aJsonMeNotNeeded) {
     }
 
     let bounds = { left: null, top: null, width: null, height: null };
-    if ("getBoundingClientRect" in aObj)
+    if ("getBoundingClientRect" in aObj) {
       bounds = aObj.getBoundingClientRect();
+    }
 
     return {
       type: "domNode",
@@ -437,9 +459,10 @@ function _normalize_for_json(aObj, aDepthAllowed, aJsonMeNotNeeded) {
     let winId, title;
     if (aObj.document && aObj.document.documentElement) {
       title = aObj.document.title;
-      winId = aObj.document.documentElement.getAttribute("windowtype") ||
-              aObj.document.documentElement.getAttribute("id") ||
-              "unnamed";
+      winId =
+        aObj.document.documentElement.getAttribute("windowtype") ||
+        aObj.document.documentElement.getAttribute("id") ||
+        "unnamed";
     } else {
       winId = "n/a";
       title = "no document";
@@ -449,8 +472,8 @@ function _normalize_for_json(aObj, aDepthAllowed, aJsonMeNotNeeded) {
       id: winId,
       title,
       location: "" + aObj.location,
-      coords: {x: aObj.screenX, y: aObj.screenY},
-      dims: {width: aObj.outerWidth, height: aObj.outerHeight},
+      coords: { x: aObj.screenX, y: aObj.screenY },
+      dims: { width: aObj.outerWidth, height: aObj.outerHeight },
     };
   } else if (aObj instanceof Error) {
     // Although straight JS exceptions should serialize pretty well, we can
@@ -492,8 +515,9 @@ function _normalize_for_json(aObj, aDepthAllowed, aJsonMeNotNeeded) {
   }
 
   for (let [checkType, handler] of _registered_json_normalizers) {
-    if (aObj instanceof checkType)
+    if (aObj instanceof checkType) {
       return handler(aObj);
+    }
   }
 
   // Do not fall into simple object walking if this is an XPCOM interface.
@@ -506,8 +530,9 @@ function _normalize_for_json(aObj, aDepthAllowed, aJsonMeNotNeeded) {
   }
 
   let simple_obj = __simple_obj_copy(aObj, aDepthAllowed);
-  if (!aJsonMeNotNeeded)
+  if (!aJsonMeNotNeeded) {
     simple_obj._jsonMe = true;
+  }
   return simple_obj;
 }
 
@@ -532,11 +557,12 @@ _MarkAction.prototype = {
     if (this.args) {
       argStr = ":";
       for (let arg of this.args) {
-        if (arg != null && (typeof(arg) == "object") && ("type" in arg)) {
-          if ("name" in arg)
+        if (arg != null && typeof arg == "object" && "type" in arg) {
+          if ("name" in arg) {
             argStr += " " + arg.type + ": " + arg.name;
-          else
+          } else {
             argStr += " " + arg.type;
+          }
         } else {
           argStr += " " + arg;
         }
@@ -613,20 +639,22 @@ function mark_failure(aRichString) {
   let args = [_testLoggerActiveContext];
   let text = "";
   for (let [i, richThing] of aRichString.entries()) {
-    text += (i ? " " : "");
-    if (richThing == null || typeof(richThing) != "object") {
+    text += i ? " " : "";
+    if (richThing == null || typeof richThing != "object") {
       text += richThing;
       args.push(richThing);
     } else {
       let jsonThing = _normalize_for_json(richThing);
-      if (("type" in jsonThing) && ("name" in jsonThing))
+      if ("type" in jsonThing && "name" in jsonThing) {
         text += "[" + jsonThing.type + " " + jsonThing.name + "]";
-      else
+      } else {
         text += "[" + jsonThing + "]";
+      }
 
       // hook things up to be json serialized.
-      if (!("_jsonMe" in jsonThing))
+      if (!("_jsonMe" in jsonThing)) {
         jsonThing._jsonMe = true;
+      }
       args.push(jsonThing);
     }
   }
@@ -636,13 +664,13 @@ function mark_failure(aRichString) {
 }
 
 function _wrapped_do_throw(text, stack) {
-  if (!stack)
+  if (!stack) {
     stack = Components.stack.caller;
+  }
 
   // We need to use an info because otherwise explosion loggers can get angry
   //  and they may be indiscriminate about what they subscribe to.
-  _xpcshellLogger.info(_testLoggerActiveContext,
-                        new _Failure(text, stack));
+  _xpcshellLogger.info(_testLoggerActiveContext, new _Failure(text, stack));
 
   return _orig_do_throw(text, stack);
 }

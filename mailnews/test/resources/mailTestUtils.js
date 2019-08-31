@@ -4,20 +4,28 @@
 
 this.EXPORTED_SYMBOLS = ["mailTestUtils"];
 
-var {ctypes} = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
 // See Bug 903946
 function avoidUncaughtExceptionInExternalProtocolService() {
   try {
-    Services.prefs.setCharPref("helpers.private_mime_types_file",
-      Services.prefs.getCharPref("helpers.global_mime_types_file"));
+    Services.prefs.setCharPref(
+      "helpers.private_mime_types_file",
+      Services.prefs.getCharPref("helpers.global_mime_types_file")
+    );
   } catch (ex) {}
   try {
-    Services.prefs.setCharPref("helpers.private_mailcap_file",
-      Services.prefs.getCharPref("helpers.global_mailcap_file"));
+    Services.prefs.setCharPref(
+      "helpers.private_mailcap_file",
+      Services.prefs.getCharPref("helpers.global_mailcap_file")
+    );
   } catch (ex) {}
 }
 avoidUncaughtExceptionInExternalProtocolService();
@@ -27,22 +35,26 @@ var mailTestUtils = {
   // If aCharset is specified, treats the file as being of that charset
   loadFileToString(aFile, aCharset) {
     var data = "";
-    var fstream = Cc["@mozilla.org/network/file-input-stream;1"]
-                    .createInstance(Ci.nsIFileInputStream);
+    var fstream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
+      Ci.nsIFileInputStream
+    );
     fstream.init(aFile, -1, 0, 0);
 
     if (aCharset) {
-      var cstream = Cc["@mozilla.org/intl/converter-input-stream;1"]
-                      .createInstance(Ci.nsIConverterInputStream);
+      var cstream = Cc[
+        "@mozilla.org/intl/converter-input-stream;1"
+      ].createInstance(Ci.nsIConverterInputStream);
       cstream.init(fstream, aCharset, 4096, 0x0000);
       let str = {};
-      while (cstream.readString(4096, str) != 0)
+      while (cstream.readString(4096, str) != 0) {
         data += str.value;
+      }
 
       cstream.close();
     } else {
-      var sstream = Cc["@mozilla.org/scriptableinputstream;1"]
-                      .createInstance(Ci.nsIScriptableInputStream);
+      var sstream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+        Ci.nsIScriptableInputStream
+      );
 
       sstream.init(fstream);
 
@@ -68,22 +80,25 @@ var mailTestUtils = {
     let bytesLeft = aMsgHdr.messageSize;
     let stream = aFolder.getMsgInputStream(aMsgHdr, reusable);
     if (aCharset) {
-      let cstream = Cc["@mozilla.org/intl/converter-input-stream;1"]
-                      .createInstance(Ci.nsIConverterInputStream);
+      let cstream = Cc[
+        "@mozilla.org/intl/converter-input-stream;1"
+      ].createInstance(Ci.nsIConverterInputStream);
       cstream.init(stream, aCharset, 4096, 0x0000);
       let str = {};
       let bytesToRead = Math.min(bytesLeft, 4096);
       while (cstream.readString(bytesToRead, str) != 0) {
         data += str.value;
         bytesLeft -= bytesToRead;
-        if (bytesLeft <= 0)
+        if (bytesLeft <= 0) {
           break;
+        }
         bytesToRead = Math.min(bytesLeft, 4096);
       }
       cstream.close();
     } else {
-      var sstream = Cc["@mozilla.org/scriptableinputstream;1"]
-                      .createInstance(Ci.nsIScriptableInputStream);
+      var sstream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+        Ci.nsIScriptableInputStream
+      );
 
       sstream.init(stream);
 
@@ -92,8 +107,9 @@ var mailTestUtils = {
       bytesLeft -= bytesToRead;
       while (str.length > 0) {
         data += str;
-        if (bytesLeft <= 0)
+        if (bytesLeft <= 0) {
           break;
+        }
         bytesToRead = Math.min(bytesLeft, 4096);
         str = sstream.read(bytesToRead);
         bytesLeft -= bytesToRead;
@@ -108,8 +124,9 @@ var mailTestUtils = {
   // Gets the first message header in a folder.
   firstMsgHdr(folder) {
     let enumerator = folder.msgDatabase.EnumerateMessages();
-    if (enumerator.hasMoreElements())
+    if (enumerator.hasMoreElements()) {
       return enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+    }
     return null;
   },
 
@@ -119,8 +136,9 @@ var mailTestUtils = {
     let enumerator = folder.msgDatabase.EnumerateMessages();
     while (enumerator.hasMoreElements()) {
       let next = enumerator.getNext();
-      if (i == n)
+      if (i == n) {
         return next.QueryInterface(Ci.nsIMsgDBHdr);
+      }
       i++;
     }
     return null;
@@ -150,10 +168,10 @@ var mailTestUtils = {
       let GetVolumePathName = kernel32.declare(
         "GetVolumePathNameW",
         ctypes.winapi_abi,
-        BOOL,              // return type: 1 indicates success, 0 failure
+        BOOL, // return type: 1 indicates success, 0 failure
         ctypes.char16_t.ptr, // in: lpszFileName
         ctypes.char16_t.ptr, // out: lpszVolumePathName
-        ctypes.uint32_t    // in: cchBufferLength
+        ctypes.uint32_t // in: cchBufferLength
       );
 
       let filePath = aFile.path;
@@ -161,11 +179,15 @@ var mailTestUtils = {
       // path -- add 1 for a trailing backslash if necessary, and 1 for the
       // terminating null character. Note that the parentheses around the type are
       // necessary for new to apply correctly.
-      let volumePath = new (ctypes.char16_t.array(filePath.length + 2));
+      let volumePath = new (ctypes.char16_t.array(filePath.length + 2))();
 
       if (!GetVolumePathName(filePath, volumePath, volumePath.length)) {
-        throw new Error("Unable to get volume path for " + filePath + ", error " +
-                        ctypes.winLastError);
+        throw new Error(
+          "Unable to get volume path for " +
+            filePath +
+            ", error " +
+            ctypes.winLastError
+        );
       }
 
       // Returns information about the file system for the given volume path. We just need
@@ -173,24 +195,38 @@ var mailTestUtils = {
       let GetVolumeInformation = kernel32.declare(
         "GetVolumeInformationW",
         ctypes.winapi_abi,
-        BOOL,                // return type: 1 indicates success, 0 failure
-        ctypes.char16_t.ptr,   // in, optional: lpRootPathName
-        ctypes.char16_t.ptr,   // out: lpVolumeNameBuffer
-        ctypes.uint32_t,     // in: nVolumeNameSize
+        BOOL, // return type: 1 indicates success, 0 failure
+        ctypes.char16_t.ptr, // in, optional: lpRootPathName
+        ctypes.char16_t.ptr, // out: lpVolumeNameBuffer
+        ctypes.uint32_t, // in: nVolumeNameSize
         ctypes.uint32_t.ptr, // out, optional: lpVolumeSerialNumber
         ctypes.uint32_t.ptr, // out, optional: lpMaximumComponentLength
         ctypes.uint32_t.ptr, // out, optional: lpFileSystemFlags
-        ctypes.char16_t.ptr,   // out: lpFileSystemNameBuffer
-        ctypes.uint32_t      // in: nFileSystemNameSize
+        ctypes.char16_t.ptr, // out: lpFileSystemNameBuffer
+        ctypes.uint32_t // in: nFileSystemNameSize
       );
 
       // We're only interested in the name of the file system.
-      let fsName = new (ctypes.char16_t.array(MAX_PATH + 1));
+      let fsName = new (ctypes.char16_t.array(MAX_PATH + 1))();
 
-      if (!GetVolumeInformation(volumePath, null, 0, null, null, null, fsName,
-                                fsName.length)) {
-        throw new Error("Unable to get volume information for " +
-                        volumePath.readString() + ", error " + ctypes.winLastError);
+      if (
+        !GetVolumeInformation(
+          volumePath,
+          null,
+          0,
+          null,
+          null,
+          null,
+          fsName,
+          fsName.length
+        )
+      ) {
+        throw new Error(
+          "Unable to get volume information for " +
+            volumePath.readString() +
+            ", error " +
+            ctypes.winLastError
+        );
       }
 
       return fsName.readString();
@@ -220,16 +256,23 @@ var mailTestUtils = {
    */
   mark_file_region_sparse(aFile, aRegionStart, aRegionBytes) {
     let fileSystem = this.get_file_system(aFile);
-    dump("[mark_file_region_sparse()] File system = " + (fileSystem || "(unknown)") +
-           ", file region = at " + this.toMiBString(aRegionStart) +
-           " for " + this.toMiBString(aRegionBytes) + "\n");
+    dump(
+      "[mark_file_region_sparse()] File system = " +
+        (fileSystem || "(unknown)") +
+        ", file region = at " +
+        this.toMiBString(aRegionStart) +
+        " for " +
+        this.toMiBString(aRegionBytes) +
+        "\n"
+    );
 
     if ("@mozilla.org/windows-registry-key;1" in Cc) {
       // On Windows, check whether the drive is NTFS. If it is, proceed.
       // If it isn't, then bail out now, because in all probability it is
       // FAT32, which doesn't support sparse files.
-      if (fileSystem != "NTFS")
+      if (fileSystem != "NTFS") {
         return false;
+      }
 
       // Win32 type and other constants.
       const BOOL = ctypes.int32_t;
@@ -239,14 +282,13 @@ var mailTestUtils = {
       const BOOLEAN = ctypes.unsigned_char;
       const FILE_SET_SPARSE_BUFFER = new ctypes.StructType(
         "FILE_SET_SPARSE_BUFFER",
-        [{"SetSparse": BOOLEAN}]
+        [{ SetSparse: BOOLEAN }]
       );
       // LARGE_INTEGER is actually a type union. We'll use the int64 representation
       const LARGE_INTEGER = ctypes.int64_t;
       const FILE_ZERO_DATA_INFORMATION = new ctypes.StructType(
         "FILE_ZERO_DATA_INFORMATION",
-        [{"FileOffset": LARGE_INTEGER},
-         {"BeyondFinalZero": LARGE_INTEGER}]
+        [{ FileOffset: LARGE_INTEGER }, { BeyondFinalZero: LARGE_INTEGER }]
       );
 
       const GENERIC_WRITE = 0x40000000;
@@ -263,43 +305,54 @@ var mailTestUtils = {
         let CreateFile = kernel32.declare(
           "CreateFileW",
           ctypes.winapi_abi,
-          HANDLE,            // return type: handle to the file
+          HANDLE, // return type: handle to the file
           ctypes.char16_t.ptr, // in: lpFileName
-          ctypes.uint32_t,   // in: dwDesiredAccess
-          ctypes.uint32_t,   // in: dwShareMode
-          ctypes.voidptr_t,  // in, optional: lpSecurityAttributes (note that
-                             // we're cheating here by not declaring a
-                             // SECURITY_ATTRIBUTES structure -- that's because
-                             // we're going to pass in null anyway)
-          ctypes.uint32_t,   // in: dwCreationDisposition
-          ctypes.uint32_t,   // in: dwFlagsAndAttributes
-          HANDLE             // in, optional: hTemplateFile
+          ctypes.uint32_t, // in: dwDesiredAccess
+          ctypes.uint32_t, // in: dwShareMode
+          ctypes.voidptr_t, // in, optional: lpSecurityAttributes (note that
+          // we're cheating here by not declaring a
+          // SECURITY_ATTRIBUTES structure -- that's because
+          // we're going to pass in null anyway)
+          ctypes.uint32_t, // in: dwCreationDisposition
+          ctypes.uint32_t, // in: dwFlagsAndAttributes
+          HANDLE // in, optional: hTemplateFile
         );
 
         let filePath = aFile.path;
-        let hFile = CreateFile(filePath, GENERIC_WRITE, 0, null, OPEN_ALWAYS,
-                               FILE_ATTRIBUTE_NORMAL, null);
+        let hFile = CreateFile(
+          filePath,
+          GENERIC_WRITE,
+          0,
+          null,
+          OPEN_ALWAYS,
+          FILE_ATTRIBUTE_NORMAL,
+          null
+        );
         let hFileInt = ctypes.cast(hFile, ctypes.intptr_t);
         if (ctypes.Int64.compare(hFileInt.value, INVALID_HANDLE_VALUE) == 0) {
-          throw new Error("CreateFile failed for " + filePath + ", error " +
-                          ctypes.winLastError);
+          throw new Error(
+            "CreateFile failed for " +
+              filePath +
+              ", error " +
+              ctypes.winLastError
+          );
         }
 
         try {
           let DeviceIoControl = kernel32.declare(
             "DeviceIoControl",
             ctypes.winapi_abi,
-            BOOL,                // return type: 1 indicates success, 0 failure
-            HANDLE,              // in: hDevice
-            ctypes.uint32_t,     // in: dwIoControlCode
-            ctypes.voidptr_t,    // in, optional: lpInBuffer
-            ctypes.uint32_t,     // in: nInBufferSize
-            ctypes.voidptr_t,    // out, optional: lpOutBuffer
-            ctypes.uint32_t,     // in: nOutBufferSize
+            BOOL, // return type: 1 indicates success, 0 failure
+            HANDLE, // in: hDevice
+            ctypes.uint32_t, // in: dwIoControlCode
+            ctypes.voidptr_t, // in, optional: lpInBuffer
+            ctypes.uint32_t, // in: nInBufferSize
+            ctypes.voidptr_t, // out, optional: lpOutBuffer
+            ctypes.uint32_t, // in: nOutBufferSize
             ctypes.uint32_t.ptr, // out, optional: lpBytesReturned
-            ctypes.voidptr_t     // inout, optional: lpOverlapped (again, we're
-                                 // cheating here by not having this as an
-                                 // OVERLAPPED structure
+            ctypes.voidptr_t // inout, optional: lpOverlapped (again, we're
+            // cheating here by not having this as an
+            // OVERLAPPED structure
           );
           // bytesReturned needs to be passed in, even though it's meaningless
           let bytesReturned = new ctypes.uint32_t();
@@ -307,11 +360,21 @@ var mailTestUtils = {
           sparseBuffer.SetSparse = 1;
 
           // Mark the file as sparse
-          if (!DeviceIoControl(hFile, FSCTL_SET_SPARSE, sparseBuffer.address(),
-                               FILE_SET_SPARSE_BUFFER.size, null, 0,
-                               bytesReturned.address(), null)) {
-            throw new Error("Unable to mark file as sparse, error " +
-                            ctypes.winLastError);
+          if (
+            !DeviceIoControl(
+              hFile,
+              FSCTL_SET_SPARSE,
+              sparseBuffer.address(),
+              FILE_SET_SPARSE_BUFFER.size,
+              null,
+              0,
+              bytesReturned.address(),
+              null
+            )
+          ) {
+            throw new Error(
+              "Unable to mark file as sparse, error " + ctypes.winLastError
+            );
           }
 
           let zdInfo = new FILE_ZERO_DATA_INFORMATION();
@@ -319,11 +382,21 @@ var mailTestUtils = {
           let regionEnd = aRegionStart + aRegionBytes;
           zdInfo.BeyondFinalZero = regionEnd;
           // Mark the region as a sparse region
-          if (!DeviceIoControl(hFile, FSCTL_SET_ZERO_DATA, zdInfo.address(),
-                               FILE_ZERO_DATA_INFORMATION.size, null, 0,
-                               bytesReturned.address(), null)) {
-            throw new Error("Unable to mark region as zero, error " +
-                            ctypes.winLastError);
+          if (
+            !DeviceIoControl(
+              hFile,
+              FSCTL_SET_ZERO_DATA,
+              zdInfo.address(),
+              FILE_ZERO_DATA_INFORMATION.size,
+              null,
+              0,
+              bytesReturned.address(),
+              null
+            )
+          ) {
+            throw new Error(
+              "Unable to mark region as zero, error " + ctypes.winLastError
+            );
           }
 
           // Move to past the sparse region and mark it as the end of the file. The
@@ -331,32 +404,36 @@ var mailTestUtils = {
           let SetFilePointerEx = kernel32.declare(
             "SetFilePointerEx",
             ctypes.winapi_abi,
-            BOOL,              // return type: 1 indicates success, 0 failure
-            HANDLE,            // in: hFile
-            LARGE_INTEGER,     // in: liDistanceToMove
+            BOOL, // return type: 1 indicates success, 0 failure
+            HANDLE, // in: hFile
+            LARGE_INTEGER, // in: liDistanceToMove
             LARGE_INTEGER.ptr, // out, optional: lpNewFilePointer
-            ctypes.uint32_t    // in: dwMoveMethod
+            ctypes.uint32_t // in: dwMoveMethod
           );
           if (!SetFilePointerEx(hFile, regionEnd, null, FILE_BEGIN)) {
-            throw new Error("Unable to set file pointer to end, error " +
-                            ctypes.winLastError);
+            throw new Error(
+              "Unable to set file pointer to end, error " + ctypes.winLastError
+            );
           }
 
           let SetEndOfFile = kernel32.declare(
             "SetEndOfFile",
             ctypes.winapi_abi,
-            BOOL,  // return type: 1 indicates success, 0 failure
+            BOOL, // return type: 1 indicates success, 0 failure
             HANDLE // in: hFile
           );
-          if (!SetEndOfFile(hFile))
-            throw new Error("Unable to set end of file, error " + ctypes.winLastError);
+          if (!SetEndOfFile(hFile)) {
+            throw new Error(
+              "Unable to set end of file, error " + ctypes.winLastError
+            );
+          }
 
           return true;
         } finally {
           let CloseHandle = kernel32.declare(
             "CloseHandle",
             ctypes.winapi_abi,
-            BOOL,  // return type: 1 indicates success, 0 failure
+            BOOL, // return type: 1 indicates success, 0 failure
             HANDLE // in: hObject
           );
           CloseHandle(hFile);
@@ -382,7 +459,7 @@ var mailTestUtils = {
    * @return A string representing the size in medibytes.
    */
   toMiBString(aSize) {
-    return (aSize / 1048576) + " MiB";
+    return aSize / 1048576 + " MiB";
   },
 
   /**
@@ -397,8 +474,7 @@ var mailTestUtils = {
    */
   _timer: null,
   do_timeout_function(aDelayInMS, aFunc, aFuncThis, aFuncArgs) {
-    this._timer = Cc["@mozilla.org/timer;1"]
-                    .createInstance(Ci.nsITimer);
+    this._timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
     let wrappedFunc = function() {
       try {
         aFunc.apply(aFuncThis, aFuncArgs);
@@ -408,8 +484,11 @@ var mailTestUtils = {
         do_throw(ex);
       }
     };
-    this._timer.initWithCallback(wrappedFunc, aDelayInMS,
-      Ci.nsITimer.TYPE_ONE_SHOT);
+    this._timer.initWithCallback(
+      wrappedFunc,
+      aDelayInMS,
+      Ci.nsITimer.TYPE_ONE_SHOT
+    );
   },
 
   /**
@@ -430,8 +509,13 @@ var mailTestUtils = {
    *     trigger the updateFolder call and it is assumed someone else is taking
    *     care of that.
    */
-  updateFolderAndNotify(aFolder, aCallback, aCallbackThis,
-                        aCallbackArgs, aSomeoneElseWillTriggerTheUpdate) {
+  updateFolderAndNotify(
+    aFolder,
+    aCallback,
+    aCallbackThis,
+    aCallbackArgs,
+    aSomeoneElseWillTriggerTheUpdate
+  ) {
     // register for the folder loaded notification ahead of time... even though
     //  we may not need it...
     let folderListener = {
@@ -443,10 +527,14 @@ var mailTestUtils = {
       },
     };
 
-    MailServices.mailSession.AddFolderListener(folderListener, Ci.nsIFolderListener.event);
+    MailServices.mailSession.AddFolderListener(
+      folderListener,
+      Ci.nsIFolderListener.event
+    );
 
-    if (!aSomeoneElseWillTriggerTheUpdate)
+    if (!aSomeoneElseWillTriggerTheUpdate) {
       aFolder.updateFolder(null);
+    }
   },
 
   /**
@@ -454,8 +542,9 @@ var mailTestUtils = {
    */
   non_strict_index_of(aArray, aElem) {
     for (let [i, elem] of aArray.entries()) {
-      if (elem == aElem)
+      if (elem == aElem) {
         return i;
+      }
     }
     return -1;
   },

@@ -6,7 +6,9 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 function acObserver() {}
 
@@ -27,22 +29,26 @@ function run_test() {
   let identity = MailServices.accounts.createIdentity();
   _account.addIdentity(identity);
 
-  let acs = Cc["@mozilla.org/autocomplete/search;1?name=news"]
-    .getService(Ci.nsIAutoCompleteSearch);
+  let acs = Cc["@mozilla.org/autocomplete/search;1?name=news"].getService(
+    Ci.nsIAutoCompleteSearch
+  );
   let obs;
 
   let paramsN = JSON.stringify({
     idKey: identity.key,
     accountKey: _account.key,
-    type: "addr_newsgroups" });
+    type: "addr_newsgroups",
+  });
   let paramsF = JSON.stringify({
     idKey: identity.key,
     accountKey: _account.key,
-    type: "addr_followup" });
+    type: "addr_followup",
+  });
   let paramsMail = JSON.stringify({
     idKey: identity.key,
     accountKey: _account.key,
-    type: "addr_to" });
+    type: "addr_to",
+  });
 
   // misc.test is not subscribed
   obs = new acObserver();
@@ -95,6 +101,7 @@ function run_test() {
   Assert.equal(obs._result.matchCount, 1);
 
   let thread = gThreadManager.currentThread;
-  while (thread.hasPendingEvents())
+  while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
+  }
 }

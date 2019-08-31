@@ -6,12 +6,15 @@
 
 // Much of the original code is taken from netwerk's httpserver implementation
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var EXPORTED_SYMBOLS = [
   "nsMailServer",
   "gThreadManager", // TODO: kill this export
-  "fsDebugNone", "fsDebugAll", "fsDebugRecv", "fsDebugRecvSend",
+  "fsDebugNone",
+  "fsDebugAll",
+  "fsDebugRecv",
+  "fsDebugRecvSend",
 ];
 
 var CC = Components.Constructor;
@@ -32,12 +35,16 @@ var fsDebugAll = 3;
  * speedup over doing the same from base principles.  See the docs at
  * http://developer.mozilla.org/en/Components.Constructor for details.
  */
-var ServerSocket = CC("@mozilla.org/network/server-socket;1",
-                        "nsIServerSocket",
-                        "init");
-var BinaryInputStream = CC("@mozilla.org/binaryinputstream;1",
-                             "nsIBinaryInputStream",
-                             "setInputStream");
+var ServerSocket = CC(
+  "@mozilla.org/network/server-socket;1",
+  "nsIServerSocket",
+  "init"
+);
+var BinaryInputStream = CC(
+  "@mozilla.org/binaryinputstream;1",
+  "nsIBinaryInputStream",
+  "setInputStream"
+);
 
 // Time out after 3 minutes
 var TIMEOUT = 3 * 60 * 1000;
@@ -121,18 +128,25 @@ function nsMailServer(handlerCreator, daemon) {
 }
 nsMailServer.prototype = {
   onSocketAccepted(socket, trans) {
-    if (this._debug != fsDebugNone)
+    if (this._debug != fsDebugNone) {
       dump("Received Connection from " + trans.host + ":" + trans.port + "\n");
+    }
 
     const SEGMENT_SIZE = 1024;
     const SEGMENT_COUNT = 1024;
-    var input = trans.openInputStream(0, SEGMENT_SIZE, SEGMENT_COUNT)
-                     .QueryInterface(Ci.nsIAsyncInputStream);
+    var input = trans
+      .openInputStream(0, SEGMENT_SIZE, SEGMENT_COUNT)
+      .QueryInterface(Ci.nsIAsyncInputStream);
     this._inputStreams.push(input);
 
     var handler = this._handlerCreator(this._daemon);
-    var reader = new nsMailReader(this, handler, trans, this._debug,
-                                  this._logTransactions);
+    var reader = new nsMailReader(
+      this,
+      handler,
+      trans,
+      this._debug,
+      this._logTransactions
+    );
     this._readers.push(reader);
 
     // Note: must use main thread here, or we might get a GC that will cause
@@ -143,8 +157,9 @@ nsMailServer.prototype = {
   },
 
   onStopListening(socket, status) {
-    if (this._debug != fsDebugNone)
+    if (this._debug != fsDebugNone) {
       dump("Connection Lost " + status + "\n");
+    }
 
     this._socketClosed = true;
     // We've been killed or we've stopped, reset the handler to the original
@@ -157,44 +172,53 @@ nsMailServer.prototype = {
 
   setDebugLevel(debug) {
     this._debug = debug;
-    for (var i = 0; i < this._readers.length; i++)
+    for (var i = 0; i < this._readers.length; i++) {
       this._readers[i].setDebugLevel(debug);
+    }
   },
 
   start(port = -1) {
-    if (this._socket)
+    if (this._socket) {
       throw Cr.NS_ERROR_ALREADY_INITIALIZED;
+    }
 
-    if (port > 0)
+    if (port > 0) {
       this._port = port;
+    }
     this._socketClosed = false;
 
-    var socket = new ServerSocket(this._port,
-                                  true, // loopback only
-                                  -1);  // default number of pending connections
+    var socket = new ServerSocket(
+      this._port,
+      true, // loopback only
+      -1
+    ); // default number of pending connections
 
     socket.asyncListen(this);
     this._socket = socket;
   },
 
   stop() {
-    if (!this._socket)
+    if (!this._socket) {
       return;
+    }
 
     this._socket.close();
     this._socket = null;
 
-    for (let reader of this._readers)
+    for (let reader of this._readers) {
       reader._realCloseSocket();
+    }
 
-    if (this._readers.some(e => e.observer.forced))
+    if (this._readers.some(e => e.observer.forced)) {
       return;
+    }
 
     // spin an event loop and wait for the socket-close notification
     let thr = Services.tm.currentThread;
-    while (!this._socketClosed)
+    while (!this._socketClosed) {
       // Don't wait for the next event, just in case there isn't one.
       thr.processNextEvent(false);
+    }
   },
   stopTest() {
     this._test = false;
@@ -214,7 +238,6 @@ nsMailServer.prototype = {
   //
   QueryInterface: ChromeUtils.generateQI(["nsIServerSocketListener"]),
 
-
   // NON-XPCOM PUBLIC API
 
   /**
@@ -233,8 +256,9 @@ nsMailServer.prototype = {
     this._watchWord = watchWord;
 
     let thread = Services.tm.currentThread;
-    while (!this.isTestFinished())
+    while (!this.isTestFinished()) {
       thread.processNextEvent(false);
+    }
   },
 
   /**
@@ -250,10 +274,12 @@ nsMailServer.prototype = {
    * are arrays returning the commands given by each server.
    */
   playTransaction() {
-    if (this._readers.some(e => e.observer.forced))
+    if (this._readers.some(e => e.observer.forced)) {
       throw new Error("Server timed out!");
-    if (this._readers.length == 1)
+    }
+    if (this._readers.length == 1) {
       return this._readers[0].transaction;
+    }
     return this._readers.map(e => e.transaction);
   },
 
@@ -265,8 +291,9 @@ nsMailServer.prototype = {
       return reader._isRunning;
     });
     this._test = true;
-    for (var i = 0; i < this._readers.length; i++)
+    for (var i = 0; i < this._readers.length; i++) {
       this._readers[i]._handler.resetTest();
+    }
   },
 };
 
@@ -311,20 +338,27 @@ function nsMailReader(server, handler, transport, debug, logTransaction) {
   // We don't seem to properly handle large streams when the buffer gets
   // exhausted, which causes issues trying to test large messages. So just
   // allow a really big buffer.
-  var output = transport.openOutputStream(Ci.nsITransport.OPEN_BLOCKING, 1024, 4096);
+  var output = transport.openOutputStream(
+    Ci.nsITransport.OPEN_BLOCKING,
+    1024,
+    4096
+  );
   this._output = output;
-  if (logTransaction)
+  if (logTransaction) {
     this.transaction = { us: [], them: [] };
-  else
+  } else {
     this.transaction = null;
+  }
 
   // Send response line
   var response = this._handler.onStartup();
   response = response.replace(/([^\r])\n/g, "$1\r\n");
-  if (!response.endsWith("\n"))
+  if (!response.endsWith("\n")) {
     response = response + "\r\n";
-  if (this.transaction)
+  }
+  if (this.transaction) {
     this.transaction.us.push(response);
+  }
   this._output.write(response, response.length);
   this._output.flush();
 
@@ -342,22 +376,31 @@ function nsMailReader(server, handler, transport, debug, logTransaction) {
     },
     QueryInterface: ChromeUtils.generateQI(["nsITimerCallback"]),
   };
-  this.timer = Cc["@mozilla.org/timer;1"].createInstance()
-                                         .QueryInterface(Ci.nsITimer);
-  this.timer.initWithCallback(this.observer, TIMEOUT,
-                              Ci.nsITimer.TYPE_ONE_SHOT);
+  this.timer = Cc["@mozilla.org/timer;1"]
+    .createInstance()
+    .QueryInterface(Ci.nsITimer);
+  this.timer.initWithCallback(
+    this.observer,
+    TIMEOUT,
+    Ci.nsITimer.TYPE_ONE_SHOT
+  );
 }
 nsMailReader.prototype = {
   _findLines() {
     var buf = this._buffer;
-    for (var crlfLoc = buf.indexOf(13); crlfLoc >= 0;
-        crlfLoc = buf.indexOf(13, crlfLoc + 1)) {
-      if (buf[crlfLoc + 1] == 10)
+    for (
+      var crlfLoc = buf.indexOf(13);
+      crlfLoc >= 0;
+      crlfLoc = buf.indexOf(13, crlfLoc + 1)
+    ) {
+      if (buf[crlfLoc + 1] == 10) {
         break;
+      }
     }
-    if (crlfLoc == -1)
+    if (crlfLoc == -1) {
       // We failed to find a newline
       return;
+    }
 
     var line = String.fromCharCode.apply(null, buf.slice(0, crlfLoc));
     this._buffer = buf.slice(crlfLoc + 2);
@@ -366,8 +409,9 @@ nsMailReader.prototype = {
   },
 
   onInputStreamReady(stream) {
-    if (this.observer.forced)
+    if (this.observer.forced) {
       return;
+    }
 
     this.timer.cancel();
     try {
@@ -384,8 +428,9 @@ nsMailReader.prototype = {
     while (this._lines.length > 0) {
       var line = this._lines.shift();
 
-      if (this._debug != fsDebugNone)
+      if (this._debug != fsDebugNone) {
         dump("RECV: " + line + "\n");
+      }
 
       var response;
       try {
@@ -393,12 +438,14 @@ nsMailReader.prototype = {
         if (this._multiline) {
           response = this._handler.onMultiline(line);
 
-          if (response === undefined)
+          if (response === undefined) {
             continue;
+          }
         } else {
           // Record the transaction
-          if (this.transaction)
+          if (this.transaction) {
             this.transaction.them.push(line);
+          }
 
           // Find the command and splice it out...
           var splitter = line.indexOf(" ");
@@ -408,20 +455,23 @@ nsMailReader.prototype = {
           // By convention, commands are uppercase
           command = command.toUpperCase();
 
-          if (this._debug == fsDebugAll)
+          if (this._debug == fsDebugAll) {
             dump("Received command " + command + "\n");
+          }
 
-          if (command in this._handler)
+          if (command in this._handler) {
             response = this._handler[command](args);
-          else
+          } else {
             response = this._handler.onError(command, args);
+          }
         }
 
         this._preventLFMunge = false;
         this._handler.postCommand(this);
 
-        if (this.watchWord && command == this.watchWord)
+        if (this.watchWord && command == this.watchWord) {
           this.stopTest();
+        }
       } catch (e) {
         response = this._handler.onServerFault(e);
         if (e instanceof Error) {
@@ -433,21 +483,26 @@ nsMailReader.prototype = {
         }
       }
 
-      if (!this._preventLFMunge)
+      if (!this._preventLFMunge) {
         response = response.replace(/([^\r])\n/g, "$1\r\n");
+      }
 
-      if (!response.endsWith("\n"))
-       response = response + "\r\n";
+      if (!response.endsWith("\n")) {
+        response = response + "\r\n";
+      }
 
       if (this._debug == fsDebugRecvSend) {
         dump("SEND: " + response.split(" ", 1)[0] + "\n");
       } else if (this._debug == fsDebugAll) {
         var responses = response.split("\n");
-        responses.forEach(function(line) { dump("SEND: " + line + "\n"); });
+        responses.forEach(function(line) {
+          dump("SEND: " + line + "\n");
+        });
       }
 
-      if (this.transaction)
+      if (this.transaction) {
         this.transaction.us.push(response);
+      }
 
       try {
         this._output.write(response, response.length);
@@ -470,8 +525,11 @@ nsMailReader.prototype = {
 
     if (this._isRunning) {
       stream.asyncWait(this, 0, 0, Services.tm.currentThread);
-      this.timer.initWithCallback(this.observer, TIMEOUT,
-                                  Ci.nsITimer.TYPE_ONE_SHOT);
+      this.timer.initWithCallback(
+        this.observer,
+        TIMEOUT,
+        Ci.nsITimer.TYPE_ONE_SHOT
+      );
     }
   },
 

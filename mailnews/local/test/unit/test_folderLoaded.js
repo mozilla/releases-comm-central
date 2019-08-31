@@ -6,7 +6,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
- /**
+/**
  * The intent of this file is to show a folder loaded event after a load
  * with a null database.
  *
@@ -17,8 +17,10 @@
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
-var testSubjects = ["[Bug 397009] A filter will let me tag, but not untag",
-                    "Hello, did you receive my bugmail?"];
+var testSubjects = [
+  "[Bug 397009] A filter will let me tag, but not untag",
+  "Hello, did you receive my bugmail?",
+];
 var gMsgFile1 = do_get_file("../../../data/bugmail1");
 var gMsgFile2 = do_get_file("../../../data/draft1");
 
@@ -31,17 +33,34 @@ var tests = [
       Assert.ok(false);
     });
 
-    if (typeof localAccountUtils.inboxFolder == "undefined")
+    if (typeof localAccountUtils.inboxFolder == "undefined") {
       localAccountUtils.loadLocalMailAccount();
+    }
     localAccountUtils.rootFolder.createSubfolder("target", null);
     gTargetFolder = localAccountUtils.rootFolder.getChildNamed("target");
 
-    MailServices.copy.CopyFileMessage(gMsgFile1, gTargetFolder, null, false, 0,
-                                      "", asyncCopyListener, null);
+    MailServices.copy.CopyFileMessage(
+      gMsgFile1,
+      gTargetFolder,
+      null,
+      false,
+      0,
+      "",
+      asyncCopyListener,
+      null
+    );
     yield false;
 
-    MailServices.copy.CopyFileMessage(gMsgFile2, gTargetFolder, null, false, 0,
-                                      "", asyncCopyListener, null);
+    MailServices.copy.CopyFileMessage(
+      gMsgFile2,
+      gTargetFolder,
+      null,
+      false,
+      0,
+      "",
+      asyncCopyListener,
+      null
+    );
     yield false;
   },
 

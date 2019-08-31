@@ -5,19 +5,19 @@
 
 /* globals gDBView, GetNumSelectedMessages */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gEncryptionStatus = -1;
 var gSignatureStatus = -1;
 var gSignerCert = null;
 var gEncryptionCert = null;
 
-addEventListener("load", smimeReadOnLoad, {capture: false, once: true});
+addEventListener("load", smimeReadOnLoad, { capture: false, once: true });
 
 function smimeReadOnLoad() {
   top.controllers.appendController(SecurityController);
 
-  addEventListener("unload", smimeReadOnUnload, {capture: false, once: true});
+  addEventListener("unload", smimeReadOnUnload, { capture: false, once: true });
 }
 
 function smimeReadOnUnload() {
@@ -27,11 +27,17 @@ function smimeReadOnUnload() {
 function showImapSignatureUnknown() {
   let readSmimeBundle = document.getElementById("bundle_read_smime");
   let brandBundle = document.getElementById("bundle_brand");
-  if (!readSmimeBundle || !brandBundle)
+  if (!readSmimeBundle || !brandBundle) {
     return;
+  }
 
-  if (Services.prompt.confirm(window, brandBundle.getString("brandShortName"),
-                              readSmimeBundle.getString("ImapOnDemand"))) {
+  if (
+    Services.prompt.confirm(
+      window,
+      brandBundle.getString("brandShortName"),
+      readSmimeBundle.getString("ImapOnDemand")
+    )
+  ) {
     gDBView.reloadMessageWithAllParts();
   }
 }
@@ -43,10 +49,12 @@ function showMessageReadSecurityInfo() {
     return;
   }
 
-  let params = Cc["@mozilla.org/embedcomp/dialogparam;1"]
-    .createInstance(Ci.nsIDialogParamBlock);
-  params.objects = Cc["@mozilla.org/array;1"]
-    .createInstance(Ci.nsIMutableArray);
+  let params = Cc["@mozilla.org/embedcomp/dialogparam;1"].createInstance(
+    Ci.nsIDialogParamBlock
+  );
+  params.objects = Cc["@mozilla.org/array;1"].createInstance(
+    Ci.nsIMutableArray
+  );
   // Append even if null... the receiver must handle that.
   params.objects.appendElement(gSignerCert);
   params.objects.appendElement(gEncryptionCert);
@@ -55,8 +63,12 @@ function showMessageReadSecurityInfo() {
   params.SetInt(1, gSignatureStatus);
   params.SetInt(2, gEncryptionStatus);
 
-  window.openDialog("chrome://messenger-smime/content/msgReadSecurityInfo.xul",
-                    "", "chrome,resizable,modal,dialog,centerscreen", params);
+  window.openDialog(
+    "chrome://messenger-smime/content/msgReadSecurityInfo.xul",
+    "",
+    "chrome,resizable,modal,dialog,centerscreen",
+    params
+  );
 }
 
 var SecurityController = {
@@ -73,17 +85,24 @@ var SecurityController = {
   isCommandEnabled(command) {
     switch (command) {
       case "cmd_viewSecurityStatus":
-        if (document.documentElement.getAttribute("windowtype") == "mail:messageWindow")
+        if (
+          document.documentElement.getAttribute("windowtype") ==
+          "mail:messageWindow"
+        ) {
           return GetNumSelectedMessages() > 0;
+        }
 
         if (GetNumSelectedMessages() > 0 && gDBView) {
-          let enabled = {value: false};
+          let enabled = { value: false };
           let checkStatus = {};
-          gDBView.getCommandStatus(Ci.nsMsgViewCommandType.cmdRequiringMsgBody,
-                                   enabled, checkStatus);
+          gDBView.getCommandStatus(
+            Ci.nsMsgViewCommandType.cmdRequiringMsgBody,
+            enabled,
+            checkStatus
+          );
           return enabled.value;
         }
-        // else: fall through.
+      // else: fall through.
 
       default:
         return false;

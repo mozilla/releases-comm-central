@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gListBox;
 var gViewButton;
@@ -22,13 +22,15 @@ var nsCertificateDialogs = "@mozilla.org/nsCertificateDialogs;1";
 
 function onLoad() {
   var params = window.arguments[0];
-  if (!params)
+  if (!params) {
     return;
+  }
 
   var helper = Cc[gSMimeContractID].createInstance(gISMimeJSHelper);
 
-  if (!helper)
+  if (!helper) {
     return;
+  }
 
   gListBox = document.getElementById("infolist");
   gViewButton = document.getElementById("viewCertButton");
@@ -53,14 +55,16 @@ function onLoad() {
         gCertIssuedInfos,
         gCertExpiresInfos,
         gCerts,
-        canEncrypt);
+        canEncrypt
+      );
     } catch (e) {
       dump(e);
       return;
     }
 
-    if (!allow_ldap_cert_fetching)
+    if (!allow_ldap_cert_fetching) {
       break;
+    }
 
     allow_ldap_cert_fetching = false;
 
@@ -73,20 +77,23 @@ function onLoad() {
     }
 
     if (missing.length > 0) {
-      var autocompleteLdap = Services.prefs
-        .getBoolPref("ldap_2.autoComplete.useDirectory");
+      var autocompleteLdap = Services.prefs.getBoolPref(
+        "ldap_2.autoComplete.useDirectory"
+      );
 
       if (autocompleteLdap) {
         var autocompleteDirectory = null;
         if (params.currentIdentity.overrideGlobalPref) {
           autocompleteDirectory = params.currentIdentity.directoryServer;
         } else {
-          autocompleteDirectory = Services.prefs
-            .getCharPref("ldap_2.autoComplete.directoryServer");
+          autocompleteDirectory = Services.prefs.getCharPref(
+            "ldap_2.autoComplete.directoryServer"
+          );
         }
 
         if (autocompleteDirectory) {
-          window.openDialog("chrome://messenger-smime/content/certFetchingStatus.xul",
+          window.openDialog(
+            "chrome://messenger-smime/content/certFetchingStatus.xul",
             "",
             "chrome,resizable=1,modal=1,dialog=1",
             autocompleteDirectory,
@@ -162,8 +169,8 @@ function onLoad() {
       listitem.appendChild(expire);
 
       asyncDetermineUsages(gCerts.value[i]).then(results => {
-        let someError = results.some(result =>
-          result.errorCode !== PRErrorCodeSuccess
+        let someError = results.some(
+          result => result.errorCode !== PRErrorCodeSuccess
         );
         if (!someError) {
           status.setAttribute("value", gBundle.getString("StatusValid"));
@@ -172,43 +179,52 @@ function onLoad() {
 
         // Keep in sync with certViewer.js.
         const SEC_ERROR_BASE = Ci.nsINSSErrorsService.NSS_SEC_ERROR_BASE;
-        const SEC_ERROR_EXPIRED_CERTIFICATE               = SEC_ERROR_BASE + 11;
-        const SEC_ERROR_REVOKED_CERTIFICATE               = SEC_ERROR_BASE + 12;
-        const SEC_ERROR_UNKNOWN_ISSUER                    = SEC_ERROR_BASE + 13;
-        const SEC_ERROR_UNTRUSTED_ISSUER                  = SEC_ERROR_BASE + 20;
-        const SEC_ERROR_UNTRUSTED_CERT                    = SEC_ERROR_BASE + 21;
-        const SEC_ERROR_EXPIRED_ISSUER_CERTIFICATE        = SEC_ERROR_BASE + 30;
-        const SEC_ERROR_CERT_SIGNATURE_ALGORITHM_DISABLED = SEC_ERROR_BASE + 176;
+        const SEC_ERROR_EXPIRED_CERTIFICATE = SEC_ERROR_BASE + 11;
+        const SEC_ERROR_REVOKED_CERTIFICATE = SEC_ERROR_BASE + 12;
+        const SEC_ERROR_UNKNOWN_ISSUER = SEC_ERROR_BASE + 13;
+        const SEC_ERROR_UNTRUSTED_ISSUER = SEC_ERROR_BASE + 20;
+        const SEC_ERROR_UNTRUSTED_CERT = SEC_ERROR_BASE + 21;
+        const SEC_ERROR_EXPIRED_ISSUER_CERTIFICATE = SEC_ERROR_BASE + 30;
+        const SEC_ERROR_CERT_SIGNATURE_ALGORITHM_DISABLED =
+          SEC_ERROR_BASE + 176;
 
         const errorRankings = [
-          { error: SEC_ERROR_REVOKED_CERTIFICATE,
-            bundleString: "StatusRevoked" },
-          { error: SEC_ERROR_UNTRUSTED_CERT,
-            bundleString: "StatusUntrusted" },
-          { error: SEC_ERROR_UNTRUSTED_ISSUER,
-            bundleString: "StatusUntrusted" },
-          { error: SEC_ERROR_CERT_SIGNATURE_ALGORITHM_DISABLED,
-            bundleString: "StatusInvalid" },
-          { error: SEC_ERROR_EXPIRED_CERTIFICATE,
-            bundleString: "StatusExpired" },
-          { error: SEC_ERROR_EXPIRED_ISSUER_CERTIFICATE,
-            bundleString: "StatusExpired" },
-          { error: SEC_ERROR_UNKNOWN_ISSUER,
-            bundleString: "StatusUntrusted" },
-         ];
+          {
+            error: SEC_ERROR_REVOKED_CERTIFICATE,
+            bundleString: "StatusRevoked",
+          },
+          { error: SEC_ERROR_UNTRUSTED_CERT, bundleString: "StatusUntrusted" },
+          {
+            error: SEC_ERROR_UNTRUSTED_ISSUER,
+            bundleString: "StatusUntrusted",
+          },
+          {
+            error: SEC_ERROR_CERT_SIGNATURE_ALGORITHM_DISABLED,
+            bundleString: "StatusInvalid",
+          },
+          {
+            error: SEC_ERROR_EXPIRED_CERTIFICATE,
+            bundleString: "StatusExpired",
+          },
+          {
+            error: SEC_ERROR_EXPIRED_ISSUER_CERTIFICATE,
+            bundleString: "StatusExpired",
+          },
+          { error: SEC_ERROR_UNKNOWN_ISSUER, bundleString: "StatusUntrusted" },
+        ];
 
-         let bs = "StatusInvalid";
-         for (let errorRanking of errorRankings) {
-           let errorPresent = results.some(result =>
-             result.errorCode == errorRanking.error
-           );
-           if (errorPresent) {
-             bs = errorRanking.bundleString;
-             break;
-           }
-         }
+        let bs = "StatusInvalid";
+        for (let errorRanking of errorRankings) {
+          let errorPresent = results.some(
+            result => result.errorCode == errorRanking.error
+          );
+          if (errorPresent) {
+            bs = errorRanking.bundleString;
+            break;
+          }
+        }
 
-         status.setAttribute("value", gBundle.getString(bs));
+        status.setAttribute("value", gBundle.getString(bs));
       });
     }
 
@@ -219,8 +235,8 @@ function onLoad() {
 // --- borrowed from pippki.js ---
 const PRErrorCodeSuccess = 0;
 
-const certificateUsageEmailSigner            = 0x0010;
-const certificateUsageEmailRecipient         = 0x0020;
+const certificateUsageEmailSigner = 0x0010;
+const certificateUsageEmailRecipient = 0x0020;
 
 // A map from the name of a certificate usage to the value of the usage.
 const certificateUsages = {
@@ -230,31 +246,48 @@ const certificateUsages = {
 function asyncDetermineUsages(cert) {
   let promises = [];
   let now = Date.now() / 1000;
-  let certdb = Cc["@mozilla.org/security/x509certdb;1"]
-                 .getService(Ci.nsIX509CertDB);
+  let certdb = Cc["@mozilla.org/security/x509certdb;1"].getService(
+    Ci.nsIX509CertDB
+  );
   Object.keys(certificateUsages).forEach(usageString => {
-    promises.push(new Promise((resolve, reject) => {
-      let usage = certificateUsages[usageString];
-      certdb.asyncVerifyCertAtTime(cert, usage, 0, null, now,
-        (aPRErrorCode, aVerifiedChain, aHasEVPolicy) => {
-          resolve({ usageString,
-                    errorCode: aPRErrorCode,
-                    chain: aVerifiedChain });
-        });
-    }));
+    promises.push(
+      new Promise((resolve, reject) => {
+        let usage = certificateUsages[usageString];
+        certdb.asyncVerifyCertAtTime(
+          cert,
+          usage,
+          0,
+          null,
+          now,
+          (aPRErrorCode, aVerifiedChain, aHasEVPolicy) => {
+            resolve({
+              usageString,
+              errorCode: aPRErrorCode,
+              chain: aVerifiedChain,
+            });
+          }
+        );
+      })
+    );
   });
   return Promise.all(promises);
 }
 // --- /borrowed from pippki.js ---
 
 function onSelectionChange(event) {
-  gViewButton.disabled = !(gListBox.selectedItems.length == 1 &&
-                           certForRow(gListBox.selectedIndex));
+  gViewButton.disabled = !(
+    gListBox.selectedItems.length == 1 && certForRow(gListBox.selectedIndex)
+  );
 }
 
 function viewCertHelper(parent, cert) {
-  Services.ww.openWindow(parent, "chrome://pippki/content/certViewer.xul",
-                         "_blank", "centerscreen,chrome,titlebar", cert);
+  Services.ww.openWindow(
+    parent,
+    "chrome://pippki/content/certViewer.xul",
+    "_blank",
+    "centerscreen,chrome,titlebar",
+    cert
+  );
 }
 
 function certForRow(aRowIndex) {
@@ -262,13 +295,16 @@ function certForRow(aRowIndex) {
 }
 
 function viewSelectedCert() {
-  if (!gViewButton.disabled)
+  if (!gViewButton.disabled) {
     viewCertHelper(window, certForRow(gListBox.selectedIndex));
-}
+  }
+} // Suite only.
 
-/* globals openHelp */// Suite only.
-function doHelpButton() {
-  openHelp("compose_security", "chrome://communicator/locale/help/suitehelp.rdf");
+/* globals openHelp */ function doHelpButton() {
+  openHelp(
+    "compose_security",
+    "chrome://communicator/locale/help/suitehelp.rdf"
+  );
 }
 
 function createCell(label) {

@@ -6,7 +6,7 @@
 /* functions for disabling front end elements when the appropriate
    back-end preference is locked. */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * Prefs in MailNews require dynamic portions to indicate
@@ -34,21 +34,24 @@ function substPrefTokens(aStr, aElement) {
      the xul object */
   for (let i = 0; i < prefPartsArray.length; i++) {
     token = prefPartsArray[i].match(tokenpat);
-    if (token) { /* we've got a %% match */
+    if (token) {
+      /* we've got a %% match */
       if (token[1]) {
         if (aElement[token[1]]) {
           newprefstr += aElement[token[1]] + "."; // here's where we get the info
-        } else { /* all we got was this stinkin % */
+        } else {
+          /* all we got was this stinkin % */
           newprefstr += prefPartsArray[i] + ".";
         }
       }
-    } else /* if (token) */ {
+    } /* if (token) */ else {
       newprefstr += prefPartsArray[i] + ".";
     }
   }
   newprefstr = newprefstr.slice(0, -1); // remove the last char, a dot
-  if (newprefstr.length <= 0)
+  if (newprefstr.length <= 0) {
     newprefstr = null;
+  }
 
   return newprefstr;
 }
@@ -67,8 +70,9 @@ function getAccountValueIsLocked(aElement) {
   if (prefstring) {
     let prefstr = substPrefTokens(prefstring, aElement);
     // see if the prefstring is locked
-    if (prefstr)
+    if (prefstr) {
       return Services.prefs.prefIsLocked(prefstr);
+    }
   }
   return false;
 }
@@ -91,12 +95,13 @@ function onCheckItem(aChangeElementId, aCheckElementIds) {
   for (let notifyId of aCheckElementIds) {
     let notifyElement = document.getElementById(notifyId);
     let notifyElementState = null;
-    if ("checked" in notifyElement)
+    if ("checked" in notifyElement) {
       notifyElementState = notifyElement.checked;
-    else if ("selected" in notifyElement)
+    } else if ("selected" in notifyElement) {
       notifyElementState = notifyElement.selected;
-    else
+    } else {
       Cu.reportError("Unknown type of control element: " + notifyElement.id);
+    }
 
     if (!notifyElementState) {
       disabled = true;
@@ -104,8 +109,9 @@ function onCheckItem(aChangeElementId, aCheckElementIds) {
     }
   }
 
-  if (!disabled && getAccountValueIsLocked(elementToControl))
+  if (!disabled && getAccountValueIsLocked(elementToControl)) {
     disabled = true;
+  }
 
   elementToControl.disabled = disabled;
 }
@@ -131,9 +137,10 @@ function hideShowControls(serverType) {
       }
     }
 
-    if (hide)
+    if (hide) {
       control.setAttribute("hidden", "true");
-    else
+    } else {
       control.removeAttribute("hidden");
+    }
   }
 }

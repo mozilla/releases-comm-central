@@ -3,7 +3,6 @@
 //
 // Original Author: Kent James <kent@caspia.com>
 
-
 /* import-globals-from ../../../test/resources/logHelper.js */
 /* import-globals-from ../../../test/resources/asyncTestUtils.js */
 /* import-globals-from ../../../test/resources/messageGenerator.js */
@@ -11,14 +10,18 @@ load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var gEmptyLocal1, gEmptyLocal2;
 var gLastKey;
 var gMessages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
 var gCopyService = MailServices.copy;
 
-var {toXPCOMArray} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var { toXPCOMArray } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
 
 var tests = [
   setup,
@@ -41,38 +44,76 @@ var tests = [
   function* getLocalMessage1() {
     dump("getLocalMessage\n");
     var file = do_get_file("../../../data/bugmail1");
-    gCopyService.CopyFileMessage(file, localAccountUtils.inboxFolder, null, false, 0,
-                                "", CopyListener, null);
+    gCopyService.CopyFileMessage(
+      file,
+      localAccountUtils.inboxFolder,
+      null,
+      false,
+      0,
+      "",
+      CopyListener,
+      null
+    );
     yield false;
   },
   function* getLocalMessage2() {
-    gMessages.appendElement(localAccountUtils.inboxFolder.GetMessageHeader(gLastKey));
+    gMessages.appendElement(
+      localAccountUtils.inboxFolder.GetMessageHeader(gLastKey)
+    );
     dump("getLocalMessage\n");
     var file = do_get_file("../../../data/draft1");
-    gCopyService.CopyFileMessage(file, localAccountUtils.inboxFolder, null, false, 0,
-                                "", CopyListener, null);
+    gCopyService.CopyFileMessage(
+      file,
+      localAccountUtils.inboxFolder,
+      null,
+      false,
+      0,
+      "",
+      CopyListener,
+      null
+    );
     yield false;
   },
   function* copyMessages() {
-    gMessages.appendElement(localAccountUtils.inboxFolder.GetMessageHeader(gLastKey));
+    gMessages.appendElement(
+      localAccountUtils.inboxFolder.GetMessageHeader(gLastKey)
+    );
     let folder1 = IMAPPump.inbox.getChildNamed("empty 1");
-    gCopyService.CopyMessages(localAccountUtils.inboxFolder, gMessages, folder1, false,
-                              CopyListener, null, false);
+    gCopyService.CopyMessages(
+      localAccountUtils.inboxFolder,
+      gMessages,
+      folder1,
+      false,
+      CopyListener,
+      null,
+      false
+    );
     yield false;
   },
   function* moveMessages() {
     let folder2 = IMAPPump.inbox.getChildNamed("empty 2");
-      gCopyService.CopyMessages(localAccountUtils.inboxFolder, gMessages, folder2, true,
-                                CopyListener, null, false);
+    gCopyService.CopyMessages(
+      localAccountUtils.inboxFolder,
+      gMessages,
+      folder2,
+      true,
+      CopyListener,
+      null,
+      false
+    );
     yield false;
   },
   function* update1() {
-    let folder1 = IMAPPump.inbox.getChildNamed("empty 1").QueryInterface(Ci.nsIMsgImapMailFolder);
+    let folder1 = IMAPPump.inbox
+      .getChildNamed("empty 1")
+      .QueryInterface(Ci.nsIMsgImapMailFolder);
     folder1.updateFolderWithListener(null, asyncUrlListener);
     yield false;
   },
   function* update2() {
-    let folder2 = IMAPPump.inbox.getChildNamed("empty 2").QueryInterface(Ci.nsIMsgImapMailFolder);
+    let folder2 = IMAPPump.inbox
+      .getChildNamed("empty 2")
+      .QueryInterface(Ci.nsIMsgImapMailFolder);
     folder2.updateFolderWithListener(null, asyncUrlListener);
     yield false;
   },
@@ -107,7 +148,10 @@ function setup() {
   // (i.e. The fetching process will be invoked after OnStopCopy)
   // It will cause crash with an assertion
   // (ASSERTION: tried to add duplicate listener: 'index == -1') on teardown.
-  Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
+  Services.prefs.setBoolPref(
+    "mail.server.default.autosync_offline_stores",
+    false
+  );
 
   setupIMAPPump();
 
@@ -150,4 +194,3 @@ function teardown() {
 function run_test() {
   async_run_tests(tests);
 }
-

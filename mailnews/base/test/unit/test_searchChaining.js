@@ -11,15 +11,15 @@
 /* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/messageGenerator.js");
 
-var {
-  IMAPPump,
-  setupIMAPPump,
-  teardownIMAPPump,
-} = ChromeUtils.import("resource://testing-common/mailnews/IMAPpump.js");
-var {
-  imapMessage,
-} = ChromeUtils.import("resource://testing-common/mailnews/imapd.js");
-const {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
+var { IMAPPump, setupIMAPPump, teardownIMAPPump } = ChromeUtils.import(
+  "resource://testing-common/mailnews/IMAPpump.js"
+);
+var { imapMessage } = ChromeUtils.import(
+  "resource://testing-common/mailnews/imapd.js"
+);
+const { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 async function setupFolder() {
   // add a single message to the imap inbox.
@@ -28,9 +28,9 @@ async function setupFolder() {
   messages = messages.concat(messageGenerator.makeMessage());
   let synthMessage = messages[0];
 
-  let msgURI =
-    Services.io.newURI("data:text/plain;base64," +
-                       btoa(synthMessage.toMessageString()));
+  let msgURI = Services.io.newURI(
+    "data:text/plain;base64," + btoa(synthMessage.toMessageString())
+  );
   let message = new imapMessage(msgURI.spec, IMAPPump.mailbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(message);
 
@@ -42,10 +42,13 @@ async function setupFolder() {
 
 async function searchTest() {
   // Get the IMAP inbox...
-  var emptyLocal1 = localAccountUtils.rootFolder.createLocalSubfolder("empty 1");
+  var emptyLocal1 = localAccountUtils.rootFolder.createLocalSubfolder(
+    "empty 1"
+  );
 
-  let searchSession = Cc["@mozilla.org/messenger/searchSession;1"]
-                        .createInstance(Ci.nsIMsgSearchSession);
+  let searchSession = Cc[
+    "@mozilla.org/messenger/searchSession;1"
+  ].createInstance(Ci.nsIMsgSearchSession);
 
   let searchTerm = searchSession.createTerm();
   searchTerm.matchAll = true;
@@ -53,7 +56,9 @@ async function searchTest() {
   searchSession.addScopeTerm(Ci.nsMsgSearchScope.offlineMail, emptyLocal1);
   searchSession.addScopeTerm(Ci.nsMsgSearchScope.onlineMail, IMAPPump.inbox);
   let listener = new PromiseTestUtils.PromiseSearchNotify(
-                       searchSession, searchListener);
+    searchSession,
+    searchListener
+  );
   searchSession.search(null);
   await listener.promise;
 
@@ -78,12 +83,7 @@ var searchListener = {
   },
 };
 
-var tests = [
-  setupIMAPPump,
-  setupFolder,
-  searchTest,
-  teardownIMAPPump,
-];
+var tests = [setupIMAPPump, setupFolder, searchTest, teardownIMAPPump];
 
 function run_test() {
   tests.forEach(x => add_task(x));

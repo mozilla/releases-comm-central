@@ -29,14 +29,19 @@ function toArray(aObj) {
   }
 
   // New style generator function
-  if ((typeof aObj == "function") && (typeof aObj.constructor == "function")
-      && (aObj.constructor.name == "GeneratorFunction")) {
+  if (
+    typeof aObj == "function" &&
+    typeof aObj.constructor == "function" &&
+    aObj.constructor.name == "GeneratorFunction"
+  ) {
     return [...aObj()];
   }
 
   // We got something unexpected, notify the caller loudly.
-  throw new Error("An unsupported object sent to toArray: " +
-                  (("toString" in aObj) ? aObj.toString() : aObj));
+  throw new Error(
+    "An unsupported object sent to toArray: " +
+      ("toString" in aObj ? aObj.toString() : aObj)
+  );
 }
 
 /**
@@ -64,15 +69,18 @@ function fixIterator(aEnum, aIface) {
   // then the original input is sufficient to directly return. However, if we want
   // to support the aIface parameter, we need to do a lazy version of
   // Array.prototype.map.
-  if (Array.isArray(aEnum) ||
-      aEnum instanceof Ci.nsISimpleEnumerator ||
-      ITERATOR_SYMBOL in aEnum) {
+  if (
+    Array.isArray(aEnum) ||
+    aEnum instanceof Ci.nsISimpleEnumerator ||
+    ITERATOR_SYMBOL in aEnum
+  ) {
     if (!aIface) {
       return aEnum[ITERATOR_SYMBOL]();
     }
-    return (function* () {
-      for (let o of aEnum)
+    return (function*() {
+      for (let o of aEnum) {
         yield o.QueryInterface(aIface);
+      }
     })();
   }
 
@@ -80,16 +88,19 @@ function fixIterator(aEnum, aIface) {
   // Figure out which kind of array object we have.
   // First try nsIArray (covers nsIMutableArray too).
   if (aEnum instanceof Ci.nsIArray) {
-    return (function* () {
+    return (function*() {
       let count = aEnum.length;
-      for (let i = 0; i < count; i++)
+      for (let i = 0; i < count; i++) {
         yield aEnum.queryElementAt(i, face);
+      }
     })();
   }
 
   // We got something unexpected, notify the caller loudly.
-  throw new Error("An unsupported object sent to fixIterator: " +
-                  (("toString" in aEnum) ? aEnum.toString() : aEnum));
+  throw new Error(
+    "An unsupported object sent to fixIterator: " +
+      ("toString" in aEnum ? aEnum.toString() : aEnum)
+  );
 }
 
 /**
@@ -105,8 +116,9 @@ function fixIterator(aEnum, aIface) {
  */
 function toXPCOMArray(aArray, aInterface) {
   if (aInterface.equals(Ci.nsIMutableArray)) {
-    let mutableArray = Cc["@mozilla.org/array;1"]
-                         .createInstance(Ci.nsIMutableArray);
+    let mutableArray = Cc["@mozilla.org/array;1"].createInstance(
+      Ci.nsIMutableArray
+    );
     for (let item of fixIterator(aArray)) {
       mutableArray.appendElement(item);
     }
@@ -114,6 +126,7 @@ function toXPCOMArray(aArray, aInterface) {
   }
 
   // We got something unexpected, notify the caller loudly.
-  throw new Error("An unsupported interface requested from toXPCOMArray: " +
-                  aInterface);
+  throw new Error(
+    "An unsupported interface requested from toXPCOMArray: " + aInterface
+  );
 }

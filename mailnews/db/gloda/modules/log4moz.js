@@ -4,15 +4,15 @@
 
 this.EXPORTED_SYMBOLS = ["Log4Moz"];
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var MODE_RDONLY   = 0x01;
-var MODE_WRONLY   = 0x02;
-var MODE_CREATE   = 0x08;
-var MODE_APPEND   = 0x10;
+var MODE_RDONLY = 0x01;
+var MODE_WRONLY = 0x02;
+var MODE_CREATE = 0x08;
+var MODE_APPEND = 0x10;
 var MODE_TRUNCATE = 0x20;
 
-var PERMS_FILE      = parseInt("0644", 8);
+var PERMS_FILE = parseInt("0644", 8);
 var PERMS_DIRECTORY = parseInt("0755", 8);
 
 var ONE_BYTE = 1;
@@ -27,14 +27,14 @@ var CDATA_ESCAPED_END = CDATA_END + "]]&gt;" + CDATA_START;
 
 var Log4Moz = {
   Level: {
-    Fatal:  70,
-    Error:  60,
-    Warn:   50,
-    Info:   40,
+    Fatal: 70,
+    Error: 60,
+    Warn: 50,
+    Info: 40,
     Config: 30,
-    Debug:  20,
-    Trace:  10,
-    All:    0,
+    Debug: 20,
+    Trace: 10,
+    All: 0,
     Desc: {
       70: "FATAL",
       60: "ERROR",
@@ -43,7 +43,7 @@ var Log4Moz = {
       30: "CONFIG",
       20: "DEBUG",
       10: "TRACE",
-      0:  "ALL",
+      0: "ALL",
     },
   },
 
@@ -71,8 +71,9 @@ var Log4Moz = {
 
   getConfiguredLogger(loggername, level, consoleLevel, dumpLevel) {
     let log = Log4Moz.repository.getLogger(loggername);
-    if (log._configured)
+    if (log._configured) {
       return log;
+    }
 
     let formatter = new Log4Moz.BasicFormatter();
 
@@ -87,10 +88,13 @@ var Log4Moz = {
         let consoleLevelString = branch.getCharPref("console");
         if (consoleLevelString) {
           // capitalize to fit with Log4Moz.Level expectations
-          consoleLevelString = consoleLevelString.charAt(0).toUpperCase() +
-             consoleLevelString.substr(1).toLowerCase();
-          consoleLevel = (consoleLevelString == "None") ?
-                          100 : Log4Moz.Level[consoleLevelString];
+          consoleLevelString =
+            consoleLevelString.charAt(0).toUpperCase() +
+            consoleLevelString.substr(1).toLowerCase();
+          consoleLevel =
+            consoleLevelString == "None"
+              ? 100
+              : Log4Moz.Level[consoleLevelString];
         }
       } catch (ex) {
         // Ignore if preference is not found
@@ -99,10 +103,11 @@ var Log4Moz = {
         let dumpLevelString = branch.getCharPref("dump");
         if (dumpLevelString) {
           // capitalize to fit with Log4Moz.Level expectations
-          dumpLevelString = dumpLevelString.charAt(0).toUpperCase() +
-             dumpLevelString.substr(1).toLowerCase();
-          dumpLevel = (dumpLevelString == "None") ?
-                       100 : Log4Moz.Level[dumpLevelString];
+          dumpLevelString =
+            dumpLevelString.charAt(0).toUpperCase() +
+            dumpLevelString.substr(1).toLowerCase();
+          dumpLevel =
+            dumpLevelString == "None" ? 100 : Log4Moz.Level[dumpLevelString];
         }
       } catch (ex) {
         // Ignore if preference is not found
@@ -110,16 +115,18 @@ var Log4Moz = {
     }
 
     if (consoleLevel != 100) {
-      if (consoleLevel == -1)
+      if (consoleLevel == -1) {
         consoleLevel = Log4Moz.Level.Error;
+      }
       let capp = new Log4Moz.ConsoleAppender(formatter);
       capp.level = consoleLevel;
       log.addAppender(capp);
     }
 
     if (dumpLevel != 100) {
-      if (dumpLevel == -1)
+      if (dumpLevel == -1) {
         dumpLevel = Log4Moz.Level.Error;
+      }
       let dapp = new Log4Moz.DumpAppender(formatter);
       dapp.level = dumpLevel;
       log.addAppender(dapp);
@@ -142,22 +149,52 @@ var Log4Moz = {
     Log4Moz.repository = value;
   },
 
-  get LogMessage() { return LogMessage; },
-  get Logger() { return Logger; },
-  get LoggerRepository() { return LoggerRepository; },
+  get LogMessage() {
+    return LogMessage;
+  },
+  get Logger() {
+    return Logger;
+  },
+  get LoggerRepository() {
+    return LoggerRepository;
+  },
 
-  get Formatter() { return Formatter; },
-  get BasicFormatter() { return BasicFormatter; },
-  get XMLFormatter() { return XMLFormatter; },
-  get JSONFormatter() { return JSONFormatter; },
-  get Appender() { return Appender; },
-  get DumpAppender() { return DumpAppender; },
-  get ConsoleAppender() { return ConsoleAppender; },
-  get TimeAwareMemoryBucketAppender() { return TimeAwareMemoryBucketAppender; },
-  get FileAppender() { return FileAppender; },
-  get SocketAppender() { return SocketAppender; },
-  get RotatingFileAppender() { return RotatingFileAppender; },
-  get ThrowingAppender() { return ThrowingAppender; },
+  get Formatter() {
+    return Formatter;
+  },
+  get BasicFormatter() {
+    return BasicFormatter;
+  },
+  get XMLFormatter() {
+    return XMLFormatter;
+  },
+  get JSONFormatter() {
+    return JSONFormatter;
+  },
+  get Appender() {
+    return Appender;
+  },
+  get DumpAppender() {
+    return DumpAppender;
+  },
+  get ConsoleAppender() {
+    return ConsoleAppender;
+  },
+  get TimeAwareMemoryBucketAppender() {
+    return TimeAwareMemoryBucketAppender;
+  },
+  get FileAppender() {
+    return FileAppender;
+  },
+  get SocketAppender() {
+    return SocketAppender;
+  },
+  get RotatingFileAppender() {
+    return RotatingFileAppender;
+  },
+  get ThrowingAppender() {
+    return ThrowingAppender;
+  },
 
   // Logging helper:
   // let logger = Log4Moz.repository.getLogger("foo");
@@ -183,9 +220,12 @@ var Log4Moz = {
 
     for (var p in aObject) {
       try {
-        if (aExcludeComplexTypes &&
-            (typeof aObject[p] == "object" || typeof aObject[p] == "function"))
+        if (
+          aExcludeComplexTypes &&
+          (typeof aObject[p] == "object" || typeof aObject[p] == "function")
+        ) {
           continue;
+        }
         properties.push(p + " = " + aObject[p]);
       } catch (ex) {
         properties.push(p + " = " + ex);
@@ -218,7 +258,6 @@ LoggerContext.prototype = {
   },
 };
 
-
 /*
  * LogMessage
  * Encapsulates a single log event's data
@@ -231,14 +270,22 @@ function LogMessage(loggerName, level, messageObjects) {
 }
 LogMessage.prototype = {
   get levelDesc() {
-    if (this.level in Log4Moz.Level.Desc)
+    if (this.level in Log4Moz.Level.Desc) {
       return Log4Moz.Level.Desc[this.level];
+    }
     return "UNKNOWN";
   },
 
   toString() {
-    return "LogMessage [" + this.time + " " + this.level + " " +
-      this.messageObjects + "]";
+    return (
+      "LogMessage [" +
+      this.time +
+      " " +
+      this.level +
+      " " +
+      this.messageObjects +
+      "]"
+    );
   },
 };
 
@@ -252,8 +299,9 @@ function Logger(name, repository) {
 }
 Logger.prototype = {
   _init(name, repository) {
-    if (!repository)
+    if (!repository) {
       repository = Log4Moz.repository;
+    }
     this._name = name;
     this.children = [];
     this.ownAppenders = [];
@@ -267,11 +315,15 @@ Logger.prototype = {
 
   _level: null,
   get level() {
-    if (this._level != null)
+    if (this._level != null) {
       return this._level;
-    if (this.parent)
+    }
+    if (this.parent) {
       return this.parent.level;
-    dump("log4moz warning: root logger configuration error: no level defined\n");
+    }
+    dump(
+      "log4moz warning: root logger configuration error: no level defined\n"
+    );
     return Log4Moz.Level.All;
   },
   set level(level) {
@@ -279,7 +331,9 @@ Logger.prototype = {
   },
 
   _parent: null,
-  get parent() { return this._parent; },
+  get parent() {
+    return this._parent;
+  },
   set parent(parent) {
     if (this._parent == parent) {
       return;
@@ -322,8 +376,9 @@ Logger.prototype = {
 
   _nextContextId: 0,
   newContext(objWithProps) {
-    if (!("_id" in objWithProps))
-      objWithProps._id = this._name + ":" + (++this._nextContextId);
+    if (!("_id" in objWithProps)) {
+      objWithProps._id = this._name + ":" + ++this._nextContextId;
+    }
 
     let c = new LoggerContext();
     c._isContext = true;
@@ -343,8 +398,9 @@ Logger.prototype = {
   },
 
   log(level, args) {
-    if (this.level > level)
+    if (this.level > level) {
       return;
+    }
 
     // Hold off on creating the message object until we actually have
     // an appender that's responsible.
@@ -352,11 +408,13 @@ Logger.prototype = {
     let appenders = this.appenders;
     for (let i = 0; i < appenders.length; i++) {
       let appender = appenders[i];
-      if (appender.level > level)
+      if (appender.level > level) {
         continue;
+      }
 
-      if (!message)
+      if (!message) {
         message = new LogMessage(this._name, level, args);
+      }
 
       appender.append(message);
     }
@@ -414,30 +472,35 @@ LoggerRepository.prototype = {
     // don't test for the logger name itself, as there's a chance it's already
     // there in this._loggers
     for (let i = 0; i < pieces.length - 1; i++) {
-      if (cur)
+      if (cur) {
         cur += "." + pieces[i];
-      else
+      } else {
         cur = pieces[i];
-      if (cur in this._loggers)
+      }
+      if (cur in this._loggers) {
         parent = cur;
+      }
     }
 
     // if we didn't assign a parent above, there is no parent
-    if (!parent)
+    if (!parent) {
       this._loggers[name].parent = this.rootLogger;
-    else
+    } else {
       this._loggers[name].parent = this._loggers[parent];
+    }
 
     // trigger updates for any possible descendants of this logger
     for (let logger in this._loggers) {
-      if (logger != name && logger.indexOf(name) == 0)
+      if (logger != name && logger.indexOf(name) == 0) {
         this._updateParents(logger);
+      }
     }
   },
 
   getLogger(name) {
-    if (name in this._loggers)
+    if (name in this._loggers) {
       return this._loggers[name];
+    }
     this._loggers[name] = new Logger(name, this);
     this._updateParents(name);
     return this._loggers[name];
@@ -457,8 +520,7 @@ Formatter.prototype = {
 };
 
 // services' log4moz lost the date formatting default...
-function BasicFormatter() {
-}
+function BasicFormatter() {}
 BasicFormatter.prototype = {
   __proto__: Formatter.prototype,
 
@@ -467,18 +529,37 @@ BasicFormatter.prototype = {
     // Format timestamp as: "%Y-%m-%d %H:%M:%S"
     let year = date.getFullYear().toString();
     let month = (date.getMonth() + 1).toString().padStart(2, "0");
-    let day = date.getDate().toString().padStart(2, "0");
-    let hours = date.getHours().toString().padStart(2, "0");
-    let minutes = date.getMinutes().toString().padStart(2, "0");
-    let seconds = date.getSeconds().toString().padStart(2, "0");
+    let day = date
+      .getDate()
+      .toString()
+      .padStart(2, "0");
+    let hours = date
+      .getHours()
+      .toString()
+      .padStart(2, "0");
+    let minutes = date
+      .getMinutes()
+      .toString()
+      .padStart(2, "0");
+    let seconds = date
+      .getSeconds()
+      .toString()
+      .padStart(2, "0");
 
     let timeStamp = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     // The trick below prevents errors further down because mo is null or
     //  undefined.
     let messageString = message.messageObjects.map(mo => "" + mo).join(" ");
-    return timeStamp + "\t" +
-      message.loggerName + "\t" + message.levelDesc + "\t" +
-      messageString + "\n";
+    return (
+      timeStamp +
+      "\t" +
+      message.loggerName +
+      "\t" +
+      message.levelDesc +
+      "\t" +
+      messageString +
+      "\n"
+    );
   },
 };
 
@@ -496,21 +577,30 @@ XMLFormatter.prototype = {
   __proto__: Formatter.prototype,
 
   format(message) {
-    let cdataEscapedMessage =
-      message.messageObjects
-        .map(mo => (typeof(mo) == "object") ? mo.toString() : mo)
-        .join(" ")
-        .split(CDATA_END).join(CDATA_ESCAPED_END);
-    return "<log4j:event logger='" + message.loggerName + "' " +
-                        "level='" + message.levelDesc + "' thread='unknown' " +
-                        "timestamp='" + message.time + "'>" +
-      "<log4j:message><![CDATA[" + cdataEscapedMessage + "]]></log4j:message>" +
-      "</log4j:event>";
+    let cdataEscapedMessage = message.messageObjects
+      .map(mo => (typeof mo == "object" ? mo.toString() : mo))
+      .join(" ")
+      .split(CDATA_END)
+      .join(CDATA_ESCAPED_END);
+    return (
+      "<log4j:event logger='" +
+      message.loggerName +
+      "' " +
+      "level='" +
+      message.levelDesc +
+      "' thread='unknown' " +
+      "timestamp='" +
+      message.time +
+      "'>" +
+      "<log4j:message><![CDATA[" +
+      cdataEscapedMessage +
+      "]]></log4j:message>" +
+      "</log4j:event>"
+    );
   },
 };
 
-function JSONFormatter() {
-}
+function JSONFormatter() {}
 JSONFormatter.prototype = {
   __proto__: Formatter.prototype,
 
@@ -524,7 +614,7 @@ JSONFormatter.prototype = {
     let origMessageObjects = message.messageObjects;
     message.messageObjects = [];
     for (let messageObject of origMessageObjects) {
-      if (messageObject)
+      if (messageObject) {
         if (messageObject._jsonMe) {
           message.messageObjects.push(messageObject);
           // FIXME: the commented out code should be fixed in a better way.
@@ -535,8 +625,9 @@ JSONFormatter.prototype = {
         } else {
           message.messageObjects.push(messageObject.toString());
         }
-      else
+      } else {
         message.messageObjects.push(messageObject);
+      }
     }
     let encoded = JSON.stringify(message) + "\r\n";
     message.msgObjects = origMessageObjects;
@@ -546,7 +637,6 @@ JSONFormatter.prototype = {
     return encoded;
   },
 };
-
 
 /*
  * Appenders
@@ -565,8 +655,14 @@ Appender.prototype = {
     this.doAppend(this._formatter.format(message));
   },
   toString() {
-    return this._name + " [level=" + this._level +
-      ", formatter=" + this._formatter + "]";
+    return (
+      this._name +
+      " [level=" +
+      this._level +
+      ", formatter=" +
+      this._formatter +
+      "]"
+    );
   },
   doAppend(message) {},
 };
@@ -610,12 +706,17 @@ function TimeAwareMemoryBucketAppender() {
   this._curBucketStartedAt = Date.now();
 }
 TimeAwareMemoryBucketAppender.prototype = {
-  get level() { return this._level; },
-  set level(level) { this._level = level; },
+  get level() {
+    return this._level;
+  },
+  set level(level) {
+    this._level = level;
+  },
 
   append(message) {
-    if (this._level <= message.level)
+    if (this._level <= message.level) {
       this._curBucket.push(message);
+    }
   },
 
   newBucket() {
@@ -626,14 +727,16 @@ TimeAwareMemoryBucketAppender.prototype = {
 
   getPreviousBucketEvents(aNumMS) {
     let lastBucket = this._lastBucket;
-    if (lastBucket == null || !lastBucket.length)
+    if (lastBucket == null || !lastBucket.length) {
       return [];
+    }
     let timeBound = this._curBucketStartedAt - aNumMS;
     // seek backwards through the list...
     let i;
     for (i = lastBucket.length - 1; i >= 0; i--) {
-      if (lastBucket[i].time < timeBound)
+      if (lastBucket[i].time < timeBound) {
         break;
+      }
     }
     return lastBucket.slice(i + 1);
   },
@@ -688,21 +791,24 @@ FileAppender.prototype = {
 
   __fos: null,
   get _fos() {
-    if (!this.__fos)
+    if (!this.__fos) {
       this.openStream();
+    }
     return this.__fos;
   },
 
   openStream() {
-    this.__fos = Cc["@mozilla.org/network/file-output-stream;1"].
-      createInstance(Ci.nsIFileOutputStream);
+    this.__fos = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(
+      Ci.nsIFileOutputStream
+    );
     let flags = MODE_WRONLY | MODE_CREATE | MODE_APPEND;
     this.__fos.init(this._file, flags, PERMS_FILE, 0);
   },
 
   closeStream() {
-    if (!this.__fos)
+    if (!this.__fos) {
       return;
+    }
     try {
       this.__fos.close();
       this.__fos = null;
@@ -712,8 +818,9 @@ FileAppender.prototype = {
   },
 
   doAppend(message) {
-    if (message === null || message.length <= 0)
+    if (message === null || message.length <= 0) {
       return;
+    }
     try {
       this._fos.write(message, message.length);
     } catch (e) {
@@ -733,11 +840,13 @@ FileAppender.prototype = {
  */
 
 function RotatingFileAppender(file, formatter, maxSize, maxBackups) {
-  if (maxSize === undefined)
+  if (maxSize === undefined) {
     maxSize = ONE_MEGABYTE * 2;
+  }
 
-  if (maxBackups === undefined)
+  if (maxBackups === undefined) {
     maxBackups = 0;
+  }
 
   this._name = "RotatingFileAppender";
   this._file = file; // nsIFile
@@ -749,8 +858,9 @@ RotatingFileAppender.prototype = {
   __proto__: FileAppender.prototype,
 
   doAppend(message) {
-    if (message === null || message.length <= 0)
+    if (message === null || message.length <= 0) {
       return;
+    }
     try {
       this.rotateLogs();
       this._fos.write(message, message.length);
@@ -759,21 +869,24 @@ RotatingFileAppender.prototype = {
     }
   },
   rotateLogs() {
-    if (this._file.exists() && this._file.fileSize < this._maxSize)
+    if (this._file.exists() && this._file.fileSize < this._maxSize) {
       return;
+    }
 
     this.closeStream();
 
     for (let i = this.maxBackups - 1; i > 0; i--) {
       let backup = this._file.parent.clone();
       backup.append(this._file.leafName + "." + i);
-      if (backup.exists())
+      if (backup.exists()) {
         backup.moveTo(this._file.parent, this._file.leafName + "." + (i + 1));
+      }
     }
 
     let cur = this._file.clone();
-    if (cur.exists())
+    if (cur.exists()) {
       cur.moveTo(cur.parent, cur.leafName + ".1");
+    }
 
     // Note: this._file still points to the same file
   },
@@ -794,8 +907,9 @@ function SocketAppender(host, port, formatter, timeoutDelay) {
   this._formatter = formatter ? formatter : new BasicFormatter();
   this._timeout_delay = timeoutDelay || DEFAULT_NETWORK_TIMEOUT_DELAY;
 
-  this._socketService = Cc["@mozilla.org/network/socket-transport-service;1"]
-                          .getService(Ci.nsISocketTransportService);
+  this._socketService = Cc[
+    "@mozilla.org/network/socket-transport-service;1"
+  ].getService(Ci.nsISocketTransportService);
   this._mainThread = Services.tm.mainThread;
 }
 SocketAppender.prototype = {
@@ -803,8 +917,9 @@ SocketAppender.prototype = {
 
   __nos: null,
   get _nos() {
-    if (!this.__nos)
+    if (!this.__nos) {
       this.openStream();
+    }
     return this.__nos;
   },
   _nextCheck: 0,
@@ -817,10 +932,14 @@ SocketAppender.prototype = {
     try {
       this._transport = this._socketService.createTransport(
         [], // default socket type
-        this._host, this._port,
-        null); // no proxy
-      this._transport.setTimeout(Ci.nsISocketTransport.TIMEOUT_CONNECT,
-                                 this._timeout_delay);
+        this._host,
+        this._port,
+        null
+      ); // no proxy
+      this._transport.setTimeout(
+        Ci.nsISocketTransport.TIMEOUT_CONNECT,
+        this._timeout_delay
+      );
       // do not set a timeout for TIMEOUT_READ_WRITE. The timeout is not
       //  entirely intuitive; your socket will time out if no one reads or
       //  writes to the socket within the timeout.  That, as you can imagine,
@@ -831,22 +950,31 @@ SocketAppender.prototype = {
         0, // neither blocking nor unbuffered operation is desired
         0, // default buffer size is fine
         0 // default buffer count is fine
-        );
+      );
 
-      let uniOutputStream = Cc["@mozilla.org/intl/converter-output-stream;1"]
-                              .createInstance(Ci.nsIConverterOutputStream);
+      let uniOutputStream = Cc[
+        "@mozilla.org/intl/converter-output-stream;1"
+      ].createInstance(Ci.nsIConverterOutputStream);
       uniOutputStream.init(outputStream, "utf-8");
 
       this.__nos = uniOutputStream;
     } catch (ex) {
-      dump("Unexpected SocketAppender connection problem: " +
-           ex.fileName + ":" + ex.lineNumber + ": " + ex + "\n");
+      dump(
+        "Unexpected SocketAppender connection problem: " +
+          ex.fileName +
+          ":" +
+          ex.lineNumber +
+          ": " +
+          ex +
+          "\n"
+      );
     }
   },
 
   closeStream() {
-    if (!this._transport)
+    if (!this._transport) {
       return;
+    }
     try {
       this._connected = false;
       this._transport = null;
@@ -859,12 +987,14 @@ SocketAppender.prototype = {
   },
 
   doAppend(message) {
-    if (message === null || message.length <= 0)
+    if (message === null || message.length <= 0) {
       return;
+    }
     try {
       let nos = this._nos;
-      if (nos)
+      if (nos) {
         nos.writeString(message);
+      }
     } catch (e) {
       if (this._transport && !this._transport.isAlive()) {
         this.closeStream();
@@ -878,8 +1008,9 @@ SocketAppender.prototype = {
 
   /* nsITransportEventSink */
   onTransportStatus(aTransport, aStatus, aProgress, aProgressMax) {
-    if (aStatus == Ci.nsISocketTransport.STATUS_CONNECTED_TO)
+    if (aStatus == Ci.nsISocketTransport.STATUS_CONNECTED_TO) {
       this._connected = true;
+    }
   },
 };
 
@@ -897,9 +1028,10 @@ ThrowingAppender.prototype = {
   __proto__: Appender.prototype,
 
   doAppend(message) {
-    if (this._thrower)
+    if (this._thrower) {
       this._thrower(message);
-    else
+    } else {
       throw message;
+    }
   },
 };

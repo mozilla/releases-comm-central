@@ -16,7 +16,9 @@ load("../../../resources/messageGenerator.js");
 // javascript mime emitter functions
 var mimeMsg = {};
 ChromeUtils.import("resource:///modules/gloda/mimemsg.js", mimeMsg);
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 // IMAP pump
 
@@ -25,30 +27,23 @@ var kAttachFileName = "bob.txt";
 setupIMAPPump();
 
 // Dummy message window so we can say the inbox is open in a window.
-var dummyMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
-                       .createInstance(Ci.nsIMsgWindow);
+var dummyMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
+  Ci.nsIMsgWindow
+);
 
-var tests = [
-  loadImapMessage,
-  startMime,
-  startDetach,
-  testDetach,
-  endTest,
-];
+var tests = [loadImapMessage, startMime, startDetach, testDetach, endTest];
 
 // load and update a message in the imap fake server
 function* loadImapMessage() {
   let gMessageGenerator = new MessageGenerator();
   // create a synthetic message with attachment
   let smsg = gMessageGenerator.makeMessage({
-    attachments: [
-      {filename: kAttachFileName, body: "I like cheese!"},
-    ],
+    attachments: [{ filename: kAttachFileName, body: "I like cheese!" }],
   });
 
-  let msgURI =
-    Services.io.newURI("data:text/plain;base64," +
-                       btoa(smsg.toMessageString()));
+  let msgURI = Services.io.newURI(
+    "data:text/plain;base64," + btoa(smsg.toMessageString())
+  );
   let imapInbox = IMAPPump.daemon.getMailbox("INBOX");
   let message = new imapMessage(msgURI.spec, imapInbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(message);
@@ -65,8 +60,12 @@ function* loadImapMessage() {
 function* startMime() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
 
-  mimeMsg.MsgHdrToMimeMessage(msgHdr, gCallbackObject, gCallbackObject.callback,
-                              true /* allowDownload */);
+  mimeMsg.MsgHdrToMimeMessage(
+    msgHdr,
+    gCallbackObject,
+    gCallbackObject.callback,
+    true /* allowDownload */
+  );
   yield false;
 }
 
@@ -75,12 +74,20 @@ function* startDetach() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   let msgURI = msgHdr.folder.generateMessageURI(msgHdr.messageKey);
 
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+    Ci.nsIMessenger
+  );
   let attachment = gCallbackObject.attachments[0];
 
-  messenger.detachAttachmentsWOPrompts(do_get_profile(), 1,
-                                       [attachment.contentType], [attachment.url],
-                                       [attachment.name], [msgURI], null);
+  messenger.detachAttachmentsWOPrompts(
+    do_get_profile(),
+    1,
+    [attachment.contentType],
+    [attachment.url],
+    [attachment.name],
+    [msgURI],
+    null
+  );
   // deletion of original message should kick async_driver.
   yield false;
 }
@@ -150,20 +157,19 @@ function getContentFromMessage(aMsgHdr) {
   let msgFolder = aMsgHdr.folder;
   let msgUri = msgFolder.getUriForMsg(aMsgHdr);
 
-  let messenger = Cc["@mozilla.org/messenger;1"]
-                    .createInstance(Ci.nsIMessenger);
-  let streamListener = Cc["@mozilla.org/network/sync-stream-listener;1"]
-                         .createInstance(Ci.nsISyncStreamListener);
+  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+    Ci.nsIMessenger
+  );
+  let streamListener = Cc[
+    "@mozilla.org/network/sync-stream-listener;1"
+  ].createInstance(Ci.nsISyncStreamListener);
   // pass true for aLocalOnly since message should be in offline store.
-  messenger.messageServiceFromURI(msgUri).streamMessage(msgUri,
-                                                        streamListener,
-                                                        null,
-                                                        null,
-                                                        false,
-                                                        "",
-                                                        true);
-  let sis = Cc["@mozilla.org/scriptableinputstream;1"]
-              .createInstance(Ci.nsIScriptableInputStream);
+  messenger
+    .messageServiceFromURI(msgUri)
+    .streamMessage(msgUri, streamListener, null, null, false, "", true);
+  let sis = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+    Ci.nsIScriptableInputStream
+  );
   sis.init(streamListener.inputStream);
   let content = sis.read(MAX_MESSAGE_LENGTH);
   sis.close();

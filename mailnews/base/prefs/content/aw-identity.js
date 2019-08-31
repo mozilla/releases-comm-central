@@ -14,7 +14,9 @@ function identityPageValidate() {
   let email = document.getElementById("email").value.trim();
 
   if (name && email) {
-    canAdvance = gCurrentDomain ? emailNameIsLegal(email) : emailNameAndDomainAreLegal(email);
+    canAdvance = gCurrentDomain
+      ? emailNameIsLegal(email)
+      : emailNameAndDomainAreLegal(email);
 
     if (gCurrentDomain && canAdvance) {
       // For prefilled ISP data we must check if the account already exists as
@@ -24,9 +26,12 @@ function identityPageValidate() {
       var serverType = parent.getCurrentServerType(pageData);
       var hostName = parent.getCurrentHostname(pageData);
       var usernameWithDomain = email + "@" + gCurrentDomain;
-      if (parent.AccountExists(email, hostName, serverType) ||
-          parent.AccountExists(usernameWithDomain, hostName, serverType))
+      if (
+        parent.AccountExists(email, hostName, serverType) ||
+        parent.AccountExists(usernameWithDomain, hostName, serverType)
+      ) {
         canAdvance = false;
+      }
     }
   }
 
@@ -87,8 +92,9 @@ function identityPageInit() {
 function clearEmailTextItems() {
   var emailDescText = document.getElementById("emailDescText");
 
-  if (emailDescText.hasChildNodes())
+  if (emailDescText.hasChildNodes()) {
     emailDescText.firstChild.remove();
+  }
 
   var postEmailText = document.getElementById("postEmailText");
   postEmailText.setAttribute("value", "");
@@ -99,30 +105,37 @@ function clearEmailTextItems() {
 // for the choice user has made, will be read into CurrentAccountData.
 // Default example data from properties will be used when the info is missing.
 function setEmailDescriptionText() {
-    var emailDescText = document.getElementById("emailDescText");
-    var emailFieldLabel = document.getElementById("emailFieldLabel");
+  var emailDescText = document.getElementById("emailDescText");
+  var emailFieldLabel = document.getElementById("emailFieldLabel");
 
-    // Set the default field label
-    emailFieldLabel.setAttribute("value", gPrefsBundle.getString("emailFieldText"));
+  // Set the default field label
+  emailFieldLabel.setAttribute(
+    "value",
+    gPrefsBundle.getString("emailFieldText")
+  );
 
-    // Check for obtained values and set with default values if needed
-    var username = gPrefsBundle.getString("exampleEmailUserName");
-    var domain = gPrefsBundle.getString("exampleEmailDomain");
+  // Check for obtained values and set with default values if needed
+  var username = gPrefsBundle.getString("exampleEmailUserName");
+  var domain = gPrefsBundle.getString("exampleEmailDomain");
 
-    let displayText = gPrefsBundle.getFormattedString("defaultEmailText",
-                                                       [username, domain]);
+  let displayText = gPrefsBundle.getFormattedString("defaultEmailText", [
+    username,
+    domain,
+  ]);
 
-    // Create a text nodes with text to be displayed
-    var emailDescTextNode       =  document.createTextNode(displayText);
+  // Create a text nodes with text to be displayed
+  var emailDescTextNode = document.createTextNode(displayText);
 
-    // Display the dynamically generated text for email description
-    emailDescText.appendChild(emailDescTextNode);
+  // Display the dynamically generated text for email description
+  emailDescText.appendChild(emailDescTextNode);
 }
 
 function checkForFullName() {
   var name = document.getElementById("fullName");
   if (name.value == "" && "@mozilla.org/userinfo;1" in Cc) {
-    name.value = Cc["@mozilla.org/userinfo;1"].getService(Ci.nsIUserInfo).fullname;
+    name.value = Cc["@mozilla.org/userinfo;1"].getService(
+      Ci.nsIUserInfo
+    ).fullname;
   }
 }
 
@@ -133,6 +146,8 @@ function checkForEmail() {
     email.value = pageData.identity.email.value;
   }
   if (email.value == "" && "@mozilla.org/userinfo;1" in Cc) {
-    email.value = Cc["@mozilla.org/userinfo;1"].getService(Ci.nsIUserInfo).emailAddress;
+    email.value = Cc["@mozilla.org/userinfo;1"].getService(
+      Ci.nsIUserInfo
+    ).emailAddress;
   }
 }

@@ -10,7 +10,9 @@
  *
  */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 function run_test() {
   // These are both tags and keys. Note keys are forced to be lower case
@@ -24,8 +26,9 @@ function run_test() {
 
   // delete any existing tags
   let tagArray = MailServices.tags.getAllTags({});
-  for (var i = 0; i < tagArray.length; i++)
+  for (var i = 0; i < tagArray.length; i++) {
     MailServices.tags.deleteKey(tagArray[i].key);
+  }
 
   // make sure added tag is now gone
   Assert.ok(!MailServices.tags.isValidKey(tag1));
@@ -50,8 +53,9 @@ function run_test() {
   Assert.ok(MailServices.tags.isValidKey(tag4));
 
   // add many tags and check again
-  for (i = 0; i < 100; i++)
+  for (i = 0; i < 100; i++) {
     MailServices.tags.addTagForKey(i, "lotsatags" + i, null, null);
+  }
   Assert.ok(!MailServices.tags.isValidKey(tag1));
   Assert.ok(!MailServices.tags.isValidKey(tag2));
   Assert.ok(!MailServices.tags.isValidKey(tag3));
@@ -74,4 +78,3 @@ function run_test() {
       print("# " + i + " key [" + tags[i].key + "] tag [" + tags[i].tag + "]");
   }
  */
-

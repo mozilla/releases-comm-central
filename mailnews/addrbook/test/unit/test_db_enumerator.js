@@ -3,8 +3,12 @@
  * addr database and delete the underlying directory, which forces the ab
  * closed.
  */
-var ab_prefix       = "test-537815-";
-var card_properties = { FirstName: "01-first-3", LastName: "02-last", PrimaryEmail: "08-email-1@zindus.invalid" };
+var ab_prefix = "test-537815-";
+var card_properties = {
+  FirstName: "01-first-3",
+  LastName: "02-last",
+  PrimaryEmail: "08-email-1@zindus.invalid",
+};
 var max_addressbooks = 10;
 
 function bug_537815_fixture_setup() {
@@ -26,10 +30,13 @@ function bug_537815_fixture_setup() {
 
         if (j == 1 && elem.dirName.startsWith(ab_prefix)) {
           for (i = 1; i <= 1000; i++) {
-            let abCard = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance().QueryInterface(Ci.nsIAbCard);
+            let abCard = Cc["@mozilla.org/addressbook/cardproperty;1"]
+              .createInstance()
+              .QueryInterface(Ci.nsIAbCard);
 
-            for (key in card_properties)
+            for (key in card_properties) {
               abCard.setProperty(key, card_properties[key]);
+            }
 
             abCard = dir.addCard(abCard);
           }
@@ -45,8 +52,8 @@ function bug_537815_test() {
 
   while (enm_dirs.hasMoreElements()) {
     let elem = enm_dirs.getNext().QueryInterface(Ci.nsIAbDirectory);
-    let uri  = elem.URI;
-    let dir  = MailServices.ab.getDirectory(uri);
+    let uri = elem.URI;
+    let dir = MailServices.ab.getDirectory(uri);
 
     if (elem.dirName.startsWith(ab_prefix)) {
       let enm_cards = dir.childCards;
@@ -83,8 +90,9 @@ function bug_537815_fixture_tear_down() {
     }
   }
 
-  for (let uri in a_uri)
+  for (let uri in a_uri) {
     MailServices.ab.deleteAddressBook(uri);
+  }
 }
 
 function run_test() {

@@ -20,8 +20,9 @@ var tests = [
   setup,
   function* switchAwayFromInbox() {
     let rootFolder = IMAPPump.incomingServer.rootFolder;
-    gSecondFolder =  rootFolder.getChildNamed("secondFolder")
-                           .QueryInterface(Ci.nsIMsgImapMailFolder);
+    gSecondFolder = rootFolder
+      .getChildNamed("secondFolder")
+      .QueryInterface(Ci.nsIMsgImapMailFolder);
 
     // Selecting the second folder will close the cached connection
     // on the inbox because fake server only supports one connection at a time.
@@ -51,16 +52,16 @@ function* setup() {
    */
   setupIMAPPump();
 
-  IMAPPump.daemon.createMailbox("secondFolder", {subscribed: true});
+  IMAPPump.daemon.createMailbox("secondFolder", { subscribed: true });
 
   let messages = [];
   let gMessageGenerator = new MessageGenerator();
   messages = messages.concat(gMessageGenerator.makeMessage());
   gSynthMessage = messages[0];
 
-  let msgURI =
-    Services.io.newURI("data:text/plain;base64," +
-                       btoa(gSynthMessage.toMessageString()));
+  let msgURI = Services.io.newURI(
+    "data:text/plain;base64," + btoa(gSynthMessage.toMessageString())
+  );
   gMessage = new imapMessage(msgURI.spec, IMAPPump.mailbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(gMessage);
 

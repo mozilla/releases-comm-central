@@ -17,56 +17,70 @@ load("../../../resources/messageGenerator.js");
 load("../../../resources/messageModifier.js");
 load("../../../resources/messageInjection.js");
 
-var gMessenger = Cc["@mozilla.org/messenger;1"]
-                   .createInstance(Ci.nsIMessenger);
+var gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
 // Create a message generator
-var msgGen = gMessageGenerator = new MessageGenerator();
+var msgGen = (gMessageGenerator = new MessageGenerator());
 
-var textAttachment =
-  "inline text attachment";
+var textAttachment = "inline text attachment";
 
 // create a message with a text attachment
 var messages = [
   {
     // unnamed email attachment
-    attachments: [{
-      body: textAttachment,
-      filename: "test.txt",
-      format: "",
-    }, {
-      body: "",
-      expectedFilename: "ForwardedMessage.eml",
-      contentType: "message/rfc822",
-    }],
-  }, {
+    attachments: [
+      {
+        body: textAttachment,
+        filename: "test.txt",
+        format: "",
+      },
+      {
+        body: "",
+        expectedFilename: "ForwardedMessage.eml",
+        contentType: "message/rfc822",
+      },
+    ],
+  },
+  {
     // named email attachment
-    attachments: [{
-      body: textAttachment,
-      filename: "test.txt",
-      format: "",
-    }, {
-      body: "",
-      filename: "Attached Message",
-      contentType: "message/rfc822",
-    }],
-  }, {
-    attachments: [{
-      body: textAttachment,
-      filename: "test.html",
-      format: "",
-    }, {
-      body: "",
-      filename: "<iframe src=&quote;http://www.example.com&quote></iframe>.htm",
-      expectedFilename: "&lt;iframe src=&amp;quote;http://www.example.com&amp;quote&gt;&lt;/iframe&gt;.htm",
-      contentType: "text/html;",
-    }],
-  }, {
+    attachments: [
+      {
+        body: textAttachment,
+        filename: "test.txt",
+        format: "",
+      },
+      {
+        body: "",
+        filename: "Attached Message",
+        contentType: "message/rfc822",
+      },
+    ],
+  },
+  {
+    attachments: [
+      {
+        body: textAttachment,
+        filename: "test.html",
+        format: "",
+      },
+      {
+        body: "",
+        filename:
+          "<iframe src=&quote;http://www.example.com&quote></iframe>.htm",
+        expectedFilename:
+          "&lt;iframe src=&amp;quote;http://www.example.com&amp;quote&gt;&lt;/iframe&gt;.htm",
+        contentType: "text/html;",
+      },
+    ],
+  },
+  {
     // no named email attachment with subject header
-    attachments: [{
-      body: "",
-      expectedFilename: "testSubject.eml",
-    }],
+    attachments: [
+      {
+        body: "",
+        expectedFilename: "testSubject.eml",
+      },
+    ],
     bodyPart: new SyntheticPartMultiMixed([
       new SyntheticPartLeaf("plain body text"),
       msgGen.makeMessage({
@@ -95,7 +109,10 @@ var gStreamListener = {
     for (let attachment of messages[this.index].attachments) {
       let match = regex.exec(this.contents);
       Assert.notEqual(match, null);
-      Assert.equal(match[1], attachment.expectedFilename || attachment.filename);
+      Assert.equal(
+        match[1],
+        attachment.expectedFilename || attachment.filename
+      );
     }
     Assert.equal(regex.exec(this.contents), null);
 
@@ -106,8 +123,9 @@ var gStreamListener = {
   // nsIStreamListener part
   onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
     if (this.stream === null) {
-      this.stream = Cc["@mozilla.org/scriptableinputstream;1"].
-                    createInstance(Ci.nsIScriptableInputStream);
+      this.stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+        Ci.nsIScriptableInputStream
+      );
       this.stream.init(aInputStream);
     }
     this.contents += this.stream.read(aCount);
@@ -115,7 +133,13 @@ var gStreamListener = {
 };
 
 var gMessageHeaderSink = {
-  handleAttachment(aContentType, aUrl, aDisplayName, aUri, aIsExternalAttachment) {},
+  handleAttachment(
+    aContentType,
+    aUrl,
+    aDisplayName,
+    aUri,
+    aIsExternalAttachment
+  ) {},
   addAttachmentField(aName, aValue) {},
 
   // stub functions from nsIMsgHeaderSink
@@ -132,8 +156,9 @@ var gMessageHeaderSink = {
   resetProperties() {},
 };
 
-var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
-                  .createInstance(Ci.nsIMsgWindow);
+var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
+  Ci.nsIMsgWindow
+);
 msgWindow.msgHeaderSink = gMessageHeaderSink;
 
 function* test_message_attachments(info) {
@@ -159,14 +184,12 @@ function* test_message_attachments(info) {
 
 /* ===== Driver ===== */
 
-var tests = [
-  parameterizeTest(test_message_attachments, messages),
-];
+var tests = [parameterizeTest(test_message_attachments, messages)];
 
 var gInbox;
 
 function run_test() {
-  gInbox = configure_message_injection({mode: "local"});
+  gInbox = configure_message_injection({ mode: "local" });
   Services.prefs.setBoolPref("mail.inline_attachments.text", true);
   async_run_tests(tests);
 }

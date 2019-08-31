@@ -2,8 +2,12 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 // Test that IMAP over a SOCKS proxy works.
 
-var {NetworkTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/NetworkTestUtils.jsm");
-var {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
+var { NetworkTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/NetworkTestUtils.jsm"
+);
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 /* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/messageGenerator.js");
 
@@ -24,11 +28,11 @@ add_task(async function setup() {
   let messages = [];
   let messageGenerator = new MessageGenerator();
   messages = messages.concat(messageGenerator.makeMessage());
-  let dataUri = Services.io.newURI("data:text/plain;base64," +
-                                   btoa(messages[0].toMessageString()));
+  let dataUri = Services.io.newURI(
+    "data:text/plain;base64," + btoa(messages[0].toMessageString())
+  );
   let imapMsg = new imapMessage(dataUri.spec, daemon.inbox.uidnext++, []);
   daemon.inbox.addMessage(imapMsg);
-
 
   NetworkTestUtils.configureProxy("imap.tinderbox.invalid", PORT, server.port);
 

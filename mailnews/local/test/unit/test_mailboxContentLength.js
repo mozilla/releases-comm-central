@@ -22,10 +22,14 @@ function run_test() {
 function verifyContentLength(aMessageHeaderKeys, aStatus) {
   Assert.notEqual(aMessageHeaderKeys, null);
   // First get the message URI
-  let msgHdr = localAccountUtils.inboxFolder.GetMessageHeader(aMessageHeaderKeys[0]);
+  let msgHdr = localAccountUtils.inboxFolder.GetMessageHeader(
+    aMessageHeaderKeys[0]
+  );
   let messageUri = localAccountUtils.inboxFolder.getUriForMsg(msgHdr);
   // Convert this to a URI that necko can run
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+    Ci.nsIMessenger
+  );
   let neckoURL = {};
   let messageService = messenger.messageServiceFromURI(messageUri);
   messageService.GetUrlForUri(messageUri, neckoURL, null);
@@ -34,22 +38,26 @@ function verifyContentLength(aMessageHeaderKeys, aStatus) {
   let urlToRun = Services.io.newURI(neckoURL.value.spec);
 
   // Get a channel from this URI, and check its content length
-  let channel = Services.io.newChannelFromURI(urlToRun,
-                                              null,
-                                              Services.scriptSecurityManager.getSystemPrincipal(),
-                                              null,
-                                              Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                              Ci.nsIContentPolicy.TYPE_OTHER);
+  let channel = Services.io.newChannelFromURI(
+    urlToRun,
+    null,
+    Services.scriptSecurityManager.getSystemPrincipal(),
+    null,
+    Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+    Ci.nsIContentPolicy.TYPE_OTHER
+  );
   Assert.equal(channel.contentLength, gFile.fileSize);
 
   // Now try an attachment. &part=1.2
   let attachmentURL = Services.io.newURI(neckoURL.value.spec + "&part=1.2");
-  Services.io.newChannelFromURI(attachmentURL,
-                                null,
-                                Services.scriptSecurityManager.getSystemPrincipal(),
-                                null,
-                                Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                Ci.nsIContentPolicy.TYPE_OTHER);
+  Services.io.newChannelFromURI(
+    attachmentURL,
+    null,
+    Services.scriptSecurityManager.getSystemPrincipal(),
+    null,
+    Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+    Ci.nsIContentPolicy.TYPE_OTHER
+  );
   // Currently attachments have their content length set to the length of the
   // entire message
   Assert.equal(channel.contentLength, gFile.fileSize);

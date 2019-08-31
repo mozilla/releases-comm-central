@@ -10,8 +10,10 @@
  * multiple sends, the rest of this test is in test_smtpPasswordFailure2.js.
  */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 /* import-globals-from ../../../test/resources/alertTestUtils.js */
 /* import-globals-from ../../../test/resources/passwordStorage.js */
@@ -28,10 +30,9 @@ var kUsername = "testsmtp";
 // Login information needs to match the login information stored in the signons
 // json file.
 var kInvalidPassword = "smtptest";
-var kValidPassword = "smtptest1";
+var kValidPassword = "smtptest1"; // for alertTestUtils.js
 
-/* exported alert, confirmEx */// for alertTestUtils.js
-function alert(aDialogText, aText) {
+/* exported alert, confirmEx */ function alert(aDialogText, aText) {
   // The first few attempts may prompt about the password problem, the last
   // attempt shouldn't.
   Assert.ok(attempt < 4);
@@ -40,8 +41,16 @@ function alert(aDialogText, aText) {
   dump("Alert Title: " + aDialogText + "\nAlert Text: " + aText + "\n");
 }
 
-function confirmEx(aDialogTitle, aText, aButtonFlags, aButton0Title,
-                   aButton1Title, aButton2Title, aCheckMsg, aCheckState) {
+function confirmEx(
+  aDialogTitle,
+  aText,
+  aButtonFlags,
+  aButton0Title,
+  aButton1Title,
+  aButton2Title,
+  aCheckMsg,
+  aCheckState
+) {
   switch (++attempt) {
     // First attempt, retry.
     case 1:
@@ -96,9 +105,19 @@ add_task(async function() {
 
     dump("Send\n");
 
-    MailServices.smtp.sendMailMessage(testFile, kTo, identity, kSender,
-                                      null, null, null, null,
-                                      false, {}, {});
+    MailServices.smtp.sendMailMessage(
+      testFile,
+      kTo,
+      identity,
+      kSender,
+      null,
+      null,
+      null,
+      null,
+      false,
+      {},
+      {}
+    );
 
     server.performTest();
 
@@ -107,7 +126,11 @@ add_task(async function() {
     Assert.equal(attempt, 2);
 
     // Check that we haven't forgetton the login even though we've retried and cancelled.
-    let logins = Services.logins.findLogins("smtp://localhost", null, "smtp://localhost");
+    let logins = Services.logins.findLogins(
+      "smtp://localhost",
+      null,
+      "smtp://localhost"
+    );
 
     Assert.equal(logins.length, 1);
     Assert.equal(logins[0].username, kUsername);
@@ -118,7 +141,8 @@ add_task(async function() {
     server.stop();
 
     var thread = gThreadManager.currentThread;
-    while (thread.hasPendingEvents())
+    while (thread.hasPendingEvents()) {
       thread.processNextEvent(true);
+    }
   }
 });

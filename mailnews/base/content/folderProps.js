@@ -4,8 +4,8 @@
 
 /* import-globals-from retention.js */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Gloda } = ChromeUtils.import("resource:///modules/gloda/gloda.js");
 
 var gMsgFolder;
 var gLockedPref = null;
@@ -25,29 +25,33 @@ var gFolderPropsSink = {
 
   setFolderTypeDescription(folderDescription) {
     var folderTypeLabel = document.getElementById("folderDescription.text");
-    if (folderTypeLabel)
+    if (folderTypeLabel) {
       folderTypeLabel.setAttribute("value", folderDescription);
+    }
   },
 
   setFolderPermissions(folderPermissions) {
     var permissionsLabel = document.getElementById("folderPermissions.text");
-    var descTextNode =  document.createTextNode(folderPermissions);
+    var descTextNode = document.createTextNode(folderPermissions);
     permissionsLabel.appendChild(descTextNode);
   },
 
   serverDoesntSupportACL() {
     var typeLabel = document.getElementById("folderTypeLabel");
-    if (typeLabel)
+    if (typeLabel) {
       typeLabel.setAttribute("hidden", "true");
+    }
     var permissionsLabel = document.getElementById("permissionsDescLabel");
-    if (permissionsLabel)
+    if (permissionsLabel) {
       permissionsLabel.setAttribute("hidden", "true");
+    }
   },
 
   setQuotaStatus(folderQuotaStatus) {
     var quotaStatusLabel = document.getElementById("folderQuotaStatus");
-    if (quotaStatusLabel)
+    if (quotaStatusLabel) {
       quotaStatusLabel.setAttribute("value", folderQuotaStatus);
+    }
   },
 
   showQuotaData(showData) {
@@ -62,26 +66,38 @@ var gFolderPropsSink = {
 
   setQuotaData(root, usedKB, maxKB) {
     var quotaRoot = document.getElementById("quotaRoot");
-    if (quotaRoot)
+    if (quotaRoot) {
       quotaRoot.setAttribute("value", '"' + root + '"');
+    }
 
-    var percentage = (maxKB != 0) ? Math.round(usedKB / maxKB * 100) : 0;
+    var percentage = maxKB != 0 ? Math.round((usedKB / maxKB) * 100) : 0;
 
     var quotaPercentageBar = document.getElementById("quotaPercentageBar");
-    if (quotaPercentageBar)
+    if (quotaPercentageBar) {
       quotaPercentageBar.setAttribute("value", percentage);
+    }
 
     var bundle = document.getElementById("bundle_messenger");
     if (bundle) {
-      var usedFreeCaption = bundle.getFormattedString("quotaUsedFree", [usedKB, maxKB], 2);
+      var usedFreeCaption = bundle.getFormattedString(
+        "quotaUsedFree",
+        [usedKB, maxKB],
+        2
+      );
       var quotaCaption = document.getElementById("quotaUsedFree");
-      if (quotaCaption)
+      if (quotaCaption) {
         quotaCaption.setAttribute("value", usedFreeCaption);
+      }
 
-      var percentUsedCaption = bundle.getFormattedString("quotaPercentUsed", [percentage], 1);
+      var percentUsedCaption = bundle.getFormattedString(
+        "quotaPercentUsed",
+        [percentage],
+        1
+      );
       var percentUsed = document.getElementById("quotaPercentUsed");
-      if (percentUsed)
+      if (percentUsed) {
         percentUsed.setAttribute("value", percentUsedCaption);
+      }
     }
   },
 };
@@ -99,24 +115,33 @@ function folderPropsOKButton(event) {
     // Log to the Error Console the charset value for the folder
     // if it is unknown to us. Value will be preserved by the menu-item.
     if (folderCharsetList.selectedIndex == -1) {
-      Cu.reportError("Unknown folder encoding; folder=" +
-        gMsgFolder.name + ", charset=" + gMsgFolder.charset);
+      Cu.reportError(
+        "Unknown folder encoding; folder=" +
+          gMsgFolder.name +
+          ", charset=" +
+          gMsgFolder.charset
+      );
     }
 
     gMsgFolder.charset = folderCharsetList.getAttribute("value");
-    gMsgFolder.charsetOverride = document.getElementById("folderCharsetOverride")
-                                         .checked;
+    gMsgFolder.charsetOverride = document.getElementById(
+      "folderCharsetOverride"
+    ).checked;
 
-    if (document.getElementById("offline.selectForOfflineFolder").checked ||
-      document.getElementById("offline.selectForOfflineNewsgroup").checked)
+    if (
+      document.getElementById("offline.selectForOfflineFolder").checked ||
+      document.getElementById("offline.selectForOfflineNewsgroup").checked
+    ) {
       gMsgFolder.setFlag(Ci.nsMsgFolderFlags.Offline);
-    else
+    } else {
       gMsgFolder.clearFlag(Ci.nsMsgFolderFlags.Offline);
+    }
 
-    if (document.getElementById("folderCheckForNewMessages").checked)
+    if (document.getElementById("folderCheckForNewMessages").checked) {
       gMsgFolder.setFlag(Ci.nsMsgFolderFlags.CheckNew);
-    else
+    } else {
       gMsgFolder.clearFlag(Ci.nsMsgFolderFlags.CheckNew);
+    }
 
     let glodaCheckbox = document.getElementById("folderIncludeInGlobalSearch");
     if (!glodaCheckbox.hidden) {
@@ -125,20 +150,29 @@ function folderPropsOKButton(event) {
         // have a priority set.
         Gloda.resetFolderIndexingPriority(gMsgFolder, true);
       } else {
-        Gloda.setFolderIndexingPriority(gMsgFolder,
-          Gloda.getFolderForFolder(gMsgFolder).kIndexingNeverPriority);
+        Gloda.setFolderIndexingPriority(
+          gMsgFolder,
+          Gloda.getFolderForFolder(gMsgFolder).kIndexingNeverPriority
+        );
       }
     }
 
-    var retentionSettings = saveCommonRetentionSettings(gMsgFolder.retentionSettings);
-    retentionSettings.useServerDefaults = document.getElementById("retention.useDefault").checked;
+    var retentionSettings = saveCommonRetentionSettings(
+      gMsgFolder.retentionSettings
+    );
+    retentionSettings.useServerDefaults = document.getElementById(
+      "retention.useDefault"
+    ).checked;
     gMsgFolder.retentionSettings = retentionSettings;
   }
 
   try {
     // This throws an exception when an illegal folder name was entered.
-    top.okCallback(document.getElementById("name").value, window.arguments[0].name,
-                   gMsgFolder.URI);
+    top.okCallback(
+      document.getElementById("name").value,
+      window.arguments[0].name,
+      gMsgFolder.URI
+    );
   } catch (e) {
     event.preventDefault();
   }
@@ -192,24 +226,39 @@ function folderPropsOnLoad() {
 
     // Decode the displayed mailbox:// URL as it's useful primarily for debugging,
     // whereas imap and news urls are sent around.
-    locationTextbox.value = (serverType == "imap" || serverType == "nntp") ?
-        gMsgFolder.folderURL : decodeURI(gMsgFolder.folderURL);
+    locationTextbox.value =
+      serverType == "imap" || serverType == "nntp"
+        ? gMsgFolder.folderURL
+        : decodeURI(gMsgFolder.folderURL);
 
-    if (gMsgFolder.canRename)
+    if (gMsgFolder.canRename) {
       document.getElementById("name").removeAttribute("readonly");
+    }
 
     if (gMsgFolder.getFlag(Ci.nsMsgFolderFlags.Offline)) {
-      if (serverType == "imap" || serverType == "pop3")
-        document.getElementById("offline.selectForOfflineFolder").checked = true;
+      if (serverType == "imap" || serverType == "pop3") {
+        document.getElementById(
+          "offline.selectForOfflineFolder"
+        ).checked = true;
+      }
 
-      if (serverType == "nntp")
-        document.getElementById("offline.selectForOfflineNewsgroup").checked = true;
+      if (serverType == "nntp") {
+        document.getElementById(
+          "offline.selectForOfflineNewsgroup"
+        ).checked = true;
+      }
     } else {
-      if (serverType == "imap" || serverType == "pop3")
-        document.getElementById("offline.selectForOfflineFolder").checked = false;
+      if (serverType == "imap" || serverType == "pop3") {
+        document.getElementById(
+          "offline.selectForOfflineFolder"
+        ).checked = false;
+      }
 
-      if (serverType == "nntp")
-        document.getElementById("offline.selectForOfflineNewsgroup").checked = false;
+      if (serverType == "nntp") {
+        document.getElementById(
+          "offline.selectForOfflineNewsgroup"
+        ).checked = false;
+      }
     }
 
     // select the menu item
@@ -217,18 +266,24 @@ function folderPropsOnLoad() {
     folderCharsetList.value = gMsgFolder.charset;
 
     // set override checkbox
-    document.getElementById("folderCharsetOverride").checked = gMsgFolder.charsetOverride;
+    document.getElementById("folderCharsetOverride").checked =
+      gMsgFolder.charsetOverride;
 
     // set check for new mail checkbox
-    document.getElementById("folderCheckForNewMessages").checked =
-      gMsgFolder.getFlag(Ci.nsMsgFolderFlags.CheckNew);
+    document.getElementById(
+      "folderCheckForNewMessages"
+    ).checked = gMsgFolder.getFlag(Ci.nsMsgFolderFlags.CheckNew);
 
     // if gloda indexing is off, hide the related checkbox
     var glodaCheckbox = document.getElementById("folderIncludeInGlobalSearch");
-    var glodaEnabled = Services.prefs
-      .getBoolPref("mailnews.database.global.indexer.enabled");
-    if (!glodaEnabled || (gMsgFolder.flags & (Ci.nsMsgFolderFlags.Queue |
-                                              Ci.nsMsgFolderFlags.Newsgroup))) {
+    var glodaEnabled = Services.prefs.getBoolPref(
+      "mailnews.database.global.indexer.enabled"
+    );
+    if (
+      !glodaEnabled ||
+      gMsgFolder.flags &
+        (Ci.nsMsgFolderFlags.Queue | Ci.nsMsgFolderFlags.Newsgroup)
+    ) {
       glodaCheckbox.hidden = true;
     } else {
       // otherwise, the user can choose whether this file gets indexed
@@ -240,31 +295,35 @@ function folderPropsOnLoad() {
 
   if (serverType == "imap") {
     var imapFolder = gMsgFolder.QueryInterface(Ci.nsIMsgImapMailFolder);
-    if (imapFolder)
+    if (imapFolder) {
       imapFolder.fillInFolderProps(gFolderPropsSink);
+    }
   }
 
   var retentionSettings = gMsgFolder.retentionSettings;
   initCommonRetentionSettings(retentionSettings);
-  document.getElementById("retention.useDefault").checked = retentionSettings.useServerDefaults;
+  document.getElementById("retention.useDefault").checked =
+    retentionSettings.useServerDefaults;
 
   // set folder sizes
   let numberOfMsgs = gMsgFolder.getTotalMessages(false);
-  if (numberOfMsgs >= 0)
+  if (numberOfMsgs >= 0) {
     document.getElementById("numberOfMessages").value = numberOfMsgs;
+  }
 
   try {
     let sizeOnDisk = Cc["@mozilla.org/messenger;1"]
-                       .createInstance(Ci.nsIMessenger)
-                       .formatFileSize(gMsgFolder.sizeOnDisk, true);
+      .createInstance(Ci.nsIMessenger)
+      .formatFileSize(gMsgFolder.sizeOnDisk, true);
     document.getElementById("sizeOnDisk").value = sizeOnDisk;
   } catch (e) {}
 
   // select the initial tab
   if (window.arguments[0].tabID) {
     try {
-      document.getElementById("folderPropTabBox").selectedTab =
-        document.getElementById(window.arguments[0].tabID);
+      document.getElementById(
+        "folderPropTabBox"
+      ).selectedTab = document.getElementById(window.arguments[0].tabID);
     } catch (ex) {}
   }
   onCheckKeepMsg();
@@ -277,8 +336,9 @@ function hideShowControls(serverType) {
   for (var i = 0; i < len; i++) {
     var control = controls[i];
     var hideFor = control.getAttribute("hidefor");
-    if (!hideFor)
+    if (!hideFor) {
       throw new Error("hidefor empty");
+    }
 
     // hide unsupported server type
     // adding support for hiding multiple server types using hideFor="server1,server2"
@@ -300,21 +360,29 @@ function hideShowControls(serverType) {
     if (imapFolder) {
       var privilegesButton = document.getElementById("imap.FolderPrivileges");
       if (privilegesButton) {
-        if (!imapFolder.hasAdminUrl)
+        if (!imapFolder.hasAdminUrl) {
           privilegesButton.setAttribute("hidden", "true");
+        }
       }
     }
   } catch (ex) {}
 
   if (gMsgFolder) {
     // Hide "check for new mail" checkbox if this is an Inbox.
-    if (gMsgFolder.getFlag(Ci.nsMsgFolderFlags.Inbox))
+    if (gMsgFolder.getFlag(Ci.nsMsgFolderFlags.Inbox)) {
       document.getElementById("folderCheckForNewMessages").hidden = true;
+    }
     // Retention policy doesn't apply to Drafts/Templates/Outbox.
-    if (gMsgFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Drafts |
-                                   Ci.nsMsgFolderFlags.Templates |
-                                   Ci.nsMsgFolderFlags.Queue, true))
+    if (
+      gMsgFolder.isSpecialFolder(
+        Ci.nsMsgFolderFlags.Drafts |
+          Ci.nsMsgFolderFlags.Templates |
+          Ci.nsMsgFolderFlags.Queue,
+        true
+      )
+    ) {
       document.getElementById("Retention").hidden = true;
+    }
   }
 }
 
@@ -325,12 +393,12 @@ function onOfflineFolderDownload() {
 
 function onFolderPrivileges() {
   var imapFolder = gMsgFolder.QueryInterface(Ci.nsIMsgImapMailFolder);
-  if (imapFolder)
+  if (imapFolder) {
     imapFolder.folderPrivileges(window.arguments[0].msgWindow);
+  }
   // let's try closing the modal dialog to see if it fixes the various problems running this url
   window.close();
 }
-
 
 function onUseDefaultRetentionSettings() {
   var useDefault = document.getElementById("retention.useDefault").checked;
@@ -341,9 +409,9 @@ function onUseDefaultRetentionSettings() {
   var keepMsg = document.getElementById("retention.keepMsg").value;
   const nsIMsgRetentionSettings = Ci.nsIMsgRetentionSettings;
   document.getElementById("retention.keepOldMsgMin").disabled =
-    useDefault || (keepMsg != nsIMsgRetentionSettings.nsMsgRetainByAge);
+    useDefault || keepMsg != nsIMsgRetentionSettings.nsMsgRetainByAge;
   document.getElementById("retention.keepNewMsgMin").disabled =
-    useDefault || (keepMsg != nsIMsgRetentionSettings.nsMsgRetainByNumHeaders);
+    useDefault || keepMsg != nsIMsgRetentionSettings.nsMsgRetainByNumHeaders;
 }
 
 function RebuildSummaryInformation() {

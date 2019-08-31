@@ -21,7 +21,13 @@ var abListener = {
   },
   onItemPropertyChanged(item, property, oldValue, newValue) {
     Assert.ok(this.result.length < this.maxResults);
-    this.result.push(["onItemPropertyChanged", item, property, oldValue, newValue]);
+    this.result.push([
+      "onItemPropertyChanged",
+      item,
+      property,
+      oldValue,
+      newValue,
+    ]);
   },
 };
 
@@ -54,8 +60,9 @@ add_test(function() {
 
   // Test - add a card
 
-  var card = Cc["@mozilla.org/addressbook/cardproperty;1"]
-               .createInstance(Ci.nsIAbCard);
+  var card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+    Ci.nsIAbCard
+  );
 
   card.firstName = "test";
   card.primaryEmail = "test@foo.invalid";
@@ -83,8 +90,9 @@ add_test(function() {
 
   // Test - delete a card
 
-  var cardsToDelete = Cc["@mozilla.org/array;1"]
-                        .createInstance(Ci.nsIMutableArray);
+  var cardsToDelete = Cc["@mozilla.org/array;1"].createInstance(
+    Ci.nsIMutableArray
+  );
 
   cardsToDelete.appendElement(newCard);
 
@@ -99,8 +107,9 @@ add_test(function() {
 
   // Test - add a mailing list
 
-  var mailList = Cc["@mozilla.org/addressbook/directoryproperty;1"]
-                   .createInstance(Ci.nsIAbDirectory);
+  var mailList = Cc[
+    "@mozilla.org/addressbook/directoryproperty;1"
+  ].createInstance(Ci.nsIAbDirectory);
 
   mailList.isMailList = true;
   mailList.dirName = "TestList";
@@ -147,7 +156,10 @@ add_test(function() {
   Assert.equal(abListener.result[0][0], "onItemRemoved");
   Assert.equal(abListener.result[0][1], AB);
   Assert.equal(abListener.result[1][0], "onItemRemoved");
-  Assert.equal(abListener.result[1][1].QueryInterface(Ci.nsIAbDirectory).UID, book.UID);
+  Assert.equal(
+    abListener.result[1][1].QueryInterface(Ci.nsIAbDirectory).UID,
+    book.UID
+  );
   Assert.equal(abListener.result[2][0], "onItemRemoved");
   Assert.equal(abListener.result[2][1], AB);
 
@@ -172,23 +184,30 @@ add_test(function() {
 });
 
 add_test(function() {
-  let dirName = MailServices.ab.newAddressBook("TestBook", "", kPABData.dirType);
+  let dirName = MailServices.ab.newAddressBook(
+    "TestBook",
+    "",
+    kPABData.dirType
+  );
   let AB = MailServices.ab.getDirectoryFromId(dirName);
 
-  let mailList = Cc["@mozilla.org/addressbook/directoryproperty;1"]
-                   .createInstance(Ci.nsIAbDirectory);
+  let mailList = Cc[
+    "@mozilla.org/addressbook/directoryproperty;1"
+  ].createInstance(Ci.nsIAbDirectory);
   mailList.isMailList = true;
   mailList.dirName = "TestList";
   mailList = AB.addMailList(mailList);
 
-  let card1 = Cc["@mozilla.org/addressbook/cardproperty;1"]
-                .createInstance(Ci.nsIAbCard);
+  let card1 = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+    Ci.nsIAbCard
+  );
   card1.firstName = "test1";
   card1.primaryEmail = "test1@foo.invalid";
   card1 = AB.addCard(card1);
 
-  let card2 = Cc["@mozilla.org/addressbook/cardproperty;1"]
-                .createInstance(Ci.nsIAbCard);
+  let card2 = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+    Ci.nsIAbCard
+  );
   card2.firstName = "test2";
   card2.primaryEmail = "test2@foo.invalid";
   card2 = AB.addCard(card2);
@@ -200,8 +219,9 @@ add_test(function() {
   abObserver.maxResults = 0;
   abObserver.result = [];
 
-  let cardsToDelete = Cc["@mozilla.org/array;1"]
-                        .createInstance(Ci.nsIMutableArray);
+  let cardsToDelete = Cc["@mozilla.org/array;1"].createInstance(
+    Ci.nsIMutableArray
+  );
   cardsToDelete.appendElement(card1);
   AB.deleteCards(cardsToDelete);
 

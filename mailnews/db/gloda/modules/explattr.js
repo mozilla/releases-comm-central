@@ -11,13 +11,17 @@
 
 this.EXPORTED_SYMBOLS = ["GlodaExplicitAttr"];
 
-const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
-const {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
+const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const { StringBundle } = ChromeUtils.import(
+  "resource:///modules/StringBundle.js"
+);
 
-const {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
-const {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
-const {TagNoun} = ChromeUtils.import("resource:///modules/gloda/noun_tag.js");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const { GlodaUtils } = ChromeUtils.import("resource:///modules/gloda/utils.js");
+const { Gloda } = ChromeUtils.import("resource:///modules/gloda/gloda.js");
+const { TagNoun } = ChromeUtils.import("resource:///modules/gloda/noun_tag.js");
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var EXT_BUILTIN = "built-in";
 
@@ -33,7 +37,7 @@ var GlodaExplicitAttr = {
   _msgTagService: null,
 
   init() {
-    this._log =  Log4Moz.repository.getLogger("gloda.explattr");
+    this._log = Log4Moz.repository.getLogger("gloda.explattr");
 
     this._msgTagService = MailServices.tags;
 
@@ -55,47 +59,47 @@ var GlodaExplicitAttr = {
   defineAttributes() {
     // Tag
     this._attrTag = Gloda.defineAttribute({
-                        provider: this,
-                        extensionName: Gloda.BUILT_IN,
-                        attributeType: Gloda.kAttrExplicit,
-                        attributeName: "tag",
-                        bindName: "tags",
-                        singular: false,
-                        emptySetIsSignificant: true,
-                        facet: true,
-                        subjectNouns: [Gloda.NOUN_MESSAGE],
-                        objectNoun: Gloda.NOUN_TAG,
-                        parameterNoun: null,
-                        // Property change notifications that we care about:
-                        propertyChanges: ["keywords"],
-                        }); // not-tested
+      provider: this,
+      extensionName: Gloda.BUILT_IN,
+      attributeType: Gloda.kAttrExplicit,
+      attributeName: "tag",
+      bindName: "tags",
+      singular: false,
+      emptySetIsSignificant: true,
+      facet: true,
+      subjectNouns: [Gloda.NOUN_MESSAGE],
+      objectNoun: Gloda.NOUN_TAG,
+      parameterNoun: null,
+      // Property change notifications that we care about:
+      propertyChanges: ["keywords"],
+    }); // not-tested
 
     // Star
     this._attrStar = Gloda.defineAttribute({
-                        provider: this,
-                        extensionName: Gloda.BUILT_IN,
-                        attributeType: Gloda.kAttrExplicit,
-                        attributeName: "star",
-                        bindName: "starred",
-                        singular: true,
-                        facet: true,
-                        subjectNouns: [Gloda.NOUN_MESSAGE],
-                        objectNoun: Gloda.NOUN_BOOLEAN,
-                        parameterNoun: null,
-                        }); // tested-by: test_attributes_explicit
+      provider: this,
+      extensionName: Gloda.BUILT_IN,
+      attributeType: Gloda.kAttrExplicit,
+      attributeName: "star",
+      bindName: "starred",
+      singular: true,
+      facet: true,
+      subjectNouns: [Gloda.NOUN_MESSAGE],
+      objectNoun: Gloda.NOUN_BOOLEAN,
+      parameterNoun: null,
+    }); // tested-by: test_attributes_explicit
     // Read/Unread
     this._attrRead = Gloda.defineAttribute({
-                        provider: this,
-                        extensionName: Gloda.BUILT_IN,
-                        attributeType: Gloda.kAttrExplicit,
-                        attributeName: "read",
-                        // Make the message query-able but without using the database.
-                        canQuery: "truthy-but-not-true",
-                        singular: true,
-                        subjectNouns: [Gloda.NOUN_MESSAGE],
-                        objectNoun: Gloda.NOUN_BOOLEAN,
-                        parameterNoun: null,
-                        }); // tested-by: test_attributes_explicit
+      provider: this,
+      extensionName: Gloda.BUILT_IN,
+      attributeType: Gloda.kAttrExplicit,
+      attributeName: "read",
+      // Make the message query-able but without using the database.
+      canQuery: "truthy-but-not-true",
+      singular: true,
+      subjectNouns: [Gloda.NOUN_MESSAGE],
+      objectNoun: Gloda.NOUN_BOOLEAN,
+      parameterNoun: null,
+    }); // tested-by: test_attributes_explicit
 
     /**
      * Has this message been replied to by the user.
@@ -126,12 +130,13 @@ var GlodaExplicitAttr = {
     }); // tested-by: test_attributes_explicit
   },
 
-  * process(aGlodaMessage, aRawReps, aIsNew, aCallbackHandle) {
+  *process(aGlodaMessage, aRawReps, aIsNew, aCallbackHandle) {
     let aMsgHdr = aRawReps.header;
 
     aGlodaMessage.starred = aMsgHdr.isFlagged;
-    if (aGlodaMessage.starred)
+    if (aGlodaMessage.starred) {
       aGlodaMessage.notability += this.NOTABILITY_STARRED;
+    }
 
     aGlodaMessage.read = aMsgHdr.isRead;
 
@@ -139,7 +144,7 @@ var GlodaExplicitAttr = {
     aGlodaMessage.repliedTo = Boolean(flags & Ci.nsMsgMessageFlags.Replied);
     aGlodaMessage.forwarded = Boolean(flags & Ci.nsMsgMessageFlags.Forwarded);
 
-    let tags = aGlodaMessage.tags = [];
+    let tags = (aGlodaMessage.tags = []);
 
     // -- Tag
     // build a map of the keywords
@@ -154,13 +159,16 @@ var GlodaExplicitAttr = {
     let tagArray = TagNoun.getAllTags();
     for (let iTag = 0; iTag < tagArray.length; iTag++) {
       let tag = tagArray[iTag];
-      if (tag.key in keywordMap)
+      if (tag.key in keywordMap) {
         tags.push(tag);
+      }
     }
 
-    if (tags.length)
-      aGlodaMessage.notability += this.NOTABILITY_TAGGED_FIRST +
+    if (tags.length) {
+      aGlodaMessage.notability +=
+        this.NOTABILITY_TAGGED_FIRST +
         (tags.length - 1) * this.NOTABILITY_TAGGED_ADDL;
+    }
 
     yield Gloda.kWorkDone;
   },
@@ -172,11 +180,14 @@ var GlodaExplicitAttr = {
    */
   score(aMessage, aContext) {
     let score = 0;
-    if (aMessage.starred)
+    if (aMessage.starred) {
       score += this.NOTABILITY_STARRED;
-    if (aMessage.tags.length)
-      score += this.NOTABILITY_TAGGED_FIRST +
+    }
+    if (aMessage.tags.length) {
+      score +=
+        this.NOTABILITY_TAGGED_FIRST +
         (aMessage.tags.length - 1) * this.NOTABILITY_TAGGED_ADDL;
+    }
     return score;
   },
 };

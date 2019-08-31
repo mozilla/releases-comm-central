@@ -1,6 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
-  * License, v. 2.0. If a copy of the MPL was not distributed with this
-  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* globals MozElements, MozXULElement */
 
@@ -22,7 +22,7 @@
 
       this.inputID = null;
 
-      this.addEventListener("popupshowing", (event) => {
+      this.addEventListener("popupshowing", event => {
         // If normalMaxRows wasn't already set by the input, then set it here
         // so that we restore the correct number when the popup is hidden.
 
@@ -32,8 +32,12 @@
         }
 
         // Set an attribute for styling the popup based on the input.
-        if (!this.inputID && this.mInput && this.mInput.ownerDocument &&
-          this.mInput.ownerDocument.documentURIObject.schemeIs("chrome")) {
+        if (
+          !this.inputID &&
+          this.mInput &&
+          this.mInput.ownerDocument &&
+          this.mInput.ownerDocument.documentURIObject.schemeIs("chrome")
+        ) {
           this.inputID = this.mInput.id;
         }
         this.setAttribute("autocompleteinput", this.inputID);
@@ -41,14 +45,14 @@
         this.mPopupOpen = true;
       });
 
-      this.addEventListener("popupshown", (event) => {
+      this.addEventListener("popupshown", event => {
         if (this._adjustHeightOnPopupShown) {
           delete this._adjustHeightOnPopupShown;
           this.adjustHeight();
         }
       });
 
-      this.addEventListener("popuphiding", (event) => {
+      this.addEventListener("popuphiding", event => {
         let isListActive = true;
         if (this.selectedIndex == -1) {
           isListActive = false;
@@ -135,8 +139,10 @@
                 // Don't call onPopupClick for the scrollbar buttons, thumb,
                 // slider, etc. If we hit the richlistbox and not a
                 // richlistitem, we ignore the event.
-                if (event.target.closest("richlistbox, richlistitem")
-                  .localName == "richlistitem") {
+                if (
+                  event.target.closest("richlistbox, richlistitem").localName ==
+                  "richlistitem"
+                ) {
                   this.onPopupClick(event);
                 }
                 break;
@@ -202,7 +208,8 @@
         // when clearing the selection (val == -1, so selectedItem will be
         // null), we want to scroll back to the top.  see bug #406194
         this.richlistbox.ensureElementIsVisible(
-          this.richlistbox.selectedItem || this.richlistbox.firstElementChild);
+          this.richlistbox.selectedItem || this.richlistbox.firstElementChild
+        );
       }
       return val;
     }
@@ -252,13 +259,19 @@
       }
 
       let newIdx = aIndex + (aReverse ? -1 : 1) * aAmount;
-      if (aReverse && aIndex == -1 || newIdx > aMaxRow && aIndex != aMaxRow) {
+      if (
+        (aReverse && aIndex == -1) ||
+        (newIdx > aMaxRow && aIndex != aMaxRow)
+      ) {
         newIdx = aMaxRow;
-      } else if (!aReverse && aIndex == -1 || newIdx < 0 && aIndex != 0) {
+      } else if ((!aReverse && aIndex == -1) || (newIdx < 0 && aIndex != 0)) {
         newIdx = 0;
       }
 
-      if (newIdx < 0 && aIndex == 0 || newIdx > aMaxRow && aIndex == aMaxRow) {
+      if (
+        (newIdx < 0 && aIndex == 0) ||
+        (newIdx > aMaxRow && aIndex == aMaxRow)
+      ) {
         aIndex = -1;
       } else {
         aIndex = newIdx;
@@ -394,13 +407,14 @@
         // trim the leading/trailing whitespace
         let trimmedSearchString = controller.searchString.trim();
 
-        let glodaCompleter = Cc["@mozilla.org/autocomplete/search;1?name=gloda"]
-                               .getService(Ci.nsIAutoCompleteSearch)
-                               .wrappedJSObject;
+        let glodaCompleter = Cc[
+          "@mozilla.org/autocomplete/search;1?name=gloda"
+        ].getService(Ci.nsIAutoCompleteSearch).wrappedJSObject;
         let result = glodaCompleter.curResult;
 
-        item = document.createXULElement("richlistitem",
-          { is: result.getStyleAt(this._currentIndex) });
+        item = document.createXULElement("richlistitem", {
+          is: result.getStyleAt(this._currentIndex),
+        });
 
         // set these attributes before we set the class
         // so that we can use them from the constructor
@@ -426,7 +440,12 @@
         let amount = aPage ? 5 : 1;
 
         // because we collapsed unused items, we can't use this.richlistbox.getRowCount(), we need to use the matchCount
-        this.selectedIndex = this.getNextIndex(aReverse, amount, this.selectedIndex, this.matchCount - 1);
+        this.selectedIndex = this.getNextIndex(
+          aReverse,
+          amount,
+          this.selectedIndex,
+          this.matchCount - 1
+        );
         if (this.selectedIndex == -1) {
           this.input._focus();
         }
@@ -446,8 +465,12 @@
     }
   }
 
-  MozXULElement.implementCustomInterface(MozGlodacompleteRichResultPopup,
-    [Ci.nsIAutoCompletePopup]);
-  customElements.define("glodacomplete-rich-result-popup",
-    MozGlodacompleteRichResultPopup, { extends: "panel" });
+  MozXULElement.implementCustomInterface(MozGlodacompleteRichResultPopup, [
+    Ci.nsIAutoCompletePopup,
+  ]);
+  customElements.define(
+    "glodacomplete-rich-result-popup",
+    MozGlodacompleteRichResultPopup,
+    { extends: "panel" }
+  );
 }

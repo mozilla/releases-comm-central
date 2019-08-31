@@ -4,7 +4,9 @@
  * listeners.
  */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 /* import-globals-from ../../../test/resources/alertTestUtils.js */
 load("../../../resources/alertTestUtils.js");
@@ -15,10 +17,9 @@ var gText = null;
 function reset() {
   gDialogTitle = null;
   gText = null;
-}
+} // Used in alertTestUtils.
 
-/* exported alert */// Used in alertTestUtils.
-function alert(aDialogTitle, aText) {
+/* exported alert */ function alert(aDialogTitle, aText) {
   Assert.equal(gDialogTitle, null);
   Assert.equal(gText, null);
 

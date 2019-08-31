@@ -9,17 +9,14 @@ load("../../../resources/asyncTestUtils.js");
 
 var gSavedMsgFile;
 
-var gIMAPService = Cc["@mozilla.org/messenger/messageservice;1?type=imap"]
-                       .getService(Ci.nsIMsgMessageService);
+var gIMAPService = Cc[
+  "@mozilla.org/messenger/messageservice;1?type=imap"
+].getService(Ci.nsIMsgMessageService);
 
 var gFileName = "bug460636";
 var gMsgFile = do_get_file("../../../data/" + gFileName);
 
-var tests = [
-  setup,
-  checkSavedMessage,
-  teardown,
-];
+var tests = [setup, checkSavedMessage, teardown];
 
 function* setup() {
   setupIMAPPump();
@@ -28,10 +25,13 @@ function* setup() {
    * Ok, prelude done. Read the original message from disk
    * (through a file URI), and add it to the Inbox.
    */
-  var msgfileuri =
-    Services.io.newFileURI(gMsgFile).QueryInterface(Ci.nsIFileURL);
+  var msgfileuri = Services.io
+    .newFileURI(gMsgFile)
+    .QueryInterface(Ci.nsIFileURL);
 
-  IMAPPump.mailbox.addMessage(new imapMessage(msgfileuri.spec, IMAPPump.mailbox.uidnext++, []));
+  IMAPPump.mailbox.addMessage(
+    new imapMessage(msgfileuri.spec, IMAPPump.mailbox.uidnext++, [])
+  );
   IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
   yield false;
 
@@ -54,15 +54,23 @@ function* setup() {
    * Enforcing canonicalLineEnding (i.e., CRLF) makes sure that the
    * test also runs successfully on platforms not using CRLF by default.
    */
-  gIMAPService.SaveMessageToDisk("imap-message://user@localhost/INBOX#"
-                                 + (IMAPPump.mailbox.uidnext - 1), gSavedMsgFile,
-                                 false, asyncUrlListener, {}, true, null);
+  gIMAPService.SaveMessageToDisk(
+    "imap-message://user@localhost/INBOX#" + (IMAPPump.mailbox.uidnext - 1),
+    gSavedMsgFile,
+    false,
+    asyncUrlListener,
+    {},
+    true,
+    null
+  );
   yield false;
 }
 
 function checkSavedMessage() {
-  Assert.equal(IOUtils.loadFileToString(gMsgFile),
-               IOUtils.loadFileToString(gSavedMsgFile));
+  Assert.equal(
+    IOUtils.loadFileToString(gMsgFile),
+    IOUtils.loadFileToString(gSavedMsgFile)
+  );
 }
 
 function teardown() {

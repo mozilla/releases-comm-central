@@ -4,7 +4,7 @@
 
 this.EXPORTED_SYMBOLS = ["IOUtils"];
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var kStringBlockSize = 4096;
 var kStreamBlockSize = 8192;
@@ -27,16 +27,19 @@ var IOUtils = {
       file = aFile;
     }
 
-    if (!file.exists())
+    if (!file.exists()) {
       return null;
+    }
 
-    let fstream = Cc["@mozilla.org/network/file-input-stream;1"]
-                    .createInstance(Ci.nsIFileInputStream);
+    let fstream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
+      Ci.nsIFileInputStream
+    );
     // PR_RDONLY
     fstream.init(file, 0x01, 0, 0);
 
-    let sstream = Cc["@mozilla.org/scriptableinputstream;1"]
-                    .createInstance(Ci.nsIScriptableInputStream);
+    let sstream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+      Ci.nsIScriptableInputStream
+    );
     sstream.init(fstream);
 
     let data = "";
@@ -69,8 +72,9 @@ var IOUtils = {
       file = aFile;
     }
 
-    let foStream = Cc["@mozilla.org/network/safe-file-output-stream;1"]
-                     .createInstance(Ci.nsIFileOutputStream);
+    let foStream = Cc[
+      "@mozilla.org/network/safe-file-output-stream;1"
+    ].createInstance(Ci.nsIFileOutputStream);
 
     // PR_WRONLY + PR_CREATE_FILE + PR_TRUNCATE
     foStream.init(file, 0x02 | 0x08 | 0x20, aPerms, 0);
@@ -92,15 +96,19 @@ var IOUtils = {
    *                 the default of 0o600 is used.
    */
   saveStreamToFile(aIStream, aFile, aPerms = 0o600) {
-    if (!(aIStream instanceof Ci.nsIInputStream))
+    if (!(aIStream instanceof Ci.nsIInputStream)) {
       throw new Error("Invalid stream passed to saveStreamToFile");
-    if (!(aFile instanceof Ci.nsIFile))
+    }
+    if (!(aFile instanceof Ci.nsIFile)) {
       throw new Error("Invalid file passed to saveStreamToFile");
+    }
 
-    let fstream = Cc["@mozilla.org/network/safe-file-output-stream;1"]
-                    .createInstance(Ci.nsIFileOutputStream);
-    let buffer  = Cc["@mozilla.org/network/buffered-output-stream;1"]
-                    .createInstance(Ci.nsIBufferedOutputStream);
+    let fstream = Cc[
+      "@mozilla.org/network/safe-file-output-stream;1"
+    ].createInstance(Ci.nsIFileOutputStream);
+    let buffer = Cc[
+      "@mozilla.org/network/buffered-output-stream;1"
+    ].createInstance(Ci.nsIBufferedOutputStream);
 
     // Write the input stream to the file.
     // PR_WRITE + PR_CREATE + PR_TRUNCATE
@@ -110,14 +118,16 @@ var IOUtils = {
     buffer.writeFrom(aIStream, aIStream.available());
 
     // Close the output streams.
-    if (buffer instanceof Ci.nsISafeOutputStream)
+    if (buffer instanceof Ci.nsISafeOutputStream) {
       buffer.finish();
-    else
+    } else {
       buffer.close();
-    if (fstream instanceof Ci.nsISafeOutputStream)
+    }
+    if (fstream instanceof Ci.nsISafeOutputStream) {
       fstream.finish();
-    else
+    } else {
       fstream.close();
+    }
 
     // Close the input stream.
     aIStream.close();

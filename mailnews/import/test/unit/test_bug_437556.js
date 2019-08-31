@@ -4,8 +4,9 @@
  */
 function run_test() {
   var file = do_get_file("resources/basic_addressbook.csv");
-  var errorStr = Cc["@mozilla.org/supports-string;1"]
-                  .createInstance(Ci.nsISupportsString);
+  var errorStr = Cc["@mozilla.org/supports-string;1"].createInstance(
+    Ci.nsISupportsString
+  );
   // get the Address Book text import interface and make sure it succeeded
   var helper = new AbImportHelper(file, "Text file");
   helper.setFieldMap(null);

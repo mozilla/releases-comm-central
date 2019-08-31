@@ -2,23 +2,33 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ["GlodaAttributeDBDef", "GlodaAccount",
-                    "GlodaConversation", "GlodaFolder", "GlodaMessage",
-                    "GlodaContact", "GlodaIdentity", "GlodaAttachment"];
+this.EXPORTED_SYMBOLS = [
+  "GlodaAttributeDBDef",
+  "GlodaAccount",
+  "GlodaConversation",
+  "GlodaFolder",
+  "GlodaMessage",
+  "GlodaContact",
+  "GlodaIdentity",
+  "GlodaAttachment",
+];
 
-const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
-const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 var LOG = Log4Moz.repository.getLogger("gloda.datamodel");
 
-const {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
+const { GlodaUtils } = ChromeUtils.import("resource:///modules/gloda/utils.js");
 
 // Make it lazy.
 var gMessenger;
 function getMessenger() {
-  if (!gMessenger)
+  if (!gMessenger) {
     gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+  }
   return gMessenger;
 }
 
@@ -30,8 +40,14 @@ function getMessenger() {
  *  mapping from parameters to attribute ids in the database if this is a
  *  parameterized attribute.
  */
-function GlodaAttributeDBDef(aDatastore, aID, aCompoundName, aAttrType,
-                           aPluginName, aAttrName) {
+function GlodaAttributeDBDef(
+  aDatastore,
+  aID,
+  aCompoundName,
+  aAttrType,
+  aPluginName,
+  aAttrName
+) {
   // _datastore is now set on the prototype by GlodaDatastore
   this._id = aID;
   this._compoundName = aCompoundName;
@@ -48,10 +64,16 @@ function GlodaAttributeDBDef(aDatastore, aID, aCompoundName, aAttrType,
 GlodaAttributeDBDef.prototype = {
   // set by GlodaDatastore
   _datastore: null,
-  get id() { return this._id; },
-  get attributeName() { return this._attrName; },
+  get id() {
+    return this._id;
+  },
+  get attributeName() {
+    return this._attrName;
+  },
 
-  get parameterBindings() { return this._parameterBindings; },
+  get parameterBindings() {
+    return this._parameterBindings;
+  },
 
   /**
    * Bind a parameter value to the attribute definition, allowing use of the
@@ -68,8 +90,12 @@ GlodaAttributeDBDef.prototype = {
       return this._parameterBindings[aValue];
     }
     // no database entry exists if we are here, so we must create it...
-    let id = this._datastore._createAttributeDef(this._attrType,
-                 this._pluginName, this._attrName, aValue);
+    let id = this._datastore._createAttributeDef(
+      this._attrType,
+      this._pluginName,
+      this._attrName,
+      aValue
+    );
     this._parameterBindings[aValue] = id;
     this._datastore.reportBinding(id, this, aValue);
     return id;
@@ -97,8 +123,10 @@ GlodaAttributeDBDef.prototype = {
       // just an informative property on the Gloda Message and has no real
       // indexing purposes.
       for (let instanceValue of aInstanceValues) {
-        dbAttributes.push([this._id,
-                           nounDef.toParamAndValue(instanceValue)[1]]);
+        dbAttributes.push([
+          this._id,
+          nounDef.toParamAndValue(instanceValue)[1],
+        ]);
       }
     }
     return dbAttributes;
@@ -110,7 +138,7 @@ GlodaAttributeDBDef.prototype = {
 };
 
 var GlodaHasAttributesMixIn = {
-  * enumerateAttributes() {
+  *enumerateAttributes() {
     let nounDef = this.NOUN_DEF;
     for (let key in this) {
       let value = this[key];
@@ -119,13 +147,16 @@ var GlodaHasAttributesMixIn = {
       //  are managed by the instance's logic.  we also want to not explode
       //  should someone crap other values in there, we get both birds with this
       //  one stone.
-      if (attrDef === undefined)
+      if (attrDef === undefined) {
         continue;
+      }
       if (attrDef.singular) {
         // ignore attributes with null values
-        if (value != null)
+        if (value != null) {
           yield [attrDef, [value]];
-      } else if (value.length) { // ignore attributes with no values
+        }
+      } else if (value.length) {
+        // ignore attributes with no values
         yield [attrDef, value];
       }
     }
@@ -135,8 +166,9 @@ var GlodaHasAttributesMixIn = {
     let nounDef = this.NOUN_DEF;
     for (let attrName in nounDef.domExposeAttribsByBoundName) {
       let attr = nounDef.domExposeAttribsByBoundName[attrName];
-      if (this[attrName])
+      if (this[attrName]) {
         aDomNode.setAttribute(attr.domExpose, this[attrName]);
+      }
     }
   },
 };
@@ -144,10 +176,11 @@ var GlodaHasAttributesMixIn = {
 function MixIn(aConstructor, aMixIn) {
   let proto = aConstructor.prototype;
   for (let [name, func] of Object.entries(aMixIn)) {
-    if (name.startsWith("get_"))
+    if (name.startsWith("get_")) {
       proto.__defineGetter__(name.substring(4), func);
-    else
+    } else {
       proto[name] = func;
+    }
   }
 }
 
@@ -160,9 +193,15 @@ function GlodaAccount(aIncomingServer) {
 
 GlodaAccount.prototype = {
   NOUN_ID: 106,
-  get id() { return this._incomingServer.key; },
-  get name() { return this._incomingServer.prettyName; },
-  get incomingServer() { return this._incomingServer; },
+  get id() {
+    return this._incomingServer.key;
+  },
+  get name() {
+    return this._incomingServer.prettyName;
+  },
+  get incomingServer() {
+    return this._incomingServer;
+  },
   toString() {
     return "Account: " + this.id;
   },
@@ -175,8 +214,13 @@ GlodaAccount.prototype = {
 /**
  * @class A gloda conversation (thread) exists so that messages can belong.
  */
-function GlodaConversation(aDatastore, aID, aSubject, aOldestMessageDate,
-                           aNewestMessageDate) {
+function GlodaConversation(
+  aDatastore,
+  aID,
+  aSubject,
+  aOldestMessageDate,
+  aNewestMessageDate
+) {
   // _datastore is now set on the prototype by GlodaDatastore
   this._id = aID;
   this._subject = aSubject;
@@ -188,10 +232,18 @@ GlodaConversation.prototype = {
   NOUN_ID: 101,
   // set by GlodaDatastore
   _datastore: null,
-  get id() { return this._id; },
-  get subject() { return this._subject; },
-  get oldestMessageDate() { return this._oldestMessageDate; },
-  get newestMessageDate() { return this._newestMessageDate; },
+  get id() {
+    return this._id;
+  },
+  get subject() {
+    return this._subject;
+  },
+  get oldestMessageDate() {
+    return this._oldestMessageDate;
+  },
+  get newestMessageDate() {
+    return this._newestMessageDate;
+  },
 
   getMessagesCollection(aListener, aData) {
     let query = new GlodaMessage.prototype.NOUN_DEF.queryClass();
@@ -208,8 +260,14 @@ GlodaConversation.prototype = {
   },
 };
 
-function GlodaFolder(aDatastore, aID, aURI, aDirtyStatus, aPrettyName,
-                     aIndexingPriority) {
+function GlodaFolder(
+  aDatastore,
+  aID,
+  aURI,
+  aDirtyStatus,
+  aPrettyName,
+  aIndexingPriority
+) {
   // _datastore is now set by GlodaDatastore
   this._id = aID;
   this._uri = aURI;
@@ -264,8 +322,12 @@ GlodaFolder.prototype = {
   /** The indexing priority for sent mail folders. */
   kIndexingSentMailPriority: 60,
 
-  get id() { return this._id; },
-  get uri() { return this._uri; },
+  get id() {
+    return this._id;
+  },
+  get uri() {
+    return this._uri;
+  },
   get dirtyStatus() {
     return this._dirtyStatus & this._kFolderDirtyStatusMask;
   },
@@ -276,8 +338,9 @@ GlodaFolder.prototype = {
    */
   _ensureFolderDirty() {
     if (this.dirtyStatus == this.kFolderClean) {
-      this._dirtyStatus = (this.kFolderDirty & this._kFolderDirtyStatusMask) |
-                          (this._dirtyStatus & ~this._kFolderDirtyStatusMask);
+      this._dirtyStatus =
+        (this.kFolderDirty & this._kFolderDirtyStatusMask) |
+        (this._dirtyStatus & ~this._kFolderDirtyStatusMask);
       this._datastore.updateFolderDirtyStatus(this);
     }
   },
@@ -287,8 +350,9 @@ GlodaFolder.prototype = {
    */
   _downgradeDirtyStatus(aNewStatus) {
     if (this.dirtyStatus != aNewStatus) {
-      this._dirtyStatus = (aNewStatus & this._kFolderDirtyStatusMask) |
-                          (this._dirtyStatus & ~this._kFolderDirtyStatusMask);
+      this._dirtyStatus =
+        (aNewStatus & this._kFolderDirtyStatusMask) |
+        (this._dirtyStatus & ~this._kFolderDirtyStatusMask);
       this._datastore.updateFolderDirtyStatus(this);
     }
   },
@@ -319,25 +383,30 @@ GlodaFolder.prototype = {
    */
   _setCompactedState(aCompacted) {
     if (this.compacted != aCompacted) {
-      if (aCompacted)
+      if (aCompacted) {
         this._dirtyStatus |= this._kFolderCompactedFlag;
-      else
+      } else {
         this._dirtyStatus &= ~this._kFolderCompactedFlag;
+      }
       this._datastore.updateFolderDirtyStatus(this);
     }
   },
 
-  get name() { return this._prettyName; },
+  get name() {
+    return this._prettyName;
+  },
   toString() {
     return "Folder:" + this._id;
   },
 
   toLocaleString() {
     let xpcomFolder = this.getXPCOMFolder(this.kActivityFolderOnlyNoData);
-    if (!xpcomFolder)
+    if (!xpcomFolder) {
       return this._prettyName;
-    return xpcomFolder.prettyName +
-      " (" + xpcomFolder.rootFolder.prettyName + ")";
+    }
+    return (
+      xpcomFolder.prettyName + " (" + xpcomFolder.rootFolder.prettyName + ")"
+    );
   },
 
   get indexingPriority() {
@@ -350,7 +419,6 @@ GlodaFolder.prototype = {
   kActivityHeaderRetrieval: 1,
   /** We only want the folder for its metadata but are not going to open it. */
   kActivityFolderOnlyNoData: 2,
-
 
   /** Is this folder known to be actively used for indexing? */
   _activeIndexing: false,
@@ -369,8 +437,9 @@ GlodaFolder.prototype = {
    */
   set indexing(aIndexing) {
     this._activeIndexing = aIndexing;
-    if (!aIndexing)
+    if (!aIndexing) {
       this.forgetFolderIfUnused();
+    }
   },
   /** When was this folder last used for header retrieval purposes? */
   _activeHeaderRetrievalLastStamp: 0,
@@ -395,8 +464,9 @@ GlodaFolder.prototype = {
         this.indexing = true;
         break;
       case this.kActivityHeaderRetrieval:
-        if (this._activeHeaderRetrievalLastStamp === 0)
+        if (this._activeHeaderRetrievalLastStamp === 0) {
           this._datastore.markFolderLive(this);
+        }
         this._activeHeaderRetrievalLastStamp = Date.now();
         break;
       case this.kActivityFolderOnlyNoData:
@@ -444,16 +514,18 @@ GlodaFolder.prototype = {
    */
   forgetFolderIfUnused() {
     // we are not cleaning/cleaned up if we are indexing
-    if (this._activeIndexing)
+    if (this._activeIndexing) {
       return false;
+    }
 
     // set a point in the past as the threshold.  the timestamp must be older
     //  than this to be eligible for cleanup.
     let acceptablyOld = Date.now() - this.ACCEPTABLY_OLD_THRESHOLD;
     // we are not cleaning/cleaned up if we have retrieved a header more
     //  recently than the acceptably old threshold.
-    if (this._activeHeaderRetrievalLastStamp > acceptablyOld)
+    if (this._activeHeaderRetrievalLastStamp > acceptablyOld) {
       return false;
+    }
 
     if (this._xpcomFolder) {
       // This is the key action we take; the nsIMsgFolder will continue to
@@ -473,11 +545,22 @@ GlodaFolder.prototype = {
 /**
  * @class A message representation.
  */
-function GlodaMessage(aDatastore, aID, aFolderID, aMessageKey,
-                      aConversationID, aConversation, aDate,
-                      aHeaderMessageID, aDeleted, aJsonText,
-                      aNotability,
-                      aSubject, aIndexedBodyText, aAttachmentNames) {
+function GlodaMessage(
+  aDatastore,
+  aID,
+  aFolderID,
+  aMessageKey,
+  aConversationID,
+  aConversation,
+  aDate,
+  aHeaderMessageID,
+  aDeleted,
+  aJsonText,
+  aNotability,
+  aSubject,
+  aIndexedBodyText,
+  aAttachmentNames
+) {
   // _datastore is now set on the prototype by GlodaDatastore
   this._id = aID;
   this._folderID = aFolderID;
@@ -494,48 +577,73 @@ function GlodaMessage(aDatastore, aID, aFolderID, aMessageKey,
 
   // only set _deleted if we're deleted, otherwise the undefined does our
   //  speaking for us.
-  if (aDeleted)
+  if (aDeleted) {
     this._deleted = aDeleted;
+  }
 }
 
 GlodaMessage.prototype = {
   NOUN_ID: 102,
   // set by GlodaDatastore
   _datastore: null,
-  get id() { return this._id; },
-  get folderID() { return this._folderID; },
-  get messageKey() { return this._messageKey; },
-  get conversationID() { return this._conversationID; },
+  get id() {
+    return this._id;
+  },
+  get folderID() {
+    return this._folderID;
+  },
+  get messageKey() {
+    return this._messageKey;
+  },
+  get conversationID() {
+    return this._conversationID;
+  },
   // conversation is special
-  get headerMessageID() { return this._headerMessageID; },
-  get notability() { return this._notability; },
-  set notability(aNotability) { this._notability = aNotability; },
+  get headerMessageID() {
+    return this._headerMessageID;
+  },
+  get notability() {
+    return this._notability;
+  },
+  set notability(aNotability) {
+    this._notability = aNotability;
+  },
 
-  get subject() { return this._subject; },
-  get indexedBodyText() { return this._indexedBodyText; },
-  get attachmentNames() { return this._attachmentNames; },
+  get subject() {
+    return this._subject;
+  },
+  get indexedBodyText() {
+    return this._indexedBodyText;
+  },
+  get attachmentNames() {
+    return this._attachmentNames;
+  },
 
-  get date() { return this._date; },
-  set date(aNewDate) { this._date = aNewDate; },
+  get date() {
+    return this._date;
+  },
+  set date(aNewDate) {
+    this._date = aNewDate;
+  },
 
   get folder() {
     // XXX due to a deletion bug it is currently possible to get in a state
     //  where we have an illegal folderID value.  This will result in an
     //  exception.  As a workaround, let's just return null in that case.
     try {
-      if (this._folderID != null)
+      if (this._folderID != null) {
         return this._datastore._mapFolderID(this._folderID);
-    } catch (ex) {
-    }
+      }
+    } catch (ex) {}
     return null;
   },
   get folderURI() {
     // XXX just like for folder, handle mapping failures and return null
     try {
-      if (this._folderID != null)
+      if (this._folderID != null) {
         return this._datastore._mapFolderID(this._folderID).uri;
-    } catch (ex) {
-    }
+      }
+    } catch (ex) {}
     return null;
   },
   get account() {
@@ -543,12 +651,12 @@ GlodaMessage.prototype = {
     //  where we have an illegal folderID value.  This will result in an
     //  exception.  As a workaround, let's just return null in that case.
     try {
-      if (this._folderID == null)
+      if (this._folderID == null) {
         return null;
+      }
       let folder = this._datastore._mapFolderID(this._folderID);
       return folder.getAccount();
-    } catch (ex) {
-    }
+    } catch (ex) {}
     return null;
   },
   get conversation() {
@@ -561,11 +669,22 @@ GlodaMessage.prototype = {
   },
 
   _clone() {
-    return new GlodaMessage(/* datastore */ null, this._id, this._folderID,
-      this._messageKey, this._conversationID, this._conversation, this._date,
-      this._headerMessageID, "_deleted" in this ? this._deleted : undefined,
-      "_jsonText" in this ? this._jsonText : undefined, this._notability,
-      this._subject, this._indexedBodyText, this._attachmentNames);
+    return new GlodaMessage(
+      /* datastore */ null,
+      this._id,
+      this._folderID,
+      this._messageKey,
+      this._conversationID,
+      this._conversation,
+      this._date,
+      this._headerMessageID,
+      "_deleted" in this ? this._deleted : undefined,
+      "_jsonText" in this ? this._jsonText : undefined,
+      this._notability,
+      this._subject,
+      this._indexedBodyText,
+      this._attachmentNames
+    );
   },
 
   /**
@@ -575,8 +694,9 @@ GlodaMessage.prototype = {
    *  a clone of the existing object so that
    */
   _declone(aOther) {
-    if ("_content" in aOther)
+    if ("_content" in aOther) {
       this._content = aOther._content;
+    }
 
     // The _indexedAuthor/_indexedRecipients fields don't get updated on
     //  fulltext update so we don't need to propagate.
@@ -594,8 +714,9 @@ GlodaMessage.prototype = {
   _ghost() {
     this._folderID = null;
     this._messageKey = null;
-    if ("_deleted" in this)
+    if ("_deleted" in this) {
       delete this._deleted;
+    }
   },
 
   /**
@@ -611,8 +732,9 @@ GlodaMessage.prototype = {
    * If we were dead, un-dead us.
    */
   _ensureNotDeleted() {
-    if ("_deleted" in this)
+    if ("_deleted" in this) {
       delete this._deleted;
+    }
   },
 
   /**
@@ -620,7 +742,7 @@ GlodaMessage.prototype = {
    *  visible to non-core-gloda code.
    */
   get _isDeleted() {
-    return ("_deleted" in this) && this._deleted;
+    return "_deleted" in this && this._deleted;
   },
 
   /**
@@ -657,8 +779,9 @@ GlodaMessage.prototype = {
    *     failure.
    */
   get folderMessage() {
-    if (this._folderID === null || this._messageKey === null)
+    if (this._folderID === null || this._messageKey === null) {
       return null;
+    }
 
     // XXX like for folder and folderURI, return null if we can't map the folder
     let glodaFolder;
@@ -668,7 +791,8 @@ GlodaMessage.prototype = {
       return null;
     }
     let folder = glodaFolder.getXPCOMFolder(
-                   glodaFolder.kActivityHeaderRetrieval);
+      glodaFolder.kActivityHeaderRetrieval
+    );
     if (folder) {
       let folderMessage;
       try {
@@ -679,10 +803,18 @@ GlodaMessage.prototype = {
       if (folderMessage !== null) {
         // verify the message-id header matches what we expect...
         if (folderMessage.messageId != this._headerMessageID) {
-          LOG.info("Message with message key " + this._messageKey +
-                   " in folder '" + folder.URI + "' does not match expected " +
-                   "header! (" + this._headerMessageID + " expected, got " +
-                   folderMessage.messageId + ")");
+          LOG.info(
+            "Message with message key " +
+              this._messageKey +
+              " in folder '" +
+              folder.URI +
+              "' does not match expected " +
+              "header! (" +
+              this._headerMessageID +
+              " expected, got " +
+              folderMessage.messageId +
+              ")"
+          );
           folderMessage = null;
         }
       }
@@ -692,14 +824,19 @@ GlodaMessage.prototype = {
     // this only gets logged if things have gone very wrong.  we used to throw
     //  here, but it's unlikely our caller can do anything more meaningful than
     //  treating this as a disappeared message.
-    LOG.info("Unable to locate folder message for: " + this._folderID + ":" +
-             this._messageKey);
+    LOG.info(
+      "Unable to locate folder message for: " +
+        this._folderID +
+        ":" +
+        this._messageKey
+    );
     return null;
   },
   get folderMessageURI() {
     let folderMessage = this.folderMessage;
-    if (folderMessage)
+    if (folderMessage) {
       return folderMessage.folder.getUriForMsg(folderMessage);
+    }
     return null;
   },
 };
@@ -709,8 +846,16 @@ MixIn(GlodaMessage, GlodaHasAttributesMixIn);
  * @class Contacts correspond to people (one per person), and may own multiple
  *  identities (e-mail address, IM account, etc.)
  */
-function GlodaContact(aDatastore, aID, aDirectoryUUID, aContactUUID, aName,
-                      aPopularity, aFrecency, aJsonText) {
+function GlodaContact(
+  aDatastore,
+  aID,
+  aDirectoryUUID,
+  aContactUUID,
+  aName,
+  aPopularity,
+  aFrecency,
+  aJsonText
+) {
   // _datastore set on the prototype by GlodaDatastore
   this._id = aID;
   this._directoryUUID = aDirectoryUUID;
@@ -718,8 +863,9 @@ function GlodaContact(aDatastore, aID, aDirectoryUUID, aContactUUID, aName,
   this._name = aName;
   this._popularity = aPopularity;
   this._frecency = aFrecency;
-  if (aJsonText)
+  if (aJsonText) {
     this._jsonText = aJsonText;
+  }
 
   this._identities = null;
 }
@@ -729,19 +875,33 @@ GlodaContact.prototype = {
   // set by GlodaDatastore
   _datastore: null,
 
-  get id() { return this._id; },
-  get directoryUUID() { return this._directoryUUID; },
-  get contactUUID() { return this._contactUUID; },
-  get name() { return this._name; },
-  set name(aName) { this._name = aName; },
+  get id() {
+    return this._id;
+  },
+  get directoryUUID() {
+    return this._directoryUUID;
+  },
+  get contactUUID() {
+    return this._contactUUID;
+  },
+  get name() {
+    return this._name;
+  },
+  set name(aName) {
+    this._name = aName;
+  },
 
-  get popularity() { return this._popularity; },
+  get popularity() {
+    return this._popularity;
+  },
   set popularity(aPopularity) {
     this._popularity = aPopularity;
     this.dirty = true;
   },
 
-  get frecency() { return this._frecency; },
+  get frecency() {
+    return this._frecency;
+  },
   set frecency(aFrecency) {
     this._frecency = aFrecency;
     this.dirty = true;
@@ -760,18 +920,32 @@ GlodaContact.prototype = {
   },
 
   _clone() {
-    return new GlodaContact(/* datastore */ null, this._id, this._directoryUUID,
-      this._contactUUID, this._name, this._popularity, this._frecency);
+    return new GlodaContact(
+      /* datastore */ null,
+      this._id,
+      this._directoryUUID,
+      this._contactUUID,
+      this._name,
+      this._popularity,
+      this._frecency
+    );
   },
 };
 MixIn(GlodaContact, GlodaHasAttributesMixIn);
 
-
 /**
  * @class A specific means of communication for a contact.
  */
-function GlodaIdentity(aDatastore, aID, aContactID, aContact, aKind, aValue,
-                       aDescription, aIsRelay) {
+function GlodaIdentity(
+  aDatastore,
+  aID,
+  aContactID,
+  aContact,
+  aKind,
+  aValue,
+  aDescription,
+  aIsRelay
+) {
   // _datastore set on the prototype by GlodaDatastore
   this._id = aID;
   this._contactID = aContactID;
@@ -790,13 +964,27 @@ GlodaIdentity.prototype = {
   NOUN_ID: 104,
   // set by GlodaDatastore
   _datastore: null,
-  get id() { return this._id; },
-  get contactID() { return this._contactID; },
-  get contact() { return this._contact; },
-  get kind() { return this._kind; },
-  get value() { return this._value; },
-  get description() { return this._description; },
-  get isRelay() { return this._isRelay; },
+  get id() {
+    return this._id;
+  },
+  get contactID() {
+    return this._contactID;
+  },
+  get contact() {
+    return this._contact;
+  },
+  get kind() {
+    return this._kind;
+  },
+  get value() {
+    return this._value;
+  },
+  get description() {
+    return this._description;
+  },
+  get isRelay() {
+    return this._isRelay;
+  },
 
   get uniqueValue() {
     return this._kind + "@" + this._value;
@@ -807,17 +995,19 @@ GlodaIdentity.prototype = {
   },
 
   toLocaleString() {
-    if (this.contact.name == this.value)
+    if (this.contact.name == this.value) {
       return this.value;
+    }
     return this.contact.name + " : " + this.value;
   },
 
   get abCard() {
     // for our purposes, the address book only speaks email
-    if (this._kind != "email")
+    if (this._kind != "email") {
       return false;
+    }
     let card = GlodaUtils.getCardForEmail(this._value);
-    this._hasAddressBookCard = (card != null);
+    this._hasAddressBookCard = card != null;
     return card;
   },
 
@@ -827,8 +1017,9 @@ GlodaIdentity.prototype = {
    *  and its notifications.
    */
   get inAddressBook() {
-    if (this._hasAddressBookCard !== undefined)
+    if (this._hasAddressBookCard !== undefined) {
       return this._hasAddressBookCard;
+    }
     return (this.abCard && true) || false;
   },
 
@@ -840,11 +1031,18 @@ GlodaIdentity.prototype = {
   },
 };
 
-
 /**
  * An attachment, with as much information as we can gather on it
  */
-function GlodaAttachment(aGlodaMessage, aName, aContentType, aSize, aPart, aExternalUrl, aIsExternal) {
+function GlodaAttachment(
+  aGlodaMessage,
+  aName,
+  aContentType,
+  aSize,
+  aPart,
+  aExternalUrl,
+  aIsExternal
+) {
   // _datastore set on the prototype by GlodaDatastore
   this._glodaMessage = aGlodaMessage;
   this._name = aName;
@@ -858,25 +1056,44 @@ function GlodaAttachment(aGlodaMessage, aName, aContentType, aSize, aPart, aExte
 GlodaAttachment.prototype = {
   NOUN_ID: 105,
   // set by GlodaDatastore
-  get name() { return this._name; },
-  get contentType() { return this._contentType; },
-  get size() { return this._size; },
+  get name() {
+    return this._name;
+  },
+  get contentType() {
+    return this._contentType;
+  },
+  get size() {
+    return this._size;
+  },
   get url() {
-    if (this.isExternal)
+    if (this.isExternal) {
       return this._externalUrl;
+    }
 
     let uri = this._glodaMessage.folderMessageURI;
-    if (!uri)
-      throw new Error("The message doesn't exist anymore, unable to rebuild attachment URL");
+    if (!uri) {
+      throw new Error(
+        "The message doesn't exist anymore, unable to rebuild attachment URL"
+      );
+    }
     let neckoURL = {};
     let msgService = getMessenger().messageServiceFromURI(uri);
     msgService.GetUrlForUri(uri, neckoURL, null);
     let url = neckoURL.value.spec;
     let hasParamAlready = url.match(/\?[a-z]+=[^\/]+$/);
     let sep = hasParamAlready ? "&" : "?";
-    return url + sep + "part=" + this._part + "&filename=" + encodeURIComponent(this._name);
+    return (
+      url +
+      sep +
+      "part=" +
+      this._part +
+      "&filename=" +
+      encodeURIComponent(this._name)
+    );
   },
-  get isExternal() { return this._isExternal; },
+  get isExternal() {
+    return this._isExternal;
+  },
 
   toString() {
     return "attachment: " + this._name + ":" + this._contentType;

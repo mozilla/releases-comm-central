@@ -5,7 +5,9 @@
  *   parseEncodedHeader
  */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 function equalArrays(arr1, arr2) {
   Assert.equal(arr1.length, arr2.length);
@@ -21,42 +23,68 @@ function run_test() {
   // 1: expected output from parseDecodedHeader
   // 2: expected output from parseEncodedHeader
   const checks = [
-    ["abc@foo.invalid",
-     [{name: "", email: "abc@foo.invalid"}],
-     [{name: "", email: "abc@foo.invalid"}]],
-    ["foo <ghj@foo.invalid>",
-     [{name: "foo", email: "ghj@foo.invalid"}],
-     [{name: "foo", email: "ghj@foo.invalid"}]],
-    ["abc@foo.invalid, foo <ghj@foo.invalid>",
-     [{name: "", email: "abc@foo.invalid"},
-      {name: "foo", email: "ghj@foo.invalid"}],
-     [{name: "", email: "abc@foo.invalid"},
-      {name: "foo", email: "ghj@foo.invalid"}]],
+    [
+      "abc@foo.invalid",
+      [{ name: "", email: "abc@foo.invalid" }],
+      [{ name: "", email: "abc@foo.invalid" }],
+    ],
+    [
+      "foo <ghj@foo.invalid>",
+      [{ name: "foo", email: "ghj@foo.invalid" }],
+      [{ name: "foo", email: "ghj@foo.invalid" }],
+    ],
+    [
+      "abc@foo.invalid, foo <ghj@foo.invalid>",
+      [
+        { name: "", email: "abc@foo.invalid" },
+        { name: "foo", email: "ghj@foo.invalid" },
+      ],
+      [
+        { name: "", email: "abc@foo.invalid" },
+        { name: "foo", email: "ghj@foo.invalid" },
+      ],
+    ],
     // UTF-8 names
-    ["foo\u00D0 bar <foo@bar.invalid>, \u00C3\u00B6foo <ghj@foo.invalid>",
-     [{name: "foo\u00D0 bar", email: "foo@bar.invalid"},
-      {name: "\u00C3\u00B6foo", email: "ghj@foo.invalid"}],
-     [{name: "foo\uFFFD bar", email: "foo@bar.invalid"},
-      {name: "\u00F6foo", email: "ghj@foo.invalid"}]],
+    [
+      "foo\u00D0 bar <foo@bar.invalid>, \u00C3\u00B6foo <ghj@foo.invalid>",
+      [
+        { name: "foo\u00D0 bar", email: "foo@bar.invalid" },
+        { name: "\u00C3\u00B6foo", email: "ghj@foo.invalid" },
+      ],
+      [
+        { name: "foo\uFFFD bar", email: "foo@bar.invalid" },
+        { name: "\u00F6foo", email: "ghj@foo.invalid" },
+      ],
+    ],
     // Bug 961564
-    ["someone <>",
-     [{name: "someone", email: ""}],
-     [{name: "someone", email: ""}]],
+    [
+      "someone <>",
+      [{ name: "someone", email: "" }],
+      [{ name: "someone", email: "" }],
+    ],
     // Bug 1423432: Encoded strings with null bytes,
     // in base64 a single null byte can be encoded as AA== to AP==.
     // parseEncodedHeader will remove the nullbyte.
-    ["\"null=?UTF-8?Q?=00?=byte\" <nullbyte@example.com>",
-      [{name: "null=?UTF-8?Q?=00?=byte", email: "nullbyte@example.com"}],
-      [{name: "nullbyte", email: "nullbyte@example.com"}]],
-    ["\"null=?UTF-8?B?AA==?=byte\" <nullbyte@example.com>",
-      [{name: "null=?UTF-8?B?AA==?=byte", email: "nullbyte@example.com"}],
-      [{name: "nullbyte", email: "nullbyte@example.com"}]],
+    [
+      '"null=?UTF-8?Q?=00?=byte" <nullbyte@example.com>',
+      [{ name: "null=?UTF-8?Q?=00?=byte", email: "nullbyte@example.com" }],
+      [{ name: "nullbyte", email: "nullbyte@example.com" }],
+    ],
+    [
+      '"null=?UTF-8?B?AA==?=byte" <nullbyte@example.com>',
+      [{ name: "null=?UTF-8?B?AA==?=byte", email: "nullbyte@example.com" }],
+      [{ name: "nullbyte", email: "nullbyte@example.com" }],
+    ],
   ];
 
   for (let check of checks) {
-    equalArrays(MailServices.headerParser.parseDecodedHeader(check[0]),
-      check[1]);
-    equalArrays(MailServices.headerParser.parseEncodedHeader(check[0], "UTF-8"),
-      check[2]);
+    equalArrays(
+      MailServices.headerParser.parseDecodedHeader(check[0]),
+      check[1]
+    );
+    equalArrays(
+      MailServices.headerParser.parseEncodedHeader(check[0], "UTF-8"),
+      check[2]
+    );
   }
 }

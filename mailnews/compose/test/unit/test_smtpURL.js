@@ -4,15 +4,18 @@
  * XXX this test needs extending as we fix up nsSmtpUrl.
  */
 
-var smtpURLs = [{
-  url: "smtp://user@localhost/",
-  spec: "smtp://user@localhost/",
-  username: "user",
-}, {
-  url: "smtps://user@localhost/",
-  spec: "smtps://user@localhost/",
-  username: "user",
-}];
+var smtpURLs = [
+  {
+    url: "smtp://user@localhost/",
+    spec: "smtp://user@localhost/",
+    username: "user",
+  },
+  {
+    url: "smtps://user@localhost/",
+    spec: "smtps://user@localhost/",
+    username: "user",
+  },
+];
 
 function run_test() {
   var url;

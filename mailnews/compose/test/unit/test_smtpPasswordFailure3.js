@@ -8,8 +8,10 @@
  *
  */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 /* import-globals-from ../../../test/resources/alertTestUtils.js */
 /* import-globals-from ../../../test/resources/passwordStorage.js */
@@ -25,10 +27,12 @@ var kTo = "to@foo.invalid";
 var kUsername = "testsmtp";
 // Password needs to match the login information stored in the signons json
 // file.
-var kValidPassword = "smtptest1";
+var kValidPassword = "smtptest1"; // for alertTestUtils.js
 
-/* exported alert, confirmEx, promptPasswordPS */// for alertTestUtils.js
-function alert(aDialogText, aText) {
+/* exported alert, confirmEx, promptPasswordPS */ function alert(
+  aDialogText,
+  aText
+) {
   // The first few attempts may prompt about the password problem, the last
   // attempt shouldn't.
   Assert.ok(attempt < 4);
@@ -37,8 +41,16 @@ function alert(aDialogText, aText) {
   dump("Alert Title: " + aDialogText + "\nAlert Text: " + aText + "\n");
 }
 
-function confirmEx(aDialogTitle, aText, aButtonFlags, aButton0Title,
-                   aButton1Title, aButton2Title, aCheckMsg, aCheckState) {
+function confirmEx(
+  aDialogTitle,
+  aText,
+  aButtonFlags,
+  aButton0Title,
+  aButton1Title,
+  aButton2Title,
+  aCheckMsg,
+  aCheckState
+) {
   switch (++attempt) {
     // First attempt, retry.
     case 1:
@@ -54,8 +66,14 @@ function confirmEx(aDialogTitle, aText, aButtonFlags, aButton0Title,
   }
 }
 
-function promptPasswordPS(aParent, aDialogTitle, aText, aPassword, aCheckMsg,
-                          aCheckState) {
+function promptPasswordPS(
+  aParent,
+  aDialogTitle,
+  aText,
+  aPassword,
+  aCheckMsg,
+  aCheckState
+) {
   if (attempt == 2) {
     aPassword.value = kValidPassword;
     aCheckState.value = true;
@@ -73,7 +91,7 @@ add_task(async function() {
     handler.kUsername = kUsername;
     handler.kPassword = kValidPassword;
     handler.kAuthRequired = true;
-    handler.kAuthSchemes = [ "PLAIN", "LOGIN" ]; // make match expected transaction below
+    handler.kAuthSchemes = ["PLAIN", "LOGIN"]; // make match expected transaction below
     return handler;
   }
   server = setupServerDaemon(createHandler);
@@ -103,9 +121,19 @@ add_task(async function() {
 
   do_test_pending();
 
-  MailServices.smtp.sendMailMessage(testFile, kTo, identity, kSender,
-                                    null, URLListener, null, null,
-                                    false, {}, {});
+  MailServices.smtp.sendMailMessage(
+    testFile,
+    kTo,
+    identity,
+    kSender,
+    null,
+    URLListener,
+    null,
+    null,
+    false,
+    {},
+    {}
+  );
 
   server.performTest();
 });
@@ -116,7 +144,11 @@ var URLListener = {
     // Check for ok status.
     Assert.equal(rc, 0);
     // Now check the new password has been saved.
-    let logins = Services.logins.findLogins("smtp://localhost", null, "smtp://localhost");
+    let logins = Services.logins.findLogins(
+      "smtp://localhost",
+      null,
+      "smtp://localhost"
+    );
 
     Assert.equal(logins.length, 1);
     Assert.equal(logins[0].username, kUsername);
@@ -125,8 +157,9 @@ var URLListener = {
     server.stop();
 
     var thread = gThreadManager.currentThread;
-    while (thread.hasPendingEvents())
+    while (thread.hasPendingEvents()) {
       thread.processNextEvent(true);
+    }
 
     do_test_finished();
   },

@@ -15,14 +15,18 @@ load("../../../resources/alertTestUtils.js");
 var gMessage = "bugmail10"; // message file used as the test message
 
 add_task(function() {
-  Services.prefs.setBoolPref("mail.server.server1.autosync_offline_stores", false);
+  Services.prefs.setBoolPref(
+    "mail.server.server1.autosync_offline_stores",
+    false
+  );
   setupIMAPPump();
 });
 
 // load and update a message in the imap fake server
 add_task(async function loadImapMessage() {
-  IMAPPump.mailbox.addMessage(new imapMessage(specForFileName(gMessage),
-                              IMAPPump.mailbox.uidnext++, []));
+  IMAPPump.mailbox.addMessage(
+    new imapMessage(specForFileName(gMessage), IMAPPump.mailbox.uidnext++, [])
+  );
   let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(gDummyMsgWindow, promiseUrlListener);
   await promiseUrlListener.promise;
@@ -58,7 +62,10 @@ add_task(function storeAddSubfolder() {
 add_task(function testSubfolder() {
   let subfolder1 = IMAPPump.inbox.getChildNamed(folderName1);
   let subfolder2 = IMAPPump.inbox.getChildNamed(folderName2);
-  Assert.equal(subfolder1.filePath.parent.path, subfolder2.filePath.parent.path);
+  Assert.equal(
+    subfolder1.filePath.parent.path,
+    subfolder2.filePath.parent.path
+  );
 });
 
 // Cleanup at end

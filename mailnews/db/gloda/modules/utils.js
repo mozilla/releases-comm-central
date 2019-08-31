@@ -4,22 +4,30 @@
 
 this.EXPORTED_SYMBOLS = ["GlodaUtils"];
 
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 /**
  * @namespace A holding place for logic that is not gloda-specific and should
  *  reside elsewhere.
  */
 var GlodaUtils = {
-
   /**
    * This Regexp is super-complicated and used at least in two different parts of
    * the code, so let's expose it from one single location.
    */
-  PART_RE: new RegExp("^[^?]+\\?(?:/;section=\\d+\\?)?(?:[^&]+&)*part=([^&]+)(?:&[^&]+)*$"),
+  PART_RE: new RegExp(
+    "^[^?]+\\?(?:/;section=\\d+\\?)?(?:[^&]+&)*part=([^&]+)(?:&[^&]+)*$"
+  ),
 
   deMime(aString) {
-    return MailServices.mimeConverter.decodeMimeHeader(aString, null, false, true);
+    return MailServices.mimeConverter.decodeMimeHeader(
+      aString,
+      null,
+      false,
+      true
+    );
   },
 
   _headerParser: MailServices.headerParser,
@@ -41,12 +49,21 @@ var GlodaUtils = {
    * This method is a convenience wrapper around nsIMsgHeaderParser.
    */
   parseMailAddresses(aMailAddresses) {
-    let addresses = {}, names = {}, fullAddresses = {};
-    this._headerParser.parseHeadersWithArray(aMailAddresses, addresses,
-                                             names, fullAddresses);
-    return {names: names.value, addresses: addresses.value,
-            fullAddresses: fullAddresses.value,
-            count: names.value.length};
+    let addresses = {},
+      names = {},
+      fullAddresses = {};
+    this._headerParser.parseHeadersWithArray(
+      aMailAddresses,
+      addresses,
+      names,
+      fullAddresses
+    );
+    return {
+      names: names.value,
+      addresses: addresses.value,
+      fullAddresses: fullAddresses.value,
+      count: names.value.length,
+    };
   },
 
   /**
@@ -54,19 +71,21 @@ var GlodaUtils = {
    *  docs.
    */
   md5HashString(aString) {
-    let converter = Cc["@mozilla.org/intl/scriptableunicodeconverter"]
-                      .createInstance(Ci.nsIScriptableUnicodeConverter);
+    let converter = Cc[
+      "@mozilla.org/intl/scriptableunicodeconverter"
+    ].createInstance(Ci.nsIScriptableUnicodeConverter);
     let trash = {};
     converter.charset = "UTF-8";
     let data = converter.convertToByteArray(aString, trash);
 
-    let hasher = Cc["@mozilla.org/security/hash;1"]
-                   .createInstance(Ci.nsICryptoHash);
+    let hasher = Cc["@mozilla.org/security/hash;1"].createInstance(
+      Ci.nsICryptoHash
+    );
     hasher.init(Ci.nsICryptoHash.MD5);
     hasher.update(data, data.length);
     let hash = hasher.finish(false);
 
-     // return the two-digit hexadecimal code for a byte
+    // return the two-digit hexadecimal code for a byte
     function toHexString(charCode) {
       return ("0" + charCode.toString(16)).slice(-2);
     }
@@ -85,8 +104,9 @@ var GlodaUtils = {
       addrbook = enumerator.getNext().QueryInterface(Ci.nsIAbDirectory);
       try {
         cardForEmailAddress = addrbook.cardForEmailAddress(aAddress);
-        if (cardForEmailAddress)
+        if (cardForEmailAddress) {
           return cardForEmailAddress;
+        }
       } catch (ex) {}
     }
 
@@ -117,8 +137,9 @@ var GlodaUtils = {
    */
   considerHeaderBasedGC(aNumHeadersSeen) {
     this._headersSeen += aNumHeadersSeen;
-    if (this._headersSeen >= this._FORCE_GC_AFTER_NUM_HEADERS)
+    if (this._headersSeen >= this._FORCE_GC_AFTER_NUM_HEADERS) {
       this.forceGarbageCollection();
+    }
   },
 
   /**

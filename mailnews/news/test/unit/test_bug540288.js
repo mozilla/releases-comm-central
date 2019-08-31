@@ -10,12 +10,13 @@ var localserver;
 var streamListener = {
   _data: "",
 
-  QueryInterface:
-    ChromeUtils.generateQI([Ci.nsIStreamListener, Ci.nsIRequestObserver]),
+  QueryInterface: ChromeUtils.generateQI([
+    Ci.nsIStreamListener,
+    Ci.nsIRequestObserver,
+  ]),
 
   // nsIRequestObserver
-  onStartRequest(aRequest) {
-  },
+  onStartRequest(aRequest) {},
   onStopRequest(aRequest, aStatusCode) {
     Assert.equal(aStatusCode, 0);
 
@@ -31,8 +32,9 @@ var streamListener = {
 
   // nsIStreamListener
   onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
-    let scriptStream = Cc["@mozilla.org/scriptableinputstream;1"]
-                         .createInstance(Ci.nsIScriptableInputStream);
+    let scriptStream = Cc[
+      "@mozilla.org/scriptableinputstream;1"
+    ].createInstance(Ci.nsIScriptableInputStream);
 
     scriptStream.init(aInputStream);
 
@@ -41,59 +43,68 @@ var streamListener = {
 };
 
 function doTestFinished() {
-    localserver.closeCachedConnections();
+  localserver.closeCachedConnections();
 
-    server.stop();
+  server.stop();
 
-    var thread = gThreadManager.currentThread;
-    while (thread.hasPendingEvents())
-      thread.processNextEvent(true);
+  var thread = gThreadManager.currentThread;
+  while (thread.hasPendingEvents()) {
+    thread.processNextEvent(true);
+  }
 
-    do_test_finished();
+  do_test_finished();
 }
-
 
 function run_test() {
   server = makeServer(NNTP_RFC977_handler, daemon);
   server.start();
   localserver = setupLocalServer(server.port);
-  var uri = Services.io.newURI("news://localhost:" + server.port + "/TSS1%40nntp.test");
+  var uri = Services.io.newURI(
+    "news://localhost:" + server.port + "/TSS1%40nntp.test"
+  );
 
   try {
     // Add an empty message to the cache
-    MailServices.nntp
-                .cacheStorage
-                .asyncOpenURI(uri, "", Ci.nsICacheStorage.OPEN_NORMALLY, {
-      onCacheEntryAvailable(cacheEntry, isNew, appCache, status) {
-        Assert.equal(status, Cr.NS_OK);
+    MailServices.nntp.cacheStorage.asyncOpenURI(
+      uri,
+      "",
+      Ci.nsICacheStorage.OPEN_NORMALLY,
+      {
+        onCacheEntryAvailable(cacheEntry, isNew, appCache, status) {
+          Assert.equal(status, Cr.NS_OK);
 
-        cacheEntry.markValid();
+          cacheEntry.markValid();
 
-        // Get the folder and new mail
-        var folder = localserver.rootFolder.getChildNamed("test.subscribe.simple");
-        folder.clearFlag(Ci.nsMsgFolderFlags.Offline);
-        folder.getNewMessages(null, {
-          OnStopRunningUrl() { localserver.closeCachedConnections(); },
-        });
-        server.performTest();
+          // Get the folder and new mail
+          var folder = localserver.rootFolder.getChildNamed(
+            "test.subscribe.simple"
+          );
+          folder.clearFlag(Ci.nsMsgFolderFlags.Offline);
+          folder.getNewMessages(null, {
+            OnStopRunningUrl() {
+              localserver.closeCachedConnections();
+            },
+          });
+          server.performTest();
 
-        Assert.equal(folder.getTotalMessages(false), 1);
-        Assert.ok(folder.hasNewMessages);
+          Assert.equal(folder.getTotalMessages(false), 1);
+          Assert.ok(folder.hasNewMessages);
 
-        server.resetTest();
+          server.resetTest();
 
-        var message = folder.firstNewMessage;
+          var message = folder.firstNewMessage;
 
-        var messageUri = folder.getUriForMsg(message);
+          var messageUri = folder.getUriForMsg(message);
 
-        MailServices.nntp
-                    .QueryInterface(Ci.nsIMsgMessageService)
-                    .DisplayMessage(messageUri, streamListener, null, null, null, {});
+          MailServices.nntp
+            .QueryInterface(Ci.nsIMsgMessageService)
+            .DisplayMessage(messageUri, streamListener, null, null, null, {});
 
-        // Get the server to run
-        server.performTest();
-      },
-    });
+          // Get the server to run
+          server.performTest();
+        },
+      }
+    );
 
     do_test_pending();
   } catch (e) {

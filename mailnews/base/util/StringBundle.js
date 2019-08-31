@@ -4,7 +4,7 @@
 
 this.EXPORTED_SYMBOLS = ["StringBundle"];
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * A string bundle.
@@ -46,7 +46,6 @@ StringBundle.prototype = {
     return this._stringBundle;
   },
 
-
   // the new API
 
   /**
@@ -73,8 +72,9 @@ StringBundle.prototype = {
    * @returns {String} the value of the string
    */
   get(key, args) {
-    if (args)
+    if (args) {
       return this.stringBundle.formatStringFromName(key, args);
+    }
     return this.stringBundle.GetStringFromName(key);
   },
 
@@ -96,14 +96,12 @@ StringBundle.prototype = {
       // We could simply return the nsIPropertyElement objects, but I think
       // it's better to return standard JS objects that behave as consumers
       // expect JS objects to behave (f.e. you can modify them dynamically).
-      let string = enumerator.getNext()
-        .QueryInterface(Ci.nsIPropertyElement);
+      let string = enumerator.getNext().QueryInterface(Ci.nsIPropertyElement);
       strings.push({ key: string.key, value: string.value });
     }
 
     return strings;
   },
-
 
   // the deprecated XBL binding-compatible API
 

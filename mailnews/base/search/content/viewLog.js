@@ -21,7 +21,7 @@ function onLoad() {
 }
 
 function toggleLogFilters() {
-  gFilterList.loggingEnabled =  gLogFilters.checked;
+  gFilterList.loggingEnabled = gLogFilters.checked;
 }
 
 function clearLog() {
@@ -30,4 +30,3 @@ function clearLog() {
   // reload the newly truncated file
   gLogView.reload();
 }
-

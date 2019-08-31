@@ -22,20 +22,27 @@ function Startup() {
   gParam.abort = true;
 
   // Set the question label
-  var mailSendFormatExplanation = document.getElementById("mailSendFormatExplanation");
+  var mailSendFormatExplanation = document.getElementById(
+    "mailSendFormatExplanation"
+  );
   var icon = document.getElementById("convertDefault");
 
   switch (gParam.convertible) {
     case msgCompConvertible.Altering:
-      mailSendFormatExplanation.textContent = bundle.getString("convertibleAltering");
+      mailSendFormatExplanation.textContent = bundle.getString(
+        "convertibleAltering"
+      );
       icon.className = "question-icon";
       break;
     case msgCompConvertible.No:
       mailSendFormatExplanation.textContent = bundle.getString("convertibleNo");
       icon.className = "alert-icon";
       break;
-    default: // msgCompConvertible.Yes
-      mailSendFormatExplanation.textContent = bundle.getString("convertibleYes");
+    default:
+      // msgCompConvertible.Yes
+      mailSendFormatExplanation.textContent = bundle.getString(
+        "convertibleYes"
+      );
       // XXX change this to use class message-icon once bug 512173 is fixed
       icon.className = "question-icon";
       break;
@@ -51,6 +58,8 @@ function Startup() {
 
 function Send() {
   // gParam.action should be an integer for when it is returned to MsgComposeCommands.js
-  gParam.action = parseInt(document.getElementById("mailDefaultHTMLAction").value);
+  gParam.action = parseInt(
+    document.getElementById("mailDefaultHTMLAction").value
+  );
   gParam.abort = false;
 }

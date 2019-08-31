@@ -4,7 +4,9 @@
 
 // Tests corpus management functions using nsIMsgCorpus
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var msgCorpus = MailServices.junk.QueryInterface(Ci.nsIMsgCorpus);
 
@@ -12,7 +14,7 @@ var msgCorpus = MailServices.junk.QueryInterface(Ci.nsIMsgCorpus);
 // 2 messages, and trait 1003 with 1.
 
 var tokenData = [
-// [traitid, count, token]
+  // [traitid, count, token]
   [1001, 0, "iDoNotExist"],
   [1001, 1, "linecount"],
   [1001, 2, "envelope-to:kenttest@caspia.com"],
@@ -129,7 +131,8 @@ var gTests = [
 function run_test() {
   do_test_pending();
   while (true) {
-    if (!gTests.length) { // Do we have more commands?
+    if (!gTests.length) {
+      // Do we have more commands?
       // no, all done
       do_test_finished();
       return;

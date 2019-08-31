@@ -11,16 +11,16 @@ load("../../../resources/messageGenerator.js");
 
 // The following folder names are not pure ASCII and will be MUTF-7 encoded.
 const folderName1 = "I18N box\u00E1"; // I18N boxá
-const folderName2 = "test \u00E4";    // test ä
+const folderName2 = "test \u00E4"; // test ä
 
 function* setup() {
   setupIMAPPump();
 
-  IMAPPump.daemon.createMailbox(folderName1, {subscribed: true});
+  IMAPPump.daemon.createMailbox(folderName1, { subscribed: true });
   IMAPPump.daemon.createMailbox("Unsubscribed box");
   // Create an all upper case trash folder name to make sure
   // we handle special folder names case-insensitively.
-  IMAPPump.daemon.createMailbox("TRASH", {subscribed: true});
+  IMAPPump.daemon.createMailbox("TRASH", { subscribed: true });
 
   // Get the server list...
   IMAPPump.server.performTest("LIST");
@@ -48,23 +48,26 @@ var tests = [
 
     let i18nChild = rootFolder.getChildNamed(folderName1);
 
-    MailServices.imap.renameLeaf(i18nChild,
-                                 folderName2,
-                                 asyncUrlListener,
-                                 null);
+    MailServices.imap.renameLeaf(
+      i18nChild,
+      folderName2,
+      asyncUrlListener,
+      null
+    );
     yield false;
   },
   function* checkRename() {
     let rootFolder = IMAPPump.incomingServer.rootFolder;
     Assert.ok(rootFolder.containsChildNamed(folderName2));
-    let newChild = rootFolder.getChildNamed(folderName2).
-                   QueryInterface(Ci.nsIMsgImapMailFolder);
+    let newChild = rootFolder
+      .getChildNamed(folderName2)
+      .QueryInterface(Ci.nsIMsgImapMailFolder);
     newChild.updateFolderWithListener(null, asyncUrlListener);
     yield false;
   },
   function checkEmptyFolder() {
     try {
-    let serverSink = IMAPPump.server.QueryInterface(Ci.nsIImapServerSink);
+      let serverSink = IMAPPump.server.QueryInterface(Ci.nsIImapServerSink);
       serverSink.possibleImapMailbox("/", "/", 0);
     } catch (ex) {
       // we expect this to fail, but not crash or assert.

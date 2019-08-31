@@ -10,7 +10,9 @@
 
 "use strict";
 
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
 function isValidFolder(folder) {
   // RDF is liable to return folders that don't exist, and we may be working
@@ -31,8 +33,9 @@ function isValidFolder(folder) {
 var gCreated = false;
 
 function folderLookupService() {
-  if (gCreated)
+  if (gCreated) {
     throw Cr.NS_ERROR_ALREADY_INITIALIZED;
+  }
   this._map = new Map();
   gCreated = true;
 }
@@ -55,8 +58,9 @@ folderLookupService.prototype = {
         // The object was deleted, so it's not valid
       }
 
-      if (valid)
+      if (valid) {
         return folder;
+      }
 
       // Don't keep around invalid folders.
       this._map.delete(aUrl);
@@ -71,17 +75,20 @@ folderLookupService.prototype = {
     // folder.
     if (folder == null) {
       folder = this.getOrCreateFolderForURL(aUrl);
-      if (!folder)
+      if (!folder) {
         return null;
+      }
     }
     // We don't want to return "dangling" (parentless) folders.
-    if (!isValidFolder(folder))
+    if (!isValidFolder(folder)) {
       return null;
+    }
 
     // Add the new folder to our map. Store a weak reference instead, so that
     // the folder can be closed when necessary.
-    let weakRef = folder.QueryInterface(Ci.nsISupportsWeakReference)
-                        .GetWeakReference();
+    let weakRef = folder
+      .QueryInterface(Ci.nsISupportsWeakReference)
+      .GetWeakReference();
     this._map.set(aUrl, weakRef);
     return folder;
   },
@@ -91,16 +98,15 @@ folderLookupService.prototype = {
     // Extract the scheme in the same way that the RDF service does.
     let scheme = aUrl.match(/\w*/)[0];
     let contractID = "@mozilla.org/rdf/resource-factory;1?name=" + scheme;
-    if (!(contractID in Cc))
+    if (!(contractID in Cc)) {
       return null;
+    }
 
     // NOTE: this doesn't update _map, but it'll work fine and
     // it's a transitional function we want deleted anyway.
-    let rdf = Cc["@mozilla.org/rdf/rdf-service;1"]
-                .getService(Ci.nsIRDFService);
+    let rdf = Cc["@mozilla.org/rdf/rdf-service;1"].getService(Ci.nsIRDFService);
     try {
-      let folder = rdf.GetResource(aUrl)
-                      .QueryInterface(Ci.nsIMsgFolder);
+      let folder = rdf.GetResource(aUrl).QueryInterface(Ci.nsIMsgFolder);
       return folder;
     } catch (e) {
       // If the QI fails, then we somehow picked up an RDF resource that isn't

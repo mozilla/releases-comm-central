@@ -25,7 +25,7 @@
  * }
  */
 
-var {logException} = ChromeUtils.import("resource:///modules/errUtils.js");
+var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
 
 /**
  * Url listener that can wrap another listener and trigger a callback, but
@@ -51,18 +51,22 @@ function AsyncUrlListener(aWrapped, aCallback, aPromise) {
 }
 AsyncUrlListener.prototype = {
   OnStartRunningUrl(aUrl) {
-    if (this.wrapped)
+    if (this.wrapped) {
       this.wrapped.OnStartRunningUrl(aUrl);
+    }
   },
   OnStopRunningUrl(aUrl, aExitCode) {
-    if (this.wrapped)
+    if (this.wrapped) {
       this.wrapped.OnStopRunningUrl(aUrl, aExitCode);
-    if (this.callback)
+    }
+    if (this.callback) {
       this.callback(aUrl, aExitCode);
-    if (this.promise)
+    }
+    if (this.promise) {
       this.promise();
-    else
+    } else {
       async_driver();
+    }
   },
 };
 
@@ -85,7 +89,8 @@ var asyncCopyListener = {
   },
 };
 
-var asyncGeneratorStack = [], asyncGeneratorSendValue = undefined;
+var asyncGeneratorStack = [],
+  asyncGeneratorSendValue = undefined;
 
 /**
  * Run a function that may or may not be a generator.  All functions, generator
@@ -118,8 +123,9 @@ function async_run(aArgs) {
     return async_driver();
   }
 
-  if (result === undefined)
+  if (result === undefined) {
     return true;
+  }
   return result;
 }
 
@@ -158,8 +164,9 @@ function _async_driver() {
       let nextItem;
       do {
         nextItem = curGenerator.next(asyncGeneratorSendValue);
-        if (!nextItem.value || nextItem.done)
+        if (!nextItem.value || nextItem.done) {
           break;
+        }
         asyncGeneratorSendValue = undefined;
       } while (true);
 
@@ -174,10 +181,17 @@ function _async_driver() {
         let asyncStack = [];
         dump("*******************************************\n");
         dump("Generator explosion!\n");
-        dump("Unhappiness at: " + (ex.fileName || ex.filename) + ":" + ex.lineNumber + "\n");
+        dump(
+          "Unhappiness at: " +
+            (ex.fileName || ex.filename) +
+            ":" +
+            ex.lineNumber +
+            "\n"
+        );
         dump("Because: " + ex + "\n");
-        if (ex.stack)
+        if (ex.stack) {
           dump("Stack:\n  " + ex.stack.replace(/\n/g, "\n  ") + "\n");
+        }
         dump("**** Async Generator Stack source functions:\n");
         for (let i = asyncGeneratorStack.length - 1; i >= 0; i--) {
           dump("  " + asyncGeneratorStack[i][1] + "\n");
@@ -185,8 +199,12 @@ function _async_driver() {
         }
         dump("*********\n");
         logException(ex);
-        mark_failure(["Generator explosion. ex:", ex, "async stack",
-                      asyncStack]);
+        mark_failure([
+          "Generator explosion. ex:",
+          ex,
+          "async stack",
+          asyncStack,
+        ]);
       }
       asyncGeneratorStack.pop();
     }
@@ -218,19 +236,28 @@ function async_test_runner_register_final_cleanup_helper(aHelper) {
 
 function _async_test_runner_postTest() {
   for (let helper of ASYNC_TEST_RUNNER_HELPERS) {
-    if (helper.postTest)
+    if (helper.postTest) {
       helper.postTest();
+    }
   }
 }
 
 function _async_test_runner_timeout() {
   for (let helper of ASYNC_TEST_RUNNER_HELPERS) {
     try {
-      if (helper.onTimeout)
+      if (helper.onTimeout) {
         helper.onTimeout();
+      }
     } catch (ex) {
-      dump("warning: helper failure: (" + ex.fileName + ":" + ex.lineNumber +
-           "): " + ex + "\n");
+      dump(
+        "warning: helper failure: (" +
+          ex.fileName +
+          ":" +
+          ex.lineNumber +
+          "): " +
+          ex +
+          "\n"
+      );
     }
   }
   do_throw("Timeout running test, and we want you to have the log.");
@@ -253,15 +280,17 @@ function parameterizeTest(aTestFunc, aParameters) {
 // timeout.
 var DEFAULT_LONGEST_TEST_RUN_CONCEIVABLE_SECS = 240;
 function async_run_tests(aTests, aLongestTestRunTimeConceivableInSecs) {
-  if (aLongestTestRunTimeConceivableInSecs == null)
-    aLongestTestRunTimeConceivableInSecs =
-        DEFAULT_LONGEST_TEST_RUN_CONCEIVABLE_SECS;
-  do_timeout(aLongestTestRunTimeConceivableInSecs * 1000,
-      _async_test_runner_timeout);
+  if (aLongestTestRunTimeConceivableInSecs == null) {
+    aLongestTestRunTimeConceivableInSecs = DEFAULT_LONGEST_TEST_RUN_CONCEIVABLE_SECS;
+  }
+  do_timeout(
+    aLongestTestRunTimeConceivableInSecs * 1000,
+    _async_test_runner_timeout
+  );
 
   do_test_pending();
 
-  async_run({func: _async_test_runner, args: [aTests]});
+  async_run({ func: _async_test_runner, args: [aTests] });
 }
 
 function* _async_test_runner(aTests) {
@@ -271,7 +300,7 @@ function* _async_test_runner(aTests) {
       let [testFunc, parameters] = test;
       for (let parameter of parameters) {
         let paramDesc, args;
-        if (typeof(parameter) == "object") {
+        if (typeof parameter == "object") {
           if (parameter.length) {
             paramDesc = parameter.toString();
             args = parameter;
@@ -284,13 +313,13 @@ function* _async_test_runner(aTests) {
           args = [parameter];
         }
         mark_test_start(testFunc.name, paramDesc);
-        yield async_run({func: testFunc, args});
+        yield async_run({ func: testFunc, args });
         _async_test_runner_postTest();
         mark_test_end();
       }
     } else {
       mark_test_start(test.name);
-      yield async_run({func: test});
+      yield async_run({ func: test });
       _async_test_runner_postTest();
       mark_test_end();
     }
@@ -302,8 +331,12 @@ function* _async_test_runner(aTests) {
     try {
       cleanupHelper();
     } catch (ex) {
-      mark_failure(["Problem during asyncTestUtils cleanup helper",
-                     cleanupHelper.name, "exception:", ex]);
+      mark_failure([
+        "Problem during asyncTestUtils cleanup helper",
+        cleanupHelper.name,
+        "exception:",
+        ex,
+      ]);
     }
   }
 

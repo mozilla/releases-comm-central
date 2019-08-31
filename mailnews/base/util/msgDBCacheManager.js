@@ -10,9 +10,11 @@
 
 this.EXPORTED_SYMBOLS = ["msgDBCacheManager"];
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 var log = Log4Moz.getConfiguredLogger("mailnews.database.dbcache");
 
 /**
@@ -34,11 +36,13 @@ var msgDBCacheManager = {
    * This is called on startup
    */
   init() {
-    if (this._initialized)
+    if (this._initialized) {
       return;
+    }
 
-    this._dbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"]
-                        .getService(Ci.nsIMsgDBService);
+    this._dbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"].getService(
+      Ci.nsIMsgDBService
+    );
 
     // we listen for "quit-application-granted" instead of
     // "quit-application-requested" because other observers of the
@@ -50,27 +54,27 @@ var msgDBCacheManager = {
     this._initialized = true;
   },
 
-/* ........ Timer Callback ................*/
+  /* ........ Timer Callback ................*/
 
   _dbCacheCheckTimerCallback() {
     msgDBCacheManager.checkCachedDBs();
   },
 
-/* ........ Observer Notification Handler ................*/
+  /* ........ Observer Notification Handler ................*/
 
   observe(aSubject, aTopic, aData) {
     switch (aTopic) {
-    // This is observed before any windows start unloading if something other
-    // than the last 3pane window closing requested the application be
-    // shutdown. For example, when the user quits via the file menu.
-    case "quit-application-granted":
-      Services.obs.removeObserver(this, "quit-application-granted");
-      this.stopPeriodicCheck();
-      break;
+      // This is observed before any windows start unloading if something other
+      // than the last 3pane window closing requested the application be
+      // shutdown. For example, when the user quits via the file menu.
+      case "quit-application-granted":
+        Services.obs.removeObserver(this, "quit-application-granted");
+        this.stopPeriodicCheck();
+        break;
     }
   },
 
-/* ........ Public API ................*/
+  /* ........ Public API ................*/
 
   /**
    * Stops db cache check
@@ -89,13 +93,15 @@ var msgDBCacheManager = {
    */
   startPeriodicCheck() {
     if (!this._dbCacheCheckTimer) {
-      this._dbCacheCheckTimer = Cc["@mozilla.org/timer;1"]
-                                   .createInstance(Ci.nsITimer);
+      this._dbCacheCheckTimer = Cc["@mozilla.org/timer;1"].createInstance(
+        Ci.nsITimer
+      );
 
       this._dbCacheCheckTimer.initWithCallback(
-                                   this._dbCacheCheckTimerCallback,
-                                   this._msgDBCacheTimerIntervalMS,
-                                   Ci.nsITimer.TYPE_REPEATING_SLACK);
+        this._dbCacheCheckTimerCallback,
+        this._msgDBCacheTimerIntervalMS,
+        Ci.nsITimer.TYPE_REPEATING_SLACK
+      );
     }
   },
 
@@ -110,7 +116,10 @@ var msgDBCacheManager = {
     // is in milliseconds.
     let closeThreshold = (Date.now() - idleLimit) * 1000;
     let cachedDBs = this._dbService.openDBs;
-    log.info("Periodic check of cached folder databases (DBs), count=" + cachedDBs.length);
+    log.info(
+      "Periodic check of cached folder databases (DBs), count=" +
+        cachedDBs.length
+    );
     // Count databases that are already closed or get closed now due to inactivity.
     let numClosing = 0;
     // Count databases whose folder is open in a window.
@@ -143,8 +152,18 @@ var msgDBCacheManager = {
       // Database eligible for closing.
       dbs.push(db);
     }
-    log.info("DBs open in a window: " + numOpenInWindow + ", DBs open: " + dbs.length + ", DBs already closing: " + numClosing);
-    let dbsToClose = Math.max(dbs.length - Math.max(maxOpenDBs - numOpenInWindow, 0), 0);
+    log.info(
+      "DBs open in a window: " +
+        numOpenInWindow +
+        ", DBs open: " +
+        dbs.length +
+        ", DBs already closing: " +
+        numClosing
+    );
+    let dbsToClose = Math.max(
+      dbs.length - Math.max(maxOpenDBs - numOpenInWindow, 0),
+      0
+    );
     if (dbsToClose > 0) {
       // Close some DBs so that we do not have more than maxOpenDBs.
       // However, we skipped DBs for folders that are open in a window

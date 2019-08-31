@@ -10,7 +10,9 @@ if (!customElements.get("menulist")) {
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+  const { Services } = ChromeUtils.import(
+    "resource://gre/modules/Services.jsm"
+  );
 
   /**
    * MozMenulistCharsetpicker is a menulist widget that is automatically
@@ -45,21 +47,26 @@ if (!customElements.get("menulist")) {
       }
 
       let charsetBundle = Services.strings.createBundle(
-        "chrome://messenger/locale/charsetTitles.properties");
-      this.charsetValues.map((item) => {
-        let strCharset = charsetBundle.GetStringFromName(
-          item.toLowerCase() + ".title");
-        return { label: strCharset, value: item };
-      }).sort((a, b) => {
-        if (a.value == "UTF-8" || a.label < b.label) {
-          return -1;
-        } else if (b.value == "UTF-8" || a.label > b.label) {
-          return 1;
-        }
-        return 0;
-      }).forEach((item) => {
-        this.appendItem(item.label, item.value);
-      });
+        "chrome://messenger/locale/charsetTitles.properties"
+      );
+      this.charsetValues
+        .map(item => {
+          let strCharset = charsetBundle.GetStringFromName(
+            item.toLowerCase() + ".title"
+          );
+          return { label: strCharset, value: item };
+        })
+        .sort((a, b) => {
+          if (a.value == "UTF-8" || a.label < b.label) {
+            return -1;
+          } else if (b.value == "UTF-8" || a.label > b.label) {
+            return 1;
+          }
+          return 0;
+        })
+        .forEach(item => {
+          this.appendItem(item.label, item.value);
+        });
       this._setupSelectedValueFromPref();
     }
 
@@ -67,7 +74,9 @@ if (!customElements.get("menulist")) {
       // Set appropriate selected menu item based on preference value.
       if (this.hasAttribute("preference")) {
         let preference = Services.prefs.getComplexValue(
-          this.getAttribute("preference"), Ci.nsIPrefLocalizedString);
+          this.getAttribute("preference"),
+          Ci.nsIPrefLocalizedString
+        );
         this.value = preference.data;
       }
     }
@@ -75,7 +84,11 @@ if (!customElements.get("menulist")) {
     attributeChangedCallback(name, oldValue, newValue) {
       super.attributeChangedCallback(name, oldValue, newValue);
       // @see MozElementMixin.attributeChangedCallback()
-      if (!this.isConnectedAndReady || oldValue === newValue || !this.inheritedAttributesCache) {
+      if (
+        !this.isConnectedAndReady ||
+        oldValue === newValue ||
+        !this.inheritedAttributesCache
+      ) {
         return;
       }
       if (name == "preference") {
@@ -91,13 +104,21 @@ if (!customElements.get("menulist")) {
   class MozMenulistCharsetpickerSending extends MozMenulistCharsetpickerBase {
     get charsetValues() {
       return [
-        "UTF-8", "EUC-KR", "gbk", "gb18030", "ISO-2022-JP",
-        "ISO-8859-1", "ISO-8859-7", "windows-1252",
+        "UTF-8",
+        "EUC-KR",
+        "gbk",
+        "gb18030",
+        "ISO-2022-JP",
+        "ISO-8859-1",
+        "ISO-8859-7",
+        "windows-1252",
       ];
     }
   }
-  customElements.define("menulist-charsetpicker-sending",
-    MozMenulistCharsetpickerSending, { extends: "menulist" }
+  customElements.define(
+    "menulist-charsetpicker-sending",
+    MozMenulistCharsetpickerSending,
+    { extends: "menulist" }
   );
 
   /**
@@ -107,15 +128,28 @@ if (!customElements.get("menulist")) {
   class MozMenulistCharsetpickerViewing extends MozMenulistCharsetpickerBase {
     get charsetValues() {
       return [
-        "UTF-8", "Big5", "EUC-KR", "gbk", "ISO-2022-JP",
-        "ISO-8859-1", "ISO-8859-2", "ISO-8859-7",
-        "windows-874", "windows-1250", "windows-1251",
-        "windows-1252", "windows-1255", "windows-1256",
-        "windows-1257", "windows-1258",
+        "UTF-8",
+        "Big5",
+        "EUC-KR",
+        "gbk",
+        "ISO-2022-JP",
+        "ISO-8859-1",
+        "ISO-8859-2",
+        "ISO-8859-7",
+        "windows-874",
+        "windows-1250",
+        "windows-1251",
+        "windows-1252",
+        "windows-1255",
+        "windows-1256",
+        "windows-1257",
+        "windows-1258",
       ];
     }
   }
-  customElements.define("menulist-charsetpicker-viewing",
-    MozMenulistCharsetpickerViewing, { extends: "menulist" }
+  customElements.define(
+    "menulist-charsetpicker-viewing",
+    MozMenulistCharsetpickerViewing,
+    { extends: "menulist" }
   );
 }

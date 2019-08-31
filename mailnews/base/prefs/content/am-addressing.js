@@ -6,7 +6,7 @@
 /* import-globals-from am-prefs.js */
 /* import-globals-from amUtils.js */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function onLoad() {
   parent.onPanelLoaded("am-addressing.xul");
@@ -22,12 +22,15 @@ function onInitCompositionAndAddressing() {
 }
 
 function onEditDirectories() {
-  window.openDialog("chrome://messenger/content/addressbook/pref-editdirectories.xul",
-                    "editDirectories", "chrome,modal=yes,resizable=no", null);
+  window.openDialog(
+    "chrome://messenger/content/addressbook/pref-editdirectories.xul",
+    "editDirectories",
+    "chrome,modal=yes,resizable=no",
+    null
+  );
 }
 
-function onPreInit(account, accountValues) {
-}
+function onPreInit(account, accountValues) {}
 
 function LDAPenabling() {
   onCheckItem("identity.directoryServer", ["directories"]);
@@ -50,12 +53,22 @@ function quoteEnabling() {
  * Open the Preferences dialog on the tab with Addressing options.
  */
 function showGlobalAddressingPrefs() {
-  openPrefsFromAccountManager("paneCompose", "compositionAddressingCategory", null, "addressing_pane");
+  openPrefsFromAccountManager(
+    "paneCompose",
+    "compositionAddressingCategory",
+    null,
+    "addressing_pane"
+  );
 }
 
 /**
  * Open the Preferences dialog on the tab with Composing options.
  */
 function showGlobalComposingPrefs() {
-  openPrefsFromAccountManager("paneCompose", null, null, "composing_messages_pane");
+  openPrefsFromAccountManager(
+    "paneCompose",
+    null,
+    null,
+    "composing_messages_pane"
+  );
 }

@@ -16,8 +16,9 @@ var kCompanyValue = "Test\u00D0 Company";
 
 function run_test() {
   // Create a new card
-  var card = Cc["@mozilla.org/addressbook/cardproperty;1"]
-               .createInstance(Ci.nsIAbCard);
+  var card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+    Ci.nsIAbCard
+  );
 
   // Test - Set First, Last and Display Names and Email Address
   // via setProperty, and check correctly saved via their
@@ -91,7 +92,9 @@ function run_test() {
   card.firstName = kFNValue;
   card.lastName = kLNValue;
 
-  let bundle = Services.strings.createBundle("chrome://messenger/locale/addressbook/addressBook.properties");
+  let bundle = Services.strings.createBundle(
+    "chrome://messenger/locale/addressbook/addressBook.properties"
+  );
 
   Assert.equal(card.generateName(1, bundle), kLNValue + ", " + kFNValue);
 

@@ -24,13 +24,21 @@ var gTestArray = [
     let msgToDelete = mailTestUtils.firstMsgHdr(gTestFolder);
     gMsgId1 = msgToDelete.messageId;
     gMessages.appendElement(msgToDelete);
-    gTestFolder.deleteMessages(gMessages, gMsgWindow, false, true, CopyListener,
-                               true);
+    gTestFolder.deleteMessages(
+      gMessages,
+      gMsgWindow,
+      false,
+      true,
+      CopyListener,
+      true
+    );
   },
   function undoDelete() {
     gMsgWindow.transactionManager.undoTransaction();
     // There's no listener for this, so we'll just have to wait a little.
-    do_timeout(1500, function() { doTest(++gCurTestNum); });
+    do_timeout(1500, function() {
+      doTest(++gCurTestNum);
+    });
   },
   function verifyFolders() {
     let msgRestored = gTestFolder.msgDatabase.getMsgHdrForMessageID(gMsgId1);
@@ -41,14 +49,15 @@ var gTestArray = [
 ];
 
 function run_test() {
-  configure_message_injection({mode: "local"});
+  configure_message_injection({ mode: "local" });
 
-  gMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
-                  .createInstance(Ci.nsIMsgWindow);
+  gMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
+    Ci.nsIMsgWindow
+  );
 
   var messageGenerator = new MessageGenerator();
   gMsg1 = messageGenerator.makeMessage();
-  let msg2 = messageGenerator.makeMessage({inReplyTo: gMsg1});
+  let msg2 = messageGenerator.makeMessage({ inReplyTo: gMsg1 });
 
   let messages = [];
   messages = messages.concat([gMsg1, msg2]);
@@ -71,12 +80,14 @@ function doTest(test) {
     var testFn = gTestArray[test - 1];
     // Set a limit of ten seconds; if the notifications haven't arrived by then there's a problem.
     do_timeout(10000, function() {
-        if (gCurTestNum == test)
-          do_throw("Notifications not received in 10000 ms for operation " + testFn.name);
-        }
-      );
+      if (gCurTestNum == test) {
+        do_throw(
+          "Notifications not received in 10000 ms for operation " + testFn.name
+        );
+      }
+    });
     try {
-    testFn();
+      testFn();
     } catch (ex) {
       do_throw("TEST FAILED " + ex);
     }
@@ -100,7 +111,9 @@ var CopyListener = {
     // This can happen with a bunch of synchronous functions grouped together, and
     // can even cause tests to fail because they're still waiting for the listener
     // to return
-    do_timeout(0, function() { doTest(++gCurTestNum); });
+    do_timeout(0, function() {
+      doTest(++gCurTestNum);
+    });
   },
 };
 
@@ -111,7 +124,9 @@ var URLListener = {
   OnStopRunningUrl(aURL, aStatus) {
     dump("in OnStopRunningURL " + gCurTestNum + "\n");
     Assert.equal(aStatus, 0);
-    do_timeout(0, function() { doTest(++gCurTestNum); });
+    do_timeout(0, function() {
+      doTest(++gCurTestNum);
+    });
   },
 };
 

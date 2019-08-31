@@ -6,17 +6,19 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
- /*
-  * Test suite for empty trash
-  *
-  * Currently tested:
-  * - Empty local trash
-  * TODO
-  * - Empty imap trash
-  */
+/*
+ * Test suite for empty trash
+ *
+ * Currently tested:
+ * - Empty local trash
+ * TODO
+ * - Empty imap trash
+ */
 
 // Globals
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var gMsgFile1;
 var gLocalTrashFolder;
@@ -32,7 +34,7 @@ var copyListener = {
   OnProgress(aProgress, aProgressMax) {},
   SetMessageKey(aKey) {
     let hdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
-    gMsgHdrs.push({hdr, ID: hdr.messageId});
+    gMsgHdrs.push({ hdr, ID: hdr.messageId });
   },
   SetMessageId(aMessageId) {},
   OnStopCopy(aStatus) {
@@ -42,13 +44,14 @@ var copyListener = {
     // This can happen with a bunch of synchronous functions grouped together, and
     // can even cause tests to fail because they're still waiting for the listener
     // to return
-    do_timeout(0, function() { doTest(++gCurTestNum); });
+    do_timeout(0, function() {
+      doTest(++gCurTestNum);
+    });
   },
 };
 
 var urlListener = {
-  OnStartRunningUrl(aUrl) {
-  },
+  OnStartRunningUrl(aUrl) {},
   OnStopRunningUrl(aUrl, aExitCode) {
     // Check: message successfully copied.
     Assert.equal(aExitCode, 0);
@@ -56,12 +59,23 @@ var urlListener = {
     // This can happen with a bunch of synchronous functions grouped together, and
     // can even cause tests to fail because they're still waiting for the listener
     // to return
-    do_timeout(0, function() { doTest(++gCurTestNum); });
+    do_timeout(0, function() {
+      doTest(++gCurTestNum);
+    });
   },
 };
 
 function copyFileMessage(file, destFolder, isDraftOrTemplate) {
-  MailServices.copy.CopyFileMessage(file, destFolder, null, isDraftOrTemplate, 0, "", copyListener, null);
+  MailServices.copy.CopyFileMessage(
+    file,
+    destFolder,
+    null,
+    isDraftOrTemplate,
+    0,
+    "",
+    copyListener,
+    null
+  );
 }
 
 function deleteMessages(srcFolder, items) {
@@ -85,13 +99,19 @@ var gTestArray = [
   },
 
   // Delete message
-  function testDeleteMessage() { // delete to trash
+  function testDeleteMessage() {
+    // delete to trash
     // Let's take a moment to re-initialize stuff that got moved
     let inboxDB = localAccountUtils.inboxFolder.msgDatabase;
     gMsgHdrs[0].hdr = inboxDB.getMsgHdrForMessageID(gMsgHdrs[0].ID);
 
     // Now delete the message
-    deleteMessages(localAccountUtils.inboxFolder, [gMsgHdrs[0].hdr], false, false);
+    deleteMessages(
+      localAccountUtils.inboxFolder,
+      [gMsgHdrs[0].hdr],
+      false,
+      false
+    );
   },
   function emptyTrash() {
     gRootFolder = localAccountUtils.incomingServer.rootMsgFolder;
@@ -127,7 +147,10 @@ function run_test() {
   // our front end code clears the msg db when it gets told the folder for
   // an open view has been deleted - so simulate that.
   var folderDeletedListener = new gMFListener();
-  MailServices.mfn.addListener(folderDeletedListener, nsIMFNService.folderDeleted);
+  MailServices.mfn.addListener(
+    folderDeletedListener,
+    nsIMFNService.folderDeleted
+  );
 
   // "Master" do_test_pending(), paired with a do_test_finished() at the end of all the operations.
   do_test_pending();
@@ -143,8 +166,11 @@ function doTest(test) {
     var testFn = gTestArray[test - 1];
     // Set a limit of three seconds; if the notifications haven't arrived by then there's a problem.
     do_timeout(10000, function() {
-      if (gCurTestNum == test)
-        do_throw("Notifications not received in 10000 ms for operation " + testFn.name);
+      if (gCurTestNum == test) {
+        do_throw(
+          "Notifications not received in 10000 ms for operation " + testFn.name
+        );
+      }
     });
     try {
       testFn();

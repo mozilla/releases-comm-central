@@ -17,95 +17,121 @@
 /* import-globals-from resources/glodaTestHelper.js */
 load("resources/glodaTestHelper.js");
 
-var {
-  MsgHdrToMimeMessage,
-} = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
+var { MsgHdrToMimeMessage } = ChromeUtils.import(
+  "resource:///modules/gloda/mimemsg.js"
+);
 
 // we need to be able to get at GlodaFundAttr to check the number of whittler
 //   invocations
-var {GlodaFundAttr} = ChromeUtils.import("resource:///modules/gloda/fundattr.js");
+var { GlodaFundAttr } = ChromeUtils.import(
+  "resource:///modules/gloda/fundattr.js"
+);
 
 /* ===== Data ===== */
 var messageInfos = [
   {
     name: "no quoting",
-    bode: [[true, "I like hats"],
-           [true, "yes I do!"],
-           [true, "I like hats!"],
-           [true, "How bout you?"]],
+    bode: [
+      [true, "I like hats"],
+      [true, "yes I do!"],
+      [true, "I like hats!"],
+      [true, "How bout you?"],
+    ],
   },
   {
     name: "no quoting, whitespace removal",
-    bode: [[true, "robots are nice..."],
-           [true, ""],
-           [true, "except for the bloodlust"]],
+    bode: [
+      [true, "robots are nice..."],
+      [true, ""],
+      [true, "except for the bloodlust"],
+    ],
   },
   {
     name: "bottom posting",
-    bode: [[false, "John wrote:"],
-           [false, "> I like hats"],
-           [false, ">"], // this quoted blank line is significant! no lose!
-           [false, "> yes I do!"],
-           [false, ""],
-           [true, "I do enjoy them as well."],
-           [true, ""],
-           [true, "Bob"]],
+    bode: [
+      [false, "John wrote:"],
+      [false, "> I like hats"],
+      [false, ">"], // this quoted blank line is significant! no lose!
+      [false, "> yes I do!"],
+      [false, ""],
+      [true, "I do enjoy them as well."],
+      [true, ""],
+      [true, "Bob"],
+    ],
   },
   {
     name: "top posting",
-    bode: [[true, "Hats are where it's at."],
-           [false, ""],
-           [false, "John wrote:"],
-           [false, "> I like hats"],
-           [false, "> yes I do!"]],
+    bode: [
+      [true, "Hats are where it's at."],
+      [false, ""],
+      [false, "John wrote:"],
+      [false, "> I like hats"],
+      [false, "> yes I do!"],
+    ],
   },
   {
     name: "top posting with trailing whitespace, no intro",
-    bode: [[true, "Hats are where it's at."],
-           [false, ""],
-           [false, "> I like hats"],
-           [false, "> yes I do!"],
-           [false, ""],
-           [false, ""]],
+    bode: [
+      [true, "Hats are where it's at."],
+      [false, ""],
+      [false, "> I like hats"],
+      [false, "> yes I do!"],
+      [false, ""],
+      [false, ""],
+    ],
   },
   {
     name: "interspersed quoting",
-    bode: [[false, "John wrote:"],
-           [false, "> I like hats"],
-           [true, "I concur with this point."],
-           [false, "> yes I do!"],
-           [false, ""],
-           [true, "this point also resonates with me."],
-           [false, ""],
-           [false, "> I like hats!"],
-           [false, "> How bout you?"],
-           [false, ""],
-           [true, "Verily!"]],
+    bode: [
+      [false, "John wrote:"],
+      [false, "> I like hats"],
+      [true, "I concur with this point."],
+      [false, "> yes I do!"],
+      [false, ""],
+      [true, "this point also resonates with me."],
+      [false, ""],
+      [false, "> I like hats!"],
+      [false, "> How bout you?"],
+      [false, ""],
+      [true, "Verily!"],
+    ],
   },
   {
     name: "german style",
-    bode: [[false, "Mark Banner <bugzilla@standard8.plus.invalid> wrote:"],
-           [false, "\xa0"],
-           [false, "> We haven't nailed anything down in detail yet, depending on how we are "],
-           [true, "That sounds great and would definitely be appreciated by localizers."],
-           [false, ""]],
+    bode: [
+      [false, "Mark Banner <bugzilla@standard8.plus.invalid> wrote:"],
+      [false, "\xa0"],
+      [
+        false,
+        "> We haven't nailed anything down in detail yet, depending on how we are ",
+      ],
+      [
+        true,
+        "That sounds great and would definitely be appreciated by localizers.",
+      ],
+      [false, ""],
+    ],
   },
   {
     name: "tortuous interference",
-    bode: [[false, "> wrote"],
-           [true, "running all the time"],
-           [false, "> wrote"],
-           [true, "cheese"],
-           [false, ""]],
+    bode: [
+      [false, "> wrote"],
+      [true, "running all the time"],
+      [false, "> wrote"],
+      [true, "cheese"],
+      [false, ""],
+    ],
   },
 ];
 
 /* ===== Tests ===== */
 
 function setup_create_message(info) {
-  info.body = {body: info.bode.map(tupe => tupe[1]).join("\r\n")};
-  info.expected = info.bode.filter(tupe => tupe[0]).map(tupe => tupe[1]).
-    join("\n");
+  info.body = { body: info.bode.map(tupe => tupe[1]).join("\r\n") };
+  info.expected = info.bode
+    .filter(tupe => tupe[0])
+    .map(tupe => tupe[1])
+    .join("\n");
 
   info._synMsg = msgGen.makeMessage(info);
 }
@@ -131,15 +157,20 @@ function* setup_inject_messages() {
   let msgSet = new SyntheticMessageSet(messageInfos.map(info => info._synMsg));
   let folder = make_empty_folder();
   yield add_sets_to_folders(folder, [msgSet]);
-  yield wait_for_gloda_indexer(msgSet, {verifier: glodaInfoStasher});
+  yield wait_for_gloda_indexer(msgSet, { verifier: glodaInfoStasher });
 }
 
 function test_stream_message(info) {
   let msgHdr = info._glodaMsg.folderMessage;
 
   MsgHdrToMimeMessage(msgHdr, null, function(aMsgHdr, aMimeMsg) {
-    verify_message_content(info, info._synMsg, info._glodaMsg, aMsgHdr,
-                           aMimeMsg);
+    verify_message_content(
+      info,
+      info._synMsg,
+      info._glodaMsg,
+      aMsgHdr,
+      aMimeMsg
+    );
   });
 }
 
@@ -152,13 +183,15 @@ GlodaFundAttr.contentWhittle = function(...aArgs) {
 };
 
 function verify_message_content(aInfo, aSynMsg, aGlodaMsg, aMsgHdr, aMimeMsg) {
-  if (aMimeMsg == null)
+  if (aMimeMsg == null) {
     do_throw("Message streaming should work; check test_mime_emitter.js first");
+  }
 
   whittleCount = 0;
   let content = Gloda.getMessageContent(aGlodaMsg, aMimeMsg);
-  if (whittleCount != 1)
+  if (whittleCount != 1) {
     do_throw("Whittle count is " + whittleCount + " but should be 1!");
+  }
 
   Assert.equal(content.getContentString(), aInfo.expected);
 }

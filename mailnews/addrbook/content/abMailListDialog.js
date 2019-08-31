@@ -5,9 +5,13 @@
 /* import-globals-from ../../../mail/components/addrbook/content/abCommon.js */
 /* import-globals-from ../../../mail/components/compose/content/addressingWidgetOverlay.js */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 
 top.MAX_RECIPIENTS = 1;
 var inputElementType = "";
@@ -19,10 +23,10 @@ var gLoadListeners = [];
 var gSaveListeners = [];
 
 try {
-  var gDragService = Cc["@mozilla.org/widget/dragservice;1"]
-                       .getService(Ci.nsIDragService);
-} catch (e) {
-}
+  var gDragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
+    Ci.nsIDragService
+  );
+} catch (e) {}
 
 // Returns the load context for the current window
 function getLoadContext() {
@@ -31,9 +35,11 @@ function getLoadContext() {
 
 function mailingListExists(listname) {
   if (MailServices.ab.mailListNameExists(listname)) {
-    Services.prompt.alert(window,
+    Services.prompt.alert(
+      window,
       gAddressBookBundle.getString("mailListNameExistsTitle"),
-      gAddressBookBundle.getString("mailListNameExistsMessage"));
+      gAddressBookBundle.getString("mailListNameExistsMessage")
+    );
     return true;
   }
   return false;
@@ -51,11 +57,13 @@ function GetListValue(mailList, doAdd) {
   var canonicalNewListName = listname.toLowerCase();
   var canonicalOldListName = oldListName.toLowerCase();
   if (doAdd) {
-    if (mailingListExists(canonicalNewListName))
+    if (mailingListExists(canonicalNewListName)) {
       return false;
+    }
   } else if (canonicalOldListName != canonicalNewListName) {
-    if (mailingListExists(canonicalNewListName))
+    if (mailingListExists(canonicalNewListName)) {
       return false;
+    }
   }
 
   mailList.isMailList = true;
@@ -70,36 +78,46 @@ function GetListValue(mailList, doAdd) {
   while ((inputField = awGetInputElement(i))) {
     fieldValue = inputField.value;
 
-    if (doAdd || pos >= oldTotal)
-      cardproperty = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance();
-    else
+    if (doAdd || pos >= oldTotal) {
+      cardproperty = Cc[
+        "@mozilla.org/addressbook/cardproperty;1"
+      ].createInstance();
+    } else {
       cardproperty = mailList.addressLists.queryElementAt(pos, Ci.nsIAbCard);
+    }
 
     if (fieldValue == "") {
-      if (!doAdd && cardproperty)
-      try {
-        mailList.addressLists.removeElementAt(pos);
-        --oldTotal;
-      } catch (ex) {
-        // Ignore attempting to remove an item
-        // at a position greater than the number
-        // of elements in the addressLists attribute
+      if (!doAdd && cardproperty) {
+        try {
+          mailList.addressLists.removeElementAt(pos);
+          --oldTotal;
+        } catch (ex) {
+          // Ignore attempting to remove an item
+          // at a position greater than the number
+          // of elements in the addressLists attribute
+        }
       }
     } else if (cardproperty) {
       cardproperty = cardproperty.QueryInterface(Ci.nsIAbCard);
       if (cardproperty) {
-        let addrObjects = MailServices.headerParser
-                                      .makeFromDisplayAddress(fieldValue, {});
+        let addrObjects = MailServices.headerParser.makeFromDisplayAddress(
+          fieldValue,
+          {}
+        );
         for (let j = 0; j < addrObjects.length; j++) {
           if (j > 0) {
-            cardproperty = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance();
+            cardproperty = Cc[
+              "@mozilla.org/addressbook/cardproperty;1"
+            ].createInstance();
             cardproperty = cardproperty.QueryInterface(Ci.nsIAbCard);
           }
           cardproperty.primaryEmail = addrObjects[j].email;
-          cardproperty.displayName = addrObjects[j].name || addrObjects[j].email;
+          cardproperty.displayName =
+            addrObjects[j].name || addrObjects[j].email;
 
-          if (doAdd || pos >= oldTotal)
+          if (doAdd || pos >= oldTotal) {
             mailList.addressLists.appendElement(cardproperty);
+          }
         }
         pos++;
       }
@@ -110,8 +128,9 @@ function GetListValue(mailList, doAdd) {
   --i;
 
   if (!doAdd && i < oldTotal) {
-    for (var j = i; j < oldTotal; j++)
+    for (var j = i; j < oldTotal; j++) {
       mailList.addressLists.removeElementAt(j);
+    }
   }
   return true;
 }
@@ -125,12 +144,14 @@ function MailListOKButton(event) {
     // should be able to just remove this if we are not seeing blank lines in the ab popup
     if (!uri) {
       event.preventDefault();
-      return;  // don't close window
+      return; // don't close window
     }
     // -----
 
     // Add mailing list to database
-    var mailList = Cc["@mozilla.org/addressbook/directoryproperty;1"].createInstance();
+    var mailList = Cc[
+      "@mozilla.org/addressbook/directoryproperty;1"
+    ].createInstance();
     mailList = mailList.QueryInterface(Ci.nsIAbDirectory);
 
     if (GetListValue(mailList, true)) {
@@ -165,8 +186,9 @@ function OnLoadNewMailList() {
     }
   }
 
-  if (!selectedAB)
+  if (!selectedAB) {
     selectedAB = kPersonalAddressbookURI;
+  }
 
   // set popup with address book names
   var abPopup = document.getElementById("abPopup");
@@ -182,8 +204,15 @@ function OnLoadNewMailList() {
 
   // focus on first name
   var listName = document.getElementById("ListName");
-  if (listName)
-    setTimeout(function(firstTextBox) { firstTextBox.focus(); }, 0, listName);
+  if (listName) {
+    setTimeout(
+      function(firstTextBox) {
+        firstTextBox.focus();
+      },
+      0,
+      listName
+    );
+  }
 
   NotifyLoadListeners(directory);
 }
@@ -203,7 +232,7 @@ function EditListOKButton(event) {
     gEditList.editMailListToDatabase(gListCard);
 
     window.arguments[0].refresh = true;
-    return;  // close the window
+    return; // close the window
   }
 
   event.preventDefault();
@@ -213,7 +242,7 @@ function OnLoadEditList() {
   InitCommonJS();
 
   gListCard = window.arguments[0].abCard;
-  var listUri  = window.arguments[0].listURI;
+  var listUri = window.arguments[0].listURI;
 
   gEditList = GetDirectoryFromURI(listUri);
 
@@ -222,7 +251,10 @@ function OnLoadEditList() {
   document.getElementById("ListDescription").value = gEditList.description;
   oldListName = gEditList.dirName;
 
-  document.title = gAddressBookBundle.getFormattedString("mailingListTitleEdit", [oldListName]);
+  document.title = gAddressBookBundle.getFormattedString(
+    "mailingListTitleEdit",
+    [oldListName]
+  );
 
   if (gEditList.addressLists) {
     let total = gEditList.addressLists.length;
@@ -234,8 +266,9 @@ function OnLoadEditList() {
       top.MAX_RECIPIENTS = 0;
       for (let i = 0; i < total; i++) {
         let card = gEditList.addressLists.queryElementAt(i, Ci.nsIAbCard);
-        let address = MailServices.headerParser.makeMailboxObject(
-          card.displayName, card.primaryEmail).toString();
+        let address = MailServices.headerParser
+          .makeMailboxObject(card.displayName, card.primaryEmail)
+          .toString();
         SetInputValue(address, newListBoxNode, templateNode);
       }
       listbox.parentNode.replaceChild(newListBoxNode, listbox);
@@ -247,8 +280,9 @@ function OnLoadEditList() {
   if (gEditList.readOnly) {
     const kMailListFields = ["ListName", "ListNickName", "ListDescription"];
 
-    for (let i = 0; i < kMailListFields.length; ++i)
+    for (let i = 0; i < kMailListFields.length; ++i) {
       document.getElementById(kMailListFields[i]).readOnly = true;
+    }
 
     document.documentElement.buttons = "accept";
     document.documentElement.removeAttribute("ondialogaccept");
@@ -278,16 +312,18 @@ function AppendLastRow() {
 
   // focus on first name
   let listName = document.getElementById("ListName");
-  if (listName)
+  if (listName) {
     listName.focus();
+  }
 }
 
 function AppendNewRowAndSetFocus() {
   let lastInput = awGetInputElement(top.MAX_RECIPIENTS);
-  if (lastInput && lastInput.value)
+  if (lastInput && lastInput.value) {
     awAppendNewRow(true);
-  else
+  } else {
     awSetFocusTo(lastInput);
+  }
 }
 
 function SetInputValue(inputValue, parentNode, templateNode) {
@@ -310,32 +346,36 @@ function awNotAnEmptyArea(event) {
   // This is temporary until i figure out how to ensure to always having an empty space after the last row
 
   var lastInput = awGetInputElement(top.MAX_RECIPIENTS);
-  if (lastInput && lastInput.value)
+  if (lastInput && lastInput.value) {
     awAppendNewRow(false);
+  }
 
   event.stopPropagation();
 }
 
 function awClickEmptySpace(target, setFocus) {
-  if (target == null || target.localName != "hbox")
+  if (target == null || target.localName != "hbox") {
     return;
+  }
 
   let lastInput = awGetInputElement(top.MAX_RECIPIENTS);
 
-  if (lastInput && lastInput.value)
+  if (lastInput && lastInput.value) {
     awAppendNewRow(setFocus);
-  else if (setFocus)
+  } else if (setFocus) {
     awSetFocusTo(lastInput);
+  }
 }
 
 function awReturnHit(inputElement) {
   let row = awGetRowByInputElement(inputElement);
   if (inputElement.value) {
     let nextInput = awGetInputElement(row + 1);
-    if (!nextInput)
+    if (!nextInput) {
       awAppendNewRow(true);
-    else
+    } else {
       awSetFocusTo(nextInput);
+    }
   }
 }
 
@@ -345,26 +385,33 @@ function awDeleteRow(rowToDelete) {
   awRemoveRow(rowToDelete);
 
   var numberOfCols = awGetNumberOfCols();
-  for (var row = rowToDelete + 1; row <= maxRecipients; row++)
-    for (var col = 1; col <= numberOfCols; col++)
-      awGetElementByCol(row, col).setAttribute("id", "addressCol" + (col) + "#" + (row - 1));
+  for (var row = rowToDelete + 1; row <= maxRecipients; row++) {
+    for (var col = 1; col <= numberOfCols; col++) {
+      awGetElementByCol(row, col).setAttribute(
+        "id",
+        "addressCol" + col + "#" + (row - 1)
+      );
+    }
+  }
 
   awTestRowSequence();
 }
 
 function awInputChanged(inputElement) {
-//  AutoCompleteAddress(inputElement);
+  //  AutoCompleteAddress(inputElement);
 
   // Do we need to add a new row?
   var lastInput = awGetInputElement(top.MAX_RECIPIENTS);
-  if (lastInput && lastInput.value && !top.doNotCreateANewRow)
+  if (lastInput && lastInput.value && !top.doNotCreateANewRow) {
     awAppendNewRow(false);
+  }
   top.doNotCreateANewRow = false;
 }
 
 function awInputElementName() {
-  if (inputElementType == "")
-      inputElementType = document.getElementById("addressCol1#1").localName;
+  if (inputElementType == "") {
+    inputElementType = document.getElementById("addressCol1#1").localName;
+  }
   return inputElementType;
 }
 
@@ -382,10 +429,11 @@ function awAppendNewRow(setFocus) {
   if (body && listitem1) {
     let nextDummy = awGetNextDummyRow();
     let newNode = listitem1.cloneNode(true);
-    if (nextDummy)
+    if (nextDummy) {
       body.replaceChild(newNode, nextDummy);
-    else
+    } else {
       body.appendChild(newNode);
+    }
 
     top.MAX_RECIPIENTS++;
 
@@ -394,16 +442,17 @@ function awAppendNewRow(setFocus) {
       input[0].setAttribute("value", "");
       input[0].setAttribute("id", "addressCol1#" + top.MAX_RECIPIENTS);
 
-      if (input[0].getAttribute("focused") != "")
+      if (input[0].getAttribute("focused") != "") {
         input[0].removeAttribute("focused");
+      }
     }
     // Focus the new input widget.
-    if (setFocus && input)
+    if (setFocus && input) {
       awSetFocusTo(input[0]);
+    }
   }
   return input ? input[0] : null;
 }
-
 
 // functions for accessing the elements in the addressing widget
 
@@ -425,9 +474,11 @@ function DropOnAddressListTree(event) {
   let trans;
 
   try {
-   trans = Cc["@mozilla.org/widget/transferable;1"].createInstance(Ci.nsITransferable);
-   trans.init(getLoadContext());
-   trans.addDataFlavor("text/x-moz-address");
+    trans = Cc["@mozilla.org/widget/transferable;1"].createInstance(
+      Ci.nsITransferable
+    );
+    trans.init(getLoadContext());
+    trans.addDataFlavor("text/x-moz-address");
   } catch (ex) {
     return;
   }
@@ -438,15 +489,18 @@ function DropOnAddressListTree(event) {
     let bestFlavor = {};
     let len = {};
     trans.getAnyTransferData(bestFlavor, dataObj, len);
-    if (dataObj)
+    if (dataObj) {
       dataObj = dataObj.value.QueryInterface(Ci.nsISupportsString);
-    if (!dataObj)
+    }
+    if (!dataObj) {
       continue;
+    }
 
     // pull the URL out of the data object
     let address = dataObj.data.substring(0, len.value);
-    if (!address)
+    if (!address) {
       continue;
+    }
 
     DropListAddress(event.target, address);
   }
@@ -455,14 +509,21 @@ function DropOnAddressListTree(event) {
 function DropListAddress(target, address) {
   // Set focus on a new available, visible row.
   awClickEmptySpace(target, true);
-  if (top.MAX_RECIPIENTS == 0)
+  if (top.MAX_RECIPIENTS == 0) {
     top.MAX_RECIPIENTS = 1;
+  }
 
   // Break apart the MIME-ready header address into individual addressees to
   // add to the dialog.
-  let addresses = {}, names = {}, fullNames = {};
-  MailServices.headerParser.parseHeadersWithArray(address, addresses, names,
-    fullNames);
+  let addresses = {},
+    names = {},
+    fullNames = {};
+  MailServices.headerParser.parseHeadersWithArray(
+    address,
+    addresses,
+    names,
+    fullNames
+  );
   for (let full of fullNames.value) {
     let lastInput = awGetInputElement(top.MAX_RECIPIENTS);
     lastInput.value = full;
@@ -484,8 +545,9 @@ function RegisterLoadListener(aListener) {
  */
 function UnregisterLoadListener(aListener) {
   var fIndex = gLoadListeners.indexOf(aListener);
-  if (fIndex != -1)
+  if (fIndex != -1) {
     gLoadListeners.splice(fIndex, 1);
+  }
 }
 
 /* Allows extensions to register a listener function for
@@ -502,21 +564,23 @@ function RegisterSaveListener(aListener) {
  */
 function UnregisterSaveListener(aListener) {
   var fIndex = gSaveListeners.indexOf(aListener);
-  if (fIndex != -1)
+  if (fIndex != -1) {
     gSaveListeners.splice(fIndex, 1);
+  }
 }
 
 /* Notifies all load listeners.
  */
 function NotifyLoadListeners(aMailingList) {
-  for (let i = 0; i < gLoadListeners.length; i++)
+  for (let i = 0; i < gLoadListeners.length; i++) {
     gLoadListeners[i](aMailingList, document);
+  }
 }
 
 /* Notifies all save listeners.
  */
 function NotifySaveListeners(aMailingList) {
-  for (let i = 0; i < gSaveListeners.length; i++)
+  for (let i = 0; i < gSaveListeners.length; i++) {
     gSaveListeners[i](aMailingList, document);
+  }
 }
-

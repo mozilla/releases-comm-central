@@ -19,11 +19,16 @@ var gDOMParser = new DOMParser();
  */
 function parse_xml_file(aFileName) {
   let file = do_get_file(aFileName);
-  let stream = Cc["@mozilla.org/network/file-input-stream;1"]
-                 .createInstance(Ci.nsIFileInputStream);
+  let stream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
+    Ci.nsIFileInputStream
+  );
   stream.init(file, -1, -1, Ci.nsIFileInputStream.CLOSE_ON_EOF);
-  return gDOMParser.parseFromStream(stream, "UTF-8", file.fileSize,
-                                    "application/xml");
+  return gDOMParser.parseFromStream(
+    stream,
+    "UTF-8",
+    file.fileSize,
+    "application/xml"
+  );
 }
 
 /**
@@ -47,13 +52,17 @@ function test_fixIterator() {
 
   let nsIArrayJSArray = [];
   for (let val of JSArray) {
-    let nsIArrayMember = Cc["@mozilla.org/supports-PRUint8;1"]
-                           .createInstance(Ci.nsISupportsPRUint8);
+    let nsIArrayMember = Cc["@mozilla.org/supports-PRUint8;1"].createInstance(
+      Ci.nsISupportsPRUint8
+    );
     nsIArrayMember.data = val;
     nsIArrayJSArray.push(nsIArrayMember);
   }
 
-  let nsIArray = iteratorUtils.toXPCOMArray(nsIArrayJSArray, Ci.nsIMutableArray);
+  let nsIArray = iteratorUtils.toXPCOMArray(
+    nsIArrayJSArray,
+    Ci.nsIMutableArray
+  );
   Assert.equal(nsIArray.length, 5);
 
   i = 0;
@@ -69,7 +78,9 @@ function test_fixIterator() {
   Assert.ok(i > 0);
 
   i = 0;
-  let JSIteratorArray2 = iteratorUtils.toArray(iteratorUtils.fixIterator(nsIArray));
+  let JSIteratorArray2 = iteratorUtils.toArray(
+    iteratorUtils.fixIterator(nsIArray)
+  );
   for (let val of JSIteratorArray2) {
     Assert.equal(val, JSArray[i++]);
   }
@@ -79,21 +90,31 @@ function test_fixIterator() {
   let thrown = false;
   let tryIterate = { item: "An object, that is not supported by fixIterator." };
   try {
-    for (let val of iteratorUtils.fixIterator(tryIterate)) { dump(val); }
+    for (let val of iteratorUtils.fixIterator(tryIterate)) {
+      dump(val);
+    }
   } catch (e) {
     // A specific exception is the correct behaviour here.
-    if (e.message == "An unsupported object sent to fixIterator: [object Object]")
+    if (
+      e.message == "An unsupported object sent to fixIterator: [object Object]"
+    ) {
       thrown = true;
+    }
   }
   Assert.ok(thrown);
 
   thrown = false;
   try {
-    for (let val of iteratorUtils.fixIterator(tryIterate)) { dump(val); }
+    for (let val of iteratorUtils.fixIterator(tryIterate)) {
+      dump(val);
+    }
   } catch (e) {
     // A specific exception is the correct behaviour here.
-    if (e.message == "An unsupported object sent to fixIterator: [object Object]")
+    if (
+      e.message == "An unsupported object sent to fixIterator: [object Object]"
+    ) {
       thrown = true;
+    }
   }
   Assert.ok(thrown);
 
@@ -102,8 +123,12 @@ function test_fixIterator() {
     iteratorUtils.toXPCOMArray(tryIterate, Ci.nsIArray);
   } catch (e) {
     // A specific exception is the correct behaviour here.
-    if (e.message == "An unsupported interface requested from toXPCOMArray: nsIArray")
+    if (
+      e.message ==
+      "An unsupported interface requested from toXPCOMArray: nsIArray"
+    ) {
       thrown = true;
+    }
   }
   Assert.ok(thrown);
 }
@@ -122,8 +147,9 @@ function test_toArray_NodeList() {
   Assert.ok(childNodes.length > 0);
   let childArray = iteratorUtils.toArray(childNodes);
   Assert.equal(childNodes.length, childArray.length);
-  for (let [i, node] of childArray.entries())
+  for (let [i, node] of childArray.entries()) {
     Assert.equal(node, childArray[i]);
+  }
 }
 
 /**
@@ -131,7 +157,7 @@ function test_toArray_NodeList() {
  */
 function test_toArray_builtin_generator() {
   let arr = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
-  let generator = function* () {
+  let generator = function*() {
     for (let elem of arr) {
       yield elem;
     }
@@ -150,14 +176,17 @@ function test_toArray_builtin_generator() {
     iteratorUtils.toArray(tryIterate);
   } catch (e) {
     // A specific exception is the correct behaviour here.
-    if (e.message == "An unsupported object sent to toArray: [object Object]")
+    if (e.message == "An unsupported object sent to toArray: [object Object]") {
       thrown = true;
+    }
   }
   Assert.ok(thrown);
 }
 
-var Symbol_iterator = typeof Symbol === "function" && Symbol.iterator ?
-  Symbol.iterator : "@@iterator";
+var Symbol_iterator =
+  typeof Symbol === "function" && Symbol.iterator
+    ? Symbol.iterator
+    : "@@iterator";
 
 /**
  * Test that toArray works correctly with a custom iterator.
@@ -168,14 +197,16 @@ function test_toArray_custom_iterator() {
     [Symbol_iterator]: function* testIterator() {
       // C-style for loop so that we don't confuse ourselves with yet another
       // iterator
-      for (let i = 0; i < arr.length; i++)
+      for (let i = 0; i < arr.length; i++) {
         yield arr[i];
+      }
     },
   };
   let iteratorArray = iteratorUtils.toArray(iterator);
   Assert.equal(arr.length, iteratorArray.length);
-  for (let [i, val] of arr.entries())
+  for (let [i, val] of arr.entries()) {
     Assert.equal(val, iteratorArray[i]);
+  }
 }
 
 var gTests = [
@@ -186,6 +217,7 @@ var gTests = [
 ];
 
 function run_test() {
-  for (let test of gTests)
+  for (let test of gTests) {
     test();
+  }
 }

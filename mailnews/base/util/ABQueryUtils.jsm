@@ -6,10 +6,14 @@
  * This file contains helper methods for dealing with addressbook search URIs.
  */
 
-this.EXPORTED_SYMBOLS = ["getSearchTokens", "getModelQuery",
-                         "modelQueryHasUserValue", "generateQueryURI",
-                         "encodeABTermValue"];
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+this.EXPORTED_SYMBOLS = [
+  "getSearchTokens",
+  "getModelQuery",
+  "modelQueryHasUserValue",
+  "generateQueryURI",
+  "encodeABTermValue",
+];
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * Parse the multiword search string to extract individual search terms
@@ -22,8 +26,9 @@ const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
  */
 function getSearchTokens(aSearchString) {
   let searchString = aSearchString.trim();
-  if (searchString == "")
+  if (searchString == "") {
     return [];
+  }
 
   let quotedTerms = [];
 
@@ -33,13 +38,15 @@ function getSearchTokens(aSearchString) {
   let startIndex;
   while ((startIndex = searchString.indexOf('"')) != -1) {
     let endIndex = searchString.indexOf('"', startIndex + 1);
-    if (endIndex == -1)
+    if (endIndex == -1) {
       endIndex = searchString.length;
+    }
 
     quotedTerms.push(searchString.substring(startIndex + 1, endIndex));
     let query = searchString.substring(0, startIndex);
-    if (endIndex < searchString.length)
+    if (endIndex < searchString.length) {
       query += searchString.substr(endIndex + 1);
+    }
 
     searchString = query.trim();
   }
@@ -66,16 +73,21 @@ function getSearchTokens(aSearchString) {
  */
 function getModelQuery(aBasePrefName) {
   let modelQuery = "";
-  if (Services.prefs.getComplexValue("mail.addr_book.show_phonetic_fields",
-      Ci.nsIPrefLocalizedString).data == "true") {
+  if (
+    Services.prefs.getComplexValue(
+      "mail.addr_book.show_phonetic_fields",
+      Ci.nsIPrefLocalizedString
+    ).data == "true"
+  ) {
     modelQuery = Services.prefs.getCharPref(aBasePrefName + ".phonetic");
   } else {
     modelQuery = Services.prefs.getCharPref(aBasePrefName);
   }
   // remove leading "?" to migrate existing customized values for mail.addr_book.quicksearchquery.format
   // todo: could this be done in a once-off migration at install time to avoid repetitive calls?
-  if (modelQuery.startsWith("?"))
+  if (modelQuery.startsWith("?")) {
     modelQuery = modelQuery.slice(1);
+  }
   return modelQuery;
 }
 
@@ -88,9 +100,14 @@ function getModelQuery(aBasePrefName) {
  * @return               true or false
  */
 function modelQueryHasUserValue(aBasePrefName) {
-  if (Services.prefs.getComplexValue("mail.addr_book.show_phonetic_fields",
-      Ci.nsIPrefLocalizedString).data == "true")
+  if (
+    Services.prefs.getComplexValue(
+      "mail.addr_book.show_phonetic_fields",
+      Ci.nsIPrefLocalizedString
+    ).data == "true"
+  ) {
     return Services.prefs.prefHasUserValue(aBasePrefName + ".phonetic");
+  }
   return Services.prefs.prefHasUserValue(aBasePrefName);
 }
 
@@ -105,19 +122,21 @@ function modelQueryHasUserValue(aBasePrefName) {
  */
 function generateQueryURI(aModelQuery, aSearchWords) {
   // If there are no search tokens, we simply return an empty string.
-  if (!aSearchWords || aSearchWords.length == 0)
+  if (!aSearchWords || aSearchWords.length == 0) {
     return "";
+  }
 
   let queryURI = "";
-  aSearchWords.forEach(searchWord =>
-    queryURI += aModelQuery.replace(/@V/g, encodeABTermValue(searchWord)));
+  aSearchWords.forEach(
+    searchWord =>
+      (queryURI += aModelQuery.replace(/@V/g, encodeABTermValue(searchWord)))
+  );
 
   // queryURI has all the (or(...)) searches, link them up with (and(...)).
   queryURI = "?(and" + queryURI + ")";
 
   return queryURI;
 }
-
 
 /**
  * Encode the string passed as value into an addressbook search term.
@@ -126,5 +145,7 @@ function generateQueryURI(aModelQuery, aSearchWords) {
  * so must be done manually on top of it.
  */
 function encodeABTermValue(aString) {
-  return encodeURIComponent(aString).replace(/\(/g, "%28").replace(/\)/g, "%29");
+  return encodeURIComponent(aString)
+    .replace(/\(/g, "%28")
+    .replace(/\)/g, "%29");
 }

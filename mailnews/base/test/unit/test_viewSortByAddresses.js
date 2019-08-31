@@ -17,8 +17,10 @@ load("../../../resources/messageModifier.js");
 load("../../../resources/messageInjection.js");
 load("../../../resources/abSetup.js");
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var gMessageGenerator = new MessageGenerator();
 
@@ -35,7 +37,7 @@ var cards = [
 ];
 
 function run_test() {
-  configure_message_injection({mode: "local"});
+  configure_message_injection({ mode: "local" });
 
   // Ensure all the directories are initialised.
   MailServices.ab.directories;
@@ -43,8 +45,9 @@ function run_test() {
   let ab = MailServices.ab.getDirectory(kPABData.URI);
 
   function createAndAddCard(element) {
-    var card = Cc["@mozilla.org/addressbook/cardproperty;1"]
-                 .createInstance(Ci.nsIAbCard);
+    var card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+      Ci.nsIAbCard
+    );
 
     card.primaryEmail = element.email;
     card.displayName = element.displayName;
@@ -58,8 +61,18 @@ function run_test() {
 
   // build up a couple message with addresses in the ab.
   let messages = [];
-  messages = messages.concat(gMessageGenerator.makeMessage({from: ["aaa", "aaa@b.invalid"], to: [["ccc", "ccc@d.invalid"]]}));
-  messages = messages.concat(gMessageGenerator.makeMessage({from: ["eee", "eee@f.invalid"], to: [["ggg", "ggg@h.invalid"]]}));
+  messages = messages.concat(
+    gMessageGenerator.makeMessage({
+      from: ["aaa", "aaa@b.invalid"],
+      to: [["ccc", "ccc@d.invalid"]],
+    })
+  );
+  messages = messages.concat(
+    gMessageGenerator.makeMessage({
+      from: ["eee", "eee@f.invalid"],
+      to: [["ggg", "ggg@h.invalid"]],
+    })
+  );
 
   let msgSet = new SyntheticMessageSet(messages);
 
@@ -74,19 +87,26 @@ function run_test() {
   let sender1 = gDBView.cellTextForColumn(0, "senderCol");
   let sender2 = gDBView.cellTextForColumn(1, "senderCol");
 
-  if (sender1 != 2)
+  if (sender1 != 2) {
     view_throw("expected sender 1 to be 2");
-  if (sender2 != 4)
+  }
+  if (sender2 != 4) {
     view_throw("expected sender 2 to be 4");
+  }
 
-  gDBView.sort(Ci.nsMsgViewSortType.byRecipient, Ci.nsMsgViewSortOrder.ascending);
+  gDBView.sort(
+    Ci.nsMsgViewSortType.byRecipient,
+    Ci.nsMsgViewSortOrder.ascending
+  );
   let recip1 = gDBView.cellTextForColumn(0, "recipientCol");
   let recip2 = gDBView.cellTextForColumn(1, "recipientCol");
 
-  if (recip1 != 1)
+  if (recip1 != 1) {
     view_throw("expected recip 1 to be 1");
-  if (recip2 != 3)
+  }
+  if (recip2 != 3) {
     view_throw("expected recip 2 to be 3");
+  }
 
   do_test_finished();
 }
@@ -97,12 +117,12 @@ var gCommandUpdater = {
     // when the # of items in the selection has actually changed.
   },
 
-  displayMessageChanged(aFolder, aSubject, aKeywords) {
-  },
+  displayMessageChanged(aFolder, aSubject, aKeywords) {},
 
-  updateNextMessageAfterDelete() {
+  updateNextMessageAfterDelete() {},
+  summarizeSelection() {
+    return false;
   },
-  summarizeSelection() { return false; },
 };
 
 var WHITESPACE = "                                              ";
@@ -116,15 +136,19 @@ function dump_view_contents() {
     let flags = gDBView.getFlagsAt(iViewIndex);
 
     let s = WHITESPACE.substr(0, level * 2);
-    if (gTreeView.isContainer(iViewIndex))
+    if (gTreeView.isContainer(iViewIndex)) {
       s += gTreeView.isContainerOpen(iViewIndex) ? "- " : "+ ";
-    else
+    } else {
       s += ". ";
+    }
     let MSG_VIEW_FLAG_DUMMY = 0x20000000;
-    if (flags & MSG_VIEW_FLAG_DUMMY)
+    if (flags & MSG_VIEW_FLAG_DUMMY) {
       s += "dummy: ";
-    s += gDBView.cellTextForColumn(iViewIndex, "subjectCol") + " " +
-         gDBView.cellTextForColumn(iViewIndex, "senderCol");
+    }
+    s +=
+      gDBView.cellTextForColumn(iViewIndex, "subjectCol") +
+      " " +
+      gDBView.cellTextForColumn(iViewIndex, "senderCol");
 
     dump(s + "\n");
   }
@@ -141,22 +165,26 @@ var gTreeView;
 function setup_view(aViewType, aViewFlags, aTestFolder) {
   let dbviewContractId = "@mozilla.org/messenger/msgdbview;1?type=" + aViewType;
 
-  if (aTestFolder == null)
+  if (aTestFolder == null) {
     aTestFolder = gTestFolder;
+  }
 
   // always start out fully expanded
   aViewFlags |= Ci.nsMsgViewFlagsType.kExpandAll;
 
-  gDBView = Cc[dbviewContractId]
-              .createInstance(Ci.nsIMsgDBView);
+  gDBView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
   gDBView.init(null, null, gCommandUpdater);
   var outCount = {};
-  gDBView.open(aViewType != "search" ? aTestFolder : null,
-               Ci.nsMsgViewSortType.byDate,
-               aViewType != "search" ? Ci.nsMsgViewSortOrder.ascending : Ci.nsMsgViewSortOrder.descending,
-               aViewFlags, outCount);
+  gDBView.open(
+    aViewType != "search" ? aTestFolder : null,
+    Ci.nsMsgViewSortType.byDate,
+    aViewType != "search"
+      ? Ci.nsMsgViewSortOrder.ascending
+      : Ci.nsMsgViewSortOrder.descending,
+    aViewFlags,
+    outCount
+  );
   dump("  View Out Count: " + outCount.value + "\n");
 
   gTreeView = gDBView.QueryInterface(Ci.nsITreeView);
 }
-

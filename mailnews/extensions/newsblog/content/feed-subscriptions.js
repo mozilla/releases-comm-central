@@ -3,38 +3,47 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {
-  Feed,
-  FeedItem,
-  FeedParser,
-  FeedUtils,
-} = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-var {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+var { Feed, FeedItem, FeedParser, FeedUtils } = ChromeUtils.import(
+  "resource:///modules/FeedUtils.jsm"
+);
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
+var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { PluralForm } = ChromeUtils.import(
+  "resource://gre/modules/PluralForm.jsm"
+);
 
 var FeedSubscriptions = {
-  get mMainWin() { return Services.wm.getMostRecentWindow("mail:3pane"); },
+  get mMainWin() {
+    return Services.wm.getMostRecentWindow("mail:3pane");
+  },
 
-  get mTree() { return document.getElementById("rssSubscriptionsList"); },
+  get mTree() {
+    return document.getElementById("rssSubscriptionsList");
+  },
 
   mFeedContainers: [],
-  mRSSServer:      null,
-  mActionMode:     null,
-  kSubscribeMode:  1,
-  kUpdateMode:     2,
-  kMoveMode:       3,
-  kCopyMode:       4,
-  kImportingOPML:  5,
-  kVerifyUrlMode:  6,
+  mRSSServer: null,
+  mActionMode: null,
+  kSubscribeMode: 1,
+  kUpdateMode: 2,
+  kMoveMode: 3,
+  kCopyMode: 4,
+  kImportingOPML: 5,
+  kVerifyUrlMode: 6,
 
   get FOLDER_ACTIONS() {
-    return Ci.nsIMsgFolderNotificationService.folderAdded |
-           Ci.nsIMsgFolderNotificationService.folderDeleted |
-           Ci.nsIMsgFolderNotificationService.folderRenamed |
-           Ci.nsIMsgFolderNotificationService.folderMoveCopyCompleted;
+    return (
+      Ci.nsIMsgFolderNotificationService.folderAdded |
+      Ci.nsIMsgFolderNotificationService.folderDeleted |
+      Ci.nsIMsgFolderNotificationService.folderRenamed |
+      Ci.nsIMsgFolderNotificationService.folderMoveCopyCompleted
+    );
   },
 
   onLoad() {
@@ -55,8 +64,10 @@ var FeedSubscriptions = {
 
     if (this.mMainWin) {
       this.mMainWin.FeedFolderNotificationService = MailServices.mfn;
-      this.mMainWin.FeedFolderNotificationService
-                   .addListener(this.FolderListener, this.FOLDER_ACTIONS);
+      this.mMainWin.FeedFolderNotificationService.addListener(
+        this.FolderListener,
+        this.FOLDER_ACTIONS
+      );
     }
   },
 
@@ -67,20 +78,31 @@ var FeedSubscriptions = {
     // dismissing the dialog right now will abort the feed subscription.
     if (this.mActionMode == this.kSubscribeMode) {
       let pTitle = FeedUtils.strings.GetStringFromName(
-                     "subscribe-cancelSubscriptionTitle");
+        "subscribe-cancelSubscriptionTitle"
+      );
       let pMessage = FeedUtils.strings.GetStringFromName(
-                       "subscribe-cancelSubscription");
-      dismissDialog =
-        !(Services.prompt.confirmEx(window, pTitle, pMessage,
-                                    Ci.nsIPromptService.STD_YES_NO_BUTTONS,
-                                    null, null, null, null, { }));
+        "subscribe-cancelSubscription"
+      );
+      dismissDialog = !Services.prompt.confirmEx(
+        window,
+        pTitle,
+        pMessage,
+        Ci.nsIPromptService.STD_YES_NO_BUTTONS,
+        null,
+        null,
+        null,
+        null,
+        {}
+      );
     }
 
     if (dismissDialog) {
       FeedUtils.CANCEL_REQUESTED = this.mActionMode == this.kSubscribeMode;
       if (this.mMainWin) {
-        this.mMainWin.FeedFolderNotificationService
-                     .removeListener(this.FolderListener, this.FOLDER_ACTIONS);
+        this.mMainWin.FeedFolderNotificationService.removeListener(
+          this.FolderListener,
+          this.FOLDER_ACTIONS
+        );
         delete this.mMainWin.FeedFolderNotificationService;
       }
     }
@@ -98,8 +120,9 @@ var FeedSubscriptions = {
     } else if (item) {
       // If no folder to select, try to select the pre rebuild selection, in
       // an existing window.  For folderpane changes in a feed account.
-      let rootFolder = item.container ? item.folder.rootFolder :
-                                        item.parentFolder.rootFolder;
+      let rootFolder = item.container
+        ? item.folder.rootFolder
+        : item.parentFolder.rootFolder;
       if (item.container) {
         if (!this.selectFolder(item.folder, { open: item.open })) {
           // The item no longer exists, an ancestor folder was deleted or
@@ -107,8 +130,8 @@ var FeedSubscriptions = {
           this.selectFolder(rootFolder);
         }
       } else {
-        let url = item.parentFolder == aSelectFolder ? aSelectFeedUrl :
-                                                       item.url;
+        let url =
+          item.parentFolder == aSelectFolder ? aSelectFeedUrl : item.url;
         this.selectFeed({ folder: rootFolder, url }, null);
       }
     }
@@ -137,26 +160,44 @@ var FeedSubscriptions = {
     tree: null,
 
     mRowCount: 0,
-    get rowCount()               { return this.mRowCount; },
+    get rowCount() {
+      return this.mRowCount;
+    },
 
-    _selection:                  null,
-    get selection()              { return this._selection; },
-    set selection(val)           { return this._selection = val; },
+    _selection: null,
+    get selection() {
+      return this._selection;
+    },
+    set selection(val) {
+      return (this._selection = val);
+    },
 
-    setTree(aTree)               { this.tree = aTree; },
-    isSeparator(aRow)            { return false; },
-    isSorted()                   { return false; },
-    isEditable(aRow, aColumn)    { return false; },
+    setTree(aTree) {
+      this.tree = aTree;
+    },
+    isSeparator(aRow) {
+      return false;
+    },
+    isSorted() {
+      return false;
+    },
+    isEditable(aRow, aColumn) {
+      return false;
+    },
 
-    getProgressMode(aRow, aCol)  {},
-    cycleHeader(aCol)            {},
-    cycleCell(aRow, aCol)        {},
-    selectionChanged()           {},
-    getRowProperties(aRow)                   { return ""; },
-    getColumnProperties(aCol)                { return ""; },
-    getCellValue(aRow, aColumn)              {},
-    setCellValue(aRow, aColumn, aValue)      {},
-    setCellText(aRow, aColumn, aValue)       {},
+    getProgressMode(aRow, aCol) {},
+    cycleHeader(aCol) {},
+    cycleCell(aRow, aCol) {},
+    selectionChanged() {},
+    getRowProperties(aRow) {
+      return "";
+    },
+    getColumnProperties(aCol) {
+      return "";
+    },
+    getCellValue(aRow, aColumn) {},
+    setCellValue(aRow, aColumn, aValue) {},
+    setCellText(aRow, aColumn, aValue) {},
     /* eslint-enable no-multi-spaces */
 
     getCellProperties(aRow, aColumn) {
@@ -192,8 +233,12 @@ var FeedSubscriptions = {
         folder = folder || item.parentFolder;
         properties = mainWin.getFolderProperties(folder, item.open);
         properties += mainWin.FeedUtils.getFolderProperties(folder, url);
-        if (this.selection.currentIndex == aRow && url &&
-            item.options.updates.enabled && properties.includes("isPaused")) {
+        if (
+          this.selection.currentIndex == aRow &&
+          url &&
+          item.options.updates.enabled &&
+          properties.includes("isPaused")
+        ) {
           item.options.updates.enabled = false;
           FeedSubscriptions.updateFeedData(item);
         }
@@ -295,7 +340,7 @@ var FeedSubscriptions = {
 
     getCellText(aRow, aColumn) {
       let item = this.getItemAtIndex(aRow);
-      return (item && aColumn.id == "folderNameCol") ? item.name : "";
+      return item && aColumn.id == "folderNameCol" ? item.name : "";
     },
 
     getImageSrc(aRow, aCol) {
@@ -304,9 +349,11 @@ var FeedSubscriptions = {
         return "";
       }
 
-      if (!item.open &&
-          (item.properties.includes("hasError") ||
-           item.properties.includes("isBusy"))) {
+      if (
+        !item.open &&
+        (item.properties.includes("hasError") ||
+          item.properties.includes("isBusy"))
+      ) {
         return "";
       }
 
@@ -314,16 +361,21 @@ var FeedSubscriptions = {
         return item.favicon;
       }
 
-      if (item.folder && FeedSubscriptions.mMainWin &&
-          "gFolderTreeView" in FeedSubscriptions.mMainWin) {
-        let favicon = FeedSubscriptions.mMainWin.gFolderTreeView
-                                       .getFolderCacheProperty(item.folder, "favicon");
+      if (
+        item.folder &&
+        FeedSubscriptions.mMainWin &&
+        "gFolderTreeView" in FeedSubscriptions.mMainWin
+      ) {
+        let favicon = FeedSubscriptions.mMainWin.gFolderTreeView.getFolderCacheProperty(
+          item.folder,
+          "favicon"
+        );
         if (favicon != null) {
-          return item.favicon = favicon;
+          return (item.favicon = favicon);
         }
       }
 
-      let callback = (iconUrl => {
+      let callback = iconUrl => {
         item.favicon = iconUrl;
         if (item.folder) {
           for (let child of item.children) {
@@ -335,7 +387,7 @@ var FeedSubscriptions = {
         }
 
         this.selection.tree.invalidateRow(aRow);
-      });
+      };
 
       // A closed non server folder.
       if (item.folder) {
@@ -346,8 +398,13 @@ var FeedSubscriptions = {
             }
 
             setTimeout(() => {
-              FeedUtils.getFavicon(child.parentFolder, child.url, null,
-                                   window, callback);
+              FeedUtils.getFavicon(
+                child.parentFolder,
+                child.url,
+                null,
+                window,
+                callback
+              );
             }, 0);
             break;
           }
@@ -355,19 +412,28 @@ var FeedSubscriptions = {
       } else {
         // A feed.
         setTimeout(() => {
-          FeedUtils.getFavicon(item.parentFolder, item.url, null,
-                               window, callback);
+          FeedUtils.getFavicon(
+            item.parentFolder,
+            item.url,
+            null,
+            window,
+            callback
+          );
         }, 0);
       }
 
       // Store empty string to return default while favicons are retrieved.
-      return item.favicon = "";
+      return (item.favicon = "");
     },
 
     canDrop(aRow, aOrientation) {
       let dropResult = this.extractDragData(aRow);
-      return aOrientation == Ci.nsITreeView.DROP_ON && dropResult.canDrop &&
-             (dropResult.dropUrl || dropResult.dropOnIndex != this.kRowIndexUndefined);
+      return (
+        aOrientation == Ci.nsITreeView.DROP_ON &&
+        dropResult.canDrop &&
+        (dropResult.dropUrl ||
+          dropResult.dropOnIndex != this.kRowIndexUndefined)
+      );
     },
 
     drop(aRow, aOrientation) {
@@ -388,8 +454,12 @@ var FeedSubscriptions = {
         }, 0);
 
         let folderItem = this.getItemAtIndex(aRow);
-        FeedUtils.log.debug("drop: folder, url - " +
-                            folderItem.folder.name + ", " + results.dropUrl);
+        FeedUtils.log.debug(
+          "drop: folder, url - " +
+            folderItem.folder.name +
+            ", " +
+            results.dropUrl
+        );
       } else if (results.dropOnIndex != this.kRowIndexUndefined) {
         win.moveCopyFeed(results.dropOnIndex, aRow, results.dropEffect);
       }
@@ -398,11 +468,12 @@ var FeedSubscriptions = {
     // Helper function for drag and drop.
     extractDragData(aRow) {
       let dt = this._currentDataTransfer;
-      let dragDataResults = { canDrop:     false,
-                              dropUrl:     null,
-                              dropOnIndex: this.kRowIndexUndefined,
-                              dropEffect:  dt.dropEffect,
-                            };
+      let dragDataResults = {
+        canDrop: false,
+        dropUrl: null,
+        dropOnIndex: this.kRowIndexUndefined,
+        dropEffect: dt.dropEffect,
+      };
 
       if (dt.getData("text/x-moz-feed-index")) {
         // Dragging a feed in the tree.
@@ -411,17 +482,23 @@ var FeedSubscriptions = {
 
           let curItem = this.getItemAtIndex(this.selection.currentIndex);
           let newItem = this.getItemAtIndex(aRow);
-          let curServer = curItem && curItem.parentFolder ?
-                            curItem.parentFolder.server : null;
-          let newServer = newItem && newItem.folder ?
-                            newItem.folder.server : null;
+          let curServer =
+            curItem && curItem.parentFolder
+              ? curItem.parentFolder.server
+              : null;
+          let newServer =
+            newItem && newItem.folder ? newItem.folder.server : null;
 
           // No copying within the same account and no moving to the account
           // folder in the same account.
-          if (!(curServer == newServer &&
-                (dragDataResults.dropEffect == "copy" ||
-                 newItem.folder == curItem.parentFolder ||
-                 newItem.folder.isServer))) {
+          if (
+            !(
+              curServer == newServer &&
+              (dragDataResults.dropEffect == "copy" ||
+                newItem.folder == curItem.parentFolder ||
+                newItem.folder.isServer)
+            )
+          ) {
             dragDataResults.canDrop = true;
           }
         }
@@ -584,41 +661,48 @@ var FeedSubscriptions = {
 
   makeFolderObject(aFolder, aCurrentLevel) {
     let defaultQuickMode = aFolder.server.getBoolValue("quickMode");
-    let optionsAcct = aFolder.isServer ? FeedUtils.getOptionsAcct(aFolder.server) :
-                                         null;
-    let open = !aFolder.isServer &&
-               aFolder.server == this.mRSSServer &&
-               this.mActionMode == this.kImportingOPML;
-    let folderObject = { children:  [],
-                         folder:    aFolder,
-                         name:      aFolder.prettyName,
-                         level:     aCurrentLevel,
-                         url:       aFolder.URI,
-                         quickMode: defaultQuickMode,
-                         options:   optionsAcct,
-                         open,
-                         container: true,
-                         favicon:   null,
-                       };
+    let optionsAcct = aFolder.isServer
+      ? FeedUtils.getOptionsAcct(aFolder.server)
+      : null;
+    let open =
+      !aFolder.isServer &&
+      aFolder.server == this.mRSSServer &&
+      this.mActionMode == this.kImportingOPML;
+    let folderObject = {
+      children: [],
+      folder: aFolder,
+      name: aFolder.prettyName,
+      level: aCurrentLevel,
+      url: aFolder.URI,
+      quickMode: defaultQuickMode,
+      options: optionsAcct,
+      open,
+      container: true,
+      favicon: null,
+    };
 
     // If a feed has any sub folders, add them to the list of children.
     let folderEnumerator = aFolder.subFolders;
 
     while (folderEnumerator.hasMoreElements()) {
       let folder = folderEnumerator.getNext();
-      if ((folder instanceof Ci.nsIMsgFolder) &&
-          !folder.getFlag(Ci.nsMsgFolderFlags.Trash) &&
-          !folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
-        folderObject.children.push(this.makeFolderObject(folder, aCurrentLevel + 1));
+      if (
+        folder instanceof Ci.nsIMsgFolder &&
+        !folder.getFlag(Ci.nsMsgFolderFlags.Trash) &&
+        !folder.getFlag(Ci.nsMsgFolderFlags.Virtual)
+      ) {
+        folderObject.children.push(
+          this.makeFolderObject(folder, aCurrentLevel + 1)
+        );
       }
     }
 
     let feeds = this.getFeedsInFolder(aFolder);
     for (let feed of feeds) {
       // Now add any feed urls for the folder.
-      folderObject.children.push(this.makeFeedObject(feed,
-                                                     aFolder,
-                                                     aCurrentLevel + 1));
+      folderObject.children.push(
+        this.makeFeedObject(feed, aFolder, aCurrentLevel + 1)
+      );
     }
 
     // Finally, set the folder's quickMode based on the its first feed's
@@ -634,12 +718,13 @@ var FeedSubscriptions = {
   },
 
   folderItemSorter(aArray) {
-    return aArray.sort(function(a, b) {
-                         return a.name.toLowerCase() > b.name.toLowerCase();
-                       }).
-                  sort(function(a, b) {
-                         return a.container < b.container;
-                       });
+    return aArray
+      .sort(function(a, b) {
+        return a.name.toLowerCase() > b.name.toLowerCase();
+      })
+      .sort(function(a, b) {
+        return a.container < b.container;
+      });
   },
 
   getFeedsInFolder(aFolder) {
@@ -660,17 +745,18 @@ var FeedSubscriptions = {
 
   makeFeedObject(aFeed, aFolder, aLevel) {
     // Look inside the data source for the feed properties.
-    let feed = { children:     [],
-                 parentFolder: aFolder,
-                 name:         aFeed.title || aFeed.description || aFeed.url,
-                 url:          aFeed.url,
-                 quickMode:    aFeed.quickMode,
-                 options:      aFeed.options || FeedUtils.optionsTemplate,
-                 level:        aLevel,
-                 open:         false,
-                 container:    false,
-                 favicon:      null,
-               };
+    let feed = {
+      children: [],
+      parentFolder: aFolder,
+      name: aFeed.title || aFeed.description || aFeed.url,
+      url: aFeed.url,
+      quickMode: aFeed.quickMode,
+      options: aFeed.options || FeedUtils.optionsTemplate,
+      level: aLevel,
+      open: false,
+      container: false,
+      favicon: null,
+    };
     return feed;
   },
 
@@ -717,11 +803,12 @@ var FeedSubscriptions = {
    */
   selectFolder(aFolder, aParms) {
     let folderURI = aFolder.URI;
-    let parentIndex = aParms && ("parentIndex" in aParms) ? aParms.parentIndex : null;
-    let selectIt = aParms && ("select" in aParms) ? aParms.select : true;
-    let openIt = aParms && ("open" in aParms) ? aParms.open : true;
-    let removeIt = aParms && ("remove" in aParms) ? aParms.remove : false;
-    let newFolder = aParms && ("newFolder" in aParms) ? aParms.newFolder : null;
+    let parentIndex =
+      aParms && "parentIndex" in aParms ? aParms.parentIndex : null;
+    let selectIt = aParms && "select" in aParms ? aParms.select : true;
+    let openIt = aParms && "open" in aParms ? aParms.open : true;
+    let removeIt = aParms && "remove" in aParms ? aParms.remove : false;
+    let newFolder = aParms && "newFolder" in aParms ? aParms.newFolder : null;
     let startIndex, startItem;
     let found = false;
 
@@ -735,13 +822,14 @@ var FeedSubscriptions = {
       startIndex = parentIndex;
       if (aFolder.isServer) {
         // Fake item for account root folder.
-        startItem = { name:     "AccountRoot",
-                      children:  [this.mView.getItemAtIndex(startIndex)],
-                      container: true,
-                      open:      false,
-                      url:       null,
-                      level:     -1,
-                    };
+        startItem = {
+          name: "AccountRoot",
+          children: [this.mView.getItemAtIndex(startIndex)],
+          container: true,
+          open: false,
+          url: null,
+          level: -1,
+        };
       } else {
         startItem = this.mView.getItemAtIndex(startIndex);
       }
@@ -758,13 +846,14 @@ var FeedSubscriptions = {
       startIndex = index;
       if (aFolder.isServer) {
         // Fake item for account root folder.
-        startItem = { name:      "AccountRoot",
-                      children:  [this.mView.getItemAtIndex(startIndex)],
-                      container: true,
-                      open:      false,
-                      url:       null,
-                      level:     -1,
-                    };
+        startItem = {
+          name: "AccountRoot",
+          children: [this.mView.getItemAtIndex(startIndex)],
+          container: true,
+          open: false,
+          url: null,
+          level: -1,
+        };
       } else {
         startItem = this.mView.getItemAtIndex(startIndex);
       }
@@ -774,36 +863,57 @@ var FeedSubscriptions = {
       // Search for the folder.  If it's found, set the open state on all
       // ancestor folders.  A toggle() rebuilds the view rows to match the map.
       if (aItem.url == folderURI) {
-        return found = true;
+        return (found = true);
       }
 
       for (let i = 0; i < aItem.children.length; i++) {
         if (aItem.children[i].container && containsFolder(aItem.children[i])) {
           if (removeIt && aItem.children[i].url == folderURI) {
             // Get all occurrences in the tree cache arrays.
-            FeedUtils.log.debug("selectFolder: delete in cache, " +
-                                "parent:children:item:index - " +
-                                aItem.name + ":" + aItem.children.length + ":" +
-                                aItem.children[i].name + ":" + i);
+            FeedUtils.log.debug(
+              "selectFolder: delete in cache, " +
+                "parent:children:item:index - " +
+                aItem.name +
+                ":" +
+                aItem.children.length +
+                ":" +
+                aItem.children[i].name +
+                ":" +
+                i
+            );
             aItem.children.splice(i, 1);
-            FeedUtils.log.debug("selectFolder: deleted in cache, " +
-                                "parent:children - " +
-                                aItem.name + ":" + aItem.children.length);
+            FeedUtils.log.debug(
+              "selectFolder: deleted in cache, " +
+                "parent:children - " +
+                aItem.name +
+                ":" +
+                aItem.children.length
+            );
             removeIt = false;
             return true;
           }
           if (newFolder) {
-            let newItem = FeedSubscriptions.makeFolderObject(newFolder,
-                                                             aItem.level + 1);
+            let newItem = FeedSubscriptions.makeFolderObject(
+              newFolder,
+              aItem.level + 1
+            );
             newItem.open = aItem.children[i].open;
             if (newFolder.isServer) {
               FeedSubscriptions.mFeedContainers[startIndex] = newItem;
             } else {
               aItem.children[i] = newItem;
-              aItem.children = FeedSubscriptions.folderItemSorter(aItem.children);
+              aItem.children = FeedSubscriptions.folderItemSorter(
+                aItem.children
+              );
             }
-            FeedUtils.log.trace("selectFolder: parentName:newFolderName:newFolderItem - " +
-                                aItem.name + ":" + newItem.name + ":" + newItem.toSource());
+            FeedUtils.log.trace(
+              "selectFolder: parentName:newFolderName:newFolderItem - " +
+                aItem.name +
+                ":" +
+                newItem.name +
+                ":" +
+                newItem.toSource()
+            );
             newFolder = null;
             return true;
           }
@@ -849,8 +959,10 @@ var FeedSubscriptions = {
       }
 
       if (item.url == folderURI) {
-        if (item.children.length &&
-            ((!item.open && openIt) || (item.open && !openIt))) {
+        if (
+          item.children.length &&
+          ((!item.open && openIt) || (item.open && !openIt))
+        ) {
           this.mView.toggleOpenState(index);
         }
 
@@ -863,18 +975,28 @@ var FeedSubscriptions = {
     // Ensure tree position does not jump unnecessarily.
     curFirstVisRow = this.mView.tree.getFirstVisibleRow();
     curLastVisRow = this.mView.tree.getLastVisibleRow();
-    if (firstVisRow >= 0 &&
-        this.mView.rowCount - curLastVisRow > firstVisRow - curFirstVisRow) {
+    if (
+      firstVisRow >= 0 &&
+      this.mView.rowCount - curLastVisRow > firstVisRow - curFirstVisRow
+    ) {
       this.mView.tree.scrollToRow(firstVisRow);
     } else {
       this.mView.tree.ensureRowIsVisible(this.mView.rowCount - 1);
     }
 
-    FeedUtils.log.debug("selectFolder: curIndex:firstVisRow:" +
-                        "curFirstVisRow:curLastVisRow:rowCount - " +
-                        this.mView.selection.currentIndex + ":" +
-                        firstVisRow + ":" +
-                        curFirstVisRow + ":" + curLastVisRow + ":" + this.mView.rowCount);
+    FeedUtils.log.debug(
+      "selectFolder: curIndex:firstVisRow:" +
+        "curFirstVisRow:curLastVisRow:rowCount - " +
+        this.mView.selection.currentIndex +
+        ":" +
+        firstVisRow +
+        ":" +
+        curFirstVisRow +
+        ":" +
+        curLastVisRow +
+        ":" +
+        this.mView.rowCount
+    );
     return found;
   },
 
@@ -968,16 +1090,18 @@ var FeedSubscriptions = {
     let biffUnits = document.getElementById("biffUnits");
     let recommendedUnits = document.getElementById("recommendedUnits");
     let recommendedUnitsVal = document.getElementById("recommendedUnitsVal");
-    let updates = aItem.options ? aItem.options.updates :
-                                  FeedUtils._optionsDefault.updates;
+    let updates = aItem.options
+      ? aItem.options.updates
+      : FeedUtils._optionsDefault.updates;
 
     updateEnabled.checked = updates.enabled;
     updateValue.disabled = !updateEnabled.checked || isFolder;
     biffUnits.disabled = !updateEnabled.checked || isFolder;
     biffUnits.value = updates.updateUnits;
-    let minutes = updates.updateUnits == FeedUtils.kBiffUnitsMinutes ?
-                    updates.updateMinutes :
-                    updates.updateMinutes / (24 * 60);
+    let minutes =
+      updates.updateUnits == FeedUtils.kBiffUnitsMinutes
+        ? updates.updateMinutes
+        : updates.updateMinutes / (24 * 60);
     updateValue.value = Number(minutes);
     if (isFeed) {
       recommendedUnitsVal.value = this.getUpdateMinutesRec(updates);
@@ -996,7 +1120,8 @@ var FeedSubscriptions = {
     autotagEnable.checked = category && category.enabled;
     autotagUsePrefix.checked = category && category.prefixEnabled;
     autotagUsePrefix.disabled = !autotagEnable.checked;
-    autotagPrefix.disabled = autotagUsePrefix.disabled || !autotagUsePrefix.checked;
+    autotagPrefix.disabled =
+      autotagUsePrefix.disabled || !autotagUsePrefix.checked;
     autotagPrefix.value = category && category.prefix ? category.prefix : "";
   },
 
@@ -1029,11 +1154,13 @@ var FeedSubscriptions = {
 
   onClickSelectFolderValue(aEvent) {
     let target = aEvent.target;
-    if ((("button" in aEvent) &&
-         (aEvent.button != 0 ||
+    if (
+      ("button" in aEvent &&
+        (aEvent.button != 0 ||
           aEvent.originalTarget.localName != "div" ||
           target.selectionStart != target.selectionEnd)) ||
-        (aEvent.keyCode && aEvent.keyCode != aEvent.DOM_VK_RETURN)) {
+      (aEvent.keyCode && aEvent.keyCode != aEvent.DOM_VK_RETURN)
+    ) {
       return;
     }
 
@@ -1117,9 +1244,13 @@ var FeedSubscriptions = {
     } else {
       let feedsInFolder = this.getFeedsInFolder(item.folder);
       // Update the feeds database, for each feed in the folder.
-      feedsInFolder.forEach(function(feed) { feed.quickMode = aChecked; });
+      feedsInFolder.forEach(function(feed) {
+        feed.quickMode = aChecked;
+      });
       // Update the folder's feeds properties in the tree map.
-      item.children.forEach(function(feed) { feed.quickMode = aChecked; });
+      item.children.forEach(function(feed) {
+        feed.quickMode = aChecked;
+      });
       let ds = FeedUtils.getSubscriptionsDS(item.folder.server);
       ds.Flush();
     }
@@ -1144,13 +1275,17 @@ var FeedSubscriptions = {
     let autotagEnable = document.getElementById("autotagEnable");
     let autotagUsePrefix = document.getElementById("autotagUsePrefix");
     let autotagPrefix = document.getElementById("autotagPrefix");
-    if (isFolder || (isServer && document.getElementById("locationValue").value)) {
+    if (
+      isFolder ||
+      (isServer && document.getElementById("locationValue").value)
+    ) {
       // Intend to subscribe a feed to a folder, a value must be in the url
       // field. Update states for addFeed() and return.
       updateValue.disabled = !updateEnabled.checked;
       biffUnits.disabled = !updateEnabled.checked;
       autotagUsePrefix.disabled = !autotagEnable.checked;
-      autotagPrefix.disabled = autotagUsePrefix.disabled || !autotagUsePrefix.checked;
+      autotagPrefix.disabled =
+        autotagUsePrefix.disabled || !autotagUsePrefix.checked;
       return;
     }
 
@@ -1169,12 +1304,16 @@ var FeedSubscriptions = {
       case "locationValue":
         let updateFeedButton = document.getElementById("updateFeed");
         // Change label based on whether feed url has beed edited.
-        updateFeedButton.label = aNode.value == item.url ?
-                                   updateFeedButton.getAttribute("verifylabel") :
-                                   updateFeedButton.getAttribute("updatelabel");
-        updateFeedButton.setAttribute("accesskey", aNode.value == item.url ?
-                                        updateFeedButton.getAttribute("verifyaccesskey") :
-                                        updateFeedButton.getAttribute("updateaccesskey"));
+        updateFeedButton.label =
+          aNode.value == item.url
+            ? updateFeedButton.getAttribute("verifylabel")
+            : updateFeedButton.getAttribute("updatelabel");
+        updateFeedButton.setAttribute(
+          "accesskey",
+          aNode.value == item.url
+            ? updateFeedButton.getAttribute("verifyaccesskey")
+            : updateFeedButton.getAttribute("updateaccesskey")
+        );
         // Disable the Update button if no feed url value is entered.
         updateFeedButton.disabled = !aNode.value;
         return;
@@ -1182,9 +1321,10 @@ var FeedSubscriptions = {
       case "updateValue":
       case "biffUnits":
         item.options.updates.enabled = updateEnabled.checked;
-        let minutes = biffUnits.value == FeedUtils.kBiffUnitsMinutes ?
-                        updateValue.value :
-                        updateValue.value * 24 * 60;
+        let minutes =
+          biffUnits.value == FeedUtils.kBiffUnitsMinutes
+            ? updateValue.value
+            : updateValue.value * 24 * 60;
         item.options.updates.updateMinutes = Number(minutes);
         item.options.updates.updateUnits = biffUnits.value;
         break;
@@ -1210,12 +1350,23 @@ var FeedSubscriptions = {
       ds.Flush();
 
       if (aNode.id == "updateEnabled") {
-        FeedUtils.setStatus(item.parentFolder, item.url, "enabled", aNode.checked);
-        this.mView.selection.tree.invalidateRow(this.mView.selection.currentIndex);
+        FeedUtils.setStatus(
+          item.parentFolder,
+          item.url,
+          "enabled",
+          aNode.checked
+        );
+        this.mView.selection.tree.invalidateRow(
+          this.mView.selection.currentIndex
+        );
       }
       if (aNode.id == "updateValue") {
-        FeedUtils.setStatus(item.parentFolder, item.url, "updateMinutes",
-                            item.options.updates.updateMinutes);
+        FeedUtils.setStatus(
+          item.parentFolder,
+          item.url,
+          "updateMinutes",
+          item.options.updates.updateMinutes
+        );
       }
     }
 
@@ -1237,20 +1388,22 @@ var FeedSubscriptions = {
     let val;
     switch (aUpdates.updatePeriod) {
       case "hourly":
-        val = biffUnits == FeedUtils.kBiffUnitsDays ? 1 / frequency / 24 :
-                                                      60 / frequency;
+        val =
+          biffUnits == FeedUtils.kBiffUnitsDays
+            ? 1 / frequency / 24
+            : 60 / frequency;
         break;
       case "daily":
         val = units / frequency;
         break;
       case "weekly":
-        val = 7 * units / frequency;
+        val = (7 * units) / frequency;
         break;
       case "monthly":
-        val = 30 * units / frequency;
+        val = (30 * units) / frequency;
         break;
       case "yearly":
-        val = 365 * units / frequency;
+        val = (365 * units) / frequency;
         break;
     }
 
@@ -1258,8 +1411,10 @@ var FeedSubscriptions = {
   },
 
   onKeyPress(aEvent) {
-    if (aEvent.keyCode == aEvent.DOM_VK_DELETE &&
-        aEvent.target.id == "rssSubscriptionsList") {
+    if (
+      aEvent.keyCode == aEvent.DOM_VK_DELETE &&
+      aEvent.target.id == "rssSubscriptionsList"
+    ) {
       this.removeFeed(true);
     }
 
@@ -1283,15 +1438,17 @@ var FeedSubscriptions = {
     document.getElementById("importOPML").hidden = !isServer;
     document.getElementById("exportOPML").hidden = !isServer;
 
-    document.getElementById("importOPML").disabled =
-    document.getElementById("exportOPML").disabled =
-      this.mActionMode == this.kImportingOPML;
+    document.getElementById("importOPML").disabled = document.getElementById(
+      "exportOPML"
+    ).disabled = this.mActionMode == this.kImportingOPML;
   },
 
   onMouseDown(aEvent) {
-    if (aEvent.button != 0 ||
-        aEvent.target.id == "validationText" ||
-        aEvent.target.id == "addCertException") {
+    if (
+      aEvent.button != 0 ||
+      aEvent.target.id == "validationText" ||
+      aEvent.target.id == "addCertException"
+    ) {
       return;
     }
 
@@ -1299,7 +1456,9 @@ var FeedSubscriptions = {
   },
 
   onFocusChange() {
-    setTimeout(() => { this.setFocus(); }, 0);
+    setTimeout(() => {
+      this.setFocus();
+    }, 0);
   },
 
   setFocus() {
@@ -1328,42 +1487,49 @@ var FeedSubscriptions = {
     updateValue.disabled = !updateEnabled.checked;
     biffUnits.disabled = !updateEnabled.checked;
     autotagUsePrefix.disabled = !autotagEnable.checked;
-    autotagPrefix.disabled = autotagUsePrefix.disabled || !autotagUsePrefix.checked;
+    autotagPrefix.disabled =
+      autotagUsePrefix.disabled || !autotagUsePrefix.checked;
 
     let focusedElement = window.document.commandDispatcher.focusedElement;
 
     if (isServer) {
-      addFeedButton.disabled = addFeedButton != focusedElement &&
-                              !locationValue.hasAttribute("focused") &&
-                              !locationValue.value;
+      addFeedButton.disabled =
+        addFeedButton != focusedElement &&
+        !locationValue.hasAttribute("focused") &&
+        !locationValue.value;
     } else if (isFolder) {
-      let disable = !locationValue.hasAttribute("focused") && !locationValue.value;
+      let disable =
+        !locationValue.hasAttribute("focused") && !locationValue.value;
       // Summary is enabled for a folder with feeds or if adding a feed.
-      quickMode.disabled = disable && !FeedUtils.getFeedUrlsInFolder(item.folder);
+      quickMode.disabled =
+        disable && !FeedUtils.getFeedUrlsInFolder(item.folder);
       // All other options disabled unless intent is to add a feed.
       updateEnabled.disabled = disable;
       updateValue.disabled = disable;
       biffUnits.disabled = disable;
       autotagEnable.disabled = disable;
 
-      addFeedButton.disabled = addFeedButton != focusedElement &&
-                               !locationValue.hasAttribute("focused") &&
-                               !locationValue.value;
+      addFeedButton.disabled =
+        addFeedButton != focusedElement &&
+        !locationValue.hasAttribute("focused") &&
+        !locationValue.value;
     } else {
       // Summary is disabled; applied per folder to apply to all feeds in it.
       quickMode.disabled = true;
       // Ensure the current feed url is restored if the user did not update.
-      if (locationValue.value != item.url &&
-          !locationValue.hasAttribute("focused") &&
-          focusedElement != updateFeedButton &&
-          focusedElement.id != "addCertException") {
+      if (
+        locationValue.value != item.url &&
+        !locationValue.hasAttribute("focused") &&
+        focusedElement != updateFeedButton &&
+        focusedElement.id != "addCertException"
+      ) {
         locationValue.value = item.url;
       }
       this.setPrefs(locationValue);
       // Set button state.
-      updateFeedButton.disabled = (focusedElement != updateFeedButton ||
-                                   updateFeedButton.disabled) &&
-                                  !locationValue.hasAttribute("focused");
+      updateFeedButton.disabled =
+        (focusedElement != updateFeedButton || updateFeedButton.disabled) &&
+        !locationValue.hasAttribute("focused");
     }
   },
 
@@ -1382,12 +1548,25 @@ var FeedSubscriptions = {
     if (aPrompt) {
       // Confirm unsubscribe prompt.
       let pTitle = FeedUtils.strings.GetStringFromName(
-                     "subscribe-confirmFeedDeletionTitle");
+        "subscribe-confirmFeedDeletionTitle"
+      );
       let pMessage = FeedUtils.strings.formatStringFromName(
-                       "subscribe-confirmFeedDeletion", [itemToRemove.name]);
-      if (Services.prompt.confirmEx(window, pTitle, pMessage,
-                                    Ci.nsIPromptService.STD_YES_NO_BUTTONS,
-                                    null, null, null, null, { })) {
+        "subscribe-confirmFeedDeletion",
+        [itemToRemove.name]
+      );
+      if (
+        Services.prompt.confirmEx(
+          window,
+          pTitle,
+          pMessage,
+          Ci.nsIPromptService.STD_YES_NO_BUTTONS,
+          null,
+          null,
+          null,
+          null,
+          {}
+        )
+      ) {
         return;
       }
     }
@@ -1405,7 +1584,6 @@ var FeedSubscriptions = {
     let message = FeedUtils.strings.GetStringFromName("subscribe-feedRemoved");
     this.updateStatusItem("statusText", message);
   },
-
 
   /**
    * This addFeed is used by 1) Add button, 1) Update button, 3) Drop of a
@@ -1434,12 +1612,15 @@ var FeedSubscriptions = {
     let parse = aParse == null ? true : aParse;
     let mode = aMode == null ? this.kSubscribeMode : aMode;
     let locationValue = document.getElementById("locationValue");
-    let quickMode = aParams && ("quickMode" in aParams) ?
-        aParams.quickMode : document.getElementById("quickMode").checked;
-    let name = aParams && ("name" in aParams) ?
-        aParams.name : document.getElementById("nameValue").value;
-    let options = aParams && ("options" in aParams) ?
-        aParams.options : null;
+    let quickMode =
+      aParams && "quickMode" in aParams
+        ? aParams.quickMode
+        : document.getElementById("quickMode").checked;
+    let name =
+      aParams && "name" in aParams
+        ? aParams.name
+        : document.getElementById("nameValue").value;
+    let options = aParams && "options" in aParams ? aParams.options : null;
 
     if (aFeedLocation) {
       locationValue.value = aFeedLocation;
@@ -1485,7 +1666,8 @@ var FeedSubscriptions = {
     if (FeedUtils.feedAlreadyExists(feedLocation, addFolder.server)) {
       locationValue.focus();
       message = FeedUtils.strings.GetStringFromName(
-                  "subscribe-feedAlreadySubscribed");
+        "subscribe-feedAlreadySubscribed"
+      );
       this.updateStatusItem("statusText", message);
       return false;
     }
@@ -1493,23 +1675,31 @@ var FeedSubscriptions = {
     if (!options) {
       // Not passed a param, get values from the ui.
       options = FeedUtils.optionsTemplate;
-      options.updates.enabled = document.getElementById("updateEnabled").checked;
+      options.updates.enabled = document.getElementById(
+        "updateEnabled"
+      ).checked;
       let biffUnits = document.getElementById("biffUnits").value;
       let units = document.getElementById("updateValue").value;
-      let minutes = biffUnits == FeedUtils.kBiffUnitsMinutes ? units : units * 24 * 60;
+      let minutes =
+        biffUnits == FeedUtils.kBiffUnitsMinutes ? units : units * 24 * 60;
       options.updates.updateUnits = biffUnits;
       options.updates.updateMinutes = Number(minutes);
-      options.category.enabled = document.getElementById("autotagEnable").checked;
-      options.category.prefixEnabled = document.getElementById("autotagUsePrefix").checked;
+      options.category.enabled = document.getElementById(
+        "autotagEnable"
+      ).checked;
+      options.category.prefixEnabled = document.getElementById(
+        "autotagUsePrefix"
+      ).checked;
       options.category.prefix = document.getElementById("autotagPrefix").value;
     }
 
-    let feedProperties = { feedName: name,
-                           feedLocation,
-                           feedFolder: addFolder,
-                           quickMode,
-                           options,
-                         };
+    let feedProperties = {
+      feedName: name,
+      feedLocation,
+      feedFolder: addFolder,
+      quickMode,
+      options,
+    };
 
     let feed = this.storeFeed(feedProperties);
     if (!feed) {
@@ -1568,34 +1758,40 @@ var FeedSubscriptions = {
 
     // Now we want to verify if the stored feed url still works. If it
     // doesn't, show the error.
-    let message = FeedUtils.strings.GetStringFromName("subscribe-validating-feed");
+    let message = FeedUtils.strings.GetStringFromName(
+      "subscribe-validating-feed"
+    );
     this.mActionMode = this.kVerifyUrlMode;
     this.updateStatusItem("statusText", message);
     this.updateStatusItem("progressMeter", "?");
     feed.download(false, this.mFeedDownloadCallback);
   },
 
-/**
- * Moves or copies a feed to another folder or account.
- *
- * @param {Integer} aOldFeedIndex   - Index in tree of target feed item.
- * @param {Integer} aNewParentIndex - Index in tree of target parent folder item.
- * @param {String} aMoveCopy        - Either "move" or "copy".
- *
- * @returns {void}
- */
+  /**
+   * Moves or copies a feed to another folder or account.
+   *
+   * @param {Integer} aOldFeedIndex   - Index in tree of target feed item.
+   * @param {Integer} aNewParentIndex - Index in tree of target parent folder item.
+   * @param {String} aMoveCopy        - Either "move" or "copy".
+   *
+   * @returns {void}
+   */
   moveCopyFeed(aOldFeedIndex, aNewParentIndex, aMoveCopy) {
     let moveFeed = aMoveCopy == "move";
     let currentItem = this.mView.getItemAtIndex(aOldFeedIndex);
-    if (!currentItem ||
-        this.mView.getParentIndex(aOldFeedIndex) == aNewParentIndex) {
+    if (
+      !currentItem ||
+      this.mView.getParentIndex(aOldFeedIndex) == aNewParentIndex
+    ) {
       // If the new parent is the same as the current parent, then do nothing.
       return;
     }
 
     let currentParentIndex = this.mView.getParentIndex(aOldFeedIndex);
     let currentParentItem = this.mView.getItemAtIndex(currentParentIndex);
-    let currentParentResource = FeedUtils.rdf.GetResource(currentParentItem.url);
+    let currentParentResource = FeedUtils.rdf.GetResource(
+      currentParentItem.url
+    );
     let currentFolder = currentParentResource.QueryInterface(Ci.nsIMsgFolder);
 
     let newParentItem = this.mView.getItemAtIndex(aNewParentIndex);
@@ -1614,8 +1810,12 @@ var FeedSubscriptions = {
       // Unassert the older URI, add an assertion for the new parent URI.
       let feedResource = FeedUtils.rdf.GetResource(currentItem.url);
       let ds = FeedUtils.getSubscriptionsDS(currentItem.parentFolder.server);
-      ds.Change(feedResource, FeedUtils.FZ_DESTFOLDER,
-                currentParentResource, newParentResource);
+      ds.Change(
+        feedResource,
+        FeedUtils.FZ_DESTFOLDER,
+        currentParentResource,
+        newParentResource
+      );
       ds.Flush();
 
       // Update folderpane favicons.
@@ -1626,10 +1826,11 @@ var FeedSubscriptions = {
       // a new subfolder is created if necessary.
       accountMoveCopy = true;
       let mode = moveFeed ? this.kMoveMode : this.kCopyMode;
-      let params = { quickMode: currentItem.quickMode,
-                     name:      currentItem.name,
-                     options:   currentItem.options,
-                   };
+      let params = {
+        quickMode: currentItem.quickMode,
+        name: currentItem.name,
+        options: currentItem.options,
+      };
       // Subscribe to the new folder first.  If it already exists in the
       // account or on error, return.
       if (!this.addFeed(currentItem.url, newFolder, false, params, mode)) {
@@ -1674,8 +1875,10 @@ var FeedSubscriptions = {
       this.mView.toggle(aNewParentIndex);
     }
 
-    this.selectFeed({folder: newParentItem.folder, url: currentItem.url},
-                    aNewParentIndex);
+    this.selectFeed(
+      { folder: newParentItem.folder, url: currentItem.url },
+      aNewParentIndex
+    );
 
     let message = FeedUtils.strings.GetStringFromName("subscribe-feedMoved");
     this.updateStatusItem("statusText", message);
@@ -1736,8 +1939,10 @@ var FeedSubscriptions = {
       // Feed is null if our attempt to parse the feed failed.
       let message = "";
       let win = FeedSubscriptions;
-      if (aErrorCode == FeedUtils.kNewsBlogSuccess ||
-          aErrorCode == FeedUtils.kNewsBlogNoNewItems) {
+      if (
+        aErrorCode == FeedUtils.kNewsBlogSuccess ||
+        aErrorCode == FeedUtils.kNewsBlogNoNewItems
+      ) {
         win.updateStatusItem("progressMeter", 100);
 
         if (win.mActionMode == win.kVerifyUrlMode) {
@@ -1749,7 +1954,9 @@ var FeedSubscriptions = {
             return;
           }
 
-          message = FeedUtils.strings.GetStringFromName("subscribe-feedVerified");
+          message = FeedUtils.strings.GetStringFromName(
+            "subscribe-feedVerified"
+          );
           win.updateStatusItem("statusText", message);
           return;
         }
@@ -1771,8 +1978,9 @@ var FeedSubscriptions = {
           let parentIndex, parentItem, newItem, level;
           if (curItem.container) {
             // Open the container, if it exists.
-            let folderExists = win.selectFolder(feed.folder,
-                                                { parentIndex: curIndex });
+            let folderExists = win.selectFolder(feed.folder, {
+              parentIndex: curIndex,
+            });
             if (!folderExists) {
               // This means a new folder was created.
               parentIndex = curIndex;
@@ -1808,20 +2016,24 @@ var FeedSubscriptions = {
 
           if (win.mActionMode == win.kSubscribeMode) {
             message = FeedUtils.strings.GetStringFromName(
-                        "subscribe-feedAdded");
+              "subscribe-feedAdded"
+            );
           }
           if (win.mActionMode == win.kUpdateMode) {
             win.removeFeed(false);
             message = FeedUtils.strings.GetStringFromName(
-                        "subscribe-feedUpdated");
+              "subscribe-feedUpdated"
+            );
           }
           if (win.mActionMode == win.kMoveMode) {
             message = FeedUtils.strings.GetStringFromName(
-                        "subscribe-feedMoved");
+              "subscribe-feedMoved"
+            );
           }
           if (win.mActionMode == win.kCopyMode) {
             message = FeedUtils.strings.GetStringFromName(
-                        "subscribe-feedCopied");
+              "subscribe-feedCopied"
+            );
           }
 
           win.selectFeed(feed, parentIndex);
@@ -1829,36 +2041,48 @@ var FeedSubscriptions = {
       } else {
         // Non success.  Remove intermediate traces from the feeds database.
         // But only if we're not in verify mode.
-        if (win.mActionMode != win.kVerifyUrlMode &&
-            feed && feed.url && feed.server) {
+        if (
+          win.mActionMode != win.kVerifyUrlMode &&
+          feed &&
+          feed.url &&
+          feed.server
+        ) {
           FeedUtils.deleteFeed(feed);
         }
 
         if (aErrorCode == FeedUtils.kNewsBlogInvalidFeed) {
           message = FeedUtils.strings.GetStringFromName(
-                      "subscribe-feedNotValid");
+            "subscribe-feedNotValid"
+          );
         }
         if (aErrorCode == FeedUtils.kNewsBlogRequestFailure) {
           message = FeedUtils.strings.GetStringFromName(
-                      "subscribe-networkError");
+            "subscribe-networkError"
+          );
         }
         if (aErrorCode == FeedUtils.kNewsBlogFileError) {
           message = FeedUtils.strings.GetStringFromName(
-                      "subscribe-errorOpeningFile");
+            "subscribe-errorOpeningFile"
+          );
         }
         if (aErrorCode == FeedUtils.kNewsBlogBadCertError) {
           let host = Services.io.newURI(feed.url).host;
           message = FeedUtils.strings.formatStringFromName(
-                      "newsblog-badCertError", [host]);
+            "newsblog-badCertError",
+            [host]
+          );
         }
         if (aErrorCode == FeedUtils.kNewsBlogNoAuthError) {
           message = FeedUtils.strings.GetStringFromName(
-                      "subscribe-noAuthError");
+            "subscribe-noAuthError"
+          );
         }
 
         // Focus the url if verify/update failed.
-        if (win.mActionMode == win.kUpdateMode ||
-            win.mActionMode == win.kVerifyUrlMode) {
+        if (
+          win.mActionMode == win.kUpdateMode ||
+          win.mActionMode == win.kVerifyUrlMode
+        ) {
           document.getElementById("locationValue").focus();
         }
       }
@@ -1876,15 +2100,18 @@ var FeedSubscriptions = {
     onFeedItemStored(feed, aCurrentFeedItems, aMaxFeedItems) {
       window.focus();
       let message = FeedUtils.strings.formatStringFromName(
-                      "subscribe-gettingFeedItems",
-                      [aCurrentFeedItems, aMaxFeedItems]);
+        "subscribe-gettingFeedItems",
+        [aCurrentFeedItems, aMaxFeedItems]
+      );
       FeedSubscriptions.updateStatusItem("statusText", message);
       this.onProgress(feed, aCurrentFeedItems, aMaxFeedItems);
     },
 
     onProgress(feed, aProgress, aProgressMax, aLengthComputable) {
-      FeedSubscriptions.updateStatusItem("progressMeter",
-                                         (aProgress * 100) / (aProgressMax || 100));
+      FeedSubscriptions.updateStatusItem(
+        "progressMeter",
+        (aProgress * 100) / (aProgressMax || 100)
+      );
     },
   },
 
@@ -1955,12 +2182,17 @@ var FeedSubscriptions = {
   addCertExceptionDialog() {
     let locationValue = document.getElementById("locationValue");
     let feedURL = locationValue.value.trim();
-    let params = { exceptionAdded: false,
-                   location:       feedURL,
-                   prefetchCert:   true,
-                 };
-    window.openDialog("chrome://pippki/content/exceptionDialog.xul",
-                      "", "chrome,centerscreen,modal", params);
+    let params = {
+      exceptionAdded: false,
+      location: feedURL,
+      prefetchCert: true,
+    };
+    window.openDialog(
+      "chrome://pippki/content/exceptionDialog.xul",
+      "",
+      "chrome,centerscreen,modal",
+      params
+    );
     if (params.exceptionAdded) {
       this.clearStatusInfo();
     }
@@ -1971,13 +2203,16 @@ var FeedSubscriptions = {
   // Listener for folder pane changes.
   FolderListener: {
     get feedWindow() {
-      let subscriptionsWindow =
-        Services.wm.getMostRecentWindow("Mail:News-BlogSubscriptions");
+      let subscriptionsWindow = Services.wm.getMostRecentWindow(
+        "Mail:News-BlogSubscriptions"
+      );
       return subscriptionsWindow ? subscriptionsWindow.FeedSubscriptions : null;
     },
 
     get currentSelectedIndex() {
-      return this.feedWindow ? this.feedWindow.mView.selection.currentIndex : -1;
+      return this.feedWindow
+        ? this.feedWindow.mView.selection.currentIndex
+        : -1;
     },
 
     get currentSelectedItem() {
@@ -1985,14 +2220,17 @@ var FeedSubscriptions = {
     },
 
     folderAdded(aFolder) {
-      if (aFolder.server.type != "rss" ||
-          FeedUtils.isInTrash(aFolder)) {
+      if (aFolder.server.type != "rss" || FeedUtils.isInTrash(aFolder)) {
         return;
       }
 
       let parentFolder = aFolder.isServer ? aFolder : aFolder.parent;
-      FeedUtils.log.debug("folderAdded: folder:parent - " + aFolder.name + ":" +
-                          (parentFolder ? parentFolder.filePath.path : "(null)"));
+      FeedUtils.log.debug(
+        "folderAdded: folder:parent - " +
+          aFolder.name +
+          ":" +
+          (parentFolder ? parentFolder.filePath.path : "(null)")
+      );
 
       if (!parentFolder || !this.feedWindow) {
         return;
@@ -2010,7 +2248,9 @@ var FeedSubscriptions = {
           open = feedWindow.mView.getItemAtIndex(indexInView).open;
         } else {
           // Add the account root folder to the view.
-          feedWindow.mFeedContainers.push(feedWindow.makeFolderObject(parentFolder, 0));
+          feedWindow.mFeedContainers.push(
+            feedWindow.makeFolderObject(parentFolder, 0)
+          );
           feedWindow.mView.mRowCount++;
           feedWindow.mTree.view = feedWindow.mView;
           feedWindow.mView.tree.scrollToRow(firstVisRow);
@@ -2019,9 +2259,11 @@ var FeedSubscriptions = {
       }
 
       // Rebuild the added folder's parent item in the tree row cache.
-      feedWindow.selectFolder(parentFolder, { select: false,
-                                              open,
-                                              newFolder: parentFolder });
+      feedWindow.selectFolder(parentFolder, {
+        select: false,
+        open,
+        newFolder: parentFolder,
+      });
 
       if (indexInView == null || !curSelItem) {
         // Folder isn't in the tree view, no need to update the view.
@@ -2045,9 +2287,10 @@ var FeedSubscriptions = {
       if (curSelItem.container) {
         feedWindow.selectFolder(curSelItem.folder, { open: curSelItem.open });
       } else {
-        feedWindow.selectFeed({ folder: curSelItem.parentFolder,
-                                url: curSelItem.url },
-                              parentIndex);
+        feedWindow.selectFeed(
+          { folder: curSelItem.parentFolder, url: curSelItem.url },
+          parentIndex
+        );
       }
     },
 
@@ -2067,7 +2310,11 @@ var FeedSubscriptions = {
       let open = indexInView != null;
 
       // Delete the folder from the tree row cache.
-      feedWindow.selectFolder(aFolder, { select: false, open: false, remove: true });
+      feedWindow.selectFolder(aFolder, {
+        select: false,
+        open: false,
+        remove: true,
+      });
 
       if (!open || curSelIndex < 0) {
         // Folder isn't in the tree view, no need to update the view.
@@ -2086,8 +2333,9 @@ var FeedSubscriptions = {
         return;
       }
 
-      FeedUtils.log.debug("folderRenamed: old:new - " +
-                          aOrigFolder.name + ":" + aNewFolder.name);
+      FeedUtils.log.debug(
+        "folderRenamed: old:new - " + aOrigFolder.name + ":" + aNewFolder.name
+      );
       if (!this.feedWindow) {
         return;
       }
@@ -2100,9 +2348,11 @@ var FeedSubscriptions = {
       let open = indexInView != null;
 
       // Rebuild the renamed folder's item in the tree row cache.
-      feedWindow.selectFolder(aOrigFolder, { select: false,
-                                             open,
-                                             newFolder: aNewFolder });
+      feedWindow.selectFolder(aOrigFolder, {
+        select: false,
+        open,
+        newFolder: aNewFolder,
+      });
 
       if (!open || !curSelItem) {
         // Folder isn't in the tree view, no need to update the view.
@@ -2132,8 +2382,10 @@ var FeedSubscriptions = {
           feedWindow.selectFolder(curSelItem.folder, { open: curSelItem.open });
         }
       } else {
-        feedWindow.selectFeed({ folder: curSelItem.parentFolder.rootFolder,
-                                url: curSelItem.url }, parentIndex);
+        feedWindow.selectFeed(
+          { folder: curSelItem.parentFolder.rootFolder, url: curSelItem.url },
+          parentIndex
+        );
       }
     },
 
@@ -2142,8 +2394,14 @@ var FeedSubscriptions = {
         return;
       }
 
-      FeedUtils.log.debug("folderMoveCopyCompleted: move:src:dest - " +
-                          aMove + ":" + aSrcFolder.name + ":" + aDestFolder.name);
+      FeedUtils.log.debug(
+        "folderMoveCopyCompleted: move:src:dest - " +
+          aMove +
+          ":" +
+          aSrcFolder.name +
+          ":" +
+          aDestFolder.name
+      );
       if (!this.feedWindow) {
         return;
       }
@@ -2155,8 +2413,9 @@ var FeedSubscriptions = {
       let indexInView = feedWindow.mView.getItemInViewIndex(aSrcFolder);
       let destIndexInView = feedWindow.mView.getItemInViewIndex(aDestFolder);
       let open = indexInView != null || destIndexInView != null;
-      let parentIndex = feedWindow.mView.getItemInViewIndex(aDestFolder.parent ||
-                                                            aDestFolder);
+      let parentIndex = feedWindow.mView.getItemInViewIndex(
+        aDestFolder.parent || aDestFolder
+      );
       let select =
         indexInView == curSelIndex ||
         feedWindow.mView.isIndexChildOfParentIndex(indexInView, curSelIndex);
@@ -2170,9 +2429,11 @@ var FeedSubscriptions = {
 
       setTimeout(() => {
         // State on disk needs to settle before a folder object can be rebuilt.
-        feedWindow.selectFolder(aDestFolder, { select: false,
-                                               open: open || select,
-                                               newFolder: aDestFolder });
+        feedWindow.selectFolder(aDestFolder, {
+          select: false,
+          open: open || select,
+          newFolder: aDestFolder,
+        });
 
         if (!open || !curSelItem) {
           // Folder isn't in the tree view, no need to update the view.
@@ -2187,11 +2448,15 @@ var FeedSubscriptions = {
           if (curSelItem.folder == aSrcFolder || select) {
             feedWindow.selectFolder(aDestFolder, { open: true });
           } else {
-            feedWindow.selectFolder(curSelItem.folder, { open: curSelItem.open });
+            feedWindow.selectFolder(curSelItem.folder, {
+              open: curSelItem.open,
+            });
           }
         } else {
-          feedWindow.selectFeed({ folder: curSelItem.parentFolder.rootFolder,
-                                  url: curSelItem.url }, null);
+          feedWindow.selectFeed(
+            { folder: curSelItem.parentFolder.rootFolder, url: curSelItem.url },
+            null
+          );
         }
       }, 50);
     },
@@ -2206,32 +2471,42 @@ var FeedSubscriptions = {
     return brandBundle ? brandBundle.getString("brandShortName") : "";
   },
 
-/**
- * Export feeds as opml file Save As filepicker function.
- *
- * @param {Boolean} aList - If true, exporting as list; if false (default)
- *                          exporting feeds in folder structure - used for title.
- * @returns {Promise} nsIFile or null.
- */
+  /**
+   * Export feeds as opml file Save As filepicker function.
+   *
+   * @param {Boolean} aList - If true, exporting as list; if false (default)
+   *                          exporting feeds in folder structure - used for title.
+   * @returns {Promise} nsIFile or null.
+   */
   opmlPickSaveAsFile(aList) {
     let accountName = this.mRSSServer.rootFolder.prettyName;
     let fileName = FeedUtils.strings.formatStringFromName(
-                     "subscribe-OPMLExportDefaultFileName",
-                     [this.brandShortName, accountName]);
-    let title = aList ? FeedUtils.strings.formatStringFromName(
-                          "subscribe-OPMLExportTitleList", [accountName]) :
-                        FeedUtils.strings.formatStringFromName(
-                          "subscribe-OPMLExportTitleStruct", [accountName]);
+      "subscribe-OPMLExportDefaultFileName",
+      [this.brandShortName, accountName]
+    );
+    let title = aList
+      ? FeedUtils.strings.formatStringFromName(
+          "subscribe-OPMLExportTitleList",
+          [accountName]
+        )
+      : FeedUtils.strings.formatStringFromName(
+          "subscribe-OPMLExportTitleStruct",
+          [accountName]
+        );
     let fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
 
     fp.defaultString = fileName;
     fp.defaultExtension = "opml";
-    if (this.opmlLastSaveAsDir && (this.opmlLastSaveAsDir instanceof Ci.nsIFile)) {
+    if (
+      this.opmlLastSaveAsDir &&
+      this.opmlLastSaveAsDir instanceof Ci.nsIFile
+    ) {
       fp.displayDirectory = this.opmlLastSaveAsDir;
     }
 
     let opmlFilterText = FeedUtils.strings.GetStringFromName(
-                           "subscribe-OPMLExportOPMLFilesFilterText");
+      "subscribe-OPMLExportOPMLFilesFilterText"
+    );
     fp.appendFilter(opmlFilterText, "*.opml");
     fp.appendFilters(Ci.nsIFilePicker.filterAll);
     fp.filterIndex = 0;
@@ -2239,9 +2514,11 @@ var FeedSubscriptions = {
 
     return new Promise(resolve => {
       fp.open(rv => {
-        if ((rv != Ci.nsIFilePicker.returnOK &&
-             rv != Ci.nsIFilePicker.returnReplace) ||
-            !fp.file) {
+        if (
+          (rv != Ci.nsIFilePicker.returnOK &&
+            rv != Ci.nsIFilePicker.returnReplace) ||
+          !fp.file
+        ) {
           resolve(null);
           return;
         }
@@ -2252,22 +2529,25 @@ var FeedSubscriptions = {
     });
   },
 
-/**
- * Import feeds opml file Open filepicker function.
- *
- * @returns {Promise} [{nsIFile} file, {String} fileUrl] or null.
- */
+  /**
+   * Import feeds opml file Open filepicker function.
+   *
+   * @returns {Promise} [{nsIFile} file, {String} fileUrl] or null.
+   */
   opmlPickOpenFile() {
-    let title = FeedUtils.strings.GetStringFromName("subscribe-OPMLImportTitle");
+    let title = FeedUtils.strings.GetStringFromName(
+      "subscribe-OPMLImportTitle"
+    );
     let fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
 
     fp.defaultString = "";
-    if (this.opmlLastOpenDir && (this.opmlLastOpenDir instanceof Ci.nsIFile)) {
+    if (this.opmlLastOpenDir && this.opmlLastOpenDir instanceof Ci.nsIFile) {
       fp.displayDirectory = this.opmlLastOpenDir;
     }
 
     let opmlFilterText = FeedUtils.strings.GetStringFromName(
-                           "subscribe-OPMLExportOPMLFilesFilterText");
+      "subscribe-OPMLExportOPMLFilesFilterText"
+    );
     fp.appendFilter(opmlFilterText, "*.opml");
     fp.appendFilters(Ci.nsIFilePicker.filterXML);
     fp.appendFilters(Ci.nsIFilePicker.filterAll);
@@ -2311,14 +2591,15 @@ var FeedSubscriptions = {
       let head = opmlDoc.createElement("head");
       this.generatePPSpace(head, SPACES4);
       let titleText = FeedUtils.strings.formatStringFromName(
-                        "subscribe-OPMLExportFileDialogTitle",
-                        [this.brandShortName, rootFolder.prettyName]);
+        "subscribe-OPMLExportFileDialogTitle",
+        [this.brandShortName, rootFolder.prettyName]
+      );
       let title = opmlDoc.createElement("title");
       title.appendChild(opmlDoc.createTextNode(titleText));
       head.appendChild(title);
       this.generatePPSpace(head, SPACES4);
       let dt = opmlDoc.createElement("dateCreated");
-      dt.appendChild(opmlDoc.createTextNode((new Date()).toUTCString()));
+      dt.appendChild(opmlDoc.createTextNode(new Date().toUTCString()));
       head.appendChild(dt);
       this.generatePPSpace(head, SPACES2);
       opmlRoot.appendChild(head);
@@ -2355,7 +2636,9 @@ var FeedSubscriptions = {
       FileUtils.closeSafeFileOutputStream(fos);
 
       let statusReport = FeedUtils.strings.formatStringFromName(
-                           "subscribe-OPMLExportDone", [saveAsFile.path]);
+        "subscribe-OPMLExportDone",
+        [saveAsFile.path]
+      );
       this.updateStatusItem("statusText", statusReport);
       FeedUtils.log.info("exportOPML: " + statusReport);
     }
@@ -2374,20 +2657,25 @@ var FeedSubscriptions = {
     let folderEnumerator = baseFolder.subFolders;
     while (folderEnumerator.hasMoreElements()) {
       let folder = folderEnumerator.getNext().QueryInterface(Ci.nsIMsgFolder);
-      FeedUtils.log.debug("generateOutlineList: folder - " +
-                          folder.filePath.path);
-      if (!(folder instanceof Ci.nsIMsgFolder) ||
-          folder.getFlag(Ci.nsMsgFolderFlags.Trash) ||
-          folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
+      FeedUtils.log.debug(
+        "generateOutlineList: folder - " + folder.filePath.path
+      );
+      if (
+        !(folder instanceof Ci.nsIMsgFolder) ||
+        folder.getFlag(Ci.nsMsgFolderFlags.Trash) ||
+        folder.getFlag(Ci.nsMsgFolderFlags.Virtual)
+      ) {
         continue;
       }
 
-      FeedUtils.log.debug("generateOutlineList: CONTINUE folderName - " +
-                          folder.name);
+      FeedUtils.log.debug(
+        "generateOutlineList: CONTINUE folderName - " + folder.name
+      );
 
       if (folder.hasSubFolders) {
-        FeedUtils.log.debug("generateOutlineList: has subfolders - " +
-                            folder.name);
+        FeedUtils.log.debug(
+          "generateOutlineList: has subfolders - " + folder.name
+        );
         // Recurse.
         this.generateOutlineList(folder, parent, indentLevel);
       }
@@ -2395,8 +2683,12 @@ var FeedSubscriptions = {
       // Add outline elements with xmlUrls.
       let feeds = this.getFeedsInFolder(folder);
       for (let feed of feeds) {
-        FeedUtils.log.debug("generateOutlineList: folder has FEED url - " +
-                            folder.name + " : " + feed.url);
+        FeedUtils.log.debug(
+          "generateOutlineList: folder has FEED url - " +
+            folder.name +
+            " : " +
+            feed.url
+        );
         feedOutline = this.exportOPMLOutline(feed, parent.ownerDocument);
         this.generatePPSpace(parent, indentString);
         parent.appendChild(feedOutline);
@@ -2406,22 +2698,28 @@ var FeedSubscriptions = {
 
   generateOutlineStruct(baseFolder, parent, indentLevel) {
     // Pretty printing.
-    function indentString(len) { return " ".repeat(len - 2); }
+    function indentString(len) {
+      return " ".repeat(len - 2);
+    }
 
     let folderOutline, feedOutline;
     let folderEnumerator = baseFolder.subFolders;
     while (folderEnumerator.hasMoreElements()) {
       let folder = folderEnumerator.getNext().QueryInterface(Ci.nsIMsgFolder);
-      FeedUtils.log.debug("generateOutlineStruct: folder - " +
-                          folder.filePath.path);
-      if (!(folder instanceof Ci.nsIMsgFolder) ||
-          folder.getFlag(Ci.nsMsgFolderFlags.Trash) ||
-          folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
+      FeedUtils.log.debug(
+        "generateOutlineStruct: folder - " + folder.filePath.path
+      );
+      if (
+        !(folder instanceof Ci.nsIMsgFolder) ||
+        folder.getFlag(Ci.nsMsgFolderFlags.Trash) ||
+        folder.getFlag(Ci.nsMsgFolderFlags.Virtual)
+      ) {
         continue;
       }
 
-      FeedUtils.log.debug("generateOutlineStruct: CONTINUE folderName - " +
-                          folder.name);
+      FeedUtils.log.debug(
+        "generateOutlineStruct: CONTINUE folderName - " + folder.name
+      );
 
       // Make a folder outline element.
       folderOutline = parent.ownerDocument.createElement("outline");
@@ -2429,8 +2727,9 @@ var FeedSubscriptions = {
       this.generatePPSpace(parent, indentString(indentLevel + 2));
 
       if (folder.hasSubFolders) {
-        FeedUtils.log.debug("generateOutlineStruct: has subfolders - " +
-                            folder.name);
+        FeedUtils.log.debug(
+          "generateOutlineStruct: has subfolders - " + folder.name
+        );
         // Recurse.
         this.generateOutlineStruct(folder, folderOutline, indentLevel + 2);
       }
@@ -2438,8 +2737,12 @@ var FeedSubscriptions = {
       let feeds = this.getFeedsInFolder(folder);
       for (let feed of feeds) {
         // Add feed outline elements with xmlUrls.
-        FeedUtils.log.debug("generateOutlineStruct: folder has FEED url - " +
-                            folder.name + " : " + feed.url);
+        FeedUtils.log.debug(
+          "generateOutlineStruct: folder has FEED url - " +
+            folder.name +
+            " : " +
+            feed.url
+        );
         feedOutline = this.exportOPMLOutline(feed, parent.ownerDocument);
         this.generatePPSpace(folderOutline, indentString(indentLevel + 4));
         folderOutline.appendChild(feedOutline);
@@ -2481,27 +2784,33 @@ var FeedSubscriptions = {
     // If there were a getElementsByAttribute in html, we could go determined...
     this.updateStatusItem("progressMeter", "?");
 
-    if (!(await this.importOPMLFile(openFile, openFileUrl,
-                                    server, this.importOPMLFinished))) {
+    if (
+      !(await this.importOPMLFile(
+        openFile,
+        openFileUrl,
+        server,
+        this.importOPMLFinished
+      ))
+    ) {
       this.mActionMode = null;
       this.updateButtons(item);
       this.clearStatusInfo();
     }
   },
 
-/**
- * Import opml file into a feed account.  Used by the Subscribe dialog and
- * the Import wizard.
- *
- * @param {nsIFile} aFile                - The opml file.
- * @param {String} aFileUrl              - The opml file url.
- * @param {nsIMsgIncomingServer} aServer - The account server.
- * @param {Function} aCallback           - Callback function.
- *
- * @returns {Boolean}                    - false if error.
- */
+  /**
+   * Import opml file into a feed account.  Used by the Subscribe dialog and
+   * the Import wizard.
+   *
+   * @param {nsIFile} aFile                - The opml file.
+   * @param {String} aFileUrl              - The opml file url.
+   * @param {nsIMsgIncomingServer} aServer - The account server.
+   * @param {Function} aCallback           - Callback function.
+   *
+   * @returns {Boolean}                    - false if error.
+   */
   async importOPMLFile(aFile, aFileUrl, aServer, aCallback) {
-    if (aServer && (aServer instanceof Ci.nsIMsgIncomingServer)) {
+    if (aServer && aServer instanceof Ci.nsIMsgIncomingServer) {
       this.mRSSServer = aServer;
     }
 
@@ -2510,15 +2819,17 @@ var FeedSubscriptions = {
     }
 
     let opmlDom, statusReport;
-    FeedUtils.log.debug("importOPMLFile: fileName:fileUrl - " +
-                        aFile.leafName + ":" + aFileUrl);
+    FeedUtils.log.debug(
+      "importOPMLFile: fileName:fileUrl - " + aFile.leafName + ":" + aFileUrl
+    );
     let request = new Request(aFileUrl);
     await fetch(request)
       .then(function(response) {
         if (!response.ok) {
           // If the OPML file is not readable/accessible.
           statusReport = FeedUtils.strings.GetStringFromName(
-                           "subscribe-errorOpeningFile");
+            "subscribe-errorOpeningFile"
+          );
           return null;
         }
 
@@ -2526,21 +2837,32 @@ var FeedSubscriptions = {
       })
       .then(function(responseText) {
         if (responseText != null) {
-          opmlDom = (new DOMParser()).parseFromString(responseText, "application/xml");
-          if (!(opmlDom instanceof XMLDocument) ||
-              opmlDom.documentElement.namespaceURI == FeedUtils.MOZ_PARSERERROR_NS ||
-              opmlDom.documentElement.tagName != "opml" ||
-              !(opmlDom.querySelector("body") &&
-                opmlDom.querySelector("body").childElementCount)) {
+          opmlDom = new DOMParser().parseFromString(
+            responseText,
+            "application/xml"
+          );
+          if (
+            !(opmlDom instanceof XMLDocument) ||
+            opmlDom.documentElement.namespaceURI ==
+              FeedUtils.MOZ_PARSERERROR_NS ||
+            opmlDom.documentElement.tagName != "opml" ||
+            !(
+              opmlDom.querySelector("body") &&
+              opmlDom.querySelector("body").childElementCount
+            )
+          ) {
             // If the OPML file is invalid or empty.
             statusReport = FeedUtils.strings.formatStringFromName(
-                             "subscribe-OPMLImportInvalidFile", [aFile.leafName]);
+              "subscribe-OPMLImportInvalidFile",
+              [aFile.leafName]
+            );
           }
         }
       })
       .catch(function(error) {
         statusReport = FeedUtils.strings.GetStringFromName(
-                         "subscribe-errorOpeningFile");
+          "subscribe-errorOpeningFile"
+        );
         FeedUtils.log.error("importOPMLFile: error - " + error.message);
       });
 
@@ -2567,10 +2889,14 @@ var FeedSubscriptions = {
     let rssOutlines = 0;
 
     function processor(aParentNode, aParentFolder) {
-      FeedUtils.log.trace("importOPMLOutlines: PROCESSOR tag:name:children - " +
-                          aParentNode.tagName + ":" +
-                          aParentNode.getAttribute("text") + ":" +
-                          aParentNode.childElementCount);
+      FeedUtils.log.trace(
+        "importOPMLOutlines: PROCESSOR tag:name:children - " +
+          aParentNode.tagName +
+          ":" +
+          aParentNode.getAttribute("text") +
+          ":" +
+          aParentNode.childElementCount
+      );
       while (true) {
         if (aParentNode.tagName == "body" && !aParentNode.childElementCount) {
           // Finished.
@@ -2581,23 +2907,32 @@ var FeedSubscriptions = {
 
         outline = aParentNode.firstElementChild;
         if (outline.tagName != "outline") {
-          FeedUtils.log.info("importOPMLOutlines: skipping, node is not an " +
-                             "<outline> - <" + outline.tagName + ">");
+          FeedUtils.log.info(
+            "importOPMLOutlines: skipping, node is not an " +
+              "<outline> - <" +
+              outline.tagName +
+              ">"
+          );
           badTag = true;
           break;
         }
 
-        let outlineName = outline.getAttribute("text") ||
-                          outline.getAttribute("title") ||
-                          outline.getAttribute("xmlUrl");
+        let outlineName =
+          outline.getAttribute("text") ||
+          outline.getAttribute("title") ||
+          outline.getAttribute("xmlUrl");
         let feedUrl, folder;
 
         if (outline.getAttribute("type") == "rss") {
           // A feed outline.
-          feedUrl = outline.getAttribute("xmlUrl") || outline.getAttribute("url");
+          feedUrl =
+            outline.getAttribute("xmlUrl") || outline.getAttribute("url");
           if (!feedUrl) {
-            FeedUtils.log.info("importOPMLOutlines: skipping, type=rss <outline> " +
-                               "has no url - " + outlineName);
+            FeedUtils.log.info(
+              "importOPMLOutlines: skipping, type=rss <outline> " +
+                "has no url - " +
+                outlineName
+            );
             break;
           }
 
@@ -2605,13 +2940,19 @@ var FeedSubscriptions = {
           feedFolder = aParentFolder;
 
           if (FeedUtils.feedAlreadyExists(feedUrl, rssServer)) {
-            FeedUtils.log.info("importOPMLOutlines: feed already subscribed in account " +
-                               rssServer.prettyName + ", url - " + feedUrl);
+            FeedUtils.log.info(
+              "importOPMLOutlines: feed already subscribed in account " +
+                rssServer.prettyName +
+                ", url - " +
+                feedUrl
+            );
             break;
           }
 
-          if (aParentNode.tagName == "outline" &&
-              aParentNode.getAttribute("type") != "rss") {
+          if (
+            aParentNode.tagName == "outline" &&
+            aParentNode.getAttribute("type") != "rss"
+          ) {
             // Parent is a folder, already created.
             folder = feedFolder;
           } else {
@@ -2625,9 +2966,9 @@ var FeedSubscriptions = {
           }
 
           // Create the feed.
-          let quickMode = outline.hasAttribute("fz:quickMode") ?
-                            outline.getAttribute("fz:quickMode") == "true" :
-                            rssServer.getBoolValue("quickMode");
+          let quickMode = outline.hasAttribute("fz:quickMode")
+            ? outline.getAttribute("fz:quickMode") == "true"
+            : rssServer.getBoolValue("quickMode");
           let options = outline.getAttribute("fz:options");
           options = options ? JSON.parse(options) : null;
 
@@ -2641,15 +2982,20 @@ var FeedSubscriptions = {
             quickMode = firstFeedInFolderQuickMode;
           }
 
-          let feedProperties = { feedName: outlineName,
-                                 feedLocation: feedUrl,
-                                 feedFolder: folder,
-                                 quickMode,
-                                 options,
-                               };
+          let feedProperties = {
+            feedName: outlineName,
+            feedLocation: feedUrl,
+            feedFolder: folder,
+            quickMode,
+            options,
+          };
 
-          FeedUtils.log.info("importOPMLOutlines: importing feed: name, url - " +
-                             outlineName + ", " + feedUrl);
+          FeedUtils.log.info(
+            "importOPMLOutlines: importing feed: name, url - " +
+              outlineName +
+              ", " +
+              feedUrl
+          );
 
           let feed = win.storeFeed(feedProperties);
           if (outline.hasAttribute("htmlUrl")) {
@@ -2663,10 +3009,14 @@ var FeedSubscriptions = {
               FeedUtils.deleteFeed(feed);
             }
 
-            FeedUtils.log.info("importOPMLOutlines: skipping, error creating folder - '" +
-                               feed.folderName + "' from outlineName - '" +
-                               outlineName + "' in parent folder " +
-                               aParentFolder.filePath.path);
+            FeedUtils.log.info(
+              "importOPMLOutlines: skipping, error creating folder - '" +
+                feed.folderName +
+                "' from outlineName - '" +
+                outlineName +
+                "' in parent folder " +
+                aParentFolder.filePath.path
+            );
             badTag = true;
             break;
           }
@@ -2685,20 +3035,29 @@ var FeedSubscriptions = {
             feedFolder = aParentFolder.getChildNamed(folderName);
           } catch (ex) {
             // Folder not found, create it.
-            FeedUtils.log.info("importOPMLOutlines: creating folder - '" +
-                                folderName + "' from outlineName - '" +
-                                outlineName + "' in parent folder " +
-                                aParentFolder.filePath.path);
+            FeedUtils.log.info(
+              "importOPMLOutlines: creating folder - '" +
+                folderName +
+                "' from outlineName - '" +
+                outlineName +
+                "' in parent folder " +
+                aParentFolder.filePath.path
+            );
             firstFeedInFolderQuickMode = null;
             try {
-              feedFolder = aParentFolder.QueryInterface(Ci.nsIMsgLocalMailFolder).
-                                         createLocalSubfolder(folderName);
+              feedFolder = aParentFolder
+                .QueryInterface(Ci.nsIMsgLocalMailFolder)
+                .createLocalSubfolder(folderName);
             } catch (ex) {
               // An error creating. Skip it.
-              FeedUtils.log.info("importOPMLOutlines: skipping, error creating folder - '" +
-                                  folderName + "' from outlineName - '" +
-                                  outlineName + "' in parent folder " +
-                                  aParentFolder.filePath.path);
+              FeedUtils.log.info(
+                "importOPMLOutlines: skipping, error creating folder - '" +
+                  folderName +
+                  "' from outlineName - '" +
+                  outlineName +
+                  "' in parent folder " +
+                  aParentFolder.filePath.path
+              );
               let xfolder = aParentFolder.getChildNamed(folderName);
               aParentFolder.propagateDelete(xfolder, true, null);
               badTag = true;
@@ -2734,17 +3093,29 @@ var FeedSubscriptions = {
   importOPMLStatus(aFeedsAdded, aRssOutlines, aFolderOutlines) {
     let statusReport;
     if (aRssOutlines > aFeedsAdded) {
-      statusReport = FeedUtils.strings.formatStringFromName("subscribe-OPMLImportStatus",
-        [PluralForm.get(aFeedsAdded,
-                        FeedUtils.strings.GetStringFromName("subscribe-OPMLImportUniqueFeeds"))
-                   .replace("#1", aFeedsAdded),
-         PluralForm.get(aRssOutlines,
-                        FeedUtils.strings.GetStringFromName("subscribe-OPMLImportFoundFeeds"))
-                   .replace("#1", aRssOutlines)], 2);
+      statusReport = FeedUtils.strings.formatStringFromName(
+        "subscribe-OPMLImportStatus",
+        [
+          PluralForm.get(
+            aFeedsAdded,
+            FeedUtils.strings.GetStringFromName(
+              "subscribe-OPMLImportUniqueFeeds"
+            )
+          ).replace("#1", aFeedsAdded),
+          PluralForm.get(
+            aRssOutlines,
+            FeedUtils.strings.GetStringFromName(
+              "subscribe-OPMLImportFoundFeeds"
+            )
+          ).replace("#1", aRssOutlines),
+        ],
+        2
+      );
     } else {
-      statusReport = PluralForm.get(aFeedsAdded,
-        FeedUtils.strings.GetStringFromName("subscribe-OPMLImportFeedCount"))
-                         .replace("#1", aFeedsAdded);
+      statusReport = PluralForm.get(
+        aFeedsAdded,
+        FeedUtils.strings.GetStringFromName("subscribe-OPMLImportFeedCount")
+      ).replace("#1", aFeedsAdded);
     }
 
     return statusReport;
@@ -2760,5 +3131,4 @@ var FeedSubscriptions = {
     aWin.clearStatusInfo();
     aWin.updateStatusItem("statusText", aStatusReport);
   },
-
 };

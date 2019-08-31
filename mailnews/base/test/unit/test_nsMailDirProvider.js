@@ -4,13 +4,15 @@
  * files.
  */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function run_test() {
-  const items = [ { key: "MailD", value: "Mail" },
-                  { key: "IMapMD", value: "ImapMail" },
-                  { key: "NewsD", value: "News" },
-                  { key: "MFCaF", value: "panacea.dat" } ];
+  const items = [
+    { key: "MailD", value: "Mail" },
+    { key: "IMapMD", value: "ImapMail" },
+    { key: "NewsD", value: "News" },
+    { key: "MFCaF", value: "panacea.dat" },
+  ];
 
   items.forEach(function(item) {
     var dir = Services.dirsvc.get(item.key, Ci.nsIFile);

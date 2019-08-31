@@ -45,15 +45,22 @@ function Widget(inum, date, str, notability, text1, text2) {
 }
 Widget.prototype = {
   _clone() {
-    let clonus = new Widget(this._inum, this._date, this._str, this._notability,
-                            this._text1, this._text2);
+    let clonus = new Widget(
+      this._inum,
+      this._date,
+      this._str,
+      this._notability,
+      this._text1,
+      this._text2
+    );
     clonus._id = this._id;
     clonus._iAmAClone = true;
 
     for (let key of Object.keys(this)) {
       let value = this[key];
-      if (key.startsWith("_"))
+      if (key.startsWith("_")) {
         continue;
+      }
       clonus[key] = value;
       if (key in this._indexStash) {
         this[key] = this._indexStash[key];
@@ -66,23 +73,36 @@ Widget.prototype = {
     this._indexStash = {};
     for (let key of Object.keys(this)) {
       let value = this[key];
-      if (key[0].startsWith("_"))
+      if (key[0].startsWith("_")) {
         continue;
+      }
       this._indexStash[key] = value;
     }
   },
 
-  get id() { return this._id; },
-  set id(aVal) { this._id = aVal; },
+  get id() {
+    return this._id;
+  },
+  set id(aVal) {
+    this._id = aVal;
+  },
 
   // gloda's attribute idiom demands that row attributes be prefixed with a '_'
   //  (because Gloda.grokNounItem detects attributes by just walking...).  This
   //  could be resolved by having the special attributes moot these dudes, but
   //  that's not how things are right now.
-  get inum() { return this._inum; },
-  set inum(aVal) { this._inum = aVal; },
-  get date() { return this._date; },
-  set date(aVal) { this._date = aVal; },
+  get inum() {
+    return this._inum;
+  },
+  set inum(aVal) {
+    this._inum = aVal;
+  },
+  get date() {
+    return this._date;
+  },
+  set date(aVal) {
+    this._date = aVal;
+  },
 
   get datePRTime() {
     return this._date.valueOf() * 1000;
@@ -93,14 +113,30 @@ Widget.prototype = {
     this._date = new Date(aVal / 1000);
   },
 
-  get str() { return this._str; },
-  set str(aVal) { this._str = aVal; },
-  get notability() { return this._notability; },
-  set notability(aVal) { this._notability = aVal; },
-  get text1() { return this._text1; },
-  set text1(aVal) { this._text1 = aVal; },
-  get text2() { return this._text2; },
-  set text2(aVal) { this._text2 = aVal; },
+  get str() {
+    return this._str;
+  },
+  set str(aVal) {
+    this._str = aVal;
+  },
+  get notability() {
+    return this._notability;
+  },
+  set notability(aVal) {
+    this._notability = aVal;
+  },
+  get text1() {
+    return this._text1;
+  },
+  set text1(aVal) {
+    this._text1 = aVal;
+  },
+  get text2() {
+    return this._text2;
+  },
+  set text2(aVal) {
+    this._text2 = aVal;
+  },
 
   toString() {
     return "" + this.id;
@@ -109,7 +145,7 @@ Widget.prototype = {
 
 var WidgetProvider = {
   providerName: "widget",
-  * process() {
+  *process() {
     yield Gloda.kWorkDone;
   },
 };
@@ -124,7 +160,8 @@ function setup_test_noun_and_attributes() {
     // It is vitally important to our correctness that we allow caching
     //  otherwise our in-memory representations will not be canonical and the db
     //  will load some.  Or we could add things to collections as we index them.
-    cache: true, cacheCost: 32,
+    cache: true,
+    cacheCost: 32,
     schema: {
       columns: [
         ["id", "INTEGER PRIMARY KEY"],
@@ -152,7 +189,8 @@ function setup_test_noun_and_attributes() {
 
   // --- special (on-row) attributes
   Gloda.defineAttribute({
-    provider: WidgetProvider, extensionName: EXT_NAME,
+    provider: WidgetProvider,
+    extensionName: EXT_NAME,
     attributeType: Gloda.kAttrFundamental,
     attributeName: "inum",
     singular: true,
@@ -163,7 +201,8 @@ function setup_test_noun_and_attributes() {
     canQuery: true,
   });
   Gloda.defineAttribute({
-    provider: WidgetProvider, extensionName: EXT_NAME,
+    provider: WidgetProvider,
+    extensionName: EXT_NAME,
     attributeType: Gloda.kAttrFundamental,
     attributeName: "date",
     singular: true,
@@ -174,7 +213,8 @@ function setup_test_noun_and_attributes() {
     canQuery: true,
   });
   Gloda.defineAttribute({
-    provider: WidgetProvider, extensionName: EXT_NAME,
+    provider: WidgetProvider,
+    extensionName: EXT_NAME,
     attributeType: Gloda.kAttrFundamental,
     attributeName: "str",
     singular: true,
@@ -185,10 +225,10 @@ function setup_test_noun_and_attributes() {
     canQuery: true,
   });
 
-
   // --- fulltext attributes
   Gloda.defineAttribute({
-    provider: WidgetProvider, extensionName: EXT_NAME,
+    provider: WidgetProvider,
+    extensionName: EXT_NAME,
     attributeType: Gloda.kAttrFundamental,
     attributeName: "text1",
     singular: true,
@@ -199,7 +239,8 @@ function setup_test_noun_and_attributes() {
     canQuery: true,
   });
   Gloda.defineAttribute({
-    provider: WidgetProvider, extensionName: EXT_NAME,
+    provider: WidgetProvider,
+    extensionName: EXT_NAME,
     attributeType: Gloda.kAttrFundamental,
     attributeName: "text2",
     singular: true,
@@ -210,7 +251,8 @@ function setup_test_noun_and_attributes() {
     canQuery: true,
   });
   Gloda.defineAttribute({
-    provider: WidgetProvider, extensionName: EXT_NAME,
+    provider: WidgetProvider,
+    extensionName: EXT_NAME,
     attributeType: Gloda.kAttrFundamental,
     attributeName: "fulltextAll",
     singular: true,
@@ -223,7 +265,8 @@ function setup_test_noun_and_attributes() {
 
   // --- external (attribute-storage) attributes
   Gloda.defineAttribute({
-    provider: WidgetProvider, extensionName: EXT_NAME,
+    provider: WidgetProvider,
+    extensionName: EXT_NAME,
     attributeType: Gloda.kAttrFundamental,
     attributeName: "singleIntAttr",
     singular: true,
@@ -233,7 +276,8 @@ function setup_test_noun_and_attributes() {
   });
 
   Gloda.defineAttribute({
-    provider: WidgetProvider, extensionName: EXT_NAME,
+    provider: WidgetProvider,
+    extensionName: EXT_NAME,
     attributeType: Gloda.kAttrFundamental,
     attributeName: "multiIntAttr",
     singular: false,
@@ -250,15 +294,15 @@ var ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 function test_lots_of_string_constraints() {
   let stringConstraints = [];
   for (let i = 0; i < 2049; i++) {
-    stringConstraints.push(ALPHABET[Math.floor(i / (ALPHABET.length * 2)) %
-                                    ALPHABET.length] +
-                           ALPHABET[Math.floor(i / (ALPHABET.length)) %
-                                    ALPHABET.length] +
-                           ALPHABET[i % ALPHABET.length] +
-                           // throw in something that will explode if not quoted
-                           // (and use an uneven number of things so if we fail
-                           // to quote it won't get quietly eaten.)
-                           "'\"");
+    stringConstraints.push(
+      ALPHABET[Math.floor(i / (ALPHABET.length * 2)) % ALPHABET.length] +
+        ALPHABET[Math.floor(i / ALPHABET.length) % ALPHABET.length] +
+        ALPHABET[i % ALPHABET.length] +
+        // throw in something that will explode if not quoted
+        // (and use an uneven number of things so if we fail
+        // to quote it won't get quietly eaten.)
+        "'\""
+    );
   }
 
   let query = Gloda.newQuery(WidgetNoun.id);
@@ -303,8 +347,7 @@ function* setup_non_singular_values() {
   singularWidgets[0].multiIntAttr = [];
   // and don't bother setting it on singularWidgets[1]
 
-  yield GenericIndexer.indexObjects(
-    nonSingularWidgets.concat(singularWidgets));
+  yield GenericIndexer.indexObjects(nonSingularWidgets.concat(singularWidgets));
 }
 
 function test_query_has_value_for_non_singular() {
@@ -340,8 +383,10 @@ function* test_empty_set_logic() {
   nonSingularWidgets[0].multiIntAttr = [];
   singularWidgets[0].multiIntAttr = [4, 5];
 
-  yield GenericIndexer.indexObjects([nonSingularWidgets[0],
-                                     singularWidgets[0]]);
+  yield GenericIndexer.indexObjects([
+    nonSingularWidgets[0],
+    singularWidgets[0],
+  ]);
 
   query = Gloda.newQuery(WidgetNoun.id);
   query.inum(testUnique);
@@ -422,29 +467,37 @@ function* setup_search_ranking_idiom() {
 
 // add one because the last snippet shouldn't have a trailing space
 var OFFSET_SCORE_SQL_SNIPPET =
-  "(((length(osets) + 1) / " + OFFSET_CHARS_PER_FULLTEXT_MATCH + ") * " +
-  SCORE_FOR_FULLTEXT_MATCH + ")";
+  "(((length(osets) + 1) / " +
+  OFFSET_CHARS_PER_FULLTEXT_MATCH +
+  ") * " +
+  SCORE_FOR_FULLTEXT_MATCH +
+  ")";
 
-var SCORE_SQL_SNIPPET =
-  "(" + OFFSET_SCORE_SQL_SNIPPET + " + notabilityCol)";
+var SCORE_SQL_SNIPPET = "(" + OFFSET_SCORE_SQL_SNIPPET + " + notabilityCol)";
 
 var DASCORE_SQL_SNIPPET =
   "((" + SCORE_SQL_SNIPPET + " * " + SCORE_TIMESTAMP_FACTOR + ") + dateCol)";
 
 var WIDGET_FULLTEXT_QUERY_EXPLICIT_SQL =
   "SELECT ext_widget.*, offsets(ext_widgetText) AS osets " +
-    "FROM ext_widget, ext_widgetText WHERE ext_widgetText MATCH ?" +
-    " AND ext_widget.id == ext_widgetText.docid";
+  "FROM ext_widget, ext_widgetText WHERE ext_widgetText MATCH ?" +
+  " AND ext_widget.id == ext_widgetText.docid";
 
 /**
  * Used by queryExpect to verify
  */
-function verify_widget_order_and_stashing(aZeroBasedIndex, aWidget,
-                                          aCollection) {
+function verify_widget_order_and_stashing(
+  aZeroBasedIndex,
+  aWidget,
+  aCollection
+) {
   Assert.equal(aZeroBasedIndex, aWidget.inum);
-  if (!aCollection.stashedColumns[aWidget.id] ||
-      !aCollection.stashedColumns[aWidget.id].length)
+  if (
+    !aCollection.stashedColumns[aWidget.id] ||
+    !aCollection.stashedColumns[aWidget.id].length
+  ) {
     do_throw("no stashed information for widget: " + aWidget);
+  }
 }
 
 /**
@@ -462,8 +515,7 @@ function test_search_ranking_idiom_offsets() {
   });
   query.fulltextAll("foo");
   query.orderBy("-dascore");
-  queryExpect(query, fooWidgets, null, null,
-              verify_widget_order_and_stashing);
+  queryExpect(query, fooWidgets, null, null, verify_widget_order_and_stashing);
   return false; // queryExpect is async
 }
 
@@ -472,18 +524,25 @@ function test_search_ranking_idiom_score() {
     explicitSQL: WIDGET_FULLTEXT_QUERY_EXPLICIT_SQL,
     // osets becomes 0-based column number 7
     // dascore becomes 0-based column number 8
-    outerWrapColumns: [DASCORE_SQL_SNIPPET + " AS dascore",
-                       SCORE_SQL_SNIPPET + " AS dabore", "dateCol"],
+    outerWrapColumns: [
+      DASCORE_SQL_SNIPPET + " AS dascore",
+      SCORE_SQL_SNIPPET + " AS dabore",
+      "dateCol",
+    ],
     // save our extra columns for analysis and debugging
     stashColumns: [7, 8, 9, 10],
   });
   query.fulltextAll("bar OR baz");
   query.orderBy("-dascore");
-  queryExpect(query, barBazWidgets, null, null,
-              verify_widget_order_and_stashing);
+  queryExpect(
+    query,
+    barBazWidgets,
+    null,
+    null,
+    verify_widget_order_and_stashing
+  );
   return false; // queryExpect is async
 }
-
 
 /* ===== Driver ===== */
 

@@ -2,11 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ["MsgHdrToMimeMessage", "MimeMessage", "MimeContainer",
-                         "MimeBody", "MimeUnknown", "MimeMessageAttachment"];
+this.EXPORTED_SYMBOLS = [
+  "MsgHdrToMimeMessage",
+  "MimeMessage",
+  "MimeContainer",
+  "MimeBody",
+  "MimeUnknown",
+  "MimeMessageAttachment",
+];
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
 var EMITTER_MIME_CODE = "application/x-js-mime-message";
 
@@ -15,10 +23,8 @@ var EMITTER_MIME_CODE = "application/x-js-mime-message";
  *  getting the same set of events, effectively.
  */
 var dumbUrlListener = {
-  OnStartRunningUrl(aUrl) {
-  },
-  OnStopRunningUrl(aUrl, aExitCode) {
-  },
+  OnStartRunningUrl(aUrl) {},
+  OnStopRunningUrl(aUrl, aExitCode) {},
 };
 
 /**
@@ -32,23 +38,24 @@ var activeStreamListeners = {};
 var shutdownCleanupObserver = {
   _initialized: false,
   ensureInitialized() {
-    if (this._initialized)
+    if (this._initialized) {
       return;
+    }
 
     Services.obs.addObserver(this, "quit-application");
 
     this._initialized = true;
   },
 
-  observe(
-      aSubject, aTopic, aData) {
+  observe(aSubject, aTopic, aData) {
     if (aTopic == "quit-application") {
       Services.obs.removeObserver(this, "quit-application");
 
       for (let uri in activeStreamListeners) {
         let streamListener = activeStreamListeners[uri];
-        if (streamListener._request)
+        if (streamListener._request) {
           streamListener._request.cancel(Cr.NS_BINDING_ABORTED);
+        }
       }
     }
   },
@@ -82,8 +89,9 @@ CallbackStreamListener.prototype = {
 
     aRequest.QueryInterface(Ci.nsIChannel);
     let message = MsgHdrToMimeMessage.RESULT_RENDEVOUZ[aRequest.URI.spec];
-    if (message === undefined)
+    if (message === undefined) {
       message = null;
+    }
 
     delete MsgHdrToMimeMessage.RESULT_RENDEVOUZ[aRequest.URI.spec];
 
@@ -94,7 +102,9 @@ CallbackStreamListener.prototype = {
         // Most of the time, exceptions will silently disappear into the endless
         // deeps of XPConnect, and never reach the surface ever again. At least
         // warn the user if he has dump enabled.
-        dump("The MsgHdrToMimeMessage callback threw an exception: " + e + "\n");
+        dump(
+          "The MsgHdrToMimeMessage callback threw an exception: " + e + "\n"
+        );
         // That one will probably never make it to the original caller.
         throw e;
       }
@@ -114,16 +124,16 @@ CallbackStreamListener.prototype = {
   onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
     dump("this should not be happening! arrgggggh!\n");
     if (this._stream === null) {
-      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].
-                    createInstance(Ci.nsIScriptableInputStream);
+      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+        Ci.nsIScriptableInputStream
+      );
       this._stream.init(aInputStream);
     }
     this._stream.read(aCount);
   },
 };
 
-var gMessenger = Cc["@mozilla.org/messenger;1"].
-                   createInstance(Ci.nsIMessenger);
+var gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
 function stripEncryptedParts(aPart) {
   if (aPart.parts && aPart.isEncrypted) {
@@ -166,8 +176,13 @@ function stripEncryptedParts(aPart) {
  *     will appear as an empty multipart/encrypted container, unless this option
  *     is used.
  */
-function MsgHdrToMimeMessage(aMsgHdr, aCallbackThis, aCallback,
-                             aAllowDownload, aOptions) {
+function MsgHdrToMimeMessage(
+  aMsgHdr,
+  aCallbackThis,
+  aCallback,
+  aAllowDownload,
+  aOptions
+) {
   shutdownCleanupObserver.ensureInitialized();
 
   let requireOffline = !aAllowDownload;
@@ -176,16 +191,16 @@ function MsgHdrToMimeMessage(aMsgHdr, aCallbackThis, aCallback,
   let msgService = gMessenger.messageServiceFromURI(msgURI);
 
   MsgHdrToMimeMessage.OPTION_TUNNEL = aOptions;
-  let partsOnDemandStr = (aOptions && aOptions.partsOnDemand)
-    ? "&fetchCompleteMessage=false"
-    : "";
+  let partsOnDemandStr =
+    aOptions && aOptions.partsOnDemand ? "&fetchCompleteMessage=false" : "";
   // By default, Enigmail only decrypts a message streamed via libmime if it's
   // the one currently on display in the message reader. With this option, we're
   // letting Enigmail know that it should decrypt the message since the client
   // explicitly asked for it.
-  let encryptedStr = (aOptions && aOptions.examineEncryptedParts)
-    ? "&examineEncryptedParts=true"
-    : "";
+  let encryptedStr =
+    aOptions && aOptions.examineEncryptedParts
+      ? "&examineEncryptedParts=true"
+      : "";
 
   // S/MIME, our other encryption backend, is not that smart, and always
   // decrypts data. In order to protect sensitive data (e.g. not index it in
@@ -193,11 +208,11 @@ function MsgHdrToMimeMessage(aMsgHdr, aCallbackThis, aCallback,
   // callback a stripped-down version of the MIME structure where encrypted
   // parts have been removed.
   let wrapCallback = function(aCallback, aCallbackThis) {
-    if (aOptions && aOptions.examineEncryptedParts)
+    if (aOptions && aOptions.examineEncryptedParts) {
       return aCallback;
-    return ((aMsgHdr, aMimeMsg) =>
-      aCallback.call(aCallbackThis, aMsgHdr, stripEncryptedParts(aMimeMsg))
-    );
+    }
+    return (aMsgHdr, aMimeMsg) =>
+      aCallback.call(aCallbackThis, aMsgHdr, stripEncryptedParts(aMimeMsg));
   };
 
   // Apparently there used to be an old syntax where the callback was the second
@@ -228,7 +243,8 @@ function MsgHdrToMimeMessage(aMsgHdr, aCallbackThis, aCallback,
       true, // have them create the converter
       // additional uri payload, note that "header=" is prepended automatically
       "filter&emitter=js" + partsOnDemandStr + encryptedStr,
-      requireOffline);
+      requireOffline
+    );
   } catch (ex) {
     // If streamMessage throws an exception, we should make sure to clear the
     // activeStreamListener, or any subsequent attempt at sreaming this URI
@@ -284,9 +300,10 @@ var HeaderHandlerBase = {
       aDefaultValue = null;
     }
     let lowerHeader = aHeaderName.toLowerCase();
-    if (lowerHeader in this.headers)
+    if (lowerHeader in this.headers) {
       // we require that the list cannot be empty if present
       return this.headers[lowerHeader][0];
+    }
     return aDefaultValue;
   },
   /**
@@ -299,8 +316,9 @@ var HeaderHandlerBase = {
    */
   getAll(aHeaderName) {
     let lowerHeader = aHeaderName.toLowerCase();
-    if (lowerHeader in this.headers)
+    if (lowerHeader in this.headers) {
       return this.headers[lowerHeader];
+    }
     return [];
   },
   /**
@@ -313,8 +331,9 @@ var HeaderHandlerBase = {
     return lowerHeader in this.headers;
   },
   _prettyHeaderString(aIndent) {
-    if (aIndent === undefined)
+    if (aIndent === undefined) {
       aIndent = "";
+    }
     let s = "";
     for (let header in this.headers) {
       let values = this.headers[header];
@@ -368,19 +387,22 @@ MimeMessage.prototype = {
    *    contained in inner messages won't be shown.
    */
   get allUserAttachments() {
-    if (this.url)
+    if (this.url) {
       // The jsmimeemitter camouflaged us as a MimeAttachment
       return [this];
-    return this.parts.map(child => child.allUserAttachments)
-                     .reduce((a, b) => a.concat(b), []);
+    }
+    return this.parts
+      .map(child => child.allUserAttachments)
+      .reduce((a, b) => a.concat(b), []);
   },
 
   /**
    * @return the total size of this message, that is, the size of all subparts
    */
   get size() {
-    return this.parts.map(child => child.size)
-                     .reduce((a, b) => a + Math.max(b, 0), 0);
+    return this.parts
+      .map(child => child.size)
+      .reduce((a, b) => a + Math.max(b, 0), 0);
   },
 
   /**
@@ -409,13 +431,15 @@ MimeMessage.prototype = {
     let bodies = [];
     for (let part of this.parts) {
       // an undefined value for something not having the method is fine
-      let body = part.coerceBodyToPlaintext &&
-                 part.coerceBodyToPlaintext(aMsgFolder);
-      if (body)
+      let body =
+        part.coerceBodyToPlaintext && part.coerceBodyToPlaintext(aMsgFolder);
+      if (body) {
         bodies.push(body);
+      }
     }
-    if (bodies)
+    if (bodies) {
       return bodies.join("");
+    }
     return "";
   },
 
@@ -429,26 +453,38 @@ MimeMessage.prototype = {
    *  their class displayed.
    */
   prettyString(aVerbose, aIndent, aDumpBody) {
-    if (aIndent === undefined)
+    if (aIndent === undefined) {
       aIndent = "";
+    }
     let nextIndent = aIndent + "  ";
 
-    let s = "Message " + (this.isEncrypted ? "[encrypted] " : "") +
-      "(" + this.size + " bytes): " +
-      "subject" in this.headers ? this.headers.subject : "";
-    if (aVerbose)
+    let s =
+      "Message " +
+        (this.isEncrypted ? "[encrypted] " : "") +
+        "(" +
+        this.size +
+        " bytes): " +
+        "subject" in
+      this.headers
+        ? this.headers.subject
+        : "";
+    if (aVerbose) {
       s += this._prettyHeaderString(nextIndent);
+    }
 
     for (let iPart = 0; iPart < this.parts.length; iPart++) {
       let part = this.parts[iPart];
-      s += "\n" + nextIndent + (iPart + 1) + " " +
+      s +=
+        "\n" +
+        nextIndent +
+        (iPart + 1) +
+        " " +
         part.prettyString(aVerbose, nextIndent, aDumpBody);
     }
 
     return s;
   },
 };
-
 
 /**
  * @ivar contentType The content-type of this container.
@@ -474,11 +510,13 @@ MimeContainer.prototype = {
     return results;
   },
   get allUserAttachments() {
-    return this.parts.map(child => child.allUserAttachments)
+    return this.parts
+      .map(child => child.allUserAttachments)
       .reduce((a, b) => a.concat(b), []);
   },
   get size() {
-    return this.parts.map(child => child.size)
+    return this.parts
+      .map(child => child.size)
       .reduce((a, b) => a + Math.max(b, 0), 0);
   },
   set size(whatever) {
@@ -489,18 +527,22 @@ MimeContainer.prototype = {
       let htmlPart;
       // pick the text/plain if we can find one, otherwise remember the HTML one
       for (let part of this.parts) {
-        if (part.contentType == "text/plain")
+        if (part.contentType == "text/plain") {
           return part.body;
-        if (part.contentType == "text/html")
+        }
+        if (part.contentType == "text/html") {
           htmlPart = part;
+        }
         // text/enriched gets transformed into HTML, use it if we don't already
         //  have an HTML part.
-        else if (!htmlPart && part.contentType == "text/enriched")
+        else if (!htmlPart && part.contentType == "text/enriched") {
           htmlPart = part;
+        }
       }
       // convert the HTML part if we have one
-      if (htmlPart)
+      if (htmlPart) {
         return aMsgFolder.convertMsgSnippetToPlainText(htmlPart.body);
+      }
     }
     // if it's not alternative, recurse/aggregate using MimeMessage logic
     return MimeMessage.prototype.coerceBodyToPlaintext.call(this, aMsgFolder);
@@ -508,14 +550,24 @@ MimeContainer.prototype = {
   prettyString(aVerbose, aIndent, aDumpBody) {
     let nextIndent = aIndent + "  ";
 
-    let s = "Container " + (this.isEncrypted ? "[encrypted] " : "") +
-      "(" + this.size + " bytes): " + this.contentType;
-    if (aVerbose)
+    let s =
+      "Container " +
+      (this.isEncrypted ? "[encrypted] " : "") +
+      "(" +
+      this.size +
+      " bytes): " +
+      this.contentType;
+    if (aVerbose) {
       s += this._prettyHeaderString(nextIndent);
+    }
 
     for (let iPart = 0; iPart < this.parts.length; iPart++) {
       let part = this.parts[iPart];
-      s += "\n" + nextIndent + (iPart + 1) + " " +
+      s +=
+        "\n" +
+        nextIndent +
+        (iPart + 1) +
+        " " +
         part.prettyString(aVerbose, nextIndent, aDumpBody);
     }
 
@@ -561,20 +613,32 @@ MimeBody.prototype = {
     this.body += aBuf;
   },
   coerceBodyToPlaintext(aMsgFolder) {
-    if (this.contentType == "text/plain")
+    if (this.contentType == "text/plain") {
       return this.body;
+    }
     // text/enriched gets transformed into HTML by libmime
-    if (this.contentType == "text/html" ||
-        this.contentType == "text/enriched")
+    if (
+      this.contentType == "text/html" ||
+      this.contentType == "text/enriched"
+    ) {
       return aMsgFolder.convertMsgSnippetToPlainText(this.body);
+    }
     return "";
   },
   prettyString(aVerbose, aIndent, aDumpBody) {
-    let s = "Body: " + (this.isEncrypted ? "[encrypted] " : "") +
-      "" + this.contentType + " (" + this.body.length + " bytes" +
-      (aDumpBody ? (": '" + this.body + "'") : "") + ")";
-    if (aVerbose)
+    let s =
+      "Body: " +
+      (this.isEncrypted ? "[encrypted] " : "") +
+      "" +
+      this.contentType +
+      " (" +
+      this.body.length +
+      " bytes" +
+      (aDumpBody ? ": '" + this.body + "'" : "") +
+      ")";
+    if (aVerbose) {
       s += this._prettyHeaderString(aIndent + "  ");
+    }
     return s;
   },
   toString() {
@@ -611,16 +675,22 @@ function MimeUnknown(aContentType) {
 MimeUnknown.prototype = {
   __proto__: HeaderHandlerBase,
   get allAttachments() {
-    return this.parts.map(child => child.allAttachments)
+    return this.parts
+      .map(child => child.allAttachments)
       .reduce((a, b) => a.concat(b), []);
   },
   get allUserAttachments() {
-    return this.parts.map(child => child.allUserAttachments)
+    return this.parts
+      .map(child => child.allUserAttachments)
       .reduce((a, b) => a.concat(b), []);
   },
   get size() {
-    return this._size + this.parts.map(child => child.size)
-      .reduce((a, b) => a + Math.max(b, 0), 0);
+    return (
+      this._size +
+      this.parts
+        .map(child => child.size)
+        .reduce((a, b) => a + Math.max(b, 0), 0)
+    );
   },
   set size(aSize) {
     this._size = aSize;
@@ -628,14 +698,25 @@ MimeUnknown.prototype = {
   prettyString(aVerbose, aIndent, aDumpBody) {
     let nextIndent = aIndent + "  ";
 
-    let s = "Unknown: " + (this.isEncrypted ? "[encrypted] " : "") +
-      "" + this.contentType + " (" + this.size + " bytes)";
-    if (aVerbose)
+    let s =
+      "Unknown: " +
+      (this.isEncrypted ? "[encrypted] " : "") +
+      "" +
+      this.contentType +
+      " (" +
+      this.size +
+      " bytes)";
+    if (aVerbose) {
       s += this._prettyHeaderString(aIndent + "  ");
+    }
 
     for (let iPart = 0; iPart < this.parts.length; iPart++) {
       let part = this.parts[iPart];
-      s += "\n" + nextIndent + (iPart + 1) + " " +
+      s +=
+        "\n" +
+        nextIndent +
+        (iPart + 1) +
+        " " +
         (part ? part.prettyString(aVerbose, nextIndent, aDumpBody) : "NULL");
     }
     return s;
@@ -657,8 +738,13 @@ MimeUnknown.prototype = {
  * @ivar size The size of the attachment if available, -1 otherwise (size is set
  *  after initialization by jsmimeemitter.js)
  */
-function MimeMessageAttachment(aPartName, aName, aContentType, aUrl,
-                               aIsExternal) {
+function MimeMessageAttachment(
+  aPartName,
+  aName,
+  aContentType,
+  aUrl,
+  aIsExternal
+) {
   this.partName = aPartName;
   this.name = aName;
   this.contentType = aContentType;
@@ -684,10 +770,18 @@ MimeMessageAttachment.prototype = {
     return [this];
   },
   prettyString(aVerbose, aIndent, aDumpBody) {
-    let s = "Attachment " + (this.isEncrypted ? "[encrypted] " : "") +
-      "(" + this.size + " bytes): " + this.name + ", " + this.contentType;
-    if (aVerbose)
+    let s =
+      "Attachment " +
+      (this.isEncrypted ? "[encrypted] " : "") +
+      "(" +
+      this.size +
+      " bytes): " +
+      this.name +
+      ", " +
+      this.contentType;
+    if (aVerbose) {
       s += this._prettyHeaderString(aIndent + "  ");
+    }
     return s;
   },
   toString() {

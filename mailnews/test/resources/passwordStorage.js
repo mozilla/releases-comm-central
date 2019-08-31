@@ -4,10 +4,11 @@
 
 /* globals gDEPTH */
 
-if (typeof gDEPTH == "undefined")
+if (typeof gDEPTH == "undefined") {
   do_throw("gDEPTH must be defined when using passwordStorage.js");
+}
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * Use the given storage database as the current signon database.

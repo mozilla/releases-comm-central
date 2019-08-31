@@ -18,8 +18,10 @@ function run_test() {
   Services.prefs.setCharPref("mail.server.server1.hostname", "Local Folders");
   Services.prefs.setCharPref("mail.server.server1.type", "none");
   Services.prefs.setCharPref("mail.server.server1.userName", "nobody");
-  Services.prefs.setCharPref("mail.server.server1.directory-rel",
-                             "[ProfD]Mail/Local Folders");
+  Services.prefs.setCharPref(
+    "mail.server.server1.directory-rel",
+    "[ProfD]Mail/Local Folders"
+  );
 
   // Here we are simulating a server and account that is added by an
   //  extension, but that extension is currently unloaded. The extension
@@ -30,8 +32,10 @@ function run_test() {
   Services.prefs.setCharPref("mail.server.server2.type", "invalid");
   Services.prefs.setIntPref("mail.server.server2.secondsToLeaveUnavailable", 2);
 
-  Services.prefs.setCharPref("mail.accountmanager.accounts",
-                             "account1,account2");
+  Services.prefs.setCharPref(
+    "mail.accountmanager.accounts",
+    "account1,account2"
+  );
   Services.prefs.setCharPref("mail.accountmanager.defaultaccount", "account1");
 
   // This will force the load of the accounts setup above.
@@ -39,8 +43,10 @@ function run_test() {
   Assert.equal(MailServices.accounts.accounts.length, 1);
 
   // but it is really there
-  Assert.equal(Services.prefs.getCharPref("mail.accountmanager.accounts"),
-               "account1,account2");
+  Assert.equal(
+    Services.prefs.getCharPref("mail.accountmanager.accounts"),
+    "account1,account2"
+  );
 
   // add a new account (so that we can check if this clobbers the existing
   //  inactive account or its server)
@@ -48,8 +54,11 @@ function run_test() {
   let newIdentity = MailServices.accounts.createIdentity();
   newAccount.addIdentity(newIdentity);
   newAccount.defaultIdentity = newIdentity;
-  newAccount.incomingServer =
-    MailServices.accounts.createIncomingServer("somename", "somehost.example.com", "pop3");
+  newAccount.incomingServer = MailServices.accounts.createIncomingServer(
+    "somename",
+    "somehost.example.com",
+    "pop3"
+  );
 
   // no collisions with the inactive account
   Assert.notEqual(newIdentity.key, "id2");
@@ -75,8 +84,10 @@ function run_test() {
     Assert.equal(MailServices.accounts.accounts.length, 2);
 
     // it is now gone
-    Assert.equal(Services.prefs.getCharPref("mail.accountmanager.accounts"),
-                 "account1," + newAccount.key);
+    Assert.equal(
+      Services.prefs.getCharPref("mail.accountmanager.accounts"),
+      "account1," + newAccount.key
+    );
 
     do_test_finished();
   });

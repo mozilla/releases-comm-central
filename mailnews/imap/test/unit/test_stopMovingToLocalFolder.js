@@ -5,8 +5,10 @@
 /* Test that the message failed to move to a local folder remains on IMAP
  * server. */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 /* import-globals-from ../../../test/resources/logHelper.js */
 /* import-globals-from ../../../test/resources/asyncTestUtils.js */
@@ -21,8 +23,9 @@ function stop_server() {
   IMAPPump.incomingServer.closeCachedConnections();
   IMAPPump.server.stop();
   let thread = gThreadManager.currentThread;
-  while (thread.hasPendingEvents())
+  while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
+  }
 }
 
 var asyncCopyListener = {
@@ -38,18 +41,19 @@ var asyncCopyListener = {
   },
 };
 
-var tests = [
-  setup_messages,
-  move_messages,
-  check_messages,
-];
+var tests = [setup_messages, move_messages, check_messages];
 
 function* setup_messages() {
-  Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
+  Services.prefs.setBoolPref(
+    "mail.server.default.autosync_offline_stores",
+    false
+  );
 
   let messageGenerator = new MessageGenerator();
   let messageString = messageGenerator.makeMessage().toMessageString();
-  let dataUri = Services.io.newURI("data:text/plain;base64," + btoa(messageString));
+  let dataUri = Services.io.newURI(
+    "data:text/plain;base64," + btoa(messageString)
+  );
   let imapMsg = new imapMessage(dataUri.spec, IMAPPump.mailbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(imapMsg);
 
@@ -59,10 +63,19 @@ function* setup_messages() {
 
 function* move_messages() {
   let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  let msg = IMAPPump.inbox.msgDatabase.GetMsgHdrForKey(IMAPPump.mailbox.uidnext - 1);
+  let msg = IMAPPump.inbox.msgDatabase.GetMsgHdrForKey(
+    IMAPPump.mailbox.uidnext - 1
+  );
   messages.appendElement(msg);
-  MailServices.copy.CopyMessages(IMAPPump.inbox, messages, localAccountUtils.inboxFolder,
-                                 true, asyncCopyListener, null, false);
+  MailServices.copy.CopyMessages(
+    IMAPPump.inbox,
+    messages,
+    localAccountUtils.inboxFolder,
+    true,
+    asyncCopyListener,
+    null,
+    false
+  );
   yield false;
 }
 
@@ -80,15 +93,18 @@ function run_test() {
     IMAPPump.server.resetTest();
     try {
       IMAPPump.incomingServer.closeCachedConnections();
-      let serverSink = IMAPPump.incomingServer.QueryInterface(Ci.nsIImapServerSink);
+      let serverSink = IMAPPump.incomingServer.QueryInterface(
+        Ci.nsIImapServerSink
+      );
       serverSink.abortQueuedUrls();
     } catch (ex) {
       dump(ex);
     }
     IMAPPump.server.stop();
     let thread = gThreadManager.currentThread;
-    while (thread.hasPendingEvents())
+    while (thread.hasPendingEvents()) {
       thread.processNextEvent(true);
+    }
   });
   async_run_tests(tests);
 }

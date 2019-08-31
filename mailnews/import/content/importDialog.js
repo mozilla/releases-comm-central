@@ -8,8 +8,10 @@
 
 /* import-globals-from ../../extensions/newsblog/content/feed-subscriptions.js */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var gImportType = null;
 var gImportMsgsBundle;
@@ -28,10 +30,11 @@ var nsISupportsString = Ci.nsISupportsString;
 function OnLoadImportDialog() {
   gImportMsgsBundle = document.getElementById("bundle_importMsgs");
   gFeedsBundle = document.getElementById("bundle_feeds");
-  gImportService = Cc["@mozilla.org/import/import-service;1"]
-                     .getService(Ci.nsIImportService);
+  gImportService = Cc["@mozilla.org/import/import-service;1"].getService(
+    Ci.nsIImportService
+  );
 
-  gProgressInfo = { };
+  gProgressInfo = {};
   gProgressInfo.progressWindow = null;
   gProgressInfo.importInterface = null;
   gProgressInfo.mainWindow = window;
@@ -40,16 +43,23 @@ function OnLoadImportDialog() {
   gProgressInfo.importType = null;
   gProgressInfo.localFolderExists = false;
 
-  gSuccessStr = Cc["@mozilla.org/supports-string;1"]
-                  .createInstance(nsISupportsString);
-  gErrorStr = Cc["@mozilla.org/supports-string;1"]
-                .createInstance(nsISupportsString);
-  gInputStr = Cc["@mozilla.org/supports-string;1"]
-                .createInstance(nsISupportsString);
+  gSuccessStr = Cc["@mozilla.org/supports-string;1"].createInstance(
+    nsISupportsString
+  );
+  gErrorStr = Cc["@mozilla.org/supports-string;1"].createInstance(
+    nsISupportsString
+  );
+  gInputStr = Cc["@mozilla.org/supports-string;1"].createInstance(
+    nsISupportsString
+  );
 
   // look in arguments[0] for parameters
-  if (("arguments" in window) && window.arguments.length >= 1 &&
-      ("importType" in window.arguments[0]) && window.arguments[0].importType) {
+  if (
+    "arguments" in window &&
+    window.arguments.length >= 1 &&
+    "importType" in window.arguments[0] &&
+    window.arguments[0].importType
+  ) {
     // keep parameters in global for later
     gImportType = window.arguments[0].importType;
     gProgressInfo.importType = gImportType;
@@ -67,7 +77,6 @@ function OnLoadImportDialog() {
   document.getElementById("importFields").focus();
 }
 
-
 function SetUpImportType() {
   // set dialog title
   document.getElementById("importFields").value = gImportType;
@@ -75,8 +84,9 @@ function SetUpImportType() {
   // Mac migration not working right now, so disable it.
   if (Services.appinfo.OS == "Darwin") {
     document.getElementById("allRadio").setAttribute("disabled", "true");
-    if (gImportType == "all")
+    if (gImportType == "all") {
       document.getElementById("importFields").value = "addressbook";
+    }
   }
 
   let descriptionDeck = document.getElementById("selectDescriptionDeck");
@@ -88,7 +98,6 @@ function SetUpImportType() {
     ListModules();
   }
 }
-
 
 function SetDivText(id, text) {
   var div = document.getElementById(id);
@@ -105,8 +114,9 @@ function SetDivText(id, text) {
 
 function CheckIfLocalFolderExists() {
   try {
-    if (MailServices.accounts.localFoldersServer)
+    if (MailServices.accounts.localFoldersServer) {
       gProgressInfo.localFolderExists = true;
+    }
   } catch (ex) {
     gProgressInfo.localFolderExists = false;
   }
@@ -127,13 +137,14 @@ async function ImportDialogOKButton() {
   var backButton = document.getElementById("back");
   backButton.setAttribute("disabled", "true");
 
-  if (listbox && (listbox.selectedCount == 1)) {
+  if (listbox && listbox.selectedCount == 1) {
     let module = "";
     let name = "";
     gImportType = document.getElementById("importFields").value;
     let index = listbox.selectedItem.getAttribute("list-index");
-    if (index == -1)
+    if (index == -1) {
       return false;
+    }
     if (gImportType == "feeds") {
       module = "Feeds";
     } else {
@@ -148,8 +159,13 @@ async function ImportDialogOKButton() {
       // Reason: We will create an account with an incoming server of type "none" after
       // importing "mail", so the localFoldersServer is valid even though the Local Folder
       // is not created.
-      if (gImportType == "mail" || gImportType == "settings" || gImportType == "filters")
+      if (
+        gImportType == "mail" ||
+        gImportType == "settings" ||
+        gImportType == "filters"
+      ) {
         CheckIfLocalFolderExists();
+      }
 
       let meterText = "";
       let error = {};
@@ -164,7 +180,10 @@ async function ImportDialogOKButton() {
               return true;
             }
 
-            meterText = gImportMsgsBundle.getFormattedString("MailProgressMeterText", [ name ]);
+            meterText = gImportMsgsBundle.getFormattedString(
+              "MailProgressMeterText",
+              [name]
+            );
             header.setAttribute("description", meterText);
 
             progressStatusEl.setAttribute("label", "");
@@ -172,7 +191,10 @@ async function ImportDialogOKButton() {
 
             deck.selectedIndex = 2;
             gProgressInfo.progressWindow = window;
-            gProgressInfo.intervalState = setInterval(ContinueImportCallback, 100);
+            gProgressInfo.intervalState = setInterval(
+              ContinueImportCallback,
+              100
+            );
             return true;
           }
 
@@ -215,7 +237,10 @@ async function ImportDialogOKButton() {
               return true;
             }
 
-            meterText = gImportMsgsBundle.getFormattedString("AddrProgressMeterText", [ name ]);
+            meterText = gImportMsgsBundle.getFormattedString(
+              "AddrProgressMeterText",
+              [name]
+            );
             header.setAttribute("description", meterText);
 
             progressStatusEl.setAttribute("label", "");
@@ -223,7 +248,10 @@ async function ImportDialogOKButton() {
 
             deck.selectedIndex = 2;
             gProgressInfo.progressWindow = window;
-            gProgressInfo.intervalState = setInterval(ContinueImportCallback, 100);
+            gProgressInfo.intervalState = setInterval(
+              ContinueImportCallback,
+              100
+            );
 
             return true;
           }
@@ -240,9 +268,13 @@ async function ImportDialogOKButton() {
           error.value = null;
           let newAccount = {};
           if (!(await ImportSettings(module, newAccount, error))) {
-            if (error.value)
-              ShowImportResultsRaw(gImportMsgsBundle.getString("ImportSettingsFailed"),
-                                   null, false);
+            if (error.value) {
+              ShowImportResultsRaw(
+                gImportMsgsBundle.getString("ImportSettingsFailed"),
+                null,
+                false
+              );
+            }
             // Re-enable the next button, as we are here, because the user cancelled the picking.
             // Enable next, so they can try again.
             nextButton.removeAttribute("disabled");
@@ -251,17 +283,26 @@ async function ImportDialogOKButton() {
             return false;
           }
           ShowImportResultsRaw(
-            gImportMsgsBundle.getFormattedString("ImportSettingsSuccess", [ name ]),
-            null, true);
+            gImportMsgsBundle.getFormattedString("ImportSettingsSuccess", [
+              name,
+            ]),
+            null,
+            true
+          );
           break;
 
         case "filters":
           error.value = null;
           if (!ImportFilters(module, error)) {
-            if (error.value)
+            if (error.value) {
               ShowImportResultsRaw(
-                gImportMsgsBundle.getFormattedString("ImportFiltersFailed", [ name ]),
-                error.value, false);
+                gImportMsgsBundle.getFormattedString("ImportFiltersFailed", [
+                  name,
+                ]),
+                error.value,
+                false
+              );
+            }
             // Re-enable the next button, as we are here, because the user cancelled the picking.
             // Enable next, so they can try again.
             nextButton.removeAttribute("disabled");
@@ -272,13 +313,19 @@ async function ImportDialogOKButton() {
 
           if (error.value) {
             ShowImportResultsRaw(
-              gImportMsgsBundle.getFormattedString("ImportFiltersPartial", [ name ]),
-              error.value, true
+              gImportMsgsBundle.getFormattedString("ImportFiltersPartial", [
+                name,
+              ]),
+              error.value,
+              true
             );
           } else {
             ShowImportResultsRaw(
-              gImportMsgsBundle.getFormattedString("ImportFiltersSuccess", [ name ]),
-              null, true
+              gImportMsgsBundle.getFormattedString("ImportFiltersSuccess", [
+                name,
+              ]),
+              null,
+              true
             );
           }
 
@@ -307,37 +354,50 @@ function ContinueImportCallback() {
 function ImportSelectionChanged() {
   let listbox = document.getElementById("moduleList");
   let acctNameBox = document.getElementById("acctName-box");
-  if (listbox && (listbox.selectedCount == 1)) {
+  if (listbox && listbox.selectedCount == 1) {
     let index = listbox.selectedItem.getAttribute("list-index");
-    if (index == -1)
+    if (index == -1) {
       return;
+    }
     acctNameBox.setAttribute("style", "visibility: hidden;");
     if (gImportType == "feeds") {
       if (index == 0) {
-        SetDivText("description", gFeedsBundle.getString("ImportFeedsNewAccount"));
+        SetDivText(
+          "description",
+          gFeedsBundle.getString("ImportFeedsNewAccount")
+        );
         let defaultName = gFeedsBundle.getString("feeds-accountname");
         document.getElementById("acctName").value = defaultName;
         acctNameBox.removeAttribute("style");
       } else {
-        SetDivText("description", gFeedsBundle.getString("ImportFeedsExistingAccount"));
+        SetDivText(
+          "description",
+          gFeedsBundle.getString("ImportFeedsExistingAccount")
+        );
       }
     } else {
-      SetDivText("description", gImportService.GetModuleDescription(gImportType, index));
+      SetDivText(
+        "description",
+        gImportService.GetModuleDescription(gImportType, index)
+      );
     }
   }
 }
 
 function CompareImportModuleName(a, b) {
-  if (a.name > b.name)
+  if (a.name > b.name) {
     return 1;
-  if (a.name < b.name)
+  }
+  if (a.name < b.name) {
     return -1;
+  }
   return 0;
 }
 
 function ListModules() {
-  if (gImportService == null)
+  if (gImportService == null) {
     return;
+  }
 
   var body = document.getElementById("moduleList");
   while (body.hasChildNodes()) {
@@ -349,7 +409,10 @@ function ListModules() {
 
   var moduleArray = new Array(count);
   for (i = 0; i < count; i++) {
-    moduleArray[i] = { name: gImportService.GetModuleName(gImportType, i), index: i };
+    moduleArray[i] = {
+      name: gImportService.GetModuleName(gImportType, i),
+      index: i,
+    };
   }
 
   // sort the array of modules by name, so that they'll show up in the right order
@@ -373,13 +436,17 @@ function AddModuleToList(moduleName, index) {
 
 function ListFeedAccounts() {
   let body = document.getElementById("moduleList");
-  while (body.hasChildNodes())
+  while (body.hasChildNodes()) {
     body.lastChild.remove();
+  }
 
   // Add item to allow for new account creation.
   let item = document.createXULElement("richlistitem");
   let label = document.createXULElement("label");
-  label.setAttribute("value", gFeedsBundle.getString("ImportFeedsCreateNewListItem"));
+  label.setAttribute(
+    "value",
+    gFeedsBundle.getString("ImportFeedsCreateNewListItem")
+  );
   item.appendChild(label);
   item.setAttribute("list-index", 0);
   body.appendChild(item);
@@ -397,9 +464,10 @@ function ListFeedAccounts() {
     body.appendChild(item);
   }, this);
 
-  if (index)
+  if (index) {
     // If there is an existing feed account, select the first one.
     body.selectedIndex = 1;
+  }
 }
 
 function ContinueImport(info) {
@@ -422,15 +490,17 @@ function ContinueImport(info) {
     } else if ((pcnt = info.importInterface.GetProgress()) < 100) {
       clear = false;
       if (info.progressWindow != null) {
-        if (pcnt < 5)
+        if (pcnt < 5) {
           pcnt = 5;
+        }
         SetProgress(pcnt);
         if (isMail) {
           let mailName = info.importInterface.GetData("currentMailbox");
           if (mailName) {
             mailName = mailName.QueryInterface(Ci.nsISupportsString);
-            if (mailName)
+            if (mailName) {
               SetStatusText(mailName.data);
+            }
           }
         }
       }
@@ -454,7 +524,6 @@ function ContinueImport(info) {
   }
 }
 
-
 function ShowResults(doesWantProgress, result) {
   if (result) {
     if (doesWantProgress) {
@@ -463,7 +532,10 @@ function ShowResults(doesWantProgress, result) {
       let progressStatusEl = document.getElementById("progressStatus");
       let progressTitleEl = document.getElementById("progressTitle");
 
-      let meterText = gImportMsgsBundle.getFormattedString("AddrProgressMeterText", [ name ]);
+      let meterText = gImportMsgsBundle.getFormattedString(
+        "AddrProgressMeterText",
+        [name]
+      );
       header.setAttribute("description", meterText);
 
       progressStatusEl.setAttribute("label", "");
@@ -495,15 +567,16 @@ function ShowImportResults(good, module) {
   var results, title;
   var moduleName = gSelectedModuleName ? gSelectedModuleName : "";
   if (good && !gErrorStr.data) {
-    title = gImportMsgsBundle.getFormattedString(modSuccess, [ moduleName ]);
+    title = gImportMsgsBundle.getFormattedString(modSuccess, [moduleName]);
     results = gSuccessStr.data;
   } else if (gErrorStr.data) {
-    title = gImportMsgsBundle.getFormattedString(modFailed, [ moduleName ]);
+    title = gImportMsgsBundle.getFormattedString(modFailed, [moduleName]);
     results = gErrorStr.data;
   }
 
-  if (results && title)
+  if (results && title) {
     ShowImportResultsRaw(title, results, good);
+  }
 }
 
 function ShowImportResultsRaw(title, results, good) {
@@ -524,8 +597,9 @@ function ShowImportResultsRaw(title, results, good) {
 
   // If the Local Folder doesn't exist, create it after successfully
   // importing "mail" and "settings"
-  var checkLocalFolder = (gProgressInfo.importType == "mail" ||
-                          gProgressInfo.importType == "settings");
+  var checkLocalFolder =
+    gProgressInfo.importType == "mail" ||
+    gProgressInfo.importType == "settings";
   if (good && checkLocalFolder && !gProgressInfo.localFolderExists) {
     MailServices.accounts.createLocalMailAccount();
   }
@@ -590,25 +664,27 @@ async function ImportSettings(module, newAccount, error) {
       // in a file, so ask the user for the settings file.
       let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance();
       if (filePicker instanceof Ci.nsIFilePicker) {
-          let file = null;
-          try {
-            filePicker.init(window,
-                            gImportMsgsBundle.getString("ImportSelectSettings"),
-                            filePicker.modeOpen);
-            filePicker.appendFilters(filePicker.filterAll);
+        let file = null;
+        try {
+          filePicker.init(
+            window,
+            gImportMsgsBundle.getString("ImportSelectSettings"),
+            filePicker.modeOpen
+          );
+          filePicker.appendFilters(filePicker.filterAll);
 
-            file = await promptForFile(filePicker);
-          } catch (ex) {
-            Cu.reportError(ex);
-            error.value = null;
-            return false;
-          }
-          if (file != null) {
-            setIntf.SetLocation(file);
-          } else {
-            error.value = null;
-            return false;
-          }
+          file = await promptForFile(filePicker);
+        } catch (ex) {
+          Cu.reportError(ex);
+          error.value = null;
+          return false;
+        }
+        if (file != null) {
+          setIntf.SetLocation(file);
+        } else {
+          error.value = null;
+          return false;
+        }
       } else {
         error.value = gImportMsgsBundle.getString("ImportSettingsNotFound");
         return false;
@@ -650,21 +726,23 @@ async function ImportMail(module, success, error) {
     if (mailInterface.GetStatus("canUserSetLocation") != 0) {
       let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance();
       if (filePicker instanceof Ci.nsIFilePicker) {
-          try {
-            filePicker.init(window,
-                            gImportMsgsBundle.getString("ImportSelectMailDir"),
-                            filePicker.modeGetFolder);
-            filePicker.appendFilters(filePicker.filterAll);
-            let file = await promptForFile(filePicker);
-            if (!file) {
-              return false;
-            }
-            mailInterface.SetData("mailLocation", file);
-          } catch (ex) {
-            Cu.reportError(ex);
-            // don't show an error when we return!
+        try {
+          filePicker.init(
+            window,
+            gImportMsgsBundle.getString("ImportSelectMailDir"),
+            filePicker.modeGetFolder
+          );
+          filePicker.appendFilters(filePicker.filterAll);
+          let file = await promptForFile(filePicker);
+          if (!file) {
             return false;
           }
+          mailInterface.SetData("mailLocation", file);
+        } catch (ex) {
+          Cu.reportError(ex);
+          // don't show an error when we return!
+          return false;
+        }
       } else {
         error.data = gImportMsgsBundle.getString("ImportMailNotFound");
         return false;
@@ -676,7 +754,7 @@ async function ImportMail(module, success, error) {
   }
 
   if (mailInterface.WantsProgress()) {
-   if (mailInterface.BeginImport(success, error)) {
+    if (mailInterface.BeginImport(success, error)) {
       gProgressInfo.importInterface = mailInterface;
       // intervalState = setInterval(ContinueImport, 100);
       return true;
@@ -685,7 +763,6 @@ async function ImportMail(module, success, error) {
   }
   return mailInterface.BeginImport(success, error);
 }
-
 
 // The address import!  A little more complicated than the mail import
 // due to field maps...
@@ -706,8 +783,9 @@ async function ImportAddress(module, success, error) {
   var loc = gAddInterface.GetStatus("autoFind");
   if (loc == 0) {
     loc = gAddInterface.GetData("addressLocation");
-    if ((loc instanceof Ci.nsIFile) && !loc.exists)
+    if (loc instanceof Ci.nsIFile && !loc.exists) {
       loc = null;
+    }
   }
 
   if (loc == null) {
@@ -733,9 +811,11 @@ async function ImportAddress(module, success, error) {
     if (gAddInterface.GetStatus("supportsMultiple") != 0) {
       // ask for dir
       try {
-        filePicker.init(window,
-                        gImportMsgsBundle.getString("ImportSelectAddrDir"),
-                        filePicker.modeGetFolder);
+        filePicker.init(
+          window,
+          gImportMsgsBundle.getString("ImportSelectAddrDir"),
+          filePicker.modeGetFolder
+        );
         filePicker.appendFilters(filePicker.filterAll);
         file = await promptForFile(filePicker);
         if (file && file.path) {
@@ -748,19 +828,39 @@ async function ImportAddress(module, success, error) {
     } else {
       // ask for file
       try {
-        filePicker.init(window,
-                        gImportMsgsBundle.getString("ImportSelectAddrFile"),
-                        filePicker.modeOpen);
+        filePicker.init(
+          window,
+          gImportMsgsBundle.getString("ImportSelectAddrFile"),
+          filePicker.modeOpen
+        );
         let addressbookBundle = document.getElementById("bundle_addressbook");
-        if (gSelectedModuleName ==
-            document.getElementById("bundle_vcardImportMsgs")
-                    .getString("vCardImportName")) {
-          filePicker.appendFilter(addressbookBundle.getString("VCFFiles"), "*.vcf");
+        if (
+          gSelectedModuleName ==
+          document
+            .getElementById("bundle_vcardImportMsgs")
+            .getString("vCardImportName")
+        ) {
+          filePicker.appendFilter(
+            addressbookBundle.getString("VCFFiles"),
+            "*.vcf"
+          );
         } else {
-          filePicker.appendFilter(addressbookBundle.getString("LDIFFiles"), "*.ldi; *.ldif");
-          filePicker.appendFilter(addressbookBundle.getString("CSVFiles"), "*.csv");
-          filePicker.appendFilter(addressbookBundle.getString("TABFiles"), "*.tab; *.txt");
-          filePicker.appendFilter(addressbookBundle.getString("SupportedABFiles"), ".csv; *.ldi; *.ldif; *.tab; *.txt");
+          filePicker.appendFilter(
+            addressbookBundle.getString("LDIFFiles"),
+            "*.ldi; *.ldif"
+          );
+          filePicker.appendFilter(
+            addressbookBundle.getString("CSVFiles"),
+            "*.csv"
+          );
+          filePicker.appendFilter(
+            addressbookBundle.getString("TABFiles"),
+            "*.tab; *.txt"
+          );
+          filePicker.appendFilter(
+            addressbookBundle.getString("SupportedABFiles"),
+            ".csv; *.ldi; *.ldif; *.tab; *.txt"
+          );
           filePicker.appendFilters(filePicker.filterAll);
           // Use "Supported Address Book Files" as default file filter.
           filePicker.filterIndex = 3;
@@ -777,9 +877,11 @@ async function ImportAddress(module, success, error) {
       return false;
     }
 
-    if (!fileIsDirectory && (file.fileSize == 0)) {
-      let errorText = gImportMsgsBundle.getFormattedString("ImportEmptyAddressBook",
-                                                           [file.leafName]);
+    if (!fileIsDirectory && file.fileSize == 0) {
+      let errorText = gImportMsgsBundle.getFormattedString(
+        "ImportEmptyAddressBook",
+        [file.leafName]
+      );
 
       Services.prompt.alert(window, document.title, errorText);
       return false;
@@ -799,10 +901,12 @@ async function ImportAddress(module, success, error) {
         fieldMap: map,
         addInterface: gAddInterface,
         result,
-      });
+      }
+    );
 
-    if (!result.ok)
+    if (!result.ok) {
       return false;
+    }
   }
 
   if (gAddInterface.WantsProgress()) {
@@ -863,16 +967,22 @@ async function ImportFeeds() {
   acctName = server.rootFolder.prettyName;
 
   let callback = function(aStatusReport, aLastFolder, aFeedWin) {
-    let message = gFeedsBundle.getFormattedString("ImportFeedsDone",
-                                                  [fileName, acctNewExist, acctName]);
+    let message = gFeedsBundle.getFormattedString("ImportFeedsDone", [
+      fileName,
+      acctNewExist,
+      acctName,
+    ]);
     ShowImportResultsRaw(message + "  " + aStatusReport, null, true);
     document.getElementById("back").removeAttribute("disabled");
 
-    let subscriptionsWindow = Services.wm.getMostRecentWindow("Mail:News-BlogSubscriptions");
+    let subscriptionsWindow = Services.wm.getMostRecentWindow(
+      "Mail:News-BlogSubscriptions"
+    );
     if (subscriptionsWindow) {
       let feedWin = subscriptionsWindow.FeedSubscriptions;
-      if (aLastFolder)
+      if (aLastFolder) {
         feedWin.FolderListener.folderAdded(aLastFolder);
+      }
 
       feedWin.mActionMode = null;
       feedWin.updateButtons(feedWin.mView.currentItem);
@@ -881,10 +991,20 @@ async function ImportFeeds() {
     }
   };
 
-  if (!(await FeedSubscriptions.importOPMLFile(openFile, openFileUrl, server, callback)))
+  if (
+    !(await FeedSubscriptions.importOPMLFile(
+      openFile,
+      openFileUrl,
+      server,
+      callback
+    ))
+  ) {
     return false;
+  }
 
-  let subscriptionsWindow = Services.wm.getMostRecentWindow("Mail:News-BlogSubscriptions");
+  let subscriptionsWindow = Services.wm.getMostRecentWindow(
+    "Mail:News-BlogSubscriptions"
+  );
   if (subscriptionsWindow) {
     let feedWin = subscriptionsWindow.FeedSubscriptions;
     feedWin.mActionMode = feedWin.kImportingOPML;
@@ -898,8 +1018,9 @@ async function ImportFeeds() {
 }
 
 function SwitchType(newType) {
-  if (gImportType == newType)
+  if (gImportType == newType) {
     return;
+  }
 
   gImportType = newType;
   gProgressInfo.importType = newType;
@@ -909,60 +1030,72 @@ function SwitchType(newType) {
   SetDivText("description", "");
 }
 
-
 function next() {
   var deck = document.getElementById("stateDeck");
   switch (deck.selectedIndex) {
-  case "0":
-    let backButton = document.getElementById("back");
-    backButton.removeAttribute("disabled");
-    let radioGroup = document.getElementById("importFields");
+    case "0":
+      let backButton = document.getElementById("back");
+      backButton.removeAttribute("disabled");
+      let radioGroup = document.getElementById("importFields");
 
-    if (radioGroup.value == "all") {
-      let args = { closeMigration: true };
-      let SEAMONKEY_ID = "{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}";
-      if (Services.appinfo.ID == SEAMONKEY_ID) {
-        window.openDialog("chrome://communicator/content/migration/migration.xul",
-                          "", "chrome,dialog,modal,centerscreen");
+      if (radioGroup.value == "all") {
+        let args = { closeMigration: true };
+        let SEAMONKEY_ID = "{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}";
+        if (Services.appinfo.ID == SEAMONKEY_ID) {
+          window.openDialog(
+            "chrome://communicator/content/migration/migration.xul",
+            "",
+            "chrome,dialog,modal,centerscreen"
+          );
+        } else {
+          // Running as Thunderbird or its clone.
+          window.openDialog(
+            "chrome://messenger/content/migration/migration.xul",
+            "",
+            "chrome,dialog,modal,centerscreen",
+            null,
+            null,
+            null,
+            args
+          );
+        }
+        if (args.closeMigration) {
+          close();
+        }
       } else {
-        // Running as Thunderbird or its clone.
-        window.openDialog("chrome://messenger/content/migration/migration.xul",
-                          "", "chrome,dialog,modal,centerscreen", null, null, null, args);
+        SwitchType(radioGroup.value);
+        deck.selectedIndex = 1;
+        document.getElementById("modulesFound").selectedIndex =
+          document.getElementById("moduleList").itemCount > 0 ? 0 : 1;
+        SelectFirstItem();
+        enableAdvance();
       }
-      if (args.closeMigration)
-        close();
-    } else {
-      SwitchType(radioGroup.value);
-      deck.selectedIndex = 1;
-      document.getElementById("modulesFound").selectedIndex =
-        (document.getElementById("moduleList").itemCount > 0) ? 0 : 1;
-      SelectFirstItem();
-      enableAdvance();
-    }
-    break;
-  case "1":
-    ImportDialogOKButton();
-    break;
-  case "3":
-    close();
-    break;
+      break;
+    case "1":
+      ImportDialogOKButton();
+      break;
+    case "3":
+      close();
+      break;
   }
 }
 
 function SelectFirstItem() {
   var listbox = document.getElementById("moduleList");
-  if ((listbox.selectedIndex == -1) && (listbox.itemCount > 0))
+  if (listbox.selectedIndex == -1 && listbox.itemCount > 0) {
     listbox.selectedIndex = 0;
+  }
   ImportSelectionChanged();
 }
 
 function enableAdvance() {
   var listbox = document.getElementById("moduleList");
   var nextButton = document.getElementById("forward");
-  if (listbox.selectedCount > 0)
+  if (listbox.selectedCount > 0) {
     nextButton.removeAttribute("disabled");
-  else
+  } else {
     nextButton.setAttribute("disabled", "true");
+  }
 }
 
 function back() {
@@ -970,31 +1103,33 @@ function back() {
   var backButton = document.getElementById("back");
   var nextButton = document.getElementById("forward");
   switch (deck.selectedIndex) {
-  case "1":
-    backButton.setAttribute("disabled", "true");
-    nextButton.label = nextButton.getAttribute("nextval");
-    nextButton.removeAttribute("disabled");
-    deck.selectedIndex = 0;
-    break;
-  case "3":
-    // Clear out the results box.
-    let results = document.getElementById("results");
-    while (results.hasChildNodes())
-      results.lastChild.remove();
+    case "1":
+      backButton.setAttribute("disabled", "true");
+      nextButton.label = nextButton.getAttribute("nextval");
+      nextButton.removeAttribute("disabled");
+      deck.selectedIndex = 0;
+      break;
+    case "3":
+      // Clear out the results box.
+      let results = document.getElementById("results");
+      while (results.hasChildNodes()) {
+        results.lastChild.remove();
+      }
 
-    // Reset the next button.
-    nextButton.label = nextButton.getAttribute("nextval");
-    nextButton.removeAttribute("disabled");
+      // Reset the next button.
+      nextButton.label = nextButton.getAttribute("nextval");
+      nextButton.removeAttribute("disabled");
 
-    // Enable the cancel button again.
-    document.getElementById("cancel").removeAttribute("disabled");
+      // Enable the cancel button again.
+      document.getElementById("cancel").removeAttribute("disabled");
 
-    // If a new Feed account has been created, rebuild the list.
-    if (gNewFeedAcctCreated)
-      ListFeedAccounts();
+      // If a new Feed account has been created, rebuild the list.
+      if (gNewFeedAcctCreated) {
+        ListFeedAccounts();
+      }
 
-    // Now go back to the second page.
-    deck.selectedIndex = 1;
-    break;
+      // Now go back to the second page.
+      deck.selectedIndex = 1;
+      break;
   }
 }

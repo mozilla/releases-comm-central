@@ -3,26 +3,31 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
-var kDebug              = false;
+var kDebug = false;
 var kOfflineStartupPref = "offline.startup_state";
-var kRememberLastState  = 0;
-var kAskForOnlineState  = 1;
-var kAlwaysOnline       = 2;
-var kAlwaysOffline      = 3;
-var kAutomatic          = 4;
-var gStartingUp         = true;
-var gOfflineStartupMode;  // 0 = remember last state, 1 = ask me, 2 == online, 3 == offline, 4 = automatic
+var kRememberLastState = 0;
+var kAskForOnlineState = 1;
+var kAlwaysOnline = 2;
+var kAlwaysOffline = 3;
+var kAutomatic = 4;
+var gStartingUp = true;
+var gOfflineStartupMode; // 0 = remember last state, 1 = ask me, 2 == online, 3 == offline, 4 = automatic
 var gDebugLog;
 
 // Debug helper
 
-if (!kDebug)
+if (!kDebug) {
   gDebugLog = function(m) {};
-else
-  gDebugLog = function(m) { dump("\t *** nsOfflineStartup: " + m + "\n"); };
+} else {
+  gDebugLog = function(m) {
+    dump("\t *** nsOfflineStartup: " + m + "\n");
+  };
+}
 
 // nsOfflineStartup : nsIObserver
 //
@@ -58,35 +63,49 @@ var nsOfflineStartup = {
       Services.io.offline = true;
     } else if (gOfflineStartupMode == kAlwaysOnline) {
       Services.io.manageOfflineStatus = manageOfflineStatus;
-      if (wasOffline)
+      if (wasOffline) {
         Services.prefs.setBoolPref("mailnews.playback_offline", true);
+      }
       // If we're managing the offline status, don't force online here... it may
       // be the network really is offline.
-      if (!manageOfflineStatus)
+      if (!manageOfflineStatus) {
         Services.io.offline = false;
+      }
     } else if (gOfflineStartupMode == kRememberLastState) {
       Services.io.manageOfflineStatus = manageOfflineStatus && !wasOffline;
       // If we are meant to be online, and managing the offline status
       // then don't force it - it may be the network really is offline.
-      if (!manageOfflineStatus || wasOffline)
+      if (!manageOfflineStatus || wasOffline) {
         Services.io.offline = wasOffline;
+      }
     } else if (gOfflineStartupMode == kAskForOnlineState) {
-      var bundle = Services.strings.createBundle("chrome://messenger/locale/offlineStartup.properties");
+      var bundle = Services.strings.createBundle(
+        "chrome://messenger/locale/offlineStartup.properties"
+      );
       var title = bundle.GetStringFromName("title");
       var desc = bundle.GetStringFromName("desc");
       var button0Text = bundle.GetStringFromName("workOnline");
       var button1Text = bundle.GetStringFromName("workOffline");
-      var checkVal = {value: 0};
+      var checkVal = { value: 0 };
 
-      var result = Services.prompt.confirmEx(null, title, desc,
-        (Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING) +
-        (Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_IS_STRING),
-        button0Text, button1Text, null, null, checkVal);
+      var result = Services.prompt.confirmEx(
+        null,
+        title,
+        desc,
+        Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING +
+          Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_IS_STRING,
+        button0Text,
+        button1Text,
+        null,
+        null,
+        checkVal
+      );
       gDebugLog("result = " + result + "\n");
       Services.io.manageOfflineStatus = manageOfflineStatus && result != 1;
       Services.io.offline = result == 1;
-      if (result != 1 && wasOffline)
+      if (result != 1 && wasOffline) {
         Services.prefs.setBoolPref("mailnews.playback_offline", true);
+      }
     }
   },
 
@@ -104,19 +123,18 @@ var nsOfflineStartup = {
     }
   },
 
-
   QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
 };
 
-function nsOfflineStartupModule() {
-}
+function nsOfflineStartupModule() {}
 
 nsOfflineStartupModule.prototype = {
   classID: Components.ID("3028a3c8-2165-42a4-b878-398da5d32736"),
   _xpcom_factory: {
     createInstance(aOuter, aIID) {
-      if (aOuter != null)
+      if (aOuter != null) {
         throw Cr.NS_ERROR_NO_AGGREGATION;
+      }
 
       // return the singleton
       return nsOfflineStartup.QueryInterface(aIID);

@@ -33,8 +33,9 @@ function check_ab(abConfig) {
 
   // Test - Is it the right type?
 
-  if (abConfig.dirType == 2)
+  if (abConfig.dirType == 2) {
     Assert.ok(AB instanceof Ci.nsIAbMDBDirectory);
+  }
 
   // Test - Check attributes
 
@@ -72,32 +73,45 @@ function check_ab(abConfig) {
   Assert.equal(AB.getStringValue("random", "abc"), "abc");
   Assert.equal(AB.getLocalizedStringValue("random", "xyz"), "xyz");
 
-
   // Test - check get/set int preferences on nsIAbDirectory
 
   AB.setIntValue("inttest", 12345);
-  Assert.equal(Services.prefs.getIntPref(abConfig.dirPrefID + ".inttest"), 12345);
+  Assert.equal(
+    Services.prefs.getIntPref(abConfig.dirPrefID + ".inttest"),
+    12345
+  );
   Assert.equal(AB.getIntValue("inttest", -1), 12345);
 
   AB.setIntValue("inttest", 123456);
-  Assert.equal(Services.prefs.getIntPref(abConfig.dirPrefID + ".inttest"), 123456);
+  Assert.equal(
+    Services.prefs.getIntPref(abConfig.dirPrefID + ".inttest"),
+    123456
+  );
   Assert.equal(AB.getIntValue("inttest", -2), 123456);
 
   // Test - check get/set bool preferences on nsIAbDirectory
 
   AB.setBoolValue("booltest", true);
-  Assert.equal(Services.prefs.getBoolPref(abConfig.dirPrefID + ".booltest"), true);
+  Assert.equal(
+    Services.prefs.getBoolPref(abConfig.dirPrefID + ".booltest"),
+    true
+  );
   Assert.equal(AB.getBoolValue("booltest", false), true);
 
   AB.setBoolValue("booltest", false);
-  Assert.equal(Services.prefs.getBoolPref(abConfig.dirPrefID + ".booltest"), false);
+  Assert.equal(
+    Services.prefs.getBoolPref(abConfig.dirPrefID + ".booltest"),
+    false
+  );
   Assert.equal(AB.getBoolValue("booltest", true), false);
-
 
   // Test - check get/set string preferences on nsIAbDirectory
 
   AB.setStringValue("stringtest", "tyu");
-  Assert.equal(Services.prefs.getCharPref(abConfig.dirPrefID + ".stringtest"), "tyu");
+  Assert.equal(
+    Services.prefs.getCharPref(abConfig.dirPrefID + ".stringtest"),
+    "tyu"
+  );
   Assert.equal(AB.getStringValue("stringtest", ""), "tyu");
 }
 

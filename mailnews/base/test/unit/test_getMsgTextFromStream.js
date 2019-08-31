@@ -61,14 +61,22 @@ function run_test() {
   gTestFiles.forEach(function(test) {
     dump("Testing " + test.name + "\n");
     var inFile = do_get_file(kDataRoot + test.name);
-    var inStream = Cc["@mozilla.org/network/file-input-stream;1"]
-                     .createInstance(Ci.nsIFileInputStream);
+    var inStream = Cc[
+      "@mozilla.org/network/file-input-stream;1"
+    ].createInstance(Ci.nsIFileInputStream);
     inStream.init(inFile, -1, -1, Ci.nsIFileInputStream.CLOSE_ON_EOF);
 
     // Now get the message body using getMsgTextFromStream
     var contentType = {};
-    var body = folder.getMsgTextFromStream(inStream, "", test.bytesToRead, 65536,
-                                           test.compressQuotes, test.stripHTML, contentType);
+    var body = folder.getMsgTextFromStream(
+      inStream,
+      "",
+      test.bytesToRead,
+      65536,
+      test.compressQuotes,
+      test.stripHTML,
+      contentType
+    );
 
     // Now we need to compare the output
     Assert.equal(test.contentType, contentType.value);

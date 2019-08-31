@@ -16,14 +16,14 @@ function onInit() {
   return true;
 }
 
-function onSave() {
-}
+function onSave() {}
 
 function EnableDisableCustomSettings() {
-  if (useCustomPrefs && (useCustomPrefs.getAttribute("value") == "false"))
+  if (useCustomPrefs && useCustomPrefs.getAttribute("value") == "false") {
     requestAlways.setAttribute("disabled", "true");
-  else
+  } else {
     requestAlways.removeAttribute("disabled");
+  }
 
   return true;
 }

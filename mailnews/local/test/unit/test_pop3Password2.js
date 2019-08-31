@@ -13,23 +13,35 @@ var daemon;
 var incomingServer;
 var thisTest;
 
-var tests = [{
-  title: "Get New Mail, One Message",
-  messages: ["message1.eml"],
-  transaction: ["AUTH", "CAPA", "AUTH PLAIN", "STAT", "LIST", "UIDL", "RETR 1", "DELE 1"],
-}];
+var tests = [
+  {
+    title: "Get New Mail, One Message",
+    messages: ["message1.eml"],
+    transaction: [
+      "AUTH",
+      "CAPA",
+      "AUTH PLAIN",
+      "STAT",
+      "LIST",
+      "UIDL",
+      "RETR 1",
+      "DELE 1",
+    ],
+  },
+];
 
 var urlListener = {
-  OnStartRunningUrl(url) {
-  },
+  OnStartRunningUrl(url) {},
   OnStopRunningUrl(url, result) {
     try {
       var transaction = server.playTransaction();
 
       do_check_transaction(transaction, thisTest.transaction);
 
-      Assert.equal(localAccountUtils.inboxFolder.getTotalMessages(false),
-                   thisTest.messages.length);
+      Assert.equal(
+        localAccountUtils.inboxFolder.getTotalMessages(false),
+        thisTest.messages.length
+      );
 
       Assert.equal(result, 0);
     } catch (e) {
@@ -37,8 +49,9 @@ var urlListener = {
       server.stop();
 
       var thread = gThreadManager.currentThread;
-      while (thread.hasPendingEvents())
+      while (thread.hasPendingEvents()) {
         thread.processNextEvent(true);
+      }
 
       do_throw(e);
     }
@@ -56,17 +69,20 @@ function checkBusy() {
     server.stop();
 
     var thread = gThreadManager.currentThread;
-    while (thread.hasPendingEvents())
+    while (thread.hasPendingEvents()) {
       thread.processNextEvent(true);
+    }
 
     do_test_finished();
     return;
   }
 
   // If the server hasn't quite finished, just delay a little longer.
-  if (incomingServer.serverBusy ||
-      (incomingServer instanceof Ci.nsIPop3IncomingServer &&
-       incomingServer.runningProtocol)) {
+  if (
+    incomingServer.serverBusy ||
+    (incomingServer instanceof Ci.nsIPop3IncomingServer &&
+      incomingServer.runningProtocol)
+  ) {
     do_timeout(20, checkBusy);
     return;
   }
@@ -87,8 +103,12 @@ function testNext() {
     daemon.setMessages(thisTest.messages);
 
     // Now get the mail
-    MailServices.pop3.GetNewMail(null, urlListener, localAccountUtils.inboxFolder,
-                                 incomingServer);
+    MailServices.pop3.GetNewMail(
+      null,
+      urlListener,
+      localAccountUtils.inboxFolder,
+      incomingServer
+    );
 
     server.performTest();
   } catch (e) {
@@ -97,8 +117,9 @@ function testNext() {
     do_throw(e);
   } finally {
     var thread = gThreadManager.currentThread;
-    while (thread.hasPendingEvents())
+    while (thread.hasPendingEvents()) {
       thread.processNextEvent(true);
+    }
   }
 }
 
@@ -116,20 +137,38 @@ add_task(async function() {
   Services.prefs.setCharPref("mail.account.account1.server", "server1");
   Services.prefs.setCharPref("mail.account.account2.server", "server2");
   Services.prefs.setCharPref("mail.account.account2.identities", "id1");
-  Services.prefs.setCharPref("mail.accountmanager.accounts", "account1,account2");
-  Services.prefs.setCharPref("mail.accountmanager.localfoldersserver", "server1");
+  Services.prefs.setCharPref(
+    "mail.accountmanager.accounts",
+    "account1,account2"
+  );
+  Services.prefs.setCharPref(
+    "mail.accountmanager.localfoldersserver",
+    "server1"
+  );
   Services.prefs.setCharPref("mail.accountmanager.defaultaccount", "account2");
   Services.prefs.setCharPref("mail.identity.id1.fullName", "testpop3");
-  Services.prefs.setCharPref("mail.identity.id1.useremail", "testpop3@localhost");
+  Services.prefs.setCharPref(
+    "mail.identity.id1.useremail",
+    "testpop3@localhost"
+  );
   Services.prefs.setBoolPref("mail.identity.id1.valid", true);
-  Services.prefs.setCharPref("mail.server.server1.directory-rel", "[ProfD]Mail/Local Folders");
+  Services.prefs.setCharPref(
+    "mail.server.server1.directory-rel",
+    "[ProfD]Mail/Local Folders"
+  );
   Services.prefs.setCharPref("mail.server.server1.hostname", "Local Folders");
   Services.prefs.setCharPref("mail.server.server1.name", "Local Folders");
   Services.prefs.setCharPref("mail.server.server1.type", "none");
   Services.prefs.setCharPref("mail.server.server1.userName", "nobody");
-  Services.prefs.setCharPref("mail.server.server2.directory-rel", "[ProfD]Mail/invalid");
+  Services.prefs.setCharPref(
+    "mail.server.server2.directory-rel",
+    "[ProfD]Mail/invalid"
+  );
   Services.prefs.setCharPref("mail.server.server2.hostname", "invalid");
-  Services.prefs.setCharPref("mail.server.server2.name", "testpop3 on localhost");
+  Services.prefs.setCharPref(
+    "mail.server.server2.name",
+    "testpop3 on localhost"
+  );
   Services.prefs.setCharPref("mail.server.server2.realhostname", "localhost");
   Services.prefs.setCharPref("mail.server.server2.realuserName", "testpop3");
   Services.prefs.setCharPref("mail.server.server2.type", "pop3");
@@ -154,8 +193,9 @@ add_task(async function() {
 
   localAccountUtils.incomingServer = MailServices.accounts.localFoldersServer;
 
-  var rootFolder = localAccountUtils.incomingServer
-                                    .rootMsgFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  var rootFolder = localAccountUtils.incomingServer.rootMsgFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
 
   // Note: Inbox is not created automatically when there is no deferred server,
   // so we need to create it.

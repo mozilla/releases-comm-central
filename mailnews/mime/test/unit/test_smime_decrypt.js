@@ -8,9 +8,15 @@
  * or bad as expected.
  */
 
-var {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
-var {PromiseUtils } = ChromeUtils.import("resource://gre/modules/PromiseUtils.jsm");
-var {SmimeUtils} = ChromeUtils.import("resource://testing-common/mailnews/smimeUtils.jsm");
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
+var { PromiseUtils } = ChromeUtils.import(
+  "resource://gre/modules/PromiseUtils.jsm"
+);
+var { SmimeUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/smimeUtils.jsm"
+);
 
 /* import-globals-from ../../../test/resources/logHelper.js */
 /* import-globals-from ../../../test/resources/asyncTestUtils.js */
@@ -44,17 +50,25 @@ function testCertValidity(cert, date) {
     const certificateUsageEmailRecipient = 0x0020;
     let result = new CertVerificationResultCallback(resolve);
     let flags = Ci.nsIX509CertDB.FLAG_LOCAL_ONLY;
-    const certdb = Cc["@mozilla.org/security/x509certdb;1"]
-                     .getService(Ci.nsIX509CertDB);
-    certdb.asyncVerifyCertAtTime(cert, certificateUsageEmailRecipient, flags,
-                                 "Alice@example.com", date, result);
+    const certdb = Cc["@mozilla.org/security/x509certdb;1"].getService(
+      Ci.nsIX509CertDB
+    );
+    certdb.asyncVerifyCertAtTime(
+      cert,
+      certificateUsageEmailRecipient,
+      flags,
+      "Alice@example.com",
+      date,
+      result
+    );
   });
   return prom;
 }
 
 add_task(async function verifyTestCertsStillValid() {
-  let composeSecure = Cc["@mozilla.org/messengercompose/composesecure;1"]
-                      .createInstance(Ci.nsIMsgComposeSecure);
+  let composeSecure = Cc[
+    "@mozilla.org/messengercompose/composesecure;1"
+  ].createInstance(Ci.nsIMsgComposeSecure);
   let cert = composeSecure.findCertByEmailAddress("Alice@example.com", false);
   Assert.notEqual(cert, null);
 
@@ -67,22 +81,26 @@ add_task(async function verifyTestCertsStillValid() {
     // Either certs have expired, or something else is going wrong.
     // Let's test if they were valid a week ago, for a better guess.
 
-    let oneWeekAgo = now - (7 * 24 * 60 * 60);
+    let oneWeekAgo = now - 7 * 24 * 60 * 60;
     prom = testCertValidity(cert, oneWeekAgo);
     await prom;
 
     if (gCertValidityResult == 0) {
-      Assert.ok(false,
-       "The S/MIME test certificates are invalid today, but were valid one week ago. " +
-       "Most likely they have expired and new certificates need to be generated and committed. " +
-       "Follow the instructions in comm/mailnews/test/data/smime/README.md");
+      Assert.ok(
+        false,
+        "The S/MIME test certificates are invalid today, but were valid one week ago. " +
+          "Most likely they have expired and new certificates need to be generated and committed. " +
+          "Follow the instructions in comm/mailnews/test/data/smime/README.md"
+      );
     } else {
-      Assert.ok(false,
-       "The S/MIME test certificates are invalid today, but were also invalid one week ago. " +
-       "If this error is first appearing today, the reason might be unrelated to expiration, " +
-       "and could indicate a general error in certificate validation. Nevertheless, if you'd " +
-       "like to attempt a refresh of certificates: " +
-       "Follow the instructions in comm/mailnews/test/data/smime/README.md");
+      Assert.ok(
+        false,
+        "The S/MIME test certificates are invalid today, but were also invalid one week ago. " +
+          "If this error is first appearing today, the reason might be unrelated to expiration, " +
+          "and could indicate a general error in certificate validation. Nevertheless, if you'd " +
+          "like to attempt a refresh of certificates: " +
+          "Follow the instructions in comm/mailnews/test/data/smime/README.md"
+      );
     }
   }
 });
@@ -99,7 +117,9 @@ let smimeHeaderSink = {
     this._results = [];
     return this._deferred.promise;
   },
-  maxWantedNesting() { return 2; },
+  maxWantedNesting() {
+    return 2;
+  },
   signedStatus(aNestingLevel, aSignedStatus, aSignerCert) {
     // dump("Signed message\n");
     Assert.equal(aNestingLevel, 1);
@@ -108,8 +128,9 @@ let smimeHeaderSink = {
       status: aSignedStatus,
       certificate: aSignerCert,
     });
-    if (this._results.length == this._expectedLen)
+    if (this._results.length == this._expectedLen) {
       this._deferred.resolve(this._results);
+    }
   },
   encryptionStatus(aNestingLevel, aEncryptedStatus, aRecipientCert) {
     // dump("Encrypted message\n");
@@ -119,8 +140,9 @@ let smimeHeaderSink = {
       status: aEncryptedStatus,
       certificate: aRecipientCert,
     });
-    if (this._results.length == this._expectedLen)
+    if (this._results.length == this._expectedLen) {
       this._deferred.resolve(this._results);
+    }
   },
   QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgSMIMEHeaderSink]),
 };
@@ -135,56 +157,151 @@ let smimeHeaderSink = {
  */
 
 var gMessages = [
-  { filename: "alice.env.eml",
-    enc: true, sig: false, sig_good: false },
-  { filename: "alice.dsig.SHA1.multipart.bad.eml",
-    enc: false, sig: true, sig_good: false },
-  { filename: "alice.dsig.SHA1.multipart.env.eml",
-    enc: true, sig: true, sig_good: true },
-  { filename: "alice.dsig.SHA1.multipart.eml",
-    enc: false, sig: true, sig_good: true },
-  { filename: "alice.dsig.SHA1.multipart.mismatch-econtent.eml",
-    enc: false, sig: true, sig_good: false },
-  { filename: "alice.dsig.SHA256.multipart.bad.eml",
-    enc: false, sig: true, sig_good: false },
-  { filename: "alice.dsig.SHA256.multipart.eml",
-    enc: false, sig: true, sig_good: true },
-  { filename: "alice.dsig.SHA256.multipart.env.eml",
-    enc: true, sig: true, sig_good: true },
-  { filename: "alice.dsig.SHA256.multipart.mismatch-econtent.eml",
-    enc: false, sig: true, sig_good: false },
-  { filename: "alice.dsig.SHA384.multipart.bad.eml",
-    enc: false, sig: true, sig_good: false },
-  { filename: "alice.dsig.SHA384.multipart.eml",
-    enc: false, sig: true, sig_good: true },
-  { filename: "alice.dsig.SHA384.multipart.env.eml",
-    enc: true, sig: true, sig_good: true },
-  { filename: "alice.dsig.SHA384.multipart.mismatch-econtent.eml",
-    enc: false, sig: true, sig_good: false },
-  { filename: "alice.dsig.SHA512.multipart.bad.eml",
-    enc: false, sig: true, sig_good: false },
-  { filename: "alice.dsig.SHA512.multipart.eml",
-    enc: false, sig: true, sig_good: true },
-  { filename: "alice.dsig.SHA512.multipart.env.eml",
-    enc: true, sig: true, sig_good: true },
-  { filename: "alice.dsig.SHA512.multipart.mismatch-econtent.eml",
-    enc: false, sig: true, sig_good: false },
-  { filename: "alice.sig.SHA1.opaque.eml",
-    enc: false, sig: true, sig_good: true },
-  { filename: "alice.sig.SHA1.opaque.env.eml",
-    enc: true, sig: true, sig_good: true },
-  { filename: "alice.sig.SHA256.opaque.eml",
-    enc: false, sig: true, sig_good: true },
-  { filename: "alice.sig.SHA256.opaque.env.eml",
-    enc: true, sig: true, sig_good: true },
-  { filename: "alice.sig.SHA384.opaque.eml",
-    enc: false, sig: true, sig_good: true },
-  { filename: "alice.sig.SHA384.opaque.env.eml",
-    enc: true, sig: true, sig_good: true },
-  { filename: "alice.sig.SHA512.opaque.eml",
-    enc: false, sig: true, sig_good: true },
-  { filename: "alice.sig.SHA512.opaque.env.eml",
-    enc: true, sig: true, sig_good: true },
+  { filename: "alice.env.eml", enc: true, sig: false, sig_good: false },
+  {
+    filename: "alice.dsig.SHA1.multipart.bad.eml",
+    enc: false,
+    sig: true,
+    sig_good: false,
+  },
+  {
+    filename: "alice.dsig.SHA1.multipart.env.eml",
+    enc: true,
+    sig: true,
+    sig_good: true,
+  },
+  {
+    filename: "alice.dsig.SHA1.multipart.eml",
+    enc: false,
+    sig: true,
+    sig_good: true,
+  },
+  {
+    filename: "alice.dsig.SHA1.multipart.mismatch-econtent.eml",
+    enc: false,
+    sig: true,
+    sig_good: false,
+  },
+  {
+    filename: "alice.dsig.SHA256.multipart.bad.eml",
+    enc: false,
+    sig: true,
+    sig_good: false,
+  },
+  {
+    filename: "alice.dsig.SHA256.multipart.eml",
+    enc: false,
+    sig: true,
+    sig_good: true,
+  },
+  {
+    filename: "alice.dsig.SHA256.multipart.env.eml",
+    enc: true,
+    sig: true,
+    sig_good: true,
+  },
+  {
+    filename: "alice.dsig.SHA256.multipart.mismatch-econtent.eml",
+    enc: false,
+    sig: true,
+    sig_good: false,
+  },
+  {
+    filename: "alice.dsig.SHA384.multipart.bad.eml",
+    enc: false,
+    sig: true,
+    sig_good: false,
+  },
+  {
+    filename: "alice.dsig.SHA384.multipart.eml",
+    enc: false,
+    sig: true,
+    sig_good: true,
+  },
+  {
+    filename: "alice.dsig.SHA384.multipart.env.eml",
+    enc: true,
+    sig: true,
+    sig_good: true,
+  },
+  {
+    filename: "alice.dsig.SHA384.multipart.mismatch-econtent.eml",
+    enc: false,
+    sig: true,
+    sig_good: false,
+  },
+  {
+    filename: "alice.dsig.SHA512.multipart.bad.eml",
+    enc: false,
+    sig: true,
+    sig_good: false,
+  },
+  {
+    filename: "alice.dsig.SHA512.multipart.eml",
+    enc: false,
+    sig: true,
+    sig_good: true,
+  },
+  {
+    filename: "alice.dsig.SHA512.multipart.env.eml",
+    enc: true,
+    sig: true,
+    sig_good: true,
+  },
+  {
+    filename: "alice.dsig.SHA512.multipart.mismatch-econtent.eml",
+    enc: false,
+    sig: true,
+    sig_good: false,
+  },
+  {
+    filename: "alice.sig.SHA1.opaque.eml",
+    enc: false,
+    sig: true,
+    sig_good: true,
+  },
+  {
+    filename: "alice.sig.SHA1.opaque.env.eml",
+    enc: true,
+    sig: true,
+    sig_good: true,
+  },
+  {
+    filename: "alice.sig.SHA256.opaque.eml",
+    enc: false,
+    sig: true,
+    sig_good: true,
+  },
+  {
+    filename: "alice.sig.SHA256.opaque.env.eml",
+    enc: true,
+    sig: true,
+    sig_good: true,
+  },
+  {
+    filename: "alice.sig.SHA384.opaque.eml",
+    enc: false,
+    sig: true,
+    sig_good: true,
+  },
+  {
+    filename: "alice.sig.SHA384.opaque.env.eml",
+    enc: true,
+    sig: true,
+    sig_good: true,
+  },
+  {
+    filename: "alice.sig.SHA512.opaque.eml",
+    enc: false,
+    sig: true,
+    sig_good: true,
+  },
+  {
+    filename: "alice.sig.SHA512.opaque.env.eml",
+    enc: true,
+    sig: true,
+    sig_good: true,
+  },
 ];
 
 let gCopyWaiter = PromiseUtils.defer();
@@ -195,8 +312,14 @@ add_task(async function copy_messages() {
 
     MailServices.copy.CopyFileMessage(
       do_get_file(smimeDataDirectory + msg.filename),
-      gInbox, null, true, 0, "",
-      promiseCopyListener, null);
+      gInbox,
+      null,
+      true,
+      0,
+      "",
+      promiseCopyListener,
+      null
+    );
 
     await promiseCopyListener.promise;
     promiseCopyListener = null;
@@ -219,7 +342,9 @@ add_task(async function check_smime_message() {
     let uri = hdr.folder.getUriForMsg(hdr);
     let sinkPromise = smimeHeaderSink.expectResults(numExpected);
 
-    let conversion = apply_mime_conversion(uri, {securityInfo: smimeHeaderSink});
+    let conversion = apply_mime_conversion(uri, {
+      securityInfo: smimeHeaderSink,
+    });
     await conversion.promise;
 
     let contents = conversion._data;
@@ -240,19 +365,19 @@ add_task(async function check_smime_message() {
     let sigIndex = 0;
 
     if (msg.enc) {
-        Assert.equal(r[0].type, "encrypted");
-        Assert.equal(r[0].status, 0);
-        Assert.equal(r[0].certificate, null);
-        sigIndex = 1;
+      Assert.equal(r[0].type, "encrypted");
+      Assert.equal(r[0].status, 0);
+      Assert.equal(r[0].certificate, null);
+      sigIndex = 1;
     }
     if (msg.sig) {
-        Assert.equal(r[sigIndex].type, "signed");
-        Assert.equal(r[sigIndex].certificate.emailAddress, "alice@example.com");
-        if (msg.sig_good) {
-          Assert.equal(r[sigIndex].status, 0);
-        } else {
-          Assert.notEqual(r[sigIndex].status, 0);
-        }
+      Assert.equal(r[sigIndex].type, "signed");
+      Assert.equal(r[sigIndex].certificate.emailAddress, "alice@example.com");
+      if (msg.sig_good) {
+        Assert.equal(r[sigIndex].status, 0);
+      } else {
+        Assert.notEqual(r[sigIndex].status, 0);
+      }
     }
 
     hdrIndex++;
@@ -260,13 +385,17 @@ add_task(async function check_smime_message() {
 });
 
 function run_test() {
-  gInbox = configure_message_injection({mode: "local"});
+  gInbox = configure_message_injection({ mode: "local" });
   SmimeUtils.ensureNSS();
 
-  SmimeUtils.loadPEMCertificate(do_get_file(smimeDataDirectory + "TestCA.pem"), Ci.nsIX509Cert.CA_CERT);
-  SmimeUtils.loadCertificateAndKey(do_get_file(smimeDataDirectory + "Alice.p12"));
+  SmimeUtils.loadPEMCertificate(
+    do_get_file(smimeDataDirectory + "TestCA.pem"),
+    Ci.nsIX509Cert.CA_CERT
+  );
+  SmimeUtils.loadCertificateAndKey(
+    do_get_file(smimeDataDirectory + "Alice.p12")
+  );
   SmimeUtils.loadCertificateAndKey(do_get_file(smimeDataDirectory + "Bob.p12"));
-
 
   run_next_test();
 }

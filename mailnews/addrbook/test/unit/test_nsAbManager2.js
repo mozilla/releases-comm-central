@@ -14,27 +14,30 @@ var gAblSingle = new Array(numListenerOptions);
 function abL() {}
 
 abL.prototype = {
- mReceived: 0,
- mDirectory: null,
- mAutoRemoveItem: false,
+  mReceived: 0,
+  mDirectory: null,
+  mAutoRemoveItem: false,
 
   onItemAdded(parentItem, item) {
     this.mReceived |= nsIAbListener.itemAdded;
     this.mDirectory = item;
-    if (this.mAutoRemoveItem)
+    if (this.mAutoRemoveItem) {
       MailServices.ab.removeAddressBookListener(this);
+    }
   },
   onItemRemoved(parentItem, item) {
     this.mReceived |= nsIAbListener.directoryRemoved;
     this.mDirectory = item;
-    if (this.mAutoRemoveItem)
+    if (this.mAutoRemoveItem) {
       MailServices.ab.removeAddressBookListener(this);
+    }
   },
   onItemPropertyChanged(item, property, oldValue, newValue) {
     this.mReceived |= nsIAbListener.itemChanged;
     this.mDirectory = item;
-    if (this.mAutoRemoveItem)
+    if (this.mAutoRemoveItem) {
       MailServices.ab.removeAddressBookListener(this);
+    }
   },
 };
 
@@ -48,13 +51,18 @@ function checkDirs(aDirs, aDirArray) {
 
     Assert.equal(MailServices.ab.getDirectory(dir.URI), dir);
 
-    if (loc == -1)
-      do_throw("Unexpected directory " + dir.URI + " found in address book list");
-    else
+    if (loc == -1) {
+      do_throw(
+        "Unexpected directory " + dir.URI + " found in address book list"
+      );
+    } else {
       dirArray[loc] = null;
+    }
   }
 
-  dirArray.forEach(function(value) { Assert.equal(value, null); });
+  dirArray.forEach(function(value) {
+    Assert.equal(value, null);
+  });
 }
 
 function addDirectory(dirName) {
@@ -106,11 +114,11 @@ function run_test() {
   var i;
 
   // Set up listeners
-  gAblAll = new abL;
+  gAblAll = new abL();
   MailServices.ab.addAddressBookListener(gAblAll, nsIAbListener.all);
 
   for (i = 0; i < numListenerOptions; ++i) {
-    gAblSingle[i] = new abL;
+    gAblSingle[i] = new abL();
     MailServices.ab.addAddressBookListener(gAblSingle[i], 1 << i);
   }
 
@@ -169,6 +177,7 @@ function run_test() {
 
   MailServices.ab.removeAddressBookListener(gAblAll);
 
-  for (i = 0; i < numListenerOptions; ++i)
+  for (i = 0; i < numListenerOptions; ++i) {
     MailServices.ab.removeAddressBookListener(gAblSingle[i]);
+  }
 }

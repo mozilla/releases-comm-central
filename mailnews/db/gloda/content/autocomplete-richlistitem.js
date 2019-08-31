@@ -1,6 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
-  * License, v. 2.0. If a copy of the MPL was not distributed with this
-  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 "use strict";
 
@@ -8,9 +8,15 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-  const {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
-  const gGlodaCompleteStrings = new StringBundle("chrome://messenger/locale/glodaComplete.properties");
+  const { Services } = ChromeUtils.import(
+    "resource://gre/modules/Services.jsm"
+  );
+  const { StringBundle } = ChromeUtils.import(
+    "resource:///modules/StringBundle.js"
+  );
+  const gGlodaCompleteStrings = new StringBundle(
+    "chrome://messenger/locale/glodaComplete.properties"
+  );
 
   /**
    * The MozGlodacompleteBaseRichlistitem widget is the
@@ -29,8 +35,9 @@
 
     get boundaryCutoff() {
       if (!this._boundaryCutoff) {
-        this._boundaryCutoff =
-          Services.prefs.getIntPref("toolkit.autocomplete.richBoundaryCutoff");
+        this._boundaryCutoff = Services.prefs.getIntPref(
+          "toolkit.autocomplete.richBoundaryCutoff"
+        );
       }
       return this._boundaryCutoff;
     }
@@ -60,7 +67,7 @@
       // Sort the regions by start position then end position.
       regions = regions.sort(function(a, b) {
         let start = a[0] - b[0];
-        return (start == 0) ? a[1] - b[1] : start;
+        return start == 0 ? a[1] - b[1] : start;
       });
 
       // Generate the boundary indices from each region.
@@ -107,7 +114,7 @@
         let charCode = aText.charCodeAt(i);
         // Arabic, Syriac, Indic languages are likely to have ligatures
         // that are broken when using the main emphasis styling.
-        if (0x0600 <= charCode && charCode <= 0x109F) {
+        if (0x0600 <= charCode && charCode <= 0x109f) {
           return true;
         }
       }
@@ -142,9 +149,12 @@
         if (i % 2 == 0) {
           // Emphasize the text for even indices
           let span = aDescriptionElement.appendChild(
-            document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
-          span.className = checkAlt && this._needsAlternateEmphasis(text) ?
-            "ac-emphasize-alt" : "ac-emphasize-text";
+            document.createElementNS("http://www.w3.org/1999/xhtml", "span")
+          );
+          span.className =
+            checkAlt && this._needsAlternateEmphasis(text)
+              ? "ac-emphasize-alt"
+              : "ac-emphasize-text";
           span.textContent = text;
         } else {
           // Otherwise, it's plain text
@@ -167,7 +177,7 @@
         let childWidth = children[i].getBoundingClientRect().width;
         if (childWidth > 0) {
           // Subtract a little less to account for subpixel rounding.
-          widthDiff -= childWidth - .5;
+          widthDiff -= childWidth - 0.5;
 
           // Add to the tooltip if it's not hidden and has text.
           let childText = children[i].textContent;
@@ -195,12 +205,15 @@
     }
   }
 
-  MozXULElement.implementCustomInterface(
-    MozGlodacompleteBaseRichlistitem, [Ci.nsIDOMXULSelectControlItemElement]
-  );
+  MozXULElement.implementCustomInterface(MozGlodacompleteBaseRichlistitem, [
+    Ci.nsIDOMXULSelectControlItemElement,
+  ]);
 
-  customElements.define("glodacomplete-base-richlistitem",
-    MozGlodacompleteBaseRichlistitem, { extends: "richlistitem" });
+  customElements.define(
+    "glodacomplete-base-richlistitem",
+    MozGlodacompleteBaseRichlistitem,
+    { extends: "richlistitem" }
+  );
 
   /**
    * The MozGlodaContactChunk widget displays an autocomplete item with
@@ -223,7 +236,8 @@
       if (this.delayConnectedCallback() || this.hasChildNodes()) {
         return;
       }
-      this.appendChild(MozXULElement.parseXULToFragment(`
+      this.appendChild(
+        MozXULElement.parseXULToFragment(`
         <image class="ac-type-picture"></image>
         <vbox>
           <hbox>
@@ -240,12 +254,15 @@
             <image class="ac-type-icon"></image>
           </hbox>
         </vbox>
-      `));
+      `)
+      );
 
       let ellipsis = "\u2026";
       try {
-        ellipsis = Services.prefs.getComplexValue("intl.ellipsis",
-          Ci.nsIPrefLocalizedString).data;
+        ellipsis = Services.prefs.getComplexValue(
+          "intl.ellipsis",
+          Ci.nsIPrefLocalizedString
+        ).data;
       } catch (ex) {
         // Do nothing.. we already have a default.
       }
@@ -294,12 +311,24 @@
 
       // Set up overflow on a timeout because the contents of the box
       // might not have a width yet even though we just changed them.
-      setTimeout(this._setUpOverflow, 0, this._nameBox, this._nameOverflowEllipsis);
-      setTimeout(this._setUpOverflow, 0, this._identityBox, this._identityOverflowEllipsis);
+      setTimeout(
+        this._setUpOverflow,
+        0,
+        this._nameBox,
+        this._nameOverflowEllipsis
+      );
+      setTimeout(
+        this._setUpOverflow,
+        0,
+        this._identityBox,
+        this._identityOverflowEllipsis
+      );
     }
   }
 
-  customElements.define("gloda-contact-chunk", MozGlodaContactChunk, { extends: "richlistitem" });
+  customElements.define("gloda-contact-chunk", MozGlodaContactChunk, {
+    extends: "richlistitem",
+  });
 
   /**
    * The MozGlodaFulltextAll widget displays an autocomplete full text of
@@ -315,8 +344,13 @@
       }
       this._explanation = document.createXULElement("description");
       this._explanation.classList.add("explanation");
-      let label = gGlodaCompleteStrings.get("glodaComplete.messagesMentioningMany.label");
-      this._explanation.setAttribute("value", label.replace("#1", this.row.words.join(", ")));
+      let label = gGlodaCompleteStrings.get(
+        "glodaComplete.messagesMentioningMany.label"
+      );
+      this._explanation.setAttribute(
+        "value",
+        label.replace("#1", this.row.words.join(", "))
+      );
       this.appendChild(this._explanation);
     }
 
@@ -325,11 +359,13 @@
     }
   }
 
-  MozXULElement.implementCustomInterface(
-    MozGlodaFulltextAll, [Ci.nsIDOMXULSelectControlItemElement]
-  );
+  MozXULElement.implementCustomInterface(MozGlodaFulltextAll, [
+    Ci.nsIDOMXULSelectControlItemElement,
+  ]);
 
-  customElements.define("gloda-fulltext-all", MozGlodaFulltextAll, { extends: "richlistitem" });
+  customElements.define("gloda-fulltext-all", MozGlodaFulltextAll, {
+    extends: "richlistitem",
+  });
 
   /**
    * The MozGlodaFulltextAll widget displays an autocomplete full text
@@ -350,8 +386,13 @@
       this.appendChild(this._explanation);
       this.appendChild(this._parameters);
 
-      let label = gGlodaCompleteStrings.get("glodaComplete.messagesMentioning.label");
-      this._explanation.setAttribute("value", label.replace("#1", this.row.item));
+      let label = gGlodaCompleteStrings.get(
+        "glodaComplete.messagesMentioning.label"
+      );
+      this._explanation.setAttribute(
+        "value",
+        label.replace("#1", this.row.item)
+      );
     }
 
     get label() {
@@ -359,12 +400,13 @@
     }
   }
 
-  MozXULElement.implementCustomInterface(
-    MozGlodaFulltextSingle, [Ci.nsIDOMXULSelectControlItemElement]
-  );
+  MozXULElement.implementCustomInterface(MozGlodaFulltextSingle, [
+    Ci.nsIDOMXULSelectControlItemElement,
+  ]);
 
-  customElements.define("gloda-fulltext-single", MozGlodaFulltextSingle,
-    { extends: "richlistitem" });
+  customElements.define("gloda-fulltext-single", MozGlodaFulltextSingle, {
+    extends: "richlistitem",
+  });
 
   /**
    * The MozGlodaMulti widget displays an autocomplete description of multiple
@@ -411,8 +453,8 @@
         return;
       }
 
-      this._explanation.value = row.nounDef.name + "s " +
-        row.criteriaType + "ed " + row.criteria;
+      this._explanation.value =
+        row.nounDef.name + "s " + row.criteriaType + "ed " + row.criteria;
 
       // render anyone already in there.
       for (let item of row.collection.items) {
@@ -423,11 +465,13 @@
     }
   }
 
-  MozXULElement.implementCustomInterface(
-    MozGlodaMulti, [Ci.nsIDOMXULSelectControlItemElement]
-  );
+  MozXULElement.implementCustomInterface(MozGlodaMulti, [
+    Ci.nsIDOMXULSelectControlItemElement,
+  ]);
 
-  customElements.define("gloda-multi", MozGlodaMulti, { extends: "richlistitem" });
+  customElements.define("gloda-multi", MozGlodaMulti, {
+    extends: "richlistitem",
+  });
 
   /**
    * The MozGlodaSingleIdentity widget displays an autocomplete item with
@@ -451,7 +495,8 @@
         return;
       }
 
-      this.appendChild(MozXULElement.parseXULToFragment(`
+      this.appendChild(
+        MozXULElement.parseXULToFragment(`
         <hbox class="gloda-single-identity">
           <image class="picture"></image>
           <vbox>
@@ -470,12 +515,15 @@
             </hbox>
           </vbox>
         </hbox>
-      `));
+      `)
+      );
 
       let ellipsis = "\u2026";
       try {
-        ellipsis = Services.prefs.getComplexValue("intl.ellipsis",
-          Ci.nsIPrefLocalizedString).data;
+        ellipsis = Services.prefs.getComplexValue(
+          "intl.ellipsis",
+          Ci.nsIPrefLocalizedString
+        ).data;
       } catch (ex) {
         // Do nothing.. we already have a default.
       }
@@ -522,17 +570,28 @@
 
       // Set up overflow on a timeout because the contents of the box
       // might not have a width yet even though we just changed them.
-      setTimeout(this._setUpOverflow, 0, this._nameBox, this._nameOverflowEllipsis);
-      setTimeout(this._setUpOverflow, 0, this._identityBox, this._identityOverflowEllipsis);
+      setTimeout(
+        this._setUpOverflow,
+        0,
+        this._nameBox,
+        this._nameOverflowEllipsis
+      );
+      setTimeout(
+        this._setUpOverflow,
+        0,
+        this._identityBox,
+        this._identityOverflowEllipsis
+      );
     }
   }
 
-  MozXULElement.implementCustomInterface(
-    MozGlodaSingleIdentity, [Ci.nsIDOMXULSelectControlItemElement]
-  );
+  MozXULElement.implementCustomInterface(MozGlodaSingleIdentity, [
+    Ci.nsIDOMXULSelectControlItemElement,
+  ]);
 
-  customElements.define("gloda-single-identity", MozGlodaSingleIdentity,
-    { extends: "richlistitem" });
+  customElements.define("gloda-single-identity", MozGlodaSingleIdentity, {
+    extends: "richlistitem",
+  });
 
   /**
    * The MozGlodaSingleTag widget displays an autocomplete item with
@@ -549,8 +608,13 @@
       this._explanation = document.createXULElement("description");
       this._explanation.classList.add("explanation", "gloda-single");
       this.appendChild(this._explanation);
-      let label = gGlodaCompleteStrings.get("glodaComplete.messagesTagged.label");
-      this._explanation.setAttribute("value", label.replace("#1", this.row.item.tag));
+      let label = gGlodaCompleteStrings.get(
+        "glodaComplete.messagesTagged.label"
+      );
+      this._explanation.setAttribute(
+        "value",
+        label.replace("#1", this.row.item.tag)
+      );
     }
 
     get label() {
@@ -558,9 +622,11 @@
     }
   }
 
-  MozXULElement.implementCustomInterface(
-    MozGlodaSingleTag, [Ci.nsIDOMXULSelectControlItemElement]
-  );
+  MozXULElement.implementCustomInterface(MozGlodaSingleTag, [
+    Ci.nsIDOMXULSelectControlItemElement,
+  ]);
 
-  customElements.define("gloda-single-tag", MozGlodaSingleTag, { extends: "richlistitem" });
+  customElements.define("gloda-single-tag", MozGlodaSingleTag, {
+    extends: "richlistitem",
+  });
 }

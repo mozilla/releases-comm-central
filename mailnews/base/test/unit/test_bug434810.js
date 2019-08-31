@@ -4,23 +4,26 @@
 
 // Test of setup of localMailFolders
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function run_test() {
   localAccountUtils.loadLocalMailAccount();
 
   var rootFolder = localAccountUtils.incomingServer.rootFolder;
 
-  var msgProps = Services.strings.createBundle("chrome://messenger/locale/messenger.properties");
+  var msgProps = Services.strings.createBundle(
+    "chrome://messenger/locale/messenger.properties"
+  );
 
-  var expectedFolders = [ "Inbox" ]; // Inbox hard-coded in localAccountUtils.js
+  var expectedFolders = ["Inbox"]; // Inbox hard-coded in localAccountUtils.js
 
   // These two MailNews adds by default
   expectedFolders.push(msgProps.GetStringFromName("outboxFolderName"));
   expectedFolders.push(msgProps.GetStringFromName("trashFolderName"));
 
   Assert.equal(rootFolder.numSubFolders, expectedFolders.length);
-  for (var i = 0; i < expectedFolders.length; ++i)
+  for (var i = 0; i < expectedFolders.length; ++i) {
     Assert.ok(rootFolder.containsChildNamed(expectedFolders[i]));
+  }
   Assert.ok(rootFolder.isAncestorOf(localAccountUtils.inboxFolder));
 }

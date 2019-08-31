@@ -8,36 +8,35 @@ mailboxFile.append("mailFolder");
 mailboxFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
 var mailboxFileName = Services.io.newFileURI(mailboxFile).pathQueryRef;
 
-var mailboxURLs =
-  [
-    {
-      url: "mailbox://user@domain@example.com/folder?number=1",
-      spec: "mailbox://user%40domain@example.com/folder?number=1",
-      host: "example.com",
-      port: -1,
-      scheme: "mailbox",
-      pathQueryRef: "/folder?number=1",
-      prePath: "mailbox://user%40domain@example.com",
-    },
-    {
-      url: "mailbox://nobody@Local%20Folders/folder?number=2",
-      spec: "mailbox://nobody@local%20folders/folder?number=2",
-      host: "local%20folders",
-      port: -1,
-      scheme: "mailbox",
-      pathQueryRef: "/folder?number=2",
-      prePath: "mailbox://nobody@local%20folders",
-    },
-    {
-      url: "mailbox://" + mailboxFileName + "?number=3",
-      spec: "mailbox://" + mailboxFileName + "?number=3",
-      host: "",
-      port: -1,
-      scheme: "mailbox",
-      pathQueryRef: mailboxFileName + "?number=3",
-      prePath: "mailbox://",
-    },
-  ];
+var mailboxURLs = [
+  {
+    url: "mailbox://user@domain@example.com/folder?number=1",
+    spec: "mailbox://user%40domain@example.com/folder?number=1",
+    host: "example.com",
+    port: -1,
+    scheme: "mailbox",
+    pathQueryRef: "/folder?number=1",
+    prePath: "mailbox://user%40domain@example.com",
+  },
+  {
+    url: "mailbox://nobody@Local%20Folders/folder?number=2",
+    spec: "mailbox://nobody@local%20folders/folder?number=2",
+    host: "local%20folders",
+    port: -1,
+    scheme: "mailbox",
+    pathQueryRef: "/folder?number=2",
+    prePath: "mailbox://nobody@local%20folders",
+  },
+  {
+    url: "mailbox://" + mailboxFileName + "?number=3",
+    spec: "mailbox://" + mailboxFileName + "?number=3",
+    host: "",
+    port: -1,
+    scheme: "mailbox",
+    pathQueryRef: mailboxFileName + "?number=3",
+    prePath: "mailbox://",
+  },
+];
 
 function run_test() {
   registerCleanupFunction(teardown);
@@ -62,14 +61,23 @@ function run_test() {
 
   // We can set the username on the URLs with a host.
   url = Services.io.newURI("mailbox://user@domain@example.com/folder?number=1");
-  url.mutate().setUsername("john").finalize();
+  url
+    .mutate()
+    .setUsername("john")
+    .finalize();
   url = Services.io.newURI("mailbox://nobody@Local%20Folders/folder?number=2");
-  url.mutate().setUsername("jane").finalize();
+  url
+    .mutate()
+    .setUsername("jane")
+    .finalize();
 
   // It should throw on our file-style URLs.
   url = Services.io.newURI("mailbox://" + mailboxFileName + "?number=3");
   try {
-    url.mutate().setUsername("noway").finalize();
+    url
+      .mutate()
+      .setUsername("noway")
+      .finalize();
     do_throw("Should not be able to set username on file-style mailbox: URL");
   } catch (ex) {
     Assert.equal(ex.result, Cr.NS_ERROR_UNEXPECTED);
@@ -77,6 +85,7 @@ function run_test() {
 }
 
 function teardown() {
-  if (mailboxFile.exists())
+  if (mailboxFile.exists()) {
     mailboxFile.remove(false);
+  }
 }

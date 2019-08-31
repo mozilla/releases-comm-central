@@ -3,10 +3,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {FeedUtils} = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
+var { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
 
-var gAccount, gUpdateEnabled, gUpdateValue, gBiffUnits,
-    gAutotagEnable, gAutotagUsePrefix, gAutotagPrefix;
+var gAccount,
+  gUpdateEnabled,
+  gUpdateValue,
+  gBiffUnits,
+  gAutotagEnable,
+  gAutotagUsePrefix,
+  gAutotagPrefix;
 
 function onInit(aPageId, aServerId) {
   var accountName = document.getElementById("server.prettyName");
@@ -35,9 +40,10 @@ function onInit(aPageId, aServerId) {
 
   gUpdateEnabled.checked = optionsAcct.updates.enabled;
   gBiffUnits.value = optionsAcct.updates.updateUnits;
-  let minutes = optionsAcct.updates.updateUnits == FeedUtils.kBiffUnitsMinutes ?
-                  optionsAcct.updates.updateMinutes :
-                  optionsAcct.updates.updateMinutes / (24 * 60);
+  let minutes =
+    optionsAcct.updates.updateUnits == FeedUtils.kBiffUnitsMinutes
+      ? optionsAcct.updates.updateMinutes
+      : optionsAcct.updates.updateMinutes / (24 * 60);
   gUpdateValue.value = Number(minutes);
   onCheckItem("updateValue", ["updateEnabled"]);
   onCheckItem("biffMinutes", ["updateEnabled"]);
@@ -46,7 +52,8 @@ function onInit(aPageId, aServerId) {
   gAutotagEnable.checked = optionsAcct.category.enabled;
   gAutotagUsePrefix.disabled = !gAutotagEnable.checked;
   gAutotagUsePrefix.checked = optionsAcct.category.prefixEnabled;
-  gAutotagPrefix.disabled = gAutotagUsePrefix.disabled || !gAutotagUsePrefix.checked;
+  gAutotagPrefix.disabled =
+    gAutotagUsePrefix.disabled || !gAutotagUsePrefix.checked;
   gAutotagPrefix.value = optionsAcct.category.prefix;
 }
 
@@ -55,10 +62,14 @@ function onPreInit(account, accountValues) {
 }
 
 function setPrefs(aNode) {
-  let optionsAcct =  FeedUtils.getOptionsAcct(gAccount.incomingServer);
+  let optionsAcct = FeedUtils.getOptionsAcct(gAccount.incomingServer);
   switch (aNode.id) {
     case "doBiff":
-      FeedUtils.pauseFeedFolderUpdates(gAccount.incomingServer.rootFolder, !aNode.checked, true);
+      FeedUtils.pauseFeedFolderUpdates(
+        gAccount.incomingServer.rootFolder,
+        !aNode.checked,
+        true
+      );
       break;
     case "updateEnabled":
     case "updateValue":
@@ -67,9 +78,10 @@ function setPrefs(aNode) {
       onCheckItem("updateValue", ["updateEnabled"]);
       onCheckItem("biffMinutes", ["updateEnabled"]);
       onCheckItem("biffDays", ["updateEnabled"]);
-      let minutes = gBiffUnits.value == FeedUtils.kBiffUnitsMinutes ?
-                      gUpdateValue.value :
-                      gUpdateValue.value * 24 * 60;
+      let minutes =
+        gBiffUnits.value == FeedUtils.kBiffUnitsMinutes
+          ? gUpdateValue.value
+          : gUpdateValue.value * 24 * 60;
       optionsAcct.updates.updateMinutes = Number(minutes);
       optionsAcct.updates.updateUnits = gBiffUnits.value;
       break;

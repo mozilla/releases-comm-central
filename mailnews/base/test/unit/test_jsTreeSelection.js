@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {JSTreeSelection} = ChromeUtils.import("resource:///modules/jsTreeSelection.js");
+const { JSTreeSelection } = ChromeUtils.import(
+  "resource:///modules/jsTreeSelection.js"
+);
 
 var fakeView = {
   rowCount: 101,
-  selectionChanged() {
-  },
-  QueryInterface: ChromeUtils.generateQI(
-    [Ci.nsITreeView]),
+  selectionChanged() {},
+  QueryInterface: ChromeUtils.generateQI([Ci.nsITreeView]),
 };
 
 var sel = new JSTreeSelection(null);
@@ -34,47 +34,64 @@ function bad_ranges(aMsg, aExpected) {
 }
 
 function assert_selection_ranges(...aArgs) {
-  if (sel._ranges.length != aArgs.length)
+  if (sel._ranges.length != aArgs.length) {
     bad_ranges("Wrong number of ranges!", aArgs);
+  }
 
   let i = 0;
   let ourCount = 0;
   for (let [slow, shigh] of sel._ranges) {
     let [dlow, dhigh] = aArgs[i++];
-    if (dlow != slow || dhigh != shigh)
+    if (dlow != slow || dhigh != shigh) {
       bad_ranges("Range mismatch on index " + i, aArgs);
+    }
     ourCount += shigh - slow + 1;
   }
 
-  if (ourCount != sel.count)
-    bad_ranges("Count was wrong! We counted " + ourCount + " but they say " +
-               sel.count, aArgs);
+  if (ourCount != sel.count) {
+    bad_ranges(
+      "Count was wrong! We counted " + ourCount + " but they say " + sel.count,
+      aArgs
+    );
+  }
 }
 var asr = assert_selection_ranges;
 
 function assert_current_index(aIndex) {
-  if (sel.currentIndex != aIndex)
-    do_throw("Current index is wrong! Is " + sel.currentIndex +
-             " but should be " + aIndex);
+  if (sel.currentIndex != aIndex) {
+    do_throw(
+      "Current index is wrong! Is " +
+        sel.currentIndex +
+        " but should be " +
+        aIndex
+    );
+  }
 }
 var aci = assert_current_index;
 
 function assert_shift_pivot(aIndex) {
-  if (sel.shiftSelectPivot != aIndex)
-    do_throw("Current index is wrong! Is " + sel._shiftSelectPivot +
-             " but should be " + aIndex);
+  if (sel.shiftSelectPivot != aIndex) {
+    do_throw(
+      "Current index is wrong! Is " +
+        sel._shiftSelectPivot +
+        " but should be " +
+        aIndex
+    );
+  }
 }
 var asp = assert_shift_pivot;
 
 function assert_selected(aIndex) {
-  if (!sel.isSelected(aIndex))
+  if (!sel.isSelected(aIndex)) {
     do_throw("Index is not selected but should be: " + aIndex);
+  }
 }
 var asel = assert_selected;
 
 function assert_not_selected(aIndex) {
-  if (sel.isSelected(aIndex))
+  if (sel.isSelected(aIndex)) {
     do_throw("Index is selected but should not be: " + aIndex);
+  }
 }
 var ansel = assert_not_selected;
 

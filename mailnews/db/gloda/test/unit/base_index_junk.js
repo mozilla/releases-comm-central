@@ -13,17 +13,21 @@
 /* import-globals-from resources/glodaTestHelper.js */
 load("resources/glodaTestHelper.js");
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
-var SPAM_BODY = {body: "superspam superspam superspam eevil eevil eevil"};
-var HAM_BODY = {body: "ham ham ham nice nice nice happy happy happy"};
+var SPAM_BODY = { body: "superspam superspam superspam eevil eevil eevil" };
+var HAM_BODY = { body: "ham ham ham nice nice nice happy happy happy" };
 
 /**
  * Make SPAM_BODY be known as spammy and HAM_BODY be known as hammy.
  */
 function* setup_spam_filter() {
   let [, spamSet, hamSet] = make_folder_with_sets([
-    {count: 1, body: SPAM_BODY}, {count: 1, body: HAM_BODY}]);
+    { count: 1, body: SPAM_BODY },
+    { count: 1, body: HAM_BODY },
+  ]);
   yield wait_for_message_injection();
   yield wait_for_gloda_indexer([spamSet, hamSet]);
 
@@ -35,20 +39,24 @@ function* setup_spam_filter() {
 
   // ham
   mark_action("actual", "marking message as ham", [hamSet.getMsgHdr(0)]);
-  MailServices.junk.setMessageClassification(hamSet.getMsgURI(0),
-                                             null, // no old classification
-                                             MailServices.junk.GOOD,
-                                             null,
-                                             junkListener);
+  MailServices.junk.setMessageClassification(
+    hamSet.getMsgURI(0),
+    null, // no old classification
+    MailServices.junk.GOOD,
+    null,
+    junkListener
+  );
   yield false;
 
   // spam
   mark_action("actual", "marking message as spam", [spamSet.getMsgHdr(0)]);
-  MailServices.junk.setMessageClassification(spamSet.getMsgURI(0),
-                                             null, // no old classification
-                                             MailServices.junk.JUNK,
-                                             null,
-                                             junkListener);
+  MailServices.junk.setMessageClassification(
+    spamSet.getMsgURI(0),
+    null, // no old classification
+    MailServices.junk.JUNK,
+    null,
+    junkListener
+  );
   yield false;
 }
 
@@ -64,7 +72,7 @@ function* test_never_indexes_a_message_marked_as_junk() {
   mark_sub_test_start("event-driven does not index junk");
 
   // make a message that will be marked as junk from the get-go
-  make_folder_with_sets([{count: 1, body: SPAM_BODY}]);
+  make_folder_with_sets([{ count: 1, body: SPAM_BODY }]);
   yield wait_for_message_injection();
   // since the message is junk, gloda should not index it!
   yield wait_for_gloda_indexer([]);
@@ -90,9 +98,9 @@ function reset_spam_filter() {
 function* test_mark_as_junk_is_deletion_mark_as_not_junk_is_exposure() {
   mark_sub_test_start("mark as junk is deletion");
   // create a message; it should get indexed
-  let [, msgSet] = make_folder_with_sets([{count: 1}]);
+  let [, msgSet] = make_folder_with_sets([{ count: 1 }]);
   yield wait_for_message_injection();
-  yield wait_for_gloda_indexer([msgSet], {augment: true});
+  yield wait_for_gloda_indexer([msgSet], { augment: true });
 
   let glodaId = msgSet.glodaMessages[0].id;
 
@@ -100,12 +108,11 @@ function* test_mark_as_junk_is_deletion_mark_as_not_junk_is_exposure() {
   msgSet.setJunk(true);
 
   // it will appear deleted after the event...
-  yield wait_for_gloda_indexer([], {deleted: msgSet});
-
+  yield wait_for_gloda_indexer([], { deleted: msgSet });
 
   mark_sub_test_start("mark as non-junk gets indexed");
   msgSet.setJunk(false);
-  yield wait_for_gloda_indexer([msgSet], {augment: true});
+  yield wait_for_gloda_indexer([msgSet], { augment: true });
 
   // we should have reused the existing gloda message so it should keep the id
   Assert.equal(glodaId, msgSet.glodaMessages[0].id);
@@ -122,9 +129,9 @@ function* test_mark_as_junk_is_deletion_mark_as_not_junk_is_exposure() {
  */
 function* test_message_moving_to_junk_folder_is_deletion() {
   // create and index two messages in a conversation
-  let [, msgSet] = make_folder_with_sets([{count: 2, msgsPerThread: 2}]);
+  let [, msgSet] = make_folder_with_sets([{ count: 2, msgsPerThread: 2 }]);
   yield wait_for_message_injection();
-  yield wait_for_gloda_indexer([msgSet], {augment: true});
+  yield wait_for_gloda_indexer([msgSet], { augment: true });
 
   let convId = msgSet.glodaMessages[0].conversation.id;
   let firstGlodaId = msgSet.glodaMessages[0].id;
@@ -134,7 +141,7 @@ function* test_message_moving_to_junk_folder_is_deletion() {
   yield async_move_messages(msgSet, get_junk_folder());
 
   // they will appear deleted after the events
-  yield wait_for_gloda_indexer([], {deleted: msgSet});
+  yield wait_for_gloda_indexer([], { deleted: msgSet });
 
   // we do not index the junk folder so this should actually make them appear
   //  deleted to an unprivileged query.
@@ -157,8 +164,8 @@ function* test_message_moving_to_junk_folder_is_deletion() {
 
   // the messages should be entirely gone
   let msgPrivQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE, {
-                                      noDbQueryValidityConstraints: true,
-                                    });
+    noDbQueryValidityConstraints: true,
+  });
   msgPrivQuery.id(firstGlodaId, secondGlodaId);
   queryExpect(msgPrivQuery, []);
   yield false; // queryExpect is async

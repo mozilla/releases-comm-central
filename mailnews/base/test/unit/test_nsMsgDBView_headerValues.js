@@ -22,59 +22,56 @@ var SortOrder = Ci.nsMsgViewSortOrder;
 // and the second element is a map of column names to expected values when
 // requesting the cell text for a given column name.
 var tests = [
-  [
-    {from: "John Doe <db@tinderbox.invalid>"},
-    {senderCol: "John Doe"},
-  ],
-  [
-    {from: "\"Doe, John\" <db@tinderbox.invalid>"},
-    {senderCol: "Doe, John"},
-  ],
+  [{ from: "John Doe <db@tinderbox.invalid>" }, { senderCol: "John Doe" }],
+  [{ from: '"Doe, John" <db@tinderbox.invalid>' }, { senderCol: "Doe, John" }],
   // Multiple senders are indicated with 'et al.' suffix.
   [
-    {from: "John Doe <db@tinderbox.invalid>, Sally Ann <db@null.invalid>"},
-    {senderCol: "John Doe et al."},
+    { from: "John Doe <db@tinderbox.invalid>, Sally Ann <db@null.invalid>" },
+    { senderCol: "John Doe et al." },
   ],
   [
-    {from: "=?UTF-8?Q?David_H=C3=A5s=C3=A4ther?= <db@null.invalid>"},
-    {senderCol: "David Håsäther"},
+    { from: "=?UTF-8?Q?David_H=C3=A5s=C3=A4ther?= <db@null.invalid>" },
+    { senderCol: "David Håsäther" },
   ],
   [
-    {from: "=?UTF-8?Q?H=C3=A5s=C3=A4ther=2C_David?= <db@null.invalid>"},
-    {senderCol: "Håsäther, David"},
+    { from: "=?UTF-8?Q?H=C3=A5s=C3=A4ther=2C_David?= <db@null.invalid>" },
+    { senderCol: "Håsäther, David" },
   ],
   [
-    {from: "\"Håsäther, David\" <db@null.invalid>"},
-    {senderCol: "Håsäther, David"},
+    { from: '"Håsäther, David" <db@null.invalid>' },
+    { senderCol: "Håsäther, David" },
   ],
   [
-    {from: "David Håsäther <db@null.invalid>"},
-    {senderCol: "David Håsäther"},
+    { from: "David Håsäther <db@null.invalid>" },
+    { senderCol: "David Håsäther" },
   ],
   [
-    {from: "\xC2\xAB\xCE\xA0\xCE\x9F\xCE\x9B\xCE\x99\xCE\xA4\xCE\x97\xCE\xA3\xC2\xBB"},
-    {senderCol: "«ΠΟΛΙΤΗΣ»"},
+    {
+      from:
+        "\xC2\xAB\xCE\xA0\xCE\x9F\xCE\x9B\xCE\x99\xCE\xA4\xCE\x97\xCE\xA3\xC2\xBB",
+    },
+    { senderCol: "«ΠΟΛΙΤΗΣ»" },
   ],
   [
     {
       from: "John Doe \xF5  <db@null.invalid>",
       clobberHeaders: { "Content-type": "text/plain; charset=ISO-8859-1" },
     },
-    {senderCol: "John Doe õ"},
+    { senderCol: "John Doe õ" },
   ],
   [
     {
       from: "John Doe \xF5 <db@null.invalid>",
       clobberHeaders: { "Content-type": "text/plain; charset=ISO-8859-2" },
     },
-    {senderCol: "John Doe ő"},
+    { senderCol: "John Doe ő" },
   ],
   [
     {
       from: "=?UTF-8?Q?H=C3=A5s=C3=A4ther=2C_David?= <db@null.invalid>",
       clobberHeaders: { "Content-type": "text/plain; charset=ISO-8859-2" },
     },
-    {senderCol: "Håsäther, David"},
+    { senderCol: "Håsäther, David" },
   ],
 ];
 
@@ -87,8 +84,7 @@ function* real_test() {
 
   // Make the DB view
   let dbviewContractId = "@mozilla.org/messenger/msgdbview;1?type=threaded";
-  let dbView = Cc[dbviewContractId]
-                 .createInstance(Ci.nsIMsgDBView);
+  let dbView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
   dbView.init(null, null, null);
   var outCount = {};
   dbView.open(folder, SortType.byDate, SortOrder.ascending, 0, outCount);
@@ -108,6 +104,6 @@ function* real_test() {
 }
 
 function run_test() {
-  configure_message_injection({mode: "local"});
+  configure_message_injection({ mode: "local" });
   async_run_tests([real_test]);
 }

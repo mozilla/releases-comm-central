@@ -5,17 +5,22 @@
 /* import-globals-from resources/glodaTestHelper.js */
 load("resources/glodaTestHelper.js");
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var gInbox;
 
 function add_card(aEmailAddress, aDisplayName) {
   Cc["@mozilla.org/addressbook/services/addressCollector;1"]
     .getService(Ci.nsIAbAddressCollector)
-    .collectSingleAddress(aEmailAddress,
-                          aDisplayName, true,
-                          Ci.nsIAbPreferMailFormat.unknown,
-                          true);
+    .collectSingleAddress(
+      aEmailAddress,
+      aDisplayName,
+      true,
+      Ci.nsIAbPreferMailFormat.unknown,
+      true
+    );
 }
 
 function get_card_for_email(aEmailAddress) {
@@ -24,11 +29,11 @@ function get_card_for_email(aEmailAddress) {
   let book, card;
 
   while (books.hasMoreElements()) {
-    book = books.getNext()
-                  .QueryInterface(Ci.nsIAbDirectory);
+    book = books.getNext().QueryInterface(Ci.nsIAbDirectory);
     card = book.cardForEmailAddress(aEmailAddress);
-    if (card)
+    if (card) {
       return [book, card];
+    }
   }
   return [null, null];
 }
@@ -36,17 +41,17 @@ function get_card_for_email(aEmailAddress) {
 function delete_card(aEmailAddress) {
   let [book, card] = get_card_for_email(aEmailAddress);
 
-  let cardArray = Cc["@mozilla.org/array;1"]
-                    .createInstance(Ci.nsIMutableArray);
+  let cardArray = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   cardArray.appendElement(card);
 
-  MailServices.ab.getDirectory(book.URI)
-              .deleteCards(cardArray);
+  MailServices.ab.getDirectory(book.URI).deleteCards(cardArray);
 }
 
 function get_cached_gloda_identity_for_email(aEmailAddress) {
   return GlodaCollectionManager.cacheLookupOneByUniqueValue(
-    Gloda.NOUN_IDENTITY, "email@" + aEmailAddress.toLowerCase());
+    Gloda.NOUN_IDENTITY,
+    "email@" + aEmailAddress.toLowerCase()
+  );
 }
 
 var EMAIL_ADDRESS = "all.over@the.world.invalid";
@@ -57,7 +62,8 @@ var DISPLAY_NAME = "every day";
  */
 function* setup_create_identity() {
   let [msgSet] = make_new_sets_in_folder(gInbox, [
-                   {count: 1, from: [DISPLAY_NAME, EMAIL_ADDRESS]}]);
+    { count: 1, from: [DISPLAY_NAME, EMAIL_ADDRESS] },
+  ]);
   yield wait_for_message_injection();
   yield wait_for_gloda_indexer(msgSet);
 
@@ -77,9 +83,13 @@ function* setup_create_identity() {
   Assert.notEqual(identity, null);
 
   // and make sure it has no idea what the current state of the card is.
-  if (identity._hasAddressBookCard !== undefined)
-    do_throw("We should have no idea about the state of the ab card, but " +
-             "it's: " + identity._hasAddressBookCard);
+  if (identity._hasAddressBookCard !== undefined) {
+    do_throw(
+      "We should have no idea about the state of the ab card, but " +
+        "it's: " +
+        identity._hasAddressBookCard
+    );
+  }
 }
 
 /**
@@ -104,7 +114,6 @@ function test_remove_card_cache_indication() {
   Assert.equal(identity._hasAddressBookCard, false);
 }
 
-
 var tests = [
   // - events update identity._hasAddressBookCard correctly
   setup_create_identity,
@@ -115,6 +124,6 @@ var tests = [
 ];
 
 function run_test() {
-  gInbox = configure_message_injection({mode: "local"});
+  gInbox = configure_message_injection({ mode: "local" });
   glodaHelperRunTests(tests);
 }

@@ -6,15 +6,19 @@
 /* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/POP3pump.js");
 
-var testSubjects = ["[Bug 397009] A filter will let me tag, but not untag",
-                    "Hello, did you receive my bugmail?",
-                    "[Bug 655578] list-id filter broken"];
+var testSubjects = [
+  "[Bug 397009] A filter will let me tag, but not untag",
+  "Hello, did you receive my bugmail?",
+  "[Bug 655578] list-id filter broken",
+];
 
 var gMsgHdrs = [];
 var gHdrIndex = 0;
-var gFiles = ["../../../data/bugmail1",
-              "../../../data/draft1",
-              "../../../data/bugmail19"];
+var gFiles = [
+  "../../../data/bugmail1",
+  "../../../data/draft1",
+  "../../../data/bugmail19",
+];
 
 // This combination of prefs is required to reproduce bug 713611, which
 // is what this test is about.
@@ -44,7 +48,9 @@ function continueTest() {
 }
 
 function streamNextMessage() {
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+    Ci.nsIMessenger
+  );
   let msghdr = gMsgHdrs[gHdrIndex];
   let msgURI = msghdr.folder.getUriForMsg(msghdr);
   let msgServ = messenger.messageServiceFromURI(msgURI);
@@ -62,17 +68,19 @@ var gStreamListener = {
   onStopRequest(aRequest, aStatusCode) {
     // check that the streamed message starts with "From "
     Assert.ok(this._data.startsWith("From "));
-    if (++gHdrIndex == gFiles.length)
+    if (++gHdrIndex == gFiles.length) {
       do_test_finished();
-    else
+    } else {
       streamNextMessage();
+    }
   },
   onDataAvailable(aRequest, aInputStream, aOff, aCount) {
     if (this._stream == null) {
-      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(Ci.nsIScriptableInputStream);
+      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+        Ci.nsIScriptableInputStream
+      );
       this._stream.init(aInputStream);
     }
     this._data += this._stream.read(aCount);
   },
 };
-

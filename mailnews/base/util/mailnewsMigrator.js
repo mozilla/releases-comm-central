@@ -10,11 +10,13 @@
  * or was never used in the old version.
  */
 
-this.EXPORTED_SYMBOLS = [ "migrateMailnews" ];
+this.EXPORTED_SYMBOLS = ["migrateMailnews"];
 
-var {logException} = ChromeUtils.import("resource:///modules/errUtils.js");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 var kServerPrefVersion = 1;
 var kSmtpPrefVersion = 1;
 var kABRemoteContentPrefVersion = 1;
@@ -46,22 +48,30 @@ function migrateMailnews() {
 function MigrateServerAuthPref() {
   try {
     // comma-separated list of all accounts.
-    var accounts = Services.prefs.getCharPref("mail.accountmanager.accounts")
-        .split(",");
+    var accounts = Services.prefs
+      .getCharPref("mail.accountmanager.accounts")
+      .split(",");
     for (let i = 0; i < accounts.length; i++) {
       let accountKey = accounts[i]; // e.g. "account1"
-      if (!accountKey)
+      if (!accountKey) {
         continue;
-      let serverKey = Services.prefs.getCharPref("mail.account." + accountKey +
-         ".server");
+      }
+      let serverKey = Services.prefs.getCharPref(
+        "mail.account." + accountKey + ".server"
+      );
       let server = "mail.server." + serverKey + ".";
-      if (Services.prefs.prefHasUserValue(server + "authMethod"))
+      if (Services.prefs.prefHasUserValue(server + "authMethod")) {
         continue;
-      if (!Services.prefs.prefHasUserValue(server + "useSecAuth") &&
-          !Services.prefs.prefHasUserValue(server + "auth_login"))
+      }
+      if (
+        !Services.prefs.prefHasUserValue(server + "useSecAuth") &&
+        !Services.prefs.prefHasUserValue(server + "auth_login")
+      ) {
         continue;
-      if (Services.prefs.prefHasUserValue(server + "migrated"))
+      }
+      if (Services.prefs.prefHasUserValue(server + "migrated")) {
         continue;
+      }
       // auth_login = false => old-style auth
       // else: useSecAuth = true => "secure auth"
       // else: cleartext pw
@@ -71,12 +81,21 @@ function MigrateServerAuthPref() {
 
       if (auth_login) {
         if (useSecAuth) {
-          Services.prefs.setIntPref(server + "authMethod", Ci.nsMsgAuthMethod.secure);
+          Services.prefs.setIntPref(
+            server + "authMethod",
+            Ci.nsMsgAuthMethod.secure
+          );
         } else {
-          Services.prefs.setIntPref(server + "authMethod", Ci.nsMsgAuthMethod.passwordCleartext);
+          Services.prefs.setIntPref(
+            server + "authMethod",
+            Ci.nsMsgAuthMethod.passwordCleartext
+          );
         }
       } else {
-        Services.prefs.setIntPref(server + "authMethod", Ci.nsMsgAuthMethod.old);
+        Services.prefs.setIntPref(
+          server + "authMethod",
+          Ci.nsMsgAuthMethod.old
+        );
       }
       Services.prefs.setIntPref(server + "migrated", kServerPrefVersion);
     }
@@ -84,16 +103,22 @@ function MigrateServerAuthPref() {
     // same again for SMTP servers
     var smtpservers = Services.prefs.getCharPref("mail.smtpservers").split(",");
     for (let i = 0; i < smtpservers.length; i++) {
-      if (!smtpservers[i])
+      if (!smtpservers[i]) {
         continue;
+      }
       let server = "mail.smtpserver." + smtpservers[i] + ".";
-      if (Services.prefs.prefHasUserValue(server + "authMethod"))
+      if (Services.prefs.prefHasUserValue(server + "authMethod")) {
         continue;
-      if (!Services.prefs.prefHasUserValue(server + "useSecAuth") &&
-          !Services.prefs.prefHasUserValue(server + "auth_method"))
+      }
+      if (
+        !Services.prefs.prefHasUserValue(server + "useSecAuth") &&
+        !Services.prefs.prefHasUserValue(server + "auth_method")
+      ) {
         continue;
-      if (Services.prefs.prefHasUserValue(server + "migrated"))
+      }
+      if (Services.prefs.prefHasUserValue(server + "migrated")) {
         continue;
+      }
       // auth_method = 0 => no auth
       // else: useSecAuth = true => "secure auth"
       // else: cleartext pw
@@ -102,12 +127,21 @@ function MigrateServerAuthPref() {
 
       if (auth_method) {
         if (useSecAuth) {
-          Services.prefs.setIntPref(server + "authMethod", Ci.nsMsgAuthMethod.secure);
+          Services.prefs.setIntPref(
+            server + "authMethod",
+            Ci.nsMsgAuthMethod.secure
+          );
         } else {
-          Services.prefs.setIntPref(server + "authMethod", Ci.nsMsgAuthMethod.passwordCleartext);
+          Services.prefs.setIntPref(
+            server + "authMethod",
+            Ci.nsMsgAuthMethod.passwordCleartext
+          );
         }
       } else {
-        Services.prefs.setIntPref(server + "authMethod", Ci.nsMsgAuthMethod.none);
+        Services.prefs.setIntPref(
+          server + "authMethod",
+          Ci.nsMsgAuthMethod.none
+        );
       }
       Services.prefs.setIntPref(server + "migrated", kSmtpPrefVersion);
     }
@@ -122,47 +156,53 @@ function MigrateServerAuthPref() {
  * Do a one-time migration for it.
  */
 function MigrateABRemoteContentSettings() {
-  if (Services.prefs.prefHasUserValue("mail.ab_remote_content.migrated"))
+  if (Services.prefs.prefHasUserValue("mail.ab_remote_content.migrated")) {
     return;
+  }
 
   // Search through all of our local address books looking for a match.
   let enumerator = MailServices.ab.directories;
   while (enumerator.hasMoreElements()) {
     let migrateAddress = function(aEmail) {
       let uri = Services.io.newURI(
-        "chrome://messenger/content/email=" + aEmail);
+        "chrome://messenger/content/email=" + aEmail
+      );
       Services.perms.add(uri, "image", Services.perms.ALLOW_ACTION);
     };
 
-    let addrbook = enumerator.getNext()
-      .QueryInterface(Ci.nsIAbDirectory);
+    let addrbook = enumerator.getNext().QueryInterface(Ci.nsIAbDirectory);
     try {
       // If it's a read-only book, don't try to find a card as we we could never
       // have set the AllowRemoteContent property.
-      if (addrbook.readOnly)
+      if (addrbook.readOnly) {
         continue;
+      }
 
       let childCards = addrbook.childCards;
       while (childCards.hasMoreElements()) {
-        let card = childCards.getNext()
-                             .QueryInterface(Ci.nsIAbCard);
+        let card = childCards.getNext().QueryInterface(Ci.nsIAbCard);
 
-        if (card.getProperty("AllowRemoteContent", "0") == "0")
-          continue; // not allowed for this contact
+        if (card.getProperty("AllowRemoteContent", "0") == "0") {
+          continue;
+        } // not allowed for this contact
 
-        if (card.primaryEmail)
+        if (card.primaryEmail) {
           migrateAddress(card.primaryEmail);
+        }
 
-        if (card.getProperty("SecondEmail", ""))
+        if (card.getProperty("SecondEmail", "")) {
           migrateAddress(card.getProperty("SecondEmail", ""));
+        }
       }
     } catch (e) {
       logException(e);
     }
   }
 
-  Services.prefs.setIntPref("mail.ab_remote_content.migrated",
-                            kABRemoteContentPrefVersion);
+  Services.prefs.setIntPref(
+    "mail.ab_remote_content.migrated",
+    kABRemoteContentPrefVersion
+  );
 }
 
 /**
@@ -170,15 +210,18 @@ function MigrateABRemoteContentSettings() {
  * change it back to the default.
  */
 function MigrateDefaultCharsets() {
-  if (Services.prefs.prefHasUserValue("mail.default_charsets.migrated"))
+  if (Services.prefs.prefHasUserValue("mail.default_charsets.migrated")) {
     return;
+  }
 
-  let charsetConvertManager = Cc["@mozilla.org/charset-converter-manager;1"]
-    .getService(Ci.nsICharsetConverterManager);
+  let charsetConvertManager = Cc[
+    "@mozilla.org/charset-converter-manager;1"
+  ].getService(Ci.nsICharsetConverterManager);
 
   let sendCharsetStr = Services.prefs.getComplexValue(
-      "mailnews.send_default_charset",
-      Ci.nsIPrefLocalizedString).data;
+    "mailnews.send_default_charset",
+    Ci.nsIPrefLocalizedString
+  ).data;
 
   try {
     charsetConvertManager.getCharsetTitle(sendCharsetStr);
@@ -187,8 +230,9 @@ function MigrateDefaultCharsets() {
   }
 
   let viewCharsetStr = Services.prefs.getComplexValue(
-      "mailnews.view_default_charset",
-      Ci.nsIPrefLocalizedString).data;
+    "mailnews.view_default_charset",
+    Ci.nsIPrefLocalizedString
+  ).data;
 
   try {
     charsetConvertManager.getCharsetTitle(viewCharsetStr);
@@ -196,6 +240,8 @@ function MigrateDefaultCharsets() {
     Services.prefs.clearUserPref("mailnews.view_default_charset");
   }
 
-  Services.prefs.setIntPref("mail.default_charsets.migrated",
-                            kDefaultCharsetsPrefVersion);
+  Services.prefs.setIntPref(
+    "mail.default_charsets.migrated",
+    kDefaultCharsetsPrefVersion
+  );
 }

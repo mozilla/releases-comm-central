@@ -6,7 +6,9 @@
  * Testing of bcc in message summary file added in bug 481667
  */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var hdr;
 
@@ -20,14 +22,24 @@ function run_test() {
       hdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
     },
     SetMessageId(aMessageId) {},
-    OnStopCopy(aStatus) { continueTest(); },
+    OnStopCopy(aStatus) {
+      continueTest();
+    },
   };
 
   // Get a message into the local filestore.
   var draft = do_get_file("../../../data/draft1");
   do_test_pending();
-  MailServices.copy.CopyFileMessage(draft, localAccountUtils.inboxFolder, null, false, 0,
-                                    "", copyListener, null);
+  MailServices.copy.CopyFileMessage(
+    draft,
+    localAccountUtils.inboxFolder,
+    null,
+    false,
+    0,
+    "",
+    copyListener,
+    null
+  );
 }
 
 function continueTest() {
@@ -40,4 +52,3 @@ function continueTest() {
   hdr = null;
   do_test_finished();
 }
-

@@ -10,66 +10,79 @@ var handler;
 var incomingServer;
 var thisTest;
 
-var tests = [{
-  title: "Cleartext password, with server only supporting USER/PASS",
-  clientAuthMethod: Ci.nsMsgAuthMethod.passwordCleartext,
-  serverAuthMethods: [],
-  expectSuccess: true,
-  transaction: ["AUTH", "CAPA", "USER fred", "PASS wilma", "STAT"],
-}, {
-  // Just to make sure we clear the auth flags and re-issue "AUTH"
-  title: "Second time Cleartext password, with server only supporting USER/PASS",
-  clientAuthMethod: Ci.nsMsgAuthMethod.passwordCleartext,
-  serverAuthMethods: [],
-  expectSuccess: true,
-  transaction: ["AUTH", "CAPA", "USER fred", "PASS wilma", "STAT"],
-}, {
-  title: "Cleartext password, with server supporting AUTH PLAIN, LOGIN and CRAM",
-  clientAuthMethod: Ci.nsMsgAuthMethod.passwordCleartext,
-  serverAuthMethods: ["PLAIN", "LOGIN", "CRAM-MD5"],
-  expectSuccess: true,
-  transaction: ["AUTH", "CAPA", "AUTH PLAIN", "STAT"],
-}, {
-  title: "Cleartext password, with server supporting only AUTH LOGIN",
-  clientAuthMethod: Ci.nsMsgAuthMethod.passwordCleartext,
-  serverAuthMethods: ["LOGIN"],
-  expectSuccess: true,
-  transaction: ["AUTH", "CAPA", "AUTH LOGIN", "STAT"],
-}, {
-  title: "Encrypted password, with server supporting PLAIN and CRAM",
-  clientAuthMethod: Ci.nsMsgAuthMethod.passwordEncrypted,
-  serverAuthMethods: ["PLAIN", "LOGIN", "CRAM-MD5"],
-  expectSuccess: true,
-  transaction: ["AUTH", "CAPA", "AUTH CRAM-MD5", "STAT"],
-}, {
-  title: "Encrypted password, with server only supporting AUTH PLAIN and LOGIN (must fail)",
-  clientAuthMethod: Ci.nsMsgAuthMethod.passwordEncrypted,
-  serverAuthMethods: ["PLAIN", "LOGIN"],
-  expectSuccess: false,
-  transaction: ["AUTH", "CAPA"],
-}, {
-  title: "Any secure method, with server supporting AUTH PLAIN and CRAM",
-  clientAuthMethod: Ci.nsMsgAuthMethod.secure,
-  serverAuthMethods: ["PLAIN", "LOGIN", "CRAM-MD5"],
-  expectSuccess: true,
-  transaction: ["AUTH", "CAPA", "AUTH CRAM-MD5", "STAT"],
-}, {
-  title: "Any secure method, with server only supporting AUTH PLAIN and LOGIN (must fail)",
-  clientAuthMethod: Ci.nsMsgAuthMethod.secure,
-  serverAuthMethods: ["PLAIN"],
-  expectSuccess: false,
-  transaction: ["AUTH", "CAPA"],
-}];
+var tests = [
+  {
+    title: "Cleartext password, with server only supporting USER/PASS",
+    clientAuthMethod: Ci.nsMsgAuthMethod.passwordCleartext,
+    serverAuthMethods: [],
+    expectSuccess: true,
+    transaction: ["AUTH", "CAPA", "USER fred", "PASS wilma", "STAT"],
+  },
+  {
+    // Just to make sure we clear the auth flags and re-issue "AUTH"
+    title:
+      "Second time Cleartext password, with server only supporting USER/PASS",
+    clientAuthMethod: Ci.nsMsgAuthMethod.passwordCleartext,
+    serverAuthMethods: [],
+    expectSuccess: true,
+    transaction: ["AUTH", "CAPA", "USER fred", "PASS wilma", "STAT"],
+  },
+  {
+    title:
+      "Cleartext password, with server supporting AUTH PLAIN, LOGIN and CRAM",
+    clientAuthMethod: Ci.nsMsgAuthMethod.passwordCleartext,
+    serverAuthMethods: ["PLAIN", "LOGIN", "CRAM-MD5"],
+    expectSuccess: true,
+    transaction: ["AUTH", "CAPA", "AUTH PLAIN", "STAT"],
+  },
+  {
+    title: "Cleartext password, with server supporting only AUTH LOGIN",
+    clientAuthMethod: Ci.nsMsgAuthMethod.passwordCleartext,
+    serverAuthMethods: ["LOGIN"],
+    expectSuccess: true,
+    transaction: ["AUTH", "CAPA", "AUTH LOGIN", "STAT"],
+  },
+  {
+    title: "Encrypted password, with server supporting PLAIN and CRAM",
+    clientAuthMethod: Ci.nsMsgAuthMethod.passwordEncrypted,
+    serverAuthMethods: ["PLAIN", "LOGIN", "CRAM-MD5"],
+    expectSuccess: true,
+    transaction: ["AUTH", "CAPA", "AUTH CRAM-MD5", "STAT"],
+  },
+  {
+    title:
+      "Encrypted password, with server only supporting AUTH PLAIN and LOGIN (must fail)",
+    clientAuthMethod: Ci.nsMsgAuthMethod.passwordEncrypted,
+    serverAuthMethods: ["PLAIN", "LOGIN"],
+    expectSuccess: false,
+    transaction: ["AUTH", "CAPA"],
+  },
+  {
+    title: "Any secure method, with server supporting AUTH PLAIN and CRAM",
+    clientAuthMethod: Ci.nsMsgAuthMethod.secure,
+    serverAuthMethods: ["PLAIN", "LOGIN", "CRAM-MD5"],
+    expectSuccess: true,
+    transaction: ["AUTH", "CAPA", "AUTH CRAM-MD5", "STAT"],
+  },
+  {
+    title:
+      "Any secure method, with server only supporting AUTH PLAIN and LOGIN (must fail)",
+    clientAuthMethod: Ci.nsMsgAuthMethod.secure,
+    serverAuthMethods: ["PLAIN"],
+    expectSuccess: false,
+    transaction: ["AUTH", "CAPA"],
+  },
+];
 
 var urlListener = {
-  OnStartRunningUrl(url) {
-  },
+  OnStartRunningUrl(url) {},
   OnStopRunningUrl(url, result) {
     try {
-      if (thisTest.expectSuccess)
+      if (thisTest.expectSuccess) {
         Assert.equal(result, 0);
-      else
+      } else {
         Assert.notEqual(result, 0);
+      }
 
       var transaction = server.playTransaction();
       do_check_transaction(transaction, thisTest.transaction);
@@ -78,8 +91,9 @@ var urlListener = {
     } catch (e) {
       server.stop();
       var thread = gThreadManager.currentThread;
-      while (thread.hasPendingEvents())
+      while (thread.hasPendingEvents()) {
         thread.processNextEvent(true);
+      }
 
       do_throw(e);
     }
@@ -94,17 +108,20 @@ function checkBusy() {
     server.stop();
 
     var thread = gThreadManager.currentThread;
-    while (thread.hasPendingEvents())
+    while (thread.hasPendingEvents()) {
       thread.processNextEvent(true);
+    }
 
     do_test_finished();
     return;
   }
 
   // If the server hasn't quite finished, just delay a little longer.
-  if (incomingServer.serverBusy ||
-      (incomingServer instanceof Ci.nsIPop3IncomingServer &&
-       incomingServer.runningProtocol)) {
+  if (
+    incomingServer.serverBusy ||
+    (incomingServer instanceof Ci.nsIPop3IncomingServer &&
+      incomingServer.runningProtocol)
+  ) {
     do_timeout(20, checkBusy);
     return;
   }
@@ -134,8 +151,12 @@ function testNext() {
     msgServer.QueryInterface(Ci.nsIMsgIncomingServer);
     msgServer.authMethod = thisTest.clientAuthMethod;
 
-    MailServices.pop3.GetNewMail(null, urlListener, localAccountUtils.inboxFolder,
-                                 incomingServer);
+    MailServices.pop3.GetNewMail(
+      null,
+      urlListener,
+      localAccountUtils.inboxFolder,
+      incomingServer
+    );
     server.performTest();
   } catch (e) {
     server.stop();
@@ -145,7 +166,11 @@ function testNext() {
 
 // <copied from="head_maillocal.js::createPop3ServerAndLocalFolders()">
 function createPop3Server() {
-  let incoming = MailServices.accounts.createIncomingServer("fred", "localhost", "pop3");
+  let incoming = MailServices.accounts.createIncomingServer(
+    "fred",
+    "localhost",
+    "pop3"
+  );
   incoming.port = server.port;
   incoming.password = "wilma";
   return incoming;
@@ -153,8 +178,9 @@ function createPop3Server() {
 // </copied>
 
 function deletePop3Server() {
-  if (!incomingServer)
+  if (!incomingServer) {
     return;
+  }
   MailServices.accounts.removeIncomingServer(incomingServer, true);
   incomingServer = null;
 }

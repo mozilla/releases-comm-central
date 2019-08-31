@@ -8,19 +8,15 @@ load("../../../resources/asyncTestUtils.js");
 
 var gFolder1, gFolder2;
 
-var tests = [
-  setup,
-  check,
-  teardown,
-];
+var tests = [setup, check, teardown];
 
 function* setup() {
   Services.prefs.setBoolPref("mail.check_all_imap_folders_for_new", true);
 
   setupIMAPPump();
 
-  IMAPPump.daemon.createMailbox("folder 1", {subscribed: true});
-  IMAPPump.daemon.createMailbox("folder 2", {subscribed: true});
+  IMAPPump.daemon.createMailbox("folder 1", { subscribed: true });
+  IMAPPump.daemon.createMailbox("folder 2", { subscribed: true });
 
   IMAPPump.server.performTest("SUBSCRIBE");
 
@@ -38,8 +34,9 @@ function* setup() {
 }
 
 function check() {
-  const gDbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"]
-                       .getService(Ci.nsIMsgDBService);
+  const gDbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"].getService(
+    Ci.nsIMsgDBService
+  );
   Assert.ok(gDbService.cachedDBForFolder(IMAPPump.inbox) !== null);
   Assert.ok(gDbService.cachedDBForFolder(gFolder1) === null);
   Assert.ok(gDbService.cachedDBForFolder(gFolder2) === null);

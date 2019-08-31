@@ -5,7 +5,6 @@
  * Original author: David Bienvenu <dbienvenu@mozilla.com>
  */
 
-
 /* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/POP3pump.js");
 var gFiles = ["../../../data/bugmail10", "../../../data/basic1"];
@@ -18,7 +17,8 @@ var gPluggableStores = [
   "@mozilla.org/msgstore/maildirstore;1",
 ];
 var basic1_preview = "Hello, world!";
-var bugmail10_preview = "Do not reply to this email. You can add comments to this bug at https://bugzilla.mozilla.org/show_bug.cgi?id=436880 -- Configure bugmail: https://bugzilla.mozilla.org/userprefs.cgi?tab=email ------- You are receiving this mail because: -----";
+var bugmail10_preview =
+  "Do not reply to this email. You can add comments to this bug at https://bugzilla.mozilla.org/show_bug.cgi?id=436880 -- Configure bugmail: https://bugzilla.mozilla.org/userprefs.cgi?tab=email ------- You are receiving this mail because: -----";
 
 var gMoveFolder;
 var gFilter; // the test filter
@@ -62,8 +62,7 @@ var gTestArray = [
     let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     keys.push(hdr.messageKey);
     hdrs.push(hdr);
-    Assert.ok(!gMoveFolder.fetchMsgPreviewText(keys, keys.length,
-                                               false, null));
+    Assert.ok(!gMoveFolder.fetchMsgPreviewText(keys, keys.length, false, null));
     Assert.equal(hdrs[0].getStringProperty("preview"), bugmail10_preview);
     // check inbox message
     hdrs = [];
@@ -72,9 +71,14 @@ var gTestArray = [
     hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     keys.push(hdr.messageKey);
     hdrs.push(hdr);
-    Assert.ok(!localAccountUtils.inboxFolder
-                                .fetchMsgPreviewText(keys, keys.length,
-                                                     false, null));
+    Assert.ok(
+      !localAccountUtils.inboxFolder.fetchMsgPreviewText(
+        keys,
+        keys.length,
+        false,
+        null
+      )
+    );
     Assert.equal(hdrs[0].getStringProperty("preview"), basic1_preview);
   },
 ];
@@ -95,15 +99,17 @@ function setup_store(storeID) {
     gPOP3Pump.resetPluggableStore(storeID);
 
     // Set the default mailbox store.
-    Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
-                               storeID);
+    Services.prefs.setCharPref("mail.serverDefaultStoreContractID", storeID);
 
     // Make sure we're not quarantining messages
     Services.prefs.setBoolPref("mailnews.downloadToTempFile", false);
-    if (!localAccountUtils.inboxFolder)
+    if (!localAccountUtils.inboxFolder) {
       localAccountUtils.loadLocalMailAccount();
+    }
 
-    gMoveFolder = localAccountUtils.rootFolder.createLocalSubfolder("MoveFolder");
+    gMoveFolder = localAccountUtils.rootFolder.createLocalSubfolder(
+      "MoveFolder"
+    );
   };
 }
 

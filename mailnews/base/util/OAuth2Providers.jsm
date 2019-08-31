@@ -35,36 +35,51 @@ var kHostnames = new Map([
 // registration itself) will disappear when this is switched to dynamic
 // client registration.
 var kIssuers = new Map([
-  ["accounts.google.com", [
-    "406964657835-aq8lmia8j95dhl1a2bvharmfk3t1hgqj.apps.googleusercontent.com",
-    "kSmqreRr0qwBWJgbf5Y-PjSU",
-    "https://accounts.google.com/o/oauth2/auth",
-    "https://www.googleapis.com/oauth2/v3/token",
-  ]],
-  ["o2.mail.ru", [
-    "thunderbird",
-    "I0dCAXrcaNFujaaY",
-    "https://o2.mail.ru/login",
-    "https://o2.mail.ru/token",
-  ]],
-  ["oauth.yandex.com", [
-    "2a00bba7374047a6ab79666485ffce31",
-    "3ded85b4ec574c2187a55dc49d361280",
-    "https://oauth.yandex.com/authorize",
-    "https://oauth.yandex.com/token",
-  ]],
-  ["login.yahoo.com", [
-    "dj0yJmk9NUtCTWFMNVpTaVJmJmQ9WVdrOVJ6UjVTa2xJTXpRbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD0yYw--",
-    "f2de6a30ae123cdbc258c15e0812799010d589cc",
-    "https://api.login.yahoo.com/oauth2/request_auth",
-    "https://api.login.yahoo.com/oauth2/get_token",
-  ]],
-  ["login.aol.com", [
-    "dj0yJmk9OXRHc1FqZHRQYzVvJmQ9WVdrOU1UQnJOR0pvTjJrbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD02NQ--",
-    "79c1c11991d148ddd02a919000d69879942fc278",
-    "https://api.login.aol.com/oauth2/request_auth",
-    "https://api.login.aol.com/oauth2/get_token",
-  ]],
+  [
+    "accounts.google.com",
+    [
+      "406964657835-aq8lmia8j95dhl1a2bvharmfk3t1hgqj.apps.googleusercontent.com",
+      "kSmqreRr0qwBWJgbf5Y-PjSU",
+      "https://accounts.google.com/o/oauth2/auth",
+      "https://www.googleapis.com/oauth2/v3/token",
+    ],
+  ],
+  [
+    "o2.mail.ru",
+    [
+      "thunderbird",
+      "I0dCAXrcaNFujaaY",
+      "https://o2.mail.ru/login",
+      "https://o2.mail.ru/token",
+    ],
+  ],
+  [
+    "oauth.yandex.com",
+    [
+      "2a00bba7374047a6ab79666485ffce31",
+      "3ded85b4ec574c2187a55dc49d361280",
+      "https://oauth.yandex.com/authorize",
+      "https://oauth.yandex.com/token",
+    ],
+  ],
+  [
+    "login.yahoo.com",
+    [
+      "dj0yJmk9NUtCTWFMNVpTaVJmJmQ9WVdrOVJ6UjVTa2xJTXpRbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD0yYw--",
+      "f2de6a30ae123cdbc258c15e0812799010d589cc",
+      "https://api.login.yahoo.com/oauth2/request_auth",
+      "https://api.login.yahoo.com/oauth2/get_token",
+    ],
+  ],
+  [
+    "login.aol.com",
+    [
+      "dj0yJmk9OXRHc1FqZHRQYzVvJmQ9WVdrOU1UQnJOR0pvTjJrbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD02NQ--",
+      "79c1c11991d148ddd02a919000d69879942fc278",
+      "https://api.login.aol.com/oauth2/request_auth",
+      "https://api.login.aol.com/oauth2/get_token",
+    ],
+  ],
 ]);
 
 /**
@@ -72,7 +87,6 @@ var kIssuers = new Map([
  *                   email providers.
  */
 var OAuth2Providers = {
-
   /**
    * Map a hostname to the relevant issuer and scope.
    *

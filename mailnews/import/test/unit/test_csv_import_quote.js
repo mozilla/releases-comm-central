@@ -7,6 +7,5 @@ function run_test() {
   MailServices.ab;
 
   let file = do_get_file("resources/quote.csv");
-  new AbImportHelper(file, "csv", "quote",
-                     "quote_csv").beginImport();
+  new AbImportHelper(file, "csv", "quote", "quote_csv").beginImport();
 }

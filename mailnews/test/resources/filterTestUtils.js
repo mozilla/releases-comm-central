@@ -8,25 +8,35 @@ var contains = Ci.nsMsgSearchOp.Contains;
 // This maps strings to a filter attribute (excluding the parameter)
 var ATTRIB_MAP = {
   // Template : [attrib, op, field of value, otherHeader]
-  "subject": [Ci.nsMsgSearchAttrib.Subject, contains, "str", null],
-  "from": [Ci.nsMsgSearchAttrib.Sender, contains, "str", null],
-  "date": [Ci.nsMsgSearchAttrib.Date, Ci.nsMsgSearchOp.Is, "date", null],
-  "size": [Ci.nsMsgSearchAttrib.Size, Ci.nsMsgSearchOp.Is, "size", null],
-  "message-id": [Ci.nsMsgSearchAttrib.OtherHeader + 1, contains, "str", "Message-ID"],
-  "user-agent": [Ci.nsMsgSearchAttrib.OtherHeader + 2, contains, "str", "User-Agent"],
+  subject: [Ci.nsMsgSearchAttrib.Subject, contains, "str", null],
+  from: [Ci.nsMsgSearchAttrib.Sender, contains, "str", null],
+  date: [Ci.nsMsgSearchAttrib.Date, Ci.nsMsgSearchOp.Is, "date", null],
+  size: [Ci.nsMsgSearchAttrib.Size, Ci.nsMsgSearchOp.Is, "size", null],
+  "message-id": [
+    Ci.nsMsgSearchAttrib.OtherHeader + 1,
+    contains,
+    "str",
+    "Message-ID",
+  ],
+  "user-agent": [
+    Ci.nsMsgSearchAttrib.OtherHeader + 2,
+    contains,
+    "str",
+    "User-Agent",
+  ],
 };
 // And this maps strings to filter actions
 var ACTION_MAP = {
   // Template : [action, auxiliary attribute field, auxiliary value]
-  "priority": [Ci.nsMsgFilterAction.ChangePriority, "priority", 6],
-  "delete": [Ci.nsMsgFilterAction.Delete],
-  "read": [Ci.nsMsgFilterAction.MarkRead],
-  "unread": [Ci.nsMsgFilterAction.MarkUnread],
-  "kill": [Ci.nsMsgFilterAction.KillThread],
-  "watch": [Ci.nsMsgFilterAction.WatchThread],
-  "flag": [Ci.nsMsgFilterAction.MarkFlagged],
-  "stop": [Ci.nsMsgFilterAction.StopExecution],
-  "tag": [Ci.nsMsgFilterAction.AddTag, "strValue", "tag"],
+  priority: [Ci.nsMsgFilterAction.ChangePriority, "priority", 6],
+  delete: [Ci.nsMsgFilterAction.Delete],
+  read: [Ci.nsMsgFilterAction.MarkRead],
+  unread: [Ci.nsMsgFilterAction.MarkUnread],
+  kill: [Ci.nsMsgFilterAction.KillThread],
+  watch: [Ci.nsMsgFilterAction.WatchThread],
+  flag: [Ci.nsMsgFilterAction.MarkFlagged],
+  stop: [Ci.nsMsgFilterAction.StopExecution],
+  tag: [Ci.nsMsgFilterAction.AddTag, "strValue", "tag"],
 };
 
 /**
@@ -46,8 +56,9 @@ function createFilter(list, trigger, value, action) {
   if (trigger in ATTRIB_MAP) {
     let information = ATTRIB_MAP[trigger];
     searchTerm.attrib = information[0];
-    if (information[3] != null)
+    if (information[3] != null) {
       searchTerm.arbitraryHeader = information[3];
+    }
     searchTerm.op = information[1];
     var oldValue = searchTerm.value;
     oldValue.attrib = information[0];
@@ -63,8 +74,9 @@ function createFilter(list, trigger, value, action) {
   if (action in ACTION_MAP) {
     let information = ACTION_MAP[action];
     filterAction.type = information[0];
-    if (1 in information)
+    if (1 in information) {
       filterAction[information[1]] = information[2];
+    }
   } else {
     throw new Error("Unknown action " + action);
   }
@@ -75,4 +87,3 @@ function createFilter(list, trigger, value, action) {
   // Add to the end
   list.insertFilterAt(list.filterCount, filter);
 }
-

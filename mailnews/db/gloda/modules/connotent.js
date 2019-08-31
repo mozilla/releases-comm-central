@@ -2,14 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ["GlodaContent", "whittlerRegistry",
-                         "mimeMsgToContentAndMeta", "mimeMsgToContentSnippetAndMeta"];
+this.EXPORTED_SYMBOLS = [
+  "GlodaContent",
+  "whittlerRegistry",
+  "mimeMsgToContentAndMeta",
+  "mimeMsgToContentSnippetAndMeta",
+];
 
-const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 var LOG = Log4Moz.repository.getLogger("gloda.connotent");
-
-
 
 /**
  * Given a MimeMsg and the corresponding folder, return the GlodaContent object.
@@ -22,15 +24,15 @@ var LOG = Log4Moz.repository.getLogger("gloda.connotent");
 
 function mimeMsgToContentAndMeta(aMimeMsg, folder) {
   let content = new GlodaContent();
-  let meta = {subject: aMimeMsg.get("subject")};
+  let meta = { subject: aMimeMsg.get("subject") };
   let bodyLines = aMimeMsg.coerceBodyToPlaintext(folder).split(/\r?\n/);
 
-  for (let whittler of whittlerRegistry.getWhittlers())
+  for (let whittler of whittlerRegistry.getWhittlers()) {
     whittler.contentWhittle(meta, bodyLines, content);
+  }
 
   return [content, meta];
 }
-
 
 /**
  * Given a MimeMsg, return the whittled content string, suitable for summarizing
@@ -49,12 +51,12 @@ function mimeMsgToContentSnippetAndMeta(aMimeMsg, folder, length) {
   let [content, meta] = mimeMsgToContentAndMeta(aMimeMsg, folder);
 
   let text = content.getContentSnippet(length + 1);
-  if (length && text.length > length)
-    text = text.substring(0, length - 1) + "\u2026"; // ellipsis
+  if (length && text.length > length) {
+    text = text.substring(0, length - 1) + "\u2026";
+  } // ellipsis
 
   return [text, meta];
 }
-
 
 /**
  * A registry of gloda providers that have contentWhittle() functions.
@@ -108,7 +110,7 @@ GlodaContent.prototype = {
 
   /* ===== Consumer API ===== */
   hasContent() {
-    return (this._contentPriority != null);
+    return this._contentPriority != null;
   },
 
   /**
@@ -119,8 +121,9 @@ GlodaContent.prototype = {
    */
   getContentSnippet(aMaxLength) {
     let content = this.getContentString();
-    if (aMaxLength)
+    if (aMaxLength) {
       content = content.substring(0, aMaxLength);
+    }
     return content;
   },
 
@@ -128,10 +131,11 @@ GlodaContent.prototype = {
     let data = "";
     for (let hunk of this._hunks) {
       if (hunk.hunkType == this.kHunkContent) {
-        if (data)
+        if (data) {
           data += "\n" + hunk.data;
-        else
+        } else {
           data = hunk.data;
+        }
       }
     }
 
@@ -174,14 +178,16 @@ GlodaContent.prototype = {
   },
 
   keyValue(aKey, aValue) {
-    if (!this._producing)
+    if (!this._producing) {
       return;
+    }
 
     this._keysAndValues.push([aKey, aValue]);
   },
   keyValueDelta(aKey, aOldValue, aNewValue) {
-    if (!this._producing)
+    if (!this._producing) {
       return;
+    }
 
     this._keysAndDeltaValues.push([aKey, aOldValue, aNewValue]);
   },
@@ -201,17 +207,23 @@ GlodaContent.prototype = {
    *     is associated with.
    */
   meta(aLineOrLines, aAttr, aIndex) {
-    if (!this._producing)
+    if (!this._producing) {
       return;
+    }
 
     let data;
-    if (typeof(aLineOrLines) == "string")
+    if (typeof aLineOrLines == "string") {
       data = aLineOrLines;
-    else
+    } else {
       data = aLineOrLines.join("\n");
+    }
 
-    this._curHunk = {hunkType: this.kHunkMeta, attr: aAttr, index: aIndex,
-                     data};
+    this._curHunk = {
+      hunkType: this.kHunkMeta,
+      attr: aAttr,
+      index: aIndex,
+      data,
+    };
     this._hunks.push(this._curHunk);
   },
   /**
@@ -225,21 +237,31 @@ GlodaContent.prototype = {
    *     known.  For example, the index of a line in a message or something?
    */
   quoted(aLineOrLines, aDepth, aOrigin, aTarget) {
-    if (!this._producing)
+    if (!this._producing) {
       return;
+    }
 
     let data;
-    if (typeof(aLineOrLines) == "string")
+    if (typeof aLineOrLines == "string") {
       data = aLineOrLines;
-    else
+    } else {
       data = aLineOrLines.join("\n");
+    }
 
-    if (!this._curHunk ||
-        this._curHunk.hunkType != this.kHunkQuoted ||
-        this._curHunk.depth != aDepth ||
-        this._curHunk.origin != aOrigin || this._curHunk.target != aTarget) {
-      this._curHunk = {hunkType: this.kHunkQuoted, data,
-                       depth: aDepth, origin: aOrigin, target: aTarget};
+    if (
+      !this._curHunk ||
+      this._curHunk.hunkType != this.kHunkQuoted ||
+      this._curHunk.depth != aDepth ||
+      this._curHunk.origin != aOrigin ||
+      this._curHunk.target != aTarget
+    ) {
+      this._curHunk = {
+        hunkType: this.kHunkQuoted,
+        data,
+        depth: aDepth,
+        origin: aOrigin,
+        target: aTarget,
+      };
       this._hunks.push(this._curHunk);
     } else {
       this._curHunk.data += "\n" + data;
@@ -247,17 +269,19 @@ GlodaContent.prototype = {
   },
 
   content(aLineOrLines) {
-    if (!this._producing)
+    if (!this._producing) {
       return;
+    }
 
     let data;
-    if (typeof(aLineOrLines) == "string")
+    if (typeof aLineOrLines == "string") {
       data = aLineOrLines;
-    else
+    } else {
       data = aLineOrLines.join("\n");
+    }
 
     if (!this._curHunk || this._curHunk.hunkType != this.kHunkContent) {
-      this._curHunk = {hunkType: this.kHunkContent, data};
+      this._curHunk = { hunkType: this.kHunkContent, data };
       this._hunks.push(this._curHunk);
     } else {
       this._curHunk.data += "\n" + data;

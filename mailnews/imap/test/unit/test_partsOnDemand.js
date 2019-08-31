@@ -6,7 +6,7 @@
  * Tests that you can stream a message without the attachments. Tests the
  * MsgHdrToMimeMessage API that exposes this.
  */
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 Services.prefs.setIntPref("mail.imap.mime_parts_on_demand_threshold", 1000);
 
 /* import-globals-from ../../../test/resources/logHelper.js */
@@ -40,7 +40,10 @@ var tests = [
 function* setPrefs() {
   Services.prefs.setIntPref("mail.imap.mime_parts_on_demand_threshold", 20);
   Services.prefs.setBoolPref("mail.imap.mime_parts_on_demand", true);
-  Services.prefs.setBoolPref("mail.server.server1.autosync_offline_stores", false);
+  Services.prefs.setBoolPref(
+    "mail.server.server1.autosync_offline_stores",
+    false
+  );
   Services.prefs.setBoolPref("mail.server.server1.offline_download", false);
   Services.prefs.setBoolPref("mail.server.server1.download_on_biff", false);
   Services.prefs.setIntPref("browser.cache.disk.capacity", 0);
@@ -76,13 +79,19 @@ function* loadImapMessage() {
 function* startMime() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
 
-  mimeMsg.MsgHdrToMimeMessage(msgHdr, this, function(aMsgHdr, aMimeMessage) {
-    let url = aMimeMessage.allUserAttachments[0].url;
-    // A URL containing this string indicates that the attachment will be
-    // downloaded on demand.
-    Assert.ok(url.includes("/;section="));
-    async_driver();
-  }, true /* allowDownload */, { partsOnDemand: true, examineEncryptedParts: true });
+  mimeMsg.MsgHdrToMimeMessage(
+    msgHdr,
+    this,
+    function(aMsgHdr, aMimeMessage) {
+      let url = aMimeMessage.allUserAttachments[0].url;
+      // A URL containing this string indicates that the attachment will be
+      // downloaded on demand.
+      Assert.ok(url.includes("/;section="));
+      async_driver();
+    },
+    true /* allowDownload */,
+    { partsOnDemand: true, examineEncryptedParts: true }
+  );
   yield false;
 }
 
@@ -92,9 +101,15 @@ function* testAllInlineMessage() {
 
   if (enumerator.hasMoreElements()) {
     gSecondMsg = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
-    mimeMsg.MsgHdrToMimeMessage(gSecondMsg, this, function(aMsgHdr, aMimeMessage) {
-      async_driver();
-    }, true /* allowDownload */, { partsOnDemand: true });
+    mimeMsg.MsgHdrToMimeMessage(
+      gSecondMsg,
+      this,
+      function(aMsgHdr, aMimeMessage) {
+        async_driver();
+      },
+      true /* allowDownload */,
+      { partsOnDemand: true }
+    );
     yield false;
   }
 }

@@ -3,8 +3,10 @@
  * Extra tests for forgetting newsgroup usernames and passwords.
  */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 /* import-globals-from ../../../test/resources/passwordStorage.js */
 load("../../../resources/passwordStorage.js");
@@ -22,8 +24,11 @@ add_task(async function() {
   // Set up the basic accounts and folders.
   localAccountUtils.loadLocalMailAccount();
 
-  var incomingServer = MailServices.accounts.createIncomingServer(null, kHostname,
-                                                                  kProtocol);
+  var incomingServer = MailServices.accounts.createIncomingServer(
+    null,
+    kHostname,
+    kProtocol
+  );
 
   // Test - Check there is a password to begin with...
   var logins = Services.logins.findLogins(kServerUrl, null, kServerUrl);

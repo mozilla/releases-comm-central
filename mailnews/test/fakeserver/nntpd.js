@@ -1,7 +1,7 @@
 /* -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 // This file implements test NNTP servers
 
-const {MimeParser} = ChromeUtils.import("resource:///modules/mimeParser.jsm");
+const { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 
 var EXPORTED_SYMBOLS = [
   "nntpDaemon",
@@ -23,53 +23,63 @@ function nntpDaemon(flags) {
 nntpDaemon.prototype = {
   addGroup(group, postable) {
     var flags = 0;
-    if (postable)
+    if (postable) {
       flags |= NNTP_POSTABLE;
+    }
     this._groups[group] = { keys: [], flags, nextKey: 1 };
   },
   addArticle(article) {
-   this._messages[article.messageID] = article;
-   for (let group of article.groups) {
-     if (group in this._groups) {
-       var key = this._groups[group].nextKey++;
-       this._groups[group][key] = article;
-       this._groups[group].keys.push(key);
-     }
-   }
+    this._messages[article.messageID] = article;
+    for (let group of article.groups) {
+      if (group in this._groups) {
+        var key = this._groups[group].nextKey++;
+        this._groups[group][key] = article;
+        this._groups[group].keys.push(key);
+      }
+    }
   },
   addArticleToGroup(article, group, key) {
     this._groups[group][key] = article;
     this._messages[article.messageID] = article;
     this._groups[group].keys.push(key);
-    if (this._groups[group].nextKey <= key)
+    if (this._groups[group].nextKey <= key) {
       this._groups[group].nextKey = key + 1;
+    }
   },
   getGroup(group) {
-    if (this._groups.hasOwnProperty(group))
+    if (this._groups.hasOwnProperty(group)) {
       return this._groups[group];
+    }
     return null;
   },
   getGroupStats(group) {
-    if (group.keys.length == 0)
+    if (group.keys.length == 0) {
       return [0, 0, 0];
+    }
     var min = 1 << 30;
     var max = 0;
     group.keys.forEach(function(key) {
-        if (key < min) min = key;
-        if (key > max) max = key;
-      });
+      if (key < min) {
+        min = key;
+      }
+      if (key > max) {
+        max = key;
+      }
+    });
 
     var length;
-    if (hasFlag(this._flags, NNTP_REAL_LENGTH))
+    if (hasFlag(this._flags, NNTP_REAL_LENGTH)) {
       length = group.keys.length;
-    else
+    } else {
       length = max - min + 1;
+    }
 
     return [length, min, max];
   },
   getArticle(msgid) {
-    if (msgid in this._messages)
+    if (msgid in this._messages) {
       return this._messages[msgid];
+    }
     return null;
   },
 };
@@ -113,12 +123,13 @@ function newsArticle(text) {
 function wildmat2regex(wildmat) {
   // Special characters in regex that aren't special in wildmat
   wildmat = wildmat.replace(/[$+.()|{}^]/, function(str) {
-      return "\\" + str;
+    return "\\" + str;
   });
   wildmat = wildmat.replace(/(\\*)([*?])/, function(str, p1, p2) {
     // TODO: This function appears to be wrong on closer inspection.
-    if (p1.length % 2 == 0)
+    if (p1.length % 2 == 0) {
       return p2 == "*" ? ".*" : ".";
+    }
     return str;
   });
   return new RegExp(wildmat);
@@ -166,47 +177,61 @@ NNTP_RFC977_handler.prototype = {
     this.group = null;
   },
   ARTICLE(args) {
-     var info = this._selectArticle(args, 220);
-     if (info[0] == null)
-       return info[1];
+    var info = this._selectArticle(args, 220);
+    if (info[0] == null) {
+      return info[1];
+    }
 
-     var response = info[1] + "\n";
-     response += info[0].fullText.replace("(?=\n).", "..");
-     response += ".";
-     return response;
+    var response = info[1] + "\n";
+    response += info[0].fullText.replace("(?=\n).", "..");
+    response += ".";
+    return response;
   },
   BODY(args) {
-     var info = this._selectArticle(args, 222);
-     if (info[0] == null)
-       return info[1];
+    var info = this._selectArticle(args, 222);
+    if (info[0] == null) {
+      return info[1];
+    }
 
-     var response = info[1] + "\n";
-     response += info[0].body.replace("(?=\n).", "..");
-     response += ".";
-     return response;
+    var response = info[1] + "\n";
+    response += info[0].body.replace("(?=\n).", "..");
+    response += ".";
+    return response;
   },
   GROUP(args) {
     var group = this._daemon.getGroup(args);
-    if (group == null)
+    if (group == null) {
       return "411 no such news group";
+    }
 
     this.group = group;
     this.articleKey = 0 in this.group.keys ? this.group.keys[0] : null;
 
     var stats = this._daemon.getGroupStats(group);
-    return "211 " + stats[0] + " " + stats[1] + " " + stats[2] + " " + args +
-           " group selected";
+    return (
+      "211 " +
+      stats[0] +
+      " " +
+      stats[1] +
+      " " +
+      stats[2] +
+      " " +
+      args +
+      " group selected"
+    );
   },
   HEAD(args) {
-     var info = this._selectArticle(args, 221);
-     if (info[0] == null)
-       return info[1];
+    var info = this._selectArticle(args, 221);
+    if (info[0] == null) {
+      return info[1];
+    }
 
-     var response = info[1] + "\n";
-     for (let [header, value] of info[0].headers)
-       response += header + ": " + value + "\n";
-     response += ".";
-     return response;
+    var response = info[1] + "\n";
+    for (let [header, value] of info[0].headers) {
+      response += header + ": " + value + "\n";
+    }
+    response += ".";
+    return response;
   },
   HELP(args) {
     var response = "100 Why certainly, here is my help:\n";
@@ -230,10 +255,12 @@ NNTP_RFC977_handler.prototype = {
     return response;
   },
   LAST(args) {
-    if (this.group == null)
+    if (this.group == null) {
       return "412 no newsgroup selected";
-    if (this.articleKey == null)
+    }
+    if (this.articleKey == null) {
       return "420 no current article has been selected";
+    }
     return "502 Command not implemented";
   },
   LIST(args) {
@@ -241,8 +268,15 @@ NNTP_RFC977_handler.prototype = {
     for (let groupname in this._daemon._groups) {
       let group = this._daemon._groups[groupname];
       let stats = this._daemon.getGroupStats(group);
-      response += groupname + " " + stats[1] + " " + stats[0] + " " +
-                  (hasFlag(group.flags, NNTP_POSTABLE) ? "y" : "n") + "\n";
+      response +=
+        groupname +
+        " " +
+        stats[1] +
+        " " +
+        stats[0] +
+        " " +
+        (hasFlag(group.flags, NNTP_POSTABLE) ? "y" : "n") +
+        "\n";
     }
     response += ".";
     return response;
@@ -254,10 +288,12 @@ NNTP_RFC977_handler.prototype = {
     return "502 Command not implemented";
   },
   NEXT(args) {
-    if (this.group == null)
+    if (this.group == null) {
       return "412 no newsgroup selected";
-    if (this.articleKey == null)
+    }
+    if (this.articleKey == null) {
       return "420 no current article has been selected";
+    }
     return "502 Command not implemented";
   },
   POST(args) {
@@ -270,23 +306,24 @@ NNTP_RFC977_handler.prototype = {
     return "205 closing connection - goodbye!";
   },
   STAT(args) {
-     var info = this._selectArticle(args, 223);
-     return info[1];
+    var info = this._selectArticle(args, 223);
+    return info[1];
   },
   LISTGROUP(args) {
     // Yes, I know this isn't RFC 977, but I doubt that mailnews will ever drop
     // its requirement for this, so I'll stuff it in here anyways...
-    var group = (args == "" ? this.group : this._daemon.getGroup(args));
-    if (group == null)
+    var group = args == "" ? this.group : this._daemon.getGroup(args);
+    if (group == null) {
       return "411 This newsgroup does not exist";
+    }
 
     var response = "211 Articles follow:\n";
-    for (let key of group.keys)
+    for (let key of group.keys) {
       response += key + "\n";
+    }
     response += ".\n";
     return response;
   },
-
 
   onError(command, args) {
     return "500 command not recognized";
@@ -312,8 +349,9 @@ NNTP_RFC977_handler.prototype = {
     }
 
     if (this.posting) {
-      if (line.startsWith("."))
+      if (line.startsWith(".")) {
         line = line.substring(1);
+      }
 
       this.post += line + "\n";
     }
@@ -321,8 +359,9 @@ NNTP_RFC977_handler.prototype = {
     return undefined;
   },
   postCommand(reader) {
-    if (this.closing)
+    if (this.closing) {
       reader.closeSocket();
+    }
     reader.setMultiline(this.posting);
   },
 
@@ -336,10 +375,12 @@ NNTP_RFC977_handler.prototype = {
   _selectArticle(args, responseCode) {
     var art, key;
     if (args == "") {
-      if (this.group == null)
+      if (this.group == null) {
         return [null, "412 no newsgroup has been selected"];
-      if (this.articleKey == null)
+      }
+      if (this.articleKey == null) {
         return [null, "420 no current article has been selected"];
+      }
 
       art = this.group[this.articleKey];
       key = this.articleKey;
@@ -347,11 +388,13 @@ NNTP_RFC977_handler.prototype = {
       art = this._daemon.getArticle(args);
       key = 0;
 
-      if (art == null)
+      if (art == null) {
         return [null, "430 no such article found"];
+      }
     } else {
-      if (this.group == null)
+      if (this.group == null) {
         return [null, "412 no newsgroup has been selected"];
+      }
 
       key = parseInt(args);
       if (key in this.group) {
@@ -362,8 +405,8 @@ NNTP_RFC977_handler.prototype = {
       }
     }
 
-    var respCode = responseCode + " " + key + " " + art.messageID +
-      " article selected";
+    var respCode =
+      responseCode + " " + key + " " + art.messageID + " article selected";
     return [art, respCode];
   },
 };
@@ -386,17 +429,19 @@ function subconstructor(sub, sup, ...aArgs) {
   sub.parent = new Proxy(sub, {
     get(target, name) {
       let res = sup.prototype[name];
-      if (typeof res === "function")
+      if (typeof res === "function") {
         return res.bind(sub);
+      }
       return res;
-    }});
+    },
+  });
 }
 function NNTP_RFC2980_handler(daemon) {
   subconstructor(this, NNTP_RFC977_handler, daemon);
 }
 subclass(NNTP_RFC2980_handler, NNTP_RFC977_handler, {
-// NNTP_RFC2980_handler.prototype = new NNTP_RFC977_handler();
-// var subprototype = {
+  // NNTP_RFC2980_handler.prototype = new NNTP_RFC977_handler();
+  // var subprototype = {
   DATE(args) {
     return "502 Command not implemented";
   },
@@ -405,61 +450,77 @@ subclass(NNTP_RFC2980_handler, NNTP_RFC977_handler, {
     var command = index == -1 ? args : args.substring(0, index);
     args = index == -1 ? "" : args.substring(index + 1);
     command = command.toUpperCase();
-    if (("LIST_" + command) in this)
+    if ("LIST_" + command in this) {
       return this["LIST_" + command](args);
+    }
     return this.parent.LIST(command + " " + args);
   },
   LIST_ACTIVE(args) {
     return this.parent.LIST(args);
   },
   MODE(args) {
-    if (args == "READER")
+    if (args == "READER") {
       return this.onStartup();
+    }
     return "500 What do you think you're trying to pull here?";
   },
   XHDR(args) {
-    if (!this.group)
+    if (!this.group) {
       return "412 No group selected";
+    }
 
     args = args.split(" ");
     var header = args[0].toLowerCase();
     var found = false;
     var response = "221 Headers abound\n";
     for (let key of this._filterRange(args[1], this.group.keys)) {
-      if (!this.group[key].headers.has(header))
+      if (!this.group[key].headers.has(header)) {
         continue;
+      }
       found = true;
       response += key + " " + this.group[key].headers.get(header) + "\n";
     }
-    if (!found)
+    if (!found) {
       return "420 No such article";
+    }
     response += ".";
     return response;
   },
   XOVER(args) {
-    if (!this.group)
+    if (!this.group) {
       return "412 No group selected";
+    }
 
     args = args.split(/ +/, 3);
     var response = "224 List of articles\n";
     for (let key of this._filterRange(args[0], this.group.keys)) {
       response += key + "\t";
       var article = this.group[key];
-      response += article.headers.get("subject") + "\t" +
-                  article.headers.get("from") + "\t" +
-                  article.headers.get("date") + "\t" +
-                  article.headers.get("message-id") + "\t" +
-                  (article.headers.get("references") || "") + "\t" +
-                  article.fullText.replace(/\r?\n/, "\r\n").length + "\t" +
-                  article.body.split(/\r?\n/).length + "\t" +
-                  (article.headers.get("xref") || "") + "\n";
+      response +=
+        article.headers.get("subject") +
+        "\t" +
+        article.headers.get("from") +
+        "\t" +
+        article.headers.get("date") +
+        "\t" +
+        article.headers.get("message-id") +
+        "\t" +
+        (article.headers.get("references") || "") +
+        "\t" +
+        article.fullText.replace(/\r?\n/, "\r\n").length +
+        "\t" +
+        article.body.split(/\r?\n/).length +
+        "\t" +
+        (article.headers.get("xref") || "") +
+        "\n";
     }
     response += ".\n";
     return response;
   },
   XPAT(args) {
-    if (!this.group)
+    if (!this.group) {
       return "412 No group selected";
+    }
 
     /* XPAT header range ... */
     args = args.split(/ +/, 3);
@@ -469,8 +530,10 @@ subclass(NNTP_RFC2980_handler, NNTP_RFC977_handler, {
     let response = "221 Results follow\n";
     for (let key of this._filterRange(args[1], this.group.keys)) {
       let article = this.group[key];
-      if (article.headers.has(header) &&
-          regex.test(article.headers.get(header))) {
+      if (
+        article.headers.has(header) &&
+        regex.test(article.headers.get(header))
+      ) {
         response += key + " " + article.headers.get(header) + "\n";
       }
     }
@@ -484,12 +547,15 @@ subclass(NNTP_RFC2980_handler, NNTP_RFC977_handler, {
       low = high = parseInt(range);
     } else {
       low = parseInt(range.substring(0, dash));
-      if (dash < range.length - 1)
+      if (dash < range.length - 1) {
         high = range.substring(dash + 1);
-      else
-        high = 1.0 / 0.0; // Everything is less than this
+      } else {
+        high = 1.0 / 0.0;
+      } // Everything is less than this
     }
-    return keys.filter(function(e) { return low <= e && e <= high; });
+    return keys.filter(function(e) {
+      return low <= e && e <= high;
+    });
   },
 });
 
@@ -499,8 +565,9 @@ function NNTP_Giganews_handler(daemon) {
 subclass(NNTP_Giganews_handler, NNTP_RFC2980_handler, {
   XHDR(args) {
     var header = args.split(" ")[0].toLowerCase();
-    if (header in ["subject", "from", "xref", "date", "message-id",
-                   "references"]) {
+    if (
+      header in ["subject", "from", "xref", "date", "message-id", "references"]
+    ) {
       return this.parent.XHDR(args);
     }
     return "503 unsupported header field";
@@ -521,40 +588,46 @@ subclass(NNTP_RFC4643_extension, NNTP_RFC2980_handler, {
   usernameReceived: false,
 
   AUTHINFO(args) {
-    if (this.authenticated)
+    if (this.authenticated) {
       return "502 Command unavailable";
+    }
 
     var argSplit = args.split(" ");
     var action = argSplit[0];
     var param = argSplit[1];
 
     if (action == "user") {
-      if (this.usernameReceived)
+      if (this.usernameReceived) {
         return "502 Command unavailable";
+      }
 
       var expectUsername = this.lastGroupTried
         ? this._daemon.groupCredentials[this.lastGroupTried][0]
         : this.expectedUsername;
-      if (param != expectUsername)
+      if (param != expectUsername) {
         return "481 Authentication failed";
+      }
 
       this.usernameReceived = true;
-      if (this.requireBoth)
+      if (this.requireBoth) {
         return "381 Password required";
+      }
 
       this.authenticated = this.lastGroupTried ? this.lastGroupTried : true;
       return "281 Authentication Accepted";
     } else if (action == "pass") {
-      if (!this.requireBoth || !this.usernameReceived)
+      if (!this.requireBoth || !this.usernameReceived) {
         return "482 Authentication commands issued out of sequence";
+      }
 
       this.usernameReceived = false;
 
       var expectPassword = this.lastGroupTried
         ? this._daemon.groupCredentials[this.lastGroupTried][1]
         : this.expectedPassword;
-      if (param != expectPassword)
+      if (param != expectPassword) {
         return "481 Authentication failed";
+      }
 
       this.authenticated = this.lastGroupTried ? this.lastGroupTried : true;
       return "281 Authentication Accepted";
@@ -568,11 +641,15 @@ subclass(NNTP_RFC4643_extension, NNTP_RFC2980_handler, {
     return "480 Authentication required";
   },
   GROUP(args) {
-    if ((this._daemon.groupCredentials != null && this.authenticated == args)
-        || (this._daemon.groupCredentials == null && this.authenticated))
+    if (
+      (this._daemon.groupCredentials != null && this.authenticated == args) ||
+      (this._daemon.groupCredentials == null && this.authenticated)
+    ) {
       return this.parent.GROUP(args);
-    if (this._daemon.groupCredentials != null)
+    }
+    if (this._daemon.groupCredentials != null) {
       this.lastGroupTried = args;
+    }
     return "480 Authentication required";
   },
 });

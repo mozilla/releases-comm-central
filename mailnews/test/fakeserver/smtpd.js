@@ -1,22 +1,16 @@
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 // This file implements test SMTP servers
 
-var EXPORTED_SYMBOLS = [
-  "smtpDaemon",
-  "SMTP_RFC2821_handler",
-];
+var EXPORTED_SYMBOLS = ["smtpDaemon", "SMTP_RFC2821_handler"];
 
-var {
-  AuthPLAIN,
-  AuthLOGIN,
-  AuthCRAM,
-} = ChromeUtils.import("resource://testing-common/mailnews/auth.js");
+var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.import(
+  "resource://testing-common/mailnews/auth.js"
+);
 
 function smtpDaemon(flags) {
   this._messages = {};
 }
-smtpDaemon.prototype = {
-};
+smtpDaemon.prototype = {};
 
 // SMTP TEST SERVERS
 // -----------------
@@ -38,8 +32,8 @@ function SMTP_RFC2821_handler(daemon) {
 
   this._kAuthSchemeStartFunction = {
     "CRAM-MD5": this.authCRAMStart,
-    "PLAIN": this.authPLAINStart,
-    "LOGIN": this.authLOGINStart,
+    PLAIN: this.authPLAINStart,
+    LOGIN: this.authLOGINStart,
   };
 
   this.resetTest();
@@ -48,8 +42,8 @@ SMTP_RFC2821_handler.prototype = {
   kAuthRequired: false,
   kUsername: "testsmtp",
   kPassword: "smtptest",
-  kAuthSchemes: [ "CRAM-MD5", "PLAIN", "LOGIN" ],
-  kCapabilities: [ "8BITMIME", "SIZE" ],
+  kAuthSchemes: ["CRAM-MD5", "PLAIN", "LOGIN"],
+  kCapabilities: ["8BITMIME", "SIZE"],
   _nextAuthFunction: undefined,
 
   resetTest() {
@@ -60,40 +54,54 @@ SMTP_RFC2821_handler.prototype = {
   },
   EHLO(args) {
     var capa = "250-fakeserver greets you";
-    if (this.kCapabilities.length > 0)
+    if (this.kCapabilities.length > 0) {
       capa += "\n250-" + this.kCapabilities.join("\n250-");
-    if (this.kAuthSchemes.length > 0)
+    }
+    if (this.kAuthSchemes.length > 0) {
       capa += "\n250-AUTH " + this.kAuthSchemes.join(" ");
+    }
     capa += "\n250 HELP"; // the odd one: no "-", per RFC 2821
     return capa;
   },
   AUTH(lineRest) {
-    if (this._state == kStateAuthenticated)
+    if (this._state == kStateAuthenticated) {
       return "503 You're already authenticated";
+    }
     var args = lineRest.split(" ");
     var scheme = args[0].toUpperCase();
     // |scheme| contained in |kAuthSchemes|?
-    if (!this.kAuthSchemes.some(function(s) { return s == scheme; }))
+    if (
+      !this.kAuthSchemes.some(function(s) {
+        return s == scheme;
+      })
+    ) {
       return "504 AUTH " + scheme + " not supported";
+    }
     var func = this._kAuthSchemeStartFunction[scheme];
-    if (!func || typeof(func) != "function")
-      return "504 I just pretended to implement AUTH " + scheme + ", but I don't";
+    if (!func || typeof func != "function") {
+      return (
+        "504 I just pretended to implement AUTH " + scheme + ", but I don't"
+      );
+    }
     dump("Starting AUTH " + scheme + "\n");
-    return func.call(this, ((args.length > 1) ? args[1] : undefined));
+    return func.call(this, args.length > 1 ? args[1] : undefined);
   },
   MAIL(args) {
-    if (this._state == kStateAuthNeeded)
+    if (this._state == kStateAuthNeeded) {
       return "530 5.7.0 Authentication required";
+    }
     return "250 ok";
   },
   RCPT(args) {
-    if (this._state == kStateAuthNeeded)
+    if (this._state == kStateAuthNeeded) {
       return "530 5.7.0 Authentication required";
+    }
     return "250 ok";
   },
   DATA(args) {
-    if (this._state == kStateAuthNeeded)
+    if (this._state == kStateAuthNeeded) {
       return "530 5.7.0 Authentication required";
+    }
     this.expectingData = true;
     this._daemon.post = "";
     return "354 ok\n";
@@ -102,8 +110,9 @@ SMTP_RFC2821_handler.prototype = {
     return "250 ok\n";
   },
   VRFY(args) {
-    if (this._state == kStateAuthNeeded)
+    if (this._state == kStateAuthNeeded) {
       return "530 5.7.0 Authentication required";
+    }
     return "250 ok\n";
   },
   EXPN(args) {
@@ -129,8 +138,10 @@ SMTP_RFC2821_handler.prototype = {
    * @see RFC 4954
    */
   authPLAINStart(lineRest) {
-    if (lineRest) // all in one command, called initial client response, see RFC 4954
+    if (lineRest) {
+      // all in one command, called initial client response, see RFC 4954
       return this.authPLAINCred(lineRest);
+    }
 
     this._nextAuthFunction = this.authPLAINCred;
     this._multiline = true;
@@ -139,13 +150,13 @@ SMTP_RFC2821_handler.prototype = {
   },
   authPLAINCred(line) {
     var req = AuthPLAIN.decodeLine(line);
-    if (req.username == this.kUsername &&
-        req.password == this.kPassword) {
+    if (req.username == this.kUsername && req.password == this.kPassword) {
       this._state = kStateAuthenticated;
       return "235 2.7.0 Hello friend! Friends give friends good advice: Next time, use CRAM-MD5";
     }
-    if (this.dropOnAuthFailure)
+    if (this.dropOnAuthFailure) {
       this.closing = true;
+    }
     return "535 5.7.8 Wrong username or password, crook!";
   },
 
@@ -159,14 +170,16 @@ SMTP_RFC2821_handler.prototype = {
   authCRAMDigest(line) {
     var req = AuthCRAM.decodeLine(line);
     var expectedDigest = AuthCRAM.encodeCRAMMD5(
-        this._usedCRAMMD5Challenge, this.kPassword);
-    if (req.username == this.kUsername &&
-        req.digest == expectedDigest) {
+      this._usedCRAMMD5Challenge,
+      this.kPassword
+    );
+    if (req.username == this.kUsername && req.digest == expectedDigest) {
       this._state = kStateAuthenticated;
       return "235 2.7.0 Hello friend!";
     }
-    if (this.dropOnAuthFailure)
+    if (this.dropOnAuthFailure) {
       this.closing = true;
+    }
     return "535 5.7.8 Wrong username or password, crook!";
   },
 
@@ -178,16 +191,19 @@ SMTP_RFC2821_handler.prototype = {
   },
   authLOGINUsername(line) {
     var req = AuthLOGIN.decodeLine(line);
-    if (req == this.kUsername)
+    if (req == this.kUsername) {
       this._nextAuthFunction = this.authLOGINPassword;
-    else // Don't return error yet, to not reveal valid usernames
+    } // Don't return error yet, to not reveal valid usernames
+    else {
       this._nextAuthFunction = this.authLOGINBadUsername;
+    }
     this._multiline = true;
     return "334 " + btoa("Password:");
   },
   authLOGINBadUsername(line) {
-    if (this.dropOnAuthFailure)
+    if (this.dropOnAuthFailure) {
       this.closing = true;
+    }
     return "535 5.7.8 Wrong username or password, crook!";
   },
   authLOGINPassword(line) {
@@ -196,8 +212,9 @@ SMTP_RFC2821_handler.prototype = {
       this._state = kStateAuthenticated;
       return "235 2.7.0 Hello friend! Where did you pull out this old auth scheme?";
     }
-    if (this.dropOnAuthFailure)
+    if (this.dropOnAuthFailure) {
       this.closing = true;
+    }
     return "535 5.7.8 Wrong username or password, crook!";
   },
 
@@ -212,15 +229,18 @@ SMTP_RFC2821_handler.prototype = {
       var func = this._nextAuthFunction;
       this._multiline = false;
       this._nextAuthFunction = undefined;
-      if (line == "*") { // abort, per RFC 4954 and others
+      if (line == "*") {
+        // abort, per RFC 4954 and others
         return "501 Okay, as you wish. Chicken";
       }
-      if (!func || typeof(func) != "function") {
+      if (!func || typeof func != "function") {
         return "451 I'm lost. Internal server error during auth";
       }
       try {
         return func.call(this, line);
-      } catch (e) { return "451 " + e; }
+      } catch (e) {
+        return "451 " + e;
+      }
     }
     if (line == ".") {
       if (this.expectingData) {
@@ -231,16 +251,18 @@ SMTP_RFC2821_handler.prototype = {
     }
 
     if (this.expectingData) {
-      if (line.startsWith("."))
+      if (line.startsWith(".")) {
         line = line.substring(1);
+      }
       // This uses CR LF to match with the specification
       this._daemon.post += line + "\r\n";
     }
     return undefined;
   },
   postCommand(reader) {
-    if (this.closing)
+    if (this.closing) {
       reader.closeSocket();
+    }
     reader.setMultiline(this._multiline || this.expectingData);
   },
 };

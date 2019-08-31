@@ -7,7 +7,7 @@
  * Original author: David Bienvenu <bienvenu@mozilla.com>
  */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 /* import-globals-from ../../../test/resources/logHelper.js */
 /* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
@@ -19,11 +19,7 @@ setupIMAPPump();
 
 // Definition of tests
 
-var tests = [
-  setupTest,
-  checkFilterResults,
-  endTest,
-];
+var tests = [setupTest, checkFilterResults, endTest];
 
 function run_test() {
   // Create a test filter.
@@ -51,12 +47,16 @@ function run_test() {
 }
 
 function* setupTest() {
-  Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
+  Services.prefs.setBoolPref(
+    "mail.server.default.autosync_offline_stores",
+    false
+  );
   let file = do_get_file("../../../data/bugmail19");
   let msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
 
-  IMAPPump.mailbox.addMessage(new imapMessage(msgfileuri.spec,
-                                          IMAPPump.mailbox.uidnext++, []));
+  IMAPPump.mailbox.addMessage(
+    new imapMessage(msgfileuri.spec, IMAPPump.mailbox.uidnext++, [])
+  );
   IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
   yield false;
 }

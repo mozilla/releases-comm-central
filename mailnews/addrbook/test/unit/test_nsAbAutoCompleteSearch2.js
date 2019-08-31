@@ -8,9 +8,9 @@
  * books.
  */
 
-var {
-  getModelQuery,
-} = ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
+var { getModelQuery } = ChromeUtils.import(
+  "resource:///modules/ABQueryUtils.jsm"
+);
 
 // taken from nsAbAutoCompleteSearch.js
 var ACR = Ci.nsIAutoCompleteResult;
@@ -63,8 +63,7 @@ nsAbAutoCompleteResult.prototype = {
     return this.getValueAt(aIndex);
   },
 
-  removeValueAt: function removeValueAt(aRowIndex, aRemoveFromDB) {
-  },
+  removeValueAt: function removeValueAt(aRowIndex, aRemoveFromDB) {},
 
   // nsIAbAutoCompleteResult
 
@@ -83,8 +82,9 @@ nsAbAutoCompleteResult.prototype = {
 };
 
 function createCard(chars, popularity) {
-  var card = Cc["@mozilla.org/addressbook/cardproperty;1"]
-               .createInstance(Ci.nsIAbCard);
+  var card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+    Ci.nsIAbCard
+  );
 
   card.firstName = "firstName".slice(0, chars);
   card.lastName = "lastName".slice(0, chars);
@@ -95,15 +95,21 @@ function createCard(chars, popularity) {
   return card;
 }
 
-var results = [ { email: "d <e@foo.invalid>", dirName: kPABData.dirName },
-                  { email: "di <em@foo.invalid>", dirName: kPABData.dirName },
-                  { email: "dis <ema@foo.invalid>", dirName: kPABData.dirName } ];
+var results = [
+  { email: "d <e@foo.invalid>", dirName: kPABData.dirName },
+  { email: "di <em@foo.invalid>", dirName: kPABData.dirName },
+  { email: "dis <ema@foo.invalid>", dirName: kPABData.dirName },
+];
 
-var firstNames = [ { search: "fi",     expected: [1, 2] },
-                     { search: "fir",    expected: [2] } ];
+var firstNames = [
+  { search: "fi", expected: [1, 2] },
+  { search: "fir", expected: [2] },
+];
 
-var lastNames = [ { search: "la",     expected: [1, 2] },
-                    { search: "las",    expected: [2] } ];
+var lastNames = [
+  { search: "la", expected: [1, 2] },
+  { search: "las", expected: [2] },
+];
 
 var inputs = [firstNames, lastNames];
 
@@ -122,8 +128,9 @@ acObserver.prototype = {
 function run_test() {
   // Test - Create a new search component
 
-  var acs = Cc["@mozilla.org/autocomplete/search;1?name=addrbook"]
-    .getService(Ci.nsIAutoCompleteSearch);
+  var acs = Cc["@mozilla.org/autocomplete/search;1?name=addrbook"].getService(
+    Ci.nsIAutoCompleteSearch
+  );
 
   var obs = new acObserver();
 
@@ -145,12 +152,16 @@ function run_test() {
     });
   }
 
-
   // Test - Matches
 
   // Now check multiple matches
   function checkInputItem(element, index, array) {
-    acs.startSearch(element.search, JSON.stringify({ type: "addr_to", idKey: "" }), lastResult, obs);
+    acs.startSearch(
+      element.search,
+      JSON.stringify({ type: "addr_to", idKey: "" }),
+      lastResult,
+      obs
+    );
 
     Assert.equal(obs._search, acs);
     Assert.equal(obs._result.searchString, element.search);
@@ -159,9 +170,18 @@ function run_test() {
     Assert.equal(obs._result.matchCount, element.expected.length);
 
     for (let i = 0; i < element.expected.length; ++i) {
-      Assert.equal(obs._result.getValueAt(i), results[element.expected[i]].email);
-      Assert.equal(obs._result.getLabelAt(i), results[element.expected[i]].email);
-      Assert.equal(obs._result.getCommentAt(i), results[element.expected[i]].dirName);
+      Assert.equal(
+        obs._result.getValueAt(i),
+        results[element.expected[i]].email
+      );
+      Assert.equal(
+        obs._result.getLabelAt(i),
+        results[element.expected[i]].email
+      );
+      Assert.equal(
+        obs._result.getCommentAt(i),
+        results[element.expected[i]].dirName
+      );
       Assert.equal(obs._result.getStyleAt(i), "local-abook");
       Assert.equal(obs._result.getImageAt(i), "");
     }

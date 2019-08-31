@@ -22,7 +22,7 @@ load("../../../resources/asyncTestUtils.js");
 
 // IMAP pump
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Messages to load must have CRLF line endings, that is Windows style
 var gMessage = "bugmail10"; // message file used as the test message
@@ -37,7 +37,7 @@ IMAPPump.mailbox.specialUseFlag = "\\Inbox";
 IMAPPump.mailbox.subscribed = true;
 
 // need all mail folder to identify this as gmail server.
-IMAPPump.daemon.createMailbox("[Gmail]", {flags: ["\\NoSelect"] });
+IMAPPump.daemon.createMailbox("[Gmail]", { flags: ["\\NoSelect"] });
 IMAPPump.daemon.createMailbox("[Gmail]/All Mail", {
   subscribed: true,
   specialUseFlag: "\\AllMail",
@@ -54,8 +54,11 @@ var tests = [
 
 // load and update a message in the imap fake server
 function* loadImapMessage() {
-  let message = new imapMessage(specForFileName(gMessage),
-                                IMAPPump.mailbox.uidnext++, []);
+  let message = new imapMessage(
+    specForFileName(gMessage),
+    IMAPPump.mailbox.uidnext++,
+    []
+  );
   message.xGmMsgid = gXGmMsgid;
   message.xGmThrid = gXGmThrid;
   message.xGmLabels = gXGmLabels;
@@ -79,7 +82,7 @@ function testFetchXGmThrid() {
 function testFetchXGmLabels() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   let val = msgHdr.getStringProperty("X-GM-LABELS");
-   // We need to remove the starting "(" and ending ")" from gXGmLabels while comparing
+  // We need to remove the starting "(" and ending ")" from gXGmLabels while comparing
   Assert.equal(val, gXGmLabels.substring(1, gXGmLabels.length - 1));
 }
 
@@ -89,7 +92,10 @@ function endTest() {
 }
 
 function run_test() {
-  Services.prefs.setBoolPref("mail.server.server1.autosync_offline_stores", false);
+  Services.prefs.setBoolPref(
+    "mail.server.server1.autosync_offline_stores",
+    false
+  );
   async_run_tests(tests);
 }
 

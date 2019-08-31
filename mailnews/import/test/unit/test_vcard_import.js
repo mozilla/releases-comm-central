@@ -15,12 +15,20 @@ function run_test() {
 
   // test regular import (e.g. from file exported by another mail client)
   let file = do_get_file("resources/basic_vcard_addressbook.vcf");
-  new AbImportHelper(file, "vcf", "basic_vcard_addressbook",
-                     "vcard_import").beginImport();
+  new AbImportHelper(
+    file,
+    "vcf",
+    "basic_vcard_addressbook",
+    "vcard_import"
+  ).beginImport();
 
   // test import against file with extra newlines (e.g. as copy-pasted by
   // hand, a relatively unlikely but still reasonable use case to cover)
   file = do_get_file("resources/emptylines_vcard_addressbook.vcf");
-  new AbImportHelper(file, "vcf", "emptylines_vcard_addressbook",
-                     "vcard_import").beginImport();
+  new AbImportHelper(
+    file,
+    "vcf",
+    "emptylines_vcard_addressbook",
+    "vcard_import"
+  ).beginImport();
 }

@@ -13,14 +13,20 @@ var kLDAPTestSpec = "ldap://invalidhost//dc=intranet??sub?(objectclass=*)";
 function run_test() {
   // If nsIAbLDAPDirectory doesn't exist in our build options, someone has
   // specified --disable-ldap
-  if (!("nsIAbLDAPDirectory" in Ci))
+  if (!("nsIAbLDAPDirectory" in Ci)) {
     return;
+  }
 
   // Test set-up
-  let abUri = MailServices.ab.newAddressBook("test", kLDAPTestSpec, kLDAPDirectory);
+  let abUri = MailServices.ab.newAddressBook(
+    "test",
+    kLDAPTestSpec,
+    kLDAPDirectory
+  );
 
-  let abDir = MailServices.ab.getDirectory(kLDAPUriPrefix + abUri)
-                             .QueryInterface(Ci.nsIAbLDAPDirectory);
+  let abDir = MailServices.ab
+    .getDirectory(kLDAPUriPrefix + abUri)
+    .QueryInterface(Ci.nsIAbLDAPDirectory);
 
   const kLDAPFileName = "ldap-1.mab";
 

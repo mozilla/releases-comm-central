@@ -1,21 +1,26 @@
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
-function TestMailImpoter() {
-}
+function TestMailImpoter() {}
 
 TestMailImpoter.prototype = {
   classID: Components.ID("{a81438ef-aca1-41a5-9b3a-3ccfbbe4f5e1}"),
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIImportModule,
-                                          Ci.nsIImportMail]),
+  QueryInterface: ChromeUtils.generateQI([
+    Ci.nsIImportModule,
+    Ci.nsIImportMail,
+  ]),
 
   contractID: "@mozilla.org/import/test;1",
 
-  _xpcom_categories: [{
-    category: "mailnewsimport",
-    entry: "{a81438ef-aca1-41a5-9b3a-3ccfbbe4f5e1}",
-    value: "mail",
-  }],
+  _xpcom_categories: [
+    {
+      category: "mailnewsimport",
+      entry: "{a81438ef-aca1-41a5-9b3a-3ccfbbe4f5e1}",
+      value: "mail",
+    },
+  ],
 
   name: "Test mail import module",
 
@@ -26,14 +31,17 @@ TestMailImpoter.prototype = {
   supportsUpgrade: true,
 
   GetImportInterface(type) {
-    if (type != "mail")
+    if (type != "mail") {
       return null;
-    let importService = Cc["@mozilla.org/import/import-service;1"]
-                        .createInstance(Ci.nsIImportService);
+    }
+    let importService = Cc[
+      "@mozilla.org/import/import-service;1"
+    ].createInstance(Ci.nsIImportService);
     let genericInterface = importService.CreateNewGenericMail();
     genericInterface.SetData("mailInterface", this);
-    let name = Cc["@mozilla.org/supports-string;1"]
-               .createInstance(Ci.nsISupportsString);
+    let name = Cc["@mozilla.org/supports-string;1"].createInstance(
+      Ci.nsISupportsString
+    );
     name.data = "TestMailImporter";
     genericInterface.SetData("name", name);
     return genericInterface;
@@ -45,8 +53,9 @@ TestMailImpoter.prototype = {
   },
 
   _createMailboxDescriptor(path, name, depth) {
-    let importService = Cc["@mozilla.org/import/import-service;1"]
-                        .createInstance(Ci.nsIImportService);
+    let importService = Cc[
+      "@mozilla.org/import/import-service;1"
+    ].createInstance(Ci.nsIImportService);
     let descriptor = importService.CreateNewMailboxDescriptor();
     descriptor.size = 100;
     descriptor.depth = depth;
@@ -57,21 +66,23 @@ TestMailImpoter.prototype = {
   },
 
   _collectMailboxesInDirectory(directory, depth, result) {
-    let descriptor = this._createMailboxDescriptor(directory.path,
-                                                   directory.leafName,
-                                                   depth);
+    let descriptor = this._createMailboxDescriptor(
+      directory.path,
+      directory.leafName,
+      depth
+    );
     result.appendElement(descriptor);
     let entries = directory.directoryEntries;
     while (entries.hasMoreElements()) {
       let entry = entries.nextFile;
-      if (entry.isDirectory())
+      if (entry.isDirectory()) {
         this._collectMailboxesInDirectory(entry, depth + 1, result);
+      }
     }
   },
 
   FindMailboxes(location) {
-    let result = Cc["@mozilla.org/array;1"]
-                   .createInstance(Ci.nsIMutableArray);
+    let result = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
     this._collectMailboxesInDirectory(location, 0, result);
 
     return result;
@@ -84,24 +95,29 @@ TestMailImpoter.prototype = {
     let entries = source.directoryEntries;
     while (entries.hasMoreElements()) {
       let entry = entries.nextFile;
-      if (!entry.isFile())
+      if (!entry.isFile()) {
         continue;
+      }
 
       let newMsgHdr = {};
       let reusable = {};
-      let outputStream = msgStore.getNewMsgOutputStream(destination,
-                                                        newMsgHdr,
-                                                        reusable);
+      let outputStream = msgStore.getNewMsgOutputStream(
+        destination,
+        newMsgHdr,
+        reusable
+      );
 
-      let inputStream = Cc["@mozilla.org/network/file-input-stream;1"]
-                         .createInstance(Ci.nsIFileInputStream);
+      let inputStream = Cc[
+        "@mozilla.org/network/file-input-stream;1"
+      ].createInstance(Ci.nsIFileInputStream);
       inputStream.init(entry, -1, -1, 0);
       let count = inputStream.available();
       while (count > 0) {
         let writtenBytes = outputStream.writeFrom(inputStream, count);
         count -= writtenBytes;
-        if (count == 0)
+        if (count == 0) {
           count = inputStream.available();
+        }
       }
       msgStore.finishNewMessage(outputStream, newMsgHdr);
       inputStream.close();
@@ -117,7 +133,6 @@ TestMailImpoter.prototype = {
   translateFolderName(folderName) {
     return folderName;
   },
-
 };
 
 this.NSGetFactory = XPCOMUtils.generateNSGetFactory([TestMailImpoter]);

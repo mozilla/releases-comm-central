@@ -1,9 +1,14 @@
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 function run_test() {
-  Services.prefs.setCharPref("intl.charset.detector", "ja_parallel_state_machine");
+  Services.prefs.setCharPref(
+    "intl.charset.detector",
+    "ja_parallel_state_machine"
+  );
   registerCleanupFunction(function() {
-      Services.prefs.clearUserPref("intl.charset.detector");
+    Services.prefs.clearUserPref("intl.charset.detector");
   });
 
   // Due to the import code using nsIAbManager off the main thread, we need
@@ -11,8 +16,12 @@ function run_test() {
   MailServices.ab;
 
   let file = do_get_file("resources/shiftjis_addressbook.csv");
-  let helper = new AbImportHelper(file, "csv",
-                                  "shiftjis_addressbook", "shiftjis_csv");
+  let helper = new AbImportHelper(
+    file,
+    "csv",
+    "shiftjis_addressbook",
+    "shiftjis_csv"
+  );
 
   helper.setFieldMap(helper.getDefaultFieldMap(true));
   helper.beginImport();

@@ -30,10 +30,12 @@ function onLoadArchiveOptions() {
  * Save the archive settings to the current identity.
  */
 function onAcceptArchiveOptions() {
-  gIdentity.archiveGranularity =
-    document.getElementById("archiveGranularity").selectedIndex;
-  gIdentity.archiveKeepFolderStructure =
-    document.getElementById("archiveKeepFolderStructure").checked;
+  gIdentity.archiveGranularity = document.getElementById(
+    "archiveGranularity"
+  ).selectedIndex;
+  gIdentity.archiveKeepFolderStructure = document.getElementById(
+    "archiveKeepFolderStructure"
+  ).checked;
 }
 
 /**
@@ -42,9 +44,11 @@ function onAcceptArchiveOptions() {
 function updateArchiveExample() {
   let granularity = document.getElementById("archiveGranularity").selectedIndex;
   let kfs = document.getElementById("archiveKeepFolderStructure").checked;
-  let hierarchy = [ document.getElementsByClassName("root"),
-                    document.getElementsByClassName("year"),
-                    document.getElementsByClassName("month") ];
+  let hierarchy = [
+    document.getElementsByClassName("root"),
+    document.getElementsByClassName("year"),
+    document.getElementsByClassName("month"),
+  ];
 
   // First, show/hide the appropriate levels in the hierarchy and turn the
   // necessary items into containers.

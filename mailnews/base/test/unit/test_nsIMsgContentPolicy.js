@@ -3,19 +3,22 @@
  * Test suite for nsIMsgContentPolicy to check we could add/remove customized protocol to
  * nsMsgContentPolicy.
  */
-const {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
+const { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 
 function makeURI(aURL) {
   return Services.io.newURI(aURL);
 }
 
 function run_test() {
-  var content_policy = Cc["@mozilla.org/messenger/content-policy;1"]
-                         .getService(Ci.nsIContentPolicy);
+  var content_policy = Cc["@mozilla.org/messenger/content-policy;1"].getService(
+    Ci.nsIContentPolicy
+  );
 
   Assert.ok(content_policy);
 
-  var msg_content_policy = content_policy.QueryInterface(Ci.nsIMsgContentPolicy);
+  var msg_content_policy = content_policy.QueryInterface(
+    Ci.nsIMsgContentPolicy
+  );
 
   Assert.ok(msg_content_policy);
 
@@ -34,23 +37,32 @@ function run_test() {
   });
   let tmpLoadInfo = tmpChannel.loadInfo;
 
-  var decision = content_policy.shouldLoad(content_uri, tmpLoadInfo, "img/jpeg");
-  Assert.notEqual(decision,
-                  Ci.nsIContentPolicy.ACCEPT,
-                  "customized protocol should not load");
+  var decision = content_policy.shouldLoad(
+    content_uri,
+    tmpLoadInfo,
+    "img/jpeg"
+  );
+  Assert.notEqual(
+    decision,
+    Ci.nsIContentPolicy.ACCEPT,
+    "customized protocol should not load"
+  );
 
   msg_content_policy.addExposedProtocol("custom-scheme");
 
   decision = content_policy.shouldLoad(content_uri, tmpLoadInfo, "img/jpeg");
-  Assert.equal(decision,
-               Ci.nsIContentPolicy.ACCEPT,
-               "customized protocol should load");
+  Assert.equal(
+    decision,
+    Ci.nsIContentPolicy.ACCEPT,
+    "customized protocol should load"
+  );
 
   msg_content_policy.removeExposedProtocol("custom-scheme");
 
   decision = content_policy.shouldLoad(content_uri, tmpLoadInfo, "img/jpeg");
-  Assert.notEqual(decision,
-                  Ci.nsIContentPolicy.ACCEPT,
-                  "customized protocol should not load");
+  Assert.notEqual(
+    decision,
+    Ci.nsIContentPolicy.ACCEPT,
+    "customized protocol should not load"
+  );
 }
-

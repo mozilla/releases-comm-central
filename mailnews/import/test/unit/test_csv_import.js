@@ -14,6 +14,10 @@ function run_test() {
   MailServices.ab;
 
   let file = do_get_file("resources/basic_csv_addressbook.csv");
-  new AbImportHelper(file, "csv", "basic_csv_addressbook",
-                     "csv_import").beginImport();
+  new AbImportHelper(
+    file,
+    "csv",
+    "basic_csv_addressbook",
+    "csv_import"
+  ).beginImport();
 }

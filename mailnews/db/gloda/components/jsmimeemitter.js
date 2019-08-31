@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
 var kStateUnknown = 0;
 var kStateInHeaders = 1;
@@ -80,11 +82,12 @@ MimeMessageEmitter.prototype = {
 
     // pull options across...
     let options = this._mimeMsg.MsgHdrToMimeMessage.OPTION_TUNNEL;
-    this._saneBodySize = (options && ("saneBodySize" in options)) ?
-                           options.saneBodySize : false;
+    this._saneBodySize =
+      options && "saneBodySize" in options ? options.saneBodySize : false;
 
-    this._mimeMsg.MsgHdrToMimeMessage.RESULT_RENDEVOUZ[aUrl.spec] =
-      this._curPart;
+    this._mimeMsg.MsgHdrToMimeMessage.RESULT_RENDEVOUZ[
+      aUrl.spec
+    ] = this._curPart;
   },
 
   complete() {
@@ -110,16 +113,19 @@ MimeMessageEmitter.prototype = {
 
   _stripParams(aValue) {
     let indexSemi = aValue.indexOf(";");
-    if (indexSemi >= 0)
-        aValue = aValue.substring(0, indexSemi);
+    if (indexSemi >= 0) {
+      aValue = aValue.substring(0, indexSemi);
+    }
     return aValue;
   },
 
   _beginPayload(aContentType) {
     let contentTypeNoParams = this._stripParams(aContentType).toLowerCase();
-    if (contentTypeNoParams == "text/plain" ||
-        contentTypeNoParams == "text/html" ||
-        contentTypeNoParams == "text/enriched") {
+    if (
+      contentTypeNoParams == "text/plain" ||
+      contentTypeNoParams == "text/html" ||
+      contentTypeNoParams == "text/enriched"
+    ) {
       this._curPart = new this._mimeMsg.MimeBody(contentTypeNoParams);
       this._writeBody = true;
     } else if (contentTypeNoParams == "message/rfc822") {
@@ -140,8 +146,9 @@ MimeMessageEmitter.prototype = {
       this._writeBody = false;
     }
     // put the full content-type in the headers and normalize out any newlines
-    this._curPart.headers["content-type"] =
-      [aContentType.replace(deathToNewlines, "")];
+    this._curPart.headers["content-type"] = [
+      aContentType.replace(deathToNewlines, ""),
+    ];
   },
 
   // ----- Header Routines
@@ -198,7 +205,8 @@ MimeMessageEmitter.prototype = {
         if (partName in this._partMap) {
           this._curPart = this._partMap[partName];
           this._writeBody = "body" in this._curPart;
-        } else { // otherwise, name the part we are holding onto and place it.
+        } else {
+          // otherwise, name the part we are holding onto and place it.
           this._curPart.partName = partName;
           this._placePart(this._curPart);
         }
@@ -210,10 +218,11 @@ MimeMessageEmitter.prototype = {
       //  emitter.)
     } else if (this._state == kStateInHeaders) {
       let lowerField = aField.toLowerCase();
-      if (lowerField in this._curPart.headers)
+      if (lowerField in this._curPart.headers) {
         this._curPart.headers[lowerField].push(aValue);
-      else
+      } else {
         this._curPart.headers[lowerField] = [aValue];
+      }
     }
   },
   addAllHeaders(aAllHeaders, aHeaderSize) {
@@ -228,8 +237,7 @@ MimeMessageEmitter.prototype = {
     //  only the nsMimeHtmlDisplayEmitter::EndHeader call calls this signature.
     // nop
   },
-  endHeader(aName) {
-  },
+  endHeader(aName) {},
   updateCharacterSet(aCharset) {
     // we do not need to worry about this.  it turns out this notification is
     //  exclusively for the benefit of the UI.  libmime, believe it or not,
@@ -258,13 +266,15 @@ MimeMessageEmitter.prototype = {
     let [storagePartName, , parentPart] = this._findOrCreateParent(partName);
     let lastDotIndex = storagePartName.lastIndexOf(".");
     if (parentPart !== undefined) {
-      let indexInParent = parseInt(storagePartName.substring(lastDotIndex + 1)) - 1;
+      let indexInParent =
+        parseInt(storagePartName.substring(lastDotIndex + 1)) - 1;
       // handle out-of-order notification...
       if (indexInParent < parentPart.parts.length) {
         parentPart.parts[indexInParent] = aPart;
       } else {
-        while (indexInParent > parentPart.parts.length)
+        while (indexInParent > parentPart.parts.length) {
           parentPart.parts.push(null);
+        }
         parentPart.parts.push(aPart);
       }
     }
@@ -290,8 +300,12 @@ MimeMessageEmitter.prototype = {
       parentPart = this._partMap[parentName];
       let lastDotIndex = partName.lastIndexOf(".");
       let indexInParent = parseInt(partName.substring(lastDotIndex + 1)) - 1;
-      if ("parts" in parentPart && indexInParent == parentPart.parts.length - 1)
+      if (
+        "parts" in parentPart &&
+        indexInParent == parentPart.parts.length - 1
+      ) {
         return [partName, parentName, parentPart];
+      }
       return this._findAnotherContainer(aPartName);
     }
 
@@ -315,8 +329,9 @@ MimeMessageEmitter.prototype = {
    *  ensures the call to _replacePart works fine.
    */
   _findAnotherContainer(aPartName) {
-    if (aPartName in this._bogusPartTranslation)
+    if (aPartName in this._bogusPartTranslation) {
       return this._bogusPartTranslation[aPartName];
+    }
 
     let parentName = aPartName + "";
     let parentPart;
@@ -325,8 +340,13 @@ MimeMessageEmitter.prototype = {
       parentPart = this._partMap[parentName];
     }
     let childIndex = parentPart.parts.length;
-    let fallbackPartName = (parentName ? parentName + "." : "") + (childIndex + 1);
-    return (this._bogusPartTranslation[aPartName] = [fallbackPartName, parentName, parentPart]);
+    let fallbackPartName =
+      (parentName ? parentName + "." : "") + (childIndex + 1);
+    return (this._bogusPartTranslation[aPartName] = [
+      fallbackPartName,
+      parentName,
+      parentPart,
+    ]);
   },
 
   /**
@@ -342,7 +362,9 @@ MimeMessageEmitter.prototype = {
 
     let [storagePartName, , parentPart] = this._findOrCreateParent(partName);
 
-    let childNamePart = storagePartName.substring(storagePartName.lastIndexOf(".") + 1);
+    let childNamePart = storagePartName.substring(
+      storagePartName.lastIndexOf(".") + 1
+    );
     let childIndex = parseInt(childNamePart) - 1;
 
     // The attachment has been encapsulated properly in a MIME part (most of
@@ -371,7 +393,10 @@ MimeMessageEmitter.prototype = {
     // we need to strip our magic flags from the URL; this regexp matches all
     // the specific flags that the jsmimeemitter understands (we abuse the URL
     // parameters to pass information all the way to here)
-    aUrl = aUrl.replace(/((header=filter|emitter=js|fetchCompleteMessage=(true|false)|examineEncryptedParts=(true|false)))&?/g, "");
+    aUrl = aUrl.replace(
+      /((header=filter|emitter=js|fetchCompleteMessage=(true|false)|examineEncryptedParts=(true|false)))&?/g,
+      ""
+    );
     // the url should contain a part= piece that tells us the part name, which
     // we then use to figure out where to place that part if it's a real
     // attachment.
@@ -401,8 +426,13 @@ MimeMessageEmitter.prototype = {
         this._partMap[partName].isRealAttachment = true;
       }
     } else if (partName) {
-      let part = new this._mimeMsg.MimeMessageAttachment(partName,
-          aName, aContentType, aUrl, aIsExternalAttachment);
+      let part = new this._mimeMsg.MimeMessageAttachment(
+        partName,
+        aName,
+        aContentType,
+        aUrl,
+        aIsExternalAttachment
+      );
       // replace the existing part with the attachment...
       this._replacePart(part);
     }
@@ -414,8 +444,12 @@ MimeMessageEmitter.prototype = {
     //  no reason to handle that here.
     // However, we also pass information about the size of the attachment, and
     //  that we want to handle
-    if (aField == "X-Mozilla-PartSize" && (this._curAttachment in this._partMap))
+    if (
+      aField == "X-Mozilla-PartSize" &&
+      this._curAttachment in this._partMap
+    ) {
       this._partMap[this._curAttachment].size = parseInt(aValue);
+    }
   },
   endAttachment() {
     // don't need to do anything here, since we don't care about the headers.
@@ -433,9 +467,8 @@ MimeMessageEmitter.prototype = {
   startBody(aIsBodyOnly, aMsgID, aOutCharset) {
     this._state = kStateInBody;
 
-    let subPartName = (this._curPart.partName == "") ?
-                        "1" :
-                        this._curPart.partName + ".1";
+    let subPartName =
+      this._curPart.partName == "" ? "1" : this._curPart.partName + ".1";
     this._beginPayload(this._curPart.get("content-type", "text/plain"));
     this._curPart.partName = subPartName;
     this._placePart(this._curPart);
@@ -446,14 +479,15 @@ MimeMessageEmitter.prototype = {
    *  already at the limit for this body part.
    */
   writeBody(aBuf, aSize, aOutAmountWritten) {
-    if (this._writeBody &&
-        (!this._saneBodySize ||
-         this._curPart.size < MAX_SANE_BODY_PART_SIZE))
+    if (
+      this._writeBody &&
+      (!this._saneBodySize || this._curPart.size < MAX_SANE_BODY_PART_SIZE)
+    ) {
       this._curPart.appendBody(aBuf);
+    }
   },
 
-  endBody() {
-  },
+  endBody() {},
 
   // ----- Generic Write (confusing)
   // (binary data writing...)

@@ -2,19 +2,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
-const {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
-const {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
-var {convertMailStoreTo} = ChromeUtils.import("resource:///modules/mailstoreConverter.jsm");
-const {Log} = ChromeUtils.import("resource://gre/modules/Log.jsm");
-const {allAccountsSorted} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
+const { FileUtils } = ChromeUtils.import(
+  "resource://gre/modules/FileUtils.jsm"
+);
+const { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
+const { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
+var { convertMailStoreTo } = ChromeUtils.import(
+  "resource:///modules/mailstoreConverter.jsm"
+);
+const { Log } = ChromeUtils.import("resource://gre/modules/Log.jsm");
+const { allAccountsSorted } = ChromeUtils.import(
+  "resource:///modules/folderUtils.jsm"
+);
 
 // XXX: merge into test_converter.js
 
 var log = Log.repository.getLogger("MailStoreConverter");
 
-Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
-                           "@mozilla.org/msgstore/berkeleystore;1");
+Services.prefs.setCharPref(
+  "mail.serverDefaultStoreContractID",
+  "@mozilla.org/msgstore/berkeleystore;1"
+);
 
 // No. of messages/files and folders copied.
 var gMsgHdrs = [];
@@ -30,7 +40,7 @@ var gServer;
 var copyListenerWrap = {
   SetMessageKey(aKey) {
     let hdr = gInbox.GetMessageHeader(aKey);
-    gMsgHdrs.push({hdr, ID: hdr.messageId});
+    gMsgHdrs.push({ hdr, ID: hdr.messageId });
   },
   OnStopCopy(aStatus) {
     // Check: message successfully copied.
@@ -48,8 +58,16 @@ var EventTarget = function() {
 
 function copyFileMessage(file, destFolder, isDraftOrTemplate) {
   let listener = new PromiseTestUtils.PromiseCopyListener(copyListenerWrap);
-  MailServices.copy.CopyFileMessage(file, destFolder, null, isDraftOrTemplate,
-                                    0, "", listener, null);
+  MailServices.copy.CopyFileMessage(
+    file,
+    destFolder,
+    null,
+    isDraftOrTemplate,
+    0,
+    "",
+    listener,
+    null
+  );
   return listener.promise;
 }
 
@@ -65,7 +83,9 @@ function checkConversion(source, target) {
     let sourceContent = sourceContents.nextFile;
     let sourceContentName = sourceContent.leafName;
     let ext = sourceContentName.substr(-4);
-    let targetFile = FileUtils.File(OS.Path.join(target.path, sourceContentName));
+    let targetFile = FileUtils.File(
+      OS.Path.join(target.path, sourceContentName)
+    );
     log.debug("Checking path: " + targetFile.path);
     if (ext == ".dat") {
       Assert.ok(targetFile.exists());
@@ -95,10 +115,16 @@ function run_test() {
   localAccountUtils.loadLocalMailAccount();
 
   // Set up two deferred pop accounts.
-  gServer1 = MailServices.accounts.createIncomingServer("test1", "localhost1",
-                                                        "pop3");
-  gServer2 = MailServices.accounts.createIncomingServer("test2", "localhost2",
-                                                        "pop3");
+  gServer1 = MailServices.accounts.createIncomingServer(
+    "test1",
+    "localhost1",
+    "pop3"
+  );
+  gServer2 = MailServices.accounts.createIncomingServer(
+    "test2",
+    "localhost2",
+    "pop3"
+  );
   var accountPop1 = MailServices.accounts.createAccount();
   var accountPop2 = MailServices.accounts.createAccount();
 
@@ -116,8 +142,7 @@ function run_test() {
 
   // 'gServer1' should be deferred. Get the path of the root folder to which
   // other accounts are deferred.
-  ok(gServer1.rootFolder.filePath.path !=
-    gServer1.rootMsgFolder.filePath.path);
+  ok(gServer1.rootFolder.filePath.path != gServer1.rootMsgFolder.filePath.path);
   let deferredToRootFolder = gServer1.rootMsgFolder.filePath.path;
 
   // Account to which other accounts have been deferred.
@@ -127,19 +152,21 @@ function run_test() {
 
   let accounts = allAccountsSorted(true);
   for (let account of accounts) {
-    if (account.incomingServer.rootFolder.filePath.path ==
-        deferredToRootFolder) {
+    if (
+      account.incomingServer.rootFolder.filePath.path == deferredToRootFolder
+    ) {
       // Other accounts may be deferred to this account.
       deferredToAccount = account;
-    } else if (account.incomingServer.rootMsgFolder.filePath.path ==
-               deferredToRootFolder) {
+    } else if (
+      account.incomingServer.rootMsgFolder.filePath.path == deferredToRootFolder
+    ) {
       // This is a deferred account.
       accountsToConvert += account.incomingServer.username + ", ";
     }
   }
 
-  accountsToConvert = accountsToConvert +
-    deferredToAccount.incomingServer.username;
+  accountsToConvert =
+    accountsToConvert + deferredToAccount.incomingServer.username;
   log.info(accountsToConvert + " will be converted");
 
   gInbox = localAccountUtils.inboxFolder;
@@ -158,20 +185,26 @@ add_task(async function setupMessages() {
 
 add_task(function testMaildirConversion() {
   let mailstoreContractId = Services.prefs.getCharPref(
-    "mail.server." + gServer.key + ".storeContractID");
+    "mail.server." + gServer.key + ".storeContractID"
+  );
 
   do_test_pending();
-  let pConverted = convertMailStoreTo(mailstoreContractId, gServer,
-                                      new EventTarget());
+  let pConverted = convertMailStoreTo(
+    mailstoreContractId,
+    gServer,
+    new EventTarget()
+  );
   let originalRootFolder = gServer.rootFolder.filePath;
 
-  pConverted.then(function(val) {
-    log.debug("Conversion done: " + originalRootFolder.path + " => " + val);
-    let newRootFolder = gServer.rootFolder.filePath;
-    checkConversion(originalRootFolder, newRootFolder);
-    do_test_finished();
-  }).catch(function(reason) {
-    log.error("Conversion failed: " + reason.error);
-    ok(false); // Fail the test!
-  });
+  pConverted
+    .then(function(val) {
+      log.debug("Conversion done: " + originalRootFolder.path + " => " + val);
+      let newRootFolder = gServer.rootFolder.filePath;
+      checkConversion(originalRootFolder, newRootFolder);
+      do_test_finished();
+    })
+    .catch(function(reason) {
+      log.error("Conversion failed: " + reason.error);
+      ok(false); // Fail the test!
+    });
 });

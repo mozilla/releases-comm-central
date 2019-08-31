@@ -4,9 +4,11 @@
 
 this.EXPORTED_SYMBOLS = ["Gloda"];
 
-const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
-const {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
+const { GlodaDatastore } = ChromeUtils.import(
+  "resource:///modules/gloda/datastore.js"
+);
 const {
   GlodaAttributeDBDef,
   GlodaAccount,
@@ -17,16 +19,28 @@ const {
   GlodaIdentity,
   GlodaAttachment,
 } = ChromeUtils.import("resource:///modules/gloda/datamodel.js");
-const {GlodaDatabind} = ChromeUtils.import("resource:///modules/gloda/databind.js");
-const {GlodaCollection, GlodaCollectionManager} = ChromeUtils.import("resource:///modules/gloda/collection.js");
-const {whittlerRegistry, mimeMsgToContentAndMeta} = ChromeUtils.import("resource:///modules/gloda/connotent.js");
-const {GlodaQueryClassFactory} = ChromeUtils.import("resource:///modules/gloda/query.js");
-const {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
+const { GlodaDatabind } = ChromeUtils.import(
+  "resource:///modules/gloda/databind.js"
+);
+const { GlodaCollection, GlodaCollectionManager } = ChromeUtils.import(
+  "resource:///modules/gloda/collection.js"
+);
+const { whittlerRegistry, mimeMsgToContentAndMeta } = ChromeUtils.import(
+  "resource:///modules/gloda/connotent.js"
+);
+const { GlodaQueryClassFactory } = ChromeUtils.import(
+  "resource:///modules/gloda/query.js"
+);
+const { GlodaUtils } = ChromeUtils.import("resource:///modules/gloda/utils.js");
 
-const {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const { fixIterator } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.js");
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 /**
  * @see |Gloda.BadItemContentsError|
@@ -39,7 +53,6 @@ BadItemContentsError.prototype = {
     return this.message;
   },
 };
-
 
 /**
  * Provides the user-visible (and extension visible) global database
@@ -167,7 +180,9 @@ var Gloda = {
 
     try {
       // figure out if event-driven indexing should be enabled...
-      let branch = Services.prefs.getBranch("mailnews.database.global.logging.");
+      let branch = Services.prefs.getBranch(
+        "mailnews.database.global.logging."
+      );
       enableConsoleLogging = branch.getBoolPref("console");
       enableDumpLogging = branch.getBoolPref("dump");
       enableUpstreamLogging = branch.getBoolPref("upstream");
@@ -316,10 +331,11 @@ var Gloda = {
     for (let header of fixIterator(aHeaders)) {
       let folderURI = header.folder.URI;
       let headersForFolder = headersByFolder[folderURI];
-      if (headersForFolder === undefined)
+      if (headersForFolder === undefined) {
         headersByFolder[folderURI] = [header];
-      else
+      } else {
         headersForFolder.push(header);
+      }
     }
 
     let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
@@ -329,10 +345,12 @@ var Gloda = {
       let headersForFolder = headersByFolder[folderURI];
       let folder = this.getFolderForFolder(headersForFolder[0].folder);
       // if this is the first or clause, just use the query itself
-      if (!clause)
+      if (!clause) {
         clause = query;
-      else // create a new query clause via the 'or' command
+      } // create a new query clause via the 'or' command
+      else {
         clause = query.or();
+      }
 
       clause.folder(folder);
       let messageKeys = headersForFolder.map(hdr => hdr.messageKey);
@@ -346,7 +364,10 @@ var Gloda = {
    * @testpoint gloda.ns.getMessageContent
    */
   getMessageContent(aGlodaMessage, aMimeMsg) {
-    return mimeMsgToContentAndMeta(aMimeMsg, aGlodaMessage.folderMessage.folder)[0];
+    return mimeMsgToContentAndMeta(
+      aMimeMsg,
+      aGlodaMessage.folderMessage.folder
+    )[0];
   },
 
   getFolderForFolder(aMsgFolder) {
@@ -381,7 +402,7 @@ var Gloda = {
    *   for each string argument passed.  Each sub-list contains zero or more
    *   GlodaIdentity instances corresponding to the addresses provided.
    */
-  * getOrCreateMailIdentities(aCallbackHandle, ...aAddrGroups) {
+  *getOrCreateMailIdentities(aCallbackHandle, ...aAddrGroups) {
     let addresses = {};
     let resultLists = [];
 
@@ -394,10 +415,11 @@ var Gloda = {
 
       for (let iAddress = 0; iAddress < parsed.count; iAddress++) {
         let address = parsed.addresses[iAddress].toLowerCase();
-        if (address in addresses)
+        if (address in addresses) {
           addresses[address].push(resultList);
-        else
+        } else {
           addresses[address] = [parsed.names[iAddress], resultList];
+        }
       }
     }
 
@@ -417,8 +439,13 @@ var Gloda = {
     // put the identities in the appropriate result lists
     for (let identity of collection.items) {
       let nameAndResultLists = addresses[identity.value];
-      this._log.debug(" found identity for '" + nameAndResultLists[0] + "' (" +
-                      identity.value + ")");
+      this._log.debug(
+        " found identity for '" +
+          nameAndResultLists[0] +
+          "' (" +
+          identity.value +
+          ")"
+      );
       // index 0 is the name, skip it
       for (let iResList = 1; iResList < nameAndResultLists.length; iResList++) {
         nameAndResultLists[iResList].push(identity);
@@ -444,8 +471,9 @@ var Gloda = {
       // if there is no name, just use the e-mail (the ab indexer actually
       //  processes the card's displayName for synchronization, so we don't
       //  need to do that.)
-      if (!name)
+      if (!name) {
         name = address;
+      }
 
       let contact = GlodaDatastore.createContact(null, null, name, 0, 0);
 
@@ -459,17 +487,26 @@ var Gloda = {
       //  exposing it to the address-book indexer, but we could get our id's
       //  in a bad way from not deferring the identity insertion until after
       //  the contact insertion.
-      let identity = GlodaDatastore.createIdentity(contact.id, contact,
-        "email", address, /* description */ "", /* relay? */ false);
+      let identity = GlodaDatastore.createIdentity(
+        contact.id,
+        contact,
+        "email",
+        address,
+        /* description */ "",
+        /* relay? */ false
+      );
       contact._identities = [identity];
 
       // give the address book indexer a chance if we have a card.
       // (it will fix-up the name based on the card as appropriate)
-      if (card)
+      if (card) {
         yield aCallbackHandle.pushAndGo(
-          Gloda.grokNounItem(contact, {card}, true, true, aCallbackHandle));
-      else // grokNounItem will issue the insert for us...
+          Gloda.grokNounItem(contact, { card }, true, true, aCallbackHandle)
+        );
+      } // grokNounItem will issue the insert for us...
+      else {
         GlodaDatastore.insertContact(contact);
+      }
 
       for (let iResList = 1; iResList < nameAndResultLists.length; iResList++) {
         nameAndResultLists[iResList].push(identity);
@@ -515,15 +552,18 @@ var Gloda = {
     let identitiesToCreate = [];
 
     let allIdentities = MailServices.accounts.allIdentities;
-    let defaultMsgIdentity = MailServices.accounts.defaultAccount ?
-                                MailServices.accounts.defaultAccount.defaultIdentity :
-                                null;
-    let defaultMsgIdentityKey = defaultMsgIdentity ? defaultMsgIdentity.key : null;
+    let defaultMsgIdentity = MailServices.accounts.defaultAccount
+      ? MailServices.accounts.defaultAccount.defaultIdentity
+      : null;
+    let defaultMsgIdentityKey = defaultMsgIdentity
+      ? defaultMsgIdentity.key
+      : null;
     let defaultIdentity;
 
     // Nothing to do if there are no accounts/identities.
-    if (allIdentities.length == 0)
+    if (allIdentities.length == 0) {
       return;
+    }
 
     for (let msgIdentity of fixIterator(allIdentities, Ci.nsIMsgIdentity)) {
       let emailAddress = msgIdentity.email;
@@ -531,10 +571,12 @@ var Gloda = {
       let msgIdentityDescription = msgIdentity.fullName || msgIdentity.email;
       let isDefaultMsgIdentity = msgIdentity.key == defaultMsgIdentityKey;
 
-      if (!fullName || isDefaultMsgIdentity)
+      if (!fullName || isDefaultMsgIdentity) {
         fullName = msgIdentity.fullName;
-      if (!fallbackName || isDefaultMsgIdentity)
+      }
+      if (!fallbackName || isDefaultMsgIdentity) {
         fallbackName = msgIdentity.email;
+      }
 
       // Find the identities if they exist, flag to create them if they don't.
       for (let address of [emailAddress, replyTo]) {
@@ -557,7 +599,10 @@ var Gloda = {
             defaultIdentity = identity;
           }
         } else {
-          identitiesToCreate.push([parsed.addresses[0], msgIdentityDescription]);
+          identitiesToCreate.push([
+            parsed.addresses[0],
+            msgIdentityDescription,
+          ]);
         }
         myEmailAddresses.add(parsed.addresses[0]);
       }
@@ -568,7 +613,7 @@ var Gloda = {
       if (defaultIdentity && defaultIdentity.id == identity.id) {
         if (identity.contact.name != (fullName || fallbackName)) {
           // If the user changed the default identity, update the db.
-          identity.contact.name = (fullName || fallbackName);
+          identity.contact.name = fullName || fallbackName;
           GlodaDatastore.updateContact(identity.contact);
         }
         defaultIdentity._contact = identity.contact;
@@ -583,19 +628,26 @@ var Gloda = {
       myContact = existingIdentities[0].contact;
     } else {
       // Create a new contact.
-      myContact = GlodaDatastore.createContact(null, null,
-                                               fullName || fallbackName,
-                                               0, 0);
+      myContact = GlodaDatastore.createContact(
+        null,
+        null,
+        fullName || fallbackName,
+        0,
+        0
+      );
       GlodaDatastore.insertContact(myContact);
     }
 
     for (let emailAndDescription of identitiesToCreate) {
       // XXX This won't always be of type "email" as we add new account types.
-      let identity = GlodaDatastore.createIdentity(myContact.id, myContact,
-                                                   "email",
-                                                   emailAndDescription[0],
-                                                   emailAndDescription[1],
-                                                   false);
+      let identity = GlodaDatastore.createIdentity(
+        myContact.id,
+        myContact,
+        "email",
+        emailAndDescription[0],
+        emailAndDescription[1],
+        false
+      );
       existingIdentities.push(identity);
     }
 
@@ -605,14 +657,19 @@ var Gloda = {
 
     this.myContact = myContact;
     this.myIdentities = myIdentities;
-    myContact._identities = Object.keys(myIdentities).map(id => myIdentities[id]);
+    myContact._identities = Object.keys(myIdentities).map(
+      id => myIdentities[id]
+    );
 
     // We need contacts to make these objects reachable via the collection
     //  manager.
-    this._myContactCollection = this.explicitCollection(this.NOUN_CONTACT,
-                                                        [this.myContact]);
-    this._myIdentitiesCollection = this.explicitCollection(this.NOUN_IDENTITY,
-                                                           this.myContact._identities);
+    this._myContactCollection = this.explicitCollection(this.NOUN_CONTACT, [
+      this.myContact,
+    ]);
+    this._myIdentitiesCollection = this.explicitCollection(
+      this.NOUN_IDENTITY,
+      this.myContact._identities
+    );
   },
 
   /**
@@ -873,24 +930,28 @@ var Gloda = {
    *     - indices A dictionary of lists of column names, where the key name
    *       becomes the index name.  Ex: {foo: ["bar"]} results in an index on
    *       the column "bar" where the index is named "foo".
-  */
+   */
   defineNoun(aNounDef, aNounID) {
     this._log.info("Defining noun: " + aNounDef.name);
-    if (aNounID === undefined)
+    if (aNounID === undefined) {
       aNounID = this._nextNounID++;
+    }
     aNounDef.id = aNounID;
 
     // Let people whose editors get angry about illegal attribute names use
     //  clazz instead of class.
-    if (aNounDef.clazz)
+    if (aNounDef.clazz) {
       aNounDef.class = aNounDef.clazz;
+    }
 
-    if (!("idAttr" in aNounDef))
+    if (!("idAttr" in aNounDef)) {
       aNounDef.idAttr = "id";
+    }
     if (!("comparator" in aNounDef)) {
       aNounDef.comparator = function() {
-        throw new Error("Noun type '" + aNounDef.name +
-                        "' lacks a real comparator.");
+        throw new Error(
+          "Noun type '" + aNounDef.name + "' lacks a real comparator."
+        );
       };
     }
 
@@ -899,28 +960,34 @@ var Gloda = {
     //  of functionality.  Said door is officially unsupported.
     if (aNounDef.schema) {
       if (!aNounDef.tableName) {
-        if (aNounDef.schema.name)
+        if (aNounDef.schema.name) {
           aNounDef.tableName = "ext_" + aNounDef.schema.name;
-        else
+        } else {
           aNounDef.tableName = "ext_" + aNounDef.name;
+        }
       }
       // this creates the data table and binder and hooks everything up
       GlodaDatastore.createNounTable(aNounDef);
 
-      if (!aNounDef.toParamAndValue)
+      if (!aNounDef.toParamAndValue) {
         aNounDef.toParamAndValue = function(aThing) {
-          if (aThing instanceof aNounDef.class)
+          if (aThing instanceof aNounDef.class) {
             return [null, aThing.id];
+          }
           // assume they're just passing the id directly
           return [null, aThing];
         };
+      }
     }
 
     // if it has a table, you can query on it.  seems straight-forward.
     if (aNounDef.tableName) {
-      [aNounDef.queryClass, aNounDef.nullQueryClass,
-       aNounDef.explicitQueryClass, aNounDef.wildcardQueryClass] =
-          GlodaQueryClassFactory(aNounDef);
+      [
+        aNounDef.queryClass,
+        aNounDef.nullQueryClass,
+        aNounDef.explicitQueryClass,
+        aNounDef.wildcardQueryClass,
+      ] = GlodaQueryClassFactory(aNounDef);
       aNounDef._dbMeta = {};
       aNounDef.class.prototype.NOUN_ID = aNounDef.id;
       aNounDef.class.prototype.NOUN_DEF = aNounDef;
@@ -940,8 +1007,9 @@ var Gloda = {
       let cacheCost = aNounDef.cacheCost || 1024;
       let cacheBudget = aNounDef.cacheBudget || 128 * 1024;
       let cacheSize = Math.floor(cacheBudget / cacheCost);
-      if (cacheSize)
+      if (cacheSize) {
         GlodaCollectionManager.defineCache(aNounDef, cacheSize);
+      }
     }
     aNounDef.attribsByBoundName = {};
     aNounDef.domExposeAttribsByBoundName = {};
@@ -965,12 +1033,17 @@ var Gloda = {
    *  cannot be found; the assumption is that you can't live without the noun.
    */
   lookupNoun(aNounName) {
-    if (aNounName in this._nounNameToNounID)
+    if (aNounName in this._nounNameToNounID) {
       return this._nounNameToNounID[aNounName];
+    }
 
-    throw Error("Unable to locate noun with name '" + aNounName + "', but I " +
-                "do know about: " +
-                Object.keys(this._nounNameToNounID).join(", "));
+    throw Error(
+      "Unable to locate noun with name '" +
+        aNounName +
+        "', but I " +
+        "do know about: " +
+        Object.keys(this._nounNameToNounID).join(", ")
+    );
   },
 
   /**
@@ -979,7 +1052,6 @@ var Gloda = {
   lookupNounDef(aNounName) {
     return this._nounIDToDef[this.lookupNoun(aNounName)];
   },
-
 
   /**
    * Define an action on a noun.  During the prototype stage, this was conceived
@@ -1030,10 +1102,12 @@ var Gloda = {
    */
   getNounActions(aNounID, aActionType) {
     let nounDef = this._nounIDToDef[aNounID];
-    if (!nounDef)
+    if (!nounDef) {
       return [];
-    return nounDef.actions.
-      filter(action => !aActionType || (action.actionType == aActionType));
+    }
+    return nounDef.actions.filter(
+      action => !aActionType || action.actionType == aActionType
+    );
   },
 
   /** Attribute providers in the sequence to process them. */
@@ -1060,303 +1134,392 @@ var Gloda = {
    *  our noun space gets large and more heterogeneous.
    */
   _initAttributes() {
-    this.defineNoun({
-      name: "bool",
-      clazz: Boolean, allowsArbitraryAttrs: false,
-      isPrimitive: true,
-      // favor true before false
-      comparator(a, b) {
-        if (a == null) {
-          if (b == null)
-            return 0;
-          return 1;
-        } else if (b == null) {
-          return -1;
-        }
-        return b - a;
-      },
-      toParamAndValue(aBool) {
-        return [null, aBool ? 1 : 0];
-      }}, this.NOUN_BOOLEAN);
-    this.defineNoun({
-      name: "number",
-      clazz: Number, allowsArbitraryAttrs: false, continuous: true,
-      isPrimitive: true,
-      comparator(a, b) {
-        if (a == null) {
-          if (b == null)
-            return 0;
-          return 1;
-        } else if (b == null) {
-          return -1;
-        }
-        return a - b;
-      },
-      toParamAndValue(aNum) {
-        return [null, aNum];
-      }}, this.NOUN_NUMBER);
-    this.defineNoun({
-      name: "string",
-      clazz: String, allowsArbitraryAttrs: false,
-      isPrimitive: true,
-      comparator(a, b) {
-        if (a == null) {
-          if (b == null)
-            return 0;
-          return 1;
-        } else if (b == null) {
-          return -1;
-        }
-        return a.localeCompare(b);
-      },
-      toParamAndValue(aString) {
-        return [null, aString];
-      }}, this.NOUN_STRING);
-    this.defineNoun({
-      name: "date",
-      clazz: Date, allowsArbitraryAttrs: false, continuous: true,
-      isPrimitive: true,
-      comparator(a, b) {
-        if (a == null) {
-          if (b == null)
-            return 0;
-          return 1;
-        } else if (b == null) {
-          return -1;
-        }
-        return a - b;
-      },
-      toParamAndValue(aDate) {
-        return [null, aDate.valueOf() * 1000];
-      }}, this.NOUN_DATE);
-    this.defineNoun({
-      name: "fulltext",
-      clazz: String, allowsArbitraryAttrs: false, continuous: false,
-      isPrimitive: true,
-      comparator(a, b) {
-        throw new Error("Fulltext nouns are not comparable!");
-      },
-      // as noted on NOUN_FULLTEXT, we just pass the string around.  it never
-      //  hits the database, so it's okay.
-      toParamAndValue(aString) {
-        return [null, aString];
-      }}, this.NOUN_FULLTEXT);
-
-    this.defineNoun({
-      name: "folder",
-      clazz: GlodaFolder,
-      allowsArbitraryAttrs: false,
-      isPrimitive: false,
-      queryHelpers: {
-        /**
-         * Query for accounts based on the account associated with folders.  We
-         *  walk all of the folders associated with an account and put them in
-         *  the list of folders that match if gloda would index them.  This is
-         *  unsuitable for producing a persistable constraint since it does not
-         *  adapt for added/deleted folders.  However, it is sufficient for
-         *  faceting.  Also, we don't persist constraints yet.
-         *
-         * @TODO The long-term solution is to move towards using arithmetic
-         *     encoding on folder-id's like we use for MIME types and friends.
-         */
-        Account(aAttrDef, aArguments) {
-          let folderValues = [];
-          let seenRootFolders = {};
-          for (let iArg = 0; iArg < aArguments.length; iArg++) {
-            let givenFolder = aArguments[iArg];
-            let givenMsgFolder = givenFolder.getXPCOMFolder(
-                                   givenFolder.kActivityFolderOnlyNoData);
-            let rootFolder = givenMsgFolder.rootFolder;
-
-            // skip processing this folder if we have already processed its
-            //  root folder.
-            if (rootFolder.URI in seenRootFolders)
-              continue;
-            seenRootFolders[rootFolder.URI] = true;
-
-            let allFolders = rootFolder.descendants;
-            for (let folder of fixIterator(allFolders, Ci.nsIMsgFolder)) {
-              let folderFlags = folder.flags;
-
-              // Ignore virtual folders, non-mail folders.
-              // XXX this is derived from GlodaIndexer's shouldIndexFolder.
-              //  This should probably just use centralized code or the like.
-              if (!(folderFlags & Ci.nsMsgFolderFlags.Mail) ||
-                  (folderFlags & Ci.nsMsgFolderFlags.Virtual))
-                continue;
-              // we only index local or IMAP folders
-              if (!(folder instanceof Ci.nsIMsgLocalMailFolder) &&
-                !(folder instanceof Ci.nsIMsgImapMailFolder))
-                continue;
-
-              let glodaFolder = Gloda.getFolderForFolder(folder);
-              folderValues.push(glodaFolder);
+    this.defineNoun(
+      {
+        name: "bool",
+        clazz: Boolean,
+        allowsArbitraryAttrs: false,
+        isPrimitive: true,
+        // favor true before false
+        comparator(a, b) {
+          if (a == null) {
+            if (b == null) {
+              return 0;
             }
+            return 1;
+          } else if (b == null) {
+            return -1;
           }
-          return this._inConstraintHelper(aAttrDef, folderValues);
+          return b - a;
+        },
+        toParamAndValue(aBool) {
+          return [null, aBool ? 1 : 0];
         },
       },
-      comparator(a, b) {
-        if (a == null) {
-          if (b == null)
-            return 0;
-          return 1;
-        } else if (b == null) {
-          return -1;
-        }
-        return a.name.localeCompare(b.name);
+      this.NOUN_BOOLEAN
+    );
+    this.defineNoun(
+      {
+        name: "number",
+        clazz: Number,
+        allowsArbitraryAttrs: false,
+        continuous: true,
+        isPrimitive: true,
+        comparator(a, b) {
+          if (a == null) {
+            if (b == null) {
+              return 0;
+            }
+            return 1;
+          } else if (b == null) {
+            return -1;
+          }
+          return a - b;
+        },
+        toParamAndValue(aNum) {
+          return [null, aNum];
+        },
       },
-      toParamAndValue(aFolderOrGlodaFolder) {
-        if (aFolderOrGlodaFolder instanceof GlodaFolder)
-          return [null, aFolderOrGlodaFolder.id];
-        return [null, GlodaDatastore._mapFolder(aFolderOrGlodaFolder).id];
-      }}, this.NOUN_FOLDER);
-    this.defineNoun({
-      name: "account",
-      clazz: GlodaAccount,
-      allowsArbitraryAttrs: false,
-      isPrimitive: false,
-      equals(a, b) {
-        if (a && !b || !a && b)
-          return false;
-        if (!a && !b)
-          return true;
-        return a.id == b.id;
+      this.NOUN_NUMBER
+    );
+    this.defineNoun(
+      {
+        name: "string",
+        clazz: String,
+        allowsArbitraryAttrs: false,
+        isPrimitive: true,
+        comparator(a, b) {
+          if (a == null) {
+            if (b == null) {
+              return 0;
+            }
+            return 1;
+          } else if (b == null) {
+            return -1;
+          }
+          return a.localeCompare(b);
+        },
+        toParamAndValue(aString) {
+          return [null, aString];
+        },
       },
-      comparator(a, b) {
-        if (a == null) {
-          if (b == null)
-            return 0;
-          return 1;
-        } else if (b == null) {
-          return -1;
-        }
-        return a.name.localeCompare(b.name);
-      }}, this.NOUN_ACCOUNT);
-    this.defineNoun({
-      name: "conversation",
-      clazz: GlodaConversation,
-      allowsArbitraryAttrs: false,
-      isPrimitive: false,
-      cache: true, cacheCost: 512,
-      tableName: "conversations",
-      attrTableName: "messageAttributes", attrIDColumnName: "conversationID",
-      datastore: GlodaDatastore,
-      objFromRow: GlodaDatastore._conversationFromRow,
-      comparator(a, b) {
-        if (a == null) {
-          if (b == null)
-            return 0;
-          return 1;
-        } else if (b == null) {
-          return -1;
-        }
-        return a.subject.localeCompare(b.subject);
+      this.NOUN_STRING
+    );
+    this.defineNoun(
+      {
+        name: "date",
+        clazz: Date,
+        allowsArbitraryAttrs: false,
+        continuous: true,
+        isPrimitive: true,
+        comparator(a, b) {
+          if (a == null) {
+            if (b == null) {
+              return 0;
+            }
+            return 1;
+          } else if (b == null) {
+            return -1;
+          }
+          return a - b;
+        },
+        toParamAndValue(aDate) {
+          return [null, aDate.valueOf() * 1000];
+        },
       },
-      toParamAndValue(aConversation) {
-        if (aConversation instanceof GlodaConversation)
-          return [null, aConversation.id];
-        // assume they're just passing the id directly
-        return [null, aConversation];
-      }}, this.NOUN_CONVERSATION);
-    this.defineNoun({
-      name: "message",
-      clazz: GlodaMessage,
-      allowsArbitraryAttrs: true,
-      isPrimitive: false,
-      cache: true, cacheCost: 2048,
-      tableName: "messages",
-      // we will always have a fulltext row, even for messages where we don't
-      //  have the body available.  this is because we want the subject indexed.
-      dbQueryJoinMagic:
-        " INNER JOIN messagesText ON messages.id = messagesText.rowid",
-      attrTableName: "messageAttributes", attrIDColumnName: "messageID",
-      datastore: GlodaDatastore, objFromRow: GlodaDatastore._messageFromRow,
-      dbAttribAdjuster: GlodaDatastore.adjustMessageAttributes,
-      dbQueryValidityConstraintSuffix:
-        " AND +deleted = 0 AND +folderID IS NOT NULL AND +messageKey IS NOT NULL",
-      // This is what's used when we have no validity constraints, i.e. we allow
-      // for ghost messages, which do not have a row in the messagesText table.
-      dbQueryJoinMagicWithNoValidityConstraints:
-        " LEFT JOIN messagesText ON messages.id = messagesText.rowid",
-      objInsert: GlodaDatastore.insertMessage,
-      objUpdate: GlodaDatastore.updateMessage,
-      toParamAndValue(aMessage) {
-        if (aMessage instanceof GlodaMessage)
-          return [null, aMessage.id];
-        // assume they're just passing the id directly
-        return [null, aMessage];
-      }}, this.NOUN_MESSAGE);
-    this.defineNoun({
-      name: "contact",
-      clazz: GlodaContact,
-      allowsArbitraryAttrs: true,
-      isPrimitive: false,
-      cache: true, cacheCost: 128,
-      tableName: "contacts",
-      attrTableName: "contactAttributes", attrIDColumnName: "contactID",
-      datastore: GlodaDatastore, objFromRow: GlodaDatastore._contactFromRow,
-      dbAttribAdjuster: GlodaDatastore.adjustAttributes,
-      objInsert: GlodaDatastore.insertContact,
-      objUpdate: GlodaDatastore.updateContact,
-      comparator(a, b) {
-        if (a == null) {
-          if (b == null)
-            return 0;
-          return 1;
-        } else if (b == null) {
-          return -1;
-        }
-        return a.name.localeCompare(b.name);
+      this.NOUN_DATE
+    );
+    this.defineNoun(
+      {
+        name: "fulltext",
+        clazz: String,
+        allowsArbitraryAttrs: false,
+        continuous: false,
+        isPrimitive: true,
+        comparator(a, b) {
+          throw new Error("Fulltext nouns are not comparable!");
+        },
+        // as noted on NOUN_FULLTEXT, we just pass the string around.  it never
+        //  hits the database, so it's okay.
+        toParamAndValue(aString) {
+          return [null, aString];
+        },
       },
-      toParamAndValue(aContact) {
-        if (aContact instanceof GlodaContact)
-          return [null, aContact.id];
-        // assume they're just passing the id directly
-        return [null, aContact];
-      }}, this.NOUN_CONTACT);
-    this.defineNoun({
-      name: "identity",
-      clazz: GlodaIdentity,
-      allowsArbitraryAttrs: false,
-      isPrimitive: false,
-      cache: true, cacheCost: 128,
-      usesUniqueValue: true,
-      tableName: "identities",
-      datastore: GlodaDatastore, objFromRow: GlodaDatastore._identityFromRow,
-      /**
-       * Short string is the contact name, long string includes the identity
-       *  value too, delimited by a colon.  Not tremendously localizable.
-       */
-      userVisibleString(aIdentity, aLong) {
-        if (!aLong)
-          return aIdentity.contact.name;
-        if (aIdentity.contact.name == aIdentity.value)
-          return aIdentity.value;
-        return aIdentity.contact.name + " (" + aIdentity.value + ")";
+      this.NOUN_FULLTEXT
+    );
+
+    this.defineNoun(
+      {
+        name: "folder",
+        clazz: GlodaFolder,
+        allowsArbitraryAttrs: false,
+        isPrimitive: false,
+        queryHelpers: {
+          /**
+           * Query for accounts based on the account associated with folders.  We
+           *  walk all of the folders associated with an account and put them in
+           *  the list of folders that match if gloda would index them.  This is
+           *  unsuitable for producing a persistable constraint since it does not
+           *  adapt for added/deleted folders.  However, it is sufficient for
+           *  faceting.  Also, we don't persist constraints yet.
+           *
+           * @TODO The long-term solution is to move towards using arithmetic
+           *     encoding on folder-id's like we use for MIME types and friends.
+           */
+          Account(aAttrDef, aArguments) {
+            let folderValues = [];
+            let seenRootFolders = {};
+            for (let iArg = 0; iArg < aArguments.length; iArg++) {
+              let givenFolder = aArguments[iArg];
+              let givenMsgFolder = givenFolder.getXPCOMFolder(
+                givenFolder.kActivityFolderOnlyNoData
+              );
+              let rootFolder = givenMsgFolder.rootFolder;
+
+              // skip processing this folder if we have already processed its
+              //  root folder.
+              if (rootFolder.URI in seenRootFolders) {
+                continue;
+              }
+              seenRootFolders[rootFolder.URI] = true;
+
+              let allFolders = rootFolder.descendants;
+              for (let folder of fixIterator(allFolders, Ci.nsIMsgFolder)) {
+                let folderFlags = folder.flags;
+
+                // Ignore virtual folders, non-mail folders.
+                // XXX this is derived from GlodaIndexer's shouldIndexFolder.
+                //  This should probably just use centralized code or the like.
+                if (
+                  !(folderFlags & Ci.nsMsgFolderFlags.Mail) ||
+                  folderFlags & Ci.nsMsgFolderFlags.Virtual
+                ) {
+                  continue;
+                }
+                // we only index local or IMAP folders
+                if (
+                  !(folder instanceof Ci.nsIMsgLocalMailFolder) &&
+                  !(folder instanceof Ci.nsIMsgImapMailFolder)
+                ) {
+                  continue;
+                }
+
+                let glodaFolder = Gloda.getFolderForFolder(folder);
+                folderValues.push(glodaFolder);
+              }
+            }
+            return this._inConstraintHelper(aAttrDef, folderValues);
+          },
+        },
+        comparator(a, b) {
+          if (a == null) {
+            if (b == null) {
+              return 0;
+            }
+            return 1;
+          } else if (b == null) {
+            return -1;
+          }
+          return a.name.localeCompare(b.name);
+        },
+        toParamAndValue(aFolderOrGlodaFolder) {
+          if (aFolderOrGlodaFolder instanceof GlodaFolder) {
+            return [null, aFolderOrGlodaFolder.id];
+          }
+          return [null, GlodaDatastore._mapFolder(aFolderOrGlodaFolder).id];
+        },
       },
-      comparator(a, b) {
-        if (a == null) {
-          if (b == null)
-            return 0;
-          return 1;
-        } else if (b == null) {
-          return -1;
-        }
-        return a.contact.name.localeCompare(b.contact.name);
+      this.NOUN_FOLDER
+    );
+    this.defineNoun(
+      {
+        name: "account",
+        clazz: GlodaAccount,
+        allowsArbitraryAttrs: false,
+        isPrimitive: false,
+        equals(a, b) {
+          if ((a && !b) || (!a && b)) {
+            return false;
+          }
+          if (!a && !b) {
+            return true;
+          }
+          return a.id == b.id;
+        },
+        comparator(a, b) {
+          if (a == null) {
+            if (b == null) {
+              return 0;
+            }
+            return 1;
+          } else if (b == null) {
+            return -1;
+          }
+          return a.name.localeCompare(b.name);
+        },
       },
-      toParamAndValue(aIdentity) {
-        if (aIdentity instanceof GlodaIdentity)
-          return [null, aIdentity.id];
-        // assume they're just passing the id directly
-        return [null, aIdentity];
-      }}, this.NOUN_IDENTITY);
-    this.defineNoun({
-      name: "attachment-infos",
-      clazz: GlodaAttachment,
-      allowsArbitraryAttrs: false,
-      isPrimitive: false,
-      toJSON(x) {
+      this.NOUN_ACCOUNT
+    );
+    this.defineNoun(
+      {
+        name: "conversation",
+        clazz: GlodaConversation,
+        allowsArbitraryAttrs: false,
+        isPrimitive: false,
+        cache: true,
+        cacheCost: 512,
+        tableName: "conversations",
+        attrTableName: "messageAttributes",
+        attrIDColumnName: "conversationID",
+        datastore: GlodaDatastore,
+        objFromRow: GlodaDatastore._conversationFromRow,
+        comparator(a, b) {
+          if (a == null) {
+            if (b == null) {
+              return 0;
+            }
+            return 1;
+          } else if (b == null) {
+            return -1;
+          }
+          return a.subject.localeCompare(b.subject);
+        },
+        toParamAndValue(aConversation) {
+          if (aConversation instanceof GlodaConversation) {
+            return [null, aConversation.id];
+          }
+          // assume they're just passing the id directly
+          return [null, aConversation];
+        },
+      },
+      this.NOUN_CONVERSATION
+    );
+    this.defineNoun(
+      {
+        name: "message",
+        clazz: GlodaMessage,
+        allowsArbitraryAttrs: true,
+        isPrimitive: false,
+        cache: true,
+        cacheCost: 2048,
+        tableName: "messages",
+        // we will always have a fulltext row, even for messages where we don't
+        //  have the body available.  this is because we want the subject indexed.
+        dbQueryJoinMagic:
+          " INNER JOIN messagesText ON messages.id = messagesText.rowid",
+        attrTableName: "messageAttributes",
+        attrIDColumnName: "messageID",
+        datastore: GlodaDatastore,
+        objFromRow: GlodaDatastore._messageFromRow,
+        dbAttribAdjuster: GlodaDatastore.adjustMessageAttributes,
+        dbQueryValidityConstraintSuffix:
+          " AND +deleted = 0 AND +folderID IS NOT NULL AND +messageKey IS NOT NULL",
+        // This is what's used when we have no validity constraints, i.e. we allow
+        // for ghost messages, which do not have a row in the messagesText table.
+        dbQueryJoinMagicWithNoValidityConstraints:
+          " LEFT JOIN messagesText ON messages.id = messagesText.rowid",
+        objInsert: GlodaDatastore.insertMessage,
+        objUpdate: GlodaDatastore.updateMessage,
+        toParamAndValue(aMessage) {
+          if (aMessage instanceof GlodaMessage) {
+            return [null, aMessage.id];
+          }
+          // assume they're just passing the id directly
+          return [null, aMessage];
+        },
+      },
+      this.NOUN_MESSAGE
+    );
+    this.defineNoun(
+      {
+        name: "contact",
+        clazz: GlodaContact,
+        allowsArbitraryAttrs: true,
+        isPrimitive: false,
+        cache: true,
+        cacheCost: 128,
+        tableName: "contacts",
+        attrTableName: "contactAttributes",
+        attrIDColumnName: "contactID",
+        datastore: GlodaDatastore,
+        objFromRow: GlodaDatastore._contactFromRow,
+        dbAttribAdjuster: GlodaDatastore.adjustAttributes,
+        objInsert: GlodaDatastore.insertContact,
+        objUpdate: GlodaDatastore.updateContact,
+        comparator(a, b) {
+          if (a == null) {
+            if (b == null) {
+              return 0;
+            }
+            return 1;
+          } else if (b == null) {
+            return -1;
+          }
+          return a.name.localeCompare(b.name);
+        },
+        toParamAndValue(aContact) {
+          if (aContact instanceof GlodaContact) {
+            return [null, aContact.id];
+          }
+          // assume they're just passing the id directly
+          return [null, aContact];
+        },
+      },
+      this.NOUN_CONTACT
+    );
+    this.defineNoun(
+      {
+        name: "identity",
+        clazz: GlodaIdentity,
+        allowsArbitraryAttrs: false,
+        isPrimitive: false,
+        cache: true,
+        cacheCost: 128,
+        usesUniqueValue: true,
+        tableName: "identities",
+        datastore: GlodaDatastore,
+        objFromRow: GlodaDatastore._identityFromRow,
+        /**
+         * Short string is the contact name, long string includes the identity
+         *  value too, delimited by a colon.  Not tremendously localizable.
+         */
+        userVisibleString(aIdentity, aLong) {
+          if (!aLong) {
+            return aIdentity.contact.name;
+          }
+          if (aIdentity.contact.name == aIdentity.value) {
+            return aIdentity.value;
+          }
+          return aIdentity.contact.name + " (" + aIdentity.value + ")";
+        },
+        comparator(a, b) {
+          if (a == null) {
+            if (b == null) {
+              return 0;
+            }
+            return 1;
+          } else if (b == null) {
+            return -1;
+          }
+          return a.contact.name.localeCompare(b.contact.name);
+        },
+        toParamAndValue(aIdentity) {
+          if (aIdentity instanceof GlodaIdentity) {
+            return [null, aIdentity.id];
+          }
+          // assume they're just passing the id directly
+          return [null, aIdentity];
+        },
+      },
+      this.NOUN_IDENTITY
+    );
+    this.defineNoun(
+      {
+        name: "attachment-infos",
+        clazz: GlodaAttachment,
+        allowsArbitraryAttrs: false,
+        isPrimitive: false,
+        toJSON(x) {
           return [
             x._name,
             x._contentType,
@@ -1366,108 +1529,138 @@ var Gloda = {
             x._isExternal,
           ];
         },
-      fromJSON(x, aGlodaMessage) {
+        fromJSON(x, aGlodaMessage) {
           let [name, contentType, size, _part, _externalUrl, isExternal] = x;
-          return new GlodaAttachment(aGlodaMessage, name, contentType, size, _part, _externalUrl, isExternal);
+          return new GlodaAttachment(
+            aGlodaMessage,
+            name,
+            contentType,
+            size,
+            _part,
+            _externalUrl,
+            isExternal
+          );
         },
-      }, this.NOUN_ATTACHMENT);
+      },
+      this.NOUN_ATTACHMENT
+    );
 
     // parameterized identity is just two identities; we store the first one
     //  (whose value set must be very constrainted, like the 'me' identities)
     //  as the parameter, the second (which does not need to be constrained)
     //  as the value.
-    this.defineNoun({
-      name: "parameterized-identity",
-      clazz: null,
-      allowsArbitraryAttrs: false,
-      comparator(a, b) {
-        if (a == null) {
-          if (b == null)
-            return 0;
-          return 1;
-        } else if (b == null) {
-          return -1;
-        }
-        // First sort by the first identity in the tuple
-        // Since our general use-case is for the first guy to be "me", we only
-        //  compare the identity value, not the name.
-        let fic = a[0].value.localeCompare(b[0].value);
-        if (fic)
-          return fic;
-        // Next compare the second identity in the tuple, but use the contact
-        //  this time to be consistent with our identity comparator.
-        return a[1].contact.name.localeCompare(b[1].contact.name);
-      },
-      computeDelta(aCurValues, aOldValues) {
-        let oldMap = {};
-        for (let tupe of aOldValues) {
-          let [originIdentity, targetIdentity] = tupe;
-          let targets = oldMap[originIdentity];
-          if (targets === undefined)
-            targets = oldMap[originIdentity] = {};
-          targets[targetIdentity] = true;
-        }
-
-        let added = [], removed = [];
-        for (let tupe of aCurValues) {
-          let [originIdentity, targetIdentity] = tupe;
-          let targets = oldMap[originIdentity];
-          if ((targets === undefined) || !(targetIdentity in targets))
-            added.push(tupe);
-          else
-            delete targets[targetIdentity];
-        }
-
-        for (let originIdentity in oldMap) {
-          let targets = oldMap[originIdentity];
-          for (let targetIdentity in targets) {
-            removed.push([originIdentity, targetIdentity]);
+    this.defineNoun(
+      {
+        name: "parameterized-identity",
+        clazz: null,
+        allowsArbitraryAttrs: false,
+        comparator(a, b) {
+          if (a == null) {
+            if (b == null) {
+              return 0;
+            }
+            return 1;
+          } else if (b == null) {
+            return -1;
           }
-        }
+          // First sort by the first identity in the tuple
+          // Since our general use-case is for the first guy to be "me", we only
+          //  compare the identity value, not the name.
+          let fic = a[0].value.localeCompare(b[0].value);
+          if (fic) {
+            return fic;
+          }
+          // Next compare the second identity in the tuple, but use the contact
+          //  this time to be consistent with our identity comparator.
+          return a[1].contact.name.localeCompare(b[1].contact.name);
+        },
+        computeDelta(aCurValues, aOldValues) {
+          let oldMap = {};
+          for (let tupe of aOldValues) {
+            let [originIdentity, targetIdentity] = tupe;
+            let targets = oldMap[originIdentity];
+            if (targets === undefined) {
+              targets = oldMap[originIdentity] = {};
+            }
+            targets[targetIdentity] = true;
+          }
 
-        return [added, removed];
+          let added = [],
+            removed = [];
+          for (let tupe of aCurValues) {
+            let [originIdentity, targetIdentity] = tupe;
+            let targets = oldMap[originIdentity];
+            if (targets === undefined || !(targetIdentity in targets)) {
+              added.push(tupe);
+            } else {
+              delete targets[targetIdentity];
+            }
+          }
+
+          for (let originIdentity in oldMap) {
+            let targets = oldMap[originIdentity];
+            for (let targetIdentity in targets) {
+              removed.push([originIdentity, targetIdentity]);
+            }
+          }
+
+          return [added, removed];
+        },
+        contributeObjDependencies(
+          aJsonValues,
+          aReferencesByNounID,
+          aInverseReferencesByNounID
+        ) {
+          // nothing to do with a zero-length list
+          if (aJsonValues.length == 0) {
+            return false;
+          }
+
+          let nounIdentityDef = Gloda._nounIDToDef[Gloda.NOUN_IDENTITY];
+          let references = aReferencesByNounID[nounIdentityDef.id];
+          if (references === undefined) {
+            references = aReferencesByNounID[nounIdentityDef.id] = {};
+          }
+
+          for (let tupe of aJsonValues) {
+            let [originIdentityID, targetIdentityID] = tupe;
+            if (!(originIdentityID in references)) {
+              references[originIdentityID] = null;
+            }
+            if (!(targetIdentityID in references)) {
+              references[targetIdentityID] = null;
+            }
+          }
+
+          return true;
+        },
+        resolveObjDependencies(
+          aJsonValues,
+          aReferencesByNounID,
+          aInverseReferencesByNounID
+        ) {
+          let references = aReferencesByNounID[Gloda.NOUN_IDENTITY];
+
+          let results = [];
+          for (let tupe of aJsonValues) {
+            let [originIdentityID, targetIdentityID] = tupe;
+            results.push([
+              references[originIdentityID],
+              references[targetIdentityID],
+            ]);
+          }
+
+          return results;
+        },
+        toJSON(aIdentityTuple) {
+          return [aIdentityTuple[0].id, aIdentityTuple[1].id];
+        },
+        toParamAndValue(aIdentityTuple) {
+          return [aIdentityTuple[0].id, aIdentityTuple[1].id];
+        },
       },
-      contributeObjDependencies(aJsonValues, aReferencesByNounID,
-          aInverseReferencesByNounID) {
-        // nothing to do with a zero-length list
-        if (aJsonValues.length == 0)
-          return false;
-
-        let nounIdentityDef = Gloda._nounIDToDef[Gloda.NOUN_IDENTITY];
-        let references = aReferencesByNounID[nounIdentityDef.id];
-        if (references === undefined)
-          references = aReferencesByNounID[nounIdentityDef.id] = {};
-
-        for (let tupe of aJsonValues) {
-          let [originIdentityID, targetIdentityID] = tupe;
-          if (!(originIdentityID in references))
-            references[originIdentityID] = null;
-          if (!(targetIdentityID in references))
-            references[targetIdentityID] = null;
-        }
-
-        return true;
-      },
-      resolveObjDependencies(aJsonValues, aReferencesByNounID,
-          aInverseReferencesByNounID) {
-        let references =
-          aReferencesByNounID[Gloda.NOUN_IDENTITY];
-
-        let results = [];
-        for (let tupe of aJsonValues) {
-          let [originIdentityID, targetIdentityID] = tupe;
-          results.push([references[originIdentityID],
-                        references[targetIdentityID]]);
-        }
-
-        return results;
-      },
-      toJSON(aIdentityTuple) {
-        return [aIdentityTuple[0].id, aIdentityTuple[1].id];
-      },
-      toParamAndValue(aIdentityTuple) {
-        return [aIdentityTuple[0].id, aIdentityTuple[1].id];
-      }}, this.NOUN_PARAM_IDENTITY);
+      this.NOUN_PARAM_IDENTITY
+    );
 
     GlodaDatastore.getAllAttributes();
   },
@@ -1489,9 +1682,13 @@ var Gloda = {
     if (aSubjectNounDef.queryClass !== undefined) {
       let constrainer;
       let canQuery = true;
-      if (("special" in aAttrDef) && (aAttrDef.special == this.kSpecialFulltext)) {
+      if ("special" in aAttrDef && aAttrDef.special == this.kSpecialFulltext) {
         constrainer = function(...aArgs) {
-          let constraint = [GlodaDatastore.kConstraintFulltext, aAttrDef, ...aArgs];
+          let constraint = [
+            GlodaDatastore.kConstraintFulltext,
+            aAttrDef,
+            ...aArgs,
+          ];
           this._constraints.push(constraint);
           return this;
         };
@@ -1504,10 +1701,12 @@ var Gloda = {
       } else {
         constrainer = function() {
           throw new Error(
-              "Cannot query on attribute " + aAttrDef.attributeName
-            + " because its canQuery parameter hasn't been set to true."
-            + " Reading the comments about Gloda.defineAttribute may be a"
-            + " sensible thing to do now.");
+            "Cannot query on attribute " +
+              aAttrDef.attributeName +
+              " because its canQuery parameter hasn't been set to true." +
+              " Reading the comments about Gloda.defineAttribute may be a" +
+              " sensible thing to do now."
+          );
         };
         canQuery = false;
       }
@@ -1516,34 +1715,45 @@ var Gloda = {
 
       // Don't bind extra query-able attributes if we're unable to perform a
       // search on the attribute.
-      if (!canQuery)
+      if (!canQuery) {
         return;
+      }
 
       // - ranged value helper: fooRange
       if (objectNounDef.continuous) {
         // takes one or more tuples of [lower bound, upper bound]
         let rangedConstrainer = function(...aArgs) {
-          let constraint = [GlodaDatastore.kConstraintRanges, aAttrDef, ...aArgs];
+          let constraint = [
+            GlodaDatastore.kConstraintRanges,
+            aAttrDef,
+            ...aArgs,
+          ];
           this._constraints.push(constraint);
           return this;
         };
 
-        aSubjectNounDef.queryClass.prototype[aAttrDef.boundName + "Range"] =
-          rangedConstrainer;
+        aSubjectNounDef.queryClass.prototype[
+          aAttrDef.boundName + "Range"
+        ] = rangedConstrainer;
       }
 
       // - string LIKE helper for special on-row attributes: fooLike
       // (it is impossible to store a string as an indexed attribute, which is
       //  why we do this for on-row only.)
-      if (("special" in aAttrDef) && (aAttrDef.special == this.kSpecialString)) {
+      if ("special" in aAttrDef && aAttrDef.special == this.kSpecialString) {
         let likeConstrainer = function(...aArgs) {
-          let constraint = [GlodaDatastore.kConstraintStringLike, aAttrDef, ...aArgs];
+          let constraint = [
+            GlodaDatastore.kConstraintStringLike,
+            aAttrDef,
+            ...aArgs,
+          ];
           this._constraints.push(constraint);
           return this;
         };
 
-        aSubjectNounDef.queryClass.prototype[aAttrDef.boundName + "Like"] =
-          likeConstrainer;
+        aSubjectNounDef.queryClass.prototype[
+          aAttrDef.boundName + "Like"
+        ] = likeConstrainer;
       }
 
       // - Custom helpers provided by the noun type...
@@ -1552,10 +1762,11 @@ var Gloda = {
           let helper = objectNounDef.queryHelpers[name];
           // we need a new closure...
           let helperFunc = helper;
-          aSubjectNounDef.queryClass.prototype[aAttrDef.boundName + name] =
-            function(...aArgs) {
-              return helperFunc.call(this, aAttrDef, ...aArgs);
-            };
+          aSubjectNounDef.queryClass.prototype[
+            aAttrDef.boundName + name
+          ] = function(...aArgs) {
+            return helperFunc.call(this, aAttrDef, ...aArgs);
+          };
         }
       }
     }
@@ -1626,34 +1837,43 @@ var Gloda = {
    */
   defineAttribute(aAttrDef) {
     // ensure required properties exist on aAttrDef
-    if (!("provider" in aAttrDef) ||
-        !("extensionName" in aAttrDef) ||
-        !("attributeType" in aAttrDef) ||
-        !("attributeName" in aAttrDef) ||
-        !("singular" in aAttrDef) ||
-        !("subjectNouns" in aAttrDef) ||
-        !("objectNoun" in aAttrDef))
+    if (
+      !("provider" in aAttrDef) ||
+      !("extensionName" in aAttrDef) ||
+      !("attributeType" in aAttrDef) ||
+      !("attributeName" in aAttrDef) ||
+      !("singular" in aAttrDef) ||
+      !("subjectNouns" in aAttrDef) ||
+      !("objectNoun" in aAttrDef)
+    ) {
       // perhaps we should have a list of required attributes, perchance with
       //  and explanation of what it holds, and use that to be friendlier?
-      throw Error("You omitted a required attribute defining property, please" +
-                  " consult the documentation as penance.");
+      throw Error(
+        "You omitted a required attribute defining property, please" +
+          " consult the documentation as penance."
+      );
+    }
 
     // -- Fill in defaults
-    if (!("emptySetIsSignificant" in aAttrDef))
+    if (!("emptySetIsSignificant" in aAttrDef)) {
       aAttrDef.emptySetIsSignificant = false;
+    }
 
-    if (!("canQuery" in aAttrDef))
+    if (!("canQuery" in aAttrDef)) {
       aAttrDef.canQuery = !!aAttrDef.facet;
+    }
 
     // return if the attribute has already been defined
-    if (aAttrDef.dbDef)
+    if (aAttrDef.dbDef) {
       return aAttrDef;
+    }
 
     // - first time we've seen a provider init logic
     if (!(aAttrDef.provider.providerName in this._attrProviders)) {
       this._attrProviders[aAttrDef.provider.providerName] = [];
-      if (aAttrDef.provider.contentWhittle)
+      if (aAttrDef.provider.contentWhittle) {
         whittlerRegistry.registerWhittler(aAttrDef.provider);
+      }
     }
 
     let compoundName = aAttrDef.extensionName + ":" + aAttrDef.attributeName;
@@ -1665,15 +1885,24 @@ var Gloda = {
       //  not yet 'bound' to a provider (and had important meta-info that
       //  doesn't go in the db copied over)
       attrDBDef = GlodaDatastore._attributeDBDefs[compoundName];
-    } else { // we need to create the attribute definition in the database
+    } else {
+      // we need to create the attribute definition in the database
       let attrID = null;
-      attrID = GlodaDatastore._createAttributeDef(aAttrDef.attributeType,
-                                                  aAttrDef.extensionName,
-                                                  aAttrDef.attributeName,
-                                                  null);
+      attrID = GlodaDatastore._createAttributeDef(
+        aAttrDef.attributeType,
+        aAttrDef.extensionName,
+        aAttrDef.attributeName,
+        null
+      );
 
-      attrDBDef = new GlodaAttributeDBDef(GlodaDatastore, attrID, compoundName,
-        aAttrDef.attributeType, aAttrDef.extensionName, aAttrDef.attributeName);
+      attrDBDef = new GlodaAttributeDBDef(
+        GlodaDatastore,
+        attrID,
+        compoundName,
+        aAttrDef.attributeType,
+        aAttrDef.extensionName,
+        aAttrDef.attributeName
+      );
       GlodaDatastore._attributeDBDefs[compoundName] = attrDBDef;
       GlodaDatastore._attributeIDToDBDefAndParam[attrID] = [attrDBDef, null];
     }
@@ -1683,22 +1912,26 @@ var Gloda = {
 
     aAttrDef.id = aAttrDef.dbDef.id;
 
-    if ("bindName" in aAttrDef)
+    if ("bindName" in aAttrDef) {
       aAttrDef.boundName = aAttrDef.bindName;
-    else
+    } else {
       aAttrDef.boundName = aAttrDef.attributeName;
+    }
 
     aAttrDef.objectNounDef = this._nounIDToDef[aAttrDef.objectNoun];
     aAttrDef.objectNounDef.objectNounOfAttributes.push(aAttrDef);
 
     // -- Facets
     function normalizeFacetDef(aFacetDef) {
-      if (!("groupIdAttr" in aFacetDef))
+      if (!("groupIdAttr" in aFacetDef)) {
         aFacetDef.groupIdAttr = aAttrDef.objectNounDef.idAttr;
-      if (!("groupComparator" in aFacetDef))
+      }
+      if (!("groupComparator" in aFacetDef)) {
         aFacetDef.groupComparator = aAttrDef.objectNounDef.comparator;
-      if (!("filter" in aFacetDef))
+      }
+      if (!("filter" in aFacetDef)) {
         aFacetDef.filter = null;
+      }
     }
     // No facet attribute means no facet desired; set an explicit null so that
     //  code can check without doing an "in" check.
@@ -1738,64 +1971,86 @@ var Gloda = {
     // -- L10n.
     // If the provider has a string bundle, populate a "strings" attribute with
     //  our standard attribute strings that can be UI exposed.
-    if (("strings" in aAttrDef.provider) && (aAttrDef.facet)) {
+    if ("strings" in aAttrDef.provider && aAttrDef.facet) {
       let bundle = aAttrDef.provider.strings;
 
       // -- attribute strings
-      let attrStrings = aAttrDef.facet.strings = {};
+      let attrStrings = (aAttrDef.facet.strings = {});
       // we use the first subject the attribute applies to as the basis of
       //  where to get the string from.  Mainly because we currently don't have
       //  any attributes with multiple subjects nor a use-case where we expose
       //  multiple noun types via the UI.  (Just messages right now.)
       let canonicalSubject = this._nounIDToDef[aAttrDef.subjectNouns[0]];
-      let propRoot = "gloda." + canonicalSubject.name + ".attr." +
-                       aAttrDef.attributeName + ".";
+      let propRoot =
+        "gloda." +
+        canonicalSubject.name +
+        ".attr." +
+        aAttrDef.attributeName +
+        ".";
       gatherLocalizedStrings(bundle, propRoot, attrStrings);
 
       // -- alias strings for synthetic facets
       if ("extraFacets" in aAttrDef) {
         for (let facetDef of aAttrDef.extraFacets) {
           facetDef.strings = {};
-          let aliasPropRoot = "gloda." + canonicalSubject.name + ".attr." +
-                                facetDef.alias + ".";
+          let aliasPropRoot =
+            "gloda." + canonicalSubject.name + ".attr." + facetDef.alias + ".";
           gatherLocalizedStrings(bundle, aliasPropRoot, facetDef.strings);
         }
       }
     }
 
     // -- Subject Noun Binding
-    for (let iSubject = 0; iSubject < aAttrDef.subjectNouns.length;
-           iSubject++) {
+    for (
+      let iSubject = 0;
+      iSubject < aAttrDef.subjectNouns.length;
+      iSubject++
+    ) {
       let subjectType = aAttrDef.subjectNouns[iSubject];
       let subjectNounDef = this._nounIDToDef[subjectType];
       this._bindAttribute(aAttrDef, subjectNounDef);
 
       // update the provider maps...
-      if (!this._attrProviderOrderByNoun[subjectType].includes(aAttrDef.provider)) {
+      if (
+        !this._attrProviderOrderByNoun[subjectType].includes(aAttrDef.provider)
+      ) {
         this._attrProviderOrderByNoun[subjectType].push(aAttrDef.provider);
-        if (aAttrDef.provider.optimize)
+        if (aAttrDef.provider.optimize) {
           this._attrOptimizerOrderByNoun[subjectType].push(aAttrDef.provider);
-        this._attrProvidersByNoun[subjectType][aAttrDef.provider.providerName] = [];
+        }
+        this._attrProvidersByNoun[subjectType][
+          aAttrDef.provider.providerName
+        ] = [];
       }
-      this._attrProvidersByNoun[subjectType][aAttrDef.provider.providerName].push(aAttrDef);
+      this._attrProvidersByNoun[subjectType][
+        aAttrDef.provider.providerName
+      ].push(aAttrDef);
 
       subjectNounDef.attribsByBoundName[aAttrDef.boundName] = aAttrDef;
-      if (aAttrDef.domExpose)
-        subjectNounDef.domExposeAttribsByBoundName[aAttrDef.boundName] =
-          aAttrDef;
+      if (aAttrDef.domExpose) {
+        subjectNounDef.domExposeAttribsByBoundName[
+          aAttrDef.boundName
+        ] = aAttrDef;
+      }
 
-      if (("special" in aAttrDef) && (aAttrDef.special & this.kSpecialColumn))
+      if ("special" in aAttrDef && aAttrDef.special & this.kSpecialColumn) {
         subjectNounDef.specialLoadAttribs.push(aAttrDef);
+      }
 
       // if this is a parent column attribute, make note of it so that if we
       //  need to do an inverse references lookup, we know what column we are
       //  issuing against.
-      if (("special" in aAttrDef) && (aAttrDef.special === this.kSpecialColumnParent)) {
+      if (
+        "special" in aAttrDef &&
+        aAttrDef.special === this.kSpecialColumnParent
+      ) {
         subjectNounDef.parentColumnAttr = aAttrDef;
       }
 
-      if (aAttrDef.objectNounDef.tableName ||
-          aAttrDef.objectNounDef.contributeObjDependencies) {
+      if (
+        aAttrDef.objectNounDef.tableName ||
+        aAttrDef.objectNounDef.contributeObjDependencies
+      ) {
         subjectNounDef.hasObjDependencies = true;
       }
     }
@@ -1944,7 +2199,14 @@ var Gloda = {
    * @param aDoCache Should we allow this item to be contributed to its noun
    *     cache?
    */
-  * grokNounItem(aItem, aRawReps, aIsConceptuallyNew, aIsRecordNew, aCallbackHandle, aDoCache) {
+  *grokNounItem(
+    aItem,
+    aRawReps,
+    aIsConceptuallyNew,
+    aIsRecordNew,
+    aCallbackHandle,
+    aDoCache
+  ) {
     let itemNounDef = aItem.NOUN_DEF;
     let attribsByBoundName = itemNounDef.attribsByBoundName;
 
@@ -1957,7 +2219,8 @@ var Gloda = {
 
     let aOldItem;
     aRawReps.trueGlodaRep = aItem;
-    if (aIsConceptuallyNew) { // there is no old item if we are new.
+    if (aIsConceptuallyNew) {
+      // there is no old item if we are new.
       aOldItem = {};
     } else {
       aOldItem = aItem;
@@ -1971,16 +2234,28 @@ var Gloda = {
     for (let iProvider = 0; iProvider < attrProviders.length; iProvider++) {
       this._log.info("  * provider: " + attrProviders[iProvider].providerName);
       yield aCallbackHandle.pushAndGo(
-        attrProviders[iProvider].process(aItem, aRawReps, aIsConceptuallyNew,
-                                         aCallbackHandle));
+        attrProviders[iProvider].process(
+          aItem,
+          aRawReps,
+          aIsConceptuallyNew,
+          aCallbackHandle
+        )
+      );
     }
 
     let attrOptimizers = this._attrOptimizerOrderByNoun[itemNounDef.id];
     for (let iProvider = 0; iProvider < attrOptimizers.length; iProvider++) {
-      this._log.info("  * optimizer: " + attrOptimizers[iProvider].providerName);
+      this._log.info(
+        "  * optimizer: " + attrOptimizers[iProvider].providerName
+      );
       yield aCallbackHandle.pushAndGo(
-        attrOptimizers[iProvider].optimize(aItem, aRawReps, aIsConceptuallyNew,
-                                           aCallbackHandle));
+        attrOptimizers[iProvider].optimize(
+          aItem,
+          aRawReps,
+          aIsConceptuallyNew,
+          aCallbackHandle
+        )
+      );
     }
     this._log.info(" ** done with providers.");
 
@@ -1990,8 +2265,9 @@ var Gloda = {
       // ignore keys that start with underscores, they are private and not
       //  persisted by our attribute mechanism.  (they are directly handled by
       //  the object implementation.)
-      if (key.startsWith("_"))
+      if (key.startsWith("_")) {
         continue;
+      }
       // find the attribute definition that corresponds to this key
       let attrib = attribsByBoundName[key];
       // if there's no attribute, that's not good, but not horrible.
@@ -2005,10 +2281,11 @@ var Gloda = {
 
       // - translate for our JSON rep
       if (attrib.singular) {
-        if (objectNounDef.toJSON)
+        if (objectNounDef.toJSON) {
           jsonDict[attrib.id] = objectNounDef.toJSON(value);
-        else
+        } else {
           jsonDict[attrib.id] = value;
+        }
       } else if (objectNounDef.toJSON) {
         let toJSON = objectNounDef.toJSON;
         jsonDict[attrib.id] = [];
@@ -2025,8 +2302,9 @@ var Gloda = {
       // do the update now, because we may skip operations on addDBAttribs and
       //  removeDBattribs, if the attribute is not to generate entries in
       //  messageAttributes
-      if (oldValue !== undefined || !aIsConceptuallyNew)
+      if (oldValue !== undefined || !aIsConceptuallyNew) {
         aOldItem[key] = value;
+      }
 
       // the new canQuery property has to be set to true to generate entries
       // in the messageAttributes table. Any other truthy value (like a non
@@ -2044,11 +2322,14 @@ var Gloda = {
         if (attrib.singular) {
           // test for identicality, failing that, see if they have explicit
           //  equals support.
-          if ((value !== oldValue) &&
-              (!value.equals || !value.equals(oldValue))) {
+          if (
+            value !== oldValue &&
+            (!value.equals || !value.equals(oldValue))
+          ) {
             addDBAttribs.push(attribDB.convertValuesToDBAttributes([value])[0]);
             removeDBAttribs.push(
-              attribDB.convertValuesToDBAttributes([oldValue])[0]);
+              attribDB.convertValuesToDBAttributes([oldValue])[0]
+            );
           }
         } else if (objectNounDef.computeDelta) {
           // in the plural case, we have to figure the deltas accounting for
@@ -2056,13 +2337,19 @@ var Gloda = {
           //  indexing perspective)
           // some nouns may not meet === equivalence needs, so must provide a
           //  custom computeDelta method to help us out
-          let [valuesAdded, valuesRemoved] =
-            objectNounDef.computeDelta(value, oldValue);
+          let [valuesAdded, valuesRemoved] = objectNounDef.computeDelta(
+            value,
+            oldValue
+          );
           // convert the values to database-style attribute rows
-          addDBAttribs.push.apply(addDBAttribs,
-            attribDB.convertValuesToDBAttributes(valuesAdded));
-          removeDBAttribs.push.apply(removeDBAttribs,
-            attribDB.convertValuesToDBAttributes(valuesRemoved));
+          addDBAttribs.push.apply(
+            addDBAttribs,
+            attribDB.convertValuesToDBAttributes(valuesAdded)
+          );
+          removeDBAttribs.push.apply(
+            removeDBAttribs,
+            attribDB.convertValuesToDBAttributes(valuesRemoved)
+          );
         } else {
           // build a map of the previous values; we will delete the values as
           //  we see them so that we will know what old values are no longer
@@ -2076,39 +2363,52 @@ var Gloda = {
           // traverse the current values...
           let valuesAdded = [];
           for (let curValue of value) {
-            if (curValue in oldValueMap)
+            if (curValue in oldValueMap) {
               delete oldValueMap[curValue];
-            else
+            } else {
               valuesAdded.push(curValue);
+            }
           }
           // anything still on oldValueMap was removed.
-          let valuesRemoved = Object.keys(oldValueMap).
-            map(key => oldValueMap[key]);
+          let valuesRemoved = Object.keys(oldValueMap).map(
+            key => oldValueMap[key]
+          );
           // convert the values to database-style attribute rows
-          addDBAttribs.push.apply(addDBAttribs,
-            attribDB.convertValuesToDBAttributes(valuesAdded));
-          removeDBAttribs.push.apply(removeDBAttribs,
-            attribDB.convertValuesToDBAttributes(valuesRemoved));
+          addDBAttribs.push.apply(
+            addDBAttribs,
+            attribDB.convertValuesToDBAttributes(valuesAdded)
+          );
+          removeDBAttribs.push.apply(
+            removeDBAttribs,
+            attribDB.convertValuesToDBAttributes(valuesRemoved)
+          );
         }
 
         // Add/remove the empty set indicator as appropriate.
         if (attrib.emptySetIsSignificant) {
           // if we are now non-zero but previously were zero, remove.
-          if (value.length && !oldValue.length)
+          if (value.length && !oldValue.length) {
             removeDBAttribs.push([GlodaDatastore.kEmptySetAttrId, attribDB.id]);
+          }
           // if we are now zero length but previously were not, add
-          else if (!value.length && oldValue.length)
+          else if (!value.length && oldValue.length) {
             addDBAttribs.push([GlodaDatastore.kEmptySetAttrId, attribDB.id]);
+          }
         }
-      } else { // no old value, all values are new
+      } else {
+        // no old value, all values are new
         // add the db reps on the new values
-        if (attrib.singular)
+        if (attrib.singular) {
           value = [value];
-        addDBAttribs.push.apply(addDBAttribs,
-                                attribDB.convertValuesToDBAttributes(value));
+        }
+        addDBAttribs.push.apply(
+          addDBAttribs,
+          attribDB.convertValuesToDBAttributes(value)
+        );
         // Add the empty set indicator for the attribute id if appropriate.
-        if (!value.length && attrib.emptySetIsSignificant)
+        if (!value.length && attrib.emptySetIsSignificant) {
           addDBAttribs.push([GlodaDatastore.kEmptySetAttrId, attribDB.id]);
+        }
       }
     }
 
@@ -2118,11 +2418,13 @@ var Gloda = {
       // ignore keys that start with underscores, they are private and not
       //  persisted by our attribute mechanism.  (they are directly handled by
       //  the object implementation.)
-      if (key.startsWith("_"))
+      if (key.startsWith("_")) {
         continue;
+      }
       // ignore things we saw in the new guy
-      if (key in aItem)
+      if (key in aItem) {
         continue;
+      }
 
       // find the attribute definition that corresponds to this key
       let attrib = attribsByBoundName[key];
@@ -2136,19 +2438,26 @@ var Gloda = {
       delete aOldItem[key];
 
       if (attrib.canQuery !== true) {
-        this._log.debug("Not inserting attribute " + attrib.attributeName
-          + " into the db, since we don't plan on querying on it");
+        this._log.debug(
+          "Not inserting attribute " +
+            attrib.attributeName +
+            " into the db, since we don't plan on querying on it"
+        );
         continue;
       }
 
-      if (attrib.singular)
+      if (attrib.singular) {
         value = [value];
+      }
       let attribDB = attrib.dbDef;
-      removeDBAttribs.push.apply(removeDBAttribs,
-                                 attribDB.convertValuesToDBAttributes(value));
+      removeDBAttribs.push.apply(
+        removeDBAttribs,
+        attribDB.convertValuesToDBAttributes(value)
+      );
       // remove the empty set marker if there should have been one
-      if (!value.length && attrib.emptySetIsSignificant)
+      if (!value.length && attrib.emptySetIsSignificant) {
         removeDBAttribs.push([GlodaDatastore.kEmptySetAttrId, attribDB.id]);
+      }
     }
 
     aItem._jsonText = JSON.stringify(jsonDict);
@@ -2162,20 +2471,27 @@ var Gloda = {
       itemNounDef.objUpdate.call(itemNounDef.datastore, aItem);
     }
 
-    this._log.debug(" adjusting attributes, add: " + addDBAttribs + " rem: " +
-        removeDBAttribs);
-    itemNounDef.dbAttribAdjuster.call(itemNounDef.datastore, aItem,
-      addDBAttribs, removeDBAttribs);
+    this._log.debug(
+      " adjusting attributes, add: " + addDBAttribs + " rem: " + removeDBAttribs
+    );
+    itemNounDef.dbAttribAdjuster.call(
+      itemNounDef.datastore,
+      aItem,
+      addDBAttribs,
+      removeDBAttribs
+    );
 
-    if (!aIsConceptuallyNew && ("_declone" in aOldItem))
+    if (!aIsConceptuallyNew && "_declone" in aOldItem) {
       aOldItem._declone(aItem);
+    }
 
     // Cache ramifications...
     if (aDoCache === undefined || aDoCache) {
-      if (aIsConceptuallyNew)
+      if (aIsConceptuallyNew) {
         GlodaCollectionManager.itemsAdded(aItem.NOUN_ID, [aItem]);
-      else
+      } else {
         GlodaCollectionManager.itemsModified(aOldItem.NOUN_ID, [aOldItem]);
+      }
     }
 
     this._log.debug(" done grokking.");
@@ -2198,23 +2514,27 @@ var Gloda = {
   scoreNounItems(aItems, aContext, aExtraScoreFuncs) {
     let scores = [];
     // bail if there is nothing to score
-    if (!aItems.length)
+    if (!aItems.length) {
       return scores;
+    }
 
     let itemNounDef = aItems[0].NOUN_DEF;
-    if (aExtraScoreFuncs == null)
+    if (aExtraScoreFuncs == null) {
       aExtraScoreFuncs = [];
+    }
 
     for (let item of aItems) {
       let score = 0;
       let attrProviders = this._attrProviderOrderByNoun[itemNounDef.id];
       for (let iProvider = 0; iProvider < attrProviders.length; iProvider++) {
         let provider = attrProviders[iProvider];
-        if (provider.score)
+        if (provider.score) {
           score += provider.score(item);
+        }
       }
-      for (let extraScoreFunc of aExtraScoreFuncs)
+      for (let extraScoreFunc of aExtraScoreFuncs) {
         score += extraScoreFunc(item, aContext);
+      }
       scores.push(score);
     }
 
@@ -2226,8 +2546,14 @@ var Gloda = {
 try {
   Gloda._init();
 } catch (ex) {
-  Gloda._log.debug("Exception during Gloda init (" + ex.fileName + ":" +
-                   ex.lineNumber + "): " + ex);
+  Gloda._log.debug(
+    "Exception during Gloda init (" +
+      ex.fileName +
+      ":" +
+      ex.lineNumber +
+      "): " +
+      ex
+  );
 }
 /* but don't forget that we effectively depend on everybody.js too, and
    currently on our importer to be importing that if they need us fully armed

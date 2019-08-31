@@ -30,7 +30,7 @@ var tests = [
   function setup() {
     gMessageGenerator = new MessageGenerator();
 
-    configure_message_injection({mode: "local"});
+    configure_message_injection({ mode: "local" });
 
     targetFolder = make_empty_folder();
     targetFolder.AddFolderListener(folderListener);
@@ -39,7 +39,7 @@ var tests = [
     });
   },
   async function create_new_message() {
-    make_new_sets_in_folder(targetFolder, [{count: 1}]);
+    make_new_sets_in_folder(targetFolder, [{ count: 1 }]);
     await wait_for_message_injection();
   },
 ];

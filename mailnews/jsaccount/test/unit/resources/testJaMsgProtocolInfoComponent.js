@@ -6,8 +6,10 @@
 // This file is the component definition for a demo base implementation of a
 // javascript nsIMsgProtocolInfo implementation.
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
 function testJaMsgProtocolInfo() {
   dump("testJaMsgProtocolInfo");
@@ -20,14 +22,16 @@ testJaMsgProtocolInfo.prototype = {
   _JsPrototypeToDelegate: true,
 
   get defaultLocalPath() {
-    if (this._defaultLocalPath)
+    if (this._defaultLocalPath) {
       return this._defaultLocalPath;
+    }
     // Setup a default location, "TestFoo" directory in profile.
     const NS_APP_USER_PROFILE_50_DIR = "ProfD";
     let typedir = Services.dirsvc.get(NS_APP_USER_PROFILE_50_DIR, Ci.nsIFile);
     typedir.append("TestFoo");
-    if (!typedir.exists())
+    if (!typedir.exists()) {
       typedir.create(Ci.nsIFile.DIRECTORY_TYPE, parseInt("0700", 8));
+    }
     this._defaultLocalPath = typedir;
     return typedir;
   },
@@ -35,18 +39,40 @@ testJaMsgProtocolInfo.prototype = {
     this._defaultLocalPath = defaultLocalPath;
   },
   // serverIID is used in AccountWizard.js, if missing will just report an error.
-  get serverIID() { return null; },
-  get requiresUsername() { return false; },
-  get preflightPrettyNameWithEmailAddress() { return false; },
-  get canDelete() { return true; },
-  get canLoginAtStartUp() { return false; },
-  get canDuplicate() { return false; },
-  getDefaultServerPort: (isSecure) => 0,
-  get canGetMessages() { return false; },
-  get canGetIncomingMessages() { return false; },
-  get defaultDoBiff() { return false; },
-  get showComposeMsgLink() { return false; },
-  get foldersCreatedAsync() { return false; },
+  get serverIID() {
+    return null;
+  },
+  get requiresUsername() {
+    return false;
+  },
+  get preflightPrettyNameWithEmailAddress() {
+    return false;
+  },
+  get canDelete() {
+    return true;
+  },
+  get canLoginAtStartUp() {
+    return false;
+  },
+  get canDuplicate() {
+    return false;
+  },
+  getDefaultServerPort: isSecure => 0,
+  get canGetMessages() {
+    return false;
+  },
+  get canGetIncomingMessages() {
+    return false;
+  },
+  get defaultDoBiff() {
+    return false;
+  },
+  get showComposeMsgLink() {
+    return false;
+  },
+  get foldersCreatedAsync() {
+    return false;
+  },
 
   classDescription: "testja Msg Protocol Info implementation",
   classID: Components.ID("{74b9b9c3-9594-41c4-b9f0-326e5daac2e0}"),

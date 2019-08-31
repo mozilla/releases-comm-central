@@ -17,8 +17,9 @@ var gSkipFirstRecordButton;
 document.addEventListener("dialogaccept", FieldImportOKButton);
 
 function OnLoadFieldMapImport() {
-  top.importService = Cc["@mozilla.org/import/import-service;1"]
-                        .getService(Ci.nsIImportService);
+  top.importService = Cc["@mozilla.org/import/import-service;1"].getService(
+    Ci.nsIImportService
+  );
 
   // We need a field map object...
   // assume we have one passed in? or just make one?
@@ -51,28 +52,35 @@ function OnLoadFieldMapImport() {
 function IndexInMap(index) {
   var count = top.fieldMap.mapSize;
   for (var i = 0; i < count; i++) {
-    if (top.fieldMap.GetFieldMap(i) == index)
+    if (top.fieldMap.GetFieldMap(i) == index) {
       return true;
+    }
   }
 
   return false;
 }
 
 function ListFields() {
-  if (top.fieldMap == null)
+  if (top.fieldMap == null) {
     return;
+  }
 
   var count = top.fieldMap.mapSize;
   var index;
   for (let i = 0; i < count; i++) {
     index = top.fieldMap.GetFieldMap(i);
-    AddFieldToList(top.fieldMap.GetFieldDescription(index), index, top.fieldMap.GetFieldActive(i));
+    AddFieldToList(
+      top.fieldMap.GetFieldDescription(index),
+      index,
+      top.fieldMap.GetFieldActive(i)
+    );
   }
 
   count = top.fieldMap.numMozFields;
   for (let i = 0; i < count; i++) {
-    if (!IndexInMap(i))
+    if (!IndexInMap(i)) {
       AddFieldToList(top.fieldMap.GetFieldDescription(i), i, false);
+    }
   }
 }
 
@@ -113,7 +121,7 @@ function AddFieldToList(name, index, on) {
 function cellClicked(event) {
   if (event.button == 0) {
     var on = gListbox.selectedItem.firstChild.getAttribute("checked");
-    gListbox.selectedItem.firstChild.setAttribute("checked", (on != "true"));
+    gListbox.selectedItem.firstChild.setAttribute("checked", on != "true");
   }
 }
 
@@ -121,14 +129,18 @@ function cellClicked(event) {
 // up/down but the values in the right column should not change.
 function moveItem(up) {
   var selectedItem = gListbox.selectedItem;
-  var swapPartner = (up ? gListbox.getPreviousItem(selectedItem, 1)
-                        : gListbox.getNextItem(selectedItem, 1));
+  var swapPartner = up
+    ? gListbox.getPreviousItem(selectedItem, 1)
+    : gListbox.getNextItem(selectedItem, 1);
 
   var tmpLabel = swapPartner.lastChild.getAttribute("value");
-  swapPartner.lastChild.setAttribute("value", selectedItem.lastChild.getAttribute("value"));
+  swapPartner.lastChild.setAttribute(
+    "value",
+    selectedItem.lastChild.getAttribute("value")
+  );
   selectedItem.lastChild.setAttribute("value", tmpLabel);
 
-  var newItemPosition = (up ? selectedItem.nextSibling : selectedItem);
+  var newItemPosition = up ? selectedItem.nextSibling : selectedItem;
   gListbox.insertBefore(swapPartner, newItemPosition);
   gListbox.ensureElementIsVisible(selectedItem);
   disableMoveButtons();
@@ -136,34 +148,43 @@ function moveItem(up) {
 
 function disableMoveButtons() {
   var selectedIndex = gListbox.selectedIndex;
-  gMoveUpButton.disabled = (selectedIndex == 0);
-  gMoveDownButton.disabled = (selectedIndex == (gListbox.getRowCount() - 1));
+  gMoveUpButton.disabled = selectedIndex == 0;
+  gMoveDownButton.disabled = selectedIndex == gListbox.getRowCount() - 1;
 }
 
 function ShowSampleData(data) {
   var fields = data.split("\n");
-  for (var i = 0; i < gListbox.getRowCount(); i++)
-    gListbox.getItemAtIndex(i).lastChild.setAttribute("value", (i < fields.length) ? fields[i] : "");
+  for (var i = 0; i < gListbox.getRowCount(); i++) {
+    gListbox
+      .getItemAtIndex(i)
+      .lastChild.setAttribute("value", i < fields.length ? fields[i] : "");
+  }
 }
 
 function FetchSampleData(num) {
-  if (!top.addInterface)
+  if (!top.addInterface) {
     return false;
+  }
 
   var data = top.addInterface.GetData("sampleData-" + num);
-  if (!(data instanceof Ci.nsISupportsString))
+  if (!(data instanceof Ci.nsISupportsString)) {
     return false;
+  }
   ShowSampleData(data.data);
   return true;
 }
 
 function Browse(step) {
   recordNum += step;
-  if (FetchSampleData(recordNum - 1))
-    document.getElementById("recordNumber").setAttribute("value", ("" + recordNum));
+  if (FetchSampleData(recordNum - 1)) {
+    document
+      .getElementById("recordNumber")
+      .setAttribute("value", "" + recordNum);
+  }
 
-  gPreviousButton.disabled = (recordNum == 1);
-  gNextButton.disabled = (addInterface.GetData("sampleData-" + recordNum) == null);
+  gPreviousButton.disabled = recordNum == 1;
+  gNextButton.disabled =
+    addInterface.GetData("sampleData-" + recordNum) == null;
 }
 
 function FieldImportOKButton() {
@@ -175,7 +196,7 @@ function FieldImportOKButton() {
     let fIndex = gListbox.getItemAtIndex(i).getAttribute("field-index");
     let on = gListbox.getItemAtIndex(i).firstChild.getAttribute("checked");
     top.fieldMap.SetFieldMap(i, fIndex);
-    top.fieldMap.SetFieldActive(i, (on == "true"));
+    top.fieldMap.SetFieldActive(i, on == "true");
   }
 
   top.fieldMap.skipFirstRecord = gSkipFirstRecordButton.checked;

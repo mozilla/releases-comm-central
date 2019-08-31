@@ -2,13 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
 var NS_ABLDAPATTRIBUTEMAP_CID = Components.ID(
-  "{127b341a-bdda-4270-85e1-edff569a9b85}");
+  "{127b341a-bdda-4270-85e1-edff569a9b85}"
+);
 var NS_ABLDAPATTRIBUTEMAPSERVICE_CID = Components.ID(
-  "{4ed7d5e1-8800-40da-9e78-c4f509d7ac5e}");
+  "{4ed7d5e1-8800-40da-9e78-c4f509d7ac5e}"
+);
 
 function nsAbLDAPAttributeMap() {
   this.mPropertyMap = {};
@@ -131,7 +135,9 @@ nsAbLDAPAttributeMap.prototype = {
     var msgAttrs = aMessage.getAttributes(msgAttrCount);
 
     // downcase the array for comparison
-    function toLower(a) { return a.toLowerCase(); }
+    function toLower(a) {
+      return a.toLowerCase();
+    }
     msgAttrs = msgAttrs.map(toLower);
 
     // deal with each addressbook property
@@ -147,8 +153,9 @@ nsAbLDAPAttributeMap.prototype = {
             // strip out the optional label from the labeledURI
             if (attr == "labeleduri" && values[0]) {
               var index = values[0].indexOf(" ");
-              if (index != -1)
+              if (index != -1) {
                 values[0] = values[0].substring(0, index);
+              }
             }
             aCard.setProperty(prop, values[0]);
 
@@ -191,11 +198,9 @@ nsAbLDAPAttributeMap.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIAbLDAPAttributeMap]),
 };
 
-function nsAbLDAPAttributeMapService() {
-}
+function nsAbLDAPAttributeMapService() {}
 
 nsAbLDAPAttributeMapService.prototype = {
-
   classID: NS_ABLDAPATTRIBUTEMAPSERVICE_CID,
 
   mAttrMaps: {},
@@ -221,5 +226,7 @@ nsAbLDAPAttributeMapService.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIAbLDAPAttributeMapService]),
 };
 
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([nsAbLDAPAttributeMap, nsAbLDAPAttributeMapService]);
-
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([
+  nsAbLDAPAttributeMap,
+  nsAbLDAPAttributeMapService,
+]);

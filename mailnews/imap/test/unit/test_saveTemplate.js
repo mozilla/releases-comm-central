@@ -7,9 +7,11 @@
  * creation of folder.
  */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 /* import-globals-from ../../../test/resources/logHelper.js */
 /* import-globals-from ../../../test/resources/asyncTestUtils.js */
@@ -22,11 +24,7 @@ load("../../../resources/messageGenerator.js");
 
 setupIMAPPump();
 
-var tests = [
-  loadImapMessage,
-  saveAsTemplate,
-  endTest,
-];
+var tests = [loadImapMessage, saveAsTemplate, endTest];
 
 // load and update a message in the imap fake server
 function* loadImapMessage() {
@@ -34,9 +32,9 @@ function* loadImapMessage() {
   // create a synthetic message with attachment
   let smsg = gMessageGenerator.makeMessage();
 
-  let msgURI =
-    Services.io.newURI("data:text/plain;base64," +
-                        btoa(smsg.toMessageString()));
+  let msgURI = Services.io.newURI(
+    "data:text/plain;base64," + btoa(smsg.toMessageString())
+  );
   let imapInbox = IMAPPump.daemon.getMailbox("INBOX");
   let message = new imapMessage(msgURI.spec, imapInbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(message);
@@ -58,11 +56,11 @@ function saveAsUrlListener(aUri, aIdentity) {
 }
 
 saveAsUrlListener.prototype = {
-  OnStartRunningUrl(aUrl) {
-  },
+  OnStartRunningUrl(aUrl) {},
   OnStopRunningUrl(aUrl, aExitCode) {
-    let messenger = Cc["@mozilla.org/messenger;1"]
-                      .createInstance(Ci.nsIMessenger);
+    let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+      Ci.nsIMessenger
+    );
     messenger.saveAs(this.uri, false, this.identity, null);
   },
 };
@@ -72,9 +70,11 @@ saveAsUrlListener.prototype = {
 function* saveAsTemplate() {
   let hdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   let uri = IMAPPump.inbox.getUriForMsg(hdr);
-  let identity = MailServices.accounts
-                  .getFirstIdentityForServer(IMAPPump.incomingServer);
-  identity.stationeryFolder = IMAPPump.incomingServer.rootFolder.URI + "/Templates";
+  let identity = MailServices.accounts.getFirstIdentityForServer(
+    IMAPPump.incomingServer
+  );
+  identity.stationeryFolder =
+    IMAPPump.incomingServer.rootFolder.URI + "/Templates";
   let templates = MailUtils.getOrCreateFolder(identity.stationeryFolder);
   // Verify that Templates folder doesn't exist, and then create it.
   Assert.equal(templates.parent, null);
@@ -92,8 +92,10 @@ var mfnListener = {
   },
 };
 
-
 function run_test() {
-  Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
+  Services.prefs.setBoolPref(
+    "mail.server.default.autosync_offline_stores",
+    false
+  );
   async_run_tests(tests);
 }

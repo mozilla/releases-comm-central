@@ -14,7 +14,9 @@ load("../../../resources/abSetup.js");
 /* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/POP3pump.js");
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 /*
  * The address available in the test address book is "PrimaryEmail1@test.invalid"
@@ -32,10 +34,7 @@ var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var kDomainTest = 0;
 var kDomainExample = 1;
 
-var Files = [
-  "../../../data/bugmail1",
-  "../../../data/bugmail3",
-];
+var Files = ["../../../data/bugmail1", "../../../data/bugmail3"];
 
 var hdrs = [];
 
@@ -57,8 +56,9 @@ function run_test() {
 function continueTest() {
   // get the message headers
   let headerEnum = localAccountUtils.inboxFolder.messages;
-  while (headerEnum.hasMoreElements())
+  while (headerEnum.hasMoreElements()) {
     hdrs.push(headerEnum.getNext().QueryInterface(Ci.nsIMsgDBHdr));
+  }
 
   // check with spam properties set on the local server
   doChecks(localAccountUtils.incomingServer);
@@ -204,4 +204,3 @@ function doChecks(server) {
   spamSettings.initialize(server);
   Assert.ok(spamSettings.checkWhiteList(hdrs[kDomainTest]));
 }
-

@@ -1,5 +1,7 @@
 /* exported mailTestUtils */
-var {mailTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/mailTestUtils.js");
+var { mailTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/mailTestUtils.js"
+);
 
 // Ensure the profile directory is set up
 do_get_profile();

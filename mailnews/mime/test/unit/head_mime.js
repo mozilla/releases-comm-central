@@ -6,12 +6,20 @@
  * Utility code for converting encoded MIME data.
  */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {mailTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/mailTestUtils.js");
-var {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
-const {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+var { mailTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/mailTestUtils.js"
+);
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
+const { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 
 var CC = Components.Constructor;
 
@@ -39,18 +47,25 @@ class DummyMsgHeader {
     this.flags = 0;
     this.folder = null;
   }
-  getStringProperty(aProperty) { return this.mProperties[aProperty]; }
-  setStringProperty(aProperty, aVal) { this.mProperties[aProperty] = aVal; }
+  getStringProperty(aProperty) {
+    return this.mProperties[aProperty];
+  }
+  setStringProperty(aProperty, aVal) {
+    this.mProperties[aProperty] = aVal;
+  }
   getUint32Property(aProperty) {
-    if (aProperty in this.mProperties)
+    if (aProperty in this.mProperties) {
       return parseInt(this.mProperties[aProperty]);
+    }
     return 0;
   }
   setUint32Property(aProperty, aVal) {
     this.mProperties[aProperty] = aVal.toString();
   }
-  markHasAttachments(hasAttachments) { }
-  get mime2DecodedSubject() { return this.subject; }
+  markHasAttachments(hasAttachments) {}
+  get mime2DecodedSubject() {
+    return this.subject;
+  }
 }
 
 function apply_mime_conversion(msgUri, headerSink = {}) {
@@ -64,7 +79,9 @@ function apply_mime_conversion(msgUri, headerSink = {}) {
     securityInfo: null,
     onMsgHasRemoteContent(aMsgHdr, aContentURI) {},
     dummyMsgHeader: new DummyMsgHeader(),
-    get properties() { return null; },
+    get properties() {
+      return null;
+    },
     resetProperties() {},
     QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgHeaderSink]),
   };
@@ -73,17 +90,22 @@ function apply_mime_conversion(msgUri, headerSink = {}) {
   let fullHeaderSink = Object.create(headerSink);
   for (let name of Object.getOwnPropertyNames(stubHeaderSink)) {
     if (!(name in headerSink)) {
-      Object.defineProperty(fullHeaderSink, name,
-        Object.getOwnPropertyDescriptor(stubHeaderSink, name));
+      Object.defineProperty(
+        fullHeaderSink,
+        name,
+        Object.getOwnPropertyDescriptor(stubHeaderSink, name)
+      );
     }
   }
 
-  let msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
-                    .createInstance(Ci.nsIMsgWindow);
+  let msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
+    Ci.nsIMsgWindow
+  );
   msgWindow.msgHeaderSink = fullHeaderSink;
 
-  let messenger = Cc["@mozilla.org/messenger;1"]
-                    .createInstance(Ci.nsIMessenger);
+  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+    Ci.nsIMessenger
+  );
   let service = messenger.messageServiceFromURI(msgUri);
 
   // This is what we listen on in the end.
@@ -93,18 +115,19 @@ function apply_mime_conversion(msgUri, headerSink = {}) {
   let url = {};
   service.GetUrlForUri(msgUri, url, msgWindow);
 
-  let channel =
-    Services.io.newChannelFromURI(url.value, null,
-                             Services.scriptSecurityManager.getSystemPrincipal(),
-                             null,
-                             Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                             Ci.nsIContentPolicy.TYPE_OTHER);
+  let channel = Services.io.newChannelFromURI(
+    url.value,
+    null,
+    Services.scriptSecurityManager.getSystemPrincipal(),
+    null,
+    Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+    Ci.nsIContentPolicy.TYPE_OTHER
+  );
 
   // Make the MIME converter, using the listener we first set up.
   let converter = Cc["@mozilla.org/streamConverters;1"]
-                    .getService(Ci.nsIStreamConverterService)
-                    .asyncConvertData("message/rfc822", "text/html",
-                                      listener, channel);
+    .getService(Ci.nsIStreamConverterService)
+    .asyncConvertData("message/rfc822", "text/html", listener, channel);
 
   // Now load the message, run it through the converter, and wait for all the
   // data to stream through.

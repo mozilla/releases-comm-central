@@ -8,14 +8,16 @@
 /* import-globals-from ../../../test/resources/searchTestUtils.js */
 load("../../../resources/searchTestUtils.js");
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var Contains = Ci.nsMsgSearchOp.Contains;
 var Body = Ci.nsMsgSearchAttrib.Body;
 
 var Files = [
   "../../../data/bugmail1",
-  "../../../data/bodySearchCrash",            // Test for bug 465805.
+  "../../../data/bodySearchCrash", // Test for bug 465805.
   "../../../data/base64-with-whitespace.eml", // Test for bug 1487421.
 ];
 
@@ -26,7 +28,8 @@ var Tests = [
     attrib: Body,
     op: Contains,
     count: 1,
-  }, {
+  },
+  {
     // this appears in base64-with-whitespace.eml
     value: "abcdefghijklmnopqrstuvwxyz",
     attrib: Body,
@@ -54,8 +57,16 @@ var copyListener = {
     let fileName = Files.shift();
     if (fileName) {
       let file = do_get_file(fileName);
-      MailServices.copy.CopyFileMessage(file, localAccountUtils.inboxFolder, null,
-                                        false, 0, "", copyListener, null);
+      MailServices.copy.CopyFileMessage(
+        file,
+        localAccountUtils.inboxFolder,
+        null,
+        false,
+        0,
+        "",
+        copyListener,
+        null
+      );
     } else {
       testBodySearch();
     }
@@ -69,12 +80,14 @@ function testBodySearch() {
   print("Test Body Search");
   var test = Tests.shift();
   if (test) {
-    new TestSearch(localAccountUtils.inboxFolder,
-                   test.value,
-                   test.attrib,
-                   test.op,
-                   test.count,
-                   testBodySearch);
+    new TestSearch(
+      localAccountUtils.inboxFolder,
+      test.value,
+      test.attrib,
+      test.op,
+      test.count,
+      testBodySearch
+    );
   } else {
     do_test_finished();
   }

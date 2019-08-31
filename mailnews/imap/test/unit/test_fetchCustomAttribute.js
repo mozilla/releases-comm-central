@@ -14,7 +14,7 @@ load("../../../resources/asyncTestUtils.js");
 
 // IMAP pump
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Globals
 
@@ -24,8 +24,9 @@ var gMessage = "bugmail10"; // message file used as the test message
 var gCustomValue = "Custom";
 var gCustomList = ["Custom1", "Custom2", "Custom3"];
 
-var gMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
-  .createInstance(Ci.nsIMsgWindow);
+var gMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
+  Ci.nsIMsgWindow
+);
 
 setupIMAPPump("CUSTOM1");
 
@@ -39,8 +40,11 @@ var tests = [
 
 // load and update a message in the imap fake server
 function* loadImapMessage() {
-  let message = new imapMessage(specForFileName(gMessage),
-                          IMAPPump.mailbox.uidnext++, []);
+  let message = new imapMessage(
+    specForFileName(gMessage),
+    IMAPPump.mailbox.uidnext++,
+    []
+  );
   message.xCustomValue = gCustomValue;
   message.xCustomList = gCustomList;
   IMAPPump.mailbox.addMessage(message);
@@ -52,7 +56,11 @@ function* loadImapMessage() {
 // not in a parenthesis group - Bug 750012
 function* testFetchCustomValue() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
-  let uri = IMAPPump.inbox.fetchCustomMsgAttribute("X-CUSTOM-VALUE", msgHdr.messageKey, gMsgWindow);
+  let uri = IMAPPump.inbox.fetchCustomMsgAttribute(
+    "X-CUSTOM-VALUE",
+    msgHdr.messageKey,
+    gMsgWindow
+  );
   uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
   uri.RegisterListener(fetchCustomValueListener);
   yield false;
@@ -72,7 +80,11 @@ var fetchCustomValueListener = {
 // Used to verify that nsIServerResponseParser.msg_fetch() can handle a parenthesis group - Bug 735542
 function* testFetchCustomList() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
-  let uri = IMAPPump.inbox.fetchCustomMsgAttribute("X-CUSTOM-LIST", msgHdr.messageKey, gMsgWindow);
+  let uri = IMAPPump.inbox.fetchCustomMsgAttribute(
+    "X-CUSTOM-LIST",
+    msgHdr.messageKey,
+    gMsgWindow
+  );
   uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
   uri.RegisterListener(fetchCustomListListener);
   yield false;
@@ -95,7 +107,10 @@ function endTest() {
 }
 
 function run_test() {
-  Services.prefs.setBoolPref("mail.server.server1.autosync_offline_stores", false);
+  Services.prefs.setBoolPref(
+    "mail.server.server1.autosync_offline_stores",
+    false
+  );
   async_run_tests(tests);
 }
 

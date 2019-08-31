@@ -11,7 +11,9 @@
  * mangling the message.
  */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var server;
 var sentFolder;
@@ -25,21 +27,19 @@ function msl() {}
 
 msl.prototype = {
   // nsIMsgSendListener
-  onStartSending(aMsgID, aMsgSize) {
-  },
-  onProgress(aMsgID, aProgress, aProgressMax) {
-  },
-  onStatus(aMsgID, aMsg) {
-  },
+  onStartSending(aMsgID, aMsgSize) {},
+  onProgress(aMsgID, aProgress, aProgressMax) {},
+  onStatus(aMsgID, aMsg) {},
   onStopSending(aMsgID, aStatus, aMsg, aReturnFile) {
     try {
       Assert.equal(aStatus, 0);
 
-      do_check_transaction(server.playTransaction(),
-                           ["EHLO test",
-                            "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=" + originalData.length,
-                            "RCPT TO:<" + kTo + ">",
-                            "DATA"]);
+      do_check_transaction(server.playTransaction(), [
+        "EHLO test",
+        "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=" + originalData.length,
+        "RCPT TO:<" + kTo + ">",
+        "DATA",
+      ]);
 
       // Compare data file to what the server received
       Assert.equal(originalData, server._daemon.post);
@@ -49,30 +49,27 @@ msl.prototype = {
       server.stop();
 
       var thread = gThreadManager.currentThread;
-      while (thread.hasPendingEvents())
+      while (thread.hasPendingEvents()) {
         thread.processNextEvent(false);
+      }
     }
   },
-  onGetDraftFolderURI(aFolderURI) {
-  },
-  onSendNotPerformed(aMsgID, aStatus) {
-  },
+  onGetDraftFolderURI(aFolderURI) {},
+  onSendNotPerformed(aMsgID, aStatus) {},
 
   // nsIMsgCopyServiceListener
-  OnStartCopy() {
-  },
-  OnProgress(aProgress, aProgressMax) {
-  },
-  SetMessageKey(aKey) {
-  },
-  GetMessageId(aMessageId) {
-  },
+  OnStartCopy() {},
+  OnProgress(aProgress, aProgressMax) {},
+  SetMessageKey(aKey) {},
+  GetMessageId(aMessageId) {},
   OnStopCopy(aStatus) {
     Assert.equal(aStatus, 0);
     try {
       // Now do a comparison of what is in the sent mail folder
-      let msgData = mailTestUtils
-        .loadMessageToString(sentFolder, mailTestUtils.firstMsgHdr(sentFolder));
+      let msgData = mailTestUtils.loadMessageToString(
+        sentFolder,
+        mailTestUtils.firstMsgHdr(sentFolder)
+      );
 
       // Skip the headers etc that mailnews adds
       var pos = msgData.indexOf("From:");
@@ -90,8 +87,10 @@ msl.prototype = {
   },
 
   // QueryInterface
-  QueryInterface: ChromeUtils.generateQI(["nsIMsgSendListener",
-                                          "nsIMsgCopyServiceListener"]),
+  QueryInterface: ChromeUtils.generateQI([
+    "nsIMsgSendListener",
+    "nsIMsgCopyServiceListener",
+  ]),
 };
 
 function run_test() {
@@ -114,8 +113,9 @@ function run_test() {
 
   Assert.equal(identity.doFcc, true);
 
-  var msgSend = Cc["@mozilla.org/messengercompose/send;1"]
-                  .createInstance(Ci.nsIMsgSend);
+  var msgSend = Cc["@mozilla.org/messengercompose/send;1"].createInstance(
+    Ci.nsIMsgSend
+  );
 
   // Handle the server in a try/catch/finally loop so that we always will stop
   // the server if something fails.
@@ -126,23 +126,35 @@ function run_test() {
 
     // Msg Comp Fields
 
-    var compFields = Cc["@mozilla.org/messengercompose/composefields;1"]
-                       .createInstance(Ci.nsIMsgCompFields);
+    var compFields = Cc[
+      "@mozilla.org/messengercompose/composefields;1"
+    ].createInstance(Ci.nsIMsgCompFields);
 
     compFields.from = identity.email;
     compFields.to = kTo;
 
     var messageListener = new msl();
 
-    msgSend.sendMessageFile(identity, "", compFields, testFile,
-                            false, false, Ci.nsIMsgSend.nsMsgDeliverNow,
-                            null, messageListener, null, null);
+    msgSend.sendMessageFile(
+      identity,
+      "",
+      compFields,
+      testFile,
+      false,
+      false,
+      Ci.nsIMsgSend.nsMsgDeliverNow,
+      null,
+      messageListener,
+      null,
+      null
+    );
 
     server.performTest();
 
     do_timeout(10000, function() {
-      if (!finished)
+      if (!finished) {
         do_throw("Notifications of message send/copy not received");
+      }
     });
 
     do_test_pending();
@@ -152,7 +164,8 @@ function run_test() {
     server.stop();
 
     var thread = gThreadManager.currentThread;
-    while (thread.hasPendingEvents())
+    while (thread.hasPendingEvents()) {
       thread.processNextEvent(true);
+    }
   }
 }

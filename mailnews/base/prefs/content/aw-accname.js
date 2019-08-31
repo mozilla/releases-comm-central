@@ -13,8 +13,9 @@ function acctNamePageValidate() {
 
   // Check if this accountname already exists. If so, return false so that
   // user can enter a different unique account name.
-  if (canAdvance && accountNameExists(accountname))
+  if (canAdvance && accountNameExists(accountname)) {
     canAdvance = false;
+  }
 
   document.documentElement.canAdvance = canAdvance;
 }
@@ -29,18 +30,19 @@ function acctNamePageUnload() {
 }
 
 function acctNamePageInit() {
-    gPrefsBundle = document.getElementById("bundle_prefs");
-    var accountNameInput = document.getElementById("prettyName");
-    if (accountNameInput.value == "") {
-        var pageData = parent.GetPageData();
-        var type = parent.getCurrentServerType(pageData);
-        var accountName;
+  gPrefsBundle = document.getElementById("bundle_prefs");
+  var accountNameInput = document.getElementById("prettyName");
+  if (accountNameInput.value == "") {
+    var pageData = parent.GetPageData();
+    var type = parent.getCurrentServerType(pageData);
+    var accountName;
 
-        if (type == "nntp")
-            accountName = pageData.newsserver.hostname.value;
-        else
-            accountName = pageData.identity.email.value;
-        accountNameInput.value = accountName;
+    if (type == "nntp") {
+      accountName = pageData.newsserver.hostname.value;
+    } else {
+      accountName = pageData.identity.email.value;
     }
-    acctNamePageValidate();
+    accountNameInput.value = accountName;
+  }
+  acctNamePageValidate();
 }

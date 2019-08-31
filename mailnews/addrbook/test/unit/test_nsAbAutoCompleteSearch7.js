@@ -11,7 +11,7 @@ var ACR = Ci.nsIAutoCompleteResult;
 
 // Note the expected arrays are in expected sort order as well.
 
-var results =  [
+var results = [
   { email: "Tomas Doe <tomez.doe@foo.invalid>" }, // 0
   { email: "Tomas Doe <tomez.doe@foo2.invalid>" }, // 1
   { email: "Tomas Doe <tomez.doe@b.example.com>" }, // 2
@@ -21,9 +21,9 @@ var results =  [
 
 var inputs = [
   [
-    { search: "t",            expected: [2, 3, 0, 1, 4] },
-    { search: "tom",          expected: [0, 1, 2, 3, 4] },
-    { search: "tomek",        expected: [4] },
+    { search: "t", expected: [2, 3, 0, 1, 4] },
+    { search: "tom", expected: [0, 1, 2, 3, 4] },
+    { search: "tomek", expected: [4] },
   ],
 ];
 
@@ -41,31 +41,31 @@ acObserver.prototype = {
 
 var PAB_CARD_DATA = [
   {
-    "FirstName": "Tomas",
-    "LastName": "Doe",
-    "DisplayName": "Tomas Doe",
-    "NickName": "tom",
-    "PrimaryEmail": "tomez.doe@foo.invalid",
-    "SecondEmail": "tomez.doe@foo2.invalid",
-    "PreferDisplayName": true,
-    "PopularityIndex": 10,
+    FirstName: "Tomas",
+    LastName: "Doe",
+    DisplayName: "Tomas Doe",
+    NickName: "tom",
+    PrimaryEmail: "tomez.doe@foo.invalid",
+    SecondEmail: "tomez.doe@foo2.invalid",
+    PreferDisplayName: true,
+    PopularityIndex: 10,
   },
   {
-    "FirstName": "Tomas",
-    "LastName": "Doe",
-    "DisplayName": "Tomas Doe",
-    "PrimaryEmail": "tomez.doe@b.example.com",
-    "SecondEmail": "tomez.doe@a.example.com",
-    "PreferDisplayName": true,
-    "PopularityIndex": 200,
+    FirstName: "Tomas",
+    LastName: "Doe",
+    DisplayName: "Tomas Doe",
+    PrimaryEmail: "tomez.doe@b.example.com",
+    SecondEmail: "tomez.doe@a.example.com",
+    PreferDisplayName: true,
+    PopularityIndex: 200,
   },
   {
-    "FirstName": "Tomek",
-    "LastName": "Smith",
-    "DisplayName": "Tomek Smith",
-    "PrimaryEmail": "tomek@example.com",
-    "PreferDisplayName": true,
-    "PopularityIndex": 3,
+    FirstName: "Tomek",
+    LastName: "Smith",
+    DisplayName: "Tomek Smith",
+    PrimaryEmail: "tomek@example.com",
+    PreferDisplayName: true,
+    PopularityIndex: 3,
   },
 ];
 
@@ -83,8 +83,9 @@ function setupAddressBookData(aDirURI, aCardData, aMailListData) {
   }
 
   aCardData.forEach(function(cd) {
-    let card = Cc["@mozilla.org/addressbook/cardproperty;1"]
-      .createInstance(Ci.nsIAbCard);
+    let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+      Ci.nsIAbCard
+    );
     for (var prop in cd) {
       card.setProperty(prop, cd[prop]);
     }
@@ -92,8 +93,9 @@ function setupAddressBookData(aDirURI, aCardData, aMailListData) {
   });
 
   aMailListData.forEach(function(ld) {
-    let list = Cc["@mozilla.org/addressbook/directoryproperty;1"]
-      .createInstance(Ci.nsIAbDirectory);
+    let list = Cc[
+      "@mozilla.org/addressbook/directoryproperty;1"
+    ].createInstance(Ci.nsIAbDirectory);
     list.isMailList = true;
     for (var prop in ld) {
       list[prop] = ld[prop];
@@ -113,8 +115,9 @@ function run_test() {
 
   // Test - Create a new search component
 
-  var acs = Cc["@mozilla.org/autocomplete/search;1?name=addrbook"]
-    .getService(Ci.nsIAutoCompleteSearch);
+  var acs = Cc["@mozilla.org/autocomplete/search;1?name=addrbook"].getService(
+    Ci.nsIAutoCompleteSearch
+  );
 
   var obs = new acObserver();
 
@@ -130,8 +133,14 @@ function run_test() {
       print("... got " + i + ": " + obs._result.getValueAt(i));
     }
     for (let i = 0; i < element.expected.length; i++) {
-      print("... expected " + i + " (result " + element.expected[i] + "): " +
-            results[element.expected[i]].email);
+      print(
+        "... expected " +
+          i +
+          " (result " +
+          element.expected[i] +
+          "): " +
+          results[element.expected[i]].email
+      );
     }
 
     Assert.equal(obs._search, acs);
@@ -142,8 +151,14 @@ function run_test() {
     Assert.equal(obs._result.defaultIndex, 0);
 
     for (let i = 0; i < element.expected.length; ++i) {
-      Assert.equal(obs._result.getValueAt(i), results[element.expected[i]].email);
-      Assert.equal(obs._result.getLabelAt(i), results[element.expected[i]].email);
+      Assert.equal(
+        obs._result.getValueAt(i),
+        results[element.expected[i]].email
+      );
+      Assert.equal(
+        obs._result.getLabelAt(i),
+        results[element.expected[i]].email
+      );
       Assert.equal(obs._result.getCommentAt(i), "");
       Assert.equal(obs._result.getStyleAt(i), "local-abook");
       Assert.equal(obs._result.getImageAt(i), "");

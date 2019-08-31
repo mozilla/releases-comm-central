@@ -7,8 +7,8 @@
 // are called in the correct order. This also tests that the various
 // HeaderParser methods are run correctly.
 
-const {MimeParser} = ChromeUtils.import("resource:///modules/mimeParser.jsm");
-var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
+const { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
+var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.js");
 
 // Utility method to compare objects
 function compare_objects(real, expected) {
@@ -20,12 +20,14 @@ function compare_objects(real, expected) {
     }
     real = newreal;
   }
-  var a = uneval(real), b = uneval(expected);
+  var a = uneval(real),
+    b = uneval(expected);
   // Very long strings don't get printed out fully (unless they're wrong)
-  if ((a.length > 100 || b.length > 100) && (a == b))
+  if ((a.length > 100 || b.length > 100) && a == b) {
     Assert.ok(a == b);
-  else
+  } else {
     Assert.equal(a, b);
+  }
 }
 
 // Returns and deletes object[field] if present, or undefined if not.
@@ -82,8 +84,13 @@ function make_body_test(test, file, opts, partspec) {
 
 // This is the expected part specifier for the multipart-complex1 test file,
 // specified here because it is used in several cases.
-var mpart_complex1 = [["1", 8, 10], ["2", 14, 16], ["3.1", 22, 24],
-    ["4", 29, 31], ["5", 33, 35]];
+var mpart_complex1 = [
+  ["1", 8, 10],
+  ["2", 14, 16],
+  ["3.1", 22, 24],
+  ["4", 29, 31],
+  ["5", 33, 35],
+];
 
 // Format of tests:
 // entry[0] = name of the test
@@ -103,46 +110,104 @@ var parser_tests = [
   make_body_test("Basic multipart", "multipart1", {}, [["1", 10, 12]]),
   make_body_test("Basic multipart", "multipart2", {}, [["1", 8, 11]]),
   make_body_test("Complex multipart", "multipart-complex1", {}, mpart_complex1),
-  make_body_test("Truncated multipart", "multipart-complex2", {},
-    [["1.1.1.1", 21, 25], ["2", 27, 57], ["3", 60, 62]]),
-  make_body_test("No LF multipart", "multipartmalt-detach", {},
-    [["1", 20, 21], ["2.1", 27, 38], ["2.2", 42, 43], ["2.3", 47, 48]]),
-  make_body_test("Raw body", "multipart1", {bodyformat: "raw"}, [["", 4, 14]]),
-  ["Base64 decode 1", read_file("base64-1"), {bodyformat: "decode"},
-    [["", "\r\nHello, world! (Again...)\r\n\r\nLet's see how well base64 text" +
+  make_body_test("Truncated multipart", "multipart-complex2", {}, [
+    ["1.1.1.1", 21, 25],
+    ["2", 27, 57],
+    ["3", 60, 62],
+  ]),
+  make_body_test("No LF multipart", "multipartmalt-detach", {}, [
+    ["1", 20, 21],
+    ["2.1", 27, 38],
+    ["2.2", 42, 43],
+    ["2.3", 47, 48],
+  ]),
+  make_body_test("Raw body", "multipart1", { bodyformat: "raw" }, [
+    ["", 4, 14],
+  ]),
+  [
+    "Base64 decode 1",
+    read_file("base64-1"),
+    { bodyformat: "decode" },
+    [
+      [
+        "",
+        "\r\nHello, world! (Again...)\r\n\r\nLet's see how well base64 text" +
           " is handled.                            Yay, lots of spaces! There" +
           "'s even a CRLF at the end and one at the beginning, but the output" +
-          " shouldn't have it.\r\n"]]],
-  ["Base64 decode 2", read_file("base64-2"), {bodyformat: "decode"},
-    [["", "<html><body>This is base64 encoded HTML text, and the tags shouldn" +
-          "'t be stripped.\r\n<b>Bold text is bold!</b></body></html>\r\n"]]],
+          " shouldn't have it.\r\n",
+      ],
+    ],
+  ],
+  [
+    "Base64 decode 2",
+    read_file("base64-2"),
+    { bodyformat: "decode" },
+    [
+      [
+        "",
+        "<html><body>This is base64 encoded HTML text, and the tags shouldn" +
+          "'t be stripped.\r\n<b>Bold text is bold!</b></body></html>\r\n",
+      ],
+    ],
+  ],
   make_body_test("Base64 nodecode", "base64-1", {}, [["", 4, 9]]),
-  ["QP decode", read_file("bug505221"), {pruneat: "1", bodyformat: "decode"},
-    [["1", '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">\r' +
-           '\n<HTML><HEAD>\r\n<META HTTP-EQUIV="Content-Type" CONTENT="text/h' +
-           'tml; charset=us-ascii">\r\n\r\n\r\n<META content="MSHTML 6.00.600' +
-           '0.16735" name=GENERATOR></HEAD>\r\n<BODY> bbb\r\n</BODY></HTML>']]],
+  [
+    "QP decode",
+    read_file("bug505221"),
+    { pruneat: "1", bodyformat: "decode" },
+    [
+      [
+        "1",
+        '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">\r' +
+          '\n<HTML><HEAD>\r\n<META HTTP-EQUIV="Content-Type" CONTENT="text/h' +
+          'tml; charset=us-ascii">\r\n\r\n\r\n<META content="MSHTML 6.00.600' +
+          '0.16735" name=GENERATOR></HEAD>\r\n<BODY> bbb\r\n</BODY></HTML>',
+      ],
+    ],
+  ],
 
   // Comprehensive tests from the torture test
   make_body_test("Torture regular body", "mime-torture", {}, [
-    ["1", 17, 21], ["2$.1", 58, 75], ["2$.2.1", 83, 97], ["2$.3", 102, 130],
-    ["3$", 155, 7742], ["4", 7747, 8213], ["5", 8218, 8242],
-    ["6$.1.1", 8284, 8301], ["6$.1.2", 8306, 8733], ["6$.2.1", 8742, 9095],
-    ["6$.2.2", 9100, 9354], ["6$.2.3", 9357, 11794], ["6$.2.4", 11797, 12155],
-    ["6$.3", 12161, 12809], ["7$.1", 12844, 12845], ["7$.2", 12852, 13286],
-    ["7$.3", 13288, 13297], ["8$.1", 13331, 13358], ["8$.2", 13364, 13734],
-    ["9$", 13757, 20179], ["10", 20184, 21200], ["11$.1", 21223, 22031],
-    ["11$.2", 22036, 22586], ["12$.1", 22607, 23469], ["12$.2", 23474, 23774],
-    ["12$.3$.1", 23787, 23795], ["12$.3$.2.1", 23803, 23820],
-    ["12$.3$.2.2", 23825, 24633], ["12$.3$.3", 24640, 24836],
-    ["12$.3$.4$", 24848, 25872]]),
-  make_body_test("Torture pruneat", "mime-torture", {"pruneat": "4"},
-    [["4", 7747, 8213]]),
+    ["1", 17, 21],
+    ["2$.1", 58, 75],
+    ["2$.2.1", 83, 97],
+    ["2$.3", 102, 130],
+    ["3$", 155, 7742],
+    ["4", 7747, 8213],
+    ["5", 8218, 8242],
+    ["6$.1.1", 8284, 8301],
+    ["6$.1.2", 8306, 8733],
+    ["6$.2.1", 8742, 9095],
+    ["6$.2.2", 9100, 9354],
+    ["6$.2.3", 9357, 11794],
+    ["6$.2.4", 11797, 12155],
+    ["6$.3", 12161, 12809],
+    ["7$.1", 12844, 12845],
+    ["7$.2", 12852, 13286],
+    ["7$.3", 13288, 13297],
+    ["8$.1", 13331, 13358],
+    ["8$.2", 13364, 13734],
+    ["9$", 13757, 20179],
+    ["10", 20184, 21200],
+    ["11$.1", 21223, 22031],
+    ["11$.2", 22036, 22586],
+    ["12$.1", 22607, 23469],
+    ["12$.2", 23474, 23774],
+    ["12$.3$.1", 23787, 23795],
+    ["12$.3$.2.1", 23803, 23820],
+    ["12$.3$.2.2", 23825, 24633],
+    ["12$.3$.3", 24640, 24836],
+    ["12$.3$.4$", 24848, 25872],
+  ]),
+  make_body_test("Torture pruneat", "mime-torture", { pruneat: "4" }, [
+    ["4", 7747, 8213],
+  ]),
 ];
 
 function test_parser(message, opts, results) {
   var checkingHeaders = !(results instanceof Array);
-  var calls = 0, dataCalls = 0;
+  var calls = 0,
+    dataCalls = 0;
   var fusingParts = extract_field(opts, "_nofuseparts") === undefined;
   var emitter = {
     stack: [],
@@ -160,8 +225,9 @@ function test_parser(message, opts, results) {
       if (checkingHeaders) {
         Assert.ok(partNum in results);
         compare_objects(headers, results[partNum]);
-        if (fusingParts)
+        if (fusingParts) {
           Assert.equal(this.partData, "");
+        }
       }
     },
     deliverPartData: function emitter_partData(partNum, data) {
@@ -176,8 +242,9 @@ function test_parser(message, opts, results) {
           }
         }
       } finally {
-        if (!fusingParts)
+        if (!fusingParts) {
           dataCalls++;
+        }
       }
     },
     endPart: function emitter_endPart(partNum) {
@@ -190,11 +257,14 @@ function test_parser(message, opts, results) {
       Assert.equal(this.stack.pop(), partNum);
     },
   };
-  opts.onerror = function(e) { throw e; };
+  opts.onerror = function(e) {
+    throw e;
+  };
   MimeParser.parseSync(message, emitter, opts);
   Assert.equal(calls, 2);
-  if (!checkingHeaders)
+  if (!checkingHeaders) {
     Assert.equal(dataCalls, results.length);
+  }
 }
 
 // Format of tests:
@@ -204,18 +274,18 @@ function test_parser(message, opts, results) {
 var header_tests = [
   // Parameter passing
   ["multipart/related", MimeParser.HEADER_PARAMETER, ["multipart/related", {}]],
-  ["a ; b=v", MimeParser.HEADER_PARAMETER, ["a", {"b": "v"}]],
-  ["a ; b='v'", MimeParser.HEADER_PARAMETER, ["a", {"b": "'v'"}]],
-  ['a; b = "v"', MimeParser.HEADER_PARAMETER, ["a", {"b": "v"}]],
-  ["a;b=1;b=2", MimeParser.HEADER_PARAMETER, ["a", {"b": "1"}]],
-  ["a;b=2;b=1", MimeParser.HEADER_PARAMETER, ["a", {"b": "2"}]],
-  ['a;b="a;b"', MimeParser.HEADER_PARAMETER, ["a", {"b": "a;b"}]],
-  ['a;b="\\\\"', MimeParser.HEADER_PARAMETER, ["a", {"b": "\\"}]],
-  ['a;b="a\\b\\c"', MimeParser.HEADER_PARAMETER, ["a", {"b": "abc"}]],
-  ["a;b=1;c=2", MimeParser.HEADER_PARAMETER, ["a", {"b": "1", "c": "2"}]],
-  ['a;b="a\\', MimeParser.HEADER_PARAMETER, ["a", {"b": "a"}]],
+  ["a ; b=v", MimeParser.HEADER_PARAMETER, ["a", { b: "v" }]],
+  ["a ; b='v'", MimeParser.HEADER_PARAMETER, ["a", { b: "'v'" }]],
+  ['a; b = "v"', MimeParser.HEADER_PARAMETER, ["a", { b: "v" }]],
+  ["a;b=1;b=2", MimeParser.HEADER_PARAMETER, ["a", { b: "1" }]],
+  ["a;b=2;b=1", MimeParser.HEADER_PARAMETER, ["a", { b: "2" }]],
+  ['a;b="a;b"', MimeParser.HEADER_PARAMETER, ["a", { b: "a;b" }]],
+  ['a;b="\\\\"', MimeParser.HEADER_PARAMETER, ["a", { b: "\\" }]],
+  ['a;b="a\\b\\c"', MimeParser.HEADER_PARAMETER, ["a", { b: "abc" }]],
+  ["a;b=1;c=2", MimeParser.HEADER_PARAMETER, ["a", { b: "1", c: "2" }]],
+  ['a;b="a\\', MimeParser.HEADER_PARAMETER, ["a", { b: "a" }]],
   ["a;b", MimeParser.HEADER_PARAMETER, ["a", {}]],
-  ['a;b=";";c=d', MimeParser.HEADER_PARAMETER, ["a", {"b": ";", "c": "d"}]],
+  ['a;b=";";c=d', MimeParser.HEADER_PARAMETER, ["a", { b: ";", c: "d" }]],
 ];
 
 function test_header(headerValue, flags, expected) {
@@ -227,8 +297,9 @@ function test_header(headerValue, flags, expected) {
 function run_test() {
   for (let test of parser_tests) {
     dump("Testing message " + test[0]);
-    if (test[1] instanceof Array)
+    if (test[1] instanceof Array) {
       dump(" using " + test[1].length + " packets");
+    }
     dump("\n");
     test_parser(test[1], test[2], test[3]);
   }

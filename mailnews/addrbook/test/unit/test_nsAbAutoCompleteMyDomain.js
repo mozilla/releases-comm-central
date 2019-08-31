@@ -20,8 +20,9 @@ acObserver.prototype = {
 function run_test() {
   // Test - Create a new search component
 
-  var acs = Cc["@mozilla.org/autocomplete/search;1?name=mydomain"]
-    .getService(Ci.nsIAutoCompleteSearch);
+  var acs = Cc["@mozilla.org/autocomplete/search;1?name=mydomain"].getService(
+    Ci.nsIAutoCompleteSearch
+  );
 
   var obs = new acObserver();
   let obsNews = new acObserver();
@@ -36,8 +37,14 @@ function run_test() {
 
   // Set up autocomplete parameters
   let params = JSON.stringify({ idKey: identity.key, type: "addr_to" });
-  let paramsNews = JSON.stringify({ idKey: identity.key, type: "addr_newsgroups" });
-  let paramsFollowup = JSON.stringify({ idKey: identity.key, type: "addr_followup" });
+  let paramsNews = JSON.stringify({
+    idKey: identity.key,
+    type: "addr_newsgroups",
+  });
+  let paramsFollowup = JSON.stringify({
+    idKey: identity.key,
+    type: "addr_followup",
+  });
 
   // Test - Valid search - this should return no results (autocomplete disabled)
   acs.startSearch("test", params, null, obs);
@@ -102,7 +109,6 @@ function run_test() {
   // No autocomplete for addr_followup!
   acs.startSearch("a@b", paramsFollowup, null, obsFollowup);
   Assert.ok(obsFollowup._result == null || obsFollowup._result.matchCount == 0);
-
 
   // Test - Add default domain
 

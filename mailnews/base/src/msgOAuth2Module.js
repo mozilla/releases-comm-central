@@ -4,10 +4,14 @@
 
 "use strict";
 
-var {OAuth2} = ChromeUtils.import("resource:///modules/OAuth2.jsm");
-var {OAuth2Providers} = ChromeUtils.import("resource:///modules/OAuth2Providers.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { OAuth2 } = ChromeUtils.import("resource:///modules/OAuth2.jsm");
+var { OAuth2Providers } = ChromeUtils.import(
+  "resource:///modules/OAuth2Providers.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
 function OAuth2Module() {
   this._refreshToken = "";
@@ -19,18 +23,25 @@ OAuth2Module.prototype = {
 
   _loadOAuthClientDetails(aIssuer) {
     let details = OAuth2Providers.getIssuerDetails(aIssuer);
-    if (details)
+    if (details) {
       [this._appKey, this._appSecret, this._authURI, this._tokenURI] = details;
-    else
+    } else {
       throw Cr.NS_ERROR_INVALID_ARGUMENT;
+    }
   },
   initFromSmtp(aServer) {
-    return this._initPrefs("mail.smtpserver." + aServer.key + ".",
-      aServer.username, aServer.hostname);
+    return this._initPrefs(
+      "mail.smtpserver." + aServer.key + ".",
+      aServer.username,
+      aServer.hostname
+    );
   },
   initFromMail(aServer) {
-    return this._initPrefs("mail.server." + aServer.key + ".",
-      aServer.username, aServer.realHostName);
+    return this._initPrefs(
+      "mail.server." + aServer.key + ".",
+      aServer.username,
+      aServer.realHostName
+    );
   },
   _initPrefs(root, aUsername, aHostname) {
     // Load all of the parameters from preferences.
@@ -64,25 +75,27 @@ OAuth2Module.prototype = {
     this._scope = scope;
 
     // Define the OAuth property and store it.
-    this._oauth = new OAuth2(this._authURI, scope, this._appKey,
-      this._appSecret);
+    this._oauth = new OAuth2(
+      this._authURI,
+      scope,
+      this._appKey,
+      this._appSecret
+    );
     this._oauth.authURI = this._authURI;
     this._oauth.tokenURI = this._tokenURI;
 
     // Try hinting the username...
-    this._oauth.extraAuthParams = [
-      ["login_hint", aUsername],
-    ];
+    this._oauth.extraAuthParams = [["login_hint", aUsername]];
 
     // Set the window title to something more useful than "Unnamed"
-    this._oauth.requestWindowTitle =
-      Services.strings.createBundle("chrome://messenger/locale/messenger.properties")
-                      .formatStringFromName("oauth2WindowTitle", [aUsername, aHostname]);
+    this._oauth.requestWindowTitle = Services.strings
+      .createBundle("chrome://messenger/locale/messenger.properties")
+      .formatStringFromName("oauth2WindowTitle", [aUsername, aHostname]);
 
     // This stores the refresh token in the login manager.
     Object.defineProperty(this._oauth, "refreshToken", {
       get: () => this.refreshToken,
-      set: (token) => this.refreshToken = token,
+      set: token => (this.refreshToken = token),
     });
 
     return true;
@@ -91,8 +104,9 @@ OAuth2Module.prototype = {
   get refreshToken() {
     let logins = Services.logins.findLogins(this._loginUrl, null, this._scope);
     for (let login of logins) {
-      if (login.username == this._username)
+      if (login.username == this._username) {
         return login.password;
+      }
     }
     return "";
   },
@@ -103,8 +117,9 @@ OAuth2Module.prototype = {
     for (let login of logins) {
       if (login.username == this._username) {
         if (token) {
-          let propBag = Cc["@mozilla.org/hash-property-bag;1"].
-                        createInstance(Ci.nsIWritablePropertyBag);
+          let propBag = Cc["@mozilla.org/hash-property-bag;1"].createInstance(
+            Ci.nsIWritablePropertyBag
+          );
           propBag.setProperty("password", token);
           Services.logins.modifyLogin(login, propBag);
         } else {
@@ -116,10 +131,18 @@ OAuth2Module.prototype = {
 
     // Unless the token is null, we need to create and fill in a new login
     if (token) {
-      let login = Cc["@mozilla.org/login-manager/loginInfo;1"]
-                    .createInstance(Ci.nsILoginInfo);
-      login.init(this._loginUrl, null, this._scope, this._username, token,
-        "", "");
+      let login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
+        Ci.nsILoginInfo
+      );
+      login.init(
+        this._loginUrl,
+        null,
+        this._scope,
+        this._username,
+        token,
+        "",
+        ""
+      );
       Services.logins.addLogin(login);
     }
     return token;
@@ -132,18 +155,29 @@ OAuth2Module.prototype = {
         this.onPromptAuthAvailable(callback);
       },
 
-      onPromptAuthAvailable: (callback) => {
-        oauth.connect(() => {
-          aListener.onSuccess(btoa(`user=${this._username}\x01auth=Bearer ${oauth.accessToken}\x01\x01`));
-          if (callback) {
-            callback.onAuthResult(true);
-          }
-        }, () => {
-          aListener.onFailure(Cr.NS_ERROR_ABORT);
-          if (callback) {
-            callback.onAuthResult(false);
-          }
-        }, aWithUI, false);
+      onPromptAuthAvailable: callback => {
+        oauth.connect(
+          () => {
+            aListener.onSuccess(
+              btoa(
+                `user=${this._username}\x01auth=Bearer ${
+                  oauth.accessToken
+                }\x01\x01`
+              )
+            );
+            if (callback) {
+              callback.onAuthResult(true);
+            }
+          },
+          () => {
+            aListener.onFailure(Cr.NS_ERROR_ABORT);
+            if (callback) {
+              callback.onAuthResult(false);
+            }
+          },
+          aWithUI,
+          false
+        );
       },
       onPromptCanceled() {
         aListener.onFailure(Cr.NS_ERROR_ABORT);
@@ -151,8 +185,9 @@ OAuth2Module.prototype = {
       onPromptStart() {},
     };
 
-    let asyncprompter = Cc["@mozilla.org/messenger/msgAsyncPrompter;1"]
-                          .getService(Ci.nsIMsgAsyncPrompter);
+    let asyncprompter = Cc[
+      "@mozilla.org/messenger/msgAsyncPrompter;1"
+    ].getService(Ci.nsIMsgAsyncPrompter);
     let promptkey = this._loginUrl + "/" + this._username;
     asyncprompter.queueAsyncAuthPrompt(promptkey, false, promptlistener);
   },

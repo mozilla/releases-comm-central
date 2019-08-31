@@ -7,8 +7,12 @@
  *  for testing purposes.
  */
 
-var {toXPCOMArray} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { toXPCOMArray } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 /**
  * Represents a set of synthetic messages, also supporting insertion into and
@@ -31,17 +35,19 @@ var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 function SyntheticMessageSet(aSynMessages, aMsgFolders, aFolderIndices) {
   this.synMessages = aSynMessages;
 
-  if (Array.isArray(aMsgFolders))
+  if (Array.isArray(aMsgFolders)) {
     this.msgFolders = aMsgFolders;
-  else if (aMsgFolders)
+  } else if (aMsgFolders) {
     this.msgFolders = [aMsgFolders];
-  else
+  } else {
     this.msgFolders = [];
+  }
 
-  if (aFolderIndices == null)
+  if (aFolderIndices == null) {
     this.folderIndices = aSynMessages.map(_ => null);
-  else
+  } else {
     this.folderIndices = aFolderIndices;
+  }
 }
 SyntheticMessageSet.prototype = {
   /**
@@ -53,8 +59,9 @@ SyntheticMessageSet.prototype = {
    */
   _trackMessageAddition(aFolder, aMessageIndex) {
     let aFolderIndex = this.msgFolders.indexOf(aFolder);
-    if (aFolderIndex == -1)
+    if (aFolderIndex == -1) {
       aFolderIndex = this.msgFolders.push(aFolder) - 1;
+    }
     this.folderIndices[aMessageIndex] = aFolderIndex;
     return this.synMessages[aMessageIndex];
   },
@@ -123,13 +130,14 @@ SyntheticMessageSet.prototype = {
    * @return a JS iterator of the message headers for all messages inserted into
    *     a folder.
    */
-  * msgHdrs() {
+  *msgHdrs() {
     // get the databases
     let msgDatabases = this.msgFolders.map(folder => folder.msgDatabase);
     for (let [iMsg, synMsg] of this.synMessages.entries()) {
       let folderIndex = this.folderIndices[iMsg];
-      if (folderIndex != null)
+      if (folderIndex != null) {
         yield msgDatabases[folderIndex].getMsgHdrForMessageID(synMsg.messageId);
+      }
     }
   },
   /**
@@ -144,8 +152,7 @@ SyntheticMessageSet.prototype = {
    *     into a folder.
    */
   get xpcomHdrArray() {
-    return toXPCOMArray(this.msgHdrs(),
-                        Ci.nsIMutableArray);
+    return toXPCOMArray(this.msgHdrs(), Ci.nsIMutableArray);
   },
   /**
    * @return a list where each item is a list with two elements; the first is
@@ -158,7 +165,9 @@ SyntheticMessageSet.prototype = {
       let folderIndex = this.folderIndices[iMsg];
       if (folderIndex != null) {
         let [folder, msgHdrs] = results[folderIndex];
-        msgHdrs.push(folder.msgDatabase.getMsgHdrForMessageID(synMsg.messageId));
+        msgHdrs.push(
+          folder.msgDatabase.getMsgHdrForMessageID(synMsg.messageId)
+        );
       }
     }
     return results;
@@ -167,10 +176,9 @@ SyntheticMessageSet.prototype = {
    * @return a generator that yields [nsIMsgFolder, nsIMutableArray of the
    *     messages from the set in that folder].
    */
-  * foldersWithXpcomHdrArrays() {
+  *foldersWithXpcomHdrArrays() {
     for (let [folder, msgHdrs] of this.foldersWithMsgHdrs) {
-      yield [folder, toXPCOMArray(msgHdrs,
-                                  Ci.nsIMutableArray)];
+      yield [folder, toXPCOMArray(msgHdrs, Ci.nsIMutableArray)];
     }
   },
   /**
@@ -222,9 +230,12 @@ SyntheticMessageSet.prototype = {
 
     let str = aIsJunk ? "junk" : "notjunk";
     let xpcomHdrArray = toXPCOMArray(msgHdrs, Ci.nsIMutableArray);
-    MailServices.mfn.notifyItemEvent(xpcomHdrArray,
-                                     "JunkStatusChanged",
-                                     null, str);
+    MailServices.mfn.notifyItemEvent(
+      xpcomHdrArray,
+      "JunkStatusChanged",
+      null,
+      str
+    );
   },
 
   /**
@@ -234,10 +245,14 @@ SyntheticMessageSet.prototype = {
   slice(...aArgs) {
     let slicedMessages = this.synMessages.slice(...aArgs);
     let slicedIndices = this.folderIndices.slice(...aArgs);
-    let sliced = new SyntheticMessageSet(slicedMessages, this.msgFolders,
-                                         slicedIndices);
-    if (("glodaMessages" in this) && this.glodaMessages)
+    let sliced = new SyntheticMessageSet(
+      slicedMessages,
+      this.msgFolders,
+      slicedIndices
+    );
+    if ("glodaMessages" in this && this.glodaMessages) {
       sliced.glodaMessages = this.glodaMessages.slice(...aArgs);
+    }
     return sliced;
   },
 };

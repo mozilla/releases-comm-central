@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var nsIDialogParamBlock = Ci.nsIDialogParamBlock;
 var nsIX509Cert = Ci.nsIX509Cert;
@@ -19,10 +19,12 @@ var gEncryptionStatus = -1;
 
 function setText(id, value) {
   var element = document.getElementById(id);
-  if (!element)
+  if (!element) {
     return;
-  if (element.hasChildNodes())
+  }
+  if (element.hasChildNodes()) {
     element.firstChild.remove();
+  }
   var textNode = document.createTextNode(value);
   element.appendChild(textNode);
 }
@@ -33,10 +35,10 @@ function onLoad() {
   paramBlock.objects.QueryInterface(Ci.nsIMutableArray);
   try {
     gSignerCert = paramBlock.objects.queryElementAt(0, nsIX509Cert);
-  } catch (e) { } // maybe null
+  } catch (e) {} // maybe null
   try {
     gEncryptionCert = paramBlock.objects.queryElementAt(1, nsIX509Cert);
-  } catch (e) { } // maybe null
+  } catch (e) {} // maybe null
 
   gSignatureStatus = paramBlock.GetInt(1);
   gEncryptionStatus = paramBlock.GetInt(2);
@@ -60,7 +62,6 @@ function onLoad() {
         sigInfoLabel = "SIValidLabel";
         sigInfo = "SIValid";
         break;
-
 
       case nsICMSMessageErrors.VERIFY_BAD_SIGNATURE:
       case nsICMSMessageErrors.VERIFY_DIGEST_MISMATCH:
@@ -110,12 +111,12 @@ function onLoad() {
         sigInfo_clueless = true;
         break;
       default:
-        Cu.reportError("Unexpected gSignatureStatus: " +
-                       gSignatureStatus);
+        Cu.reportError("Unexpected gSignatureStatus: " + gSignatureStatus);
     }
 
-    document.getElementById("signatureLabel").value =
-      bundle.getString(sigInfoLabel);
+    document.getElementById("signatureLabel").value = bundle.getString(
+      sigInfoLabel
+    );
 
     var label;
     if (sigInfoHeader) {
@@ -159,12 +160,12 @@ function onLoad() {
         encInfo_clueless = 1;
         break;
       default:
-        Cu.reportError("Unexpected gEncryptionStatus: " +
-                       gEncryptionStatus);
+        Cu.reportError("Unexpected gEncryptionStatus: " + gEncryptionStatus);
     }
 
-    document.getElementById("encryptionLabel").value =
-      bundle.getString(encInfoLabel);
+    document.getElementById("encryptionLabel").value = bundle.getString(
+      encInfoLabel
+    );
 
     if (encInfoHeader) {
       label = document.getElementById("encryptionHeader");
@@ -189,28 +190,37 @@ function onLoad() {
       document.getElementById("signerEmail").value = gSignerCert.emailAddress;
     }
     if (gSignerCert.issuerName) {
-      document.getElementById("sigCertIssuedBy").value = gSignerCert.issuerCommonName;
+      document.getElementById("sigCertIssuedBy").value =
+        gSignerCert.issuerCommonName;
     }
   }
 
   if (gEncryptionCert) {
     document.getElementById("encryptionCert").collapsed = false;
     if (gEncryptionCert.subjectName) {
-      document.getElementById("encryptedFor").value = gEncryptionCert.commonName;
+      document.getElementById("encryptedFor").value =
+        gEncryptionCert.commonName;
     }
     if (gEncryptionCert.emailAddress) {
-      document.getElementById("recipientEmail").value = gEncryptionCert.emailAddress;
+      document.getElementById("recipientEmail").value =
+        gEncryptionCert.emailAddress;
     }
     if (gEncryptionCert.issuerName) {
-      document.getElementById("encCertIssuedBy").value = gEncryptionCert.issuerCommonName;
+      document.getElementById("encCertIssuedBy").value =
+        gEncryptionCert.issuerCommonName;
     }
   }
 }
 /* eslint-enable complexity */
 
 function viewCertHelper(parent, cert) {
-  Services.ww.openWindow(parent, "chrome://pippki/content/certViewer.xul",
-                         "_blank", "centerscreen,chrome,titlebar", cert);
+  Services.ww.openWindow(
+    parent,
+    "chrome://pippki/content/certViewer.xul",
+    "_blank",
+    "centerscreen,chrome,titlebar",
+    cert
+  );
 }
 
 function viewSignatureCert() {
@@ -223,9 +233,8 @@ function viewEncryptionCert() {
   if (gEncryptionCert) {
     viewCertHelper(window, gEncryptionCert);
   }
-}
+} // Suite only.
 
-/* globals openHelp */// Suite only.
-function doHelpButton() {
+/* globals openHelp */ function doHelpButton() {
   openHelp("received_security");
 }

@@ -4,7 +4,9 @@
 
 // This tests minimal mime encoding fixed in bug 458685
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 function run_test() {
   var i;
@@ -14,15 +16,24 @@ function run_test() {
     ["\u0436", false, "=?UTF-8?B?0LY=?="], // CYRILLIC SMALL LETTER ZHE
     ["IamASCII", false, "IamASCII"],
     // Although an invalid email, we shouldn't crash on it (bug 479206)
-    ["crash test@foo.invalid>", true, "\"crash test\"@foo.invalid"],
-    ["MXR now displays links to Github log & Blame for\r\n Gaia/Rust/Servo", false,
-     "MXR now displays links to Github log & Blame for\r\n Gaia/Rust/Servo"],
+    ["crash test@foo.invalid>", true, '"crash test"@foo.invalid'],
+    [
+      "MXR now displays links to Github log & Blame for\r\n Gaia/Rust/Servo",
+      false,
+      "MXR now displays links to Github log & Blame for\r\n Gaia/Rust/Servo",
+    ],
     ["-----------------------:", false, "-----------------------:"],
   ];
 
   for (i = 0; i < checks.length; ++i) {
     Assert.equal(
-      MailServices.mimeConverter.encodeMimePartIIStr_UTF8(checks[i][0], checks[i][1], "Subject".length, 72),
-      checks[i][2]);
+      MailServices.mimeConverter.encodeMimePartIIStr_UTF8(
+        checks[i][0],
+        checks[i][1],
+        "Subject".length,
+        72
+      ),
+      checks[i][2]
+    );
   }
 }

@@ -5,15 +5,16 @@
 
 // Tests of override functionality using a demo "foo" type url.
 
-var {
-  JaBaseUrlProperties,
-} = ChromeUtils.import("resource:///modules/jsaccount/JaBaseUrl.jsm");
+var { JaBaseUrlProperties } = ChromeUtils.import(
+  "resource:///modules/jsaccount/JaBaseUrl.jsm"
+);
 
 var extraInterfaces = [Ci.msgIFooUrl];
 
 function newURL() {
-  return Cc["@mozilla.org/jsaccount/testjafoourl;1"]
-           .createInstance(Ci.nsISupports);
+  return Cc["@mozilla.org/jsaccount/testjafoourl;1"].createInstance(
+    Ci.nsISupports
+  );
 }
 
 var tests = [
@@ -58,7 +59,11 @@ var tests = [
   function test_msgIJaUrl() {
     let url = newURL().QueryInterface(Ci.msgIJaUrl);
     url.setUrlType(Ci.nsIMsgMailNewsUrl.eMove);
-    Assert.ok(url.QueryInterface(Ci.nsIMsgMailNewsUrl).IsUrlType(Ci.nsIMsgMailNewsUrl.eMove));
+    Assert.ok(
+      url
+        .QueryInterface(Ci.nsIMsgMailNewsUrl)
+        .IsUrlType(Ci.nsIMsgMailNewsUrl.eMove)
+    );
   },
   function test_msgIFooUrl() {
     let url = newURL().QueryInterface(Ci.nsIInterfaceRequestor);
@@ -70,12 +75,15 @@ var tests = [
 
     url.QueryInterface(Ci.msgIJaUrl).setSpec("https://foo.invalid/bar/");
     Assert.ok(!fooUrl.isAttachment);
-    url.QueryInterface(Ci.msgIJaUrl).setSpec("https://foo.invalid/bar?part=1.4&dummy=stuff");
+    url
+      .QueryInterface(Ci.msgIJaUrl)
+      .setSpec("https://foo.invalid/bar?part=1.4&dummy=stuff");
     Assert.ok(fooUrl.isAttachment);
   },
 ];
 
 function run_test() {
-  for (var test of tests)
+  for (var test of tests) {
     test();
+  }
 }

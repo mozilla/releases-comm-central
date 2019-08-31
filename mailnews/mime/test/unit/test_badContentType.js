@@ -19,8 +19,7 @@ load("../../../resources/messageGenerator.js");
 load("../../../resources/messageModifier.js");
 load("../../../resources/messageInjection.js");
 
-var gMessenger = Cc["@mozilla.org/messenger;1"]
-                   .createInstance(Ci.nsIMessenger);
+var gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
 // Create a message generator
 var gMessageGenerator = new MessageGenerator();
@@ -35,22 +34,27 @@ var imageAttachment =
 var messages = [
   // image attachment (normal content type sanity test)
   {
-    attachments: [{
-      body: imageAttachment,
-      contentType: "image/png",
-      filename: "lines.png",
-      encoding: "base64",
-      format: "",
-    }],
+    attachments: [
+      {
+        body: imageAttachment,
+        contentType: "image/png",
+        filename: "lines.png",
+        encoding: "base64",
+        format: "",
+      },
+    ],
     testContentType: "image/png",
-  }, {
-    attachments: [{
-      body: imageAttachment,
-      contentType: "=?windows-1252?q?application/pdf",
-      filename: "lines.pdf",
-      encoding: "base64",
-      format: "",
-    }],
+  },
+  {
+    attachments: [
+      {
+        body: imageAttachment,
+        contentType: "=?windows-1252?q?application/pdf",
+        filename: "lines.pdf",
+        encoding: "base64",
+        format: "",
+      },
+    ],
     testContentType: "application/pdf",
   },
 ];
@@ -67,7 +71,13 @@ var gStreamListener = {
     gMessageHeaderSink.size = null;
   },
   onStopRequest(aRequest, aStatusCode) {
-    dump("*** ContentType is " + gMessageHeaderSink.contentType + " (expecting " + this.expectedContentType + ")\n\n");
+    dump(
+      "*** ContentType is " +
+        gMessageHeaderSink.contentType +
+        " (expecting " +
+        this.expectedContentType +
+        ")\n\n"
+    );
     Assert.equal(gMessageHeaderSink.contentType, this.expectedContentType);
     this._stream = null;
     async_driver();
@@ -78,8 +88,9 @@ var gStreamListener = {
 
   onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
     if (this._stream === null) {
-      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].
-                    createInstance(Ci.nsIScriptableInputStream);
+      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+        Ci.nsIScriptableInputStream
+      );
       this._stream.init(aInputStream);
     }
     this._stream.read(aCount);
@@ -87,7 +98,13 @@ var gStreamListener = {
 };
 
 var gMessageHeaderSink = {
-  handleAttachment(aContentType, aUrl, aDisplayName, aUri, aIsExternalAttachment) {
+  handleAttachment(
+    aContentType,
+    aUrl,
+    aDisplayName,
+    aUri,
+    aIsExternalAttachment
+  ) {
     gMessageHeaderSink.contentType = aContentType;
   },
 
@@ -106,8 +123,9 @@ var gMessageHeaderSink = {
   resetProperties() {},
 };
 
-var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
-                  .createInstance(Ci.nsIMsgWindow);
+var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
+  Ci.nsIMsgWindow
+);
 msgWindow.msgHeaderSink = gMessageHeaderSink;
 
 function* test_message_attachments(info) {
@@ -129,21 +147,20 @@ function* test_message_attachments(info) {
     true, // have them create the converter
     // additional uri payload, note that "header=" is prepended automatically
     "filter",
-    false);
+    false
+  );
 
   yield false;
 }
 
 /* ===== Driver ===== */
 
-var tests = [
-  parameterizeTest(test_message_attachments, messages),
-];
+var tests = [parameterizeTest(test_message_attachments, messages)];
 
 var gInbox;
 
 function run_test() {
   // use mbox injection because the fake server chokes sometimes right now
-  gInbox = configure_message_injection({mode: "local"});
+  gInbox = configure_message_injection({ mode: "local" });
   async_run_tests(tests);
 }

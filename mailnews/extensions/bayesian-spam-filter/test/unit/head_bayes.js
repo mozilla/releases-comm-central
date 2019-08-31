@@ -1,8 +1,16 @@
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {mailTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/mailTestUtils.js");
-var {localAccountUtils} = ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+var { mailTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/mailTestUtils.js"
+);
+var { localAccountUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/localAccountUtils.js"
+);
 
 var CC = Components.Constructor;
 
@@ -12,7 +20,10 @@ do_get_profile();
 function getSpec(aFileName) {
   var file = do_get_file("resources/" + aFileName);
   var uri = Services.io.newFileURI(file).QueryInterface(Ci.nsIURL);
-  uri = uri.mutate().setQuery("type=application/x-message-display").finalize();
+  uri = uri
+    .mutate()
+    .setQuery("type=application/x-message-display")
+    .finalize();
   return uri.spec;
 }
 

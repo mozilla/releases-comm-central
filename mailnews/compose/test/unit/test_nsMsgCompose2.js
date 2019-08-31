@@ -3,8 +3,9 @@
  * Test suite for nsMsgCompose functions relating to send listeners.
  */
 
-var gMsgCompose = Cc["@mozilla.org/messengercompose/compose;1"]
-                    .createInstance(Ci.nsIMsgCompose);
+var gMsgCompose = Cc["@mozilla.org/messengercompose/compose;1"].createInstance(
+  Ci.nsIMsgCompose
+);
 
 var numSendListenerFunctions = 6;
 
@@ -18,33 +19,39 @@ sendListener.prototype = {
 
   onStartSending(aMsgID, aMsgSize) {
     this.mReceived |= 0x01;
-    if (this.mAutoRemoveItem == 0x01)
+    if (this.mAutoRemoveItem == 0x01) {
       gMsgCompose.removeMsgSendListener(this);
+    }
   },
   onProgress(aMsgID, aProgress, aProgressMax) {
     this.mReceived |= 0x02;
-    if (this.mAutoRemoveItem == 0x02)
+    if (this.mAutoRemoveItem == 0x02) {
       gMsgCompose.removeMsgSendListener(this);
+    }
   },
   onStatus(aMsgID, aMsg) {
     this.mReceived |= 0x04;
-    if (this.mAutoRemoveItem == 0x04)
+    if (this.mAutoRemoveItem == 0x04) {
       gMsgCompose.removeMsgSendListener(this);
+    }
   },
   onStopSending(aMsgID, aStatus, aMsg, aReturnFile) {
     this.mReceived |= 0x08;
-    if (this.mAutoRemoveItem == 0x08)
+    if (this.mAutoRemoveItem == 0x08) {
       gMsgCompose.removeMsgSendListener(this);
+    }
   },
   onGetDraftFolderURI(aFolderURI) {
     this.mReceived |= 0x10;
-    if (this.mAutoRemoveItem == 0x10)
+    if (this.mAutoRemoveItem == 0x10) {
       gMsgCompose.removeMsgSendListener(this);
+    }
   },
   onSendNotPerformed(aMsgID, aStatus) {
     this.mReceived |= 0x20;
-    if (this.mAutoRemoveItem == 0x20)
+    if (this.mAutoRemoveItem == 0x20) {
       gMsgCompose.removeMsgSendListener(this);
+    }
   },
 };
 
@@ -74,7 +81,7 @@ function run_test() {
   NotifySendListeners();
 
   for (i = 0; i < numSendListenerFunctions + 1; ++i) {
-    Assert.equal(gSLAll[i].mReceived, 0x3F);
+    Assert.equal(gSLAll[i].mReceived, 0x3f);
     gSLAll[i].mReceived = 0;
 
     // And prepare for test 3.
@@ -88,8 +95,9 @@ function run_test() {
   var currentReceived = 0;
 
   for (i = 0; i < numSendListenerFunctions + 1; ++i) {
-    if (i < numSendListenerFunctions)
+    if (i < numSendListenerFunctions) {
       currentReceived += 1 << i;
+    }
 
     Assert.equal(gSLAll[i].mReceived, currentReceived);
     gSLAll[i].mReceived = 0;
@@ -100,10 +108,11 @@ function run_test() {
   NotifySendListeners();
 
   for (i = 0; i < numSendListenerFunctions + 1; ++i) {
-    if (i < numSendListenerFunctions)
+    if (i < numSendListenerFunctions) {
       Assert.equal(gSLAll[i].mReceived, 0);
-    else
-      Assert.equal(gSLAll[i].mReceived, 0x3F);
+    } else {
+      Assert.equal(gSLAll[i].mReceived, 0x3f);
+    }
   }
 
   // Test - Remove main listener

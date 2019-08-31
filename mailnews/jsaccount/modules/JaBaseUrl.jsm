@@ -6,38 +6,41 @@
 
 const EXPORTED_SYMBOLS = ["JaBaseUrlProperties", "JaBaseUrl"];
 
-const {JSAccountUtils} = ChromeUtils.import("resource:///modules/jsaccount/JSAccountUtils.jsm");
+const { JSAccountUtils } = ChromeUtils.import(
+  "resource:///modules/jsaccount/JSAccountUtils.jsm"
+);
 
 // A partial JavaScript implementation of the base server methods.
 
 const JaBaseUrlProperties = {
-
   // The CPP object that delgates to CPP or JS.
-  baseContractID:     "@mozilla.org/jacppurldelegator;1",
+  baseContractID: "@mozilla.org/jacppurldelegator;1",
 
   // Interfaces implemented by the base CPP version of this object.
-  baseInterfaces:     [ Ci.nsIURI,
-                        Ci.nsIURL,
-                        Ci.nsIMsgMailNewsUrl,
-                        Ci.nsIMsgMessageUrl,
-                        Ci.msgIOverride,
-                        Ci.nsISupports,
-                        Ci.nsIInterfaceRequestor,
-                        ],
+  baseInterfaces: [
+    Ci.nsIURI,
+    Ci.nsIURL,
+    Ci.nsIMsgMailNewsUrl,
+    Ci.nsIMsgMessageUrl,
+    Ci.msgIOverride,
+    Ci.nsISupports,
+    Ci.nsIInterfaceRequestor,
+  ],
   // Don't pass Ci.nsISupports to generateQI().
-  baseInterfacesQI:   [ Ci.nsIURI,
-                        Ci.nsIURL,
-                        Ci.nsIMsgMailNewsUrl,
-                        Ci.nsIMsgMessageUrl,
-                        Ci.msgIOverride,
-                        Ci.nsIInterfaceRequestor,
-                        ],
+  baseInterfacesQI: [
+    Ci.nsIURI,
+    Ci.nsIURL,
+    Ci.nsIMsgMailNewsUrl,
+    Ci.nsIMsgMessageUrl,
+    Ci.msgIOverride,
+    Ci.nsIInterfaceRequestor,
+  ],
 
   // We don't typically define this as a creatable component, but if we do use
   // these. Subclasses for particular account types require these defined for
   // that type.
-  contractID:         "@mozilla.org/jsaccount/jaurl;1",
-  classID:            Components.ID("{1E7B42CA-E6D9-408F-A4E4-8D2F82AECBBD}"),
+  contractID: "@mozilla.org/jsaccount/jaurl;1",
+  classID: Components.ID("{1E7B42CA-E6D9-408F-A4E4-8D2F82AECBBD}"),
 };
 
 // Typical boilerplate to include in all implementations.

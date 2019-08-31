@@ -14,20 +14,21 @@ const EXPORTED_SYMBOLS = ["JaBaseMsgFolderProperties", "JaBaseMsgFolder"];
 // A partial JavaScript implementation of the base server methods.
 
 const JaBaseMsgFolderProperties = {
-  baseContractID:     "@mozilla.org/jacppmsgfolderdelegator;1",
-  baseInterfaces:     [ Ci.nsISupports,
-                        Ci.nsIMsgFolder,
-                        Ci.nsIDBChangeListener,
-                        Ci.nsIUrlListener,
-                        Ci.nsIJunkMailClassificationListener,
-                        Ci.nsIMsgTraitClassificationListener,
-                        Ci.nsIRDFResource,
-                        Ci.nsIInterfaceRequestor,
-                        Ci.msgIOverride,
-                      ],
-  delegateInterfaces: [ Ci.nsIMsgFolder ],
-  contractID:         "@mozilla.org/rdf/resource-factory;1?name=testja",
-  classID:            Components.ID("{8508ddeb-3eab-4877-a420-297518f62371}"),
+  baseContractID: "@mozilla.org/jacppmsgfolderdelegator;1",
+  baseInterfaces: [
+    Ci.nsISupports,
+    Ci.nsIMsgFolder,
+    Ci.nsIDBChangeListener,
+    Ci.nsIUrlListener,
+    Ci.nsIJunkMailClassificationListener,
+    Ci.nsIMsgTraitClassificationListener,
+    Ci.nsIRDFResource,
+    Ci.nsIInterfaceRequestor,
+    Ci.msgIOverride,
+  ],
+  delegateInterfaces: [Ci.nsIMsgFolder],
+  contractID: "@mozilla.org/rdf/resource-factory;1?name=testja",
+  classID: Components.ID("{8508ddeb-3eab-4877-a420-297518f62371}"),
 };
 
 function JaBaseMsgFolder(aDelegator, aBaseInterfaces) {
@@ -51,7 +52,9 @@ JaBaseMsgFolder.prototype = {
   _JsPrototypeToDelegate: true,
 
   // QI to the (partially implemented only) interfaces.
-  QueryInterface: ChromeUtils.generateQI(JaBaseMsgFolderProperties.delegateInterfaces),
+  QueryInterface: ChromeUtils.generateQI(
+    JaBaseMsgFolderProperties.delegateInterfaces
+  ),
 
   // Used to access an instance as JS, bypassing XPCOM.
   get wrappedJSObject() {
@@ -62,5 +65,7 @@ JaBaseMsgFolder.prototype = {
   delegateList: null,
 
   // nsIMsgFolder overrides.
-  get incomingServerType() { return "testja"; },
+  get incomingServerType() {
+    return "testja";
+  },
 };

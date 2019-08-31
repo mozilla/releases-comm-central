@@ -4,7 +4,9 @@
 
 this.EXPORTED_SYMBOLS = ["DebugTraceHelper"];
 
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
 var SPACES = "                                                   ";
 var BRIGHT_COLORS = {
@@ -26,7 +28,6 @@ var DARK_COLORS = {
   white: "\x1b[0;37m",
 };
 var STOP_COLORS = "\x1b[0m";
-
 
 /**
  * Example usages:
@@ -55,48 +56,93 @@ var DebugTraceHelper = {
     for (let key in aObj) {
       if (aPat.test(key)) {
         // ignore properties!
-        if (aObj.__lookupGetter__(key) || aObj.__lookupSetter__(key))
+        if (aObj.__lookupGetter__(key) || aObj.__lookupSetter__(key)) {
           continue;
+        }
         // ignore non-functions!
-        if (typeof(aObj[key]) != "function")
+        if (typeof aObj[key] != "function") {
           continue;
+        }
         let name = key;
         let prev = aObj[name];
         aObj[name] = function(...aArgs) {
           let argstr = "";
           for (let arg of aArgs) {
-            if (arg == null)
+            if (arg == null) {
               argstr += " null";
-            else if (typeof(arg) == "function")
+            } else if (typeof arg == "function") {
               argstr += " function " + arg.name;
-            else
+            } else {
               argstr += " " + arg.toString();
+            }
           }
 
           let indent = SPACES.substr(0, aContext.depth++ * 2);
-          dump(indent + "--> " + aSettings.introCode + aDesc + "::" + name +
-               ":" + argstr +
-               STOP_COLORS + "\n");
+          dump(
+            indent +
+              "--> " +
+              aSettings.introCode +
+              aDesc +
+              "::" +
+              name +
+              ":" +
+              argstr +
+              STOP_COLORS +
+              "\n"
+          );
           let ret;
           try {
             ret = prev.apply(this, aArgs);
           } catch (ex) {
             if (ex.stack) {
-              dump(BRIGHT_COLORS.red + "Exception: " + ex + "\n  " +
-                   ex.stack.replace("\n", "\n  ") + STOP_COLORS + "\n");
+              dump(
+                BRIGHT_COLORS.red +
+                  "Exception: " +
+                  ex +
+                  "\n  " +
+                  ex.stack.replace("\n", "\n  ") +
+                  STOP_COLORS +
+                  "\n"
+              );
             } else {
-              dump(BRIGHT_COLORS.red + "Exception: " + ex.fileName + ":" +
-                   ex.lineNumber + ": " + ex + STOP_COLORS + "\n");
+              dump(
+                BRIGHT_COLORS.red +
+                  "Exception: " +
+                  ex.fileName +
+                  ":" +
+                  ex.lineNumber +
+                  ": " +
+                  ex +
+                  STOP_COLORS +
+                  "\n"
+              );
             }
             aContext.depth--;
-            dump(indent + "<-- " + aSettings.outroCode + aDesc + "::" + name +
-                 STOP_COLORS + "\n");
+            dump(
+              indent +
+                "<-- " +
+                aSettings.outroCode +
+                aDesc +
+                "::" +
+                name +
+                STOP_COLORS +
+                "\n"
+            );
             throw ex;
           }
           aContext.depth--;
-          dump(indent + "<-- " + aSettings.outroCode + aDesc + "::" + name +
-               ": " + (ret != null ? ret.toString() : "null") +
-               STOP_COLORS + "\n");
+          dump(
+            indent +
+              "<-- " +
+              aSettings.outroCode +
+              aDesc +
+              "::" +
+              name +
+              ": " +
+              (ret != null ? ret.toString() : "null") +
+              STOP_COLORS +
+              "\n"
+          );
           return ret;
         };
       }

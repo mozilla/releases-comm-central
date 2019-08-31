@@ -35,8 +35,10 @@ var intlPhrases = [
     name: "CJK: Vending Machine",
     actual: "\u81ea\u52d5\u552e\u8ca8\u6a5f",
     encodings: {
-      "utf-8": ["=?utf-8?b?6Ieq5YuV5ZSu6LKo5qmf?=",
-                "\xe8\x87\xaa\xe5\x8b\x95\xe5\x94\xae\xe8\xb2\xa8\xe6\xa9\x9f"],
+      "utf-8": [
+        "=?utf-8?b?6Ieq5YuV5ZSu6LKo5qmf?=",
+        "\xe8\x87\xaa\xe5\x8b\x95\xe5\x94\xae\xe8\xb2\xa8\xe6\xa9\x9f",
+      ],
     },
     searchPhrases: [
       // match bi-gram driven matches starting from the front
@@ -52,10 +54,7 @@ var intlPhrases = [
     encodings: {
       "utf-8": ["=?utf-8?q?aa_bbb?=", "aa bbb"],
     },
-    searchPhrases: [
-      { body: "aa", match: false },
-      { body: "bbb", match: true },
-    ],
+    searchPhrases: [{ body: "aa", match: false }, { body: "bbb", match: true }],
   },
 ];
 
@@ -79,10 +78,8 @@ function* test_index(aPhrase) {
 
     let smsg = gMessageGenerator.makeMessage({
       subject: quoted,
-      body: {charset, encoding: "8bit", body: bodyEncoded},
-      attachments: [
-        {filename: quoted, body: "gabba gabba hey"},
-      ],
+      body: { charset, encoding: "8bit", body: bodyEncoded },
+      attachments: [{ filename: quoted, body: "gabba gabba hey" }],
       // save off the actual value for checking
       callerData: [charset, aPhrase.actual],
     });
@@ -93,7 +90,7 @@ function* test_index(aPhrase) {
   let synSet = new SyntheticMessageSet(messages);
   yield add_sets_to_folder(gInbox, [synSet]);
 
-  yield wait_for_gloda_indexer(synSet, {verifier: verify_index});
+  yield wait_for_gloda_indexer(synSet, { verifier: verify_index });
 }
 
 /**
@@ -108,11 +105,17 @@ function verify_index(smsg, gmsg) {
   LOG.debug("using character set: " + charset + " actual: " + actual);
   LOG.debug("subject: " + subject + " (len: " + subject.length + ")");
   Assert.equal(actual, subject);
-  LOG.debug("body: " + indexedBodyText +
-      " (len: " + indexedBodyText.length + ")");
+  LOG.debug(
+    "body: " + indexedBodyText + " (len: " + indexedBodyText.length + ")"
+  );
   Assert.equal(actual, indexedBodyText);
-  LOG.debug("attachment name:" + attachmentName +
-      " (len: " + attachmentName.length + ")");
+  LOG.debug(
+    "attachment name:" +
+      attachmentName +
+      " (len: " +
+      attachmentName.length +
+      ")"
+  );
   Assert.equal(actual, attachmentName);
 }
 
@@ -124,12 +127,18 @@ function verify_index(smsg, gmsg) {
  *   letters so it's tokenized).
  */
 function* test_token_count() {
-  yield sqlExpectCount(0,
-    "SELECT COUNT(*) FROM messagesText where messagesText MATCH 'aa'");
-  yield sqlExpectCount(1,
-    "SELECT COUNT(*) FROM messagesText where messagesText MATCH 'bbb'");
-  yield sqlExpectCount(1,
-    "SELECT COUNT(*) FROM messagesText where messagesText MATCH '\u81ea\u52d5'");
+  yield sqlExpectCount(
+    0,
+    "SELECT COUNT(*) FROM messagesText where messagesText MATCH 'aa'"
+  );
+  yield sqlExpectCount(
+    1,
+    "SELECT COUNT(*) FROM messagesText where messagesText MATCH 'bbb'"
+  );
+  yield sqlExpectCount(
+    1,
+    "SELECT COUNT(*) FROM messagesText where messagesText MATCH '\u81ea\u52d5'"
+  );
 }
 
 /**
@@ -145,8 +154,12 @@ function* test_fulltextsearch(aPhrase) {
   }
 }
 
-var {GlodaMsgSearcher} = ChromeUtils.import("resource:///modules/gloda/msg_search.js");
-var {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
+var { GlodaMsgSearcher } = ChromeUtils.import(
+  "resource:///modules/gloda/msg_search.js"
+);
+var { GlodaDatastore } = ChromeUtils.import(
+  "resource:///modules/gloda/datastore.js"
+);
 
 /**
  * Pass a query string to the GlodaMsgSearcher, run the corresponding SQL query,
@@ -180,9 +193,11 @@ function msgSearchExpectCount(aCount, aFulltextStr) {
   let i = 0;
   stmt.executeAsync({
     handleResult(aResultSet) {
-      for (let row = aResultSet.getNextRow();
-           row;
-           row = aResultSet.getNextRow()) {
+      for (
+        let row = aResultSet.getNextRow();
+        row;
+        row = aResultSet.getNextRow()
+      ) {
         i++;
       }
     },
@@ -192,12 +207,19 @@ function msgSearchExpectCount(aCount, aFulltextStr) {
     },
 
     handleCompletion(aReason) {
-      if (aReason != Ci.mozIStorageStatementCallback.REASON_FINISHED)
+      if (aReason != Ci.mozIStorageStatementCallback.REASON_FINISHED) {
         do_throw(new Error("Query canceled or aborted!"));
+      }
 
       if (i != aCount) {
-        mark_failure(["Didn't get the expected number of rows: got", i,
-          "expected", aCount, "SQL:", sql]);
+        mark_failure([
+          "Didn't get the expected number of rows: got",
+          i,
+          "expected",
+          aCount,
+          "SQL:",
+          sql,
+        ]);
         do_throw();
       }
       async_driver();
@@ -221,7 +243,6 @@ function* test_query_builder() {
   yield msgSearchExpectCount(0, "\u81ea\u52d5 bbb");
 }
 
-
 /* ===== Driver ===== */
 
 var tests = [
@@ -239,6 +260,6 @@ var gInbox;
 
 function run_test() {
   // use mbox injection because the fake server chokes sometimes right now
-  gInbox = configure_message_injection({mode: "local"});
+  gInbox = configure_message_injection({ mode: "local" });
   glodaHelperRunTests(tests);
 }

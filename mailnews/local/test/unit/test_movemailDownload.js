@@ -3,11 +3,15 @@
  * works correctly.
  */
 
-const {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
+const { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
-var testSubjects = ["[Bug 397009] A filter will let me tag, but not untag",
-                    "Hello, did you receive my bugmail?",
-                    "[Bug 655578] list-id filter broken"];
+var testSubjects = [
+  "[Bug 397009] A filter will let me tag, but not untag",
+  "Hello, did you receive my bugmail?",
+  "[Bug 655578] list-id filter broken",
+];
 
 var gMsgHdrs = [];
 var gMoveMailInbox;
@@ -15,8 +19,11 @@ var gMoveMailInbox;
 function setup(storeID, aHostName) {
   return function _setup() {
     localAccountUtils.loadLocalMailAccount(storeID);
-    let movemailServer =
-      MailServices.accounts.createIncomingServer("", aHostName, "movemail");
+    let movemailServer = MailServices.accounts.createIncomingServer(
+      "",
+      aHostName,
+      "movemail"
+    );
     let workingDir = Services.dirsvc.get("CurWorkD", Ci.nsIFile);
     let workingDirFile = workingDir.clone();
     let fullPath = workingDirFile.path + "/data/movemailspool";
@@ -47,16 +54,22 @@ var gTestArray = [
     Assert.equal(msgCount, 3);
   },
   async function streamMessages() {
-    for (let msgHdr of gMsgHdrs)
+    for (let msgHdr of gMsgHdrs) {
       await streamNextMessage(msgHdr);
+    }
   },
 ];
 
 function run_test() {
   let hostName = "movemail";
-  for (let index = 0; index < localAccountUtils.pluggableStores.length; index++) {
-    add_task(setup(localAccountUtils.pluggableStores[index],
-                   hostName + "-" + index));
+  for (
+    let index = 0;
+    index < localAccountUtils.pluggableStores.length;
+    index++
+  ) {
+    add_task(
+      setup(localAccountUtils.pluggableStores[index], hostName + "-" + index)
+    );
     gTestArray.forEach(x => add_task(x));
   }
 
@@ -64,10 +77,16 @@ function run_test() {
 }
 
 var streamNextMessage = async function(aMsgHdr) {
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+    Ci.nsIMessenger
+  );
   let msgURI = aMsgHdr.folder.getUriForMsg(aMsgHdr);
-  dump("streaming msg " + msgURI + " store token = " +
-       aMsgHdr.getStringProperty("storeToken"));
+  dump(
+    "streaming msg " +
+      msgURI +
+      " store token = " +
+      aMsgHdr.getStringProperty("storeToken")
+  );
   let msgServ = messenger.messageServiceFromURI(msgURI);
   let streamListener = new PromiseTestUtils.PromiseStreamListener();
   msgServ.streamMessage(msgURI, streamListener, null, null, false, "", true);

@@ -31,18 +31,20 @@ load("../../../../resources/messageInjection.js");
 
 /* exported scenarios */
 // Create a message generator
-var msgGen = gMessageGenerator = new MessageGenerator();
+var msgGen = (gMessageGenerator = new MessageGenerator());
 // Create a message scenario generator using that message generator
 var scenarios = new MessageScenarioFactory(msgGen);
 
-var {
-  MsgHdrToMimeMessage,
-} = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
+var { MsgHdrToMimeMessage } = ChromeUtils.import(
+  "resource:///modules/gloda/mimemsg.js"
+);
 
 // While we're at it, we'll also test the correctness of the GlodaAttachment
 // representation, esp. its "I just need the part information to rebuild the
 // URLs" claim.
-var {GlodaFundAttr} = ChromeUtils.import("resource:///modules/gloda/fundattr.js");
+var { GlodaFundAttr } = ChromeUtils.import(
+  "resource:///modules/gloda/fundattr.js"
+);
 
 var partText = new SyntheticPartLeaf("I am text! Woo!");
 var partHtml = new SyntheticPartLeaf(
@@ -90,32 +92,54 @@ var tachExternal = {
     "X-Mozilla-Altered": 'AttachmentDetached; date="Wed Aug 03 11:11:33 2011"',
   },
 };
-var tachText = {filename: "bob.txt", body: "I like cheese!"};
+var tachText = { filename: "bob.txt", body: "I like cheese!" };
 var partTachText = new SyntheticPartLeaf(tachText.body, tachText);
-var tachInlineText = {filename: "foo.txt", body: "Rock the mic",
-                      format: null, charset: null,
-                      disposition: "inline"};
+var tachInlineText = {
+  filename: "foo.txt",
+  body: "Rock the mic",
+  format: null,
+  charset: null,
+  disposition: "inline",
+};
 new SyntheticPartLeaf(tachInlineText.body, tachInlineText);
 
-var tachImage = {filename: "bob.png", contentType: "image/png",
-                 encoding: "base64", charset: null, format: null,
-                 body: "YWJj\n"};
+var tachImage = {
+  filename: "bob.png",
+  contentType: "image/png",
+  encoding: "base64",
+  charset: null,
+  format: null,
+  body: "YWJj\n",
+};
 var partTachImage = new SyntheticPartLeaf(tachImage.body, tachImage);
 
-var relImage = {contentType: "image/png",
-                encoding: "base64", charset: null, format: null,
-                contentId: "part1.foo@bar.invalid",
-                body: "YWJj\n"};
+var relImage = {
+  contentType: "image/png",
+  encoding: "base64",
+  charset: null,
+  format: null,
+  contentId: "part1.foo@bar.invalid",
+  body: "YWJj\n",
+};
 var partRelImage = new SyntheticPartLeaf(relImage.body, relImage);
 
-var tachVCard = {filename: "bob.vcf", contentType: "text/x-vcard",
-                 encoding: "7bit", body: "begin:vcard\nfn:Bob\nend:vcard\n"};
+var tachVCard = {
+  filename: "bob.vcf",
+  contentType: "text/x-vcard",
+  encoding: "7bit",
+  body: "begin:vcard\nfn:Bob\nend:vcard\n",
+};
 var partTachVCard = new SyntheticPartLeaf(tachVCard.body, tachVCard);
 
-var tachApplication = {filename: "funky.funk",
-                       contentType: "application/x-funky", body: "funk!"};
-var partTachApplication = new SyntheticPartLeaf(tachApplication.body,
-                                                tachApplication);
+var tachApplication = {
+  filename: "funky.funk",
+  contentType: "application/x-funky",
+  body: "funk!",
+};
+var partTachApplication = new SyntheticPartLeaf(
+  tachApplication.body,
+  tachApplication
+);
 
 var partTachMessages = [msgGen.makeMessage(), msgGen.makeMessage()];
 
@@ -211,31 +235,36 @@ var messageInfos = [
     name: "S/MIME alternative with text attachment inside",
     // we have to do the attachment packing ourselves on this one.
     bodyPart: new SyntheticPartMultiSignedSMIME(
-      new SyntheticPartMultiMixed([partAlternative, partTachText])),
+      new SyntheticPartMultiMixed([partAlternative, partTachText])
+    ),
   },
   {
     name: "S/MIME alternative with image attachment inside",
     // we have to do the attachment packing ourselves on this one.
     bodyPart: new SyntheticPartMultiSignedSMIME(
-      new SyntheticPartMultiMixed([partAlternative, partTachImage])),
+      new SyntheticPartMultiMixed([partAlternative, partTachImage])
+    ),
   },
   {
     name: "S/MIME alternative with image attachment inside",
     // we have to do the attachment packing ourselves on this one.
     bodyPart: new SyntheticPartMultiSignedSMIME(
-      new SyntheticPartMultiMixed([partAlternative, partTachVCard])),
+      new SyntheticPartMultiMixed([partAlternative, partTachVCard])
+    ),
   },
   {
     name: "S/MIME alternative with app attachment inside",
     // we have to do the attachment packing ourselves on this one.
     bodyPart: new SyntheticPartMultiSignedSMIME(
-      new SyntheticPartMultiMixed([partAlternative, partTachApplication])),
+      new SyntheticPartMultiMixed([partAlternative, partTachApplication])
+    ),
   },
   {
     name: "S/MIME alternative wrapped in mailing list",
-    bodyPart: new SyntheticPartMultiMixed(
-      [new SyntheticPartMultiSignedSMIME(partAlternative),
-       partMailingListFooter]),
+    bodyPart: new SyntheticPartMultiMixed([
+      new SyntheticPartMultiSignedSMIME(partAlternative),
+      partMailingListFooter,
+    ]),
   },
   // -- PGP signature
   // We mainly care that all the content-type parameters show up.
@@ -247,8 +276,10 @@ var messageInfos = [
   {
     // not your average attachment, pack ourselves for now
     name: "attached rfc822",
-    bodyPart: new SyntheticPartMultiMixed([partAlternative,
-                                           partTachMessages[0]]),
+    bodyPart: new SyntheticPartMultiMixed([
+      partAlternative,
+      partTachMessages[0],
+    ]),
   },
   // -- multipart/related
   {
@@ -257,8 +288,10 @@ var messageInfos = [
   },
   {
     name: "multipart/related inside multipart/alternative",
-    bodyPart: new SyntheticPartMultiAlternative([partText,
-      new SyntheticPartMultiRelated([partHtml, partRelImage])]),
+    bodyPart: new SyntheticPartMultiAlternative([
+      partText,
+      new SyntheticPartMultiRelated([partHtml, partRelImage]),
+    ]),
   },
   // -- multipart/digest
   {
@@ -285,16 +318,15 @@ var messageInfos = [
   {
     name: "nested multipart with empty multipart section",
     bodyPart: new SyntheticPartMultiMixed([
-        new SyntheticPartMultiRelated([partAlternative, partTachText]),
-        partEmpty,
-      ]),
+      new SyntheticPartMultiRelated([partAlternative, partTachText]),
+      partEmpty,
+    ]),
   },
   {
     name: "empty multipart section produces no child",
     bodyPart: new SyntheticPartMultiMixed([partText, partEmpty, partTachText]),
   },
 ];
-
 
 function* test_stream_message(info) {
   let synMsg = gMessageGenerator.makeMessage(info);
@@ -324,8 +356,7 @@ function synTransformBody(aSynBodyPart) {
   if (aSynBodyPart._contentType == "text/enriched") {
     // Our job here is just to transform just enough for our example above.
     // We also could have provided a manual translation on the body part.
-    text = text.replace(/bold/g, "B")
-               .replace(/italic/g, "I") + "\n<BR>";
+    text = text.replace(/bold/g, "B").replace(/italic/g, "I") + "\n<BR>";
   }
   return text;
 }
@@ -337,21 +368,32 @@ function verify_body_part_equivalence(aSynBodyPart, aMimePart) {
   // the header representation of the content-type should also match unless
   //  this is an rfc822 part, in which case it should only match for the
   //  actual contents.
-  if (aMimePart.contentType != "message/rfc822")
-    Assert.equal(aSynBodyPart.contentTypeHeaderValue.replace(
-                   deathToNewlineTypeThings, ""),
-                 aMimePart.get("content-type").replace(
-                   deathToNewlineTypeThings, ""));
+  if (aMimePart.contentType != "message/rfc822") {
+    Assert.equal(
+      aSynBodyPart.contentTypeHeaderValue.replace(deathToNewlineTypeThings, ""),
+      aMimePart.get("content-type").replace(deathToNewlineTypeThings, "")
+    );
+  }
 
   // XXX body part checking will get brittle if we ever actually encode things!
-  if (aSynBodyPart.body && !aSynBodyPart._filename &&
-      aSynBodyPart._contentType.startsWith("text/"))
-    Assert.equal(synTransformBody(aSynBodyPart),
-                 aMimePart.body.trim().replace(/\r/g, "")
-                 // Remove stuff added by libmime for HTML parts.
-                 .replace(/[\n]*<meta http-equiv="content-type" content="text\/html; .*">[\n]*/g, "")
-                 .replace(/[\n]+<\/body>/, "</body>")
-                );
+  if (
+    aSynBodyPart.body &&
+    !aSynBodyPart._filename &&
+    aSynBodyPart._contentType.startsWith("text/")
+  ) {
+    Assert.equal(
+      synTransformBody(aSynBodyPart),
+      aMimePart.body
+        .trim()
+        .replace(/\r/g, "")
+        // Remove stuff added by libmime for HTML parts.
+        .replace(
+          /[\n]*<meta http-equiv="content-type" content="text\/html; .*">[\n]*/g,
+          ""
+        )
+        .replace(/[\n]+<\/body>/, "</body>")
+    );
+  }
   if (aSynBodyPart.parts) {
     let iPart;
     let realPartOffsetCompensator = 0;
@@ -367,16 +409,19 @@ function verify_body_part_equivalence(aSynBodyPart, aMimePart) {
       // our special case is the signature, which libmime does not expose to us.
       // ignore! (also, have our too-many-part checker below not trip on this)
       if (subSyn._contentType != PKCS_SIGNATURE_MIME_TYPE) {
-        if (subMime == null)
-          do_throw("No MIME part matching " +
-                   subSyn.contentTypeHeaderValue + "\n");
+        if (subMime == null) {
+          do_throw(
+            "No MIME part matching " + subSyn.contentTypeHeaderValue + "\n"
+          );
+        }
         verify_body_part_equivalence(subSyn, subMime);
       }
     }
     // only check if there are still more mime parts; don't check for a count
     //  mismatch (the PKCS case from above needs to be handled)
-    if (iPart < aMimePart.parts.length)
+    if (iPart < aMimePart.parts.length) {
       do_throw("MIME part has more sub-parts than syn part?");
+    }
   }
 }
 
@@ -385,25 +430,26 @@ function verify_body_part_equivalence(aSynBodyPart, aMimePart) {
  *  receiving a representation; we don't check it for correctness.
  */
 function verify_stream_message(aInfo, aSynMsg, aMsgHdr, aMimeMsg) {
-  if (aMimeMsg == null)
+  if (aMimeMsg == null) {
     do_throw("We really should have gotten a result!");
+  }
   try {
     // aMimeMsg is normalized; it only ever actually gets one child...
     verify_body_part_equivalence(aSynMsg.bodyPart, aMimeMsg.parts[0]);
   } catch (ex) {
     dump("Something was wrong with the MIME rep!\n!!!!!!!!\n");
-    dump("Synthetic looks like:\n  " + aSynMsg.prettyString() +
-         "\n\n");
-    dump("MIME looks like:  \n" + aMimeMsg.prettyString(true, "  ", true) +
-         "\n\n");
+    dump("Synthetic looks like:\n  " + aSynMsg.prettyString() + "\n\n");
+    dump(
+      "MIME looks like:  \n" + aMimeMsg.prettyString(true, "  ", true) + "\n\n"
+    );
     do_throw(ex);
   }
 
   dump("Everything is just fine.\n");
-  dump("Synthetic looks like:\n  " + aSynMsg.prettyString() +
-       "\n\n");
-  dump("MIME looks like:\n  " + aMimeMsg.prettyString(true, "  ", false) +
-       "\n\n");
+  dump("Synthetic looks like:\n  " + aSynMsg.prettyString() + "\n\n");
+  dump(
+    "MIME looks like:\n  " + aMimeMsg.prettyString(true, "  ", false) + "\n\n"
+  );
 
   async_driver();
 }
@@ -422,20 +468,32 @@ function* test_sane_bodies() {
   // this will come out to be 60k, of course.
   Assert.equal(hugeString.length, 60 * Math.pow(2, powahsOfTwo));
 
-  let synMsg = gMessageGenerator.makeMessage(
-    {body: {body: hugeString, contentType: "text/plain"}});
+  let synMsg = gMessageGenerator.makeMessage({
+    body: { body: hugeString, contentType: "text/plain" },
+  });
   let synSet = new SyntheticMessageSet([synMsg]);
   yield add_sets_to_folder(gInbox, [synSet]);
 
   let msgHdr = synSet.getMsgHdr(0);
 
-  MsgHdrToMimeMessage(msgHdr, null, function(aMsgHdr, aMimeMsg) {
-    let bodyPart = aMimeMsg.parts[0];
-    // (the \r gets gone, so it's only 59 per line)
-    if (bodyPart.body.length > (20 * 1024 + 59))
-      do_throw("Mime body length is " + bodyPart.body.length + " bytes long but should not be!");
-    async_driver();
-  }, false, {saneBodySize: true});
+  MsgHdrToMimeMessage(
+    msgHdr,
+    null,
+    function(aMsgHdr, aMimeMsg) {
+      let bodyPart = aMimeMsg.parts[0];
+      // (the \r gets gone, so it's only 59 per line)
+      if (bodyPart.body.length > 20 * 1024 + 59) {
+        do_throw(
+          "Mime body length is " +
+            bodyPart.body.length +
+            " bytes long but should not be!"
+        );
+      }
+      async_driver();
+    },
+    false,
+    { saneBodySize: true }
+  );
 
   yield false;
 }
@@ -473,19 +531,25 @@ var attMessagesParams = [
   },
   {
     name: "attached rfc822",
-    bodyPart: new SyntheticPartMultiMixed([partAlternative,
-                                           partTachNestedMessages[0]]),
+    bodyPart: new SyntheticPartMultiMixed([
+      partAlternative,
+      partTachNestedMessages[0],
+    ]),
   },
   {
     name: "attached rfc822 w. image inside",
-    bodyPart: new SyntheticPartMultiMixed([partAlternative,
-                                           partTachNestedMessages[1]]),
+    bodyPart: new SyntheticPartMultiMixed([
+      partAlternative,
+      partTachNestedMessages[1],
+    ]),
   },
   {
     name: "attached x/funky + attached rfc822 w. (image + x/funky) inside",
-    bodyPart: new SyntheticPartMultiMixed([partAlternative,
-                                           partTachApplication,
-                                           partTachNestedMessages[2]]),
+    bodyPart: new SyntheticPartMultiMixed([
+      partAlternative,
+      partTachApplication,
+      partTachNestedMessages[2],
+    ]),
   },
 ];
 
@@ -508,7 +572,11 @@ var expectedAttachmentsInfo = [
     allUserAttachmentsContentTypes: ["message/rfc822"],
   },
   {
-    allAttachmentsContentTypes: ["application/x-funky", "image/png", "application/x-funky"],
+    allAttachmentsContentTypes: [
+      "application/x-funky",
+      "image/png",
+      "application/x-funky",
+    ],
     allUserAttachmentsContentTypes: ["application/x-funky", "message/rfc822"],
   },
 ];
@@ -522,40 +590,65 @@ function* test_attachments_correctness() {
     let msgHdr = synSet.getMsgHdr(0);
     // dump(synMsg.toMboxString()+"\n\n");
 
-    MsgHdrToMimeMessage(msgHdr, null, function(aMsgHdr, aMimeMsg) {
-      try {
-        let expected = expectedAttachmentsInfo[i];
-        if ("firstAttachmentName" in expected) {
-          let att = aMimeMsg.allUserAttachments[0];
-          Assert.equal(att.name.length, expected.firstAttachmentName.length);
-          for (let j = 0; j < att.name.length; ++j)
-            Assert.equal(att.name.charCodeAt(j), expected.firstAttachmentName.charCodeAt(j));
+    MsgHdrToMimeMessage(
+      msgHdr,
+      null,
+      function(aMsgHdr, aMimeMsg) {
+        try {
+          let expected = expectedAttachmentsInfo[i];
+          if ("firstAttachmentName" in expected) {
+            let att = aMimeMsg.allUserAttachments[0];
+            Assert.equal(att.name.length, expected.firstAttachmentName.length);
+            for (let j = 0; j < att.name.length; ++j) {
+              Assert.equal(
+                att.name.charCodeAt(j),
+                expected.firstAttachmentName.charCodeAt(j)
+              );
+            }
+          }
+
+          Assert.equal(
+            aMimeMsg.allAttachments.length,
+            expected.allAttachmentsContentTypes.length
+          );
+          for (let [j, att] of aMimeMsg.allAttachments.entries()) {
+            Assert.equal(
+              att.contentType,
+              expected.allAttachmentsContentTypes[j]
+            );
+          }
+
+          Assert.equal(
+            aMimeMsg.allUserAttachments.length,
+            expected.allUserAttachmentsContentTypes.length
+          );
+          for (let [j, att] of aMimeMsg.allUserAttachments.entries()) {
+            Assert.equal(
+              att.contentType,
+              expected.allUserAttachmentsContentTypes[j]
+            );
+          }
+
+          // Test
+          for (let att of aMimeMsg.allUserAttachments) {
+            let uri = aMsgHdr.folder.getUriForMsg(aMsgHdr);
+            let glodaAttachment = GlodaFundAttr.glodaAttFromMimeAtt(
+              { folderMessageURI: uri },
+              att
+            );
+            // The GlodaAttachment appends the filename, which is not always
+            // present
+            Assert.ok(glodaAttachment.url.startsWith(att.url));
+          }
+        } catch (e) {
+          dump(aMimeMsg.prettyString() + "\n");
+          do_throw(e);
         }
 
-        Assert.equal(aMimeMsg.allAttachments.length, expected.allAttachmentsContentTypes.length);
-        for (let [j, att] of aMimeMsg.allAttachments.entries())
-          Assert.equal(att.contentType, expected.allAttachmentsContentTypes[j]);
-
-        Assert.equal(aMimeMsg.allUserAttachments.length, expected.allUserAttachmentsContentTypes.length);
-        for (let [j, att] of aMimeMsg.allUserAttachments.entries())
-          Assert.equal(att.contentType, expected.allUserAttachmentsContentTypes[j]);
-
-        // Test
-        for (let att of aMimeMsg.allUserAttachments) {
-          let uri = aMsgHdr.folder.getUriForMsg(aMsgHdr);
-          let glodaAttachment =
-            GlodaFundAttr.glodaAttFromMimeAtt({ folderMessageURI: uri }, att);
-          // The GlodaAttachment appends the filename, which is not always
-          // present
-          Assert.ok(glodaAttachment.url.startsWith(att.url));
-        }
-      } catch (e) {
-        dump(aMimeMsg.prettyString() + "\n");
-        do_throw(e);
-      }
-
-      async_driver();
-    }, false);
+        async_driver();
+      },
+      false
+    );
 
     yield false;
   }
@@ -572,11 +665,13 @@ var weirdMessageInfos = [
   // message has no attachments.
   {
     name: "test message with part 1.2 attachment",
-    attachments: [{
-      body: "attachment",
-      filename: "",
-      format: "",
-    }],
+    attachments: [
+      {
+        body: "attachment",
+        filename: "",
+        format: "",
+      },
+    ],
   },
 ];
 
@@ -614,10 +709,12 @@ var gInbox;
 
 function run_test() {
   registerCleanupFunction(function() {
-    let {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
+    let { GlodaDatastore } = ChromeUtils.import(
+      "resource:///modules/gloda/datastore.js"
+    );
     GlodaDatastore.shutdown();
   });
   // use mbox injection because the fake server chokes sometimes right now
-  gInbox = configure_message_injection({mode: "local"});
+  gInbox = configure_message_injection({ mode: "local" });
   async_run_tests(tests);
 }

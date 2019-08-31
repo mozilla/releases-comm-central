@@ -4,7 +4,7 @@
 
 /* import-globals-from ../../../mail/base/content/mailWindow.js */
 
-var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 var gSubscribeTree = null;
 var gSubscribeBody = null;
@@ -30,21 +30,34 @@ function Stop() {
 }
 
 function SetServerTypeSpecificTextValues() {
-  if (!gServerURI)
+  if (!gServerURI) {
     return;
+  }
 
   let serverType = MailUtils.getExistingFolder(gServerURI).server.type;
 
   // set the server specific ui elements
-  let subscribeLabelString = gSubscribeBundle.getString("subscribeLabel-" + serverType);
-  let currentListTab  = "currentListTab-" + serverType;
-  let currentListTabLabel     = gSubscribeBundle.getString(currentListTab + ".label");
-  let currentListTabAccesskey = gSubscribeBundle.getString(currentListTab + ".accesskey");
+  let subscribeLabelString = gSubscribeBundle.getString(
+    "subscribeLabel-" + serverType
+  );
+  let currentListTab = "currentListTab-" + serverType;
+  let currentListTabLabel = gSubscribeBundle.getString(
+    currentListTab + ".label"
+  );
+  let currentListTabAccesskey = gSubscribeBundle.getString(
+    currentListTab + ".accesskey"
+  );
 
-  document.getElementById("currentListTab").setAttribute("label", currentListTabLabel);
-  document.getElementById("currentListTab").setAttribute("accesskey", currentListTabAccesskey);
-  document.getElementById("newGroupsTab").collapsed = (serverType != "nntp"); // show newGroupsTab only for nntp servers
-  document.getElementById("subscribeLabel").setAttribute("value", subscribeLabelString);
+  document
+    .getElementById("currentListTab")
+    .setAttribute("label", currentListTabLabel);
+  document
+    .getElementById("currentListTab")
+    .setAttribute("accesskey", currentListTabAccesskey);
+  document.getElementById("newGroupsTab").collapsed = serverType != "nntp"; // show newGroupsTab only for nntp servers
+  document
+    .getElementById("subscribeLabel")
+    .setAttribute("value", subscribeLabelString);
 }
 
 function onServerClick(aFolder) {
@@ -67,8 +80,9 @@ var MySubscribeListener = {
 };
 
 function SetUpTree(forceToServer, getOnlyNew) {
-  if (!gServerURI)
+  if (!gServerURI) {
     return;
+  }
 
   var server = MailUtils.getExistingFolder(gServerURI).server;
   try {
@@ -90,30 +104,37 @@ function SetUpTree(forceToServer, getOnlyNew) {
     }
 
     var currentListTab = document.getElementById("currentListTab");
-    if (currentListTab.selected)
+    if (currentListTab.selected) {
       document.getElementById("newGroupsTab").disabled = true;
-    else
+    } else {
       currentListTab.disabled = true;
+    }
 
     document.getElementById("refreshButton").disabled = true;
 
     gStatusFeedback._startMeteors();
     gStatusFeedback.setStatusString("");
-    gStatusFeedback.showStatusString(gSubscribeBundle.getString("pleaseWaitString"));
+    gStatusFeedback.showStatusString(
+      gSubscribeBundle.getString("pleaseWaitString")
+    );
     document.getElementById("stopButton").disabled = false;
 
     gSubscribableServer.startPopulating(msgWindow, forceToServer, getOnlyNew);
   } catch (e) {
-    if (e.result == 0x80550014) {  // NS_MSG_ERROR_OFFLINE
-      gStatusFeedback.setStatusString(gSubscribeBundle.getString("offlineState"));
+    if (e.result == 0x80550014) {
+      // NS_MSG_ERROR_OFFLINE
+      gStatusFeedback.setStatusString(
+        gSubscribeBundle.getString("offlineState")
+      );
     } else {
       Cu.reportError("Failed to populate subscribe tree: " + e);
-      gStatusFeedback.setStatusString(gSubscribeBundle.getString("errorPopulating"));
+      gStatusFeedback.setStatusString(
+        gSubscribeBundle.getString("errorPopulating")
+      );
     }
     Stop();
   }
 }
-
 
 function SubscribeOnUnload() {
   try {
@@ -146,10 +167,11 @@ function SubscribeOnLoad() {
   gSubscribeDeck = document.getElementById("subscribedeck");
 
   // eslint-disable-next-line no-global-assign
-  msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
-                .createInstance(Ci.nsIMsgWindow);
+  msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
+    Ci.nsIMsgWindow
+  );
   msgWindow.domWindow = window;
-  gStatusFeedback = new nsMsgStatusFeedback;
+  gStatusFeedback = new nsMsgStatusFeedback();
   msgWindow.statusFeedback = gStatusFeedback;
   msgWindow.rootDocShell.allowAuth = true;
   msgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
@@ -164,12 +186,15 @@ function SubscribeOnLoad() {
   var serverMenu = document.getElementById("serverMenu");
 
   gServerURI = null;
-  let folder = ("folder" in window.arguments[0]) ? window.arguments[0].folder : null;
+  let folder =
+    "folder" in window.arguments[0] ? window.arguments[0].folder : null;
   if (folder && folder.server instanceof Ci.nsISubscribableServer) {
     serverMenu.menupopup.selectFolder(folder.server.rootMsgFolder);
     try {
       CleanUpSearchView();
-      gSubscribableServer = folder.server.QueryInterface(Ci.nsISubscribableServer);
+      gSubscribableServer = folder.server.QueryInterface(
+        Ci.nsISubscribableServer
+      );
       // Enable (or disable) the search related UI.
       EnableSearchUI();
       gServerURI = folder.server.serverURI;
@@ -222,16 +247,18 @@ function subscribeCancel() {
 
 function SetState(name, state) {
   var changed = gSubscribableServer.setState(name, state);
-  if (changed)
+  if (changed) {
     StateChanged(name, state);
+  }
 }
 
 function StateChanged(name, state) {
   if (gServerURI in gChangeTable) {
     if (name in gChangeTable[gServerURI]) {
       var oldValue = gChangeTable[gServerURI][name];
-      if (oldValue != state)
+      if (oldValue != state) {
         delete gChangeTable[gServerURI][name];
+      }
     } else {
       gChangeTable[gServerURI][name] = state;
     }
@@ -243,16 +270,19 @@ function StateChanged(name, state) {
 
 function InSearchMode() {
   // search is the second card in the deck
-  return (gSubscribeDeck.getAttribute("selectedIndex") == "1");
+  return gSubscribeDeck.getAttribute("selectedIndex") == "1";
 }
 
 function SearchOnClick(event) {
   // we only care about button 0 (left click) events
-  if (event.button != 0 || event.originalTarget.localName != "treechildren") return;
+  if (event.button != 0 || event.originalTarget.localName != "treechildren") {
+    return;
+  }
 
   let treeCellInfo = gSearchTree.getCellAt(event.clientX, event.clientY);
-  if (treeCellInfo.row == -1 || treeCellInfo.row > gSearchView.rowCount - 1)
+  if (treeCellInfo.row == -1 || treeCellInfo.row > gSearchView.rowCount - 1) {
     return;
+  }
 
   if (treeCellInfo.col.id == "subscribedColumn2") {
     if (event.detail != 2) {
@@ -298,7 +328,8 @@ function SetSubscribeState(state) {
 
     var sel = view.selection;
     for (var i = 0; i < sel.getRangeCount(); ++i) {
-      var start = {}, end = {};
+      var start = {},
+        end = {};
       sel.getRangeAt(i, start, end);
       for (var k = start.value; k <= end.value; ++k) {
         if (inSearchMode) {
@@ -320,18 +351,26 @@ function SetSubscribeState(state) {
 }
 
 function ReverseStateFromNode(row) {
-  let name = gSubscribeTree.view.getCellValue(row, gSubscribeTree.columns.nameColumn);
+  let name = gSubscribeTree.view.getCellValue(
+    row,
+    gSubscribeTree.columns.nameColumn
+  );
   SetState(name, !gSubscribableServer.isSubscribed(name), row);
 }
 
 function SubscribeOnClick(event) {
   // we only care about button 0 (left click) events
-  if (event.button != 0 || event.originalTarget.localName != "treechildren")
-   return;
+  if (event.button != 0 || event.originalTarget.localName != "treechildren") {
+    return;
+  }
 
   let treeCellInfo = gSubscribeTree.getCellAt(event.clientX, event.clientY);
-  if (treeCellInfo.row == -1 || treeCellInfo.row > (gSubscribeTree.view.rowCount - 1))
+  if (
+    treeCellInfo.row == -1 ||
+    treeCellInfo.row > gSubscribeTree.view.rowCount - 1
+  ) {
     return;
+  }
 
   if (event.detail == 2) {
     // only toggle subscribed state when double clicking something
@@ -341,8 +380,9 @@ function SubscribeOnClick(event) {
     }
   } else if (event.detail == 1) {
     // if the user single clicks on the subscribe check box, we handle it here
-    if (treeCellInfo.col.id == "subscribedColumn")
+    if (treeCellInfo.col.id == "subscribedColumn") {
       ReverseStateFromNode(treeCellInfo.row);
+    }
   }
 }
 
@@ -401,10 +441,10 @@ function Search() {
     gSubscribableServer.setSearchValue(searchValue);
 
     if (!gSearchView && gSubscribableServer) {
-    gSearchView = gSubscribableServer.QueryInterface(Ci.nsITreeView);
+      gSearchView = gSubscribableServer.QueryInterface(Ci.nsITreeView);
       gSearchView.selection = null;
-    gSearchTree.view = gSearchView;
-  }
+      gSearchTree.view = gSearchView;
+    }
   } else {
     SwitchToNormalView();
   }
@@ -419,15 +459,18 @@ function CleanUpSearchView() {
 
 function onSearchTreeKeyPress(event) {
   // for now, only do something on space key
-  if (event.charCode != KeyEvent.DOM_VK_SPACE)
+  if (event.charCode != KeyEvent.DOM_VK_SPACE) {
     return;
+  }
 
   var treeSelection = gSearchView.selection;
   for (let i = 0; i < treeSelection.getRangeCount(); i++) {
-    var start = {}, end = {};
+    var start = {},
+      end = {};
     treeSelection.getRangeAt(i, start, end);
-    for (let k = start.value; k <= end.value; k++)
+    for (let k = start.value; k <= end.value; k++) {
       ReverseStateFromRow(k);
+    }
 
     // force a repaint
     InvalidateSearchTree();
@@ -436,14 +479,17 @@ function onSearchTreeKeyPress(event) {
 
 function onSubscribeTreeKeyPress(event) {
   // for now, only do something on space key
-  if (event.charCode != KeyEvent.DOM_VK_SPACE)
+  if (event.charCode != KeyEvent.DOM_VK_SPACE) {
     return;
+  }
 
   var treeSelection = gSubscribeTree.view.selection;
   for (let i = 0; i < treeSelection.getRangeCount(); i++) {
-    var start = {}, end = {};
+    var start = {},
+      end = {};
     treeSelection.getRangeAt(i, start, end);
-    for (let k = start.value; k <= end.value; k++)
+    for (let k = start.value; k <= end.value; k++) {
       ReverseStateFromNode(k);
+    }
   }
 }

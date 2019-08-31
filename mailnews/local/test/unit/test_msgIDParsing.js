@@ -9,7 +9,9 @@ var headers =
 
 function testMsgID() {
   localAccountUtils.inboxFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
-  localAccountUtils.inboxFolder.addMessage("From \r\n" + headers + "\r\nhello\r\n");
+  localAccountUtils.inboxFolder.addMessage(
+    "From \r\n" + headers + "\r\nhello\r\n"
+  );
   let msgHdr = localAccountUtils.inboxFolder.firstNewMessage;
   Assert.equal(msgHdr.messageId, "abcmessageid");
 }

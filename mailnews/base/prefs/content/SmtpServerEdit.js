@@ -3,9 +3,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {cleanUpHostName, isLegalHostNameOrIP} = ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { cleanUpHostName, isLegalHostNameOrIP } = ChromeUtils.import(
+  "resource:///modules/hostnameUtils.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var gSmtpServer;
 var gSmtpUsername;
@@ -55,58 +59,67 @@ function onAccept(event) {
 }
 
 function initSmtpSettings(server) {
-    gSmtpUsername = document.getElementById("smtp.username");
-    gSmtpDescription = document.getElementById("smtp.description");
-    gSmtpUsernameLabel = document.getElementById("smtp.username.label");
-    gSmtpHostname = document.getElementById("smtp.hostname");
-    gSmtpPort = document.getElementById("smtp.port");
-    gSmtpAuthMethod = document.getElementById("smtp.authMethod");
-    gSmtpSocketType = document.getElementById("smtp.socketType");
-    gDefaultPort = document.getElementById("smtp.defaultPort");
-    gPort = document.getElementById("smtp.port");
+  gSmtpUsername = document.getElementById("smtp.username");
+  gSmtpDescription = document.getElementById("smtp.description");
+  gSmtpUsernameLabel = document.getElementById("smtp.username.label");
+  gSmtpHostname = document.getElementById("smtp.hostname");
+  gSmtpPort = document.getElementById("smtp.port");
+  gSmtpAuthMethod = document.getElementById("smtp.authMethod");
+  gSmtpSocketType = document.getElementById("smtp.socketType");
+  gDefaultPort = document.getElementById("smtp.defaultPort");
+  gPort = document.getElementById("smtp.port");
 
-    if (server) {
-        gSmtpHostname.value = server.hostname;
-        gSmtpDescription.value = server.description;
-        gSmtpPort.value = server.port;
-        gSmtpUsername.value = server.username;
-        gSmtpAuthMethod.value = server.authMethod;
-        gSmtpSocketType.value = (server.socketType < 4) ? server.socketType : 1;
-    } else {
-        // New server, load default values.
-        gSmtpAuthMethod.value = Services.prefs.getIntPref("mail.smtpserver.default.authMethod");
-        gSmtpSocketType.value = Services.prefs.getIntPref("mail.smtpserver.default.try_ssl");
-    }
+  if (server) {
+    gSmtpHostname.value = server.hostname;
+    gSmtpDescription.value = server.description;
+    gSmtpPort.value = server.port;
+    gSmtpUsername.value = server.username;
+    gSmtpAuthMethod.value = server.authMethod;
+    gSmtpSocketType.value = server.socketType < 4 ? server.socketType : 1;
+  } else {
+    // New server, load default values.
+    gSmtpAuthMethod.value = Services.prefs.getIntPref(
+      "mail.smtpserver.default.authMethod"
+    );
+    gSmtpSocketType.value = Services.prefs.getIntPref(
+      "mail.smtpserver.default.try_ssl"
+    );
+  }
 
-    // Although sslChanged will set a label for cleartext password,
-    // we need to use the long label so that we can size the dialog.
-    setLabelFromStringBundle("authMethod-no", "authNo");
-    setLabelFromStringBundle("authMethod-password-encrypted",
-        "authPasswordEncrypted");
-    setLabelFromStringBundle("authMethod-password-cleartext",
-        "authPasswordCleartextInsecurely");
-    setLabelFromStringBundle("authMethod-kerberos", "authKerberos");
-    setLabelFromStringBundle("authMethod-ntlm", "authNTLM");
-    setLabelFromStringBundle("authMethod-oauth2", "authOAuth2");
-    setLabelFromStringBundle("authMethod-anysecure", "authAnySecure");
-    setLabelFromStringBundle("authMethod-any", "authAny");
+  // Although sslChanged will set a label for cleartext password,
+  // we need to use the long label so that we can size the dialog.
+  setLabelFromStringBundle("authMethod-no", "authNo");
+  setLabelFromStringBundle(
+    "authMethod-password-encrypted",
+    "authPasswordEncrypted"
+  );
+  setLabelFromStringBundle(
+    "authMethod-password-cleartext",
+    "authPasswordCleartextInsecurely"
+  );
+  setLabelFromStringBundle("authMethod-kerberos", "authKerberos");
+  setLabelFromStringBundle("authMethod-ntlm", "authNTLM");
+  setLabelFromStringBundle("authMethod-oauth2", "authOAuth2");
+  setLabelFromStringBundle("authMethod-anysecure", "authAnySecure");
+  setLabelFromStringBundle("authMethod-any", "authAny");
 
-    sizeToContent();
+  sizeToContent();
 
-    sslChanged(false);
-    authMethodChanged(false);
+  sslChanged(false);
+  authMethodChanged(false);
 
-    if (MailServices.smtp.defaultServer)
-      onLockPreference();
+  if (MailServices.smtp.defaultServer) {
+    onLockPreference();
+  }
 
-    // Hide deprecated/hidden auth options, unless selected
-    hideUnlessSelected(document.getElementById("authMethod-anysecure"));
-    hideUnlessSelected(document.getElementById("authMethod-any"));
+  // Hide deprecated/hidden auth options, unless selected
+  hideUnlessSelected(document.getElementById("authMethod-anysecure"));
+  hideUnlessSelected(document.getElementById("authMethod-any"));
 
-    // "STARTTLS, if available" is vulnerable to MITM attacks so we shouldn't
-    // allow users to choose it anymore. Hide the option unless the user already
-    // has it set.
-    hideUnlessSelected(document.getElementById("connectionSecurityType-1"));
+  // "STARTTLS, if available" is vulnerable to MITM attacks so we shouldn't
+  // allow users to choose it anymore. Hide the option unless the user already
+  // has it set.
+  hideUnlessSelected(document.getElementById("connectionSecurityType-1"));
 }
 
 function hideUnlessSelected(element) {
@@ -114,22 +127,24 @@ function hideUnlessSelected(element) {
 }
 
 function setLabelFromStringBundle(elementID, stringName) {
-  document.getElementById(elementID).label =
-    document.getElementById("bundle_messenger").getString(stringName);
+  document.getElementById(elementID).label = document
+    .getElementById("bundle_messenger")
+    .getString(stringName);
 }
 
 // Disables xul elements that have associated preferences locked.
 function onLockPreference() {
   try {
     let allPrefElements = {
-      hostname:     gSmtpHostname,
-      description:  gSmtpDescription,
-      port:         gSmtpPort,
-      authMethod:   gSmtpAuthMethod,
-      try_ssl:      gSmtpSocketType,
+      hostname: gSmtpHostname,
+      description: gSmtpDescription,
+      port: gSmtpPort,
+      authMethod: gSmtpAuthMethod,
+      try_ssl: gSmtpSocketType,
     };
     disableIfLocked(allPrefElements);
-  } catch (e) { // non-fatal
+  } catch (e) {
+    // non-fatal
     Cu.reportError("Error while getting locked prefs: " + e);
   }
 }
@@ -142,25 +157,27 @@ function onLockPreference() {
  * TODO: try to merge this with disableIfLocked function in am-offline.js (bug 755885)
  */
 function disableIfLocked(prefstrArray) {
-  let finalPrefString = "mail.smtpserver." +
-    MailServices.smtp.defaultServer.key + ".";
+  let finalPrefString =
+    "mail.smtpserver." + MailServices.smtp.defaultServer.key + ".";
   let smtpPrefBranch = Services.prefs.getBranch(finalPrefString);
 
-  for (let prefstring in prefstrArray)
-    if (smtpPrefBranch.prefIsLocked(prefstring))
+  for (let prefstring in prefstrArray) {
+    if (smtpPrefBranch.prefIsLocked(prefstring)) {
       prefstrArray[prefstring].disabled = true;
+    }
+  }
 }
 
 function saveSmtpSettings(server) {
-    // dump("Saving to " + server + "\n");
-    if (server) {
-        server.hostname = cleanUpHostName(gSmtpHostname.value);
-        server.description = gSmtpDescription.value;
-        server.port = gSmtpPort.value;
-        server.authMethod = gSmtpAuthMethod.value;
-        server.username = gSmtpUsername.value;
-        server.socketType = gSmtpSocketType.value;
-    }
+  // dump("Saving to " + server + "\n");
+  if (server) {
+    server.hostname = cleanUpHostName(gSmtpHostname.value);
+    server.description = gSmtpDescription.value;
+    server.port = gSmtpPort.value;
+    server.authMethod = gSmtpAuthMethod.value;
+    server.username = gSmtpUsername.value;
+    server.socketType = gSmtpSocketType.value;
+  }
 }
 
 function authMethodChanged(userAction) {
@@ -196,14 +213,21 @@ function sslChanged(userAction) {
   // or the user is causing the default port to change,
   //   and the port is set to the default for the other protocol,
   // then set the port to the default for the new protocol.
-  if ((gPort.value == 0) ||
-      (userAction && (gDefaultPort.value != prevDefaultPort) &&
-       (gPort.value == otherDefaultPort)))
+  if (
+    gPort.value == 0 ||
+    (userAction &&
+      gDefaultPort.value != prevDefaultPort &&
+      gPort.value == otherDefaultPort)
+  ) {
     gPort.value = gDefaultPort.value;
+  }
 
   // switch "insecure password" label
-  setLabelFromStringBundle("authMethod-password-cleartext",
-      socketType == Ci.nsMsgSocketType.SSL ||
-      socketType == Ci.nsMsgSocketType.alwaysSTARTTLS ?
-      "authPasswordCleartextViaSSL" : "authPasswordCleartextInsecurely");
+  setLabelFromStringBundle(
+    "authMethod-password-cleartext",
+    socketType == Ci.nsMsgSocketType.SSL ||
+      socketType == Ci.nsMsgSocketType.alwaysSTARTTLS
+      ? "authPasswordCleartextViaSSL"
+      : "authPasswordCleartextInsecurely"
+  );
 }

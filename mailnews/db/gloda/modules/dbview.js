@@ -9,10 +9,12 @@
 
 this.EXPORTED_SYMBOLS = ["GlodaSyntheticView"];
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-const {Gloda} = ChromeUtils.import("resource:///modules/gloda/public.js");
-const {GlodaMsgSearcher} = ChromeUtils.import("resource:///modules/gloda/msg_search.js");
+const { Gloda } = ChromeUtils.import("resource:///modules/gloda/public.js");
+const { GlodaMsgSearcher } = ChromeUtils.import(
+  "resource:///modules/gloda/msg_search.js"
+);
 
 /**
  * Create a synthetic view suitable for passing to |FolderDisplayWidget.show|.
@@ -48,7 +50,9 @@ function GlodaSyntheticView(aArgs) {
   this.customColumns = [];
 }
 GlodaSyntheticView.prototype = {
-  defaultSort: [[Ci.nsMsgViewSortType.byDate, Ci.nsMsgViewSortOrder.descending]],
+  defaultSort: [
+    [Ci.nsMsgViewSortType.byDate, Ci.nsMsgViewSortOrder.descending],
+  ],
 
   /**
    * Request the search be performed and notification provided to
@@ -68,10 +72,12 @@ GlodaSyntheticView.prototype = {
   },
 
   abortSearch() {
-    if (this.searchListener)
+    if (this.searchListener) {
       this.searchListener.onSearchDone(Cr.NS_OK);
-    if (this.completionCallback)
+    }
+    if (this.completionCallback) {
       this.completionCallback();
+    }
     this.searchListener = null;
     this.completionCallback = null;
   },
@@ -79,8 +85,9 @@ GlodaSyntheticView.prototype = {
   reportResults(aItems) {
     for (let item of aItems) {
       let hdr = item.folderMessage;
-      if (hdr)
+      if (hdr) {
         this.searchListener.onSearchHit(hdr, hdr.folder);
+      }
     }
   },
 
@@ -92,8 +99,9 @@ GlodaSyntheticView.prototype = {
     for (let item of this.collection.items) {
       if (item.headerMessageID == aMessageId) {
         let hdr = item.folderMessage;
-        if (hdr)
+        if (hdr) {
           return hdr;
+        }
       }
     }
     return null;
@@ -116,7 +124,9 @@ GlodaSyntheticView.prototype = {
       visible: Services.prefs.getBoolPref("mail.threadpane.use_correspondents"),
     },
     senderCol: {
-      visible: !Services.prefs.getBoolPref("mail.threadpane.use_correspondents"),
+      visible: !Services.prefs.getBoolPref(
+        "mail.threadpane.use_correspondents"
+      ),
     },
     dateCol: {
       visible: true,
@@ -129,9 +139,11 @@ GlodaSyntheticView.prototype = {
   // --- settings persistence
   getPersistedSetting(aSetting) {
     try {
-      return JSON.parse(Services.prefs.getCharPref(
-        "mailnews.database.global.views." + this.viewType + "." + aSetting
-      ));
+      return JSON.parse(
+        Services.prefs.getCharPref(
+          "mailnews.database.global.views." + this.viewType + "." + aSetting
+        )
+      );
     } catch (e) {
       return this.getDefaultSetting(aSetting);
     }
@@ -143,24 +155,25 @@ GlodaSyntheticView.prototype = {
     );
   },
   getDefaultSetting(aSetting) {
-    if (aSetting == "columns")
+    if (aSetting == "columns") {
       return this.DEFAULT_COLUMN_STATES;
+    }
     return undefined;
   },
 
   // --- collection listener
   onItemsAdded(aItems, aCollection) {
-    if (this.searchListener)
+    if (this.searchListener) {
       this.reportResults(aItems);
+    }
   },
-  onItemsModified(aItems, aCollection) {
-  },
-  onItemsRemoved(aItems, aCollection) {
-  },
+  onItemsModified(aItems, aCollection) {},
+  onItemsRemoved(aItems, aCollection) {},
   onQueryCompleted(aCollection) {
     this.completed = true;
     this.searchListener.onSearchDone(Cr.NS_OK);
-    if (this.completionCallback)
+    if (this.completionCallback) {
       this.completionCallback();
+    }
   },
 };

@@ -13,8 +13,10 @@
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 // IMAP pump
 
@@ -22,13 +24,7 @@ setupIMAPPump();
 
 // Definition of tests
 
-var tests = [
-  createDraftsFolder,
-  saveDraft,
-  updateDrafts,
-  checkResult,
-  endTest,
-];
+var tests = [createDraftsFolder, saveDraft, updateDrafts, checkResult, endTest];
 
 var gDraftsFolder;
 function* createDraftsFolder() {
@@ -43,12 +39,15 @@ function* createDraftsFolder() {
 }
 
 function* saveDraft() {
-  var msgCompose = Cc["@mozilla.org/messengercompose/compose;1"]
-                     .createInstance(Ci.nsIMsgCompose);
-  var fields = Cc["@mozilla.org/messengercompose/composefields;1"]
-                 .createInstance(Ci.nsIMsgCompFields);
-  var params = Cc["@mozilla.org/messengercompose/composeparams;1"]
-                 .createInstance(Ci.nsIMsgComposeParams);
+  var msgCompose = Cc["@mozilla.org/messengercompose/compose;1"].createInstance(
+    Ci.nsIMsgCompose
+  );
+  var fields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
+  var params = Cc[
+    "@mozilla.org/messengercompose/composeparams;1"
+  ].createInstance(Ci.nsIMsgComposeParams);
   params.composeFields = fields;
   msgCompose.initialize(params);
 
@@ -56,11 +55,17 @@ function* saveDraft() {
   var identity = MailServices.accounts.createIdentity();
   identity.draftFolder = gDraftsFolder.URI;
 
-  var progress = Cc["@mozilla.org/messenger/progress;1"]
-                   .createInstance(Ci.nsIMsgProgress);
+  var progress = Cc["@mozilla.org/messenger/progress;1"].createInstance(
+    Ci.nsIMsgProgress
+  );
   progress.registerListener(progressListener);
-  msgCompose.SendMsg(Ci.nsIMsgSend.nsMsgSaveAsDraft, identity, "", null,
-                     progress);
+  msgCompose.SendMsg(
+    Ci.nsIMsgSend.nsMsgSaveAsDraft,
+    identity,
+    "",
+    null,
+    progress
+  );
   yield false;
 }
 
@@ -83,15 +88,18 @@ function* endTest() {
 }
 
 function run_test() {
-  Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
+  Services.prefs.setBoolPref(
+    "mail.server.default.autosync_offline_stores",
+    false
+  );
 
   // Add folder listeners that will capture async events
   const nsIMFNService = Ci.nsIMsgFolderNotificationService;
 
   let flags =
-        nsIMFNService.msgsMoveCopyCompleted |
-        nsIMFNService.folderAdded |
-        nsIMFNService.msgAdded;
+    nsIMFNService.msgsMoveCopyCompleted |
+    nsIMFNService.folderAdded |
+    nsIMFNService.msgAdded;
   MailServices.mfn.addListener(mfnListener, flags);
 
   // start first test
@@ -106,8 +114,9 @@ var mfnListener = {
   folderAdded(aFolder) {
     dl("folderAdded <" + aFolder.name + ">");
     // we are only using async add on the Junk folder
-    if (aFolder.name == "Drafts")
+    if (aFolder.name == "Drafts") {
       async_driver();
+    }
   },
 
   msgAdded(aMsg) {
@@ -123,15 +132,23 @@ var progressListener = {
     }
   },
 
-  onProgressChange(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress,
-                   aCurTotalProgress, aMaxTotalProgress) {},
+  onProgressChange(
+    aWebProgress,
+    aRequest,
+    aCurSelfProgress,
+    aMaxSelfProgress,
+    aCurTotalProgress,
+    aMaxTotalProgress
+  ) {},
   onLocationChange(aWebProgress, aRequest, aLocation, aFlags) {},
   onStatusChange(aWebProgress, aRequest, aStatus, aMessage) {},
   onSecurityChange(aWebProgress, aRequest, state) {},
   onContentBlockingEvent(aWebProgress, aRequest, aEvent) {},
 
-  QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener",
-                                          "nsISupportsWeakReference"]),
+  QueryInterface: ChromeUtils.generateQI([
+    "nsIWebProgressListener",
+    "nsISupportsWeakReference",
+  ]),
 };
 
 /*

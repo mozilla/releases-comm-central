@@ -12,7 +12,9 @@
 /* import-globals-from ../../../test/resources/searchTestUtils.js */
 load("../../../resources/searchTestUtils.js");
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var Isnt = Ci.nsMsgSearchOp.Isnt;
 var Is = Ci.nsMsgSearchOp.Is;
@@ -47,27 +49,32 @@ var Tests = [
     testTag: Tag1,
     op: Is,
     count: 1,
-  }, {
+  },
+  {
     msgTag: Tag1,
     testTag: Tag1,
     op: Isnt,
     count: 0,
-  }, {
+  },
+  {
     msgTag: Tag1,
     testTag: Tag1,
     op: Contains,
     count: 1,
-  }, {
+  },
+  {
     msgTag: Tag1,
     testTag: Tag1,
     op: DoesntContain,
     count: 0,
-  }, {
+  },
+  {
     msgTag: Tag1,
     testTag: Tag1,
     op: IsEmpty,
     count: 0,
-  }, {
+  },
+  {
     msgTag: Tag1,
     testTag: Tag1,
     op: IsntEmpty,
@@ -79,27 +86,32 @@ var Tests = [
     testTag: Tag1,
     op: Contains,
     count: 0,
-  }, {
+  },
+  {
     msgTag: Tag2,
     testTag: Tag1,
     op: DoesntContain,
     count: 1,
-  }, {
+  },
+  {
     msgTag: Tag2,
     testTag: Tag1,
     op: Is,
     count: 0,
-  }, {
+  },
+  {
     msgTag: Tag2,
     testTag: Tag1,
     op: Isnt,
     count: 1,
-  }, {
+  },
+  {
     msgTag: Tag2,
     testTag: Tag1,
     op: IsEmpty,
     count: 1,
-  }, {
+  },
+  {
     msgTag: Tag2,
     testTag: Tag1,
     op: IsntEmpty,
@@ -112,27 +124,32 @@ var Tests = [
     testTag: Tag1,
     op: Is,
     count: 0,
-  }, {
+  },
+  {
     msgTag: Tag1Tag4,
     testTag: Tag1,
     op: Isnt,
     count: 1,
-  }, {
+  },
+  {
     msgTag: Tag1Tag4,
     testTag: Tag1,
     op: Contains,
     count: 1,
-  }, {
+  },
+  {
     msgTag: Tag1Tag4,
     testTag: Tag1,
     op: DoesntContain,
     count: 0,
-  }, {
+  },
+  {
     msgTag: Tag1Tag4,
     testTag: Tag1,
     op: IsEmpty,
     count: 0,
-  }, {
+  },
+  {
     msgTag: Tag1Tag4,
     testTag: Tag1,
     op: IsntEmpty,
@@ -144,27 +161,32 @@ var Tests = [
     testTag: Tag4,
     op: Is,
     count: 0,
-  }, {
+  },
+  {
     msgTag: Tag1Tag4,
     testTag: Tag4,
     op: Isnt,
     count: 1,
-  }, {
+  },
+  {
     msgTag: Tag1Tag4,
     testTag: Tag4,
     op: Contains,
     count: 1,
-  }, {
+  },
+  {
     msgTag: Tag1Tag4,
     testTag: Tag4,
     op: DoesntContain,
     count: 0,
-  }, {
+  },
+  {
     msgTag: Tag1Tag4,
     testTag: Tag4,
     op: IsEmpty,
     count: 0,
-  }, {
+  },
+  {
     msgTag: Tag1Tag4,
     testTag: Tag4,
     op: IsntEmpty,
@@ -176,27 +198,32 @@ var Tests = [
     testTag: Tag2,
     op: Is,
     count: 0,
-  }, {
+  },
+  {
     msgTag: Tag1Tag4,
     testTag: Tag2,
     op: Isnt,
     count: 1,
-  }, {
+  },
+  {
     msgTag: Tag1Tag4,
     testTag: Tag2,
     op: Contains,
     count: 0,
-  }, {
+  },
+  {
     msgTag: Tag1Tag4,
     testTag: Tag2,
     op: DoesntContain,
     count: 1,
-  }, {
+  },
+  {
     msgTag: Tag1Tag4,
     testTag: Tag2,
     op: IsEmpty,
     count: 0,
-  }, {
+  },
+  {
     msgTag: Tag1Tag4,
     testTag: Tag2,
     op: IsntEmpty,
@@ -208,27 +235,32 @@ var Tests = [
     testTag: Tag2,
     op: Is,
     count: 0,
-  }, {
+  },
+  {
     msgTag: "",
     testTag: Tag2,
     op: Isnt,
     count: 1,
-  }, {
+  },
+  {
     msgTag: "",
     testTag: Tag2,
     op: Contains,
     count: 0,
-  }, {
+  },
+  {
     msgTag: "",
     testTag: Tag2,
     op: DoesntContain,
     count: 1,
-  }, {
+  },
+  {
     msgTag: "",
     testTag: Tag2,
     op: IsEmpty,
     count: 1,
-  }, {
+  },
+  {
     msgTag: "",
     testTag: Tag2,
     op: IsntEmpty,
@@ -241,27 +273,32 @@ var Tests = [
     testTag: Tag1,
     op: Is,
     count: 1,
-  }, {
+  },
+  {
     msgTag: Tag1Tag3,
     testTag: Tag1,
     op: Isnt,
     count: 0,
-  }, {
+  },
+  {
     msgTag: Tag1Tag3,
     testTag: Tag1,
     op: Contains,
     count: 1,
-  }, {
+  },
+  {
     msgTag: Tag1Tag3,
     testTag: Tag1,
     op: DoesntContain,
     count: 0,
-  }, {
+  },
+  {
     msgTag: Tag1Tag3,
     testTag: Tag1,
     op: IsEmpty,
     count: 0,
-  }, {
+  },
+  {
     msgTag: Tag1Tag3,
     testTag: Tag1,
     op: IsntEmpty,
@@ -273,27 +310,32 @@ var Tests = [
     testTag: Tag2,
     op: Is,
     count: 0,
-  }, {
+  },
+  {
     msgTag: Tag1Tag3,
     testTag: Tag2,
     op: Isnt,
     count: 1,
-  }, {
+  },
+  {
     msgTag: Tag1Tag3,
     testTag: Tag2,
     op: Contains,
     count: 0,
-  }, {
+  },
+  {
     msgTag: Tag1Tag3,
     testTag: Tag2,
     op: DoesntContain,
     count: 1,
-  }, {
+  },
+  {
     msgTag: Tag1Tag3,
     testTag: Tag2,
     op: IsEmpty,
     count: 0,
-  }, {
+  },
+  {
     msgTag: Tag1Tag3,
     testTag: Tag2,
     op: IsntEmpty,
@@ -306,27 +348,32 @@ var Tests = [
     testTag: Tag1,
     op: Is,
     count: 1,
-  }, {
+  },
+  {
     msgTag: Tag1Tag1,
     testTag: Tag1,
     op: Isnt,
     count: 0,
-  }, {
+  },
+  {
     msgTag: Tag1Tag1,
     testTag: Tag1,
     op: Contains,
     count: 1,
-  }, {
+  },
+  {
     msgTag: Tag1Tag1,
     testTag: Tag1,
     op: DoesntContain,
     count: 0,
-  }, {
+  },
+  {
     msgTag: Tag1Tag1,
     testTag: Tag1,
     op: IsEmpty,
     count: 0,
-  }, {
+  },
+  {
     msgTag: Tag1Tag1,
     testTag: Tag1,
     op: IsntEmpty,
@@ -388,8 +435,9 @@ function run_test() {
 
   // delete any existing tags
   let tagArray = MailServices.tags.getAllTags({});
-  for (var i = 0; i < tagArray.length; i++)
+  for (var i = 0; i < tagArray.length; i++) {
     MailServices.tags.deleteKey(tagArray[i].key);
+  }
 
   // add as valid tags Tag1 and Tag4
   MailServices.tags.addTagForKey(Tag1, Tag1, null, null);
@@ -402,14 +450,24 @@ function run_test() {
       hdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
     },
     SetMessageId(aMessageId) {},
-    OnStopCopy(aStatus) { testKeywordSearch(); },
+    OnStopCopy(aStatus) {
+      testKeywordSearch();
+    },
   };
 
   // Get a message into the local filestore. function testKeywordSearch() continues the testing after the copy.
   var bugmail1 = do_get_file("../../../data/bugmail1");
   do_test_pending();
-  MailServices.copy.CopyFileMessage(bugmail1, localAccountUtils.inboxFolder, null,
-                                    false, 0, "", copyListener, null);
+  MailServices.copy.CopyFileMessage(
+    bugmail1,
+    localAccountUtils.inboxFolder,
+    null,
+    false,
+    0,
+    "",
+    copyListener,
+    null
+  );
 }
 
 // process each test from queue, calls itself upon completion of each search
@@ -417,15 +475,16 @@ function testKeywordSearch() {
   var test = Tests.shift();
   if (test) {
     hdr.setStringProperty("keywords", test.msgTag);
-    new TestSearch(localAccountUtils.inboxFolder,
-                   test.testTag,
-                   Ci.nsMsgSearchAttrib.Keywords,
-                   test.op,
-                   test.count,
-                   testKeywordSearch);
+    new TestSearch(
+      localAccountUtils.inboxFolder,
+      test.testTag,
+      Ci.nsMsgSearchAttrib.Keywords,
+      test.op,
+      test.count,
+      testKeywordSearch
+    );
   } else {
     hdr = null;
     do_test_finished();
   }
 }
-

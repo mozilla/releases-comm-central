@@ -9,7 +9,9 @@ load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/alertTestUtils.js");
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var dummyMsgWindow = {
   get statusFeedback() {
@@ -24,8 +26,10 @@ var dummyMsgWindow = {
   get promptDialog() {
     return alertUtilsPrompts;
   },
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgWindow,
-                                          Ci.nsISupportsWeakReference]),
+  QueryInterface: ChromeUtils.generateQI([
+    Ci.nsIMsgWindow,
+    Ci.nsISupportsWeakReference,
+  ]),
 };
 var daemon, localserver, server;
 
@@ -64,7 +68,9 @@ function* test_newMsgs() {
 /* exported alert, confirmEx */
 // Prompts for cancel
 function alert(title, text) {}
-function confirmEx(title, text, flags) { return 0; }
+function confirmEx(title, text, flags) {
+  return 0;
+}
 
 function* test_cancel() {
   // This tests nsMsgNewsFolder::CancelMessage
@@ -79,9 +85,11 @@ function* test_cancel() {
       }
     },
   };
-  MailServices.mailSession.AddFolderListener(folderListener, Ci.nsIFolderListener.event);
-  folder.QueryInterface(Ci.nsIMsgNewsFolder)
-        .cancelMessage(hdr, dummyMsgWindow);
+  MailServices.mailSession.AddFolderListener(
+    folderListener,
+    Ci.nsIFolderListener.event
+  );
+  folder.QueryInterface(Ci.nsIMsgNewsFolder).cancelMessage(hdr, dummyMsgWindow);
   yield false;
 
   Assert.equal(folder.getTotalMessages(false), 7);
@@ -103,11 +111,19 @@ function* test_fetchMessage() {
     onStopRequest(aRequest, aStatus) {
       statuscode = aStatus;
     },
-    QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener,
-                                            Ci.nsIRequestObserver]),
+    QueryInterface: ChromeUtils.generateQI([
+      Ci.nsIStreamListener,
+      Ci.nsIRequestObserver,
+    ]),
   };
   let folder = localserver.rootFolder.getChildNamed("test.filter");
-  MailServices.nntp.fetchMessage(folder, 2, null, streamlistener, asyncUrlListener);
+  MailServices.nntp.fetchMessage(
+    folder,
+    2,
+    null,
+    streamlistener,
+    asyncUrlListener
+  );
   yield false;
   Assert.equal(statuscode, Cr.NS_OK);
   yield true;
@@ -116,8 +132,9 @@ function* test_fetchMessage() {
 function* test_search() {
   // This tests nsNntpService::Search
   let folder = localserver.rootFolder.getChildNamed("test.filter");
-  var searchSession = Cc["@mozilla.org/messenger/searchSession;1"]
-                        .createInstance(Ci.nsIMsgSearchSession);
+  var searchSession = Cc[
+    "@mozilla.org/messenger/searchSession;1"
+  ].createInstance(Ci.nsIMsgSearchSession);
   searchSession.addScopeTerm(Ci.nsMsgSearchScope.news, folder);
 
   let searchTerm = searchSession.createTerm();
@@ -131,12 +148,16 @@ function* test_search() {
 
   let hitCount;
   let searchListener = {
-    onSearchHit() { hitCount++; },
+    onSearchHit() {
+      hitCount++;
+    },
     onSearchDone() {
       searchSession.unregisterListener(this);
       async_driver();
     },
-    onNewSearch() { hitCount = 0; },
+    onNewSearch() {
+      hitCount = 0;
+    },
   };
   searchSession.registerListener(searchListener);
 
@@ -151,7 +172,9 @@ function* test_grouplist() {
   // This tests nsNntpService::GetListOfGroupsOnServer
   let subserver = localserver.QueryInterface(Ci.nsISubscribableServer);
   let subscribeListener = {
-    OnDonePopulating() { async_driver(); },
+    OnDonePopulating() {
+      async_driver();
+    },
   };
   subserver.subscribeListener = subscribeListener;
 
@@ -159,10 +182,12 @@ function* test_grouplist() {
     let hierarchy = subserver.getChildURIs(rootUri);
     let groups = [];
     for (let name of hierarchy) {
-      if (subserver.isSubscribable(name))
+      if (subserver.isSubscribable(name)) {
         groups.push(name);
-      if (subserver.hasChildren(name))
+      }
+      if (subserver.hasChildren(name)) {
         groups = groups.concat(enumGroups(name));
+      }
     }
     return groups;
   }
@@ -187,8 +212,13 @@ function* test_grouplist() {
 
 function* test_postMessage() {
   // This tests nsNntpService::SetUpNntpUrlForPosting via PostMessage
-  MailServices.nntp.postMessage(do_get_file("postings/post2.eml"), "misc.test",
-    localserver.key, asyncUrlListener, null);
+  MailServices.nntp.postMessage(
+    do_get_file("postings/post2.eml"),
+    "misc.test",
+    localserver.key,
+    asyncUrlListener,
+    null
+  );
   yield false;
   Assert.equal(daemon.getGroup("misc.test").keys.length, 1);
   yield true;
@@ -225,10 +255,18 @@ function* test_escapedName() {
     onStopRequest(aRequest, aStatus) {
       statuscode = aStatus;
     },
-    QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener,
-                                            Ci.nsIRequestObserver]),
+    QueryInterface: ChromeUtils.generateQI([
+      Ci.nsIStreamListener,
+      Ci.nsIRequestObserver,
+    ]),
   };
-  MailServices.nntp.fetchMessage(folder, 1, null, streamlistener, asyncUrlListener);
+  MailServices.nntp.fetchMessage(
+    folder,
+    1,
+    null,
+    streamlistener,
+    asyncUrlListener
+  );
   yield false;
   Assert.equal(statuscode, Cr.NS_OK);
   yield true;

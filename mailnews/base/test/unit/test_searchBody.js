@@ -8,7 +8,9 @@
 /* import-globals-from ../../../test/resources/searchTestUtils.js */
 load("../../../resources/searchTestUtils.js");
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var Isnt = Ci.nsMsgSearchOp.Isnt;
 var Is = Ci.nsMsgSearchOp.Is;
@@ -48,40 +50,40 @@ var Files = [
 
   // Bodies with non-ASCII characters in UTF-8 and other charsets.
   "../../../data/11-plaintext.eml",
-  "../../../data/12-plaintext+attachment.eml",  // using ISO-8859-7 (Greek)
+  "../../../data/12-plaintext+attachment.eml", // using ISO-8859-7 (Greek)
   "../../../data/13-HTML.eml",
   "../../../data/14-HTML+attachment.eml",
   "../../../data/15-HTML+embedded-image.eml",
-  "../../../data/16-plaintext+HMTL.eml",                   // text part is base64 encoded
-  "../../../data/17-plaintext+(HTML+embedded-image).eml",  // HTML part is base64 encoded
+  "../../../data/16-plaintext+HMTL.eml", // text part is base64 encoded
+  "../../../data/17-plaintext+(HTML+embedded-image).eml", // HTML part is base64 encoded
   "../../../data/18-plaintext+HTML+attachment.eml",
   "../../../data/19-(HTML+embedded-image)+attachment.eml",
-  "../../../data/20-plaintext+(HTML+embedded-image)+attachment.eml",  // using windows-1252
+  "../../../data/20-plaintext+(HTML+embedded-image)+attachment.eml", // using windows-1252
 
   // Bodies with non-ASCII characters in UTF-8 and other charsets, all encoded with quoted printable.
   "../../../data/21-plaintext.eml",
-  "../../../data/22-plaintext+attachment.eml",  // using ISO-8859-7 (Greek)
+  "../../../data/22-plaintext+attachment.eml", // using ISO-8859-7 (Greek)
   "../../../data/23-HTML.eml",
   "../../../data/24-HTML+attachment.eml",
   "../../../data/25-HTML+embedded-image.eml",
-  "../../../data/26-plaintext+HMTL.eml",                   // text part is base64 encoded
-  "../../../data/27-plaintext+(HTML+embedded-image).eml",  // HTML part is base64 encoded
+  "../../../data/26-plaintext+HMTL.eml", // text part is base64 encoded
+  "../../../data/27-plaintext+(HTML+embedded-image).eml", // HTML part is base64 encoded
   "../../../data/28-plaintext+HTML+attachment.eml",
   "../../../data/29-(HTML+embedded-image)+attachment.eml",
-  "../../../data/30-plaintext+(HTML+embedded-image)+attachment.eml",  // using windows-1252
+  "../../../data/30-plaintext+(HTML+embedded-image)+attachment.eml", // using windows-1252
 
   // Messages with message attachments, Content-Type: message/rfc822.
-  "../../../data/multipart-message-1.eml",  // plaintext, has "bodyOfAttachedMessagePlain"
-  "../../../data/multipart-message-2.eml",  // plaintext, base64, non-ASCII, has "bodyOfAttachedMessagePläin"
-  "../../../data/multipart-message-3.eml",  // plaintext+HTML, non-ASCII in plaintext, has "bodyOfAttachedMessagePläin"
-  "../../../data/multipart-message-4.eml",  // plaintext+HTML, non-ASCII in HTML, has "bodyOfAttachedMessägeHTML"
+  "../../../data/multipart-message-1.eml", // plaintext, has "bodyOfAttachedMessagePlain"
+  "../../../data/multipart-message-2.eml", // plaintext, base64, non-ASCII, has "bodyOfAttachedMessagePläin"
+  "../../../data/multipart-message-3.eml", // plaintext+HTML, non-ASCII in plaintext, has "bodyOfAttachedMessagePläin"
+  "../../../data/multipart-message-4.eml", // plaintext+HTML, non-ASCII in HTML, has "bodyOfAttachedMessägeHTML"
 
   // Message using ISO-2022-JP and CTE: quoted-printable.
-  "../../../data/iso-2022-jp-qp.eml",  // plaintext, has 日本 (Japan), we shouldn't find =1B$BF|K.
+  "../../../data/iso-2022-jp-qp.eml", // plaintext, has 日本 (Japan), we shouldn't find =1B$BF|K.
 
   // Message using ISO-2022-JP and 7bit, but containing something that looks like quoted-printable.
   // (bug 314637).
-  "../../../data/iso-2022-jp-not-qp.eml",  // plaintext, has 現況 which contains =67.
+  "../../../data/iso-2022-jp-not-qp.eml", // plaintext, has 現況 which contains =67.
 ];
 var Tests = [
   /* Translate Base64 messages */
@@ -156,11 +158,13 @@ var Tests = [
 ];
 
 function fixFile(file) {
-  var fstream = Cc["@mozilla.org/network/file-input-stream;1"]
-                  .createInstance(Ci.nsIFileInputStream);
+  var fstream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
+    Ci.nsIFileInputStream
+  );
   fstream.init(file, -1, -1, Ci.nsIFileInputStream.CLOSE_ON_EOF);
-  var sstream = Cc["@mozilla.org/scriptableinputstream;1"]
-                  .createInstance(Ci.nsIScriptableInputStream);
+  var sstream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+    Ci.nsIScriptableInputStream
+  );
   sstream.init(fstream);
 
   var str = sstream.read(4096);
@@ -178,12 +182,12 @@ function fixFile(file) {
   sstream.close();
   fstream.close();
 
-  let targetFile = Cc["@mozilla.org/file/local;1"]
-                     .createInstance(Ci.nsIFile);
+  let targetFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
   targetFile.initWithFile(do_get_profile());
   targetFile.append(file.leafName);
-  let ostream = Cc["@mozilla.org/network/file-output-stream;1"]
-                  .createInstance(Ci.nsIFileOutputStream);
+  let ostream = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(
+    Ci.nsIFileOutputStream
+  );
   ostream.init(targetFile, -1, -1, 0);
   ostream.write(data, data.length);
   ostream.close();
@@ -199,8 +203,16 @@ var copyListener = {
     var fileName = Files.shift();
     if (fileName) {
       var file = fixFile(do_get_file(fileName));
-      MailServices.copy.CopyFileMessage(file, localAccountUtils.inboxFolder, null,
-                                        false, 0, "", copyListener, null);
+      MailServices.copy.CopyFileMessage(
+        file,
+        localAccountUtils.inboxFolder,
+        null,
+        false,
+        0,
+        "",
+        copyListener,
+        null
+      );
     } else {
       testBodySearch();
     }
@@ -265,14 +277,15 @@ function run_test() {
 function testBodySearch() {
   var test = Tests.shift();
   if (test) {
-    new TestSearch(localAccountUtils.inboxFolder,
-                   test.value,
-                   Body,
-                   test.op,
-                   test.count,
-                   testBodySearch);
+    new TestSearch(
+      localAccountUtils.inboxFolder,
+      test.value,
+      Body,
+      test.op,
+      test.count,
+      testBodySearch
+    );
   } else {
     do_test_finished();
   }
 }
-

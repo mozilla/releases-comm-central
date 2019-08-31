@@ -17,15 +17,16 @@
 load("../../../../resources/logHelper.js");
 load("../../../../resources/asyncTestUtils.js");
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // -- Do configure the gloda prefs though...
 // yes to indexing
-Services.prefs.setBoolPref("mailnews.database.global.indexer.enabled",
-                           true);
+Services.prefs.setBoolPref("mailnews.database.global.indexer.enabled", true);
 // no to a sweep we don't control
-Services.prefs.setBoolPref("mailnews.database.global.indexer.perform_initial_sweep",
-                           false);
+Services.prefs.setBoolPref(
+  "mailnews.database.global.indexer.perform_initial_sweep",
+  false
+);
 // yes to debug output
 Services.prefs.setBoolPref("mailnews.database.global.logging.dump", true);
 
@@ -36,7 +37,7 @@ var kOriginalDatastoreID = "47e4bad6-fedc-4931-bf3f-d2f4146ac63e";
 Services.prefs.setCharPref(kDatastoreIDPref, kOriginalDatastoreID);
 
 // -- Add a logger listener that throws when we give it a warning/error.
-var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 /**
  * Count the type of each severity level observed.
@@ -50,21 +51,22 @@ CountingAppender.prototype = {
     this.counts = {};
   },
   append: function CountingAppender_append(message) {
-    if (!(message.level in this.counts))
+    if (!(message.level in this.counts)) {
       this.counts[message.level] = 1;
-    else
+    } else {
       this.counts[message.level]++;
+    }
   },
   getCountForLevel: function CountingAppender_getCountForLevel(level) {
-    if (level in this.counts)
+    if (level in this.counts) {
       return this.counts[level];
+    }
     return 0;
   },
   toString() {
     return "One, two, three! Ah ah ah!";
   },
 };
-
 
 var countingAppender = new CountingAppender();
 Log4Moz.repository.rootLogger.addAppender(countingAppender);
@@ -83,13 +85,15 @@ function test_corrupt_databases_get_reported_and_blown_away() {
   // not in the sandbox profile we expect.  I wouldn't bother except we're
   // going out of our way to write gibberish whereas gloda accidentally
   // opening a valid database is bad but not horrible.)
-  if (dbFile.exists())
+  if (dbFile.exists()) {
     do_throw("There should not be a database at this point.");
+  }
 
   // - create the file
   mark_sub_test_start("creating gibberish file");
-  let ostream = Cc["@mozilla.org/network/file-output-stream;1"]
-                  .createInstance(Ci.nsIFileOutputStream);
+  let ostream = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(
+    Ci.nsIFileOutputStream
+  );
   ostream.init(dbFile, -1, -1, 0);
   let fileContents = "I'm in ur database not being a database.\n";
   ostream.write(fileContents, fileContents.length);
@@ -100,7 +104,7 @@ function test_corrupt_databases_get_reported_and_blown_away() {
 
   // - init gloda, get warnings
   mark_sub_test_start("init gloda");
-  var {Gloda} = ChromeUtils.import("resource:///modules/gloda/public.js");
+  var { Gloda } = ChromeUtils.import("resource:///modules/gloda/public.js");
   mark_sub_test_start("gloda inited, checking");
 
   mark_action("actual", "Counting appender counts", [countingAppender.counts]);
@@ -110,7 +114,9 @@ function test_corrupt_databases_get_reported_and_blown_away() {
   Assert.equal(countingAppender.getCountForLevel(Log4Moz.Level.Error), 0);
 
   // - make sure the datastore has an actual database
-  let {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
+  let { GlodaDatastore } = ChromeUtils.import(
+    "resource:///modules/gloda/datastore.js"
+  );
 
   // Make sure that the datastoreID was overwritten
   Assert.notEqual(Gloda.datastoreID, kOriginalDatastoreID);
@@ -122,16 +128,15 @@ function test_corrupt_databases_get_reported_and_blown_away() {
   Assert.equal(currentDatastoreID, Gloda.datastoreID);
   // And finally, we'll make sure that the datastoreID is a string with length
   // greater than 0.
-  Assert.equal(typeof(Gloda.datastoreID), "string");
+  Assert.equal(typeof Gloda.datastoreID, "string");
   Assert.ok(Gloda.datastoreID.length > 0);
 
-  if (!GlodaDatastore.asyncConnection)
+  if (!GlodaDatastore.asyncConnection) {
     do_throw("No database connection suggests no database!");
+  }
 }
 
-var tests = [
-  test_corrupt_databases_get_reported_and_blown_away,
-];
+var tests = [test_corrupt_databases_get_reported_and_blown_away];
 
 function run_test() {
   async_run_tests(tests);

@@ -4,7 +4,9 @@
  * expandMailingLists.
  */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var TESTS = [
   {
@@ -31,18 +33,21 @@ var TESTS = [
 ];
 
 function checkPopulate(aTo, aCheckTo) {
-  let msgCompose = Cc["@mozilla.org/messengercompose/compose;1"]
-                     .createInstance(Ci.nsIMsgCompose);
+  let msgCompose = Cc["@mozilla.org/messengercompose/compose;1"].createInstance(
+    Ci.nsIMsgCompose
+  );
 
   // Set up some basic fields for compose.
-  let fields = Cc["@mozilla.org/messengercompose/composefields;1"]
-                 .createInstance(Ci.nsIMsgCompFields);
+  let fields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
 
   fields.to = aTo;
 
   // Set up some params
-  let params = Cc["@mozilla.org/messengercompose/composeparams;1"]
-                 .createInstance(Ci.nsIMsgComposeParams);
+  let params = Cc[
+    "@mozilla.org/messengercompose/composeparams;1"
+  ].createInstance(Ci.nsIMsgComposeParams);
 
   params.composeFields = fields;
 
@@ -69,7 +74,10 @@ function run_test() {
 
     // Thunderbird 2 stored its popularityIndexes as hex, hence when we read it
     // now we're going to get a hex value. The AB has a value of "a".
-    Assert.equal(card.getProperty("PopularityIndex", -1), TESTS[i].prePopularity);
+    Assert.equal(
+      card.getProperty("PopularityIndex", -1),
+      TESTS[i].prePopularity
+    );
 
     // Call the check populate function.
     checkPopulate(TESTS[i].email, TESTS[i].email);
@@ -80,6 +88,9 @@ function run_test() {
 
     // Thunderbird 2 stored its popularityIndexes as hex, hence when we read it
     // now we're going to get a hex value. The AB has a value of "a".
-    Assert.equal(card.getProperty("PopularityIndex", -1), TESTS[i].postPopularity);
+    Assert.equal(
+      card.getProperty("PopularityIndex", -1),
+      TESTS[i].postPopularity
+    );
   }
 }

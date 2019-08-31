@@ -8,8 +8,9 @@ var curTaskIndex = 0;
 var numTasks = 0;
 var stringBundle;
 
-var msgShutdownService = Cc["@mozilla.org/messenger/msgshutdownservice;1"]
-                           .getService(Ci.nsIMsgShutdownService);
+var msgShutdownService = Cc[
+  "@mozilla.org/messenger/msgshutdownservice;1"
+].getService(Ci.nsIMsgShutdownService);
 
 document.addEventListener("dialogcancel", onCancel);
 
@@ -32,7 +33,10 @@ function updateProgressLabel(inTaskName) {
 
 function updateTaskProgressLabel(inCurTaskNum) {
   var taskProgressLabel = document.getElementById("shutdownTask_label");
-  taskProgressLabel.value = stringBundle.getFormattedString("taskProgress", [inCurTaskNum, numTasks]);
+  taskProgressLabel.value = stringBundle.getFormattedString("taskProgress", [
+    inCurTaskNum,
+    numTasks,
+  ]);
 }
 
 function updateProgressMeter(inPercent) {
@@ -48,10 +52,11 @@ function nsMsgShutdownTaskListener() {
   msgShutdownService.setShutdownListener(this);
 }
 
-nsMsgShutdownTaskListener.prototype =
-{
-  QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener",
-                                          "nsISupportsWeakReference"]),
+nsMsgShutdownTaskListener.prototype = {
+  QueryInterface: ChromeUtils.generateQI([
+    "nsIWebProgressListener",
+    "nsISupportsWeakReference",
+  ]),
 
   onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
     if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
@@ -59,8 +64,15 @@ nsMsgShutdownTaskListener.prototype =
     }
   },
 
-  onProgressChange(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) {
-    updateProgressMeter(((aCurTotalProgress / aMaxTotalProgress) * 100));
+  onProgressChange(
+    aWebProgress,
+    aRequest,
+    aCurSelfProgress,
+    aMaxSelfProgress,
+    aCurTotalProgress,
+    aMaxTotalProgress
+  ) {
+    updateProgressMeter((aCurTotalProgress / aMaxTotalProgress) * 100);
     updateTaskProgressLabel(aCurTotalProgress + 1);
   },
 
@@ -69,8 +81,9 @@ nsMsgShutdownTaskListener.prototype =
   },
 
   onStatusChange(aWebProgress, aRequest, aStatus, aMessage) {
-    if (aMessage)
+    if (aMessage) {
       updateProgressLabel(aMessage);
+    }
   },
 
   onSecurityChange(aWebProgress, aRequest, state) {
@@ -83,4 +96,3 @@ nsMsgShutdownTaskListener.prototype =
 };
 
 var MsgShutdownTaskListener = new nsMsgShutdownTaskListener();
-

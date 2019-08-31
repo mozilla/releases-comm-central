@@ -73,7 +73,6 @@ var MimeCategoryMapping = {
       "application/x-mdb",
 
       "application/vnd.oasis.opendocument.database",
-
     ],
     graphics: [
       "application/postscript",
@@ -153,7 +152,6 @@ var MimeCategoryMapping = {
       "application/rtf",
       "text/rtf",
 
-
       "application/vnd.oasis.opendocument.text",
       "application/vnd.oasis.opendocument.text-master",
       "application/vnd.oasis.opendocument.text-template",
@@ -164,20 +162,12 @@ var MimeCategoryMapping = {
       "application/x-abiword",
       "application/x-amipro",
     ],
-    suite: [
-      "application/vnd.ms-works",
-    ],
+    suite: ["application/vnd.ms-works"],
   },
-  images: [
-    "image/*",
-  ],
+  images: ["image/*"],
   media: {
-    audio: [
-      "audio/*",
-    ],
-    video: [
-      "video/*",
-    ],
+    audio: ["audio/*"],
+    video: ["video/*"],
     container: [
       "application/ogg",
 
@@ -189,9 +179,7 @@ var MimeCategoryMapping = {
       "application/x-quicktimeplayer",
     ],
   },
-  other: [
-    "*",
-  ],
+  other: ["*"],
   pdf: [
     "application/pdf",
     "application/x-pdf",

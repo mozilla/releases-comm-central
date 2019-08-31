@@ -16,9 +16,13 @@ load("../../../resources/messageGenerator.js");
 load("../../../resources/messageModifier.js");
 load("../../../resources/messageInjection.js");
 
-const {JSTreeSelection} = ChromeUtils.import("resource:///modules/jsTreeSelection.js");
+const { JSTreeSelection } = ChromeUtils.import(
+  "resource:///modules/jsTreeSelection.js"
+);
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var nsIMFNService = Ci.nsIMsgFolderNotificationService;
 
@@ -52,12 +56,12 @@ var gCommandUpdater = {
     // when the # of items in the selection has actually changed.
   },
 
-  displayMessageChanged(aFolder, aSubject, aKeywords) {
-  },
+  displayMessageChanged(aFolder, aSubject, aKeywords) {},
 
-  updateNextMessageAfterDelete() {
+  updateNextMessageAfterDelete() {},
+  summarizeSelection() {
+    return false;
   },
-  summarizeSelection() { return false; },
 };
 
 var gDBView;
@@ -73,11 +77,16 @@ function setup_view(aViewType, aViewFlags) {
   // always start out fully expanded
   aViewFlags |= ViewFlags.kExpandAll;
 
-  gDBView = Cc[dbviewContractId]
-              .createInstance(Ci.nsIMsgDBView);
+  gDBView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
   gDBView.init(null, null, gCommandUpdater);
   var outCount = {};
-  gDBView.open(gLocalInboxFolder, SortType.byDate, SortOrder.ascending, aViewFlags, outCount);
+  gDBView.open(
+    gLocalInboxFolder,
+    SortType.byDate,
+    SortOrder.ascending,
+    aViewFlags,
+    outCount
+  );
   dump("  View Out Count: " + outCount.value + "\n");
 
   gTreeView = gDBView.QueryInterface(Ci.nsITreeView);
@@ -116,7 +125,6 @@ function* junkMessages() {
 // Our listener, which captures events and does the real tests.
 function gMFListener() {}
 gMFListener.prototype = {
-
   msgsMoveCopyCompleted(aMove, aSrcMsgs, aDestFolder, aDestMsgs) {
     Assert.ok(aDestFolder.getFlag(Ci.nsMsgFolderFlags.Junk));
     // I tried to test this by counting messages in the folder, didn't work.
@@ -131,11 +139,10 @@ gMFListener.prototype = {
     Assert.ok(aFolder.getFlag(Ci.nsMsgFolderFlags.Junk));
     async_driver();
   },
-
 };
 
 function run_test() {
-  gLocalInboxFolder = configure_message_injection({mode: "local"});
+  gLocalInboxFolder = configure_message_injection({ mode: "local" });
 
   // Set option so that when messages are marked as junk, they move to the junk folder
   Services.prefs.setBoolPref("mail.spam.manualMark", true);
@@ -150,22 +157,22 @@ function run_test() {
   do_test_pending();
 
   // Add folder listeners that will capture async events
-  let flags =
-        nsIMFNService.msgsMoveCopyCompleted |
-        nsIMFNService.folderAdded;
+  let flags = nsIMFNService.msgsMoveCopyCompleted | nsIMFNService.folderAdded;
   gListener = new gMFListener();
   MailServices.mfn.addListener(gListener, flags);
 
-  async_run({func: actually_run_test});
+  async_run({ func: actually_run_test });
 }
 
-var view_types = [
-  ["threaded", ViewFlags.kThreadedDisplay],
-];
+var view_types = [["threaded", ViewFlags.kThreadedDisplay]];
 
 function* actually_run_test() {
-  yield async_run({func: setup_globals});
-  dump("Num Messages: " + gLocalInboxFolder.msgDatabase.dBFolderInfo.numMessages + "\n");
+  yield async_run({ func: setup_globals });
+  dump(
+    "Num Messages: " +
+      gLocalInboxFolder.msgDatabase.dBFolderInfo.numMessages +
+      "\n"
+  );
 
   // for each view type...
   for (let view_type_and_flags of view_types) {
@@ -176,7 +183,7 @@ function* actually_run_test() {
 
     for (let testFunc of tests_for_all_views) {
       dump("=== Running generic test: " + testFunc.name + "\n");
-      yield async_run({func: testFunc});
+      yield async_run({ func: testFunc });
     }
   }
   MailServices.mfn.removeListener(gListener);

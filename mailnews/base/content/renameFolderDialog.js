@@ -35,8 +35,9 @@ function onOK() {
 
 function doEnabling() {
   if (dialog.nameField.value) {
-    if (dialog.OKButton.disabled)
+    if (dialog.OKButton.disabled) {
       dialog.OKButton.disabled = false;
+    }
   } else if (!dialog.OKButton.disabled) {
     dialog.OKButton.disabled = true;
   }

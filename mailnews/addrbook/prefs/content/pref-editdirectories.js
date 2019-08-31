@@ -5,8 +5,10 @@
 
 /* import-globals-from ../../../../mail/components/addrbook/content/abCommon.js */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 // Listener to refresh the list items if something changes. In all these
 // cases we just rebuild the list as it is easier than searching/adding in the
@@ -34,18 +36,21 @@ function onInitEditDirectories() {
   gAddressBookBundle = document.getElementById("bundle_addressBook");
 
   // If the pref is locked disable the "Add" button
-  if (Services.prefs.prefIsLocked("ldap_2.disable_button_add"))
+  if (Services.prefs.prefIsLocked("ldap_2.disable_button_add")) {
     document.getElementById("addButton").setAttribute("disabled", true);
+  }
 
   // Fill out the directory list
   fillDirectoryList();
 
   const nsIAbListener = Ci.nsIAbListener;
   // Add a listener so we can update correctly if the list should change
-  MailServices.ab.addAddressBookListener(gAddressBookAbListener,
-                                         nsIAbListener.itemAdded |
-                                         nsIAbListener.directoryRemoved |
-                                         nsIAbListener.itemChanged);
+  MailServices.ab.addAddressBookListener(
+    gAddressBookAbListener,
+    nsIAbListener.itemAdded |
+      nsIAbListener.directoryRemoved |
+      nsIAbListener.itemChanged
+  );
 }
 
 function onUninitEditDirectories() {
@@ -56,19 +61,23 @@ function fillDirectoryList() {
   var abList = document.getElementById("directoriesList");
 
   // Empty out anything in the list
-  while (abList.hasChildNodes())
+  while (abList.hasChildNodes()) {
     abList.lastChild.remove();
+  }
 
   // Init the address book list
   let directories = MailServices.ab.directories;
   let holdingArray = [];
   while (directories && directories.hasMoreElements()) {
     let ab = directories.getNext();
-    if (ab instanceof Ci.nsIAbDirectory && ab.isRemote)
+    if (ab instanceof Ci.nsIAbDirectory && ab.isRemote) {
       holdingArray.push(ab);
+    }
   }
 
-  holdingArray.sort(function(a, b) { return a.dirName.localeCompare(b.dirName); });
+  holdingArray.sort(function(a, b) {
+    return a.dirName.localeCompare(b.dirName);
+  });
 
   holdingArray.forEach(function(ab) {
     let item = document.createXULElement("richlistitem");
@@ -92,11 +101,15 @@ function selectDirectory() {
     // If the disable delete button pref for the selected directory is set,
     // disable the delete button for that directory.
     let ab = MailServices.ab.getDirectory(abList.value);
-    let disable = Services.prefs.getBoolPref(ab.dirPrefId + ".disable_delete", false);
-    if (disable)
+    let disable = Services.prefs.getBoolPref(
+      ab.dirPrefId + ".disable_delete",
+      false
+    );
+    if (disable) {
       removeButton.setAttribute("disabled", true);
-    else
+    } else {
       removeButton.removeAttribute("disabled");
+    }
   } else {
     editButton.setAttribute("disabled", true);
     removeButton.setAttribute("disabled", true);
@@ -105,8 +118,9 @@ function selectDirectory() {
 
 function dblClickDirectory(event) {
   // We only care about left click events.
-  if (event.button != 0)
+  if (event.button != 0) {
     return;
+  }
 
   editDirectory();
 }
@@ -118,15 +132,19 @@ function editDirectory() {
     let abURI = abList.value;
     let ab = MailServices.ab.getDirectory(abURI);
 
-    window.openDialog(ab.propertiesChromeURI, "editDirectory",
-                      "chrome,modal=yes,resizable=no",
-                      { selectedDirectory: ab });
+    window.openDialog(
+      ab.propertiesChromeURI,
+      "editDirectory",
+      "chrome,modal=yes,resizable=no",
+      { selectedDirectory: ab }
+    );
   }
 }
 
 function removeDirectory() {
   var abList = document.getElementById("directoriesList");
 
-  if (abList && abList.selectedItem)
+  if (abList && abList.selectedItem) {
     AbDeleteDirectory(abList.value);
+  }
 }

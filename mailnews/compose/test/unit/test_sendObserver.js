@@ -5,10 +5,12 @@
  * This is adapted from test_messageHeaders.js
  */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var CompFields = CC("@mozilla.org/messengercompose/composefields;1",
-                    Ci.nsIMsgCompFields);
+var CompFields = CC(
+  "@mozilla.org/messengercompose/composefields;1",
+  Ci.nsIMsgCompFields
+);
 
 // nsIObserver implementation.
 var gData = "";
@@ -23,8 +25,10 @@ var observer = {
 
 add_task(async function testObserver() {
   let fields = new CompFields();
-  let identity = getSmtpIdentity("from@tinderbox.invalid",
-    getBasicSmtpServer());
+  let identity = getSmtpIdentity(
+    "from@tinderbox.invalid",
+    getBasicSmtpServer()
+  );
   identity.fullName = "Observer Tester";
   fields.to = "Emile <nobody@tinderbox.invalid>";
   fields.cc = "Alex <alex@tinderbox.invalid>";

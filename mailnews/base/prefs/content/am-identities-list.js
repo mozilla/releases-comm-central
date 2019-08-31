@@ -3,34 +3,37 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
-var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Gloda } = ChromeUtils.import("resource:///modules/gloda/gloda.js");
+var { fixIterator } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var gIdentityListBox;                 // the root <listbox> node
+var gIdentityListBox; // the root <listbox> node
 var gAddButton;
 var gEditButton;
 var gSetDefaultButton;
 var gDeleteButton;
 
-var gAccount = null;  // the account we are showing the identities for
+var gAccount = null; // the account we are showing the identities for
 
 document.addEventListener("dialogaccept", onOk);
 document.addEventListener("dialogcancel", onOk);
 
 function onLoad() {
-  gIdentityListBox  = document.getElementById("identitiesList");
-  gAddButton        = document.getElementById("cmd_add");
-  gEditButton       = document.getElementById("cmd_edit");
+  gIdentityListBox = document.getElementById("identitiesList");
+  gAddButton = document.getElementById("cmd_add");
+  gEditButton = document.getElementById("cmd_edit");
   gSetDefaultButton = document.getElementById("cmd_default");
-  gDeleteButton     = document.getElementById("cmd_delete");
+  gDeleteButton = document.getElementById("cmd_delete");
 
   // extract the account
   gAccount = window.arguments[0].account;
 
   var accountName = window.arguments[0].accountName;
-  document.title = document.getElementById("bundle_prefs")
-                           .getFormattedString("identity-list-title", [accountName]);
+  document.title = document
+    .getElementById("bundle_prefs")
+    .getFormattedString("identity-list-title", [accountName]);
 
   refreshIdentityList(0);
 }
@@ -42,8 +45,9 @@ function onLoad() {
  */
 function refreshIdentityList(aSelectIndex) {
   // Remove all children.
-  while (gIdentityListBox.hasChildNodes())
+  while (gIdentityListBox.hasChildNodes()) {
     gIdentityListBox.lastChild.remove();
+  }
 
   // Build the list from the identities array.
   let identities = gAccount.identities;
@@ -60,10 +64,11 @@ function refreshIdentityList(aSelectIndex) {
   }
 
   // Ensure one identity is always selected.
-  if (!aSelectIndex || aSelectIndex < 0)
+  if (!aSelectIndex || aSelectIndex < 0) {
     aSelectIndex = 0;
-  else if (aSelectIndex >= gIdentityListBox.itemCount)
+  } else if (aSelectIndex >= gIdentityListBox.itemCount) {
     aSelectIndex = gIdentityListBox.itemCount - 1;
+  }
 
   // This also fires the onselect event, which in turn calls updateButtons().
   gIdentityListBox.selectedIndex = aSelectIndex;
@@ -77,32 +82,40 @@ function refreshIdentityList(aSelectIndex) {
 function openIdentityEditor(identity) {
   let args = { identity, account: gAccount, result: false };
 
-  let indexToSelect = identity ? gIdentityListBox.selectedIndex :
-                                 gIdentityListBox.itemCount;
+  let indexToSelect = identity
+    ? gIdentityListBox.selectedIndex
+    : gIdentityListBox.itemCount;
 
-  window.openDialog("am-identity-edit.xul", "",
-                    "chrome,modal,resizable,centerscreen", args);
+  window.openDialog(
+    "am-identity-edit.xul",
+    "",
+    "chrome,modal,resizable,centerscreen",
+    args
+  );
 
-  if (args.result)
+  if (args.result) {
     refreshIdentityList(indexToSelect);
+  }
 }
 
 function getSelectedIdentity() {
-  if (gIdentityListBox.selectedItems.length != 1)
+  if (gIdentityListBox.selectedItems.length != 1) {
     return null;
+  }
 
   var identityKey = gIdentityListBox.selectedItems[0].getAttribute("key");
   let identities = gAccount.identities;
   for (let identity of fixIterator(identities, Ci.nsIMsgIdentity)) {
-    if (identity.valid && identity.key == identityKey)
+    if (identity.valid && identity.key == identityKey) {
       return identity;
+    }
   }
 
   return null; // no identity found
 }
 
 function onEdit(event) {
-  var id = (event.target.localName == "listbox") ? null : getSelectedIdentity();
+  var id = event.target.localName == "listbox" ? null : getSelectedIdentity();
   openIdentityEditor(id);
 }
 
@@ -111,7 +124,10 @@ function onEdit(event) {
  */
 function updateButtons() {
   // In this listbox there should always be one item selected.
-  if (gIdentityListBox.selectedItems.length != 1 || gIdentityListBox.itemCount == 0) {
+  if (
+    gIdentityListBox.selectedItems.length != 1 ||
+    gIdentityListBox.itemCount == 0
+  ) {
     // But in case this is not met (e.g. there is no identity for some reason,
     // or the list is being rebuilt), disable all buttons.
     gEditButton.setAttribute("disabled", "true");
@@ -121,19 +137,27 @@ function updateButtons() {
   }
 
   gEditButton.setAttribute("disabled", "false");
-  gDeleteButton.setAttribute("disabled", (gIdentityListBox.itemCount <= 1) ? "true" : "false");
-  gSetDefaultButton.setAttribute("disabled", (gIdentityListBox.selectedIndex == 0) ? "true" : "false");
+  gDeleteButton.setAttribute(
+    "disabled",
+    gIdentityListBox.itemCount <= 1 ? "true" : "false"
+  );
+  gSetDefaultButton.setAttribute(
+    "disabled",
+    gIdentityListBox.selectedIndex == 0 ? "true" : "false"
+  );
   // The Add command is always enabled.
 }
 
 function onSetDefault(event) {
   let identity = getSelectedIdentity();
-  if (!identity)
+  if (!identity) {
     return;
+  }
 
   // If the first identity is selected, there is nothing to do.
-  if (gIdentityListBox.selectedIndex == 0)
+  if (gIdentityListBox.selectedIndex == 0) {
     return;
+  }
 
   gAccount.defaultIdentity = identity;
   // Rebuilt the identity list and select the moved identity again.
@@ -143,24 +167,40 @@ function onSetDefault(event) {
 }
 
 function onDelete(event) {
-  if (gIdentityListBox.itemCount <= 1)  // don't support deleting the last identity
+  if (gIdentityListBox.itemCount <= 1) {
+    // don't support deleting the last identity
     return;
+  }
 
   // get delete confirmation
   let selectedIdentity = getSelectedIdentity();
 
   let prefsBundle = document.getElementById("bundle_prefs");
-  let confirmTitle = prefsBundle.getFormattedString("identity-delete-confirm-title",
-                                                    [window.arguments[0].accountName]);
-  let confirmText = prefsBundle.getFormattedString("identity-delete-confirm",
-                                                   [selectedIdentity.identityName]);
+  let confirmTitle = prefsBundle.getFormattedString(
+    "identity-delete-confirm-title",
+    [window.arguments[0].accountName]
+  );
+  let confirmText = prefsBundle.getFormattedString("identity-delete-confirm", [
+    selectedIdentity.identityName,
+  ]);
   let confirmButton = prefsBundle.getString("identity-delete-confirm-button");
 
-  if (Services.prompt.confirmEx(window, confirmTitle, confirmText,
-                                (Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING) +
-                                (Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_CANCEL),
-                                confirmButton, null, null, null, {}))
+  if (
+    Services.prompt.confirmEx(
+      window,
+      confirmTitle,
+      confirmText,
+      Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING +
+        Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_CANCEL,
+      confirmButton,
+      null,
+      null,
+      null,
+      {}
+    )
+  ) {
     return;
+  }
 
   let selectedItemIndex = gIdentityListBox.selectedIndex;
 

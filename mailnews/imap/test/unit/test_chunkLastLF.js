@@ -11,7 +11,7 @@
  * that are run externally.
  */
 
- // async support
+// async support
 /* import-globals-from ../../../test/resources/logHelper.js */
 /* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
@@ -35,7 +35,10 @@ function run_test() {
   Services.prefs.setBoolPref("mail.biff.show_alert", false);
   Services.prefs.setBoolPref("mail.biff.show_tray_icon", false);
   Services.prefs.setBoolPref("mail.biff.animate_dock_icon", false);
-  Services.prefs.setBoolPref("mail.server.server1.autosync_offline_stores", false);
+  Services.prefs.setBoolPref(
+    "mail.server.server1.autosync_offline_stores",
+    false
+  );
 
   // Crank down the message chunk size to make test cases easier
   Services.prefs.setBoolPref("mail.server.default.fetch_by_chunks", true);
@@ -61,20 +64,23 @@ function* verifyContentLength() {
   // Add a message to the IMAP server
   addMessageToServer(gFile, gIMAPDaemon.getMailbox("INBOX"));
 
-  let imapS = Cc["@mozilla.org/messenger/messageservice;1?type=imap"]
-                .getService(Ci.nsIMsgMessageService);
+  let imapS = Cc[
+    "@mozilla.org/messenger/messageservice;1?type=imap"
+  ].getService(Ci.nsIMsgMessageService);
 
   dump("getting uri\n");
   let uri = {};
   imapS.GetUrlForUri("imap-message://user@localhost/INBOX#1", uri, null);
 
   // Get a channel from this URI, and check its content length
-  let channel = Services.io.newChannelFromURI(uri.value,
-                                              null,
-                                              Services.scriptSecurityManager.getSystemPrincipal(),
-                                              null,
-                                              Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                              Ci.nsIContentPolicy.TYPE_OTHER);
+  let channel = Services.io.newChannelFromURI(
+    uri.value,
+    null,
+    Services.scriptSecurityManager.getSystemPrincipal(),
+    null,
+    Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+    Ci.nsIContentPolicy.TYPE_OTHER
+  );
 
   dump(channel + "\n");
 
@@ -108,8 +114,9 @@ function* endTest() {
   gIMAPIncomingServer.closeCachedConnections();
   gIMAPServer.stop();
   let thread = gThreadManager.currentThread;
-  while (thread.hasPendingEvents())
+  while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
+  }
 
   yield true;
 }
@@ -127,7 +134,9 @@ var gStreamListener = {
   },
   onDataAvailable(aRequest, aInputStream, aOff, aCount) {
     if (this._stream == null) {
-      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(Ci.nsIScriptableInputStream);
+      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+        Ci.nsIScriptableInputStream
+      );
       this._stream.init(aInputStream);
     }
     this._data += this._stream.read(aCount);

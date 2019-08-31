@@ -11,8 +11,12 @@ load("../../../resources/messageGenerator.js");
 
 var gEmptyLocal1, gEmptyLocal2, gEmptyLocal3, gNotEmptyLocal4;
 
-var {toXPCOMArray} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { toXPCOMArray } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var tests = [
   setup,
@@ -21,7 +25,13 @@ var tests = [
     let folders = [];
     folders.push(gEmptyLocal1.QueryInterface(Ci.nsIMsgFolder));
     let array = toXPCOMArray(folders, Ci.nsIMutableArray);
-    MailServices.copy.CopyFolders(array, IMAPPump.inbox, false, CopyListener, null);
+    MailServices.copy.CopyFolders(
+      array,
+      IMAPPump.inbox,
+      false,
+      CopyListener,
+      null
+    );
     yield false;
   },
   function* copyFolder2() {
@@ -29,7 +39,13 @@ var tests = [
     let folders = [];
     folders.push(gEmptyLocal2);
     let array = toXPCOMArray(folders, Ci.nsIMutableArray);
-    MailServices.copy.CopyFolders(array, IMAPPump.inbox, false, CopyListener, null);
+    MailServices.copy.CopyFolders(
+      array,
+      IMAPPump.inbox,
+      false,
+      CopyListener,
+      null
+    );
     yield false;
   },
   function* copyFolder3() {
@@ -37,7 +53,13 @@ var tests = [
     let folders = [];
     folders.push(gEmptyLocal3);
     let array = toXPCOMArray(folders, Ci.nsIMutableArray);
-    MailServices.copy.CopyFolders(array, IMAPPump.inbox, false, CopyListener, null);
+    MailServices.copy.CopyFolders(
+      array,
+      IMAPPump.inbox,
+      false,
+      CopyListener,
+      null
+    );
     yield false;
   },
   function verifyFolders() {
@@ -87,7 +109,13 @@ var tests = [
     IMAPPump.daemon.commandToFail = "APPEND";
     // we expect NS_MSG_ERROR_IMAP_COMMAND_FAILED;
     CopyListener._expectedStatus = 0x80550021;
-    MailServices.copy.CopyFolders(array, IMAPPump.inbox, false, CopyListener, null);
+    MailServices.copy.CopyFolders(
+      array,
+      IMAPPump.inbox,
+      false,
+      CopyListener,
+      null
+    );
 
     // In failure case OnStopCopy is sent twice, the first one comes from
     // nsMsgCopyService, the second one comes from nsImapFolderCopyState.
@@ -104,7 +132,9 @@ function setup() {
   gEmptyLocal1 = localAccountUtils.rootFolder.createLocalSubfolder("empty 1");
   gEmptyLocal2 = localAccountUtils.rootFolder.createLocalSubfolder("empty 2");
   gEmptyLocal3 = localAccountUtils.rootFolder.createLocalSubfolder("empty 3");
-  gNotEmptyLocal4 = localAccountUtils.rootFolder.createLocalSubfolder("not empty 4");
+  gNotEmptyLocal4 = localAccountUtils.rootFolder.createLocalSubfolder(
+    "not empty 4"
+  );
 
   let messageGenerator = new MessageGenerator();
   let message = messageGenerator.makeMessage();
@@ -141,4 +171,3 @@ function teardown() {
 function run_test() {
   async_run_tests(tests);
 }
-

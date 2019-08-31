@@ -2,7 +2,9 @@
  * Test nsMsgHdr's In-Reply-To/References parsing logic.
  */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var anyOldMessage = do_get_file("../../../../data/bugmail1");
 
@@ -11,8 +13,10 @@ var refsAndResults = [
   ["", []],
   // super valid things
   ["<abc@def>", ["abc@def"]],
-  ["<up@down> <left@right> <ying@yang>",
-    ["up@down", "left@right", "ying@yang"]],
+  [
+    "<up@down> <left@right> <ying@yang>",
+    ["up@down", "left@right", "ying@yang"],
+  ],
   // whitespace type things
   ["    ", []],
   ["   <left@space>", ["left@space"]],
@@ -22,8 +26,10 @@ var refsAndResults = [
   ["<a@b>\n\t<tab@newline.n>", ["a@b", "tab@newline.n"]],
   ["<a@b>\r\t<tab@newline.r>", ["a@b", "tab@newline.r"]],
   ["<a@b>\n\t<tab@newline.nr>", ["a@b", "tab@newline.nr"]],
-  ["<a@1>\n<a@2> <a@3>\t <a@4>\n  <a@5>\r\t<a@6>\r\n <a@7>\r\n\t ",
-   ["a@1", "a@2", "a@3", "a@4", "a@5", "a@6", "a@7"]],
+  [
+    "<a@1>\n<a@2> <a@3>\t <a@4>\n  <a@5>\r\t<a@6>\r\n <a@7>\r\n\t ",
+    ["a@1", "a@2", "a@3", "a@4", "a@5", "a@6", "a@7"],
+  ],
   // be backwards compatible with old-school things that make some sense
   ["i am a stupid message-id", ["i am a stupid message-id"]],
   ["  those were spaces!", ["those were spaces!"]],
@@ -52,7 +58,7 @@ function test_references_header_parsing(aMsgHdr) {
   var iCase, iResult, refString, results;
   for (iCase = 0; iCase < refsAndResults.length; iCase++) {
     refString = refsAndResults[iCase][0];
-    results   = refsAndResults[iCase][1];
+    results = refsAndResults[iCase][1];
 
     dump("Setting references to: '" + refString + "'\n");
     aMsgHdr.setReferences(refString);
@@ -87,8 +93,16 @@ function test_references_header_parsing(aMsgHdr) {
 function run_test() {
   localAccountUtils.loadLocalMailAccount();
   do_test_pending();
-  MailServices.copy.CopyFileMessage(anyOldMessage, localAccountUtils.inboxFolder, null,
-                                    false, 0, "", messageHeaderGetterListener, null);
+  MailServices.copy.CopyFileMessage(
+    anyOldMessage,
+    localAccountUtils.inboxFolder,
+    null,
+    false,
+    0,
+    "",
+    messageHeaderGetterListener,
+    null
+  );
   return true;
 }
 
@@ -103,6 +117,7 @@ var messageHeaderGetterListener = {
   },
   OnStopCopy(aStatus) {
     test_references_header_parsing(
-      localAccountUtils.inboxFolder.GetMessageHeader(this.msgKey));
+      localAccountUtils.inboxFolder.GetMessageHeader(this.msgKey)
+    );
   },
 };

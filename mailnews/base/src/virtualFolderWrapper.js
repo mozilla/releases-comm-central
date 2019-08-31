@@ -8,9 +8,13 @@
 
 this.EXPORTED_SYMBOLS = ["VirtualFolderHelper"];
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { fixIterator } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
 
 var VirtualFolderHelper = {
   /**
@@ -35,8 +39,13 @@ var VirtualFolderHelper = {
    *     the nsIMsgFolder we created.  Be careful about accessing any of the
    *     other attributes, as they will bring its message database back to life.
    */
-  createNewVirtualFolder(aFolderName, aParentFolder, aSearchFolders,
-                         aSearchTerms, aOnlineSearch) {
+  createNewVirtualFolder(
+    aFolderName,
+    aParentFolder,
+    aSearchFolders,
+    aSearchTerms,
+    aOnlineSearch
+  ) {
     let msgFolder = aParentFolder.addSubfolder(aFolderName);
     msgFolder.prettyName = aFolderName;
     msgFolder.setFlag(Ci.nsMsgFolderFlags.Virtual);
@@ -112,12 +121,14 @@ VirtualFolderWrapper.prototype = {
    *     search over.
    */
   get searchFolders() {
-    let virtualFolderUris =
-      this.dbFolderInfo.getCharProperty("searchFolderUri").split("|");
+    let virtualFolderUris = this.dbFolderInfo
+      .getCharProperty("searchFolderUri")
+      .split("|");
     let folders = [];
     for (let folderURI of virtualFolderUris) {
-      if (folderURI)
+      if (folderURI) {
         folders.push(MailUtils.getExistingFolder(folderURI));
+      }
     }
     return folders;
   },
@@ -128,11 +139,12 @@ VirtualFolderWrapper.prototype = {
    *     nsIMsgFolders that fixIterator can traverse (JS array/nsIMutableArray).
    */
   set searchFolders(aFolders) {
-    if (typeof(aFolders) == "string") {
+    if (typeof aFolders == "string") {
       this.dbFolderInfo.setCharProperty("searchFolderUri", aFolders);
     } else {
-      let uris = Array.from(fixIterator(aFolders, Ci.nsIMsgFolder))
-                      .map(folder => folder.URI);
+      let uris = Array.from(fixIterator(aFolders, Ci.nsIMsgFolder)).map(
+        folder => folder.URI
+      );
       this.dbFolderInfo.setCharProperty("searchFolderUri", uris.join("|"));
     }
   },
@@ -178,13 +190,14 @@ VirtualFolderWrapper.prototype = {
   set searchTerms(aTerms) {
     let condition = "";
     for (let term of fixIterator(aTerms, Ci.nsIMsgSearchTerm)) {
-      if (condition.length)
+      if (condition.length) {
         condition += " ";
+      }
       if (term.matchAll) {
         condition = "ALL";
         break;
       }
-      condition += (term.booleanAnd) ? "AND (" : "OR (";
+      condition += term.booleanAnd ? "AND (" : "OR (";
       condition += term.termAsString + ")";
     }
     this.searchString = condition;
@@ -228,7 +241,7 @@ VirtualFolderWrapper.prototype = {
    */
   get dbFolderInfo() {
     let msgDatabase = this.virtualFolder.msgDatabase;
-    return (msgDatabase && msgDatabase.dBFolderInfo);
+    return msgDatabase && msgDatabase.dBFolderInfo;
   },
 
   /**

@@ -7,12 +7,15 @@
   a mailnews URL extended for a hypthetical account type "foo".
 **/
 
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-const {JSAccountUtils} = ChromeUtils.import("resource:///modules/jsaccount/JSAccountUtils.jsm");
-const {
-  JaBaseUrl,
-  JaBaseUrlProperties,
-} = ChromeUtils.import("resource:///modules/jsaccount/JaBaseUrl.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+const { JSAccountUtils } = ChromeUtils.import(
+  "resource:///modules/jsaccount/JSAccountUtils.jsm"
+);
+const { JaBaseUrl, JaBaseUrlProperties } = ChromeUtils.import(
+  "resource:///modules/jsaccount/JaBaseUrl.jsm"
+);
 
 const ATTACHMENT_QUERY = "part=1.";
 
@@ -24,12 +27,11 @@ var FooUrlProperties = {
   classID: Components.ID("{73F98539-A59F-4F6F-9A72-D83A08646C23}"),
 
   // Add an additional interface only needed by this custom class.
-  extraInterfaces: [ Ci.msgIFooUrl ],
+  extraInterfaces: [Ci.msgIFooUrl],
 };
 
 // Constructor
-function FooUrlConstructor() {
-}
+function FooUrlConstructor() {}
 
 // Constructor prototype (not instance prototype).
 FooUrlConstructor.prototype = {
@@ -55,7 +57,6 @@ function FooUrl(aDelegator, aBaseInterfaces) {
 
 // Extend the base class methods.
 FooUrl.prototype = {
-
   // Typical boilerplate to include in all implementations.
 
   // Extended the JS URL object.
@@ -68,8 +69,9 @@ FooUrl.prototype = {
 
   getInterface(iid) {
     for (let iface of FooUrlProperties.extraInterfaces) {
-      if (iid.equals(iface))
+      if (iid.equals(iface)) {
         return this;
+      }
     }
     return this.delegator.QueryInterface(iid);
   },
@@ -78,15 +80,19 @@ FooUrl.prototype = {
 
   // Foo id for item.
   // attribute AString itemId;
-  get itemId() { return this._itemId; },
-  set itemId(aVal) { this._itemId = aVal; },
+  get itemId() {
+    return this._itemId;
+  },
+  set itemId(aVal) {
+    this._itemId = aVal;
+  },
 
   // Does this url refer to an attachment?
   // readonly attribute boolean isAttachment;
   get isAttachment() {
     // We look to see if the URL has an attachment query
     let query = this.QueryInterface(Ci.nsIURL).query;
-    return (query && query.includes(ATTACHMENT_QUERY));
+    return query && query.includes(ATTACHMENT_QUERY);
   },
 };
 

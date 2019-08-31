@@ -18,27 +18,29 @@ load("../../../resources/messageGenerator.js");
 load("../../../resources/messageModifier.js");
 load("../../../resources/messageInjection.js");
 
-var gMessenger = Cc["@mozilla.org/messenger;1"]
-                   .createInstance(Ci.nsIMessenger);
+var gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
 // Create a message generator
-var msgGen = gMessageGenerator = new MessageGenerator();
+var msgGen = (gMessageGenerator = new MessageGenerator());
 
 var messages = [
   {
     // a message whose body is itself a message
     bodyPart: msgGen.makeMessage(),
     attachmentCount: inline => 1,
-  }, {
+  },
+  {
     // a message whose body is itself a message, and which has an attachment
     bodyPart: msgGen.makeMessage({
-      attachments: [{
-        body: "I'm an attachment!",
-        filename: "attachment.txt",
-        format: "",
-      }],
+      attachments: [
+        {
+          body: "I'm an attachment!",
+          filename: "attachment.txt",
+          format: "",
+        },
+      ],
     }),
-    attachmentCount: inline => inline ? 2 : 1,
+    attachmentCount: inline => (inline ? 2 : 1),
   },
 ];
 
@@ -47,19 +49,21 @@ var gStreamListener = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
 
   // nsIRequestObserver part
-  onStartRequest(aRequest) {
-  },
+  onStartRequest(aRequest) {},
   onStopRequest(aRequest, aStatusCode) {
-    Assert.equal(gMessageHeaderSink.attachmentCount,
-                 this.expectedAttachmentCount);
+    Assert.equal(
+      gMessageHeaderSink.attachmentCount,
+      this.expectedAttachmentCount
+    );
     async_driver();
   },
 
   // nsIStreamListener part
   onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
     if (this.stream === null) {
-      this.stream = Cc["@mozilla.org/scriptableinputstream;1"].
-                    createInstance(Ci.nsIScriptableInputStream);
+      this.stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+        Ci.nsIScriptableInputStream
+      );
       this.stream.init(aInputStream);
     }
   },
@@ -68,7 +72,13 @@ var gStreamListener = {
 var gMessageHeaderSink = {
   attachmentCount: 0,
 
-  handleAttachment(aContentType, aUrl, aDisplayName, aUri, aIsExternalAttachment) {
+  handleAttachment(
+    aContentType,
+    aUrl,
+    aDisplayName,
+    aUri,
+    aIsExternalAttachment
+  ) {
     this.attachmentCount++;
   },
 
@@ -89,8 +99,9 @@ var gMessageHeaderSink = {
   },
 };
 
-var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
-                  .createInstance(Ci.nsIMsgWindow);
+var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
+  Ci.nsIMsgWindow
+);
 msgWindow.msgHeaderSink = gMessageHeaderSink;
 
 function* help_test_rfc822_body(info, inline) {
@@ -111,7 +122,8 @@ function* help_test_rfc822_body(info, inline) {
     true, // have them create the converter
     // additional uri payload, note that "header=" is prepended automatically
     "filter",
-    false);
+    false
+  );
 
   yield false;
 }
@@ -134,6 +146,6 @@ var tests = [
 var gInbox;
 
 function run_test() {
-  gInbox = configure_message_injection({mode: "local"});
+  gInbox = configure_message_injection({ mode: "local" });
   async_run_tests(tests);
 }

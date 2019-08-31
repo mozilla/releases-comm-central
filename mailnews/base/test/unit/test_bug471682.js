@@ -8,26 +8,41 @@
  * then compare the date and filesize of the folder file with the
  * stored result in dbfolderinfo. If they don't match, that's bad.
  */
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var bugmail1 = do_get_file("../../../data/bugmail1");
 var gHdr; // header of test message in local folder
 
 localAccountUtils.loadLocalMailAccount();
 // create a subfolder as a target for copies
-var gSubfolder = localAccountUtils.inboxFolder.createLocalSubfolder("subfolder");
+var gSubfolder = localAccountUtils.inboxFolder.createLocalSubfolder(
+  "subfolder"
+);
 
 function run_test() {
   // make sure we're using berkeley mailbox format here since this test
   // assumes berkeley mailbox format.
-  if (Services.prefs.getCharPref("mail.serverDefaultStoreContractID") !=
-      "@mozilla.org/msgstore/berkeleystore;1")
+  if (
+    Services.prefs.getCharPref("mail.serverDefaultStoreContractID") !=
+    "@mozilla.org/msgstore/berkeleystore;1"
+  ) {
     return;
+  }
 
   do_test_pending();
   // step 1: copy a message into the local inbox
-  MailServices.copy.CopyFileMessage(bugmail1, localAccountUtils.inboxFolder, null,
-                                    false, 0, "", step2, null);
+  MailServices.copy.CopyFileMessage(
+    bugmail1,
+    localAccountUtils.inboxFolder,
+    null,
+    false,
+    0,
+    "",
+    step2,
+    null
+  );
 }
 
 // step 2: copy one message into a subfolder to establish an
@@ -44,10 +59,19 @@ var step2 = {
   OnStopCopy(aStatus) {
     Assert.notEqual(gHdr, null);
     // copy the message into the subfolder
-    var messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+    var messages = Cc["@mozilla.org/array;1"].createInstance(
+      Ci.nsIMutableArray
+    );
     messages.appendElement(gHdr);
-    MailServices.copy.CopyMessages(localAccountUtils.inboxFolder, messages, gSubfolder,
-                                   false, step3, null, false);
+    MailServices.copy.CopyMessages(
+      localAccountUtils.inboxFolder,
+      messages,
+      gSubfolder,
+      false,
+      step3,
+      null,
+      false
+    );
   },
 };
 
@@ -68,8 +92,15 @@ var step3 = {
 function step4() {
   var messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   messages.appendElement(gHdr);
-  MailServices.copy.CopyMessages(localAccountUtils.inboxFolder, messages, gSubfolder,
-                                 false, step5, null, false);
+  MailServices.copy.CopyMessages(
+    localAccountUtils.inboxFolder,
+    messages,
+    gSubfolder,
+    false,
+    step5,
+    null,
+    false
+  );
 }
 
 // step 5:  actual tests of file size and date

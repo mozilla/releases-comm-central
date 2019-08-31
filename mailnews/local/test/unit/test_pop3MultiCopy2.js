@@ -8,17 +8,22 @@
 
 /* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/POP3pump.js");
-const {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
+const { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
-Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
-                           "@mozilla.org/msgstore/maildirstore;1");
+Services.prefs.setCharPref(
+  "mail.serverDefaultStoreContractID",
+  "@mozilla.org/msgstore/maildirstore;1"
+);
 
 var gInboxFolder, gTestFolder;
 
-gPOP3Pump.files = ["../../../data/bugmail1",
-                   "../../../data/draft1"];
-var gTestSubjects = ["[Bug 397009] A filter will let me tag, but not untag",
-                     "Hello, did you receive my bugmail?"];
+gPOP3Pump.files = ["../../../data/bugmail1", "../../../data/draft1"];
+var gTestSubjects = [
+  "[Bug 397009] A filter will let me tag, but not untag",
+  "Hello, did you receive my bugmail?",
+];
 
 add_task(async function setupFolders() {
   let storeID = "@mozilla.org/msgstore/maildirstore;1";
@@ -29,8 +34,8 @@ add_task(async function setupFolders() {
 
   // Create a test folder on the Local Folders account.
   gTestFolder = localAccountUtils.rootFolder
-                                 .QueryInterface(Ci.nsIMsgLocalMailFolder)
-                                 .createLocalSubfolder("test");
+    .QueryInterface(Ci.nsIMsgLocalMailFolder)
+    .createLocalSubfolder("test");
   dump("testFolder is at " + gTestFolder.filePath.path + "\n");
   await gPOP3Pump.run();
 });
@@ -39,9 +44,9 @@ add_task(async function maildirToMbox() {
   // Test for multiple message copy for maildir->mbox.
 
   // get message headers for the inbox folder
-  gInboxFolder = gPOP3Pump.fakeServer
-                          .rootMsgFolder
-                          .getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
+  gInboxFolder = gPOP3Pump.fakeServer.rootMsgFolder.getFolderWithFlags(
+    Ci.nsMsgFolderFlags.Inbox
+  );
   dump("inbox is at " + gInboxFolder.filePath.path + "\n");
 
   // Accumulate messages to copy.
@@ -55,8 +60,15 @@ add_task(async function maildirToMbox() {
 
   // Move messages to mbox test folder.
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
-  MailServices.copy.CopyMessages(gInboxFolder, messages, gTestFolder, true,
-                                 promiseCopyListener, null, false);
+  MailServices.copy.CopyMessages(
+    gInboxFolder,
+    messages,
+    gTestFolder,
+    true,
+    promiseCopyListener,
+    null,
+    false
+  );
   await promiseCopyListener.promise;
 
   // Check the destination headers.
@@ -103,8 +115,15 @@ add_task(async function mboxToMaildir() {
 
   // Move messages to inbox folder.
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
-  MailServices.copy.CopyMessages(gTestFolder, messages, gInboxFolder, true,
-                                 promiseCopyListener, null, false);
+  MailServices.copy.CopyMessages(
+    gTestFolder,
+    messages,
+    gInboxFolder,
+    true,
+    promiseCopyListener,
+    null,
+    false
+  );
   await promiseCopyListener.promise;
 
   // Check the destination headers.
@@ -143,19 +162,27 @@ add_task(function testCleanup() {
 
 // Clone of POP3pump resetPluggableStore that does not reset local folders.
 function resetPluggableStoreLocal(aStoreContractID) {
-  Services.prefs.setCharPref("mail.serverDefaultStoreContractID", aStoreContractID);
+  Services.prefs.setCharPref(
+    "mail.serverDefaultStoreContractID",
+    aStoreContractID
+  );
 
   // Cleanup existing files, server and account instances, if any.
-  if (gPOP3Pump._server)
+  if (gPOP3Pump._server) {
     gPOP3Pump._server.stop();
+  }
 
   if (gPOP3Pump.fakeServer && gPOP3Pump.fakeServer.valid) {
     gPOP3Pump.fakeServer.closeCachedConnections();
     MailServices.accounts.removeIncomingServer(gPOP3Pump.fakeServer, false);
   }
 
-  gPOP3Pump.fakeServer = localAccountUtils.create_incoming_server("pop3",
-      gPOP3Pump.kPOP3_PORT, "fred", "wilma");
+  gPOP3Pump.fakeServer = localAccountUtils.create_incoming_server(
+    "pop3",
+    gPOP3Pump.kPOP3_PORT,
+    "fred",
+    "wilma"
+  );
 
   // localAccountUtils.clearAll();
 

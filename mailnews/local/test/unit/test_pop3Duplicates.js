@@ -6,17 +6,23 @@
 /* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/POP3pump.js");
 
-var testSubjects = ["[Bug 397009] A filter will let me tag, but not untag",
-                    "Hello, did you receive my bugmail?"];
+var testSubjects = [
+  "[Bug 397009] A filter will let me tag, but not untag",
+  "Hello, did you receive my bugmail?",
+];
 
 function run_test() {
   // Set duplicate action to be delete duplicates.
-  Services.prefs.setIntPref("mail.server.default.dup_action",
-                            Ci.nsIMsgIncomingServer.deleteDups);
+  Services.prefs.setIntPref(
+    "mail.server.default.dup_action",
+    Ci.nsIMsgIncomingServer.deleteDups
+  );
   // add 3 messages, 2 of which are duplicates.
-  gPOP3Pump.files = ["../../../data/bugmail1",
-                     "../../../data/draft1",
-                     "../../../data/bugmail1"];
+  gPOP3Pump.files = [
+    "../../../data/bugmail1",
+    "../../../data/draft1",
+    "../../../data/bugmail1",
+  ];
   gPOP3Pump.onDone = continueTest;
   do_test_pending();
   gPOP3Pump.run();

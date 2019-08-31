@@ -6,7 +6,9 @@
  * between mailnews and SMTP server. It does not check the data of the message
  * either side of the link, it will be extended later to do that.
  */
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var server;
 
@@ -36,34 +38,58 @@ function test_RFC2821() {
     // First do test with identity email address used for smtp MAIL FROM.
     Services.prefs.setBoolPref("mail.smtp.useSenderForSmtpMailFrom", false);
 
-    MailServices.smtp.sendMailMessage(testFile, kTo, identity, kSender,
-                                      null, null, null, null,
-                                      false, {}, {});
+    MailServices.smtp.sendMailMessage(
+      testFile,
+      kTo,
+      identity,
+      kSender,
+      null,
+      null,
+      null,
+      null,
+      false,
+      {},
+      {}
+    );
 
     server.performTest();
 
     var transaction = server.playTransaction();
-    do_check_transaction(transaction, ["EHLO test",
-                                       "MAIL FROM:<" + kIdentityMail + "> BODY=8BITMIME SIZE=159",
-                                       "RCPT TO:<" + kTo + ">",
-                                       "DATA"]);
+    do_check_transaction(transaction, [
+      "EHLO test",
+      "MAIL FROM:<" + kIdentityMail + "> BODY=8BITMIME SIZE=159",
+      "RCPT TO:<" + kTo + ">",
+      "DATA",
+    ]);
 
     server.resetTest();
 
     // Now do the same test with sender's email address used for smtp MAIL FROM.
     Services.prefs.setBoolPref("mail.smtp.useSenderForSmtpMailFrom", true);
 
-    MailServices.smtp.sendMailMessage(testFile, kTo, identity, kSender,
-                                      null, null, null, null,
-                                      false, {}, {});
+    MailServices.smtp.sendMailMessage(
+      testFile,
+      kTo,
+      identity,
+      kSender,
+      null,
+      null,
+      null,
+      null,
+      false,
+      {},
+      {}
+    );
 
     server.performTest();
 
     transaction = server.playTransaction();
-    do_check_transaction(transaction, ["EHLO test",
-                                       "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=159",
-                                       "RCPT TO:<" + kTo + ">",
-                                       "DATA"]);
+    do_check_transaction(transaction, [
+      "EHLO test",
+      "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=159",
+      "RCPT TO:<" + kTo + ">",
+      "DATA",
+    ]);
 
     server.resetTest();
 
@@ -78,44 +104,69 @@ function test_RFC2821() {
     // First do test with identity email address used for smtp MAIL FROM.
     Services.prefs.setBoolPref("mail.smtp.useSenderForSmtpMailFrom", false);
 
-    MailServices.smtp.sendMailMessage(testFile, kTo, identity, kSender,
-                                      null, null, null, null,
-                                      false, {}, {});
+    MailServices.smtp.sendMailMessage(
+      testFile,
+      kTo,
+      identity,
+      kSender,
+      null,
+      null,
+      null,
+      null,
+      false,
+      {},
+      {}
+    );
 
     server.performTest();
 
     transaction = server.playTransaction();
-    do_check_transaction(transaction, ["EHLO test",
-                                       "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kPassword),
-                                       "MAIL FROM:<" + kIdentityMail + "> BODY=8BITMIME SIZE=159",
-                                       "RCPT TO:<" + kTo + ">",
-                                       "DATA"]);
+    do_check_transaction(transaction, [
+      "EHLO test",
+      "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kPassword),
+      "MAIL FROM:<" + kIdentityMail + "> BODY=8BITMIME SIZE=159",
+      "RCPT TO:<" + kTo + ">",
+      "DATA",
+    ]);
 
     server.resetTest();
 
     // Now do the same test with sender's email address used for smtp MAIL FROM.
     Services.prefs.setBoolPref("mail.smtp.useSenderForSmtpMailFrom", true);
 
-    MailServices.smtp.sendMailMessage(testFile, kTo, identity, kSender,
-                                      null, null, null, null,
-                                      false, {}, {});
+    MailServices.smtp.sendMailMessage(
+      testFile,
+      kTo,
+      identity,
+      kSender,
+      null,
+      null,
+      null,
+      null,
+      false,
+      {},
+      {}
+    );
 
     server.performTest();
 
     transaction = server.playTransaction();
-    do_check_transaction(transaction, ["EHLO test",
-                                       "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kPassword),
-                                       "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=159",
-                                       "RCPT TO:<" + kTo + ">",
-                                       "DATA"]);
+    do_check_transaction(transaction, [
+      "EHLO test",
+      "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kPassword),
+      "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=159",
+      "RCPT TO:<" + kTo + ">",
+      "DATA",
+    ]);
   } catch (e) {
     do_throw(e);
   } finally {
     server.stop();
 
     var thread = gThreadManager.currentThread;
-    while (thread.hasPendingEvents())
+    while (thread.hasPendingEvents()) {
       thread.processNextEvent(true);
+    }
   }
 }
 

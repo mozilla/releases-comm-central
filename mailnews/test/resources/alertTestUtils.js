@@ -33,8 +33,12 @@
  * do_throw().
  */
 
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {MockRegistrar} = ChromeUtils.import("resource://testing-common/MockRegistrar.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+var { MockRegistrar } = ChromeUtils.import(
+  "resource://testing-common/MockRegistrar.jsm"
+);
 
 // Wrapper to the nsIPrompt interface.
 // This allows the send code to attempt to display errors to the user without
@@ -78,12 +82,28 @@ var alertUtilsPrompts = {
     return false;
   },
 
-  confirmEx(aDialogTitle, aText, aButtonFlags, aButton0Title,
-            aButton1Title, aButton2Title, aCheckMsg, aCheckState) {
+  confirmEx(
+    aDialogTitle,
+    aText,
+    aButtonFlags,
+    aButton0Title,
+    aButton1Title,
+    aButton2Title,
+    aCheckMsg,
+    aCheckState
+  ) {
     if (typeof confirmEx == "function") {
       // eslint-disable-next-line no-undef
-      return confirmEx(aDialogTitle, aText, aButtonFlags, aButton0Title,
-                       aButton1Title, aButton2Title, aCheckMsg, aCheckState);
+      return confirmEx(
+        aDialogTitle,
+        aText,
+        aButtonFlags,
+        aButton0Title,
+        aButton1Title,
+        aButton2Title,
+        aCheckMsg,
+        aCheckState
+      );
     }
 
     do_throw("confirmEx unexpectedly called: " + aText + "\n");
@@ -99,11 +119,24 @@ var alertUtilsPrompts = {
     return false;
   },
 
-  promptUsernameAndPassword(aDialogTitle, aText, aUsername, aPassword, aCheckMsg, aCheckState) {
+  promptUsernameAndPassword(
+    aDialogTitle,
+    aText,
+    aUsername,
+    aPassword,
+    aCheckMsg,
+    aCheckState
+  ) {
     if (typeof promptUsernameAndPassword == "function") {
       // eslint-disable-next-line no-undef
-      return promptUsernameAndPassword(aDialogTitle, aText, aUsername,
-                                       aPassword, aCheckMsg, aCheckState);
+      return promptUsernameAndPassword(
+        aDialogTitle,
+        aText,
+        aUsername,
+        aPassword,
+        aCheckMsg,
+        aCheckState
+      );
     }
 
     do_throw("promptUsernameAndPassword unexpectedly called: " + aText + "\n");
@@ -113,8 +146,13 @@ var alertUtilsPrompts = {
   promptPassword(aDialogTitle, aText, aPassword, aCheckMsg, aCheckState) {
     if (typeof promptPassword == "function") {
       // eslint-disable-next-line no-undef
-      return promptPassword(aDialogTitle, aText, aPassword, aCheckMsg,
-                            aCheckState);
+      return promptPassword(
+        aDialogTitle,
+        aText,
+        aPassword,
+        aCheckMsg,
+        aCheckState
+      );
     }
 
     do_throw("promptPassword unexpectedly called: " + aText + "\n");
@@ -124,8 +162,7 @@ var alertUtilsPrompts = {
   select(aDialogTitle, aText, aCount, aSelectList, aOutSelection) {
     if (typeof select == "function") {
       // eslint-disable-next-line no-undef
-      return select(aDialogTitle, aText, aCount, aSelectList,
-                    aOutSelection);
+      return select(aDialogTitle, aText, aCount, aSelectList, aOutSelection);
     }
 
     do_throw("select unexpectedly called: " + aText + "\n");
@@ -136,7 +173,7 @@ var alertUtilsPrompts = {
 };
 
 var alertUtilsPromptService = {
-   alert(aParent, aDialogTitle, aText) {
+  alert(aParent, aDialogTitle, aText) {
     if (typeof alertPS == "function") {
       // eslint-disable-next-line no-undef
       alertPS(aParent, aDialogTitle, aText);
@@ -169,21 +206,43 @@ var alertUtilsPromptService = {
   confirmCheck(aParent, aDialogTitle, aText, aCheckMsg, aCheckState) {
     if (typeof confirmCheckPS == "function") {
       // eslint-disable-next-line no-undef
-      return confirmCheckPS(aParent, aDialogTitle, aText, aCheckMsg,
-                            aCheckState);
+      return confirmCheckPS(
+        aParent,
+        aDialogTitle,
+        aText,
+        aCheckMsg,
+        aCheckState
+      );
     }
 
     do_throw("confirmCheckPS unexpectedly called: " + aText + "\n");
     return false;
   },
 
-  confirmEx(aParent, aDialogTitle, aText, aButtonFlags, aButton0Title,
-            aButton1Title, aButton2Title, aCheckMsg, aCheckState) {
+  confirmEx(
+    aParent,
+    aDialogTitle,
+    aText,
+    aButtonFlags,
+    aButton0Title,
+    aButton1Title,
+    aButton2Title,
+    aCheckMsg,
+    aCheckState
+  ) {
     if (typeof confirmExPS == "function") {
       // eslint-disable-next-line no-undef
-      return confirmExPS(aParent, aDialogTitle, aText, aButtonFlags,
-                         aButton0Title, aButton1Title, aButton2Title, aCheckMsg,
-                         aCheckState);
+      return confirmExPS(
+        aParent,
+        aDialogTitle,
+        aText,
+        aButtonFlags,
+        aButton0Title,
+        aButton1Title,
+        aButton2Title,
+        aCheckMsg,
+        aCheckState
+      );
     }
 
     do_throw("confirmExPS unexpectedly called: " + aText + "\n");
@@ -193,32 +252,66 @@ var alertUtilsPromptService = {
   prompt(aParent, aDialogTitle, aText, aValue, aCheckMsg, aCheckState) {
     if (typeof promptPS == "function") {
       // eslint-disable-next-line no-undef
-      return promptPS(aParent, aDialogTitle, aText, aValue, aCheckMsg,
-                      aCheckState);
+      return promptPS(
+        aParent,
+        aDialogTitle,
+        aText,
+        aValue,
+        aCheckMsg,
+        aCheckState
+      );
     }
 
     do_throw("promptPS unexpectedly called: " + aText + "\n");
     return false;
   },
 
-  promptUsernameAndPassword(aParent, aDialogTitle, aText, aUsername,
-                            aPassword, aCheckMsg, aCheckState) {
+  promptUsernameAndPassword(
+    aParent,
+    aDialogTitle,
+    aText,
+    aUsername,
+    aPassword,
+    aCheckMsg,
+    aCheckState
+  ) {
     if (typeof promptUsernameAndPasswordPS == "function") {
       // eslint-disable-next-line no-undef
-      return promptUsernameAndPasswordPS(aParent, aDialogTitle, aText,
-                                         aUsername, aPassword, aCheckMsg,
-                                         aCheckState);
+      return promptUsernameAndPasswordPS(
+        aParent,
+        aDialogTitle,
+        aText,
+        aUsername,
+        aPassword,
+        aCheckMsg,
+        aCheckState
+      );
     }
 
-    do_throw("promptUsernameAndPasswordPS unexpectedly called: " + aText + "\n");
+    do_throw(
+      "promptUsernameAndPasswordPS unexpectedly called: " + aText + "\n"
+    );
     return false;
   },
 
-  promptPassword(aParent, aDialogTitle, aText, aPassword, aCheckMsg, aCheckState) {
+  promptPassword(
+    aParent,
+    aDialogTitle,
+    aText,
+    aPassword,
+    aCheckMsg,
+    aCheckState
+  ) {
     if (typeof promptPasswordPS == "function") {
       // eslint-disable-next-line no-undef
-      return promptPasswordPS(aParent, aDialogTitle, aText, aPassword,
-                              aCheckMsg, aCheckState);
+      return promptPasswordPS(
+        aParent,
+        aDialogTitle,
+        aText,
+        aPassword,
+        aCheckMsg,
+        aCheckState
+      );
     }
 
     do_throw("promptPasswordPS unexpectedly called: " + aText + "\n");
@@ -228,8 +321,14 @@ var alertUtilsPromptService = {
   select(aParent, aDialogTitle, aText, aCount, aSelectList, aOutSelection) {
     if (typeof selectPS == "function") {
       // eslint-disable-next-line no-undef
-      return selectPS(aParent, aDialogTitle, aText, aCount, aSelectList,
-                      aOutSelection);
+      return selectPS(
+        aParent,
+        aDialogTitle,
+        aText,
+        aCount,
+        aSelectList,
+        aOutSelection
+      );
     }
 
     do_throw("selectPS unexpectedly called: " + aText + "\n");
@@ -237,13 +336,16 @@ var alertUtilsPromptService = {
   },
 
   createInstance(outer, iid) {
-    if (outer != null)
+    if (outer != null) {
       throw Cr.NS_ERROR_NO_AGGREGATION;
+    }
     return this.QueryInterface(iid);
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIPromptService,
-                                          Ci.nsIPromptService2]),
+  QueryInterface: ChromeUtils.generateQI([
+    Ci.nsIPromptService,
+    Ci.nsIPromptService2,
+  ]),
 };
 
 var alertUtilsWindowWatcher = {
@@ -252,25 +354,32 @@ var alertUtilsWindowWatcher = {
   },
 
   getNewAuthPrompter(aParent) {
-    return Cc["@mozilla.org/login-manager/prompter;1"]
-            .getService(Ci.nsIAuthPrompt);
+    return Cc["@mozilla.org/login-manager/prompter;1"].getService(
+      Ci.nsIAuthPrompt
+    );
   },
 
   QueryInterface: ChromeUtils.generateQI([Ci.nsIWindowWatcher]),
 };
 
 function registerAlertTestUtils() {
-  MockRegistrar.register("@mozilla.org/embedcomp/window-watcher;1",
-                      alertUtilsWindowWatcher);
-  MockRegistrar.register("@mozilla.org/embedcomp/prompt-service;1",
-                      alertUtilsPromptService);
+  MockRegistrar.register(
+    "@mozilla.org/embedcomp/window-watcher;1",
+    alertUtilsWindowWatcher
+  );
+  MockRegistrar.register(
+    "@mozilla.org/embedcomp/prompt-service;1",
+    alertUtilsPromptService
+  );
 }
 
 // Dummy message window that ensures we get prompted for logins.
 
-var gDummyMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
-                        .createInstance(Ci.nsIMsgWindow);
+var gDummyMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
+  Ci.nsIMsgWindow
+);
 gDummyMsgWindow instanceof Ci.nsIMsgWindowTest;
-gDummyMsgWindow.setAuthPrompt(Cc["@mozilla.org/login-manager/prompter;1"]
-                                .getService(Ci.nsIAuthPrompt));
+gDummyMsgWindow.setAuthPrompt(
+  Cc["@mozilla.org/login-manager/prompter;1"].getService(Ci.nsIAuthPrompt)
+);
 gDummyMsgWindow.setPromptDialog(alertUtilsPrompts);

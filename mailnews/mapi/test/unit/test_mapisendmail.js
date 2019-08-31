@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {ctypes} = ChromeUtils.import("resource:///modules/ctypes.jsm");
-var {MimeParser} = ChromeUtils.import("resource:///modules/mimeParser.jsm");
+var { ctypes } = ChromeUtils.import("resource:///modules/ctypes.jsm");
+var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 
 function run_test() {
   // Set up an SMTP server and the MAPI daemon.
@@ -26,8 +26,13 @@ function run_test() {
   message.lpRecips = recipient.address();
 
   // Use MAPISendMail to send this message.
-  mapi.SendMail(null /* No session */, null /* No HWND */, message.address(),
-    0x2 /* MAPI_NEW_SESSION */, 0);
+  mapi.SendMail(
+    null /* No session */,
+    null /* No HWND */,
+    message.address(),
+    0x2 /* MAPI_NEW_SESSION */,
+    0
+  );
 
   // Check that the post has the correct information.
   let [headers, body] = MimeParser.extractHeadersAndBody(daemon.post);

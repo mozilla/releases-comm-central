@@ -2,7 +2,9 @@
  * Test nsMsgDatabase's cleanup of nsMsgDBEnumerators
  */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var anyOldMessage = do_get_file("../../../../data/bugmail1");
 
@@ -18,8 +20,9 @@ function test_enumerator_cleanup() {
   localAccountUtils.inboxFolder.msgDatabase = null;
   db = null;
   gc();
-  while (enumerator.hasMoreElements())
+  while (enumerator.hasMoreElements()) {
     enumerator.getNext();
+  }
 
   do_test_finished();
 }
@@ -32,8 +35,16 @@ function test_enumerator_cleanup() {
 function run_test() {
   localAccountUtils.loadLocalMailAccount();
   do_test_pending();
-  MailServices.copy.CopyFileMessage(anyOldMessage, localAccountUtils.inboxFolder, null,
-                                    false, 0, "", messageHeaderGetterListener, null);
+  MailServices.copy.CopyFileMessage(
+    anyOldMessage,
+    localAccountUtils.inboxFolder,
+    null,
+    false,
+    0,
+    "",
+    messageHeaderGetterListener,
+    null
+  );
   return true;
 }
 

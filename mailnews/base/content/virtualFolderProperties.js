@@ -14,14 +14,20 @@ var gMessengerBundle = null;
 
 var nsMsgSearchScope = Ci.nsMsgSearchScope;
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {
-  VirtualFolderHelper,
-} = ChromeUtils.import("resource:///modules/virtualFolderWrapper.js");
-var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { PluralForm } = ChromeUtils.import(
+  "resource://gre/modules/PluralForm.jsm"
+);
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { VirtualFolderHelper } = ChromeUtils.import(
+  "resource:///modules/virtualFolderWrapper.js"
+);
+var { fixIterator } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 document.addEventListener("dialogaccept", onOK);
 
@@ -38,63 +44,82 @@ function onLoad() {
 
   setSearchScope(nsMsgSearchScope.offlineMail);
   if (windowArgs.editExistingFolder) {
-    acceptButton.label =
-        document.documentElement.getAttribute("editFolderAcceptButtonLabel");
-    acceptButton.accesskey =
-        document.documentElement.getAttribute("editFolderAcceptButtonAccessKey");
+    acceptButton.label = document.documentElement.getAttribute(
+      "editFolderAcceptButtonLabel"
+    );
+    acceptButton.accesskey = document.documentElement.getAttribute(
+      "editFolderAcceptButtonAccessKey"
+    );
     InitDialogWithVirtualFolder(windowArgs.folder);
-  } else { // we are creating a new virtual folder
-    acceptButton.label =
-        document.documentElement.getAttribute("newFolderAcceptButtonLabel");
-    acceptButton.accesskey =
-        document.documentElement.getAttribute("newFolderAcceptButtonAccessKey");
+  } else {
+    // we are creating a new virtual folder
+    acceptButton.label = document.documentElement.getAttribute(
+      "newFolderAcceptButtonLabel"
+    );
+    acceptButton.accesskey = document.documentElement.getAttribute(
+      "newFolderAcceptButtonAccessKey"
+    );
     // it is possible that we were given arguments to pre-fill the dialog with...
-    gSearchTermSession = Cc["@mozilla.org/messenger/searchSession;1"]
-                           .createInstance(Ci.nsIMsgSearchSession);
+    gSearchTermSession = Cc[
+      "@mozilla.org/messenger/searchSession;1"
+    ].createInstance(Ci.nsIMsgSearchSession);
 
-    if (windowArgs.searchTerms) { // then add them to our search session
-      for (let searchTerm of fixIterator(windowArgs.searchTerms,
-                                         Ci.nsIMsgSearchTerm))
+    if (windowArgs.searchTerms) {
+      // then add them to our search session
+      for (let searchTerm of fixIterator(
+        windowArgs.searchTerms,
+        Ci.nsIMsgSearchTerm
+      )) {
         gSearchTermSession.appendTerm(searchTerm);
+      }
     }
     if (windowArgs.folder) {
       // pre select the folderPicker, based on what they selected in the folder pane
       gPickedFolder = windowArgs.folder;
       try {
-        document.getElementById("msgNewFolderPopup").selectFolder(windowArgs.folder);
+        document
+          .getElementById("msgNewFolderPopup")
+          .selectFolder(windowArgs.folder);
       } catch (ex) {
-        document.getElementById("msgNewFolderPicker")
-                .setAttribute("label", windowArgs.folder.prettyName);
+        document
+          .getElementById("msgNewFolderPicker")
+          .setAttribute("label", windowArgs.folder.prettyName);
       }
 
       // if the passed in URI is not a server then pre-select it as the folder to search
-      if (!windowArgs.folder.isServer)
+      if (!windowArgs.folder.isServer) {
         gSearchFolderURIs = windowArgs.folder.URI;
+      }
     }
 
     let folderNameField = document.getElementById("name");
     folderNameField.hidden = false;
     folderNameField.focus();
-    if (windowArgs.newFolderName)
+    if (windowArgs.newFolderName) {
       folderNameField.value = windowArgs.newFolderName;
-    if (windowArgs.searchFolderURIs)
+    }
+    if (windowArgs.searchFolderURIs) {
       gSearchFolderURIs = windowArgs.searchFolderURIs;
+    }
 
     setupSearchRows(gSearchTermSession.searchTerms);
     doEnabling(); // we only need to disable/enable the OK button for new virtual folders
   }
 
-  if (typeof windowArgs.searchOnline != "undefined")
+  if (typeof windowArgs.searchOnline != "undefined") {
     document.getElementById("searchOnline").checked = windowArgs.searchOnline;
+  }
   updateOnlineSearchState();
   updateFoldersCount();
 }
 
 function setupSearchRows(aSearchTerms) {
-  if (aSearchTerms && aSearchTerms.length > 0)
-    initializeSearchRows(Ci.nsMsgSearchScope.offlineMail, aSearchTerms); // load the search terms for the folder
-  else
+  if (aSearchTerms && aSearchTerms.length > 0) {
+    initializeSearchRows(Ci.nsMsgSearchScope.offlineMail, aSearchTerms);
+  } // load the search terms for the folder
+  else {
     onMore(null);
+  }
 }
 
 function updateOnlineSearchState() {
@@ -116,8 +141,9 @@ function updateOnlineSearchState() {
 }
 
 function InitDialogWithVirtualFolder(aVirtualFolder) {
-  let virtualFolderWrapper =
-    VirtualFolderHelper.wrapVirtualFolder(window.arguments[0].folder);
+  let virtualFolderWrapper = VirtualFolderHelper.wrapVirtualFolder(
+    window.arguments[0].folder
+  );
 
   // when editing an existing folder, hide the folder picker that stores the parent location of the folder
   document.getElementById("msgNewFolderPicker").collapsed = true;
@@ -127,25 +153,29 @@ function InitDialogWithVirtualFolder(aVirtualFolder) {
 
   gSearchFolderURIs = virtualFolderWrapper.searchFolderURIs;
   updateFoldersCount();
-  document.getElementById("searchOnline").checked = virtualFolderWrapper.onlineSearch;
+  document.getElementById("searchOnline").checked =
+    virtualFolderWrapper.onlineSearch;
   gSearchTermSession = virtualFolderWrapper.searchTermsSession;
 
   setupSearchRows(gSearchTermSession.searchTerms);
 
   // set the name of the folder
   let folderBundle = document.getElementById("bundle_folder");
-  let name = folderBundle.getFormattedString("verboseFolderFormat",
-               [aVirtualFolder.prettyName, aVirtualFolder.server.prettyName]);
+  let name = folderBundle.getFormattedString("verboseFolderFormat", [
+    aVirtualFolder.prettyName,
+    aVirtualFolder.server.prettyName,
+  ]);
   folderNameField.setAttribute("value", name);
   // update the window title based on the name of the saved search
-  document.title = gMessengerBundle.getFormattedString("editVirtualFolderPropertiesTitle",
-                                                       [aVirtualFolder.prettyName]);
+  document.title = gMessengerBundle.getFormattedString(
+    "editVirtualFolderPropertiesTitle",
+    [aVirtualFolder.prettyName]
+  );
 }
 
 function onFolderPick(aEvent) {
   gPickedFolder = aEvent.target._folder;
-  document.getElementById("msgNewFolderPopup")
-          .selectFolder(gPickedFolder);
+  document.getElementById("msgNewFolderPopup").selectFolder(gPickedFolder);
 }
 
 function onOK(event) {
@@ -153,8 +183,11 @@ function onOK(event) {
   var searchOnline = document.getElementById("searchOnline").checked;
 
   if (!gSearchFolderURIs) {
-    Services.prompt.alert(window, null,
-                          gMessengerBundle.getString("alertNoSearchFoldersSelected"));
+    Services.prompt.alert(
+      window,
+      null,
+      gMessengerBundle.getString("alertNoSearchFoldersSelected")
+    );
     event.preventDefault();
     return;
   }
@@ -163,8 +196,9 @@ function onOK(event) {
     // update the search terms
     saveSearchTerms(gSearchTermSession.searchTerms, gSearchTermSession);
     // save the settings
-    let virtualFolderWrapper =
-      VirtualFolderHelper.wrapVirtualFolder(window.arguments[0].folder);
+    let virtualFolderWrapper = VirtualFolderHelper.wrapVirtualFolder(
+      window.arguments[0].folder
+    );
     virtualFolderWrapper.searchTerms = gSearchTermSession.searchTerms;
     virtualFolderWrapper.searchFolders = gSearchFolderURIs;
     virtualFolderWrapper.onlineSearch = searchOnline;
@@ -172,33 +206,45 @@ function onOK(event) {
 
     MailServices.accounts.saveVirtualFolders();
 
-    if (window.arguments[0].onOKCallback)
+    if (window.arguments[0].onOKCallback) {
       window.arguments[0].onOKCallback(virtualFolderWrapper.virtualFolder.URI);
+    }
     return;
   }
   var uri = gPickedFolder.URI;
-  if (name && uri) { // create a new virtual folder
+  if (name && uri) {
+    // create a new virtual folder
     // check to see if we already have a folder with the same name and alert the user if so...
     var parentFolder = MailUtils.getOrCreateFolder(uri);
 
     // sanity check the name based on the logic used by nsMsgBaseUtils.cpp. It can't start with a '.', it can't end with a '.', '~' or ' '.
     // it can't contain a ';' or '#'.
     if (/^\.|[\.\~ ]$|[\;\#]/.test(name)) {
-      Services.prompt.alert(window, null,
-                            gMessengerBundle.getString("folderCreationFailed"));
+      Services.prompt.alert(
+        window,
+        null,
+        gMessengerBundle.getString("folderCreationFailed")
+      );
       event.preventDefault();
       return;
     } else if (parentFolder.containsChildNamed(name)) {
-      Services.prompt.alert(window, null,
-                            gMessengerBundle.getString("folderExists"));
+      Services.prompt.alert(
+        window,
+        null,
+        gMessengerBundle.getString("folderExists")
+      );
       event.preventDefault();
       return;
     }
 
     saveSearchTerms(gSearchTermSession.searchTerms, gSearchTermSession);
-    VirtualFolderHelper.createNewVirtualFolder(name, parentFolder, gSearchFolderURIs,
-                                               gSearchTermSession.searchTerms,
-                                               searchOnline);
+    VirtualFolderHelper.createNewVirtualFolder(
+      name,
+      parentFolder,
+      gSearchFolderURIs,
+      gSearchTermSession.searchTerms,
+      searchOnline
+    );
   }
 }
 
@@ -211,12 +257,15 @@ function chooseFoldersToSearch() {
   // if we have some search folders already, then root the folder picker dialog off the account
   // for those folders. Otherwise fall back to the preselectedfolderURI which is the parent folder
   // for this new virtual folder.
-  window.openDialog("chrome://messenger/content/virtualFolderListEdit.xul", "",
-                    "chrome,titlebar,modal,centerscreen,resizable",
-                    {
-                      searchFolderURIs: gSearchFolderURIs,
-                      okCallback: onFolderListDialogCallback,
-                    });
+  window.openDialog(
+    "chrome://messenger/content/virtualFolderListEdit.xul",
+    "",
+    "chrome,titlebar,modal,centerscreen,resizable",
+    {
+      searchFolderURIs: gSearchFolderURIs,
+      okCallback: onFolderListDialogCallback,
+    }
+  );
 }
 
 // callback routine from chooseFoldersToSearch
@@ -230,15 +279,18 @@ function updateFoldersCount() {
   let srchFolderUriArray = gSearchFolderURIs.split("|");
   let folderCount = gSearchFolderURIs ? srchFolderUriArray.length : 0;
   let foldersList = document.getElementById("chosenFoldersCount");
-  foldersList.textContent =
-    PluralForm.get(folderCount, gMessengerBundle.getString("virtualFolderSourcesChosen"))
-              .replace("#1", folderCount);
+  foldersList.textContent = PluralForm.get(
+    folderCount,
+    gMessengerBundle.getString("virtualFolderSourcesChosen")
+  ).replace("#1", folderCount);
   if (folderCount > 0) {
     let folderNames = [];
     for (let folderURI of srchFolderUriArray) {
       let folder = MailUtils.getOrCreateFolder(folderURI);
-      let name = this.gMessengerBundle.getFormattedString("verboseFolderFormat",
-        [folder.prettyName, folder.server.prettyName]);
+      let name = this.gMessengerBundle.getFormattedString(
+        "verboseFolderFormat",
+        [folder.prettyName, folder.server.prettyName]
+      );
       folderNames.push(name);
     }
     foldersList.setAttribute("tooltiptext", folderNames.join("\n"));

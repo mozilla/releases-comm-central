@@ -15,7 +15,7 @@ load("../../../resources/asyncTestUtils.js");
 
 // IMAP pump
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Globals
 
@@ -25,8 +25,9 @@ var gMessage, gExpectedLength;
 
 var gCustomList = ["Custom1", "Custom2", "Custom3"];
 
-var gMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
-  .createInstance(Ci.nsIMsgWindow);
+var gMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
+  Ci.nsIMsgWindow
+);
 
 setupIMAPPump("CUSTOM1");
 
@@ -41,8 +42,11 @@ var tests = [
 
 // load and update a message in the imap fake server
 function* loadImapMessage() {
-  gMessage = new imapMessage(specForFileName(gMessageFileName),
-    IMAPPump.mailbox.uidnext++, []);
+  gMessage = new imapMessage(
+    specForFileName(gMessageFileName),
+    IMAPPump.mailbox.uidnext++,
+    []
+  );
   gMessage.xCustomList = [];
   IMAPPump.mailbox.addMessage(gMessage);
   IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
@@ -52,8 +56,11 @@ function* loadImapMessage() {
 function* testStoreCustomList() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   gExpectedLength = gCustomList.length;
-  let uri = IMAPPump.inbox.issueCommandOnMsgs("STORE", msgHdr.messageKey +
-    " X-CUSTOM-LIST (" + gCustomList.join(" ") + ")", gMsgWindow);
+  let uri = IMAPPump.inbox.issueCommandOnMsgs(
+    "STORE",
+    msgHdr.messageKey + " X-CUSTOM-LIST (" + gCustomList.join(" ") + ")",
+    gMsgWindow
+  );
   uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
   uri.RegisterListener(storeCustomListSetListener);
   yield false;
@@ -65,8 +72,10 @@ var storeCustomListSetListener = {
 
   OnStopRunningUrl(aUrl, aExitCode) {
     aUrl.QueryInterface(Ci.nsIImapUrl);
-    Assert.equal(aUrl.customCommandResult,
-      "(" + gMessage.xCustomList.join(" ") + ")");
+    Assert.equal(
+      aUrl.customCommandResult,
+      "(" + gMessage.xCustomList.join(" ") + ")"
+    );
     Assert.equal(gMessage.xCustomList.length, gExpectedLength);
     async_driver();
   },
@@ -75,8 +84,11 @@ var storeCustomListSetListener = {
 function* testStoreMinusCustomList() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   gExpectedLength--;
-  let uri = IMAPPump.inbox.issueCommandOnMsgs("STORE", msgHdr.messageKey +
-    " -X-CUSTOM-LIST (" + gCustomList[0] + ")", gMsgWindow);
+  let uri = IMAPPump.inbox.issueCommandOnMsgs(
+    "STORE",
+    msgHdr.messageKey + " -X-CUSTOM-LIST (" + gCustomList[0] + ")",
+    gMsgWindow
+  );
   uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
   uri.RegisterListener(storeCustomListRemovedListener);
   yield false;
@@ -88,8 +100,10 @@ var storeCustomListRemovedListener = {
 
   OnStopRunningUrl(aUrl, aExitCode) {
     aUrl.QueryInterface(Ci.nsIImapUrl);
-    Assert.equal(aUrl.customCommandResult,
-      "(" + gMessage.xCustomList.join(" ") + ")");
+    Assert.equal(
+      aUrl.customCommandResult,
+      "(" + gMessage.xCustomList.join(" ") + ")"
+    );
     Assert.equal(gMessage.xCustomList.length, gExpectedLength);
     async_driver();
   },
@@ -98,8 +112,11 @@ var storeCustomListRemovedListener = {
 function* testStorePlusCustomList() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   gExpectedLength++;
-  let uri = IMAPPump.inbox.issueCommandOnMsgs("STORE", msgHdr.messageKey +
-    ' +X-CUSTOM-LIST ("Custom4")', gMsgWindow);
+  let uri = IMAPPump.inbox.issueCommandOnMsgs(
+    "STORE",
+    msgHdr.messageKey + ' +X-CUSTOM-LIST ("Custom4")',
+    gMsgWindow
+  );
   uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
   uri.RegisterListener(storeCustomListAddedListener);
   yield false;
@@ -111,13 +128,14 @@ var storeCustomListAddedListener = {
 
   OnStopRunningUrl(aUrl, aExitCode) {
     aUrl.QueryInterface(Ci.nsIImapUrl);
-    Assert.equal(aUrl.customCommandResult,
-      "(" + gMessage.xCustomList.join(" ") + ")");
+    Assert.equal(
+      aUrl.customCommandResult,
+      "(" + gMessage.xCustomList.join(" ") + ")"
+    );
     Assert.equal(gMessage.xCustomList.length, gExpectedLength);
     async_driver();
   },
 };
-
 
 // Cleanup at end
 function endTest() {
@@ -125,7 +143,10 @@ function endTest() {
 }
 
 function run_test() {
-  Services.prefs.setBoolPref("mail.server.server1.autosync_offline_stores", false);
+  Services.prefs.setBoolPref(
+    "mail.server.server1.autosync_offline_stores",
+    false
+  );
   async_run_tests(tests);
 }
 

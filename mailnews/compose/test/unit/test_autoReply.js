@@ -7,10 +7,14 @@
 
 // make xpcshell-tests TEST_PATH=mailnews/compose/test/unit/test_autoReply.js
 
-const {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
+const { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {MimeParser} = ChromeUtils.import("resource:///modules/mimeParser.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+const { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 
 load("../../../resources/logHelper.js"); // watch for errors in the error console
 
@@ -29,8 +33,9 @@ var gServer;
 
 function run_test() {
   localAccountUtils.loadLocalMailAccount();
-  gTemplateFolder = localAccountUtils.rootFolder
-                                     .createLocalSubfolder("Templates");
+  gTemplateFolder = localAccountUtils.rootFolder.createLocalSubfolder(
+    "Templates"
+  );
 
   gServer = setupServerDaemon();
   gServer.start();
@@ -41,45 +46,80 @@ function run_test() {
 add_task(async function copy_gIncomingMailFile() {
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
   // Copy gIncomingMailFile into the Inbox.
-  MailServices.copy.CopyFileMessage(gIncomingMailFile,
-    localAccountUtils.inboxFolder, null, false, 0, "",
-    promiseCopyListener, null);
+  MailServices.copy.CopyFileMessage(
+    gIncomingMailFile,
+    localAccountUtils.inboxFolder,
+    null,
+    false,
+    0,
+    "",
+    promiseCopyListener,
+    null
+  );
   await promiseCopyListener.promise;
 });
 
 add_task(async function copy_gIncomingMailFile2() {
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
   // Copy gIncomingMailFile2 into the Inbox.
-  MailServices.copy.CopyFileMessage(gIncomingMailFile2,
-    localAccountUtils.inboxFolder, null, false, 0, "",
-    promiseCopyListener, null);
+  MailServices.copy.CopyFileMessage(
+    gIncomingMailFile2,
+    localAccountUtils.inboxFolder,
+    null,
+    false,
+    0,
+    "",
+    promiseCopyListener,
+    null
+  );
   await promiseCopyListener.promise;
 });
 
 add_task(async function copy_gIncomingMailFile3() {
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
   // Copy gIncomingMailFile3 into the Inbox.
-  MailServices.copy.CopyFileMessage(gIncomingMailFile3,
-    localAccountUtils.inboxFolder, null, false, 0, "",
-    promiseCopyListener, null);
+  MailServices.copy.CopyFileMessage(
+    gIncomingMailFile3,
+    localAccountUtils.inboxFolder,
+    null,
+    false,
+    0,
+    "",
+    promiseCopyListener,
+    null
+  );
   await promiseCopyListener.promise;
 });
 
 add_task(async function copy_gTemplateMailFile() {
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
   // Copy gTemplateMailFile into the Templates folder.
-  MailServices.copy.CopyFileMessage(gTemplateMailFile,
-    gTemplateFolder, null, true, 0, "",
-    promiseCopyListener, null);
+  MailServices.copy.CopyFileMessage(
+    gTemplateMailFile,
+    gTemplateFolder,
+    null,
+    true,
+    0,
+    "",
+    promiseCopyListener,
+    null
+  );
   await promiseCopyListener.promise;
 });
 
 add_task(async function copy_gTemplateMailFile2() {
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
   // Copy gTemplateMailFile2 into the Templates folder.
-  MailServices.copy.CopyFileMessage(gTemplateMailFile2,
-    gTemplateFolder, null, true, 0, "",
-    promiseCopyListener, null);
+  MailServices.copy.CopyFileMessage(
+    gTemplateMailFile2,
+    gTemplateFolder,
+    null,
+    true,
+    0,
+    "",
+    promiseCopyListener,
+    null
+  );
   await promiseCopyListener.promise;
 });
 
@@ -89,8 +129,9 @@ add_task(function testReplyingToUnaddressedFails() {
     testReply(0); // mail 0 is not to us!
     do_throw("Replied to a message not addressed to us!");
   } catch (e) {
-    if (e.result != Cr.NS_ERROR_ABORT)
+    if (e.result != Cr.NS_ERROR_ABORT) {
       throw e;
+    }
     // Ok! We didn't reply to the message not specifically addressed to
     // us (from@foo.invalid).
   }
@@ -118,11 +159,14 @@ add_task(function testReplyingToAdressedWorksUTF8() {
 add_task(function testReplyingToMailWithNoFrom() {
   try {
     testReply(2); // mail 2 has no From
-    do_throw("Shouldn't even have tried to reply reply to the message " +
-             "with no From and no Reply-To");
+    do_throw(
+      "Shouldn't even have tried to reply reply to the message " +
+        "with no From and no Reply-To"
+    );
   } catch (e) {
-    if (e.result != Cr.NS_ERROR_FAILURE)
+    if (e.result != Cr.NS_ERROR_FAILURE) {
       throw e;
+    }
   }
 });
 
@@ -135,16 +179,29 @@ function testReply(aHrdIdx, aTemplateHdrIdx = 0) {
   localAccountUtils.msgAccount.addIdentity(identity);
 
   let msgHdr = mailTestUtils.getMsgHdrN(localAccountUtils.inboxFolder, aHrdIdx);
-  info("Msg#" + aHrdIdx + " author=" + msgHdr.author + ", recipients=" +
-       msgHdr.recipients);
+  info(
+    "Msg#" +
+      aHrdIdx +
+      " author=" +
+      msgHdr.author +
+      ", recipients=" +
+      msgHdr.recipients
+  );
   let templateHdr = mailTestUtils.getMsgHdrN(gTemplateFolder, aTemplateHdrIdx);
 
   // See <method name="getTemplates"> in searchWidgets.xml
-  let msgTemplateUri = gTemplateFolder.URI +
-                       "?messageId=" + templateHdr.messageId +
-                       "&subject=" + templateHdr.mime2DecodedSubject;
-  MailServices.compose.replyWithTemplate(msgHdr, msgTemplateUri, null,
-    localAccountUtils.incomingServer);
+  let msgTemplateUri =
+    gTemplateFolder.URI +
+    "?messageId=" +
+    templateHdr.messageId +
+    "&subject=" +
+    templateHdr.mime2DecodedSubject;
+  MailServices.compose.replyWithTemplate(
+    msgHdr,
+    msgTemplateUri,
+    null,
+    localAccountUtils.incomingServer
+  );
   gServer.performTest();
 
   let headers, body;
@@ -159,19 +216,33 @@ function testReply(aHrdIdx, aTemplateHdrIdx = 0) {
   // Suspect a bug with how BinaryInputStream handles the strings.
   if (templateHdr.Charset == "windows-1252") {
     // XXX: should really check for "��� åäö"
-    if (!body.includes("åäö xlatin1")) { // template-latin1 contains this
-      do_throw("latin1 body didn't go through!  hdr msgid=" +
-               templateHdr.messageId + ", msgbody=" + body);
+    if (!body.includes("åäö xlatin1")) {
+      // template-latin1 contains this
+      do_throw(
+        "latin1 body didn't go through!  hdr msgid=" +
+          templateHdr.messageId +
+          ", msgbody=" +
+          body
+      );
     }
   } else if (templateHdr.Charset == "utf-8") {
     // XXX: should really check for "åäö xutf8"
-    if (!body.includes("Ã¥Ã¤Ã¶ xutf8")) { // template-utf8 contains this
-      do_throw("utf8 body didn't go through! hdr msgid=" +
-               templateHdr.messageId + ", msgbody=" + body);
+    if (!body.includes("Ã¥Ã¤Ã¶ xutf8")) {
+      // template-utf8 contains this
+      do_throw(
+        "utf8 body didn't go through! hdr msgid=" +
+          templateHdr.messageId +
+          ", msgbody=" +
+          body
+      );
     }
   } else if (templateHdr.Charset) {
-    do_throw("unexpected msg charset: " + templateHdr.Charset + ", hdr msgid=" +
-             templateHdr.messageId);
+    do_throw(
+      "unexpected msg charset: " +
+        templateHdr.Charset +
+        ", hdr msgid=" +
+        templateHdr.messageId
+    );
   } else {
     do_throw("didn't find a msg charset! hdr msgid=" + templateHdr.messageId);
   }
@@ -182,4 +253,3 @@ add_task(function teardown() {
   // fake server cleanup
   gServer.stop();
 });
-
