@@ -39,8 +39,9 @@ nsMsgTraitService.prototype = {
 
   registerTrait(aId) {
     if (_traits[aId]) {
+      // Meaning already registered.
       return 0;
-    } // meaning already registered
+    }
     _registerTrait(aId, ++_lastIndex);
     traitsBranch.setBoolPref("enabled." + _lastIndex, false);
     traitsBranch.setCharPref("id." + _lastIndex, aId);

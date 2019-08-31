@@ -153,8 +153,9 @@ function GetSelectedCardTypes() {
   }
   var count = cards.length;
   if (count == 0) {
+    // Nothing selected.
     return kNothingSelected;
-  } // nothing selected
+  }
 
   var mailingListCnt = 0;
   var cardCnt = 0;

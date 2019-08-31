@@ -150,11 +150,13 @@ var AuthCRAM = {
     text = this.textToNumberArray(text);
     // Make sure key is exactly kDigestLen bytes long. Algo per spec.
     if (key.length > kInputLen) {
+      // (results in kHashLen)
       key = this.md5(key);
-    } // (results in kHashLen)
+    }
     while (key.length < kInputLen) {
+      // Fill up with zeros.
       key.push(0);
-    } // fill up with zeros
+    }
 
     // MD5((key XOR outerpad) + MD5((key XOR innerpad) + text)) , per spec
     var digest = this.md5(
@@ -183,8 +185,9 @@ var AuthCRAM = {
   textToNumberArray(text) {
     var array = [];
     for (var i = 0; i < text.length; i++) {
+      // Convert string (only lower byte) to array.
       array.push(text.charCodeAt(i) & 0xff);
-    } // convert string (only lower byte) to array
+    }
     return array;
   },
   arrayToHexString(binary) {

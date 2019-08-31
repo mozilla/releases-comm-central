@@ -39,9 +39,10 @@ function initializeDialog(hdrs) {
     gArrayHdrs = hdrs.split(":");
     for (var i = 0; i < gArrayHdrs.length; i++) {
       if (!gArrayHdrs[i]) {
+        // Remove any null elements.
         gArrayHdrs.splice(i, 1);
       }
-    } // remove any null elements
+    }
     initializeRows();
   }
 }

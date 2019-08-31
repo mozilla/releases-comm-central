@@ -73,8 +73,9 @@ var doTestingListener = {
     }
 
     if (!aMsgURI) {
+      // Ignore end of batch.
       return;
-    } // ignore end of batch
+    }
 
     // Have we completed a classification? If so, test
     if (haveClassification) {

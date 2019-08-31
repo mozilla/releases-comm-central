@@ -183,8 +183,9 @@ function MigrateABRemoteContentSettings() {
         let card = childCards.getNext().QueryInterface(Ci.nsIAbCard);
 
         if (card.getProperty("AllowRemoteContent", "0") == "0") {
+          // Not allowed for this contact.
           continue;
-        } // not allowed for this contact
+        }
 
         if (card.primaryEmail) {
           migrateAddress(card.primaryEmail);

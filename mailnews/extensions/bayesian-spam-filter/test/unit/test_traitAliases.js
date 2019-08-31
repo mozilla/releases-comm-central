@@ -116,8 +116,9 @@ var listener = {
   onMessageTraitsClassified(aMsgURI, aTraitCount, aTraits, aPercents) {
     // print("Message URI is " + aMsgURI);
     if (!aMsgURI) {
+      // Ignore end-of-batch signal.
       return;
-    } // ignore end-of-batch signal
+    }
 
     Assert.equal(aPercents[0], gTest.percent);
     // All done, start the next test

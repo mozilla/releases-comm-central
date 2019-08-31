@@ -118,9 +118,10 @@ function onAlertLoad() {
   // if we aren't waiting to fetch preview text, then go ahead and
   // start showing the alert.
   if (!gPendingPreviewFetchRequests) {
+    // Let the JS thread unwind, to give layout
+    // a chance to recompute the styles and widths for our alert text.
     setTimeout(showAlert, 0);
-  } // let the JS thread unwind, to give layout
-  // a chance to recompute the styles and widths for our alert text.
+  }
 }
 
 // If the user initiated the alert, show it right away, otherwise start opening the alert with

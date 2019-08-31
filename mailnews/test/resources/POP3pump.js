@@ -193,8 +193,9 @@ POP3Pump.prototype._checkBusy = function() {
 POP3Pump.prototype._testNext = function() {
   let thisFiles = this._tests.shift();
   if (!thisFiles) {
+    // Exit.
     this._checkBusy();
-  } // exit
+  }
 
   // Handle the server in a try/catch/finally loop so that we always will stop
   // the server if something fails.

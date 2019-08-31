@@ -550,8 +550,9 @@ subclass(NNTP_RFC2980_handler, NNTP_RFC977_handler, {
       if (dash < range.length - 1) {
         high = range.substring(dash + 1);
       } else {
+        // Everything is less than this.
         high = 1.0 / 0.0;
-      } // Everything is less than this
+      }
     }
     return keys.filter(function(e) {
       return low <= e && e <= high;

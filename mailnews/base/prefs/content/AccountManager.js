@@ -1076,8 +1076,9 @@ function updateButtons(tree, account) {
   let setDefaultButton = document.getElementById("setDefaultButton");
 
   if (!addAccountButton && !removeButton && !setDefaultButton) {
+    // Thunderbird isn't using these.
     return;
-  } // Thunderbird isn't using these.
+  }
 
   updateItems(tree, account, addAccountButton, setDefaultButton, removeButton);
   updateBlockedItems([addAccountButton, setDefaultButton, removeButton], false);

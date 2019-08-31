@@ -328,8 +328,9 @@ function booleanChanged(event) {
   var searchTerms = document.getElementById("searchTermList");
   if (searchTerms) {
     if (!matchAllValue && searchTerms.hidden && !gTotalSearchTerms) {
+      // Fake to get empty row.
       onMore(null);
-    } // fake to get empty row.
+    }
     updateSearchTermsListbox(matchAllValue);
   }
 }

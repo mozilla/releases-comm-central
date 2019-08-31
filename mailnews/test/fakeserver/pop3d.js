@@ -370,8 +370,9 @@ POP3_RFC5034_handler.prototype = {
     }
 
     if (POP3_RFC2449_handler.prototype.onMultiline) {
+      // Call parent.
       return POP3_RFC2449_handler.prototype.onMultiline.call(this, line);
-    } // call parent
+    }
     return undefined;
   },
 

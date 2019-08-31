@@ -232,8 +232,9 @@ MessageClassifier.prototype = {
    */
   onMessageClassified(aClassifiedMsgURI, aClassification, aJunkPercent) {
     if (!aClassifiedMsgURI) {
+      // Ignore end of batch.
       return;
-    } // ignore end of batch
+    }
     var nsIJunkMailPlugin = Ci.nsIJunkMailPlugin;
     var score =
       aClassification == nsIJunkMailPlugin.JUNK

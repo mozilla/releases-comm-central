@@ -52,9 +52,8 @@ function mimeMsgToContentSnippetAndMeta(aMimeMsg, folder, length) {
 
   let text = content.getContentSnippet(length + 1);
   if (length && text.length > length) {
-    text = text.substring(0, length - 1) + "\u2026";
-  } // ellipsis
-
+    text = text.substring(0, length - 1) + "\u2026"; // ellipsis
+  }
   return [text, meta];
 }
 

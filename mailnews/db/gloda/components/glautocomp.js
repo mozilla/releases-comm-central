@@ -392,8 +392,9 @@ ContactTagCompleter.prototype = {
     }
 
     if (aString.length < 2) {
+      // No async mechanism that will add new rows.
       return false;
-    } // no async mechanism that will add new rows
+    }
 
     let tags = this._suffixTree.findMatches(aString.toLowerCase());
     let rows = [];
