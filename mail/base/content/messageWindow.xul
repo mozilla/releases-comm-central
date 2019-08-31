@@ -115,6 +115,7 @@
   <script src="chrome://messenger/content/quickFilterBar.js"/>
   <!-- panelUI.js is for the appmenus. -->
   <script src="chrome://messenger/content/customizableui/panelUI.js"/>
+  <script src="chrome://messenger/content/chat/toolbarbutton-badge-button.js"/>
   <script src="chrome://messenger/content/messenger-customization.js"/>
 #ifdef XP_MACOSX
   <script src="chrome://global/content/macWindowMenu.js"/>
