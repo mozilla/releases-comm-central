@@ -77,11 +77,13 @@ function BuildJSEAttributeTable() {
     for (var i = 0; i < nodeMap.length; i++) {
       let name = nodeMap[i].nodeName.toLowerCase();
       if (CheckAttributeNameSimilarity(nodeMap[i].nodeName, JSEAttrs)) {
+        // Repeated or non-JS handler, ignore this one and go to next.
         continue;
-      } // repeated or non-JS handler, ignore this one and go to next
+      }
       if (!name.startsWith("on")) {
+        // Attribute isn't an event handler.
         continue;
-      } // attribute isn't an event handler.
+      }
       var value = gElement.getAttribute(nodeMap[i].nodeName);
       if (AddTreeItem(name, value, "JSEAList", JSEAttrs)) {
         // add item to tree

@@ -101,8 +101,9 @@ function onCopyOrCut(event) {
     key
   ) {
     if (!gFullDataStrings.has(key)) {
+      // User changed data URI.
       return match;
-    } // user changed data URI
+    }
     return nonDataPart + gFullDataStrings.get(key);
   });
   event.clipboardData.setData("text/plain", clipboard);
@@ -146,8 +147,9 @@ function onAccept(event) {
     key
   ) {
     if (!gFullDataStrings.has(key)) {
+      // User changed data URI.
       return match;
-    } // user changed data URI
+    }
     return nonDataPart + gFullDataStrings.get(key);
   });
 

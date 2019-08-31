@@ -2284,9 +2284,9 @@ function InitParagraphMenu() {
 
   // We use "x" as uninitialized paragraph state
   if (!state || state == "x") {
+    // No paragraph container.
     IDSuffix = "bodyText";
-  } // No paragraph container
-  else {
+  } else {
     IDSuffix = state;
   }
 
@@ -2939,9 +2939,8 @@ function EditorInsertOrEditTable(insertAllowed) {
       if (GetCurrentEditor().selection.isCollapsed) {
         // If we have a caret, insert a blank table...
         EditorInsertTable();
-      }
-      // else convert the selection into a table
-      else {
+      } else {
+        // Else convert the selection into a table.
         goDoCommand("cmd_ConvertToTable");
       }
     } catch (e) {}

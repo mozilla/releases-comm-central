@@ -110,9 +110,9 @@ function UpdateCSSAttributes() {
       value = value.substring(0, value.lastIndexOf(";"));
     }
     if (i == CSSAList.childNodes.length - 1) {
+      // Last property.
       styleString += name + ": " + value + ";";
-    } // last property
-    else {
+    } else {
       styleString += name + ": " + value + "; ";
     }
   }

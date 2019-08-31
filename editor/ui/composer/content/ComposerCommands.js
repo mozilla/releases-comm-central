@@ -1890,8 +1890,9 @@ function Publish(publishData) {
         pwObj
       )
     ) {
+      // User canceled out of dialog.
       return false;
-    } // User canceled out of dialog
+    }
 
     // Reset data in URI objects
     gPublishData.docURI.username = publishData.username;

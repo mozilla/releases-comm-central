@@ -312,8 +312,8 @@ function InitDialog() {
     gDialog.TableAlignList.value = "center";
   } else if (halign == "right right" || halign == "auto 0px") {
     gDialog.TableAlignList.value = "right";
-  } // Default = left
-  else {
+  } else {
+    // Default is left.
     gDialog.TableAlignList.value = "left";
   }
 
@@ -378,8 +378,8 @@ function InitCellPanel() {
     ).toLowerCase();
     if (valign == topStr || valign == bottomStr) {
       gDialog.CellVAlignList.value = valign;
-    } // Default = middle
-    else {
+    } else {
+      // Default is middle.
       gDialog.CellVAlignList.value = defVAlign;
     }
 
@@ -689,9 +689,8 @@ function MoveSelection(forward) {
         // If moving by cell, also wrap to previous...
         if (newRowIndex > 0) {
           newRowIndex -= 1;
-        }
-        // ...or the last row
-        else {
+        } else {
+          // ...or the last row.
           newRowIndex = gLastRowIndex;
         }
 
@@ -707,9 +706,8 @@ function MoveSelection(forward) {
         // If moving by cell, also wrap to next...
         if (newRowIndex < gLastRowIndex) {
           newRowIndex++;
-        }
-        // ...or the first row
-        else {
+        } else {
+          // ...or the first row.
           newRowIndex = 0;
         }
 
@@ -727,9 +725,8 @@ function MoveSelection(forward) {
     if (inRow) {
       if (gCellData.startRowIndex == newRowIndex) {
         break;
-      }
-      // Cell spans from a row above, look for the next cell in row
-      else {
+      } else {
+        // Cell spans from a row above, look for the next cell in row.
         newRowIndex += gCellData.actualRowSpan;
       }
     } else if (gCellData.startColIndex == newColIndex) {
@@ -1226,8 +1223,9 @@ function ApplyTableAttributes() {
       foundCell = false;
       for (i = 0; i <= gLastColIndex; i++) {
         if (!GetCellData(firstDeleteRow, i)) {
+          // We failed to find a cell.
           break;
-        } // We failed to find a cell
+        }
 
         if (gCellData.startRowIndex == firstDeleteRow) {
           foundCell = true;
@@ -1245,9 +1243,8 @@ function ApplyTableAttributes() {
             // We are deleting our selection
             // move it to start of table
             ChangeSelectionToFirstCell();
-          }
-          // Put selection back where it was
-          else {
+          } else {
+            // Put selection back where it was.
             ChangeSelection(RESET_SELECTION);
           }
         } catch (ex) {
@@ -1283,8 +1280,9 @@ function ApplyTableAttributes() {
       for (i = 0; i <= gLastRowIndex; i++) {
         // Find first cell starting in first column we delete
         if (!GetCellData(i, firstDeleteCol)) {
+          // We failed to find a cell.
           break;
-        } // We failed to find a cell
+        }
 
         if (gCellData.startColIndex == firstDeleteCol) {
           foundCell = true;

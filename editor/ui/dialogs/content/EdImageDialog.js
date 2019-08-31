@@ -441,11 +441,12 @@ function constrainProportions(srcID, destID) {
   /*
   // With this strategy, the width and height ratio
   //   can be reset to whatever the user entered.
-  if (srcID == "widthInput")
+  if (srcID == "widthInput") {
     destElement.value = Math.round( srcElement.value * gConstrainHeight / gConstrainWidth );
-  else
+  } else {
     destElement.value = Math.round( srcElement.value * gConstrainWidth / gConstrainHeight );
-*/
+  }
+  */
 }
 
 function removeImageMap() {
