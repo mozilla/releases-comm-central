@@ -529,19 +529,15 @@ function MsgDeleteSelectedMessages(aCommandType) {
   gFolderDisplay.doCommand(aCommandType);
 }
 
+/**
+ * Move selected messages to the destination folder
+ *
+ * @param destFolder {nsIMsgFolder}  destination folder
+ */
 function MoveMessageInSearch(destFolder) {
-  // Get the msg folder we're moving messages into.
-  // If the id (uri) is not set, use file-uri which is set for
-  // "File Here".
-  let destUri = destFolder.getAttribute("id");
-  if (destUri.length == 0)
-    destUri = destFolder.getAttribute("file-uri");
-
-  let destMsgFolder = MailUtils.getOrCreateFolder(destUri);
-
   gFolderDisplay.hintAboutToDeleteMessages();
   gFolderDisplay.doCommandWithFolder(Ci.nsMsgViewCommandType.moveMessages,
-                                     destMsgFolder);
+                                     destFolder);
 }
 
 function OpenInFolder() {
