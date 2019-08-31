@@ -35,16 +35,17 @@ function substPrefTokens(aStr, aElement) {
   for (let i = 0; i < prefPartsArray.length; i++) {
     token = prefPartsArray[i].match(tokenpat);
     if (token) {
-      /* we've got a %% match */
+      // We've got a %% match.
       if (token[1]) {
         if (aElement[token[1]]) {
           newprefstr += aElement[token[1]] + "."; // here's where we get the info
         } else {
-          /* all we got was this stinkin % */
+          // All we got was this stinkin %.
           newprefstr += prefPartsArray[i] + ".";
         }
       }
-    } /* if (token) */ else {
+    } else {
+      // token is falsy.
       newprefstr += prefPartsArray[i] + ".";
     }
   }

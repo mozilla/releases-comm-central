@@ -148,16 +148,18 @@ var JXON = new (function() {
       oParentObj instanceof Number ||
       oParentObj instanceof Boolean
     ) {
+      // Verbosity level is 0.
       oParentEl.appendChild(oXMLDoc.createTextNode(oParentObj.toString()));
-    } /* verbosity level is 0 */ else if (oParentObj.constructor === Date) {
+    } else if (oParentObj.constructor === Date) {
       oParentEl.appendChild(oXMLDoc.createTextNode(oParentObj.toGMTString()));
     }
 
     for (var sName in oParentObj) {
       vValue = oParentObj[sName];
       if (isFinite(sName) || vValue instanceof Function) {
+        // Verbosity level is 0.
         continue;
-      } /* verbosity level is 0 */
+      }
       if (sName === sValueProp) {
         if (vValue !== null && vValue !== true) {
           oParentEl.appendChild(
@@ -169,7 +171,7 @@ var JXON = new (function() {
           );
         }
       } else if (sName === sAttributesProp) {
-        /* verbosity level is 3 */
+        // Verbosity level is 3.
         for (var sAttrib in vValue) {
           oParentEl.setAttribute(sAttrib, vValue[sAttrib]);
         }

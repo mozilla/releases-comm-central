@@ -89,9 +89,8 @@ pop3Daemon.prototype = {
       // if it's a string, then it's a file-name.
       if (typeof element == "string") {
         this._messages.push({ fileData: readFile(element), size: -1 });
-      }
-      // otherwise it's an object as dictionary already
-      else {
+      } else {
+        // Otherwise it's an object as dictionary already.
         this._messages.push(element);
       }
     }
@@ -427,8 +426,8 @@ POP3_RFC5034_handler.prototype = {
     var req = AuthLOGIN.decodeLine(line);
     if (req == this.kUsername) {
       this._nextAuthFunction = this.authLOGINPassword;
-    } // Don't return error yet, to not reveal valid usernames
-    else {
+    } else {
+      // Don't return error yet, to not reveal valid usernames.
       this._nextAuthFunction = this.authLOGINBadUsername;
     }
     this._multiline = true;

@@ -200,25 +200,19 @@ NewMailNotificationService.prototype = {
     // If it's not a mail folder we don't count it by default
     if (!(aFolder.flags & Ci.nsMsgFolderFlags.Mail)) {
       shouldCount.data = false;
-    }
-
-    // For whatever reason, RSS folders have the 'Mail' flag
-    else if ((srv = aFolder.server) && srv.type == "rss") {
+    } else if ((srv = aFolder.server) && srv.type == "rss") {
+      // For whatever reason, RSS folders have the 'Mail' flag.
       shouldCount.data = false;
-    }
-
-    // If it's a special folder *other than the inbox* we don't count it by default
-    else if (
+    } else if (
       aFolder.flags & Ci.nsMsgFolderFlags.SpecialUse &&
       !(aFolder.flags & Ci.nsMsgFolderFlags.Inbox)
     ) {
+      // It's a special folder *other than the inbox*, don't count it by default.
       shouldCount.data = false;
     } else if (aFolder.flags & Ci.nsMsgFolderFlags.Virtual) {
       shouldCount.data = false;
-    }
-
-    // if we're only counting inboxes and it's not an inbox...
-    else {
+    } else {
+      // If we're only counting inboxes and it's not an inbox...
       try {
         // If we can't get this pref, just leave it as the default
         let onlyCountInboxes = Services.prefs.getBoolPref(countInboxesPref);

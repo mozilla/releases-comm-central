@@ -2432,8 +2432,8 @@ var IMAP_RFC2195_extension = {
     var req = AuthLOGIN.decodeLine(line);
     if (req == this.kUsername) {
       this._nextAuthFunction = this.authLOGINPassword;
-    } // Don't return error yet, to not reveal valid usernames
-    else {
+    } else {
+      // Don't return error yet, to not reveal valid usernames
       this._nextAuthFunction = this.authLOGINBadUsername;
     }
     this._multiline = true;

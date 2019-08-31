@@ -115,9 +115,9 @@ function onLoad() {
 
 function setupSearchRows(aSearchTerms) {
   if (aSearchTerms && aSearchTerms.length > 0) {
+    // Load the search terms for the folder.
     initializeSearchRows(Ci.nsMsgSearchScope.offlineMail, aSearchTerms);
-  } // load the search terms for the folder
-  else {
+  } else {
     onMore(null);
   }
 }

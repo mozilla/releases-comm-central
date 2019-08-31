@@ -253,13 +253,11 @@ QueryFromQueryCallback.prototype = {
         //    this.selfReferences[item.id] + " cached: " + cachedItem);
         if (cachedItem) {
           item = cachedItem;
-        }
-        // we may already have been loaded by this process
-        else if (this.selfReferences[item.id] != null) {
+        } else if (this.selfReferences[item.id] != null) {
+          // We may already have been loaded by this process.
           item = this.selfReferences[item.id];
-        }
-        // perform loading logic which may produce reference dependencies
-        else {
+        } else {
+          // Perform loading logic which may produce reference dependencies.
           this.needsLoads =
             GlodaDatastore.loadNounItem(
               item,
@@ -1792,11 +1790,11 @@ var GlodaDatastore = {
   _getVariant(aRow, aIndex) {
     let typeOfIndex = aRow.getTypeOfIndex(aIndex);
     if (typeOfIndex == Ci.mozIStorageValueArray.VALUE_TYPE_NULL) {
+      // XPConnect would just end up going through an intermediary double stage
+      // for the int64 case anyways...
       return null;
     }
-    // XPConnect would just end up going through an intermediary double stage
-    //  for the int64 case anyways...
-    else if (
+    if (
       typeOfIndex == Ci.mozIStorageValueArray.VALUE_TYPE_INTEGER ||
       typeOfIndex == Ci.mozIStorageValueArray.VALUE_TYPE_DOUBLE
     ) {
@@ -2175,13 +2173,7 @@ var GlodaDatastore = {
       indexingPriority = aAllowSpecialFolderIndexing
         ? GlodaFolder.prototype.kIndexingDefaultPriority
         : GlodaFolder.prototype.kIndexingNeverPriority;
-    }
-    // Queue folders should always be ignored just because messages should not
-    //  spend much time in there.
-    // We hate newsgroups, and public IMAP folders are similar.
-    // Other user IMAP folders should be ignored because it's not this user's
-    //  mail.
-    else if (
+    } else if (
       aFolder.flags &
       (Ci.nsMsgFolderFlags.Queue | Ci.nsMsgFolderFlags.Newsgroup)
       // In unit testing at least folders can be
@@ -2191,6 +2183,11 @@ var GlodaDatastore = {
       // | Ci.nsMsgFolderFlags.ImapPublic
       // | Ci.nsMsgFolderFlags.ImapOtherUser
     ) {
+      // Queue folders should always be ignored just because messages should not
+      // spend much time in there.
+      // We hate newsgroups, and public IMAP folders are similar.
+      // Other user IMAP folders should be ignored because it's not this user's
+      // mail.
       indexingPriority = GlodaFolder.prototype.kIndexingNeverPriority;
     } else if (aFolder.flags & Ci.nsMsgFolderFlags.Inbox) {
       indexingPriority = GlodaFolder.prototype.kIndexingInboxPriority;
@@ -2226,9 +2223,8 @@ var GlodaDatastore = {
     let stringPrio = aFolder.getStringProperty("indexingPriority");
     if (stringPrio.length) {
       indexingPriority = parseInt(stringPrio);
-    }
-    // otherwise, fall back to the default for folders of this type
-    else {
+    } else {
+      // Otherwise, fall back to the default for folders of this type.
       indexingPriority = this.getDefaultIndexingPriority(aFolder);
     }
 
@@ -3546,8 +3542,8 @@ var GlodaDatastore = {
               " >= " +
               objectNounDef.toParamAndValue(lowerVal)[1]
           );
-        } // no one is null!
-        else {
+        } else {
+          // No one is null!
           dbStrings.push(
             aValueColumnName +
               " BETWEEN " +

@@ -347,8 +347,8 @@ var Gloda = {
       // if this is the first or clause, just use the query itself
       if (!clause) {
         clause = query;
-      } // create a new query clause via the 'or' command
-      else {
+      } else {
+        // Create a new query clause via the 'or' command.
         clause = query.or();
       }
 
@@ -503,8 +503,8 @@ var Gloda = {
         yield aCallbackHandle.pushAndGo(
           Gloda.grokNounItem(contact, { card }, true, true, aCallbackHandle)
         );
-      } // grokNounItem will issue the insert for us...
-      else {
+      } else {
+        // grokNounItem will issue the insert for us...
         GlodaDatastore.insertContact(contact);
       }
 
@@ -2389,9 +2389,8 @@ var Gloda = {
           // if we are now non-zero but previously were zero, remove.
           if (value.length && !oldValue.length) {
             removeDBAttribs.push([GlodaDatastore.kEmptySetAttrId, attribDB.id]);
-          }
-          // if we are now zero length but previously were not, add
-          else if (!value.length && oldValue.length) {
+          } else if (!value.length && oldValue.length) {
+            // We are now zero length but previously were not, add.
             addDBAttribs.push([GlodaDatastore.kEmptySetAttrId, attribDB.id]);
           }
         }

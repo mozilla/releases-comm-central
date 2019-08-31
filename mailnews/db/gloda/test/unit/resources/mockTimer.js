@@ -16,8 +16,8 @@ MockTimer.prototype = {
   initWithCallback(aCallback, aDelay, aType) {
     if (aCallback instanceof Ci.nsITimerCallback) {
       this.callback = aCallback;
-    } // it was just a function that we need to dress up.
-    else {
+    } else {
+      // It was just a function that we need to dress up.
       this.callback = {
         notify() {
           aCallback();

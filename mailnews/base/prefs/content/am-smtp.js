@@ -196,8 +196,8 @@ var gSmtpServerListWindow = {
       this.setSelectedServer(
         this.mServerList.querySelector('[key="' + aServerKeyToSelect + '"]')
       );
-    } // select the default server
-    else {
+    } else {
+      // Select the default server.
       this.setSelectedServer(
         this.mServerList.querySelector('[default="true"]')
       );

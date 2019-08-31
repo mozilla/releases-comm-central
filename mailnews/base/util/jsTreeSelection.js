@@ -178,20 +178,17 @@ JSTreeSelection.prototype = {
         //  remove it
         if (aIndex >= low && aIndex <= high) {
           this._count--;
-          // nuke
           if (aIndex == low && aIndex == high) {
+            // nuke
             this._ranges.splice(iTupe, 1);
-          }
-          // lower shrink
-          else if (aIndex == low) {
+          } else if (aIndex == low) {
+            // lower shrink
             this._ranges[iTupe][0] = aIndex + 1;
-          }
-          // upper shrink
-          else if (aIndex == high) {
+          } else if (aIndex == high) {
+            // upper shrink
             this._ranges[iTupe][1] = aIndex - 1;
-          }
-          // split
-          else {
+          } else {
+            // split
             this._ranges.splice(
               iTupe,
               1,

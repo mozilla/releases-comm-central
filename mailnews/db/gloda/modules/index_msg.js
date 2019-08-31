@@ -1652,10 +1652,9 @@ var GlodaMsgIndexer = {
         msgHdr =
           this._indexingDatabase.ContainsKey(item[1]) &&
           this._indexingFolder.GetMessageHeader(item[1]);
-      }
-      // same deal as in move processing.
-      // TODO fixme to not assume singular message-id's.
-      else {
+      } else {
+        // Same deal as in move processing.
+        // TODO fixme to not assume singular message-id's.
         msgHdr = this._indexingDatabase.getMsgHdrForMessageID(item[1]);
       }
 
@@ -3344,15 +3343,14 @@ var GlodaMsgIndexer = {
         //  this path which mandates re-indexing of the message in its entirety)
         if (candMsg.messageKey === null) {
           curMsg = candMsg;
-        }
-        // if (we are in the same folder and) the candidate message's underlying
-        //  message no longer exists/matches, we'll assume we are the same but
-        //  were betrayed by a re-indexing or something, but we have to make
-        //  sure a perfect match doesn't turn up.
-        else if (
+        } else if (
           curMsg === null &&
           !this._indexingDatabase.ContainsKey(candMsg.messageKey)
         ) {
+          // (We are in the same folder and) the candidate message's underlying
+          // message no longer exists/matches. Assume we are the same but
+          // were betrayed by a re-indexing or something, but we have to make
+          // sure a perfect match doesn't turn up.
           curMsg = candMsg;
         }
       } else if (curMsg === null && candMsg.folderID === null) {
@@ -3505,10 +3503,9 @@ var GlodaMsgIndexer = {
 
       if (convMsg._isGhost) {
         ghostCount++;
-      }
-      // This message is our (living) twin if it is not a ghost, not deleted,
-      //  and has the same message-id header.
-      else if (
+      } else if (
+        // This message is our (living) twin if it is not a ghost, not deleted,
+        // and has the same message-id header.
         !convMsg._isDeleted &&
         convMsg.headerMessageID == aMessage.headerMessageID
       ) {

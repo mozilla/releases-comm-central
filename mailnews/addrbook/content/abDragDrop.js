@@ -81,9 +81,8 @@ var abResultsPaneObserver = {
       aDragAction.action =
         Ci.nsIDragService.DRAGDROP_ACTION_COPY |
         Ci.nsIDragService.DRAGDROP_ACTION_MOVE;
-    }
-    // Only allow copy from read-only directories.
-    else {
+    } else {
+      // Only allow copy from read-only directories.
       aDragAction.action = Ci.nsIDragService.DRAGDROP_ACTION_COPY;
     }
 

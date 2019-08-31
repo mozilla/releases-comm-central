@@ -394,9 +394,8 @@ var junkListener = {
     } else if (command == kTrainJ || command == kTrainT) {
       // train returns the ham and spam limits
       Assert.equal(aJunkPercent, junkPercent < 90 ? kIsHamScore : kIsSpamScore);
-    }
-    // forget always returns 0
-    else {
+    } else {
+      // Forget always returns 0.
       Assert.equal(aJunkPercent, 0);
     }
 
@@ -434,9 +433,8 @@ var traitListener = {
       if (command == kClassJ || command == kClassT) {
         // Classify returns actual percents
         Assert.equal(percent, junkPercent);
-      }
-      // Train simply returns 100
-      else {
+      } else {
+        // Train simply returns 100.
         Assert.equal(percent, 100);
       }
     }

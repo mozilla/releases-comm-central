@@ -141,9 +141,8 @@ function isLegalIPv4Address(aHostName, aAllowExtendedIPFormats) {
       // Is the component octal?
       if (/^(0[0-7]{1,12})$/.test(aValue)) {
         component = parseInt(aValue, 8);
-      }
-      // Is the component hex?
-      else if (/^(0x[0-9a-f]{1,8})$/i.test(aValue)) {
+      } else if (/^(0x[0-9a-f]{1,8})$/i.test(aValue)) {
+        // The component is hex.
         component = parseInt(aValue, 16);
       } else {
         return null;

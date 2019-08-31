@@ -1128,8 +1128,8 @@ MessageGenerator.prototype = {
       bodyPart = aArgs.bodyPart;
     } else if (aArgs.body) {
       bodyPart = new SyntheticPartLeaf(aArgs.body.body, aArgs.body);
-    } // different messages should have a chance at different bodies
-    else {
+    } else {
+      // Different messages should have a chance at different bodies.
       bodyPart = new SyntheticPartLeaf("Hello " + msg.toName + "!");
     }
 

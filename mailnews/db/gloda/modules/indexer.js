@@ -858,8 +858,8 @@ var GlodaIndexer = {
         result = this._batch.next().value;
       } else if (args.length == 1) {
         result = this._batch.next(args[0]).value;
-      } // arguments works with destructuring assignment
-      else {
+      } else {
+        // Arguments works with destructuring assignment.
         result = this._batch.next(args).value;
       }
       switch (result) {
@@ -1011,9 +1011,8 @@ var GlodaIndexer = {
     // Do we still have an open transaction? If not, start a new one.
     if (!this._idleToCommit) {
       GlodaDatastore._beginTransaction();
-    }
-    // We'll manage commit ourself while this routine is active.
-    else {
+    } else {
+      // We'll manage commit ourself while this routine is active.
       this._idleToCommit = false;
     }
 

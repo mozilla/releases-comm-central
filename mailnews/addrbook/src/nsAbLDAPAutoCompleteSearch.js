@@ -342,11 +342,11 @@ nsAbLDAPAutoCompleteSearch.prototype = {
     this._addToResult(aCard);
 
     /* XXX autocomplete doesn't expect you to rearrange while searching
-    if (this._result.matchCount)
+    if (this._result.matchCount) {
       this._result.searchResult = ACR.RESULT_SUCCESS_ONGOING;
-    else
+    } else {
       this._result.searchResult = ACR.RESULT_NOMATCH_ONGOING;
-
+    }
     this._listener.onSearchResult(this, this._result);
     */
   },
